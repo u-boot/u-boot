@@ -233,7 +233,7 @@ struct mtk_ddr3_priv {
 	struct clk mem_mux;
 };
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static int mtk_ddr3_rank_size_detect(struct udevice *dev)
 {
 	struct mtk_ddr3_priv *priv = dev_get_priv(dev);
@@ -697,7 +697,7 @@ static int mtk_ddr3_probe(struct udevice *dev)
 	if (priv->dramc_ao == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	int ret;
 
 	ret = clk_get_by_index(dev, 0, &priv->phy);

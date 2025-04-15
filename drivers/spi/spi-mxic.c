@@ -366,8 +366,8 @@ static int mxic_spi_mem_exec_op(struct spi_slave *slave,
 		nio = 2;
 
 	writel(HC_CFG_NIO(nio) |
-	       HC_CFG_TYPE(slave_plat->cs, HC_CFG_TYPE_SPI_NOR) |
-	       HC_CFG_SLV_ACT(slave_plat->cs) | HC_CFG_IDLE_SIO_LVL(1) |
+	       HC_CFG_TYPE(slave_plat->cs[0], HC_CFG_TYPE_SPI_NOR) |
+	       HC_CFG_SLV_ACT(slave_plat->cs[0]) | HC_CFG_IDLE_SIO_LVL(1) |
 	       HC_CFG_MAN_CS_EN,
 	       priv->regs + HC_CFG);
 	writel(HC_EN_BIT, priv->regs + HC_EN);
@@ -396,7 +396,7 @@ static int mxic_spi_mem_exec_op(struct spi_slave *slave,
 			ss_ctrl |= OP_READ;
 	}
 
-	writel(ss_ctrl, priv->regs + SS_CTRL(slave_plat->cs));
+	writel(ss_ctrl, priv->regs + SS_CTRL(slave_plat->cs[0]));
 
 	writel(readl(priv->regs + HC_CFG) | HC_CFG_MAN_CS_ASSERT,
 	       priv->regs + HC_CFG);

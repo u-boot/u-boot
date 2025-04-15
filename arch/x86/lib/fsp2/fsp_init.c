@@ -25,7 +25,7 @@ int fsp_setup_pinctrl(void)
 	int ret;
 
 	/* Make sure pads are set up early in U-Boot */
-	if (!ll_boot_init() || spl_phase() != PHASE_BOARD_F)
+	if (!ll_boot_init() || xpl_phase() != PHASE_BOARD_F)
 		return 0;
 
 	/* Probe all pinctrl devices to set up the pads */
@@ -107,7 +107,6 @@ int fsp_locate_fsp(enum fsp_type_t type, struct binman_entry *entry,
 		   bool use_spi_flash, struct udevice **devp,
 		   struct fsp_header **hdrp, ulong *rom_offsetp)
 {
-	ulong mask = CONFIG_ROM_SIZE - 1;
 	struct udevice *dev;
 	ulong rom_offset = 0;
 	uint map_size;
@@ -134,14 +133,14 @@ int fsp_locate_fsp(enum fsp_type_t type, struct binman_entry *entry,
 			return log_msg_ret("Could not get flash mmap", ret);
 	}
 
-	if (spl_phase() >= PHASE_BOARD_F) {
+	if (xpl_phase() >= PHASE_BOARD_F) {
 		if (type != FSP_S)
 			return -EPROTONOSUPPORT;
 		ret = binman_entry_find("intel-fsp-s", entry);
 		if (ret)
 			return log_msg_ret("binman entry", ret);
 		if (!use_spi_flash)
-			rom_offset = (map_base & mask) - CONFIG_ROM_SIZE;
+			rom_offset = map_base + CONFIG_ROM_SIZE;
 	} else {
 		ret = -ENOENT;
 		if (false)

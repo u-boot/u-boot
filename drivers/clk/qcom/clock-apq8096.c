@@ -83,11 +83,12 @@ static ulong apq8096_clk_set_rate(struct clk *clk, ulong rate)
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
 
 	switch (clk->id) {
-	case GCC_SDCC1_APPS_CLK: /* SDC1 */
+	case GCC_SDCC2_APPS_CLK: /* SDC2 */
 		return clk_init_sdc(priv, rate);
 		break;
 	case GCC_BLSP2_UART2_APPS_CLK: /*UART2*/
-		return clk_init_uart(priv);
+		clk_init_uart(priv);
+		return 7372800;
 	default:
 		return 0;
 	}

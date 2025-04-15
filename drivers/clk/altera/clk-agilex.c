@@ -242,7 +242,7 @@ static void clk_basic_init(struct udevice *dev,
 	if (!cfg)
 		return;
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/* Always force clock manager into boot mode before any configuration */
 	clk_write_ctrl(plat,
 		       CM_REG_READL(plat, CLKMGR_CTRL) | CLKMGR_CTRL_BOOTMODE);

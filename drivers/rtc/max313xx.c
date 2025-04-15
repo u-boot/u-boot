@@ -285,7 +285,7 @@ static int max313xx_set_time(struct udevice *dev, const struct rtc_time *t)
 	regs[5] = bin2bcd(t->tm_mon);
 	regs[6] = bin2bcd((t->tm_year - 2000) % 100);
 
-	if ((t->tm_year - 2000) >= 200)
+	if (t->tm_year >= 2100)
 		regs[5] |= FIELD_PREP(MAX313XX_MONTH_CENTURY, 1);
 
 	ret = dm_i2c_write(dev, rtc->chip->sec_reg, regs, 7);
@@ -307,6 +307,11 @@ static int max313xx_set_time(struct udevice *dev, const struct rtc_time *t)
 		if (ret)
 			return ret;
 
+		break;
+	case ID_MAX31343:
+		/* Time is not updated for 1 second after writing */
+		/* Sleep here so the date command shows the new time */
+		mdelay(1000);
 		break;
 	default:
 		break;

@@ -7,6 +7,7 @@
 #include <config.h>
 #include <debug_uart.h>
 #include <dfu.h>
+#include <efi_loader.h>
 #include <init.h>
 #include <log.h>
 #include <dm/uclass.h>
@@ -27,7 +28,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DEBUG_UART_BOARD_INIT)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_DEBUG_UART_BOARD_INIT)
 void board_debug_uart_init(void)
 {
 	/* Add initialization sequence if UART is not configured */
@@ -36,7 +37,7 @@ void board_debug_uart_init(void)
 
 int board_init(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		printf("Silicon version:\t%d\n", zynq_get_silicon_version());
 
 	if (CONFIG_IS_ENABLED(DM_I2C) && CONFIG_IS_ENABLED(I2C_EEPROM))
@@ -51,6 +52,9 @@ int board_late_init(void)
 	const char *mode;
 	char *new_targets;
 	char *env_targets;
+
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
+		configure_capsule_updates();
 
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
 		debug("Saved variables - Skipping\n");
@@ -165,20 +169,16 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	}
 }
 
-#if defined(CONFIG_SET_DFU_ALT_INFO)
-
 #define DFU_ALT_BUF_LEN                SZ_1K
 
-void set_dfu_alt_info(char *interface, char *devstr)
+void configure_capsule_updates(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
-
-	if (env_get("dfu_alt_info"))
-		return;
 
 	memset(buf, 0, sizeof(buf));
 
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
+#if defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME)
 	case ZYNQ_BM_SD:
 		snprintf(buf, DFU_ALT_BUF_LEN,
 			 "mmc 0=boot.bin fat 0 1;"
@@ -193,11 +193,11 @@ void set_dfu_alt_info(char *interface, char *devstr)
 			 CONFIG_SYS_SPI_U_BOOT_OFFS);
 		break;
 #endif
+#endif
 	default:
 		return;
 	}
 
-	env_set("dfu_alt_info", buf);
-	puts("DFU alt info setting: done\n");
+	update_info.dfu_string = strdup(buf);
+	debug("Capsule DFU: %s\n", update_info.dfu_string);
 }
-#endif

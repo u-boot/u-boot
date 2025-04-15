@@ -913,6 +913,7 @@ struct atmel_pmecc *devm_atmel_pmecc_get(struct udevice *userdev)
 	ret = ofnode_parse_phandle_with_args(userdev->node_,
 					     "ecc-engine",
 					     NULL, 0, 0, &args);
+	/* Probe pmecc driver */
 	ret = uclass_get_device_by_ofnode(UCLASS_MTD, args.node, &pdev);
 	if (ret)
 		return NULL;

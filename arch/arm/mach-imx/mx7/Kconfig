@@ -17,13 +17,6 @@ config MX7D
 	select ROM_UNIFIED_SECTIONS
 	imply CMD_FUSE
 
-config TEXT_BASE
-	default 0x87800000
-
-config SPL_TEXT_BASE
-	depends on SPL
-	default 0x00912000
-
 choice
 	prompt "MX7 board select"
 	optional

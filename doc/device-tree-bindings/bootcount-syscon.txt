@@ -1,6 +1,6 @@
 Bootcount Configuration
 This is the implementation of the feature as described in
-https://www.denx.de/wiki/DULG/UBootBootCountLimit.
+https://docs.u-boot.org/en/latest/api/bootcount.html
 
 Required Properties:
 - compatible: must be "u-boot,bootcount-syscon".

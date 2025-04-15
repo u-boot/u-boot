@@ -11,8 +11,8 @@
 #include <dm.h>
 #include <memalign.h>
 #include <mmc.h>
+#include <usb.h>
 #include <linux/log2.h>
-#include <test/suites.h>
 #include <test/ut.h>
 #include <u-boot/crc.h>
 #include "bootstd_common.h"
@@ -20,8 +20,14 @@
 /* tracks whether bootstd_setup_for_tests() has been run yet */
 bool vbe_setup_done;
 
-/* set up MMC for VBE tests */
-int bootstd_setup_for_tests(void)
+/**
+ * bootstd_setup_for_tests() - Set up MMC data for VBE tests
+ *
+ * Some data is needed for VBE tests to work. This function sets that up.
+ *
+ * @return 0 if OK, -ve on error
+ */
+static int bootstd_setup_for_tests(struct unit_test_state *uts)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, MMC_MAX_BLOCK_LEN);
 	struct udevice *mmc;
@@ -54,6 +60,7 @@ int bootstd_setup_for_tests(void)
 
 	return 0;
 }
+BOOTSTD_TEST_INIT(bootstd_setup_for_tests, 0);
 
 int bootstd_test_drop_bootdev_order(struct unit_test_state *uts)
 {
@@ -88,18 +95,7 @@ int bootstd_test_check_mmc_hunter(struct unit_test_state *uts)
 	return 0;
 }
 
-int do_ut_bootstd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+void bootstd_reset_usb(void)
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(bootstd_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(bootstd_test);
-	int ret;
-
-	ret = bootstd_setup_for_tests();
-	if (ret) {
-		printf("Failed to set up for bootstd tests (err=%d)\n", ret);
-		return CMD_RET_FAILURE;
-	}
-
-	return cmd_ut_category("bootstd", "bootstd_test_",
-			       tests, n_ents, argc, argv);
+	usb_started = false;
 }

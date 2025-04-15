@@ -58,7 +58,7 @@ reset:
 .globl	save_boot_params_ret
 save_boot_params_ret:
 
-#if CONFIG_POSITION_INDEPENDENT && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_POSITION_INDEPENDENT && !defined(CONFIG_XPL_BUILD)
 	/* Verify that we're 4K aligned.  */
 	adr	x0, _start
 	ands	x0, x0, #0xfff
@@ -104,7 +104,7 @@ pie_skip_reloc:
 pie_fixup_done:
 #endif
 
-#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_XPL_BUILD)
 .macro	set_vbar, regname, reg
 	msr	\regname, \reg
 .endm
@@ -174,9 +174,21 @@ pie_fixup_done:
 	/* Processor specific initialization */
 	bl	lowlevel_init
 
-#if defined(CONFIG_ARMV8_SPIN_TABLE) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_ARMV8_SPIN_TABLE) && !defined(CONFIG_XPL_BUILD)
 	branch_if_master x0, master_cpu
 	b	spin_table_secondary_jump
+	/* never return */
+#elif defined(CONFIG_ACPI_PARKING_PROTOCOL) && !defined(CONFIG_SPL_BUILD)
+	branch_if_master x0, master_cpu
+	/*
+	 * Waits for ACPI parking protocol memory to be allocated and the spin-table
+	 * code to be written. Once ready the secondary CPUs will jump and spin in
+	 * their own 4KiB memory region, which is also used as mailbox, until released
+	 * by the OS.
+	 * The mechanism is similar to the DT enable-method = "spin-table", but works
+	 * with ACPI enabled platforms.
+	 */
+	b	acpi_pp_secondary_jump
 	/* never return */
 #elif defined(CONFIG_ARMV8_MULTIENTRY)
 	branch_if_master x0, master_cpu
@@ -322,6 +334,9 @@ WEAK(lowlevel_init)
 	/*
 	 * All slaves will enter EL2 and optionally EL1.
 	 */
+#if defined(CONFIG_ARMV8_PSCI) && !defined(CONFIG_XPL_BUILD)
+        bl      psci_setup_vectors
+#endif
 	adr	x4, lowlevel_in_el2
 	ldr	x5, =ES_TO_AARCH64
 	bl	armv8_switch_to_el2
@@ -354,7 +369,7 @@ ENDPROC(smp_kick_all_cpus)
 /*-----------------------------------------------------------------------*/
 
 ENTRY(c_runtime_cpu_setup)
-#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_XPL_BUILD)
 	/* Relocate vBAR */
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f

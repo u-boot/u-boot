@@ -10,6 +10,7 @@
 #include <efi_loader.h>
 #include <init.h>
 #include <spl.h>
+#include <asm/arch/k3-ddr.h>
 #include "../common/fdt_ops.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -39,28 +40,22 @@ struct efi_capsule_update_info update_info = {
 	.images = fw_images,
 };
 
-#if IS_ENABLED(CONFIG_SET_DFU_ALT_INFO)
-void set_dfu_alt_info(char *interface, char *devstr)
-{
-	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
-		env_set("dfu_alt_info", update_info.dfu_string);
-}
-#endif
-
 int board_init(void)
 {
 	return 0;
 }
 
-int dram_init(void)
+#if defined(CONFIG_XPL_BUILD)
+void spl_perform_fixups(struct spl_image_info *spl_image)
 {
-	return fdtdec_setup_mem_size_base();
+	if (IS_ENABLED(CONFIG_K3_DDRSS)) {
+		if (IS_ENABLED(CONFIG_K3_INLINE_ECC))
+			fixup_ddr_driver_for_ecc(spl_image);
+	} else {
+		fixup_memory_node(spl_image);
+	}
 }
-
-int dram_init_banksize(void)
-{
-	return fdtdec_setup_memory_banksize();
-}
+#endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)

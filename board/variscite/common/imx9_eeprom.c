@@ -83,7 +83,7 @@ int var_eeprom_get_dram_size(struct var_eeprom *ep, phys_size_t *size)
 
 void var_eeprom_print_prod_info(struct var_eeprom *ep)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		return;
 
 	flush_dcache_all();

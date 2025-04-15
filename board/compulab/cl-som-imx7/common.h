@@ -18,7 +18,7 @@ PADS_SET_PROT(uart1_pads);
 PADS_SET_PROT(espi1_pads);
 #endif /* CONFIG_SPI */
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #ifdef CONFIG_FSL_ESDHC_IMX
 PADS_SET_PROT(usdhc3_emmc_pads);
 #endif /* CONFIG_FSL_ESDHC_IMX */
@@ -28,4 +28,4 @@ PADS_SET_PROT(fec1_pads);
 #endif /* CONFIG_FEC_MXC */
 PADS_SET_PROT(usb_otg1_pads);
 PADS_SET_PROT(wdog_pads);
-#endif /* !CONFIG_SPL_BUILD */
+#endif /* !CONFIG_XPL_BUILD */

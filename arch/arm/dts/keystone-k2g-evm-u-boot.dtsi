@@ -4,20 +4,34 @@
  */
 
 /{
-	soc {
-		bootph-all;
-	};
 	aliases {
 		usb0 = &usb0;
 		usb1 = &usb1;
 	};
+
+	chosen {
+		stdout-path = &uart0;
+	};
+};
+
+&soc0 {
+	bootph-all;
+
+	pmmc@2900000 {
+		bootph-all;
+		compatible = "ti,power-processor";
+		reg = <0x02900000 0x40000>;
+		ti,lpsc_module = <1>;
+	};
 };
 
 &i2c0 {
+	status = "okay";
 	bootph-all;
 };
 
 &i2c1 {
+	status = "okay";
 	bootph-all;
 };
 

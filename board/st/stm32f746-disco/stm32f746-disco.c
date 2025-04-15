@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	int rv;
 	struct udevice *dev;
 	rv = uclass_get_device(UCLASS_RAM, 0, &dev);
@@ -45,7 +45,7 @@ int dram_init_banksize(void)
 	return fdtdec_setup_memory_banksize();
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
@@ -75,42 +75,6 @@ u32 spl_boot_device(void)
 	return BOOT_DEVICE_XIP;
 }
 #endif
-
-int board_late_init(void)
-{
-	struct gpio_desc gpio = {};
-	int node;
-
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, 0, "st,led1");
-	if (node < 0)
-		return -1;
-
-	gpio_request_by_name_nodev(offset_to_ofnode(node), "led-gpio", 0, &gpio,
-				   GPIOD_IS_OUT);
-
-	if (dm_gpio_is_valid(&gpio)) {
-		dm_gpio_set_value(&gpio, 0);
-		mdelay(10);
-		dm_gpio_set_value(&gpio, 1);
-	}
-
-	/* read button 1*/
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, 0, "st,button1");
-	if (node < 0)
-		return -1;
-
-	gpio_request_by_name_nodev(offset_to_ofnode(node), "button-gpio", 0,
-				   &gpio, GPIOD_IS_IN);
-
-	if (dm_gpio_is_valid(&gpio)) {
-		if (dm_gpio_get_value(&gpio))
-			puts("usr button is at HIGH LEVEL\n");
-		else
-			puts("usr button is at LOW LEVEL\n");
-	}
-
-	return 0;
-}
 
 int board_init(void)
 {

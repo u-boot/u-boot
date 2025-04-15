@@ -6,14 +6,13 @@ menuconfig BOOTCOUNT_LIMIT
 	bool "Enable support for checking boot count limit"
 	help
 	  Enable checking for exceeding the boot count limit.
-	  More information: http://www.denx.de/wiki/DULG/UBootBootCountLimit
+	  More information: https://docs.u-boot.org/en/latest/api/bootcount.html
 
 if BOOTCOUNT_LIMIT
 
 choice
 	prompt "Boot count device"
 	default BOOTCOUNT_AM33XX if AM33XX || SOC_DA8XX
-	default BOOTCOUNT_AT91 if AT91SAM9XE
 	default BOOTCOUNT_GENERIC
 
 config BOOTCOUNT_GENERIC
@@ -165,6 +164,13 @@ config DM_BOOTCOUNT_SYSCON
 
 	  Accessing the backend is done using the regmap interface.
 
+config DM_BOOTCOUNT_ZYNQMP
+	bool "Support ZynqMP PMUFW as a backing store for bootcount"
+	depends on ARCH_ZYNQMP
+	help
+	  Enable support for the bootcount API by utilising the Persistent
+	  Global General Storage Register 2 of the PMU.
+
 endmenu
 
 endif
@@ -176,6 +182,9 @@ config BOOTCOUNT_BOOTLIMIT
 	  Set the Maximum number of reboot cycles allowed without the boot
 	  counter being cleared.
 	  If set to 0, do not set a boot limit in the environment.
+
+config BOOTCOUNT_ALTBOOTCMD
+	string "Alternative boot command when BOOTLIMIT is reached"
 
 config SYS_BOOTCOUNT_SINGLEWORD
 	bool "Use single word to pack boot count and magic value"

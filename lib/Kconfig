@@ -45,6 +45,15 @@ config BINMAN_FDT
 	  locate entries in the firmware image. See binman.h for the available
 	  functionality.
 
+config BINMAN_DTB
+	string "binman DTB description"
+	depends on BINMAN
+	help
+	  This enables option to point to different DTB file with binman node which
+	  is outside of DTB used by the firmware. Use this option if information
+	  about generated images shouldn't be the part of target binary. Or on system
+	  with limited storage.
+
 config CC_OPTIMIZE_LIBS_FOR_SPEED
 	bool "Optimize libraries for speed"
 	help
@@ -73,6 +82,7 @@ config HAVE_PRIVATE_LIBGCC
 
 config LIB_UUID
 	bool
+	select SHA1
 
 config RANDOM_UUID
 	bool "GPT Random UUID generation"
@@ -307,12 +317,29 @@ config SPL_ACPI
 config GENERATE_ACPI_TABLE
 	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
 	depends on ACPI
+	select BLOBLIST
 	select QFW if QEMU
 	help
 	  The Advanced Configuration and Power Interface (ACPI) specification
 	  provides an open standard for device configuration and management
 	  by the operating system. It defines platform-independent interfaces
 	  for configuration and power management monitoring.
+
+config ACPI_PARKING_PROTOCOL
+	bool "Support ACPI parking protocol method"
+	depends on GENERATE_ACPI_TABLE
+	depends on ARMV8_MULTIENTRY
+	depends on BLOBLIST_TABLES
+	default y if !SEC_FIRMWARE_ARMV8_PSCI && !ARMV8_PSCI
+	help
+	  Say Y here to support "ACPI parking protocol" enable method
+	  for booting Linux.
+
+	  To use this feature, you must do:
+	    - Bring secondary CPUs into U-Boot proper in a board-specific
+	      manner.  This must be done *after* relocation.  Otherwise, the
+	      secondary CPUs will spin in unprotected memory-area because the
+	      master CPU protects the relocated spin code.
 
 config SPL_TINY_MEMSET
 	bool "Use a very small memset() in SPL"
@@ -403,7 +430,7 @@ config TRACE_EARLY_CALL_DEPTH_LIMIT
 config TRACE_EARLY_ADDR
 	hex "Address of early trace buffer in U-Boot"
 	depends on TRACE_EARLY
-	default 0x00100000
+	default 0x00200000
 	help
 	  Sets the address of the early trace buffer in U-Boot. This memory
 	  must be accessible before relocation.
@@ -417,6 +444,12 @@ config CIRCBUF
 	bool "Enable circular buffer support"
 
 source "lib/dhry/Kconfig"
+
+menu "Alternative crypto libraries"
+
+source "lib/mbedtls/Kconfig"
+
+endmenu
 
 menu "Security support"
 
@@ -483,6 +516,18 @@ config VPL_TPM
 	  command to interactive the TPM. Driver model support is provided
 	  for the low-level TPM interface, but only one TPM is supported at
 	  a time by the TPM library.
+
+config TPM_PCR_ALLOCATE
+	bool "Re-configurate TPM algorithms in run-time (PCR allocate)"
+	depends on TPM_V2 && (MEASURED_BOOT || EFI_TCG2_PROTOCOL)
+	help
+	  This enables a detection for the dismatches of algorithms among TPM
+	  device, eventlog from previous boot stage and U-Boot support.
+	  A PCR allocate command will be sent to reconfigurate the TPM device
+	  in run-time to make sure algorithms in TPM device, eventlog and
+	  U-Boot are aligned with each other.
+	  A system reboot will be proceeded after then to activate the new
+	  algorithms.
 
 endmenu
 
@@ -698,6 +743,34 @@ config SPL_CRC8
 	  checksum with feedback to produce an 8-bit result. The code is small
 	  and it does not require a lookup table (unlike CRC32).
 
+config TPL_CRC8
+	bool "Support CRC8 in TPL"
+	depends on TPL
+	help
+	  Enables CRC8 support in TPL. This is not normally required. CRC8 is
+	  a simple and fast checksumming algorithm which does a bytewise
+	  checksum with feedback to produce an 8-bit result. The code is small
+	  and it does not require a lookup table (unlike CRC32).
+
+config VPL_CRC8
+	bool "Support CRC8 in VPL"
+	depends on VPL
+	help
+	  Enables CRC8 support in VPL. This is not normally required. CRC8 is
+	  a simple and fast checksumming algorithm which does a bytewise
+	  checksum with feedback to produce an 8-bit result. The code is small
+	  and it does not require a lookup table (unlike CRC32).
+
+config CRC16
+	bool "Support CRC16"
+	default y
+	help
+	  Enables CRC16 support. This is normally required. Two algorithms are
+	  provided:
+
+	    - CCITT, with a polynomical x^16 + x^12 + x^5 + 1
+	    - standard, with polynomial x^16 + x^15 + x^2 + 1 (0x8005)
+
 config SPL_CRC16
 	bool "Support CRC16 in SPL"
 	depends on SPL
@@ -811,11 +884,35 @@ config SPL_LZ4
 	  fast compression and decompression speed. It belongs to the LZ77
 	  family of byte-oriented compression schemes.
 
+config TPL_LZ4
+	bool "Enable LZ4 decompression support in TPL"
+	depends on TPL
+	help
+	  This enables support for the LZ4 decompression algorithm in TPL. LZ4
+	  is a lossless data compression algorithm that is focused on
+	  fast compression and decompression speed. It belongs to the LZ77
+	  family of byte-oriented compression schemes.
+
+config VPL_LZ4
+	bool "Enable LZ4 decompression support in VPL"
+	depends on VPL
+	help
+	  This enables support for the LZ4 decompression algorithm in VPL. LZ4
+	  is a lossless data compression algorithm that is focused on
+	  fast compression and decompression speed. It belongs to the LZ77
+	  family of byte-oriented compression schemes.
+
 config SPL_LZMA
 	bool "Enable LZMA decompression support for SPL build"
 	depends on SPL
 	help
 	  This enables support for LZMA compression algorithm for SPL boot.
+
+config TPL_LZMA
+	bool "Enable LZMA decompression support for TPL build"
+	depends on TPL
+	help
+	  This enables support for LZMA compression algorithm for TPL boot.
 
 config VPL_LZMA
 	bool "Enable LZMA decompression support for VPL build"
@@ -835,10 +932,21 @@ config SPL_GZIP
 	help
 	  This enables support for the GZIP compression algorithm for SPL boot.
 
+config TPL_GZIP
+	bool "Enable gzip decompression support for SPL build"
+	select TPL_ZLIB
+	help
+	  This enables support for the GZIP compression algorithm for TPL
+
 config SPL_ZLIB
 	bool
 	help
 	  This enables compression lib for SPL boot.
+
+config TPL_ZLIB
+	bool
+	help
+	  This enables compression lib for TPL
 
 config SPL_ZSTD
 	bool "Enable Zstandard decompression support in SPL"
@@ -903,14 +1011,14 @@ config OF_LIBFDT_OVERLAY
 	  This enables the FDT library (libfdt) overlay support.
 
 config SYS_FDT_PAD
-	hex "Maximum size of the FDT memory area passeed to the OS"
+	hex "Free space added to device-tree before booting"
 	depends on OF_LIBFDT
 	default 0x13000 if FMAN_ENET || QE || U_QE
 	default 0x3000
 	help
-	  During OS boot, we allocate a region of memory within the bootmap
-	  for the FDT. This is the size that we will expand the FDT that we
-	  are using will be extended to be, in bytes.
+	  The operating system may need a free area at the end of the device-
+	  tree for fix-ups. This setting defines by how many bytes U-Boot
+	  extends the device-tree before booting.
 
 config SPL_OF_LIBFDT
 	bool "Enable the FDT library for SPL"
@@ -983,12 +1091,16 @@ menu "System tables"
 
 config BLOBLIST_TABLES
 	bool "Put tables in a bloblist"
-	depends on X86 && BLOBLIST
+	depends on BLOBLIST
+	default y if X86
+	default y if (ARM && EFI_LOADER && GENERATE_ACPI_TABLE)
+	default n
 	help
-	  Normally tables are placed at address 0xf0000 and can be up to 64KB
-	  long. With this option, tables are instead placed in the bloblist
-	  with a pointer from 0xf0000. The size can then be larger and the
-	  tables can be placed high in memory.
+	  On x86 normally tables are placed at address 0xf0000 and can be up
+	  to 64KB long. With this option, tables are instead placed in the
+	  bloblist with a pointer from 0xf0000. The size can then be larger
+	  and the tables can be placed high in memory.
+	  On other architectures the tables are always placed in high memory.
 
 config GENERATE_SMBIOS_TABLE
 	bool "Generate an SMBIOS (System Management BIOS) table"
@@ -1004,6 +1116,12 @@ config GENERATE_SMBIOS_TABLE
 
 	  See also SYSINFO_SMBIOS which allows SMBIOS values to be provided in
 	  the devicetree.
+
+config GENERATE_SMBIOS_TABLE_VERBOSE
+	bool "Generate a verbose SMBIOS (System Management BIOS) table"
+	depends on GENERATE_SMBIOS_TABLE
+	help
+	  Provide verbose SMBIOS information.
 
 endmenu
 
@@ -1081,8 +1199,6 @@ config SMBIOS_PARSER
 	help
 	  A simple parser for SMBIOS data.
 
-source "lib/efi/Kconfig"
-source "lib/efi_loader/Kconfig"
 source "lib/optee/Kconfig"
 
 config TEST_FDTDEC
@@ -1102,42 +1218,38 @@ config LMB
 	bool "Enable the logical memory blocks library (lmb)"
 	default y if ARC || ARM || M68K || MICROBLAZE || MIPS || \
 		     NIOS2 || PPC || RISCV || SANDBOX || SH || X86 || XTENSA
+	select ARCH_MISC_INIT if PPC
 	help
-	  Support the library logical memory blocks.
+	  Support the library logical memory blocks. This will require
+	  a malloc() implementation for defining the data structures
+	  needed for maintaining the LMB memory map.
 
-config LMB_USE_MAX_REGIONS
-	bool "Use a common number of memory and reserved regions in lmb lib"
-	default y
+config SPL_LMB
+	bool "Enable LMB module for SPL"
+	depends on SPL && SPL_FRAMEWORK && SPL_SYS_MALLOC
 	help
-	  Define the number of supported memory regions in the library logical
-	  memory blocks.
-	  This feature allow to reduce the lmb library size by using compiler
-	  optimization when LMB_MEMORY_REGIONS == LMB_RESERVED_REGIONS.
+	  Enable support for Logical Memory Block library routines in
+	  SPL. This will require a malloc() implementation for defining
+	  the data structures needed for maintaining the LMB memory map.
 
-config LMB_MAX_REGIONS
-	int "Number of memory and reserved regions in lmb lib"
-	depends on LMB_USE_MAX_REGIONS
-	default 16
+config LMB_ARCH_MEM_MAP
+	bool "Add an architecture specific memory map"
+	depends on LMB
+	default y if FSL_LAYERSCAPE || X86
 	help
-	  Define the number of supported regions, memory and reserved, in the
-	  library logical memory blocks.
+	  Some architectures have special or unique aspects which need
+	  consideration when adding memory ranges to the list of available
+	  memory map. Enable this config in such scenarios which allow
+	  architectures and boards to define their own memory map.
 
-config LMB_MEMORY_REGIONS
-	int "Number of memory regions in lmb lib"
-	depends on !LMB_USE_MAX_REGIONS
-	default 8
+config SPL_LMB_ARCH_MEM_MAP
+	bool "Add an architecture specific memory map"
+	depends on SPL_LMB
 	help
-	  Define the number of supported memory regions in the library logical
-	  memory blocks.
-	  The minimal value is CONFIG_NR_DRAM_BANKS.
-
-config LMB_RESERVED_REGIONS
-	int "Number of reserved regions in lmb lib"
-	depends on !LMB_USE_MAX_REGIONS
-	default 8
-	help
-	  Define the number of supported reserved regions in the library logical
-	  memory blocks.
+	  Some architectures have special or unique scenarios which need
+	  consideration when adding memory ranges to the list of available
+	  memory map. Enable this config in such scenarios which allow
+	  architectures and boards to define their own memory map.
 
 config PHANDLE_CHECK_SEQ
 	bool "Enable phandle check while getting sequence number"

@@ -9,5 +9,9 @@
 		dc@54200000 {
 			bootph-all;
 		};
+
+		dc@54240000 {
+			bootph-all;
+		};
 	};
 };

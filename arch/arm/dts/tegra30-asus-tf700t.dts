@@ -15,7 +15,14 @@
 			rgb {
 				status = "okay";
 
-				nvidia,panel = <&tc358768>;
+				/delete-property/ nvidia,panel;
+
+				port {
+					dpi_output: endpoint {
+						remote-endpoint = <&bridge_input>;
+						bus-width = <24>;
+					};
+				};
 			};
 		};
 	};
@@ -118,38 +125,69 @@
 				vddio-supply = <&vdd_1v8_vio>;
 				vddmipi-supply = <&vdd_1v2_mipi>;
 
-				panel = <&panel>;
+				/*
+				 * Panasonic VVX10F004B00 or HYDIS HV101WU1-1E1
+				 * LCD SuperIPS+ Full HD panel.
+				 */
+				panel@1 {
+					compatible = "panasonic,vvx10f004b00";
+					reg = <1>;
+
+					power-supply = <&vdd_pnl_reg>;
+					backlight = <&backlight>;
+
+					display-timings {
+						timing@0 {
+							/* 1920x1200@60Hz */
+							clock-frequency = <154000000>;
+
+							hactive = <1920>;
+							hfront-porch = <48>;
+							hback-porch = <80>;
+							hsync-len = <32>;
+							hsync-active = <1>;
+
+							vactive = <1200>;
+							vfront-porch = <3>;
+							vback-porch = <26>;
+							vsync-len = <6>;
+							vsync-active = <1>;
+						};
+					};
+
+					port {
+						panel_input: endpoint {
+							remote-endpoint = <&bridge_output>;
+						};
+					};
+				};
+
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					port@0 {
+						reg = <0>;
+
+						bridge_input: endpoint {
+							remote-endpoint = <&dpi_output>;
+							bus-width = <24>;
+						};
+					};
+
+					port@1 {
+						reg = <1>;
+
+						bridge_output: endpoint {
+							remote-endpoint = <&panel_input>;
+						};
+					};
+				};
 			};
 		};
 	};
 
-	panel: panel {
-		compatible = "panasonic,vvx10f004b00";
-
-		power-supply = <&vdd_pnl_reg>;
-		backlight = <&backlight>;
-
-		/delete-property/ enable-gpios;
-
-		display-timings {
-			timing@0 {
-				/* 1920x1200@60Hz */
-				clock-frequency = <154000000>;
-
-				hactive = <1920>;
-				hfront-porch = <48>;
-				hback-porch = <80>;
-				hsync-len = <32>;
-				hsync-active = <1>;
-
-				vactive = <1200>;
-				vfront-porch = <3>;
-				vback-porch = <26>;
-				vsync-len = <6>;
-				vsync-active = <1>;
-			};
-		};
-	};
+	/delete-node/ panel;
 
 	vdd_1v2_mipi: regulator-mipi {
 		compatible = "regulator-fixed";

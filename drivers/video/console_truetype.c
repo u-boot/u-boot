@@ -802,7 +802,7 @@ static int truetype_entry_save(struct udevice *dev, struct abuf *buf)
 	struct console_tt_store store;
 	const uint size = sizeof(store);
 
-	if (spl_phase() <= PHASE_SPL)
+	if (xpl_phase() <= PHASE_SPL)
 		return -ENOSYS;
 
 	/*
@@ -826,7 +826,7 @@ static int truetype_entry_restore(struct udevice *dev, struct abuf *buf)
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_store store;
 
-	if (spl_phase() <= PHASE_SPL)
+	if (xpl_phase() <= PHASE_SPL)
 		return -ENOSYS;
 
 	memcpy(&store, abuf_data(buf), sizeof(store));
@@ -853,7 +853,7 @@ static int truetype_set_cursor_visible(struct udevice *dev, bool visible,
 	uint out, val;
 	int ret;
 
-	if (spl_phase() <= PHASE_SPL)
+	if (xpl_phase() <= PHASE_SPL)
 		return -ENOSYS;
 
 	if (!visible)

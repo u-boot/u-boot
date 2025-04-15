@@ -112,6 +112,8 @@ class Entry_pre_load(Entry_collection):
         # Compute the signature
         if padding_name is None:
             padding_name = "pkcs-1.5"
+        padding = None
+        padding_args = None
         if padding_name == "pss":
             salt_len = key.size_in_bytes() - hash_image.digest_size - 2
             padding = pss

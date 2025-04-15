@@ -26,6 +26,7 @@
 	"scriptaddr=0x88100000\0" \
 	"pxefile_addr_r=0x88200000\0" \
 	"ramdisk_addr_r=0x88300000\0" \
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	BOOTENV
 
 #endif /* __CONFIG_H */

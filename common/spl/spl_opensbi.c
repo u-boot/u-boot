@@ -57,6 +57,11 @@ void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image)
 		hang();
 	}
 
+	if (!IS_ALIGNED((uintptr_t)spl_image->fdt_addr, 8)) {
+		pr_err("SPL image loaded an improperly-aligned device tree\n");
+		hang();
+	}
+
 	/*
 	 * Originally, u-boot-spl will place DTB directly after the kernel,
 	 * but the size of the kernel did not include the BSS section, which

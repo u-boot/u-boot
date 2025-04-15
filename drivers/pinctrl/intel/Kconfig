@@ -8,9 +8,6 @@ config INTEL_PINCTRL_DUAL_ROUTE_SUPPORT
 	bool
 	default y
 
-config INTEL_PINCTRL_PADCFG_PADTOL
-	bool n
-
 config INTEL_PINCTRL_IOSTANDBY
 	bool
 	default y

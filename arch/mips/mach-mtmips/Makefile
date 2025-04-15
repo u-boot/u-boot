@@ -5,7 +5,7 @@ obj-y += cpu.o
 ifneq ($(CONFIG_SOC_MT7621),y)
 obj-y += ddr_init.o
 obj-y += ddr_cal.o
-obj-$(CONFIG_SPL_BUILD) += spl.o
+obj-$(CONFIG_XPL_BUILD) += spl.o
 endif
 
 obj-$(CONFIG_SOC_MT7620) += mt7620/

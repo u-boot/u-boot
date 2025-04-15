@@ -12,7 +12,9 @@
 
 /* PCI function IDs */
 #define PCI_DEVICE_ID_ENETC_ETH		0xE100
+#define PCI_DEVICE_ID_ENETC4_ETH	0xE101
 #define PCI_DEVICE_ID_ENETC_MDIO	0xEE01
+#define PCI_DEVICE_ID_ENETC4_EMDIO	0xEE00
 
 /* ENETC Ethernet controller registers */
 /* Station interface register offsets */
@@ -22,7 +24,8 @@
 /* write cache cfg: snoop, no allocate, data & BD coherent */
 #define  ENETC_SICAR_WR_CFG	0x6767
 /* read cache cfg: coherent copy, look up, don't alloc in cache */
-#define  ENETC_SICAR_RD_CFG	0x27270000
+#define  ENETC_SICAR_RD_CFG_LS	0x27270000
+#define  ENETC_SICAR_RD_CFG_IMX	0x2b2b0000
 #define ENETC_SIROCT		0x300
 #define ENETC_SIRFRM		0x308
 #define ENETC_SITOCT		0x320
@@ -57,32 +60,60 @@ enum enetc_bdr_type {TX, RX};
 #define ENETC_PORT_REGS_OFF		0x10000
 
 /* Port registers */
+#define ENETC_PMR_OFFSET_IMX		0x0010
+#define ENETC_PMR_OFFSET_LS		0x0000
 #define ENETC_PMR			0x0000
 #define  ENETC_PMR_SI0_EN		BIT(16)
 #define ENETC_PSIPMMR			0x0018
-#define ENETC_PSIPMAR0			0x0100
-#define ENETC_PSIPMAR1			0x0104
-#define ENETC_PCAPR0			0x0900
-#define  ENETC_PCAPRO_MDIO		BIT(11)
-#define ENETC_PSICFGR(n)		(0x0940 + (n) * 0x10)
-#define  ENETC_PSICFGR_SET_TXBDR(val)	((val) & 0xff)
-#define  ENETC_PSICFGR_SET_RXBDR(val)	(((val) & 0xff) << 16)
+#define ENETC_PSIPMARn_OFFSET_IMX	0x0000
+#define ENETC_PSIPMARn_OFFSET_LS	0x0080
+#define ENETC_PSIPMAR0			0x0080
+#define ENETC_PSIPMAR1			0x0084
+#define ENETC_PCAPR_OFFSET_IMX		0x4008
+#define ENETC_PCAPR_OFFSET_LS		0x0900
+#define ENETC_PCAPR0			0x0000
+#define ENETC_PCAPRO_MDIO		BIT(11)	/* LS only */
+#define ENETC_PCS_PROT			GENMASK(15, 0) /* IMX only */
+/* ENETC base registers */
+#define ENETC_PSICFGR_OFFSET_LS		0x0940
+#define ENETC_PSICFGR_SHIFT_LS		0x10
+#define ENETC_PSICFGR_OFFSET_IMX	0x2010
+#define ENETC_PSICFGR_SHIFT_IMX		0x80
+#define ENETC_PSICFGR(n, s)		((n) * (s))
+#define  ENETC_PSICFGR_SET_BDR(rx, tx)	(((rx) << 16) | (tx))
 /* MAC configuration */
-#define ENETC_PM_CC			0x8008
+#define ENETC_PM_OFFSET_IMX		0x5000
+#define ENETC_PM_OFFSET_LS		0x8000
+#define ENETC_PM_CC			0x0008
 #define  ENETC_PM_CC_DEFAULT		0x0810
-#define  ENETC_PM_CC_RX_TX_EN		0x8813
-#define ENETC_PM_MAXFRM			0x8014
+#define  ENETC_PM_CC_TXP_IMX		BIT(15)
+#define  ENETC_PM_CC_TXP_LS		BIT(11)
+#define  ENETC_PM_CC_PROMIS		BIT(4)
+#define  ENETC_PM_CC_TX			BIT(1)
+#define  ENETC_PM_CC_RX			BIT(0)
+#define ENETC_PM_MAXFRM			0x0014
 #define  ENETC_RX_MAXFRM_SIZE		PKTSIZE_ALIGN
-#define ENETC_PM_IMDIO_BASE		0x8030
-#define ENETC_PM_IF_MODE		0x8300
+#define ENETC_PM_IMDIO_BASE		0x0030
+#define ENETC_PM_IF_MODE		0x0300
 #define  ENETC_PM_IF_MODE_RG		BIT(2)
 #define  ENETC_PM_IF_MODE_AN_ENA	BIT(15)
 #define  ENETC_PM_IFM_SSP_MASK		GENMASK(14, 13)
 #define  ENETC_PM_IFM_SSP_1000		(2 << 13)
 #define  ENETC_PM_IFM_SSP_100		(0 << 13)
 #define  ENETC_PM_IFM_SSP_10		(1 << 13)
-#define  ENETC_PM_IFM_FULL_DPX		BIT(12)
-#define  ENETC_PM_IF_IFMODE_MASK	GENMASK(1, 0)
+#define  ENETC_PM_IFM_FULL_DPX_IMX	BIT(6)
+#define  ENETC_PM_IFM_FULL_DPX_LS	BIT(12)
+#define  ENETC_PM_IF_IFMODE_MASK_IMX	GENMASK(2, 0)
+#define  ENETC_PM_IF_IFMODE_MASK_LS	GENMASK(1, 0)
+
+/* i.MX95 specific registers */
+#define IMX95_ENETC_SIPMAR0		0x80
+#define IMX95_ENETC_SIPMAR1		0x84
+
+/* Port registers */
+#define IMX95_ENETC_PMAR0		0x4020
+#define IMX95_ENETC_PMAR1		0x4024
+#define ENETC_POR			0x4100
 
 /* buffer descriptors count must be multiple of 8 and aligned to 128 bytes */
 #define ENETC_BD_CNT		CONFIG_SYS_RX_ETH_BUFFER
@@ -163,25 +194,14 @@ struct enetc_priv {
 	struct phy_device *phy;
 };
 
-/* register accessors */
-#define enetc_read_reg(x)	readl((x))
-#define enetc_write_reg(x, val)	writel((val), (x))
-#define enetc_read(priv, off)	enetc_read_reg((priv)->regs_base + (off))
-#define enetc_write(priv, off, v) \
-			enetc_write_reg((priv)->regs_base + (off), v)
-
-/* port register accessors */
-#define enetc_port_regs(priv, off) ((priv)->port_regs + (off))
-#define enetc_read_port(priv, off) \
-			enetc_read_reg(enetc_port_regs((priv), (off)))
-#define enetc_write_port(priv, off, v) \
-			enetc_write_reg(enetc_port_regs((priv), (off)), v)
-
-/* BDR register accessors, see ENETC_BDR() */
-#define enetc_bdr_read(priv, t, n, off) \
-			enetc_read(priv, ENETC_BDR(t, n, off))
-#define enetc_bdr_write(priv, t, n, off, val) \
-			enetc_write(priv, ENETC_BDR(t, n, off), val)
+struct enetc_data {
+	/* Register layout offsets */
+	u16			reg_offset_pmr;
+	u16			reg_offset_psipmar;
+	u16			reg_offset_pcapr;
+	u16			reg_offset_psicfgr;
+	u16			reg_offset_mac;
+};
 
 /* PCS / internal SoC PHY ID, it defaults to 0 on all interfaces */
 #define ENETC_PCS_PHY_ADDR	0

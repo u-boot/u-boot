@@ -444,7 +444,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* Assert CS before transfer */
 	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(dev, slave_plat->cs);
+		spi_cs_activate(dev, slave_plat->cs[0]);
 
 	/*
 	 * To ensure fast loading of firmware images (e.g. full U-Boot
@@ -507,7 +507,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* Deassert CS after transfer */
 	if (flags & SPI_XFER_END)
-		spi_cs_deactivate(dev, slave_plat->cs);
+		spi_cs_deactivate(dev, slave_plat->cs[0]);
 
 	rkspi_enable_chip(regs, false);
 	if (!out)

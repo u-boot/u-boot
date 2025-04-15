@@ -71,6 +71,27 @@ config POWEROFF_GPIO
 	  Support for system poweroff using a GPIO pin. This can be used
 	  for systems having a single GPIO to trigger a system poweroff.
 
+config SPL_POWEROFF_GPIO
+	bool "Enable support for GPIO poweroff driver in SPL"
+	depends on DM_GPIO && SPL
+	help
+	  Support for system poweroff using a GPIO pin in SPL. This can be used
+	  for systems having a single GPIO to trigger a system poweroff.
+
+config TPL_POWEROFF_GPIO
+	bool "Enable support for GPIO poweroff driver in TPL"
+	depends on DM_GPIO && TPL
+	help
+	  Support for system poweroff using a GPIO pin in TPL. This can be used
+	  for systems having a single GPIO to trigger a system poweroff.
+
+config VPL_POWEROFF_GPIO
+	bool "Enable support for GPIO poweroff driver in VPL"
+	depends on DM_GPIO && VPL
+	help
+	  Support for system poweroff using a GPIO pin in VPL. This can be used
+	  for systems having a single GPIO to trigger a system poweroff.
+
 config SYSRESET_GPIO
 	bool "Enable support for GPIO reset driver"
 	depends on DM_GPIO
@@ -78,6 +99,30 @@ config SYSRESET_GPIO
 	  Reset support via GPIO pin connected reset logic. This is used for
 	  example on Microblaze where reset logic can be controlled via GPIO
 	  pin which triggers cpu reset.
+
+config SPL_SYSRESET_GPIO
+	bool "Enable support for GPIO reset driver in SPL"
+	depends on DM_GPIO && SPL
+	help
+	  Reset support via GPIO pin connected reset logic in SPL. This is used
+	  for example on Microblaze where reset logic can be controlled via
+	  GPIO pin which triggers cpu reset.
+
+config TPL_SYSRESET_GPIO
+	bool "Enable support for GPIO reset driver in TPL"
+	depends on DM_GPIO && TPL
+	help
+	  Reset support via GPIO pin connected reset logic in TPL. This is used
+	  for example on Microblaze where reset logic can be controlled via
+	  GPIO pin which triggers cpu reset.
+
+config VPL_SYSRESET_GPIO
+	bool "Enable support for GPIO reset driver in VPL"
+	depends on DM_GPIO && VPL
+	help
+	  Reset support via GPIO pin connected reset logic in VPL. This is used
+	  for example on Microblaze where reset logic can be controlled via
+	  GPIO pin which triggers cpu reset.
 
 config SYSRESET_MAX77663
 	bool "Enable support for MAX77663 PMIC System Reset"
@@ -242,7 +287,6 @@ config SYSRESET_RAA215300
 
 config SYSRESET_QCOM_PSHOLD
 	bool "Support sysreset for Qualcomm SoCs via PSHOLD"
-	depends on ARCH_IPQ40XX
 	help
 	  Add support for the system reboot on Qualcomm SoCs via PSHOLD.
 

@@ -51,6 +51,8 @@ ulong imx8_clk_get_rate(struct clk *clk)
 	debug("%s(#%lu)\n", __func__, clk->id);
 
 	switch (clk->id) {
+	case IMX8QXP_CLK_DUMMY:
+		return 0;
 	case IMX8QXP_A35_DIV:
 		resource = SC_R_A35;
 		pm_clk = SC_PM_CLK_CPU;
@@ -248,6 +250,8 @@ int __imx8_clk_enable(struct clk *clk, bool enable)
 	debug("%s(#%lu)\n", __func__, clk->id);
 
 	switch (clk->id) {
+	case IMX8QXP_CLK_DUMMY:
+		return 0;
 	case IMX8QXP_I2C0_CLK:
 	case IMX8QXP_I2C0_IPG_CLK:
 		resource = SC_R_I2C_0;

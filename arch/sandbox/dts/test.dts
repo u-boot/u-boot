@@ -13,6 +13,7 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/gpio/sandbox-gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 #include <dt-bindings/pinctrl/sandbox-pinmux.h>
 #include <dt-bindings/mux/mux.h>
 
@@ -44,6 +45,7 @@
 		mmc5 = "/mmc5";
 		mmc6 = "/mmc6";
 		mmc7 = "/mmc7";
+		mmc8 = "/mmc8";
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
@@ -78,7 +80,7 @@
 
 		event_log: tcg_event_log {
 			no-map;
-			reg = <(CFG_SYS_SDRAM_SIZE - 0x2000) 0x2000>;
+			reg = <(CFG_SYS_SDRAM_BASE + 0x100000) 0x2000>;
 		};
 	};
 
@@ -101,6 +103,12 @@
 			bootscr-ram-offset = /bits/ 64 <0x12345678>;
 			bootscr-flash-offset = /bits/ 64 <0>;
 			bootscr-flash-size = /bits/ 64 <0x2000>;
+			boot-led = <&sandbox_led_green>;
+			activity-led = <&sandbox_led_red>;
+			testing-bool;
+			testing-int = <123>;
+			testing-str = "testing";
+			testing-phandle = <&phandle_node_1>;
 		};
 	};
 
@@ -291,6 +299,12 @@
 		compatible = "sandbox,dsi-host";
 	};
 
+	phandle_node_1: phandle-node-1 {
+	};
+
+	phandle_node_2: phandle-node-2 {
+	};
+
 	a-test {
 		reg = <0 1>;
 		compatible = "denx,u-boot-fdt-test";
@@ -329,6 +343,7 @@
 		interrupts-extended = <&irq 3 0>;
 		acpi,name = "GHIJ";
 		phandle-value = <&gpio_c 10>, <0xFFFFFFFF 20>, <&gpio_a 30>;
+		phandle-nodes = <&phandle_node_1>, <&phandle_node_2>;
 
 		mux-controls = <&muxcontroller0 0>, <&muxcontroller0 1>,
 			       <&muxcontroller0 2>, <&muxcontroller0 3>,
@@ -522,6 +537,9 @@
 	};
 
 	f-test {
+		#interrupt-cells = <2>;
+		interrupt-parent = <&irq>;
+		interrupts = <4 0>;
 		compatible = "denx,u-boot-fdt-test";
 	};
 
@@ -803,7 +821,7 @@
 			gpio-controller;
 			#gpio-cells = <1>;
 			gpio-bank-name = "a";
-			sandbox,gpio-count = <20>;
+			sandbox,gpio-count = <25>;
 			hog_input_active_low {
 				gpio-hog;
 				input;
@@ -972,12 +990,12 @@
 	leds {
 		compatible = "gpio-leds";
 
-		iracibble {
+		sandbox_led_red: iracibble {
 			gpios = <&gpio_a 1 0>;
 			label = "sandbox:red";
 		};
 
-		martinet {
+		sandbox_led_green: martinet {
 			gpios = <&gpio_a 2 0>;
 			label = "sandbox:green";
 		};
@@ -992,6 +1010,65 @@
 			gpios = <&gpio_a 6 0>;
 			/* label intentionally omitted */
 			default-state = "off";
+		};
+
+		led-20 {
+			gpios = <&gpio_a 20 0>;
+			/* label intentionally omitted */
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_RED>;
+			function-enumerator = <20>;
+		};
+
+		led-21 {
+			gpios = <&gpio_a 21 0>;
+			/* label intentionally omitted */
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+		};
+
+		led-22 {
+			gpios = <&gpio_a 22 0>;
+			/* label intentionally omitted */
+			function = LED_FUNCTION_STATUS;
+		};
+
+		led-23 {
+			gpios = <&gpio_a 23 0>;
+			/* label intentionally omitted */
+			color = <LED_COLOR_ID_GREEN>;
+		};
+
+		led-24 {
+			gpios = <&gpio_a 24 0>;
+			label = "sandbox:function";
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+		};
+	};
+
+	lvds-encoder {
+		compatible = "lvds-encoder";
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				bridge_input: endpoint {
+					/* link to output */
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				bridge_output: endpoint {
+					remote-endpoint = <&panel_input>;
+				};
+			};
 		};
 	};
 
@@ -1130,11 +1207,18 @@
 		filename = "mmc6.img";
 	};
 
-	/* This is used for Android tests */
+	/* This is used for Android boot image v4 tests */
 	mmc7 {
 		status = "disabled";
 		compatible = "sandbox,mmc";
 		filename = "mmc7.img";
+	};
+
+	/* This is used for Android boot image v2 tests. */
+	mmc8 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc8.img";
 	};
 
 	pch {
@@ -1343,6 +1427,27 @@
 	panel {
 		compatible = "simple-panel";
 		backlight = <&backlight 0 100>;
+
+		display-timings {
+			timing@0 {
+				/* 1280x800@60Hz */
+				clock-frequency = <68000000>;
+				hactive = <1280>;
+				hfront-porch = <48>;
+				hback-porch = <18>;
+				hsync-len = <30>;
+				vactive = <800>;
+				vfront-porch = <3>;
+				vback-porch = <12>;
+				vsync-len = <5>;
+			};
+		};
+
+		port {
+			panel_input: endpoint {
+				remote-endpoint = <&bridge_output>;
+			};
+		};
 	};
 
 	scsi {
@@ -1507,7 +1612,7 @@
 				flash-stick@1 {
 					reg = <1>;
 					compatible = "sandbox,usb-flash";
-					sandbox,filepath = "testflash1.bin";
+					sandbox,filepath = "flash1.img";
 				};
 
 				flash-stick@2 {
@@ -1987,6 +2092,61 @@
 			sandbox,pages = <0x200000>;
 			sandbox,err-count = <3>;
 			sandbox,err-step-size = <512>;
+		};
+	};
+
+	graph1 {
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				reg = <0>;
+
+				endpoint@0 {
+					reg = <0>;
+				};
+
+				endpoint@1 {
+					reg = <1>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				endpoint {
+					test-property-0;
+				};
+			};
+
+			port@2 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				reg = <2>;
+
+				graph2_link: endpoint@0 {
+					reg = <0>;
+					test-property-1;
+					remote-endpoint = <&graph1_link>;
+				};
+
+				endpoint@1 {
+					reg = <1>;
+				};
+			};
+		};
+	};
+
+	graph2 {
+		port {
+			graph1_link: endpoint {
+				remote-endpoint = <&graph2_link>;
+			};
 		};
 	};
 };

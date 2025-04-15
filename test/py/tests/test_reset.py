@@ -24,15 +24,15 @@ env__reset_test = {
 import pytest
 import test_000_version
 
-def setup_reset_env(u_boot_console):
-    if u_boot_console.config.env.get('env__reset_test_skip', False):
+def setup_reset_env(ubman):
+    if ubman.config.env.get('env__reset_test_skip', False):
         pytest.skip('reset test is not enabled')
 
-    output = u_boot_console.run_command('echo $modeboot')
+    output = ubman.run_command('echo $modeboot')
     if output:
         bootmode = output
     else:
-        f = u_boot_console.config.env.get('env__reset_test', None)
+        f = ubman.config.env.get('env__reset_test', None)
         if not f:
             pytest.skip('bootmode cannot be determined')
         bootmode = f.get('bootmode', 'jtagboot')
@@ -41,23 +41,23 @@ def setup_reset_env(u_boot_console):
         pytest.skip('skipping reset test due to jtag bootmode')
 
 @pytest.mark.buildconfigspec('hush_parser')
-def test_reset(u_boot_console):
+def test_reset(ubman):
     """Test the reset command in non-JTAG bootmode.
     It does COLD reset, which resets CPU, DDR and peripherals
     """
-    setup_reset_env(u_boot_console)
-    u_boot_console.run_command('reset', wait_for_reboot=True)
+    setup_reset_env(ubman)
+    ubman.run_command('reset', wait_for_reboot=True)
 
     # Checks the u-boot command prompt's functionality after reset
-    test_000_version.test_version(u_boot_console)
+    test_000_version.test_version(ubman)
 
 @pytest.mark.buildconfigspec('hush_parser')
-def test_reset_w(u_boot_console):
+def test_reset_w(ubman):
     """Test the reset -w command in non-JTAG bootmode.
     It does WARM reset, which resets CPU but keep DDR/peripherals active.
     """
-    setup_reset_env(u_boot_console)
-    u_boot_console.run_command('reset -w', wait_for_reboot=True)
+    setup_reset_env(ubman)
+    ubman.run_command('reset -w', wait_for_reboot=True)
 
     # Checks the u-boot command prompt's functionality after reset
-    test_000_version.test_version(u_boot_console)
+    test_000_version.test_version(ubman)

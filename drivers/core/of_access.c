@@ -490,17 +490,17 @@ int of_read_u8(const struct device_node *np, const char *propname, u8 *outp)
 {
 	const u8 *val;
 
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 	if (!np)
 		return -EINVAL;
 	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
 	if (IS_ERR(val)) {
-		dm_warn("(not found)\n");
+		log_debug("(not found)\n");
 		return PTR_ERR(val);
 	}
 
 	*outp = *val;
-	dm_warn("%#x (%d)\n", *outp, *outp);
+	log_debug("%#x (%d)\n", *outp, *outp);
 
 	return 0;
 }
@@ -509,17 +509,17 @@ int of_read_u16(const struct device_node *np, const char *propname, u16 *outp)
 {
 	const __be16 *val;
 
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 	if (!np)
 		return -EINVAL;
 	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
 	if (IS_ERR(val)) {
-		dm_warn("(not found)\n");
+		log_debug("(not found)\n");
 		return PTR_ERR(val);
 	}
 
 	*outp = be16_to_cpup(val);
-	dm_warn("%#x (%d)\n", *outp, *outp);
+	log_debug("%#x (%d)\n", *outp, *outp);
 
 	return 0;
 }
@@ -534,14 +534,14 @@ int of_read_u32_array(const struct device_node *np, const char *propname,
 {
 	const __be32 *val;
 
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 	val = of_find_property_value_of_size(np, propname,
 					     sz * sizeof(*out_values));
 
 	if (IS_ERR(val))
 		return PTR_ERR(val);
 
-	dm_warn("size %zd\n", sz);
+	log_debug("size %zd\n", sz);
 	while (sz--)
 		*out_values++ = be32_to_cpup(val++);
 
@@ -553,19 +553,19 @@ int of_read_u32_index(const struct device_node *np, const char *propname,
 {
 	const __be32 *val;
 
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 	if (!np)
 		return -EINVAL;
 
 	val = of_find_property_value_of_size(np, propname,
 					     sizeof(*outp) * (index + 1));
 	if (IS_ERR(val)) {
-		dm_warn("(not found)\n");
+		log_debug("(not found)\n");
 		return PTR_ERR(val);
 	}
 
 	*outp = be32_to_cpup(val + index);
-	dm_warn("%#x (%d)\n", *outp, *outp);
+	log_debug("%#x (%d)\n", *outp, *outp);
 
 	return 0;
 }
@@ -575,20 +575,20 @@ int of_read_u64_index(const struct device_node *np, const char *propname,
 {
 	const __be64 *val;
 
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 	if (!np)
 		return -EINVAL;
 
 	val = of_find_property_value_of_size(np, propname,
 					     sizeof(*outp) * (index + 1));
 	if (IS_ERR(val)) {
-		dm_warn("(not found)\n");
+		log_debug("(not found)\n");
 		return PTR_ERR(val);
 	}
 
 	*outp = be64_to_cpup(val + index);
-	dm_warn("%#llx (%lld)\n", (unsigned long long)*outp,
-		(unsigned long long)*outp);
+	log_debug("%#llx (%lld)\n", (unsigned long long)*outp,
+		  (unsigned long long)*outp);
 
 	return 0;
 }
@@ -621,7 +621,7 @@ int of_property_match_string(const struct device_node *np, const char *propname,
 		l = strnlen(p, end - p) + 1;
 		if (p + l > end)
 			return -EILSEQ;
-		dm_warn("comparing %s with %s\n", string, p);
+		log_debug("comparing %s with %s\n", string, p);
 		if (strcmp(string, p) == 0)
 			return i; /* Found it; return index */
 	}
@@ -666,11 +666,12 @@ int of_property_read_string_helper(const struct device_node *np,
 	return i <= 0 ? -ENODATA : i;
 }
 
-static int __of_parse_phandle_with_args(const struct device_node *np,
-					const char *list_name,
-					const char *cells_name,
-					int cell_count, int index,
-					struct of_phandle_args *out_args)
+static int __of_root_parse_phandle_with_args(struct device_node *root,
+					     const struct device_node *np,
+					     const char *list_name,
+					     const char *cells_name,
+					     int cell_count, int index,
+					     struct of_phandle_args *out_args)
 {
 	const __be32 *list, *list_end;
 	int rc = 0, cur_index = 0;
@@ -706,7 +707,7 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 			 * below.
 			 */
 			if (cells_name || cur_index == index) {
-				node = of_find_node_by_phandle(NULL, phandle);
+				node = of_find_node_by_phandle(root, phandle);
 				if (!node) {
 					dm_warn("%s: could not find phandle\n",
 						np->full_name);
@@ -783,19 +784,48 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 	return rc;
 }
 
-struct device_node *of_parse_phandle(const struct device_node *np,
-				     const char *phandle_name, int index)
+struct device_node *of_root_parse_phandle(struct device_node *root,
+					  const struct device_node *np,
+					  const char *phandle_name, int index)
 {
 	struct of_phandle_args args;
 
 	if (index < 0)
 		return NULL;
 
-	if (__of_parse_phandle_with_args(np, phandle_name, NULL, 0, index,
-					 &args))
+	if (__of_root_parse_phandle_with_args(root, np, phandle_name, NULL, 0,
+					      index, &args))
 		return NULL;
 
 	return args.np;
+}
+
+int of_root_parse_phandle_with_args(struct device_node *root,
+				    const struct device_node *np,
+				    const char *list_name, const char *cells_name,
+				    int cell_count, int index,
+				    struct of_phandle_args *out_args)
+{
+	if (index < 0)
+		return -EINVAL;
+
+	return __of_root_parse_phandle_with_args(root, np, list_name, cells_name,
+						 cell_count, index, out_args);
+}
+
+int of_root_count_phandle_with_args(struct device_node *root,
+				    const struct device_node *np,
+				    const char *list_name, const char *cells_name,
+				    int cell_count)
+{
+	return __of_root_parse_phandle_with_args(root, np, list_name, cells_name,
+						 cell_count, -1, NULL);
+}
+
+struct device_node *of_parse_phandle(const struct device_node *np,
+				     const char *phandle_name, int index)
+{
+	return of_root_parse_phandle(NULL, np, phandle_name, index);
 }
 
 int of_parse_phandle_with_args(const struct device_node *np,
@@ -803,19 +833,16 @@ int of_parse_phandle_with_args(const struct device_node *np,
 			       int cell_count, int index,
 			       struct of_phandle_args *out_args)
 {
-	if (index < 0)
-		return -EINVAL;
-
-	return __of_parse_phandle_with_args(np, list_name, cells_name,
-					    cell_count, index, out_args);
+	return of_root_parse_phandle_with_args(NULL, np, list_name, cells_name,
+					       cell_count, index, out_args);
 }
 
 int of_count_phandle_with_args(const struct device_node *np,
 			       const char *list_name, const char *cells_name,
 			       int cell_count)
 {
-	return __of_parse_phandle_with_args(np, list_name, cells_name,
-					    cell_count, -1, NULL);
+	return of_root_count_phandle_with_args(NULL, np, list_name, cells_name,
+					       cell_count);
 }
 
 static void of_alias_add(struct alias_prop *ap, struct device_node *np,
@@ -826,8 +853,8 @@ static void of_alias_add(struct alias_prop *ap, struct device_node *np,
 	strncpy(ap->stem, stem, stem_len);
 	ap->stem[stem_len] = 0;
 	list_add_tail(&ap->link, &aliases_lookup);
-	dm_warn("adding DT alias:%s: stem=%s id=%i node=%s\n",
-		ap->alias, ap->stem, ap->id, of_node_full_name(np));
+	log_debug("adding DT alias:%s: stem=%s id=%i node=%s\n",
+		  ap->alias, ap->stem, ap->id, of_node_full_name(np));
 }
 
 int of_alias_scan(void)

@@ -27,7 +27,8 @@ static int sandbox_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 }
 
 static int sandbox_read_file(struct udevice *dev, struct bootflow *bflow,
-			     const char *file_path, ulong addr, ulong *sizep)
+			     const char *file_path, ulong addr,
+			     enum bootflow_img_t type, ulong *sizep)
 {
 	return -ENOSYS;
 }

@@ -38,6 +38,7 @@ config TARGET_OPENRD
 	bool "Marvell OpenRD Board"
 	select KW88F6281
 	select SHEEVA_88SV131
+	select KIRKWOOD_COMMON
 
 config TARGET_DREAMPLUG
 	bool "DreamPlug Board"

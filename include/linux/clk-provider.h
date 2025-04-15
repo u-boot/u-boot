@@ -105,7 +105,7 @@ struct clk_gate {
 #define CLK_GATE_HIWORD_MASK		BIT(1)
 
 extern const struct clk_ops clk_gate_ops;
-struct clk *clk_register_gate(struct device *dev, const char *name,
+struct clk *clk_register_gate(struct udevice *dev, const char *name,
 			      const char *parent_name, unsigned long flags,
 			      void __iomem *reg, u8 bit_idx,
 			      u8 clk_gate_flags, spinlock_t *lock);
@@ -223,7 +223,7 @@ struct clk_composite {
 
 #define to_clk_composite(_clk) container_of(_clk, struct clk_composite, clk)
 
-struct clk *clk_register_composite(struct device *dev, const char *name,
+struct clk *clk_register_composite(struct udevice *dev, const char *name,
 		const char * const *parent_names, int num_parents,
 		struct clk *mux_clk, const struct clk_ops *mux_ops,
 		struct clk *rate_clk, const struct clk_ops *rate_ops,
@@ -233,16 +233,16 @@ struct clk *clk_register_composite(struct device *dev, const char *name,
 int clk_register(struct clk *clk, const char *drv_name, const char *name,
 		 const char *parent_name);
 
-struct clk *clk_register_fixed_factor(struct device *dev, const char *name,
+struct clk *clk_register_fixed_factor(struct udevice *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		unsigned int mult, unsigned int div);
 
-struct clk *clk_register_divider(struct device *dev, const char *name,
+struct clk *clk_register_divider(struct udevice *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 shift, u8 width,
 		u8 clk_divider_flags);
 
-struct clk *clk_register_mux(struct device *dev, const char *name,
+struct clk *clk_register_mux(struct udevice *dev, const char *name,
 		const char * const *parent_names, u8 num_parents,
 		unsigned long flags,
 		void __iomem *reg, u8 shift, u8 width,

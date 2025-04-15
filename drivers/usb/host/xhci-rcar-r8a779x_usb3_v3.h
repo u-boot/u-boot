@@ -1,5 +1,5 @@
 /*
- * Renesas RCar xHCI controller firmware version 3
+ * Renesas R-Car xHCI controller firmware version 3
  *
  * Copyright (c) 2014, Renesas Electronics Corporation
  * All rights reserved.

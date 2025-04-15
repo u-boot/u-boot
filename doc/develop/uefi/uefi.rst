@@ -449,6 +449,33 @@ practice. Getting this information from the firmware itself is more
 secure, assuming the firmware has been verified by a previous stage
 boot loader.
 
+Dynamic Firmware Update GUIDs
+*****************************
+
+The image_type_id contains a GUID value which is specific to the image
+and board being updated, that is to say it should uniquely identify the
+board model (and revision if relevant) and image pair. Traditionally,
+these GUIDs are generated manually and hardcoded on a per-board basis,
+however this scheme makes it difficult to scale up to support many
+boards.
+
+To address this, v5 GUIDs can be used to generate board-specific GUIDs
+at runtime, based on the board's devicetree root compatible
+(e.g. "qcom,qrb5165-rb5").
+
+These strings are combined with the fw_image name to generate GUIDs for
+each image. Support for dynamic UUIDs can be enabled by generating a new
+namespace UUID and setting EFI_CAPSULE_NAMESPACE_GUID to it. Dynamic GUID
+generation is only enabled if the image_type_id property is unset for your
+firmware images, this is to avoid breaking existing boards with hardcoded
+GUIDs.
+
+The mkeficapsule tool can be used to determine the GUIDs for a particular
+board and image. It can be found in the tools directory.
+
+Firmware update images
+**********************
+
 The firmware images structure defines the GUID values, image index
 values and the name of the images that are to be updated through
 the capsule update feature. These values are to be defined as part of
@@ -570,21 +597,6 @@ and used by the steps highlighted below.
       [--fit | --raw | --guid <guid-string] \
       <image_blob> <capsule_file_name>
 
-4. Insert the signature list into a device tree in the following format::
-
-    {
-            signature {
-                    capsule-key = [ <binary of signature list> ];
-            }
-            ...
-    }
-
-You can perform step-4 through the Kconfig symbol
-CONFIG_EFI_CAPSULE_CRT_FILE. This symbol points to the signing key
-generated in step-2. As part of U-Boot build, the ESL certificate file will
-be generated from the signing key and automatically get embedded into the
-platform's dtb.
-
 Anti-rollback Protection
 ************************
 
@@ -654,8 +666,8 @@ UEFI variables. Booting according to these variables is possible via::
 As of U-Boot v2020.10 UEFI variables cannot be set at runtime. The U-Boot
 command 'efidebug' can be used to set the variables.
 
-UEFI HTTP Boot
-~~~~~~~~~~~~~~
+UEFI HTTP Boot using the legacy TCP stack
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HTTP Boot provides the capability for system deployment and configuration
 over the network. HTTP Boot can be activated by specifying::
@@ -688,12 +700,53 @@ We need to preset the "httpserverip" environment variable to proceed the wget::
 
     setenv httpserverip 192.168.1.1
 
+UEFI HTTP(s) Boot using lwIP
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Similar to the above U-Boot can do EFI HTTP boot using lwIP. If we combine this
+with Mbed TLS we can also download from https://
+
+HTTP(s) Boot can be activated by specifying::
+
+    CONFIG_EFI_HTTP_BOOT
+    CONFIG_NET_LWIP
+    CONFIG_WGET_HTTPS
+
+For QEMU targets there's a Kconfig that supports this by default::
+
+    make qemu_arm64_lwip_defconfig
+
+The commands and functionality are similar to the legacy stack, with the notable
+exception of not having to define an "httpserverip" if you are trying to resolve
+an IP. However, lwIP code doesn't yet support redirects::
+
+    => efidebug boot add -u 1 netinst https://cdimage.debian.org/cdimage/weekly-builds/arm64/iso-cd/debian-testing-arm64-netinst.iso
+    => dhcp
+    DHCP client bound to address 10.0.2.15 (3 ms)
+    => efidebug boot order 1
+    => bootefi bootmgr
+
+    HTTP server error 302
+    Loading Boot0001 'netinst' failed
+    EFI boot manager: Cannot load any image
+
+If the url you specified isn't a redirect::
+
+    => efidebug boot add -u 1 netinst https://download.rockylinux.org/pub/rocky/9/isos/aarch64/Rocky-9.4-aarch64-minimal.iso
+    => dhcp
+    => bootefi bootmgr
+    #######################################
+
+If the downloaded file extension is .iso or .img file, efibootmgr tries to
+mount the image and boot with the default file(e.g. EFI/BOOT/BOOTAA64.EFI).
+If the downloaded file is PE-COFF image, load the downloaded file and
+start it.
+
 Executing the built in hello world application
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A hello world UEFI application can be built with::
 
-    CONFIG_CMD_BOOTEFI_HELLO_COMPILE=y
+    CONFIG_BOOTEFI_HELLO_COMPILE=y
 
 It can be embedded into the U-Boot binary with::
 

@@ -186,6 +186,7 @@ void fastboot_multiresponse(int cmd, char *response)
 			}
 			break;
 		}
+		fallthrough;
 	default:
 		fastboot_fail("Unknown multiresponse command", response);
 		break;

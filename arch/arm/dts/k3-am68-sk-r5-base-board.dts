@@ -10,3 +10,8 @@
 #include "k3-j721s2-ddr.dtsi"
 #include "k3-am68-sk-base-board-u-boot.dtsi"
 #include "k3-j721s2-r5.dtsi"
+
+&wkup_vtm0 {
+	bootph-pre-ram;
+	vdd-supply-2 = <&tps62873a>;
+};

@@ -83,6 +83,6 @@ properties:
   bootph-all:
     type: boolean
     description:
-      Include this node in all phases (for U-Boot see enum u_boot_phase).
+      Include this node in all phases (for U-Boot see enum xpl_phase_t).
 
 additionalProperties: true

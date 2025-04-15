@@ -94,17 +94,17 @@ struct tcg_pcr_event {
 } __packed;
 
 /**
- * tcg2_get_pcr_info() - get the supported, active PCRs and number of banks
+ * tcg2_get_pcr_info() - get the supported, active banks and number of banks
  *
  * @dev:		TPM device
- * @supported_pcr:	bitmask with the algorithms supported
- * @active_pcr:		bitmask with the active algorithms
- * @pcr_banks:		number of PCR banks
+ * @supported_bank:	bitmask with the algorithms supported
+ * @active_bank:	bitmask with the active algorithms
+ * @bank_num:		number of PCR banks
  *
  * @return 0 on success, code of operation or negative errno on failure
  */
-int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
-		      u32 *pcr_banks);
+int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_bank, u32 *active_bank,
+		      u32 *bank_num);
 
 /**
  * Crypto Agile Log Entry Format

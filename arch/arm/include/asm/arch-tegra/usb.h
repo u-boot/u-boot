@@ -336,10 +336,13 @@ struct usb_ctlr {
 #define UTMIP_XCVR_HSSLEW_MSB_SHIFT		25
 #define UTMIP_XCVR_HSSLEW_MSB_MASK		\
 			(0x7f << UTMIP_XCVR_HSSLEW_MSB_SHIFT)
-#define UTMIP_XCVR_SETUP_MSB_SHIFT	22
-#define UTMIP_XCVR_SETUP_MSB_MASK	(0x7 << UTMIP_XCVR_SETUP_MSB_SHIFT)
-#define UTMIP_XCVR_SETUP_SHIFT		0
-#define UTMIP_XCVR_SETUP_MASK		(0xf << UTMIP_XCVR_SETUP_SHIFT)
+
+#define UTMIP_XCVR_SETUP(x)			(((x) & 0xf) << 0)
+#define UTMIP_XCVR_SETUP_MSB(x)			((((x) & 0x70) >> 4) << 22)
+#define UTMIP_XCVR_LSRSLEW(x)			(((x) & 0x3) << 8)
+#define UTMIP_XCVR_LSFSLEW(x)			(((x) & 0x3) << 10)
+#define UTMIP_XCVR_HSSLEW(x)			(((x) & 0x3) << 4)
+#define UTMIP_XCVR_HSSLEW_MSB(x)		((((x) & 0x1fc) >> 2) << 25)
 
 /* USBx_UTMIP_XCVR_CFG1_0 */
 #define UTMIP_XCVR_TERM_RANGE_ADJ_SHIFT		18

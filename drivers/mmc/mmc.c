@@ -30,6 +30,41 @@
 
 #define DEFAULT_CMD6_TIMEOUT_MS  500
 
+/**
+ * names of emmc BOOT_PARTITION_ENABLE values
+ *
+ * Boot Area Partitions - name consistent with Linux
+ */
+const char *emmc_boot_part_names[] = {
+	"default",	/* EMMC_BOOT_PART_DEFAULT */
+	"boot0",	/* EMMC_BOOT_PART_BOOT1 */
+	"boot1",	/* EMMC_BOOT_PART_BOOT2 */
+	"",
+	"",
+	"",
+	"",
+	"user",		/* EMMC_BOOT_PART_USER */
+};
+
+/**
+ * names of emmc 'hardware partitions' consistent with:
+ *  - value used in mmc_switch()
+ *  - value used by PARTITION_CONFIG PARTITION_ACCESS field
+ *
+ * Boot Area Partitions - name consistent with Linux
+ * General Perpose Partitions - name consistent with 'mmc hwpartition' usage
+ */
+const char *emmc_hwpart_names[] = {
+	"user",		/* EMMC_HWPART_DEFAULT */
+	"boot0",	/* EMMC_HWPART_BOOT1 */
+	"boot1",	/* EMMC_HWPART_BOOT2 */
+	"rpmb",		/* EMMC_HWPART_RPMB */
+	"gp1",		/* EMMC_HWPART_GP1 */
+	"gp2",		/* EMMC_HWPART_GP2 */
+	"gp3",		/* EMMC_HWPART_GP3 */
+	"gp4",		/* EMMC_HWPART_GP4 */
+};
+
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
@@ -293,8 +328,8 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout_ms)
 			break;
 
 		if (status & MMC_STATUS_MASK) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-			pr_err("Status Error: 0x%08x\n", status);
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+			log_err("Status Error: %#08x\n", status);
 #endif
 			return -ECOMM;
 		}
@@ -306,8 +341,8 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout_ms)
 	}
 
 	if (timeout_ms <= 0) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		pr_err("Timeout waiting card ready\n");
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+		log_err("Timeout waiting card ready\n");
 #endif
 		return -ETIMEDOUT;
 	}
@@ -448,8 +483,8 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 
 	if (blkcnt > 1) {
 		if (mmc_send_stop_transmission(mmc, false)) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-			pr_err("mmc fail to send stop cmd\n");
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+			log_err("mmc fail to send stop cmd\n");
 #endif
 			return 0;
 		}
@@ -499,9 +534,9 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		return 0;
 
 	if ((start + blkcnt) > block_dev->lba) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		pr_err("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
-		       start + blkcnt, block_dev->lba);
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+		log_err("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
+			start + blkcnt, block_dev->lba);
 #endif
 		return 0;
 	}
@@ -715,7 +750,7 @@ static int mmc_send_op_cond(struct mmc *mmc)
 {
 	int err, i;
 	int timeout = 1000;
-	uint start;
+	ulong start;
 
 	/* Some cards seem to need this */
 	mmc_go_idle(mmc);
@@ -809,7 +844,8 @@ int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 			bool send_status)
 {
-	unsigned int status, start;
+	ulong start;
+	unsigned int status;
 	struct mmc_cmd cmd;
 	int timeout_ms = DEFAULT_CMD6_TIMEOUT_MS;
 	bool is_part_switch = (set == EXT_CSD_CMD_SET_NORMAL) &&
@@ -962,8 +998,8 @@ static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode,
 	 * Extended CSD. Reconfigure the controller to run at HS mode.
 	 */
 	if (hsdowngrade) {
-		mmc_select_mode(mmc, MMC_HS);
-		mmc_set_clock(mmc, mmc_mode2freq(mmc, MMC_HS), false);
+		mmc_select_mode(mmc, MMC_HS_52);
+		mmc_set_clock(mmc, mmc_mode2freq(mmc, MMC_HS_52), false);
 	}
 #endif
 
@@ -996,7 +1032,7 @@ static int mmc_get_capabilities(struct mmc *mmc)
 		return 0;
 
 	if (!ext_csd) {
-		pr_err("No ext_csd found!\n"); /* this should enver happen */
+		log_err("No ext_csd found!\n"); /* this should never happen */
 		return -ENOTSUPP;
 	}
 
@@ -1108,17 +1144,17 @@ int mmc_hwpart_config(struct mmc *mmc,
 		return -EINVAL;
 
 	if (IS_SD(mmc) || (mmc->version < MMC_VERSION_4_41)) {
-		pr_err("eMMC >= 4.4 required for enhanced user data area\n");
+		log_err("eMMC >= 4.4 required for enhanced user data area\n");
 		return -EMEDIUMTYPE;
 	}
 
 	if (!(mmc->part_support & PART_SUPPORT)) {
-		pr_err("Card does not support partitioning\n");
+		log_err("Card does not support partitioning\n");
 		return -EMEDIUMTYPE;
 	}
 
 	if (!mmc->hc_wp_grp_size) {
-		pr_err("Card does not define HC WP group size\n");
+		log_err("Card does not define HC WP group size\n");
 		return -EMEDIUMTYPE;
 	}
 
@@ -1126,8 +1162,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 	if (conf->user.enh_size) {
 		if (conf->user.enh_size % mmc->hc_wp_grp_size ||
 		    conf->user.enh_start % mmc->hc_wp_grp_size) {
-			pr_err("User data enhanced area not HC WP group "
-			       "size aligned\n");
+			log_err("User data enhanced area not HC WP group size aligned\n");
 			return -EINVAL;
 		}
 		part_attrs |= EXT_CSD_ENH_USR;
@@ -1145,8 +1180,8 @@ int mmc_hwpart_config(struct mmc *mmc,
 
 	for (pidx = 0; pidx < 4; pidx++) {
 		if (conf->gp_part[pidx].size % mmc->hc_wp_grp_size) {
-			pr_err("GP%i partition not HC WP group size "
-			       "aligned\n", pidx+1);
+			log_err("GP%i partition not HC WP group-size aligned\n",
+				pidx + 1);
 			return -EINVAL;
 		}
 		gp_size_mult[pidx] = conf->gp_part[pidx].size / mmc->hc_wp_grp_size;
@@ -1157,7 +1192,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 	}
 
 	if (part_attrs && ! (mmc->part_support & ENHNCD_SUPPORT)) {
-		pr_err("Card does not support enhanced attribute\n");
+		log_err("Card does not support enhanced attribute\n");
 		return -EMEDIUMTYPE;
 	}
 
@@ -1170,8 +1205,8 @@ int mmc_hwpart_config(struct mmc *mmc,
 		(ext_csd[EXT_CSD_MAX_ENH_SIZE_MULT+1] << 8) +
 		ext_csd[EXT_CSD_MAX_ENH_SIZE_MULT];
 	if (tot_enh_size_mult > max_enh_size_mult) {
-		pr_err("Total enhanced size exceeds maximum (%u > %u)\n",
-		       tot_enh_size_mult, max_enh_size_mult);
+		log_err("Total enhanced size exceeds maximum (%#x > %#x)\n",
+			tot_enh_size_mult, max_enh_size_mult);
 		return -EMEDIUMTYPE;
 	}
 
@@ -1204,7 +1239,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 
 	if (ext_csd[EXT_CSD_PARTITION_SETTING] &
 	    EXT_CSD_PARTITION_SETTING_COMPLETED) {
-		pr_err("Card already partitioned\n");
+		log_err("Card already partitioned\n");
 		return -EPERM;
 	}
 
@@ -1875,7 +1910,7 @@ error:
 		}
 	}
 
-	pr_err("unable to select a mode\n");
+	log_err("unable to select a mode\n");
 	return -ENOTSUPP;
 }
 
@@ -2043,7 +2078,7 @@ static int mmc_select_hs400(struct mmc *mmc)
 	}
 
 	/* Set back to HS */
-	mmc_set_card_speed(mmc, MMC_HS, true);
+	mmc_set_card_speed(mmc, MMC_HS_52, true);
 
 	err = mmc_hs400_prepare_ddr(mmc);
 	if (err)
@@ -2253,7 +2288,7 @@ error:
 		}
 	}
 
-	pr_err("unable to select a mode : %d\n", err);
+	log_err("unable to select a mode: %d\n", err);
 
 	return -ENOTSUPP;
 }
@@ -2341,7 +2376,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 				| ext_csd[EXT_CSD_SEC_CNT + 2] << 16
 				| ext_csd[EXT_CSD_SEC_CNT + 3] << 24;
 		capacity *= MMC_MAX_BLOCK_LEN;
-		if ((capacity >> 20) > 2 * 1024)
+		if (mmc->high_capacity)
 			mmc->capacity_user = capacity;
 	}
 
@@ -2390,7 +2425,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 		mmc->capacity_gp[i] <<= 19;
 	}
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	if (part_completed) {
 		mmc->enh_user_size =
 			(ext_csd[EXT_CSD_ENH_SIZE_MULT + 2] << 16) +
@@ -2689,7 +2724,7 @@ static int mmc_startup(struct mmc *mmc)
 	bdesc->blksz = mmc->read_bl_len;
 	bdesc->log2blksz = LOG2(bdesc->blksz);
 	bdesc->lba = lldiv(mmc->capacity, mmc->read_bl_len);
-#if !defined(CONFIG_SPL_BUILD) || \
+#if !defined(CONFIG_XPL_BUILD) || \
 		(defined(CONFIG_SPL_LIBCOMMON_SUPPORT) && \
 		!CONFIG_IS_ENABLED(USE_TINY_PRINTF))
 	sprintf(bdesc->vendor, "Man %06x Snr %04x%04x",
@@ -2707,7 +2742,7 @@ static int mmc_startup(struct mmc *mmc)
 	bdesc->revision[0] = 0;
 #endif
 
-#if !defined(CONFIG_DM_MMC) && (!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT))
+#if !defined(CONFIG_DM_MMC) && (!defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT))
 	part_init(bdesc);
 #endif
 
@@ -2919,9 +2954,10 @@ retry:
 		err = mmc_send_op_cond(mmc);
 
 		if (err) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			if (!quiet)
-				pr_err("Card did not respond to voltage select! : %d\n", err);
+				log_err("Card did not respond to voltage select! : %d\n",
+					err);
 #endif
 			return -EOPNOTSUPP;
 		}
@@ -2954,7 +2990,7 @@ int mmc_start_init(struct mmc *mmc)
 						   | MMC_CAP(MMC_LEGACY) |
 						   MMC_MODE_1BIT);
 			} else {
-				pr_err("bus_mode requested is not supported\n");
+				log_err("bus_mode requested is not supported\n");
 				return -EINVAL;
 			}
 		}
@@ -2973,8 +3009,8 @@ int mmc_start_init(struct mmc *mmc)
 #endif
 	if (no_card) {
 		mmc->has_init = 0;
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		pr_err("MMC: no card present\n");
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+		log_err("MMC: no card present\n");
 #endif
 		return -ENOMEDIUM;
 	}
@@ -3004,6 +3040,20 @@ static int mmc_complete_init(struct mmc *mmc)
 	return err;
 }
 
+static void mmc_cyclic_cd_poll(struct cyclic_info *c)
+{
+	struct mmc *m = container_of(c, struct mmc, cyclic);
+
+	if (!m->has_init)
+		return;
+
+	if (mmc_getcd(m))
+		return;
+
+	mmc_deinit(m);
+	m->has_init = 0;
+}
+
 int mmc_init(struct mmc *mmc)
 {
 	int err = 0;
@@ -3023,8 +3073,16 @@ int mmc_init(struct mmc *mmc)
 
 	if (!err)
 		err = mmc_complete_init(mmc);
-	if (err)
+	if (err) {
 		pr_info("%s: %d, time %lu\n", __func__, err, get_timer(start));
+		return err;
+	}
+
+	if (CONFIG_IS_ENABLED(CYCLIC, (!mmc->cyclic.func), (NULL))) {
+		/* Register cyclic function for card detect polling */
+		cyclic_register(&mmc->cyclic, mmc_cyclic_cd_poll, 100 * 1000,
+				mmc->cfg->name);
+	}
 
 	return err;
 }
@@ -3032,6 +3090,9 @@ int mmc_init(struct mmc *mmc)
 int mmc_deinit(struct mmc *mmc)
 {
 	u32 caps_filtered;
+
+	if (CONFIG_IS_ENABLED(CYCLIC, (mmc->cyclic.func), (NULL)))
+		cyclic_unregister(&mmc->cyclic);
 
 	if (!CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) &&
 	    !CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) &&
@@ -3103,7 +3164,7 @@ static int mmc_probe(struct bd_info *bis)
 	uclass_foreach_dev(dev, uc) {
 		ret = device_probe(dev);
 		if (ret)
-			pr_err("%s - probe failed: %d\n", dev->name, ret);
+			log_err("%s - probe failed: %d\n", dev->name, ret);
 	}
 
 	return 0;
@@ -3135,7 +3196,7 @@ int mmc_initialize(struct bd_info *bis)
 	if (ret)
 		return ret;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	print_mmc_devices(',');
 #endif
 
@@ -3153,7 +3214,7 @@ int mmc_init_device(int num)
 	if (uclass_get_device_by_seq(UCLASS_MMC, num, &dev)) {
 		ret = uclass_get_device(UCLASS_MMC, num, &dev);
 		if (ret)
-			return ret;
+			return log_msg_ret("ini", ret);
 	}
 
 	m = mmc_get_mmc_dev(dev);

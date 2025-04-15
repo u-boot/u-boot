@@ -113,7 +113,7 @@ static void omap_rev_string(void)
 		puts("\n");
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void spl_display_print(void)
 {
 	omap_rev_string();
@@ -175,7 +175,7 @@ void __weak init_package_revision(void)
  */
 int early_system_init(void)
 {
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_MULTI_DTB_FIT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_MULTI_DTB_FIT)
 	int ret;
 	int rescan;
 #endif
@@ -183,19 +183,19 @@ int early_system_init(void)
 	hw_data_init();
 	init_package_revision();
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	if (warm_reset())
 		force_emif_self_refresh();
 #endif
 	watchdog_init();
 	set_mux_conf_regs();
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	srcomp_enable();
 	do_io_settings();
 #endif
 	setup_early_clocks();
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/*
 	 * Save the boot parameters passed from romcode.
 	 * We cannot delay the saving further than this,
@@ -206,7 +206,7 @@ int early_system_init(void)
 #endif
 	do_board_detect();
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_MULTI_DTB_FIT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_MULTI_DTB_FIT)
 	/*
 	 * Board detection has been done.
 	 * Let us see if another dtb wouldn't be a better match
@@ -228,7 +228,7 @@ int early_system_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void board_init_f(ulong dummy)
 {
 	early_system_init();

@@ -100,7 +100,7 @@ static int term_get_char(s32 *c)
 }
 
 /**
- * Receive and parse a reply from the terminal.
+ * term_read_reply() - receive and parse a reply from the terminal
  *
  * @n:		array of return values
  * @num:	number of return values expected
@@ -181,7 +181,7 @@ static efi_status_t EFIAPI efi_cout_output_string(
 	}
 	pos = buf;
 	utf16_utf8_strcpy(&pos, string);
-	fputs(stdout, buf);
+	puts(buf);
 	free(buf);
 
 	/*

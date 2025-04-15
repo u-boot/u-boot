@@ -1,0 +1,6 @@
+ODROID-M1S
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	board/hardkernel/odroid_m1s/
+F:	configs/odroid-m1s-rk3566_defconfig
+F:	arch/arm/dts/rk3566-odroid-m1s-u-boot.dtsi

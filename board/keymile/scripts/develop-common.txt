@@ -1,4 +1,3 @@
-altbootcmd=run ${subbootcmds}
 bootcmd=run ${subbootcmds}
 configure=run set_uimage; run set_tftppath; km_setboardid && run try_import_nfs_path && saveenv && reset
 subbootcmds=tftpfdt tftpkernel nfsargs add_default boot

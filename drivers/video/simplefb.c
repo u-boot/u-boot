@@ -27,7 +27,8 @@ static int simple_video_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	debug("%s: base=%llx, size=%llu\n", __func__, base, size);
+	debug("%s: base=%llx, size=%llu\n",
+	      __func__, (unsigned long long)base, (unsigned long long)size);
 
 	/*
 	 * TODO is there some way to reserve the framebuffer

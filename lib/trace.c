@@ -351,14 +351,8 @@ static int get_func_count(void)
 	return gd->mon_len / FUNC_SITE_SIZE;
 }
 
-/**
- * trace_init() - initialize the tracing system and enable it
- *
- * @buff:	Pointer to trace buffer
- * @buff_size:	Size of trace buffer
- * Return:	0 if ok
- */
-int notrace trace_init(void *buff, size_t buff_size)
+static int notrace trace_init_(void *buff, size_t buff_size, bool copy_early,
+			       bool enable)
 {
 	int func_count = get_func_count();
 	size_t needed;
@@ -368,7 +362,7 @@ int notrace trace_init(void *buff, size_t buff_size)
 		return func_count;
 	trace_save_gd();
 
-	if (!was_disabled) {
+	if (copy_early) {
 #ifdef CONFIG_TRACE_EARLY
 		ulong used, count;
 		char *end;
@@ -394,9 +388,6 @@ int notrace trace_init(void *buff, size_t buff_size)
 		}
 		puts("\n");
 		memcpy(buff, hdr, used);
-#else
-		puts("trace: already enabled\n");
-		return -EALREADY;
 #endif
 	}
 	hdr = (struct trace_hdr *)buff;
@@ -419,11 +410,39 @@ int notrace trace_init(void *buff, size_t buff_size)
 	hdr->ftrace_size = (buff_size - needed) / sizeof(*hdr->ftrace);
 	hdr->depth_limit = CONFIG_TRACE_CALL_DEPTH_LIMIT;
 
-	puts("trace: enabled\n");
-	trace_enabled = 1;
+	printf("trace: initialized, %senabled\n", enable ? "" : "not ");
+	trace_enabled = enable;
 	trace_inited = 1;
 
 	return 0;
+}
+
+/**
+ * trace_init() - initialize the tracing system and enable it
+ *
+ * @buff:	Pointer to trace buffer
+ * @buff_size:	Size of trace buffer
+ * Return:	0 if ok
+ */
+int notrace trace_init(void *buff, size_t buff_size)
+{
+	/* If traces are enabled already, we may have early traces to copy */
+	return trace_init_(buff, buff_size, trace_enabled, true);
+}
+
+/**
+ * trace_wipe() - clear accumulated traced data
+ *
+ * May be called with tracing enabled or disabled.
+ */
+int notrace trace_wipe(void)
+{
+	bool was_enabled = trace_enabled;
+
+	if (trace_enabled)
+		trace_enabled = 0;
+	return trace_init_(gd->trace_buff, CONFIG_TRACE_BUFFER_SIZE,
+			   false, was_enabled);
 }
 
 #ifdef CONFIG_TRACE_EARLY

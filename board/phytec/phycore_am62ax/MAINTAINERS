@@ -1,0 +1,16 @@
+phyCORE-AM62ax
+M:	Garrett Giordano <ggiordano@phytec.com>
+M:	Wadim Egorov <w.egorov@phytec.de>
+W:	https://www.phytec.com/product/phycore-am62a
+S:	Maintained
+F:	arch/arm/dts/k3-am62a-phycore-som-binman.dtsi
+F:	arch/arm/dts/k3-am62a-phycore-som-ddr4-2gb.dtsit.dtsi
+F:	arch/arm/dts/k3-am62a7-phyboard-lyra-rdk-u-boot.dtsi
+F:	arch/arm/dts/k3-am62a7-r5-phycore-som-2gb.dts
+F:	board/phytec/phycore_am62ax/
+F:	configs/phycore_am62ax_a53_defconfig
+F:	configs/phycore_am62ax_r5_defconfig
+F:	configs/phycore_am62ax_r5_ethboot_defconfig
+F:	configs/phycore_am62ax_r5_usbdfu_defconfig
+F:	include/configs/phycore_am62ax.h
+F:	doc/board/phytec/phycore-am62ax.rst

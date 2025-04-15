@@ -10,7 +10,7 @@
  * (containing the magic 'RK30'). This magic constant will be written into
  * the final image by the rkimage tool, but we need to reserve space for it here.
  */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	b	1f  /* if overwritten, entry-address is at the next word */
 1:
 #endif
@@ -68,7 +68,7 @@ back_to_bootrom:
 	pop	{r1-r12, pc}
 #endif
 
-#if (defined(CONFIG_SPL_BUILD))
+#if (defined(CONFIG_XPL_BUILD))
 /* U-Boot proper of armv7 does not need this */
 	b reset
 #endif

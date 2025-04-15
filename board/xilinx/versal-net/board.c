@@ -12,6 +12,7 @@
 #include <env_internal.h>
 #include <log.h>
 #include <malloc.h>
+#include <spi.h>
 #include <time.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -196,7 +197,6 @@ static u8 versal_net_get_bootmode(void)
 int spi_get_env_dev(void)
 {
 	struct udevice *dev;
-	const char *mode = NULL;
 	int bootseq = -1;
 
 	switch (versal_net_get_bootmode()) {
@@ -207,7 +207,6 @@ int spi_get_env_dev(void)
 			debug("QSPI driver for QSPI device is not present\n");
 			break;
 		}
-		mode = "xspi";
 		bootseq = dev_seq(dev);
 		break;
 	case QSPI_MODE_32BIT:
@@ -217,7 +216,6 @@ int spi_get_env_dev(void)
 			debug("QSPI driver for QSPI device is not present\n");
 			break;
 		}
-		mode = "xspi";
 		bootseq = dev_seq(dev);
 		break;
 	case OSPI_MODE:
@@ -227,7 +225,6 @@ int spi_get_env_dev(void)
 			debug("OSPI driver for OSPI device is not present\n");
 			break;
 		}
-		mode = "xspi";
 		bootseq = dev_seq(dev);
 		break;
 	default:

@@ -5,11 +5,11 @@
  * Copyright 2023 Marek Vasut <marek.vasut+renesas@mailbox.org>
  */
 
+#include <alist.h>
 #include <console.h>
 #include <mapmem.h>
 #include <asm/global_data.h>
 #include <dm/uclass.h>
-#include <test/suites.h>
 #include <test/ut.h>
 #include <dm.h>
 #include <env.h>
@@ -25,7 +25,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Declare a new bdinfo test */
-#define BDINFO_TEST(_name, _flags)	UNIT_TEST(_name, _flags, bdinfo_test)
+#define BDINFO_TEST(_name, _flags)	UNIT_TEST(_name, _flags, bdinfo)
 
 static int test_num_l(struct unit_test_state *uts, const char *name,
 		      ulong value)
@@ -99,44 +99,39 @@ static int test_video_info(struct unit_test_state *uts)
 }
 
 static int lmb_test_dump_region(struct unit_test_state *uts,
-				struct lmb_region *rgn, char *name)
+				struct alist *lmb_rgn_lst, char *name)
 {
+	struct lmb_region *rgn = lmb_rgn_lst->data;
 	unsigned long long base, size, end;
-	enum lmb_flags flags;
+	u32 flags;
 	int i;
 
-	ut_assert_nextline(" %s.cnt = 0x%lx / max = 0x%lx", name, rgn->cnt, rgn->max);
+	ut_assert_nextline(" %s.count = %#x", name, lmb_rgn_lst->count);
 
-	for (i = 0; i < rgn->cnt; i++) {
-		base = rgn->region[i].base;
-		size = rgn->region[i].size;
+	for (i = 0; i < lmb_rgn_lst->count; i++) {
+		base = rgn[i].base;
+		size = rgn[i].size;
 		end = base + size - 1;
-		flags = rgn->region[i].flags;
+		flags = rgn[i].flags;
 
-		/*
-		 * this entry includes the stack (get_sp()) on many platforms
-		 * so will different each time lmb_init_and_reserve() is called.
-		 * We could instead have the bdinfo command put its lmb region
-		 * in a known location, so we can check it directly, rather than
-		 * calling lmb_init_and_reserve() to create a new (and hopefully
-		 * identical one). But for now this seems good enough.
-		 */
 		if (!IS_ENABLED(CONFIG_SANDBOX) && i == 3) {
 			ut_assert_nextlinen(" %s[%d]\t[", name, i);
 			continue;
 		}
-		ut_assert_nextline(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: %x",
-				   name, i, base, end, size, flags);
+		ut_assert_nextlinen(" %s[%d]\t[%#llx-%#llx], %#llx bytes, flags: ",
+				    name, i, base, end, size);
 	}
 
 	return 0;
 }
 
-static int lmb_test_dump_all(struct unit_test_state *uts, struct lmb *lmb)
+static int lmb_test_dump_all(struct unit_test_state *uts)
 {
+	struct lmb *lmb = lmb_get();
+
 	ut_assert_nextline("lmb_dump_all:");
-	ut_assertok(lmb_test_dump_region(uts, &lmb->memory, "memory"));
-	ut_assertok(lmb_test_dump_region(uts, &lmb->reserved, "reserved"));
+	ut_assertok(lmb_test_dump_region(uts, &lmb->available_mem, "memory"));
+	ut_assertok(lmb_test_dump_region(uts, &lmb->used_mem, "reserved"));
 
 	return 0;
 }
@@ -185,9 +180,6 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	ut_assert(map_to_sysmem(gd->fdt_blob) == env_get_hex("fdtcontroladdr", 0x1234));
 	ut_assertok(test_num_l(uts, "fdt_blob",
 			       (ulong)map_to_sysmem(gd->fdt_blob)));
-	ut_assertok(test_num_l(uts, "new_fdt",
-			       (ulong)map_to_sysmem(gd->new_fdt)));
-	ut_assertok(test_num_l(uts, "fdt_size", (ulong)gd->fdt_size));
 
 	if (IS_ENABLED(CONFIG_VIDEO))
 		ut_assertok(test_video_info(uts));
@@ -198,10 +190,7 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 #endif
 
 	if (IS_ENABLED(CONFIG_LMB) && gd->fdt_blob) {
-		struct lmb lmb;
-
-		lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
-		ut_assertok(lmb_test_dump_all(uts, &lmb));
+		ut_assertok(lmb_test_dump_all(uts));
 		if (IS_ENABLED(CONFIG_OF_REAL))
 			ut_assert_nextline("devicetree  = %s", fdtdec_get_srcname());
 	}
@@ -235,22 +224,19 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 static int bdinfo_test_full(struct unit_test_state *uts)
 {
 	/* Test BDINFO full print */
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("bdinfo"));
 	ut_assertok(bdinfo_test_all(uts));
 	ut_assertok(run_commandf("bdinfo -a"));
 	ut_assertok(bdinfo_test_all(uts));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
-
-BDINFO_TEST(bdinfo_test_full, UT_TESTF_CONSOLE_REC);
+BDINFO_TEST(bdinfo_test_full, UTF_CONSOLE);
 
 static int bdinfo_test_help(struct unit_test_state *uts)
 {
 	/* Test BDINFO unknown option help text print */
-	ut_assertok(console_record_reset_enable());
 	if (!CONFIG_IS_ENABLED(GETOPT)) {
 		ut_asserteq(0, run_commandf("bdinfo -h"));
 		ut_assertok(bdinfo_test_all(uts));
@@ -262,49 +248,36 @@ static int bdinfo_test_help(struct unit_test_state *uts)
 		ut_assert_nextlinen("Usage:");
 		ut_assert_nextlinen("bdinfo");
 	}
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
-
-BDINFO_TEST(bdinfo_test_help, UT_TESTF_CONSOLE_REC);
+BDINFO_TEST(bdinfo_test_help, UTF_CONSOLE);
 
 static int bdinfo_test_memory(struct unit_test_state *uts)
 {
 	/* Test BDINFO memory layout only print */
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("bdinfo -m"));
 	if (!CONFIG_IS_ENABLED(GETOPT))
 		ut_assertok(bdinfo_test_all(uts));
 	else
 		ut_assertok(bdinfo_check_mem(uts));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
-
-BDINFO_TEST(bdinfo_test_memory, UT_TESTF_CONSOLE_REC);
+BDINFO_TEST(bdinfo_test_memory, UTF_CONSOLE);
 
 static int bdinfo_test_eth(struct unit_test_state *uts)
 {
 	/* Test BDINFO ethernet settings only print */
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("bdinfo -e"));
 	if (!CONFIG_IS_ENABLED(GETOPT))
 		ut_assertok(bdinfo_test_all(uts));
 	else if (IS_ENABLED(CONFIG_CMD_NET))
 		ut_assertok(test_eth(uts));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
-
-BDINFO_TEST(bdinfo_test_eth, UT_TESTF_CONSOLE_REC);
-
-int do_ut_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(bdinfo_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(bdinfo_test);
-
-	return cmd_ut_category("bdinfo", "bdinfo_test_", tests, n_ents, argc, argv);
-}
+BDINFO_TEST(bdinfo_test_eth, UTF_CONSOLE);

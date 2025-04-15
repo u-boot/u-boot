@@ -75,7 +75,7 @@ static struct emif_regs ddr3_emif_reg_data = {
 const struct dpll_params dpll_ddr = {
 		400, OSC - 1, 1, -1, -1, -1, -1};
 
-void am33xx_spl_board_init(void)
+void spl_board_init(void)
 {
 	int mpu_vdd;
 	int usb_cur_lim;

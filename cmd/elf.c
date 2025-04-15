@@ -10,8 +10,10 @@
 #include <env.h>
 #include <image.h>
 #include <log.h>
+#ifdef CONFIG_CMD_ELF_BOOTVX
 #include <net.h>
 #include <vxworks.h>
+#endif
 #ifdef CONFIG_X86
 #include <vesa.h>
 #include <asm/cache.h>
@@ -70,7 +72,7 @@ int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		fdt_set_totalsize((void *)fdt_addr,
 				fdt_totalsize(fdt_addr) + CONFIG_SYS_FDT_PAD);
-		if (image_setup_libfdt(&img, (void *)fdt_addr, NULL))
+		if (image_setup_libfdt(&img, (void *)fdt_addr, false))
 			return 1;
 	}
 #endif
@@ -100,6 +102,7 @@ int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return rcode;
 }
 
+#ifdef CONFIG_CMD_ELF_BOOTVX
 /*
  * Interpreter command to boot VxWorks from a memory image.  The image can
  * be either an ELF image or a raw binary.  Will attempt to setup the
@@ -130,7 +133,7 @@ int do_bootvx(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	else
 		addr = hextoul(argv[1], NULL);
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET) && !defined(CONFIG_NET_LWIP)
 	/*
 	 * Check to see if we need to tftp the image ourselves
 	 * before starting
@@ -307,6 +310,7 @@ int do_bootvx(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	return 1;
 }
+#endif
 
 U_BOOT_CMD(
 	bootelf, CONFIG_SYS_MAXARGS, 0, do_bootelf,
@@ -323,8 +327,10 @@ U_BOOT_CMD(
 #endif
 );
 
+#ifdef CONFIG_CMD_ELF_BOOTVX
 U_BOOT_CMD(
 	bootvx, 2, 0, do_bootvx,
 	"Boot vxWorks from an ELF image",
 	" [address] - load address of vxWorks ELF image."
 );
+#endif

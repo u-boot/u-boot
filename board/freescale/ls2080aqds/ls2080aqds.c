@@ -264,7 +264,7 @@ void detail_board_ddr_info(void)
 #endif
 }
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_XPL_BUILD)
 void fdt_fixup_board_enet(void *fdt)
 {
 	int offset;
@@ -323,7 +323,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	fsl_fdt_fixup_dr_usb(blob, bd);
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_XPL_BUILD)
 	fdt_fixup_board_enet(blob);
 	fdt_reserve_mc_mem(blob, 0x300);
 #endif

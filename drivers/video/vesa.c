@@ -8,21 +8,26 @@
 #include <pci.h>
 #include <vesa.h>
 #include <video.h>
+#if defined(CONFIG_X86)
 #include <asm/mtrr.h>
+#endif
 
 static int vesa_video_probe(struct udevice *dev)
 {
-	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
-	ulong fbbase;
 	int ret;
 
 	ret = vesa_setup_video(dev, NULL);
 	if (ret)
 		return log_ret(ret);
 
+#if defined(CONFIG_X86)
+	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
+	ulong fbbase;
+
 	/* Use write-combining for the graphics memory, 256MB */
 	fbbase = IS_ENABLED(CONFIG_VIDEO_COPY) ? plat->copy_base : plat->base;
 	mtrr_set_next_var(MTRR_TYPE_WRCOMB, fbbase, 256 << 20);
+#endif
 
 	return 0;
 }

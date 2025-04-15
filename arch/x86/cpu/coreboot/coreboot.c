@@ -22,7 +22,7 @@ int arch_cpu_init(void)
 {
 	int ret;
 
-	ret = IS_ENABLED(CONFIG_X86_RUN_64BIT) ? x86_cpu_reinit_f() :
+	ret = IS_ENABLED(CONFIG_X86_64) ? x86_cpu_reinit_f() :
 		x86_cpu_init_f();
 	if (ret)
 		return ret;
@@ -36,16 +36,6 @@ int arch_cpu_init(void)
 	timestamp_init();
 
 	return 0;
-}
-
-int checkcpu(void)
-{
-	return 0;
-}
-
-int print_cpuinfo(void)
-{
-	return default_print_cpuinfo();
 }
 
 static void board_final_init(void)
@@ -82,7 +72,9 @@ static void board_final_init(void)
 
 static int last_stage_init(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	timestamp_add_to_bootstage();
+
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		return 0;
 
 	board_final_init();

@@ -385,7 +385,7 @@ static bool tmio_sd_addr_is_dmaable(struct mmc_data *data)
 			return false;
 	}
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	if (IS_ENABLED(CONFIG_ARCH_UNIPHIER) && !IS_ENABLED(CONFIG_ARM64)) {
 		/*
 		 * For UniPhier ARMv7 SoCs, the stack is allocated in locked

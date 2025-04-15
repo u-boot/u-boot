@@ -1,0 +1,60 @@
+if TARGET_QEMU_ARM_SBSA
+
+config SYS_SOC
+	default "qemu-sbsa"
+
+config TEXT_BASE
+	default 0x10000100000
+
+config SYS_LOAD_ADDR
+	default 0x10000100000
+
+config PRE_CON_BUF_ADDR
+	default 0x100000FF000
+
+config DEFAULT_DEVICE_TREE
+	default "qemu-sbsa"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select AHCI
+	select ACPIGEN
+	select ACPI
+	select BLOBLIST
+	select CPU
+	select CPU_ARMV8
+	select DM
+	select DM_USB
+	select DM_MTD
+	select GENERATE_ACPI_TABLE
+	select HAS_ROM
+	select MTD
+	select OF_LIBFDT_OVERLAY
+	select PCI
+	select PCIE_ECAM_GENERIC
+	select SYS_PCI_64BIT
+	select USB
+	select GIC_V3
+	select GIC_V3_ITS
+	select SYS_FLASH_CFI_WIDTH_16BIT
+	imply AHCI_GENERIC
+	imply USB_XHCI_HCD
+	imply USB_XHCI_GENERIC
+	imply USB_STORAGE
+	imply E1000
+	imply E1000_NO_NVM
+	imply NET_RANDOM_ETHADDR
+	imply VIDEO_BOCHS
+	imply CFI_FLASH
+	imply SYS_MTDPARTS_RUNTIME
+	imply SET_DFU_ALT_INFO
+	imply PCI_INIT_R
+
+if DEBUG_UART
+
+config DEBUG_UART_BASE
+	default 0x60000000
+endif
+
+source "board/emulation/common/Kconfig"
+endif

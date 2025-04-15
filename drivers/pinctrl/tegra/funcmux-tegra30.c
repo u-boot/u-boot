@@ -33,6 +33,22 @@ int funcmux_select(enum periph_id id, int config)
 			break;
 		}
 		break;
+	case PERIPH_ID_UART5:
+		switch (config) {
+		case FUNCMUX_UART5_SDMMC1:
+			pinmux_set_func(PMUX_PINGRP_SDMMC1_DAT3_PY4,
+					PMUX_FUNC_UARTE);
+			pinmux_set_func(PMUX_PINGRP_SDMMC1_DAT2_PY5,
+					PMUX_FUNC_UARTE);
+
+			pinmux_set_io(PMUX_PINGRP_SDMMC1_DAT3_PY4, PMUX_PIN_OUTPUT);
+			pinmux_set_io(PMUX_PINGRP_SDMMC1_DAT2_PY5, PMUX_PIN_INPUT);
+
+			pinmux_tristate_disable(PMUX_PINGRP_SDMMC1_DAT3_PY4);
+			pinmux_tristate_disable(PMUX_PINGRP_SDMMC1_DAT2_PY5);
+			break;
+		}
+		break;
 
 	/* Add other periph IDs here as needed */
 

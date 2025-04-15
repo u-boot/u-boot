@@ -1,0 +1,19 @@
+if TARGET_K230_CANMV
+
+config SYS_BOARD
+	default "k230_canmv"
+
+config SYS_VENDOR
+	default "canaan"
+
+config SYS_CPU
+	default "k230"
+
+config TEXT_BASE
+	default 0x0
+
+config BOARD_SPECIFIC_OPTIONS
+	def_bool y
+	select CANAAN_K230
+
+endif

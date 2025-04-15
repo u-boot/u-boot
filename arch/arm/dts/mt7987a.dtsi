@@ -1,0 +1,98 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2023 MediaTek Inc.
+ * Author: Sam.Shih <sam.shih@mediatek.com>
+ */
+
+/dts-v1/;
+#include "mt7987.dtsi"
+#include "mt7987-pinctrl.dtsi"
+
+/ {
+	compatible = "mediatek,mt7987a", "mediatek,mt7987";
+
+	memory {
+		reg = <0 0x40000000 0 0x10000000>;
+	};
+
+};
+
+&afe {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcm_pins>;
+	status = "okay";
+};
+
+&boottrap {
+	status = "okay";
+};
+
+&fan {
+	pwms = <&pwm 0 50000 0>;
+	status = "disabled";
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_pins>;
+	status = "okay";
+};
+
+&infra_bus_prot {
+	status = "okay";
+};
+
+&lvts {
+	status = "okay";
+};
+
+&pcie0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie0_pins>;
+	status = "okay";
+};
+
+&pcie1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie1_pins>;
+	status = "disabled";
+};
+
+&pwm {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pwm_pins>;
+	status = "okay";
+};
+
+&spi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spic_pins>;
+	status = "okay";
+};
+
+&trng {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&watchdog {
+	status = "okay";
+};
+
+&xhci {
+	mediatek,u3p-dis-msk = <0x00000001>;
+	phys = <&tphyu2port0 PHY_TYPE_USB2>;
+
+	clocks = <&infracfg CLK_INFRA_USB_SYS_CK_P1>,
+		 <&infracfg CLK_INFRA_USB_XHCI_CK_P1>,
+		 <&infracfg CLK_INFRA_USB_CK_P1>,
+		 <&infracfg CLK_INFRA_66M_USB_HCK_CK_P1>,
+		 <&infracfg CLK_INFRA_133M_USB_HCK_CK_P1>;
+	clock-names = "sys_ck", "xhci_ck", "ref_ck", "mcu_ck",
+		      "dma_ck";
+
+	status = "okay";
+};

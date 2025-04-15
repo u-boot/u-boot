@@ -329,6 +329,7 @@ struct msdc_compatible {
 	u8 clk_div_bits;
 	bool pad_tune0;
 	bool async_fifo;
+	bool async_fifo_crcsts;
 	bool data_tune;
 	bool busy_check;
 	bool stop_clk_fix;
@@ -1553,8 +1554,12 @@ static void msdc_init_hw(struct msdc_host *host)
 		/* use async fifo to avoid tune internal delay */
 		clrbits_le32(&host->base->patch_bit2,
 			     MSDC_PB2_CFGRESP);
-		clrbits_le32(&host->base->patch_bit2,
-			     MSDC_PB2_CFGCRCSTS);
+		if (host->dev_comp->async_fifo_crcsts)
+			setbits_le32(&host->base->patch_bit2,
+				     MSDC_PB2_CFGCRCSTS);
+		else
+			clrbits_le32(&host->base->patch_bit2,
+				     MSDC_PB2_CFGCRCSTS);
 	}
 
 	if (host->dev_comp->data_tune) {
@@ -1844,6 +1849,17 @@ static const struct msdc_compatible mt7986_compat = {
 	.enhance_rx = true,
 };
 
+static const struct msdc_compatible mt7987_compat = {
+	.clk_div_bits = 12,
+	.pad_tune0 = true,
+	.async_fifo = true,
+	.async_fifo_crcsts = true,
+	.data_tune = true,
+	.busy_check = true,
+	.stop_clk_fix = true,
+	.enhance_rx = true,
+};
+
 static const struct msdc_compatible mt7981_compat = {
 	.clk_div_bits = 12,
 	.pad_tune0 = true,
@@ -1886,6 +1902,7 @@ static const struct udevice_id msdc_ids[] = {
 	{ .compatible = "mediatek,mt7622-mmc", .data = (ulong)&mt7622_compat },
 	{ .compatible = "mediatek,mt7623-mmc", .data = (ulong)&mt7623_compat },
 	{ .compatible = "mediatek,mt7986-mmc", .data = (ulong)&mt7986_compat },
+	{ .compatible = "mediatek,mt7987-mmc", .data = (ulong)&mt7987_compat },
 	{ .compatible = "mediatek,mt7981-mmc", .data = (ulong)&mt7981_compat },
 	{ .compatible = "mediatek,mt8512-mmc", .data = (ulong)&mt8512_compat },
 	{ .compatible = "mediatek,mt8516-mmc", .data = (ulong)&mt8516_compat },

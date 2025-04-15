@@ -49,8 +49,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 			int ret;
 
 			debug("Found FIT\n");
-			spl_set_bl_len(&load, 1);
-			load.read = spl_nor_load_read;
+			spl_load_init(&load, spl_nor_load_read, NULL, 1);
 
 			ret = spl_load_simple_fit(spl_image, &load,
 						  CONFIG_SYS_OS_BASE,
@@ -93,8 +92,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 	 * Load real U-Boot from its location in NOR flash to its
 	 * defined location in SDRAM
 	 */
-	spl_set_bl_len(&load, 1);
-	load.read = spl_nor_load_read;
+	spl_load_init(&load, spl_nor_load_read, NULL, 1);
 	return spl_load(spl_image, bootdev, &load, 0, spl_nor_get_uboot_base());
 }
 SPL_LOAD_IMAGE_METHOD("NOR", 0, BOOT_DEVICE_NOR, spl_nor_load_image);

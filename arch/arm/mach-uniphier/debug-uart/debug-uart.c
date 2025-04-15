@@ -26,7 +26,7 @@ static void _debug_uart_putc(int c)
 	writel(c, base + UNIPHIER_UART_TX);
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void sg_set_pinsel(unsigned int pin, unsigned int muxval,
 		   unsigned int mux_bits, unsigned int reg_stride)
 {
@@ -56,7 +56,7 @@ void sg_set_iectrl(unsigned int pin)
 
 void _debug_uart_init(void)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	void __iomem *base = (void __iomem *)CONFIG_VAL(DEBUG_UART_BASE);
 	unsigned int divisor;
 

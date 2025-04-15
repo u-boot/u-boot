@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2020 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  *
  */
 
+#include <cpu_func.h>
 #include <asm/ptrace.h>
 #include <asm/system.h>
 #include <linux/errno.h>
@@ -40,10 +42,16 @@ int smc_send_mailbox(u32 cmd, u32 len, u32 *arg, u8 urgent, u32 *resp_buf_len,
 	args[2] = len;
 	args[3] = urgent;
 	args[4] = (u64)resp_buf;
-	if (resp_buf_len)
+
+	if (arg && len > 0)
+		flush_dcache_range((uintptr_t)arg, (uintptr_t)arg + len);
+
+	if (resp_buf && resp_buf_len && *resp_buf_len > 0) {
 		args[5] = *resp_buf_len;
-	else
+		flush_dcache_range((uintptr_t)resp_buf, (uintptr_t)resp_buf + *resp_buf_len);
+	} else {
 		args[5] = 0;
+	}
 
 	ret = invoke_smc(INTEL_SIP_SMC_MBOX_SEND_CMD, args, ARRAY_SIZE(args),
 			 resp, ARRAY_SIZE(resp));

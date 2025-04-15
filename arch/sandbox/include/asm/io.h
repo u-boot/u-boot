@@ -39,13 +39,13 @@ void sandbox_write(void *addr, unsigned int val, enum sandboxio_size_t size);
 #define readb(addr) sandbox_read((const void *)addr, SB_SIZE_8)
 #define readw(addr) sandbox_read((const void *)addr, SB_SIZE_16)
 #define readl(addr) sandbox_read((const void *)addr, SB_SIZE_32)
-#ifdef CONFIG_SANDBOX64
+#ifdef CONFIG_64BIT
 #define readq(addr) sandbox_read((const void *)addr, SB_SIZE_64)
 #endif
 #define writeb(v, addr) sandbox_write((void *)addr, v, SB_SIZE_8)
 #define writew(v, addr) sandbox_write((void *)addr, v, SB_SIZE_16)
 #define writel(v, addr) sandbox_write((void *)addr, v, SB_SIZE_32)
-#ifdef CONFIG_SANDBOX64
+#ifdef CONFIG_64BIT
 #define writeq(v, addr) sandbox_write((void *)addr, v, SB_SIZE_64)
 #endif
 
@@ -235,7 +235,7 @@ static inline void unmap_sysmem(const void *vaddr)
  * nomap_sysmem() - pass through an address unchanged
  *
  * This is used to indicate an address which should NOT be mapped, e.g. in
- * SMBIOS tables. Using this function instead of a case shows that the sandbox
+ * SMBIOS tables. Using this function instead of a cast shows that the sandbox
  * conversion has been done
  */
 static inline void *nomap_sysmem(phys_addr_t paddr, unsigned long len)

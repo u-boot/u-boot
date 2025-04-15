@@ -52,6 +52,13 @@ config SPI_DIRMAP
 
 if DM_SPI
 
+config ADI_SPI3
+	bool "Enable ADI SPI Driver"
+	depends on ARCH_SC5XX
+	help
+	  Enable the ADI (Analog Devices) SPI controller driver. This
+	  driver enables the support for SC5XX spi controller.
+
 config ALTERA_SPI
 	bool "Altera SPI driver"
 	help
@@ -85,7 +92,7 @@ config ATH79_SPI
 
 config ATMEL_QSPI
 	bool "Atmel Quad SPI Controller"
-	depends on ARCH_AT91
+	depends on ARCH_AT91 && SPI_MEM
 	help
 	  Enable the Atmel Quad SPI controller in master mode. This driver
 	  does not support generic SPI. The implementation supports only the
@@ -93,6 +100,7 @@ config ATMEL_QSPI
 
 config ATMEL_SPI
 	bool "Atmel SPI driver"
+	depends on ARCH_AT91
 	default y if ARCH_AT91
 	help
 	  This enables driver for the Atmel SPI Controller, present on
@@ -126,6 +134,7 @@ config BCM63XX_SPI
 
 config BCMSTB_SPI
 	bool "BCMSTB SPI driver"
+	depends on ARCH_BCMSTB
 	help
 	  Enable the Broadcom set-top box SPI driver. This driver can
 	  be used to access the SPI flash on platforms embedding this
@@ -133,7 +142,7 @@ config BCMSTB_SPI
 
 config CORTINA_SFLASH
 	bool "Cortina-Access Serial Flash controller driver"
-	depends on DM_SPI && SPI_MEM
+	depends on SPI_MEM
 	help
 	  Enable the Cortina-Access Serial Flash controller driver. This driver
 	  can be used to access the SPI NOR/NAND flash on platforms embedding this
@@ -164,6 +173,7 @@ config CADENCE_OSPI_VERSAL
 
 config CF_SPI
         bool "ColdFire SPI driver"
+        depends on M68K
         help
           Enable the ColdFire SPI driver. This driver can be used on
           some m68k SoCs.
@@ -191,6 +201,7 @@ config DESIGNWARE_SPI
 
 config EXYNOS_SPI
 	bool "Samsung Exynos SPI driver"
+	depends on ARCH_EXYNOS
 	help
 	  Enable the Samsung Exynos SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Samsung
@@ -198,6 +209,7 @@ config EXYNOS_SPI
 
 config FSL_DSPI
 	bool "Freescale DSPI driver"
+	depends on FSL_LAYERSCAPE || ARCH_VF610 || ARCH_LS1021A || ARCH_LS1028A
 	help
 	  Enable the Freescale DSPI driver. This driver can be used to
 	  access the SPI NOR flash and SPI Data flash on platforms embedding
@@ -228,6 +240,7 @@ config GXP_SPI
 
 config ICH_SPI
 	bool "Intel ICH SPI driver"
+	depends on X86
 	help
 	  Enable the Intel ICH SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Intel
@@ -241,6 +254,7 @@ config IPROC_QSPI
 
 config KIRKWOOD_SPI
 	bool "Marvell Kirkwood SPI Driver"
+	depends on ARCH_KIRKWOOD || ARCH_MVEBU
 	help
 	  Enable support for SPI on various Marvell SoCs, such as
 	  Kirkwood and Armada 375.
@@ -276,6 +290,7 @@ config MPC8XX_SPI
 
 config MPC8XXX_SPI
 	bool "MPC8XXX SPI Driver"
+	depends on MPC83xx || MPC85xx
 	help
 	  Enable support for SPI on the MPC8XXX PowerPC SoCs.
 
@@ -335,6 +350,7 @@ config MVEBU_A3700_SPI
 
 config MXS_SPI
 	bool "MXS SPI Driver"
+	depends on MACH_IMX
 	help
 	  Enable the MXS SPI controller driver. This driver can be used
 	  on the i.MX23 and i.MX28 SoCs.
@@ -411,11 +427,12 @@ config RENESAS_RPC_SPI
 	imply SPI_FLASH_SFDP_SUPPORT
 	help
 	  Enable the Renesas RPC SPI driver, used to access SPI NOR flash
-	  on Renesas RCar Gen3 SoCs. This uses driver model and requires a
+	  on Renesas R-Car Gen3 SoCs. This uses driver model and requires a
 	  device tree binding to operate.
 
 config ROCKCHIP_SFC
 	bool "Rockchip SFC Driver"
+	select BOUNCE_BUFFER
 	help
 	  Enable the Rockchip SFC Driver for SPI NOR flash. This device is
 	  a limited purpose SPI controller for driving NOR flash on certain
@@ -520,6 +537,7 @@ config STM32_SPI
 
 config TEGRA114_SPI
 	bool "nVidia Tegra114 SPI driver"
+	depends on ARCH_TEGRA
 	help
 	  Enable the nVidia Tegra114 SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this nVidia Tegra114
@@ -530,6 +548,7 @@ config TEGRA114_SPI
 
 config TEGRA20_SFLASH
 	bool "nVidia Tegra20 Serial Flash controller driver"
+	depends on ARCH_TEGRA
 	help
 	  Enable the nVidia Tegra20 Serial Flash controller driver. This driver
 	  can be used to access the SPI NOR flash on platforms embedding this
@@ -537,6 +556,7 @@ config TEGRA20_SFLASH
 
 config TEGRA20_SLINK
 	bool "nVidia Tegra20/Tegra30 SLINK driver"
+	depends on ARCH_TEGRA
 	help
 	  Enable the nVidia Tegra20/Tegra30 SLINK driver. This driver can
 	  be used to access the SPI NOR flash on platforms embedding this
@@ -544,6 +564,7 @@ config TEGRA20_SLINK
 
 config TEGRA210_QSPI
 	bool "nVidia Tegra210 QSPI driver"
+	depends on ARCH_TEGRA
 	help
 	  Enable the Tegra Quad-SPI (QSPI) driver for T210. This driver
 	  be used to access SPI chips on platforms embedding this
@@ -552,6 +573,7 @@ config TEGRA210_QSPI
 config TI_QSPI
 	bool "TI QSPI driver"
 	imply TI_EDMA3
+	depends on ARCH_OMAP2PLUS
 	help
 	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
 	  This driver support spi flash single, quad and memory reads.
@@ -594,6 +616,12 @@ config ZYNQMP_GQSPI
 	  This option is used to enable ZynqMP QSPI controller driver which
 	  is used to communicate with qspi flash devices.
 
+config SPI_STACKED_PARALLEL
+	bool "Enable support for stacked or parallel memories"
+	help
+	 Enable support for stacked/or parallel memories. This functionality
+	 may appear on Xilinx hardware. By default this is disabled.
+
 endif # if DM_SPI
 
 config FSL_ESPI
@@ -607,12 +635,14 @@ config FSL_ESPI
 
 config SH_QSPI
 	bool "Renesas Quad SPI driver"
+	depends on ARCH_RENESAS
 	help
 	  Enable the Renesas Quad SPI controller driver. This driver can be
 	  used on Renesas SoCs.
 
 config MXC_SPI
 	bool "MXC SPI Driver"
+	depends on MACH_IMX
 	help
 	  Enable the MXC SPI controller driver. This driver can be used
 	  on various i.MX SoCs such as i.MX31/35/51/6/7.

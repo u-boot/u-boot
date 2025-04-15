@@ -8,6 +8,7 @@
  */
 
 #define LOG_CATEGORY LOGC_EFI
+
 #include <dm.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
@@ -111,7 +112,7 @@ static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
 	/* if ExitBootServices hasn't been called update the normal log */
 	if (!event_log.ebs_called) {
 		if (event_log.truncated ||
-		    event_log.pos + event_size > TPM2_EVENT_LOG_SIZE) {
+		    event_log.pos + event_size > CONFIG_TPM2_EVENT_LOG_SIZE) {
 			event_log.truncated = true;
 			return EFI_VOLUME_FULL;
 		}
@@ -124,7 +125,7 @@ static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
 		return ret;
 
 	/* if GetEventLog has been called update FinalEventLog as well */
-	if (event_log.final_pos + event_size > TPM2_EVENT_LOG_SIZE)
+	if (event_log.final_pos + event_size > CONFIG_TPM2_EVENT_LOG_SIZE)
 		return EFI_VOLUME_FULL;
 
 	log = (void *)((uintptr_t)event_log.final_buffer + event_log.final_pos);
@@ -607,12 +608,9 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
 	 * Format"
 	 */
 	if (flags & PE_COFF_IMAGE) {
-		IMAGE_NT_HEADERS32 *nt;
-
 		ret = efi_check_pe((void *)(uintptr_t)data_to_hash,
-				   data_to_hash_len, (void **)&nt);
+				   data_to_hash_len, NULL);
 		if (ret != EFI_SUCCESS) {
-			log_err("Not a valid PE-COFF file\n");
 			ret = EFI_UNSUPPORTED;
 			goto out;
 		}
@@ -789,12 +787,12 @@ static const struct efi_tcg2_protocol efi_tcg2_protocol = {
 /**
  * tcg2_uninit - remove the final event table and free efi memory on failures
  */
-void tcg2_uninit(void)
+static void tcg2_uninit(void)
 {
 	efi_status_t ret;
 
 	ret = efi_install_configuration_table(&efi_guid_final_events, NULL);
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS && ret != EFI_NOT_FOUND)
 		log_err("Failed to delete final events config table\n");
 
 	efi_free_pool(event_log.buffer);
@@ -825,12 +823,12 @@ static efi_status_t create_final_event(void)
 	 * EFI_TCG2_GET_EVENT_LOGS need to be stored in an instance of an
 	 * EFI_CONFIGURATION_TABLE
 	 */
-	ret = efi_allocate_pool(EFI_ACPI_MEMORY_NVS, TPM2_EVENT_LOG_SIZE,
+	ret = efi_allocate_pool(EFI_ACPI_MEMORY_NVS, CONFIG_TPM2_EVENT_LOG_SIZE,
 				&event_log.final_buffer);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	memset(event_log.final_buffer, 0xff, TPM2_EVENT_LOG_SIZE);
+	memset(event_log.final_buffer, 0xff, CONFIG_TPM2_EVENT_LOG_SIZE);
 	final_event = event_log.final_buffer;
 	final_event->number_of_events = 0;
 	final_event->version = EFI_TCG2_FINAL_EVENTS_TABLE_VERSION;
@@ -916,7 +914,8 @@ static efi_status_t efi_init_event_log(void)
 	if (tcg2_platform_get_tpm2(&dev))
 		return EFI_DEVICE_ERROR;
 
-	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, TPM2_EVENT_LOG_SIZE,
+	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA,
+				CONFIG_TPM2_EVENT_LOG_SIZE,
 				(void **)&event_log.buffer);
 	if (ret != EFI_SUCCESS)
 		return ret;
@@ -925,7 +924,7 @@ static efi_status_t efi_init_event_log(void)
 	 * initialize log area as 0xff so the OS can easily figure out the
 	 * last log entry
 	 */
-	memset(event_log.buffer, 0xff, TPM2_EVENT_LOG_SIZE);
+	memset(event_log.buffer, 0xff, CONFIG_TPM2_EVENT_LOG_SIZE);
 
 	/*
 	 * The log header is defined to be in SHA1 event log entry format.
@@ -942,7 +941,7 @@ static efi_status_t efi_init_event_log(void)
 	 * platforms can use different ways to do so.
 	 */
 	elog.log = event_log.buffer;
-	elog.log_size = TPM2_EVENT_LOG_SIZE;
+	elog.log_size = CONFIG_TPM2_EVENT_LOG_SIZE;
 	rc = tcg2_log_prepare_buffer(dev, &elog, false);
 	if (rc) {
 		ret = (rc == -ENOBUFS) ? EFI_BUFFER_TOO_SMALL : EFI_DEVICE_ERROR;

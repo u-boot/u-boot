@@ -1,0 +1,8 @@
+OUYA BOARD
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+M:	Peter Geis <pgwipeout@gmail.com>
+S:	Maintained
+F:	board/ouya/ouya/
+F:	configs/ouya_defconfig
+F:	doc/board/ouya/ouya.rst
+F:	include/configs/ouya.h

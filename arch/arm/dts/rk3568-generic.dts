@@ -4,7 +4,7 @@
  */
 
 /dts-v1/;
-#include "rk356x.dtsi"
+#include "rk356x-base.dtsi"
 
 / {
 	model = "Generic RK3566/RK3568";

@@ -58,7 +58,7 @@ int ofnode_decode_region(ofnode node, const char *prop_name, fdt_addr_t *basep,
 	const fdt_addr_t *cell;
 	int len;
 
-	dm_warn("%s: %s: %s\n", __func__, ofnode_get_name(node), prop_name);
+	log_debug("%s: %s: %s\n", __func__, ofnode_get_name(node), prop_name);
 	cell = ofnode_get_property(node, prop_name, &len);
 	if (!cell || (len < sizeof(fdt_addr_t) * 2)) {
 		dm_warn("cell=%p, len=%d\n", cell, len);
@@ -67,8 +67,8 @@ int ofnode_decode_region(ofnode node, const char *prop_name, fdt_addr_t *basep,
 
 	*basep = fdt_addr_to_cpu(*cell);
 	*sizep = fdt_size_to_cpu(cell[1]);
-	dm_warn("%s: base=%08lx, size=%lx\n", __func__, (ulong)*basep,
-		(ulong)*sizep);
+	log_debug("%s: base=%08lx, size=%lx\n", __func__, (ulong)*basep,
+		  (ulong)*sizep);
 
 	return 0;
 }

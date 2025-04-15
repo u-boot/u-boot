@@ -30,8 +30,8 @@ config TARGET_AM3517_EVM
 	select DM
 	select DM_GPIO
 	select DM_I2C
-	select DM_MMC
 	select DM_SERIAL
+	select MMC
 	imply CMD_DM
 
 config TARGET_CM_T35

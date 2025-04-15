@@ -183,7 +183,7 @@ ENTRY(lowlevel_init)
 #endif
 
 	/* Initialize GIC Secure Bank Status */
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	branch_if_slave x0, 1f
 	bl	get_gic_offset
@@ -306,7 +306,7 @@ ENTRY(lowlevel_init)
 #endif
 
 #if !defined(CONFIG_TFABOOT) && \
-	(defined(CONFIG_FSL_LSCH2) && !defined(CONFIG_SPL_BUILD))
+	(defined(CONFIG_FSL_LSCH2) && !defined(CONFIG_XPL_BUILD))
 	bl	fsl_ocram_init
 #endif
 
@@ -314,7 +314,7 @@ ENTRY(lowlevel_init)
 	ret
 ENDPROC(lowlevel_init)
 
-#if defined(CONFIG_FSL_LSCH2) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_LSCH2) && !defined(CONFIG_XPL_BUILD)
 ENTRY(fsl_ocram_init)
 	mov	x28, lr			/* Save LR */
 	bl	fsl_clear_ocram

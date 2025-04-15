@@ -4,7 +4,7 @@
 # SPDX-License-Identifier:     GPL-2.0+
 #
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-y += syscon_rv1108.o
 endif
 obj-y += rv1108.o

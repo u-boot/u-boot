@@ -193,10 +193,10 @@ struct io_setting {
  */
 static bool phase_sdram_init(void)
 {
-	return spl_phase() == PHASE_TPL ||
+	return xpl_phase() == PHASE_TPL ||
 		(!IS_ENABLED(CONFIG_TPL) &&
 		 !IS_ENABLED(CONFIG_ROCKCHIP_EXTERNAL_TPL) &&
-		 !spl_in_proper());
+		 !not_xpl());
 }
 
 static struct io_setting *
@@ -3196,7 +3196,7 @@ U_BOOT_DRIVER(dmc_rk3399) = {
 	.probe = rk3399_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),
 #if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
+	(!defined(CONFIG_TPL) && defined(CONFIG_XPL_BUILD))
 	.plat_auto	= sizeof(struct rockchip_dmc_plat),
 #endif
 };

@@ -38,7 +38,7 @@ efi_status_t efi_get_variable_int(const u16 *variable_name,
 				  void *data, u64 *timep);
 
 /**
- * efi_set_variable() - set value of a UEFI variable
+ * efi_set_variable_int() - set value of a UEFI variable
  *
  * @variable_name:	name of the variable
  * @vendor:		vendor GUID

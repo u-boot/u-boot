@@ -26,8 +26,8 @@ WEAK(lowlevel_init)
 	/*
 	 * Setup a temporary stack. Global data is not available yet.
 	 */
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
-	ldr	sp, =CONFIG_SPL_STACK
+#if CONFIG_IS_ENABLED(HAVE_INIT_STACK)
+	ldr	sp, =CONFIG_VAL(STACK)
 #else
 	ldr	sp, =SYS_INIT_SP_ADDR
 #endif
@@ -39,7 +39,7 @@ WEAK(lowlevel_init)
 	 * Set up global data for boards that still need it. This will be
 	 * removed soon.
 	 */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	ldr	r9, =gdata
 #else
 	sub	sp, sp, #GD_SIZE

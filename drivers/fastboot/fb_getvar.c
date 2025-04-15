@@ -230,7 +230,8 @@ static void __maybe_unused getvar_partition_type(char *part_name, char *response
 	if (r >= 0) {
 		r = fs_set_blk_dev_with_part(dev_desc, r);
 		if (r < 0)
-			fastboot_fail("failed to set partition", response);
+			/* If we don't know then just default to raw */
+			fastboot_okay("raw", response);
 		else
 			fastboot_okay(fs_get_type_name(), response);
 	}

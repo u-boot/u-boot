@@ -14,6 +14,12 @@
 #include <asm-generic/gpio.h>
 
 enum pca_type {
+	MAX7356,
+	MAX7357,
+	MAX7358,
+	MAX7367,
+	MAX7368,
+	MAX7369,
 	PCA9543,
 	PCA9544,
 	PCA9546,
@@ -39,6 +45,31 @@ struct pca954x_priv {
 };
 
 static const struct chip_desc chips[] = {
+	[MAX7356] = {
+		.muxtype = pca954x_isswi,
+		.width = 8,
+	},
+	[MAX7357] = {
+		.muxtype = pca954x_isswi,
+		.width = 8,
+	},
+	[MAX7358] = {
+		.muxtype = pca954x_isswi,
+		.width = 8,
+	},
+	[MAX7367] = {
+		.muxtype = pca954x_isswi,
+		.width = 4,
+	},
+	[MAX7368] = {
+		.muxtype = pca954x_isswi,
+		.width = 4,
+	},
+	[MAX7369] = {
+		.enable = 0x4,
+		.muxtype = pca954x_ismux,
+		.width = 4,
+	},
 	[PCA9543] = {
 		.muxtype = pca954x_isswi,
 		.width = 2,
@@ -102,6 +133,12 @@ static const struct i2c_mux_ops pca954x_ops = {
 };
 
 static const struct udevice_id pca954x_ids[] = {
+	{ .compatible = "maxim,max7356", .data = MAX7356 },
+	{ .compatible = "maxim,max7357", .data = MAX7357 },
+	{ .compatible = "maxim,max7358", .data = MAX7358 },
+	{ .compatible = "maxim,max7367", .data = MAX7367 },
+	{ .compatible = "maxim,max7368", .data = MAX7368 },
+	{ .compatible = "maxim,max7369", .data = MAX7369 },
 	{ .compatible = "nxp,pca9543", .data = PCA9543 },
 	{ .compatible = "nxp,pca9544", .data = PCA9544 },
 	{ .compatible = "nxp,pca9546", .data = PCA9546 },

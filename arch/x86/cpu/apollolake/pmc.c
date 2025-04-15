@@ -115,7 +115,7 @@ int apl_pmc_ofdata_to_uc_plat(struct udevice *dev)
 				 ARRAY_SIZE(base));
 	if (ret)
 		return log_msg_ret("Missing/short early-regs", ret);
-	if (spl_phase() == PHASE_TPL) {
+	if (xpl_phase() == PHASE_TPL) {
 		upriv->pmc_bar0 = (void *)base[0];
 		upriv->pmc_bar2 = (void *)base[2];
 
@@ -186,7 +186,7 @@ static int enable_pmcbar(struct udevice *dev)
 
 static int apl_pmc_probe(struct udevice *dev)
 {
-	if (spl_phase() == PHASE_TPL) {
+	if (xpl_phase() == PHASE_TPL) {
 		return enable_pmcbar(dev);
 	} else {
 		struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);

@@ -58,7 +58,7 @@ static Altera_desc altera_fpga[] = {
 	},
 };
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 static struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CFG_SYS_PL310_BASE;
 static const struct socfpga_noc_fw_ocram *noc_fw_ocram_base =

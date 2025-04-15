@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2024 Texas Instruments Incorporated - https://www.ti.com/
+ */
+/dts-v1/;
+
+#include "k3-j742s2-evm.dts"
+#include "k3-j742s2-ddr-evm-lp4-4266.dtsi"
+#include "k3-j784s4-j742s2-ddr.dtsi"
+#include "k3-j742s2-evm-u-boot.dtsi"
+#include "k3-j784s4-r5.dtsi"
+
+&tps659413 {
+	esm: esm {
+		compatible = "ti,tps659413-esm";
+		bootph-pre-ram;
+	};
+};

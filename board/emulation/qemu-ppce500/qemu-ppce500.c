@@ -334,15 +334,11 @@ u32 cpu_mask(void)
 	return (1 << cpu_numcores()) - 1;
 }
 
-/**
- * Return the virtual address of FDT that was passed by QEMU
- *
- * Return: virtual address of FDT received from QEMU in r3 register
- */
-void *board_fdt_blob_setup(int *err)
+int board_fdt_blob_setup(void **fdtp)
 {
-	*err = 0;
-	return get_fdt_virt();
+	*fdtp = get_fdt_virt();
+
+	return 0;
 }
 
 /* See CFG_SYS_NS16550_CLK in arch/powerpc/include/asm/config.h */

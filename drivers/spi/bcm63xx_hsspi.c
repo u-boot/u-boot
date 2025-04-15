@@ -174,7 +174,7 @@ static void bcm63xx_hsspi_activate_cs(struct bcm63xx_hsspi_priv *priv,
 	set = DIV_ROUND_UP(2048, set);
 	set &= SPI_PFL_CLK_FREQ_MASK;
 	set |= SPI_PFL_CLK_RSTLOOP_MASK;
-	writel(set, priv->regs + SPI_PFL_CLK_REG(plat->cs));
+	writel(set, priv->regs + SPI_PFL_CLK_REG(plat->cs[0]));
 
 	/* profile signal */
 	set = 0;
@@ -192,29 +192,29 @@ static void bcm63xx_hsspi_activate_cs(struct bcm63xx_hsspi_priv *priv,
 	if (speed > SPI_MAX_SYNC_CLOCK)
 		set |= SPI_PFL_SIG_ASYNCIN_MASK;
 
-	clrsetbits_32(priv->regs + SPI_PFL_SIG_REG(plat->cs), clr, set);
+	clrsetbits_32(priv->regs + SPI_PFL_SIG_REG(plat->cs[0]), clr, set);
 
 	/* global control */
 	set = 0;
 	clr = 0;
 
 	if (priv->xfer_mode == HSSPI_XFER_MODE_PREPEND) {
-		if (priv->cs_pols & BIT(plat->cs))
-			set |= BIT(plat->cs);
+		if (priv->cs_pols & BIT(plat->cs[0]))
+			set |= BIT(plat->cs[0]);
 		else
-			clr |= BIT(plat->cs);
+			clr |= BIT(plat->cs[0]);
 	} else {
 		/* invert cs polarity */
-		if (priv->cs_pols & BIT(plat->cs))
-			clr |= BIT(plat->cs);
+		if (priv->cs_pols & BIT(plat->cs[0]))
+			clr |= BIT(plat->cs[0]);
 		else
-			set |= BIT(plat->cs);
+			set |= BIT(plat->cs[0]);
 
 		/* invert dummy cs polarity */
-		if (priv->cs_pols & BIT(!plat->cs))
-			clr |= BIT(!plat->cs);
+		if (priv->cs_pols & BIT(!plat->cs[0]))
+			clr |= BIT(!plat->cs[0]);
 		else
-			set |= BIT(!plat->cs);
+			set |= BIT(!plat->cs[0]);
 	}
 
 	clrsetbits_32(priv->regs + SPI_CTL_REG, clr, set);
@@ -290,7 +290,7 @@ static int bcm63xx_hsspi_xfer_dummy_cs(struct udevice *dev, unsigned int data_by
 
 	if (plat->mode & SPI_3WIRE)
 		val |= SPI_PFL_MODE_3WIRE_MASK;
-	writel(val, priv->regs + SPI_PFL_MODE_REG(plat->cs));
+	writel(val, priv->regs + SPI_PFL_MODE_REG(plat->cs[0]));
 
 	/* transfer loop */
 	while (data_bytes > 0) {
@@ -310,9 +310,9 @@ static int bcm63xx_hsspi_xfer_dummy_cs(struct udevice *dev, unsigned int data_by
 
 		/* issue the transfer */
 		val = SPI_CMD_OP_START;
-		val |= (plat->cs << SPI_CMD_PFL_SHIFT) &
+		val |= (plat->cs[0] << SPI_CMD_PFL_SHIFT) &
 		       SPI_CMD_PFL_MASK;
-		val |= (!plat->cs << SPI_CMD_SLAVE_SHIFT) &
+		val |= (!plat->cs[0] << SPI_CMD_SLAVE_SHIFT) &
 		       SPI_CMD_SLAVE_MASK;
 		writel(val, priv->regs + SPI_CMD_REG);
 
@@ -450,7 +450,7 @@ static int bcm63xx_hsspi_xfer_prepend(struct udevice *dev, unsigned int data_byt
 			}
 		}
 		val |= (priv->prepend_cnt << SPI_PFL_MODE_PREPCNT_SHIFT);
-		writel(val, priv->regs + SPI_PFL_MODE_REG(plat->cs));
+		writel(val, priv->regs + SPI_PFL_MODE_REG(plat->cs[0]));
 
 		/* set fifo operation */
 		val = opcode | (data_bytes & HSSPI_FIFO_OP_BYTES_MASK);
@@ -459,9 +459,9 @@ static int bcm63xx_hsspi_xfer_prepend(struct udevice *dev, unsigned int data_byt
 
 		/* issue the transfer */
 		val = SPI_CMD_OP_START;
-		val |= (plat->cs << SPI_CMD_PFL_SHIFT) &
+		val |= (plat->cs[0] << SPI_CMD_PFL_SHIFT) &
 		       SPI_CMD_PFL_MASK;
-		val |= (plat->cs << SPI_CMD_SLAVE_SHIFT) &
+		val |= (plat->cs[0] << SPI_CMD_SLAVE_SHIFT) &
 		       SPI_CMD_SLAVE_MASK;
 		writel(val, priv->regs + SPI_CMD_REG);
 
@@ -537,16 +537,16 @@ static int bcm63xx_hsspi_child_pre_probe(struct udevice *dev)
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	/* check cs */
-	if (plat->cs >= priv->num_cs) {
-		printf("no cs %u\n", plat->cs);
+	if (plat->cs[0] >= priv->num_cs) {
+		printf("no cs %u\n", plat->cs[0]);
 		return -ENODEV;
 	}
 
 	/* cs polarity */
 	if (plat->mode & SPI_CS_HIGH)
-		priv->cs_pols |= BIT(plat->cs);
+		priv->cs_pols |= BIT(plat->cs[0]);
 	else
-		priv->cs_pols &= ~BIT(plat->cs);
+		priv->cs_pols &= ~BIT(plat->cs[0]);
 
 	/*
 	 * set the max read/write size to make sure each xfer are within the

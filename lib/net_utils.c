@@ -152,6 +152,17 @@ out_err:
 }
 #endif
 
+void ip_to_string(struct in_addr x, char *s)
+{
+	x.s_addr = ntohl(x.s_addr);
+	sprintf(s, "%d.%d.%d.%d",
+		(int) ((x.s_addr >> 24) & 0xff),
+		(int) ((x.s_addr >> 16) & 0xff),
+		(int) ((x.s_addr >> 8) & 0xff),
+		(int) ((x.s_addr >> 0) & 0xff)
+	);
+}
+
 void string_to_enetaddr(const char *addr, uint8_t *enetaddr)
 {
 	char *end;

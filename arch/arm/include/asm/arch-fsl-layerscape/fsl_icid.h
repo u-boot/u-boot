@@ -12,13 +12,13 @@
 #include <asm/armv8/sec_firmware.h>
 
 struct icid_id_table {
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	const char *compat;
 	phys_addr_t compat_addr;
 #endif
 	phys_addr_t reg_addr;
 	u32 reg;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	u32 id;
 #endif
 	bool le;
@@ -35,7 +35,7 @@ int fdt_set_iommu_prop(void *blob, int off, int smmu_ph, u32 *ids, int num_ids);
 void set_icids(void);
 void fdt_fixup_icid(void *blob);
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define SET_ICID_ENTRY(name, idA, regA, addr, compataddr, _le) \
 	{ .reg = regA, \
 	  .reg_addr = addr, \

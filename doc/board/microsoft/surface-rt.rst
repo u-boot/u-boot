@@ -14,7 +14,7 @@ Build U-Boot
 
 .. code-block:: bash
 
-    $ export CROSS_COMPILE=arm-linux-gnueabi-
+    $ export CROSS_COMPILE=arm-none-eabi-
     $ make surface-rt_defconfig
     $ make
 
@@ -38,4 +38,4 @@ directory with
 To boot Linux, U-Boot will look for an ``extlinux.conf`` on MicroSD and then on
 eMMC. Additionally, if the Volume Down button is pressed while loading, the
 device will enter bootmenu. Bootmenu contains entries to mount MicroSD and eMMC
-as mass storage, fastboot, reboot, reboot RCM, poweroffand enter U-Boot console.
+as mass storage, fastboot, reboot, reboot RCM, poweroff and enter U-Boot console.

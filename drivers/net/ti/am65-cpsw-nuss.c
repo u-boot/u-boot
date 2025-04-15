@@ -661,7 +661,7 @@ static int am65_cpsw_ofdata_parse_phy(struct udevice *dev)
 
 	dev_read_u32(dev, "max-speed", (u32 *)&pdata->max_speed);
 	if (pdata->max_speed)
-		dev_err(dev, "Port %u speed froced to %uMbit\n",
+		dev_err(dev, "Port %u speed forced to %uMbit\n",
 			priv->port_id, pdata->max_speed);
 
 	return 0;

@@ -335,6 +335,7 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 			reg |= SC_RMII_EN | SC_ETCS_EXT_GMII;
 			break;
 		}
+		fallthrough;
 	default:
 		debug("%s: Invalid PHY interface\n", __func__);
 		return -EINVAL;

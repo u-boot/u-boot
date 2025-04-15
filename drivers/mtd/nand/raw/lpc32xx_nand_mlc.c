@@ -152,7 +152,7 @@ static void lpc32xx_nand_init(void)
 		&lpc32xx_nand_mlc_registers->time_reg);
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 
 /**
  * lpc32xx_cmd_ctrl - write command to either cmd or data register
@@ -606,7 +606,7 @@ void board_nand_init(void)
 		pr_err("nand_register returned %i", ret);
 }
 
-#else /* defined(CONFIG_SPL_BUILD) */
+#else /* defined(CONFIG_XPL_BUILD) */
 
 void nand_init(void)
 {
@@ -770,4 +770,4 @@ unsigned int nand_page_size(void)
 	return BYTES_PER_PAGE;
 }
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */

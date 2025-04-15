@@ -13,29 +13,23 @@
 	};
 };
 
-&pfc {
-	qspi0_pins: qspi0 {
-		groups = "qspi0_ctrl", "qspi0_data4";
-		function = "qspi0";
-	};
+&avb1 {
+	status = "disabled";
+};
+
+&avb2 {
+	status = "disabled";
 };
 
 &rpc {
-	pinctrl-0 = <&qspi0_pins>;
-	pinctrl-names = "default";
-
-	#address-cells = <1>;
-	#size-cells = <0>;
-	spi-max-frequency = <40000000>;
-	status = "disabled";
-
-	spi-flash@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "s25fs512s", "jedec,spi-nor";
-		reg = <0>;
+	bootph-all;
+	flash@0 {
+		bootph-all;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <1>;
-		spi-max-frequency = <40000000>;
 	};
+};
+
+&qspi0_pins {
+	bootph-all;
 };

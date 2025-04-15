@@ -17,7 +17,7 @@
 #endif
 
 #ifndef USE_HOSTCC
-#include <cyclic.h>
+#include <u-boot/schedule.h>
 #endif /* USE_HOSTCC */
 #include <string.h>
 #include <u-boot/sha1.h>
@@ -305,19 +305,6 @@ void sha1_finish (sha1_context * ctx, unsigned char output[20])
 }
 
 /*
- * Output = SHA-1( input buffer )
- */
-void sha1_csum(const unsigned char *input, unsigned int ilen,
-	       unsigned char *output)
-{
-	sha1_context ctx;
-
-	sha1_starts (&ctx);
-	sha1_update (&ctx, input, ilen);
-	sha1_finish (&ctx, output);
-}
-
-/*
  * Output = SHA-1( input buffer ). Trigger the watchdog every 'chunk_sz'
  * bytes of input processed.
  */
@@ -325,14 +312,16 @@ void sha1_csum_wd(const unsigned char *input, unsigned int ilen,
 		  unsigned char *output, unsigned int chunk_sz)
 {
 	sha1_context ctx;
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#if !defined(USE_HOSTCC) && \
+    (defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG))
 	const unsigned char *end, *curr;
 	int chunk;
 #endif
 
 	sha1_starts (&ctx);
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#if !defined(USE_HOSTCC) && \
+    (defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG))
 	curr = input;
 	end = input + ilen;
 	while (curr < end) {

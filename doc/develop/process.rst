@@ -23,9 +23,8 @@ Management Summary
 Phases of the Development Process
 ---------------------------------
 
-U-Boot development takes place in `Release Cycles
-<https://www.denx.de/wiki/U-Boot/ReleaseCycle>`_.  A Release Cycle lasts
-normally for three months.
+U-Boot development takes place in a :doc:`release_cycle`. A Release Cycle
+lasts normally for three months.
 
 The first three weeks of each Release Cycle are called *Merge Window*.
 

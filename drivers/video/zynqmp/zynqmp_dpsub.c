@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <generic-phy.h>
+#include <reset.h>
 #include <stdlib.h>
 #include <video.h>
 #include <wait_bit.h>
@@ -49,7 +50,7 @@ static void dma_init_video_descriptor(struct udevice *dev)
 			     DPDMA_DESCRIPTOR_ADDR_EXT_SRC_ADDR_EXT_SHIFT) |
 			     (upper_32_bits((u64)&cur_desc)));
 	cur_desc.next_desr = lower_32_bits((u64)&cur_desc);
-	cur_desc.src_addr = lower_32_bits((u64)gd->fb_base);
+	cur_desc.src_addr = lower_32_bits((u64)video_get_fb());
 }
 
 static void dma_set_descriptor_address(struct udevice *dev)
@@ -2093,9 +2094,14 @@ static int zynqmp_dpsub_probe(struct udevice *dev)
 {
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct zynqmp_dpsub_priv *priv = dev_get_priv(dev);
+	struct reset_ctl_bulk resets;
 	struct clk clk;
 	int ret;
 	int mode = RGBA8888;
+
+	ret = reset_get_bulk(dev, &resets);
+	if (!ret)
+		reset_deassert_bulk(&resets);
 
 	ret = clk_get_by_name(dev, "dp_apb_clk", &clk);
 	if (ret < 0) {
@@ -2134,7 +2140,6 @@ static int zynqmp_dpsub_probe(struct udevice *dev)
 	dev_dbg(dev, "BPP in bits %d, bpix %d\n",
 		priv->non_live_graphics->bpp, uc_priv->bpix);
 
-	uc_priv->fb = (void *)gd->fb_base;
 	uc_priv->xsize = vidc_video_timing_modes[priv->video_mode].video_timing.h_active;
 	uc_priv->ysize = vidc_video_timing_modes[priv->video_mode].video_timing.v_active;
 	/* Calculated by core but need it for my own setup */

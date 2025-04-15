@@ -695,9 +695,22 @@ static int blk_claim_devnum(enum uclass_id uclass_id, int devnum)
 	return -ENOENT;
 }
 
-int blk_create_device(struct udevice *parent, const char *drv_name,
-		      const char *name, int uclass_id, int devnum, int blksz,
-		      lbaint_t lba, struct udevice **devp)
+/**
+ * blk_create_device() - Create a new block device
+ *
+ * @parent:	Parent of the new device
+ * @drv_name:	Driver name to use for the block device
+ * @name:	Name for the device
+ * @uclass_id:	Interface type (enum uclass_id_t)
+ * @devnum:	Device number, specific to the interface type, or -1 to
+ *		allocate the next available number
+ * @blksz:	Block size of the device in bytes (typically 512)
+ * @lba:	Total number of blocks of the device
+ * @devp:	the new device (which has not been probed)
+ */
+static int blk_create_device(struct udevice *parent, const char *drv_name,
+			     const char *name, int uclass_id, int devnum,
+			     int blksz, lbaint_t lba, struct udevice **devp)
 {
 	struct blk_desc *desc;
 	struct udevice *dev;

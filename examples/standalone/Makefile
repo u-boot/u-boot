@@ -7,6 +7,10 @@ extra-y        := hello_world
 extra-$(CONFIG_SPI_FLASH_ATMEL)    += atmel_df_pow2
 extra-$(CONFIG_PPC)                += sched
 
+# Environment variable loadaddr is set from CONFIG_SYS_LOAD_ADDR.
+# Run the examples 4 MiB above this address.
+LOAD_ADDR:=${shell printf 0x%X $$(( $(CONFIG_SYS_LOAD_ADDR) + 0x400000 ))}
+
 #
 # Some versions of make do not handle trailing white spaces properly;
 # leading to build failures. The problem was found with GNU Make 3.80.
@@ -46,7 +50,7 @@ endif
 # source file.
 ccflags-y += $(call cc-option,-fno-toplevel-reorder)
 
-LDFLAGS_STANDALONE	+= -Ttext $(CONFIG_STANDALONE_LOAD_ADDR)
+LDFLAGS_STANDALONE	+= -Ttext $(LOAD_ADDR)
 
 #########################################################################
 

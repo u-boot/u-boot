@@ -29,4 +29,4 @@ static int dm_test_simple_bus(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_simple_bus, UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
+DM_TEST(dm_test_simple_bus, UTF_SCAN_FDT | UTF_FLAT_TREE);

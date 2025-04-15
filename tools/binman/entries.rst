@@ -64,7 +64,7 @@ Properties / Entry arguments:
 
 This entry holds the run-time firmware, typically started by U-Boot SPL.
 See the U-Boot README for your architecture or board for how to use it. See
-https://github.com/ARM-software/arm-trusted-firmware for more information
+https://github.com/TrustedFirmware-A/trusted-firmware-a for more information
 about ATF.
 
 
@@ -221,7 +221,7 @@ FIPs so that binman and other tools can access the entire image correctly.
 
 .. _FIP: https://trustedfirmware-a.readthedocs.io/en/latest/design/firmware-design.html#firmware-image-package-fip
 .. _`TF-A source tree`: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
-.. _`send a patch`: https://www.denx.de/wiki/U-Boot/Patches
+.. _`send a patch`: https://docs.u-boot.org/en/latest/develop/sending_patches.html
 
 
 
@@ -862,7 +862,25 @@ The top-level 'fit' node supports the following special properties:
         can be provided as a directory. Each .dtb file in the directory is
         processed, , e.g.::
 
-            fit,fdt-list-dir = "arch/arm/dts
+            fit,fdt-list-dir = "arch/arm/dts";
+
+        In this case the input directories are ignored and all devicetree
+        files must be in that directory.
+
+    fit,sign
+        Enable signing FIT images via mkimage as described in
+        verified-boot.rst. If the property is found, the private keys path
+        is detected among binman include directories and passed to mkimage
+        via  -k flag. All the keys required for signing FIT must be
+        available at time of signing and must be located in single include
+        directory.
+
+    fit,encrypt
+        Enable data encryption in FIT images via mkimage. If the property
+        is found, the keys path is detected among binman include
+        directories and passed to mkimage via  -k flag. All the keys
+        required for encrypting the FIT must be available at the time of
+        encrypting and must be located in a single include directory.
 
 Substitutions
 ~~~~~~~~~~~~~
@@ -884,6 +902,9 @@ Available substitutions for property values in these nodes are:
 DEFAULT-SEQ:
     Sequence number of the default fdt, as provided by the 'default-dt'
     entry argument
+
+DEFAULT-NAME:
+    Name of the default fdt, as provided by the 'default-dt' entry argument
 
 Available operations
 ~~~~~~~~~~~~~~~~~~~~
@@ -946,6 +967,21 @@ You can create config nodes in a similar way::
 This tells binman to create nodes `config-1` and `config-2`, i.e. a config
 for each of your two files.
 
+It is also possible to use NAME in the node names so that the FDT files name
+will be used instead of the sequence number. This can be useful to identify
+easily at runtime in U-Boot, the config to be used::
+
+    configurations {
+        default = "@config-DEFAULT-NAME";
+        @config-NAME {
+            description = "NAME";
+            firmware = "atf";
+            loadables = "uboot";
+            fdt = "fdt-NAME";
+            fit,compatible;    // optional
+        };
+    };
+
 Note that if no devicetree files are provided (with '-a of-list' as above)
 then no nodes will be generated.
 
@@ -978,7 +1014,8 @@ same approach can of course be used for SPL images.
 
 Note that the `of-spl-remove-props` entryarg can be used to indicate
 additional properties to remove. It is often used to remove properties like
-`clock-names` and `pinctrl-names` which are not needed in SPL builds.
+`clock-names` and `pinctrl-names` which are not needed in SPL builds. This
+value is automatically passed to binman by the U-Boot build.
 
 See :ref:`fdtgrep_filter` for more information.
 

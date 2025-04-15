@@ -41,17 +41,20 @@
 		clock-frequency = <200000000>;
 	};
 
-	amba: amba {
+	amba: axi {
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
-		sdhci0: sdhci@ff160000 {
+		sdhci0: mmc@ff160000 {
 			bootph-all;
 			compatible = "xlnx,zynqmp-8.9a", "arasan,sdhci-8.9a";
 			status = "disabled";
 			non-removable;
+			no-sd;
+			no-sdio;
+			cap-mmc-hw-reset;
 			bus-width = <8>;
 			reg = <0x0 0xff160000 0x0 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";

@@ -7,14 +7,16 @@
  */
 
 #include <part.h>
+#include <fs.h>
 #include <linux/arm-smccc.h>
 #include "fw.h"
 
 #define EMMC_IFACE		"mmc"
 #define EMMC_DEV_NUM		0
+#define LDFW_RAW_PART		"ldfw"
+#define LDFW_FAT_PART		"esp"
+#define LDFW_FAT_PATH		"/EFI/firmware/ldfw.bin"
 
-/* LDFW constants */
-#define LDFW_PART_NAME		"ldfw"
 #define LDFW_NWD_ADDR		0x88000000
 #define LDFW_MAGIC		0x10adab1e
 #define SMC_CMD_LOAD_LDFW	-0x500
@@ -36,7 +38,33 @@ struct ldfw_header {
 	char fw_name[16];
 };
 
-static int read_fw(const char *part_name, void *buf)
+/* Load LDFW binary as a file from FAT partition */
+static int read_fw_from_fat(const char *part_name, const char *path, void *buf)
+{
+	char dev_part_str[8];
+	loff_t len_read;
+	int err;
+
+	snprintf(dev_part_str, sizeof(dev_part_str), "%d#%s", EMMC_DEV_NUM,
+		 LDFW_FAT_PART);
+
+	err = fs_set_blk_dev(EMMC_IFACE, dev_part_str, FS_TYPE_FAT);
+	if (err) {
+		debug("%s: Can't set block device\n", __func__);
+		return -ENODEV;
+	}
+
+	err = fs_read(path, (ulong)buf, 0, 0, &len_read);
+	if (err) {
+		debug("%s: Can't read LDFW file\n", __func__);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+/* Load LDFW binary from raw partition on block device into RAM buffer */
+static int read_fw_from_raw(const char *part_name, void *buf)
 {
 	struct blk_desc *blk_desc;
 	struct disk_partition part;
@@ -73,10 +101,13 @@ int load_ldfw(void)
 	u64 size = 0;
 	int err, i;
 
-	/* Load LDFW from the block device partition into RAM buffer */
-	err = read_fw(LDFW_PART_NAME, buf);
-	if (err)
-		return err;
+	/* First try to read LDFW from EFI partition, then from the raw one */
+	err = read_fw_from_fat(LDFW_FAT_PART, LDFW_FAT_PATH, buf);
+	if (err) {
+		err = read_fw_from_raw(LDFW_RAW_PART, buf);
+		if (err)
+			return err;
+	}
 
 	/* Validate LDFW by magic number in its header */
 	hdr = buf;

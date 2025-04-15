@@ -51,7 +51,7 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static struct imx_int_pll_rate_table imx8mm_fracpll_tbl[] = {
 	PLL_1443X_RATE(1000000000U, 250, 3, 1, 0),
 	PLL_1443X_RATE(933000000U, 311, 4, 1, 0),
@@ -181,10 +181,19 @@ void dram_disable_bypass(void)
 }
 #endif
 
-int intpll_configure(enum pll_clocks pll, ulong freq)
+__weak int board_imx_intpll_override(enum pll_clocks pll, ulong *freq)
+{
+	return 0;
+}
+
+static int intpll_configure(enum pll_clocks pll, ulong freq)
 {
 	void __iomem *pll_gnrl_ctl, __iomem *pll_div_ctl;
 	u32 pll_div_ctl_val, pll_clke_masks;
+	int ret = board_imx_intpll_override(pll, &freq);
+
+	if (ret)
+		return ret;
 
 	switch (pll) {
 	case ANATOP_SYSTEM_PLL1:

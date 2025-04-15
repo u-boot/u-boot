@@ -36,6 +36,7 @@
 #include <dwc_ahsata.h>
 #include <env.h>
 #include <fsl_esdhc_imx.h>
+#include <i2c.h>
 #include <imx_thermal.h>
 #include <micrel.h>
 #include <miiphy.h>
@@ -77,6 +78,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define APALIS_IMX6_SATA_INIT_RETRIES	10
 
+#define I2C_PWR	1
+
 int dram_init(void)
 {
 	/* use the DDR controllers configured size */
@@ -96,7 +99,7 @@ iomux_v3_cfg_t const uart1_pads_dte[] = {
 	MX6_PAD_CSI0_DAT11__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_XPL_BUILD)
 /* Apalis MMC1 */
 iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_CLK__SD1_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -139,7 +142,7 @@ iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6_PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_EMMC_PAD_CTRL),
 	MX6_PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(WEAK_PULLUP) | MUX_MODE_SION,
 };
-#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_SPL_BUILD */
+#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_XPL_BUILD */
 
 int mx6_rgmii_rework(struct phy_device *phydev)
 {
@@ -321,7 +324,7 @@ int board_ehci_hcd_init(int port)
 }
 #endif
 
-#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_XPL_BUILD)
 /* use the following sequence: eMMC, MMC1, SD1 */
 struct fsl_esdhc_cfg usdhc_cfg[CFG_SYS_FSL_USDHC_NUM] = {
 	{USDHC3_BASE_ADDR},
@@ -391,7 +394,7 @@ int board_mmc_init(struct bd_info *bis)
 
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
-#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_SPL_BUILD */
+#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_XPL_BUILD */
 
 int board_phy_config(struct phy_device *phydev)
 {
@@ -463,10 +466,12 @@ static iomux_v3_cfg_t const rgb_pads[] = {
 	MX6_PAD_EIM_D31__IPU1_DISP1_DATA20 | MUX_PAD_CTRL(OUTPUT_RGB),
 };
 
+#ifdef CONFIG_IMX_HDMI
 static void do_enable_hdmi(struct display_info_t const *dev)
 {
 	imx_enable_hdmi_phy();
 }
+#endif
 
 static void enable_lvds(struct display_info_t const *dev)
 {
@@ -496,7 +501,9 @@ static int detect_default(struct display_info_t const *dev)
 	return 1;
 }
 
-struct display_info_t const displays[] = {{
+struct display_info_t const displays[] = {
+#ifdef CONFIG_IMX_HDMI
+{
 	.bus	= -1,
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
@@ -516,7 +523,9 @@ struct display_info_t const displays[] = {{
 		.vsync_len      = 10,
 		.sync           = FB_SYNC_EXT,
 		.vmode          = FB_VMODE_NONINTERLACED
-} }, {
+} },
+#endif
+{
 	.bus	= -1,
 	.addr	= 0,
 	.di	= 1,
@@ -586,7 +595,11 @@ static void setup_display(void)
 	int reg;
 
 	enable_ipu_clock();
+
+#ifdef CONFIG_IMX_HDMI
 	imx_setup_hdmi();
+#endif
+
 	/* Turn on LDB0,IPU,IPU DI0 clocks */
 	reg = __raw_readl(&mxc_ccm->CCGR3);
 	reg |= MXC_CCM_CCGR3_LDB_DI0_MASK;
@@ -689,12 +702,40 @@ int board_init(void)
 	return 0;
 }
 
+static bool is_som_variant_1_2(void)
+{
+	struct udevice *bus;
+	struct udevice *i2c_dev;
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, I2C_PWR, &bus);
+	if (ret) {
+		printf("Failed to get I2C_PWR\n");
+		return false;
+	}
+
+	/* V1.2 uses the TLA2024 at 0x49 instead of the STMPE811 at 0x41 */
+	ret = dm_i2c_probe(bus, 0x49, 0, &i2c_dev);
+
+	return (bool)!ret;
+}
+
+static void select_dt_from_module_version(void)
+{
+	if (is_som_variant_1_2())
+		env_set("variant", "-v1.2");
+	else
+		env_set("variant", "");
+}
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
 #if defined(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
 	char env_str[256];
 	u32 rev;
+
+	select_dt_from_module_version();
 
 	rev = get_board_revision();
 	snprintf(env_str, ARRAY_SIZE(env_str), "%.4x", rev);
@@ -748,7 +789,7 @@ void ldo_mode_set(int ldo_bypass)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <spl.h>
 #include <linux/libfdt.h>
 #include "asm/arch/mx6q-ddr.h"
@@ -1042,7 +1083,7 @@ void reset_cpu(void)
 {
 }
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 static struct mxc_serial_plat mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART1_BASE,

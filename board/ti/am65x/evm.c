@@ -20,6 +20,7 @@
 #include <env.h>
 #include <spl.h>
 #include <linux/printk.h>
+#include <asm/arch/k3-ddr.h>
 
 #include "../common/board_detect.h"
 #include "../common/fdt_ops.h"
@@ -49,17 +50,6 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-#ifdef CONFIG_PHYS_64BIT
-	gd->ram_size = 0x100000000;
-#else
-	gd->ram_size = 0x80000000;
-#endif
-
-	return 0;
-}
-
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 #ifdef CONFIG_PHYS_64BIT
@@ -69,23 +59,6 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 #endif
 
 	return gd->ram_top;
-}
-
-int dram_init_banksize(void)
-{
-	/* Bank 0 declares the memory available in the DDR low region */
-	gd->bd->bi_dram[0].start = 0x80000000;
-	gd->bd->bi_dram[0].size = 0x80000000;
-	gd->ram_size = 0x80000000;
-
-#ifdef CONFIG_PHYS_64BIT
-	/* Bank 1 declares the memory available in the DDR high region */
-	gd->bd->bi_dram[1].start = 0x880000000;
-	gd->bd->bi_dram[1].size = 0x80000000;
-	gd->ram_size = 0x100000000;
-#endif
-
-	return 0;
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT

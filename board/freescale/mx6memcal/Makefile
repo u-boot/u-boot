@@ -4,7 +4,7 @@
 #
 # (C) Copyright 2011 Freescale Semiconductor, Inc.
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y	:= spl.o
 else
 obj-y	:= mx6memcal.o

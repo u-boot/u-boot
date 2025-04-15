@@ -183,6 +183,7 @@ int caam_hash(const unsigned char *pbuf, unsigned int buf_len,
 {
 	int ret = 0;
 	uint32_t *desc;
+	unsigned long pbuf_aligned;
 	unsigned int size;
 
 	desc = malloc_cache_aligned(sizeof(int) * MAX_CAAM_DESCSIZE);
@@ -191,8 +192,9 @@ int caam_hash(const unsigned char *pbuf, unsigned int buf_len,
 		return -ENOMEM;
 	}
 
-	size = ALIGN(buf_len, ARCH_DMA_MINALIGN);
-	flush_dcache_range((unsigned long)pbuf, (unsigned long)pbuf + size);
+	pbuf_aligned = ALIGN_DOWN((unsigned long)pbuf, ARCH_DMA_MINALIGN);
+	size = ALIGN(buf_len + ((unsigned long)pbuf - pbuf_aligned), ARCH_DMA_MINALIGN);
+	flush_dcache_range(pbuf_aligned, pbuf_aligned + size);
 
 	inline_cnstr_jobdesc_hash(desc, pbuf, buf_len, pout,
 				  driver_hash[algo].alg_type,

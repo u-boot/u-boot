@@ -412,7 +412,7 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 
 static int dm_gpio_requestf(struct gpio_desc *desc, const char *fmt, ...)
 {
-#if !defined(CONFIG_SPL_BUILD) || !CONFIG_IS_ENABLED(USE_TINY_PRINTF)
+#if !defined(CONFIG_XPL_BUILD) || !CONFIG_IS_ENABLED(USE_TINY_PRINTF)
 	va_list args;
 	char buf[40];
 
@@ -461,7 +461,7 @@ int gpio_request(unsigned gpio, const char *label)
  */
 int gpio_requestf(unsigned gpio, const char *fmt, ...)
 {
-#if !defined(CONFIG_SPL_BUILD) || !CONFIG_IS_ENABLED(USE_TINY_PRINTF)
+#if !defined(CONFIG_XPL_BUILD) || !CONFIG_IS_ENABLED(USE_TINY_PRINTF)
 	va_list args;
 	char buf[40];
 
@@ -705,6 +705,9 @@ static int _dm_gpio_set_flags(struct gpio_desc *desc, ulong flags)
 	if (ops->set_flags) {
 		ret = ops->set_flags(dev, desc->offset, flags);
 	} else {
+		if (flags & GPIOD_MASK_PULL)
+			return -EINVAL;
+
 		if (flags & GPIOD_IS_OUT) {
 			bool value = flags & GPIOD_IS_OUT_ACTIVE;
 
@@ -1142,29 +1145,9 @@ static int gpio_request_tail(int ret, const char *nodename,
 		ret = uclass_get_device_by_ofnode(UCLASS_GPIO, args->node,
 						  &desc->dev);
 		if (ret) {
-#if CONFIG_IS_ENABLED(MAX77663_GPIO) || CONFIG_IS_ENABLED(PALMAS_GPIO)
-			struct udevice *pmic;
-			ret = uclass_get_device_by_ofnode(UCLASS_PMIC, args->node,
-							  &pmic);
-			if (ret) {
-				log_debug("%s: PMIC device get failed, err %d\n",
-					  __func__, ret);
-				goto err;
-			}
-
-			device_foreach_child(desc->dev, pmic) {
-				if (device_get_uclass_id(desc->dev) == UCLASS_GPIO)
-					break;
-			}
-
-			/* if loop exits without GPIO device return error */
-			if (device_get_uclass_id(desc->dev) != UCLASS_GPIO)
-				goto err;
-#else
 			debug("%s: uclass_get_device_by_ofnode failed\n",
 			      __func__);
 			goto err;
-#endif
 		}
 	}
 	ret = gpio_find_and_xlate(desc, args);

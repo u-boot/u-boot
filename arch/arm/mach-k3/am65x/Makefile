@@ -4,4 +4,4 @@
 #	Andrew Davis <afd@ti.com>
 
 obj-$(CONFIG_OF_SYSTEM_SETUP) += am654_fdt.o
-obj-$(CONFIG_SPL_BUILD) += am654_init.o
+obj-$(CONFIG_XPL_BUILD) += am654_init.o

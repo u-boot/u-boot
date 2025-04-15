@@ -12,6 +12,9 @@
 #include <dm.h>
 #include <i2c.h>
 #include <rtc.h>
+#include <dm/device_compat.h>
+#include <linux/delay.h>
+#include <power/regulator.h>
 
 #define RV3028_SEC			0x00
 #define RV3028_MIN			0x01
@@ -77,6 +80,12 @@
 #define OFFSET_STEP_PPT			953674
 
 #define RTC_RV3028_LEN			7
+
+#define VDD_START_TIME_US		200000
+
+struct rv3028_priv {
+	struct udevice *vdd;
+};
 
 static int rv3028_rtc_get(struct udevice *dev, struct rtc_time *tm)
 {
@@ -180,6 +189,28 @@ static int rv3028_rtc_write8(struct udevice *dev, unsigned int reg, int val)
 
 static int rv3028_probe(struct udevice *dev)
 {
+	struct rv3028_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	if (IS_ENABLED(CONFIG_DM_REGULATOR)) {
+		ret =  device_get_supply_regulator(dev, "vdd-supply", &priv->vdd);
+		if (ret && ret != -ENOENT) {
+			dev_err(dev, "Warning: cannot get VDD supply\n");
+			return ret;
+		}
+
+		if (priv->vdd) {
+			ret = regulator_set_enable_if_allowed(priv->vdd, true);
+			if (ret) {
+				dev_err(dev, "failed to enable vdd-supply\n");
+				return ret;
+			}
+
+			/* We must wait Tstart = 0.2s before access to I2C */
+			udelay(VDD_START_TIME_US);
+		}
+	}
+
 	i2c_set_chip_flags(dev, DM_I2C_CHIP_RD_ADDRESS |
 				DM_I2C_CHIP_WR_ADDRESS);
 
@@ -205,4 +236,5 @@ U_BOOT_DRIVER(rtc_rv3028) = {
 	.probe	= rv3028_probe,
 	.of_match = rv3028_rtc_ids,
 	.ops	= &rv3028_rtc_ops,
+	.priv_auto	= sizeof(struct rv3028_priv),
 };

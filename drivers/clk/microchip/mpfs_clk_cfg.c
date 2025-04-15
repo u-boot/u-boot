@@ -9,6 +9,7 @@
 #include <dm/device.h>
 #include <dm/devres.h>
 #include <dm/uclass.h>
+#include <regmap.h>
 #include <dt-bindings/clock/microchip-mpfs-clock.h>
 #include <linux/err.h>
 
@@ -57,7 +58,7 @@ struct mpfs_cfg_clock {
  */
 struct mpfs_cfg_hw_clock {
 	struct mpfs_cfg_clock cfg;
-	void __iomem *sys_base;
+	struct regmap *regmap;
 	u32 prate;
 	struct clk hw;
 };
@@ -68,11 +69,11 @@ static ulong mpfs_cfg_clk_recalc_rate(struct clk *hw)
 {
 	struct mpfs_cfg_hw_clock *cfg_hw = to_mpfs_cfg_clk(hw);
 	struct mpfs_cfg_clock *cfg = &cfg_hw->cfg;
-	void __iomem *base_addr = cfg_hw->sys_base;
 	unsigned long rate;
 	u32 val;
 
-	val = readl(base_addr + REG_CLOCK_CONFIG_CR) >> cfg->shift;
+	regmap_read(cfg_hw->regmap, REG_CLOCK_CONFIG_CR, &val);
+	val >>= cfg->shift;
 	val &= clk_div_mask(cfg->width);
 	rate = cfg_hw->prate / (1u << val);
 	hw->rate = rate;
@@ -84,7 +85,6 @@ static ulong mpfs_cfg_clk_set_rate(struct clk *hw, ulong rate)
 {
 	struct mpfs_cfg_hw_clock *cfg_hw = to_mpfs_cfg_clk(hw);
 	struct mpfs_cfg_clock *cfg = &cfg_hw->cfg;
-	void __iomem *base_addr = cfg_hw->sys_base;
 	u32  val;
 	int divider_setting;
 
@@ -93,10 +93,10 @@ static ulong mpfs_cfg_clk_set_rate(struct clk *hw, ulong rate)
 	if (divider_setting < 0)
 		return divider_setting;
 
-	val = readl(base_addr + REG_CLOCK_CONFIG_CR);
+	regmap_read(cfg_hw->regmap, REG_CLOCK_CONFIG_CR, &val);
 	val &= ~(clk_div_mask(cfg->width) << cfg_hw->cfg.shift);
 	val |= divider_setting << cfg->shift;
-	writel(val, base_addr + REG_CLOCK_CONFIG_CR);
+	regmap_write(cfg_hw->regmap, REG_CLOCK_CONFIG_CR, val);
 
 	return clk_get_rate(hw);
 }
@@ -116,7 +116,7 @@ static struct mpfs_cfg_hw_clock mpfs_cfg_clks[] = {
 	CLK_CFG(CLK_AHB, "clk_ahb", 4, 2, mpfs_div_ahb_table, 0),
 };
 
-int mpfs_clk_register_cfgs(void __iomem *base, struct clk *parent)
+int mpfs_clk_register_cfgs(struct clk *parent, struct regmap *regmap)
 {
 	int ret;
 	int i, id, num_clks;
@@ -126,7 +126,7 @@ int mpfs_clk_register_cfgs(void __iomem *base, struct clk *parent)
 	num_clks = ARRAY_SIZE(mpfs_cfg_clks);
 	for (i = 0; i < num_clks; i++) {
 		hw = &mpfs_cfg_clks[i].hw;
-		mpfs_cfg_clks[i].sys_base = base;
+		mpfs_cfg_clks[i].regmap = regmap;
 		mpfs_cfg_clks[i].prate = clk_get_rate(parent);
 		name = mpfs_cfg_clks[i].cfg.name;
 		ret = clk_register(hw, MPFS_CFG_CLOCK, name, parent->dev->name);

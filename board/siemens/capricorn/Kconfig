@@ -1,4 +1,5 @@
-if TARGET_GIEDI
+if TARGET_CAPRICORN
+
 
 config SYS_BOARD
 	default "capricorn"
@@ -7,24 +8,18 @@ config SYS_VENDOR
 	default "siemens"
 
 config SYS_CONFIG_NAME
-	default "giedi"
-
-config IMX_CONFIG
-	default "board/siemens/capricorn/imximage.cfg"
-endif
-
-if TARGET_DENEB
-
-config SYS_BOARD
-	default "capricorn"
-
-config SYS_VENDOR
-	default "siemens"
-
-config SYS_CONFIG_NAME
-	default "deneb"
+	default "capricorn-common"
 
 config IMX_CONFIG
 	default "board/siemens/capricorn/imximage.cfg"
 
 endif
+
+
+config SPL_CMT
+	bool "Enable Siemens SPL RAM test"
+	depends on SPL
+	help
+	  Enable SIemens SPL RAM test.
+
+source "board/siemens/common/Kconfig"

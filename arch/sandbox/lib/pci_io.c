@@ -8,6 +8,8 @@
  * IO space access commands.
  */
 
+#define LOG_CATEGORY	UCLASS_PCI
+
 #include <command.h>
 #include <dm.h>
 #include <log.h>
@@ -31,10 +33,11 @@ int pci_map_physmem(phys_addr_t paddr, unsigned long *lenp,
 		if (ret)
 			continue;
 		*devp = dev;
+		log_debug("addr=%lx, dev=%s\n", (ulong)paddr, dev->name);
 		return 0;
 	}
 
-	debug("%s: failed: addr=%pap\n", __func__, &paddr);
+	log_debug("%s: failed: addr=%pap\n", __func__, &paddr);
 	return -ENOSYS;
 }
 
@@ -66,7 +69,7 @@ static int pci_io_read(unsigned int addr, ulong *valuep, pci_size_t size)
 		}
 	}
 
-	debug("%s: failed: addr=%x\n", __func__, addr);
+	log_debug("%s: failed: addr=%x\n", __func__, addr);
 	return -ENOSYS;
 }
 
@@ -87,7 +90,7 @@ static int pci_io_write(unsigned int addr, ulong value, pci_size_t size)
 		}
 	}
 
-	debug("%s: failed: addr=%x, value=%lx\n", __func__, addr, value);
+	log_debug("%s: failed: addr=%x, value=%lx\n", __func__, addr, value);
 	return -ENOSYS;
 }
 

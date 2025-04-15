@@ -5,6 +5,7 @@ config TEXT_BASE
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
+	select HAS_CUSTOM_SYS_INIT_SP_ADDR
 	select QFW if ACPI
 	select QFW_MMIO if CMD_QFW
 	imply VIRTIO_MMIO

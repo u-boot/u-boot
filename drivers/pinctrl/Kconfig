@@ -127,6 +127,14 @@ config SPL_PINCTRL_GENERIC
 	  This option is an SPL-variant of the PINCTRL_GENERIC option.
 	  See the help of PINCTRL_GENERIC for details.
 
+config TPL_PINCTRL_GENERIC
+	bool "Support generic pin controllers in TPL"
+	depends on TPL_PINCTRL_FULL
+	default y
+	help
+	  This option is a TPL-variant of the PINCTRL_GENERIC option.
+	  See the help of PINCTRL_GENERIC for details.
+
 config SPL_PINMUX
 	bool "Support pin multiplexing controllers in SPL"
 	depends on SPL_PINCTRL_GENERIC
@@ -169,6 +177,14 @@ config PINCTRL_APPLE
 	  The driver is controlled by a device tree node which contains
 	  both the GPIO definitions and pin control functions for each
 	  available multiplex function.
+
+config PINCTRL_ADI
+	bool "ADI pinctrl driver"
+	depends on DM && ARCH_SC5XX
+	help
+	  This driver enables pinctrl support on SC5xx processors. This
+	  driver covers only the pin configuration functionality, and
+	  GPIO functionality is contained in the separate GPIO driver.
 
 config PINCTRL_AR933X
 	bool "QCA/Athores ar933x pin control driver"

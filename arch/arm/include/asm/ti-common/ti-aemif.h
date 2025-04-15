@@ -16,6 +16,7 @@
 #define AEMIF_PRESERVE             -1
 
 struct aemif_config {
+	void *base;
 	unsigned mode;
 	unsigned select_strobe;
 	unsigned extend_wait;

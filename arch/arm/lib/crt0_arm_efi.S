@@ -38,16 +38,16 @@ optional_header:
 	.short	IMAGE_NT_OPTIONAL_HDR32_MAGIC	/* PE32 format */
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
-	.long	_edata - _start			/* SizeOfCode */
-	.long	0				/* SizeOfInitializedData */
+	.long	_etext - _start			/* SizeOfCode */
+	.long	_data_size			/* SizeOfInitializedData */
 	.long	0				/* SizeOfUninitializedData */
 	.long	_start - image_base		/* AddressOfEntryPoint */
 	.long	_start - image_base		/* BaseOfCode */
 	.long	0				/* BaseOfData */
 
 extra_header_fields:
-	.long	0				/* image_base */
-	.long	0x200				/* SectionAlignment */
+	.long	0				/* ImageBase */
+	.long	0x1000				/* SectionAlignment */
 	.long	0x200				/* FileAlignment */
 	.short	0				/* MajorOperatingSystemVersion */
 	.short	0				/* MinorOperatingSystemVersion */
@@ -84,6 +84,7 @@ extra_header_fields:
 	.quad	0				/* CertificationTable */
 	.quad	0				/* BaseRelocationTable */
 
+	/* Section table */
 section_table:
 
 	/*
@@ -111,9 +112,9 @@ section_table:
 	.byte	0
 	.byte	0
 	.byte	0			/* end of 0 padding of section name */
-	.long	_text_size		/* VirtualSize */
+	.long	_etext - _start		/* VirtualSize */
 	.long	_start - image_base	/* VirtualAddress */
-	.long	_text_size		/* SizeOfRawData */
+	.long	_etext - _start		/* SizeOfRawData */
 	.long	_start - image_base	/* PointerToRawData */
 	.long	0			/* PointerToRelocations */
 	.long	0			/* PointerToLineNumbers */
@@ -142,13 +143,15 @@ section_table:
 		 IMAGE_SCN_CNT_INITIALIZED_DATA)
 
 	.align		12
+	.globl		_start
 _start:
 	stmfd		sp!, {r0-r2, lr}
 
 	adr		r1, .L_DYNAMIC
 	ldr		r0, [r1]
 	add		r1, r0, r1
-	adrl		r0, image_base
+	sub		r0, pc, #((.+8-image_base) & 0xff)
+	sub		r0, r0, #((.+4-image_base) & 0xff00)
 	bl		_relocate
 	teq		r0, #0
 	bne		0f

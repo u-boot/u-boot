@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2022 StarFive, Inc
 #
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SPL_STARFIVE_DDR) += ddrphy_start.o
 obj-$(CONFIG_SPL_STARFIVE_DDR) += ddrphy_train.o
 obj-$(CONFIG_SPL_STARFIVE_DDR) += starfive_ddr.o

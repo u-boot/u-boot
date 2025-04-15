@@ -16,7 +16,7 @@ void lpc32xx_slc_nand_init(void);
 void lpc32xx_i2c_init(unsigned int devnum);
 void lpc32xx_ssp_init(void);
 void lpc32xx_usb_init(void);
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 void ddr_init(const struct emc_dram_settings *dram);
 #endif
 #endif /* _LPC32XX_SYS_PROTO_H */

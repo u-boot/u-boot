@@ -6,7 +6,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CFG_MALLOC_F_ADDR		0x0010000
+#define CFG_MALLOC_F_ADDR		0x000f4000
 
 /* Size of our emulated memory */
 #define SB_CONCAT(x, y) x ## y

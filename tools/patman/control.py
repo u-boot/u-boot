@@ -12,8 +12,8 @@ import os
 import sys
 
 from patman import checkpatch
-from patman import gitutil
 from patman import patchstream
+from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 
 
@@ -63,7 +63,8 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
         branch, start, to_do, ignore_binary, series, signoff)
 
     # Fix up the patch files to our liking, and insert the cover letter
-    patchstream.fix_patches(series, patch_files, keep_change_id)
+    patchstream.fix_patches(series, patch_files, keep_change_id,
+                            insert_base_commit=not cover_fname)
     if cover_fname and series.get('cover'):
         patchstream.insert_cover_letter(cover_fname, series, to_do)
     return series, cover_fname, patch_files

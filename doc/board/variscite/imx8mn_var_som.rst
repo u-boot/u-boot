@@ -17,7 +17,7 @@ Get and Build the ARM Trusted firmware
 --------------------------------------
 
 Note: srctree is U-Boot source directory
-Get ATF from: https://github.com/ARM-software/arm-trusted-firmware
+Get ATF from: https://github.com/TrustedFirmware-A/trusted-firmware-a
 tag: v2.5
 
 .. code-block:: bash

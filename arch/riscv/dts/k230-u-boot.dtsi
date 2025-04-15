@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-2.0 OR MIT
+/*
+ * Copyright (C) 2025 Junhui Liu <junhui.liu@pigmoral.tech>
+ */
+
+#include <linux/stringify.h>
+
+/ {
+	binman: binman {
+	};
+};
+
+&binman {
+	mkimage {
+		filename = "u-boot-gz.img";
+		args = "-A", "riscv", "-T", "firmware", "-O", "u-boot",
+			"-C", "gzip", "-n", "uboot",
+			"-a", __stringify(CONFIG_TEXT_BASE),
+			"-e", __stringify(CONFIG_TEXT_BASE);
+		blob {
+			filename = "u-boot.bin";
+			compress = "gzip";
+		};
+	};
+};

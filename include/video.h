@@ -57,12 +57,8 @@ enum video_log2_bpp {
 	VIDEO_BPP32,
 };
 
-/*
- * Convert enum video_log2_bpp to bytes and bits. Note we omit the outer
- * brackets to allow multiplication by fractional pixels.
- */
+/* Convert enum video_log2_bpp to bytes and bits */
 #define VNBYTES(bpix)	((1 << (bpix)) / 8)
-
 #define VNBITS(bpix)	(1 << (bpix))
 
 enum video_format {
@@ -78,7 +74,8 @@ enum video_format {
  *
  * @xsize:	Number of pixel columns (e.g. 1366)
  * @ysize:	Number of pixels rows (e.g.. 768)
- * @rot:	Display rotation (0=none, 1=90 degrees clockwise, etc.)
+ * @rot:	Display rotation (0=none, 1=90 degrees clockwise, etc.). THis
+ *		does not affect @xsize and @ysize
  * @bpix:	Encoded bits per pixel (enum video_log2_bpp)
  * @format:	Pixel format (enum video_format)
  * @vidconsole_drv_name:	Driver to use for the text console, NULL to
@@ -153,6 +150,7 @@ struct video_ops {
  *		set by the driver, but if not, the uclass will set it after
  *		probing
  * @bpix:	Encoded bits per pixel (enum video_log2_bpp)
+ * @format:	Video format (enum video_format)
  */
 struct video_handoff {
 	u64 fb;
@@ -161,6 +159,7 @@ struct video_handoff {
 	u16 ysize;
 	u32 line_length;
 	u8 bpix;
+	u8 format;
 };
 
 /** enum colour_idx - the 16 colors supported by consoles */
@@ -181,6 +180,7 @@ enum colour_idx {
 	VID_LIGHT_MAGENTA,
 	VID_LIGHT_CYAN,
 	VID_WHITE,
+	VID_DARK_GREY,
 
 	VID_COLOUR_COUNT
 };
@@ -419,5 +419,16 @@ int bmp_info(ulong addr);
  * Returns: 0 (always)
  */
 int video_reserve_from_bloblist(struct video_handoff *ho);
+
+/**
+ * video_get_fb() - Get the first framebuffer address
+ *
+ * This function does not probe video devices, so can only be used after a video
+ * device has been activated.
+ *
+ * Return: address of the framebuffer of the first video device found, or 0 if
+ * there is no device
+ */
+ulong video_get_fb(void);
 
 #endif

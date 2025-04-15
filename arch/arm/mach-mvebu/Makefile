@@ -22,7 +22,7 @@ else # CONFIG_ARCH_KIRKWOOD
 obj-y	= cpu.o
 obj-y	+= dram.o
 obj-y	+= lowlevel.o
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_ARMADA_375) += ../../../drivers/ddr/marvell/axp/xor.o
 obj-$(CONFIG_ARMADA_38X) += ../../../drivers/ddr/marvell/a38x/xor.o
 obj-$(CONFIG_ARMADA_XP) += ../../../drivers/ddr/marvell/axp/xor.o
@@ -110,11 +110,11 @@ $(obj)/kwbimage.cfg: $(src)/kwbimage.cfg.in include/autoconf.mk \
 		include/config/auto.conf
 	$(call cmd,kwbcfg)
 
-endif # CONFIG_SPL_BUILD
+endif # CONFIG_XPL_BUILD
 obj-y	+= gpio.o
 obj-y	+= mbus.o
-obj-$(CONFIG_SPL_BUILD) += spl.o
-obj-$(CONFIG_SPL_BUILD) += lowlevel_spl.o
+obj-$(CONFIG_XPL_BUILD) += spl.o
+obj-$(CONFIG_XPL_BUILD) += lowlevel_spl.o
 
 obj-$(CONFIG_ARMADA_38X) += serdes/a38x/
 obj-$(CONFIG_ARMADA_XP) += serdes/axp/

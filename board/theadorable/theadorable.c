@@ -10,7 +10,7 @@
 #include <init.h>
 #include <net.h>
 #include <pci.h>
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 #include <bootcount.h>
 #endif
 #include <asm/global_data.h>
@@ -252,7 +252,7 @@ int board_eth_init(struct bd_info *bis)
 }
 #endif
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_BOARD_LATE_INIT)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_BOARD_LATE_INIT)
 int board_late_init(void)
 {
 	pci_dev_t bdf;
@@ -343,7 +343,7 @@ int board_late_init(void)
 }
 #endif
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_PCI)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_PCI)
 static int pcie_get_link_speed_width(pci_dev_t bdf, int *speed, int *width)
 {
 	struct udevice *dev;

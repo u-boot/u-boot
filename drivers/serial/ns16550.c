@@ -12,7 +12,6 @@
 #include <log.h>
 #include <ns16550.h>
 #include <reset.h>
-#include <serial.h>
 #include <spl.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
@@ -113,9 +112,9 @@ static void serial_out_dynamic(struct ns16550_plat *plat, u8 *addr,
 	} else if (plat->reg_width == 4) {
 		if (plat->flags & NS16550_FLAG_ENDIAN) {
 			if (plat->flags & NS16550_FLAG_BE)
-				out_be32(addr, value);
+				out_be32((u32 *)addr, value);
 			else
-				out_le32(addr, value);
+				out_le32((u32 *)addr, value);
 		} else {
 			writel(value, addr);
 		}
@@ -133,9 +132,9 @@ static int serial_in_dynamic(struct ns16550_plat *plat, u8 *addr)
 	} else if (plat->reg_width == 4) {
 		if (plat->flags & NS16550_FLAG_ENDIAN) {
 			if (plat->flags & NS16550_FLAG_BE)
-				return in_be32(addr);
+				return in_be32((u32 *)addr);
 			else
-				return in_le32(addr);
+				return in_le32((u32 *)addr);
 		} else {
 			return readl(addr);
 		}
@@ -158,7 +157,7 @@ static inline int serial_in_dynamic(struct ns16550_plat *plat, u8 *addr)
 
 #endif /* CONFIG_NS16550_DYNAMIC */
 
-static void ns16550_writeb(struct ns16550 *port, int offset, int value)
+void ns16550_writeb(struct ns16550 *port, int offset, int value)
 {
 	struct ns16550_plat *plat = port->plat;
 	unsigned char *addr;
@@ -193,13 +192,6 @@ static u32 ns16550_getfcr(struct ns16550 *port)
 	return plat->fcr;
 }
 
-/* We can clean these up once everything is moved to driver model */
-#define serial_out(value, addr)	\
-	ns16550_writeb(com_port, \
-		(unsigned char *)addr - (unsigned char *)com_port, value)
-#define serial_in(addr) \
-	ns16550_readb(com_port, \
-		(unsigned char *)addr - (unsigned char *)com_port)
 #else
 static u32 ns16550_getfcr(struct ns16550 *port)
 {
@@ -214,7 +206,7 @@ int ns16550_calc_divisor(struct ns16550 *port, int clock, int baudrate)
 	return DIV_ROUND_CLOSEST(clock, mode_x_div * baudrate);
 }
 
-static void ns16550_setbrg(struct ns16550 *com_port, int baud_divisor)
+void ns16550_setbrg(struct ns16550 *com_port, int baud_divisor)
 {
 	/* to keep serial format, read lcr before writing BKSE */
 	int lcr_val = serial_in(&com_port->lcr) & ~UART_LCR_BKSE;
@@ -227,7 +219,7 @@ static void ns16550_setbrg(struct ns16550 *com_port, int baud_divisor)
 
 void ns16550_init(struct ns16550 *com_port, int baud_divisor)
 {
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_OMAP34XX)
 	/*
 	 * On some OMAP3/OMAP4 devices when UART3 is configured for boot mode
 	 * before SPL starts only THRE bit is set. We have to empty the
@@ -302,13 +294,9 @@ void ns16550_putc(struct ns16550 *com_port, char c)
 #if !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS)
 char ns16550_getc(struct ns16550 *com_port)
 {
-	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0) {
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_TTY)
-		extern void usbtty_poll(void);
-		usbtty_poll();
-#endif
+	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0)
 		schedule();
-	}
+
 	return serial_in(&com_port->rbr);
 }
 
@@ -380,7 +368,7 @@ DEBUG_UART_FUNCS
 #endif
 
 #if CONFIG_IS_ENABLED(DM_SERIAL)
-static int ns16550_serial_putc(struct udevice *dev, const char ch)
+int ns16550_serial_putc(struct udevice *dev, const char ch)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 
@@ -400,7 +388,7 @@ static int ns16550_serial_putc(struct udevice *dev, const char ch)
 	return 0;
 }
 
-static int ns16550_serial_pending(struct udevice *dev, bool input)
+int ns16550_serial_pending(struct udevice *dev, bool input)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 
@@ -410,7 +398,7 @@ static int ns16550_serial_pending(struct udevice *dev, bool input)
 		return (serial_in(&com_port->lsr) & UART_LSR_THRE) ? 0 : 1;
 }
 
-static int ns16550_serial_getc(struct udevice *dev)
+int ns16550_serial_getc(struct udevice *dev)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 
@@ -420,7 +408,7 @@ static int ns16550_serial_getc(struct udevice *dev)
 	return serial_in(&com_port->rbr);
 }
 
-static int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
+int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 	struct ns16550_plat *plat = com_port->plat;
@@ -433,7 +421,7 @@ static int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
-static int ns16550_serial_setconfig(struct udevice *dev, uint serial_config)
+int ns16550_serial_setconfig(struct udevice *dev, uint serial_config)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 	int lcr_val = UART_LCR_WLS_8;
@@ -466,14 +454,13 @@ static int ns16550_serial_setconfig(struct udevice *dev, uint serial_config)
 	return 0;
 }
 
-static int ns16550_serial_getinfo(struct udevice *dev,
-				  struct serial_device_info *info)
+int ns16550_serial_getinfo(struct udevice *dev, struct serial_device_info *info)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 	struct ns16550_plat *plat = com_port->plat;
 
 	/* save code size */
-	if (!spl_in_proper())
+	if (!not_xpl() && !CONFIG_IS_ENABLED(UPL_OUT))
 		return -ENOSYS;
 
 	info->type = SERIAL_CHIP_16550_COMPATIBLE;
@@ -555,7 +542,7 @@ int ns16550_serial_of_to_plat(struct udevice *dev)
 	struct clk clk;
 	int err;
 
-	addr = spl_in_proper() ? dev_read_addr_size(dev, &size) :
+	addr = not_xpl() ? dev_read_addr_size(dev, &size) :
 		dev_read_addr(dev);
 	err = ns16550_serial_assign_base(plat, addr, size);
 	if (err && !device_is_on_pci_bus(dev))
@@ -565,19 +552,19 @@ int ns16550_serial_of_to_plat(struct udevice *dev)
 	plat->reg_shift = dev_read_u32_default(dev, "reg-shift", 0);
 	plat->reg_width = dev_read_u32_default(dev, "reg-io-width", 1);
 
-	err = clk_get_by_index(dev, 0, &clk);
-	if (!err) {
-		err = clk_get_rate(&clk);
-		if (!IS_ERR_VALUE(err))
-			plat->clock = err;
-	} else if (err != -ENOENT && err != -ENODEV && err != -ENOSYS) {
-		debug("ns16550 failed to get clock\n");
-		return err;
-	}
-
 	if (!plat->clock)
-		plat->clock = dev_read_u32_default(dev, "clock-frequency",
-						   CFG_SYS_NS16550_CLK);
+		plat->clock = dev_read_u32_default(dev, "clock-frequency", 0);
+	if (!plat->clock) {
+		err = clk_get_by_index(dev, 0, &clk);
+		if (!err) {
+			err = clk_get_rate(&clk);
+			if (!IS_ERR_VALUE(err))
+				plat->clock = err;
+		} else if (err != -ENOENT && err != -ENODEV && err != -ENOSYS) {
+			debug("ns16550 failed to get clock\n");
+			return err;
+		}
+	}
 	if (!plat->clock)
 		plat->clock = CFG_SYS_NS16550_CLK;
 	if (!plat->clock) {
@@ -614,6 +601,7 @@ static const struct udevice_id ns16550_serial_ids[] = {
 	{ .compatible = "ingenic,jz4780-uart",	.data = PORT_JZ4780  },
 	{ .compatible = "nvidia,tegra20-uart",	.data = PORT_NS16550 },
 	{ .compatible = "snps,dw-apb-uart",	.data = PORT_NS16550 },
+	{ .compatible = "intel,xscale-uart",	.data = PORT_NS16550 },
 	{}
 };
 #endif /* OF_REAL */

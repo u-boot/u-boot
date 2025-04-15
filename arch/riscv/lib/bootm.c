@@ -46,10 +46,6 @@ static void announce_and_cleanup(int fake)
 	bootstage_report();
 #endif
 
-#ifdef CONFIG_USB_DEVICE
-	udc_disconnect();
-#endif
-
 	board_quiesce_devices();
 
 	/*
@@ -57,7 +53,7 @@ static void announce_and_cleanup(int fake)
 	 * This may be useful for last-stage operations, like cancelling
 	 * of DMA operation or releasing device internal buffers.
 	 */
-	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+	dm_remove_devices_active();
 
 	cleanup_before_linux();
 }
@@ -132,17 +128,4 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 int do_bootm_vxworks(int flag, struct bootm_info *bmi)
 {
 	return do_bootm_linux(flag, bmi);
-}
-
-static ulong get_sp(void)
-{
-	ulong ret;
-
-	asm("mv %0, sp" : "=r"(ret) : );
-	return ret;
-}
-
-void arch_lmb_reserve(struct lmb *lmb)
-{
-	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
 }

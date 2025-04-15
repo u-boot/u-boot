@@ -58,7 +58,7 @@ static int emul_rtc_set(struct udevice *dev, const struct rtc_time *time)
 	return 0;
 }
 
-int emul_rtc_probe(struct udevice *dev)
+static int emul_rtc_probe(struct udevice *dev)
 {
 	struct emul_rtc *priv = dev_get_priv(dev);
 	const char *epoch_str;

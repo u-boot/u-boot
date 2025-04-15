@@ -7,6 +7,6 @@
 
 obj-y	:= xea.o
 
-ifdef	CONFIG_SPL_BUILD
+ifdef	CONFIG_XPL_BUILD
 obj-y	+= spl_xea.o
 endif

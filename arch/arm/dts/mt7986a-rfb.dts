@@ -57,7 +57,7 @@
 	mediatek,gmac-id = <0>;
 	phy-mode = "2500base-x";
 	mediatek,switch = "mt7531";
-	reset-gpios = <&gpio 5 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&pio 5 GPIO_ACTIVE_HIGH>;
 
 	fixed-link {
 		speed = <2500>;
@@ -65,7 +65,7 @@
 	};
 };
 
-&pinctrl {
+&pio {
 	spi_flash_pins: spi0-pins-func-1 {
 		mux {
 			function = "flash";
@@ -190,12 +190,16 @@
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <52000000>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <4>;
 	};
 
 	spi_nand@1 {
 		compatible = "spi-nand";
 		reg = <1>;
 		spi-max-frequency = <52000000>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <4>;
 	};
 };
 

@@ -209,6 +209,15 @@ config TPM2_MMIO
 	  to the device using the standard TPM Interface Specification (TIS)
 	  protocol.
 
+config TPM2_EVENT_LOG_SIZE
+	int "EventLog size"
+	depends on TPM_V2
+	default 65536
+	help
+	  Define the size of the EventLog. Note that this is going to be
+	  allocated twice. One for the eventlog it self and one for the
+	  configuration table that is required from the TCG2 spec
+
 endif # TPM_V2
 
 endmenu

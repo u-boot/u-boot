@@ -8,9 +8,9 @@
 #include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/compiler.h>
+#include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/log2.h>
-#include <lmb.h>
 #include <asm/arcregs.h>
 #include <asm/arc-bcr.h>
 #include <asm/cache.h>
@@ -821,15 +821,7 @@ void sync_n_cleanup_cache_all(void)
 	__ic_entire_invalidate();
 }
 
-static ulong get_sp(void)
+int __weak pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
 {
-	ulong ret;
-
-	asm("mov %0, sp" : "=r"(ret) : );
-	return ret;
-}
-
-void arch_lmb_reserve(struct lmb *lmb)
-{
-	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
+	return -ENOSYS;
 }

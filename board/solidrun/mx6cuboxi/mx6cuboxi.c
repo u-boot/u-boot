@@ -385,7 +385,7 @@ static int find_ethernet_phy(void)
 	int phy_addr = -ENOENT;
 
 #ifdef CONFIG_FEC_MXC
-	bus = fec_get_miibus(ENET_BASE_ADDR, -1);
+	bus = fec_get_miibus(NULL, ENET_BASE_ADDR, -1);
 	if (!bus)
 		return -ENOENT;
 
@@ -570,7 +570,7 @@ void board_boot_order(u32 *spl_boot_list)
 	spl_boot_list[1] = BOOT_DEVICE_BOARD;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <asm/arch/mx6-ddr.h>
 static const struct mx6dq_iomux_ddr_regs mx6q_ddr_ioregs = {
 	.dram_sdclk_0 =  0x00020030,

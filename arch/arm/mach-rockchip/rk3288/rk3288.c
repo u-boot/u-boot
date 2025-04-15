@@ -31,7 +31,7 @@ const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 	[BROM_BOOTSOURCE_SD] = "/mmc@ff0c0000",
 };
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static void configure_l2ctlr(void)
 {
 	u32 l2ctlr;
@@ -72,7 +72,7 @@ int rk3288_qos_init(void)
 
 int arch_cpu_init(void)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	configure_l2ctlr();
 #else
 	/* We do some SoC one time setting here. */

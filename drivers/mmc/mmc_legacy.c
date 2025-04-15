@@ -44,7 +44,7 @@ struct mmc *find_mmc_device(int dev_num)
 			return m;
 	}
 
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 	printf("MMC Device %d not found\n", dev_num);
 #endif
 
@@ -93,7 +93,7 @@ void mmc_list_add(struct mmc *mmc)
 	list_add_tail(&mmc->link, &mmc_devices);
 }
 
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 void print_mmc_devices(char separator)
 {
 	struct mmc *m;

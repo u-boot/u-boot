@@ -4,6 +4,6 @@
 #
 
 obj-y	:= $(BOARD).o
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-y	+= ../common/gpio_hog.o
 endif

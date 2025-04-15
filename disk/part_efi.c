@@ -15,7 +15,7 @@
 #include <blk.h>
 #include <log.h>
 #include <part.h>
-#include <uuid.h>
+#include <u-boot/uuid.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/unaligned.h>
@@ -216,7 +216,7 @@ int get_disk_guid(struct blk_desc *desc, char *guid)
 	return 0;
 }
 
-void part_print_efi(struct blk_desc *desc)
+static void __maybe_unused part_print_efi(struct blk_desc *desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, desc->blksz);
 	gpt_entry *gpt_pte = NULL;
@@ -258,8 +258,8 @@ void part_print_efi(struct blk_desc *desc)
 	return;
 }
 
-int part_get_info_efi(struct blk_desc *desc, int part,
-		      struct disk_partition *info)
+static int __maybe_unused part_get_info_efi(struct blk_desc *desc, int part,
+					    struct disk_partition *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, desc->blksz);
 	gpt_entry *gpt_pte = NULL;
@@ -292,6 +292,7 @@ int part_get_info_efi(struct blk_desc *desc, int part,
 		 print_efiname(&gpt_pte[part - 1]));
 	strcpy((char *)info->type, "U-Boot");
 	info->bootable = get_bootable(&gpt_pte[part - 1]);
+	info->type_flags = gpt_pte[part - 1].attributes.fields.type_guid_specific;
 	if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
 		uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b,
 				(char *)disk_partition_uuid(info),
@@ -318,6 +319,17 @@ static int part_test_efi(struct blk_desc *desc)
 	/* Read legacy MBR from block 0 and validate it */
 	if ((blk_dread(desc, 0, 1, (ulong *)legacymbr) != 1)
 		|| (is_pmbr_valid(legacymbr) != 1)) {
+		/*
+		 * TegraPT is compatible with EFI part, but it
+		 * cannot pass the Protective MBR check. Skip it
+		 * if CONFIG_TEGRA_PARTITION is enabled and the
+		 * device in question is eMMC.
+		 */
+		if (IS_ENABLED(CONFIG_TEGRA_PARTITION))
+			if (!is_pmbr_valid(legacymbr) &&
+			    desc->uclass_id == UCLASS_MMC &&
+			    !desc->devnum)
+				return 0;
 		return -1;
 	}
 	return 0;

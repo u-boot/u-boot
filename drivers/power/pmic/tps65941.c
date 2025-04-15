@@ -74,7 +74,7 @@ static const struct udevice_id tps65941_ids[] = {
 	{ .compatible = "ti,tps659412", .data = TPS659411 },
 	{ .compatible = "ti,tps659413", .data = TPS659413 },
 	{ .compatible = "ti,lp876441",  .data =  LP876441 },
-	{ .compatible = "ti,tps65224",  .data =  TPS65224 },
+	{ .compatible = "ti,tps65224-q1",  .data =  TPS65224 },
 	{ .compatible = "ti,tps6594-q1", .data =  TPS659411 },
 	{ .compatible = "ti,tps6593-q1", .data =  TPS659413 },
 	{ .compatible = "ti,lp8764-q1",  .data =  LP876441 },

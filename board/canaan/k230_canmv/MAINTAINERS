@@ -1,0 +1,6 @@
+K230 CANMV
+M:	Junhui Liu <junhui.liu@pigmoral.tech>
+S:	Maintained
+F:	board/canaan/k230_canmv/
+F:	configs/k230_canmv_defconfig
+F:	doc/board/canaan/k230_canmv.rst

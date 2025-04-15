@@ -15,20 +15,13 @@
 #include <asm/arch/iomap.h>
 #include <dm/uclass-internal.h>
 
-static int baytrail_write_fadt(struct acpi_ctx *ctx,
-			       const struct acpi_writer *entry)
+void acpi_fill_fadt(struct acpi_fadt *fadt)
 {
 	struct acpi_table_header *header;
-	struct acpi_fadt *fadt;
 
-	fadt = ctx->current;
 	header = &fadt->header;
 	u16 pmbase = ACPI_BASE_ADDRESS;
 
-	memset(fadt, '\0', sizeof(struct acpi_fadt));
-
-	acpi_fill_header(header, "FACP");
-	header->length = sizeof(struct acpi_fadt);
 	header->revision = 4;
 
 	fadt->preferred_pm_profile = ACPI_PM_MOBILE;
@@ -76,9 +69,6 @@ static int baytrail_write_fadt(struct acpi_ctx *ctx,
 	fadt->reset_reg.addrl = IO_PORT_RESET;
 	fadt->reset_reg.addrh = 0;
 	fadt->reset_value = SYS_RST | RST_CPU | FULL_RST;
-
-	fadt->x_firmware_ctrl = map_to_sysmem(ctx->facs);
-	fadt->x_dsdt = map_to_sysmem(ctx->dsdt);
 
 	fadt->x_pm1a_evt_blk.space_id = ACPI_ADDRESS_SPACE_IO;
 	fadt->x_pm1a_evt_blk.bit_width = fadt->pm1_evt_len * 8;
@@ -135,12 +125,7 @@ static int baytrail_write_fadt(struct acpi_ctx *ctx,
 	fadt->x_gpe1_blk.access_size = 0;
 	fadt->x_gpe1_blk.addrl = 0x0;
 	fadt->x_gpe1_blk.addrh = 0x0;
-
-	header->checksum = table_compute_checksum(fadt, header->length);
-
-	return acpi_add_fadt(ctx, fadt);
 }
-ACPI_WRITER(5fadt, "FADT", baytrail_write_fadt, 0);
 
 int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 {

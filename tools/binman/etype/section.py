@@ -165,7 +165,7 @@ class Entry_section(Entry):
         self._pad_byte = 0
         self._sort = False
         self._skip_at_start = None
-        self._end_4gb = False
+        self._end_at_4gb = False
         self._ignore_missing = False
         self._filename = None
         self.align_default = 0
@@ -187,9 +187,9 @@ class Entry_section(Entry):
         super().ReadNode()
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._sort = fdt_util.GetBool(self._node, 'sort-by-offset')
-        self._end_4gb = fdt_util.GetBool(self._node, 'end-at-4gb')
+        self._end_at_4gb = fdt_util.GetBool(self._node, 'end-at-4gb')
         self._skip_at_start = fdt_util.GetInt(self._node, 'skip-at-start')
-        if self._end_4gb:
+        if self._end_at_4gb:
             if not self.size:
                 self.Raise("Section size must be provided when using end-at-4gb")
             if self._skip_at_start is not None:
@@ -563,13 +563,13 @@ class Entry_section(Entry):
         return entry.GetData(required)
 
     def LookupEntry(self, entries, sym_name, msg):
-        """Look up the entry for an ENF  symbol
+        """Look up the entry for a binman symbol
 
         Args:
             entries (dict): entries to search:
                 key: entry name
                 value: Entry object
-            sym_name: Symbol name in the ELF file to look up in the format
+            sym_name: Symbol name to look up in the format
                 _binman_<entry>_prop_<property> where <entry> is the name of
                 the entry and <property> is the property to find (e.g.
                 _binman_u_boot_prop_offset). As a special case, you can append
@@ -606,11 +606,10 @@ class Entry_section(Entry):
                             entry = entries[name]
         return entry, entry_name, prop_name
 
-    def LookupSymbol(self, sym_name, optional, msg, base_addr, entries=None):
-        """Look up a symbol in an ELF file
+    def GetSymbolValue(self, sym_name, optional, msg, base_addr, entries=None):
+        """Get the value of a Binman symbol
 
-        Looks up a symbol in an ELF file. Only entry types which come from an
-        ELF image can be used by this function.
+        Look up a Binman symbol and obtain its value.
 
         At present the only entry properties supported are:
             offset
@@ -618,7 +617,7 @@ class Entry_section(Entry):
             size
 
         Args:
-            sym_name: Symbol name in the ELF file to look up in the format
+            sym_name: Symbol name to look up in the format
                 _binman_<entry>_prop_<property> where <entry> is the name of
                 the entry and <property> is the property to find (e.g.
                 _binman_u_boot_prop_offset). As a special case, you can append
@@ -628,12 +627,10 @@ class Entry_section(Entry):
             optional: True if the symbol is optional. If False this function
                 will raise if the symbol is not found
             msg: Message to display if an error occurs
-            base_addr: Base address of image. This is added to the returned
-                image_pos in most cases so that the returned position indicates
-                where the targetted entry/binary has actually been loaded. But
-                if end-at-4gb is used, this is not done, since the binary is
-                already assumed to be linked to the ROM position and using
-                execute-in-place (XIP).
+            base_addr (int): Base address of image. This is added to the
+                returned value of image-pos so that the returned position
+                indicates where the targeted entry/binary has actually been
+                loaded
 
         Returns:
             Value that should be assigned to that symbol, or None if it was
@@ -656,31 +653,14 @@ class Entry_section(Entry):
         if prop_name == 'offset':
             return entry.offset
         elif prop_name == 'image_pos':
-            value = entry.image_pos
-            if not self.GetImage()._end_4gb:
-                value += base_addr
-            return value
+            if not entry.image_pos:
+                tout.info(f'Symbol-writing: no value for {entry._node.path}')
+                return None
+            return base_addr + entry.image_pos
         if prop_name == 'size':
             return entry.size
         else:
             raise ValueError("%s: No such property '%s'" % (msg, prop_name))
-
-    def GetRootSkipAtStart(self):
-        """Get the skip-at-start value for the top-level section
-
-        This is used to find out the starting offset for root section that
-        contains this section. If this is a top-level section then it returns
-        the skip-at-start offset for this section.
-
-        This is used to get the absolute position of section within the image.
-
-        Returns:
-            Integer skip-at-start value for the root section containing this
-                section
-        """
-        if self.section:
-            return self.section.GetRootSkipAtStart()
-        return self._skip_at_start
 
     def GetStartOffset(self):
         """Get the start offset for this section
@@ -804,7 +784,7 @@ class Entry_section(Entry):
         if not entry:
             self._Raise("Unable to set offset/size for unknown entry '%s'" %
                         name)
-        entry.SetOffsetSize(self._skip_at_start + offset if offset is not None
+        entry.SetOffsetSize(offset + self._skip_at_start if offset is not None
                             else None, size)
 
     def GetEntryOffsets(self):

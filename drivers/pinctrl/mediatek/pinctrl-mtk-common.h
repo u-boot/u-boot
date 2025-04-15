@@ -241,6 +241,7 @@ extern const struct pinctrl_ops mtk_pinctrl_ops;
 /* A common read-modify-write helper for MediaTek chips */
 void mtk_rmw(struct udevice *dev, u32 reg, u32 mask, u32 set);
 void mtk_i_rmw(struct udevice *dev, u8 i, u32 reg, u32 mask, u32 set);
+int mtk_pinctrl_common_bind(struct udevice *dev);
 int mtk_pinctrl_common_probe(struct udevice *dev,
 			     const struct mtk_pinctrl_soc *soc);
 

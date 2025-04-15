@@ -4,13 +4,21 @@
  */
 
 /{
-	soc {
-		bootph-all;
-	};
 	aliases {
 		usb0 = &usb;
 		usb1 = &usb1;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
 	};
+
+	chosen {
+		stdout-path = &uart0;
+	};
+};
+
+&soc0 {
+	bootph-all;
 };
 
 &i2c1 {

@@ -47,7 +47,7 @@ static int __maybe_unused part_get_info_ubi(struct blk_desc *dev_desc, int part_
 	 */
 	vol = ubi_get_volume_by_index(part_idx - 1);
 	if (!vol)
-		return 0;
+		return -ENOENT;
 
 	snprintf(info->name, PART_NAME_LEN, vol->name);
 

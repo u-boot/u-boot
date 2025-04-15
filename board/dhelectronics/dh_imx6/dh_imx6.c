@@ -30,6 +30,7 @@
 #include <fuse.h>
 #include <i2c_eeprom.h>
 #include <mmc.h>
+#include <power/regulator.h>
 #include <usb.h>
 #include <linux/delay.h>
 #include <usb/ehci-ci.h>
@@ -83,7 +84,7 @@ int board_usb_phy_mode(int port)
 }
 #endif
 
-int dh_setup_mac_address(void)
+int dh_setup_mac_address(struct eeprom_id_page *eip)
 {
 	unsigned char enetaddr[6];
 
@@ -170,7 +171,7 @@ int board_late_init(void)
 	u32 hw_code;
 	char buf[16];
 
-	dh_setup_mac_address();
+	dh_setup_mac_address(NULL);
 
 	hw_code = board_get_hwcode();
 

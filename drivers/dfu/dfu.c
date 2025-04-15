@@ -27,6 +27,21 @@ static unsigned long dfu_timeout = 0;
 #endif
 
 bool dfu_reinit_needed = false;
+bool dfu_alt_info_changed = false;
+
+static int on_dfu_alt_info(const char *name, const char *value, enum env_op op,
+			   int flags)
+{
+	switch (op) {
+	case env_op_create:
+	case env_op_overwrite:
+	case env_op_delete:
+		dfu_alt_info_changed = true;
+		break;
+	}
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(dfu_alt_info, on_dfu_alt_info);
 
 /*
  * The purpose of the dfu_flush_callback() function is to
@@ -152,6 +167,7 @@ int dfu_init_env_entities(char *interface, char *devstr)
 	int ret = 0;
 
 	dfu_reinit_needed = false;
+	dfu_alt_info_changed = false;
 
 #ifdef CONFIG_SET_DFU_ALT_INFO
 	set_dfu_alt_info(interface, devstr);
@@ -548,6 +564,9 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 	} else if (strcmp(interface, "virt") == 0) {
 		if (dfu_fill_entity_virt(dfu, devstr, argv, argc))
 			return -1;
+	} else if (strcmp(interface, "scsi") == 0) {
+		if (dfu_fill_entity_scsi(dfu, devstr, argv, argc))
+			return -1;
 	} else {
 		printf("%s: Device %s not (yet) supported!\n",
 		       __func__,  interface);
@@ -644,7 +663,7 @@ int dfu_config_entities(char *env, char *interface, char *devstr)
 const char *dfu_get_dev_type(enum dfu_device_type t)
 {
 	const char *const dev_t[] = {NULL, "eMMC", "OneNAND", "NAND", "RAM",
-				     "SF", "MTD", "VIRT"};
+				     "SF", "MTD", "VIRT", "SCSI"};
 	return dev_t[t];
 }
 

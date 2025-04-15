@@ -1,0 +1,5 @@
+config FS_EXFAT
+	bool "Enable EXFAT filesystem support"
+	imply CMD_FS_GENERIC if CMDLINE
+	help
+	  This provides read/write support for EXFAT filesystem.

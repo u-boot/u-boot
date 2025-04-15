@@ -16,7 +16,5 @@ int mmc_get_env_dev(void)
 
 int board_init(void)
 {
-	regulators_enable_boot_on(_DEBUG);
-
 	return 0;
 }

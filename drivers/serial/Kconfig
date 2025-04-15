@@ -539,6 +539,13 @@ config TPL_DEBUG_UART_BASE
 	help
 	  This is the base address of your UART for memory-mapped UARTs for TPL.
 
+config VPL_DEBUG_UART_BASE
+	hex "Base address of UART for VPL"
+	depends on VPL && DEBUG_UART
+	default DEBUG_UART_BASE
+	help
+	  This is the base address of your UART for memory-mapped UARTs for VPL.
+
 config DEBUG_UART_CLOCK
 	int "UART input clock"
 	depends on DEBUG_UART
@@ -782,6 +789,12 @@ config SPL_SYS_NS16550_SERIAL
 	default y if SYS_NS16550_SERIAL || ARCH_SUNXI || ARCH_OMAP2PLUS
 	select SYS_NS16550
 
+config TPL_SYS_NS16550_SERIAL
+	bool "NS16550 UART or compatible legacy driver in TPL"
+	depends on TPL && !TPL_DM_SERIAL
+	default y if SPL_SYS_NS16550_SERIAL
+	select SYS_NS16550
+
 config SYS_NS16550
 	bool "NS16550 UART or compatible"
 	help
@@ -913,7 +926,7 @@ config SCIF_CONSOLE
 	depends on SH || ARCH_RENESAS
 	help
 	  Select this to enable Renesas SCIF UART. To operate serial ports
-	  on systems with RCar or SH SoCs, say Y to this option. If unsure,
+	  on systems with R-Car or SH SoCs, say Y to this option. If unsure,
 	  say N.
 
 choice

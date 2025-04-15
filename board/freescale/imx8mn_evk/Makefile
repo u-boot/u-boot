@@ -6,7 +6,7 @@
 
 obj-y += imx8mn_evk.o
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += spl.o
 ifdef CONFIG_IMX8MN_LOW_DRIVE_MODE
 obj-$(CONFIG_IMX8M_LPDDR4) += lpddr4_timing_ld.o

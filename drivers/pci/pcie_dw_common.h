@@ -139,6 +139,8 @@ int pcie_dw_read_config(const struct udevice *bus, pci_dev_t bdf, uint offset, u
 int pcie_dw_write_config(struct udevice *bus, pci_dev_t bdf, uint offset, ulong value,
 			 enum pci_size_t size);
 
+u8 pcie_dw_find_capability(struct pcie_dw *pci, u8 cap);
+
 static inline void dw_pcie_dbi_write_enable(struct pcie_dw *pci, bool en)
 {
 	u32 val;

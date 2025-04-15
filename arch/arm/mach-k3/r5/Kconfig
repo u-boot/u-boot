@@ -1,6 +1,13 @@
 config K3_LOAD_SYSFW
 	bool
 
+config K3_OPP_LOW
+	depends on ARCH_K3 && K3_AVS0
+	bool "Enable OPP_LOW on supported TI K3 SoCs"
+	help
+	  Enabling this will allow Socs with the proper efuse to run at a lower
+	  MPU core voltage and adjust frequency according to SoC TRM
+
 config K3_QOS
 	bool "Enable Quality of Service (QoS) Settings for TI K3 SoCs"
 	default y if SOC_K3_AM62A7

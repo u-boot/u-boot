@@ -2,7 +2,6 @@ menu "Xtensa architecture"
 	depends on XTENSA
 
 config SYS_ARCH
-	string
 	default "xtensa"
 
 config SYS_CPU

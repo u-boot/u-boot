@@ -8,7 +8,7 @@ ifdef CONFIG_ARCH_NEXELL
 obj-$(CONFIG_S5P4418_ONEWIRE) += pwm.o
 else
 obj-y += cpu_info.o
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-y += timer.o
 obj-y += sromc.o
 endif

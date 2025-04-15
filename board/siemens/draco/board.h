@@ -11,14 +11,14 @@
 #ifndef _BOARD_DRACO_H_
 #define _BOARD_DRACO_H_
 
+#include "../common/board.h"
+
 #define PARGS(x)	#x , /* Parameter Name */ \
 			settings.ddr3.x, /* EEPROM Value */ \
 			ddr3_default.x, /* Default Value */ \
 			settings.ddr3.x-ddr3_default.x /* Difference */
 
 #define PRINTARGS(y)	printf("%-20s, %8x, %8x, %4d\n", PARGS(y))
-
-#define MAGIC_CHIP	0x50494843
 
 /* Automatic generated definition */
 /* Wed, 16 Apr 2014 16:50:41 +0200 */
@@ -41,12 +41,6 @@ struct ddr3_data {
 	unsigned int ioctr_val;			/* 0x0000014A */
 	char manu_name[32];			/* "default@303MHz \0" */
 	char manu_marking[32];			/* "default \0" */
-};
-
-struct chip_data {
-	unsigned int  magic;
-	char sdevname[16];
-	char shwver[7];
 };
 
 struct draco_baseboard_id {

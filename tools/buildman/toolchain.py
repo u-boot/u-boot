@@ -65,12 +65,13 @@ class Toolchain:
         """Create a new toolchain object.
 
         Args:
-            fname: Filename of the gcc component
+            fname: Filename of the gcc component, possibly with ~ or $HOME in it
             test: True to run the toolchain to test it
             verbose: True to print out the information
             priority: Priority to use for this toolchain, or PRIORITY_CALC to
                 calculate it
         """
+        fname = os.path.expanduser(fname)
         self.gcc = fname
         self.path = os.path.dirname(fname)
         self.override_toolchain = override_toolchain
@@ -99,7 +100,7 @@ class Toolchain:
         else:
             self.priority = priority
         if test:
-            result = command.run_pipe([cmd], capture=True, env=env,
+            result = command.run_one(*cmd, capture=True, env=env,
                                      raise_on_error=False)
             self.ok = result.return_code == 0
             if verbose:
@@ -109,7 +110,7 @@ class Toolchain:
                                                           self.priority))
                 else:
                     print('BAD')
-                    print('Command: ', cmd)
+                    print(f"Command: {' '.join(cmd)}")
                     print(result.stdout)
                     print(result.stderr)
         else:
@@ -159,6 +160,8 @@ class Toolchain:
         if which == VAR_CROSS_COMPILE:
             wrapper = self.GetWrapper()
             base = '' if self.arch == 'sandbox' else self.path
+            if (base == '' and self.cross == ''):
+                return ''
             return wrapper + os.path.join(base, self.cross)
         elif which == VAR_PATH:
             return self.path
@@ -172,13 +175,14 @@ class Toolchain:
         else:
             raise ValueError('Unknown arg to GetEnvArgs (%d)' % which)
 
-    def MakeEnvironment(self, full_path):
+    def MakeEnvironment(self, full_path, env=None):
         """Returns an environment for using the toolchain.
 
         This takes the current environment and adds CROSS_COMPILE so that
         the tool chain will operate correctly. This also disables localized
         output and possibly Unicode encoded output of all build tools by
-        adding LC_ALL=C.
+        adding LC_ALL=C. For the case where full_path is False, it prepends
+        the toolchain to PATH
 
         Note that os.environb is used to obtain the environment, since in some
         cases the environment many contain non-ASCII characters and we see
@@ -187,26 +191,48 @@ class Toolchain:
           UnicodeEncodeError: 'utf-8' codec can't encode characters in position
              569-570: surrogates not allowed
 
+        When running inside a Python venv, care is taken not to put the
+        toolchain path before the venv path, so that builds initiated by
+        buildman will still respect the venv.
+
         Args:
             full_path: Return the full path in CROSS_COMPILE and don't set
                 PATH
+            env (dict of bytes): Original environment, used for testing
         Returns:
             Dict containing the (bytes) environment to use. This is based on the
             current environment, with changes as needed to CROSS_COMPILE, PATH
             and LC_ALL.
         """
-        env = dict(os.environb)
+        env = dict(env or os.environb)
+
         wrapper = self.GetWrapper()
 
         if self.override_toolchain:
             # We'll use MakeArgs() to provide this
             pass
-        elif full_path:
+        elif full_path and self.cross:
             env[b'CROSS_COMPILE'] = tools.to_bytes(
                 wrapper + os.path.join(self.path, self.cross))
-        else:
+        elif self.cross:
             env[b'CROSS_COMPILE'] = tools.to_bytes(wrapper + self.cross)
-            env[b'PATH'] = tools.to_bytes(self.path) + b':' + env[b'PATH']
+
+            # Detect a Python virtualenv and avoid defeating it
+            if sys.prefix != sys.base_prefix:
+                paths = env[b'PATH'].split(b':')
+                new_paths = []
+                to_insert = tools.to_bytes(self.path)
+                insert_after = tools.to_bytes(sys.prefix)
+                for path in paths:
+                    new_paths.append(path)
+                    if to_insert and path.startswith(insert_after):
+                        new_paths.append(to_insert)
+                        to_insert = None
+                if to_insert:
+                    new_paths.append(to_insert)
+                env[b'PATH'] = b':'.join(new_paths)
+            else:
+                env[b'PATH'] = tools.to_bytes(self.path) + b':' + env[b'PATH']
 
         env[b'LC_ALL'] = b'C'
 
@@ -271,10 +297,11 @@ class Toolchains:
 
         paths = []
         for name, value in toolchains:
+            fname = os.path.expanduser(value)
             if '*' in value:
-                paths += glob.glob(value)
+                paths += glob.glob(fname)
             else:
-                paths.append(value)
+                paths.append(fname)
         return paths
 
     def GetSettings(self, show_warning=True):
@@ -302,16 +329,17 @@ class Toolchains:
         toolchain = Toolchain(fname, test, verbose, priority, arch,
                               self.override_toolchain)
         add_it = toolchain.ok
-        if toolchain.arch in self.toolchains:
-            add_it = (toolchain.priority <
-                        self.toolchains[toolchain.arch].priority)
         if add_it:
-            self.toolchains[toolchain.arch] = toolchain
-        elif verbose:
-            print(("Toolchain '%s' at priority %d will be ignored because "
-                   "another toolchain for arch '%s' has priority %d" %
-                   (toolchain.gcc, toolchain.priority, toolchain.arch,
-                    self.toolchains[toolchain.arch].priority)))
+            if toolchain.arch in self.toolchains:
+                add_it = (toolchain.priority <
+                          self.toolchains[toolchain.arch].priority)
+            if add_it:
+                self.toolchains[toolchain.arch] = toolchain
+            elif verbose:
+                print(("Toolchain '%s' at priority %d will be ignored because "
+                       "another toolchain for arch '%s' has priority %d" %
+                       (toolchain.gcc, toolchain.priority, toolchain.arch,
+                        self.toolchains[toolchain.arch].priority)))
 
     def ScanPath(self, path, verbose):
         """Scan a path for a valid toolchain
@@ -347,7 +375,7 @@ class Toolchains:
                 pathname_list.append(pathname)
         return pathname_list
 
-    def Scan(self, verbose):
+    def Scan(self, verbose, raise_on_error=True):
         """Scan for available toolchains and select the best for each arch.
 
         We look for all the toolchains we can file, figure out the
@@ -359,11 +387,12 @@ class Toolchains:
         """
         if verbose: print('Scanning for tool chains')
         for name, value in self.prefixes:
-            if verbose: print("   - scanning prefix '%s'" % value)
-            if os.path.exists(value):
-                self.Add(value, True, verbose, PRIORITY_FULL_PREFIX, name)
+            fname = os.path.expanduser(value)
+            if verbose: print("   - scanning prefix '%s'" % fname)
+            if os.path.exists(fname):
+                self.Add(fname, True, verbose, PRIORITY_FULL_PREFIX, name)
                 continue
-            fname = value + 'gcc'
+            fname += 'gcc'
             if os.path.exists(fname):
                 self.Add(fname, True, verbose, PRIORITY_PREFIX_GCC, name)
                 continue
@@ -371,8 +400,11 @@ class Toolchains:
             for f in fname_list:
                 self.Add(f, True, verbose, PRIORITY_PREFIX_GCC_PATH, name)
             if not fname_list:
-                raise ValueError("No tool chain found for prefix '%s'" %
-                                   value)
+                msg = f"No tool chain found for prefix '{fname}'"
+                if raise_on_error:
+                    raise ValueError(msg)
+                else:
+                    print(f'Error: {msg}')
         for path in self.paths:
             if verbose: print("   - scanning path '%s'" % path)
             fnames = self.ScanPath(path, verbose)
@@ -415,12 +447,12 @@ class Toolchains:
         This converts ${blah} within the string to the value of blah.
         This function works recursively.
 
+            Resolved string
+
         Args:
             var_dict: Dictionary containing variables and their values
             args: String containing make arguments
         Returns:
-            Resolved string
-
         >>> bsettings.setup(None)
         >>> tcs = Toolchains()
         >>> tcs.Add('fred', False)
@@ -431,7 +463,7 @@ class Toolchains:
         >>> tcs.ResolveReferences(var_dict, 'this=${oblique}_set${first}nd')
         'this=OBLIQUE_setfi2ndrstnd'
         """
-        re_var = re.compile('(\$\{[-_a-z0-9A-Z]{1,}\})')
+        re_var = re.compile(r'(\$\{[-_a-z0-9A-Z]{1,}\})')
 
         while True:
             m = re_var.search(args)
@@ -470,7 +502,7 @@ class Toolchains:
         self._make_flags['target'] = brd.target
         arg_str = self.ResolveReferences(self._make_flags,
                            self._make_flags.get(brd.target, ''))
-        args = re.findall("(?:\".*?\"|\S)+", arg_str)
+        args = re.findall(r"(?:\".*?\"|\S)+", arg_str)
         i = 0
         while i < len(args):
             args[i] = args[i].replace('"', '')

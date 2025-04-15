@@ -6,7 +6,7 @@ Overview
 ========
 
 Kconfiglib is a Python 2/3 library for scripting and extracting information
-from Kconfig (https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt)
+from Kconfig (https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.rst)
 configuration systems.
 
 See the homepage at https://github.com/ulfalizer/Kconfiglib for a longer
@@ -709,7 +709,7 @@ class Kconfig(object):
 
     mainmenu_text:
       The prompt (title) of the top menu (top_node). Defaults to "Main menu".
-      Can be changed with the 'mainmenu' statement (see kconfig-language.txt).
+      Can be changed with the 'mainmenu' statement (see kconfig-language.rst).
 
     variables:
       A dictionary with all preprocessor variables, indexed by name. See the
@@ -3562,7 +3562,7 @@ class Kconfig(object):
         #
         #  - Propagates dependencies from parent to child nodes
         #
-        #  - Creates implicit menus (see kconfig-language.txt)
+        #  - Creates implicit menus (see kconfig-language.rst)
         #
         #  - Removes 'if' nodes
         #
@@ -5030,7 +5030,7 @@ class Choice(object):
 
         0 (n) - The choice is disabled and no symbols can be selected. For
                 visible choices, this mode is only possible for choices with
-                the 'optional' flag set (see kconfig-language.txt).
+                the 'optional' flag set (see kconfig-language.rst).
 
         1 (m) - Any number of choice symbols can be set to m, the rest will
                 be n.
@@ -5498,7 +5498,7 @@ class MenuNode(object):
 
       Choices and menus naturally have children, but Symbols can also have
       children because of menus created automatically from dependencies (see
-      kconfig-language.txt).
+      kconfig-language.rst).
 
     parent:
       The parent menu node. None if there is no parent.

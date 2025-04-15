@@ -360,7 +360,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	}
 
 	if (flags & SPI_XFER_BEGIN)
-		sun4i_spi_set_cs(bus, slave_plat->cs, true);
+		sun4i_spi_set_cs(bus, slave_plat->cs[0], true);
 
 	/* Reset FIFOs */
 	setbits_le32(SPI_REG(priv, SPI_FCR), SPI_BIT(priv, SPI_FCR_RF_RST) |
@@ -391,7 +391,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 					false, SUN4I_SPI_TIMEOUT_MS, false);
 		if (ret < 0) {
 			printf("ERROR: sun4i_spi: Timeout transferring data\n");
-			sun4i_spi_set_cs(bus, slave_plat->cs, false);
+			sun4i_spi_set_cs(bus, slave_plat->cs[0], false);
 			return ret;
 		}
 
@@ -402,7 +402,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	}
 
 	if (flags & SPI_XFER_END)
-		sun4i_spi_set_cs(bus, slave_plat->cs, false);
+		sun4i_spi_set_cs(bus, slave_plat->cs[0], false);
 
 	return 0;
 }

@@ -120,6 +120,11 @@ Unrecognized commands are ignored.
 default <label>	    - the label named here is treated as the default and is
 		      the first label 'pxe boot' attempts to boot.
 
+fallback <label>    - the label named here is treated as a fallback option that
+		      may be attempted should it be detected that booting of
+		      the default has failed to complete, for example via
+		      U-Boot's boot count limit functionality.
+
 menu title <string> - sets a title for the menu of labels being displayed.
 
 menu include <path> - use tftp to retrieve the pxe file at <path>, which
@@ -155,7 +160,7 @@ kernel <path>	    - if this label is chosen, use tftp to retrieve the kernel
 		      It will passed to bootm with that address.
 		      (see: doc/uImage.FIT/command_syntax_extensions.txt)
 		      It useful for overlay selection in pxe file
-		      (see: doc/uImage.FIT/overlay-fdt-boot.txt)
+		      (see: doc/usage/fit/overlay-fdt-boot.rst).
 
 fdtoverlays <path> [...] - if this label is chosen, use tftp to retrieve the DT
                       overlay(s) at <path>. it will be temporarily stored at the

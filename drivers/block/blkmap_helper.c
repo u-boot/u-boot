@@ -28,7 +28,7 @@ int blkmap_create_ramdisk(const char *label, ulong image_addr, ulong image_size,
 	bm = dev_get_plat(bm_dev);
 	desc = dev_get_uclass_plat(bm->blk);
 	blknum = image_size >> desc->log2blksz;
-	ret = blkmap_map_pmem(bm_dev, 0, blknum, image_addr);
+	ret = blkmap_map_pmem(bm_dev, 0, blknum, image_addr, true);
 	if (ret) {
 		log_err("Unable to map %#llx at block %d : %d\n",
 			(unsigned long long)image_addr, 0, ret);

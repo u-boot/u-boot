@@ -1,0 +1,7 @@
+config RAM_RENESAS_DBSC5
+	bool "Renesas R-Car V4H/V4M DBSC5 controller driver"
+	depends on SPL && RAM && (R8A779G0 || R8A779H0)
+	default n
+	help
+	  Enable this to support the DBSC5 DRAM controller initialization
+	  on Renesas R8A779G0/R8A779H0 SoCs.

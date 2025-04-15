@@ -6,16 +6,6 @@
 
 #include "k3-am625-sk-binman.dtsi"
 
-/ {
-	chosen {
-		tick-timer = &main_timer0;
-	};
-};
-
-&main_timer0 {
-	clock-frequency = <25000000>;
-};
-
 &main_bcdma {
 	reg = <0x00 0x485c0100 0x00 0x100>,
 	      <0x00 0x4c000000 0x00 0x20000>,

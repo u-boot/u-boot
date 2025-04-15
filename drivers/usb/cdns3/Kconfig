@@ -49,6 +49,13 @@ config SPL_USB_CDNS3_HOST
 	  Host controller is compliant with XHCI so it will use
 	  standard XHCI driver.
 
+config USB_CDNS3_STARFIVE
+	tristate "Cadence USB3 support on Starfive platforms"
+	default y if STARFIVE_JH7110
+	help
+	  Say 'Y' here if you are building for Starfive platforms
+	  that contain Cadence USB3 controller core. E.g.: JH7110.
+
 config USB_CDNS3_TI
 	tristate "Cadence USB3 support on TI platforms"
 	default USB_CDNS3

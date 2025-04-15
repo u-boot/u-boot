@@ -76,8 +76,8 @@ There are two ways to apply overlays in U-Boot.
 * Manually load and apply overlays
 
 The remainder of this document will discuss using overlays via the manual
-approach. For information on using overlays as part of a FIT image please see:
-doc/uImage.FIT/overlay-fdt-boot.txt
+approach. For information on using overlays as part of a FIT image please see
+:ref:`fit_configuration_using_overlays`.
 
 Manually Loading and Applying Overlays
 --------------------------------------

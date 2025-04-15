@@ -11,7 +11,6 @@
 
 #include <linux/sizes.h>
 
-#define CFG_SYS_SDRAM_BASE		0x80000000
 
 #define RISCV_MMODE_TIMERBASE		0x2000000
 #define RISCV_MMODE_TIMEROFF		0xbff8

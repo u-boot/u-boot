@@ -39,13 +39,5 @@ dtb-$(CONFIG_SOC_SERVAL) += serval_pcb105.dtb serval_pcb106.dtb
 
 include $(srctree)/scripts/Makefile.dts
 
-targets += $(dtb-y)
-
 # Add any required device tree compiler flags here
 DTC_FLAGS +=
-
-PHONY += dtbs
-dtbs: $(addprefix $(obj)/, $(dtb-y))
-	@:
-
-clean-files := *.dtb

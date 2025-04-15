@@ -16,7 +16,9 @@
 @ the machine code must be inserted as verbatim .word statements into the
 @ beginning of the AArch64 U-Boot code.
 @ To get the encoded bytes, use:
-@ ${CROSS_COMPILE}gcc -c -o rmr_switch.o rmr_switch.S
+@ ${CROSS_COMPILE}gcc -c -Iinclude -Iarch/arm/include	\
+@   -D__ASSEMBLY__ -DCONFIG_ARM64			\
+@   -o rmr_switch.o arch/arm/mach-sunxi/rmr_switch.S
 @ ${CROSS_COMPILE}objdump -d rmr_switch.o
 @
 @ The resulting words should be inserted into the U-Boot file at
@@ -29,14 +31,40 @@
 #include <config.h>
 
 .text
+	b	start32			// this is "tst x0, x0" in AArch64
+	.word	0x14000047		// this is "b   reset"  in AArch64
 
-#ifndef CONFIG_SUN50I_GEN_H6
-	ldr	r1, =0x017000a0		@ MMIO mapped RVBAR[0] register
+	.space  0x78			// gap distance set by the common
+					// encoding of the first instruction
+fel_stash_addr:
+	.word	fel_stash - .		// distance to fel_stash buffer
+
+start32:
+	adr	r0, fel_stash_addr	// absolute location of fel_stash_addr
+	ldr	r1, fel_stash_addr	// distance to actual fel_stash
+	add	r0, r0, r1		// real address of fel_stash
+
+	/* save the current state as needed by the BROM for a later return */
+	str	sp, [r0]
+	str	lr, [r0, #4]
+	mrs	lr, CPSR
+	str	lr, [r0, #8]
+	mrc	p15, 0, lr, cr1, cr0, 0		// SCTLR
+	str	lr, [r0, #12]
+	mrc	p15, 0, lr, cr12, cr0, 0	// VBAR
+	str	lr, [r0, #16]
+
+	ldr	r1, =CONFIG_SUNXI_RVBAR_ADDRESS
+	ldr	r0, =SUNXI_SRAMC_BASE
+	ldr	r0, [r0, #36]			// SRAM_VER_REG
+	ands	r0, r0, #0xff
+	ldrne	r1, =CONFIG_SUNXI_RVBAR_ALTERNATIVE
+#ifdef CONFIG_XPL_BUILD
+	ldr	r0, =CONFIG_SPL_TEXT_BASE
 #else
-	ldr	r1, =0x09010040		@ MMIO mapped RVBAR[0] register
+	ldr	r0, =CONFIG_TEXT_BASE
 #endif
-	ldr	r0, =0x57aA7add		@ start address, to be replaced
-	str	r0, [r1]
+	str	r0, [r1]			// store start address in RVBAR
 	dsb	sy
 	isb	sy
 	mrc	15, 0, r0, cr12, cr0, 2	@ read RMR register

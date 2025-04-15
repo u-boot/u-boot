@@ -157,7 +157,7 @@
 	"console=ttyS2,115200n8\0" \
 	"hwconfig=dsp:wake=yes"
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* defines for SPL */
 
 #endif

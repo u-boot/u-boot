@@ -12,7 +12,7 @@
  * To make life easier for everyone, we build the SPL binary with
  * space for this 4-byte header already included in the binary.
  */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/*
 	 * We need to add 4 bytes of space for the 'RK33' at the
 	 * beginning of the executable.	 However, as we want to keep
@@ -39,7 +39,7 @@ entry_counter:
 	.word   0
 #endif
 
-#if (defined(CONFIG_SPL_BUILD) || defined(CONFIG_ARM64))
+#if (defined(CONFIG_XPL_BUILD) || defined(CONFIG_ARM64))
 	/* U-Boot proper of armv7 do not need this */
 	b reset
 #endif
@@ -54,7 +54,7 @@ _start:
 	ARM_VECTORS
 #endif
 
-#if !defined(CONFIG_TPL_BUILD) && defined(CONFIG_SPL_BUILD) && \
+#if !defined(CONFIG_TPL_BUILD) && defined(CONFIG_XPL_BUILD) && \
 	(CONFIG_ROCKCHIP_SPL_RESERVE_IRAM > 0)
 	.space CONFIG_ROCKCHIP_SPL_RESERVE_IRAM	/* space for the ATF data */
 #endif

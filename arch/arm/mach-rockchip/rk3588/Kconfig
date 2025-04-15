@@ -29,6 +29,24 @@ config TARGET_CM3588_NAS_RK3588
 	  - 3.5mm Headphone out, 2.0mm PH-2A Mic in
 	  - 5V Fan connector, PWM beeper, IR receiver, RTC battery connector
 
+config TARGET_GENBOOK_CM5_RK3588
+	bool "Cool Pi CM5 GenBook"
+	select BOARD_LATE_INIT
+	help
+	  GeenBook is a notebook based on Rockchip RK3588, and works as a carrier
+	  board connect with CM5 SOM.
+
+	  Specification:
+	  - Rockchip RK3588
+	  - LPDDR5X 8/32 GB
+	  - eMMC 64 GB
+	  - HDMI Type A out x 1
+	  - USB 3.0 Host x 1
+	  - USB-C 3.0 with DisplayPort AltMode
+	  - PCIE M.2 E Key for RTL8852BE Wireless connection
+	  - PCIE M.2 M Key for NVME connection
+	  - eDP panel with 1920x1080
+
 config TARGET_JAGUAR_RK3588
 	bool "Theobroma Systems SBC-RK3588-AMR (Jaguar)"
 	select BOARD_LATE_INIT
@@ -55,6 +73,28 @@ config TARGET_JAGUAR_RK3588
 	      - low-power RTC functionality (ISL1208 emulation)
 	      - fan controller (AMC6821 emulation)
 	    * 80-pin Mezzanine connector
+
+config TARGET_KHADAS_EDGE2_RK3588
+	bool "Khadas Edge2 RK3588 board"
+	select BOARD_LATE_INIT
+	help
+	  Khadas Edge2 is a Rockchip RK3588S based SBC (Single Board Computer)
+	  by Khadas.
+
+	  There are tree variants depending on the DRAM size : 8G and 16G.
+
+	  Specification:
+
+	  Rockchip RK3588S SoC
+	  4x ARM Cortex-A76, 4x ARM Cortex-A55
+	  8/16GB memory LPDDR4x
+	  Mali G610MP4 GPU
+	  3x MIPI CSI 4x lanes
+	  2x MIPI-DSI DPHY 4x lanes
+	  32/64GB eMMC
+	  1x USB 2.0, 1x USB 3.0, 2x USB-Type-C
+	  1x HDMI 2.1 output, 1x DP 1.4 output
+	  USB PD over USB Type-C
 
 config TARGET_NANOPCT6_RK3588
 	bool "FriendlyElec NanoPC-T6 RK3588 board"
@@ -133,6 +173,12 @@ config TARGET_NOVA_RK3588
 	  It comes in configurations from 4GB of RAM to 16GB of RAM,
 	  includes socket for eMMC storage, an SDMMC slot, and a 40-pin
 	  GPIO header for expansion.
+
+config TARGET_ODROID_M2_RK3588S
+	bool "Hardkernel ODROID-M2"
+	select BOARD_LATE_INIT
+	help
+	  Hardkernel ODROID-M2 single board computer with a RK3588S2 SoC.
 
 config TARGET_RK3588_NEU6
 	bool "Edgeble Neural Compute Module 6(Neu6) SoM"
@@ -235,6 +281,26 @@ config TARGET_ROCK_5_ITX_RK3588
 	  2x 2.5 Gbps Ethernet port
 	  Front-panel connectors for audio and case-power, -leds
 	  Powered by either 12V, ATX power-supply or PoE
+
+config TARGET_ROCK_5C_RK3588S
+	bool "Radxa ROCK 5C RK3588S2 board"
+	select BOARD_LATE_INIT
+	help
+	  Radxa ROCK 5C is a Rockchip RK3588S2 based single board computer.
+
+	  Specification:
+
+	  Quad A76 and Quad A55 CPU
+	  6 TOPS NPU
+	  up to 32GB LPDDR4x RAM
+	  eMMC / SPI flash connector
+	  Micro SD Card slot
+	  Gigabit ethernet port (supports PoE with add-on PoE HAT)
+	  WiFi6 / BT5.4
+	  1x USB 3.0 Type-A HOST port
+	  1x USB 3.0 Type-A OTG port
+	  2x USB 2.0 Type-A HOST port
+	  1x USB Type-C 5V power port
 
 config TARGET_SIGE7_RK3588
 	bool "ArmSoM Sige7 RK3588 board"
@@ -361,17 +427,21 @@ config TEXT_BASE
 	default 0x00a00000
 
 source "board/armsom/sige7-rk3588/Kconfig"
+source "board/coolpi/genbook_cm5_rk3588/Kconfig"
 source "board/edgeble/neural-compute-module-6/Kconfig"
 source "board/friendlyelec/cm3588-nas-rk3588/Kconfig"
 source "board/friendlyelec/nanopc-t6-rk3588/Kconfig"
 source "board/friendlyelec/nanopi-r6c-rk3588s/Kconfig"
 source "board/friendlyelec/nanopi-r6s-rk3588s/Kconfig"
+source "board/hardkernel/odroid_m2/Kconfig"
 source "board/indiedroid/nova/Kconfig"
+source "board/khadas/khadas-edge2-rk3588s/Kconfig"
 source "board/pine64/quartzpro64-rk3588/Kconfig"
 source "board/turing/turing-rk1-rk3588/Kconfig"
 source "board/radxa/rock5a-rk3588s/Kconfig"
 source "board/radxa/rock5b-rk3588/Kconfig"
 source "board/radxa/rock-5-itx-rk3588/Kconfig"
+source "board/radxa/rock-5c-rk3588s/Kconfig"
 source "board/rockchip/evb_rk3588/Kconfig"
 source "board/rockchip/toybrick_rk3588/Kconfig"
 source "board/theobroma-systems/jaguar_rk3588/Kconfig"

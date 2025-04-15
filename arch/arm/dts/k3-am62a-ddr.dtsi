@@ -4,11 +4,12 @@
  */
 
 / {
-	memorycontroller: memory-controller@f308000 {
+	memorycontroller: memory-controller@f300000 {
 		compatible = "ti,am62a-ddrss";
 		reg = <0x00 0x0f308000 0x00 0x4000>,
-		      <0x00 0x43014000 0x00 0x100>;
-		reg-names = "cfg", "ctrl_mmr_lp4";
+		      <0x00 0x43014000 0x00 0x100>,
+		      <0x00 0x0f300000 0x00 0x200>;
+		reg-names = "cfg", "ctrl_mmr_lp4", "ss_cfg";
 		ti,ddr-freq1 = <DDRSS_PLL_FREQUENCY_1>;
 		ti,ddr-freq2 = <DDRSS_PLL_FREQUENCY_2>;
 		ti,ddr-fhs-cnt = <DDRSS_PLL_FHS_CNT>;

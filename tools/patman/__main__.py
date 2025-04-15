@@ -49,7 +49,7 @@ def run_patman():
         result = test_util.run_test_suites(
             'patman', False, False, False, None, None, None,
             [test_checkpatch.TestPatch, func_test.TestFunctional,
-             'gitutil', 'settings'])
+             'settings'])
 
         sys.exit(0 if result.wasSuccessful() else 1)
 

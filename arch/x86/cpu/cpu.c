@@ -163,8 +163,11 @@ char *cpu_get_name(char *name)
 	return ptr;
 }
 
-int default_print_cpuinfo(void)
+#if !CONFIG_IS_ENABLED(CPU)
+int print_cpuinfo(void)
 {
+	post_code(POST_CPU_INFO);
+
 	printf("CPU: %s, vendor %s, device %xh\n",
 	       cpu_has_64bit() ? "x86_64" : "x86",
 	       cpu_vendor_name(gd->arch.x86_vendor), gd->arch.x86_device);
@@ -176,6 +179,7 @@ int default_print_cpuinfo(void)
 
 	return 0;
 }
+#endif
 
 #if CONFIG_IS_ENABLED(SHOW_BOOT_PROGRESS)
 void show_boot_progress(int val)
@@ -185,7 +189,7 @@ void show_boot_progress(int val)
 #endif
 
 #if !defined(CONFIG_SYS_COREBOOT) && !defined(CONFIG_EFI_STUB) && \
-	!defined(CONFIG_SPL_BUILD)
+	!defined(CONFIG_XPL_BUILD)
 /*
  * Implement a weak default function for boards that need to do some final init
  * before the system is ready.
@@ -247,7 +251,7 @@ static int last_stage_init(void)
 }
 EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
-#endif  /* !SYS_COREBOOT && !EFI_STUB && !SPL_BUILD */
+#endif  /* !SYS_COREBOOT && !EFI_STUB && !XPL_BUILD */
 
 static int x86_init_cpus(void)
 {
@@ -336,7 +340,7 @@ int reserve_arch(void)
 }
 #endif
 
-long detect_coreboot_table_at(ulong start, ulong size)
+static long detect_coreboot_table_at(ulong start, ulong size)
 {
 	u32 *ptr, *end;
 
@@ -359,4 +363,28 @@ long locate_coreboot_table(void)
 		addr = detect_coreboot_table_at(0xf0000, 0x1000);
 
 	return addr;
+}
+
+static bool has_cpuid(void)
+{
+	return flag_is_changeable_p(X86_EFLAGS_ID);
+}
+
+static uint cpu_cpuid_extended_level(void)
+{
+	return cpuid_eax(0x80000000);
+}
+
+int cpu_phys_address_size(void)
+{
+	if (!has_cpuid())
+		return 32;
+
+	if (cpu_cpuid_extended_level() >= 0x80000008)
+		return cpuid_eax(0x80000008) & 0xff;
+
+	if (cpuid_edx(1) & (CPUID_FEATURE_PAE | CPUID_FEATURE_PSE36))
+		return 36;
+
+	return 32;
 }

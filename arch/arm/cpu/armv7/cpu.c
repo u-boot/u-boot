@@ -32,7 +32,7 @@ int cleanup_before_linux_select(int flags)
 	 *
 	 * we turn off caches etc ...
 	 */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	disable_interrupts();
 #endif
 

@@ -67,7 +67,7 @@ static inline ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start,
 }
 #endif
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #ifdef CONFIG_MMC_TRACE
 void mmmc_trace_before_send(struct mmc *mmc, struct mmc_cmd *cmd);

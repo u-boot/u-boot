@@ -255,6 +255,21 @@
 				interrupt-controller;
 			};
 
+			sgpio: sgpio@1e780200 {
+				compatible = "aspeed,ast2500-sgpio";
+				reg = <0x1e780200 0x100>;
+				interrupts = <40>;
+				clocks = <&scu ASPEED_CLK_APB>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				#interrupt-cells = <2>;
+				interrupt-controller;
+				bus-frequency = <1000000>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_sgpm_default>;
+				status = "disabled";
+			};
+
 			timer: timer@1e782000 {
 				/* This timer is a Faraday FTTMR010 derivative */
 				compatible = "aspeed,ast2400-timer";
@@ -1444,5 +1459,10 @@
 	pinctrl_wdtrst2_default: wdtrst2_default {
 		function = "WDTRST2";
 		groups = "WDTRST2";
+	};
+
+	pinctrl_sgpm_default: sgpm_default {
+		function = "SGPM";
+		groups = "SGPM";
 	};
 };

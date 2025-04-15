@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += lowlevel_init.o
 obj-$(CONFIG_DEBUG_LL) += debug_ll.o
 else

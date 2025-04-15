@@ -236,7 +236,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		addr += thislinelen * width;
 		count -= thislinelen;
 
-		if (!IS_ENABLED(CONFIG_SPL_BUILD) && ctrlc())
+		if (!IS_ENABLED(CONFIG_XPL_BUILD) && ctrlc())
 			return -EINTR;
 	}
 

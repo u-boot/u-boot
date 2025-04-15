@@ -12,7 +12,8 @@ Synopsis
 ::
 
     bootmeth list [-a]          - list selected bootmeths (-a for all)
-    bootmeth order "[<bm> ...]" - select the order of bootmeths\n"
+    bootmeth order "[<bm> ...]" - select the order of bootmeths
+    bootmeth set <bootmeth> <property> <value> - set optional property
 
 
 Description
@@ -112,3 +113,38 @@ which are not::
         -    4  efi_mgr             EFI bootmgr flow
     -----  ---  ------------------  ------------------
     (5 bootmeths)
+
+
+bootmeth set
+~~~~~~~~~~~~
+
+Allows setting of bootmeth specific configuration. This allows finer grain
+control over the boot process in specific instances.
+
+
+Supported Configuration Options
+-------------------------------
+
+The following configuration options are currently supported:
+
+========  ===================  ======  ===============================
+Property  Supported Bootmeths  Values  Description
+========  ===================  ======  ===============================
+fallback  extlinux             0 | 1     Enable or disable fallback path
+========  ===================  ======  ===============================
+
+
+Bootmeth set Example
+--------------------
+
+With the bootcount functionality enabled, when the bootlimit is reached, the
+`altbootcmd` environment variable lists the command used for booting rather
+than `bootcmd`. We can set the fallback configuration to cause the fallback
+boot option to be preferred, to revert to a previous known working boot option
+after a failed update for example. So if `bootcmd` is set to::
+
+    bootflow scan -lb
+
+We would set "altbootcmd" to::
+
+    bootmeth set extlinux fallback 1; bootflow scan -lb

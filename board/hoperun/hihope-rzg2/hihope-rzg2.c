@@ -6,6 +6,7 @@
  * Copyright (C) 2021 Renesas Electronics Corporation
  */
 
+#include <asm/armv8/cpu.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>
@@ -66,12 +67,7 @@ int board_init(void)
 
 void reset_cpu(void)
 {
-	unsigned long midr, cputype;
-
-	asm volatile("mrs %0, midr_el1" : "=r" (midr));
-	cputype = (midr >> 4) & 0xfff;
-
-	if (cputype == 0xd03)
+	if (is_cortex_a53())
 		writel(RST_CA53_CODE, RST_CA53RESCNT);
 	else
 		writel(RST_CA57_CODE, RST_CA57RESCNT);
@@ -96,15 +92,15 @@ static bool is_hoperun_hihope_rzg2_board(const char *board_name)
 int board_fit_config_name_match(const char *name)
 {
 	if (is_hoperun_hihope_rzg2_board("hoperun,hihope-rzg2m") &&
-	    !strcmp(name, "r8a774a1-hihope-rzg2m-u-boot"))
+	    !strcmp(name, "r8a774a1-hihope-rzg2m-ex"))
 		return 0;
 
 	if (is_hoperun_hihope_rzg2_board("hoperun,hihope-rzg2n") &&
-	    !strcmp(name, "r8a774b1-hihope-rzg2n-u-boot"))
+	    !strcmp(name, "r8a774b1-hihope-rzg2n-ex"))
 		return 0;
 
 	if (is_hoperun_hihope_rzg2_board("hoperun,hihope-rzg2h") &&
-	    !strcmp(name, "r8a774e1-hihope-rzg2h-u-boot"))
+	    !strcmp(name, "r8a774e1-hihope-rzg2h-ex"))
 		return 0;
 
 	return -1;

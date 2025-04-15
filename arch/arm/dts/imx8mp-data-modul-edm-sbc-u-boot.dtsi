@@ -64,6 +64,7 @@
 
 &gpio3 {
 	bootph-pre-ram;
+	bootph-some-ram;
 
 	bl-enable-hog {
 		bootph-pre-ram;
@@ -92,6 +93,7 @@
 
 &gpio4 {
 	bootph-pre-ram;
+	bootph-some-ram;
 
 	dsi-reset-hog {
 		bootph-pre-ram;

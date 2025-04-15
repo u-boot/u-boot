@@ -139,6 +139,40 @@ int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
 void sandbox_sf_unbind_emul(struct sandbox_state *state, int busnum, int cs);
 
 #else
+/* Compatibility functions for when DM_SPI_FLASH is disabled */
+static inline int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
+					 struct udevice **devp)
+{
+	return -ENODEV;
+}
+
+static inline int spi_flash_read_dm(struct udevice *dev, u32 offset, size_t len,
+				    void *buf)
+{
+	return -ENODEV;
+}
+
+static inline int spi_flash_write_dm(struct udevice *dev, u32 offset, size_t len,
+				     const void *buf)
+{
+	return -ENODEV;
+}
+
+static inline int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len)
+{
+	return -ENODEV;
+}
+
+static inline int spl_flash_get_sw_write_prot(struct udevice *dev)
+{
+	return -ENODEV;
+}
+
+static inline int spi_flash_std_probe(struct udevice *dev)
+{
+	return -ENODEV;
+}
+
 struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int spi_mode);
 

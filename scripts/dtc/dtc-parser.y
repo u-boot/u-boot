@@ -34,6 +34,12 @@ extern void yyerror(char const *s);
 
 extern struct dt_info *parser_output;
 extern bool treesource_error;
+
+static bool is_ref_relative(const char *ref)
+{
+	return ref[0] != '/' && strchr(&ref[1], '/');
+}
+
 %}
 
 %union {
@@ -176,11 +182,16 @@ devicetree:
 			 */
 			if (!($<flags>-1 & DTSF_PLUGIN))
 				ERROR(&@2, "Label or path %s not found", $1);
+			else if (is_ref_relative($1))
+				ERROR(&@2, "Label-relative reference %s not supported in plugin", $1);
 			$$ = add_orphan_node(name_node(build_node(NULL, NULL), ""), $2, $1);
 		}
 	| devicetree DT_LABEL DT_REF nodedef
 		{
 			struct node *target = get_node_by_ref($1, $3);
+
+			if (($<flags>-1 & DTSF_PLUGIN) && is_ref_relative($3))
+				ERROR(&@2, "Label-relative reference %s not supported in plugin", $3);
 
 			if (target) {
 				add_label(&target->labels, $2);
@@ -197,6 +208,8 @@ devicetree:
 			 * so $-1 is what we want (plugindecl)
 			 */
 			if ($<flags>-1 & DTSF_PLUGIN) {
+				if (is_ref_relative($2))
+					ERROR(&@2, "Label-relative reference %s not supported in plugin", $2);
 				add_orphan_node($1, $3, $2);
 			} else {
 				struct node *target = get_node_by_ref($1, $2);

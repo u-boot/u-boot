@@ -69,7 +69,7 @@
 
 lowlevel_init:
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 	/* Use 'r2 as the base for internal register accesses */
 	ldr	r2, =ORION5X_REGS_PHY_BASE
@@ -280,7 +280,7 @@ lowlevel_init:
 	ldr	r0, =0x7fff0001
 	str	r0, [r3, #0x504]
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 	/* Return to U-Boot via saved link register */
 	mov	pc, lr

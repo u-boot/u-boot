@@ -18,7 +18,7 @@ The A/B updates support can be activated by specifying next options in
 your board configuration file::
 
     CONFIG_ANDROID_AB=y
-    CONFIG_CMD_AB_SELECT=y
+    CONFIG_CMD_BCB=y
 
 The disk space on target device must be partitioned in a way so that each
 partition which needs to be updated has two or more instances. The name of
@@ -26,8 +26,8 @@ each instance must be formed by adding suffixes: ``_a``, ``_b``, ``_c``, etc.
 For example: ``boot_a``, ``boot_b``, ``system_a``, ``system_b``, ``vendor_a``,
 ``vendor_b``.
 
-As a result you can use ``ab_select`` command to ensure A/B boot process in your
-boot script. This command analyzes and processes A/B metadata stored on a
+As a result you can use ``bcb ab_select`` command to ensure A/B boot process in
+your boot script. This command analyzes and processes A/B metadata stored on a
 special partition (e.g. ``misc``) and determines which slot should be used for
 booting up.
 
@@ -42,15 +42,15 @@ Command usage
 
 .. code-block:: none
 
-    ab_select <slot_var_name> <interface> <dev[:part_number|#part_name]>
+    bcb ab_select <slot_var_name> <interface> <dev[:part_number|#part_name]>
 
 for example::
 
-    => ab_select slot_name mmc 1:4
+    => bcb ab_select slot_name mmc 1:4
 
 or::
 
-    => ab_select slot_name mmc 1#misc
+    => bcb ab_select slot_name mmc 1#misc
 
 Result::
 

@@ -1,0 +1,12 @@
+if TARGET_COREPRIMEVELTE
+
+config SYS_BOARD
+	default "coreprimevelte"
+
+config SYS_VENDOR
+	default "samsung"
+
+config SYS_CONFIG_NAME
+	default "pxa1908"
+
+endif

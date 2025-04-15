@@ -304,7 +304,7 @@ int __maybe_unused ti_i2c_eeprom_am_get(int bus_addr, int dev_addr)
 	struct ti_common_eeprom *ep;
 
 	ep = TI_EEPROM_DATA;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	if (ep->header == TI_EEPROM_HEADER_MAGIC)
 		return 0; /* EEPROM has already been read */
 #endif
@@ -350,7 +350,7 @@ int __maybe_unused ti_i2c_eeprom_dra7_get(int bus_addr, int dev_addr)
 	struct ti_common_eeprom *ep;
 
 	ep = TI_EEPROM_DATA;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	if (ep->header == DRA7_EEPROM_HEADER_MAGIC)
 		return 0; /* EEPROM has already been read */
 #endif
@@ -563,7 +563,7 @@ int __maybe_unused ti_i2c_eeprom_am6_get_base(int bus_addr, int dev_addr)
 	 * Always execute EEPROM read by not allowing to bypass it during the
 	 * first invocation of SPL which happens on the R5 core.
 	 */
-#if !(defined(CONFIG_SPL_BUILD) && defined(CONFIG_CPU_V7R))
+#if !(defined(CONFIG_XPL_BUILD) && defined(CONFIG_CPU_V7R))
 	if (ep->header == TI_EEPROM_HEADER_MAGIC) {
 		debug("%s: EEPROM has already been read\n", __func__);
 		return 0;

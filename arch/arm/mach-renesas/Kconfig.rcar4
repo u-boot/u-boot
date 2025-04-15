@@ -17,6 +17,16 @@ config R8A779F0
 config R8A779G0
 	bool "Renesas SoC R8A779G0"
 	select GICV3
+	select BINMAN
+	select SUPPORT_SPL
+	imply SPL
+	imply SPL_BOARD_INIT
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_SERIAL
+	imply SPL_SYS_MALLOC_SIMPLE
+	imply SPL_TINY_MEMSET
+	imply SPL_USE_TINY_PRINTF
 	imply CLK_R8A779G0
 	imply PINCTRL_PFC_R8A779G0
 
@@ -44,6 +54,12 @@ config TARGET_SPIDER
 	help
 	  Support for Renesas R-Car Gen4 Spider platform
 
+config TARGET_S4SK
+	bool "S4SK board"
+	imply R8A779F0
+	help
+	  Support for Renesas R-Car Gen4 S4SK platform
+
 config TARGET_WHITEHAWK
 	bool "White Hawk board"
 	imply R8A779G0
@@ -60,6 +76,7 @@ endchoice
 
 source "board/renesas/falcon/Kconfig"
 source "board/renesas/spider/Kconfig"
+source "board/renesas/s4sk/Kconfig"
 source "board/renesas/whitehawk/Kconfig"
 source "board/renesas/grayhawk/Kconfig"
 

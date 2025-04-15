@@ -179,11 +179,12 @@
 #ifndef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
+	"usb_pgood_delay=1000\0" \
 	BOOTENV
 #endif
 
 /* SPL can't handle all huge variables - define just DFU */
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_DFU)
 #undef CFG_EXTRA_ENV_SETTINGS
 # define CFG_EXTRA_ENV_SETTINGS \
 	"dfu_alt_info_ram=uboot.bin ram 0x8000000 0x1000000;" \
@@ -191,12 +192,6 @@
 			  "Image ram 0x80000 0x3f80000;" \
 			  "system.dtb ram 0x4000000 0x100000\0" \
 	"dfu_bufsiz=0x1000\0"
-#endif
-
-#if defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
-# define CFG_SYS_SPI_KERNEL_OFFS	0x80000
-# define CFG_SYS_SPI_ARGS_OFFS	0xa0000
-# define CFG_SYS_SPI_ARGS_SIZE	0xa0000
 #endif
 
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE

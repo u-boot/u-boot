@@ -5,9 +5,12 @@
  *  Copyright (c) 2017 Heinrich Schuchardt
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <blk.h>
 #include <efi_loader.h>
 #include <malloc.h>
+#include <net.h>
 
 #define MAC_OUTPUT_LEN 22
 #define UNKNOWN_OUTPUT_LEN 23
@@ -167,6 +170,31 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		for (i = 0; i < n; ++i)
 			s += sprintf(s, "%02x", mdp->mac.addr[i]);
 		s += sprintf(s, ",%u)", mdp->if_type);
+
+		break;
+	}
+	case DEVICE_PATH_SUB_TYPE_MSG_IPV4: {
+		struct efi_device_path_ipv4 *idp =
+			(struct efi_device_path_ipv4 *)dp;
+
+		s += sprintf(s, "IPv4(%pI4,", &idp->remote_ip_address);
+		switch (idp->protocol) {
+		case IPPROTO_TCP:
+			s += sprintf(s, "TCP,");
+			break;
+		case IPPROTO_UDP:
+			s += sprintf(s, "UDP,");
+			break;
+		default:
+			s += sprintf(s, "0x%x,", idp->protocol);
+			break;
+		}
+		s += sprintf(s, idp->static_ip_address ? "Static" : "DHCP");
+		s += sprintf(s, ",%pI4", &idp->local_ip_address);
+		if (idp->dp.length == sizeof(struct efi_device_path_ipv4))
+			s += sprintf(s, ",%pI4,%pI4", &idp->gateway_ip_address,
+				     &idp->subnet_mask);
+		s += sprintf(s, ")");
 
 		break;
 	}

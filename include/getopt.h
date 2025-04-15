@@ -20,11 +20,9 @@ struct getopt_state {
 	 * parsed all of @argv, then @index will equal @argc.
 	 */
 	int index;
-	/* private: */
 	/** @arg_index: Index within the current argument */
 	int arg_index;
 	union {
-		/* public: */
 		/**
 		 * @opt: Option being parsed when an error occurs. @opt is only
 		 * valid when getopt() returns ``?`` or ``:``.
@@ -35,7 +33,6 @@ struct getopt_state {
 		 * is only valid when getopt() returns an option character.
 		 */
 		char *arg;
-	/* private: */
 	};
 };
 

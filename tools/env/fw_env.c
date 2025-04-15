@@ -9,6 +9,8 @@
 
 #define _GNU_SOURCE
 
+#include "fw_env_private.h"
+
 #include <compiler.h>
 #include <env.h>
 #include <errno.h>
@@ -39,7 +41,6 @@
 
 #include <mtd/ubi-user.h>
 
-#include "fw_env_private.h"
 #include "fw_env.h"
 
 struct env_opts default_opts = {

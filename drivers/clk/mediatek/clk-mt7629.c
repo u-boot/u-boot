@@ -186,7 +186,7 @@ static const int pwm_parents[] = {
 	CLK_TOP_UNIVPLL2_D4
 };
 
-static const int f10m_ref_parents[] = {
+static const int sgmii_ref_1_parents[] = {
 	CLK_XTAL,
 	CLK_TOP_SGMIIPLL_D2
 };
@@ -369,7 +369,7 @@ static const struct mtk_composite top_muxes[] = {
 
 	/* CLK_CFG_1 */
 	MUX_GATE(CLK_TOP_PWM_SEL, pwm_parents, 0x50, 0, 2, 7),
-	MUX_GATE(CLK_TOP_F10M_REF_SEL, f10m_ref_parents, 0x50, 8, 1, 15),
+	MUX_GATE(CLK_TOP_F10M_REF_SEL, irrx_parents, 0x50, 8, 1, 15),
 	MUX_GATE(CLK_TOP_NFI_INFRA_SEL, nfi_infra_parents, 0x50, 16, 4, 23),
 	MUX_GATE(CLK_TOP_FLASH_SEL, flash_parents, 0x50, 24, 3, 31),
 
@@ -412,7 +412,7 @@ static const struct mtk_composite top_muxes[] = {
 
 	/* CLK_CFG_8 */
 	MUX_GATE(CLK_TOP_CRYPTO_SEL, crypto_parents, 0xC0, 0, 3, 7),
-	MUX_GATE(CLK_TOP_SGMII_REF_1_SEL, f10m_ref_parents, 0xC0, 8, 1, 15),
+	MUX_GATE(CLK_TOP_SGMII_REF_1_SEL, sgmii_ref_1_parents, 0xC0, 8, 1, 15),
 	MUX_GATE(CLK_TOP_10M_SEL, gpt10m_parents, 0xC0, 16, 1, 23),
 };
 
@@ -574,6 +574,18 @@ static const struct mtk_clk_tree mt7629_clk_tree = {
 	.muxes = top_muxes,
 };
 
+static const struct mtk_clk_tree mt7629_peri_clk_tree = {
+	.xtal_rate = 40 * MHZ,
+	.xtal2_rate = 20 * MHZ,
+	.gates_offs = CLK_PERI_PWM1_PD,
+	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
+	.muxes_offs = CLK_TOP_AXI_SEL,
+	.plls = apmixed_plls,
+	.fclks = top_fixed_clks,
+	.fdivs = top_fixed_divs,
+	.muxes = top_muxes,
+};
+
 static int mt7629_mcucfg_probe(struct udevice *dev)
 {
 	void __iomem *base;
@@ -619,7 +631,7 @@ static int mt7629_infracfg_probe(struct udevice *dev)
 
 static int mt7629_pericfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, peri_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7629_peri_clk_tree, peri_cgs);
 }
 
 static int mt7629_ethsys_probe(struct udevice *dev)

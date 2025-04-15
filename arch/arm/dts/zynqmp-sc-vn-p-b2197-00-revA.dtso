@@ -115,25 +115,25 @@
 		#gpio-cells = <2>;
 		gpio-line-names = "xprc_sw_1", "xprc_sw_2", "xprc_sw_3", "xprc_sw_4",
 					"", "", "", "";
-		gtr-sel0 {
+		gtr-sel0-hog {
 			gpio-hog;
 			gpios = <0 0>;
 			input; /* FIXME add meaning */
 			line-name = "xprc_sw_1";
 		};
-		gtr-sel1 {
+		gtr-sel1-hog {
 			gpio-hog;
 			gpios = <1 0>;
 			input; /* FIXME add meaning */
 			line-name = "xprc_sw_1";
 		};
-		gtr-sel2 {
+		gtr-sel2-hog {
 			gpio-hog;
 			gpios = <2 0>;
 			input; /* FIXME add meaning */
 			line-name = "xprc_sw_1";
 		};
-		gtr-sel3 {
+		gtr-sel3-hog {
 			gpio-hog;
 			gpios = <3 0>;
 			input; /* FIXME add meaning */

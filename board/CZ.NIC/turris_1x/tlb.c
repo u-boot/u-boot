@@ -111,7 +111,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      0, 9, BOOKE_PAGESZ_256K, 1),
 #endif
 
-#if defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SPL) && !defined(CONFIG_XPL_BUILD)
 	/* **M** - SDRAM 2G */
 	SET_TLB_ENTRY(1, CFG_SYS_DDR_SDRAM_BASE,
 		      CFG_SYS_DDR_SDRAM_BASE,

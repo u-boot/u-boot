@@ -3,7 +3,7 @@
 
 import pytest
 import re
-import u_boot_utils
+import utils
 import test_net
 
 """
@@ -30,75 +30,75 @@ env__zynqmp_secure_readable_file = {
 """
 
 @pytest.mark.buildconfigspec('cmd_zynqmp')
-def test_zynqmp_secure_boot_image(u_boot_console):
+def test_zynqmp_secure_boot_image(ubman):
     """This test verifies secure boot image at the DDR address for
     authentication only case.
     """
 
-    f = u_boot_console.config.env.get('env__zynqmp_secure_readable_file', None)
+    f = ubman.config.env.get('env__zynqmp_secure_readable_file', None)
     if not f:
         pytest.skip('No TFTP readable file for zynqmp secure cases to read')
 
-    test_net.test_net_dhcp(u_boot_console)
+    test_net.test_net_dhcp(ubman)
     if not test_net.net_set_up:
-        test_net.test_net_setup_static(u_boot_console)
+        test_net.test_net_setup_static(ubman)
 
     addr = f.get('addr', None)
     if not addr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fn']
-    output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
+    output = ubman.run_command('tftpboot %x %s' % (addr, fn))
     assert expected_tftp in output
 
-    output = u_boot_console.run_command('zynqmp secure %x $filesize' % (addr))
+    output = ubman.run_command('zynqmp secure %x $filesize' % (addr))
     assert 'Verified image at' in output
     ver_addr = re.search(r'Verified image at 0x(.+)', output).group(1)
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
-    output = u_boot_console.run_command('print zynqmp_verified_img_addr')
+    output = ubman.run_command('print zynqmp_verified_img_addr')
     assert f'zynqmp_verified_img_addr={ver_addr}' in output
     assert 'Error' not in output
 
 
 @pytest.mark.buildconfigspec('cmd_zynqmp')
-def test_zynqmp_secure_boot_img_kup(u_boot_console):
+def test_zynqmp_secure_boot_img_kup(ubman):
     """This test verifies secure boot image at the DDR address for encryption
     with kup key case.
     """
 
-    f = u_boot_console.config.env.get('env__zynqmp_secure_readable_file', None)
+    f = ubman.config.env.get('env__zynqmp_secure_readable_file', None)
     if not f:
         pytest.skip('No TFTP readable file for zynqmp secure cases to read')
 
-    test_net.test_net_dhcp(u_boot_console)
+    test_net.test_net_dhcp(ubman)
     if not test_net.net_set_up:
-        test_net.test_net_setup_static(u_boot_console)
+        test_net.test_net_setup_static(ubman)
 
     keyaddr = f.get('keyaddr', None)
     if not keyaddr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = utils.find_ram_base(ubman)
     expected_tftp = 'Bytes transferred = '
     keyfn = f['keyfn']
-    output = u_boot_console.run_command('tftpboot %x %s' % (keyaddr, keyfn))
+    output = ubman.run_command('tftpboot %x %s' % (keyaddr, keyfn))
     assert expected_tftp in output
 
     addr = f.get('addr', None)
     if not addr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = utils.find_ram_base(ubman)
     expected_tftp = 'Bytes transferred = '
     fn = f['enckupfn']
-    output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
+    output = ubman.run_command('tftpboot %x %s' % (addr, fn))
     assert expected_tftp in output
 
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         'zynqmp secure %x $filesize %x' % (addr, keyaddr)
     )
     assert 'Verified image at' in output
     ver_addr = re.search(r'Verified image at 0x(.+)', output).group(1)
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
-    output = u_boot_console.run_command('print zynqmp_verified_img_addr')
+    output = ubman.run_command('print zynqmp_verified_img_addr')
     assert f'zynqmp_verified_img_addr={ver_addr}' in output
     assert 'Error' not in output

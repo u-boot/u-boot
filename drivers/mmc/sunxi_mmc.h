@@ -37,7 +37,9 @@ struct sunxi_mmc {
 	u32 res0;		/* 0x54 reserved */
 	u32 a12a;		/* 0x58 Auto command 12 argument */
 	u32 ntsr;		/* 0x5c	New timing set register */
-	u32 res1[8];
+	u32 res1[6];
+	u32 hwrst;		/* 0x78 Hardware Reset */
+	u32 res5;
 	u32 dmac;		/* 0x80 internal DMA control */
 	u32 dlba;		/* 0x84 internal DMA descr list base address */
 	u32 idst;		/* 0x88 internal DMA status */
@@ -46,7 +48,8 @@ struct sunxi_mmc {
 	u32 cbda;		/* 0x94 */
 	u32 res2[26];
 #if defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_SUN50I_GEN_H6) || defined(CONFIG_SUNXI_GEN_NCAT2)
-	u32 res3[17];
+	u32 thldc;		/* 0x100 Threshold control */
+	u32 res3[16];
 	u32 samp_dl;
 	u32 res4[46];
 #endif
@@ -57,6 +60,7 @@ struct sunxi_mmc {
 #define SUNXI_MMC_CLK_ENABLE		(0x1 << 16)
 #define SUNXI_MMC_CLK_DIVIDER_MASK	(0xff)
 
+#define SUNXI_MMC_GCTRL		0x000
 #define SUNXI_MMC_GCTRL_SOFT_RESET	(0x1 << 0)
 #define SUNXI_MMC_GCTRL_FIFO_RESET	(0x1 << 1)
 #define SUNXI_MMC_GCTRL_DMA_RESET	(0x1 << 2)
@@ -123,6 +127,10 @@ struct sunxi_mmc {
 
 #define SUNXI_MMC_NTSR_MODE_SEL_NEW		(0x1 << 31)
 
+#define SUNXI_MMC_HWRST		0x078
+#define SUNXI_MMC_HWRST_ASSERT		(0x0 << 0)
+#define SUNXI_MMC_HWRST_DEASSERT	(0x1 << 0)
+
 #define SUNXI_MMC_IDMAC_RESET		(0x1 << 0)
 #define SUNXI_MMC_IDMAC_FIXBURST	(0x1 << 1)
 #define SUNXI_MMC_IDMAC_ENABLE		(0x1 << 7)
@@ -132,6 +140,12 @@ struct sunxi_mmc {
 
 #define SUNXI_MMC_COMMON_CLK_GATE		(1 << 16)
 #define SUNXI_MMC_COMMON_RESET			(1 << 18)
+
+#define SUNXI_MMC_THLDC		0x100
+#define SUNXI_MMC_THLDC_READ_EN		(0x1 << 0)
+#define SUNXI_MMC_THLDC_BSY_CLR_INT_EN	(0x1 << 1)
+#define SUNXI_MMC_THLDC_WRITE_EN	(0x1 << 2)
+#define SUNXI_MMC_THLDC_READ_THLD(x)	(((x) & 0xfff) << 16)
 
 #define SUNXI_MMC_CAL_DL_SW_EN		(0x1 << 7)
 

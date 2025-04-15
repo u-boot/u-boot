@@ -63,8 +63,8 @@ optional_header:
 	.short	PE_MAGIC			/* PE32(+) format */
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
-	.long	_edata - _start			/* SizeOfCode */
-	.long	0				/* SizeOfInitializedData */
+	.long	_etext - _start			/* SizeOfCode */
+	.long	_data_size			/* SizeOfInitializedData */
 	.long	0				/* SizeOfUninitializedData */
 	.long	_start - ImageBase		/* AddressOfEntryPoint */
 	.long	_start - ImageBase		/* BaseOfCode */
@@ -179,6 +179,7 @@ section_table:
 		 IMAGE_SCN_CNT_INITIALIZED_DATA)
 
 	.align		12
+	.globl		_start
 _start:
 	addi		sp, sp, -(SIZE_LONG * 3)
 	SAVE_LONG(a0, 0)

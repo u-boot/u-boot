@@ -312,7 +312,7 @@ drivers/demo/demo-shape.c):
 		.name	= "demo_shape_drv",
 		.id	= UCLASS_DEMO,
 		.ops	= &shape_ops,
-		.priv_data_size = sizeof(struct shape_data),
+		.priv_auto = sizeof(struct shape_data),
 	};
 
 
@@ -841,6 +841,25 @@ steps (see device_probe()):
    4. The uclass's post_probe() method is called, if one exists. This may
       cause the uclass to do some housekeeping to record the device as
       activated and 'known' by the uclass.
+
+For some platforms, certain devices must be probed to get the platform into
+a working state. To help with this, devices marked with DM_FLAG_PROBE_AFTER_BIND
+will be probed immediately after all devices are bound. This flag must be set
+on the device in its ``bind()`` function with
+``dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND)``. For now, this happens in
+SPL, before relocation and after relocation. See the call to ``dm_autoprobe()``
+for where this is done.
+
+The auto-probe feature is tricky because it bypasses the normal ordering of
+probing. General, if device A (e.g. video) needs device B (e.g. clock), then
+A's probe() method uses ``clk_get_by_index()`` and B is probed before A. But
+A is only probed when it is used. Therefore care should be taken when using
+auto-probe, limiting it to devices which truly are essential, such as power
+domains or critical clocks.
+
+See here for more discussion of this feature:
+
+:Link: https://patchwork.ozlabs.org/project/uboot/patch/20240626235717.272219-1-marex@denx.de/
 
 Running stage
 ^^^^^^^^^^^^^

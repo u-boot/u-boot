@@ -17,7 +17,7 @@ If ATF updates, run this program to update the FIT_TYPE_LIST.
 
 ARM Trusted Firmware is available at:
 
-https://github.com/ARM-software/arm-trusted-firmware.git
+https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 """
 
 from argparse import ArgumentParser
@@ -427,7 +427,7 @@ def parse_macros(srcdir):
     """parse_macros: Parse the firmware_image_package.h file
 
     Args:
-        srcdir (str): 'arm-trusted-firmware' source directory
+        srcdir (str): 'trusted-firmware-a' source directory
 
     Returns:
         dict:
@@ -472,7 +472,7 @@ def parse_names(srcdir):
     """parse_names: Parse the tbbr_config.c file
 
     Args:
-        srcdir (str): 'arm-trusted-firmware' source directory
+        srcdir (str): 'trusted-firmware-a' source directory
 
     Returns:
         tuple: dict of entries:
@@ -559,8 +559,8 @@ def parse_atf_source(srcdir, dstfile, oldfile):
     """parse_atf_source(): Parse the ATF source tree and update this file
 
     Args:
-        srcdir (str): Path to 'arm-trusted-firmware' directory. Get this from:
-            https://github.com/ARM-software/arm-trusted-firmware.git
+        srcdir (str): Path to 'trusted-firmware-a' directory. Get this from:
+            https://github.com/TrustedFirmware-A/trusted-firmware-a.git
         dstfile (str): File to write new code to, if an update is needed
         oldfile (str): Python source file to compare against
 
@@ -573,7 +573,7 @@ def parse_atf_source(srcdir, dstfile, oldfile):
     if not os.path.exists(readme_fname):
         raise ValueError(
             f"Expected file '{readme_fname}' - try using -s to specify the "
-            'arm-trusted-firmware directory')
+            'trusted-firmware-a directory')
     readme = tools.read_file(readme_fname, binary=False)
     first_line = 'Trusted Firmware-A'
     if readme.splitlines()[0] != first_line:
@@ -603,7 +603,7 @@ def main(argv, oldfile):
         int: 0 (exit code)
     """
     parser = ArgumentParser(epilog='''Creates an updated version of this code,
-with a table of FIP-entry types parsed from the arm-trusted-firmware source
+with a table of FIP-entry types parsed from the trusted-firmware-a source
 directory''')
     parser.add_argument(
         '-D', '--debug', action='store_true',
@@ -613,7 +613,7 @@ directory''')
         help='Output file to write new fip_util.py file to')
     parser.add_argument(
         '-s', '--src', type=str, default='.',
-        help='Directory containing the arm-trusted-firmware source')
+        help='Directory containing the trusted-firmware-a source')
     args = parser.parse_args(argv)
 
     if not args.debug:

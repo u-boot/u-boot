@@ -16,7 +16,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void clock_init_safe(void)
 {
 	struct sunxi_ccm_reg * const ccm =
@@ -169,7 +169,7 @@ void clock_set_pll1(unsigned int clk)
 		       &ccm->cpu_axi_cfg);
 	}
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 /* video, DRAM, PLL_PERIPH clocks */
 void clock_set_pll3(unsigned int clk)

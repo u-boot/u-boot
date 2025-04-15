@@ -8,3 +8,8 @@ COREBOOT64 BOARD
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	configs/coreboot64_defconfig
+
+COREBOOT64 NO SPL
+M:	Jeremy Compostella <jeremy.compostella@intel.com>
+S:	Maintained
+F:	configs/coreboot64-no-spl_defconfig

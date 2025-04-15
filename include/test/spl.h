@@ -154,6 +154,6 @@ SPL_TEST(func##_##type, flags)
 #define SPL_TEST_DATA_SIZE	4099
 
 /* Flags necessary for accessing DM devices */
-#define DM_FLAGS (UT_TESTF_DM | UT_TESTF_SCAN_FDT)
+#define DM_FLAGS (UTF_DM | UTF_SCAN_FDT)
 
 #endif /* TEST_SPL_H */

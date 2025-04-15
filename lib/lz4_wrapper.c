@@ -15,7 +15,7 @@
 
 #define LZ4F_BLOCKUNCOMPRESSED_FLAG 0x80000000U
 
-int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn)
+__rcode int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn)
 {
 	const void *end = dst + *dstn;
 	const void *in = src;

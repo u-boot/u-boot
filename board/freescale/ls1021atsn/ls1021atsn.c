@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void ddrmc_init(void)
 {
-#if (!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
+#if (!defined(CONFIG_SPL) || defined(CONFIG_XPL_BUILD))
 	struct ccsr_ddr *ddr = (struct ccsr_ddr *)CFG_SYS_FSL_DDR_ADDR;
 	u32 temp_sdram_cfg, tmp;
 
@@ -105,7 +105,7 @@ static void ddrmc_init(void)
 		out_be32(&ddr->sdram_cfg_2, temp_sdram_cfg);
 	}
 #endif
-#endif /* !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD) */
+#endif /* !defined(CONFIG_SPL) || defined(CONFIG_XPL_BUILD) */
 }
 
 int dram_init(void)
@@ -116,7 +116,7 @@ int dram_init(void)
 
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
 
-#if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_XPL_BUILD)
 	fsl_dp_resume();
 #endif
 
@@ -156,7 +156,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void board_init_f(ulong dummy)
 {
 	void (*second_uboot)(void);
@@ -166,10 +166,9 @@ void board_init_f(ulong dummy)
 
 	get_clocks();
 
-#if defined(CONFIG_DEEP_SLEEP)
-	if (is_warm_boot())
-		fsl_dp_disable_console();
-#endif
+	if (CONFIG_IS_ENABLED(DEEP_SLEEP))
+		if (is_warm_boot())
+			fsl_dp_disable_console();
 
 	preloader_console_init();
 
@@ -187,9 +186,11 @@ void board_init_f(ulong dummy)
 	 * it from SD since it has already been reserved in memory
 	 * in last boot.
 	 */
-	if (is_warm_boot()) {
-		second_uboot = (void (*)(void))CONFIG_TEXT_BASE;
-		second_uboot();
+	if (CONFIG_IS_ENABLED(DEEP_SLEEP)) {
+		if (is_warm_boot()) {
+			second_uboot = (void (*)(void))CONFIG_TEXT_BASE;
+			second_uboot();
+		}
 	}
 
 	board_init_r(NULL, 0);
@@ -214,7 +215,7 @@ int board_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 void spl_board_init(void)
 {
 	ls102xa_smmu_stream_id_init();

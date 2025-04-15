@@ -1,7 +1,12 @@
 #ifndef _SHA512_H
 #define _SHA512_H
 
+#include <linux/kconfig.h>
 #include <linux/types.h>
+
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
+#include <mbedtls/sha512.h>
+#endif
 
 #define SHA384_SUM_LEN          48
 #define SHA384_DER_LEN          19
@@ -12,11 +17,16 @@
 #define CHUNKSZ_SHA384	(16 * 1024)
 #define CHUNKSZ_SHA512	(16 * 1024)
 
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
+typedef mbedtls_sha512_context sha384_context;
+typedef mbedtls_sha512_context sha512_context;
+#else
 typedef struct {
 	uint64_t state[SHA512_SUM_LEN / 8];
 	uint64_t count[2];
 	uint8_t buf[SHA512_BLOCK_SIZE];
 } sha512_context;
+#endif
 
 extern const uint8_t sha512_der_prefix[];
 

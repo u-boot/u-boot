@@ -28,7 +28,7 @@
 #include "../common/eeprom.h"
 #include "../common/factoryset.h"
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static struct draco_baseboard_id __section(".data") settings;
 
 #if DDR_PLL_FREQ == 303
@@ -106,7 +106,7 @@ static void print_chip_data(void)
 	printf("hw version: \t'%s'\n", settings.chip.shwver);
 	printf("max freq: \t%d MHz\n", dpll_mpu_opp100.m);
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #define AM335X_NAND_ECC_MASK 0x0f
 #define AM335X_NAND_ECC_TYPE_16 0x02
@@ -142,7 +142,7 @@ static int draco_read_nand_geometry(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /*
  * Read header information from EEPROM into global structure.
  */
@@ -233,7 +233,7 @@ void spl_draco_board_init(void)
 {
 	return;
 }
-#endif /* if def CONFIG_SPL_BUILD */
+#endif /* if def CONFIG_XPL_BUILD */
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
@@ -266,8 +266,8 @@ int board_late_init(void)
 }
 #endif
 
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
+#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_XPL_BUILD)) || \
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_XPL_BUILD))
 static void cpsw_control(int enabled)
 {
 	/* VTP can be added here */
@@ -343,4 +343,4 @@ U_BOOT_CMD(
 	""
 );
 #endif /* #if defined(CONFIG_DRIVER_TI_CPSW) */
-#endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) */
+#endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_XPL_BUILD)) */

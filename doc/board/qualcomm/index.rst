@@ -7,5 +7,8 @@ Qualcomm
    :maxdepth: 2
 
    dragonboard410c
+   rb3gen2
    board
+   phones
    debugging
+   rdp

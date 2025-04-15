@@ -13,7 +13,6 @@ config TARGET_OCTEONTX_83XX
 endchoice
 
 config SYS_SOC
-	string
 	default "octeontx"
 
 endif

@@ -24,7 +24,7 @@
 #include <asm/omap_gpio.h>
 #include <asm/emif.h>
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 /*
  * printing to console doesn't work unless
  * this code is executed from SPL

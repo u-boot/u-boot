@@ -41,8 +41,8 @@ static int valid_sig(struct api_signature *sig)
 int api_search_sig(struct api_signature **sig)
 {
 	unsigned char *sp;
-	uint32_t search_start = 0;
-	uint32_t search_end = 0;
+	uintptr_t search_start = 0;
+	uintptr_t search_end = 0;
 
 	if (sig == NULL)
 		return 0;

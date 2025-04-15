@@ -1,0 +1,400 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx ZynqMP VM-P-M1369-00
+ *
+ * Copyright (C) 2024, Advanced Micro Devices, Inc.
+ *
+ * Michal Simek <michal.simek@amd.com>
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+
+/dts-v1/;
+/plugin/;
+
+&{/} {
+	compatible = "xlnx,zynqmp-sc-vm-p-m1369-revA",
+		     "xlnx,zynqmp-sc-vm-p-m1369", "xlnx,zynqmp";
+
+	ina226-u19 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_soc_ina 0>, <&vcc_soc_ina 1>, <&vcc_soc_ina 2>;
+	};
+	ina226-u287 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_ram_ina 0>, <&vcc_ram_ina 1>, <&vcc_ram_ina 2>;
+	};
+	ina226-u288 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_pslp_ina 0>, <&vcc_pslp_ina 1>, <&vcc_pslp_ina 2>;
+	};
+	ina226-u289 {
+		compatible = "iio-hwmon";
+		io-channels = <&vccaux_ina 0>, <&vccaux_ina 1>, <&vccaux_ina 2>;
+	};
+	ina226-u290 {
+		compatible = "iio-hwmon";
+		io-channels = <&vccaux_pmc_ina 0>, <&vccaux_pmc_ina 1>, <&vccaux_pmc_ina 2>;
+	};
+	ina226-u291 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcco_500_ina 0>, <&vcco_500_ina 1>, <&vcco_500_ina 2>;
+	};
+	ina226-u292 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcco_501_ina 0>, <&vcco_501_ina 1>, <&vcco_501_ina 2>;
+	};
+	ina226-u293 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcco_502_ina 0>, <&vcco_502_ina 1>, <&vcco_502_ina 2>;
+	};
+	ina226-u294 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcco_503_ina 0>, <&vcco_503_ina 1>, <&vcco_503_ina 2>;
+	};
+	ina226-u295 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_ddr5_rdimm_ina 0>, <&vcc_ddr5_rdimm_ina 1>, <&vcc_ddr5_rdimm_ina 2>;
+	};
+	ina226-u298 {
+		compatible = "iio-hwmon";
+		io-channels = <&lp5_1v0_ina 0>, <&lp5_1v0_ina 1>, <&lp5_1v0_ina 2>;
+	};
+	ina226-u296 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_fmc_ina 0>, <&vcc_fmc_ina 1>, <&vcc_fmc_ina 2>;
+	};
+	ina226-u299 {
+		compatible = "iio-hwmon";
+		io-channels = <&gtm_avcc_ina 0>, <&gtm_avcc_ina 1>, <&gtm_avcc_ina 2>;
+	};
+	ina226-u300 {
+		compatible = "iio-hwmon";
+		io-channels = <&gtm_avtt_ina 0>, <&gtm_avtt_ina 1>, <&gtm_avtt_ina 2>;
+	};
+	ina226-u301 {
+		compatible = "iio-hwmon";
+		io-channels = <&gtm_avccaux_ina 0>, <&gtm_avccaux_ina 1>, <&gtm_avccaux_ina 2>;
+	};
+	ina226-u297 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_mipi_ina 0>, <&vcc_mipi_ina 1>, <&vcc_mipi_ina 2>;
+	};
+};
+
+&i2c1 { /* i2c_main bus */
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* u97 eeprom at 0x54 described in sc-revB - WP protection via BOARD_EEPROM_WP - J1801 */
+
+	/* i2c_main_1 - u72 - j108 - disable translation, add 8 */
+	/* J133 - OE for u91@55 + 8 - 161,132813MHz - QSFP56G_0 */
+	qsfp56g_0_clk: clock-controller@5d {
+		compatible = "renesas,proxo-xp";
+		reg = <0x5d>;
+		#clock-cells = <0>;
+		clock-output-names = "qsfp56g_0_clk";
+	};
+
+	/* J134 - OE for u92@57 + 8 - 322,265625MHz - QSFP56G_1 */
+	qsfp56g_1_clk: clock-controller@5f {
+		compatible = "renesas,proxo-xp";
+		reg = <0x5f>;
+		#clock-cells = <0>;
+		clock-output-names = "qsfp56g_1_clk";
+	};
+
+	/* i2c_main_2 - u74 - j110 - disable translation, add 9 */
+	/* J210 - OE for u164@50 + 9 - 320MHz - CH2_LP5 */
+	ch2_lpddr5_refclk: clock-controller@59 {
+		compatible = "renesas,proxo-xp";
+		reg = <0x59>;
+		#clock-cells = <0>;
+		clock-output-names = "ch2_lpddr5_refclk";
+	};
+
+	/* i2c_main_3 - u76 - j112 - disable translation, add 6 */
+	/* J231 - OE for u165@50 + 6  - 320MHz - _RDIMM */
+	ddr5_dimm1_refclk: clock-controller@56 {
+		compatible = "renesas,proxo-xp";
+		reg = <0x56>;
+		#clock-cells = <0>;
+		clock-output-names = "ddr5_udimm_refclk";
+	};
+
+	/* i2c_main_4 - u73 - j109 - disable translation, add 5 */
+	/* J117 - OE for u82@50 + 5 - 33,3333MHz - PS_REFCLK */
+	ps_refclk: clock-controller@55 {
+		compatible = "renesas,proxo-xp";
+		reg = <0x55>;
+		#clock-cells = <0>;
+		clock-output-names = "ps_refclk";
+	};
+
+	/* J71 - selection to LP_I2C_SCL_J or LP_I2C_PMC_SCL_J */
+	/* J70 - selection to LP_I2C_SDA_J or LP_I2C_PMC_SDA_J */
+	/* this should be SW controlable too */
+};
+
+&i2c0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* u134 tps544b25 but connected to J178 connector */
+	/* u48/IMx3112/0x77 -  1:2 multiplexer - also accessed from Versal NET */
+	/* Connection DDR5_UDIMM - SPD can be from 0x50-0x57 */
+	/* FIXME gpio should handle SYSCTLR_PMBUS_ALERT and also INA226_PMBUS_ALERT */
+	/* Access to i2c_pmc bus via u49 with OE j100 or via SYSCTLR_I2C_PMC_EN */
+
+	/* ina226_pmbus - J103 - disable INA226_PMBUS */
+	vcc_soc_ina: power-monitor@40 { /* u19 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x40>;
+		shunt-resistor = <1000>; /* R222 */
+	};
+
+	vcc_ram_ina: power-monitor@41 { /* u287 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x41>;
+		shunt-resistor = <1000>; /* R32981 */
+	};
+
+	vcc_pslp_ina: power-monitor@42 { /* u288 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x42>;
+		shunt-resistor = <1000>; /* R32984 */
+	};
+
+	vccaux_ina: power-monitor@43 { /* u289 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x43>;
+		shunt-resistor = <1000>; /* R32987 */
+	};
+
+	vccaux_pmc_ina: power-monitor@44 { /* u290 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x44>;
+		shunt-resistor = <1000>; /* R32990 */
+	};
+
+	vcco_500_ina: power-monitor@45 { /* u291 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x45>;
+		shunt-resistor = <1000>; /* R32993 */
+	};
+
+	vcco_501_ina: power-monitor@46 { /* u292 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x46>;
+		shunt-resistor = <1000>; /* R32996 */
+	};
+
+	vcco_502_ina: power-monitor@47 { /* u293 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x47>;
+		shunt-resistor = <1000>; /* R32999 */
+	};
+
+	vcco_503_ina: power-monitor@48 { /* u294 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x48>;
+		shunt-resistor = <1000>; /* R33002 */
+	};
+
+	vcc_ddr5_rdimm_ina: power-monitor@49 { /* u295 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x49>;
+		shunt-resistor = <1000>; /* R33005 */
+	};
+
+	lp5_1v0_ina: power-monitor@4a { /* u298 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x4a>;
+		shunt-resistor = <1000>; /* R33014 */
+	};
+
+	vcc_fmc_ina: power-monitor@4b { /* u296 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x4b>;
+		shunt-resistor = <1000>; /* R33008 */
+	};
+
+	gtm_avcc_ina: power-monitor@4c { /* u299 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x4c>;
+		shunt-resistor = <1000>; /* R33017 */
+	};
+
+	gtm_avtt_ina: power-monitor@4d { /* u300 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x4d>;
+		shunt-resistor = <1000>; /* R33020 */
+	};
+
+	gtm_avccaux_ina: power-monitor@4e { /* u301 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x4e>;
+		shunt-resistor = <1000>; /* R33023 */
+	};
+
+	vcc_mipi_ina: power-monitor@4f { /* u297 */
+		compatible = "ti,ina226";
+		#io-channel-cells = <1>;
+		reg = <0x4f>;
+		shunt-resistor = <1000>; /* R33011 */
+	};
+
+	/* pmbus - j105 - disable main PMBUS - also going to j102 connector */
+	vcc_pslp: regulator@15 { /* u24 */
+		compatible = "ti,tps546b24a";
+		reg = <0x15>;
+	};
+
+	vccaux_pmc: regulator@17 { /* u26 */
+		compatible = "ti,tps546b24a";
+		reg = <0x17>;
+	};
+
+	vcco_500: regulator@18 { /* u27 */
+		compatible = "ti,tps546b24a";
+		reg = <0x18>;
+	};
+
+	vcco_501: regulator@19 { /* u28 */
+		compatible = "ti,tps546b24a";
+		reg = <0x19>;
+	};
+
+	vcco_502: regulator@1a { /* u29 */
+		compatible = "ti,tps546b24a";
+		reg = <0x1a>;
+	};
+
+	vcco_503: regulator@1b { /* u30 */
+		compatible = "ti,tps546b24a";
+		reg = <0x1b>;
+	};
+
+	vcc_ddr5_rdimm: regulator@1c { /* u31 */
+		compatible = "ti,tps546b24a";
+		reg = <0x1c>;
+	};
+
+	gtm_avcc: regulator@22 { /* u37 */
+		compatible = "ti,tps546b24a";
+		reg = <0x22>;
+	};
+
+	gtm_avtt: regulator@20 { /* u38 */
+		compatible = "ti,tps546b24a";
+		reg = <0x20>;
+	};
+
+	gtm_avccaux: regulator@21 { /* u39 */
+		compatible = "ti,tps546b24a";
+		reg = <0x21>;
+	};
+
+	vccint_gt: regulator@2a { /* u44 */
+		compatible = "ti,tps546b24a";
+		reg = <0x2a>;
+	};
+
+	util_1v8: regulator@2b { /* u1839 */
+		compatible = "ti,tps546b24a";
+		reg = <0x2b>;
+	};
+
+	vcc_pmc: regulator@2c { /* u46 */
+		compatible = "ti,tps546b24a";
+		reg = <0x2c>;
+	};
+
+	/* pmbus via U62 as ext_pmbus - disable via j104 */
+	vccint: regulator@10 { /* u18 */
+		compatible = "ti,tps546b24";
+		reg = <0x10>;
+	};
+
+	vccsoc: regulator@11 { /* u20 */
+		compatible = "ti,tps546b24";
+		reg = <0x11>;
+	};
+
+	vcc_io: regulator@12 { /* u21 */
+		compatible = "ti,tps546b24";
+		reg = <0x12>;
+	};
+
+	vcc_psfp: regulator@13 { /* u22 */
+		compatible = "ti,tps546b24";
+		reg = <0x13>;
+	};
+
+	vcc_ram: regulator@14 { /* u23 */
+		compatible = "ti,tps546b24";
+		reg = <0x14>;
+	};
+
+	vccaux: regulator@16 { /* u25 */
+		compatible = "ti,tps546b24";
+		reg = <0x16>;
+	};
+
+	lp5_1v0: regulator@1d { /* u32 */
+		compatible = "ti,tps546b24";
+		reg = <0x1d>;
+	};
+
+	vcc_fmc: regulator@1e { /* u33 */
+		compatible = "ti,tps546b24";
+		reg = <0x1e>;
+	};
+
+	lp5_vdd1: regulator@25 { /* u40 */
+		compatible = "ti,tps546b24";
+		reg = <0x25>;
+	};
+
+	lp5_vdd2: regulator@26 { /* u41 */
+		compatible = "ti,tps546b24";
+		reg = <0x26>;
+	};
+
+	lp5_vddq: regulator@27 { /* u42 */
+		compatible = "ti,tps546b24";
+		reg = <0x27>;
+	};
+
+	vcco_hdio: regulator@29 { /* u43 */
+		compatible = "ti,tps546b24";
+		reg = <0x29>;
+	};
+
+	vcc_mipi: regulator@1f { /* u47 */
+		compatible = "ti,tps546b24";
+		reg = <0x1f>;
+	};
+
+	/* connected via J425 connector
+	 ucd90320: power-sequencer@73 { // u16
+		compatible = "ti,ucd90320";
+		reg = <0x73>;
+	};*/
+};

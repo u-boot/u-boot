@@ -8,7 +8,9 @@ The SIMATIC IOT2050 is an open industrial IoT gateway that is using the TI
 AM6528 GP (Basic variant) or the AM6548 HS (Advanced variant). The Advanced
 variant is prepared for secure boot. M.2 Variant also uses the AM6548 HS.
 Instead of a MiniPCI connector, it comes with two M.2 connectors and can
-support 5G/WIFI/BT applications or connect an SSD.
+support 5G/WIFI/BT applications or connect an SSD. Compared with the AM6548
+Advanced variant, SM variant removes the Arduino interface, and adds a new
+ASIC for communicating with the PLC 1200 signal modules.
 
 The IOT2050 starts only from OSPI. It loads a Siemens-provided bootloader
 called SE-Boot for the MCU domain (R5F cores), then hands over to ATF and
@@ -28,6 +30,9 @@ The following binaries from that source need to be present in the build folder:
 
  - seboot_pg1.bin
  - seboot_pg2.bin
+
+Note that SE-Boot D/V01.04.01.02 or greater is required, otherwise the DDR size
+will not be picked up correctly by U-Boot.
 
 When using the watchdog, a related firmware for the R5 core(s) is needed, e.g.
 https://github.com/siemens/k3-rti-wdt. The name and location of the image is

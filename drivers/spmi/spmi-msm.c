@@ -24,6 +24,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PMIC_ARB_VERSION_V5_MIN 0x50000000
 #define PMIC_ARB_VERSION_V7_MIN	0x70000000
 
+#define PMIC_ARB_FEATURES		0x0004
+#define PMIC_ARB_FEATURES_PERIPH_MASK	GENMASK(10, 0)
+
 #define APID_MAP_OFFSET_V1_V2_V3 (0x800)
 #define APID_MAP_OFFSET_V5 (0x900)
 #define APID_MAP_OFFSET_V7 (0x2000)
@@ -60,6 +63,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPMI_MAX_PERIPH 256
 
 #define SPMI_CHANNEL_READ_ONLY	BIT(31)
+#define SPMI_CHANNEL_VALID	BIT(30)
 #define SPMI_CHANNEL_MASK	0xffff
 
 enum arb_ver {
@@ -114,6 +118,8 @@ static int msm_spmi_write(struct udevice *dev, int usid, int pid, int off,
 		return -EIO;
 	if (pid >= SPMI_MAX_PERIPH)
 		return -EIO;
+	if (!(priv->channel_map[usid][pid] & SPMI_CHANNEL_VALID))
+		return -EINVAL;
 	if (priv->channel_map[usid][pid] & SPMI_CHANNEL_READ_ONLY)
 		return -EPERM;
 
@@ -183,6 +189,8 @@ static int msm_spmi_read(struct udevice *dev, int usid, int pid, int off)
 		return -EIO;
 	if (pid >= SPMI_MAX_PERIPH)
 		return -EIO;
+	if (!(priv->channel_map[usid][pid] & SPMI_CHANNEL_VALID))
+		return -EINVAL;
 
 	channel = priv->channel_map[usid][pid] & SPMI_CHANNEL_MASK;
 
@@ -246,6 +254,32 @@ static struct dm_spmi_ops msm_spmi_ops = {
 	.write = msm_spmi_write,
 };
 
+/*
+ * In order to allow multiple EEs to write to a single PPID in arbiter
+ * version 5 and 7, there is more than one APID mapped to each PPID.
+ * The owner field for each of these mappings specifies the EE which is
+ * allowed to write to the APID.
+ */
+static void msm_spmi_channel_map_v5(struct msm_spmi_priv *priv, unsigned int i,
+				    uint8_t slave_id, uint8_t pid)
+{
+	/* Mark channels read-only when from different owner */
+	uint32_t cnfg = readl(priv->spmi_cnfg + ARB_CHANNEL_OFFSET(i));
+	uint8_t owner = SPMI_OWNERSHIP_PERIPH2OWNER(cnfg);
+	bool prev_valid = priv->channel_map[slave_id][pid] & SPMI_CHANNEL_VALID;
+	uint32_t prev_read_only = priv->channel_map[slave_id][pid] & SPMI_CHANNEL_READ_ONLY;
+
+	if (!prev_valid) {
+		/* First PPID mapping */
+		priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
+		if (owner != priv->owner)
+			priv->channel_map[slave_id][pid] |= SPMI_CHANNEL_READ_ONLY;
+	} else if ((owner == priv->owner) && prev_read_only) {
+		/* Read only and we found one we own, switch */
+		priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
+	}
+}
+
 static int msm_spmi_probe(struct udevice *dev)
 {
 	struct msm_spmi_priv *priv = dev_get_priv(dev);
@@ -271,13 +305,17 @@ static int msm_spmi_probe(struct udevice *dev)
 	} else if (hw_ver < PMIC_ARB_VERSION_V7_MIN) {
 		priv->arb_ver = V5;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V5;
-		priv->max_channels = SPMI_MAX_CHANNELS_V5;
+		priv->max_channels = min_t(u32, readl(core_addr + PMIC_ARB_FEATURES) &
+						PMIC_ARB_FEATURES_PERIPH_MASK,
+					   SPMI_MAX_CHANNELS_V5);
 		priv->spmi_cnfg = dev_read_addr_name(dev, "cnfg");
 	} else {
 		/* TOFIX: handle second bus */
 		priv->arb_ver = V7;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V7;
-		priv->max_channels = SPMI_MAX_CHANNELS_V7;
+		priv->max_channels = min_t(u32, readl(core_addr + PMIC_ARB_FEATURES) &
+						PMIC_ARB_FEATURES_PERIPH_MASK,
+					   SPMI_MAX_CHANNELS_V7);
 		priv->spmi_cnfg = dev_read_addr_name(dev, "cnfg");
 	}
 
@@ -297,15 +335,16 @@ static int msm_spmi_probe(struct udevice *dev)
 		uint8_t slave_id = (periph & 0xf0000) >> 16;
 		uint8_t pid = (periph & 0xff00) >> 8;
 
-		priv->channel_map[slave_id][pid] = i;
+		switch (priv->arb_ver) {
+		case V2:
+		case V3:
+			priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
+			break;
 
-		/* Mark channels read-only when from different owner */
-		if (priv->arb_ver == V5 || priv->arb_ver == V7) {
-			uint32_t cnfg = readl(priv->spmi_cnfg + ARB_CHANNEL_OFFSET(i));
-			uint8_t owner = SPMI_OWNERSHIP_PERIPH2OWNER(cnfg);
-
-			if (owner != priv->owner)
-				priv->channel_map[slave_id][pid] |= SPMI_CHANNEL_READ_ONLY;
+		case V5:
+		case V7:
+			msm_spmi_channel_map_v5(priv, i, slave_id, pid);
+			break;
 		}
 	}
 	return 0;

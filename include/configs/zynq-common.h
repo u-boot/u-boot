@@ -44,7 +44,7 @@
 
 /* Boot configuration */
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define BOOTENV
 #else
 
@@ -167,7 +167,7 @@
 	BOOT_TARGET_DEVICES_DHCP(func)
 
 #include <config_distro_bootcmd.h>
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 /* Default environment */
 #ifndef CFG_EXTRA_ENV_SETTINGS
@@ -190,14 +190,6 @@
 /* Address in RAM where the parameters must be copied by SPL. */
 
 /* Not using MMC raw mode - just for compilation purpose */
-
-/* qspi mode is working fine */
-#ifdef CONFIG_ZYNQ_QSPI
-#define CFG_SYS_SPI_ARGS_OFFS	0x200000
-#define CFG_SYS_SPI_ARGS_SIZE	0x80000
-#define CFG_SYS_SPI_KERNEL_OFFS	(CFG_SYS_SPI_ARGS_OFFS + \
-					CFG_SYS_SPI_ARGS_SIZE)
-#endif
 
 /* SP location before relocation, must use scratch RAM */
 

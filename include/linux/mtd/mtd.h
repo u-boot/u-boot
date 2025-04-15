@@ -339,7 +339,7 @@ static inline void mtd_set_ofnode(struct mtd_info *mtd, ofnode node)
 	dev_set_ofnode(mtd->dev, node);
 }
 
-static inline const ofnode mtd_get_ofnode(struct mtd_info *mtd)
+static inline ofnode mtd_get_ofnode(struct mtd_info *mtd)
 {
 	return dev_ofnode(mtd->dev);
 }

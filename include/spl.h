@@ -14,6 +14,7 @@
 #include <asm/global_data.h>
 #include <asm/spl.h>
 #include <handoff.h>
+#include <image.h>
 #include <mmc.h>
 
 struct blk_desc;
@@ -34,24 +35,26 @@ struct spl_boot_device;
 enum boot_device;
 
 /*
- * u_boot_first_phase() - check if this is the first U-Boot phase
+ * xpl_is_first_phase() - check if this is the first U-Boot phase
  *
- * U-Boot has up to three phases: TPL, SPL and U-Boot proper. Depending on the
- * build flags we can determine whether the current build is for the first
+ * U-Boot has up to four phases: TPL, VPL, SPL and U-Boot proper. Depending on
+ * the build flags we can determine whether the current build is for the first
  * phase of U-Boot or not. If there is no SPL, then this is U-Boot proper. If
  * there is SPL but no TPL, the the first phase is SPL. If there is TPL, then
- * it is the first phase.
+ * it is the first phase, etc.
  *
- * @returns true if this is the first phase of U-Boot
+ * Note that VPL can never be the first phase. If it exists, it is loaded from
+ * TPL
  *
+ * Return: true if this is the first phase of U-Boot
  */
-static inline bool u_boot_first_phase(void)
+static inline bool xpl_is_first_phase(void)
 {
 	if (IS_ENABLED(CONFIG_TPL)) {
 		if (IS_ENABLED(CONFIG_TPL_BUILD))
 			return true;
 	} else if (IS_ENABLED(CONFIG_SPL)) {
-		if (IS_ENABLED(CONFIG_SPL_BUILD))
+		if (IS_ENABLED(CONFIG_XPL_BUILD))
 			return true;
 	} else {
 		return true;
@@ -60,7 +63,7 @@ static inline bool u_boot_first_phase(void)
 	return false;
 }
 
-enum u_boot_phase {
+enum xpl_phase_t {
 	PHASE_NONE,	/* Invalid phase, signifying before U-Boot */
 	PHASE_TPL,	/* Running in TPL */
 	PHASE_VPL,	/* Running in VPL */
@@ -72,7 +75,7 @@ enum u_boot_phase {
 };
 
 /**
- * spl_phase() - Find out the phase of U-Boot
+ * xpl_phase() - Find out the phase of U-Boot
  *
  * This can be used to avoid #ifdef logic and use if() instead.
  *
@@ -84,43 +87,43 @@ enum u_boot_phase {
  *
  * but with this you can use:
  *
- *    if (spl_phase() == PHASE_TPL) {
+ *    if (xpl_phase() == PHASE_TPL) {
  *       ...
  *    }
  *
  * To include code only in SPL, you might do:
  *
- *    #if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
+ *    #if defined(CONFIG_XPL_BUILD) && !defined(CONFIG_TPL_BUILD)
  *    ...
  *    #endif
  *
  * but with this you can use:
  *
- *    if (spl_phase() == PHASE_SPL) {
+ *    if (xpl_phase() == PHASE_SPL) {
  *       ...
  *    }
  *
  * To include code only in U-Boot proper, you might do:
  *
- *    #ifndef CONFIG_SPL_BUILD
+ *    #ifndef CONFIG_XPL_BUILD
  *    ...
  *    #endif
  *
  * but with this you can use:
  *
- *    if (spl_phase() == PHASE_BOARD_F) {
+ *    if (xpl_phase() == PHASE_BOARD_F) {
  *       ...
  *    }
  *
  * Return: U-Boot phase
  */
-static inline enum u_boot_phase spl_phase(void)
+static inline enum xpl_phase_t xpl_phase(void)
 {
 #ifdef CONFIG_TPL_BUILD
 	return PHASE_TPL;
 #elif defined(CONFIG_VPL_BUILD)
 	return PHASE_VPL;
-#elif defined(CONFIG_SPL_BUILD)
+#elif defined(CONFIG_XPL_BUILD)
 	return PHASE_SPL;
 #else
 	DECLARE_GLOBAL_DATA_PTR;
@@ -132,29 +135,39 @@ static inline enum u_boot_phase spl_phase(void)
 #endif
 }
 
-/* returns true if in U-Boot proper, false if in SPL */
-static inline bool spl_in_proper(void)
+/* returns true if in U-Boot proper, false if in xPL */
+static inline bool not_xpl(void)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	return false;
 #endif
 
 	return true;
 }
 
+/* returns true if in xPL, false if in U-Boot proper */
+static inline bool is_xpl(void)
+{
+#ifdef CONFIG_XPL_BUILD
+	return true;
+#endif
+
+	return false;
+}
+
 /**
- * spl_prev_phase() - Figure out the previous U-Boot phase
+ * xpl_prev_phase() - Figure out the previous U-Boot phase
  *
  * Return: the previous phase from this one, e.g. if called in SPL this returns
  *	PHASE_TPL, if TPL is enabled
  */
-static inline enum u_boot_phase spl_prev_phase(void)
+static inline enum xpl_phase_t xpl_prev_phase(void)
 {
 #ifdef CONFIG_TPL_BUILD
 	return PHASE_NONE;
 #elif defined(CONFIG_VPL_BUILD)
 	return PHASE_TPL;	/* VPL requires TPL */
-#elif defined(CONFIG_SPL_BUILD)
+#elif defined(CONFIG_XPL_BUILD)
 	return IS_ENABLED(CONFIG_VPL) ? PHASE_VPL :
 		IS_ENABLED(CONFIG_TPL) ? PHASE_TPL :
 		PHASE_NONE;
@@ -165,12 +178,12 @@ static inline enum u_boot_phase spl_prev_phase(void)
 }
 
 /**
- * spl_next_phase() - Figure out the next U-Boot phase
+ * xpl_next_phase() - Figure out the next U-Boot phase
  *
  * Return: the next phase from this one, e.g. if called in TPL this returns
  *	PHASE_SPL
  */
-static inline enum u_boot_phase spl_next_phase(void)
+static inline enum xpl_phase_t xpl_next_phase(void)
 {
 #ifdef CONFIG_TPL_BUILD
 	return IS_ENABLED(CONFIG_VPL) ? PHASE_VPL : PHASE_SPL;
@@ -182,11 +195,11 @@ static inline enum u_boot_phase spl_next_phase(void)
 }
 
 /**
- * spl_phase_name() - Get the name of the current phase
+ * xpl_name() - Get the name of a phase
  *
  * Return: phase name
  */
-static inline const char *spl_phase_name(enum u_boot_phase phase)
+static inline const char *xpl_name(enum xpl_phase_t phase)
 {
 	switch (phase) {
 	case PHASE_TPL:
@@ -204,12 +217,12 @@ static inline const char *spl_phase_name(enum u_boot_phase phase)
 }
 
 /**
- * spl_phase_prefix() - Get the prefix  of the current phase
+ * xpl_prefix() - Get the prefix  of the current phase
  *
  * @phase: Phase to look up
  * Return: phase prefix ("spl", "tpl", etc.)
  */
-static inline const char *spl_phase_prefix(enum u_boot_phase phase)
+static inline const char *xpl_prefix(enum xpl_phase_t phase)
 {
 	switch (phase) {
 	case PHASE_TPL:
@@ -227,18 +240,18 @@ static inline const char *spl_phase_prefix(enum u_boot_phase phase)
 }
 
 /* A string name for SPL or TPL */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 # ifdef CONFIG_TPL_BUILD
-#  define SPL_TPL_NAME	"TPL"
+#  define PHASE_NAME	"TPL"
 # elif defined(CONFIG_VPL_BUILD)
-#  define SPL_TPL_NAME	"VPL"
-# else
-#  define SPL_TPL_NAME	"SPL"
+#  define PHASE_NAME	"VPL"
+# elif defined(CONFIG_SPL_BUILD)
+#  define PHASE_NAME	"SPL"
 # endif
-# define SPL_TPL_PROMPT	SPL_TPL_NAME ": "
+# define PHASE_PROMPT	PHASE_NAME ": "
 #else
-# define SPL_TPL_NAME	""
-# define SPL_TPL_PROMPT	""
+# define PHASE_NAME	""
+# define PHASE_PROMPT	""
 #endif
 
 /**
@@ -253,17 +266,33 @@ enum spl_sandbox_flags {
 	SPL_SANDBOXF_ARG_IS_BUF,
 };
 
+/**
+ * struct spl_image_info - Information about the SPL image being loaded
+ *
+ * @fdt_size: Size of the FDT for the image (0 if none)
+ * @buf: Buffer where the image should be loaded
+ * @fdt_buf: Buffer where the FDT will be copied by spl_reloc_jump(), only used
+ *	if @fdt_size is non-zero
+ * @fdt_start: Pointer to the FDT to be copied (must be set up before calling
+ *	spl_reloc_jump()
+ * @rcode_buf: Buffer to hold the relocating-jump code
+ * @stack_prot: Pointer to the stack-protection value, used to ensure the stack
+ *	does not overflow
+ * @reloc_offset: offset between the relocating-jump code and its place in the
+ *	currently running image
+ */
 struct spl_image_info {
 	const char *name;
 	u8 os;
-	uintptr_t load_addr;
-	uintptr_t entry_point;
+	ulong load_addr;
+	ulong entry_point;
 #if CONFIG_IS_ENABLED(LOAD_FIT) || CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 	void *fdt_addr;
 #endif
 	u32 boot_device;
 	u32 offset;
 	u32 size;
+	ulong fdt_size;
 	u32 flags;
 	void *arg;
 #ifdef CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK
@@ -271,7 +300,18 @@ struct spl_image_info {
 	ulong dcrc_length;
 	ulong dcrc;
 #endif
+#if CONFIG_IS_ENABLED(RELOC_LOADER)
+	void *buf;
+	void *fdt_buf;
+	void *fdt_start;
+	void *rcode_buf;
+	uint *stack_prot;
+	ulong reloc_offset;
+#endif
 };
+
+/* function to jump to an image from SPL */
+typedef void __noreturn (*spl_jump_to_image_t)(struct spl_image_info *);
 
 static inline void *spl_image_fdt_addr(struct spl_image_info *info)
 {
@@ -282,55 +322,109 @@ static inline void *spl_image_fdt_addr(struct spl_image_info *info)
 #endif
 }
 
+struct spl_load_info;
+
+/**
+ * spl_load_reader() - Read from device
+ *
+ * @load: Information about the load state
+ * @offset: Offset to read from in bytes. This must be a multiple of
+ *          @load->bl_len.
+ * @count: Number of bytes to read. This must be a multiple of
+ *         @load->bl_len.
+ * @buf: Buffer to read into
+ * @return number of bytes read, 0 on error
+ */
+typedef ulong (*spl_load_reader)(struct spl_load_info *load, ulong sector,
+				 ulong count, void *buf);
+
 /**
  * Information required to load data from a device
  *
+ * @read: Function to call to read from the device
  * @priv: Private data for the device
  * @bl_len: Block length for reading in bytes
- * @read: Function to call to read from the device
+ * @phase: Image phase to load
+ * @no_fdt_update: true to update the FDT with any loadables that are loaded
  */
 struct spl_load_info {
+	spl_load_reader read;
 	void *priv;
-	/**
-	 * read() - Read from device
-	 *
-	 * @load: Information about the load state
-	 * @offset: Offset to read from in bytes. This must be a multiple of
-	 *          @load->bl_len.
-	 * @count: Number of bytes to read. This must be a multiple of
-	 *         @load->bl_len.
-	 * @buf: Buffer to read into
-	 * @return number of bytes read, 0 on error
-	 */
-	ulong (*read)(struct spl_load_info *load, ulong sector, ulong count,
-		      void *buf);
 #if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
-	int bl_len;
+	u16 bl_len;
+#endif
+#if CONFIG_IS_ENABLED(BOOTMETH_VBE)
+	u8 phase;
+	u8 fdt_update;
+#endif
 };
 
 static inline int spl_get_bl_len(struct spl_load_info *info)
 {
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
 	return info->bl_len;
-}
-
-static inline void spl_set_bl_len(struct spl_load_info *info, int bl_len)
-{
-	info->bl_len = bl_len;
-}
 #else
-};
-
-static inline int spl_get_bl_len(struct spl_load_info *info)
-{
 	return 1;
+#endif
 }
 
 static inline void spl_set_bl_len(struct spl_load_info *info, int bl_len)
 {
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
+	info->bl_len = bl_len;
+#else
 	if (bl_len != 1)
 		panic("CONFIG_SPL_LOAD_BLOCK not enabled");
-}
 #endif
+}
+
+static inline void xpl_set_phase(struct spl_load_info *info,
+				 enum image_phase_t phase)
+{
+#if CONFIG_IS_ENABLED(BOOTMETH_VBE)
+	info->phase = phase;
+#endif
+}
+
+static inline enum image_phase_t xpl_get_phase(struct spl_load_info *info)
+{
+#if CONFIG_IS_ENABLED(BOOTMETH_VBE)
+	return info->phase;
+#else
+	return IH_PHASE_NONE;
+#endif
+}
+
+static inline void xpl_set_fdt_update(struct spl_load_info *info,
+				      bool fdt_update)
+{
+#if CONFIG_IS_ENABLED(BOOTMETH_VBE)
+	info->fdt_update = fdt_update;
+#endif
+}
+
+static inline enum image_phase_t xpl_get_fdt_update(struct spl_load_info *info)
+{
+#if CONFIG_IS_ENABLED(BOOTMETH_VBE)
+	return info->fdt_update;
+#else
+	return true;
+#endif
+}
+
+/**
+ * spl_load_init() - Set up a new spl_load_info structure
+ */
+static inline void spl_load_init(struct spl_load_info *load,
+				 spl_load_reader h_read, void *priv,
+				 uint bl_len)
+{
+	load->read = h_read;
+	load->priv = priv;
+	spl_set_bl_len(load, bl_len);
+	xpl_set_phase(load, IH_PHASE_NONE);
+	xpl_set_fdt_update(load, true);
+}
 
 /*
  * We need to know the position of U-Boot in memory so we can jump to it. We
@@ -927,9 +1021,9 @@ void __noreturn spl_invoke_atf(struct spl_image_info *spl_image);
  *
  * Return: bl31 params structure pointer
  */
-struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
-					     uintptr_t bl33_entry,
-					     uintptr_t fdt_addr);
+struct bl31_params *bl2_plat_get_bl31_params(ulong bl32_entry,
+					     ulong bl33_entry,
+					     ulong fdt_addr);
 
 /**
  * bl2_plat_get_bl31_params_default() - prepare params for bl31.
@@ -948,9 +1042,9 @@ struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
  *
  * Return: bl31 params structure pointer
  */
-struct bl31_params *bl2_plat_get_bl31_params_default(uintptr_t bl32_entry,
-						     uintptr_t bl33_entry,
-						     uintptr_t fdt_addr);
+struct bl31_params *bl2_plat_get_bl31_params_default(ulong bl32_entry,
+						     ulong bl33_entry,
+						     ulong fdt_addr);
 
 /**
  * bl2_plat_get_bl31_params_v2() - return params for bl31
@@ -964,9 +1058,9 @@ struct bl31_params *bl2_plat_get_bl31_params_default(uintptr_t bl32_entry,
  *
  * Return: bl31 params structure pointer
  */
-struct bl_params *bl2_plat_get_bl31_params_v2(uintptr_t bl32_entry,
-					      uintptr_t bl33_entry,
-					      uintptr_t fdt_addr);
+struct bl_params *bl2_plat_get_bl31_params_v2(ulong bl32_entry,
+					      ulong bl33_entry,
+					      ulong fdt_addr);
 
 /**
  * bl2_plat_get_bl31_params_v2_default() - prepare params for bl31.
@@ -983,9 +1077,9 @@ struct bl_params *bl2_plat_get_bl31_params_v2(uintptr_t bl32_entry,
  *
  * Return: bl31 params structure pointer
  */
-struct bl_params *bl2_plat_get_bl31_params_v2_default(uintptr_t bl32_entry,
-						      uintptr_t bl33_entry,
-						      uintptr_t fdt_addr);
+struct bl_params *bl2_plat_get_bl31_params_v2_default(ulong bl32_entry,
+						      ulong bl33_entry,
+						      ulong fdt_addr);
 /**
  * spl_optee_entry - entry function for optee
  *
@@ -1073,4 +1167,47 @@ static inline bool spl_decompression_enabled(void)
 {
 	return IS_ENABLED(CONFIG_SPL_GZIP) || IS_ENABLED(CONFIG_SPL_LZMA);
 }
+
+/**
+ * spl_write_upl_handoff() - Write a Universal Payload hand-off structure
+ *
+ * @spl_image: Information about the image being booted
+ * Return: 0 if OK, -ve on error
+ */
+int spl_write_upl_handoff(struct spl_image_info *spl_image);
+
+/**
+ * spl_upl_init() - Get UPL ready for information to be added
+ *
+ * This must be called before upl_add_image(), etc.
+ */
+void spl_upl_init(void);
+
+/**
+ * spl_reloc_prepare() - Prepare the relocating loader ready for use
+ *
+ * Sets up the relocating loader ready for use. This must be called before
+ * spl_reloc_jump() can be used.
+ *
+ * The memory layout is figured out, making use of the space between the top of
+ * the current image and the top of memory.
+ *
+ * Once this is done, the relocating-jump code is copied into place at
+ * image->rcode_buf
+ *
+ * @image: SPL image containing information. This is updated with various
+ * necessary values. On entry, the size and fdt_size fields must be valid
+ * @addrp: Returns the address to which the image should be loaded into memory
+ * Return 0 if OK, -ENOSPC if there is not enough memory available
+ */
+int spl_reloc_prepare(struct spl_image_info *image, ulong *addrp);
+
+/**
+ * spl_reloc_jump() - Jump to an image, via a 'relocating-jump' region
+ *
+ * @image: SPL image to jump to
+ * @func: Function to call in the final image
+ */
+int spl_reloc_jump(struct spl_image_info *image, spl_jump_to_image_t func);
+
 #endif

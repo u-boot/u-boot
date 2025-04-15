@@ -41,7 +41,7 @@ optional_header:
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
 	.long	_etext - _start			/* SizeOfCode */
-	.long	0				/* SizeOfInitializedData */
+	.long	_data_size			/* SizeOfInitializedData */
 	.long	0				/* SizeOfUninitializedData */
 	.long	_start - ImageBase		/* AddressOfEntryPoint */
 	.long	_start - ImageBase		/* BaseOfCode */
@@ -144,6 +144,7 @@ section_table:
 		 IMAGE_SCN_CNT_INITIALIZED_DATA)
 
 	.align		12
+	.globl		_start
 _start:
 	stp		x29, x30, [sp, #-32]!
 	mov		x29, sp

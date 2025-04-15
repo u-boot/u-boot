@@ -210,8 +210,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_set_phy_handle(fdt, compat, addr,
 						   "phy_1gkx1");
 				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio1");
-				sprintf(buf, "%s%s%s", buf, "lane-c,",
-						(char *)lane_mode[0]);
+				strcat(buf, "lane-c,");
+				strcat(buf, (char *)lane_mode[0]);
 				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
 					 PCCR1_SGMIIH_KX_MASK);
 				break;
@@ -222,8 +222,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_set_phy_handle(fdt, compat, addr,
 						   "phy_1gkx2");
 				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio2");
-				sprintf(buf, "%s%s%s", buf, "lane-d,",
-						(char *)lane_mode[0]);
+				strcat(buf, "lane-d,");
+				strcat(buf, (char *)lane_mode[0]);
 				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
 					 PCCR1_SGMIIG_KX_MASK);
 				break;
@@ -234,8 +234,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_set_phy_handle(fdt, compat, addr,
 						   "phy_1gkx9");
 				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio9");
-				sprintf(buf, "%s%s%s", buf, "lane-a,",
-						(char *)lane_mode[0]);
+				strcat(buf, "lane-a,");
+				strcat(buf, (char *)lane_mode[0]);
 				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
 					 PCCR1_SGMIIE_KX_MASK);
 				break;
@@ -247,8 +247,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 						   "phy_1gkx10");
 				fdt_status_okay_by_alias(fdt,
 							 "1gkx_pcs_mdio10");
-				sprintf(buf, "%s%s%s", buf, "lane-b,",
-						(char *)lane_mode[0]);
+				strcat(buf, "lane-b,");
+				strcat(buf, (char *)lane_mode[0]);
 				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
 					 PCCR1_SGMIIF_KX_MASK);
 				break;
@@ -269,8 +269,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_set_phy_handle(fdt, compat, addr,
 						   "phy_1gkx5");
 				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio5");
-				sprintf(buf, "%s%s%s", buf, "lane-g,",
-						(char *)lane_mode[0]);
+				strcat(buf, "lane-g,");
+				strcat(buf, (char *)lane_mode[0]);
 				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
 					 PCCR1_SGMIIC_KX_MASK);
 				break;
@@ -281,8 +281,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_set_phy_handle(fdt, compat, addr,
 						   "phy_1gkx6");
 				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio6");
-				sprintf(buf, "%s%s%s", buf, "lane-h,",
-						(char *)lane_mode[0]);
+				strcat(buf, "lane-h,");
+				strcat(buf, (char *)lane_mode[0]);
 				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
 					 PCCR1_SGMIID_KX_MASK);
 				break;
@@ -328,8 +328,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_set_phy_handle(fdt, compat, addr,
 						"phy_xfi9");
 				fdt_status_okay_by_alias(fdt, "xfi_pcs_mdio9");
-				sprintf(buf, "%s%s%s", buf, "lane-a,",
-						(char *)lane_mode[1]);
+				strcat(buf, "lane-a,");
+				strcat(buf, (char *)lane_mode[1]);
 			}
 				break;
 			case FM1_10GEC2:
@@ -339,8 +339,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_set_phy_handle(fdt, compat, addr,
 						"phy_xfi10");
 				fdt_status_okay_by_alias(fdt, "xfi_pcs_mdio10");
-				sprintf(buf, "%s%s%s", buf, "lane-b,",
-						(char *)lane_mode[1]);
+				strcat(buf, "lane-b,");
+				strcat(buf, (char *)lane_mode[1]);
 			}
 				break;
 			case FM1_10GEC3:
@@ -350,8 +350,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_set_phy_handle(fdt, compat, addr,
 						"phy_xfi1");
 				fdt_status_okay_by_alias(fdt, "xfi_pcs_mdio1");
-				sprintf(buf, "%s%s%s", buf, "lane-c,",
-						(char *)lane_mode[1]);
+				strcat(buf, "lane-c,");
+				strcat(buf, (char *)lane_mode[1]);
 			}
 				break;
 			case FM1_10GEC4:
@@ -361,8 +361,8 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_set_phy_handle(fdt, compat, addr,
 						"phy_xfi2");
 				fdt_status_okay_by_alias(fdt, "xfi_pcs_mdio2");
-				sprintf(buf, "%s%s%s", buf, "lane-d,",
-						(char *)lane_mode[1]);
+				strcat(buf, "lane-d,");
+				strcat(buf, (char *)lane_mode[1]);
 			}
 				break;
 			default:

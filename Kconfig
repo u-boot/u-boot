@@ -1,6 +1,6 @@
 #
 # For a description of the syntax of this configuration file,
-# see the file Documentation/kbuild/kconfig-language.txt in the
+# see the file Documentation/kbuild/kconfig-language.rst in the
 # Linux kernel source tree.
 #
 mainmenu "U-Boot $(UBOOTVERSION) Configuration"
@@ -26,6 +26,17 @@ config DEPRECATED
 	  This option cannot be enabled.  It it used as a dependency for
 	  code that relies on deprecated features that will be removed and
 	  the conversion deadline has passed.
+
+config WERROR
+	bool "Compile U-Boot with warnings as errors"
+	help
+	  A U-Boot build should not cause any compiler warnings, and this
+	  enables the '-Werror' flag to enforce that rule.
+
+	  However, if you have a new (or very old) compiler or linker with odd
+	  and unusual warnings, or you have some architecture with problems,
+	  you may need to disable this config option in order to
+	  successfully build U-Boot.
 
 config LOCALVERSION
 	string "Local version - append to U-Boot release"
@@ -208,7 +219,8 @@ config ENV_VARS_UBOOT_CONFIG
 
 config NR_DRAM_BANKS
 	int "Number of DRAM banks"
-	default 1 if ARCH_SUNXI || ARCH_OWL
+	default 1 if ARCH_SC5XX || ARCH_SUNXI || ARCH_OWL
+	default 2 if OMAP34XX
 	default 4
 	help
 	  This defines the number of DRAM banks.
@@ -236,6 +248,7 @@ config SYS_BOOT_GET_KBD
 config HAS_CUSTOM_SYS_INIT_SP_ADDR
 	bool "Use a custom location for the initial stack pointer address"
 	depends on ARC || (ARM && !INIT_SP_RELATIVE) || MIPS || PPC || RISCV
+	default y if OMAP34XX || AM33XX || AM43XX || DRA7XX
 	default y if TFABOOT
 	help
 	  Typically, we use an initial stack pointer address that is calculated
@@ -249,6 +262,10 @@ config HAS_CUSTOM_SYS_INIT_SP_ADDR
 config CUSTOM_SYS_INIT_SP_ADDR
 	hex "Static location for the initial stack pointer"
 	depends on HAS_CUSTOM_SYS_INIT_SP_ADDR
+	default 0x4020ff00 if OMAP34XX
+	default 0x4030ff00 if AM33XX
+	default 0x4033ff00 if AM43XX
+	default 0x4037ff00 if DRA7XX
 	default TEXT_BASE if TFABOOT
 
 config SYS_MALLOC_F
@@ -545,6 +562,7 @@ config SYS_LOAD_ADDR
 	default 0x12000000 if ARCH_MX6 && !(MX6SL || MX6SLL  || MX6SX || MX6UL || MX6ULL)
 	default 0x80800000 if ARCH_MX7
 	default 0x90000000 if FSL_LSCH2 || FSL_LSCH3
+	default 0x0 if ARCH_SC5XX
 	help
 	  Address in memory to use as the default safe load address.
 
@@ -571,6 +589,7 @@ config STACK_SIZE
 	hex "Define max stack size that can be used by U-Boot"
 	default 0x4000000 if ARCH_VERSAL_NET || ARCH_VERSAL || ARCH_ZYNQMP
 	default 0x200000 if MICROBLAZE
+	default 0x4000 if ARCH_STM32
 	default 0x1000000
 	help
 	  Define Max stack size that can be used by U-Boot. This value is used
@@ -588,33 +607,10 @@ config SYS_MEM_TOP_HIDE
 	  WARNING: Please make sure that this value is a multiple of the OS
 	  page size.
 
-config SYS_HAS_SRAM
-	bool
-	default y if TARGET_PIC32MZDASK
-	default y if TARGET_DEVKIT8000
-	default y if TARGET_TRICORDER
-	help
-	  Enable this to allow support for the on board SRAM.
-	  SRAM base address is controlled by CONFIG_SYS_SRAM_BASE.
-	  SRAM size is controlled by CONFIG_SYS_SRAM_SIZE.
-
-config SYS_SRAM_BASE
-	hex
-	default 0x80000000 if TARGET_PIC32MZDASK
-	default 0x40200000 if TARGET_DEVKIT8000
-	default 0x40200000 if TARGET_TRICORDER
-	default 0x0
-
-config SYS_SRAM_SIZE
-	hex
-	default 0x00080000 if TARGET_PIC32MZDASK
-	default 0x10000 if TARGET_DEVKIT8000
-	default 0x10000 if TARGET_TRICORDER
-	default 0x0
-
 config SYS_MONITOR_LEN
 	int "Maximum size in bytes reserved for U-Boot in memory"
 	default 1048576 if X86
+	default 262144 if OMAP34XX
 	default 786432 if ARCH_SUNXI
 	default 0
 	help
@@ -639,11 +635,18 @@ config HAVE_TEXT_BASE
 config TEXT_BASE
 	depends on HAVE_TEXT_BASE
 	default 0x0 if POSITION_INDEPENDENT
+	default 0x17800000 if ARCH_MX6
+	default 0x87800000 if ARCH_MX7
 	default 0x80800000 if ARCH_OMAP2PLUS || ARCH_K3
 	default 0x81700000 if MACH_SUNIV
 	default 0x2a000000 if MACH_SUN9I
 	default 0x4a000000 if SUNXI_MINIMUM_DRAM_MB >= 256
 	default 0x42e00000 if SUNXI_MINIMUM_DRAM_MB >= 64
+	default 0x96000000 if ARCH_SC5XX && SC59X_64
+	default 0xB2200000 if ARCH_SC5XX && SC59X
+	default 0x89200000 if ARCH_SC5XX && TARGET_SC584_EZKIT
+	default 0xC2200000 if ARCH_SC5XX && (TARGET_SC589_EZKIT || TARGET_SC589_MINI)
+	default 0x82200000 if ARCH_SC5XX && SC57X
 	hex "Text Base"
 	help
 	  The address in memory that U-Boot will be copied and executed from
@@ -745,7 +748,41 @@ source "dts/Kconfig"
 
 source "env/Kconfig"
 
+menu "Networking"
+
+choice
+	prompt "Networking stack"
+	default NET
+
+config NO_NET
+	bool "No networking support"
+	help
+	  Do not include networking support
+
+config NET
+	bool "Legacy U-Boot networking stack"
+	imply NETDEVICES
+	help
+	  Include networking support with U-Boot's internal implementation of
+	  the TCP/IP protocol stack.
+
+config NET_LWIP
+	bool "Use lwIP for networking stack"
+	imply NETDEVICES
+	help
+	  Include networking support based on the lwIP (lightweight IP)
+	  TCP/IP stack (https://nongnu.org/lwip). This is a replacement for
+	  the default U-Boot network stack and applications located in net/
+	  and enabled via CONFIG_NET as well as other pieces of code that
+	  depend on CONFIG_NET (such as cmd/net.c enabled via CONFIG_CMD_NET).
+	  Therefore the two symbols CONFIG_NET and CONFIG_NET_LWIP are mutually
+	  exclusive.
+
+endchoice
+
 source "net/Kconfig"
+
+endmenu
 
 source "drivers/Kconfig"
 

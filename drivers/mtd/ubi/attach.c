@@ -934,6 +934,7 @@ static int scan_peb(struct ubi_device *ubi, struct ubi_attach_info *ai,
 			 * be a result of power cut during erasure.
 			 */
 			ai->maybe_bad_peb_count += 1;
+		fallthrough;
 	case UBI_IO_BAD_HDR:
 		if (ec_err)
 			/*

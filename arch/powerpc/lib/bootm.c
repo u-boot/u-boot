@@ -12,7 +12,6 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <init.h>
-#include <lmb.h>
 #include <log.h>
 #include <watchdog.h>
 #include <command.h>
@@ -37,13 +36,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static ulong get_sp (void);
 extern void ft_fixup_num_cores(void *blob);
 static void set_clocks_in_mhz (struct bd_info *kbd);
-
-#ifndef CFG_SYS_LINUX_LOWMEM_MAX_SIZE
-#define CFG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
-#endif
 
 static void boot_jump_linux(struct bootm_headers *images)
 {
@@ -116,41 +110,6 @@ static void boot_jump_linux(struct bootm_headers *images)
 	return;
 }
 
-void arch_lmb_reserve(struct lmb *lmb)
-{
-	phys_size_t bootm_size;
-	ulong size, bootmap_base;
-
-	bootmap_base = env_get_bootm_low();
-	bootm_size = env_get_bootm_size();
-
-#ifdef DEBUG
-	if (((u64)bootmap_base + bootm_size) >
-	    (CFG_SYS_SDRAM_BASE + (u64)gd->ram_size))
-		puts("WARNING: bootm_low + bootm_size exceed total memory\n");
-	if ((bootmap_base + bootm_size) > get_effective_memsize())
-		puts("WARNING: bootm_low + bootm_size exceed eff. memory\n");
-#endif
-
-	size = min(bootm_size, get_effective_memsize());
-	size = min(size, (ulong)CFG_SYS_LINUX_LOWMEM_MAX_SIZE);
-
-	if (size < bootm_size) {
-		ulong base = bootmap_base + size;
-		printf("WARNING: adjusting available memory from 0x%lx to 0x%llx\n",
-		       size, (unsigned long long)bootm_size);
-		lmb_reserve(lmb, base, bootm_size - size);
-	}
-
-	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
-
-#ifdef CONFIG_MP
-	cpu_mp_lmb_reserve(lmb);
-#endif
-
-	return;
-}
-
 static void boot_prep_linux(struct bootm_headers *images)
 {
 #ifdef CONFIG_MP
@@ -166,7 +125,6 @@ static void boot_prep_linux(struct bootm_headers *images)
 static int boot_cmdline_linux(struct bootm_headers *images)
 {
 	ulong of_size = images->ft_len;
-	struct lmb *lmb = &images->lmb;
 	ulong *cmd_start = &images->cmdline_start;
 	ulong *cmd_end = &images->cmdline_end;
 
@@ -174,7 +132,7 @@ static int boot_cmdline_linux(struct bootm_headers *images)
 
 	if (!of_size) {
 		/* allocate space and init command line */
-		ret = boot_get_cmdline (lmb, cmd_start, cmd_end);
+		ret = boot_get_cmdline(cmd_start, cmd_end);
 		if (ret) {
 			puts("ERROR with allocation of cmdline\n");
 			return ret;
@@ -187,14 +145,13 @@ static int boot_cmdline_linux(struct bootm_headers *images)
 static int boot_bd_t_linux(struct bootm_headers *images)
 {
 	ulong of_size = images->ft_len;
-	struct lmb *lmb = &images->lmb;
 	struct bd_info **kbd = &images->kbd;
 
 	int ret = 0;
 
 	if (!of_size) {
 		/* allocate space for kernel copy of board info */
-		ret = boot_get_kbd (lmb, kbd);
+		ret = boot_get_kbd(kbd);
 		if (ret) {
 			puts("ERROR with allocation of kernel bd\n");
 			return ret;
@@ -250,14 +207,6 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 	boot_jump_linux(images);
 
 	return 0;
-}
-
-static ulong get_sp (void)
-{
-	ulong sp;
-
-	asm( "mr %0,1": "=r"(sp) : );
-	return sp;
 }
 
 static void set_clocks_in_mhz (struct bd_info *kbd)

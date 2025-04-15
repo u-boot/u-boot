@@ -116,6 +116,12 @@ config AXP717_POWER
 	---help---
 	Select this to enable support for the AXP717 PMIC found on some boards.
 
+config AXP803_POWER
+	bool "AXP803 PMIC support"
+	select AXP_PMIC_BUS
+	---help---
+	Select this to enable support for the AXP803 PMIC found on some boards.
+
 config AXP809_POWER
 	bool "axp809 pmic support"
 	depends on MACH_SUN9I
@@ -142,10 +148,20 @@ config SY8106A_POWER
 
 endchoice
 
+config AXP_I2C_ADDRESS
+	hex "AXP PMIC I2C address"
+	depends on ARCH_SUNXI && !SUNXI_NO_PMIC
+	default 0x36 if AXP305_POWER
+	default 0x36 if AXP313_POWER
+	default 0x30 if AXP152_POWER
+	default 0x34
+	---help---
+	I2C address of the AXP PMIC, used for the SPL only.
+
 config AXP_DCDC1_VOLT
 	int "axp pmic dcdc1 voltage"
-	depends on AXP221_POWER || AXP809_POWER || AXP818_POWER
-	default 3300 if AXP818_POWER || MACH_SUN8I_R40
+	depends on AXP221_POWER || AXP809_POWER || AXP818_POWER || AXP803_POWER
+	default 3300 if AXP818_POWER || MACH_SUN8I_R40 || AXP803_POWER
 	default 3000 if MACH_SUN6I || MACH_SUN8I || MACH_SUN9I
 	---help---
 	Set the voltage (mV) to program the axp pmic dcdc1 at, set to 0 to
@@ -158,11 +174,12 @@ config AXP_DCDC1_VOLT
 
 config AXP_DCDC2_VOLT
 	int "axp pmic dcdc2 voltage"
-	depends on AXP152_POWER || AXP209_POWER || AXP221_POWER || AXP809_POWER || AXP818_POWER || AXP313_POWER || AXP717_POWER
+	depends on AXP152_POWER || AXP209_POWER || AXP221_POWER || AXP809_POWER || AXP818_POWER || AXP313_POWER || AXP717_POWER || AXP803_POWER
 	default 900 if AXP818_POWER
 	default 1400 if AXP152_POWER || AXP209_POWER
 	default 1000 if AXP313_POWER
 	default 1000 if AXP717_POWER
+	default 1000 if AXP803_POWER
 	default 1200 if MACH_SUN6I
 	default 1100 if MACH_SUN8I
 	default 0 if MACH_SUN9I
@@ -219,7 +236,7 @@ config AXP_DCDC4_VOLT
 
 config AXP_DCDC5_VOLT
 	int "axp pmic dcdc5 voltage"
-	depends on AXP221_POWER || AXP809_POWER || AXP818_POWER
+	depends on AXP221_POWER || AXP809_POWER || AXP818_POWER || AXP803_POWER
 	default 1500 if MACH_SUN6I || MACH_SUN8I || MACH_SUN9I
 	---help---
 	Set the voltage (mV) to program the axp pmic dcdc5 at, set to 0 to

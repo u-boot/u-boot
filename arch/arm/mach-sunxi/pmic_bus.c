@@ -16,33 +16,10 @@
 #include <power/pmic.h>
 #include <asm/arch/pmic_bus.h>
 
-#define AXP152_I2C_ADDR			0x30
-
-#define AXP209_I2C_ADDR			0x34
-#define AXP717_I2C_ADDR			0x34
-
-#define AXP305_I2C_ADDR			0x36
-#define AXP313_I2C_ADDR			0x36
-
 #define AXP221_CHIP_ADDR		0x68
 
 #if CONFIG_IS_ENABLED(PMIC_AXP)
 static struct udevice *pmic;
-#else
-static int pmic_i2c_address(void)
-{
-	if (IS_ENABLED(CONFIG_AXP152_POWER))
-		return AXP152_I2C_ADDR;
-	if (IS_ENABLED(CONFIG_AXP305_POWER))
-		return AXP305_I2C_ADDR;
-	if (IS_ENABLED(CONFIG_AXP313_POWER))
-		return AXP313_I2C_ADDR;
-	if (IS_ENABLED(CONFIG_AXP717_POWER))
-		return AXP717_I2C_ADDR;
-
-	/* Other AXP2xx and AXP8xx variants */
-	return AXP209_I2C_ADDR;
-}
 #endif
 
 int pmic_bus_init(void)
@@ -88,7 +65,7 @@ int pmic_bus_read(u8 reg, u8 *data)
 	if (IS_ENABLED(CONFIG_SYS_I2C_SUN8I_RSB))
 		return rsb_read(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
 
-	return i2c_read(pmic_i2c_address(), reg, 1, data, 1);
+	return i2c_read(CONFIG_AXP_I2C_ADDRESS, reg, 1, data, 1);
 #endif
 }
 
@@ -102,7 +79,7 @@ int pmic_bus_write(u8 reg, u8 data)
 	if (IS_ENABLED(CONFIG_SYS_I2C_SUN8I_RSB))
 		return rsb_write(AXP_PMIC_PRI_RUNTIME_ADDR, reg, data);
 
-	return i2c_write(pmic_i2c_address(), reg, 1, &data, 1);
+	return i2c_write(CONFIG_AXP_I2C_ADDRESS, reg, 1, &data, 1);
 #endif
 }
 

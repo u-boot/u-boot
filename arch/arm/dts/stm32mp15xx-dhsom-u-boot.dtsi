@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
+/*
+ * Copyright (C) 2024 Marek Vasut <marex@denx.de>
+ */
+
+&binman {
+	 u-boot {
+		filename = "u-boot.itb";
+
+		fit {
+			description = "U-Boot mainline";
+			fit,fdt-list = "of-list";
+			#address-cells = <1>;
+
+			images {
+				uboot {
+					arch = "arm";
+					compression = "none";
+					description = "U-Boot (32-bit)";
+					entry = <CONFIG_TEXT_BASE>;
+					load = <CONFIG_TEXT_BASE>;
+					type = "standalone";
+
+					uboot-blob {
+						filename = "u-boot-nodtb.bin";
+						type = "blob-ext";
+					};
+				};
+
+				@fdt-SEQ {
+					compression = "none";
+					description = "NAME";
+					type = "flat_dt";
+
+					uboot-fdt-blob {
+						filename = "u-boot.dtb";
+						type = "blob-ext";
+					};
+				};
+			};
+
+			configurations {
+				default = "@config-DEFAULT-SEQ";
+
+				@config-SEQ {
+					description = "NAME";
+					fdt = "fdt-SEQ";
+					firmware = "uboot";
+				};
+			};
+		};
+	};
+};

@@ -50,13 +50,4 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply PHY_LIB
 	imply PHY_MSCC
 
-config STARFIVE_NO_EMMC
-	bool "Report eMMC size as zero"
-	help
-	  The serial number string in the EEPROM is meant to report the
-	  size of onboard eMMC. Unfortunately some Milk-V Mars CM Lite
-	  modules without eMMC show a non-zero size here.
-
-	  Set to 'Y' if you have a Mars CM Lite module.
-
 endif

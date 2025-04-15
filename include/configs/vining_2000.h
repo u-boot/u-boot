@@ -36,8 +36,6 @@
 /* Network */
 #define CFG_FEC_MXC_PHYADDR          0x0
 
-#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CFG_MXC_USB_FLAGS   0
 
 #ifdef CONFIG_CMD_PCI
 #define CFG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(4, 6)
@@ -49,7 +47,7 @@
 /* 0=user, 1=boot0, 2=boot1, * 4..7=general0..3. */
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define CFG_MXC_UART_BASE		UART1_BASE
 #endif
 

@@ -101,7 +101,6 @@ static int env_test_htab_fill(struct unit_test_state *uts)
 	hdestroy_r(&htab);
 	return 0;
 }
-
 ENV_TEST(env_test_htab_fill, 0);
 
 /* Fill the hashtable up halfway an repeateadly delete/create elements
@@ -122,5 +121,4 @@ static int env_test_htab_deletes(struct unit_test_state *uts)
 	hdestroy_r(&htab);
 	return 0;
 }
-
 ENV_TEST(env_test_htab_deletes, 0);

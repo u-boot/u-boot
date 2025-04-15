@@ -50,8 +50,7 @@ static void acpi_write_rsdt(struct acpi_rsdt *rsdt)
 	/* Entries are filled in later, we come with an empty set */
 
 	/* Fix checksum */
-	header->checksum = table_compute_checksum(rsdt,
-						  sizeof(struct acpi_rsdt));
+	acpi_update_checksum(header);
 }
 
 static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
@@ -66,8 +65,7 @@ static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
 	/* Entries are filled in later, we come with an empty set */
 
 	/* Fix checksum */
-	header->checksum = table_compute_checksum(xsdt,
-						  sizeof(struct acpi_xsdt));
+	acpi_update_checksum(header);
 }
 
 static int acpi_write_base(struct acpi_ctx *ctx,

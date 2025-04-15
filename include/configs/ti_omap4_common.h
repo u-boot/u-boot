@@ -95,7 +95,7 @@
  * So moving TEXT_BASE down to non-HS limit.
  */
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* No need for i2c in SPL mode as we will use SRI2C for PMIC access on OMAP4 */
 #endif
 

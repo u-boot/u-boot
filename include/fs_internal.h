@@ -12,5 +12,7 @@
 
 int fs_devread(struct blk_desc *, struct disk_partition *, lbaint_t, int, int,
 	       char *);
+int fs_devwrite(struct blk_desc *, struct disk_partition *, lbaint_t, int, int,
+	        const char *);
 
 #endif /* __U_BOOT_FS_INTERNAL_H__ */

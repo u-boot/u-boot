@@ -4,7 +4,7 @@
 # Przemyslaw Marczak <p.marczak@samsung.com>
 #
 
-obj-$(CONFIG_$(SPL_TPL_)ADC) += adc-uclass.o
+obj-$(CONFIG_$(PHASE_)ADC) += adc-uclass.o
 obj-$(CONFIG_ADC_EXYNOS) += exynos-adc.o
 obj-$(CONFIG_ADC_SANDBOX) += sandbox.o
 obj-$(CONFIG_SARADC_ROCKCHIP) += rockchip-saradc.o

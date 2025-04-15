@@ -22,21 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* UNSTUFF_BITS macro taken from Linux Kernel: drivers/mmc/core/sd.c */
-#define UNSTUFF_BITS(resp, start, size) \
-	({ \
-		const int __size = size; \
-		const u32 __mask = (__size < 32 ? 1 << __size : 0) - 1;	\
-		const int __off = 3 - ((start) / 32); \
-		const int __shft = (start) & 31; \
-		u32 __res; \
-					\
-		__res = resp[__off] >> __shft; \
-		if (__size + __shft > 32) \
-			__res |= resp[__off - 1] << ((32 - __shft) % 32); \
-		__res & __mask;	\
-	})
-
 static u32 msm_board_serial(void)
 {
 	struct mmc *mmc_dev;
@@ -48,7 +33,8 @@ static u32 msm_board_serial(void)
 	if (mmc_init(mmc_dev))
 		return 0;
 
-	return UNSTUFF_BITS(mmc_dev->cid, 16, 32);
+	/* MMC serial number */
+	return mmc_dev->cid[2] << 16 | mmc_dev->cid[3] >> 16;
 }
 
 static void msm_generate_mac_addr(u8 *mac)
@@ -65,28 +51,6 @@ static void msm_generate_mac_addr(u8 *mac)
 	put_unaligned_be32(msm_board_serial(), &mac[2]);
 }
 
-/* Check for vol- button - if pressed - stop autoboot */
-int misc_init_r(void)
-{
-	struct udevice *btn;
-	int ret;
-	enum button_state_t state;
-
-	ret = button_get_by_label("vol_down", &btn);
-	if (ret < 0) {
-		printf("Couldn't find power button!\n");
-		return ret;
-	}
-
-	state = button_get_state(btn);
-	if (state == BUTTON_ON) {
-		env_set("preboot", "setenv preboot; fastboot 0");
-		printf("vol_down pressed - Starting fastboot.\n");
-	}
-
-	return 0;
-}
-
 int qcom_late_init(void)
 {
 	char serial[16];
@@ -97,9 +61,9 @@ int qcom_late_init(void)
 	return 0;
 }
 
-/* Fixup of DTB for Linux Kernel
- * 1. Fixup installed DRAM.
- * 2. Fixup WLAN/BT Mac address:
+/*
+ * Fixup of DTB for Linux Kernel
+ * 1. Fixup WLAN/BT Mac address:
  *	First, check if MAC addresses for WLAN/BT exists as environemnt
  *	variables wlanaddr,btaddr. if not, generate a unique address.
  */
@@ -107,6 +71,7 @@ int qcom_late_init(void)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u8 mac[ARP_HLEN];
+	int i;
 
 	if (!eth_env_get_enetaddr("wlanaddr", mac)) {
 		msm_generate_mac_addr(mac);
@@ -118,11 +83,23 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	if (!eth_env_get_enetaddr("btaddr", mac)) {
 		msm_generate_mac_addr(mac);
 
-/* The BD address is same as WLAN MAC address but with
- * least significant bit flipped.
- */
-		mac[0] ^= 0x01;
+		/*
+		 * The BD address is same as WLAN MAC address but with
+		 * least significant bit flipped.
+		 */
+		mac[ARP_HLEN - 1] ^= 0x01;
 	};
+
+	/*
+	 * Reverse array since local-bd-address is formatted with least
+	 * significant byte first (little endian).
+	 */
+	for (i = 0; i < ARP_HLEN / 2; ++i) {
+		u8 tmp = mac[i];
+
+		mac[i] = mac[ARP_HLEN - 1 - i];
+		mac[ARP_HLEN - 1 - i] = tmp;
+	}
 
 	do_fixup_by_compat(blob, "qcom,wcnss-bt",
 			   "local-bd-address", mac, ARP_HLEN, 1);

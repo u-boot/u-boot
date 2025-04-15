@@ -74,7 +74,7 @@ struct efi_device_path {
  * struct { u32 a; u16; b; u16 c; u8 d[8]; }; which is 4-byte
  * aligned.
  */
-typedef struct {
+typedef struct efi_guid {
 	u8 b[16];
 } efi_guid_t __attribute__((aligned(4)));
 
@@ -175,7 +175,7 @@ enum efi_allocate_type {
 	EFI_ALLOCATE_MAX_ADDRESS,
 	/**
 	 * @EFI_ALLOCATE_ADDRESS:
-	 * Allocate a memory block starting at the indicatged adress.
+	 * Allocate a memory block starting at the indicated address.
 	 */
 	EFI_ALLOCATE_ADDRESS,
 	/**
@@ -266,6 +266,8 @@ enum efi_memory_type {
 #define EFI_MEMORY_RO		((u64)0x0000000000020000ULL)	/* read-only */
 #define EFI_MEMORY_SP		((u64)0x0000000000040000ULL)	/* specific-purpose memory (SPM) */
 #define EFI_MEMORY_CPU_CRYPTO	((u64)0x0000000000080000ULL)	/* cryptographically protectable */
+#define EFI_MEMORY_HOT_PLUGGABLE \
+				((u64)0x0000000000100000ULL)	/* hot pluggable */
 #define EFI_MEMORY_RUNTIME	((u64)0x8000000000000000ULL)	/* range requires runtime mapping */
 #define EFI_MEM_DESC_VERSION	1
 
@@ -668,5 +670,52 @@ int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
  * @systab: System table containing the list of tables
  */
 void efi_show_tables(struct efi_system_table *systab);
+
+/**
+ * efi_get_basename() - Get the default filename to use when loading
+ *
+ * E.g. this function returns BOOTAA64.EFI for an aarch target
+ *
+ * Return: Default EFI filename
+ */
+const char *efi_get_basename(void);
+
+#ifdef CONFIG_SANDBOX
+#include <asm/state.h>
+#endif
+
+static inline bool efi_use_host_arch(void)
+{
+#ifdef CONFIG_SANDBOX
+	struct sandbox_state *state = state_get_current();
+
+	return state->native;
+#else
+	return false;
+#endif
+}
+
+/**
+ * efi_get_pxe_arch() - Get the architecture value for PXE
+ *
+ * See:
+ * http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml
+ *
+ * Return: Architecture value
+ */
+int efi_get_pxe_arch(void);
+
+/**
+ * fdt_efi_pmem_setup() - Pmem setup in DT and EFI memory map
+ * @fdt: Devicetree to add the pmem nodes to
+ *
+ * Iterate through all the blkmap devices, look for BLKMAP_MEM devices,
+ * and add pmem nodes corresponding to the blkmap slice to the
+ * devicetree along with removing the corresponding region from the
+ * EFI memory map.
+ *
+ * Returns: 0 on success, negative error on failure
+ */
+int fdt_efi_pmem_setup(void *fdt);
 
 #endif /* _LINUX_EFI_H */

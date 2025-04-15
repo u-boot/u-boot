@@ -8,8 +8,8 @@
 #define __FSL_SECURE_BOOT_H
 
 #ifdef CONFIG_CHAIN_OF_TRUST
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 
-#endif /* #ifndef CONFIG_SPL_BUILD */
+#endif /* #ifndef CONFIG_XPL_BUILD */
 #endif /* #ifdef CONFIG_CHAIN_OF_TRUST */
 #endif

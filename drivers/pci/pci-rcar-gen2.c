@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Renesas RCar Gen2 PCIEC driver
+ * Renesas R-Car Gen2 PCIEC driver
  *
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */

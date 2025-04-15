@@ -10,70 +10,70 @@ from sqfs_common import generate_sqfs_src_dir, make_all_images
 from sqfs_common import clean_sqfs_src_dir, clean_all_images
 from sqfs_common import check_mksquashfs_version
 
-def sqfs_ls_at_root(u_boot_console):
+def sqfs_ls_at_root(ubman):
     """ Runs sqfsls at image's root.
 
     This test checks if all the present files and directories were listed. Also,
     it checks if passing the slash or not changes the output, which it shouldn't.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
 
-    no_slash = u_boot_console.run_command('sqfsls host 0')
-    slash = u_boot_console.run_command('sqfsls host 0 /')
+    no_slash = ubman.run_command('sqfsls host 0')
+    slash = ubman.run_command('sqfsls host 0 /')
     assert no_slash == slash
 
     expected_lines = ['empty-dir/', '1000   f1000', '4096   f4096', '5096   f5096',
                       'subdir/', '<SYM>   sym', '4 file(s), 2 dir(s)']
 
-    output = u_boot_console.run_command('sqfsls host 0')
+    output = ubman.run_command('sqfsls host 0')
     for line in expected_lines:
         assert line in output
 
-def sqfs_ls_at_empty_dir(u_boot_console):
+def sqfs_ls_at_empty_dir(ubman):
     """ Runs sqfsls at an empty directory.
 
     This tests checks if sqfsls will print anything other than the 'Empty directory'
     message.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
-    assert u_boot_console.run_command('sqfsls host 0 empty-dir') == 'Empty directory.'
+    assert ubman.run_command('sqfsls host 0 empty-dir') == 'Empty directory.'
 
-def sqfs_ls_at_subdir(u_boot_console):
+def sqfs_ls_at_subdir(ubman):
     """ Runs sqfsls at the SquashFS image's subdir.
 
     This test checks if the path resolution works, since the directory is not the
     root.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
     expected_lines = ['100   subdir-file', '1 file(s), 0 dir(s)']
-    output = u_boot_console.run_command('sqfsls host 0 subdir')
+    output = ubman.run_command('sqfsls host 0 subdir')
     for line in expected_lines:
         assert line in output
 
-def sqfs_ls_at_symlink(u_boot_console):
+def sqfs_ls_at_symlink(ubman):
     """ Runs sqfsls at a SquashFS image's symbolic link.
 
     This test checks if the symbolic link's target resolution works.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
     # since sym -> subdir, the following outputs must be equal
-    output = u_boot_console.run_command('sqfsls host 0 sym')
-    output_subdir = u_boot_console.run_command('sqfsls host 0 subdir')
+    output = ubman.run_command('sqfsls host 0 sym')
+    output_subdir = ubman.run_command('sqfsls host 0 subdir')
     assert output == output_subdir
 
     expected_lines = ['100   subdir-file', '1 file(s), 0 dir(s)']
     for line in expected_lines:
         assert line in output
 
-def sqfs_ls_at_non_existent_dir(u_boot_console):
+def sqfs_ls_at_non_existent_dir(ubman):
     """ Runs sqfsls at a file and at a non-existent directory.
 
     This test checks if the SquashFS support won't crash if it doesn't find the
@@ -81,24 +81,24 @@ def sqfs_ls_at_non_existent_dir(u_boot_console):
     directory. In both cases, the output should be the same.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
-    out_non_existent = u_boot_console.run_command('sqfsls host 0 fff')
-    out_not_dir = u_boot_console.run_command('sqfsls host 0 f1000')
+    out_non_existent = ubman.run_command('sqfsls host 0 fff')
+    out_not_dir = ubman.run_command('sqfsls host 0 f1000')
     assert out_non_existent == out_not_dir
     assert '** Cannot find directory. **' in out_non_existent
 
-def sqfs_run_all_ls_tests(u_boot_console):
+def sqfs_run_all_ls_tests(ubman):
     """ Runs all the previously defined test cases.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
-    sqfs_ls_at_root(u_boot_console)
-    sqfs_ls_at_empty_dir(u_boot_console)
-    sqfs_ls_at_subdir(u_boot_console)
-    sqfs_ls_at_symlink(u_boot_console)
-    sqfs_ls_at_non_existent_dir(u_boot_console)
+    sqfs_ls_at_root(ubman)
+    sqfs_ls_at_empty_dir(ubman)
+    sqfs_ls_at_subdir(ubman)
+    sqfs_ls_at_symlink(ubman)
+    sqfs_ls_at_non_existent_dir(ubman)
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
@@ -106,7 +106,7 @@ def sqfs_run_all_ls_tests(u_boot_console):
 @pytest.mark.buildconfigspec('fs_squashfs')
 @pytest.mark.requiredtool('mksquashfs')
 @pytest.mark.singlethread
-def test_sqfs_ls(u_boot_console):
+def test_sqfs_ls(ubman):
     """ Executes the sqfsls test suite.
 
     First, it generates the SquashFS images, then it runs the test cases and
@@ -114,9 +114,9 @@ def test_sqfs_ls(u_boot_console):
     cleaned before exiting.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
-    build_dir = u_boot_console.config.build_dir
+    build_dir = ubman.config.build_dir
 
     # If the EFI subsystem is enabled and initialized, EFI subsystem tries to
     # add EFI boot option when the new disk is detected. If there is no EFI
@@ -125,7 +125,7 @@ def test_sqfs_ls(u_boot_console):
     # Restart U-Boot to clear the previous state.
     # TODO: Ideally EFI test cases need to be fixed, but it will
     # increase the number of system reset.
-    u_boot_console.restart_uboot()
+    ubman.restart_uboot()
 
     # setup test environment
     check_mksquashfs_version()
@@ -136,8 +136,8 @@ def test_sqfs_ls(u_boot_console):
     for image in STANDARD_TABLE:
         try:
             image_path = os.path.join(build_dir, image)
-            u_boot_console.run_command('host bind 0 {}'.format(image_path))
-            sqfs_run_all_ls_tests(u_boot_console)
+            ubman.run_command('host bind 0 {}'.format(image_path))
+            sqfs_run_all_ls_tests(ubman)
         except:
             clean_all_images(build_dir)
             clean_sqfs_src_dir(build_dir)

@@ -18,29 +18,13 @@
 #define CFG_SYS_NS16550_COM1		MV_UART_CONSOLE_BASE
 #endif
 
-/*
- * Serial Port configuration
- * The following definitions let you select what serial you want to use
- * for your console driver.
- */
-
 /* NAND */
 
 #define BBT_CUSTOM_SCAN
 #define BBT_CUSTOM_SCAN_PAGE 0
 #define BBT_CUSTOM_SCAN_POSITION 2048
 
-/* SPI NOR flash default params, used by sf commands */
-
 #define MTDPARTS_MTDOOPS		"errlog"
-
-/* Partition support */
-
-/* Additional FS support/configuration */
-
-/* Environment in SPI NOR flash */
-
-/* NAND */
 
 #include <asm/arch/config.h>
 

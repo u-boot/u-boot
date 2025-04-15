@@ -7,5 +7,9 @@
 
 /dts-v1/;
 
+#if defined(CONFIG_SYSINFO_SMBIOS) && !defined(QFW_SMBIOS)
+#include "smbios_generic.dtsi"
+#endif
+
 / {
 };

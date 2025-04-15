@@ -665,8 +665,6 @@ int board_init(void)
 	if (board_is_stm32mp15x_dk2())
 		board_stm32mp15x_dk2_init();
 
-	regulators_enable_boot_on(_DEBUG);
-
 	/*
 	 * sysconf initialisation done only when U-Boot is running in secure
 	 * done in TF-A for TFABOOT.
@@ -753,8 +751,6 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	case BOOT_FLASH_EMMC:
 		if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
 			return ENVL_MMC;
-		else if (CONFIG_IS_ENABLED(ENV_IS_IN_EXT4))
-			return ENVL_EXT4;
 		else
 			return ENVL_NOWHERE;
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * ENETC ethernet controller driver
- * Copyright 2019 NXP
+ * Copyright 2019-2025 NXP
  */
 
 #include <dm.h>
@@ -13,6 +13,16 @@
 #include <miiphy.h>
 
 #include "fsl_enetc.h"
+
+static u32 enetc_read(struct enetc_mdio_priv *priv, u32 off)
+{
+	return readl(priv->regs_base + off);
+}
+
+static void enetc_write(struct enetc_mdio_priv *priv, u32 off, u32 val)
+{
+	writel(val, priv->regs_base + off);
+}
 
 static void enetc_mdio_wait_bsy(struct enetc_mdio_priv *priv)
 {
@@ -122,7 +132,9 @@ static int enetc_mdio_bind(struct udevice *dev)
 
 static int enetc_mdio_probe(struct udevice *dev)
 {
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
 	struct enetc_mdio_priv *priv = dev_get_priv(dev);
+	u16 cmd = PCI_COMMAND_MEMORY;
 
 	priv->regs_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE, 0);
 	if (!priv->regs_base) {
@@ -132,7 +144,10 @@ static int enetc_mdio_probe(struct udevice *dev)
 
 	priv->regs_base += ENETC_MDIO_BASE;
 
-	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, PCI_COMMAND_MEMORY);
+	if (pplat->vendor == PCI_VENDOR_ID_PHILIPS)	/* i.MX95 */
+		cmd |= PCI_COMMAND_MASTER;
+
+	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, cmd);
 
 	return 0;
 }
@@ -148,6 +163,7 @@ U_BOOT_DRIVER(enetc_mdio) = {
 
 static struct pci_device_id enetc_mdio_ids[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_FREESCALE, PCI_DEVICE_ID_ENETC_MDIO) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_PHILIPS, PCI_DEVICE_ID_ENETC4_EMDIO) },
 	{ }
 };
 

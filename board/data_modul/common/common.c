@@ -47,6 +47,9 @@ u8 dmo_get_memcfg(void)
 					      "dmo,ram-coding-gpios",
 					      gpio, ARRAY_SIZE(gpio),
 					      GPIOD_IS_IN);
+	if (ret < 0)
+		return BIT(2) | BIT(0);
+
 	for (i = 0; i < ret; i++)
 		memcfg |= !!dm_gpio_get_value(&(gpio[i])) << i;
 
@@ -72,7 +75,7 @@ int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static void data_modul_imx_edm_sbc_early_init_f(const iomux_v3_cfg_t wdog_pad)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;

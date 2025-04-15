@@ -108,8 +108,7 @@
 	};
 
 	sdhci@12510000 {
-		samsung,bus-width = <8>;
-		samsung,timing = <1 3 3>;
+		bus-width = <8>;
 		pwr-gpios = <&gpk0 4 0>;
 		status = "disabled";
 	};
@@ -431,26 +430,23 @@
 };
 
 &sdhci0 {
-	samsung,bus-width = <8>;
-	samsung,timing = <1 3 3>;
+	bus-width = <8>;
 	pwr-gpios = <&gpk0 4 0>;
 	status = "disabled";
 };
 
 &sdhci2 {
-	samsung,bus-width = <4>;
-	samsung,timing = <1 2 3>;
+	bus-width = <4>;
 	cd-gpios = <&gpk2 2 0>;
 	status = "okay";
 };
 
 &mshc_0 {
-	samsung,bus-width = <8>;
-	samsung,timing = <2 1 0>;
-	samsung,removable = <0>;
-	fifoth_val = <0x203f0040>;
-	bus_hz = <400000000>;
-	div = <0x3>;
+	bus-width = <8>;
+	samsung,dw-mshc-ciu-div = <0>;
+	samsung,dw-mshc-sdr-timing = <2 1>;
+	non-removable;
+	clock-frequency = <400000000>;
 	index = <4>;
 	fifo-depth = <0x80>;
 	status = "okay";

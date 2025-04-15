@@ -40,7 +40,7 @@ int acpi_write_csrt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 
 	/* (Re)calculate length and checksum */
 	header->length = (ulong)ctx->current - (ulong)csrt;
-	header->checksum = table_compute_checksum(csrt, header->length);
+	acpi_update_checksum(header);
 
 	acpi_add_table(ctx, csrt);
 

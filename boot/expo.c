@@ -29,6 +29,7 @@ int expo_new(const char *name, void *priv, struct expo **expp)
 	exp->priv = priv;
 	INIT_LIST_HEAD(&exp->scene_head);
 	INIT_LIST_HEAD(&exp->str_head);
+	exp->next_id = EXPOID_BASE_ID;
 
 	*expp = exp;
 
@@ -258,6 +259,8 @@ int expo_apply_theme(struct expo *exp, ofnode node)
 	ofnode_read_u32(node, "font-size", &theme->font_size);
 	ofnode_read_u32(node, "menu-inset", &theme->menu_inset);
 	ofnode_read_u32(node, "menuitem-gap-y", &theme->menuitem_gap_y);
+	ofnode_read_u32(node, "menu-title-margin-x",
+			&theme->menu_title_margin_x);
 
 	list_for_each_entry(scn, &exp->scene_head, sibling) {
 		ret = scene_apply_theme(scn, theme);

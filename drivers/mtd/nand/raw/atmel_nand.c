@@ -1251,7 +1251,7 @@ static int at91_nand_ready(struct mtd_info *mtd)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* The following code is for SPL */
 static struct mtd_info *mtd;
 static struct nand_chip nand_chip;
@@ -1526,4 +1526,4 @@ void board_nand_init(void)
 		if (atmel_nand_chip_init(i, base_addr[i]))
 			log_err("atmel_nand: Fail to initialize #%d chip", i);
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */

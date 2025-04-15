@@ -55,7 +55,7 @@ static int dm_test_fdtdec_set_carveout(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdtdec_set_carveout,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
+	UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_FLAT_TREE);
 
 static int dm_test_fdtdec_add_reserved_memory(struct unit_test_state *uts)
 {
@@ -128,4 +128,4 @@ static int dm_test_fdtdec_add_reserved_memory(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_fdtdec_add_reserved_memory,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
+	UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_FLAT_TREE);

@@ -111,7 +111,7 @@ static int ddr_i2c_read(DEV_TYPE *dev, unsigned int addr,
 #if CONFIG_IS_ENABLED(DM_I2C)
 	ret = dm_i2c_read(dev, 0, buf, len);
 #else
-	ret = i2c_read(dev->chip, addr, alen, buf, len);
+	ret = 0;
 #endif
 
 	return ret;
@@ -162,7 +162,6 @@ static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 	};
 	dev = &ldev;
 
-	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
 #endif
 
 #ifdef CONFIG_SYS_FSL_DDR4
@@ -864,16 +863,16 @@ phys_size_t __fsl_ddr_sdram(fsl_ddr_info_t *pinfo)
 	if ((first_ctrl == 0) && (total_memory - 1 > (phys_size_t)~0ULL)) {
 		puts("Detected ");
 		print_size(total_memory, " of memory\n");
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 		puts("       "); /* re-align to match init_dram print */
 #endif
 		puts("This U-Boot only supports <= ");
 		print_size((unsigned long long)((phys_size_t)~0ULL)+1, " of DDR\n");
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 		puts("       "); /* re-align to match init_dram print */
 #endif
 		puts("You could rebuild it with CONFIG_PHYS_64BIT\n");
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 		puts("       "); /* re-align to match init_dram print */
 #endif
 	}

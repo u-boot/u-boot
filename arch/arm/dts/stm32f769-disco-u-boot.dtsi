@@ -23,16 +23,6 @@
 		spi0 = &qspi;
 	};
 
-	button1 {
-		compatible = "st,button1";
-		button-gpio = <&gpioa 0 0>;
-	};
-
-	led1 {
-		compatible = "st,led1";
-		led-gpio = <&gpioj 5 0>;
-	};
-
 	panel: panel {
 		compatible = "orisetech,otm8009a";
 		reset-gpios = <&gpioj 15 1>;

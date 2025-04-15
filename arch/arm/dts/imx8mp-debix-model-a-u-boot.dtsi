@@ -20,6 +20,14 @@
 	};
 };
 
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@25} {
+	bootph-pre-ram;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@25/regulators} {
+	bootph-pre-ram;
+};
+
 &crypto {
 	bootph-pre-ram;
 };
@@ -86,14 +94,6 @@
 
 &pinctrl_wdog {
 	bootph-pre-ram;
-};
-
-&pmic {
-	bootph-pre-ram;
-
-	regulators {
-		bootph-pre-ram;
-	};
 };
 
 &reg_usdhc2_vmmc {

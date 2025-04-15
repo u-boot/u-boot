@@ -14,6 +14,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <reset.h>
+#include <u-boot/schedule.h>
 #include <wait_bit.h>
 
 #define RIIC_ICCR1	0x00

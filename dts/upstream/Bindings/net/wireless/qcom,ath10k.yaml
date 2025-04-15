@@ -7,7 +7,6 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
 title: Qualcomm Technologies ath10k wireless devices
 
 maintainers:
-  - Kalle Valo <kvalo@kernel.org>
   - Jeff Johnson <jjohnson@kernel.org>
 
 description:
@@ -127,6 +126,11 @@ properties:
     description:
       Whether to skip executing an SCM call that reassigns the memory
       region ownership.
+
+  qcom,no-msa-ready-indicator:
+    type: boolean
+    description:
+      Don't wait for MSA_READY indicator to complete init.
 
   qcom,smem-states:
     $ref: /schemas/types.yaml#/definitions/phandle-array

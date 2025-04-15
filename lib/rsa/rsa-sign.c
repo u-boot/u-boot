@@ -428,6 +428,15 @@ static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 			ret = rsa_err("Signer padding setup failed");
 			goto err_sign;
 		}
+
+		/* Per RFC 3447 (and convention) the Typical salt length is the
+		 * length of the output of the digest algorithm.
+		 */
+		if (EVP_PKEY_CTX_set_rsa_pss_saltlen(ckey,
+						     checksum_algo->checksum_len) <= 0) {
+			ret = rsa_err("Signer salt length setup failed");
+			goto err_sign;
+		}
 	}
 
 	for (i = 0; i < region_count; i++) {

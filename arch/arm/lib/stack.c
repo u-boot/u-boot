@@ -11,14 +11,13 @@
  * Marius Groeger <mgroeger@sysgo.de>
  */
 #include <init.h>
-#include <lmb.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int arch_reserve_stacks(void)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	gd->start_addr_sp -= 128;	/* leave 32 words for abort-stack */
 	gd->irq_sp = gd->start_addr_sp;
 #else
@@ -32,17 +31,4 @@ int arch_reserve_stacks(void)
 #endif
 
 	return 0;
-}
-
-static ulong get_sp(void)
-{
-	ulong ret;
-
-	asm("mov %0, sp" : "=r"(ret) : );
-	return ret;
-}
-
-void arch_lmb_reserve(struct lmb *lmb)
-{
-	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 16384);
 }

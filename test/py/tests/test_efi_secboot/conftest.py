@@ -5,27 +5,25 @@
 """Fixture for UEFI secure boot test."""
 
 from subprocess import call, check_call, CalledProcessError
+from tests import fs_helper
 import pytest
 from defs import *
 
-@pytest.fixture(scope='session')
-def efi_boot_env(request, u_boot_config):
+@pytest.fixture(scope='function')
+def efi_boot_env(request, ubman):
     """Set up a file system to be used in UEFI secure boot test.
 
     Args:
         request: Pytest request object.
-        u_boot_config: U-Boot configuration.
+        ubman: U-Boot configuration.
 
     Return:
         A path to disk image to be used for testing
     """
-    image_path = u_boot_config.persistent_data_dir
-    image_path = image_path + '/test_efi_secboot.img'
 
     try:
-        mnt_point = u_boot_config.build_dir + '/mnt_efisecure'
-        check_call('rm -rf {}'.format(mnt_point), shell=True)
-        check_call('mkdir -p {}'.format(mnt_point), shell=True)
+        image_path, mnt_point = fs_helper.setup_image(ubman, 0, 0xc,
+                                                      basename='test_efi_secboot')
 
         # suffix
         # *.key: RSA private key in PEM
@@ -101,7 +99,7 @@ def efi_boot_env(request, u_boot_config):
 
         # Copy image
         check_call('cp %s/lib/efi_loader/helloworld.efi %s' %
-                   (u_boot_config.build_dir, mnt_point), shell=True)
+                   (ubman.config.build_dir, mnt_point), shell=True)
 
         # Sign image
         check_call('cd %s; sbsign --key db.key --cert db.crt helloworld.efi'
@@ -111,7 +109,7 @@ def efi_boot_env(request, u_boot_config):
                    % mnt_point, shell=True)
         # Create a corrupted signed image
         check_call('cd %s; sh %s/test/py/tests/test_efi_secboot/forge_image.sh helloworld.efi.signed helloworld_forged.efi.signed'
-                   % (mnt_point, u_boot_config.source_dir), shell=True)
+                   % (mnt_point, ubman.config.source_dir), shell=True)
         # Digest image
         check_call('cd %s; %shash-to-efi-sig-list helloworld.efi db_hello.hash; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key db db_hello.hash db_hello.auth'
                    % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
@@ -123,9 +121,9 @@ def efi_boot_env(request, u_boot_config):
                    % (mnt_point, EFITOOLS_PATH),
                    shell=True)
 
-        check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat {} {}'.format(
-            mnt_point, image_path), shell=True)
-        check_call('rm -rf {}'.format(mnt_point), shell=True)
+        fsfile = fs_helper.mk_fs(ubman.config, 'vfat', 0x1000000,
+                                 'test_efi_secboot', mnt_point)
+        check_call(f'dd if={fsfile} of={image_path} bs=1M seek=1', shell=True)
 
     except CalledProcessError as exception:
         pytest.skip('Setup failed: %s' % exception.cmd)
@@ -133,15 +131,16 @@ def efi_boot_env(request, u_boot_config):
     else:
         yield image_path
     finally:
-        call('rm -f %s' % image_path, shell=True)
+        call('rm -rf %s' % mnt_point, shell=True)
+        call('rm -f %s %s' % (image_path, fsfile), shell=True)
 
 #
 # Fixture for UEFI secure boot test of intermediate certificates
 #
 
 
-@pytest.fixture(scope='session')
-def efi_boot_env_intca(request, u_boot_config):
+@pytest.fixture(scope='function')
+def efi_boot_env_intca(request, ubman):
     """Set up file system for secure boot test.
 
     Set up a file system to be used in UEFI secure boot test
@@ -149,18 +148,15 @@ def efi_boot_env_intca(request, u_boot_config):
 
     Args:
         request: Pytest request object.
-        u_boot_config: U-Boot configuration.
+        ubman: U-Boot configuration.
 
     Return:
         A path to disk image to be used for testing
     """
-    image_path = u_boot_config.persistent_data_dir
-    image_path = image_path + '/test_efi_secboot_intca.img'
 
     try:
-        mnt_point = u_boot_config.persistent_data_dir + '/mnt_efi_secboot_intca'
-        check_call('rm -rf {}'.format(mnt_point), shell=True)
-        check_call('mkdir -p {}'.format(mnt_point), shell=True)
+        image_path, mnt_point = fs_helper.setup_image(ubman, 0, 0xc,
+                                                      basename='test_efi_secboot_intca')
 
         # Create signature database
         # PK
@@ -190,7 +186,7 @@ def efi_boot_env_intca(request, u_boot_config):
 
         # TestRoot
         check_call('cp %s/test/py/tests/test_efi_secboot/openssl.cnf %s'
-                   % (u_boot_config.source_dir, mnt_point), shell=True)
+                   % (ubman.config.source_dir, mnt_point), shell=True)
         check_call('cd %s; export OPENSSL_CONF=./openssl.cnf; openssl genrsa -out TestRoot.key 2048; openssl req -extensions v3_ca -new -x509 -days 365 -key TestRoot.key -out TestRoot.crt -subj "/CN=TEST_root/"; touch index.txt; touch index.txt.attr'
                    % mnt_point, shell=True)
         # TestSub
@@ -231,7 +227,7 @@ def efi_boot_env_intca(request, u_boot_config):
         # in SignedData
 
         check_call('cp %s/lib/efi_loader/helloworld.efi %s' %
-                   (u_boot_config.build_dir, mnt_point), shell=True)
+                   (ubman.config.build_dir, mnt_point), shell=True)
         # signed by TestCert
         check_call('cd %s; %ssbsign --key TestCert.key --cert TestCert.crt --out helloworld.efi.signed_a helloworld.efi'
                    % (mnt_point, SBSIGN_PATH), shell=True)
@@ -242,8 +238,9 @@ def efi_boot_env_intca(request, u_boot_config):
         check_call('cd %s; cat TestSub.crt TestRoot.crt > TestSubRoot.crt; %ssbsign --key TestCert.key --cert TestCert.crt --addcert TestSubRoot.crt --out helloworld.efi.signed_abc helloworld.efi'
                    % (mnt_point, SBSIGN_PATH), shell=True)
 
-        check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat {} {}'.format(mnt_point, image_path), shell=True)
-        check_call('rm -rf {}'.format(mnt_point), shell=True)
+        fsfile = fs_helper.mk_fs(ubman.config, 'vfat', 0x1000000,
+                                 'test_efi_secboot_intca', mnt_point)
+        check_call(f'dd if={fsfile} of={image_path} bs=1M seek=1', shell=True)
 
     except CalledProcessError as e:
         pytest.skip('Setup failed: %s' % e.cmd)
@@ -251,4 +248,5 @@ def efi_boot_env_intca(request, u_boot_config):
     else:
         yield image_path
     finally:
-        call('rm -f %s' % image_path, shell=True)
+        call('rm -rf %s' % mnt_point, shell=True)
+        call('rm -f %s %s' % (image_path, fsfile), shell=True)

@@ -88,7 +88,7 @@ int dram_init(void)
 
 	mmdc_init(&mparam);
 	gd->ram_size = CFG_SYS_SDRAM_SIZE;
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_SPL) || defined(CONFIG_XPL_BUILD)
 	/* This will break-before-make MMU for DDR */
 	update_early_mmu_table();
 #endif

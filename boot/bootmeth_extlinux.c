@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY UCLASS_BOOTSTD
 
+#include <asm/cache.h>
 #include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
@@ -20,6 +21,39 @@
 #include <mapmem.h>
 #include <mmc.h>
 #include <pxe_utils.h>
+
+struct extlinux_plat {
+	bool use_fallback;
+};
+
+enum extlinux_option_type {
+	EO_FALLBACK,
+	EO_INVALID
+};
+
+struct extlinux_option {
+	char *name;
+	enum extlinux_option_type option;
+};
+
+static const struct extlinux_option options[] = {
+	{"fallback", EO_FALLBACK},
+	{NULL, EO_INVALID}
+};
+
+static enum extlinux_option_type get_option(const char *option)
+{
+	int i = 0;
+
+	while (options[i].name) {
+		if (!strcmp(options[i].name, option))
+			return options[i].option;
+
+		i++;
+	}
+
+	return EO_INVALID;
+};
 
 static int extlinux_get_state_desc(struct udevice *dev, char *buf, int maxsize)
 {
@@ -35,7 +69,8 @@ static int extlinux_get_state_desc(struct udevice *dev, char *buf, int maxsize)
 }
 
 static int extlinux_getfile(struct pxe_context *ctx, const char *file_path,
-			    char *file_addr, ulong *sizep)
+			    char *file_addr, enum bootflow_img_t type,
+			    ulong *sizep)
 {
 	struct extlinux_info *info = ctx->userdata;
 	ulong addr;
@@ -46,7 +81,7 @@ static int extlinux_getfile(struct pxe_context *ctx, const char *file_path,
 	/* Allow up to 1GB */
 	*sizep = 1 << 30;
 	ret = bootmeth_read_file(info->dev, info->bflow, file_path, addr,
-				 sizep);
+				 type, sizep);
 	if (ret)
 		return log_msg_ret("read", ret);
 
@@ -73,15 +108,15 @@ static int extlinux_check(struct udevice *dev, struct bootflow_iter *iter)
  */
 static int extlinux_fill_info(struct bootflow *bflow)
 {
-	struct membuff mb;
+	struct membuf mb;
 	char line[200];
 	char *data;
 	int len;
 
 	log_debug("parsing bflow file size %x\n", bflow->size);
-	membuff_init(&mb, bflow->buf, bflow->size);
-	membuff_putraw(&mb, bflow->size, true, &data);
-	while (len = membuff_readline(&mb, line, sizeof(line) - 1, ' ', true), len) {
+	membuf_init(&mb, bflow->buf, bflow->size);
+	membuf_putraw(&mb, bflow->size, true, &data);
+	while (len = membuf_readline(&mb, line, sizeof(line) - 1, ' ', true), len) {
 		char *tok, *p = line;
 
 		tok = strsep(&p, " ");
@@ -126,7 +161,8 @@ static int extlinux_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		return log_msg_ret("try", ret);
 	size = bflow->size;
 
-	ret = bootmeth_alloc_file(bflow, 0x10000, 1);
+	ret = bootmeth_alloc_file(bflow, 0x10000, ARCH_DMA_MINALIGN,
+				  BFI_EXTLINUX_CFG);
 	if (ret)
 		return log_msg_ret("read", ret);
 
@@ -142,20 +178,56 @@ static int extlinux_boot(struct udevice *dev, struct bootflow *bflow)
 	struct cmd_tbl cmdtp = {};	/* dummy */
 	struct pxe_context ctx;
 	struct extlinux_info info;
+	struct extlinux_plat *plat;
 	ulong addr;
 	int ret;
 
 	addr = map_to_sysmem(bflow->buf);
 	info.dev = dev;
 	info.bflow = bflow;
+
+	plat = dev_get_plat(dev);
+
 	ret = pxe_setup_ctx(&ctx, &cmdtp, extlinux_getfile, &info, true,
-			    bflow->fname, false);
+			    bflow->fname, false, plat->use_fallback);
 	if (ret)
 		return log_msg_ret("ctx", -EINVAL);
 
 	ret = pxe_process(&ctx, addr, false);
 	if (ret)
 		return log_msg_ret("bread", -EINVAL);
+
+	return 0;
+}
+
+static int extlinux_set_property(struct udevice *dev, const char *property, const char *value)
+{
+	struct extlinux_plat *plat;
+	static enum extlinux_option_type option;
+
+	plat = dev_get_plat(dev);
+
+	option = get_option(property);
+	if (option == EO_INVALID) {
+		printf("Invalid option\n");
+		return -EINVAL;
+	}
+
+	switch (option) {
+	case EO_FALLBACK:
+		if (!strcmp(value, "1")) {
+			plat->use_fallback = true;
+		} else if (!strcmp(value, "0")) {
+			plat->use_fallback = false;
+		} else {
+			printf("Unexpected value '%s'\n", value);
+			return -EINVAL;
+		}
+		break;
+	default:
+		printf("Unrecognised property '%s'\n", property);
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -176,6 +248,7 @@ static struct bootmeth_ops extlinux_bootmeth_ops = {
 	.read_bootflow	= extlinux_read_bootflow,
 	.read_file	= bootmeth_common_read_file,
 	.boot		= extlinux_boot,
+	.set_property	= extlinux_set_property,
 };
 
 static const struct udevice_id extlinux_bootmeth_ids[] = {
@@ -190,4 +263,5 @@ U_BOOT_DRIVER(bootmeth_1extlinux) = {
 	.of_match	= extlinux_bootmeth_ids,
 	.ops		= &extlinux_bootmeth_ops,
 	.bind		= extlinux_bootmeth_bind,
+	.plat_auto	= sizeof(struct extlinux_plat)
 };

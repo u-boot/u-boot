@@ -40,7 +40,7 @@ int board_late_init(void)
 	ulong max_size;
 	u32 status = 0;
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SYSRESET_MICROBLAZE)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_SYSRESET_MICROBLAZE)
 	int ret;
 
 	ret = device_bind_driver(gd->dm_root, "mb_soft_reset",
@@ -57,7 +57,7 @@ int board_late_init(void)
 	max_size = gd->start_addr_sp - CONFIG_STACK_SIZE;
 	max_size = round_down(max_size, SZ_16M);
 
-	status |= env_set_hex("scriptaddr", max_size + SZ_2M);
+	status |= env_set_hex("scriptaddr", (max_size - gd->ram_base) + SZ_2M);
 
 	status |= env_set_hex("pxefile_addr_r", max_size + SZ_1M);
 

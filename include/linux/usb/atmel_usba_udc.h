@@ -20,6 +20,8 @@ struct usba_platform_data {
 	struct usba_ep_data	*ep;
 };
 
+#if !CONFIG_IS_ENABLED(DM_USB_GADGET)
 extern int usba_udc_probe(struct usba_platform_data *pdata);
+#endif
 
 #endif /* __LINUX_USB_USBA_H */

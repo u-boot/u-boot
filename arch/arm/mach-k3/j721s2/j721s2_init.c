@@ -312,9 +312,12 @@ void do_dt_magic(void)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void board_init_f(ulong dummy)
 {
+	struct udevice *dev;
+	int ret;
+
 	k3_spl_init();
 #if defined(CONFIG_SPL_OF_LIST) && defined(CONFIG_TI_I2C_BOARD_DETECT)
 	do_dt_magic();
@@ -325,6 +328,13 @@ void board_init_f(ulong dummy)
 		setup_navss_nb();
 
 	setup_qos();
+
+	if (IS_ENABLED(CONFIG_CPU_V7R) && IS_ENABLED(CONFIG_K3_AVS0)) {
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(k3_avs),
+						  &dev);
+		if (ret)
+			printf("AVS init failed: %d\n", ret);
+	}
 }
 #endif
 
@@ -397,7 +407,7 @@ u32 spl_boot_device(void)
 	u32 wkup_devstat = readl(CTRLMMR_WKUP_DEVSTAT);
 	u32 main_devstat;
 
-	if (wkup_devstat & WKUP_DEVSTAT_MCU_OMLY_MASK) {
+	if (wkup_devstat & WKUP_DEVSTAT_MCU_ONLY_MASK) {
 		printf("ERROR: MCU only boot is not yet supported\n");
 		return BOOT_DEVICE_RAM;
 	}

@@ -40,12 +40,21 @@ config XILINX_PS_INIT_FILE
 
 endif
 
+config XILINX_MINI
+	bool "Mini configuration"
+	depends on ARCH_ZYNQMP || ARCH_VERSAL || ARCH_VERSAL_NET || ARCH_VERSAL2
+	help
+	  This option disables features which are not needed for Mini U-Boot
+	  configurations. Mini U-Boot is running in EL3 mostly on size contrained
+	  systems. It's purpose is to program non volatile memories or running
+	  initial memory tests.
+
 config XILINX_OF_BOARD_DTB_ADDR
 	hex "Default DTB pickup address"
 	default 0x1000 if ARCH_VERSAL || ARCH_VERSAL_NET || ARCH_VERSAL2
 	default 0x8000 if MICROBLAZE
 	default 0x100000 if ARCH_ZYNQ || ARCH_ZYNQMP
-	default 0x23000000 if TARGET_XILINX_MBV
+	default 0x83000000 if TARGET_XILINX_MBV
 	depends on OF_BOARD || OF_SEPARATE
 	help
 	  Offset in the memory where the board configuration DTB is placed.

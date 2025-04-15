@@ -121,6 +121,11 @@ static int k3_avs_program_voltage(struct k3_avs_privdata *priv,
 	if (!vd->supply)
 		return -ENODEV;
 
+	if (!volt) {
+		dev_err(priv->dev, "No efuse found for opp_%d\n", opp_id);
+		return -EINVAL;
+	}
+
 	vd->opp = opp_id;
 	vd->flags |= VD_FLAG_INIT_DONE;
 
@@ -189,6 +194,33 @@ static int match_opp(struct vd_data *vd, u32 freq)
 
 	printf("No matching OPP found for freq %d.\n", freq);
 
+	return -EINVAL;
+}
+
+/**
+ * k3_check_opp: Check for presence of opp efuse
+ * @dev: AVS device
+ * @vdd_id: voltage domain ID
+ * @opp_id: opp id to check if voltage is present
+ *
+ * Checks to see if an opp has voltage. k3_avs probe will populate
+ * voltage data if efuse is present. Returns 0 if data is valid.
+ */
+int k3_avs_check_opp(struct udevice *dev, int vdd_id, int opp_id)
+{
+	struct k3_avs_privdata *priv = dev_get_priv(dev);
+	struct vd_data *vd;
+	int volt;
+
+	vd = get_vd(priv, vdd_id);
+	if (!vd)
+		return -EINVAL;
+
+	volt = vd->opps[opp_id].volt;
+	if (volt)
+		return 0;
+
+	printf("No efuse found for opp_%d\n", opp_id);
 	return -EINVAL;
 }
 
@@ -352,6 +384,9 @@ static int k3_avs_probe(struct udevice *dev)
 	struct k3_avs_privdata *priv;
 	struct vd_data *vd;
 	int ret;
+	ofnode node;
+	struct ofnode_phandle_args phandle_args;
+	int i = 0;
 
 	priv = dev_get_priv(dev);
 	priv->dev = dev;
@@ -367,6 +402,32 @@ static int k3_avs_probe(struct udevice *dev)
 		return -ENODEV;
 
 	for (vd = priv->vd_config->vds; vd->id >= 0; vd++) {
+		/* Get the clock and dev id for Jacinto platforms */
+		if (vd->id == J721E_VDD_MPU) {
+			node = ofnode_by_compatible(ofnode_null(), "ti,am654-rproc");
+			if (!ofnode_valid(node))
+				return -ENODEV;
+
+			i = ofnode_stringlist_search(node, "clock-names", "core");
+			if (i < 0)
+				return -ENODEV;
+
+			ret = ofnode_parse_phandle_with_args(node, "clocks",
+							     "#clock-cells",
+							     0, i,
+							     &phandle_args);
+			if (ret) {
+				printf("Couldn't get the clock node, ret = %d\n", ret);
+				return ret;
+			}
+
+			vd->dev_id = phandle_args.args[0];
+			vd->clk_id = phandle_args.args[1];
+
+			debug("%s: MPU dev_id: %d, clk_id: %d", __func__,
+			      vd->dev_id, vd->clk_id);
+		}
+
 		if (!(readl(AM6_VTM_DEVINFO(vd->id)) &
 		      AM6_VTM_AVS0_SUPPORTED)) {
 			dev_warn(dev, "AVS-class 0 not supported for VD%d\n",
@@ -391,7 +452,10 @@ static int k3_avs_probe(struct udevice *dev)
 		if (vd->flags & VD_FLAG_INIT_DONE)
 			continue;
 
-		k3_avs_program_voltage(priv, vd, vd->opp);
+		ret = k3_avs_program_voltage(priv, vd, vd->opp);
+		if (ret)
+			dev_warn(dev, "Could not program AVS voltage for VD%d, vd->opp=%d, ret=%d\n",
+				 vd->id, vd->opp, ret);
 	}
 
 	if (!device_is_compatible(priv->dev, "ti,am654-avs"))
@@ -460,9 +524,19 @@ static struct vd_data j721e_vd_data[] = {
 	{
 		.id = J721E_VDD_MPU,
 		.opp = AM6_OPP_NOM,
+		/*
+		 * XXX: DEPRECATION WARNING: Around 2 u-boot versions
+		 *
+		 * These values will be picked up from DT, kept for backward
+		 * compatibility
+		 */
 		.dev_id = 202, /* J721E_DEV_A72SS0_CORE0 */
 		.clk_id = 2, /* ARM clock */
 		.opps = {
+			[AM6_OPP_LOW] = {
+				.volt = 0, /* voltage TBD after OPP fuse reading */
+				.freq = 1000000000,
+			},
 			[AM6_OPP_NOM] = {
 				.volt = 880000, /* TBD in DM */
 				.freq = 2000000000,

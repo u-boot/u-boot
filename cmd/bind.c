@@ -10,8 +10,8 @@
 #include <dm/root.h>
 #include <dm/uclass-internal.h>
 
-static int bind_by_class_index(const char *uclass, int index,
-			       const char *drv_name)
+static int bind_by_class_seq(const char *uclass, int seq,
+			     const char *drv_name)
 {
 	static enum uclass_id uclass_id;
 	struct udevice *dev;
@@ -31,9 +31,9 @@ static int bind_by_class_index(const char *uclass, int index,
 		return -EINVAL;
 	}
 
-	ret = uclass_find_device(uclass_id, index, &parent);
+	ret = uclass_find_device_by_seq(uclass_id, seq, &parent);
 	if (!parent || ret) {
-		printf("Cannot find device %d of class %s\n", index, uclass);
+		printf("Cannot find device %d of class %s\n", seq, uclass);
 		return ret;
 	}
 
@@ -47,7 +47,7 @@ static int bind_by_class_index(const char *uclass, int index,
 	return 0;
 }
 
-static int find_dev(const char *uclass, int index, struct udevice **devp)
+static int find_dev(const char *uclass, int seq, struct udevice **devp)
 {
 	static enum uclass_id uclass_id;
 	int rc;
@@ -58,21 +58,21 @@ static int find_dev(const char *uclass, int index, struct udevice **devp)
 		return -EINVAL;
 	}
 
-	rc = uclass_find_device(uclass_id, index, devp);
+	rc = uclass_find_device_by_seq(uclass_id, seq, devp);
 	if (!*devp || rc) {
-		printf("Cannot find device %d of class %s\n", index, uclass);
+		printf("Cannot find device %d of class %s\n", seq, uclass);
 		return rc;
 	}
 
 	return 0;
 }
 
-static int unbind_by_class_index(const char *uclass, int index)
+static int unbind_by_class_seq(const char *uclass, int seq)
 {
 	int ret;
 	struct udevice *dev;
 
-	ret = find_dev(uclass, index, &dev);
+	ret = find_dev(uclass, seq, &dev);
 	if (ret)
 		return ret;
 
@@ -91,8 +91,8 @@ static int unbind_by_class_index(const char *uclass, int index)
 	return 0;
 }
 
-static int unbind_child_by_class_index(const char *uclass, int index,
-				       const char *drv_name)
+static int unbind_child_by_class_seq(const char *uclass, int seq,
+				     const char *drv_name)
 {
 	struct udevice *parent;
 	int ret;
@@ -104,7 +104,7 @@ static int unbind_child_by_class_index(const char *uclass, int index,
 		return -ENOENT;
 	}
 
-	ret = find_dev(uclass, index, &parent);
+	ret = find_dev(uclass, seq, &parent);
 	if (ret)
 		return ret;
 
@@ -217,19 +217,19 @@ static int do_bind_unbind(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_USAGE;
 		ret = unbind_by_node_path(argv[1]);
 	} else if (!by_node && bind) {
-		int index = (argc > 2) ? dectoul(argv[2], NULL) : 0;
+		int seq = (argc > 2) ? dectoul(argv[2], NULL) : 0;
 
 		if (argc != 4)
 			return CMD_RET_USAGE;
-		ret = bind_by_class_index(argv[1], index, argv[3]);
+		ret = bind_by_class_seq(argv[1], seq, argv[3]);
 	} else if (!by_node && !bind) {
-		int index = (argc > 2) ? dectoul(argv[2], NULL) : 0;
+		int seq = (argc > 2) ? dectoul(argv[2], NULL) : 0;
 
 		if (argc == 3)
-			ret = unbind_by_class_index(argv[1], index);
+			ret = unbind_by_class_seq(argv[1], seq);
 		else if (argc == 4)
-			ret = unbind_child_by_class_index(argv[1], index,
-							  argv[3]);
+			ret = unbind_child_by_class_seq(argv[1], seq,
+							argv[3]);
 		else
 			return CMD_RET_USAGE;
 	}
@@ -244,17 +244,17 @@ U_BOOT_CMD(
 	bind,	4,	0,	do_bind_unbind,
 	"Bind a device to a driver",
 	"<node path> <driver>\n"
-	"bind <class> <index> <driver>\n"
+	"bind <class> <seq> <driver>\n"
 	"Use 'dm tree' to list all devices registered in the driver model,\n"
-	"their path, class, index and current driver.\n"
+	"their path, class, sequence and current driver.\n"
 );
 
 U_BOOT_CMD(
 	unbind,	4,	0,	do_bind_unbind,
 	"Unbind a device from a driver",
 	"<node path>\n"
-	"unbind <class> <index>\n"
-	"unbind <class> <index> <driver>\n"
+	"unbind <class> <seq>\n"
+	"unbind <class> <seq> <driver>\n"
 	"Use 'dm tree' to list all devices registered in the driver model,\n"
-	"their path, class, index and current driver.\n"
+	"their path, class, sequence and current driver.\n"
 );

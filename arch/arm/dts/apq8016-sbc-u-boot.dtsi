@@ -6,7 +6,7 @@
 / {
 	/* When running as a first-stage bootloader this isn't filled in automatically */
 	memory@80000000 {
-		reg = <0 0x80000000 0 0x3da00000>;
+		reg = <0 0x80000000 0 0x40000000>;
 	};
 };
 

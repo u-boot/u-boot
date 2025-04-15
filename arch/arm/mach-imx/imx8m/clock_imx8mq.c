@@ -611,7 +611,7 @@ void dram_disable_bypass(void)
 			     CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV5));
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void dram_pll_init(ulong pll_val)
 {
 	u32 val;
@@ -791,7 +791,7 @@ int clock_init(void)
 /*
  * Dump some clockes.
  */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int do_imx8m_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
 			       char *const argv[])
 {

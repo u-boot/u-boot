@@ -1,0 +1,7 @@
+LIBRE-COMPUTER AML-S905D3-CC
+M:	Neil Armstrong <neil.armstrong@linaro.org>
+S:	Maintained
+L:	u-boot-amlogic@groups.io
+F:	board/amlogic/aml-s905d3-cc/
+F:	configs/aml-s905d3-cc_defconfig
+F:	doc/board/amlogic/aml-s905d3-cc.rst

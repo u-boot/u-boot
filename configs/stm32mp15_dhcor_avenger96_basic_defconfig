@@ -1,0 +1,4 @@
+#include <configs/stm32mp15_dhcor_basic.config>
+
+CONFIG_DEFAULT_DEVICE_TREE="st/stm32mp157a-dhcor-avenger96"
+CONFIG_OF_LIST="st/stm32mp157a-dhcor-avenger96"

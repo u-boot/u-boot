@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (c) 2025, Junhui Liu <junhui.liu@pigmoral.tech>
+
+config CANAAN_K230
+	bool
+	select ARCH_EARLY_INIT_R
+	select BINMAN
+	imply CPU
+	imply CPU_RISCV
+	imply RISCV_TIMER
+	imply CMD_CPU
+	imply SYSRESET
+	imply SYSRESET_SYSCON

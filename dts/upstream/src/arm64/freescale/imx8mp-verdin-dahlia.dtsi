@@ -4,6 +4,18 @@
  */
 
 / {
+	native-hdmi-connector {
+		compatible = "hdmi-connector";
+		label = "X21";
+		type = "a";
+
+		port {
+			native_hdmi_connector_in: endpoint {
+				remote-endpoint = <&hdmi_tx_out>;
+			};
+		};
+	};
+
 	sound {
 		compatible = "simple-audio-card";
 		simple-audio-card,bitclock-master = <&codec_dai>;
@@ -16,10 +28,10 @@
 			"Headphone Jack", "HPOUTR",
 			"IN2L", "Line In Jack",
 			"IN2R", "Line In Jack",
-			"Headphone Jack", "MICBIAS",
-			"IN1L", "Headphone Jack";
+			"Microphone Jack", "MICBIAS",
+			"IN1L", "Microphone Jack";
 		simple-audio-card,widgets =
-			"Microphone", "Headphone Jack",
+			"Microphone", "Microphone Jack",
 			"Headphone", "Headphone Jack",
 			"Line", "Line In Jack";
 
@@ -51,6 +63,11 @@
 		regulator-name = "PCIE_1_PWR_EN";
 		startup-delay-us = <100000>;
 	};
+};
+
+/* Verdin HDMI_1 Audio */
+&aud2htx {
+	status = "okay";
 };
 
 &backlight {
@@ -92,6 +109,27 @@
 &gpio4 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ctrl_sleep_moci>;
+};
+
+/* Verdin HDMI_1 */
+&hdmi_pvi {
+	status = "okay";
+};
+
+&hdmi_tx {
+	status = "okay";
+
+	ports {
+		port@1 {
+			hdmi_tx_out: endpoint {
+				remote-endpoint = <&native_hdmi_connector_in>;
+			};
+		};
+	};
+};
+
+&hdmi_tx_phy {
+	status = "okay";
 };
 
 /* Current measurement into module VCC */
@@ -139,6 +177,10 @@
 	status = "okay";
 };
 
+&lcdif3 {
+	status = "okay";
+};
+
 /* Verdin PCIE_1 */
 &pcie {
 	vpcie-supply = <&reg_pcie>;
@@ -179,6 +221,11 @@
 	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
 	assigned-clock-rates = <24576000>;
 	fsl,sai-mclk-direction-output;
+	status = "okay";
+};
+
+/* Verdin HDMI_1 Audio */
+&sound_hdmi {
 	status = "okay";
 };
 

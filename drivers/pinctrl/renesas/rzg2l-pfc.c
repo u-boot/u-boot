@@ -180,7 +180,7 @@ static const u32 r9a07g044_gpio_configs[] = {
 	RZG2L_GPIO_PORT_PACK(3, 0x21, RZG2L_MPXED_PIN_FUNCS),
 	RZG2L_GPIO_PORT_PACK(2, 0x22, RZG2L_MPXED_PIN_FUNCS),
 	RZG2L_GPIO_PORT_PACK(2, 0x23, RZG2L_MPXED_PIN_FUNCS),
-	RZG2L_GPIO_PORT_PACK(3, 0x24, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
+	RZG2L_GPIO_PORT_PACK(3, 0x24, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0) | PIN_CFG_OEN),
 	RZG2L_GPIO_PORT_PACK(2, 0x25, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
 	RZG2L_GPIO_PORT_PACK(2, 0x26, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
 	RZG2L_GPIO_PORT_PACK(2, 0x27, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
@@ -189,7 +189,7 @@ static const u32 r9a07g044_gpio_configs[] = {
 	RZG2L_GPIO_PORT_PACK(2, 0x2a, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
 	RZG2L_GPIO_PORT_PACK(2, 0x2b, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
 	RZG2L_GPIO_PORT_PACK(2, 0x2c, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
-	RZG2L_GPIO_PORT_PACK(2, 0x2d, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1)),
+	RZG2L_GPIO_PORT_PACK(2, 0x2d, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1) | PIN_CFG_OEN),
 	RZG2L_GPIO_PORT_PACK(2, 0x2e, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1)),
 	RZG2L_GPIO_PORT_PACK(2, 0x2f, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1)),
 	RZG2L_GPIO_PORT_PACK(2, 0x30, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1)),
@@ -381,7 +381,7 @@ static int rzg2l_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 	}
 
 	switch (param) {
-	case PIN_CONFIG_INPUT_ENABLE: {
+	case PIN_CONFIG_INPUT_ENABLE:
 		if (!(cfg & PIN_CFG_IEN)) {
 			dev_err(dev, "pin does not support IEN\n");
 			return -EINVAL;
@@ -391,21 +391,12 @@ static int rzg2l_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 			port_offset, pin, argument);
 		rzg2l_rmw_pin_config(data, IEN(port_offset), pin, IEN_MASK, !!argument);
 		break;
-	}
 
 	case PIN_CONFIG_POWER_SOURCE: {
-		u32 pwr_reg = 0x0;
+		bool support_2500 = false;
+		u32 pwr_reg;
+		u32 value;
 
-		/* argument is in mV */
-		if (argument != 1800 && argument != 3300) {
-			dev_err(dev, "Invalid mV %u\n", argument);
-			return -EINVAL;
-		}
-
-		/*
-		 * TODO: PIN_CFG_IO_VMC_ETH0 & PIN_CFG_IO_VMC_ETH1 will be
-		 * handled when the RZ/G2L Ethernet driver is added.
-		 */
 		if (cfg & PIN_CFG_IO_VMC_SD0) {
 			dev_dbg(dev, "port off %u:%u set SD_CH 0 PVDD=%u\n",
 				port_offset, pin, argument);
@@ -418,13 +409,68 @@ static int rzg2l_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 			dev_dbg(dev, "port off %u:%u set QSPI PVDD=%u\n",
 				port_offset, pin, argument);
 			pwr_reg = QSPI;
+		} else if (cfg & PIN_CFG_IO_VMC_ETH0) {
+			dev_dbg(dev, "port off %u:%u set ETH0 PVDD=%u\n",
+				port_offset, pin, argument);
+			pwr_reg = ETH_POC(0);
+			support_2500 = true;
+		} else if (cfg & PIN_CFG_IO_VMC_ETH1) {
+			dev_dbg(dev, "port off %u:%u set ETH1 PVDD=%u\n",
+				port_offset, pin, argument);
+			pwr_reg = ETH_POC(1);
+			support_2500 = true;
 		} else {
-			dev_dbg(dev, "pin power source is not selectable\n");
+			dev_dbg(dev, "port off %u:%u PVDD is not selectable\n",
+				port_offset, pin);
 			return -EINVAL;
 		}
 
-		writel((argument == 1800) ? PVDD_1800 : PVDD_3300,
-		       data->base + pwr_reg);
+		/* argument is in mV */
+		switch (argument) {
+		case 1800:
+			value = PVDD_1800;
+			break;
+		case 3300:
+			value = PVDD_3300;
+			break;
+		case 2500:
+			if (support_2500) {
+				value = PVDD_2500;
+				break;
+			}
+			fallthrough;
+		default:
+			dev_err(dev, "Invalid mV %u\n", argument);
+			return -EINVAL;
+		}
+
+		writel(value, data->base + pwr_reg);
+		break;
+	}
+
+	case PIN_CONFIG_OUTPUT_ENABLE: {
+		u8 ch;
+
+		if (!(cfg & PIN_CFG_OEN)) {
+			dev_err(dev, "pin does not support OEN\n");
+			return -EINVAL;
+		}
+
+		/*
+		 * We can determine which Ethernet interface we're dealing with from
+		 * the caps.
+		 */
+		if (cfg & PIN_CFG_IO_VMC_ETH0)
+			ch = 0;
+		else /* PIN_CFG_IO_VMC_ETH1 */
+			ch = 1;
+
+		dev_dbg(dev, "set ETH%u TXC OEN=%u\n", ch, argument);
+		if (argument)
+			clrbits_8(data->base + ETH_MODE, BIT(ch));
+		else
+			setbits_8(data->base + ETH_MODE, BIT(ch));
+
 		break;
 	}
 
@@ -521,6 +567,7 @@ static int rzg2l_get_pin_muxing(struct udevice *dev, unsigned int selector,
 
 static const struct pinconf_param rzg2l_pinconf_params[] = {
 	{ "input-enable",	PIN_CONFIG_INPUT_ENABLE,	1 },
+	{ "output-enable",	PIN_CONFIG_OUTPUT_ENABLE,	1 },
 	{ "power-source",	PIN_CONFIG_POWER_SOURCE,	3300 /* mV */ },
 };
 

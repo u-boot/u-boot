@@ -1,0 +1,15 @@
+if TARGET_IMX8MP_NAVQP
+
+config SYS_BOARD
+	default "imx8mp_navqp"
+
+config SYS_VENDOR
+	default "emcraft"
+
+config SYS_CONFIG_NAME
+	default "imx8mp_navqp"
+
+config IMX_CONFIG
+	default "board/emcraft/imx8mp_navqp/imximage-8mp-lpddr4.cfg"
+
+endif

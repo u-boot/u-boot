@@ -96,10 +96,12 @@ int scene_calc_dims(struct scene *scn, bool do_menus);
  * if not already done
  *
  * @scn: Scene to update
+ * @arr: Arrangement information
  * @menu: Menu to process
  * Returns: 0 if OK, -ve on error
  */
-int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu);
+int scene_menu_arrange(struct scene *scn, struct expo_arrange_info *arr,
+		       struct scene_obj_menu *menu);
 
 /**
  * scene_textline_arrange() - Set the position of things in a textline
@@ -108,10 +110,12 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu);
  * positioned correctly relative to the textline.
  *
  * @scn: Scene to update
+ * @arr: Arrangement information
  * @tline: textline to process
  * Returns: 0 if OK, -ve on error
  */
-int scene_textline_arrange(struct scene *scn, struct scene_obj_textline *tline);
+int scene_textline_arrange(struct scene *scn, struct expo_arrange_info *arr,
+			   struct scene_obj_textline *tline);
 
 /**
  * scene_apply_theme() - Apply a theme to a scene
@@ -278,6 +282,16 @@ struct scene_menitem *scene_menuitem_find_seq(const struct scene_obj_menu *menu,
 					      uint seq);
 
 /**
+ * scene_menuitem_find_val() - Find the menu item with a given value
+ *
+ * @menu: Menu to check
+ * @find_val: Value to look for
+ * Return: menu item if found, else NULL
+ */
+struct scene_menitem *scene_menuitem_find_val(const struct scene_obj_menu *menu,
+					      int val);
+
+/**
  * scene_bbox_union() - update bouding box with the demensions of an object
  *
  * Updates @bbox so that it encompasses the bounding box of object @id
@@ -357,5 +371,17 @@ int scene_textline_open(struct scene *scn, struct scene_obj_textline *tline);
  * Return: 0 if OK, -ve on error
  */
 int scene_textline_close(struct scene *scn, struct scene_obj_textline *tline);
+
+/**
+ * scene_calc_arrange() - Calculate sizes needed to arrange a scene
+ *
+ * Checks the size of some objects and stores this info to help with a later
+ * scene arrangement
+ *
+ * @scn: Scene to check
+ * @arr: Place to put scene-arrangement info
+ * Returns: 0 if OK, -ve on error
+ */
+int scene_calc_arrange(struct scene *scn, struct expo_arrange_info *arr);
 
 #endif /* __SCENE_INTERNAL_H */

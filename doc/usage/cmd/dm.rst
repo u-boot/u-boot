@@ -112,9 +112,8 @@ This shows the full tree of devices including the following fields:
 uclass
     Shows the name of the uclass for the device
 
-Index
-    Shows the index number of the device, within the uclass. This shows the
-    ordering within the uclass, but not the sequence number.
+Seq
+    Shows the sequence number of the device, within the uclass.
 
 Probed
     Shows `+` if the device is active
@@ -366,7 +365,7 @@ dm tree
 This example shows the abridged sandbox output::
 
     => dm tree
-    Class     Index  Probed  Driver                Name
+    Class     Seq    Probed  Driver                Name
     -----------------------------------------------------------
     root          0  [ + ]   root_driver           root_driver
     demo          0  [   ]   demo_shape_drv        |-- demo_shape_drv

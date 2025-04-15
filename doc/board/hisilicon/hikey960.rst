@@ -32,7 +32,7 @@ First get all the sources
 
   mkdir -p ~/hikey960/src ~/hikey960/bin
   cd ~/hikey960/src
-  git clone https://github.com/ARM-software/arm-trusted-firmware
+  git clone https://github.com/TrustedFirmware-A/trusted-firmware-a
   git clone https://github.com/96boards-hikey/OpenPlatformPkg -b testing/hikey960_v1.3.4
   git clone https://github.com/96boards-hikey/l-loader -b testing/hikey960_v1.2
   wget http://snapshots.linaro.org/reference-platform/components/uefi-staging/123/hikey960/release/config
@@ -64,7 +64,7 @@ Compile ARM Trusted Firmware (ATF)
 
 .. code-block:: bash
 
-  cd ~/hikey960/src/arm-trusted-firmware
+  cd ~/hikey960/src/trusted-firmware-a
   make CROSS_COMPILE=aarch64-linux-gnu- all fip \
     SCP_BL2=~/hikey960/bin/lpm3.img \
     BL33=~/hikey960/bin/u-boot.bin DEBUG=1 PLAT=hikey960
@@ -81,9 +81,9 @@ Compile l-loader
 .. code-block:: bash
 
   cd ~/hikey960/src/l-loader
-  ln -sf ~/hikey960/src/arm-trusted-firmware/build/hikey960/debug/bl1.bin
-  ln -sf ~/hikey960/src/arm-trusted-firmware/build/hikey960/debug/bl2.bin
-  ln -sf ~/hikey960/src/arm-trusted-firmware/build/hikey960/debug/fip.bin
+  ln -sf ~/hikey960/src/trusted-firmware-a/build/hikey960/debug/bl1.bin
+  ln -sf ~/hikey960/src/trusted-firmware-a/build/hikey960/debug/bl2.bin
+  ln -sf ~/hikey960/src/trusted-firmware-a/build/hikey960/debug/fip.bin
   ln -sf ~/hikey960/bin/u-boot.bin
   make hikey960 PTABLE_LST=linux-32g NS_BL1U=u-boot.bin
 
@@ -95,7 +95,7 @@ Copy the resulting binaries
   cp l-loader.bin ~/hikey960/bin
 
 These instructions are adapted from
-https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/plat/hikey960.rst
+https://github.com/TrustedFirmware-A/trusted-firmware-a/blob/master/docs/plat/hikey960.rst
 
 Setup console
 =============

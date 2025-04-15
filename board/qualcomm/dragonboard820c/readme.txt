@@ -16,10 +16,7 @@
                      Build & Run instructions
 ================================================================================
 
-1) Install mkbootimg and dtbTool from Codeaurora:
-
-   git://codeaurora.org/quic/kernel/skales
-   commit 8492547e404e969262d9070dee9bdd15668bb70f worked for me.
+1) Install mkbootimg
 
 2) Setup CROSS_COMPILE to aarch64 compiler or if you use ccache just do
    CROSS_COMPILE="ccache aarch64-linux-gnu-"
@@ -33,15 +30,15 @@
 
    $ touch rd
 
-5) Generate qualcomm device tree table with dtbTool
+5) Append the dtb to the u-boot binary discarding the internal dtb.
 
-   $ dtbTool -o dt.img arch/arm/dts
+   $ gzip u-boot-nodtb.bin
+   $ cat u-boot.dtb >> u-boot-nodtb.bin.gz
 
 6) Generate Android boot image with mkbootimg:
 
-   $ mkbootimg --kernel=u-boot-dtb.bin             \
+   $ mkbootimg --kernel=u-boot-nodtb.bin.gz          \
                --output=u-boot.img                 \
-               --dt=dt.img                         \
                --pagesize 4096                     \
                --base 0x80000000                   \
                --ramdisk=rd                        \
@@ -251,44 +248,42 @@ Wait for 5 seconds before proceeding
 [5300] booting linux @ 0x80080000, ramdisk @ 0x82200000 (0), tags/device tree @ 0x82000000
 [5310] Jumping to kernel via monitor
 
-U-Boot 2017.11-00145-ge895117 (Nov 29 2017 - 10:04:06 +0100)
+U-Boot 2025.04-rc5-00020-g40a61ca0e7eb-dirty (Apr 07 2025 - 09:37:03 +0200)
 Qualcomm-DragonBoard 820C
 
-DRAM:  3 GiB
-PSCI:  v1.0
-MMC:   sdhci@74a4900: 0
+DRAM:  3.5 GiB (effective 3 GiB)
+Core:  136 devices, 18 uclasses, devicetree: board
+MMC:   Bulk clocks not available (-19), trying core clock
+mmc@74a4900: 0
+Loading Environment from EXT4... OK
 In:    serial@75b0000
 Out:   serial@75b0000
 Err:   serial@75b0000
-Net:   Net Initialization Skipped
-No ethernet found.
+Net:   No ethernet found.
 Hit any key to stop autoboot:  0
 switch to partitions #0, OK
 mmc0 is current device
 Scanning mmc 0:1...
 Found /extlinux/extlinux.conf
 Retrieving file: /extlinux/extlinux.conf
-433 bytes read in 71 ms (5.9 KiB/s)
 1:      nfs root
-
+Enter choice: 1:        nfs root
 Retrieving file: /uImage
-19397184 bytes read in 2024 ms (9.1 MiB/s)
-append: root=/dev/nfs rw nfsroot=192.168.1.2:/db820c/rootfs,v3,tcp rootwait ip=dhcp consoleblank=0 console=tty0 console=ttyMSM0,115200n8 earlyprintk earlycon=msm_serial_dm,0x75b0000 androidboot.bootdevice=624000.ufshc androidboot.verifiedbootstate=orange androidboot.ver0
-
+append: root=/dev/nfs rw nfsroot=192.168.1.6:/home/jramirez/Src/qualcomm-lt/db820c/rootfs,v3,tcp rootwait ip=dhcp consoleblank=0 console=tty0 console=ttyMSM0,115200n8 earlyprintk earlyco0
 Retrieving file: /apq8096-db820c.dtb
-38134 bytes read in 37 ms (1005.9 KiB/s)
-
-## Booting kernel from Legacy Image at 95000000 ...
+## Booting kernel from Legacy Image at 155000000 ...
    Image Name:   Dragonboard820c
    Image Type:   AArch64 Linux Kernel Image (uncompressed)
    Data Size:    19397120 Bytes = 18.5 MiB
    Load Address: 80080000
    Entry Point:  80080000
    Verifying Checksum ... OK
-## Flattened Device Tree blob at 93000000
-   Booting using the fdt blob at 0x93000000
-   Loading Kernel Image ... OK
-   Using Device Tree in place at 0000000093000000, end 000000009300c4f5
+## Flattened Device Tree blob at 148600000
+   Booting using the fdt blob at 0x148600000
+Working FDT set to 148600000
+   Loading Kernel Image to 80080000
+   Using Device Tree in place at 0000000148600000, end 000000014860c4f5
+Working FDT set to 148600000
 
 Starting kernel ...
 

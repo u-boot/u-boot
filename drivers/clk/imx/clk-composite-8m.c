@@ -151,7 +151,7 @@ const struct clk_ops imx8m_clk_mux_ops = {
 	.set_parent = imx8m_clk_mux_set_parent,
 };
 
-struct clk *imx8m_clk_composite_flags(const char *name,
+struct clk *imx8m_clk_composite_flags(struct udevice *dev, const char *name,
 				      const char * const *parent_names,
 				      int num_parents, void __iomem *reg,
 				      unsigned long flags)
@@ -187,7 +187,7 @@ struct clk *imx8m_clk_composite_flags(const char *name,
 	gate->reg = reg;
 	gate->bit_idx = PCG_CGC_SHIFT;
 
-	clk = clk_register_composite(NULL, name,
+	clk = clk_register_composite(dev, name,
 				     parent_names, num_parents,
 				     &mux->clk, &imx8m_clk_mux_ops, &div->clk,
 				     &imx8m_clk_composite_divider_ops,

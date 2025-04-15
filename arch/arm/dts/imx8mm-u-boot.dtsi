@@ -122,6 +122,7 @@
 
 			binman_imx_fit: fit {
 				description = "Configuration to load ATF before U-Boot";
+				filename = "u-boot.itb";
 #ifndef CONFIG_IMX_HAB
 				fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
 #endif
@@ -163,6 +164,22 @@
 					};
 #endif
 
+#ifdef CONFIG_OPTEE
+					tee: tee {
+						description = "OP-TEE";
+						type = "tee";
+						arch = "arm64";
+						compression = "none";
+						os = "tee";
+						load = <CONFIG_IMX8M_OPTEE_LOAD_ADDR>;
+						entry = <CONFIG_IMX8M_OPTEE_LOAD_ADDR>;
+
+						tee-os {
+							filename = "tee.bin";
+						};
+					};
+#endif
+
 					binman_fip: fip {
 						arch = "arm64";
 						compression = "none";
@@ -191,7 +208,11 @@
 						fdt = "fdt-SEQ";
 						firmware = "uboot";
 #ifndef CONFIG_ARMV8_PSCI
+#ifdef CONFIG_OPTEE
+						loadables = "atf", "tee";
+#else
 						loadables = "atf";
+#endif
 #endif
 					};
 				};

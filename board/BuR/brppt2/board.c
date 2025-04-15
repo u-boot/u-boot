@@ -16,7 +16,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 # include <asm/arch/mx6-ddr.h>
 #endif
 #include <asm/arch/clock.h>
@@ -82,7 +82,7 @@
 
 #define MUXDESC(pad, ctrl)	IOMUX_PADS(pad | MUX_PAD_CTRL(ctrl))
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 static iomux_v3_cfg_t const eth_pads[] = {
 	/*
 	 * Gigabit Ethernet
@@ -542,4 +542,4 @@ void board_init_f(ulong dummy)
 void reset_cpu(void)
 {
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */

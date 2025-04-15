@@ -104,7 +104,7 @@ enum bt_mode get_boot_mode(void)
 
 bool m33_image_booted(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD)) {
 		u32 gp6 = 0;
 
 		/* DGO_GP6 */
@@ -124,7 +124,7 @@ bool m33_image_booted(void)
 
 bool rdc_enabled_in_boot(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD)) {
 		u32 val = 0;
 		int ret;
 		bool rdc_en = true; /* Default assume DBD_EN is set */
@@ -146,7 +146,7 @@ bool rdc_enabled_in_boot(void)
 
 static void spl_pass_boot_info(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD)) {
 		bool m33_booted = m33_image_booted();
 		bool rdc_en = rdc_enabled_in_boot();
 		u32 val = 0;
@@ -164,7 +164,7 @@ static void spl_pass_boot_info(void)
 bool is_m33_handshake_necessary(void)
 {
 	/* Only need handshake in u-boot */
-	if (!IS_ENABLED(CONFIG_SPL_BUILD))
+	if (!IS_ENABLED(CONFIG_XPL_BUILD))
 		return (m33_image_booted() || rdc_enabled_in_boot());
 	else
 		return false;
@@ -716,7 +716,7 @@ void set_lpav_qos(void)
 
 int arch_cpu_init(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD)) {
 		/* Enable System Reset Interrupt using WDOG_AD */
 		setbits_le32(CMC1_BASE_ADDR + 0x8C, BIT(13));
 		/* Clear AD_PERIPH Power switch domain out of reset interrupt flag */
@@ -805,7 +805,7 @@ int imx8ulp_dm_post_init(void)
 }
 EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, imx8ulp_dm_post_init);
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	debug("image entry point: 0x%lx\n", spl_image->entry_point);

@@ -35,7 +35,7 @@
 /* NS16550 Configuration */
 #define CFG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 /* USB Device Firmware Update support */
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
@@ -63,7 +63,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #include <env/ti/dfu.h>
 
 #define CFG_EXTRA_ENV_SETTINGS \

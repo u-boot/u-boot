@@ -102,7 +102,7 @@ static const struct __prci_clock_ops sifive_fu740_prci_pcieaux_clk_ops = {
 };
 
 /* List of clock controls provided by the PRCI */
-struct __prci_clock __prci_init_clocks_fu740[] = {
+static struct __prci_clock __prci_init_clocks_fu740[] = {
 	[FU740_PRCI_CLK_COREPLL] = {
 		.name = "corepll",
 		.parent_name = "hfclk",
@@ -155,4 +155,9 @@ struct __prci_clock __prci_init_clocks_fu740[] = {
 		.ops = &sifive_fu740_prci_pcieaux_clk_ops,
 		.pwd = &__prci_pcieaux_data,
 	}
+};
+
+const struct prci_clk_desc prci_clk_fu740 = {
+	.clks = __prci_init_clocks_fu740,
+	.num_clks = ARRAY_SIZE(__prci_init_clocks_fu740),
 };

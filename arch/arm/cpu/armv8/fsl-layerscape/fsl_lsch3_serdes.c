@@ -25,7 +25,7 @@ static u8 serdes2_prtcl_map[SERDES_PRCTL_COUNT];
 static u8 serdes3_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_XPL_BUILD)
 #if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 int xfi_dpmac[XFI14 + 1];
 int sgmii_dpmac[SGMII18 + 1];
@@ -162,7 +162,7 @@ void serdes_init(u32 sd, u32 sd_addr, u32 rcwsr, u32 sd_prctl_mask,
 			debug("Unknown SerDes lane protocol %d\n", lane_prtcl);
 		else {
 			serdes_prtcl_map[lane_prtcl] = 1;
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_XPL_BUILD)
 #if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
 			if (lane_prtcl >= XFI1 && lane_prtcl <= XFI14)
 				wriop_init_dpmac(sd, xfi_dpmac[lane_prtcl],
@@ -553,7 +553,7 @@ int setup_serdes_volt(u32 svdd)
 
 void fsl_serdes_init(void)
 {
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_XPL_BUILD)
 	int i , j;
 
 #if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)

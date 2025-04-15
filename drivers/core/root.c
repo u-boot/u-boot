@@ -147,6 +147,13 @@ int dm_remove_devices_flags(uint flags)
 
 	return 0;
 }
+
+void dm_remove_devices_active(void)
+{
+	/* Remove non-vital devices first */
+	device_remove(dm_root(), DM_REMOVE_ACTIVE_ALL | DM_REMOVE_NON_VITAL);
+	device_remove(dm_root(), DM_REMOVE_ACTIVE_ALL);
+}
 #endif
 
 int dm_scan_plat(bool pre_reloc_only)
@@ -281,6 +288,16 @@ void *dm_priv_to_rw(void *priv)
 }
 #endif
 
+/**
+ * dm_probe_devices() - Check whether to probe a device and all children
+ *
+ * Probes the device if DM_FLAG_PROBE_AFTER_BIND is enabled for it. Then scans
+ * all its children recursively to do the same.
+ *
+ * @dev: Device to (maybe) probe
+ * @pre_reloc_only: Probe only devices marked with the DM_FLAG_PRE_RELOC flag
+ * Return 0 if OK, -ve on error
+ */
 static int dm_probe_devices(struct udevice *dev, bool pre_reloc_only)
 {
 	ofnode node = dev_ofnode(dev);
@@ -301,6 +318,17 @@ static int dm_probe_devices(struct udevice *dev, bool pre_reloc_only)
 probe_children:
 	list_for_each_entry(child, &dev->child_head, sibling_node)
 		dm_probe_devices(child, pre_reloc_only);
+
+	return 0;
+}
+
+int dm_autoprobe(void)
+{
+	int ret;
+
+	ret = dm_probe_devices(gd->dm_root, !(gd->flags & GD_FLG_RELOC));
+	if (ret)
+		return log_msg_ret("pro", ret);
 
 	return 0;
 }
@@ -337,7 +365,7 @@ static int dm_scan(bool pre_reloc_only)
 	if (ret)
 		return ret;
 
-	return dm_probe_devices(gd->dm_root, pre_reloc_only);
+	return 0;
 }
 
 int dm_init_and_scan(bool pre_reloc_only)

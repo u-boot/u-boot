@@ -6,6 +6,8 @@
 #ifndef __ASM_ARCH_IMX9_GPIO_H
 #define __ASM_ARCH_IMX9_GPIO_H
 
+#include <linux/types.h>
+
 struct gpio_regs {
 	u32 gpio_pdor;
 	u32 gpio_psor;

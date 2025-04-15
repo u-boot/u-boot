@@ -511,6 +511,27 @@ static int do_efi_show_images(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+/**
+ * do_efi_show_defaults() - show UEFI default filename and PXE architecture
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "defaults" sub-command.
+ * Shows the default EFI filename and PXE architecture
+ */
+static int do_efi_show_defaults(struct cmd_tbl *cmdtp, int flag,
+				int argc, char *const argv[])
+{
+	printf("Default boot path: EFI\\BOOT\\%s\n", efi_get_basename());
+	printf("PXE arch: 0x%02x\n", efi_get_pxe_arch());
+
+	return CMD_RET_SUCCESS;
+}
+
 static const char * const efi_mem_type_string[] = {
 	[EFI_RESERVED_MEMORY_TYPE] = "RESERVED",
 	[EFI_LOADER_CODE] = "LOADER CODE",
@@ -534,18 +555,19 @@ static const struct efi_mem_attrs {
 	const char *text;
 } efi_mem_attrs[] = {
 	{EFI_MEMORY_UC, "UC"},
-	{EFI_MEMORY_UC, "UC"},
 	{EFI_MEMORY_WC, "WC"},
 	{EFI_MEMORY_WT, "WT"},
 	{EFI_MEMORY_WB, "WB"},
 	{EFI_MEMORY_UCE, "UCE"},
 	{EFI_MEMORY_WP, "WP"},
 	{EFI_MEMORY_RP, "RP"},
-	{EFI_MEMORY_XP, "WP"},
+	{EFI_MEMORY_XP, "XP"},
 	{EFI_MEMORY_NV, "NV"},
 	{EFI_MEMORY_MORE_RELIABLE, "REL"},
 	{EFI_MEMORY_RO, "RO"},
 	{EFI_MEMORY_SP, "SP"},
+	{EFI_MEMORY_CPU_CRYPTO, "CRYPT"},
+	{EFI_MEMORY_HOT_PLUGGABLE, "HOTPL"},
 	{EFI_MEMORY_RUNTIME, "RT"},
 };
 
@@ -665,7 +687,7 @@ enum efi_lo_dp_part {
 };
 
 /**
- * create_lo_dp() - create a special device path for our Boot### option
+ * create_lo_dp_part() - create a special device path for our Boot### option
  *
  * @dev:	device
  * @part:	disk partition
@@ -1127,7 +1149,7 @@ static void show_efi_boot_opt(u16 *varname16)
 }
 
 /**
- * show_efi_boot_dump() - dump all UEFI load options
+ * do_efi_boot_dump() - dump all UEFI load options
  *
  * @cmdtp:	Command table
  * @flag:	Command flag
@@ -1561,6 +1583,8 @@ static struct cmd_tbl cmd_efidebug_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(dh, CONFIG_SYS_MAXARGS, 1, do_efi_show_handles,
 			 "", ""),
+	U_BOOT_CMD_MKENT(defaults, CONFIG_SYS_MAXARGS, 1, do_efi_show_defaults,
+			 "", ""),
 	U_BOOT_CMD_MKENT(images, CONFIG_SYS_MAXARGS, 1, do_efi_show_images,
 			 "", ""),
 	U_BOOT_CMD_MKENT(memmap, CONFIG_SYS_MAXARGS, 1, do_efi_show_memmap,
@@ -1653,6 +1677,8 @@ U_BOOT_LONGHELP(efidebug,
 	"  - show UEFI drivers\n"
 	"efidebug dh\n"
 	"  - show UEFI handles\n"
+	"efidebug defaults\n"
+	"  - show default EFI filename and PXE architecture\n"
 	"efidebug images\n"
 	"  - show loaded images\n"
 	"efidebug memmap\n"

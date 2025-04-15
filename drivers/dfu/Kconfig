@@ -7,7 +7,7 @@ config DFU
 config DFU_OVER_USB
 	bool
 	select HASH
-	depends on USB_GADGET
+	depends on USB_GADGET_DOWNLOAD
 
 config DFU_OVER_TFTP
 	bool
@@ -20,6 +20,7 @@ config DFU_WRITE_ALT
 config DFU_TFTP
 	bool "DFU via TFTP"
 	depends on NETDEVICES
+	depends on !NET_LWIP
 	select UPDATE_COMMON
 	select DFU_OVER_TFTP
 	help
@@ -85,6 +86,13 @@ config DFU_VIRT
 	bool "VIRTUAL flash back end for DFU"
 	help
 	  This option enables using DFU to read and write to VIRTUAL device
+	  used at board level to manage specific behavior
+	  (OTP update for example).
+
+config DFU_SCSI
+	bool "SCSI flash back end for DFU"
+	help
+	  This option enables using DFU to read and write to SCSI devices
 	  used at board level to manage specific behavior
 	  (OTP update for example).
 

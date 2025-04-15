@@ -7,7 +7,7 @@
 # test, at shutdown etc. These hooks perform functions such as:
 # - Parsing custom command-line options.
 # - Pullilng in user-specified board configuration.
-# - Creating the U-Boot console test fixture.
+# - Creating the ubman test fixture.
 # - Creating the HTML log file.
 # - Monitoring each test's results.
 # - Implementing custom pytest markers.
@@ -23,13 +23,19 @@ from pathlib import Path
 import pytest
 import re
 from _pytest.runner import runtestprotocol
+import subprocess
 import sys
+from spawn import BootFail, Timeout, Unexpected, handle_exception
+import time
 
-# Globals: The HTML log file, and the connection to the U-Boot console.
+# Globals: The HTML log file, and the top-level fixture
 log = None
-console = None
+ubman_fix = None
 
 TEST_PY_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Regex for test-function symbols
+RE_UT_TEST_LIST = re.compile(r'[^a-zA-Z0-9_]_u_boot_list_2_ut_(.*)_2_(.*)\s*$')
 
 def mkdir_p(path):
     """Create a directory path.
@@ -64,12 +70,16 @@ def pytest_addoption(parser):
 
     parser.addoption('--build-dir', default=None,
         help='U-Boot build directory (O=)')
+    parser.addoption('--build-dir-extra', default=None,
+        help='U-Boot build directory for extra build (O=)')
     parser.addoption('--result-dir', default=None,
         help='U-Boot test result/tmp directory')
     parser.addoption('--persistent-data-dir', default=None,
         help='U-Boot test persistent generated data directory')
     parser.addoption('--board-type', '--bd', '-B', default='sandbox',
         help='U-Boot board type')
+    parser.addoption('--board-type-extra', '--bde', default='sandbox',
+        help='U-Boot extra board type')
     parser.addoption('--board-identity', '--id', default='na',
         help='U-Boot board identity/instance')
     parser.addoption('--build', default=False, action='store_true',
@@ -79,6 +89,12 @@ def pytest_addoption(parser):
     parser.addoption('--gdbserver', default=None,
         help='Run sandbox under gdbserver. The argument is the channel '+
         'over which gdbserver should communicate, e.g. localhost:1234')
+    parser.addoption('--role', help='U-Boot board role (for Labgrid-sjg)')
+    parser.addoption('--use-running-system', default=False, action='store_true',
+        help="Assume that U-Boot is ready and don't wait for a prompt")
+    parser.addoption('--timing', default=False, action='store_true',
+                     help='Show info on test timing')
+
 
 def run_build(config, source_dir, build_dir, board_type, log):
     """run_build: Build U-Boot
@@ -115,14 +131,87 @@ def run_build(config, source_dir, build_dir, board_type, log):
         runner.close()
         log.status_pass('OK')
 
+def get_details(config):
+    """Obtain salient details about the board and directories to use
+
+    Args:
+        config (pytest.Config): pytest configuration
+
+    Returns:
+        tuple:
+            str: Board type (U-Boot build name)
+            str: Extra board type (where two U-Boot builds are needed)
+            str: Identity for the lab board
+            str: Build directory
+            str: Extra build directory (where two U-Boot builds are needed)
+            str: Source directory
+    """
+    role = config.getoption('role')
+
+    # Get a few provided parameters
+    build_dir = config.getoption('build_dir')
+    build_dir_extra = config.getoption('build_dir_extra')
+
+    # The source tree must be the current directory
+    source_dir = os.path.dirname(os.path.dirname(TEST_PY_DIR))
+    if role:
+        # When using a role, build_dir and build_dir_extra are normally not set,
+        # since they are picked up from Labgrid-sjg via the u-boot-test-getrole
+        # script
+        board_identity = role
+        cmd = ['u-boot-test-getrole', role, '--configure']
+        env = os.environ.copy()
+        if build_dir:
+            env['U_BOOT_BUILD_DIR'] = build_dir
+        if build_dir_extra:
+            env['U_BOOT_BUILD_DIR_EXTRA'] = build_dir_extra
+
+	# Make sure the script sees that it is being run from pytest
+        env['U_BOOT_SOURCE_DIR'] = source_dir
+
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT, encoding='utf-8',
+                              env=env)
+        if proc.returncode:
+            raise ValueError(f"Error {proc.returncode} running {cmd}: '{proc.stderr} '{proc.stdout}'")
+        # For debugging
+        # print('conftest: lab:', proc.stdout)
+        vals = {}
+        for line in proc.stdout.splitlines():
+            item, value = line.split(' ', maxsplit=1)
+            k = item.split(':')[-1]
+            vals[k] = value
+        # For debugging
+        # print('conftest: lab info:', vals)
+
+        # Read the build directories here, in case none were provided in the
+        # command-line arguments
+        (board_type, board_type_extra, default_build_dir,
+         default_build_dir_extra) = (vals['board'],
+            vals['board_extra'], vals['build_dir'], vals['build_dir_extra'])
+    else:
+        board_type = config.getoption('board_type')
+        board_type_extra = config.getoption('board_type_extra')
+        board_identity = config.getoption('board_identity')
+
+        default_build_dir = source_dir + '/build-' + board_type
+        default_build_dir_extra = source_dir + '/build-' + board_type_extra
+
+    # Use the provided command-line arguments if present, else fall back to
+    if not build_dir:
+        build_dir = default_build_dir
+    if not build_dir_extra:
+        build_dir_extra = default_build_dir_extra
+
+    return (board_type, board_type_extra, board_identity, build_dir,
+            build_dir_extra, source_dir)
+
 def pytest_xdist_setupnodes(config, specs):
     """Clear out any 'done' file from a previous build"""
     global build_done_file
-    build_dir = config.getoption('build_dir')
-    board_type = config.getoption('board_type')
-    source_dir = os.path.dirname(os.path.dirname(TEST_PY_DIR))
-    if not build_dir:
-        build_dir = source_dir + '/build-' + board_type
+
+    build_dir = get_details(config)[3]
+
     build_done_file = Path(build_dir) / 'build.done'
     if build_done_file.exists():
         os.remove(build_done_file)
@@ -158,20 +247,14 @@ def pytest_configure(config):
             ubconfig.buildconfig.update(parser.items('root'))
 
     global log
-    global console
+    global ubman_fix
     global ubconfig
 
-    source_dir = os.path.dirname(os.path.dirname(TEST_PY_DIR))
+    (board_type, board_type_extra, board_identity, build_dir, build_dir_extra,
+     source_dir) = get_details(config)
 
-    board_type = config.getoption('board_type')
     board_type_filename = board_type.replace('-', '_')
-
-    board_identity = config.getoption('board_identity')
     board_identity_filename = board_identity.replace('-', '_')
-
-    build_dir = config.getoption('build_dir')
-    if not build_dir:
-        build_dir = source_dir + '/build-' + board_type
     mkdir_p(build_dir)
 
     result_dir = config.getoption('result_dir')
@@ -206,19 +289,26 @@ def pytest_configure(config):
     ubconfig = ArbitraryAttributeContainer()
     ubconfig.brd = dict()
     ubconfig.env = dict()
+    not_found = []
 
-    modules = [
-        (ubconfig.brd, 'u_boot_board_' + board_type_filename),
-        (ubconfig.env, 'u_boot_boardenv_' + board_type_filename),
-        (ubconfig.env, 'u_boot_boardenv_' + board_type_filename + '_' +
-            board_identity_filename),
-    ]
-    for (dict_to_fill, module_name) in modules:
-        try:
-            module = __import__(module_name)
-        except ImportError:
-            continue
-        dict_to_fill.update(module.__dict__)
+    with log.section('Loading lab modules', 'load_modules'):
+        modules = [
+            (ubconfig.brd, 'u_boot_board_' + board_type_filename),
+            (ubconfig.env, 'u_boot_boardenv_' + board_type_filename),
+            (ubconfig.env, 'u_boot_boardenv_' + board_type_filename + '_' +
+                board_identity_filename),
+        ]
+        for (dict_to_fill, module_name) in modules:
+            try:
+                module = __import__(module_name)
+            except ImportError:
+                not_found.append(module_name)
+                continue
+            dict_to_fill.update(module.__dict__)
+            log.info(f"Loaded {module}")
+
+        if not_found:
+            log.warning(f"Failed to find modules: {' '.join(not_found)}")
 
     ubconfig.buildconfig = dict()
 
@@ -233,19 +323,27 @@ def pytest_configure(config):
     ubconfig.test_py_dir = TEST_PY_DIR
     ubconfig.source_dir = source_dir
     ubconfig.build_dir = build_dir
+    ubconfig.build_dir_extra = build_dir_extra
     ubconfig.result_dir = result_dir
     ubconfig.persistent_data_dir = persistent_data_dir
     ubconfig.board_type = board_type
+    ubconfig.board_type_extra = board_type_extra
     ubconfig.board_identity = board_identity
     ubconfig.gdbserver = gdbserver
+    ubconfig.use_running_system = config.getoption('use_running_system')
     ubconfig.dtb = build_dir + '/arch/sandbox/dts/test.dtb'
+    ubconfig.connection_ok = True
+    ubconfig.timing = config.getoption('timing')
+    ubconfig.role = config.getoption('role')
 
     env_vars = (
         'board_type',
+        'board_type_extra',
         'board_identity',
         'source_dir',
         'test_py_dir',
         'build_dir',
+        'build_dir_extra',
         'result_dir',
         'persistent_data_dir',
     )
@@ -253,13 +351,13 @@ def pytest_configure(config):
         os.environ['U_BOOT_' + v.upper()] = getattr(ubconfig, v)
 
     if board_type.startswith('sandbox'):
-        import u_boot_console_sandbox
-        console = u_boot_console_sandbox.ConsoleSandbox(log, ubconfig)
+        import console_sandbox
+        ubman_fix = console_sandbox.ConsoleSandbox(log, ubconfig)
     else:
-        import u_boot_console_exec_attach
-        console = u_boot_console_exec_attach.ConsoleExecAttach(log, ubconfig)
+        import console_board
+        ubman_fix = console_board.ConsoleExecAttach(log, ubconfig)
 
-re_ut_test_list = re.compile(r'[^a-zA-Z0-9_]_u_boot_list_2_ut_(.*)_test_2_(.*)\s*$')
+
 def generate_ut_subtest(metafunc, fixture_name, sym_path):
     """Provide parametrization for a ut_subtest fixture.
 
@@ -276,7 +374,7 @@ def generate_ut_subtest(metafunc, fixture_name, sym_path):
     Returns:
         Nothing.
     """
-    fn = console.config.build_dir + sym_path
+    fn = ubman_fix.config.build_dir + sym_path
     try:
         with open(fn, 'rt') as f:
             lines = f.readlines()
@@ -286,7 +384,7 @@ def generate_ut_subtest(metafunc, fixture_name, sym_path):
 
     vals = []
     for l in lines:
-        m = re_ut_test_list.search(l)
+        m = RE_UT_TEST_LIST.search(l)
         if not m:
             continue
         suite, name = m.groups()
@@ -317,8 +415,8 @@ def generate_config(metafunc, fixture_name):
     """
 
     subconfigs = {
-        'brd': console.config.brd,
-        'env': console.config.env,
+        'brd': ubman_fix.config.brd,
+        'env': ubman_fix.config.env,
     }
     parts = fixture_name.split('__')
     if len(parts) < 2:
@@ -380,7 +478,7 @@ def u_boot_log(request):
          The fixture value.
      """
 
-     return console.log
+     return ubman_fix.log
 
 @pytest.fixture(scope='session')
 def u_boot_config(request):
@@ -393,11 +491,11 @@ def u_boot_config(request):
          The fixture value.
      """
 
-     return console.config
+     return ubman_fix.config
 
 @pytest.fixture(scope='function')
-def u_boot_console(request):
-    """Generate the value of a test's u_boot_console fixture.
+def ubman(request):
+    """Generate the value of a test's ubman fixture.
 
     Args:
         request: The pytest request.
@@ -405,9 +503,22 @@ def u_boot_console(request):
     Returns:
         The fixture value.
     """
-
-    console.ensure_spawned()
-    return console
+    if not ubconfig.connection_ok:
+        pytest.skip('Cannot get target connection')
+        return None
+    try:
+        ubman_fix.ensure_spawned()
+    except OSError as err:
+        handle_exception(ubconfig, ubman_fix, log, err, 'Lab failure', True)
+    except Timeout as err:
+        handle_exception(ubconfig, ubman_fix, log, err, 'Lab timeout', True)
+    except BootFail as err:
+        handle_exception(ubconfig, ubman_fix, log, err, 'Boot fail', True,
+                         ubman.get_spawn_output())
+    except Unexpected:
+        handle_exception(ubconfig, ubman_fix, log, err, 'Unexpected test output',
+                         False)
+    return ubman_fix
 
 anchors = {}
 tests_not_run = []
@@ -417,6 +528,12 @@ tests_xfailed = []
 tests_skipped = []
 tests_warning = []
 tests_passed = []
+
+# Duration of each test:
+#    key (string): test name
+#    value (float): duration in ms
+test_durations = {}
+
 
 def pytest_itemcollected(item):
     """pytest hook: Called once for each test found during collection.
@@ -433,6 +550,73 @@ def pytest_itemcollected(item):
 
     tests_not_run.append(item.name)
 
+
+def show_timings():
+    """Write timings for each test, along with a histogram"""
+
+    def get_time_delta(msecs):
+        """Convert milliseconds into a user-friendly string"""
+        if msecs >= 1000:
+            return f'{msecs / 1000:.1f}s'
+        else:
+            return f'{msecs:.0f}ms'
+
+    def show_bar(key, msecs, value):
+        """Show a single bar (line) of the histogram
+
+        Args:
+            key (str): Key to write on the left
+            value (int): Value to display, i.e. the relative length of the bar
+        """
+        if value:
+            bar_length = int((value / max_count) * max_bar_length)
+            print(f"{key:>8} : {get_time_delta(msecs):>7}  |{'#' * bar_length} {value}", file=buf)
+
+    # Create the buckets we will use, each has a count and a total time
+    bucket = {}
+    for power in range(5):
+        for i in [1, 2, 3, 4, 5, 7.5]:
+            bucket[i * 10 ** power] = {'count': 0, 'msecs': 0.0}
+    max_dur = max(bucket.keys())
+
+    # Collect counts for each bucket; if outside the range, add to too_long
+    # Also show a sorted list of test timings from longest to shortest
+    too_long = 0
+    too_long_msecs = 0.0
+    max_count = 0
+    with log.section('Timing Report', 'timing_report'):
+        for name, dur in sorted(test_durations.items(), key=lambda kv: kv[1],
+                                reverse=True):
+            log.info(f'{get_time_delta(dur):>8}  {name}')
+            greater = [k for k in bucket.keys() if dur <= k]
+            if greater:
+                buck = bucket[min(greater)]
+                buck['count'] += 1
+                max_count = max(max_count, buck['count'])
+                buck['msecs'] += dur
+            else:
+                too_long += 1
+                too_long_msecs += dur
+
+    # Set the maximum length of a histogram bar, in characters
+    max_bar_length = 40
+
+    # Show a a summary with histogram
+    buf = io.StringIO()
+    with log.section('Timing Summary', 'timing_summary'):
+        print('Duration :   Total  | Number of tests', file=buf)
+        print(f'{"=" * 8} : {"=" * 7}  |{"=" * max_bar_length}', file=buf)
+        for dur, buck in bucket.items():
+            if buck['count']:
+                label = get_time_delta(dur)
+                show_bar(f'<{label}', buck['msecs'], buck['count'])
+        if too_long:
+            show_bar(f'>{get_time_delta(max_dur)}', too_long_msecs, too_long)
+        log.info(buf.getvalue())
+    if ubconfig.timing:
+        print(buf.getvalue(), end='')
+
+
 def cleanup():
     """Clean up all global state.
 
@@ -447,8 +631,8 @@ def cleanup():
         Nothing.
     """
 
-    if console:
-        console.close()
+    if ubman_fix:
+        ubman_fix.close()
     if log:
         with log.section('Status Report', 'status_report'):
             log.status_pass('%d passed' % len(tests_passed))
@@ -482,6 +666,7 @@ def cleanup():
                 for test in tests_not_run:
                     anchor = anchors.get(test, None)
                     log.status_fail('... ' + test, anchor)
+        show_timings()
         log.close()
 atexit.register(cleanup)
 
@@ -576,6 +761,26 @@ def setup_singlethread(item):
         if worker_id and worker_id != 'master':
             pytest.skip('must run single-threaded')
 
+def setup_role(item):
+    """Process any 'role' marker for a test.
+
+    Skip this test if the role does not match.
+
+    Args:
+        item (pytest.Item): The pytest test item
+    """
+    required_roles = []
+    for roles in item.iter_markers('role'):
+        role = roles.args[0]
+        if role.startswith('!'):
+            if ubconfig.role == role[1:]:
+                pytest.skip(f'role "{ubconfig.role}" not supported')
+                return
+        else:
+            required_roles.append(role)
+    if required_roles and ubconfig.role not in required_roles:
+        pytest.skip(f'board "{ubconfig.role}" not supported')
+
 def start_test_section(item):
     anchors[item.name] = log.start_section(item.name)
 
@@ -597,6 +802,7 @@ def pytest_runtest_setup(item):
     setup_buildconfigspec(item)
     setup_requiredtool(item)
     setup_singlethread(item)
+    setup_role(item)
 
 def pytest_runtest_protocol(item, nextitem):
     """pytest hook: Called to execute a test.
@@ -615,7 +821,9 @@ def pytest_runtest_protocol(item, nextitem):
     log.get_and_reset_warning()
     ihook = item.ihook
     ihook.pytest_runtest_logstart(nodeid=item.nodeid, location=item.location)
+    start = time.monotonic()
     reports = runtestprotocol(item, nextitem=nextitem)
+    duration = round((time.monotonic() - start) * 1000, 1)
     ihook.pytest_runtest_logfinish(nodeid=item.nodeid, location=item.location)
     was_warning = log.get_and_reset_warning()
 
@@ -628,6 +836,7 @@ def pytest_runtest_protocol(item, nextitem):
         start_test_section(item)
 
     failure_cleanup = False
+    record_duration = True
     if not was_warning:
         test_list = tests_passed
         msg = 'OK'
@@ -658,9 +867,14 @@ def pytest_runtest_protocol(item, nextitem):
             test_list = tests_skipped
             msg = 'SKIPPED:\n' + str(report.longrepr)
             msg_log = log.status_skipped
+            record_duration = False
+
+    msg += f' {duration} ms'
+    if record_duration:
+        test_durations[item.name] = duration
 
     if failure_cleanup:
-        console.drain_console()
+        ubman_fix.drain_console()
 
     test_list.append(item.name)
     tests_not_run.remove(item.name)
@@ -670,7 +884,7 @@ def pytest_runtest_protocol(item, nextitem):
     except:
         # If something went wrong with logging, it's better to let the test
         # process continue, which may report other exceptions that triggered
-        # the logging issue (e.g. console.log wasn't created). Hence, just
+        # the logging issue (e.g. ubman_fix.log wasn't created). Hence, just
         # squash the exception. If the test setup failed due to e.g. syntax
         # error somewhere else, this won't be seen. However, once that issue
         # is fixed, if this exception still exists, it will then be logged as
@@ -683,6 +897,6 @@ def pytest_runtest_protocol(item, nextitem):
     log.end_section(item.name)
 
     if failure_cleanup:
-        console.cleanup_spawn()
+        ubman_fix.cleanup_spawn()
 
     return True

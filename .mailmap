@@ -36,10 +36,13 @@ Bin Meng <bmeng.cn@gmail.com> <bin.meng@windriver.com>
 Boris Brezillon <bbrezillon@kernel.org> <boris.brezillon@bootlin.com>
 Boris Brezillon <bbrezillon@kernel.org> <boris.brezillon@free-electrons.com>
 Christian Kohn <chris.kohn@amd.com> <christian.kohn@xilinx.com>
+Christopher Obbard <christopher.obbard@linaro.org> <chris.obbard@collabora.com>
 Dirk Behme <dirk.behme@googlemail.com>
 Durga Challa <durga.challa@amd.com> <vnsl.durga.challa@xilinx.com>
-Eugen Hristev <eugen.hristev@collabora.com> <eugen.hristev@microchip.com>
+Eugen Hristev <eugen.hristev@linaro.org> <eugen.hristev@microchip.com>
+Eugen Hristev <eugen.hristev@linaro.org> <eugen.hristev@collabora.com>
 Fabio Estevam <fabio.estevam@nxp.com>
+Greg Malysa <malysagreg@gmail.com> <greg.malysa@timesys.com>
 Harini Katakam <harini.katakam@amd.com> <harini.katakam@xilinx.com>
 Harsha <harsha.harsha@amd.com> <harsha.harsha@xilinx.com>
 Heiko Stuebner <heiko.stuebner@cherry.de> <heiko.stuebner@theobroma-systems.com>
@@ -73,6 +76,7 @@ Marek Vasut <marex@denx.de> <marex at denx.de>
 Markus Klotzbuecher <mk@denx.de>
 Masahiro Yamada <masahiroy@kernel.org> <yamada.masahiro@socionext.com>
 Masahiro Yamada <masahiroy@kernel.org> <yamada.m@jp.panasonic.com>
+Mattijs Korpershoek <mkorpershoek@kernel.org> <mkorpershoek@baylibre.com>
 Michal Simek <michal.simek@amd.com> <Monstr@seznam.cz>
 Michal Simek <michal.simek@amd.com> <michal.simek@xilinx.com>
 Michal Simek <michal.simek@amd.com> <monstr@monstr.eu>
@@ -88,6 +92,7 @@ Neil Armstrong <neil.armstrong@linaro.org> <narmstrong@baylibre.com>
 Nicolas Saenz Julienne <nsaenz@kernel.org> <nsaenzjulienne@suse.de>
 This contributor prefers not to receive mails <noreply@example.com> <pali@kernel.org>
 This contributor prefers not to receive mails <noreply@example.com> <pali.rohar@gmail.com>
+Padmarao Begari <padmarao.begari@amd.com> <padmarao.begari@microchip.com>
 Patrice Chotard <patrice.chotard@foss.st.com> <patrice.chotard@st.com>
 Patrick Delaunay <patrick.delaunay@foss.st.com> <patrick.delaunay@st.com>
 Paul Burton <paul.burton@mips.com> <paul.burton@imgtec.com>
@@ -120,6 +125,7 @@ Srinivas Neeli <srinivas.neeli@amd.com> <srinivas.neeli@xilinx.com>
 Stefan Roese <sr@denx.de> <stroese>
 Stefano Babic <sbabic@denx.de>
 Stefano Stabellini <stefano.stabellini@amd.com> <stefano.stabellini@xilinx.com>
+Sumit Garg <sumit.garg@kernel.org> <sumit.garg@linaro.org>
 Tom Rini <trini@konsulko.com> <trini@ti.com>
 Tomas Thoresen <tomas.thoresen@amd.com> <tomast@xilinx.com>
 TsiChung Liew <Tsi-Chung.Liew@freescale.com>

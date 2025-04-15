@@ -71,6 +71,13 @@ extern void __chk_io_ptr(const volatile void __iomem *);
 #endif
 
 /*
+ * At least gcc 5.1 or clang 8 are needed.
+ */
+#ifndef COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW
+#error Unsupported compiler
+#endif
+
+/*
  * Some architectures need to provide custom definitions of macros provided
  * by linux/compiler-*.h, and can do so using asm/compiler.h. We include that
  * conditionally rather than using an asm-generic wrapper in order to avoid

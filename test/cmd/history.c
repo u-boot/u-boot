@@ -45,4 +45,4 @@ static int lib_test_history(struct unit_test_state *uts)
 
 	return 0;
 }
-LIB_TEST(lib_test_history, UT_TESTF_CONSOLE_REC);
+LIB_TEST(lib_test_history, UTF_CONSOLE);

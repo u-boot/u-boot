@@ -18,7 +18,7 @@
 #include <linux/libfdt.h>
 #include <spl.h>
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)

@@ -1,0 +1,4 @@
+#include <configs/dh_imx6.config>
+
+CONFIG_DEFAULT_DEVICE_TREE="nxp/imx/imx6dl-dhcom-picoitx"
+CONFIG_OF_LIST="nxp/imx/imx6dl-dhcom-picoitx"

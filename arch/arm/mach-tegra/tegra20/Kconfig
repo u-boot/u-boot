@@ -17,6 +17,9 @@ config TEGRA_UARTA_GPU
 config TEGRA_UARTA_SDIO1
 	bool
 
+config TEGRA_UARTA_SDB_SDD
+	bool
+
 choice
 	prompt "Tegra20 board select"
 	optional
@@ -29,8 +32,16 @@ config TARGET_MEDCOM_WIDE
 	bool "Avionic Design Medcom-Wide board"
 	select BOARD_LATE_INIT
 
+config TARGET_MOT
+	bool "Motorola Tegra20 board"
+	select BOARD_LATE_INIT
+
 config TARGET_PAZ00
 	bool "Paz00 board"
+	select BOARD_LATE_INIT
+
+config TARGET_PICASSO
+	bool "Acer Tegra20 Picasso board"
 	select BOARD_LATE_INIT
 
 config TARGET_PLUTUX
@@ -72,7 +83,9 @@ config SYS_SOC
 
 source "board/nvidia/harmony/Kconfig"
 source "board/avionic-design/medcom-wide/Kconfig"
+source "board/motorola/mot/Kconfig"
 source "board/compal/paz00/Kconfig"
+source "board/acer/picasso/Kconfig"
 source "board/avionic-design/plutux/Kconfig"
 source "board/nvidia/seaboard/Kconfig"
 source "board/avionic-design/tec/Kconfig"

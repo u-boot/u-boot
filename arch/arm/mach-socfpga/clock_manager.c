@@ -99,7 +99,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void)
 }
 #endif
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int do_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {

@@ -11,13 +11,15 @@
 #include <blkmap.h>
 #include <charset.h>
 #include <dm.h>
+#include <efi.h>
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
-#include <efi_default_filename.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <asm/unaligned.h>
+#include <linux/kernel.h>
+#include <linux/sizes.h>
 
 static const struct efi_boot_services *bs;
 static const struct efi_runtime_services *rs;
@@ -82,8 +84,12 @@ struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
 				 &efi_simple_file_system_protocol_guid, &rem);
 	if (handle) {
 		if (rem->type == DEVICE_PATH_TYPE_END) {
-			full_path = efi_dp_from_file(device_path,
-						     "/EFI/BOOT/" BOOTEFI_NAME);
+			char fname[30];
+
+			snprintf(fname, sizeof(fname), "/EFI/BOOT/%s",
+				 efi_get_basename());
+			full_path = efi_dp_from_file(device_path, fname);
+
 		} else {
 			full_path = efi_dp_dup(device_path);
 		}
@@ -344,6 +350,7 @@ static efi_status_t prepare_loaded_image(u16 *label, ulong addr, ulong size,
 					 struct efi_device_path **dp,
 					 struct udevice **blk)
 {
+	u64 pages;
 	efi_status_t ret;
 	struct udevice *ramdisk_blk;
 
@@ -358,13 +365,18 @@ static efi_status_t prepare_loaded_image(u16 *label, ulong addr, ulong size,
 	}
 
 	/*
-	 * TODO: expose the ramdisk to OS.
-	 * Need to pass the ramdisk information by the architecture-specific
-	 * methods such as 'pmem' device-tree node.
+	 * Linux supports 'pmem' which allows OS installers to find, reclaim
+	 * the mounted images and continue the installation since the contents
+	 * of the pmem region are treated as local media.
+	 *
+	 * The memory regions used for it needs to be carved out of the EFI
+	 * memory map.
 	 */
-	ret = efi_add_memory_map(addr, size, EFI_RESERVED_MEMORY_TYPE);
+	pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
+	ret = efi_update_memory_map(addr, pages, EFI_CONVENTIONAL_MEMORY,
+				    false, true);
 	if (ret != EFI_SUCCESS) {
-		log_err("Memory reservation failed\n");
+		log_err("Failed to reserve memory\n");
 		goto err;
 	}
 
@@ -380,14 +392,15 @@ err:
 }
 
 /**
- * efi_bootmgr_release_uridp_resource() - cleanup uri device path resource
+ * efi_bootmgr_release_uridp() - cleanup uri device path resource
  *
  * @ctx:	event context
  * Return:	status code
  */
-efi_status_t efi_bootmgr_release_uridp_resource(struct uridp_context *ctx)
+static efi_status_t efi_bootmgr_release_uridp(struct uridp_context *ctx)
 {
 	efi_status_t ret = EFI_SUCCESS;
+	efi_status_t ret2 = EFI_SUCCESS;
 
 	if (!ctx)
 		return ret;
@@ -407,32 +420,33 @@ efi_status_t efi_bootmgr_release_uridp_resource(struct uridp_context *ctx)
 
 	/* cleanup for PE-COFF image */
 	if (ctx->mem_handle) {
-		ret = efi_uninstall_multiple_protocol_interfaces(
-			ctx->mem_handle, &efi_guid_device_path, ctx->loaded_dp,
-			NULL);
-		if (ret != EFI_SUCCESS)
+		ret2 = efi_uninstall_multiple_protocol_interfaces(ctx->mem_handle,
+								  &efi_guid_device_path,
+								  ctx->loaded_dp,
+								  NULL);
+		if (ret2 != EFI_SUCCESS)
 			log_err("Uninstall device_path protocol failed\n");
 	}
 
 	efi_free_pool(ctx->loaded_dp);
 	free(ctx);
 
-	return ret;
+	return ret == EFI_SUCCESS ? ret2 : ret;
 }
 
 /**
- * efi_bootmgr_image_return_notify() - return to efibootmgr callback
+ * efi_bootmgr_http_return() - return to efibootmgr callback
  *
  * @event:	the event for which this notification function is registered
  * @context:	event context
  */
-static void EFIAPI efi_bootmgr_image_return_notify(struct efi_event *event,
-						   void *context)
+static void EFIAPI efi_bootmgr_http_return(struct efi_event *event,
+					   void *context)
 {
 	efi_status_t ret;
 
 	EFI_ENTRY("%p, %p", event, context);
-	ret = efi_bootmgr_release_uridp_resource(context);
+	ret = efi_bootmgr_release_uridp(context);
 	EFI_EXIT(ret);
 }
 
@@ -473,7 +487,7 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 	}
 
 	image_addr = hextoul(s, NULL);
-	err = wget_with_dns(image_addr, uridp->uri);
+	err = wget_do_request(image_addr, uridp->uri);
 	if (err < 0) {
 		ret = EFI_INVALID_PARAMETER;
 		goto err;
@@ -484,6 +498,13 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 		ret = EFI_INVALID_PARAMETER;
 		goto err;
 	}
+	/*
+	 * Depending on the kernel configuration, pmem memory areas must be
+	 * page aligned or 2MiB aligned. PowerPC is an exception here and
+	 * requires 16MiB alignment, but since we don't have EFI support for
+	 * it, limit the alignment to 2MiB.
+	 */
+	image_size = ALIGN(image_size, SZ_2M);
 
 	/*
 	 * If the file extension is ".iso" or ".img", mount it and try to load
@@ -533,7 +554,7 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 
 	/* create event for cleanup when the image returns or error occurs */
 	ret = efi_create_event(EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
-			       efi_bootmgr_image_return_notify, ctx,
+			       efi_bootmgr_http_return, ctx,
 			       &efi_guid_event_group_return_to_efibootmgr,
 			       &event);
 	if (ret != EFI_SUCCESS) {
@@ -544,7 +565,7 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 	return ret;
 
 err:
-	efi_bootmgr_release_uridp_resource(ctx);
+	efi_bootmgr_release_uridp(ctx);
 
 	return ret;
 }
@@ -664,12 +685,12 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 
 	/* try to register load file2 for initrd's */
 	if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
-		ret = efi_initrd_register();
+		ret = efi_initrd_register(NULL);
 		if (ret != EFI_SUCCESS)
 			goto error;
 	}
 
-	log_info("Booting: %ls\n", lo.label);
+	log_info("Booting: Label: %ls Device path: %pD\n", lo.label, lo.file_path);
 
 	/* Ignore the optional data in auto-generated boot options */
 	if (size >= sizeof(efi_guid_t) &&

@@ -157,7 +157,7 @@ int print_hex_dump(const char *prefix_str, int prefix_type, int rowsize,
 			printf("%s%s\n", prefix_str, linebuf);
 			break;
 		}
-		if (!IS_ENABLED(CONFIG_SPL_BUILD) && ctrlc())
+		if (!IS_ENABLED(CONFIG_XPL_BUILD) && ctrlc())
 			return -EINTR;
 	}
 

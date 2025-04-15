@@ -94,7 +94,7 @@ them. Expo supports doing this with an enum, where every ID is listed in the
 enum::
 
     enum {
-        ZERO,
+        ID_PROMPT = EXPOID_BASE_ID,
 
         ID_PROMPT,
 
@@ -129,6 +129,11 @@ If you get an error::
 that means that something is wrong with your syntax, or perhaps you have an ID
 in the `.dts` file that is not mentioned in your enum. Check both files and try
 again.
+
+Note that the first ID in your file must be no less that `EXPOID_BASE_ID` since
+IDs before that are reserved. The `expo.py` tool automatically obtains this
+value from the `expo.h` header file, but you must set the first ID to this
+enum value.
 
 
 Use the command interface
@@ -167,4 +172,4 @@ Cedit provides several options for persistent settings:
 
 For now, reading and writing settings is not automatic. See the
 :doc:`../usage/cmd/cedit` for how to do this on the command line or in a
-script.
+script. For x86 devices, see :ref:`cedit_cb_load`.

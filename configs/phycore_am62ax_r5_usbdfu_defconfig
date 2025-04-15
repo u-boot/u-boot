@@ -1,0 +1,4 @@
+#include <configs/phycore_am62ax_r5_defconfig>
+#include <configs/am62x_r5_usbdfu.config>
+
+CONFIG_USB_GADGET_MANUFACTURER="PHYTEC"

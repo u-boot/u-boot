@@ -132,6 +132,11 @@ M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
 F:	configs/Ampe_A76_defconfig
 
+ANBERNIC RG35XX-2024
+M:	Chris Morgan <macromorgan@hotmail.com>
+S:	Maintained
+F:	configs/anbernic_rg35xx_h700_defconfig
+
 BANANAPI M1 PLUS
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained

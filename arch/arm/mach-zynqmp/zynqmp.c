@@ -151,14 +151,12 @@ static int do_zynqmp_tcm_init(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	if (strcmp(argv[2], "lockstep") && strcmp(argv[2], "split")) {
-		printf("mode param should be lockstep or split\n");
-		return CMD_RET_FAILURE;
-	}
-
-	mode = hextoul(argv[2], NULL);
-	if (mode != TCM_LOCK && mode != TCM_SPLIT) {
-		printf("Mode should be either 0(lock)/1(split)\n");
+	if (!strcmp(argv[2], "lockstep") || !strcmp(argv[2], "0")) {
+		mode = TCM_LOCK;
+	} else if (!strcmp(argv[2], "split") || !strcmp(argv[2], "1")) {
+		mode = TCM_SPLIT;
+	} else {
+		printf("Mode should be either lockstep/split\n");
 		return CMD_RET_FAILURE;
 	}
 
@@ -340,6 +338,30 @@ static int do_zynqmp_sha3(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+static int do_zynqmp_reboot(struct cmd_tbl *cmdtp, int flag,
+			    int argc, char * const argv[])
+{
+	u32 multiboot;
+	int ret;
+
+	if (argc != cmdtp->maxargs)
+		return CMD_RET_USAGE;
+
+	multiboot = hextoul(argv[2], NULL);
+
+	ret = zynqmp_mmio_write((ulong)&csu_base->multi_boot, 0xfff, multiboot);
+	if (ret != 0) {
+		printf("Failed: mmio write\n");
+		return ret;
+	}
+
+	/* issue soft reset */
+	writel(CRL_APB_SOFT_RESET_CTRL_MASK, &crlapb_base->soft_reset);
+
+	/* never get here */
+	return CMD_RET_SUCCESS;
+}
+
 static struct cmd_tbl cmd_zynqmp_sub[] = {
 	U_BOOT_CMD_MKENT(secure, 5, 0, do_zynqmp_verify_secure, "", ""),
 	U_BOOT_CMD_MKENT(pmufw, 4, 0, do_zynqmp_pmufw, "", ""),
@@ -348,6 +370,7 @@ static struct cmd_tbl cmd_zynqmp_sub[] = {
 	U_BOOT_CMD_MKENT(aes, 9, 0, do_zynqmp_aes, "", ""),
 	U_BOOT_CMD_MKENT(rsa, 7, 0, do_zynqmp_rsa, "", ""),
 	U_BOOT_CMD_MKENT(sha3, 5, 0, do_zynqmp_sha3, "", ""),
+	U_BOOT_CMD_MKENT(reboot, 3, 0, do_zynqmp_reboot, "", ""),
 #ifdef CONFIG_DEFINE_TCM_OCM_MMAP
 	U_BOOT_CMD_MKENT(tcminit, 3, 0, do_zynqmp_tcm_init, "", ""),
 #endif
@@ -387,6 +410,7 @@ U_BOOT_LONGHELP(zynqmp,
 	"                            long at address $src. Optional key_addr\n"
 	"                            can be specified if user key needs to\n"
 	"                            be used for decryption\n"
+	"zynqmp reboot multiboot - soft reboot to multiboot offset\n"
 	"zynqmp mmio_read address - read from address\n"
 	"zynqmp mmio_write address mask value - write value after masking to\n"
 	"					address\n"
@@ -403,7 +427,7 @@ U_BOOT_LONGHELP(zynqmp,
 	"		       initialized before accessing to avoid ECC\n"
 	"		       errors. mode specifies in which mode TCM has\n"
 	"		       to be initialized. Supported modes will be\n"
-	"		       lock(0)/split(1)\n"
+	"		       lockstep(0)/split(1)\n"
 #endif
 	"zynqmp pmufw address size - load PMU FW configuration object\n"
 	"zynqmp pmufw node <id> - load PMU FW configuration object, <id> in dec\n"

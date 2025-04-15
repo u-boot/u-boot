@@ -5,6 +5,6 @@
 #
 
 obj-y	+= puma-rk3399.o
-ifneq ($(CONFIG_SPL_BUILD),y)
+ifneq ($(CONFIG_XPL_BUILD),y)
 obj-y	+= ../common/common.o
 endif

@@ -9,7 +9,6 @@
 #include <env.h>
 #include <image.h>
 #include <fdt_support.h>
-#include <lmb.h>
 #include <log.h>
 #include <asm/addrspace.h>
 #include <asm/global_data.h>
@@ -27,20 +26,6 @@ static char *linux_argp;
 static char **linux_env;
 static char *linux_env_p;
 static int linux_env_idx;
-
-static ulong arch_get_sp(void)
-{
-	ulong ret;
-
-	__asm__ __volatile__("move %0, $sp" : "=r"(ret) : );
-
-	return ret;
-}
-
-void arch_lmb_reserve(struct lmb *lmb)
-{
-	arch_lmb_reserve_generic(lmb, arch_get_sp(), gd->ram_top, 4096);
-}
 
 static void linux_cmdline_init(void)
 {
@@ -225,9 +210,8 @@ static int boot_reloc_fdt(struct bootm_headers *images)
 	}
 
 #if CONFIG_IS_ENABLED(MIPS_BOOT_FDT) && CONFIG_IS_ENABLED(OF_LIBFDT)
-	boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
-	return boot_relocate_fdt(&images->lmb, &images->ft_addr,
-		&images->ft_len);
+	boot_fdt_add_mem_rsv_regions(images->ft_addr);
+	return boot_relocate_fdt(&images->ft_addr, &images->ft_len);
 #else
 	return 0;
 #endif
@@ -248,7 +232,7 @@ static int boot_setup_fdt(struct bootm_headers *images)
 	images->initrd_start = virt_to_phys((void *)images->initrd_start);
 	images->initrd_end = virt_to_phys((void *)images->initrd_end);
 
-	return image_setup_libfdt(images, images->ft_addr, &images->lmb);
+	return image_setup_libfdt(images, images->ft_addr, true);
 }
 
 static void boot_prep_linux(struct bootm_headers *images)

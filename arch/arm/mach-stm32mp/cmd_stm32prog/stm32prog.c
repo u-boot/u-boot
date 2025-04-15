@@ -790,8 +790,8 @@ static int init_device(struct stm32prog_data *data,
 			last_addr = (u64)(block_dev->lba - GPT_HEADER_SZ - 1) *
 				    block_dev->blksz;
 		}
-		log_debug("MMC %d: lba=%ld blksz=%ld\n", dev->dev_id,
-			  block_dev->lba, block_dev->blksz);
+		log_debug("MMC %d: lba=%lld blksz=%ld\n", dev->dev_id,
+			  (u64)block_dev->lba, block_dev->blksz);
 		log_debug(" available address = 0x%llx..0x%llx\n",
 			  first_addr, last_addr);
 		log_debug(" full_update = %d\n", dev->full_update);
@@ -1229,7 +1229,10 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 	char multiplier,  type;
 
 	/* max 3 digit for sector size */
-	if (part->size > SZ_1M) {
+	if (part->size > SZ_1G) {
+		size = (u32)(part->size / SZ_1G);
+		multiplier = 'G';
+	} else if (part->size > SZ_1M) {
 		size = (u32)(part->size / SZ_1M);
 		multiplier = 'M';
 	} else if (part->size > SZ_1K) {

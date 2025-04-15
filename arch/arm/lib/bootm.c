@@ -61,10 +61,6 @@ static void announce_and_cleanup(int fake)
 	bootstage_report();
 #endif
 
-#ifdef CONFIG_USB_DEVICE
-	udc_disconnect();
-#endif
-
 	board_quiesce_devices();
 
 	printf("\nStarting kernel ...%s\n\n", fake ?
@@ -73,11 +69,10 @@ static void announce_and_cleanup(int fake)
 	 * Call remove function of all devices with a removal flag set.
 	 * This may be useful for last-stage operations, like cancelling
 	 * of DMA operation or releasing device internal buffers.
+	 * dm_remove_devices_active() ensures that vital devices are removed in
+	 * a second round.
 	 */
-	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL | DM_REMOVE_NON_VITAL);
-
-	/* Remove all active vital devices next */
-	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+	dm_remove_devices_active();
 
 	cleanup_before_linux();
 }

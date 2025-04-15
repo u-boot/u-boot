@@ -14,6 +14,7 @@
 #include <linux/sizes.h>
 #include <linux/compiler.h>
 #include <linux/dma-direction.h>
+#include <cyclic.h>
 #include <part.h>
 
 struct bd_info;
@@ -78,6 +79,10 @@ struct bd_info;
 #define IS_SD(x)	((x)->version & SD_VERSION_SD)
 #define IS_MMC(x)	((x)->version & MMC_VERSION_MMC)
 
+#define CID_MANFID_MICRON       0x13
+#define CID_MANFID_SAMSUNG      0x15
+#define CID_MANFID_SANDISK      0x45
+
 #define MMC_DATA_READ		1
 #define MMC_DATA_WRITE		2
 
@@ -111,6 +116,7 @@ struct bd_info;
 
 #define MMC_CMD62_ARG1			0xefac62ec
 #define MMC_CMD62_ARG2			0xcbaea7
+#define MMC_CMD62_ARG_SANDISK		0x254ddec4
 
 #define SD_CMD_SEND_RELATIVE_ADDR	3
 #define SD_CMD_SWITCH_FUNC		6
@@ -204,6 +210,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 /*
  * EXT_CSD fields
  */
+#define EXT_CSD_BOOT_SIZE_MULT_MICRON	125	/* R/W, vendor specific field */
 #define EXT_CSD_ENH_START_ADDR		136	/* R/W */
 #define EXT_CSD_ENH_SIZE_MULT		140	/* R/W */
 #define EXT_CSD_GP_SIZE_MULT		143	/* R/W */
@@ -372,6 +379,32 @@ enum mmc_voltage {
 #define MMC_TIMING_MMC_HS200	9
 #define MMC_TIMING_MMC_HS400	10
 
+/* emmc PARTITION_CONFIG BOOT_PARTITION_ENABLE values */
+enum emmc_boot_part {
+	EMMC_BOOT_PART_DEFAULT = 0,
+	EMMC_BOOT_PART_BOOT1 = 1,
+	EMMC_BOOT_PART_BOOT2 = 2,
+	EMMC_BOOT_PART_USER = 7,
+};
+
+/* emmc PARTITION_CONFIG BOOT_PARTITION_ENABLE names */
+extern const char *emmc_boot_part_names[8];
+
+/* emmc PARTITION_CONFIG ACCESS_ENABLE values */
+enum emmc_hwpart {
+	EMMC_HWPART_DEFAULT = 0, /* user */
+	EMMC_HWPART_BOOT1 = 1,
+	EMMC_HWPART_BOOT2 = 2,
+	EMMC_HWPART_RPMB = 3,
+	EMMC_HWPART_GP1 = 4,
+	EMMC_HWPART_GP2 = 5,
+	EMMC_HWPART_GP3 = 6,
+	EMMC_HWPART_GP4 = 7,
+};
+
+/* emmc PARTITION_CONFIG ACCESS_ENABLE names */
+extern const char *emmc_hwpart_names[8];
+
 /* Driver model support */
 
 /**
@@ -404,7 +437,7 @@ struct mmc_cid {
 };
 
 struct mmc_cmd {
-	ushort cmdidx;
+	uint cmdidx;
 	uint resp_type;
 	uint cmdarg;
 	uint response[4];
@@ -699,7 +732,7 @@ struct mmc {
 	u64 capacity_boot;
 	u64 capacity_rpmb;
 	u64 capacity_gp[4];
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	u64 enh_user_start;
 	u64 enh_user_size;
 #endif
@@ -731,6 +764,12 @@ struct mmc {
 	bool hs400_tuning:1;
 
 	enum bus_mode user_speed_mode; /* input speed mode from user */
+
+	/*
+	 * If CONFIG_CYCLIC is not set, struct cyclic_info is
+	 * zero-size structure and does not add any space here.
+	 */
+	struct cyclic_info cyclic;
 };
 
 #if CONFIG_IS_ENABLED(DM_MMC)

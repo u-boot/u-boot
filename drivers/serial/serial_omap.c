@@ -15,6 +15,12 @@
 #include <clk.h>
 #include <linux/err.h>
 
+/*
+ * These are the definitions for the MDR1 register
+ */
+#define UART_OMAP_MDR1_16X_MODE		0x00	/* UART 16x mode */
+#define UART_OMAP_MDR1_13X_MODE		0x03	/* UART 13x mode */
+
 #ifndef CFG_SYS_NS16550_CLK
 #define CFG_SYS_NS16550_CLK  0
 #endif
@@ -151,6 +157,54 @@ static const struct udevice_id omap_serial_ids[] = {
 };
 #endif /* OF_REAL */
 
+static int omap_serial_calc_divisor(struct ns16550 *com_port, int clock, int baudrate)
+{
+	unsigned int div_13, div_16;
+	unsigned int abs_d13, abs_d16;
+	/*
+	 * The below logic sets the MDR1 register based on clock and baudrate.
+	 */
+	div_13 = DIV_ROUND_CLOSEST(clock, 13 * baudrate);
+	div_16 = DIV_ROUND_CLOSEST(clock, 16 * baudrate);
+
+	if (!div_13)
+		div_13 = 1;
+	if (!div_16)
+		div_16 = 1;
+
+	abs_d13 = abs(baudrate - clock / 13 / div_13);
+	abs_d16 = abs(baudrate - clock / 16 / div_16);
+
+	if (abs_d13 >= abs_d16)
+		serial_out(UART_OMAP_MDR1_16X_MODE, &com_port->mdr1);
+	else
+		serial_out(UART_OMAP_MDR1_13X_MODE, &com_port->mdr1);
+
+	return abs_d13 >= abs_d16 ? div_16 : div_13;
+}
+
+static int omap_serial_setbrg(struct udevice *dev, int baudrate)
+{
+	struct ns16550 *const com_port = dev_get_priv(dev);
+	struct ns16550_plat *plat = com_port->plat;
+	int clock_divisor;
+
+	clock_divisor = omap_serial_calc_divisor(com_port, plat->clock, baudrate);
+
+	ns16550_setbrg(com_port, clock_divisor);
+
+	return 0;
+}
+
+const struct dm_serial_ops omap_serial_ops = {
+	.putc = ns16550_serial_putc,
+	.pending = ns16550_serial_pending,
+	.getc = ns16550_serial_getc,
+	.setbrg = omap_serial_setbrg,
+	.setconfig = ns16550_serial_setconfig,
+	.getinfo = ns16550_serial_getinfo,
+};
+
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 U_BOOT_DRIVER(omap_serial) = {
 	.name	= "omap_serial",
@@ -162,7 +216,7 @@ U_BOOT_DRIVER(omap_serial) = {
 #endif
 	.priv_auto	= sizeof(struct ns16550),
 	.probe = ns16550_serial_probe,
-	.ops	= &ns16550_serial_ops,
+	.ops	= &omap_serial_ops,
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
 #endif

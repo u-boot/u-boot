@@ -204,7 +204,17 @@ static int mpc8xxx_gpio_plat_to_priv(struct udevice *dev)
 		return -ENOMEM;
 
 	priv->gpio_count = plat->ngpios;
-	priv->dat_shadow = 0;
+
+	/*
+	 * On platforms that do support reading back output values, we want to
+	 * try preserving them, so that we don't accidentally set unrelated
+	 * GPIOs to zero in mpc8xxx_gpio_set_value.
+	 */
+	if (priv->little_endian)
+		priv->dat_shadow = in_le32(&priv->base->gpdat) & in_le32(&priv->base->gpdir);
+	else
+		priv->dat_shadow = in_be32(&priv->base->gpdat) & in_be32(&priv->base->gpdir);
+
 
 	priv->type = driver_data;
 

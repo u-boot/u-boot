@@ -1,0 +1,7 @@
+#include <configs/imx8mp_dhsom.config>
+
+CONFIG_ARM=y
+CONFIG_ARCH_IMX8M=y
+CONFIG_DEFAULT_DEVICE_TREE="imx8mp-dhcom-drc02"
+CONFIG_DEFAULT_FDT_FILE="imx8mp-dhcom-drc02.dtb"
+CONFIG_PREBOOT=""

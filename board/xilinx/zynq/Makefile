@@ -26,17 +26,17 @@ endif
 ifeq ($(init-objs),)
 ifneq ($(wildcard $(srctree)/$(src)/ps7_init_gpl.c),)
 init-objs := ps7_init_gpl.o
-$(if $(CONFIG_SPL_BUILD),\
+$(if $(CONFIG_XPL_BUILD),\
 $(warning Put custom ps7_init_gpl.c/h to board/xilinx/zynq/custom_hw_platform/))
 endif
 endif
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_CMD_ZYNQ) += cmds.o
 obj-$(CONFIG_CMD_ZYNQ_RSA) += bootimg.o
 endif
 
-obj-$(CONFIG_SPL_BUILD) += $(init-objs)
+obj-$(CONFIG_XPL_BUILD) += $(init-objs)
 
 # Suppress "warning: function declaration isn't a prototype"
 CFLAGS_REMOVE_ps7_init_gpl.o := -Wstrict-prototypes

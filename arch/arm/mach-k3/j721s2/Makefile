@@ -4,4 +4,4 @@
 #	Andrew Davis <afd@ti.com>
 
 obj-$(CONFIG_OF_SYSTEM_SETUP) += j721s2_fdt.o
-obj-$(CONFIG_SPL_BUILD) += j721s2_init.o
+obj-$(CONFIG_XPL_BUILD) += j721s2_init.o

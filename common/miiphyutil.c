@@ -30,7 +30,7 @@
 #define debug(fmt, args...)
 #endif /* MII_DEBUG */
 
-static struct list_head mii_devs;
+static LIST_HEAD(mii_devs);
 static struct mii_dev *current_mii;
 
 /*
@@ -55,16 +55,6 @@ struct mii_dev *miiphy_get_dev_by_name(const char *devname)
 	return NULL;
 }
 
-/*****************************************************************************
- *
- * Initialize global data. Need to be called before any other miiphy routine.
- */
-void miiphy_init(void)
-{
-	INIT_LIST_HEAD(&mii_devs);
-	current_mii = NULL;
-}
-
 struct mii_dev *mdio_alloc(void)
 {
 	struct mii_dev *bus;
@@ -75,7 +65,7 @@ struct mii_dev *mdio_alloc(void)
 
 	memset(bus, 0, sizeof(*bus));
 
-	/* initalize mii_dev struct fields */
+	/* initialize mii_dev struct fields */
 	INIT_LIST_HEAD(&bus->link);
 
 	return bus;

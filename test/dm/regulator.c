@@ -89,7 +89,7 @@ static int dm_test_power_regulator_get(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_get, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_get, UTF_SCAN_FDT);
 
 /* Test regulator set and get Voltage method */
 static int dm_test_power_regulator_set_get_voltage(struct unit_test_state *uts)
@@ -116,7 +116,7 @@ static int dm_test_power_regulator_set_get_voltage(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_set_get_voltage, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_set_get_voltage, UTF_SCAN_FDT);
 
 /* Test regulator set and get Current method */
 static int dm_test_power_regulator_set_get_current(struct unit_test_state *uts)
@@ -155,7 +155,7 @@ static int dm_test_power_regulator_set_get_current(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_set_get_current, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_set_get_current, UTF_SCAN_FDT);
 
 /* Test regulator set and get Enable method */
 static int dm_test_power_regulator_set_get_enable(struct unit_test_state *uts)
@@ -174,7 +174,7 @@ static int dm_test_power_regulator_set_get_enable(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_set_get_enable, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_set_get_enable, UTF_SCAN_FDT);
 
 /* Test regulator set and get enable if allowed method */
 static
@@ -186,7 +186,7 @@ int dm_test_power_regulator_set_enable_if_allowed(struct unit_test_state *uts)
 
 	/* Get BUCK1 - always on regulator */
 	platname = regulator_names[BUCK1][PLATNAME];
-	ut_assertok(regulator_autoset_by_name(platname, &dev_autoset));
+	ut_asserteq(-EALREADY, regulator_autoset_by_name(platname, &dev_autoset));
 	ut_assertok(regulator_get_by_platname(platname, &dev));
 
 	/* Try disabling always-on regulator */
@@ -195,7 +195,7 @@ int dm_test_power_regulator_set_enable_if_allowed(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_set_enable_if_allowed, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_set_enable_if_allowed, UTF_SCAN_FDT);
 
 /* Test regulator set and get mode method */
 static int dm_test_power_regulator_set_get_mode(struct unit_test_state *uts)
@@ -214,7 +214,7 @@ static int dm_test_power_regulator_set_get_mode(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_set_get_mode, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_set_get_mode, UTF_SCAN_FDT);
 
 /* Test regulator set and get suspend Voltage method */
 static int dm_test_power_regulator_set_get_suspend_voltage(struct unit_test_state *uts)
@@ -244,7 +244,7 @@ static int dm_test_power_regulator_set_get_suspend_voltage(struct unit_test_stat
 	}
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_set_get_suspend_voltage, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_set_get_suspend_voltage, UTF_SCAN_FDT);
 
 /* Test regulator set and get suspend Enable method */
 static int dm_test_power_regulator_set_get_suspend_enable(struct unit_test_state *uts)
@@ -271,7 +271,7 @@ static int dm_test_power_regulator_set_get_suspend_enable(struct unit_test_state
 	}
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_set_get_suspend_enable, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_set_get_suspend_enable, UTF_SCAN_FDT);
 
 /* Test regulator autoset method */
 static int dm_test_power_regulator_autoset(struct unit_test_state *uts)
@@ -288,7 +288,7 @@ static int dm_test_power_regulator_autoset(struct unit_test_state *uts)
 	 * Expected output state: uV=1200000; uA=200000; output enabled
 	 */
 	platname = regulator_names[BUCK1][PLATNAME];
-	ut_assertok(regulator_autoset_by_name(platname, &dev_autoset));
+	ut_asserteq(-EALREADY, regulator_autoset_by_name(platname, &dev_autoset));
 
 	/* Check, that the returned device is proper */
 	ut_assertok(regulator_get_by_platname(platname, &dev));
@@ -304,7 +304,7 @@ static int dm_test_power_regulator_autoset(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_autoset, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_autoset, UTF_SCAN_FDT);
 
 /*
  * Struct setting: to keep the expected output settings.
@@ -400,4 +400,4 @@ static int dm_test_power_regulator_autoset_list(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_power_regulator_autoset_list, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_power_regulator_autoset_list, UTF_SCAN_FDT);

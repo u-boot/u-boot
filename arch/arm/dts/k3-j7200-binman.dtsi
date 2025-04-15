@@ -7,46 +7,6 @@
 
 #ifdef CONFIG_TARGET_J7200_R5_EVM
 
-&bcfg_yaml {
-	config = "board-cfg_j7200.yaml";
-};
-
-&rcfg_yaml {
-	config = "rm-cfg_j7200.yaml";
-};
-
-&pcfg_yaml {
-	config = "pm-cfg_j7200.yaml";
-};
-
-&scfg_yaml {
-	config = "sec-cfg_j7200.yaml";
-};
-
-&bcfg_yaml_tifs {
-	config = "board-cfg_j7200.yaml";
-};
-
-&rcfg_yaml_tifs {
-	config = "rm-cfg_j7200.yaml";
-};
-
-&pcfg_yaml_tifs {
-	config = "pm-cfg_j7200.yaml";
-};
-
-&scfg_yaml_tifs {
-	config = "sec-cfg_j7200.yaml";
-};
-
-&rcfg_yaml_dm {
-	config = "rm-cfg_j7200.yaml";
-};
-
-&pcfg_yaml_dm {
-	config = "pm-cfg_j7200.yaml";
-};
-
 &binman {
 	tiboot3-j7200-hs-evm.bin {
 		filename = "tiboot3-j7200-hs-evm.bin";

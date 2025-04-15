@@ -52,10 +52,13 @@ static void fwu_data_init(void)
 	memcpy(dst_img_info, src_img_info, image_info_size);
 }
 
-static int fwu_trial_state_update(bool trial_state)
+static int fwu_trial_state_update(bool trial_state, uint32_t bank)
 {
 	int ret;
 	struct fwu_data *data = fwu_get_data();
+
+	if (!trial_state && !fwu_bank_accepted(data, bank))
+		return 0;
 
 	if (trial_state) {
 		ret = fwu_trial_state_ctr_start();
@@ -112,9 +115,9 @@ void fwu_populate_mdata_image_info(struct fwu_data *data)
  * Return: 0 if OK, -ve on error
  */
 int fwu_state_machine_updates(bool trial_state,
-			      __maybe_unused uint32_t update_index)
+			      uint32_t update_index)
 {
-	return fwu_trial_state_update(trial_state);
+	return fwu_trial_state_update(trial_state, update_index);
 }
 
 /**
@@ -146,6 +149,7 @@ int fwu_init(void)
 {
 	int ret;
 	uint32_t mdata_size;
+	struct fwu_mdata mdata = {0};
 
 	fwu_get_mdata_size(&mdata_size);
 
@@ -157,9 +161,15 @@ int fwu_init(void)
 	 * Now read the entire structure, both copies, and
 	 * validate that the copies.
 	 */
-	ret = fwu_get_mdata(NULL);
+	ret = fwu_get_mdata(&mdata);
 	if (ret)
 		return ret;
+
+	if (mdata.version != 0x1) {
+		log_err("FWU metadata version %u. Expected value of %u\n",
+			mdata.version, FWU_MDATA_VERSION);
+		return -EINVAL;
+	}
 
 	fwu_data_init();
 

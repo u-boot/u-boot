@@ -14,7 +14,13 @@
 #ifndef _SHA1_H
 #define _SHA1_H
 
+#include <linux/kconfig.h>
 #include <linux/types.h>
+
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
+#include "mbedtls_options.h"
+#include <mbedtls/sha1.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,8 +30,17 @@ extern "C" {
 #define SHA1_SUM_LEN	20
 #define SHA1_DER_LEN	15
 
+#define SHA1_DEF_CHUNK_SZ 0x10000
+
+#define K_IPAD_VAL 0x36
+#define K_OPAD_VAL 0x5C
+#define K_PAD_LEN 64
+
 extern const uint8_t sha1_der_prefix[];
 
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
+typedef mbedtls_sha1_context sha1_context;
+#else
 /**
  * \brief	   SHA-1 context structure
  */
@@ -36,13 +51,14 @@ typedef struct
     unsigned char buffer[64];	/*!< data block being processed */
 }
 sha1_context;
+#endif
 
 /**
  * \brief	   SHA-1 context setup
  *
  * \param ctx	   SHA-1 context to be initialized
  */
-void sha1_starts( sha1_context *ctx );
+void sha1_starts(sha1_context *ctx);
 
 /**
  * \brief	   SHA-1 process buffer
@@ -61,16 +77,6 @@ void sha1_update(sha1_context *ctx, const unsigned char *input,
  * \param output   SHA-1 checksum result
  */
 void sha1_finish( sha1_context *ctx, unsigned char output[20] );
-
-/**
- * \brief	   Output = SHA-1( input buffer )
- *
- * \param input    buffer holding the  data
- * \param ilen	   length of the input data
- * \param output   SHA-1 checksum result
- */
-void sha1_csum(const unsigned char *input, unsigned int ilen,
-		unsigned char *output);
 
 /**
  * \brief	   Output = SHA-1( input buffer ), with watchdog triggering

@@ -20,7 +20,7 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"kloadaddr=0x84000000\0" \
@@ -117,7 +117,7 @@
 			"setenv mmcpart 5; " \
 		"fi; " \
 		"setenv mmcroot /dev/mmcblk${mmcdev}p${mmcpart};\0"
-#endif /* #ifndef CONFIG_SPL_BUILD */
+#endif /* #ifndef CONFIG_XPL_BUILD */
 
 #if defined CONFIG_SHC_NETBOOT
 /* Network Boot */

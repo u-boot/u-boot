@@ -1,14 +1,15 @@
 config PINCTRL_IMX
 	bool
 
-config PINCTRL_IMX_SCU
+config PINCTRL_IMX_MMIO
 	bool
+	select PINCTRL_IMX
 
 config PINCTRL_IMX5
 	bool "IMX5 pinctrl driver"
 	depends on ARCH_MX5 && PINCTRL_FULL
 	select DEVRES
-	select PINCTRL_IMX
+	select PINCTRL_IMX_MMIO
 	help
 	  Say Y here to enable the imx5 pinctrl driver
 
@@ -22,7 +23,7 @@ config PINCTRL_IMX6
 	bool "IMX6 pinctrl driver"
 	depends on ARCH_MX6 && PINCTRL_FULL
 	select DEVRES
-	select PINCTRL_IMX
+	select PINCTRL_IMX_MMIO
 	help
 	  Say Y here to enable the imx6 pinctrl driver
 
@@ -36,7 +37,7 @@ config PINCTRL_IMX7
 	bool "IMX7 pinctrl driver"
 	depends on ARCH_MX7 && PINCTRL_FULL
 	select DEVRES
-	select PINCTRL_IMX
+	select PINCTRL_IMX_MMIO
 	help
 	  Say Y here to enable the imx7 pinctrl driver
 
@@ -50,7 +51,7 @@ config PINCTRL_IMX7ULP
 	bool "IMX7ULP pinctrl driver"
 	depends on ARCH_MX7ULP && PINCTRL_FULL
 	select DEVRES
-	select PINCTRL_IMX
+	select PINCTRL_IMX_MMIO
 	help
 	  Say Y here to enable the imx7ulp pinctrl driver
 
@@ -64,7 +65,7 @@ config PINCTRL_IMX8ULP
 	bool "IMX8ULP pinctrl driver"
 	depends on ARCH_IMX8ULP && PINCTRL_FULL
 	select DEVRES
-	select PINCTRL_IMX
+	select PINCTRL_IMX_MMIO
 	help
 	  Say Y here to enable the imx8ulp pinctrl driver
 
@@ -79,7 +80,6 @@ config PINCTRL_IMX8
 	depends on ARCH_IMX8 && PINCTRL_FULL
 	select DEVRES
 	select PINCTRL_IMX
-	select PINCTRL_IMX_SCU
 	help
 	  Say Y here to enable the imx8 pinctrl driver
 
@@ -92,7 +92,7 @@ config PINCTRL_IMX8
 config PINCTRL_IMX8M
 	bool "IMX8M pinctrl driver"
 	depends on ARCH_IMX8M && PINCTRL_FULL
-	select PINCTRL_IMX
+	select PINCTRL_IMX_MMIO
 	help
 	  Say Y here to enable the imx8m pinctrl driver
 
@@ -105,7 +105,7 @@ config PINCTRL_IMX8M
 config PINCTRL_IMX93
 	bool "IMX8M pinctrl driver"
 	depends on ARCH_IMX9 && PINCTRL_FULL
-	select PINCTRL_IMX
+	select PINCTRL_IMX_MMIO
 	help
 	  Say Y here to enable the imx8m pinctrl driver
 
@@ -129,7 +129,7 @@ config PINCTRL_IMXRT
 	bool "IMXRT pinctrl driver"
 	depends on ARCH_IMXRT && PINCTRL_FULL
 	select DEVRES
-	select PINCTRL_IMX
+	select PINCTRL_IMX_MMIO
 	help
 	  Say Y here to enable the imxrt pinctrl driver
 
@@ -143,7 +143,7 @@ config PINCTRL_VYBRID
 	bool "Vybrid (vf610) pinctrl driver"
 	depends on ARCH_VF610 && PINCTRL_FULL
 	select DEVRES
-	select PINCTRL_IMX
+	select PINCTRL_IMX_MMIO
 	help
 	  Say Y here to enable the Vybrid (vf610) pinctrl driver
 

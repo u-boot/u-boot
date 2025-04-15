@@ -264,6 +264,13 @@ static const struct i2c_eeprom_drv_data atmel24c256_data = {
 	.offset_len = 2,
 };
 
+static const struct i2c_eeprom_drv_data st24256e_wlp_data = {
+	.size = 64,
+	.pagesize = 64,
+	.addr_offset_mask = 0,
+	.offset_len = 2,
+};
+
 static const struct i2c_eeprom_drv_data atmel24c512_data = {
 	.size = 65536,
 	.pagesize = 64,
@@ -287,6 +294,7 @@ static const struct udevice_id i2c_eeprom_std_ids[] = {
 	{ .compatible = "atmel,24c128", (ulong)&atmel24c128_data },
 	{ .compatible = "atmel,24c256", (ulong)&atmel24c256_data },
 	{ .compatible = "atmel,24c512", (ulong)&atmel24c512_data },
+	{ .compatible = "st,24256e-wl", (ulong)&st24256e_wlp_data },
 	{ }
 };
 

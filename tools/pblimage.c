@@ -188,7 +188,7 @@ static void add_end_cmd(void)
 void pbl_load_uboot(int ifd, struct image_tool_params *params)
 {
 	FILE *fp_uboot;
-	int size;
+	int size, ret;
 
 	/* parse the rcw.cfg file. */
 	pbl_parser(params->imagename);
@@ -208,7 +208,12 @@ void pbl_load_uboot(int ifd, struct image_tool_params *params)
 		fclose(fp_uboot);
 	}
 	add_end_cmd();
-	lseek(ifd, 0, SEEK_SET);
+	ret = lseek(ifd, 0, SEEK_SET);
+	if (ret < 0) {
+		fprintf(stderr, "%s: lseek error %s\n",
+			__func__, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
 	size = pbl_size;
 	if (write(ifd, (const void *)&mem_buf, size) != size) {

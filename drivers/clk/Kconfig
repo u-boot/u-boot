@@ -96,6 +96,13 @@ config SPL_CLK_GPIO
 	  Enable this option to add GPIO-controlled clock gate driver
 	  in U-Boot SPL.
 
+config CLK_STUB
+	bool "Stub clock driver"
+	depends on CLK
+	help
+	  Enable this to provide a stub clock driver for non-essential clock
+	  controllers.
+
 config CLK_BCM6345
 	bool "Clock controller driver for BCM6345"
 	depends on CLK && ARCH_BMIPS
@@ -257,6 +264,7 @@ source "drivers/clk/mvebu/Kconfig"
 source "drivers/clk/owl/Kconfig"
 source "drivers/clk/qcom/Kconfig"
 source "drivers/clk/renesas/Kconfig"
+source "drivers/clk/sophgo/Kconfig"
 source "drivers/clk/sunxi/Kconfig"
 source "drivers/clk/sifive/Kconfig"
 source "drivers/clk/starfive/Kconfig"

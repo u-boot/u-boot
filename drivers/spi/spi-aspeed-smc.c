@@ -192,7 +192,7 @@ static u32 ast2400_get_clk_setting(struct udevice *dev, uint max_hz)
 
 	if (found) {
 		hclk_div = hclk_masks[i] << 8;
-		priv->flashes[slave_plat->cs].max_freq = hclk_clk / (i + 1);
+		priv->flashes[slave_plat->cs[0]].max_freq = hclk_clk / (i + 1);
 	}
 
 	dev_dbg(dev, "found: %s, hclk: %d, max_clk: %d\n", found ? "yes" : "no",
@@ -200,7 +200,7 @@ static u32 ast2400_get_clk_setting(struct udevice *dev, uint max_hz)
 
 	if (found) {
 		dev_dbg(dev, "h_div: %d (mask %x), speed: %d\n",
-			i + 1, hclk_masks[i], priv->flashes[slave_plat->cs].max_freq);
+			i + 1, hclk_masks[i], priv->flashes[slave_plat->cs[0]].max_freq);
 	}
 
 	return hclk_div;
@@ -311,7 +311,7 @@ static u32 ast2500_get_clk_setting(struct udevice *dev, uint max_hz)
 	for (i = 0; i < ARRAY_SIZE(hclk_masks); i++) {
 		if (hclk_clk / (i + 1) <= max_hz) {
 			found = true;
-			priv->flashes[slave_plat->cs].max_freq =
+			priv->flashes[slave_plat->cs[0]].max_freq =
 							hclk_clk / (i + 1);
 			break;
 		}
@@ -325,7 +325,7 @@ static u32 ast2500_get_clk_setting(struct udevice *dev, uint max_hz)
 	for (i = 0; i < ARRAY_SIZE(hclk_masks); i++) {
 		if (hclk_clk / ((i + 1) * 4) <= max_hz) {
 			found = true;
-			priv->flashes[slave_plat->cs].max_freq =
+			priv->flashes[slave_plat->cs[0]].max_freq =
 						hclk_clk / ((i + 1) * 4);
 			break;
 		}
@@ -340,7 +340,7 @@ end:
 
 	if (found) {
 		dev_dbg(dev, "h_div: %d (mask %x), speed: %d\n",
-			i + 1, hclk_masks[i], priv->flashes[slave_plat->cs].max_freq);
+			i + 1, hclk_masks[i], priv->flashes[slave_plat->cs[0]].max_freq);
 	}
 
 	return hclk_div;
@@ -456,7 +456,7 @@ static u32 ast2600_get_clk_setting(struct udevice *dev, uint max_hz)
 
 		if (found) {
 			hclk_div = ((j << 24) | hclk_masks[i] << 8);
-			priv->flashes[slave_plat->cs].max_freq =
+			priv->flashes[slave_plat->cs[0]].max_freq =
 						hclk_clk / (i + 1 + j * 16);
 			break;
 		}
@@ -467,7 +467,7 @@ static u32 ast2600_get_clk_setting(struct udevice *dev, uint max_hz)
 
 	if (found) {
 		dev_dbg(dev, "base_clk: %d, h_div: %d (mask %x), speed: %d\n",
-			j, i + 1, hclk_masks[i], priv->flashes[slave_plat->cs].max_freq);
+			j, i + 1, hclk_masks[i], priv->flashes[slave_plat->cs[0]].max_freq);
 	}
 
 	return hclk_div;
@@ -588,7 +588,7 @@ static int aspeed_spi_exec_op_user_mode(struct spi_slave *slave,
 	struct udevice *bus = dev->parent;
 	struct aspeed_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(slave->dev);
-	u32 cs = slave_plat->cs;
+	u32 cs = slave_plat->cs[0];
 	u32 ce_ctrl_reg = (u32)&priv->regs->ce_ctrl[cs];
 	u32 ce_ctrl_val;
 	struct aspeed_spi_flash *flash = &priv->flashes[cs];
@@ -668,7 +668,7 @@ static int aspeed_spi_dirmap_create(struct spi_mem_dirmap_desc *desc)
 	const struct aspeed_spi_info *info = priv->info;
 	struct spi_mem_op op_tmpl = desc->info.op_tmpl;
 	u32 i;
-	u32 cs = slave_plat->cs;
+	u32 cs = slave_plat->cs[0];
 	u32 cmd_io_conf;
 	u32 ce_ctrl_reg;
 
@@ -725,7 +725,7 @@ static ssize_t aspeed_spi_dirmap_read(struct spi_mem_dirmap_desc *desc,
 	struct udevice *dev = desc->slave->dev;
 	struct aspeed_spi_priv *priv = dev_get_priv(dev->parent);
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
-	u32 cs = slave_plat->cs;
+	u32 cs = slave_plat->cs[0];
 	int ret;
 
 	dev_dbg(dev, "read op:0x%x, addr:0x%llx, len:0x%x\n",
@@ -750,7 +750,7 @@ static struct aspeed_spi_flash *aspeed_spi_get_flash(struct udevice *dev)
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	struct aspeed_spi_plat *plat = dev_get_plat(bus);
 	struct aspeed_spi_priv *priv = dev_get_priv(bus);
-	u32 cs = slave_plat->cs;
+	u32 cs = slave_plat->cs[0];
 
 	if (cs >= plat->max_cs) {
 		dev_err(dev, "invalid CS %u\n", cs);
@@ -1068,10 +1068,10 @@ static int aspeed_spi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	struct aspeed_spi_priv *priv = dev_get_priv(dev->parent);
-	struct aspeed_spi_flash *flash = &priv->flashes[slave_plat->cs];
+	struct aspeed_spi_flash *flash = &priv->flashes[slave_plat->cs[0]];
 	u32 clk_setting;
 
-	dev_dbg(bus, "%s: claim bus CS%u\n", bus->name, slave_plat->cs);
+	dev_dbg(bus, "%s: claim bus CS%u\n", bus->name, slave_plat->cs[0]);
 
 	if (flash->max_freq == 0) {
 		clk_setting = priv->info->get_clk_setting(dev, slave_plat->max_hz);
@@ -1089,7 +1089,7 @@ static int aspeed_spi_release_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
-	dev_dbg(bus, "%s: release bus CS%u\n", bus->name, slave_plat->cs);
+	dev_dbg(bus, "%s: release bus CS%u\n", bus->name, slave_plat->cs[0]);
 
 	if (!aspeed_spi_get_flash(dev))
 		return -ENODEV;

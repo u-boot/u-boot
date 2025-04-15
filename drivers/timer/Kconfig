@@ -106,6 +106,12 @@ config AST_TIMER
 	  This is mostly because they all share several registers which
 	  makes it difficult to completely separate them.
 
+config AST_IBEX_TIMER
+	bool "Aspeed ast2700 Ibex timer"
+	depends on TIMER
+	help
+	  Select this to enable a timer support for the Ibex RV32-based MCUs in AST2700.
+
 config ATCPIT100_TIMER
 	bool "ATCPIT100 timer support"
 	depends on TIMER

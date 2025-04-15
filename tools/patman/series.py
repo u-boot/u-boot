@@ -12,8 +12,8 @@ import sys
 import time
 
 from patman import get_maintainer
-from patman import gitutil
 from patman import settings
+from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import tools
 
@@ -42,6 +42,8 @@ class Series(dict):
         self.notes = []
         self.changes = {}
         self.allow_overwrite = False
+        self.base_commit = None
+        self.branch = None
 
         # Written in MakeCcFile()
         #  key: name of patch file

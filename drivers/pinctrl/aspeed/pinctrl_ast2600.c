@@ -454,6 +454,14 @@ static struct aspeed_sig_desc pwm15g1[] = {
 	{0x41c, BIT(31), 0},
 };
 
+static struct aspeed_sig_desc sgpm1[] = {
+	{0x414, GENMASK(27, 24), 0},
+};
+
+static struct aspeed_sig_desc sgpm2[] = {
+	{0x6d0, GENMASK(7, 4), 0},
+};
+
 static const struct aspeed_group_config ast2600_groups[] = {
 	{ "MAC1LINK", ARRAY_SIZE(mac1_link), mac1_link },
 	{ "MAC2LINK", ARRAY_SIZE(mac2_link), mac2_link },
@@ -543,6 +551,8 @@ static const struct aspeed_group_config ast2600_groups[] = {
 	{ "PWM14G1", ARRAY_SIZE(pwm14g1), pwm14g1 },
 	{ "PWM15G0", ARRAY_SIZE(pwm15g0), pwm15g0 },
 	{ "PWM15G1", ARRAY_SIZE(pwm15g1), pwm15g1 },
+	{ "SGPM1", ARRAY_SIZE(sgpm1), sgpm1 },
+	{ "SGPM2", ARRAY_SIZE(sgpm2), sgpm2 },
 };
 
 static int ast2600_pinctrl_get_groups_count(struct udevice *dev)

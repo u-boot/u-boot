@@ -18,6 +18,7 @@ struct cmd_tbl;
 #define FS_TYPE_SQUASHFS 6
 #define FS_TYPE_EROFS   7
 #define FS_TYPE_SEMIHOSTING 8
+#define FS_TYPE_EXFAT   9
 
 struct blk_desc;
 
@@ -25,7 +26,7 @@ struct blk_desc;
  * do_fat_fsload - Run the fatload command
  *
  * @cmdtp: Command information for fatload
- * @flag: Command flags (CMD_FLAG_...)
+ * @flag: Command flags (CMD_FLAG\_...)
  * @argc: Number of arguments
  * @argv: List of arguments
  * Return: result (see enum command_ret_t)
@@ -37,7 +38,7 @@ int do_fat_fsload(struct cmd_tbl *cmdtp, int flag, int argc,
  * do_ext2load - Run the ext2load command
  *
  * @cmdtp: Command information for ext2load
- * @flag: Command flags (CMD_FLAG_...)
+ * @flag: Command flags (CMD_FLAG\_...)
  * @argc: Number of arguments
  * @argv: List of arguments
  * Return: result (see enum command_ret_t)
@@ -86,7 +87,7 @@ int fs_set_blk_dev_with_part(struct blk_desc *desc, int part);
  *
  * Many file functions implicitly call fs_close(), e.g. fs_closedir(),
  * fs_exist(), fs_ln(), fs_ls(), fs_mkdir(), fs_read(), fs_size(), fs_write(),
- * fs_unlink().
+ * fs_unlink(), fs_rename().
  */
 void fs_close(void);
 
@@ -145,7 +146,7 @@ int fs_size(const char *filename, loff_t *size);
  * @offset:	offset in the file from where to start reading
  * @len:	the number of bytes to read. Use 0 to read entire file.
  * @actread:	returns the actual number of bytes read
- * Return:	0 if OK with valid *actread, -1 on error conditions
+ * Return:	0 if OK with valid @actread, -1 on error conditions
  */
 int fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
 	    loff_t *actread);
@@ -160,7 +161,7 @@ int fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
  * @offset:	offset in the file from where to start writing
  * @len:	the number of bytes to write
  * @actwrite:	returns the actual number of bytes written
- * Return:	0 if OK with valid *actwrite, -1 on error conditions
+ * Return:	0 if OK with valid @actwrite, -1 on error conditions
  */
 int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 	     loff_t *actwrite);
@@ -173,7 +174,7 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 #define FS_DT_REG  8         /* regular file */
 #define FS_DT_LNK  10        /* symbolic link */
 
-#define FS_DIRENT_NAME_LEN 256
+#define FS_DIRENT_NAME_LEN	CONFIG_IS_ENABLED(FS_EXFAT, (1024), (256))
 
 /**
  * struct fs_dirent - directory entry
@@ -186,57 +187,73 @@ struct fs_dirent {
 	unsigned int type;
 	/** @size:		file size */
 	loff_t size;
-	/** @flags:		attribute flags (FS_ATTR_*) */
+	/** @attr:		attribute flags (FS_ATTR_*) */
 	u32 attr;
-	/** create_time:	time of creation */
+	/** @create_time:	time of creation */
 	struct rtc_time create_time;
-	/** access_time:	time of last access */
+	/** @access_time:	time of last access */
 	struct rtc_time access_time;
-	/** change_time:	time of last modification */
+	/** @change_time:	time of last modification */
 	struct rtc_time change_time;
-	/** name:		file name */
+	/** @name:		file name */
 	char name[FS_DIRENT_NAME_LEN];
 };
 
-/* Note: fs_dir_stream should be treated as opaque to the user of fs layer */
+/**
+ * struct fs_dir_stream - Structure representing an opened directory
+ *
+ * Struct fs_dir_stream should be treated opaque to the user of fs layer.
+ * The fields @desc and @part are used by the fs layer.
+ * File system drivers pass additional private fields with the pointers
+ * to this structure.
+ *
+ * @desc:	block device descriptor
+ * @part:	partition number
+ */
 struct fs_dir_stream {
-	/* private to fs. layer: */
 	struct blk_desc *desc;
 	int part;
 };
 
-/*
+/**
  * fs_opendir - Open a directory
  *
- * @filename: the path to directory to open
- * Return: a pointer to the directory stream or NULL on error and errno
- *    set appropriately
+ * .. note::
+ *    The returned struct fs_dir_stream should be treated opaque to the
+ *    user of the fs layer.
+ *
+ * @filename: path to the directory to open
+ * Return:
+ * A pointer to the directory stream or NULL on error and errno set
+ * appropriately
  */
 struct fs_dir_stream *fs_opendir(const char *filename);
 
-/*
+/**
  * fs_readdir - Read the next directory entry in the directory stream.
  *
- * Works in an analogous way to posix readdir().  The previously returned
- * directory entry is no longer valid after calling fs_readdir() again.
+ * fs_readir works in an analogous way to posix readdir().
+ * The previously returned directory entry is no longer valid after calling
+ * fs_readdir() again.
  * After fs_closedir() is called, the returned directory entry is no
  * longer valid.
  *
  * @dirs: the directory stream
- * Return: the next directory entry (only valid until next fs_readdir() or
- *    fs_closedir() call, do not attempt to free()) or NULL if the end of
- *    the directory is reached.
+ * Return:
+ * the next directory entry (only valid until next fs_readdir() or
+ * fs_closedir() call, do not attempt to free()) or NULL if the end of
+ * the directory is reached.
  */
 struct fs_dirent *fs_readdir(struct fs_dir_stream *dirs);
 
-/*
+/**
  * fs_closedir - close a directory stream
  *
  * @dirs: the directory stream
  */
 void fs_closedir(struct fs_dir_stream *dirs);
 
-/*
+/**
  * fs_unlink - delete a file or directory
  *
  * If a given name is a directory, it will be deleted only if it's empty
@@ -246,13 +263,25 @@ void fs_closedir(struct fs_dir_stream *dirs);
  */
 int fs_unlink(const char *filename);
 
-/*
+/**
  * fs_mkdir - Create a directory
  *
  * @filename: Name of directory to create
  * Return: 0 on success, -1 on error conditions
  */
 int fs_mkdir(const char *filename);
+
+/**
+ * fs_rename - rename/move a file or directory
+ *
+ * @old_path: existing path of the file/directory to rename
+ * @new_path: new path of the file/directory. If this points to an existing
+ * file or empty directory, the existing file/directory will be unlinked.
+ * If this points to a non-empty directory, the rename will fail.
+ *
+ * Return: 0 on success, -1 on error conditions
+ */
+int fs_rename(const char *old_path, const char *new_path);
 
 /*
  * Common implementation for various filesystem commands, optionally limited
@@ -274,6 +303,8 @@ int do_mkdir(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	     int fstype);
 int do_ln(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	  int fstype);
+int do_mv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+	  int fstype);
 
 /*
  * Determine the UUID of the specified filesystem and print it. Optionally it is
@@ -292,7 +323,7 @@ int do_fs_type(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
  * do_fs_types - List supported filesystems.
  *
  * @cmdtp: Command information for fstypes
- * @flag: Command flags (CMD_FLAG_...)
+ * @flag: Command flags (CMD_FLAG\_...)
  * @argc: Number of arguments
  * @argv: List of arguments
  * Return: result (see enum command_ret_t)
@@ -309,7 +340,7 @@ int do_fs_types(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]);
  *
  * @fname: Filename to read
  * @size: Size of file to read (must be correct!)
- * @align: Alignment to use for memory allocation (0 for default)
+ * @align: Alignment to use for memory allocation (0 for default: ARCH_DMA_MINALIGN)
  * @bufp: On success, returns the allocated buffer with the nul-terminated file
  *	in it
  * Return: 0 if OK, -ENOMEM if out of memory, -EIO if read failed

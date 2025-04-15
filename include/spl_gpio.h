@@ -59,4 +59,23 @@ int spl_gpio_output(void *regs, uint gpio, int value);
  */
 int spl_gpio_input(void *regs, uint gpio);
 
+/**
+ * spl_gpio_get_value() - Get GPIO value
+ *
+ * @regs: Pointer to GPIO registers
+ * @gpio: GPIO to adjust (SoC-specific)
+ * Return: return GPIO value if OK, -ve on error
+ */
+int spl_gpio_get_value(void *regs, uint gpio);
+
+/**
+ * spl_gpio_set_value() - Set value on GPIO
+ *
+ * @regs: Pointer to GPIO registers
+ * @gpio: GPIO to adjust (SoC-specific)
+ * @value: 0 to set the output low, 1 to set it high
+ * Return: return 0 if OK, -ve on error
+ */
+int spl_gpio_set_value(void *regs, uint gpio, int value);
+
 #endif /* __SPL_GPIO_H */

@@ -10,7 +10,7 @@
 };
 
 &binman {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	u-boot-spl-ddr {
 		align = <4>;
 		align-size = <4>;

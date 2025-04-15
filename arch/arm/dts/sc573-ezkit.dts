@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * (C) Copyright 2024 - Analog Devices, Inc.
+ */
+
+/dts-v1/;
+
+#include "sc57x.dtsi"
+
+/ {
+	model = "ADI SC573-EZKIT";
+	compatible = "adi,sc573-ezkit", "adi,sc57x";
+};

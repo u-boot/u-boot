@@ -82,9 +82,9 @@ A bash script similar to the one below may be used:
 Adopted toolchains
 ------------------
 
-Please check:
-https://www.denx.de/wiki/U-Boot/ColdFireNotes
-
+Currently the `kernel.org cross-development toolchains
+<https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/>`_ are
+used in the project CI builds.
 
 ColdFire specific configuration options/settings
 ------------------------------------------------

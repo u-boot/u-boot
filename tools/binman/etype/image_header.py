@@ -62,6 +62,7 @@ class Entry_image_header(Entry):
 
     def _GetHeader(self):
         image_pos = self.GetSiblingImagePos('fdtmap')
+        offset = None
         if image_pos == False:
             self.Raise("'image_header' section must have an 'fdtmap' sibling")
         elif image_pos is None:

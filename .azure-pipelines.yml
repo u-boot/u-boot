@@ -1,8 +1,8 @@
 variables:
-  windows_vm: windows-2019
-  ubuntu_vm: ubuntu-22.04
-  macos_vm: macOS-12
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20240808-21Aug2024
+  windows_vm: windows-2022
+  ubuntu_vm: ubuntu-24.04
+  macos_vm: macOS-14
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20250404-10Apr2025
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -76,7 +76,8 @@ stages:
       # have no matches.
       - script: git grep -E '^#[[:blank:]]*(define|undef)[[:blank:]]*CONFIG_'
                   :^doc/ :^arch/arm/dts/ :^scripts/kconfig/lkc.h
-                  :^include/linux/kconfig.h :^tools/ :^dts/upstream/ &&
+                  :^include/linux/kconfig.h :^tools/ :^dts/upstream/
+                  :^lib/mbedtls/external :^lib/mbedtls/mbedtls_def_config.h &&
                   exit 1 || exit 0
 
   - job: docs
@@ -88,6 +89,7 @@ stages:
       options: $(container_option)
     steps:
       - script: |
+          set -e
           virtualenv -p /usr/bin/python3 /tmp/venvhtml
           . /tmp/venvhtml/bin/activate
           pip install -r doc/sphinx/requirements.txt
@@ -132,14 +134,21 @@ stages:
           export USER=azure
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
-          pip install -r test/py/requirements.txt
-          pip install -r tools/buildman/requirements.txt
+          pip install -r test/py/requirements.txt \
+            -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt \
+            -r tools/patman/requirements.txt \
+            -r tools/u_boot_pylib/requirements.txt
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/tools-only
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
           ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w --board tools-only
           set -ex
-          ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test
+          export TOOLPATH="--toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools --toolpath /opt/coreboot"
+          ./tools/binman/binman ${TOOLPATH} tool -f missing
+          ./tools/binman/binman ${TOOLPATH} test
+          # Avoid "Permission denied: 'cov'" error by using a temporary file
+          COVERAGE_FILE=/tmp/.coverage ./tools/binman/binman ${TOOLPATH} test -T
           ./tools/buildman/buildman -t
           ./tools/dtoc/dtoc -t
           ./tools/patman/patman test
@@ -161,9 +170,14 @@ stages:
       - script: |
           git config --global --add safe.directory $(work_dir)
           export USER=azure
-          pip install -r test/py/requirements.txt
-          pip install -r tools/buildman/requirements.txt
-          pip install asteval pylint==2.12.2 pyopenssl
+          virtualenv -p /usr/bin/python3 /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install -r test/py/requirements.txt \
+            -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt \
+            -r tools/patman/requirements.txt \
+            -r tools/u_boot_pylib/requirements.txt \
+            asteval pylint==3.3.4 pyopenssl
           export PATH=${PATH}:~/.local/bin
           echo "[MASTER]" >> .pylintrc
           echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
@@ -238,10 +252,12 @@ stages:
           cd \${WORK_DIR}
           git config --global --add safe.directory \${WORK_DIR}
           git clone --depth=1 https://source.denx.de/u-boot/u-boot-test-hooks /tmp/uboot-test-hooks
+          # qemu_arm64_lwip_defconfig is the same as qemu_arm64 but with NET_LWIP enabled.
+          # The test config and the boardenv file from qemu_arm64 can be re-used so create symlinks
+          ln -s conf.qemu_arm64_na /tmp/uboot-test-hooks/bin/travis-ci/conf.qemu_arm64_lwip_na
+          ln -s u_boot_boardenv_qemu_arm64_na.py /tmp/uboot-test-hooks/py/travis-ci/u_boot_boardenv_qemu_arm64_lwip_na.py
           ln -s travis-ci /tmp/uboot-test-hooks/bin/\`hostname\`
           ln -s travis-ci /tmp/uboot-test-hooks/py/\`hostname\`
-          grub-mkimage --prefix=\"\" -o ~/grub_x86.efi -O i386-efi normal echo lsefimmap lsefi lsefisystab efinet tftp minicmd
-          grub-mkimage --prefix=\"\" -o ~/grub_x64.efi -O x86_64-efi normal echo lsefimmap lsefi lsefisystab efinet tftp minicmd
           if [[ "\${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
               wget -O - https://github.com/riscv-software-src/opensbi/releases/download/v1.3.1/opensbi-1.3.1-rv-bin.tar.xz | tar -C /tmp -xJ;
               export OPENSBI=/tmp/opensbi-1.3.1-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin;
@@ -250,16 +266,27 @@ stages:
               wget -O - https://github.com/riscv-software-src/opensbi/releases/download/v1.3.1/opensbi-1.3.1-rv-bin.tar.xz | tar -C /tmp -xJ;
               export OPENSBI=/tmp/opensbi-1.3.1-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
           fi
+          if [[ "\${TEST_PY_BD}" == "qemu-arm-sbsa" ]]; then
+              wget -O /tmp/bl1.bin https://artifacts.codelinaro.org/artifactory/linaro-419-sbsa-ref/latest/tf-a/bl1.bin;
+              wget -O /tmp/fip.bin https://artifacts.codelinaro.org/artifactory/linaro-419-sbsa-ref/latest/tf-a/fip.bin;
+              export BINMAN_INDIRS=/tmp
+          fi
           # the below corresponds to .gitlab-ci.yml "script"
           cd \${WORK_DIR}
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/\${TEST_PY_BD}
           if [ -n "\${BUILD_ENV}" ]; then
               export \${BUILD_ENV};
           fi
-          pip install -r tools/buildman/requirements.txt
+          virtualenv -p /usr/bin/python3 /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt \
+            -r test/py/requirements.txt \
+            -r tools/u_boot_pylib/requirements.txt \
+            pytest-azurepipelines
           tools/buildman/buildman -o \${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board \${TEST_PY_BD} \${OVERRIDE}
-          cp ~/grub_x86.efi \${UBOOT_TRAVIS_BUILD_DIR}/
-          cp ~/grub_x64.efi \${UBOOT_TRAVIS_BUILD_DIR}/
+          cp /opt/grub/grub_x86.efi \${UBOOT_TRAVIS_BUILD_DIR}/
+          cp /opt/grub/grub_x64.efi \${UBOOT_TRAVIS_BUILD_DIR}/
           cp /opt/grub/grubriscv64.efi \${UBOOT_TRAVIS_BUILD_DIR}/grub_riscv64.efi
           cp /opt/grub/grubaa64.efi \${UBOOT_TRAVIS_BUILD_DIR}/grub_arm64.efi
           cp /opt/grub/grubarm.efi \${UBOOT_TRAVIS_BUILD_DIR}/grub_arm.efi
@@ -280,14 +307,10 @@ stages:
               /opt/coreboot/cbfstool \${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom remove -n fallback/payload;
               /opt/coreboot/cbfstool \${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom add-flat-binary -f \${UBOOT_TRAVIS_BUILD_DIR}/u-boot.bin -n fallback/payload -c LZMA -l 0x1110000 -e 0x1110000;
           fi
-          virtualenv -p /usr/bin/python3 /tmp/venv
-          . /tmp/venv/bin/activate
-          pip install -r test/py/requirements.txt
-          pip install pytest-azurepipelines
           export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:\${PATH}
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
           # "\${var:+"-k \$var"}" expands to "" if \$var is empty, "-k \$var" if not
-          ./test/py/test.py -ra -o cache_dir="\$UBOOT_TRAVIS_BUILD_DIR"/.pytest_cache --bd \${TEST_PY_BD} \${TEST_PY_ID} \${TEST_PY_TEST_SPEC:+"-k \${TEST_PY_TEST_SPEC}"} --build-dir "\$UBOOT_TRAVIS_BUILD_DIR" --report-dir "\$UBOOT_TRAVIS_BUILD_DIR" --junitxml=\$(System.DefaultWorkingDirectory)/results.xml
+          ./test/py/test.py -ra -o cache_dir="\$UBOOT_TRAVIS_BUILD_DIR"/.pytest_cache --bd \${TEST_PY_BD} \${TEST_PY_ID} \${TEST_PY_EXTRA} \${TEST_PY_TEST_SPEC:+"-k \${TEST_PY_TEST_SPEC}"} --build-dir "\$UBOOT_TRAVIS_BUILD_DIR" --report-dir "\$UBOOT_TRAVIS_BUILD_DIR" --junitxml=\$(System.DefaultWorkingDirectory)/results.xml
           # the below corresponds to .gitlab-ci.yml "after_script"
           rm -rf /tmp/uboot-test-hooks /tmp/venv
           EOF
@@ -310,22 +333,23 @@ stages:
       matrix:
         sandbox:
           TEST_PY_BD: "sandbox"
+          TEST_PY_EXTRA: "--timing"
         sandbox_asan:
           TEST_PY_BD: "sandbox"
           OVERRIDE: "-a ASAN"
           TEST_PY_TEST_SPEC: "version"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
-          OVERRIDE: "-O clang-17"
+          OVERRIDE: "-O clang-18"
         sandbox_clang_asan:
           TEST_PY_BD: "sandbox"
-          OVERRIDE: "-O clang-17 -a ASAN"
+          OVERRIDE: "-O clang-18 -a ASAN"
           TEST_PY_TEST_SPEC: "version"
         sandbox64:
           TEST_PY_BD: "sandbox64"
         sandbox64_clang:
           TEST_PY_BD: "sandbox64"
-          OVERRIDE: "-O clang-17"
+          OVERRIDE: "-O clang-18"
         sandbox_spl:
           TEST_PY_BD: "sandbox_spl"
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
@@ -399,12 +423,11 @@ stages:
         evb_ast2500:
           TEST_PY_BD: "evb-ast2500"
           TEST_PY_ID: "--id qemu"
-        evb_ast2600:
-          TEST_PY_BD: "evb-ast2600"
-          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         vexpress_ca9x4:
           TEST_PY_BD: "vexpress_ca9x4"
           TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         integratorcp_cm926ejs:
           TEST_PY_BD: "integratorcp_cm926ejs"
           TEST_PY_ID: "--id qemu"
@@ -414,6 +437,12 @@ stages:
           TEST_PY_TEST_SPEC: "not sleep"
         qemu_arm64:
           TEST_PY_BD: "qemu_arm64"
+          TEST_PY_TEST_SPEC: "not sleep"
+        qemu_arm64_lwip:
+          TEST_PY_BD: "qemu_arm64_lwip"
+          TEST_PY_TEST_SPEC: "test_net_dhcp or test_net_ping or test_net_tftpboot"
+        qemu_arm_sbsa_ref:
+          TEST_PY_BD: "qemu-arm-sbsa"
           TEST_PY_TEST_SPEC: "not sleep"
         qemu_m68k:
           TEST_PY_BD: "M5208EVBE"
@@ -463,21 +492,27 @@ stages:
         r2dplus_i82557c:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id i82557c_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         r2dplus_pcnet:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id pcnet_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         r2dplus_rtl8139:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id rtl8139_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         r2dplus_tulip:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id tulip_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         sifive_unleashed_sdcard:
           TEST_PY_BD: "sifive_unleashed"
           TEST_PY_ID: "--id sdcard_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         sifive_unleashed_spi-nor:
           TEST_PY_BD: "sifive_unleashed"
           TEST_PY_ID: "--id spi-nor_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         xilinx_zynq_virt:
           TEST_PY_BD: "xilinx_zynq_virt"
           TEST_PY_ID: "--id qemu"
@@ -486,6 +521,7 @@ stages:
           TEST_PY_BD: "xilinx_versal_virt"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
+          OVERRIDE: "-a ~CONFIG_USB_DWC3"
         xtfpga:
           TEST_PY_BD: "xtfpga"
           TEST_PY_ID: "--id qemu"
@@ -556,7 +592,10 @@ stages:
           # make environment variables available as tests are running inside a container
           export BUILDMAN="${BUILDMAN}"
           git config --global --add safe.directory ${WORK_DIR}
-          pip install -r tools/buildman/requirements.txt
+          virtualenv -p /usr/bin/python3 /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt
           EOF
           cat << "EOF" >> build.sh
           if [[ "${BUILDMAN}" != "" ]]; then

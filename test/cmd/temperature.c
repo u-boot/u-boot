@@ -18,8 +18,6 @@ static int dm_test_cmd_temperature(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_THERMAL, 0, &dev));
 	ut_assertnonnull(dev);
 
-	ut_assertok(console_record_reset_enable());
-
 	/* Test that "temperature list" shows the sandbox device */
 	ut_assertok(run_command("temperature list", 0));
 	ut_assert_nextline("| Device                        | Driver                        | Parent");
@@ -34,5 +32,4 @@ static int dm_test_cmd_temperature(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_cmd_temperature, UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
+DM_TEST(dm_test_cmd_temperature, UTF_SCAN_FDT | UTF_CONSOLE);

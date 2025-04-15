@@ -103,10 +103,31 @@ static int do_bootmeth_order(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_bootmeth_set(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
+{
+	int ret;
+
+	if (argc < 4) {
+		printf("Required parameters not provided\n");
+		return CMD_RET_FAILURE;
+	}
+
+	ret = bootmeth_set_property(argv[1], argv[2], argv[3]);
+	if (ret) {
+		printf("Failed (err=%d)\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	return 0;
+}
+
 U_BOOT_LONGHELP(bootmeth,
 	"list [-a]     - list available bootmeths (-a all)\n"
-	"bootmeth order [<bd> ...]  - select bootmeth order / subset to use");
+	"bootmeth order [<bd> ...]  - select bootmeth order / subset to use\n"
+	"bootmeth set <bootmeth> <property> <value> - set optional property");
 
 U_BOOT_CMD_WITH_SUBCMDS(bootmeth, "Boot methods", bootmeth_help_text,
 	U_BOOT_SUBCMD_MKENT(list, 2, 1, do_bootmeth_list),
-	U_BOOT_SUBCMD_MKENT(order, CONFIG_SYS_MAXARGS, 1, do_bootmeth_order));
+	U_BOOT_SUBCMD_MKENT(order, CONFIG_SYS_MAXARGS, 1, do_bootmeth_order),
+	U_BOOT_SUBCMD_MKENT(set, CONFIG_SYS_MAXARGS, 1, do_bootmeth_set));

@@ -163,5 +163,4 @@ static int lib_test_aes(struct unit_test_state *uts)
 
 	return ret;
 }
-
 LIB_TEST(lib_test_aes, 0);

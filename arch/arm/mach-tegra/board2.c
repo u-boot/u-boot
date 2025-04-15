@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <dm.h>
+#include <dm/root.h>
 #include <env.h>
 #include <errno.h>
 #include <init.h>
@@ -46,7 +47,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* TODO(sjg@chromium.org): Remove once SPL supports device tree */
 U_BOOT_DRVINFO(tegra_gpios) = {
 	"gpio_tegra"
@@ -95,7 +96,7 @@ int checkboard(void)
 {
 	int board_id = tegra_board_id();
 
-	printf("Board: %s", CFG_TEGRA_BOARD_STRING);
+	printf("Board: %s", CONFIG_TEGRA_BOARD_STRING);
 	if (board_id != -1)
 		printf(", ID: %d\n", board_id);
 	printf("\n");
@@ -186,9 +187,6 @@ int board_init(void)
 	/* prepare the WB code to LP0 location */
 	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
 #endif
-
-	/* Set up boot-on regulators */
-	regulators_enable_boot_on(_DEBUG);
 
 	return nvidia_board_init();
 }
@@ -423,10 +421,6 @@ int dram_init_banksize(void)
 	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = usable_ram_size_below_4g();
 
-#ifdef CONFIG_PCI
-	gd->pci_ram_top = gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
-#endif
-
 #ifdef CONFIG_PHYS_64BIT
 	if (gd->ram_size > SZ_2G) {
 		gd->bd->bi_dram[1].start = 0x100000000;
@@ -464,3 +458,18 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 
 	return CFG_SYS_SDRAM_BASE + usable_ram_size_below_4g();
 }
+
+#if IS_ENABLED(CONFIG_DTB_RESELECT)
+int embedded_dtb_select(void)
+{
+	int ret, rescan;
+
+	ret = fdtdec_resetup(&rescan);
+	if (!ret && rescan) {
+		dm_uninit();
+		dm_init_and_scan(true);
+	}
+
+	return 0;
+}
+#endif

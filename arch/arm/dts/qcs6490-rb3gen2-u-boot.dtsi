@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024 Linaro Ltd.
+ */
+/ {
+	/* When running as the primary bootloader there is no prior
+	 * stage to populate the memory layout for us. We *should*
+	 * have two nodes here, but ABL does NOT like that.
+	 * sooo we're stuck with this.
+	 */
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0 0x80000000 0 0x3A800000>,
+		      <0 0xC0000000 0 0x01800000>,
+		      <0 0xC3400000 0 0x3CC00000>,
+		      <1 0x00000000 1 0x00000000>;
+	};
+};
+
+&usb_1_dwc3 {
+	dr_mode = "host";
+	/delete-property/ usb-role-switch;
+};
+
+// RAM Entry 0 : Base 0x0080000000  Size 0x003A800000
+// RAM Entry 1 : Base 0x00C0000000  Size 0x0001800000
+// RAM Entry 2 : Base 0x00C3400000  Size 0x003CC00000
+// RAM Entry 3 : Base 0x0100000000  Size 0x0100000000

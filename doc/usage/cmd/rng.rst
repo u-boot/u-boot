@@ -12,14 +12,14 @@ Synopsis
 ::
 
     rng list
-    rng [dev] [n]
+    rng [dev [n]]
 
 rng list
 --------
 
 List all the probed rng devices.
 
-rng [dev] [n]
+rng [dev [n]]
 -------------
 
 The *rng* command reads the random number generator(RNG) device and

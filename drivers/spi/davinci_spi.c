@@ -129,9 +129,6 @@ static int davinci_spi_read(struct davinci_spi_slave *ds, unsigned int len,
 	while (readl(&ds->regs->buf) & SPIBUF_TXFULL_MASK)
 		;
 
-	/* preload the TX buffer to avoid clock starvation */
-	writel(data1_reg_val, &ds->regs->dat1);
-
 	/* keep reading 1 byte until only 1 byte left */
 	while ((len--) > 1)
 		*rxp++ = davinci_spi_xfer_data(ds, data1_reg_val);
@@ -158,12 +155,6 @@ static int davinci_spi_write(struct davinci_spi_slave *ds, unsigned int len,
 	/* wait till TXFULL is deasserted */
 	while (readl(&ds->regs->buf) & SPIBUF_TXFULL_MASK)
 		;
-
-	/* preload the TX buffer to avoid clock starvation */
-	if (len > 2) {
-		writel(data1_reg_val | *txp++, &ds->regs->dat1);
-		len--;
-	}
 
 	/* keep writing 1 byte until only 1 byte left */
 	while ((len--) > 1)
@@ -338,13 +329,13 @@ static int davinci_spi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
 
-	if (slave_plat->cs >= ds->num_cs) {
+	if (slave_plat->cs[0] >= ds->num_cs) {
 		printf("Invalid SPI chipselect\n");
 		return -EINVAL;
 	}
 	ds->half_duplex = slave_plat->mode & SPI_PREAMBLE;
 
-	return __davinci_spi_claim_bus(ds, slave_plat->cs);
+	return __davinci_spi_claim_bus(ds, slave_plat->cs[0]);
 }
 
 static int davinci_spi_release_bus(struct udevice *dev)
@@ -363,11 +354,11 @@ static int davinci_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct udevice *bus = dev->parent;
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
 
-	if (slave->cs >= ds->num_cs) {
+	if (slave->cs[0] >= ds->num_cs) {
 		printf("Invalid SPI chipselect\n");
 		return -EINVAL;
 	}
-	ds->cur_cs = slave->cs;
+	ds->cur_cs = slave->cs[0];
 
 	return __davinci_spi_xfer(ds, bitlen, dout, din, flags);
 }

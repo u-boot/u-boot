@@ -2,7 +2,7 @@
 # Copyright (c) 2016 Toradex, Inc.
 
 # Common for all Toradex modules
-ifeq ($(CONFIG_SPL_BUILD),y)
+ifeq ($(CONFIG_XPL_BUILD),y)
 # Necessary to create built-in.o
 obj- := __dummy__.o
 else

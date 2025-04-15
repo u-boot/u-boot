@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: (GPL-2.0+)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/adi/adi,sc5xx.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Analog Devices SC5XX ARM-based SoCs
+
+maintainers:
+  - Vasileios Bimpikas <vasileios.bimpikas@analog.com>
+  - Utsav Agarwal <utsav.agarwal@analog.com>
+  - Arturs Artamonovs <arturs.artamonovs@analog.com>
+
+properties:
+  $nodename:
+    const: '/'
+  compatible:
+    oneOf:
+      - description: SC57X Series Boards
+        items:
+          - const: adi,sc573-ezkit
+          - const: adi,sc57x
+
+      - description: SC58X Series Boards
+        items:
+          - enum:
+            - adi,sc584-ezkit
+            - adi,sc589-ezkit
+            - adi,sc589-mini
+          - const: adi,sc58x
+
+      - description: SC59X Series 32-bit Boards
+        items:
+          - enum:
+            - adi,sc594-som-ezkit
+            - adi,sc594-som-ezlite
+          - const: adi,sc59x
+
+      - description: SC59X Series 64-bit Boards
+        items:
+          - enum:
+            - adi,sc598-som-ezkit
+            - adi,sc598-som-ezlite
+          - const: adi,sc59x-64
+
+additionalProperties: true

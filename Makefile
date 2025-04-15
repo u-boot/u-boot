@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-VERSION = 2024
-PATCHLEVEL = 10
+VERSION = 2025
+PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION = -rc3
+EXTRAVERSION =
 NAME =
 
 # *DOCUMENTATION*
@@ -21,7 +21,7 @@ include include/host_arch.h
 ifeq ("", "$(CROSS_COMPILE)")
   MK_ARCH="${shell uname -m}"
 else
-  MK_ARCH="${shell echo $(CROSS_COMPILE) | sed -n 's/^[[:space:]]*\([^\/]*\/\)*\([^-]*\)-[^[:space:]]*/\2/p'}"
+  MK_ARCH="${shell echo $(CROSS_COMPILE) | sed -n 's/^\(.*ccache\)\{0,1\}[[:space:]]*\([^\/]*\/\)*\([^-]*\)-[^[:space:]]*/\3/p'}"
 endif
 unexport HOST_ARCH
 ifeq ("x86_64", $(MK_ARCH))
@@ -406,6 +406,7 @@ LDR		= $(CROSS_COMPILE)ldr
 STRIP		= $(CROSS_COMPILE)strip
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
+READELF		= $(CROSS_COMPILE)readelf
 LEX		= flex
 YACC		= bison
 AWK		= awk
@@ -624,7 +625,7 @@ include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	@# Otherwise, 'make silentoldconfig' would be invoked twice.
 	$(Q)touch include/config/auto.conf
 
-u-boot.cfg spl/u-boot.cfg tpl/u-boot.cfg:
+u-boot.cfg spl/u-boot.cfg tpl/u-boot.cfg vpl/u-boot.cfg:
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.autoconf $(@)
 
 -include include/autoconf.mk
@@ -820,6 +821,7 @@ KBUILD_AFLAGS += $(KAFLAGS)
 KBUILD_CFLAGS += $(KCFLAGS)
 
 KBUILD_LDFLAGS  += -z noexecstack
+KBUILD_LDFLAGS  += -z norelro
 KBUILD_LDFLAGS  += $(call ld-option,--no-warn-rwx-segments)
 
 KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
@@ -829,14 +831,22 @@ KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
 UBOOTINCLUDE    := \
 	-Iinclude \
 	$(if $(KBUILD_SRC), -I$(srctree)/include) \
-	$(if $(CONFIG_$(SPL_)SYS_THUMB_BUILD), \
+	$(if $(CONFIG_$(XPL_)MBEDTLS_LIB), \
+		"-DMBEDTLS_CONFIG_FILE=\"mbedtls_def_config.h\"" \
+		-I$(srctree)/lib/mbedtls \
+		-I$(srctree)/lib/mbedtls/port \
+		-I$(srctree)/lib/mbedtls/external/mbedtls \
+		-I$(srctree)/lib/mbedtls/external/mbedtls/include) \
+	$(if $(CONFIG_$(PHASE_)SYS_THUMB_BUILD), \
 		$(if $(CONFIG_HAS_THUMB2), \
 			$(if $(CONFIG_CPU_V7M), \
 				-I$(srctree)/arch/arm/thumb1/include), \
 			-I$(srctree)/arch/arm/thumb1/include)) \
 	-I$(srctree)/arch/$(ARCH)/include \
 	-include $(srctree)/include/linux/kconfig.h \
-	-I$(srctree)/dts/upstream/include
+	-I$(srctree)/dts/upstream/include \
+	$(if $(CONFIG_NET_LWIP), -I$(srctree)/lib/lwip/lwip/src/include \
+		-I$(srctree)/lib/lwip/u-boot)
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 
@@ -859,18 +869,17 @@ libs-$(CONFIG_OF_EMBED) += dts/
 libs-y += env/
 libs-y += lib/
 libs-y += fs/
-libs-y += net/
+libs-$(filter y,$(CONFIG_NET) $(CONFIG_NET_LWIP)) += net/
 libs-y += disk/
 libs-y += drivers/
 libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
 libs-$(CONFIG_SYS_FSL_MMDC) += drivers/ddr/fsl/
-libs-$(CONFIG_$(SPL_)ALTERA_SDRAM) += drivers/ddr/altera/
+libs-$(CONFIG_$(PHASE_)ALTERA_SDRAM) += drivers/ddr/altera/
 libs-y += drivers/usb/cdns3/
 libs-y += drivers/usb/dwc3/
 libs-y += drivers/usb/common/
 libs-y += drivers/usb/emul/
 libs-y += drivers/usb/eth/
-libs-$(CONFIG_USB_DEVICE) += drivers/usb/gadget/
 libs-$(CONFIG_USB_GADGET) += drivers/usb/gadget/
 libs-$(CONFIG_USB_GADGET) += drivers/usb/gadget/udc/
 libs-y += drivers/usb/host/
@@ -879,14 +888,12 @@ libs-y += drivers/usb/musb/
 libs-y += drivers/usb/musb-new/
 libs-y += drivers/usb/isp1760/
 libs-y += drivers/usb/phy/
+libs-y += drivers/usb/tcpm/
 libs-y += drivers/usb/ulpi/
 ifdef CONFIG_POST
 libs-y += post/
 endif
-libs-$(CONFIG_$(SPL_TPL_)UNIT_TEST) += test/
-libs-$(CONFIG_UT_ENV) += test/env/
-libs-$(CONFIG_UT_OPTEE) += test/optee/
-libs-$(CONFIG_UT_OVERLAY) += test/overlay/
+libs-$(CONFIG_$(PHASE_)UNIT_TEST) += test/
 
 libs-y += $(if $(wildcard $(srctree)/board/$(BOARDDIR)/Makefile),board/$(BOARDDIR)/)
 
@@ -1010,7 +1017,9 @@ INPUTS-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
 # Generate this input file for binman
 ifeq ($(CONFIG_SPL),)
+ifneq ($(patsubst "%",%,$(CONFIG_MTK_BROM_HEADER_INFO)),)
 INPUTS-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
+endif
 endif
 
 # Add optional build target if defined in board/cpu/soc headers
@@ -1058,7 +1067,7 @@ quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) --gap-fill=0xff $(OBJCOPYFLAGS) \
 	$(OBJCOPYFLAGS_$(@F)) $< $@
 
-# Provide a version which does not do this, for use by EFI
+# Provide a version which does not do this, for use by EFI and hex/srec
 quiet_cmd_zobjcopy = OBJCOPY $@
 cmd_zobjcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 
@@ -1138,13 +1147,6 @@ ifeq ($(CONFIG_OF_EMBED)$(CONFIG_EFI_APP),y)
 	@echo >&2 "be used for debugging purposes. Please use"
 	@echo >&2 "CONFIG_OF_SEPARATE for boards in mainline."
 	@echo >&2 "See doc/develop/devicetree/control.rst for more info."
-	@echo >&2 "===================================================="
-endif
-ifneq ($(CONFIG_SPL_FIT_GENERATOR),)
-	@echo >&2 "===================== WARNING ======================"
-	@echo >&2 "This board uses CONFIG_SPL_FIT_GENERATOR. Please migrate"
-	@echo >&2 "to binman instead, to avoid the proliferation of"
-	@echo >&2 "arch-specific scripts with no tests."
 	@echo >&2 "===================================================="
 endif
 	$(call deprecated,CONFIG_WDT,DM watchdog,v2019.10,\
@@ -1280,17 +1282,26 @@ OBJCOPYFLAGS_u-boot.hex := -O ihex
 OBJCOPYFLAGS_u-boot.srec := -O srec
 
 u-boot.hex u-boot.srec: u-boot FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 OBJCOPYFLAGS_u-boot-elf.srec := $(OBJCOPYFLAGS_u-boot.srec)
 
+ifeq ($(CONFIG_POSITION_INDEPENDENT)$(CONFIG_RCAR_GEN3),yy)
+# The flash_writer tool and previous recovery tools
+# require the SREC load address to be 0x5000_0000 .
+# The PIE U-Boot build sets the address to 0x0, so
+# override the address back to make u-boot-elf.srec
+# compatible with the recovery tools.
+OBJCOPYFLAGS_u-boot-elf.srec += --change-addresses=0x50000000
+endif
+
 u-boot-elf.srec: u-boot.elf FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 OBJCOPYFLAGS_u-boot-spl.srec = $(OBJCOPYFLAGS_u-boot.srec)
 
 spl/u-boot-spl.srec: spl/u-boot-spl FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 %.scif: %.srec
 	$(Q)$(MAKE) $(build)=arch/arm/mach-renesas $@
@@ -1367,17 +1378,41 @@ u-boot.ldr:	u-boot
 # ---------------------------------------------------------------------------
 # Use 'make BINMAN_DEBUG=1' to enable debugging
 # Use 'make BINMAN_VERBOSE=3' to set vebosity level
+
+ifneq ($(EXT_DTB),)
+ext_dtb_list := $(basename $(notdir $(EXT_DTB)))
+default_dt := $(firstword $(ext_dtb_list))
+of_list := "$(ext_dtb_list)"
+of_list_dirs := $(dir $(EXT_DTB))
+else
+of_list := $(CONFIG_OF_LIST)
+ifneq ($(CONFIG_OF_UPSTREAM_INCLUDE_LOCAL_FALLBACK_DTBOS),)
+of_list_dirs := $(dt_dir) arch/$(ARCH)/dts
+else
+of_list_dirs := $(dt_dir)
+endif
 default_dt := $(if $(DEVICE_TREE),$(DEVICE_TREE),$(CONFIG_DEFAULT_DEVICE_TREE))
+endif
+
+binman_dtb := $(shell echo $(CONFIG_BINMAN_DTB))
+ifeq ($(strip $(binman_dtb)),)
+ifeq ($(CONFIG_OF_EMBED),y)
+binman_dtb = ./dts/dt.dtb
+else
+binman_dtb = ./u-boot.dtb
+endif
+endif
 
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		$(foreach f,$(BINMAN_TOOLPATHS),--toolpath $(f)) \
                 --toolpath $(objtree)/tools \
 		$(if $(BINMAN_VERBOSE),-v$(BINMAN_VERBOSE)) \
-		build -u -d u-boot.dtb -O . -m \
-		--allow-missing $(if $(BINMAN_ALLOW_MISSING),--ignore-missing) \
+		build -u -d $(binman_dtb) -O . -m \
+		--allow-missing --fake-ext-blobs \
+		$(if $(BINMAN_ALLOW_MISSING),--ignore-missing) \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
-		-I $(dt_dir) -a of-list=$(CONFIG_OF_LIST) \
+		$(foreach f,$(of_list_dirs),-I $(f)) -a of-list=$(of_list) \
 		$(foreach f,$(BINMAN_INDIRS),-I $(f)) \
 		-a atf-bl31-path=${BL31} \
 		-a tee-os-path=${TEE} \
@@ -1401,24 +1436,7 @@ OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
 OBJCOPYFLAGS_u-boot.ldr.srec := -I binary -O srec
 
 u-boot.ldr.hex u-boot.ldr.srec: u-boot.ldr FORCE
-	$(call if_changed,objcopy)
-
-# Boards with more complex image requirements can provide an .its source file
-# or a generator script
-# NOTE: Please do not use this. We are migrating away from Makefile rules to use
-# binman instead.
-ifneq ($(CONFIG_SPL_FIT_SOURCE),"")
-U_BOOT_ITS := u-boot.its
-$(U_BOOT_ITS): $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
-	$(call if_changed,copy)
-else
-ifneq ($(CONFIG_USE_SPL_FIT_GENERATOR),)
-U_BOOT_ITS := u-boot.its
-$(U_BOOT_ITS): $(U_BOOT_ITS_DEPS) FORCE
-	$(srctree)/$(CONFIG_SPL_FIT_GENERATOR) \
-	$(patsubst %,$(dt_dir)/%.dtb,$(subst ",,$(CONFIG_OF_LIST))) > $@
-endif
-endif
+	$(call if_changed,zobjcopy)
 
 ifdef CONFIG_SPL_LOAD_FIT
 MKIMAGEFLAGS_u-boot.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
@@ -1473,8 +1491,10 @@ u-boot.bin.lzma: u-boot.bin FORCE
 u-boot-lzma.img: u-boot.bin.lzma FORCE
 	$(call if_changed,mkimage)
 
+fit_image := $(if $(CONFIG_SANDBOX_VPL),u-boot,u-boot-nodtb.bin)
+
 u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl u-boot-ivt.img: \
-		$(if $(CONFIG_SPL_LOAD_FIT),u-boot-nodtb.bin \
+		$(if $(CONFIG_SPL_LOAD_FIT),$(fit_image) \
 			$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SANDBOX),dts/dt.dtb) \
 		,$(UBOOT_BIN)) FORCE
 	$(call if_changed,mkimage)
@@ -1768,6 +1788,7 @@ endif
 ifeq ($(LTO_ENABLE),y)
 quiet_cmd_u-boot__ ?= LTO     $@
       cmd_u-boot__ ?=								\
+		touch $(u-boot-main) ;						\
 		$(CC) -nostdlib -nostartfiles					\
 		$(LTO_FINAL_LDFLAGS) $(c_flags)					\
 		$(KBUILD_LDFLAGS:%=-Wl,%) $(LDFLAGS_u-boot:%=-Wl,%) -o $@	\
@@ -1781,7 +1802,9 @@ quiet_cmd_u-boot__ ?= LTO     $@
 		$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
 else
 quiet_cmd_u-boot__ ?= LD      $@
-      cmd_u-boot__ ?= $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_u-boot) -o $@		\
+      cmd_u-boot__ ?=								\
+		touch $(u-boot-main) ;						\
+		$(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_u-boot) -o $@			\
 		-T u-boot.lds $(u-boot-init)					\
 		--whole-archive							\
 			$(u-boot-main)						\
@@ -1842,6 +1865,7 @@ quiet_cmd_gen_envp = ENVP    $@
 		$(CPP) -P $(cpp_flags) -x assembler-with-cpp -undef \
 			-D__ASSEMBLY__ \
 			-D__UBOOT_CONFIG__ \
+			-DDEFAULT_DEVICE_TREE=$(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE)) \
 			-I . -I include -I $(srctree)/include \
 			-include linux/kconfig.h -include include/config.h \
 			-I$(srctree)/arch/$(ARCH)/include \
@@ -2092,7 +2116,7 @@ spl/u-boot-spl-dtb.hex: spl/u-boot-spl
 	@:
 
 spl/u-boot-spl: tools prepare $(if $(CONFIG_SPL_OF_CONTROL),dts/dt.dtb)
-	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
+	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.xpl all
 
 spl/sunxi-spl.bin: spl/u-boot-spl
 	@:
@@ -2111,14 +2135,14 @@ tpl/u-boot-tpl.bin: tpl/u-boot-tpl
 	$(TPL_SIZE_CHECK)
 
 tpl/u-boot-tpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
-	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
+	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.xpl all
 
 vpl/u-boot-vpl.bin: vpl/u-boot-vpl
 	@:
 	$(VPL_SIZE_CHECK)
 
 vpl/u-boot-vpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
-	$(Q)$(MAKE) obj=vpl -f $(srctree)/scripts/Makefile.spl all
+	$(Q)$(MAKE) obj=vpl -f $(srctree)/scripts/Makefile.xpl all
 
 TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
 
@@ -2153,7 +2177,7 @@ System.map:	u-boot
 # ARM relocations should all be R_ARM_RELATIVE (32-bit) or
 # R_AARCH64_RELATIVE (64-bit).
 checkarmreloc: u-boot
-	@RELOC="`$(CROSS_COMPILE)readelf -r -W $< | cut -d ' ' -f 4 | \
+	@RELOC="`$(READELF) -r -W $< | cut -d ' ' -f 4 | \
 		grep R_A | sort -u`"; \
 	if test "$$RELOC" != "R_ARM_RELATIVE" -a \
 		 "$$RELOC" != "R_AARCH64_RELATIVE"; then \
@@ -2207,7 +2231,7 @@ CLEAN_FILES += include/autoconf.mk* include/bmp_logo.h include/bmp_logo_data.h \
 	       itb.fit.fit itb.fit.itb itb.map spl.map mkimage-out.rom.mkimage \
 	       mkimage.rom.mkimage mkimage-in-simple-bin* rom.map simple-bin* \
 	       idbloader-spi.img lib/efi_loader/helloworld_efi.S *.itb \
-	       Test* capsule.*.efi-capsule capsule*.map
+	       Test* capsule*.*.efi-capsule capsule*.map
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl vpl \
@@ -2492,7 +2516,7 @@ cmd_genenv = \
 	sed -e '/^\s*$$/d' | \
 	sort -t '=' -k 1,1 -s -o $@
 
-u-boot-initial-env: scripts_basic $(env_h) FORCE
+u-boot-initial-env: scripts_basic $(version_h) $(env_h) include/config.h FORCE
 	$(Q)$(MAKE) $(build)=tools $(objtree)/tools/printinitialenv
 	$(call if_changed,genenv)
 

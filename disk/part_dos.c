@@ -100,7 +100,7 @@ static int test_block_type(unsigned char *buffer)
 
 static int part_test_dos(struct blk_desc *desc)
 {
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, mbr,
 			DIV_ROUND_UP(desc->blksz, sizeof(legacy_mbr)));
 

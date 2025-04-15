@@ -9,20 +9,8 @@
 #ifndef __VBE_SIMPLE_H
 #define __VBE_SIMPLE_H
 
-enum {
-	MAX_VERSION_LEN		= 256,
-
-	NVD_HDR_VER_SHIFT	= 0,
-	NVD_HDR_VER_MASK	= 0xf,
-	NVD_HDR_SIZE_SHIFT	= 4,
-	NVD_HDR_SIZE_MASK	= 0xf << NVD_HDR_SIZE_SHIFT,
-
-	/* Firmware key-version is in the top 16 bits of fw_ver */
-	FWVER_KEY_SHIFT		= 16,
-	FWVER_FW_MASK		= 0xffff,
-
-	NVD_HDR_VER_CUR		= 1,	/* current version */
-};
+#include <linux/types.h>
+#include "vbe_common.h"
 
 /** struct simple_priv - information read from the device tree */
 struct simple_priv {

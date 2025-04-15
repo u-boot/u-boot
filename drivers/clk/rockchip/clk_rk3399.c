@@ -55,7 +55,7 @@ struct pll_div {
 
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2, 1);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 2, 2);
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 static const struct pll_div ppll_init_cfg = PLL_DIVISORS(PPLL_HZ, 2, 2, 1);
 #endif
 
@@ -1463,7 +1463,7 @@ static int rk3399_clk_probe(struct udevice *dev)
 	priv->cru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 	init_clocks = true;
 #elif CONFIG_IS_ENABLED(HANDOFF)
 	if (!(gd->flags & GD_FLG_RELOC)) {
@@ -1657,7 +1657,7 @@ static struct clk_ops rk3399_pmuclk_ops = {
 	.set_rate = rk3399_pmuclk_set_rate,
 };
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static void pmuclk_init(struct rk3399_pmucru *pmucru)
 {
 	u32 pclk_div;
@@ -1675,7 +1675,7 @@ static void pmuclk_init(struct rk3399_pmucru *pmucru)
 
 static int rk3399_pmuclk_probe(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(OF_PLATDATA) || !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(OF_PLATDATA) || !defined(CONFIG_XPL_BUILD)
 	struct rk3399_pmuclk_priv *priv = dev_get_priv(dev);
 #endif
 
@@ -1685,7 +1685,7 @@ static int rk3399_pmuclk_probe(struct udevice *dev)
 	priv->pmucru = map_sysmem(plat->dtd.reg[0], plat->dtd.reg[1]);
 #endif
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	pmuclk_init(priv->pmucru);
 #endif
 	return 0;

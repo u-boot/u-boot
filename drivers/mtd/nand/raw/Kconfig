@@ -120,41 +120,24 @@ config NAND_BRCMNAND
 	  Enable the driver for NAND flash on platforms using a Broadcom NAND
 	  controller.
 
+config NAND_BRCMNAND_BCMBCA
+	bool "Support Broadcom NAND controller on BCMBCA platforms"
+	depends on NAND_BRCMNAND && ARCH_BCMBCA
+	help
+	  Enable support for broadcom nand driver on BCA (broadband
+	  access) platforms such as BCM6846.
+
 config NAND_BRCMNAND_6368
 	bool "Support Broadcom NAND controller on bcm6368"
 	depends on NAND_BRCMNAND && ARCH_BMIPS
 	help
 	  Enable support for broadcom nand driver on bcm6368.
 
-config NAND_BRCMNAND_6753
-	bool "Support Broadcom NAND controller on bcm6753"
-	depends on NAND_BRCMNAND && BCM6855
-	help
-	  Enable support for broadcom nand driver on bcm6753.
-
-config NAND_BRCMNAND_68360
-	bool "Support Broadcom NAND controller on bcm68360"
-	depends on NAND_BRCMNAND && BCM6856
-	help
-	  Enable support for broadcom nand driver on bcm68360.
-
 config NAND_BRCMNAND_6838
 	bool "Support Broadcom NAND controller on bcm6838"
 	depends on NAND_BRCMNAND && ARCH_BMIPS && SOC_BMIPS_BCM6838
 	help
 	  Enable support for broadcom nand driver on bcm6838.
-
-config NAND_BRCMNAND_6858
-	bool "Support Broadcom NAND controller on bcm6858"
-	depends on NAND_BRCMNAND && BCM6858
-	help
-	  Enable support for broadcom nand driver on bcm6858.
-
-config NAND_BRCMNAND_63158
-	bool "Support Broadcom NAND controller on bcm63158"
-	depends on NAND_BRCMNAND && BCM63158
-	help
-	  Enable support for broadcom nand driver on bcm63158.
 
 config NAND_BRCMNAND_IPROC
 	bool "Support Broadcom NAND controller on the iproc family"
@@ -206,6 +189,21 @@ config KEYSTONE_RBL_NAND
 config SPL_NAND_LOAD
 	def_bool y
 	depends on NAND_DAVINCI && ARCH_DAVINCI && SPL_NAND_SUPPORT
+
+config NAND_CADENCE
+	bool "Support Cadence NAND controller as a DT device"
+	depends on OF_CONTROL && DM_MTD
+	select SYS_NAND_SELF_INIT
+	select SPL_SYS_NAND_SELF_INIT
+	select SPL_NAND_BASE
+	select SPL_NAND_DRIVERS
+	select SPL_NAND_IDENT
+	select SPL_NAND_INIT
+	select SPL_NAND_ECC
+	imply CMD_NAND
+	help
+	  Enable the driver for NAND flash on platforms using a Cadence NAND
+	  controller as a DT device.
 
 config NAND_DENALI
 	bool
@@ -690,7 +688,7 @@ config SYS_NAND_PAGE_SIZE
 		SPL_NAND_SIMPLE || (NAND_MXC && SPL_NAND_SUPPORT) || \
 		MVEBU_SPL_BOOT_DEVICE_NAND || \
 		(NAND_ATMEL && SPL_NAND_SUPPORT) || \
-		SPL_GENERATE_ATMEL_PMECC_HEADER || NAND_SANDBOX
+		SPL_GENERATE_ATMEL_PMECC_HEADER || NAND_SANDBOX || NAND_CADENCE
 	depends on !NAND_MXS && !NAND_DENALI_DT && !NAND_LPC32XX_MLC && !NAND_MT7621
 	help
 	  Number of data bytes in one page for the NAND chip on the
@@ -791,6 +789,13 @@ config SPL_NAND_AM33XX_BCH
 	  Some legacy platforms like OMAP3xx do not have in-built ELM h/w engine,
 	  so those platforms should use CONFIG_SPL_NAND_SIMPLE for enabling
 	  SPL-NAND driver with software ECC correction support.
+
+config SPL_NAND_CADENCE
+	bool "Support Cadence NAND controller for SPL"
+	depends on SPL_NAND_SUPPORT
+	help
+	  This is a small implementation of the Cadence NAND controller
+	  for use on SPL.
 
 config SPL_NAND_DENALI
 	bool "Support Denali NAND controller for SPL"

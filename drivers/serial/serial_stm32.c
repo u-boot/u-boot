@@ -299,13 +299,19 @@ static inline struct stm32_uart_info *_debug_uart_info(void)
 
 static inline void _debug_uart_init(void)
 {
-	void __iomem *base = (void __iomem *)CONFIG_VAL(DEBUG_UART_BASE);
-	struct stm32_uart_info *uart_info = _debug_uart_info();
+	void __maybe_unused __iomem *base = (void __iomem *)CONFIG_VAL(DEBUG_UART_BASE);
+	struct stm32_uart_info *uart_info __maybe_unused = _debug_uart_info();
 
-	_stm32_serial_init(base, uart_info);
-	_stm32_serial_setbrg(base, uart_info,
-			     CONFIG_DEBUG_UART_CLOCK,
-			     CONFIG_BAUDRATE);
+	/*
+	 * debug_uart_init() is only usable when SPL_BUILD is enabled
+	 * (STM32MP1 case only)
+	 */
+	if (IS_ENABLED(CONFIG_DEBUG_UART) && IS_ENABLED(CONFIG_SPL_BUILD)) {
+		_stm32_serial_init(base, uart_info);
+		_stm32_serial_setbrg(base, uart_info,
+				     CONFIG_DEBUG_UART_CLOCK,
+				     CONFIG_BAUDRATE);
+	}
 }
 
 static inline void _debug_uart_putc(int c)

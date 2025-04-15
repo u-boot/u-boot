@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
+#include <linux/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -126,4 +127,9 @@ void dcache_enable(void)
 void dcache_disable(void)
 {
 	flush_dcache_all();
+}
+
+int __weak pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
+{
+	return -ENOSYS;
 }

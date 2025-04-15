@@ -259,7 +259,7 @@ int mrc_common_init(struct udevice *dev, void *pei_data, bool use_asm_linkage)
 		return ret;
 
 	delay = dev_read_u32_default(dev, "fspm,training-delay", 0);
-	if (spl_phase() == PHASE_SPL) {
+	if (xpl_phase() == PHASE_SPL) {
 		if (delay)
 			printf("SDRAM training (%d seconds)...", delay);
 		else

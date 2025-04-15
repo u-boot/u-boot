@@ -28,13 +28,17 @@
  * iPXE uses the simple file protocol to load Grub or the Linux Kernel.
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <blk.h>
 #include <dm.h>
 #include <efi_driver.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/tag.h>
+#include <dm/uclass-internal.h>
 
 /**
  * struct efi_blk_plat - attributes of a block device
@@ -116,12 +120,17 @@ static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 static efi_status_t
 efi_bl_create_block_device(efi_handle_t handle, void *interface)
 {
-	struct udevice *bdev = NULL, *parent = dm_root();
+	struct udevice *bdev = NULL, *parent;
 	efi_status_t ret;
+	int r;
 	int devnum;
 	char *name;
 	struct efi_block_io *io = interface;
 	struct efi_blk_plat *plat;
+
+	r = uclass_find_first_device(UCLASS_EFI_LOADER, &parent);
+	if (r)
+		return EFI_OUT_OF_RESOURCES;
 
 	devnum = blk_next_free_devnum(UCLASS_EFI_LOADER);
 	if (devnum < 0)
@@ -133,15 +142,13 @@ efi_bl_create_block_device(efi_handle_t handle, void *interface)
 	sprintf(name, "efiblk#%d", devnum);
 
 	/* Create driver model udevice for the EFI block io device */
-	if (blk_create_device(parent, "efi_blk", name, UCLASS_EFI_LOADER,
-			      devnum, io->media->block_size,
-			      (lbaint_t)io->media->last_block, &bdev)) {
+	if (blk_create_devicef(parent, "efi_blk", name, UCLASS_EFI_LOADER,
+			       devnum, io->media->block_size,
+			       (lbaint_t)io->media->last_block, &bdev)) {
 		ret = EFI_OUT_OF_RESOURCES;
 		free(name);
 		goto err;
 	}
-	/* Set the DM_FLAG_NAME_ALLOCED flag to avoid a memory leak */
-	device_set_name_alloced(bdev);
 
 	plat = dev_get_plat(bdev);
 	plat->handle = handle;
@@ -221,6 +228,24 @@ efi_bl_init(struct efi_driver_binding_extended_protocol *this)
 	return EFI_SUCCESS;
 }
 
+/**
+ * efi_block_device_create() - create parent for EFI block devices
+ *
+ * Create a device that serves as parent for all block devices created via
+ * ConnectController().
+ *
+ * Return:	0 for success
+ */
+static int efi_block_device_create(void)
+{
+	int ret;
+	struct udevice *dev;
+
+	ret = device_bind_driver(gd->dm_root, "EFI block driver", "efi", &dev);
+
+	return ret;
+}
+
 /* Block device driver operators */
 static const struct blk_ops efi_blk_ops = {
 	.read	= efi_bl_read,
@@ -249,3 +274,5 @@ U_BOOT_DRIVER(efi_block) = {
 	.id		= UCLASS_EFI_LOADER,
 	.ops		= &driver_ops,
 };
+
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, efi_block_device_create);

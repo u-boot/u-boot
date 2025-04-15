@@ -12,6 +12,7 @@
 
 / {
 	aliases {
+		tick-timer = &main_timer0;
 		remoteproc0 = &sysctrler;
 		remoteproc1 = &a53_0;
 		serial0 = &wkup_uart0;
@@ -25,7 +26,8 @@
 				<&k3_pds 135 TI_SCI_PD_EXCLUSIVE>,
 				<&k3_pds 166 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 135 0>;
-		clocks = <&k3_clks 61 0>;
+		clocks = <&k3_clks 61 0>, <&k3_clks 135 0>;
+		clock-names = "gtc", "core";
 		assigned-clocks = <&k3_clks 61 0>, <&k3_clks 135 0>;
 		assigned-clock-parents = <&k3_clks 61 2>;
 		assigned-clock-rates = <200000000>, <1200000000>;
@@ -69,6 +71,14 @@
 	};
 };
 
+&main_timer0 {
+	/delete-property/ clocks;
+	/delete-property/ clocks-names;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	clock-frequency = <25000000>;
+};
+
 /* WKUP UART0 is used for DM firmware logs */
 &wkup_uart0 {
 	status = "okay";
@@ -82,4 +92,9 @@
 &ospi0 {
 	reg = <0x00 0x0fc40000 0x00 0x100>,
 	      <0x00 0x60000000 0x00 0x08000000>;
+};
+
+&main_pktdma {
+	ti,sci = <&dm_tifs>;
+	bootph-all;
 };

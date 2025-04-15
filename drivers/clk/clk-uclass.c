@@ -378,7 +378,7 @@ int clk_set_defaults(struct udevice *dev, enum clk_defaults_stage stage)
 	 * However, still set them for SPL. And still set them if explicitly
 	 * asked.
 	 */
-	if (!(IS_ENABLED(CONFIG_SPL_BUILD) || (gd->flags & GD_FLG_RELOC)))
+	if (!(IS_ENABLED(CONFIG_XPL_BUILD) || (gd->flags & GD_FLG_RELOC)))
 		if (stage != CLK_DEFAULTS_POST_FORCE)
 			return 0;
 
@@ -418,6 +418,24 @@ int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 	}
 
 	return clk_get_by_index_nodev(node, index, clk);
+}
+
+const char *
+clk_resolve_parent_clk(struct udevice *dev, const char *name)
+{
+	struct udevice *parent;
+	struct clk clk;
+	int ret;
+
+	ret = uclass_get_device_by_name(UCLASS_CLK, name, &parent);
+	if (!ret)
+		return name;
+
+	ret = clk_get_by_name(dev, name, &clk);
+	if (!clk.dev)
+		return name;
+
+	return clk.dev->name;
 }
 
 int clk_release_all(struct clk *clk, unsigned int count)
@@ -569,8 +587,20 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 		return 0;
 	ops = clk_dev_ops(clk->dev);
 
-	if (!ops->set_rate)
-		return -ENOSYS;
+	/* Try to find parents which can set rate */
+	while (!ops->set_rate) {
+		struct clk *parent;
+
+		if (!(clk->flags & CLK_SET_RATE_PARENT))
+			return -ENOSYS;
+
+		parent = clk_get_parent(clk);
+		if (IS_ERR_OR_NULL(parent) || !clk_valid(parent))
+			return -ENODEV;
+
+		clk = parent;
+		ops = clk_dev_ops(clk->dev);
+	}
 
 	/* get private clock struct used for cache */
 	clk_get_priv(clk, &clkp);
@@ -593,14 +623,27 @@ int clk_set_parent(struct clk *clk, struct clk *parent)
 	if (!ops->set_parent)
 		return -ENOSYS;
 
-	ret = ops->set_parent(clk, parent);
-	if (ret)
+	ret = clk_enable(parent);
+	if (ret) {
+		printf("Cannot enable parent %s\n", parent->dev->name);
 		return ret;
+	}
 
-	if (CONFIG_IS_ENABLED(CLK_CCF))
+	ret = ops->set_parent(clk, parent);
+	if (ret) {
+		clk_disable(parent);
+		return ret;
+	}
+
+	if (CONFIG_IS_ENABLED(CLK_CCF)) {
 		ret = device_reparent(clk->dev, parent->dev);
+		if (ret) {
+			clk_disable(parent);
+			return ret;
+		}
+	}
 
-	return ret;
+	return 0;
 }
 
 int clk_enable(struct clk *clk)

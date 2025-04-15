@@ -260,13 +260,13 @@ int board_stm32mp1_ddr_config_name_match(struct udevice *dev,
 
 void board_vddcore_init(u32 voltage_mv)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		opp_voltage_mv = voltage_mv;
 }
 
 int board_early_init_f(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		stpmic1_init(opp_voltage_mv);
 	board_get_coding_straps();
 
@@ -276,15 +276,26 @@ int board_early_init_f(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
+	char *cdevice, *ndevice;
 	const char *compat;
-	char test[128];
 
 	compat = ofnode_get_property(ofnode_root(), "compatible", NULL);
+	if (!compat)
+		return -EINVAL;
 
-	snprintf(test, sizeof(test), "%s_somrev%d_boardrev%d",
-		compat, somcode, brdcode);
+	cdevice = strchr(compat, ',');
+	if (!cdevice)
+		return -ENODEV;
 
-	if (!strcmp(name, test))
+	cdevice++;	/* Move past the comma right after vendor prefix. */
+
+	ndevice = strchr(name, '/');
+	if (!ndevice)
+		return -ENODEV;
+
+	ndevice++;	/* Move past the last slash in DT path */
+
+	if (!strcmp(cdevice, ndevice))
 		return 0;
 
 	return -EINVAL;
@@ -622,8 +633,6 @@ static void board_init_regulator_av96(void)
 static void board_init_regulator(void)
 {
 	board_init_regulator_av96();
-
-	regulators_enable_boot_on(_DEBUG);
 }
 #else
 static inline int board_get_regulator_buck3_nvm_uv_av96(int *uv)
@@ -767,7 +776,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 #endif
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 void spl_perform_fixups(struct spl_image_info *spl_image)
 {
 	dh_stm32_ks8851_fixup(spl_image_fdt_addr(spl_image));

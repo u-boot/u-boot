@@ -1,0 +1,16 @@
+if TARGET_TRANSFORMER_T114
+
+config SYS_BOARD
+	default "transformer-t114"
+
+config SYS_VENDOR
+	default "asus"
+
+config SYS_CONFIG_NAME
+	default "transformer-t114"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "ASUS Transformer T114"
+
+endif

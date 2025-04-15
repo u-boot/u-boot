@@ -4,14 +4,14 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-/* for now: just dummy functions to satisfy the linker */
-
 #include <config.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <malloc.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
+#include <asm/system.h>
+#include <linux/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -62,7 +62,7 @@ int check_cache_range(unsigned long start, unsigned long stop)
 		ok = 0;
 
 	if (!ok) {
-		warn_non_spl("CACHE: Misaligned operation at range [%08lx, %08lx]\n",
+		warn_non_xpl("CACHE: Misaligned operation at range [%08lx, %08lx]\n",
 			     start, stop);
 	}
 
@@ -127,8 +127,8 @@ void invalidate_l2_cache(void)
 {
 	unsigned int val = 0;
 
-	asm volatile("mcr p15, 1, %0, c15, c11, 0 @ invl l2 cache"
-		: : "r" (val) : "cc");
+	asm_arm_or_thumb2("mcr p15, 1, %0, c15, c11, 0 @ invl l2 cache"
+			  : : "r" (val) : "cc");
 	isb();
 }
 #endif
@@ -171,4 +171,9 @@ __weak int arm_reserve_mmu(void)
 #endif
 
 	return 0;
+}
+
+int __weak pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
+{
+	return -ENOSYS;
 }

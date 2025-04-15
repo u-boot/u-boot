@@ -21,7 +21,7 @@ void ut_fail(struct unit_test_state *uts, const char *fname, int line,
 {
 	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
 	printf("%s:%d, %s(): %s\n", fname, line, func, cond);
-	uts->fail_count++;
+	uts->cur.fail_count++;
 }
 
 void ut_failf(struct unit_test_state *uts, const char *fname, int line,
@@ -35,7 +35,7 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 	vprintf(fmt, args);
 	va_end(args);
 	putc('\n');
-	uts->fail_count++;
+	uts->cur.fail_count++;
 }
 
 ulong ut_check_free(void)
@@ -59,9 +59,11 @@ static int readline_check(struct unit_test_state *uts)
 		ut_fail(uts, __FILE__, __LINE__, __func__,
 			"Console record buffer too small - increase CONFIG_CONSOLE_RECORD_OUT_SIZE");
 		return ret;
+	} else if (ret == -ENOENT) {
+		strcpy(uts->actual_str, "<no-more-output>");
 	}
 
-	return 0;
+	return ret;
 }
 
 int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
@@ -79,8 +81,8 @@ int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
 		return -EOVERFLOW;
 	}
 	ret = readline_check(uts);
-	if (ret < 0)
-		return ret;
+	if (ret == -ENOENT)
+		return 1;
 
 	return strcmp(uts->expect_str, uts->actual_str);
 }

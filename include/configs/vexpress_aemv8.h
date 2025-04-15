@@ -154,6 +154,18 @@
 #define FUNC_MMC(func)
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_PXE)
+#define BOOT_TARGET_PXE(func) func(PXE, pxe, na)
+#else
+#define BOOT_TARGET_PXE(func)
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_DHCP)
+#define BOOT_TARGET_DHCP(func) func(DHCP, dhcp, na)
+#else
+#define BOOT_TARGET_DHCP(func)
+#endif
+
 /*
  * Boot by loading an Android image, or kernel, initrd and FDT through
  * semihosting into DRAM.
@@ -169,12 +181,14 @@
 		"  if load hostfs - ${kernel_addr_r} ${kernel_name}; then"	\
 		"    setenv fdt_high 0xffffffffffffffff;"		\
 		"    setenv initrd_high 0xffffffffffffffff;"		\
-		"    load hostfs - ${fdt_addr_r} ${fdtfile};"			\
+		"    if test -n load hostfs - ${fdt_addr_r} ${fdtfile}; then"			\
+		"        fdt move $fdtcontroladdr $fdt_addr_r;"			\
+		"    fi;"			\
 		"    load hostfs - ${ramdisk_addr_r} ${ramdisk_name};" \
 		"    fdt addr ${fdt_addr_r};"				\
 		"    fdt resize;"					\
 		"    fdt chosen ${ramdisk_addr_r} ${filesize};"	\
-		"    booti $kernel_addr_r - $fdt_addr_r;"		\
+		"    booti $kernel_addr_r - ${fdt_addr_r};"		\
 		"  fi;"							\
 		"fi\0"
 #define BOOTENV_DEV_NAME_SMH(devtypeu, devtypel, instance) "smh "
@@ -188,8 +202,8 @@
 	func(SATA, sata, 0)		\
 	func(SATA, sata, 1)		\
 	FUNC_VIRTIO(func)		\
-	func(PXE, pxe, na)		\
-	func(DHCP, dhcp, na)		\
+	BOOT_TARGET_PXE(func)		\
+	BOOT_TARGET_DHCP(func)		\
 	func(AFS, afs, na)
 
 #define VEXPRESS_KERNEL_ADDR		0x80080000
@@ -212,8 +226,8 @@
 	func(MEM, mem, na)		\
 	FUNC_VIRTIO(func)		\
 	FUNC_MMC(func)			\
-	func(PXE, pxe, na)		\
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_PXE(func)		\
+	BOOT_TARGET_DHCP(func)
 
 #define VEXPRESS_KERNEL_ADDR		0x80080000
 #define VEXPRESS_PXEFILE_ADDR		0x8fa00000
@@ -234,8 +248,8 @@
 #define BOOT_TARGET_DEVICES(func)	\
 	func(MEM, mem, na)		\
 	FUNC_VIRTIO(func)		\
-	func(PXE, pxe, na)		\
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_PXE(func)		\
+	BOOT_TARGET_DHCP(func)
 
 #define VEXPRESS_KERNEL_ADDR		0x00200000
 #define VEXPRESS_PXEFILE_ADDR		0x0fb00000

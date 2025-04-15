@@ -33,6 +33,7 @@ config SPL_LDSCRIPT
 	default "arch/arm/mach-omap2/u-boot-spl.lds"
 
 source "board/phytec/common/Kconfig"
+source "board/phytec/common/k3/Kconfig"
 
 endif
 

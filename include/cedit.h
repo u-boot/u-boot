@@ -14,6 +14,7 @@
 struct abuf;
 struct expo;
 struct scene;
+struct udevice;
 struct video_priv;
 struct udevice;
 

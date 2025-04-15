@@ -89,7 +89,7 @@ Failing that, you could write one from scratch yourself!
 Resyncing with devicetree-rebasing
 ----------------------------------
 
-The `devicetree-rebasing repository`_ maintains a fork cum mirror copy of
+The `devicetree-rebasing repository`_ maintains a mirror copy of
 devicetree files along with the bindings synced at every Linux kernel major
 release or intermediate release candidates. The U-Boot maintainers regularly
 sync the `dts/upstream/` subtree from the devicetree-rebasing repo whenever

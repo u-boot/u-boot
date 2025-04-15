@@ -1367,7 +1367,7 @@ void disable_ipu_clock(void)
 }
 #endif
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 /*
  * Dump some core clockes.
  */

@@ -128,7 +128,7 @@ int video_reserve(ulong *addrp)
 	struct udevice *dev;
 	ulong size;
 
-	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() == PHASE_BOARD_F)
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && xpl_phase() == PHASE_BOARD_F)
 		return 0;
 
 	gd->video_top = *addrp;
@@ -145,9 +145,22 @@ int video_reserve(ulong *addrp)
 		*addrp -= CONFIG_VAL(VIDEO_PCI_DEFAULT_FB_SIZE);
 
 	gd->video_bottom = *addrp;
-	gd->fb_base = *addrp;
 	debug("Video frame buffers from %lx to %lx\n", gd->video_bottom,
 	      gd->video_top);
+
+	return 0;
+}
+
+ulong video_get_fb(void)
+{
+	struct udevice *dev;
+
+	uclass_find_first_device(UCLASS_VIDEO, &dev);
+	if (dev) {
+		const struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+
+		return uc_plat->base;
+	}
 
 	return 0;
 }
@@ -210,7 +223,6 @@ int video_reserve_from_bloblist(struct video_handoff *ho)
 		return -ENOENT;
 
 	gd->video_bottom = ho->fb;
-	gd->fb_base = ho->fb;
 	gd->video_top = ho->fb + ho->size;
 	debug("%s: Reserving %lx bytes at %08x as per bloblist received\n",
 	      __func__, (unsigned long)ho->size, (u32)ho->fb);
@@ -233,6 +245,7 @@ int video_fill(struct udevice *dev, u32 colour)
 				*ppix++ = colour;
 			break;
 		}
+		fallthrough;
 	case VIDEO_BPP32:
 		if (CONFIG_IS_ENABLED(VIDEO_BPP32)) {
 			u32 *ppix = priv->fb;
@@ -242,6 +255,7 @@ int video_fill(struct udevice *dev, u32 colour)
 				*ppix++ = colour;
 			break;
 		}
+		fallthrough;
 	default:
 		memset(priv->fb, colour, priv->fb_size);
 		break;
@@ -282,6 +296,9 @@ static const struct vid_rgb colours[VID_COLOUR_COUNT] = {
 	{ 0xff, 0x00, 0xff },  /* bright magenta */
 	{ 0x00, 0xff, 0xff },  /* bright cyan */
 	{ 0xff, 0xff, 0xff },  /* white */
+
+	/* an extra one for menus */
+	{ 0x40, 0x40, 0x40 },  /* dark gray */
 };
 
 u32 video_index_to_colour(struct video_priv *priv, enum colour_idx idx)
@@ -409,7 +426,7 @@ bool video_is_active(void)
 	struct udevice *dev;
 
 	/* Assume video to be active if SPL passed video hand-off to U-boot */
-	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() > PHASE_SPL)
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && xpl_phase() > PHASE_SPL)
 		return true;
 
 	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
@@ -561,7 +578,7 @@ static int video_post_probe(struct udevice *dev)
 	 * NOTE:
 	 * This assumes that reserved video memory only uses a single framebuffer
 	 */
-	if (spl_phase() == PHASE_SPL && CONFIG_IS_ENABLED(BLOBLIST)) {
+	if (xpl_phase() == PHASE_SPL && CONFIG_IS_ENABLED(BLOBLIST)) {
 		struct video_handoff *ho;
 
 		ho = bloblist_add(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho), 0);
@@ -574,6 +591,7 @@ static int video_post_probe(struct udevice *dev)
 		ho->ysize = priv->ysize;
 		ho->line_length = priv->line_length;
 		ho->bpix = priv->bpix;
+		ho->format = priv->format;
 	}
 
 	if (IS_ENABLED(CONFIG_VIDEO_COPY) && plat->copy_base)

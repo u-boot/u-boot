@@ -146,6 +146,7 @@ struct image_array {
 enum imx8image_cmd {
 	CMD_INVALID,
 	CMD_BOOT_FROM,
+	CMD_DCD_SKIP,
 	CMD_FUSE_VERSION,
 	CMD_SW_VERSION,
 	CMD_MSG_BLOCK,

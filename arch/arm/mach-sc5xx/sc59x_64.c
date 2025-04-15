@@ -9,6 +9,7 @@
  */
 
 #include <asm/io.h>
+#include <asm/armv8/mmu.h>
 #include <asm/arch-adi/sc5xx/sc5xx.h>
 #include <asm/arch-adi/sc5xx/spl.h>
 
@@ -23,6 +24,30 @@
 #define REG_SCB5_SPI2_OSPI_REMAP 0x30400000
 #define BITM_SCB5_SPI2_OSPI_REMAP_REMAP 0x00000003
 #define ENUM_SCB5_SPI2_OSPI_REMAP_OSPI0 0x00000001
+
+static struct mm_region sc598_mem_map[] = {
+	{
+		/* Peripherals */
+		.virt = 0x0UL,
+		.phys = 0x0UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* DDR */
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
+		.size = 0x40000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = sc598_mem_map;
 
 adi_rom_boot_fn adi_rom_boot = (adi_rom_boot_fn)0x000000e4;
 

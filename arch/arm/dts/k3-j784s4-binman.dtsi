@@ -5,16 +5,15 @@
 
 #include "k3-binman.dtsi"
 
-#ifdef CONFIG_TARGET_J784S4_R5_EVM
+#if defined(CONFIG_CPU_V7R)
 
 &rcfg_yaml_tifs {
 	config = "tifs-rm-cfg.yaml";
 };
 
 &binman {
-	tiboot3-j784s4-hs-evm.bin {
-		filename = "tiboot3-j784s4-hs-evm.bin";
-
+	tiboot3_j784s4_hs: template-9 {
+		section {
 		ti-secure-rom {
 			content = <&u_boot_spl>, <&ti_fs_enc>, <&combined_tifs_cfg>,
 				<&combined_dm_cfg>, <&sysfw_inner_cert>;
@@ -39,7 +38,6 @@
 		};
 
 		ti_fs_enc: ti-fs-enc.bin {
-			filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-enc.bin";
 			type = "blob-ext";
 			optional;
 		};
@@ -50,7 +48,6 @@
 		};
 
 		sysfw_inner_cert: sysfw-inner-cert {
-			filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-cert.bin";
 			type = "blob-ext";
 			optional;
 		};
@@ -59,13 +56,13 @@
 			filename = "combined-dm-cfg.bin";
 			type = "blob-ext";
 		};
+		};
 	};
 };
 
 &binman {
-	tiboot3-j784s4-hs-fs-evm.bin {
-		filename = "tiboot3-j784s4-hs-fs-evm.bin";
-
+	tiboot3_j784s4_hs_fs: template-10 {
+		section {
 		ti-secure-rom {
 			content = <&u_boot_spl_fs>, <&ti_fs_enc_fs>, <&combined_tifs_cfg_fs>,
 				<&combined_dm_cfg_fs>, <&sysfw_inner_cert_fs>;
@@ -90,7 +87,6 @@
 		};
 
 		ti_fs_enc_fs: ti-fs-enc.bin {
-			filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-fs-enc.bin";
 			type = "blob-ext";
 			optional;
 		};
@@ -101,7 +97,6 @@
 		};
 
 		sysfw_inner_cert_fs: sysfw-inner-cert {
-			filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-fs-cert.bin";
 			type = "blob-ext";
 			optional;
 		};
@@ -110,14 +105,13 @@
 			filename = "combined-dm-cfg.bin";
 			type = "blob-ext";
 		};
+		};
 	};
 };
 
 &binman {
-	tiboot3-j784s4-gp-evm.bin {
-		filename = "tiboot3-j784s4-gp-evm.bin";
-		symlink = "tiboot3.bin";
-
+	tiboot3_j784s4_gp: template-11 {
+		section {
 		ti-secure-rom {
 			content = <&u_boot_spl_unsigned>, <&ti_fs_gp>,
 				<&combined_tifs_cfg_gp>, <&combined_dm_cfg_gp>;
@@ -140,7 +134,6 @@
 		};
 
 		ti_fs_gp: ti-fs-gp.bin {
-			filename = "ti-sysfw/ti-fs-firmware-j784s4-gp.bin";
 			type = "blob-ext";
 			optional;
 		};
@@ -154,43 +147,14 @@
 			filename = "combined-dm-cfg.bin";
 			type = "blob-ext";
 		};
-
-	};
-};
-
-#include "k3-binman-capsule-r5.dtsi"
-
-// Capsule update GUIDs in string form.  See j784s4_evm.h
-#define AM69_SK_TIBOOT3_IMAGE_GUID_STR "adf49ec5-61bb-4dbe-8b8d-39df4d7ebf46"
-
-&capsule_tiboot3 {
-	efi-capsule {
-		image-guid = AM69_SK_TIBOOT3_IMAGE_GUID_STR;
-
-		blob {
-			filename = "tiboot3-j784s4-hs-fs-evm.bin";
 		};
 	};
 };
 
-#endif
-
-#ifdef CONFIG_TARGET_J784S4_A72_EVM
-
-#define SPL_J784S4_EVM_DTB "spl/dts/ti/k3-j784s4-evm.dtb"
-#define J784S4_EVM_DTB "u-boot.dtb"
+#else
 
 &binman {
-	ti-dm {
-		filename = "ti-dm.bin";
-
-		blob-ext {
-			filename = "ti-dm/j784s4/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-			optional;
-		};
-	};
-
-	ti-spl {
+	ti_spl: template-12 {
 		insert-template = <&ti_spl_template>;
 
 		fit {
@@ -207,19 +171,20 @@
 				};
 
 				fdt-0 {
-					description = "k3-j784s4-evm";
+					description = BOARD_DESCRIPTION;
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
 
 					ti-secure {
-						content = <&spl_j784s4_evm_dtb>;
+						content = <&spl_board_dtb>;
 						keyfile = "custMpk.pem";
 					};
 
-					spl_j784s4_evm_dtb: blob-ext {
-						filename = SPL_J784S4_EVM_DTB;
+					spl_board_dtb: blob-ext {
+						filename = SPL_BOARD_DTB;
 					};
+
 				};
 			};
 
@@ -227,7 +192,7 @@
 				default = "conf-0";
 
 				conf-0 {
-					description = "k3-j784s4-evm";
+					description = BOARD_DESCRIPTION;
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-0";
@@ -238,17 +203,17 @@
 };
 
 &binman {
-	u-boot {
+	u_boot: template-13 {
 		insert-template = <&u_boot_template>;
 
 		fit {
 			images {
 				uboot {
-					description = "U-Boot for J784S4 board";
+					description = UBOOT_BOARD_DESCRIPTION;
 				};
 
 				fdt-0 {
-					description = "k3-j784s4-evm";
+					description = BOARD_DESCRIPTION;
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
@@ -259,7 +224,7 @@
 					};
 
 					j784s4_evm_dtb: blob-ext {
-						filename = J784S4_EVM_DTB;
+						filename = "u-boot.dtb";
 					};
 
 					hash {
@@ -272,7 +237,7 @@
 				default = "conf-0";
 
 				conf-0 {
-					description = "k3-j784s4-evm";
+					description = BOARD_DESCRIPTION;
 					firmware = "uboot";
 					loadables = "uboot";
 					fdt = "fdt-0";
@@ -283,7 +248,7 @@
 };
 
 &binman {
-	ti-spl_unsigned {
+	ti_spl_unsigned: template-14 {
 		insert-template = <&ti_spl_unsigned_template>;
 
 		fit {
@@ -295,13 +260,13 @@
 				};
 
 				fdt-0 {
-					description = "k3-j784s4-evm";
+					description = BOARD_DESCRIPTION;
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
 
 					spl_j784s4_evm_dtb_unsigned: blob {
-						filename = SPL_J784S4_EVM_DTB;
+						filename = SPL_BOARD_DTB;
 					};
 				};
 			};
@@ -310,7 +275,7 @@
 				default = "conf-0";
 
 				conf-0 {
-					description = "k3-j784s4-evm";
+					description = BOARD_DESCRIPTION;
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-0";
@@ -321,23 +286,23 @@
 };
 
 &binman {
-	u-boot_unsigned {
+	u_boot_unsigned: template-15 {
 		insert-template = <&u_boot_unsigned_template>;
 
 		fit {
 			images {
 				uboot {
-					description = "U-Boot for J784S4 board";
+					description = UBOOT_BOARD_DESCRIPTION;
 				};
 
 				fdt-0 {
-					description = "k3-j784s4-evm";
+					description = BOARD_DESCRIPTION;
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
 
 					j784s4_evm_dtb_unsigned: blob {
-						filename = J784S4_EVM_DTB;
+						filename = "u-boot.dtb";
 					};
 
 					hash {
@@ -350,7 +315,7 @@
 				default = "conf-0";
 
 				conf-0 {
-					description = "k3-j784s4-evm";
+					description = BOARD_DESCRIPTION;
 					firmware = "uboot";
 					loadables = "uboot";
 					fdt = "fdt-0";
@@ -359,23 +324,4 @@
 		};
 	};
 };
-
-#include "k3-binman-capsule.dtsi"
-
-// Capsule update GUIDs in string form.  See j784s4_evm.h
-#define AM69_SK_SPL_IMAGE_GUID_STR "787f0059-63a1-461c-a18e-9d838345fe8e"
-#define AM69_SK_UBOOT_IMAGE_GUID_STR "9300505d-6ec5-4ff8-99e4-5459a04be617"
-
-&capsule_tispl {
-	efi-capsule {
-		image-guid = AM69_SK_SPL_IMAGE_GUID_STR;
-	};
-};
-
-&capsule_uboot {
-	efi-capsule {
-		image-guid = AM69_SK_UBOOT_IMAGE_GUID_STR;
-	};
-};
-
 #endif

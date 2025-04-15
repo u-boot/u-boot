@@ -11,6 +11,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/global_data.h>
+#include <asm/io.h>
 
 #define GCK_CSS_SLOW_CLK	0
 #define GCK_CSS_MAIN_CLK	1

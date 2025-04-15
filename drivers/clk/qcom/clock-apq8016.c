@@ -54,8 +54,9 @@ static struct vote_clk gcc_blsp1_ahb_clk = {
 };
 
 static const struct gate_clk apq8016_clks[] = {
-	GATE_CLK(GCC_USB_HS_AHB_CLK,    0x41008, 0x00000001),
-	GATE_CLK(GCC_USB_HS_SYSTEM_CLK,	0x41004, 0x00000001),
+	GATE_CLK(GCC_PRNG_AHB_CLK,	0x45004, BIT(8)),
+	GATE_CLK(GCC_USB_HS_AHB_CLK,    0x41008, BIT(0)),
+	GATE_CLK(GCC_USB_HS_SYSTEM_CLK,	0x41004, BIT(0)),
 };
 
 /* SDHCI */
@@ -139,15 +140,14 @@ static int apq8016_clk_enable(struct clk *clk)
 {
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
 
-	if (priv->data->num_clks < clk->id) {
+	if (priv->data->num_clks < clk->id || !apq8016_clks[clk->id].reg) {
 		log_warning("%s: unknown clk id %lu\n", __func__, clk->id);
 		return 0;
 	}
 
-	debug("%s: clk %s\n", __func__, apq8016_clks[clk->id].name);
-	qcom_gate_clk_en(priv, clk->id);
+	debug("%s: enabling clock %s\n", __func__, apq8016_clks[clk->id].name);
 
-	return 0;
+	return qcom_gate_clk_en(priv, clk->id);
 }
 
 static struct msm_clk_data apq8016_clk_data = {

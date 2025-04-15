@@ -8,6 +8,7 @@ import doctest
 import glob
 import multiprocessing
 import os
+import re
 import sys
 import unittest
 
@@ -23,8 +24,9 @@ except:
     use_concurrent = False
 
 
-def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None,
-                    extra_args=None, single_thread='-P1'):
+def run_test_coverage(prog, filter_fname, exclude_list, build_dir,
+                      required=None, extra_args=None, single_thread='-P1',
+                      args=None, allow_failures=None):
     """Run tests and check that we get 100% coverage
 
     Args:
@@ -42,6 +44,7 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None
         single_thread (str): Argument string to make the tests run
             single-threaded. This is necessary to get proper coverage results.
             The default is '-P0'
+        args (list of str): List of tests to run, or None to run all
 
     Raises:
         ValueError if the code coverage is not 100%
@@ -54,7 +57,7 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None
     else:
         glob_list = []
     glob_list += exclude_list
-    glob_list += ['*libfdt.py', '*site-packages*', '*dist-packages*']
+    glob_list += ['*libfdt.py', '*/site-packages/*', '*/dist-packages/*']
     glob_list += ['*concurrencytest*']
     test_cmd = 'test' if 'binman' in prog or 'patman' in prog else '-t'
     prefix = ''
@@ -66,9 +69,10 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None
                'coverage')
 
     cmd = ('%s%s run '
-           '--omit "%s" %s %s %s %s' % (prefix, covtool, ','.join(glob_list),
-                                        prog, extra_args or '', test_cmd,
-                                        single_thread or '-P1'))
+           '--omit "%s" %s %s %s %s %s' % (prefix, covtool, ','.join(glob_list),
+                                           prog, extra_args or '', test_cmd,
+                                           single_thread or '-P1',
+                                           ' '.join(args) if args else ''))
     os.system(cmd)
     stdout = command.output(covtool, 'report')
     lines = stdout.splitlines()
@@ -93,6 +97,19 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None
         print('Coverage error: %s, but should be 100%%' % coverage)
         ok = False
     if not ok:
+        if allow_failures:
+            # for line in lines:
+                # print('.', line, re.match(r'^(tools/.*py) *\d+ *(\d+) *(\d+)%$', line))
+            lines = [re.match(r'^(tools/.*py) *\d+ *(\d+) *\d+%$', line)
+                     for line in stdout.splitlines()]
+            bad = []
+            for mat in lines:
+                if mat and mat.group(2) != '0':
+                    fname = mat.group(1)
+                    if fname not in allow_failures:
+                        bad.append(fname)
+            if not bad:
+                return
         raise ValueError('Test coverage failure')
 
 

@@ -197,7 +197,7 @@ unsigned pmic_init(void)
 	return programmed;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int pf0100_prog(void)
 {
 	int rc;
@@ -265,4 +265,4 @@ U_BOOT_CMD(
 	"Program the OTP fuses on the PMIC PF0100",
 	""
 );
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */

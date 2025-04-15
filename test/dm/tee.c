@@ -215,5 +215,4 @@ out:
 
 	return rc;
 }
-
-DM_TEST(dm_test_tee, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_tee, UTF_SCAN_FDT);

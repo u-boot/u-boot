@@ -38,12 +38,12 @@
 
 		factory {
 			label = "reset";
-			gpios = <&gpio 9 GPIO_ACTIVE_LOW>;
+			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
 		};
 
 		wps {
 			label = "wps";
-			gpios = <&gpio 10 GPIO_ACTIVE_LOW>;
+			gpios = <&pio 10 GPIO_ACTIVE_LOW>;
 		};
 	};
 
@@ -52,12 +52,12 @@
 
 		led_status_green: green {
 			label = "green:status";
-			gpios = <&gpio 69 GPIO_ACTIVE_HIGH>;
+			gpios = <&pio 69 GPIO_ACTIVE_HIGH>;
 		};
 
 		led_status_blue: blue {
 			label = "blue:status";
-			gpios = <&gpio 86 GPIO_ACTIVE_HIGH>;
+			gpios = <&pio 86 GPIO_ACTIVE_HIGH>;
 		};
 	};
 
@@ -78,7 +78,7 @@
 	mediatek,gmac-id = <0>;
 	phy-mode = "2500base-x";
 	mediatek,switch = "mt7531";
-	reset-gpios = <&gpio 5 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&pio 5 GPIO_ACTIVE_HIGH>;
 
 	fixed-link {
 		speed = <2500>;
@@ -86,7 +86,7 @@
 	};
 };
 
-&pinctrl {
+&pio {
 	spic_pins: spi1-pins-func-1 {
 		mux {
 			function = "spi";

@@ -27,7 +27,7 @@ void board_debug_uart_init(void)
 
 void spl_board_init(void)
 {
-	if (!IS_ENABLED(CONFIG_SPL_BUILD))
+	if (!IS_ENABLED(CONFIG_XPL_BUILD))
 		return;
 
 	if (IS_ENABLED(CONFIG_SPL_DM_MMC)) {

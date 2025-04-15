@@ -5,5 +5,4 @@ S:	Maintained
 F:	board/friendlyelec/nanopc-t6-rk3588
 F:	include/configs/nanopc-t6-rk3588.h
 F:	configs/nanopc-t6-rk3588_defconfig
-F:	arch/arm/dts/rk3588-nanopc-t6.dts
-F:	arch/arm/dts/rk3588-nanopc-t6-u-boot.dtsi
+F:	arch/arm/dts/rk3588-nanopc-t6*

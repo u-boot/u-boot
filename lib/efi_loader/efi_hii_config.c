@@ -10,6 +10,8 @@
  * the Makefile.
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 
 const efi_guid_t efi_guid_hii_config_routing_protocol

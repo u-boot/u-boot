@@ -12,6 +12,7 @@
 #include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/ptrace.h>
+#include "initreg/initreg.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,7 +30,7 @@ void interrupt_init_cpu (unsigned *decrementer_count)
 
 	/* Enable e300 time base */
 
-	immr->sysconf.spcr |= 0x00400000;
+	immr->sysconf.spcr |= SPCR_TBEN_MASK;
 }
 
 /*

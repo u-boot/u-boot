@@ -32,6 +32,10 @@ baseprereq = $(basename $(notdir $<))
 escsq = $(subst $(squote),'\$(squote)',$1)
 
 ###
+# real prerequisites without phony targets
+real-prereqs = $(filter-out $(PHONY), $^)
+
+###
 # Easy method for doing a status message
        kecho := :
  quiet_kecho := echo
@@ -320,18 +324,16 @@ endif
 # do not delete intermediate files automatically
 .SECONDARY:
 
-ifdef CONFIG_SPL_BUILD
-SPL_ := SPL_
+ifeq ($(CONFIG_SPL_BUILD),y)
+PHASE_ := SPL_
+else
 ifeq ($(CONFIG_VPL_BUILD),y)
-SPL_TPL_ := VPL_
+PHASE_ := VPL_
 else
 ifeq ($(CONFIG_TPL_BUILD),y)
-SPL_TPL_ := TPL_
+PHASE_ := TPL_
 else
-SPL_TPL_ := SPL_
+PHASE_ :=
 endif
 endif
-else
-SPL_ :=
-SPL_TPL_ :=
 endif

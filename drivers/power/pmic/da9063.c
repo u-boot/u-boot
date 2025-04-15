@@ -7,6 +7,9 @@
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/device_compat.h>
+#include <dm/lists.h>
 #include <i2c.h>
 #include <log.h>
 #include <linux/printk.h>
@@ -86,6 +89,7 @@ static int da9063_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 static int da9063_bind(struct udevice *dev)
 {
 	ofnode regulators_node;
+	struct driver *drv;
 	int children;
 
 	regulators_node = dev_read_subnode(dev, "regulators");
@@ -101,8 +105,12 @@ static int da9063_bind(struct udevice *dev)
 	if (!children)
 		debug("%s: %s - no child found\n", __func__, dev->name);
 
-	/* Always return success for this device */
-	return 0;
+	drv = lists_driver_lookup_name("da9063-wdt");
+	if (!drv)
+		return 0;
+
+	return device_bind_with_driver_data(dev, drv, "da9063-wdt", dev->driver_data,
+					    dev_ofnode(dev), &dev);
 }
 
 static int da9063_probe(struct udevice *dev)

@@ -831,6 +831,8 @@ static const unsigned int avb_avtp_match_pins[] = {
 static const unsigned int avb_avtp_match_mux[] = {
 	AVB_AVTP_MATCH_MARK,
 };
+
+#ifdef CONFIG_PINCTRL_PFC_FULL
 /* - CAN -------------------------------------------------------------------- */
 static const unsigned int can0_data_pins[] = {
 	/* TX, RX */
@@ -996,6 +998,8 @@ static const unsigned int intc_irq3_pins[] = {
 static const unsigned int intc_irq3_mux[] = {
 	IRQ3_MARK,
 };
+#endif
+
 /* - LBSC ------------------------------------------------------------------- */
 static const unsigned int lbsc_cs0_pins[] = {
 	/* CS0# */
@@ -1053,6 +1057,8 @@ static const unsigned int lbsc_ex_cs5_pins[] = {
 static const unsigned int lbsc_ex_cs5_mux[] = {
 	EX_CS5_N_MARK,
 };
+
+#ifdef CONFIG_PINCTRL_PFC_FULL
 /* - MSIOF0 ----------------------------------------------------------------- */
 static const unsigned int msiof0_clk_pins[] = {
 	/* SCK */
@@ -1111,6 +1117,8 @@ static const unsigned int msiof1_tx_pins[] = {
 static const unsigned int msiof1_tx_mux[] = {
 	MSIOF1_TXD_MARK,
 };
+#endif
+
 /* - QSPI ------------------------------------------------------------------- */
 static const unsigned int qspi_ctrl_pins[] = {
 	/* SPCLK, SSL */
@@ -1231,6 +1239,8 @@ static const unsigned int sdhi0_wp_pins[] = {
 static const unsigned int sdhi0_wp_mux[] = {
 	SD0_WP_MARK,
 };
+
+#ifdef CONFIG_PINCTRL_PFC_FULL
 /* - VIN0 ------------------------------------------------------------------- */
 static const unsigned int vin0_data_pins[] = {
 	/* B */
@@ -1645,6 +1655,7 @@ static const unsigned int vin5_clk_pins[] = {
 static const unsigned int vin5_clk_mux[] = {
 	VI5_CLK_MARK,
 };
+#endif
 
 static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(avb_link),
@@ -1654,6 +1665,7 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(avb_mii),
 	SH_PFC_PIN_GROUP(avb_gmii),
 	SH_PFC_PIN_GROUP(avb_avtp_match),
+#ifdef CONFIG_PINCTRL_PFC_FULL
 	SH_PFC_PIN_GROUP(can0_data),
 	SH_PFC_PIN_GROUP(can1_data),
 	SH_PFC_PIN_GROUP(can_clk),
@@ -1672,6 +1684,7 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(intc_irq1),
 	SH_PFC_PIN_GROUP(intc_irq2),
 	SH_PFC_PIN_GROUP(intc_irq3),
+#endif
 	SH_PFC_PIN_GROUP(lbsc_cs0),
 	SH_PFC_PIN_GROUP(lbsc_cs1),
 	SH_PFC_PIN_GROUP(lbsc_ex_cs0),
@@ -1680,6 +1693,7 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(lbsc_ex_cs3),
 	SH_PFC_PIN_GROUP(lbsc_ex_cs4),
 	SH_PFC_PIN_GROUP(lbsc_ex_cs5),
+#ifdef CONFIG_PINCTRL_PFC_FULL
 	SH_PFC_PIN_GROUP(msiof0_clk),
 	SH_PFC_PIN_GROUP(msiof0_sync),
 	SH_PFC_PIN_GROUP(msiof0_rx),
@@ -1688,6 +1702,7 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(msiof1_sync),
 	SH_PFC_PIN_GROUP(msiof1_rx),
 	SH_PFC_PIN_GROUP(msiof1_tx),
+#endif
 	SH_PFC_PIN_GROUP(qspi_ctrl),
 	BUS_DATA_PIN_GROUP(qspi_data, 2),
 	BUS_DATA_PIN_GROUP(qspi_data, 4),
@@ -1706,6 +1721,7 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(sdhi0_ctrl),
 	SH_PFC_PIN_GROUP(sdhi0_cd),
 	SH_PFC_PIN_GROUP(sdhi0_wp),
+#ifdef CONFIG_PINCTRL_PFC_FULL
 	BUS_DATA_PIN_GROUP(vin0_data, 24),
 	BUS_DATA_PIN_GROUP(vin0_data, 20),
 	SH_PFC_PIN_GROUP(vin0_data18),
@@ -1762,6 +1778,7 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(vin5_field),
 	SH_PFC_PIN_GROUP(vin5_clkenb),
 	SH_PFC_PIN_GROUP(vin5_clk),
+#endif
 };
 
 static const char * const avb_groups[] = {
@@ -1774,6 +1791,7 @@ static const char * const avb_groups[] = {
 	"avb_avtp_match",
 };
 
+#ifdef CONFIG_PINCTRL_PFC_FULL
 static const char * const can0_groups[] = {
 	"can0_data",
 	"can_clk",
@@ -1807,6 +1825,7 @@ static const char * const intc_groups[] = {
 	"intc_irq2",
 	"intc_irq3",
 };
+#endif
 
 static const char * const lbsc_groups[] = {
 	"lbsc_cs0",
@@ -1819,6 +1838,7 @@ static const char * const lbsc_groups[] = {
 	"lbsc_ex_cs5",
 };
 
+#ifdef CONFIG_PINCTRL_PFC_FULL
 static const char * const msiof0_groups[] = {
 	"msiof0_clk",
 	"msiof0_sync",
@@ -1832,6 +1852,7 @@ static const char * const msiof1_groups[] = {
 	"msiof1_rx",
 	"msiof1_tx",
 };
+#endif
 
 static const char * const qspi_groups[] = {
 	"qspi_ctrl",
@@ -1869,6 +1890,7 @@ static const char * const sdhi0_groups[] = {
 	"sdhi0_wp",
 };
 
+#ifdef CONFIG_PINCTRL_PFC_FULL
 static const char * const vin0_groups[] = {
 	"vin0_data24",
 	"vin0_data20",
@@ -1942,29 +1964,36 @@ static const char * const vin5_groups[] = {
 	"vin5_clkenb",
 	"vin5_clk",
 };
+#endif
 
 static const struct sh_pfc_function pinmux_functions[] = {
 	SH_PFC_FUNCTION(avb),
+#ifdef CONFIG_PINCTRL_PFC_FULL
 	SH_PFC_FUNCTION(can0),
 	SH_PFC_FUNCTION(can1),
 	SH_PFC_FUNCTION(du0),
 	SH_PFC_FUNCTION(du1),
 	SH_PFC_FUNCTION(intc),
+#endif
 	SH_PFC_FUNCTION(lbsc),
+#ifdef CONFIG_PINCTRL_PFC_FULL
 	SH_PFC_FUNCTION(msiof0),
 	SH_PFC_FUNCTION(msiof1),
+#endif
 	SH_PFC_FUNCTION(qspi),
 	SH_PFC_FUNCTION(scif0),
 	SH_PFC_FUNCTION(scif1),
 	SH_PFC_FUNCTION(scif2),
 	SH_PFC_FUNCTION(scif3),
 	SH_PFC_FUNCTION(sdhi0),
+#ifdef CONFIG_PINCTRL_PFC_FULL
 	SH_PFC_FUNCTION(vin0),
 	SH_PFC_FUNCTION(vin1),
 	SH_PFC_FUNCTION(vin2),
 	SH_PFC_FUNCTION(vin3),
 	SH_PFC_FUNCTION(vin4),
 	SH_PFC_FUNCTION(vin5),
+#endif
 };
 
 static const struct pinmux_cfg_reg pinmux_config_regs[] = {

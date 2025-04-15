@@ -9,11 +9,32 @@
 #include <malloc.h>
 #include <linux/bitops.h>
 
-/*
- * struct unit_test_state - Entire state of test system
+/**
+ * struct ut_stats - Statistics about tests run
  *
  * @fail_count: Number of tests that failed
  * @skip_count: Number of tests that were skipped
+ * @test_count: Number of tests run. If a test is run muiltiple times, only one
+ *	is counted
+ * @start: Timer value when test started
+ * @duration_ms: Suite duration in milliseconds
+ */
+struct ut_stats {
+	int fail_count;
+	int skip_count;
+	int test_count;
+	ulong start;
+	ulong duration_ms;
+};
+
+/*
+ * struct unit_test_state - Entire state of test system
+ *
+ * @cur: Statistics for the current run
+ * @total: Statistics for all test runs
+ * @run_count: Number of times ut_run_list() has been called
+ * @worst: Sute which had the first per-text run time
+ * @worst_ms: Time taken by that test
  * @start: Store the starting mallinfo when doing leak test
  * @of_live: true to use livetree if available, false to use flattree
  * @of_root: Record of the livetree root node (used for setting up tests)
@@ -24,17 +45,21 @@
  * @fdt_chksum: crc8 of the device tree contents
  * @fdt_copy: Copy of the device tree
  * @fdt_size: Size of the device-tree copy
- * @other_fdt: Buffer for the other FDT (UT_TESTF_OTHER_FDT)
- * @other_fdt_size: Size of the other FDT (UT_TESTF_OTHER_FDT)
+ * @other_fdt: Buffer for the other FDT (UTF_OTHER_FDT)
+ * @other_fdt_size: Size of the other FDT (UTF_OTHER_FDT)
  * @of_other: Live tree for the other FDT
  * @runs_per_test: Number of times to run each test (typically 1)
- * @force_run: true to run tests marked with the UT_TESTF_MANUAL flag
+ * @force_run: true to run tests marked with the UTF_MANUAL flag
+ * @old_bloblist: stores the old gd->bloblist pointer
  * @expect_str: Temporary string used to hold expected string value
  * @actual_str: Temporary string used to hold actual string value
  */
 struct unit_test_state {
-	int fail_count;
-	int skip_count;
+	struct ut_stats cur;
+	struct ut_stats total;
+	int run_count;
+	const struct suite *worst;
+	int worst_ms;
 	struct mallinfo start;
 	struct device_node *of_root;
 	bool of_live;
@@ -50,29 +75,33 @@ struct unit_test_state {
 	struct device_node *of_other;
 	int runs_per_test;
 	bool force_run;
+	void *old_bloblist;
 	char expect_str[512];
 	char actual_str[512];
 };
 
 /* Test flags for each test */
-enum {
-	UT_TESTF_SCAN_PDATA	= BIT(0),	/* test needs platform data */
-	UT_TESTF_PROBE_TEST	= BIT(1),	/* probe test uclass */
-	UT_TESTF_SCAN_FDT	= BIT(2),	/* scan device tree */
-	UT_TESTF_FLAT_TREE	= BIT(3),	/* test needs flat DT */
-	UT_TESTF_LIVE_TREE	= BIT(4),	/* needs live device tree */
-	UT_TESTF_CONSOLE_REC	= BIT(5),	/* needs console recording */
+enum ut_flags {
+	UTF_SCAN_PDATA	= BIT(0),	/* test needs platform data */
+	UTF_PROBE_TEST	= BIT(1),	/* probe test uclass */
+	UTF_SCAN_FDT	= BIT(2),	/* scan device tree */
+	UTF_FLAT_TREE	= BIT(3),	/* test needs flat DT */
+	UTF_LIVE_TREE	= BIT(4),	/* needs live device tree */
+	UTF_CONSOLE	= BIT(5),	/* needs console recording */
 	/* do extra driver model init and uninit */
-	UT_TESTF_DM		= BIT(6),
-	UT_TESTF_OTHER_FDT	= BIT(7),	/* read in other device tree */
+	UTF_DM		= BIT(6),
+	UTF_OTHER_FDT	= BIT(7),	/* read in other device tree */
 	/*
 	 * Only run if explicitly requested with 'ut -f <suite> <test>'. The
 	 * test name must end in "_norun" so that pytest detects this also,
 	 * since it cannot access the flags.
 	 */
-	UT_TESTF_MANUAL		= BIT(8),
-	UT_TESTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
-	UT_TESTF_SF_BOOTDEV	= BIT(10),	/* enable SPI flash bootdevs */
+	UTF_MANUAL	= BIT(8),
+	UTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
+	UTF_SF_BOOTDEV	= BIT(10),	/* enable SPI flash bootdevs */
+	UFT_BLOBLIST	= BIT(11),	/* test changes gd->bloblist */
+	UTF_INIT	= BIT(12),	/* test inits a suite */
+	UTF_UNINIT	= BIT(13),	/* test uninits a suite */
 };
 
 /**
@@ -109,7 +138,7 @@ struct unit_test {
  * @_name:	concatenation of name of the test suite, "_test_", and the name
  *		of the test
  * @_flags:	an integer field that can be evaluated by the test suite
- *		implementation
+ *		implementation (see enum ut_flags)
  * @_suite:	name of the test suite concatenated with "_test"
  */
 #define UNIT_TEST(_name, _flags, _suite)				\
@@ -117,6 +146,24 @@ struct unit_test {
 		.file = __FILE__,					\
 		.name = #_name,						\
 		.flags = _flags,					\
+		.func = _name,						\
+	}
+
+/* init function for unit-test suite (the 'A' makes it first) */
+#define UNIT_TEST_INIT(_name, _flags, _suite)				\
+	ll_entry_declare(struct unit_test, A ## _name, ut_ ## _suite) = {	\
+		.file = __FILE__,					\
+		.name = #_name,						\
+		.flags = (_flags) | UTF_INIT,				\
+		.func = _name,						\
+	}
+
+/* uninit function for unit-test suite (the 'aaa' makes it last) */
+#define UNIT_TEST_UNINIT(_name, _flags, _suite)				\
+	ll_entry_declare(struct unit_test, zzz ## _name, ut_ ## _suite) = { \
+		.file = __FILE__,					\
+		.name = #_name,						\
+		.flags = (_flags) | UTF_UNINIT,				\
 		.func = _name,						\
 	}
 

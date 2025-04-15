@@ -35,8 +35,7 @@ static int dm_test_bootcount_rtc(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_bootcount_rtc, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_bootcount_rtc, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_bootcount_syscon_four_bytes(struct unit_test_state *uts)
 {
@@ -55,9 +54,8 @@ static int dm_test_bootcount_syscon_four_bytes(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_bootcount_syscon_four_bytes,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+	UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_bootcount_syscon_two_bytes(struct unit_test_state *uts)
 {
@@ -76,6 +74,4 @@ static int dm_test_bootcount_syscon_two_bytes(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_bootcount_syscon_two_bytes,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_bootcount_syscon_two_bytes, UTF_SCAN_PDATA | UTF_SCAN_FDT);

@@ -9,7 +9,7 @@ release that came out in October 2020. Release candidates are tagged every few
 weeks as the project heads to the next release. So 2020.10-rc1 was the first
 release candidate (RC), tagged soon after 2020.07 was released.
 
-See https://www.denx.de/wiki/view/U-Boot/ReleaseCycle for full details.
+See :doc:`release_cycle` for full details.
 
 Within the build system, various Makefile variables are created, making use of
 VERSION, PATCHLEVEL and EXTRAVERSION defined at the top of 'Makefile'. There is

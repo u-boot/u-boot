@@ -6,7 +6,7 @@
 
 obj-y += imx8mn_beacon.o
 obj-y += ../../freescale/common/
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += spl.o
 ifdef CONFIG_IMX8MN_BEACON_2GB_LPDDR
 obj-y += lpddr4_2g_timing.o

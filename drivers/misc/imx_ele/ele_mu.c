@@ -21,25 +21,35 @@ struct imx8ulp_mu {
 
 #define MU_SR_TE0_MASK		BIT(0)
 #define MU_SR_RF0_MASK		BIT(0)
-#define MU_TR_COUNT		8
-#define MU_RR_COUNT		4
 
 void mu_hal_init(ulong base)
 {
 	struct mu_type *mu_base = (struct mu_type *)base;
+	u32 rr_num = (readl(&mu_base->par) & 0xFF00) >> 8;
+	int i;
 
 	writel(0, &mu_base->tcr);
 	writel(0, &mu_base->rcr);
+
+	while (true) {
+		/* If there is pending RX data, clear them by read them out */
+		if (!(readl(&mu_base->sr) & BIT(6)))
+			return;
+
+		for (i = 0; i < rr_num; i++)
+			readl(&mu_base->rr[i]);
+	}
 }
 
 int mu_hal_sendmsg(ulong base, u32 reg_index, u32 msg)
 {
 	struct mu_type *mu_base = (struct mu_type *)base;
 	u32 mask = MU_SR_TE0_MASK << reg_index;
-	u32 val;
+	u32 val, tr_num;
 	int ret;
 
-	assert(reg_index < MU_TR_COUNT);
+	tr_num = readl(&mu_base->par) & 0xFF;
+	assert(reg_index < tr_num);
 
 	debug("sendmsg tsr 0x%x\n", readl(&mu_base->tsr));
 
@@ -61,11 +71,12 @@ int mu_hal_receivemsg(ulong base, u32 reg_index, u32 *msg)
 {
 	struct mu_type *mu_base = (struct mu_type *)base;
 	u32 mask = MU_SR_RF0_MASK << reg_index;
-	u32 val;
+	u32 val, rr_num;
 	int ret;
 	u32 count = 10;
 
-	assert(reg_index < MU_RR_COUNT);
+	rr_num = (readl(&mu_base->par) & 0xFF00) >> 8;
+	assert(reg_index < rr_num);
 
 	debug("receivemsg rsr 0x%x\n", readl(&mu_base->rsr));
 
@@ -96,7 +107,7 @@ static int imx8ulp_mu_read(struct mu_type *base, void *data)
 {
 	struct ele_msg *msg = (struct ele_msg *)data;
 	int ret;
-	u8 count = 0;
+	u8 count = 0, rr_num;
 
 	if (!msg)
 		return -EINVAL;
@@ -113,9 +124,11 @@ static int imx8ulp_mu_read(struct mu_type *base, void *data)
 		return -EINVAL;
 	}
 
+	rr_num = (readl(&base->par) & 0xFF00) >> 8;
+
 	/* Read remaining words */
 	while (count < msg->size) {
-		ret = mu_hal_receivemsg((ulong)base, count % MU_RR_COUNT,
+		ret = mu_hal_receivemsg((ulong)base, count % rr_num,
 					&msg->data[count - 1]);
 		if (ret)
 			return ret;
@@ -129,7 +142,7 @@ static int imx8ulp_mu_write(struct mu_type *base, void *data)
 {
 	struct ele_msg *msg = (struct ele_msg *)data;
 	int ret;
-	u8 count = 0;
+	u8 count = 0, tr_num;
 
 	if (!msg)
 		return -EINVAL;
@@ -144,9 +157,11 @@ static int imx8ulp_mu_write(struct mu_type *base, void *data)
 		return ret;
 	count++;
 
+	tr_num = readl(&base->par) & 0xFF;
+
 	/* Write remaining words */
 	while (count < msg->size) {
-		ret = mu_hal_sendmsg((ulong)base, count % MU_TR_COUNT,
+		ret = mu_hal_sendmsg((ulong)base, count % tr_num,
 				     msg->data[count - 1]);
 		if (ret)
 			return ret;
@@ -229,6 +244,7 @@ static struct misc_ops imx8ulp_mu_ops = {
 static const struct udevice_id imx8ulp_mu_ids[] = {
 	{ .compatible = "fsl,imx8ulp-mu" },
 	{ .compatible = "fsl,imx93-mu-s4" },
+	{ .compatible = "fsl,imx95-mu-ele" },
 	{ }
 };
 

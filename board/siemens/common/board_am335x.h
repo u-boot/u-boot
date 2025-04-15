@@ -22,7 +22,7 @@ void spl_draco_board_init(void);
 void draco_init_ddr(void);
 int draco_read_eeprom(void);
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* Mux for init: uart?, i2c0 to read the main EEPROM */
 void enable_uart0_pin_mux(void);
 void enable_uart1_pin_mux(void);
@@ -34,6 +34,6 @@ void enable_i2c0_pin_mux(void);
 
 /* Main mux function to enable other pinmux required on the board */
 void enable_board_pin_mux(void);
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #endif /* _BOARD_AM335X_H_ */

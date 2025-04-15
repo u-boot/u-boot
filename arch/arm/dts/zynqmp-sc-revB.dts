@@ -3,7 +3,7 @@
  * dts file for Xilinx ZynqMP Generic System Controller
  *
  * (C) Copyright 2021 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2024, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -80,7 +80,7 @@
 	pwm-fan {
 		compatible = "pwm-fan";
 		status = "okay";
-		pwms = <&ttc0 2 40000 1>;
+		pwms = <&ttc0 2 40000 0>;
 	};
 };
 
@@ -104,7 +104,7 @@
 		"", "", "ETH_RESET_B", /* 75 - 77, MIO end and EMIO start */
 		"", "", /* 78 - 79 */
 		"", "", "", "", "", /* 80 - 84 */
-		"", "", "", "", "", /* 85 -89 */
+		"", "", "", "", "", /* 85 - 89 */
 		"", "", "", "", "", /* 90 - 94 */
 		"", "", "", "", "", /* 95 - 99 */
 		"", "", "", "", "", /* 100 - 104 */
@@ -175,6 +175,7 @@
 	/* Use for storing information about SC board */
 	eeprom: eeprom@54 { /* u34 - m24128 16kB */
 		compatible = "st,24c128", "atmel,24c128";
+		label = "eeprom_cc";
 		reg = <0x54>; /* & 0x5c */
 		bootph-all;
 	};
@@ -288,6 +289,9 @@
 	status = "okay";
 	non-removable;
 	disable-wp;
+	no-sd;
+	no-sdio;
+	cap-mmc-hw-reset;
 	bus-width = <8>;
 	xlnx,mio-bank = <0>;
 };

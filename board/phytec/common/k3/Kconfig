@@ -1,0 +1,5 @@
+config PHYTEC_K3_DDR_PATCH
+	bool "Patch DDR timings on PHYTEC K3 SoMs"
+	help
+	   Allow to override default DDR timings prior to
+	   DDRSS driver probing.

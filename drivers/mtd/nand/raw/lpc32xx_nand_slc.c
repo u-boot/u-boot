@@ -84,7 +84,7 @@ static struct nand_ecclayout lpc32xx_nand_oob_16 = {
 	}
 };
 
-#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_XPL_BUILD)
 #define ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / CFG_SYS_NAND_ECCSIZE)
 
 /*
@@ -162,7 +162,7 @@ static int lpc32xx_nand_dev_ready(struct mtd_info *mtd)
 	return readl(&lpc32xx_nand_slc_regs->stat) & STAT_NAND_READY;
 }
 
-#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_XPL_BUILD)
 /*
  * Prepares DMA descriptors for NAND RD/WR operations
  * If the size is < 256 Bytes then it is assumed to be
@@ -510,7 +510,7 @@ static void lpc32xx_write_byte(struct mtd_info *mtd, uint8_t byte)
  */
 int board_nand_init(struct nand_chip *lpc32xx_chip)
 {
-#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_XPL_BUILD)
 	int ret;
 
 	/* Acquire a channel for our use */
@@ -533,7 +533,7 @@ int board_nand_init(struct nand_chip *lpc32xx_chip)
 	lpc32xx_chip->read_byte  = lpc32xx_read_byte;
 	lpc32xx_chip->write_byte = lpc32xx_write_byte;
 
-#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_XPL_BUILD)
 	/* Hardware ECC calculation is supported when DMA driver is selected */
 	lpc32xx_chip->ecc.mode		= NAND_ECC_HW;
 

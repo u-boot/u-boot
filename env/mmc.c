@@ -40,24 +40,75 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * In case the environment is redundant, stored in eMMC hardware boot
- * partition and the environment and redundant environment offsets are
- * identical, store the environment and redundant environment in both
- * eMMC boot partitions, one copy in each.
- * */
-#if (defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT) && \
-     (CONFIG_SYS_MMC_ENV_PART == 1) && \
-     (CONFIG_ENV_OFFSET == CONFIG_ENV_OFFSET_REDUND))
-#define ENV_MMC_HWPART_REDUND	1
-#endif
-
 #if CONFIG_IS_ENABLED(OF_CONTROL)
+
+static int mmc_env_partition_by_name(struct blk_desc *desc, const char *str,
+				     struct disk_partition *info)
+{
+	int i, ret;
+
+	for (i = 1;; i++) {
+		ret = part_get_info(desc, i, info);
+		if (ret < 0)
+			return ret;
+
+		if (!strncmp((const char *)info->name, str, sizeof(info->name)))
+			return 0;
+	}
+}
+
+/*
+ * Look for one or two partitions with the U-Boot environment GUID.
+ *
+ * If *copy is 0, return the first such partition.
+ *
+ * If *copy is 1 on entry and two partitions are found, return the
+ * second partition and set *copy = 0.
+ *
+ * If *copy is 1 on entry and only one partition is found, return that
+ * partition, leaving *copy unmodified.
+ */
+static int mmc_env_partition_by_guid(struct blk_desc *desc, struct disk_partition *info,
+				     int *copy)
+{
+	const efi_guid_t env_guid = PARTITION_U_BOOT_ENVIRONMENT;
+	efi_guid_t type_guid;
+	int i, ret, found = 0;
+	struct disk_partition dp;
+
+	for (i = 1;; i++) {
+		ret = part_get_info(desc, i, &dp);
+		if (ret < 0)
+			break;
+
+		uuid_str_to_bin(disk_partition_type_guid(&dp), type_guid.b, UUID_STR_FORMAT_GUID);
+		if (!memcmp(&env_guid, &type_guid, sizeof(efi_guid_t))) {
+			memcpy(info, &dp, sizeof(dp));
+			/* If *copy is 0, we are only looking for the first partition. */
+			if (*copy == 0)
+				return 0;
+			/* This was the second such partition. */
+			if (found) {
+				*copy = 0;
+				return 0;
+			}
+			found = 1;
+		}
+	}
+
+	/* The loop ended after finding at most one matching partition. */
+	if (found)
+		ret = 0;
+	return ret;
+}
+
+
 static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 {
 	struct disk_partition info;
 	struct blk_desc *desc;
-	int len, i, ret;
+	lbaint_t len;
+	int ret;
 	char dev_str[4];
 
 	snprintf(dev_str, sizeof(dev_str), "%d", mmc_get_env_dev());
@@ -65,27 +116,23 @@ static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 	if (ret < 0)
 		return (ret);
 
-	for (i = 1;;i++) {
-		ret = part_get_info(desc, i, &info);
-		if (ret < 0)
-			return ret;
-
-		if (str && !strncmp((const char *)info.name, str, sizeof(info.name)))
-			break;
-#ifdef CONFIG_PARTITION_TYPE_GUID
-		if (!str) {
-			const efi_guid_t env_guid = PARTITION_U_BOOT_ENVIRONMENT;
-			efi_guid_t type_guid;
-
-			uuid_str_to_bin(info.type_guid, type_guid.b, UUID_STR_FORMAT_GUID);
-			if (!memcmp(&env_guid, &type_guid, sizeof(efi_guid_t)))
-				break;
-		}
-#endif
+	if (str) {
+		ret = mmc_env_partition_by_name(desc, str, &info);
+	} else if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID) && !str) {
+		ret = mmc_env_partition_by_guid(desc, &info, &copy);
 	}
+	if (ret < 0)
+		return ret;
 
 	/* round up to info.blksz */
 	len = DIV_ROUND_UP(CONFIG_ENV_SIZE, info.blksz);
+
+	if ((1 + copy) * len > info.size) {
+		printf("Partition '%s' [0x"LBAF"; 0x"LBAF"] too small for %senvironment, required size 0x"LBAF" blocks\n",
+		       (const char*)info.name, info.start, info.size,
+		       copy ? "two copies of " : "", (1 + copy)*len);
+		return -ENOSPC;
+	}
 
 	/* use the top of the partion for the environment */
 	*val = (info.start + info.size - (1 + copy) * len) * info.blksz;
@@ -157,6 +204,23 @@ static inline s64 mmc_offset(struct mmc *mmc, int copy)
 	return offset;
 }
 #endif
+
+static bool mmc_env_is_redundant_in_both_boot_hwparts(struct mmc *mmc)
+{
+	/*
+	 * In case the environment is redundant, stored in eMMC hardware boot
+	 * partition and the environment and redundant environment offsets are
+	 * identical, store the environment and redundant environment in both
+	 * eMMC boot partitions, one copy in each.
+	 */
+	if (!IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT))
+		return false;
+
+	if (CONFIG_SYS_MMC_ENV_PART != 1)
+		return false;
+
+	return mmc_offset(mmc, 0) == mmc_offset(mmc, 1);
+}
 
 __weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 {
@@ -239,7 +303,7 @@ static void fini_mmc_for_env(struct mmc *mmc)
 	mmc_set_env_part_restore(mmc);
 }
 
-#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_XPL_BUILD)
 static inline int write_env(struct mmc *mmc, unsigned long size,
 			    unsigned long offset, const void *buffer)
 {
@@ -277,7 +341,7 @@ static int env_mmc_save(void)
 		if (gd->env_valid == ENV_VALID)
 			copy = 1;
 
-		if (IS_ENABLED(ENV_MMC_HWPART_REDUND)) {
+		if (mmc_env_is_redundant_in_both_boot_hwparts(mmc)) {
 			ret = mmc_set_env_part(mmc, copy + 1);
 			if (ret)
 				goto fini;
@@ -350,7 +414,7 @@ static int env_mmc_erase(void)
 	if (IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT)) {
 		copy = 1;
 
-		if (IS_ENABLED(ENV_MMC_HWPART_REDUND)) {
+		if (mmc_env_is_redundant_in_both_boot_hwparts(mmc)) {
 			ret = mmc_set_env_part(mmc, copy + 1);
 			if (ret)
 				goto fini;
@@ -368,7 +432,7 @@ fini:
 	fini_mmc_for_env(mmc);
 	return ret;
 }
-#endif /* CONFIG_CMD_SAVEENV && !CONFIG_SPL_BUILD */
+#endif /* CONFIG_CMD_SAVEENV && !CONFIG_XPL_BUILD */
 
 static inline int read_env(struct mmc *mmc, unsigned long size,
 			   unsigned long offset, const void *buffer)
@@ -384,13 +448,7 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
-#if defined(ENV_IS_EMBEDDED)
-static int env_mmc_load(void)
-{
-	return 0;
-}
-#elif defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
-static int env_mmc_load(void)
+static int env_mmc_load_redundant(void)
 {
 	struct mmc *mmc;
 	u32 offset1, offset2;
@@ -418,7 +476,7 @@ static int env_mmc_load(void)
 		goto fini;
 	}
 
-	if (IS_ENABLED(ENV_MMC_HWPART_REDUND)) {
+	if (mmc_env_is_redundant_in_both_boot_hwparts(mmc)) {
 		ret = mmc_set_env_part(mmc, 1);
 		if (ret)
 			goto fini;
@@ -426,7 +484,7 @@ static int env_mmc_load(void)
 
 	read1_fail = read_env(mmc, CONFIG_ENV_SIZE, offset1, tmp_env1);
 
-	if (IS_ENABLED(ENV_MMC_HWPART_REDUND)) {
+	if (mmc_env_is_redundant_in_both_boot_hwparts(mmc)) {
 		ret = mmc_set_env_part(mmc, 2);
 		if (ret)
 			goto fini;
@@ -446,8 +504,8 @@ err:
 
 	return ret;
 }
-#else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
-static int env_mmc_load(void)
+
+static int env_mmc_load_singular(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct mmc *mmc;
@@ -492,13 +550,22 @@ err:
 
 	return ret;
 }
-#endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
+
+static int env_mmc_load(void)
+{
+	if (IS_ENABLED(ENV_IS_EMBEDDED))
+		return 0;
+	else if (IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT))
+		return env_mmc_load_redundant();
+	else
+		return env_mmc_load_singular();
+}
 
 U_BOOT_ENV_LOCATION(mmc) = {
 	.location	= ENVL_MMC,
 	ENV_NAME("MMC")
 	.load		= env_mmc_load,
-#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_XPL_BUILD)
 	.save		= env_save_ptr(env_mmc_save),
 	.erase		= ENV_ERASE_PTR(env_mmc_erase)
 #endif

@@ -75,7 +75,7 @@ config TARGET_FENNEC_RK3288
 config TARGET_FIREFLY_RK3288
 	bool "Firefly-RK3288"
 	select BOARD_LATE_INIT
-	select SPL_BOARD_INIT if SPL
+	select ROCKCHIP_COMMON_STACK_ADDR
 	select TPL
 	help
 	  Firefly is a RK3288-based development board with 2 USB ports,
@@ -86,6 +86,8 @@ config TARGET_FIREFLY_RK3288
 config TARGET_MIQI_RK3288
 	bool "MiQi-RK3288"
 	select BOARD_LATE_INIT
+	select ROCKCHIP_COMMON_STACK_ADDR
+	select TPL
 	help
 	  MiQi-RK3288 is a RK3288-based development board with 4 USB 2.0
 	  ports, HDMI, micro-SD card, 16 GB eMMC and Gigabit Ethernet. It
@@ -132,6 +134,7 @@ config TARGET_ROCK2
 config TARGET_TINKER_RK3288
 	bool "Tinker-RK3288"
         select BOARD_LATE_INIT
+	select ROCKCHIP_COMMON_STACK_ADDR
 	select TPL
 	help
 	  Tinker is a RK3288-based development board with 2 USB ports, HDMI,
@@ -160,7 +163,7 @@ config SYS_SOC
 	default "rk3288"
 
 config SYS_MALLOC_F_LEN
-	default 0x2000
+	default 0x2000 if !SPL_SHARES_INIT_SP_ADDR
 
 config SPL_DRIVERS_MISC
 	default y
@@ -176,6 +179,9 @@ config SPL_SERIAL
 
 config TPL_STACK
         default 0xff718000
+
+config TPL_SYS_MALLOC_F_LEN
+	default 0x2000
 
 config TPL_TEXT_BASE
 	default 0xff704000

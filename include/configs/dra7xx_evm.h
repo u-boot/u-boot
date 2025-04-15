@@ -28,7 +28,7 @@
 #define CFG_SYS_NS16550_COM2		UART2_BASE	/* UART2 */
 #define CFG_SYS_NS16550_COM3		UART3_BASE	/* UART3 */
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
 	DFU_ALT_INFO_MMC \
@@ -37,7 +37,7 @@
 	DFU_ALT_INFO_QSPI
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #ifdef CONFIG_SPL_DFU
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
@@ -46,22 +46,6 @@
 #endif
 
 #include <configs/ti_omap5_common.h>
-
-/*
- * Default to using SPI for environment, etc.
- * 0x000000 - 0x040000 : QSPI.SPL (256KiB)
- * 0x040000 - 0x140000 : QSPI.u-boot (1MiB)
- * 0x140000 - 0x1C0000 : QSPI.u-boot-spl-os (512KiB)
- * 0x1C0000 - 0x1D0000 : QSPI.u-boot-env (64KiB)
- * 0x1D0000 - 0x1E0000 : QSPI.u-boot-env.backup1 (64KiB)
- * 0x1E0000 - 0x9E0000 : QSPI.kernel (8MiB)
- * 0x9E0000 - 0x2000000 : USERLAND
- */
-#define CFG_SYS_SPI_KERNEL_OFFS	0x1E0000
-#define CFG_SYS_SPI_ARGS_OFFS	0x140000
-#define CFG_SYS_SPI_ARGS_SIZE	0x80000
-
-/* SPI SPL */
 
 /* NAND support */
 #ifdef CONFIG_MTD_RAW_NAND

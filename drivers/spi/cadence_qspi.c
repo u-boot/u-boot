@@ -33,7 +33,7 @@ __weak int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 	return 0;
 }
 
-__weak int cadence_qspi_versal_flash_reset(struct udevice *dev)
+__weak int cadence_qspi_flash_reset(struct udevice *dev)
 {
 	return 0;
 }
@@ -251,15 +251,10 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	priv->wr_delay = 50 * DIV_ROUND_UP(NSEC_PER_SEC, priv->ref_clk_hz);
 
-	/* Versal and Versal-NET use spi calibration to set read delay */
-	if (CONFIG_IS_ENABLED(ARCH_VERSAL) ||
-	    CONFIG_IS_ENABLED(ARCH_VERSAL_NET) ||
-	    CONFIG_IS_ENABLED(ARCH_VERSAL2))
-		if (priv->read_delay >= 0)
-			priv->read_delay = -1;
-
 	/* Reset ospi flash device */
-	return cadence_qspi_versal_flash_reset(bus);
+	return cadence_qspi_flash_reset(bus);
+
+	return 0;
 }
 
 static int cadence_spi_remove(struct udevice *dev)

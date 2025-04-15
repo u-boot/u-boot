@@ -81,7 +81,7 @@ static int __wrpll_calc_filter_range(unsigned long post_divr_freq)
 {
 	if (post_divr_freq < MIN_POST_DIVR_FREQ ||
 	    post_divr_freq > MAX_POST_DIVR_FREQ) {
-		WARN(1, "%s: post-divider reference freq out of range: %lu",
+		WARN(1, "%s: post-divider reference freq out of range: %lu\n",
 		     __func__, post_divr_freq);
 		return -ERANGE;
 	}
@@ -229,7 +229,7 @@ int wrpll_configure_for_rate(struct wrpll_cfg *c, u32 target_rate,
 	int range;
 
 	if (c->flags == 0) {
-		WARN(1, "%s called with uninitialized PLL config", __func__);
+		WARN(1, "%s called with uninitialized PLL config\n", __func__);
 		return -EINVAL;
 	}
 
@@ -335,7 +335,7 @@ unsigned long wrpll_calc_output_rate(const struct wrpll_cfg *c,
 	u64 n;
 
 	if (c->flags & WRPLL_FLAGS_EXT_FEEDBACK_MASK) {
-		WARN(1, "external feedback mode not yet supported");
+		WARN(1, "external feedback mode not yet supported\n");
 		return ULONG_MAX;
 	}
 

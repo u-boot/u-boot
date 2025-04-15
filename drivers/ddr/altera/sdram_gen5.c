@@ -20,7 +20,7 @@
 
 #include "sequencer.h"
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 struct altera_gen5_sdram_priv {
 	struct ram_info info;
@@ -651,4 +651,4 @@ U_BOOT_DRIVER(altera_gen5_sdram) = {
 	.priv_auto	= sizeof(struct altera_gen5_sdram_priv),
 };
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */

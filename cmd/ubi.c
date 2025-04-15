@@ -14,6 +14,7 @@
 #include <command.h>
 #include <env.h>
 #include <exports.h>
+#include <led.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <mtd.h>
@@ -488,10 +489,18 @@ exit:
 
 int ubi_volume_write(char *volume, void *buf, loff_t offset, size_t size)
 {
-	if (!offset)
-		return ubi_volume_begin_write(volume, buf, size, size);
+	int ret;
 
-	return ubi_volume_offset_write(volume, buf, offset, size);
+	led_activity_blink();
+
+	if (!offset)
+		ret = ubi_volume_begin_write(volume, buf, size, size);
+	else
+		ret = ubi_volume_offset_write(volume, buf, offset, size);
+
+	led_activity_off();
+
+	return ret;
 }
 
 int ubi_volume_read(char *volume, char *buf, loff_t offset, size_t size)

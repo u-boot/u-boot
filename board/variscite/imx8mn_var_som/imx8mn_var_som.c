@@ -54,7 +54,7 @@ int board_mmc_get_env_dev(int devno)
 	return devno;
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 
 #if defined(CONFIG_DISPLAY_BOARDINFO)
 
@@ -227,4 +227,4 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */

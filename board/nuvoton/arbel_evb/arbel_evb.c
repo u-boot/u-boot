@@ -4,6 +4,7 @@
  */
 
 #include <dm.h>
+#include <event.h>
 #include <asm/io.h>
 #include <asm/arch/gcr.h>
 #include "../common/uart.h"
@@ -59,17 +60,21 @@ int dram_init(void)
 
 int dram_init_banksize(void)
 {
+	phys_size_t ram_size = gd->ram_size;
 
 	gd->bd->bi_dram[0].start = 0;
 
-	switch (gd->ram_size) {
+	#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+		ram_size += CONFIG_SYS_MEM_TOP_HIDE;
+	#endif
+	switch (ram_size) {
 	case DRAM_512MB_ECC_SIZE:
 	case DRAM_512MB_SIZE:
 	case DRAM_1GB_ECC_SIZE:
 	case DRAM_1GB_SIZE:
 	case DRAM_2GB_ECC_SIZE:
 	case DRAM_2GB_SIZE:
-		gd->bd->bi_dram[0].size = gd->ram_size;
+		gd->bd->bi_dram[0].size = ram_size;
 		gd->bd->bi_dram[1].start = 0;
 		gd->bd->bi_dram[1].size = 0;
 		break;
@@ -94,9 +99,5 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-int last_stage_init(void)
-{
-	board_set_console();
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, board_set_console);
 
-	return 0;
-}

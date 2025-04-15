@@ -78,7 +78,7 @@ struct pmic *pmic_get(const char *s)
 	return NULL;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int pmic_dump(struct pmic *p)
 {
 	int i, ret;

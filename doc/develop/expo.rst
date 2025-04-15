@@ -88,8 +88,13 @@ or even the IDs of objects. Programmatic creation of many items in a loop can be
 handled by allocating space in the enum for a maximum number of items, then
 adding the loop count to the enum values to obtain unique IDs.
 
-Where dynamic IDs are need, use expo_set_dynamic_start() to set the start value,
-so that they are allocated above the starting (enum) IDs.
+Some standard IDs are reserved for certain purposes. These are defined by
+`enum expo_id_t` and start at 1. `EXPOID_BASE_ID` defines the first ID which
+can be used for an expo.
+
+An ID of 0 is invalid. If this is specified in an expo call then a valid
+'dynamic IDs is allocated. Use expo_set_dynamic_start() to set the start
+value, so that they are allocated above the starting (enum) IDs.
 
 All text strings are stored in a structure attached to the expo, referenced by
 a text ID. This makes it easier at some point to implement multiple languages or
@@ -175,6 +180,10 @@ menu-inset
 
 menuitem-gap-y
     Number of pixels between menu items
+
+menu-title-margin-x
+    Number of pixels between right side of menu title to the left size of the
+    menu labels
 
 Pop-up mode
 -----------
@@ -352,6 +361,13 @@ item-id
     Specifies the ID for each menu item. These are used for checking which item
     has been selected.
 
+item-value
+    type: u32 list, optional
+
+    Specifies the value for each menu item. These are used for saving and
+    loading. If this is omitted the value is its position in the menu (0..n-1).
+    Valid values are positive and negative integers INT_MIN...(INT_MAX - 1).
+
 item-label / item-label-id
     type: string list / u32 list, required
 
@@ -413,8 +429,7 @@ strings are provided inline in the nodes where they are used.
     /* this comment is parsed by the expo.py tool to insert the values below
 
     enum {
-        ZERO,
-        ID_PROMPT,
+        ID_PROMPT = EXPOID_BASE_ID,
         ID_SCENE1,
         ID_SCENE1_TITLE,
 
@@ -466,6 +481,9 @@ strings are provided inline in the nodes where they are used.
                     /* IDs for the menu items */
                     item-id = <ID_CPU_SPEED_1 ID_CPU_SPEED_2
                         ID_CPU_SPEED_3>;
+
+                    /* values for the menu items */
+                    item-value = <(-1) 3 6>;
                 };
 
                 power-loss {

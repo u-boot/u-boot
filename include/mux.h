@@ -117,40 +117,40 @@ struct mux_control *devm_mux_control_get(struct udevice *dev,
 int dm_mux_init(void);
 
 #else
-unsigned int mux_control_states(struct mux_control *mux)
+static inline unsigned int mux_control_states(struct mux_control *mux)
 {
 	return -ENOSYS;
 }
 
-int __must_check mux_control_select(struct mux_control *mux,
-				    unsigned int state)
+static inline int __must_check mux_control_select(struct mux_control *mux,
+						  unsigned int state)
 {
 	return -ENOSYS;
 }
 
 #define mux_control_try_select(mux, state) mux_control_select(mux, state)
 
-int mux_control_deselect(struct mux_control *mux)
+static inline int mux_control_deselect(struct mux_control *mux)
 {
 	return -ENOSYS;
 }
 
-struct mux_control *mux_control_get(struct udevice *dev, const char *mux_name)
+static inline struct mux_control *mux_control_get(struct udevice *dev, const char *mux_name)
 {
 	return NULL;
 }
 
-void mux_control_put(struct mux_control *mux)
+static inline void mux_control_put(struct mux_control *mux)
 {
 }
 
-struct mux_control *devm_mux_control_get(struct udevice *dev,
-					 const char *mux_name)
+static inline struct mux_control *devm_mux_control_get(struct udevice *dev,
+						       const char *mux_name)
 {
 	return NULL;
 }
 
-int dm_mux_init(void)
+static inline int dm_mux_init(void)
 {
 	return -ENOSYS;
 }

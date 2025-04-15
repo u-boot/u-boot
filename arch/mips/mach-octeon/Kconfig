@@ -2,7 +2,6 @@ menu "Octeon platforms"
 	depends on ARCH_OCTEON
 
 config SYS_SOC
-	string
 	default "octeon"
 
 config OCTEON_CN7XXX

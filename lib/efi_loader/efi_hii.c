@@ -6,6 +6,8 @@
  *  Copyright (c) 2018 AKASHI Takahiro, Linaro Limited
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 #include <malloc.h>
 #include <asm/unaligned.h>
@@ -341,6 +343,9 @@ static struct efi_hii_packagelist *new_packagelist(void)
 	struct efi_hii_packagelist *hii;
 
 	hii = malloc(sizeof(*hii));
+	if (!hii)
+		return NULL;
+
 	list_add_tail(&hii->link, &efi_package_lists);
 	hii->max_string_id = 0;
 	INIT_LIST_HEAD(&hii->string_tables);

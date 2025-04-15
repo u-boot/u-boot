@@ -17,11 +17,9 @@ config XTFPGA_KC705
 endchoice
 
 config SYS_BOARD
-	string
 	default "xtfpga"
 
 config SYS_VENDOR
-	string
 	default "cadence"
 
 config SYS_CONFIG_NAME

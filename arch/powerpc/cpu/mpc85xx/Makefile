@@ -8,7 +8,7 @@
 
 MINIMAL=
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_INIT_MINIMAL
 MINIMAL=y
@@ -26,7 +26,7 @@ else
 
 obj-$(CONFIG_MP)	+= release.o
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_CMD_ERRATA) += cmd_errata.o
 endif
 

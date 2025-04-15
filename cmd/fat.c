@@ -14,7 +14,7 @@
 #include <part.h>
 #include <asm/cache.h>
 
-int do_fat_size(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+static int do_fat_size(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return do_size(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }

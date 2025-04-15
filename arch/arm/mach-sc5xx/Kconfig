@@ -13,46 +13,115 @@
 
 if ARCH_SC5XX
 
+config SYS_VENDOR
+	default "adi"
+
+choice
+	prompt "SC5xx SoC Select"
+	help
+	  Selects which series of Analog Devices SC5xx chips to support.
+
 config SC57X
-	bool
-	select SUPPORT_SPL
-	select CPU_V7A
-	select PANIC_HANG
+	bool "SC57x series"
 	select COMMON_CLK_ADI_SC57X
-	select TIMER
-	select ADI_SC5XX_TIMER
+	select CPU_V7A
+	select TARGET_SC573_EZKIT
 
 config SC58X
-	bool
-	select SUPPORT_SPL
-	select CPU_V7A
-	select PANIC_HANG
+	bool "SC58x series"
 	select COMMON_CLK_ADI_SC58X
-	select TIMER
-	select ADI_SC5XX_TIMER
+	select CPU_V7A
 
 config SC59X
-	bool
-	select SUPPORT_SPL
-	select CPU_V7A
-	select PANIC_HANG
+	bool "SC59x 32-bit series"
 	select COMMON_CLK_ADI_SC594
-	select TIMER
-	select ADI_SC5XX_TIMER
-	select NOP_PHY
+	select CPU_V7A
+	select NOP_PHY if PHY
 
 config SC59X_64
-	bool
-	select SUPPORT_SPL
-	select PANIC_HANG
-	select MMC_SDHCI_ADMA_FORCE_32BIT
+	bool "SC59x 64-bit series"
 	select ARM64
-	select DM
-	select DM_SERIAL
 	select COMMON_CLK_ADI_SC598
 	select GICV3
+	select GICV3_SUPPORT_GIC600
 	select GIC_600_CLEAR_RDPD
-	select NOP_PHY
+	select MMC_SDHCI_ADMA_FORCE_32BIT
+	select NOP_PHY if PHY
+
+endchoice
+
+if SC57X
+
+config TARGET_SC573_EZKIT
+	bool "Support SC573-EZKIT"
+
+endif
+
+if SC58X
+
+choice
+	prompt "SC58x board select"
+
+config TARGET_SC584_EZKIT
+	bool
+	prompt "SC584-EZKIT"
+	select ADI_USE_DDR2
+
+config TARGET_SC589_MINI
+	bool
+	prompt "SC589-MINI"
+
+config TARGET_SC589_EZKIT
+	bool
+	prompt "SC589-EZKIT"
+
+endchoice
+
+endif
+
+if SC59X
+
+choice
+	prompt "SC59x 32-bit board select"
+
+config TARGET_SC594_SOM_EZLITE
+	bool
+	prompt "SC594-SOM with SOMCRR-EZLITE"
+	select ADI_CARRIER_SOMCRR_EZLITE
+
+config TARGET_SC594_SOM_EZKIT
+	bool
+	prompt "SC594-SOM with SOMCRR-EZKIT"
+	select ADI_CARRIER_SOMCRR_EZKIT
+
+endchoice
+
+endif
+
+if SC59X_64
+
+choice
+	prompt "SC59x 64-bit board select"
+
+config TARGET_SC598_SOM_EZLITE
+	bool
+	prompt "SC598-SOM with SOMCRR-EZLITE"
+	select ADI_CARRIER_SOMCRR_EZLITE
+
+config TARGET_SC598_SOM_EZKIT
+	bool
+	prompt "SC598-SOM with SOMCRR-EZKIT"
+	select ADI_CARRIER_SOMCRR_EZKIT
+
+endchoice
+
+endif
+
+config ADI_IMAGE
+	string "ADI fitImage type"
+	help
+	  The image built by the ADI ADSP Linux build system.
+	  Is one of tiny, minimal, full.
 
 config SC_BOOT_MODE
 	int "SC5XX boot mode select"
@@ -93,9 +162,24 @@ config SC_BOOT_OSPI_SSEL
 	  This is the OSPI chip select number to use for booting, Y in the
 	  expression `sf probe X:Y`
 
+config SYS_BOOTM_LEN
+	hex
+	default 0x1800000
+
 config SYS_FLASH_BASE
 	hex
 	default 0x60000000
+
+config SYS_MALLOC_F_LEN
+	default 0x14000
+
+config SYS_LOAD_ADDR
+	hex
+	default 0x0
+
+config SYS_MALLOC_LEN
+	hex
+	default 1048576
 
 config UART_CONSOLE
 	int
@@ -471,5 +555,14 @@ config ADI_GPIO
 config PINCTRL_ADI
 	bool
 	default y
+
+source "board/adi/sc598-som-ezkit/Kconfig"
+source "board/adi/sc598-som-ezlite/Kconfig"
+source "board/adi/sc594-som-ezkit/Kconfig"
+source "board/adi/sc594-som-ezlite/Kconfig"
+source "board/adi/sc589-ezkit/Kconfig"
+source "board/adi/sc589-mini/Kconfig"
+source "board/adi/sc584-ezkit/Kconfig"
+source "board/adi/sc573-ezkit/Kconfig"
 
 endif

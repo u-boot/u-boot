@@ -84,7 +84,7 @@ const int ddrconf_table[] = {
 #define DQS_GATE_TRAINING_ERROR_RANK1	(2 << 4)
 
 #if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
+	(!defined(CONFIG_TPL) && defined(CONFIG_XPL_BUILD))
 static void copy_to_reg(u32 *dest, const u32 *src, u32 n)
 {
 	int i;
@@ -1013,7 +1013,7 @@ static int rk3288_dmc_of_to_plat(struct udevice *dev)
 
 	return 0;
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 static int conv_of_plat(struct udevice *dev)
@@ -1041,7 +1041,7 @@ static int conv_of_plat(struct udevice *dev)
 static int rk3288_dmc_probe(struct udevice *dev)
 {
 #if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
+	(!defined(CONFIG_TPL) && defined(CONFIG_XPL_BUILD))
 	struct rk3288_sdram_params *plat = dev_get_plat(dev);
 	struct udevice *dev_clk;
 	struct regmap *map;
@@ -1051,7 +1051,7 @@ static int rk3288_dmc_probe(struct udevice *dev)
 
 	priv->pmu = syscon_get_first_range(ROCKCHIP_SYSCON_PMU);
 #if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
+	(!defined(CONFIG_TPL) && defined(CONFIG_XPL_BUILD))
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	ret = conv_of_plat(dev);
 	if (ret)
@@ -1119,13 +1119,13 @@ U_BOOT_DRIVER(rockchip_rk3288_dmc) = {
 	.of_match = rk3288_dmc_ids,
 	.ops = &rk3288_dmc_ops,
 #if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
+	(!defined(CONFIG_TPL) && defined(CONFIG_XPL_BUILD))
 	.of_to_plat = rk3288_dmc_of_to_plat,
 #endif
 	.probe = rk3288_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),
 #if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
+	(!defined(CONFIG_TPL) && defined(CONFIG_XPL_BUILD))
 	.plat_auto	= sizeof(struct rk3288_sdram_params),
 #endif
 };

@@ -7,8 +7,8 @@ import pytest
 @pytest.mark.buildconfigspec('cmd_part')
 @pytest.mark.buildconfigspec('partitions')
 @pytest.mark.buildconfigspec('efi_partition')
-def test_part_types(u_boot_console):
+def test_part_types(ubman):
     """Test that `part types` prints a result which includes `EFI`."""
-    output = u_boot_console.run_command('part types')
+    output = ubman.run_command('part types')
     assert "Supported partition tables:" in output
     assert "EFI" in output

@@ -57,7 +57,7 @@ int acpi_write_mcfg(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 
 	/* (Re)calculate length and checksum */
 	header->length = (ulong)ctx->current - (ulong)mcfg;
-	header->checksum = table_compute_checksum(mcfg, header->length);
+	acpi_update_checksum(header);
 
 	acpi_add_table(ctx, mcfg);
 

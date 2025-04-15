@@ -146,7 +146,7 @@ static void do_sdrc_init(u32 cs, u32 early)
 	 * then set cs_cfg to the appropriate value then try and
 	 * setup CS1.
 	 */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/* set/modify board-specific timings */
 	get_board_mem_timings(&timings);
 #endif
@@ -166,7 +166,7 @@ static void do_sdrc_init(u32 cs, u32 early)
 
 		writel(ENADLL | DLLPHASE_90, &sdrc_base->dlla_ctrl);
 		sdelay(0x20000);
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 		write_sdrc_timings(CS0, sdrc_actim_base0, &timings);
 		make_cs1_contiguous();
 		write_sdrc_timings(CS1, sdrc_actim_base1, &timings);

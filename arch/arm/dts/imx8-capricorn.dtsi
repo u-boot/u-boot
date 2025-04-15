@@ -1,0 +1,186 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2017 NXP
+ *
+ * Copyright 2019 Siemens AG
+ *
+ */
+
+/dts-v1/;
+
+#include "fsl-imx8qxp.dtsi"
+#include "imx8-capricorn-u-boot.dtsi"
+
+/ {
+	chosen {
+		bootargs = "console=ttyLP2,115200 earlycon=lpuart32,0x5a080000,115200";
+		stdout-path = &lpuart2;
+	};
+
+	/* create device for u-boot wdt command */
+	scu-wdt {
+		compatible = "siemens,scu-wdt";
+	};
+
+};
+
+&iomuxc {
+	pinctrl-names = "default";
+
+	muxcgrp: imx8qxp-som {
+		pinctrl_lpi2c0: lpi2c0grp {
+			fsl,pins = <
+			SC_P_MIPI_CSI0_GPIO0_00_ADMA_I2C0_SCL	0x0C000020
+			SC_P_MIPI_CSI0_GPIO0_01_ADMA_I2C0_SDA	0x0C000020
+			>;
+		};
+
+		pinctrl_lpi2c1: lpi2c1grp {
+			fsl,pins = <
+			SC_P_MIPI_DSI0_GPIO0_00_ADMA_I2C1_SCL	0x0C000020
+			SC_P_MIPI_DSI0_GPIO0_01_ADMA_I2C1_SDA	0x0C000020
+			>;
+		};
+
+		pinctrl_lpuart2: lpuart2grp {
+			fsl,pins = <
+				SC_P_UART2_RX_ADMA_UART2_RX	0x06000020
+				SC_P_UART2_TX_ADMA_UART2_TX	0x06000020
+			>;
+		};
+
+		pinctrl_usdhc1: usdhc1grp {
+			fsl,pins = <
+				SC_P_EMMC0_CLK_CONN_EMMC0_CLK		0x06000041
+				SC_P_EMMC0_CMD_CONN_EMMC0_CMD		0x00000021
+				SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
+				SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
+				SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
+				SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
+				SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
+				SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
+				SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
+				SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
+				SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE	0x06000041
+				SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B	0x00000021
+				SC_P_ENET0_RGMII_TXC_LSIO_GPIO4_IO29	0x06000021
+			>;
+		};
+
+		pinctrl_usdhc2: usdhc2grp {
+			fsl,pins = <
+				SC_P_ENET0_RGMII_RXC_CONN_USDHC1_CLK	0x06000041
+				SC_P_ENET0_RGMII_RX_CTL_CONN_USDHC1_CMD	0x00000021
+				SC_P_ENET0_RGMII_RXD0_CONN_USDHC1_DATA0	0x00000021
+				SC_P_ENET0_RGMII_RXD1_CONN_USDHC1_DATA1	0x00000021
+				SC_P_ENET0_RGMII_RXD2_CONN_USDHC1_DATA2	0x00000021
+				SC_P_ENET0_RGMII_RXD3_CONN_USDHC1_DATA3	0x00000021
+				SC_P_ENET0_RGMII_TXD2_CONN_USDHC1_CD_B	0x06000021
+				//SC_P_ENET0_RGMII_TXD2_LSIO_GPIO5_IO01	0x06000021
+				SC_P_ENET0_RGMII_TX_CTL_LSIO_GPIO4_IO30	0x06000021
+			>;
+		};
+
+		pinctrl_fec2: fec2grp {
+			fsl,pins = <
+				SC_P_COMP_CTL_GPIO_1V8_3V3_ENET_ENETB0_PAD	0x000014a0
+				SC_P_COMP_CTL_GPIO_1V8_3V3_ENET_ENETB1_PAD	0x000014a0
+				SC_P_COMP_CTL_GPIO_1V8_3V3_GPIORHB_PAD		0x000514a0
+
+				SC_P_ENET0_MDC_CONN_ENET1_MDC                   0x00000060
+				SC_P_ENET0_MDIO_CONN_ENET1_MDIO                 0x00000060
+
+				SC_P_ESAI0_FSR_CONN_ENET1_RCLK50M_IN            0x00000060
+				SC_P_SPDIF0_RX_CONN_ENET1_RGMII_RXD0            0x00000060
+				SC_P_ESAI0_TX3_RX2_CONN_ENET1_RGMII_RXD1        0x00000060
+				SC_P_ESAI0_TX2_RX3_CONN_ENET1_RMII_RX_ER        0x00000060
+				SC_P_SPDIF0_TX_CONN_ENET1_RGMII_RX_CTL          0x00000060
+				SC_P_ESAI0_TX4_RX1_CONN_ENET1_RGMII_TXD0        0x00000060
+				SC_P_ESAI0_TX5_RX0_CONN_ENET1_RGMII_TXD1        0x00000060
+				SC_P_ESAI0_SCKR_CONN_ENET1_RGMII_TX_CTL         0x00000060	/* ERST: Reset pin */
+			>;
+		};
+	};
+};
+
+&i2c0 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpi2c0>;
+	status = "okay";
+};
+
+&i2c1 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpi2c1>;
+	status = "okay";
+};
+
+&lpuart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpuart2>;
+	status = "okay";
+};
+
+&usdhc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc1>;
+	clock-frequency=<52000000>;
+	no-1-8-v;
+	bus-width = <8>;
+	non-removable;
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+&gpio3 {
+	status = "okay";
+};
+
+&gpio4 {
+	status = "okay";
+};
+
+&gpio5 {
+	status = "okay";
+};
+
+&fec1 {
+	status ="disabled";
+};
+
+&fec2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_fec2>;
+	phy-mode = "rmii";
+
+	phy-handle = <&ethphy1>;
+	fsl,magic-packet;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy0: ethernet-phy@0 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <0>;
+		};
+		ethphy1: ethernet-phy@1 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <1>;
+		};
+	};
+};

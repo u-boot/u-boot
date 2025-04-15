@@ -876,7 +876,7 @@ static int fit_image_extract(
 	int ret;
 
 	/* get the data address and size of component at offset "image_noffset" */
-	ret = fit_image_get_data_and_size(fit, image_noffset, &file_data, &file_size);
+	ret = fit_image_get_data(fit, image_noffset, &file_data, &file_size);
 	if (ret) {
 		fprintf(stderr, "Could not get component information\n");
 		return ret;

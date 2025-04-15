@@ -9,21 +9,12 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE	1
-
 #define PHYS_SDRAM			0x80000000
 #define PHYS_SDRAM_SIZE			(32 * 1024 * 1024)
 
 #define DMAMEM_SZ_ALL			(1 * 1024 * 1024)
 #define DMAMEM_BASE			(PHYS_SDRAM + PHYS_SDRAM_SIZE - \
 					 DMAMEM_SZ_ALL)
-
-#ifdef CONFIG_VIDEO
-#define CFG_EXTRA_ENV_SETTINGS \
-		"stdin=serial\0" \
-		"stdout=serial,vidconsole\0" \
-		"stderr=serial,vidconsole\0"
-#endif
 
 /*
  * Address of U-Boot for SPI NOR boot

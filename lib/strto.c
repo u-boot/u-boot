@@ -78,6 +78,11 @@ ulong hextoul(const char *cp, char **endp)
 	return simple_strtoul(cp, endp, 16);
 }
 
+unsigned long long hextoull(const char *cp, char **endp)
+{
+	return simple_strtoull(cp, endp, 16);
+}
+
 ulong dectoul(const char *cp, char **endp)
 {
 	return simple_strtoul(cp, endp, 10);
@@ -236,12 +241,14 @@ const char **str_to_list(const char *instr)
 		return NULL;
 
 	/* count the number of space-separated strings */
-	for (count = *str != '\0', p = str; *p; p++) {
+	for (count = 0, p = str; *p; p++) {
 		if (*p == ' ') {
 			count++;
 			*p = '\0';
 		}
 	}
+	if (p != str && p[-1])
+		count++;
 
 	/* allocate the pointer array, allowing for a NULL terminator */
 	ptr = calloc(count + 1, sizeof(char *));

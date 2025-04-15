@@ -30,17 +30,22 @@ static struct imx_intpll_rate_table imx9_intpll_tbl[] = {
 	INT_PLL_RATE(1400000000U, 1, 175, 3), /* 1.4Ghz */
 	INT_PLL_RATE(1000000000U, 1, 166, 4), /* 1000Mhz */
 	INT_PLL_RATE(900000000U, 1, 150, 4), /* 900Mhz */
+	INT_PLL_RATE(800000000U, 1, 200, 6), /* 800Mhz */
 };
 
 static struct imx_fracpll_rate_table imx9_fracpll_tbl[] = {
 	FRAC_PLL_RATE(1000000000U, 1, 166, 4, 2, 3), /* 1000Mhz */
 	FRAC_PLL_RATE(933000000U, 1, 155, 4, 1, 2), /* 933Mhz */
+	FRAC_PLL_RATE(800000000U, 1, 200, 6, 0, 1), /* 800Mhz */
 	FRAC_PLL_RATE(700000000U, 1, 145, 5, 5, 6), /* 700Mhz */
+	FRAC_PLL_RATE(600000000U, 1, 200, 8, 0, 1), /* 600Mhz */
 	FRAC_PLL_RATE(484000000U, 1, 121, 6, 0, 1),
 	FRAC_PLL_RATE(445333333U, 1, 167, 9, 0, 1),
 	FRAC_PLL_RATE(466000000U, 1, 155, 8, 1, 3), /* 466Mhz */
 	FRAC_PLL_RATE(400000000U, 1, 200, 12, 0, 1), /* 400Mhz */
 	FRAC_PLL_RATE(300000000U, 1, 150, 12, 0, 1),
+	FRAC_PLL_RATE(233000000U, 1, 174, 18, 3, 4), /* 233Mhz */
+	FRAC_PLL_RATE(200000000U, 1, 200, 24, 0, 1), /* 200Mhz */
 };
 
 /* return in khz */
@@ -603,7 +608,7 @@ void init_clk_usdhc(u32 index)
 {
 	u32 div;
 
-	if (IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE))
+	if (is_voltage_mode(VOLT_LOW_DRIVE))
 		div = 3; /* 266.67 Mhz */
 	else
 		div = 2; /* 400 Mhz */
@@ -639,7 +644,7 @@ void enable_usboh3_clk(unsigned char enable)
 	}
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void dram_pll_init(ulong pll_val)
 {
 	configure_fracpll(DRAM_PLL_CLK, pll_val);
@@ -700,8 +705,7 @@ void set_arm_core_max_clk(void)
 
 #endif
 
-#if IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE)
-struct imx_clk_setting imx_clk_settings[] = {
+struct imx_clk_setting imx_clk_ld_settings[] = {
 	/* Set A55 clk to 500M */
 	{ARM_A55_CLK_ROOT, SYS_PLL_PFD0, 2},
 	/* Set A55 periphal to 200M */
@@ -722,13 +726,13 @@ struct imx_clk_setting imx_clk_settings[] = {
 	/* SWO TRACE to 133M */
 	{SWO_TRACE_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 	/* M33 systetick to 24M */
-	{M33_SYSTICK_CLK_ROOT, OSC_24M_CLK, 1},
+	{M33_SYSTICK_CLK_ROOT, OSC_24M_CLK, 1, CLK_SOC_IMX93},
 	/* NIC to 250M */
 	{NIC_CLK_ROOT, SYS_PLL_PFD0, 4},
 	/* NIC_APB to 133M */
 	{NIC_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3}
 };
-#else
+
 struct imx_clk_setting imx_clk_settings[] = {
 	/*
 	 * Set A55 clk to 500M. This clock root is normally used as intermediate
@@ -752,29 +756,52 @@ struct imx_clk_setting imx_clk_settings[] = {
 	 * WAKEUP_AXI to 312.5M, because of FEC only can support to 320M for
 	 * generating MII clock at 2.5M
 	 */
-	{WAKEUP_AXI_CLK_ROOT, SYS_PLL_PFD2, 2},
+	{WAKEUP_AXI_CLK_ROOT, SYS_PLL_PFD2, 2, CLK_SOC_IMX93},
+	/* Wakeup AXI 250M*/
+	{WAKEUP_AXI_CLK_ROOT, SYS_PLL_PFD0, 4, CLK_SOC_IMX91},
 	/* SWO TRACE to 133M */
 	{SWO_TRACE_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 	/* M33 systetick to 24M */
-	{M33_SYSTICK_CLK_ROOT, OSC_24M_CLK, 1},
+	{M33_SYSTICK_CLK_ROOT, OSC_24M_CLK, 1, CLK_SOC_IMX93},
 	/* NIC to 400M */
-	{NIC_CLK_ROOT, SYS_PLL_PFD1, 2},
+	{NIC_CLK_ROOT, SYS_PLL_PFD1, 2, CLK_SOC_IMX93},
+	/* NIC to 333M */
+	{NIC_CLK_ROOT, SYS_PLL_PFD0, 3, CLK_SOC_IMX91},
 	/* NIC_APB to 133M */
 	{NIC_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3}
 };
-#endif
 
-int clock_init(void)
+void bus_clock_init_low_drive(void)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(imx_clk_ld_settings); i++) {
+		if (imx_clk_ld_settings[i].soc == CLK_SOC_ALL ||
+		    (is_imx91() && imx_clk_ld_settings[i].soc == CLK_SOC_IMX91) ||
+		    (is_imx93() && imx_clk_ld_settings[i].soc == CLK_SOC_IMX93)) {
+			ccm_clk_root_cfg(imx_clk_ld_settings[i].clk_root,
+					 imx_clk_ld_settings[i].src, imx_clk_ld_settings[i].div);
+		}
+	}
+}
+
+void bus_clock_init(void)
 {
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(imx_clk_settings); i++) {
-		ccm_clk_root_cfg(imx_clk_settings[i].clk_root,
-				 imx_clk_settings[i].src, imx_clk_settings[i].div);
+		if (imx_clk_settings[i].soc == CLK_SOC_ALL ||
+		    (is_imx91() && imx_clk_settings[i].soc == CLK_SOC_IMX91) ||
+		    (is_imx93() && imx_clk_settings[i].soc == CLK_SOC_IMX93)) {
+			ccm_clk_root_cfg(imx_clk_settings[i].clk_root,
+					 imx_clk_settings[i].src, imx_clk_settings[i].div);
+		}
 	}
+}
 
-	if (IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE))
-		set_arm_clk(MHZ(900));
+int clock_init_early(void)
+{
+	int i;
 
 	/* allow for non-secure access */
 	for (i = 0; i < OSCPLL_END; i++)
@@ -788,6 +815,19 @@ int clock_init(void)
 
 	for (i = 0; i < SHARED_GPR_NUM; i++)
 		ccm_shared_gpr_tz_access(i, true, false, false);
+
+	return 0;
+}
+
+/* Set bus and A55 core clock per voltage mode */
+int clock_init_late(void)
+{
+	if (is_voltage_mode(VOLT_LOW_DRIVE)) {
+		bus_clock_init_low_drive();
+		set_arm_core_max_clk();
+	} else {
+		bus_clock_init();
+	}
 
 	return 0;
 }
@@ -832,7 +872,7 @@ u32 imx_get_fecclk(void)
 	return ccm_clk_root_get_rate(WAKEUP_AXI_CLK_ROOT);
 }
 
-#if defined(CONFIG_IMX93) && defined(CONFIG_DWC_ETH_QOS)
+#if (CONFIG_IS_ENABLED(IMX93) || CONFIG_IS_ENABLED(IMX91)) && CONFIG_IS_ENABLED(DWC_ETH_QOS)
 static int imx93_eqos_interface_init(struct udevice *dev, phy_interface_t interface_type)
 {
 	struct blk_ctrl_wakeupmix_regs *bctrl =
@@ -876,12 +916,12 @@ static int imx93_eqos_interface_init(struct udevice *dev, phy_interface_t interf
 
 int board_interface_eth_init(struct udevice *dev, phy_interface_t interface_type)
 {
-	if (IS_ENABLED(CONFIG_IMX93) &&
+	if ((IS_ENABLED(CONFIG_IMX93) || IS_ENABLED(CONFIG_IMX91)) &&
 	    IS_ENABLED(CONFIG_DWC_ETH_QOS) &&
 	    device_is_compatible(dev, "nxp,imx93-dwmac-eqos"))
 		return imx93_eqos_interface_init(dev, interface_type);
 
-	if (IS_ENABLED(CONFIG_IMX93) &&
+	if ((IS_ENABLED(CONFIG_IMX93) || IS_ENABLED(CONFIG_IMX91)) &&
 	    IS_ENABLED(CONFIG_FEC_MXC) &&
 	    device_is_compatible(dev, "fsl,imx93-fec"))
 		return 0;
@@ -926,7 +966,7 @@ int set_clk_enet(enum enet_freq type)
 /*
  * Dump some clockes.
  */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 int do_showclocks(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 freq;

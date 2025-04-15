@@ -155,7 +155,7 @@ static void bcmbca_hsspi_setup_clock(struct bcmbca_hsspi_priv *priv,
 	set = DIV_ROUND_UP(2048, set);
 	set &= SPI_PFL_CLK_FREQ_MASK;
 	set |= SPI_PFL_CLK_RSTLOOP_MASK;
-	writel(set, priv->regs + SPI_PFL_CLK_REG(plat->cs));
+	writel(set, priv->regs + SPI_PFL_CLK_REG(plat->cs[0]));
 
 	/* profile signal */
 	set = 0;
@@ -173,16 +173,16 @@ static void bcmbca_hsspi_setup_clock(struct bcmbca_hsspi_priv *priv,
 	if (priv->speed > SPI_MAX_SYNC_CLOCK)
 		set |= SPI_PFL_SIG_ASYNCIN_MASK;
 
-	clrsetbits_32(priv->regs + SPI_PFL_SIG_REG(plat->cs), clr, set);
+	clrsetbits_32(priv->regs + SPI_PFL_SIG_REG(plat->cs[0]), clr, set);
 
 	/* global control */
 	set = 0;
 	clr = 0;
 
-	if (priv->cs_pols & BIT(plat->cs))
-		set |= BIT(plat->cs);
+	if (priv->cs_pols & BIT(plat->cs[0]))
+		set |= BIT(plat->cs[0]);
 	else
-		clr |= BIT(plat->cs);
+		clr |= BIT(plat->cs[0]);
 
 	clrsetbits_32(priv->regs + SPI_CTL_REG, clr, set);
 }
@@ -194,7 +194,7 @@ static void bcmbca_hsspi_activate_cs(struct bcmbca_hsspi_priv *priv,
 
 	/* set the override bit */
 	val = readl(priv->spim_ctrl);
-	val |= BIT(plat->cs + SPIM_CTRL_CS_OVERRIDE_SEL_SHIFT);
+	val |= BIT(plat->cs[0] + SPIM_CTRL_CS_OVERRIDE_SEL_SHIFT);
 	writel(val, priv->spim_ctrl);
 }
 
@@ -205,7 +205,7 @@ static void bcmbca_hsspi_deactivate_cs(struct bcmbca_hsspi_priv *priv,
 
 	/* clear the cs override bit */
 	val = readl(priv->spim_ctrl);
-	val &= ~BIT(plat->cs + SPIM_CTRL_CS_OVERRIDE_SEL_SHIFT);
+	val &= ~BIT(plat->cs[0] + SPIM_CTRL_CS_OVERRIDE_SEL_SHIFT);
 	writel(val, priv->spim_ctrl);
 }
 
@@ -250,7 +250,7 @@ static int bcmbca_hsspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	if (plat->mode & SPI_3WIRE)
 		val |= SPI_PFL_MODE_3WIRE_MASK;
-	writel(val, priv->regs + SPI_PFL_MODE_REG(plat->cs));
+	writel(val, priv->regs + SPI_PFL_MODE_REG(plat->cs[0]));
 
 	/* transfer loop */
 	while (data_bytes > 0) {
@@ -276,9 +276,9 @@ static int bcmbca_hsspi_xfer(struct udevice *dev, unsigned int bitlen,
 
 		/* issue the transfer */
 		val = SPI_CMD_OP_START;
-		val |= (plat->cs << SPI_CMD_PFL_SHIFT) &
+		val |= (plat->cs[0] << SPI_CMD_PFL_SHIFT) &
 			  SPI_CMD_PFL_MASK;
-		val |= (plat->cs << SPI_CMD_SLAVE_SHIFT) &
+		val |= (plat->cs[0] << SPI_CMD_SLAVE_SHIFT) &
 			  SPI_CMD_SLAVE_MASK;
 		writel(val, priv->regs + SPI_CMD_REG);
 
@@ -326,22 +326,22 @@ static int bcmbca_hsspi_child_pre_probe(struct udevice *dev)
 	u32 val;
 
 	/* check cs */
-	if (plat->cs >= priv->num_cs) {
-		dev_err(dev, "no cs %u\n", plat->cs);
+	if (plat->cs[0] >= priv->num_cs) {
+		dev_err(dev, "no cs %u\n", plat->cs[0]);
 		return -EINVAL;
 	}
 
 	/* cs polarity */
 	if (plat->mode & SPI_CS_HIGH)
-		priv->cs_pols |= BIT(plat->cs);
+		priv->cs_pols |= BIT(plat->cs[0]);
 	else
-		priv->cs_pols &= ~BIT(plat->cs);
+		priv->cs_pols &= ~BIT(plat->cs[0]);
 
 	/* set the polarity to spim cs register */
 	val = readl(priv->spim_ctrl);
-	val &= ~BIT(plat->cs + SPIM_CTRL_CS_OVERRIDE_VAL_SHIFT);
-	if (priv->cs_pols & BIT(plat->cs))
-		val |= BIT(plat->cs + SPIM_CTRL_CS_OVERRIDE_VAL_SHIFT);
+	val &= ~BIT(plat->cs[0] + SPIM_CTRL_CS_OVERRIDE_VAL_SHIFT);
+	if (priv->cs_pols & BIT(plat->cs[0]))
+		val |= BIT(plat->cs[0] + SPIM_CTRL_CS_OVERRIDE_VAL_SHIFT);
 	writel(val, priv->spim_ctrl);
 
 	return 0;

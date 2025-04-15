@@ -114,8 +114,8 @@ static void exynos_pinctrl_set_pincfg(unsigned long reg_base, u32 pin_num,
 int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	struct exynos_pinctrl_priv *priv = dev_get_priv(dev);
-	unsigned int count, idx;
-	unsigned int pinvals[PINCFG_TYPE_NUM];
+	int count;
+	unsigned int idx, pinvals[PINCFG_TYPE_NUM];
 
 	/*
 	 * refer to the following document for the pinctrl bindings

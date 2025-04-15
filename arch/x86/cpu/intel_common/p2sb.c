@@ -96,7 +96,7 @@ int p2sb_of_to_plat(struct udevice *dev)
 		return log_msg_ret("Missing/short early-regs", ret);
 	plat->mmio_base = base[0];
 	/* TPL sets up the initial BAR */
-	if (spl_phase() == PHASE_TPL) {
+	if (xpl_phase() == PHASE_TPL) {
 		plat->bdf = pci_get_devfn(dev);
 		if (plat->bdf < 0)
 			return log_msg_ret("Cannot get p2sb PCI address",
@@ -114,9 +114,9 @@ int p2sb_of_to_plat(struct udevice *dev)
 
 static int p2sb_probe(struct udevice *dev)
 {
-	if (spl_phase() == PHASE_TPL)
+	if (xpl_phase() == PHASE_TPL)
 		return p2sb_early_init(dev);
-	else if (spl_phase() == PHASE_SPL)
+	else if (xpl_phase() == PHASE_SPL)
 		return p2sb_spl_init(dev);
 
 	return 0;

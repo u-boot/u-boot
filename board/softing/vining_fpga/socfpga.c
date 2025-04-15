@@ -43,7 +43,7 @@ int board_late_init(void)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 int misc_init_r(void)
 {
 	uchar data[128];

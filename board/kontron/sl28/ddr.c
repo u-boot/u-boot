@@ -98,7 +98,7 @@ int fsl_initdram(void)
 		break;
 	}
 
-	if (!IS_ENABLED(CONFIG_SPL) || IS_ENABLED(CONFIG_SPL_BUILD))
+	if (!IS_ENABLED(CONFIG_SPL) || IS_ENABLED(CONFIG_XPL_BUILD))
 		fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0, 0);
 
 	gd->ram_size = dram_size;

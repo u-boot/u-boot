@@ -275,7 +275,7 @@ static int bcm63xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 		/* issue the transfer */
 		cmd = SPI_CMD_OP_START;
-		cmd |= (plat->cs << SPI_CMD_SLAVE_SHIFT) & SPI_CMD_SLAVE_MASK;
+		cmd |= (plat->cs[0] << SPI_CMD_SLAVE_SHIFT) & SPI_CMD_SLAVE_MASK;
 		cmd |= (priv->tx_bytes << SPI_CMD_PREPEND_SHIFT);
 		if (plat->mode & SPI_3WIRE)
 			cmd |= SPI_CMD_3WIRE_MASK;
@@ -353,8 +353,8 @@ static int bcm63xx_spi_child_pre_probe(struct udevice *dev)
 	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 
 	/* check cs */
-	if (plat->cs >= priv->num_cs) {
-		printf("no cs %u\n", plat->cs);
+	if (plat->cs[0] >= priv->num_cs) {
+		printf("no cs %u\n", plat->cs[0]);
 		return -ENODEV;
 	}
 

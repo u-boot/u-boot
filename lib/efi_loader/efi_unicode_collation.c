@@ -5,6 +5,8 @@
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <charset.h>
 #include <cp1250.h>
 #include <cp437.h>
@@ -266,7 +268,7 @@ static void EFIAPI efi_fat_to_str(struct efi_unicode_collation_protocol *this,
 }
 
 /**
- * efi_fat_to_str() - convert a utf-16 string to legal characters for a FAT
+ * efi_str_to_fat() - convert a utf-16 string to legal characters for a FAT
  *                    file name in an OEM code page
  *
  * @this:	unicode collation protocol instance

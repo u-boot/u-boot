@@ -345,9 +345,9 @@ int ahab_close(void)
 	u16 lc;
 
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
-	if (err != SC_ERR_NONE) {
+	if (err) {
 		printf("Error in get lifecycle\n");
-		return -EIO;
+		return err;
 	}
 
 	if (lc != 0x20) {
@@ -357,9 +357,9 @@ int ahab_close(void)
 	}
 
 	err = sc_seco_forward_lifecycle(-1, 16);
-	if (err != SC_ERR_NONE) {
+	if (err) {
 		printf("Error in forward lifecycle to OEM closed\n");
-		return -EIO;
+		return err;
 	}
 
 	return 0;

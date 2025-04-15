@@ -113,6 +113,7 @@ static int aspeed_mdio_probe(struct udevice *dev)
 
 static const struct udevice_id aspeed_mdio_ids[] = {
 	{ .compatible = "aspeed,ast2600-mdio" },
+	{ .compatible = "aspeed,ast2700-mdio" },
 	{ }
 };
 

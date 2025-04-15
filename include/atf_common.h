@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * This is from the ARM TF Project,
- * Repository: https://github.com/ARM-software/arm-trusted-firmware.git
+ * Repository: https://github.com/TrustedFirmware-A/trusted-firmware-a.git
  * File: include/common/bl_common.h
  * Portions copyright (c) 2013-2016, ARM Limited and Contributors. All rights
  * reserved.

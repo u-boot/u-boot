@@ -513,8 +513,8 @@ static int fsl_espi_child_pre_probe(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct fsl_spi_slave *fsl = dev_get_priv(bus);
 
-	debug("%s cs %u\n", __func__, slave_plat->cs);
-	fsl->cs = slave_plat->cs;
+	debug("%s cs %u\n", __func__, slave_plat->cs[0]);
+	fsl->cs = slave_plat->cs[0];
 
 	return 0;
 }

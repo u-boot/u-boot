@@ -26,7 +26,7 @@ config SYS_COREBOOT
 	imply CBMEM_CONSOLE
 	imply X86_TSC_READ_BASE
 	imply USE_PREBOOT
-	select BINMAN if X86_64
+	select BINMAN if X86_RUN_64BIT
 	select SYSINFO
 	imply SYSINFO_EXTRA
 

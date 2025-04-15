@@ -60,7 +60,8 @@ U_BOOT_CMD(
 	"scsi read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
 	"     to memory address `addr'\n"
 	"scsi write addr blk# cnt - write `cnt' blocks starting at block\n"
-	"     `blk#' from memory address `addr'"
+	"     `blk#' from memory address `addr'\n"
+	"scsi erase blk# cnt - erase `cnt' blocks starting at block `blk#'"
 );
 
 U_BOOT_CMD(

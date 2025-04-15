@@ -1216,6 +1216,124 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
 }
 
 /**
+ * fat_itr_parent() - modifies the iterator to the parent directory of the
+ * current iterator.
+ *
+ * @itr:	iterator positioned anywhere in a directory
+ * @Return:	0 if the iterator is in the parent directory, -errno otherwise
+ */
+static int fat_itr_parent(fat_itr *itr)
+{
+	int ret;
+
+	if (itr->is_root)
+		return -EIO;
+
+	/* ensure iterator is at the first directory entry */
+	ret = fat_move_to_cluster(itr, itr->start_clust);
+	if (ret)
+		return ret;
+
+	return fat_itr_resolve(itr, "..", TYPE_DIR);
+}
+
+/**
+ * update_parent_dir_props - updates the modified time for the parent directory
+ *
+ * @dir_itr:	iterator positioned anywhere in a directory whose parent
+ * should be updated
+ * @Return:	0 for success, -errno otherwise
+ */
+static int update_parent_dir_props(fat_itr *dir_itr)
+{
+	int ret = 0;
+
+	fat_itr itr;
+	fsdata fsdata = { .fatbuf = NULL, }, *mydata = &fsdata;
+	__u32 target_clust = dir_itr->start_clust;
+
+	/* Short circuit if no RTC because it only updates timestamps */
+	if (!CONFIG_IS_ENABLED(DM_RTC))
+		return ret;
+
+	/* duplicate fsdata */
+	itr = *dir_itr;
+	fsdata = *itr.fsdata;
+
+	/* allocate local fat buffer */
+	fsdata.fatbuf = malloc_cache_aligned(FATBUFSIZE);
+	if (!fsdata.fatbuf) {
+		log_debug("Error: allocating memory\n");
+		ret = -ENOMEM;
+		return ret;
+	}
+
+	fsdata.fatbufnum = -1;
+	itr.fsdata = &fsdata;
+
+	if (!itr.is_root) {
+		ret = fat_itr_parent(&itr);
+		if (ret)
+			goto exit;
+
+		while (fat_itr_next(&itr)) {
+			if (START(itr.dent) == target_clust)
+				goto update;
+		}
+
+		/* dent not found */
+		ret = -EIO;
+		goto exit;
+update:
+		dentry_set_time(itr.dent);
+		ret = flush_dir(&itr);
+	}
+
+exit:
+	free(fsdata.fatbuf);
+
+	return ret;
+}
+
+/**
+ * create_link() - inserts a directory entry for a file or directory
+ *
+ * @itr:	directory iterator
+ * @basename:	file name
+ * @clust:	cluster number the new directory entry should point to. Use 0
+ * if no cluster is assigned yet
+ * @size:	file size
+ * @attr:	file attributes
+ * Return:	0 for success
+ */
+static int create_link(fat_itr *itr, char *basename, __u32 clust, __u32 size,
+		       __u8 attr)
+{
+	char shortname[SHORT_NAME_SIZE];
+	int ndent;
+	int ret;
+
+	/* Check if long name is needed */
+	ndent = set_name(itr, basename, shortname);
+	if (ndent < 0)
+		return ndent;
+	ret = fat_find_empty_dentries(itr, ndent);
+	if (ret)
+		return ret;
+	if (ndent > 1) {
+		/* Set long name entries */
+		ret = fill_dir_slot(itr, basename, shortname);
+		if (ret)
+			return ret;
+	}
+
+	fill_dentry(itr->fsdata, itr->dent, shortname, clust, size, attr);
+	ret = update_parent_dir_props(itr);
+
+	return ret;
+}
+
+/**
  * find_directory_entry() - find a directory entry by filename
  *
  * @itr:	directory iterator
@@ -1420,35 +1538,15 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		/* Update change date */
 		dentry_set_time(retdent);
 	} else {
-		/* Create a new file */
-		char shortname[SHORT_NAME_SIZE];
-		int ndent;
-
 		if (pos) {
 			/* No hole allowed */
 			ret = -EINVAL;
 			goto exit;
 		}
 
-		/* Check if long name is needed */
-		ndent = set_name(itr, basename, shortname);
-		if (ndent < 0) {
-			ret = ndent;
-			goto exit;
-		}
-		ret = fat_find_empty_dentries(itr, ndent);
+		ret = create_link(itr, basename, 0, size, ATTR_ARCH);
 		if (ret)
 			goto exit;
-		if (ndent > 1) {
-			/* Set long name entries */
-			ret = fill_dir_slot(itr, basename, shortname);
-			if (ret)
-				goto exit;
-		}
-
-		/* Set short name entry */
-		fill_dentry(itr->fsdata, itr->dent, shortname, 0, size,
-			    ATTR_ARCH);
 
 		retdent = itr->dent;
 	}
@@ -1565,6 +1663,36 @@ static int delete_long_name(fat_itr *itr)
 }
 
 /**
+ * delete_dentry_link() - deletes a directory entry, but not the cluster chain
+ * it points to
+ *
+ * @itr:	the first directory entry (if a longname) to remove
+ * Return:	0 for success
+ */
+static int delete_dentry_link(fat_itr *itr)
+{
+	int ret;
+
+	itr->dent = itr->dent_start;
+	itr->remaining = itr->dent_rem;
+	/* Delete long name */
+	if ((itr->dent->attr & ATTR_VFAT) == ATTR_VFAT &&
+	    (itr->dent->nameext.name[0] & LAST_LONG_ENTRY_MASK)) {
+		ret = delete_long_name(itr);
+		if (ret)
+			return ret;
+	}
+	/* Delete short name */
+	delete_single_dentry(itr);
+
+	ret = flush_dir(itr);
+	if (ret)
+		return ret;
+
+	return update_parent_dir_props(itr);
+}
+
+/**
  * delete_dentry_long() - remove directory entry
  *
  * @itr:	directory iterator
@@ -1589,21 +1717,7 @@ static int delete_dentry_long(fat_itr *itr)
 		if (ret)
 			return ret;
 	}
-	itr->dent = itr->dent_start;
-	itr->remaining = itr->dent_rem;
-	dent = itr->dent_start;
-	/* Delete long name */
-	if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
-	    (dent->nameext.name[0] & LAST_LONG_ENTRY_MASK)) {
-		int ret;
-
-		ret = delete_long_name(itr);
-		if (ret)
-			return ret;
-	}
-	/* Delete short name */
-	delete_single_dentry(itr);
-	return flush_dir(itr);
+	return delete_dentry_link(itr);
 }
 
 int fat_unlink(const char *filename)
@@ -1725,9 +1839,6 @@ int fat_mkdir(const char *dirname)
 		ret = -EEXIST;
 		goto exit;
 	} else {
-		char shortname[SHORT_NAME_SIZE];
-		int ndent;
-
 		if (itr->is_root) {
 			/* root dir cannot have "." or ".." */
 			if (!strcmp(l_dirname, ".") ||
@@ -1737,25 +1848,9 @@ int fat_mkdir(const char *dirname)
 			}
 		}
 
-		/* Check if long name is needed */
-		ndent = set_name(itr, basename, shortname);
-		if (ndent < 0) {
-			ret = ndent;
-			goto exit;
-		}
-		ret = fat_find_empty_dentries(itr, ndent);
+		ret = create_link(itr, basename, 0, 0, ATTR_DIR | ATTR_ARCH);
 		if (ret)
 			goto exit;
-		if (ndent > 1) {
-			/* Set long name entries */
-			ret = fill_dir_slot(itr, basename, shortname);
-			if (ret)
-				goto exit;
-		}
-
-		/* Set attribute as archive for regular file */
-		fill_dentry(itr->fsdata, itr->dent, shortname, 0, 0,
-			    ATTR_DIR | ATTR_ARCH);
 
 		retdent = itr->dent;
 	}
@@ -1811,5 +1906,274 @@ exit:
 	free(mydata->fatbuf);
 	free(itr);
 	free(dotdent);
+	return ret;
+}
+
+/**
+ * check_path_prefix() - ensures one path does not contains another path as a
+ * prefix.
+ *
+ * for example: path foo/bar/baz/qux contains the path prefix foo/bar/baz
+ *
+ * note: the iterator may be pointing to any directory entry in the directory
+ *
+ * @prefix_clust:	start cluster of the final directory in the prefix path
+ * (the start cluster of 'baz' in the above example)
+ * @path_itr:	iterator of the path to check (an iterator pointing to any
+ * direntry in 'qux' in the above example)
+ * Return:	-errno on error, 0 if path_itr does not have the directory
+ * at prefix_clust as an ancestor.
+ */
+static int check_path_prefix(loff_t prefix_clust, fat_itr *path_itr)
+{
+	fat_itr itr;
+	fsdata fsdata = { .fatbuf = NULL, }, *mydata = &fsdata;
+	int ret;
+
+	/* duplicate fsdata */
+	itr = *path_itr;
+	fsdata = *itr.fsdata;
+
+	/* allocate local fat buffer */
+	fsdata.fatbuf = malloc_cache_aligned(FATBUFSIZE);
+	if (!fsdata.fatbuf) {
+		log_debug("Error: allocating memory\n");
+		ret = -ENOMEM;
+		goto exit;
+	}
+
+	fsdata.fatbufnum = -1;
+	itr.fsdata = &fsdata;
+
+	/* ensure iterator is at the first directory entry */
+	ret = fat_move_to_cluster(&itr, itr.start_clust);
+	if (ret)
+		goto exit;
+
+	while (1) {
+		if (prefix_clust == itr.start_clust) {
+			ret = -EINVAL;
+			goto exit;
+		}
+
+		if (itr.is_root) {
+			ret = 0;
+			goto exit;
+		}
+
+		/* Should not occur in a well-formed FAT filesystem besides the root */
+		if (fat_itr_parent(&itr)) {
+			log_debug("FAT filesystem corrupt!\n");
+			log_debug("dir @ clust %u has no parent direntry\n",
+				  itr.start_clust);
+			ret = -EIO;
+			goto exit;
+		}
+	}
+
+exit:
+	free(fsdata.fatbuf);
+	return ret;
+}
+
+/**
+ * fat_rename - rename/move a file or directory
+ *
+ * @old_path:	path to the existing file/directory
+ * @new_path:	new path/name for the rename/move
+ * Return:	0 on success, -errno otherwise
+ */
+int fat_rename(const char *old_path, const char *new_path)
+{
+	fat_itr *old_itr = NULL, *new_itr = NULL;
+	fsdata old_datablock = { .fatbuf = NULL, };
+	fsdata new_datablock = { .fatbuf = NULL, };
+	/* used for START macro */
+	fsdata *mydata = &old_datablock;
+	int ret = -EIO, is_old_dir;
+	char *old_path_copy, *old_dirname, *old_basename;
+	char *new_path_copy, *new_dirname, *new_basename;
+	char l_new_basename[VFAT_MAXLEN_BYTES];
+	__u32 old_clust;
+	dir_entry *found_existing;
+	/* only set if found_existing != NULL */
+	__u32 new_clust;
+
+	old_path_copy = strdup(old_path);
+	new_path_copy = strdup(new_path);
+	old_itr = malloc_cache_aligned(sizeof(fat_itr));
+	new_itr = malloc_cache_aligned(sizeof(fat_itr));
+	if (!old_path_copy || !new_path_copy || !old_itr || !new_itr) {
+		log_debug("Error: out of memory\n");
+		ret = -ENOMEM;
+		goto exit;
+	}
+	split_filename(old_path_copy, &old_dirname, &old_basename);
+	split_filename(new_path_copy, &new_dirname, &new_basename);
+
+	if (normalize_longname(l_new_basename, new_basename)) {
+		log_debug("FAT: illegal filename (%s)\n", new_basename);
+		ret = -EINVAL;
+		goto exit;
+	}
+
+	if (!strcmp(old_basename, ".") || !strcmp(old_basename, "..") ||
+	    !strcmp(old_basename, "") || !strcmp(l_new_basename, ".") ||
+	    !strcmp(l_new_basename, "..") || !strcmp(l_new_basename, "")) {
+		ret = -EINVAL;
+		goto exit;
+	}
+
+	/* checking for old_path == new_path is deferred until they're resolved */
+
+	/* resolve old_path */
+	ret = fat_itr_root(old_itr, &old_datablock);
+	if (ret)
+		goto exit;
+
+	ret = fat_itr_resolve(old_itr, old_dirname, TYPE_DIR);
+	if (ret) {
+		log_debug("%s doesn't exist (%d)\n", old_dirname, ret);
+		ret = -ENOENT;
+		goto exit;
+	}
+
+	if (!find_directory_entry(old_itr, old_basename)) {
+		log_debug("%s doesn't exist (%d)\n", old_basename, -ENOENT);
+		ret = -ENOENT;
+		goto exit;
+	}
+
+	/* store clust old_path points to, to relink later */
+	total_sector = old_datablock.total_sect;
+	old_clust = START(old_itr->dent);
+	is_old_dir = fat_itr_isdir(old_itr);
+
+	/* resolve new_path*/
+	ret = fat_itr_root(new_itr, &new_datablock);
+	if (ret)
+		goto exit;
+
+	ret = fat_itr_resolve(new_itr, new_dirname, TYPE_DIR);
+	if (ret) {
+		log_debug("%s doesn't exist (%d)\n", new_dirname, ret);
+		ret = -ENOENT;
+		goto exit;
+	}
+
+	found_existing = find_directory_entry(new_itr, l_new_basename);
+
+	if (found_existing) {
+		/* store cluster of new_path since it may need to be deleted */
+		new_clust = START(new_itr->dent);
+
+		/* old_path is new_path, noop */
+		if (old_clust == new_clust) {
+			ret = 0;
+			goto exit;
+		}
+
+		if (fat_itr_isdir(new_itr) != is_old_dir) {
+			if (is_old_dir)
+				ret = -ENOTDIR;
+			else
+				ret = -EISDIR;
+			goto exit;
+		}
+	}
+
+	if (is_old_dir) {
+		ret = check_path_prefix(old_clust, new_itr);
+		if (ret)
+			goto exit;
+	}
+
+	/* create/update dentry to point to old_path's data cluster */
+	if (found_existing) {
+		struct nameext new_name = new_itr->dent->nameext;
+		__u8 lcase = new_itr->dent->lcase;
+
+		if (is_old_dir) {
+			int n_entries = fat_dir_entries(new_itr);
+
+			if (n_entries < 0) {
+				ret = n_entries;
+				goto exit;
+			}
+			if (n_entries > 2) {
+				log_debug("Error: directory is not empty: %d\n",
+					  n_entries);
+				ret = -ENOTEMPTY;
+				goto exit;
+			}
+		}
+
+		*new_itr->dent = *old_itr->dent;
+		new_itr->dent->nameext = new_name;
+		new_itr->dent->lcase = lcase;
+
+		ret = update_parent_dir_props(new_itr);
+		if (ret)
+			goto exit;
+	} else {
+		/* reset iterator to the start of the directory */
+		ret = fat_move_to_cluster(new_itr, new_itr->start_clust);
+		if (ret)
+			goto exit;
+
+		ret = create_link(new_itr, l_new_basename, old_clust,
+				  old_itr->dent->size,
+				  old_itr->dent->attr | ATTR_ARCH);
+		if (ret)
+			goto exit;
+	}
+
+	ret = flush_dir(new_itr);
+	if (ret)
+		goto exit;
+
+	/* with new_path data cluster unreferenced, clear it */
+	if (found_existing) {
+		ret = clear_fatent(&new_datablock, new_clust);
+		if (ret)
+			goto exit;
+	}
+
+	/* update moved directory so the parent is new_path */
+	if (is_old_dir) {
+		__u32 clust = new_itr->start_clust;
+		dir_entry *dent;
+
+		fat_itr_child(new_itr, new_itr);
+		dent = find_directory_entry(new_itr, "..");
+		if (!dent) {
+			log_debug("FAT filesystem corrupt!\n");
+			log_debug("dir %s has no parent direntry\n",
+				  l_new_basename);
+			ret = -EIO;
+			goto exit;
+		}
+		set_start_cluster(&new_datablock, dent, clust);
+		ret = flush_dir(new_itr);
+		if (ret)
+			goto exit;
+		/* restore directory location to update parent props below */
+		fat_itr_child(new_itr, new_itr);
+	}
+
+	/* refresh old in case write happened to the same block. */
+	ret = fat_move_to_cluster(old_itr, old_itr->dent_clust);
+	if (ret)
+		goto exit;
+
+	ret = delete_dentry_link(old_itr);
+exit:
+	free(new_datablock.fatbuf);
+	free(old_datablock.fatbuf);
+	free(new_itr);
+	free(old_itr);
+	free(new_path_copy);
+	free(old_path_copy);
+
 	return ret;
 }

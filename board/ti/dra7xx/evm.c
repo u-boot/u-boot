@@ -713,7 +713,7 @@ int board_late_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void do_board_detect(void)
 {
 	int rc;
@@ -756,7 +756,7 @@ void do_board_detect(void)
 		snprintf(sysinfo.board_string, SYSINFO_BOARD_NAME_MAX_LEN,
 			 "Board: %s REV %s\n", bname, board_ti_get_rev());
 }
-#endif	/* CONFIG_SPL_BUILD */
+#endif	/* CONFIG_XPL_BUILD */
 
 void vcores_init(void)
 {
@@ -972,7 +972,7 @@ const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 }
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_OS_BOOT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_OS_BOOT)
 int spl_start_uboot(void)
 {
 	/* break into full u-boot on 'c' */

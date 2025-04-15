@@ -55,7 +55,6 @@ int arch_cpu_init(void)
 
 static int ivybridge_cpu_init(void)
 {
-	struct pci_controller *hose;
 	struct udevice *bus, *dev;
 	int ret;
 
@@ -65,10 +64,6 @@ static int ivybridge_cpu_init(void)
 	if (ret)
 		return ret;
 	post_code(0x72);
-	hose = dev_get_uclass_priv(bus);
-
-	/* TODO(sjg@chromium.org): Get rid of gd->hose */
-	gd->hose = hose;
 
 	ret = uclass_first_device_err(UCLASS_LPC, &dev);
 	if (ret)
@@ -183,20 +178,6 @@ int checkcpu(void)
 	}
 
 	gd->arch.pei_boot_mode = boot_mode;
-
-	return 0;
-}
-
-int print_cpuinfo(void)
-{
-	char processor_name[CPU_MAX_NAME_LEN];
-	const char *name;
-
-	/* Print processor name */
-	name = cpu_get_name(processor_name);
-	printf("CPU:   %s\n", name);
-
-	post_code(POST_CPU_INFO);
 
 	return 0;
 }

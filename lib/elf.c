@@ -86,9 +86,13 @@ unsigned long load_elf64_image_phdr(unsigned long addr)
 	phdr = (Elf64_Phdr *)(addr + (ulong)ehdr->e_phoff);
 
 	/* Load each program header */
-	for (i = 0; i < ehdr->e_phnum; ++i) {
+	for (i = 0; i < ehdr->e_phnum; ++i, ++phdr) {
 		void *dst = (void *)(ulong)phdr->p_paddr;
 		void *src = (void *)addr + phdr->p_offset;
+
+		/* Only load PT_LOAD program header */
+		if (phdr->p_type != PT_LOAD)
+			continue;
 
 		debug("Loading phdr %i to 0x%p (%lu bytes)\n",
 		      i, dst, (ulong)phdr->p_filesz);
@@ -99,7 +103,6 @@ unsigned long load_elf64_image_phdr(unsigned long addr)
 			       phdr->p_memsz - phdr->p_filesz);
 		flush_cache(rounddown((unsigned long)dst, ARCH_DMA_MINALIGN),
 			    roundup(phdr->p_memsz, ARCH_DMA_MINALIGN));
-		++phdr;
 	}
 
 	if (ehdr->e_machine == EM_PPC64 && (ehdr->e_flags &
@@ -201,9 +204,13 @@ unsigned long load_elf_image_phdr(unsigned long addr)
 	phdr = (Elf32_Phdr *)(addr + ehdr->e_phoff);
 
 	/* Load each program header */
-	for (i = 0; i < ehdr->e_phnum; ++i) {
+	for (i = 0; i < ehdr->e_phnum; ++i, ++phdr) {
 		void *dst = (void *)(uintptr_t)phdr->p_paddr;
 		void *src = (void *)addr + phdr->p_offset;
+
+		/* Only load PT_LOAD program header */
+		if (phdr->p_type != PT_LOAD)
+			continue;
 
 		debug("Loading phdr %i to 0x%p (%i bytes)\n",
 		      i, dst, phdr->p_filesz);
@@ -214,7 +221,6 @@ unsigned long load_elf_image_phdr(unsigned long addr)
 			       phdr->p_memsz - phdr->p_filesz);
 		flush_cache(rounddown((unsigned long)dst, ARCH_DMA_MINALIGN),
 			    roundup(phdr->p_memsz, ARCH_DMA_MINALIGN));
-		++phdr;
 	}
 
 	return ehdr->e_entry;

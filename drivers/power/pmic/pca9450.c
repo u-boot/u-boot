@@ -42,7 +42,7 @@ static int pca9450_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			 int len)
 {
 	if (dm_i2c_write(dev, reg, buff, len)) {
-		pr_err("write error to device: %p register: %#x!", dev, reg);
+		pr_err("write error to device: %p register: %#x!\n", dev, reg);
 		return -EIO;
 	}
 
@@ -53,7 +53,7 @@ static int pca9450_read(struct udevice *dev, uint reg, uint8_t *buff,
 			int len)
 {
 	if (dm_i2c_read(dev, reg, buff, len)) {
-		pr_err("read error from device: %p register: %#x!", dev, reg);
+		pr_err("read error from device: %p register: %#x!\n", dev, reg);
 		return -EIO;
 	}
 
@@ -121,6 +121,7 @@ static const struct udevice_id pca9450_ids[] = {
 	{ .compatible = "nxp,pca9450b", .data = NXP_CHIP_TYPE_PCA9450BC, },
 	{ .compatible = "nxp,pca9450c", .data = NXP_CHIP_TYPE_PCA9450BC, },
 	{ .compatible = "nxp,pca9451a", .data = NXP_CHIP_TYPE_PCA9451A, },
+	{ .compatible = "nxp,pca9452",  .data = NXP_CHIP_TYPE_PCA9452, },
 	{ }
 };
 

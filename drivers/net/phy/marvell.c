@@ -461,8 +461,7 @@ static int m88e151x_config(struct phy_device *phydev)
 
 		reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_88E151x_PHY_MSCR);
 		reg &= ~MIIM_88E151x_RGMII_RXTX_DELAY;
-		if (phydev->interface == PHY_INTERFACE_MODE_RGMII ||
-		    phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
+		if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
 			reg |= MIIM_88E151x_RGMII_RXTX_DELAY;
 		else if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID)
 			reg |= MIIM_88E151x_RGMII_RX_DELAY;

@@ -23,10 +23,12 @@
 				<&k3_pds 202 TI_SCI_PD_EXCLUSIVE>,
 				<&k3_pds 4 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 202 0>;
-		clocks = <&k3_clks 61 1>;
-		assigned-clocks = <&k3_clks 202 2>, <&k3_clks 61 1>, <&k3_clks 323 0>;
-		assigned-clock-parents= <0>, <0>, <&k3_clks 323 2>;
-		assigned-clock-rates = <2000000000>, <200000000>;
+		clocks = <&k3_clks 61 1>, <&k3_clks 202 2>, <&k3_clks 4 1> ;
+		clock-names = "gtc", "core", "msmc";
+		assigned-clocks = <&k3_clks 202 2>, <&k3_clks 61 1>, <&k3_clks 4 1>,
+						  <&k3_clks 323 0>;
+		assigned-clock-parents= <0>, <0>, <0>, <&k3_clks 323 2>;
+		assigned-clock-rates = <2000000000>, <200000000>, <1000000000>;
 		ti,sci = <&dmsc>;
 		ti,sci-proc-id = <32>;
 		ti,sci-host-id = <10>;
@@ -52,6 +54,10 @@
 };
 
 &mcu_timer0 {
+	/delete-property/ clocks;
+	/delete-property/ clocks-names;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
 	clock-frequency = <250000000>;
 	bootph-pre-ram;
 };
@@ -89,10 +95,35 @@
           <0x0 0x50000000 0x0 0x8000000>;
 };
 
+&fss {
+	/* enable ranges missing from the FSS node */
+	ranges = <0x0 0x47000000 0x0 0x47000000 0x0 0x00068400>,
+	         <0x0 0x50000000 0x0 0x50000000 0x0 0x08000000>;
+};
+
+&hbmc {
+	reg = <0x0 0x47040000 0x0 0x100>,
+		<0x0 0x50000000 0x0 0x8000000>;
+	ranges = <0x0 0x0 0x0 0x50000000 0x4000000>,
+		<0x1 0x0 0x0 0x54000000 0x800000>;
+};
+
 &mcu_ringacc {
     ti,sci = <&dm_tifs>;
 };
 
 &mcu_udmap {
     ti,sci = <&dm_tifs>;
+};
+
+&wkup_vtm0 {
+	vdd-supply-2 = <&buckb1>;
+	bootph-pre-ram;
+};
+
+&tps659414 {
+	esm: esm {
+		compatible = "ti,tps659413-esm";
+		bootph-pre-ram;
+	};
 };

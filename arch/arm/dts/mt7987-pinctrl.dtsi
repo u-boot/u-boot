@@ -1,0 +1,214 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2023 MediaTek Inc.
+ * Author: Sam.Shih <sam.shih@mediatek.com>
+ */
+
+&pio {
+	mmc_pins_default: mmc-pins-default {
+		mux {
+			function = "flash";
+			groups = "emmc_45";
+		};
+		conf-cmd-dat {
+			pins = "SPI0_CLK", "SPI0_MOSI", "SPI0_MISO",
+			       "SPI0_CS", "SPI0_HOLD", "SPI0_WP",
+			       "SPI1_CLK", "SPI1_MOSI", "SPI1_MISO";
+			input-enable;
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;	/* pull-up 10K */
+		};
+		conf-clk {
+			pins = "SPI1_CS";
+			drive-strength = <MTK_DRIVE_6mA>;
+			mediatek,pull-down-adv = <2>;	/* pull-down 50K */
+		};
+		conf-rst {
+			pins = "USB_VBUS";
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;	/* pull-up 10K */
+		};
+	};
+
+	mmc_pins_uhs: mmc-pins-uhs {
+		mux {
+			function = "flash";
+			groups = "emmc_45";
+		};
+		conf-cmd-dat {
+			pins = "SPI0_CLK", "SPI0_MOSI", "SPI0_MISO",
+			       "SPI0_CS", "SPI0_HOLD", "SPI0_WP",
+			       "SPI1_CLK", "SPI1_MOSI", "SPI1_MISO";
+			input-enable;
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;	/* pull-up 10K */
+		};
+		conf-clk {
+			pins = "SPI1_CS";
+			drive-strength = <MTK_DRIVE_6mA>;
+			mediatek,pull-down-adv = <2>;	/* pull-down 50K */
+		};
+		conf-rst {
+			pins = "USB_VBUS";
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;	/* pull-up 10K */
+		};
+	};
+
+	sd_pins_default: sd-pins-default {
+		mux {
+			function = "flash";
+			groups = "sd";
+		};
+		conf-cmd-dat {
+			pins = "SPI0_CLK", "SPI0_MOSI", "SPI0_MISO",
+			       "SPI0_CS", "SPI1_MISO";
+			input-enable;
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;	/* pull-up 10K */
+		};
+		conf-clk {
+			pins = "SPI1_CS";
+			drive-strength = <MTK_DRIVE_6mA>;
+			mediatek,pull-down-adv = <2>;	/* pull-down 50K */
+		};
+	};
+
+	sd_pins_uhs: sd-pins-uhs {
+		mux {
+			function = "flash";
+			groups = "sd";
+		};
+		conf-cmd-dat {
+			pins = "SPI0_CLK", "SPI0_MOSI", "SPI0_MISO",
+			       "SPI0_CS", "SPI1_MISO";
+			input-enable;
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;	/* pull-up 10K */
+		};
+		conf-clk {
+			pins = "SPI1_CS";
+			drive-strength = <MTK_DRIVE_6mA>;
+			mediatek,pull-down-adv = <2>;	/* pull-down 50K */
+		};
+	};
+
+	mdio0_pins: mdio0-pins {
+		mux {
+			function = "eth";
+			groups = "mdc_mdio";
+		};
+
+		conf {
+			groups = "mdc_mdio";
+			drive-strength = <MTK_DRIVE_6mA>;
+		};
+	};
+
+	i2p5gbe_led0_pins: i2p5gbe0-pins {
+		mux {
+			function = "led";
+			groups = "2p5gbe_led0";
+		};
+	};
+
+	i2p5gbe_led1_0_pins: i2p5gbe1-pins {
+		mux {
+			function = "led";
+			groups = "2p5gbe_led1_0";
+		};
+	};
+
+	i2p5gbe_led1_1_pins: i2p5gbe2-pins {
+		mux {
+			function = "led";
+			groups = "2p5gbe_led1_1";
+		};
+	};
+
+	i2c0_pins: i2c0-pins-g2 {
+		mux {
+			function = "i2c";
+			groups = "i2c0_2";
+		};
+	};
+
+	pcie0_pins: pcie0-pins {
+		mux {
+			function = "pcie";
+			groups = "pcie0_pereset", "pcie0_clkreq",
+				 "pcie0_wake";
+		};
+	};
+
+	pcie1_pins: pcie1-pins {
+		mux {
+			function = "pcie";
+			groups = "pcie1_pereset", "pcie1_clkreq",
+				 "pcie1_wake";
+		};
+	};
+
+	spi0_flash_pins: spi0-pins {
+		mux {
+			function = "spi";
+			groups = "spi0", "spi0_wp_hold";
+		};
+	};
+
+	spic_pins: spi1-pins {
+		mux {
+			function = "spi";
+			groups = "spi1";
+		};
+	};
+
+	spi2_flash_pins: spi2-pins {
+		mux {
+			function = "spi";
+			groups = "spi2", "spi2_wp_hold";
+		};
+	};
+
+	i2c1_pins: i2c1-pins {
+		mux {
+			function = "i2c";
+			groups = "i2c0_2";
+		};
+	};
+
+	i2s_pins: i2s-pins {
+		mux {
+			function = "i2s";
+			groups = "pcm0_1";
+		};
+	};
+
+	pcm_pins: pcm-pins {
+		mux {
+			function = "pcm";
+			groups = "pcm0_1";
+		};
+	};
+
+	pwm_pins: pwm-pins {
+		mux {
+			/*
+			 * - pwm0   : PWM0@PIN13
+			 * - pwm1_0 : PWM1@PIN7  (share with JTAG)
+			 *   pwm1_1 : PWM1@PIN43 (share with i2c0)
+			 * - pwm2_0 : PWM2@PIN12 (share with PCM)
+			 *   pwm2_1 : PWM2@PIN44 (share with i2c0)
+			 */
+			function = "pwm";
+			groups = "pwm0";
+		};
+	};
+
+	uart1_pins: uart1-pins {
+		mux {
+			function = "uart";
+			groups = "uart1_2";
+		};
+	};
+};

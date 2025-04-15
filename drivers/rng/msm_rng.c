@@ -34,6 +34,7 @@
 struct msm_rng_priv {
 	phys_addr_t base;
 	struct clk clk;
+	bool skip_init;
 };
 
 static int msm_rng_read(struct udevice *dev, void *data, size_t len)
@@ -43,6 +44,11 @@ static int msm_rng_read(struct udevice *dev, void *data, size_t len)
 	u32 *retdata = data;
 	size_t maxsize;
 	u32 val;
+	int ret;
+
+	ret = clk_enable(&priv->clk);
+	if (ret < 0)
+		return ret;
 
 	/* calculate max size bytes to transfer back to caller */
 	maxsize = min_t(size_t, MAX_HW_FIFO_SIZE, len);
@@ -65,6 +71,8 @@ static int msm_rng_read(struct udevice *dev, void *data, size_t len)
 			break;
 	} while (currsize < maxsize);
 
+	clk_disable(&priv->clk);
+
 	return 0;
 }
 
@@ -75,7 +83,7 @@ static int msm_rng_enable(struct msm_rng_priv *priv, int enable)
 	if (enable) {
 		/* Enable PRNG only if it is not already enabled */
 		val = readl_relaxed(priv->base + PRNG_CONFIG);
-		if (val & PRNG_CONFIG_HW_ENABLE) {
+		if (!(val & PRNG_CONFIG_HW_ENABLE)) {
 			val = readl_relaxed(priv->base + PRNG_LFSR_CFG);
 			val &= ~PRNG_LFSR_CFG_MASK;
 			val |= PRNG_LFSR_CFG_CLOCKS;
@@ -100,9 +108,14 @@ static int msm_rng_probe(struct udevice *dev)
 
 	int ret;
 
+	priv->skip_init = (bool)dev_get_driver_data(dev);
+
 	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
+
+	if (priv->skip_init)
+		return 0;
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret)
@@ -112,12 +125,17 @@ static int msm_rng_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	return msm_rng_enable(priv, 1);
+	ret = msm_rng_enable(priv, 1);
+	clk_disable(&priv->clk);
+	return ret;
 }
 
 static int msm_rng_remove(struct udevice *dev)
 {
 	struct msm_rng_priv *priv = dev_get_priv(dev);
+
+	if (priv->skip_init)
+		return 0;
 
 	return msm_rng_enable(priv, 0);
 }
@@ -127,7 +145,9 @@ static const struct dm_rng_ops msm_rng_ops = {
 };
 
 static const struct udevice_id msm_rng_match[] = {
-	{ .compatible = "qcom,prng", },
+	{ .compatible = "qcom,prng", .data = (ulong)false },
+	{ .compatible = "qcom,prng-ee", .data = (ulong)true },
+	{ .compatible = "qcom,trng", .data = (ulong)true },
 	{},
 };
 

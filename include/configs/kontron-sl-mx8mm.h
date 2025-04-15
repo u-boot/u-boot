@@ -10,7 +10,7 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <config.h>
 #endif
 
@@ -23,11 +23,6 @@
 #define CFG_SYS_INIT_RAM_SIZE	0x200000
 
 /* Board and environment settings */
-
-#ifdef CONFIG_USB_EHCI_HCD
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CFG_MXC_USB_FLAGS		0
-#endif
 
 /* GUID for capsule updatable firmware image */
 #define KONTRON_SL_MX8MM_FIT_IMAGE_GUID \
@@ -44,7 +39,7 @@
 #undef BOOTENV_RUN_NET_USB_START
 #define BOOTENV_RUN_NET_USB_START
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
 #define CFG_MALLOC_F_ADDR		0x930000
 #endif

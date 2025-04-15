@@ -1028,8 +1028,8 @@ static int k3_nav_ringacc_init(struct udevice *dev, struct k3_nav_ringacc *ringa
 struct k3_nav_ringacc *k3_ringacc_dmarings_init(struct udevice *dev,
 						struct k3_ringacc_init_data *data)
 {
+	void __iomem *base_rt, *base_cfg;
 	struct k3_nav_ringacc *ringacc;
-	void __iomem *base_rt;
 	int i;
 
 	ringacc = devm_kzalloc(dev, sizeof(*ringacc), GFP_KERNEL);
@@ -1047,6 +1047,20 @@ struct k3_nav_ringacc *k3_ringacc_dmarings_init(struct udevice *dev,
 	if (!base_rt)
 		return ERR_PTR(-EINVAL);
 
+	/*
+	 * Since register property is defined as "ring" for PKTDMA and
+	 * "cfg" for UDMA, configure base address of ring configuration
+	 * register accordingly.
+	 */
+	base_cfg = dev_remap_addr_name(dev, "ring");
+	pr_debug("ring %p\n", base_cfg);
+	if (!base_cfg) {
+		base_cfg = dev_remap_addr_name(dev, "cfg");
+		pr_debug("cfg %p\n", base_cfg);
+		if (!base_cfg)
+			return ERR_PTR(-EINVAL);
+	}
+
 	ringacc->rings = devm_kzalloc(dev,
 				      sizeof(*ringacc->rings) *
 				      ringacc->num_rings * 2,
@@ -1061,6 +1075,7 @@ struct k3_nav_ringacc *k3_ringacc_dmarings_init(struct udevice *dev,
 	for (i = 0; i < ringacc->num_rings; i++) {
 		struct k3_nav_ring *ring = &ringacc->rings[i];
 
+		ring->cfg = base_cfg + KNAV_RINGACC_CFG_REGS_STEP * i;
 		ring->rt = base_rt + K3_DMARING_RING_RT_REGS_STEP * i;
 		ring->parent = ringacc;
 		ring->ring_id = i;

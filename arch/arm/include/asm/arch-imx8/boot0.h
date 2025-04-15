@@ -3,7 +3,7 @@
  * Copyright 2019 NXP
  */
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 	/*
 	 * We use absolute address not PC relative address to jump.
 	 * When running SPL on iMX8, the A core starts at address 0, a alias to OCRAM 0x100000,

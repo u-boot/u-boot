@@ -1,0 +1,91 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+U-Boot for Qnap TS433 Devices
+=================================
+
+This allows U-Boot to boot the Qnap TS433 NAS
+
+Preparing the serial
+--------------------
+
+Qnap devices run their serial console with a 115200 baudrate. As the
+binary DDR-init and maskrom-downloader expect a 1500000 rate, it is
+necessary to adapt the binaries if their output is needed.
+
+This can be done with a binary provided in the rkbin repository.
+First the ddrbin_param.txt in the rkbin repo needs to be modified:
+
+.. code-block:: bash
+
+    diff --git a/tools/ddrbin_param.txt b/tools/ddrbin_param.txt
+    index 0dfdd318..82ade7e7 100644
+    --- a/tools/ddrbin_param.txt
+    +++ b/tools/ddrbin_param.txt
+    @@ -11,7 +11,7 @@ lp5_freq=
+
+     uart id=
+     uart iomux=
+    -uart baudrate=
+    +uart baudrate=115200
+
+     sr_idle=
+     pd_idle=
+
+And after that the ddrbin_tool binary can be used to modify apply this
+modification and also a new maskrom downloader can be build:
+
+.. code-block:: bash
+
+    $ tools/ddrbin_tool rk3568 tools/ddrbin_param.txt bin/rk35/rk3568_ddr_1560MHz_v1.21.bin
+    $ tools/boot_merger RKBOOT/RK3568MINIALL.ini
+
+Building U-Boot
+---------------
+
+.. code-block:: bash
+
+    $ export CROSS_COMPILE=aarch64-linux-gnu-
+    $ export BL31=../rkbin/bin/rk35/rk3568_bl31_v1.34.elf
+    $ export ROCKCHIP_TPL=../rkbin/bin/rk35/rk3568_ddr_1056MHz_v1.13.bin
+    $ make qnap-ts433-rk3568_defconfig
+    $ make
+
+This will build ``u-boot-rockchip.bin`` which can be written to the
+on-board eMMC.
+
+Image installation
+------------------
+
+The Qnap thankfully provides an easily accessible serial header as well as
+a very user-friendly jumper-header to bring the device into maskrom mode.
+
+To access both, the drive trays need to be removed. Looking at the board,
+through the upper cutout of the metal frame the white 4-port serial-header
+can be seen next to a barcode sticker. It's pinout is as follows:
+
+.. code-block:: none
+
+   ,_  _.
+   |1234|  1=TX 2=VCC
+   `----'  3=RX 4=GND
+
+
+Directly below it, the mentioned 2-pin jumper header can be seen.
+
+To write your u-boot to the device, it needs to be powered off first. Then
+a jumper or suitable cable needs to be used to connect the two pins of the
+maskrom header. Turning on the device now will start it in maskrom mode.
+
+It is important that the jumper gets removed after that stop and before
+actually trying to write to the emmc.
+
+The front usb-port needs to be connected to the host with an USB-A-to-A
+cable to allow flashing.
+
+The flashing itself is done via rkdeveloptool, which can be found for
+example as package of that name in Debian-based distributions:
+
+.. code-block:: bash
+
+    $ rkdeveloptool db rk356x_spl_loader_v1.21.113.bin
+    $ rkdeveloptool wl 64 u-boot-rockchip.bin

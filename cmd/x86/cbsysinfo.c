@@ -184,6 +184,77 @@ static const char *timestamp_name(uint32_t id)
 	return "<unknown>";
 }
 
+static void show_option_vals(const struct cb_cmos_option_table *tab,
+			     uint id)
+{
+	const void *ptr, *end;
+	bool found = false;
+
+	end = (void *)tab + tab->size;
+	for (ptr = (void *)tab + tab->header_length; ptr < end;) {
+		const struct cb_record *rec = ptr;
+
+		switch (rec->tag) {
+		case CB_TAG_OPTION_ENUM: {
+			const struct cb_cmos_enums *enums = ptr;
+
+			if (enums->config_id == id) {
+				if (!found)
+					printf("  ");
+				printf(" %d:%s", enums->value, enums->text);
+				found = true;
+			}
+			break;
+		}
+			break;
+		case CB_TAG_OPTION_DEFAULTS:
+		case CB_TAG_OPTION_CHECKSUM:
+		case CB_TAG_OPTION:
+			break;
+		default:
+			printf("tag %x\n", rec->tag);
+			break;
+		}
+		ptr += rec->size;
+	}
+}
+
+static void show_option_table(const struct cb_cmos_option_table *tab)
+{
+	const void *ptr, *end;
+
+	print_ptr("option_table", tab);
+	if (!tab->size)
+		return;
+
+	printf(" Bit  Len  Cfg  ID  Name\n");
+	end = (void *)tab + tab->size;
+	for (ptr = (void *)tab + tab->header_length; ptr < end;) {
+		const struct cb_record *rec = ptr;
+
+		switch (rec->tag) {
+		case CB_TAG_OPTION: {
+			const struct cb_cmos_entries *entry = ptr;
+
+			printf("%4x %4x  %3c %3x  %-20s", entry->bit,
+			       entry->length, entry->config, entry->config_id,
+			       entry->name);
+			show_option_vals(tab, entry->config_id);
+			printf("\n");
+			break;
+		}
+		case CB_TAG_OPTION_ENUM:
+		case CB_TAG_OPTION_DEFAULTS:
+		case CB_TAG_OPTION_CHECKSUM:
+			break;
+		default:
+			printf("tag %x\n", rec->tag);
+			break;
+		}
+		ptr += rec->size;
+	}
+}
+
 static void show_table(struct sysinfo_t *info, bool verbose)
 {
 	struct cb_serial *ser = info->serial;
@@ -218,7 +289,7 @@ static void show_table(struct sysinfo_t *info, bool verbose)
 		printf("%12d: %02x:%-8s %016llx %016llx\n", i, mr->type,
 		       get_mem_name(mr->type), mr->base, mr->size);
 	}
-	print_ptr("option_table", info->option_table);
+	show_option_table(info->option_table);
 
 	print_hex("CMOS start", info->cmos_range_start);
 	if (info->cmos_range_start) {

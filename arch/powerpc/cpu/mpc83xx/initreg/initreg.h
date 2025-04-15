@@ -13,7 +13,7 @@
 #define SPCR_TSECBDP_MASK	0x00000C00
 #define SPCR_TSECEP_MASK	0x00000300
 
-	const __be32 spcr_mask =
+	static const __be32 spcr_mask =
 #if defined(CONFIG_SPCR_OPT) && !defined(CONFIG_SPCR_OPT_UNSET)
 		SPCR_OPT_MASK |
 #endif
@@ -27,7 +27,7 @@
 		SPCR_TSEC2EP_MASK |
 #endif
 		0;
-	const __be32 spcr_val =
+	static const __be32 spcr_val =
 #if defined(CONFIG_SPCR_OPT) && !defined(CONFIG_SPCR_OPT_UNSET)
 		CONFIG_SPCR_OPT |
 #endif
@@ -42,7 +42,7 @@
 #endif
 		0;
 
-	const __be32 lcrr_mask =
+	static const __be32 lcrr_mask =
 #if defined(CONFIG_LCRR_DBYP) && !defined(CONFIG_LCRR_DBYP_UNSET)
 		LCRR_DBYP |
 #endif
@@ -60,7 +60,7 @@
 #endif
 		0;
 
-	const __be32 lcrr_val =
+	static const __be32 lcrr_val =
 #if defined(CONFIG_LCRR_DBYP) && !defined(CONFIG_LCRR_DBYP_UNSET)
 		CONFIG_LCRR_DBYP |
 #endif

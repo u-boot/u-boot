@@ -248,7 +248,7 @@ int fixup_ls1088ardb_pb_banner(void *fdt)
 	return 0;
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 int checkboard(void)
 {
 #ifdef CONFIG_TFABOOT
@@ -421,7 +421,7 @@ unsigned long get_board_ddr_clk(void)
 }
 #endif
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 void board_retimer_init(void)
 {
 	u8 reg;
@@ -690,7 +690,7 @@ int get_serdes_volt(void)
 	dm_i2c_read(dev, PMBUS_CMD_READ_VOUT, (void *)&vcode, 2);
 #endif
 	if (ret) {
-		printf("VID: failed to read the volatge\n");
+		printf("VID: failed to read the voltage\n");
 		return ret;
 	}
 
@@ -716,11 +716,11 @@ int set_serdes_volt(int svdd)
 				   (void *)&buff, 5);
 #endif
 	if (ret) {
-		printf("VID: I2C failed to write to the volatge regulator\n");
+		printf("VID: I2C failed to write to the voltage regulator\n");
 		return -1;
 	}
 
-	/* Wait for the volatge to get to the desired value */
+	/* Wait for the voltage to get to the desired value */
 	do {
 		vdd_last = get_serdes_volt();
 		if (vdd_last < 0) {
@@ -778,7 +778,7 @@ int set_serdes_volt(int svdd)
 		return -1;
 	}
 
-	/* Wait for the volatge to get to the desired value */
+	/* Wait for the voltage to get to the desired value */
 	udelay(10000);
 
 	return 1;
@@ -804,7 +804,7 @@ exit:
 	return ret;
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 int board_init(void)
 {
 	init_final_memctl_regs();
@@ -995,7 +995,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif
-#endif /* defined(CONFIG_SPL_BUILD) */
+#endif /* defined(CONFIG_XPL_BUILD) */
 
 #ifdef CONFIG_TFABOOT
 #ifdef CONFIG_MTD_NOR_FLASH

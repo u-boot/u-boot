@@ -6,9 +6,6 @@ config SYS_SOC
 config SYS_VENDOR
 	default "mediatek"
 
-config MT8512
-	bool "MediaTek MT8512 SoC"
-
 choice
 	prompt "MediaTek board select"
 
@@ -59,6 +56,16 @@ config TARGET_MT7986
 	  including UART, SPI, SPI flash, USB3.0, MMC, NAND, SNFI, PWM, PCIe,
 	  Gigabit Ethernet, I2C, built-in 4x4 Wi-Fi, and PCIe.
 
+config TARGET_MT7987
+	bool "MediaTek MT7987 SoC"
+	select ARM64
+	select CPU
+	select MTK_TZ_MOVABLE
+	help
+	  The MediaTek MT7987 is a ARM64-based SoC with a quad-core Cortex-A53.
+	  including UART, I2C, PWM, SPI controller which support SPI flash,
+	  USB3.0, MMC, PCIe, SGMII and built-in Ethernet PHY.
+
 config TARGET_MT7988
 	bool "MediaTek MT7988 SoC"
 	select ARM64
@@ -86,9 +93,8 @@ config TARGET_MT8365
 	  I2C, I2S, S/PDIF, and several LPDDR3 and LPDDR4 options.
 
 config TARGET_MT8512
-        bool "MediaTek MT8512 M1 Board"
+        bool "MediaTek MT8512 SoC"
         select ARM64
-	select MT8512
         help
           The MediaTek MT8512 is a ARM64-based SoC with a dual-core Cortex-A53.
           including UART, SPI, USB2.0 and OTG, SD and MMC cards, NAND, PWM,
@@ -122,6 +128,7 @@ config SYS_BOARD
 	default "mt7629" if TARGET_MT7629
 	default "mt7981" if TARGET_MT7981
 	default "mt7986" if TARGET_MT7986
+	default "mt7987" if TARGET_MT7987
 	default "mt7988" if TARGET_MT7988
 	default "mt8183" if TARGET_MT8183
 	default "mt8512" if TARGET_MT8512
@@ -139,6 +146,7 @@ config SYS_CONFIG_NAME
 	default "mt7629" if TARGET_MT7629
 	default "mt7981" if TARGET_MT7981
 	default "mt7986" if TARGET_MT7986
+	default "mt7987" if TARGET_MT7987
 	default "mt7988" if TARGET_MT7988
 	default "mt8183" if TARGET_MT8183
 	default "mt8365" if TARGET_MT8365
@@ -148,9 +156,13 @@ config SYS_CONFIG_NAME
 
 config MTK_BROM_HEADER_INFO
 	string
-	default "media=nor" if TARGET_MT8518 || TARGET_MT8512 || TARGET_MT7629 || TARGET_MT7622
+	default "media=nor" if TARGET_MT8518 || TARGET_MT8512 || TARGET_MT7629
 	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8183
-	default "media=snand;nandinfo=2k+64" if TARGET_MT7981 || TARGET_MT7986 || TARGET_MT7988
 	default "lk=1" if TARGET_MT7623
+
+config MTK_TZ_MOVABLE
+	select ARCH_MISC_INIT
+	select OF_SYSTEM_SETUP
+	bool
 
 endif

@@ -37,7 +37,7 @@ struct scu_regs {
 	u32	fpga_rev;
 };
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_IMX_THERMAL)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_IMX_THERMAL)
 static const struct imx_thermal_plat imx6_thermal_plat = {
 	.regs = (void *)ANATOP_BASE_ADDR,
 	.fuse_bank = 1,
@@ -51,8 +51,13 @@ U_BOOT_DRVINFO(imx6_thermal) = {
 #endif
 
 #if defined(CONFIG_IMX_HAB)
-struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
+struct imx_fuse const imx_sec_config_fuse = {
 	.bank = 0,
+	.word = 6,
+};
+
+struct imx_fuse const imx_field_return_fuse = {
+	.bank = 5,
 	.word = 6,
 };
 #endif
@@ -565,7 +570,7 @@ int board_postclk_init(void)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 /*
  * cfg_val will be used for
  * Boot_cfg4[7:0]:Boot_cfg3[7:0]:Boot_cfg2[7:0]:Boot_cfg1[7:0]
@@ -585,6 +590,10 @@ const struct boot_mode soc_boot_modes[] = {
 	{"ecspi1:1",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x18)},
 	{"ecspi1:2",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x28)},
 	{"ecspi1:3",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x38)},
+	{"ecspi3:0",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x0a)},
+	{"ecspi3:1",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x1a)},
+	{"ecspi3:2",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x2a)},
+	{"ecspi3:3",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x3a)},
 	/* 4 bit bus width */
 	{"esdhc1",	MAKE_CFGVAL(0x40, 0x20, 0x00, 0x00)},
 	{"esdhc2",	MAKE_CFGVAL(0x40, 0x28, 0x00, 0x00)},
@@ -596,7 +605,7 @@ const struct boot_mode soc_boot_modes[] = {
 
 void reset_misc(void)
 {
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #if defined(CONFIG_VIDEO_MXS) && !defined(CONFIG_VIDEO)
 	lcdif_power_down();
 #endif

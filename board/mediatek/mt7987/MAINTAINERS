@@ -1,0 +1,8 @@
+MT7987
+M:	Sam Shih <sam.shih@mediatek.com>
+S:	Maintained
+F:	board/mediatek/mt7987
+F:	include/configs/mt7987.h
+F:	configs/mt7987_rfb_defconfig
+F:	configs/mt7987_emmc_rfb_defconfig
+F:	configs/mt7987_sd_rfb_defconfig

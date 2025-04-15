@@ -267,31 +267,23 @@ struct sunxi_ccm_reg {
 #define CCM_CPU_AXI_DEFAULT_FACTORS	0x301
 
 #ifdef CONFIG_MACH_SUN50I_H6				/* H6 */
+
 #define CCM_PLL6_DEFAULT		0xa0006300
-
-/* psi_ahb1_ahb2 bit field */
 #define CCM_PSI_AHB1_AHB2_DEFAULT	0x03000102
-
-/* ahb3 bit field */
 #define CCM_AHB3_DEFAULT		0x03000002
-
-/* apb1 bit field */
 #define CCM_APB1_DEFAULT		0x03000102
+
 #elif CONFIG_MACH_SUN50I_H616				/* H616 */
+
 #define CCM_PLL6_DEFAULT		0xa8003100
-
-/* psi_ahb1_ahb2 bit field */
 #define CCM_PSI_AHB1_AHB2_DEFAULT	0x03000002
-
-/* ahb3 bit field */
 #define CCM_AHB3_DEFAULT		0x03000002
-
-/* apb1 bit field */
 #define CCM_APB1_DEFAULT		0x03000102
+
 #elif CONFIG_MACH_SUN8I_R528				/* R528 */
+
 #define CCM_PLL6_DEFAULT		0xe8216300
 #define CCM_PSI_AHB1_AHB2_DEFAULT	0x03000002
-//#define CCM_AHB3_DEFAULT		0x03000002
 #define CCM_APB1_DEFAULT		0x03000102
 #endif
 

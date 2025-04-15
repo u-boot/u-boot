@@ -93,7 +93,7 @@ static u64 octeon_spi_set_mpicfg(struct udevice *dev)
 	if (max_speed > OCTEON_SPI_MAX_CLOCK_HZ)
 		max_speed = OCTEON_SPI_MAX_CLOCK_HZ;
 
-	debug("\n slave params %d %d %d\n", slave->cs,
+	debug("\n slave params %d %d %d\n", slave->cs[0],
 	      slave->max_hz, slave->mode);
 	cpha = !!(slave->mode & SPI_CPHA);
 	cpol = !!(slave->mode & SPI_CPOL);

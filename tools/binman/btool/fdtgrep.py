@@ -74,8 +74,7 @@ class Bintoolfdtgrep(bintool.Bintool):
                 (with only neceesary nodes and properties)
 
         Returns:
-            CommandResult: Resulting output from the bintool, or None if the
-                tool is not present
+            str or bytes: Resulting stdout from the bintool
         """
         if phase == 'tpl':
             tag = 'bootph-pre-sram'

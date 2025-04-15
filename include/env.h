@@ -44,7 +44,7 @@ struct env_clbk_tbl {
  * For SPL these are silently dropped to reduce code size, since environment
  * callbacks are not supported with SPL.
  */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define U_BOOT_ENV_CALLBACK(name, callback) \
 	static inline __maybe_unused void _u_boot_env_noop_##name(void) \
 	{ \

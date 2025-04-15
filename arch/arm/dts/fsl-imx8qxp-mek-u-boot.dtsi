@@ -6,19 +6,32 @@
 #include "imx8qxp-u-boot.dtsi"
 
 &{/imx8qx-pm} {
-
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
 &mu {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
 &clk {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
 &iomuxc {
+	bootph-some-ram;
+	bootph-pre-ram;
+};
+
+&{/mu@5d1c0000/iomuxc/imx8qxp-mek} {
+	bootph-some-ram;
+	bootph-pre-ram;
+};
+
+&pinctrl_lpuart0 {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
@@ -75,10 +88,12 @@
 };
 
 &pd_dma {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
 &pd_dma_lpuart0 {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
@@ -131,6 +146,7 @@
 };
 
 &lpuart0 {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 

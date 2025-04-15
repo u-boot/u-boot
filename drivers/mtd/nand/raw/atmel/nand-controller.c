@@ -568,12 +568,9 @@ static void atmel_nfc_copy_to_sram(struct nand_chip *chip, const u8 *buf,
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	struct atmel_nand *nand = to_atmel_nand(chip);
 	struct atmel_hsmc_nand_controller *nc;
-	int ret = -EIO;
 
 	nc = to_hsmc_nand_controller(nand->controller);
-
-	if (ret)
-		memcpy_toio(nc->sram.virt, buf, mtd->writesize);
+	memcpy_toio(nc->sram.virt, buf, mtd->writesize);
 
 	if (oob_required)
 		memcpy_toio(nc->sram.virt + mtd->writesize, chip->oob_poi,
@@ -586,12 +583,9 @@ static void atmel_nfc_copy_from_sram(struct nand_chip *chip, u8 *buf,
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	struct atmel_nand *nand = to_atmel_nand(chip);
 	struct atmel_hsmc_nand_controller *nc;
-	int ret = -EIO;
 
 	nc = to_hsmc_nand_controller(nand->controller);
-
-	if (ret)
-		memcpy_fromio(buf, nc->sram.virt, mtd->writesize);
+	memcpy_fromio(buf, nc->sram.virt, mtd->writesize);
 
 	if (oob_required)
 		memcpy_fromio(chip->oob_poi, nc->sram.virt + mtd->writesize,
@@ -1029,11 +1023,15 @@ static int atmel_nand_pmecc_init(struct nand_chip *chip)
 		req.ecc.strength = ATMEL_PMECC_MAXIMIZE_ECC_STRENGTH;
 	else if (chip->ecc.strength)
 		req.ecc.strength = chip->ecc.strength;
+	else if (chip->ecc_strength_ds)
+		req.ecc.strength = chip->ecc_strength_ds;
 	else
 		req.ecc.strength = ATMEL_PMECC_MAXIMIZE_ECC_STRENGTH;
 
 	if (chip->ecc.size)
 		req.ecc.sectorsize = chip->ecc.size;
+	else if (chip->ecc_step_ds)
+		req.ecc.sectorsize = chip->ecc_step_ds;
 	else
 		req.ecc.sectorsize = ATMEL_PMECC_SECTOR_SIZE_AUTO;
 
@@ -1129,7 +1127,7 @@ static int atmel_smc_nand_prepare_smcconf(struct atmel_nand *nand,
 					  const struct nand_data_interface *conf,
 					  struct atmel_smc_cs_conf *smcconf)
 {
-	u32 ncycles, totalcycles, timeps, mckperiodps;
+	u32 ncycles, totalcycles, timeps, mckperiodps, pulse;
 	struct atmel_nand_controller *nc;
 	int ret;
 
@@ -1255,11 +1253,16 @@ static int atmel_smc_nand_prepare_smcconf(struct atmel_nand *nand,
 			 ATMEL_SMC_MODE_TDFMODE_OPTIMIZED;
 
 	/*
-	 * Read pulse timing directly matches tRP:
+	 * Read pulse timing would directly match tRP,
+	 * but some NAND flash chips (S34ML01G2 and W29N02KVxxAF)
+	 * do not work properly in timing mode 3.
+	 * The workaround is to extend the SMC NRD pulse to meet tREA
+	 * timing.
 	 *
-	 * NRD_PULSE = tRP
+	 * NRD_PULSE = max(tRP, tREA)
 	 */
-	ncycles = DIV_ROUND_UP(conf->timings.sdr.tRP_min, mckperiodps);
+	pulse = max(conf->timings.sdr.tRP_min, conf->timings.sdr.tREA_max);
+	ncycles = DIV_ROUND_UP(pulse, mckperiodps);
 	totalcycles += ncycles;
 	ret = atmel_smc_cs_conf_set_pulse(smcconf, ATMEL_SMC_NRD_SHIFT,
 					  ncycles);
@@ -2201,17 +2204,10 @@ static const struct udevice_id atmel_nand_controller_of_ids[] = {
 static int atmel_nand_controller_probe(struct udevice *dev)
 {
 	const struct atmel_nand_controller_caps *caps;
-	struct udevice *pmecc_dev;
 
 	caps = (struct atmel_nand_controller_caps *)dev_get_driver_data(dev);
 	if (!caps) {
 		printf("Could not retrieve NFC caps\n");
-		return -EINVAL;
-	}
-
-	/* Probe pmecc driver */
-	if (uclass_get_device(UCLASS_MTD, 1, &pmecc_dev)) {
-		printf("%s: get device fail\n", __func__);
 		return -EINVAL;
 	}
 

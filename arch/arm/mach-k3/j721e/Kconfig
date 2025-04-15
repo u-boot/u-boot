@@ -29,27 +29,6 @@ config TARGET_J721E_R5_EVM
 	imply SYS_K3_SPL_ATF
 	imply TI_I2C_BOARD_DETECT
 
-config TARGET_J7200_A72_EVM
-	bool "TI K3 based J7200 EVM running on A72"
-	select ARM64
-	select SOC_K3_J721E_J7200
-	select BOARD_LATE_INIT
-	imply TI_I2C_BOARD_DETECT
-	select SYS_DISABLE_DCACHE_OPS
-	select BINMAN
-
-config TARGET_J7200_R5_EVM
-	bool "TI K3 based J7200 EVM running on R5"
-	select CPU_V7R
-	select SYS_THUMB_BUILD
-	select K3_LOAD_SYSFW
-	select RAM
-	select SPL_RAM
-	select K3_DDRSS
-	select BINMAN
-	imply SYS_K3_SPL_ATF
-	imply TI_I2C_BOARD_DETECT
-
 endchoice
 
 source "board/beagle/beagleboneai64/Kconfig"

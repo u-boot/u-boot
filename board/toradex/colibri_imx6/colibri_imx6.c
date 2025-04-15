@@ -33,6 +33,7 @@
 #include <cpu.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <fsl_esdhc_imx.h>
+#include <i2c.h>
 #include <imx_thermal.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -71,6 +72,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define OUTPUT_RGB (PAD_CTL_SPEED_MED|PAD_CTL_DSE_60ohm|PAD_CTL_SRE_FAST)
 
+#define I2C_PWR	1
+
 int dram_init(void)
 {
 	/* use the DDR controllers configured size */
@@ -86,7 +89,7 @@ iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_CSI0_DAT11__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_XPL_BUILD)
 /* Colibri MMC */
 iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_CLK__SD1_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -113,7 +116,7 @@ iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6_PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_EMMC_PAD_CTRL),
 	MX6_PAD_SD3_RST__SD3_RESET  | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
-#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_SPL_BUILD */
+#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_XPL_BUILD */
 
 /* mux auxiliary pins to GPIO, so they can be used from the U-Boot cmdline */
 iomux_v3_cfg_t const gpio_pads[] = {
@@ -289,7 +292,7 @@ int board_ehci_hcd_init(int port)
 }
 #endif
 
-#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_XPL_BUILD)
 /* use the following sequence: eMMC, MMC */
 struct fsl_esdhc_cfg usdhc_cfg[CFG_SYS_FSL_USDHC_NUM] = {
 	{USDHC3_BASE_ADDR},
@@ -346,7 +349,7 @@ int board_mmc_init(struct bd_info *bis)
 
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
-#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_SPL_BUILD */
+#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_XPL_BUILD */
 
 int board_phy_config(struct phy_device *phydev)
 {
@@ -609,12 +612,40 @@ int board_init(void)
 	return 0;
 }
 
+static bool is_som_variant_1_2(void)
+{
+	struct udevice *bus;
+	struct udevice *i2c_dev;
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, I2C_PWR, &bus);
+	if (ret) {
+		printf("Failed to get I2C_PWR\n");
+		return false;
+	}
+
+	/* V1.2 uses the TLA2024 at 0x49 instead of the STMPE811 at 0x41 */
+	ret = dm_i2c_probe(bus, 0x49, 0, &i2c_dev);
+
+	return (bool)!ret;
+}
+
+static void select_dt_from_module_version(void)
+{
+	if (is_som_variant_1_2())
+		env_set("variant", "-v1.2");
+	else
+		env_set("variant", "");
+}
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
 #if defined(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
 	char env_str[256];
 	u32 rev;
+
+	select_dt_from_module_version();
 
 	rev = get_board_revision();
 	snprintf(env_str, ARRAY_SIZE(env_str), "%.4x", rev);
@@ -677,7 +708,7 @@ void ldo_mode_set(int ldo_bypass)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <spl.h>
 #include <linux/libfdt.h>
 #include "asm/arch/mx6dl-ddr.h"
@@ -1101,7 +1132,7 @@ void reset_cpu(void)
 {
 }
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 static struct mxc_serial_plat mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART1_BASE,

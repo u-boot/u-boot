@@ -181,7 +181,7 @@ void *dram_config_save(struct dram_timing_info *timing_info, unsigned long saved
 
 	saved_timing->ddrc_cfg_num = timing_info->ddrc_cfg_num;
 	saved_timing->ddrphy_cfg_num = timing_info->ddrphy_cfg_num;
-	saved_timing->ddrphy_trained_csr_num = ddrphy_trained_csr_num;
+	saved_timing->ddrphy_trained_csr_num = timing_info->ddrphy_trained_csr_num;
 	saved_timing->ddrphy_pie_num = timing_info->ddrphy_pie_num;
 
 	/* save the fsp table */
@@ -209,9 +209,9 @@ void *dram_config_save(struct dram_timing_info *timing_info, unsigned long saved
 
 	/* save the ddrphy csr */
 	saved_timing->ddrphy_trained_csr = cfg;
-	for (i = 0; i < ddrphy_trained_csr_num; i++) {
-		cfg->reg = ddrphy_trained_csr[i].reg;
-		cfg->val = ddrphy_trained_csr[i].val;
+	for (i = 0; i < timing_info->ddrphy_trained_csr_num; i++) {
+		cfg->reg = timing_info->ddrphy_trained_csr[i].reg;
+		cfg->val = timing_info->ddrphy_trained_csr[i].val;
 		cfg++;
 	}
 

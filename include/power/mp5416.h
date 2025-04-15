@@ -32,7 +32,7 @@ enum {
 #define MP5416_VSET_SW3_GVAL(x) ((((x) & 0x7f) * 12500) + 600000)
 #define MP5416_VSET_SW4_GVAL(x) ((((x) & 0x7f) * 25000) + 800000)
 #define MP5416_VSET_LDO_GVAL(x) ((((x) & 0x7f) * 25000) + 800000)
-#define MP5416_VSET_LDO_SVAL(x) ((((x) & 0x7f) * 25000) + 800000)
+#define MP5416_VSET_LDO_SVAL(x) (((x) - 800000) / 25000)
 #define MP5416_VSET_SW1_SVAL(x) (((x) - 600000) / 12500)
 #define MP5416_VSET_SW2_SVAL(x) (((x) - 800000) / 25000)
 #define MP5416_VSET_SW3_SVAL(x) (((x) - 600000) / 12500)

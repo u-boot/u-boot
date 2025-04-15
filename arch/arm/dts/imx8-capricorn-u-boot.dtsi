@@ -1,0 +1,138 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019 Siemens AG
+ */
+
+#include "imx8qxp-u-boot.dtsi"
+
+&{/imx8qx-pm} {
+	bootph-all;
+};
+
+&A35_0 {
+        bootph-all;
+};
+
+&mu {
+	bootph-all;
+};
+
+&clk {
+	bootph-all;
+};
+
+&iomuxc {
+	bootph-all;
+};
+
+&pd_lsio {
+	bootph-all;
+};
+
+&pd_lsio_gpio0 {
+	bootph-all;
+};
+
+&pd_lsio_gpio1 {
+	bootph-all;
+};
+
+&pd_lsio_gpio2 {
+	bootph-all;
+};
+
+&pd_lsio_gpio3 {
+	bootph-all;
+};
+
+&pd_lsio_gpio4 {
+	bootph-all;
+};
+
+&pd_lsio_gpio5 {
+	bootph-all;
+};
+
+&pd_lsio_gpio6 {
+	bootph-all;
+};
+
+&pd_lsio_gpio7 {
+	bootph-all;
+};
+
+&pd_dma {
+	bootph-all;
+};
+
+&pd_dma_lpuart0 {
+	bootph-all;
+};
+
+&pd_dma_lpuart2 {
+	bootph-all;
+};
+
+&pd_conn {
+	bootph-all;
+};
+
+&pd_conn_sdch0 {
+	bootph-all;
+};
+
+&pd_conn_sdch1 {
+	bootph-all;
+};
+
+&pd_conn_sdch2 {
+	bootph-all;
+};
+
+&gpio0 {
+	bootph-all;
+};
+
+&gpio1 {
+	bootph-all;
+};
+
+&gpio2 {
+	bootph-all;
+};
+
+&gpio3 {
+	bootph-all;
+};
+
+&gpio4 {
+	bootph-all;
+};
+
+&gpio5 {
+	bootph-all;
+};
+
+&gpio6 {
+	bootph-all;
+};
+
+&gpio7 {
+	bootph-all;
+};
+
+&lpuart0 {
+	bootph-all;
+};
+
+&lpuart2 {
+	bootph-all;
+};
+
+&usdhc1 {
+	bootph-all;
+};
+
+&usdhc2 {
+	bootph-all;
+};

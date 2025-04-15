@@ -6,11 +6,15 @@
 #define _CLOCK_QCOM_H
 
 #include <asm/io.h>
+#include <linux/bitfield.h>
+#include <errno.h>
 
 #define CFG_CLK_SRC_CXO   (0 << 8)
 #define CFG_CLK_SRC_GPLL0 (1 << 8)
 #define CFG_CLK_SRC_GPLL0_AUX2 (2 << 8)
+#define CFG_CLK_SRC_GPLL2 (2 << 8)
 #define CFG_CLK_SRC_GPLL9 (2 << 8)
+#define CFG_CLK_SRC_GPLL0_ODD (3 << 8)
 #define CFG_CLK_SRC_GPLL6 (4 << 8)
 #define CFG_CLK_SRC_GPLL7 (3 << 8)
 #define CFG_CLK_SRC_GPLL4 (5 << 8)
@@ -76,6 +80,12 @@ struct msm_clk_data {
 	const struct gate_clk		*clks;
 	unsigned long			num_clks;
 
+	const phys_addr_t		*dbg_pll_addrs;
+	unsigned long			num_plls;
+	const phys_addr_t		*dbg_rcg_addrs;
+	unsigned long			num_rcgs;
+	const char * const		*dbg_rcg_names;
+
 	int (*enable)(struct clk *clk);
 	unsigned long (*set_rate)(struct clk *clk, unsigned long rate);
 };
@@ -95,15 +105,21 @@ void clk_rcg_set_rate_mnd(phys_addr_t base, uint32_t cmd_rcgr,
 			  int div, int m, int n, int source, u8 mnd_width);
 void clk_rcg_set_rate(phys_addr_t base, uint32_t cmd_rcgr, int div,
 		      int source);
+void clk_phy_mux_enable(phys_addr_t base, uint32_t cmd_rcgr, bool enabled);
 
-static inline void qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id)
+static inline int qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id)
 {
 	u32 val;
-	if (id >= priv->data->num_clks || priv->data->clks[id].reg == 0)
-		return;
+	if (id >= priv->data->num_clks || priv->data->clks[id].reg == 0) {
+		log_err("gcc@%#08llx: unknown clock ID %lu!\n",
+			priv->base, id);
+		return -ENOENT;
+	}
 
 	val = readl(priv->base + priv->data->clks[id].reg);
 	writel(val | priv->data->clks[id].en_val, priv->base + priv->data->clks[id].reg);
+
+	return 0;
 }
 
 #endif

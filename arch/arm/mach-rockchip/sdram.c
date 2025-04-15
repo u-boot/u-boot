@@ -309,6 +309,8 @@ int dram_init_banksize(void)
 	if (ram_top > SZ_4G && top < SZ_4G) {
 		gd->bd->bi_dram[1].start = SZ_4G;
 		gd->bd->bi_dram[1].size = ram_top - gd->bd->bi_dram[1].start;
+	} else if (ram_top > SZ_4G && top == SZ_4G) {
+		gd->bd->bi_dram[0].size = ram_top - gd->bd->bi_dram[0].start;
 	}
 #else
 #ifdef CONFIG_SPL_OPTEE_IMAGE
@@ -476,6 +478,7 @@ int dram_init(void)
 		debug("Cannot get DRAM size: %d\n", ret);
 		return ret;
 	}
+	gd->ram_base = ram.base;
 	gd->ram_size = ram.size;
 	debug("SDRAM base=%lx, size=%lx\n",
 	      (unsigned long)ram.base, (unsigned long)ram.size);
@@ -485,7 +488,8 @@ int dram_init(void)
 
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
-	unsigned long top = CFG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE;
+	/* Make sure U-Boot only uses the space below the 4G address boundary */
+	u64 top = min_t(u64, CFG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE, SZ_4G);
 
 	return (gd->ram_top > top) ? top : gd->ram_top;
 }

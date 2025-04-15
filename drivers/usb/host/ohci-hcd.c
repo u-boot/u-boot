@@ -1361,7 +1361,8 @@ pkt_print(ohci, NULL, dev, pipe, buffer, transfer_len,
 						wLength));
 				databuf = root_hub_str_index1;
 				OK(len);
-		}
+			}
+			fallthrough;
 		default:
 			stat = USB_ST_STALLED;
 		}

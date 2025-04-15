@@ -60,6 +60,7 @@ struct meson_ee_pwrc_domain_desc {
 	unsigned int mem_pd_count;
 	struct meson_ee_pwrc_mem_domain *mem_pd;
 	bool (*get_power)(struct power_domain *power_domain);
+	bool enabled;
 };
 
 struct meson_ee_pwrc_domain_data {
@@ -306,6 +307,8 @@ static int meson_ee_pwrc_off(struct power_domain *power_domain)
 		clk_disable_bulk(&priv->clks);
 	}
 
+	pwrc_domain->enabled = false;
+
 	return 0;
 }
 
@@ -316,6 +319,9 @@ static int meson_ee_pwrc_on(struct power_domain *power_domain)
 	int i, ret;
 
 	pwrc_domain = &priv->data->domains[power_domain->id];
+
+	if (pwrc_domain->enabled)
+		return 0;
 
 	if (pwrc_domain->top_pd)
 		regmap_update_bits(priv->regmap_ao,
@@ -347,8 +353,13 @@ static int meson_ee_pwrc_on(struct power_domain *power_domain)
 			return ret;
 	}
 
-	if (pwrc_domain->clk_names_count)
-		return clk_enable_bulk(&priv->clks);
+	if (pwrc_domain->clk_names_count) {
+		ret = clk_enable_bulk(&priv->clks);
+		if (ret)
+			return ret;
+	}
+
+	pwrc_domain->enabled = true;
 
 	return 0;
 }

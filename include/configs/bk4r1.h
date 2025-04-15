@@ -16,8 +16,6 @@
 #define BK4_EXTRA_ENV_SETTINGS \
 	"bootlimit=3\0" \
 	"eraseuserdata=false\0" \
-	"altbootcmd=led 5 on; " \
-		"boot\0" \
 	"set_gpio103=mw 0x400ff0c4 0x0080; mw 0x4004819C 0x000011bf\0" \
 	"set_gpio102=mw 0x400ff0c4 0x40; mw 0x40048198 0x000011bf\0" \
 	"set_gpio96=mw 0x40048180 0x282; mw 0x400ff0c4 0x1\0"\

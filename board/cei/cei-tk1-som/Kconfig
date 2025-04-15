@@ -7,6 +7,10 @@ config SYS_VENDOR
 	default "cei"
 
 config SYS_CONFIG_NAME
-	default "cei-tk1-som"
+	default "tegra"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "CEI tk1-som"
 
 endif

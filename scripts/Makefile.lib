@@ -47,6 +47,13 @@ obj-m		:= $(filter-out %/, $(obj-m))
 
 subdir-ym	:= $(sort $(subdir-y) $(subdir-m))
 
+# Expand $(foo-objs) $(foo-y) etc. by replacing their individuals
+suffix-search = $(strip $(foreach s, $3, $($(1:%$(strip $2)=%$s))))
+# List composite targets that are constructed by combining other targets
+multi-search = $(sort $(foreach m, $1, $(if $(call suffix-search, $m, $2, $3 -), $m)))
+# List primitive targets that are compiled from source files
+real-search = $(foreach m, $1, $(if $(call suffix-search, $m, $2, $3 -), $(call suffix-search, $m, $2, $3), $m))
+
 # if $(foo-objs) exists, foo.o is a composite object
 multi-used-y := $(sort $(foreach m,$(obj-y), $(if $(strip $($(m:.o=-objs)) $($(m:.o=-y))), $(m))))
 multi-used-m := $(sort $(foreach m,$(obj-m), $(if $(strip $($(m:.o=-objs)) $($(m:.o=-y))), $(m))))
@@ -57,6 +64,13 @@ single-used-m := $(sort $(filter-out $(multi-used-m),$(obj-m)))
 # objects depend on those (obviously)
 multi-objs-y := $(foreach m, $(multi-used-y), $($(m:.o=-objs)) $($(m:.o=-y)))
 multi-objs-m := $(foreach m, $(multi-used-m), $($(m:.o=-objs)) $($(m:.o=-y)))
+
+# Composite DTB (i.e. DTB constructed by overlay)
+multi-dtb-y := $(call multi-search, $(dtb-y), .dtb, -dtbs)
+# Primitive DTB compiled from *.dts
+real-dtb-y := $(call real-search, $(dtb-y), .dtb, -dtbs)
+# Base DTB that overlay is applied onto (each first word of $(*-dtbs) expansion)
+base-dtb-y := $(foreach m, $(multi-dtb-y), $(firstword $(call suffix-search, $m, .dtb, -dtbs)))
 
 # $(subdir-obj-y) is the list of objects in $(obj-y) which uses dir/ to
 # tell kbuild to descend
@@ -69,6 +83,7 @@ real-objs-m := $(foreach m, $(obj-m), $(if $(strip $($(m:.o=-objs)) $($(m:.o=-y)
 # Add subdir path
 
 extra-y		:= $(addprefix $(obj)/,$(extra-y))
+always-y        := $(addprefix $(obj)/,$(always-y))
 always		:= $(addprefix $(obj)/,$(always))
 targets		:= $(addprefix $(obj)/,$(targets))
 modorder	:= $(addprefix $(obj)/,$(modorder))
@@ -83,6 +98,8 @@ multi-used-y	:= $(addprefix $(obj)/,$(multi-used-y))
 multi-used-m	:= $(addprefix $(obj)/,$(multi-used-m))
 multi-objs-y	:= $(addprefix $(obj)/,$(multi-objs-y))
 multi-objs-m	:= $(addprefix $(obj)/,$(multi-objs-m))
+multi-dtb-y	:= $(addprefix $(obj)/,$(multi-dtb-y))
+real-dtb-y      := $(addprefix $(obj)/,$(real-dtb-y))
 subdir-ym	:= $(addprefix $(obj)/,$(subdir-ym))
 
 # These flags are needed for modversions and compiling, so we define them here
@@ -184,9 +201,6 @@ endif
 # We use the first match to be included
 dtsi_include_list = $(strip $(u_boot_dtsi_options_debug) \
 	$(notdir $(firstword $(u_boot_dtsi_options))))
-
-# The CONFIG_DEVICE_TREE_INCLUDES also need to be included
-dtsi_include_list += $(CONFIG_DEVICE_TREE_INCLUDES)
 
 # Modified for U-Boot
 upstream_dtsi_include = $(addprefix -I, $(srctree)/dts/upstream/src/ \
@@ -304,6 +318,9 @@ endif
 
 DTC_FLAGS += $(DTC_FLAGS_$(basetarget))
 
+# Set -@ if the target is a base DTB that overlay is applied onto
+DTC_FLAGS += $(if $(filter $(patsubst $(obj)/%,%,$@), $(base-dtb-y)), -@)
+
 # Generate an assembly file to wrap the output of the device tree compiler
 quiet_cmd_dt_S_dtb= DTBS    $@
 # Modified for U-Boot
@@ -350,7 +367,7 @@ quiet_cmd_dtc = DTC     $@
 # And finally any custom .dtsi fragments specified with CONFIG_DEVICE_TREE_INCLUDES
 cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 	(cat $< > $(pre-tmp)); \
-	$(foreach f,$(subst $(quote),,$(dtsi_include_list)), \
+	$(foreach f,$(subst $(quote),,$(dtsi_include_list) $(CONFIG_DEVICE_TREE_INCLUDES)), \
 	  echo '$(pound)include "$(f)"' >> $(pre-tmp);) \
 	$(HOSTCC) -E $(dtc_cpp_flags) -I$(obj) -x assembler-with-cpp -o $(dtc-tmp) $(pre-tmp) ; \
 	$(DTC) -O dtb -o $@ -b 0 \
@@ -360,34 +377,7 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 		; \
 	sed "s:$(pre-tmp):$(<):" $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile)
 
-capsule_esl_input_file=$(srctree)/lib/efi_loader/capsule_esl.dtsi.in
-capsule_crt_file=$(subst $(quote),,$(CONFIG_EFI_CAPSULE_CRT_FILE))
-capsule_esl_dtsi=.capsule_esl.dtsi
-
-quiet_cmd_capsule_esl_gen = CAPSULE_ESL_GEN $@
-cmd_capsule_esl_gen = cert-to-efi-sig-list $< $@
-
-$(obj)/capsule_esl_file: $(capsule_crt_file) FORCE
-ifeq ($(CONFIG_EFI_CAPSULE_CRT_FILE),"")
-	$(error "CONFIG_EFI_CAPSULE_CRT_FILE is empty, EFI capsule authentication \
-	public key must be specified when CONFIG_EFI_CAPSULE_AUTHENTICATE is enabled")
-else
-	$(call cmd,capsule_esl_gen)
-endif
-
-quiet_cmd_capsule_dtsi_gen = CAPSULE_DTSI_GEN $@
-cmd_capsule_dtsi_gen = \
-	$(shell sed "s:ESL_BIN_FILE:$(abspath $<):" $(capsule_esl_input_file) > $@)
-
-$(obj)/$(capsule_esl_dtsi): $(obj)/capsule_esl_file FORCE
-	$(call cmd,capsule_dtsi_gen)
-
 dtsi_include_list_deps := $(addprefix $(u_boot_dtsi_loc),$(subst $(quote),,$(dtsi_include_list)))
-
-ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
-dtsi_include_list += $(capsule_esl_dtsi)
-dtsi_include_list_deps += $(obj)/$(capsule_esl_dtsi)
-endif
 
 ifneq ($(CHECK_DTBS),)
 DT_CHECKER ?= dt-validate
@@ -424,6 +414,13 @@ cmd_dtco = mkdir -p $(dir ${dtc-tmp}) ; \
 
 $(obj)/%.dtbo: $(src)/%.dtso $(DTC) FORCE
 	$(call if_changed_dep,dtco)
+
+quiet_cmd_fdtoverlay = DTOVL   $@
+           cmd_fdtoverlay = fdtoverlay -o $@ -i $(real-prereqs)
+
+$(multi-dtb-y): FORCE
+	$(call if_changed,fdtoverlay)
+$(call multi_depend, $(multi-dtb-y), .dtb, -dtbs)
 
 # Fonts
 # ---------------------------------------------------------------------------
@@ -489,8 +486,8 @@ $(obj)/%_efi.S: $(obj)/%.efi
 	$(call cmd,S_efi)
 
 quiet_cmd_efi_objcopy = OBJCOPY $@
-cmd_efi_objcopy = $(OBJCOPY) -j .header -j .text -j .sdata -j .data -j \
-		.dynamic -j .dynsym  -j .rel* -j .rela* -j .reloc \
+cmd_efi_objcopy = $(OBJCOPY) -j .header -j .text -j .sdata -j .data \
+		-j .dynamic -j .dynstr  -j .dynsym -j .rel* -j .reloc \
 		$(if $(EFI_TARGET),$(EFI_TARGET),-O binary) $^ $@
 
 $(obj)/%.efi: $(obj)/%_efi.so
@@ -499,10 +496,10 @@ $(obj)/%.efi: $(obj)/%_efi.so
 KBUILD_EFILDFLAGS = -nostdlib -zexecstack -znocombreloc -znorelro
 KBUILD_EFILDFLAGS += $(call ld-option,--no-warn-rwx-segments)
 quiet_cmd_efi_ld = LD      $@
-cmd_efi_ld = $(LD) $(KBUILD_EFILDFLAGS) -T $(EFI_LDS_PATH) \
+cmd_efi_ld = $(LD) $(KBUILD_EFILDFLAGS) -L $(srctree) -T $(EFI_LDS_PATH) \
 		-shared -Bsymbolic -s $^ -o $@
 
-EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
+EFI_LDS_PATH = arch/$(ARCH)/lib/$(EFI_LDS)
 
 $(obj)/efi_crt0.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_CRT0:.o=.S) FORCE
 	$(call if_changed_dep,as_o_S)

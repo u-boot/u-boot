@@ -58,7 +58,7 @@ typedef enum {
 void fpga_init(void);
 int fpga_add(fpga_type devtype, void *desc);
 int fpga_count(void);
-const fpga_desc *const fpga_get_desc(int devnum);
+const fpga_desc *fpga_get_desc(int devnum);
 int fpga_is_partial_data(int devnum, size_t img_len);
 #if CONFIG_IS_ENABLED(FPGA)
 int fpga_load(int devnum, const void *buf, size_t bsize,
@@ -78,8 +78,8 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 		       bitstream_type bstype);
 int fpga_dump(int devnum, const void *buf, size_t bsize);
 int fpga_info(int devnum);
-const fpga_desc *const fpga_validate(int devnum, const void *buf,
-				     size_t bsize, char *fn);
+const fpga_desc *fpga_validate(int devnum, const void *buf,
+			       size_t bsize, char *fn);
 int fpga_compatible2flag(int devnum, const char *compatible);
 
 #endif	/* _FPGA_H_ */

@@ -26,7 +26,7 @@ _start:
 	mts	rslr, r0
 	mts	rshr, r20
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 	addi	r1, r0, CONFIG_SPL_STACK
 #else
 	add	r1, r0, r20
@@ -83,7 +83,7 @@ uboot_sym_start:
 	brlid	r15, board_init_f_init_reserve
 	nop
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 	/* Setup vectors with pre-relocation symbols */
 	or	r5, r0, r0
 	brlid	r15, __setup_exceptions
@@ -122,7 +122,7 @@ clear_bss:
 	brlid	r15, debug_uart_init
 	nop
 #endif
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	or	r5, r0, r0	/* flags - empty */
 	bri	board_init_f
 #else
@@ -130,7 +130,7 @@ clear_bss:
 #endif
 1:	bri	1b
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	.text
 	.ent	__setup_exceptions
 	.align	2

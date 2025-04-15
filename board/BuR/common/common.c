@@ -83,7 +83,7 @@ int overwrite_console(void)
 	return 1;
 }
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_AM33XX)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_AM33XX)
 #include <asm/arch/hardware.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/clock.h>
@@ -175,4 +175,4 @@ void set_mux_conf_regs(void)
 	enable_board_pin_mux();
 }
 
-#endif /* CONFIG_SPL_BUILD && CONFIG_AM33XX */
+#endif /* CONFIG_XPL_BUILD && CONFIG_AM33XX */

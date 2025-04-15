@@ -49,8 +49,8 @@ executed all 10ms.
 How is this cyclic functionality integrated /  executed?
 --------------------------------------------------------
 
-The cyclic infrastructure integrates the main function responsible for
-calling all registered cyclic functions cyclic_run() into the common
-WATCHDOG_RESET macro. This guarantees that cyclic_run() is executed
-very often, which is necessary for the cyclic functions to get scheduled
-and executed at their configured periods.
+The cyclic infrastructure integrates cyclic_run(), the main function
+responsible for calling all registered cyclic functions, into the
+common schedule() function. This guarantees that cyclic_run() is
+executed very often, which is necessary for the cyclic functions to
+get scheduled and executed at their configured periods.

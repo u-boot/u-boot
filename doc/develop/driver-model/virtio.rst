@@ -34,6 +34,7 @@ The following QEMU targets are supported.
 
   - qemu_arm_defconfig
   - qemu_arm64_defconfig
+  - qemu-arm-sbsa_defconfig
   - qemu-riscv32_defconfig
   - qemu-riscv64_defconfig
   - qemu-x86_defconfig

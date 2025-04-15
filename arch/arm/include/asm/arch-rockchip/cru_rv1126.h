@@ -11,7 +11,7 @@
 #define KHz		1000
 #define OSC_HZ		(24 * MHz)
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
 #define APLL_HZ		(1008 * MHz)
 #else
 #define APLL_HZ		(816 * MHz)
@@ -20,7 +20,7 @@
 #define CPLL_HZ		(500 * MHz)
 #define HPLL_HZ		(1400 * MHz)
 #define PCLK_PDPMU_HZ	(100 * MHz)
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
 #define ACLK_PDBUS_HZ	(396 * MHz)
 #else
 #define ACLK_PDBUS_HZ	(500 * MHz)
@@ -32,7 +32,7 @@
 #define HCLK_PDCORE_HZ	(200 * MHz)
 #define HCLK_PDAUDIO_HZ	(150 * MHz)
 #define CLK_OSC0_DIV_HZ	(32768)
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
 #define ACLK_PDVI_HZ	(297 * MHz)
 #define CLK_ISP_HZ	(297 * MHz)
 #define ACLK_PDISPP_HZ	(297 * MHz)
@@ -324,7 +324,7 @@ enum {
 	DCLK_VOP_DIV_SHIFT	= 0,
 	DCLK_VOP_DIV_MASK	= 0xff,
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
 	/* CRU_CLK_SEL49_CON */
 	ACLK_PDVI_SEL_SHIFT	= 6,
 	ACLK_PDVI_SEL_MASK	= 0x3 << ACLK_PDVI_SEL_SHIFT,
@@ -397,7 +397,7 @@ enum {
 	CLK_GMAC_SRC_DIV_SHIFT	= 0,
 	CLK_GMAC_SRC_DIV_MASK	= 0x1f << CLK_GMAC_SRC_DIV_SHIFT,
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_KERNEL_BOOT)
 	/* CRU_CLK_SEL68_CON */
 	ACLK_PDISPP_SEL_SHIFT	= 6,
 	ACLK_PDISPP_SEL_MASK	= 0x3 << ACLK_PDISPP_SEL_SHIFT,

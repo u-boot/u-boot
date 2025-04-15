@@ -46,7 +46,6 @@ int add_txt_str(struct build_info *info, ofnode node, struct scene *scn,
 		const char *find_name, uint obj_id)
 {
 	const char *text;
-	uint str_id;
 	int ret;
 
 	info->err_prop = find_name;
@@ -67,12 +66,7 @@ int add_txt_str(struct build_info *info, ofnode node, struct scene *scn,
 			return log_msg_ret("id", -EINVAL);
 	}
 
-	ret = expo_str(scn->expo, find_name, 0, text);
-	if (ret < 0)
-		return log_msg_ret("add", ret);
-	str_id = ret;
-
-	ret = scene_txt_str(scn, find_name, obj_id, str_id, text, NULL);
+	ret = scene_txt_str(scn, find_name, obj_id, 0, text, NULL);
 	if (ret < 0)
 		return log_msg_ret("add", ret);
 
@@ -94,7 +88,6 @@ int add_txt_str_list(struct build_info *info, ofnode node, struct scene *scn,
 		     const char *find_name, int index, uint obj_id)
 {
 	const char *text;
-	uint str_id;
 	int ret;
 
 	ret = ofnode_read_string_index(node, find_name, index, &text);
@@ -114,12 +107,7 @@ int add_txt_str_list(struct build_info *info, ofnode node, struct scene *scn,
 			return log_msg_ret("id", -EINVAL);
 	}
 
-	ret = expo_str(scn->expo, find_name, 0, text);
-	if (ret < 0)
-		return log_msg_ret("add", ret);
-	str_id = ret;
-
-	ret = scene_txt_str(scn, find_name, obj_id, str_id, text, NULL);
+	ret = scene_txt_str(scn, find_name, obj_id, 0, text, NULL);
 	if (ret < 0)
 		return log_msg_ret("add", ret);
 
@@ -227,10 +215,10 @@ static void list_strings(struct build_info *info)
 static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
 		      uint id, struct scene_obj **objp)
 {
+	const u32 *item_ids, *item_values;
 	struct scene_obj_menu *menu;
+	int ret, size, i, num_items;
 	uint title_id, menu_id;
-	const u32 *item_ids;
-	int ret, size, i;
 	const char *name;
 
 	name = ofnode_get_name(node);
@@ -254,9 +242,15 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
 		return log_msg_ret("itm", -EINVAL);
 	if (!size || size % sizeof(u32))
 		return log_msg_ret("isz", -EINVAL);
-	size /= sizeof(u32);
+	num_items = size / sizeof(u32);
 
-	for (i = 0; i < size; i++) {
+	item_values = ofnode_read_prop(node, "item-value", &size);
+	if (item_values) {
+		if (size != num_items * sizeof(u32))
+			return log_msg_ret("vsz", -EINVAL);
+	}
+
+	for (i = 0; i < num_items; i++) {
 		struct scene_menitem *item;
 		uint label, key, desc;
 
@@ -280,6 +274,8 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
 				     desc, 0, 0, &item);
 		if (ret < 0)
 			return log_msg_ret("mi", ret);
+		if (item_values)
+			item->value = fdt32_to_cpu(item_values[i]);
 	}
 	*objp = &menu->obj;
 
@@ -408,7 +404,7 @@ static int scene_build(struct build_info *info, ofnode scn_node,
 	if (ret < 0)
 		return log_msg_ret("tit", ret);
 	title_id = ret;
-	scene_title_set(scn, title_id);
+	scn->title_id = title_id;
 
 	ret = add_txt_str(info, scn_node, scn, "prompt", 0);
 	if (ret < 0)
@@ -424,7 +420,7 @@ static int scene_build(struct build_info *info, ofnode scn_node,
 	return 0;
 }
 
-int build_it(struct build_info *info, ofnode root, struct expo **expp)
+static int build_it(struct build_info *info, ofnode root, struct expo **expp)
 {
 	ofnode scenes, node;
 	struct expo *exp;

@@ -311,7 +311,7 @@ int board_mmc_init(struct bd_info *bis)
 #endif
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static const struct ns16550_plat serial_pdata = {
 	.base = DAVINCI_UART2_BASE,
 	.reg_shift = 2,

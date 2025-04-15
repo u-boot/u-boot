@@ -48,26 +48,6 @@ extern int serial_assign(const char *name);
 extern void serial_reinit_all(void);
 int serial_initialize(void);
 
-/* For usbtty */
-#ifdef CONFIG_USB_TTY
-
-struct stdio_dev;
-
-int usbtty_getc(struct stdio_dev *dev);
-void usbtty_putc(struct stdio_dev *dev, const char c);
-void usbtty_puts(struct stdio_dev *dev, const char *str);
-int usbtty_tstc(struct stdio_dev *dev);
-
-#else
-
-/* stubs */
-#define usbtty_getc(dev) 0
-#define usbtty_putc(dev, a)
-#define usbtty_puts(dev, a)
-#define usbtty_tstc(dev) 0
-
-#endif /* CONFIG_USB_TTY */
-
 struct udevice;
 
 enum serial_par {
@@ -124,6 +104,7 @@ enum serial_stop {
 enum serial_chip_type {
 	SERIAL_CHIP_UNKNOWN = -1,
 	SERIAL_CHIP_16550_COMPATIBLE,
+	SERIAL_CHIP_PL01X,
 };
 
 enum adr_space_type {
@@ -298,9 +279,11 @@ struct dm_serial_ops {
 struct serial_dev_priv {
 	struct stdio_dev *sdev;
 
-	char *buf;
-	int rd_ptr;
-	int wr_ptr;
+#if CONFIG_IS_ENABLED(SERIAL_RX_BUFFER)
+	char buf[CONFIG_SERIAL_RX_BUFFER_SIZE];
+	uint rd_ptr;
+	uint wr_ptr;
+#endif
 };
 
 /* Access the serial operations for a device */

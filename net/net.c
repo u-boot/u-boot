@@ -87,42 +87,45 @@
 #include <env_internal.h>
 #include <errno.h>
 #include <image.h>
+#include <led.h>
 #include <log.h>
+#if defined(CONFIG_LED_STATUS)
+#include <miiphy.h>
+#endif
 #include <net.h>
 #include <net6.h>
 #include <ndisc.h>
-#include <net/fastboot_udp.h>
-#include <net/fastboot_tcp.h>
-#include <net/tftp.h>
-#include <net/ncsi.h>
-#if defined(CONFIG_CMD_PCAP)
-#include <net/pcap.h>
-#endif
-#include <net/udp.h>
 #if defined(CONFIG_LED_STATUS)
-#include <miiphy.h>
 #include <status_led.h>
 #endif
 #include <watchdog.h>
 #include <linux/compiler.h>
-#include <test/test.h>
+#include <net/fastboot_udp.h>
+#include <net/fastboot_tcp.h>
+#include <net/ncsi.h>
+#if defined(CONFIG_CMD_PCAP)
+#include <net/pcap.h>
+#endif
 #include <net/tcp.h>
+#include <net/tftp.h>
+#include <net/udp.h>
 #include <net/wget.h>
+#include <test/test.h>
 #include "arp.h"
 #include "bootp.h"
 #include "cdp.h"
+#include "dhcpv6.h"
 #if defined(CONFIG_CMD_DNS)
 #include "dns.h"
 #endif
 #include "link_local.h"
+#include "net_rand.h"
 #include "nfs.h"
 #include "ping.h"
 #include "rarp.h"
 #if defined(CONFIG_CMD_WOL)
 #include "wol.h"
 #endif
-#include "dhcpv6.h"
-#include "net_rand.h"
 
 /** BOOTP EXTENTIONS **/
 
@@ -305,7 +308,7 @@ U_BOOT_ENV_CALLBACK(dnsip, on_dnsip);
  */
 void net_auto_load(void)
 {
-#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_XPL_BUILD)
 	const char *s = env_get("autoload");
 
 	if (s != NULL && strcmp(s, "NFS") == 0) {
@@ -334,17 +337,22 @@ void net_auto_load(void)
 		net_set_state(NETLOOP_SUCCESS);
 		return;
 	}
-	if (net_check_prereq(TFTPGET)) {
-/* We aren't expecting to get a serverip, so just accept the assigned IP */
-		if (IS_ENABLED(CONFIG_BOOTP_SERVERIP)) {
-			net_set_state(NETLOOP_SUCCESS);
-		} else {
-			printf("Cannot autoload with TFTPGET\n");
-			net_set_state(NETLOOP_FAIL);
+	if (IS_ENABLED(CONFIG_CMD_TFTPBOOT)) {
+		if (net_check_prereq(TFTPGET)) {
+			/*
+			 * We aren't expecting to get a serverip, so just
+			 * accept the assigned IP
+			 */
+			if (IS_ENABLED(CONFIG_BOOTP_SERVERIP)) {
+				net_set_state(NETLOOP_SUCCESS);
+			} else {
+				printf("Cannot autoload with TFTPGET\n");
+				net_set_state(NETLOOP_FAIL);
+			}
+			return;
 		}
-		return;
+		tftp_start(TFTPGET);
 	}
-	tftp_start(TFTPGET);
 }
 
 static int net_init_loop(void)
@@ -414,7 +422,7 @@ int net_init(void)
 		/* Only need to setup buffer pointers once. */
 		first_call = 0;
 		if (IS_ENABLED(CONFIG_PROT_TCP))
-			tcp_set_tcp_state(TCP_CLOSED);
+			tcp_init();
 	}
 
 	return net_init_loop();
@@ -554,7 +562,7 @@ restart:
 			ping6_start();
 			break;
 #endif
-#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_XPL_BUILD)
 		case NFS:
 			nfs_start();
 			break;
@@ -569,7 +577,7 @@ restart:
 			cdp_start();
 			break;
 #endif
-#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_XPL_BUILD)
 		case NETCONS:
 			nc_start();
 			break;
@@ -646,6 +654,9 @@ restart:
 		 *	errors that may have happened.
 		 */
 		eth_rx();
+#if defined(CONFIG_PROT_TCP)
+		tcp_streams_poll();
+#endif
 
 		/*
 		 *	Abort if ctrl-c was pressed.
@@ -658,6 +669,9 @@ restart:
 			eth_halt();
 			/* Invalidate the last protocol */
 			eth_set_last_protocol(BOOTP);
+
+			/* Turn off activity LED if triggered */
+			led_activity_off();
 
 			puts("\nAbort\n");
 			/* include a debug print as well incase the debug
@@ -899,10 +913,10 @@ int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 }
 
 #if defined(CONFIG_PROT_TCP)
-int net_send_tcp_packet(int payload_len, int dport, int sport, u8 action,
-			u32 tcp_seq_num, u32 tcp_ack_num)
+int net_send_tcp_packet(int payload_len, struct in_addr dhost, int dport,
+			int sport, u8 action, u32 tcp_seq_num, u32 tcp_ack_num)
 {
-	return net_send_ip_packet(net_server_ethaddr, net_server_ip, dport,
+	return net_send_ip_packet(net_server_ethaddr, dhost, dport,
 				  sport, payload_len, IPPROTO_TCP, action,
 				  tcp_seq_num, tcp_ack_num);
 }
@@ -915,6 +929,9 @@ int net_send_ip_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 	uchar *pkt;
 	int eth_hdr_size;
 	int pkt_hdr_size;
+#if defined(CONFIG_PROT_TCP)
+	struct tcp_stream *tcp;
+#endif
 
 	/* make sure the net_tx_packet is initialized (net_init() was called) */
 	assert(net_tx_packet != NULL);
@@ -941,10 +958,15 @@ int net_send_ip_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 		break;
 #if defined(CONFIG_PROT_TCP)
 	case IPPROTO_TCP:
+		tcp = tcp_stream_get(0, dest, dport, sport);
+		if (!tcp)
+			return -EINVAL;
+
 		pkt_hdr_size = eth_hdr_size
-			+ tcp_set_tcp_header(pkt + eth_hdr_size, dport, sport,
+			+ tcp_set_tcp_header(tcp, pkt + eth_hdr_size,
 					     payload_len, action, tcp_seq_num,
 					     tcp_ack_num);
+		tcp_stream_put(tcp);
 		break;
 #endif
 	default:
@@ -1434,7 +1456,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 			}
 		}
 
-#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_XPL_BUILD)
 		nc_input_packet((uchar *)ip + IP_UDP_HDR_SIZE,
 				src_ip,
 				ntohs(ip->udp_dst),
@@ -1537,7 +1559,7 @@ common:
 			puts("*** ERROR: `ipaddr' not set\n");
 			return 1;
 		}
-		/* Fall through */
+		fallthrough;
 
 #ifdef CONFIG_CMD_RARP
 	case RARP:
@@ -1684,18 +1706,6 @@ void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
 	ip->udp_xsum = 0;
 }
 
-void copy_filename(char *dst, const char *src, int size)
-{
-	if (src && *src && (*src == '"')) {
-		++src;
-		--size;
-	}
-
-	while ((--size > 0) && src && *src && (*src != '"'))
-		*dst++ = *src++;
-	*dst = '\0';
-}
-
 int is_serverip_in_cmd(void)
 {
 	return !!strchr(net_boot_file_name, ':');
@@ -1724,17 +1734,6 @@ int net_parse_bootfile(struct in_addr *ipaddr, char *filename, int max_len)
 	filename[max_len - 1] = '\0';
 
 	return 1;
-}
-
-void ip_to_string(struct in_addr x, char *s)
-{
-	x.s_addr = ntohl(x.s_addr);
-	sprintf(s, "%d.%d.%d.%d",
-		(int) ((x.s_addr >> 24) & 0xff),
-		(int) ((x.s_addr >> 16) & 0xff),
-		(int) ((x.s_addr >> 8) & 0xff),
-		(int) ((x.s_addr >> 0) & 0xff)
-	);
 }
 
 void vlan_to_string(ushort x, char *s)

@@ -3,7 +3,7 @@
  * dts file for Xilinx ZynqMP SM-K26 rev2/1/B/A
  *
  * (C) Copyright 2020 - 2021, Xilinx, Inc.
- * (C) Copyright 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2023 - 2024, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -90,25 +90,15 @@
 		};
 	};
 
-	ams {
-		compatible = "iio-hwmon";
-		io-channels = <&xilinx_ams 0>, <&xilinx_ams 1>, <&xilinx_ams 2>,
-			<&xilinx_ams 3>, <&xilinx_ams 4>, <&xilinx_ams 5>,
-			<&xilinx_ams 6>, <&xilinx_ams 7>, <&xilinx_ams 8>,
-			<&xilinx_ams 9>, <&xilinx_ams 10>, <&xilinx_ams 11>,
-			<&xilinx_ams 12>, <&xilinx_ams 13>, <&xilinx_ams 14>,
-			<&xilinx_ams 15>, <&xilinx_ams 16>, <&xilinx_ams 17>,
-			<&xilinx_ams 18>, <&xilinx_ams 19>, <&xilinx_ams 20>,
-			<&xilinx_ams 21>, <&xilinx_ams 22>, <&xilinx_ams 23>,
-			<&xilinx_ams 24>, <&xilinx_ams 25>, <&xilinx_ams 26>,
-			<&xilinx_ams 27>, <&xilinx_ams 28>, <&xilinx_ams 29>;
-	};
-
 	pwm-fan {
 		compatible = "pwm-fan";
 		status = "okay";
 		pwms = <&ttc0 2 40000 1>;
 	};
+};
+
+&ams {
+	status = "okay";
 };
 
 &modepin_gpio {
@@ -247,6 +237,9 @@
 	pinctrl-0 = <&pinctrl_sdhci0_default>;
 	non-removable;
 	disable-wp;
+	no-sd;
+	no-sdio;
+	cap-mmc-hw-reset;
 	bus-width = <8>;
 	xlnx,mio-bank = <0>;
 	assigned-clock-rates = <187498123>;
@@ -366,10 +359,6 @@
 			  "", "", "", ""; /* 170 - 173 */
 };
 
-&xilinx_ams {
-	status = "okay";
-};
-
 &ams_ps {
 	status = "okay";
 };
@@ -384,6 +373,7 @@
 
 &rtc {
 	status = "okay";
+	calibration = <0x7fff>;
 };
 
 &lpd_dma_chan1 {

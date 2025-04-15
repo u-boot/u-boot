@@ -42,6 +42,7 @@ struct arch_global_data {
 #ifdef CONFIG_SMBIOS
 	ulong smbios_start;		/* Start address of SMBIOS table */
 #endif
+	struct resume_data *resume;
 };
 
 #include <asm-generic/global_data.h>

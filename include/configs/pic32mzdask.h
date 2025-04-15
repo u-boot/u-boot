@@ -19,8 +19,11 @@
  */
 /* Initial RAM for temporary stack, global data */
 #define CFG_SYS_INIT_RAM_SIZE	0x10000
+#define CFG_SYS_SRAM_BASE	0x80000000
+#define CFG_SYS_SRAM_SIZE	0x00080000
+
 #define CFG_SYS_INIT_RAM_ADDR	\
-	(CONFIG_SYS_SRAM_BASE + CONFIG_SYS_SRAM_SIZE - CFG_SYS_INIT_RAM_SIZE)
+	(CFG_SYS_SRAM_BASE + CFG_SYS_SRAM_SIZE - CFG_SYS_INIT_RAM_SIZE)
 
 /* SDRAM Configuration (for final code, data, stack, heap) */
 #define CFG_SYS_SDRAM_BASE		0x88000000

@@ -97,6 +97,15 @@ config SPL_DM_GPIO_LOOKUP_LABEL
 	  different gpios on different hardware versions
 	  for the same functionality in board code.
 
+config ADI_GPIO
+	bool "ADI GPIO driver"
+	depends on DM_GPIO && ARCH_SC5XX
+	help
+	  This driver supports GPIO banks on SC5xx processors. It
+	  supports inputs and outputs but does not support pin
+	  interrupt functionality (PINT) or other features in the
+	  Linux version of the driver.
+
 config ALTERA_PIO
 	bool "Altera PIO driver"
 	depends on DM_GPIO
@@ -156,6 +165,20 @@ config ASPEED_GPIO
 	  Say yes here to support the Aspeed GPIO driver. The controller
 	  is found in the AST2400, AST2500 and AST2600 BMC SoCs and
 	  provides access to over 200 GPIOs on each chip.
+
+config ASPEED_SGPIO
+	bool "Aspeed SGPIO Driver"
+	help
+	  Say yes here to support the Aspeed serial GPIO driver. The controller
+	  is found in the AST2400, AST2500 and AST2600 BMC SoCs and
+	  provides access to generate serial GPIO signal.
+
+config ASPEED_G7_GPIO
+	bool "Aspeed G7 GPIO Driver"
+	help
+	  Say yes here to support the Aspeed G7 GPIO driver. The controller
+	  is found in the AST2700 BMC SoCs and provides access to over 200
+	  GPIOs on each chip.
 
 config DA8XX_GPIO
 	bool "DA8xx GPIO Driver"
@@ -301,6 +324,15 @@ config NPCM_GPIO
 	  Support GPIO controllers on Nuvovon NPCM SoCs.
 	  NPCM7xx/NPCM8xx contain 8 GPIO banks, each bank contains 32 pins.
 
+config NPCM_SGPIO
+	bool "Nuvoton NPCM SGPIO driver"
+	depends on DM_GPIO
+	help
+	  Support Nuvoton BMC NPCM7xx/NPCM8xx sgpio driver support.
+	  Nuvoton NPCM SGPIO module is combine serial to parallel IC (HC595)
+	  and parallel to serial IC (HC165).
+	  BMC can use this driver to increase 64 GPI pins and 64 GPO pins to use.
+
 config OMAP_GPIO
 	bool "TI OMAP GPIO driver"
 	depends on ARCH_OMAP2PLUS
@@ -335,10 +367,10 @@ config PCF8575_GPIO
 	 chips are from NXP and TI.
 
 config RCAR_GPIO
-	bool "Renesas RCar GPIO driver"
+	bool "Renesas R-Car GPIO driver"
 	depends on DM_GPIO && ARCH_RENESAS
 	help
-	  This driver supports the GPIO banks on Renesas RCar SoCs.
+	  This driver supports the GPIO banks on Renesas R-Car SoCs.
 
 config RZA1_GPIO
 	bool "Renesas RZ/A1 GPIO driver"
@@ -493,7 +525,7 @@ config ZYNQ_GPIO
 
 config DM_74X164
 	bool "74x164 serial-in/parallel-out 8-bits shift register"
-	depends on DM_GPIO
+	depends on DM_GPIO && DM_SPI
 	help
 	  Driver for 74x164 compatible serial-in/parallel-out 8-outputs
 	  shift registers, such as 74lv165, 74hc595.
@@ -521,6 +553,14 @@ config DM_PCA953X
 
 	  Now, max 24 bits chips and PCA953X compatible chips are
 	  supported
+
+config ADP5588_GPIO
+	bool "ADP5588 GPIO expander driver"
+	depends on DM_GPIO && DM_I2C
+	help
+	  Say yes here to support GPIO functionality of ADI ADP5588 chips.
+
+	  The ADP5588 is an 18-port I2C GPIO expander and keypad controller.
 
 config SPL_DM_PCA953X
 	bool "PCA95[357]x, PCA9698, TCA64xx, and MAX7310 I/O ports in SPL"
@@ -683,5 +723,11 @@ config RZG2L_GPIO
 	help
 	  Support the gpio functionality of the pin function controller (PFC)
 	  on the Renesas RZ/G2L SoC family.
+
+config SPL_ADP5585_GPIO
+	bool "ADP5585 GPIO driver in SPL"
+	depends on SPL_DM_GPIO && SPL_I2C
+	help
+	  Support ADP5585 GPIO expander in SPL.
 
 endif

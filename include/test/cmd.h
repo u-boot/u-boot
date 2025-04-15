@@ -10,6 +10,6 @@
 #include <test/test.h>
 
 /* Declare a new command test */
-#define CMD_TEST(_name, _flags) UNIT_TEST(_name, _flags, cmd_test)
+#define CMD_TEST(_name, _flags) UNIT_TEST(_name, _flags, cmd)
 
 #endif /* __TEST_CMD_H__ */

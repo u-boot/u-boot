@@ -62,13 +62,18 @@ static int do_blkmap_map_mem(struct map_ctx *ctx, int argc, char *const argv[])
 {
 	phys_addr_t addr;
 	int err;
+	bool preserve = false;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
 	addr = hextoul(argv[1], NULL);
 
-	err = blkmap_map_pmem(ctx->dev, ctx->blknr, ctx->blkcnt, addr);
+	if (argc == 3 && !strcmp(argv[2], "preserve"))
+		preserve = true;
+
+	err = blkmap_map_pmem(ctx->dev, ctx->blknr, ctx->blkcnt, addr,
+			      preserve);
 	if (err) {
 		printf("Unable to map %#llx at block 0x" LBAF ": %d\n",
 		       (unsigned long long)addr, ctx->blknr, err);
@@ -221,7 +226,7 @@ U_BOOT_CMD_WITH_SUBCMDS(
 	"blkmap create <label> - create device\n"
 	"blkmap destroy <label> - destroy device\n"
 	"blkmap map <label> <blk#> <cnt> linear <interface> <dev> <blk#> - device mapping\n"
-	"blkmap map <label> <blk#> <cnt> mem <addr> - memory mapping\n",
+	"blkmap map <label> <blk#> <cnt> mem <addr> [preserve] - memory mapping\n",
 	U_BOOT_SUBCMD_MKENT(info, 2, 1, do_blkmap_common),
 	U_BOOT_SUBCMD_MKENT(part, 2, 1, do_blkmap_common),
 	U_BOOT_SUBCMD_MKENT(dev, 4, 1, do_blkmap_common),

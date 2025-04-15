@@ -92,10 +92,5 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
 #define CFG_SYS_FSL_USDHC_NUM	3
 
-/* USB Configs */
-#ifdef CONFIG_CMD_USB
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#endif
-
 #include <linux/stringify.h>
 #endif				/* __CONFIG_H */

@@ -524,7 +524,7 @@ int checkboard(void)
 /*
  * NAND SPL
  */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void spl_board_init(void)
 {
 	setup_iomux_nand();

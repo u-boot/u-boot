@@ -65,7 +65,7 @@ class Entry_fmap(Entry):
                 if entry.image_pos is None:
                     pos = 0
                 else:
-                    pos = entry.image_pos - entry.GetRootSkipAtStart()
+                    pos = entry.image_pos
 
                 # Drop @ symbols in name
                 name = entry.name.replace('@', '')
@@ -75,8 +75,6 @@ class Entry_fmap(Entry):
                     _AddEntries(areas, subentry)
             else:
                 pos = entry.image_pos
-                if pos is not None:
-                    pos -= entry.section.GetRootSkipAtStart()
                 areas.append(fmap_util.FmapArea(pos or 0, entry.size or 0,
                                                 entry.name, flags))
 

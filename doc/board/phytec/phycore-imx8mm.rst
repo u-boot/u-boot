@@ -9,6 +9,7 @@ Quick Start
 -----------
 
 - Build the ARM Trusted firmware binary
+- Build the OP-TEE binary (optional)
 - Get ddr firmware
 - Build U-Boot
 - Boot
@@ -20,9 +21,14 @@ Build the ARM Trusted firmware binary
 
    $ git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
    $ cd trusted-firmware-a
-   $ export CROSS_COMPILE=aarch64-linux-gnu
+   $ export CROSS_COMPILE=aarch64-linux-gnu-
    $ export IMX_BOOT_UART_BASE=0x30880000
+   $ # with optee
+   $ make PLAT=imx8mm BL32_BASE=0x56000000 SPD=opteed bl31
+   $ # without optee
    $ make PLAT=imx8mm bl31
+
+.. include:: imx8mm-optee-build.rsti
 
 Get the ddr firmware
 --------------------

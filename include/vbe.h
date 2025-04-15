@@ -10,6 +10,8 @@
 #ifndef __VBE_H
 #define __VBE_H
 
+#include <linux/types.h>
+
 /**
  * enum vbe_phase_t - current phase of VBE
  *
@@ -26,12 +28,31 @@ enum vbe_phase_t {
 };
 
 /**
+ * enum vbe_pick_t - indicates which firmware is picked
+ *
+ * @VBEFT_A: Firmware A
+ * @VBEFT_B: Firmware B
+ * @VBEFT_RECOVERY: Recovery firmware
+ */
+enum vbe_pick_t {
+	VBEP_A,
+	VBEP_B,
+	VBEP_RECOVERY,
+};
+
+/**
  * struct vbe_handoff - information about VBE progress
  *
+ * @offset: Offset of the FIT to use for SPL onwards
+ * @size: Size of the area containing the FIT
  * @phases: Indicates which phases used the VBE bootmeth (1 << PHASE_...)
+ * @pick: Indicates which firmware pick was used (enum vbe_pick_t)
  */
 struct vbe_handoff {
+	ulong offset;
+	ulong size;
 	u8 phases;
+	u8 pick;
 };
 
 /**
@@ -41,7 +62,7 @@ struct vbe_handoff {
  */
 static inline enum vbe_phase_t vbe_phase(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		return VBE_PHASE_FIRMWARE;
 
 	return VBE_PHASE_OS;

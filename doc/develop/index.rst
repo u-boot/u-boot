@@ -9,10 +9,13 @@ General
 .. toctree::
    :maxdepth: 1
 
+   bitbangmii
    board_best_practices
    codingstyle
    designprinciples
    docstyle
+   kconfig
+   memory
    patman
    process
    release_cycle
@@ -38,6 +41,7 @@ Implementation
    distro
    driver-model/index
    environment
+   init
    expo
    cedit
    event
@@ -81,6 +85,7 @@ Testing
    py_testing
    tests_writing
    tests_sandbox
+   binman_tests
 
 Refactoring
 -----------
@@ -99,3 +104,11 @@ Code quality
    :maxdepth: 1
 
    python_cq
+
+Historical documentation
+------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   historical/index

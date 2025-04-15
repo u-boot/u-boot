@@ -27,7 +27,7 @@ static struct of_bus *of_match_bus(struct device_node *np);
 #ifdef DEBUG
 static void of_dump_addr(const char *s, const __be32 *addr, int na)
 {
-	dm_warn("%s", s);
+	pr_debug("%s", s);
 	while (na--)
 		pr_cont(" %08x", be32_to_cpu(*(addr++)));
 	pr_cont("\n");
@@ -66,9 +66,9 @@ static u64 of_bus_default_map(__be32 *addr, const __be32 *range,
 	s  = of_read_number(range + na + pna, ns);
 	da = of_read_number(addr, na);
 
-	dm_warn("default map, cp=%llx, s=%llx, da=%llx\n",
-		(unsigned long long)cp, (unsigned long long)s,
-		(unsigned long long)da);
+	log_debug("default map, cp=%llx, s=%llx, da=%llx\n",
+		  (unsigned long long)cp, (unsigned long long)s,
+		  (unsigned long long)da);
 
 	if (da < cp || da >= (cp + s))
 		return OF_BAD_ADDR;
@@ -200,11 +200,11 @@ static int of_translate_one(const struct device_node *parent,
 	if (ranges == NULL || rlen == 0) {
 		offset = of_read_number(addr, na);
 		memset(addr, 0, pna * 4);
-		dm_warn("empty ranges; 1:1 translation\n");
+		log_debug("empty ranges; 1:1 translation\n");
 		goto finish;
 	}
 
-	dm_warn("walking ranges...\n");
+	log_debug("walking ranges...\n");
 
 	/* Now walk through the ranges */
 	rlen /= 4;
@@ -222,7 +222,7 @@ static int of_translate_one(const struct device_node *parent,
 
  finish:
 	of_dump_addr("parent translation for:", addr, pna);
-	dm_warn("with offset: %llx\n", (unsigned long long)offset);
+	log_debug("with offset: %llx\n", (unsigned long long)offset);
 
 	/* Translate it into parent bus space */
 	return pbus->translate(addr, offset, pna);
@@ -247,7 +247,7 @@ static u64 __of_translate_address(const struct device_node *dev,
 	int na, ns, pna, pns;
 	u64 result = OF_BAD_ADDR;
 
-	dm_warn("** translation for device %s **\n", of_node_full_name(dev));
+	log_debug("** translation for device %s **\n", of_node_full_name(dev));
 
 	/* Increase refcount at current level */
 	(void)of_node_get(dev);
@@ -266,8 +266,8 @@ static u64 __of_translate_address(const struct device_node *dev,
 	}
 	memcpy(addr, in_addr, na * 4);
 
-	dm_warn("bus is %s (na=%d, ns=%d) on %s\n", bus->name, na, ns,
-		of_node_full_name(parent));
+	log_debug("bus is %s (na=%d, ns=%d) on %s\n", bus->name, na, ns,
+		  of_node_full_name(parent));
 	of_dump_addr("translating address:", addr, na);
 
 	/* Translate */
@@ -279,7 +279,7 @@ static u64 __of_translate_address(const struct device_node *dev,
 
 		/* If root, we have finished */
 		if (parent == NULL) {
-			dm_warn("reached root node\n");
+			log_debug("reached root node\n");
 			result = of_read_number(addr, na);
 			break;
 		}
@@ -293,8 +293,8 @@ static u64 __of_translate_address(const struct device_node *dev,
 			break;
 		}
 
-		dm_warn("parent bus is %s (na=%d, ns=%d) on %s\n", pbus->name,
-			pna, pns, of_node_full_name(parent));
+		log_debug("parent bus is %s (na=%d, ns=%d) on %s\n", pbus->name,
+			  pna, pns, of_node_full_name(parent));
 
 		/* Apply bus translation */
 		if (of_translate_one(dev, bus, pbus, addr, na, ns, pna, rprop))

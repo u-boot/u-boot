@@ -11,11 +11,7 @@
 #ifndef _SPKGIMAGE_H_
 #define _SPKGIMAGE_H_
 
-#ifdef __GNUC__
-#define __packed __attribute((packed))
-#else
-#define __packed
-#endif
+#include <linux/compiler_attributes.h>
 
 #define SPKG_HEADER_MARKER	{'R', 'Z', 'N', '1'}
 #define SPKG_HEADER_SIZE	24

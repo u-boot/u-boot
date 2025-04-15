@@ -18,7 +18,7 @@
 	.globl _start
 	.text
 _start:
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 	/* magic value ("MSPL") */
 	.word 0x4d53504c
@@ -95,4 +95,4 @@ enable_caches:
 	.end enable_caches
 
 #endif /* CONFIG_SOC_JZ4780 */
-#endif /* !CONFIG_SPL_BUILD */
+#endif /* !CONFIG_XPL_BUILD */

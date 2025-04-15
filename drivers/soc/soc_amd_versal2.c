@@ -35,7 +35,9 @@ static int soc_amd_versal2_get_revision(struct udevice *dev, char *buf, int size
 {
 	struct soc_amd_versal2_priv *priv = dev_get_priv(dev);
 
-	return snprintf(buf, size, "v%d", priv->revision);
+	return snprintf(buf, size, "v%d.%d",
+			(u32)FIELD_GET(PS_VERSION_MAJOR, priv->revision),
+			(u32)FIELD_GET(PS_VERSION_MINOR, priv->revision));
 }
 
 static const struct soc_ops soc_amd_versal2_ops = {

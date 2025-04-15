@@ -197,7 +197,6 @@ Here is an example:
 
         ctx.current = buf;
         ut_assertok(acpi_fill_ssdt(&ctx));
-        console_record_reset();
         run_command("acpi items", 0);
         ut_assert_nextline("dev 'acpi-test', type 1, size 2");
         ut_assert_nextline("dev 'acpi-test2', type 1, size 2");
@@ -205,13 +204,11 @@ Here is an example:
 
         ctx.current = buf;
         ut_assertok(acpi_inject_dsdt(&ctx));
-        console_record_reset();
         run_command("acpi items", 0);
         ut_assert_nextline("dev 'acpi-test', type 2, size 2");
         ut_assert_nextline("dev 'acpi-test2', type 2, size 2");
         ut_assert_console_end();
 
-        console_record_reset();
         run_command("acpi items -d", 0);
         ut_assert_nextline("dev 'acpi-test', type 2, size 2");
         ut_assert_nextlines_are_dump(2);
@@ -223,4 +220,8 @@ Here is an example:
 
         return 0;
     }
-    DM_TEST(dm_test_acpi_cmd_items, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+    DM_TEST(dm_test_acpi_cmd_items, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
+
+Note that it is not necessary to call console_record_reset() unless you are
+trying to drop some unchecked output. Consider using ut_check_skip_to_line()
+instead.

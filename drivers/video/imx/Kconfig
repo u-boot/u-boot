@@ -13,3 +13,12 @@ config IMX_VIDEO_SKIP
 config IMX_HDMI
 	bool "Enable HDMI support in IPUv3"
 	depends on VIDEO_IPUV3
+
+config IMX_LDB
+	bool "Freescale i.MX8MP LDB bridge"
+	depends on VIDEO_BRIDGE
+	help
+	  Support for i.MX8MP DPI-to-LVDS on-SoC encoder.
+
+config IMX_LCDIF
+	bool "i.MX LCDIFv3 LCD controller"

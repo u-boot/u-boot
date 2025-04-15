@@ -4,8 +4,7 @@
  */
 
 enum {
-	ZERO,
-	ID_PROMPT,
+	ID_PROMPT = EXPOID_BASE_ID,
 
 	ID_SCENE1,
 	ID_SCENE1_TITLE,

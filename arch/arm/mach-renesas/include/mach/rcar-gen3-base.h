@@ -67,6 +67,11 @@
 #define SMSTPCR10		0xE6150998
 #define SMSTPCR11		0xE615099C
 
+/* GICv3 */
+/* Distributor Registers */
+#define GICD_BASE		0xF1010000
+#define GICC_BASE		0xF1020000
+
 /* PFC */
 #define PFC_PUEN5	0xE6060414
 #define PUEN_SSI_SDATA4	BIT(17)

@@ -11,6 +11,7 @@
 #ifdef CONFIG_PWM_NX
 #include <pwm.h>
 #endif
+#include <video.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 
@@ -263,7 +264,8 @@ static void make_ether_addr(u8 *addr)
 	hash[6] = readl(PHY_BASEADDR_ECID + 0x08);
 	hash[7] = readl(PHY_BASEADDR_ECID + 0x0c);
 
-	md5((unsigned char *)&hash[4], 64, (unsigned char *)hash);
+	md5_wd((unsigned char *)&hash[4], 64, (unsigned char *)hash,
+	       MD5_DEF_CHUNK_SZ);
 
 	hash[0] ^= hash[2];
 	hash[1] ^= hash[3];
@@ -492,12 +494,8 @@ int splash_screen_prepare(void)
 					 ARRAY_SIZE(splash_locations));
 	}
 
-	if (!err) {
-		char addr[64];
-
-		sprintf(addr, "0x%lx", gd->fb_base);
-		env_set("fb_addr", addr);
-	}
+	if (!err)
+		env_set_hex("fb_addr", video_get_fb());
 
 	return err;
 }

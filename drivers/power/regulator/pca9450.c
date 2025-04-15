@@ -71,6 +71,10 @@ static struct pca9450_vrange pca9450_buck123_vranges[] = {
 	PCA_RANGE(600000, 12500, 0, 0x7f),
 };
 
+static struct pca9450_vrange pca9450_trim_buck13_vranges[] = {
+	PCA_RANGE(650000, 12500, 0, 0x7f),
+};
+
 static struct pca9450_vrange pca9450_buck456_vranges[] = {
 	PCA_RANGE(600000, 25000, 0, 0x70),
 	PCA_RANGE(3400000, 0, 0x71, 0x7f),
@@ -105,12 +109,18 @@ static struct pca9450_plat pca9450_reg_data[] = {
 	PCA_DATA("BUCK1", PCA9450_BUCK1CTRL, HW_STATE_CONTROL,
 		 PCA9450_BUCK1OUT_DVS0, PCA9450_DVS_BUCK_RUN_MASK,
 		 pca9450_buck123_vranges),
+	PCA_DATA("BUCK1_TRIM", PCA9450_BUCK1CTRL, HW_STATE_CONTROL,
+		 PCA9450_BUCK1OUT_DVS0, PCA9450_DVS_BUCK_RUN_MASK,
+		 pca9450_trim_buck13_vranges),
 	PCA_DATA("BUCK2", PCA9450_BUCK2CTRL, HW_STATE_CONTROL,
 		 PCA9450_BUCK2OUT_DVS0, PCA9450_DVS_BUCK_RUN_MASK,
 		 pca9450_buck123_vranges),
 	PCA_DATA("BUCK3", PCA9450_BUCK3CTRL, HW_STATE_CONTROL,
 		 PCA9450_BUCK3OUT_DVS0, PCA9450_DVS_BUCK_RUN_MASK,
 		 pca9450_buck123_vranges),
+	PCA_DATA("BUCK3_TRIM", PCA9450_BUCK3CTRL, HW_STATE_CONTROL,
+		 PCA9450_BUCK3OUT_DVS0, PCA9450_DVS_BUCK_RUN_MASK,
+		 pca9450_trim_buck13_vranges),
 	/* Bucks 4-6 which do not support dynamic voltage scaling */
 	PCA_DATA("BUCK4", PCA9450_BUCK4CTRL, HW_STATE_CONTROL,
 		 PCA9450_BUCK4OUT, PCA9450_DVS_BUCK_RUN_MASK,
@@ -271,19 +281,37 @@ static int pca9450_set_value(struct udevice *dev, int uvolt)
 static int pca9450_regulator_probe(struct udevice *dev)
 {
 	struct pca9450_plat *plat = dev_get_plat(dev);
-	int i, type;
+	int i, type, ret;
+	unsigned int val;
+	bool pmic_trim = false;
 
 	type = dev_get_driver_data(dev_get_parent(dev));
 
 	if (type != NXP_CHIP_TYPE_PCA9450A && type != NXP_CHIP_TYPE_PCA9450BC &&
-	    type != NXP_CHIP_TYPE_PCA9451A) {
+	    type != NXP_CHIP_TYPE_PCA9451A && type != NXP_CHIP_TYPE_PCA9452) {
 		debug("Unknown PMIC type\n");
 		return -EINVAL;
 	}
 
+	ret = pmic_reg_read(dev->parent, PCA9450_PWR_CTRL);
+	if (ret < 0)
+		return ret;
+
+	val = ret;
+
+	if ((type == NXP_CHIP_TYPE_PCA9451A || type == NXP_CHIP_TYPE_PCA9452) &&
+	    (val & PCA9450_REG_PWRCTRL_TOFF_DEB))
+		pmic_trim = true;
+
 	for (i = 0; i < ARRAY_SIZE(pca9450_reg_data); i++) {
 		if (strcmp(dev->name, pca9450_reg_data[i].name))
 			continue;
+
+		if (pmic_trim && (!strcmp(pca9450_reg_data[i].name, "BUCK1") ||
+				  !strcmp(pca9450_reg_data[i].name, "BUCK3"))) {
+			*plat = pca9450_reg_data[i + 1];
+			return 0;
+		}
 
 		/* PCA9450B/PCA9450C uses BUCK1 and BUCK3 in dual-phase */
 		if (type == NXP_CHIP_TYPE_PCA9450BC &&
@@ -296,6 +324,12 @@ static int pca9450_regulator_probe(struct udevice *dev)
 		    (!strcmp(pca9450_reg_data[i].name, "BUCK3") ||
 		    !strcmp(pca9450_reg_data[i].name, "LDO2") ||
 		    !strcmp(pca9450_reg_data[i].name, "LDO3"))) {
+			continue;
+		}
+
+		if (type == NXP_CHIP_TYPE_PCA9452 &&
+		    (!strcmp(pca9450_reg_data[i].name, "BUCK3") ||
+		    !strcmp(pca9450_reg_data[i].name, "LDO2"))) {
 			continue;
 		}
 

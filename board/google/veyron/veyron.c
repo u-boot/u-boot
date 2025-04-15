@@ -19,7 +19,7 @@
  * There is a U-Boot driver for this but it may need to add support for the
  * 'voltage-table' property.
  */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #if !CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 static int veyron_init(void)
 {
@@ -56,10 +56,6 @@ static int veyron_init(void)
 	ret = regulator_set_value(dev, 3300000);
 	if (ret)
 		return log_msg_ret("s33", ret);
-
-	ret = regulators_enable_boot_on(false);
-	if (ret)
-		return log_msg_ret("boo", ret);
 
 	return 0;
 }

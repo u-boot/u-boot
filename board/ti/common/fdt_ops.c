@@ -35,17 +35,14 @@ void ti_set_fdt_env(const char *board_name, struct ti_fdt_map *fdt_map)
 		 */
 #ifdef CONFIG_DEFAULT_FDT_FILE
 		if (strlen(CONFIG_DEFAULT_FDT_FILE)) {
-			snprintf(fdtfile, sizeof(fdtfile), "%s/%s",
-				 CONFIG_TI_FDT_FOLDER_PATH, CONFIG_DEFAULT_FDT_FILE);
+			snprintf(fdtfile, sizeof(fdtfile), "%s", CONFIG_DEFAULT_FDT_FILE);
 		} else
 #endif
 		{
-			snprintf(fdtfile, sizeof(fdtfile), "%s/%s.dtb",
-				 CONFIG_TI_FDT_FOLDER_PATH, CONFIG_DEFAULT_DEVICE_TREE);
+			snprintf(fdtfile, sizeof(fdtfile), "%s.dtb", CONFIG_DEFAULT_DEVICE_TREE);
 		}
 	} else {
-		snprintf(fdtfile, sizeof(fdtfile), "%s/%s", CONFIG_TI_FDT_FOLDER_PATH,
-			 fdt_file_name);
+		snprintf(fdtfile, sizeof(fdtfile), "%s", fdt_file_name);
 	}
 
 	env_set("fdtfile", fdtfile);

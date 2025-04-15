@@ -99,7 +99,7 @@ void ddrmc_init(void)
 
 int dram_init(void)
 {
-#if (!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
+#if (!defined(CONFIG_SPL) || defined(CONFIG_XPL_BUILD))
 	ddrmc_init();
 #endif
 
@@ -125,7 +125,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void board_init_f(ulong dummy)
 {
 	/* Clear the BSS */

@@ -14,14 +14,14 @@
 
 #define CFG_MXC_UART_BASE		UART4_BASE
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(NAND, nand, 0) \
 
 #include <config_distro_bootcmd.h>
 
-#endif /* !CONFIG_SPL_BUILD */
+#endif /* !CONFIG_XPL_BUILD */
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \

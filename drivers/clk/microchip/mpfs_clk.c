@@ -9,25 +9,39 @@
 #include <log.h>
 #include <dm/device.h>
 #include <dm/devres.h>
+#include <dm/ofnode.h>
 #include <dm/uclass.h>
+#include <regmap.h>
+#include <syscon.h>
 #include <dt-bindings/clock/microchip-mpfs-clock.h>
 #include <linux/err.h>
 
 #include "mpfs_clk.h"
 
-static int mpfs_clk_probe(struct udevice *dev)
+static int mpfs_clk_syscon_probe(struct udevice *dev, void __iomem **msspll_base,
+				 struct regmap **regmap)
 {
-	struct clk *parent_clk = dev_get_priv(dev);
-	struct clk clk_msspll = { .id = CLK_MSSPLL };
-	void __iomem *base;
-	void __iomem *msspll_base;
+	ofnode node;
+
+	node = ofnode_by_compatible(ofnode_null(), "microchip,mpfs-mss-top-sysreg");
+	if (!ofnode_valid(node))
+		return -ENODEV;
+
+	*regmap = syscon_node_to_regmap(node);
+	if (IS_ERR(regmap))
+		return PTR_ERR(regmap);
+
+	*msspll_base = dev_read_addr_index_ptr(dev, 0);
+
+	return 0;
+}
+
+static int mpfs_clk_old_format_probe(struct udevice *dev, void __iomem **msspll_base,
+				     struct regmap **regmap)
+{
 	int ret;
 
-	base = dev_read_addr_index_ptr(dev, 0);
-	if (!base)
-		return -EINVAL;
-
-	ret = clk_get_by_index(dev, 0, parent_clk);
+	ret = regmap_init_mem_index(dev_ofnode(dev), regmap, 0);
 	if (ret)
 		return ret;
 
@@ -40,7 +54,30 @@ static int mpfs_clk_probe(struct udevice *dev)
 	 * Otherwise, skip registering it & pass the reference clock directly
 	 * to the cfg clock registration function.
 	 */
-	msspll_base = dev_read_addr_index_ptr(dev, 1);
+	*msspll_base = dev_read_addr_index_ptr(dev, 1);
+
+	return 0;
+}
+
+static int mpfs_clk_probe(struct udevice *dev)
+{
+	struct clk *parent_clk = dev_get_priv(dev);
+	struct clk clk_msspll = { .id = CLK_MSSPLL };
+	struct regmap *regmap;
+	void __iomem *msspll_base;
+	int ret;
+
+	ret = clk_get_by_index(dev, 0, parent_clk);
+	if (ret)
+		return ret;
+
+	ret = mpfs_clk_syscon_probe(dev, &msspll_base, &regmap);
+	if (ret) {
+		ret = mpfs_clk_old_format_probe(dev, &msspll_base, &regmap);
+		if (ret)
+			return ret;
+	}
+
 	if (msspll_base) {
 		ret = mpfs_clk_register_msspll(msspll_base, parent_clk);
 		if (ret)
@@ -50,11 +87,11 @@ static int mpfs_clk_probe(struct udevice *dev)
 		parent_clk = &clk_msspll;
 	}
 
-	ret = mpfs_clk_register_cfgs(base, parent_clk);
+	ret = mpfs_clk_register_cfgs(parent_clk, regmap);
 	if (ret)
 		return ret;
 
-	ret = mpfs_clk_register_periphs(base, dev);
+	ret = mpfs_clk_register_periphs(dev, regmap);
 
 	return ret;
 }

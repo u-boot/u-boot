@@ -1,0 +1,6 @@
+config RISCV_AST2700
+	bool
+	imply CPU
+	imply CPU_RISCV
+	help
+	  Run U-Boot on AST2700 with IBex RISC-V CPU integrated.

@@ -24,6 +24,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply SMP
 	imply CLK_CCF
 	imply CLK_MPFS
+	imply REGMAP
+	imply SYSCON
 	imply SYS_NS16550
 	imply CMD_DHCP
 	imply CMD_EXT2

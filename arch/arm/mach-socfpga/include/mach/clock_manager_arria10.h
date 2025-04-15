@@ -62,7 +62,7 @@
 #define CLKMGR_INTER				CLKMGR_A10_INTER
 #define CLKMGR_PERPLL_EN			CLKMGR_A10_PERPLL_EN
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 int cm_basic_init(const void *blob);
 #endif
 

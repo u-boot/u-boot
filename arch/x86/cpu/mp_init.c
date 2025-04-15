@@ -164,12 +164,12 @@ static inline void barrier_wait(atomic_t *b)
 {
 	while (atomic_read(b) == 0)
 		asm("pause");
-	mfence();
+	mb();
 }
 
 static inline void release_barrier(atomic_t *b)
 {
-	mfence();
+	mb();
 	atomic_set(b, 1);
 }
 
@@ -631,7 +631,7 @@ static int run_ap_work(struct mp_callback *callback, struct udevice *bsp,
 		if (cur_cpu != i)
 			store_callback(&ap_callbacks[i], callback);
 	}
-	mfence();
+	mb();
 
 	/* Wait for all the APs to signal back that call has been accepted. */
 	start = get_timer(0);
@@ -656,7 +656,7 @@ static int run_ap_work(struct mp_callback *callback, struct udevice *bsp,
 	} while (cpus_accepted != num_aps);
 
 	/* Make sure we can see any data written by the APs */
-	mfence();
+	mb();
 
 	return 0;
 }
@@ -692,7 +692,7 @@ static int ap_wait_for_instruction(struct udevice *cpu, void *unused)
 
 		/* Copy to local variable before using the value */
 		memcpy(&lcb, cb, sizeof(lcb));
-		mfence();
+		mb();
 		if (lcb.logical_cpu_number == MP_SELECT_ALL ||
 		    lcb.logical_cpu_number == MP_SELECT_APS ||
 		    dev_seq(cpu) == lcb.logical_cpu_number)

@@ -100,7 +100,7 @@ uint64_t notrace get_ticks(void)
 
 	ret = timer_get_count(gd->timer, &count);
 	if (ret) {
-		if (spl_phase() > PHASE_TPL)
+		if (xpl_phase() > PHASE_TPL)
 			panic("Could not read count from timer (err %d)\n",
 			      ret);
 		else

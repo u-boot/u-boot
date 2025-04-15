@@ -58,7 +58,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f(void)
 {
-#if defined(CONFIG_SYS_I2C_EARLY_INIT) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SYS_I2C_EARLY_INIT) && defined(CONFIG_XPL_BUILD)
 	i2c_early_init_f();
 #endif
 

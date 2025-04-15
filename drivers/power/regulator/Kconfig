@@ -224,6 +224,13 @@ config DM_REGULATOR_QCOM_RPMH
 	  implements get/set api for a limited set of regulators used
 	  by u-boot.
 
+config DM_REGULATOR_QCOM_USB_VBUS
+	bool "Enable driver model for Qualcomm USB vbus regulator"
+	depends on DM_REGULATOR
+	---help---
+	  Enable support for the Qualcomm USB Vbus regulator. The driver
+	  implements get/set api for the regulator to be used by u-boot.
+
 config SPL_DM_REGULATOR_GPIO
 	bool "Enable Driver Model for GPIO REGULATOR in SPL"
 	depends on DM_REGULATOR_GPIO && SPL_GPIO
@@ -383,6 +390,15 @@ config DM_REGULATOR_TPS80031
 	features for TPS80031/TPS80032 PMICs. The driver implements
 	get/set api for: value and enable.
 
+config DM_REGULATOR_TPS6287X
+	bool "Enable driver for TPS6287x Power Regulator"
+	depends on DM_REGULATOR
+	help
+	The TPS6287X is a step down converter with a fast transient
+	response. This driver supports all four variants of the chip
+	(TPS62870, TPS62871, TPS62872, TPS62873). It implements the
+	get/set api for value only, as the power line is always on.
+
 config DM_REGULATOR_STPMIC1
 	bool "Enable driver for STPMIC1 regulators"
 	depends on DM_REGULATOR && PMIC_STPMIC1
@@ -401,6 +417,15 @@ config DM_REGULATOR_ANATOP
 	Enable support for the Freescale i.MX on-chip ANATOP LDO
 	regulators. It is recommended that this option be enabled on
 	i.MX6 platform.
+
+config SPL_DM_REGULATOR_TPS6287X
+	bool "Enable driver for TPS6287x Power Regulator"
+	depends on SPL_DM_REGULATOR
+	help
+	The TPS6287X is a step down converter with a fast transient
+	response. This driver supports all four variants of the chip
+	(TPS62870, TPS62871, TPS62872, TPS62873). It implements the
+	get/set api for value only, as the power line is always on.
 
 config SPL_DM_REGULATOR_STPMIC1
 	bool "Enable driver for STPMIC1 regulators in SPL"
@@ -460,3 +485,20 @@ config DM_REGULATOR_TPS65219
 	features for REGULATOR TPS65219 and the family of TPS65219 PMICs.
 	TPS65219 series of PMICs have 3 single phase BUCKs & 4 LDOs.
 	The driver implements get/set api for value and enable.
+
+config REGULATOR_RZG2L_USBPHY
+	bool "Enable driver for RZ/G2L USB PHY VBUS supply"
+	depends on DM_REGULATOR
+	help
+	  Enable this option to support controlling the VBUS supply in
+	  the USB PHY peripheral of the Renesas RZ/G2L SoC. This option
+	  is required in order to use the USB OTG port.
+
+config DM_REGULATOR_CPCAP
+	bool "Enable driver for CPCAP PMIC regulators"
+	depends on DM_REGULATOR && DM_PMIC_CPCAP
+	---help---
+	Enable implementation of driver-model regulator uclass features for
+	REGULATOR CPCAP. The driver supports both DC-to-DC Step-Down Switching
+	(SW) Regulators and Low-Dropout Linear (LDO) Regulators	found in CPCAP
+	PMIC and implements get/set api for voltage and state.

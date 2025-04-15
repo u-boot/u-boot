@@ -8,7 +8,7 @@ LDFLAGS_FINAL += --bss-plt
 PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections \
 -fdata-sections -mcall-linux
 
-PF_CPPFLAGS_POWERPC	:= $(call cc-option,-fno-ira-hoist-pressure,)
+PF_CPPFLAGS_POWERPC	:= $(call cc-option,-fno-ira-hoist-pressure,) $(call cc-option,-Xassembler --fatal-warnings,)
 PLATFORM_CPPFLAGS += -D__powerpc__ -ffixed-r2 -m32 $(PF_CPPFLAGS_POWERPC)
 KBUILD_LDFLAGS  += -m32 -melf32ppclinux
 
@@ -27,7 +27,7 @@ PLATFORM_CPPFLAGS+= -D__PPC__
 endif
 
 # Only test once
-ifneq ($(CONFIG_SPL_BUILD),y)
+ifneq ($(CONFIG_XPL_BUILD),y)
 archprepare: checkgcc4
 
 # GCC 3.x is reported to have problems generating the type of relocation

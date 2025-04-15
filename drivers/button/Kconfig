@@ -9,6 +9,17 @@ config BUTTON
 	  can provide access to board-specific buttons. Use of the device tree
 	  for configuration is encouraged.
 
+config BUTTON_REMAP_PHONE_KEYS
+	bool "Remap phone keys for navigation"
+	depends on BUTTON
+	help
+	  Enable remapping of phone keys to navigation keys. This is useful for
+	  devices with phone keys that are not used in U-Boot. The phone keys
+	  are remapped to the following navigation keys:
+	  - Volume up: Up
+	  - Volume down: Down
+	  - Power: Enter
+
 config BUTTON_ADC
 	bool "Button adc"
 	depends on BUTTON

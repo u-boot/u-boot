@@ -218,7 +218,7 @@ static const struct dm_serial_ops atmel_serial_ops = {
 	.setbrg = atmel_serial_setbrg,
 };
 
-#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_CLK)
+#if defined(CONFIG_XPL_BUILD) && !defined(CONFIG_SPL_CLK)
 static int atmel_serial_enable_clk(struct udevice *dev)
 {
 	struct atmel_serial_priv *priv = dev_get_priv(dev);

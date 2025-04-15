@@ -60,7 +60,7 @@ struct icid_id_table icid_tbl[] = {
 
 int icid_tbl_sz = ARRAY_SIZE(icid_tbl);
 
-#if defined(CONFIG_SYS_DPAA_FMAN) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SYS_DPAA_FMAN) && !defined(CONFIG_XPL_BUILD)
 struct fman_icid_id_table fman_icid_tbl[] = {
 	/* port id, icid */
 	SET_FMAN_ICID_ENTRY(0x02, FSL_DPAA1_STREAM_ID_END),

@@ -138,7 +138,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 		return ret;
 	}
 	slave_plat = dev_get_parent_plat(dev);
-	cs = slave_plat->cs;
+	cs = slave_plat->cs[0];
 	debug("found at cs %d\n", cs);
 
 	if (!pdata->filename) {

@@ -23,7 +23,7 @@ static void set_icid(struct icid_id_table *tbl, int size)
 			out_be32((u32 *)(tbl[i].reg_addr), tbl[i].reg);
 }
 
-#if defined(CONFIG_SYS_DPAA_FMAN) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SYS_DPAA_FMAN) && !defined(CONFIG_XPL_BUILD)
 static void set_fman_icids(struct fman_icid_id_table *tbl, int size)
 {
 	int i;
@@ -41,12 +41,12 @@ void set_icids(void)
 	/* setup general icid offsets */
 	set_icid(icid_tbl, icid_tbl_sz);
 
-#if defined(CONFIG_SYS_DPAA_FMAN) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_SYS_DPAA_FMAN) && !defined(CONFIG_XPL_BUILD)
 	set_fman_icids(fman_icid_tbl, fman_icid_tbl_sz);
 #endif
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 int fdt_set_iommu_prop(void *blob, int off, int smmu_ph, u32 *ids, int num_ids)
 {
 	int i, ret;

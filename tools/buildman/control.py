@@ -20,9 +20,9 @@ from buildman import bsettings
 from buildman import cfgutil
 from buildman import toolchain
 from buildman.builder import Builder
-from patman import gitutil
 from patman import patchstream
 from u_boot_pylib import command
+from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import tools
 from u_boot_pylib.terminal import print_clear, tprint
@@ -809,7 +809,8 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
             force_build = args.force_build,
             force_build_failures = args.force_build_failures,
             force_reconfig = args.force_reconfig, in_tree = args.in_tree,
-            force_config_on_failure=not args.quick, make_func=make_func)
+            force_config_on_failure=not args.quick, make_func=make_func,
+            dtc_skip=args.dtc_skip)
 
     TEST_BUILDER = builder
 

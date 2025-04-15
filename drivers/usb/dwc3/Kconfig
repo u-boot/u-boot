@@ -87,6 +87,14 @@ config USB_DWC3_LAYERSCAPE
 	  Host and Peripheral operation modes are supported. OTG is not
 	  supported.
 
+config USB_DWC3_STI
+	bool "STi USB wrapper"
+	depends on DM_USB && USB_DWC3_GENERIC && SYSCON
+	help
+	  Enables support for the on-chip xHCI controller on STMicroelectronics
+	  STiH407 family SoCs. This is a driver for the dwc3 to provide the
+	  glue logic to configure the controller.
+
 menu "PHY Subsystem"
 
 config USB_DWC3_PHY_OMAP

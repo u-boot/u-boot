@@ -5,7 +5,7 @@
 
 #include <asm/arch/cpu.h>
 
-#if defined(CONFIG_RESERVE_ALLWINNER_BOOT0_HEADER) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_RESERVE_ALLWINNER_BOOT0_HEADER) && !defined(CONFIG_XPL_BUILD)
 /* reserve space for BOOT0 header information */
 	b	reset
 	.space	1532
@@ -16,10 +16,11 @@
  */
 	tst     x0, x0                  // this is "b #0x84" in ARM
 	b       reset
-	.space  0x7c
+	.space  0x78
+	.word	fel_stash - .
 
-	.word	0xe28f0070	// add     r0, pc, #112	 // @(fel_stash - .)
-	.word	0xe59f106c	// ldr     r1, [pc, #108] // fel_stash - .
+	.word	0xe24f000c	// sub     r0, pc, #12  // @(fel_stash - .)
+	.word	0xe51f1010	// ldr     r1, [pc, #-16] // fel_stash - .
 	.word	0xe0800001	// add     r0, r0, r1
 	.word	0xe580d000	// str     sp, [r0]
 	.word	0xe580e004	// str     lr, [r0, #4]
@@ -49,12 +50,11 @@
 	.word	CONFIG_SUNXI_RVBAR_ADDRESS	// writable RVBAR mapping addr
 	.word	SUNXI_SRAMC_BASE
 	.word	CONFIG_SUNXI_RVBAR_ALTERNATIVE	// address for die variant
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	.word	CONFIG_SPL_TEXT_BASE
 #else
 	.word   CONFIG_TEXT_BASE
 #endif
-	.word	fel_stash - .
 #else
 /* normal execution */
 	b	reset

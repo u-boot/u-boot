@@ -43,7 +43,6 @@ int platform_sys_info(struct sys_info *si)
 
 	platform_set_mr(si, gd->ram_base, gd->ram_size, MR_ATTR_DRAM);
 	platform_set_mr(si, gd->bd->bi_flashstart, gd->bd->bi_flashsize, MR_ATTR_FLASH);
-	platform_set_mr(si, gd->bd->bi_sramstart, gd->bd->bi_sramsize, MR_ATTR_SRAM);
 
 	return 1;
 }

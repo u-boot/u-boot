@@ -273,7 +273,7 @@ static int pinctrl_configure_itss(struct udevice *dev,
 	irq = pcr_read32(dev, PAD_CFG1_OFFSET(pad_cfg_offset));
 	irq &= PAD_CFG1_IRQ_MASK;
 	if (!irq) {
-		if (spl_phase() > PHASE_TPL)
+		if (xpl_phase() > PHASE_TPL)
 			log_err("GPIO %u doesn't support APIC routing\n",
 				cfg->pad);
 
@@ -315,7 +315,7 @@ static int pinctrl_pad_reset_config_override(const struct pad_community *comm,
 			return config_value;
 		}
 	}
-	if (spl_phase() > PHASE_TPL)
+	if (xpl_phase() > PHASE_TPL)
 		log_err("Logical-to-Chipset mapping not found\n");
 
 	return -ENOENT;
@@ -622,7 +622,7 @@ int intel_pinctrl_of_to_plat(struct udevice *dev,
 	struct intel_pinctrl_priv *priv = dev_get_priv(dev);
 
 	if (!comm) {
-		if (spl_phase() > PHASE_TPL)
+		if (xpl_phase() > PHASE_TPL)
 			log_err("Cannot find community for pid %d\n",
 				pplat->pid);
 		return -EDOM;

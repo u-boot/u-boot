@@ -91,6 +91,8 @@ struct qcom_smmu_priv {
 	phys_addr_t base;
 	struct list_head devices;
 	struct udevice *dev;
+	/* SMMU is not needed when running in EL2 */
+	bool disable;
 
 	/* Read-once config */
 	int num_cb;
@@ -134,7 +136,7 @@ static int get_stream_id(struct udevice *dev)
 	int count = ofnode_parse_phandle_with_args(node, "iommus",
 						   "#iommu-cells", 0, 0, &args);
 
-	if (count < 0 || args.args[0] == 0) {
+	if (count < 0) {
 		printf("Error: %s: iommus property not found or wrong number of cells\n",
 		       __func__);
 		return -EINVAL;
@@ -277,6 +279,9 @@ static int qcom_smmu_connect(struct udevice *dev)
 	if (WARN_ON(!priv))
 		return -EINVAL;
 
+	if (priv->disable)
+		return 0;
+
 	mdev = alloc_dev(dev);
 	if (IS_ERR(mdev) && PTR_ERR(mdev) != -EEXIST) {
 		printf("%s: %s Couldn't create mmu context\n", __func__,
@@ -348,6 +353,8 @@ static int qcom_smmu_probe(struct udevice *dev)
 	priv->base = dev_read_addr(dev);
 	INIT_LIST_HEAD(&priv->devices);
 
+	priv->disable = current_el() > 1;
+
 	/* Read SMMU config */
 	val = gr0_readl(priv, ARM_SMMU_GR0_ID0);
 	priv->num_smr = FIELD_GET(ARM_SMMU_ID0_NUMSMRG, val);
@@ -381,6 +388,7 @@ static struct iommu_ops qcom_smmu_ops = {
 
 static const struct udevice_id qcom_smmu500_ids[] = {
 	{ .compatible = "qcom,sdm845-smmu-500" },
+	{ .compatible = "qcom,sc7280-smmu-500" },
 	{ .compatible = "qcom,smmu-500", },
 	{ /* sentinel */ }
 };

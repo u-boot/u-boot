@@ -4,15 +4,12 @@
  */
 #include <command.h>
 #include <clk.h>
-#if defined(CONFIG_DM) && defined(CONFIG_CLK)
 #include <dm.h>
 #include <dm/device.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
 #include <linux/clk-provider.h>
-#endif
 
-#if defined(CONFIG_DM) && defined(CONFIG_CLK)
 static void show_clks(struct udevice *dev, int depth, int last_flag)
 {
 	int i, is_last;
@@ -79,13 +76,6 @@ static int soc_clk_dump(void)
 
 	return 0;
 }
-#else
-static int soc_clk_dump(void)
-{
-	puts("Not implemented\n");
-	return 1;
-}
-#endif
 
 static int do_clk_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
@@ -101,7 +91,6 @@ static int do_clk_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(DM) && CONFIG_IS_ENABLED(CLK)
 static int do_clk_setfreq(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
@@ -131,13 +120,10 @@ static int do_clk_setfreq(struct cmd_tbl *cmdtp, int flag, int argc,
 	printf("set_rate returns %u\n", freq);
 	return 0;
 }
-#endif
 
 static struct cmd_tbl cmd_clk_sub[] = {
 	U_BOOT_CMD_MKENT(dump, 1, 1, do_clk_dump, "", ""),
-#if CONFIG_IS_ENABLED(DM) && CONFIG_IS_ENABLED(CLK)
 	U_BOOT_CMD_MKENT(setfreq, 3, 1, do_clk_setfreq, "", ""),
-#endif
 };
 
 static int do_clk(struct cmd_tbl *cmdtp, int flag, int argc,

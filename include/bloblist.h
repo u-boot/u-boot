@@ -110,6 +110,7 @@ enum bloblist_tag_t {
 	BLOBLISTT_ACPI_TABLES = 4,
 	BLOBLISTT_TPM_EVLOG = 5,
 	BLOBLISTT_TPM_CRB_BASE = 6,
+	BLOBLISTT_ACPI_PP = 7,
 
 	/* Standard area to allocate blobs used across firmware components */
 	BLOBLISTT_AREA_FIRMWARE = 0x10,
@@ -249,6 +250,24 @@ static inline void *bloblist_check_magic(ulong addr)
 	return ptr;
 }
 
+#if CONFIG_IS_ENABLED(BLOBLIST)
+/**
+ * bloblist_get_blob() - Find a blob and get the size of it
+ *
+ * Searches the bloblist and returns the blob with the matching tag
+ *
+ * @tag:	Tag to search for (enum bloblist_tag_t)
+ * @sizep:	Size of the blob found
+ * Return: pointer to bloblist if found, or NULL if not found
+ */
+void *bloblist_get_blob(uint tag, int *sizep);
+#else
+static inline void *bloblist_get_blob(uint tag, int *sizep)
+{
+	return NULL;
+}
+#endif
+
 /**
  * bloblist_find() - Find a blob
  *
@@ -356,6 +375,7 @@ int bloblist_new(ulong addr, uint size, uint flags, uint align_log2);
  */
 int bloblist_check(ulong addr, uint size);
 
+#if CONFIG_IS_ENABLED(BLOBLIST)
 /**
  * bloblist_finish() - Set up the bloblist for the next U-Boot part
  *
@@ -365,6 +385,12 @@ int bloblist_check(ulong addr, uint size);
  * Return: 0
  */
 int bloblist_finish(void);
+#else
+static inline int bloblist_finish(void)
+{
+	return 0;
+}
+#endif /* BLOBLIST */
 
 /**
  * bloblist_get_stats() - Get information about the bloblist
@@ -441,9 +467,8 @@ int bloblist_reloc(void *to, uint to_size);
  * If CONFIG_BLOBLIST_ALLOC is selected, it allocates memory for a bloblist of
  * size CONFIG_BLOBLIST_SIZE.
  *
- * If CONFIG_BLOBLIST_PASSAGE is selected, it uses the bloblist in the incoming
- * standard passage. The size is detected automatically so CONFIG_BLOBLIST_SIZE
- * can be 0.
+ * If CONFIG_BLOBLIST_PASSAGE_MANDATORY is selected, bloblist in the incoming
+ * standard passage is mandatorily required.
  *
  * Sets GD_FLG_BLOBLIST_READY in global_data flags on success
  *
@@ -455,7 +480,7 @@ int bloblist_init(void);
 /**
  * bloblist_maybe_init() - Init the bloblist system if not already done
  *
- * Calls bloblist_init() if the GD_FLG_BLOBLIST_READY flag is not et
+ * Calls bloblist_init() if the GD_FLG_BLOBLIST_READY flag is not set
  *
  * Return: 0 if OK, -ve on error
  */
@@ -475,19 +500,18 @@ static inline int bloblist_maybe_init(void)
  * @rfdt:  Register that holds the FDT base address.
  * @rzero: Register that must be zero.
  * @rsig:  Register that holds signature and register conventions version.
+ * @xlist: Register that holds the transfer list.
  * Return: 0 if OK, -EIO if the bloblist is not compliant to the register
  *	   conventions.
  */
-int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig);
+int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig, ulong xlist);
 
 /**
- * xferlist_from_boot_arg() - Get bloblist from the boot args and relocate it
- *			      to the specified address.
+ * xferlist_from_boot_arg() - Get bloblist from the boot args.
  *
- * @addr: Address for the bloblist
- * @size: Size of space reserved for the bloblist
+ * @addr: Address of the bloblist
  * Return: 0 if OK, else on error
  */
-int xferlist_from_boot_arg(ulong addr, ulong size);
+int xferlist_from_boot_arg(ulong *addr);
 
 #endif /* __BLOBLIST_H */

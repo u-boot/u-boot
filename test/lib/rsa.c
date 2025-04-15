@@ -158,7 +158,6 @@ static int lib_rsa_verify_valid(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-
 LIB_TEST(lib_rsa_verify_valid, 0);
 
 /**
@@ -200,6 +199,5 @@ static int lib_rsa_verify_invalid(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-
 LIB_TEST(lib_rsa_verify_invalid, 0);
 #endif /* RSA_VERIFY_WITH_PKEY */

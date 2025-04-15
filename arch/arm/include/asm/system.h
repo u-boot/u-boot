@@ -171,7 +171,7 @@ static inline unsigned int current_el(void)
 	return 3 & (el >> 2);
 }
 
-static inline unsigned int get_sctlr(void)
+static inline unsigned long get_sctlr(void)
 {
 	unsigned int el;
 	unsigned long val;
@@ -239,6 +239,22 @@ int __asm_invalidate_l3_icache(void);
 void __asm_switch_ttbr(u64 new_ttbr);
 
 /*
+ * armv8_switch_to_el2_prep() - prepare for switch from EL3 to EL2 for ARMv8
+ *
+ * @args:        For loading 64-bit OS, fdt address.
+ *               For loading 32-bit OS, zero.
+ * @mach_nr:     For loading 64-bit OS, zero.
+ *               For loading 32-bit OS, machine nr
+ * @fdt_addr:    For loading 64-bit OS, zero.
+ *               For loading 32-bit OS, fdt address.
+ * @arg4:	 Input argument.
+ * @entry_point: kernel entry point
+ * @es_flag:     execution state flag, ES_TO_AARCH64 or ES_TO_AARCH32
+ */
+void armv8_switch_to_el2_prep(u64 args, u64 mach_nr, u64 fdt_addr,
+			      u64 arg4, u64 entry_point, u64 es_flag);
+
+/*
  * armv8_switch_to_el2() - switch from EL3 to EL2 for ARMv8
  *
  * @args:        For loading 64-bit OS, fdt address.
@@ -277,7 +293,35 @@ void protect_secure_region(void);
 void smp_kick_all_cpus(void);
 
 void flush_l3_cache(void);
+
+/**
+ * mmu_map_region() - map a region of previously unmapped memory.
+ * Will be mapped MT_NORMAL & PTE_BLOCK_INNER_SHARE.
+ *
+ * @start: Start address of the region
+ * @size: Size of the region
+ * @emerg: Also map the region in the emergency table
+ */
+void mmu_map_region(phys_addr_t start, u64 size, bool emerg);
+
+/**
+ * mmu_change_region_attr() - change a mapped region attributes
+ *
+ * @start: Start address of the region
+ * @size:  Size of the region
+ * @aatrs: New attributes
+ */
 void mmu_change_region_attr(phys_addr_t start, size_t size, u64 attrs);
+
+/**
+ * mmu_change_region_attr_nobreak() - change a mapped region attributes without doing
+ *                                    break-before-make
+ *
+ * @start: Start address of the region
+ * @size:  Size of the region
+ * @aatrs: New attributes
+ */
+void mmu_change_region_attr_nobreak(phys_addr_t addr, size_t size, u64 attrs);
 
 /*
  * smc_call() - issue a secure monitor call
@@ -384,6 +428,25 @@ void switch_to_hypervisor_ret(void);
 #define wfi()
 #endif
 
+#if !defined(__thumb2__)
+/*
+ * We will need to switch to ARM mode (.arm) for some instructions such as
+ * mrc p15 etc.
+ */
+#define asm_arm_or_thumb2(insn) asm volatile(".arm\n\t" insn)
+#else
+#define asm_arm_or_thumb2(insn) asm volatile(insn)
+#endif
+
+static inline unsigned long read_mpidr(void)
+{
+	unsigned long val;
+
+	asm_arm_or_thumb2("mrc p15, 0, %0, c0, c0, 5" : "=r" (val));
+
+	return val;
+}
+
 static inline unsigned long get_cpsr(void)
 {
 	unsigned long cpsr;
@@ -408,11 +471,13 @@ static inline unsigned int get_cr(void)
 	unsigned int val;
 
 	if (is_hyp())
-		asm volatile("mrc p15, 4, %0, c1, c0, 0	@ get CR" : "=r" (val)
+		asm_arm_or_thumb2("mrc p15, 4, %0, c1, c0, 0	@ get CR"
+								  : "=r" (val)
 								  :
 								  : "cc");
 	else
-		asm volatile("mrc p15, 0, %0, c1, c0, 0	@ get CR" : "=r" (val)
+		asm_arm_or_thumb2("mrc p15, 0, %0, c1, c0, 0	@ get CR"
+								  : "=r" (val)
 								  :
 								  : "cc");
 	return val;
@@ -421,11 +486,11 @@ static inline unsigned int get_cr(void)
 static inline void set_cr(unsigned int val)
 {
 	if (is_hyp())
-		asm volatile("mcr p15, 4, %0, c1, c0, 0	@ set CR" :
+		asm_arm_or_thumb2("mcr p15, 4, %0, c1, c0, 0	@ set CR" :
 								  : "r" (val)
 								  : "cc");
 	else
-		asm volatile("mcr p15, 0, %0, c1, c0, 0	@ set CR" :
+		asm_arm_or_thumb2("mcr p15, 0, %0, c1, c0, 0	@ set CR" :
 								  : "r" (val)
 								  : "cc");
 	isb();
@@ -645,22 +710,6 @@ void mmu_set_region_dcache_behaviour_phys(phys_addr_t virt, phys_addr_t phys,
  */
 void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option);
-
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-/**
- * noncached_init() - Initialize non-cached memory region
- *
- * Initialize non-cached memory area. This memory region will be typically
- * located right below the malloc() area and mapped uncached in the MMU.
- *
- * It is called during the generic post-relocation init sequence.
- *
- * Return: 0 if OK
- */
-int noncached_init(void);
-
-phys_addr_t noncached_alloc(size_t size, size_t align);
-#endif /* CONFIG_SYS_NONCACHED_MEMORY */
 
 #endif /* __ASSEMBLY__ */
 

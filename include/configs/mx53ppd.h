@@ -12,8 +12,6 @@
 #include <asm/arch/imx-regs.h>
 
 /* USB Configs */
-#define CFG_MXC_USB_PORT	1
-#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CFG_MXC_USB_FLAGS	0
 
 /* Command definition */
@@ -61,14 +59,6 @@
 		"Try again, or contact GE Service for support.\"; " \
 		"bootcount reset; " \
 		"while true; do sleep 1; done; \0" \
-	"altbootcmd=" \
-		"run doquiet; " \
-		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
-		"run hasfirstboot || setenv partnum 0; " \
-		"if test ${partnum} != 0; then " \
-			"run swappartitions loadimage doboot; " \
-		"fi; " \
-		"run failbootcmd\0" \
 	"loadimage=" \
 		"ext2load ${dev} ${devnum}:${partnum} ${loadaddr} ${image}\0" \
 	"doboot=" \

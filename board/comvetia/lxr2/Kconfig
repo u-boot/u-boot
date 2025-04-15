@@ -1,0 +1,12 @@
+if TARGET_LXR2
+
+config SYS_BOARD
+	default "lxr2"
+
+config SYS_VENDOR
+	default "comvetia"
+
+config SYS_CONFIG_NAME
+	default "lxr2"
+
+endif

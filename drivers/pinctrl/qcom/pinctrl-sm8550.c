@@ -16,6 +16,7 @@ static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 static const struct pinctrl_function msm_pinctrl_functions[] = {
 	{"qup1_se7", 1},
 	{"gpio", 0},
+	{"pcie1_clk_req_n", 1},
 };
 
 #define SDC_QDSD_PINGROUP(pg_name, ctl, pull, drv)	\
@@ -67,8 +68,8 @@ static const char *sm8550_get_pin_name(struct udevice *dev,
 	return pin_name;
 }
 
-static unsigned int sm8550_get_function_mux(__maybe_unused unsigned int pin,
-					    unsigned int selector)
+static int sm8550_get_function_mux(__maybe_unused unsigned int pin,
+				   unsigned int selector)
 {
 	return msm_pinctrl_functions[selector].val;
 }

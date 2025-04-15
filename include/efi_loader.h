@@ -15,11 +15,13 @@
 #include <efi_api.h>
 #include <image.h>
 #include <pe.h>
+#include <setjmp.h>
 #include <linux/list.h>
+#include <linux/sizes.h>
 #include <linux/oid_registry.h>
 
 struct blk_desc;
-struct jmp_buf_data;
+struct bootflow;
 
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 
@@ -125,6 +127,47 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 				   size_t buffer_size) { }
 #endif
 
+#if CONFIG_IS_ENABLED(NETDEVICES) && CONFIG_IS_ENABLED(EFI_LOADER)
+/* Call this to update the current device path of the efi net device */
+efi_status_t efi_net_new_dp(const char *dev, const char *server, struct udevice *udev);
+/* Call this to get the current device path of the efi net device */
+void efi_net_dp_from_dev(struct efi_device_path **dp, struct udevice *udev, bool cache_only);
+void efi_net_get_addr(struct efi_ipv4_address *ip,
+		      struct efi_ipv4_address *mask,
+		      struct efi_ipv4_address *gw,
+			  struct udevice *dev);
+void efi_net_set_addr(struct efi_ipv4_address *ip,
+		      struct efi_ipv4_address *mask,
+		      struct efi_ipv4_address *gw,
+			  struct udevice *dev);
+#if IS_ENABLED(CONFIG_EFI_HTTP_PROTOCOL)
+efi_status_t efi_net_do_request(u8 *url, enum efi_http_method method, void **buffer,
+				u32 *status_code, ulong *file_size, char *headers_buffer,
+				struct efi_service_binding_protocol *parent);
+#endif
+#define MAX_HTTP_HEADERS_SIZE SZ_64K
+#define MAX_HTTP_HEADERS 100
+#define MAX_HTTP_HEADER_NAME 128
+#define MAX_HTTP_HEADER_VALUE 512
+struct http_header {
+	uchar name[MAX_HTTP_HEADER_NAME];
+	uchar value[MAX_HTTP_HEADER_VALUE];
+};
+
+void efi_net_parse_headers(ulong *num_headers, struct http_header *headers);
+#else
+static inline void efi_net_dp_from_dev(struct efi_device_path **dp,
+				  struct udevice *udev, bool cache_only) { }
+static inline void efi_net_get_addr(struct efi_ipv4_address *ip,
+				     struct efi_ipv4_address *mask,
+				     struct efi_ipv4_address *gw,
+					 struct udevice *dev) { }
+static inline void efi_net_set_addr(struct efi_ipv4_address *ip,
+				     struct efi_ipv4_address *mask,
+				     struct efi_ipv4_address *gw,
+					 struct udevice *dev) { }
+#endif
+
 /* Maximum number of configuration tables */
 #define EFI_MAX_CONFIGURATION_TABLES 16
 
@@ -211,6 +254,18 @@ const char *__efi_nesting_dec(void);
 	_r; \
 })
 
+/**
+ * define EFI_RETURN() - return from EFI_CALL in efi_start_image()
+ *
+ * @ret:	status code
+ */
+#define EFI_RETURN(ret) ({ \
+	typeof(ret) _r = ret; \
+	assert(__efi_entry_check()); \
+	debug("%sEFI: %lu returned by started image", __efi_nesting_dec(), \
+	      (unsigned long)((uintptr_t)_r & ~EFI_ERROR_MASK)); \
+})
+
 /*
  * Call void UEFI function from u-boot:
  */
@@ -274,6 +329,8 @@ extern const efi_guid_t efi_guid_host_dev;
 #endif
 /* GUID of the EFI_BLOCK_IO_PROTOCOL */
 extern const efi_guid_t efi_block_io_guid;
+/* GUID of the EFI_SIMPLE_NETWORK_PROTOCOL */
+extern const efi_guid_t efi_net_guid;
 extern const efi_guid_t efi_global_variable_guid;
 extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
@@ -438,7 +495,7 @@ struct efi_loaded_image_obj {
 	efi_status_t *exit_status;
 	efi_uintn_t *exit_data_size;
 	u16 **exit_data;
-	struct jmp_buf_data *exit_jmp;
+	jmp_buf *exit_jmp;
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
 	u16 image_type;
@@ -543,7 +600,16 @@ efi_status_t efi_install_fdt(void *fdt);
 /* Execute loaded UEFI image */
 efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options);
 /* Run loaded UEFI image with given fdt */
-efi_status_t efi_binary_run(void *image, size_t size, void *fdt);
+efi_status_t efi_binary_run(void *image, size_t size, void *fdt, void *initrd, size_t initrd_sz);
+
+/**
+ * efi_bootflow_run() - Run a bootflow containing an EFI application
+ *
+ * @bootflow: Bootflow to run
+ * Return: Status code, something went wrong
+ */
+efi_status_t efi_bootflow_run(struct bootflow *bootflow);
+
 /* Initialize variable services */
 efi_status_t efi_init_variables(void);
 /* Notify ExitBootServices() is called */
@@ -567,7 +633,7 @@ efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
 /* Carve out DT reserved memory ranges */
 void efi_carve_out_dt_rsv(void *fdt);
 /* Purge unused kaslr-seed */
-void efi_try_purge_kaslr_seed(void *fdt);
+void efi_try_purge_rng_seed(void *fdt);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
 /* Called by efi_init_obj_list() to proble all block devices */
@@ -591,10 +657,17 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 /* Called by bootefi to make GOP (graphical) interface available */
 efi_status_t efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
-efi_status_t efi_net_register(void);
+efi_status_t efi_net_register(struct udevice *dev);
+efi_status_t efi_net_do_start(struct udevice *dev);
+/* Called by efi_net_register to make the ip4 config2 protocol available */
+efi_status_t efi_ipconfig_register(const efi_handle_t handle,
+				   struct efi_ip4_config2_protocol *ip4config);
+/* Called by efi_net_register to make the http protocol available */
+efi_status_t efi_http_register(const efi_handle_t handle,
+			       struct efi_service_binding_protocol *http_service_binding);
 /* Called by bootefi to make the watchdog available */
 efi_status_t efi_watchdog_register(void);
-efi_status_t efi_initrd_register(void);
+efi_status_t efi_initrd_register(struct efi_device_path *dp_initrd);
 efi_status_t efi_initrd_deregister(void);
 /* Called by bootefi to make SMBIOS tables available */
 /**
@@ -671,6 +744,15 @@ efi_status_t efi_search_protocol(const efi_handle_t handle,
 efi_status_t efi_add_protocol(const efi_handle_t handle,
 			      const efi_guid_t *protocol,
 			      void *protocol_interface);
+/* Uninstall new protocol on a handle */
+efi_status_t efi_uninstall_protocol
+		(efi_handle_t handle, const efi_guid_t *protocol,
+		 void *protocol_interface, bool preserve);
+/* Reinstall a protocol on a handle */
+efi_status_t EFIAPI efi_reinstall_protocol_interface(
+			efi_handle_t handle,
+			const efi_guid_t *protocol,
+			void *old_interface, void *new_interface);
 /* Open protocol */
 efi_status_t efi_protocol_open(struct efi_handler *handler,
 			       void **protocol_interface, void *agent_handle,
@@ -681,6 +763,15 @@ efi_status_t EFIAPI
 efi_install_multiple_protocol_interfaces(efi_handle_t *handle, ...);
 efi_status_t EFIAPI
 efi_uninstall_multiple_protocol_interfaces(efi_handle_t handle, ...);
+/* Connect and disconnect controller */
+efi_status_t EFIAPI efi_connect_controller(efi_handle_t controller_handle,
+					   efi_handle_t *driver_image_handle,
+					   struct efi_device_path *remain_device_path,
+					   bool recursive);
+efi_status_t EFIAPI efi_disconnect_controller(
+					efi_handle_t controller_handle,
+					efi_handle_t driver_image_handle,
+					efi_handle_t child_handle);
 /* Get handles that support a given protocol */
 efi_status_t EFIAPI efi_locate_handle_buffer(
 			enum efi_locate_search_type search_type,
@@ -701,6 +792,8 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 					void *context),
 			      void *notify_context, const efi_guid_t *group,
 			      struct efi_event **event);
+/* Call this to close an event */
+efi_status_t EFIAPI efi_close_event(struct efi_event *event);
 /* Call this to set a timer */
 efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 			   uint64_t trigger_time);
@@ -784,9 +877,21 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 				uint32_t *descriptor_version);
 /* Adds a range into the EFI memory map */
 efi_status_t efi_add_memory_map(u64 start, u64 size, int memory_type);
-/* Adds a conventional range into the EFI memory map */
-efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
-					     u64 ram_top);
+
+/**
+ * efi_update_memory_map() - update the memory map by adding/removing pages
+ *
+ * @start:			start address, must be a multiple of
+ *				EFI_PAGE_SIZE
+ * @pages:			number of pages to add
+ * @memory_type:		type of memory added
+ * @overlap_conventional:	region may only overlap free(conventional)
+ *				memory
+ * @remove:			remove memory map
+ * Return:			status code
+ */
+efi_status_t efi_update_memory_map(u64 start, u64 pages, int memory_type,
+				   bool overlap_conventional, bool remove);
 
 /* Called by board init to initialize the EFI drivers */
 efi_status_t efi_driver_init(void);
@@ -843,10 +948,11 @@ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
 struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part);
 struct efi_device_path *efi_dp_from_file(const struct efi_device_path *dp,
 					 const char *path);
-struct efi_device_path *efi_dp_from_eth(void);
+struct efi_device_path *efi_dp_from_eth(struct udevice *dev);
+struct efi_device_path *efi_dp_from_http(const char *server, struct udevice *dev);
 struct efi_device_path *efi_dp_from_mem(uint32_t mem_type,
 					uint64_t start_address,
-					uint64_t end_address);
+					size_t size);
 /* Determine the last device path node that is not the end node. */
 const struct efi_device_path *efi_dp_last_node(
 			const struct efi_device_path *dp);
@@ -1172,11 +1278,31 @@ efi_status_t efi_console_get_u16_string
 efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int size);
 
 /**
- * efi_add_known_memory() - add memory banks to EFI memory map
+ * efi_add_known_memory() - add memory types to the EFI memory map
  *
- * This weak function may be overridden for specific architectures.
+ * This function is to be used to add different memory types other
+ * than EFI_CONVENTIONAL_MEMORY to the EFI memory map. The conventional
+ * memory is handled by the LMB module and gets added to the memory
+ * map through the LMB module.
+ *
+ * This function may be overridden for architectures specific purposes.
  */
 void efi_add_known_memory(void);
+
+/**
+ * efi_map_update_notify() - notify EFI of memory map changes
+ *
+ * @addr:	start of memory area
+ * @size:	size of memory area
+ * @op:		type of change
+ * Return:	0 if change could be processed
+ */
+#ifdef CONFIG_EFI_LOADER
+int efi_map_update_notify(phys_addr_t addr, phys_size_t size,
+			  enum lmb_map_op op);
+#else
+#define efi_map_update_notify(addr, size, op) (0)
+#endif
 
 /**
  * efi_load_option_dp_join() - join device-paths for load option

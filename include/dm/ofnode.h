@@ -386,14 +386,27 @@ static inline oftree oftree_from_np(struct device_node *root)
 void oftree_dispose(oftree tree);
 
 /**
- * ofnode_name_eq() - Check if the node name is equivalent to a given name
- *                    ignoring the unit address
+ * ofnode_name_eq() - Check a node name ignoring its unit address
  *
- * @node:	valid node reference that has to be compared
- * @name:	name that has to be compared with the node name
+ * @node:	valid node to compared, which may have a unit address
+ * @name:	name (without unit address) to compare with the node name
  * Return: true if matches, false if it doesn't match
  */
 bool ofnode_name_eq(ofnode node, const char *name);
+
+/**
+ * ofnode_name_eq_unit() - Check a node name ignoring its unit address
+ *
+ * This is separate from ofnode_name_eq() to avoid code-size increase for
+ * boards which don't need this function
+ *
+ * @node:	valid node to compared, which may have a unit address
+ * @name:	name to compare with the node name. If this contains a unit
+ *		address, it is matched, otherwise the unit address is ignored
+ *		when searching for matches
+ * Return: true if matches, false if it doesn't match
+ */
+bool ofnode_name_eq_unit(ofnode node, const char *name);
 
 /**
  * ofnode_read_u8() - Read a 8-bit integer from a property
@@ -593,6 +606,18 @@ bool ofnode_read_bool(ofnode node, const char *propname);
  * subnode)
  */
 ofnode ofnode_find_subnode(ofnode node, const char *subnode_name);
+
+/**
+ * ofnode_find_subnode_unit() - find a named subnode of a parent node
+ *
+ * @node:	valid reference to parent node
+ * @subnode_name: name of subnode to find, including any unit address. If the
+ *	unit address is omitted, any subnode which matches the name (excluding
+ *	any unit address) is returned
+ * Return: reference to subnode (which can be invalid if there is no such
+ * subnode)
+ */
+ofnode ofnode_find_subnode_unit(ofnode node, const char *subnode_name);
 
 #if CONFIG_IS_ENABLED(DM_INLINE_OFNODE)
 #include <asm/global_data.h>
@@ -848,6 +873,18 @@ int ofnode_read_string_list(ofnode node, const char *property,
 			    const char ***listp);
 
 /**
+ * ofnode_parse_phandle() - Resolve a phandle property to an ofnode
+ *
+ * @node: node to check
+ * @phandle_name: Name of property holding a phandle value
+ * @index: For properties holding a table of phandles, this is the index into
+ *         the table
+ * Return: ofnode that the phandle points to or ofnode_null() on error.
+ */
+ofnode ofnode_parse_phandle(ofnode node, const char *phandle_name,
+			    int index);
+
+/**
  * ofnode_parse_phandle_with_args() - Find a node pointed by phandle in a list
  *
  * This function is useful to parse lists of phandles and their arguments.
@@ -907,6 +944,86 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
  *   -EINVAL if a phandle was not found, @cells_name could not be found.
  */
 int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
+				   const char *cells_name, int cell_count);
+
+/**
+ * oftree_parse_phandle() - Resolve a phandle property to an ofnode
+ *			    from a root node
+ *
+ * @tree: device tree to use
+ * @node: node to check
+ * @phandle_name: Name of property holding a phandle value
+ * @index: For properties holding a table of phandles, this is the index into
+ *         the table
+ * Return: ofnode that the phandle points to or ofnode_null() on error.
+ */
+ofnode oftree_parse_phandle(oftree tree, ofnode node, const char *phandle_name,
+			    int index);
+
+/**
+ * oftree_parse_phandle_with_args() - Find a node pointed by phandle in a list
+ *				      from a root node
+ *
+ * This function is useful to parse lists of phandles and their arguments.
+ * Returns 0 on success and fills out_args, on error returns appropriate
+ * errno value.
+ *
+ * Caller is responsible to call of_node_put() on the returned out_args->np
+ * pointer.
+ *
+ * Example:
+ *
+ * .. code-block::
+ *
+ *   phandle1: node1 {
+ *       #list-cells = <2>;
+ *   };
+ *   phandle2: node2 {
+ *       #list-cells = <1>;
+ *   };
+ *   node3 {
+ *       list = <&phandle1 1 2 &phandle2 3>;
+ *   };
+ *
+ * To get a device_node of the `node2' node you may call this:
+ * oftree_parse_phandle_with_args(node3, "list", "#list-cells", 0, 1, &args);
+ *
+ * @tree:	device tree to use
+ * @node:	device tree node containing a list
+ * @list_name:	property name that contains a list
+ * @cells_name:	property name that specifies phandles' arguments count
+ * @cell_count: Cell count to use if @cells_name is NULL
+ * @index:	index of a phandle to parse out
+ * @out_args:	optional pointer to output arguments structure (will be filled)
+ * Return:
+ *   0 on success (with @out_args filled out if not NULL), -ENOENT if
+ *   @list_name does not exist, -EINVAL if a phandle was not found,
+ *   @cells_name could not be found, the arguments were truncated or there
+ *   were too many arguments.
+ */
+int oftree_parse_phandle_with_args(oftree tree, ofnode node, const char *list_name,
+				   const char *cells_name, int cell_count,
+				   int index,
+				   struct ofnode_phandle_args *out_args);
+
+/**
+ * oftree_count_phandle_with_args() - Count number of phandle in a list
+ *				      from a root node
+ *
+ * This function is useful to count phandles into a list.
+ * Returns number of phandle on success, on error returns appropriate
+ * errno value.
+ *
+ * @tree:	device tree to use
+ * @node:	device tree node containing a list
+ * @list_name:	property name that contains a list
+ * @cells_name:	property name that specifies phandles' arguments count
+ * @cell_count: Cell count to use if @cells_name is NULL
+ * Return:
+ *   number of phandle on success, -ENOENT if @list_name does not exist,
+ *   -EINVAL if a phandle was not found, @cells_name could not be found.
+ */
+int oftree_count_phandle_with_args(oftree tree, ofnode node, const char *list_name,
 				   const char *cells_name, int cell_count);
 
 /**
@@ -1588,6 +1705,62 @@ int ofnode_conf_read_int(const char *prop_name, int default_val);
 const char *ofnode_conf_read_str(const char *prop_name);
 
 /**
+ * ofnode_options_read_bool() - Read a boolean value from the U-Boot options
+ *
+ * This reads a property from the /options/u-boot/ node of the devicetree.
+ *
+ * This only works with the control FDT.
+ *
+ * See dtschema/schemas/options/u-boot.yaml in dt-schema project for bindings
+ *
+ * @prop_name:	property name to look up
+ * Return: true, if it exists, false if not
+ */
+bool ofnode_options_read_bool(const char *prop_name);
+
+/**
+ * ofnode_options_read_int() - Read an integer value from the U-Boot options
+ *
+ * This reads a property from the /options/u-boot/ node of the devicetree.
+ *
+ * See dtschema/schemas/options/u-boot.yaml in dt-schema project for bindings
+ *
+ * @prop_name: property name to look up
+ * @default_val: default value to return if the property is not found
+ * Return: integer value, if found, or @default_val if not
+ */
+int ofnode_options_read_int(const char *prop_name, int default_val);
+
+/**
+ * ofnode_options_read_str() - Read a string value from the U-Boot options
+ *
+ * This reads a property from the /options/u-boot/ node of the devicetree.
+ *
+ * This only works with the control FDT.
+ *
+ * See dtschema/schemas/options/u-boot.yaml in dt-schema project for bindings
+ *
+ * @prop_name: property name to look up
+ * Return: string value, if found, or NULL if not
+ */
+const char *ofnode_options_read_str(const char *prop_name);
+
+/**
+ * ofnode_options_get_by_phandle() - Get a ofnode from phandle from the U-Boot options
+ *
+ * This reads a property from the /options/u-boot/ node of the devicetree.
+ *
+ * This only works with the control FDT.
+ *
+ * See dtschema/schemas/options/u-boot.yaml in dt-schema project for bindings
+ *
+ * @prop_name: property name to look up
+ * @nodep: pointer to ofnode where node is stored
+ * Return: 0, if found, or negative error if not
+ */
+int ofnode_options_get_by_phandle(const char *prop_name, ofnode *nodep);
+
+/**
  * ofnode_read_bootscript_address() - Read bootscr-address or bootscr-ram-offset
  *
  * @bootscr_address: pointer to 64bit address where bootscr-address property value
@@ -1661,7 +1834,7 @@ static inline int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
  * of_add_subnode() - add a new subnode to a node
  *
  * @parent:	parent node to add to
- * @name:	name of subnode
+ * @name:	name of subnode (allocated by this function)
  * @nodep:	returns pointer to new subnode (valid if the function returns 0
  *	or -EEXIST)
  * Returns 0 if OK, -EEXIST if already exists, -ENOMEM if out of memory, other

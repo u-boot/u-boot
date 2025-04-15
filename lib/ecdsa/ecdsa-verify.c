@@ -22,8 +22,10 @@ static int ecdsa_key_size(const char *curve_name)
 {
 	if (!strcmp(curve_name, "prime256v1"))
 		return 256;
-	else
-		return 0;
+	else if (!strcmp(curve_name, "secp384r1"))
+		return 384;
+
+	return 0;
 }
 
 static int fdt_get_key(struct ecdsa_public_key *key, const void *fdt, int node)
@@ -121,9 +123,15 @@ int ecdsa_verify(struct image_sign_info *info,
 	return ecdsa_verify_hash(dev, info, hash, sig, sig_len);
 }
 
-U_BOOT_CRYPTO_ALGO(ecdsa) = {
+U_BOOT_CRYPTO_ALGO(ecdsa256) = {
 	.name = "ecdsa256",
 	.key_len = ECDSA256_BYTES,
+	.verify = ecdsa_verify,
+};
+
+U_BOOT_CRYPTO_ALGO(ecdsa384) = {
+	.name = "ecdsa384",
+	.key_len = ECDSA384_BYTES,
 	.verify = ecdsa_verify,
 };
 

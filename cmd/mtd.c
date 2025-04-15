@@ -10,6 +10,7 @@
 
 #include <command.h>
 #include <console.h>
+#include <led.h>
 #if CONFIG_IS_ENABLED(CMD_MTD_OTP)
 #include <hexdump.h>
 #endif
@@ -121,13 +122,11 @@ static void mtd_show_device(struct mtd_info *mtd)
 {
 	/* Device */
 	printf("* %s\n", mtd->name);
-#if defined(CONFIG_DM)
 	if (mtd->dev) {
 		printf("  - device: %s\n", mtd->dev->name);
 		printf("  - parent: %s\n", mtd->dev->parent->name);
 		printf("  - driver: %s\n", mtd->dev->driver->name);
 	}
-#endif
 	if (IS_ENABLED(CONFIG_OF_CONTROL) && mtd->dev) {
 		char buf[256];
 		int res;
@@ -558,6 +557,8 @@ static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
 	while (mtd_block_isbad(mtd, off))
 		off += mtd->erasesize;
 
+	led_activity_blink();
+
 	/* Loop over the pages to do the actual read/write */
 	while (remaining) {
 		/* Skip the block if it is bad */
@@ -584,6 +585,8 @@ static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
 		io_op.datbuf += io_op.retlen;
 		io_op.oobbuf += io_op.oobretlen;
 	}
+
+	led_activity_off();
 
 	if (!ret && dump)
 		mtd_dump_device_buf(mtd, start_off, buf, len, woob);
@@ -652,6 +655,8 @@ static int do_mtd_erase(struct cmd_tbl *cmdtp, int flag, int argc,
 	erase_op.addr = off;
 	erase_op.len = mtd->erasesize;
 
+	led_activity_blink();
+
 	while (len) {
 		if (!scrub) {
 			ret = mtd_block_isbad(mtd, erase_op.addr);
@@ -679,6 +684,8 @@ static int do_mtd_erase(struct cmd_tbl *cmdtp, int flag, int argc,
 		len -= mtd->erasesize;
 		erase_op.addr += mtd->erasesize;
 	}
+
+	led_activity_off();
 
 	if (ret && ret != -EIO)
 		ret = CMD_RET_FAILURE;

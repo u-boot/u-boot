@@ -645,20 +645,8 @@ void i2c_early_init_f(void);
  */
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
-#if !defined(CFG_SYS_I2C_MAX_HOPS)
 /* no muxes used bus = i2c adapters */
-#define CFG_SYS_I2C_DIRECT_BUS	1
-#define CFG_SYS_I2C_MAX_HOPS		0
 #define CFG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
-#else
-/* we use i2c muxes */
-#undef CFG_SYS_I2C_DIRECT_BUS
-#endif
-
-/* define the I2C bus number for RTC and DTT if not already done */
-#if !defined(CFG_SYS_RTC_BUS_NUM)
-#define CFG_SYS_RTC_BUS_NUM		0
-#endif
 
 struct i2c_adapter {
 	void		(*init)(struct i2c_adapter *adap, int speed,
@@ -703,47 +691,12 @@ struct i2c_adapter {
 
 struct i2c_adapter *i2c_get_adapter(int index);
 
-#ifndef CFG_SYS_I2C_DIRECT_BUS
-struct i2c_mux {
-	int	id;
-	char	name[16];
-};
-
-struct i2c_next_hop {
-	struct i2c_mux		mux;
-	uint8_t		chip;
-	uint8_t		channel;
-};
-
-struct i2c_bus_hose {
-	int	adapter;
-	struct i2c_next_hop	next_hop[CFG_SYS_I2C_MAX_HOPS];
-};
-#define I2C_NULL_HOP	{{-1, ""}, 0, 0}
-extern struct i2c_bus_hose	i2c_bus[];
-
-#define I2C_ADAPTER(bus)	i2c_bus[bus].adapter
-#else
 #define I2C_ADAPTER(bus)	bus
-#endif
 #define	I2C_BUS			gd->cur_i2c_bus
 
 #define	I2C_ADAP_NR(bus)	i2c_get_adapter(I2C_ADAPTER(bus))
 #define	I2C_ADAP		I2C_ADAP_NR(gd->cur_i2c_bus)
 #define I2C_ADAP_HWNR		(I2C_ADAP->hwadapnr)
-
-#ifndef CFG_SYS_I2C_DIRECT_BUS
-#define I2C_MUX_PCA9540_ID	1
-#define I2C_MUX_PCA9540		{I2C_MUX_PCA9540_ID, "PCA9540B"}
-#define I2C_MUX_PCA9542_ID	2
-#define I2C_MUX_PCA9542		{I2C_MUX_PCA9542_ID, "PCA9542A"}
-#define I2C_MUX_PCA9544_ID	3
-#define I2C_MUX_PCA9544		{I2C_MUX_PCA9544_ID, "PCA9544A"}
-#define I2C_MUX_PCA9547_ID	4
-#define I2C_MUX_PCA9547		{I2C_MUX_PCA9547_ID, "PCA9547A"}
-#define I2C_MUX_PCA9548_ID	5
-#define I2C_MUX_PCA9548		{I2C_MUX_PCA9548_ID, "PCA9548"}
-#endif
 
 #ifndef I2C_SOFT_DECLARATIONS
 # if (defined(CONFIG_AT91RM9200) || \
@@ -937,66 +890,6 @@ int i2c_set_bus_speed(unsigned int);
 
 unsigned int i2c_get_bus_speed(void);
 #endif /* CONFIG_SYS_I2C_LEGACY */
-
-/*
- * only for backwardcompatibility, should go away if we switched
- * completely to new multibus support.
- */
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CFG_I2C_MULTI_BUS)
-# if !defined(CFG_SYS_MAX_I2C_BUS)
-#  define CFG_SYS_MAX_I2C_BUS		2
-# endif
-# define I2C_MULTI_BUS				1
-#else
-# define CFG_SYS_MAX_I2C_BUS		1
-# define I2C_MULTI_BUS				0
-#endif
-
-/* NOTE: These two functions MUST be always_inline to avoid code growth! */
-static inline unsigned int I2C_GET_BUS(void) __attribute__((always_inline));
-static inline unsigned int I2C_GET_BUS(void)
-{
-	return I2C_MULTI_BUS ? i2c_get_bus_num() : 0;
-}
-
-static inline void I2C_SET_BUS(unsigned int bus) __attribute__((always_inline));
-static inline void I2C_SET_BUS(unsigned int bus)
-{
-	if (I2C_MULTI_BUS)
-		i2c_set_bus_num(bus);
-}
-
-/* Multi I2C definitions */
-enum {
-	I2C_0, I2C_1, I2C_2, I2C_3, I2C_4, I2C_5, I2C_6, I2C_7,
-	I2C_8, I2C_9, I2C_10,
-};
-
-/**
- * Get FDT values for i2c bus.
- *
- * @param blob  Device tree blbo
- * Return: the number of I2C bus
- */
-void board_i2c_init(const void *blob);
-
-/**
- * Find the I2C bus number by given a FDT I2C node.
- *
- * @param blob  Device tree blbo
- * @param node  FDT I2C node to find
- * Return: the number of I2C bus (zero based), or -1 on error
- */
-int i2c_get_bus_num_fdt(int node);
-
-/**
- * Reset the I2C bus represented by the given a FDT I2C node.
- *
- * @param blob  Device tree blbo
- * @param node  FDT I2C node to find
- * Return: 0 if port was reset, -1 if not found
- */
-int i2c_reset_port_fdt(const void *blob, int node);
 
 #endif /* !CONFIG_DM_I2C */
 

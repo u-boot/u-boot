@@ -26,6 +26,15 @@ config TPL_RAM
 	  TPL, enable this option. It might provide a cleaner interface to
 	  setting up RAM (e.g. SDRAM / DDR) within TPL.
 
+config VPL_RAM
+	bool "Enable RAM support in VPL"
+	depends on RAM && VPL
+	help
+	  The RAM subsystem adds a small amount of overhead to the image.
+	  If this is acceptable and you have a need to use RAM drivers in
+	  VPL, enable this option. It might provide a cleaner interface to
+	  setting up RAM (e.g. SDRAM / DDR) within VPL.
+
 config STM32_SDRAM
 	bool "Enable STM32 SDRAM support"
 	depends on RAM
@@ -62,7 +71,7 @@ choice
 	depends on K3_DDRSS
 	prompt "K3 DDRSS Arch Support"
 
-	default K3_J721E_DDRSS if SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_J784S4
+	default K3_J721E_DDRSS if SOC_K3_J721E || SOC_K3_J7200 || SOC_K3_J721S2 || SOC_K3_J784S4
 	default K3_AM64_DDRSS if SOC_K3_AM642
 	default K3_AM64_DDRSS if SOC_K3_AM625
 	default K3_AM62A_DDRSS if SOC_K3_AM62A7 || SOC_K3_AM62P5 || SOC_K3_J722S
@@ -107,9 +116,20 @@ config IMXRT_SDRAM
 	  to support external memories like sdram, psram & nand.
 	  This driver is for the sdram memory interface with the SEMC.
 
+config K3_INLINE_ECC
+	bool "Enable TI Inline ECC support"
+	depends on K3_DDRSS
+	help
+	  Enable Inline ECC support on K3 platforms. 1/9th of the SDRAM space
+	  is used for ECC storage and the rest 8/9th is available for system
+	  use. Enabling ECC increases boot time as the ECC protected regions
+	  need to be primed with a predefined value prior to enabling ECC
+	  check.
+
 source "drivers/ram/aspeed/Kconfig"
 source "drivers/ram/cadence/Kconfig"
 source "drivers/ram/octeon/Kconfig"
+source "drivers/ram/renesas/Kconfig"
 source "drivers/ram/rockchip/Kconfig"
 source "drivers/ram/sifive/Kconfig"
 source "drivers/ram/stm32mp1/Kconfig"

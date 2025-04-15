@@ -3,13 +3,14 @@
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 
 ifdef CONFIG_SPL_NAND_DRIVERS
 NORMAL_DRIVERS=y
 endif
 
 obj-$(CONFIG_SPL_NAND_AM33XX_BCH) += am335x_spl_bch.o
+obj-$(CONFIG_SPL_NAND_CADENCE) += cadence_spl.o
 obj-$(CONFIG_SPL_NAND_DENALI) += denali_spl.o
 obj-$(CONFIG_SPL_NAND_SIMPLE) += nand_spl_simple.o
 obj-$(CONFIG_SPL_NAND_LOAD) += nand_spl_load.o
@@ -18,7 +19,7 @@ obj-$(CONFIG_SPL_NAND_BASE) += nand_base.o nand_amd.o nand_hynix.o \
 				nand_macronix.o nand_micron.o \
 				nand_samsung.o nand_toshiba.o
 obj-$(CONFIG_SPL_NAND_IDENT) += nand_ids.o nand_timings.o
-obj-$(CONFIG_$(SPL_TPL_)NAND_INIT) += nand.o
+obj-$(CONFIG_$(PHASE_)NAND_INIT) += nand.o
 ifeq ($(CONFIG_SPL_ENV_SUPPORT),y)
 obj-$(CONFIG_ENV_IS_IN_NAND) += nand_util.o
 endif
@@ -51,6 +52,7 @@ obj-$(CONFIG_NAND_ATMEL) += atmel_nand.o
 obj-$(CONFIG_DM_NAND_ATMEL) += atmel/
 obj-$(CONFIG_NAND_ARASAN) += arasan_nfc.o
 obj-$(CONFIG_NAND_BRCMNAND) += brcmnand/
+obj-$(CONFIG_NAND_CADENCE) += cadence_nand.o
 obj-$(CONFIG_NAND_DAVINCI) += davinci_nand.o
 obj-$(CONFIG_NAND_DENALI) += denali.o
 obj-$(CONFIG_NAND_DENALI_DT) += denali_dt.o

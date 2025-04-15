@@ -5,21 +5,25 @@ config AHAB_BOOT
     help
     This option enables the support for AHAB secure boot.
 
-config IMX9_LOW_DRIVE_MODE
-    bool "Configure to i.MX9 low drive mode"
-    help
-    This option enables the settings for iMX9 low drive mode.
-
 config IMX9
 	bool
 	select BINMAN
+	select CPU
+	select CPU_IMX
 	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
+	imply IMX_TMU
 
 config IMX93
 	bool
 	select IMX9
 	select ARMV8_SPL_EXCEPTION_VECTORS
+
+config IMX91
+	bool
+	select IMX9
+	select ARMV8_SPL_EXCEPTION_VECTORS
+
 
 config SYS_SOC
 	default "imx9"
@@ -28,10 +32,30 @@ choice
 	prompt  "NXP i.MX9 board select"
 	optional
 
+config TARGET_IMX91_11X11_EVK
+	bool "imx91_11x11_evk"
+	select OF_BOARD_FIXUP
+	select IMX91
+	imply OF_UPSTREAM
+	imply BOOTSTD_FULL
+	imply BOOTSTD_BOOTCOMMAND
+
+config TARGET_IMX93_9X9_QSB
+	bool "imx93_qsb"
+	select OF_BOARD_FIXUP
+	select IMX93
+	select IMX9_LPDDR4X
+	imply OF_UPSTREAM
+	imply BOOTSTD_FULL
+	imply BOOTSTD_BOOTCOMMAND
+
 config TARGET_IMX93_11X11_EVK
 	bool "imx93_11x11_evk"
+	select OF_BOARD_FIXUP
 	select IMX93
 	imply OF_UPSTREAM
+	imply BOOTSTD_FULL
+	imply BOOTSTD_BOOTCOMMAND
 
 config TARGET_IMX93_VAR_SOM
 	bool "imx93_var_som"
@@ -42,10 +66,14 @@ config TARGET_PHYCORE_IMX93
 	bool "phycore_imx93"
 	select IMX93
 	select IMX9_LPDDR4X
+	select OF_BOARD_FIXUP
+	select OF_BOARD_SETUP
 
 endchoice
 
+source "board/freescale/imx91_evk/Kconfig"
 source "board/freescale/imx93_evk/Kconfig"
+source "board/freescale/imx93_qsb/Kconfig"
 source "board/phytec/phycore_imx93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
 

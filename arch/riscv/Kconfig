@@ -11,6 +11,15 @@ choice
 config TARGET_ANDES_AE350
 	bool "Support Andes ae350"
 
+config TARGET_BANANAPI_F3
+	bool "Support BananaPi F3 Board"
+
+config TARGET_K230_CANMV
+	bool "Support K230 CanMV Board"
+
+config TARGET_LICHEERV_NANO
+	bool "Support LicheeRV Nano Board"
+
 config TARGET_MICROCHIP_ICICLE
 	bool "Support Microchip PolarFire-SoC Icicle Board"
 
@@ -21,7 +30,7 @@ config TARGET_OPENPITON_RISCV64
 	bool "Support RISC-V cores on OpenPiton SoC"
 
 config TARGET_QEMU_VIRT
-	bool "Support QEMU Virt Board"
+	bool "Support QEMU Virt & RVVM Boards"
 	select BOARD_LATE_INIT
 
 config TARGET_SIFIVE_UNLEASHED
@@ -45,6 +54,9 @@ config TARGET_TH1520_LPI4A
 
 config TARGET_XILINX_MBV
 	bool "Support AMD/Xilinx MicroBlaze V"
+
+config TARGET_ASPEED_AST2700_IBEX
+	bool "Support Ibex RISC-V cores on Aspeed AST2700 SoC"
 
 endchoice
 
@@ -81,6 +93,8 @@ config SPL_ZERO_MEM_BEFORE_USE
 
 # board-specific options below
 source "board/andestech/ae350/Kconfig"
+source "board/aspeed/ibex_ast2700/Kconfig"
+source "board/canaan/k230_canmv/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
 source "board/openpiton/riscv64/Kconfig"
@@ -88,6 +102,8 @@ source "board/sifive/unleashed/Kconfig"
 source "board/sifive/unmatched/Kconfig"
 source "board/sipeed/maix/Kconfig"
 source "board/sophgo/milkv_duo/Kconfig"
+source "board/sophgo/licheerv_nano/Kconfig"
+source "board/spacemit/bananapi-f3/Kconfig"
 source "board/starfive/visionfive2/Kconfig"
 source "board/thead/th1520_lpi4a/Kconfig"
 source "board/xilinx/mbv/Kconfig"
@@ -97,8 +113,11 @@ source "arch/riscv/cpu/andes/Kconfig"
 source "arch/riscv/cpu/cv1800b/Kconfig"
 source "arch/riscv/cpu/fu540/Kconfig"
 source "arch/riscv/cpu/fu740/Kconfig"
+source "arch/riscv/cpu/ast2700/Kconfig"
 source "arch/riscv/cpu/generic/Kconfig"
 source "arch/riscv/cpu/jh7110/Kconfig"
+source "arch/riscv/cpu/k1/Kconfig"
+source "arch/riscv/cpu/k230/Kconfig"
 
 # architecture-specific options below
 
@@ -115,6 +134,7 @@ config ARCH_RV32I
 config ARCH_RV64I
 	bool "RV64I"
 	select 64BIT
+	select SPL_64BIT if SPL
 	select PHYS_64BIT
 	help
 	  Choose this option to target the RV64I base integer instruction set.
@@ -133,6 +153,7 @@ config FRAMEPOINTER
 
 config SPL_FRAMEPOINTER
 	bool "Build SPL with frame pointer for stack unwinding"
+	depends on SPL
 	help
 	  Choose this option to use the frame pointer so the stack can be
 	  unwound if needed. This is useful for tracing where faults came
@@ -308,7 +329,14 @@ config TPL_USE_ARCH_STRNCMP
 endmenu
 
 config RISCV_ISA_A
-	def_bool y
+	bool "Standard extension for Atomic Instructions"
+	default y
+	help
+	  Adds "A" to the ISA string passed to the compiler.
+
+config RISCV_ISA_ZICBOM
+	bool "Zicbom support"
+	depends on !SYS_DISABLE_DCACHE_OPS
 
 config DMA_ADDR_T_64BIT
 	bool
@@ -431,13 +459,27 @@ config SPL_XIP
 
 config AVAILABLE_HARTS
 	bool "Send IPI by available harts"
+	depends on !XIP
 	default y
 	help
 	  By default, IPI sending mechanism will depend on available_harts.
 	  If disable this, it will send IPI by CPUs node numbers of device tree.
 
 config SHOW_REGS
+	default y
 	bool "Show registers on unhandled exception"
+	help
+	  By default only the program counter and the return address register
+	  are shown in crash dumps. Enable this symbol to show all registers in
+	  main U-Boot.
+
+config SPL_SHOW_REGS
+	bool "In SPL show registers on unhandled exception"
+	depends on SPL
+	help
+	  By default only the program counter and the return address register
+	  are shown in crash dumps. Enable this symbol to show all registers in
+	  SPL.
 
 config RISCV_PRIV_1_9
 	bool "Use version 1.9 of the RISC-V priviledged specification"
@@ -450,7 +492,7 @@ config RISCV_PRIV_1_9
 	  memory is configured was also changed.
 
 config STACK_SIZE_SHIFT
-	int
+	int "Stack size shift"
 	default 14
 
 config OF_BOARD_FIXUP
@@ -545,5 +587,11 @@ config SPL_LOAD_FIT_OPENSBI_OS_BOOT
 	  Use fw_dynamic from the FIT image, and u-boot SPL will invoke it directly.
 	  This is a shortcut boot flow, from u-boot SPL -> OpenSBI -> u-boot proper
 	  -> linux to u-boot SPL -> OpenSBI -> linux.
+
+config SPL_OPTEE_LOAD_ADDR
+	hex "OP-TEE Trusted OS image load address"
+	depends on OPTEE
+	help
+	  Load address of the OP-TEE binary.
 
 endmenu

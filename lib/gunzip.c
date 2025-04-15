@@ -15,6 +15,7 @@
 #include <u-boot/crc.h>
 #include <watchdog.h>
 #include <u-boot/zlib.h>
+#include <asm/sections.h>
 
 #define HEADER0			'\x1f'
 #define HEADER1			'\x8b'
@@ -43,7 +44,7 @@ void gzfree(void *x, void *addr, unsigned nb)
 	free (addr);
 }
 
-int gzip_parse_header(const unsigned char *src, unsigned long len)
+__rcode int gzip_parse_header(const unsigned char *src, unsigned long len)
 {
 	int i, flags;
 
@@ -71,7 +72,7 @@ int gzip_parse_header(const unsigned char *src, unsigned long len)
 	return i;
 }
 
-int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
+__rcode int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 {
 	int offset = gzip_parse_header(src, *lenp);
 
@@ -274,8 +275,8 @@ out:
 /*
  * Uncompress blocks compressed with zlib without headers
  */
-int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
-						int stoponerr, int offset)
+__rcode int zunzip(void *dst, int dstlen, unsigned char *src,
+		   unsigned long *lenp, int stoponerr, int offset)
 {
 	z_stream s;
 	int err = 0;

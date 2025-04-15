@@ -7,18 +7,48 @@
 
 &{/imx8qm-pm} {
 
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
 &mu {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
 &clk {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
 &iomuxc {
+	bootph-some-ram;
+	bootph-pre-ram;
+};
+
+&reg_usdhc2_vmmc {
+	bootph-pre-ram;
+};
+
+&{/mu@5d1c0000/iomuxc/imx8qm-mek} {
+	bootph-some-ram;
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_gpio {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_lpuart0 {
+	bootph-some-ram;
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc1 {
 	bootph-pre-ram;
 };
 
@@ -75,10 +105,12 @@
 };
 
 &pd_dma {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
 &pd_dma_lpuart0 {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 
@@ -131,6 +163,7 @@
 };
 
 &lpuart0 {
+	bootph-some-ram;
 	bootph-pre-ram;
 };
 

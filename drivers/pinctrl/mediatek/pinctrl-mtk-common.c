@@ -671,7 +671,7 @@ const struct pinctrl_ops mtk_pinctrl_ops = {
 };
 
 #if CONFIG_IS_ENABLED(DM_GPIO) || \
-    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO))
+    (defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_GPIO))
 static int mtk_gpio_get(struct udevice *dev, unsigned int off)
 {
 	int val, err;
@@ -791,11 +791,20 @@ bind:
 }
 #endif
 
+int mtk_pinctrl_common_bind(struct udevice *dev)
+{
+#if CONFIG_IS_ENABLED(DM_GPIO) || \
+    (defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_GPIO))
+	return mtk_gpiochip_register(dev);
+#else
+	return 0;
+#endif
+}
+
 int mtk_pinctrl_common_probe(struct udevice *dev,
 			     const struct mtk_pinctrl_soc *soc)
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
-	int ret = 0;
 	u32 i = 0;
 	fdt_addr_t addr;
 	u32 base_calc = soc->base_calc;
@@ -807,16 +816,15 @@ int mtk_pinctrl_common_probe(struct udevice *dev,
 		nbase_names = 1;
 
 	for (i = 0; i < nbase_names; i++) {
-		addr = devfdt_get_addr_index(dev, i);
+		if (soc->base_names)
+			addr = dev_read_addr_name(dev, soc->base_names[i]);
+		else
+			addr = dev_read_addr_index(dev, i);
+
 		if (addr == FDT_ADDR_T_NONE)
 			return -EINVAL;
 		priv->base[i] = (void __iomem *)addr;
 	}
 
-#if CONFIG_IS_ENABLED(DM_GPIO) || \
-    (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO))
-	ret = mtk_gpiochip_register(dev);
-#endif
-
-	return ret;
+	return 0;
 }

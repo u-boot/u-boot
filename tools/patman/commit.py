@@ -6,7 +6,7 @@ import collections
 import re
 
 # Separates a tag: at the beginning of the subject from the rest of it
-re_subject_tag = re.compile('([^:\s]*):\s*(.*)')
+re_subject_tag = re.compile(r'([^:\s]*):\s*(.*)')
 
 class Commit:
     """Holds information about a single commit/patch in the series.

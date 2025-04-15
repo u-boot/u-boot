@@ -15,6 +15,7 @@
 #include <init.h>
 #include <k3-ddrss.h>
 #include <spl.h>
+#include <asm/arch/k3-ddr.h>
 
 #include "../common/tdx-cfg-block.h"
 
@@ -33,6 +34,20 @@ int dram_init(void)
 		puts("## WARNING: Less than 512MB RAM detected\n");
 
 	return 0;
+}
+
+int dram_init_banksize(void)
+{
+	s32 ret;
+
+	ret = fdtdec_setup_memory_banksize();
+	if (ret)
+		printf("Error setting up memory banksize. %d\n", ret);
+
+	/* Use the detected RAM size, we only support 1 bank right now. */
+	gd->bd->bi_dram[0].size = gd->ram_size;
+
+	return ret;
 }
 
 /*

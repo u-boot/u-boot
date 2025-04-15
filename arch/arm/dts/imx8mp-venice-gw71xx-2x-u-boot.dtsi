@@ -4,21 +4,19 @@
  */
 #include "imx8mp-venice-gw702x-u-boot.dtsi"
 
-&gpio1 {
-	tpm_rst {
-		gpio-hog;
-		output-high;
-		gpios = <11 GPIO_ACTIVE_HIGH>;
-		line-name = "tpm_rst#";
-	};
-};
-
 &gpio4 {
 	dio_1 {
 		gpio-hog;
 		input;
 		gpios = <8 GPIO_ACTIVE_HIGH>;
 		line-name = "dio1";
+	};
+
+	tpm_rst {
+		gpio-hog;
+		output-high;
+		gpios = <9 GPIO_ACTIVE_HIGH>;
+		line-name = "tpm_rst#";
 	};
 
 	dio_0 {

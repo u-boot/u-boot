@@ -29,7 +29,6 @@ static int dm_test_tag_ptr(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_tag_ptr, 0);
 
 /*
@@ -49,7 +48,6 @@ static int dm_test_tag_val(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_tag_val, 0);
 
 /*
@@ -63,7 +61,6 @@ static int dm_test_tag_inval(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_tag_inval, 0);
 
 /*
@@ -79,5 +76,4 @@ static int dm_test_tag_del_all(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_tag_del_all, 0);

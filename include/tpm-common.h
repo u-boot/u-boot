@@ -43,11 +43,19 @@ enum tpm_version {
 };
 
 /**
+ * define TPM2_NUM_PCR_BANKS - number of PCR banks
+ * The value 16 can be found in the current standard
+ * TCG TSS 2.0 Overview and Common Structures Specification 1.0, rev 10
+ */
+#define TPM2_NUM_PCR_BANKS 16
+
+/**
  * struct tpm_chip_priv - Information about a TPM, stored by the uclass
  *
- * These values must be set up by the device's probe() method before
+ * Some of hese values must be set up by the device's probe() method before
  * communcation is attempted. If the device has an xfer() method, this is
  * not needed. There is no need to set up @buf.
+ * The active_banks is only valid for TPMv2 after the device is initialized.
  *
  * @version:		TPM stack to be used
  * @duration_ms:	Length of each duration type in milliseconds
@@ -55,6 +63,8 @@ enum tpm_version {
  * @buf:		Buffer used during the exchanges with the chip
  * @pcr_count:		Number of PCR per bank
  * @pcr_select_min:	Minimum size in bytes of the pcrSelect array
+ * @active_bank_count:	Number of active PCR banks
+ * @active_banks:	Array of active PCRs
  * @plat_hier_disabled:	Platform hierarchy has been disabled (TPM is locked
  *			down until next reboot)
  */
@@ -68,6 +78,10 @@ struct tpm_chip_priv {
 	/* TPM v2 specific data */
 	uint pcr_count;
 	uint pcr_select_min;
+#if IS_ENABLED(CONFIG_TPM_V2)
+	u8 active_bank_count;
+	u32 active_banks[TPM2_NUM_PCR_BANKS];
+#endif
 	bool plat_hier_disabled;
 };
 

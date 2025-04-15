@@ -42,6 +42,7 @@ config TARGET_PHYCORE_AM62X_R5
 	select SPL_RAM
 	select K3_DDRSS
 	select BINMAN
+	select PHYTEC_K3_DDR_PATCH
 	imply SYS_K3_SPL_ATF
 
 config TARGET_VERDIN_AM62_A53

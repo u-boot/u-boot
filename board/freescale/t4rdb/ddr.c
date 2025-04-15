@@ -111,7 +111,7 @@ int dram_init(void)
 
 	puts("Initializing....using SPD\n");
 
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_RAMBOOT_PBL)
+#if defined(CONFIG_XPL_BUILD) || !defined(CONFIG_RAMBOOT_PBL)
 	dram_size = fsl_ddr_sdram();
 #else
 	/* DDR has been initialised by first stage boot loader */

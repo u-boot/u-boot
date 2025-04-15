@@ -42,11 +42,17 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct rom_api *g_rom_api = (struct rom_api *)0x1980;
 
-#ifdef CONFIG_ENV_IS_IN_MMC
+#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC) || CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
 __weak int board_mmc_get_env_dev(int devno)
 {
 	return devno;
 }
+
+#ifdef CONFIG_SYS_MMC_ENV_DEV
+#define IMX9_MMC_ENV_DEV CONFIG_SYS_MMC_ENV_DEV
+#else
+#define IMX9_MMC_ENV_DEV 0
+#endif
 
 int mmc_get_env_dev(void)
 {
@@ -59,7 +65,7 @@ int mmc_get_env_dev(void)
 
 	if (ret != ROM_API_OKAY) {
 		puts("ROMAPI: failure at query_boot_info\n");
-		return CONFIG_SYS_MMC_ENV_DEV;
+		return IMX9_MMC_ENV_DEV;
 	}
 
 	boot_type = boot >> 16;
@@ -69,7 +75,7 @@ int mmc_get_env_dev(void)
 
 	/* If not boot from sd/mmc, use default value */
 	if (boot_type != BOOT_TYPE_SD && boot_type != BOOT_TYPE_MMC)
-		return env_get_ulong("mmcdev", 10, CONFIG_SYS_MMC_ENV_DEV);
+		return env_get_ulong("mmcdev", 10, IMX9_MMC_ENV_DEV);
 
 	return board_mmc_get_env_dev(boot_instance);
 }
@@ -96,16 +102,24 @@ int mmc_get_env_dev(void)
  */
 u32 get_cpu_speed_grade_hz(void)
 {
-	u32 speed, max_speed;
+	int ret;
+	u32 bank, word, speed, max_speed;
 	u32 val;
 
-	fuse_read(2, 3, &val);
+	bank = HW_CFG1 / NUM_WORDS_PER_BANK;
+	word = HW_CFG1 % NUM_WORDS_PER_BANK;
+	ret = fuse_read(bank, word, &val);
+	if (ret)
+		val = 0; /* If read fuse failed, return as blank fuse */
+
 	val = FIELD_GET(SPEED_GRADING_MASK, val) & 0xF;
 
 	speed = MHZ(2300) - val * MHZ(100);
 
 	if (is_imx93())
 		max_speed = MHZ(1700);
+	else if (is_imx91())
+		max_speed = MHZ(1400);
 
 	/* In case the fuse of speed grade not programmed */
 	if (speed > max_speed)
@@ -122,9 +136,15 @@ u32 get_cpu_speed_grade_hz(void)
  */
 u32 get_cpu_temp_grade(int *minc, int *maxc)
 {
-	u32 val;
+	int ret;
+	u32 bank, word, val;
 
-	fuse_read(2, 3, &val);
+	bank = HW_CFG1 / NUM_WORDS_PER_BANK;
+	word = HW_CFG1 % NUM_WORDS_PER_BANK;
+	ret = fuse_read(bank, word, &val);
+	if (ret)
+		val = 0; /* If read fuse failed, return as blank fuse */
+
 	val = FIELD_GET(MARKETING_GRADING_MASK, val);
 
 	if (minc && maxc) {
@@ -160,12 +180,51 @@ static void set_cpu_info(struct ele_get_info_data *info)
 
 static u32 get_cpu_variant_type(u32 type)
 {
-	/* word 19 */
-	u32 val = readl((ulong)FSB_BASE_ADDR + 0x8000 + (19 << 2));
-	u32 val2 = readl((ulong)FSB_BASE_ADDR + 0x8000 + (20 << 2));
+	u32 bank, word, val, val2;
+	int ret;
+
+	bank = HW_CFG1 / NUM_WORDS_PER_BANK;
+	word = HW_CFG1 % NUM_WORDS_PER_BANK;
+	ret = fuse_read(bank, word, &val);
+	if (ret)
+		val = 0; /* If read fuse failed, return as blank fuse */
+
+	bank = HW_CFG2 / NUM_WORDS_PER_BANK;
+	word = HW_CFG2 % NUM_WORDS_PER_BANK;
+	ret = fuse_read(bank, word, &val2);
+	if (ret)
+		val2 = 0; /* If read fuse failed, return as blank fuse */
+
 	bool npu_disable = !!(val & BIT(13));
 	bool core1_disable = !!(val & BIT(15));
-	u32 pack_9x9_fused = BIT(4) | BIT(17) | BIT(19) | BIT(24);
+	u32 pack_9x9_fused = BIT(4) | BIT(5) | BIT(17) | BIT(19) | BIT(24);
+	u32 nxp_recog = (val & GENMASK(23, 16)) >> 16;
+
+	/* For iMX91 */
+	if (type == MXC_CPU_IMX91) {
+		switch (nxp_recog) {
+		case 0x9:
+		case 0xA:
+			type = MXC_CPU_IMX9111;
+			break;
+		case 0xD:
+		case 0xE:
+			type = MXC_CPU_IMX9121;
+			break;
+		case 0xF:
+		case 0x10:
+			type = MXC_CPU_IMX9101;
+			break;
+		default:
+			break;	/* 9131 as default */
+		}
+
+		return type;
+	}
+
+	/* Low performance 93 part */
+	if (((val >> 6) & 0x3F) == 0xE && npu_disable)
+		return core1_disable ? MXC_CPU_IMX9301 : MXC_CPU_IMX9302;
 
 	if ((val2 & pack_9x9_fused) == pack_9x9_fused)
 		type = MXC_CPU_IMX9322;
@@ -183,8 +242,14 @@ static u32 get_cpu_variant_type(u32 type)
 u32 get_cpu_rev(void)
 {
 	u32 rev = (gd->arch.soc_rev >> 24) - 0xa0;
+	u32 type;
 
-	return (get_cpu_variant_type(MXC_CPU_IMX93) << 12) |
+	if ((gd->arch.soc_rev & 0xFFFF) == 0x9300)
+		type = MXC_CPU_IMX93;
+	else
+		type = MXC_CPU_IMX91;
+
+	return (get_cpu_variant_type(type) << 12) |
 		(CHIP_REV_1_0 + rev);
 }
 
@@ -216,15 +281,9 @@ static void disable_wdog(void __iomem *wdog_base)
 
 void init_wdog(void)
 {
-	u32 src_val;
-
 	disable_wdog((void __iomem *)WDG3_BASE_ADDR);
 	disable_wdog((void __iomem *)WDG4_BASE_ADDR);
 	disable_wdog((void __iomem *)WDG5_BASE_ADDR);
-
-	src_val = readl(0x54460018); /* reset mask */
-	src_val &= ~0x1c;
-	writel(src_val, 0x54460018);
 }
 
 static struct mm_region imx93_mem_map[] = {
@@ -361,7 +420,7 @@ int dram_init(void)
 		return ret;
 
 	/* rom_pointer[1] contains the size of TEE occupies */
-	if (!IS_ENABLED(CONFIG_SPL_BUILD) && rom_pointer[1])
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) && rom_pointer[1])
 		gd->ram_size = sdram_size - rom_pointer[1];
 	else
 		gd->ram_size = sdram_size;
@@ -390,7 +449,7 @@ int dram_init_banksize(void)
 	}
 
 	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
-	if (!IS_ENABLED(CONFIG_SPL_BUILD) && rom_pointer[1]) {
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) && rom_pointer[1]) {
 		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
 		phys_size_t optee_size = (size_t)rom_pointer[1];
 
@@ -435,7 +494,7 @@ phys_size_t get_effective_memsize(void)
 		else
 			sdram_b1_size = sdram_size;
 
-		if (!IS_ENABLED(CONFIG_SPL_BUILD) && rom_pointer[1]) {
+		if (!IS_ENABLED(CONFIG_XPL_BUILD) && rom_pointer[1]) {
 			/* We will relocate u-boot to top of dram1. TEE position has two cases:
 			 * 1. At the top of dram1,  Then return the size removed optee size.
 			 * 2. In the middle of dram1, return the size of dram1.
@@ -480,12 +539,21 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 		if (ret)
 			goto err;
 
-		mac[0] = val[1] >> 24;
-		mac[1] = val[1] >> 16;
-		mac[2] = val[0] >> 24;
-		mac[3] = val[0] >> 16;
-		mac[4] = val[0] >> 8;
-		mac[5] = val[0];
+		if (is_imx93() && is_soc_rev(CHIP_REV_1_0)) {
+			mac[0] = val[1] >> 24;
+			mac[1] = val[1] >> 16;
+			mac[2] = val[0] >> 24;
+			mac[3] = val[0] >> 16;
+			mac[4] = val[0] >> 8;
+			mac[5] = val[0];
+		} else {
+			mac[0] = val[0] >> 24;
+			mac[1] = val[0] >> 16;
+			mac[2] = val[0] >> 8;
+			mac[3] = val[0];
+			mac[4] = val[1] >> 24;
+			mac[5] = val[1] >> 16;
+		}
 	}
 
 	debug("%s: MAC%d: %02x.%02x.%02x.%02x.%02x.%02x\n",
@@ -502,57 +570,145 @@ int print_cpuinfo(void)
 
 	cpurev = get_cpu_rev();
 
-	printf("CPU:   i.MX93 rev%d.%d\n", (cpurev & 0x000F0) >> 4, (cpurev & 0x0000F) >> 0);
+	printf("CPU:   i.MX%s rev%d.%d\n", is_imx93() ? "93" : "91",
+	       (cpurev & 0x000F0) >> 4, (cpurev & 0x0000F) >> 0);
 
 	return 0;
 }
 
-static int fixup_thermal_trips(void *blob, const char *name)
+void build_info(void)
 {
-	int minc, maxc;
-	int node, trip;
+	u32 fw_version, sha1, res, status;
+	int ret;
 
-	node = fdt_path_offset(blob, "/thermal-zones");
-	if (node < 0)
-		return node;
+	printf("\nBuildInfo:\n");
 
-	node = fdt_subnode_offset(blob, node, name);
-	if (node < 0)
-		return node;
+	ret = ele_get_fw_status(&status, &res);
+	if (ret) {
+		printf("  - ELE firmware status failed %d, 0x%x\n", ret, res);
+	} else if ((status & 0xff) == 1) {
+		ret = ele_get_fw_version(&fw_version, &sha1, &res);
+		if (ret) {
+			printf("  - ELE firmware version failed %d, 0x%x\n", ret, res);
+		} else {
+			printf("  - ELE firmware version %u.%u.%u-%x",
+			       (fw_version & (0x00ff0000)) >> 16,
+			       (fw_version & (0x0000fff0)) >> 4,
+			       (fw_version & (0x0000000f)), sha1);
+			((fw_version & (0x80000000)) >> 31) == 1 ? puts("-dirty\n") : puts("\n");
+		}
+	} else {
+		printf("  - ELE firmware not included\n");
+	}
+	puts("\n");
+}
 
-	node = fdt_subnode_offset(blob, node, "trips");
-	if (node < 0)
-		return node;
+int arch_misc_init(void)
+{
+	build_info();
+	return 0;
+}
 
-	get_cpu_temp_grade(&minc, &maxc);
+struct low_drive_freq_entry {
+	const char *node_path;
+	u32 clk;
+	u32 new_rate;
+};
 
-	fdt_for_each_subnode(trip, blob, node) {
-		const char *type;
-		int temp, ret;
+static int low_drive_fdt_fix_clock(void *fdt, int node_off, u32 clk_index, u32 new_rate)
+{
+#define MAX_ASSIGNED_CLKS 8
+	int cnt, j;
+	u32 assignedclks[MAX_ASSIGNED_CLKS]; /* max 8 clocks*/
 
-		type = fdt_getprop(blob, trip, "type", NULL);
-		if (!type)
-			continue;
+	cnt = fdtdec_get_int_array_count(fdt, node_off, "assigned-clock-rates",
+					 assignedclks, MAX_ASSIGNED_CLKS);
+	if (cnt > 0) {
+		if (cnt <= clk_index)
+			return -ENOENT;
 
-		temp = 0;
-		if (!strcmp(type, "critical"))
-			temp = 1000 * (maxc - 5);
-		else if (!strcmp(type, "passive"))
-			temp = 1000 * (maxc - 10);
-		if (temp) {
-			ret = fdt_setprop_u32(blob, trip, "temperature", temp);
-			if (ret)
-				return ret;
+		if (assignedclks[clk_index] <= new_rate)
+			return 0;
+
+		assignedclks[clk_index] = new_rate;
+		for (j = 0; j < cnt; j++)
+			assignedclks[j] = cpu_to_fdt32(assignedclks[j]);
+
+		return fdt_setprop(fdt, node_off, "assigned-clock-rates", &assignedclks,
+				   cnt * sizeof(u32));
+	}
+
+	return -ENOENT;
+}
+
+static int low_drive_freq_update(void *blob)
+{
+	int nodeoff, ret;
+	int i;
+
+	/* Update kernel dtb clocks for low drive mode */
+	struct low_drive_freq_entry table[] = {
+		{"/soc@0/bus@42800000/mmc@42850000", 0, 266666667},
+		{"/soc@0/bus@42800000/mmc@42860000", 0, 266666667},
+		{"/soc@0/bus@42800000/mmc@428b0000", 0, 266666667},
+	};
+
+	for (i = 0; i < ARRAY_SIZE(table); i++) {
+		nodeoff = fdt_path_offset(blob, table[i].node_path);
+		if (nodeoff >= 0) {
+			ret = low_drive_fdt_fix_clock(blob, nodeoff, table[i].clk,
+						      table[i].new_rate);
+			if (!ret)
+				printf("%s freq updated\n", table[i].node_path);
 		}
 	}
 
 	return 0;
 }
 
+#if defined(CONFIG_OF_BOARD_FIXUP) && !defined(CONFIG_TARGET_PHYCORE_IMX93)
+#ifndef CONFIG_XPL_BUILD
+int board_fix_fdt(void *fdt)
+{
+	/* Update dtb clocks for low drive mode */
+	if (is_voltage_mode(VOLT_LOW_DRIVE)) {
+		int nodeoff;
+		int i;
+
+		struct low_drive_freq_entry table[] = {
+			{"/soc@0/bus@42800000/mmc@42850000", 0, 266666667},
+			{"/soc@0/bus@42800000/mmc@42860000", 0, 266666667},
+			{"/soc@0/bus@42800000/mmc@428b0000", 0, 266666667},
+		};
+
+		for (i = 0; i < ARRAY_SIZE(table); i++) {
+			nodeoff = fdt_path_offset(fdt, table[i].node_path);
+			if (nodeoff >= 0)
+				low_drive_fdt_fix_clock(fdt, nodeoff, table[i].clk,
+							table[i].new_rate);
+		}
+	}
+
+	return 0;
+}
+#endif
+#endif
+
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
+	static const char * const nodes_path[] = {
+		"/cpus/cpu@0",
+		"/cpus/cpu@100",
+	};
+
 	if (fixup_thermal_trips(blob, "cpu-thermal"))
 		printf("Failed to update cpu-thermal trip(s)");
+
+	if (is_imx9351() || is_imx9331() || is_imx9321() || is_imx9311() || is_imx9301())
+		disable_cpu_nodes(blob, nodes_path, 1, 2);
+
+	if (is_voltage_mode(VOLT_LOW_DRIVE))
+		low_drive_freq_update(blob);
 
 	return 0;
 }
@@ -560,11 +716,12 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 #if defined(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
 void get_board_serial(struct tag_serialnr *serialnr)
 {
-	printf("UID: 0x%x 0x%x 0x%x 0x%x\n",
-	       gd->arch.uid[0], gd->arch.uid[1], gd->arch.uid[2], gd->arch.uid[3]);
+	printf("UID: %08x%08x%08x%08x\n", __be32_to_cpu(gd->arch.uid[0]),
+	       __be32_to_cpu(gd->arch.uid[1]), __be32_to_cpu(gd->arch.uid[2]),
+	       __be32_to_cpu(gd->arch.uid[3]));
 
-	serialnr->low = gd->arch.uid[0];
-	serialnr->high = gd->arch.uid[3];
+	serialnr->low = __be32_to_cpu(gd->arch.uid[1]);
+	serialnr->high = __be32_to_cpu(gd->arch.uid[0]);
 }
 #endif
 
@@ -582,11 +739,11 @@ static void save_reset_cause(void)
 
 int arch_cpu_init(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD)) {
 		/* Disable wdog */
 		init_wdog();
 
-		clock_init();
+		clock_init_early();
 
 		trdc_early_init();
 
@@ -626,7 +783,7 @@ EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_R, imx9_probe_mu);
 
 int timer_init(void)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	struct sctr_regs *sctr = (struct sctr_regs *)SYSCNT_CTRL_BASE_ADDR;
 	unsigned long freq = readl(&sctr->cntfid0);
 
@@ -752,7 +909,7 @@ static int mix_power_init(enum mix_power_domain pd)
 	/* power on */
 	clrbits_le32(&mix_regs->slice_sw_ctrl, BIT(31));
 	val = readl(&mix_regs->func_stat);
-	while (val & SRC_MIX_SLICE_FUNC_STAT_ISO_STAT)
+	while (val & SRC_MIX_SLICE_FUNC_STAT_SSAR_STAT)
 		val = readl(&mix_regs->func_stat);
 
 	return 0;
@@ -768,7 +925,9 @@ void disable_isolation(void)
 void soc_power_init(void)
 {
 	mix_power_init(MIX_PD_MEDIAMIX);
-	mix_power_init(MIX_PD_MLMIX);
+
+	if (is_imx93())
+		mix_power_init(MIX_PD_MLMIX);
 
 	disable_isolation();
 }
@@ -792,7 +951,10 @@ int m33_prepare(void)
 		(struct src_general_regs *)(ulong)SRC_GLOBAL_RBASE;
 	struct blk_ctrl_s_aonmix_regs *s_regs =
 			(struct blk_ctrl_s_aonmix_regs *)BLK_CTRL_S_ANOMIX_BASE_ADDR;
-	u32 val;
+	u32 val, i;
+
+	if (is_imx91())
+		return -ENODEV;
 
 	if (m33_is_rom_kicked())
 		return -EPERM;
@@ -816,6 +978,18 @@ int m33_prepare(void)
 
 	/* Set ELE LP handshake for M33 reset */
 	setbits_le32(&s_regs->lp_handshake[0], BIT(6));
+
+	/* OSCCA enabled, reconfigure TRDC for TCM access, otherwise ECC init will raise error */
+	val = readl(BLK_CTRL_NS_ANOMIX_BASE_ADDR + 0x28);
+	if (val & BIT(0)) {
+		trdc_mbc_set_control(0x44270000, 1, 0, 0x6600);
+
+		for (i = 0; i < 32; i++)
+			trdc_mbc_blk_config(0x44270000, 1, 3, 0, i, true, 0);
+
+		for (i = 0; i < 32; i++)
+			trdc_mbc_blk_config(0x44270000, 1, 3, 1, i, true, 0);
+	}
 
 	/* Clear M33 TCM for ECC */
 	memset((void *)(ulong)0x201e0000, 0, 0x40000);
@@ -863,4 +1037,23 @@ int psci_sysreset_get_status(struct udevice *dev, char *buf, int size)
 	}
 
 	return 0;
+}
+
+enum imx9_soc_voltage_mode soc_target_voltage_mode(void)
+{
+	u32 speed = get_cpu_speed_grade_hz();
+	enum imx9_soc_voltage_mode voltage = VOLT_OVER_DRIVE;
+
+	if (is_imx93() || is_imx91()) {
+		if (speed == 1700000000)
+			voltage = VOLT_OVER_DRIVE;
+		else if (speed == 1400000000)
+			voltage = VOLT_NOMINAL_DRIVE;
+		else if (speed == 900000000 || speed == 800000000)
+			voltage = VOLT_LOW_DRIVE;
+		else
+			printf("Unexpected A55 freq %u, default to OD\n", speed);
+	}
+
+	return voltage;
 }

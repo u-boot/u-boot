@@ -3,7 +3,7 @@
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 
 obj-$(CONFIG_EFI) += efi/
 obj-$(CONFIG_EFI_LOADER) += efi_driver/
@@ -20,7 +20,7 @@ obj-$(CONFIG_OPTEE_LIB) += optee/
 
 obj-$(CONFIG_AES) += aes.o
 obj-$(CONFIG_AES) += aes/
-obj-$(CONFIG_$(SPL_TPL_)BINMAN_FDT) += binman.o
+obj-$(CONFIG_$(PHASE_)BINMAN_FDT) += binman.o
 
 ifndef API_BUILD
 ifneq ($(CONFIG_CHARSET),)
@@ -28,36 +28,33 @@ obj-y += charset.o
 endif
 endif
 
-ifdef CONFIG_USB_TTY
-obj-y += circbuf.o
-else
 obj-$(CONFIG_CIRCBUF) += circbuf.o
-endif
 
 obj-y += crc8.o
-obj-y += crc16.o
-obj-y += crc16-ccitt.o
 obj-$(CONFIG_ERRNO_STR) += errno_str.o
 obj-$(CONFIG_FIT) += fdtdec_common.o
 obj-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
 obj-$(CONFIG_GZIP_COMPRESSED) += gzip.o
+
+# With QEMU the SMBIOS tables come from there, not from U-Boot
+ifndef CONFIG_QFW_SMBIOS
 obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += smbios.o
+endif
+
 obj-$(CONFIG_SMBIOS_PARSER) += smbios-parser.o
 obj-$(CONFIG_IMAGE_SPARSE) += image-sparse.o
-obj-y += initcall.o
 obj-y += ldiv.o
 obj-$(CONFIG_XXHASH) += xxhash.o
 obj-y += net_utils.o
 obj-$(CONFIG_PHYSMEM) += physmem.o
 obj-y += rc4.o
-obj-$(CONFIG_SUPPORT_EMMC_RPMB) += sha256.o
 obj-$(CONFIG_RBTREE)	+= rbtree.o
 obj-$(CONFIG_BITREVERSE) += bitrev.o
 obj-y += list_sort.o
 endif
 
-obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm-common.o
-ifeq ($(CONFIG_$(SPL_TPL_)TPM),y)
+obj-$(CONFIG_$(PHASE_)TPM) += tpm-common.o
+ifeq ($(CONFIG_$(PHASE_)TPM),y)
 obj-$(CONFIG_TPM) += tpm_api.o
 obj-$(CONFIG_TPM_V1) += tpm-v1.o
 obj-$(CONFIG_TPM_V2) += tpm-v2.o
@@ -65,40 +62,48 @@ obj-$(CONFIG_EFI_TCG2_PROTOCOL) += tpm_tcg2.o
 obj-$(CONFIG_MEASURED_BOOT) += tpm_tcg2.o
 endif
 
-obj-$(CONFIG_$(SPL_TPL_)CRC8) += crc8.o
-obj-$(CONFIG_$(SPL_TPL_)CRC16) += crc16.o
+obj-$(CONFIG_$(PHASE_)CRC8) += crc8.o
+obj-$(CONFIG_$(PHASE_)CRC16) += crc16.o
+obj-$(CONFIG_$(PHASE_)CRC16) += crc16-ccitt.o
 
 obj-y += crypto/
 
-obj-$(CONFIG_$(SPL_TPL_)ACPI) += acpi/
-obj-$(CONFIG_$(SPL_)MD5) += md5.o
+obj-$(CONFIG_$(PHASE_)ACPI) += acpi/
 obj-$(CONFIG_ECDSA) += ecdsa/
-obj-$(CONFIG_$(SPL_)RSA) += rsa/
+obj-$(CONFIG_$(PHASE_)RSA) += rsa/
 obj-$(CONFIG_HASH) += hash-checksum.o
 obj-$(CONFIG_BLAKE2) += blake2/blake2b.o
-obj-$(CONFIG_$(SPL_)SHA1) += sha1.o
-obj-$(CONFIG_$(SPL_)SHA256) += sha256.o
-obj-$(CONFIG_$(SPL_)SHA512) += sha512.o
+
+obj-$(CONFIG_$(PHASE_)MD5_LEGACY) += md5.o
+obj-$(CONFIG_$(PHASE_)SHA1_LEGACY) += sha1.o
+obj-$(CONFIG_$(PHASE_)SHA256) += sha256_common.o
+obj-$(CONFIG_$(PHASE_)SHA256_LEGACY) += sha256.o
+obj-$(CONFIG_$(PHASE_)SHA512_LEGACY) += sha512.o
+
 obj-$(CONFIG_CRYPT_PW) += crypt/
-obj-$(CONFIG_$(SPL_)ASN1_DECODER) += asn1_decoder.o
+obj-$(CONFIG_$(PHASE_)ASN1_DECODER_LEGACY) += asn1_decoder.o
 
-obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
-obj-$(CONFIG_$(SPL_)ZSTD) += zstd/
-obj-$(CONFIG_$(SPL_)GZIP) += gunzip.o
-obj-$(CONFIG_$(SPL_)LZO) += lzo/
-obj-$(CONFIG_$(SPL_)LZMA) += lzma/
-obj-$(CONFIG_$(SPL_)LZ4) += lz4_wrapper.o
+obj-$(CONFIG_$(PHASE_)ZLIB) += zlib/
+obj-$(CONFIG_$(PHASE_)ZSTD) += zstd/
+obj-$(CONFIG_$(PHASE_)GZIP) += gunzip.o
+obj-$(CONFIG_$(PHASE_)LZO) += lzo/
+obj-$(CONFIG_$(PHASE_)LZMA) += lzma/
+obj-$(CONFIG_$(PHASE_)LZ4) += lz4_wrapper.o
 
-obj-$(CONFIG_$(SPL_)LIB_RATIONAL) += rational.o
+obj-$(CONFIG_$(PHASE_)LIB_RATIONAL) += rational.o
 
 obj-$(CONFIG_LIBAVB) += libavb/
 
-obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += libfdt/
-obj-$(CONFIG_$(SPL_TPL_)OF_REAL) += fdtdec_common.o fdtdec.o
+obj-$(CONFIG_$(PHASE_)OF_LIBFDT) += libfdt/
+obj-$(CONFIG_$(PHASE_)OF_REAL) += fdtdec_common.o fdtdec.o
 
-ifdef CONFIG_SPL_BUILD
+obj-$(CONFIG_$(PHASE_)MBEDTLS_LIB) += mbedtls/
+
+obj-$(CONFIG_NET_LWIP) += lwip/
+
+ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16-ccitt.o
-obj-$(CONFIG_$(SPL_TPL_)HASH) += crc16-ccitt.o
+obj-$(CONFIG_$(PHASE_)HASH) += crc16-ccitt.o
 obj-$(CONFIG_MMC_SPI_CRC_ON) += crc16-ccitt.o
 obj-y += net_utils.o
 endif
@@ -110,16 +115,16 @@ obj-y += display_options.o
 CFLAGS_display_options.o := $(if $(BUILD_TAG),-DBUILD_TAG='"$(BUILD_TAG)"')
 obj-$(CONFIG_BCH) += bch.o
 obj-$(CONFIG_MMC_SPI) += crc7.o
-obj-$(CONFIG_$(SPL_TPL_)CRC32) += crc32.o
+obj-$(CONFIG_$(PHASE_)CRC32) += crc32.o
 obj-$(CONFIG_CRC32C) += crc32c.o
 obj-y += ctype.o
 obj-y += div64.o
-obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdtdec.o fdtdec_common.o
+obj-$(CONFIG_$(PHASE_)OF_LIBFDT) += fdtdec.o fdtdec_common.o
 obj-y += hang.o
 obj-y += linux_compat.o
 obj-y += linux_string.o
-obj-$(CONFIG_LMB) += lmb.o
-obj-y += membuff.o
+obj-$(CONFIG_$(PHASE_)LMB) += lmb.o
+obj-y += membuf.o
 obj-$(CONFIG_REGEX) += slre.o
 obj-y += string.o
 obj-y += tables_csum.o
@@ -131,27 +136,28 @@ obj-$(CONFIG_LIB_UUID) += uuid.o
 obj-$(CONFIG_LIB_RAND) += rand.o
 obj-y += panic.o
 
-ifeq ($(CONFIG_SPL_BUILD),y)
+ifeq ($(CONFIG_XPL_BUILD),y)
 # SPL U-Boot may use full-printf, tiny-printf or none at all
-ifdef CONFIG_$(SPL_TPL_)USE_TINY_PRINTF
-obj-$(CONFIG_$(SPL_TPL_)SPRINTF) += tiny-printf.o
+ifdef CONFIG_$(PHASE_)USE_TINY_PRINTF
+obj-$(CONFIG_$(PHASE_)SPRINTF) += tiny-printf.o
 else
-obj-$(CONFIG_$(SPL_TPL_)SPRINTF) += vsprintf.o
+obj-$(CONFIG_$(PHASE_)SPRINTF) += vsprintf.o
 endif
-obj-$(CONFIG_$(SPL_TPL_)STRTO) += strto.o
+obj-$(CONFIG_$(PHASE_)STRTO) += strto.o
 else
 # Main U-Boot always uses the full printf support
 obj-y += vsprintf.o strto.o
 obj-$(CONFIG_SSCANF) += sscanf.o
 endif
-obj-$(CONFIG_$(SPL_)OID_REGISTRY) += oid_registry.o
+obj-$(CONFIG_$(PHASE_)OID_REGISTRY) += oid_registry.o
 
 obj-y += abuf.o
+obj-y += alist.o
 obj-y += date.o
 obj-y += rtc-lib.o
 obj-$(CONFIG_LIB_ELF) += elf.o
 
-obj-$(CONFIG_$(SPL_TPL_)SEMIHOSTING) += semihosting.o
+obj-$(CONFIG_$(PHASE_)SEMIHOSTING) += semihosting.o
 
 #
 # Build a fast OID lookup registry from include/linux/oid_registry.h

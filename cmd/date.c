@@ -31,7 +31,6 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 	int old_bus __maybe_unused;
 
 	/* switch to correct I2C bus */
-#ifdef CONFIG_DM_RTC
 	struct udevice *dev;
 
 	rcode = uclass_get_device_by_seq(UCLASS_RTC, 0, &dev);
@@ -42,35 +41,19 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 		}
 	}
-#elif CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
-	old_bus = i2c_get_bus_num();
-	i2c_set_bus_num(CFG_SYS_RTC_BUS_NUM);
-#else
-	old_bus = I2C_GET_BUS();
-	I2C_SET_BUS(CFG_SYS_RTC_BUS_NUM);
-#endif
 
 	switch (argc) {
 	case 2:			/* set date & time */
 		if (strcmp(argv[1],"reset") == 0) {
 			puts ("Reset RTC...\n");
-#ifdef CONFIG_DM_RTC
 			rcode = dm_rtc_reset(dev);
 			if (!rcode)
 				rcode = dm_rtc_set(dev, &default_tm);
-#else
-			rtc_reset();
-			rcode = rtc_set(&default_tm);
-#endif
 			if (rcode)
 				puts("## Failed to set date after RTC reset\n");
 		} else {
 			/* initialize tm with current time */
-#ifdef CONFIG_DM_RTC
 			rcode = dm_rtc_get(dev, &tm);
-#else
-			rcode = rtc_get(&tm);
-#endif
 			if (!rcode) {
 				/* insert new date & time */
 				if (mk_date(argv[1], &tm) != 0) {
@@ -78,11 +61,7 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 					break;
 				}
 				/* and write to RTC */
-#ifdef CONFIG_DM_RTC
 				rcode = dm_rtc_set(dev, &tm);
-#else
-				rcode = rtc_set(&tm);
-#endif
 				if (rcode) {
 					printf("## Set date failed: err=%d\n",
 					       rcode);
@@ -93,11 +72,7 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 		fallthrough;
 	case 1:			/* get date & time */
-#ifdef CONFIG_DM_RTC
 		rcode = dm_rtc_get(dev, &tm);
-#else
-		rcode = rtc_get(&tm);
-#endif
 		if (rcode) {
 			puts("## Get date failed\n");
 			break;
@@ -113,13 +88,6 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 	default:
 		rcode = CMD_RET_USAGE;
 	}
-
-	/* switch back to original I2C bus */
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
-	i2c_set_bus_num(old_bus);
-#elif !defined(CONFIG_DM_RTC)
-	I2C_SET_BUS(old_bus);
-#endif
 
 	return rcode ? CMD_RET_FAILURE : 0;
 }

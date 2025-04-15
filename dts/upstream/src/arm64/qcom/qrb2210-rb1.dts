@@ -24,7 +24,7 @@
 	};
 
 	clocks {
-		clk40M: can-clk {
+		clk40m: can-clk {
 			compatible = "fixed-clock";
 			clock-frequency = <40000000>;
 			#clock-cells = <0>;
@@ -57,6 +57,17 @@
 				remote-endpoint = <&lt9611_out>;
 			};
 		};
+	};
+
+	i2c2_gpio: i2c {
+		compatible = "i2c-gpio";
+
+		sda-gpios = <&tlmm 6 GPIO_ACTIVE_HIGH>;
+		scl-gpios = <&tlmm 7 GPIO_ACTIVE_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		status = "disabled";
 	};
 
 	leds {
@@ -177,29 +188,37 @@
 	};
 };
 
-&CPU_PD0 {
+&cpu_pd0 {
 	/delete-property/ power-domains;
 };
 
-&CPU_PD1 {
+&cpu_pd1 {
 	/delete-property/ power-domains;
 };
 
-&CPU_PD2 {
+&cpu_pd2 {
 	/delete-property/ power-domains;
 };
 
-&CPU_PD3 {
+&cpu_pd3 {
 	/delete-property/ power-domains;
 };
 
-/delete-node/ &CLUSTER_PD;
+/delete-node/ &cluster_pd;
 
 &gpi_dma0 {
 	status = "okay";
 };
 
-&i2c2 {
+&gpu {
+	status = "okay";
+
+	zap-shader {
+		firmware-name = "qcom/qcm2290/a702_zap.mbn";
+	};
+};
+
+&i2c2_gpio {
 	clock-frequency = <400000>;
 	status = "okay";
 
@@ -522,7 +541,7 @@
 		compatible = "microchip,mcp2518fd";
 		reg = <0>;
 		interrupts-extended = <&tlmm 39 IRQ_TYPE_LEVEL_LOW>;
-		clocks = <&clk40M>;
+		clocks = <&clk40m>;
 		spi-max-frequency = <10000000>;
 		vdd-supply = <&vdc_5v>;
 		xceiver-supply = <&vdc_5v>;

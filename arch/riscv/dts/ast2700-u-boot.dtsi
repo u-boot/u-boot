@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+
+/ {
+	cpus {
+		bootph-all;
+	};
+
+	memory@80000000 {
+		bootph-all;
+	};
+
+	soc0: soc@12000000 {
+		bootph-all;
+
+		sdrammc: sdrammc@12c00000 {
+			bootph-all;
+		};
+
+		syscon0: syscon@12c02000 {
+			bootph-all;
+		};
+	};
+
+	soc1: soc@14000000 {
+		bootph-all;
+
+		syscon1: syscon@14c02000 {
+			bootph-all;
+		};
+
+		uart12: serial@14c33b00 {
+			bootph-all;
+		};
+
+		ast_ibex_timer: timer {
+			bootph-all;
+		};
+	};
+
+};

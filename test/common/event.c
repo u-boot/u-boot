@@ -91,7 +91,7 @@ static int test_event_probe(struct unit_test_state *uts)
 	struct test_state state;
 	struct udevice *dev;
 
-	if (!IS_ENABLED(SANDBOX))
+	if (!IS_ENABLED(CONFIG_SANDBOX))
 		return -EAGAIN;
 
 	state.val = 0;
@@ -106,4 +106,4 @@ static int test_event_probe(struct unit_test_state *uts)
 
 	return 0;
 }
-COMMON_TEST(test_event_probe, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+COMMON_TEST(test_event_probe, UTF_DM | UTF_SCAN_FDT);

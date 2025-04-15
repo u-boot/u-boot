@@ -22,7 +22,7 @@ static int get_ethaddr_from_eeprom(u8 *addr)
 	return i2c_eeprom_read(dev, 0, addr, 6);
 }
 
-int rk3288_board_late_init(void)
+int rockchip_early_misc_init_r(void)
 {
 	u8 ethaddr[6];
 

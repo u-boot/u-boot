@@ -6,8 +6,8 @@ AT91 Evaluation kits
 Board mapping & boot media
 --------------------------
 
-AT91SAM9260EK, AT91SAM9G20EK & AT91SAM9XEEK
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AT91SAM9260EK & AT91SAM9G20EK
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Memory map::
 

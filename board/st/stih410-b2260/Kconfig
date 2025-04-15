@@ -1,15 +1,12 @@
 if TARGET_STIH410_B2260
 
 config SYS_BOARD
-	string
 	default "stih410-b2260"
 
 config SYS_VENDOR
-	string
 	default "st"
 
 config SYS_SOC
-	string
 	default "stih410"
 
 config SYS_CONFIG_NAME

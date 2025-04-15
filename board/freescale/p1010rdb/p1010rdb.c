@@ -656,7 +656,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int pin_mux_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {

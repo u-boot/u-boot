@@ -31,6 +31,7 @@ static int locate_vbt(char **vbtp, int *sizep)
 	size = vbt.size;
 	if (size > sizeof(vbt_data))
 		return log_msg_ret("vbt", -E2BIG);
+	vbt.image_pos += CONFIG_ROM_SIZE;
 	ret = spi_flash_read_dm(dev, vbt.image_pos, size, vbt_data);
 	if (ret)
 		return log_msg_ret("read", ret);

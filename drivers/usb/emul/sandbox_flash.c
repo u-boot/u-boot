@@ -196,7 +196,7 @@ static int handle_ufi_command(struct sandbox_flash_priv *priv, const void *buff,
 		   priv->fd != -1) {
 		offset = os_lseek(priv->fd, info->seek_block * info->block_size,
 				  OS_SEEK_SET);
-		if (offset == (off_t)-1)
+		if (offset < 0)
 			setup_fail_response(priv);
 		else
 			setup_response(priv);

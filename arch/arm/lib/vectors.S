@@ -133,7 +133,7 @@ _fiq:			.word fiq
 
 /* SPL interrupt handling: just hang */
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 #if !CONFIG_IS_ENABLED(SYS_NO_VECTOR_TABLE)
 	.align	5
@@ -166,7 +166,7 @@ fiq:
 	b	1b			/* hang and never return */
 #endif
 
-#else	/* !CONFIG_SPL_BUILD */
+#else	/* !CONFIG_XPL_BUILD */
 
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
 .globl IRQ_STACK_START_IN
@@ -332,4 +332,4 @@ fiq:
 	bad_save_user_regs
 	bl	do_fiq
 
-#endif	/* CONFIG_SPL_BUILD */
+#endif	/* CONFIG_XPL_BUILD */

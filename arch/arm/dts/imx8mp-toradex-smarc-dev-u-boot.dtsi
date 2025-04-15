@@ -1,0 +1,80 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/* Copyright (C) 2024 Toradex */
+
+#include "imx8mp-u-boot.dtsi"
+
+/ {
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+};
+
+&gpio1 {
+	bootph-pre-ram;
+};
+
+&gpio2 {
+	bt_uart_gpio {
+		gpio-hog;
+		gpios = <9 GPIO_ACTIVE_HIGH>;
+		input;
+		line-name = "BT_UART_RXD_GPIO";
+	};
+};
+
+&gpio3 {
+	wifi_en_gpio {
+		gpio-hog;
+		gpios = <14 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "CTRL_EN_WIFI";
+	};
+};
+
+&gpio5 {
+	bootph-pre-ram;
+};
+
+&i2c1 {
+	bootph-pre-ram;
+};
+
+&pca9450 {
+	bootph-pre-ram;
+
+	regulators {
+		bootph-pre-ram;
+	};
+};
+
+&pinctrl_i2c1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c1_gpio {
+	bootph-pre-ram;
+};
+
+&pinctrl_pmic {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart4 {
+	bootph-pre-ram;
+};
+
+&uart3 {
+	status = "disabled";
+};
+
+&uart4 {
+	bootph-pre-ram;
+};
+
+&usdhc1 {
+	status = "disabled";
+};
+
+&usdhc3 {
+	bootph-pre-ram;
+};

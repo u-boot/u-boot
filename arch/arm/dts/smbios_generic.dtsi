@@ -1,0 +1,82 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Default SMBIOS information for Arm64 platforms
+ *
+ * Copyright (c) 2024 Linaro Limited
+ * Author: Raymond Mao <raymond.mao@linaro.org>
+ */
+#include <config.h>
+#include <smbios_def.h>
+
+/ {
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = CONFIG_SYS_VENDOR;
+				product = CONFIG_SYS_BOARD;
+				version = "";
+				serial = "";
+				wakeup-type = <SMBIOS_WAKEUP_TYPE_UNKNOWN>;
+				sku = "";
+				family = "armv8";
+			};
+
+			baseboard {
+				manufacturer = CONFIG_SYS_VENDOR;
+				product = CONFIG_SYS_BOARD;
+				version = "";
+				serial = "";
+				asset-tag = "";
+				chassis-location = "";
+				feature-flags = <SMBIOS_BOARD_FEAT_HOST_BOARD>;
+				board-type = <SMBIOS_BOARD_TYPE_MOTHERBOARD>;
+			};
+
+			chassis {
+				manufacturer = CONFIG_SYS_VENDOR;
+				version = "";
+				serial = "";
+				asset-tag = "";
+				chassis-type = <SMBIOS_ENCLOSURE_DESKTOP>;
+				bootup-state = <SMBIOS_STATE_SAFE>;
+				power-supply-state = <SMBIOS_STATE_SAFE>;
+				thermal-state = <SMBIOS_STATE_SAFE>;
+				security-status = <SMBIOS_SECURITY_NONE>;
+				oem-defined = <SMBIOS_ENCLOSURE_OEM_UND>;
+				height = <SMBIOS_ENCLOSURE_HEIGHT_UND>;
+				number-of-power-cords = <SMBIOS_POWCORD_NUM_UND>;
+			};
+
+			processor {
+				version = "";
+				processor-type = <SMBIOS_PROCESSOR_TYPE_CENTRAL>;
+				processor-status = <SMBIOS_PROCESSOR_STATUS_ENABLED>;
+				upgrade = <SMBIOS_PROCESSOR_UPGRADE_NONE>;
+				family = <SMBIOS_PROCESSOR_FAMILY_EXT>;
+				family2 = <SMBIOS_PROCESSOR_FAMILY_ARMV8>;
+				socket-design = "";
+				serial = "";
+				asset-tag = "";
+				part-number = "";
+			};
+
+			cache {
+				l1-cache {
+					socket-design = "";
+					config = <(SMBIOS_CACHE_LEVEL_1 |
+						   SMBIOS_CACHE_ENABLED |
+						   SMBIOS_CACHE_OP_WB)>;
+				};
+
+				l2-cache {
+					socket-design = "";
+					config = <(SMBIOS_CACHE_LEVEL_2 |
+						   SMBIOS_CACHE_ENABLED |
+						   SMBIOS_CACHE_OP_WB)>;
+				};
+			};
+		};
+	};
+};

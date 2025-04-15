@@ -1,0 +1,845 @@
+# For U-Boot Proper
+
+choice
+	prompt "Crypto libraries (U-Boot Proper)"
+	default LEGACY_HASHING_AND_CRYPTO
+	help
+	  Select crypto libraries.
+	  LEGACY_HASHING_AND_CRYPTO for legacy crypto libraries,
+	  MBEDTLS_LIB for MbedTLS libraries.
+
+config LEGACY_HASHING_AND_CRYPTO
+	bool "legacy crypto libraries"
+	select LEGACY_HASHING
+	select LEGACY_CRYPTO
+
+config MBEDTLS_LIB
+	bool "MbedTLS libraries"
+	select MBEDTLS_LIB_X509
+endchoice
+
+if LEGACY_HASHING_AND_CRYPTO || MBEDTLS_LIB_HASHING_ALT
+
+config LEGACY_HASHING
+	bool "Use U-Boot legacy hashing libraries"
+	select MD5_LEGACY if MD5
+	select SHA1_LEGACY if SHA1
+	select SHA256_LEGACY if SHA256
+	select SHA512_LEGACY if SHA512
+	select SHA384_LEGACY if SHA384
+	help
+	  Enable U-Boot legacy hashing libraries.
+
+if LEGACY_HASHING
+
+config SHA1_LEGACY
+	bool "Enable SHA1 support with legacy crypto library"
+	depends on LEGACY_HASHING && SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm
+	  with legacy crypto library.
+
+config SHA256_LEGACY
+	bool "Enable SHA256 support with legacy crypto library"
+	depends on LEGACY_HASHING && SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  with legacy crypto library.
+
+config SHA512_LEGACY
+	bool "Enable SHA512 support with legacy crypto library"
+	depends on LEGACY_HASHING && SHA512
+	default y if TI_SECURE_DEVICE && FIT_SIGNATURE
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  with legacy crypto library.
+
+config SHA384_LEGACY
+	bool "Enable SHA384 support with legacy crypto library"
+	depends on LEGACY_HASHING && SHA384
+	select SHA512_LEGACY
+	help
+	  This option enables support of hashing using SHA384 algorithm
+	  with legacy crypto library.
+
+config MD5_LEGACY
+	bool "Enable MD5 support with legacy crypto library"
+	depends on LEGACY_HASHING && MD5
+	help
+	  This option enables support of hashing using MD5 algorithm
+	  with legacy crypto library.
+
+endif # LEGACY_HASHING
+
+config LEGACY_CRYPTO
+	bool "legacy certificate libraries"
+	depends on LEGACY_HASHING_AND_CRYPTO
+	select ASN1_DECODER_LEGACY if ASN1_DECODER
+	select ASYMMETRIC_PUBLIC_KEY_LEGACY if \
+		ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select RSA_PUBLIC_KEY_PARSER_LEGACY if RSA_PUBLIC_KEY_PARSER
+	select X509_CERTIFICATE_PARSER_LEGACY if X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER_LEGACY if PKCS7_MESSAGE_PARSER
+	select MSCODE_PARSER_LEGACY if MSCODE_PARSER
+	help
+	  Enable legacy certificate libraries.
+
+if LEGACY_CRYPTO
+
+config ASN1_DECODER_LEGACY
+	bool "ASN1 decoder with legacy certificate library"
+	depends on LEGACY_CRYPTO && ASN1_DECODER
+	help
+	  This option chooses legacy certificate library for ASN1 decoder.
+
+config ASYMMETRIC_PUBLIC_KEY_LEGACY
+	bool "Asymmetric public key crypto with legacy certificate library"
+	depends on LEGACY_CRYPTO && ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	help
+	  This option chooses legacy certificate library for asymmetric public
+	  key crypto algorithm.
+
+config RSA_PUBLIC_KEY_PARSER_LEGACY
+	bool "RSA public key parser with legacy certificate library"
+	depends on ASYMMETRIC_PUBLIC_KEY_LEGACY
+	select ASN1_DECODER_LEGACY
+	help
+	  This option chooses legacy certificate library for RSA public key
+	  parser.
+
+config X509_CERTIFICATE_PARSER_LEGACY
+	bool "X.509 certificate parser with legacy certificate library"
+	depends on ASYMMETRIC_PUBLIC_KEY_LEGACY
+	select ASN1_DECODER_LEGACY
+	help
+	  This option chooses legacy certificate library for X509 certificate
+	  parser.
+
+config PKCS7_MESSAGE_PARSER_LEGACY
+	bool "PKCS#7 message parser with legacy certificate library"
+	depends on X509_CERTIFICATE_PARSER_LEGACY
+	select ASN1_DECODER_LEGACY
+	help
+	  This option chooses legacy certificate library for PKCS7 message
+	  parser.
+
+config MSCODE_PARSER_LEGACY
+	bool "MS authenticode parser with legacy certificate library"
+	depends on LEGACY_CRYPTO && MSCODE_PARSER
+	select ASN1_DECODER_LEGACY
+	help
+	  This option chooses legacy certificate library for MS authenticode
+	  parser.
+
+endif # LEGACY_CRYPTO
+
+endif # LEGACY_HASHING_AND_CRYPTO || MBEDTLS_LIB_HASHING_ALT
+
+if MBEDTLS_LIB
+
+config MBEDTLS_LIB_HASHING_ALT
+	bool "Replace MbedTLS native hashing with U-Boot legacy libraries"
+	depends on MBEDTLS_LIB && !MBEDTLS_LIB_CRYPTO
+	select LEGACY_HASHING
+	default y if MBEDTLS_LIB && !MBEDTLS_LIB_CRYPTO
+	help
+	  Enable MbedTLS hashing alternatives and replace them with legacy hashing
+	  libraries.
+	  This allows user to use U-Boot legacy hashing algorithms together with
+	  other MbedTLS modules.
+	  Mutually incompatible with MBEDTLS_LIB_CRYPTO.
+
+config MBEDTLS_LIB_CRYPTO
+	bool "Use MbedTLS native crypto libraries for hashing"
+	default y if MBEDTLS_LIB
+	select MD5_MBEDTLS if MD5
+	select SHA1_MBEDTLS if SHA1
+	select SHA256_MBEDTLS if SHA256
+	select SHA512_MBEDTLS if SHA512
+	select SHA384_MBEDTLS if SHA384
+	help
+	  Enable MbedTLS native crypto libraries.
+	  Mutually incompatible with MBEDTLS_LIB_HASHING_ALT.
+
+if MBEDTLS_LIB_CRYPTO
+
+config SHA1_MBEDTLS
+	bool "Enable SHA1 support with MbedTLS crypto library"
+	depends on MBEDTLS_LIB_CRYPTO && SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm
+	  with MbedTLS crypto library.
+
+config SHA256_MBEDTLS
+	bool "Enable SHA256 support with MbedTLS crypto library"
+	depends on MBEDTLS_LIB_CRYPTO && SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  with MbedTLS crypto library.
+
+if SHA256_MBEDTLS
+
+config SHA256_SMALLER
+	bool "Enable SHA256 smaller implementation with MbedTLS crypto library"
+	depends on SHA256_MBEDTLS
+	default y if SHA256_MBEDTLS
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  smaller implementation with MbedTLS crypto library.
+
+endif
+
+config SHA512_MBEDTLS
+	bool "Enable SHA512 support with MbedTLS crypto library"
+	depends on MBEDTLS_LIB_CRYPTO && SHA512
+	default y if TI_SECURE_DEVICE && FIT_SIGNATURE
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  with MbedTLS crypto library.
+
+if SHA512_MBEDTLS
+
+config SHA512_SMALLER
+	bool "Enable SHA512 smaller implementation with MbedTLS crypto library"
+	depends on SHA512_MBEDTLS
+	default y if SHA512_MBEDTLS
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  smaller implementation with MbedTLS crypto library.
+
+endif
+
+config SHA384_MBEDTLS
+	bool "Enable SHA384 support with MbedTLS crypto library"
+	depends on MBEDTLS_LIB_CRYPTO && SHA384
+	select SHA512_MBEDTLS
+	help
+	  This option enables support of hashing using SHA384 algorithm
+	  with MbedTLS crypto library.
+
+config MD5_MBEDTLS
+	bool "Enable MD5 support with MbedTLS crypto library"
+	depends on MBEDTLS_LIB_CRYPTO && MD5
+	help
+	  This option enables support of hashing using MD5 algorithm
+	  with MbedTLS crypto library.
+
+config HKDF_MBEDTLS
+	bool "Enable HKDF support with MbedTLS crypto library"
+	depends on MBEDTLS_LIB_CRYPTO
+	help
+	  This option enables support of key derivation using HKDF algorithm
+	  with MbedTLS crypto library.
+
+endif # MBEDTLS_LIB_CRYPTO
+
+config MBEDTLS_LIB_X509
+	bool "MbedTLS certificate libraries"
+	select ASN1_DECODER_MBEDTLS if ASN1_DECODER
+	select ASYMMETRIC_PUBLIC_KEY_MBEDTLS if \
+		ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select RSA_PUBLIC_KEY_PARSER_MBEDTLS if RSA_PUBLIC_KEY_PARSER
+	select X509_CERTIFICATE_PARSER_MBEDTLS if X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER_MBEDTLS if PKCS7_MESSAGE_PARSER
+	select MSCODE_PARSER_MBEDTLS if MSCODE_PARSER
+	help
+	  Enable MbedTLS certificate libraries.
+
+if MBEDTLS_LIB_X509
+
+config ASN1_DECODER_MBEDTLS
+	bool "ASN1 decoder with MbedTLS certificate library"
+	depends on MBEDTLS_LIB_X509 && ASN1_DECODER
+	help
+	  This option chooses MbedTLS certificate library for ASN1 decoder.
+
+config ASYMMETRIC_PUBLIC_KEY_MBEDTLS
+	bool "Asymmetric public key crypto with MbedTLS certificate library"
+	depends on MBEDTLS_LIB_X509 && ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	help
+	  This option chooses MbedTLS certificate library for asymmetric public
+	  key crypto algorithm.
+
+config RSA_PUBLIC_KEY_PARSER_MBEDTLS
+	bool "RSA public key parser with MbedTLS certificate library"
+	depends on ASYMMETRIC_PUBLIC_KEY_MBEDTLS
+	select ASN1_DECODER_MBEDTLS
+	help
+	  This option chooses MbedTLS certificate library for RSA public key
+	  parser.
+
+config X509_CERTIFICATE_PARSER_MBEDTLS
+	bool "X.509 certificate parser with MbedTLS certificate library"
+	depends on ASYMMETRIC_PUBLIC_KEY_MBEDTLS
+	select ASN1_DECODER_MBEDTLS
+	help
+	  This option chooses MbedTLS certificate library for X509 certificate
+	  parser.
+
+config PKCS7_MESSAGE_PARSER_MBEDTLS
+	bool "PKCS#7 message parser with MbedTLS certificate library"
+	depends on X509_CERTIFICATE_PARSER_MBEDTLS
+	select ASN1_DECODER_MBEDTLS
+	help
+	  This option chooses MbedTLS certificate library for PKCS7 message
+	  parser.
+
+config MSCODE_PARSER_MBEDTLS
+	bool "MS authenticode parser with MbedTLS certificate library"
+	depends on MBEDTLS_LIB_X509 && MSCODE_PARSER
+	select ASN1_DECODER_MBEDTLS
+	help
+	  This option chooses MbedTLS certificate library for MS authenticode
+	  parser.
+
+endif # MBEDTLS_LIB_X509
+
+config MBEDTLS_LIB_TLS
+	bool "MbedTLS TLS library"
+	depends on RSA_PUBLIC_KEY_PARSER_MBEDTLS
+	depends on X509_CERTIFICATE_PARSER_MBEDTLS
+	depends on ASYMMETRIC_PUBLIC_KEY_MBEDTLS
+	depends on ASN1_DECODER_MBEDTLS
+	depends on MBEDTLS_LIB
+	help
+	  Enable MbedTLS TLS library. Required for HTTPs support
+	  in wget
+
+endif # MBEDTLS_LIB
+
+# For SPL
+
+if SPL
+
+choice
+	prompt "Crypto libraries (SPL)"
+	default SPL_LEGACY_HASHING_AND_CRYPTO
+	help
+	  Select crypto libraries in SPL.
+	  SPL_LEGACY_HASHING_AND_CRYPTO for legacy crypto libraries,
+	  SPL_MBEDTLS_LIB for MbedTLS libraries.
+
+config SPL_LEGACY_HASHING_AND_CRYPTO
+	bool "legacy crypto libraries"
+	select SPL_LEGACY_HASHING
+	select SPL_LEGACY_CRYPTO
+
+config SPL_MBEDTLS_LIB
+	bool "MbedTLS libraries"
+	select SPL_MBEDTLS_LIB_X509
+endchoice
+
+if SPL_LEGACY_HASHING_AND_CRYPTO || SPL_MBEDTLS_LIB_HASHING_ALT
+
+config SPL_LEGACY_HASHING
+	bool "Use U-Boot legacy hashing libraries (SPL)"
+	select SPL_MD5_LEGACY if SPL_MD5
+	select SPL_SHA1_LEGACY if SPL_SHA1
+	select SPL_SHA256_LEGACY if SPL_SHA256
+	select SPL_SHA512_LEGACY if SPL_SHA512
+	select SPL_SHA384_LEGACY if SPL_SHA384
+	help
+	  Enable U-Boot legacy hashing libraries in SPL.
+
+if SPL_LEGACY_HASHING
+
+config SPL_SHA1_LEGACY
+	bool "Enable SHA1 support with legacy crypto library (SPL)"
+	depends on SPL_LEGACY_HASHING && SPL_SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm
+	  with legacy crypto library in SPL.
+
+config SPL_SHA256_LEGACY
+	bool "Enable SHA256 support with legacy crypto library (SPL)"
+	depends on SPL_LEGACY_HASHING && SPL_SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  with legacy crypto library in SPL.
+
+config SPL_SHA512_LEGACY
+	bool "Enable SHA512 support with legacy crypto library (SPL)"
+	depends on SPL_LEGACY_HASHING && SPL_SHA512
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  with legacy crypto library in SPL.
+
+config SPL_SHA384_LEGACY
+	bool "Enable SHA384 support with legacy crypto library (SPL)"
+	depends on SPL_LEGACY_HASHING && SPL_SHA384
+	select SPL_SHA512_LEGACY
+	help
+	  This option enables support of hashing using SHA384 algorithm
+	  with legacy crypto library in SPL.
+
+config SPL_MD5_LEGACY
+	bool "Enable MD5 support with legacy crypto library (SPL)"
+	depends on SPL_LEGACY_HASHING && SPL_MD5
+	help
+	  This option enables support of hashing using MD5 algorithm
+	  with legacy crypto library in SPL.
+
+endif # SPL_LEGACY_HASHING
+
+config SPL_LEGACY_CRYPTO
+	bool "legacy certificate libraries (SPL)"
+	depends on SPL_LEGACY_HASHING_AND_CRYPTO
+	select SPL_ASN1_DECODER_LEGACY if SPL_ASN1_DECODER
+	select SPL_ASYMMETRIC_PUBLIC_KEY_LEGACY if \
+		SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select SPL_RSA_PUBLIC_KEY_PARSER_LEGACY if SPL_RSA_PUBLIC_KEY_PARSER
+	help
+	  Enable legacy certificate libraries in SPL.
+
+if SPL_LEGACY_CRYPTO
+
+config SPL_ASN1_DECODER_LEGACY
+	bool "ASN1 decoder with legacy certificate library (SPL)"
+	depends on SPL_LEGACY_CRYPTO && SPL_ASN1_DECODER
+	help
+	  This option chooses legacy certificate library for ASN1 decoder in
+	  SPL.
+
+config SPL_ASYMMETRIC_PUBLIC_KEY_LEGACY
+	bool "Asymmetric public key crypto with legacy certificate library (SPL)"
+	depends on SPL_LEGACY_CRYPTO && SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	help
+	  This option chooses legacy certificate library for asymmetric public
+	  key crypto algorithm in SPL.
+
+config SPL_RSA_PUBLIC_KEY_PARSER_LEGACY
+	bool "RSA public key parser with legacy certificate library (SPL)"
+	depends on SPL_ASYMMETRIC_PUBLIC_KEY_LEGACY
+	select SPL_ASN1_DECODER_LEGACY
+	help
+	  This option chooses legacy certificate library for RSA public key
+	  parser in SPL.
+
+endif # SPL_LEGACY_CRYPTO
+
+endif # SPL_LEGACY_HASHING_AND_CRYPTO || SPL_MBEDTLS_LIB_HASHING_ALT
+
+if SPL_MBEDTLS_LIB
+
+config SPL_MBEDTLS_LIB_HASHING_ALT
+	bool "Replace MbedTLS native hashing with U-Boot legacy libraries (SPL)"
+	depends on SPL_MBEDTLS_LIB && !SPL_MBEDTLS_LIB_CRYPTO
+	select SPL_LEGACY_HASHING
+	default y if SPL_MBEDTLS_LIB && !SPL_MBEDTLS_LIB_CRYPTO
+	help
+	  Enable MbedTLS hashing alternatives and replace them with legacy hashing
+	  libraries in SPL.
+	  This allows user to use U-Boot legacy hashing algorithms together with
+	  other MbedTLS modules.
+	  Mutually incompatible with SPL_MBEDTLS_LIB_CRYPTO.
+
+config SPL_MBEDTLS_LIB_CRYPTO
+	bool "Use MbedTLS native crypto libraries for hashing (SPL)"
+	default y if SPL_MBEDTLS_LIB
+	select SPL_MD5_MBEDTLS if SPL_MD5
+	select SPL_SHA1_MBEDTLS if SPL_SHA1
+	select SPL_SHA256_MBEDTLS if SPL_SHA256
+	select SPL_SHA512_MBEDTLS if SPL_SHA512
+	select SPL_SHA384_MBEDTLS if SPL_SHA384
+	help
+	  Enable MbedTLS native crypto libraries in SPL.
+
+if SPL_MBEDTLS_LIB_CRYPTO
+
+config SPL_SHA1_MBEDTLS
+	bool "Enable SHA1 support with MbedTLS crypto library (SPL)"
+	depends on SPL_MBEDTLS_LIB_CRYPTO && SPL_SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm
+	  with MbedTLS crypto library in SPL.
+
+config SPL_SHA256_MBEDTLS
+	bool "Enable SHA256 support with MbedTLS crypto library (SPL)"
+	depends on SPL_MBEDTLS_LIB_CRYPTO && SPL_SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  with MbedTLS crypto library in SPL.
+
+config SPL_SHA512_MBEDTLS
+	bool "Enable SHA512 support with MbedTLS crypto library (SPL)"
+	depends on SPL_MBEDTLS_LIB_CRYPTO && SPL_SHA512
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  with MbedTLS crypto library in SPL.
+
+config SPL_SHA384_MBEDTLS
+	bool "Enable SHA384 support with MbedTLS crypto library (SPL)"
+	depends on SPL_MBEDTLS_LIB_CRYPTO && SPL_SHA384
+	select SPL_SHA512
+	help
+	  This option enables support of hashing using SHA384 algorithm
+	  with MbedTLS crypto library in SPL.
+
+config SPL_MD5_MBEDTLS
+	bool "Enable MD5 support with MbedTLS crypto library (SPL)"
+	depends on SPL_MBEDTLS_LIB_CRYPTO && SPL_MD5
+	help
+	  This option enables support of hashing using MD5 algorithm
+	  with MbedTLS crypto library in SPL.
+
+config SPL_HKDF_MBEDTLS
+	bool "Enable HKDF support with MbedTLS crypto library (SPL)"
+	depends on SPL_MBEDTLS_LIB_CRYPTO
+	help
+	  This option enables support of key derivation using HKDF algorithm
+	  with MbedTLS crypto library in SPL.
+
+endif # SPL_MBEDTLS_LIB_CRYPTO
+
+config SPL_MBEDTLS_LIB_X509
+	bool "MbedTLS certificate libraries (SPL)"
+	select SPL_ASN1_DECODER_MBEDTLS if SPL_ASN1_DECODER
+	select SPL_ASYMMETRIC_PUBLIC_KEY_MBEDTLS if \
+		SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select SPL_RSA_PUBLIC_KEY_PARSER_MBEDTLS if SPL_RSA_PUBLIC_KEY_PARSER
+	help
+	  Enable MbedTLS certificate libraries in SPL.
+
+if SPL_MBEDTLS_LIB_X509
+
+config SPL_ASN1_DECODER_MBEDTLS
+	bool "ASN1 decoder with MbedTLS certificate library (SPL)"
+	depends on SPL_MBEDTLS_LIB_X509 && SPL_ASN1_DECODER
+	help
+	  This option chooses MbedTLS certificate library for ASN1 decoder in
+	  SPL.
+
+config SPL_ASYMMETRIC_PUBLIC_KEY_MBEDTLS
+	bool "Asymmetric public key crypto with MbedTLS certificate library (SPL)"
+	depends on SPL_MBEDTLS_LIB_X509 && SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	help
+	  This option chooses MbedTLS certificate library for asymmetric public
+	  key crypto algorithm in SPL.
+
+config SPL_RSA_PUBLIC_KEY_PARSER_MBEDTLS
+	bool "RSA public key parser with MbedTLS certificate library (SPL)"
+	depends on SPL_ASYMMETRIC_PUBLIC_KEY_MBEDTLS
+	select SPL_ASN1_DECODER_MBEDTLS
+	help
+	  This option chooses MbedTLS certificate library for RSA public key
+	  parser in SPL.
+
+endif # SPL_MBEDTLS_LIB_X509
+
+config SPL_MBEDTLS_LIB_TLS
+	bool "MbedTLS TLS library (SPL)"
+	depends on SPL_RSA_PUBLIC_KEY_PARSER_MBEDTLS
+	depends on SPL_X509_CERTIFICATE_PARSER_MBEDTLS
+	depends on SPL_ASYMMETRIC_PUBLIC_KEY_MBEDTLS
+	depends on SPL_ASN1_DECODER_MBEDTLS
+	depends on SPL_MBEDTLS_LIB
+	help
+	  Enable MbedTLS TLS library in SPL. Required for HTTPs support
+	  in wget
+
+endif # SPL_MBEDTLS_LIB
+
+endif # SPL
+
+# For TPL
+
+if TPL
+
+choice
+	prompt "Crypto libraries (TPL)"
+	default TPL_LEGACY_HASHING_AND_CRYPTO
+	help
+	  Select crypto libraries in TPL.
+	  TPL_LEGACY_HASHING_AND_CRYPTO for legacy crypto libraries,
+	  TPL_MBEDTLS_LIB for MbedTLS libraries.
+
+config TPL_LEGACY_HASHING_AND_CRYPTO
+	bool "legacy crypto libraries"
+	select TPL_LEGACY_HASHING
+	select TPL_LEGACY_CRYPTO
+
+config TPL_MBEDTLS_LIB
+	bool "MbedTLS libraries"
+
+endchoice
+
+if TPL_LEGACY_HASHING_AND_CRYPTO || TPL_MBEDTLS_LIB_HASHING_ALT
+
+config TPL_LEGACY_HASHING
+	bool "Use U-Boot legacy hashing libraries (TPL)"
+	select TPL_MD5_LEGACY if TPL_MD5
+	select TPL_SHA1_LEGACY if TPL_SHA1
+	select TPL_SHA256_LEGACY if TPL_SHA256
+	select TPL_SHA512_LEGACY if TPL_SHA512
+	select TPL_SHA384_LEGACY if TPL_SHA384
+	help
+	  Enable U-Boot legacy hashing libraries in TPL.
+
+if TPL_LEGACY_HASHING
+
+config TPL_SHA1_LEGACY
+	bool "Enable SHA1 support with legacy crypto library (TPL)"
+	depends on TPL_LEGACY_HASHING && TPL_SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm
+	  with legacy crypto library in TPL.
+
+config TPL_SHA256_LEGACY
+	bool "Enable SHA256 support with legacy crypto library (TPL)"
+	depends on TPL_LEGACY_HASHING && TPL_SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  with legacy crypto library in TPL.
+
+config TPL_SHA512_LEGACY
+	bool "Enable SHA512 support with legacy crypto library (TPL)"
+	depends on TPL_LEGACY_HASHING && TPL_SHA512
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  with legacy crypto library in TPL.
+
+config TPL_SHA384_LEGACY
+	bool "Enable SHA384 support with legacy crypto library (TPL)"
+	depends on TPL_LEGACY_HASHING && TPL_SHA384
+	select TPL_SHA512_LEGACY
+	help
+	  This option enables support of hashing using SHA384 algorithm
+	  with legacy crypto library in TPL.
+
+config TPL_MD5_LEGACY
+	bool "Enable MD5 support with legacy crypto library (TPL)"
+	depends on TPL_LEGACY_HASHING && TPL_MD5
+	help
+	  This option enables support of hashing using MD5 algorithm
+	  with legacy crypto library in TPL.
+
+endif # TPL_LEGACY_HASHING
+
+endif # TPL_LEGACY_HASHING_AND_CRYPTO || TPL_MBEDTLS_LIB_HASHING_ALT
+
+if TPL_MBEDTLS_LIB
+
+config TPL_MBEDTLS_LIB_HASHING_ALT
+	bool "Replace MbedTLS native hashing with U-Boot legacy libraries (TPL)"
+	depends on TPL_MBEDTLS_LIB && !TPL_MBEDTLS_LIB_CRYPTO
+	select TPL_LEGACY_HASHING
+	default y if TPL_MBEDTLS_LIB && !TPL_MBEDTLS_LIB_CRYPTO
+	help
+	  Enable MbedTLS hashing alternatives and replace them with legacy hashing
+	  libraries in TPL.
+	  This allows user to use U-Boot legacy hashing algorithms together with
+	  other MbedTLS modules.
+	  Mutually incompatible with TPL_MBEDTLS_LIB_CRYPTO.
+
+config TPL_MBEDTLS_LIB_CRYPTO
+	bool "Use MbedTLS native crypto libraries for hashing (TPL)"
+	default y if TPL_MBEDTLS_LIB
+	select TPL_MD5_MBEDTLS if TPL_MD5
+	select TPL_SHA1_MBEDTLS if TPL_SHA1
+	select TPL_SHA256_MBEDTLS if TPL_SHA256
+	select TPL_SHA512_MBEDTLS if TPL_SHA512
+	select TPL_SHA384_MBEDTLS if TPL_SHA384
+	help
+	  Enable MbedTLS native crypto libraries in TPL.
+
+if TPL_MBEDTLS_LIB_CRYPTO
+
+config TPL_SHA1_MBEDTLS
+	bool "Enable SHA1 support with MbedTLS crypto library (TPL)"
+	depends on TPL_MBEDTLS_LIB_CRYPTO && TPL_SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm
+	  with MbedTLS crypto library in TPL.
+
+config TPL_SHA256_MBEDTLS
+	bool "Enable SHA256 support with MbedTLS crypto library (TPL)"
+	depends on TPL_MBEDTLS_LIB_CRYPTO && TPL_SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  with MbedTLS crypto library in TPL.
+
+config TPL_SHA512_MBEDTLS
+	bool "Enable SHA512 support with MbedTLS crypto library (TPL)"
+	depends on TPL_MBEDTLS_LIB_CRYPTO && TPL_SHA512
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  with MbedTLS crypto library in TPL.
+
+config TPL_SHA384_MBEDTLS
+	bool "Enable SHA384 support with MbedTLS crypto library (TPL)"
+	depends on TPL_MBEDTLS_LIB_CRYPTO && TPL_SHA384
+	select TPL_SHA512
+	help
+	  This option enables support of hashing using SHA384 algorithm
+	  with MbedTLS crypto library in TPL.
+
+config TPL_MD5_MBEDTLS
+	bool "Enable MD5 support with MbedTLS crypto library (TPL)"
+	depends on TPL_MBEDTLS_LIB_CRYPTO && TPL_MD5
+	help
+	  This option enables support of hashing using MD5 algorithm
+	  with MbedTLS crypto library in TPL.
+
+config TPL_HKDF_MBEDTLS
+	bool "Enable HKDF support with MbedTLS crypto library (TPL)"
+	depends on TPL_MBEDTLS_LIB_CRYPTO
+	help
+	  This option enables support of key derivation using HKDF algorithm
+	  with MbedTLS crypto library in TPL.
+
+endif # TPL_MBEDTLS_LIB_CRYPTO
+
+endif # TPL_MBEDTLS_LIB
+
+endif # TPL
+
+# For VPL
+
+if VPL
+
+choice
+	prompt "Crypto libraries (VPL)"
+	default VPL_LEGACY_HASHING_AND_CRYPTO
+	help
+	  Select crypto libraries in VPL.
+	  VPL_LEGACY_HASHING_AND_CRYPTO for legacy crypto libraries,
+	  VPL_MBEDTLS_LIB for MbedTLS libraries.
+
+config VPL_LEGACY_HASHING_AND_CRYPTO
+	bool "legacy crypto libraries"
+	select VPL_LEGACY_HASHING
+
+config VPL_MBEDTLS_LIB
+	bool "MbedTLS libraries"
+
+endchoice
+
+if VPL_LEGACY_HASHING_AND_CRYPTO || VPL_MBEDTLS_LIB_HASHING_ALT
+
+config VPL_LEGACY_HASHING
+	bool "Use U-Boot legacy hashing libraries (VPL)"
+	select VPL_MD5_LEGACY if VPL_MD5
+	select VPL_SHA1_LEGACY if VPL_SHA1
+	select VPL_SHA256_LEGACY if VPL_SHA256
+	select VPL_SHA512_LEGACY if VPL_SHA512
+	select VPL_SHA384_LEGACY if VPL_SHA384
+	help
+	  Enable U-Boot legacy hashing libraries in VPL.
+
+if VPL_LEGACY_HASHING
+
+config VPL_SHA1_LEGACY
+	bool "Enable SHA1 support with legacy crypto library (VPL)"
+	depends on VPL_LEGACY_HASHING && VPL_SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm
+	  with legacy crypto library in VPL.
+
+config VPL_SHA256_LEGACY
+	bool "Enable SHA256 support with legacy crypto library (VPL)"
+	depends on VPL_LEGACY_HASHING && VPL_SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  with legacy crypto library in VPL.
+
+config VPL_SHA512_LEGACY
+	bool "Enable SHA512 support with legacy crypto library (VPL)"
+	depends on VPL_LEGACY_HASHING && VPL_SHA512
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  with legacy crypto library in VPL.
+
+config VPL_SHA384_LEGACY
+	bool "Enable SHA384 support with legacy crypto library (VPL)"
+	depends on VPL_LEGACY_HASHING && VPL_SHA384
+	select VPL_SHA512_LEGACY
+	help
+	  This option enables support of hashing using SHA384 algorithm
+	  with legacy crypto library in VPL.
+
+config VPL_MD5_LEGACY
+	bool "Enable MD5 support with legacy crypto library (VPL)"
+	depends on VPL_LEGACY_HASHING && VPL_MD5
+	help
+	  This option enables support of hashing using MD5 algorithm
+	  with legacy crypto library in VPL.
+
+endif # VPL_LEGACY_HASHING
+
+endif # VPL_LEGACY_HASHING_AND_CRYPTO || VPL_MBEDTLS_LIB_HASHING_ALT
+
+if VPL_MBEDTLS_LIB
+
+config VPL_MBEDTLS_LIB_HASHING_ALT
+	bool "Replace MbedTLS native hashing with U-Boot legacy libraries (VPL)"
+	depends on VPL_MBEDTLS_LIB && !VPL_MBEDTLS_LIB_CRYPTO
+	select VPL_LEGACY_HASHING
+	default y if VPL_MBEDTLS_LIB && !VPL_MBEDTLS_LIB_CRYPTO
+	help
+	  Enable MbedTLS hashing alternatives and replace them with legacy hashing
+	  libraries in VPL.
+	  This allows user to use U-Boot legacy hashing algorithms together with
+	  other MbedTLS modules.
+	  Mutually incompatible with VPL_MBEDTLS_LIB_CRYPTO.
+
+config VPL_MBEDTLS_LIB_CRYPTO
+	bool "Use MbedTLS native crypto libraries for hashing (VPL)"
+	default y if VPL_MBEDTLS_LIB
+	select VPL_MD5_MBEDTLS if VPL_MD5
+	select VPL_SHA1_MBEDTLS if VPL_SHA1
+	select VPL_SHA256_MBEDTLS if VPL_SHA256
+	select VPL_SHA512_MBEDTLS if VPL_SHA512
+	select VPL_SHA384_MBEDTLS if VPL_SHA384
+	help
+	  Enable MbedTLS native crypto libraries in VPL.
+
+if VPL_MBEDTLS_LIB_CRYPTO
+
+config VPL_SHA1_MBEDTLS
+	bool "Enable SHA1 support with MbedTLS crypto library (VPL)"
+	depends on VPL_MBEDTLS_LIB_CRYPTO && VPL_SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm
+	  with MbedTLS crypto library in VPL.
+
+config VPL_SHA256_MBEDTLS
+	bool "Enable SHA256 support with MbedTLS crypto library (VPL)"
+	depends on VPL_MBEDTLS_LIB_CRYPTO && VPL_SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  with MbedTLS crypto library in VPL.
+
+config VPL_SHA512_MBEDTLS
+	bool "Enable SHA512 support with MbedTLS crypto library (VPL)"
+	depends on VPL_MBEDTLS_LIB_CRYPTO && VPL_SHA512
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  with MbedTLS crypto library in VPL.
+
+config VPL_SHA384_MBEDTLS
+	bool "Enable SHA384 support with MbedTLS crypto library (VPL)"
+	depends on VPL_MBEDTLS_LIB_CRYPTO && VPL_SHA384
+	select VPL_SHA512
+	help
+	  This option enables support of hashing using SHA384 algorithm
+	  with MbedTLS crypto library in VPL.
+
+config VPL_MD5_MBEDTLS
+	bool "Enable MD5 support with MbedTLS crypto library (VPL)"
+	depends on VPL_MBEDTLS_LIB_CRYPTO && VPL_MD5
+	help
+	  This option enables support of hashing using MD5 algorithm
+	  with MbedTLS crypto library in VPL.
+
+config VPL_HKDF_MBEDTLS
+	bool "Enable HKDF support with MbedTLS crypto library (VPL)"
+	depends on VPL_MBEDTLS_LIB_CRYPTO
+	help
+	  This option enables support of key derivation using HKDF algorithm
+	  with MbedTLS crypto library in VPL.
+
+endif # VPL_MBEDTLS_LIB_CRYPTO
+
+endif # VPL_MBEDTLS_LIB
+
+endif # VPL

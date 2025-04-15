@@ -28,7 +28,7 @@
 #include "../common/eeprom.h"
 #include "../common/factoryset.h"
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void draco_init_ddr(void)
 {
 struct emif_regs pxm2_ddr3_emif_reg_data = {
@@ -154,10 +154,10 @@ int draco_read_eeprom(void)
 
 	return 0;
 }
-#endif /* if def CONFIG_SPL_BUILD */
+#endif /* if def CONFIG_XPL_BUILD */
 
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
+#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_XPL_BUILD)) || \
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_XPL_BUILD))
 static void cpsw_control(int enabled)
 {
 	/* VTP can be added here */
@@ -198,15 +198,15 @@ static struct cpsw_platform_data cpsw_data = {
 	.host_port_num		= 0,
 	.version		= CPSW_CTRL_VERSION_2,
 };
-#endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) */
+#endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_XPL_BUILD)) */
 
 #if defined(CONFIG_DRIVER_TI_CPSW) || \
 	(defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET))
 int board_eth_init(struct bd_info *bis)
 {
 	int n = 0;
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
+#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_XPL_BUILD)) || \
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_XPL_BUILD))
 	struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 #ifdef CONFIG_FACTORYSET
 	int rv;

@@ -95,6 +95,15 @@ config WDT_APPLE
 	  The watchdog will perform a full SoC reset resulting in a
 	  reboot of the entire system.
 
+config WDT_ADI
+	bool "Analog Devices watchdog timer support"
+	select WDT
+	select SPL_WDT if SPL
+	depends on ARCH_SC5XX
+	help
+	  Enable this to support Watchdog Timer on ADI SC57X, SC58X, SC59X,
+	  and SC59X_64 processors
+
 config WDT_ARMADA_37XX
 	bool "Marvell Armada 37xx watchdog timer support"
 	depends on WDT && ARMADA_3700
@@ -169,6 +178,19 @@ config WDT_CORTINA
 	  This driver support all CPU ISAs supported by Cortina
 	  Access CAxxxx SoCs.
 
+config WDT_DA9063
+	bool "DA9063 watchdog timer support"
+	depends on WDT && DM_PMIC_DA9063
+	help
+	  Enable support for the watchdog timer in Dialog DA9063.
+
+config WDT_DAVINCI
+	bool "DaVinci watchdog timer support"
+	depends on WDT
+	help
+	  Select this to enable the watchdog timer for DaVinci SoCs such as the
+	  OMAP-L138.
+
 config WDT_GPIO
 	bool "External gpio watchdog support"
 	depends on WDT
@@ -177,6 +199,15 @@ config WDT_GPIO
 	  Support for external watchdog fed by toggling a gpio. See
 	  doc/device-tree-bindings/watchdog/gpio-wdt.txt for
 	  information on how to describe the watchdog in device tree.
+
+config SPL_WDT_GPIO
+	bool "External gpio watchdog support in SPL"
+	depends on SPL_WDT
+	depends on SPL_DM_GPIO
+	depends on SPL_OF_REAL
+	default WDT_GPIO
+	help
+	  Support for external watchdog fed by toggling a gpio in SPL.
 
 config WDT_MAX6370
 	bool "MAX6370 watchdog timer support"
@@ -328,6 +359,13 @@ config WDT_SBSA
 	   This driver can operate ARM SBSA Generic Watchdog as a single stage.
 	   In the single stage mode, when the timeout is reached, your system
 	   will be reset by WS1. The first signal (WS0) is ignored.
+
+config WDT_SIEMENS_PMIC
+	bool "Enable PMIC Watchdog Timer support for Siemens platforms"
+	depends on ARCH_IMX8 && WDT
+	help
+	  Select this to enable the PMIC watchdog driver controlled via
+	  IMX8 SCU API found on Siemens platforms.
 
 config WDT_SL28CPLD
 	bool "sl28cpld watchdog timer support"

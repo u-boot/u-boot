@@ -280,6 +280,7 @@ xyzModem_get_hdr (void)
 	    {
 	    case SOH:
 	      xyz.total_SOH++;
+	      fallthrough;
 	    case STX:
 	      if (c == STX)
 		xyz.total_STX++;

@@ -22,7 +22,7 @@
 #include <asm/global_data.h>
 #include <linux/stddef.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* TODO(sjg@chromium.org): Figure out why this is needed */
 # if !defined(CONFIG_TARGET_AM335X_EVM) || defined(CONFIG_SPL_OS_BOOT)
 #  define LOADENV
@@ -41,14 +41,12 @@ __weak const char *env_fat_get_intf(void)
 __weak char *env_fat_get_dev_part(void)
 {
 #ifdef CONFIG_MMC
-	static char *part_str;
+	/* reserve one more char for the manipulation below */
+	static char part_str[] = CONFIG_ENV_FAT_DEVICE_AND_PART "\0";
 
-	if (!part_str) {
-		part_str = CONFIG_ENV_FAT_DEVICE_AND_PART;
-		if (!strcmp(CONFIG_ENV_FAT_INTERFACE, "mmc") && part_str[0] == ':') {
-			part_str = "0" CONFIG_ENV_FAT_DEVICE_AND_PART;
-			part_str[0] += mmc_get_env_dev();
-		}
+	if (!strcmp(CONFIG_ENV_FAT_INTERFACE, "mmc") && part_str[0] == ':') {
+		part_str[0] = '0' + mmc_get_env_dev();
+		strcpy(&part_str[1], CONFIG_ENV_FAT_DEVICE_AND_PART);
 	}
 
 	return part_str;
@@ -129,7 +127,7 @@ static int env_fat_load(void)
 	if (!strcmp(ifname, "mmc"))
 		mmc_initialize(NULL);
 #endif
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #if defined(CONFIG_AHCI) || defined(CONFIG_SCSI)
 	if (!strcmp(CONFIG_ENV_FAT_INTERFACE, "scsi"))
 		scsi_scan(true);

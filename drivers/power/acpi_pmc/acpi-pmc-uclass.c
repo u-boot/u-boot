@@ -60,7 +60,7 @@ int pmc_gpe_init(struct udevice *dev)
 	 * are different and if they aren't, use the reset values.
 	 */
 	if (dw[0] == dw[1] || dw[1] == dw[2]) {
-		if (spl_phase() > PHASE_TPL)
+		if (xpl_phase() > PHASE_TPL)
 			log_info("PMC: Using default GPE route");
 		gpio_cfg = readl(upriv->gpe_cfg);
 		for (i = 0; i < upriv->gpe0_count; i++)

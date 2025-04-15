@@ -25,26 +25,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 
-#define IOT2050_INFO_MAGIC		0x20502050
-
-struct iot2050_info {
-	u32 magic;
-	u16 size;
-	char name[20 + 1];
-	char serial[16 + 1];
-	char mlfb[18 + 1];
-	char uuid[32 + 1];
-	char a5e[18 + 1];
-	u8 mac_addr_cnt;
-	u8 mac_addr[8][ARP_HLEN];
-	char seboot_version[40 + 1];
-} __packed;
-
-/*
- * Scratch SRAM (available before DDR RAM) contains extracted EEPROM data.
- */
-#define IOT2050_INFO_DATA ((struct iot2050_info *) \
-			     TI_SRAM_SCRATCH_BOARD_EEPROM_START)
+#include "../../../../drivers/sysinfo/iot2050.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -115,6 +96,8 @@ static const char *m2_connector_mode_name[] = {
 
 static enum m2_connector_mode connector_mode;
 
+static char iot2050_board_name[21];
+
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 static void *connector_overlay;
 static u32 connector_overlay_size;
@@ -147,29 +130,57 @@ static void set_pinvalue(const char *gpio_name, const char *label, int value)
 	dm_gpio_set_value(&gpio, value);
 }
 
+static bool setup_sysinfo(struct udevice **sysinfo_ptr)
+{
+	if (sysinfo_get(sysinfo_ptr)) {
+		pr_err("Could not find sysinfo device.\n");
+		return false;
+	}
+	if (sysinfo_detect(*sysinfo_ptr)) {
+		pr_err("Board info parsing error\n");
+		return false;
+	}
+	return true;
+}
+
+static void get_board_name(void)
+{
+	struct udevice *sysinfo;
+
+	if (iot2050_board_name[0] != 0)
+		return;
+
+	if (!setup_sysinfo(&sysinfo))
+		return;
+
+	sysinfo_get_str(sysinfo, BOARD_NAME, sizeof(iot2050_board_name),
+			iot2050_board_name);
+}
+
 static bool board_is_advanced(void)
 {
-	struct iot2050_info *info = IOT2050_INFO_DATA;
 
-	return info->magic == IOT2050_INFO_MAGIC &&
-		strstr((char *)info->name, "IOT2050-ADVANCED") != NULL;
+	get_board_name();
+	return strstr(iot2050_board_name, "IOT2050-ADVANCED") != NULL;
 }
 
 static bool board_is_pg1(void)
 {
-	struct iot2050_info *info = IOT2050_INFO_DATA;
-
-	return info->magic == IOT2050_INFO_MAGIC &&
-		(strcmp((char *)info->name, "IOT2050-BASIC") == 0 ||
-		 strcmp((char *)info->name, "IOT2050-ADVANCED") == 0);
+	get_board_name();
+	return strcmp(iot2050_board_name, "IOT2050-BASIC") == 0 ||
+	       strcmp(iot2050_board_name, "IOT2050-ADVANCED") == 0;
 }
 
 static bool board_is_m2(void)
 {
-	struct iot2050_info *info = IOT2050_INFO_DATA;
+	get_board_name();
+	return strcmp(iot2050_board_name, "IOT2050-ADVANCED-M2") == 0;
+}
 
-	return info->magic == IOT2050_INFO_MAGIC &&
-		strcmp((char *)info->name, "IOT2050-ADVANCED-M2") == 0;
+static bool board_is_sm(void)
+{
+	get_board_name();
+	return strcmp(iot2050_board_name, "IOT2050-ADVANCED-SM") == 0;
 }
 
 static void remove_mmc1_target(void)
@@ -185,43 +196,64 @@ static void remove_mmc1_target(void)
 	free(boot_targets);
 }
 
+static void enable_pcie_connector_power(void)
+{
+	if (board_is_sm())
+		set_pinvalue("gpio@601000_22", "P3V3_PCIE_CON_EN", 1);
+	else
+		set_pinvalue("gpio@601000_17", "P3V3_PCIE_CON_EN", 1);
+	udelay(4 * 100);
+}
+
 void set_board_info_env(void)
 {
-	struct iot2050_info *info = IOT2050_INFO_DATA;
-	u8 __maybe_unused mac_cnt;
+	struct udevice *sysinfo;
 	const char *fdtfile;
-
-	if (info->magic != IOT2050_INFO_MAGIC) {
-		pr_err("IOT2050: Board info parsing error!\n");
-		return;
-	}
+	char buf[41];
 
 	if (env_get("board_uuid"))
 		return;
 
-	env_set("board_name", info->name);
-	env_set("board_serial", info->serial);
-	env_set("mlfb", info->mlfb);
-	env_set("board_uuid", info->uuid);
-	env_set("board_a5e", info->a5e);
+	if (!setup_sysinfo(&sysinfo))
+		return;
+
+	if (sysinfo_get_str(sysinfo, BOARD_NAME, sizeof(buf), buf) == 0)
+		env_set("board_name", buf);
+	if (sysinfo_get_str(sysinfo, SYSID_SM_SYSTEM_SERIAL, sizeof(buf), buf) == 0)
+		env_set("board_serial", buf);
+	if (sysinfo_get_str(sysinfo, BOARD_MLFB, sizeof(buf), buf) == 0)
+		env_set("mlfb", buf);
+	if (sysinfo_get_str(sysinfo, BOARD_UUID, sizeof(buf), buf) == 0)
+		env_set("board_uuid", buf);
+	if (sysinfo_get_str(sysinfo, BOARD_A5E, sizeof(buf), buf) == 0)
+		env_set("board_a5e", buf);
+	if (sysinfo_get_str(sysinfo, BOARD_SEBOOT_VER, sizeof(buf), buf) == 0)
+		env_set("seboot_version", buf);
 	env_set("fw_version", PLAIN_VERSION);
-	env_set("seboot_version", info->seboot_version);
 
 	if (IS_ENABLED(CONFIG_NET)) {
+		int mac_cnt;
+
+		mac_cnt = sysinfo_get_item_count(sysinfo, SYSID_BOARD_MAC_ADDR);
 		/* set MAC addresses to ensure forwarding to the OS */
-		for (mac_cnt = 0; mac_cnt < info->mac_addr_cnt; mac_cnt++) {
-			if (is_valid_ethaddr(info->mac_addr[mac_cnt]))
-				eth_env_set_enetaddr_by_index("eth",
-							      mac_cnt + 1,
-							      info->mac_addr[mac_cnt]);
+		for (int i = 0; i < mac_cnt; i++) {
+			u8 *mac = NULL;
+			size_t bytes = 0;
+
+			sysinfo_get_data_by_index(sysinfo, SYSID_BOARD_MAC_ADDR,
+						  i, (void **)&mac, &bytes);
+			if (bytes == ARP_HLEN && is_valid_ethaddr(mac))
+				eth_env_set_enetaddr_by_index("eth", i + 1, mac);
 		}
 	}
 
 	if (board_is_advanced()) {
 		if (board_is_pg1())
 			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
-		else if(board_is_m2())
+		else if (board_is_m2())
 			fdtfile = "ti/k3-am6548-iot2050-advanced-m2.dtb";
+		else if (board_is_sm())
+			fdtfile = "ti/k3-am6548-iot2050-advanced-sm.dtb";
 		else
 			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
 	} else {
@@ -237,22 +269,13 @@ void set_board_info_env(void)
 	env_save();
 }
 
-static void m2_overlay_prepare(void)
+static void do_overlay_prepare(const char *overlay_path)
 {
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-	const char *overlay_path;
 	void *overlay;
 	u64 loadaddr;
 	ofnode node;
 	int ret;
-
-	if (connector_mode == BKEY_PCIEX2)
-		return;
-
-	if (connector_mode == BKEY_PCIE_EKEY_PCIE)
-		overlay_path = "/fit-images/bkey-ekey-pcie-overlay";
-	else
-		overlay_path = "/fit-images/bkey-usb3-overlay";
 
 	node = ofnode_path(overlay_path);
 	if (!ofnode_valid(node))
@@ -276,8 +299,23 @@ static void m2_overlay_prepare(void)
 	return;
 
 fit_error:
-	pr_err("M.2 device tree overlay %s not available,\n", overlay_path);
+	pr_err("M.2 device tree overlay %s not available.\n", overlay_path);
 #endif
+}
+
+static void m2_overlay_prepare(void)
+{
+	const char *overlay_path;
+
+	if (connector_mode == BKEY_PCIEX2)
+		return;
+
+	if (connector_mode == BKEY_PCIE_EKEY_PCIE)
+		overlay_path = "/fit-images/bkey-ekey-pcie-overlay";
+	else
+		overlay_path = "/fit-images/bkey-usb3-overlay";
+
+	do_overlay_prepare(overlay_path);
 }
 
 static void m2_connector_setup(void)
@@ -287,10 +325,6 @@ static void m2_connector_setup(void)
 	const char *mode_info = "";
 	struct m2_config_pins config_pins;
 	unsigned int n;
-
-	/* enable M.2 connector power */
-	set_pinvalue("gpio@601000_17", "P3V3_M2_EN", 1);
-	udelay(4 * 100);
 
 	if (m2_manual_config < CONNECTOR_MODE_INVALID) {
 		mode_info = " [manual mode]";
@@ -339,25 +373,49 @@ int board_init(void)
 
 int dram_init(void)
 {
-	if (board_is_advanced())
-		gd->ram_size = SZ_2G;
-	else
-		gd->ram_size = SZ_1G;
+	struct udevice *sysinfo;
+	u32 ddr_size_mb;
+
+	if (!setup_sysinfo(&sysinfo))
+		return -ENODEV;
+
+	sysinfo_get_int(sysinfo, SYSID_BOARD_RAM_SIZE_MB, &ddr_size_mb);
+
+	gd->ram_size = ((phys_size_t)(ddr_size_mb)) << 20;
 
 	return 0;
+}
+
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	/* Limit RAM used by U-Boot to the DDR low region */
+	if (gd->ram_top > 0x100000000)
+		return 0x100000000;
+
+	return gd->ram_top;
 }
 
 int dram_init_banksize(void)
 {
 	dram_init();
 
-	/* Bank 0 declares the memory available in the DDR low region */
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	if (gd->ram_size > SZ_2G) {
+		/* Bank 0 declares the memory available in the DDR low region */
+		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->bd->bi_dram[0].size = SZ_2G;
 
-	/* Bank 1 declares the memory available in the DDR high region */
-	gd->bd->bi_dram[1].start = 0;
-	gd->bd->bi_dram[1].size = 0;
+		/* Bank 1 declares the memory available in the DDR high region */
+		gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE1;
+		gd->bd->bi_dram[1].size = gd->ram_size - SZ_2G;
+	} else {
+		/* Bank 0 declares the memory available in the DDR low region */
+		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->bd->bi_dram[0].size = gd->ram_size;
+
+		/* Bank 1 declares the memory available in the DDR high region */
+		gd->bd->bi_dram[1].start = 0;
+		gd->bd->bi_dram[1].size = 0;
+	}
 
 	return 0;
 }
@@ -365,18 +423,18 @@ int dram_init_banksize(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	struct iot2050_info *info = IOT2050_INFO_DATA;
 	char upper_name[32];
 
-	/* skip the prefix "k3-am65x8-" */
-	name += 10;
+	get_board_name();
 
-	if (info->magic != IOT2050_INFO_MAGIC ||
-	    strlen(name) >= sizeof(upper_name))
+	/* skip the prefix "ti/k3-am65x8-" */
+	name += 13;
+
+	if (strlen(name) >= sizeof(upper_name))
 		return -1;
 
 	str_to_upper(name, upper_name, sizeof(upper_name));
-	if (!strcmp(upper_name, (char *)info->name))
+	if (!strcmp(upper_name, iot2050_board_name))
 		return 0;
 
 	return -1;
@@ -429,6 +487,8 @@ int board_late_init(void)
 	/* change CTRL_MMR register to let serdes0 not output USB3.0 signals. */
 	writel(0x3, SERDES0_LANE_SELECT);
 
+	enable_pcie_connector_power();
+
 	if (board_is_m2())
 		m2_connector_setup();
 
@@ -443,7 +503,7 @@ int board_late_init(void)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-static void m2_fdt_fixup(void *blob)
+static void variants_fdt_fixup(void *blob)
 {
 	void *overlay_copy = NULL;
 	void *fdt_copy = NULL;
@@ -483,14 +543,14 @@ cleanup:
 	return;
 
 fixup_error:
-	pr_err("Could not apply M.2 device tree overlay\n");
+	pr_err("Could not apply device tree overlay\n");
 	goto cleanup;
 }
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	if (board_is_m2())
-		m2_fdt_fixup(blob);
+		variants_fdt_fixup(blob);
 
 	return 0;
 }

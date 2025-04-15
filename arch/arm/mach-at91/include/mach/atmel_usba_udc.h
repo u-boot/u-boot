@@ -20,7 +20,7 @@
 	}
 
 #if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45) || \
-	defined(CONFIG_AT91SAM9X5)
+	defined(CONFIG_AT91SAM9X5) || defined(CONFIG_SAM9X60)
 static struct usba_ep_data usba_udc_ep[] = {
 	EP("ep0", 0, 64, 1, 0, 0),
 	EP("ep1", 1, 1024, 2, 1, 1),

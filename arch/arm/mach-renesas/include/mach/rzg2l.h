@@ -8,6 +8,6 @@
 #define __ASM_ARCH_RZG2L_H
 
 #define GICD_BASE	0x11900000
-#define GICR_BASE	0x11960000
+#define GICR_BASE	0x11940000
 
 #endif /* __ASM_ARCH_RZG2L_H */

@@ -1,0 +1,274 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2024 Allied Telesis Labs
+ */
+
+#include "cn9130.dtsi"
+
+/ {
+	model = "Allied Telesis x250";
+	compatible = "alliedtelesis,x250",
+		"marvell,cn9130",
+		"marvell,armada-ap806-quad",
+		"marvell,armada-ap806";
+
+	aliases {
+		serial0 = &uart0;
+		i2c0 = &cp0_i2c0;
+		i2c1 = &cp0_i2c1;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		fault {
+			label = "fault:red";
+			gpios = <&cp0_gpio1 9 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+		};
+	};
+};
+
+/*
+ * AP related configuration
+ */
+&ap_pinctl {
+	/* AP_MPP Pins:
+	 * GPIO & NC [0-6,9-10,12]
+	 * UART0 [11,19]
+	 * UART1 [7,8]
+	 * Note: The x250-28XTm PT1 units has the console port wired
+	 *       to the second uart pins (UART1). This was fixed in all
+	 *       subsequent models.
+	 *       Here we choose to configure the pin control for both
+	 *       uarts to cater for either unit.
+	 */
+		/*   0 1 2 3 4 5 6 7 8 9 */
+	pin-func = < 0 0 0 0 0 0 0 3 3 0
+		     0 3 0 0 0 0 0 0 0 3 >;
+};
+
+&ap_gpio0 {
+	pp-reset {
+		gpio-hog;
+		gpios = <0 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "pp-reset";
+	};
+};
+
+/*
+ * CP related configuration
+ */
+&cp0_pinctl {
+	/* MPP Bus:
+	 *	[0-1]	DEV
+	 *	[2-8]	GPIO
+	 *	[9]	DEV
+	 *	[10-12]	GPIO
+	 *	[13]	ND_RB
+	 *	[14]	GPIO
+	 *	[15-28]	DEV
+	 *	[29-30]	GPIO
+	 *	[31]	DEV
+	 *	[32-34]	GPIO
+	 *	[35-36]	I2C1
+	 *	[37-38]	I2C0
+	 *	[39-55]	GPIO
+	 *	[56-60]	SPI
+	 *	[61-62]	GPIO
+	 */
+		/*   0   1   2   3   4   5   6   7   8   9 */
+	pin-func = < 1   1   0   0   0   0   0   0   0   1
+		     0   0   0   2   0   1   1   1   1   1
+		     1   1   1   1   1   1   1   1   1   0
+		     0   1   0   0   0   2   2   2   2   0
+		     0   0   0   0   0   0   0   0   0   0
+		     0   0   0   0   0   0   6   6   6   6
+		     6   0   0>;
+
+	cp0_i2c0_pins: cp0-i2c-pins-0 {
+		marvell,pins = <37 38>;
+		marvell,function = <2>;
+	};
+
+	cp0_i2c0_gpio_pins: cp0-i2c-gpio-pins-0 {
+		marvell,pins = <37 38>;
+		marvell,function = <0>;
+	};
+
+	cp0_i2c1_pins: cp0-i2c-pins-1 {
+		marvell,pins = <35 36>;
+		marvell,function = <2>;
+	};
+
+	cp0_nand_pins: cp0-nand-pins {
+		marvell,pins = <0 1 9 15 16 17 18 19 20 21 22 23 24 25 26 27 28 31>;
+		marvell,function = <1>;
+	};
+
+	cp0_nand_rb: cp0-nand-rb {
+		marvell,pins = <13>;
+		marvell,function = <2>;
+	};
+
+	cp0_spi0_pins: cp0-spi-pins-0 {
+		marvell,pins = <56 57 58 59 60>;
+		marvell,function = <6>;
+	};
+};
+
+&cp0_comphy {
+	phy0 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+	};
+
+	phy1 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy2 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy3 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy4 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy5 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+};
+
+&cp0_pcie0 {
+	num-lanes = <1>;
+		/* non-prefetchable memory */
+	ranges =<0x82000000 0 0xc0000000 0 0xc0000000 0 0x2000000>;
+	status = "disabled";
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&uart1 {
+	clock-frequency = <200000000>;
+};
+
+&cp0_utmi0 {
+	status = "okay";
+};
+
+&cp0_usb3_0 {
+	status = "okay";
+};
+
+&cp0_spi0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_spi0_pins>;
+
+	spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		reg = <0>; /* Chip select 0 */
+		spi-max-frequency = <50000000>;
+		m25p,fast-read;
+	};
+};
+
+&cp0_nand {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_nand_pins &cp0_nand_rb>;
+	nand-ecc-strength = <4>;
+	nand-ecc-step-size = <512>;
+	nand-timing-mode = <4>;
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		partition@user {
+			reg = <0x00000000 0x10000000>;
+			label = "user";
+		};
+	};
+};
+
+&cp0_gpio0
+{
+	nand-protect {
+		gpio-hog;
+		gpios = <29 GPIO_ACTIVE_LOW>;
+		output-low;
+		line-name = "nand-protect";
+	};
+};
+
+&cp0_gpio1
+{
+	usb-en {
+		gpio-hog;
+		gpios = <0 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "usb-en";
+	};
+
+	phy-reset {
+		gpio-hog;
+		gpios = <21 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "phy-reset";
+	};
+};
+
+&cp0_i2c0 {
+	status = "okay";
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&cp0_i2c0_pins>;
+	pinctrl-1 = <&cp0_i2c0_gpio_pins>;
+	scl-gpios = <&cp0_gpio1 5 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&cp0_gpio1 6 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+
+	mux@71 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "nxp,pca9546";
+		reg = <0x71>;
+		i2c-mux-idle-disconnect;
+		reset-gpios = <&cp0_gpio1 19 GPIO_ACTIVE_LOW>;
+
+		i2c@0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+
+			hwmon@2e {
+				compatible = "adi,adt7476";
+				reg = <0x2e>;
+			};
+
+			rtc@68 {
+				compatible = "adi,max31331";
+				reg = <0x68>;
+			};
+		};
+	};
+};
+
+&cp0_i2c1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_i2c1_pins>;
+};

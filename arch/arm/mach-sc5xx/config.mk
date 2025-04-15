@@ -8,7 +8,7 @@
 # Contact: Greg Malysa <greg.malysa@timesys.com>
 #
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 INPUTS-y += $(obj)/u-boot-spl.ldr
 endif
 

@@ -117,7 +117,7 @@
 /* SPL NAND boot support */
 
 /* Extra Environment */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 
 #ifdef CONFIG_CMD_DHCP
 #define BOOT_TARGET_DEVICES_DHCP(func) func(DHCP, dhcp, na)

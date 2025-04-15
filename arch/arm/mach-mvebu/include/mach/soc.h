@@ -36,7 +36,7 @@
 /* SOC specific definations */
 #define INTREG_BASE		0xd0000000
 #define INTREG_BASE_ADDR_REG	(INTREG_BASE + 0x20080)
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_ARMADA_3700)
+#if defined(CONFIG_XPL_BUILD) || defined(CONFIG_ARMADA_3700)
 /*
  * The SPL U-Boot version still runs with the default
  * address for the internal registers, configured by

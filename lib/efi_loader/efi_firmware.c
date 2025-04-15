@@ -6,6 +6,8 @@
  *			Author: AKASHI Takahiro
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <charset.h>
 #include <dfu.h>
 #include <efi_loader.h>
@@ -53,11 +55,6 @@ struct fmp_state {
 	u32 last_attempt_version; /* not used */
 	u32 last_attempt_status; /* not used */
 };
-
-__weak void set_dfu_alt_info(char *interface, char *devstr)
-{
-	env_set("dfu_alt_info", update_info.dfu_string);
-}
 
 /**
  * efi_firmware_get_image_type_id - get image_type_id
@@ -246,6 +243,59 @@ void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_
 }
 
 /**
+ * efi_gen_capsule_guids - generate GUIDs for the images
+ *
+ * Generate the image_type_id for each image in the update_info.images array
+ * using the first compatible from the device tree and a salt
+ * UUID defined at build time.
+ *
+ * Returns:		status code
+ */
+static efi_status_t efi_gen_capsule_guids(void)
+{
+	int ret, i;
+	struct uuid namespace;
+	const char *compatible; /* Full array including null bytes */
+	struct efi_fw_image *fw_array;
+
+	fw_array = update_info.images;
+	/* Check if we need to run (there are images and we didn't already generate their IDs) */
+	if (!update_info.num_images ||
+	    memchr_inv(&fw_array[0].image_type_id, 0, sizeof(fw_array[0].image_type_id)))
+		return EFI_SUCCESS;
+
+	ret = uuid_str_to_bin(CONFIG_EFI_CAPSULE_NAMESPACE_GUID,
+			      (unsigned char *)&namespace, UUID_STR_FORMAT_GUID);
+	if (ret) {
+		log_debug("%s: EFI_CAPSULE_NAMESPACE_GUID is invalid: %d\n", __func__, ret);
+		return EFI_INVALID_PARAMETER;
+	}
+
+	compatible = ofnode_read_string(ofnode_root(), "compatible");
+	if (!compatible) {
+		log_debug("%s: model or compatible not defined\n", __func__);
+		return EFI_INVALID_PARAMETER;
+	}
+
+	for (i = 0; i < update_info.num_images; i++) {
+		if (!fw_array[i].fw_name) {
+			log_err("fw_name is not defined. Not generating capsule GUIDs\n");
+			return EFI_INVALID_PARAMETER;
+		}
+		gen_v5_guid(&namespace,
+			    &fw_array[i].image_type_id,
+			    compatible, strlen(compatible),
+			    fw_array[i].fw_name, u16_strlen(fw_array[i].fw_name) * sizeof(uint16_t),
+			    NULL);
+
+		log_debug("Image %ls UUID %pUl\n", fw_array[i].fw_name,
+			  &fw_array[i].image_type_id);
+	}
+
+	return EFI_SUCCESS;
+}
+
+/**
  * efi_fill_image_desc_array - populate image descriptor array
  * @image_info_size:		Size of @image_info
  * @image_info:			Image information
@@ -272,7 +322,7 @@ static efi_status_t efi_fill_image_desc_array(
 {
 	size_t total_size;
 	struct efi_fw_image *fw_array;
-	int i;
+	int i, ret;
 
 	total_size = sizeof(*image_info) * update_info.num_images;
 
@@ -282,6 +332,10 @@ static efi_status_t efi_fill_image_desc_array(
 		return EFI_BUFFER_TOO_SMALL;
 	}
 	*image_info_size = total_size;
+
+	ret = efi_gen_capsule_guids();
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	fw_array = update_info.images;
 	*descriptor_count = update_info.num_images;
@@ -590,8 +644,10 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 	efi_status_t (*progress)(efi_uintn_t completion),
 	u16 **abort_reason)
 {
+	int ret;
 	efi_status_t status;
 	struct fmp_state state = { 0 };
+	char *orig_dfu_env;
 
 	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
@@ -604,7 +660,28 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 	if (status != EFI_SUCCESS)
 		return EFI_EXIT(status);
 
-	if (fit_update(image))
+	orig_dfu_env = env_get("dfu_alt_info");
+	if (orig_dfu_env) {
+		orig_dfu_env = strdup(orig_dfu_env);
+		if (!orig_dfu_env) {
+			log_err("strdup() failed!\n");
+			return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+		}
+	}
+	if (env_set("dfu_alt_info", update_info.dfu_string)) {
+		log_err("Unable to set env variable \"dfu_alt_info\"!\n");
+		free(orig_dfu_env);
+		return EFI_EXIT(EFI_DEVICE_ERROR);
+	}
+
+	ret = fit_update(image);
+
+	if (env_set("dfu_alt_info", orig_dfu_env))
+		log_warning("Unable to restore env variable \"dfu_alt_info\".  Further DFU operations may fail!\n");
+
+	free(orig_dfu_env);
+
+	if (ret)
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 
 	efi_firmware_set_fmp_state_var(&state, image_index);
@@ -658,6 +735,7 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	u8 dfu_alt_num;
 	efi_status_t status;
 	struct fmp_state state = { 0 };
+	char *orig_dfu_env;
 
 	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
@@ -688,8 +766,29 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 		}
 	}
 
-	if (dfu_write_by_alt(dfu_alt_num, (void *)image, image_size,
-			     NULL, NULL))
+	orig_dfu_env = env_get("dfu_alt_info");
+	if (orig_dfu_env) {
+		orig_dfu_env = strdup(orig_dfu_env);
+		if (!orig_dfu_env) {
+			log_err("strdup() failed!\n");
+			return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+		}
+	}
+	if (env_set("dfu_alt_info", update_info.dfu_string)) {
+		log_err("Unable to set env variable \"dfu_alt_info\"!\n");
+		free(orig_dfu_env);
+		return EFI_EXIT(EFI_DEVICE_ERROR);
+	}
+
+	ret = dfu_write_by_alt(dfu_alt_num, (void *)image, image_size,
+			       NULL, NULL);
+
+	if (env_set("dfu_alt_info", orig_dfu_env))
+		log_warning("Unable to restore env variable \"dfu_alt_info\".  Further DFU operations may fail!\n");
+
+	free(orig_dfu_env);
+
+	if (ret)
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 
 	efi_firmware_set_fmp_state_var(&state, image_index);

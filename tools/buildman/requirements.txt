@@ -1,5 +1,2 @@
-coverage==6.2
-jsonschema==4.17.3
-pycryptodome==3.20
-pyyaml==6.0
-yamllint==1.26.3
+filelock==3.0.12
+importlib_resources==6.5.2

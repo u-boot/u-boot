@@ -219,6 +219,44 @@ static bool at91_get_port_output(struct at91_port *at91_port, int offset)
 	val = readl(&at91_port->osr);
 	return val & mask;
 }
+
+static bool at91_is_port_gpio(struct at91_port *at91_port, int offset)
+{
+	u32 mask, val;
+
+	mask = 1 << offset;
+	val = readl(&at91_port->psr);
+	return !!(val & mask);
+}
+
+static void at91_set_port_multi_drive(struct at91_port *at91_port, int offset, int is_on)
+{
+	u32 mask;
+
+	mask = 1 << offset;
+	if (is_on)
+		writel(mask, &at91_port->mder);
+	else
+		writel(mask, &at91_port->mddr);
+}
+
+static bool at91_get_port_multi_drive(struct at91_port *at91_port, int offset)
+{
+	u32 mask, val;
+
+	mask = 1 << offset;
+	val = readl(&at91_port->mdsr);
+	return !!(val & mask);
+}
+
+static bool at91_get_port_pullup(struct at91_port *at91_port, int offset)
+{
+	u32 mask, val;
+
+	mask = 1 << offset;
+	val = readl(&at91_port->pusr);
+	return !(val & mask);
+}
 #endif
 
 static void at91_set_port_input(struct at91_port *at91_port, int offset,
@@ -549,11 +587,66 @@ static int at91_gpio_get_function(struct udevice *dev, unsigned offset)
 {
 	struct at91_port_priv *port = dev_get_priv(dev);
 
-	/* GPIOF_FUNC is not implemented yet */
+	if (!at91_is_port_gpio(port->regs, offset))
+		return GPIOF_FUNC;
+
 	if (at91_get_port_output(port->regs, offset))
 		return GPIOF_OUTPUT;
 	else
 		return GPIOF_INPUT;
+}
+
+static int at91_gpio_set_flags(struct udevice *dev, unsigned int offset,
+			       ulong flags)
+{
+	struct at91_port_priv *port = dev_get_priv(dev);
+	ulong supported_mask;
+
+	supported_mask = GPIOD_OPEN_DRAIN | GPIOD_MASK_DIR | GPIOD_PULL_UP;
+	if (flags & ~supported_mask)
+		return -ENOTSUPP;
+
+	if (flags & GPIOD_IS_OUT) {
+		if (flags & GPIOD_OPEN_DRAIN)
+			at91_set_port_multi_drive(port->regs, offset, true);
+		else
+			at91_set_port_multi_drive(port->regs, offset, false);
+
+		at91_set_port_output(port->regs, offset, flags & GPIOD_IS_OUT_ACTIVE);
+
+	} else if (flags & GPIOD_IS_IN) {
+		at91_set_port_input(port->regs, offset, false);
+	}
+	if (flags & GPIOD_PULL_UP)
+		at91_set_port_pullup(port->regs, offset, true);
+
+	return 0;
+}
+
+static int at91_gpio_get_flags(struct udevice *dev, unsigned int offset,
+			       ulong *flagsp)
+{
+	struct at91_port_priv *port = dev_get_priv(dev);
+	ulong dir_flags = 0;
+
+	if (at91_get_port_output(port->regs, offset)) {
+		dir_flags |= GPIOD_IS_OUT;
+
+		if (at91_get_port_multi_drive(port->regs, offset))
+			dir_flags |= GPIOD_OPEN_DRAIN;
+
+		if (at91_get_port_value(port->regs, offset))
+			dir_flags |= GPIOD_IS_OUT_ACTIVE;
+	} else {
+		dir_flags |= GPIOD_IS_IN;
+	}
+
+	if (at91_get_port_pullup(port->regs, offset))
+		dir_flags |= GPIOD_PULL_UP;
+
+	*flagsp = dir_flags;
+
+	return 0;
 }
 
 static const char *at91_get_bank_name(uint32_t base_addr)
@@ -584,6 +677,8 @@ static const struct dm_gpio_ops gpio_at91_ops = {
 	.get_value		= at91_gpio_get_value,
 	.set_value		= at91_gpio_set_value,
 	.get_function		= at91_gpio_get_function,
+	.set_flags		= at91_gpio_set_flags,
+	.get_flags		= at91_gpio_get_flags,
 };
 
 static int at91_gpio_probe(struct udevice *dev)

@@ -63,7 +63,7 @@
 /*
  * For SD card builds without SPL it is needed to set CONFIG_SYS_RAMBOOT
  *
- * if CONFIG_SPL_BUILD
+ * if CONFIG_XPL_BUILD
  *     if CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR
  *         define CONFIG_SPL_MAX_SIZE = (CONFIG_SYS_L2_SIZE+CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA
  *                                      * SZ_512)
@@ -121,7 +121,7 @@
  */
 
 /* Initial SRAM is used only for SD card boot in first stage image */
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_SPL) || defined(CONFIG_XPL_BUILD)
 #define CFG_SYS_INIT_L2_ADDR		0xf8f80000
 #define CFG_SYS_INIT_L2_ADDR_PHYS	CFG_SYS_INIT_L2_ADDR
 /*

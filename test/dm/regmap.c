@@ -69,7 +69,7 @@ static int dm_test_regmap_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_regmap_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_regmap_base, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test we can access a regmap through syscon */
 static int dm_test_regmap_syscon(struct unit_test_state *uts)
@@ -94,8 +94,7 @@ static int dm_test_regmap_syscon(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_regmap_syscon, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_regmap_syscon, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Read/Write/Modify test */
 static int dm_test_regmap_rw(struct unit_test_state *uts)
@@ -128,8 +127,7 @@ static int dm_test_regmap_rw(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_regmap_rw, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_regmap_rw, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Get/Set test */
 static int dm_test_regmap_getset(struct unit_test_state *uts)
@@ -159,8 +157,7 @@ static int dm_test_regmap_getset(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_regmap_getset, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_regmap_getset, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Read polling test */
 static int dm_test_regmap_poll(struct unit_test_state *uts)
@@ -187,8 +184,7 @@ static int dm_test_regmap_poll(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_regmap_poll, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_regmap_poll, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 struct regmaptest_priv {
 	struct regmap *cfg_regmap; /* For testing regmap_config options. */
@@ -324,7 +320,7 @@ static int dm_test_devm_regmap(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_devm_regmap, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_devm_regmap, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int test_one_field(struct unit_test_state *uts,
 			  struct regmap *regmap,
@@ -383,4 +379,4 @@ static int dm_test_devm_regmap_field(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_devm_regmap_field, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_devm_regmap_field, UTF_SCAN_PDATA | UTF_SCAN_FDT);

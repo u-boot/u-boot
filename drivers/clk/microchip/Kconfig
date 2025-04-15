@@ -1,5 +1,7 @@
 config CLK_MPFS
 	bool "Clock support for Microchip PolarFire SoC"
 	depends on CLK && CLK_CCF
+	depends on SYSCON
+	depends on REGMAP
 	help
 	  This enables support clock driver for Microchip PolarFire SoC platform.

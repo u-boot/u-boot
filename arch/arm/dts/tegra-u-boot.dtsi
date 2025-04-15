@@ -19,6 +19,27 @@
 			};
 		};
 
+#ifdef CONFIG_MULTI_DTB_FIT
+		image2 {
+			filename = "u-boot-dtb-tegra.bin";
+			pad-byte = <0xff>;
+			u-boot-spl {
+			};
+			u-boot-nodtb {
+				offset = <(U_BOOT_OFFSET)>;
+			};
+			fit-dtb {
+#ifdef CONFIG_MULTI_DTB_FIT_LZO
+				filename = "fit-dtb.blob.lzo";
+#elif CONFIG_MULTI_DTB_FIT_GZIP
+				filename = "fit-dtb.blob.gz";
+#else
+				filename = "fit-dtb.blob";
+#endif
+				type = "blob";
+			};
+		};
+#else
 		/* Same as image1 - some tools still expect the -dtb suffix */
 		image2 {
 			filename = "u-boot-dtb-tegra.bin";
@@ -29,6 +50,7 @@
 				offset = <(U_BOOT_OFFSET)>;
 			};
 		};
+#endif
 
 		image3 {
 			filename = "u-boot-nodtb-tegra.bin";

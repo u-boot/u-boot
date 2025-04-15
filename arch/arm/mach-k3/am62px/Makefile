@@ -4,4 +4,4 @@
 #	Andrew Davis <afd@ti.com>
 
 obj-$(CONFIG_OF_SYSTEM_SETUP) += am62p5_fdt.o
-obj-$(CONFIG_SPL_BUILD) += am62p5_init.o
+obj-$(CONFIG_XPL_BUILD) += am62p5_init.o

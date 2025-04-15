@@ -263,20 +263,6 @@ MD5Transform(__u32 buf[4], __u32 const in[16])
 }
 
 /*
- * Calculate and store in 'output' the MD5 digest of 'len' bytes at
- * 'input'. 'output' must have enough space to hold 16 bytes.
- */
-void
-md5 (unsigned char *input, int len, unsigned char output[16])
-{
-	MD5Context context;
-
-	MD5Init(&context);
-	MD5Update(&context, input, len);
-	MD5Final(output, &context);
-}
-
-/*
  * Calculate and store in 'output' the MD5 digest of 'len' bytes at 'input'.
  * 'output' must have enough space to hold 16 bytes. If 'chunk' Trigger the
  * watchdog every 'chunk_sz' bytes of input processed.
@@ -286,14 +272,16 @@ md5_wd(const unsigned char *input, unsigned int len, unsigned char output[16],
 	unsigned int chunk_sz)
 {
 	MD5Context context;
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#if !defined(USE_HOSTCC) && \
+    (defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG))
 	const unsigned char *end, *curr;
 	int chunk;
 #endif
 
 	MD5Init(&context);
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#if !defined(USE_HOSTCC) && \
+    (defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG))
 	curr = input;
 	end = input + len;
 	while (curr < end) {

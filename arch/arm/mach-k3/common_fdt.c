@@ -65,6 +65,7 @@ static int fdt_fixup_msmc_ram(void *blob, char *parent_path, char *node_name)
 		      subnode, addr, size);
 		if (addr + size > msmc_size ||
 		    !strncmp(fdt_get_name(blob, subnode, &len), "sysfw", 5) ||
+		    !strncmp(fdt_get_name(blob, subnode, &len), "tifs", 4)  ||
 		    !strncmp(fdt_get_name(blob, subnode, &len), "l3cache", 7)) {
 			fdt_del_node(blob, subnode);
 			debug("%s: deleting subnode %d\n", __func__, subnode);
@@ -121,10 +122,8 @@ int fdt_fixup_reserved(void *blob, const char *name,
 
 	/* Find reserved-memory */
 	nodeoffset = fdt_subnode_offset(blob, 0, "reserved-memory");
-	if (nodeoffset < 0) {
-		debug("Could not find reserved-memory node\n");
-		return 0;
-	}
+	if (nodeoffset < 0)
+		goto add_carveout;
 
 	/* Find existing matching subnode and remove it */
 	fdt_for_each_subnode(subnode, blob, nodeoffset) {
@@ -153,6 +152,7 @@ int fdt_fixup_reserved(void *blob, const char *name,
 		}
 	}
 
+add_carveout:
 	struct fdt_memory carveout = {
 		.start = new_address,
 		.end = new_address + new_size - 1,

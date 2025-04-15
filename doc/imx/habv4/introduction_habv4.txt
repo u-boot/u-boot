@@ -240,16 +240,14 @@ root of trust is established and the HAB code can progress with the image
 authentication.
 
 The srktool can be used for generating the SRK Table and its respective SRK
-Table Hash.
+Table Hash (certificate filenames must be separated by ',' without spaces).
 
 - Generating SRK Table and SRK Hash in Linux 64-bit machines:
 
+  $ CA_CRT="sha256_2048_65537_v3_ca_crt.pem"
   $ ../linux64/bin/srktool -h 4 -t SRK_1_2_3_4_table.bin -e \
 	SRK_1_2_3_4_fuse.bin -d sha256 -c \
-	SRK1_sha256_2048_65537_v3_ca_crt.pem,\
-	SRK2_sha256_2048_65537_v3_ca_crt.pem,\
-	SRK3_sha256_2048_65537_v3_ca_crt.pem,\
-	SRK4_sha256_2048_65537_v3_ca_crt.pem
+	SRK1_"$CA_CRT",SRK2_"$CA_CRT",SRK3_"$CA_CRT",SRK4_"$CA_CRT"
 
 The SRK_1_2_3_4_table.bin and SRK_1_2_3_4_fuse.bin files can be used in further
 steps as explained in HAB guides available under doc/imx/habv4/guides/

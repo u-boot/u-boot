@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+
+/dts-v1/;
+
+#include "ast2700.dtsi"
+
+/ {
+	chosen {
+		stdout-path = &uart12;
+		tick-timer = &ast_ibex_timer;
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x80000000 0x40000000>;
+	};
+};
+
+&uart12 {
+	status = "okay";
+	clock-frequency = <1846153>;
+};

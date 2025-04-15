@@ -24,7 +24,7 @@
 #include "../common/eeprom.h"
 #include "../common/factoryset.h"
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /*
  * Read header information from EEPROM into global structure.
  */
@@ -116,7 +116,7 @@ void spl_draco_board_init(void)
 	REQUEST_AND_PULSE_RESET(MAXTOUCH_RESET_GPIO);
 	REQUEST_AND_PULSE_RESET(DISPLAY_RESET_GPIO);
 }
-#endif /* if def CONFIG_SPL_BUILD */
+#endif /* if def CONFIG_XPL_BUILD */
 
 #if defined(CONFIG_DRIVER_TI_CPSW)
 static void cpsw_control(int enabled)
@@ -168,7 +168,7 @@ int board_eth_init(struct bd_info *bis)
 	int n = 0;
 	int rv;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	factoryset_env_set();
 #endif
 
@@ -183,7 +183,7 @@ int board_eth_init(struct bd_info *bis)
 	return n;
 }
 #endif /* #if defined(CONFIG_DRIVER_TI_CPSW) */
-#endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) */
+#endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_XPL_BUILD)) */
 
 #if defined(CONFIG_HW_WATCHDOG)
 static bool hw_watchdog_init_done;

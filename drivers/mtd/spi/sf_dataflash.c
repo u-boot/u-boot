@@ -438,7 +438,7 @@ static int add_dataflash(struct udevice *dev, char *name, int nr_pages,
 	spi_flash->size = nr_pages * pagesize;
 	spi_flash->erase_size = pagesize;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	printf("SPI DataFlash: Detected %s with page size ", spi_flash->name);
 	print_size(spi_flash->page_size, ", erase size ");
 	print_size(spi_flash->erase_size, ", total ");

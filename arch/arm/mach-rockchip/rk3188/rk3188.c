@@ -51,7 +51,7 @@ void board_debug_uart_init(void)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 int arch_cpu_init(void)
 {
 	struct rk3188_grf *grf;
@@ -106,7 +106,7 @@ int rk_board_late_init(void)
 	return rk3188_board_late_init();
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static int setup_led(void)
 {
 #ifdef CONFIG_SPL_LED

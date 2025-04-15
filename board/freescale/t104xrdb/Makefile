@@ -2,7 +2,7 @@
 #
 # Copyright 2013 Freescale Semiconductor, Inc.
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += spl.o
 else
 obj-y	+= t104xrdb.o

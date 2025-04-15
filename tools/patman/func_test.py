@@ -18,11 +18,11 @@ import unittest
 
 from patman.commit import Commit
 from patman import control
-from patman import gitutil
 from patman import patchstream
 from patman.patchstream import PatchStream
 from patman.series import Series
 from patman import settings
+from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import tools
 from u_boot_pylib.test_util import capture_sys_output
@@ -216,6 +216,8 @@ class TestFunctional(unittest.TestCase):
 
         text = self._get_text('test01.txt')
         series = patchstream.get_metadata_for_test(text)
+        series.base_commit = Commit('1a44532')
+        series.branch = 'mybranch'
         cover_fname, args = self._create_patches_for_test(series)
         get_maintainer_script = str(pathlib.Path(__file__).parent.parent.parent
                                     / 'get_maintainer.pl') + ' --norolestats'
@@ -308,6 +310,8 @@ Simon Glass (2):
 --\x20
 2.7.4
 
+base-commit: 1a44532
+branch: mybranch
 '''
         lines = open(cover_fname, encoding='utf-8').read().splitlines()
         self.assertEqual(
@@ -352,6 +356,31 @@ Changes in v2:
             if expected:
                 expected = expected.splitlines()
                 self.assertEqual(expected, lines[start:(start+len(expected))])
+
+    def test_base_commit(self):
+        """Test adding a base commit with no cover letter"""
+        orig_text = self._get_text('test01.txt')
+        pos = orig_text.index('commit 5ab48490f03051875ab13d288a4bf32b507d76fd')
+        text = orig_text[:pos]
+        series = patchstream.get_metadata_for_test(text)
+        series.base_commit = Commit('1a44532')
+        series.branch = 'mybranch'
+        cover_fname, args = self._create_patches_for_test(series)
+        self.assertFalse(cover_fname)
+        with capture_sys_output() as out:
+            patchstream.fix_patches(series, args, insert_base_commit=True)
+        self.assertEqual('Cleaned 1 patch\n', out[0].getvalue())
+        lines = tools.read_file(args[0], binary=False).splitlines()
+        pos = lines.index('-- ')
+
+        # We expect these lines at the end:
+        # -- (with trailing space)
+        # 2.7.4
+        # (empty)
+        # base-commit: xxx
+        # branch: xxx
+        self.assertEqual('base-commit: 1a44532', lines[pos + 3])
+        self.assertEqual('branch: mybranch', lines[pos + 4])
 
     def make_commit_with_file(self, subject, body, fname, text):
         """Create a file and add it to the git repo with a new commit
@@ -511,11 +540,22 @@ complicated as possible''')
             # Check that it can detect a different branch
             self.assertEqual(3, gitutil.count_commits_to_branch('second'))
             with capture_sys_output() as _:
-                _, cover_fname, patch_files = control.prepare_patches(
+                series, cover_fname, patch_files = control.prepare_patches(
                     col, branch='second', count=-1, start=0, end=0,
                     ignore_binary=False, signoff=True)
             self.assertIsNotNone(cover_fname)
             self.assertEqual(3, len(patch_files))
+
+            cover = tools.read_file(cover_fname, binary=False)
+            lines = cover.splitlines()[-2:]
+            base = repo.lookup_reference('refs/heads/base').target
+            self.assertEqual(f'base-commit: {base}', lines[0])
+            self.assertEqual('branch: second', lines[1])
+
+            # Make sure that the base-commit is not present when it is in the
+            # cover letter
+            for fname in patch_files:
+                self.assertNotIn(b'base-commit:', tools.read_file(fname))
 
             # Check that it can skip patches at the end
             with capture_sys_output() as _:
@@ -524,6 +564,13 @@ complicated as possible''')
                     ignore_binary=False, signoff=True)
             self.assertIsNotNone(cover_fname)
             self.assertEqual(2, len(patch_files))
+
+            cover = tools.read_file(cover_fname, binary=False)
+            lines = cover.splitlines()[-2:]
+            base2 = repo.lookup_reference('refs/heads/second')
+            ref = base2.peel(pygit2.GIT_OBJ_COMMIT).parents[0].parents[0].id
+            self.assertEqual(f'base-commit: {ref}', lines[0])
+            self.assertEqual('branch: second', lines[1])
         finally:
             os.chdir(orig_dir)
 

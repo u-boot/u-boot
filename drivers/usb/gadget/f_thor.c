@@ -138,6 +138,7 @@ static int process_rqt_cmd(struct udevice *udc, const struct rqt_box *rqt)
 	case RQT_CMD_POWEROFF:
 	case RQT_CMD_EFSCLEAR:
 		send_rsp(udc, rsp);
+		fallthrough;
 	default:
 		printf("Command not supported -> cmd: %d\n", rqt->rqt_data);
 		return -EINVAL;

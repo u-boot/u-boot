@@ -5,19 +5,9 @@
 # Provide symbol API_BUILD to signal that the API example is being built.
 KBUILD_CPPFLAGS += -DAPI_BUILD
 
-ifeq ($(ARCH),powerpc)
-LOAD_ADDR = 0x40000
-endif
-ifeq ($(ARCH),arm)
-LOAD_ADDR = 0x1000000
-endif
-ifeq ($(ARCH),mips)
-ifdef CONFIG_64BIT
-LOAD_ADDR = 0xffffffff80200000
-else
-LOAD_ADDR = 0x80200000
-endif
-endif
+# Environment variable loadaddr is set from CONFIG_SYS_LOAD_ADDR.
+# Run the examples 4 MiB above this address.
+LOAD_ADDR:=${shell printf 0x%X $$(( $(CONFIG_SYS_LOAD_ADDR) + 0x400000 ))}
 
 # Resulting ELF and binary exectuables will be named demo and demo.bin
 extra-y = demo
@@ -39,8 +29,8 @@ EXT_COBJ-y += lib/vsprintf.o
 EXT_COBJ-y += lib/charset.o
 EXT_COBJ-$(CONFIG_LIB_UUID) += lib/uuid.o
 EXT_SOBJ-$(CONFIG_PPC) += arch/powerpc/lib/ppcstring.o
-ifeq ($(ARCH),arm)
-EXT_SOBJ-$(CONFIG_USE_ARCH_MEMSET) += arch/arm/lib/memset.o
+ifneq ($(CONFIG_ARM)$(CONFIG_RISCV),)
+EXT_SOBJ-$(CONFIG_USE_ARCH_MEMSET) += arch/$(ARCH)/lib/memset.o
 endif
 
 # Create a list of object files to be compiled

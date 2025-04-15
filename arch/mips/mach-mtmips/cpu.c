@@ -21,7 +21,7 @@ int dram_init(void)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int last_stage_init(void)
 {
 	void *src, *dst;

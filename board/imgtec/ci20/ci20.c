@@ -39,7 +39,7 @@ static void ci20_mux_mmc(void)
 	jz4780_clk_ungate_mmc();
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 
 static void ci20_mux_eth(void)
 {
@@ -251,7 +251,7 @@ int checkboard(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 #if defined(CONFIG_SPL_MMC)
 int board_mmc_init(struct bd_info *bd)

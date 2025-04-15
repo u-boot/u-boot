@@ -3,11 +3,9 @@
 # Copyright (c) 2013 Google, Inc
 # Copyright 2022-2023 Arm Limited and/or its affiliates <open-source-office@arm.com>
 
-obj-$(CONFIG_UT_DM) += test-dm.o
-
 # Tests for particular subsystems - when enabling driver model for a new
 # subsystem you must add sandbox tests here.
-ifeq ($(CONFIG_SPL_BUILD),y)
+ifeq ($(CONFIG_XPL_BUILD),y)
 obj-$(CONFIG_SPL_OF_PLATDATA) += of_platdata.o
 else
 obj-$(CONFIG_UT_DM) += bus.o
@@ -42,13 +40,15 @@ obj-$(CONFIG_CLK) += clk.o clk_ccf.o
 obj-$(CONFIG_CPU) += cpu.o
 obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-$(CONFIG_PWM_CROS_EC) += cros_ec_pwm.o
-obj-$(CONFIG_$(SPL_TPL_)DEVRES) += devres.o
+obj-$(CONFIG_$(PHASE_)DEVRES) += devres.o
 obj-$(CONFIG_DMA) += dma.o
 obj-$(CONFIG_VIDEO_MIPI_DSI) += dsi_host.o
 obj-$(CONFIG_DM_DSA) += dsa.o
 obj-$(CONFIG_ECDSA_VERIFY) += ecdsa.o
 obj-$(CONFIG_EFI_MEDIA_SANDBOX) += efi_media.o
+ifdef CONFIG_NET
 obj-$(CONFIG_DM_ETH) += eth.o
+endif
 obj-$(CONFIG_EXTCON) += extcon.o
 ifneq ($(CONFIG_EFI_PARTITION),)
 obj-$(CONFIG_FASTBOOT_FLASH_MMC) += fastboot.o
@@ -63,6 +63,7 @@ obj-$(CONFIG_SOUND) += i2s.o
 obj-$(CONFIG_CLK_K210_SET_RATE) += k210_pll.o
 obj-$(CONFIG_IOMMU) += iommu.o
 obj-$(CONFIG_LED) += led.o
+obj-$(CONFIG_VIDEO_BRIDGE_LVDS_CODEC) += video_bridge.o
 obj-$(CONFIG_DM_MAILBOX) += mailbox.o
 obj-$(CONFIG_DM_MDIO) += mdio.o
 obj-$(CONFIG_DM_MDIO_MUX) += mdio_mux.o
@@ -102,7 +103,7 @@ obj-$(CONFIG_DM_RESET) += reset.o
 obj-$(CONFIG_SYSRESET) += sysreset.o
 obj-$(CONFIG_DM_REGULATOR) += regulator.o
 obj-$(CONFIG_CMD_RKMTD) += rkmtd.o
-obj-$(CONFIG_$(SPL_TPL_)DM_RNG) += rng.o
+obj-$(CONFIG_$(PHASE_)DM_RNG) += rng.o
 obj-$(CONFIG_DM_RTC) += rtc.o
 obj-$(CONFIG_SCMI_FIRMWARE) += scmi.o
 obj-$(CONFIG_SCSI) += scsi.o

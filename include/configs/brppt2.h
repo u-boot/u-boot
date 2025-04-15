@@ -64,7 +64,6 @@ BUR_COMMON_ENV \
 " do echo \"### booting ${target} ###\"; run b_${target};" \
 " if test ${b_break} = 1; then; exit; fi; done\0" \
 "loaddev=mmc 0\0" \
-"altbootcmd=setenv b_mode 0; run b_default;\0" \
 "bootlimit=1\0" \
 "net2nor=sf probe && dhcp &&" \
 " tftp ${loadaddr} SPL && sf erase 0 +${filesize} &&" \
@@ -77,8 +76,5 @@ BUR_COMMON_ENV \
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
-
-/* USB Configs */
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 
 #endif	/* __CONFIG_BRPP2_IMX6_H */

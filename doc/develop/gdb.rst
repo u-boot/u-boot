@@ -8,12 +8,12 @@ Using a JTAG adapter it is possible to debug a running U-Boot with GDB.
 A common way is to connect a debug adapter to the JTAG connector of your
 board, run a GDB server, connect GDB to the GDB server, and use GDB as usual.
 
-Similarly QEMU can provide a GDB server.
+Similarly, QEMU can provide a GDB server.
 
 Preparing build
 ---------------
 
-Building U-Boot with with reduced optimization (-Og) and without link time
+Building U-Boot with reduced optimization (-Og) and without link time
 optimization is recommended for easier debugging::
 
     CONFIG_CC_OPTIMIZE_FOR_DEBUG=y
@@ -24,7 +24,7 @@ Otherwise build, install, and run U-Boot as usual.
 Using OpenOCD as GDB server
 ---------------------------
 
-`OpenOCD <https://openocd.org/>`_ is an open source tool supporting hardware
+`OpenOCD <https://openocd.org/>`_ is an open-source tool supporting hardware
 debug probes, and providing a GDB server. It is readily available in major Linux
 distributions or you can build it from source.
 
@@ -144,7 +144,7 @@ riscv        gp
 sh           r13
 ============ ========
 
-On these architecture the relocation address cat be determined by
+On these architectures the relocation address can be determined by
 dereferencing the global data pointer stored in register, *r9* in the example:
 
 .. code-block:: console
@@ -153,7 +153,7 @@ dereferencing the global data pointer stored in register, *r9* in the example:
      $1 = 0x27f7a000
 
 In the GDB shell discard the previously loaded symbol file and add it once
-again with the relocation address like this:
+again, with the relocation address like this:
 
 .. code-block:: console
 

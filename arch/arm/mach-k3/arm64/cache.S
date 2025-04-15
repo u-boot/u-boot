@@ -7,7 +7,7 @@
 #include <config.h>
 #include <linux/linkage.h>
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 ENTRY(__asm_invalidate_l3_dcache)
 	/* Invalidate SPL address range */
 	mov x0, #CONFIG_SPL_TEXT_BASE

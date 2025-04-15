@@ -1,0 +1,5 @@
+ConfigParser==7.1.0
+importlib_resources==6.5.2
+pygit2==1.13.3
+Requests==2.32.3
+setuptools==75.8.0

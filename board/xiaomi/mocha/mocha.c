@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ *  (C) Copyright 2024
+ *  Svyatoslav Ryhel <clamor95@gmail.com>
+ */
+
+#include <dm.h>
+#include <fdt_support.h>
+#include <i2c.h>
+#include <log.h>
+
+#ifdef CONFIG_MMC_SDHCI_TEGRA
+
+#define TPS65913_I2C_ADDRESS			0x58
+#define TPS65913_PRIMARY_SECONDARY_PAD2		0xfb
+#define   GPIO_4				BIT(0)
+#define TPS65913_PRIMARY_SECONDARY_PAD3		0xfe
+#define   DVFS2					BIT(1)
+#define   DVFS1					BIT(0)
+
+/* We are using this function only till palmas pinctrl driver is available */
+void pin_mux_mmc(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = i2c_get_chip_for_busnum(0, TPS65913_I2C_ADDRESS, 1, &dev);
+	if (ret) {
+		log_debug("%s: cannot find PMIC I2C chip\n", __func__);
+		return;
+	}
+
+	/* GPIO4 function has to be GPIO */
+	dm_i2c_reg_clrset(dev, TPS65913_PRIMARY_SECONDARY_PAD2,
+			  GPIO_4, 0);
+
+	/* DVFS1 and DVFS2 are disabled */
+	dm_i2c_reg_clrset(dev, TPS65913_PRIMARY_SECONDARY_PAD3,
+			  DVFS2 | DVFS1, 0);
+}
+#endif

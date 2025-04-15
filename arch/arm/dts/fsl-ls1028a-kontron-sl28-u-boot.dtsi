@@ -203,3 +203,7 @@
 &sysclk {
 	bootph-all;
 };
+
+&usb0 {
+	dr_mode = "host";
+};

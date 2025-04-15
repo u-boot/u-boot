@@ -24,6 +24,7 @@ enum clock_id {
 	CLOCK_ID_XCPU = CLOCK_ID_FIRST_SIMPLE,
 	CLOCK_ID_EPCI,
 	CLOCK_ID_SFROM32KHZ,
+	CLOCK_ID_DISPLAY2,
 	CLOCK_ID_DP,
 
 	/* These are the base clocks (inputs to the Tegra SoC) */
@@ -37,7 +38,6 @@ enum clock_id {
 	 * These are clock IDs that are used in table clock_source[][]
 	 * but will not be assigned as a clock source for any peripheral.
 	 */
-	CLOCK_ID_DISPLAY2,
 	CLOCK_ID_CGENERAL_0,
 	CLOCK_ID_CGENERAL_1,
 	CLOCK_ID_CGENERAL2,

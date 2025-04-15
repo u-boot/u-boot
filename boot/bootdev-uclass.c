@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <part.h>
 #include <sort.h>
+#include <spl.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
@@ -32,55 +33,38 @@ enum {
 	BOOT_TARGETS_MAX_LEN	= 100,
 };
 
-int bootdev_add_bootflow(struct bootflow *bflow)
+int bootdev_first_bootflow(struct udevice *dev, struct bootflow **bflowp)
 {
 	struct bootstd_priv *std;
-	struct bootflow *new;
+	struct bootflow *bflow;
 	int ret;
 
 	ret = bootstd_get_priv(&std);
 	if (ret)
-		return ret;
+		return log_msg_ret("bff", ret);
 
-	new = malloc(sizeof(*bflow));
-	if (!new)
-		return log_msg_ret("bflow", -ENOMEM);
-	memcpy(new, bflow, sizeof(*bflow));
-
-	list_add_tail(&new->glob_node, &std->glob_head);
-	if (bflow->dev) {
-		struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
-
-		list_add_tail(&new->bm_node, &ucp->bootflow_head);
-	}
-
-	return 0;
-}
-
-int bootdev_first_bootflow(struct udevice *dev, struct bootflow **bflowp)
-{
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
-
-	if (list_empty(&ucp->bootflow_head))
+	bflow = alist_getw(&std->bootflows, 0, struct bootflow);
+	if (!bflow)
 		return -ENOENT;
-
-	*bflowp = list_first_entry(&ucp->bootflow_head, struct bootflow,
-				   bm_node);
+	*bflowp = bflow;
 
 	return 0;
 }
 
 int bootdev_next_bootflow(struct bootflow **bflowp)
 {
-	struct bootflow *bflow = *bflowp;
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
+	struct bootstd_priv *std;
+	struct bootflow *bflow;
+	int ret;
 
-	*bflowp = NULL;
+	ret = bootstd_get_priv(&std);
+	if (ret)
+		return log_msg_ret("bff", ret);
 
-	if (list_is_last(&bflow->bm_node, &ucp->bootflow_head))
+	bflow = alist_nextw(&std->bootflows, *bflowp);
+	if (!bflow)
 		return -ENOENT;
-
-	*bflowp = list_entry(bflow->bm_node.next, struct bootflow, bm_node);
+	*bflowp = bflow;
 
 	return 0;
 }
@@ -184,8 +168,10 @@ int bootdev_find_in_blk(struct udevice *dev, struct udevice *blk,
 		 */
 
 	/* if there are bootable partitions, scan only those */
-	} else if (iter->first_bootable >= 0 &&
+	} else if ((iter->flags & BOOTFLOWIF_ONLY_BOOTABLE) &&
+		   iter->first_bootable >= 0 &&
 		   (iter->first_bootable ? !info.bootable : iter->part != 1)) {
+		log_debug("Skipping non-bootable partition %d\n", iter->part);
 		return log_msg_ret("boot", -EINVAL);
 	} else {
 		ret = fs_set_blk_dev_with_part(desc, bflow->part);
@@ -278,8 +264,13 @@ int bootdev_setup_for_sibling_blk(struct udevice *blk, const char *drv_name)
 	int ret, len;
 
 	len = bootdev_get_suffix_start(blk, ".blk");
-	snprintf(dev_name, sizeof(dev_name), "%.*s.%s", len, blk->name,
-		 "bootdev");
+	if (xpl_phase() < PHASE_BOARD_R) {
+		strlcpy(dev_name, blk->name, sizeof(dev_name) - 5);
+		strcat(dev_name, ".sib");
+	} else {
+		snprintf(dev_name, sizeof(dev_name), "%.*s.%s", len, blk->name,
+			 "bootdev");
+	}
 
 	parent = dev_get_parent(blk);
 	ret = device_find_child_by_name(parent, dev_name, &dev);
@@ -336,7 +327,7 @@ int bootdev_get_sibling_blk(struct udevice *dev, struct udevice **blkp)
 	return 0;
 }
 
-static int bootdev_get_from_blk(struct udevice *blk, struct udevice **bootdevp)
+int bootdev_get_from_blk(struct udevice *blk, struct udevice **bootdevp)
 {
 	struct udevice *parent = dev_get_parent(blk);
 	struct udevice *bootdev;
@@ -433,6 +424,9 @@ int bootdev_find_by_label(const char *label, struct udevice **devp,
 	struct udevice *media;
 	struct uclass *uc;
 	enum uclass_id id;
+
+	if (!CONFIG_IS_ENABLED(BLK))
+		return -ENOSYS;
 
 	ret = label_to_uclass(label, &seq, &method_flags);
 	if (ret < 0)
@@ -579,25 +573,15 @@ int bootdev_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 	return ops->get_bootflow(dev, iter, bflow);
 }
 
-void bootdev_clear_bootflows(struct udevice *dev)
-{
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
-
-	while (!list_empty(&ucp->bootflow_head)) {
-		struct bootflow *bflow;
-
-		bflow = list_first_entry(&ucp->bootflow_head, struct bootflow,
-					 bm_node);
-		bootflow_remove(bflow);
-	}
-}
-
 int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
 		       int *method_flagsp)
 {
 	struct udevice *dev;
 
 	log_debug("next\n");
+	if (iter->cur_label >= 0 && !iter->labels[iter->cur_label])
+		return log_msg_ret("fil", -ENODEV);
+
 	for (dev = NULL; !dev && iter->labels[++iter->cur_label];) {
 		const char *label = iter->labels[iter->cur_label];
 		int ret;
@@ -632,7 +616,7 @@ int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
 
 int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 {
-	struct udevice *dev = *devp, *last_dev = NULL;
+	struct udevice *dev = *devp;
 	bool found;
 	int ret;
 
@@ -640,6 +624,7 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 	*devp = NULL;
 	log_debug("next prio %d: dev=%p/%s\n", iter->cur_prio, dev,
 		  dev ? dev->name : "none");
+	found = false;
 	do {
 		/*
 		 * Don't probe devices here since they may not be of the
@@ -682,23 +667,13 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 			}
 		} else {
 			ret = device_probe(dev);
-			if (!ret)
-				last_dev = dev;
-			if (ret) {
-				log_warning("Device '%s' failed to probe\n",
+			if (ret)
+				log_debug("Device '%s' failed to probe\n",
 					  dev->name);
-				if (last_dev == dev) {
-					/*
-					 * We have already tried this device
-					 * and it failed to probe. Give up.
-					 */
-					return log_msg_ret("probe", ret);
-				}
-				last_dev = dev;
-				dev = NULL;
-			}
+			else
+				found = true;
 		}
-	} while (!dev);
+	} while (!found);
 
 	*devp = dev;
 
@@ -955,18 +930,13 @@ void bootdev_list_hunters(struct bootstd_priv *std)
 	printf("(total hunters: %d)\n", n_ent);
 }
 
-static int bootdev_post_bind(struct udevice *dev)
-{
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
-
-	INIT_LIST_HEAD(&ucp->bootflow_head);
-
-	return 0;
-}
-
 static int bootdev_pre_unbind(struct udevice *dev)
 {
-	bootdev_clear_bootflows(dev);
+	int ret;
+
+	ret = bootstd_clear_bootflows_for_bootdev(dev);
+	if (ret)
+		return log_msg_ret("bun", ret);
 
 	return 0;
 }
@@ -976,6 +946,5 @@ UCLASS_DRIVER(bootdev) = {
 	.name		= "bootdev",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.per_device_plat_auto	= sizeof(struct bootdev_uc_plat),
-	.post_bind	= bootdev_post_bind,
 	.pre_unbind	= bootdev_pre_unbind,
 };

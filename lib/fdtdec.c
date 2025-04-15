@@ -93,6 +93,23 @@ static const char *const fdt_src_name[] = {
 	[FDTSRC_BLOBLIST] = "bloblist",
 };
 
+extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
+extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
+
+/* Get a pointer to the embedded devicetree, if there is one, else NULL */
+static u8 *dtb_dt_embedded(void)
+{
+	u8 *addr = NULL;
+
+	if (IS_ENABLED(CONFIG_OF_EMBED)) {
+		addr = __dtb_dt_begin;
+
+		if (IS_ENABLED(CONFIG_XPL_BUILD))
+			addr = __dtb_dt_spl_begin;
+	}
+	return addr;
+}
+
 const char *fdtdec_get_srcname(void)
 {
 	return fdt_src_name[gd->fdt_src];
@@ -608,7 +625,7 @@ int fdtdec_get_chosen_node(const void *blob, const char *name)
 static int fdtdec_prepare_fdt(const void *blob)
 {
 	if (!blob || ((uintptr_t)blob & 3) || fdt_check_header(blob)) {
-		if (spl_phase() <= PHASE_SPL) {
+		if (xpl_phase() <= PHASE_SPL) {
 			puts("Missing DTB\n");
 		} else {
 			printf("No valid device tree binary found at %p\n",
@@ -1172,10 +1189,10 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 	void *dst;
 	int rc;
 
-	if (CONFIG_IS_ENABLED(GZIP))
+	if (CONFIG_IS_ENABLED(GZIP) && CONFIG_IS_ENABLED(MULTI_DTB_FIT_GZIP))
 		if (gzip_parse_header(src, sz_in) >= 0)
 			gzip = 1;
-	if (CONFIG_IS_ENABLED(LZO))
+	if (CONFIG_IS_ENABLED(LZO) && CONFIG_IS_ENABLED(MULTI_DTB_FIT_LZO))
 		if (!gzip && lzop_is_valid_header(src))
 			lzo = 1;
 
@@ -1230,9 +1247,9 @@ static void *fdt_find_separate(void)
 	if (IS_ENABLED(CONFIG_SANDBOX))
 		return NULL;
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/* FDT is at end of BSS unless it is in a different memory region */
-	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
+	if (CONFIG_IS_ENABLED(SEPARATE_BSS))
 		fdt_blob = (ulong *)_image_binary_end;
 	else
 		fdt_blob = (ulong *)__bss_end;
@@ -1664,6 +1681,12 @@ static void setup_multi_dtb_fit(void)
 	}
 }
 
+void fdtdec_setup_embed(void)
+{
+	gd->fdt_blob = dtb_dt_embedded();
+	gd->fdt_src = FDTSRC_EMBED;
+}
+
 int fdtdec_setup(void)
 {
 	int ret = -ENOENT;
@@ -1676,8 +1699,8 @@ int fdtdec_setup(void)
 	 * not whether this phase creates one.
 	 */
 	if (CONFIG_IS_ENABLED(BLOBLIST) &&
-	    (spl_prev_phase() != PHASE_TPL ||
-	     !IS_ENABLED(CONFIG_TPL_BLOBLIST))) {
+	    (xpl_prev_phase() != PHASE_TPL ||
+	     IS_ENABLED(CONFIG_TPL_BLOBLIST))) {
 		ret = bloblist_maybe_init();
 		if (!ret) {
 			gd->fdt_blob = bloblist_find(BLOBLISTT_CONTROL_FDT, 0);
@@ -1685,6 +1708,7 @@ int fdtdec_setup(void)
 				gd->fdt_src = FDTSRC_BLOBLIST;
 				log_debug("Devicetree is in bloblist at %p\n",
 					  gd->fdt_blob);
+				ret = 0;
 			} else {
 				log_debug("No FDT found in bloblist\n");
 				ret = -ENOENT;
@@ -1698,22 +1722,27 @@ int fdtdec_setup(void)
 			gd->fdt_blob = fdt_find_separate();
 			gd->fdt_src = FDTSRC_SEPARATE;
 		} else { /* embed dtb in ELF file for testing / development */
-			gd->fdt_blob = dtb_dt_embedded();
-			gd->fdt_src = FDTSRC_EMBED;
+			fdtdec_setup_embed();
 		}
 	}
 
 	/* Allow the board to override the fdt address. */
 	if (IS_ENABLED(CONFIG_OF_BOARD)) {
-		gd->fdt_blob = board_fdt_blob_setup(&ret);
-		if (!ret)
+		void *blob;
+
+		blob = (void *)gd->fdt_blob;
+		ret = board_fdt_blob_setup(&blob);
+		if (ret) {
+			if (ret != -EEXIST)
+				return ret;
+		} else {
 			gd->fdt_src = FDTSRC_BOARD;
-		else if (ret != -EEXIST)
-			return ret;
+			gd->fdt_blob = blob;
+		}
 	}
 
 	/* Allow the early environment to override the fdt address */
-	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
 		ulong addr;
 
 		addr = env_get_hex("fdtcontroladdr", 0);

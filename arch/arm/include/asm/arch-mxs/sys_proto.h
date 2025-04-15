@@ -14,7 +14,7 @@
 int mxsmmc_initialize(struct bd_info *bis, int id, int (*wp)(int),
 		      int (*cd)(int));
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 #if defined(CONFIG_MX23)
 #include <asm/arch/iomux-mx23.h>

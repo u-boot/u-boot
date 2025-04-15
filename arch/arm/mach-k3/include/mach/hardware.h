@@ -32,6 +32,10 @@
 #include "j721e_hardware.h"
 #endif
 
+#ifdef CONFIG_SOC_K3_J7200
+#include "j721e_hardware.h"
+#endif
+
 #ifdef CONFIG_SOC_K3_J721S2
 #include "j721s2_hardware.h"
 #endif
@@ -61,6 +65,12 @@
 #define JTAG_ID_PARTNO_J721S2	0xbb75
 #define JTAG_ID_PARTNO_J722S	0xbba0
 #define JTAG_ID_PARTNO_J784S4	0xbb80
+
+#define CTRLMMR_WKUP_JTAG_DEVICE_ID		(WKUP_CTRL_MMR0_BASE + 0x18)
+#define JTAG_DEV_J742S2_PKG_MASK		GENMASK(2, 0)
+#define JTAG_DEV_J742S2_PKG_SHIFT		0
+
+#define JTAG_ID_PKG_J742S2	0x7
 
 #define K3_SOC_ID(id, ID) \
 static inline bool soc_is_##id(void) \

@@ -10,11 +10,13 @@
  */
 
 #include <malloc.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <dm/device_compat.h>
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
@@ -258,6 +260,7 @@ struct atmel_qspi_caps {
 
 struct atmel_qspi_priv_ops;
 
+#define MAX_CS_COUNT	2
 struct atmel_qspi {
 	void __iomem *regs;
 	void __iomem *mem;
@@ -267,6 +270,7 @@ struct atmel_qspi {
 	struct udevice *dev;
 	ulong bus_clk_rate;
 	u32 mr;
+	struct gpio_desc cs_gpios[MAX_CS_COUNT];
 };
 
 struct atmel_qspi_priv_ops {
@@ -395,6 +399,26 @@ static void atmel_qspi_write(u32 value, struct atmel_qspi *aq, u32 offset)
 	writel(value, aq->regs + offset);
 }
 
+static int atmel_qspi_reg_sync(struct atmel_qspi *aq)
+{
+	u32 val;
+
+	return readl_poll_timeout(aq->regs + QSPI_SR2, val,
+				  !(val & QSPI_SR2_SYNCBSY),
+				  ATMEL_QSPI_SYNC_TIMEOUT);
+}
+
+static int atmel_qspi_update_config(struct atmel_qspi *aq)
+{
+	int ret;
+
+	ret = atmel_qspi_reg_sync(aq);
+	if (ret)
+		return ret;
+	atmel_qspi_write(QSPI_CR_UPDCFG, aq, QSPI_CR);
+	return atmel_qspi_reg_sync(aq);
+}
+
 static inline bool atmel_qspi_is_compatible(const struct spi_mem_op *op,
 					    const struct atmel_qspi_mode *mode)
 {
@@ -458,6 +482,29 @@ static bool atmel_qspi_supports_op(struct spi_slave *slave,
 	return true;
 }
 
+/*
+ * Switch QSPI controller between regular SPI mode or Serial Memory Mode (SMM).
+ */
+static int atmel_qspi_set_serial_memory_mode(struct atmel_qspi *aq,
+					     bool enable)
+{
+	int ret = 0;
+
+	/* only write if designated state differs from current state */
+	if (!!(aq->mr & QSPI_MR_SMM) != enable) {
+		if (enable)
+			aq->mr |= QSPI_MR_SMM;
+		else
+			aq->mr &= ~QSPI_MR_SMM;
+		atmel_qspi_write(aq->mr, aq, QSPI_MR);
+
+		if (aq->caps->has_gclk)
+			ret = atmel_qspi_update_config(aq);
+	}
+
+	return ret;
+}
+
 static int atmel_qspi_set_cfg(struct atmel_qspi *aq,
 			      const struct spi_mem_op *op, u32 *offset)
 {
@@ -474,7 +521,7 @@ static int atmel_qspi_set_cfg(struct atmel_qspi *aq,
 		return mode;
 	ifr |= atmel_qspi_modes[mode].config;
 
-	if (op->dummy.buswidth && op->dummy.nbytes)
+	if (op->dummy.nbytes)
 		dummy_cycles = op->dummy.nbytes * 8 / op->dummy.buswidth;
 
 	/*
@@ -529,42 +576,38 @@ static int atmel_qspi_set_cfg(struct atmel_qspi *aq,
 	if (dummy_cycles)
 		ifr |= QSPI_IFR_NBDUM(dummy_cycles);
 
-	/* Set data enable */
-	if (op->data.nbytes)
+	/* Set data enable and data transfer type. */
+	if (op->data.nbytes) {
 		ifr |= QSPI_IFR_DATAEN;
 
-	/*
-	 * If the QSPI controller is set in regular SPI mode, set it in
-	 * Serial Memory Mode (SMM).
-	 */
-	if (aq->mr != QSPI_MR_SMM) {
-		atmel_qspi_write(QSPI_MR_SMM, aq, QSPI_MR);
-		aq->mr = QSPI_MR_SMM;
+		if (op->addr.nbytes)
+			ifr |= QSPI_IFR_TFRTYP_MEM;
 	}
+
+	mode = atmel_qspi_set_serial_memory_mode(aq, true);
+	if (mode < 0)
+		return mode;
 
 	/* Clear pending interrupts */
 	(void)atmel_qspi_read(aq, QSPI_SR);
 
-	if (aq->caps->has_ricr) {
-		if (!op->addr.nbytes && op->data.dir == SPI_MEM_DATA_IN)
-			ifr |= QSPI_IFR_APBTFRTYP_READ;
-
-		/* Set QSPI Instruction Frame registers */
+	/* Set QSPI Instruction Frame registers. */
+	if (op->addr.nbytes && !op->data.nbytes)
 		atmel_qspi_write(iar, aq, QSPI_IAR);
+
+	if (aq->caps->has_ricr) {
 		if (op->data.dir == SPI_MEM_DATA_IN)
 			atmel_qspi_write(icr, aq, QSPI_RICR);
 		else
 			atmel_qspi_write(icr, aq, QSPI_WICR);
-		atmel_qspi_write(ifr, aq, QSPI_IFR);
 	} else {
-		if (op->data.dir == SPI_MEM_DATA_OUT)
+		if (op->data.nbytes && op->data.dir == SPI_MEM_DATA_OUT)
 			ifr |= QSPI_IFR_SAMA5D2_WRITE_TRSFR;
 
-		/* Set QSPI Instruction Frame registers */
-		atmel_qspi_write(iar, aq, QSPI_IAR);
 		atmel_qspi_write(icr, aq, QSPI_ICR);
-		atmel_qspi_write(ifr, aq, QSPI_IFR);
 	}
+
+	atmel_qspi_write(ifr, aq, QSPI_IFR);
 
 	return 0;
 }
@@ -595,26 +638,6 @@ static int atmel_qspi_transfer(struct atmel_qspi *aq,
 	imr = QSPI_SR_INSTRE | QSPI_SR_CSR;
 	return readl_poll_timeout(aq->regs + QSPI_SR, sr, (sr & imr) == imr,
 				  ATMEL_QSPI_TIMEOUT);
-}
-
-static int atmel_qspi_reg_sync(struct atmel_qspi *aq)
-{
-	u32 val;
-
-	return readl_poll_timeout(aq->regs + QSPI_SR2, val,
-				  !(val & QSPI_SR2_SYNCBSY),
-				  ATMEL_QSPI_SYNC_TIMEOUT);
-}
-
-static int atmel_qspi_update_config(struct atmel_qspi *aq)
-{
-	int ret;
-
-	ret = atmel_qspi_reg_sync(aq);
-	if (ret)
-		return ret;
-	atmel_qspi_write(QSPI_CR_UPDCFG, aq, QSPI_CR);
-	return atmel_qspi_reg_sync(aq);
 }
 
 static int atmel_qspi_sama7g5_set_cfg(struct atmel_qspi *aq,
@@ -668,17 +691,9 @@ static int atmel_qspi_sama7g5_set_cfg(struct atmel_qspi *aq,
 			ifr |= QSPI_IFR_TFRTYP_MEM;
 	}
 
-	/*
-	 * If the QSPI controller is set in regular SPI mode, set it in
-	 * Serial Memory Mode (SMM).
-	 */
-	if (aq->mr != QSPI_MR_SMM) {
-		atmel_qspi_write(QSPI_MR_SMM | QSPI_MR_DQSDLYEN, aq, QSPI_MR);
-		ret = atmel_qspi_update_config(aq);
-		if (ret)
-			return ret;
-		aq->mr = QSPI_MR_SMM;
-	}
+	ret = atmel_qspi_set_serial_memory_mode(aq, true);
+	if (ret < 0)
+		return ret;
 
 	/* Clear pending interrupts */
 	(void)atmel_qspi_read(aq, QSPI_SR);
@@ -902,11 +917,10 @@ static int atmel_qspi_sama7g5_set_speed(struct udevice *bus, uint hz)
 	}
 
 	/* Set the QSPI controller by default in Serial Memory Mode */
-	atmel_qspi_write(QSPI_MR_SMM | QSPI_MR_DQSDLYEN, aq, QSPI_MR);
-	ret = atmel_qspi_update_config(aq);
-	if (ret)
+	aq->mr |= QSPI_MR_DQSDLYEN;
+	ret = atmel_qspi_set_serial_memory_mode(aq, true);
+	if (ret < 0)
 		return ret;
-	aq->mr = QSPI_MR_SMM;
 
 	/* Enable the QSPI controller. */
 	ret = atmel_qspi_reg_sync(aq);
@@ -930,6 +944,135 @@ static int atmel_qspi_sama7g5_set_speed(struct udevice *bus, uint hz)
 	return ret;
 }
 
+static int atmel_qspi_claim_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct atmel_qspi *aq = dev_get_priv(bus);
+	int ret;
+
+	aq->mr &= ~QSPI_MR_CSMODE_MASK;
+	aq->mr |= QSPI_MR_CSMODE_LASTXFER | QSPI_MR_WDRBT;
+	atmel_qspi_write(aq->mr, aq, QSPI_MR);
+
+	ret = atmel_qspi_set_serial_memory_mode(aq, false);
+	if (ret)
+		return log_ret(ret);
+
+	/* de-assert all chip selects */
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		for (int i = 0; i < ARRAY_SIZE(aq->cs_gpios); i++) {
+			if (dm_gpio_is_valid(&aq->cs_gpios[i]))
+				dm_gpio_set_value(&aq->cs_gpios[i], 0);
+		}
+	}
+
+	atmel_qspi_write(QSPI_CR_QSPIEN, aq, QSPI_CR);
+
+	return 0;
+}
+
+static int atmel_qspi_release_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct atmel_qspi *aq = dev_get_priv(bus);
+
+	/* de-assert all chip selects */
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		for (int i = 0; i < ARRAY_SIZE(aq->cs_gpios); i++) {
+			if (dm_gpio_is_valid(&aq->cs_gpios[i]))
+				dm_gpio_set_value(&aq->cs_gpios[i], 0);
+		}
+	}
+
+	atmel_qspi_write(QSPI_CR_QSPIDIS, aq, QSPI_CR);
+
+	return 0;
+}
+
+static int atmel_qspi_set_cs(struct udevice *dev, int value)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct atmel_qspi *aq = dev_get_priv(bus);
+	int cs = spi_chip_select(dev);
+
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		if (!dm_gpio_is_valid(&aq->cs_gpios[cs]))
+			return log_ret(-ENOENT);
+
+		return dm_gpio_set_value(&aq->cs_gpios[cs], value);
+	} else {
+		return -ENOENT;
+	}
+}
+
+static int atmel_qspi_xfer(struct udevice *dev, unsigned int bitlen,
+			   const void *dout, void *din, unsigned long flags)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct atmel_qspi *aq = dev_get_priv(bus);
+	unsigned int len, len_rx, len_tx;
+	const u8 *txp = dout;
+	u8 *rxp = din;
+	u32 reg;
+	int ret;
+
+	if (bitlen == 0)
+		goto out;
+
+	if (bitlen % 8) {
+		flags |= SPI_XFER_END;
+		goto out;
+	}
+
+	len = bitlen / 8;
+
+	if (flags & SPI_XFER_BEGIN) {
+		ret = atmel_qspi_set_cs(dev, 1);
+		if (ret)
+			return log_ret(ret);
+		reg = atmel_qspi_read(aq, QSPI_RD);
+	}
+
+	for (len_tx = 0, len_rx = 0; len_rx < len; ) {
+		u32 status = atmel_qspi_read(aq, QSPI_SR);
+		u8 value;
+
+		if (status & QSPI_SR_OVRES)
+			return log_ret(-1);
+
+		if (len_tx < len && (status & QSPI_SR_TDRE)) {
+			if (txp)
+				value = *txp++;
+			else
+				value = 0;
+			atmel_qspi_write(value, aq, QSPI_TD);
+			len_tx++;
+		}
+
+		if (status & QSPI_SR_RDRF) {
+			value = atmel_qspi_read(aq, QSPI_RD);
+			if (rxp)
+				*rxp++ = value;
+			len_rx++;
+		}
+	}
+
+out:
+	if (flags & SPI_XFER_END) {
+		readl_poll_timeout(aq->regs + QSPI_SR, reg,
+				   reg & QSPI_SR_TXEMPTY,
+				   ATMEL_QSPI_TIMEOUT);
+
+		atmel_qspi_write(QSPI_CR_LASTXFER, aq, QSPI_CR);
+
+		ret = atmel_qspi_set_cs(dev, 0);
+		if (ret)
+			return log_ret(ret);
+	}
+
+	return 0;
+}
+
 static int atmel_qspi_set_speed(struct udevice *bus, uint hz)
 {
 	struct atmel_qspi *aq = dev_get_priv(bus);
@@ -939,6 +1082,7 @@ static int atmel_qspi_set_speed(struct udevice *bus, uint hz)
 		return atmel_qspi_sama7g5_set_speed(bus, hz);
 
 	/* Compute the QSPI baudrate */
+	dev_dbg(bus, "bus_clk_rate: %lu, hz: %u\n", aq->bus_clk_rate, hz);
 	scbr = DIV_ROUND_UP(aq->bus_clk_rate, hz);
 	if (scbr > 0)
 		scbr--;
@@ -1046,10 +1190,6 @@ static int atmel_qspi_init(struct atmel_qspi *aq)
 	/* Reset the QSPI controller */
 	atmel_qspi_write(QSPI_CR_SWRST, aq, QSPI_CR);
 
-	/* Set the QSPI controller by default in Serial Memory Mode */
-	atmel_qspi_write(QSPI_MR_SMM, aq, QSPI_MR);
-	aq->mr = QSPI_MR_SMM;
-
 	/* Enable the QSPI controller */
 	atmel_qspi_write(QSPI_CR_QSPIEN, aq, QSPI_CR);
 
@@ -1075,7 +1215,7 @@ static int atmel_qspi_probe(struct udevice *dev)
 	aq->caps = (struct atmel_qspi_caps *)dev_get_driver_data(dev);
 	if (!aq->caps) {
 		dev_err(dev, "Could not retrieve QSPI caps\n");
-		return -EINVAL;
+		return log_ret(-EINVAL);
 	};
 
 	if (aq->caps->has_gclk)
@@ -1083,36 +1223,53 @@ static int atmel_qspi_probe(struct udevice *dev)
 	else
 		aq->ops = &atmel_qspi_priv_ops;
 
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		ret = gpio_request_list_by_name(dev, "cs-gpios", aq->cs_gpios,
+						ARRAY_SIZE(aq->cs_gpios), 0);
+		if (ret < 0) {
+			pr_err("Can't get %s gpios! Error: %d", dev->name, ret);
+			return log_ret(ret);
+		}
+
+		for (int i = 0; i < ARRAY_SIZE(aq->cs_gpios); i++) {
+			if (!dm_gpio_is_valid(&aq->cs_gpios[i]))
+				continue;
+
+			dm_gpio_set_dir_flags(&aq->cs_gpios[i],
+					      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		}
+	}
+
 	/* Map the registers */
 	ret = dev_read_resource_byname(dev, "qspi_base", &res);
 	if (ret) {
 		dev_err(dev, "missing registers\n");
-		return ret;
+		return log_ret(ret);
 	}
 
 	aq->regs = devm_ioremap(dev, res.start, resource_size(&res));
 	if (IS_ERR(aq->regs))
-		return PTR_ERR(aq->regs);
+		return log_ret(PTR_ERR(aq->regs));
 
 	/* Map the AHB memory */
 	ret = dev_read_resource_byname(dev, "qspi_mmap", &res);
 	if (ret) {
 		dev_err(dev, "missing AHB memory\n");
-		return ret;
+		return log_ret(ret);
 	}
 
 	aq->mem = devm_ioremap(dev, res.start, resource_size(&res));
 	if (IS_ERR(aq->mem))
-		return PTR_ERR(aq->mem);
+		return log_ret(PTR_ERR(aq->mem));
 
 	aq->mmap_size = resource_size(&res);
 
 	ret = atmel_qspi_enable_clk(dev);
 	if (ret)
-		return ret;
+		return log_ret(ret);
 
 	aq->dev = dev;
-	return atmel_qspi_init(aq);
+	return log_ret(atmel_qspi_init(aq));
 }
 
 static const struct spi_controller_mem_ops atmel_qspi_mem_ops = {
@@ -1121,9 +1278,12 @@ static const struct spi_controller_mem_ops atmel_qspi_mem_ops = {
 };
 
 static const struct dm_spi_ops atmel_qspi_ops = {
+	.claim_bus = atmel_qspi_claim_bus,
+	.release_bus = atmel_qspi_release_bus,
+	.xfer = atmel_qspi_xfer,
+	.mem_ops = &atmel_qspi_mem_ops,
 	.set_speed = atmel_qspi_set_speed,
 	.set_mode = atmel_qspi_set_mode,
-	.mem_ops = &atmel_qspi_mem_ops,
 };
 
 static const struct atmel_qspi_caps atmel_sama5d2_qspi_caps = {};

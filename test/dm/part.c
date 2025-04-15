@@ -93,7 +93,7 @@ static int dm_test_part(struct unit_test_state *uts)
 	env_set("bootdevice", oldbootdevice);
 	return ret;
 }
-DM_TEST(dm_test_part, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_part, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_part_bootable(struct unit_test_state *uts)
 {
@@ -106,7 +106,7 @@ static int dm_test_part_bootable(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_part_bootable, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_part_bootable, UTF_SCAN_FDT);
 
 static int do_get_info_test(struct unit_test_state *uts,
 			    struct blk_desc *dev_desc, int part, int part_type,
@@ -193,4 +193,4 @@ static int dm_test_part_get_info_by_type(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_part_get_info_by_type, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_part_get_info_by_type, UTF_SCAN_PDATA | UTF_SCAN_FDT);

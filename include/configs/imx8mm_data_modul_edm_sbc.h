@@ -10,7 +10,7 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define CFG_MALLOC_F_ADDR		0x930000
 
 /* For RAW image gives a error info not panic */
@@ -34,7 +34,6 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CFG_EXTRA_ENV_SETTINGS						\
-	"altbootcmd=setenv devpart 2 && run bootcmd ; reset\0"		\
 	"bootlimit=3\0"							\
 	"devtype=mmc\0"							\
 	"devpart=1\0"							\

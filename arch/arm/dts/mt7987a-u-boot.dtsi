@@ -1,0 +1,70 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2025 MediaTek Inc.
+ * Author: Sam Shih <sam.shih@mediatek.com>
+ */
+
+#include "mt7987-pinctrl-u-boot.dtsi"
+
+/ {
+	cpus {
+		cpu@0 {
+			mediatek,hwver = <&hwver>;
+		};
+
+		cpu@1 {
+			mediatek,hwver = <&hwver>;
+		};
+
+		cpu@2 {
+			mediatek,hwver = <&hwver>;
+		};
+
+		cpu@3 {
+			mediatek,hwver = <&hwver>;
+		};
+	};
+
+	reserved-memory {
+		/delete-node/ wmcpu-reserved@50000000;
+	};
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_pins>;
+	status = "okay";
+};
+
+&pcie0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie0_pins>;
+	status = "okay";
+};
+
+&pcie1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie1_pins>;
+	status = "disabled";
+};
+
+&spi0 {
+	compatible = "mediatek,ipm-spi";
+	clocks = <&infracfg CLK_INFRA_104M_SPI0>,
+		 <&topckgen CLK_TOP_SPI_SEL>;
+	clock-names = "spi-clk", "sel-clk";
+};
+
+&spi1 {
+	compatible = "mediatek,ipm-spi";
+	clocks = <&infracfg CLK_INFRA_104M_SPI1>,
+		 <&topckgen CLK_TOP_SPIM_MST_SEL>;
+	clock-names = "spi-clk", "sel-clk";
+};
+
+&spi2 {
+	compatible = "mediatek,ipm-spi";
+	clocks = <&infracfg CLK_INFRA_104M_SPI2_BCK>,
+		 <&topckgen CLK_TOP_SPI_SEL>;
+	clock-names = "spi-clk", "sel-clk";
+};

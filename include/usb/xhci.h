@@ -1134,8 +1134,6 @@ void xhci_hcd_stop(int index);
 /*************************************************************
 	EXTENDED CAPABILITY DEFINITIONS
 *************************************************************/
-/* Up to 16 ms to halt an HC */
-#define XHCI_MAX_HALT_USEC	(16*1000)
 /* HC not running - set to 1 when run/stop bit is cleared. */
 #define XHCI_STS_HALT		(1 << 0)
 

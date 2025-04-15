@@ -80,7 +80,7 @@ enum {
 		       "divisors on line " __stringify(__LINE__));
 
 /* Keep divisors as low as possible to reduce jitter and power usage */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 2);
 #endif
@@ -371,7 +371,7 @@ static ulong rockchip_spi_set_clk(struct rk3188_cru *cru, uint gclk_rate,
 	return rockchip_spi_get_clk(cru, gclk_rate, periph);
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static void rkclk_init(struct rk3188_cru *cru, struct rk3188_grf *grf,
 		       bool has_bwadj)
 {
@@ -557,7 +557,7 @@ static int rk3188_clk_probe(struct udevice *dev)
 		return PTR_ERR(priv->grf);
 	priv->has_bwadj = (type == RK3188A_CRU) ? 1 : 0;
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3188_clk_plat *plat = dev_get_plat(dev);
 

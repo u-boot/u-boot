@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+/ {
+    binman: binman {
+		multiple-images;
+
+		template_1: template-1 {
+			section {
+				phandle1: my-blob.bin {
+					filename = "my-blob.bin";
+					type = "blob-ext";
+				};
+			};
+		};
+		template_2: template-2 {
+			section {
+				ti-secure {
+					content = <&phandle2>;
+					keyfile = "key.pem";
+				};
+				phandle2: my-blob.bin {
+					filename = "my-blob.bin";
+					type = "blob-ext";
+				};
+			};
+		};
+		template_3: template-3 {
+			section {
+				phandle3: my-blob.bin {
+					filename = "my-blob.bin";
+					type = "blob-ext";
+				};
+			};
+		};
+
+		file1 {
+			insert-template = <&template_1>;
+		};
+
+		file2 {
+			insert-template = <&template_2>;
+		};
+
+		file3 {
+			insert-template = <&template_3>;
+		};
+	};
+};

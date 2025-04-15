@@ -13,7 +13,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void clock_init_safe(void)
 {
 	struct sunxi_ccm_reg * const ccm =
@@ -175,7 +175,7 @@ void clock_set_pll1(unsigned int hz)
 	       &ccm->cpu_ahb_apb0_cfg);
 	sdelay(20);
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 /* video, DRAM, PLL_PERIPH clocks */
 void clock_set_pll3(unsigned int clk)
