@@ -63,15 +63,15 @@ DM_TEST(dm_test_dsa_probe, UTF_SCAN_FDT);
  */
 static int dm_test_dsa(struct unit_test_state *uts)
 {
-	net_ping_ip = string_to_ip("1.2.3.5");
+	char *argv[] = { "ping", "1.1.2.2" };
 
 	env_set("ethact", "eth2");
-	ut_assertok(net_loop(PING));
+	ut_assertok(do_ping(NULL, 0, ARRAY_SIZE(argv), argv));
 
 	env_set("ethact", "lan0");
-	ut_assertok(net_loop(PING));
+	ut_assertok(do_ping(NULL, 0, ARRAY_SIZE(argv), argv));
 	env_set("ethact", "lan1");
-	ut_assertok(net_loop(PING));
+	ut_assertok(do_ping(NULL, 0, ARRAY_SIZE(argv), argv));
 
 	env_set("ethact", "");
 
