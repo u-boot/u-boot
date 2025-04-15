@@ -10,7 +10,14 @@ enum proto_t {
 	TFTPGET
 };
 
-void net_lwip_set_current(void);
+static inline int eth_is_on_demand_init(void)
+{
+	return 1;
+}
+
+int eth_init_state_only(void); /* Set active state */
+
+int net_lwip_eth_start(void);
 struct netif *net_lwip_new_netif(struct udevice *udev);
 struct netif *net_lwip_new_netif_noip(struct udevice *udev);
 void net_lwip_remove_netif(struct netif *netif);

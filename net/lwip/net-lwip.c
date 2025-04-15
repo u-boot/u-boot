@@ -134,18 +134,27 @@ static int get_udev_ipv4_info(struct udevice *dev, ip4_addr_t *ip,
 	return 0;
 }
 
-/* Initialize the lwIP stack and the ethernet devices and set current device  */
-void net_lwip_set_current(void)
+/*
+ * Initialize the network stack if needed and start the current device if valid
+ */
+int net_lwip_eth_start(void)
 {
-	static bool init_done;
+	int ret;
 
-	if (!init_done) {
-		eth_init_rings();
-		eth_init();
-		lwip_init();
-		init_done = true;
+	net_init();
+	if (eth_is_on_demand_init()) {
+		eth_halt();
+		eth_set_current();
+		ret = eth_init();
+		if (ret < 0) {
+			eth_halt();
+			return ret;
+		}
+	} else {
+		eth_init_state_only();
 	}
-	eth_set_current();
+
+	return 0;
 }
 
 static struct netif *new_netif(struct udevice *udev, bool with_ip)
@@ -224,11 +233,20 @@ void net_lwip_remove_netif(struct netif *netif)
 	free(netif);
 }
 
+/*
+ * Initialize the network buffers, an ethernet device, and the lwIP stack
+ * (once).
+ */
 int net_init(void)
 {
-	eth_set_current();
+	static bool init_done;
 
-	net_lwip_new_netif(eth_get_dev());
+	if (!init_done) {
+		eth_init_rings();
+		eth_init();
+		lwip_init();
+		init_done = true;
+	}
 
 	return 0;
 }
