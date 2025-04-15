@@ -14,6 +14,7 @@
 #include <lwip/init.h>
 #include <lwip/prot/etharp.h>
 #include <net.h>
+#include <timer.h>
 
 /* xx:xx:xx:xx:xx:xx\0 */
 #define MAC_ADDR_STRLEN 18
@@ -339,7 +340,11 @@ int net_loop(enum proto_t protocol)
 
 u32_t sys_now(void)
 {
+#if CONFIG_IS_ENABLED(SANDBOX_TIMER)
+	return timer_early_get_count();
+#else
 	return get_timer(0);
+#endif
 }
 
 int net_start_again(void)
