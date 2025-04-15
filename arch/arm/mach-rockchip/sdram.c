@@ -110,6 +110,7 @@ static int rockchip_dram_init_banksize(void)
 	u8 i, j;
 
 	if (!IS_ENABLED(CONFIG_ROCKCHIP_RK3588) &&
+	    !IS_ENABLED(CONFIG_ROCKCHIP_RK3576) &&
 	    !IS_ENABLED(CONFIG_ROCKCHIP_RK3568) &&
 	    !IS_ENABLED(CONFIG_ROCKCHIP_RK3528))
 		return -ENOTSUPP;
