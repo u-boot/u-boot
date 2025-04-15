@@ -1,0 +1,5 @@
+#include <configs/sandbox64_defconfig>
+
+CONFIG_SANDBOX=y
+
+CONFIG_NET_LWIP=y
