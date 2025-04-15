@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2023 Joshua Riek <jjriek@verizon.net>
+ *
+ */
+
+#include "rk3576-u-boot.dtsi"
+
+&sdhci {
+	cap-mmc-highspeed;
+};

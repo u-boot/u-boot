@@ -130,6 +130,9 @@ List of mainline supported Rockchip boards:
      - Radxa ROCK 3A (rock-3a-rk3568)
      - Radxa ROCK 3B (rock-3b-rk3568)
 
+* rk3576
+     - Firefly ROC-RK3576-PC (roc-pc-rk3576)
+
 * rk3588
      - ArmSoM Sige7 (sige7-rk3588)
      - Rockchip EVB (evb-rk3588)

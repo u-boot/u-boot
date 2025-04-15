@@ -1,0 +1,7 @@
+ROC-RK3576-PC
+M:	Heiko Stuebner <heiko@sntech.de>
+S:	Maintained
+F:	board/firefly/roc-pc-rk3576
+F:	include/configs/roc-pc-rk3576.h
+F:	configs/roc-pc-rk3576_defconfig
+F:	arch/arm/dts/rk3576-roc-pc*
