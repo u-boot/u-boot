@@ -198,6 +198,9 @@ source "arch/arm/mach-tegra/tegra124/Kconfig"
 source "arch/arm/mach-tegra/tegra210/Kconfig"
 source "arch/arm/mach-tegra/tegra186/Kconfig"
 
+config SYS_CONFIG_NAME
+	default "tegra"
+
 config TEGRA_PRAM
 	select TEGRA_SUPPORT_NON_SECURE if TEGRA114 || TEGRA124
 	bool "Support reservation of the protected RAM"

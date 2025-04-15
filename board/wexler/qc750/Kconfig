@@ -6,9 +6,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	default "wexler"
 
-config SYS_CONFIG_NAME
-	default "tegra"
-
 config TEGRA_BOARD_STRING
 	string "Default Tegra board name"
 	default "Wexler QC750"
