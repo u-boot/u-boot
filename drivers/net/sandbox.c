@@ -9,13 +9,84 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
-#include <net.h>
 #include <asm/eth.h>
 #include <asm/global_data.h>
 #include <asm/test.h>
+#include <asm/types.h>
+
+/*
+ * Structure definitions for network protocols. Since this file is used for
+ * both NET and NET_LWIP, and given that the two network stacks do have
+ * conflicting types (for instance struct icmp_hdr), it is on purpose that the
+ * structures are defined locally with minimal dependencies -- <asm/types.h> is
+ * included for the bit types and that's it.
+ */
+
+#define ETHADDR_LEN 6
+#define IP4_LEN 4
+
+struct ethhdr {
+        u8 dst[ETHADDR_LEN];
+        u8 src[ETHADDR_LEN];
+        u16 protlen;
+} __attribute__((packed));
+
+#define ETHHDR_SIZE (sizeof(struct ethhdr))
+
+struct arphdr {
+	u16 htype;
+	u16 ptype;
+	u8 hlen;
+	u8 plen;
+	u16 op;
+} __attribute__((packed));
+
+#define ARPHDR_SIZE (sizeof(struct arphdr))
+
+#define ARP_REQUEST	1
+#define ARP_REPLY	2
+
+struct arpdata {
+	u8 sha[ETHADDR_LEN];
+	u32 spa;
+	u8 tha[ETHADDR_LEN];
+	u32 tpa;
+} __attribute__((packed));
+
+#define ARPDATA_SIZE (sizeof(struct arpdata))
+
+struct iphdr {
+	u8 hl_v;
+	u8 tos;
+	u16 len;
+	u16 id;
+	u16 off;
+	u8 ttl;
+	u8 prot;
+	u16 sum;
+	u32 src;
+	u32 dst;
+} __attribute__((packed));
+
+#define IPHDR_SIZE (sizeof(struct iphdr))
+
+struct icmphdr {
+	u8 type;
+	u8 code;
+	u16 checksum;
+	u16 id;
+	u16 sequence;
+} __attribute__((packed));
+
+#define ICMPHDR_SIZE (sizeof(struct icmphdr))
+
+#define ICMP_ECHO_REQUEST	8
+#define ICMP_ECHO_REPLY		0
+#define IPPROTO_ICMP		1
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static const u8 null_ethaddr[6];
 static bool skip_timeout;
 
 /*
@@ -59,17 +130,19 @@ int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
 				 unsigned int len)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
-	struct ethernet_hdr *eth = packet;
-	struct arp_hdr *arp;
-	struct ethernet_hdr *eth_recv;
-	struct arp_hdr *arp_recv;
+	struct ethhdr *eth = packet;
+	struct arphdr *arp;
+	struct arpdata *arpd;
+	struct ethhdr *eth_recv;
+	struct arphdr *arp_recv;
+	struct arpdata *arp_recvd;
 
-	if (ntohs(eth->et_protlen) != PROT_ARP)
+	if (ntohs(eth->protlen) != PROT_ARP)
 		return -EAGAIN;
 
-	arp = packet + ETHER_HDR_SIZE;
+	arp = packet + ETHHDR_SIZE;
 
-	if (ntohs(arp->ar_op) != ARPOP_REQUEST)
+	if (ntohs(arp->op) != ARP_REQUEST)
 		return -EAGAIN;
 
 	/* Don't allow the buffer to overrun */
@@ -77,27 +150,29 @@ int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
 		return 0;
 
 	/* store this as the assumed IP of the fake host */
-	priv->fake_host_ipaddr = net_read_ip(&arp->ar_tpa);
+	arpd = (struct arpdata *)(arp + 1);
+	priv->fake_host_ipaddr.s_addr = arpd->tpa;
 
 	/* Formulate a fake response */
 	eth_recv = (void *)priv->recv_packet_buffer[priv->recv_packets];
-	memcpy(eth_recv->et_dest, eth->et_src, ARP_HLEN);
-	memcpy(eth_recv->et_src, priv->fake_host_hwaddr, ARP_HLEN);
-	eth_recv->et_protlen = htons(PROT_ARP);
+	memcpy(eth_recv->dst, eth->src, ETHADDR_LEN);
+	memcpy(eth_recv->src, priv->fake_host_hwaddr, ETHADDR_LEN);
+	eth_recv->protlen = htons(PROT_ARP);
 
-	arp_recv = (void *)eth_recv + ETHER_HDR_SIZE;
-	arp_recv->ar_hrd = htons(ARP_ETHER);
-	arp_recv->ar_pro = htons(PROT_IP);
-	arp_recv->ar_hln = ARP_HLEN;
-	arp_recv->ar_pln = ARP_PLEN;
-	arp_recv->ar_op = htons(ARPOP_REPLY);
-	memcpy(&arp_recv->ar_sha, priv->fake_host_hwaddr, ARP_HLEN);
-	net_write_ip(&arp_recv->ar_spa, priv->fake_host_ipaddr);
-	memcpy(&arp_recv->ar_tha, &arp->ar_sha, ARP_HLEN);
-	net_copy_ip(&arp_recv->ar_tpa, &arp->ar_spa);
+	arp_recv = (void *)eth_recv + ETHHDR_SIZE;
+	arp_recv->htype = htons(ARP_ETHER);
+	arp_recv->ptype = htons(PROT_IP);
+	arp_recv->hlen = ETHADDR_LEN;
+	arp_recv->plen = IP4_LEN;
+	arp_recv->op = htons(ARP_REPLY);
+	arp_recvd = (struct arpdata *)(arp_recv + 1);
+	memcpy(&arp_recvd->sha, priv->fake_host_hwaddr, ETHADDR_LEN);
+	arp_recvd->spa = priv->fake_host_ipaddr.s_addr;
+	memcpy(&arp_recvd->tha, &arpd->sha, ETHADDR_LEN);
+	arp_recvd->tpa = arpd->spa;
 
-	priv->recv_packet_length[priv->recv_packets] =
-		ETHER_HDR_SIZE + ARP_HDR_SIZE;
+	priv->recv_packet_length[priv->recv_packets] = ETHHDR_SIZE +
+		ARPHDR_SIZE + ARPDATA_SIZE;
 	++priv->recv_packets;
 
 	return 0;
@@ -114,22 +189,22 @@ int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 				  unsigned int len)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
-	struct ethernet_hdr *eth = packet;
-	struct ip_udp_hdr *ip;
-	struct icmp_hdr *icmp;
-	struct ethernet_hdr *eth_recv;
-	struct ip_udp_hdr *ipr;
-	struct icmp_hdr *icmpr;
+	struct ethhdr *eth = packet;
+	struct iphdr *ip;
+	struct icmphdr *icmp;
+	struct ethhdr *eth_recv;
+	struct iphdr *ipr;
+	struct icmphdr *icmpr;
 
-	if (ntohs(eth->et_protlen) != PROT_IP)
+	if (ntohs(eth->protlen) != PROT_IP)
 		return -EAGAIN;
 
-	ip = packet + ETHER_HDR_SIZE;
+	ip = packet + ETHHDR_SIZE;
 
-	if (ip->ip_p != IPPROTO_ICMP)
+	if (ip->prot != IPPROTO_ICMP)
 		return -EAGAIN;
 
-	icmp = (struct icmp_hdr *)&ip->udp_src;
+	icmp = (struct icmphdr *)(ip + 1);
 
 	if (icmp->type != ICMP_ECHO_REQUEST)
 		return -EAGAIN;
@@ -141,19 +216,19 @@ int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 	/* reply to the ping */
 	eth_recv = (void *)priv->recv_packet_buffer[priv->recv_packets];
 	memcpy(eth_recv, packet, len);
-	ipr = (void *)eth_recv + ETHER_HDR_SIZE;
-	icmpr = (struct icmp_hdr *)&ipr->udp_src;
-	memcpy(eth_recv->et_dest, eth->et_src, ARP_HLEN);
-	memcpy(eth_recv->et_src, priv->fake_host_hwaddr, ARP_HLEN);
-	ipr->ip_sum = 0;
-	ipr->ip_off = 0;
-	net_copy_ip((void *)&ipr->ip_dst, &ip->ip_src);
-	net_write_ip((void *)&ipr->ip_src, priv->fake_host_ipaddr);
-	ipr->ip_sum = compute_ip_checksum(ipr, IP_HDR_SIZE);
+	ipr = (void *)eth_recv + ETHHDR_SIZE;
+	icmpr = (struct icmphdr *)(ipr + 1);
+	memcpy(eth_recv->dst, eth->src, ETHADDR_LEN);
+	memcpy(eth_recv->src, priv->fake_host_hwaddr, ETHADDR_LEN);
+	ipr->sum = 0;
+	ipr->off = 0;
+	ipr->dst = ip->src;
+	ipr->src = priv->fake_host_ipaddr.s_addr;
+	ipr->sum = compute_ip_checksum(ipr, IPHDR_SIZE);
 
 	icmpr->type = ICMP_ECHO_REPLY;
 	icmpr->checksum = 0;
-	icmpr->checksum = compute_ip_checksum(icmpr, ICMP_HDR_SIZE);
+	icmpr->checksum = compute_ip_checksum(icmpr, ICMPHDR_SIZE);
 
 	priv->recv_packet_length[priv->recv_packets] = len;
 	++priv->recv_packets;
@@ -171,8 +246,9 @@ int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 int sandbox_eth_recv_arp_req(struct udevice *dev)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
-	struct ethernet_hdr *eth_recv;
-	struct arp_hdr *arp_recv;
+	struct ethhdr *eth_recv;
+	struct arphdr *arp_recv;
+	struct arpdata *arp_recvd;
 
 	/* Don't allow the buffer to overrun */
 	if (priv->recv_packets >= PKTBUFSRX)
@@ -180,23 +256,24 @@ int sandbox_eth_recv_arp_req(struct udevice *dev)
 
 	/* Formulate a fake request */
 	eth_recv = (void *)priv->recv_packet_buffer[priv->recv_packets];
-	memcpy(eth_recv->et_dest, net_bcast_ethaddr, ARP_HLEN);
-	memcpy(eth_recv->et_src, priv->fake_host_hwaddr, ARP_HLEN);
-	eth_recv->et_protlen = htons(PROT_ARP);
+	memcpy(eth_recv->dst, net_bcast_ethaddr, ETHADDR_LEN);
+	memcpy(eth_recv->src, priv->fake_host_hwaddr, ETHADDR_LEN);
+	eth_recv->protlen = htons(PROT_ARP);
 
-	arp_recv = (void *)eth_recv + ETHER_HDR_SIZE;
-	arp_recv->ar_hrd = htons(ARP_ETHER);
-	arp_recv->ar_pro = htons(PROT_IP);
-	arp_recv->ar_hln = ARP_HLEN;
-	arp_recv->ar_pln = ARP_PLEN;
-	arp_recv->ar_op = htons(ARPOP_REQUEST);
-	memcpy(&arp_recv->ar_sha, priv->fake_host_hwaddr, ARP_HLEN);
-	net_write_ip(&arp_recv->ar_spa, priv->fake_host_ipaddr);
-	memcpy(&arp_recv->ar_tha, net_null_ethaddr, ARP_HLEN);
-	net_write_ip(&arp_recv->ar_tpa, net_ip);
+	arp_recv = (void *)eth_recv + ETHHDR_SIZE;
+	arp_recv->htype = htons(ARP_ETHER);
+	arp_recv->ptype = htons(PROT_IP);
+	arp_recv->hlen = ETHADDR_LEN;
+	arp_recv->plen = IP4_LEN;
+	arp_recv->op = htons(ARP_REQUEST);
+	arp_recvd = (struct arpdata *)(arp_recv + 1);
+	memcpy(&arp_recvd->sha, priv->fake_host_hwaddr, ETHADDR_LEN);
+	arp_recvd->spa = priv->fake_host_ipaddr.s_addr;
+	memcpy(&arp_recvd->tha, null_ethaddr, ETHADDR_LEN);
+	arp_recvd->tpa = net_ip.s_addr;
 
 	priv->recv_packet_length[priv->recv_packets] =
-		ETHER_HDR_SIZE + ARP_HDR_SIZE;
+		ETHHDR_SIZE + ARPHDR_SIZE + ARPDATA_SIZE;
 	++priv->recv_packets;
 
 	return 0;
@@ -212,9 +289,10 @@ int sandbox_eth_recv_arp_req(struct udevice *dev)
 int sandbox_eth_recv_ping_req(struct udevice *dev)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
-	struct ethernet_hdr *eth_recv;
-	struct ip_udp_hdr *ipr;
-	struct icmp_hdr *icmpr;
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct ethhdr *eth_recv;
+	struct iphdr *ipr;
+	struct icmphdr *icmpr;
 
 	/* Don't allow the buffer to overrun */
 	if (priv->recv_packets >= PKTBUFSRX)
@@ -223,31 +301,31 @@ int sandbox_eth_recv_ping_req(struct udevice *dev)
 	/* Formulate a fake ping */
 	eth_recv = (void *)priv->recv_packet_buffer[priv->recv_packets];
 
-	memcpy(eth_recv->et_dest, net_ethaddr, ARP_HLEN);
-	memcpy(eth_recv->et_src, priv->fake_host_hwaddr, ARP_HLEN);
-	eth_recv->et_protlen = htons(PROT_IP);
+	memcpy(eth_recv->dst, pdata->enetaddr, ETHADDR_LEN);
+	memcpy(eth_recv->src, priv->fake_host_hwaddr, ETHADDR_LEN);
+	eth_recv->protlen = htons(PROT_IP);
 
-	ipr = (void *)eth_recv + ETHER_HDR_SIZE;
-	ipr->ip_hl_v = 0x45;
-	ipr->ip_len = htons(IP_ICMP_HDR_SIZE);
-	ipr->ip_off = htons(IP_FLAGS_DFRAG);
-	ipr->ip_p = IPPROTO_ICMP;
-	ipr->ip_sum = 0;
-	net_write_ip(&ipr->ip_src, priv->fake_host_ipaddr);
-	net_write_ip(&ipr->ip_dst, net_ip);
-	ipr->ip_sum = compute_ip_checksum(ipr, IP_HDR_SIZE);
+	ipr = (void *)eth_recv + ETHHDR_SIZE;
+	ipr->hl_v = 0x45;
+	ipr->len = htons(IPHDR_SIZE + ICMPHDR_SIZE);
+	ipr->off = htons(IP_FLAGS_DFRAG);
+	ipr->prot = IPPROTO_ICMP;
+	ipr->sum = 0;
+	ipr->src = priv->fake_host_ipaddr.s_addr;
+	ipr->dst = net_ip.s_addr;
+	ipr->sum = compute_ip_checksum(ipr, IPHDR_SIZE);
 
-	icmpr = (struct icmp_hdr *)&ipr->udp_src;
+	icmpr = (struct icmphdr *)(ipr + 1);
 
 	icmpr->type = ICMP_ECHO_REQUEST;
 	icmpr->code = 0;
 	icmpr->checksum = 0;
-	icmpr->un.echo.id = 0;
-	icmpr->un.echo.sequence = htons(1);
-	icmpr->checksum = compute_ip_checksum(icmpr, ICMP_HDR_SIZE);
+	icmpr->id = 0;
+	icmpr->sequence = htons(1);
+	icmpr->checksum = compute_ip_checksum(icmpr, ICMPHDR_SIZE);
 
 	priv->recv_packet_length[priv->recv_packets] =
-		ETHER_HDR_SIZE + IP_ICMP_HDR_SIZE;
+		ETHHDR_SIZE + IPHDR_SIZE + ICMPHDR_SIZE;
 	++priv->recv_packets;
 
 	return 0;
@@ -398,7 +476,7 @@ static int sb_eth_write_hwaddr(struct udevice *dev)
 
 	debug("eth_sandbox %s: Write HW ADDR - %pM\n", dev->name,
 	      pdata->enetaddr);
-	memcpy(priv->fake_host_hwaddr, pdata->enetaddr, ARP_HLEN);
+	memcpy(priv->fake_host_hwaddr, pdata->enetaddr, ETHADDR_LEN);
 	return 0;
 }
 
