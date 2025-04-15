@@ -21,6 +21,8 @@
 #if defined(CONFIG_API) || defined(CONFIG_EFI_LOADER)
 void (*push_packet)(void *, int len) = 0;
 #endif
+static int net_try_count;
+static int net_restarted;
 int net_restart_wrap;
 static uchar net_pkt_buf[(PKTBUFSRX) * PKTSIZE_ALIGN + PKTALIGN];
 uchar *net_rx_packets[PKTBUFSRX];
@@ -338,4 +340,43 @@ int net_loop(enum proto_t protocol)
 u32_t sys_now(void)
 {
 	return get_timer(0);
+}
+
+int net_start_again(void)
+{
+	char *nretry;
+	int retry_forever = 0;
+	unsigned long retrycnt = 0;
+
+	nretry = env_get("netretry");
+	if (nretry) {
+		if (!strcmp(nretry, "yes"))
+			retry_forever = 1;
+		else if (!strcmp(nretry, "no"))
+			retrycnt = 0;
+		else if (!strcmp(nretry, "once"))
+			retrycnt = 1;
+		else
+			retrycnt = simple_strtoul(nretry, NULL, 0);
+	} else {
+		retrycnt = 0;
+		retry_forever = 0;
+	}
+
+	if ((!retry_forever) && (net_try_count > retrycnt)) {
+		eth_halt();
+		/*
+		 * We don't provide a way for the protocol to return an error,
+		 * but this is almost always the reason.
+		 */
+		return -ETIMEDOUT;
+	}
+
+	net_try_count++;
+
+	eth_halt();
+#if !defined(CONFIG_NET_DO_NOT_TRY_ANOTHER)
+	eth_try_another(!net_restarted);
+#endif
+	return eth_init();
 }
