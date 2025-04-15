@@ -107,6 +107,7 @@ List of mainline supported Rockchip boards:
      - Anbernic RGxx3 (anbernic-rgxx3-rk3566)
      - FriendlyElec NanoPi R3S (nanopi-r3s-rk3566)
      - Hardkernel ODROID-M1S (odroid-m1s-rk3566)
+     - LCKFB TaishanPi (lckfb-tspi-rk3566)
      - Pine64 PineTab2 (pinetab2-rk3566)
      - Pine64 Quartz64-A Board (quartz64-a-rk3566)
      - Pine64 Quartz64-B Board (quartz64-b-rk3566)

@@ -89,3 +89,9 @@ M:	Maxim Moskalets <maximmosk4@gmail.com>
 S:	Maintained
 F:	arch/arm/dts/rk3566-rock-3c-u-boot.dtsi
 F:	configs/rock-3c-rk3566_defconfig
+
+LCKFB-TaishanPi
+M:	Jiehui He <jiehui.he@foxmail.com>
+S:	Maintained
+F:	configs/lckfb-tspi-rk3566_defconfig
+F:	arch/arm/dts/rk3566-lckfb-tspi-u-boot.dtsi
