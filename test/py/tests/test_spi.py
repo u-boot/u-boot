@@ -703,4 +703,33 @@ def test_spi_negative(ubman):
             ubman, 'read', start, size, res_area, 1, error_msg, EXPECTED_READ
         )
 
+        # Start reading from the reserved area
+        m = re.search(r'reserved\[0\]\s*\[(0x.+)-(0x.+)\]', output)
+        if not m or int(m.group(1), 16) == 0:
+            ubman.log.info('No reserved area is defined or start addr is 0x0!')
+        else:
+            rstart_area = int(m.group(1), 16)
+            rend_area = int(m.group(2), 16)
+
+            # Case 1: Start reading from the middle of the reserved area
+            r_size = rend_area - rstart_area
+            r_area = rstart_area + r_size
+            flash_ops(
+                ubman, 'read', start, size, r_area, 1, error_msg, EXPECTED_READ
+            )
+
+            # Case 2: Start reading from before the reserved area to cross-over
+            # the reserved area
+            rstart_area = rstart_area - int(size/2)
+            flash_ops(
+                ubman, 'read', start, size, rstart_area, 1, error_msg, EXPECTED_READ
+            )
+
+            # Case 3: Start reading till after the reserved area to cross-over
+            # the reserved area
+            rend_area = rend_area - int(size/2)
+            flash_ops(
+                ubman, 'read', start, size, rend_area, 1, error_msg, EXPECTED_READ
+            )
+
         i = i + 1
