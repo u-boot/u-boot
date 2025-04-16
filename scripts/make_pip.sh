@@ -106,6 +106,10 @@ fi
 mkdir ${dir}/tests
 cd ${dir}
 
+# Use virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
 # Make sure the tools are up to date
 python3 -m pip install --upgrade build
 python3 -m pip install --upgrade twine
@@ -122,6 +126,8 @@ if [ -n "${upload}" ]; then
 	echo "Completed upload of ${tool}"
 fi
 
+# Finish using virtual environment
+deactivate
 rm -rf "${dir}"
 
 echo -e "done\n\n"
