@@ -537,6 +537,7 @@ if SPL_SYS_MMCSD_RAW_MODE
 
 choice
 	prompt "Method for locating next phase of boot (e.g. U-Boot)"
+	default SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR if MVEBU_SPL_BOOT_DEVICE_MMC
 
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 	bool "MMC raw mode: by sector"

@@ -260,7 +260,7 @@ config DDR_LOG_LEVEL
 	  failure, RL, WL errors and other algorithm failure.  At level 1,
 	  provides the D-Unit setup (SPD/Static configuration).  At level 2,
 	  provides the windows margin as a results of DQS centeralization.
-	  At level 3, rovides the windows margin of each DQ as a results of
+	  At level 3, provides the windows margin of each DQ as a results of
 	  DQS centeralization.
 
 config DDR_IMMUTABLE_DEBUG_SETTINGS
@@ -394,7 +394,6 @@ config MVEBU_SPL_BOOT_DEVICE_MMC
 	imply SPL_LIBDISK_SUPPORT
 	imply SPL_MMC
 	select SUPPORT_EMMC_BOOT if SPL_MMC
-	select SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR if SPL_MMC
 	select SPL_BOOTROM_SUPPORT
 
 config MVEBU_SPL_BOOT_DEVICE_SATA
@@ -450,7 +449,7 @@ config MVEBU_EFUSE_VHV_GPIO
 	string "VHV_Enable GPIO name for eFuse programming"
 	depends on MVEBU_EFUSE && !ARMADA_3700
 	help
-	  The eFuse programing (burning) phase requires supplying 1.8V to the
+	  The eFuse programming (burning) phase requires supplying 1.8V to the
 	  device on the VHV power pin, while for normal operation the VHV power
 	  rail must be left unconnected. See Marvell AN-389: ARMADA VHV Power
 	  document (Doc. No. MV-S302545-00 Rev. C, August 2, 2016) for details.
