@@ -879,7 +879,7 @@ static const struct udevice_id mtk_i2c_ids[] = {
 	}, {
 		.compatible = "mediatek,mt8518-i2c",
 		.data = (ulong)&mt8518_soc_data,
-	}
+	}, {}
 };
 
 U_BOOT_DRIVER(mtk_i2c) = {
