@@ -941,6 +941,19 @@ spinand_select_op_variant(struct spinand_device *spinand,
 	return NULL;
 }
 
+static int spinand_setup_slave(struct spinand_device *spinand,
+			       const struct spinand_info *spinand_info)
+{
+	struct spi_slave *slave = spinand->slave;
+	struct udevice *bus = slave->dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
+
+	if (!ops->setup_for_spinand)
+		return 0;
+
+	return ops->setup_for_spinand(slave, spinand_info);
+}
+
 /**
  * spinand_match_and_init() - Try to find a match between a device ID and an
  *			      entry in a spinand_info table
@@ -964,6 +977,7 @@ int spinand_match_and_init(struct spinand_device *spinand,
 	u8 *id = spinand->id.data;
 	struct nand_device *nand = spinand_to_nand(spinand);
 	unsigned int i;
+	int ret;
 
 	for (i = 0; i < table_size; i++) {
 		const struct spinand_info *info = &table[i];
@@ -974,6 +988,10 @@ int spinand_match_and_init(struct spinand_device *spinand,
 
 		if (memcmp(id + 1, info->devid.id, info->devid.len))
 			continue;
+
+		ret = spinand_setup_slave(spinand, info);
+		if (ret)
+			return ret;
 
 		nand->memorg = table[i].memorg;
 		nand->eccreq = table[i].eccreq;

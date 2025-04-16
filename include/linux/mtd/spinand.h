@@ -17,7 +17,7 @@
 #include <linux/spi/spi.h>
 #include <linux/spi/spi-mem.h>
 #else
-#include <spi.h>
+#include <linux/bitops.h>
 #include <spi-mem.h>
 #include <linux/mtd/nand.h>
 #endif
