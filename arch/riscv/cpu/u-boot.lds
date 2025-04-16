@@ -10,6 +10,7 @@ ENTRY(_start)
 SECTIONS
 {
 	. = ALIGN(4);
+	__image_copy_start = ADDR(.text);
 	.text : {
 		arch/riscv/cpu/start.o	(.text)
 	}
@@ -56,6 +57,8 @@ SECTIONS
 		*(.rel*.efi_runtime.*)
 		__efi_runtime_rel_stop = .;
 	}
+
+	__image_copy_end = .;
 
 	/DISCARD/ : { *(.rela.plt*) }
 	.rela.dyn : {
