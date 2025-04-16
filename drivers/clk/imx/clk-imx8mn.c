@@ -97,19 +97,19 @@ static const char * const imx8mn_i2c4_sels[] = {"osc_24m", "sys_pll1_160m", "sys
 						"sys_pll3_out", "audio_pll1_out", "video_pll_out",
 						"audio_pll2_out", "sys_pll1_133m", };
 
-static const char * const imx8mn_uart1_sels[] = {"clock-osc-24m", "sys_pll1_80m", "sys_pll2_200m",
+static const char * const imx8mn_uart1_sels[] = {"osc_24m", "sys_pll1_80m", "sys_pll2_200m",
 						 "sys_pll2_100m", "sys_pll3_out", "clk_ext2",
 						 "clk_ext4", "audio_pll2_out", };
 
-static const char * const imx8mn_uart2_sels[] = {"clock-osc-24m", "sys_pll1_80m", "sys_pll2_200m",
+static const char * const imx8mn_uart2_sels[] = {"osc_24m", "sys_pll1_80m", "sys_pll2_200m",
 						 "sys_pll2_100m", "sys_pll3_out", "clk_ext2",
 						 "clk_ext3", "audio_pll2_out", };
 
-static const char * const imx8mn_uart3_sels[] = {"clock-osc-24m", "sys_pll1_80m", "sys_pll2_200m",
+static const char * const imx8mn_uart3_sels[] = {"osc_24m", "sys_pll1_80m", "sys_pll2_200m",
 						 "sys_pll2_100m", "sys_pll3_out", "clk_ext2",
 						 "clk_ext4", "audio_pll2_out", };
 
-static const char * const imx8mn_uart4_sels[] = {"clock-osc-24m", "sys_pll1_80m", "sys_pll2_200m",
+static const char * const imx8mn_uart4_sels[] = {"osc_24m", "sys_pll1_80m", "sys_pll2_200m",
 						 "sys_pll2_100m", "sys_pll3_out", "clk_ext2",
 						 "clk_ext3", "audio_pll2_out", };
 
