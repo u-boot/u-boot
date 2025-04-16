@@ -19,6 +19,7 @@
 #include <linux/io.h>
 #include <linux/ioport.h>
 #include <linux/log2.h>
+#include <linux/sizes.h>
 #include <power-domain.h>
 #include <regmap.h>
 #include <syscon.h>
