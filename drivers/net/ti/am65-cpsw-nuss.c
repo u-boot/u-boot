@@ -438,6 +438,12 @@ static int am65_cpsw_start(struct udevice *dev)
 		       port->port_sgmii_base + AM65_CPSW_SGMII_CONTROL_REG);
 	}
 
+	ret = phy_config(priv->phydev);
+	if (ret < 0) {
+		dev_err(dev, "phy_config failed: %d", ret);
+		goto err_dis_rx;
+	}
+
 	ret = phy_startup(priv->phydev);
 	if (ret) {
 		dev_err(dev, "phy_startup failed\n");
@@ -639,9 +645,6 @@ static int am65_cpsw_phy_init(struct udevice *dev)
 	phydev->advertising = phydev->supported;
 
 	priv->phydev = phydev;
-	ret = phy_config(phydev);
-	if (ret < 0)
-		dev_err(dev, "phy_config() failed: %d", ret);
 
 	return ret;
 }
