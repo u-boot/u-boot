@@ -24,7 +24,7 @@
 #define VERSAL_CRL_RST_CPU_R5_RESET_PGE_MASK	0x10
 #define VERSAL_CRLAPB_CPU_R5_CTRL_CLKACT_MASK	0x1000000
 
-static void set_r5_halt_mode(u8 halt, u8 mode)
+static void set_r5_halt_mode(u8 halt, enum tcm_mode mode)
 {
 	u32 tmp;
 
@@ -45,7 +45,7 @@ static void set_r5_halt_mode(u8 halt, u8 mode)
 	}
 }
 
-static void set_r5_tcm_mode(u8 mode)
+static void set_r5_tcm_mode(enum tcm_mode mode)
 {
 	u32 tmp;
 
@@ -63,7 +63,7 @@ static void set_r5_tcm_mode(u8 mode)
 	writel(tmp, &rpu_base->rpu_glbl_ctrl);
 }
 
-static void release_r5_reset(u8 mode)
+static void release_r5_reset(enum tcm_mode mode)
 {
 	u32 tmp;
 
@@ -87,9 +87,9 @@ static void enable_clock_r5(void)
 	writel(tmp, &crlapb_base->cpu_r5_ctrl);
 }
 
-void initialize_tcm(bool mode)
+void initialize_tcm(enum tcm_mode mode)
 {
-	if (!mode) {
+	if (mode == TCM_LOCK) {
 		set_r5_tcm_mode(TCM_LOCK);
 		set_r5_halt_mode(HALT, TCM_LOCK);
 		enable_clock_r5();
@@ -102,7 +102,7 @@ void initialize_tcm(bool mode)
 	}
 }
 
-void tcm_init(u8 mode)
+void tcm_init(enum tcm_mode mode)
 {
 	puts("WARNING: Initializing TCM overwrites TCM content\n");
 	initialize_tcm(mode);

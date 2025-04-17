@@ -45,6 +45,8 @@
 #define CQSPI_REG_CONFIG_CLK_POL                BIT(1)
 #define CQSPI_REG_CONFIG_CLK_PHA                BIT(2)
 #define CQSPI_REG_CONFIG_PHY_ENABLE_MASK        BIT(3)
+#define CQSPI_REG_CONFIG_RESET_PIN_FLD_MASK	BIT(5)
+#define CQSPI_REG_CONFIG_RESET_CFG_FLD_MASK	BIT(6)
 #define CQSPI_REG_CONFIG_DIRECT                 BIT(7)
 #define CQSPI_REG_CONFIG_DECODE                 BIT(9)
 #define CQSPI_REG_CONFIG_ENBL_DMA               BIT(15)
@@ -310,5 +312,6 @@ int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg);
 int cadence_qspi_flash_reset(struct udevice *dev);
 ofnode cadence_qspi_get_subnode(struct udevice *dev);
 void cadence_qspi_apb_enable_linear_mode(bool enable);
+int cadence_device_reset(struct udevice *dev);
 
 #endif /* __CADENCE_QSPI_H__ */

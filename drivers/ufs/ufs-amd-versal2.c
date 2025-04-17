@@ -19,8 +19,6 @@
 #include "ufshcd-dwc.h"
 #include "ufshci-dwc.h"
 
-#define VERSAL2_UFS_DEVICE_ID		4
-
 #define SRAM_CSR_INIT_DONE_MASK		BIT(0)
 #define SRAM_CSR_EXT_LD_DONE_MASK	BIT(1)
 #define SRAM_CSR_BYPASS_MASK		BIT(2)
@@ -32,19 +30,12 @@
 
 #define TIMEOUT_MICROSEC		1000000L
 
-#define IOCTL_UFS_TXRX_CFGRDY_GET	40
-#define IOCTL_UFS_SRAM_CSR_SEL		41
-
-#define PM_UFS_SRAM_CSR_WRITE		0
-#define PM_UFS_SRAM_CSR_READ		1
-
 struct ufs_versal2_priv {
 	struct ufs_hba *hba;
 	struct reset_ctl *rstc;
 	struct reset_ctl *rstphy;
 	u32 phy_mode;
 	u32 host_clk;
-	u32 pd_dev_id;
 	u8 attcompval0;
 	u8 attcompval1;
 	u8 ctlecompval0;
@@ -100,41 +91,6 @@ static int ufs_versal2_phy_reg_read(struct ufs_hba *hba, u32 addr, u32 *val)
 	*val |= (mib_val << 8);
 
 	return 0;
-}
-
-int versal2_pm_ufs_get_txrx_cfgrdy(u32 node_id, u32 *value)
-{
-	u32 ret_payload[PAYLOAD_ARG_CNT];
-	int ret;
-
-	if (!value)
-		return -EINVAL;
-
-	ret = xilinx_pm_request(PM_IOCTL, node_id, IOCTL_UFS_TXRX_CFGRDY_GET,
-				0, 0, ret_payload);
-	*value = ret_payload[1];
-
-	return ret;
-}
-
-int versal2_pm_ufs_sram_csr_sel(u32 node_id, u32 type, u32 *value)
-{
-	u32 ret_payload[PAYLOAD_ARG_CNT];
-	int ret;
-
-	if (!value)
-		return -EINVAL;
-
-	if (type == PM_UFS_SRAM_CSR_READ) {
-		ret =  xilinx_pm_request(PM_IOCTL, node_id, IOCTL_UFS_SRAM_CSR_SEL,
-					 type, 0, ret_payload);
-		*value = ret_payload[1];
-	} else {
-		ret = xilinx_pm_request(PM_IOCTL, node_id, IOCTL_UFS_SRAM_CSR_SEL,
-					type, *value, 0);
-	}
-
-	return ret;
 }
 
 static int ufs_versal2_enable_phy(struct ufs_hba *hba)
@@ -281,7 +237,7 @@ static int ufs_versal2_phy_init(struct ufs_hba *hba)
 	time_left = TIMEOUT_MICROSEC;
 	do {
 		time_left--;
-		ret = versal2_pm_ufs_get_txrx_cfgrdy(priv->pd_dev_id, &reg);
+		ret = zynqmp_pm_ufs_get_txrx_cfgrdy(&reg);
 		if (ret)
 			return ret;
 
@@ -312,8 +268,7 @@ static int ufs_versal2_phy_init(struct ufs_hba *hba)
 	time_left = TIMEOUT_MICROSEC;
 	do {
 		time_left--;
-		ret = versal2_pm_ufs_sram_csr_sel(priv->pd_dev_id,
-						  PM_UFS_SRAM_CSR_READ, &reg);
+		ret = zynqmp_pm_ufs_sram_csr_read(&reg);
 		if (ret)
 			return ret;
 
@@ -341,10 +296,10 @@ static int ufs_versal2_init(struct ufs_hba *hba)
 	struct ufs_versal2_priv *priv = dev_get_priv(hba->dev);
 	struct clk clk;
 	unsigned long core_clk_rate = 0;
+	u32 cal;
 	int ret = 0;
 
 	priv->phy_mode = UFSHCD_DWC_PHY_MODE_ROM;
-	priv->pd_dev_id = VERSAL2_UFS_DEVICE_ID;
 
 	ret = clk_get_by_name(hba->dev, "core_clk", &clk);
 	if (ret) {
@@ -370,6 +325,15 @@ static int ufs_versal2_init(struct ufs_hba *hba)
 		dev_err(hba->dev, "failed to get reset ctl: ufsphy-rst\n");
 		return PTR_ERR(priv->rstphy);
 	}
+
+	ret =  zynqmp_pm_ufs_cal_reg(&cal);
+	if (ret)
+		return ret;
+
+	priv->attcompval0 = (u8)cal;
+	priv->attcompval1 = (u8)(cal >> 8);
+	priv->ctlecompval0 = (u8)(cal >> 16);
+	priv->ctlecompval1 = (u8)(cal >> 24);
 
 	return ret;
 }
@@ -397,8 +361,7 @@ static int ufs_versal2_hce_enable_notify(struct ufs_hba *hba,
 			return ret;
 		}
 
-		ret = versal2_pm_ufs_sram_csr_sel(priv->pd_dev_id,
-						  PM_UFS_SRAM_CSR_READ, &sram_csr);
+		ret = zynqmp_pm_ufs_sram_csr_read(&sram_csr);
 		if (ret)
 			return ret;
 
@@ -410,8 +373,7 @@ static int ufs_versal2_hce_enable_notify(struct ufs_hba *hba,
 			return -EINVAL;
 		}
 
-		ret = versal2_pm_ufs_sram_csr_sel(priv->pd_dev_id,
-						  PM_UFS_SRAM_CSR_WRITE, &sram_csr);
+		ret = zynqmp_pm_ufs_sram_csr_write(&sram_csr);
 		if (ret)
 			return ret;
 

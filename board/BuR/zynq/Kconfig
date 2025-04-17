@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# B&R Industrial Automation GmbH - http://www.br-automation.com
+if ARCH_ZYNQ
+
+config TARGET_ZYNQ_BR
+	bool "Support BR Zynq builds"
+	depends on SYS_VENDOR = "BuR"
+	select BINMAN
+	select SPL_BINMAN_FDT
+
+endif
+
+source "board/BuR/common/Kconfig"

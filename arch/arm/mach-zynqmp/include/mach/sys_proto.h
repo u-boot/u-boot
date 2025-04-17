@@ -41,18 +41,18 @@ enum {
 	ZYNQMP_SILICON_V4,
 };
 
-enum {
-	TCM_LOCK,
-	TCM_SPLIT,
+enum tcm_mode {
+	TCM_LOCK = 0,
+	TCM_SPLIT = 1,
 };
 
 unsigned int zynqmp_get_silicon_version(void);
 
-int check_tcm_mode(bool mode);
-void initialize_tcm(bool mode);
+int check_tcm_mode(enum tcm_mode mode);
+void initialize_tcm(enum tcm_mode mode);
 void mem_map_fill(void);
 #if defined(CONFIG_DEFINE_TCM_OCM_MMAP)
-void tcm_init(u8 mode);
+void tcm_init(enum tcm_mode mode);
 #endif
 
 #endif /* _ASM_ARCH_SYS_PROTO_H */

@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# B&R Industrial Automation GmbH - http://www.br-automation.com
+
+config BR_RESETC_I2CBUS
+	int "I2C Bus address of B&R reset controller"
+	depends on SYS_VENDOR = "BuR" && DM_I2C
+	default 0

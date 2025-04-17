@@ -1,0 +1,11 @@
+ZYNQ BOARD
+M:	Wolfgang Wallner <wolfgang.wallner@br-automation.com>
+S:	Maintained
+F:	board/BuR/zynq/
+F:	board/BuR/common/
+F:	include/configs/brzynq.h
+F:	arch/arm/dts/zynq-br*
+F:	configs/brcp1_*
+F:	configs/brcp150_defconfig
+F:	configs/brcp170_defconfig
+F:	configs/brsmarc2_defconfig

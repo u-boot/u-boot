@@ -46,6 +46,5 @@ config VERSAL_NO_DDR
 	  access to DDR memory where DDR is not present.
 
 source "board/xilinx/Kconfig"
-source "board/xilinx/versal/Kconfig"
 
 endif

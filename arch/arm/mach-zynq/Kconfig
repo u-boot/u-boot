@@ -58,5 +58,6 @@ config ZYNQ_SDHCI_MAX_FREQ
 
 source "board/xilinx/Kconfig"
 source "board/xilinx/zynq/Kconfig"
+source "board/BuR/zynq/Kconfig"
 
 endif

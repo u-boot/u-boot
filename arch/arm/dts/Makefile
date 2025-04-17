@@ -303,6 +303,13 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zc1751-xm017-dc3.dtb		\
 	zynqmp-zc1751-xm018-dc4.dtb		\
 	zynqmp-zc1751-xm019-dc5.dtb
+dtb-$(CONFIG_TARGET_ZYNQ_BR) += \
+	zynq-brcp1_2r.dtb			\
+	zynq-brcp1_1r.dtb			\
+	zynq-brcp1_1r_switch.dtb		\
+	zynq-brsmarc2.dtb			\
+	zynq-brcp150.dtb			\
+	zynq-brcp170.dtb
 
 zynqmp-p-a2197-00-revA-x-prc-01-revA-dtbs := zynqmp-p-a2197-00-revA.dtb zynqmp-p-a2197-00-revA-x-prc-01-revA.dtbo
 zynqmp-p-a2197-00-revA-x-prc-02-revA-dtbs := zynqmp-p-a2197-00-revA.dtb zynqmp-p-a2197-00-revA-x-prc-02-revA.dtbo

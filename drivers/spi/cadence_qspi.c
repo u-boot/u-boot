@@ -33,6 +33,11 @@ __weak int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 	return 0;
 }
 
+__weak int cadence_device_reset(struct udevice *dev)
+{
+	return 0;
+}
+
 __weak int cadence_qspi_flash_reset(struct udevice *dev)
 {
 	return 0;
@@ -251,6 +256,9 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	priv->wr_delay = 50 * DIV_ROUND_UP(NSEC_PER_SEC, priv->ref_clk_hz);
 
+	if (device_is_compatible(bus, "amd,versal2-ospi"))
+		return cadence_device_reset(bus);
+
 	/* Reset ospi flash device */
 	return cadence_qspi_flash_reset(bus);
 
@@ -452,6 +460,7 @@ static const struct dm_spi_ops cadence_spi_ops = {
 static const struct udevice_id cadence_spi_ids[] = {
 	{ .compatible = "cdns,qspi-nor" },
 	{ .compatible = "ti,am654-ospi" },
+	{ .compatible = "amd,versal2-ospi" },
 	{ }
 };
 

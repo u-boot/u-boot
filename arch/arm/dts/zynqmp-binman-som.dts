@@ -2,12 +2,18 @@
 /*
  * dts file for Xilinx ZynqMP SOMs (k24/k26)
  *
- * (C) Copyright 2024, Advanced Micro Devices, Inc.
+ * (C) Copyright 2024-2025, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
 
 #include <config.h>
+
+#if defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME)
+#define U_BOOT_ITB_FILENAME	CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
+#else
+#define U_BOOT_ITB_FILENAME	"u-boot.itb"
+#endif
 
 /dts-v1/;
 / {
@@ -103,9 +109,9 @@
 			};
 		};
 
-		/* u-boot.itb generation in a static way */
+		/* Generation in a static way */
 		itb {
-			filename = "u-boot.itb";
+			filename = U_BOOT_ITB_FILENAME;
 			pad-byte = <0>;
 
 			fit {
@@ -227,7 +233,7 @@
 			};
 			blob-ext@2 {
 				offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
-				filename = "u-boot.itb";
+				filename = U_BOOT_ITB_FILENAME;
 			};
 			fdtmap {
 			};

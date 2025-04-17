@@ -7,4 +7,3 @@
 #
 
 obj-y	:= board.o
-obj-$(CONFIG_CMD_VERSAL_NET)	+= cmds.o

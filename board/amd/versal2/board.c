@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2021 - 2022, Xilinx, Inc.
- * Copyright (C) 2022 - 2024, Advanced Micro Devices, Inc.
+ * Copyright (C) 2022 - 2025, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -20,6 +20,7 @@
 #include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
+#include <versalpl.h>
 #include "../../xilinx/common/board.h"
 
 #include <linux/bitfield.h>
@@ -28,9 +29,24 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_FPGA_VERSALPL)
+static xilinx_desc versalpl = {
+	xilinx_versal2, csu_dma, 1, &versal_op, 0, &versal_op, NULL,
+	FPGA_LEGACY
+};
+#endif
+
 int board_init(void)
 {
 	printf("EL Level:\tEL%d\n", current_el());
+
+#if defined(CONFIG_FPGA_VERSALPL)
+	fpga_init();
+	fpga_add(fpga_xilinx, &versalpl);
+#endif
+
+	if (CONFIG_IS_ENABLED(DM_I2C) && CONFIG_IS_ENABLED(I2C_EEPROM))
+		xilinx_read_eeprom();
 
 	return 0;
 }
@@ -149,7 +165,7 @@ int board_early_init_r(void)
 	return 0;
 }
 
-static u8 versal_net_get_bootmode(void)
+static u8 versal2_get_bootmode(void)
 {
 	u8 bootmode;
 	u32 reg = 0;
@@ -175,7 +191,7 @@ static int boot_targets_setup(void)
 	char *new_targets;
 	char *env_targets;
 
-	bootmode = versal_net_get_bootmode();
+	bootmode = versal2_get_bootmode();
 
 	puts("Bootmode: ");
 	switch (bootmode) {
@@ -252,6 +268,16 @@ static int boot_targets_setup(void)
 		mode = "mmc";
 		bootseq = dev_seq(dev);
 		break;
+	case UFS_MODE:
+		puts("UFS_MODE\n");
+		if (uclass_get_device(UCLASS_UFS, 0, &dev)) {
+			debug("UFS driver for UFS device is not present\n");
+			break;
+		}
+		debug("ufs device found at %p\n", dev);
+
+		mode = "ufs";
+		break;
 	default:
 		printf("Invalid Boot Mode:0x%x\n", bootmode);
 		break;
@@ -284,6 +310,7 @@ static int boot_targets_setup(void)
 				env_targets ? env_targets : "");
 
 		env_set("boot_targets", new_targets);
+		free(new_targets);
 	}
 
 	return 0;
@@ -341,3 +368,35 @@ int dram_init(void)
 void reset_cpu(void)
 {
 }
+
+#if defined(CONFIG_ENV_IS_NOWHERE)
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bootmode = versal2_get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode) {
+	case EMMC_MODE:
+	case SD_MODE:
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
+			return ENVL_FAT;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
+			return ENVL_EXT4;
+		return ENVL_NOWHERE;
+	case OSPI_MODE:
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		return ENVL_NOWHERE;
+	case JTAG_MODE:
+	case SELECTMAP_MODE:
+	default:
+		return ENVL_NOWHERE;
+	}
+}
+#endif

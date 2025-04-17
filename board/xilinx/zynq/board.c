@@ -175,7 +175,7 @@ void configure_capsule_updates(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
 
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, DFU_ALT_BUF_LEN);
 
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
 #if defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME)

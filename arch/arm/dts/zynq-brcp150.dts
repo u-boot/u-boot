@@ -1,0 +1,173 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2024 B&R Industrial Automation GmbH
+ */
+
+/dts-v1/;
+/include/ "zynq-7000.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "BRCP150 CPU";
+	compatible = "br,cp150",
+		     "xlnx,zynq-7000";
+
+	aliases {
+		i2c0 = &i2c0;
+		serial0 = &uart0;
+		spi0 = &qspi;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x20000000>;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	usb_phy0: phy0 {
+		compatible = "usb-nop-xceiv";
+		#phy-cells = <0>;
+	};
+
+	brd_rst: board_reset {
+		compatible = "br,board-reset";
+		pin = <&gpio0 27 GPIO_ACTIVE_HIGH>;
+	};
+
+	/* Put this pin active high to enable RS232 debug serial */
+	rs232_en: rs232_enable {
+		compatible = "br,rs232-en";
+		pin = <&gpio0 52 GPIO_ACTIVE_HIGH>;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		re_green {
+			label = "R_E_GREEN";
+			gpios = <&ledgpio 0 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		re_red {
+			label = "R_E_RED";
+			gpios = <&ledgpio 1 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+		rdy_f_red {
+			label = "RDY_F_RED";
+			gpios = <&ledgpio 2 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		rdy_f_yellow {
+			label = "RDY_F_YELLOW";
+			gpios = <&ledgpio 3 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		se_green {
+			label = "S_E_GREEN";
+			gpios = <&ledgpio 4 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		se_red {
+			label = "S_E_RED";
+			gpios = <&ledgpio 5 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		plk_se_green {
+			label = "PLK_S_E_GREEN";
+			gpios = <&ledgpio 6 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		eth_se_green {
+			label = "ETH_S_E_GREEN";
+			gpios = <&ledgpio 7 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		user1_green {
+			label = "USER1_GREEN";
+			gpios = <&ledgpio 12 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		user1_red {
+			label = "USER1_RED";
+			gpios = <&ledgpio 13 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		user2_green {
+			label = "USER2_GREEN";
+			gpios = <&ledgpio 14 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		user2_red {
+			label = "USER2_RED";
+			gpios = <&ledgpio 15 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+	};
+};
+
+&gem0 {
+	status = "okay";
+	phy-mode = "mii";
+	phy-handle = <&ethernet_phy>;
+
+	ethernet_phy: emio-phy@2 {
+		reg = <2>;
+		max-speed = <100>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	ledgpio: max7320@5d {	/* board LED */
+		status = "okay";
+		compatible = "maxim,max7320";
+		reg = <0x5d>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		ngpios = <16>;
+	};
+};
+
+&sdhci0 {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&qspi {
+	status = "okay";
+	spi-max-frequency = <100000000>;
+
+	spi_flash: spiflash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor", "spi-flash", "s25fl256s1";
+		spi-max-frequency = <100000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <0>;
+	};
+};
+
+&usb0 {
+	status = "okay";
+	dr_mode = "host";
+	usb-phy = <&usb_phy0>;
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+/* Since the gem0 clock is configured EMIO this dummy entry is needed */
+&clkc {
+	clocks = <&clkc 16>;
+	clock-names = "gem0_emio_clk";
+};
