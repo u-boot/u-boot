@@ -372,13 +372,14 @@ static int set_cacert(char * const saddr, char * const ssz)
 #endif
 #endif  /* CONFIG_WGET_CACERT || CONFIG_WGET_BUILTIN_CACERT */
 
-static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
+int wget_do_request(ulong dst_addr, char *uri)
 {
 #if CONFIG_IS_ENABLED(WGET_HTTPS)
 	altcp_allocator_t tls_allocator;
 #endif
 	httpc_connection_t conn;
 	httpc_state_t *state;
+	struct udevice *udev;
 	struct netif *netif;
 	struct wget_ctx ctx;
 	char *path;
@@ -393,6 +394,14 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 
 	if (parse_url(uri, ctx.server_name, &ctx.port, &path, &is_https))
 		return CMD_RET_USAGE;
+
+	if (net_lwip_eth_start() < 0)
+		return CMD_RET_FAILURE;
+
+	if (!wget_info)
+		wget_info = &default_wget_info;
+
+	udev = eth_get_dev();
 
 	netif = net_lwip_new_netif(udev);
 	if (!netif)
@@ -467,20 +476,6 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 		return 0;
 
 	return -1;
-}
-
-int wget_do_request(ulong dst_addr, char *uri)
-{
-	int ret;
-
-	ret = net_lwip_eth_start();
-	if (ret < 0)
-		return ret;
-
-	if (!wget_info)
-		wget_info = &default_wget_info;
-
-	return wget_loop(eth_get_dev(), dst_addr, uri);
 }
 
 int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
