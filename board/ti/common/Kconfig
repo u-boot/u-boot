@@ -41,6 +41,8 @@ config TI_COMMON_CMD_OPTIONS
 	imply CMD_I2C
 	imply CMD_MII
 	imply CMD_MMC
+	imply CMD_MMC_REG
+	imply MMC_SPEED_MODE_SET
 	imply CMD_NFS
 	imply CMD_PART
 	imply CMD_PING
