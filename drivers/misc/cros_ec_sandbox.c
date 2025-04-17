@@ -15,7 +15,6 @@
 #include <log.h>
 #include <os.h>
 #include <u-boot/sha256.h>
-#include <spi.h>
 #include <time.h>
 #include <asm/malloc.h>
 #include <asm/state.h>
