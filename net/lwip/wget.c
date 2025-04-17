@@ -8,6 +8,7 @@
 #include <image.h>
 #include <lwip/apps/http_client.h>
 #include "lwip/altcp_tls.h"
+#include <lwip/errno.h>
 #include <lwip/timeouts.h>
 #include <rng.h>
 #include <mapmem.h>
@@ -217,7 +218,8 @@ static err_t httpc_recv_cb(void *arg, struct altcp_pcb *pcb, struct pbuf *pbuf,
 		memcpy((void *)ctx->daddr, buf->payload, buf->len);
 		ctx->daddr += buf->len;
 		ctx->size += buf->len;
-		if (ctx->size - ctx->prevsize > PROGRESS_PRINT_STEP_BYTES) {
+		if (!wget_info->silent &&
+		    ctx->size - ctx->prevsize > PROGRESS_PRINT_STEP_BYTES) {
 			printf("#");
 			ctx->prevsize = ctx->size;
 		}
@@ -255,11 +257,15 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 	elapsed = get_timer(ctx->start_time);
 	if (!elapsed)
 		elapsed = 1;
-	if (rx_content_len > PROGRESS_PRINT_STEP_BYTES)
-		printf("\n");
-	printf("%u bytes transferred in %lu ms (", rx_content_len, elapsed);
-	print_size(rx_content_len / elapsed * 1000, "/s)\n");
-	printf("Bytes transferred = %lu (%lx hex)\n", ctx->size, ctx->size);
+	if (!wget_info->silent) {
+		if (rx_content_len > PROGRESS_PRINT_STEP_BYTES)
+			printf("\n");
+		printf("%u bytes transferred in %lu ms (", rx_content_len,
+		       elapsed);
+		print_size(rx_content_len / elapsed * 1000, "/s)\n");
+		printf("Bytes transferred = %lu (%lx hex)\n", ctx->size,
+		       ctx->size);
+	}
 	if (wget_info->set_bootdev)
 		efi_set_bootdev("Http", ctx->server_name, ctx->path, map_sysmem(ctx->saved_daddr, 0),
 				rx_content_len);
@@ -339,7 +345,8 @@ static int _set_cacert(const void *addr, size_t sz)
 	mbedtls_x509_crt_init(&crt);
 	ret = mbedtls_x509_crt_parse(&crt, cacert, cacert_size);
 	if (ret) {
-		printf("Could not parse certificates (%d)\n", ret);
+		if (!wget_info->silent)
+			printf("Could not parse certificates (%d)\n", ret);
 		free(cacert);
 		cacert = NULL;
 		cacert_size = 0;
@@ -422,9 +429,10 @@ int wget_do_request(ulong dst_addr, char *uri)
 
 		if (cacert_auth_mode == AUTH_REQUIRED) {
 			if (!ca || !ca_sz) {
-				printf("Error: cacert authentication mode is "
-				       "'required' but no CA certificates "
-				       "given\n");
+				if (!wget_info->silent)
+					printf("Error: cacert authentication "
+					       "mode is 'required' but no CA "
+					       "certificates given\n");
 				return CMD_RET_FAILURE;
 		       }
 		} else if (cacert_auth_mode == AUTH_NONE) {
@@ -439,6 +447,10 @@ int wget_do_request(ulong dst_addr, char *uri)
 			 */
 		}
 
+		if (!ca && !wget_info->silent) {
+			printf("WARNING: no CA certificates, ");
+			printf("HTTPS connections not authenticated\n");
+		}
 		tls_allocator.alloc = &altcp_tls_alloc;
 		tls_allocator.arg =
 			altcp_tls_create_config_client(ca, ca_sz,
@@ -463,6 +475,8 @@ int wget_do_request(ulong dst_addr, char *uri)
 		return CMD_RET_FAILURE;
 	}
 
+	errno = 0;
+
 	while (!ctx.done) {
 		net_lwip_rx(udev, netif);
 		sys_check_timeouts();
@@ -474,6 +488,9 @@ int wget_do_request(ulong dst_addr, char *uri)
 
 	if (ctx.done == SUCCESS)
 		return 0;
+
+	if (errno == EPERM && !wget_info->silent)
+		printf("Certificate verification failed\n");
 
 	return -1;
 }
