@@ -51,5 +51,4 @@ U_BOOT_DRIVER(sandbox_power_domain_test) = {
 	.id = UCLASS_MISC,
 	.of_match = sandbox_power_domain_test_ids,
 	.priv_auto	= sizeof(struct sandbox_power_domain_test),
-	.flags = DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };
