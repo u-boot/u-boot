@@ -180,6 +180,7 @@ config RISCV
 config SANDBOX
 	bool "Sandbox"
 	select HAVE_SETJMP
+	select HAVE_INITJMP
 	select ARCH_SUPPORTS_LTO
 	select BOARD_LATE_INIT
 	select BZIP2
