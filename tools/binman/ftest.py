@@ -7940,6 +7940,24 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             entry_args=entry_args,
             extra_indirs=[test_subdir])[0]
 
+    def testKeyNameHintIsPathSimpleFit(self):
+        """Test that binman errors out on key-name-hint being a path"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb(
+                    '347_key_name_hint_dir_fit_signature.dts',
+                    entry_args=entry_args,
+                    extra_indirs=[test_subdir])
+        self.assertIn(
+            'Node \'/binman/fit\': \'keys/rsa2048\' is a path not a filename',
+            str(e.exception))
 
     def testSimpleFitEncryptedData(self):
         """Test an image with a FIT containing data to be encrypted"""
