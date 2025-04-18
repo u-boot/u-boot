@@ -17,6 +17,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
+#include <uthread.h>
 
 #ifndef CFG_WD_PERIOD
 # define CFG_WD_PERIOD	(10 * 1000 * 1000)	/* 10 seconds default */
@@ -197,7 +198,13 @@ void udelay(unsigned long usec)
 	do {
 		schedule();
 		kv = usec > CFG_WD_PERIOD ? CFG_WD_PERIOD : usec;
-		__udelay(kv);
+		if (CONFIG_IS_ENABLED(UTHREAD)) {
+			ulong t0 = timer_get_us();
+			while (timer_get_us() - t0 < kv)
+				uthread_schedule();
+		} else {
+			__udelay(kv);
+		}
 		usec -= kv;
 	} while(usec);
 }
