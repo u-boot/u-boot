@@ -78,3 +78,69 @@ static int uthread(struct unit_test_state *uts)
 	return 0;
 }
 LIB_TEST(uthread, 0);
+
+struct mw_args {
+	struct unit_test_state *uts;
+	struct uthread_mutex *m;
+	int flag;
+};
+
+static int mutex_worker_ret;
+
+static int _mutex_worker(struct mw_args *args)
+{
+	struct unit_test_state *uts = args->uts;
+
+	ut_asserteq(-EBUSY, uthread_mutex_trylock(args->m));
+	ut_assertok(uthread_mutex_lock(args->m));
+	args->flag = 1;
+	ut_assertok(uthread_mutex_unlock(args->m));
+
+	return 0;
+}
+
+static void mutex_worker(void *arg)
+{
+	mutex_worker_ret = _mutex_worker((struct mw_args *)arg);
+}
+
+/*
+ * thread_mutex() - testing uthread mutex operations
+ *
+ */
+static int uthread_mutex(struct unit_test_state *uts)
+{
+	struct uthread_mutex m = UTHREAD_MUTEX_INITIALIZER;
+	struct mw_args args = { .uts = uts, .m = &m, .flag = 0 };
+	int id;
+	int i;
+
+	id = uthread_grp_new_id();
+	ut_assert(id != 0);
+	/* Take the mutex */
+	ut_assertok(uthread_mutex_lock(&m));
+	/* Start a thread */
+	ut_assertok(uthread_create(NULL, mutex_worker, (void *)&args, 0,
+				   id));
+	/* Let the thread run for a bit */
+	for (i = 0; i < 100; i++)
+		ut_assert(uthread_schedule());
+	/* Thread should not have set the flag due to the mutex */
+	ut_asserteq(0, args.flag);
+	/* Release the mutex */
+	ut_assertok(uthread_mutex_unlock(&m));
+	/* Schedule the thread until it is done */
+	while (uthread_schedule())
+		;
+	/* Now the flag should be set */
+	ut_asserteq(1, args.flag);
+	/* And the mutex should be available */
+	ut_assertok(uthread_mutex_trylock(&m));
+	ut_assertok(uthread_mutex_unlock(&m));
+
+	/* Of course no error are expected from the thread routine */
+	ut_assertok(mutex_worker_ret);
+
+	return 0;
+}
+LIB_TEST(uthread_mutex, 0);
