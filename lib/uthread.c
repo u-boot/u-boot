@@ -8,6 +8,7 @@
  */
 
 #include <compiler.h>
+#include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <malloc.h>
@@ -135,4 +136,30 @@ bool uthread_grp_done(unsigned int grp_id)
 	}
 
 	return true;
+}
+
+int uthread_mutex_lock(struct uthread_mutex *mutex)
+{
+	while (mutex->state == UTHREAD_MUTEX_LOCKED)
+		uthread_schedule();
+
+	mutex->state = UTHREAD_MUTEX_LOCKED;
+	return 0;
+}
+
+int uthread_mutex_trylock(struct uthread_mutex *mutex)
+{
+	if (mutex->state == UTHREAD_MUTEX_UNLOCKED) {
+		mutex->state = UTHREAD_MUTEX_LOCKED;
+		return 0;
+	}
+
+	return -EBUSY;
+}
+
+int uthread_mutex_unlock(struct uthread_mutex *mutex)
+{
+	mutex->state = UTHREAD_MUTEX_UNLOCKED;
+
+	return 0;
 }

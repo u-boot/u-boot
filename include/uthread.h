@@ -50,6 +50,23 @@ struct uthread {
 	struct list_head list;
 };
 
+/**
+ * Internal state of a struct uthread_mutex
+ */
+enum uthread_mutex_state {
+	UTHREAD_MUTEX_UNLOCKED = 0,
+	UTHREAD_MUTEX_LOCKED = 1
+};
+
+/**
+ * Uthread mutex
+ */
+struct uthread_mutex {
+	enum uthread_mutex_state state;
+};
+
+#define UTHREAD_MUTEX_INITIALIZER { .state = UTHREAD_MUTEX_UNLOCKED }
+
 #ifdef CONFIG_UTHREAD
 
 /**
@@ -94,6 +111,44 @@ unsigned int uthread_grp_new_id(void);
  */
 bool uthread_grp_done(unsigned int grp_id);
 
+/**
+ * uthread_mutex_lock() - lock a mutex
+ *
+ * If the cwmutexlock is available (i.e., not owned by any other thread), then
+ * it is locked for use by the current thread. Otherwise the current thread
+ * blocks: it enters a wait loop by scheduling other threads until the mutex
+ * becomes unlocked.
+ *
+ * @mutex: pointer to the mutex to lock
+ * Return: 0 on success, in which case the lock is owned by the calling thread.
+ * != 0 otherwise (the lock is not owned by the calling thread).
+ */
+int uthread_mutex_lock(struct uthread_mutex *mutex);
+
+/**
+ * uthread_mutex_trylock() - lock a mutex if not currently locked
+ *
+ * Similar to uthread_mutex_lock() except return immediately if the mutex is
+ * locked already.
+ *
+ * @mutex: pointer to the mutex to lock
+ * Return: 0 on success, in which case the lock is owned by the calling thread.
+ * EBUSY if the mutex is already locked by another thread. Any other non-zero
+ * value on error.
+ */
+int uthread_mutex_trylock(struct uthread_mutex *mutex);
+
+/**
+ * uthread_mutex_unlock() - unlock a mutex
+ *
+ * The mutex is assumed to be owned by the calling thread on entry. On exit, it
+ * is unlocked.
+ *
+ * @mutex: pointer to the mutex to unlock
+ * Return: 0 on success, != 0 on error
+ */
+int uthread_mutex_unlock(struct uthread_mutex *mutex);
+
 #else
 
 static inline int uthread_create(struct uthread *uthr, void (*fn)(void *),
@@ -118,6 +173,11 @@ static inline bool uthread_grp_done(unsigned int grp_id)
 {
 	return true;
 }
+
+/* These are macros for convenience on the caller side */
+#define uthread_mutex_lock(_mutex) ({ 0; })
+#define uthread_mutex_trylock(_mutex) ({ 0 })
+#define uthread_mutex_unlock(_mutex) ({ 0; })
 
 #endif /* CONFIG_UTHREAD */
 #endif /* _UTHREAD_H_ */
