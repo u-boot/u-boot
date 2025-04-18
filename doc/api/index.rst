@@ -29,3 +29,4 @@ U-Boot API documentation
    sysreset
    timer
    unicode
+   uthread
