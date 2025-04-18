@@ -238,7 +238,23 @@ static void rgb_enable(struct tegra_lcd_priv *priv)
 	else
 		value &= ~LVS_OUTPUT_POLARITY_LOW;
 
+	/* configure pixel data signal polarity */
+	if (dt->flags & DISPLAY_FLAGS_PIXDATA_POSEDGE)
+		value &= ~LSC0_OUTPUT_POLARITY_LOW;
+	else
+		value |= LSC0_OUTPUT_POLARITY_LOW;
+
 	writel(value, &com->pin_output_polarity[1]);
+
+	/* configure data enable signal polarity */
+	value = readl(&com->pin_output_polarity[3]);
+
+	if (dt->flags & DISPLAY_FLAGS_DE_LOW)
+		value |= LSPI_OUTPUT_POLARITY_LOW;
+	else
+		value &= ~LSPI_OUTPUT_POLARITY_LOW;
+
+	writel(value, &com->pin_output_polarity[3]);
 
 	for (i = 0; i < PIN_OUTPUT_SEL_COUNT; i++)
 		writel(rgb_sel_tab[i], &com->pin_output_sel[i]);
