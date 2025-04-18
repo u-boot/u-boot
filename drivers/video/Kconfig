@@ -838,6 +838,13 @@ config BACKLIGHT_LP855x
 	  supported for now, PWM mode can be added if there will be any need in
 	  it. Supported backlight level range is from 0 to 255 with step of 1.
 
+config BACKLIGHT_SAMSUNG_CMC623
+	bool "Backlight Driver for Samsung CMC623"
+	depends on VIDEO_BRIDGE_SAMSUNG_CMC623
+	help
+	  Say Y to enable the backlight driver for Samsung CMC623 image converter
+	  chip's PWM output to control backlight brightness.
+
 source "drivers/video/ti/Kconfig"
 
 source "drivers/video/exynos/Kconfig"
