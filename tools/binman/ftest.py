@@ -7274,6 +7274,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                          tools.to_bytes(''.join(node.props['key'].value)))
         self.assertNotIn('key-source', node.props)
 
+    def testKeyNameHintIsPathSplPubkeyDtb(self):
+        """Test that binman errors out on key-name-hint being a path"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('348_key_name_hint_dir_spl_pubkey_dtb.dts')
+        self.assertIn(
+            'Node \'/binman/u-boot-spl-pubkey-dtb\': \'keys/key\' is a path not a filename',
+            str(e.exception))
 
     def testSplPubkeyDtb(self):
         """Test u_boot_spl_pubkey_dtb etype"""
