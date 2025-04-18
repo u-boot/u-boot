@@ -195,3 +195,16 @@ void board_prep_linux(struct bootm_headers *images)
 	}
 }
 #endif
+
+#if CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP)
+void lmb_arch_add_memory(void)
+{
+	int i;
+	struct bd_info *bd = gd->bd;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		if (bd->bi_dram[i].size)
+			lmb_add(bd->bi_dram[i].start, bd->bi_dram[i].size);
+	}
+}
+#endif

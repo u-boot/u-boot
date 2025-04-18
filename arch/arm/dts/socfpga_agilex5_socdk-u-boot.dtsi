@@ -25,33 +25,43 @@
 	/*
 	 * Both Memory base address and size default info is retrieved from HW setting.
 	 * Reconfiguration / Overwrite these info can be done with examples below.
-	 */
-	/*
+	 *
+	 * When LPDDR ECC is enabled, the last 1/8 of the memory region must
+	 * be reserved for the Inline ECC buffer.
+	 *
 	 * Example for memory size with 2GB:
 	 * memory {
 	 *	reg = <0x0 0x80000000 0x0 0x80000000>;
 	 * };
-	 */
-	/*
+	 *
 	 * Example for memory size with 8GB:
 	 * memory {
 	 *	reg = <0x0 0x80000000 0x0 0x80000000>,
 	 *	      <0x8 0x80000000 0x1 0x80000000>;
 	 * };
-	 */
-	/*
+	 *
 	 * Example for memory size with 32GB:
 	 * memory {
 	 *	reg = <0x0 0x80000000 0x0 0x80000000>,
 	 *	      <0x8 0x80000000 0x7 0x80000000>;
 	 * };
-	 */
-	/*
+	 *
 	 * Example for memory size with 512GB:
 	 * memory {
 	 *	reg = <0x0 0x80000000 0x0 0x80000000>,
 	 *	      <0x8 0x80000000 0x7 0x80000000>,
 	 *	      <0x88 0x00000000 0x78 0x00000000>;
+	 * };
+	 *
+	 * Example for memory size with 2GB with LPDDR Inline ECC ON:
+	 * memory {
+	 *	reg = <0x0 0x80000000 0x0 0x70000000>;
+	 * };
+	 *
+	 * Example for memory size with 8GB with LPDDR Inline ECC ON:
+	 * memory {
+	 *	reg = <0x0 0x80000000 0x0 0x80000000>,
+	 *	      <0x8 0x80000000 0x1 0x40000000>;
 	 * };
 	 */
 

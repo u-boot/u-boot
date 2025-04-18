@@ -291,7 +291,14 @@ int sdram_mmr_init_full(struct udevice *dev)
 		goto err;
 	}
 
-	hw_size = (phys_size_t)io96b_ctrl->overall_size * SZ_1G / SZ_8;
+	ret = ecc_enable_status(io96b_ctrl);
+	if (ret) {
+		printf("DDR: Failed to get ECC enabled status\n");
+
+		goto err;
+	}
+
+	hw_size = io96b_ctrl->overall_size;
 
 	/* Get bank configuration from devicetree */
 	ret = fdtdec_decode_ram_size(gd->fdt_blob, NULL, 0, NULL,
@@ -302,6 +309,9 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 		goto err;
 	}
+
+	if (io96b_ctrl->inline_ecc)
+		hw_size = CALC_INLINE_ECC_HW_SIZE(hw_size);
 
 	if (gd->ram_size > hw_size) {
 		printf("DDR: Warning: DRAM size from device tree (%lld MiB) exceeds\n",
@@ -354,13 +364,6 @@ int sdram_mmr_init_full(struct udevice *dev)
 	}
 
 	printf("%s: %lld MiB\n", io96b_ctrl->ddr_type, gd->ram_size >> 20);
-
-	ret = ecc_enable_status(io96b_ctrl);
-	if (ret) {
-		printf("DDR: Failed to get ECC enabled status\n");
-
-		goto err;
-	}
 
 	/* Is HPS cold or warm reset? If yes, Skip full memory initialization if ECC
 	 *  enabled to preserve memory content
