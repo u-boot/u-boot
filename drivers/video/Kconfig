@@ -700,6 +700,14 @@ config VIDEO_LCD_SONY_L4F00430T01
 	  WVGA resolution (480x800) and is setup over SPI, video
 	  data comes from RGB.
 
+config VIDEO_LCD_SAMSUNG_S6E63M0
+	tristate "Samsung S6E63M0 controller based panel support"
+	depends on PANEL && BACKLIGHT
+	help
+	  Say Y here if you want to enable support for Samsung S6E63M0
+	  controller found in some panels like on Samsung Captivate Glide.
+	  Currently only DBI C panel is implemented.
+
 config VIDEO_LCD_SPI_CS
 	string "SPI CS pin for LCD related config job"
 	depends on VIDEO_LCD_SSD2828 || VIDEO_LCD_HITACHI_TX18D42VM
