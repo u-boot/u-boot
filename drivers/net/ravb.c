@@ -181,7 +181,7 @@ static int ravb_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
 	struct ravb_rxdesc *desc = &eth->rx_desc[eth->rx_desc_idx];
-	int len;
+	int len = 0;
 	u8 *packet;
 
 	/* Check if the rx descriptor is ready */
@@ -190,12 +190,11 @@ static int ravb_recv(struct udevice *dev, int flags, uchar **packetp)
 		return -EAGAIN;
 
 	/* Check for errors */
-	if (desc->data.ctrl & RAVB_RX_DESC_MSC_RX_ERR_MASK) {
+	if (desc->data.ctrl & RAVB_RX_DESC_MSC_RX_ERR_MASK)
 		desc->data.ctrl &= ~RAVB_RX_DESC_MSC_MASK;
-		return -EAGAIN;
-	}
+	else
+		len = desc->data.ctrl & RAVB_DESC_DS_MASK;
 
-	len = desc->data.ctrl & RAVB_DESC_DS_MASK;
 	packet = (u8 *)(uintptr_t)desc->data.dptr;
 	ravb_invalidate_dcache((uintptr_t)packet, len);
 
