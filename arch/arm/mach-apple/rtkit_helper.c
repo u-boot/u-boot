@@ -16,11 +16,59 @@
 #define REG_CPU_CTRL		0x0044
 #define  REG_CPU_CTRL_RUN	BIT(4)
 
+#define APPLE_RTKIT_EP_OSLOG 8
+
 struct rtkit_helper_priv {
 	void *asc;		/* ASC registers */
 	struct mbox_chan chan;
 	struct apple_rtkit *rtk;
+	bool sram_stolen;
 };
+
+static int shmem_setup(void *cookie, struct apple_rtkit_buffer *buf) {
+	struct udevice *dev = cookie;
+	struct rtkit_helper_priv *priv = dev_get_priv(dev);
+
+	if (!buf->is_mapped) {
+		/*
+		 * Special case: The OSLog buffer on MTP persists on Linux handoff.
+		 * Steal some SRAM instead of putting this in DRAM, so we don't
+		 * have to hand off DART/DAPF mappings.
+		 */
+		if (buf->endpoint == APPLE_RTKIT_EP_OSLOG) {
+			if (priv->sram_stolen) {
+				printf("%s: Tried to map more than one OSLog buffer out of SRAM\n",
+				       __func__);
+			} else {
+				fdt_size_t size;
+				fdt_addr_t addr;
+
+				addr = dev_read_addr_size_name(dev, "sram", &size);
+
+				if (addr != FDT_ADDR_T_NONE) {
+					buf->dva = ALIGN_DOWN(addr + size - buf->size, SZ_16K);
+					priv->sram_stolen = true;
+
+					return 0;
+				} else {
+					printf("%s: No SRAM, falling back to DRAM\n", __func__);
+				}
+			}
+		}
+
+		buf->buffer = memalign(SZ_16K, ALIGN(buf->size, SZ_16K));
+		if (!buf->buffer)
+			return -ENOMEM;
+
+		buf->dva = (u64)buf->buffer;
+	}
+	return 0;
+}
+
+static void shmem_destroy(void *cookie, struct apple_rtkit_buffer *buf) {
+	if (buf->buffer)
+		free(buf->buffer);
+}
 
 static int rtkit_helper_probe(struct udevice *dev)
 {
@@ -39,7 +87,7 @@ static int rtkit_helper_probe(struct udevice *dev)
 	ctrl = readl(priv->asc + REG_CPU_CTRL);
 	writel(ctrl | REG_CPU_CTRL_RUN, priv->asc + REG_CPU_CTRL);
 
-	priv->rtk = apple_rtkit_init(&priv->chan, priv, NULL, NULL);
+	priv->rtk = apple_rtkit_init(&priv->chan, dev, shmem_setup, shmem_destroy);
 	if (!priv->rtk)
 		return -ENOMEM;
 
