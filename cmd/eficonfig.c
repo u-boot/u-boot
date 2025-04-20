@@ -2283,26 +2283,11 @@ static efi_status_t eficonfig_init(void)
 {
 	efi_status_t ret = EFI_SUCCESS;
 	static bool init;
-	struct efi_handler *handler;
 	unsigned long columns, rows;
 
 	if (!init) {
-		ret = efi_search_protocol(efi_root, &efi_guid_text_input_protocol, &handler);
-		if (ret != EFI_SUCCESS)
-			return ret;
-
-		ret = efi_protocol_open(handler, (void **)&cin, efi_root, NULL,
-					EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-		if (ret != EFI_SUCCESS)
-			return ret;
-		ret = efi_search_protocol(efi_root, &efi_guid_text_output_protocol, &handler);
-		if (ret != EFI_SUCCESS)
-			return ret;
-
-		ret = efi_protocol_open(handler, (void **)&cout, efi_root, NULL,
-					EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-		if (ret != EFI_SUCCESS)
-			return ret;
+		cout = systab.con_out;
+		cin = systab.con_in;
 
 		cout->query_mode(cout, cout->mode->mode, &columns, &rows);
 		avail_row = rows - (EFICONFIG_MENU_HEADER_ROW_NUM +

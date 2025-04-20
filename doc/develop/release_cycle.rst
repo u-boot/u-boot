@@ -1,3 +1,5 @@
+.. |next_ver| replace:: v2025.07
+
 Release Cycle
 =============
 
@@ -53,13 +55,13 @@ Current Status
 
 * U-Boot v2025.04 was released on Monday, 07 April 2025.
 
-* The Merge Window for the next release (v2025.07) is **open** until the -rc1
+* The Merge Window for the next release (|next_ver|) is **open** until the -rc1
   release on Monday, 28 April 2025.
 
 * The next branch is now **closed** until the -rc2 release on Monday, 12 May
   2025.
 
-* Release "v2025.07" is scheduled for Monday, 07 July 2025.
+* Release "|next_ver|" is scheduled for Monday, 07 July 2025.
 
 Future Releases
 ---------------
@@ -69,15 +71,15 @@ Future Releases
 
 .. For the next scheduled release, release candidates were made on::
 
-.. * U-Boot v2025.07-rc1 was released on Mon 21 April 2025.
+.. * U-Boot |next_ver|-rc1 was released on Mon 21 April 2025.
 
-.. * U-Boot v2025.07-rc2 was released on Mon 12 May 2025.
+.. * U-Boot |next_ver|-rc2 was released on Mon 12 May 2025.
 
-.. * U-Boot v2025.07-rc3 was released on Mon 26 May 2025.
+.. * U-Boot |next_ver|-rc3 was released on Mon 26 May 2025.
 
-.. * U-Boot v2025.07-rc4 was released on Mon 09 June 2025.
+.. * U-Boot |next_ver|-rc4 was released on Mon 09 June 2025.
 
-.. * U-Boot v2025.07-rc5 was released on Mon 23 June 2025.
+.. * U-Boot |next_ver|-rc5 was released on Mon 23 June 2025.
 
 Please note that the following dates are planned only and may be deviated from
 as needed.

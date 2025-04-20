@@ -38,6 +38,9 @@ static efi_status_t bootefi_run_prepare(const char *load_options_path,
 	if (ret != EFI_SUCCESS)
 		return ret;
 
+	(*image_objp)->auth_status = EFI_IMAGE_AUTH_PASSED;
+	(*image_objp)->entry = efi_selftest;
+
 	/* Transfer environment variable as load options */
 	return efi_env_set_load_options((efi_handle_t)*image_objp,
 					load_options_path,
@@ -106,8 +109,8 @@ static int do_efi_selftest(void)
 		return CMD_RET_FAILURE;
 
 	/* Execute the test */
-	ret = EFI_CALL(efi_selftest(&image_obj->header, &systab));
-	free(loaded_image_info->load_options);
+	ret = do_bootefi_exec(&image_obj->header,
+			      loaded_image_info->load_options);
 	efi_free_pool(test_device_path);
 	efi_free_pool(test_image_path);
 	if (ret != EFI_SUCCESS)
