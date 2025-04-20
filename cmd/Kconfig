@@ -5,7 +5,7 @@ menuconfig CMDLINE
 	  Enable U-Boot's command-line functions. This provides a means
 	  to enter commands into U-Boot for a wide variety of purposes. It
 	  also allows scripts (containing commands) to be executed.
-	  Various commands and command categorys can be indivdually enabled.
+	  Various commands and command categories can be individually enabled.
 	  Depending on the number of commands enabled, this can add
 	  substantially to the size of U-Boot.
 
