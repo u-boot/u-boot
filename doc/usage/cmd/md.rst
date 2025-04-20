@@ -21,7 +21,7 @@ format that includes the address, hex data and ASCII display. It supports
 various data sizes and uses the endianness of the target.
 
 The specified data_size and length become the defaults for future memory
-commands commands.
+commands.
 
 address
     start address to display
