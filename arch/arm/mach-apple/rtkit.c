@@ -36,6 +36,7 @@
 
 #define APPLE_RTKIT_MGMT_SET_IOP_PWR_STATE 6
 #define APPLE_RTKIT_MGMT_SET_IOP_PWR_STATE_ACK 7
+#define APPLE_RTKIT_MGMT_SET_AP_PWR_STATE 11
 
 #define APPLE_RTKIT_MGMT_EPMAP 8
 #define APPLE_RTKIT_MGMT_EPMAP_LAST BIT(51)
@@ -64,6 +65,9 @@ struct apple_rtkit {
 	struct apple_rtkit_buffer syslog_buffer;
 	struct apple_rtkit_buffer crashlog_buffer;
 	struct apple_rtkit_buffer ioreport_buffer;
+
+	int iop_pwr;
+	int ap_pwr;
 };
 
 struct apple_rtkit *apple_rtkit_init(struct mbox_chan *chan, void *cookie,
@@ -150,6 +154,75 @@ static int rtkit_handle_buf_req(struct apple_rtkit *rtk, int endpoint, struct ap
 	return 0;
 }
 
+int apple_rtkit_poll(struct apple_rtkit *rtk, ulong timeout)
+{
+	struct apple_mbox_msg msg;
+	int ret;
+	int endpoint;
+	int msgtype;
+
+	ret = mbox_recv(rtk->chan, &msg, timeout);
+	if (ret < 0)
+		return ret;
+
+	endpoint = msg.msg1;
+	msgtype = FIELD_GET(APPLE_RTKIT_MGMT_TYPE, msg.msg0);
+
+	if (endpoint == APPLE_RTKIT_EP_CRASHLOG ||
+		endpoint == APPLE_RTKIT_EP_SYSLOG ||
+		endpoint == APPLE_RTKIT_EP_IOREPORT) {
+		if (msgtype == APPLE_RTKIT_BUFFER_REQUEST) {
+			ret = rtkit_handle_buf_req(rtk, endpoint, &msg);
+			if (ret < 0)
+				return ret;
+			return 0;
+		}
+	}
+
+	if (endpoint == APPLE_RTKIT_EP_IOREPORT) {
+		// these two messages have to be ack-ed for proper startup
+		if (msgtype == 0xc || msgtype == 0x8) {
+			ret = mbox_send(rtk->chan, &msg);
+			if (ret < 0)
+				return ret;
+			return 0;
+		}
+	}
+
+	if (endpoint == APPLE_RTKIT_EP_SYSLOG) {
+		/* Ignore init */
+		if (msgtype == 0x8)
+			return 0;
+
+		/* Ack logs */
+		if (msgtype == 0x5) {
+			ret = mbox_send(rtk->chan, &msg);
+			if (ret < 0)
+				return ret;
+			return 0;
+		}
+	}
+
+	if (endpoint != APPLE_RTKIT_EP_MGMT) {
+		printf("%s: unexpected endpoint %d\n", __func__, endpoint);
+		return -EINVAL;
+	}
+
+	switch (msgtype) {
+		case APPLE_RTKIT_MGMT_SET_IOP_PWR_STATE_ACK:
+			rtk->iop_pwr = FIELD_GET(APPLE_RTKIT_MGMT_PWR_STATE, msg.msg0);
+			return 0;
+		case APPLE_RTKIT_MGMT_SET_AP_PWR_STATE:
+			rtk->ap_pwr = FIELD_GET(APPLE_RTKIT_MGMT_PWR_STATE, msg.msg0);
+			return 0;
+		default:
+			printf("%s: unexpected message type %d\n", __func__, msgtype);
+
+			/* Just ignore it */
+			return 0;
+	}
+}
+
 int apple_rtkit_boot(struct apple_rtkit *rtk)
 {
 	struct apple_mbox_msg msg;
@@ -157,7 +230,7 @@ int apple_rtkit_boot(struct apple_rtkit *rtk)
 	int nendpoints = 0;
 	int endpoint;
 	int min_ver, max_ver, want_ver;
-	int msgtype, pwrstate;
+	int msgtype;
 	u64 reply;
 	u32 bitmap, base;
 	int i, ret;
@@ -276,46 +349,37 @@ wait_epmap:
 			return ret;
 	}
 
-	pwrstate = APPLE_RTKIT_PWR_STATE_SLEEP;
-	while (pwrstate != APPLE_RTKIT_PWR_STATE_ON) {
-		ret = mbox_recv(rtk->chan, &msg, TIMEOUT_1SEC_US);
+	rtk->iop_pwr = APPLE_RTKIT_PWR_STATE_SLEEP;
+	rtk->ap_pwr = APPLE_RTKIT_PWR_STATE_QUIESCED;
+
+	while (rtk->iop_pwr != APPLE_RTKIT_PWR_STATE_ON) {
+		ret = apple_rtkit_poll(rtk, TIMEOUT_1SEC_US);
 		if (ret < 0)
 			return ret;
+	}
 
-		endpoint = msg.msg1;
-		msgtype = FIELD_GET(APPLE_RTKIT_MGMT_TYPE, msg.msg0);
+	return 0;
+}
 
-		if (endpoint == APPLE_RTKIT_EP_CRASHLOG ||
-		    endpoint == APPLE_RTKIT_EP_SYSLOG ||
-		    endpoint == APPLE_RTKIT_EP_IOREPORT) {
-			if (msgtype == APPLE_RTKIT_BUFFER_REQUEST) {
-				ret = rtkit_handle_buf_req(rtk, endpoint, &msg);
-				if (ret < 0)
-					return ret;
-				continue;
-			}
-		}
+int apple_rtkit_set_ap_power(struct apple_rtkit *rtk, int pwrstate)
+{
+	struct apple_mbox_msg msg;
+	int ret;
 
-		if (endpoint == APPLE_RTKIT_EP_IOREPORT) {
-			// these two messages have to be ack-ed for proper startup
-			if (msgtype == 0xc || msgtype == 0x8) {
-				ret = mbox_send(rtk->chan, &msg);
-				if (ret < 0)
-					return ret;
-				continue;
-			}
-		}
+	if (rtk->ap_pwr == pwrstate)
+		return 0;
 
-		if (endpoint != APPLE_RTKIT_EP_MGMT) {
-			printf("%s: unexpected endpoint %d\n", __func__, endpoint);
-			return -EINVAL;
-		}
-		if (msgtype != APPLE_RTKIT_MGMT_SET_IOP_PWR_STATE_ACK) {
-			printf("%s: unexpected message type %d\n", __func__, msgtype);
-			return -EINVAL;
-		}
+	msg.msg0 = FIELD_PREP(APPLE_RTKIT_MGMT_TYPE, APPLE_RTKIT_MGMT_SET_AP_PWR_STATE) |
+		FIELD_PREP(APPLE_RTKIT_MGMT_PWR_STATE, pwrstate);
+	msg.msg1 = APPLE_RTKIT_EP_MGMT;
+	ret = mbox_send(rtk->chan, &msg);
+	if (ret < 0)
+		return ret;
 
-		pwrstate = FIELD_GET(APPLE_RTKIT_MGMT_PWR_STATE, msg.msg0);
+	while (rtk->ap_pwr != pwrstate) {
+		ret = apple_rtkit_poll(rtk, TIMEOUT_1SEC_US);
+		if (ret < 0)
+			return ret;
 	}
 
 	return 0;
@@ -326,6 +390,12 @@ int apple_rtkit_shutdown(struct apple_rtkit *rtk, int pwrstate)
 	struct apple_mbox_msg msg;
 	int ret;
 
+	if (rtk->ap_pwr != APPLE_RTKIT_PWR_STATE_QUIESCED) {
+		ret = apple_rtkit_set_ap_power(rtk, APPLE_RTKIT_PWR_STATE_QUIESCED);
+		if (ret < 0)
+			return ret;
+	}
+
 	msg.msg0 = FIELD_PREP(APPLE_RTKIT_MGMT_TYPE, APPLE_RTKIT_MGMT_SET_IOP_PWR_STATE) |
 		FIELD_PREP(APPLE_RTKIT_MGMT_PWR_STATE, pwrstate);
 	msg.msg1 = APPLE_RTKIT_EP_MGMT;
@@ -333,9 +403,11 @@ int apple_rtkit_shutdown(struct apple_rtkit *rtk, int pwrstate)
 	if (ret < 0)
 		return ret;
 
-	ret = mbox_recv(rtk->chan, &msg, TIMEOUT_1SEC_US);
-	if (ret < 0)
-		return ret;
+	while (rtk->iop_pwr != pwrstate) {
+		ret = apple_rtkit_poll(rtk, TIMEOUT_1SEC_US);
+		if (ret < 0)
+			return ret;
+	}
 
 	return 0;
 }

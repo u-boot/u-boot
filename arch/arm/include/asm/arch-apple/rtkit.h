@@ -26,4 +26,6 @@ struct apple_rtkit *apple_rtkit_init(struct mbox_chan *chan, void *cookie,
 				     apple_rtkit_shmem_destroy shmem_destroy);
 void apple_rtkit_free(struct apple_rtkit *rtk);
 int apple_rtkit_boot(struct apple_rtkit *rtk);
+int apple_rtkit_set_ap_power(struct apple_rtkit *rtk, int pwrstate);
+int apple_rtkit_poll(struct apple_rtkit *rtk, ulong timeout);
 int apple_rtkit_shutdown(struct apple_rtkit *rtk, int pwrstate);
