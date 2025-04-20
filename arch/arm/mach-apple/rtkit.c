@@ -11,6 +11,7 @@
 #include <linux/apple-mailbox.h>
 #include <linux/bitfield.h>
 #include <linux/errno.h>
+#include <linux/sizes.h>
 #include <linux/types.h>
 
 #define APPLE_RTKIT_EP_MGMT 0
@@ -97,6 +98,13 @@ void apple_rtkit_free(struct apple_rtkit *rtk)
 			rtk->shmem_destroy(rtk->cookie, &rtk->crashlog_buffer);
 		if (rtk->ioreport_buffer.buffer)
 			rtk->shmem_destroy(rtk->cookie, &rtk->ioreport_buffer);
+	} else {
+		if (rtk->syslog_buffer.buffer)
+			free(rtk->syslog_buffer.buffer);
+		if (rtk->crashlog_buffer.buffer)
+			free(rtk->crashlog_buffer.buffer);
+		if (rtk->ioreport_buffer.buffer)
+			free(rtk->ioreport_buffer.buffer);
 	}
 	free(rtk);
 }
@@ -131,7 +139,7 @@ static int rtkit_handle_buf_req(struct apple_rtkit *rtk, int endpoint, struct ap
 
 	buf->dva = FIELD_GET(APPLE_RTKIT_BUFFER_REQUEST_IOVA, msg->msg0);
 	buf->size = num_4kpages << 12;
-	buf->is_mapped = false;
+	buf->is_mapped = !!buf->dva;
 
 	if (rtk->shmem_setup) {
 		ret = rtk->shmem_setup(rtk->cookie, buf);
@@ -140,6 +148,12 @@ static int rtkit_handle_buf_req(struct apple_rtkit *rtk, int endpoint, struct ap
 			       endpoint);
 			return ret;
 		}
+	} else if (!buf->is_mapped){
+		buf->buffer = memalign(SZ_16K, ALIGN(buf->size, SZ_16K));
+		if (!buf->buffer)
+			return -ENOMEM;
+
+		buf->dva = (u64)buf->buffer;
 	}
 
 	if (!buf->is_mapped) {
