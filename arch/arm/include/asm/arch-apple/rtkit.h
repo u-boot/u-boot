@@ -12,6 +12,7 @@ struct apple_rtkit_buffer {
 	u64 dva;
 	size_t size;
 	bool is_mapped;
+	int endpoint;
 };
 
 typedef int (*apple_rtkit_shmem_setup)(void *cookie,

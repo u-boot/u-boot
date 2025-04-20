@@ -161,6 +161,7 @@ static int rtkit_handle_buf_req(struct apple_rtkit *rtk, int endpoint, struct ap
 
 	buf->dva = FIELD_GET(APPLE_RTKIT_BUFFER_REQUEST_IOVA, msg->msg0);
 	buf->is_mapped = !!buf->dva;
+	buf->endpoint = endpoint;
 
 	if (rtk->shmem_setup) {
 		ret = rtk->shmem_setup(rtk->cookie, buf);
