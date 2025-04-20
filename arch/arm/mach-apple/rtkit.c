@@ -19,6 +19,7 @@
 #define APPLE_RTKIT_EP_SYSLOG 2
 #define APPLE_RTKIT_EP_DEBUG 3
 #define APPLE_RTKIT_EP_IOREPORT 4
+#define APPLE_RTKIT_EP_OSLOG 8
 #define APPLE_RTKIT_EP_TRACEKIT 10
 
 /* Messages for management endpoint. */
@@ -47,6 +48,11 @@
 #define APPLE_RTKIT_MGMT_EPMAP_REPLY 8
 #define APPLE_RTKIT_MGMT_EPMAP_REPLY_MORE BIT(0)
 
+#define APPLE_RTKIT_OSLOG_TYPE GENMASK_ULL(63, 56)
+#define APPLE_RTKIT_OSLOG_BUFFER_REQUEST 1
+#define APPLE_RTKIT_OSLOG_SIZE GENMASK_ULL(55, 36)
+#define APPLE_RTKIT_OSLOG_IOVA GENMASK_ULL(35, 0)
+
 #define APPLE_RTKIT_MIN_SUPPORTED_VERSION 11
 #define APPLE_RTKIT_MAX_SUPPORTED_VERSION 12
 
@@ -66,6 +72,7 @@ struct apple_rtkit {
 	struct apple_rtkit_buffer syslog_buffer;
 	struct apple_rtkit_buffer crashlog_buffer;
 	struct apple_rtkit_buffer ioreport_buffer;
+	struct apple_rtkit_buffer oslog_buffer;
 
 	int iop_pwr;
 	int ap_pwr;
@@ -98,6 +105,8 @@ void apple_rtkit_free(struct apple_rtkit *rtk)
 			rtk->shmem_destroy(rtk->cookie, &rtk->crashlog_buffer);
 		if (rtk->ioreport_buffer.buffer)
 			rtk->shmem_destroy(rtk->cookie, &rtk->ioreport_buffer);
+		if (rtk->oslog_buffer.buffer)
+			rtk->shmem_destroy(rtk->cookie, &rtk->oslog_buffer);
 	} else {
 		if (rtk->syslog_buffer.buffer)
 			free(rtk->syslog_buffer.buffer);
@@ -105,6 +114,8 @@ void apple_rtkit_free(struct apple_rtkit *rtk)
 			free(rtk->crashlog_buffer.buffer);
 		if (rtk->ioreport_buffer.buffer)
 			free(rtk->ioreport_buffer.buffer);
+		if (rtk->oslog_buffer.buffer)
+			free(rtk->oslog_buffer.buffer);
 	}
 	free(rtk);
 }
@@ -112,15 +123,7 @@ void apple_rtkit_free(struct apple_rtkit *rtk)
 static int rtkit_handle_buf_req(struct apple_rtkit *rtk, int endpoint, struct apple_mbox_msg *msg)
 {
 	struct apple_rtkit_buffer *buf;
-	size_t num_4kpages;
 	int ret;
-
-	num_4kpages = FIELD_GET(APPLE_RTKIT_BUFFER_REQUEST_SIZE, msg->msg0);
-
-	if (num_4kpages == 0) {
-		printf("%s: unexpected request for buffer without size\n", __func__);
-		return -1;
-	}
 
 	switch (endpoint) {
 	case APPLE_RTKIT_EP_CRASHLOG:
@@ -132,13 +135,31 @@ static int rtkit_handle_buf_req(struct apple_rtkit *rtk, int endpoint, struct ap
 	case APPLE_RTKIT_EP_IOREPORT:
 		buf = &rtk->ioreport_buffer;
 		break;
+	case APPLE_RTKIT_EP_OSLOG:
+		buf = &rtk->oslog_buffer;
+		break;
 	default:
 		printf("%s: unexpected endpoint %d\n", __func__, endpoint);
 		return -1;
 	}
 
+	switch (endpoint) {
+	case APPLE_RTKIT_EP_OSLOG:
+		buf->size = FIELD_GET(APPLE_RTKIT_OSLOG_SIZE, msg->msg0);
+		buf->dva = FIELD_GET(APPLE_RTKIT_OSLOG_IOVA, msg->msg0 << 12);
+		break;
+	default:
+		buf->size = FIELD_GET(APPLE_RTKIT_BUFFER_REQUEST_SIZE, msg->msg0) << 12;
+		buf->dva = FIELD_GET(APPLE_RTKIT_BUFFER_REQUEST_IOVA, msg->msg0);
+		break;
+	}
+
+	if (buf->size == 0) {
+		printf("%s: unexpected request for buffer without size\n", __func__);
+		return -1;
+	}
+
 	buf->dva = FIELD_GET(APPLE_RTKIT_BUFFER_REQUEST_IOVA, msg->msg0);
-	buf->size = num_4kpages << 12;
 	buf->is_mapped = !!buf->dva;
 
 	if (rtk->shmem_setup) {
@@ -157,10 +178,18 @@ static int rtkit_handle_buf_req(struct apple_rtkit *rtk, int endpoint, struct ap
 	}
 
 	if (!buf->is_mapped) {
-		msg->msg0 = FIELD_PREP(APPLE_RTKIT_MGMT_TYPE, APPLE_RTKIT_BUFFER_REQUEST) |
-				FIELD_PREP(APPLE_RTKIT_BUFFER_REQUEST_SIZE, num_4kpages) |
-				FIELD_PREP(APPLE_RTKIT_BUFFER_REQUEST_IOVA, buf->dva);
-		msg->msg1 = endpoint;
+		/* oslog uses different fields */
+		if (endpoint == APPLE_RTKIT_EP_OSLOG) {
+			msg->msg0 = FIELD_PREP(APPLE_RTKIT_OSLOG_TYPE,
+					       APPLE_RTKIT_OSLOG_BUFFER_REQUEST);
+			msg->msg0 |= FIELD_PREP(APPLE_RTKIT_OSLOG_SIZE, buf->size);
+			msg->msg0 |= FIELD_PREP(APPLE_RTKIT_OSLOG_IOVA, buf->dva >> 12);
+		} else {
+			msg->msg0 = FIELD_PREP(APPLE_RTKIT_MGMT_TYPE,
+					   APPLE_RTKIT_BUFFER_REQUEST);
+			msg->msg0 |= FIELD_PREP(APPLE_RTKIT_BUFFER_REQUEST_SIZE, buf->size >> 12);
+			msg->msg0 |= FIELD_PREP(APPLE_RTKIT_BUFFER_REQUEST_IOVA, buf->dva);
+		}
 
 		return mbox_send(rtk->chan, msg);
 	}
@@ -189,6 +218,20 @@ int apple_rtkit_poll(struct apple_rtkit *rtk, ulong timeout)
 			ret = rtkit_handle_buf_req(rtk, endpoint, &msg);
 			if (ret < 0)
 				return ret;
+			return 0;
+		}
+	}
+
+	if (endpoint == APPLE_RTKIT_EP_OSLOG) {
+		msgtype = FIELD_GET(APPLE_RTKIT_OSLOG_TYPE, msg.msg0);
+
+		if (msgtype == APPLE_RTKIT_OSLOG_BUFFER_REQUEST) {
+			ret = rtkit_handle_buf_req(rtk, endpoint, &msg);
+			if (ret < 0)
+				return ret;
+			return 0;
+		} else {
+			/* Ignore */
 			return 0;
 		}
 	}
