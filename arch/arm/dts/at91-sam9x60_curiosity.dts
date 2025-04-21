@@ -319,6 +319,10 @@
 	pinctrl-0 = <&pinctrl_sdhci1>;
 };
 
+&usb0 {
+	status = "okay";
+};
+
 &usb1 {
 	num-ports = <3>;
 	atmel,vbus-gpio = <0
