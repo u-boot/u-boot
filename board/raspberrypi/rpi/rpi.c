@@ -359,9 +359,6 @@ static void set_fdtfile(void)
  */
 static void set_fdt_addr(void)
 {
-	if (env_get("fdt_addr"))
-		return;
-
 	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC)
 		return;
 
@@ -602,6 +599,9 @@ void  update_fdt_from_fw(void *fdt, void *fw_fdt)
 
 	/* Bluetooth device address as provided by the firmware */
 	copy_property(fdt, fw_fdt, "/soc/serial@7e201000/bluetooth", "local-bd-address");
+
+	/* copy uart clk as provided by the firmware */
+	copy_property(fdt, fw_fdt, "/clocks/clk-uart", "clock-frequency");
 }
 
 int ft_board_setup(void *blob, struct bd_info *bd)
