@@ -35,6 +35,19 @@ class TestFsBasic(object):
                 '%sls host 0:0 invalid_d' % fs_cmd_prefix)
             assert('' == output)
 
+        with ubman.log.section('Test Case 1c - test -e'):
+            # Test Case 1 - test -e
+            output = ubman.run_command_list([
+                'host bind 0 %s' % fs_img,
+                'test -e host 0:0 1MB.file && echo PASS'])
+            assert('PASS' in ''.join(output))
+
+        with ubman.log.section('Test Case 1d - test -e (invalid file)'):
+            # In addition, test with a nonexistent file to see if we crash.
+            output = ubman.run_command(
+                'test -e host 0:0 2MB.file || echo PASS')
+            assert('PASS' in ''.join(output))
+
     def test_fs2(self, ubman, fs_obj_basic):
         """
         Test Case 2 - size command for a small file

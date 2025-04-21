@@ -17,7 +17,7 @@ supported_fs_fat = ['fat12', 'fat16']
 supported_fs_mkdir = ['fat12', 'fat16', 'fat32', 'exfat', 'fs_generic']
 supported_fs_unlink = ['fat12', 'fat16', 'fat32', 'exfat', 'fs_generic']
 supported_fs_symlink = ['ext4']
-supported_fs_rename = ['fat12', 'fat16', 'fat32']
+supported_fs_rename = ['fat12', 'fat16', 'fat32', 'exfat', 'fs_generic']
 
 #
 # Filesystem test specific setup

@@ -401,6 +401,7 @@ static struct fstype_info fstypes[] = {
 		.ln = fs_ln_unsupported,
 		.unlink = exfat_fs_unlink,
 		.mkdir = exfat_fs_mkdir,
+		.rename = exfat_fs_rename,
 	},
 #endif
 	{
