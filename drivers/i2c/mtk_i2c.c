@@ -143,7 +143,6 @@ static const uint mt_i2c_regs_v1[] = {
 	[REG_RSV_DEBUG] = 0x44,
 	[REG_HS] = 0x48,
 	[REG_SOFTRESET] = 0x50,
-	[REG_SOFTRESET] = 0x50,
 	[REG_DCM_EN] = 0x54,
 	[REG_DEBUGSTAT] = 0x64,
 	[REG_DEBUGCTRL] = 0x68,
@@ -879,7 +878,7 @@ static const struct udevice_id mtk_i2c_ids[] = {
 	}, {
 		.compatible = "mediatek,mt8518-i2c",
 		.data = (ulong)&mt8518_soc_data,
-	}
+	}, {}
 };
 
 U_BOOT_DRIVER(mtk_i2c) = {
