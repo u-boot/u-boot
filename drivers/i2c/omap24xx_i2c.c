@@ -1066,18 +1066,28 @@ static int omap_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
 	u16 i2c_con_reg = 0;
 
 	debug("%s: %d messages\n", __func__, nmsgs);
-	for (; nmsgs > 0; nmsgs--, msg++) {
-		/* Wait until bus not busy */
-		if (wait_for_bb(priv->regs, priv->ip_rev, priv->waitdelay))
-			return -EREMOTEIO;
+	for (int i = 0; i < nmsgs; i++, msg++) {
+		/*
+		 * If previous msg sent a Stop or if this is the first msg
+		 * Wait until bus not busy
+		 */
+		if ((i2c_con_reg & I2C_CON_STP) || (i == 0))
+			if (wait_for_bb(priv->regs, priv->ip_rev, priv->waitdelay))
+				return -EREMOTEIO;
 
-		/* Set Controller mode with Start and Stop bit */
-		i2c_con_reg = I2C_CON_EN | I2C_CON_MST | I2C_CON_STT | I2C_CON_STP;
+		/* Set Controller mode with Start bit */
+		i2c_con_reg = I2C_CON_EN | I2C_CON_MST | I2C_CON_STT;
 		/* Set Transmitter/Receiver mode if it is a write/read msg */
 		if (msg->flags & I2C_M_RD)
 			i2c_con_reg &= ~I2C_CON_TRX;
 		else
 			i2c_con_reg |= I2C_CON_TRX;
+		/* Send Stop condition (P) by default */
+		if (!IS_ENABLED(CONFIG_SYS_I2C_OMAP24XX_REPEATED_START))
+			i2c_con_reg |= I2C_CON_STP;
+		/* Send Stop if explicitly requested or if this is the last msg */
+		if ((msg->flags & I2C_M_STOP) || (i == nmsgs - 1))
+			i2c_con_reg |= I2C_CON_STP;
 
 		debug("%s: chip=0x%x, len=0x%x, i2c_con_reg=0x%x\n",
 		      __func__, msg->addr, msg->len, i2c_con_reg);
