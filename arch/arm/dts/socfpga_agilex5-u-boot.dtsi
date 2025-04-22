@@ -208,7 +208,8 @@
 				intel,offset-settings =
 					/* DMIUSMCTCR */
 					<0x00000300 0x00000001 0x00000003>,
-					<0x00000300 0x00000003 0x00000003>;
+					<0x00000300 0x00000003 0x00000003>,
+					<0x00000308 0x00000004 0x0000001F>;
 				bootph-all;
 			};
 
@@ -218,7 +219,8 @@
 				intel,offset-settings =
 					/* DMIUSMCTCR */
 					<0x00000300 0x00000001 0x00000003>,
-					<0x00000300 0x00000003 0x00000003>;
+					<0x00000300 0x00000003 0x00000003>,
+					<0x00000308 0x00000004 0x0000001F>;
 				bootph-all;
 			};
 		};
@@ -671,6 +673,17 @@
 
 &clkmgr {
 	bootph-all;
+};
+
+&gpio1 {
+	/* Configure GPIO 1 pin 3 as output pin with value 0 during GPIO probe */
+	portb: gpio-controller@0{
+		sdio_sel {
+			gpio-hog;
+			gpios = <3 GPIO_ACTIVE_HIGH>;
+			output-low;
+		};
+	};
 };
 
 &i2c0 {

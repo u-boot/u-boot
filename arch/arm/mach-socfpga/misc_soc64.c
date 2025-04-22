@@ -61,7 +61,7 @@ void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	printf("CPU: Intel FPGA SoCFPGA Platform (ARMv8 64bit Cortex-%s)\n",
+	printf("CPU: Altera FPGA SoCFPGA Platform (ARMv8 64bit Cortex-%s)\n",
 	       IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5) ? "A55/A76" : "A53");
 
 	return 0;
@@ -107,5 +107,5 @@ void do_bridge_reset(int enable, unsigned int mask)
 		return;
 	}
 
-	socfpga_bridges_reset(enable);
+	socfpga_bridges_reset(enable, mask);
 }

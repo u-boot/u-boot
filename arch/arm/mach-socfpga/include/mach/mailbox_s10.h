@@ -128,6 +128,7 @@ enum ALT_SDM_MBOX_RESP_CODE {
 #define MBOX_QSPI_CLOSE		51
 #define MBOX_QSPI_DIRECT	59
 #define MBOX_REBOOT_HPS		71
+#define MBOX_HPS_STAGE_NOTIFY		93
 
 /* Mailbox registers */
 #define MBOX_CIN			0	/* command valid offset */
@@ -385,6 +386,8 @@ enum MBOX_CFGSTAT_MINOR_ERR_CODE {
 #define RCF_SOFTFUNC_STATUS_SEU_ERROR			BIT(3)
 #define RCF_PIN_STATUS_NSTATUS				BIT(31)
 
+#define HPS_EXECUTION_STATE_FSBL	0
+
 int mbox_send_cmd(u8 id, u32 cmd, u8 is_indirect, u32 len, u32 *arg, u8 urgent,
 		  u32 *resp_buf_len, u32 *resp_buf);
 int mbox_send_cmd_psci(u8 id, u32 cmd, u8 is_indirect, u32 len, u32 *arg,
@@ -401,6 +404,7 @@ int mbox_qspi_open(void);
 #endif
 
 int mbox_reset_cold(void);
+int mbox_hps_stage_notify(u32 execution_stage);
 int mbox_get_fpga_config_status(u32 cmd);
 int mbox_get_fpga_config_status_psci(u32 cmd);
 #endif /* _MAILBOX_S10_H_ */

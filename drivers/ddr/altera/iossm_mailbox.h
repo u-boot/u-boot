@@ -40,11 +40,13 @@ enum iossm_mailbox_cmd_opcode  {
  * @num_mem_interface:	Number of memory interfaces instantiated
  * @ip_type:		IP type implemented on the IO96B
  * @ip_instance_id:	IP identifier for every IP instance implemented on the IO96B
+ * @memory_size[2]:	Memory size for every IP instance implemented on the IO96B
  */
 struct io96b_mb_ctrl {
 	u32 num_mem_interface;
 	u32 ip_type[2];
 	u32 ip_id[2];
+	phys_size_t memory_size[2];
 };
 
 /* CMD_REQ Register Definition */
@@ -52,6 +54,9 @@ struct io96b_mb_ctrl {
 #define CMD_TARGET_IP_INSTANCE_ID_MASK	GENMASK(28, 24)
 #define CMD_TYPE_MASK			GENMASK(23, 16)
 #define CMD_OPCODE_MASK			GENMASK(15, 0)
+
+/* Computes the Inline ECC data region size */
+#define CALC_INLINE_ECC_HW_SIZE(size) (((size) * 7) / 8)
 
 /*
  * IOSSM mailbox request
@@ -83,13 +88,11 @@ struct io96b_mb_resp {
 /*
  * IO96B instance specific information
  *
- * @size:		Memory size
  * @io96b_csr_addr:	IO96B instance CSR address
  * @cal_status:		IO96B instance calibration status
  * @mb_ctrl:		IOSSM mailbox required information
  */
 struct io96b_instance {
-	u16 size;
 	phys_addr_t io96b_csr_addr;
 	bool cal_status;
 	struct io96b_mb_ctrl mb_ctrl;
@@ -102,6 +105,7 @@ struct io96b_instance {
  * @overall_cal_status: Overall calibration status for all IO96B instance(s)
  * @ddr_type:		DDR memory type
  * @ecc_status:		ECC enable status (false = disabled, true = enabled)
+ * @inline_ecc:		Inline ECC or Out of Band ECC (false = Out of Band ECC, true = Inline ECC)
  * @overall_size:	Total DDR memory size
  * @io96b[]:		IO96B instance specific information
  * @ckgen_lock:		IO96B GEN PLL lock (false = not locked, true = locked)
@@ -115,7 +119,8 @@ struct io96b_info {
 	bool overall_cal_status;
 	const char *ddr_type;
 	bool ecc_status;
-	u16 overall_size;
+	bool inline_ecc;
+	phys_size_t overall_size;
 	struct io96b_instance io96b[MAX_IO96B_SUPPORTED];
 	bool ckgen_lock;
 	u8 num_port;

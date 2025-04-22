@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2017-2018, Intel Corporation
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
 #ifndef __INTEL_SMC_H
@@ -482,10 +483,16 @@ INTEL_SIP_SMC_FAST_CALL_VAL(INTEL_SIP_SMC_FUNCID_FPGA_CONFIG_COMPLETED_WRITE)
  * Call register usage:
  * a0 INTEL_SIP_SMC_HPS_SET_BRIDGES
  * a1 Set bridges status:
- *      0 - Disable
- *      1 - Enable
- * a2-7 not used
- *
+ *	Bit 0: 0 - Disable, 1 - Enable
+ *	Bit 1: 1 - Has mask value in a2
+ * a2 Mask value
+ *	Bit 0: soc2fpga
+ *	Bit 1: lwhps2fpga
+ *	Bit 2: fpga2soc
+ *	Bit 3: f2sdram0	(For Stratix 10 only)
+ *	Bit 4: f2sdram1	(For Stratix 10 only)
+ *	Bit 5: f2sdram2	(For Stratix 10 only)
+ * a3-7 not used
  * Return status
  * a0 INTEL_SIP_SMC_STATUS_OK
  */

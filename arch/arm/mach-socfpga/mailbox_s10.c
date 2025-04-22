@@ -6,6 +6,7 @@
 
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/mailbox_s10.h>
+#include <asm/arch/smc_api.h>
 #include <asm/arch/system_manager.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -472,6 +473,17 @@ int __secure mbox_send_cmd_psci(u8 id, u32 cmd, u8 is_indirect, u32 len,
 {
 	return mbox_send_cmd_common_retry(id, cmd, is_indirect, len, arg,
 					  urgent, resp_buf_len, resp_buf);
+}
+
+int mbox_hps_stage_notify(u32 execution_stage)
+{
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ATF)
+	return smc_send_mailbox(MBOX_HPS_STAGE_NOTIFY, 1, &execution_stage,
+				0, 0, NULL);
+#else
+	return mbox_send_cmd(MBOX_ID_UBOOT, MBOX_HPS_STAGE_NOTIFY,
+			     MBOX_CMD_DIRECT, 1, &execution_stage, 0, 0, NULL);
+#endif
 }
 
 int mbox_send_cmd_only(u8 id, u32 cmd, u8 is_indirect, u32 len, u32 *arg)

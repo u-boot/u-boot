@@ -157,6 +157,7 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-socfpga.git
 F:	drivers/ddr/altera/
 F:	arch/arm/mach-socfpga/
+F:	configs/socfpga_agilex5_vab_defconfig
 F:	drivers/sysreset/sysreset_socfpga*
 
 ARM AMLOGIC SOC SUPPORT

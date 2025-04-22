@@ -10,9 +10,12 @@
 void reset_deassert_peripherals_handoff(void);
 int cpu_has_been_warmreset(void);
 void print_reset_info(void);
-void socfpga_bridges_reset(int enable);
+void socfpga_bridges_reset(int enable, unsigned int mask);
 
 #define RSTMGR_SOC64_STATUS	0x00
+#define RSTMGR_SOC64_HDSKEN	0x10
+#define RSTMGR_SOC64_HDSKREQ	0x14
+#define RSTMGR_SOC64_HDSKACK	0x18
 #define RSTMGR_SOC64_MPUMODRST	0x20
 #define RSTMGR_SOC64_PER0MODRST	0x24
 #define RSTMGR_SOC64_PER1MODRST	0x28
@@ -20,8 +23,17 @@ void socfpga_bridges_reset(int enable);
 
 #define RSTMGR_MPUMODRST_CORE0		0
 #define RSTMGR_PER0MODRST_OCP_MASK	0x0020bf00
-#define RSTMGR_BRGMODRST_DDRSCH_MASK	0X00000040
-#define RSTMGR_BRGMODRST_FPGA2SOC_MASK	0x00000004
+
+#define RSTMGR_BRGMODRST_SOC2FPGA_MASK		BIT(0)
+#define RSTMGR_BRGMODRST_LWSOC2FPGA_MASK	BIT(1)
+#define RSTMGR_BRGMODRST_FPGA2SOC_MASK		BIT(2)
+#define RSTMGR_BRGMODRST_F2SDRAM0_MASK		BIT(3)
+#define RSTMGR_BRGMODRST_F2SDRAM1_MASK		BIT(4)
+#define RSTMGR_BRGMODRST_F2SDRAM2_MASK		BIT(5)
+#define RSTMGR_BRGMODRST_DDRSCH_MASK		BIT(6)
+
+#define RSTMGR_HDSKEN_FPGAHSEN		BIT(2)
+#define RSTMGR_HDSKREQ_FPGAHSREQ	BIT(2)
 
 /* SDM, Watchdogs and MPU warm reset mask */
 #define RSTMGR_STAT_SDMWARMRST		0x2

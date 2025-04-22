@@ -185,35 +185,51 @@ void sdram_init_ecc_bits(struct bd_info *bd)
 void sdram_size_check(struct bd_info *bd)
 {
 	phys_size_t total_ram_check = 0;
-	phys_size_t ram_check = 0;
-	phys_addr_t start = 0;
-	phys_size_t size, remaining_size;
 	int bank;
 
 	/* Sanity check ensure correct SDRAM size specified */
 	debug("DDR: Running SDRAM size sanity check\n");
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		phys_size_t ram_check = 0;
+		phys_addr_t start = 0;
+		phys_size_t remaining_size;
+
 		start = bd->bi_dram[bank].start;
 		remaining_size = bd->bi_dram[bank].size;
-		while (ram_check < bd->bi_dram[bank].size) {
-			size = min((phys_addr_t)SZ_1G,
-				   (phys_addr_t)remaining_size);
+		debug("Checking bank %d: start=0x%llx, size=0x%llx\n",
+		      bank, start, remaining_size);
 
-			/*
-			 * Ensure the size is power of two, this is requirement
-			 * to run get_ram_size() / memory test
-			 */
-			if (size != 0 && ((size & (size - 1)) == 0)) {
-				ram_check += get_ram_size((void *)
-						(start + ram_check), size);
-				remaining_size = bd->bi_dram[bank].size -
-							ram_check;
-			} else {
-				puts("DDR: Memory test requires SDRAM size ");
-				puts("in power of two!\n");
+		while (ram_check < bd->bi_dram[bank].size) {
+			phys_size_t size, test_size, detected_size;
+
+			size = min((phys_addr_t)SZ_1G, (phys_addr_t)remaining_size);
+
+			if (size < SZ_8) {
+				puts("Invalid size: Memory size required to be multiple\n");
+				puts("of 64-Bit word!\n");
 				hang();
 			}
+
+			/* Adjust size to the nearest power of two to support get_ram_size() */
+			test_size = SZ_8;
+
+			while (test_size * 2 <= size)
+				test_size *= 2;
+
+			debug("Testing memory at 0x%llx with size 0x%llx\n",
+			      start + ram_check, test_size);
+			detected_size = get_ram_size((void *)(start + ram_check), test_size);
+
+			if (detected_size != test_size) {
+				debug("Detected size 0x%llx doesn’t match the test size 0x%llx!\n",
+				      detected_size, test_size);
+				puts("Memory testing failed!\n");
+				hang();
+			}
+
+			ram_check += detected_size;
+			remaining_size = bd->bi_dram[bank].size - ram_check;
 		}
 
 		total_ram_check += ram_check;
@@ -249,7 +265,7 @@ phys_size_t sdram_calculate_size(struct altera_sdram_plat *plat)
 			 DRAMADDRW_CFG_ROW_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_COL_ADDR_WIDTH(dramaddrw));
 
-	size *= (2 << (hmc_ecc_readl(plat, DDRIOCTRL) &
+	size *= ((phys_size_t)2 << (hmc_ecc_readl(plat, DDRIOCTRL) &
 			DDR_HMC_DDRIOCTRL_IOSIZE_MSK));
 
 	return size;
