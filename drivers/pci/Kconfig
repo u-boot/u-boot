@@ -67,6 +67,7 @@ config PCI_CONFIG_HOST_BRIDGE
 config PCI_MAP_SYSTEM_MEMORY
 	bool "Map local system memory from a virtual base address"
 	depends on MIPS
+	default y if !ARCH_MAP_SYSMEM
 	help
 	  Say Y if base address of system memory is being used as a virtual address
 	  instead of a physical address (e.g. on MIPS). The PCI core will then remap
@@ -74,6 +75,15 @@ config PCI_MAP_SYSTEM_MEMORY
 	  region of type PCI_REGION_SYS_MEMORY.
 	  This should only be required on MIPS where CFG_SYS_SDRAM_BASE is still
 	  being used as virtual address.
+
+config PCI_BRIDGE_MEM_ALIGNMENT
+	hex "Alignment boundary of PCI memory resource allocation"
+	default 0x10000 if TARGET_BOSTON
+	default 0x100000
+	help
+	  Specify a boundary for alignment of PCI memory resource allocation,
+	  this is normally 0x100000 (1MB) but can be reduced to accommodate
+	  hardware with tight bridge range if hardware allows.
 
 config PCI_SRIOV
 	bool "Enable Single Root I/O Virtualization support for PCI"

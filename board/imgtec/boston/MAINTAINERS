@@ -1,6 +1,7 @@
 BOSTON BOARD
-M:	Paul Burton <paul.burton@mips.com>
+M:	Paul Burton <paulburton@kernel.org>
 S:	Maintained
+F:  arch/mips/dts/boston-u-boot.dtsi
 F:	board/imgtec/boston/
 F:	include/configs/boston.h
 F:	configs/boston32r2_defconfig

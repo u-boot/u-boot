@@ -373,8 +373,8 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, 0xff);
 
 	if (pci_mem) {
-		/* Round memory allocator to 1MB boundary */
-		pciauto_region_align(pci_mem, 0x100000);
+		/* Round memory allocator */
+		pciauto_region_align(pci_mem, CONFIG_PCI_BRIDGE_MEM_ALIGNMENT);
 
 		/*
 		 * Set up memory and I/O filter limits, assume 32-bit
@@ -388,8 +388,8 @@ void dm_pciauto_prescan_setup_bridge(struct udevice *dev, int sub_bus)
 	}
 
 	if (pci_prefetch) {
-		/* Round memory allocator to 1MB boundary */
-		pciauto_region_align(pci_prefetch, 0x100000);
+		/* Round memory allocator */
+		pciauto_region_align(pci_prefetch, CONFIG_PCI_BRIDGE_MEM_ALIGNMENT);
 
 		/*
 		 * Set up memory and I/O filter limits, assume 32-bit
@@ -466,8 +466,8 @@ void dm_pciauto_postscan_setup_bridge(struct udevice *dev, int sub_bus)
 	dm_pci_write_config8(dev, PCI_SUBORDINATE_BUS, sub_bus - dev_seq(ctlr));
 
 	if (pci_mem) {
-		/* Round memory allocator to 1MB boundary */
-		pciauto_region_align(pci_mem, 0x100000);
+		/* Round memory allocator */
+		pciauto_region_align(pci_mem, CONFIG_PCI_BRIDGE_MEM_ALIGNMENT);
 
 		dm_pci_write_config16(dev, PCI_MEMORY_LIMIT,
 				      ((pci_mem->bus_lower - 1) >> 16) &
@@ -481,8 +481,8 @@ void dm_pciauto_postscan_setup_bridge(struct udevice *dev, int sub_bus)
 				     &prefechable_64);
 		prefechable_64 &= PCI_PREF_RANGE_TYPE_MASK;
 
-		/* Round memory allocator to 1MB boundary */
-		pciauto_region_align(pci_prefetch, 0x100000);
+		/* Round memory allocator */
+		pciauto_region_align(pci_prefetch, CONFIG_PCI_BRIDGE_MEM_ALIGNMENT);
 
 		dm_pci_write_config16(dev, PCI_PREF_MEMORY_LIMIT,
 				      (((pci_prefetch->bus_lower - 1) >> 16) &

@@ -7,8 +7,6 @@
 #ifndef __DWC_AHSATA_PRIV_H__
 #define __DWC_AHSATA_PRIV_H__
 
-#define DWC_AHSATA_MAX_CMD_SLOTS	32
-
 /* Max host controller numbers */
 #define SATA_HC_MAX_NUM		4
 /* Max command queue depth per host controller */

@@ -420,7 +420,7 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 
 static void ahci_fill_cmd_slot(struct ahci_ioports *pp, u32 opts)
 {
-	phys_addr_t pa = virt_to_phys((void *)pp->cmd_tbl);
+	phys_addr_t pa = virt_to_phys(pp->cmd_tbl);
 
 	pp->cmd_slot->opts = cpu_to_le32(opts);
 	pp->cmd_slot->status = 0;
@@ -449,7 +449,7 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 {
 	struct ahci_ioports *pp = &(uc_priv->port[port]);
 	void __iomem *port_mmio = pp->port_mmio;
-	u64 dma_addr;
+	phys_addr_t dma_addr;
 	u32 port_status;
 	void __iomem *mem;
 
@@ -472,34 +472,32 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	 * First item in chunk of DMA memory: 32-slot command table,
 	 * 32 bytes each in size
 	 */
-	pp->cmd_slot =
-		(struct ahci_cmd_hdr *)(uintptr_t)virt_to_phys((void *)mem);
-	debug("cmd_slot = %p\n", pp->cmd_slot);
-	mem += (AHCI_CMD_SLOT_SZ + 224);
+	pp->cmd_slot = (struct ahci_cmd_hdr *)mem;
+	mem += AHCI_CMD_SLOT_SZ * AHCI_MAX_CMD_SLOT;
 
 	/*
 	 * Second item: Received-FIS area
 	 */
-	pp->rx_fis = virt_to_phys((void *)mem);
+	pp->rx_fis = mem;
 	mem += AHCI_RX_FIS_SZ;
 
 	/*
 	 * Third item: data area for storing a single command
 	 * and its scatter-gather table
 	 */
-	pp->cmd_tbl = virt_to_phys((void *)mem);
-	debug("cmd_tbl_dma = %lx\n", pp->cmd_tbl);
+	pp->cmd_tbl = mem;
 
 	mem += AHCI_CMD_TBL_HDR;
-	pp->cmd_tbl_sg =
-			(struct ahci_sg *)(uintptr_t)virt_to_phys((void *)mem);
+	pp->cmd_tbl_sg = (struct ahci_sg *)(mem);
 
-	dma_addr = (ulong)pp->cmd_slot;
-	writel_with_flush(dma_addr, port_mmio + PORT_LST_ADDR);
-	writel_with_flush(dma_addr >> 32, port_mmio + PORT_LST_ADDR_HI);
-	dma_addr = (ulong)pp->rx_fis;
-	writel_with_flush(dma_addr, port_mmio + PORT_FIS_ADDR);
-	writel_with_flush(dma_addr >> 32, port_mmio + PORT_FIS_ADDR_HI);
+	dma_addr = virt_to_phys(pp->cmd_slot);
+	debug("cmd_slot_dma = 0x%08llx\n", (u64)dma_addr);
+	writel_with_flush(lower_32_bits(dma_addr), port_mmio + PORT_LST_ADDR);
+	writel_with_flush(upper_32_bits(dma_addr), port_mmio + PORT_LST_ADDR_HI);
+	dma_addr = virt_to_phys(pp->rx_fis);
+	debug("rx_fis_dma = 0x%08llx\n", (u64)dma_addr);
+	writel_with_flush(lower_32_bits(dma_addr), port_mmio + PORT_FIS_ADDR);
+	writel_with_flush(upper_32_bits(dma_addr), port_mmio + PORT_FIS_ADDR_HI);
 
 #ifdef CONFIG_SUNXI_AHCI
 	sunxi_dma_init(port_mmio);
