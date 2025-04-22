@@ -510,6 +510,15 @@ config SYS_I2C_OMAP24XX
 	help
 	  Add support for the OMAP2+ I2C driver.
 
+config SYS_I2C_OMAP24XX_REPEATED_START
+	bool "Enable I2C repeated start"
+	depends on SYS_I2C_OMAP24XX
+	default y if ARCH_K3
+	help
+	  Enable support for repeated start. Updates driver defaults to not
+	  send a Stop condition and issue Repeated Start (Sr) for subsequent
+	  i2c msgs.
+
 config SYS_I2C_RCAR_I2C
 	bool "Renesas R-Car I2C driver"
 	depends on (RCAR_GEN2 || RCAR_64) && DM_I2C
