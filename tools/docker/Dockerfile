@@ -90,6 +90,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	help2man \
 	iasl \
 	imagemagick \
+	inetutils-telnet \
 	iputils-ping \
 	libconfuse-dev \
 	libgit2-dev \
@@ -232,10 +233,18 @@ RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 RUN git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git /tmp/tf-a && \
 	cd /tmp/tf-a/ && \
 	git checkout v2.12.0 && \
-	cd tools/fiptool && \
-	make -j$(nproc) && \
-	mkdir -p /usr/local/bin && \
-	cp fiptool /usr/local/bin && \
+	make CROSS_COMPILE=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		PLAT=fvp BL33=/dev/null -j$(nproc) all fip && \
+	mkdir -p /usr/local/bin /opt/tf-a/vexpress_fvp && \
+	cp tools/fiptool/fiptool /usr/local/bin && \
+	cp build/fvp/release/fip.bin build/fvp/release/bl1.bin \
+		/opt/tf-a/vexpress_fvp/ && \
+	rm -rf build/fvp && \
+	make CROSS_COMPILE=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		PLAT=fvp BL33=/dev/null TRANSFER_LIST=1 -j$(nproc) all fip && \
+	mkdir -p /opt/tf-a/vexpress_fvp_bloblist && \
+	cp build/fvp/release/fip.bin build/fvp/release/bl1.bin \
+		/opt/tf-a/vexpress_fvp_bloblist/ && \
 	rm -rf /tmp/tf-a
 
 # Download the Arm Architecture FVP platform. This file is double compressed.

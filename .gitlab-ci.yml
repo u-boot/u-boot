@@ -20,7 +20,7 @@ workflow:
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20250404-24Apr2025
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20250404-29Apr2025
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -95,6 +95,13 @@ stages:
         cp /opt/coreboot/coreboot.rom ${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom;
         /opt/coreboot/cbfstool ${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom remove -n fallback/payload;
         /opt/coreboot/cbfstool ${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom add-flat-binary -f ${UBOOT_TRAVIS_BUILD_DIR}/u-boot.bin -n fallback/payload -c LZMA -l 0x1110000 -e 0x1110000;
+      fi
+    # If we have TF-A binaries, we need to use them.
+    - if [[ -d /opt/tf-a/"${TEST_PY_BD}" ]]; then
+        cp /opt/tf-a/"${TEST_PY_BD}"/fip.bin /opt/tf-a/"${TEST_PY_BD}"/bl1.bin /tmp/;
+        export fip=/tmp/fip.bin;
+        export bl1=/tmp/bl1.bin;
+        export PATH=/opt/Base_RevC_AEMvA_pkg/models/Linux64_GCC-9.3:${PATH};
       fi
     # "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
     - export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
@@ -513,6 +520,22 @@ sifive_unleashed_spi-nor test.py:
     TEST_PY_BD: "sifive_unleashed"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id spi-nor_qemu"
+  <<: *buildman_and_testpy_dfn
+
+vexpress_fvp test.py:
+  variables:
+    TEST_PY_BD: "vexpress_fvp"
+    TEST_PY_TEST_SPEC: "not sleep and not hostfs"
+  tags:
+    - ${DEFAULT_AMD64_TAG}
+  <<: *buildman_and_testpy_dfn
+
+vexpress_fvp_bloblist test.py:
+  variables:
+    TEST_PY_BD: "vexpress_fvp_bloblist"
+    TEST_PY_TEST_SPEC: "not sleep and not hostfs"
+  tags:
+    - ${DEFAULT_AMD64_TAG}
   <<: *buildman_and_testpy_dfn
 
 xilinx_zynq_virt test.py:
