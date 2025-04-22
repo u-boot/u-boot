@@ -45,31 +45,32 @@ static int command_test(struct unit_test_state *uts)
 		"setenv list ${list}3", strlen("setenv list 1"), 0);
 	ut_assert(!strcmp("1", env_get("list")));
 
-	ut_asserteq(1, run_command("false", 0));
 	ut_assertok(run_command("echo", 0));
-	ut_asserteq(1, run_command_list("false", -1, 0));
 	ut_assertok(run_command_list("echo", -1, 0));
 
-#ifdef CONFIG_HUSH_PARSER
-	run_command("setenv foo 'setenv black 1\nsetenv adder 2'", 0);
-	run_command("run foo", 0);
-	ut_assertnonnull(env_get("black"));
-	ut_asserteq(0, strcmp("1", env_get("black")));
-	ut_assertnonnull(env_get("adder"));
-	ut_asserteq(0, strcmp("2", env_get("adder")));
-#endif
-
-	ut_assertok(run_command("", 0));
-	ut_assertok(run_command(" ", 0));
+	if (IS_ENABLED(CONFIG_HUSH_PARSER)) {
+		ut_asserteq(1, run_command("false", 0));
+		ut_asserteq(1, run_command_list("false", -1, 0));
+		run_command("setenv foo 'setenv black 1\nsetenv adder 2'", 0);
+		run_command("run foo", 0);
+		ut_assertnonnull(env_get("black"));
+		ut_asserteq(0, strcmp("1", env_get("black")));
+		ut_assertnonnull(env_get("adder"));
+		ut_asserteq(0, strcmp("2", env_get("adder")));
+		ut_assertok(run_command("", 0));
+		ut_assertok(run_command(" ", 0));
+	}
 
 	ut_asserteq(1, run_command("'", 0));
 
 	/* Variadic function test-cases */
+	if (IS_ENABLED(CONFIG_HUSH_PARSER)) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
-	ut_assertok(run_commandf(""));
+		ut_assertok(run_commandf(""));
 #pragma GCC diagnostic pop
-	ut_assertok(run_commandf(" "));
+		ut_assertok(run_commandf(" "));
+	}
 	ut_asserteq(1, run_commandf("'"));
 
 	ut_assertok(run_commandf("env %s %s", "delete -f", "list"));
