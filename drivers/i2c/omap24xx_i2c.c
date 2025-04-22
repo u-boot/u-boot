@@ -538,9 +538,7 @@ pr_exit:
 /*
  * i2c_read: Function now uses a single I2C read transaction with bulk transfer
  *           of the requested number of bytes (note that the 'i2c md' command
- *           limits this to 16 bytes anyway). If CONFIG_I2C_REPEATED_START is
- *           defined in the board config header, this transaction shall be with
- *           Repeated Start (Sr) between the address and data phases; otherwise
+ *           limits this to 16 bytes anyway).
  *           Stop-Start (P-S) shall be used (some I2C chips do require a P-S).
  *           The address (reg offset) may be 0, 1 or 2 bytes long.
  *           Function now reads correctly from chips that return more than one
@@ -608,16 +606,10 @@ static int __omap24_i2c_read(void __iomem *i2c_base, int ip_rev, int waitdelay,
 
 	if (alen) {
 		/* Must write reg offset first */
-#ifdef CONFIG_I2C_REPEATED_START
-		/* No stop bit, use Repeated Start (Sr) */
-		omap_i2c_write_reg(i2c_base, ip_rev, I2C_CON_EN | I2C_CON_MST |
-				   I2C_CON_STT | I2C_CON_TRX, OMAP_I2C_CON_REG);
-#else
 		/* Stop - Start (P-S) */
 		omap_i2c_write_reg(i2c_base, ip_rev, I2C_CON_EN | I2C_CON_MST |
 				   I2C_CON_STT | I2C_CON_STP | I2C_CON_TRX,
 				   OMAP_I2C_CON_REG);
-#endif
 		/* Send register offset */
 		while (1) {
 			status = wait_for_event(i2c_base, ip_rev, waitdelay);
