@@ -201,7 +201,11 @@ int imx8mp_hsiomix_bind(struct udevice *dev)
 static int imx8mp_hsiomix_probe(struct udevice *dev)
 {
 	struct imx8mp_hsiomix_priv *priv = dev_get_priv(dev);
+	struct power_domain_plat *plat = dev_get_uclass_plat(dev);
 	int ret;
+
+	/* Definitions are in imx8mp-power.h */
+	plat->subdomains = 5;
 
 	priv->base = dev_read_addr_ptr(dev);
 
