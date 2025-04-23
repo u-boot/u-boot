@@ -494,6 +494,14 @@ struct dm_mmc_ops {
 	int (*set_ios)(struct udevice *dev);
 
 	/**
+	 * send_init_stream() - send the initialization stream: 74 clock cycles
+	 * This is used after power up before sending the first command
+	 *
+	 * @dev:	Device to update
+	 */
+	void (*send_init_stream)(struct udevice *dev);
+
+	/**
 	 * get_cd() - See whether a card is present
 	 *
 	 * @dev:	Device to check
@@ -572,6 +580,7 @@ struct dm_mmc_ops {
 
 /* Transition functions for compatibility */
 int mmc_set_ios(struct mmc *mmc);
+void mmc_send_init_stream(struct mmc *mmc);
 int mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
 int mmc_execute_tuning(struct mmc *mmc, uint opcode);

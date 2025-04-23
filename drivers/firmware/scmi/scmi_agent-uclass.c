@@ -427,14 +427,8 @@ static int scmi_bind_protocols(struct udevice *dev)
 			break;
 		case SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN:
 			if (IS_ENABLED(CONFIG_DM_REGULATOR_SCMI) &&
-			    scmi_protocol_is_supported(dev, protocol_id)) {
-				node = ofnode_find_subnode(node, "regulators");
-				if (!ofnode_valid(node)) {
-					dev_err(dev, "no regulators node\n");
-					return -ENXIO;
-				}
+			    scmi_protocol_is_supported(dev, protocol_id))
 				drv = DM_DRIVER_GET(scmi_voltage_domain);
-			}
 			break;
 		default:
 			break;
