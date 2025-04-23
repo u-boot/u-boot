@@ -116,6 +116,7 @@ Format the SD card (make sure the disk has GPT, otherwise use gdisk to switch)
 	  --new=2:8192:16383 --change-name=2:uboot --typecode=2:BC13C2FF-59E6-4262-A352-B275FD6F7172  \
 	  --new=3:16384:1654784 --change-name=3:system --typecode=3:EBD0A0A2-B9E5-4433-87C0-68B6B72699C7 \
 	  /dev/sdb
+	sudo mkfs.vfat -F32 /dev/sdb3
 
 Program the SD card
 
