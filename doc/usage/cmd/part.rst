@@ -50,7 +50,7 @@ The 'part list' command prints or sets an environment variable to the list of pa
     varname
         an optional environment variable to store the list of partitions value into.
 
-The 'part start' commnad sets an environment variable to the start of the partition (in blocks),
+The 'part start' command sets an environment variable to the start of the partition (in blocks),
 part can be either partition number or partition name.
 
     interface
