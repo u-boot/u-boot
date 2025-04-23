@@ -350,6 +350,8 @@ stages:
         sandbox64_clang:
           TEST_PY_BD: "sandbox64"
           OVERRIDE: "-O clang-18"
+        sandbox64_lwip:
+          TEST_PY_BD: "sandbox64_lwip"
         sandbox_spl:
           TEST_PY_BD: "sandbox_spl"
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"

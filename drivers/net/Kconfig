@@ -48,7 +48,6 @@ config DM_DSA
 	bool "Enable Driver Model for DSA switches"
 	depends on DM_MDIO
 	depends on PHY_FIXED
-	depends on !NET_LWIP
 	help
 	  Enable driver model for DSA switches
 
@@ -358,7 +357,7 @@ config ESSEDMA
 
 config ETH_SANDBOX
 	depends on SANDBOX
-	depends on NET
+	depends on NET || NET_LWIP
 	default y
 	bool "Sandbox: Mocked Ethernet driver"
 	help
@@ -366,17 +365,6 @@ config ETH_SANDBOX
 	  replies that are used to verify network stack functionality
 
 	  This driver is particularly useful in the test/dm/eth.c tests
-
-config ETH_SANDBOX_LWIP
-	depends on SANDBOX
-	depends on NET_LWIP
-	default y
-	bool "Sandbox: Mocked Ethernet driver (for NET_LWIP)"
-	help
-	  This driver is meant as a replacement for ETH_SANDBOX when
-	  the network stack is NET_LWIP rather than NET. It currently
-	  does nothing, i.e. it drops the sent packets and never receives
-	  data.
 
 config ETH_SANDBOX_RAW
 	depends on SANDBOX

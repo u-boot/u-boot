@@ -10,7 +10,14 @@ enum proto_t {
 	TFTPGET
 };
 
-void net_lwip_set_current(void);
+static inline int eth_is_on_demand_init(void)
+{
+	return 1;
+}
+
+int eth_init_state_only(void); /* Set active state */
+
+int net_lwip_eth_start(void);
 struct netif *net_lwip_new_netif(struct udevice *udev);
 struct netif *net_lwip_new_netif_noip(struct udevice *udev);
 void net_lwip_remove_netif(struct netif *netif);
@@ -27,7 +34,6 @@ bool wget_validate_uri(char *uri);
 
 int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_dns(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
-int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]);
 
 #endif /* __NET_LWIP_H__ */

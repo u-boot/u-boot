@@ -509,7 +509,7 @@ static int initr_boot_led_on(void)
 	return 0;
 }
 
-#if defined(CONFIG_CMD_NET)
+#if CONFIG_IS_ENABLED(NET) || CONFIG_IS_ENABLED(NET_LWIP)
 static int initr_net(void)
 {
 	puts("Net:   ");
@@ -779,7 +779,7 @@ static void initcall_run_r(void)
 #if CONFIG_IS_ENABLED(PCI_ENDPOINT)
 	INITCALL(pci_ep_init);
 #endif
-#if CONFIG_IS_ENABLED(CMD_NET)
+#if CONFIG_IS_ENABLED(NET) || CONFIG_IS_ENABLED(NET_LWIP)
 	WATCHDOG_RESET();
 	INITCALL(initr_net);
 #endif

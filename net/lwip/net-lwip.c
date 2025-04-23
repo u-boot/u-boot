@@ -14,6 +14,7 @@
 #include <lwip/init.h>
 #include <lwip/prot/etharp.h>
 #include <net.h>
+#include <timer.h>
 
 /* xx:xx:xx:xx:xx:xx\0 */
 #define MAC_ADDR_STRLEN 18
@@ -21,6 +22,8 @@
 #if defined(CONFIG_API) || defined(CONFIG_EFI_LOADER)
 void (*push_packet)(void *, int len) = 0;
 #endif
+static int net_try_count;
+static int net_restarted;
 int net_restart_wrap;
 static uchar net_pkt_buf[(PKTBUFSRX) * PKTSIZE_ALIGN + PKTALIGN];
 uchar *net_rx_packets[PKTBUFSRX];
@@ -134,18 +137,27 @@ static int get_udev_ipv4_info(struct udevice *dev, ip4_addr_t *ip,
 	return 0;
 }
 
-/* Initialize the lwIP stack and the ethernet devices and set current device  */
-void net_lwip_set_current(void)
+/*
+ * Initialize the network stack if needed and start the current device if valid
+ */
+int net_lwip_eth_start(void)
 {
-	static bool init_done;
+	int ret;
 
-	if (!init_done) {
-		eth_init_rings();
-		eth_init();
-		lwip_init();
-		init_done = true;
+	net_init();
+	if (eth_is_on_demand_init()) {
+		eth_halt();
+		eth_set_current();
+		ret = eth_init();
+		if (ret < 0) {
+			eth_halt();
+			return ret;
+		}
+	} else {
+		eth_init_state_only();
 	}
-	eth_set_current();
+
+	return 0;
 }
 
 static struct netif *new_netif(struct udevice *udev, bool with_ip)
@@ -224,11 +236,20 @@ void net_lwip_remove_netif(struct netif *netif)
 	free(netif);
 }
 
+/*
+ * Initialize the network buffers, an ethernet device, and the lwIP stack
+ * (once).
+ */
 int net_init(void)
 {
-	eth_set_current();
+	static bool init_done;
 
-	net_lwip_new_netif(eth_get_dev());
+	if (!init_done) {
+		eth_init_rings();
+		eth_init();
+		lwip_init();
+		init_done = true;
+	}
 
 	return 0;
 }
@@ -319,5 +340,48 @@ int net_loop(enum proto_t protocol)
 
 u32_t sys_now(void)
 {
+#if CONFIG_IS_ENABLED(SANDBOX_TIMER)
+	return timer_early_get_count();
+#else
 	return get_timer(0);
+#endif
+}
+
+int net_start_again(void)
+{
+	char *nretry;
+	int retry_forever = 0;
+	unsigned long retrycnt = 0;
+
+	nretry = env_get("netretry");
+	if (nretry) {
+		if (!strcmp(nretry, "yes"))
+			retry_forever = 1;
+		else if (!strcmp(nretry, "no"))
+			retrycnt = 0;
+		else if (!strcmp(nretry, "once"))
+			retrycnt = 1;
+		else
+			retrycnt = simple_strtoul(nretry, NULL, 0);
+	} else {
+		retrycnt = 0;
+		retry_forever = 0;
+	}
+
+	if ((!retry_forever) && (net_try_count > retrycnt)) {
+		eth_halt();
+		/*
+		 * We don't provide a way for the protocol to return an error,
+		 * but this is almost always the reason.
+		 */
+		return -ETIMEDOUT;
+	}
+
+	net_try_count++;
+
+	eth_halt();
+#if !defined(CONFIG_NET_DO_NOT_TRY_ANOTHER)
+	eth_try_another(!net_restarted);
+#endif
+	return eth_init();
 }

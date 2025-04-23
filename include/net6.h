@@ -90,6 +90,16 @@ struct udp_hdr {
 				  0x00, 0x00, 0x00, 0x00, \
 				  0x00, 0x00, 0x00, 0x00, \
 				  0x00, 0x00, 0x00, 0x02 } } }
+/*
+ * With IPv6, the broadcast MAC address is not used. Instead, it should use
+ * the multicast address (see RFC RFC2464 section 7)
+ */
+#define IPV6_ALL_NODE_ETH_ADDR(_ip6_addr)  {0x33, \
+				  0x33, \
+				  _ip6_addr.in6_u.u6_addr8[12], \
+				  _ip6_addr.in6_u.u6_addr8[13], \
+				  _ip6_addr.in6_u.u6_addr8[14], \
+				  _ip6_addr.in6_u.u6_addr8[15]}
 
 #define IPV6_LINK_LOCAL_PREFIX	0xfe80
 #define IPV6_LINK_LOCAL_MASK	0xffb0 /* The first 10-bit of address mask. */
