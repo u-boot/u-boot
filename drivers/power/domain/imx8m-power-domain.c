@@ -506,7 +506,11 @@ static int imx8m_power_domain_bind(struct udevice *dev)
 static int imx8m_power_domain_probe(struct udevice *dev)
 {
 	struct imx8m_power_domain_plat *pdata = dev_get_plat(dev);
+	struct power_domain_plat *plat = dev_get_uclass_plat(dev);
 	int ret;
+
+	/* Every subdomain has its own device node */
+	plat->subdomains = 1;
 
 	/* Nothing to do for non-"power-domain" driver instances. */
 	if (!strstr(dev->name, "power-domain"))
