@@ -40,11 +40,13 @@ struct rockchip_usb2phy_port_cfg {
 struct rockchip_usb2phy_cfg {
 	unsigned int reg;
 	struct usb2phy_reg	clkout_ctl;
+	struct usb2phy_reg	clkout_ctl_phy;
 	const struct rockchip_usb2phy_port_cfg port_cfgs[USB2PHY_NUM_PORTS];
 };
 
 struct rockchip_usb2phy {
 	struct regmap *reg_base;
+	struct regmap *phy_base;
 	struct clk phyclk;
 	const struct rockchip_usb2phy_cfg *phy_cfg;
 };
@@ -165,6 +167,22 @@ static struct phy_ops rockchip_usb2phy_ops = {
 	.of_xlate = rockchip_usb2phy_of_xlate,
 };
 
+static void rockchip_usb2phy_clkout_ctl(struct clk *clk, struct regmap **base,
+					const struct usb2phy_reg **clkout_ctl)
+{
+	struct udevice *parent = dev_get_parent(clk->dev);
+	struct rockchip_usb2phy *priv = dev_get_priv(parent);
+	const struct rockchip_usb2phy_cfg *phy_cfg = priv->phy_cfg;
+
+	if (priv->phy_cfg->clkout_ctl_phy.enable) {
+		*base = priv->phy_base;
+		*clkout_ctl = &phy_cfg->clkout_ctl_phy;
+	} else {
+		*base = priv->reg_base;
+		*clkout_ctl = &phy_cfg->clkout_ctl;
+	}
+}
+
 /**
  * round_rate() - Adjust a rate to the exact rate a clock can provide.
  * @clk:	The clock to manipulate.
@@ -185,13 +203,14 @@ ulong rockchip_usb2phy_clk_round_rate(struct clk *clk, ulong rate)
  */
 int rockchip_usb2phy_clk_enable(struct clk *clk)
 {
-	struct udevice *parent = dev_get_parent(clk->dev);
-	struct rockchip_usb2phy *priv = dev_get_priv(parent);
-	const struct rockchip_usb2phy_cfg *phy_cfg = priv->phy_cfg;
+	const struct usb2phy_reg *clkout_ctl;
+	struct regmap *base;
+
+	rockchip_usb2phy_clkout_ctl(clk, &base, &clkout_ctl);
 
 	/* turn on 480m clk output if it is off */
-	if (!property_enabled(priv->reg_base, &phy_cfg->clkout_ctl)) {
-		property_enable(priv->reg_base, &phy_cfg->clkout_ctl, true);
+	if (!property_enabled(base, clkout_ctl)) {
+		property_enable(base, clkout_ctl, true);
 
 		/* waiting for the clk become stable */
 		usleep_range(1200, 1300);
@@ -208,12 +227,13 @@ int rockchip_usb2phy_clk_enable(struct clk *clk)
  */
 int rockchip_usb2phy_clk_disable(struct clk *clk)
 {
-	struct udevice *parent = dev_get_parent(clk->dev);
-	struct rockchip_usb2phy *priv = dev_get_priv(parent);
-	const struct rockchip_usb2phy_cfg *phy_cfg = priv->phy_cfg;
+	const struct usb2phy_reg *clkout_ctl;
+	struct regmap *base;
+
+	rockchip_usb2phy_clkout_ctl(clk, &base, &clkout_ctl);
 
 	/* turn off 480m clk output */
-	property_enable(priv->reg_base, &phy_cfg->clkout_ctl, false);
+	property_enable(base, clkout_ctl, false);
 
 	return 0;
 }
@@ -281,7 +301,10 @@ static int rockchip_usb2phy_probe(struct udevice *dev)
 		return ret;
 	}
 
-	return 0;
+	if (priv->phy_cfg->clkout_ctl_phy.enable)
+		ret = regmap_init_mem_index(dev_ofnode(dev), &priv->phy_base, 0);
+
+	return ret;
 }
 
 static int rockchip_usb2phy_bind(struct udevice *dev)
@@ -389,6 +412,22 @@ static const struct rockchip_usb2phy_cfg rk3399_usb2phy_cfgs[] = {
 	{ /* sentinel */ }
 };
 
+static const struct rockchip_usb2phy_cfg rk3528_phy_cfgs[] = {
+	{
+		.reg		= 0xffdf0000,
+		.clkout_ctl_phy	= { 0x041c, 7, 2, 0, 0x27 },
+		.port_cfgs	= {
+			[USB2PHY_PORT_OTG] = {
+				.phy_sus	= { 0x004c, 1, 0, 2, 1 },
+			},
+			[USB2PHY_PORT_HOST] = {
+				.phy_sus	= { 0x005c, 1, 0, 2, 1 },
+			}
+		},
+	},
+	{ /* sentinel */ }
+};
+
 static const struct rockchip_usb2phy_cfg rk3568_phy_cfgs[] = {
 	{
 		.reg		= 0xfe8a0000,
@@ -469,6 +508,10 @@ static const struct udevice_id rockchip_usb2phy_ids[] = {
 	{
 		.compatible = "rockchip,rk3399-usb2phy",
 		.data = (ulong)&rk3399_usb2phy_cfgs,
+	},
+	{
+		.compatible = "rockchip,rk3528-usb2phy",
+		.data = (ulong)&rk3528_phy_cfgs,
 	},
 	{
 		.compatible = "rockchip,rk3568-usb2phy",

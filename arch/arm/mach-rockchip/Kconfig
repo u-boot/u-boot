@@ -15,7 +15,9 @@ config ROCKCHIP_PX30
 	select TPL_SERIAL
 	select DEBUG_UART_BOARD_INIT
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_COMMON_STACK_ADDR
 	imply SPL_ROCKCHIP_COMMON_BOARD
+	imply TPL_LIBGENERIC_SUPPORT
 	imply ARMV8_CRYPTO
 	imply ARMV8_SET_SMPEN
 	help
@@ -176,6 +178,8 @@ config ROCKCHIP_RK3308
 	imply OF_UPSTREAM
 	imply RNG_ROCKCHIP
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_COMMON_STACK_ADDR
+	imply ROCKCHIP_EXTERNAL_TPL
 	imply ROCKCHIP_OTP
 	imply SPL_CLK
 	imply SPL_DM_SEQ_ALIAS
@@ -197,7 +201,6 @@ config ROCKCHIP_RK3328
 	select SUPPORT_SPL
 	select SPL
 	select SUPPORT_TPL
-	select TPL
 	select TPL_HAVE_INIT_STACK if TPL
 	imply ARMV8_CRYPTO
 	imply ARMV8_SET_SMPEN
@@ -208,11 +211,14 @@ config ROCKCHIP_RK3328
 	imply OF_UPSTREAM
 	imply PRE_CONSOLE_BUFFER
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_COMMON_STACK_ADDR
 	imply ROCKCHIP_EFUSE
 	imply ROCKCHIP_SDRAM_COMMON
 	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply SPL_SEPARATE_BSS
 	imply SPL_SERIAL
+	imply TPL if !ROCKCHIP_EXTERNAL_TPL
+	imply TPL_ROCKCHIP_COMMON_BOARD
 	imply TPL_SERIAL
 	help
 	  The Rockchip RK3328 is a ARM-based SoC with a quad-core Cortex-A53.
@@ -285,6 +291,7 @@ config ROCKCHIP_RK3399
 	imply PRE_CONSOLE_BUFFER
 	imply RNG_ROCKCHIP
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_COMMON_STACK_ADDR
 	imply ROCKCHIP_EFUSE
 	imply ROCKCHIP_SDRAM_COMMON
 	imply SPL_DM_SEQ_ALIAS
@@ -312,6 +319,56 @@ config ROCKCHIP_RK3399
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
 
+config ROCKCHIP_RK3528
+	bool "Support Rockchip RK3528"
+	select ARM64
+	select SUPPORT_SPL
+	select SPL
+	select CLK
+	select PINCTRL
+	select RAM
+	select REGMAP
+	select SYSCON
+	select BOARD_LATE_INIT
+	select DM_REGULATOR_FIXED
+	select DM_RESET
+	imply ARMV8_CRYPTO
+	imply ARMV8_SET_SMPEN
+	imply BOOTSTD_FULL
+	imply DM_RNG
+	imply FIT
+	imply LEGACY_IMAGE_FORMAT
+	imply MISC
+	imply MISC_INIT_R
+	imply MMC_HS200_SUPPORT if MMC_SDHCI_ROCKCHIP
+	imply OF_LIBFDT_OVERLAY
+	imply OF_LIVE
+	imply OF_UPSTREAM
+	imply PHY_GIGE if DWC_ETH_QOS_ROCKCHIP
+	imply RNG_ROCKCHIP
+	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_COMMON_STACK_ADDR
+	imply ROCKCHIP_EXTERNAL_TPL
+	imply ROCKCHIP_OTP
+	imply SPL_ATF
+	imply SPL_ATF_NO_PLATFORM_PARAM if SPL_ATF
+	imply SPL_CLK
+	imply SPL_DM_SEQ_ALIAS
+	imply SPL_FIT_SIGNATURE
+	imply SPL_LOAD_FIT
+	imply SPL_MMC_HS200_SUPPORT if SPL_MMC && MMC_HS200_SUPPORT
+	imply SPL_OF_CONTROL
+	imply SPL_PINCTRL
+	imply SPL_RAM
+	imply SPL_REGMAP
+	imply SPL_SERIAL
+	imply SPL_SYSCON
+	imply SYS_RELOC_GD_ENV_ADDR
+	imply SYSRESET
+	imply SYSRESET_PSCI if SPL_ATF
+	help
+	  The Rockchip RK3528 is a ARM-based SoC with a quad-core Cortex-A53.
+
 config ROCKCHIP_RK3568
 	bool "Support Rockchip RK3568"
 	select ARM64
@@ -334,6 +391,8 @@ config ROCKCHIP_RK3568
 	imply PHY_GIGE if DWC_ETH_QOS_ROCKCHIP
 	imply RNG_ROCKCHIP
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_COMMON_STACK_ADDR
+	imply ROCKCHIP_EXTERNAL_TPL
 	imply ROCKCHIP_OTP
 	imply SPL_ATF_NO_PLATFORM_PARAM if SPL_ATF
 	imply SPL_MMC_HS200_SUPPORT if SPL_MMC && MMC_HS200_SUPPORT
@@ -343,6 +402,56 @@ config ROCKCHIP_RK3568
 	  two video interfaces supporting HDMI and eDP, several DDR3 options
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
+
+config ROCKCHIP_RK3576
+	bool "Support Rockchip RK3576"
+	select ARM64
+	select SUPPORT_SPL
+	select SPL
+	select CLK
+	select PINCTRL
+	select RAM
+	select REGMAP
+	select SYSCON
+	select BOARD_LATE_INIT
+	select DM_REGULATOR_FIXED
+	select DM_RESET
+	imply ARMV8_CRYPTO
+	imply ARMV8_SET_SMPEN
+	imply BOOTSTD_FULL
+	imply DM_RNG
+	imply FIT
+	imply LEGACY_IMAGE_FORMAT
+	imply MISC
+	imply MISC_INIT_R
+	imply MMC_HS200_SUPPORT if MMC_SDHCI_ROCKCHIP
+	imply OF_LIBFDT_OVERLAY
+	imply OF_LIVE
+	imply OF_UPSTREAM
+	imply PHY_GIGE if DWC_ETH_QOS_ROCKCHIP
+	imply RNG_ROCKCHIP
+	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_COMMON_STACK_ADDR
+	imply ROCKCHIP_EXTERNAL_TPL
+	imply ROCKCHIP_OTP
+	imply SPL_ATF
+	imply SPL_ATF_NO_PLATFORM_PARAM if SPL_ATF
+	imply SPL_CLK
+	imply SPL_DM_SEQ_ALIAS
+	imply SPL_FIT_SIGNATURE
+	imply SPL_LOAD_FIT
+	imply SPL_MMC_HS200_SUPPORT if SPL_MMC && MMC_HS200_SUPPORT
+	imply SPL_OF_CONTROL
+	imply SPL_PINCTRL
+	imply SPL_RAM
+	imply SPL_REGMAP
+	imply SPL_SERIAL
+	imply SPL_SYSCON
+	imply SYS_RELOC_GD_ENV_ADDR
+	imply SYSRESET
+	help
+	  The Rockchip RK3576 is a ARM-based SoC with quad-core Cortex-A72 and
+	  and quad-core Cortex-A53.
 
 config ROCKCHIP_RK3588
 	bool "Support Rockchip RK3588"
@@ -367,6 +476,8 @@ config ROCKCHIP_RK3588
 	imply PHY_GIGE if DWC_ETH_QOS_ROCKCHIP
 	imply RNG_ROCKCHIP
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_COMMON_STACK_ADDR
+	imply ROCKCHIP_EXTERNAL_TPL
 	imply ROCKCHIP_OTP
 	imply SCMI_FIRMWARE
 	imply SPL_ATF_NO_PLATFORM_PARAM if SPL_ATF
@@ -493,7 +604,6 @@ config TPL_ROCKCHIP_COMMON_BOARD
 
 config ROCKCHIP_EXTERNAL_TPL
 	bool "Use external TPL binary"
-	default y if ROCKCHIP_RK3308 || ROCKCHIP_RK3568 || ROCKCHIP_RK3588
 	help
 	  Some Rockchip SoCs require an external TPL to initialize DRAM.
 	  Enable this option and build with ROCKCHIP_TPL=/path/to/ddr.bin to
@@ -603,17 +713,17 @@ config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 config ROCKCHIP_COMMON_STACK_ADDR
 	bool
 	depends on SPL_SHARES_INIT_SP_ADDR
+	depends on TPL || ROCKCHIP_EXTERNAL_TPL
 	select HAS_CUSTOM_SYS_INIT_SP_ADDR
 	imply SPL_LIBCOMMON_SUPPORT if SPL
 	imply SPL_LIBGENERIC_SUPPORT if SPL
 	imply SPL_ROCKCHIP_COMMON_BOARD if SPL
 	imply SPL_SYS_MALLOC_F if SPL
 	imply SPL_SYS_MALLOC_SIMPLE if SPL
-	imply TPL_LIBCOMMON_SUPPORT if TPL
-	imply TPL_LIBGENERIC_SUPPORT if TPL
-	imply TPL_ROCKCHIP_COMMON_BOARD if TPL
-	imply TPL_SYS_MALLOC_F if TPL
-	imply TPL_SYS_MALLOC_SIMPLE if TPL
+	imply TPL_LIBCOMMON_SUPPORT if TPL && TPL_ROCKCHIP_COMMON_BOARD
+	imply TPL_LIBGENERIC_SUPPORT if TPL && TPL_ROCKCHIP_COMMON_BOARD
+	imply TPL_SYS_MALLOC_F if TPL && TPL_ROCKCHIP_COMMON_BOARD
+	imply TPL_SYS_MALLOC_SIMPLE if TPL && TPL_ROCKCHIP_COMMON_BOARD
 
 config NR_DRAM_BANKS
 	default 10 if ROCKCHIP_EXTERNAL_TPL
@@ -629,7 +739,9 @@ source "arch/arm/mach-rockchip/rk3308/Kconfig"
 source "arch/arm/mach-rockchip/rk3328/Kconfig"
 source "arch/arm/mach-rockchip/rk3368/Kconfig"
 source "arch/arm/mach-rockchip/rk3399/Kconfig"
+source "arch/arm/mach-rockchip/rk3528/Kconfig"
 source "arch/arm/mach-rockchip/rk3568/Kconfig"
+source "arch/arm/mach-rockchip/rk3576/Kconfig"
 source "arch/arm/mach-rockchip/rk3588/Kconfig"
 source "arch/arm/mach-rockchip/rv1108/Kconfig"
 source "arch/arm/mach-rockchip/rv1126/Kconfig"
@@ -637,40 +749,64 @@ source "arch/arm/mach-rockchip/rv1126/Kconfig"
 if ROCKCHIP_COMMON_STACK_ADDR && SPL_SHARES_INIT_SP_ADDR
 
 config CUSTOM_SYS_INIT_SP_ADDR
-	default 0x3f00000
+	default 0x63f00000 if SPL_TEXT_BASE = 0x60000000
+	default 0x43f00000 if SPL_TEXT_BASE = 0x40000000
+	default 0x03f00000 if SPL_TEXT_BASE = 0x00000000
 
 config SYS_MALLOC_F_LEN
-	default 0x10000 if CUSTOM_SYS_INIT_SP_ADDR = 0x3f00000
+	default 0x10000 if CUSTOM_SYS_INIT_SP_ADDR = 0x63f00000
+	default 0x10000 if CUSTOM_SYS_INIT_SP_ADDR = 0x43f00000
+	default 0x10000 if CUSTOM_SYS_INIT_SP_ADDR = 0x03f00000
 
 config SPL_SYS_MALLOC_F_LEN
-	default 0x8000 if CUSTOM_SYS_INIT_SP_ADDR = 0x3f00000
+	default 0x8000 if CUSTOM_SYS_INIT_SP_ADDR = 0x63f00000
+	default 0x8000 if CUSTOM_SYS_INIT_SP_ADDR = 0x43f00000
+	default 0x8000 if CUSTOM_SYS_INIT_SP_ADDR = 0x03f00000
 
 config TPL_SYS_MALLOC_F_LEN
-	default 0x4000 if CUSTOM_SYS_INIT_SP_ADDR = 0x3f00000
+	default 0x0800 if CUSTOM_SYS_INIT_SP_ADDR = 0x63f00000
+	default 0x4000 if CUSTOM_SYS_INIT_SP_ADDR = 0x43f00000
+	default 0x4000 if CUSTOM_SYS_INIT_SP_ADDR = 0x03f00000
 
 config TEXT_BASE
-	default 0x00200000 if ARM64
+	default 0x60200000 if SPL_TEXT_BASE = 0x60000000
+	default 0x40200000 if SPL_TEXT_BASE = 0x40000000
+	default 0x00200000 if SPL_TEXT_BASE = 0x00000000
 
 config SPL_TEXT_BASE
-	default 0x0 if ARM64
+	default 0x60000000 if ROCKCHIP_RK3036 || ROCKCHIP_RK3066 || \
+			      ROCKCHIP_RK3128 || ROCKCHIP_RK3188 || \
+			      ROCKCHIP_RK322X || ROCKCHIP_RV1108
+	default 0x40000000 if ROCKCHIP_RK3576
+	default 0x00000000
 
 config SPL_HAS_BSS_LINKER_SECTION
 	default y if ARM64
 
 config SPL_BSS_START_ADDR
-	default 0x3f80000
+	default 0x63f80000 if SPL_TEXT_BASE = 0x60000000
+	default 0x43f80000 if SPL_TEXT_BASE = 0x40000000
+	default 0x03f80000 if SPL_TEXT_BASE = 0x00000000
 
 config SPL_BSS_MAX_SIZE
-	default 0x8000 if SPL_BSS_START_ADDR = 0x3f80000
+	default 0x8000 if SPL_BSS_START_ADDR = 0x63f80000
+	default 0x8000 if SPL_BSS_START_ADDR = 0x43f80000
+	default 0x8000 if SPL_BSS_START_ADDR = 0x03f80000
 
 config SPL_STACK_R
-	default y if CUSTOM_SYS_INIT_SP_ADDR = 0x3f00000
+	default y if CUSTOM_SYS_INIT_SP_ADDR = 0x63f00000
+	default y if CUSTOM_SYS_INIT_SP_ADDR = 0x43f00000
+	default y if CUSTOM_SYS_INIT_SP_ADDR = 0x03f00000
 
 config SPL_STACK_R_ADDR
-	default 0x3e00000 if CUSTOM_SYS_INIT_SP_ADDR = 0x3f00000
+	default 0x63e00000 if CUSTOM_SYS_INIT_SP_ADDR = 0x63f00000
+	default 0x43e00000 if CUSTOM_SYS_INIT_SP_ADDR = 0x43f00000
+	default 0x03e00000 if CUSTOM_SYS_INIT_SP_ADDR = 0x03f00000
 
 config SPL_STACK_R_MALLOC_SIMPLE_LEN
-	default 0x200000 if SPL_STACK_R_ADDR = 0x3e00000
+	default 0x200000 if SPL_STACK_R_ADDR = 0x63e00000
+	default 0x200000 if SPL_STACK_R_ADDR = 0x43e00000
+	default 0x200000 if SPL_STACK_R_ADDR = 0x03e00000
 
 endif
 endif

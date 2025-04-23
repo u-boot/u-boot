@@ -1612,7 +1612,15 @@ static const struct udevice_id eqos_ids[] = {
 #endif
 #if IS_ENABLED(CONFIG_DWC_ETH_QOS_ROCKCHIP)
 	{
+		.compatible = "rockchip,rk3528-gmac",
+		.data = (ulong)&eqos_rockchip_config
+	},
+	{
 		.compatible = "rockchip,rk3568-gmac",
+		.data = (ulong)&eqos_rockchip_config
+	},
+	{
+		.compatible = "rockchip,rk3576-gmac",
 		.data = (ulong)&eqos_rockchip_config
 	},
 	{

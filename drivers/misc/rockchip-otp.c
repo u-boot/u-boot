@@ -361,6 +361,13 @@ static const struct rockchip_otp_data rk3568_data = {
 	.block_size = 2,
 };
 
+static const struct rockchip_otp_data rk3576_data = {
+	.read = rockchip_rk3588_otp_read,
+	.offset = 0x700,
+	.size = 0x100,
+	.block_size = 4,
+};
+
 static const struct rockchip_otp_data rk3588_data = {
 	.read = rockchip_rk3588_otp_read,
 	.offset = 0xC00,
@@ -384,8 +391,16 @@ static const struct udevice_id rockchip_otp_ids[] = {
 		.data = (ulong)&px30_data,
 	},
 	{
+		.compatible = "rockchip,rk3528-otp",
+		.data = (ulong)&rk3568_data,
+	},
+	{
 		.compatible = "rockchip,rk3568-otp",
 		.data = (ulong)&rk3568_data,
+	},
+	{
+		.compatible = "rockchip,rk3576-otp",
+		.data = (ulong)&rk3576_data,
 	},
 	{
 		.compatible = "rockchip,rk3588-otp",

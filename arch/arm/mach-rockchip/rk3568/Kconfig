@@ -5,7 +5,6 @@ choice
 
 config TARGET_EVB_RK3568
 	bool "RK3568 evaluation board"
-	select BOARD_LATE_INIT
 	help
 	  RK3568 EVB is a evaluation board for Rockchp RK3568.
 
@@ -71,9 +70,6 @@ config ROCKCHIP_STIMER_BASE
 config SYS_SOC
 	default "rk3568"
 
-config ROCKCHIP_COMMON_STACK_ADDR
-	default y
-
 config TEXT_BASE
 	default 0x00a00000
 
@@ -86,5 +82,8 @@ source "board/powkiddy/x55/Kconfig"
 source "board/qnap/ts433/Kconfig"
 source "board/radxa/zero3-rk3566/Kconfig"
 source "board/xunlong/orangepi-3b-rk3566/Kconfig"
+
+config SYS_CONFIG_NAME
+	default "rk3568_common"
 
 endif

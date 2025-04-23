@@ -50,6 +50,10 @@
 #define DWCMSHC_EMMC_EMMC_CTRL		0x52c
 #define DWCMSHC_CARD_IS_EMMC		BIT(0)
 #define DWCMSHC_ENHANCED_STROBE		BIT(8)
+#define DWCMSHC_EMMC_AT_CTRL		0x540
+#define EMMC_AT_CTRL_TUNE_CLK_STOP_EN	BIT(16)
+#define EMMC_AT_CTRL_PRE_CHANGE_DLY	17
+#define EMMC_AT_CTRL_POST_CHANGE_DLY	19
 #define DWCMSHC_EMMC_DLL_CTRL		0x800
 #define DWCMSHC_EMMC_DLL_CTRL_RESET	BIT(1)
 #define DWCMSHC_EMMC_DLL_RXCLK		0x804
@@ -156,6 +160,9 @@ struct sdhci_data {
 	u32 flags;
 	u8 hs200_txclk_tapnum;
 	u8 hs400_txclk_tapnum;
+	u8 hs400_cmdout_tapnum;
+	u8 hs400_strbin_tapnum;
+	u8 ddr50_strbin_delay_num;
 };
 
 static void rk3399_emmc_phy_power_on(struct rockchip_emmc_phy *phy, u32 clock)
@@ -323,6 +330,11 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 		udelay(1);
 		sdhci_writel(host, 0, DWCMSHC_EMMC_DLL_CTRL);
 
+		extra = 0x3 << EMMC_AT_CTRL_POST_CHANGE_DLY |
+			0x3 << EMMC_AT_CTRL_PRE_CHANGE_DLY |
+			EMMC_AT_CTRL_TUNE_CLK_STOP_EN;
+		sdhci_writel(host, extra, DWCMSHC_EMMC_AT_CTRL);
+
 		/* Init DLL settings */
 		extra = DWCMSHC_EMMC_DLL_START_DEFAULT << DWCMSHC_EMMC_DLL_START_POINT |
 			DWCMSHC_EMMC_DLL_INC_VALUE << DWCMSHC_EMMC_DLL_INC |
@@ -348,7 +360,7 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 			extra = DLL_CMDOUT_SRC_CLK_NEG |
 				DLL_CMDOUT_BOTH_CLK_EDGE |
 				DWCMSHC_EMMC_DLL_DLYENA |
-				DLL_CMDOUT_TAPNUM_90_DEGREES |
+				data->hs400_cmdout_tapnum |
 				DLL_CMDOUT_TAPNUM_FROM_SW;
 			sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_CMDOUT);
 		}
@@ -360,7 +372,7 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_TXCLK);
 
 		extra = DWCMSHC_EMMC_DLL_DLYENA |
-			DLL_STRBIN_TAPNUM_DEFAULT |
+			data->hs400_strbin_tapnum |
 			DLL_STRBIN_TAPNUM_FROM_SW;
 		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_STRBIN);
 	} else {
@@ -380,7 +392,7 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 		 */
 		extra = DWCMSHC_EMMC_DLL_DLYENA |
 			DLL_STRBIN_DELAY_NUM_SEL |
-			DLL_STRBIN_DELAY_NUM_DEFAULT << DLL_STRBIN_DELAY_NUM_OFFSET;
+			data->ddr50_strbin_delay_num << DLL_STRBIN_DELAY_NUM_OFFSET;
 		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_STRBIN);
 	}
 
@@ -647,6 +659,17 @@ static const struct sdhci_data rk3399_data = {
 	.set_enhanced_strobe = rk3399_sdhci_set_enhanced_strobe,
 };
 
+static const struct sdhci_data rk3528_data = {
+	.set_ios_post = rk3568_sdhci_set_ios_post,
+	.set_clock = rk3568_sdhci_set_clock,
+	.config_dll = rk3568_sdhci_config_dll,
+	.hs200_txclk_tapnum = 0xc,
+	.hs400_txclk_tapnum = 0x6,
+	.hs400_cmdout_tapnum = 0x6,
+	.hs400_strbin_tapnum = 0x3,
+	.ddr50_strbin_delay_num = 0xa,
+};
+
 static const struct sdhci_data rk3568_data = {
 	.set_ios_post = rk3568_sdhci_set_ios_post,
 	.set_clock = rk3568_sdhci_set_clock,
@@ -654,6 +677,20 @@ static const struct sdhci_data rk3568_data = {
 	.flags = FLAG_INVERTER_FLAG_IN_RXCLK,
 	.hs200_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
 	.hs400_txclk_tapnum = 0x8,
+	.hs400_cmdout_tapnum = DLL_CMDOUT_TAPNUM_90_DEGREES,
+	.hs400_strbin_tapnum = DLL_STRBIN_TAPNUM_DEFAULT,
+	.ddr50_strbin_delay_num = DLL_STRBIN_DELAY_NUM_DEFAULT,
+};
+
+static const struct sdhci_data rk3576_data = {
+	.set_ios_post = rk3568_sdhci_set_ios_post,
+	.set_clock = rk3568_sdhci_set_clock,
+	.config_dll = rk3568_sdhci_config_dll,
+	.hs200_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
+	.hs400_txclk_tapnum = 0x7,
+	.hs400_cmdout_tapnum = 0x7,
+	.hs400_strbin_tapnum = 0x5,
+	.ddr50_strbin_delay_num = 0xa,
 };
 
 static const struct sdhci_data rk3588_data = {
@@ -662,6 +699,9 @@ static const struct sdhci_data rk3588_data = {
 	.config_dll = rk3568_sdhci_config_dll,
 	.hs200_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
 	.hs400_txclk_tapnum = 0x9,
+	.hs400_cmdout_tapnum = DLL_CMDOUT_TAPNUM_90_DEGREES,
+	.hs400_strbin_tapnum = DLL_STRBIN_TAPNUM_DEFAULT,
+	.ddr50_strbin_delay_num = DLL_STRBIN_DELAY_NUM_DEFAULT,
 };
 
 static const struct udevice_id sdhci_ids[] = {
@@ -670,8 +710,16 @@ static const struct udevice_id sdhci_ids[] = {
 		.data = (ulong)&rk3399_data,
 	},
 	{
+		.compatible = "rockchip,rk3528-dwcmshc",
+		.data = (ulong)&rk3528_data,
+	},
+	{
 		.compatible = "rockchip,rk3568-dwcmshc",
 		.data = (ulong)&rk3568_data,
+	},
+	{
+		.compatible = "rockchip,rk3576-dwcmshc",
+		.data = (ulong)&rk3576_data,
 	},
 	{
 		.compatible = "rockchip,rk3588-dwcmshc",

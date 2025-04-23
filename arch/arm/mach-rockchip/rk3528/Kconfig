@@ -1,0 +1,15 @@
+if ROCKCHIP_RK3528
+
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xff370200
+
+config ROCKCHIP_STIMER_BASE
+	default 0xff620000
+
+config SYS_SOC
+	default "rk3528"
+
+config SYS_CONFIG_NAME
+	default "rk3528_common"
+
+endif

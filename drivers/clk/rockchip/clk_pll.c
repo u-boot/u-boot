@@ -309,9 +309,11 @@ static int rk3036_pll_set_rate(struct rockchip_pll_clock *pll,
 	 * When power on or changing PLL setting,
 	 * we must force PLL into slow mode to ensure output stable clock.
 	 */
-	rk_clrsetreg(base + pll->mode_offset,
-		     pll->mode_mask << pll->mode_shift,
-		     RKCLK_PLL_MODE_SLOW << pll->mode_shift);
+	if (!(pll->pll_flags & ROCKCHIP_PLL_FIXED_MODE)) {
+		rk_clrsetreg(base + pll->mode_offset,
+			     pll->mode_mask << pll->mode_shift,
+			     RKCLK_PLL_MODE_SLOW << pll->mode_shift);
+	}
 
 	/* Power down */
 	rk_setreg(base + pll->con_offset + 0x4,
@@ -345,8 +347,11 @@ static int rk3036_pll_set_rate(struct rockchip_pll_clock *pll,
 	while (!(readl(base + pll->con_offset + 0x4) & (1 << pll->lock_shift)))
 		udelay(1);
 
-	rk_clrsetreg(base + pll->mode_offset, pll->mode_mask << pll->mode_shift,
-		     RKCLK_PLL_MODE_NORMAL << pll->mode_shift);
+	if (!(pll->pll_flags & ROCKCHIP_PLL_FIXED_MODE)) {
+		rk_clrsetreg(base + pll->mode_offset,
+			     pll->mode_mask << pll->mode_shift,
+			     RKCLK_PLL_MODE_NORMAL << pll->mode_shift);
+	}
 	debug("PLL at %p: con0=%x con1= %x con2= %x mode= %x\n",
 	      pll, readl(base + pll->con_offset),
 	      readl(base + pll->con_offset + 0x4),
@@ -362,12 +367,18 @@ static ulong rk3036_pll_get_rate(struct rockchip_pll_clock *pll,
 	u32 refdiv, fbdiv, postdiv1, postdiv2, dsmpd, frac;
 	u32 con = 0, shift, mask;
 	ulong rate;
+	int mode;
 
 	con = readl(base + pll->mode_offset);
 	shift = pll->mode_shift;
 	mask = pll->mode_mask << shift;
 
-	switch ((con & mask) >> shift) {
+	if (!(pll->pll_flags & ROCKCHIP_PLL_FIXED_MODE))
+		mode = (con & mask) >> shift;
+	else
+		mode = RKCLK_PLL_MODE_NORMAL;
+
+	switch (mode) {
 	case RKCLK_PLL_MODE_SLOW:
 		return OSC_HZ;
 	case RKCLK_PLL_MODE_NORMAL:

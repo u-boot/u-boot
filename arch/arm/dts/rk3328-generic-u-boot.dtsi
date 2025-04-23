@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+
+#include "rk3328-u-boot.dtsi"
+
+&gpio0 {
+	/delete-property/ bootph-pre-ram;
+};
+
+&pcfg_pull_down_4ma {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&spi0 {
+	flash@0 {
+		bootph-pre-ram;
+		bootph-some-ram;
+	};
+};
+
+&spi0m2_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&spi0m2_cs0 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&spi0m2_rx {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&spi0m2_tx {
+	bootph-pre-ram;
+	bootph-some-ram;
+};

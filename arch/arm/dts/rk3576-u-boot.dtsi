@@ -1,0 +1,131 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * (C) Copyright 2025 Rockchip Electronics Co., Ltd
+ */
+
+#include "rockchip-u-boot.dtsi"
+
+/ {
+	chosen {
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
+	};
+
+	dmc {
+		compatible = "rockchip,rk3576-dmc";
+		bootph-all;
+	};
+};
+
+&cru {
+	bootph-all;
+};
+
+&emmc_bus8 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_rstnout {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_strb {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&ioc_grf {
+	bootph-all;
+};
+
+&pcfg_pull_none {
+	bootph-all;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
+&pcfg_pull_up_drv_level_2 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&pcfg_pull_up_drv_level_3 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&pinctrl {
+	bootph-all;
+};
+
+&pmu1_grf {
+	bootph-all;
+};
+
+&sdhci {
+	bootph-pre-ram;
+	bootph-some-ram;
+	u-boot,spl-fifo-mode;
+};
+
+&sdmmc {
+	bootph-pre-ram;
+	bootph-some-ram;
+	u-boot,spl-fifo-mode;
+};
+
+&sdmmc0_bus4 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc0_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc0_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc0_det {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc0_pwren {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sys_grf {
+	bootph-all;
+};
+
+&uart0 {
+	bootph-all;
+	clock-frequency = <24000000>;
+};
+
+&uart0m0_xfer {
+	bootph-pre-sram;
+	bootph-pre-ram;
+};
+
+&xin24m {
+	bootph-all;
+};

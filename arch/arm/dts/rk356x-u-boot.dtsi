@@ -21,11 +21,6 @@
 		bootph-all;
 	};
 
-	rng: rng@fe388000 {
-		compatible = "rockchip,cryptov2-rng";
-		reg = <0x0 0xfe388000 0x0 0x2000>;
-	};
-
 	otp: nvmem@fe38c000 {
 		compatible = "rockchip,rk3568-otp";
 		reg = <0x0 0xfe38c000 0x0 0x4000>;
@@ -119,6 +114,10 @@
 
 &pmugrf {
 	bootph-all;
+};
+
+&rng {
+	status = "okay";
 };
 
 &sdhci {

@@ -15,6 +15,13 @@ struct udevice;
 #define RKCLK_PLL_MODE_NORMAL		1
 #define RKCLK_PLL_MODE_DEEP		2
 
+/*
+ * PLL flags
+ */
+#define ROCKCHIP_PLL_SYNC_RATE		BIT(0)
+/* normal mode only. now only for pll_rk3036, pll_rk3328 type */
+#define ROCKCHIP_PLL_FIXED_MODE		BIT(1)
+
 enum {
 	ROCKCHIP_SYSCON_NOC,
 	ROCKCHIP_SYSCON_GRF,
@@ -207,6 +214,26 @@ int rockchip_reset_bind(struct udevice *pdev, u32 reg_offset, u32 reg_number);
  */
 int rockchip_reset_bind_lut(struct udevice *pdev, const int *lookup_table,
 			    u32 reg_offset, u32 reg_number);
+/*
+ * rk3528_reset_bind_lut() - Bind soft reset device as child of clock device
+ *			     using dedicated RK3528 lookup table
+ *
+ * @pdev: clock udevice
+ * @reg_offset: the first offset in cru for softreset registers
+ * @reg_number: the reg numbers of softreset registers
+ * Return: 0 success, or error value
+ */
+int rk3528_reset_bind_lut(struct udevice *pdev, u32 reg_offset, u32 reg_number);
+/*
+ * rk3576_reset_bind_lut() - Bind soft reset device as child of clock device
+ *			     using dedicated RK3576 lookup table
+ *
+ * @pdev: clock udevice
+ * @reg_offset: the first offset in cru for softreset registers
+ * @reg_number: the reg numbers of softreset registers
+ * Return: 0 success, or error value
+ */
+int rk3576_reset_bind_lut(struct udevice *pdev, u32 reg_offset, u32 reg_number);
 /*
  * rk3588_reset_bind_lut() - Bind soft reset device as child of clock device
  *			     using dedicated RK3588 lookup table

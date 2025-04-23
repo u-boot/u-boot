@@ -1,0 +1,11 @@
+GENERIC-RK3528
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	arch/arm/dts/rk3528-generic*
+F:	configs/generic-rk3528_defconfig
+
+RADXA-E20C
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	arch/arm/dts/rk3528-radxa-e20c*
+F:	configs/radxa-e20c-rk3528_defconfig
