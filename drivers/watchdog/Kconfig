@@ -335,6 +335,13 @@ config WDT_K3_RTI_FW_FILE
 
 endif
 
+config WDT_QCOM
+	bool "Qualcomm watchdog timer support"
+	depends on WDT && ARCH_SNAPDRAGON
+	help
+	  Select this to enable Qualcomm watchdog timer, which can be found on
+	  some Qualcomm chips.
+
 config WDT_RENESAS
 	bool "Renesas watchdog timer support"
 	depends on WDT && R8A779F0
