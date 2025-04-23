@@ -12,6 +12,10 @@
 #include <power-domain-uclass.h>
 #include <dm/device-internal.h>
 
+struct power_domain_priv {
+	int *on_count;
+};
+
 static inline struct power_domain_ops *power_domain_dev_ops(struct udevice *dev)
 {
 	return (struct power_domain_ops *)dev->driver->ops;
@@ -107,22 +111,67 @@ int power_domain_free(struct power_domain *power_domain)
 	return ops->rfree ? ops->rfree(power_domain) : 0;
 }
 
-int power_domain_on(struct power_domain *power_domain)
+int power_domain_on_lowlevel(struct power_domain *power_domain)
 {
+	struct power_domain_priv *priv = dev_get_uclass_priv(power_domain->dev);
+	struct power_domain_plat *plat = dev_get_uclass_plat(power_domain->dev);
 	struct power_domain_ops *ops = power_domain_dev_ops(power_domain->dev);
+	int *on_count = plat->subdomains ? &priv->on_count[power_domain->id] : NULL;
+	int ret;
 
-	debug("%s(power_domain=%p)\n", __func__, power_domain);
+	/* Refcounting is not enabled on all drivers by default */
+	if (on_count) {
+		debug("Enable power domain %s.%ld: %d -> %d (%s)\n",
+		      power_domain->dev->name, power_domain->id, *on_count, *on_count + 1,
+		      (((*on_count + 1) > 1) ? "EALREADY" : "todo"));
 
-	return ops->on ? ops->on(power_domain) : 0;
+		(*on_count)++;
+		if (*on_count > 1)
+			return -EALREADY;
+	}
+
+	ret = ops->on ? ops->on(power_domain) : 0;
+	if (ret) {
+		if (on_count)
+			(*on_count)--;
+		return ret;
+	}
+
+	return 0;
 }
 
-int power_domain_off(struct power_domain *power_domain)
+int power_domain_off_lowlevel(struct power_domain *power_domain)
 {
+	struct power_domain_priv *priv = dev_get_uclass_priv(power_domain->dev);
+	struct power_domain_plat *plat = dev_get_uclass_plat(power_domain->dev);
 	struct power_domain_ops *ops = power_domain_dev_ops(power_domain->dev);
+	int *on_count = plat->subdomains ? &priv->on_count[power_domain->id] : NULL;
+	int ret;
 
-	debug("%s(power_domain=%p)\n", __func__, power_domain);
+	/* Refcounting is not enabled on all drivers by default */
+	if (on_count) {
+		debug("Disable power domain %s.%ld: %d -> %d (%s%s)\n",
+		      power_domain->dev->name, power_domain->id, *on_count, *on_count - 1,
+		      (((*on_count) <= 0) ? "EALREADY" : ""),
+		      (((*on_count - 1) > 0) ? "BUSY" : "todo"));
 
-	return ops->off ? ops->off(power_domain) : 0;
+		if (*on_count <= 0)
+			return -EALREADY;
+
+		(*on_count)--;
+		if (*on_count > 0)
+			return -EBUSY;
+	}
+
+	ret = ops->off ? ops->off(power_domain) : 0;
+	if (ret) {
+		if (on_count)
+			(*on_count)++;
+
+		return ret;
+	}
+
+	return 0;
 }
 
 #if CONFIG_IS_ENABLED(OF_REAL)
@@ -177,7 +226,36 @@ int dev_power_domain_off(struct udevice *dev)
 }
 #endif  /* OF_REAL */
 
+static int power_domain_post_probe(struct udevice *dev)
+{
+	struct power_domain_priv *priv = dev_get_uclass_priv(dev);
+	struct power_domain_plat *plat = dev_get_uclass_plat(dev);
+
+	if (plat->subdomains) {
+		priv->on_count = calloc(sizeof(int), plat->subdomains);
+		if (!priv->on_count)
+			return -ENOMEM;
+	}
+
+	return 0;
+}
+
+static int power_domain_pre_remove(struct udevice *dev)
+{
+	struct power_domain_priv *priv = dev_get_uclass_priv(dev);
+	struct power_domain_plat *plat = dev_get_uclass_plat(dev);
+
+	if (plat->subdomains)
+		free(priv->on_count);
+
+	return 0;
+}
+
 UCLASS_DRIVER(power_domain) = {
 	.id		= UCLASS_POWER_DOMAIN,
 	.name		= "power_domain",
+	.post_probe	= power_domain_post_probe,
+	.pre_remove	= power_domain_pre_remove,
+	.per_device_auto = sizeof(struct power_domain_priv),
+	.per_device_plat_auto = sizeof(struct power_domain_plat),
 };
