@@ -27,9 +27,9 @@
  * %LMB_NONOTIFY: Do not notify other modules of changes to this memory region
  */
 #define LMB_NONE 0
-#define LMB_NOMAP BIT(0)
-#define LMB_NOOVERWRITE BIT(1)
-#define LMB_NONOTIFY BIT(2)
+#define LMB_NOMAP BIT(1)
+#define LMB_NOOVERWRITE BIT(2)
+#define LMB_NONOTIFY BIT(3)
 
 /**
  * enum lmb_map_op - memory map operation
