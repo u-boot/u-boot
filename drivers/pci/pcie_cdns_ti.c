@@ -19,6 +19,7 @@
 #include <linux/io.h>
 #include <linux/ioport.h>
 #include <linux/log2.h>
+#include <linux/sizes.h>
 #include <power-domain.h>
 #include <regmap.h>
 #include <syscon.h>
@@ -834,10 +835,20 @@ static const struct pcie_cdns_ti_data j7200_pcie_rc_data = {
 	.max_lanes = 2,
 };
 
+static const struct pcie_cdns_ti_data am64_pcie_rc_data = {
+	.mode = PCIE_MODE_RC,
+	.quirk_detect_quiet_flag = true,
+	.max_lanes = 1,
+};
+
 static const struct udevice_id pcie_cdns_ti_ids[] = {
 	{
 		.compatible = "ti,j7200-pcie-host",
 		.data = (ulong)&j7200_pcie_rc_data,
+	},
+	{
+		.compatible = "ti,am64-pcie-host",
+		.data = (ulong)&am64_pcie_rc_data,
 	},
 	{},
 };
