@@ -29,6 +29,12 @@
 /* TISCI DEV ID for A53 Clock */
 #define AM62X_DEV_A53SS0_CORE_0_DEV_ID 135
 
+struct fwl_data rom_fwls[] = {
+	{ "SOC_DEVGRP_MAIN", 641, 1 },
+	{ "SOC_DEVGRP_MAIN", 642, 1 },
+	{ "SOC_DEVGRP_MAIN", 642, 2 },
+};
+
 /*
  * This uninitialized global variable would normal end up in the .bss section,
  * but the .bss is cleared between writing and reading this variable, so move
@@ -177,6 +183,7 @@ void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
 	int ret;
+	int i;
 
 	if (IS_ENABLED(CONFIG_CPU_V7R)) {
 		setup_k3_mpu_regions();
@@ -260,6 +267,11 @@ void board_init_f(ulong dummy)
 
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
+
+	/* Disable firewalls ROM has configured. */
+	if (IS_ENABLED(CONFIG_CPU_V7R))
+		for (i = 0; i < ARRAY_SIZE(rom_fwls); i++)
+			remove_fwl_region(&rom_fwls[i]);
 
 	if (IS_ENABLED(CONFIG_ESM_K3)) {
 		/* Probe/configure ESM0 */

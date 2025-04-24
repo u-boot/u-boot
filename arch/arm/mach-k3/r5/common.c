@@ -253,6 +253,31 @@ void disable_linefill_optimization(void)
 	asm("mcr p15, 0, %0, c1, c0, 1" : : "r" (actlr));
 }
 
+int remove_fwl_region(struct fwl_data *fwl)
+{
+	struct ti_sci_handle *sci = get_ti_sci_handle();
+	struct ti_sci_fwl_ops *ops = &sci->ops.fwl_ops;
+	struct ti_sci_msg_fwl_region region;
+	int ret;
+
+	region.fwl_id = fwl->fwl_id;
+	region.region = fwl->regions;
+	region.n_permission_regs = 3;
+
+	ops->get_fwl_region(sci, &region);
+
+	/* zero out the enable field of the firewall */
+	region.control = region.control & ~0xF;
+
+	pr_debug("Disabling firewall id: %d region: %d\n",
+		 region.fwl_id, region.region);
+
+	ret = ops->set_fwl_region(sci, &region);
+	if (ret)
+		pr_err("Could not disable firewall\n");
+	return ret;
+}
+
 static void remove_fwl_regions(struct fwl_data fwl_data, size_t num_regions,
 			       enum k3_firewall_region_type fwl_type)
 {
