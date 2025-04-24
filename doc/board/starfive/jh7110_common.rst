@@ -87,3 +87,17 @@ u-boot.itb via the Y-modem protocol.
 Due to restrictions of the boot ROM not all X-modem implementations are
 compatible. The package tio (https://github.com/tio/tio) has been found to be
 usable.
+
+Debug UART
+----------
+
+By default the SBI interface is used for the debug UART. But this only works
+in main U-Boot. To enable the debug UART in SPL, too, use the following
+settings::
+
+    CONFIG_DEBUG_UART=y
+    CONFIG_DEBUG_UART_NS16550=y
+    CONFIG_DEBUG_UART_BASE=0x10000000
+    CONFIG_SPL_DEBUG_UART_BASE=0x10000000
+    CONFIG_DEBUG_UART_CLOCK=24000000
+    CONFIG_DEBUG_UART_SHIFT=2
