@@ -76,16 +76,13 @@ void clk_enable_vote_clk(phys_addr_t base, const struct vote_clk *vclk)
 
 int qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id)
 {
-	u32 val;
 	if (id >= priv->data->num_clks || priv->data->clks[id].reg == 0) {
 		log_err("gcc@%#08llx: unknown clock ID %lu!\n",
 			priv->base, id);
 		return -ENOENT;
 	}
 
-	val = readl(priv->base + priv->data->clks[id].reg);
-	writel(val | priv->data->clks[id].en_val, priv->base + priv->data->clks[id].reg);
-
+	setbits_le32(priv->base + priv->data->clks[id].reg, priv->data->clks[id].en_val);
 	return 0;
 }
 
