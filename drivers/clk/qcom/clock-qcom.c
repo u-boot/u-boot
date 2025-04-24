@@ -83,6 +83,21 @@ int qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id)
 	}
 
 	setbits_le32(priv->base + priv->data->clks[id].reg, priv->data->clks[id].en_val);
+	if (priv->data->clks[id].cbcr_reg) {
+		unsigned int count;
+		u32 val;
+
+		for (count = 0; count < 200; count++) {
+			val = readl(priv->base + priv->data->clks[id].cbcr_reg);
+			val &= BRANCH_CHECK_MASK;
+			if (val == BRANCH_ON_VAL || val == BRANCH_NOC_FSM_ON_VAL)
+				break;
+			udelay(1);
+		}
+		if (WARN(count == 200, "WARNING: Clock @ %#lx [%#010x] stuck at off\n",
+			 priv->data->clks[id].cbcr_reg, val))
+			return -EBUSY;
+	}
 	return 0;
 }
 

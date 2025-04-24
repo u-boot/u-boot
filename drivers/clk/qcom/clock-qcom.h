@@ -52,13 +52,20 @@ struct freq_tbl {
 struct gate_clk {
 	uintptr_t reg;
 	u32 en_val;
+	uintptr_t cbcr_reg;
 	const char *name;
 };
 
+/*
+ * GATE_CLK() is deprecated: Use GATE_CLK_POLLED() instead to ensure the clock
+ * is running before we start making use of devices or registers.
+ */
 #ifdef DEBUG
-#define GATE_CLK(clk, reg, val) [clk] = { reg, val, #clk }
+#define GATE_CLK(clk, reg, val) [clk] = { reg, val, 0, #clk }
+#define GATE_CLK_POLLED(clk, en_reg, val, cbcr_reg) [clk] = { en_reg, val, cbcr_reg, #clk }
 #else
-#define GATE_CLK(clk, reg, val) [clk] = { reg, val, NULL }
+#define GATE_CLK(clk, reg, val) [clk] = { reg, val, 0, NULL }
+#define GATE_CLK_POLLED(clk, en_reg, val, cbcr_reg) [clk] = { en_reg, val, cbcr_reg, NULL }
 #endif
 
 struct qcom_reset_map {
