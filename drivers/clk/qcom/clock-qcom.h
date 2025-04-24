@@ -107,19 +107,6 @@ void clk_rcg_set_rate(phys_addr_t base, uint32_t cmd_rcgr, int div,
 		      int source);
 void clk_phy_mux_enable(phys_addr_t base, uint32_t cmd_rcgr, bool enabled);
 
-static inline int qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id)
-{
-	u32 val;
-	if (id >= priv->data->num_clks || priv->data->clks[id].reg == 0) {
-		log_err("gcc@%#08llx: unknown clock ID %lu!\n",
-			priv->base, id);
-		return -ENOENT;
-	}
-
-	val = readl(priv->base + priv->data->clks[id].reg);
-	writel(val | priv->data->clks[id].en_val, priv->base + priv->data->clks[id].reg);
-
-	return 0;
-}
+int qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id);
 
 #endif
