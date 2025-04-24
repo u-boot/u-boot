@@ -55,19 +55,6 @@ environment
 or the configuration variable CONFIG_DEFAULT_FDT_FILE can be used to set to
 provide a default value.
 
-Boot source selection
----------------------
-
-Boot mode is selected by an MSEL-DIP marked S1804 and GPIO_0 position adjacent
-to the 40pin GPIO header. ON/ONKE and number markings of the MSEL-DIP are
-misleading; Instead refer to the ``L`` (0) and ``H`` (1) silkscreen for
-accurate selection.
-
-+ (QSPI) Flash: 00
-+ SD: 01
-+ EMMC: 10
-+ UART: 11
-
 Preparing the SD-Card
 ---------------------
 
@@ -109,10 +96,7 @@ Copy U-Boot to the SD card
 	sudo cp jh7110-starfive-visionfive-2.dtb /mnt/
 	sudo umount /mnt
 
-Booting
--------
-
-Once you plugin the sdcard and power up, you should see the U-Boot prompt.
+.. include:: jh7110_common.rst
 
 Serial Number and MAC address issues
 ------------------------------------
