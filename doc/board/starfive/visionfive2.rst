@@ -36,7 +36,7 @@ Currently, the u-boot.itb is used as a dynamic of the OpenSBI FW_DYNAMIC
 firmware with the latest.
 
 Building
-~~~~~~~~
+--------
 
 1. Add the RISC-V toolchain to your PATH.
 2. Setup ARCH & cross compilation environment variable:
@@ -72,7 +72,7 @@ This will generate the U-Boot SPL image (spl/u-boot-spl.bin.normal.out) as well
 as the FIT image (u-boot.itb) with OpenSBI and U-Boot.
 
 Device-tree selection
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Depending on the board version U-Boot set variable $fdtfile to either
 starfive/jh7110-starfive-visionfive-2-v1.2a.dtb or
@@ -90,7 +90,7 @@ or the configuration variable CONFIG_DEFAULT_FDT_FILE can be used to provide
 a default value.
 
 Flashing
-~~~~~~~~
+--------
 
 The device firmware loads U-Boot SPL (u-boot-spl.bin.normal.out) from the
 partition with type GUID 2E54B353-1271-4842-806F-E436D6AF6985. You are free
@@ -133,7 +133,7 @@ Program the SD card
 	sudo umount /mnt
 
 Booting
-~~~~~~~
+-------
 
 The board provides the DIP switches MSEL[1:0] to select the boot device.
 To select booting from SD-card set the DIP switches MSEL[1:0] to 10.
@@ -141,7 +141,7 @@ To select booting from SD-card set the DIP switches MSEL[1:0] to 10.
 Once you plugin the sdcard and power up, you should see the U-Boot prompt.
 
 Sample boot log from StarFive VisionFive2 board
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------
 
 .. code-block:: none
 

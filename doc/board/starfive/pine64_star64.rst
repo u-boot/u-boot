@@ -8,7 +8,7 @@ In U-Boot SPL the actual board is detected and the device-tree patched
 accordingly.
 
 Building
-~~~~~~~~
+--------
 
 1. Add the RISC-V toolchain to your PATH.
 2. Setup ARCH & cross compilation environment variable:
@@ -40,7 +40,7 @@ This will generate the U-Boot SPL image (spl/u-boot-spl.bin.normal.out) as well
 as the FIT image (u-boot.itb) with OpenSBI and U-Boot.
 
 Device-tree selection
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 U-Boot will set variable $fdtfile to starfive/jh7110-pine64-star64.dtb.
 
@@ -56,7 +56,7 @@ or the configuration variable CONFIG_DEFAULT_FDT_FILE can be used to set to
 provide a default value.
 
 Boot source selection
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Boot mode is selected by an MSEL-DIP marked S1804 and GPIO_0 position adjacent
 to the 40pin GPIO header. ON/ONKE and number markings of the MSEL-DIP are
@@ -69,7 +69,7 @@ accurate selection.
 + UART: 11
 
 Preparing the SD-Card
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 The device firmware loads U-Boot SPL (u-boot-spl.bin.normal.out) from the
 partition with type GUID 2E54B353-1271-4842-806F-E436D6AF6985. You are free
@@ -110,12 +110,12 @@ Copy U-Boot to the SD card
 	sudo umount /mnt
 
 Booting
-~~~~~~~
+-------
 
 Once you plugin the sdcard and power up, you should see the U-Boot prompt.
 
 Serial Number and MAC address issues
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------
 
 U-Boot requires valid EEPROM data to determine which board-specific fix-up to
 apply at runtime. This affects the size of memory initialized, network mac
