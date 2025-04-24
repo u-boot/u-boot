@@ -196,6 +196,7 @@ static const struct option longopts[] = {
 	{ "verbose", no_argument, NULL, 'v' },
 	{ "version", no_argument, NULL, 'V' },
 	{ "xip", no_argument, NULL, 'x' },
+	{ /* sentinel */ },
 };
 
 static void process_args(int argc, char **argv)
