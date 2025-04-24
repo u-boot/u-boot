@@ -23,10 +23,10 @@
 #define APCS_GPLL_ENA_VOTE		(0x45000)
 #define APCS_CLOCK_BRANCH_ENA_VOTE (0x45004)
 
-#define SDCC_BCR(n)			((n * 0x1000) + 0x41000)
-#define SDCC_CMD_RCGR(n)		(((n + 1) * 0x1000) + 0x41004)
-#define SDCC_APPS_CBCR(n)		((n * 0x1000) + 0x41018)
-#define SDCC_AHB_CBCR(n)		((n * 0x1000) + 0x4101C)
+#define SDCC_BCR(n)			(((n) * 0x1000) + 0x42000)
+#define SDCC_CMD_RCGR(n)		(((n) * 0x1000) + 0x42004)
+#define SDCC_APPS_CBCR(n)		(((n) * 0x1000) + 0x42018)
+#define SDCC_AHB_CBCR(n)		(((n) * 0x1000) + 0x4201C)
 
 /* BLSP1 AHB clock (root clock for BLSP) */
 #define BLSP1_AHB_CBCR			0x1008
