@@ -57,13 +57,6 @@ environment
 or the configuration variable CONFIG_DEFAULT_FDT_FILE can be used to set to
 provide a default value.
 
-Boot source selection
----------------------
-
-The board provides the DIP switches MSEL[1:0] to select the boot device out of
-SPI flash, eMMC, SD-card, UART. To select booting from SD-card set the DIP
-switches MSEL[1:0] to 10.
-
 Preparing the SD-Card
 ---------------------
 
@@ -105,7 +98,4 @@ Copy U-Boot to the SD card
 	sudo cp jh7110-starfive-visionfive-2.dtb /mnt/
 	sudo umount /mnt
 
-Booting
--------
-
-Once you plugin the sdcard and power up, you should see the U-Boot prompt.
+.. include:: jh7110_common.rst
