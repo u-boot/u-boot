@@ -125,12 +125,15 @@ static const struct timing_data td[] = {
 	[MMC_LEGACY]	= {"ti,otap-del-sel-legacy",
 			   "ti,itap-del-sel-legacy",
 			   0},
-	[MMC_HS]	= {"ti,otap-del-sel-mmc-hs",
-			   "ti,itap-del-sel-mms-hs",
+	[MMC_HS]	= {"ti,otap-del-sel-mmc-hs26",
+			   "ti,itap-del-sel-mmc-hs26",
 			   MMC_CAP(MMC_HS)},
 	[SD_HS]		= {"ti,otap-del-sel-sd-hs",
 			   "ti,itap-del-sel-sd-hs",
 			   MMC_CAP(SD_HS)},
+	[MMC_HS_52]	= {"ti,otap-del-sel-mmc-hs",
+			   "ti,itap-del-sel-mmc-hs",
+			   MMC_CAP(MMC_HS_52)},
 	[UHS_SDR12]	= {"ti,otap-del-sel-sdr12",
 			   "ti,itap-del-sel-sdr12",
 			   MMC_CAP(UHS_SDR12)},
@@ -409,8 +412,7 @@ static void am654_sdhci_write_b(struct sdhci_host *host, u8 val, int reg)
 		 */
 		case SD_HS:
 		case MMC_HS:
-		case UHS_SDR12:
-		case UHS_SDR25:
+		case MMC_HS_52:
 			val &= ~SDHCI_CTRL_HISPD;
 		default:
 			break;
@@ -521,13 +523,24 @@ static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	return 0;
 }
 #endif
+
+void am654_sdhci_set_control_reg(struct sdhci_host *host)
+{
+	struct mmc *mmc = host->mmc;
+
+	sdhci_set_voltage(host);
+
+	if (mmc->selected_mode > MMC_HS_52)
+		sdhci_set_uhs_timing(host);
+}
+
 const struct sdhci_ops am654_sdhci_ops = {
 #if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	.platform_execute_tuning = am654_sdhci_execute_tuning,
 #endif
 	.deferred_probe		= am654_sdhci_deferred_probe,
 	.set_ios_post		= &am654_sdhci_set_ios_post,
-	.set_control_reg	= sdhci_set_control_reg,
+	.set_control_reg	= am654_sdhci_set_control_reg,
 	.write_b		= am654_sdhci_write_b,
 };
 
@@ -587,7 +600,7 @@ const struct sdhci_ops j721e_4bit_sdhci_ops = {
 #endif
 	.deferred_probe		= am654_sdhci_deferred_probe,
 	.set_ios_post		= &j721e_4bit_sdhci_set_ios_post,
-	.set_control_reg	= sdhci_set_control_reg,
+	.set_control_reg	= am654_sdhci_set_control_reg,
 	.write_b		= am654_sdhci_write_b,
 };
 
