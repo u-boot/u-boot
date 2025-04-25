@@ -8,7 +8,7 @@ board. In U-Boot SPL the actual board is detected and the device-tree patched
 accordingly.
 
 Building
-~~~~~~~~
+--------
 
 1. Add the RISC-V toolchain to your PATH.
 2. Setup ARCH & cross compilation environment variable:
@@ -40,7 +40,7 @@ This will generate the U-Boot SPL image (spl/u-boot-spl.bin.normal.out) as well
 as the FIT image (u-boot.itb) with OpenSBI and U-Boot.
 
 Device-tree selection
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Depending on the board version U-Boot set variable $fdtfile to either
 starfive/jh7110-starfive-visionfive-2-v1.2a.dtb or
@@ -57,15 +57,8 @@ environment
 or the configuration variable CONFIG_DEFAULT_FDT_FILE can be used to set to
 provide a default value.
 
-Boot source selection
-~~~~~~~~~~~~~~~~~~~~~
-
-The board provides the DIP switches MSEL[1:0] to select the boot device out of
-SPI flash, eMMC, SD-card, UART. To select booting from SD-card set the DIP
-switches MSEL[1:0] to 10.
-
 Preparing the SD-Card
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 The device firmware loads U-Boot SPL (u-boot-spl.bin.normal.out) from the
 partition with type GUID 2E54B353-1271-4842-806F-E436D6AF6985. You are free
@@ -105,7 +98,4 @@ Copy U-Boot to the SD card
 	sudo cp jh7110-starfive-visionfive-2.dtb /mnt/
 	sudo umount /mnt
 
-Booting
-~~~~~~~
-
-Once you plugin the sdcard and power up, you should see the U-Boot prompt.
+.. include:: jh7110_common.rst

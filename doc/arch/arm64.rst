@@ -14,11 +14,11 @@ Notes
 -----
 
 1. U-Boot can run at any exception level it is entered in, it is
-   recommened to enter it in EL3 if U-Boot takes some responsibilities of a
+   recommended to enter it in EL3 if U-Boot takes some responsibilities of a
    classical firmware (like initial hardware setup, CPU errata workarounds
    or SMP bringup). U-Boot can be entered in EL2 when its main purpose is
    that of a boot loader. It can drop to lower exception levels before
-   entering the OS. For ARMv8-R it is recommened to enter at S-EL1, as for this
+   entering the OS. For ARMv8-R it is recommended to enter at S-EL1, as for this
    architecture there is no S-EL3.
 
 2. U-Boot for arm64 is compiled with AArch64-gcc. AArch64-gcc

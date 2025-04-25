@@ -36,7 +36,7 @@ Currently, the u-boot.itb is used as a dynamic of the OpenSBI FW_DYNAMIC
 firmware with the latest.
 
 Building
-~~~~~~~~
+--------
 
 1. Add the RISC-V toolchain to your PATH.
 2. Setup ARCH & cross compilation environment variable:
@@ -72,7 +72,7 @@ This will generate the U-Boot SPL image (spl/u-boot-spl.bin.normal.out) as well
 as the FIT image (u-boot.itb) with OpenSBI and U-Boot.
 
 Device-tree selection
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Depending on the board version U-Boot set variable $fdtfile to either
 starfive/jh7110-starfive-visionfive-2-v1.2a.dtb or
@@ -90,7 +90,7 @@ or the configuration variable CONFIG_DEFAULT_FDT_FILE can be used to provide
 a default value.
 
 Flashing
-~~~~~~~~
+--------
 
 The device firmware loads U-Boot SPL (u-boot-spl.bin.normal.out) from the
 partition with type GUID 2E54B353-1271-4842-806F-E436D6AF6985. You are free
@@ -132,16 +132,10 @@ Program the SD card
 	sudo cp jh7110-starfive-visionfive-2.dtb /mnt/
 	sudo umount /mnt
 
-Booting
-~~~~~~~
-
-The board provides the DIP switches MSEL[1:0] to select the boot device.
-To select booting from SD-card set the DIP switches MSEL[1:0] to 10.
-
-Once you plugin the sdcard and power up, you should see the U-Boot prompt.
+.. include:: jh7110_common.rst
 
 Sample boot log from StarFive VisionFive2 board
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------
 
 .. code-block:: none
 
@@ -479,34 +473,3 @@ Sample boot log from StarFive VisionFive2 board
 
 	Welcome to Buildroot
 	buildroot login:
-
-Booting from SPI
-----------------
-
-Use Building steps from "Booting from MMC using U-Boot SPL" section.
-
-Partition the SPI in Linux via mtdblock. (Require to boot the board in
-SD boot mode by enabling MTD block in Linux)
-
-Use prebuilt image from here [1], which support to partition the SPI flash.
-
-
-Program the SPI (Require to boot the board in SD boot mode)
-
-Execute below steps on U-Boot proper,
-
-.. code-block:: none
-
-  sf probe
-  fatload mmc 1:3 $kernel_addr_r u-boot.itb
-  sf update $kernel_addr_r 0x100000 $filesize
-
-  fatload mmc 1:3 $kernel_addr_r u-boot-spl.bin.normal.out
-  sf update $kernel_addr_r 0x0 $filesize
-
-
-Power off the board
-
-Change DIP switches MSEL[1:0] are set to 00, select the boot mode to flash
-
-Power up the board.
