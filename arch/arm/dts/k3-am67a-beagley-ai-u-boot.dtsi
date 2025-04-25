@@ -53,6 +53,10 @@
 	status = "disabled";
 };
 
+&main_gpio1 {
+	bootph-all;
+};
+
 #if IS_ENABLED(CONFIG_TARGET_J722S_R5_BEAGLEY_AI)
 
 &binman {
