@@ -41,7 +41,8 @@ void socfpga_sdram_remap_zero(void);
 #endif
 
 #if defined(CONFIG_TARGET_SOCFPGA_STRATIX10) || \
-	defined(CONFIG_TARGET_SOCFPGA_AGILEX)
+	defined(CONFIG_TARGET_SOCFPGA_AGILEX) || \
+	defined(CONFIG_TARGET_SOCFPGA_AGILEX7M)
 int is_fpga_config_ready(void);
 #endif
 
