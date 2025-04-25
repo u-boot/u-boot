@@ -212,13 +212,6 @@
 #define J721E_BBAI64_DTB "dts/upstream/src/arm64/ti/k3-j721e-beagleboneai64.dtb"
 
 &binman {
-	ti-dm {
-		filename = "ti-dm.bin";
-		blob-ext {
-			filename = "ti-dm/j721e/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-		};
-	};
-
 	ti-spl_unsigned {
 		filename = "tispl.bin_unsigned";
 		pad-byte = <0xff>;
@@ -263,8 +256,8 @@
 					os = "DM";
 					load = <0x89000000>;
 					entry = <0x89000000>;
-					blob-ext {
-						filename = "ti-dm.bin";
+					ti-dm {
+						filename = "ti-dm/j721e/ipc_echo_testb_mcu1_0_release_strip.xer5f";
 					};
 				};
 

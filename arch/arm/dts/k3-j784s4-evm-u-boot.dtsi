@@ -52,17 +52,18 @@
 #else // CONFIG_ARM64
 
 &binman {
-	ti-dm {
-		filename = "ti-dm.bin";
-
-		blob-ext {
-			filename = "ti-dm/j784s4/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-			optional;
-		};
-	};
-
 	tispl {
 		insert-template = <&ti_spl>;
+
+		fit {
+			images {
+				dm {
+					ti-dm {
+						filename = "ti-dm/j784s4/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+					};
+				};
+			};
+		};
 	};
 
 	u-boot {
@@ -71,6 +72,16 @@
 
 	tispl-unsigned {
 		insert-template = <&ti_spl_unsigned>;
+
+		fit {
+			images {
+				dm {
+					ti-dm {
+						filename = "ti-dm/j784s4/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+					};
+				};
+			};
+		};
 	};
 
 	u-boot-unsigned {

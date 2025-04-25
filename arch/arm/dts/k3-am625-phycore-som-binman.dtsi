@@ -158,13 +158,6 @@
 #define AM625_PHYBOARD_LYRA_DTB "u-boot.dtb"
 
 &binman {
-	ti-dm {
-		filename = "ti-dm.bin";
-		blob-ext {
-			filename = "ti-dm/am62xx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-		};
-	};
-
 	tifsstub-hs {
 		filename = "tifsstub.bin_hs";
 		ti-secure-rom {
@@ -270,8 +263,8 @@
 						content = <&dm>;
 						keyfile = "custMpk.pem";
 					};
-					dm: blob-ext {
-						filename = "ti-dm.bin";
+					dm: ti-dm {
+						filename = "ti-dm/am62xx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
 					};
 				};
 
@@ -418,8 +411,8 @@
 		fit {
 			images {
 				dm {
-					blob-ext {
-						filename = "ti-dm.bin";
+					ti-dm {
+						filename = "ti-dm/am62xx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
 					};
 				};
 

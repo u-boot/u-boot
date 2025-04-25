@@ -145,13 +145,6 @@
 #define J721S2_EVM_DTB "u-boot.dtb"
 
 &binman {
-	ti-dm {
-		filename = "ti-dm.bin";
-		blob-ext {
-			filename = "ti-dm/j721s2/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-			optional;
-		};
-	};
 	ti-spl {
 		insert-template = <&ti_spl_template>;
 
@@ -286,7 +279,8 @@
 						keyfile = "custMpk.pem";
 					};
 					dm: ti-dm {
-						filename = "ti-dm.bin";
+						filename = "ti-dm/j721s2/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+						optional;
 					};
 				};
 
@@ -371,7 +365,8 @@
 			images {
 				dm {
 					ti-dm {
-						filename = "ti-dm.bin";
+						filename = "ti-dm/j721s2/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+						optional;
 					};
 				};
 
