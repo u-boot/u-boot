@@ -86,6 +86,8 @@ struct altera_sdram_plat {
 #define CTRLCFG0			0x28
 #define CTRLCFG1			0x2c
 #define CTRLCFG3                        0x34
+#define CTRLCFG5                        0x3c
+#define CTRLCFG6                        0x40
 #define DRAMTIMING0			0x50
 #define CALTIMING0			0x7c
 #define CALTIMING1			0x80
@@ -125,6 +127,9 @@ struct altera_sdram_plat {
 	(((x) >> 5) & 0x3)
 #define CTRLCFG1_CFG_CTRL_EN_ECC(x)			\
 	(((x) >> 7) & 0x1)
+
+#define CTRLCFG6_CFG_CS_CHIP(x)				\
+	((x) & 0xFFFF)
 
 #define DRAMTIMING0_CFG_TCL(x)				\
 	((x) & 0x7f)
