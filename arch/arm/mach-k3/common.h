@@ -10,6 +10,9 @@
 #include <asm/hardware.h>
 #include <mach/security.h>
 
+/* keep ram_top in the 32-bit address space */
+#define CFG_MAX_MEM_MAPPED		0x100000000
+
 #define K3_FIREWALL_BACKGROUND_BIT (8)
 
 struct fwl_data {

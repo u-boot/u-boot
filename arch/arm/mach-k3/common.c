@@ -228,10 +228,6 @@ void spl_enable_cache(void)
 	gd->arch.tlb_size = PGTABLE_SIZE;
 
 	gd->ram_top += get_effective_memsize();
-	/* keep ram_top in the 32-bit address space */
-	if (gd->ram_top >= 0x100000000)
-		gd->ram_top = (phys_addr_t)0x100000000;
-
 	gd->relocaddr = gd->ram_top;
 
 	ret = spl_reserve_video_from_ram_top();
