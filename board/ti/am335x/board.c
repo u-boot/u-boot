@@ -307,6 +307,9 @@ const struct dpll_params *get_dpll_mpu_params(void)
 	if (board_is_pb() || board_is_bone_lt())
 		freq = MPUPLL_M_1000;
 
+	if (board_is_bbge())
+		freq = MPUPLL_M_600;
+
 	switch (freq) {
 	case MPUPLL_M_1000:
 		return &dpll_mpu_opp[ind][5];
@@ -823,6 +826,8 @@ int board_late_init(void)
 
 	if (board_is_bbg1())
 		name = "BBG1";
+	if (board_is_bbge())
+		name = "BBGE";
 	if (board_is_bben()) {
 		char subtype_id = board_ti_get_config()[1];
 
@@ -955,7 +960,7 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 	else if (board_is_bone() && !strcmp(name, "am335x-bone"))
 		return 0;
-	else if (board_is_bone_lt() && !board_is_bbg1() &&
+	else if (board_is_bone_lt() && !board_is_bbg1() && !board_is_bbge() &&
 		 !strcmp(name, "am335x-boneblack"))
 		return 0;
 	else if (board_is_pb() && !strcmp(name, "am335x-pocketbeagle"))
@@ -963,6 +968,8 @@ int board_fit_config_name_match(const char *name)
 	else if (board_is_evm_sk() && !strcmp(name, "am335x-evmsk"))
 		return 0;
 	else if (board_is_bbg1() && !strcmp(name, "am335x-bonegreen"))
+		return 0;
+	else if (board_is_bbge() && !strcmp(name, "am335x-bonegreen-eco"))
 		return 0;
 	else if (board_is_icev2() && !strcmp(name, "am335x-icev2"))
 		return 0;
