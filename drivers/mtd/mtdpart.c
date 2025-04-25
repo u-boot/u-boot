@@ -236,6 +236,10 @@ int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
 		if (ret)
 			return ret;
 
+		if (parts[idx].offset == MTD_OFFSET_NOT_SPECIFIED)
+			parts[idx].offset = cur_off;
+		cur_off += parts[idx].size;
+
 		if (parts[idx].size == MTD_SIZE_REMAINING)
 			parts[idx].size = parent->size - parts[idx].offset;
 
@@ -245,10 +249,6 @@ int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
 			       parent->writesize);
 			return -EINVAL;
 		}
-
-		if (parts[idx].offset == MTD_OFFSET_NOT_SPECIFIED)
-			parts[idx].offset = cur_off;
-		cur_off += parts[idx].size;
 
 		parts[idx].ecclayout = parent->ecclayout;
 	}
