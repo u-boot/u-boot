@@ -100,7 +100,7 @@ struct altera_sdram_plat {
 #define NIOSRESERVED2			0x118
 
 #define DRAMADDRW_CFG_COL_ADDR_WIDTH(x)			\
-	(((x) >> 0) & 0x1F)
+	((x) & 0x1F)
 #define DRAMADDRW_CFG_ROW_ADDR_WIDTH(x)			\
 	(((x) >> 5) & 0x1F)
 #define DRAMADDRW_CFG_BANK_ADDR_WIDTH(x)		\
@@ -111,7 +111,7 @@ struct altera_sdram_plat {
 	(((x) >> 16) & 0x7)
 
 #define CTRLCFG0_CFG_MEMTYPE(x)				\
-	(((x) >> 0) & 0xF)
+	((x) & 0xF)
 #define CTRLCFG0_CFG_DIMM_TYPE(x)			\
 	(((x) >> 4) & 0x7)
 #define CTRLCFG0_CFG_AC_POS(x)				\
@@ -120,17 +120,17 @@ struct altera_sdram_plat {
 	(((x) >> 9) & 0x1F)
 
 #define CTRLCFG1_CFG_DBC3_BURST_LEN(x)			\
-	(((x) >> 0) & 0x1F)
+	((x) & 0x1F)
 #define CTRLCFG1_CFG_ADDR_ORDER(x)			\
 	(((x) >> 5) & 0x3)
 #define CTRLCFG1_CFG_CTRL_EN_ECC(x)			\
 	(((x) >> 7) & 0x1)
 
 #define DRAMTIMING0_CFG_TCL(x)				\
-	(((x) >> 0) & 0x7F)
+	((x) & 0x7F)
 
 #define CALTIMING0_CFG_ACT_TO_RDWR(x)			\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3F)
 #define CALTIMING0_CFG_ACT_TO_PCH(x)			\
 	(((x) >> 6) & 0x3F)
 #define CALTIMING0_CFG_ACT_TO_ACT(x)			\
@@ -139,7 +139,7 @@ struct altera_sdram_plat {
 	(((x) >> 18) & 0x3F)
 
 #define CALTIMING1_CFG_RD_TO_RD(x)			\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3F)
 #define CALTIMING1_CFG_RD_TO_RD_DC(x)			\
 	(((x) >> 6) & 0x3F)
 #define CALTIMING1_CFG_RD_TO_RD_DB(x)			\
@@ -150,7 +150,7 @@ struct altera_sdram_plat {
 	(((x) >> 24) & 0x3F)
 
 #define CALTIMING2_CFG_RD_TO_WR_DB(x)			\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3F)
 #define CALTIMING2_CFG_RD_TO_WR_PCH(x)			\
 	(((x) >> 6) & 0x3F)
 #define CALTIMING2_CFG_RD_AP_TO_VALID(x)		\
@@ -161,7 +161,7 @@ struct altera_sdram_plat {
 	(((x) >> 24) & 0x3F)
 
 #define CALTIMING3_CFG_WR_TO_WR_DB(x)			\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3F)
 #define CALTIMING3_CFG_WR_TO_RD(x)			\
 	(((x) >> 6) & 0x3F)
 #define CALTIMING3_CFG_WR_TO_RD_DC(x)			\
@@ -172,7 +172,7 @@ struct altera_sdram_plat {
 	(((x) >> 24) & 0x3F)
 
 #define CALTIMING4_CFG_WR_AP_TO_VALID(x)		\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3F)
 #define CALTIMING4_CFG_PCH_TO_VALID(x)			\
 	(((x) >> 6) & 0x3F)
 #define CALTIMING4_CFG_PCH_ALL_TO_VALID(x)		\
@@ -183,7 +183,7 @@ struct altera_sdram_plat {
 	(((x) >> 26) & 0x3F)
 
 #define CALTIMING9_CFG_4_ACT_TO_ACT(x)			\
-	(((x) >> 0) & 0xFF)
+	((x) & 0xFF)
 
 /* Firewall DDR scheduler MPFE */
 #define FW_HMC_ADAPTOR_REG_ADDR			0xf8020004
