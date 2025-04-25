@@ -35,7 +35,7 @@
 					compression = "none";
 					load = /bits/ 64 <CONFIG_TEXT_BASE>;
 
-					uboot_blob: blob-ext {
+					uboot_blob: u-boot-nodtb {
 						filename = "u-boot-nodtb.bin";
 					};
 				};

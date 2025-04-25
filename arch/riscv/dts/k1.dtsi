@@ -470,5 +470,11 @@
 			#reset-cells = <1>;
 			status = "disabled";
 		};
+
+		pinctrl: pinctrl@d401e000 {
+			compatible = "spacemit,k1-pinctrl", "pinctrl-single";
+			reg = <0x0 0xd401e000 0x0 0x400>;
+			pinctrl-single,register-width = <32>;
+		};
 	};
 };
