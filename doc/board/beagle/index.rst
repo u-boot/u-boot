@@ -11,4 +11,5 @@ ARM based boards
    :maxdepth: 2
 
    am62x_beagleplay
+   am67a_beagley_ai.rst
    j721e_beagleboneai64
