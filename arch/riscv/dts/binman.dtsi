@@ -42,7 +42,6 @@
 					load = /bits/ 64 <CONFIG_TEXT_BASE>;
 
 					uboot_blob: u-boot-nodtb {
-						filename = "u-boot-nodtb.bin";
 					};
 				};
 #else
