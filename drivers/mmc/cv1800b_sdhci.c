@@ -31,6 +31,7 @@ static void cv1800b_sdhci_reset(struct sdhci_host *host, u8 mask)
 		udelay(10);
 }
 
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 static int cv1800b_execute_tuning(struct mmc *mmc, u8 opcode)
 {
 	struct sdhci_host *host = dev_get_priv(mmc->dev);
@@ -61,9 +62,12 @@ static int cv1800b_execute_tuning(struct mmc *mmc, u8 opcode)
 
 	return 0;
 }
+#endif
 
 const struct sdhci_ops cv1800b_sdhci_sd_ops = {
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	.platform_execute_tuning = cv1800b_execute_tuning,
+#endif
 };
 
 static int cv1800b_sdhci_bind(struct udevice *dev)
