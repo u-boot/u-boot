@@ -116,14 +116,42 @@ static const struct clk_ops imx8m_clk_composite_divider_ops = {
 	.set_rate = imx8m_clk_composite_divider_set_rate,
 };
 
+static int imx8m_clk_mux_fetch_parent_index(struct udevice *cdev, struct clk *clk, struct clk *parent)
+{
+	struct clk_mux *mux = to_clk_mux(clk);
+	struct clk cclk;
+	int ret;
+	int i;
+
+	if (!parent)
+		return -EINVAL;
+
+	for (i = 0; i < mux->num_parents; i++) {
+		ret = clk_get_by_name(cdev, mux->parent_names[i], &cclk);
+		if (!ret && ofnode_equal(dev_ofnode(parent->dev), dev_ofnode(cclk.dev)))
+			return i;
+
+		if (!strcmp(parent->dev->name, mux->parent_names[i]))
+			return i;
+		if (!strcmp(parent->dev->name,
+			    clk_resolve_parent_clk(clk->dev,
+						   mux->parent_names[i])))
+			return i;
+	}
+
+	return -EINVAL;
+}
+
+
 static int imx8m_clk_mux_set_parent(struct clk *clk, struct clk *parent)
 {
 	struct clk_mux *mux = to_clk_mux(clk);
+	struct clk_composite *composite = (struct clk_composite *)clk->data;
 	int index;
 	u32 val;
 	u32 reg;
 
-	index = clk_mux_fetch_parent_index(clk, parent);
+	index = imx8m_clk_mux_fetch_parent_index(composite->dev, clk, parent);
 	if (index < 0) {
 		log_err("Could not fetch index\n");
 		return index;
