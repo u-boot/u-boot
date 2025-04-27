@@ -17,16 +17,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 #define JH7110_L2_PREFETCHER_BASE_ADDR		0x2030000
 #define JH7110_L2_PREFETCHER_HART_OFFSET	0x2000
-#define FDTFILE_FML13V01 \
-	"starfive/jh7110-deepcomputing-fml13v01.dtb"
-#define FDTFILE_MILK_V_MARS \
-	"starfive/jh7110-milkv-mars.dtb"
-#define FDTFILE_VISIONFIVE2_1_2A \
-	"starfive/jh7110-starfive-visionfive-2-v1.2a.dtb"
-#define FDTFILE_VISIONFIVE2_1_3B \
-	"starfive/jh7110-starfive-visionfive-2-v1.3b.dtb"
-#define FDTFILE_PINE64_STAR64 \
-	"starfive/jh7110-pine64-star64.dtb"
 
 /* enable U74-mc hart1~hart4 prefetcher */
 static void enable_prefetcher(void)
@@ -48,44 +38,41 @@ static void enable_prefetcher(void)
 }
 
 /**
- * set_fdtfile() - set the $fdtfile variable based on the board revision
+ * set_fdtfile() - set the $fdtfile variable based on product data in EEPROM
  */
 static void set_fdtfile(void)
 {
-	u8 version;
 	const char *fdtfile;
-	const char *product_id;
 
 	fdtfile = env_get("fdtfile");
 	if (fdtfile)
 		return;
 
-	product_id = get_product_id_from_eeprom();
-	if (!product_id) {
+	if (!get_product_id_from_eeprom()) {
 		log_err("Can't read EEPROM\n");
 		return;
 	}
-	if (!strncmp(product_id, "FML13V01", 8)) {
-		fdtfile = FDTFILE_FML13V01;
-	} else if (!strncmp(product_id, "MARS", 4)) {
-		fdtfile = FDTFILE_MILK_V_MARS;
-	} else if (!strncmp(product_id, "VF7110", 6)) {
-		version = get_pcb_revision_from_eeprom();
 
-		switch (version) {
+	if (!strncmp(get_product_id_from_eeprom(), "FML13V01", 8)) {
+		fdtfile = "starfive/jh7110-deepcomputing-fml13v01.dtb";
+	} else if (!strncmp(get_product_id_from_eeprom(), "MARS", 4)) {
+		fdtfile = "starfive/jh7110-milkv-mars.dtb";
+	} else if (!strncmp(get_product_id_from_eeprom(), "STAR64", 6)) {
+		fdtfile = "starfive/jh7110-pine64-star64.dtb";
+	} else if (!strncmp(get_product_id_from_eeprom(), "VF7110", 6)) {
+		switch (get_pcb_revision_from_eeprom()) {
 		case 'a':
 		case 'A':
-			fdtfile = FDTFILE_VISIONFIVE2_1_2A;
+			fdtfile = "starfive/jh7110-starfive-visionfive-2-v1.2a.dtb";
 			break;
-
 		case 'b':
 		case 'B':
-		default:
-			fdtfile = FDTFILE_VISIONFIVE2_1_3B;
+			fdtfile = "starfive/jh7110-starfive-visionfive-2-v1.3b.dtb";
 			break;
+		default:
+			log_err("Unknown revision\n");
+			return;
 		}
-	} else if (!strncmp(product_id, "STAR64", 6)) {
-		fdtfile = FDTFILE_PINE64_STAR64;
 	} else {
 		log_err("Unknown product\n");
 		return;
