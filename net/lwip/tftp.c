@@ -16,6 +16,8 @@
 #include <time.h>
 
 #define PROGRESS_PRINT_STEP_BYTES (10 * 1024)
+/* Max time to wait for first data packet from server */
+#define NO_RSP_TIMEOUT_MS 10000
 
 enum done_state {
 	NOT_DONE = 0,
@@ -140,6 +142,17 @@ static const struct tftp_context tftp_context = {
 	tftp_error
 };
 
+static void no_response(void *arg)
+{
+	struct tftp_ctx *ctx = (struct tftp_ctx *)arg;
+
+	if (ctx->size)
+		return;
+
+	printf("Timeout!\n");
+	ctx->done = FAILURE;
+}
+
 static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 		     ip_addr_t srvip, uint16_t srvport)
 {
@@ -184,6 +197,7 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 		return -1;
 	}
 
+	sys_timeout(NO_RSP_TIMEOUT_MS, no_response, &ctx);
 	while (!ctx.done) {
 		net_lwip_rx(udev, netif);
 		sys_check_timeouts();
@@ -193,6 +207,7 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 			break;
 		}
 	}
+	sys_untimeout(no_response, (void *)&ctx);
 
 	tftp_cleanup();
 
