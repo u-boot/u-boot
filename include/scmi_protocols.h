@@ -25,6 +25,7 @@ enum scmi_std_protocol {
 	SCMI_PROTOCOL_ID_RESET_DOMAIN = 0x16,
 	SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN = 0x17,
 	SCMI_PROTOCOL_ID_PINCTRL = 0x19,
+	SCMI_PROTOCOL_ID_IMX_MISC = 0x84,
 };
 
 enum scmi_status_code {
@@ -48,6 +49,10 @@ enum scmi_discovery_id {
 	SCMI_PROTOCOL_VERSION = 0x0,
 	SCMI_PROTOCOL_ATTRIBUTES = 0x1,
 	SCMI_PROTOCOL_MESSAGE_ATTRIBUTES = 0x2,
+};
+
+enum scmi_imx_misc_message_id {
+	SCMI_MISC_ROM_PASSOVER_GET = 0x7
 };
 
 /*
