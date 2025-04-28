@@ -19,12 +19,6 @@
 
 #else
 
-typedef struct at91_wdt {
-	u32	cr;
-	u32	mr;
-	u32	sr;
-} at91_wdt_t;
-
 struct at91_wdt_priv {
 	void __iomem *regs;
 	u32 regval;
