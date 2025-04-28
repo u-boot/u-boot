@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 static int at91_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
-	struct at91_wdt_priv *priv = dev_get_priv(dev);
+	struct at91_wdt_priv *wdt = dev_get_priv(dev);
 	u64 timeout;
 	u32 ticks;
 
@@ -49,7 +49,7 @@ static int at91_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	ticks = WDT_SEC2TICKS(timeout);
 
 	/* Check if disabled */
-	if (readl(priv->regs + AT91_WDT_MR) & AT91_WDT_MR_WDDIS) {
+	if (readl(wdt->regs + AT91_WDT_MR) & AT91_WDT_MR_WDDIS) {
 		printf("sorry, watchdog is disabled\n");
 		return -1;
 	}
@@ -60,31 +60,31 @@ static int at91_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	 * Since WDV is a 12-bit counter, the maximum period is
 	 * 4096 / 256 = 16 seconds.
 	 */
-	priv->mr = AT91_WDT_MR_WDRSTEN	/* causes watchdog reset */
+	wdt->mr = AT91_WDT_MR_WDRSTEN	/* causes watchdog reset */
 		| AT91_WDT_MR_WDDBGHLT		/* disabled in debug mode */
 		| AT91_WDT_MR_WDD(0xfff)	/* restart at any time */
 		| AT91_WDT_MR_WDV(ticks);	/* timer value */
-	writel(priv->mr, priv->regs + AT91_WDT_MR);
+	writel(wdt->mr, wdt->regs + AT91_WDT_MR);
 
 	return 0;
 }
 
 static int at91_wdt_stop(struct udevice *dev)
 {
-	struct at91_wdt_priv *priv = dev_get_priv(dev);
+	struct at91_wdt_priv *wdt = dev_get_priv(dev);
 
 	/* Disable Watchdog Timer */
-	priv->mr |= AT91_WDT_MR_WDDIS;
-	writel(priv->mr, priv->regs + AT91_WDT_MR);
+	wdt->mr |= AT91_WDT_MR_WDDIS;
+	writel(wdt->mr, wdt->regs + AT91_WDT_MR);
 
 	return 0;
 }
 
 static int at91_wdt_reset(struct udevice *dev)
 {
-	struct at91_wdt_priv *priv = dev_get_priv(dev);
+	struct at91_wdt_priv *wdt = dev_get_priv(dev);
 
-	writel(AT91_WDT_CR_WDRSTT | AT91_WDT_CR_KEY, priv->regs + AT91_WDT_CR);
+	writel(AT91_WDT_CR_WDRSTT | AT91_WDT_CR_KEY, wdt->regs + AT91_WDT_CR);
 
 	return 0;
 }
@@ -102,10 +102,10 @@ static const struct udevice_id at91_wdt_ids[] = {
 
 static int at91_wdt_probe(struct udevice *dev)
 {
-	struct at91_wdt_priv *priv = dev_get_priv(dev);
+	struct at91_wdt_priv *wdt = dev_get_priv(dev);
 
-	priv->regs = dev_remap_addr(dev);
-	if (!priv->regs)
+	wdt->regs = dev_remap_addr(dev);
+	if (!wdt->regs)
 		return -EINVAL;
 
 	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
