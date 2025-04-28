@@ -5,8 +5,8 @@
  * Ported from linux insn-def.h.
  */
 
-#ifndef _ASM_RISCV_BARRIER_H
-#define _ASM_RISCV_BARRIER_H
+#ifndef _ASM_RISCV_INSN_DEF_H
+#define _ASM_RISCV_INSN_DEF_H
 
 #define INSN_I_SIMM12_SHIFT		20
 #define INSN_I_RS1_SHIFT		15
@@ -36,4 +36,4 @@
 	__INSN_I(RV_##opcode, RV_##func3, RV_##rd,		\
 		 RV_##rs1, RV_##simm12)
 
-#endif /* _ASM_RISCV_BARRIER_H */
+#endif /* _ASM_RISCV_INSN_DEF_H */
