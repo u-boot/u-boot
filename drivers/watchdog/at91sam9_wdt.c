@@ -60,11 +60,11 @@ static int at91_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	 * Since WDV is a 12-bit counter, the maximum period is
 	 * 4096 / 256 = 16 seconds.
 	 */
-	priv->regval = AT91_WDT_MR_WDRSTEN	/* causes watchdog reset */
+	priv->mr = AT91_WDT_MR_WDRSTEN	/* causes watchdog reset */
 		| AT91_WDT_MR_WDDBGHLT		/* disabled in debug mode */
 		| AT91_WDT_MR_WDD(0xfff)	/* restart at any time */
 		| AT91_WDT_MR_WDV(ticks);	/* timer value */
-	writel(priv->regval, priv->regs + AT91_WDT_MR);
+	writel(priv->mr, priv->regs + AT91_WDT_MR);
 
 	return 0;
 }
@@ -74,8 +74,8 @@ static int at91_wdt_stop(struct udevice *dev)
 	struct at91_wdt_priv *priv = dev_get_priv(dev);
 
 	/* Disable Watchdog Timer */
-	priv->regval |= AT91_WDT_MR_WDDIS;
-	writel(priv->regval, priv->regs + AT91_WDT_MR);
+	priv->mr |= AT91_WDT_MR_WDDIS;
+	writel(priv->mr, priv->regs + AT91_WDT_MR);
 
 	return 0;
 }

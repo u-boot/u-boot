@@ -21,7 +21,7 @@
 
 struct at91_wdt_priv {
 	void __iomem *regs;
-	u32 regval;
+	u32 mr;
 };
 
 #endif
