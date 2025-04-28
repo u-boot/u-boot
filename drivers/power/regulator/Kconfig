@@ -57,6 +57,13 @@ config SPL_REGULATOR_AXP
 	  Enable support in SPL for the regulators (DCDCs, LDOs) in the
 	  X-Powers AXP152, AXP2xx, and AXP8xx PMICs.
 
+config REGULATOR_AXP_DRIVEVBUS
+	bool "Enable driver for X-Powers AXP PMIC drivevbus"
+	depends on DM_REGULATOR && PMIC_AXP
+	help
+	  Enable support for sensing or driving the USB VBUS on
+	  X-Powers AXP2xx and AXP8xx PMICs.
+
 config REGULATOR_AXP_USB_POWER
 	bool "Enable driver for X-Powers AXP PMIC USB power supply"
 	depends on DM_REGULATOR && PMIC_AXP

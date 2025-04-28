@@ -10,6 +10,13 @@
 #ifndef _SUNXI_CLOCK_SUN6I_H
 #define _SUNXI_CLOCK_SUN6I_H
 
+#define CCU_AHB_GATE0		0x060
+#define CCU_MMC0_CLK_CFG	0x088
+#define CCU_MMC1_CLK_CFG	0x08c
+#define CCU_MMC2_CLK_CFG	0x090
+#define CCU_MMC3_CLK_CFG	0x094
+#define CCU_AHB_RESET0_CFG	0x2c0
+
 struct sunxi_ccm_reg {
 	u32 pll1_cfg;		/* 0x00 pll1 control */
 	u32 reserved0;

@@ -8,6 +8,7 @@ obj-$(CONFIG_$(PHASE_)DM_REGULATOR) += regulator-uclass.o
 obj-$(CONFIG_REGULATOR_ACT8846) += act8846.o
 obj-$(CONFIG_REGULATOR_AS3722)	+= as3722_regulator.o
 obj-$(CONFIG_$(PHASE_)REGULATOR_AXP) += axp_regulator.o
+obj-$(CONFIG_$(PHASE_)REGULATOR_AXP_DRIVEVBUS) += axp_drivevbus.o
 obj-$(CONFIG_$(PHASE_)REGULATOR_AXP_USB_POWER) += axp_usb_power.o
 obj-$(CONFIG_$(PHASE_)DM_REGULATOR_DA9063) += da9063.o
 obj-$(CONFIG_$(PHASE_)DM_REGULATOR_MAX77663) += max77663_regulator.o

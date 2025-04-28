@@ -244,17 +244,7 @@ int sunxi_name_to_gpio(const char *name)
 int sunxi_name_to_gpio(const char *name)
 {
 	unsigned int gpio;
-	int ret;
-#if !defined CONFIG_XPL_BUILD && defined CONFIG_AXP_GPIO
-	char lookup[8];
-
-	if (strcasecmp(name, "AXP0-VBUS-ENABLE") == 0) {
-		sprintf(lookup, SUNXI_GPIO_AXP0_PREFIX "%d",
-			SUNXI_GPIO_AXP0_VBUS_ENABLE);
-		name = lookup;
-	}
-#endif
-	ret = gpio_lookup_name(name, NULL, NULL, &gpio);
+	int ret = gpio_lookup_name(name, NULL, NULL, &gpio);
 
 	return ret ? ret : gpio;
 }
