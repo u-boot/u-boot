@@ -8,6 +8,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <scmi_agent.h>
+#include <scmi_agent-uclass.h>
 #include <scmi_protocols.h>
 #include <asm/types.h>
 #include <linux/clk-provider.h>
@@ -191,3 +192,10 @@ U_BOOT_DRIVER(scmi_clock) = {
 	.ops = &scmi_clk_ops,
 	.probe = scmi_clk_probe,
 };
+
+static struct scmi_proto_match match[] = {
+	{ .proto_id = SCMI_PROTOCOL_ID_CLOCK },
+	{ /* Sentinel */ }
+};
+
+U_BOOT_SCMI_PROTO_DRIVER(scmi_clock, match);
