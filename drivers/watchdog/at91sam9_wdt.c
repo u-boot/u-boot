@@ -49,7 +49,7 @@ static int at91_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	ticks = WDT_SEC2TICKS(timeout);
 
 	/* Check if disabled */
-	if (readl(wdt->regs + AT91_WDT_MR) & AT91_WDT_MR_WDDIS) {
+	if (readl(wdt->regs + AT91_WDT_MR) & wdt->wddis) {
 		printf("sorry, watchdog is disabled\n");
 		return -1;
 	}
@@ -60,11 +60,21 @@ static int at91_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	 * Since WDV is a 12-bit counter, the maximum period is
 	 * 4096 / 256 = 16 seconds.
 	 */
-	wdt->mr = AT91_WDT_MR_WDRSTEN	/* causes watchdog reset */
-		| AT91_WDT_MR_WDDBGHLT		/* disabled in debug mode */
-		| AT91_WDT_MR_WDD(0xfff)	/* restart at any time */
-		| AT91_WDT_MR_WDV(ticks);	/* timer value */
-	writel(wdt->mr, wdt->regs + AT91_WDT_MR);
+
+	if (wdt->mode == AT91_WDT_MODE_SAM9260) {
+		wdt->mr = AT91_WDT_MR_WDRSTEN	/* causes watchdog reset */
+		    | AT91_WDT_MR_WDDBGHLT	/* disabled in debug mode */
+		    | AT91_WDT_MR_WDD(0xfff)	/* restart at any time */
+		    | AT91_WDT_MR_WDV(ticks);	/* timer value */
+		writel(wdt->mr, wdt->regs + AT91_WDT_MR);
+	} else if (wdt->mode == AT91_WDT_MODE_SAM9X60) {
+		writel(AT91_SAM9X60_WLR_COUNTER(ticks),	/* timer value */
+		       wdt->regs + AT91_SAM9X60_WLR);
+
+		wdt->mr = AT91_SAM9X60_MR_PERIODRST /* causes watchdog reset */
+			| AT91_SAM9X60_MR_WDDBGHLT; /* disabled in debug mode */
+		writel(wdt->mr, wdt->regs + AT91_WDT_MR);
+	}
 
 	return 0;
 }
@@ -74,7 +84,7 @@ static int at91_wdt_stop(struct udevice *dev)
 	struct at91_wdt_priv *wdt = dev_get_priv(dev);
 
 	/* Disable Watchdog Timer */
-	wdt->mr |= AT91_WDT_MR_WDDIS;
+	wdt->mr |= wdt->wddis;
 	writel(wdt->mr, wdt->regs + AT91_WDT_MR);
 
 	return 0;
@@ -96,7 +106,14 @@ static const struct wdt_ops at91_wdt_ops = {
 };
 
 static const struct udevice_id at91_wdt_ids[] = {
-	{ .compatible = "atmel,at91sam9260-wdt" },
+	{ .compatible = "atmel,at91sam9260-wdt",
+	  .data = AT91_WDT_MODE_SAM9260 },
+	{ .compatible = "atmel,sama5d4-wdt",
+	  .data = AT91_WDT_MODE_SAM9260 },
+	{ .compatible = "microchip,sam9x60-wdt",
+	  .data = AT91_WDT_MODE_SAM9X60 },
+	{ .compatible = "microchip,sama7g5-wdt",
+	  .data = AT91_WDT_MODE_SAM9X60 },
 	{}
 };
 
@@ -107,6 +124,12 @@ static int at91_wdt_probe(struct udevice *dev)
 	wdt->regs = dev_remap_addr(dev);
 	if (!wdt->regs)
 		return -EINVAL;
+
+	wdt->mode = dev_get_driver_data(dev);
+	if (wdt->mode == AT91_WDT_MODE_SAM9260)
+		wdt->wddis = AT91_WDT_MR_WDDIS;
+	else if (wdt->mode == AT91_WDT_MODE_SAM9X60)
+		wdt->wddis = AT91_SAM9X60_MR_WDDIS;
 
 	debug("%s: Probing wdt%u\n", __func__, dev_seq(dev));
 
