@@ -9,4 +9,5 @@ F:	arch/arm/dts/imx8-capricorn-u-boot.dtsi
 F:	arch/arm/dts/imx8-capricorn.dtsi
 F:	board/siemens/capricorn/
 F:	configs/capricorn_cxg3_defconfig
+F:	configs/imx8qxp_capricorn.config
 F:	include/configs/capricorn-common.h

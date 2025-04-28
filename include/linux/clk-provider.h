@@ -219,6 +219,8 @@ struct clk_composite {
 	const struct clk_ops	*mux_ops;
 	const struct clk_ops	*rate_ops;
 	const struct clk_ops	*gate_ops;
+
+	struct udevice *dev;
 };
 
 #define to_clk_composite(_clk) container_of(_clk, struct clk_composite, clk)

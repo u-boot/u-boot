@@ -64,7 +64,11 @@ static int sandbox_power_domain_bind(struct udevice *dev)
 
 static int sandbox_power_domain_probe(struct udevice *dev)
 {
+	struct power_domain_plat *plat = dev_get_uclass_plat(dev);
+
 	debug("%s(dev=%p)\n", __func__, dev);
+
+	plat->subdomains = 1;
 
 	return 0;
 }
