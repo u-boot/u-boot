@@ -52,6 +52,7 @@ config STM32MP13X
 	select STM32_SERIAL
 	select SYS_ARCH_TIMER
 	imply CMD_NVEDIT_INFO
+	imply OF_UPSTREAM
 	help
 		support of STMicroelectronics SOC STM32MP13x family
 		STMicroelectronics MPU with core ARMv7
@@ -73,6 +74,7 @@ config STM32MP15X
 	select SUPPORT_SPL
 	select SYS_ARCH_TIMER
 	imply CMD_NVEDIT_INFO
+	imply OF_UPSTREAM
 	help
 		support of STMicroelectronics SOC STM32MP15x family
 		STM32MP157, STM32MP153 or STM32MP151
@@ -94,6 +96,7 @@ config STM32MP25X
 	imply CMD_NVEDIT_INFO
 	imply DM_REGULATOR
 	imply DM_REGULATOR_SCMI
+	imply OF_UPSTREAM
 	imply OPTEE
 	imply RESET_SCMI
 	imply SYSRESET_PSCI
@@ -126,14 +129,6 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 	help
 	  Partition on the second MMC to load U-Boot from when the MMC is being
 	  used in raw mode
-
-config STM32_ETZPC
-	bool "STM32 Extended TrustZone Protection"
-	depends on STM32MP15X || STM32MP13X
-	default y
-	imply BOOTP_SERVERIP
-	help
-	  Say y to enable STM32 Extended TrustZone Protection
 
 config STM32_ECDSA_VERIFY
 	bool "STM32 ECDSA verification via the ROM API"

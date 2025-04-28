@@ -7,3 +7,4 @@ F:	arch/arm/dts/stm32mp25*
 F:	board/st/stm32mp2/
 F:	configs/stm32mp25_defconfig
 F:	include/configs/stm32mp25_common.h
+F:	include/configs/stm32mp25_st_common.h

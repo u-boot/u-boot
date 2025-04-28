@@ -15,8 +15,10 @@
 #define SYSCFG_DEVICEID_OFFSET		0x6400
 #define SYSCFG_DEVICEID_DEV_ID_MASK	GENMASK(11, 0)
 #define SYSCFG_DEVICEID_DEV_ID_SHIFT	0
-#define SYSCFG_DEVICEID_REV_ID_MASK	GENMASK(31, 16)
-#define SYSCFG_DEVICEID_REV_ID_SHIFT	16
+
+/* Revision ID = OTP102[5:0] 6 bits : 3 for Major / 3 for Minor*/
+#define REVID_SHIFT	0
+#define REVID_MASK	GENMASK(5, 0)
 
 /* Device Part Number (RPN) = OTP9 */
 #define RPN_SHIFT	0
@@ -24,8 +26,8 @@
 
 /* Package = bit 0:2 of OTP122 => STM32MP25_PKG defines
  * - 000: Custom package
- * - 011: TFBGA361 => AL = 10x10, 361 balls pith 0.5mm
- * - 100: TFBGA424 => AK = 14x14, 424 balls pith 0.5mm
+ * - 001: VFBGA361 => AL = 10x10, 361 balls pith 0.5mm
+ * - 011: VFBGA424 => AK = 14x14, 424 balls pith 0.5mm
  * - 101: TFBGA436 => AI = 18x18, 436 balls pith 0.5mm
  * - others: Reserved
  */
@@ -46,7 +48,7 @@ u32 get_cpu_dev(void)
 
 u32 get_cpu_rev(void)
 {
-	return (read_deviceid() & SYSCFG_DEVICEID_REV_ID_MASK) >> SYSCFG_DEVICEID_REV_ID_SHIFT;
+	return get_otp(BSEC_OTP_REVID, REVID_SHIFT, REVID_MASK);
 }
 
 /* Get Device Part Number (RPN) from OTP */
@@ -164,11 +166,20 @@ void get_soc_name(char name[SOC_NAME_SIZE])
 		}
 		/* REVISION */
 		switch (get_cpu_rev()) {
-		case CPU_REV1:
+		case OTP_REVID_1:
 			cpu_r = "A";
 			break;
-		case CPU_REV2:
+		case OTP_REVID_1_1:
+			cpu_r = "Z";
+			break;
+		case OTP_REVID_2:
 			cpu_r = "B";
+			break;
+		case OTP_REVID_2_1:
+			cpu_r = "Y";
+			break;
+		case OTP_REVID_2_2:
+			cpu_r = "X";
 			break;
 		default:
 			break;
@@ -178,13 +189,13 @@ void get_soc_name(char name[SOC_NAME_SIZE])
 		case STM32MP25_PKG_CUSTOM:
 			package = "XX";
 			break;
-		case STM32MP25_PKG_AL_TBGA361:
+		case STM32MP25_PKG_AL_VFBGA361:
 			package = "AL";
 			break;
-		case STM32MP25_PKG_AK_TBGA424:
+		case STM32MP25_PKG_AK_VFBGA424:
 			package = "AK";
 			break;
-		case STM32MP25_PKG_AI_TBGA436:
+		case STM32MP25_PKG_AI_TFBGA436:
 			package = "AI";
 			break;
 		default:

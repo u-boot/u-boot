@@ -15,6 +15,7 @@ config STM32F4
 	select STM32_SERIAL
 	select STM32_TIMER
 	select TIMER
+	imply OF_UPSTREAM
 
 config STM32F7
 	bool "stm32f7 family"
@@ -32,6 +33,7 @@ config STM32F7
 	select STM32_TIMER
 	select SUPPORT_SPL
 	select TIMER
+	imply OF_UPSTREAM
 	imply SPL_OS_BOOT
 
 config STM32H7
@@ -51,6 +53,7 @@ config STM32H7
 	select STM32_TIMER
 	select SYSCON
 	select TIMER
+	imply OF_UPSTREAM
 
 source "arch/arm/mach-stm32/stm32f4/Kconfig"
 source "arch/arm/mach-stm32/stm32f7/Kconfig"

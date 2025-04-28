@@ -5,8 +5,89 @@
 
 #include "stm32mp25-u-boot.dtsi"
 
+/ {
+	config {
+		u-boot,boot-led = "led-blue";
+		u-boot,mmc-env-partition = "u-boot-env";
+	};
+
+	clocks {
+		ck_flexgen_08: ck-flexgen-08 {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <64000000>;
+		};
+
+		ck_flexgen_51: ck-flexgen-51 {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <200000000>;
+		};
+
+		ck_icn_ls_mcu: ck-icn-ls-mcu {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <200000000>;
+		};
+	};
+};
+
+&gpioa {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpiob {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpioc {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpiod {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpioe {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpiof {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpiog {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpioh {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpioi {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpioj {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpiok {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&gpioz {
+	clocks = <&ck_icn_ls_mcu>;
+};
+
+&sdmmc1 {
+	clocks = <&ck_flexgen_51>;
+	/delete-property/resets;
+};
+
 &usart2 {
 	bootph-all;
+	clocks = <&ck_flexgen_08>;
 };
 
 &usart2_pins_a {

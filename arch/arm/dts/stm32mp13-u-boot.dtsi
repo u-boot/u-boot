@@ -48,6 +48,10 @@
 	bootph-all;
 };
 
+&etzpc {
+	bootph-all;
+};
+
 &gpioa {
 	bootph-all;
 };

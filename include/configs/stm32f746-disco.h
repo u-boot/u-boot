@@ -30,7 +30,7 @@
 #include <config_distro_bootcmd.h>
 #define CFG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0xC0008000\0"		\
-			"fdtfile="CONFIG_DEFAULT_DEVICE_TREE".dtb\0"	\
+			"fdtfile="CONFIG_DEFAULT_FDT_FILE".dtb\0"	\
 			"fdt_addr_r=0xC0408000\0"		\
 			"scriptaddr=0xC0418000\0"		\
 			"pxefile_addr_r=0xC0428000\0" \

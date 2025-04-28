@@ -7,37 +7,35 @@
 
 /{
 	soc {
-		st_dwc3: dwc3@8f94000 {
-			dwc3: dwc3@9900000 {
-				dr_mode	= "peripheral";
-				phys = <&usb2_picophy0>;
-			};
-		};
-
 		clk_usb: clk-usb {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <100000000>;
 		};
-
-		ohci0: usb@9a03c00 {
-			compatible = "generic-ohci";
-			clocks = <&clk_usb>;
-		};
-
-		ehci0: usb@9a03e00 {
-			compatible = "generic-ehci";
-			clocks = <&clk_usb>;
-		};
-
-		ohci1: usb@9a83c00 {
-			compatible = "generic-ohci";
-			clocks = <&clk_usb>;
-		};
-
-		ehci1: usb@9a83e00 {
-			compatible = "generic-ehci";
-			clocks = <&clk_usb>;
-		};
 	};
+};
+
+&dwc3 {
+	dr_mode	= "peripheral";
+	phys = <&usb2_picophy0>;
+};
+
+&ehci0 {
+	compatible = "st,st-ehci-300x", "generic-ehci";
+	clocks = <&clk_usb>;
+};
+
+&ehci1 {
+	compatible = "st,st-ehci-300x", "generic-ehci";
+	clocks = <&clk_usb>;
+};
+
+&ohci0 {
+	compatible = "st,st-ehci-300x", "generic-ehci";
+	clocks = <&clk_usb>;
+};
+
+&ohci1 {
+	compatible = "st,st-ehci-300x", "generic-ehci";
+	clocks = <&clk_usb>;
 };
