@@ -111,6 +111,8 @@ static const char *get_imx_type_str(u32 imxtype)
 		return "91(11)";/* iMX91 9x9 Reduced feature */
 	case MXC_CPU_IMX9101:
 		return "91(01)";/* iMX91 9x9 Specific feature */
+	case MXC_CPU_IMX95:
+		return "95";
 	default:
 		return "??";
 	}
