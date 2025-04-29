@@ -300,9 +300,9 @@ def create_branch(series, new_rtag_list, branch, dest_branch, overwrite,
             [parent.target])
     return num_added
 
-def check_patchwork_status(series, series_id, branch, dest_branch, force,
-                           show_comments, url, rest_api=call_rest_api,
-                           test_repo=None):
+def check_and_show_status(series, series_id, branch, dest_branch, force,
+                          show_comments, url, rest_api=call_rest_api,
+                          test_repo=None):
     """Check the status of a series on Patchwork
 
     This finds review tags and comments for a series in Patchwork, displaying

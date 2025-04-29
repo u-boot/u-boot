@@ -99,8 +99,8 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
     # Import this here to avoid failing on other commands if the dependencies
     # are not present
     from patman import status
-    status.check_patchwork_status(series, found[0], branch, dest_branch, force,
-                                  show_comments, url)
+    status.check_and_show_status(series, found[0], branch, dest_branch, force,
+                                 show_comments, url)
 
 
 def do_patman(args):
