@@ -460,7 +460,7 @@ The Kernel FIT Image that we have has Kernel Image, DTB and the DTBOs.  It
 supports packing multiple images and configurations that allow you to
 choose any configuration at runtime to boot from.
 
-.. code-block::
+.. code-block:: dts
 
     /dts-v1/;
 
@@ -484,7 +484,7 @@ choose any configuration at runtime to boot from.
 
 * Sample Images
 
-.. code-block::
+.. code-block:: dts
 
     kernel-1 {
             description = "Linux kernel";
@@ -533,7 +533,7 @@ corresponding configuration node as follows.
 
 * Sample Configurations
 
-.. code-block::
+.. code-block:: dts
 
     conf-ti_k3-j721e-common-proc-board.dtb {
             description = "Linux kernel, FDT blob";
@@ -585,7 +585,7 @@ Generating the fitImage
 
         For e.g
 
-        .. code-block::
+        .. code-block:: diff
 
             diff --git a/configs/j721e_evm_a72_defconfig b/configs/j721e_evm_a72_defconfig
             index a5c1df7e0054..6d0126d955ef 100644
@@ -605,7 +605,7 @@ Generating the fitImage
 
         For e.g
 
-        .. code-block::
+        .. code-block:: diff
 
             diff --git a/arch/arm/dts/k3-j721e-binman.dtsi b/arch/arm/dts/k3-j721e-binman.dtsi
                   index 673be646b1e3..752fa805fe8d 100644
