@@ -22,19 +22,6 @@ from patman import patchstream
 from patman import patchwork
 
 
-def to_int(vals):
-    """Convert a list of strings into integers, using 0 if not an integer
-
-    Args:
-        vals (list): List of strings
-
-    Returns:
-        list: List of integers, one for each input string
-    """
-    out = [int(val) if val.isdigit() else 0 for val in vals]
-    return out
-
-
 def process_reviews(content, comment_data, base_rtags):
     """Process and return review data
 
@@ -133,74 +120,6 @@ def compare_with_series(series, patches):
 
     return patch_for_commit, commit_for_patch, warnings
 
-def collect_patches(series_id, pwork):
-    """Collect patch information about a series from patchwork
-
-    Uses the Patchwork REST API to collect information provided by patchwork
-    about the status of each patch.
-
-    Args:
-        series_id (str): Patch series ID number
-        pwork (Patchwork): Patchwork object to use for reading
-
-    Returns:
-        list of Patch: List of patches sorted by sequence number
-
-    Raises:
-        ValueError: if the URL could not be read or the web page does not follow
-            the expected structure
-    """
-    data = pwork.request('series/%s/' % series_id)
-
-    # Get all the rows, which are patches
-    patch_dict = data['patches']
-    count = len(patch_dict)
-
-    patches = []
-
-    # Work through each row (patch) one at a time, collecting the information
-    warn_count = 0
-    for pw_patch in patch_dict:
-        patch = patchwork.Patch(pw_patch['id'])
-        patch.parse_subject(pw_patch['name'])
-        patches.append(patch)
-    if warn_count > 1:
-        tout.warning('   (total of %d warnings)' % warn_count)
-
-    # Sort patches by patch number
-    patches = sorted(patches, key=lambda x: x.seq)
-    return patches
-
-def find_new_responses(new_rtag_list, review_list, seq, cmt, patch, pwork):
-    """Find new rtags collected by patchwork that we don't know about
-
-    This is designed to be run in parallel, once for each commit/patch
-
-    Args:
-        new_rtag_list (list): New rtags are written to new_rtag_list[seq]
-            list, each a dict:
-                key: Response tag (e.g. 'Reviewed-by')
-                value: Set of people who gave that response, each a name/email
-                    string
-        review_list (list): New reviews are written to review_list[seq]
-            list, each a
-                List of reviews for the patch, each a Review
-        seq (int): Position in new_rtag_list to update
-        cmt (Commit): Commit object for this commit
-        patch (Patch): Corresponding Patch object for this patch
-        pwork (Patchwork): Patchwork object to use for reading
-    """
-    if not patch:
-        return
-
-    # Get the content for the patch email itself as well as all comments
-    data = pwork.request('patches/%s/' % patch.id)
-    comment_data = pwork.request('patches/%s/comments/' % patch.id)
-
-    new_rtags, reviews = process_reviews(data['content'], comment_data,
-                                         cmt.rtags)
-    new_rtag_list[seq] = new_rtags
-    review_list[seq] = reviews
 
 def show_responses(col, rtags, indent, is_new):
     """Show rtags collected
@@ -291,50 +210,6 @@ def create_branch(series, new_rtag_list, branch, dest_branch, overwrite,
             parent.name, cherry.author, cherry.committer, message, tree_id,
             [parent.target])
     return num_added
-
-def _check_status(series, series_id, pwork):
-    """Check the status of a series on Patchwork
-
-    This finds review tags and comments for a series in Patchwork, displaying
-    them to show what is new compared to the local series.
-
-    Args:
-        series (Series): Series object for the existing branch
-        series_id (str): Patch series ID number
-        pwork (Patchwork): Patchwork object to use for reading
-
-    Return:
-        tuple:
-            list of Patch: List of patches sorted by sequence number
-            dict: Patches for commit
-                key: Commit number (0...n-1)
-                value: Patch object for that commit
-            list of dict: review tags:
-                key: Response tag (e.g. 'Reviewed-by')
-                value: Set of people who gave that response, each a name/email
-                    string
-            list for each patch, each a:
-                list of Review objects for the patch
-    """
-    patches = collect_patches(series_id, pwork)
-    count = len(series.commits)
-    new_rtag_list = [None] * count
-    review_list = [None] * count
-
-    patch_for_commit, _, warnings = compare_with_series(series, patches)
-    for warn in warnings:
-        tout.warning(warn)
-
-    patch_list = [patch_for_commit.get(c) for c in range(len(series.commits))]
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
-        futures = executor.map(
-            find_new_responses, repeat(new_rtag_list), repeat(review_list),
-            range(count), series.commits, patch_list, repeat(pwork))
-    for fresponse in futures:
-        if fresponse:
-            raise fresponse.exception()
-    return patches, patch_for_commit, new_rtag_list, review_list
 
 
 def check_patch_count(num_commits, num_patches):
