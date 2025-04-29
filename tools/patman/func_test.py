@@ -20,6 +20,7 @@ from patman.commit import Commit
 from patman import control
 from patman import patchstream
 from patman.patchstream import PatchStream
+from patman import patchwork
 from patman import send
 from patman.series import Series
 from patman import settings
@@ -807,7 +808,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
 
     def test_parse_subject(self):
         """Test parsing of the patch subject"""
-        patch = status.Patch('1')
+        patch = patchwork.Patch('1')
 
         # Simple patch not in a series
         patch.parse_subject('Testing')
@@ -876,11 +877,11 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         commit3 = Commit('3456')
         commit3.subject = 'Subject 2'
 
-        patch1 = status.Patch('1')
+        patch1 = patchwork.Patch('1')
         patch1.subject = 'Subject 1'
-        patch2 = status.Patch('2')
+        patch2 = patchwork.Patch('2')
         patch2.subject = 'Subject 2'
-        patch3 = status.Patch('3')
+        patch3 = patchwork.Patch('3')
         patch3.subject = 'Subject 2'
 
         series = Series()
@@ -976,7 +977,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         commit2 = Commit('ef12')
         commit2.subject = 'Subject 2'
 
-        patch1 = status.Patch('1')
+        patch1 = patchwork.Patch('1')
         patch1.parse_subject('[1/2] Subject 1')
         patch1.name = patch1.raw_subject
         patch1.content = 'This is my patch content'
@@ -984,7 +985,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
 
         patch1.comments = [comment1a]
 
-        patch2 = status.Patch('2')
+        patch2 = patchwork.Patch('2')
         patch2.parse_subject('[2/2] Subject 2')
         patch2.name = patch2.raw_subject
         patch2.content = 'Some other patch content'
@@ -1120,7 +1121,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         series = patchstream.get_metadata_for_list(branch, gitdir, count)
         self.assertEqual(2, len(series.commits))
 
-        patch1 = status.Patch('1')
+        patch1 = patchwork.Patch('1')
         patch1.parse_subject('[1/2] %s' % series.commits[0].subject)
         patch1.name = patch1.raw_subject
         patch1.content = 'This is my patch content'
@@ -1128,7 +1129,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
 
         patch1.comments = [comment1a]
 
-        patch2 = status.Patch('2')
+        patch2 = patchwork.Patch('2')
         patch2.parse_subject('[2/2] %s' % series.commits[1].subject)
         patch2.name = patch2.raw_subject
         patch2.content = 'Some other patch content'
@@ -1291,7 +1292,7 @@ line8
         commit2 = Commit('ef12')
         commit2.subject = 'Subject 2'
 
-        patch1 = status.Patch('1')
+        patch1 = patchwork.Patch('1')
         patch1.parse_subject('[1/2] Subject 1')
         patch1.name = patch1.raw_subject
         patch1.content = 'This is my patch content'
@@ -1312,7 +1313,7 @@ Reviewed-by: %s
 
         patch1.comments = [comment1a]
 
-        patch2 = status.Patch('2')
+        patch2 = patchwork.Patch('2')
         patch2.parse_subject('[2/2] Subject 2')
         patch2.name = patch2.raw_subject
         patch2.content = 'Some other patch content'
