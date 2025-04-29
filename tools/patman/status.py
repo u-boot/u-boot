@@ -382,22 +382,25 @@ def do_show_status(patches, series, branch, show_comments, col,
     new_rtag_list = [None] * count
     review_list = [None] * count
 
-    patch_for_commit, _, warnings = compare_with_series(series, compare)
-    for warn in warnings:
-        tout.do_output(tout.WARNING if warnings_on_stderr else tout.INFO, warn)
+    with terminal.pager():
+        patch_for_commit, _, warnings = compare_with_series(series, compare)
+        for warn in warnings:
+            tout.do_output(tout.WARNING if warnings_on_stderr else tout.INFO,
+                           warn)
 
-    for seq, pw_patch in enumerate(patches):
-        compare[seq].patch = pw_patch
+        for seq, pw_patch in enumerate(patches):
+            compare[seq].patch = pw_patch
 
-    for i in range(count):
-        pat = patch_for_commit.get(i)
-        if pat:
-            patch_data = pat.patch.data
-            comment_data = pat.patch.comments
-            new_rtag_list[i], review_list[i] = process_reviews(
-                patch_data['content'], comment_data, series.commits[i].rtags)
-    num_to_add = _do_show_status(series, patch_for_commit, show_comments, new_rtag_list,
-                   review_list, col)
+        for i in range(count):
+            pat = patch_for_commit.get(i)
+            if pat:
+                patch_data = pat.patch.data
+                comment_data = pat.patch.comments
+                new_rtag_list[i], review_list[i] = process_reviews(
+                    patch_data['content'], comment_data,
+                    series.commits[i].rtags)
+        num_to_add = _do_show_status(series, patch_for_commit, show_comments, new_rtag_list,
+                       review_list, col)
     return num_to_add, new_rtag_list, patches
 
 
