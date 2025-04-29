@@ -215,7 +215,7 @@ out:
  * Return:	status code
  */
 static efi_status_t efi_binary_run_dp(void *image, size_t size, void *fdt,
-				      void *initrd, size_t initd_sz,
+				      void *initrd, size_t initrd_sz,
 				      struct efi_device_path *dp_dev,
 				      struct efi_device_path *dp_img)
 {
@@ -233,7 +233,7 @@ static efi_status_t efi_binary_run_dp(void *image, size_t size, void *fdt,
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	ret = efi_install_initrd(initrd, initd_sz);
+	ret = efi_install_initrd(initrd, initrd_sz);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
