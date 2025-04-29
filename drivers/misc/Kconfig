@@ -104,7 +104,11 @@ config ROCKCHIP_OTP
 config ROCKCHIP_IODOMAIN
 	bool "Rockchip IO-domain driver support"
 	depends on DM_REGULATOR && ARCH_ROCKCHIP
-	default y if ROCKCHIP_RK3328 || ROCKCHIP_RK3568
+	default y if ROCKCHIP_PX30
+	default y if ROCKCHIP_RK3308
+	default y if ROCKCHIP_RK3328
+	default y if ROCKCHIP_RK3399
+	default y if ROCKCHIP_RK3568
 	help
 	  Enable support for IO-domains in Rockchip SoCs. It is necessary
 	  for the IO-domain setting of the SoC to match the voltage supplied
