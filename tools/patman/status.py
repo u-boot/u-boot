@@ -35,6 +35,51 @@ def to_int(vals):
     return out
 
 
+def process_reviews(content, comment_data, base_rtags):
+    """Process and return review data
+
+    Args:
+        content (str): Content text of the patch itself - see pwork.get_patch()
+        comment_data (list of dict): Comments for the patch - see
+            pwork._get_patch_comments()
+        base_rtags (dict): base review tags (before any comments)
+            key: Response tag (e.g. 'Reviewed-by')
+            value: Set of people who gave that response, each a name/email
+                string
+
+    Return: tuple:
+        dict: new review tags (noticed since the base_rtags)
+            key: Response tag (e.g. 'Reviewed-by')
+            value: Set of people who gave that response, each a name/email
+                string
+        list of patchwork.Review: reviews received on the patch
+    """
+    pstrm = patchstream.PatchStream.process_text(content, True)
+    rtags = collections.defaultdict(set)
+    for response, people in pstrm.commit.rtags.items():
+        rtags[response].update(people)
+
+    reviews = []
+    for comment in comment_data:
+        pstrm = patchstream.PatchStream.process_text(comment['content'], True)
+        if pstrm.snippets:
+            submitter = comment['submitter']
+            person = f"{submitter['name']} <{submitter['email']}>"
+            reviews.append(patchwork.Review(person, pstrm.snippets))
+        for response, people in pstrm.commit.rtags.items():
+            rtags[response].update(people)
+
+    # Find the tags that are not in the commit
+    new_rtags = collections.defaultdict(set)
+    for tag, people in rtags.items():
+        for who in people:
+            is_new = (tag not in base_rtags or
+                      who not in base_rtags[tag])
+            if is_new:
+                new_rtags[tag].add(who)
+    return new_rtags, reviews
+
+
 def compare_with_series(series, patches):
     """Compare a list of patches with a series it came from
 
@@ -175,33 +220,10 @@ def find_new_responses(new_rtag_list, review_list, seq, cmt, patch, url,
 
     # Get the content for the patch email itself as well as all comments
     data = rest_api(url, 'patches/%s/' % patch.id)
-    pstrm = PatchStream.process_text(data['content'], True)
+    comment_data = rest_api(url, 'patches/%s/comments/' % patch.id)
 
-    rtags = collections.defaultdict(set)
-    for response, people in pstrm.commit.rtags.items():
-        rtags[response].update(people)
-
-    data = rest_api(url, 'patches/%s/comments/' % patch.id)
-
-    reviews = []
-    for comment in data:
-        pstrm = PatchStream.process_text(comment['content'], True)
-        if pstrm.snippets:
-            submitter = comment['submitter']
-            person = '%s <%s>' % (submitter['name'], submitter['email'])
-            reviews.append(patchwork.Review(person, pstrm.snippets))
-        for response, people in pstrm.commit.rtags.items():
-            rtags[response].update(people)
-
-    # Find the tags that are not in the commit
-    new_rtags = collections.defaultdict(set)
-    base_rtags = cmt.rtags
-    for tag, people in rtags.items():
-        for who in people:
-            is_new = (tag not in base_rtags or
-                      who not in base_rtags[tag])
-            if is_new:
-                new_rtags[tag].add(who)
+    new_rtags, reviews = process_reviews(data['content'], comment_data,
+                                         cmt.rtags)
     new_rtag_list[seq] = new_rtags
     review_list[seq] = reviews
 
