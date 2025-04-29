@@ -998,37 +998,33 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.commits = [commit1, commit2]
         self.patches = [patch1, patch2]
         count = 2
-        new_rtag_list = [None] * count
-        review_list = [None, None]
 
         # Check that the tags are picked up on the first patch
-        pwork = patchwork.Patchwork.for_testing(self._fake_patchwork2)
-        status.find_new_responses(new_rtag_list, review_list, 0, commit1,
-                                  patch1, pwork)
-        self.assertEqual(new_rtag_list[0], {'Reviewed-by': {self.joe}})
+        new_rtags, _ = status.process_reviews(patch1.content, patch1.comments,
+                                              commit1.rtags)
+        self.assertEqual(new_rtags, {'Reviewed-by': {self.joe}})
 
         # Now the second patch
-        status.find_new_responses(new_rtag_list, review_list, 1, commit2,
-                                  patch2, pwork)
-        self.assertEqual(new_rtag_list[1], {
+        new_rtags, _ = status.process_reviews(patch2.content, patch2.comments,
+                                              commit2.rtags)
+        self.assertEqual(new_rtags, {
             'Reviewed-by': {self.mary, self.fred},
             'Tested-by': {self.leb}})
 
         # Now add some tags to the commit, which means they should not appear as
         # 'new' tags when scanning comments
-        new_rtag_list = [None] * count
         commit1.rtags = {'Reviewed-by': {self.joe}}
-        status.find_new_responses(new_rtag_list, review_list, 0, commit1,
-                                  patch1, pwork)
-        self.assertEqual(new_rtag_list[0], {})
+        new_rtags, _ = status.process_reviews(patch1.content, patch1.comments,
+                                              commit1.rtags)
+        self.assertEqual(new_rtags, {})
 
         # For the second commit, add Ed and Fred, so only Mary should be left
         commit2.rtags = {
             'Tested-by': {self.leb},
             'Reviewed-by': {self.fred}}
-        status.find_new_responses(new_rtag_list, review_list, 1, commit2,
-                                  patch2, pwork)
-        self.assertEqual(new_rtag_list[1], {'Reviewed-by': {self.mary}})
+        new_rtags, _ = status.process_reviews(patch2.content, patch2.comments,
+                                              commit2.rtags)
+        self.assertEqual(new_rtags, {'Reviewed-by': {self.mary}})
 
         # Check that the output patches expectations:
         #   1 Subject 1
