@@ -139,6 +139,7 @@ class Patchwork:
                'https://patchwork.ozlabs.org'
         """
         self.url = url
+        self.fake_request = None
         self.proj_id = None
         self.link_name = None
         self._show_progress = show_progress
@@ -160,6 +161,8 @@ class Patchwork:
         """
         # print('subpath', subpath)
         self.request_count += 1
+        if self.fake_request:
+            return self.fake_request(subpath)
 
         full_url = f'{self.url}/api/1.2/{subpath}'
         async with self.semaphore:
@@ -177,6 +180,29 @@ class Patchwork:
                 except aiohttp.client_exceptions.ServerDisconnectedError:
                     if i == RETRIES:
                         raise
+
+    async def session_request(self, subpath):
+        async with aiohttp.ClientSession() as client:
+            return await self._request(client, subpath)
+
+    def request(self, subpath):
+        return asyncio.run(self.session_request(subpath))
+
+    @staticmethod
+    def for_testing(func):
+        """Get an instance to use for testing
+
+        Args:
+            func (function): Function to call to handle requests. The function
+                is passed a URL and is expected to return a dict with the
+                resulting data
+
+        Returns:
+            Patchwork: testing instance
+        """
+        pwork = Patchwork(None, show_progress=False)
+        pwork.fake_request = func
+        return pwork
 
     async def get_series(self, client, link):
         """Read information about a series

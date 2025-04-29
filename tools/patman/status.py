@@ -134,26 +134,7 @@ def compare_with_series(series, patches):
 
     return patch_for_commit, commit_for_patch, warnings
 
-def call_rest_api(url, subpath):
-    """Call the patchwork API and return the result as JSON
-
-    Args:
-        url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'
-        subpath (str): URL subpath to use
-
-    Returns:
-        dict: Json result
-
-    Raises:
-        ValueError: the URL could not be read
-    """
-    full_url = '%s/api/1.2/%s' % (url, subpath)
-    response = requests.get(full_url)
-    if response.status_code != 200:
-        raise ValueError("Could not read URL '%s'" % full_url)
-    return response.json()
-
-def collect_patches(series_id, url, rest_api=call_rest_api):
+def collect_patches(series_id, pwork):
     """Collect patch information about a series from patchwork
 
     Uses the Patchwork REST API to collect information provided by patchwork
@@ -161,9 +142,7 @@ def collect_patches(series_id, url, rest_api=call_rest_api):
 
     Args:
         series_id (str): Patch series ID number
-        url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'
-        rest_api (function): API function to call to access Patchwork, for
-            testing
+        pwork (Patchwork): Patchwork object to use for reading
 
     Returns:
         list of Patch: List of patches sorted by sequence number
@@ -172,7 +151,7 @@ def collect_patches(series_id, url, rest_api=call_rest_api):
         ValueError: if the URL could not be read or the web page does not follow
             the expected structure
     """
-    data = rest_api(url, 'series/%s/' % series_id)
+    data = pwork.request('series/%s/' % series_id)
 
     # Get all the rows, which are patches
     patch_dict = data['patches']
@@ -193,8 +172,7 @@ def collect_patches(series_id, url, rest_api=call_rest_api):
     patches = sorted(patches, key=lambda x: x.seq)
     return patches
 
-def find_new_responses(new_rtag_list, review_list, seq, cmt, patch, url,
-                       rest_api=call_rest_api):
+def find_new_responses(new_rtag_list, review_list, seq, cmt, patch, pwork):
     """Find new rtags collected by patchwork that we don't know about
 
     This is designed to be run in parallel, once for each commit/patch
@@ -211,16 +189,14 @@ def find_new_responses(new_rtag_list, review_list, seq, cmt, patch, url,
         seq (int): Position in new_rtag_list to update
         cmt (Commit): Commit object for this commit
         patch (Patch): Corresponding Patch object for this patch
-        url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'
-        rest_api (function): API function to call to access Patchwork, for
-            testing
+        pwork (Patchwork): Patchwork object to use for reading
     """
     if not patch:
         return
 
     # Get the content for the patch email itself as well as all comments
-    data = rest_api(url, 'patches/%s/' % patch.id)
-    comment_data = rest_api(url, 'patches/%s/comments/' % patch.id)
+    data = pwork.request('patches/%s/' % patch.id)
+    comment_data = pwork.request('patches/%s/comments/' % patch.id)
 
     new_rtags, reviews = process_reviews(data['content'], comment_data,
                                          cmt.rtags)
@@ -316,7 +292,7 @@ def create_branch(series, new_rtag_list, branch, dest_branch, overwrite,
             [parent.target])
     return num_added
 
-def check_status(series, series_id, url, rest_api=call_rest_api):
+def check_status(series, series_id, pwork):
     """Check the status of a series on Patchwork
 
     This finds review tags and comments for a series in Patchwork, displaying
@@ -325,9 +301,7 @@ def check_status(series, series_id, url, rest_api=call_rest_api):
     Args:
         series (Series): Series object for the existing branch
         series_id (str): Patch series ID number
-        url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'
-        rest_api (function): API function to call to access Patchwork, for
-            testing
+        pwork (Patchwork): Patchwork object to use for reading
 
     Return:
         tuple:
@@ -342,7 +316,7 @@ def check_status(series, series_id, url, rest_api=call_rest_api):
             list for each patch, each a:
                 list of Review objects for the patch
     """
-    patches = collect_patches(series_id, url, rest_api)
+    patches = collect_patches(series_id, pwork)
     count = len(series.commits)
     new_rtag_list = [None] * count
     review_list = [None] * count
@@ -356,8 +330,7 @@ def check_status(series, series_id, url, rest_api=call_rest_api):
     with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
         futures = executor.map(
             find_new_responses, repeat(new_rtag_list), repeat(review_list),
-            range(count), series.commits, patch_list, repeat(url),
-            repeat(rest_api))
+            range(count), series.commits, patch_list, repeat(pwork))
     for fresponse in futures:
         if fresponse:
             raise fresponse.exception()
@@ -445,8 +418,7 @@ def show_status(series, branch, dest_branch, force, patches, patch_for_commit,
 
 
 def check_and_show_status(series, link, branch, dest_branch, force,
-                          show_comments, url, rest_api=call_rest_api,
-                          test_repo=None):
+                          show_comments, pwork, test_repo=None):
     """Read the series status from patchwork and show it to the user
 
     Args:
@@ -456,12 +428,10 @@ def check_and_show_status(series, link, branch, dest_branch, force,
         dest_branch (str): Name of new branch to create, or None
         force (bool): True to force overwriting dest_branch if it exists
         show_comments (bool): True to show patch comments
-        url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'
-        rest_api (function): API function to call to access Patchwork, for
-            testing
+        pwork (Patchwork): Patchwork object to use for reading
         test_repo (pygit2.Repository): Repo to use (use None unless testing)
     """
     patches, patch_for_commit, new_rtag_list, review_list = check_status(
-        series, link, url, rest_api)
+        series, link, pwork)
     show_status(series, branch, dest_branch, force, patches, patch_for_commit,
                 show_comments, new_rtag_list, review_list, test_repo)

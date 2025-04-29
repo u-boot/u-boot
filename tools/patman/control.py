@@ -24,6 +24,7 @@ from u_boot_pylib import terminal
 from u_boot_pylib import tools
 from patman import checkpatch
 from patman import patchstream
+from patman import patchwork
 from patman import send
 
 
@@ -95,12 +96,13 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
     # Allow the series to override the URL
     if 'patchwork_url' in series:
         url = series.patchwork_url
+    pwork = patchwork.Patchwork(url)
 
     # Import this here to avoid failing on other commands if the dependencies
     # are not present
     from patman import status
     status.check_and_show_status(series, found[0], branch, dest_branch, force,
-                                 show_comments, url)
+                                 show_comments, pwork)
 
 
 def do_patman(args):
