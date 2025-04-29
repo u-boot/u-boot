@@ -28,6 +28,13 @@ last_print_len = None
 # stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
 ansi_escape = re.compile(r'\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
+# True if we are capturing console output
+CAPTURING = False
+
+# Set this to False to disable output-capturing globally
+USE_CAPTURE = True
+
+
 class PrintLine:
     """A line of text output
 
@@ -280,10 +287,17 @@ class Color(object):
 #   ...do something...
 @contextmanager
 def capture():
+    global CAPTURING
+
     capture_out, capture_err = StringIO(), StringIO()
     old_out, old_err = sys.stdout, sys.stderr
     try:
+        CAPTURING = True
         sys.stdout, sys.stderr = capture_out, capture_err
         yield capture_out, capture_err
     finally:
         sys.stdout, sys.stderr = old_out, old_err
+        CAPTURING = False
+        if not USE_CAPTURE:
+            sys.stdout.write(capture_out.getvalue())
+            sys.stderr.write(capture_err.getvalue())
