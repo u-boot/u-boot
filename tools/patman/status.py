@@ -203,10 +203,11 @@ def find_new_responses(new_rtag_list, review_list, seq, cmt, patch, pwork):
     new_rtag_list[seq] = new_rtags
     review_list[seq] = reviews
 
-def show_responses(rtags, indent, is_new):
+def show_responses(col, rtags, indent, is_new):
     """Show rtags collected
 
     Args:
+        col (terminal.Colour): Colour object to use
         rtags (dict): review tags to show
             key: Response tag (e.g. 'Reviewed-by')
             value: Set of people who gave that response, each a name/email string
@@ -216,14 +217,14 @@ def show_responses(rtags, indent, is_new):
     Returns:
         int: Number of review tags displayed
     """
-    col = terminal.Color()
     count = 0
     for tag in sorted(rtags.keys()):
         people = rtags[tag]
         for who in sorted(people):
             terminal.tprint(indent + '%s %s: ' % ('+' if is_new else ' ', tag),
-                           newline=False, colour=col.GREEN, bright=is_new)
-            terminal.tprint(who, colour=col.WHITE, bright=is_new)
+                           newline=False, colour=col.GREEN, bright=is_new,
+                           col=col)
+            terminal.tprint(who, colour=col.WHITE, bright=is_new, col=col)
             count += 1
     return count
 
@@ -357,14 +358,14 @@ def do_show_status(series, patch_for_commit, show_comments, new_rtag_list,
         if not patch:
             continue
         terminal.tprint('%3d %s' % (patch.seq, patch.subject[:50]),
-                       colour=col.BLUE)
+                       colour=col.YELLOW, col=col)
         cmt = series.commits[seq]
         base_rtags = cmt.rtags
         new_rtags = new_rtag_list[seq]
 
         indent = ' ' * 2
-        show_responses(base_rtags, indent, False)
-        num_to_add += show_responses(new_rtags, indent, True)
+        show_responses(col, base_rtags, indent, False)
+        num_to_add += show_responses(col, new_rtags, indent, True)
         if show_comments:
             for review in review_list[seq]:
                 terminal.tprint('Review: %s' % review.meta, colour=col.RED)

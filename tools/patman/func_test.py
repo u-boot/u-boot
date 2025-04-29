@@ -1043,7 +1043,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
                                      pwork)
         lines = iter(terminal.get_print_test_lines())
         col = terminal.Color()
-        self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
+        self.assertEqual(terminal.PrintLine('  1 Subject 1', col.YELLOW),
                          next(lines))
         self.assertEqual(
             terminal.PrintLine('    Reviewed-by: ', col.GREEN, newline=False,
@@ -1052,7 +1052,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual(terminal.PrintLine(self.joe, col.WHITE, bright=False),
                          next(lines))
 
-        self.assertEqual(terminal.PrintLine('  2 Subject 2', col.BLUE),
+        self.assertEqual(terminal.PrintLine('  2 Subject 2', col.YELLOW),
                          next(lines))
         self.assertEqual(
             terminal.PrintLine('    Reviewed-by: ', col.GREEN, newline=False,
@@ -1359,7 +1359,7 @@ Reviewed-by: %s
                                      pwork)
         lines = iter(terminal.get_print_test_lines())
         col = terminal.Color()
-        self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
+        self.assertEqual(terminal.PrintLine('  1 Subject 1', col.YELLOW),
                          next(lines))
         self.assertEqual(
             terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
@@ -1380,7 +1380,7 @@ Reviewed-by: %s
             '    Here is my comment above the above...', None), next(lines))
         self.assertEqual(terminal.PrintLine('', None), next(lines))
 
-        self.assertEqual(terminal.PrintLine('  2 Subject 2', col.BLUE),
+        self.assertEqual(terminal.PrintLine('  2 Subject 2', col.YELLOW),
                          next(lines))
         self.assertEqual(
             terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
