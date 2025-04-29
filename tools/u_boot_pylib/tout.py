@@ -155,7 +155,7 @@ def user_output(msg):
     """
     _output(0, msg)
 
-def init(_verbose=WARNING, stdout=sys.stdout):
+def init(_verbose=WARNING, stdout=sys.stdout, allow_colour=True):
     """Initialize a new output object.
 
     Args:
@@ -166,7 +166,8 @@ def init(_verbose=WARNING, stdout=sys.stdout):
 
     verbose = _verbose
     _progress = ''                    # Our last progress message
-    _color = terminal.Color()
+    _color = terminal.Color(terminal.COLOR_IF_TERMINAL if allow_colour
+                            else terminal.COLOR_NEVER)
     _stdout = stdout
 
     # TODO(sjg): Move this into Chromite libraries when we have them
