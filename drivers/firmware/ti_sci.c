@@ -2845,10 +2845,10 @@ static int ti_sci_probe(struct udevice *dev)
 	info->dev = dev;
 	info->seq = 0xA;
 
+	INIT_LIST_HEAD(&info->dev_list);
+
 	list_add_tail(&info->list, &ti_sci_list);
 	ti_sci_setup_ops(info);
-
-	INIT_LIST_HEAD(&info->dev_list);
 
 	if (IS_ENABLED(CONFIG_SYSRESET_TI_SCI)) {
 		ret = device_bind_driver(dev, "ti-sci-sysreset", "sysreset", NULL);
@@ -2888,6 +2888,8 @@ static __maybe_unused int ti_sci_dm_probe(struct udevice *dev)
 
 	info->dev = dev;
 	info->seq = 0xA;
+
+	INIT_LIST_HEAD(&info->dev_list);
 
 	list_add_tail(&info->list, &ti_sci_list);
 
