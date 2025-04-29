@@ -52,8 +52,10 @@ class Patch(dict):
         raw_subject (str): Raw patch subject
         subject (str): Patch subject with [..] part removed (same as commit
             subject)
+        data (dict or None): Patch data:
     """
-    def __init__(self, pid):
+    def __init__(self, pid, state=None, data=None, comments=None,
+                 series_data=None):
         super().__init__()
         self.id = pid  # Use 'id' to match what the Rest API provides
         self.seq = None
@@ -62,6 +64,11 @@ class Patch(dict):
         self.version = None
         self.raw_subject = None
         self.subject = None
+        self.state = state
+        self.data = data
+        self.comments = comments
+        self.series_data = series_data
+        self.name = None
 
     # These make us more like a dictionary
     def __setattr__(self, name, value):
