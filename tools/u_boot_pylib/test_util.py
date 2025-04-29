@@ -191,7 +191,7 @@ def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
         resultclass=FullTextTestResult,
     )
 
-    if use_concurrent and processes != 1:
+    if use_concurrent and processes != 1 and not test_name:
         suite = ConcurrentTestSuite(suite,
                 fork_for_tests(processes or multiprocessing.cpu_count()))
 
