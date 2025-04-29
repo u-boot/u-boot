@@ -25,7 +25,6 @@ from patman import settings
 from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import tools
-from u_boot_pylib.test_util import capture_sys_output
 
 import pygit2
 from patman import status
@@ -221,7 +220,7 @@ class TestFunctional(unittest.TestCase):
         cover_fname, args = self._create_patches_for_test(series)
         get_maintainer_script = str(pathlib.Path(__file__).parent.parent.parent
                                     / 'get_maintainer.pl') + ' --norolestats'
-        with capture_sys_output() as out:
+        with terminal.capture() as out:
             patchstream.fix_patches(series, args)
             if cover_fname and series.get('cover'):
                 patchstream.insert_cover_letter(cover_fname, series, count)
@@ -367,7 +366,7 @@ Changes in v2:
         series.branch = 'mybranch'
         cover_fname, args = self._create_patches_for_test(series)
         self.assertFalse(cover_fname)
-        with capture_sys_output() as out:
+        with terminal.capture() as out:
             patchstream.fix_patches(series, args, insert_base_commit=True)
         self.assertEqual('Cleaned 1 patch\n', out[0].getvalue())
         lines = tools.read_file(args[0], binary=False).splitlines()
@@ -530,7 +529,7 @@ complicated as possible''')
             # Check that it can detect the current branch
             self.assertEqual(2, gitutil.count_commits_to_branch(None))
             col = terminal.Color()
-            with capture_sys_output() as _:
+            with terminal.capture() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
                     col, branch=None, count=-1, start=0, end=0,
                     ignore_binary=False, signoff=True)
@@ -539,7 +538,7 @@ complicated as possible''')
 
             # Check that it can detect a different branch
             self.assertEqual(3, gitutil.count_commits_to_branch('second'))
-            with capture_sys_output() as _:
+            with terminal.capture() as _:
                 series, cover_fname, patch_files = control.prepare_patches(
                     col, branch='second', count=-1, start=0, end=0,
                     ignore_binary=False, signoff=True)
@@ -558,7 +557,7 @@ complicated as possible''')
                 self.assertNotIn(b'base-commit:', tools.read_file(fname))
 
             # Check that it can skip patches at the end
-            with capture_sys_output() as _:
+            with terminal.capture() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
                     col, branch='second', count=-1, start=0, end=1,
                     ignore_binary=False, signoff=True)
@@ -600,7 +599,7 @@ complicated as possible''')
             os.chmod('dummy-script.sh', 0x555)
 
             # Finally, do the test
-            with capture_sys_output():
+            with terminal.capture():
                 output = tools.run(PATMAN_DIR / 'patman', '--dry-run')
                 # Assert the email address is part of the dry-run
                 # output.
@@ -766,7 +765,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         """Test Patchwork patches not matching the series"""
         series = Series()
 
-        with capture_sys_output() as (_, err):
+        with terminal.capture() as (_, err):
             status.collect_patches(series, 1234, None, self._fake_patchwork)
         self.assertIn('Warning: Patchwork reports 1 patches, series has 0',
                       err.getvalue())

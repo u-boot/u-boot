@@ -7,6 +7,8 @@
 This module handles terminal interaction including ANSI color codes.
 """
 
+from contextlib import contextmanager
+from io import StringIO
 import os
 import re
 import shutil
@@ -271,3 +273,17 @@ class Color(object):
             base = self.BRIGHT_START if bright else self.NORMAL_START
             start = base % (color + 30)
         return start + text + self.RESET
+
+
+# Use this to suppress stdout/stderr output:
+# with terminal.capture() as (stdout, stderr)
+#   ...do something...
+@contextmanager
+def capture():
+    capture_out, capture_err = StringIO(), StringIO()
+    old_out, old_err = sys.stdout, sys.stderr
+    try:
+        sys.stdout, sys.stderr = capture_out, capture_err
+        yield capture_out, capture_err
+    finally:
+        sys.stdout, sys.stderr = old_out, old_err

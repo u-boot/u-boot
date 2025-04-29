@@ -3,7 +3,6 @@
 # Copyright (c) 2016 Google, Inc
 #
 
-from contextlib import contextmanager
 import doctest
 import glob
 import multiprocessing
@@ -13,8 +12,6 @@ import sys
 import unittest
 
 from u_boot_pylib import command
-
-from io import StringIO
 
 use_concurrent = True
 try:
@@ -111,20 +108,6 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir,
             if not bad:
                 return
         raise ValueError('Test coverage failure')
-
-
-# Use this to suppress stdout/stderr output:
-# with capture_sys_output() as (stdout, stderr)
-#   ...do something...
-@contextmanager
-def capture_sys_output():
-    capture_out, capture_err = StringIO(), StringIO()
-    old_out, old_err = sys.stdout, sys.stderr
-    try:
-        sys.stdout, sys.stderr = capture_out, capture_err
-        yield capture_out, capture_err
-    finally:
-        sys.stdout, sys.stderr = old_out, old_err
 
 
 class FullTextTestResult(unittest.TextTestResult):

@@ -26,6 +26,7 @@ from dtoc.dtb_platdata import get_value
 from dtoc.dtb_platdata import tab_to
 from dtoc.src_scan import conv_name_to_c
 from dtoc.src_scan import get_compat_name
+from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
 
@@ -879,7 +880,7 @@ U_BOOT_DRVINFO(gpios_at_0) = {
         """Test output from a device tree file with an invalid driver"""
         dtb_file = get_dtb_file('dtoc_test_invalid_driver.dts')
         output = tools.get_output_filename('output')
-        with test_util.capture_sys_output() as _:
+        with terminal.capture() as _:
             dtb_platdata.run_steps(
                 ['struct'], dtb_file, False, output, [], None, False,
                 scan=copy_scan())
@@ -890,7 +891,7 @@ struct dtd_invalid {
 };
 ''', data)
 
-        with test_util.capture_sys_output() as _:
+        with terminal.capture() as _:
             dtb_platdata.run_steps(
                 ['platdata'], dtb_file, False, output, [], None, False,
                 scan=copy_scan())
@@ -1522,7 +1523,7 @@ U_BOOT_DRVINFO(spl_test2) = {
     def test_stdout(self):
         """Test output to stdout"""
         dtb_file = get_dtb_file('dtoc_test_simple.dts')
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             self.run_test(['struct'], dtb_file, None)
         self._check_strings(self.struct_text, stdout.getvalue())
 
@@ -1744,7 +1745,7 @@ U_BOOT_DRVINFO(spl_test2) = {
         """Test alias for a uclass that doesn't exist"""
         dtb_file = get_dtb_file('dtoc_test_alias_bad_uc.dts')
         output = tools.get_output_filename('output')
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             plat = self.run_test(['struct'], dtb_file, output)
         self.assertEqual("Could not find uclass for alias 'other1'",
                          stdout.getvalue().strip())
@@ -1821,7 +1822,7 @@ U_BOOT_DRVINFO(spl_test2) = {
         del scan._structs['dm_test_uc_priv']
 
         # Now generate the uclasses, which should provide a warning
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             plat.generate_uclasses()
         self.assertEqual(
             'Warning: Cannot find header file for struct dm_test_uc_priv',

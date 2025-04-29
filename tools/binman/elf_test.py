@@ -13,6 +13,7 @@ import unittest
 
 from binman import elf
 from u_boot_pylib import command
+from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
 from u_boot_pylib import tout
@@ -187,7 +188,7 @@ class TestElf(unittest.TestCase):
             entry = FakeEntry(24)
             section = FakeSection()
             elf_fname = self.ElfTestFile('u_boot_binman_syms')
-            with test_util.capture_sys_output() as (stdout, stderr):
+            with terminal.capture() as (stdout, stderr):
                 elf.LookupAndWriteSymbols(elf_fname, entry, section)
             self.assertTrue(len(stdout.getvalue()) > 0)
         finally:

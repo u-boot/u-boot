@@ -670,7 +670,7 @@ Some images are invalid'''
 
     def testThreadExceptions(self):
         """Test that exceptions in threads are reported"""
-        with test_util.capture_sys_output() as (stdout, stderr):
+        with terminal.capture() as (stdout, stderr):
             self.assertEqual(102, self._RunControl('-o', self._output_dir,
                                                    test_thread_exceptions=True))
         self.assertIn(
@@ -808,7 +808,7 @@ Some images are invalid'''
 # CONFIG_LOCALVERSION_AUTO is not set
 ''', cfg_data)
 
-        with test_util.capture_sys_output() as (stdout, stderr):
+        with terminal.capture() as (stdout, stderr):
             lines, cfg_data = self.check_command('-r', '-a', 'LOCALVERSION')
         self.assertIn(b'SOURCE_DATE_EPOCH=0', lines[0])
 
@@ -1032,14 +1032,14 @@ endif
         outfile = os.path.join(self._output_dir, 'test-boards.cfg')
         if os.path.exists(outfile):
             os.remove(outfile)
-        with test_util.capture_sys_output() as (stdout, stderr):
+        with terminal.capture() as (stdout, stderr):
             result = self._RunControl('-R', outfile, brds=None,
                                       get_builder=False)
         self.assertTrue(os.path.exists(outfile))
 
     def test_print_prefix(self):
         """Test that we can print the toolchain prefix"""
-        with test_util.capture_sys_output() as (stdout, stderr):
+        with terminal.capture() as (stdout, stderr):
             result = self._RunControl('-A', 'board0')
         self.assertEqual('arm-\n', stdout.getvalue())
         self.assertEqual('', stderr.getvalue())
@@ -1083,7 +1083,7 @@ endif
 
     def test_print_arch(self):
         """Test that we can print the board architecture"""
-        with test_util.capture_sys_output() as (stdout, stderr):
+        with terminal.capture() as (stdout, stderr):
             result = self._RunControl('--print-arch', 'board0')
         self.assertEqual('arm\n', stdout.getvalue())
         self.assertEqual('', stderr.getvalue())
