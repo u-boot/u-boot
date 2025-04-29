@@ -40,8 +40,10 @@ def run_patman():
         from patman import func_test
         from patman import test_checkpatch
 
+        to_run = args.testname if args.testname not in [None, 'test'] else None
         result = test_util.run_test_suites(
-            'patman', False, False, False, False, None, None, None,
+            'patman', False, args.verbose, args.no_capture,
+            args.test_preserve_dirs, None, to_run, None,
             [test_checkpatch.TestPatch, func_test.TestFunctional,
              'settings'])
 
