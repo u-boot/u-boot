@@ -1,3 +1,4 @@
+aiohttp==3.9.1
 ConfigParser==7.1.0
 importlib_resources==6.5.2
 pygit2==1.13.3
