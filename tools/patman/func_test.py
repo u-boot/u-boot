@@ -790,7 +790,8 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         series = Series()
 
         with terminal.capture() as (_, err):
-            status.collect_patches(series, 1234, None, self._fake_patchwork)
+            patches = status.collect_patches(1234, None, self._fake_patchwork)
+            status.check_patch_count(0, len(patches))
         self.assertIn('Warning: Patchwork reports 1 patches, series has 0',
                       err.getvalue())
 
@@ -799,7 +800,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         series = Series()
         series.commits = [Commit('abcd')]
 
-        patches = status.collect_patches(series, 1234, None,
+        patches = status.collect_patches(1234, None,
                                          self._fake_patchwork)
         self.assertEqual(1, len(patches))
         patch = patches[0]

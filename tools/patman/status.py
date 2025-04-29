@@ -108,22 +108,20 @@ def call_rest_api(url, subpath):
         raise ValueError("Could not read URL '%s'" % full_url)
     return response.json()
 
-def collect_patches(series, series_id, url, rest_api=call_rest_api):
+def collect_patches(series_id, url, rest_api=call_rest_api):
     """Collect patch information about a series from patchwork
 
     Uses the Patchwork REST API to collect information provided by patchwork
     about the status of each patch.
 
     Args:
-        series (Series): Series object corresponding to the local branch
-            containing the series
         series_id (str): Patch series ID number
         url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'
         rest_api (function): API function to call to access Patchwork, for
             testing
 
     Returns:
-        list: List of patches sorted by sequence number, each a Patch object
+        list of Patch: List of patches sorted by sequence number
 
     Raises:
         ValueError: if the URL could not be read or the web page does not follow
@@ -134,10 +132,6 @@ def collect_patches(series, series_id, url, rest_api=call_rest_api):
     # Get all the rows, which are patches
     patch_dict = data['patches']
     count = len(patch_dict)
-    num_commits = len(series.commits)
-    if count != num_commits:
-        tout.warning('Warning: Patchwork reports %d patches, series has %d' %
-                     (count, num_commits))
 
     patches = []
 
@@ -300,9 +294,7 @@ def create_branch(series, new_rtag_list, branch, dest_branch, overwrite,
             [parent.target])
     return num_added
 
-def check_and_show_status(series, series_id, branch, dest_branch, force,
-                          show_comments, url, rest_api=call_rest_api,
-                          test_repo=None):
+def check_status(series, series_id, url, rest_api=call_rest_api):
     """Check the status of a series on Patchwork
 
     This finds review tags and comments for a series in Patchwork, displaying
@@ -311,17 +303,24 @@ def check_and_show_status(series, series_id, branch, dest_branch, force,
     Args:
         series (Series): Series object for the existing branch
         series_id (str): Patch series ID number
-        branch (str): Existing branch to update, or None
-        dest_branch (str): Name of new branch to create, or None
-        force (bool): True to force overwriting dest_branch if it exists
-        show_comments (bool): True to show the comments on each patch
         url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'
         rest_api (function): API function to call to access Patchwork, for
             testing
-        test_repo (pygit2.Repository): Repo to use (use None unless testing)
+
+    Return:
+        tuple:
+            list of Patch: List of patches sorted by sequence number
+            dict: Patches for commit
+                key: Commit number (0...n-1)
+                value: Patch object for that commit
+            list of dict: review tags:
+                key: Response tag (e.g. 'Reviewed-by')
+                value: Set of people who gave that response, each a name/email
+                    string
+            list for each patch, each a:
+                list of Review objects for the patch
     """
-    patches = collect_patches(series, series_id, url, rest_api)
-    col = terminal.Color()
+    patches = collect_patches(series_id, url, rest_api)
     count = len(series.commits)
     new_rtag_list = [None] * count
     review_list = [None] * count
@@ -340,7 +339,23 @@ def check_and_show_status(series, series_id, branch, dest_branch, force,
     for fresponse in futures:
         if fresponse:
             raise fresponse.exception()
+    return patches, patch_for_commit, new_rtag_list, review_list
 
+
+def check_patch_count(num_commits, num_patches):
+    """Check the number of commits and patches agree
+
+    Args:
+        num_commits (int): Number of commits
+        num_patches (int): Number of patches
+    """
+    if num_patches != num_commits:
+        tout.warning(f'Warning: Patchwork reports {num_patches} patches, '
+                     f'series has {num_commits}')
+
+
+def do_show_status(series, patch_for_commit, show_comments, new_rtag_list,
+                   review_list, col):
     num_to_add = 0
     for seq, cmt in enumerate(series.commits):
         patch = patch_for_commit.get(seq)
@@ -364,6 +379,35 @@ def check_and_show_status(series, series_id, branch, dest_branch, force,
                         terminal.tprint('    %s' % line,
                                        colour=col.MAGENTA if quoted else None)
                     terminal.tprint()
+    return num_to_add
+
+
+def show_status(series, branch, dest_branch, force, patches, patch_for_commit,
+                show_comments, new_rtag_list, review_list, test_repo=None):
+    """Show status to the user and allow a branch to be written
+
+    Args:
+        series (Series): Series object for the existing branch
+        branch (str): Existing branch to update, or None
+        dest_branch (str): Name of new branch to create, or None
+        force (bool): True to force overwriting dest_branch if it exists
+        patches (list of Patch): Patches sorted by sequence number
+        patch_for_commit (dict): Patches for commit
+            key: Commit number (0...n-1)
+            value: Patch object for that commit
+        show_comments (bool): True to show patch comments
+        new_rtag_list (list of dict) review tags for each patch:
+            key: Response tag (e.g. 'Reviewed-by')
+            value: Set of people who gave that response, each a name/email
+                string
+        review_list (list of list): list for each patch, each a:
+            list of Review objects for the patch
+        test_repo (pygit2.Repository): Repo to use (use None unless testing)
+    """
+    col = terminal.Color()
+    check_patch_count(len(series.commits), len(patches))
+    num_to_add = do_show_status(series, patch_for_commit, show_comments,
+                                new_rtag_list, review_list, col)
 
     terminal.tprint("%d new response%s available in patchwork%s" %
                    (num_to_add, 's' if num_to_add != 1 else '',
@@ -371,8 +415,31 @@ def check_and_show_status(series, series_id, branch, dest_branch, force,
                     else ' (use -d to write them to a new branch)'))
 
     if dest_branch:
-        num_added = create_branch(series, new_rtag_list, branch,
-                                  dest_branch, force, test_repo)
+        num_added = create_branch(series, new_rtag_list, branch, dest_branch,
+                                  force, test_repo)
         terminal.tprint(
             "%d response%s added from patchwork into new branch '%s'" %
             (num_added, 's' if num_added != 1 else '', dest_branch))
+
+
+def check_and_show_status(series, link, branch, dest_branch, force,
+                          show_comments, url, rest_api=call_rest_api,
+                          test_repo=None):
+    """Read the series status from patchwork and show it to the user
+
+    Args:
+        series (Series): Series object for the existing branch
+        link (str): Patch series ID number
+        branch (str): Existing branch to update, or None
+        dest_branch (str): Name of new branch to create, or None
+        force (bool): True to force overwriting dest_branch if it exists
+        show_comments (bool): True to show patch comments
+        url (str): URL of patchwork server, e.g. 'https://patchwork.ozlabs.org'
+        rest_api (function): API function to call to access Patchwork, for
+            testing
+        test_repo (pygit2.Repository): Repo to use (use None unless testing)
+    """
+    patches, patch_for_commit, new_rtag_list, review_list = check_status(
+        series, link, url, rest_api)
+    show_status(series, branch, dest_branch, force, patches, patch_for_commit,
+                show_comments, new_rtag_list, review_list, test_repo)
