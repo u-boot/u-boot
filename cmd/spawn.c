@@ -169,7 +169,7 @@ static int do_wait(struct cmd_tbl *cmdtp, int flag, int argc,
 	} else {
 		for (i = 1; i < argc; i++) {
 			id = dectoul(argv[i], NULL);
-			if (id < 0 || id > CONFIG_CMD_SPAWN_NUM_JOBS)
+			if (id < 1 || id > CONFIG_CMD_SPAWN_NUM_JOBS)
 				return CMD_RET_USAGE;
 			idx = (int)id - 1;
 			ret = wait_job(idx);
