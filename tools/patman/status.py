@@ -8,7 +8,7 @@ Allows creation of a new branch based on the old but with the review tags
 collected from patchwork.
 """
 
-import collections
+from collections import defaultdict
 import concurrent.futures
 from itertools import repeat
 
@@ -55,7 +55,7 @@ def process_reviews(content, comment_data, base_rtags):
         list of patchwork.Review: reviews received on the patch
     """
     pstrm = patchstream.PatchStream.process_text(content, True)
-    rtags = collections.defaultdict(set)
+    rtags = defaultdict(set)
     for response, people in pstrm.commit.rtags.items():
         rtags[response].update(people)
 
@@ -70,7 +70,7 @@ def process_reviews(content, comment_data, base_rtags):
             rtags[response].update(people)
 
     # Find the tags that are not in the commit
-    new_rtags = collections.defaultdict(set)
+    new_rtags = defaultdict(set)
     for tag, people in rtags.items():
         for who in people:
             is_new = (tag not in base_rtags or
@@ -114,7 +114,6 @@ def compare_with_series(series, patches):
         else:
             warnings.append("Cannot find patch for commit %d ('%s')" %
                             (seq + 1, cmt.subject))
-
 
     # Check the names match
     commit_for_patch = {}
