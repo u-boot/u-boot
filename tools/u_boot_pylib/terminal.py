@@ -12,6 +12,7 @@ from io import StringIO
 import os
 import re
 import shutil
+import subprocess
 import sys
 
 # Selection of when we want our output to be colored
@@ -211,8 +212,16 @@ def echo_print_test_lines():
         if line.newline:
             print()
 
+def have_terminal():
+    """Check if we have an interactive terminal or not
 
-class Color(object):
+    Returns:
+        bool: true if an interactive terminal is attached
+    """
+    return os.isatty(sys.stdout.fileno())
+
+
+class Color():
     """Conditionally wraps text in ANSI color escape sequences."""
     BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
     BOLD = -1
@@ -309,3 +318,29 @@ def capture():
         if not USE_CAPTURE:
             sys.stdout.write(capture_out.getvalue())
             sys.stderr.write(capture_err.getvalue())
+
+
+@contextmanager
+def pager():
+    """Simple pager for outputting lots of text
+
+    Usage:
+        with terminal.pager():
+            print(...)
+    """
+    proc = None
+    old_stdout = None
+    try:
+        less = os.getenv('PAGER')
+        if not CAPTURING and less != 'none' and have_terminal():
+            if not less:
+                less = 'less -R --quit-if-one-screen'
+            proc = subprocess.Popen(less, stdin=subprocess.PIPE, text=True,
+                                    shell=True)
+            old_stdout = sys.stdout
+            sys.stdout = proc.stdin
+        yield
+    finally:
+        if proc:
+            sys.stdout = old_stdout
+            proc.communicate()
