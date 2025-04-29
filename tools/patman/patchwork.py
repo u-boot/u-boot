@@ -9,6 +9,7 @@ import asyncio
 import re
 
 import aiohttp
+from u_boot_pylib import terminal
 
 # Number of retries
 RETRIES = 3
@@ -187,13 +188,6 @@ class Patchwork:
                 except aiohttp.client_exceptions.ServerDisconnectedError:
                     if i == RETRIES:
                         raise
-
-    async def session_request(self, subpath):
-        async with aiohttp.ClientSession() as client:
-            return await self._request(client, subpath)
-
-    def request(self, subpath):
-        return asyncio.run(self.session_request(subpath))
 
     @staticmethod
     def for_testing(func):
