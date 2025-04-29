@@ -51,7 +51,10 @@ struct uthread {
 };
 
 /**
- * Internal state of a struct uthread_mutex
+ * enum uthread_mutex_state - internal state of a struct uthread_mutex
+ *
+ * @UTHREAD_MUTEX_UNLOCKED: mutex has no owner
+ * @UTHREAD_MUTEX_LOCKED: mutex has one owner
  */
 enum uthread_mutex_state {
 	UTHREAD_MUTEX_UNLOCKED = 0,
@@ -59,7 +62,9 @@ enum uthread_mutex_state {
 };
 
 /**
- * Uthread mutex
+ * struct uthread_mutex - a mutex object
+ *
+ * @state: the internal state of the mutex
  */
 struct uthread_mutex {
 	enum uthread_mutex_state state;
