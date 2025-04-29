@@ -177,3 +177,221 @@ class Patchwork:
                 except aiohttp.client_exceptions.ServerDisconnectedError:
                     if i == RETRIES:
                         raise
+
+    async def get_series(self, client, link):
+        """Read information about a series
+
+        Args:
+            client (aiohttp.ClientSession): Session to use
+            link (str): Patchwork series ID
+
+        Returns: dict containing patchwork's series information
+            id (int): series ID unique across patchwork instance, e.g. 3
+            url (str): Full URL, e.g.
+                'https://patchwork.ozlabs.org/api/1.2/series/3/'
+            web_url (str): Full URL, e.g.
+                'https://patchwork.ozlabs.org/project/uboot/list/?series=3
+            project (dict): project information (id, url, name, link_name,
+                list_id, list_email, etc.
+            name (str): Series name, e.g. '[U-Boot] moveconfig: fix error'
+            date (str): Date, e.g. '2017-08-27T08:00:51'
+            submitter (dict): id, url, name, email, e.g.:
+                "id": 6125,
+                "url": "https://patchwork.ozlabs.org/api/1.2/people/6125/",
+                "name": "Chris Packham",
+                "email": "judge.packham@gmail.com"
+            version (int): Version number
+            total (int): Total number of patches based on subject
+            received_total (int): Total patches received by patchwork
+            received_all (bool): True if all patches were received
+            mbox (str): URL of mailbox, e.g.
+                'https://patchwork.ozlabs.org/series/3/mbox/'
+            cover_letter (dict) or None, e.g.:
+                "id": 806215,
+                "url": "https://patchwork.ozlabs.org/api/1.2/covers/806215/",
+                "web_url": "https://patchwork.ozlabs.org/project/uboot/cover/
+                    20170827094411.8583-1-judge.packham@gmail.com/",
+                "msgid": "<20170827094411.8583-1-judge.packham@gmail.com>",
+                "list_archive_url": null,
+                "date": "2017-08-27T09:44:07",
+                "name": "[U-Boot,v2,0/4] usb: net: Migrate USB Ethernet",
+                "mbox": "https://patchwork.ozlabs.org/project/uboot/cover/
+                    20170827094411.8583-1-judge.packham@gmail.com/mbox/"
+            patches (list of dict), each e.g.:
+                "id": 806202,
+                "url": "https://patchwork.ozlabs.org/api/1.2/patches/806202/",
+                "web_url": "https://patchwork.ozlabs.org/project/uboot/patch/
+                    20170827080051.816-1-judge.packham@gmail.com/",
+                "msgid": "<20170827080051.816-1-judge.packham@gmail.com>",
+                "list_archive_url": null,
+                "date": "2017-08-27T08:00:51",
+                "name": "[U-Boot] moveconfig: fix error message do_autoconf()",
+                "mbox": "https://patchwork.ozlabs.org/project/uboot/patch/
+                    20170827080051.816-1-judge.packham@gmail.com/mbox/"
+        """
+        return await self._request(client, f'series/{link}/')
+
+    async def get_patch(self, client, patch_id):
+        """Read information about a patch
+
+        Args:
+            client (aiohttp.ClientSession): Session to use
+            patch_id (str): Patchwork patch ID
+
+        Returns: dict containing patchwork's patch information
+            "id": 185,
+            "url": "https://patchwork.ozlabs.org/api/1.2/patches/185/",
+            "web_url": "https://patchwork.ozlabs.org/project/cbe-oss-dev/patch/
+                200809050416.27831.adetsch@br.ibm.com/",
+            project (dict): project information (id, url, name, link_name,
+                    list_id, list_email, etc.
+            "msgid": "<200809050416.27831.adetsch@br.ibm.com>",
+            "list_archive_url": null,
+            "date": "2008-09-05T07:16:27",
+            "name": "powerpc/spufs: Fix possible scheduling of a context",
+            "commit_ref": "b2e601d14deb2083e2a537b47869ab3895d23a28",
+            "pull_url": null,
+            "state": "accepted",
+            "archived": false,
+            "hash": "bc1c0b80d7cff66c0d1e5f3f8f4d10eb36176f0d",
+            "submitter": {
+                "id": 93,
+                "url": "https://patchwork.ozlabs.org/api/1.2/people/93/",
+                "name": "Andre Detsch",
+                "email": "adetsch@br.ibm.com"
+            },
+            "delegate": {
+                "id": 1,
+                "url": "https://patchwork.ozlabs.org/api/1.2/users/1/",
+                "username": "jk",
+                "first_name": "Jeremy",
+                "last_name": "Kerr",
+                "email": "jk@ozlabs.org"
+            },
+            "mbox": "https://patchwork.ozlabs.org/project/cbe-oss-dev/patch/
+                200809050416.27831.adetsch@br.ibm.com/mbox/",
+            "series": [],
+            "comments": "https://patchwork.ozlabs.org/api/patches/185/
+                comments/",
+            "check": "pending",
+            "checks": "https://patchwork.ozlabs.org/api/patches/185/checks/",
+            "tags": {},
+            "related": [],
+            "headers": {...}
+            "content": "We currently have a race when scheduling a context
+                after we have found a runnable context in spusched_tick, the
+                context may have been scheduled by spu_activate().
+
+                This may result in a panic if we try to unschedule a context
+                been freed in the meantime.
+
+                This change exits spu_schedule() if the context has already
+                scheduled, so we don't end up scheduling it twice.
+
+                Signed-off-by: Andre Detsch <adetsch@br.ibm.com>",
+            "diff": '''Index: spufs/arch/powerpc/platforms/cell/spufs/sched.c
+                =======================================================
+                --- spufs.orig/arch/powerpc/platforms/cell/spufs/sched.c
+                +++ spufs/arch/powerpc/platforms/cell/spufs/sched.c
+                @@ -727,7 +727,8 @@ static void spu_schedule(struct spu *spu
+                 \t/* not a candidate for interruptible because it's called
+                 \t   from the scheduler thread or from spu_deactivate */
+                 \tmutex_lock(&ctx->state_mutex);
+                -\t__spu_schedule(spu, ctx);
+                +\tif (ctx->state == SPU_STATE_SAVED)
+                +\t\t__spu_schedule(spu, ctx);
+                 \tspu_release(ctx);
+                 }
+                '''
+            "prefixes": ["3/3", ...]
+        """
+        return await self._request(client, f'patches/{patch_id}/')
+
+    async def _get_patch_comments(self, client, patch_id):
+        """Read comments about a patch
+
+        Args:
+            client (aiohttp.ClientSession): Session to use
+            patch_id (str): Patchwork patch ID
+
+        Returns: list of dict: list of comments:
+            id (int): series ID unique across patchwork instance, e.g. 3331924
+            web_url (str): Full URL, e.g.
+                'https://patchwork.ozlabs.org/comment/3331924/'
+            msgid (str): Message ID, e.g.
+                '<d2526c98-8198-4b8b-ab10-20bda0151da1@gmx.de>'
+            list_archive_url: (unknown?)
+            date (str): Date, e.g. '2024-06-20T13:38:03'
+            subject (str): email subject, e.g. 'Re: [PATCH 3/5] buildman:
+                Support building within a Python venv'
+            date (str): Date, e.g. '2017-08-27T08:00:51'
+            submitter (dict): id, url, name, email, e.g.:
+                "id": 61270,
+                "url": "https://patchwork.ozlabs.org/api/people/61270/",
+                "name": "Heinrich Schuchardt",
+                "email": "xypron.glpk@gmx.de"
+            content (str): Content of email, e.g. 'On 20.06.24 15:19,
+                Simon Glass wrote:
+                >...'
+            headers: dict: email headers, see get_cover() for an example
+        """
+        return await self._request(client, f'patches/{patch_id}/comments/')
+
+    async def get_patch_comments(self, patch_id):
+        async with aiohttp.ClientSession() as client:
+            return await self._get_patch_comments(client, patch_id)
+
+    async def _get_patch_status(self, client, patch_id):
+        """Get the patch status
+
+        Args:
+            client (aiohttp.ClientSession): Session to use
+            patch_id (int): Patch ID to look up in patchwork
+
+        Return:
+            PATCH: Patch information
+
+        Requests:
+            1 for patch, 1 for patch comments
+        """
+        data = await self.get_patch(client, patch_id)
+        state = data['state']
+        comment_data = await self._get_patch_comments(client, patch_id)
+
+        return Patch(patch_id, state, data, comment_data)
+
+    async def series_get_state(self, client, link, read_comments):
+        """Sync the series information against patchwork, to find patch status
+
+        Args:
+            client (aiohttp.ClientSession): Session to use
+            link (str): Patchwork series ID
+            read_comments (bool): True to read the comments on the patches
+
+        Return: tuple:
+            list of Patch objects
+        """
+        data = await self.get_series(client, link)
+        patch_list = list(data['patches'])
+
+        count = len(patch_list)
+        patches = []
+        if read_comments:
+            # Returns a list of Patch objects
+            tasks = [self._get_patch_status(client, patch_list[i]['id'])
+                                            for i in range(count)]
+
+            patch_status = await asyncio.gather(*tasks)
+            for patch_data, status in zip(patch_list, patch_status):
+                status.series_data = patch_data
+                patches.append(status)
+        else:
+            for i in range(count):
+                info = patch_list[i]
+                pat = Patch(info['id'], series_data=info)
+                pat.raw_subject = info['name']
+                patches.append(pat)
+        if self._show_progress:
+            terminal.print_clear()
+
+        return patches
