@@ -38,7 +38,7 @@ def run_patman():
         from patman import test_checkpatch
 
         result = test_util.run_test_suites(
-            'patman', False, False, False, None, None, None,
+            'patman', False, False, False, False, None, None, None,
             [test_checkpatch.TestPatch, func_test.TestFunctional,
              'settings'])
 

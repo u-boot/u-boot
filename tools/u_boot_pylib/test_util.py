@@ -12,6 +12,7 @@ import sys
 import unittest
 
 from u_boot_pylib import command
+from u_boot_pylib import terminal
 
 use_concurrent = True
 try:
@@ -155,8 +156,8 @@ class FullTextTestResult(unittest.TextTestResult):
         super().addSkip(test, reason)
 
 
-def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
-                    test_name, toolpath, class_and_module_list):
+def run_test_suites(toolname, debug, verbosity, no_capture, test_preserve_dirs,
+                    processes, test_name, toolpath, class_and_module_list):
     """Run a series of test suites and collect the results
 
     Args:
@@ -179,6 +180,9 @@ def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
         sys.argv.append('-D')
     if verbosity:
         sys.argv.append('-v%d' % verbosity)
+    if no_capture:
+        sys.argv.append('-N')
+        terminal.USE_CAPTURE = False
     if toolpath:
         for path in toolpath:
             sys.argv += ['--toolpath', path]
@@ -207,7 +211,7 @@ def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
             setup_test_args = getattr(module, 'setup_test_args')
             setup_test_args(preserve_indir=test_preserve_dirs,
                 preserve_outdirs=test_preserve_dirs and test_name is not None,
-                toolpath=toolpath, verbosity=verbosity)
+                toolpath=toolpath, verbosity=verbosity, no_capture=no_capture)
         if test_name:
             # Since Python v3.5 If an ImportError or AttributeError occurs
             # while traversing a name then a synthetic test that raises that
