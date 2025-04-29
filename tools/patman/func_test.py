@@ -152,7 +152,7 @@ class TestFunctional(unittest.TestCase):
             Commit-changes: 2
             - Changes only for this commit
 
-'            Cover-changes: 4
+            Cover-changes: 4
             - Some notes for the cover letter
 
             Cover-letter:
