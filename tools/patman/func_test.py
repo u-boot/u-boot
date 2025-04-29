@@ -20,6 +20,7 @@ from patman.commit import Commit
 from patman import control
 from patman import patchstream
 from patman.patchstream import PatchStream
+from patman import send
 from patman.series import Series
 from patman import settings
 from u_boot_pylib import gitutil
@@ -552,7 +553,7 @@ complicated as possible''')
             self.assertEqual(2, gitutil.count_commits_to_branch(None))
             col = terminal.Color()
             with terminal.capture() as _:
-                _, cover_fname, patch_files = control.prepare_patches(
+                _, cover_fname, patch_files = send.prepare_patches(
                     col, branch=None, count=-1, start=0, end=0,
                     ignore_binary=False, signoff=True)
             self.assertIsNone(cover_fname)
@@ -561,7 +562,7 @@ complicated as possible''')
             # Check that it can detect a different branch
             self.assertEqual(3, gitutil.count_commits_to_branch('second'))
             with terminal.capture() as _:
-                series, cover_fname, patch_files = control.prepare_patches(
+                series, cover_fname, patch_files = send.prepare_patches(
                     col, branch='second', count=-1, start=0, end=0,
                     ignore_binary=False, signoff=True)
             self.assertIsNotNone(cover_fname)
@@ -580,7 +581,7 @@ complicated as possible''')
 
             # Check that it can skip patches at the end
             with terminal.capture() as _:
-                _, cover_fname, patch_files = control.prepare_patches(
+                _, cover_fname, patch_files = send.prepare_patches(
                     col, branch='second', count=-1, start=0, end=1,
                     ignore_binary=False, signoff=True)
             self.assertIsNotNone(cover_fname)
