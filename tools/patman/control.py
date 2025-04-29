@@ -44,7 +44,7 @@ def do_send(args):
 
 
 def patchwork_status(branch, count, start, end, dest_branch, force,
-                     show_comments, url):
+                     show_comments, url, single_thread=False):
     """Check the status of patches in patchwork
 
     This finds the series in patchwork using the Series-link tag, checks for new
@@ -96,7 +96,7 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
     # Allow the series to override the URL
     if 'patchwork_url' in series:
         url = series.patchwork_url
-    pwork = patchwork.Patchwork(url)
+    pwork = patchwork.Patchwork(url, single_thread=single_thread)
 
     # Import this here to avoid failing on other commands if the dependencies
     # are not present

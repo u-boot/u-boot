@@ -139,7 +139,7 @@ class Review:
 class Patchwork:
     """Class to handle communication with patchwork
     """
-    def __init__(self, url, show_progress=True):
+    def __init__(self, url, show_progress=True, single_thread=False):
         """Set up a new patchwork handler
 
         Args:
@@ -151,7 +151,8 @@ class Patchwork:
         self.proj_id = None
         self.link_name = None
         self._show_progress = show_progress
-        self.semaphore = asyncio.Semaphore(MAX_CONCURRENT)
+        self.semaphore = asyncio.Semaphore(
+            1 if single_thread else MAX_CONCURRENT)
         self.request_count = 0
 
     async def _request(self, client, subpath):
