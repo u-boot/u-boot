@@ -15,6 +15,7 @@ our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '..'))
 
 # Our modules
+from u_boot_pylib import tout
 from patman import cmdline
 from patman import control
 from u_boot_pylib import test_util
@@ -31,7 +32,9 @@ def run_patman():
     if not args.debug:
         sys.tracebacklimit = 0
 
-    # Run our meagre tests
+    tout.init(tout.INFO if args.verbose else tout.WARNING)
+
+    # Run our reasonably good tests
     if args.cmd == 'test':
         # pylint: disable=C0415
         from patman import func_test
@@ -46,7 +49,8 @@ def run_patman():
 
     # Process commits, produce patches files, check them, email them
     else:
-        control.do_patman(args)
+        exit_code = control.do_patman(args)
+        sys.exit(exit_code)
 
 
 if __name__ == "__main__":

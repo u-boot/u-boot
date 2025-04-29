@@ -280,18 +280,18 @@ def do_patman(args):
                 args.ignore_bad_tags = True
             send(args)
 
-    # Check status of patches in patchwork
-    elif args.cmd == 'status':
-        ret_code = 0
-        try:
+    ret_code = 0
+    try:
+        # Check status of patches in patchwork
+        if args.cmd == 'status':
             patchwork_status(args.branch, args.count, args.start, args.end,
                              args.dest_branch, args.force, args.show_comments,
                              args.patchwork_url)
-        except Exception as exc:
-            terminal.tprint(f'patman: {type(exc).__name__}: {exc}',
-                            colour=terminal.Color.RED)
-            if args.debug:
-                print()
-                traceback.print_exc()
-            ret_code = 1
-        sys.exit(ret_code)
+    except Exception as exc:
+        terminal.tprint(f'patman: {type(exc).__name__}: {exc}',
+                        colour=terminal.Color.RED)
+        if args.debug:
+            print()
+            traceback.print_exc()
+        ret_code = 1
+    return ret_code
