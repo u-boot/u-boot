@@ -210,9 +210,11 @@ uint32_t exfat_vbr_start_checksum(const void* sector, size_t size);
 uint32_t exfat_vbr_add_checksum(const void* sector, size_t size, uint32_t sum);
 le16_t exfat_calc_name_hash(const struct exfat* ef, const le16_t* name,
 		size_t length);
+#ifndef __UBOOT__
 void exfat_humanize_bytes(uint64_t value, struct exfat_human_bytes* hb);
 void exfat_print_info(const struct exfat_super_block* sb,
 		uint32_t free_clusters);
+#endif
 bool exfat_match_option(const char* options, const char* option_name);
 
 int exfat_utf16_to_utf8(char* output, const le16_t* input, size_t outsize,

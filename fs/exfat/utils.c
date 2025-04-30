@@ -134,6 +134,7 @@ le16_t exfat_calc_name_hash(const struct exfat* ef, const le16_t* name,
 	return cpu_to_le16(hash);
 }
 
+#ifndef __UBOOT__
 void exfat_humanize_bytes(uint64_t value, struct exfat_human_bytes* hb)
 {
 	size_t i;
@@ -178,6 +179,7 @@ void exfat_print_info(const struct exfat_super_block* sb,
 	exfat_humanize_bytes(avail_space, &hb);
 	printf("Available space      %10"PRIu64" %s\n", hb.value, hb.unit);
 }
+#endif
 
 bool exfat_match_option(const char* options, const char* option_name)
 {
