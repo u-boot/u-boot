@@ -720,6 +720,9 @@ int exfat_fs_opendir(const char *filename, struct fs_dir_stream **dirsp)
 	struct exfat_node *dnode;
 	int err;
 
+	if (strlen(filename) >= PATH_MAX)
+		return -ENAMETOOLONG;
+
 	err = exfat_lookup_realpath(&ctxt.ef, &dnode, filename);
 	if (err)
 		return err;
@@ -736,7 +739,7 @@ int exfat_fs_opendir(const char *filename, struct fs_dir_stream **dirsp)
 	if (!dirs)
 		return -ENOMEM;
 
-	strcpy(dirs->dirname, filename);
+	strncpy(dirs->dirname, filename, PATH_MAX - 1);
 	dirs->offset = -1;
 
 	*dirsp = &dirs->fs_dirs;
