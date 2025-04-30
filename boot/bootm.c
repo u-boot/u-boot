@@ -34,6 +34,7 @@
 
 #include <bootm.h>
 #include <image.h>
+#include <u-boot/zlib.h>
 
 #define MAX_CMDLINE_SIZE	SZ_4K
 
@@ -578,7 +579,8 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size,
 	if (ret == -ENOSYS)
 		return BOOTM_ERR_UNIMPLEMENTED;
 
-	if (uncomp_size >= buf_size)
+	if ((comp_type == IH_COMP_GZIP && ret == Z_BUF_ERROR) ||
+	    uncomp_size >= buf_size)
 		printf("Image too large: increase CONFIG_SYS_BOOTM_LEN\n");
 	else
 		printf("%s: uncompress error %d\n", name, ret);

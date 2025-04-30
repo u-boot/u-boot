@@ -299,7 +299,7 @@ __rcode int zunzip(void *dst, int dstlen, unsigned char *src,
 		if (stoponerr == 1 && r != Z_STREAM_END &&
 		    (s.avail_in == 0 || s.avail_out == 0 || r != Z_BUF_ERROR)) {
 			printf("Error: inflate() returned %d\n", r);
-			err = -1;
+			err = r;
 			break;
 		}
 	} while (r == Z_BUF_ERROR);
