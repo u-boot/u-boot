@@ -68,12 +68,12 @@ Set the variables corresponding to this platform:
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
 
-.. code-block:: bash
+.. prompt:: bash
 
- $ export UBOOT_CFG_CORTEXR=j722s_evm_r5_defconfig
- $ export UBOOT_CFG_CORTEXA=j722s_evm_a53_defconfig
- $ export TFA_BOARD=lite
- $ export OPTEE_PLATFORM=k3-am62x
+   export UBOOT_CFG_CORTEXR=j722s_evm_r5_defconfig
+   export UBOOT_CFG_CORTEXA=j722s_evm_a53_defconfig
+   export TFA_BOARD=lite
+   export OPTEE_PLATFORM=k3-am62x
 
 .. j722s_evm_rst_include_start_build_steps
 
@@ -258,6 +258,6 @@ detailed setup information.
 
 To start OpenOCD and connect to the board
 
-.. code-block:: bash
+.. prompt:: bash
 
   openocd -f board/ti_j722sevm.cfg

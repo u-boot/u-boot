@@ -498,11 +498,11 @@ static int do_bootm_efi(int flag, struct bootm_info *bmi)
 	/* We expect to return */
 	images->os.type = IH_TYPE_STANDALONE;
 
-	image_buf = map_sysmem(images->ep, images->os.image_len);
+	image_buf = map_sysmem(images->os.image_start, images->os.image_len);
 
 	/* Run EFI image */
 	printf("## Transferring control to EFI (at address %08lx) ...\n",
-	       images->ep);
+	       images->os.image_start);
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 	ret = efi_binary_run(image_buf, images->os.image_len,

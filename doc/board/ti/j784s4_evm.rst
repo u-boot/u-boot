@@ -81,14 +81,14 @@ Set the variables corresponding to this platform:
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
-.. code-block:: bash
+.. prompt:: bash
 
- $ export UBOOT_CFG_CORTEXR=j784s4_evm_r5_defconfig
- $ export UBOOT_CFG_CORTEXA=j784s4_evm_a72_defconfig
- $ export TFA_BOARD=j784s4
- $ export TFA_EXTRA_ARGS="K3_USART=0x8"
- $ export OPTEE_PLATFORM=k3-j784s4
- $ export OPTEE_EXTRA_ARGS="CFG_CONSOLE_UART=0x8"
+   export UBOOT_CFG_CORTEXR=j784s4_evm_r5_defconfig
+   export UBOOT_CFG_CORTEXA=j784s4_evm_a72_defconfig
+   export TFA_BOARD=j784s4
+   export TFA_EXTRA_ARGS="K3_USART=0x8"
+   export OPTEE_PLATFORM=k3-j784s4
+   export OPTEE_EXTRA_ARGS="CFG_CONSOLE_UART=0x8"
 
 .. j784s4_evm_rst_include_start_build_steps
 
@@ -326,6 +326,6 @@ Debugging U-Boot on J784S4-EVM and AM69-SK
 To start OpenOCD and connect to J784S4-EVM or AM69-SK board, use the
 following.
 
-.. code-block:: bash
+.. prompt:: bash
 
   openocd -f board/ti_j784s4evm.cfg

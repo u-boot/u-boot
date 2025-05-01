@@ -623,6 +623,35 @@ efi_status_t efi_install_fdt(void *fdt)
 }
 
 /**
+ * efi_install_initrd() - install initrd
+ *
+ * Install the initrd located at @initrd using the EFI_LOAD_FILE2
+ * protocol.
+ *
+ * @initrd:	address of initrd or NULL if none is provided
+ * @initrd_sz:	size of initrd
+ * Return:	status code
+ */
+efi_status_t efi_install_initrd(void *initrd, size_t initd_sz)
+{
+	efi_status_t ret;
+	struct efi_device_path *dp_initrd;
+
+	if (!initrd)
+		return EFI_SUCCESS;
+
+	dp_initrd = efi_dp_from_mem(EFI_LOADER_DATA, (uintptr_t)initrd, initd_sz);
+	if (!dp_initrd)
+		return EFI_OUT_OF_RESOURCES;
+
+	ret = efi_initrd_register(dp_initrd);
+	if (ret != EFI_SUCCESS)
+		efi_free_pool(dp_initrd);
+
+	return ret;
+}
+
+/**
  * do_bootefi_exec() - execute EFI binary
  *
  * The image indicated by @handle is started. When it returns the allocated
