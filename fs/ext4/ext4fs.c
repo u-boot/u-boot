@@ -27,6 +27,7 @@
 #include <ext4fs.h>
 #include <malloc.h>
 #include <part.h>
+#include <rtc.h>
 #include <u-boot/uuid.h>
 #include "ext4_common.h"
 
