@@ -169,6 +169,8 @@ fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 fdt_add_pubkey-objs   := $(dumpimage-mkimage-objs) fdt_add_pubkey.o
 file2include-objs := file2include.o
 preload_check_sign-objs := $(dumpimage-mkimage-objs) $(PRELOAD_OBJS-y) preload_check_sign.o
+HOSTCFLAGS_preload_check_sign.o += \
+	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
 
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_TOOLS_LIBCRYPTO),)
 # Add CFG_MXS into host CFLAGS, so we can check whether or not register
@@ -207,6 +209,8 @@ HOSTLDLIBS_fit_info := $(HOSTLDLIBS_mkimage)
 HOSTLDLIBS_fit_check_sign := $(HOSTLDLIBS_mkimage)
 HOSTLDLIBS_fdt_add_pubkey := $(HOSTLDLIBS_mkimage)
 HOSTLDLIBS_preload_check_sign := $(HOSTLDLIBS_mkimage)
+HOSTLDLIBS_preload_check_sign += \
+	$(shell pkg-config --libs libssl libcrypto 2> /dev/null || echo "-lssl -lcrypto")
 
 hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl
 hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
