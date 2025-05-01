@@ -31,13 +31,15 @@ char *skip_spaces(const char *str)
  * Note that the first trailing whitespace is replaced with a %NUL-terminator
  * in the given string @s. Returns a pointer to the first non-whitespace
  * character in @s.
+ *
+ * Note that if the string consist of only spaces, then the terminator is placed
+ * at the start of the string, with the return value pointing there also.
  */
 char *strim(char *s)
 {
 	size_t size;
 	char *end;
 
-	s = skip_spaces(s);
 	size = strlen(s);
 	if (!size)
 		return s;
@@ -47,5 +49,5 @@ char *strim(char *s)
 		end--;
 	*(end + 1) = '\0';
 
-	return s;
+	return skip_spaces(s);
 }
