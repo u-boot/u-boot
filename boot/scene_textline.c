@@ -31,8 +31,7 @@ int scene_textline(struct scene *scn, const char *name, uint id, uint max_chars,
 			    (struct scene_obj **)&tline);
 	if (ret < 0)
 		return log_msg_ret("obj", -ENOMEM);
-	abuf_init(&tline->buf);
-	if (!abuf_realloc(&tline->buf, max_chars + 1))
+	if (!abuf_init_size(&tline->buf, max_chars + 1))
 		return log_msg_ret("buf", -ENOMEM);
 	buf = abuf_data(&tline->buf);
 	*buf = '\0';

@@ -449,8 +449,7 @@ int cedit_write_settings(struct expo *exp, struct abuf *buf)
 	void *fdt;
 	int ret;
 
-	abuf_init(buf);
-	if (!abuf_realloc(buf, CEDIT_SIZE_INC))
+	if (!abuf_init_size(buf, CEDIT_SIZE_INC))
 		return log_msg_ret("buf", -ENOMEM);
 
 	fdt = abuf_data(buf);

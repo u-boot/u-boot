@@ -119,6 +119,15 @@ void abuf_init_set(struct abuf *abuf, void *data, size_t size)
 	abuf_set(abuf, data, size);
 }
 
+bool abuf_init_size(struct abuf *buf, size_t size)
+{
+	abuf_init(buf);
+	if (!abuf_realloc(buf, size))
+		return false;
+
+	return true;
+}
+
 void abuf_init_const(struct abuf *abuf, const void *data, size_t size)
 {
 	/* for now there is no flag indicating that the abuf data is constant */

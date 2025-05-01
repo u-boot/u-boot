@@ -448,8 +448,7 @@ int of_live_flatten(const struct device_node *root, struct abuf *buf)
 {
 	int ret;
 
-	abuf_init(buf);
-	if (!abuf_realloc(buf, BUF_STEP))
+	if (!abuf_init_size(buf, BUF_STEP))
 		return log_msg_ret("ini", -ENOMEM);
 
 	ret = fdt_create(abuf_data(buf), abuf_size(buf));

@@ -171,6 +171,17 @@ void abuf_init_set(struct abuf *abuf, void *data, size_t size);
 void abuf_init_const(struct abuf *abuf, const void *data, size_t size);
 
 /**
+ * abuf_init_size() - Set up an allocated abuf
+ *
+ * Init a new abuf and allocate its size.
+ *
+ * @abuf: abuf to set up
+ * @data: New contents of abuf
+ * @size: New size of abuf
+ */
+bool abuf_init_size(struct abuf *buf, size_t size);
+
+/**
  * abuf_uninit() - Free any memory used by an abuf
  *
  * The buffer must be inited before this can be called.
