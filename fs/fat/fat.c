@@ -21,6 +21,7 @@
 #include <part.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <rtc.h>
 #include <asm/cache.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
