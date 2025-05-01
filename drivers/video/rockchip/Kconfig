@@ -11,6 +11,7 @@
 menuconfig VIDEO_ROCKCHIP
 	bool "Enable Rockchip Video Support"
 	depends on VIDEO
+	imply VIDEO_DAMAGE
 	help
 	  Rockchip SoCs provide video output capabilities for High-Definition
 	  Multimedia Interface (HDMI), Low-voltage Differential Signalling

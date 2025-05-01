@@ -89,14 +89,32 @@ config VIDEO_PCI_DEFAULT_FB_SIZE
 
 config VIDEO_COPY
 	bool "Enable copying the frame buffer to a hardware copy"
+	select VIDEO_DAMAGE
 	help
 	  On some machines (e.g. x86), reading from the frame buffer is very
 	  slow because it is uncached. To improve performance, this feature
 	  allows the frame buffer to be kept in cached memory (allocated by
 	  U-Boot) and then copied to the hardware frame-buffer as needed.
+	  It uses the VIDEO_DAMAGE feature to keep track of regions to copy
+	  and will only copy actually touched regions.
 
 	  To use this, your video driver must set @copy_base in
 	  struct video_uc_plat.
+
+config VIDEO_DAMAGE
+	bool "Enable damage tracking of frame buffer regions"
+	help
+	  On some machines (most ARM), the display frame buffer resides in
+	  RAM. To make the display controller pick up screen updates, we
+	  have to flush frame buffer contents from CPU caches into RAM which
+	  can be a slow operation.
+
+	  This feature adds damage tracking to collect information about regions
+	  that received updates. When we want to sync, we then only flush
+	  regions of the frame buffer that were modified before, speeding up
+	  screen refreshes significantly.
+
+	  It is also used by VIDEO_COPY to identify which regions changed.
 
 config BACKLIGHT_PWM
 	bool "Generic PWM based Backlight Driver"
@@ -495,6 +513,7 @@ config VIDEO_LCD_ANX9804
 
 config ATMEL_LCD
 	bool "Atmel LCD panel support"
+	imply VIDEO_DAMAGE
 	depends on ARCH_AT91
 
 config ATMEL_LCD_BGR555
@@ -504,6 +523,7 @@ config ATMEL_LCD_BGR555
 
 config VIDEO_BCM2835
 	bool "Display support for BCM2835"
+	imply VIDEO_DAMAGE
 	help
 	  The graphics processor already sets up the display so this driver
 	  simply checks the resolution and then sets up the frame buffer with
@@ -695,6 +715,7 @@ source "drivers/video/meson/Kconfig"
 
 config VIDEO_MVEBU
 	bool "Armada XP LCD controller"
+	imply VIDEO_DAMAGE
 	---help---
 	Support for the LCD controller integrated in the Marvell
 	Armada XP SoC.
@@ -735,6 +756,7 @@ config NXP_TDA19988
 
 config ATMEL_HLCD
 	bool "Enable ATMEL video support using HLCDC"
+	imply VIDEO_DAMAGE
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
@@ -836,6 +858,7 @@ source "drivers/video/imx/Kconfig"
 
 config VIDEO_MXS
 	bool "Enable video support on i.MX28/i.MX6UL/i.MX7 SoCs"
+	imply VIDEO_DAMAGE
 	help
 	  Enable framebuffer driver for i.MX28/i.MX6UL/i.MX7 processors
 
@@ -898,6 +921,7 @@ config VIDEO_DW_MIPI_DSI
 
 config VIDEO_SIMPLE
 	bool "Simple display driver for preconfigured display"
+	imply VIDEO_DAMAGE
 	help
 	  Enables a simple generic display driver which utilizes the
 	  simple-framebuffer devicetree bindings.
@@ -916,6 +940,7 @@ config VIDEO_DT_SIMPLEFB
 
 config VIDEO_MCDE_SIMPLE
 	bool "Simple driver for ST-Ericsson MCDE with preconfigured display"
+	imply VIDEO_DAMAGE
 	help
 	  Enables a simple display driver for ST-Ericsson MCDE
 	  (Multichannel Display Engine), which reads the configuration from

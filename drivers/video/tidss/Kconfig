@@ -11,6 +11,7 @@
 menuconfig VIDEO_TIDSS
 	bool "Enable TIDSS video support"
 	depends on VIDEO
+	imply VIDEO_DAMAGE
 	help
 	  TIDSS supports  video output options LVDS and
 	  DPI . This option enables these supports which can be used on

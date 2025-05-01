@@ -12,6 +12,7 @@ config EXYNOS_DP
 
 config EXYNOS_FB
 	bool "Exynos FIMD support"
+	imply VIDEO_DAMAGE
 
 config EXYNOS_MIPI_DSIM
 	bool "Exynos MIPI DSI support"

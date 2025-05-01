@@ -267,7 +267,6 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	enum video_format eformat;
 	struct bmp_color_table_entry *palette;
 	int hdr_size;
-	int ret;
 
 	if (!bmp || !(bmp->header.signature[0] == 'B' &&
 	    bmp->header.signature[1] == 'M')) {
@@ -459,11 +458,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		break;
 	};
 
-	/* Find the position of the top left of the image in the framebuffer */
-	fb = (uchar *)(priv->fb + y * priv->line_length + x * bpix / 8);
-	ret = video_sync_copy(dev, start, fb);
-	if (ret)
-		return log_ret(ret);
+	video_damage(dev, x, y, width, height);
 
 	return video_sync(dev, false);
 }

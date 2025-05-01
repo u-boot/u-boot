@@ -85,6 +85,11 @@ enum video_format {
  * @fb_size:	Frame buffer size
  * @copy_fb:	Copy of the frame buffer to keep up to date; see struct
  *		video_uc_plat
+ * @damage:	A bounding box of framebuffer regions updated since last sync
+ * @damage.xstart:	X start position in pixels from the left
+ * @damage.ystart:	Y start position in pixels from the top
+ * @damage.xend:	X end position in pixels from the left
+ * @damage.xend:	Y end position in pixels from the top
  * @line_length:	Length of each frame buffer line, in bytes. This can be
  *		set by the driver, but if not, the uclass will set it after
  *		probing
@@ -113,6 +118,12 @@ struct video_priv {
 	void *fb;
 	int fb_size;
 	void *copy_fb;
+	struct {
+		int xstart;
+		int ystart;
+		int xend;
+		int yend;
+	} damage;
 	int line_length;
 	u32 colour_fg;
 	u32 colour_bg;
@@ -259,8 +270,9 @@ int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
  * @return: 0 on success, error code otherwise
  *
  * Some frame buffers are cached or have a secondary frame buffer. This
- * function syncs these up so that the current contents of the U-Boot frame
- * buffer are displayed to the user.
+ * function syncs the damaged parts of them up so that the current contents
+ * of the U-Boot frame buffer are displayed to the user. It clears the damage
+ * buffer.
  */
 int video_sync(struct udevice *vid, bool force);
 
@@ -343,42 +355,29 @@ void video_set_default_colors(struct udevice *dev, bool invert);
  */
 int video_default_font_height(struct udevice *dev);
 
-#ifdef CONFIG_VIDEO_COPY
+#ifdef CONFIG_VIDEO_DAMAGE
 /**
- * vidconsole_sync_copy() - Sync back to the copy framebuffer
+ * video_damage() - Notify the video subsystem about screen updates.
  *
- * This ensures that the copy framebuffer has the same data as the framebuffer
- * for a particular region. It should be called after the framebuffer is updated
+ * @vid:	Device to sync
+ * @x:	        Upper left X coordinate of the damaged rectangle
+ * @y:	        Upper left Y coordinate of the damaged rectangle
+ * @width:	Width of the damaged rectangle
+ * @height:	Height of the damaged rectangle
  *
- * @from and @to can be in either order. The region between them is synced.
- *
- * @dev: Vidconsole device being updated
- * @from: Start/end address within the framebuffer (->fb)
- * @to: Other address within the frame buffer
- * Return: 0 if OK, -EFAULT if the start address is before the start of the
- *	frame buffer start
+ * Some frame buffers are cached or have a secondary frame buffer. This
+ * function notifies the video subsystem about rectangles that were updated
+ * within the frame buffer. They may only get written to the screen on the
+ * next call to video_sync().
  */
-int video_sync_copy(struct udevice *dev, void *from, void *to);
-
-/**
- * video_sync_copy_all() - Sync the entire framebuffer to the copy
- *
- * @dev: Vidconsole device being updated
- * Return: 0 (always)
- */
-int video_sync_copy_all(struct udevice *dev);
+void video_damage(struct udevice *vid, int x, int y, int width, int height);
 #else
-static inline int video_sync_copy(struct udevice *dev, void *from, void *to)
+static inline void video_damage(struct udevice *vid, int x, int y, int width,
+				int height)
 {
-	return 0;
+	return;
 }
-
-static inline int video_sync_copy_all(struct udevice *dev)
-{
-	return 0;
-}
-
-#endif
+#endif /* CONFIG_VIDEO_DAMAGE */
 
 /**
  * video_is_active() - Test if one video device it active
