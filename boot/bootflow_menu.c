@@ -32,14 +32,12 @@ struct menu_priv {
 
 int bootflow_menu_new(struct expo **expp)
 {
-	struct udevice *last_bootdev;
 	struct scene_obj_menu *menu;
 	struct menu_priv *priv;
-	struct bootflow *bflow;
 	struct scene *scn;
 	struct expo *exp;
 	void *logo;
-	int ret, i;
+	int ret;
 
 	priv = calloc(1, sizeof(*priv));
 	if (!priv)
@@ -73,6 +71,26 @@ int bootflow_menu_new(struct expo **expp)
 	ret |= scene_menu_set_pointer(scn, OBJ_MENU, OBJ_POINTER);
 	if (ret < 0)
 		return log_msg_ret("new", -EINVAL);
+
+	*expp = exp;
+
+	return 0;
+}
+
+int bootflow_menu_add_all(struct expo *exp)
+{
+	struct menu_priv *priv = exp->priv;
+	struct udevice *last_bootdev;
+	struct bootflow *bflow;
+	struct scene *scn;
+	uint scene_id;
+	int ret, i;
+
+	ret = expo_first_scene_id(exp);
+	if (ret < 0)
+		return log_msg_ret("scn", ret);
+	scene_id = ret;
+	scn = expo_lookup_scene_id(exp, scene_id);
 
 	last_bootdev = NULL;
 	for (ret = bootflow_first_glob(&bflow), i = 0; !ret && i < 36;
@@ -133,8 +151,6 @@ int bootflow_menu_new(struct expo **expp)
 	if (ret)
 		return log_msg_ret("arr", ret);
 
-	*expp = exp;
-
 	return 0;
 }
 
@@ -184,7 +200,10 @@ int bootflow_menu_start(struct bootstd_priv *std, bool text_mode,
 
 	ret = bootflow_menu_new(&exp);
 	if (ret)
-		return log_msg_ret("exp", ret);
+		return log_msg_ret("bmn", ret);
+	ret = bootflow_menu_add_all(exp);
+	if (ret)
+		return log_msg_ret("bma", ret);
 
 	if (ofnode_valid(std->theme)) {
 		ret = bootflow_menu_apply_theme(exp, std->theme);

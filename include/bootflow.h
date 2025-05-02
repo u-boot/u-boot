@@ -488,10 +488,23 @@ int bootflow_iter_check_system(const struct bootflow_iter *iter);
 /**
  * bootflow_menu_new() - Create a new bootflow menu
  *
+ * This is initially empty. Call bootflow_menu_add_all() to add all the
+ * bootflows to it.
+ *
  * @expp: Returns the expo created
  * Returns 0 on success, -ve on error
  */
 int bootflow_menu_new(struct expo **expp);
+
+/**
+ * bootflow_menu_add_all() - Add all bootflows to a menu
+ *
+ * Loops through all bootflows and adds them to the menu
+ *
+ * @exp: Menu to update
+ * Return 0 on success, -ve on error
+ */
+int bootflow_menu_add_all(struct expo *exp);
 
 /**
  * bootflow_menu_apply_theme() - Apply a theme to a bootmenu
