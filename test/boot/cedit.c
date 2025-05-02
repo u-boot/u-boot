@@ -5,11 +5,13 @@
  */
 
 #include <cedit.h>
+#include <dm.h>
 #include <env.h>
 #include <expo.h>
 #include <mapmem.h>
 #include <dm/ofnode.h>
 #include <test/ut.h>
+#include <test/video.h>
 #include "bootstd_common.h"
 #include <test/cedit-test.h>
 #include "../../boot/scene_internal.h"
@@ -220,3 +222,27 @@ static int cedit_cmos(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(cedit_cmos, UTF_CONSOLE);
+
+/* Check the cedit displays correctely */
+static int cedit_render(struct unit_test_state *uts)
+{
+	struct video_priv *vid_priv;
+	extern struct expo *cur_exp;
+	struct udevice *dev;
+	struct scene *scn;
+	struct expo *exp;
+
+	ut_assertok(run_command("cedit load hostfs - cedit.dtb", 0));
+
+	exp = cur_exp;
+	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
+	ut_asserteq(ID_SCENE1, cedit_prepare(exp, &vid_priv, &scn));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(4929, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
+	expo_destroy(exp);
+	cur_exp = NULL;
+
+	return 0;
+}
+BOOTSTD_TEST(cedit_render, UTF_DM | UTF_SCAN_FDT);
