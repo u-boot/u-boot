@@ -39,12 +39,14 @@
 
 /* The FMAN driver uses the PHYLIB infrastructure */
 
-#if CONFIG_IS_ENABLED(DM_SERIAL) && !defined(CONFIG_CLK_MPC83XX)
+#if !defined(CONFIG_CLK_MPC83XX)
 /*
  * TODO: Convert this to a clock driver exists that can give us the UART
  * clock here.
  */
-#define CFG_SYS_NS16550_CLK		get_serial_clock()
+#ifndef CFG_SYS_NS16550_CLK
+#define CFG_SYS_NS16550_CLK		get_bus_freq(0)
+#endif
 #endif
 
 #endif /* _ASM_CONFIG_H_ */
