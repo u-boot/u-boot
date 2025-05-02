@@ -413,6 +413,56 @@ static void scene_render_background(struct scene_obj *obj, bool box_only)
 	}
 }
 
+static int scene_txt_render(struct expo *exp, struct udevice *dev,
+			    struct udevice *cons, struct scene_obj *obj,
+			    struct scene_txt_generic *gen, int x, int y,
+			    int menu_inset)
+{
+	const char *str;
+	int ret;
+
+	if (!cons)
+		return -ENOTSUPP;
+
+	if (gen->font_name || gen->font_size) {
+		ret = vidconsole_select_font(cons, gen->font_name,
+					     gen->font_size);
+	} else {
+		ret = vidconsole_select_font(cons, NULL, 0);
+	}
+	if (ret && ret != -ENOSYS)
+		return log_msg_ret("font", ret);
+	str = expo_get_str(exp, gen->str_id);
+	if (str) {
+		struct video_priv *vid_priv;
+		struct vidconsole_colour old;
+		enum colour_idx fore, back;
+
+		vid_priv = dev_get_uclass_priv(dev);
+		if (vid_priv->white_on_black) {
+			fore = VID_BLACK;
+			back = VID_WHITE;
+		} else {
+			fore = VID_LIGHT_GRAY;
+			back = VID_BLACK;
+		}
+
+		if (obj->flags & SCENEOF_POINT) {
+			vidconsole_push_colour(cons, fore, back, &old);
+			video_fill_part(dev, x - menu_inset, y,
+					obj->bbox.x1,
+					obj->bbox.y1,
+					vid_priv->colour_bg);
+		}
+		vidconsole_set_cursor_pos(cons, x, y);
+		vidconsole_put_string(cons, str);
+		if (obj->flags & SCENEOF_POINT)
+			vidconsole_pop_colour(cons, &old);
+	}
+
+	return 0;
+}
+
 /**
  * scene_obj_render() - Render an object
  *
@@ -444,49 +494,10 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 		break;
 	}
 	case SCENEOBJT_TEXT: {
-		struct scene_txt_generic *gen =
-				&((struct scene_obj_txt *)obj)->gen;
-		const char *str;
+		struct scene_obj_txt *txt = (struct scene_obj_txt *)obj;
 
-		if (!cons)
-			return -ENOTSUPP;
-
-		if (gen->font_name || gen->font_size) {
-			ret = vidconsole_select_font(cons,
-						     gen->font_name,
-						     gen->font_size);
-		} else {
-			ret = vidconsole_select_font(cons, NULL, 0);
-		}
-		if (ret && ret != -ENOSYS)
-			return log_msg_ret("font", ret);
-		str = expo_get_str(exp, gen->str_id);
-		if (str) {
-			struct video_priv *vid_priv;
-			struct vidconsole_colour old;
-			enum colour_idx fore, back;
-
-			vid_priv = dev_get_uclass_priv(dev);
-			if (vid_priv->white_on_black) {
-				fore = VID_BLACK;
-				back = VID_WHITE;
-			} else {
-				fore = VID_LIGHT_GRAY;
-				back = VID_BLACK;
-			}
-
-			if (obj->flags & SCENEOF_POINT) {
-				vidconsole_push_colour(cons, fore, back, &old);
-				video_fill_part(dev, x - theme->menu_inset, y,
-						obj->bbox.x1,
-						obj->bbox.y1,
-						vid_priv->colour_bg);
-			}
-			vidconsole_set_cursor_pos(cons, x, y);
-			vidconsole_put_string(cons, str);
-			if (obj->flags & SCENEOF_POINT)
-				vidconsole_pop_colour(cons, &old);
-		}
+		ret = scene_txt_render(exp, dev, cons, obj, &txt->gen, x, y,
+				       theme->menu_inset);
 		break;
 	}
 	case SCENEOBJT_MENU: {
