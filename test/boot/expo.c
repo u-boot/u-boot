@@ -550,39 +550,39 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_assertnonnull(obj);
 	ut_asserteq(400, obj->bbox.x0);
 	ut_asserteq(100, obj->bbox.y0);
-	ut_asserteq(126, obj->bbox.w);
-	ut_asserteq(40, obj->bbox.h);
+	ut_asserteq(400 + 126, obj->bbox.x1);
+	ut_asserteq(100 + 40, obj->bbox.y1);
 
 	/* check dimensions of image */
 	obj = scene_obj_find(scn, OBJ_LOGO, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
 	ut_asserteq(50, obj->bbox.x0);
 	ut_asserteq(20, obj->bbox.y0);
-	ut_asserteq(160, obj->bbox.w);
-	ut_asserteq(160, obj->bbox.h);
+	ut_asserteq(50 + 160, obj->bbox.x1);
+	ut_asserteq(20 + 160, obj->bbox.y1);
 
 	/* check dimensions of menu labels - both should be the same width */
 	obj = scene_obj_find(scn, ITEM1_LABEL, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
 	ut_asserteq(50, obj->bbox.x0);
 	ut_asserteq(436, obj->bbox.y0);
-	ut_asserteq(29, obj->bbox.w);
-	ut_asserteq(18, obj->bbox.h);
+	ut_asserteq(50 + 29, obj->bbox.x1);
+	ut_asserteq(436 + 18, obj->bbox.y1);
 
 	obj = scene_obj_find(scn, ITEM2_LABEL, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
 	ut_asserteq(50, obj->bbox.x0);
 	ut_asserteq(454, obj->bbox.y0);
-	ut_asserteq(29, obj->bbox.w);
-	ut_asserteq(18, obj->bbox.h);
+	ut_asserteq(50 + 29, obj->bbox.x1);
+	ut_asserteq(454 + 18, obj->bbox.y1);
 
 	/* check dimensions of menu */
 	obj = scene_obj_find(scn, OBJ_MENU, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
 	ut_asserteq(50, obj->bbox.x0);
 	ut_asserteq(400, obj->bbox.y0);
-	ut_asserteq(160, obj->bbox.w);
-	ut_asserteq(160, obj->bbox.h);
+	ut_asserteq(50 + 160, obj->bbox.x1);
+	ut_asserteq(400 + 160, obj->bbox.y1);
 
 	/* render it */
 	expo_set_scene_id(exp, SCENE1);

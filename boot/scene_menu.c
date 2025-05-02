@@ -186,8 +186,8 @@ int scene_menu_calc_dims(struct scene_obj_menu *menu)
 	}
 
 	if (bbox.valid) {
-		menu->obj.bbox.w = bbox.x1 - bbox.x0;
-		menu->obj.bbox.h = bbox.y1 - bbox.y0;
+		menu->obj.dims.x = bbox.x1 - bbox.x0;
+		menu->obj.dims.y = bbox.y1 - bbox.y0;
 	}
 
 	return 0;
@@ -295,6 +295,9 @@ int scene_menu_arrange(struct scene *scn, struct expo_arrange_info *arr,
 
 	if (sel_id)
 		menu_point_to_item(menu, sel_id);
+	menu->obj.bbox.x1 = menu->obj.bbox.x0 + menu->obj.dims.x;
+	menu->obj.bbox.y1 = menu->obj.bbox.y0 + menu->obj.dims.y;
+	menu->obj.flags |= SCENEOF_SIZE_VALID;
 
 	return 0;
 }

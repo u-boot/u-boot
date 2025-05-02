@@ -9,6 +9,7 @@
 
 #include <abuf.h>
 #include <dm/ofnode_decl.h>
+#include <linux/bitops.h>
 #include <linux/list.h>
 
 struct udevice;
@@ -196,14 +197,29 @@ enum scene_obj_t {
  *
  * @x0: x position, in pixels from left side
  * @y0: y position, in pixels from top
- * @w: width, in pixels
- * @h: height, in pixels
+ * @x1: x position of right size
+ * @y1: y position of bottom
  */
 struct scene_obj_bbox {
 	int x0;
 	int y0;
-	int w;
-	int h;
+	int x1;
+	int y1;
+};
+
+/**
+ * struct scene_obj_dims - Dimensions of the object being drawn
+ *
+ * Image and text objects have a dimension which can change depending on what
+ * they contain. For images this stores the size. For text it stores the size as
+ * rendered on the display
+ *
+ * @x: x dimension
+ * @y: y dimension
+ */
+struct scene_obj_dims {
+	int x;
+	int y;
 };
 
 /**
@@ -213,11 +229,14 @@ struct scene_obj_bbox {
  * @SCENEOF_POINT: object should be highlighted
  * @SCENEOF_OPEN: object should be opened (e.g. menu is opened so that an option
  * can be selected)
+ * @SCENEOF_SIZE_VALID: object's size (width/height) is valid, so any adjustment
+ * to x0/y0 should maintain the width/height of the object
  */
 enum scene_obj_flags_t {
 	SCENEOF_HIDE	= 1 << 0,
 	SCENEOF_POINT	= 1 << 1,
 	SCENEOF_OPEN	= 1 << 2,
+	SCENEOF_SIZE_VALID	= BIT(3),
 };
 
 enum {
@@ -232,7 +251,8 @@ enum {
  * @name: Name of the object (allocated)
  * @id: ID number of the object
  * @type: Type of this object
- * @bbox: Dimensions for this object
+ * @bbox: Bounding box for this object
+ * @dims: Dimensions of the text/image (may be smaller than bbox)
  * @flags: Flags for this object
  * @bit_length: Number of bits used for this object in CMOS RAM
  * @start_bit: Start bit to use for this object in CMOS RAM
@@ -244,6 +264,7 @@ struct scene_obj {
 	uint id;
 	enum scene_obj_t type;
 	struct scene_obj_bbox bbox;
+	struct scene_obj_dims dims;
 	u8 flags;
 	u8 bit_length;
 	u16 start_bit;
