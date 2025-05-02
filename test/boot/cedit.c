@@ -63,6 +63,7 @@ static int cedit_fdt(struct unit_test_state *uts)
 	struct video_priv *vid_priv;
 	extern struct expo *cur_exp;
 	struct scene_obj_menu *menu;
+	struct udevice *dev;
 	ulong addr = 0x1000;
 	struct ofprop prop;
 	struct scene *scn;
@@ -72,9 +73,12 @@ static int cedit_fdt(struct unit_test_state *uts)
 	void *fdt;
 	int i;
 
+	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
+	vid_priv = dev_get_uclass_priv(dev);
+
 	ut_assertok(run_command("cedit load hostfs - cedit.dtb", 0));
 
-	ut_asserteq(ID_SCENE1, cedit_prepare(cur_exp, &vid_priv, &scn));
+	ut_asserteq(ID_SCENE1, cedit_prepare(cur_exp, dev, &scn));
 
 	/* get a menu to fiddle with */
 	menu = scene_obj_find(scn, ID_CPU_SPEED, SCENEOBJT_MENU);
@@ -134,12 +138,16 @@ static int cedit_env(struct unit_test_state *uts)
 	struct video_priv *vid_priv;
 	extern struct expo *cur_exp;
 	struct scene_obj_menu *menu;
+	struct udevice *dev;
 	struct scene *scn;
 	char *str;
 
 	ut_assertok(run_command("cedit load hostfs - cedit.dtb", 0));
 
-	ut_asserteq(ID_SCENE1, cedit_prepare(cur_exp, &vid_priv, &scn));
+	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
+	vid_priv = dev_get_uclass_priv(dev);
+
+	ut_asserteq(ID_SCENE1, cedit_prepare(cur_exp, dev, &scn));
 
 	/* get a menu to fiddle with */
 	menu = scene_obj_find(scn, ID_CPU_SPEED, SCENEOBJT_MENU);
@@ -189,11 +197,14 @@ static int cedit_cmos(struct unit_test_state *uts)
 	struct scene_obj_menu *menu, *menu2;
 	struct video_priv *vid_priv;
 	extern struct expo *cur_exp;
+	struct udevice *dev;
 	struct scene *scn;
 
 	ut_assertok(run_command("cedit load hostfs - cedit.dtb", 0));
 
-	ut_asserteq(ID_SCENE1, cedit_prepare(cur_exp, &vid_priv, &scn));
+	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
+	vid_priv = dev_get_uclass_priv(dev);
+	ut_asserteq(ID_SCENE1, cedit_prepare(cur_exp, dev, &scn));
 
 	/* get the menus to fiddle with */
 	menu = scene_obj_find(scn, ID_CPU_SPEED, SCENEOBJT_MENU);
@@ -238,7 +249,8 @@ static int cedit_render(struct unit_test_state *uts)
 
 	exp = cur_exp;
 	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
-	ut_asserteq(ID_SCENE1, cedit_prepare(exp, &vid_priv, &scn));
+	vid_priv = dev_get_uclass_priv(dev);
+	ut_asserteq(ID_SCENE1, cedit_prepare(exp, dev, &scn));
 
 	menu = scene_obj_find(scn, ID_POWER_LOSS, SCENEOBJT_MENU);
 	ut_assertnonnull(menu);

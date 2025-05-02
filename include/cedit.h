@@ -56,11 +56,11 @@ int cedit_run(struct expo *exp);
  * This ensures that all menus have a selected item.
  *
  * @exp: Expo to use
- * @vid_privp: Set to private data for the video device
+ * @dev: Video device to use
  * @scnp: Set to the first scene
  * Return: scene ID of first scene if OK, -ve on error
  */
-int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
+int cedit_prepare(struct expo *exp, struct udevice *vid_dev,
 		  struct scene **scnp);
 
 /**

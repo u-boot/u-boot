@@ -100,19 +100,16 @@ int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 	return 0;
 }
 
-int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
+int cedit_prepare(struct expo *exp, struct udevice *vid_dev,
 		  struct scene **scnp)
 {
+	struct udevice *dev = vid_dev;
 	struct video_priv *vid_priv;
-	struct udevice *dev;
 	struct scene *scn;
 	uint scene_id;
 	int ret;
 
 	/* For now we only support a video console */
-	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
-	if (ret)
-		return log_msg_ret("vid", ret);
 	ret = expo_set_display(exp, dev);
 	if (ret)
 		return log_msg_ret("dis", ret);
@@ -143,7 +140,6 @@ int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
 	if (ret)
 		return log_msg_ret("dim", ret);
 
-	*vid_privp = vid_priv;
 	*scnp = scn;
 
 	return scene_id;
@@ -193,11 +189,17 @@ int cedit_do_action(struct expo *exp, struct scene *scn,
 int cedit_run(struct expo *exp)
 {
 	struct video_priv *vid_priv;
-	uint scene_id;
+	struct udevice *dev;
 	struct scene *scn;
+	uint scene_id;
 	int ret;
 
-	ret = cedit_prepare(exp, &vid_priv, &scn);
+	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
+	if (ret)
+		return log_msg_ret("vid", ret);
+	vid_priv = dev_get_uclass_priv(dev);
+
+	ret = cedit_prepare(exp, dev, &scn);
 	if (ret < 0)
 		return log_msg_ret("prep", ret);
 	scene_id = ret;
