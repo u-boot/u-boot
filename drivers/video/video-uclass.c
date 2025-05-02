@@ -26,6 +26,7 @@
 #ifdef CONFIG_SANDBOX
 #include <asm/sdl.h>
 #endif
+#include "vidconsole_internal.h"
 
 /*
  * Theory of operation:
@@ -216,6 +217,40 @@ int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
 	return 0;
 }
 
+int video_draw_box(struct udevice *dev, int x0, int y0, int x1, int y1,
+		   int width, u32 colour)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+	int pbytes = VNBYTES(priv->bpix);
+	void *start, *line;
+	int pixels = x1 - x0;
+	int row;
+
+	start = priv->fb + y0 * priv->line_length;
+	start += x0 * pbytes;
+	line = start;
+	for (row = y0; row < y1; row++) {
+		void *ptr = line;
+		int i;
+
+		for (i = 0; i < width; i++)
+			fill_pixel_and_goto_next(&ptr, colour, pbytes, pbytes);
+		if (row < y0 + width || row >= y1 - width) {
+			for (i = 0; i < pixels - width * 2; i++)
+				fill_pixel_and_goto_next(&ptr, colour, pbytes,
+							 pbytes);
+		} else {
+			ptr += (pixels - width * 2) * pbytes;
+		}
+		for (i = 0; i < width; i++)
+			fill_pixel_and_goto_next(&ptr, colour, pbytes, pbytes);
+		line += priv->line_length;
+	}
+	video_damage(dev, x0, y0, x1 - x0, y1 - y0);
+
+	return 0;
+}
+
 int video_reserve_from_bloblist(struct video_handoff *ho)
 {
 	if (!ho->fb || ho->size == 0)
@@ -345,7 +380,7 @@ void video_set_default_colors(struct udevice *dev, bool invert)
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	int fore, back;
 
-	if (CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK)) {
+	if (priv->white_on_black) {
 		/* White is used when switching to bold, use light gray here */
 		fore = VID_LIGHT_GRAY;
 		back = VID_BLACK;
@@ -481,6 +516,7 @@ int video_sync(struct udevice *vid, bool force)
 		video_flush_dcache(vid, true);
 
 #if defined(CONFIG_VIDEO_SANDBOX_SDL)
+	/* to see the copy framebuffer, use priv->copy_fb */
 	sandbox_sdl_sync(priv->fb);
 #endif
 	priv->last_sync = get_timer(0);
@@ -582,6 +618,18 @@ static void video_idle(struct cyclic_info *cyc)
 	video_sync_all();
 }
 
+void video_set_white_on_black(struct udevice *dev, bool white_on_black)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+
+	if (priv->white_on_black != white_on_black) {
+		priv->white_on_black = white_on_black;
+		video_set_default_colors(dev, false);
+
+		video_clear(dev);
+	}
+}
+
 /* Set up the display ready for use */
 static int video_post_probe(struct udevice *dev)
 {
@@ -623,6 +671,8 @@ static int video_post_probe(struct udevice *dev)
 
 	if (IS_ENABLED(CONFIG_VIDEO_COPY) && plat->copy_base)
 		priv->copy_fb = map_sysmem(plat->copy_base, plat->size);
+
+	priv->white_on_black = CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK);
 
 	/* Set up colors  */
 	video_set_default_colors(dev, false);

@@ -6,6 +6,7 @@
 #ifndef __video_console_h
 #define __video_console_h
 
+#include <alist.h>
 #include <video.h>
 
 struct abuf;
@@ -52,6 +53,7 @@ enum {
  * @row_saved:		Saved Y position in pixels (0=top)
  * @escape_buf:		Buffer to accumulate escape sequence
  * @utf8_buf:		Buffer to accumulate UTF-8 byte sequence
+ * @quiet:		Suppress all output from stdio
  */
 struct vidconsole_priv {
 	struct stdio_dev sdev;
@@ -76,6 +78,7 @@ struct vidconsole_priv {
 	int col_saved;
 	char escape_buf[32];
 	char utf8_buf[5];
+	bool quiet;
 };
 
 /**
@@ -117,6 +120,19 @@ struct vidconsole_bbox {
 	int y0;
 	int x1;
 	int y1;
+};
+
+/**
+ * vidconsole_mline - Holds information about a line of measured text
+ *
+ * @bbox: Bounding box of the line, assuming it starts at 0,0
+ * @start: String index of the first character in the line
+ * @len: Number of characters in the line
+ */
+struct vidconsole_mline {
+	struct vidconsole_bbox bbox;
+	int start;
+	int len;
 };
 
 /**
@@ -228,18 +244,26 @@ struct vidconsole_ops {
 	int (*select_font)(struct udevice *dev, const char *name, uint size);
 
 	/**
-	 * measure() - Measure the bounds of some text
+	 * measure() - Measure the bounding box of some text
 	 *
-	 * @dev:	Device to adjust
+	 * The text can include newlines
+	 *
+	 * @dev:	Console device to use
 	 * @name:	Font name to use (NULL to use default)
 	 * @size:	Font size to use (0 to use default)
 	 * @text:	Text to measure
+	 * @limit:	Width limit for each line, or -1 if none
 	 * @bbox:	Returns bounding box of text, assuming it is positioned
 	 *		at 0,0
+	 * @lines:	If non-NULL, this must be an alist of
+	 *		struct vidconsole_mline inited by caller. A separate
+	 *		record is added for each line of text
+	 *
 	 * Returns: 0 on success, -ENOENT if no such font
 	 */
 	int (*measure)(struct udevice *dev, const char *name, uint size,
-		       const char *text, struct vidconsole_bbox *bbox);
+		       const char *text, int limit,
+		       struct vidconsole_bbox *bbox, struct alist *lines);
 
 	/**
 	 * nominal() - Measure the expected width of a line of text
@@ -320,19 +344,27 @@ int vidconsole_get_font(struct udevice *dev, int seq,
  */
 int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
 
-/*
- * vidconsole_measure() - Measuring the bounding box of some text
+/**
+ * vidconsole_measure() - Measure the bounding box of some text
  *
- * @dev: Console device to use
- * @name: Font name, NULL for default
- * @size: Font size, ignored if @name is NULL
- * @text: Text to measure
- * @bbox: Returns nounding box of text
- * Returns: 0 if OK, -ve on error
+ * The text can include newlines
+ *
+ * @dev:	Device to adjust
+ * @name:	Font name to use (NULL to use default)
+ * @size:	Font size to use (0 to use default)
+ * @text:	Text to measure
+ * @limit:	Width limit for each line, or -1 if none
+ * @bbox:	Returns bounding box of text, assuming it is positioned
+ *		at 0,0
+ * @lines:	If non-NULL, this must be an alist of
+ *		struct vidconsole_mline inited by caller. The list is emptied
+ *		and then a separate record is added for each line of text
+ *
+ * Returns: 0 on success, -ENOENT if no such font
  */
 int vidconsole_measure(struct udevice *dev, const char *name, uint size,
-		       const char *text, struct vidconsole_bbox *bbox);
-
+		       const char *text, int limit,
+		       struct vidconsole_bbox *bbox, struct alist *lines);
 /**
  * vidconsole_nominal() - Measure the expected width of a line of text
  *
@@ -470,6 +502,23 @@ int vidconsole_entry_start(struct udevice *dev);
 int vidconsole_put_char(struct udevice *dev, char ch);
 
 /**
+ * vidconsole_put_stringn() - Output part of a string to the current console pos
+ *
+ * Outputs part of a string to the console and advances the cursor. This
+ * function handles wrapping to new lines and scrolling the console. Special
+ * characters are handled also: \n, \r, \b and \t.
+ *
+ * The device always starts with the cursor at position 0,0 (top left). It
+ * can be adjusted manually using vidconsole_position_cursor().
+ *
+ * @dev:	Device to adjust
+ * @str:	String to write
+ * @maxlen:	Maximum chars to output, or -1 for all
+ * Return: 0 if OK, -ve on error
+ */
+int vidconsole_put_stringn(struct udevice *dev, const char *str, int maxlen);
+
+/**
  * vidconsole_put_string() - Output a string to the current console position
  *
  * Outputs a string to the console and advances the cursor. This function
@@ -536,5 +585,13 @@ void vidconsole_list_fonts(struct udevice *dev);
  * Return: 0 if OK, -ENOSYS if not implemented in driver
  */
 int vidconsole_get_font_size(struct udevice *dev, const char **name, uint *sizep);
+
+/**
+ * vidconsole_set_quiet() - Select whether the console should output stdio
+ *
+ * @dev: vidconsole device
+ * @quiet: true to suppress stdout/stderr output, false to enable it
+ */
+void vidconsole_set_quiet(struct udevice *dev, bool quiet);
 
 #endif

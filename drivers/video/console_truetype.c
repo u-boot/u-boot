@@ -3,6 +3,8 @@
  * Copyright (c) 2016 Google, Inc
  */
 
+#define LOG_CATEGORY	UCLASS_VIDEO
+
 #include <abuf.h>
 #include <dm.h>
 #include <log.h>
@@ -488,10 +490,12 @@ static int console_truetype_backspace(struct udevice *dev)
 
 static int console_truetype_entry_start(struct udevice *dev)
 {
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct console_tt_priv *priv = dev_get_priv(dev);
 
 	/* A new input line has start, so clear our history */
 	priv->pos_ptr = 0;
+	vc_priv->last_ch = 0;
 
 	return 0;
 }
@@ -733,14 +737,18 @@ static int truetype_select_font(struct udevice *dev, const char *name,
 }
 
 static int truetype_measure(struct udevice *dev, const char *name, uint size,
-			    const char *text, struct vidconsole_bbox *bbox)
+			    const char *text, int pixel_limit,
+			    struct vidconsole_bbox *bbox, struct alist *lines)
 {
 	struct console_tt_metrics *met;
+	struct vidconsole_mline mline;
+	const char *s, *last_space;
+	int width, last_width;
 	stbtt_fontinfo *font;
 	int lsb, advance;
-	const char *s;
-	int width;
-	int last;
+	int start;
+	int limit;
+	int lastch;
 	int ret;
 
 	ret = get_metrics(dev, name, size, &met);
@@ -751,27 +759,85 @@ static int truetype_measure(struct udevice *dev, const char *name, uint size,
 	if (!*text)
 		return 0;
 
+	limit = -1;
+	if (pixel_limit != -1)
+		limit = tt_ceil((double)pixel_limit / met->scale);
+
 	font = &met->font;
 	width = 0;
-	for (last = 0, s = text; *s; s++) {
+	bbox->y1 = 0;
+	bbox->x1 = 0;
+	start = 0;
+	last_space = NULL;
+	last_width = 0;
+	for (lastch = 0, s = text; *s; s++) {
+		int neww;
 		int ch = *s;
 
-		/* Used kerning to fine-tune the position of this character */
-		if (last)
-			width += stbtt_GetCodepointKernAdvance(font, last, ch);
+		if (ch == ' ') {
+			/*
+			 * store the position and width so we can use it again
+			 * if we need to word-wrap
+			 */
+			last_space = s;
+			last_width = width;
+		}
 
 		/* First get some basic metrics about this character */
 		stbtt_GetCodepointHMetrics(font, ch, &advance, &lsb);
+		neww = width + advance;
 
-		width += advance;
-		last = ch;
+		/* Use kerning to fine-tune the position of this character */
+		if (lastch)
+			neww += stbtt_GetCodepointKernAdvance(font, lastch, ch);
+		lastch = ch;
+
+		/* see if we need to start a new line */
+		if (ch == '\n' || (limit != -1 && neww >= limit)) {
+			if (ch != '\n' && last_space) {
+				s = last_space;
+				width = last_width;
+			}
+			last_space = NULL;
+			mline.bbox.x0 = 0;
+			mline.bbox.y0 = bbox->y1;
+			mline.bbox.x1 = tt_ceil((double)width * met->scale);
+			bbox->x1 = max(bbox->x1, mline.bbox.x1);
+			bbox->y1 += met->font_size;
+			mline.bbox.y1 = bbox->y1;
+			mline.bbox.valid = true;
+			mline.start = start;
+			mline.len = (s - text) - start;
+			if (lines && !alist_add(lines, mline))
+				return log_msg_ret("ttm", -ENOMEM);
+			log_debug("line x1 %d y0 %d y1 %d start %d len %d text '%.*s'\n",
+				  mline.bbox.x1, mline.bbox.y0, mline.bbox.y1,
+				  mline.start, mline.len, mline.len, text + mline.start);
+
+			start = s - text;
+			start++;
+			lastch = 0;
+			neww = 0;
+		}
+
+		width = neww;
 	}
+
+	/* add the final line */
+	mline.bbox.x0 = 0;
+	mline.bbox.y0 = bbox->y1;
+	mline.bbox.x1 = tt_ceil((double)width * met->scale);
+	bbox->y1 += met->font_size;
+	mline.bbox.y1 = bbox->y1;
+	mline.start = start;
+	mline.len = (s - text) - start;
+	if (lines && !alist_add(lines, mline))
+		return log_msg_ret("ttM", -ENOMEM);
 
 	bbox->valid = true;
 	bbox->x0 = 0;
 	bbox->y0 = 0;
-	bbox->x1 = tt_ceil((double)width * met->scale);
-	bbox->y1 = met->font_size;
+	bbox->x1 = max(bbox->x1, mline.bbox.x1);
 
 	return 0;
 }

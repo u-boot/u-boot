@@ -359,6 +359,24 @@ void console_puts_select_stderr(bool serial_only, const char *s)
 		console_puts_select(stderr, serial_only, s);
 }
 
+int console_printf_select_stderr(bool serial_only, const char *fmt, ...)
+{
+	char buf[CONFIG_SYS_PBSIZE];
+	va_list args;
+	int ret;
+
+	va_start(args, fmt);
+
+	/* For this to work, buf must be larger than anything we ever want to
+	 * print.
+	 */
+	ret = vscnprintf(buf, sizeof(buf), fmt, args);
+	va_end(args);
+	console_puts_select_stderr(serial_only, buf);
+
+	return ret;
+}
+
 static void console_puts(int file, const char *s)
 {
 	int i;

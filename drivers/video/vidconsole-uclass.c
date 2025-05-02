@@ -127,6 +127,9 @@ void vidconsole_set_cursor_pos(struct udevice *dev, int x, int y)
 	priv->xcur_frac = VID_TO_POS(x);
 	priv->xstart_frac = priv->xcur_frac;
 	priv->ycur = y;
+
+	/* make sure not to kern against the previous character */
+	priv->last_ch = 0;
 	vidconsole_entry_start(dev);
 }
 
@@ -508,12 +511,14 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 	return 0;
 }
 
-int vidconsole_put_string(struct udevice *dev, const char *str)
+int vidconsole_put_stringn(struct udevice *dev, const char *str, int maxlen)
 {
-	const char *s;
+	const char *s, *end = NULL;
 	int ret;
 
-	for (s = str; *s; s++) {
+	if (maxlen != -1)
+		end = str + maxlen;
+	for (s = str; *s && (maxlen == -1 || s < end); s++) {
 		ret = vidconsole_put_char(dev, *s);
 		if (ret)
 			return ret;
@@ -522,11 +527,19 @@ int vidconsole_put_string(struct udevice *dev, const char *str)
 	return 0;
 }
 
+int vidconsole_put_string(struct udevice *dev, const char *str)
+{
+	return vidconsole_put_stringn(dev, str, -1);
+}
+
 static void vidconsole_putc(struct stdio_dev *sdev, const char ch)
 {
 	struct udevice *dev = sdev->priv;
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 	int ret;
 
+	if (priv->quiet)
+		return;
 	ret = vidconsole_put_char(dev, ch);
 	if (ret) {
 #ifdef DEBUG
@@ -544,8 +557,11 @@ static void vidconsole_putc(struct stdio_dev *sdev, const char ch)
 static void vidconsole_puts(struct stdio_dev *sdev, const char *s)
 {
 	struct udevice *dev = sdev->priv;
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 	int ret;
 
+	if (priv->quiet)
+		return;
 	ret = vidconsole_put_string(dev, s);
 	if (ret) {
 #ifdef DEBUG
@@ -608,14 +624,17 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
 }
 
 int vidconsole_measure(struct udevice *dev, const char *name, uint size,
-		       const char *text, struct vidconsole_bbox *bbox)
+		       const char *text, int limit,
+		       struct vidconsole_bbox *bbox, struct alist *lines)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
 	int ret;
 
 	if (ops->measure) {
-		ret = ops->measure(dev, name, size, text, bbox);
+		if (lines)
+			alist_empty(lines);
+		ret = ops->measure(dev, name, size, text, limit, bbox, lines);
 		if (ret != -ENOSYS)
 			return ret;
 	}
@@ -783,4 +802,11 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 	x = min_t(short, col * priv->x_charsize, vid_priv->xsize - 1);
 	y = min_t(short, row * priv->y_charsize, vid_priv->ysize - 1);
 	vidconsole_set_cursor_pos(dev, x, y);
+}
+
+void vidconsole_set_quiet(struct udevice *dev, bool quiet)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+
+	priv->quiet = quiet;
 }

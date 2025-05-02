@@ -194,7 +194,7 @@ int expo_render(struct expo *exp)
 	u32 colour;
 	int ret;
 
-	back = CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK) ? VID_BLACK : VID_WHITE;
+	back = vid_priv->white_on_black ? VID_BLACK : VID_WHITE;
 	colour = video_index_to_colour(vid_priv, back);
 	ret = video_fill(dev, colour);
 	if (ret)

@@ -170,6 +170,21 @@ int console_announce_r(void);
 void console_puts_select_stderr(bool serial_only, const char *s);
 
 /**
+ * console_printf_select_stderr() - Output a formatted string to selected devs
+ *
+ * This writes to stderr only. It is useful for outputting errors. Note that it
+ * uses its own buffer, separate from the print buffer, to allow printing
+ * messages within console/stdio code
+ *
+ * @serial_only: true to output only to serial, false to output to everything
+ *	else
+ * @fmt: Printf format string, followed by format arguments
+ * Return: number of characters written
+ */
+int console_printf_select_stderr(bool serial_only, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 2, 3)));
+
+/**
  * console_clear() - Clear the console
  *
  * Uses an ANSI sequence to clear the display, failing back to clearing the

@@ -298,7 +298,7 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
 		}
 
 		ret = vidconsole_measure(scn->expo->cons, txt->font_name,
-					 txt->font_size, str, &bbox);
+					 txt->font_size, str, -1, &bbox, NULL);
 		if (ret)
 			return log_msg_ret("mea", ret);
 		if (widthp)
@@ -330,8 +330,9 @@ static void scene_render_background(struct scene_obj *obj, bool box_only)
 	enum colour_idx fore, back;
 	uint inset = theme->menu_inset;
 
+	vid_priv = dev_get_uclass_priv(dev);
 	/* draw a background for the object */
-	if (CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK)) {
+	if (vid_priv->white_on_black) {
 		fore = VID_DARK_GREY;
 		back = VID_WHITE;
 	} else {
@@ -344,7 +345,6 @@ static void scene_render_background(struct scene_obj *obj, bool box_only)
 		return;
 
 	vidconsole_push_colour(cons, fore, back, &old);
-	vid_priv = dev_get_uclass_priv(dev);
 	video_fill_part(dev, label_bbox.x0 - inset, label_bbox.y0 - inset,
 			label_bbox.x1 + inset, label_bbox.y1 + inset,
 			vid_priv->colour_fg);
@@ -408,7 +408,8 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 			struct vidconsole_colour old;
 			enum colour_idx fore, back;
 
-			if (CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK)) {
+			vid_priv = dev_get_uclass_priv(dev);
+			if (vid_priv->white_on_black) {
 				fore = VID_BLACK;
 				back = VID_WHITE;
 			} else {
@@ -416,7 +417,6 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 				back = VID_BLACK;
 			}
 
-			vid_priv = dev_get_uclass_priv(dev);
 			if (obj->flags & SCENEOF_POINT) {
 				vidconsole_push_colour(cons, fore, back, &old);
 				video_fill_part(dev, x - theme->menu_inset, y,
