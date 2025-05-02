@@ -466,8 +466,10 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
  * @obj: Object to render
  * @box_only: true to show a box around the object, but keep the normal
  * background colour inside
+ * @cur_item: true to render the background only for the current menu item
  */
-static void scene_render_background(struct scene_obj *obj, bool box_only)
+static void scene_render_background(struct scene_obj *obj, bool box_only,
+				    bool cur_item)
 {
 	struct vidconsole_bbox bbox[SCENEBB_count], *sel;
 	struct expo *exp = obj->scene->expo;
@@ -493,7 +495,7 @@ static void scene_render_background(struct scene_obj *obj, bool box_only)
 	if (scene_obj_calc_bbox(obj, bbox))
 		return;
 
-	sel = &bbox[SCENEBB_label];
+	sel = cur_item ? &bbox[SCENEBB_curitem] : &bbox[SCENEBB_label];
 	if (!sel->valid)
 		return;
 
@@ -547,9 +549,13 @@ static int scene_txt_render(struct expo *exp, struct udevice *dev,
 	}
 
 	if (obj->flags & SCENEOF_POINT) {
+		int inset;
+
+		inset = exp->popup ? menu_inset : 0;
 		vidconsole_push_colour(cons, fore, back, &old);
-		video_fill_part(dev, x - menu_inset, y, obj->bbox.x1,
-				obj->bbox.y1, vid_priv->colour_bg);
+		video_fill_part(dev, x - inset, y,
+				obj->bbox.x1, obj->bbox.y1,
+				vid_priv->colour_bg);
 	}
 
 	mline = alist_get(&gen->lines, 0, typeof(*mline));
@@ -632,13 +638,18 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 	case SCENEOBJT_MENU: {
 		struct scene_obj_menu *menu = (struct scene_obj_menu *)obj;
 
-		if (exp->popup && (obj->flags & SCENEOF_OPEN)) {
-			if (!cons)
-				return -ENOTSUPP;
+		if (exp->popup) {
+			if (obj->flags & SCENEOF_OPEN) {
+				if (!cons)
+					return -ENOTSUPP;
 
-			/* draw a background behind the menu items */
-			scene_render_background(obj, false);
+				/* draw a background behind the menu items */
+				scene_render_background(obj, false, false);
+			}
+		} else if (exp->show_highlight) {
+			/* do nothing */
 		}
+
 		/*
 		 * With a vidconsole, the text and item pointer are rendered as
 		 * normal objects so we don't need to do anything here. The menu
@@ -655,7 +666,7 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 	}
 	case SCENEOBJT_TEXTLINE:
 		if (obj->flags & SCENEOF_OPEN)
-			scene_render_background(obj, true);
+			scene_render_background(obj, true, false);
 		break;
 	case SCENEOBJT_BOX: {
 		struct scene_obj_box *box = (struct scene_obj_box *)obj;

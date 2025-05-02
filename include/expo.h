@@ -106,6 +106,7 @@ struct expo_theme {
  * type set to EXPOACT_NONE if there is no action
  * @text_mode: true to use text mode for the menu (no vidconsole)
  * @popup: true to use popup menus, instead of showing all items
+ * @show_highlight: show a highlight bar on the selected menu item
  * @priv: Private data for the controller
  * @done: Indicates that a cedit session is complete and the user has quit
  * @save: Indicates that cedit data should be saved, rather than discarded
@@ -123,6 +124,7 @@ struct expo {
 	struct expo_action action;
 	bool text_mode;
 	bool popup;
+	bool show_highlight;
 	void *priv;
 	bool done;
 	bool save;

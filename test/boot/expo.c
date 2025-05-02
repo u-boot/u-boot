@@ -666,6 +666,13 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_assertok(scene_arrange(scn));
 	ut_asserteq(0, scn->highlight_id);
 
+	scene_set_highlight_id(scn, OBJ_MENU);
+	ut_assertok(scene_arrange(scn));
+	ut_asserteq(OBJ_MENU, scn->highlight_id);
+	ut_assertok(expo_render(exp));
+
+	ut_asserteq(19704, video_compress_fb(uts, dev, false));
+
 	/* move down */
 	ut_assertok(expo_send_key(exp, BKEY_DOWN));
 
@@ -718,6 +725,12 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	/* make sure there was no console output */
 	ut_assert_console_end();
+
+	/* now try with the highlight */
+	exp->show_highlight = true;
+	ut_assertok(scene_arrange(scn));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(18844, video_compress_fb(uts, dev, false));
 
 	/* now try in text mode */
 	expo_set_text_mode(exp, true);

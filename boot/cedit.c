@@ -126,6 +126,7 @@ int cedit_prepare(struct expo *exp, struct udevice *vid_dev,
 		return log_msg_ret("sid", ret);
 
 	exp->popup = true;
+	exp->show_highlight = true;
 
 	/* This is not supported for now */
 	if (0)
