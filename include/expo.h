@@ -1006,10 +1006,13 @@ int expo_build(ofnode root, struct expo **expp);
 int cb_expo_build(struct expo **expp);
 
 /**
- * expo_poll() - render an expo and see if the user takes an action
+ * expo_poll() - see if the user takes an action
  *
- * Thsi calls expo_render() and then checks for a keypress. If there is one, it
- * is processed and the resulting action returned, if any
+ * This checks for a keypress. If there is one, it is processed and the
+ * resulting action returned, if any.
+ *
+ * Note that expo_render() should normally be called immediately before this
+ * function so that the user can see the latest state.
  *
  * @exp: Expo to poll
  * @act: Returns action on success

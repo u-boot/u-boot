@@ -219,6 +219,10 @@ int cedit_run(struct expo *exp)
 	do {
 		struct expo_action act;
 
+		ret = expo_render(exp);
+		if (ret)
+			return log_msg_ret("cer", ret);
+
 		ret = expo_poll(exp, &act);
 		if (!ret)
 			cedit_do_action(exp, scn, vid_priv, &act);

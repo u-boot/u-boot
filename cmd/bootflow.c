@@ -116,6 +116,9 @@ __maybe_unused static int bootflow_handle_menu(struct bootstd_priv *std,
 		return log_msg_ret("bhs", ret);
 
 	do {
+		ret = expo_render(exp);
+		if (ret)
+			return log_msg_ret("bhr", ret);
 		ret = bootflow_menu_poll(exp, &bflow);
 	} while (ret == -EAGAIN);
 
