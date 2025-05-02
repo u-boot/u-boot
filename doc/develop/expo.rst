@@ -560,6 +560,7 @@ Future ideas
 Some ideas for future work:
 
 - Default menu item and a timeout
+- Complete the text editor
 - Image formats other than BMP
 - Use of ANSI sequences to control a serial terminal
 - Colour selection

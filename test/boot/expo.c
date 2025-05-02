@@ -30,6 +30,7 @@ enum {
 	OBJ_MENU_TITLE,
 	OBJ_BOX,
 	OBJ_BOX2,
+	OBJ_TEXTED,
 
 	/* strings */
 	STR_SCENE_TITLE,
@@ -37,6 +38,7 @@ enum {
 	STR_TEXT,
 	STR_TEXT2,
 	STR_TEXT3,
+	STR_TEXTED,
 	STR_MENU_TITLE,
 	STR_POINTER_TEXT,
 
@@ -462,6 +464,7 @@ static int expo_render_image(struct unit_test_state *uts)
 {
 	struct scene_obj_menu *menu;
 	struct scene *scn, *scn2;
+	struct abuf orig, *text;
 	struct expo_action act;
 	struct scene_obj *obj;
 	struct udevice *dev;
@@ -555,6 +558,14 @@ static int expo_render_image(struct unit_test_state *uts)
 	id = scene_box(scn, "box2", OBJ_BOX2, 1, NULL);
 	ut_assert(id > 0);
 	ut_assertok(scene_obj_set_bbox(scn, OBJ_BOX, 500, 200, 1000, 350));
+
+	id = scene_texted(scn, "editor", OBJ_TEXTED, STR_TEXTED, NULL);
+	ut_assert(id > 0);
+	ut_assertok(scene_obj_set_bbox(scn, OBJ_TEXTED, 100, 200, 400, 650));
+	ut_assertok(expo_edit_str(exp, STR_TEXTED, &orig, &text));
+
+	abuf_printf(text, "This\nis the initial contents of the text editor "
+		"but it is quite likely that more will be added later");
 
 	scn2 = expo_lookup_scene_id(exp, SCENE1);
 	ut_asserteq_ptr(scn, scn2);
@@ -666,8 +677,11 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_asserteq(ITEM2, scene_menu_get_cur_item(scn, OBJ_MENU));
 	ut_assertok(scene_arrange(scn));
 	ut_assertok(expo_render(exp));
-	ut_asserteq(16304, video_compress_fb(uts, dev, false));
+	ut_asserteq(19673, video_compress_fb(uts, dev, false));
 	ut_assertok(video_check_copy_fb(uts, dev));
+
+	/* hide the text editor since the following tets don't need it */
+	scene_obj_set_hide(scn, OBJ_TEXTED, true);
 
 	/* do some alignment checks */
 	ut_assertok(scene_obj_set_halign(scn, OBJ_TEXT3, SCENEOA_CENTRE));

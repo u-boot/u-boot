@@ -414,4 +414,16 @@ int scene_textline_close(struct scene *scn, struct scene_obj_textline *tline);
  */
 int scene_calc_arrange(struct scene *scn, struct expo_arrange_info *arr);
 
+/**
+ * scene_txt_generic_init() - Set up the generic part of a text object
+ *
+ * @exp: Expo containing the object
+ * @gen: Generic text info
+ * @name: Object name
+ * @str_id: String ID for the text
+ * @str: Initial text string for the object, or NULL to just use str_id
+ */
+int scene_txt_generic_init(struct expo *exp, struct scene_txt_generic *gen,
+			   const char *name, uint str_id, const char *str);
+
 #endif /* __SCENE_INTERNAL_H */

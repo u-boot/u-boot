@@ -183,12 +183,14 @@ struct scene {
  * @SCENEOBJT_TEXT: Text line to render
  * @SCENEOBJT_MENU: Menu containing items the user can select
  * @SCENEOBJT_TEXTLINE: Line of text the user can edit
+ * @SCENEOBJT_TEXTEDIT: Simple text editor
  */
 enum scene_obj_t {
 	SCENEOBJT_NONE		= 0,
 	SCENEOBJT_IMAGE,
 	SCENEOBJT_TEXT,
 	SCENEOBJT_BOX,
+	SCENEOBJT_TEXTEDIT,
 
 	/* types from here on can be highlighted */
 	SCENEOBJT_MENU,
@@ -462,6 +464,21 @@ struct scene_obj_textline {
 struct scene_obj_box {
 	struct scene_obj obj;
 	uint width;
+};
+
+/**
+ * struct scene_obj_txtedit - information about a box in a scene
+ *
+ * A text editor which allows users to edit a small text file
+ *
+ * @obj: Basic object information
+ * @gen: Generic information common to all objects which show text
+ * @buf: Text buffer containing current text
+ */
+struct scene_obj_txtedit {
+	struct scene_obj obj;
+	struct scene_txt_generic gen;
+	struct abuf buf;
 };
 
 /**
@@ -742,6 +759,19 @@ int scene_box(struct scene *scn, const char *name, uint id, uint width,
 	      struct scene_obj_box **boxp);
 
 /**
+ *  scene_texted() - create a text editor
+ *
+ * @scn: Scene to update
+ * @name: Name to use (this is allocated by this call)
+ * @id: ID to use for the new object (0 to allocate one)
+ * @strid: ID of the string to edit
+ * @teditp: If non-NULL, returns the new object
+ * Returns: ID number for the object (typically @id), or -ve on error
+ */
+int scene_texted(struct scene *scn, const char *name, uint id, uint strid,
+		 struct scene_obj_txtedit **teditp);
+
+/**
  * scene_txt_set_font() - Set the font for an object
  *
  * @scn: Scene to update
@@ -751,6 +781,17 @@ int scene_box(struct scene *scn, const char *name, uint id, uint width,
  */
 int scene_txt_set_font(struct scene *scn, uint id, const char *font_name,
 		       uint font_size);
+
+/**
+ * scene_txted_set_font() - Set the font for an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @font_name: Font name to use (allocated by caller)
+ * @font_size: Font size to use (nominal height in pixels)
+ */
+int scene_txted_set_font(struct scene *scn, uint id, const char *font_name,
+			 uint font_size);
 
 /**
  * scene_obj_set_pos() - Set the postion of an object
