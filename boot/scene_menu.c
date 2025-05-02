@@ -359,7 +359,7 @@ static struct scene_menitem *scene_menu_find_key(struct scene *scn,
 
 			txt = scene_obj_find(scn, item->key_id, SCENEOBJT_TEXT);
 			if (txt) {
-				str = expo_get_str(scn->expo, txt->str_id);
+				str = expo_get_str(scn->expo, txt->gen.str_id);
 				if (str && *str == key)
 					return item;
 			}
@@ -562,7 +562,7 @@ int scene_menu_display(struct scene_obj_menu *menu)
 		if (!txt)
 			return log_msg_ret("txt", -EINVAL);
 
-		str = expo_get_str(exp, txt->str_id);
+		str = expo_get_str(exp, txt->gen.str_id);
 		printf("%s\n\n", str);
 	}
 
@@ -570,7 +570,7 @@ int scene_menu_display(struct scene_obj_menu *menu)
 		return 0;
 
 	pointer = scene_obj_find(scn, menu->pointer_id, SCENEOBJT_TEXT);
-	pstr = expo_get_str(scn->expo, pointer->str_id);
+	pstr = expo_get_str(scn->expo, pointer->gen.str_id);
 
 	list_for_each_entry(item, &menu->item_head, sibling) {
 		struct scene_obj_txt *key = NULL, *label = NULL;
@@ -579,15 +579,15 @@ int scene_menu_display(struct scene_obj_menu *menu)
 
 		key = scene_obj_find(scn, item->key_id, SCENEOBJT_TEXT);
 		if (key)
-			kstr = expo_get_str(exp, key->str_id);
+			kstr = expo_get_str(exp, key->gen.str_id);
 
 		label = scene_obj_find(scn, item->label_id, SCENEOBJT_TEXT);
 		if (label)
-			lstr = expo_get_str(exp, label->str_id);
+			lstr = expo_get_str(exp, label->gen.str_id);
 
 		desc = scene_obj_find(scn, item->desc_id, SCENEOBJT_TEXT);
 		if (desc)
-			dstr = expo_get_str(exp, desc->str_id);
+			dstr = expo_get_str(exp, desc->gen.str_id);
 
 		printf("%3s  %3s  %-10s  %s\n",
 		       pointer && menu->cur_item_id == item->id ? pstr : "",

@@ -271,7 +271,7 @@ static int get_cur_menuitem_text(const struct scene_obj_menu *menu,
 	if (!txt)
 		return log_msg_ret("txt", -ENOENT);
 
-	str = expo_get_str(scn->expo, txt->str_id);
+	str = expo_get_str(scn->expo, txt->gen.str_id);
 	if (!str)
 		return log_msg_ret("str", -ENOENT);
 	*strp = str;

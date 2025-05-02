@@ -48,7 +48,7 @@ static int cedit_base(struct unit_test_state *uts)
 
 	txt = scene_obj_find(scn, menu->title_id, SCENEOBJT_NONE);
 	ut_assertnonnull(txt);
-	ut_asserteq_str("AC Power", expo_get_str(exp, txt->str_id));
+	ut_asserteq_str("AC Power", expo_get_str(exp, txt->gen.str_id));
 
 	ut_asserteq(ID_AC_ON, menu->cur_item_id);
 

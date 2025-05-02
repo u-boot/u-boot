@@ -142,6 +142,31 @@ int scene_img(struct scene *scn, const char *name, uint id, char *data,
 	return img->obj.id;
 }
 
+int scene_txt_generic_init(struct expo *exp, struct scene_txt_generic *gen,
+			   const char *name, uint str_id, const char *str)
+{
+	int ret;
+
+	if (str) {
+		ret = expo_str(exp, name, str_id, str);
+		if (ret < 0)
+			return log_msg_ret("str", ret);
+		if (str_id && ret != str_id)
+			return log_msg_ret("id", -EEXIST);
+		str_id = ret;
+	} else {
+		ret = resolve_id(exp, str_id);
+		if (ret < 0)
+			return log_msg_ret("nst", ret);
+		if (str_id && ret != str_id)
+			return log_msg_ret("nid", -EEXIST);
+	}
+
+	gen->str_id = str_id;
+
+	return 0;
+}
+
 int scene_txt(struct scene *scn, const char *name, uint id, uint str_id,
 	      struct scene_obj_txt **txtp)
 {
@@ -154,8 +179,9 @@ int scene_txt(struct scene *scn, const char *name, uint id, uint str_id,
 	if (ret < 0)
 		return log_msg_ret("obj", ret);
 
-	txt->str_id = str_id;
-
+	ret = scene_txt_generic_init(scn->expo, &txt->gen, name, str_id, NULL);
+	if (ret)
+		return log_msg_ret("stg", ret);
 	if (txtp)
 		*txtp = txt;
 
@@ -168,21 +194,15 @@ int scene_txt_str(struct scene *scn, const char *name, uint id, uint str_id,
 	struct scene_obj_txt *txt;
 	int ret;
 
-	ret = expo_str(scn->expo, name, str_id, str);
-	if (ret < 0)
-		return log_msg_ret("str", ret);
-	if (str_id && ret != str_id)
-		return log_msg_ret("id", -EEXIST);
-	str_id = ret;
-
 	ret = scene_obj_add(scn, name, id, SCENEOBJT_TEXT,
 			    sizeof(struct scene_obj_txt),
 			    (struct scene_obj **)&txt);
 	if (ret < 0)
 		return log_msg_ret("obj", ret);
 
-	txt->str_id = str_id;
-
+	ret = scene_txt_generic_init(scn->expo, &txt->gen, name, str_id, str);
+	if (ret)
+		return log_msg_ret("tsg", ret);
 	if (txtp)
 		*txtp = txt;
 
@@ -197,8 +217,8 @@ int scene_txt_set_font(struct scene *scn, uint id, const char *font_name,
 	txt = scene_obj_find(scn, id, SCENEOBJT_TEXT);
 	if (!txt)
 		return log_msg_ret("find", -ENOENT);
-	txt->font_name = font_name;
-	txt->font_size = font_size;
+	txt->gen.font_name = font_name;
+	txt->gen.font_size = font_size;
 
 	return 0;
 }
@@ -313,13 +333,13 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
 		return height;
 	}
 	case SCENEOBJT_TEXT: {
-		struct scene_obj_txt *txt = (struct scene_obj_txt *)obj;
+		struct scene_txt_generic *gen = &((struct scene_obj_txt *)obj)->gen;
 		struct expo *exp = scn->expo;
 		struct vidconsole_bbox bbox;
 		const char *str;
 		int len, ret;
 
-		str = expo_get_str(exp, txt->str_id);
+		str = expo_get_str(exp, gen->str_id);
 		if (!str)
 			return log_msg_ret("str", -ENOENT);
 		len = strlen(str);
@@ -331,8 +351,8 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
 			return 16;
 		}
 
-		ret = vidconsole_measure(scn->expo->cons, txt->font_name,
-					 txt->font_size, str, -1, &bbox, NULL);
+		ret = vidconsole_measure(scn->expo->cons, gen->font_name,
+					 gen->font_size, str, -1, &bbox, NULL);
 		if (ret)
 			return log_msg_ret("mea", ret);
 		if (widthp)
@@ -424,22 +444,23 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 		break;
 	}
 	case SCENEOBJT_TEXT: {
-		struct scene_obj_txt *txt = (struct scene_obj_txt *)obj;
+		struct scene_txt_generic *gen =
+				&((struct scene_obj_txt *)obj)->gen;
 		const char *str;
 
 		if (!cons)
 			return -ENOTSUPP;
 
-		if (txt->font_name || txt->font_size) {
+		if (gen->font_name || gen->font_size) {
 			ret = vidconsole_select_font(cons,
-						     txt->font_name,
-						     txt->font_size);
+						     gen->font_name,
+						     gen->font_size);
 		} else {
 			ret = vidconsole_select_font(cons, NULL, 0);
 		}
 		if (ret && ret != -ENOSYS)
 			return log_msg_ret("font", ret);
-		str = expo_get_str(exp, txt->str_id);
+		str = expo_get_str(exp, gen->str_id);
 		if (str) {
 			struct video_priv *vid_priv;
 			struct vidconsole_colour old;

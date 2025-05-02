@@ -71,8 +71,8 @@ int scene_textline_calc_dims(struct scene_obj_textline *tline)
 	if (!txt)
 		return log_msg_ret("dim", -ENOENT);
 
-	ret = vidconsole_nominal(scn->expo->cons, txt->font_name,
-				 txt->font_size, tline->max_chars, &bbox);
+	ret = vidconsole_nominal(scn->expo->cons, txt->gen.font_name,
+				 txt->gen.font_size, tline->max_chars, &bbox);
 	if (ret)
 		return log_msg_ret("nom", ret);
 
@@ -191,10 +191,10 @@ int scene_textline_render_deps(struct scene *scn,
 		if (!txt)
 			return log_msg_ret("cur", -ENOENT);
 
-		if (txt->font_name || txt->font_size) {
+		if (txt->gen.font_name || txt->gen.font_size) {
 			ret = vidconsole_select_font(cons,
-						     txt->font_name,
-						     txt->font_size);
+						     txt->gen.font_name,
+						     txt->gen.font_size);
 		} else {
 			ret = vidconsole_select_font(cons, NULL, 0);
 		}

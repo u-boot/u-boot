@@ -291,20 +291,29 @@ struct scene_obj_img {
 };
 
 /**
+ * struct scene_txt_generic - Generic information common to text objects
+ *
+ * @str_id: ID of the text string to display
+ * @font_name: Name of font (allocated by caller)
+ * @font_size: Nominal size of font in pixels
+ */
+struct scene_txt_generic {
+	uint str_id;
+	const char *font_name;
+	uint font_size;
+};
+
+/**
  * struct scene_obj_txt - information about a text object in a scene
  *
  * This is a single-line text object
  *
  * @obj: Basic object information
- * @str_id: ID of the text string to display
- * @font_name: Name of font (allocated by caller)
- * @font_size: Nominal size of font in pixels
+ * @gen: Generic information common to all objects which show text
  */
 struct scene_obj_txt {
 	struct scene_obj obj;
-	uint str_id;
-	const char *font_name;
-	uint font_size;
+	struct scene_txt_generic gen;
 };
 
 /**

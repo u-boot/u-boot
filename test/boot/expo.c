@@ -280,8 +280,8 @@ static int expo_object_attr(struct unit_test_state *uts)
 
 	strcpy(name, "font2");
 	ut_assertok(scene_txt_set_font(scn, OBJ_TEXT, name, 42));
-	ut_asserteq_ptr(name, txt->font_name);
-	ut_asserteq(42, txt->font_size);
+	ut_asserteq_ptr(name, txt->gen.font_name);
+	ut_asserteq(42, txt->gen.font_size);
 
 	ut_asserteq(-ENOENT, scene_txt_set_font(scn, OBJ_TEXT2, name, 42));
 
@@ -296,7 +296,7 @@ static int expo_object_attr(struct unit_test_state *uts)
 	node = ofnode_path("/bootstd/theme");
 	ut_assert(ofnode_valid(node));
 	ut_assertok(expo_apply_theme(exp, node));
-	ut_asserteq(30, txt->font_size);
+	ut_asserteq(30, txt->gen.font_size);
 
 	expo_destroy(exp);
 
@@ -727,7 +727,7 @@ static int expo_test_build(struct unit_test_state *uts)
 	ut_assertnonnull(scn);
 	ut_asserteq_str("main", scn->name);
 	ut_asserteq(ID_SCENE1, scn->id);
-	ut_asserteq(ID_DYNAMIC_START + 1, scn->title_id);
+	ut_asserteq(ID_DYNAMIC_START, scn->title_id);
 	ut_asserteq(0, scn->highlight_id);
 
 	/* check the title */
@@ -739,7 +739,8 @@ static int expo_test_build(struct unit_test_state *uts)
 	ut_asserteq(scn->title_id, obj->id);
 	ut_asserteq(SCENEOBJT_TEXT, obj->type);
 	ut_asserteq(0, obj->flags);
-	ut_asserteq_str("Test Configuration", expo_get_str(exp, txt->str_id));
+	ut_asserteq_str("Test Configuration",
+			expo_get_str(exp, txt->gen.str_id));
 
 	/* check the menu */
 	menu = scene_obj_find(scn, ID_CPU_SPEED, SCENEOBJT_NONE);
@@ -751,7 +752,7 @@ static int expo_test_build(struct unit_test_state *uts)
 	ut_asserteq(0, obj->flags);
 
 	txt = scene_obj_find(scn, menu->title_id, SCENEOBJT_NONE);
-	ut_asserteq_str("CPU speed", expo_get_str(exp, txt->str_id));
+	ut_asserteq_str("CPU speed", expo_get_str(exp, txt->gen.str_id));
 
 	ut_asserteq(0, menu->cur_item_id);
 	ut_asserteq(0, menu->pointer_id);
@@ -768,7 +769,7 @@ static int expo_test_build(struct unit_test_state *uts)
 	ut_asserteq(0, item->value);
 
 	txt = scene_obj_find(scn, item->label_id, SCENEOBJT_NONE);
-	ut_asserteq_str("2 GHz", expo_get_str(exp, txt->str_id));
+	ut_asserteq_str("2 GHz", expo_get_str(exp, txt->gen.str_id));
 
 	count = list_count_nodes(&menu->item_head);
 	ut_asserteq(3, count);
