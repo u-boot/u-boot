@@ -656,7 +656,22 @@ struct bootflow_img *bootflow_img_add(struct bootflow *bflow, const char *fname,
 int bootflow_get_seq(const struct bootflow *bflow);
 
 /**
+ * bootflow_menu_setup() - Set up a menu for bootflows
+ *
+ * Set up the expo, initially empty
+ *
+ * @std: bootstd information
+ * @text_mode: true to show the menu in text mode, false to use video display
+ * @expp: Returns the expo created, on success
+ * Return: 0 if OK, -ve on error
+ */
+int bootflow_menu_setup(struct bootstd_priv *std, bool text_mode,
+			struct expo **expp);
+
+/**
  * bootflow_menu_start() - Start up a menu for bootflows
+ *
+ * Set up the expo and add items
  *
  * @std: bootstd information
  * @text_mode: true to show the menu in text mode, false to use video display

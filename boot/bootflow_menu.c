@@ -210,7 +210,6 @@ int bootflow_menu_add_all(struct expo *exp)
 		ret = bootflow_menu_add(exp, bflow, i, &scn);
 		if (ret)
 			return log_msg_ret("bao", ret);
-
 	}
 
 	ret = scene_arrange(scn);
@@ -257,7 +256,7 @@ int bootflow_menu_apply_theme(struct expo *exp, ofnode node)
 	return 0;
 }
 
-int bootflow_menu_start(struct bootstd_priv *std, bool text_mode,
+int bootflow_menu_setup(struct bootstd_priv *std, bool text_mode,
 			struct expo **expp)
 {
 	struct udevice *dev;
@@ -267,9 +266,6 @@ int bootflow_menu_start(struct bootstd_priv *std, bool text_mode,
 	ret = bootflow_menu_new(&exp);
 	if (ret)
 		return log_msg_ret("bmn", ret);
-	ret = bootflow_menu_add_all(exp);
-	if (ret)
-		return log_msg_ret("bma", ret);
 
 	if (ofnode_valid(std->theme)) {
 		ret = bootflow_menu_apply_theme(exp, std->theme);
@@ -291,6 +287,31 @@ int bootflow_menu_start(struct bootstd_priv *std, bool text_mode,
 
 	if (text_mode)
 		expo_set_text_mode(exp, text_mode);
+
+	*expp = exp;
+
+	return 0;
+}
+
+int bootflow_menu_start(struct bootstd_priv *std, bool text_mode,
+			struct expo **expp)
+{
+	struct expo *exp;
+	int ret;
+
+	ret = bootflow_menu_setup(std, text_mode, &exp);
+	if (ret)
+		return log_msg_ret("bmd", ret);
+
+	ret = bootflow_menu_add_all(exp);
+	if (ret)
+		return log_msg_ret("bma", ret);
+
+	if (ofnode_valid(std->theme)) {
+		ret = expo_apply_theme(exp, std->theme);
+		if (ret)
+			return log_msg_ret("thm", ret);
+	}
 
 	ret = expo_calc_dims(exp);
 	if (ret)
