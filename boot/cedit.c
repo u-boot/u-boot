@@ -166,39 +166,8 @@ int cedit_run(struct expo *exp)
 	save = false;
 	do {
 		struct expo_action act;
-		int ichar, key;
 
-		ret = expo_render(exp);
-		if (ret)
-			break;
-
-		ichar = cli_ch_process(&exp->cch, 0);
-		if (!ichar) {
-			while (!ichar && !tstc()) {
-				schedule();
-				mdelay(2);
-				ichar = cli_ch_process(&exp->cch, -ETIMEDOUT);
-			}
-			if (!ichar) {
-				ichar = getchar();
-				ichar = cli_ch_process(&exp->cch, ichar);
-			}
-		}
-
-		key = 0;
-		if (ichar) {
-			key = bootmenu_conv_key(ichar);
-			if (key == BKEY_NONE || key >= BKEY_FIRST_EXTRA)
-				key = ichar;
-		}
-		if (!key)
-			continue;
-
-		ret = expo_send_key(exp, key);
-		if (ret)
-			break;
-
-		ret = expo_action_get(exp, &act);
+		ret = expo_poll(exp, &act);
 		if (!ret) {
 			switch (act.type) {
 			case EXPOACT_POINT_OBJ:
@@ -233,6 +202,8 @@ int cedit_run(struct expo *exp)
 			default:
 				break;
 			}
+		} else if (ret != -EAGAIN) {
+			return log_msg_ret("cep", ret);
 		}
 	} while (!done);
 

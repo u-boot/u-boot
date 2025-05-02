@@ -508,7 +508,7 @@ int bootflow_menu_apply_theme(struct expo *exp, ofnode node);
  * @std: Bootstd information
  * @text_mode: Uses a text-based menu suitable for a serial port
  * @bflowp: Returns chosen bootflow (set to NULL if nothing is chosen)
- * @return 0 if an option was chosen, -EAGAIN if nothing was chosen, -ve on
+ * @return 0 if an option was chosen, -EPIPE if nothing was chosen, -ve on
  * error
  */
 int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,

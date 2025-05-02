@@ -10,8 +10,12 @@
 
 #include <dm.h>
 #include <expo.h>
+#include <log.h>
 #include <malloc.h>
+#include <menu.h>
 #include <video.h>
+#include <watchdog.h>
+#include <linux/delay.h>
 #include "scene_internal.h"
 
 int expo_new(const char *name, void *priv, struct expo **expp)
@@ -283,6 +287,46 @@ int expo_iter_scene_objs(struct expo *exp, expo_scene_obj_iterator iter,
 		if (ret)
 			return log_msg_ret("wr", ret);
 	}
+
+	return 0;
+}
+
+int expo_poll(struct expo *exp, struct expo_action *act)
+{
+	int ichar, key, ret;
+
+	ret = expo_render(exp);
+	if (ret)
+		return log_msg_ret("ere", ret);
+
+	ichar = cli_ch_process(&exp->cch, 0);
+	if (!ichar) {
+		while (!ichar && !tstc()) {
+			schedule();
+			mdelay(2);
+			ichar = cli_ch_process(&exp->cch, -ETIMEDOUT);
+		}
+		if (!ichar) {
+			ichar = getchar();
+			ichar = cli_ch_process(&exp->cch, ichar);
+		}
+	}
+
+	key = 0;
+	if (ichar) {
+		key = bootmenu_conv_key(ichar);
+		if (key == BKEY_NONE || key >= BKEY_FIRST_EXTRA)
+			key = ichar;
+	}
+	if (!key)
+		return -EAGAIN;
+
+	ret = expo_send_key(exp, key);
+	if (ret)
+		return log_msg_ret("epk", ret);
+	ret = expo_action_get(exp, act);
+	if (ret)
+		return log_msg_ret("eag", ret);
 
 	return 0;
 }

@@ -110,7 +110,7 @@ __maybe_unused static int bootflow_handle_menu(struct bootstd_priv *std,
 
 	ret = bootflow_menu_run(std, text_mode, &bflow);
 	if (ret) {
-		if (ret == -EAGAIN) {
+		if (ret == -EPIPE) {
 			printf("Nothing chosen\n");
 			std->cur_bootflow = NULL;
 		} else {

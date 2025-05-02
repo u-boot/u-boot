@@ -216,39 +216,8 @@ int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 	done = false;
 	do {
 		struct expo_action act;
-		int ichar, key;
 
-		ret = expo_render(exp);
-		if (ret)
-			break;
-
-		ichar = cli_ch_process(&exp->cch, 0);
-		if (!ichar) {
-			while (!ichar && !tstc()) {
-				schedule();
-				mdelay(2);
-				ichar = cli_ch_process(&exp->cch, -ETIMEDOUT);
-			}
-			if (!ichar) {
-				ichar = getchar();
-				ichar = cli_ch_process(&exp->cch, ichar);
-			}
-		}
-
-		key = 0;
-		if (ichar) {
-			key = bootmenu_conv_key(ichar);
-			if (key == BKEY_NONE)
-				key = ichar;
-		}
-		if (!key)
-			continue;
-
-		ret = expo_send_key(exp, key);
-		if (ret)
-			break;
-
-		ret = expo_action_get(exp, &act);
+		ret = expo_poll(exp, &act);
 		if (!ret) {
 			switch (act.type) {
 			case EXPOACT_SELECT:
@@ -256,16 +225,14 @@ int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 				done = true;
 				break;
 			case EXPOACT_QUIT:
-				done = true;
-				break;
+				return -EPIPE;
 			default:
 				break;
 			}
+		} else if (ret != -EPIPE && ret != -EAGAIN) {
+			return log_msg_ret("bmr", ret);
 		}
 	} while (!done);
-
-	if (ret)
-		return log_msg_ret("end", ret);
 
 	if (sel_id) {
 		struct bootflow *bflow;
