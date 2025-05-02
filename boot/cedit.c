@@ -154,7 +154,6 @@ int cedit_run(struct expo *exp)
 	struct video_priv *vid_priv;
 	uint scene_id;
 	struct scene *scn;
-	bool done, save;
 	int ret;
 
 	ret = cedit_prepare(exp, &vid_priv, &scn);
@@ -162,8 +161,8 @@ int cedit_run(struct expo *exp)
 		return log_msg_ret("prep", ret);
 	scene_id = ret;
 
-	done = false;
-	save = false;
+	exp->done = false;
+	exp->save = false;
 	do {
 		struct expo_action act;
 
@@ -179,11 +178,11 @@ int cedit_run(struct expo *exp)
 				cedit_arange(exp, vid_priv, scene_id);
 				switch (scn->highlight_id) {
 				case EXPOID_SAVE:
-					done = true;
-					save = true;
+					exp->done = true;
+					exp->save = true;
 					break;
 				case EXPOID_DISCARD:
-					done = true;
+					exp->done = true;
 					break;
 				}
 				break;
@@ -197,7 +196,7 @@ int cedit_run(struct expo *exp)
 				break;
 			case EXPOACT_QUIT:
 				log_debug("quitting\n");
-				done = true;
+				exp->done = true;
 				break;
 			default:
 				break;
@@ -205,11 +204,11 @@ int cedit_run(struct expo *exp)
 		} else if (ret != -EAGAIN) {
 			return log_msg_ret("cep", ret);
 		}
-	} while (!done);
+	} while (!exp->done);
 
 	if (ret)
 		return log_msg_ret("end", ret);
-	if (!save)
+	if (!exp->save)
 		return -EACCES;
 
 	return 0;

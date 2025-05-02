@@ -105,6 +105,8 @@ struct expo_theme {
  * @text_mode: true to use text mode for the menu (no vidconsole)
  * @popup: true to use popup menus, instead of showing all items
  * @priv: Private data for the controller
+ * @done: Indicates that a cedit session is complete and the user has quit
+ * @save: Indicates that cedit data should be saved, rather than discarded
  * @theme: Information about fonts styles, etc.
  * @scene_head: List of scenes
  * @str_head: list of strings
@@ -120,6 +122,8 @@ struct expo {
 	bool text_mode;
 	bool popup;
 	void *priv;
+	bool done;
+	bool save;
 	struct expo_theme theme;
 	struct list_head scene_head;
 	struct list_head str_head;
