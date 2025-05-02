@@ -139,55 +139,74 @@ static int menu_point_to_item(struct scene_obj_menu *menu, uint item_id)
 }
 
 void scene_menu_calc_bbox(struct scene_obj_menu *menu,
-			  struct vidconsole_bbox *bbox,
-			  struct vidconsole_bbox *label_bbox)
+			  struct vidconsole_bbox *bbox)
 {
 	const struct expo_theme *theme = &menu->obj.scene->expo->theme;
 	const struct scene_menitem *item;
+	int inset = theme->menu_inset;
+	int i;
 
-	bbox->valid = false;
-	scene_bbox_union(menu->obj.scene, menu->title_id, 0, bbox);
+	for (i = 0; i < SCENEBB_count; i++)
+		bbox[i].valid = false;
 
-	label_bbox->valid = false;
+	scene_bbox_union(menu->obj.scene, menu->title_id, 0,
+			 &bbox[SCENEBB_all]);
 
 	list_for_each_entry(item, &menu->item_head, sibling) {
-		scene_bbox_union(menu->obj.scene, item->label_id,
-				 theme->menu_inset, bbox);
-		scene_bbox_union(menu->obj.scene, item->key_id, 0, bbox);
-		scene_bbox_union(menu->obj.scene, item->desc_id, 0, bbox);
-		scene_bbox_union(menu->obj.scene, item->preview_id, 0, bbox);
+		struct vidconsole_bbox local;
 
-		/* Get the bounding box of all labels */
-		scene_bbox_union(menu->obj.scene, item->label_id,
-				 theme->menu_inset, label_bbox);
+		local.valid = false;
+		scene_bbox_union(menu->obj.scene, item->label_id, inset,
+				 &local);
+		scene_bbox_union(menu->obj.scene, item->key_id, 0, &local);
+		scene_bbox_union(menu->obj.scene, item->desc_id, 0, &local);
+		scene_bbox_union(menu->obj.scene, item->preview_id, 0, &local);
+
+		scene_bbox_join(&local, 0, &bbox[SCENEBB_all]);
+
+		/* Get the bounding box of all individual fields */
+		scene_bbox_union(menu->obj.scene, item->label_id, inset,
+				 &bbox[SCENEBB_label]);
+		scene_bbox_union(menu->obj.scene, item->key_id, inset,
+				 &bbox[SCENEBB_key]);
+		scene_bbox_union(menu->obj.scene, item->desc_id, inset,
+				 &bbox[SCENEBB_desc]);
+
+		if (menu->cur_item_id == item->id)
+			scene_bbox_join(&local, 0, &bbox[SCENEBB_curitem]);
 	}
 
 	/*
-	 * subtract the final menuitem's gap to keep the insert the same top
-	 * and bottom
+	 * subtract the final menuitem's gap to keep the inset the same top and
+	 * bottom
 	 */
-	label_bbox->y1 -= theme->menuitem_gap_y;
+	bbox[SCENEBB_label].y1 -= theme->menuitem_gap_y;
 }
 
 int scene_menu_calc_dims(struct scene_obj_menu *menu)
 {
-	struct vidconsole_bbox bbox, label_bbox;
+	struct vidconsole_bbox bbox[SCENEBB_count], *cur;
 	const struct scene_menitem *item;
 
-	scene_menu_calc_bbox(menu, &bbox, &label_bbox);
+	scene_menu_calc_bbox(menu, bbox);
 
 	/* Make all labels the same size */
-	if (label_bbox.valid) {
+	cur = &bbox[SCENEBB_label];
+	if (cur->valid) {
 		list_for_each_entry(item, &menu->item_head, sibling) {
 			scene_obj_set_size(menu->obj.scene, item->label_id,
-					   label_bbox.x1 - label_bbox.x0,
-					   label_bbox.y1 - label_bbox.y0);
+					   cur->x1 - cur->x0,
+					   cur->y1 - cur->y0);
 		}
 	}
 
-	if (bbox.valid) {
-		menu->obj.dims.x = bbox.x1 - bbox.x0;
-		menu->obj.dims.y = bbox.y1 - bbox.y0;
+	cur = &bbox[SCENEBB_all];
+	if (cur->valid) {
+		menu->obj.dims.x = cur->x1 - cur->x0;
+		menu->obj.dims.y = cur->y1 - cur->y0;
+
+		menu->obj.bbox.x1 = cur->x1;
+		menu->obj.bbox.y1 = cur->y1;
 	}
 
 	return 0;

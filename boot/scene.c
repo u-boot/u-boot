@@ -325,9 +325,9 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
  */
 static void scene_render_background(struct scene_obj *obj, bool box_only)
 {
+	struct vidconsole_bbox bbox[SCENEBB_count], *sel;
 	struct expo *exp = obj->scene->expo;
 	const struct expo_theme *theme = &exp->theme;
-	struct vidconsole_bbox bbox, label_bbox;
 	struct udevice *dev = exp->display;
 	struct video_priv *vid_priv;
 	struct udevice *cons = exp->cons;
@@ -346,17 +346,20 @@ static void scene_render_background(struct scene_obj *obj, bool box_only)
 	}
 
 	/* see if this object wants to render a background */
-	if (scene_obj_calc_bbox(obj, &bbox, &label_bbox))
+	if (scene_obj_calc_bbox(obj, bbox))
+		return;
+
+	sel = &bbox[SCENEBB_label];
+	if (!sel->valid)
 		return;
 
 	vidconsole_push_colour(cons, fore, back, &old);
-	video_fill_part(dev, label_bbox.x0 - inset, label_bbox.y0 - inset,
-			label_bbox.x1 + inset, label_bbox.y1 + inset,
+	video_fill_part(dev, sel->x0 - inset, sel->y0 - inset,
+			sel->x1 + inset, sel->y1 + inset,
 			vid_priv->colour_fg);
 	vidconsole_pop_colour(cons, &old);
 	if (box_only) {
-		video_fill_part(dev, label_bbox.x0, label_bbox.y0,
-				label_bbox.x1, label_bbox.y1,
+		video_fill_part(dev, sel->x0, sel->y0, sel->x1, sel->y1,
 				vid_priv->colour_bg);
 	}
 }
@@ -729,8 +732,7 @@ int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 	return 0;
 }
 
-int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox *bbox,
-			struct vidconsole_bbox *label_bbox)
+int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox bbox[])
 {
 	switch (obj->type) {
 	case SCENEOBJT_NONE:
@@ -740,14 +742,15 @@ int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox *bbox,
 	case SCENEOBJT_MENU: {
 		struct scene_obj_menu *menu = (struct scene_obj_menu *)obj;
 
-		scene_menu_calc_bbox(menu, bbox, label_bbox);
+		scene_menu_calc_bbox(menu, bbox);
 		break;
 	}
 	case SCENEOBJT_TEXTLINE: {
 		struct scene_obj_textline *tline;
 
 		tline = (struct scene_obj_textline *)obj;
-		scene_textline_calc_bbox(tline, bbox, label_bbox);
+		scene_textline_calc_bbox(tline, &bbox[SCENEBB_all],
+					 &bbox[SCENEBB_label]);
 		break;
 	}
 	}
@@ -915,28 +918,42 @@ int scene_iter_objs(struct scene *scn, expo_scene_obj_iterator iter,
 	return 0;
 }
 
+int scene_bbox_join(const struct vidconsole_bbox *src, int inset,
+		    struct vidconsole_bbox *dst)
+{
+	if (dst->valid) {
+		dst->x0 = min(dst->x0, src->x0 - inset);
+		dst->y0 = min(dst->y0, src->y0);
+		dst->x1 = max(dst->x1, src->x1 + inset);
+		dst->y1 = max(dst->y1, src->y1);
+	} else {
+		dst->x0 = src->x0 - inset;
+		dst->y0 = src->y0;
+		dst->x1 = src->x1 + inset;
+		dst->y1 = src->y1;
+		dst->valid = true;
+	}
+
+	return 0;
+}
+
 int scene_bbox_union(struct scene *scn, uint id, int inset,
 		     struct vidconsole_bbox *bbox)
 {
 	struct scene_obj *obj;
+	struct vidconsole_bbox local;
 
 	if (!id)
 		return 0;
 	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
 	if (!obj)
 		return log_msg_ret("obj", -ENOENT);
-	if (bbox->valid) {
-		bbox->x0 = min(bbox->x0, obj->bbox.x0 - inset);
-		bbox->y0 = min(bbox->y0, obj->bbox.y0);
-		bbox->x1 = max(bbox->x1, obj->bbox.x1 + inset);
-		bbox->y1 = max(bbox->y1, obj->bbox.y1);
-	} else {
-		bbox->x0 = obj->bbox.x0 - inset;
-		bbox->y0 = obj->bbox.y0;
-		bbox->x1 = obj->bbox.x1 + inset;
-		bbox->y1 = obj->bbox.y1;
-		bbox->valid = true;
-	}
+	local.x0 = obj->bbox.x0;
+	local.y0 = obj->bbox.y0;
+	local.x1 = obj->bbox.x1;
+	local.y1 = obj->bbox.y1;
+	local.valid = true;
+	scene_bbox_join(&local, inset, bbox);
 
 	return 0;
 }

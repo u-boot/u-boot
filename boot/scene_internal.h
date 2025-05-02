@@ -14,6 +14,27 @@ struct vidconsole_bbox;
 typedef int (*expo_scene_obj_iterator)(struct scene_obj *obj, void *priv);
 
 /**
+ * enum scene_bbox_t - Parts of an object which can have a bounding box
+ *
+ * Objects can provide any or all of these bounding boxes
+ *
+ * @SCENEBB_label: Menu-item label
+ * @SCENEBB_key: Menu-item key label
+ * @SCENEBB_desc: Menu-item Description
+ * @SCENEBB_curitem: Current item (pointed to)
+ * @SCENEBB_all: All the above objects combined
+ */
+enum scene_bbox_t {
+	SCENEBB_label,
+	SCENEBB_key,
+	SCENEBB_desc,
+	SCENEBB_curitem,
+	SCENEBB_all,
+
+	SCENEBB_count,
+};
+
+/**
  * expo_lookup_scene_id() - Look up a scene ID
  *
  * @exp: Expo to use
@@ -292,6 +313,19 @@ struct scene_menitem *scene_menuitem_find_val(const struct scene_obj_menu *menu,
 					      int val);
 
 /**
+ * scene_bbox_join() - update bouding box with a given src box
+ *
+ * Updates @dst so that it encompasses the bounding box @src
+ *
+ * @src: Input bounding box
+ * @inset: Amount of inset to use for width
+ * @dst: Bounding box to update
+ * Return: 0 if OK, -ve on error
+ */
+int scene_bbox_join(const struct vidconsole_bbox *src, int inset,
+		    struct vidconsole_bbox *dst);
+
+/**
  * scene_bbox_union() - update bouding box with the demensions of an object
  *
  * Updates @bbox so that it encompasses the bounding box of object @id
@@ -319,13 +353,11 @@ int scene_textline_calc_dims(struct scene_obj_textline *tline);
  * scene_menu_calc_bbox() - Calculate bounding boxes for the menu
  *
  * @menu: Menu to process
- * @bbox: Returns bounding box of menu including prompts
- * @label_bbox: Returns bounding box of labels
+ * @bbox: List of bounding box to fill in
  * Return: 0 if OK, -ve on error
  */
 void scene_menu_calc_bbox(struct scene_obj_menu *menu,
-			  struct vidconsole_bbox *bbox,
-			  struct vidconsole_bbox *label_bbox);
+			  struct vidconsole_bbox *bbox);
 
 /**
  * scene_textline_calc_bbox() - Calculate bounding box for the textline
@@ -343,12 +375,10 @@ void scene_textline_calc_bbox(struct scene_obj_textline *menu,
  * scene_obj_calc_bbox() - Calculate bounding boxes for an object
  *
  * @obj: Object to process
- * @bbox: Returns bounding box of object including prompts
- * @label_bbox: Returns bounding box of labels (active area)
+ * @bbox: Returns bounding boxes for object
  * Return: 0 if OK, -ve on error
  */
-int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox *bbox,
-			struct vidconsole_bbox *label_bbox);
+int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox *bbox);
 
 /**
  * scene_textline_open() - Open a textline object
