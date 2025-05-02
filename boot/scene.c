@@ -210,8 +210,8 @@ int scene_obj_set_pos(struct scene *scn, uint id, int x, int y)
 	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
 	if (!obj)
 		return log_msg_ret("find", -ENOENT);
-	obj->dim.x = x;
-	obj->dim.y = y;
+	obj->bbox.x = x;
+	obj->bbox.y = y;
 
 	return 0;
 }
@@ -223,8 +223,8 @@ int scene_obj_set_size(struct scene *scn, uint id, int w, int h)
 	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
 	if (!obj)
 		return log_msg_ret("find", -ENOENT);
-	obj->dim.w = w;
-	obj->dim.h = h;
+	obj->bbox.w = w;
+	obj->bbox.h = h;
 
 	return 0;
 }
@@ -368,8 +368,8 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 	struct udevice *cons = text_mode ? NULL : exp->cons;
 	int x, y, ret;
 
-	x = obj->dim.x;
-	y = obj->dim.y;
+	x = obj->bbox.x;
+	y = obj->bbox.y;
 
 	switch (obj->type) {
 	case SCENEOBJT_NONE:
@@ -419,8 +419,8 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 			if (obj->flags & SCENEOF_POINT) {
 				vidconsole_push_colour(cons, fore, back, &old);
 				video_fill_part(dev, x - theme->menu_inset, y,
-						x + obj->dim.w,
-						y + obj->dim.h,
+						x + obj->bbox.w,
+						y + obj->bbox.h,
 						vid_priv->colour_bg);
 			}
 			vidconsole_set_cursor_pos(cons, x, y);
@@ -765,8 +765,8 @@ int scene_calc_dims(struct scene *scn, bool do_menus)
 				ret = scene_obj_get_hw(scn, obj->id, &width);
 				if (ret < 0)
 					return log_msg_ret("get", ret);
-				obj->dim.w = width;
-				obj->dim.h = ret;
+				obj->bbox.w = width;
+				obj->bbox.h = ret;
 			}
 			break;
 		}
@@ -915,15 +915,15 @@ int scene_bbox_union(struct scene *scn, uint id, int inset,
 	if (!obj)
 		return log_msg_ret("obj", -ENOENT);
 	if (bbox->valid) {
-		bbox->x0 = min(bbox->x0, obj->dim.x - inset);
-		bbox->y0 = min(bbox->y0, obj->dim.y);
-		bbox->x1 = max(bbox->x1, obj->dim.x + obj->dim.w + inset);
-		bbox->y1 = max(bbox->y1, obj->dim.y + obj->dim.h);
+		bbox->x0 = min(bbox->x0, obj->bbox.x - inset);
+		bbox->y0 = min(bbox->y0, obj->bbox.y);
+		bbox->x1 = max(bbox->x1, obj->bbox.x + obj->bbox.w + inset);
+		bbox->y1 = max(bbox->y1, obj->bbox.y + obj->bbox.h);
 	} else {
-		bbox->x0 = obj->dim.x - inset;
-		bbox->y0 = obj->dim.y;
-		bbox->x1 = obj->dim.x + obj->dim.w + inset;
-		bbox->y1 = obj->dim.y + obj->dim.h;
+		bbox->x0 = obj->bbox.x - inset;
+		bbox->y0 = obj->bbox.y;
+		bbox->x1 = obj->bbox.x + obj->bbox.w + inset;
+		bbox->y1 = obj->bbox.y + obj->bbox.h;
 		bbox->valid = true;
 	}
 

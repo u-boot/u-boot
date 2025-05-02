@@ -270,8 +270,8 @@ static int expo_object_attr(struct unit_test_state *uts)
 	ut_assert(id > 0);
 
 	ut_assertok(scene_obj_set_pos(scn, OBJ_LOGO, 123, 456));
-	ut_asserteq(123, img->obj.dim.x);
-	ut_asserteq(456, img->obj.dim.y);
+	ut_asserteq(123, img->obj.bbox.x);
+	ut_asserteq(456, img->obj.bbox.y);
 
 	ut_asserteq(-ENOENT, scene_obj_set_pos(scn, OBJ_TEXT2, 0, 0));
 
@@ -360,8 +360,8 @@ static int expo_object_menu(struct unit_test_state *uts)
 	ut_asserteq(0, menu->pointer_id);
 
 	ut_assertok(scene_obj_set_pos(scn, OBJ_MENU, 50, 400));
-	ut_asserteq(50, menu->obj.dim.x);
-	ut_asserteq(400, menu->obj.dim.y);
+	ut_asserteq(50, menu->obj.bbox.x);
+	ut_asserteq(400, menu->obj.bbox.y);
 
 	id = scene_txt_str(scn, "title", OBJ_MENU_TITLE, STR_MENU_TITLE,
 			   "Main Menu", &tit);
@@ -407,24 +407,24 @@ static int expo_object_menu(struct unit_test_state *uts)
 	ut_asserteq(id, menu->cur_item_id);
 
 	/* the title should be at the top */
-	ut_asserteq(menu->obj.dim.x, tit->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y, tit->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x, tit->obj.bbox.x);
+	ut_asserteq(menu->obj.bbox.y, tit->obj.bbox.y);
 
 	/* the first item should be next */
-	ut_asserteq(menu->obj.dim.x, name1->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, name1->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x, name1->obj.bbox.x);
+	ut_asserteq(menu->obj.bbox.y + 32, name1->obj.bbox.y);
 
-	ut_asserteq(menu->obj.dim.x + 230, key1->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, key1->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x + 230, key1->obj.bbox.x);
+	ut_asserteq(menu->obj.bbox.y + 32, key1->obj.bbox.y);
 
-	ut_asserteq(menu->obj.dim.x + 200, ptr->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, ptr->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x + 200, ptr->obj.bbox.x);
+	ut_asserteq(menu->obj.bbox.y + 32, ptr->obj.bbox.y);
 
-	ut_asserteq(menu->obj.dim.x + 280, desc1->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, desc1->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x + 280, desc1->obj.bbox.x);
+	ut_asserteq(menu->obj.bbox.y + 32, desc1->obj.bbox.y);
 
-	ut_asserteq(-4, prev1->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, prev1->obj.dim.y);
+	ut_asserteq(-4, prev1->obj.bbox.x);
+	ut_asserteq(menu->obj.bbox.y + 32, prev1->obj.bbox.y);
 	ut_asserteq(true, prev1->obj.flags & SCENEOF_HIDE);
 
 	/* check iterating through scene items */
@@ -548,41 +548,41 @@ static int expo_render_image(struct unit_test_state *uts)
 	/* check dimensions of text */
 	obj = scene_obj_find(scn, OBJ_TEXT, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(400, obj->dim.x);
-	ut_asserteq(100, obj->dim.y);
-	ut_asserteq(126, obj->dim.w);
-	ut_asserteq(40, obj->dim.h);
+	ut_asserteq(400, obj->bbox.x);
+	ut_asserteq(100, obj->bbox.y);
+	ut_asserteq(126, obj->bbox.w);
+	ut_asserteq(40, obj->bbox.h);
 
 	/* check dimensions of image */
 	obj = scene_obj_find(scn, OBJ_LOGO, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(50, obj->dim.x);
-	ut_asserteq(20, obj->dim.y);
-	ut_asserteq(160, obj->dim.w);
-	ut_asserteq(160, obj->dim.h);
+	ut_asserteq(50, obj->bbox.x);
+	ut_asserteq(20, obj->bbox.y);
+	ut_asserteq(160, obj->bbox.w);
+	ut_asserteq(160, obj->bbox.h);
 
 	/* check dimensions of menu labels - both should be the same width */
 	obj = scene_obj_find(scn, ITEM1_LABEL, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(50, obj->dim.x);
-	ut_asserteq(436, obj->dim.y);
-	ut_asserteq(29, obj->dim.w);
-	ut_asserteq(18, obj->dim.h);
+	ut_asserteq(50, obj->bbox.x);
+	ut_asserteq(436, obj->bbox.y);
+	ut_asserteq(29, obj->bbox.w);
+	ut_asserteq(18, obj->bbox.h);
 
 	obj = scene_obj_find(scn, ITEM2_LABEL, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(50, obj->dim.x);
-	ut_asserteq(454, obj->dim.y);
-	ut_asserteq(29, obj->dim.w);
-	ut_asserteq(18, obj->dim.h);
+	ut_asserteq(50, obj->bbox.x);
+	ut_asserteq(454, obj->bbox.y);
+	ut_asserteq(29, obj->bbox.w);
+	ut_asserteq(18, obj->bbox.h);
 
 	/* check dimensions of menu */
 	obj = scene_obj_find(scn, OBJ_MENU, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(50, obj->dim.x);
-	ut_asserteq(400, obj->dim.y);
-	ut_asserteq(160, obj->dim.w);
-	ut_asserteq(160, obj->dim.h);
+	ut_asserteq(50, obj->bbox.x);
+	ut_asserteq(400, obj->bbox.y);
+	ut_asserteq(160, obj->bbox.w);
+	ut_asserteq(160, obj->bbox.h);
 
 	/* render it */
 	expo_set_scene_id(exp, SCENE1);

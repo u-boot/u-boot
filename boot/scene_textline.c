@@ -76,11 +76,11 @@ int scene_textline_calc_dims(struct scene_obj_textline *tline)
 		return log_msg_ret("nom", ret);
 
 	if (bbox.valid) {
-		tline->obj.dim.w = bbox.x1 - bbox.x0;
-		tline->obj.dim.h = bbox.y1 - bbox.y0;
+		tline->obj.bbox.w = bbox.x1 - bbox.x0;
+		tline->obj.bbox.h = bbox.y1 - bbox.y0;
 
-		scene_obj_set_size(scn, tline->edit_id, tline->obj.dim.w,
-				   tline->obj.dim.h);
+		scene_obj_set_size(scn, tline->edit_id, tline->obj.bbox.w,
+				   tline->obj.bbox.h);
 	}
 
 	return 0;
@@ -94,16 +94,16 @@ int scene_textline_arrange(struct scene *scn, struct expo_arrange_info *arr,
 	int x, y;
 	int ret;
 
-	x = tline->obj.dim.x;
-	y = tline->obj.dim.y;
+	x = tline->obj.bbox.x;
+	y = tline->obj.bbox.y;
 	if (tline->label_id) {
-		ret = scene_obj_set_pos(scn, tline->label_id, tline->obj.dim.x,
+		ret = scene_obj_set_pos(scn, tline->label_id, tline->obj.bbox.x,
 					y);
 		if (ret < 0)
 			return log_msg_ret("tit", ret);
 
 		ret = scene_obj_set_pos(scn, tline->edit_id,
-					tline->obj.dim.x + 200, y);
+					tline->obj.bbox.x + 200, y);
 		if (ret < 0)
 			return log_msg_ret("tit", ret);
 
@@ -197,8 +197,8 @@ int scene_textline_render_deps(struct scene *scn,
 		if (ret)
 			return log_msg_ret("sav", ret);
 
-		vidconsole_set_cursor_visible(cons, true, txt->obj.dim.x,
-					      txt->obj.dim.y, scn->cls.num);
+		vidconsole_set_cursor_visible(cons, true, txt->obj.bbox.x,
+					      txt->obj.bbox.y, scn->cls.num);
 	}
 
 	return 0;
@@ -219,7 +219,7 @@ int scene_textline_open(struct scene *scn, struct scene_obj_textline *tline)
 	if (!txt)
 		return log_msg_ret("cur", -ENOENT);
 
-	vidconsole_set_cursor_pos(cons, txt->obj.dim.x, txt->obj.dim.y);
+	vidconsole_set_cursor_pos(cons, txt->obj.bbox.x, txt->obj.bbox.y);
 	vidconsole_entry_start(cons);
 	cli_cread_init(&scn->cls, abuf_data(&tline->buf), tline->max_chars);
 	scn->cls.insert = true;

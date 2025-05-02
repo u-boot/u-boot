@@ -192,14 +192,14 @@ enum scene_obj_t {
 };
 
 /**
- * struct scene_dim - Dimensions of an object
+ * struct scene_obj_bbox - Dimensions of an object
  *
  * @x: x position, in pixels from left side
  * @y: y position, in pixels from top
  * @w: width, in pixels
  * @h: height, in pixels
  */
-struct scene_dim {
+struct scene_obj_bbox {
 	int x;
 	int y;
 	int w;
@@ -232,7 +232,7 @@ enum {
  * @name: Name of the object (allocated)
  * @id: ID number of the object
  * @type: Type of this object
- * @dim: Dimensions for this object
+ * @bbox: Dimensions for this object
  * @flags: Flags for this object
  * @bit_length: Number of bits used for this object in CMOS RAM
  * @start_bit: Start bit to use for this object in CMOS RAM
@@ -243,7 +243,7 @@ struct scene_obj {
 	char *name;
 	uint id;
 	enum scene_obj_t type;
-	struct scene_dim dim;
+	struct scene_obj_bbox bbox;
 	u8 flags;
 	u8 bit_length;
 	u16 start_bit;
