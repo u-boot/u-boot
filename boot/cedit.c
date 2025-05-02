@@ -149,6 +149,47 @@ int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
 	return scene_id;
 }
 
+int cedit_do_action(struct expo *exp, struct scene *scn,
+		    struct video_priv *vid_priv, struct expo_action *act)
+{
+	switch (act->type) {
+	case EXPOACT_NONE:
+	case EXPOACT_POINT_ITEM:
+		return -EAGAIN;
+	case EXPOACT_POINT_OBJ:
+		scene_set_highlight_id(scn, act->select.id);
+		cedit_arange(exp, vid_priv, scn->id);
+		break;
+	case EXPOACT_OPEN:
+		scene_set_open(scn, act->select.id, true);
+		cedit_arange(exp, vid_priv, scn->id);
+		switch (scn->highlight_id) {
+		case EXPOID_SAVE:
+			exp->done = true;
+			exp->save = true;
+			break;
+		case EXPOID_DISCARD:
+			exp->done = true;
+			break;
+		}
+		break;
+	case EXPOACT_CLOSE:
+		scene_set_open(scn, act->select.id, false);
+		cedit_arange(exp, vid_priv, scn->id);
+		break;
+	case EXPOACT_SELECT:
+		scene_set_open(scn, scn->highlight_id, false);
+		cedit_arange(exp, vid_priv, scn->id);
+		break;
+	case EXPOACT_QUIT:
+		log_debug("quitting\n");
+		exp->done = true;
+		break;
+	}
+
+	return 0;
+}
+
 int cedit_run(struct expo *exp)
 {
 	struct video_priv *vid_priv;
@@ -167,43 +208,10 @@ int cedit_run(struct expo *exp)
 		struct expo_action act;
 
 		ret = expo_poll(exp, &act);
-		if (!ret) {
-			switch (act.type) {
-			case EXPOACT_POINT_OBJ:
-				scene_set_highlight_id(scn, act.select.id);
-				cedit_arange(exp, vid_priv, scene_id);
-				break;
-			case EXPOACT_OPEN:
-				scene_set_open(scn, act.select.id, true);
-				cedit_arange(exp, vid_priv, scene_id);
-				switch (scn->highlight_id) {
-				case EXPOID_SAVE:
-					exp->done = true;
-					exp->save = true;
-					break;
-				case EXPOID_DISCARD:
-					exp->done = true;
-					break;
-				}
-				break;
-			case EXPOACT_CLOSE:
-				scene_set_open(scn, act.select.id, false);
-				cedit_arange(exp, vid_priv, scene_id);
-				break;
-			case EXPOACT_SELECT:
-				scene_set_open(scn, scn->highlight_id, false);
-				cedit_arange(exp, vid_priv, scene_id);
-				break;
-			case EXPOACT_QUIT:
-				log_debug("quitting\n");
-				exp->done = true;
-				break;
-			default:
-				break;
-			}
-		} else if (ret != -EAGAIN) {
+		if (!ret)
+			cedit_do_action(exp, scn, vid_priv, &act);
+		else if (ret != -EAGAIN)
 			return log_msg_ret("cep", ret);
-		}
 	} while (!exp->done);
 
 	if (ret)
