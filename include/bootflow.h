@@ -15,6 +15,7 @@
 
 struct bootstd_priv;
 struct expo;
+struct scene;
 
 enum {
 	BOOTFLOW_MAX_USED_DEVS	= 16,
@@ -505,6 +506,21 @@ int bootflow_menu_new(struct expo **expp);
  * Return 0 on success, -ve on error
  */
 int bootflow_menu_add_all(struct expo *exp);
+
+/**
+ * bootflow_menu_add() - Add a bootflow to a menu
+ *
+ * Adds a new bootflow to the end of a menu. The caller must be careful to pass
+ * seq=0 for the first bootflow added, 1 for the second, etc.
+ *
+ * @exp: Menu to update
+ * @bflow: Bootflow to add
+ * @seq: Sequence number of this bootflow (0 = first)
+ * @scnp: Returns a pointer to the scene
+ * Return 0 on success, -ve on error
+ */
+int bootflow_menu_add(struct expo *exp, struct bootflow *bflow, int seq,
+		      struct scene **scnp);
 
 /**
  * bootflow_menu_apply_theme() - Apply a theme to a bootmenu

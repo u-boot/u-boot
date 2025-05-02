@@ -25,9 +25,11 @@
  * struct menu_priv - information about the menu
  *
  * @num_bootflows: Number of bootflows in the menu
+ * @last_bootdev: bootdev of the last bootflow added to the menu, NULL if none
  */
 struct menu_priv {
 	int num_bootflows;
+	struct udevice *last_bootdev;
 };
 
 int bootflow_menu_new(struct expo **expp)
@@ -77,14 +79,16 @@ int bootflow_menu_new(struct expo **expp)
 	return 0;
 }
 
-int bootflow_menu_add_all(struct expo *exp)
+int bootflow_menu_add(struct expo *exp, struct bootflow *bflow, int seq,
+		      struct scene **scnp)
 {
 	struct menu_priv *priv = exp->priv;
-	struct udevice *last_bootdev;
-	struct bootflow *bflow;
+	char str[2], *label, *key;
 	struct scene *scn;
+	uint preview_id;
 	uint scene_id;
-	int ret, i;
+	bool add_gap;
+	int ret;
 
 	ret = expo_first_scene_id(exp);
 	if (ret < 0)
@@ -92,13 +96,57 @@ int bootflow_menu_add_all(struct expo *exp)
 	scene_id = ret;
 	scn = expo_lookup_scene_id(exp, scene_id);
 
-	last_bootdev = NULL;
+	*str = seq < 10 ? '0' + seq : 'A' + seq - 10;
+	str[1] = '\0';
+	key = strdup(str);
+	if (!key)
+		return log_msg_ret("key", -ENOMEM);
+	label = strdup(dev_get_parent(bflow->dev)->name);
+	if (!label) {
+		free(key);
+		return log_msg_ret("nam", -ENOMEM);
+	}
+
+	add_gap = priv->last_bootdev != bflow->dev;
+	priv->last_bootdev = bflow->dev;
+
+	ret = expo_str(exp, "prompt", STR_POINTER, ">");
+	ret |= scene_txt_str(scn, "label", ITEM_LABEL + seq,
+			      STR_LABEL + seq, label, NULL);
+	ret |= scene_txt_str(scn, "desc", ITEM_DESC + seq, STR_DESC + seq,
+			    bflow->os_name ? bflow->os_name :
+			    bflow->name, NULL);
+	ret |= scene_txt_str(scn, "key", ITEM_KEY + seq, STR_KEY + seq, key,
+			      NULL);
+	preview_id = 0;
+	if (bflow->logo) {
+		preview_id = ITEM_PREVIEW + seq;
+		ret |= scene_img(scn, "preview", preview_id,
+				     bflow->logo, NULL);
+	}
+	ret |= scene_menuitem(scn, OBJ_MENU, "item", ITEM + seq,
+				  ITEM_KEY + seq, ITEM_LABEL + seq,
+				  ITEM_DESC + seq, preview_id,
+				  add_gap ? SCENEMIF_GAP_BEFORE : 0,
+				  NULL);
+
+	if (ret < 0)
+		return log_msg_ret("itm", -EINVAL);
+	priv->num_bootflows++;
+	*scnp = scn;
+
+	return 0;
+}
+
+int bootflow_menu_add_all(struct expo *exp)
+{
+	struct bootflow *bflow;
+	struct scene *scn;
+	int ret, i;
+
 	for (ret = bootflow_first_glob(&bflow), i = 0; !ret && i < 36;
 	     ret = bootflow_next_glob(&bflow), i++) {
 		struct bootmeth_uc_plat *ucp;
-		char str[2], *label, *key;
-		uint preview_id;
-		bool add_gap;
 
 		if (bflow->state != BOOTFLOWST_READY)
 			continue;
@@ -108,43 +156,10 @@ int bootflow_menu_add_all(struct expo *exp)
 		if (ucp->flags & BOOTMETHF_GLOBAL)
 			continue;
 
-		*str = i < 10 ? '0' + i : 'A' + i - 10;
-		str[1] = '\0';
-		key = strdup(str);
-		if (!key)
-			return log_msg_ret("key", -ENOMEM);
-		label = strdup(dev_get_parent(bflow->dev)->name);
-		if (!label) {
-			free(key);
-			return log_msg_ret("nam", -ENOMEM);
-		}
+		ret = bootflow_menu_add(exp, bflow, i, &scn);
+		if (ret)
+			return log_msg_ret("bao", ret);
 
-		add_gap = last_bootdev != bflow->dev;
-		last_bootdev = bflow->dev;
-
-		ret = expo_str(exp, "prompt", STR_POINTER, ">");
-		ret |= scene_txt_str(scn, "label", ITEM_LABEL + i,
-				      STR_LABEL + i, label, NULL);
-		ret |= scene_txt_str(scn, "desc", ITEM_DESC + i, STR_DESC + i,
-				    bflow->os_name ? bflow->os_name :
-				    bflow->name, NULL);
-		ret |= scene_txt_str(scn, "key", ITEM_KEY + i, STR_KEY + i, key,
-				      NULL);
-		preview_id = 0;
-		if (bflow->logo) {
-			preview_id = ITEM_PREVIEW + i;
-			ret |= scene_img(scn, "preview", preview_id,
-					     bflow->logo, NULL);
-		}
-		ret |= scene_menuitem(scn, OBJ_MENU, "item", ITEM + i,
-					  ITEM_KEY + i, ITEM_LABEL + i,
-					  ITEM_DESC + i, preview_id,
-					  add_gap ? SCENEMIF_GAP_BEFORE : 0,
-					  NULL);
-
-		if (ret < 0)
-			return log_msg_ret("itm", -EINVAL);
-		priv->num_bootflows++;
 	}
 
 	ret = scene_arrange(scn);
