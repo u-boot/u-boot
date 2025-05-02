@@ -502,18 +502,6 @@ int bootflow_menu_new(struct expo **expp);
  */
 int bootflow_menu_apply_theme(struct expo *exp, ofnode node);
 
-/**
- * bootflow_menu_run() - Create and run a menu of available bootflows
- *
- * @std: Bootstd information
- * @text_mode: Uses a text-based menu suitable for a serial port
- * @bflowp: Returns chosen bootflow (set to NULL if nothing is chosen)
- * @return 0 if an option was chosen, -EPIPE if nothing was chosen, -ve on
- * error
- */
-int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
-		      struct bootflow **bflowp);
-
 #define BOOTFLOWCL_EMPTY	((void *)1)
 
 /**
@@ -637,5 +625,26 @@ struct bootflow_img *bootflow_img_add(struct bootflow *bflow, const char *fname,
  * Return: Sequence number of bootflow (0 = first)
  */
 int bootflow_get_seq(const struct bootflow *bflow);
+
+/**
+ * bootflow_menu_start() - Start up a menu for bootflows
+ *
+ * @std: bootstd information
+ * @text_mode: true to show the menu in text mode, false to use video display
+ * @expp: Returns the expo created, on success
+ * Return: 0 if OK, -ve on error
+ */
+int bootflow_menu_start(struct bootstd_priv *std, bool text_mode,
+			struct expo **expp);
+
+/**
+ * bootflow_menu_poll() - Poll a menu for user action
+ *
+ * @exp: Expo to poll
+ * @bflowp: Returns chosen bootflow (set to NULL if nothing is chosen)
+ * Return 0 if a bootflow was chosen, -EAGAIN if nothing is chosen yet, -EPIPE
+ *	if the user quit
+ */
+int bootflow_menu_poll(struct expo *exp, struct bootflow **bflowp);
 
 #endif
