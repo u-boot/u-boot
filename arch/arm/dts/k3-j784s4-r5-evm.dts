@@ -10,3 +10,10 @@
 #include "k3-j784s4-ddr.dtsi"
 #include "k3-j784s4-evm-u-boot.dtsi"
 #include "k3-j784s4-r5.dtsi"
+
+&tps659413 {
+	esm: esm {
+		compatible = "ti,tps659413-esm";
+		bootph-pre-ram;
+	};
+};
