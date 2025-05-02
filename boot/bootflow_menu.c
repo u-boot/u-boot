@@ -84,7 +84,9 @@ int bootflow_menu_add(struct expo *exp, struct bootflow *bflow, int seq,
 {
 	struct menu_priv *priv = exp->priv;
 	char str[2], *label, *key;
+	struct udevice *media;
 	struct scene *scn;
+	const char *name;
 	uint preview_id;
 	uint scene_id;
 	bool add_gap;
@@ -101,7 +103,14 @@ int bootflow_menu_add(struct expo *exp, struct bootflow *bflow, int seq,
 	key = strdup(str);
 	if (!key)
 		return log_msg_ret("key", -ENOMEM);
-	label = strdup(dev_get_parent(bflow->dev)->name);
+
+	media = dev_get_parent(bflow->dev);
+	if (device_get_uclass_id(media) == UCLASS_MASS_STORAGE)
+		name = "usb";
+	else
+		name = media->name;
+	label = strdup(name);
+
 	if (!label) {
 		free(key);
 		return log_msg_ret("nam", -ENOMEM);
