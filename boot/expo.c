@@ -277,6 +277,7 @@ int expo_apply_theme(struct expo *exp, ofnode node)
 {
 	struct scene *scn;
 	struct expo_theme *theme = &exp->theme;
+	bool white_on_black;
 	int ret;
 
 	log_debug("Applying theme %s\n", ofnode_get_name(node));
@@ -287,6 +288,9 @@ int expo_apply_theme(struct expo *exp, ofnode node)
 	ofnode_read_u32(node, "menuitem-gap-y", &theme->menuitem_gap_y);
 	ofnode_read_u32(node, "menu-title-margin-x",
 			&theme->menu_title_margin_x);
+	white_on_black = ofnode_read_bool(node, "white-on-black");
+	if (exp->display)
+		video_set_white_on_black(exp->display, white_on_black);
 
 	list_for_each_entry(scn, &exp->scene_head, sibling) {
 		ret = scene_apply_theme(scn, theme);
