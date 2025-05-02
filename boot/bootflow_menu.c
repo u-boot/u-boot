@@ -215,43 +215,6 @@ int bootflow_menu_add_all(struct expo *exp)
 	return 0;
 }
 
-int bootflow_menu_apply_theme(struct expo *exp, ofnode node)
-{
-	struct menu_priv *priv = exp->priv;
-	struct scene *scn;
-	u32 font_size;
-	int ret;
-
-	log_debug("Applying theme %s\n", ofnode_get_name(node));
-	scn = expo_lookup_scene_id(exp, MAIN);
-	if (!scn)
-		return log_msg_ret("scn", -ENOENT);
-
-	/* Avoid error-checking optional items */
-	if (!ofnode_read_u32(node, "font-size", &font_size)) {
-		int i;
-
-		log_debug("font size %d\n", font_size);
-		scene_txt_set_font(scn, OBJ_PROMPT1A, NULL, font_size);
-		scene_txt_set_font(scn, OBJ_POINTER, NULL, font_size);
-		for (i = 0; i < priv->num_bootflows; i++) {
-			ret = scene_txt_set_font(scn, ITEM_DESC + i, NULL,
-						 font_size);
-			if (ret)
-				return log_msg_ret("des", ret);
-			scene_txt_set_font(scn, ITEM_KEY + i, NULL, font_size);
-			scene_txt_set_font(scn, ITEM_LABEL + i, NULL,
-					   font_size);
-		}
-	}
-
-	ret = scene_arrange(scn);
-	if (ret)
-		return log_msg_ret("arr", ret);
-
-	return 0;
-}
-
 int bootflow_menu_setup(struct bootstd_priv *std, bool text_mode,
 			struct expo **expp)
 {
@@ -262,12 +225,6 @@ int bootflow_menu_setup(struct bootstd_priv *std, bool text_mode,
 	ret = bootflow_menu_new(&exp);
 	if (ret)
 		return log_msg_ret("bmn", ret);
-
-	if (ofnode_valid(std->theme)) {
-		ret = bootflow_menu_apply_theme(exp, std->theme);
-		if (ret)
-			return log_msg_ret("thm", ret);
-	}
 
 	/* For now we only support a video console */
 	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
