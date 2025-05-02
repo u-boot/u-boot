@@ -48,6 +48,9 @@ const char *const type_name[] = {
 
 	/* main loop events */
 	"main_loop",
+
+	/* livetree has been built */
+	"of_live_init",
 };
 
 _Static_assert(ARRAY_SIZE(type_name) == EVT_COUNT, "event type_name size");

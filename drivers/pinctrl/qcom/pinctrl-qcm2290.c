@@ -45,7 +45,7 @@ static int qcm2290_get_function_mux(__maybe_unused unsigned int pin, unsigned in
 
 struct msm_pinctrl_data qcm2290_data = {
 	.pin_data = {
-		.pin_count = 133,
+		.pin_count = 134,
 		.special_pins_start = 127,
 	},
 	.functions_count = ARRAY_SIZE(msm_pinctrl_functions),
