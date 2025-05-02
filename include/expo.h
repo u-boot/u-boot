@@ -179,6 +179,7 @@ struct scene {
  *
  * @SCENEOBJT_NONE: Used to indicate that the type does not matter
  * @SCENEOBJT_IMAGE: Image data to render
+ * @SCENEOBJT_BOX: Rectangular box
  * @SCENEOBJT_TEXT: Text line to render
  * @SCENEOBJT_MENU: Menu containing items the user can select
  * @SCENEOBJT_TEXTLINE: Line of text the user can edit
@@ -187,6 +188,7 @@ enum scene_obj_t {
 	SCENEOBJT_NONE		= 0,
 	SCENEOBJT_IMAGE,
 	SCENEOBJT_TEXT,
+	SCENEOBJT_BOX,
 
 	/* types from here on can be highlighted */
 	SCENEOBJT_MENU,
@@ -404,6 +406,19 @@ struct scene_obj_textline {
 	uint max_chars;
 	struct abuf buf;
 	uint pos;
+};
+
+/**
+ * struct scene_obj_box - information about a box in a scene
+ *
+ * A box surrounds a part of the screen with a border
+ *
+ * @obj: Basic object information
+ * @width: Line-width in pixels
+ */
+struct scene_obj_box {
+	struct scene_obj obj;
+	uint width;
 };
 
 /**
@@ -669,6 +684,19 @@ int scene_menu(struct scene *scn, const char *name, uint id,
  */
 int scene_textline(struct scene *scn, const char *name, uint id, uint max_chars,
 		   struct scene_obj_textline **tlinep);
+
+/**
+ *  scene_box() - create a box
+ *
+ * @scn: Scene to update
+ * @name: Name to use (this is allocated by this call)
+ * @id: ID to use for the new object (0 to allocate one)
+ * @width: Line-width in pixels
+ * @boxp: If non-NULL, returns the new object
+ * Returns: ID number for the object (typically @id), or -ve on error
+ */
+int scene_box(struct scene *scn, const char *name, uint id, uint width,
+	      struct scene_obj_box **boxp);
 
 /**
  * scene_txt_set_font() - Set the font for an object

@@ -211,6 +211,26 @@ int scene_txt_str(struct scene *scn, const char *name, uint id, uint str_id,
 	return txt->obj.id;
 }
 
+int scene_box(struct scene *scn, const char *name, uint id, uint width,
+	      struct scene_obj_box **boxp)
+{
+	struct scene_obj_box *box;
+	int ret;
+
+	ret = scene_obj_add(scn, name, id, SCENEOBJT_BOX,
+			    sizeof(struct scene_obj_box),
+			    (struct scene_obj **)&box);
+	if (ret < 0)
+		return log_msg_ret("obj", ret);
+
+	box->width = width;
+
+	if (boxp)
+		*boxp = box;
+
+	return box->obj.id;
+}
+
 int scene_txt_set_font(struct scene *scn, uint id, const char *font_name,
 		       uint font_size)
 {
@@ -323,6 +343,7 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
 	case SCENEOBJT_NONE:
 	case SCENEOBJT_MENU:
 	case SCENEOBJT_TEXTLINE:
+	case SCENEOBJT_BOX:
 		break;
 	case SCENEOBJT_IMAGE: {
 		struct scene_obj_img *img = (struct scene_obj_img *)obj;
@@ -490,10 +511,12 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 	const struct expo_theme *theme = &exp->theme;
 	struct udevice *dev = exp->display;
 	struct udevice *cons = text_mode ? NULL : exp->cons;
+	struct video_priv *vid_priv;
 	int x, y, ret;
 
-	x = obj->bbox.x0;
 	y = obj->bbox.y0;
+	x = obj->bbox.x0;
+	vid_priv = dev_get_uclass_priv(dev);
 
 	switch (obj->type) {
 	case SCENEOBJT_NONE:
@@ -544,6 +567,13 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 		if (obj->flags & SCENEOF_OPEN)
 			scene_render_background(obj, true);
 		break;
+	case SCENEOBJT_BOX: {
+		struct scene_obj_box *box = (struct scene_obj_box *)obj;
+
+		video_draw_box(dev, obj->bbox.x0, obj->bbox.y0, obj->bbox.x1,
+			       obj->bbox.y1, box->width, vid_priv->colour_fg);
+		break;
+	}
 	}
 
 	return 0;
@@ -562,6 +592,7 @@ int scene_calc_arrange(struct scene *scn, struct expo_arrange_info *arr)
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_IMAGE:
 		case SCENEOBJT_TEXT:
+		case SCENEOBJT_BOX:
 			break;
 		case SCENEOBJT_MENU: {
 			struct scene_obj_menu *menu;
@@ -607,6 +638,7 @@ int scene_arrange(struct scene *scn)
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_IMAGE:
 		case SCENEOBJT_TEXT:
+		case SCENEOBJT_BOX:
 			break;
 		case SCENEOBJT_MENU: {
 			struct scene_obj_menu *menu;
@@ -652,6 +684,7 @@ int scene_render_deps(struct scene *scn, uint id)
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_IMAGE:
 		case SCENEOBJT_TEXT:
+		case SCENEOBJT_BOX:
 			break;
 		case SCENEOBJT_MENU:
 			scene_menu_render_deps(scn,
@@ -771,6 +804,7 @@ int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_IMAGE:
 		case SCENEOBJT_TEXT:
+		case SCENEOBJT_BOX:
 			break;
 		case SCENEOBJT_MENU: {
 			struct scene_obj_menu *menu;
@@ -815,6 +849,7 @@ int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox bbox[])
 	case SCENEOBJT_NONE:
 	case SCENEOBJT_IMAGE:
 	case SCENEOBJT_TEXT:
+	case SCENEOBJT_BOX:
 		return -ENOSYS;
 	case SCENEOBJT_MENU: {
 		struct scene_obj_menu *menu = (struct scene_obj_menu *)obj;
@@ -844,6 +879,7 @@ int scene_calc_dims(struct scene *scn, bool do_menus)
 		switch (obj->type) {
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_TEXT:
+		case SCENEOBJT_BOX:
 		case SCENEOBJT_IMAGE: {
 			int width;
 
@@ -902,6 +938,7 @@ int scene_apply_theme(struct scene *scn, struct expo_theme *theme)
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_IMAGE:
 		case SCENEOBJT_MENU:
+		case SCENEOBJT_BOX:
 		case SCENEOBJT_TEXTLINE:
 			break;
 		case SCENEOBJT_TEXT:
@@ -944,6 +981,7 @@ static int scene_obj_open(struct scene *scn, struct scene_obj *obj)
 	case SCENEOBJT_IMAGE:
 	case SCENEOBJT_MENU:
 	case SCENEOBJT_TEXT:
+	case SCENEOBJT_BOX:
 		break;
 	case SCENEOBJT_TEXTLINE:
 		ret = scene_textline_open(scn,

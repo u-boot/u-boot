@@ -28,6 +28,8 @@ enum {
 	OBJ_TEXT3,
 	OBJ_MENU,
 	OBJ_MENU_TITLE,
+	OBJ_BOX,
+	OBJ_BOX2,
 
 	/* strings */
 	STR_SCENE_TITLE,
@@ -545,6 +547,14 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	ut_assertok(scene_obj_set_pos(scn, OBJ_MENU, 50, 400));
 
+	id = scene_box(scn, "box", OBJ_BOX, 3, NULL);
+	ut_assert(id > 0);
+	ut_assertok(scene_obj_set_bbox(scn, OBJ_BOX, 40, 390, 1000, 510));
+
+	id = scene_box(scn, "box2", OBJ_BOX2, 1, NULL);
+	ut_assert(id > 0);
+	ut_assertok(scene_obj_set_bbox(scn, OBJ_BOX, 500, 200, 1000, 350));
+
 	scn2 = expo_lookup_scene_id(exp, SCENE1);
 	ut_asserteq_ptr(scn, scn2);
 	scn2 = expo_lookup_scene_id(exp, SCENE2);
@@ -655,8 +665,7 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_asserteq(ITEM2, scene_menu_get_cur_item(scn, OBJ_MENU));
 	ut_assertok(scene_arrange(scn));
 	ut_assertok(expo_render(exp));
-
-	ut_asserteq(14848, video_compress_fb(uts, dev, false));
+	ut_asserteq(14883, video_compress_fb(uts, dev, false));
 	ut_assertok(video_check_copy_fb(uts, dev));
 
 	/* make sure only the preview for the second item is shown */

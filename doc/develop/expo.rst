@@ -65,6 +65,8 @@ item is highlighted.
 
 A `textline object` contains a label and an editable string.
 
+A `box object` is a rectangle with a given line width. It is not filled.
+
 All components have a name. This is mostly for debugging, so it is easy to see
 what object is referred to, although the name is also used for saving values.
 Of course the ID numbers can help as well, but they are less easy to
