@@ -121,12 +121,21 @@ static int update_pointers(struct scene_obj_menu *menu, uint id, bool point)
  *
  * Sets the currently pointed-to / highlighted menu item
  */
-static void menu_point_to_item(struct scene_obj_menu *menu, uint item_id)
+static int menu_point_to_item(struct scene_obj_menu *menu, uint item_id)
 {
-	if (menu->cur_item_id)
-		update_pointers(menu, menu->cur_item_id, false);
+	int ret;
+
+	if (menu->cur_item_id) {
+		ret = update_pointers(menu, menu->cur_item_id, false);
+		if (ret)
+			return log_msg_ret("mpi", ret);
+	}
 	menu->cur_item_id = item_id;
-	update_pointers(menu, item_id, true);
+	ret = update_pointers(menu, item_id, true);
+	if (ret)
+		return log_msg_ret("mpu", ret);
+
+	return 0;
 }
 
 void scene_menu_calc_bbox(struct scene_obj_menu *menu,
@@ -481,6 +490,33 @@ int scene_menu_set_pointer(struct scene *scn, uint id, uint pointer_id)
 	menu->pointer_id = pointer_id;
 
 	return 0;
+}
+
+int scene_menu_select_item(struct scene *scn, uint id, uint cur_item_id)
+{
+	struct scene_obj_menu *menu;
+	int ret;
+
+	menu = scene_obj_find(scn, id, SCENEOBJT_MENU);
+	if (!menu)
+		return log_msg_ret("menu", -ENOENT);
+
+	ret = menu_point_to_item(menu, cur_item_id);
+	if (ret)
+		return log_msg_ret("msi", ret);
+
+	return 0;
+}
+
+int scene_menu_get_cur_item(struct scene *scn, uint id)
+{
+	struct scene_obj_menu *menu;
+
+	menu = scene_obj_find(scn, id, SCENEOBJT_MENU);
+	if (!menu)
+		return log_msg_ret("menu", -ENOENT);
+
+	return menu->cur_item_id;
 }
 
 int scene_menu_display(struct scene_obj_menu *menu)

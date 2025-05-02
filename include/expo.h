@@ -690,6 +690,26 @@ int scene_menu_set_title(struct scene *scn, uint id, uint title_id);
 int scene_menu_set_pointer(struct scene *scn, uint id, uint cur_item_id);
 
 /**
+ * scene_menu_select_item() - move the pointer/highlight to an item
+ *
+ * @scn: Scene to update
+ * @id: ID of menu object to update
+ * @sel_id: ID of the menuitem to select
+ * Return 0 on success, -ENOENT if there was no such item
+ */
+int scene_menu_select_item(struct scene *scn, uint id, uint sel_id);
+
+/**
+ * scene_menu_get_cur_item() - get the currently pointed-to item
+ *
+ * @scn: Scene to update
+ * @id: ID of menu object to update
+ * Return ID of the current item the menu is pointing to, -ENOENT if @id is not
+ * valid, 0 if no item is pointed to
+ */
+int scene_menu_get_cur_item(struct scene *scn, uint id);
+
+/**
  * scene_obj_get_hw() - Get width and height of an object in a scene
  *
  * @scn: Scene to check
