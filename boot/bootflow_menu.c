@@ -212,10 +212,6 @@ int bootflow_menu_add_all(struct expo *exp)
 			return log_msg_ret("bao", ret);
 	}
 
-	ret = scene_arrange(scn);
-	if (ret)
-		return log_msg_ret("arr", ret);
-
 	return 0;
 }
 
@@ -296,7 +292,9 @@ int bootflow_menu_setup(struct bootstd_priv *std, bool text_mode,
 int bootflow_menu_start(struct bootstd_priv *std, bool text_mode,
 			struct expo **expp)
 {
+	struct scene *scn;
 	struct expo *exp;
+	uint scene_id;
 	int ret;
 
 	ret = bootflow_menu_setup(std, text_mode, &exp);
@@ -316,6 +314,18 @@ int bootflow_menu_start(struct bootstd_priv *std, bool text_mode,
 	ret = expo_calc_dims(exp);
 	if (ret)
 		return log_msg_ret("bmd", ret);
+
+	ret = expo_first_scene_id(exp);
+	if (ret < 0)
+		return log_msg_ret("scn", ret);
+	scene_id = ret;
+	scn = expo_lookup_scene_id(exp, scene_id);
+
+	scene_set_highlight_id(scn, OBJ_MENU);
+
+	ret = scene_arrange(scn);
+	if (ret)
+		return log_msg_ret("arr", ret);
 
 	*expp = exp;
 
