@@ -234,21 +234,28 @@ static int cedit_cmos(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(cedit_cmos, UTF_CONSOLE);
 
-/* Check the cedit displays correctely */
+/* Check the cedit displays correctly */
 static int cedit_render(struct unit_test_state *uts)
 {
 	struct scene_obj_menu *menu;
 	struct video_priv *vid_priv;
 	extern struct expo *cur_exp;
+	struct expo_action evt;
 	struct expo_action act;
-	struct udevice *dev;
+	struct udevice *dev, *con;
+	struct stdio_dev *sdev;
 	struct scene *scn;
 	struct expo *exp;
+	int i;
 
 	ut_assertok(run_command("cedit load hostfs - cedit.dtb", 0));
 
 	exp = cur_exp;
-	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
+	sdev = stdio_get_by_name("vidconsole");
+	ut_assertnonnull(sdev);
+	con = sdev->priv;
+
+	dev = dev_get_parent(con);
 	vid_priv = dev_get_uclass_priv(dev);
 	ut_asserteq(ID_SCENE1, cedit_prepare(exp, dev, &scn));
 
@@ -295,9 +302,109 @@ static int cedit_render(struct unit_test_state *uts)
 	ut_assertok(expo_render(exp));
 	ut_asserteq(4986, video_compress_fb(uts, dev, false));
 
+	/* move to the line-edit field */
+	act.type = EXPOACT_POINT_OBJ;
+	act.select.id = ID_MACHINE_NAME;
+	ut_assertok(cedit_do_action(exp, scn, vid_priv, &act));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(4872, video_compress_fb(uts, dev, false));
+
+	/* open it */
+	act.type = EXPOACT_OPEN;
+	act.select.id = ID_MACHINE_NAME;
+	ut_assertok(cedit_do_action(exp, scn, vid_priv, &act));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(4841, video_compress_fb(uts, dev, false));
+
+	/*
+	 * Send some keypresses. Note that the console must be enabled so that
+	 * the characters actually reach the putc_xy() in console_truetype,
+	 * since in scene_textline_send_key(), the lineedit restores the
+	 * vidconsole state, outputs the character and then saves the state
+	 * again. If the character is never output, then the state won't be
+	 * updated and the lineedit will be inconsistent.
+	 */
+	ut_unsilence_console(uts);
+	for (i = 'a'; i < 'd'; i++)
+		ut_assertok(scene_send_key(scn, i, &evt));
+	ut_silence_console(uts);
+	ut_assertok(cedit_arange(exp, vid_priv, scn->id));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(5009, video_compress_fb(uts, dev, false));
+
 	expo_destroy(exp);
 	cur_exp = NULL;
 
 	return 0;
 }
 BOOTSTD_TEST(cedit_render, UTF_DM | UTF_SCAN_FDT);
+
+/* Check the cedit displays lineedits correctly */
+static int cedit_render_lineedit(struct unit_test_state *uts)
+{
+	struct scene_obj_textline *tline;
+	struct video_priv *vid_priv;
+	extern struct expo *cur_exp;
+	struct expo_action evt;
+	struct expo_action act;
+	struct udevice *dev, *con;
+	struct stdio_dev *sdev;
+	struct scene *scn;
+	struct expo *exp;
+	char *str;
+	int i;
+
+	ut_assertok(run_command("cedit load hostfs - cedit.dtb", 0));
+
+	exp = cur_exp;
+	sdev = stdio_get_by_name("vidconsole");
+	ut_assertnonnull(sdev);
+	con = sdev->priv;
+
+	dev = dev_get_parent(con);
+	vid_priv = dev_get_uclass_priv(dev);
+	ut_asserteq(ID_SCENE1, cedit_prepare(exp, dev, &scn));
+
+	/* set up an initial value for the textline */
+	tline = scene_obj_find(scn, ID_MACHINE_NAME, SCENEOBJT_TEXTLINE);
+	ut_assertnonnull(tline);
+	str = abuf_data(&tline->buf);
+	strcpy(str, "my-machine");
+	ut_asserteq(20, tline->pos);
+
+	ut_assertok(expo_render(exp));
+	ut_asserteq(5336, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
+
+	/* move to the line-edit field */
+	act.type = EXPOACT_POINT_OBJ;
+	act.select.id = ID_MACHINE_NAME;
+	ut_assertok(cedit_do_action(exp, scn, vid_priv, &act));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(5363, video_compress_fb(uts, dev, false));
+
+	/* open it */
+	act.type = EXPOACT_OPEN;
+	act.select.id = ID_MACHINE_NAME;
+	ut_assertok(cedit_do_action(exp, scn, vid_priv, &act));
+	// ut_asserteq(0, tline->pos);
+	ut_assertok(expo_render(exp));
+	ut_asserteq(5283, video_compress_fb(uts, dev, false));
+
+	/* delete some characters */
+	ut_unsilence_console(uts);
+	for (i = 0; i < 3; i++)
+		ut_assertok(scene_send_key(scn, '\b', &evt));
+	ut_silence_console(uts);
+	ut_asserteq_str("my-mach", str);
+
+	ut_assertok(cedit_arange(exp, vid_priv, scn->id));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(5170, video_compress_fb(uts, dev, false));
+
+	expo_destroy(exp);
+	cur_exp = NULL;
+
+	return 0;
+}
+BOOTSTD_TEST(cedit_render_lineedit, UTF_DM | UTF_SCAN_FDT);
