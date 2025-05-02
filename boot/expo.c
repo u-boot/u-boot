@@ -326,12 +326,14 @@ int expo_poll(struct expo *exp, struct expo_action *act)
 
 	ichar = cli_ch_process(&exp->cch, 0);
 	if (!ichar) {
-		while (!ichar && !tstc()) {
+		int i;
+
+		for (i = 0; i < 10 && !ichar && !tstc(); i++) {
 			schedule();
 			mdelay(2);
 			ichar = cli_ch_process(&exp->cch, -ETIMEDOUT);
 		}
-		if (!ichar) {
+		while (!ichar && tstc()) {
 			ichar = getchar();
 			ichar = cli_ch_process(&exp->cch, ichar);
 		}
