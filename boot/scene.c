@@ -210,8 +210,8 @@ int scene_obj_set_pos(struct scene *scn, uint id, int x, int y)
 	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
 	if (!obj)
 		return log_msg_ret("find", -ENOENT);
-	obj->bbox.x = x;
-	obj->bbox.y = y;
+	obj->bbox.x0 = x;
+	obj->bbox.y0 = y;
 
 	return 0;
 }
@@ -368,8 +368,8 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 	struct udevice *cons = text_mode ? NULL : exp->cons;
 	int x, y, ret;
 
-	x = obj->bbox.x;
-	y = obj->bbox.y;
+	x = obj->bbox.x0;
+	y = obj->bbox.y0;
 
 	switch (obj->type) {
 	case SCENEOBJT_NONE:
@@ -915,15 +915,15 @@ int scene_bbox_union(struct scene *scn, uint id, int inset,
 	if (!obj)
 		return log_msg_ret("obj", -ENOENT);
 	if (bbox->valid) {
-		bbox->x0 = min(bbox->x0, obj->bbox.x - inset);
-		bbox->y0 = min(bbox->y0, obj->bbox.y);
-		bbox->x1 = max(bbox->x1, obj->bbox.x + obj->bbox.w + inset);
-		bbox->y1 = max(bbox->y1, obj->bbox.y + obj->bbox.h);
+		bbox->x0 = min(bbox->x0, obj->bbox.x0 - inset);
+		bbox->y0 = min(bbox->y0, obj->bbox.y0);
+		bbox->x1 = max(bbox->x1, obj->bbox.x0 + obj->bbox.w + inset);
+		bbox->y1 = max(bbox->y1, obj->bbox.y0 + obj->bbox.h);
 	} else {
-		bbox->x0 = obj->bbox.x - inset;
-		bbox->y0 = obj->bbox.y;
-		bbox->x1 = obj->bbox.x + obj->bbox.w + inset;
-		bbox->y1 = obj->bbox.y + obj->bbox.h;
+		bbox->x0 = obj->bbox.x0 - inset;
+		bbox->y0 = obj->bbox.y0;
+		bbox->x1 = obj->bbox.x0 + obj->bbox.w + inset;
+		bbox->y1 = obj->bbox.y0 + obj->bbox.h;
 		bbox->valid = true;
 	}
 

@@ -94,16 +94,16 @@ int scene_textline_arrange(struct scene *scn, struct expo_arrange_info *arr,
 	int x, y;
 	int ret;
 
-	x = tline->obj.bbox.x;
-	y = tline->obj.bbox.y;
+	x = tline->obj.bbox.x0;
+	y = tline->obj.bbox.y0;
 	if (tline->label_id) {
-		ret = scene_obj_set_pos(scn, tline->label_id, tline->obj.bbox.x,
-					y);
+		ret = scene_obj_set_pos(scn, tline->label_id,
+					tline->obj.bbox.x0, y);
 		if (ret < 0)
 			return log_msg_ret("tit", ret);
 
 		ret = scene_obj_set_pos(scn, tline->edit_id,
-					tline->obj.bbox.x + 200, y);
+					tline->obj.bbox.x0 + 200, y);
 		if (ret < 0)
 			return log_msg_ret("tit", ret);
 
@@ -197,8 +197,8 @@ int scene_textline_render_deps(struct scene *scn,
 		if (ret)
 			return log_msg_ret("sav", ret);
 
-		vidconsole_set_cursor_visible(cons, true, txt->obj.bbox.x,
-					      txt->obj.bbox.y, scn->cls.num);
+		vidconsole_set_cursor_visible(cons, true, txt->obj.bbox.x0,
+					      txt->obj.bbox.y0, scn->cls.num);
 	}
 
 	return 0;
@@ -219,7 +219,7 @@ int scene_textline_open(struct scene *scn, struct scene_obj_textline *tline)
 	if (!txt)
 		return log_msg_ret("cur", -ENOENT);
 
-	vidconsole_set_cursor_pos(cons, txt->obj.bbox.x, txt->obj.bbox.y);
+	vidconsole_set_cursor_pos(cons, txt->obj.bbox.x0, txt->obj.bbox.y0);
 	vidconsole_entry_start(cons);
 	cli_cread_init(&scn->cls, abuf_data(&tline->buf), tline->max_chars);
 	scn->cls.insert = true;

@@ -102,7 +102,7 @@ static int update_pointers(struct scene_obj_menu *menu, uint id, bool point)
 		label = scene_obj_find(scn, item->label_id, SCENEOBJT_NONE);
 
 		ret = scene_obj_set_pos(scn, menu->pointer_id,
-					menu->obj.bbox.x + 200, label->bbox.y);
+					menu->obj.bbox.x0 + 200, label->bbox.y0);
 		if (ret < 0)
 			return log_msg_ret("ptr", ret);
 	}
@@ -205,12 +205,12 @@ int scene_menu_arrange(struct scene *scn, struct expo_arrange_info *arr,
 	int x, y;
 	int ret;
 
-	x = menu->obj.bbox.x;
-	y = menu->obj.bbox.y;
+	x = menu->obj.bbox.x0;
+	y = menu->obj.bbox.y0;
 	if (menu->title_id) {
 		int width;
 
-		ret = scene_obj_set_pos(scn, menu->title_id, menu->obj.bbox.x, y);
+		ret = scene_obj_set_pos(scn, menu->title_id, menu->obj.bbox.x0, y);
 		if (ret < 0)
 			return log_msg_ret("tit", ret);
 
