@@ -112,6 +112,17 @@ bool abuf_realloc(struct abuf *abuf, size_t new_size);
 bool abuf_realloc_inc(struct abuf *abuf, size_t inc);
 
 /**
+ * abuf_copy() - Make a copy of an abuf
+ *
+ * Creates an allocated copy of @old in @new
+ *
+ * @old: abuf to copy
+ * @new: new abuf to hold the copy (inited by this function)
+ * Return: true if OK, false if out of memory
+ */
+bool abuf_copy(const struct abuf *old, struct abuf *new);
+
+/**
  * abuf_uninit_move() - Return the allocated contents and uninit the abuf
  *
  * This returns the abuf data to the caller, allocating it if necessary, so that

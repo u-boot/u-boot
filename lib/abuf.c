@@ -128,6 +128,20 @@ bool abuf_init_size(struct abuf *buf, size_t size)
 	return true;
 }
 
+bool abuf_copy(const struct abuf *old, struct abuf *copy)
+{
+	char *data;
+
+	data = malloc(old->size);
+	if (!data)
+		return false;
+	memcpy(data, old->data, old->size);
+	abuf_init_set(copy, data, old->size);
+	copy->alloced = true;
+
+	return true;
+}
+
 void abuf_init_const(struct abuf *abuf, const void *data, size_t size)
 {
 	/* for now there is no flag indicating that the abuf data is constant */

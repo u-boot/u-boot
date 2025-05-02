@@ -420,6 +420,29 @@ static int lib_test_abuf_init(struct unit_test_state *uts)
 }
 LIB_TEST(lib_test_abuf_init, 0);
 
+/* Test abuf_copy() */
+static int lib_test_abuf_copy(struct unit_test_state *uts)
+{
+	struct abuf buf, copy;
+	ulong start;
+
+	start = ut_check_free();
+
+	abuf_init_set(&buf, test_data, TEST_DATA_LEN);
+	ut_assert(abuf_copy(&buf, &copy));
+	ut_asserteq(buf.size, copy.size);
+	ut_assert(buf.data != copy.data);
+	ut_assert(copy.alloced);
+	abuf_uninit(&copy);
+	abuf_uninit(&buf);
+
+	/* Check for memory leaks */
+	ut_assertok(ut_check_delta(start));
+
+	return 0;
+}
+LIB_TEST(lib_test_abuf_copy, 0);
+
 /* Test abuf_init_size() */
 static int lib_test_abuf_init_size(struct unit_test_state *uts)
 {
