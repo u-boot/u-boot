@@ -178,15 +178,12 @@ int bootflow_menu_apply_theme(struct expo *exp, ofnode node)
 int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 		      struct bootflow **bflowp)
 {
-	struct cli_ch_state s_cch, *cch = &s_cch;
 	struct bootflow *sel_bflow;
 	struct udevice *dev;
 	struct expo *exp;
 	uint sel_id;
 	bool done;
 	int ret;
-
-	cli_ch_init(cch);
 
 	sel_bflow = NULL;
 	*bflowp = NULL;
@@ -225,16 +222,16 @@ int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 		if (ret)
 			break;
 
-		ichar = cli_ch_process(cch, 0);
+		ichar = cli_ch_process(&exp->cch, 0);
 		if (!ichar) {
 			while (!ichar && !tstc()) {
 				schedule();
 				mdelay(2);
-				ichar = cli_ch_process(cch, -ETIMEDOUT);
+				ichar = cli_ch_process(&exp->cch, -ETIMEDOUT);
 			}
 			if (!ichar) {
 				ichar = getchar();
-				ichar = cli_ch_process(cch, ichar);
+				ichar = cli_ch_process(&exp->cch, ichar);
 			}
 		}
 

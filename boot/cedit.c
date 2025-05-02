@@ -151,14 +151,12 @@ int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
 
 int cedit_run(struct expo *exp)
 {
-	struct cli_ch_state s_cch, *cch = &s_cch;
 	struct video_priv *vid_priv;
 	uint scene_id;
 	struct scene *scn;
 	bool done, save;
 	int ret;
 
-	cli_ch_init(cch);
 	ret = cedit_prepare(exp, &vid_priv, &scn);
 	if (ret < 0)
 		return log_msg_ret("prep", ret);
@@ -174,16 +172,16 @@ int cedit_run(struct expo *exp)
 		if (ret)
 			break;
 
-		ichar = cli_ch_process(cch, 0);
+		ichar = cli_ch_process(&exp->cch, 0);
 		if (!ichar) {
 			while (!ichar && !tstc()) {
 				schedule();
 				mdelay(2);
-				ichar = cli_ch_process(cch, -ETIMEDOUT);
+				ichar = cli_ch_process(&exp->cch, -ETIMEDOUT);
 			}
 			if (!ichar) {
 				ichar = getchar();
-				ichar = cli_ch_process(cch, ichar);
+				ichar = cli_ch_process(&exp->cch, ichar);
 			}
 		}
 

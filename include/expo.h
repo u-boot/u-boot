@@ -108,6 +108,7 @@ struct expo_theme {
  * @theme: Information about fonts styles, etc.
  * @scene_head: List of scenes
  * @str_head: list of strings
+ * @cch: Keyboard context for input
  */
 struct expo {
 	char *name;
@@ -122,6 +123,7 @@ struct expo {
 	struct expo_theme theme;
 	struct list_head scene_head;
 	struct list_head str_head;
+	struct cli_ch_state cch;
 };
 
 /**
