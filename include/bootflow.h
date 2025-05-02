@@ -670,10 +670,10 @@ int bootflow_menu_start(struct bootstd_priv *std, bool text_mode,
  * bootflow_menu_poll() - Poll a menu for user action
  *
  * @exp: Expo to poll
- * @bflowp: Returns chosen bootflow (set to NULL if nothing is chosen)
- * Return 0 if a bootflow was chosen, -EAGAIN if nothing is chosen yet, -EPIPE
- *	if the user quit
+ * @seqp: Returns the bootflow chosen or currently pointed to (numbered from 0)
+ * Return: 0 if a bootflow was chosen, -EAGAIN if nothing is chosen yet, -EPIPE
+ *	if the user quit, -ERESTART if the expo needs refreshing
  */
-int bootflow_menu_poll(struct expo *exp, struct bootflow **bflowp);
+int bootflow_menu_poll(struct expo *exp, int *seqp);
 
 #endif
