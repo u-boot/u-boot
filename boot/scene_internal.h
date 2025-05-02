@@ -9,7 +9,20 @@
 #ifndef __SCENE_INTERNAL_H
 #define __SCENE_INTERNAL_H
 
+#include <linux/types.h>
+
+struct expo;
+struct expo_action;
+struct expo_arrange_info;
+struct expo_theme;
+struct scene_obj;
+struct scene_obj_menu;
+struct scene_obj_textline;
+struct scene_obj_txtedit;
+struct scene_txt_generic;
 struct vidconsole_bbox;
+
+enum scene_obj_t;
 
 typedef int (*expo_scene_obj_iterator)(struct scene_obj *obj, void *priv);
 
