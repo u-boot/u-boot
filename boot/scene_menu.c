@@ -406,8 +406,6 @@ int scene_menu_send_key(struct scene *scn, struct scene_obj_menu *menu, int key,
 		break;
 	}
 
-	menu_point_to_item(menu, item->id);
-
 	return 0;
 }
 

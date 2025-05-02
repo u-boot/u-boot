@@ -180,6 +180,7 @@ int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 {
 	struct bootflow *sel_bflow;
 	struct udevice *dev;
+	struct scene *scn;
 	struct expo *exp;
 	uint sel_id;
 	bool done;
@@ -209,6 +210,9 @@ int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 	ret = expo_set_scene_id(exp, MAIN);
 	if (ret)
 		return log_msg_ret("scn", ret);
+	scn = expo_lookup_scene_id(exp, MAIN);
+	if (!scn)
+		return log_msg_ret("scn", -ENOENT);
 
 	if (text_mode)
 		expo_set_text_mode(exp, text_mode);
@@ -223,6 +227,12 @@ int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 			case EXPOACT_SELECT:
 				sel_id = act.select.id;
 				done = true;
+				break;
+			case EXPOACT_POINT_ITEM:
+				ret = scene_menu_select_item(scn,
+						OBJ_MENU, act.select.id);
+				if (ret)
+					return log_msg_ret("bmp", ret);
 				break;
 			case EXPOACT_QUIT:
 				return -EPIPE;
