@@ -86,7 +86,7 @@ int expo_str(struct expo *exp, const char *name, uint id, const char *str)
 		return log_msg_ret("obj", -ENOMEM);
 
 	estr->id = resolve_id(exp, id);
-	estr->str = str;
+	abuf_init_const(&estr->buf, str, strlen(str) + 1);
 	list_add_tail(&estr->sibling, &exp->str_head);
 
 	return estr->id;
@@ -98,7 +98,7 @@ const char *expo_get_str(struct expo *exp, uint id)
 
 	list_for_each_entry(estr, &exp->str_head, sibling) {
 		if (estr->id == id)
-			return estr->str;
+			return estr->buf.data;
 	}
 
 	return NULL;

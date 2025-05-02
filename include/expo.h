@@ -134,12 +134,12 @@ struct expo {
  * struct expo_string - a string that can be used in an expo
  *
  * @id: ID number of the string
- * @str: String
+ * @buf: String (contains nul terminator)
  * @sibling: Node to link this object to its siblings
  */
 struct expo_string {
 	uint id;
-	const char *str;
+	struct abuf buf;
 	struct list_head sibling;
 };
 
