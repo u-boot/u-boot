@@ -104,6 +104,27 @@ const char *expo_get_str(struct expo *exp, uint id)
 	return NULL;
 }
 
+int expo_edit_str(struct expo *exp, uint id, struct abuf *orig,
+		  struct abuf **copyp)
+{
+	struct expo_string *estr;
+	struct abuf old;
+
+	list_for_each_entry(estr, &exp->str_head, sibling) {
+		if (estr->id == id) {
+			old = estr->buf;
+			if (!abuf_copy(&old, &estr->buf))
+				return -ENOMEM;
+			*copyp = &estr->buf;
+			if (orig)
+				*orig = old;
+			return 0;
+		}
+	}
+
+	return -ENOENT;
+}
+
 int expo_set_display(struct expo *exp, struct udevice *dev)
 {
 	struct udevice *cons;

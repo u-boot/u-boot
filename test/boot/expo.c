@@ -707,6 +707,7 @@ static int expo_test_build(struct unit_test_state *uts)
 	struct scene_obj_menu *menu;
 	struct scene_menitem *item;
 	struct scene_obj_txt *txt;
+	struct abuf orig, *copy;
 	struct scene_obj *obj;
 	struct scene *scn;
 	struct expo *exp;
@@ -773,6 +774,16 @@ static int expo_test_build(struct unit_test_state *uts)
 
 	count = list_count_nodes(&menu->item_head);
 	ut_asserteq(3, count);
+
+	/* try editing some text */
+	ut_assertok(expo_edit_str(exp, txt->gen.str_id, &orig, &copy));
+	ut_asserteq_str("2 GHz", orig.data);
+	ut_asserteq_str("2 GHz", copy->data);
+
+	/* change it and check that things look right */
+	abuf_printf(copy, "atlantic %d", 123);
+	ut_asserteq_str("2 GHz", orig.data);
+	ut_asserteq_str("atlantic 123", copy->data);
 
 	expo_destroy(exp);
 
