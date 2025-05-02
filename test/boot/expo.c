@@ -584,6 +584,17 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_asserteq(50 + 160, obj->bbox.x1);
 	ut_asserteq(400 + 160, obj->bbox.y1);
 
+	scene_obj_set_width(scn, OBJ_MENU, 170);
+	ut_asserteq(50 + 170, obj->bbox.x1);
+	scene_obj_set_bbox(scn, OBJ_MENU, 60, 410, 50 + 160, 400 + 160);
+	ut_asserteq(60, obj->bbox.x0);
+	ut_asserteq(410, obj->bbox.y0);
+	ut_asserteq(50 + 160, obj->bbox.x1);
+	ut_asserteq(400 + 160, obj->bbox.y1);
+
+	/* reset back to normal */
+	scene_obj_set_bbox(scn, OBJ_MENU, 50, 400, 50 + 160, 400 + 160);
+
 	/* render it */
 	expo_set_scene_id(exp, SCENE1);
 	ut_assertok(expo_render(exp));

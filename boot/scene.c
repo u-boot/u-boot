@@ -235,6 +235,35 @@ int scene_obj_set_size(struct scene *scn, uint id, int w, int h)
 	return 0;
 }
 
+int scene_obj_set_width(struct scene *scn, uint id, int w)
+{
+	struct scene_obj *obj;
+
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("find", -ENOENT);
+	obj->bbox.x1 = obj->bbox.x0 + w;
+
+	return 0;
+}
+
+int scene_obj_set_bbox(struct scene *scn, uint id, int x0, int y0, int x1,
+		       int y1)
+{
+	struct scene_obj *obj;
+
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("find", -ENOENT);
+	obj->bbox.x0 = x0;
+	obj->bbox.y0 = y0;
+	obj->bbox.x1 = x1;
+	obj->bbox.y1 = y1;
+	obj->flags |= SCENEOF_SIZE_VALID;
+
+	return 0;
+}
+
 int scene_obj_set_hide(struct scene *scn, uint id, bool hide)
 {
 	int ret;

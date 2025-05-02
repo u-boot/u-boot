@@ -674,6 +674,30 @@ int scene_obj_set_pos(struct scene *scn, uint id, int x, int y);
 int scene_obj_set_size(struct scene *scn, uint id, int w, int h);
 
 /**
+ * scene_obj_set_width() - Set the width of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @w: width in pixels
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_width(struct scene *scn, uint id, int w);
+
+/**
+ * scene_obj_set_bbox() - Set the bounding box of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @x0: x position, in pixels from left side
+ * @y0: y position, in pixels from top
+ * @x1: ending x position (right side)
+ * @y1: ending y position (botton side)
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_bbox(struct scene *scn, uint id, int x0, int y0, int x1,
+		       int y1);
+
+/**
  * scene_obj_set_hide() - Set whether an object is hidden
  *
  * The update happens when the expo is next rendered.
