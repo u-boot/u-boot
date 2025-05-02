@@ -364,6 +364,11 @@ static void handle_alignment(enum scene_obj_align horiz,
 {
 	int width, height;
 
+	if (bbox->x1 == SCENEOB_DISPLAY_MAX)
+		bbox->x1 = xsize ?: 1280;
+	if (bbox->y1 == SCENEOB_DISPLAY_MAX)
+		bbox->y1 = ysize ?: 1024;
+
 	width = bbox->x1 - bbox->x0;
 	height = bbox->y1 - bbox->y0;
 

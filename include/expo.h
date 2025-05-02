@@ -242,6 +242,12 @@ struct scene_obj_dims {
 	int y;
 };
 
+/* special values for dimensions */
+enum {
+	/* width/height of the display */
+	SCENEOB_DISPLAY_MAX	= 0x7f000000,
+};
+
 /**
  * enum scene_obj_halign - Horizontal alignment of objects
  *
