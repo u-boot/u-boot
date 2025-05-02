@@ -211,6 +211,19 @@ struct scene_obj_bbox {
 };
 
 /**
+ * struct scene_obj_offset - Offsets for drawing the object
+ *
+ * Stores the offset from x0, x1 at which objects are drawn
+ *
+ * @xofs: x offset
+ * @yofs: y offset
+ */
+struct scene_obj_offset {
+	int xofs;
+	int yofs;
+};
+
+/**
  * struct scene_obj_dims - Dimensions of the object being drawn
  *
  * Image and text objects have a dimension which can change depending on what
@@ -223,6 +236,30 @@ struct scene_obj_bbox {
 struct scene_obj_dims {
 	int x;
 	int y;
+};
+
+/**
+ * enum scene_obj_halign - Horizontal alignment of objects
+ *
+ * Objects are normally drawn on the left size of their bounding box. This
+ * properly allows aligning on the right or having the object centred.
+ *
+ * @SCENEOA_LEFT: Left of object is aligned with its x coordinate
+ * @SCENEOA_RIGHT: Right of object is aligned with x + w
+ * @SCENEOA_CENTRE: Centre of object is aligned with centre of bounding box
+ * @SCENEOA_TOP: Left of object is aligned with its x coordinate
+ * @SCENEOA_BOTTOM: Right of object is aligned with x + w
+ *
+ * Note: It would be nice to make this a char type but Sphinx riddles:
+ * ./include/expo.h:258: error: Cannot parse enum!
+ * enum scene_obj_align : char {
+ */
+enum scene_obj_align {
+	SCENEOA_LEFT,
+	SCENEOA_RIGHT,
+	SCENEOA_CENTRE,
+	SCENEOA_TOP = SCENEOA_LEFT,
+	SCENEOA_BOTTOM = SCENEOA_RIGHT,
 };
 
 /**
@@ -255,7 +292,10 @@ enum {
  * @id: ID number of the object
  * @type: Type of this object
  * @bbox: Bounding box for this object
+ * @ofs: Offset from x0, y0 where the object is drawn
  * @dims: Dimensions of the text/image (may be smaller than bbox)
+ * @horiz: Horizonal alignment
+ * @vert: Vertical alignment
  * @flags: Flags for this object
  * @bit_length: Number of bits used for this object in CMOS RAM
  * @start_bit: Start bit to use for this object in CMOS RAM
@@ -267,7 +307,10 @@ struct scene_obj {
 	uint id;
 	enum scene_obj_t type;
 	struct scene_obj_bbox bbox;
+	struct scene_obj_offset ofs;
 	struct scene_obj_dims dims;
+	enum scene_obj_align horiz;
+	enum scene_obj_align vert;
 	u8 flags;
 	u8 bit_length;
 	u16 start_bit;
@@ -754,6 +797,26 @@ int scene_obj_set_width(struct scene *scn, uint id, int w);
  */
 int scene_obj_set_bbox(struct scene *scn, uint id, int x0, int y0, int x1,
 		       int y1);
+
+/**
+ * scene_obj_set_halign() - Set the horizontal alignment of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @aln: Horizontal alignment to use
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_halign(struct scene *scn, uint id, enum scene_obj_align aln);
+
+/**
+ * scene_obj_set_valign() - Set the vertical alignment of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @aln: Vertical alignment to use
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_valign(struct scene *scn, uint id, enum scene_obj_align aln);
 
 /**
  * scene_obj_set_hide() - Set whether an object is hidden

@@ -306,6 +306,30 @@ int scene_obj_set_bbox(struct scene *scn, uint id, int x0, int y0, int x1,
 	return 0;
 }
 
+int scene_obj_set_halign(struct scene *scn, uint id, enum scene_obj_align aln)
+{
+	struct scene_obj *obj;
+
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("osh", -ENOENT);
+	obj->horiz = aln;
+
+	return 0;
+}
+
+int scene_obj_set_valign(struct scene *scn, uint id, enum scene_obj_align aln)
+{
+	struct scene_obj *obj;
+
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("osv", -ENOENT);
+	obj->vert = aln;
+
+	return 0;
+}
+
 int scene_obj_set_hide(struct scene *scn, uint id, bool hide)
 {
 	int ret;
@@ -329,6 +353,44 @@ int scene_obj_flag_clrset(struct scene *scn, uint id, uint clr, uint set)
 	obj->flags |= set;
 
 	return 0;
+}
+
+static void handle_alignment(enum scene_obj_align horiz,
+			     enum scene_obj_align vert,
+			     struct scene_obj_bbox *bbox,
+			     struct scene_obj_dims *dims,
+			     int xsize, int ysize,
+			     struct scene_obj_offset *offset)
+{
+	int width, height;
+
+	width = bbox->x1 - bbox->x0;
+	height = bbox->y1 - bbox->y0;
+
+	switch (horiz) {
+	case SCENEOA_CENTRE:
+		offset->xofs = (width - dims->x) / 2;
+		break;
+	case SCENEOA_RIGHT:
+		offset->xofs = width - dims->x;
+		break;
+	case SCENEOA_LEFT:
+		offset->xofs = 0;
+		break;
+	}
+
+	switch (vert) {
+	case SCENEOA_CENTRE:
+		offset->yofs = (height - dims->y) / 2;
+		break;
+	case SCENEOA_BOTTOM:
+		offset->yofs = height - dims->y;
+		break;
+	case SCENEOA_TOP:
+	default:
+		offset->yofs = 0;
+		break;
+	}
 }
 
 int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
@@ -445,10 +507,12 @@ static int scene_txt_render(struct expo *exp, struct udevice *dev,
 			    struct scene_txt_generic *gen, int x, int y,
 			    int menu_inset)
 {
-	const struct vidconsole_mline *mline;
+	const struct vidconsole_mline *mline, *last;
 	struct video_priv *vid_priv;
 	struct vidconsole_colour old;
 	enum colour_idx fore, back;
+	struct scene_obj_dims dims;
+	struct scene_obj_bbox bbox;
 	const char *str;
 	int ret;
 
@@ -482,13 +546,33 @@ static int scene_txt_render(struct expo *exp, struct udevice *dev,
 				obj->bbox.y1, vid_priv->colour_bg);
 	}
 
-	if (!gen->lines.count) {
+	mline = alist_get(&gen->lines, 0, typeof(*mline));
+	last = alist_get(&gen->lines, gen->lines.count - 1, typeof(*mline));
+	if (mline)
+		dims.y = last->bbox.y1 - mline->bbox.y0;
+	bbox.y0 = obj->bbox.y0;
+	bbox.y1 = obj->bbox.y1;
+
+	if (!mline) {
 		vidconsole_set_cursor_pos(cons, x, y);
 		vidconsole_put_string(cons, str);
 	}
+
 	alist_for_each(mline, &gen->lines) {
-		vidconsole_set_cursor_pos(cons, x + mline->bbox.x0,
-					  y + mline->bbox.y0);
+		struct scene_obj_offset offset;
+
+		bbox.x0 = obj->bbox.x0;
+		bbox.x1 = obj->bbox.x1;
+		dims.x = mline->bbox.x1 - mline->bbox.x0;
+		handle_alignment(obj->horiz, obj->vert, &bbox, &dims,
+				 obj->bbox.x1 - obj->bbox.x0,
+				 obj->bbox.y1 - obj->bbox.y0, &offset);
+
+		x = obj->bbox.x0 + offset.xofs;
+		y = obj->bbox.y0 + offset.yofs + mline->bbox.y0;
+		if (y > bbox.y1)
+			break;	/* clip this line and any following */
+		vidconsole_set_cursor_pos(cons, x, y);
 		vidconsole_put_stringn(cons, str + mline->start, mline->len);
 	}
 	if (obj->flags & SCENEOF_POINT)
@@ -515,7 +599,7 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 	int x, y, ret;
 
 	y = obj->bbox.y0;
-	x = obj->bbox.x0;
+	x = obj->bbox.x0 + obj->ofs.xofs;
 	vid_priv = dev_get_uclass_priv(dev);
 
 	switch (obj->type) {
@@ -626,14 +710,27 @@ int scene_calc_arrange(struct scene *scn, struct expo_arrange_info *arr)
 int scene_arrange(struct scene *scn)
 {
 	struct expo_arrange_info arr;
+	int xsize = 0, ysize = 0;
 	struct scene_obj *obj;
+	struct udevice *dev;
 	int ret;
+
+	dev = scn->expo->display;
+	if (dev) {
+		struct video_priv *priv = dev_get_uclass_priv(dev);
+
+		xsize = priv->xsize;
+		ysize = priv->ysize;
+	}
 
 	ret = scene_calc_arrange(scn, &arr);
 	if (ret < 0)
 		return log_msg_ret("arr", ret);
 
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		handle_alignment(obj->horiz, obj->vert, &obj->bbox, &obj->dims,
+				 xsize, ysize, &obj->ofs);
+
 		switch (obj->type) {
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_IMAGE:

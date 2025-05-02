@@ -492,13 +492,14 @@ static int expo_render_image(struct unit_test_state *uts)
 				       60));
 	ut_assertok(scene_obj_set_pos(scn, OBJ_TEXT2, 200, 600));
 
+	/* this string is clipped as it extends beyond its bottom bound */
 	id = scene_txt_str(scn, "text", OBJ_TEXT3, STR_TEXT3,
-			   "this is yet\nanother string, with word-wrap",
+			   "this is yet\nanother string, with word-wrap and it goes on for quite a while",
 			   NULL);
 	ut_assert(id > 0);
 	ut_assertok(scene_txt_set_font(scn, OBJ_TEXT3, "nimbus_sans_l_regular",
 				       60));
-	ut_assertok(scene_obj_set_bbox(scn, OBJ_TEXT3, 500, 200, 1000, 700));
+	ut_assertok(scene_obj_set_bbox(scn, OBJ_TEXT3, 500, 200, 1000, 350));
 
 	id = scene_menu(scn, "main", OBJ_MENU, &menu);
 	ut_assert(id > 0);
@@ -665,8 +666,24 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_asserteq(ITEM2, scene_menu_get_cur_item(scn, OBJ_MENU));
 	ut_assertok(scene_arrange(scn));
 	ut_assertok(expo_render(exp));
-	ut_asserteq(14883, video_compress_fb(uts, dev, false));
+	ut_asserteq(16304, video_compress_fb(uts, dev, false));
 	ut_assertok(video_check_copy_fb(uts, dev));
+
+	/* do some alignment checks */
+	ut_assertok(scene_obj_set_halign(scn, OBJ_TEXT3, SCENEOA_CENTRE));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(16368, video_compress_fb(uts, dev, false));
+	ut_assertok(scene_obj_set_halign(scn, OBJ_TEXT3, SCENEOA_RIGHT));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(16321, video_compress_fb(uts, dev, false));
+
+	ut_assertok(scene_obj_set_halign(scn, OBJ_TEXT3, SCENEOA_LEFT));
+	ut_assertok(scene_obj_set_valign(scn, OBJ_TEXT3, SCENEOA_CENTRE));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(18763, video_compress_fb(uts, dev, false));
+	ut_assertok(scene_obj_set_valign(scn, OBJ_TEXT3, SCENEOA_BOTTOM));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(18714, video_compress_fb(uts, dev, false));
 
 	/* make sure only the preview for the second item is shown */
 	obj = scene_obj_find(scn, ITEM1_PREVIEW, SCENEOBJT_NONE);
