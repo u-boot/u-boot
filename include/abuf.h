@@ -123,6 +123,27 @@ bool abuf_realloc_inc(struct abuf *abuf, size_t inc);
 bool abuf_copy(const struct abuf *old, struct abuf *new);
 
 /**
+ * abuf_printf() - Format a string and place it in an abuf
+ *
+ * @buf: The buffer to place the result into
+ * @fmt: The format string to use
+ * @...: Arguments for the format string
+ * Return: the number of characters writtenwhich would be
+ * generated for the given input, excluding the trailing null,
+ * as per ISO C99.
+ *
+ * The abuf is expanded as necessary to fit the formated string
+ *
+ * See the vsprintf() documentation for format string extensions over C99.
+ *
+ * Returns: number of characters written (excluding trailing nul) on success,
+ * -E2BIG if the size exceeds 4K, -ENOMEM if out of memory, -EFAULT if there is
+ * an internal bug in the vsnprintf() implementation
+ */
+int abuf_printf(struct abuf *buf, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 2, 3)));
+
+/**
  * abuf_uninit_move() - Return the allocated contents and uninit the abuf
  *
  * This returns the abuf data to the caller, allocating it if necessary, so that

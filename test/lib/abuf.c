@@ -463,3 +463,64 @@ static int lib_test_abuf_init_size(struct unit_test_state *uts)
 	return 0;
 }
 LIB_TEST(lib_test_abuf_init_size, 0);
+
+/* Test abuf_printf() */
+static int lib_test_abuf_printf(struct unit_test_state *uts)
+{
+	struct abuf buf, fmt;
+	ulong start;
+	char *ptr;
+
+	start = ut_check_free();
+
+	/* start with a fresh buffer */
+	abuf_init(&buf);
+
+	/* check handling of out-of-memory condition */
+	malloc_enable_testing(0);
+	ut_asserteq(-ENOMEM, abuf_printf(&buf, "%s", ""));
+	malloc_enable_testing(1);
+
+	ut_asserteq(0, abuf_printf(&buf, "%s", ""));
+	ut_asserteq(1, buf.size);
+	ut_asserteq(true, buf.alloced);
+	ut_asserteq_str("", buf.data);
+
+	/* check expanding it, initially failing */
+	ut_asserteq(-ENOMEM, abuf_printf(&buf, "%s", "testing"));
+	malloc_disable_testing();
+
+	ut_asserteq(7, abuf_printf(&buf, "%s", "testing"));
+	ut_asserteq(8, buf.size);
+	ut_asserteq_str("testing", buf.data);
+
+	ut_asserteq(11, abuf_printf(&buf, "testing %d", 123));
+	ut_asserteq(12, buf.size);
+	ut_asserteq_str("testing 123", buf.data);
+
+	/* make it smaller; buffer should not shrink */
+	ut_asserteq(9, abuf_printf(&buf, "test %d", 456));
+	ut_asserteq(12, buf.size);
+	ut_asserteq_str("test 456", buf.data);
+
+	/* test the maximum size */
+	abuf_init(&fmt);
+	ut_assert(abuf_realloc(&fmt, 4100));
+	memset(fmt.data, 'x', 4100);
+	ptr = fmt.data;
+	ptr[4096] = '\0';
+
+	/* we are allowed up to 4K including the terminator */
+	ut_asserteq(-E2BIG, abuf_printf(&buf, "%s", ptr));
+	ptr[4095] = '\0';
+	ut_asserteq(4095, abuf_printf(&buf, "%s", ptr));
+
+	abuf_uninit(&fmt);
+	abuf_uninit(&buf);
+
+	/* Check for memory leaks */
+	ut_assertok(ut_check_delta(start));
+
+	return 0;
+}
+LIB_TEST(lib_test_abuf_printf, 0);
