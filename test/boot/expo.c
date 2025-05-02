@@ -25,6 +25,7 @@ enum {
 	OBJ_LOGO,
 	OBJ_TEXT,
 	OBJ_TEXT2,
+	OBJ_TEXT3,
 	OBJ_MENU,
 	OBJ_MENU_TITLE,
 
@@ -33,6 +34,7 @@ enum {
 
 	STR_TEXT,
 	STR_TEXT2,
+	STR_TEXT3,
 	STR_MENU_TITLE,
 	STR_POINTER_TEXT,
 
@@ -488,6 +490,14 @@ static int expo_render_image(struct unit_test_state *uts)
 				       60));
 	ut_assertok(scene_obj_set_pos(scn, OBJ_TEXT2, 200, 600));
 
+	id = scene_txt_str(scn, "text", OBJ_TEXT3, STR_TEXT3,
+			   "this is yet\nanother string, with word-wrap",
+			   NULL);
+	ut_assert(id > 0);
+	ut_assertok(scene_txt_set_font(scn, OBJ_TEXT3, "nimbus_sans_l_regular",
+				       60));
+	ut_assertok(scene_obj_set_bbox(scn, OBJ_TEXT3, 500, 200, 1000, 700));
+
 	id = scene_menu(scn, "main", OBJ_MENU, &menu);
 	ut_assert(id > 0);
 
@@ -646,7 +656,7 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_assertok(scene_arrange(scn));
 	ut_assertok(expo_render(exp));
 
-	ut_asserteq(10314, video_compress_fb(uts, dev, false));
+	ut_asserteq(14848, video_compress_fb(uts, dev, false));
 	ut_assertok(video_check_copy_fb(uts, dev));
 
 	/* make sure only the preview for the second item is shown */
