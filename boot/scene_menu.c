@@ -190,14 +190,20 @@ int scene_menu_calc_dims(struct scene_obj_menu *menu)
 
 	scene_menu_calc_bbox(menu, bbox);
 
-	/* Make all labels the same size */
-	cur = &bbox[SCENEBB_label];
-	if (cur->valid) {
-		list_for_each_entry(item, &menu->item_head, sibling) {
-			scene_obj_set_size(menu->obj.scene, item->label_id,
-					   cur->x1 - cur->x0,
-					   cur->y1 - cur->y0);
-		}
+	/* Make all field types the same width */
+	list_for_each_entry(item, &menu->item_head, sibling) {
+		cur = &bbox[SCENEBB_label];
+		if (cur->valid)
+			scene_obj_set_width(menu->obj.scene, item->label_id,
+					    cur->x1 - cur->x0);
+		cur = &bbox[SCENEBB_key];
+		if (cur->valid)
+			scene_obj_set_width(menu->obj.scene, item->key_id,
+					    cur->x1 - cur->x0);
+		cur = &bbox[SCENEBB_desc];
+		if (cur->valid)
+			scene_obj_set_width(menu->obj.scene, item->desc_id,
+					    cur->x1 - cur->x0);
 	}
 
 	cur = &bbox[SCENEBB_all];

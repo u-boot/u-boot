@@ -576,6 +576,36 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_asserteq(50 + 29, obj->bbox.x1);
 	ut_asserteq(454 + 18, obj->bbox.y1);
 
+	/* same for the key */
+	obj = scene_obj_find(scn, ITEM1_KEY, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(280, obj->bbox.x0);
+	ut_asserteq(436, obj->bbox.y0);
+	ut_asserteq(280 + 9, obj->bbox.x1);
+	ut_asserteq(436 + 18, obj->bbox.y1);
+
+	obj = scene_obj_find(scn, ITEM2_KEY, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(280, obj->bbox.x0);
+	ut_asserteq(454, obj->bbox.y0);
+	ut_asserteq(280 + 9, obj->bbox.x1);
+	ut_asserteq(454 + 18, obj->bbox.y1);
+
+	/* and the description */
+	obj = scene_obj_find(scn, ITEM1_DESC, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(330, obj->bbox.x0);
+	ut_asserteq(436, obj->bbox.y0);
+	ut_asserteq(330 + 89, obj->bbox.x1);
+	ut_asserteq(436 + 18, obj->bbox.y1);
+
+	obj = scene_obj_find(scn, ITEM2_DESC, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(330, obj->bbox.x0);
+	ut_asserteq(454, obj->bbox.y0);
+	ut_asserteq(330 + 89, obj->bbox.x1);
+	ut_asserteq(454 + 18, obj->bbox.y1);
+
 	/* check dimensions of menu */
 	obj = scene_obj_find(scn, OBJ_MENU, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
