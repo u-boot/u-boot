@@ -377,7 +377,8 @@ this script again to restore U-Boot to an operational state before running the
 next test function.
 
 This script will likely be implemented by communicating with some form of
-relay or electronic switch attached to the board's reset signal.
+relay or electronic switch attached to the board's reset signal. Power cycling
+is another option.
 
 The semantics of this script require that when it is executed, U-Boot will
 start running from scratch. If the U-Boot binary to be tested has been written
