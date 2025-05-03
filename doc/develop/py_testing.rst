@@ -389,6 +389,13 @@ to download the U-Boot binary directly into RAM and execute it. This would
 avoid the need for `u-boot-test-flash` to actually write U-Boot to flash, thus
 saving wear on the flash chip(s).
 
+u-boot-test-release
+'''''''''''''''''''
+
+When all tests for the board have been executed, this script is called.
+
+The board can be switched off now.
+
 Examples
 ''''''''
 
