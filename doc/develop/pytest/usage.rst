@@ -522,3 +522,27 @@ of the `ubman.config` object, for example
 Build configuration values (from `.config`) may be accessed via the dictionary
 `ubman.config.buildconfig`, with keys equal to the Kconfig variable
 names.
+
+A required configuration setting can be defined via a buildconfigspec()
+annotation. The name of the configuration option is specified in lower case. The
+following annotation for a test requires CONFIG_EFI_LOADER=y:
+
+.. code-block:: python
+
+    @pytest.mark.buildconfigspec('efi_loader')
+
+Sometimes multiple configuration option supply the same functionality. If
+multiple arguments are passed to buildconfigspec(), only one of the
+configuration options needs to be set. The following annotation requires that
+either of CONFIG_NET or CONFIG_NET_LWIP is set:
+
+.. code-block:: python
+
+    @pytest.mark.buildconfigspec('net', 'net lwip')
+
+The notbuildconfigspec() annotation can be used to require a configuration
+option not to be set. The following annotation requires CONFIG_RISCV=n:
+
+.. code-block:: python
+
+    @pytest.mark.notbuildconfigspec('riscv')
