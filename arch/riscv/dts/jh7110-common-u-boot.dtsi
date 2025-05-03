@@ -27,7 +27,6 @@
 	bootph-pre-ram;
 	reg-offset = <0>;
 	current-speed = <115200>;
-	clock-frequency = <24000000>;
 };
 
 &mmc0 {
