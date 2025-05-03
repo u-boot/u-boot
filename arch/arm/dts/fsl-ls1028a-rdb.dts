@@ -10,6 +10,7 @@
 
 /dts-v1/;
 #include "fsl-ls1028a.dtsi"
+#include "fsl-ls1028a-rdb-u-boot.dtsi"
 
 / {
 	model = "LS1028A RDB Board";
