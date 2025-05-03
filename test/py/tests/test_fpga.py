@@ -506,7 +506,7 @@ def test_fpga_loadfs(ubman):
 @pytest.mark.buildconfigspec('cmd_fpga_load_secure')
 @pytest.mark.buildconfigspec('cmd_net')
 @pytest.mark.buildconfigspec('cmd_dhcp')
-@pytest.mark.buildconfigspec('net')
+@pytest.mark.buildconfigspec('net', 'net_lwip')
 def test_fpga_secure_bit_auth(ubman):
 
     test_net.test_net_dhcp(ubman)
@@ -534,7 +534,7 @@ def test_fpga_secure_bit_auth(ubman):
 @pytest.mark.buildconfigspec('cmd_fpga_load_secure')
 @pytest.mark.buildconfigspec('cmd_net')
 @pytest.mark.buildconfigspec('cmd_dhcp')
-@pytest.mark.buildconfigspec('net')
+@pytest.mark.buildconfigspec('net', 'net_lwip')
 def test_fpga_secure_bit_img_auth_kup(ubman):
 
     test_net.test_net_dhcp(ubman)
