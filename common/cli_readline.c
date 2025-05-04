@@ -93,6 +93,12 @@ static char *hist_list[HIST_MAX];
 
 #define add_idx_minus_one() ((hist_add_idx == 0) ? hist_max : hist_add_idx-1)
 
+static bool is_word_char(char c)
+{
+	if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_') return true;
+	return false;
+}
+
 static void getcmd_putchars(int count, int ch)
 {
 	int i;
@@ -207,6 +213,28 @@ void cread_print_hist_list(void)
 		getcmd_putch(CTL_BACKSPACE);	\
 		cls->num--;			\
 	}					\
+}
+
+#define MOVE_CURSOR_BY_WORD(side) {		\
+	if (side 1 > 0) {					\
+		while (1) {								\
+			bool wordStart = is_word_char(cls->buf[cls->num]); \
+			if (cls->num < cls->eol_num) {		\
+				getcmd_putch(cls->buf[cls->num]);\
+				cls->num++;				 		\
+				if (wordStart != is_word_char(cls->buf[cls->num])) break; \
+			} else break;						\
+		}										\
+	} else {							\
+		while (1) {								\
+			bool wordStart = is_word_char(cls->buf[cls->num]); \
+			if (cls->num > 0) {					\
+				cls->num--;				 		\
+				getcmd_putch(CTL_BACKSPACE);	\
+				if (wordStart != is_word_char(cls->buf[cls->num])) break; \
+			} else break;						\
+		}										\
+	 }									\
 }
 
 #define ERASE_TO_EOL() {				\
@@ -489,6 +517,22 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 
 			ichar = getcmd_getch();
 			ichar = cli_ch_process(cch, ichar);
+
+			if (!cch->emitting && cch->esc_len == 6) {
+				switch (cch->esc_save[5]) {
+					case 'C': /* Crtl + Arrow Right */
+						MOVE_CURSOR_BY_WORD(+)
+						break;
+					case 'D': /* Crtl + Arrow Left */
+						MOVE_CURSOR_BY_WORD(-)
+						break;
+					case 'A': /* Crtl + Arrow Up */
+					case 'B': /* Crtl + Arrow Down */
+						break;
+				}
+				cch->esc_len = 0;
+				ichar = 0;
+			}
 		}
 
 		ret = cread_line_process_ch(cls, ichar);
