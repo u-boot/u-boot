@@ -860,7 +860,7 @@ config RENESAS_RAVB
 	select PHY_ETHERNET_ID
 	help
 	  This driver implements support for the Ethernet AVB block in
-	  Renesas M3 and H3 SoCs.
+	  several Renesas R-Car and RZ SoCs.
 
 config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
