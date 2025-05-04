@@ -11,6 +11,7 @@
 #include <power-domain.h>
 #include <power-domain-uclass.h>
 #include <scmi_agent.h>
+#include <scmi_agent-uclass.h>
 #include <scmi_protocols.h>
 #include <dm/device_compat.h>
 
@@ -190,3 +191,10 @@ U_BOOT_DRIVER(scmi_power_domain) = {
 	.probe = scmi_power_domain_probe,
 	.priv_auto = sizeof(struct scmi_power_domain_priv),
 };
+
+static struct scmi_proto_match match[] = {
+	{ .proto_id = SCMI_PROTOCOL_ID_POWER_DOMAIN },
+	{ /* Sentinel */ }
+};
+
+U_BOOT_SCMI_PROTO_DRIVER(scmi_power_domain, match);
