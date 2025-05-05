@@ -5,7 +5,6 @@ choice
 
 config TARGET_CHROMEBOOK_JERRY
 	bool "Google/Rockchip Veyron-Jerry Chromebook"
-	select HAS_ROM
 	select BOARD_LATE_INIT
 	select ROCKCHIP_SPI_IMAGE
 	help
@@ -16,7 +15,6 @@ config TARGET_CHROMEBOOK_JERRY
 
 config TARGET_CHROMEBIT_MICKEY
 	bool "Google/Rockchip Veyron-Mickey Chromebit"
-	select HAS_ROM
 	select BOARD_LATE_INIT
 	select ROCKCHIP_SPI_IMAGE
 	help
@@ -28,7 +26,6 @@ config TARGET_CHROMEBIT_MICKEY
 
 config TARGET_CHROMEBOOK_MINNIE
 	bool "Google/Rockchip Veyron-Minnie Chromebook"
-	select HAS_ROM
 	select BOARD_LATE_INIT
 	select ROCKCHIP_SPI_IMAGE
 	help
@@ -41,7 +38,6 @@ config TARGET_CHROMEBOOK_MINNIE
 
 config TARGET_CHROMEBOOK_SPEEDY
 	bool "Google/Rockchip Veyron-Speedy Chromebook"
-	select HAS_ROM
 	select BOARD_LATE_INIT
 	select ROCKCHIP_SPI_IMAGE
 	help
@@ -54,7 +50,6 @@ config TARGET_CHROMEBOOK_SPEEDY
 
 config TARGET_EVB_RK3288
 	bool "Evb-RK3288"
-	select HAS_ROM
 	select BOARD_LATE_INIT
 	select TPL
 	help

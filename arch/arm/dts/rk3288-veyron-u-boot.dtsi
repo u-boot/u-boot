@@ -11,6 +11,14 @@
 	};
 };
 
+#if defined(CONFIG_ROCKCHIP_SPI_IMAGE)
+&binman {
+	simple-bin-spi {
+		size = <0x400000>;
+	};
+};
+#endif
+
 &dmc {
 	logic-supply = <&vdd_logic>;
 	rockchip,odt-disable-freq = <333000000>;
