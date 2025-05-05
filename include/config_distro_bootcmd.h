@@ -194,6 +194,11 @@
 #define SCAN_DEV_FOR_EFI
 #endif
 
+#ifndef SCAN_DEV_FOR_BOOT_PARTS
+#define SCAN_DEV_FOR_BOOT_PARTS \
+	"part list ${devtype} ${devnum} -bootable devplist; "
+#endif
+
 #ifdef CONFIG_SATA
 #define BOOTENV_SHARED_SATA	BOOTENV_SHARED_BLKDEV(sata)
 #define BOOTENV_DEV_SATA	BOOTENV_DEV_BLKDEV
@@ -538,7 +543,7 @@
 		"\0"                                                      \
 	\
 	"scan_dev_for_boot_part="                                         \
-		"part list ${devtype} ${devnum} -bootable devplist; "     \
+		SCAN_DEV_FOR_BOOT_PARTS                                   \
 		"env exists devplist || setenv devplist 1; "              \
 		"for distro_bootpart in ${devplist}; do "                 \
 			"if fstype ${devtype} "                           \
