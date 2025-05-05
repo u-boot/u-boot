@@ -248,7 +248,6 @@ sec-cfg:
         subhdr:
             magic: 0x4081
             size: 69
-        write_host_id: 0
         otp_entry:
             -
                 host_id: 0
@@ -346,6 +345,7 @@ sec-cfg:
             -
                 host_id: 0
                 host_perms: 0
+        write_host_id: 0
     dkek_config:
         subhdr:
             magic: 0x5170
