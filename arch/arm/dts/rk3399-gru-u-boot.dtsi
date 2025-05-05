@@ -15,11 +15,13 @@
 	};
 };
 
+#if defined(CONFIG_ROCKCHIP_SPI_IMAGE)
 &binman {
-	rom {
+	simple-bin-spi {
 		size = <0x800000>;
 	};
 };
+#endif
 
 &cros_ec {
 	ec-interrupt = <&gpio0 RK_PA1 GPIO_ACTIVE_LOW>;
