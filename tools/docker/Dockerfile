@@ -97,7 +97,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	libjson-glib-dev \
 	libgnutls28-dev \
 	libgnutls30 \
-	liblz4-tool \
 	libpixman-1-dev \
 	libpython3-dev \
 	libsdl1.2-dev \
@@ -108,6 +107,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	libtool \
 	libudev-dev \
 	libusb-1.0-0-dev \
+	lz4 \
 	lzma-alone \
 	lzop \
 	mount \
