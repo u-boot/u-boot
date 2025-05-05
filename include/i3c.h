@@ -5,63 +5,89 @@
 
 #include <linux/i3c/master.h>
 
-/**
- * struct dm_i3c_ops - driver operations for i3c uclass
- *
- * Drivers should support these operations unless otherwise noted. These
- * operations are intended to be used by uclass code, not directly from
- * other code.
- */
-struct dm_i3c_ops {
+ /**
+  * struct dm_i3c_ops - Driver operations for the I3C uclass
+  *
+  * This structure defines the set of operations that a driver must implement
+  * for interacting with an I3C controller in U-Boot.
+  *
+  */
+ struct dm_i3c_ops {
 	/**
-	 * Transfer messages in I3C mode.
+	 * @i3c_xfers: Transfer messages in I3C
 	 *
-	 * @see i3c_transfer
-	 *
-	 * @param dev Pointer to controller device driver instance.
-	 * @param target Pointer to target device descriptor.
-	 * @param msg Pointer to I3C messages.
-	 * @param num_msgs Number of messages to transfer.
-	 *
-	 * @return @see i3c_transfer
+	 * @dev: I3C controller device instance.
+	 * @xfers: List of I3C private SDR transfer messages.
+	 * @nxfers: The number of messages to transfer.
+	 * 
+	 * Return: 0 on success, negative error code on failure.
 	 */
-	int (*i3c_xfers)(struct i3c_dev_desc *dev,
-			 struct i3c_priv_xfer *i3c_xfers,
-			 int i3c_nxfers);
-	int (*read)(struct udevice *dev, u8 dev_number,
-		    u8 *buf, int num_bytes);
-	int (*write)(struct udevice *dev, u8 dev_number,
-		     u8 *buf, int num_bytes);
-};
+	 int (*i3c_xfers)(struct i3c_dev_desc *dev,
+			  struct i3c_priv_xfer *xfers,
+			  unsigned int nxfers);
 
-#define i3c_get_ops(dev)	((struct dm_i3c_ops *)(dev)->driver->ops)
+	/**
+	 * @i3c_xfers: Perform I3C read transaction.
+	 *
+	 * @dev: Chip to read from
+	 * @dev_number: The target device number from the driver model.
+	 * @buf: Place to put data
+	 * @num_bytes: Number of bytes to read.
+	 * 
+	 * Return: 0 on success, negative error code on failure.
+	 */
+	 int (*read)(struct udevice *dev, unsigned int dev_number,
+		     u8 *buf, unsigned int num_bytes);
+
+	/**
+	 * @i3c_xfers: Perform I3C write transaction.
+	 *
+	 * @dev: Chip to write to
+	 * @dev_number: The target device number from the driver model.
+	 * @buf: Buffer containing data to write
+	 * @num_bytes: Number of bytes to write.
+	 * 
+	 * Return: 0 on success, negative error code on failure.
+	 */
+	 int (*write)(struct udevice *dev, unsigned int dev_number,
+		      u8 *buf, unsigned int num_bytes);
+ };
 
 /**
- * @brief Do i3c write
+ * i3c_get_ops - Retrieve the I3C operation functions for a device
+ * @dev: The I3C controller device.
  *
- * Uclass general function to start write to i3c target
+ * This macro returns the set of operation functions (`dm_i3c_ops`) implemented
+ * by the driver associated with the specified device. These operations define
+ * how the driver performs I3C communication tasks such as reading, writing,
+ * and message transfers.
  *
- * @udevice pointer to i3c controller.
- * @dev_number target device number.
- * @buf target Buffer to write.
- * @num_bytes length of bytes to write.
- *
- * @return 0 for success
+ * Return: The I3C operation structure for the device.
  */
-int dm_i3c_write(struct udevice *dev, u8 dev_number,
-		 u8 *buf, int num_bytes);
+ #define i3c_get_ops(dev)	((struct dm_i3c_ops *)(dev)->driver->ops)
 
-/**
- * @brief Do i3c read
- *
- * Uclass general function to start read from i3c target
- *
- * @udevice pointer to i3c controller.
- * @dev_number target device number.
- * @buf target Buffer to read.
- * @num_bytes length of bytes to read.
- *
- * @return 0 for success
- */
-int dm_i3c_read(struct udevice *dev, u8 dev_number,
-		u8 *buf, int num_bytes);
+ /**
+  * dm_i3c_write - Perform I3C write transaction
+  * 
+  * @dev: Chip to write to
+  * @dev_number: The target device number from the driver model.
+  * @buf: Buffer containing data to write
+  * @num_bytes: Number of bytes to write.
+  *
+  * Return: 0 on success, negative error code on failure.
+  */
+ int dm_i3c_write(struct udevice *dev, unsigned int dev_number,
+		  u8 *buf, unsigned int num_bytes);
+
+ /**
+  * dm_i3c_read - Perform I3C read transaction
+  * 
+  * @dev: 		 Chip to read from
+  * @dev_number: The target device number from the driver model.
+  * @buf:		 Place to put data
+  * @num_bytes:  Number of bytes to read.
+  *
+  * Return: 0 on success, negative error code on failure.
+  */
+ int dm_i3c_read(struct udevice *dev, unsigned int dev_number,
+		 u8 *buf, unsigned int num_bytes);

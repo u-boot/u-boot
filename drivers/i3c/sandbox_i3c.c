@@ -12,8 +12,8 @@ struct sandbox_i3c_priv {
 	struct i3c_priv_xfer i3c_xfers;
 };
 
-static int sandbox_i3c_priv_read(struct udevice *dev, u8 dev_number,
-				 u8 *buf, int buf_size)
+static int sandbox_i3c_priv_read(struct udevice *dev, u32 dev_number,
+				 u8 *buf, u32 buf_size)
 {
 	struct sandbox_i3c_priv *priv = dev_get_priv(dev);
 	struct i3c_priv_xfer i3c_xfers;
@@ -25,8 +25,8 @@ static int sandbox_i3c_priv_read(struct udevice *dev, u8 dev_number,
 	return 0;
 }
 
-static int sandbox_i3c_priv_write(struct udevice *dev, u8 dev_number,
-				  u8 *buf, int buf_size)
+static int sandbox_i3c_priv_write(struct udevice *dev, u32 dev_number,
+				  u8 *buf, u32 buf_size)
 {
 	struct sandbox_i3c_priv *priv = dev_get_priv(dev);
 	struct i3c_priv_xfer i3c_xfers;

@@ -487,7 +487,7 @@ struct i3c_master_controller_ops {
 			    struct i3c_ccc_cmd *cmd);
 	int (*priv_xfers)(struct i3c_dev_desc *dev,
 			  struct i3c_priv_xfer *xfers,
-			  int nxfers);
+			  u32 nxfers);
 	int (*attach_i2c_dev)(struct i2c_dev_desc *dev);
 	void (*detach_i2c_dev)(struct i2c_dev_desc *dev);
 	int (*i2c_xfers)(struct i2c_dev_desc *dev,

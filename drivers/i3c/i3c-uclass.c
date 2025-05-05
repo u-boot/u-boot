@@ -10,8 +10,8 @@
 #include <dm/device-internal.h>
 #include <linux/ctype.h>
 
-int dm_i3c_read(struct udevice *dev, u8 dev_number,
-		u8 *buf, int num_bytes)
+int dm_i3c_read(struct udevice *dev, u32 dev_number,
+		u8 *buf, u32 num_bytes)
 {
 	struct dm_i3c_ops *ops = i3c_get_ops(dev);
 
@@ -21,8 +21,8 @@ int dm_i3c_read(struct udevice *dev, u8 dev_number,
 	return ops->read(dev, dev_number, buf, num_bytes);
 }
 
-int dm_i3c_write(struct udevice *dev, u8 dev_number,
-		 u8 *buf, int num_bytes)
+int dm_i3c_write(struct udevice *dev, u32 dev_number,
+		 u8 *buf, u32 num_bytes)
 {
 	struct dm_i3c_ops *ops = i3c_get_ops(dev);
 

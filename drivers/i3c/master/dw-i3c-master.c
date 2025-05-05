@@ -688,7 +688,7 @@ static int dw_i3c_master_daa(struct i3c_master_controller *m)
 
 static int dw_i3c_master_priv_xfers(struct i3c_dev_desc *dev,
 				    struct i3c_priv_xfer *i3c_xfers,
-				    int i3c_nxfers)
+				    u32 i3c_nxfers)
 {
 	struct dw_i3c_i2c_dev_data *data = i3c_dev_get_master_data(dev);
 	struct i3c_master_controller *m = i3c_dev_get_master(dev);
@@ -1013,8 +1013,8 @@ err_assert_rst:
 	return ret;
 }
 
-static int dw_i3c_master_priv_read(struct udevice *dev, u8 dev_number,
-				   u8 *buf, int buf_size)
+static int dw_i3c_master_priv_read(struct udevice *dev, u32 dev_number,
+				   u8 *buf, u32 buf_size)
 {
 	struct dw_i3c_master *master = dev_get_priv(dev);
 	struct i3c_dev_desc *i3cdev = master->i3cdev[dev_number];
@@ -1027,8 +1027,8 @@ static int dw_i3c_master_priv_read(struct udevice *dev, u8 dev_number,
 	return dw_i3c_master_priv_xfers(i3cdev, &i3c_xfers, 1);
 }
 
-static int dw_i3c_master_priv_write(struct udevice *dev, u8 dev_number,
-				    u8 *buf, int buf_size)
+static int dw_i3c_master_priv_write(struct udevice *dev, u32 dev_number,
+				    u8 *buf, u32 buf_size)
 {
 	struct dw_i3c_master *master = dev_get_priv(dev);
 	struct i3c_dev_desc *i3cdev = master->i3cdev[dev_number];
