@@ -47,6 +47,11 @@ static int mtk_clk_get_id(struct clk *clk)
 	return id;
 }
 
+static int mtk_dummy_enable(struct clk *clk)
+{
+	return 0;
+}
+
 static int mtk_gate_enable(void __iomem *base, const struct mtk_gate *gate)
 {
 	u32 bit = BIT(gate->shift);
@@ -750,6 +755,12 @@ const struct clk_ops mtk_clk_apmixedsys_ops = {
 	.disable = mtk_apmixedsys_disable,
 	.set_rate = mtk_apmixedsys_set_rate,
 	.get_rate = mtk_apmixedsys_get_rate,
+};
+
+const struct clk_ops mtk_clk_fixed_pll_ops = {
+	.enable = mtk_dummy_enable,
+	.disable = mtk_dummy_enable,
+	.get_rate = mtk_topckgen_get_rate,
 };
 
 const struct clk_ops mtk_clk_topckgen_ops = {
