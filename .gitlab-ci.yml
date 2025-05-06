@@ -594,8 +594,10 @@ coreboot test.py:
     - export strategy="-s uboot -e off"
     - export USE_LABGRID_SJG=1
     # export verbose="-v"
-    - ${SRC}/test/py/test.py --role ${ROLE} --build-dir "${OUT}"
-        --capture=tee-sys -k "not bootstd ${TEST_PY_TEST_SPEC}" || ret=$?
+    - ${SRC}/test/py/test.py -ra --role ${ROLE} ${TEST_PY_EXTRA:-"--capture=tee-sys"}
+        --build-dir "${OUT}"
+        ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
+        --junitxml=${OUT}/results.xml || ret=$?
     - U_BOOT_BOARD_IDENTITY="${ROLE}" u-boot-test-release || true
     - if [[ $ret -ne 0 ]]; then
         exit $ret;
@@ -605,6 +607,9 @@ coreboot test.py:
     paths:
       - "build/${BOARD}/test-log.html"
       - "build/${BOARD}/multiplexed_log.css"
+      - "build/${BOARD}/results.xml"
+    reports:
+      junit: "build/${BOARD}/results.xml"
     expire_in: 1 week
 
 rpi3:
