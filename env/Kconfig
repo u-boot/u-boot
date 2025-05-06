@@ -389,7 +389,7 @@ config ENV_IS_IN_SPI_FLASH
 
 config ENV_IS_IN_MTD
 	bool "Environment is in MTD flash"
-	depends on !CHAIN_OF_TRUST && (SPI_FLASH || DM_SPI_FLASH)
+	depends on !CHAIN_OF_TRUST && MTD
 	default y if ARCH_AIROHA
 	help
 	  Define this if you have a MTD Flash memory device which you
