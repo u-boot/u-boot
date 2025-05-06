@@ -38,7 +38,6 @@
 		ti_fs_enc_fs: ti-fs-enc.bin {
 			filename = "ti-sysfw/ti-fs-firmware-am62px-hs-fs-enc.bin";
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_tifs_cfg_fs: combined-tifs-cfg.bin {
@@ -49,7 +48,6 @@
 		sysfw_inner_cert_fs: sysfw-inner-cert {
 			filename = "ti-sysfw/ti-fs-firmware-am62px-hs-fs-cert.bin";
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_dm_cfg_fs: combined-dm-cfg.bin {
@@ -87,7 +85,6 @@
 		ti_fs_enc_hs: ti-fs-enc.bin {
 			filename = "ti-sysfw/ti-fs-firmware-am62px-hs-enc.bin";
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_tifs_cfg_hs: combined-tifs-cfg.bin {
@@ -98,7 +95,6 @@
 		sysfw_inner_cert_hs: sysfw-inner-cert {
 			filename = "ti-sysfw/ti-fs-firmware-am62px-hs-cert.bin";
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_dm_cfg_hs: combined-dm-cfg.bin {
@@ -203,7 +199,6 @@
 
 					dm: ti-dm {
 						filename = "ti-dm/am62pxx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-						optional;
 					};
 				};
 

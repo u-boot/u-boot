@@ -39,7 +39,6 @@
 
 		ti_fs_enc: ti-fs-enc.bin {
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_tifs_cfg: combined-tifs-cfg.bin {
@@ -49,7 +48,6 @@
 
 		sysfw_inner_cert: sysfw-inner-cert {
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_dm_cfg: combined-dm-cfg.bin {
@@ -88,7 +86,6 @@
 
 		ti_fs_enc_fs: ti-fs-enc.bin {
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_tifs_cfg_fs: combined-tifs-cfg.bin {
@@ -98,7 +95,6 @@
 
 		sysfw_inner_cert_fs: sysfw-inner-cert {
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_dm_cfg_fs: combined-dm-cfg.bin {
@@ -135,7 +131,6 @@
 
 		ti_fs_gp: ti-fs-gp.bin {
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_tifs_cfg_gp: combined-tifs-cfg-gp.bin {
@@ -166,7 +161,6 @@
 					};
 
 					dm: ti-dm {
-						optional;
 					};
 				};
 
@@ -255,7 +249,6 @@
 			images {
 				dm {
 					ti-dm {
-						optional;
 					};
 				};
 

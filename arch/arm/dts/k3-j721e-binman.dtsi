@@ -46,12 +46,10 @@
 		ti_fs_cert: ti-fs-cert.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e_sr1_1-hs-cert.bin";
 			type = "blob-ext";
-			optional;
 		};
 		ti-fs-firmware-j721e_sr1_1-hs-enc.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e_sr1_1-hs-enc.bin";
 			type = "blob-ext";
-			optional;
 		};
 	};
 
@@ -67,12 +65,10 @@
 		ti_fs_cert_sr2: ti-fs-cert.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e_sr2-hs-cert.bin";
 			type = "blob-ext";
-			optional;
 		};
 		ti-fs-firmware-j721e_sr2-hs-enc.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e_sr2-hs-enc.bin";
 			type = "blob-ext";
-			optional;
 		};
 	};
 
@@ -148,12 +144,10 @@
 		ti-fs-cert-fs.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e_sr1_1-hs-fs-cert.bin";
 			type = "blob-ext";
-			optional;
 		};
 		ti-fs-firmware-j721e-hs-fs-enc.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e_sr1_1-hs-fs-enc.bin";
 			type = "blob-ext";
-			optional;
 		};
 	};
 	itb_fs_sr1_1 {
@@ -235,12 +229,10 @@
 		ti-fs-cert-fs.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e_sr2-hs-fs-cert.bin";
 			type = "blob-ext";
-			optional;
 		};
 		ti-fs-firmware-j721e-hs-fs-enc.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e_sr2-hs-fs-enc.bin";
 			type = "blob-ext";
-			optional;
 		};
 	};
 	itb_fs {
@@ -276,7 +268,6 @@
 		ti_fs: ti-fs.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e-gp.bin";
 			type = "blob-ext";
-			optional;
 		};
 	};
 	itb_gp {
@@ -461,7 +452,6 @@
 					};
 					dm: ti-dm {
 						filename = "ti-dm/j721e/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-						optional;
 					};
 				};
 
@@ -546,7 +536,6 @@
 				dm {
 					ti-dm {
 						filename = "ti-dm/j721e/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-						optional;
 					};
 				};
 

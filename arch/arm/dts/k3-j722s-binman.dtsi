@@ -36,7 +36,6 @@
 		ti_fs_enc: ti-fs-enc.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j722s-hs-enc.bin";
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_tifs_cfg: combined-tifs-cfg.bin {
@@ -47,7 +46,6 @@
 		sysfw_inner_cert: sysfw-inner-cert {
 			filename = "ti-sysfw/ti-fs-firmware-j722s-hs-cert.bin";
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_dm_cfg: combined-dm-cfg.bin {
@@ -88,7 +86,6 @@
 		ti_fs_enc_fs: ti-fs-enc.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j722s-hs-fs-enc.bin";
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_tifs_cfg_fs: combined-tifs-cfg.bin {
@@ -99,7 +96,6 @@
 		sysfw_inner_cert_fs: sysfw-inner-cert {
 			filename = "ti-sysfw/ti-fs-firmware-j722s-hs-fs-cert.bin";
 			type = "blob-ext";
-			optional;
 		};
 
 		combined_dm_cfg_fs: combined-dm-cfg.bin {
@@ -129,7 +125,6 @@
 
 					dm: ti-dm {
 						filename = "ti-dm/j722s/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-						optional;
 					};
 				};
 

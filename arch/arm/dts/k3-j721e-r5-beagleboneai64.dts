@@ -47,7 +47,6 @@
 		ti_fs: ti-fs.bin {
 			filename = "ti-sysfw/ti-fs-firmware-j721e-gp.bin";
 			type = "blob-ext";
-			optional;
 		};
 	};
 
