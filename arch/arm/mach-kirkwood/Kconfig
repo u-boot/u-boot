@@ -50,6 +50,7 @@ config TARGET_DS109
 	bool "Synology DS109"
 	select KW88F6281
 	select SHEEVA_88SV131
+	select KIRKWOOD_COMMON
 
 config TARGET_GURUPLUG
 	bool "GuruPlug Board"
