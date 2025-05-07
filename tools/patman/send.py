@@ -112,7 +112,7 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
 
 
 def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
-                    keep_change_id=False, cwd=None):
+                    keep_change_id=False, git_dir=None, cwd=None):
     """Figure out what patches to generate, then generate them
 
     The patch files are written to the current directory, e.g. 0001_xxx.patch
@@ -123,11 +123,12 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
         branch (str): Branch to create patches from (None = current)
         count (int): Number of patches to produce, or -1 to produce patches for
             the current branch back to the upstream commit
-        start (int): Start partch to use (0=first / top of branch)
+        start (int): Start patch to use (0=first / top of branch)
         end (int): End patch to use (0=last one in series, 1=one before that,
             etc.)
         ignore_binary (bool): Don't generate patches for binary files
         keep_change_id (bool): Preserve the Change-Id tag.
+        git_dir (str): Path to git repository (None to use default)
         cwd (str): Path to use for git operations (None to use current dir)
 
     Returns:
@@ -139,7 +140,8 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
     """
     if count == -1:
         # Work out how many patches to send if we can
-        count = (gitutil.count_commits_to_branch(branch) - start)
+        count = (gitutil.count_commits_to_branch(branch, git_dir=git_dir) -
+                 start)
 
     if not count:
         str = 'No commits found to process - please use -c flag, or run:\n' \
@@ -148,9 +150,9 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
 
     # Read the metadata from the commits
     to_do = count - end
-    series = patchstream.get_metadata(branch, start, to_do)
+    series = patchstream.get_metadata(branch, start, to_do, git_dir)
     cover_fname, patch_files = gitutil.create_patches(
-        branch, start, to_do, ignore_binary, series, signoff,
+        branch, start, to_do, ignore_binary, series, signoff, git_dir=git_dir,
         cwd=cwd)
 
     # Fix up the patch files to our liking, and insert the cover letter
@@ -161,7 +163,7 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
     return series, cover_fname, patch_files
 
 
-def send(args, cwd=None):
+def send(args, git_dir=None, cwd=None):
     """Create, check and send patches by email
 
     Args:
@@ -172,7 +174,7 @@ def send(args, cwd=None):
     series, cover_fname, patch_files = prepare_patches(
         col, args.branch, args.count, args.start, args.end,
         args.ignore_binary, args.add_signoff,
-        keep_change_id=args.keep_change_id, cwd=cwd)
+        keep_change_id=args.keep_change_id, git_dir=git_dir, cwd=cwd)
     ok = check_patches(series, patch_files, args.check_patch,
                        args.verbose, args.check_patch_use_tree, cwd)
 

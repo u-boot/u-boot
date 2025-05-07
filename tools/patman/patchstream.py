@@ -754,7 +754,7 @@ def get_metadata_for_list(commit_range, git_dir=None, count=None,
     pst.finalise()
     return series
 
-def get_metadata(branch, start, count):
+def get_metadata(branch, start, count, git_dir=None):
     """Reads out patch series metadata from the commits
 
     This does a 'git log' on the relevant commits and pulls out the tags we
@@ -769,8 +769,9 @@ def get_metadata(branch, start, count):
         Series: Object containing information about the commits.
     """
     top = f"{branch if branch else 'HEAD'}~{start}"
-    series = get_metadata_for_list(top, None, count)
-    series.base_commit = commit.Commit(gitutil.get_hash(f'{top}~{count}'))
+    series = get_metadata_for_list(top, git_dir, count)
+    series.base_commit = commit.Commit(
+        gitutil.get_hash(f'{top}~{count}', git_dir))
     series.branch = branch or gitutil.get_branch()
     series.top = top
     return series
