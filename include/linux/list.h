@@ -4,11 +4,6 @@
 #include <linux/stddef.h>
 #include <linux/poison.h>
 
-#ifndef ARCH_HAS_PREFETCH
-#define ARCH_HAS_PREFETCH
-static inline void prefetch(const void *x) {;}
-#endif
-
 /*
  * Simple doubly linked list implementation.
  *
