@@ -99,7 +99,7 @@ static void error(u16 *string)
  * @val:	value to print;
  * @prec:	minimum number of digits to print
  */
-static void printx(u64 val, u32 prec)
+static void printx(efi_uintn_t val, u32 prec)
 {
 	int i;
 	u16 c;
@@ -342,7 +342,7 @@ static efi_status_t do_load(void)
 		return EFI_LOAD_ERROR;
 	}
 	print(u"crc32: 0x");
-	printx(crc32, 8);
+	printx((efi_uintn_t)crc32, 8);
 	print(u"\r\n");
 
 	return EFI_SUCCESS;
