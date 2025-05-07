@@ -18,4 +18,5 @@ Individual tests
    :maxdepth: 1
 
    test_000_version
+   test_net
    test_net_boot

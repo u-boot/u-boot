@@ -4,12 +4,6 @@
 # Test various network-related functionality, such as the dhcp, ping, and
 # tftpboot commands.
 
-import pytest
-import utils
-import uuid
-import datetime
-import re
-
 """
 Note: This test relies on boardenv_* containing configuration values to define
 which network environment is available for testing. Without this, this test
@@ -17,76 +11,84 @@ will be automatically skipped.
 
 For example:
 
-# Boolean indicating whether the Ethernet device is attached to USB, and hence
-# USB enumeration needs to be performed prior to network tests.
-# This variable may be omitted if its value is False.
-env__net_uses_usb = False
+.. code-block:: python
 
-# Boolean indicating whether the Ethernet device is attached to PCI, and hence
-# PCI enumeration needs to be performed prior to network tests.
-# This variable may be omitted if its value is False.
-env__net_uses_pci = True
+    # Boolean indicating whether the Ethernet device is attached to USB, and hence
+    # USB enumeration needs to be performed prior to network tests.
+    # This variable may be omitted if its value is False.
+    env__net_uses_usb = False
 
-# True if a DHCP server is attached to the network, and should be tested.
-# If DHCP testing is not possible or desired, this variable may be omitted or
-# set to False.
-env__net_dhcp_server = True
+    # Boolean indicating whether the Ethernet device is attached to PCI, and hence
+    # PCI enumeration needs to be performed prior to network tests.
+    # This variable may be omitted if its value is False.
+    env__net_uses_pci = True
 
-# False or omitted if a DHCP server is attached to the network, and dhcp abort
-# case should be tested.
-# If DHCP abort testing is not possible or desired, set this variable to True.
-# For example: On some setup, dhcp is too fast and this case may not work.
-env__dhcp_abort_test_skip = True
+    # True if a DHCP server is attached to the network, and should be tested.
+    # If DHCP testing is not possible or desired, this variable may be omitted or
+    # set to False.
+    env__net_dhcp_server = True
 
-# True if a DHCPv6 server is attached to the network, and should be tested.
-# If DHCPv6 testing is not possible or desired, this variable may be omitted or
-# set to False.
-env__net_dhcp6_server = True
+    # False or omitted if a DHCP server is attached to the network, and dhcp abort
+    # case should be tested.
+    # If DHCP abort testing is not possible or desired, set this variable to True.
+    # For example: On some setup, dhcp is too fast and this case may not work.
+    env__dhcp_abort_test_skip = True
 
-# A list of environment variables that should be set in order to configure a
-# static IP. If solely relying on DHCP, this variable may be omitted or set to
-# an empty list.
-env__net_static_env_vars = [
-    ('ipaddr', '10.0.0.100'),
-    ('netmask', '255.255.255.0'),
-    ('serverip', '10.0.0.1'),
-]
+    # True if a DHCPv6 server is attached to the network, and should be tested.
+    # If DHCPv6 testing is not possible or desired, this variable may be omitted or
+    # set to False.
+    env__net_dhcp6_server = True
 
-# Details regarding a file that may be read from a TFTP server. This variable
-# may be omitted or set to None if TFTP testing is not possible or desired.
-env__net_tftp_readable_file = {
-    'fn': 'ubtest-readable.bin',
-    'addr': 0x10000000,
-    'size': 5058624,
-    'crc32': 'c2244b26',
-    'timeout': 50000,
-    'fnu': 'ubtest-upload.bin',
-}
+    # A list of environment variables that should be set in order to configure a
+    # static IP. If solely relying on DHCP, this variable may be omitted or set to
+    # an empty list.
+    env__net_static_env_vars = [
+        ('ipaddr', '10.0.0.100'),
+        ('netmask', '255.255.255.0'),
+        ('serverip', '10.0.0.1'),
+    ]
 
-# Details regarding a file that may be read from a NFS server. This variable
-# may be omitted or set to None if NFS testing is not possible or desired.
-env__net_nfs_readable_file = {
-    'fn': 'ubtest-readable.bin',
-    'addr': 0x10000000,
-    'size': 5058624,
-    'crc32': 'c2244b26',
-}
+    # Details regarding a file that may be read from a TFTP server. This variable
+    # may be omitted or set to None if TFTP testing is not possible or desired.
+    env__net_tftp_readable_file = {
+        'fn': 'ubtest-readable.bin',
+        'addr': 0x10000000,
+        'size': 5058624,
+        'crc32': 'c2244b26',
+        'timeout': 50000,
+        'fnu': 'ubtest-upload.bin',
+    }
 
-# Details regarding a file that may be read from a TFTP server. This variable
-# may be omitted or set to None if PXE testing is not possible or desired.
-env__net_pxe_readable_file = {
-    'fn': 'default',
-    'addr': 0x2000000,
-    'size': 74,
-    'timeout': 50000,
-    'pattern': 'Linux',
-}
+    # Details regarding a file that may be read from a NFS server. This variable
+    # may be omitted or set to None if NFS testing is not possible or desired.
+    env__net_nfs_readable_file = {
+        'fn': 'ubtest-readable.bin',
+        'addr': 0x10000000,
+        'size': 5058624,
+        'crc32': 'c2244b26',
+    }
 
-# True if a router advertisement service is connected to the network, and should
-# be tested. If router advertisement testing is not possible or desired, this
-variable may be omitted or set to False.
-env__router_on_net = True
+    # Details regarding a file that may be read from a TFTP server. This variable
+    # may be omitted or set to None if PXE testing is not possible or desired.
+    env__net_pxe_readable_file = {
+        'fn': 'default',
+        'addr': 0x2000000,
+        'size': 74,
+        'timeout': 50000,
+        'pattern': 'Linux',
+    }
+
+    # True if a router advertisement service is connected to the network, and should
+    # be tested. If router advertisement testing is not possible or desired, this
+    variable may be omitted or set to False.
+    env__router_on_net = True
 """
+
+import pytest
+import utils
+import uuid
+import datetime
+import re
 
 net_set_up = False
 net6_set_up = False
