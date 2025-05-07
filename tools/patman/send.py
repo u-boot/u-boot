@@ -144,9 +144,9 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
                  start)
 
     if not count:
-        str = 'No commits found to process - please use -c flag, or run:\n' \
+        msg = 'No commits found to process - please use -c flag, or run:\n' \
               '  git branch --set-upstream-to remote/branch'
-        sys.exit(col.build(col.RED, str))
+        sys.exit(col.build(col.RED, msg))
 
     # Read the metadata from the commits
     to_do = count - end
