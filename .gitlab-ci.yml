@@ -164,7 +164,7 @@ docs:
   script:
     - python3 -m venv /tmp/venvhtml
     - . /tmp/venvhtml/bin/activate
-    - pip install -r doc/sphinx/requirements.txt
+    - pip install -r doc/sphinx/requirements.txt pytest
     - make htmldocs KDOC_WERROR=1
     - make infodocs
 

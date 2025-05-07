@@ -10,3 +10,11 @@ General
    :maxdepth: 1
 
    usage
+
+Individual tests
+----------------
+
+.. toctree::
+   :maxdepth: 1
+
+   test_000_version
