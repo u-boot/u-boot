@@ -43,6 +43,8 @@ static bool cyclic_is_registered(const struct cyclic_info *cyclic)
 void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,
 		     uint64_t delay_us, const char *name)
 {
+	cyclic_unregister(cyclic);
+
 	memset(cyclic, 0, sizeof(*cyclic));
 
 	/* Store values in struct */
