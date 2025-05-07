@@ -649,8 +649,7 @@ static void initcall_run_r(void)
 #if CONFIG_IS_ENABLED(ADDR_MAP)
 	INITCALL(init_addr_map);
 #endif
-#if CONFIG_IS_ENABLED(ARM) || CONFIG_IS_ENABLED(RISCV) || \
-    CONFIG_IS_ENABLED(SANDBOX)
+#if CONFIG_IS_ENABLED(BOARD_INIT)
 	INITCALL(board_init);	/* Setup chipselects */
 #endif
 	/*
