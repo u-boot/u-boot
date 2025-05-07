@@ -133,11 +133,21 @@ import test_net
 import re
 
 def setup_networking(ubman):
+    """Setup networking
+
+    Making use of the test_net test, first try and configure networking via
+    DHCP. If this fails, fall back to static configuration.
+    """
     test_net.test_net_dhcp(ubman)
     if not test_net.net_set_up:
         test_net.test_net_setup_static(ubman)
 
 def setup_tftpboot_boot(ubman):
+    """Setup for the tftpboot 'boot' test
+
+    We check that a file to use has been configured. If it has, we download it
+    and ensure it has the expected crc32 value.
+    """
     f = ubman.config.env.get('env__net_tftp_bootable_file', None)
     if not f:
         pytest.skip('No TFTP bootable file to read')
@@ -213,6 +223,10 @@ def test_net_tftpboot_boot(ubman):
             ubman.cleanup_spawn()
 
 def setup_pxe_boot(ubman):
+    """Setup for the PXE 'boot' test
+
+    Make sure that the file to load via PXE boot has been configured.
+    """
     f = ubman.config.env.get('env__net_pxe_bootable_file', None)
     if not f:
         pytest.skip('No PXE bootable file to read')
