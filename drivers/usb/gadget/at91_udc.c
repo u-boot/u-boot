@@ -228,7 +228,6 @@ static int write_fifo(struct at91_ep *ep, struct at91_request *req)
 	}
 
 	buf = req->req.buf + req->req.actual;
-	prefetch(buf);
 	total = req->req.length - req->req.actual;
 	if (ep->ep.maxpacket < total) {
 		count = ep->ep.maxpacket;
