@@ -1048,7 +1048,8 @@ static int nxp_fspi_of_to_plat(struct udevice *bus)
 	}
 #endif
 
-	dev_dbg(bus, "iobase=<0x%llx>, ahb_addr=<0x%llx>\n", iobase, ahb_addr);
+	dev_dbg(bus, "iobase=<0x%llx>, ahb_addr=<0x%llx>\n",
+			(long long)iobase, (long long)ahb_addr);
 
 	return 0;
 }
