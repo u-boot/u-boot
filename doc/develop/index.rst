@@ -82,7 +82,7 @@ Testing
    :maxdepth: 1
 
    testing
-   py_testing
+   pytest/index
    tests_writing
    tests_sandbox
    binman_tests
