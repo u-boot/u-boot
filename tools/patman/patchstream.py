@@ -792,7 +792,7 @@ def get_metadata_for_test(text):
     return series
 
 def fix_patch(backup_dir, fname, series, cmt, keep_change_id=False,
-              insert_base_commit=False):
+              insert_base_commit=False, cwd=None):
     """Fix up a patch file, by adding/removing as required.
 
     We remove our tags from the patch file, insert changes lists, etc.
@@ -807,10 +807,12 @@ def fix_patch(backup_dir, fname, series, cmt, keep_change_id=False,
         cmt (Commit): Commit object for this patch file
         keep_change_id (bool): Keep the Change-Id tag.
         insert_base_commit (bool): True to add the base commit to the end
+        cwd (str): Directory containing filename, or None for current
 
     Return:
         list: A list of errors, each str, or [] if all ok.
     """
+    fname = os.path.join(cwd or '', fname)
     handle, tmpname = tempfile.mkstemp()
     outfd = os.fdopen(handle, 'w', encoding='utf-8')
     infd = open(fname, 'r', encoding='utf-8')
@@ -827,7 +829,8 @@ def fix_patch(backup_dir, fname, series, cmt, keep_change_id=False,
     shutil.move(tmpname, fname)
     return cmt.warn
 
-def fix_patches(series, fnames, keep_change_id=False, insert_base_commit=False):
+def fix_patches(series, fnames, keep_change_id=False, insert_base_commit=False,
+                cwd=None):
     """Fix up a list of patches identified by filenames
 
     The patch files are processed in place, and overwritten.
@@ -837,6 +840,7 @@ def fix_patches(series, fnames, keep_change_id=False, insert_base_commit=False):
         fnames (:type: list of str): List of patch files to process
         keep_change_id (bool): Keep the Change-Id tag.
         insert_base_commit (bool): True to add the base commit to the end
+        cwd (str): Directory containing the patch files, or None for current
     """
     # Current workflow creates patches, so we shouldn't need a backup
     backup_dir = None  #tempfile.mkdtemp('clean-patch')
@@ -847,7 +851,7 @@ def fix_patches(series, fnames, keep_change_id=False, insert_base_commit=False):
         cmt.count = count
         result = fix_patch(backup_dir, fname, series, cmt,
                            keep_change_id=keep_change_id,
-                           insert_base_commit=insert_base_commit)
+                           insert_base_commit=insert_base_commit, cwd=cwd)
         if result:
             print('%d warning%s for %s:' %
                   (len(result), 's' if len(result) > 1 else '', fname))
@@ -857,14 +861,16 @@ def fix_patches(series, fnames, keep_change_id=False, insert_base_commit=False):
         count += 1
     print('Cleaned %d patch%s' % (count, 'es' if count > 1 else ''))
 
-def insert_cover_letter(fname, series, count):
+def insert_cover_letter(fname, series, count, cwd=None):
     """Inserts a cover letter with the required info into patch 0
 
     Args:
         fname (str): Input / output filename of the cover letter file
         series (Series): Series object
         count (int): Number of patches in the series
+        cwd (str): Directory containing filename, or None for current
     """
+    fname = os.path.join(cwd or '', fname)
     fil = open(fname, 'r')
     lines = fil.readlines()
     fil.close()

@@ -245,7 +245,7 @@ class Series(dict):
 
     def GetCcForCommit(self, commit, process_tags, warn_on_error,
                        add_maintainers, limit, get_maintainer_script,
-                       all_skips, alias):
+                       all_skips, alias, cwd):
         """Get the email CCs to use with a particular commit
 
         Uses subject tags and get_maintainers.pl script to find people to cc
@@ -268,6 +268,7 @@ class Series(dict):
             alias (dict): Alias dictionary
                 key: alias
                 value: list of aliases or email addresses
+            cwd (str): Path to use for patch filenames (None to use current dir)
 
         Returns:
             list of str: List of email addresses to cc
@@ -281,8 +282,8 @@ class Series(dict):
         if type(add_maintainers) == type(cc):
             cc += add_maintainers
         elif add_maintainers:
-            cc += get_maintainer.get_maintainer(get_maintainer_script,
-                                                commit.patch)
+            fname = os.path.join(cwd or '', commit.patch)
+            cc += get_maintainer.get_maintainer(get_maintainer_script, fname)
         all_skips |= set(cc) & set(settings.bounces)
         cc = list(set(cc) - set(settings.bounces))
         if limit is not None:
@@ -290,7 +291,8 @@ class Series(dict):
         return cc
 
     def MakeCcFile(self, process_tags, cover_fname, warn_on_error,
-                   add_maintainers, limit, get_maintainer_script, alias):
+                   add_maintainers, limit, get_maintainer_script, alias,
+                   cwd=None):
         """Make a cc file for us to use for per-commit Cc automation
 
         Also stores in self._generated_cc to make ShowActions() faster.
@@ -309,6 +311,7 @@ class Series(dict):
             alias (dict): Alias dictionary
                 key: alias
                 value: list of aliases or email addresses
+            cwd (str): Path to use for patch filenames (None to use current dir)
         Return:
             Filename of temp file created
         """
@@ -324,7 +327,7 @@ class Series(dict):
                 commit.future = executor.submit(
                     self.GetCcForCommit, commit, process_tags, warn_on_error,
                     add_maintainers, limit, get_maintainer_script, all_skips,
-                    alias)
+                    alias, cwd)
 
             # Show progress any commits that are taking forever
             lastlen = 0

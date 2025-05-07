@@ -15,7 +15,7 @@ from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 
 
-def check_patches(series, patch_files, run_checkpatch, verbose, use_tree):
+def check_patches(series, patch_files, run_checkpatch, verbose, use_tree, cwd):
     """Run some checks on a set of patches
 
     This santiy-checks the patman tags like Series-version and runs the patches
@@ -29,6 +29,7 @@ def check_patches(series, patch_files, run_checkpatch, verbose, use_tree):
         verbose (bool): True to print out every line of the checkpatch output as
             it is parsed
         use_tree (bool): If False we'll pass '--no-tree' to checkpatch.
+        cwd (str): Path to use for patch files (None to use current dir)
 
     Returns:
         bool: True if the patches had no errors, False if they did
@@ -38,7 +39,7 @@ def check_patches(series, patch_files, run_checkpatch, verbose, use_tree):
 
     # Check the patches
     if run_checkpatch:
-        ok = checkpatch.check_patches(verbose, patch_files, use_tree)
+        ok = checkpatch.check_patches(verbose, patch_files, use_tree, cwd)
     else:
         ok = True
     return ok
@@ -46,7 +47,7 @@ def check_patches(series, patch_files, run_checkpatch, verbose, use_tree):
 
 def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
                   ignore_bad_tags, add_maintainers, get_maintainer_script, limit,
-                  dry_run, in_reply_to, thread, smtp_server):
+                  dry_run, in_reply_to, thread, smtp_server, cwd=None):
     """Email patches to the recipients
 
     This emails out the patches and cover letter using 'git send-email'. Each
@@ -85,18 +86,19 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
         thread (bool): True to add --thread to git send-email (make all patches
             reply to cover-letter or first patch in series)
         smtp_server (str): SMTP server to use to send patches (None for default)
+        cwd (str): Path to use for patch files (None to use current dir)
     """
     cc_file = series.MakeCcFile(process_tags, cover_fname, not ignore_bad_tags,
                                 add_maintainers, limit, get_maintainer_script,
-                                settings.alias)
+                                settings.alias, cwd)
 
     # Email the patches out (giving the user time to check / cancel)
     cmd = ''
     if its_a_go:
         cmd = gitutil.email_patches(
             series, cover_fname, patch_files, dry_run, not ignore_bad_tags,
-            cc_file, settings.alias, in_reply_to=in_reply_to, thread=thread,
-            smtp_server=smtp_server)
+            cc_file, alias=settings.alias, in_reply_to=in_reply_to,
+            thread=thread, smtp_server=smtp_server, cwd=cwd)
     else:
         print(col.build(col.RED, "Not sending emails due to errors/warnings"))
 
@@ -110,7 +112,7 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
 
 
 def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
-                    keep_change_id=False):
+                    keep_change_id=False, cwd=None):
     """Figure out what patches to generate, then generate them
 
     The patch files are written to the current directory, e.g. 0001_xxx.patch
@@ -126,6 +128,7 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
             etc.)
         ignore_binary (bool): Don't generate patches for binary files
         keep_change_id (bool): Preserve the Change-Id tag.
+        cwd (str): Path to use for git operations (None to use current dir)
 
     Returns:
         Tuple:
@@ -147,29 +150,31 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
     to_do = count - end
     series = patchstream.get_metadata(branch, start, to_do)
     cover_fname, patch_files = gitutil.create_patches(
-        branch, start, to_do, ignore_binary, series, signoff)
+        branch, start, to_do, ignore_binary, series, signoff,
+        cwd=cwd)
 
     # Fix up the patch files to our liking, and insert the cover letter
     patchstream.fix_patches(series, patch_files, keep_change_id,
-                            insert_base_commit=not cover_fname)
+                            insert_base_commit=not cover_fname, cwd=cwd)
     if cover_fname and series.get('cover'):
-        patchstream.insert_cover_letter(cover_fname, series, to_do)
+        patchstream.insert_cover_letter(cover_fname, series, to_do, cwd=cwd)
     return series, cover_fname, patch_files
 
 
-def send(args):
+def send(args, cwd=None):
     """Create, check and send patches by email
 
     Args:
         args (argparse.Namespace): Arguments to patman
+        cwd (str): Path to use for git operations
     """
     col = terminal.Color()
     series, cover_fname, patch_files = prepare_patches(
         col, args.branch, args.count, args.start, args.end,
         args.ignore_binary, args.add_signoff,
-        keep_change_id=args.keep_change_id)
+        keep_change_id=args.keep_change_id, cwd=cwd)
     ok = check_patches(series, patch_files, args.check_patch,
-                       args.verbose, args.check_patch_use_tree)
+                       args.verbose, args.check_patch_use_tree, cwd)
 
     ok = ok and gitutil.check_suppress_cc_config()
 
@@ -178,4 +183,4 @@ def send(args):
         col, series, cover_fname, patch_files, args.process_tags,
         its_a_go, args.ignore_bad_tags, args.add_maintainers,
         args.get_maintainer_script, args.limit, args.dry_run,
-        args.in_reply_to, args.thread, args.smtp_server)
+        args.in_reply_to, args.thread, args.smtp_server, cwd=cwd)
