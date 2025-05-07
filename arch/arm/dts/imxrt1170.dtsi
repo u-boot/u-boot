@@ -246,6 +246,19 @@
 			#interrupt-cells = <2>;
 		};
 
+		flexspi1: spi@400cc000 {
+			compatible = "nxp,imxrt1170-fspi";
+			reg = <0x400cc000 0x800>, <0x30000000 0x10000000>;
+			reg-names = "fspi_base", "fspi_mmap";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			interrupts = <130>;
+			clocks = <&clks IMXRT1170_CLK_DUMMY>,
+				<&clks IMXRT1170_CLK_FLEXSPI1>;
+			clock-names = "fspi_en", "fspi";
+			status = "disabled";
+		};
+
 		gpt1: gpt1@400ec000 {
 			compatible = "fsl,imxrt-gpt";
 			reg = <0x400ec000 0x4000>;
