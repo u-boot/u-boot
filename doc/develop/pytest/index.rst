@@ -19,5 +19,6 @@ Individual tests
 
    test_000_version
    test_bootstage
+   test_efi_loader
    test_net
    test_net_boot
