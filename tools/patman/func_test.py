@@ -223,7 +223,8 @@ class TestFunctional(unittest.TestCase):
         """
         process_tags = True
         ignore_bad_tags = False
-        stefan = b'Stefan Br\xc3\xbcns <stefan.bruens@rwth-aachen.de>'.decode('utf-8')
+        stefan = (b'Stefan Br\xc3\xbcns <stefan.bruens@rwth-aachen.de>'
+                  .decode('utf-8'))
         rick = 'Richard III <richard@palace.gov>'
         mel = b'Lord M\xc3\xablchett <clergy@palace.gov>'.decode('utf-8')
         add_maintainers = [stefan, rick]
@@ -260,43 +261,43 @@ class TestFunctional(unittest.TestCase):
         cc_lines = open(cc_file, encoding='utf-8').read().splitlines()
         os.remove(cc_file)
 
-        lines = iter(out[0].getvalue().splitlines())
+        itr = iter(out[0].getvalue().splitlines())
         self.assertEqual('Cleaned %s patches' % len(series.commits),
-                         next(lines))
-        self.assertEqual('Change log missing for v2', next(lines))
-        self.assertEqual('Change log missing for v3', next(lines))
-        self.assertEqual('Change log for unknown version v4', next(lines))
-        self.assertEqual("Alias 'pci' not found", next(lines))
-        while next(lines) != 'Cc processing complete':
+                         next(itr))
+        self.assertEqual('Change log missing for v2', next(itr))
+        self.assertEqual('Change log missing for v3', next(itr))
+        self.assertEqual('Change log for unknown version v4', next(itr))
+        self.assertEqual("Alias 'pci' not found", next(itr))
+        while next(itr) != 'Cc processing complete':
             pass
-        self.assertIn('Dry run', next(lines))
-        self.assertEqual('', next(lines))
-        self.assertIn('Send a total of %d patches' % count, next(lines))
-        prev = next(lines)
+        self.assertIn('Dry run', next(itr))
+        self.assertEqual('', next(itr))
+        self.assertIn('Send a total of %d patches' % count, next(itr))
+        prev = next(itr)
         for i, commit in enumerate(series.commits):
             self.assertEqual('   %s' % args[i], prev)
             while True:
-                prev = next(lines)
+                prev = next(itr)
                 if 'Cc:' not in prev:
                     break
         self.assertEqual('To:	  u-boot@lists.denx.de', prev)
-        self.assertEqual('Cc:	  %s' % stefan, next(lines))
-        self.assertEqual('Version:  3', next(lines))
-        self.assertEqual('Prefix:\t  RFC', next(lines))
-        self.assertEqual('Postfix:\t  some-branch', next(lines))
-        self.assertEqual('Cover: 4 lines', next(lines))
-        self.assertEqual('      Cc:  %s' % self.fred, next(lines))
-        self.assertEqual('      Cc:  %s' % self.joe, next(lines))
+        self.assertEqual('Cc:	  %s' % stefan, next(itr))
+        self.assertEqual('Version:  3', next(itr))
+        self.assertEqual('Prefix:\t  RFC', next(itr))
+        self.assertEqual('Postfix:\t  some-branch', next(itr))
+        self.assertEqual('Cover: 4 lines', next(itr))
+        self.assertEqual('      Cc:  %s' % self.fred, next(itr))
+        self.assertEqual('      Cc:  %s' % self.joe, next(itr))
         self.assertEqual('      Cc:  %s' % self.leb,
-                         next(lines))
-        self.assertEqual('      Cc:  %s' % mel, next(lines))
-        self.assertEqual('      Cc:  %s' % rick, next(lines))
+                         next(itr))
+        self.assertEqual('      Cc:  %s' % mel, next(itr))
+        self.assertEqual('      Cc:  %s' % rick, next(itr))
         expected = ('Git command: git send-email --annotate '
                     '--in-reply-to="%s" --to u-boot@lists.denx.de '
                     '--cc "%s" --cc-cmd "%s send --cc-cmd %s" %s %s'
                     % (in_reply_to, stefan, sys.argv[0], cc_file, cover_fname,
                        ' '.join(args)))
-        self.assertEqual(expected, next(lines))
+        self.assertEqual(expected, next(itr))
 
         self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)), cc_lines[0])
         self.assertEqual(
@@ -1041,39 +1042,39 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         pwork = patchwork.Patchwork.for_testing(self._fake_patchwork2)
         status.check_and_show_status(series, '1234', None, None, False, False,
                                      pwork)
-        lines = iter(terminal.get_print_test_lines())
+        itr = iter(terminal.get_print_test_lines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.YELLOW),
-                         next(lines))
+                         next(itr))
         self.assertEqual(
             terminal.PrintLine('    Reviewed-by: ', col.GREEN, newline=False,
                                bright=False),
-            next(lines))
+            next(itr))
         self.assertEqual(terminal.PrintLine(self.joe, col.WHITE, bright=False),
-                         next(lines))
+                         next(itr))
 
         self.assertEqual(terminal.PrintLine('  2 Subject 2', col.YELLOW),
-                         next(lines))
+                         next(itr))
         self.assertEqual(
             terminal.PrintLine('    Reviewed-by: ', col.GREEN, newline=False,
                                bright=False),
-            next(lines))
-        self.assertEqual(terminal.PrintLine(self.fred, col.WHITE, bright=False),
-                         next(lines))
+            next(itr))
+        self.assertEqual(terminal.PrintLine(self.fred, col.WHITE,
+                                            bright=False), next(itr))
         self.assertEqual(
             terminal.PrintLine('    Tested-by: ', col.GREEN, newline=False,
                                bright=False),
-            next(lines))
+            next(itr))
         self.assertEqual(terminal.PrintLine(self.leb, col.WHITE, bright=False),
-                         next(lines))
+                         next(itr))
         self.assertEqual(
             terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
-            next(lines))
+            next(itr))
         self.assertEqual(terminal.PrintLine(self.mary, col.WHITE),
-                         next(lines))
+                         next(itr))
         self.assertEqual(terminal.PrintLine(
             '1 new response available in patchwork (use -d to write them to a new branch)',
-            None), next(lines))
+            None), next(itr))
 
     def _fake_patchwork3(self, subpath):
         """Fake Patchwork server for the function below
@@ -1175,18 +1176,18 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         # Now check the actual test of the first commit message. We expect to
         # see the new tags immediately below the old ones.
         stdout = patchstream.get_list(dest_branch, count=count, git_dir=gitdir)
-        lines = iter([line.strip() for line in stdout.splitlines()
-                      if '-by:' in line])
+        itr = iter([line.strip() for line in stdout.splitlines()
+                    if '-by:' in line])
 
         # First patch should have the review tag
-        self.assertEqual('Reviewed-by: %s' % self.joe, next(lines))
+        self.assertEqual('Reviewed-by: %s' % self.joe, next(itr))
 
         # Second patch should have the sign-off then the tested-by and two
         # reviewed-by tags
-        self.assertEqual('Signed-off-by: %s' % self.leb, next(lines))
-        self.assertEqual('Reviewed-by: %s' % self.fred, next(lines))
-        self.assertEqual('Reviewed-by: %s' % self.mary, next(lines))
-        self.assertEqual('Tested-by: %s' % self.leb, next(lines))
+        self.assertEqual('Signed-off-by: %s' % self.leb, next(itr))
+        self.assertEqual('Reviewed-by: %s' % self.fred, next(itr))
+        self.assertEqual('Reviewed-by: %s' % self.mary, next(itr))
+        self.assertEqual('Tested-by: %s' % self.leb, next(itr))
 
     def test_parse_snippets(self):
         """Test parsing of review snippets"""
@@ -1357,75 +1358,77 @@ Reviewed-by: %s
         pwork = patchwork.Patchwork.for_testing(self._fake_patchwork2)
         status.check_and_show_status(series, '1234', None, None, False, True,
                                      pwork)
-        lines = iter(terminal.get_print_test_lines())
+        itr = iter(terminal.get_print_test_lines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.YELLOW),
-                         next(lines))
+                         next(itr))
         self.assertEqual(
             terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
-            next(lines))
-        self.assertEqual(terminal.PrintLine(self.joe, col.WHITE), next(lines))
+            next(itr))
+        self.assertEqual(terminal.PrintLine(self.joe, col.WHITE), next(itr))
 
         self.assertEqual(terminal.PrintLine('Review: %s' % self.joe, col.RED),
-                         next(lines))
-        self.assertEqual(terminal.PrintLine('    Hi Fred,', None), next(lines))
-        self.assertEqual(terminal.PrintLine('', None), next(lines))
+                         next(itr))
+        self.assertEqual(terminal.PrintLine('    Hi Fred,', None), next(itr))
+        self.assertEqual(terminal.PrintLine('', None), next(itr))
         self.assertEqual(terminal.PrintLine('    > File: file.c', col.MAGENTA),
-                         next(lines))
+                         next(itr))
         self.assertEqual(terminal.PrintLine('    > Some code', col.MAGENTA),
-                         next(lines))
-        self.assertEqual(terminal.PrintLine('    > and more code', col.MAGENTA),
-                         next(lines))
+                         next(itr))
+        self.assertEqual(terminal.PrintLine('    > and more code',
+                                            col.MAGENTA),
+                         next(itr))
         self.assertEqual(terminal.PrintLine(
-            '    Here is my comment above the above...', None), next(lines))
-        self.assertEqual(terminal.PrintLine('', None), next(lines))
+            '    Here is my comment above the above...', None), next(itr))
+        self.assertEqual(terminal.PrintLine('', None), next(itr))
 
         self.assertEqual(terminal.PrintLine('  2 Subject 2', col.YELLOW),
-                         next(lines))
+                         next(itr))
         self.assertEqual(
             terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
-            next(lines))
+            next(itr))
         self.assertEqual(terminal.PrintLine(self.fred, col.WHITE),
-                         next(lines))
+                         next(itr))
         self.assertEqual(
             terminal.PrintLine('  + Reviewed-by: ', col.GREEN, newline=False),
-            next(lines))
+            next(itr))
         self.assertEqual(terminal.PrintLine(self.mary, col.WHITE),
-                         next(lines))
+                         next(itr))
         self.assertEqual(
             terminal.PrintLine('  + Tested-by: ', col.GREEN, newline=False),
-            next(lines))
+            next(itr))
         self.assertEqual(terminal.PrintLine(self.leb, col.WHITE),
-                         next(lines))
+                         next(itr))
 
         self.assertEqual(terminal.PrintLine('Review: %s' % self.fred, col.RED),
-                         next(lines))
-        self.assertEqual(terminal.PrintLine('    Hi Fred,', None), next(lines))
-        self.assertEqual(terminal.PrintLine('', None), next(lines))
+                         next(itr))
+        self.assertEqual(terminal.PrintLine('    Hi Fred,', None), next(itr))
+        self.assertEqual(terminal.PrintLine('', None), next(itr))
         self.assertEqual(terminal.PrintLine(
-            '    > File: tools/patman/commit.py', col.MAGENTA), next(lines))
+            '    > File: tools/patman/commit.py', col.MAGENTA), next(itr))
         self.assertEqual(terminal.PrintLine(
-            '    > Line: 41 / 41: class Commit:', col.MAGENTA), next(lines))
+            '    > Line: 41 / 41: class Commit:', col.MAGENTA), next(itr))
         self.assertEqual(terminal.PrintLine(
-            '    > +        return self.subject', col.MAGENTA), next(lines))
+            '    > +        return self.subject', col.MAGENTA), next(itr))
         self.assertEqual(terminal.PrintLine(
-            '    > +', col.MAGENTA), next(lines))
+            '    > +', col.MAGENTA), next(itr))
         self.assertEqual(
-            terminal.PrintLine('    >      def add_change(self, version, info):',
-                               col.MAGENTA),
-            next(lines))
+            terminal.PrintLine(
+                '    >      def add_change(self, version, info):',
+                col.MAGENTA),
+            next(itr))
         self.assertEqual(terminal.PrintLine(
             '    >          """Add a new change line to the change list for a version.',
-            col.MAGENTA), next(lines))
+            col.MAGENTA), next(itr))
         self.assertEqual(terminal.PrintLine(
-            '    >', col.MAGENTA), next(lines))
+            '    >', col.MAGENTA), next(itr))
         self.assertEqual(terminal.PrintLine(
-            '    A comment', None), next(lines))
-        self.assertEqual(terminal.PrintLine('', None), next(lines))
+            '    A comment', None), next(itr))
+        self.assertEqual(terminal.PrintLine('', None), next(itr))
 
         self.assertEqual(terminal.PrintLine(
             '4 new responses available in patchwork (use -d to write them to a new branch)',
-            None), next(lines))
+            None), next(itr))
 
     def test_insert_tags(self):
         """Test inserting of review tags"""
