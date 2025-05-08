@@ -20,13 +20,11 @@ from patman import settings
 PATMAN_DIR = pathlib.Path(__file__).parent
 HAS_TESTS = os.path.exists(PATMAN_DIR / "func_test.py")
 
-def parse_args():
-    """Parse command line arguments from sys.argv[]
+def setup_parser():
+    """Set up command-line parser
 
     Returns:
-        tuple containing:
-            options: command line options
-            args: command lin arguments
+        argparse.Parser object
     """
     epilog = '''Create patches from commits in a branch, check them and email
         them as specified by tags you place in the commits. Use -n to do a dry
@@ -132,14 +130,34 @@ def parse_args():
                         help='Force overwriting an existing branch')
     status.add_argument('-T', '--single-thread', action='store_true',
                         help='Disable multithreading when reading patchwork')
+    return parser
+
+
+def parse_args(argv=None, config_fname=None, parser=None):
+    """Parse command line arguments from sys.argv[]
+
+    Args:
+        argv (str or None): Arguments to process, or None to use sys.argv[1:]
+        config_fname (str): Config file to read, or None for default, or False
+            for an empty config
+
+    Returns:
+        tuple containing:
+            options: command line options
+            args: command lin arguments
+    """
+    if not parser:
+        parser = setup_parser()
 
     # Parse options twice: first to get the project and second to handle
     # defaults properly (which depends on project)
     # Use parse_known_args() in case 'cmd' is omitted
-    argv = sys.argv[1:]
+    if not argv:
+        argv = sys.argv[1:]
+
     args, rest = parser.parse_known_args(argv)
     if hasattr(args, 'project'):
-        settings.Setup(parser, args.project)
+        settings.Setup(parser, args.project, argv, config_fname)
         args, rest = parser.parse_known_args(argv)
 
     # If we have a command, it is safe to parse all arguments

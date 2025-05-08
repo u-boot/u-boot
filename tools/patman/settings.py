@@ -226,7 +226,7 @@ nxp = Zhikang Zhang <zhikang.zhang@nxp.com>
     f.close()
 
 
-def _UpdateDefaults(main_parser, config):
+def _UpdateDefaults(main_parser, config, argv):
     """Update the given OptionParser defaults based on config.
 
     We'll walk through all of the settings from all parsers.
@@ -242,6 +242,7 @@ def _UpdateDefaults(main_parser, config):
             updated.
         config: An instance of _ProjectConfigParser that we will query
             for settings.
+        argv (list of str or None): Arguments to parse
     """
     # Find all the parsers and subparsers
     parsers = [main_parser]
@@ -252,6 +253,7 @@ def _UpdateDefaults(main_parser, config):
     # Collect the defaults from each parser
     defaults = {}
     parser_defaults = []
+    argv = list(argv)
     for parser in parsers:
         pdefs = parser.parse_known_args()[0]
         parser_defaults.append(pdefs)
@@ -273,9 +275,11 @@ def _UpdateDefaults(main_parser, config):
 
     # Set all the defaults and manually propagate them to subparsers
     main_parser.set_defaults(**defaults)
+    assert len(parsers) == len(parser_defaults)
     for parser, pdefs in zip(parsers, parser_defaults):
         parser.set_defaults(**{k: v for k, v in defaults.items()
                                if k in pdefs})
+    return defaults
 
 
 def _ReadAliasFile(fname):
@@ -334,7 +338,7 @@ def GetItems(config, section):
         return []
 
 
-def Setup(parser, project_name, config_fname=None):
+def Setup(parser, project_name, argv, config_fname=None):
     """Set up the settings module by reading config files.
 
     Unless `config_fname` is specified, a `.patman` config file local
@@ -347,8 +351,9 @@ def Setup(parser, project_name, config_fname=None):
         parser:         The parser to update.
         project_name:   Name of project that we're working on; we'll look
             for sections named "project_section" as well.
-        config_fname:   Config filename to read.  An error is raised if it
-            does not exist.
+        config_fname:   Config filename to read, or None for default, or False
+            for an empty config.  An error is raised if it does not exist.
+        argv (list of str or None): Arguments to parse, or None for default
     """
     # First read the git alias file if available
     _ReadAliasFile('doc/git-mailrc')
@@ -357,12 +362,15 @@ def Setup(parser, project_name, config_fname=None):
     if config_fname and not os.path.exists(config_fname):
         raise Exception(f'provided {config_fname} does not exist')
 
-    if not config_fname:
+    if config_fname is None:
         config_fname = '%s/.patman' % os.getenv('HOME')
-    has_config = os.path.exists(config_fname)
-
     git_local_config_fname = os.path.join(gitutil.get_top_level(), '.patman')
-    has_git_local_config = os.path.exists(git_local_config_fname)
+
+    has_config = False
+    has_git_local_config = False
+    if config_fname is not False:
+        has_config = os.path.exists(config_fname)
+        has_git_local_config = os.path.exists(git_local_config_fname)
 
     # Read the git local config last, so that its values override
     # those of the global config, if any.
@@ -371,7 +379,7 @@ def Setup(parser, project_name, config_fname=None):
     if has_git_local_config:
         config.read(git_local_config_fname)
 
-    if not (has_config or has_git_local_config):
+    if config_fname is not False and not (has_config or has_git_local_config):
         print("No config file found.\nCreating ~/.patman...\n")
         CreatePatmanConfigFile(config_fname)
 
@@ -382,7 +390,7 @@ def Setup(parser, project_name, config_fname=None):
     for name, value in GetItems(config, 'bounces'):
         bounces.add(value)
 
-    _UpdateDefaults(parser, config)
+    return _UpdateDefaults(parser, config, argv)
 
 
 # These are the aliases we understand, indexed by alias. Each member is a list.
