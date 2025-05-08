@@ -109,6 +109,8 @@ class PatchStream:
         self.recent_unquoted = queue.Queue()
         self.was_quoted = None
         self.insert_base_commit = insert_base_commit
+        self.lines = []                  # All lines in a commit message
+        self.msg = None                  # Full commit message including subject
 
     @staticmethod
     def process_text(text, is_comment=False):
@@ -190,11 +192,22 @@ class PatchStream:
         """
         self.commit.add_rtag(rtag_type, who)
 
-    def _close_commit(self):
-        """Save the current commit into our commit list, and reset our state"""
+    def _close_commit(self, skip_last_line):
+        """Save the current commit into our commit list, and reset our state
+
+        Args:
+            skip_last_line (bool): True to omit the final line of self.lines
+                when building the commit message. This is normally the blank
+                line between two commits, except at the end of the log, where
+                there is no blank line
+        """
         if self.commit and self.is_log:
+            # Skip the blank line before the subject
+            lines = self.lines[:-1] if skip_last_line else self.lines
+            self.commit.msg = '\n'.join(lines[1:]) + '\n'
             self.series.AddCommit(self.commit)
             self.commit = None
+            self.lines = []
         # If 'END' is missing in a 'Cover-letter' section, and that section
         # happens to show up at the very end of the commit message, this is
         # the chance for us to fix it up.
@@ -345,6 +358,8 @@ class PatchStream:
                 self.state += 1
         elif commit_match:
             self.state = STATE_MSG_HEADER
+        if self.state != STATE_MSG_HEADER:
+            self.lines.append(line)
 
         # If a tag is detected, or a new commit starts
         if series_tag_match or commit_tag_match or change_id_match or \
@@ -499,7 +514,7 @@ class PatchStream:
 
         # Detect the start of a new commit
         elif commit_match:
-            self._close_commit()
+            self._close_commit(True)
             self.commit = commit.Commit(commit_match.group(1))
 
         # Detect tags in the commit message
@@ -579,7 +594,7 @@ class PatchStream:
         """Close out processing of this patch stream"""
         self._finalise_snippet()
         self._finalise_change()
-        self._close_commit()
+        self._close_commit(False)
         if self.lines_after_test:
             self._add_warn('Found %d lines after TEST=' % self.lines_after_test)
 
