@@ -253,6 +253,14 @@ config VPL_USE_TINY_PRINTF
 
 	  The supported format specifiers are %c, %s, %u/%d and %x.
 
+config SPL_USE_TINY_PRINTF_POINTER_SUPPORT
+	bool "Extend tiny printf with the pointer formatting %p"
+	depends on SPL_USE_TINY_PRINTF
+	help
+	  This option enables the formatting of pointers %p. It supports
+	  %p and %pa / %pap. If this option is selected by SPL_NET
+	  it also supports the formatting with %pm, %pM and %pI4.
+
 config PANIC_HANG
 	bool "Do not reset the system on fatal error"
 	help
