@@ -27,6 +27,7 @@
 #include <asm/byteorder.h>
 #include <asm/cache.h>
 #include <asm/io.h>
+#include <u-boot/zlib.h>
 
 static int
 do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
@@ -206,11 +207,18 @@ do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			break;
 #ifdef CONFIG_GZIP
 		case IH_COMP_GZIP:
-			printf("   Uncompressing part %d ... ", part);
-			if (gunzip((void *) dest, unc_len,
-				   (uchar *) data, &len) != 0) {
-				puts("GUNZIP ERROR - image not loaded\n");
-				return 1;
+			{
+				int ret = 0;
+				printf("   Uncompressing part %d ... ", part);
+				ret = gunzip((void *)dest, unc_len,
+					     (uchar *)data, &len);
+				if (ret == Z_BUF_ERROR) {
+					puts("Image too large: increase CONFIG_SYS_XIMG_LEN\n");
+					return 1;
+				} else if (ret != 0) {
+					puts("GUNZIP ERROR - image not loaded\n");
+					return 1;
+				}
 			}
 			break;
 #endif
