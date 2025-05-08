@@ -5,6 +5,36 @@
 
 #include <config.h>
 
+#ifdef CONFIG_ARM64
+#define FIT_ARCH		"arm64"
+#else
+#define FIT_ARCH		"arm"
+#endif
+
+#if defined(CONFIG_SPL_GZIP)
+#define FIT_UBOOT_COMP		"gzip"
+#elif defined(CONFIG_SPL_LZMA)
+#define FIT_UBOOT_COMP		"lzma"
+#else
+#define FIT_UBOOT_COMP		"none"
+#endif
+
+/*
+ * SHA256 should be enabled in SPL when signature validation is involved,
+ * CRC32 should only be used for basic checksum validation of FIT images.
+ */
+#if defined(CONFIG_SPL_FIT_SIGNATURE)
+#if defined(CONFIG_SPL_SHA256)
+#define FIT_HASH_ALGO		"sha256"
+#elif defined(CONFIG_SPL_CRC32)
+#define FIT_HASH_ALGO		"crc32"
+#endif
+#endif
+
+#if defined(CONFIG_SPL_FIT) && (defined(CONFIG_ARM64) || defined(CONFIG_SPL_OPTEE_IMAGE))
+#define HAS_FIT
+#endif
+
 / {
 	binman: binman {
 		multiple-images;
@@ -13,6 +43,126 @@
 
 #ifdef CONFIG_SPL
 &binman {
+#ifdef HAS_FIT
+	fit_template: template-1 {
+		type = "fit";
+#ifdef CONFIG_ARM64
+		description = "FIT image for U-Boot with bl31 (TF-A)";
+#else
+		description = "FIT image with OP-TEE";
+#endif
+		#address-cells = <1>;
+		fit,fdt-list = "of-list";
+		fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+		fit,align = <512>;
+		images {
+			u-boot {
+				description = "U-Boot";
+				type = "standalone";
+				os = "u-boot";
+				arch = FIT_ARCH;
+				compression = FIT_UBOOT_COMP;
+				load = <CONFIG_TEXT_BASE>;
+				entry = <CONFIG_TEXT_BASE>;
+				u-boot-nodtb {
+					compress = FIT_UBOOT_COMP;
+				};
+#ifdef FIT_HASH_ALGO
+				hash {
+					algo = FIT_HASH_ALGO;
+				};
+#endif
+			};
+
+#ifdef CONFIG_ARM64
+			@atf-SEQ {
+				fit,operation = "split-elf";
+				description = "ARM Trusted Firmware";
+				type = "firmware";
+				arch = FIT_ARCH;
+				os = "arm-trusted-firmware";
+				compression = "none";
+				fit,load;
+				fit,entry;
+				fit,data;
+
+				atf-bl31 {
+				};
+#ifdef FIT_HASH_ALGO
+				hash {
+					algo = FIT_HASH_ALGO;
+				};
+#endif
+			};
+			@tee-SEQ {
+				fit,operation = "split-elf";
+				description = "TEE";
+				type = "tee";
+				arch = FIT_ARCH;
+				os = "tee";
+				compression = "none";
+				fit,load;
+				fit,entry;
+				fit,data;
+
+				tee-os {
+					optional;
+				};
+#ifdef FIT_HASH_ALGO
+				hash {
+					algo = FIT_HASH_ALGO;
+				};
+#endif
+			};
+#else /* !CONFIG_ARM64 */
+			op-tee {
+				description = "OP-TEE";
+				type = "tee";
+				arch = FIT_ARCH;
+				os = "tee";
+				compression = "none";
+				load = <(CFG_SYS_SDRAM_BASE + 0x8400000)>;
+				entry = <(CFG_SYS_SDRAM_BASE + 0x8400000)>;
+
+				tee-os {
+				};
+#ifdef FIT_HASH_ALGO
+				hash {
+					algo = FIT_HASH_ALGO;
+				};
+#endif
+			};
+#endif /* CONFIG_ARM64 */
+
+			@fdt-SEQ {
+				description = "fdt-NAME";
+				compression = "none";
+				type = "flat_dt";
+#ifdef FIT_HASH_ALGO
+				hash {
+					algo = FIT_HASH_ALGO;
+				};
+#endif
+			};
+		};
+
+		configurations {
+			default = "@config-DEFAULT-SEQ";
+			@config-SEQ {
+				description = "NAME.dtb";
+				fdt = "fdt-SEQ";
+#ifdef CONFIG_ARM64
+				fit,firmware = "atf-1", "u-boot";
+#else
+				fit,firmware = "op-tee", "u-boot";
+#endif
+				fit,loadables;
+				fit,compatible;
+			};
+		};
+	};
+#endif /* HAS_FIT */
+
 	simple-bin {
 		filename = "u-boot-rockchip.bin";
 		pad-byte = <0xff>;
@@ -33,143 +183,15 @@
 			};
 		};
 
-#if defined(CONFIG_SPL_FIT) && (defined(CONFIG_ARM64) || defined(CONFIG_SPL_OPTEE_IMAGE))
-		fit: fit {
-#ifdef CONFIG_ARM64
-			description = "FIT image for U-Boot with bl31 (TF-A)";
-#else
-			description = "FIT image with OP-TEE";
-#endif
-			#address-cells = <1>;
-			fit,fdt-list = "of-list";
+#ifdef HAS_FIT
+		fit {
 			filename = "u-boot.itb";
-			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
-			fit,align = <512>;
-			offset = <CONFIG_SPL_PAD_TO>;
-			images {
-				u-boot {
-					description = "U-Boot";
-					type = "standalone";
-					os = "U-Boot";
-#ifdef CONFIG_ARM64
-					arch = "arm64";
-#else
-					arch = "arm";
-#endif
-#if defined(CONFIG_SPL_GZIP)
-					compression = "gzip";
-#elif defined(CONFIG_SPL_LZMA)
-					compression = "lzma";
-#else
-					compression = "none";
-#endif
-					load = <CONFIG_TEXT_BASE>;
-					entry = <CONFIG_TEXT_BASE>;
-					u-boot-nodtb {
-#if defined(CONFIG_SPL_GZIP)
-					compress = "gzip";
-#elif defined(CONFIG_SPL_LZMA)
-					compress = "lzma";
-#endif
-					};
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-					hash {
-						algo = "sha256";
-					};
-#endif
-				};
-
-#ifdef CONFIG_ARM64
-				@atf-SEQ {
-					fit,operation = "split-elf";
-					description = "ARM Trusted Firmware";
-					type = "firmware";
-					arch = "arm64";
-					os = "arm-trusted-firmware";
-					compression = "none";
-					fit,load;
-					fit,entry;
-					fit,data;
-
-					atf-bl31 {
-					};
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-					hash {
-						algo = "sha256";
-					};
-#endif
-				};
-				@tee-SEQ {
-					fit,operation = "split-elf";
-					description = "TEE";
-					type = "tee";
-					arch = "arm64";
-					os = "tee";
-					compression = "none";
-					fit,load;
-					fit,entry;
-					fit,data;
-
-					tee-os {
-						optional;
-					};
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-					hash {
-						algo = "sha256";
-					};
-#endif
-				};
-#else
-				op-tee {
-					description = "OP-TEE";
-					type = "tee";
-					arch = "arm";
-					os = "tee";
-					compression = "none";
-					load = <(CFG_SYS_SDRAM_BASE + 0x8400000)>;
-					entry = <(CFG_SYS_SDRAM_BASE + 0x8400000)>;
-
-					tee-os {
-					};
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-					hash {
-						algo = "sha256";
-					};
-#endif
-				};
-#endif
-
-				@fdt-SEQ {
-					description = "fdt-NAME";
-					compression = "none";
-					type = "flat_dt";
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-					hash {
-						algo = "sha256";
-					};
-#endif
-				};
-			};
-
-			configurations {
-				default = "@config-DEFAULT-SEQ";
-				@config-SEQ {
-					description = "NAME.dtb";
-					fdt = "fdt-SEQ";
-#ifdef CONFIG_ARM64
-					fit,firmware = "atf-1", "u-boot";
-#else
-					fit,firmware = "op-tee", "u-boot";
-#endif
-					fit,loadables;
-				};
-			};
-		};
+			insert-template = <&fit_template>;
 #else
 		u-boot-img {
+#endif
 			offset = <CONFIG_SPL_PAD_TO>;
 		};
-#endif
 	};
 
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
@@ -193,10 +215,9 @@
 			};
 		};
 
-#if defined(CONFIG_ARM64) || defined(CONFIG_SPL_OPTEE_IMAGE)
+#ifdef HAS_FIT
 		fit {
-			type = "blob";
-			filename = "u-boot.itb";
+			insert-template = <&fit_template>;
 #else
 		u-boot-img {
 #endif

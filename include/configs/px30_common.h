@@ -18,12 +18,14 @@
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \
+	"script_offset_f=0xffe000\0" \
+	"script_size_f=0x2000\0" \
 	"pxefile_addr_r=0x00600000\0" \
-	"fdt_addr_r=0x08300000\0" \
-	"fdtoverlay_addr_r=0x08400000\0" \
-	"kernel_addr_r=0x00280000\0" \
-	"ramdisk_addr_r=0x0a200000\0" \
-	"kernel_comp_addr_r=0x03e80000\0" \
+	"fdt_addr_r=0x01e00000\0" \
+	"fdtoverlay_addr_r=0x01f00000\0" \
+	"kernel_addr_r=0x02080000\0" \
+	"ramdisk_addr_r=0x06000000\0" \
+	"kernel_comp_addr_r=0x08000000\0" \
 	"kernel_comp_size=0x2000000\0"
 
 #define CFG_EXTRA_ENV_SETTINGS \

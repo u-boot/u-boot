@@ -36,6 +36,12 @@ F:	configs/orangepi-5-rk3588s_defconfig
 F:	arch/arm/dts/rk3588s-orangepi-5.dts
 F:	arch/arm/dts/rk3588s-orangepi-5-u-boot.dtsi
 
+ORANGEPI-5-MAX-RK3588
+M:	Ilya Katsnelson <me@0upti.me>
+S:	Maintained
+F:	configs/orangepi-5-max-rk3588_defconfig
+F:	arch/arm/dts/rk3588-orangepi-5-max-u-boot.dtsi
+
 ORANGEPI-5-PLUS-RK3588
 M:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained

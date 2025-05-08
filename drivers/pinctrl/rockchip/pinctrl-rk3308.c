@@ -421,7 +421,7 @@ static struct rockchip_pin_bank rk3308_pin_banks[] = {
 					     IOMUX_8WIDTH_2BIT),
 };
 
-static struct rockchip_pin_ctrl rk3308_pin_ctrl = {
+static const struct rockchip_pin_ctrl rk3308_pin_ctrl = {
 	.pin_banks		= rk3308_pin_banks,
 	.nr_banks		= ARRAY_SIZE(rk3308_pin_banks),
 	.grf_mux_offset		= 0x0,

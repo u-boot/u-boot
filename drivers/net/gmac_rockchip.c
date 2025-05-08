@@ -151,26 +151,51 @@ static int rk3228_gmac_fix_mac_speed(struct dw_eth_dev *priv)
 
 static int rk3288_gmac_fix_mac_speed(struct dw_eth_dev *priv)
 {
+	struct dw_eth_pdata *dw_pdata = dev_get_plat(priv->dev);
+	struct eth_pdata *eth_pdata = &dw_pdata->eth_pdata;
 	struct rk3288_grf *grf;
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	int clk;
 
-	switch (priv->phydev->speed) {
-	case 10:
-		clk = RK3288_GMAC_CLK_SEL_2_5M;
-		break;
-	case 100:
-		clk = RK3288_GMAC_CLK_SEL_25M;
-		break;
-	case 1000:
-		clk = RK3288_GMAC_CLK_SEL_125M;
-		break;
-	default:
-		debug("Unknown phy speed: %d\n", priv->phydev->speed);
-		return -EINVAL;
-	}
+	if (eth_pdata->phy_interface == PHY_INTERFACE_MODE_RMII) {
+		switch (priv->phydev->speed) {
+		case 10:
+			rk_clrsetreg(&grf->soc_con1,
+				     RK3288_RMII_CLK_SEL_MASK |
+				     RK3288_GMAC_SPEED_MASK,
+				     RK3288_RMII_CLK_SEL_2_5M |
+				     RK3288_GMAC_SPEED_10M);
+			break;
+		case 100:
+			rk_clrsetreg(&grf->soc_con1,
+				     RK3288_RMII_CLK_SEL_MASK |
+				     RK3288_GMAC_SPEED_MASK,
+				     RK3288_RMII_CLK_SEL_25M |
+				     RK3288_GMAC_SPEED_100M);
+			break;
+		default:
+			debug("Unknown phy speed: %d\n", priv->phydev->speed);
+			return -EINVAL;
+		}
+	} else {
+		switch (priv->phydev->speed) {
+		case 10:
+			clk = RK3288_GMAC_CLK_SEL_2_5M;
+			break;
+		case 100:
+			clk = RK3288_GMAC_CLK_SEL_25M;
+			break;
+		case 1000:
+			clk = RK3288_GMAC_CLK_SEL_125M;
+			break;
 
-	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	rk_clrsetreg(&grf->soc_con1, RK3288_GMAC_CLK_SEL_MASK, clk);
+		default:
+			debug("Unknown phy speed: %d\n", priv->phydev->speed);
+			return -EINVAL;
+		}
+
+		rk_clrsetreg(&grf->soc_con1, RK3288_GMAC_CLK_SEL_MASK, clk);
+	}
 
 	return 0;
 }
@@ -399,6 +424,17 @@ static void rk3228_gmac_set_to_rgmii(struct gmac_rockchip_plat *pdata)
 		     RK3228_CLK_TX_DL_CFG_GMAC_MASK,
 		     pdata->rx_delay << RK3228_CLK_RX_DL_CFG_GMAC_SHIFT |
 		     pdata->tx_delay << RK3228_CLK_TX_DL_CFG_GMAC_SHIFT);
+}
+
+static void rk3288_gmac_set_to_rmii(struct gmac_rockchip_plat *pdata)
+{
+	struct rk3288_grf *grf;
+
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+
+	rk_clrsetreg(&grf->soc_con1,
+		     RK3288_GMAC_PHY_INTF_SEL_MASK | RK3288_RMII_MODE_MASK,
+		     RK3288_GMAC_PHY_INTF_SEL_RMII | RK3288_RMII_MODE);
 }
 
 static void rk3288_gmac_set_to_rgmii(struct gmac_rockchip_plat *pdata)
@@ -703,6 +739,7 @@ const struct rk_gmac_ops rk3228_gmac_ops = {
 const struct rk_gmac_ops rk3288_gmac_ops = {
 	.fix_mac_speed = rk3288_gmac_fix_mac_speed,
 	.set_to_rgmii = rk3288_gmac_set_to_rgmii,
+	.set_to_rmii = rk3288_gmac_set_to_rmii,
 };
 
 const struct rk_gmac_ops rk3308_gmac_ops = {

@@ -279,7 +279,7 @@ static struct rockchip_pin_bank rk3399_pin_banks[] = {
 			   ),
 };
 
-static struct rockchip_pin_ctrl rk3399_pin_ctrl = {
+static const struct rockchip_pin_ctrl rk3399_pin_ctrl = {
 	.pin_banks		= rk3399_pin_banks,
 	.nr_banks		= ARRAY_SIZE(rk3399_pin_banks),
 	.grf_mux_offset		= 0xe000,
