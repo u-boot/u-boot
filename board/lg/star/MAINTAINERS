@@ -1,0 +1,7 @@
+STAR BOARD
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+S:	Maintained
+F:	arch/arm/dts/tegra20-lg-star.dts
+F:	board/lg/star/
+F:	configs/star_defconfig
+F:	doc/board/lg/star.rst

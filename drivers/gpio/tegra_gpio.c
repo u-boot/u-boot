@@ -248,6 +248,16 @@ static int tegra_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 	return 0;
 }
 
+static int tegra_gpio_rfree(struct udevice *dev, unsigned int offset)
+{
+	struct tegra_port_info *state = dev_get_priv(dev);
+
+	/* Set the pin as a SFIO */
+	set_config(state->base_gpio + offset, CFG_SFIO);
+
+	return 0;
+}
+
 static const struct dm_gpio_ops gpio_tegra_ops = {
 	.direction_input	= tegra_gpio_direction_input,
 	.direction_output	= tegra_gpio_direction_output,
@@ -255,6 +265,7 @@ static const struct dm_gpio_ops gpio_tegra_ops = {
 	.set_value		= tegra_gpio_set_value,
 	.get_function		= tegra_gpio_get_function,
 	.xlate			= tegra_gpio_xlate,
+	.rfree			= tegra_gpio_rfree,
 };
 
 /*

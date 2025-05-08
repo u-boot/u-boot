@@ -6,11 +6,12 @@ config SYS_BOARD
 config SYS_VENDOR
 	default "nvidia"
 
-config SYS_CONFIG_NAME
-	default "tegratab"
-
 config TEGRA_BOARD_STRING
 	string "Default Tegra board name"
 	default "NVIDIA TegraTab"
+
+config TEGRA_PRAM_SIZE
+	depends on TEGRA_PRAM
+	default 0x21c00
 
 endif

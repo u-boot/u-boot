@@ -581,6 +581,14 @@ config VIDEO_LCD_LG_LD070WX3
 	  Say Y here if you want to enable support for LG LD070WX3
 	  800x1280 DSI video mode panel.
 
+config VIDEO_LCD_LG_LH400WV3
+	bool "LH400WV3-SD04 DSI LCD panel support"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for LG LH400WV3
+	  480x800 DSI video mode panel.
+
 config VIDEO_LCD_RAYDIUM_RM68200
 	bool "RM68200 DSI LCD panel support"
 	select VIDEO_MIPI_DSI
@@ -667,6 +675,14 @@ config VIDEO_LCD_TDO_TL070WSH30
 	help
 	Say Y here if you want to enable support for TDO TL070WSH30
 	1024x600 DSI video mode panel.
+
+config VIDEO_LCD_HITACHI_TX10D07VM0BAA
+	tristate "Hitachi TX10D07VM0BAA 480x800 MIPI DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for Hitachi TX10D07VM0BAA
+	  TFT-LCD module. The panel has a 480x800 resolution.
 
 config VIDEO_LCD_HITACHI_TX18D42VM
 	bool "Hitachi tx18d42vm LVDS LCD panel support"
@@ -766,6 +782,16 @@ config ATMEL_HLCD
 	imply VIDEO_DAMAGE
 	help
 	   HLCDC supports video output to an attached LCD panel.
+
+config BACKLIGHT_AAT2870
+	bool "Backlight Driver for AAT2870"
+	depends on BACKLIGHT
+	select DM_I2C
+	help
+	  Say Y to enable the backlight driver for Skyworks AAT2870 LED
+	  Backlight Driver and Multiple LDO Lighting Management Unit.
+	  Only backlight is supported as for now. Supported backlight
+	  level range is from 2 to 255 with step of 1.
 
 config BACKLIGHT_LM3532
 	bool "Backlight Driver for LM3532"

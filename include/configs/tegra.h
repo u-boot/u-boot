@@ -29,6 +29,10 @@
 #include "tegra210-common.h"
 #endif
 
+#ifdef CONFIG_TEGRA_PRAM
+  #define CFG_PRAM CONFIG_TEGRA_PRAM_SIZE
+#endif
+
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

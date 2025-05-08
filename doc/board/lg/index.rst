@@ -6,4 +6,5 @@ LG
 .. toctree::
    :maxdepth: 2
 
+   star
    x3_t30

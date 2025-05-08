@@ -6,11 +6,12 @@ config SYS_BOARD
 config SYS_VENDOR
 	default "asus"
 
-config SYS_CONFIG_NAME
-	default "transformer-t114"
-
 config TEGRA_BOARD_STRING
 	string "Default Tegra board name"
 	default "ASUS Transformer T114"
+
+config TEGRA_PRAM_SIZE
+	depends on TEGRA_PRAM
+	default 0x20000
 
 endif
