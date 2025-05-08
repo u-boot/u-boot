@@ -18,6 +18,7 @@ import unittest
 
 import pygit2
 
+from u_boot_pylib import command
 from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import tools
@@ -83,6 +84,8 @@ class TestFunctional(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp(prefix='patman.')
         self.gitdir = os.path.join(self.tmpdir, '.git')
         self.repo = None
+        self._patman_pathname = sys.argv[0]
+        self._patman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
     def tearDown(self):
         if self.preserve_outdirs:
@@ -783,6 +786,28 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
                 str(exc.exception))
         finally:
             os.chdir(orig_dir)
+
+    def _RunPatman(self, *args):
+        all_args = [self._patman_pathname] + list(args)
+        return command.run_one(*all_args, capture=True, capture_stderr=True)
+
+    def testFullHelp(self):
+        command.TEST_RESULT = None
+        result = self._RunPatman('-H')
+        help_file = os.path.join(self._patman_dir, 'README.rst')
+        # Remove possible extraneous strings
+        extra = '::::::::::::::\n' + help_file + '\n::::::::::::::\n'
+        gothelp = result.stdout.replace(extra, '')
+        self.assertEqual(len(gothelp), os.path.getsize(help_file))
+        self.assertEqual(0, len(result.stderr))
+        self.assertEqual(0, result.return_code)
+
+    def testHelp(self):
+        command.TEST_RESULT = None
+        result = self._RunPatman('-h')
+        self.assertTrue(len(result.stdout) > 1000)
+        self.assertEqual(0, len(result.stderr))
+        self.assertEqual(0, result.return_code)
 
     @staticmethod
     def _fake_patchwork(subpath):
