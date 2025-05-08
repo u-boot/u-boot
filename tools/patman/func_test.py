@@ -59,6 +59,10 @@ class TestFunctional(unittest.TestCase):
     verbosity = False
     preserve_outdirs = False
 
+    # Fake patchwork info for testing
+    SERIES_ID_SECOND_V1 = 456
+    TITLE_SECOND = 'Series for my board'
+
     @classmethod
     def setup_test_args(cls, preserve_indir=False, preserve_outdirs=False,
                         toolpath=None, verbosity=None, no_capture=False):
@@ -508,16 +512,17 @@ a very nice colour.
 Purple and purple
 Even more purple
 Could not be any more purple''')
-        self.make_commit_with_file('serial: Add a serial driver', '''
+        self.make_commit_with_file('serial: Add a serial driver', f'''
 Here is the serial driver
 for my chip.
 
 Cover-letter:
-Series for my board
+{self.TITLE_SECOND}
 This series implements support
 for my glorious board.
 END
-Series-links: 183237
+Series-to: u-boot
+Series-links: {self.SERIES_ID_SECOND_V1}
 ''', 'serial.c', '''The code for the
 serial driver is here''')
         self.make_commit_with_file('bootm: Make it boot', '''
