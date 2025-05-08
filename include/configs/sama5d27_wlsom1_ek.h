@@ -15,10 +15,4 @@
 #undef CFG_SYS_AT91_MAIN_CLOCK
 #define CFG_SYS_AT91_MAIN_CLOCK      24000000 /* from 24 MHz crystal */
 
-/* SDRAM */
-#define CFG_SYS_SDRAM_BASE		0x20000000
-#define CFG_SYS_SDRAM_SIZE		0x10000000
-
-/* SPL */
-
 #endif
