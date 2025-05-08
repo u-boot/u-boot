@@ -78,7 +78,7 @@ class TestFunctional(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='patman.')
-        self.gitdir = os.path.join(self.tmpdir, 'git')
+        self.gitdir = os.path.join(self.tmpdir, '.git')
         self.repo = None
 
     def tearDown(self):
@@ -416,7 +416,7 @@ Changes in v2:
             fname (str): Filename of file to create
             text (str): Text to put into the file
         """
-        path = os.path.join(self.gitdir, fname)
+        path = os.path.join(self.tmpdir, fname)
         tools.write_file(path, text, binary=False)
         index = self.repo.index
         index.add(fname)
@@ -550,7 +550,7 @@ complicated as possible''')
         control.setup()
         orig_dir = os.getcwd()
         try:
-            os.chdir(self.gitdir)
+            os.chdir(self.tmpdir)
 
             # Check that it can detect the current branch
             self.assertEqual(2, gitutil.count_commits_to_branch(None))
@@ -602,7 +602,7 @@ complicated as possible''')
     def test_custom_get_maintainer_script(self):
         """Validate that a custom get_maintainer script gets used."""
         self.make_git_tree()
-        with directory_excursion(self.gitdir):
+        with directory_excursion(self.tmpdir):
             # Setup git.
             os.environ['GIT_CONFIG_GLOBAL'] = '/dev/null'
             os.environ['GIT_CONFIG_SYSTEM'] = '/dev/null'
@@ -610,8 +610,6 @@ complicated as possible''')
             tools.run('git', 'config', 'user.email', 'dumdum@dummy.com')
             tools.run('git', 'branch', 'upstream')
             tools.run('git', 'branch', '--set-upstream-to=upstream')
-            tools.run('git', 'add', '.')
-            tools.run('git', 'commit', '-m', 'new commit')
 
             # Setup patman configuration.
             with open('.patman', 'w', buffering=1) as f:
@@ -623,6 +621,8 @@ complicated as possible''')
                 f.write('#!/usr/bin/env python\n'
                         'print("hello@there.com")\n')
             os.chmod('dummy-script.sh', 0x555)
+            tools.run('git', 'add', '.')
+            tools.run('git', 'commit', '-m', 'new commit')
 
             # Finally, do the test
             with terminal.capture():
@@ -1108,7 +1108,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         branch = 'first'
         dest_branch = 'first2'
         count = 2
-        gitdir = os.path.join(self.gitdir, '.git')
+        gitdir = self.gitdir
 
         # Set up the test git tree. We use branch 'first' which has two commits
         # in it
