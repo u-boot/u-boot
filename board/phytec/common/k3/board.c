@@ -121,24 +121,37 @@ enum env_location env_get_location(enum env_operation op, int prio)
 }
 
 #if IS_ENABLED(CONFIG_BOARD_LATE_INIT)
-int board_late_init(void)
+/**
+ * Ensure the boot order favors the device we just booted from.
+ * If boot_targets is still at its default value, move the current
+ * boot device to the front of the list. Otherwise, leave any customized
+ * order untouched.
+ */
+static void boot_targets_setup(void)
 {
 	u32 boot_device = get_boot_device();
+	const char *boot_targets = NULL;
+	char boot_targets_default[100];
+	int ret;
 
 	switch (boot_device) {
 	case BOOT_DEVICE_MMC1:
 		env_set_ulong("mmcdev", 0);
 		env_set("boot", "mmc");
+		boot_targets = "mmc0 mmc1 spi_flash dhcp";
 		break;
 	case BOOT_DEVICE_MMC2:
 		env_set_ulong("mmcdev", 1);
 		env_set("boot", "mmc");
+		boot_targets = "mmc1 mmc0 spi_flash dhcp";
 		break;
 	case BOOT_DEVICE_SPI:
 		env_set("boot", "spi");
+		boot_targets = "spi_flash mmc0 mmc1 dhcp";
 		break;
 	case BOOT_DEVICE_ETHERNET:
 		env_set("boot", "net");
+		boot_targets = "dhcp mmc0 mmc1 spi_flash";
 		break;
 	case BOOT_DEVICE_UART:
 		env_set("boot", "uart");
@@ -147,6 +160,25 @@ int board_late_init(void)
 		env_set("boot", "usbdfu");
 		break;
 	};
+
+	if (!boot_targets)
+		return;
+
+	ret = env_get_default_into("boot_targets", boot_targets_default, sizeof(boot_targets_default));
+	if (ret < 0)
+		boot_targets_default[0] = '\0';
+
+	if (strcmp(boot_targets_default, env_get("boot_targets"))) {
+		debug("boot_targets not default, don't change it\n");
+		return;
+	}
+
+	env_set("boot_targets", boot_targets);
+}
+
+int board_late_init(void)
+{
+	boot_targets_setup();
 
 	if (IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS)) {
 		struct phytec_api3_element *block_element;
