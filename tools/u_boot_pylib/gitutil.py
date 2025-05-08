@@ -13,7 +13,7 @@ USE_NO_DECORATE = True
 
 
 def log_cmd(commit_range, git_dir=None, oneline=False, reverse=False,
-            count=None):
+            count=None, decorate=False):
     """Create a command to perform a 'git log'
 
     Args:
@@ -31,8 +31,10 @@ def log_cmd(commit_range, git_dir=None, oneline=False, reverse=False,
     cmd += ['--no-pager', 'log', '--no-color']
     if oneline:
         cmd.append('--oneline')
-    if USE_NO_DECORATE:
+    if USE_NO_DECORATE and not decorate:
         cmd.append('--no-decorate')
+    if decorate:
+        cmd.append('--decorate')
     if reverse:
         cmd.append('--reverse')
     if count is not None:
@@ -90,9 +92,11 @@ def name_revision(commit_hash):
         Name of revision, if any, else None
     """
     stdout = command.output_one_line('git', 'name-rev', commit_hash)
+    if not stdout:
+        return None
 
     # We expect a commit, a space, then a revision name
-    name = stdout.split(' ')[1].strip()
+    name = stdout.split()[1].strip()
     return name
 
 
@@ -112,18 +116,21 @@ def guess_upstream(git_dir, branch):
             Name of upstream branch (e.g. 'upstream/master') or None if none
             Warning/error message, or None if none
     """
-    cmd = log_cmd(branch, git_dir=git_dir, oneline=True, count=100)
+    cmd = log_cmd(branch, git_dir=git_dir, oneline=True, count=100,
+                  decorate=True)
     result = command.run_one(*cmd, capture=True, capture_stderr=True,
                              raise_on_error=False)
     if result.return_code:
         return None, f"Branch '{branch}' not found"
     for line in result.stdout.splitlines()[1:]:
-        commit_hash = line.split(' ')[0]
-        name = name_revision(commit_hash)
-        if '~' not in name and '^' not in name:
-            if name.startswith('remotes/'):
-                name = name[8:]
-            return name, f"Guessing upstream as '{name}'"
+        parts = line.split(maxsplit=1)
+        if len(parts) >= 2 and parts[1].startswith('('):
+            commit_hash = parts[0]
+            name = name_revision(commit_hash)
+            if '~' not in name and '^' not in name:
+                if name.startswith('remotes/'):
+                    name = name[8:]
+                return name, f"Guessing upstream as '{name}'"
     return None, f"Cannot find a suitable upstream for branch '{branch}'"
 
 
