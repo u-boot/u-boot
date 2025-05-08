@@ -29,6 +29,18 @@ static struct efi_system_table *systable;
 static const efi_guid_t efi_dt_fixup_protocol_guid = EFI_DT_FIXUP_PROTOCOL_GUID;
 static const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
 static const efi_guid_t efi_system_partition_guid = PARTITION_SYSTEM_GUID;
+static bool nocolor;
+
+/**
+ * color() - set foreground color
+ *
+ * @color:	foreground color
+ */
+static void color(u8 color)
+{
+	if (!nocolor)
+		cout->set_attribute(cout, color | EFI_BACKGROUND_BLACK);
+}
 
 /**
  * print() - print string
@@ -88,15 +100,34 @@ static void printx(unsigned char val)
 }
 
 /**
+ * cls() - clear screen
+ */
+static void cls(void)
+{
+	if (nocolor)
+		print(u"\r\n");
+	else
+		cout->clear_screen(cout);
+}
+
+/**
  * error() - print error string
  *
  * @string:	error text
  */
 static void error(u16 *string)
 {
-	cout->set_attribute(cout, EFI_LIGHTRED | EFI_BACKGROUND_BLACK);
+	color(EFI_LIGHTRED);
 	print(string);
-	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
+	color(EFI_LIGHTBLUE);
+}
+
+/**
+ * efi_drain_input() - drain console input
+ */
+static void efi_drain_input(void)
+{
+	cin->reset(cin, true);
 }
 
 /**
@@ -116,8 +147,6 @@ static efi_status_t efi_input_yn(void)
 	efi_uintn_t index;
 	efi_status_t ret;
 
-	/* Drain the console input */
-	ret = cin->reset(cin, true);
 	for (;;) {
 		ret = bs->wait_for_event(1, &cin->wait_for_key, &index);
 		if (ret != EFI_SUCCESS)
@@ -158,8 +187,6 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
 	u16 outbuf[2] = u" ";
 	efi_status_t ret;
 
-	/* Drain the console input */
-	ret = cin->reset(cin, true);
 	*buffer = 0;
 	for (;;) {
 		ret = bs->wait_for_event(1, &cin->wait_for_key, &index);
@@ -262,6 +289,9 @@ static u16 *skip_whitespace(u16 *pos)
  */
 static bool starts_with(u16 *string, u16 *keyword)
 {
+	if (!string || !keyword)
+		return false;
+
 	for (; *keyword; ++string, ++keyword) {
 		if (*string != *keyword)
 			return false;
@@ -737,6 +767,7 @@ static efi_status_t do_dump(void)
 				error(u"Missing end node\r\n");
 				return EFI_LOAD_ERROR;
 			}
+			print(u"\r\n");
 			return EFI_SUCCESS;
 		default:
 			error(u"Invalid device tree token\r\n");
@@ -749,6 +780,30 @@ static efi_status_t do_dump(void)
 }
 
 /**
+ * get_load_options() - get load options
+ *
+ * Return:	load options or NULL
+ */
+static u16 *get_load_options(void)
+{
+	efi_status_t ret;
+	struct efi_loaded_image *loaded_image;
+
+	ret = bs->open_protocol(handle, &loaded_image_guid,
+				(void **)&loaded_image, NULL, NULL,
+				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+	if (ret != EFI_SUCCESS) {
+		error(u"Loaded image protocol not found\r\n");
+		return NULL;
+	}
+
+	if (!loaded_image->load_options_size || !loaded_image->load_options)
+		return NULL;
+
+	return loaded_image->load_options;
+}
+
+/**
  * efi_main() - entry point of the EFI application.
  *
  * @handle:	handle of the loaded image
@@ -758,24 +813,31 @@ static efi_status_t do_dump(void)
 efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 			     struct efi_system_table *systab)
 {
+	u16 *load_options;
+
 	handle = image_handle;
 	systable = systab;
 	cerr = systable->std_err;
 	cout = systable->con_out;
 	cin = systable->con_in;
 	bs = systable->boottime;
+	load_options = get_load_options();
 
-	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
-	cout->clear_screen(cout);
-	cout->set_attribute(cout, EFI_WHITE | EFI_BACKGROUND_BLACK);
+	if (starts_with(load_options, u"nocolor"))
+		nocolor = true;
+
+	color(EFI_LIGHTBLUE);
+	cls();
+	color(EFI_WHITE);
 	print(u"DTB Dump\r\n========\r\n\r\n");
-	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
+	color(EFI_LIGHTBLUE);
 
 	for (;;) {
 		u16 command[BUFFER_SIZE];
 		u16 *pos;
 		efi_uintn_t ret;
 
+		efi_drain_input();
 		print(u"=> ");
 		ret = efi_input(command, sizeof(command));
 		if (ret == EFI_ABORTED)
@@ -793,7 +855,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 			do_help();
 	}
 
-	cout->set_attribute(cout, EFI_LIGHTGRAY | EFI_BACKGROUND_BLACK);
-	cout->clear_screen(cout);
+	color(EFI_LIGHTGRAY);
+	cls();
 	return EFI_SUCCESS;
 }
