@@ -16,6 +16,11 @@ import sys
 import tempfile
 import unittest
 
+import pygit2
+
+from u_boot_pylib import gitutil
+from u_boot_pylib import terminal
+from u_boot_pylib import tools
 
 from patman.commit import Commit
 from patman import control
@@ -24,12 +29,6 @@ from patman.patchstream import PatchStream
 from patman import patchwork
 from patman import send
 from patman.series import Series
-from patman import settings
-from u_boot_pylib import gitutil
-from u_boot_pylib import terminal
-from u_boot_pylib import tools
-
-import pygit2
 from patman import status
 
 PATMAN_DIR = pathlib.Path(__file__).parent
@@ -278,7 +277,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('', next(itr))
         self.assertIn('Send a total of %d patches' % count, next(itr))
         prev = next(itr)
-        for i, commit in enumerate(series.commits):
+        for i in range(len(series.commits)):
             self.assertEqual('   %s' % args[i], prev)
             while True:
                 prev = next(itr)
@@ -389,7 +388,8 @@ Changes in v2:
     def test_base_commit(self):
         """Test adding a base commit with no cover letter"""
         orig_text = self._get_text('test01.txt')
-        pos = orig_text.index('commit 5ab48490f03051875ab13d288a4bf32b507d76fd')
+        pos = orig_text.index(
+            'commit 5ab48490f03051875ab13d288a4bf32b507d76fd')
         text = orig_text[:pos]
         series = patchstream.get_metadata_for_test(text)
         series.base_commit = Commit('1a44532')
@@ -582,7 +582,7 @@ complicated as possible''')
             # Check that it can detect a different branch
             self.assertEqual(3, gitutil.count_commits_to_branch('second'))
             with terminal.capture() as _:
-                series, cover_fname, patch_files = send.prepare_patches(
+                _, cover_fname, patch_files = send.prepare_patches(
                     col, branch='second', count=-1, start=0, end=0,
                     ignore_binary=False, signoff=True)
             self.assertIsNotNone(cover_fname)
@@ -629,14 +629,13 @@ complicated as possible''')
             tools.run('git', 'branch', '--set-upstream-to=upstream')
 
             # Setup patman configuration.
-            with open('.patman', 'w', buffering=1) as f:
-                f.write('[settings]\n'
-                        'get_maintainer_script: dummy-script.sh\n'
-                        'check_patch: False\n'
-                        'add_maintainers: True\n')
-            with open('dummy-script.sh', 'w', buffering=1) as f:
-                f.write('#!/usr/bin/env python\n'
-                        'print("hello@there.com")\n')
+            tools.write_file('.patman', '[settings]\n'
+                             'get_maintainer_script: dummy-script.sh\n'
+                             'check_patch: False\n'
+                             'add_maintainers: True\n', binary=False)
+            tools.write_file('dummy-script.sh',
+                             '#!/usr/bin/env python\n'
+                             'print("hello@there.com")\n', binary=False)
             os.chmod('dummy-script.sh', 0x555)
             tools.run('git', 'add', '.')
             tools.run('git', 'commit', '-m', 'new commit')
@@ -669,7 +668,7 @@ Tested-by: %s
 Serie-version: 2
 '''
         with self.assertRaises(ValueError) as exc:
-            pstrm = PatchStream.process_text(text)
+            PatchStream.process_text(text)
         self.assertEqual("Line 3: Invalid tag = 'Serie-version: 2'",
                          str(exc.exception))
 
@@ -747,9 +746,9 @@ index c072e54..942244f 100644
 --- a/lib/fdtdec.c
 +++ b/lib/fdtdec.c
 @@ -1200,7 +1200,8 @@ int fdtdec_setup_mem_size_base(void)
- 	}
+ \t}
 
- 	gd->ram_size = (phys_size_t)(res.end - res.start + 1);
+ \tgd->ram_size = (phys_size_t)(res.end - res.start + 1);
 -	debug("%s: Initial DRAM size %llx\n", __func__, (u64)gd->ram_size);
 +	debug("%s: Initial DRAM size %llx\n", __func__,
 +	      (unsigned long long)gd->ram_size);
@@ -807,7 +806,8 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         """Test Patchwork patches not matching the series"""
         pwork = patchwork.Patchwork.for_testing(self._fake_patchwork)
         with terminal.capture() as (_, err):
-            patches = asyncio.run(status.check_status(1234, pwork))
+            loop = asyncio.get_event_loop()
+            patches = loop.run_until_complete(status.check_status(1234, pwork))
             status.check_patch_count(0, len(patches))
         self.assertIn('Warning: Patchwork reports 1 patches, series has 0',
                       err.getvalue())
@@ -815,7 +815,8 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
     def test_status_read_patch(self):
         """Test handling a single patch in Patchwork"""
         pwork = patchwork.Patchwork.for_testing(self._fake_patchwork)
-        patches = asyncio.run(status.check_status(1234, pwork))
+        loop = asyncio.get_event_loop()
+        patches = loop.run_until_complete(status.check_status(1234, pwork))
         self.assertEqual(1, len(patches))
         patch = patches[0]
         self.assertEqual('1', patch.id)
@@ -1015,7 +1016,6 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         # things behaves as expected
         self.commits = [commit1, commit2]
         self.patches = [patch1, patch2]
-        count = 2
 
         # Check that the tags are picked up on the first patch
         new_rtags, _ = status.process_reviews(patch1.content, patch1.comments,
@@ -1280,8 +1280,9 @@ line8
               'And another comment'],
              ['> File: file.c',
               '> Line: 153 / 143: def check_patch(fname, show_types=False):',
-              '>  and more code', '> +Addition here', '> +Another addition here',
-              '>  codey', '>  more codey', 'and another thing in same file'],
+              '>  and more code', '> +Addition here',
+              '> +Another addition here', '>  codey', '>  more codey',
+              'and another thing in same file'],
              ['> File: file.c', '> Line: 253 / 243',
               '>  with no function context', 'one more thing'],
              ['> File: tools/patman/main.py', '> +line of code',
