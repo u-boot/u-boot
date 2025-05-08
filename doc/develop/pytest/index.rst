@@ -21,6 +21,7 @@ Individual tests
    test_bind
    test_bootmenu
    test_bootstage
+   test_button
    test_efi_loader
    test_net
    test_net_boot
