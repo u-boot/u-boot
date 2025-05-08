@@ -757,6 +757,24 @@ def get_branch(git_dir=None):
     return out
 
 
+def check_dirty(git_dir=None, work_tree=None):
+    """Check if the tree is dirty
+
+    Args:
+        git_dir (str): Path to git repository (None to use default)
+
+    Return:
+        str: List of dirty filenames and state
+    """
+    cmd = ['git']
+    if git_dir:
+        cmd += ['--git-dir', git_dir]
+    if work_tree:
+        cmd += ['--work-tree', work_tree]
+    cmd += ['status', '--porcelain', '--untracked-files=no']
+    return command.output(*cmd).splitlines()
+
+
 if __name__ == "__main__":
     import doctest
 
