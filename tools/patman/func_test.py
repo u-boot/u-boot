@@ -448,6 +448,11 @@ Changes in v2:
         self.repo = repo
         new_tree = repo.TreeBuilder().write()
 
+        common = ['git', f'--git-dir={self.gitdir}', 'config']
+        tools.run(*(common + ['user.name', 'Dummy']), cwd=self.gitdir)
+        tools.run(*(common + ['user.email', 'dumdum@dummy.com']),
+                  cwd=self.gitdir)
+
         # pylint doesn't seem to find this
         # pylint: disable=E1101
         author = pygit2.Signature('Test user', 'test@email.com')
