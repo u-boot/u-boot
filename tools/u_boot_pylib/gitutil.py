@@ -396,7 +396,6 @@ def build_email_list(in_list, alias, tag=None, warn_on_error=True):
     >>> build_email_list(['john', 'mary'], alias, 'Cc')
     ['Cc j.bloggs@napier.co.nz', 'Cc Mary Poppins <m.poppins@cloud.net>']
     """
-    quote = '"' if tag and tag[0] == '-' else ''
     raw = []
     for item in in_list:
         raw += lookup_email(item, alias, warn_on_error=warn_on_error)
@@ -405,7 +404,7 @@ def build_email_list(in_list, alias, tag=None, warn_on_error=True):
         if item not in result:
             result.append(item)
     if tag:
-        return [f'{tag} {quote}{email}{quote}' for email in result]
+        return [x for email in result for x in (tag, email)]
     return result
 
 
@@ -524,13 +523,14 @@ send --cc-cmd cc-fname" cover p1 p2'
 
     cmd += to
     cmd += cc
-    cmd += ['--cc-cmd', f'"{sys.argv[0]} send --cc-cmd {cc_fname}"']
+    cmd += ['--cc-cmd', f'{sys.argv[0]} send --cc-cmd {cc_fname}']
     if cover_fname:
         cmd.append(cover_fname)
     cmd += args
-    cmdstr = ' '.join(cmd)
     if not dry_run:
-        os.system(cmdstr)
+        command.run(*cmd, capture=False, capture_stderr=False)
+    cmdstr = ' '.join([f'"{x}"' if ' ' in x and not '"' in x else x
+                       for x in cmd])
     return cmdstr
 
 
