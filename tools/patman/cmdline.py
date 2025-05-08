@@ -215,7 +215,7 @@ def parse_args(argv=None, config_fname=None, parser=None):
     # If we have a command, it is safe to parse all arguments
     if args.cmd:
         args = parser.parse_args(argv)
-    else:
+    elif not args.full_help:
         # No command, so insert it after the known arguments and before the ones
         # that presumably relate to the 'send' subcommand
         nargs = len(rest)
