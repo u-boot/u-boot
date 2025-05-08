@@ -8,9 +8,9 @@ import pytest
 def test_bootmenu(ubman):
     """Test bootmenu
 
-    ubman -- U-Boot console
+    Args:
+        ubman: U-Boot console
     """
-
     with ubman.temporary_timeout(500):
         ubman.run_command('setenv bootmenu_default 1')
         ubman.run_command('setenv bootmenu_0 test 1=echo ok 1')

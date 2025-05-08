@@ -19,6 +19,7 @@ Individual tests
 
    test_000_version
    test_bind
+   test_bootmenu
    test_bootstage
    test_efi_loader
    test_net
