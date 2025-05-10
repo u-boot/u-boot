@@ -116,6 +116,29 @@ def _add_show_comments(parser):
                         help='Show comments from each patch')
 
 
+def add_patchwork_subparser(subparsers):
+    """Add the 'patchwork' subparser
+
+    Args:
+        subparsers (argparse action): Subparser parent
+
+    Return:
+        ArgumentParser: patchwork subparser
+    """
+    patchwork = subparsers.add_parser(
+        'patchwork',
+        help='Manage patchwork connection')
+    patchwork.defaults_cmds = [
+        ['set-project', 'U-Boot'],
+    ]
+    patchwork_subparsers = patchwork.add_subparsers(dest='subcmd')
+    patchwork_subparsers.add_parser('get-project')
+    uset = patchwork_subparsers.add_parser('set-project')
+    uset.add_argument(
+        'project_name', help="Patchwork project name, e.g. 'U-Boot'")
+    return patchwork
+
+
 def add_send_subparser(subparsers):
     """Add the 'send' subparser
 
@@ -201,6 +224,7 @@ def setup_parser():
 
     subparsers = parser.add_subparsers(dest='cmd')
     add_send_subparser(subparsers)
+    patchwork = add_patchwork_subparser(subparsers)
     add_status_subparser(subparsers)
 
     # Only add the 'test' action if the test data files are available.
@@ -211,6 +235,7 @@ def setup_parser():
 
     parsers = {
         'main': parser,
+        'patchwork': patchwork,
         }
     return parsers
 

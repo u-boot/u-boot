@@ -113,11 +113,42 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
                                  show_comments, False, pwork)
 
 
-def do_patman(args):
+def patchwork(args, test_db=None, pwork=None):
+    """Process a 'patchwork' subcommand
+    Args:
+        args (Namespace): Arguments to process
+        test_db (str or None): Directory containing the test database, None to
+            use the normal one
+        pwork (Patchwork): Patchwork object to use
+    """
+    cser = cseries.Cseries(test_db)
+    try:
+        cser.open_database()
+        if args.subcmd == 'set-project':
+            if not pwork:
+                pwork = Patchwork(args.patchwork_url)
+            cser.project_set(pwork, args.project_name)
+        elif args.subcmd == 'get-project':
+            info = cser.project_get()
+            if not info:
+                raise ValueError("Project has not been set; use 'patman patchwork set-project'")
+            name, pwid, link_name = info
+            print(f"Project '{name}' patchwork-ID {pwid} link-name {link_name}")
+        else:
+            raise ValueError(f"Unknown patchwork subcommand '{args.subcmd}'")
+    finally:
+        cser.close_database()
+
+def do_patman(args, test_db=None, pwork=None, cser=None):
     """Process a patman command
 
     Args:
         args (Namespace): Arguments to process
+        test_db (str or None): Directory containing the test database, None to
+            use the normal one
+        pwork (Patchwork): Patchwork object to use, or None to create one
+        cser (Cseries): Cseries object to use when executing the command,
+            or None to create one
     """
     if args.full_help:
         with resources.path('patman', 'README.rst') as readme:
@@ -150,6 +181,8 @@ def do_patman(args):
             patchwork_status(args.branch, args.count, args.start, args.end,
                              args.dest_branch, args.force, args.show_comments,
                              args.patchwork_url)
+        elif args.cmd == 'patchwork':
+            patchwork(args, test_db, pwork)
     except Exception as exc:
         terminal.tprint(f'patman: {type(exc).__name__}: {exc}',
                         colour=terminal.Color.RED)
