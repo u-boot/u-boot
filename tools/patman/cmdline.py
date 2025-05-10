@@ -20,6 +20,11 @@ from patman import settings
 PATMAN_DIR = pathlib.Path(__file__).parent
 HAS_TESTS = os.path.exists(PATMAN_DIR / "func_test.py")
 
+# Aliases for subcommands
+ALIASES = {
+    'status': ['st'],
+    'patchwork': ['pw'],
+    }
 
 class ErrorCatchingArgumentParser(argparse.ArgumentParser):
     def __init__(self, **kwargs):
@@ -126,7 +131,7 @@ def add_patchwork_subparser(subparsers):
         ArgumentParser: patchwork subparser
     """
     patchwork = subparsers.add_parser(
-        'patchwork',
+        'patchwork', aliases=ALIASES['patchwork'],
         help='Manage patchwork connection')
     patchwork.defaults_cmds = [
         ['set-project', 'U-Boot'],
@@ -173,7 +178,7 @@ def add_status_subparser(subparsers):
     Return:
         ArgumentParser: status subparser
     """
-    status = subparsers.add_parser('status',
+    status = subparsers.add_parser('status', aliases=ALIASES['status'],
                                    help='Check status of patches in patchwork')
     _add_show_comments(status)
     status.add_argument(
@@ -277,5 +282,14 @@ def parse_args(argv=None, config_fname=None, parsers=None):
         nargs = len(rest)
         argv = argv[:-nargs] + ['send'] + rest
         args = parser.parse_args(argv)
+
+    # Resolve aliases
+    for full, aliases in ALIASES.items():
+        if args.cmd in aliases:
+            args.cmd = full
+        if 'subcmd' in args and args.subcmd in aliases:
+            args.subcmd = full
+    if args.cmd in ['series', 'upstream', 'patchwork'] and not args.subcmd:
+        parser.parse_args([args.cmd, '--help'])
 
     return args
