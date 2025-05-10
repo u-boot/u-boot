@@ -637,7 +637,7 @@ complicated as possible''')
                              'check_patch: False\n'
                              'add_maintainers: True\n', binary=False)
             tools.write_file('dummy-script.sh',
-                             '#!/usr/bin/env python\n'
+                             '#!/usr/bin/env python3\n'
                              'print("hello@there.com")\n', binary=False)
             os.chmod('dummy-script.sh', 0x555)
             tools.run('git', 'add', '.')
