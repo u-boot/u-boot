@@ -877,6 +877,14 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual(None, patch.prefix)
         self.assertEqual(None, patch.version)
 
+        # With PATCH prefix
+        patch.parse_subject('[PATCH,2/5] Testing')
+        self.assertEqual('Testing', patch.subject)
+        self.assertEqual(2, patch.seq)
+        self.assertEqual(5, patch.count)
+        self.assertEqual('PATCH', patch.prefix)
+        self.assertEqual(None, patch.version)
+
         # RFC patch
         patch.parse_subject('[RFC,3/7] Testing')
         self.assertEqual('Testing', patch.subject)
