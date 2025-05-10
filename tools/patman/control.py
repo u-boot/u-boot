@@ -218,6 +218,37 @@ def do_series(args, test_db=None, pwork=None, cser=None):
         cser.close_database()
 
 
+def upstream(args, test_db=None):
+    """Process an 'upstream' subcommand
+
+    Args:
+        args (Namespace): Arguments to process
+        test_db (str or None): Directory containing the test database, None to
+            use the normal one
+    """
+    cser = cseries.Cseries(test_db)
+    try:
+        cser.open_database()
+        if args.subcmd == 'add':
+            cser.upstream_add(args.remote_name, args.url)
+        elif args.subcmd == 'default':
+            if args.unset:
+                cser.upstream_set_default(None)
+            elif args.remote_name:
+                cser.upstream_set_default(args.remote_name)
+            else:
+                result = cser.upstream_get_default()
+                print(result if result else 'unset')
+        elif args.subcmd == 'delete':
+            cser.upstream_delete(args.remote_name)
+        elif args.subcmd == 'list':
+            cser.upstream_list()
+        else:
+            raise ValueError(f"Unknown upstream subcommand '{args.subcmd}'")
+    finally:
+        cser.close_database()
+
+
 def patchwork(args, test_db=None, pwork=None):
     """Process a 'patchwork' subcommand
     Args:
@@ -288,6 +319,8 @@ def do_patman(args, test_db=None, pwork=None, cser=None):
                              args.patchwork_url)
         elif args.cmd == 'series':
             do_series(args, test_db, pwork, cser)
+        elif args.cmd == 'upstream':
+            upstream(args, test_db)
         elif args.cmd == 'patchwork':
             patchwork(args, test_db, pwork)
     except Exception as exc:

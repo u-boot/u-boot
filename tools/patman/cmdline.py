@@ -25,6 +25,7 @@ ALIASES = {
     'series': ['s', 'ser'],
     'status': ['st'],
     'patchwork': ['pw'],
+    'upstream': ['us'],
 
     # Series aliases
     'archive': ['ar'],
@@ -372,6 +373,41 @@ def add_status_subparser(subparsers):
     return status
 
 
+def add_upstream_subparser(subparsers):
+    """Add the 'status' subparser
+
+    Args:
+        subparsers (argparse action): Subparser parent
+
+    Return:
+        ArgumentParser: status subparser
+    """
+    upstream = subparsers.add_parser('upstream', aliases=ALIASES['upstream'],
+                                     help='Manage upstream destinations')
+    upstream.defaults_cmds = [
+        ['add', 'us', 'http://fred'],
+        ['delete', 'us'],
+    ]
+    upstream_subparsers = upstream.add_subparsers(dest='subcmd')
+    uadd = upstream_subparsers.add_parser('add')
+    uadd.add_argument('remote_name',
+                      help="Git remote name used for this upstream, e.g. 'us'")
+    uadd.add_argument(
+        'url', help='URL to use for this upstream, e.g. '
+                    "'https://gitlab.denx.de/u-boot/u-boot.git'")
+    udel = upstream_subparsers.add_parser('delete')
+    udel.add_argument(
+        'remote_name',
+        help="Git remote name used for this upstream, e.g. 'us'")
+    upstream_subparsers.add_parser('list')
+    udef = upstream_subparsers.add_parser('default')
+    udef.add_argument('-u', '--unset', action='store_true',
+                      help='Unset the default upstream')
+    udef.add_argument('remote_name', nargs='?',
+                      help="Git remote name used for this upstream, e.g. 'us'")
+    return upstream
+
+
 def setup_parser():
     """Set up command-line parser
 
@@ -413,6 +449,7 @@ def setup_parser():
     patchwork = add_patchwork_subparser(subparsers)
     series = add_series_subparser(subparsers)
     add_status_subparser(subparsers)
+    upstream = add_upstream_subparser(subparsers)
 
     # Only add the 'test' action if the test data files are available.
     if HAS_TESTS:
@@ -424,6 +461,7 @@ def setup_parser():
         'main': parser,
         'series': series,
         'patchwork': patchwork,
+        'upstream': upstream,
         }
     return parsers
 
