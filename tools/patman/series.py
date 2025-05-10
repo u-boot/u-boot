@@ -39,6 +39,10 @@ class Series(dict):
         allow_overwrite (bool): Allow tags to overwrite an existing tag
         base_commit (Commit): Commit object at the base of this series
         branch (str): Branch name of this series
+        desc (str): Description of the series (cover-letter title)
+        idnum (int or None): Database rowid
+        name (str): Series name, typically the branch name without any numeric
+            suffix
         _generated_cc (dict) written in MakeCcFile()
             key: name of patch file
             value: list of email addresses
@@ -54,6 +58,9 @@ class Series(dict):
         self.allow_overwrite = False
         self.base_commit = None
         self.branch = None
+        self.desc = ''
+        self.idnum = None
+        self.name = None
         self._generated_cc = {}
 
     # These make us more like a dictionary
@@ -62,6 +69,14 @@ class Series(dict):
 
     def __getattr__(self, name):
         return self[name]
+
+    @staticmethod
+    def from_fields(idnum, name, desc):
+        ser = Series()
+        ser.idnum = idnum
+        ser.name = name
+        ser.desc = desc
+        return ser
 
     def AddTag(self, commit, line, name, value):
         """Add a new Series-xxx tag along with its value.
