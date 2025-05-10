@@ -44,11 +44,15 @@ def add_send_args(par):
         '-m', '--no-maintainers', action='store_false',
         dest='add_maintainers', default=True,
         help="Don't cc the file maintainers automatically")
+    default_arg = None
+    top_level = gitutil.get_top_level()
+    if top_level:
+        default_arg = os.path.join(top_level, 'scripts',
+                                   'get_maintainer.pl') + ' --norolestats'
     par.add_argument(
         '--get-maintainer-script', dest='get_maintainer_script', type=str,
         action='store',
-        default=os.path.join(gitutil.get_top_level(), 'scripts',
-                             'get_maintainer.pl') + ' --norolestats',
+        default=default_arg,
         help='File name of the get_maintainer.pl (or compatible) script.')
     par.add_argument(
         '-r', '--in-reply-to', type=str, action='store',

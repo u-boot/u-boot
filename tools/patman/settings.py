@@ -364,7 +364,8 @@ def Setup(parser, project_name, argv, config_fname=None):
 
     if config_fname is None:
         config_fname = '%s/.patman' % os.getenv('HOME')
-    git_local_config_fname = os.path.join(gitutil.get_top_level(), '.patman')
+    git_local_config_fname = os.path.join(gitutil.get_top_level() or '',
+                                          '.patman')
 
     has_config = False
     has_git_local_config = False

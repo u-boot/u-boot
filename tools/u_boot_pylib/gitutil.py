@@ -644,7 +644,7 @@ def get_top_level():
     """Return name of top-level directory for this git repo.
 
     Returns:
-        str: Full path to git top-level directory
+        str: Full path to git top-level directory, or None if not found
 
     This test makes sure that we are running tests in the right subdir
 
@@ -652,7 +652,12 @@ def get_top_level():
             os.path.join(get_top_level(), 'tools', 'patman')
     True
     """
-    return command.output_one_line('git', 'rev-parse', '--show-toplevel')
+    result = command.run_one(
+        'git', 'rev-parse', '--show-toplevel', oneline=True, capture=True,
+        capture_stderr=True, raise_on_error=False)
+    if result.return_code:
+        return None
+    return result.stdout.strip()
 
 
 def get_alias_file():
@@ -670,7 +675,7 @@ def get_alias_file():
     if os.path.isabs(fname):
         return fname
 
-    return os.path.join(get_top_level(), fname)
+    return os.path.join(get_top_level() or '', fname)
 
 
 def get_default_user_name():

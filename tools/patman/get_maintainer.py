@@ -21,7 +21,7 @@ def find_get_maintainer(script_file_name):
     if get_maintainer:
         return get_maintainer
 
-    git_relative_script = os.path.join(gitutil.get_top_level(),
+    git_relative_script = os.path.join(gitutil.get_top_level() or '',
                                        script_file_name)
     if os.path.exists(git_relative_script):
         return git_relative_script
@@ -46,11 +46,14 @@ def get_maintainer(script_file_name, fname, verbose=False):
     """
     # Expand `script_file_name` into a file name and its arguments, if
     # any.
-    cmd_args = shlex.split(script_file_name)
-    file_name = cmd_args[0]
-    arguments = cmd_args[1:]
+    get_maintainer = None
+    arguments = None
+    if script_file_name:
+        cmd_args = shlex.split(script_file_name)
+        file_name = cmd_args[0]
+        arguments = cmd_args[1:]
 
-    get_maintainer = find_get_maintainer(file_name)
+        get_maintainer = find_get_maintainer(file_name)
     if not get_maintainer:
         if verbose:
             print("WARNING: Couldn't find get_maintainer.pl")

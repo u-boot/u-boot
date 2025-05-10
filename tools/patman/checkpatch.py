@@ -22,7 +22,7 @@ RE_NOTE = re.compile(r'NOTE: (.*)')
 
 
 def find_check_patch():
-    top_level = gitutil.get_top_level()
+    top_level = gitutil.get_top_level() or ''
     try_list = [
         os.getcwd(),
         os.path.join(os.getcwd(), '..', '..'),
@@ -219,8 +219,9 @@ def check_patch(fname, verbose=False, show_types=False, use_tree=False,
         args.append('--no-tree')
     if show_types:
         args.append('--show-types')
-    output = command.output(*args, os.path.join(cwd or '', fname),
-                            raise_on_error=False)
+    output = command.output(
+        *args, os.path.join(cwd or '', fname), raise_on_error=False,
+        capture_stderr=not use_tree)
 
     return check_patch_parse(output, verbose)
 
