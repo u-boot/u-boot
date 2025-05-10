@@ -669,7 +669,8 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         pwork = patchwork.Patchwork.for_testing(self._fake_patchwork)
         with terminal.capture() as (_, err):
             loop = asyncio.get_event_loop()
-            patches = loop.run_until_complete(status.check_status(1234, pwork))
+            _, patches = loop.run_until_complete(status.check_status(1234,
+                                                                     pwork))
             status.check_patch_count(0, len(patches))
         self.assertIn('Warning: Patchwork reports 1 patches, series has 0',
                       err.getvalue())
@@ -678,7 +679,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         """Test handling a single patch in Patchwork"""
         pwork = patchwork.Patchwork.for_testing(self._fake_patchwork)
         loop = asyncio.get_event_loop()
-        patches = loop.run_until_complete(status.check_status(1234, pwork))
+        _, patches = loop.run_until_complete(status.check_status(1234, pwork))
         self.assertEqual(1, len(patches))
         patch = patches[0]
         self.assertEqual('1', patch.id)
@@ -928,7 +929,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         terminal.set_print_test_mode()
         pwork = patchwork.Patchwork.for_testing(self._fake_patchwork2)
         status.check_and_show_status(series, '1234', None, None, False, False,
-                                     pwork)
+                                     False, pwork)
         itr = iter(terminal.get_print_test_lines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.YELLOW),
@@ -1041,8 +1042,9 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
 
         terminal.set_print_test_mode()
         pwork = patchwork.Patchwork.for_testing(self._fake_patchwork3)
-        status.check_and_show_status(series, '1234', branch, dest_branch,
-                                     False, False, pwork, repo)
+        status.check_and_show_status(
+            series, '1234', branch, dest_branch, False, False, False, pwork,
+            repo)
         lines = terminal.get_print_test_lines()
         self.assertEqual(12, len(lines))
         self.assertEqual(
@@ -1244,8 +1246,8 @@ Reviewed-by: %s
         series.commits = [commit1, commit2]
         terminal.set_print_test_mode()
         pwork = patchwork.Patchwork.for_testing(self._fake_patchwork2)
-        status.check_and_show_status(series, '1234', None, None, False, True,
-                                     pwork)
+        status.check_and_show_status(
+            series, '1234', None, None, False, True, False, pwork)
         itr = iter(terminal.get_print_test_lines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.YELLOW),

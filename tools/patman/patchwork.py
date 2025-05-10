@@ -388,16 +388,20 @@ class Patchwork:
 
         return Patch(patch_id, state, data, comment_data)
 
-    async def series_get_state(self, client, link, read_comments):
+    async def series_get_state(self, client, link, read_comments,
+                               read_cover_comments):
         """Sync the series information against patchwork, to find patch status
 
         Args:
             client (aiohttp.ClientSession): Session to use
             link (str): Patchwork series ID
             read_comments (bool): True to read the comments on the patches
+            read_cover_comments (bool): True to read the comments on the cover
+                letter
 
         Return: tuple:
-            list of Patch objects
+            COVER object, or None if none or not read_cover_comments
+            list of PATCH objects
         """
         data = await self.get_series(client, link)
         patch_list = list(data['patches'])
@@ -407,7 +411,7 @@ class Patchwork:
         if read_comments:
             # Returns a list of Patch objects
             tasks = [self._get_patch_status(client, patch_list[i]['id'])
-                                            for i in range(count)]
+                     for i in range(count)]
 
             patch_status = await asyncio.gather(*tasks)
             for patch_data, status in zip(patch_list, patch_status):
@@ -422,4 +426,7 @@ class Patchwork:
         if self._show_progress:
             terminal.print_clear()
 
-        return patches
+        # TODO: Implement this
+        cover = None
+
+        return cover, patches
