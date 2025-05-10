@@ -106,10 +106,17 @@ stages:
     # "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
     - export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
+      if [[ "${TEST_PY_BD}" == qemu* ]]; then
+        python3 -m http.server 80 --directory ${UBOOT_TRAVIS_BUILD_DIR} > /dev/null 2>&1 &
+        HTTP_PID=$!;
+      fi
       ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID} ${TEST_PY_EXTRA}
         ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
         --build-dir "$UBOOT_TRAVIS_BUILD_DIR"
         --junitxml=/tmp/${TEST_PY_BD}/results.xml
+      if [[ -n "${HTTP_PID}" ]]; then
+        kill ${HTTP_PID};
+      fi
   artifacts:
     when: always
     paths:
