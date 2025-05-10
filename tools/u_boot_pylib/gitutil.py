@@ -2,6 +2,8 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
+"""Basic utilities for running the git command-line tool from Python"""
+
 import os
 import sys
 
@@ -22,6 +24,8 @@ def log_cmd(commit_range, git_dir=None, oneline=False, reverse=False,
         oneline (bool): True to use --oneline, else False
         reverse (bool): True to reverse the log (--reverse)
         count (int or None): Number of commits to list, or None for no limit
+        decorate (bool): True to use --decorate
+
     Return:
         List containing command and arguments to run
     """
@@ -518,9 +522,8 @@ send --cc-cmd cc-fname" cover p1 p2'
     """
     to = build_email_list(series.get('to'), alias, '--to', warn_on_error)
     if not to:
-        git_config_to = command.output('git', 'config', 'sendemail.to',
-                                       raise_on_error=False)
-        if not git_config_to:
+        if not command.output('git', 'config', 'sendemail.to',
+                              raise_on_error=False):
             print("No recipient.\n"
                   "Please add something like this to a commit\n"
                   "Series-to: Fred Bloggs <f.blogs@napier.co.nz>\n"
@@ -549,9 +552,8 @@ send --cc-cmd cc-fname" cover p1 p2'
     cmd += args
     if not dry_run:
         command.run(*cmd, capture=False, capture_stderr=False, cwd=cwd)
-    cmdstr = ' '.join([f'"{x}"' if ' ' in x and not '"' in x else x
-                       for x in cmd])
-    return cmdstr
+    return' '.join([f'"{x}"' if ' ' in x and '"' not in x else x
+                    for x in cmd])
 
 
 def lookup_email(lookup_name, alias, warn_on_error=True, level=0):
@@ -720,6 +722,7 @@ def get_hash(spec, git_dir=None):
 
     Args:
         spec (str): Git commit to show, e.g. 'my-branch~12'
+        git_dir (str): Path to git repository (None to use default)
 
     Returns:
         str: Hash of commit
@@ -762,6 +765,7 @@ def check_dirty(git_dir=None, work_tree=None):
 
     Args:
         git_dir (str): Path to git repository (None to use default)
+        work_tree (str): Git worktree to use, or None if none
 
     Return:
         str: List of dirty filenames and state
