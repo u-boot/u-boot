@@ -109,6 +109,9 @@ class TestCommon:
         Returns:
             pygit2.Repository: repository
         """
+        os.environ['GIT_CONFIG_GLOBAL'] = '/dev/null'
+        os.environ['GIT_CONFIG_SYSTEM'] = '/dev/null'
+
         repo = pygit2.init_repository(self.gitdir)
         self.repo = repo
         new_tree = repo.TreeBuilder().write()
