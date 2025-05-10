@@ -296,6 +296,11 @@ M:	Adam Sampson <ats@offog.org>
 S:	Maintained
 F:	configs/Linksprite_pcDuino3_Nano_defconfig
 
+LIONTRON H-A133L BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/liontron-h-a133l_defconfig
+
 MARSBOARD-A10 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained
