@@ -21,6 +21,25 @@ PATMAN_DIR = pathlib.Path(__file__).parent
 HAS_TESTS = os.path.exists(PATMAN_DIR / "func_test.py")
 
 
+class ErrorCatchingArgumentParser(argparse.ArgumentParser):
+    def __init__(self, **kwargs):
+        self.exit_state = None
+        self.catch_error = False
+        super().__init__(**kwargs)
+
+    def error(self, message):
+        if self.catch_error:
+            self.message = message
+        else:
+            super().error(message)
+
+    def exit(self, status=0, message=None):
+        if self.catch_error:
+            self.exit_state = True
+        else:
+            super().exit(status, message)
+
+
 def add_send_args(par):
     """Add arguments for the 'send' command
 
@@ -150,7 +169,7 @@ def setup_parser():
         them as specified by tags you place in the commits. Use -n to do a dry
         run first.'''
 
-    parser = argparse.ArgumentParser(epilog=epilog)
+    parser = ErrorCatchingArgumentParser(epilog=epilog)
     parser.add_argument(
         '-D', '--debug', action='store_true',
         help='Enabling debugging (provides a full traceback on error)')
