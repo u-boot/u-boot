@@ -113,6 +113,111 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
                                  show_comments, False, pwork)
 
 
+def do_series(args, test_db=None, pwork=None, cser=None):
+    """Process a series subcommand
+
+    Args:
+        args (Namespace): Arguments to process
+        test_db (str or None): Directory containing the test database, None to
+            use the normal one
+        pwork (Patchwork): Patchwork object to use, None to create one if
+            needed
+        cser (Cseries): Cseries object to use, None to create one
+    """
+    if not cser:
+        cser = cseries.Cseries(test_db)
+    needs_patchwork = [
+        'autolink', 'autolink-all', 'open', 'send', 'status', 'gather',
+        'gather-all'
+        ]
+    try:
+        cser.open_database()
+        if args.subcmd in needs_patchwork:
+            if not pwork:
+                pwork = Patchwork(args.patchwork_url)
+                proj = cser.project_get()
+                if not proj:
+                    raise ValueError(
+                        "Please set project ID with 'patman patchwork set-project'")
+                _, proj_id, link_name = cser.project_get()
+                pwork.project_set(proj_id, link_name)
+        elif pwork and pwork is not True:
+            raise ValueError(
+                f"Internal error: command '{args.subcmd}' should not have patchwork")
+        if args.subcmd == 'add':
+            cser.add(args.series, args.desc, mark=args.mark,
+                     allow_unmarked=args.allow_unmarked, end=args.upstream,
+                     dry_run=args.dry_run)
+        elif args.subcmd == 'archive':
+            cser.archive(args.series)
+        elif args.subcmd == 'autolink':
+            cser.link_auto(pwork, args.series, args.version, args.update,
+                           args.autolink_wait)
+        elif args.subcmd == 'autolink-all':
+            cser.link_auto_all(pwork, update_commit=args.update,
+                               link_all_versions=args.link_all_versions,
+                               replace_existing=args.replace_existing,
+                               dry_run=args.dry_run, show_summary=True)
+        elif args.subcmd == 'dec':
+            cser.decrement(args.series, args.dry_run)
+        elif args.subcmd == 'gather':
+            cser.gather(pwork, args.series, args.version, args.show_comments,
+                        args.show_cover_comments, args.gather_tags,
+                        dry_run=args.dry_run)
+        elif args.subcmd == 'gather-all':
+            cser.gather_all(
+                pwork, args.show_comments, args.show_cover_comments,
+                args.gather_all_versions, args.gather_tags, args.dry_run)
+        elif args.subcmd == 'get-link':
+            link = cser.link_get(args.series, args.version)
+            print(link)
+        elif args.subcmd == 'inc':
+            cser.increment(args.series, args.dry_run)
+        elif args.subcmd == 'ls':
+            cser.series_list()
+        elif args.subcmd == 'open':
+            cser.open(pwork, args.series, args.version)
+        elif args.subcmd == 'mark':
+            cser.mark(args.series, args.allow_marked, dry_run=args.dry_run)
+        elif args.subcmd == 'patches':
+            cser.list_patches(args.series, args.version, args.commit,
+                              args.patch)
+        elif args.subcmd == 'progress':
+            cser.progress(args.series, args.show_all_versions,
+                          args.list_patches)
+        elif args.subcmd == 'rm':
+            cser.remove(args.series, dry_run=args.dry_run)
+        elif args.subcmd == 'rm-version':
+            cser.version_remove(args.series, args.version, dry_run=args.dry_run)
+        elif args.subcmd == 'rename':
+            cser.rename(args.series, args.new_name, dry_run=args.dry_run)
+        elif args.subcmd == 'scan':
+            cser.scan(args.series, mark=args.mark,
+                      allow_unmarked=args.allow_unmarked, end=args.upstream,
+                      dry_run=args.dry_run)
+        elif args.subcmd == 'send':
+            cser.send(pwork, args.series, args.autolink, args.autolink_wait,
+                      args)
+        elif args.subcmd == 'set-link':
+            cser.link_set(args.series, args.version, args.link, args.update)
+        elif args.subcmd == 'status':
+            cser.status(pwork, args.series, args.version, args.show_comments,
+                        args.show_cover_comments)
+        elif args.subcmd == 'summary':
+            cser.summary(args.series)
+        elif args.subcmd == 'unarchive':
+            cser.unarchive(args.series)
+        elif args.subcmd == 'unmark':
+            cser.unmark(args.series, args.allow_unmarked, dry_run=args.dry_run)
+        elif args.subcmd == 'version-change':
+            cser.version_change(args.series, args.version, args.new_version,
+                                dry_run=args.dry_run)
+        else:
+            raise ValueError(f"Unknown series subcommand '{args.subcmd}'")
+    finally:
+        cser.close_database()
+
+
 def patchwork(args, test_db=None, pwork=None):
     """Process a 'patchwork' subcommand
     Args:
@@ -181,6 +286,8 @@ def do_patman(args, test_db=None, pwork=None, cser=None):
             patchwork_status(args.branch, args.count, args.start, args.end,
                              args.dest_branch, args.force, args.show_comments,
                              args.patchwork_url)
+        elif args.cmd == 'series':
+            do_series(args, test_db, pwork, cser)
         elif args.cmd == 'patchwork':
             patchwork(args, test_db, pwork)
     except Exception as exc:
