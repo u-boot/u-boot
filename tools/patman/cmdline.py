@@ -111,6 +111,11 @@ def add_send_args(par):
         help='Preserve Change-Id tags in patches to send.')
 
 
+def _add_show_comments(parser):
+    parser.add_argument('-c', '--show-comments', action='store_true',
+                        help='Show comments from each patch')
+
+
 def add_send_subparser(subparsers):
     """Add the 'send' subparser
 
@@ -147,8 +152,7 @@ def add_status_subparser(subparsers):
     """
     status = subparsers.add_parser('status',
                                    help='Check status of patches in patchwork')
-    status.add_argument('-C', '--show-comments', action='store_true',
-                        help='Show comments from each patch')
+    _add_show_comments(status)
     status.add_argument(
         '-d', '--dest-branch', type=str,
         help='Name of branch to create with collected responses')
