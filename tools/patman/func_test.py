@@ -13,7 +13,6 @@ import pathlib
 import re
 import shutil
 import sys
-import tempfile
 import unittest
 
 import pygit2
@@ -31,6 +30,7 @@ from patman import patchwork
 from patman import send
 from patman.series import Series
 from patman import status
+from patman.test_common import TestCommon
 
 PATMAN_DIR = pathlib.Path(__file__).parent
 TEST_DATA_DIR = PATMAN_DIR / 'test/'
@@ -47,52 +47,22 @@ def directory_excursion(directory):
         os.chdir(current)
 
 
-class TestFunctional(unittest.TestCase):
+class TestFunctional(unittest.TestCase, TestCommon):
     """Functional tests for checking that patman behaves correctly"""
-    leb = (b'Lord Edmund Blackadd\xc3\xabr <weasel@blackadder.org>'.
-           decode('utf-8'))
     fred = 'Fred Bloggs <f.bloggs@napier.net>'
     joe = 'Joe Bloggs <joe@napierwallies.co.nz>'
     mary = 'Mary Bloggs <mary@napierwallies.co.nz>'
     commits = None
     patches = None
-    verbosity = False
-    preserve_outdirs = False
-
-    # Fake patchwork info for testing
-    SERIES_ID_SECOND_V1 = 456
-    TITLE_SECOND = 'Series for my board'
-
-    @classmethod
-    def setup_test_args(cls, preserve_indir=False, preserve_outdirs=False,
-                        toolpath=None, verbosity=None, no_capture=False):
-        """Accept arguments controlling test execution
-
-        Args:
-            preserve_indir: not used
-            preserve_outdir: Preserve the output directories used by tests.
-                Each test has its own, so this is normally only useful when
-                running a single test.
-            toolpath: not used
-        """
-        cls.preserve_outdirs = preserve_outdirs
-        cls.toolpath = toolpath
-        cls.verbosity = verbosity
-        cls.no_capture = no_capture
 
     def setUp(self):
-        self.tmpdir = tempfile.mkdtemp(prefix='patman.')
-        self.gitdir = os.path.join(self.tmpdir, '.git')
+        TestCommon.setUp(self)
         self.repo = None
         self._patman_pathname = sys.argv[0]
         self._patman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
     def tearDown(self):
-        if self.preserve_outdirs:
-            print(f'Output dir: {self.tmpdir}')
-        else:
-            shutil.rmtree(self.tmpdir)
-        terminal.set_print_test_mode(False)
+        TestCommon.tearDown(self)
 
     @staticmethod
     def _get_path(fname):
@@ -264,7 +234,7 @@ class TestFunctional(unittest.TestCase):
                 series, cover_fname, args, dry_run, not ignore_bad_tags,
                 cc_file, alias, in_reply_to=in_reply_to, thread=None)
             series.ShowActions(args, cmd, process_tags, alias)
-        cc_lines = open(cc_file, encoding='utf-8').read().splitlines()
+        cc_lines = tools.read_file(cc_file, binary=False).splitlines()
         os.remove(cc_file)
 
         itr = iter(out[0].getvalue().splitlines())
@@ -344,14 +314,14 @@ Simon Glass (2):
 base-commit: 1a44532
 branch: mybranch
 '''
-        lines = open(cover_fname, encoding='utf-8').read().splitlines()
+        lines = tools.read_file(cover_fname, binary=False).splitlines()
         self.assertEqual(
             'Subject: [RFC PATCH some-branch v3 0/2] test: A test patch series',
             lines[3])
         self.assertEqual(expected.splitlines(), lines[7:])
 
         for i, fname in enumerate(args):
-            lines = open(fname, encoding='utf-8').read().splitlines()
+            lines = tools.read_file(fname, binary=False).splitlines()
             subject = [line for line in lines if line.startswith('Subject')]
             self.assertEqual('Subject: [RFC %d/%d]' % (i + 1, count),
                              subject[0][:18])
@@ -413,152 +383,6 @@ Changes in v2:
         # branch: xxx
         self.assertEqual('base-commit: 1a44532', lines[pos + 3])
         self.assertEqual('branch: mybranch', lines[pos + 4])
-
-    def make_commit_with_file(self, subject, body, fname, text):
-        """Create a file and add it to the git repo with a new commit
-
-        Args:
-            subject (str): Subject for the commit
-            body (str): Body text of the commit
-            fname (str): Filename of file to create
-            text (str): Text to put into the file
-        """
-        path = os.path.join(self.tmpdir, fname)
-        tools.write_file(path, text, binary=False)
-        index = self.repo.index
-        index.add(fname)
-        # pylint doesn't seem to find this
-        # pylint: disable=E1101
-        author = pygit2.Signature('Test user', 'test@email.com')
-        committer = author
-        tree = index.write_tree()
-        message = subject + '\n' + body
-        self.repo.create_commit('HEAD', author, committer, message, tree,
-                                [self.repo.head.target])
-
-    def make_git_tree(self):
-        """Make a simple git tree suitable for testing
-
-        It has three branches:
-            'base' has two commits: PCI, main
-            'first' has base as upstream and two more commits: I2C, SPI
-            'second' has base as upstream and three more: video, serial, bootm
-
-        Returns:
-            pygit2.Repository: repository
-        """
-        repo = pygit2.init_repository(self.gitdir)
-        self.repo = repo
-        new_tree = repo.TreeBuilder().write()
-
-        common = ['git', f'--git-dir={self.gitdir}', 'config']
-        tools.run(*(common + ['user.name', 'Dummy']), cwd=self.gitdir)
-        tools.run(*(common + ['user.email', 'dumdum@dummy.com']),
-                  cwd=self.gitdir)
-
-        # pylint doesn't seem to find this
-        # pylint: disable=E1101
-        author = pygit2.Signature('Test user', 'test@email.com')
-        committer = author
-        _ = repo.create_commit('HEAD', author, committer, 'Created master',
-                               new_tree, [])
-
-        self.make_commit_with_file('Initial commit', '''
-Add a README
-
-''', 'README', '''This is the README file
-describing this project
-in very little detail''')
-
-        self.make_commit_with_file('pci: PCI implementation', '''
-Here is a basic PCI implementation
-
-''', 'pci.c', '''This is a file
-it has some contents
-and some more things''')
-        self.make_commit_with_file('main: Main program', '''
-Hello here is the second commit.
-''', 'main.c', '''This is the main file
-there is very little here
-but we can always add more later
-if we want to
-
-Series-to: u-boot
-Series-cc: Barry Crump <bcrump@whataroa.nz>
-''')
-        base_target = repo.revparse_single('HEAD')
-        self.make_commit_with_file('i2c: I2C things', '''
-This has some stuff to do with I2C
-''', 'i2c.c', '''And this is the file contents
-with some I2C-related things in it''')
-        self.make_commit_with_file('spi: SPI fixes', '''
-SPI needs some fixes
-and here they are
-
-Signed-off-by: %s
-
-Series-to: u-boot
-Commit-notes:
-title of the series
-This is the cover letter for the series
-with various details
-END
-''' % self.leb, 'spi.c', '''Some fixes for SPI in this
-file to make SPI work
-better than before''')
-        first_target = repo.revparse_single('HEAD')
-
-        target = repo.revparse_single('HEAD~2')
-        # pylint doesn't seem to find this
-        # pylint: disable=E1101
-        repo.reset(target.oid, pygit2.enums.ResetMode.HARD)
-        self.make_commit_with_file('video: Some video improvements', '''
-Fix up the video so that
-it looks more purple. Purple is
-a very nice colour.
-''', 'video.c', '''More purple here
-Purple and purple
-Even more purple
-Could not be any more purple''')
-        self.make_commit_with_file('serial: Add a serial driver', f'''
-Here is the serial driver
-for my chip.
-
-Cover-letter:
-{self.TITLE_SECOND}
-This series implements support
-for my glorious board.
-END
-Series-to: u-boot
-Series-links: {self.SERIES_ID_SECOND_V1}
-''', 'serial.c', '''The code for the
-serial driver is here''')
-        self.make_commit_with_file('bootm: Make it boot', '''
-This makes my board boot
-with a fix to the bootm
-command
-''', 'bootm.c', '''Fix up the bootm
-command to make the code as
-complicated as possible''')
-        second_target = repo.revparse_single('HEAD')
-
-        repo.branches.local.create('first', first_target)
-        repo.config.set_multivar('branch.first.remote', '', '.')
-        repo.config.set_multivar('branch.first.merge', '', 'refs/heads/base')
-
-        repo.branches.local.create('second', second_target)
-        repo.config.set_multivar('branch.second.remote', '', '.')
-        repo.config.set_multivar('branch.second.merge', '', 'refs/heads/base')
-
-        repo.branches.local.create('base', base_target)
-
-        target = repo.lookup_reference('refs/heads/first')
-        repo.checkout(target, strategy=pygit2.GIT_CHECKOUT_FORCE)
-        target = repo.revparse_single('HEAD')
-        repo.reset(target.oid, pygit2.enums.ResetMode.HARD)
-
-        self.assertFalse(gitutil.check_dirty(self.gitdir, self.tmpdir))
-        return repo
 
     def test_branch(self):
         """Test creating patches from a branch"""
@@ -787,13 +611,25 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         finally:
             os.chdir(orig_dir)
 
-    def _RunPatman(self, *args):
+    def run_patman(self, *args):
+        """Run patman using the provided arguments
+
+        This runs the patman executable from scratch, as opposed to calling
+        the control.do_patman() function.
+
+        Args:
+            args (list of str): Arguments to pass (excluding argv[0])
+
+        Return:
+            CommandResult: Result of execution
+        """
         all_args = [self._patman_pathname] + list(args)
         return command.run_one(*all_args, capture=True, capture_stderr=True)
 
-    def testFullHelp(self):
+    def test_full_help(self):
+        """Test getting full help"""
         command.TEST_RESULT = None
-        result = self._RunPatman('-H')
+        result = self.run_patman('-H')
         help_file = os.path.join(self._patman_dir, 'README.rst')
         # Remove possible extraneous strings
         extra = '::::::::::::::\n' + help_file + '\n::::::::::::::\n'
@@ -802,9 +638,10 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual(0, len(result.stderr))
         self.assertEqual(0, result.return_code)
 
-    def testHelp(self):
+    def test_help(self):
+        """Test getting help with commands and arguments"""
         command.TEST_RESULT = None
-        result = self._RunPatman('-h')
+        result = self.run_patman('-h')
         self.assertTrue(len(result.stdout) > 1000)
         self.assertEqual(0, len(result.stderr))
         self.assertEqual(0, result.return_code)

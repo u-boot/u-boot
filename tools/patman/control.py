@@ -8,9 +8,7 @@ This module provides various functions called by the main program to implement
 the features of patman.
 """
 
-import os
 import re
-import sys
 import traceback
 
 try:
@@ -22,7 +20,6 @@ except ImportError:
 from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import tools
-from patman import checkpatch
 from patman import patchstream
 from patman import patchwork
 from patman import send
