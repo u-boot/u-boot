@@ -20,8 +20,11 @@ except ImportError:
 from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import tools
+from u_boot_pylib import tout
+from patman import cseries
+from patman import cser_helper
 from patman import patchstream
-from patman import patchwork
+from patman.patchwork import Patchwork
 from patman import send
 from patman import settings
 
@@ -70,9 +73,11 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
     Raises:
         ValueError: if the branch has no Series-link value
     """
+    if not branch:
+        branch = gitutil.get_branch()
     if count == -1:
         # Work out how many patches to send if we can
-        count = (gitutil.count_commits_to_branch(branch) - start)
+        count = gitutil.count_commits_to_branch(branch) - start
 
     series = patchstream.get_metadata(branch, start, count - end)
     warnings = 0
@@ -89,21 +94,23 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
     if not links:
         raise ValueError("Branch has no Series-links value")
 
-    # Find the link without a version number (we don't support versions yet)
-    found = [link for link in links.split() if not ':' in link]
-    if not found:
-        raise ValueError('Series-links has no current version (without :)')
+    _, version = cser_helper.split_name_version(branch)
+    link = series.get_link_for_version(version, links)
+    if not link:
+        raise ValueError('Series-links has no link for v{version}')
+    tout.debug(f"Link '{link}")
 
     # Allow the series to override the URL
     if 'patchwork_url' in series:
         url = series.patchwork_url
-    pwork = patchwork.Patchwork(url, single_thread=single_thread)
+    pwork = Patchwork(url, single_thread=single_thread)
 
     # Import this here to avoid failing on other commands if the dependencies
     # are not present
     from patman import status
-    status.check_and_show_status(series, found[0], branch, dest_branch, force,
-                                 show_comments, pwork)
+    pwork = Patchwork(url)
+    status.check_and_show_status(series, link, branch, dest_branch, force,
+                                 show_comments, False, pwork)
 
 
 def do_patman(args):
