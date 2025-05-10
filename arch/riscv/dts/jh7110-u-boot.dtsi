@@ -91,6 +91,7 @@
 };
 
 &syscrg {
+	assigned-clock-rates = <0>; /* cpufreq not implemented, use defaults */
 	bootph-pre-ram;
 };
 
