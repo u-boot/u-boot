@@ -87,6 +87,9 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
             reply to cover-letter or first patch in series)
         smtp_server (str): SMTP server to use to send patches (None for default)
         cwd (str): Path to use for patch files (None to use current dir)
+
+    Return:
+        Git command that was/would be run
     """
     cc_file = series.MakeCcFile(process_tags, cover_fname, not ignore_bad_tags,
                                 add_maintainers, limit, get_maintainer_script,
@@ -109,6 +112,7 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
             print(col.build(col.RED, "Email would not be sent"))
 
     os.remove(cc_file)
+    return cmd
 
 
 def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
@@ -169,6 +173,9 @@ def send(args, git_dir=None, cwd=None):
     Args:
         args (argparse.Namespace): Arguments to patman
         cwd (str): Path to use for git operations
+
+    Return:
+        bool: True if the patches were likely sent, else False
     """
     col = terminal.Color()
     series, cover_fname, patch_files = prepare_patches(
@@ -181,8 +188,10 @@ def send(args, git_dir=None, cwd=None):
     ok = ok and gitutil.check_suppress_cc_config()
 
     its_a_go = ok or args.ignore_errors
-    email_patches(
+    cmd = email_patches(
         col, series, cover_fname, patch_files, args.process_tags,
         its_a_go, args.ignore_bad_tags, args.add_maintainers,
         args.get_maintainer_script, args.limit, args.dry_run,
         args.in_reply_to, args.thread, args.smtp_server, cwd=cwd)
+
+    return cmd and its_a_go and not args.dry_run
