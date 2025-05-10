@@ -209,10 +209,13 @@ def setup_parser():
         test_parser.add_argument('testname', type=str, default=None, nargs='?',
                                  help="Specify the test to run")
 
-    return parser
+    parsers = {
+        'main': parser,
+        }
+    return parsers
 
 
-def parse_args(argv=None, config_fname=None, parser=None):
+def parse_args(argv=None, config_fname=None, parsers=None):
     """Parse command line arguments from sys.argv[]
 
     Args:
@@ -225,8 +228,9 @@ def parse_args(argv=None, config_fname=None, parser=None):
             options: command line options
             args: command lin arguments
     """
-    if not parser:
-        parser = setup_parser()
+    if not parsers:
+        parsers = setup_parser()
+    parser = parsers['main']
 
     # Parse options twice: first to get the project and second to handle
     # defaults properly (which depends on project)
