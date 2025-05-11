@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+"""Tests for the button command"""
+
 import pytest
 
 @pytest.mark.boardspec('sandbox')

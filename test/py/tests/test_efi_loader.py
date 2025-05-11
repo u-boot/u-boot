@@ -13,43 +13,45 @@ that rely on network will be automatically skipped.
 
 For example:
 
-# Boolean indicating whether the Ethernet device is attached to USB, and hence
-# USB enumeration needs to be performed prior to network tests.
-# This variable may be omitted if its value is False.
-env__net_uses_usb = False
+.. code-block:: python
 
-# Boolean indicating whether the Ethernet device is attached to PCI, and hence
-# PCI enumeration needs to be performed prior to network tests.
-# This variable may be omitted if its value is False.
-env__net_uses_pci = True
+    # Boolean indicating whether the Ethernet device is attached to USB, and hence
+    # USB enumeration needs to be performed prior to network tests.
+    # This variable may be omitted if its value is False.
+    env__net_uses_usb = False
 
-# True if a DHCP server is attached to the network, and should be tested.
-# If DHCP testing is not possible or desired, this variable may be omitted or
-# set to False.
-env__net_dhcp_server = True
+    # Boolean indicating whether the Ethernet device is attached to PCI, and hence
+    # PCI enumeration needs to be performed prior to network tests.
+    # This variable may be omitted if its value is False.
+    env__net_uses_pci = True
 
-# A list of environment variables that should be set in order to configure a
-# static IP. If solely relying on DHCP, this variable may be omitted or set to
-# an empty list.
-env__net_static_env_vars = [
-    ('ipaddr', '10.0.0.100'),
-    ('netmask', '255.255.255.0'),
-    ('serverip', '10.0.0.1'),
-]
+    # True if a DHCP server is attached to the network, and should be tested.
+    # If DHCP testing is not possible or desired, this variable may be omitted or
+    # set to False.
+    env__net_dhcp_server = True
 
-# Details regarding a file that may be read from a TFTP server. This variable
-# may be omitted or set to None if TFTP testing is not possible or desired.
-env__efi_loader_helloworld_file = {
-    'fn': 'lib/efi_loader/helloworld.efi', # file name
-    'size': 5058624,                       # file length in bytes
-    'crc32': 'c2244b26',                   # CRC32 check sum
-    'addr': 0x40400000,                    # load address
-}
+    # A list of environment variables that should be set in order to configure a
+    # static IP. If solely relying on DHCP, this variable may be omitted or set to
+    # an empty list.
+    env__net_static_env_vars = [
+        ('ipaddr', '10.0.0.100'),
+        ('netmask', '255.255.255.0'),
+        ('serverip', '10.0.0.1'),
+    ]
 
-# False if the helloworld EFI over HTTP boot test should be performed.
-# If HTTP boot testing is not possible or desired, set this variable to True or
-# ommit it.
-env__efi_helloworld_net_http_test_skip = True
+    # Details regarding a file that may be read from a TFTP server. This variable
+    # may be omitted or set to None if TFTP testing is not possible or desired.
+    env__efi_loader_helloworld_file = {
+        'fn': 'lib/efi_loader/helloworld.efi', # file name
+        'size': 5058624,                       # file length in bytes
+        'crc32': 'c2244b26',                   # CRC32 check sum
+        'addr': 0x40400000,                    # load address
+    }
+
+    # False if the helloworld EFI over HTTP boot test should be performed.
+    # If HTTP boot testing is not possible or desired, set this variable to True or
+    # ommit it.
+    env__efi_helloworld_net_http_test_skip = True
 """
 
 import pytest
@@ -161,6 +163,11 @@ def fetch_file(ubman, env_conf, proto):
     return addr
 
 def do_test_efi_helloworld_net(ubman, proto):
+    """Download and execute the helloworld appliation
+
+    The helloworld.efi file is downloaded based on the value passed to us as a
+    protocol and is executed using the fallback device tree at $fdtcontroladdr.
+    """
     addr = fetch_file(ubman, 'env__efi_loader_helloworld_file', proto)
 
     output = ubman.run_command('bootefi %x' % addr)
@@ -175,8 +182,7 @@ def do_test_efi_helloworld_net(ubman, proto):
 def test_efi_helloworld_net_tftp(ubman):
     """Run the helloworld.efi binary via TFTP.
 
-    The helloworld.efi file is downloaded from the TFTP server and is executed
-    using the fallback device tree at $fdtcontroladdr.
+    Call the do_test_efi_helloworld_net function to execute the test via TFTP.
     """
 
     do_test_efi_helloworld_net(ubman, PROTO_TFTP);
@@ -187,8 +193,7 @@ def test_efi_helloworld_net_tftp(ubman):
 def test_efi_helloworld_net_http(ubman):
     """Run the helloworld.efi binary via HTTP.
 
-    The helloworld.efi file is downloaded from the HTTP server and is executed
-    using the fallback device tree at $fdtcontroladdr.
+    Call the do_test_efi_helloworld_net function to execute the test via HTTP.
     """
     if ubman.config.env.get('env__efi_helloworld_net_http_test_skip', True):
         pytest.skip('helloworld.efi HTTP test is not enabled!')

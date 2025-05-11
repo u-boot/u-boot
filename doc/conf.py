@@ -47,7 +47,8 @@ needs_sphinx = '2.4.4'
 extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include',
               'kfigure', 'sphinx.ext.ifconfig', # 'automarkup',
               'maintainers_include', 'sphinx.ext.autosectionlabel',
-              'kernel_abi', 'kernel_feat', 'sphinx-prompt']
+              'kernel_abi', 'kernel_feat', 'sphinx-prompt',
+              'sphinx_reredirects', 'sphinx.ext.autodoc' ]
 
 #
 # cdomain is badly broken in Sphinx 3+.  Leaving it out generates *most*
@@ -147,6 +148,11 @@ master_doc = 'index'
 project = 'Das U-Boot'
 copyright = 'The U-Boot development community'
 author = 'The U-Boot development community'
+
+# Pages we have moved after being heavily referenced externally
+redirects = {
+    "develop/py_testing": "pytest/usage.html"
+}
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

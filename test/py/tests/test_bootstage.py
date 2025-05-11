@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 # (C) Copyright 2023, Advanced Micro Devices, Inc.
 
-import pytest
-
 """
 Test the bootstage command.
 
@@ -15,16 +13,32 @@ common/bootstage.c). Without this, bootstage stash and unstash tests will be
 automatically skipped.
 
 For example:
-env__bootstage_cmd_file = {
-    'addr': 0x200000,
-    'size': 0x1000,
-    'bootstage_magic_addr': 0xb00757a3,
-}
+
+.. code-block:: python
+
+    env__bootstage_cmd_file = {
+        'addr': 0x200000,
+        'size': 0x1000,
+        'bootstage_magic_addr': 0xb00757a3,
+    }
 """
+
+import pytest
 
 @pytest.mark.buildconfigspec('bootstage')
 @pytest.mark.buildconfigspec('cmd_bootstage')
 def test_bootstage_report(ubman):
+    """Test the bootstage report subcommand
+
+    This will run the 'bootstage report' subcommand and ensure that we are
+    reporting:
+
+    - A timer summary in microseconds
+    - The accumulated time
+    - That at least the phrase 'dm_r' is in the output
+
+    Note that the time values are not checked.
+    """
     output = ubman.run_command('bootstage report')
     assert 'Timer summary in microseconds' in output
     assert 'Accumulated time:' in output
@@ -34,6 +48,13 @@ def test_bootstage_report(ubman):
 @pytest.mark.buildconfigspec('cmd_bootstage')
 @pytest.mark.buildconfigspec('bootstage_stash')
 def test_bootstage_stash_and_unstash(ubman):
+    """Test the bootstage stash and unstash subcommands
+
+    After checking that we have configured an environment file to use, we will
+    use the stash subcommand to save information. Then we will use the md
+    command to verify the contents in memory. Finally we confirm the unstash
+    subcommand runs successfully.
+    """
     f = ubman.config.env.get('env__bootstage_cmd_file', None)
     if not f:
         pytest.skip('No bootstage environment file is defined')

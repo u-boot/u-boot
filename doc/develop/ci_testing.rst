@@ -18,7 +18,7 @@ be built with mingw to run on Windows.
 Each of the pipelines is written in such as way as to be a "world build" style
 test and as such we try and build all possible platforms.  In addition, for all
 platforms that support being run in QEMU we run them in QEMU and use our pytest
-suite.  See :doc:`py_testing` for more information about those tests.
+suite.  See :doc:`pytest/usage` for more information about those tests.
 
 Azure Pipelines
 ---------------

@@ -13,7 +13,7 @@ results. Advantages of this approach are:
   U-Boot; there can be no disconnect.
 - There is no need to write or embed test-related code into U-Boot itself.
   It is asserted that writing test-related code in Python is simpler and more
-  flexible than writing it all in C. But see :doc:`tests_writing` for caveats
+  flexible than writing it all in C. But see :doc:`../tests_writing` for caveats
   and more discussion / analysis.
 - It is reasonably simple to interact with U-Boot in this way.
 
@@ -377,7 +377,8 @@ this script again to restore U-Boot to an operational state before running the
 next test function.
 
 This script will likely be implemented by communicating with some form of
-relay or electronic switch attached to the board's reset signal.
+relay or electronic switch attached to the board's reset signal. Power cycling
+is another option.
 
 The semantics of this script require that when it is executed, U-Boot will
 start running from scratch. If the U-Boot binary to be tested has been written
@@ -387,6 +388,13 @@ example, it may call out to some SoC- or board-specific vendor utility in order
 to download the U-Boot binary directly into RAM and execute it. This would
 avoid the need for `u-boot-test-flash` to actually write U-Boot to flash, thus
 saving wear on the flash chip(s).
+
+u-boot-test-release
+'''''''''''''''''''
+
+When all tests for the board have been executed, this script is called.
+
+The board can be switched off now.
 
 Examples
 ''''''''

@@ -1,14 +1,17 @@
-.. SPDX-License-Identifier: GPL-2.0+
+.. SPDX-License-Identifier: GPL-2.0-or-later
 .. Copyright 2014 Broadcom Corporation.
 
 Semihosting
 ===========
 
-Semihosting is ARM's way of having a real or virtual target communicate
-with a host or host debugger for basic operations such as file I/O,
-console I/O, etc. Please see `Arm's semihosting documentation
-<https://developer.arm.com/documentation/100863/latest/>`_ for more
-information.
+Semihosting is a technique to let a real or virtual target communicate with a
+host or host debugger for basic operations such as file I/O, console I/O, etc.
+Originally introduced by ARM it has also been adopted for RISC-V. Please, see
+`Arm's semihosting documentation
+<https://developer.arm.com/documentation/dui0471/g/Semihosting>`_ and
+`RISC-V Semihosting
+<https://drive.google.com/file/d/1qu74D4_EmjGmc03qzfQ7Pf4g6m0fOtcD/view>`_
+for more information.
 
 Platform Support
 ----------------
@@ -40,7 +43,7 @@ Foundation and Base fastmodel simulators.
 QEMU
 ^^^^
 
-Another ARM emulator which supports semihosting is `QEMU
+Another emulator which supports semihosting is `QEMU
 <https://www.qemu.org/>`_. To enable semihosting, enable
 ``CONFIG_SERIAL_PROBE_ALL`` when configuring U-Boot, and use
 ``-semihosting`` when invoking QEMU. Adding ``-nographic`` can also be
@@ -53,8 +56,8 @@ running QEMU, refer to the :doc:`board documentation
 OpenOCD
 ^^^^^^^
 
-Any ARM platform can use semihosting with an attached debugger. One such
-debugger with good support for a variety of boards and JTAG adapters is
+Any ARM or RISC-V platform can use semihosting with an attached debugger. One
+such debugger with good support for a variety of boards and JTAG adapters is
 `OpenOCD <https://openocd.org/>`_. Semihosting is not enabled by default,
 so you will need to enable it::
 

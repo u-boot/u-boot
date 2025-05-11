@@ -1,11 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 # (C) Copyright 2023, Advanced Micro Devices, Inc.
 
-import pytest
-import utils
-import test_net
-import re
-
 """
 Note: This test relies on boardenv_* containing configuration values to define
 which the network environment available for testing. Without this, this test
@@ -13,76 +8,87 @@ will be automatically skipped.
 
 For example:
 
-# Details regarding a boot image file that may be read from a TFTP server. This
-# variable may be omitted or set to None if TFTP boot testing is not possible
-# or desired.
-env__net_tftp_bootable_file = {
-    'fn': 'image.ub',
-    'addr': 0x10000000,
-    'size': 5058624,
-    'crc32': 'c2244b26',
-    'pattern': 'Linux',
-    'config': 'config@2',
-    'timeout': 50000,
-    'check_type': 'boot_error',
-    'check_pattern': 'ERROR',
-}
+.. code-block:: python
 
-# False or omitted if a TFTP boot test should be tested.
-# If TFTP boot testing is not possible or desired, set this variable to True.
-# For example: If FIT image is not proper to boot
-env__tftp_boot_test_skip = False
+   # Details regarding a boot image file that may be read from a TFTP server. This
+   # variable may be omitted or set to None if TFTP boot testing is not possible
+   # or desired.
+   env__net_tftp_bootable_file = {
+       'fn': 'image.ub',
+       'addr': 0x10000000,
+       'size': 5058624,
+       'crc32': 'c2244b26',
+       'pattern': 'Linux',
+       'config': 'config@2',
+       'timeout': 50000,
+       'check_type': 'boot_error',
+       'check_pattern': 'ERROR',
+   }
 
-# Here is the example of FIT image configurations:
-configurations {
-    default = "config@1";
-    config@1 {
-        description = "Boot Linux kernel with config@1";
-        kernel = "kernel@0";
-        fdt = "fdt@0";
-        ramdisk = "ramdisk@0";
-        hash@1 {
-            algo = "sha1";
-        };
-    };
-    config@2 {
-        description = "Boot Linux kernel with config@2";
-        kernel = "kernel@1";
-        fdt = "fdt@1";
-        ramdisk = "ramdisk@1";
-        hash@1 {
-            algo = "sha1";
-        };
-    };
-};
+   # False or omitted if a TFTP boot test should be tested.
+   # If TFTP boot testing is not possible or desired, set this variable to True.
+   # For example: If FIT image is not proper to boot
+   env__tftp_boot_test_skip = False
 
-# Details regarding a file that may be read from a TFTP server. This variable
-# may be omitted or set to None if PXE testing is not possible or desired.
-env__net_pxe_bootable_file = {
-    'fn': 'default',
-    'addr': 0x10000000,
-    'size': 74,
-    'timeout': 50000,
-    'pattern': 'Linux',
-    'valid_label': '1',
-    'invalid_label': '2',
-    'exp_str_invalid': 'Skipping install for failure retrieving',
-    'local_label': '3',
-    'exp_str_local': 'missing environment variable: localcmd',
-    'empty_label': '4',
-    'exp_str_empty': 'No kernel given, skipping boot',
-    'check_type': 'boot_error',
-    'check_pattern': 'ERROR',
-}
 
-# False if a PXE boot test should be tested.
-# If PXE boot testing is not possible or desired, set this variable to True.
-# For example: If pxe configuration file is not proper to boot
-env__pxe_boot_test_skip = False
+Here is the example of FIT image configurations:
 
-# Here is the example of pxe configuration file ordered based on the execution
-# flow:
+.. code-block:: devicetree
+
+   configurations {
+       default = "config@1";
+       config@1 {
+           description = "Boot Linux kernel with config@1";
+           kernel = "kernel@0";
+           fdt = "fdt@0";
+           ramdisk = "ramdisk@0";
+           hash@1 {
+               algo = "sha1";
+           };
+       };
+       config@2 {
+           description = "Boot Linux kernel with config@2";
+           kernel = "kernel@1";
+           fdt = "fdt@1";
+           ramdisk = "ramdisk@1";
+           hash@1 {
+               algo = "sha1";
+           };
+       };
+   };
+
+.. code-block:: python
+
+   # Details regarding a file that may be read from a TFTP server. This variable
+   # may be omitted or set to None if PXE testing is not possible or desired.
+   env__net_pxe_bootable_file = {
+       'fn': 'default',
+       'addr': 0x10000000,
+       'size': 74,
+       'timeout': 50000,
+       'pattern': 'Linux',
+       'valid_label': '1',
+       'invalid_label': '2',
+       'exp_str_invalid': 'Skipping install for failure retrieving',
+       'local_label': '3',
+       'exp_str_local': 'missing environment variable: localcmd',
+       'empty_label': '4',
+       'exp_str_empty': 'No kernel given, skipping boot',
+       'check_type': 'boot_error',
+       'check_pattern': 'ERROR',
+   }
+
+   # False if a PXE boot test should be tested.
+   # If PXE boot testing is not possible or desired, set this variable to True.
+   # For example: If pxe configuration file is not proper to boot
+   env__pxe_boot_test_skip = False
+
+Here is the example of pxe configuration file ordered based on the execution
+flow:
+
 1) /tftpboot/pxelinux.cfg/default-arm-zynqmp
+
+.. code-block::
 
     menu include pxelinux.cfg/default-arm
     timeout 50
@@ -90,6 +96,8 @@ env__pxe_boot_test_skip = False
     default Linux
 
 2) /tftpboot/pxelinux.cfg/default-arm
+
+.. code-block::
 
     menu title Linux boot selections
     menu include pxelinux.cfg/default
@@ -110,6 +118,8 @@ env__pxe_boot_test_skip = False
 
 3) /tftpboot/pxelinux.cfg/default
 
+.. code-block::
+
     label Linux
         menu label Boot kernel
         kernel Image
@@ -117,12 +127,27 @@ env__pxe_boot_test_skip = False
         initrd rootfs.cpio.gz.u-boot
 """
 
+import pytest
+import utils
+import test_net
+import re
+
 def setup_networking(ubman):
+    """Setup networking
+
+    Making use of the test_net test, first try and configure networking via
+    DHCP. If this fails, fall back to static configuration.
+    """
     test_net.test_net_dhcp(ubman)
     if not test_net.net_set_up:
         test_net.test_net_setup_static(ubman)
 
 def setup_tftpboot_boot(ubman):
+    """Setup for the tftpboot 'boot' test
+
+    We check that a file to use has been configured. If it has, we download it
+    and ensure it has the expected crc32 value.
+    """
     f = ubman.config.env.get('env__net_tftp_bootable_file', None)
     if not f:
         pytest.skip('No TFTP bootable file to read')
@@ -198,6 +223,10 @@ def test_net_tftpboot_boot(ubman):
             ubman.cleanup_spawn()
 
 def setup_pxe_boot(ubman):
+    """Setup for the PXE 'boot' test
+
+    Make sure that the file to load via PXE boot has been configured.
+    """
     f = ubman.config.env.get('env__net_pxe_bootable_file', None)
     if not f:
         pytest.skip('No PXE bootable file to read')

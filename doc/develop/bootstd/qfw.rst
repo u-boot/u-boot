@@ -3,7 +3,7 @@
 QFW Bootmeth
 ============
 
-`QEMU <hhttps://www.qemu.org/>`_ is a system emulator which is able to boot
+`QEMU <https://www.qemu.org/>`_ is a system emulator which is able to boot
 Operating Systems. QEMU provides specific support for booting an OS image
 provided on the QEMU command line.
 

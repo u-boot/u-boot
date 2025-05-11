@@ -367,7 +367,7 @@ out:
  *
  * This function is for "env set -e" or "setenv -e" command:
  *   => env set -e [-guid guid][-nv][-bs][-rt][-at][-a][-v]
- *		   [-i address,size] var, or
+ *		   [-i address:size] var, or
  *                 var [value ...]
  * Encode values specified and set given UEFI variable.
  * If no value is specified, delete the variable.
