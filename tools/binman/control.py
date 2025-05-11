@@ -777,7 +777,7 @@ def Binman(args):
 
     if args.cmd in ['ls', 'extract', 'replace', 'tool', 'sign']:
         try:
-            tout.init(args.verbosity)
+            tout.init(args.verbosity + 1)
             if args.cmd == 'replace':
                 tools.prepare_output_dir(args.outdir, args.preserve)
             else:
@@ -835,9 +835,9 @@ def Binman(args):
         args.indir.append(board_pathname)
 
     try:
-        tout.init(args.verbosity)
+        tout.init(args.verbosity + 1)
         elf.debug = args.debug
-        cbfs_util.VERBOSE = args.verbosity > 2
+        cbfs_util.VERBOSE = args.verbosity > tout.NOTICE
         state.use_fake_dtb = args.fake_dtb
 
         # Normally we replace the 'u-boot' etype with 'u-boot-expanded', etc.
