@@ -105,12 +105,14 @@ struct stm32mp1_ddrctrl_perf {
 	u32 pcfgqos1_0;
 	u32 pcfgwqos0_0;
 	u32 pcfgwqos1_0;
+#if IS_ENABLED(CONFIG_STM32MP15X)
 	u32 pcfgr_1;
 	u32 pcfgw_1;
 	u32 pcfgqos0_1;
 	u32 pcfgqos1_1;
 	u32 pcfgwqos0_1;
 	u32 pcfgwqos1_1;
+#endif
 };
 
 struct stm32mp1_ddrphy_reg {
@@ -123,8 +125,10 @@ struct stm32mp1_ddrphy_reg {
 	u32 zq0cr1;
 	u32 dx0gcr;
 	u32 dx1gcr;
+#if IS_ENABLED(CONFIG_STM32MP15X)
 	u32 dx2gcr;
 	u32 dx3gcr;
+#endif
 };
 
 struct stm32mp1_ddrphy_timing {
@@ -180,5 +184,7 @@ bool stm32mp1_ddr_interactive(
 	void *priv,
 	enum stm32mp1_ddr_interact_step step,
 	const struct stm32mp1_ddr_config *config);
+
+bool is_stm32mp13_ddrc(const struct ddr_info *priv);
 
 #endif
