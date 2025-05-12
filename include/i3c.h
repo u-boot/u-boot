@@ -25,6 +25,32 @@
 	 int (*i3c_xfers)(struct i3c_dev_desc *dev,
 			  struct i3c_priv_xfer *xfers,
 			  u32 nxfers);
+
+	/**
+	 * @i3c_xfers: Perform I3C read transaction.
+	 *
+	 * @dev: Chip to read from
+	 * @dev_number: The target device number from the driver model.
+	 * @buf: Place to put data
+	 * @num_bytes: Number of bytes to read.
+	 *
+	 * Return: 0 on success, negative error code on failure.
+	 */
+	 int (*read)(struct udevice *dev, u32 dev_number,
+		     u8 *buf, u32 num_bytes);
+
+	/**
+	 * @i3c_xfers: Perform I3C write transaction.
+	 *
+	 * @dev: Chip to write to
+	 * @dev_number: The target device number from the driver model.
+	 * @buf: Buffer containing data to write
+	 * @num_bytes: Number of bytes to write.
+	 *
+	 * Return: 0 on success, negative error code on failure.
+	 */
+	 int (*write)(struct udevice *dev, u32 dev_number,
+		      u8 *buf, u32 num_bytes);
  };
 
 /**
@@ -56,10 +82,10 @@
  /**
   * dm_i3c_read - Perform I3C read transaction
   *
-  * @dev: Chip to read from
+  * @dev: 		 Chip to read from
   * @dev_number: The target device number from the driver model.
-  * @buf: Place to put data
-  * @num_bytes: Number of bytes to read.
+  * @buf:		 Place to put data
+  * @num_bytes:  Number of bytes to read.
   *
   * Return: 0 on success, negative error code on failure.
   */
