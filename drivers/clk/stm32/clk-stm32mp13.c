@@ -497,7 +497,7 @@ static const struct stm32_div_cfg stm32mp13_dividers[LAST_DIV] = {
 	DIV_CFG(DIV_ETH2PTP, RCC_ETH12CKSELR, 12, 4, 0, NULL),
 };
 
-struct clk_stm32_securiy {
+struct clk_stm32_security {
 	u16	offset;
 	u8	bit_idx;
 };
@@ -566,7 +566,7 @@ enum securit_clk {
 		.bit_idx	= _bit_idx, \
 	}
 
-static const struct clk_stm32_securiy stm32mp13_security[] = {
+static const struct clk_stm32_security stm32mp13_security[] = {
 	SECF(SECF_LPTIM2, RCC_APB3SECSR, RCC_APB3SECSR_LPTIM2SECF),
 	SECF(SECF_LPTIM3, RCC_APB3SECSR, RCC_APB3SECSR_LPTIM3SECF),
 	SECF(SECF_VREF, RCC_APB3SECSR, RCC_APB3SECSR_VREFSECF),
@@ -776,7 +776,7 @@ static int stm32mp13_check_security(struct udevice *dev, void __iomem *base,
 	int secured = 0;
 
 	if (sec_id != SECF_NONE) {
-		const struct clk_stm32_securiy *secf;
+		const struct clk_stm32_security *secf;
 
 		secf = &stm32mp13_security[sec_id];
 		secured = !!(readl(base + secf->offset) & BIT(secf->bit_idx));
