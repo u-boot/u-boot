@@ -144,6 +144,7 @@ struct stm32mp_rcc_priv {
 	void __iomem *base;
 	u8 *gate_cpt;
 	const struct clk_stm32_clock_data *data;
+	struct clk osc_clk[6];
 };
 
 int stm32_rcc_init(struct udevice *dev,
