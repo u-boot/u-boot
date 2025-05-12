@@ -2134,7 +2134,7 @@ struct fit_loadable_tbl {
  * _handler is the handler function to call after this image type is loaded
  */
 #define U_BOOT_FIT_LOADABLE_HANDLER(_type, _handler) \
-	ll_entry_declare(struct fit_loadable_tbl, _function, fit_loadable) = { \
+	ll_entry_declare(struct fit_loadable_tbl, _type, fit_loadable) = { \
 		.type = _type, \
 		.handler = _handler, \
 	}
