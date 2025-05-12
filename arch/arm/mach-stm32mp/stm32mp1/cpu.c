@@ -330,8 +330,7 @@ static uintptr_t nt_fw_dtb __section(".data");
 void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
 		      unsigned long r3)
 {
-	if (IS_ENABLED(CONFIG_STM32_ECDSA_VERIFY))
-		rom_api_table = r0;
+	rom_api_table = r0;
 
 	if (IS_ENABLED(CONFIG_TFABOOT))
 		nt_fw_dtb = r2;
