@@ -234,6 +234,34 @@
 					(IMX_PAD_SION | 8)	/* SEMC_DQS */
 			>;
 		};
+
+		pinctrl_flexspi1: flexspi1grp {
+			fsl,pins = <
+				IOMUXC_GPIO_SD_B2_05_FLEXSPI1_A_DQS     0xa
+				IOMUXC_GPIO_SD_B2_06_FLEXSPI1_A_SS0_B   0xa
+				IOMUXC_GPIO_SD_B2_07_FLEXSPI1_A_SCLK    0xa
+				IOMUXC_GPIO_SD_B2_08_FLEXSPI1_A_DATA00  0xa
+				IOMUXC_GPIO_SD_B2_09_FLEXSPI1_A_DATA01  0xa
+				IOMUXC_GPIO_SD_B2_10_FLEXSPI1_A_DATA02  0xa
+				IOMUXC_GPIO_SD_B2_11_FLEXSPI1_A_DATA03  0xa
+			>;
+		};
+	};
+};
+
+&flexspi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_flexspi1>;
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <250000000>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
 	};
 };
 
