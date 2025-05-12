@@ -22,3 +22,4 @@ formats: []
 python:
   install:
     - requirements: doc/sphinx/requirements.txt
+    - requirements: test/py/requirements.txt
