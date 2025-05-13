@@ -23,6 +23,9 @@ static const struct re_test re_test[] = {
 	{ "", "^x*$", 1},
 	{ "yy", "x*$", 1},
 	{ "yy", "^x*$", 0},
+	{ "Gadsby", "^[^eE]*$", 1},
+	{ "Ernest", "^[^eE]*$", 0},
+	{ "6d41f0a39d6", "^[0123456789abcdef]*$", 1 },
 	{}
 };
 
