@@ -1628,6 +1628,12 @@ F:	drivers/gpio/sl28cpld-gpio.c
 F:	drivers/misc/sl28cpld.c
 F:	drivers/watchdog/sl28cpld-wdt.c
 
+SLRE
+M:	Rasmus Villemoes <ravi@prevas.dk>
+S:	Maintained
+F:	include/slre.h
+F:	lib/slre.c
+
 SMCCC TRNG
 M:	Etienne Carriere <etienne.carriere@linaro.org>
 S:	Maintained
