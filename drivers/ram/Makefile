@@ -30,3 +30,7 @@ obj-$(CONFIG_ARCH_OCTEON) += octeon/
 
 obj-$(CONFIG_ARCH_RENESAS) += renesas/
 obj-$(CONFIG_CADENCE_DDR_CTRL) += cadence/
+
+ifdef CONFIG_XPL_BUILD
+obj-$(CONFIG_SPL_THEAD_TH1520_DDR) += thead/
+endif

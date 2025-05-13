@@ -1,0 +1,5 @@
+config SPL_THEAD_TH1520_DDR
+	bool "T-Head TH1520 DDR driver in SPL"
+	depends on SPL_RAM && THEAD_TH1520
+	help
+	  This enables DDR support for T-Head TH1520 platforms.
