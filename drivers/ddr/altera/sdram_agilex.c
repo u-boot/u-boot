@@ -73,12 +73,22 @@ int sdram_mmr_init_full(struct udevice *dev)
 	 */
 	/* Configure DDR IO size x16, x32 and x64 mode */
 	u32 update_value;
+	u32 reg;
 
 	update_value = hmc_readl(plat, NIOSRESERVED0);
 	update_value = (update_value & 0xFF) >> 5;
 
-	/* Configure DDR data rate 0-HAlf-rate 1-Quarter-rate */
-	update_value |= (hmc_readl(plat, CTRLCFG3) & 0x4);
+	/* Read ACF from boot_scratch_cold_8 register bit[18]*/
+	reg = readl(socfpga_get_sysmgr_addr() +
+		    SYSMGR_SOC64_BOOT_SCRATCH_COLD8);
+	reg = ((reg & SYSMGR_SCRATCH_REG_8_ACF_DDR_RATE_MASK)
+	       >> SYSMGR_SCRATCH_REG_8_ACF_DDR_RATE_SHIFT);
+
+	/* bit-2 of DDRIOCTRL: Configure DDR data rate 0-Half-rate 1-Quarter-rate */
+	clrsetbits_le32(&update_value,
+			DDR_HMC_DDRIOCTRL_MPFE_HMCA_DATA_RATE_MSK,
+			reg << DDR_HMC_DDRIOCTRL_MPFE_HMCA_DATA_RATE_SHIFT);
+
 	hmc_ecc_writel(plat, update_value, DDRIOCTRL);
 
 	/* Copy values MMR IOHMC dramaddrw to HMC adp DRAMADDRWIDTH */
