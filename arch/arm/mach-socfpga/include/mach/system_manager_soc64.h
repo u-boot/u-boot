@@ -148,11 +148,14 @@ void populate_sysmgr_pinmux(void);
  * Bit[30] reserved for FSBL to update the DDR init progress
  * 1 - means in progress, 0 - haven't started / DDR is up running.
  *
+ * Bit[18] reserved for SDM to configure ACF
  * Bit[17:1] - Setting by Linux EDAC.
  * Bit[1](ECC_OCRAM), Bit[16](ECC_DDR0), Bit[17](ECC_DDR1)
  */
 #define ALT_SYSMGR_SCRATCH_REG_8_DDR_DBE_MASK	BIT(31)
 #define ALT_SYSMGR_SCRATCH_REG_8_DDR_PROGRESS_MASK	BIT(30)
+#define SYSMGR_SCRATCH_REG_8_ACF_DDR_RATE_MASK	BIT(18)
+#define SYSMGR_SCRATCH_REG_8_ACF_DDR_RATE_SHIFT 18
 
 #define SYSMGR_SDMMC				SYSMGR_SOC64_SDMMC
 
