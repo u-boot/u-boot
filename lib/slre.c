@@ -484,17 +484,14 @@ is_any_of(const unsigned char *p, int len, const char *s, int *ofs)
 static int
 is_any_but(const unsigned char *p, int len, const char *s, int *ofs)
 {
-	int	i, ch;
+	int	dummy = *ofs;
 
-	ch = s[*ofs];
-
-	for (i = 0; i < len; i++) {
-		if (p[i] == ch)
-			return 0;
+	if (is_any_of(p, len, s, &dummy)) {
+		return 0;
+	} else {
+		(*ofs)++;
+		return 1;
 	}
-
-	(*ofs)++;
-	return 1;
 }
 
 static int
