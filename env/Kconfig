@@ -74,7 +74,7 @@ config ENV_IS_DEFAULT
 		     !ENV_IS_IN_MMC && !ENV_IS_IN_NAND && \
 		     !ENV_IS_IN_NVRAM && !ENV_IS_IN_ONENAND && \
 		     !ENV_IS_IN_REMOTE && !ENV_IS_IN_SPI_FLASH && \
-		     !ENV_IS_IN_UBI && !ENV_IS_IN_MTD
+		     !ENV_IS_IN_UBI && !ENV_IS_IN_MTD && !ENV_IS_IN_SCSI
 	select ENV_IS_NOWHERE
 
 config ENV_IS_NOWHERE
@@ -296,6 +296,13 @@ config ENV_IS_IN_NAND
 	  "nand env.oob" command can be used to record this offset.
 	  Currently, CONFIG_ENV_OFFSET_REDUND is not supported when
 	  using CONFIG_ENV_OFFSET_OOB.
+
+config ENV_IS_IN_SCSI
+	bool "Environment in an SCSI device"
+	depends on SCSI
+	help
+	  Define this if you have an SCSI device which you want to use for the
+	  environment.
 
 config ENV_RANGE
 	hex "Length of the region in which the environment can be written"
@@ -730,6 +737,12 @@ config ENV_MMC_USE_DT
 	  device, with partition name or with offset.
 	  The 2 defines CONFIG_ENV_OFFSET, CONFIG_ENV_OFFSET_REDUND
 	  are not used as fallback.
+
+config SCSI_ENV_PART_UUID
+	string "SCSI partition UUID for saving environment"
+	depends on ENV_IS_IN_SCSI
+	help
+	  UUID of the SCSI partition that you want to store the environment in.
 
 config USE_DEFAULT_ENV_FILE
 	bool "Create default environment from file"

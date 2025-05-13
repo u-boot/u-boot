@@ -115,6 +115,7 @@ enum env_location {
 	ENVL_SPI_FLASH,
 	ENVL_MTD,
 	ENVL_UBI,
+	ENVL_SCSI,
 	ENVL_NOWHERE,
 
 	ENVL_COUNT,
