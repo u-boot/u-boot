@@ -413,10 +413,7 @@ int
 slre_compile(struct slre *r, const char *re)
 {
 	r->err_str = NULL;
-	r->code_size = r->data_size = r->num_caps = r->anchored = 0;
-
-	if (*re == '^')
-		r->anchored++;
+	r->code_size = r->data_size = r->num_caps = 0;
 
 	emit(r, OPEN);	/* This will capture what matches full RE */
 	emit(r, 0);
@@ -650,13 +647,9 @@ slre_match(const struct slre *r, const char *buf, int len,
 {
 	int	i, ofs = 0, res = 0;
 
-	if (r->anchored) {
+	for (i = 0; i <= len && res == 0; i++) {
+		ofs = i;
 		res = match(r, 0, buf, len, &ofs, caps);
-	} else {
-		for (i = 0; i < len && res == 0; i++) {
-			ofs = i;
-			res = match(r, 0, buf, len, &ofs, caps);
-		}
 	}
 
 	return res;
