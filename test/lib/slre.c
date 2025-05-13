@@ -29,6 +29,14 @@ static const struct re_test re_test[] = {
 	/* DIGIT is 17 */
 	{ "##\x11%%\x11", "^[#%\\d]*$", 0 },
 	{ "##23%%45", "^[#%\\d]*$", 1 },
+	{ "U-Boot", "^[B-Uo-t]*$", 0 },
+	{ "U-Boot", "^[A-Zm-v-]*$", 1 },
+	{ "U-Boot", "^[-A-Za-z]*$", 1 },
+	/* The range --C covers both - and B. */
+	{ "U-Boot", "^[--CUot]*$", 1 },
+	{ "U-Boot", "^[^0-9]*$", 1 },
+	{ "U-Boot", "^[^0-9<->]*$", 1 },
+	{ "U-Boot", "^[^0-9<\\->]*$", 0 },
 	{}
 };
 
