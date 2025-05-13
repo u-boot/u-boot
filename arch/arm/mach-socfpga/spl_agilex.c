@@ -19,7 +19,7 @@
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
-#include <watchdog.h>
+#include <wdt.h>
 #include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -82,6 +82,14 @@ void board_init_f(ulong dummy)
 		debug("Clock init failed: %d\n", ret);
 		hang();
 	}
+
+	/*
+	 * Enable watchdog as early as possible before initializing other
+	 * component. Watchdog need to be enabled after clock driver because
+	 * it will retrieve the clock frequency from clock driver.
+	 */
+	if (CONFIG_IS_ENABLED(WDT))
+		initr_watchdog();
 
 	preloader_console_init();
 	print_reset_info();
