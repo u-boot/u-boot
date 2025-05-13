@@ -30,7 +30,7 @@
 #include <slre.h>
 
 enum {END, BRANCH, ANY, EXACT, ANYOF, ANYBUT, OPEN, CLOSE, BOL, EOL,
-	STAR, PLUS, STARQ, PLUSQ, QUEST, SPACE, NONSPACE, DIGIT};
+	STAR, PLUS, STARQ, PLUSQ, QUEST, SPACE, NONSPACE, DIGIT, RANGE};
 
 #ifdef SLRE_TEST
 static struct {
@@ -55,7 +55,8 @@ static struct {
 	{"QUEST",	1, "o"},	/* Match zero or one time, "?"	*/
 	{"SPACE",	0, ""},		/* Match whitespace, "\s"	*/
 	{"NONSPACE",	0, ""},		/* Match non-space, "\S"	*/
-	{"DIGIT",	0, ""}		/* Match digit, "\d"		*/
+	{"DIGIT",	0, ""},		/* Match digit, "\d"		*/
+	{"RANGE",	0, ""},		/* Range separator -		*/
 };
 #endif /* SLRE_TEST */
 
@@ -259,6 +260,15 @@ anyof(struct slre *r, const char **re)
 			emit(r, r->data_size - old_data_size);
 			return;
 			/* NOTREACHED */
+			break;
+		case '-':
+			if (r->data_size == old_data_size || **re == ']') {
+				/* First or last character, just match - itself. */
+				store_char_in_data(r, '-');
+				break;
+			}
+			store_char_in_data(r, 0);
+			store_char_in_data(r, RANGE);
 			break;
 		case '\\':
 			esc = get_escape_char(re);
@@ -485,6 +495,14 @@ is_any_of(const unsigned char *p, int len, const char *s, int *ofs)
 				break;
 			case DIGIT:
 				if (isdigit(ch))
+					goto match;
+				break;
+			case RANGE:
+				/*
+				 * a-z is represented in the data array as {'a', \0, RANGE, 'z'}
+				 */
+				++i;
+				if (p[i - 3] <= (unsigned char)ch && (unsigned char)ch <= p[i])
 					goto match;
 				break;
 			}
