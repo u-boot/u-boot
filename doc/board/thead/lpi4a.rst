@@ -32,6 +32,8 @@ Mainline support
 The support for following drivers are already enabled:
 
 1. ns16550 UART Driver.
+2. eMMC and SD card
+
 
 Building
 ~~~~~~~~
@@ -43,15 +45,32 @@ Building
 
    export CROSS_COMPILE=<riscv64 toolchain prefix>
 
-The U-Boot is capable of running in M-Mode, so we can directly build it.
+3. Build DDR firmware
+
+DDR driver requires a firmware to function, to build it:
+
+.. code-block:: bash
+
+	git clone --depth 1 https://github.com/ziyao233/th1520-firmware
+	cd th1520-firmware
+	lua5.4 ddr-generate.lua src/<CONFIGURATION_NAME>.lua th1520-ddr-firmware.bin
+
+4. Build U-Boot images
+
+The U-Boot is capable of running in M-Mode, so we can directly build it without
+OpenSBI. The DDR firmware should be copied to U-Boot source directory before
+building.
 
 .. code-block:: console
 
 	cd <U-Boot-dir>
+	cp <path-to-ddr-firmware> th1520-ddr-firmware.bin
 	make th1520_lpi4a_defconfig
 	make
 
-This will generate u-boot-dtb.bin
+This will generate u-boot-dtb.bin and u-boot-with-spl.bin. The former contains
+only proper U-Boot and is for chainloading; the later contains also SPL and
+DDR firmware and is ready for booting by BROM directly.
 
 Booting
 ~~~~~~~
@@ -61,7 +80,7 @@ and chain load the mainline u-boot image either via tftp or emmc storage,
 then bootup from it.
 
 Sample boot log from Lichee PI 4A board via tftp
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: none
 
@@ -127,3 +146,36 @@ Sample boot log from Lichee PI 4A board via tftp
         Err:   serial@ffe7014000
         Model: Sipeed Lichee Pi 4A
         LPI4A=>
+
+SPL support is still in an early stage and not all of the functionalities are
+available when booting from mainline SPL. When using mainline SPL,
+u-boot-with-spl.bin should be loaded to SRAM through fastboot.
+
+Sample boot log from Lichee PI 4A board via fastboot and mainline SPL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: none
+
+	brom_ver 8
+	[APP][E] protocol_connect failed, exit.
+	Starting download of 636588 bytes
+
+	downloading of 636588 bytes finished
+
+	U-Boot SPL 2025.04-rc2-00049-geaa9fc99d4cd-dirty (Apr 26 2025 - 13:31:41 +0000)
+	Trying to boot from RAM
+
+
+	U-Boot 2025.04-rc2-00049-geaa9fc99d4cd-dirty (Apr 26 2025 - 13:31:41 +0000)
+
+	CPU:   thead,c910
+	Model: Sipeed Lichee Pi 4A
+	DRAM:  8 GiB
+	Core:  30 devices, 9 uclasses, devicetree: separate
+	MMC:   mmc@ffe7080000: 0, mmc@ffe7090000: 1
+	Loading Environment from <NULL>... OK
+	In:    serial@ffe7014000
+	Out:   serial@ffe7014000
+	Err:   serial@ffe7014000
+	Model: Sipeed Lichee Pi 4A
+	LPI4A=>
