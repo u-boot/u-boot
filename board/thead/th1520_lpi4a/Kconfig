@@ -11,7 +11,7 @@ config SYS_VENDOR
 	default "thead"
 
 config SYS_CPU
-	default "generic"
+	default "th1520"
 
 config SYS_CONFIG_NAME
 	default "th1520_lpi4a"
@@ -22,7 +22,7 @@ config TEXT_BASE
 	default 0x01c00000 if RISCV_SMODE
 
 config SPL_TEXT_BASE
-	default 0x08000000
+	default 0xffe0000000
 
 config SPL_OPENSBI_LOAD_ADDR
 	default 0x80000000
@@ -30,6 +30,7 @@ config SPL_OPENSBI_LOAD_ADDR
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
 	select ARCH_EARLY_INIT_R
+	select THEAD_TH1520
 	imply CPU
 	imply CPU_RISCV
 	imply RISCV_TIMER if RISCV_SMODE
