@@ -14,6 +14,7 @@
 	cpus: cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+		bootph-pre-ram;
 		timebase-frequency = <3000000>;
 
 		c910_0: cpu@0 {
@@ -21,6 +22,7 @@
 			device_type = "cpu";
 			riscv,isa = "rv64imafdc";
 			reg = <0>;
+			bootph-pre-ram;
 			i-cache-block-size = <64>;
 			i-cache-size = <65536>;
 			i-cache-sets = <512>;
@@ -42,6 +44,7 @@
 			device_type = "cpu";
 			riscv,isa = "rv64imafdc";
 			reg = <1>;
+			bootph-pre-ram;
 			i-cache-block-size = <64>;
 			i-cache-size = <65536>;
 			i-cache-sets = <512>;
@@ -63,6 +66,7 @@
 			device_type = "cpu";
 			riscv,isa = "rv64imafdc";
 			reg = <2>;
+			bootph-pre-ram;
 			i-cache-block-size = <64>;
 			i-cache-size = <65536>;
 			i-cache-sets = <512>;
@@ -84,6 +88,7 @@
 			device_type = "cpu";
 			riscv,isa = "rv64imafdc";
 			reg = <3>;
+			bootph-pre-ram;
 			i-cache-block-size = <64>;
 			i-cache-size = <65536>;
 			i-cache-sets = <512>;
@@ -173,6 +178,7 @@
 		uart0: serial@ffe7014000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0xff 0xe7014000 0x0 0x100>;
+			bootph-pre-ram;
 			interrupts = <36 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&uart_sclk>;
 			reg-shift = <2>;
