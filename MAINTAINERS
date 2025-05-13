@@ -1633,6 +1633,7 @@ M:	Rasmus Villemoes <ravi@prevas.dk>
 S:	Maintained
 F:	include/slre.h
 F:	lib/slre.c
+F:	test/lib/slre.c
 
 SMCCC TRNG
 M:	Etienne Carriere <etienne.carriere@linaro.org>
