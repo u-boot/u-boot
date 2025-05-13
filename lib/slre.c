@@ -472,13 +472,33 @@ is_any_of(const unsigned char *p, int len, const char *s, int *ofs)
 
 	ch = s[*ofs];
 
-	for (i = 0; i < len; i++)
-		if (p[i] == ch) {
-			(*ofs)++;
-			return 1;
+	for (i = 0; i < len; i++) {
+		if (p[i] == '\0') {
+			switch (p[++i]) {
+			case NONSPACE:
+				if (!isspace(ch))
+					goto match;
+				break;
+			case SPACE:
+				if (isspace(ch))
+					goto match;
+				break;
+			case DIGIT:
+				if (isdigit(ch))
+					goto match;
+				break;
+			}
+			continue;
 		}
+		if (p[i] == ch)
+			goto match;
+	}
 
 	return 0;
+
+match:
+	(*ofs)++;
+	return 1;
 }
 
 static int
