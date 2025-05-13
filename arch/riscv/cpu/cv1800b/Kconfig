@@ -6,6 +6,7 @@ config SOPHGO_CV1800B
 	bool
 	select ARCH_EARLY_INIT_R
 	select SYS_CACHE_SHIFT_6
+	select SYS_CACHE_THEAD_CMO
 	imply CPU
 	imply CPU_RISCV
 	imply RISCV_TIMER
