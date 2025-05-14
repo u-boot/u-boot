@@ -6,6 +6,7 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <efi_loader.h>
+#include <env.h>
 #include <lmb.h>
 
 #include <asm/armv8/mmu.h>

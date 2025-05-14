@@ -6,6 +6,7 @@
 
 #include <android_image.h>
 #include <command.h>
+#include <env.h>
 #include <image.h>
 #include <mapmem.h>
 

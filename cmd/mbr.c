@@ -10,6 +10,7 @@
 
 #include <blk.h>
 #include <command.h>
+#include <env.h>
 #include <malloc.h>
 #include <part.h>
 #include <vsprintf.h>

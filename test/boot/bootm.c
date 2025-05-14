@@ -6,6 +6,7 @@
  */
 
 #include <bootm.h>
+#include <env.h>
 #include <asm/global_data.h>
 #include <test/test.h>
 #include <test/ut.h>

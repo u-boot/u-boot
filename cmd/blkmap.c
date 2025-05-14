@@ -7,6 +7,7 @@
 #include <blk.h>
 #include <blkmap.h>
 #include <command.h>
+#include <env.h>
 #include <malloc.h>
 #include <dm/device.h>
 

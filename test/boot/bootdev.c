@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <bootdev.h>
 #include <bootflow.h>
+#include <env.h>
 #include <mapmem.h>
 #include <os.h>
 #include <test/ut.h>

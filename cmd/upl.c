@@ -12,6 +12,7 @@
 #include <alist.h>
 #include <command.h>
 #include <display_options.h>
+#include <env.h>
 #include <mapmem.h>
 #include <string.h>
 #include <upl.h>

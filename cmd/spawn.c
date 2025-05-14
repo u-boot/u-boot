@@ -5,6 +5,7 @@
 
 #include <command.h>
 #include <console.h>
+#include <env.h>
 #include <malloc.h>
 #include <vsprintf.h>
 #include <uthread.h>

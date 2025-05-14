@@ -17,6 +17,7 @@
 #include <compiler.h>
 #include <console.h>
 #include <display_options.h>
+#include <env.h>
 #ifdef CONFIG_MTD_NOR_FLASH
 #include <flash.h>
 #endif

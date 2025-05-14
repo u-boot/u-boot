@@ -8,6 +8,7 @@
 #include <android_bootloader_message.h>
 #include <bcb.h>
 #include <command.h>
+#include <env.h>
 #include <android_ab.h>
 #include <display_options.h>
 #include <log.h>

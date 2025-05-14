@@ -4,6 +4,7 @@
  */
 
 #include <dm.h>
+#include <env.h>
 #include <fastboot.h>
 #include <fb_mmc.h>
 #include <mmc.h>

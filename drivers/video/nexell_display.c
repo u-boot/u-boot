@@ -10,6 +10,7 @@
 #include <config.h>
 #include <command.h>
 #include <dm.h>
+#include <env.h>
 #include <mapmem.h>
 #include <malloc.h>
 #include <linux/compat.h>

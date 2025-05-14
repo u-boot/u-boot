@@ -6,6 +6,7 @@
 
 #include <bootm.h>
 #include <command.h>
+#include <env.h>
 #include <image.h>
 #include <irq_func.h>
 #include <lmb.h>

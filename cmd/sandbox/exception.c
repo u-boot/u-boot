@@ -6,6 +6,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 
 static int do_sigsegv(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])

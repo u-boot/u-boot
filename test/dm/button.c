@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <adc.h>
 #include <button.h>
+#include <env.h>
 #include <power/regulator.h>
 #include <power/sandbox_pmic.h>
 #include <asm/gpio.h>

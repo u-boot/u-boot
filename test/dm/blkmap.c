@@ -7,6 +7,7 @@
 #include <blk.h>
 #include <blkmap.h>
 #include <dm.h>
+#include <env.h>
 #include <asm/test.h>
 #include <dm/test.h>
 #include <test/test.h>
