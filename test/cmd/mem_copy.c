@@ -4,6 +4,7 @@
  */
 
 #include <command.h>
+#include <compiler.h>
 #include <console.h>
 #include <mapmem.h>
 #include <dm/test.h>
