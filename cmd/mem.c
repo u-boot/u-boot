@@ -14,6 +14,7 @@
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>
+#include <compiler.h>
 #include <console.h>
 #include <display_options.h>
 #ifdef CONFIG_MTD_NOR_FLASH
