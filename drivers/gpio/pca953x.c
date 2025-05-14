@@ -13,6 +13,7 @@
 #include <i2c.h>
 #include <pca953x.h>
 #include <vsprintf.h>
+#include <asm/byteorder.h>
 
 /* Default to an address that hopefully won't corrupt other i2c devices */
 #ifndef CFG_SYS_I2C_PCA953X_ADDR
