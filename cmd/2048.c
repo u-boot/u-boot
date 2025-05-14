@@ -8,6 +8,7 @@
 #include <rand.h>
 #include <vsprintf.h>
 #include <linux/delay.h>
+#include <linux/string.h>
 
 #define SIZE 4
 static uint score;

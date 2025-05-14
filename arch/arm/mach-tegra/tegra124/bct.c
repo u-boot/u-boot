@@ -7,6 +7,7 @@
 #include <command.h>
 #include <log.h>
 #include <vsprintf.h>
+#include <linux/string.h>
 #include <asm/arch-tegra/crypto.h>
 #include "bct.h"
 #include "uboot_aes.h"

@@ -6,6 +6,7 @@
 #include <command.h>
 #include <cpu_func.h>
 #include <vsprintf.h>
+#include <linux/string.h>
 
 static int cpu_status_all(void)
 {

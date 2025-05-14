@@ -9,6 +9,7 @@
 #include <linux/arm-smccc.h>
 #include <linux/compiler.h>
 #include <linux/psci.h>
+#include <linux/string.h>
 
 static int do_call(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])

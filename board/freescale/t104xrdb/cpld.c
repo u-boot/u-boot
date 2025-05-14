@@ -12,6 +12,7 @@
 
 #include <config.h>
 #include <command.h>
+#include <linux/string.h>
 #include <asm/io.h>
 
 #include "cpld.h"
