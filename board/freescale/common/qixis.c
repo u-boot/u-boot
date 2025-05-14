@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <linux/time.h>
+#include <linux/string.h>
 #include <i2c.h>
 #include "qixis.h"
 

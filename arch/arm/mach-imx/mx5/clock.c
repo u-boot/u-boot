@@ -10,6 +10,7 @@
 #include <log.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+#include <linux/string.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>

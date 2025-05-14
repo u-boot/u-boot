@@ -8,6 +8,7 @@
 #include <fs.h>
 #include <log.h>
 #include <vsprintf.h>
+#include <linux/string.h>
 
 #define OP_INVALID	0
 #define OP_NOT		1

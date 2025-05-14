@@ -9,6 +9,7 @@
 
 #include <tpm-v1.h>
 #include <tpm-v2.h>
+#include <linux/string.h>
 #include <asm/unaligned.h>
 #include "sandbox_common.h"
 

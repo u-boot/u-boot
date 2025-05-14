@@ -8,6 +8,7 @@
 #include <command.h>
 #include <ufs.h>
 #include <vsprintf.h>
+#include <linux/string.h>
 
 static int do_ufs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
