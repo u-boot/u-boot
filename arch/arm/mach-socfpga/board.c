@@ -7,6 +7,7 @@
 
 #include <config.h>
 #include <errno.h>
+#include <env.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <init.h>

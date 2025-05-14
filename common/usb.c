@@ -28,6 +28,7 @@
 #include <command.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <env.h>
 #include <log.h>
 #include <malloc.h>
 #include <memalign.h>

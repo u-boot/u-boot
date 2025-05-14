@@ -6,6 +6,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 #include <dm.h>
 #include <dm/test.h>
 #include <test/test.h>

@@ -13,6 +13,7 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <env.h>
 #include <mapmem.h>
 
 /**

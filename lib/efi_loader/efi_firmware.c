@@ -12,6 +12,7 @@
 #include <dfu.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
+#include <env.h>
 #include <fwu.h>
 #include <image.h>
 #include <signatures.h>

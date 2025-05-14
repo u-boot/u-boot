@@ -5,6 +5,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 #include <nand.h>
 
 /*

@@ -4,6 +4,7 @@
  */
 
 #include <dm.h>
+#include <env.h>
 #include <mmc.h>
 #include <part.h>
 #include <part_efi.h>

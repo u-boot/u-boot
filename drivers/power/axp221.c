@@ -10,6 +10,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 #include <errno.h>
 #include <asm/arch/pmic_bus.h>
 #include <axp_pmic.h>
