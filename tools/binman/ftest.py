@@ -88,6 +88,7 @@ REFCODE_DATA          = b'refcode'
 FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
+ATF_BL1_DATA         = b'bl1'
 ATF_BL31_DATA         = b'bl31'
 TEE_OS_DATA           = b'this is some tee OS data'
 TI_DM_DATA            = b'tidmtidm'
@@ -226,6 +227,7 @@ class TestFunctional(unittest.TestCase):
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
         TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
+        TestFunctional._MakeInputFile('bl1.bin', ATF_BL1_DATA)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
         TestFunctional._MakeInputFile('tee-pager.bin', TEE_OS_DATA)
         TestFunctional._MakeInputFile('dm.bin', TI_DM_DATA)
@@ -5574,6 +5576,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test that an image with a TI DM binary can be created"""
         data = self._DoReadFile('225_ti_dm.dts')
         self.assertEqual(TI_DM_DATA, data[:len(TI_DM_DATA)])
+
+    def testPackBl1(self):
+        """test if an image with a bl1 binary can be created"""
+        data = self._DoReadFile('347_bl1.dts')
+        self.assertEqual(ATF_BL1_DATA, data[:len(ATF_BL1_DATA)])
 
     def testFitFdtOper(self):
         """Check handling of a specified FIT operation"""

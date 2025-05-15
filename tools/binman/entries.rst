@@ -53,6 +53,22 @@ respecting the `bootph-xxx` tags in the devicetree.
 
 
 
+.. _etype_atf_bl1:
+
+Entry: atf-bl1: AP Trusted ROM (TF-A) BL1 blob
+-----------------------------------------------------
+
+Properties / Entry arguments:
+    - atf-bl1-path: Filename of file to read into entry. This is typically
+      called bl1.bin
+
+This entry holds the AP Trusted ROM firmware typically used by an SoC to
+help initialize the SoC before the SPL or U-Boot is started. See
+https://github.com/TrustedFirmware-A/trusted-firmware-a for more information
+about Boot Loader stage 1 (BL1) or about Trusted Firmware (TF-A)
+
+
+
 .. _etype_atf_bl31:
 
 Entry: atf-bl31: ARM Trusted Firmware (ATF) BL31 blob
