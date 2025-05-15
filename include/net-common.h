@@ -5,7 +5,6 @@
 
 #include <asm/cache.h>
 #include <command.h>
-#include <env.h>
 #include <hexdump.h>
 #include <linux/if_ether.h>
 #include <linux/sizes.h>
