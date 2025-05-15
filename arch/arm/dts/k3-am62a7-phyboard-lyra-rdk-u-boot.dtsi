@@ -13,7 +13,6 @@
 / {
 	chosen {
 		stdout-path = "serial2:115200n8";
-		tick-timer = &main_timer0;
 	};
 
 	aliases {
@@ -154,10 +153,6 @@
 };
 
 &main_rgmii1_pins_default {
-	bootph-all;
-};
-
-&main_timer0 {
 	bootph-all;
 };
 
