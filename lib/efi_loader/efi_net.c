@@ -18,6 +18,7 @@
 #define LOG_CATEGORY LOGC_EFI
 
 #include <efi_loader.h>
+#include <env.h>
 #include <dm.h>
 #include <linux/sizes.h>
 #include <malloc.h>

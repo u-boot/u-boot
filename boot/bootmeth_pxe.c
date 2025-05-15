@@ -13,6 +13,7 @@
 #include <bootmeth.h>
 #include <command.h>
 #include <dm.h>
+#include <env.h>
 #include <extlinux.h>
 #include <fs.h>
 #include <log.h>

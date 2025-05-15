@@ -3,6 +3,7 @@
 
 #include <command.h>
 #include <console.h>
+#include <env.h>
 #include <lwip/dns.h>
 #include <lwip/timeouts.h>
 #include <net.h>

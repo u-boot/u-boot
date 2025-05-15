@@ -12,6 +12,7 @@
 #include <charset.h>
 #include <dm.h>
 #include <efi.h>
+#include <env.h>
 #include <log.h>
 #include <malloc.h>
 #include <net.h>

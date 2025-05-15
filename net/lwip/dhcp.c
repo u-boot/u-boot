@@ -3,6 +3,7 @@
 
 #include <command.h>
 #include <console.h>
+#include <env.h>
 #include <log.h>
 #include <dm/device.h>
 #include <linux/delay.h>
