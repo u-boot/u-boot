@@ -2,6 +2,8 @@
 /*
  * Copyright 2022 Google LLC
  */
+
+#include <env.h>
 #include <net.h>
 #include <errno.h>
 #include "mercury_aa1.h"
