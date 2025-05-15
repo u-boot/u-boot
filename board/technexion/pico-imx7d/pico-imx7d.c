@@ -3,6 +3,7 @@
  * Copyright (C) 2017 NXP Semiconductors
  */
 
+#include <env.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/clock.h>
