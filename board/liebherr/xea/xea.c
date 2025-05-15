@@ -13,6 +13,7 @@
  *
  */
 
+#include <env.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <log.h>
