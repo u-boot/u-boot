@@ -12,10 +12,6 @@
 		eeprom2 = &eeprom_display_adapter;
 	};
 
-	chosen {
-		tick-timer = &main_timer0;
-	};
-
 	memory@80000000 {
 		bootph-all;
 	};
@@ -23,10 +19,6 @@
 	sysinfo {
 		compatible = "toradex,sysinfo";
 	};
-};
-
-&main_timer0 {
-	clock-frequency = <25000000>;
 };
 
 &main_bcdma {
