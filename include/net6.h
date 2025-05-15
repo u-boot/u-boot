@@ -11,6 +11,7 @@
 #define __NET6_H__
 
 #include <net.h>
+#include <asm/byteorder.h>
 #include <linux/ctype.h>
 #include <linux/errno.h>
 
