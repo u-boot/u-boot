@@ -156,6 +156,7 @@ M:	Tingting Meng <tingting.meng@altera.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-socfpga.git
 F:	drivers/ddr/altera/
+F:	drivers/power/domain/altr-pmgr-agilex5.c
 F:	arch/arm/mach-socfpga/
 F:	configs/socfpga_agilex5_vab_defconfig
 F:	drivers/sysreset/sysreset_socfpga*

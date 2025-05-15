@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: "http://devicetree.org/schemas/power/altr,pmgr-agilex5.yaml#"
+$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+
+title: Altera Agilex5 Power Manager
+
+maintainers:
+  - name: Alif Zakuan Yuslaimi
+    email: alif.zakuan.yuslaimi@altera.com
+
+description: |
+  This controller will read the peripheral handoff data obtained from the
+  bitstream and will power gate the specified peripheral's SRAM from the
+  handoff data values to reduce power consumption.
+
+properties:
+  compatible:
+    const: "altr,pmgr-agilex5"
+
+  reg:
+    maxItems: 1
+
+  bootph-all: true
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    pwrmgr: pwrmgr@10d14000 {
+      compatible = "altr,pmgr-agilex5";
+      reg = <0x10d14000 0x100>;
+      bootph-all;
+    };
