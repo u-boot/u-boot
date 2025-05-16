@@ -5,10 +5,6 @@
  * Author: Michael Trimarchi <michael@amarulasolutions.com>
  */
 
-&{/soc} {
-	bootph-all;
-};
-
 &aips2 {
 	bootph-all;
 };
