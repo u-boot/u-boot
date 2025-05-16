@@ -271,6 +271,7 @@ source "drivers/clk/starfive/Kconfig"
 source "drivers/clk/stm32/Kconfig"
 source "drivers/clk/tegra/Kconfig"
 source "drivers/clk/ti/Kconfig"
+source "drivers/clk/thead/Kconfig"
 source "drivers/clk/uniphier/Kconfig"
 
 endmenu

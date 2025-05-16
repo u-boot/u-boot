@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Copyright (c) 2025, Yao Zi <ziyao@disroot.org>
+
+config CLK_THEAD
+	bool "Clock support for T-Head SoCs"
+	depends on CLK
+
+if CLK_THEAD
+
+config CLK_THEAD_TH1520_AP
+	bool "T-Head TH1520 AP clock support"
+	select CLK_CCF
+	default THEAD_TH1520
+	help
+	  This enables support clock driver for T-Head TH1520 Application
+	  processor.
+
+endif
