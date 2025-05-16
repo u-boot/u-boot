@@ -303,6 +303,13 @@ static int nwl_pcie_parse_dt(struct nwl_pcie *pcie)
 		return PTR_ERR(pcie->breg_base);
 	pcie->phys_breg_base = res.start;
 
+	ret = dev_read_resource_byname(dev, "pcireg", &res);
+	if (ret)
+		return ret;
+	pcie->pcireg_base = devm_ioremap(dev, res.start, resource_size(&res));
+	if (IS_ERR(pcie->pcireg_base))
+		return PTR_ERR(pcie->pcireg_base);
+
 	ret = dev_read_resource_byname(dev, "cfg", &res);
 	if (ret)
 		return ret;
