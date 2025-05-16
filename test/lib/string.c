@@ -261,3 +261,40 @@ static int lib_strstr(struct unit_test_state *uts)
 	return 0;
 }
 LIB_TEST(lib_strstr, 0);
+
+static int lib_strim(struct unit_test_state *uts)
+{
+	char buf[BUFLEN], *p;
+
+	strcpy(buf, "abc");
+	ut_asserteq_str("abc", strim(buf));
+
+	/* leading space */
+	strcpy(buf, " abc");
+	ut_asserteq_str("abc", strim(buf));
+
+	/* multiple leading spaces */
+	strcpy(buf, "  abc");
+	ut_asserteq_str("abc", strim(buf));
+
+	/* multiple internal spaces */
+	strcpy(buf, "  a   bc");
+	ut_asserteq_str("a   bc", strim(buf));
+
+	/* with trailing space */
+	strcpy(buf, "  a   bc ");
+	ut_asserteq_str("a   bc", strim(buf));
+
+	/* with multiple trailing spaces */
+	strcpy(buf, "  a   bc   ");
+	ut_asserteq_str("a   bc", strim(buf));
+
+	/* with only spaces */
+	strcpy(buf, "     ");
+	p = strim(buf);
+	ut_asserteq_ptr(p, buf);
+	ut_asserteq_str("", p);
+
+	return 0;
+}
+LIB_TEST(lib_strim, 0);
