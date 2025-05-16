@@ -28,9 +28,23 @@ struct hlist_head *cyclic_get_list(void)
 	return (struct hlist_head *)&gd->cyclic_list;
 }
 
+static bool cyclic_is_registered(const struct cyclic_info *cyclic)
+{
+	const struct cyclic_info *c;
+
+	hlist_for_each_entry(c, cyclic_get_list(), list) {
+		if (c == cyclic)
+			return true;
+	}
+
+	return false;
+}
+
 void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,
 		     uint64_t delay_us, const char *name)
 {
+	cyclic_unregister(cyclic);
+
 	memset(cyclic, 0, sizeof(*cyclic));
 
 	/* Store values in struct */
@@ -43,6 +57,9 @@ void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,
 
 void cyclic_unregister(struct cyclic_info *cyclic)
 {
+	if (!cyclic_is_registered(cyclic))
+		return;
+
 	hlist_del(&cyclic->list);
 }
 
