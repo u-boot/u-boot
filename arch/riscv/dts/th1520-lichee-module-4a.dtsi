@@ -26,14 +26,6 @@
 	clock-frequency = <32768>;
 };
 
-&apb_clk {
-	clock-frequency = <62500000>;
-};
-
-&uart_sclk {
-	clock-frequency = <100000000>;
-};
-
 &emmc {
 	bus-width = <8>;
 	max-frequency = <198000000>;
