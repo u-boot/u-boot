@@ -263,6 +263,24 @@ config PINCTRL_ROCKCHIP_RV1108
 	  both the GPIO definitions and pin control functions for each
 	  available multiplex function.
 
+config PINCTRL_SX150X
+	bool "Semtech SX150x I2C GPIO expander pinctrl driver"
+	depends on DM && PINCTRL_FULL
+	help
+	  Say yes here to provide support for Semtech SX150x-series I2C
+	  GPIO expanders as pinctrl module.
+	  Compatible models include:
+	  - 8 bits:  sx1508q, sx1502q
+	  - 16 bits: sx1509q, sx1506q
+
+config SPL_PINCTRL_SX150X
+	bool "Semtech SX150x I2C GPIO expander pinctrl driver in SPL"
+	depends on DM && SPL_PINCTRL_FULL
+	help
+	  This option is an SPL-variant of the PINCTRL_SX150X option.
+	  See the help of PINCTRL_SX150X for details.
+
+
 config PINCTRL_SANDBOX
 	bool "Sandbox pinctrl driver"
 	depends on SANDBOX
