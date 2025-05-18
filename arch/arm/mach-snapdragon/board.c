@@ -508,8 +508,12 @@ int board_late_init(void)
 	status |= env_set_hex("ramdisk_addr_r", addr_alloc(SZ_128M));
 	status |= env_set_hex("kernel_comp_addr_r", addr_alloc(KERNEL_COMP_SIZE));
 	status |= env_set_hex("kernel_comp_size", KERNEL_COMP_SIZE);
-	if (IS_ENABLED(CONFIG_FASTBOOT))
-		status |= env_set_hex("fastboot_addr_r", addr_alloc(FASTBOOT_BUF_SIZE));
+	if (IS_ENABLED(CONFIG_FASTBOOT)) {
+		addr = addr_alloc(FASTBOOT_BUF_SIZE);
+		status |= env_set_hex("fastboot_addr_r", addr);
+		/* override loadaddr for memory rich soc */
+		status |= env_set_hex("loadaddr", addr);
+	}
 	status |= env_set_hex("scriptaddr", addr_alloc(SZ_4M));
 	status |= env_set_hex("pxefile_addr_r", addr_alloc(SZ_4M));
 	addr = addr_alloc(SZ_2M);
