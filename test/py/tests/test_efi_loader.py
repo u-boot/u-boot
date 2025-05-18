@@ -98,7 +98,7 @@ def test_efi_setup_dhcp(ubman):
     global net_set_up
     net_set_up = True
 
-@pytest.mark.buildconfigspec('net')
+@pytest.mark.buildconfigspec('net', 'net_lwip')
 def test_efi_setup_static(ubman):
     """Set up the network using a static IP configuration.
 
