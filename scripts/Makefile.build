@@ -82,7 +82,9 @@ ifneq ($(strip $(obj-y) $(obj-m) $(obj-) $(subdir-m) $(lib-target)),)
 builtin-target := $(obj)/built-in.o
 endif
 
+ifdef CONFIG_MODULES
 modorder-target := $(obj)/modules.order
+endif
 
 # We keep a list of all modules in $(MODVERDIR)
 
