@@ -125,8 +125,6 @@ $(real-objs-m:.o=.i)  : quiet_modtag := [M]
 $(real-objs-m:.o=.s)  : quiet_modtag := [M]
 $(real-objs-m:.o=.lst): quiet_modtag := [M]
 
-$(obj-m)              : quiet_modtag := [M]
-
 # Default for not multi-part modules
 modname = $(basetarget)
 
