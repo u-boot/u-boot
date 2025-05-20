@@ -6,13 +6,12 @@
 
 #include <fdtdec.h>
 #include <init.h>
+#include <linux/sizes.h>
 #include <asm/armv8/mmu.h>
 #include <asm/global_data.h>
 #include <asm/system.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define SZ_8G				_AC(0x200000000, ULL)
 
 int dram_init(void)
 {
