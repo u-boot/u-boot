@@ -2538,14 +2538,11 @@ quiet_cmd_rmdirs = $(if $(wildcard $(rm-dirs)),CLEAN   $(wildcard $(rm-dirs)))
 quiet_cmd_rmfiles = $(if $(wildcard $(rm-files)),CLEAN   $(wildcard $(rm-files)))
       cmd_rmfiles = rm -f $(rm-files)
 
-# read all saved command lines
-
-cmd_files := $(wildcard .*.cmd)
-
-ifneq ($(cmd_files),)
-  $(cmd_files): ;	# Do not try to update included dependency files
-  include $(cmd_files)
-endif
+# read saved command lines for existing targets
+existing-targets := $(wildcard $(sort $(targets)))
+cmd_files := $(foreach f,$(existing-targets),$(dir $(f)).$(notdir $(f)).cmd)
+$(cmd_files): ;        # Do not try to update included dependency files
+-include $(cmd_files)
 
 endif    #ifeq ($(config-targets),1)
 endif    #ifeq ($(mixed-targets),1)
