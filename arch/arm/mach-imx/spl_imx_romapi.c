@@ -35,12 +35,10 @@ ulong __weak spl_romapi_get_uboot_base(u32 image_offset, u32 rom_bt_dev)
 {
 	u32 sector = 0;
 
-	/*
-	 * Some boards use this value even though MMC is not enabled in SPL, for
-	 * example imx8mn_bsh_smm_s2
-	 */
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+#if IS_ENABLED(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR)
 	sector = CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
+#elif IS_ENABLED(CONFIG_SPL_NAND_RAW_U_BOOT_USE_SECTOR)
+	sector = CONFIG_SPL_NAND_RAW_U_BOOT_SECTOR;
 #endif
 
 	return image_offset + sector * 512 - 0x8000;
