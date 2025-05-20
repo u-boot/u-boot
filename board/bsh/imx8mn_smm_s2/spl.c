@@ -43,8 +43,6 @@ void spl_board_init(void)
 
 int board_early_init_f(void)
 {
-	init_uart_clk(3);
-
 	if (IS_ENABLED(CONFIG_NAND_MXS)) {
 		init_nand_clk();
 	}
