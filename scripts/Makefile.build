@@ -113,17 +113,12 @@ modkern_cflags =                                          \
 	$(if $(part-of-module),                           \
 		$(KBUILD_CFLAGS_MODULE) $(CFLAGS_MODULE), \
 		$(KBUILD_CFLAGS_KERNEL) $(CFLAGS_KERNEL))
-quiet_modtag := $(empty)   $(empty)
+quiet_modtag = $(if $(part-of-module),[M],   )
 
 $(real-objs-m)        : part-of-module := y
 $(real-objs-m:.o=.i)  : part-of-module := y
 $(real-objs-m:.o=.s)  : part-of-module := y
 $(real-objs-m:.o=.lst): part-of-module := y
-
-$(real-objs-m)        : quiet_modtag := [M]
-$(real-objs-m:.o=.i)  : quiet_modtag := [M]
-$(real-objs-m:.o=.s)  : quiet_modtag := [M]
-$(real-objs-m:.o=.lst): quiet_modtag := [M]
 
 # Default for not multi-part modules
 modname = $(basetarget)
