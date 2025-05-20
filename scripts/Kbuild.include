@@ -28,6 +28,10 @@ basetarget = $(basename $(notdir $@))
 baseprereq = $(basename $(notdir $<))
 
 ###
+# real prerequisites without phony targets
+real-prereqs = $(filter-out $(PHONY), $^)
+
+###
 # Escape single quote for use in echo statements
 escsq = $(subst $(squote),'\$(squote)',$1)
 
