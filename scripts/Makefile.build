@@ -159,7 +159,6 @@ cmd_gensymtypes =                                                           \
 
 quiet_cmd_cc_symtypes_c = SYM $(quiet_modtag) $@
 cmd_cc_symtypes_c =                                                         \
-    set -e;                                                                 \
     $(call cmd_gensymtypes,true,$@) >/dev/null;                             \
     test -s $@ || rm -f $@
 
