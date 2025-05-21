@@ -21,7 +21,6 @@
 #include <asm/unaligned.h>
 #include <command.h>
 #include <fdtdec.h>
-#include <ide.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <part_efi.h>

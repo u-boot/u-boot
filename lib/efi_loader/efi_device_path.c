@@ -10,6 +10,7 @@
 #include <blk.h>
 #include <dm.h>
 #include <dm/root.h>
+#include <ide.h>
 #include <log.h>
 #include <net.h>
 #include <usb.h>
