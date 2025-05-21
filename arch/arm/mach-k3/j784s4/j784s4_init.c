@@ -242,6 +242,10 @@ void board_init_f(ulong dummy)
 	int ret;
 
 	k3_spl_init();
+
+	/* Perform board detection */
+	do_board_detect();
+
 	k3_mem_init();
 
 	if (IS_ENABLED(CONFIG_CPU_V7R) && IS_ENABLED(CONFIG_K3_AVS0)) {
