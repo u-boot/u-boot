@@ -11,8 +11,6 @@
 
 #include <linux/bitops.h>
 #include <linux/list.h>
-#include <linux/sizes.h>
-#include <linux/compiler.h>
 #include <linux/dma-direction.h>
 #include <cyclic.h>
 #include <part.h>

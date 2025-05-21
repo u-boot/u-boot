@@ -15,6 +15,7 @@
 #include <init.h>
 #include <k3-ddrss.h>
 #include <spl.h>
+#include <linux/sizes.h>
 #include <asm/arch/k3-ddr.h>
 
 #include "../common/tdx-cfg-block.h"
