@@ -39,4 +39,6 @@
 	"partitions=" PARTS_DEFAULT "\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0"
 
+#define CFG_SYS_NS16550_CLK		24000000
+
 #endif /* _STARFIVE_VISIONFIVE2_H */

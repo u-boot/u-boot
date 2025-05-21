@@ -6,46 +6,6 @@
 #include <dt-bindings/reset/starfive,jh7110-crg.h>
 
 / {
-	cpus: cpus {
-		bootph-pre-ram;
-
-		S7_0: cpu@0 {
-			bootph-pre-ram;
-			status = "okay";
-			cpu0_intc: interrupt-controller {
-				bootph-pre-ram;
-			};
-		};
-
-		U74_1: cpu@1 {
-			bootph-pre-ram;
-			cpu1_intc: interrupt-controller {
-				bootph-pre-ram;
-			};
-		};
-
-		U74_2: cpu@2 {
-			bootph-pre-ram;
-			cpu2_intc: interrupt-controller {
-				bootph-pre-ram;
-			};
-		};
-
-		U74_3: cpu@3 {
-			bootph-pre-ram;
-			cpu3_intc: interrupt-controller {
-				bootph-pre-ram;
-			};
-		};
-
-		U74_4: cpu@4 {
-			bootph-pre-ram;
-			cpu4_intc: interrupt-controller {
-				bootph-pre-ram;
-			};
-		};
-	};
-
 	timer {
 		compatible = "riscv,timer";
 		interrupts-extended = <&cpu0_intc 5>,
@@ -57,10 +17,6 @@
 
 	soc {
 		bootph-pre-ram;
-
-		clint: timer@2000000 {
-			bootph-pre-ram;
-		};
 
 		dmc: dmc@15700000 {
 			bootph-pre-ram;
@@ -76,6 +32,34 @@
 			clock-frequency = <2133>;
 		};
 	};
+};
+
+&clint {
+	bootph-pre-ram;
+};
+
+&cpu0_intc {
+	bootph-pre-ram;
+};
+
+&cpu1_intc {
+	bootph-pre-ram;
+};
+
+&cpu2_intc {
+	bootph-pre-ram;
+};
+
+&cpu3_intc {
+	bootph-pre-ram;
+};
+
+&cpu4_intc {
+	bootph-pre-ram;
+};
+
+&cpus {
+	bootph-pre-ram;
 };
 
 &osc {
@@ -107,6 +91,7 @@
 };
 
 &syscrg {
+	assigned-clock-rates = <0>; /* cpufreq not implemented, use defaults */
 	bootph-pre-ram;
 };
 

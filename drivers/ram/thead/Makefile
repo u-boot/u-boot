@@ -1,0 +1,1 @@
+obj-$(CONFIG_SPL_THEAD_TH1520_DDR) += th1520_ddr.o

@@ -23,6 +23,10 @@
 #include <asm/u-boot-riscv.h>
 
 /* For image.h:image_check_target_arch() */
+#ifdef CONFIG_64BIT
+#define IH_ARCH_DEFAULT IH_ARCH_RISCV64
+#else
 #define IH_ARCH_DEFAULT IH_ARCH_RISCV
+#endif
 
 #endif	/* _U_BOOT_H_ */
