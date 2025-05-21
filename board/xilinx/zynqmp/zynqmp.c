@@ -14,6 +14,7 @@
 #include <efi_loader.h>
 #include <init.h>
 #include <log.h>
+#include <mtd.h>
 #include <net.h>
 #include <sata.h>
 #include <ahci.h>

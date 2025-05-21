@@ -9,10 +9,10 @@
 #include <fdt_support.h>
 #include <flash.h>
 #include <log.h>
-#include <mtd.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <linux/mtd/mtd.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <misc.h>
 #include <mmc.h>
+#include <mtd.h>
 #include <part.h>
 #include <tee.h>
 #include <asm/arch/stm32mp1_smc.h>

@@ -32,7 +32,6 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <jffs2/load_kernel.h>
-#include <mtd.h>
 #include <nand.h>
 #include <video.h>
 #include <video_console.h>

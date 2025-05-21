@@ -8,6 +8,7 @@
 #include <fwu.h>
 #include <fwu_mdata.h>
 #include <memalign.h>
+#include <mtd.h>
 
 #include <linux/errno.h>
 #include <linux/types.h>
