@@ -8,6 +8,8 @@
 #ifndef __SYNO_LEGACY_H
 #define __SYNO_LEGACY_H
 
+#include <linux/if_ether.h>
+
 /* Marvell uboot parameters */
 #define ATAG_MV_UBOOT 0x41000403
 #define VER_NUM       0x03040400 /* 3.4.4 */

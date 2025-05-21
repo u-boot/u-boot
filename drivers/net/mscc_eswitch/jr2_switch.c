@@ -222,7 +222,6 @@
 #define CPU_PORT		53
 #define IFH_LEN			7
 #define JR2_BUF_CELL_SZ		60
-#define ETH_ALEN		6
 #define PGID_BROADCAST		510
 #define PGID_UNICAST		511
 

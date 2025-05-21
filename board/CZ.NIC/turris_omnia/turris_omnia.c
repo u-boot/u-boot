@@ -29,6 +29,7 @@
 #include <linux/bitops.h>
 #include <linux/bitrev.h>
 #include <linux/delay.h>
+#include <linux/if_ether.h>
 #include <u-boot/crc.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"
