@@ -13,6 +13,7 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <spl.h>
 #include <asm/arch/mx6-ddr.h>
@@ -65,10 +66,12 @@ static void spl_dram_init(void)
 		/* Already configured, nothing to do */
 		break;
 	case SZ_256M:
+		udelay(1);
 		ddr_cfg_write(&bsh_dram_timing_256mb);
 		break;
 	case SZ_128M:
 	default:
+		udelay(1);
 		ddr_cfg_write(&bsh_dram_timing_128mb);
 		break;
 	}
