@@ -59,8 +59,10 @@ static inline int store_block(uchar *src, unsigned int offset, unsigned int len)
 	if (CONFIG_IS_ENABLED(LMB) && wget_info->set_bootdev) {
 		if (store_addr < image_load_addr ||
 		    lmb_read_check(store_addr, len)) {
-			printf("\nwget error: ");
-			printf("trying to overwrite reserved memory...\n");
+			if (!wget_info->silent) {
+				printf("\nwget error: ");
+				printf("trying to overwrite reserved memory\n");
+			}
 			return -1;
 		}
 	}
@@ -75,6 +77,9 @@ static inline int store_block(uchar *src, unsigned int offset, unsigned int len)
 static void show_block_marker(u32 packets)
 {
 	int cnt;
+
+	if (wget_info->silent)
+		return;
 
 	if (content_length != -1) {
 		if (net_boot_file_size > content_length)
@@ -101,11 +106,15 @@ static void tcp_stream_on_closed(struct tcp_stream *tcp)
 	net_set_state(wget_loop_state);
 	if (wget_loop_state != NETLOOP_SUCCESS) {
 		net_boot_file_size = 0;
-		printf("\nwget: Transfer Fail, TCP status - %d\n", tcp->status);
+		if (!wget_info->silent)
+			printf("\nwget: Transfer Fail, TCP status - %d\n",
+			       tcp->status);
 		return;
 	}
 
-	printf("\nPackets received %d, Transfer Successful\n", tcp->rx_packets);
+	if (!wget_info->silent)
+		printf("\nPackets received %d, Transfer Successful\n",
+		       tcp->rx_packets);
 	wget_info->file_size = net_boot_file_size;
 	if (wget_info->method == WGET_HTTP_METHOD_GET && wget_info->set_bootdev) {
 		efi_set_bootdev("Http", NULL, image_url,
@@ -139,7 +148,8 @@ static void tcp_stream_on_rcv_nxt_update(struct tcp_stream *tcp, u32 rx_bytes)
 		    tcp->state == TCP_ESTABLISHED)
 			goto end;
 
-		printf("ERROR: misssed HTTP header\n");
+		if (!wget_info->silent)
+			printf("ERROR: misssed HTTP header\n");
 		tcp_stream_close(tcp);
 		goto end;
 	}
@@ -346,7 +356,8 @@ void wget_start(void)
 	tcp_stream_set_on_create_handler(tcp_stream_on_create);
 	tcp = tcp_stream_connect(web_server_ip, server_port);
 	if (!tcp) {
-		printf("No free tcp streams\n");
+		if (!wget_info->silent)
+			printf("No free tcp streams\n");
 		net_set_state(NETLOOP_FAIL);
 		return;
 	}

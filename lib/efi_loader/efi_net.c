@@ -51,7 +51,7 @@ static int next_dp_entry;
 static struct wget_http_info efi_wget_info = {
 	.set_bootdev = false,
 	.check_buffer_size = true,
-
+	.silent = true,
 };
 #endif
 

@@ -570,6 +570,7 @@ enum wget_http_method {
  *			Filled by client.
  * @hdr_cont_len:	content length according to headers. Filled by wget
  * @headers:		buffer for headers. Filled by wget.
+ * @silent:		do not print anything to the console. Filled by client.
  */
 struct wget_http_info {
 	enum wget_http_method method;
@@ -580,6 +581,7 @@ struct wget_http_info {
 	bool check_buffer_size;
 	u32 hdr_cont_len;
 	char *headers;
+	bool silent;
 };
 
 extern struct wget_http_info default_wget_info;
