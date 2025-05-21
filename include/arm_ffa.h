@@ -9,7 +9,7 @@
 #ifndef __ARM_FFA_H
 #define __ARM_FFA_H
 
-#include <linux/printk.h>
+#include <linux/types.h>
 
 /*
  * This header is public. It can be used by clients to access
