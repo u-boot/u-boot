@@ -17,6 +17,7 @@
 #define _EFI_TCG2_PROTOCOL_H_
 
 #include <efi_api.h>
+#include <part_efi.h>
 #include <tpm-v2.h>
 #include <tpm_tcg2.h>
 
