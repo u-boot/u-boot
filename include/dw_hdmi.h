@@ -9,8 +9,6 @@
 #ifndef _DW_HDMI_H
 #define _DW_HDMI_H
 
-#include <edid.h>
-
 #define HDMI_EDID_BLOCK_SIZE            128
 
 /* Identification Registers */
