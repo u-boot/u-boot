@@ -1,0 +1,22 @@
+# Configuration for building U-Boot to be flashed
+# to the uefi partition of QCS615 dev boards with
+# the "Linux Embedded" partition layout (which have
+# a dedicated "uefi" partition for edk2/U-Boot)
+
+#include "qcom_defconfig"
+
+# Otherwise buildman thinks this isn't an ARM platform
+CONFIG_ARM=y
+
+CONFIG_DEBUG_UART=y
+CONFIG_DEBUG_UART_ANNOUNCE=y
+CONFIG_DEBUG_UART_BASE=0x880000
+CONFIG_DEBUG_UART_MSM_GENI=y
+CONFIG_DEBUG_UART_CLOCK=14745600
+
+CONFIG_DEFAULT_DEVICE_TREE="qcom/qcs615-ride"
+
+CONFIG_REMAKE_ELF=y
+
+# Address where U-Boot will be loaded
+CONFIG_TEXT_BASE=0x9fc00000
