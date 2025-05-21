@@ -22,5 +22,6 @@ struct dram_timing_info {
 
 extern struct dram_timing_info bsh_dram_timing_128mb;
 extern struct dram_timing_info bsh_dram_timing_256mb;
+extern struct dram_timing_info bsh_dram_timing_512mb;
 
 #endif /* SPL_MTYPES_H */

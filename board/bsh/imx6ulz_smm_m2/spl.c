@@ -54,15 +54,18 @@ static void ddr_cfg_write(const struct dram_timing_info *dram_timing_info)
 static void spl_dram_init(void)
 {
 	/* Configure memory to maximum supported size for detection */
-	ddr_cfg_write(&bsh_dram_timing_256mb);
+	ddr_cfg_write(&bsh_dram_timing_512mb);
 
 	/* Detect memory physically present */
-	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE, SZ_256M);
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE, SZ_512M);
 
 	/* Reconfigure memory for actual detected size */
 	switch (gd->ram_size) {
-	case SZ_256M:
+	case SZ_512M:
 		/* Already configured, nothing to do */
+		break;
+	case SZ_256M:
+		ddr_cfg_write(&bsh_dram_timing_256mb);
 		break;
 	case SZ_128M:
 	default:
