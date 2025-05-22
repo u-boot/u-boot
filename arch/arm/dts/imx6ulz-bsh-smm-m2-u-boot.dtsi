@@ -5,8 +5,12 @@
  * Author: Michael Trimarchi <michael@amarulasolutions.com>
  */
 
-&{/soc} {
-	bootph-all;
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		bootph-pre-ram;
+	};
 };
 
 &aips2 {

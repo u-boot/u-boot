@@ -217,13 +217,6 @@ static int jr_enqueue(uint32_t *desc_addr,
 
 	jr->head = (head + 1) & (jr->size - 1);
 
-	/* Invalidate output ring */
-	start = (unsigned long)jr->output_ring &
-					~(ARCH_DMA_MINALIGN - 1);
-	end = ALIGN((unsigned long)jr->output_ring + jr->op_size,
-		    ARCH_DMA_MINALIGN);
-	invalidate_dcache_range(start, end);
-
 	sec_out32(&regs->irja, 1);
 
 	return 0;
@@ -243,6 +236,7 @@ static int jr_dequeue(int sec_idx, struct caam_regs *caam)
 #else
 	uint32_t *addr;
 #endif
+	unsigned long start, end;
 
 	while (sec_in32(&regs->orsf) && CIRC_CNT(jr->head, jr->tail,
 						 jr->size)) {
@@ -250,6 +244,11 @@ static int jr_dequeue(int sec_idx, struct caam_regs *caam)
 		found = 0;
 
 		caam_dma_addr_t op_desc;
+
+		/* Invalidate output ring */
+		start = (unsigned long)jr->output_ring & ~(ARCH_DMA_MINALIGN - 1);
+		end = ALIGN((unsigned long)jr->output_ring + jr->op_size, ARCH_DMA_MINALIGN);
+		invalidate_dcache_range(start, end);
 	#ifdef CONFIG_CAAM_64BIT
 		/* Read the 64 bit Descriptor address from Output Ring.
 		 * The 32 bit hign and low part of the address will
@@ -283,8 +282,13 @@ static int jr_dequeue(int sec_idx, struct caam_regs *caam)
 		}
 
 		/* Error condition if match not found */
-		if (!found)
+		if (!found) {
+			int slots_full = sec_in32(&regs->orsf);
+
+			jr->tail = (jr->tail + slots_full) & (jr->size - 1);
+			sec_out32(&regs->orjr, slots_full);
 			return -1;
+		}
 
 		jr->info[idx].op_done = 1;
 		callback = (void *)jr->info[idx].callback;
@@ -296,14 +300,14 @@ static int jr_dequeue(int sec_idx, struct caam_regs *caam)
 		 */
 		if (idx == tail)
 			do {
+				jr->info[tail].op_done = 0;
 				tail = (tail + 1) & (jr->size - 1);
 			} while (jr->info[tail].op_done);
 
 		jr->tail = tail;
-		jr->read_idx = (jr->read_idx + 1) & (jr->size - 1);
+
 
 		sec_out32(&regs->orjr, 1);
-		jr->info[idx].op_done = 0;
 
 		callback(status, arg);
 	}
@@ -378,7 +382,6 @@ static int jr_sw_cleanup(uint8_t sec_idx, struct caam_regs *caam)
 
 	jr->head = 0;
 	jr->tail = 0;
-	jr->read_idx = 0;
 	jr->write_idx = 0;
 	memset(jr->info, 0, sizeof(jr->info));
 	memset(jr->input_ring, 0, jr->size * sizeof(caam_dma_addr_t));
