@@ -138,6 +138,7 @@
 #define PROT_BUS_WIDTH_40		0x2
 #define PROT_BUS_WIDTH_MASK		0x3
 #define PROT_BUS_WIDTH_SHIFT		2
+#define GEM_CLK_CTRL_WIDTH_SHIFT	5
 
 /* Number of GT lanes */
 #define NUM_LANES			4
@@ -400,6 +401,7 @@ static void xpsgtr_phy_init_sgmii(struct xpsgtr_phy *gtr_phy)
 {
 	struct xpsgtr_dev *gtr_dev = gtr_phy->dev;
 	u32 shift = gtr_phy->lane * PROT_BUS_WIDTH_SHIFT;
+	u32 clk_ctrl_shift = gtr_phy->lane * GEM_CLK_CTRL_WIDTH_SHIFT;
 
 	/* Set SGMII protocol TX and RX bus width to 10 bits. */
 	xpsgtr_clr_set(gtr_dev, TX_PROT_BUS_WIDTH, PROT_BUS_WIDTH_MASK << shift,
@@ -417,9 +419,9 @@ static void xpsgtr_phy_init_sgmii(struct xpsgtr_phy *gtr_phy)
 	 */
 	/* GEM I/O Clock Control */
 	clrsetbits_le32(ZYNQMP_IOU_SLCR_BASEADDR + IOU_SLCR_GEM_CLK_CTRL,
-			0xf << shift,
+			0xf << clk_ctrl_shift,
 			(GEM_CTRL_GEM_SGMII_MODE | GEM_CTRL_GEM_REF_SRC_SEL) <<
-			shift);
+			clk_ctrl_shift);
 
 	/* Setup signal detect */
 	clrsetbits_le32(ZYNQMP_IOU_SLCR_BASEADDR + IOU_SLCR_GEM_CTRL,
