@@ -19,6 +19,7 @@
 struct venice_board_info som_info;
 struct venice_board_info base_info;
 char venice_model[32];
+char venice_som_model[32];
 char venice_baseboard_model[32];
 u32 venice_serial;
 
@@ -315,6 +316,7 @@ int venice_eeprom_init(int quiet)
 		memset(&som_info, 0, sizeof(som_info));
 		return 0;
 	}
+	strlcpy(venice_som_model, som_info.model, sizeof(venice_som_model));
 
 	/* read optional baseboard EEPROM */
 	eeprom_read(BASEBOARD_EEPROM_BUSNO, BASEBOARD_EEPROM_ADDR, 2, &base_info);
@@ -366,6 +368,11 @@ void board_gsc_info(void)
 const char *eeprom_get_model(void)
 {
 	return venice_model;
+}
+
+const char *eeprom_get_som_model(void)
+{
+	return venice_som_model;
 }
 
 const char *eeprom_get_baseboard_model(void)

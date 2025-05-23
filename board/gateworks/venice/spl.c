@@ -57,6 +57,7 @@ static int dm_i2c_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set)
 
 static int power_init_board(const char *model, struct udevice *gsc)
 {
+	const char *som = eeprom_get_som_model();
 	struct udevice *bus;
 	struct udevice *dev;
 	int ret;
@@ -77,10 +78,7 @@ static int power_init_board(const char *model, struct udevice *gsc)
 		}
 	}
 
-	if ((!strncmp(model, "GW71", 4)) ||
-	    (!strncmp(model, "GW72", 4)) ||
-	    (!strncmp(model, "GW73", 4)) ||
-	    (!strncmp(model, "GW75", 4))) {
+	if (!strncmp(som, "GW70", 4)) {
 		ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
 		if (ret) {
 			printf("PMIC    : failed I2C1 probe: %d\n", ret);

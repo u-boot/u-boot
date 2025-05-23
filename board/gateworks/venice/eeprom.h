@@ -26,6 +26,7 @@ struct venice_board_info {
 
 int venice_eeprom_init(int quiet);
 const char *eeprom_get_model(void);
+const char *eeprom_get_som_model(void);
 const char *eeprom_get_baseboard_model(void);
 const char *eeprom_get_dtb_name(int level, char *buf, int len);
 int eeprom_getmac(int index, uint8_t *enetaddr);
