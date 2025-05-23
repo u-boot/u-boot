@@ -30,16 +30,23 @@ struct mtk_serial_regs {
 	u32 mcr;
 	u32 lsr;
 	u32 msr;
-	u32 spr;
-	u32 mdr1;
+	u32 scr;
+	u32 autobaud_en;
 	u32 highspeed;
 	u32 sample_count;
 	u32 sample_point;
+	u32 autobaud_reg;
+	u32 ratefix_ad;
+	u32 autobaud_sample;
+	u32 guard;
+	u32 escape_dat;
+	u32 escape_en;
+	u32 sleep_en;
+	u32 dma_en;
+	u32 rxtri_ad;
 	u32 fracdiv_l;
 	u32 fracdiv_m;
-	u32 escape_en;
-	u32 guard;
-	u32 rx_sel;
+	u32 fcr_rd;
 };
 
 #define thr rbr
