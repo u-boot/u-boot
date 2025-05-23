@@ -98,6 +98,13 @@
 		gpios = <6 GPIO_ACTIVE_HIGH>;
 		line-name = "m2_rst";
 	};
+
+	m2_wdis2 {
+		gpio-hog;
+		output-high;
+		gpios = <14 GPIO_ACTIVE_HIGH>;
+		line-name = "m2_wdis2#";
+	};
 };
 
 &gpio4 {
@@ -110,11 +117,11 @@
 		line-name = "m2_off#";
 	};
 
-	m2_wdis {
+	m2_wdis1 {
 		gpio-hog;
 		output-high;
 		gpios = <18 GPIO_ACTIVE_HIGH>;
-		line-name = "m2_wdis#";
+		line-name = "m2_wdis1#";
 	};
 
 	rs485_en {
