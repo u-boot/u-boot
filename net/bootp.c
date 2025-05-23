@@ -41,6 +41,22 @@
  */
 #define TIMEOUT_MS	((3 + (CONFIG_NET_RETRY_COUNT * 5)) * 1000)
 
+/*
+ * According to rfc951 : 7.2. Client Retransmission Strategy
+ * "After the 'average' backoff reaches about 60 seconds, it should be
+ * increased no further, but still randomized."
+ *
+ * U-Boot has saturated this backoff at 2 seconds for a long time.
+ * To modify, set the environment variable "bootpretransmitperiodmax"
+ */
+#define RETRANSMIT_PERIOD_MAX_MS	60000
+
+/* Retransmission timeout for the initial packet (in milliseconds).
+ * This timeout will double on each retry.  To modify, set the
+ * environment variable bootpretransmitperiodinit.
+ */
+#define RETRANSMIT_PERIOD_INIT_MS	250
+
 #ifndef CFG_DHCP_MIN_EXT_LEN		/* minimal length of extension list */
 #define CFG_DHCP_MIN_EXT_LEN 64
 #endif
@@ -52,6 +68,7 @@
 u32		bootp_ids[CFG_BOOTP_ID_CACHE_SIZE];
 unsigned int	bootp_num_ids;
 int		bootp_try;
+u32		bootp_id;
 ulong		bootp_start;
 ulong		bootp_timeout;
 char net_nis_domain[32] = {0,}; /* Our NIS domain */
@@ -59,6 +76,7 @@ char net_hostname[32] = {0,}; /* Our hostname */
 char net_root_path[CONFIG_BOOTP_MAX_ROOT_PATH_LEN] = {0,}; /* Our bootpath */
 
 static ulong time_taken_max;
+static u32   retransmit_period_max_ms;
 
 #if defined(CONFIG_CMD_DHCP)
 static dhcp_state_t dhcp_state = INIT;
@@ -395,6 +413,7 @@ static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 static void bootp_timeout_handler(void)
 {
 	ulong time_taken = get_timer(bootp_start);
+	int rand_minus_plus_100;
 
 	if (time_taken >= time_taken_max) {
 #ifdef CONFIG_BOOTP_MAY_FAIL
@@ -413,8 +432,17 @@ static void bootp_timeout_handler(void)
 		}
 	} else {
 		bootp_timeout *= 2;
-		if (bootp_timeout > 2000)
-			bootp_timeout = 2000;
+		if (bootp_timeout > retransmit_period_max_ms)
+			bootp_timeout = retransmit_period_max_ms;
+
+		/* Randomize by adding bootp_timeout*RAND, where RAND
+		 * is a randomization factor between -0.1..+0.1
+		 */
+		srand(get_ticks() + rand());
+		rand_minus_plus_100 = ((rand() % 200) - 100);
+		bootp_timeout = bootp_timeout +
+				(((int)bootp_timeout * rand_minus_plus_100) / 1000);
+
 		net_set_timeout_handler(bootp_timeout, bootp_timeout_handler);
 		bootp_request();
 	}
@@ -602,7 +630,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	*cnt += 1;
 #endif
 	if (IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION)) {
-		*e++ = 209;	/* PXELINUX Config File */
+		*e++ = DHCP_OPTION_PXE_CONFIG_FILE;	/* PXELINUX Config File */
 		*cnt += 1;
 	}
 	/* no options, so back up to avoid sending an empty request list */
@@ -713,7 +741,8 @@ void bootp_reset(void)
 	bootp_num_ids = 0;
 	bootp_try = 0;
 	bootp_start = get_timer(0);
-	bootp_timeout = 250;
+
+	bootp_timeout = env_get_ulong("bootpretransmitperiodinit", 10, RETRANSMIT_PERIOD_INIT_MS);
 }
 
 void bootp_request(void)
@@ -725,7 +754,6 @@ void bootp_request(void)
 #ifdef CONFIG_BOOTP_RANDOM_DELAY
 	ulong rand_ms;
 #endif
-	u32 bootp_id;
 	struct in_addr zero_ip;
 	struct in_addr bcast_ip;
 	char *ep;  /* Environment pointer */
@@ -740,6 +768,9 @@ void bootp_request(void)
 		time_taken_max = dectoul(ep, NULL);
 	else
 		time_taken_max = TIMEOUT_MS;
+
+	retransmit_period_max_ms = env_get_ulong("bootpretransmitperiodmax", 10,
+						 RETRANSMIT_PERIOD_MAX_MS);
 
 #ifdef CONFIG_BOOTP_RANDOM_DELAY		/* Random BOOTP delay */
 	if (bootp_try == 0)
@@ -800,19 +831,27 @@ void bootp_request(void)
 	extlen = bootp_extended((u8 *)bp->bp_vend);
 #endif
 
-	/*
-	 *	Bootp ID is the lower 4 bytes of our ethernet address
-	 *	plus the current time in ms.
-	 */
-	bootp_id = ((u32)net_ethaddr[2] << 24)
-		| ((u32)net_ethaddr[3] << 16)
-		| ((u32)net_ethaddr[4] << 8)
-		| (u32)net_ethaddr[5];
-	bootp_id += get_timer(0);
-	bootp_id = htonl(bootp_id);
+	/* Only generate a new transaction ID for each new BOOTP request */
+	if (bootp_try == 1) {
+		if (IS_ENABLED(CONFIG_BOOTP_RANDOM_XID)) {
+			srand(get_ticks() + rand());
+			bootp_id = rand();
+		} else {
+			/*
+			 *	Bootp ID is the lower 4 bytes of our ethernet address
+			 *	plus the current time in ms.
+			 */
+			bootp_id = ((u32)net_ethaddr[2] << 24)
+				| ((u32)net_ethaddr[3] << 16)
+				| ((u32)net_ethaddr[4] << 8)
+				| (u32)net_ethaddr[5];
+			bootp_id += get_timer(0);
+			bootp_id = htonl(bootp_id);
+		}
+	}
+
 	bootp_add_id(bootp_id);
 	net_copy_u32(&bp->bp_id, &bootp_id);
-
 	/*
 	 * Calculate proper packet lengths taking into account the
 	 * variable size of the options field
@@ -921,7 +960,7 @@ static void dhcp_process_options(uchar *popt, uchar *end)
 				net_boot_file_name[size] = 0;
 			}
 			break;
-		case 209:	/* PXELINUX Config File */
+		case DHCP_OPTION_PXE_CONFIG_FILE:	/* PXELINUX Config File */
 			if (IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION)) {
 				/* In case it has already been allocated when get DHCP Offer packet,
 				 * free first to avoid memory leak.

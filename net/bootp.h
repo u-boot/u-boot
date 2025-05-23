@@ -90,6 +90,8 @@ typedef enum { INIT,
 #define DHCP_NAK      6
 #define DHCP_RELEASE  7
 
+#define DHCP_OPTION_PXE_CONFIG_FILE	209	/* "ConfigFile" option according to rfc5071 */
+
 /**********************************************************************/
 
 #endif /* __BOOTP_H__ */

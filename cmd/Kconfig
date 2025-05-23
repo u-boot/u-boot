@@ -1986,6 +1986,7 @@ config BOOTP_PXE_CLIENTARCH
 
 config BOOTP_PXE_DHCP_OPTION
 	bool "Request & store 'pxe_configfile' from BOOTP/DHCP server"
+	default y
 	depends on BOOTP_PXE
 
 config BOOTP_VCI_STRING
@@ -1995,6 +1996,30 @@ config BOOTP_VCI_STRING
 	default "U-Boot.armv8" if ARM64
 	default "U-Boot.arm" if ARM
 	default "U-Boot"
+
+config BOOTP_RANDOM_XID
+	bool "Send random transaction ID to BOOTP/DHCP server"
+	depends on CMD_BOOTP && (LIB_RAND || LIB_HW_RAND)
+	help
+	  Selecting this will allow for a random transaction ID to get
+	  selected for each BOOTP/DHCPv4 exchange.
+
+if CMD_DHCP6
+
+config DHCP6_PXE_CLIENTARCH
+	hex
+	default 0x16 if ARM64
+	default 0x15 if ARM
+	default 0xFF
+
+config DHCP6_PXE_DHCP_OPTION
+	bool "Request & store 'pxe_configfile' from DHCP6 server"
+
+config DHCP6_ENTERPRISE_ID
+	int "Enterprise ID to send in DHCPv6 Vendor Class Option"
+	default 0
+
+endif
 
 config CMD_TFTPPUT
 	bool "tftp put"
