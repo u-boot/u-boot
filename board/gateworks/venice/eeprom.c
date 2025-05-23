@@ -449,6 +449,15 @@ int venice_eeprom_init(int quiet)
 					venice_model[i++] = fsa_info.model[9];
 			}
 		}
+
+		/* append extra model info */
+		if (som_info.config[0] >= 32 && som_info.config[0] < 0x7f) {
+			venice_model[i++] = '-';
+			strlcpy(venice_model + i, som_info.config, (sizeof(venice_model) - i) - 1);
+			i += strlen(som_info.config);
+			if (i >= sizeof(venice_model))
+				i = sizeof(venice_model) - 1;
+		}
 		venice_model[i++] = 0;
 	}
 
