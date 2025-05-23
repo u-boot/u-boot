@@ -350,6 +350,11 @@ int venice_eeprom_init(int quiet)
 	if (!quiet)
 		eeprom_info(false);
 
+	if (!strncmp(venice_model, "GW7901-SP486", 12) &&
+	    strcmp(venice_model, "GW7901-SP486-C")) {
+		return 2048;
+	}
+
 	return (16 << som_info.sdram_size);
 }
 
