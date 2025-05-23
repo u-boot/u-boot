@@ -126,6 +126,8 @@ int write_tables(void)
 			use_high = true;
 			if (!gd->arch.table_start_high)
 				gd->arch.table_start_high = rom_addr;
+			if (table->tag == BLOBLISTT_SMBIOS_TABLES)
+				gd_set_smbios_start(rom_addr);
 		}
 		rom_table_end = table->write(rom_addr);
 		if (!rom_table_end) {
