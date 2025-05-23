@@ -46,6 +46,8 @@ static int smcwd_call(struct udevice *dev, enum smcwd_call call,
 		return -ENODEV;
 	if (res->a0 == PSCI_RET_INVALID_PARAMS)
 		return -EINVAL;
+	if (res->a0 == PSCI_RET_DISABLED)
+		return -ENODATA;
 	if (res->a0 != PSCI_RET_SUCCESS)
 		return -EIO;
 
@@ -98,6 +100,21 @@ static int smcwd_probe(struct udevice *dev)
 
 	priv->min_timeout = res.a1;
 	priv->max_timeout = res.a2;
+
+	/* If already started, then force u-boot to use it */
+	err = smcwd_call(dev, SMCWD_GET_TIMELEFT, 0, NULL);
+	switch (err) {
+	case 0:
+		dev_dbg(dev, "Already started\n");
+		wdt_set_force_autostart(dev);
+		break;
+	case -ENODATA:
+		dev_dbg(dev, "Not already started\n");
+		break;
+	default:
+		/* Optional SMCWD_GET_TIMELEFT not implemented */
+		break;
+	}
 
 	return 0;
 }
