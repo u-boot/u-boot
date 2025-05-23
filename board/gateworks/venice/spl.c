@@ -62,14 +62,16 @@ static int power_init_board(const char *model, struct udevice *gsc)
 	struct udevice *dev;
 	int ret;
 
-	/* Enable GSC voltage supervisor for new board models */
-	if ((!strncmp(model, "GW7100", 6) && model[10] > 'D') ||
-	    (!strncmp(model, "GW7101", 6) && model[10] > 'D') ||
-	    (!strncmp(model, "GW7200", 6) && model[10] > 'E') ||
-	    (!strncmp(model, "GW7201", 6) && model[10] > 'E') ||
-	    (!strncmp(model, "GW7300", 6) && model[10] > 'E') ||
-	    (!strncmp(model, "GW7301", 6) && model[10] > 'E') ||
-	    (!strncmp(model, "GW740", 5) && model[7] > 'B')) {
+	/* Enable GSC voltage supervisor only for newew board models */
+	if ((!strncmp(model, "GW7100", 6) && model[10] < 'E') ||
+	    (!strncmp(model, "GW7101", 6) && model[10] < 'E') ||
+	    (!strncmp(model, "GW7200", 6) && model[10] < 'F') ||
+	    (!strncmp(model, "GW7201", 6) && model[10] < 'F') ||
+	    (!strncmp(model, "GW7300", 6) && model[10] < 'F') ||
+	    (!strncmp(model, "GW7301", 6) && model[10] < 'F') ||
+	    (!strncmp(model, "GW740", 5) && model[7] < 'C')) {
+		printf("GSC     : voltage supervisor disabled\n");
+	} else {
 		u8 ver;
 
 		if (!dm_i2c_read(gsc, 14, &ver, 1) && ver > 62) {
