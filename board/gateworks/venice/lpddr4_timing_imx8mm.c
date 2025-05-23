@@ -1830,7 +1830,7 @@ static struct dram_fsp_msg ddr_dram_fsp_msg_512mb[] = {
 };
 
 /* ddr timing config params */
-struct dram_timing_info dram_timing_512mb = {
+static struct dram_timing_info dram_timing_512mb = {
 	.ddrc_cfg = ddr_ddrc_cfg_512mb,
 	.ddrc_cfg_num = ARRAY_SIZE(ddr_ddrc_cfg_512mb),
 	.ddrphy_cfg = ddr_ddrphy_cfg_512mb,
@@ -2489,7 +2489,7 @@ static struct dram_fsp_msg lpddr4_dram_fsp_msg_1gb[] = {
 };
 
 /* lpddr4 timing config params */
-struct dram_timing_info dram_timing_1gb = {
+static struct dram_timing_info dram_timing_1gb = {
 	.ddrc_cfg = lpddr4_ddrc_cfg_1gb,
 	.ddrc_cfg_num = ARRAY_SIZE(lpddr4_ddrc_cfg_1gb),
 	.ddrphy_cfg = lpddr4_ddrphy_cfg_1gb,
@@ -3005,7 +3005,7 @@ static struct dram_fsp_msg lpddr4_dram_fsp_msg_4gb[] = {
 };
 
 /* lpddr4 timing config params */
-struct dram_timing_info dram_timing_4gb = {
+static struct dram_timing_info dram_timing_4gb = {
 	.ddrc_cfg = lpddr4_ddrc_cfg_4gb,
 	.ddrc_cfg_num = ARRAY_SIZE(lpddr4_ddrc_cfg_4gb),
 	.ddrphy_cfg = lpddr4_ddrphy_cfg_4gb,
@@ -3140,12 +3140,12 @@ static struct dram_cfg_param lpddr4_ddrphy_cfg_2gb[] = {
 	{ 0x100a7, 0x7 },
 	{ 0x110a0, 0x0 },
 	{ 0x110a1, 0x1 },
-	{ 0x110a2, 0x2 },
-	{ 0x110a3, 0x3 },
-	{ 0x110a4, 0x4 },
-	{ 0x110a5, 0x5 },
-	{ 0x110a6, 0x6 },
-	{ 0x110a7, 0x7 },
+	{ 0x110a2, 0x3 },
+	{ 0x110a3, 0x4 },
+	{ 0x110a4, 0x5 },
+	{ 0x110a5, 0x2 },
+	{ 0x110a6, 0x7 },
+	{ 0x110a7, 0x6 },
 	{ 0x120a0, 0x0 },
 	{ 0x120a1, 0x1 },
 	{ 0x120a2, 0x3 },
@@ -3156,12 +3156,12 @@ static struct dram_cfg_param lpddr4_ddrphy_cfg_2gb[] = {
 	{ 0x120a7, 0x6 },
 	{ 0x130a0, 0x0 },
 	{ 0x130a1, 0x1 },
-	{ 0x130a2, 0x5 },
-	{ 0x130a3, 0x2 },
-	{ 0x130a4, 0x3 },
-	{ 0x130a5, 0x4 },
-	{ 0x130a6, 0x7 },
-	{ 0x130a7, 0x6 },
+	{ 0x130a2, 0x2 },
+	{ 0x130a3, 0x3 },
+	{ 0x130a4, 0x4 },
+	{ 0x130a5, 0x5 },
+	{ 0x130a6, 0x6 },
+	{ 0x130a7, 0x7 },
 	{ 0x1005f, 0x1ff },
 	{ 0x1015f, 0x1ff },
 	{ 0x1105f, 0x1ff },
@@ -3521,7 +3521,7 @@ static struct dram_fsp_msg lpddr4_dram_fsp_msg_2gb[] = {
 };
 
 /* lpddr4 timing config params */
-struct dram_timing_info dram_timing_2gb = {
+static struct dram_timing_info dram_timing_2gb = {
 	.ddrc_cfg = lpddr4_ddrc_cfg_2gb,
 	.ddrc_cfg_num = ARRAY_SIZE(lpddr4_ddrc_cfg_2gb),
 	.ddrphy_cfg = lpddr4_ddrphy_cfg_2gb,
@@ -3534,3 +3534,28 @@ struct dram_timing_info dram_timing_2gb = {
 	.ddrphy_pie_num = ARRAY_SIZE(lpddr4_phy_pie),
 	.fsp_table = { 3000, 400, 100, },
 };
+
+struct dram_timing_info *spl_dram_init(const char *model, int sizemb)
+{
+	struct dram_timing_info *dram_timing;
+
+	switch (sizemb) {
+	case 512:
+		dram_timing = &dram_timing_512mb;
+		break;
+	case 1024:
+		dram_timing = &dram_timing_1gb;
+		break;
+	case 2048:
+		dram_timing = &dram_timing_2gb;
+		break;
+	case 4096:
+		dram_timing = &dram_timing_4gb;
+		break;
+	default:
+		printf("unsupported");
+		dram_timing = &dram_timing_1gb;
+	}
+
+	return dram_timing;
+}

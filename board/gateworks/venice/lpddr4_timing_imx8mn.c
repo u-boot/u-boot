@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <linux/kernel.h>
+#include <string.h>
 #include <asm/arch/ddr.h>
 
 /*
@@ -1425,7 +1426,7 @@ static struct dram_fsp_msg ddr_dram_fsp_msg_1gb_single_die[] = {
 };
 
 /* ddr timing config params */
-struct dram_timing_info dram_timing_1gb_single_die = {
+static struct dram_timing_info dram_timing_1gb_single_die = {
 	.ddrc_cfg = ddr_ddrc_cfg_1gb_single_die,
 	.ddrc_cfg_num = ARRAY_SIZE(ddr_ddrc_cfg_1gb_single_die),
 	.ddrphy_cfg = ddr_ddrphy_cfg_1gb_single_die,
@@ -1890,7 +1891,7 @@ static struct dram_fsp_msg ddr_dram_fsp_msg_2gb_single_die[] = {
 };
 
 /* ddr timing config params */
-struct dram_timing_info dram_timing_2gb_single_die = {
+static struct dram_timing_info dram_timing_2gb_single_die = {
 	.ddrc_cfg = ddr_ddrc_cfg_2gb_single_die,
 	.ddrc_cfg_num = ARRAY_SIZE(ddr_ddrc_cfg_2gb_single_die),
 	.ddrphy_cfg = ddr_ddrphy_cfg_2gb_single_die,
@@ -2354,7 +2355,7 @@ static struct dram_fsp_msg ddr_dram_fsp_msg_2gb_dual_die[] = {
 };
 
 /* ddr timing config params */
-struct dram_timing_info dram_timing_2gb_dual_die = {
+static struct dram_timing_info dram_timing_2gb_dual_die = {
 	.ddrc_cfg = ddr_ddrc_cfg_2gb_dual_die,
 	.ddrc_cfg_num = ARRAY_SIZE(ddr_ddrc_cfg_2gb_dual_die),
 	.ddrphy_cfg = ddr_ddrphy_cfg_2gb_dual_die,
@@ -2367,3 +2368,27 @@ struct dram_timing_info dram_timing_2gb_dual_die = {
 	.ddrphy_pie_num = ARRAY_SIZE(ddr_phy_pie),
 	.fsp_table = { 3200, 400, 100, },
 };
+
+struct dram_timing_info *spl_dram_init(const char *model, int sizemb)
+{
+	struct dram_timing_info *dram_timing;
+
+	switch (sizemb) {
+	case 1024:
+		dram_timing = &dram_timing_1gb_single_die;
+		break;
+	case 2048:
+		if (!strcmp(model, "GW7902-SP466-A") ||
+		    !strcmp(model, "GW7902-SP466-B")) {
+			dram_timing = &dram_timing_2gb_dual_die;
+		} else {
+			dram_timing = &dram_timing_2gb_single_die;
+		}
+		break;
+	default:
+		printf("unsupported");
+		dram_timing = &dram_timing_2gb_dual_die;
+	}
+
+	return dram_timing;
+}
