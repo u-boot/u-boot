@@ -480,6 +480,13 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 	if (!ctx)
 		return EFI_OUT_OF_RESOURCES;
 
+	s = env_get("ipaddr");
+	if (!s && dhcp_run(0, NULL, false)) {
+		log_err("Error: Can't find a valid IP address\n");
+		ret = EFI_DEVICE_ERROR;
+		goto err;
+	}
+
 	s = env_get("loadaddr");
 	if (!s) {
 		log_err("Error: loadaddr is not set\n");
