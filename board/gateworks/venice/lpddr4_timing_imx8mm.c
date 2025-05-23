@@ -6,6 +6,7 @@
  */
 
 #include <linux/kernel.h>
+#include <string.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/lpddr4_define.h>
 
@@ -1333,7 +1334,7 @@ static struct dram_cfg_param ddr_ddrc_cfg_512mb[] = {
 	{ 0x3d400304, 0x1 },
 	{ 0x3d400030, 0x1 },
 	{ 0x3d400000, 0xa1080020 },
-	{ 0x3d400020, 0x203 },
+	{ 0x3d400020, 0x223 },
 	{ 0x3d400024, 0x3a980 },
 	{ 0x3d400064, 0x5b0062 },
 	{ 0x3d4000d0, 0xc00305ba },
@@ -1385,7 +1386,7 @@ static struct dram_cfg_param ddr_ddrc_cfg_512mb[] = {
 	{ 0x3d400498, 0x620096 },
 	{ 0x3d40049c, 0x1100e07 },
 	{ 0x3d4004a0, 0xc8012c },
-	{ 0x3d402020, 0x1 },
+	{ 0x3d402020, 0x21 },
 	{ 0x3d402024, 0x7d00 },
 	{ 0x3d402050, 0x20d040 },
 	{ 0x3d402064, 0xc000d },
@@ -1410,7 +1411,7 @@ static struct dram_cfg_param ddr_ddrc_cfg_512mb[] = {
 	{ 0x3d402194, 0x80303 },
 	{ 0x3d4021b4, 0x100 },
 	{ 0x3d4020f4, 0xc99 },
-	{ 0x3d403020, 0x1 },
+	{ 0x3d403020, 0x21 },
 	{ 0x3d403024, 0x1f40 },
 	{ 0x3d403050, 0x20d040 },
 	{ 0x3d403064, 0x30004 },
@@ -1459,9 +1460,9 @@ static struct dram_cfg_param ddr_ddrphy_cfg_512mb[] = {
 	{ 0x120a0, 0x0 },
 	{ 0x120a1, 0x1 },
 	{ 0x120a2, 0x3 },
-	{ 0x120a3, 0x4 },
+	{ 0x120a3, 0x2 },
 	{ 0x120a4, 0x5 },
-	{ 0x120a5, 0x2 },
+	{ 0x120a5, 0x4 },
 	{ 0x120a6, 0x7 },
 	{ 0x120a7, 0x6 },
 	{ 0x130a0, 0x0 },
@@ -3535,6 +3536,28 @@ static struct dram_timing_info dram_timing_2gb = {
 	.fsp_table = { 3000, 400, 100, },
 };
 
+static void apply_cfg_patch(struct dram_cfg_param *cfg, int cfg_sz,
+			    struct dram_cfg_param *patch, int patch_sz)
+{
+	int i, j;
+
+	for (i = 0; i < cfg_sz; i++)
+		for (j = 0; j < patch_sz; j++)
+			if (cfg[i].reg == patch[j].reg)
+				cfg[i].val = patch[j].val;
+}
+
+static struct dram_cfg_param ddr_ddrc_cfg_alt_patch[] = {
+	{ 0x3d400020, 0x203},
+	{ 0x3d402020, 0x1},
+	{ 0x3d403020, 0x1}
+};
+
+static struct dram_cfg_param ddr_ddrphy_cfg_alt_patch[] = {
+	{ 0x120a3, 0x4 },
+	{ 0x120a5, 0x2 },
+};
+
 struct dram_timing_info *spl_dram_init(const char *model, int sizemb)
 {
 	struct dram_timing_info *dram_timing;
@@ -3555,6 +3578,19 @@ struct dram_timing_info *spl_dram_init(const char *model, int sizemb)
 	default:
 		printf("unsupported");
 		dram_timing = &dram_timing_1gb;
+	}
+
+	/* apply ddrc/phy register changes for alternate dram bus layout */
+	if (!strncmp(model, "GW7902", 6) ||
+	    !strncmp(model, "GW7903", 6) ||
+	    !strncmp(model, "GW7904", 6)) {
+		apply_cfg_patch(dram_timing->ddrc_cfg, dram_timing->ddrc_cfg_num,
+				ddr_ddrc_cfg_alt_patch,
+				ARRAY_SIZE(ddr_ddrc_cfg_alt_patch));
+
+		apply_cfg_patch(dram_timing->ddrphy_cfg, dram_timing->ddrphy_cfg_num,
+				ddr_ddrphy_cfg_alt_patch,
+				ARRAY_SIZE(ddr_ddrphy_cfg_alt_patch));
 	}
 
 	return dram_timing;
