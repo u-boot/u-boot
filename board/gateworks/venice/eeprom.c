@@ -322,7 +322,7 @@ int venice_eeprom_init(int quiet)
 	/* create model strings */
 	if (base_info.model[0]) {
 		sprintf(venice_model, "GW%c%c%c%c-%c%c-",
-			som_info.model[2], /* family */
+			base_info.model[2], /* family */
 			base_info.model[3], /* baseboard */
 			base_info.model[4], base_info.model[5], /* subload of baseboard */
 			som_info.model[4], som_info.model[5]); /* last 2digits of SOM */
