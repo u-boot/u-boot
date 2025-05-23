@@ -19,6 +19,15 @@ struct udevice;
  */
 
 /*
+ * Force watchdog start during init. Called by driver's probe when the watchdog
+ * is detected as already started.
+ *
+ * @dev: WDT Device
+ * @return: 0 if OK, -ve on error
+ */
+int wdt_set_force_autostart(struct udevice *dev);
+
+/*
  * Start the timer
  *
  * @dev: WDT Device
