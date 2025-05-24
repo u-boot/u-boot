@@ -27,6 +27,16 @@ behavior.
 * Setup env__tpm_device_test_skip to True if tests with TPM devices should be
 skipped.
 
+Parallel tests
+--------------
+
+These tests can be run in parallel on sandbox. In that case any action taken
+by one test may be independent of another. For sandbox, care should be taken to
+ensure that tests are independent.
+
+Unfortunately, tests cannot be made independent on real hardware, since there is
+no way to reset the TPM other than restarting the board. Perhaps that would be
+the best approach?
 """
 
 updates = 0
@@ -50,11 +60,6 @@ def force_init(ubman, force=False):
             ubman.run_command('tpm2 clear TPM2_RH_PLATFORM')
         ubman.run_command('echo --- end of init ---')
 
-def is_sandbox(ubman):
-    # Array slice removes leading/trailing quotes.
-    sys_arch = ubman.config.buildconfig.get('config_sys_arch', '"sandbox"')[1:-1]
-    return sys_arch == 'sandbox'
-
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
 def test_tpm2_autostart(ubman):
     """Init the software stack to use TPMv2 commands."""
@@ -64,20 +69,6 @@ def test_tpm2_autostart(ubman):
     ubman.run_command('tpm2 autostart')
     output = ubman.run_command('echo $?')
     assert output.endswith('0')
-
-def tpm2_sandbox_init(ubman):
-    """Put sandbox back into a known state so we can run a test
-
-    This allows all tests to run in parallel, since no test depends on another.
-    """
-    ubman.restart_uboot()
-    ubman.run_command('tpm2 autostart')
-    output = ubman.run_command('echo $?')
-    assert output.endswith('0')
-
-    skip_test = ubman.config.env.get('env__tpm_device_test_skip', False)
-    if skip_test:
-        pytest.skip('skip TPM device test')
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
 def test_tpm2_continue_self_test(ubman):
@@ -90,8 +81,6 @@ def test_tpm2_continue_self_test(ubman):
     skip_test = ubman.config.env.get('env__tpm_device_test_skip', False)
     if skip_test:
         pytest.skip('skip TPM device test')
-    if is_sandbox(ubman):
-        tpm2_sandbox_init(ubman)
     ubman.run_command('tpm2 self_test continue')
     output = ubman.run_command('echo $?')
     assert output.endswith('0')
@@ -108,9 +97,6 @@ def test_tpm2_clear(ubman):
     not have a password set, otherwise this test will fail. ENDORSEMENT and
     PLATFORM hierarchies are also available.
     """
-    if is_sandbox(ubman):
-        tpm2_sandbox_init(ubman)
-
     skip_test = ubman.config.env.get('env__tpm_device_test_skip', False)
     if skip_test:
         pytest.skip('skip TPM device test')
@@ -131,8 +117,6 @@ def test_tpm2_change_auth(ubman):
     Use the LOCKOUT hierarchy for this. ENDORSEMENT and PLATFORM hierarchies are
     also available.
     """
-    if is_sandbox(ubman):
-        tpm2_sandbox_init(ubman)
     force_init(ubman)
 
     ubman.run_command('tpm2 change_auth TPM2_RH_LOCKOUT unicorn')
@@ -157,9 +141,6 @@ def test_tpm2_get_capability(ubman):
     There is no expected default values because it would depend on the chip
     used. We can still save them in order to check they have changed later.
     """
-    if is_sandbox(ubman):
-        tpm2_sandbox_init(ubman)
-
     force_init(ubman)
     ram = utils.find_ram_base(ubman)
 
@@ -181,8 +162,6 @@ def test_tpm2_dam_parameters(ubman):
     the authentication, otherwise the lockout will be engaged after the first
     failed authentication attempt.
     """
-    if is_sandbox(ubman):
-        tpm2_sandbox_init(ubman)
     force_init(ubman)
     ram = utils.find_ram_base(ubman)
 
@@ -205,9 +184,6 @@ def test_tpm2_pcr_read(ubman):
 
     Perform a PCR read of the 10th PCR. Must be zero.
     """
-    if is_sandbox(ubman):
-        tpm2_sandbox_init(ubman)
-
     force_init(ubman)
     ram = utils.find_ram_base(ubman)
 
@@ -234,8 +210,6 @@ def test_tpm2_pcr_extend(ubman):
     No authentication mechanism is used here, not protecting against packet
     replay, yet.
     """
-    if is_sandbox(ubman):
-        tpm2_sandbox_init(ubman)
     force_init(ubman)
     ram = utils.find_ram_base(ubman)
 
