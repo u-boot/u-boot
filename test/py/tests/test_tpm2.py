@@ -179,6 +179,7 @@ def test_tpm2_dam_parameters(ubman):
     assert 'Property 0x00000211: 0x00000000' in read_cap
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
+@pytest.mark.notbuildconfigspec('target_chromebook_coral')
 def test_tpm2_pcr_read(ubman):
     """Execute a TPM2_PCR_Read command.
 
@@ -201,6 +202,7 @@ def test_tpm2_pcr_read(ubman):
     assert '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00' in read_pcr
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
+@pytest.mark.notbuildconfigspec('target_chromebook_coral')
 def test_tpm2_pcr_extend(ubman):
     """Execute a TPM2_PCR_Extend command.
 
