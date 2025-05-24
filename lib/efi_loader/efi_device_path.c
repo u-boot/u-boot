@@ -10,6 +10,7 @@
 #include <blk.h>
 #include <dm.h>
 #include <dm/root.h>
+#include <efi_device_path.h>
 #include <log.h>
 #include <net.h>
 #include <usb.h>
@@ -46,10 +47,6 @@ static bool is_sd(struct blk_desc *desc)
 }
 #endif
 
-/*
- * Iterate to next block in device-path, terminating (returning NULL)
- * at /End* node.
- */
 struct efi_device_path *efi_dp_next(const struct efi_device_path *dp)
 {
 	if (dp == NULL)
@@ -62,12 +59,6 @@ struct efi_device_path *efi_dp_next(const struct efi_device_path *dp)
 	return (struct efi_device_path *)dp;
 }
 
-/*
- * Compare two device-paths, stopping when the shorter of the two hits
- * an End* node. This is useful to, for example, compare a device-path
- * representing a device with one representing a file on the device, or
- * a device with a parent device.
- */
 int efi_dp_match(const struct efi_device_path *a,
 		 const struct efi_device_path *b)
 {
@@ -90,20 +81,6 @@ int efi_dp_match(const struct efi_device_path *a,
 	}
 }
 
-/**
- * efi_dp_shorten() - shorten device-path
- *
- * When creating a short boot option we want to use a device-path that is
- * independent of the location where the block device is plugged in.
- *
- * UsbWwi() nodes contain a serial number, hard drive paths a partition
- * UUID. Both should be unique.
- *
- * See UEFI spec, section 3.1.2 for "short-form device path".
- *
- * @dp:		original device-path
- * Return:	shortened device-path or NULL
- */
 struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp)
 {
 	while (dp) {
@@ -180,16 +157,6 @@ static efi_handle_t find_handle(struct efi_device_path *dp,
 	return best_handle;
 }
 
-/**
- * efi_dp_find_obj() - find handle by device path
- *
- * If @rem is provided, the handle with the longest partial match is returned.
- *
- * @dp:		device path to search
- * @guid:	GUID of protocol that must be installed on path or NULL
- * @rem:	pointer to receive remaining device path
- * Return:	matching handle
- */
 efi_handle_t efi_dp_find_obj(struct efi_device_path *dp,
 			     const efi_guid_t *guid,
 			     struct efi_device_path **rem)
@@ -204,13 +171,6 @@ efi_handle_t efi_dp_find_obj(struct efi_device_path *dp,
 	return handle;
 }
 
-/*
- * Determine the last device path node that is not the end node.
- *
- * @dp		device path
- * Return:	last node before the end node if it exists
- *		otherwise NULL
- */
 const struct efi_device_path *efi_dp_last_node(const struct efi_device_path *dp)
 {
 	struct efi_device_path *ret;
@@ -224,7 +184,6 @@ const struct efi_device_path *efi_dp_last_node(const struct efi_device_path *dp)
 	return ret;
 }
 
-/* get size of the first device path instance excluding end node */
 efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp)
 {
 	efi_uintn_t sz = 0;
@@ -239,7 +198,6 @@ efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp)
 	return sz;
 }
 
-/* get size of multi-instance device path excluding end node */
 efi_uintn_t efi_dp_size(const struct efi_device_path *dp)
 {
 	const struct efi_device_path *p = dp;
@@ -253,7 +211,6 @@ efi_uintn_t efi_dp_size(const struct efi_device_path *dp)
 	return (void *)p - (void *)dp;
 }
 
-/* copy multi-instance device path */
 struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 {
 	struct efi_device_path *ndp;
@@ -270,21 +227,6 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 	return ndp;
 }
 
-/**
- * efi_dp_concat() - Concatenate two device paths and add and terminate them
- *                   with an end node.
- *
- * @dp1:	    First device path
- * @dp2:	    Second device path
- * @split_end_node:
- * * 0 to concatenate
- * * 1 to concatenate with end node added as separator
- * * size of dp1 excluding last end node to concatenate with end node as
- *   separator in case dp1 contains an end node
- *
- * Return:
- * concatenated device path or NULL. Caller must free the returned value
- */
 struct
 efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 			       const struct efi_device_path *dp2,
@@ -449,9 +391,6 @@ bool efi_dp_is_multi_instance(const struct efi_device_path *dp)
 	return p->sub_type == DEVICE_PATH_SUB_TYPE_INSTANCE_END;
 }
 
-/* size of device-path not including END node for device and all parents
- * up to the root device.
- */
 __maybe_unused static unsigned int dp_size(struct udevice *dev)
 {
 	if (!dev || !dev->driver)
@@ -820,7 +759,6 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 	return dp_part_node(buf, desc, part);
 }
 
-/* Construct a device-path from a partition on a block device: */
 struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
 {
 	void *buf, *start;
@@ -836,13 +774,6 @@ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
 	return start;
 }
 
-/*
- * Create a device node for a block device partition.
- *
- * @buf		buffer to which the device path is written
- * @desc	block device descriptor
- * @part	partition number, 0 identifies a block device
- */
 struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part)
 {
 	efi_uintn_t dpsize;
@@ -892,13 +823,6 @@ static void path_to_uefi(void *uefi, const char *src)
 	*pos = 0;
 }
 
-/**
- * efi_dp_from_file() - append file path node to device path.
- *
- * @dp:		device path or NULL
- * @path:	file path or NULL
- * Return:	device path or NULL in case of an error
- */
 struct efi_device_path *efi_dp_from_file(const struct efi_device_path *dp,
 					 const char *path)
 {
@@ -1023,17 +947,6 @@ static struct efi_device_path *efi_dp_from_ipv4(struct efi_ipv4_address *ip,
 	return dp2;
 }
 
-/**
- * efi_dp_from_http() - set device path from http
- *
- * Set the device path to an IPv4 path as provided by efi_dp_from_ipv4
- * concatenated with a device path of subtype DEVICE_PATH_SUB_TYPE_MSG_URI,
- * and an END node.
- *
- * @server:	URI of remote server
- * @dev:	net udevice
- * Return:	pointer to HTTP device path, NULL on error
- */
 struct efi_device_path *efi_dp_from_http(const char *server, struct udevice *dev)
 {
 	struct efi_device_path *dp1, *dp2;

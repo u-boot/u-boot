@@ -9,6 +9,7 @@
 
 #include <ansi.h>
 #include <charset.h>
+#include <efi_device_path.h>
 #include <malloc.h>
 #include <time.h>
 #include <dm/device.h>

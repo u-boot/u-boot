@@ -10,6 +10,7 @@
 #include <charset.h>
 #include <dm.h>
 #include <efi.h>
+#include <efi_device_path.h>
 #include <efi_loader.h>
 #include <env.h>
 #include <image.h>

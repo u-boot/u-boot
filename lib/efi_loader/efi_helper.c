@@ -7,6 +7,7 @@
 
 #include <blkmap.h>
 #include <bootm.h>
+#include <efi_device_path.h>
 #include <env.h>
 #include <image.h>
 #include <log.h>

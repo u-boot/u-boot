@@ -12,6 +12,7 @@
 #include <charset.h>
 #include <dm.h>
 #include <efi.h>
+#include <efi_device_path.h>
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
@@ -527,7 +528,7 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 		 * will be freed in return_to_efibootmgr event callback.
 		 */
 		loaded_dp = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-					    (uintptr_t)image_addr, image_size);
+					    image_addr, image_size);
 		ret = efi_install_multiple_protocol_interfaces(
 			&mem_handle, &efi_guid_device_path, loaded_dp, NULL);
 		if (ret != EFI_SUCCESS)

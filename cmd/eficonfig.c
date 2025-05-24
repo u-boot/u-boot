@@ -8,6 +8,7 @@
 #include <ansi.h>
 #include <cli.h>
 #include <charset.h>
+#include <efi_device_path.h>
 #include <efi_loader.h>
 #include <efi_load_initrd.h>
 #include <efi_config.h>

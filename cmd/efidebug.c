@@ -8,6 +8,7 @@
 #include <charset.h>
 #include <command.h>
 #include <dm/device.h>
+#include <efi_device_path.h>
 #include <efi_dt_fixup.h>
 #include <efi_load_initrd.h>
 #include <efi_loader.h>

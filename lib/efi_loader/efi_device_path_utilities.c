@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#include <efi_device_path.h>
 #include <efi_loader.h>
 
 const efi_guid_t efi_guid_device_path_utilities_protocol =
