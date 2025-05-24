@@ -22,6 +22,15 @@ config TIMESTAMP
 	  loaded that does not, the message 'Wrong FIT format: no timestamp'
 	  is shown.
 
+config BOOTI
+	bool
+
+config BOOTM
+	bool
+
+config BOOTZ
+	bool
+
 config BUTTON_CMD
 	bool "Support for running a command if a button is held during boot"
 	depends on CMDLINE
