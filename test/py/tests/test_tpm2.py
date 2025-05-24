@@ -56,25 +56,12 @@ def is_sandbox(ubman):
     return sys_arch == 'sandbox'
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
-def test_tpm2_init(ubman):
+def test_tpm2_autostart(ubman):
     """Init the software stack to use TPMv2 commands."""
     skip_test = ubman.config.env.get('env__tpm_device_test_skip', False)
     if skip_test:
         pytest.skip('skip TPM device test')
     ubman.run_command('tpm2 autostart')
-    output = ubman.run_command('echo $?')
-    assert output.endswith('0')
-
-@pytest.mark.buildconfigspec('cmd_tpm_v2')
-def test_tpm2_startup(ubman):
-    """Execute a TPM2_Startup command.
-
-    Initiate the TPM internal state machine.
-    """
-    skip_test = ubman.config.env.get('env__tpm_device_test_skip', False)
-    if skip_test:
-        pytest.skip('skip TPM device test')
-    ubman.run_command('tpm2 startup TPM2_SU_CLEAR')
     output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
@@ -91,29 +78,6 @@ def tpm2_sandbox_init(ubman):
     skip_test = ubman.config.env.get('env__tpm_device_test_skip', False)
     if skip_test:
         pytest.skip('skip TPM device test')
-
-@pytest.mark.buildconfigspec('cmd_tpm_v2')
-def test_tpm2_sandbox_self_test_full(ubman):
-    """Execute a TPM2_SelfTest (full) command.
-
-    Ask the TPM to perform all self tests to also enable full capabilities.
-    """
-    if is_sandbox(ubman):
-        ubman.restart_uboot()
-        ubman.run_command('tpm2 autostart')
-        output = ubman.run_command('echo $?')
-        assert output.endswith('0')
-
-        ubman.run_command('tpm2 startup TPM2_SU_CLEAR')
-        output = ubman.run_command('echo $?')
-        assert output.endswith('0')
-
-    skip_test = ubman.config.env.get('env__tpm_device_test_skip', False)
-    if skip_test:
-        pytest.skip('skip TPM device test')
-    ubman.run_command('tpm2 self_test full')
-    output = ubman.run_command('echo $?')
-    assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
 def test_tpm2_continue_self_test(ubman):
