@@ -32,7 +32,7 @@ static efi_uintn_t EFIAPI get_device_path_size(
 	efi_uintn_t sz = 0;
 
 	EFI_ENTRY("%pD", device_path);
-	/* size includes the END node: */
+	/* size includes the EFI_DP_END node: */
 	if (device_path)
 		sz = efi_dp_size(device_path) + sizeof(struct efi_device_path);
 	return EFI_EXIT(sz);

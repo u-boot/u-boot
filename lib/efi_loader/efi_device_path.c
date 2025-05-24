@@ -22,11 +22,11 @@
 #include <asm-generic/unaligned.h>
 #include <linux/compat.h> /* U16_MAX */
 
-/* template END node: */
-const struct efi_device_path END = {
+/* template EFI_DP_END node: */
+const struct efi_device_path EFI_DP_END = {
 	.type     = DEVICE_PATH_TYPE_END,
 	.sub_type = DEVICE_PATH_SUB_TYPE_END,
-	.length   = sizeof(END),
+	.length   = sizeof(EFI_DP_END),
 };
 
 #if defined(CONFIG_MMC)
@@ -214,7 +214,7 @@ efi_uintn_t efi_dp_size(const struct efi_device_path *dp)
 struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 {
 	struct efi_device_path *ndp;
-	size_t sz = efi_dp_size(dp) + sizeof(END);
+	size_t sz = efi_dp_size(dp) + sizeof(EFI_DP_END);
 
 	if (!dp)
 		return NULL;
@@ -237,7 +237,7 @@ efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 
 	if (!dp1 && !dp2) {
 		/* return an end node */
-		ret = efi_dp_dup(&END);
+		ret = efi_dp_dup(&EFI_DP_END);
 	} else if (!dp1) {
 		ret = efi_dp_dup(dp2);
 	} else if (!dp2) {
@@ -254,9 +254,9 @@ efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 			sz1 = split_end_node;
 
 		if (split_end_node)
-			end_size = 2 * sizeof(END);
+			end_size = 2 * sizeof(EFI_DP_END);
 		else
-			end_size = sizeof(END);
+			end_size = sizeof(EFI_DP_END);
 		p = efi_alloc(sz1 + sz2 + end_size);
 		if (!p)
 			return NULL;
@@ -265,14 +265,14 @@ efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 		p += sz1;
 
 		if (split_end_node) {
-			memcpy(p, &END, sizeof(END));
-			p += sizeof(END);
+			memcpy(p, &EFI_DP_END, sizeof(EFI_DP_END));
+			p += sizeof(EFI_DP_END);
 		}
 
 		/* the end node of the second device path has to be retained */
 		memcpy(p, dp2, sz2);
 		p += sz2;
-		memcpy(p, &END, sizeof(END));
+		memcpy(p, &EFI_DP_END, sizeof(EFI_DP_END));
 	}
 
 	return ret;
@@ -284,26 +284,26 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 	struct efi_device_path *ret;
 
 	if (!node && !dp) {
-		ret = efi_dp_dup(&END);
+		ret = efi_dp_dup(&EFI_DP_END);
 	} else if (!node) {
 		ret = efi_dp_dup(dp);
 	} else if (!dp) {
 		size_t sz = node->length;
-		void *p = efi_alloc(sz + sizeof(END));
+		void *p = efi_alloc(sz + sizeof(EFI_DP_END));
 		if (!p)
 			return NULL;
 		memcpy(p, node, sz);
-		memcpy(p + sz, &END, sizeof(END));
+		memcpy(p + sz, &EFI_DP_END, sizeof(EFI_DP_END));
 		ret = p;
 	} else {
 		/* both dp and node are non-null */
 		size_t sz = efi_dp_size(dp);
-		void *p = efi_alloc(sz + node->length + sizeof(END));
+		void *p = efi_alloc(sz + node->length + sizeof(EFI_DP_END));
 		if (!p)
 			return NULL;
 		memcpy(p, dp, sz);
 		memcpy(p + sz, node, node->length);
-		memcpy(p + sz + node->length, &END, sizeof(END));
+		memcpy(p + sz + node->length, &EFI_DP_END, sizeof(EFI_DP_END));
 		ret = p;
 	}
 
@@ -341,17 +341,17 @@ struct efi_device_path *efi_dp_append_instance(
 		return efi_dp_dup(dpi);
 	sz = efi_dp_size(dp);
 	szi = efi_dp_instance_size(dpi);
-	p = efi_alloc(sz + szi + 2 * sizeof(END));
+	p = efi_alloc(sz + szi + 2 * sizeof(EFI_DP_END));
 	if (!p)
 		return NULL;
 	ret = p;
-	memcpy(p, dp, sz + sizeof(END));
+	memcpy(p, dp, sz + sizeof(EFI_DP_END));
 	p = (void *)p + sz;
 	p->sub_type = DEVICE_PATH_SUB_TYPE_INSTANCE_END;
-	p = (void *)p + sizeof(END);
+	p = (void *)p + sizeof(EFI_DP_END);
 	memcpy(p, dpi, szi);
 	p = (void *)p + szi;
-	memcpy(p, &END, sizeof(END));
+	memcpy(p, &EFI_DP_END, sizeof(EFI_DP_END));
 	return ret;
 }
 
@@ -366,17 +366,17 @@ struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
 	if (!dp || !*dp)
 		return NULL;
 	sz = efi_dp_instance_size(*dp);
-	p = efi_alloc(sz + sizeof(END));
+	p = efi_alloc(sz + sizeof(EFI_DP_END));
 	if (!p)
 		return NULL;
-	memcpy(p, *dp, sz + sizeof(END));
+	memcpy(p, *dp, sz + sizeof(EFI_DP_END));
 	*dp = (void *)*dp + sz;
 	if ((*dp)->sub_type == DEVICE_PATH_SUB_TYPE_INSTANCE_END)
-		*dp = (void *)*dp + sizeof(END);
+		*dp = (void *)*dp + sizeof(EFI_DP_END);
 	else
 		*dp = NULL;
 	if (size)
-		*size = sz + sizeof(END);
+		*size = sz + sizeof(EFI_DP_END);
 	return p;
 }
 
@@ -763,13 +763,13 @@ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
 {
 	void *buf, *start;
 
-	start = buf = efi_alloc(dp_part_size(desc, part) + sizeof(END));
-	if (!buf)
+	start = efi_alloc(dp_part_size(desc, part) + sizeof(EFI_DP_END));
+	if (!start)
 		return NULL;
 
-	buf = dp_part_fill(buf, desc, part);
+	buf = dp_part_fill(start, desc, part);
 
-	*((struct efi_device_path *)buf) = END;
+	*((struct efi_device_path *)buf) = EFI_DP_END;
 
 	return start;
 }
@@ -836,7 +836,7 @@ struct efi_device_path *efi_dp_from_file(const struct efi_device_path *dp,
 	if (fpsize > U16_MAX)
 		return NULL;
 
-	buf = efi_alloc(dpsize + fpsize + sizeof(END));
+	buf = efi_alloc(dpsize + fpsize + sizeof(EFI_DP_END));
 	if (!buf)
 		return NULL;
 
@@ -853,7 +853,7 @@ struct efi_device_path *efi_dp_from_file(const struct efi_device_path *dp,
 		pos += fpsize;
 	}
 
-	memcpy(pos, &END, sizeof(END));
+	memcpy(pos, &EFI_DP_END, sizeof(EFI_DP_END));
 
 	return buf;
 }
@@ -862,7 +862,7 @@ struct efi_device_path *efi_dp_from_uart(void)
 {
 	void *buf, *pos;
 	struct efi_device_path_uart *uart;
-	size_t dpsize = dp_size(dm_root()) + sizeof(*uart) + sizeof(END);
+	size_t dpsize = dp_size(dm_root()) + sizeof(*uart) + sizeof(EFI_DP_END);
 
 	buf = efi_alloc(dpsize);
 	if (!buf)
@@ -873,7 +873,7 @@ struct efi_device_path *efi_dp_from_uart(void)
 	uart->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_UART;
 	uart->dp.length = sizeof(*uart);
 	pos += sizeof(*uart);
-	memcpy(pos, &END, sizeof(END));
+	memcpy(pos, &EFI_DP_END, sizeof(EFI_DP_END));
 
 	return buf;
 }
@@ -887,13 +887,13 @@ struct efi_device_path __maybe_unused *efi_dp_from_eth(struct udevice *dev)
 
 	dpsize += dp_size(dev);
 
-	start = buf = efi_alloc(dpsize + sizeof(END));
-	if (!buf)
+	start = efi_alloc(dpsize + sizeof(EFI_DP_END));
+	if (!start)
 		return NULL;
 
-	buf = dp_fill(buf, dev);
+	buf = dp_fill(start, dev);
 
-	*((struct efi_device_path *)buf) = END;
+	*((struct efi_device_path *)buf) = EFI_DP_END;
 
 	return start;
 }
@@ -903,7 +903,7 @@ struct efi_device_path __maybe_unused *efi_dp_from_eth(struct udevice *dev)
  *
  * Set the device path to an ethernet device path as provided by
  * efi_dp_from_eth() concatenated with a device path of subtype
- * DEVICE_PATH_SUB_TYPE_MSG_IPV4, and an END node.
+ * DEVICE_PATH_SUB_TYPE_MSG_IPV4, and an EFI_DP_END node.
  *
  * @ip:		IPv4 local address
  * @mask:	network mask
@@ -934,7 +934,7 @@ static struct efi_device_path *efi_dp_from_ipv4(struct efi_ipv4_address *ip,
 	if (srv)
 		memcpy(&dp.ipv4dp.remote_ip_address, srv, sizeof(*srv));
 	pos = &dp.end;
-	memcpy(pos, &END, sizeof(END));
+	memcpy(pos, &EFI_DP_END, sizeof(EFI_DP_END));
 
 	dp1 = efi_dp_from_eth(dev);
 	if (!dp1)
@@ -979,7 +979,7 @@ struct efi_device_path *efi_dp_from_http(const char *server, struct udevice *dev
 	}
 
 	uridp_len = sizeof(struct efi_device_path) + strlen(tmp) + 1;
-	uridp = efi_alloc(uridp_len + sizeof(END));
+	uridp = efi_alloc(uridp_len + sizeof(EFI_DP_END));
 	if (!uridp) {
 		log_err("Out of memory\n");
 		return NULL;
@@ -991,7 +991,7 @@ struct efi_device_path *efi_dp_from_http(const char *server, struct udevice *dev
 	memcpy(uridp->uri, tmp, strlen(tmp) + 1);
 
 	pos = (char *)uridp + uridp_len;
-	memcpy(pos, &END, sizeof(END));
+	memcpy(pos, &EFI_DP_END, sizeof(EFI_DP_END));
 
 	dp2 = efi_dp_concat(dp1, (const struct efi_device_path *)uridp, 0);
 
@@ -1009,11 +1009,11 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 	struct efi_device_path_memory *mdp;
 	void *buf, *start;
 
-	start = buf = efi_alloc(sizeof(*mdp) + sizeof(END));
-	if (!buf)
+	start = efi_alloc(sizeof(*mdp) + sizeof(EFI_DP_END));
+	if (!start)
 		return NULL;
 
-	mdp = buf;
+	mdp = start;
 	mdp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
 	mdp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MEMORY;
 	mdp->dp.length = sizeof(*mdp);
@@ -1022,7 +1022,7 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 	mdp->end_address = start_address + size;
 	buf = &mdp[1];
 
-	*((struct efi_device_path *)buf) = END;
+	*((struct efi_device_path *)buf) = EFI_DP_END;
 
 	return start;
 }

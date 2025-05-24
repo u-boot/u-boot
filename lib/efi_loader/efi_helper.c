@@ -200,7 +200,7 @@ efi_status_t efi_load_option_dp_join(struct efi_device_path **dp,
 		efi_free_pool(tmp_dp);
 		if (!*dp)
 			return EFI_OUT_OF_RESOURCES;
-		*dp_size += efi_dp_size(initrd_dp) + sizeof(END);
+		*dp_size += efi_dp_size(initrd_dp) + sizeof(EFI_DP_END);
 	}
 
 	if (fdt_dp) {
@@ -210,10 +210,10 @@ efi_status_t efi_load_option_dp_join(struct efi_device_path **dp,
 		efi_free_pool(tmp_dp);
 		if (!*dp)
 			return EFI_OUT_OF_RESOURCES;
-		*dp_size += efi_dp_size(fdt_dp) + sizeof(END);
+		*dp_size += efi_dp_size(fdt_dp) + sizeof(EFI_DP_END);
 	}
 
-	*dp_size += sizeof(END);
+	*dp_size += sizeof(EFI_DP_END);
 
 	return EFI_SUCCESS;
 }

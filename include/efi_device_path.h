@@ -15,12 +15,12 @@ struct efi_load_option;
 struct udevice;
 
 /*
- * END - Template end node for EFI device paths.
+ * EFI_DP_END - Template end node for EFI device paths.
  *
  * Represents the terminating node of an EFI device path.
  * It has a type of DEVICE_PATH_TYPE_END and sub_type DEVICE_PATH_SUB_TYPE_END
  */
-extern const struct efi_device_path END;
+extern const struct efi_device_path EFI_DP_END;
 
 /**
  * efi_dp_next() - Iterate to next block in device-path
@@ -85,11 +85,11 @@ efi_handle_t efi_dp_find_obj(struct efi_device_path *dp, const efi_guid_t *guid,
  * efi_dp_last_node() - Determine the last device path node before the end node
  *
  * Iterate through the device path to find the very last node before
- * the terminating END node.
+ * the terminating EFI_DP_END node.
  *
  * @dp: Pointer to the device path.
  * Return: Pointer to the last actual data node before the end node if it exists
- * otherwise NULL (e.g., if dp is NULL or only an END node).
+ * otherwise NULL (e.g., if dp is NULL or only an EFI_DP_END node).
  */
 const struct efi_device_path *efi_dp_last_node(const struct efi_device_path *dp);
 
@@ -101,8 +101,8 @@ const struct efi_device_path *efi_dp_last_node(const struct efi_device_path *dp)
  * end node (if any) or the final device path. The end node is not included.
  *
  * @dp: Pointer to the device path.
- * Return: Size in bytes of the first instance, or 0 if dp is NULL or an END
- * node
+ * Return: Size in bytes of the first instance, or 0 if dp is NULL or an
+ * EFI_DP_END node
  */
 efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp);
 
@@ -115,7 +115,7 @@ efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp);
  *
  * @dp: Pointer to the device path.
  * Return: Total size in bytes of all nodes in the device path (excluding the
- * final END node), or 0 if dp is NULL.
+ * final EFI_DP_END node), or 0 if dp is NULL.
  */
 efi_uintn_t efi_dp_size(const struct efi_device_path *dp);
 
@@ -139,7 +139,7 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp);
  * @dp2:        Second device path
  * @split_end_node:
  * - 0 to concatenate (dp1 is assumed not to have an end node or it's ignored,
- *   dp2 is appended, then one END node)
+ *   dp2 is appended, then one EFI_DP_END node)
  * - 1 to concatenate with end node added as separator (dp1, END_THIS_INSTANCE,
  *   dp2, END_ENTIRE)
  *
@@ -160,10 +160,11 @@ struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
  * Create a new device path by appending a given node to an existing
  * device path.
  * If the original device path @dp is NULL, a new path is created
- * with the given @node followed by an END node.
+ * with the given @node followed by an EFI_DP_END node.
  * If the @node is NULL and @dp is not NULL, the original path @dp is
  * duplicated.
- * If both @dp and @node are NULL, a path with only an END node is returned.
+ * If both @dp and @node are NULL, a path with only an EFI_DP_END node is
+ * returned.
  * The caller must free the returned path (e.g., using efi_free()).
  *
  * @dp:   Original device path (can be NULL).
@@ -216,7 +217,7 @@ efi_dp_append_instance(const struct efi_device_path *dp,
  *
  * Given a pointer to a pointer to a device path (@dp), this function extracts
  * the first instance from the path. It allocates a new path for this extracted
- * instance (including its instance-specific END node). The input pointer
+ * instance (including its instance-specific EFI_DP_END node). The input pointer
  * (*@dp) is then updated to point to the start of the next instance in the
  * original path, or set to NULL if no more instances remain.
  * The caller is responsible for freeing the returned instance path (e.g.,
@@ -226,7 +227,7 @@ efi_dp_append_instance(const struct efi_device_path *dp,
  * On output, *@dp is updated to point to the start of the next instance,
  * or NULL if no more instances.
  * @size: Optional pointer to an efi_uintn_t variable that will receive the size
- * of the extracted instance path (including its END node).
+ * of the extracted instance path (including its EFI_DP_END node).
  * Return: Pointer to a newly allocated device path for the extracted instance,
  * or NULL if no instance could be extracted or an error occurred (e.g.,
  * allocation failure).
@@ -408,7 +409,7 @@ struct efi_device_path *search_gpt_dp_node(struct efi_device_path *device_path);
  *
  * Set the device path to an IPv4 path as provided by efi_dp_from_ipv4
  * concatenated with a device path of subtype DEVICE_PATH_SUB_TYPE_MSG_URI,
- * and an END node.
+ * and an EFI_DP_END node.
  *
  * @server:	URI of remote server
  * @dev:	net udevice
