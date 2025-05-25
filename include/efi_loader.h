@@ -9,6 +9,7 @@
 #define _EFI_LOADER_H 1
 
 #include <blk.h>
+#include <efi_device_path.h>
 #include <event.h>
 #include <log.h>
 #include <part_efi.h>
@@ -935,65 +936,9 @@ extern void *efi_bounce_buffer;
 #define EFI_LOADER_BOUNCE_BUFFER_SIZE (64 * 1024 * 1024)
 #endif
 
-/* shorten device path */
-struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp);
-struct efi_device_path *efi_dp_next(const struct efi_device_path *dp);
-int efi_dp_match(const struct efi_device_path *a,
-		 const struct efi_device_path *b);
-efi_handle_t efi_dp_find_obj(struct efi_device_path *dp,
-			     const efi_guid_t *guid,
-			     struct efi_device_path **rem);
-/* get size of the first device path instance excluding end node */
-efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp);
-/* size of multi-instance device path excluding end node */
-efi_uintn_t efi_dp_size(const struct efi_device_path *dp);
-struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp);
-struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
-					   const struct efi_device_path *node);
-/* Create a device path node of given type, sub-type, length */
-struct efi_device_path *efi_dp_create_device_node(const u8 type,
-						  const u8 sub_type,
-						  const u16 length);
-/* Append device path instance */
-struct efi_device_path *efi_dp_append_instance(
-		const struct efi_device_path *dp,
-		const struct efi_device_path *dpi);
-/* Get next device path instance */
-struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
-						 efi_uintn_t *size);
-/* Check if a device path contains muliple instances */
-bool efi_dp_is_multi_instance(const struct efi_device_path *dp);
-
-struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
-/* Create a device node for a block device partition. */
-struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part);
-struct efi_device_path *efi_dp_from_file(const struct efi_device_path *dp,
-					 const char *path);
-struct efi_device_path *efi_dp_from_eth(struct udevice *dev);
-struct efi_device_path *efi_dp_from_http(const char *server, struct udevice *dev);
-struct efi_device_path *efi_dp_from_mem(uint32_t mem_type,
-					uint64_t start_address,
-					size_t size);
-/* Determine the last device path node that is not the end node. */
-const struct efi_device_path *efi_dp_last_node(
-			const struct efi_device_path *dp);
-efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
-				    struct efi_device_path **device_path,
-				    struct efi_device_path **file_path);
-struct efi_device_path *efi_dp_from_uart(void);
-efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
-			      const char *path,
-			      struct efi_device_path **device,
-			      struct efi_device_path **file);
-ssize_t efi_dp_check_length(const struct efi_device_path *dp,
-			    const size_t maxlen);
-
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
-
-/* template END node: */
-extern const struct efi_device_path END;
 
 /* Indicate supported runtime services */
 efi_status_t efi_init_runtime_supported(void);

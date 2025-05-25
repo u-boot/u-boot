@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#include <efi_device_path.h>
 #include <efi_loader.h>
 
 const efi_guid_t efi_guid_device_path_utilities_protocol =
@@ -31,7 +32,7 @@ static efi_uintn_t EFIAPI get_device_path_size(
 	efi_uintn_t sz = 0;
 
 	EFI_ENTRY("%pD", device_path);
-	/* size includes the END node: */
+	/* size includes the EFI_DP_END node: */
 	if (device_path)
 		sz = efi_dp_size(device_path) + sizeof(struct efi_device_path);
 	return EFI_EXIT(sz);

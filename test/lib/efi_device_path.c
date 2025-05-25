@@ -5,6 +5,7 @@
  * Copyright (c) 2020 Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
+#include <efi_device_path.h>
 #include <efi_loader.h>
 #include <test/lib.h>
 #include <test/test.h>
