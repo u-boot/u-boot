@@ -54,6 +54,9 @@ enum bootmenu_key {
 	BKEY_QUIT,
 	BKEY_SAVE,
 
+	/* shortcut key to select menu option directly */
+	BKEY_SHORTCUT,
+
 	/* 'extra' keys, which are used by menus but not cedit */
 	BKEY_PLUS,
 	BKEY_MINUS,
