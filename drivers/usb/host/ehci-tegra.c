@@ -25,13 +25,6 @@
 #define HOSTPC1_DEVLC	0x84
 #define HOSTPC1_PSPD(x)		(((x) >> 25) & 0x3)
 
-#ifdef CONFIG_USB_ULPI
-	#ifndef CONFIG_USB_ULPI_VIEWPORT
-	#error	"To use CONFIG_USB_ULPI on Tegra Boards you have to also \
-		define CONFIG_USB_ULPI_VIEWPORT"
-	#endif
-#endif
-
 /* Parameters we need for USB */
 enum {
 	PARAM_DIVN,                     /* PLL FEEDBACK DIVIDer */
