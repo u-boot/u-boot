@@ -37,7 +37,6 @@ else ifeq ("riscv32", $(MK_ARCH))
 else ifeq ("riscv64", $(MK_ARCH))
   export HOST_ARCH=$(HOST_ARCH_RISCV64)
 endif
-undefine MK_ARCH
 
 # Avoid funny character set dependencies
 unexport LC_ALL
@@ -915,8 +914,32 @@ PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
 else
 ifndef CONFIG_CC_IS_CLANG
 PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`) -lgcc
+else
+# mbedtls bignum needs '__udivti3' - a 128-bit division function that's provided by clang-rt.
+ifeq ($(CONFIG_RSA_PUBLIC_KEY_PARSER_MBEDTLS),y)
+# CLANG_RT_DIR := $(shell $(CC) --print-resource-dir)/lib/linux
+# PLATFORM_LIBGCC := -L$(CLANG_RT_DIR) -lclang_rt.builtins-$(MK_ARCH)
+MK_ARCH := $(shell echo $(MK_ARCH) | tr -d '"')
+CLANG_RES_DIR := $(shell $(CC) --print-resource-dir)
+# pattern for pre LLVM 15.0.0
+CLANG_RT_LEGACY := $(CLANG_RES_DIR)/lib/linux/libclang_rt.builtins-$(MK_ARCH).a
+# pattern for post LLVM 15.0.0
+CLANG_RT_NEW_DIR := $(wildcard $(CLANG_RES_DIR)/lib/$(MK_ARCH)*)
+CLANG_RT_NEW := $(CLANG_RT_NEW_DIR)/libclang_rt.builtins.a
+ifeq ("$(wildcard $(CLANG_RT_LEGACY))","$(CLANG_RT_LEGACY)")
+PLATFORM_LIBGCC := -L$(dir $(CLANG_RT_LEGACY)) -lclang_rt.builtins-$(MK_ARCH)
+else
+ifneq ("$(wildcard $(CLANG_RT_NEW))","")
+PLATFORM_LIBGCC := $(CLANG_RT_NEW)
+else
+$(error libclang_rt.builtins.a not found for target $(MK_ARCH))
 endif
 endif
+endif # CONFIG_RSA_PUBLIC_KEY_PARSER_MBEDTLS
+endif # CONFIG_CC_IS_CLANG
+endif # CONFIG_USE_PRIVATE_LIBGCC
+
+undefine MK_ARCH
 PLATFORM_LIBS += $(PLATFORM_LIBGCC)
 
 ifdef CONFIG_CC_COVERAGE
