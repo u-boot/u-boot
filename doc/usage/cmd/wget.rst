@@ -141,9 +141,9 @@ https://cacerts.digicert.com/DigiCertTLSRSA4096RootG5.crt.
    Bytes transferred = 1864 (748 hex)
    # Another server not signed against Digicert will fail
    => wget https://www.google.com/
-   Certificate verification failed
 
    HTTP client error 4
+   Certificate verification failed
    # Disable authentication to allow the command to proceed anyways
    => wget cacert none
    => wget https://www.google.com/

@@ -262,7 +262,7 @@ endif
 config USB_EHCI_MSM
 	bool "Support for Qualcomm on-chip EHCI USB controller"
 	depends on DM_USB
-	select USB_ULPI_VIEWPORT
+	select USB_ULPI
 	select MSM8916_USB_PHY
 	---help---
 	  Enables support for the on-chip EHCI controller on Qualcomm
@@ -279,7 +279,10 @@ config USB_EHCI_TEGRA
 	depends on ARCH_TEGRA
 	select USB_EHCI_IS_TDI
 	---help---
-	  Enable support for Tegra on-chip EHCI USB controller
+	  Enable support for Tegra on-chip EHCI USB controller. If you enable
+	  ULPI and your PHY needs a different reference clock than the standard
+	  24 MHz then you have to define CFG_ULPI_REF_CLK to the appropriate
+	  value in Hz.
 
 config USB_EHCI_ZYNQ
 	bool "Support for Xilinx Zynq on-chip EHCI USB controller"

@@ -13,8 +13,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Unfortunately x86 or ARM can't compile this code as gd cannot be assigned */
-#if !defined(CONFIG_X86) && !defined(CONFIG_ARM)
+/*
+ * Unfortunately x86, ARM and RISC-V can't compile this code as gd is defined
+ * as macro and cannot be assigned.
+ */
+#if !defined(CONFIG_X86) && !defined(CONFIG_ARM) && !defined(CONFIG_RISCV)
 __weak void arch_setup_gd(struct global_data *gd_ptr)
 {
 	gd = gd_ptr;

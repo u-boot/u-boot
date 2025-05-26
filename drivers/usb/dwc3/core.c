@@ -23,6 +23,7 @@
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
 #include <linux/err.h>
+#include <linux/iopoll.h>
 #include <linux/ioport.h>
 #include <dm.h>
 #include <generic-phy.h>
@@ -587,7 +588,6 @@ static void dwc3_set_incr_burst_type(struct dwc3 *dwc)
  */
 static int dwc3_core_init(struct dwc3 *dwc)
 {
-	unsigned long		timeout;
 	u32			hwparams4 = dwc->hwparams.hwparams4;
 	u32			reg;
 	int			ret;
@@ -610,15 +610,11 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	}
 
 	/* issue device SoftReset too */
-	timeout = 5000;
 	dwc3_writel(dwc->regs, DWC3_DCTL, DWC3_DCTL_CSFTRST);
-	while (timeout--) {
-		reg = dwc3_readl(dwc->regs, DWC3_DCTL);
-		if (!(reg & DWC3_DCTL_CSFTRST))
-			break;
-	};
-
-	if (!timeout) {
+	ret = read_poll_timeout(dwc3_readl, reg,
+				!(reg & DWC3_DCTL_CSFTRST),
+				1, 5000, dwc->regs, DWC3_DCTL);
+	if (ret) {
 		dev_err(dwc->dev, "Reset Timed Out\n");
 		ret = -ETIMEDOUT;
 		goto err0;

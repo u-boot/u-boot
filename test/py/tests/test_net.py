@@ -201,7 +201,7 @@ def test_net_dhcp6(ubman):
     global net6_set_up
     net6_set_up = True
 
-@pytest.mark.buildconfigspec('net')
+@pytest.mark.buildconfigspec('net', 'net_lwip')
 def test_net_setup_static(ubman):
     """Set up a static IP configuration.
 

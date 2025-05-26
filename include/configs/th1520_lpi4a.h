@@ -9,6 +9,7 @@
 
 #include <linux/sizes.h>
 
+#define CFG_SYS_NS16550_CLK		100000000
 #define CFG_SYS_SDRAM_BASE		0x00000000
 
 #define UART_BASE	0xffe7014000

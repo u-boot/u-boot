@@ -476,6 +476,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		printf("EEPROM data loaded from device to memory.\n");
 		has_been_read = 1;
+		return 0;
 	}
 
 	// Subsequent commands require that the EEPROM has already been read.

@@ -974,6 +974,21 @@ config SPL_NAND_SUPPORT
 	  This enables the drivers in drivers/mtd/nand/raw as part of an SPL
 	  build.
 
+config SPL_NAND_RAW_U_BOOT_USE_SECTOR
+	bool "NAND raw mode: by sector"
+	depends on SPL_NAND_SUPPORT
+	select SPL_LOAD_BLOCK
+	help
+	  Use sector number for specifying U-Boot location on NAND in
+	  raw mode.
+
+config SPL_NAND_RAW_U_BOOT_SECTOR
+	hex "Address on the NAND to load U-Boot from"
+	depends on SPL_NAND_RAW_U_BOOT_USE_SECTOR
+	help
+	  Address on the NAND to load U-Boot from, when the NAND is being used
+	  in raw mode. Units: NAND disk sectors (1 sector = 512 bytes).
+
 config SPL_NAND_RAW_ONLY
 	bool "Support to boot only raw u-boot.bin images"
 	depends on SPL_NAND_SUPPORT

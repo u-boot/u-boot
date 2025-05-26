@@ -8,6 +8,7 @@
 #include <charset.h>
 #include <command.h>
 #include <dm/device.h>
+#include <efi_device_path.h>
 #include <efi_dt_fixup.h>
 #include <efi_load_initrd.h>
 #include <efi_loader.h>
@@ -812,7 +813,7 @@ static int efi_boot_add_uri(int argc, char *const argv[], u16 *var_name16,
 	lo->label = label;
 
 	uridp_len = sizeof(struct efi_device_path) + strlen(argv[3]) + 1;
-	uridp = efi_alloc(uridp_len + sizeof(END));
+	uridp = efi_alloc(uridp_len + sizeof(EFI_DP_END));
 	if (!uridp) {
 		log_err("Out of memory\n");
 		return CMD_RET_FAILURE;
@@ -822,10 +823,10 @@ static int efi_boot_add_uri(int argc, char *const argv[], u16 *var_name16,
 	uridp->dp.length = uridp_len;
 	strcpy(uridp->uri, argv[3]);
 	pos = (char *)uridp + uridp_len;
-	memcpy(pos, &END, sizeof(END));
+	memcpy(pos, &EFI_DP_END, sizeof(EFI_DP_END));
 
 	*file_path = &uridp->dp;
-	*fp_size += uridp_len + sizeof(END);
+	*fp_size += uridp_len + sizeof(EFI_DP_END);
 
 	return CMD_RET_SUCCESS;
 }

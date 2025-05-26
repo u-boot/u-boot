@@ -60,6 +60,8 @@
 
 #if LWIP_ALTCP_TLS && LWIP_ALTCP_TLS_MBEDTLS
 
+#include "lwip/errno.h"
+
 #include "lwip/altcp.h"
 #include "lwip/altcp_tls.h"
 #include "lwip/priv/altcp_priv.h"
@@ -299,7 +301,8 @@ altcp_mbedtls_lower_recv_process(struct altcp_pcb *conn, altcp_mbedtls_state_t *
       LWIP_DEBUGF(ALTCP_MBEDTLS_DEBUG, ("mbedtls_ssl_handshake failed: %d\n", ret));
       /* handshake failed, connection has to be closed */
       if (ret == MBEDTLS_ERR_X509_CERT_VERIFY_FAILED) {
-        printf("Certificate verification failed\n");
+	/* provide a cause for why the connection is closed to the called */
+        errno = EPERM;
       }
       if (conn->err) {
         conn->err(conn->arg, ERR_CLSD);
@@ -843,9 +846,6 @@ altcp_tls_create_config(int is_server, u8_t cert_count, u8_t pkey_count, int hav
     altcp_mbedtls_unref_entropy();
     altcp_mbedtls_free_config(conf);
     return NULL;
-  }
-  if (authmode == MBEDTLS_SSL_VERIFY_NONE) {
-     printf("WARNING: no CA certificates, HTTPS connections not authenticated\n");
   }
   mbedtls_ssl_conf_authmode(&conf->conf, authmode);
 

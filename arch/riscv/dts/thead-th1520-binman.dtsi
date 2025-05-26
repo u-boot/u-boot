@@ -1,0 +1,55 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2025 Yao Zi <ziyao@disroot.org>
+ */
+
+#include <config.h>
+
+/ {
+	binman: binman {
+	};
+};
+
+&binman {
+	filename = "u-boot-with-spl.bin";
+
+	u-boot-spl {
+	};
+
+	ddr-fw {
+		filename = "th1520-ddr-firmware.bin";
+		type = "blob-ext";
+	};
+
+	fit {
+		offset = <CONFIG_SPL_PAD_TO>;
+
+		description = "Configuration to load M-mode U-Boot";
+
+		#address-cells = <2>;
+		fit,fdt-list = "of-list";
+
+		images {
+			uboot {
+				description = "U-Boot";
+				type = "standalone";
+				os = "U-boot";
+				arch = "riscv";
+				compression = "none";
+				load = /bits/ 64 <CONFIG_TEXT_BASE>;
+
+				uboot_blob: u-boot {
+				};
+			};
+		};
+
+		configurations {
+			default = "conf-th1520-lichee-pi-4a";
+
+			conf-th1520-lichee-pi-4a {
+				description = "th1520-lichee-pi-4a";
+				loadables = "uboot";
+			};
+		};
+	};
+};

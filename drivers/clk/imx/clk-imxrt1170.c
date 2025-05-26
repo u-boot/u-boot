@@ -105,6 +105,8 @@ static const char * const usdhc1_sels[] = {"rcosc48M_div2", "osc", "rcosc400M", 
 "pll2_pfd2", "pll2_pfd0", "pll1_div5", "pll_arm"};
 static const char * const semc_sels[] = {"rcosc48M_div2", "osc", "rcosc400M", "rcosc16M",
 "pll1_div5", "pll2_sys", "pll2_pfd2", "pll3_pfd0"};
+static const char * const flexspi1_sels[] = {"rcosc48M_div2", "osc", "rcosc400M", "rcosc16M",
+"pll3_pdf0", "pll2_clk", "pll2_pfd2", "pll3_clk"};
 
 static int imxrt1170_clk_probe(struct udevice *dev)
 {
@@ -162,6 +164,13 @@ static int imxrt1170_clk_probe(struct udevice *dev)
 	clk_dm(IMXRT1170_CLK_LPUART1,
 	       imx_clk_divider(dev, "lpuart1", "lpuart1_sel",
 			       base + (25 * 0x80), 0, 8));
+
+	clk_dm(IMXRT1170_CLK_FLEXSPI1_SEL,
+	       imx_clk_mux(dev, "flexspi1_sel", base + (20 * 0x80), 8, 3,
+			   flexspi1_sels, ARRAY_SIZE(flexspi1_sels)));
+	clk_dm(IMXRT1170_CLK_FLEXSPI1,
+	       imx_clk_divider(dev, "flexspi1", "flexspi1_sel",
+			       base + (20 * 0x80), 0, 8));
 
 	clk_dm(IMXRT1170_CLK_USDHC1_SEL,
 	       imx_clk_mux(dev, "usdhc1_sel", base + (58 * 0x80), 8, 3,

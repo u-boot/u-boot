@@ -14,6 +14,7 @@
 #include <asm/smp.h>
 #include <asm/u-boot.h>
 #include <compiler.h>
+#include <config.h>
 
 /* Architecture-specific global data */
 struct arch_global_data {
@@ -47,7 +48,25 @@ struct arch_global_data {
 
 #include <asm-generic/global_data.h>
 
+#if defined(__clang__) || CONFIG_IS_ENABLED(LTO)
+
+#define DECLARE_GLOBAL_DATA_PTR
+#define gd			get_gd()
+
+static inline gd_t *get_gd(void)
+{
+	gd_t *gd_ptr;
+
+	__asm__ volatile ("mv %0, gp\n" : "=r" (gd_ptr));
+
+	return gd_ptr;
+}
+
+#else
+
 #define DECLARE_GLOBAL_DATA_PTR register gd_t *gd asm ("gp")
+
+#endif
 
 static inline void set_gd(volatile gd_t *gd_ptr)
 {

@@ -32,7 +32,7 @@ static int setup_mtd_device(struct mtd_info **mtd_env)
 
 static int env_mtd_save(void)
 {
-	char *saved_buf, *write_buf, *tmp;
+	char *saved_buf = NULL, *write_buf, *tmp;
 	struct erase_info ei = { };
 	struct mtd_info *mtd_env;
 	u32 sect_size, sect_num;
@@ -105,7 +105,7 @@ static int env_mtd_save(void)
 	}
 
 	offset = CONFIG_ENV_OFFSET;
-	remaining = sect_size;
+	remaining = write_size;
 	tmp = write_buf;
 
 	puts("Writing to MTD...");

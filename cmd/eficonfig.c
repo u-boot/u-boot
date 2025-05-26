@@ -8,6 +8,7 @@
 #include <ansi.h>
 #include <cli.h>
 #include <charset.h>
+#include <efi_device_path.h>
 #include <efi_loader.h>
 #include <efi_load_initrd.h>
 #include <efi_config.h>
@@ -514,7 +515,7 @@ struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_
 	struct efi_device_path_file_path *fp;
 
 	fp_size = sizeof(struct efi_device_path) + u16_strsize(current_path);
-	buf = calloc(1, fp_size + sizeof(END));
+	buf = calloc(1, fp_size + sizeof(EFI_DP_END));
 	if (!buf)
 		return NULL;
 
@@ -526,7 +527,7 @@ struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_
 
 	p = buf;
 	p += fp_size;
-	*((struct efi_device_path *)p) = END;
+	*((struct efi_device_path *)p) = EFI_DP_END;
 
 	dp = efi_dp_shorten(dp_volume);
 	if (!dp)

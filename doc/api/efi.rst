@@ -178,6 +178,12 @@ Driver binding protocol
 .. kernel-doc:: include/efi_driver.h
    :internal:
 
+Device paths
+------------
+
+.. kernel-doc:: include/efi_device_path.h
+   :internal:
+
 Unit testing
 ------------
 

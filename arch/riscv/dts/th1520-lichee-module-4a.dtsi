@@ -14,6 +14,7 @@
 	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x00000000 0x2 0x00000000>;
+		bootph-pre-ram;
 	};
 };
 
@@ -23,14 +24,6 @@
 
 &osc_32k {
 	clock-frequency = <32768>;
-};
-
-&apb_clk {
-	clock-frequency = <62500000>;
-};
-
-&uart_sclk {
-	clock-frequency = <100000000>;
 };
 
 &emmc {

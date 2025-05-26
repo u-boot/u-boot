@@ -4,6 +4,7 @@
  */
 
 #include "th1520-lichee-module-4a.dtsi"
+#include "thead-th1520-binman.dtsi"
 
 / {
 	model = "Sipeed Lichee Pi 4A";

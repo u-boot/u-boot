@@ -92,7 +92,8 @@ static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_ARC,		"arc",		"ARC",		},
 	{	IH_ARCH_X86_64,		"x86_64",	"AMD x86_64",	},
 	{	IH_ARCH_XTENSA,		"xtensa",	"Xtensa",	},
-	{	IH_ARCH_RISCV,		"riscv",	"RISC-V",	},
+	{	IH_ARCH_RISCV,		"riscv",	"RISC-V 32 Bit",},
+	{	IH_ARCH_RISCV64,	"riscv64",	"RISC-V 64 Bit",},
 	{	-1,			"",		"",		},
 };
 
