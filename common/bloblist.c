@@ -261,6 +261,42 @@ void *bloblist_get_blob(uint tag, int *sizep)
 	return (void *)rec + rec_hdr_size(rec);
 }
 
+int bloblist_apply_blobs(uint tag, int (*func)(void **data))
+{
+	struct bloblist_hdr *hdr = gd->bloblist;
+	struct bloblist_rec *rec;
+
+	if (!func || !hdr)
+		return -ENOENT;
+
+	foreach_rec(rec, hdr) {
+		/* Apply all blobs with the specified tag */
+		if (rec_tag(rec) == tag) {
+			int ret;
+			int tag = rec_tag(rec);
+			void *blob = (void *)rec + rec_hdr_size(rec);
+
+			ret = func(&blob);
+			if (ret) {
+				log_err("Failed to apply blob with tag %d\n",
+					tag);
+				return ret;
+			}
+
+			rec = rec_from_blob(blob);
+			if (rec <= 0) {
+				log_err("Blob corrupted\n");
+				return -ENOENT;
+			}
+
+			/* Mark applied blob record as void */
+			void_blob(rec);
+		}
+	}
+
+	return 0;
+}
+
 void *bloblist_add(uint tag, int size, int align_log2)
 {
 	struct bloblist_rec *rec;
