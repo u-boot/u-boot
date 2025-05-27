@@ -31,13 +31,13 @@ def mkdir(dirname, parents=False):
     """Make a directory if it doesn't already exist.
 
     Args:
-        dirname (str): Directory to create
+        dirname (str): Directory to create, or None to do nothing
         parents (bool): True to also make parent directories
 
     Raises:
         OSError: File already exists
     """
-    if os.path.exists(dirname):
+    if not dirname or os.path.exists(dirname):
         return
     try:
         if parents:
@@ -57,7 +57,7 @@ def _remove_old_outputs(out_dir):
     """Remove any old output-target files
 
     Args:
-        out_dir (str): Output directory for the build
+        out_dir (str): Output directory for the build, or None for current dir
 
     Since we use a build directory that was previously used by another
     board, it may have produced an SPL image. If we don't remove it (i.e.
@@ -65,7 +65,7 @@ def _remove_old_outputs(out_dir):
     output of this build, even if it does not produce SPL images.
     """
     for elf in BASE_ELF_FILENAMES:
-        fname = os.path.join(out_dir, elf)
+        fname = os.path.join(out_dir or '', elf)
         if os.path.exists(fname):
             os.remove(fname)
 
@@ -193,9 +193,11 @@ class BuilderThread(threading.Thread):
 
         Args:
             brd (Board): Board to create arguments for
-            out_dir (str): Path to output directory containing the files
+            out_dir (str): Path to output directory containing the files, or
+                or None to not use a separate output directory
             out_rel_dir (str): Output directory relative to the current dir
-            work_dir (str): Directory to which the source will be checked out
+            work_dir (str): Directory to which the source will be checked out,
+                or None to use current directory
             commit_upto (int): Commit number to build (0...n-1)
 
         Returns:
@@ -206,7 +208,7 @@ class BuilderThread(threading.Thread):
         """
         args = []
         cwd = work_dir
-        src_dir = os.path.realpath(work_dir)
+        src_dir = os.path.realpath(work_dir) if work_dir else os.getcwd()
         if commit_upto is None:
             # In this case we are building in the original source directory
             # (i.e. the current directory where buildman is invoked. The
@@ -215,8 +217,9 @@ class BuilderThread(threading.Thread):
             #
             # Symlinks can confuse U-Boot's Makefile since we may use '..'
             # in our path, so remove them.
-            real_dir = os.path.realpath(out_dir)
-            args.append(f'O={real_dir}')
+            if out_dir:
+                real_dir = os.path.realpath(out_dir)
+                args.append(f'O={real_dir}')
             cwd = None
             src_dir = os.getcwd()
         elif out_rel_dir:
@@ -398,7 +401,8 @@ class BuilderThread(threading.Thread):
             config_only (bool): Only configure the source, do not build it
             adjust_cfg (list of str): See the cfgutil module and run_commit()
             commit (Commit): Commit only being built
-            out_dir (str): Output directory for the build
+            out_dir (str): Output directory for the build, or None to use
+               current
             out_rel_dir (str): Output directory relatie to the current dir
             result (CommandResult): Previous result
 
@@ -410,7 +414,7 @@ class BuilderThread(threading.Thread):
         """
         # Set up the environment and command line
         env = self.builder.make_environment(self.toolchain)
-        if not os.path.exists(out_dir):
+        if out_dir and not os.path.exists(out_dir):
             mkdir(out_dir)
 
         args, cwd, src_dir = self._build_args(brd, out_dir, out_rel_dir,
@@ -421,7 +425,7 @@ class BuilderThread(threading.Thread):
         _remove_old_outputs(out_dir)
 
         # If we need to reconfigure, do that now
-        cfg_file = os.path.join(out_dir, '.config')
+        cfg_file = os.path.join(out_dir or '', '.config')
         cmd_list = []
         if do_config or adjust_cfg:
             result = self._reconfigure(

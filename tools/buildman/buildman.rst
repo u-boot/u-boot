@@ -1338,6 +1338,8 @@ disturbed by the build. Use `-i` to do an in-tree build instead. Note that this
 does not affect the source directory, since buildman creates a separate git
 'worktree' for each board. This means that it is possible to do an in-tree
 build of an entire branch, or even a 'current source' build for multiple boards.
+As a special case, you can use `-wi` to do an in-tree build in the current
+directory.
 
 Build summary
 -------------
