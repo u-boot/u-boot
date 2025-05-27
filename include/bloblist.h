@@ -73,6 +73,7 @@
 #define __BLOBLIST_H
 
 #include <mapmem.h>
+#include <linux/errno.h>
 
 enum {
 	BLOBLIST_VERSION	= 1,
@@ -276,6 +277,26 @@ void *bloblist_get_blob(uint tag, int *sizep);
 static inline void *bloblist_get_blob(uint tag, int *sizep)
 {
 	return NULL;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(BLOBLIST)
+/**
+ * bloblist_apply_blobs() - Apply the data of blobs by tag
+ *
+ * Scan the bloblist, find the blobs with the matching tag and apply the data
+ * of blobs
+ *
+ * @tag:	Tag to search for (enum bloblist_tag_t)
+ * @func:	Function to apply the data of blobs
+ * Return: 0 if OK, otherwise error.
+ */
+int bloblist_apply_blobs(uint tag, int (*func)(void **data, int size));
+#else
+static inline int bloblist_apply_blobs(uint tag,
+				       int (*func)(void **data, int size))
+{
+	return -EPERM;
 }
 #endif
 

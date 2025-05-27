@@ -235,6 +235,19 @@ static int bloblist_ensurerec(uint tag, struct bloblist_rec **recp, int size,
 	return 0;
 }
 
+static int bloblist_get_blob_data_offset(uint tag)
+{
+	switch (tag) {
+	case BLOBLISTT_FDT_OVERLAY:
+		return sizeof(struct dto_blob_hdr);
+	/*
+	 * return the data offset if it is not following the blob
+	 * header immediately.
+	 */
+	}
+	return 0;
+}
+
 void *bloblist_find(uint tag, int size)
 {
 	void *blob = NULL;
@@ -259,6 +272,44 @@ void *bloblist_get_blob(uint tag, int *sizep)
 	*sizep = rec->size;
 
 	return (void *)rec + rec_hdr_size(rec);
+}
+
+int bloblist_apply_blobs(uint tag, int (*func)(void **data, int size))
+{
+	struct bloblist_hdr *hdr = gd->bloblist;
+	struct bloblist_rec *rec;
+
+	if (!func || !hdr)
+		return -ENOENT;
+
+	foreach_rec(rec, hdr) {
+		/* Apply all blobs with the specified tag */
+		if (rec_tag(rec) == tag) {
+			int ret;
+			int tag = rec_tag(rec);
+			void *blob = (void *)rec + rec_hdr_size(rec);
+			int dat_off = bloblist_get_blob_data_offset(tag);
+
+			blob += dat_off;
+			ret = func(&blob, rec->size - dat_off);
+			if (ret) {
+				log_err("Failed to apply blob with tag %d\n",
+					tag);
+				return ret;
+			}
+
+			rec = rec_from_blob(blob - dat_off);
+			if (rec <= 0) {
+				log_err("Blob corrupted\n");
+				return -ENOENT;
+			}
+
+			/* Mark applied blob record as void */
+			void_blob(rec);
+		}
+	}
+
+	return 0;
 }
 
 void *bloblist_add(uint tag, int size, int align_log2)
