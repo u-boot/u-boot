@@ -25,6 +25,10 @@
 		optee {
 			bootph-all;
 		};
+
+		scmi {
+			bootph-all;
+		};
 	};
 
 	/* need PSCI for sysreset during board_f */
@@ -90,6 +94,10 @@
 };
 
 &pinctrl {
+	bootph-all;
+};
+
+&rcc {
 	bootph-all;
 };
 
