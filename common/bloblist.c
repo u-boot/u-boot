@@ -43,6 +43,7 @@ static struct tag_name {
 	{ BLOBLISTT_ACPI_TABLES, "ACPI tables for x86" },
 	{ BLOBLISTT_TPM_EVLOG, "TPM event log defined by TCG EFI" },
 	{ BLOBLISTT_TPM_CRB_BASE, "TPM Command Response Buffer address" },
+	{ BLOBLISTT_FDT_OVERLAY, "DT overlay" },
 
 	/* BLOBLISTT_AREA_FIRMWARE */
 	{ BLOBLISTT_TPM2_TCG_LOG, "TPM v2 log space" },
