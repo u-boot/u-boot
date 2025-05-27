@@ -16,7 +16,9 @@
 #include <syscon.h>
 #include <usb.h>
 #include <asm/io.h>
+#include <dm/device.h>
 #include <dm/device_compat.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/of_access.h>
 #include <linux/bitfield.h>
@@ -633,6 +635,7 @@ U_BOOT_DRIVER(stm32_usb_phyc) = {
 
 struct stm32_usbphyc_clk {
 	bool enable;
+	struct clk clkp;
 };
 
 static ulong stm32_usbphyc_clk48_get_rate(struct clk *clk)
@@ -687,9 +690,25 @@ const struct clk_ops usbphyc_clk48_ops = {
 	.disable = stm32_usbphyc_clk48_disable,
 };
 
+int usbphyc_clk48_probe(struct udevice *dev)
+{
+	struct stm32_usbphyc_clk *priv = dev_get_priv(dev);
+
+	/* prepare clkp to correctly register clock with CCF */
+	priv->clkp.dev = dev;
+	priv->clkp.id = CLK_ID(dev, 0);
+
+	/* Store back pointer to clk from udevice */
+	/* FIXME: This is not allowed...should be allocated by driver model */
+	dev_set_uclass_priv(dev, &priv->clkp);
+
+	return 0;
+}
+
 U_BOOT_DRIVER(stm32_usb_phyc_clk) = {
 	.name = "stm32-usbphyc-clk",
 	.id = UCLASS_CLK,
 	.ops = &usbphyc_clk48_ops,
+	.probe = &usbphyc_clk48_probe,
 	.priv_auto = sizeof(struct stm32_usbphyc_clk),
 };
