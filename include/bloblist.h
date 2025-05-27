@@ -73,6 +73,7 @@
 #define __BLOBLIST_H
 
 #include <mapmem.h>
+#include <errno.h>
 
 enum {
 	BLOBLIST_VERSION	= 1,
@@ -347,6 +348,7 @@ void *bloblist_ensure(uint tag, int size);
  */
 int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp);
 
+#if CONFIG_IS_ENABLED(BLOBLIST)
 /**
  * bloblist_resize() - resize a blob
  *
@@ -355,10 +357,17 @@ int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp);
  *
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @new_size:	New size of the blob (>0 to expand, <0 to contract)
+ * @expand_by:	Number of bytes actually expanded by (-ve to contract)
  * Return: 0 if OK, -ENOSPC if the bloblist does not have enough space, -ENOENT
  * if the tag is not found
  */
-int bloblist_resize(uint tag, int new_size);
+int bloblist_resize(uint tag, int new_size, int *expand_by);
+#else
+static inline int bloblist_resize(uint tag, int new_size, int *expand_by)
+{
+	return -EPERM;
+}
+#endif
 
 /**
  * bloblist_new() - Create a new, empty bloblist of a given size

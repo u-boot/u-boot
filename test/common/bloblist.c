@@ -401,6 +401,7 @@ static int bloblist_test_grow(struct unit_test_state *uts)
 	void *blob1, *blob2, *blob1_new;
 	struct bloblist_hdr *hdr;
 	void *ptr;
+	int expand_by;
 
 	ptr = map_sysmem(TEST_ADDR, TEST_BLOBLIST_SIZE);
 	hdr = ptr;
@@ -422,7 +423,7 @@ static int bloblist_test_grow(struct unit_test_state *uts)
 		    hdr->used_size);
 
 	/* Resize the first one */
-	ut_assertok(bloblist_resize(TEST_TAG, small_size + 4));
+	ut_assertok(bloblist_resize(TEST_TAG, small_size + 4, &expand_by));
 
 	/* The first one should not have moved, just got larger */
 	blob1_new = bloblist_find(TEST_TAG, small_size + 4);
@@ -455,6 +456,7 @@ static int bloblist_test_shrink(struct unit_test_state *uts)
 	struct bloblist_hdr *hdr;
 	int new_size;
 	void *ptr;
+	int expand_by;
 
 	ptr = map_sysmem(TEST_ADDR, TEST_BLOBLIST_SIZE);
 
@@ -475,7 +477,7 @@ static int bloblist_test_shrink(struct unit_test_state *uts)
 
 	/* Resize the first one */
 	new_size = small_size - BLOBLIST_ALIGN - 4;
-	ut_assertok(bloblist_resize(TEST_TAG, new_size));
+	ut_assertok(bloblist_resize(TEST_TAG, new_size, &expand_by));
 
 	/* The first one should not have moved, just got smaller */
 	blob1_new = bloblist_find(TEST_TAG, new_size);
@@ -505,6 +507,7 @@ static int bloblist_test_resize_fail(struct unit_test_state *uts)
 	void *blob1, *blob2;
 	int new_size;
 	void *ptr;
+	int expand_by;
 
 	ptr = map_sysmem(TEST_ADDR, TEST_BLOBLIST_SIZE);
 
@@ -522,11 +525,12 @@ static int bloblist_test_resize_fail(struct unit_test_state *uts)
 		    hdr->used_size);
 
 	/* Resize the first one, to check the boundary conditions */
-	ut_asserteq(-EINVAL, bloblist_resize(TEST_TAG, -1));
+	ut_asserteq(-EINVAL, bloblist_resize(TEST_TAG, -1, &expand_by));
 
 	new_size = small_size + (hdr->total_size - hdr->used_size);
-	ut_asserteq(-ENOSPC, bloblist_resize(TEST_TAG, new_size + 1));
-	ut_assertok(bloblist_resize(TEST_TAG, new_size));
+	ut_asserteq(-ENOSPC, bloblist_resize(TEST_TAG, new_size + 1,
+					     &expand_by));
+	ut_assertok(bloblist_resize(TEST_TAG, new_size, &expand_by));
 
 	return 0;
 }
@@ -540,6 +544,7 @@ static int bloblist_test_resize_last(struct unit_test_state *uts)
 	void *blob1, *blob2, *blob2_new;
 	int alloced_val;
 	void *ptr;
+	int expand_by;
 
 	ptr = map_sysmem(TEST_ADDR, TEST_BLOBLIST_SIZE);
 	memset(ptr, ERASE_BYTE, TEST_BLOBLIST_SIZE);
@@ -561,7 +566,7 @@ static int bloblist_test_resize_last(struct unit_test_state *uts)
 	ut_asserteq((u8)ERASE_BYTE, *((u8 *)hdr + hdr->used_size));
 
 	/* Resize the second one, checking nothing changes */
-	ut_asserteq(0, bloblist_resize(TEST_TAG2, small_size + 4));
+	ut_asserteq(0, bloblist_resize(TEST_TAG2, small_size + 4, &expand_by));
 
 	blob2_new = bloblist_find(TEST_TAG2, small_size + 4);
 	ut_asserteq_ptr(blob2, blob2_new);

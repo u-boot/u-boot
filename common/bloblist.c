@@ -311,14 +311,14 @@ int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp)
 
 static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 			       struct bloblist_rec *rec,
-			       int new_size)
+			       int new_size, int *expand_by)
 {
-	int expand_by;	/* Number of bytes to expand by (-ve to contract) */
 	int new_alloced;
 	ulong next_ofs;	/* Offset of the record after @rec */
 
-	expand_by = ALIGN(new_size - rec->size, BLOBLIST_BLOB_ALIGN);
-	new_alloced = ALIGN(hdr->used_size + expand_by, BLOBLIST_BLOB_ALIGN);
+	*expand_by = ALIGN(new_size - rec->size, BLOBLIST_BLOB_ALIGN);
+	new_alloced = ALIGN(hdr->used_size + *expand_by, BLOBLIST_BLOB_ALIGN);
+
 	if (new_size < 0) {
 		log_debug("Attempt to shrink blob size below 0 (%x)\n",
 			  new_size);
@@ -334,13 +334,13 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 	/* Move the following blobs up or down, if this is not the last */
 	next_ofs = bloblist_blob_end_ofs(hdr, rec);
 	if (next_ofs != hdr->used_size) {
-		memmove((void *)hdr + next_ofs + expand_by,
+		memmove((void *)hdr + next_ofs + *expand_by,
 			(void *)hdr + next_ofs, hdr->used_size - next_ofs);
 	}
 	hdr->used_size = new_alloced;
 
 	/* Zero the new part of the blob */
-	if (expand_by > 0) {
+	if (*expand_by > 0) {
 		memset((void *)rec + rec_hdr_size(rec) + rec->size, '\0',
 		       new_size - rec->size);
 	}
@@ -351,7 +351,7 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 	return 0;
 }
 
-int bloblist_resize(uint tag, int new_size)
+int bloblist_resize(uint tag, int new_size, int *expand_by)
 {
 	struct bloblist_hdr *hdr = gd->bloblist;
 	struct bloblist_rec *rec;
@@ -360,7 +360,7 @@ int bloblist_resize(uint tag, int new_size)
 	rec = bloblist_findrec(tag);
 	if (!rec)
 		return log_msg_ret("find", -ENOENT);
-	ret = bloblist_resize_rec(hdr, rec, new_size);
+	ret = bloblist_resize_rec(hdr, rec, new_size, expand_by);
 	if (ret)
 		return log_msg_ret("resize", ret);
 
