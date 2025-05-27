@@ -14,8 +14,8 @@ endif
 endif
 
 ifdef MINIMAL
-# necessary to create built-in.o
-obj- := __dummy__.o
+# necessary to create built-in.a
+obj- := __dummy__.a
 else
 # include i2c_common.o once if either VID or FSL_USE_PCA9547_MUX
 I2C_COMMON=
