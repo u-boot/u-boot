@@ -335,7 +335,7 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 	next_ofs = bloblist_blob_end_ofs(hdr, rec);
 	if (next_ofs != hdr->used_size) {
 		memmove((void *)hdr + next_ofs + expand_by,
-			(void *)hdr + next_ofs, new_alloced - next_ofs);
+			(void *)hdr + next_ofs, hdr->used_size - next_ofs);
 	}
 	hdr->used_size = new_alloced;
 
