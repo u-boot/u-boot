@@ -10,6 +10,16 @@ config CLK
 	  feed into other clocks in a tree structure, with multiplexers to
 	  choose the source for each clock.
 
+config CLK_AUTO_ID
+	bool "Enable support of an unique clock id with several provider"
+	depends on CLK
+	help
+	  Add the uclass sequence number of clock provider in the 8 higher bits
+	  of the clk id to guaranty an unique clock identifier in clk uclass
+	  when several clock providers are present on the device and when
+	  default xlate are used.
+	  This feature limit each identifier for each clock providers (24 bits).
+
 config SPL_CLK
 	bool "Enable clock support in SPL"
 	depends on CLK && SPL && SPL_DM

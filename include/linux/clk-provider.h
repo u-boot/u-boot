@@ -15,10 +15,17 @@
 
 struct udevice;
 
+/* update clock ID for the dev = clock provider, compatible with CLK_AUTO_ID */
+static inline void dev_clk_dm(const struct udevice *dev, ulong id, struct clk *clk)
+{
+	if (!IS_ERR(clk))
+		clk->id = CLK_ID(dev, id);
+}
+
 static inline void clk_dm(ulong id, struct clk *clk)
 {
 	if (!IS_ERR(clk))
-		clk->id = id;
+		clk->id = CLK_ID(clk->dev, id);
 }
 
 /*

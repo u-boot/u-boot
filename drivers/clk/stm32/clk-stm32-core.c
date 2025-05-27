@@ -46,7 +46,8 @@ int stm32_rcc_init(struct udevice *dev,
 
 		if (cfg->setup) {
 			clk = cfg->setup(dev, cfg);
-			clk->id = cfg->id;
+			/* set identifier of clock provider*/
+			dev_clk_dm(dev, cfg->id, clk);
 		} else {
 			dev_err(dev, "failed to register clock %s\n", cfg->name);
 			return -ENOENT;
