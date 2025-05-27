@@ -783,6 +783,21 @@ struct scmi_clk_attribute_out {
 };
 
 /**
+ * struct scmi_clk_get_nb_out_v2 - Response payload for SCMI_CLOCK_ATTRIBUTES command
+ * Clock management Protocol 2.0
+ * @status:	SCMI command status
+ * @attributes:	clock attributes
+ * @clock_name:	name of the clock
+ * @clock_enable_delay: delay incurred by the platform to enable the clock
+ */
+struct scmi_clk_attribute_out_v2 {
+	s32 status;
+	u32 attributes;
+	char clock_name[SCMI_CLOCK_NAME_LENGTH_MAX];
+	u32 clock_enable_delay;
+};
+
+/**
  * struct scmi_clk_state_in - Message payload for CLOCK_CONFIG_SET command
  * @clock_id:	SCMI clock ID
  * @attributes:	Attributes of the targets clock state
