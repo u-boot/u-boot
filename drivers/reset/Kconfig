@@ -28,13 +28,6 @@ config STI_RESET
 	  Say Y if you want to control reset signals provided by system config
 	  block.
 
-config STM32_RESET
-	bool "Enable the STM32 reset"
-	depends on ARCH_STM32 || ARCH_STM32MP
-	help
-	  Support for reset controllers on STMicroelectronics STM32 family SoCs.
-	  This reset driver is compatible with STM32 F4/F7 and H7 SoCs.
-
 config TEGRA_CAR_RESET
 	bool "Enable Tegra CAR-based reset driver"
 	depends on TEGRA_CAR
@@ -258,4 +251,6 @@ config RESET_SPACEMIT_K1
 	help
 	  Support for SPACEMIT's K1 Reset system. Basic Assert/Deassert
 	  is supported.
+
+source "drivers/reset/stm32/Kconfig"
 endmenu
