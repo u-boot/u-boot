@@ -41,7 +41,7 @@ int stm32_rcc_init(struct udevice *dev,
 		const struct clock_config *cfg = &data->tab_clocks[i];
 		struct clk *clk = ERR_PTR(-ENOENT);
 
-		if (data->check_security && data->check_security(priv->base, cfg))
+		if (data->check_security && data->check_security(dev, priv->base, cfg))
 			continue;
 
 		if (cfg->setup) {

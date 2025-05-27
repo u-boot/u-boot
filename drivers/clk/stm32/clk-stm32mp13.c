@@ -769,7 +769,7 @@ static const struct clock_config stm32mp13_clock_cfg[] = {
 			      GATE_TRACECK, DIV_TRACE),
 };
 
-static int stm32mp13_check_security(void __iomem *base,
+static int stm32mp13_check_security(struct udevice *dev, void __iomem *base,
 				    const struct clock_config *cfg)
 {
 	int sec_id = cfg->sec_id;

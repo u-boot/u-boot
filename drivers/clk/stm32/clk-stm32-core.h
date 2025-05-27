@@ -127,7 +127,7 @@ struct stm32_clock_match_data {
 	unsigned int num_clocks;
 	const struct clock_config *tab_clocks;
 	const struct clk_stm32_clock_data *clock_data;
-	int (*check_security)(void __iomem *base,
+	int (*check_security)(struct udevice *dev, void __iomem *base,
 			      const struct clock_config *cfg);
 };
 
