@@ -1333,6 +1333,12 @@ To build a particular target, rather than the default U-Boot target, use the
 `--target` option. This is unlikely to be useful unless you are building a
 single board.
 
+Buildman normally builds out-of-tree, meaning that the source directory is not
+disturbed by the build. Use `-i` to do an in-tree build instead. Note that this
+does not affect the source directory, since buildman creates a separate git
+'worktree' for each board. This means that it is possible to do an in-tree
+build of an entire branch, or even a 'current source' build for multiple boards.
+
 Build summary
 -------------
 

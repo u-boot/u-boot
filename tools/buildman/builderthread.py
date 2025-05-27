@@ -37,6 +37,8 @@ def mkdir(dirname, parents=False):
     Raises:
         OSError: File already exists
     """
+    if os.path.exists(dirname):
+        return
     try:
         if parents:
             os.makedirs(dirname)
@@ -45,8 +47,8 @@ def mkdir(dirname, parents=False):
     except OSError as err:
         if err.errno == errno.EEXIST:
             if os.path.realpath('.') == os.path.realpath(dirname):
-                print(f"Cannot create the current working directory '{dirname}'!")
-                sys.exit(1)
+                raise ValueError(
+                    f"Cannot create the current working directory '{dirname}'!")
         else:
             raise
 
@@ -205,21 +207,20 @@ class BuilderThread(threading.Thread):
         args = []
         cwd = work_dir
         src_dir = os.path.realpath(work_dir)
-        if not self.builder.in_tree:
-            if commit_upto is None:
-                # In this case we are building in the original source directory
-                # (i.e. the current directory where buildman is invoked. The
-                # output directory is set to this thread's selected work
-                # directory.
-                #
-                # Symlinks can confuse U-Boot's Makefile since we may use '..'
-                # in our path, so remove them.
-                real_dir = os.path.realpath(out_dir)
-                args.append(f'O={real_dir}')
-                cwd = None
-                src_dir = os.getcwd()
-            else:
-                args.append(f'O={out_rel_dir}')
+        if commit_upto is None:
+            # In this case we are building in the original source directory
+            # (i.e. the current directory where buildman is invoked. The
+            # output directory is set to this thread's selected work
+            # directory.
+            #
+            # Symlinks can confuse U-Boot's Makefile since we may use '..'
+            # in our path, so remove them.
+            real_dir = os.path.realpath(out_dir)
+            args.append(f'O={real_dir}')
+            cwd = None
+            src_dir = os.getcwd()
+        elif out_rel_dir:
+            args.append(f'O={out_rel_dir}')
         if self.builder.verbose_build:
             args.append('V=1')
         else:
@@ -409,7 +410,8 @@ class BuilderThread(threading.Thread):
         """
         # Set up the environment and command line
         env = self.builder.make_environment(self.toolchain)
-        mkdir(out_dir)
+        if not os.path.exists(out_dir):
+            mkdir(out_dir)
 
         args, cwd, src_dir = self._build_args(brd, out_dir, out_rel_dir,
                                               work_dir, commit_upto)
