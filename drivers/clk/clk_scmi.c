@@ -132,7 +132,7 @@ static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name,
 static int scmi_clk_gate(struct clk *clk, int enable)
 {
 	struct scmi_clk_state_in in = {
-		.clock_id = clk->id,
+		.clock_id = clk_get_id(clk),
 		.attributes = enable,
 	};
 	struct scmi_clk_state_out out;
@@ -197,7 +197,7 @@ static int scmi_clk_disable(struct clk *clk)
 static ulong scmi_clk_get_rate(struct clk *clk)
 {
 	struct scmi_clk_rate_get_in in = {
-		.clock_id = clk->id,
+		.clock_id = clk_get_id(clk),
 	};
 	struct scmi_clk_rate_get_out out;
 	struct scmi_msg msg = SCMI_MSG_IN(SCMI_PROTOCOL_ID_CLOCK,
@@ -219,7 +219,7 @@ static ulong scmi_clk_get_rate(struct clk *clk)
 static ulong __scmi_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct scmi_clk_rate_set_in in = {
-		.clock_id = clk->id,
+		.clock_id = clk_get_id(clk),
 		.flags = SCMI_CLK_RATE_ROUND_CLOSEST,
 		.rate_lsb = (u32)rate,
 		.rate_msb = (u32)((u64)rate >> 32),
@@ -313,7 +313,7 @@ static int scmi_clk_probe(struct udevice *dev)
 				return ret;
 			}
 
-			clk_dm(i, &clk_scmi->clk);
+			dev_clk_dm(dev, i, &clk_scmi->clk);
 
 			if (CLK_HAS_RESTRICTIONS(attributes)) {
 				u32 perm;

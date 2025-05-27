@@ -192,6 +192,7 @@ config CLK_SCMI
 	bool "Enable SCMI clock driver"
 	depends on CLK
 	depends on SCMI_FIRMWARE
+	select CLK_AUTO_ID if CLK_CCF
 	help
 	  Enable this option if you want to support clock devices exposed
 	  by a SCMI agent based on SCMI clock protocol communication
