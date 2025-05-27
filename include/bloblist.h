@@ -110,7 +110,8 @@ enum bloblist_tag_t {
 	BLOBLISTT_ACPI_TABLES = 4,
 	BLOBLISTT_TPM_EVLOG = 5,
 	BLOBLISTT_TPM_CRB_BASE = 6,
-	BLOBLISTT_ACPI_PP = 7,
+	BLOBLISTT_FDT_OVERLAY = 7,
+	BLOBLISTT_ACPI_PP = 8,
 
 	/* Standard area to allocate blobs used across firmware components */
 	BLOBLISTT_AREA_FIRMWARE = 0x10,
@@ -229,6 +230,16 @@ enum {
 
 	BLOBLIST_HDR_SIZE		= sizeof(struct bloblist_hdr),
 	BLOBLIST_REC_HDR_SIZE		= sizeof(struct bloblist_rec),
+};
+
+/*
+ * struct dto_blob_hdr - Blob inline header for BLOBLISTT_FDT_OVERLAY
+ *
+ * @subtype: IMP-DEF per the agreement between the DT overlay producer and
+ *	consumer. Default value is 0.
+ */
+struct dto_blob_hdr {
+	u64 subtype;
 };
 
 /**
