@@ -9,8 +9,10 @@ except Exception:
     import ConfigParser
 
 import argparse
+from io import StringIO
 import os
 import re
+import sys
 
 from u_boot_pylib import gitutil
 
@@ -226,7 +228,7 @@ nxp = Zhikang Zhang <zhikang.zhang@nxp.com>
     f.close()
 
 
-def _UpdateDefaults(main_parser, config):
+def _UpdateDefaults(main_parser, config, argv):
     """Update the given OptionParser defaults based on config.
 
     We'll walk through all of the settings from all parsers.
@@ -242,6 +244,7 @@ def _UpdateDefaults(main_parser, config):
             updated.
         config: An instance of _ProjectConfigParser that we will query
             for settings.
+        argv (list of str or None): Arguments to parse
     """
     # Find all the parsers and subparsers
     parsers = [main_parser]
@@ -252,10 +255,45 @@ def _UpdateDefaults(main_parser, config):
     # Collect the defaults from each parser
     defaults = {}
     parser_defaults = []
+    argv = list(argv)
+    orig_argv = argv
+
+    bad = False
+    full_parser_list = []
     for parser in parsers:
-        pdefs = parser.parse_known_args()[0]
-        parser_defaults.append(pdefs)
-        defaults.update(vars(pdefs))
+        argv_list = [orig_argv]
+        special_cases = []
+        if hasattr(parser, 'defaults_cmds'):
+           special_cases = parser.defaults_cmds
+        for action in parser._actions:
+            if action.choices:
+                argv_list = []
+                for choice in action.choices:
+                    argv = None
+                    for case in special_cases:
+                        if case[0] == choice:
+                            argv = case
+                    argv_list.append(argv or [choice])
+
+        for argv in argv_list:
+            parser.message = None
+            old_val = parser.catch_error
+            try:
+                parser.catch_error = True
+                pdefs = parser.parse_known_args(argv)[0]
+            finally:
+                parser.catch_error = old_val
+
+            # if parser.message:
+                # print('bad', argv, parser.message)
+                # bad = True
+
+            parser_defaults.append(pdefs)
+            defaults.update(vars(pdefs))
+            full_parser_list.append(parser)
+    if bad:
+        print('Internal parsing error')
+        sys.exit(1)
 
     # Go through the settings and collect defaults
     for name, val in config.items('settings'):
@@ -270,12 +308,18 @@ def _UpdateDefaults(main_parser, config):
             defaults[name] = val
         else:
             print("WARNING: Unknown setting %s" % name)
+    if 'cmd' in defaults:
+        del defaults['cmd']
+    if 'subcmd' in defaults:
+        del defaults['subcmd']
 
     # Set all the defaults and manually propagate them to subparsers
     main_parser.set_defaults(**defaults)
-    for parser, pdefs in zip(parsers, parser_defaults):
+    assert len(full_parser_list) == len(parser_defaults)
+    for parser, pdefs in zip(full_parser_list, parser_defaults):
         parser.set_defaults(**{k: v for k, v in defaults.items()
                                if k in pdefs})
+    return defaults
 
 
 def _ReadAliasFile(fname):
@@ -334,7 +378,7 @@ def GetItems(config, section):
         return []
 
 
-def Setup(parser, project_name, config_fname=None):
+def Setup(parser, project_name, argv, config_fname=None):
     """Set up the settings module by reading config files.
 
     Unless `config_fname` is specified, a `.patman` config file local
@@ -347,8 +391,9 @@ def Setup(parser, project_name, config_fname=None):
         parser:         The parser to update.
         project_name:   Name of project that we're working on; we'll look
             for sections named "project_section" as well.
-        config_fname:   Config filename to read.  An error is raised if it
-            does not exist.
+        config_fname:   Config filename to read, or None for default, or False
+            for an empty config.  An error is raised if it does not exist.
+        argv (list of str or None): Arguments to parse, or None for default
     """
     # First read the git alias file if available
     _ReadAliasFile('doc/git-mailrc')
@@ -357,12 +402,16 @@ def Setup(parser, project_name, config_fname=None):
     if config_fname and not os.path.exists(config_fname):
         raise Exception(f'provided {config_fname} does not exist')
 
-    if not config_fname:
+    if config_fname is None:
         config_fname = '%s/.patman' % os.getenv('HOME')
-    has_config = os.path.exists(config_fname)
+    git_local_config_fname = os.path.join(gitutil.get_top_level() or '',
+                                          '.patman')
 
-    git_local_config_fname = os.path.join(gitutil.get_top_level(), '.patman')
-    has_git_local_config = os.path.exists(git_local_config_fname)
+    has_config = False
+    has_git_local_config = False
+    if config_fname is not False:
+        has_config = os.path.exists(config_fname)
+        has_git_local_config = os.path.exists(git_local_config_fname)
 
     # Read the git local config last, so that its values override
     # those of the global config, if any.
@@ -371,7 +420,7 @@ def Setup(parser, project_name, config_fname=None):
     if has_git_local_config:
         config.read(git_local_config_fname)
 
-    if not (has_config or has_git_local_config):
+    if config_fname is not False and not (has_config or has_git_local_config):
         print("No config file found.\nCreating ~/.patman...\n")
         CreatePatmanConfigFile(config_fname)
 
@@ -382,7 +431,7 @@ def Setup(parser, project_name, config_fname=None):
     for name, value in GetItems(config, 'bounces'):
         bounces.add(value)
 
-    _UpdateDefaults(parser, config)
+    return _UpdateDefaults(parser, config, argv)
 
 
 # These are the aliases we understand, indexed by alias. Each member is a list.

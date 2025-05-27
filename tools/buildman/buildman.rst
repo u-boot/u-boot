@@ -1329,6 +1329,10 @@ sometimes useful to have buildman wait until the others have finished. Use the
 --process-limit option for this: --process-limit 1 will allow only one buildman
 to process jobs at a time.
 
+To build a particular target, rather than the default U-Boot target, use the
+`--target` option. This is unlikely to be useful unless you are building a
+single board.
+
 Build summary
 -------------
 

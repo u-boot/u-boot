@@ -22,6 +22,7 @@ sys.path.insert(2, os.path.join(OUR_PATH, '..'))
 # pylint: disable=C0413
 from binman import bintool
 from binman import fip_util
+from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
 
@@ -215,7 +216,7 @@ toc_entry_t toc_entries[] = {
 
         macros = fip_util.parse_macros(self._indir)
         names = fip_util.parse_names(self._indir)
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             fip_util.create_code_output(macros, names)
         self.assertIn(
             "UUID 'UUID_TRUSTED_OS_FW_KEY_CERT' is not mentioned in tbbr_config.c file",
@@ -239,7 +240,7 @@ FIP_TYPE_LIST = [
     ] # end
 blah de blah
                         ''', binary=False)
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             fip_util.main(self.args, self.src_file)
         self.assertIn('Needs update', stdout.getvalue())
 
@@ -256,7 +257,7 @@ FIP_TYPE_LIST = [
              0x9d, 0xf3, 0x19, 0xed, 0xa1, 0x1f, 0x68, 0x01]),
     ] # end
 blah blah''', binary=False)
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             fip_util.main(self.args, self.src_file)
         self.assertIn('is up-to-date', stdout.getvalue())
 
@@ -269,7 +270,7 @@ blah blah''', binary=False)
         args = self.args.copy()
         args.remove('-D')
         tools.write_file(self.src_file, '', binary=False)
-        with test_util.capture_sys_output():
+        with terminal.capture():
             fip_util.main(args, self.src_file)
 
     @unittest.skipIf(not HAVE_FIPTOOL, 'No fiptool available')
@@ -389,7 +390,7 @@ Trusted Boot Firmware BL2: offset=0xC0, size=0xE, cmdline="--tb-fw"
     def test_fiptool_errors(self):
         """Check some error reporting from fiptool"""
         with self.assertRaises(Exception) as err:
-            with test_util.capture_sys_output():
+            with terminal.capture():
                 FIPTOOL.create_bad()
         self.assertIn("unrecognized option '--fred'", str(err.exception))
 

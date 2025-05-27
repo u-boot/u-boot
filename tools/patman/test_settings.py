@@ -49,7 +49,7 @@ def test_git_local_config():
                                   dest='check_patch', default=True)
 
                 # Test "global" config is used.
-                settings.Setup(parser, 'unknown', global_config.name)
+                settings.Setup(parser, 'unknown', None, global_config.name)
                 args, _ = parser.parse_known_args([])
                 assert args.project == 'u-boot'
                 send_args, _ = send.parse_known_args([])

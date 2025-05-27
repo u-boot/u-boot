@@ -20,6 +20,7 @@ from binman import bintool
 from binman import cbfs_util
 from binman.cbfs_util import CbfsWriter
 from binman import elf
+from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
 
@@ -314,7 +315,7 @@ class TestCbfs(unittest.TestCase):
         newdata = data[:-4] + struct.pack('<I', cbw._header_offset + 1)
 
         # We should still be able to find the master header by searching
-        with test_util.capture_sys_output() as (stdout, _stderr):
+        with terminal.capture() as (stdout, _stderr):
             cbfs = cbfs_util.CbfsReader(newdata)
         self.assertIn('Relative offset seems wrong', stdout.getvalue())
         self.assertIn('u-boot', cbfs.files)
@@ -330,7 +331,7 @@ class TestCbfs(unittest.TestCase):
         # Drop most of the header and try reading the modified CBFS
         newdata = data[:cbw._header_offset + 4]
 
-        with test_util.capture_sys_output() as (stdout, _stderr):
+        with terminal.capture() as (stdout, _stderr):
             with self.assertRaises(ValueError) as e:
                 cbfs_util.CbfsReader(newdata)
         self.assertIn('Relative offset seems wrong', stdout.getvalue())
@@ -351,7 +352,7 @@ class TestCbfs(unittest.TestCase):
 
         # Remove all but 4 bytes of the file headerm and try to read the file
         newdata = data[:pos + 4]
-        with test_util.capture_sys_output() as (stdout, _stderr):
+        with terminal.capture() as (stdout, _stderr):
             with io.BytesIO(newdata) as fd:
                 fd.seek(pos)
                 self.assertEqual(False, cbr._read_next_file(fd))
@@ -373,7 +374,7 @@ class TestCbfs(unittest.TestCase):
         # Create a new CBFS with only the first 16 bytes of the file name, then
         # try to read the file
         newdata = data[:pos + cbfs_util.FILE_HEADER_LEN + 16]
-        with test_util.capture_sys_output() as (stdout, _stderr):
+        with terminal.capture() as (stdout, _stderr):
             with io.BytesIO(newdata) as fd:
                 fd.seek(pos)
                 self.assertEqual(False, cbr._read_next_file(fd))
@@ -389,7 +390,7 @@ class TestCbfs(unittest.TestCase):
 
         try:
             cbfs_util.DEBUG = True
-            with test_util.capture_sys_output() as (stdout, _stderr):
+            with terminal.capture() as (stdout, _stderr):
                 cbfs_util.CbfsReader(data)
             self.assertEqual('name u-boot\nftype 50\ndata %s\n' % U_BOOT_DATA,
                              stdout.getvalue())
@@ -416,7 +417,7 @@ class TestCbfs(unittest.TestCase):
 
         # Create a new CBFS with the tag changed to something invalid
         newdata = data[:pos] + struct.pack('>I', 0x123) + data[pos + 4:]
-        with test_util.capture_sys_output() as (stdout, _stderr):
+        with terminal.capture() as (stdout, _stderr):
             cbfs_util.CbfsReader(newdata)
         self.assertEqual('Unknown attribute tag 123\n', stdout.getvalue())
 
@@ -441,7 +442,7 @@ class TestCbfs(unittest.TestCase):
         tag_pos = (4 + pos + cbfs_util.FILE_HEADER_LEN +
                    cbfs_util.ATTRIBUTE_ALIGN)
         newdata = data[:tag_pos + 4]
-        with test_util.capture_sys_output() as (stdout, _stderr):
+        with terminal.capture() as (stdout, _stderr):
             with io.BytesIO(newdata) as fd:
                 fd.seek(pos)
                 self.assertEqual(False, cbr._read_next_file(fd))

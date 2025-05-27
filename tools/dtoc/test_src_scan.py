@@ -15,6 +15,7 @@ import unittest
 from unittest import mock
 
 from dtoc import src_scan
+from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
 
@@ -80,7 +81,7 @@ class TestSrcScan(unittest.TestCase):
             fout.write(b'\x81')
 
         scan = src_scan.Scanner(None, [driver_fn])
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             scan.scan_drivers()
         self.assertRegex(stdout.getvalue(),
                          r"Skipping file '.*' due to unicode error\s*")
@@ -170,7 +171,7 @@ class TestSrcScan(unittest.TestCase):
         node.parent = FakeNode()
 
         scan = src_scan.Scanner(None, None)
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             name, aliases = scan.get_normalized_compat_name(node)
         self.assertEqual('rockchip_rk3288_grf', name)
         self.assertEqual([], aliases)
@@ -189,7 +190,7 @@ class TestSrcScan(unittest.TestCase):
 
         scan._driver_aliases['rockchip_rk3288_srf'] = 'rockchip_rk3288_grf'
 
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             name, aliases = scan.get_normalized_compat_name(node)
         self.assertEqual('', stdout.getvalue().strip())
         self.assertEqual('rockchip_rk3288_grf', name)
@@ -197,7 +198,7 @@ class TestSrcScan(unittest.TestCase):
         self.assertEqual(EXPECT_WARN, scan._warnings)
 
         prop.value = 'rockchip,rk3288-srf'
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             name, aliases = scan.get_normalized_compat_name(node)
         self.assertEqual('', stdout.getvalue().strip())
         self.assertEqual('rockchip_rk3288_grf', name)
@@ -379,7 +380,7 @@ struct another_struct {
         tools.write_file(output, b'struct this is a test \x81 of bad unicode')
 
         scan = src_scan.Scanner(None, None)
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             scan.scan_header(output)
         self.assertIn('due to unicode error', stdout.getvalue())
 
@@ -456,7 +457,7 @@ U_BOOT_DRIVER(%s) = {
         self.assertTrue(drv2.warn_dups)
 
         # We should see a warning
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             scan.mark_used([node])
         self.assertEqual(
             "Warning: Duplicate driver name 'nvidia_tegra114_i2c' (orig=file2.c, dups=file1.c)",
@@ -477,7 +478,7 @@ U_BOOT_DRIVER(%s) = {
         self.assertFalse(drv1.warn_dups)
 
         # We should not see a warning
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             scan.mark_used([node])
         self.assertEqual('', stdout.getvalue().strip())
 
@@ -539,7 +540,7 @@ U_BOOT_DRIVER(i2c_tegra) = {
         # get_normalized_compat_name() uses this to check for root node
         tnode.parent = FakeNode()
 
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             scan.get_normalized_compat_name(node)
             scan.get_normalized_compat_name(tnode)
         self.assertEqual('', stdout.getvalue().strip())
@@ -547,14 +548,14 @@ U_BOOT_DRIVER(i2c_tegra) = {
         self.assertEqual(2, len(scan._missing_drivers))
         self.assertEqual({'rockchip_rk3288_grf', 'nvidia_tegra114_i2c'},
                          scan._missing_drivers)
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             scan.show_warnings()
         self.assertIn('rockchip_rk3288_grf', stdout.getvalue())
 
         # This should show just the rockchip warning, since the tegra driver
         # is not in self._missing_drivers
         scan._missing_drivers.remove('nvidia_tegra114_i2c')
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             scan.show_warnings()
         self.assertIn('rockchip_rk3288_grf', stdout.getvalue())
         self.assertNotIn('tegra_i2c_ids', stdout.getvalue())
@@ -563,7 +564,7 @@ U_BOOT_DRIVER(i2c_tegra) = {
         # used, the warning related to that driver will be shown
         drv = scan._drivers['i2c_tegra']
         drv.used = True
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             scan.show_warnings()
         self.assertIn('rockchip_rk3288_grf', stdout.getvalue())
         self.assertIn('tegra_i2c_ids', stdout.getvalue())
@@ -572,7 +573,7 @@ U_BOOT_DRIVER(i2c_tegra) = {
         scan._warnings['i2c_tegra'].update(
             scan._warnings['nvidia_tegra114_i2c'])
         del scan._warnings['nvidia_tegra114_i2c']
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             scan.show_warnings()
         self.assertEqual('''i2c_tegra: WARNING: the driver nvidia_tegra114_i2c was not found in the driver list
          : file.c: Warning: unexpected suffix ' + 1' on .of_match line for compat 'tegra_i2c_ids'

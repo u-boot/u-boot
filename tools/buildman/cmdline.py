@@ -22,6 +22,7 @@ def add_upto_m(parser):
 
     This is split out to avoid having too many statements in one function
     """
+    # Available JqzZ
     parser.add_argument('-a', '--adjust-cfg', type=str, action='append',
           help='Adjust the Kconfig settings in .config before building')
     parser.add_argument('-A', '--print-prefix', action='store_true',
@@ -153,6 +154,8 @@ def add_after_m(parser):
     parser.add_argument('-T', '--threads', type=int,
           default=None,
           help='Number of builder threads to use (0=single-thread)')
+    parser.add_argument('--target', type=str,
+          default=None, help='Build target to use')
     parser.add_argument('-u', '--show_unknown', action='store_true',
           default=False, help='Show boards with unknown build result')
     parser.add_argument('-U', '--show-environment', action='store_true',

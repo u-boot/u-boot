@@ -7,7 +7,7 @@
 import unittest
 
 from binman.image import Image
-from u_boot_pylib.test_util import capture_sys_output
+from u_boot_pylib import terminal
 
 class TestImage(unittest.TestCase):
     def testInvalidFormat(self):
@@ -29,7 +29,7 @@ class TestImage(unittest.TestCase):
     def testMissingSymbolOptional(self):
         image = Image('name', 'node', test=True)
         image._entries = {}
-        with capture_sys_output() as (stdout, stderr):
+        with terminal.capture() as (stdout, stderr):
             val = image.GetSymbolValue('_binman_type_prop_pname', True, 'msg', 0)
         self.assertEqual(val, None)
         self.assertEqual("Warning: msg: Entry 'type' not found in list ()\n",

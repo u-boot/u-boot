@@ -285,6 +285,8 @@ class BuilderThread(threading.Thread):
         """
         if config_only:
             args.append('cfg')
+        elif self.builder.build_target:
+            args.append(self.builder.build_target)
         result = self.make(commit, brd, 'build', cwd, *args, env=env)
         cmd_list.append([self.builder.gnu_make] + args)
         if (result.return_code == 2 and
