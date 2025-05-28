@@ -38,8 +38,8 @@ int dev_read_u32(const struct udevice *dev, const char *propname, u32 *outp)
 	return ofnode_read_u32(dev_ofnode(dev), propname, outp);
 }
 
-int dev_read_u32_default(const struct udevice *dev, const char *propname,
-			 int def)
+u32 dev_read_u32_default(const struct udevice *dev, const char *propname,
+			 u32 def)
 {
 	return ofnode_read_u32_default(dev_ofnode(dev), propname, def);
 }
