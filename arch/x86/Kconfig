@@ -368,7 +368,7 @@ config USE_HOB
 
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
-	depends on !EFI
+	depends on !EFI_CLIENT
 	select USE_HOB
 	select HAS_ROM
 	help
@@ -517,7 +517,7 @@ config FSP_BROKEN_HOB
 
 config ENABLE_MRC_CACHE
 	bool "Enable MRC cache"
-	depends on !EFI && !SYS_COREBOOT
+	depends on !EFI_CLIENT && !SYS_COREBOOT
 	help
 	  Enable this feature to cause MRC data to be cached in NV storage
 	  to be used for speeding up boot time on future reboots and/or
@@ -756,7 +756,7 @@ config HAVE_P2SB
 	  devices.
 
 menu "System tables"
-	depends on !EFI && !SYS_COREBOOT
+	depends on !EFI_CLIENT && !SYS_COREBOOT
 
 config GENERATE_PIRQ_TABLE
 	bool "Generate a PIRQ table"

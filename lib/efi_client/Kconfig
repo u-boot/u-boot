@@ -1,7 +1,7 @@
 menu "U-Boot as UEFI application"
 	depends on X86
 
-config EFI
+config EFI_CLIENT
 	bool "Support running U-Boot from EFI"
 	depends on X86
 	imply X86_TSC_READ_BASE
@@ -13,7 +13,7 @@ config EFI
 
 choice
 	prompt "Select EFI mode to use"
-	depends on X86 && EFI
+	depends on X86 && EFI_CLIENT
 
 config EFI_APP
 	bool "Support running as an EFI application"

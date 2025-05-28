@@ -45,7 +45,7 @@ First choose a board that has EFI support and obtain an EFI implementation
 for that board. It will be either 32-bit or 64-bit. Alternatively, you can
 opt for using QEMU [1] and the OVMF [2], as detailed below.
 
-To build U-Boot as an EFI application, enable CONFIG_EFI and CONFIG_EFI_APP.
+To build U-Boot as an EFI application, enable CONFIG_EFI_CLIENT and CONFIG_EFI_APP.
 The efi-x86_app32 and efi-x86_app64 configs are set up for this. Just build
 U-Boot as normal, e.g.::
 
@@ -53,7 +53,7 @@ U-Boot as normal, e.g.::
    make
 
 To build U-Boot as an EFI payload (32-bit or 64-bit EFI can be used), enable
-CONFIG_EFI, CONFIG_EFI_STUB, and select either CONFIG_EFI_STUB_32BIT or
+CONFIG_EFI_CLIENT, CONFIG_EFI_STUB, and select either CONFIG_EFI_STUB_32BIT or
 CONFIG_EFI_STUB_64BIT. The efi-x86_payload configs (efi-x86_payload32_defconfig
 and efi-x86_payload32_defconfig) are set up for this. Then build U-Boot as
 normal, e.g.::
@@ -121,7 +121,7 @@ and board_init_r()).
 Since U-Boot limits its memory access to the allocated regions very little
 special code is needed. The CONFIG_EFI_APP option controls a few things
 that need to change so 'git grep CONFIG_EFI_APP' may be instructive.
-The CONFIG_EFI option controls more general EFI adjustments.
+The CONFIG_EFI_CLIENT option controls more general EFI adjustments.
 
 The only available driver is the serial driver. This calls back into EFI
 'boot services' to send and receive characters. Although it is implemented

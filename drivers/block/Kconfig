@@ -96,7 +96,7 @@ config TPL_BLOCK_CACHE
 
 config EFI_MEDIA
 	bool "Support EFI media drivers"
-	default y if EFI || SANDBOX
+	default y if EFI_CLIENT || SANDBOX
 	select BLK
 	help
 	  Enable this to support media devices on top of UEFI. This enables
