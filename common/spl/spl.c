@@ -392,7 +392,7 @@ int spl_load(struct spl_image_info *spl_image,
 }
 #endif
 
-__weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+__weak void __noreturn jump_to_image(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_noargs_t)(void);
 
@@ -689,7 +689,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		BOOT_DEVICE_NONE,
 		BOOT_DEVICE_NONE,
 	};
-	spl_jump_to_image_t jump_to_image = &jump_to_image_no_args;
+	spl_jump_to_image_t jumper = &jump_to_image;
 	struct spl_image_info spl_image;
 	int ret, os;
 
@@ -783,20 +783,20 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	} else if (CONFIG_IS_ENABLED(ATF) && os == IH_OS_ARM_TRUSTED_FIRMWARE) {
 		debug("Jumping to U-Boot via ARM Trusted Firmware\n");
 		spl_fixup_fdt(spl_image_fdt_addr(&spl_image));
-		jump_to_image = &spl_invoke_atf;
+		jumper = &spl_invoke_atf;
 	} else if (CONFIG_IS_ENABLED(OPTEE_IMAGE) && os == IH_OS_TEE) {
 		debug("Jumping to U-Boot via OP-TEE\n");
 		spl_board_prepare_for_optee(spl_image_fdt_addr(&spl_image));
-		jump_to_image = &jump_to_image_optee;
+		jumper = &jump_to_image_optee;
 	} else if (CONFIG_IS_ENABLED(OPENSBI) && os == IH_OS_OPENSBI) {
 		debug("Jumping to U-Boot via RISC-V OpenSBI\n");
-		jump_to_image = &spl_invoke_opensbi;
+		jumper = &spl_invoke_opensbi;
 	} else if (CONFIG_IS_ENABLED(OS_BOOT) && os == IH_OS_LINUX) {
 		debug("Jumping to Linux\n");
 		if (IS_ENABLED(CONFIG_SPL_OS_BOOT))
 			spl_fixup_fdt((void *)SPL_PAYLOAD_ARGS_ADDR);
 		spl_board_prepare_for_linux();
-		jump_to_image = &jump_to_image_linux;
+		jumper = &jump_to_image_linux;
 	} else {
 		debug("Unsupported OS image.. Jumping nevertheless..\n");
 	}
@@ -848,7 +848,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	if (CONFIG_IS_ENABLED(RELOC_LOADER)) {
 		int ret;
 
-		ret = spl_reloc_jump(&spl_image, jump_to_image);
+		ret = spl_reloc_jump(&spl_image, jumper);
 		if (ret) {
 			if (xpl_phase() == PHASE_VPL)
 				printf("jump failed %d\n", ret);
@@ -856,7 +856,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		}
 	}
 
-	jump_to_image(&spl_image);
+	jumper(&spl_image);
 }
 
 /*

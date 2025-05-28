@@ -277,7 +277,7 @@ int spl_spi_load_image(void)
 }
 
 #ifdef CONFIG_X86_RUN_64BIT
-void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+void __noreturn jump_to_image(struct spl_image_info *spl_image)
 {
 	int ret;
 

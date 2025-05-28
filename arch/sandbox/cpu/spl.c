@@ -74,7 +74,7 @@ static int spl_board_load_file(struct spl_image_info *spl_image,
 	}
 
 	/*
-	 * Set up spl_image to boot from jump_to_image_no_args(). Allocate this
+	 * Set up spl_image to boot from jump_to_image(). Allocate this
 	 * outsdide the RAM buffer (i.e. don't use strdup()).
 	 */
 	spl_image->arg = os_malloc(strlen(fname) + 1);
@@ -112,7 +112,7 @@ static int load_from_image(struct spl_image_info *spl_image,
 	log_info("Reading from pos %lx size %lx\n", pos, size);
 
 	/*
-	 * Set up spl_image to boot from jump_to_image_no_args(). Allocate this
+	 * Set up spl_image to boot from jump_to_image(). Allocate this
 	 * outside the RAM buffer (i.e. don't use strdup()).
 	 */
 	fname = state->prog_fname ? state->prog_fname : state->argv[0];
@@ -159,7 +159,7 @@ void spl_board_init(void)
 	}
 }
 
-void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+void __noreturn jump_to_image(struct spl_image_info *spl_image)
 {
 	switch (spl_image->flags) {
 	case SPL_SANDBOXF_ARG_IS_FNAME: {

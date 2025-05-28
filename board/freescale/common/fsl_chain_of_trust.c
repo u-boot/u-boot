@@ -134,7 +134,7 @@ void spl_validate_uboot(uint32_t hdr_addr, uintptr_t img_addr)
 /* Override weak funtion defined in SPL framework to enable validation
  * of main u-boot image before jumping to u-boot image.
  */
-void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+void __noreturn jump_to_image(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_noargs_t)(void);
 	uint32_t hdr_addr;

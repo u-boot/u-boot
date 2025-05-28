@@ -137,7 +137,7 @@ void release_resources_for_core_shutdown(void)
 	}
 }
 
-void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+void __noreturn jump_to_image(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_noargs_t)(void);
 	struct ti_sci_handle *ti_sci = get_ti_sci_handle();

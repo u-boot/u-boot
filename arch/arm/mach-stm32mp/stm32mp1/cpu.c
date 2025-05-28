@@ -349,7 +349,7 @@ uintptr_t get_stm32mp_bl2_dtb(void)
 }
 
 #ifdef CONFIG_XPL_BUILD
-void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+void __noreturn jump_to_image(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_stm32_t)(u32 romapi);
 	uintptr_t romapi = get_stm32mp_rom_api_table();
