@@ -137,8 +137,8 @@ int dev_read_s32(const struct udevice *dev, const char *propname, s32 *outp);
  * @def:	default value to return if the property has no value
  * Return: property value, or @def if not found
  */
-int dev_read_s32_default(const struct udevice *dev, const char *propname,
-			 int def);
+s32 dev_read_s32_default(const struct udevice *dev, const char *propname,
+			 s32 def);
 
 /**
  * dev_read_u32u() - read a 32-bit integer from a device's DT property
@@ -921,8 +921,8 @@ static inline int dev_read_s32(const struct udevice *dev,
 	return ofnode_read_s32(dev_ofnode(dev), propname, outp);
 }
 
-static inline int dev_read_s32_default(const struct udevice *dev,
-				       const char *propname, int def)
+static inline s32 dev_read_s32_default(const struct udevice *dev,
+				       const char *propname, s32 def)
 {
 	return ofnode_read_s32_default(dev_ofnode(dev), propname, def);
 }
