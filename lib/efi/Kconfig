@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Copyright 2025 Simon Glass <sjg@chromium.org>
+#
+
+config EFI
+	bool
+	help
+	  Indicates that EFI functionality is enabled, either via EFI_CLIENT or
+	  EFI_LOADER
+
+	  This is used to provide libraries shared by both.
