@@ -205,8 +205,10 @@ dtsi_include_list = $(strip $(u_boot_dtsi_options_debug) \
 # Modified for U-Boot
 upstream_dtsi_include = $(addprefix -I, $(srctree)/dts/upstream/src/ \
 	$(sort $(dir $(wildcard $(srctree)/dts/upstream/src/$(ARCH)/*/*))) \
+	$(sort $(dir $(wildcard $(srctree)/dts/upstream/src/$(ARCH)/*/*/*))) \
 	$(if (CONFIG_ARM64), \
-		 $(sort $(dir $(wildcard $(srctree)/dts/upstream/src/arm64/*/*)))))
+		 $(sort $(dir $(wildcard $(srctree)/dts/upstream/src/arm64/*/*))) \
+		 $(sort $(dir $(wildcard $(srctree)/dts/upstream/src/arm64/*/*/*)))))
 dtc_cpp_flags  = -Wp,-MD,$(depfile).pre.tmp -nostdinc                    \
 		 $(UBOOTINCLUDE)                                         \
 		 -I$(dir $<)                                             \
