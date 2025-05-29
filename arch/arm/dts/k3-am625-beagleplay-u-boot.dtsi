@@ -9,10 +9,6 @@
 #include "k3-binman.dtsi"
 
 / {
-	chosen {
-		tick-timer = &main_timer0;
-	};
-
 	/* Keep the LEDs on by default to indicate life */
 	leds {
 		led-0 {
@@ -35,10 +31,6 @@
 			default-state = "on";
 		};
 	};
-};
-
-&main_timer0 {
-	clock-frequency = <25000000>;
 };
 
 &sd_pins_default {
