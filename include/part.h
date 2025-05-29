@@ -316,6 +316,20 @@ int part_get_info_by_name(struct blk_desc *desc, const char *name,
 			  struct disk_partition *info);
 
 /**
+ * part_get_info_by_uuid() - Search for a partition by uuid
+ *                           among all available registered partitions
+ *
+ * @desc:	block device descriptor
+ * @uuid:	the specified table entry uuid
+ * @info:	the disk partition info
+ *
+ * Return: the partition number on match (starting on 1), -ENOENT on no match,
+ * otherwise error
+ */
+int part_get_info_by_uuid(struct blk_desc *desc, const char *uuid,
+			  struct disk_partition *info);
+
+/**
  * part_get_info_by_dev_and_name_or_num() - Get partition info from dev number
  *					    and part name, or dev number and
  *					    part number.
@@ -381,6 +395,12 @@ static inline int blk_get_device_part_str(const char *ifname,
 { *desc = NULL; return -1; }
 
 static inline int part_get_info_by_name(struct blk_desc *desc, const char *name,
+					struct disk_partition *info)
+{
+	return -ENOENT;
+}
+
+static inline int part_get_info_by_uuid(struct blk_desc *desc, const char *uuid,
 					struct disk_partition *info)
 {
 	return -ENOENT;
