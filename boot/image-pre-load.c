@@ -7,6 +7,7 @@
 #include "mkimage.h"
 #else
 #include <asm/global_data.h>
+#include <env.h>
 #include <mapmem.h>
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/

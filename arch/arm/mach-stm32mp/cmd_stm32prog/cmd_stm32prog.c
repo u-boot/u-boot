@@ -6,6 +6,7 @@
 #include <bootm.h>
 #include <command.h>
 #include <dfu.h>
+#include <env.h>
 #include <image.h>
 #include <asm/arch/stm32prog.h>
 #include <linux/printk.h>

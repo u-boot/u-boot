@@ -7,8 +7,10 @@
  */
 #include <command.h>
 #include <console.h>
+#include <env.h>
 #include <flash.h>
 #include <vsprintf.h>
+#include <linux/string.h>
 #include <asm/io.h>
 
 #define MAX_REGIONS 4

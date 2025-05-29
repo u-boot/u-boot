@@ -11,6 +11,7 @@
 #include <bootstd.h>
 #include <command.h>
 #include <dm.h>
+#include <env.h>
 #include <malloc.h>
 #include <dm/uclass-internal.h>
 

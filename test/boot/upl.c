@@ -7,6 +7,7 @@
  */
 
 #include <abuf.h>
+#include <env.h>
 #include <mapmem.h>
 #include <upl.h>
 #include <dm/ofnode.h>

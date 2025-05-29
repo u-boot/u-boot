@@ -7,6 +7,7 @@
 #include <bootdev.h>
 #include <command.h>
 #include <dm.h>
+#include <env.h>
 #include <malloc.h>
 #include <extension_board.h>
 #include <mapmem.h>

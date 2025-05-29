@@ -9,6 +9,7 @@
 #include <command.h>
 #include <dm/root.h>
 #include <dm/util.h>
+#include <linux/string.h>
 
 static int do_dm_dump_driver_compat(struct cmd_tbl *cmdtp, int flag, int argc,
 				    char * const argv[])

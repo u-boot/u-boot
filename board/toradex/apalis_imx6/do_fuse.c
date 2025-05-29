@@ -11,6 +11,7 @@
 #include <command.h>
 #include <console.h>
 #include <fuse.h>
+#include <linux/string.h>
 
 static int mfgr_fuse(void)
 {

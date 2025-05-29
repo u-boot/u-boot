@@ -14,6 +14,7 @@
 #include <mapmem.h>
 #include <vsprintf.h>
 #include <linux/errno.h>
+#include <linux/string.h>
 
 static int confirm_prog(void)
 {

@@ -8,6 +8,7 @@
 #define LOG_CATEGORY	LOGC_BOOT
 
 #include <command.h>
+#include <env.h>
 #include <mapmem.h>
 #include <vsprintf.h>
 #include <asm/zimage.h>

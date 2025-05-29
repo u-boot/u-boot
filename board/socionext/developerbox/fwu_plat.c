@@ -4,6 +4,7 @@
  */
 
 #include <efi_loader.h>
+#include <env.h>
 #include <fwu.h>
 #include <fwu_mdata.h>
 #include <memalign.h>

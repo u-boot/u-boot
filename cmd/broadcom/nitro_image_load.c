@@ -4,6 +4,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 #include <vsprintf.h>
 
 #define FW_IMAGE_SIG	0xff123456

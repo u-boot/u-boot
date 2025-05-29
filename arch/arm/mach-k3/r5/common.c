@@ -5,6 +5,7 @@
  * Copyright (C) 2023 Texas Instruments Incorporated - https://www.ti.com/
  */
 
+#include <env.h>
 #include <linux/printk.h>
 #include <linux/types.h>
 #include <asm/hardware.h>
