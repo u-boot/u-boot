@@ -515,7 +515,7 @@ def ubman(request):
     except BootFail as err:
         handle_exception(ubconfig, ubman_fix, log, err, 'Boot fail', True,
                          ubman_fix.get_spawn_output())
-    except Unexpected:
+    except Unexpected as err:
         handle_exception(ubconfig, ubman_fix, log, err, 'Unexpected test output',
                          False)
     return ubman_fix
