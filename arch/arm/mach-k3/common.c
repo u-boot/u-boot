@@ -175,11 +175,17 @@ static const char *get_device_type_name(void)
 	}
 }
 
+__weak const char *get_reset_reason(void)
+{
+	return NULL;
+}
+
 int print_cpuinfo(void)
 {
 	struct udevice *soc;
 	char name[64];
 	int ret;
+	const char *reset_reason;
 
 	printf("SoC:   ");
 
@@ -200,6 +206,10 @@ int print_cpuinfo(void)
 	}
 
 	printf("%s\n", get_device_type_name());
+
+	reset_reason = get_reset_reason();
+	if (reset_reason)
+		printf("Reset reason: %s\n", reset_reason);
 
 	return 0;
 }
