@@ -6,6 +6,7 @@
 #include <display_options.h>
 #include <dm/device.h>
 #include <efi_loader.h>
+#include <env.h>
 #include <image.h>
 #include <linux/delay.h>
 #include <linux/kconfig.h>

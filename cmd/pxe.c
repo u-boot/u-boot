@@ -5,6 +5,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 #include <fs.h>
 #include <net.h>
 #include <net6.h>

@@ -6,6 +6,7 @@
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
+#include <env.h>
 #include <event.h>
 #include <asm/cache.h>
 #include <asm/fsl_fdt.h>

@@ -12,6 +12,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <dm/uclass.h>
+#include <env.h>
 #include <hang.h>
 #include <i2c_eeprom.h>
 #include <image.h>

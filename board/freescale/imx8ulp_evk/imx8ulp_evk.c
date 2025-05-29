@@ -3,6 +3,7 @@
  * Copyright 2020 NXP
  */
 
+#include <env.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/arch/imx8ulp-pins.h>

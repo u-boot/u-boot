@@ -5,6 +5,7 @@
  */
 
 #include <dm.h>
+#include <env.h>
 #include <i2c_eeprom.h>
 #include <net.h>
 #include <u-boot/crc.h>

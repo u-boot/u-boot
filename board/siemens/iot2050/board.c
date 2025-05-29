@@ -11,6 +11,7 @@
 #include <config.h>
 #include <bootstage.h>
 #include <dm.h>
+#include <env.h>
 #include <fdt_support.h>
 #include <i2c.h>
 #include <led.h>

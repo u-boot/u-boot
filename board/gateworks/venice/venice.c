@@ -3,6 +3,7 @@
  * Copyright 2021 Gateworks Corporation
  */
 
+#include <env.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <led.h>

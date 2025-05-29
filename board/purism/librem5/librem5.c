@@ -6,6 +6,7 @@
 
 #include <malloc.h>
 #include <errno.h>
+#include <env.h>
 #include <asm/io.h>
 #include <miiphy.h>
 #include <asm/mach-imx/iomux-v3.h>

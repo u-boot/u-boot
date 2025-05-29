@@ -19,6 +19,7 @@
 
 #include <efi_device_path.h>
 #include <efi_loader.h>
+#include <env.h>
 #include <dm.h>
 #include <linux/sizes.h>
 #include <malloc.h>

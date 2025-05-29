@@ -17,6 +17,7 @@
 #include <asm/io.h>
 #include <asm/mach-imx/video.h>
 #include <command.h>
+#include <env.h>
 #include <i2c.h>
 #include <input.h>
 #include <ipu_pixfmt.h>
