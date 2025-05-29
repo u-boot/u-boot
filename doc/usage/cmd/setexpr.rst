@@ -144,8 +144,9 @@ Configuration
 
 * The *setexpr* command is only available if CMD_SETEXPR=y.
 * The *setexpr fmt* sub-command is only available if CMD_SETEXPR_FMT=y.
-* The *setexpr gsub* and *setexpr sub* sub-commands are only available if
-  CONFIG_REGEX=y.
+* The *setexpr gsub* and *setexpr sub* sub-commands are only available
+  if CONFIG_REGEX=y. For an overview of the supported regex syntax,
+  see :doc:`test`.
 
 Return value
 ------------

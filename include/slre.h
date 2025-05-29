@@ -63,7 +63,6 @@ struct slre {
 	int		code_size;
 	int		data_size;
 	int		num_caps;	/* Number of bracket pairs	*/
-	int		anchored;	/* Must match from string start	*/
 	const char	*err_str;	/* Error string			*/
 };
 

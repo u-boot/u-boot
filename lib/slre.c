@@ -30,7 +30,7 @@
 #include <slre.h>
 
 enum {END, BRANCH, ANY, EXACT, ANYOF, ANYBUT, OPEN, CLOSE, BOL, EOL,
-	STAR, PLUS, STARQ, PLUSQ, QUEST, SPACE, NONSPACE, DIGIT};
+	STAR, PLUS, STARQ, PLUSQ, QUEST, SPACE, NONSPACE, DIGIT, RANGE};
 
 #ifdef SLRE_TEST
 static struct {
@@ -55,7 +55,8 @@ static struct {
 	{"QUEST",	1, "o"},	/* Match zero or one time, "?"	*/
 	{"SPACE",	0, ""},		/* Match whitespace, "\s"	*/
 	{"NONSPACE",	0, ""},		/* Match non-space, "\S"	*/
-	{"DIGIT",	0, ""}		/* Match digit, "\d"		*/
+	{"DIGIT",	0, ""},		/* Match digit, "\d"		*/
+	{"RANGE",	0, ""},		/* Range separator -		*/
 };
 #endif /* SLRE_TEST */
 
@@ -260,6 +261,15 @@ anyof(struct slre *r, const char **re)
 			return;
 			/* NOTREACHED */
 			break;
+		case '-':
+			if (r->data_size == old_data_size || **re == ']') {
+				/* First or last character, just match - itself. */
+				store_char_in_data(r, '-');
+				break;
+			}
+			store_char_in_data(r, 0);
+			store_char_in_data(r, RANGE);
+			break;
 		case '\\':
 			esc = get_escape_char(re);
 			if ((esc & 0xff) == 0) {
@@ -413,10 +423,7 @@ int
 slre_compile(struct slre *r, const char *re)
 {
 	r->err_str = NULL;
-	r->code_size = r->data_size = r->num_caps = r->anchored = 0;
-
-	if (*re == '^')
-		r->anchored++;
+	r->code_size = r->data_size = r->num_caps = 0;
 
 	emit(r, OPEN);	/* This will capture what matches full RE */
 	emit(r, 0);
@@ -475,29 +482,54 @@ is_any_of(const unsigned char *p, int len, const char *s, int *ofs)
 
 	ch = s[*ofs];
 
-	for (i = 0; i < len; i++)
-		if (p[i] == ch) {
-			(*ofs)++;
-			return 1;
+	for (i = 0; i < len; i++) {
+		if (p[i] == '\0') {
+			switch (p[++i]) {
+			case NONSPACE:
+				if (!isspace(ch))
+					goto match;
+				break;
+			case SPACE:
+				if (isspace(ch))
+					goto match;
+				break;
+			case DIGIT:
+				if (isdigit(ch))
+					goto match;
+				break;
+			case RANGE:
+				/*
+				 * a-z is represented in the data array as {'a', \0, RANGE, 'z'}
+				 */
+				++i;
+				if (p[i - 3] <= (unsigned char)ch && (unsigned char)ch <= p[i])
+					goto match;
+				break;
+			}
+			continue;
 		}
+		if (p[i] == ch)
+			goto match;
+	}
 
 	return 0;
+
+match:
+	(*ofs)++;
+	return 1;
 }
 
 static int
 is_any_but(const unsigned char *p, int len, const char *s, int *ofs)
 {
-	int	i, ch;
+	int	dummy = *ofs;
 
-	ch = s[*ofs];
-
-	for (i = 0; i < len; i++) {
-		if (p[i] == ch)
-			return 0;
+	if (is_any_of(p, len, s, &dummy)) {
+		return 0;
+	} else {
+		(*ofs)++;
+		return 1;
 	}
-
-	(*ofs)++;
-	return 1;
 }
 
 static int
@@ -650,13 +682,9 @@ slre_match(const struct slre *r, const char *buf, int len,
 {
 	int	i, ofs = 0, res = 0;
 
-	if (r->anchored) {
+	for (i = 0; i <= len && res == 0; i++) {
+		ofs = i;
 		res = match(r, 0, buf, len, &ofs, caps);
-	} else {
-		for (i = 0; i < len && res == 0; i++) {
-			ofs = i;
-			res = match(r, 0, buf, len, &ofs, caps);
-		}
 	}
 
 	return res;
