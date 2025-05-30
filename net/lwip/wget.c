@@ -461,6 +461,10 @@ int wget_do_request(ulong dst_addr, char *uri)
 	if (!netif)
 		return -1;
 
+	/* if URL with hostname init dns */
+	if (!ipaddr_aton(ctx.server_name, NULL) && net_lwip_dns_init())
+		return CMD_RET_FAILURE;
+
 	memset(&conn, 0, sizeof(conn));
 #if CONFIG_IS_ENABLED(WGET_HTTPS)
 	if (is_https) {
