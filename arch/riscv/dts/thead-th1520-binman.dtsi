@@ -30,24 +30,48 @@
 		fit,fdt-list = "of-list";
 
 		images {
+			opensbi {
+				description = "OpenSBI fw_dynamic Firmware";
+				type = "firmware";
+				os = "opensbi";
+				arch = "riscv";
+				load = /bits/ 64 <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+				entry = /bits/ 64 <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+
+				opensbi_blob: opensbi {
+					filename = "fw_dynamic.bin";
+					missing-msg = "opensbi";
+				};
+			};
+
 			uboot {
 				description = "U-Boot";
 				type = "standalone";
+				firmware = "opensbi";
 				os = "U-boot";
 				arch = "riscv";
 				compression = "none";
 				load = /bits/ 64 <CONFIG_TEXT_BASE>;
 
-				uboot_blob: u-boot {
+				uboot_nodtb_blob: u-boot-nodtb {
 				};
+			};
+
+			@fdt-SEQ {
+				fit,operation = "gen-fdt-nodes";
+				description = "NAME";
+				type = "flat_dt";
+				compression = "none";
 			};
 		};
 
 		configurations {
-			default = "conf-th1520-lichee-pi-4a";
+			default = "@conf-DEFAULT-SEQ";
 
-			conf-th1520-lichee-pi-4a {
-				description = "th1520-lichee-pi-4a";
+			@conf-SEQ {
+				description = "NAME";
+				fdt = "fdt-SEQ";
+				firmware = "opensbi";
 				loadables = "uboot";
 			};
 		};
