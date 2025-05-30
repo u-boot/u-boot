@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source extras for U-Boot for the R-Car V4H Sparrow Hawk board
+ *
+ * Copyright (C) 2025 Marek Vasut <marek.vasut+renesas@mailbox.org>
+ */
+
+#include "r8a779g0-u-boot.dtsi"
+
+/* Page 31 / FAN */
+&gpio1 {
+	pwm-fan-hog {
+		gpio-hog;
+		gpios = <15 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "PWM-FAN";
+	};
+};
+
+/* Page 29 / CSI_IF_CN / CAM_CN0 */
+&i2c1 {
+	status = "okay";
+};
+
+/* Page 29 / CSI_IF_CN / CAM_CN1 */
+&i2c2 {
+	status = "okay";
+};
+
+/* Page 31 / IO_CN */
+&i2c3 {
+	status = "okay";
+};
+
+/* Page 31 / IO_CN */
+&i2c4 {
+	status = "okay";
+};
+
+/* Page 18 / POWER_CORE and Page 19 / POWER_PMIC */
+&i2c5 {
+	status = "okay";
+};
+
+&rpc {
+	flash@0 {
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+	};
+};

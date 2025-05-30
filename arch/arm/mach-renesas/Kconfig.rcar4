@@ -66,6 +66,12 @@ config TARGET_WHITEHAWK
 	help
 	  Support for Renesas R-Car Gen4 White Hawk platform
 
+config TARGET_SPARROWHAWK
+	bool "Sparrow Hawk board"
+	imply R8A779G0
+	help
+	  Support for Renesas R-Car Gen4 Sparrow Hawk platform
+
 config TARGET_GRAYHAWK
 	bool "Gray Hawk board"
 	imply R8A779H0
@@ -78,6 +84,7 @@ source "board/renesas/falcon/Kconfig"
 source "board/renesas/spider/Kconfig"
 source "board/renesas/s4sk/Kconfig"
 source "board/renesas/whitehawk/Kconfig"
+source "board/renesas/sparrowhawk/Kconfig"
 source "board/renesas/grayhawk/Kconfig"
 
 endif

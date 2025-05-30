@@ -1,0 +1,7 @@
+SPARROWHAWK BOARD
+M:	Marek Vasut <marek.vasut+renesas@mailbox.org>
+S:	Maintained
+F:	arch/arm/dts/r8a779g3*
+F:	board/renesas/sparrowhawk/
+F:	configs/r8a779g3_sparrowhawk_defconfig
+F:	include/configs/sparrowhawk.h
