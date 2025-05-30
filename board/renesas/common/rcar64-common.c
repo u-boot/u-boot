@@ -36,6 +36,8 @@ int dram_init(void)
 	return ret;
 }
 
+__weak void renesas_dram_init_banksize(void) { }
+
 int dram_init_banksize(void)
 {
 	int bank;
@@ -57,6 +59,8 @@ int dram_init_banksize(void)
 		gd->bd->bi_dram[bank].size += 0x8000000;
 		break;
 	}
+
+	renesas_dram_init_banksize();
 
 	return 0;
 }
