@@ -72,8 +72,8 @@
 
 #define IP_FORWARD                      0
 #define IP_OPTIONS_ALLOWED              1
-#define IP_REASSEMBLY                   0
-#define IP_FRAG                         0
+#define IP_REASSEMBLY                   1
+#define IP_FRAG                         1
 #define IP_REASS_MAXAGE                 3
 #define IP_REASS_MAX_PBUFS              4
 #define IP_FRAG_USES_STATIC_BUF         0
