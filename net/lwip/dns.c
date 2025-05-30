@@ -45,12 +45,9 @@ static void dns_cb(const char *name, const ip_addr_t *ipaddr, void *arg)
 static int dns_loop(struct udevice *udev, const char *name, const char *var)
 {
 	struct dns_cb_arg dns_cb_arg = { };
-	bool has_server = false;
 	struct netif *netif;
 	ip_addr_t ipaddr;
-	ip_addr_t ns;
 	ulong start;
-	char *nsenv;
 	int ret;
 
 	dns_cb_arg.var = var;
@@ -59,22 +56,7 @@ static int dns_loop(struct udevice *udev, const char *name, const char *var)
 	if (!netif)
 		return CMD_RET_FAILURE;
 
-	dns_init();
-
-	nsenv = env_get("dnsip");
-	if (nsenv && ipaddr_aton(nsenv, &ns)) {
-		dns_setserver(0, &ns);
-		has_server = true;
-	}
-
-	nsenv = env_get("dnsip2");
-	if (nsenv && ipaddr_aton(nsenv, &ns)) {
-		dns_setserver(1, &ns);
-		has_server = true;
-	}
-
-	if (!has_server) {
-		log_err("No valid name server (dnsip/dnsip2)\n");
+	if (net_lwip_dns_init()) {
 		net_lwip_remove_netif(netif);
 		return CMD_RET_FAILURE;
 	}

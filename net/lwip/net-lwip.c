@@ -8,6 +8,7 @@
 #include <dm/uclass.h>
 #include <hexdump.h>
 #include <lwip/ip4_addr.h>
+#include <lwip/dns.h>
 #include <lwip/err.h>
 #include <lwip/netif.h>
 #include <lwip/pbuf.h>
@@ -138,6 +139,40 @@ static int get_udev_ipv4_info(struct udevice *dev, ip4_addr_t *ip,
 		ip4addr_aton(env, gw);
 
 	return 0;
+}
+
+/*
+ * Initialize DNS via env
+ */
+int net_lwip_dns_init(void)
+{
+#if CONFIG_IS_ENABLED(CMD_DNS)
+	bool has_server = false;
+	ip_addr_t ns;
+	char *nsenv;
+
+	nsenv = env_get("dnsip");
+	if (nsenv && ipaddr_aton(nsenv, &ns)) {
+		dns_setserver(0, &ns);
+		has_server = true;
+	}
+
+	nsenv = env_get("dnsip2");
+	if (nsenv && ipaddr_aton(nsenv, &ns)) {
+		dns_setserver(1, &ns);
+		has_server = true;
+	}
+
+	if (!has_server) {
+		log_err("No valid name server (dnsip/dnsip2)\n");
+		return -EINVAL;
+	}
+
+	return 0;
+#else
+	log_err("DNS disabled\n");
+	return -EINVAL;
+#endif
 }
 
 /*
