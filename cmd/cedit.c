@@ -287,6 +287,8 @@ static int do_cedit_run(struct cmd_tbl *cmdtp, int flag, int argc,
 		log_err("Failed (err=%dE)\n", ret);
 		return CMD_RET_FAILURE;
 	}
+	expo_destroy(cur_exp);
+	cur_exp = NULL;
 
 	return 0;
 }

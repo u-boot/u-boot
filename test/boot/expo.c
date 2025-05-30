@@ -11,6 +11,7 @@
 #include <video.h>
 #include <linux/input.h>
 #include <test/ut.h>
+#include <test/video.h>
 #include "bootstd_common.h"
 #include <test/cedit-test.h>
 #include "../../boot/scene_internal.h"
@@ -24,14 +25,20 @@ enum {
 	OBJ_LOGO,
 	OBJ_TEXT,
 	OBJ_TEXT2,
+	OBJ_TEXT3,
 	OBJ_MENU,
 	OBJ_MENU_TITLE,
+	OBJ_BOX,
+	OBJ_BOX2,
+	OBJ_TEXTED,
 
 	/* strings */
 	STR_SCENE_TITLE,
 
 	STR_TEXT,
 	STR_TEXT2,
+	STR_TEXT3,
+	STR_TEXTED,
 	STR_MENU_TITLE,
 	STR_POINTER_TEXT,
 
@@ -270,8 +277,8 @@ static int expo_object_attr(struct unit_test_state *uts)
 	ut_assert(id > 0);
 
 	ut_assertok(scene_obj_set_pos(scn, OBJ_LOGO, 123, 456));
-	ut_asserteq(123, img->obj.dim.x);
-	ut_asserteq(456, img->obj.dim.y);
+	ut_asserteq(123, img->obj.bbox.x0);
+	ut_asserteq(456, img->obj.bbox.y0);
 
 	ut_asserteq(-ENOENT, scene_obj_set_pos(scn, OBJ_TEXT2, 0, 0));
 
@@ -280,8 +287,8 @@ static int expo_object_attr(struct unit_test_state *uts)
 
 	strcpy(name, "font2");
 	ut_assertok(scene_txt_set_font(scn, OBJ_TEXT, name, 42));
-	ut_asserteq_ptr(name, txt->font_name);
-	ut_asserteq(42, txt->font_size);
+	ut_asserteq_ptr(name, txt->gen.font_name);
+	ut_asserteq(42, txt->gen.font_size);
 
 	ut_asserteq(-ENOENT, scene_txt_set_font(scn, OBJ_TEXT2, name, 42));
 
@@ -296,7 +303,7 @@ static int expo_object_attr(struct unit_test_state *uts)
 	node = ofnode_path("/bootstd/theme");
 	ut_assert(ofnode_valid(node));
 	ut_assertok(expo_apply_theme(exp, node));
-	ut_asserteq(30, txt->font_size);
+	ut_asserteq(30, txt->gen.font_size);
 
 	expo_destroy(exp);
 
@@ -360,8 +367,8 @@ static int expo_object_menu(struct unit_test_state *uts)
 	ut_asserteq(0, menu->pointer_id);
 
 	ut_assertok(scene_obj_set_pos(scn, OBJ_MENU, 50, 400));
-	ut_asserteq(50, menu->obj.dim.x);
-	ut_asserteq(400, menu->obj.dim.y);
+	ut_asserteq(50, menu->obj.bbox.x0);
+	ut_asserteq(400, menu->obj.bbox.y0);
 
 	id = scene_txt_str(scn, "title", OBJ_MENU_TITLE, STR_MENU_TITLE,
 			   "Main Menu", &tit);
@@ -407,24 +414,24 @@ static int expo_object_menu(struct unit_test_state *uts)
 	ut_asserteq(id, menu->cur_item_id);
 
 	/* the title should be at the top */
-	ut_asserteq(menu->obj.dim.x, tit->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y, tit->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x0, tit->obj.bbox.x0);
+	ut_asserteq(menu->obj.bbox.y0, tit->obj.bbox.y0);
 
 	/* the first item should be next */
-	ut_asserteq(menu->obj.dim.x, name1->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, name1->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x0, name1->obj.bbox.x0);
+	ut_asserteq(menu->obj.bbox.y0 + 32, name1->obj.bbox.y0);
 
-	ut_asserteq(menu->obj.dim.x + 230, key1->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, key1->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x0 + 230, key1->obj.bbox.x0);
+	ut_asserteq(menu->obj.bbox.y0 + 32, key1->obj.bbox.y0);
 
-	ut_asserteq(menu->obj.dim.x + 200, ptr->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, ptr->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x0 + 200, ptr->obj.bbox.x0);
+	ut_asserteq(menu->obj.bbox.y0 + 32, ptr->obj.bbox.y0);
 
-	ut_asserteq(menu->obj.dim.x + 280, desc1->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, desc1->obj.dim.y);
+	ut_asserteq(menu->obj.bbox.x0 + 280, desc1->obj.bbox.x0);
+	ut_asserteq(menu->obj.bbox.y0 + 32, desc1->obj.bbox.y0);
 
-	ut_asserteq(-4, prev1->obj.dim.x);
-	ut_asserteq(menu->obj.dim.y + 32, prev1->obj.dim.y);
+	ut_asserteq(-4, prev1->obj.bbox.x0);
+	ut_asserteq(menu->obj.bbox.y0 + 32, prev1->obj.bbox.y0);
 	ut_asserteq(true, prev1->obj.flags & SCENEOF_HIDE);
 
 	/* check iterating through scene items */
@@ -457,6 +464,7 @@ static int expo_render_image(struct unit_test_state *uts)
 {
 	struct scene_obj_menu *menu;
 	struct scene *scn, *scn2;
+	struct abuf orig, *text;
 	struct expo_action act;
 	struct scene_obj *obj;
 	struct udevice *dev;
@@ -486,6 +494,15 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_assertok(scene_txt_set_font(scn, OBJ_TEXT2, "nimbus_sans_l_regular",
 				       60));
 	ut_assertok(scene_obj_set_pos(scn, OBJ_TEXT2, 200, 600));
+
+	/* this string is clipped as it extends beyond its bottom bound */
+	id = scene_txt_str(scn, "text", OBJ_TEXT3, STR_TEXT3,
+			   "this is yet\nanother string, with word-wrap and it goes on for quite a while",
+			   NULL);
+	ut_assert(id > 0);
+	ut_assertok(scene_txt_set_font(scn, OBJ_TEXT3, "nimbus_sans_l_regular",
+				       60));
+	ut_assertok(scene_obj_set_bbox(scn, OBJ_TEXT3, 500, 200, 1000, 350));
 
 	id = scene_menu(scn, "main", OBJ_MENU, &menu);
 	ut_assert(id > 0);
@@ -534,6 +551,22 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	ut_assertok(scene_obj_set_pos(scn, OBJ_MENU, 50, 400));
 
+	id = scene_box(scn, "box", OBJ_BOX, 3, NULL);
+	ut_assert(id > 0);
+	ut_assertok(scene_obj_set_bbox(scn, OBJ_BOX, 40, 390, 1000, 510));
+
+	id = scene_box(scn, "box2", OBJ_BOX2, 1, NULL);
+	ut_assert(id > 0);
+	ut_assertok(scene_obj_set_bbox(scn, OBJ_BOX, 500, 200, 1000, 350));
+
+	id = scene_texted(scn, "editor", OBJ_TEXTED, STR_TEXTED, NULL);
+	ut_assert(id > 0);
+	ut_assertok(scene_obj_set_bbox(scn, OBJ_TEXTED, 100, 200, 400, 650));
+	ut_assertok(expo_edit_str(exp, STR_TEXTED, &orig, &text));
+
+	abuf_printf(text, "This\nis the initial contents of the text editor "
+		"but it is quite likely that more will be added later");
+
 	scn2 = expo_lookup_scene_id(exp, SCENE1);
 	ut_asserteq_ptr(scn, scn2);
 	scn2 = expo_lookup_scene_id(exp, SCENE2);
@@ -548,45 +581,97 @@ static int expo_render_image(struct unit_test_state *uts)
 	/* check dimensions of text */
 	obj = scene_obj_find(scn, OBJ_TEXT, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(400, obj->dim.x);
-	ut_asserteq(100, obj->dim.y);
-	ut_asserteq(126, obj->dim.w);
-	ut_asserteq(40, obj->dim.h);
+	ut_asserteq(400, obj->bbox.x0);
+	ut_asserteq(100, obj->bbox.y0);
+	ut_asserteq(400 + 126, obj->bbox.x1);
+	ut_asserteq(100 + 40, obj->bbox.y1);
 
 	/* check dimensions of image */
 	obj = scene_obj_find(scn, OBJ_LOGO, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(50, obj->dim.x);
-	ut_asserteq(20, obj->dim.y);
-	ut_asserteq(160, obj->dim.w);
-	ut_asserteq(160, obj->dim.h);
+	ut_asserteq(50, obj->bbox.x0);
+	ut_asserteq(20, obj->bbox.y0);
+	ut_asserteq(50 + 160, obj->bbox.x1);
+	ut_asserteq(20 + 160, obj->bbox.y1);
 
 	/* check dimensions of menu labels - both should be the same width */
 	obj = scene_obj_find(scn, ITEM1_LABEL, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(50, obj->dim.x);
-	ut_asserteq(436, obj->dim.y);
-	ut_asserteq(29, obj->dim.w);
-	ut_asserteq(18, obj->dim.h);
+	ut_asserteq(50, obj->bbox.x0);
+	ut_asserteq(436, obj->bbox.y0);
+	ut_asserteq(50 + 29, obj->bbox.x1);
+	ut_asserteq(436 + 18, obj->bbox.y1);
 
 	obj = scene_obj_find(scn, ITEM2_LABEL, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(50, obj->dim.x);
-	ut_asserteq(454, obj->dim.y);
-	ut_asserteq(29, obj->dim.w);
-	ut_asserteq(18, obj->dim.h);
+	ut_asserteq(50, obj->bbox.x0);
+	ut_asserteq(454, obj->bbox.y0);
+	ut_asserteq(50 + 29, obj->bbox.x1);
+	ut_asserteq(454 + 18, obj->bbox.y1);
+
+	/* same for the key */
+	obj = scene_obj_find(scn, ITEM1_KEY, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(280, obj->bbox.x0);
+	ut_asserteq(436, obj->bbox.y0);
+	ut_asserteq(280 + 9, obj->bbox.x1);
+	ut_asserteq(436 + 18, obj->bbox.y1);
+
+	obj = scene_obj_find(scn, ITEM2_KEY, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(280, obj->bbox.x0);
+	ut_asserteq(454, obj->bbox.y0);
+	ut_asserteq(280 + 9, obj->bbox.x1);
+	ut_asserteq(454 + 18, obj->bbox.y1);
+
+	/* and the description */
+	obj = scene_obj_find(scn, ITEM1_DESC, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(330, obj->bbox.x0);
+	ut_asserteq(436, obj->bbox.y0);
+	ut_asserteq(330 + 89, obj->bbox.x1);
+	ut_asserteq(436 + 18, obj->bbox.y1);
+
+	obj = scene_obj_find(scn, ITEM2_DESC, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(330, obj->bbox.x0);
+	ut_asserteq(454, obj->bbox.y0);
+	ut_asserteq(330 + 89, obj->bbox.x1);
+	ut_asserteq(454 + 18, obj->bbox.y1);
 
 	/* check dimensions of menu */
 	obj = scene_obj_find(scn, OBJ_MENU, SCENEOBJT_NONE);
 	ut_assertnonnull(obj);
-	ut_asserteq(50, obj->dim.x);
-	ut_asserteq(400, obj->dim.y);
-	ut_asserteq(160, obj->dim.w);
-	ut_asserteq(160, obj->dim.h);
+	ut_asserteq(50, obj->bbox.x0);
+	ut_asserteq(400, obj->bbox.y0);
+	ut_asserteq(50 + 160, obj->bbox.x1);
+	ut_asserteq(400 + 160, obj->bbox.y1);
+
+	scene_obj_set_width(scn, OBJ_MENU, 170);
+	ut_asserteq(50 + 170, obj->bbox.x1);
+	scene_obj_set_bbox(scn, OBJ_MENU, 60, 410, 50 + 160, 400 + 160);
+	ut_asserteq(60, obj->bbox.x0);
+	ut_asserteq(410, obj->bbox.y0);
+	ut_asserteq(50 + 160, obj->bbox.x1);
+	ut_asserteq(400 + 160, obj->bbox.y1);
+
+	/* reset back to normal */
+	scene_obj_set_bbox(scn, OBJ_MENU, 50, 400, 50 + 160, 400 + 160);
 
 	/* render it */
 	expo_set_scene_id(exp, SCENE1);
 	ut_assertok(expo_render(exp));
+
+	ut_asserteq(0, scn->highlight_id);
+	ut_assertok(scene_arrange(scn));
+	ut_asserteq(0, scn->highlight_id);
+
+	scene_set_highlight_id(scn, OBJ_MENU);
+	ut_assertok(scene_arrange(scn));
+	ut_asserteq(OBJ_MENU, scn->highlight_id);
+	ut_assertok(expo_render(exp));
+
+	ut_asserteq(19704, video_compress_fb(uts, dev, false));
 
 	/* move down */
 	ut_assertok(expo_send_key(exp, BKEY_DOWN));
@@ -595,7 +680,31 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	ut_asserteq(EXPOACT_POINT_ITEM, act.type);
 	ut_asserteq(ITEM2, act.select.id);
+	ut_assertok(scene_menu_select_item(scn, OBJ_MENU, act.select.id));
+	ut_asserteq(ITEM2, scene_menu_get_cur_item(scn, OBJ_MENU));
+	ut_assertok(scene_arrange(scn));
 	ut_assertok(expo_render(exp));
+	ut_asserteq(19673, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
+
+	/* hide the text editor since the following tets don't need it */
+	scene_obj_set_hide(scn, OBJ_TEXTED, true);
+
+	/* do some alignment checks */
+	ut_assertok(scene_obj_set_halign(scn, OBJ_TEXT3, SCENEOA_CENTRE));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(16368, video_compress_fb(uts, dev, false));
+	ut_assertok(scene_obj_set_halign(scn, OBJ_TEXT3, SCENEOA_RIGHT));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(16321, video_compress_fb(uts, dev, false));
+
+	ut_assertok(scene_obj_set_halign(scn, OBJ_TEXT3, SCENEOA_LEFT));
+	ut_assertok(scene_obj_set_valign(scn, OBJ_TEXT3, SCENEOA_CENTRE));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(18763, video_compress_fb(uts, dev, false));
+	ut_assertok(scene_obj_set_valign(scn, OBJ_TEXT3, SCENEOA_BOTTOM));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(18714, video_compress_fb(uts, dev, false));
 
 	/* make sure only the preview for the second item is shown */
 	obj = scene_obj_find(scn, ITEM1_PREVIEW, SCENEOBJT_NONE);
@@ -617,6 +726,12 @@ static int expo_render_image(struct unit_test_state *uts)
 	/* make sure there was no console output */
 	ut_assert_console_end();
 
+	/* now try with the highlight */
+	exp->show_highlight = true;
+	ut_assertok(scene_arrange(scn));
+	ut_assertok(expo_render(exp));
+	ut_asserteq(18844, video_compress_fb(uts, dev, false));
+
 	/* now try in text mode */
 	expo_set_text_mode(exp, true);
 	ut_assertok(expo_render(exp));
@@ -635,6 +750,7 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	ut_asserteq(EXPOACT_POINT_ITEM, act.type);
 	ut_asserteq(ITEM1, act.select.id);
+	ut_assertok(scene_menu_select_item(scn, OBJ_MENU, act.select.id));
 
 	ut_assertok(expo_render(exp));
 	ut_assert_nextline("U-Boot    :    Boot Menu");
@@ -658,6 +774,7 @@ static int expo_test_build(struct unit_test_state *uts)
 	struct scene_obj_menu *menu;
 	struct scene_menitem *item;
 	struct scene_obj_txt *txt;
+	struct abuf orig, *copy;
 	struct scene_obj *obj;
 	struct scene *scn;
 	struct expo *exp;
@@ -678,7 +795,7 @@ static int expo_test_build(struct unit_test_state *uts)
 	ut_assertnonnull(scn);
 	ut_asserteq_str("main", scn->name);
 	ut_asserteq(ID_SCENE1, scn->id);
-	ut_asserteq(ID_DYNAMIC_START + 1, scn->title_id);
+	ut_asserteq(ID_DYNAMIC_START, scn->title_id);
 	ut_asserteq(0, scn->highlight_id);
 
 	/* check the title */
@@ -690,7 +807,8 @@ static int expo_test_build(struct unit_test_state *uts)
 	ut_asserteq(scn->title_id, obj->id);
 	ut_asserteq(SCENEOBJT_TEXT, obj->type);
 	ut_asserteq(0, obj->flags);
-	ut_asserteq_str("Test Configuration", expo_get_str(exp, txt->str_id));
+	ut_asserteq_str("Test Configuration",
+			expo_get_str(exp, txt->gen.str_id));
 
 	/* check the menu */
 	menu = scene_obj_find(scn, ID_CPU_SPEED, SCENEOBJT_NONE);
@@ -702,7 +820,7 @@ static int expo_test_build(struct unit_test_state *uts)
 	ut_asserteq(0, obj->flags);
 
 	txt = scene_obj_find(scn, menu->title_id, SCENEOBJT_NONE);
-	ut_asserteq_str("CPU speed", expo_get_str(exp, txt->str_id));
+	ut_asserteq_str("CPU speed", expo_get_str(exp, txt->gen.str_id));
 
 	ut_asserteq(0, menu->cur_item_id);
 	ut_asserteq(0, menu->pointer_id);
@@ -719,10 +837,20 @@ static int expo_test_build(struct unit_test_state *uts)
 	ut_asserteq(0, item->value);
 
 	txt = scene_obj_find(scn, item->label_id, SCENEOBJT_NONE);
-	ut_asserteq_str("2 GHz", expo_get_str(exp, txt->str_id));
+	ut_asserteq_str("2 GHz", expo_get_str(exp, txt->gen.str_id));
 
 	count = list_count_nodes(&menu->item_head);
 	ut_asserteq(3, count);
+
+	/* try editing some text */
+	ut_assertok(expo_edit_str(exp, txt->gen.str_id, &orig, &copy));
+	ut_asserteq_str("2 GHz", orig.data);
+	ut_asserteq_str("2 GHz", copy->data);
+
+	/* change it and check that things look right */
+	abuf_printf(copy, "atlantic %d", 123);
+	ut_asserteq_str("2 GHz", orig.data);
+	ut_asserteq_str("atlantic 123", copy->data);
 
 	expo_destroy(exp);
 

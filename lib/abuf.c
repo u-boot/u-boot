@@ -10,8 +10,11 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <string.h>
+#include <vsprintf.h>
 #endif
 
+#include <errno.h>
+#include <stdarg.h>
 #include <abuf.h>
 
 void abuf_set(struct abuf *abuf, void *data, size_t size)
@@ -117,6 +120,61 @@ void abuf_init_set(struct abuf *abuf, void *data, size_t size)
 {
 	abuf_init(abuf);
 	abuf_set(abuf, data, size);
+}
+
+bool abuf_init_size(struct abuf *buf, size_t size)
+{
+	abuf_init(buf);
+	if (!abuf_realloc(buf, size))
+		return false;
+
+	return true;
+}
+
+bool abuf_copy(const struct abuf *old, struct abuf *copy)
+{
+	char *data;
+
+	data = malloc(old->size);
+	if (!data)
+		return false;
+	memcpy(data, old->data, old->size);
+	abuf_init_set(copy, data, old->size);
+	copy->alloced = true;
+
+	return true;
+}
+
+int abuf_printf(struct abuf *buf, const char *fmt, ...)
+{
+	int maxlen = buf->size;
+	va_list args;
+	int len;
+
+	va_start(args, fmt);
+	len = vsnprintf(buf->data, buf->size, fmt, args);
+	va_end(args);
+
+	/* add the terminator */
+	len++;
+
+	if (len > 4096)
+		return -E2BIG;
+	if (len > maxlen) {
+		/* make more space and try again */
+		maxlen = len;
+		if (!abuf_realloc(buf, maxlen))
+			return -ENOMEM;
+		va_start(args, fmt);
+		len = vsnprintf(buf->data, maxlen, fmt, args);
+		va_end(args);
+
+		/* check there isn't anything strange going on */
+		if (len > maxlen)
+			return -EFAULT;
+	}
+
+	return len;
 }
 
 void abuf_init_const(struct abuf *abuf, const void *data, size_t size)

@@ -87,7 +87,7 @@ struct scene_menitem *scene_menuitem_find_val(const struct scene_obj_menu *menu,
 static int update_pointers(struct scene_obj_menu *menu, uint id, bool point)
 {
 	struct scene *scn = menu->obj.scene;
-	const bool stack = scn->expo->popup;
+	const bool stack = scn->expo->show_highlight;
 	const struct scene_menitem *item;
 	int ret;
 
@@ -102,15 +102,23 @@ static int update_pointers(struct scene_obj_menu *menu, uint id, bool point)
 		label = scene_obj_find(scn, item->label_id, SCENEOBJT_NONE);
 
 		ret = scene_obj_set_pos(scn, menu->pointer_id,
-					menu->obj.dim.x + 200, label->dim.y);
+					menu->obj.bbox.x0 + 200, label->bbox.y0);
 		if (ret < 0)
 			return log_msg_ret("ptr", ret);
 	}
 
 	if (stack) {
+		uint id;
+		int val;
+
 		point &= scn->highlight_id == menu->obj.id;
-		scene_obj_flag_clrset(scn, item->label_id, SCENEOF_POINT,
-				      point ? SCENEOF_POINT : 0);
+		val = point ? SCENEOF_POINT : 0;
+		id = item->desc_id;
+		if (!id)
+			id = item->label_id;
+		if (!id)
+			id = item->key_id;
+		scene_obj_flag_clrset(scn, id, SCENEOF_POINT, val);
 	}
 
 	return 0;
@@ -121,64 +129,98 @@ static int update_pointers(struct scene_obj_menu *menu, uint id, bool point)
  *
  * Sets the currently pointed-to / highlighted menu item
  */
-static void menu_point_to_item(struct scene_obj_menu *menu, uint item_id)
+static int menu_point_to_item(struct scene_obj_menu *menu, uint item_id)
 {
-	if (menu->cur_item_id)
-		update_pointers(menu, menu->cur_item_id, false);
+	int ret;
+
+	if (menu->cur_item_id) {
+		ret = update_pointers(menu, menu->cur_item_id, false);
+		if (ret)
+			return log_msg_ret("mpi", ret);
+	}
 	menu->cur_item_id = item_id;
-	update_pointers(menu, item_id, true);
+	ret = update_pointers(menu, item_id, true);
+	if (ret)
+		return log_msg_ret("mpu", ret);
+
+	return 0;
 }
 
 void scene_menu_calc_bbox(struct scene_obj_menu *menu,
-			  struct vidconsole_bbox *bbox,
-			  struct vidconsole_bbox *label_bbox)
+			  struct vidconsole_bbox *bbox)
 {
 	const struct expo_theme *theme = &menu->obj.scene->expo->theme;
 	const struct scene_menitem *item;
+	int inset = theme->menu_inset;
+	int i;
 
-	bbox->valid = false;
-	scene_bbox_union(menu->obj.scene, menu->title_id, 0, bbox);
+	for (i = 0; i < SCENEBB_count; i++)
+		bbox[i].valid = false;
 
-	label_bbox->valid = false;
+	scene_bbox_union(menu->obj.scene, menu->title_id, 0,
+			 &bbox[SCENEBB_all]);
 
 	list_for_each_entry(item, &menu->item_head, sibling) {
-		scene_bbox_union(menu->obj.scene, item->label_id,
-				 theme->menu_inset, bbox);
-		scene_bbox_union(menu->obj.scene, item->key_id, 0, bbox);
-		scene_bbox_union(menu->obj.scene, item->desc_id, 0, bbox);
-		scene_bbox_union(menu->obj.scene, item->preview_id, 0, bbox);
+		struct vidconsole_bbox local;
 
-		/* Get the bounding box of all labels */
-		scene_bbox_union(menu->obj.scene, item->label_id,
-				 theme->menu_inset, label_bbox);
+		local.valid = false;
+		scene_bbox_union(menu->obj.scene, item->label_id, inset,
+				 &local);
+		scene_bbox_union(menu->obj.scene, item->key_id, 0, &local);
+		scene_bbox_union(menu->obj.scene, item->desc_id, 0, &local);
+		scene_bbox_union(menu->obj.scene, item->preview_id, 0, &local);
+
+		scene_bbox_join(&local, 0, &bbox[SCENEBB_all]);
+
+		/* Get the bounding box of all individual fields */
+		scene_bbox_union(menu->obj.scene, item->label_id, inset,
+				 &bbox[SCENEBB_label]);
+		scene_bbox_union(menu->obj.scene, item->key_id, inset,
+				 &bbox[SCENEBB_key]);
+		scene_bbox_union(menu->obj.scene, item->desc_id, inset,
+				 &bbox[SCENEBB_desc]);
+
+		if (menu->cur_item_id == item->id)
+			scene_bbox_join(&local, 0, &bbox[SCENEBB_curitem]);
 	}
 
 	/*
-	 * subtract the final menuitem's gap to keep the insert the same top
-	 * and bottom
+	 * subtract the final menuitem's gap to keep the inset the same top and
+	 * bottom
 	 */
-	label_bbox->y1 -= theme->menuitem_gap_y;
+	bbox[SCENEBB_label].y1 -= theme->menuitem_gap_y;
 }
 
 int scene_menu_calc_dims(struct scene_obj_menu *menu)
 {
-	struct vidconsole_bbox bbox, label_bbox;
+	struct vidconsole_bbox bbox[SCENEBB_count], *cur;
 	const struct scene_menitem *item;
 
-	scene_menu_calc_bbox(menu, &bbox, &label_bbox);
+	scene_menu_calc_bbox(menu, bbox);
 
-	/* Make all labels the same size */
-	if (label_bbox.valid) {
-		list_for_each_entry(item, &menu->item_head, sibling) {
-			scene_obj_set_size(menu->obj.scene, item->label_id,
-					   label_bbox.x1 - label_bbox.x0,
-					   label_bbox.y1 - label_bbox.y0);
-		}
+	/* Make all field types the same width */
+	list_for_each_entry(item, &menu->item_head, sibling) {
+		cur = &bbox[SCENEBB_label];
+		if (cur->valid)
+			scene_obj_set_width(menu->obj.scene, item->label_id,
+					    cur->x1 - cur->x0);
+		cur = &bbox[SCENEBB_key];
+		if (cur->valid)
+			scene_obj_set_width(menu->obj.scene, item->key_id,
+					    cur->x1 - cur->x0);
+		cur = &bbox[SCENEBB_desc];
+		if (cur->valid)
+			scene_obj_set_width(menu->obj.scene, item->desc_id,
+					    cur->x1 - cur->x0);
 	}
 
-	if (bbox.valid) {
-		menu->obj.dim.w = bbox.x1 - bbox.x0;
-		menu->obj.dim.h = bbox.y1 - bbox.y0;
+	cur = &bbox[SCENEBB_all];
+	if (cur->valid) {
+		menu->obj.dims.x = cur->x1 - cur->x0;
+		menu->obj.dims.y = cur->y1 - cur->y0;
+
+		menu->obj.bbox.x1 = cur->x1;
+		menu->obj.bbox.y1 = cur->y1;
 	}
 
 	return 0;
@@ -196,12 +238,12 @@ int scene_menu_arrange(struct scene *scn, struct expo_arrange_info *arr,
 	int x, y;
 	int ret;
 
-	x = menu->obj.dim.x;
-	y = menu->obj.dim.y;
+	x = menu->obj.bbox.x0;
+	y = menu->obj.bbox.y0;
 	if (menu->title_id) {
 		int width;
 
-		ret = scene_obj_set_pos(scn, menu->title_id, menu->obj.dim.x, y);
+		ret = scene_obj_set_pos(scn, menu->title_id, menu->obj.bbox.x0, y);
 		if (ret < 0)
 			return log_msg_ret("tit", ret);
 
@@ -286,6 +328,9 @@ int scene_menu_arrange(struct scene *scn, struct expo_arrange_info *arr,
 
 	if (sel_id)
 		menu_point_to_item(menu, sel_id);
+	menu->obj.bbox.x1 = menu->obj.bbox.x0 + menu->obj.dims.x;
+	menu->obj.bbox.y1 = menu->obj.bbox.y0 + menu->obj.dims.y;
+	menu->obj.flags |= SCENEOF_SIZE_VALID;
 
 	return 0;
 }
@@ -322,7 +367,7 @@ static struct scene_menitem *scene_menu_find_key(struct scene *scn,
 
 			txt = scene_obj_find(scn, item->key_id, SCENEOBJT_TEXT);
 			if (txt) {
-				str = expo_get_str(scn->expo, txt->str_id);
+				str = expo_get_str(scn->expo, txt->gen.str_id);
 				if (str && *str == key)
 					return item;
 			}
@@ -396,8 +441,6 @@ int scene_menu_send_key(struct scene *scn, struct scene_obj_menu *menu, int key,
 		}
 		break;
 	}
-
-	menu_point_to_item(menu, item->id);
 
 	return 0;
 }
@@ -483,6 +526,33 @@ int scene_menu_set_pointer(struct scene *scn, uint id, uint pointer_id)
 	return 0;
 }
 
+int scene_menu_select_item(struct scene *scn, uint id, uint cur_item_id)
+{
+	struct scene_obj_menu *menu;
+	int ret;
+
+	menu = scene_obj_find(scn, id, SCENEOBJT_MENU);
+	if (!menu)
+		return log_msg_ret("menu", -ENOENT);
+
+	ret = menu_point_to_item(menu, cur_item_id);
+	if (ret)
+		return log_msg_ret("msi", ret);
+
+	return 0;
+}
+
+int scene_menu_get_cur_item(struct scene *scn, uint id)
+{
+	struct scene_obj_menu *menu;
+
+	menu = scene_obj_find(scn, id, SCENEOBJT_MENU);
+	if (!menu)
+		return log_msg_ret("menu", -ENOENT);
+
+	return menu->cur_item_id;
+}
+
 int scene_menu_display(struct scene_obj_menu *menu)
 {
 	struct scene *scn = menu->obj.scene;
@@ -500,7 +570,7 @@ int scene_menu_display(struct scene_obj_menu *menu)
 		if (!txt)
 			return log_msg_ret("txt", -EINVAL);
 
-		str = expo_get_str(exp, txt->str_id);
+		str = expo_get_str(exp, txt->gen.str_id);
 		printf("%s\n\n", str);
 	}
 
@@ -508,7 +578,7 @@ int scene_menu_display(struct scene_obj_menu *menu)
 		return 0;
 
 	pointer = scene_obj_find(scn, menu->pointer_id, SCENEOBJT_TEXT);
-	pstr = expo_get_str(scn->expo, pointer->str_id);
+	pstr = expo_get_str(scn->expo, pointer->gen.str_id);
 
 	list_for_each_entry(item, &menu->item_head, sibling) {
 		struct scene_obj_txt *key = NULL, *label = NULL;
@@ -517,15 +587,15 @@ int scene_menu_display(struct scene_obj_menu *menu)
 
 		key = scene_obj_find(scn, item->key_id, SCENEOBJT_TEXT);
 		if (key)
-			kstr = expo_get_str(exp, key->str_id);
+			kstr = expo_get_str(exp, key->gen.str_id);
 
 		label = scene_obj_find(scn, item->label_id, SCENEOBJT_TEXT);
 		if (label)
-			lstr = expo_get_str(exp, label->str_id);
+			lstr = expo_get_str(exp, label->gen.str_id);
 
 		desc = scene_obj_find(scn, item->desc_id, SCENEOBJT_TEXT);
 		if (desc)
-			dstr = expo_get_str(exp, desc->str_id);
+			dstr = expo_get_str(exp, desc->gen.str_id);
 
 		printf("%3s  %3s  %-10s  %s\n",
 		       pointer && menu->cur_item_id == item->id ? pstr : "",
