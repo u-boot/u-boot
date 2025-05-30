@@ -55,123 +55,70 @@ DDR driver requires a firmware to function, to build it:
 	cd th1520-firmware
 	lua5.4 ddr-generate.lua src/<CONFIGURATION_NAME>.lua th1520-ddr-firmware.bin
 
-4. Build U-Boot images
+4. Build OpenSBI Firmware
 
-The U-Boot is capable of running in M-Mode, so we can directly build it without
-OpenSBI. The DDR firmware should be copied to U-Boot source directory before
+TH1520 port of proper U-Boot runs in S mode, thus OpenSBI is required as
+SBI firmware to setup S-mode environment and provide SBI calls. It could
+be cloned and built for TH1520 as below,
+
+.. code-block:: bash
+
+	git clone https://github.com/riscv-software-src/opensbi.git
+	cd opensbi
+	make PLATFORM=generic
+
+TH1520 support in OpenSBI requires v1.2 or a more recent version.
+
+More detailed description of steps required to build fw_dynamic firmware
+is beyond the scope of this document. Please refer to OpenSBI
+documenation.
+
+5. Build U-Boot images
+
+The DDR firmware should be copied to U-Boot source directory before
 building.
 
-.. code-block:: console
+.. code-block:: bash
 
 	cd <U-Boot-dir>
 	cp <path-to-ddr-firmware> th1520-ddr-firmware.bin
 	make th1520_lpi4a_defconfig
-	make
+	make OPENSBI=<opensbi_dir>/build/platform/generic/firmware/fw_dynamic.bin
 
-This will generate u-boot-dtb.bin and u-boot-with-spl.bin. The former contains
-only proper U-Boot and is for chainloading; the later contains also SPL and
-DDR firmware and is ready for booting by BROM directly.
+This will generate u-boot-with-spl.bin, which contains SPL, DDR firmware,
+OpenSBI firmware and proper U-Boot.
 
 Booting
 ~~~~~~~
 
-Currently, we rely on vendor u-boot to initialize the clock, pinctrl subsystem,
-and chain load the mainline u-boot image either via tftp or emmc storage,
-then bootup from it.
+u-boot-with-spl.bin should be loaded to SRAM through fastboot. Connect
+the board to computer with Type-C cable and run
 
-Sample boot log from Lichee PI 4A board via tftp
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. code-block:: bash
 
-.. code-block:: none
+	fastboot flash ram u-boot-with-spl.bin
+	fastboot reboot
 
-	brom_ver 8
-	[APP][E] protocol_connect failed, exit.
-
-	U-Boot SPL 2020.01-00016-g8c870a6be8 (May 20 2023 - 01:04:49 +0000)
-	FM[1] lpddr4x dualrank freq=3733 64bit dbi_off=n sdram init
-	ddr initialized, jump to uboot
-	image has no header
-
-
-	U-Boot 2020.01-00016-g8c870a6be8 (May 20 2023 - 01:04:49 +0000)
-
-	CPU:   rv64imafdcvsu
-	Model: T-HEAD c910 light
-	DRAM:  8 GiB
-	C910 CPU FREQ: 750MHz
-	AHB2_CPUSYS_HCLK FREQ: 250MHz
-	AHB3_CPUSYS_PCLK FREQ: 125MHz
-	PERISYS_AHB_HCLK FREQ: 250MHz
-	PERISYS_APB_PCLK FREQ: 62MHz
-	GMAC PLL POSTDIV FREQ: 1000MHZ
-	DPU0 PLL POSTDIV FREQ: 1188MHZ
-	DPU1 PLL POSTDIV FREQ: 1188MHZ
-	MMC:   sdhci@ffe7080000: 0, sd@ffe7090000: 1
-	Loading Environment from MMC... OK
-	Error reading output register
-	Warning: cannot get lcd-en GPIO
-	LCD panel cannot be found : -121
-	splash screen startup cost 16 ms
-	In:    serial
-	Out:   serial
-	Err:   serial
-	Net:
-	Warning: ethernet@ffe7070000 using MAC address from ROM
-	eth0: ethernet@ffe7070000ethernet@ffe7070000:0 is connected to ethernet@ffe7070000.  Reconnecting to ethernet@ffe7060000
-
-	Warning: ethernet@ffe7060000 (eth1) using random MAC address - 42:25:d4:16:5f:fc
-	, eth1: ethernet@ffe7060000
-	Hit any key to stop autoboot:  2
-	ethernet@ffe7060000 Waiting for PHY auto negotiation to complete.. done
-	Speed: 1000, full duplex
-	Using ethernet@ffe7070000 device
-	TFTP from server 192.168.8.50; our IP address is 192.168.8.45
-	Filename 'u-boot-dtb.bin'.
-	Load address: 0x1c00000
-	Loading: * #########################
-		 8 MiB/s
-	done
-	Bytes transferred = 376686 (5bf6e hex)
-	## Starting application at 0x01C00000 ...
-
-        U-Boot 2023.07-rc2-00004-g1befbe31c1 (May 23 2023 - 18:40:01 +0800)
-
-        CPU:   rv64imafdc
-        Model: Sipeed Lichee Pi 4A
-        DRAM:  8 GiB
-        Core:  13 devices, 6 uclasses, devicetree: separate
-        Loading Environment from <NULL>... OK
-        In:    serial@ffe7014000
-        Out:   serial@ffe7014000
-        Err:   serial@ffe7014000
-        Model: Sipeed Lichee Pi 4A
-        LPI4A=>
-
-SPL support is still in an early stage and not all of the functionalities are
-available when booting from mainline SPL. When using mainline SPL,
-u-boot-with-spl.bin should be loaded to SRAM through fastboot.
-
-Sample boot log from Lichee PI 4A board via fastboot and mainline SPL
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Sample boot log from Lichee PI 4A board via fastboot
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: none
 
-	brom_ver 8
 	[APP][E] protocol_connect failed, exit.
-	Starting download of 636588 bytes
+	Starting download of 940681 bytes
 
-	downloading of 636588 bytes finished
+	downloading of 940681 bytes finished
 
-	U-Boot SPL 2025.04-rc2-00049-geaa9fc99d4cd-dirty (Apr 26 2025 - 13:31:41 +0000)
+	U-Boot SPL 2025.07-rc3-00005-g3a0ef515b8bb (May 29 2025 - 10:42:46 +0000)
 	Trying to boot from RAM
 
 
-	U-Boot 2025.04-rc2-00049-geaa9fc99d4cd-dirty (Apr 26 2025 - 13:31:41 +0000)
+	U-Boot 2025.07-rc3-00005-g3a0ef515b8bb (May 29 2025 - 10:42:46 +0000)
 
 	CPU:   thead,c910
 	Model: Sipeed Lichee Pi 4A
 	DRAM:  8 GiB
-	Core:  30 devices, 9 uclasses, devicetree: separate
+	Core:  110 devices, 9 uclasses, devicetree: separate
 	MMC:   mmc@ffe7080000: 0, mmc@ffe7090000: 1
 	Loading Environment from <NULL>... OK
 	In:    serial@ffe7014000
