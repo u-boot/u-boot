@@ -14,6 +14,14 @@ config CLK_IMX6Q
 	help
 	  This enables DM/DTS support for clock driver in i.MX6Q platforms.
 
+config CLK_IMX6UL
+	bool "Clock support for i.MX6UL"
+	depends on ARCH_MX6
+	select CLK
+	select CLK_CCF
+	help
+	  This enables DM/DTS support for clock driver in i.MX6UL platforms.
+
 config CLK_IMX8
 	bool "Clock support for i.MX8"
 	depends on ARCH_IMX8
