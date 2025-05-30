@@ -919,6 +919,7 @@ else
 ifeq ($(CONFIG_RSA_PUBLIC_KEY_PARSER_MBEDTLS),y)
 CLANG_RT_DIR := $(shell $(CC) --print-resource-dir)/lib/linux
 PLATFORM_LIBGCC := -L$(CLANG_RT_DIR) -lclang_rt.builtins-$(MK_ARCH)
+
 # MK_ARCH := $(shell echo $(MK_ARCH) | tr -d '"')
 # CLANG_RES_DIR := $(shell $(CC) --print-resource-dir)
 # # pattern for pre-LLVM-15.0.0
@@ -935,6 +936,47 @@ PLATFORM_LIBGCC := -L$(CLANG_RT_DIR) -lclang_rt.builtins-$(MK_ARCH)
 # $(error libclang_rt.builtins.a not found for target $(MK_ARCH))
 # endif
 # endif
+
+
+# # Strip quotes in case MK_ARCH has them
+# MK_ARCH := $(shell echo $(MK_ARCH) | tr -d '"')
+
+# # Clang resource directory
+# CLANG_RES_DIR := $(shell $(CC) --print-resource-dir)
+
+# # Pre-LLVM-15.0.0 pattern
+# CLANG_RT_LEGACY_DIR := $(CLANG_RES_DIR)/lib/linux
+# CLANG_RT_LEGACY_LIB := $(CLANG_RT_LEGACY_DIR)/libclang_rt.builtins-$(MK_ARCH).a
+
+# # Post-LLVM-15.0.0 pattern
+# CLANG_RT_NEW_DIR := $(wildcard $(CLANG_RES_DIR)/lib/$(MK_ARCH)*)
+# CLANG_RT_NEW_LIB := $(CLANG_RT_NEW_DIR)/libclang_rt.builtins.a
+
+# ifeq ("$(wildcard $(CLANG_RT_LEGACY_LIB))", "$(CLANG_RT_LEGACY_LIB)")
+#   PLATFORM_LIBGCC := -L$(CLANG_RT_LEGACY_DIR) -lclang_rt.builtins-$(MK_ARCH)
+# else ifeq ("$(wildcard $(CLANG_RT_NEW_LIB))", "$(CLANG_RT_NEW_LIB)")
+#   PLATFORM_LIBGCC := -L$(CLANG_RT_NEW_DIR) -lclang_rt.builtins
+# else
+#   $(error libclang_rt.builtins.a not found for target $(MK_ARCH))
+# endif
+
+
+
+CLANG_RES_DIR := $(shell $(CC) --print-resource-dir)
+CLANG_VERSION := $(shell $(CC) --version | head -n 1 | sed -n 's/.*clang version \([0-9]*\)\.\([0-9]*\).*/\1 \2/p')
+CLANG_MAJOR := $(word 1, $(CLANG_VERSION))
+CLANG_MINOR := $(word 2, $(CLANG_VERSION))
+
+ifeq ($(shell [ $(CLANG_MAJOR) -lt 15 ] && echo yes),yes)
+# Pre-LLVM-15.0.0 pattern
+CLANG_RT_DIR := $(CLANG_RES_DIR)/lib/linux
+PLATFORM_LIBGCC := -L$(CLANG_RT_DIR) -lclang_rt.builtins-$(MK_ARCH)
+else
+# Post-LLVM-15.0.0 pattern
+CLANG_RT_DIR := $(CLANG_RES_DIR)/lib/$(MK_ARCH)-none-linux-gnu
+PLATFORM_LIBGCC := -L$(CLANG_RT_DIR) -lclang_rt.builtins
+endif
+
 endif # CONFIG_RSA_PUBLIC_KEY_PARSER_MBEDTLS
 endif # CONFIG_CC_IS_CLANG
 endif # CONFIG_USE_PRIVATE_LIBGCC
