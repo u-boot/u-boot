@@ -92,7 +92,6 @@ static int dns_loop(struct udevice *udev, const char *name, const char *var)
 			net_lwip_rx(udev, netif);
 			if (dns_cb_arg.done)
 				break;
-			sys_check_timeouts();
 			if (ctrlc()) {
 				printf("\nAbort\n");
 				break;

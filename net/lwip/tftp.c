@@ -201,7 +201,6 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 	sys_timeout(NO_RSP_TIMEOUT_MS, no_response, &ctx);
 	while (!ctx.done) {
 		net_lwip_rx(udev, netif);
-		sys_check_timeouts();
 		if (ctrlc()) {
 			printf("\nAbort\n");
 			ctx.done = ABORTED;

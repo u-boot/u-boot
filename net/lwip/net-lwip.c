@@ -14,8 +14,10 @@
 #include <lwip/etharp.h>
 #include <lwip/init.h>
 #include <lwip/prot/etharp.h>
+#include <lwip/timeouts.h>
 #include <net.h>
 #include <timer.h>
+#include <u-boot/schedule.h>
 
 /* xx:xx:xx:xx:xx:xx\0 */
 #define MAC_ADDR_STRLEN 18
@@ -284,6 +286,11 @@ int net_lwip_rx(struct udevice *udev, struct netif *netif)
 	int flags;
 	int len;
 	int i;
+
+	/* lwIP timers */
+	sys_check_timeouts();
+	/* Other tasks and actions */
+	schedule();
 
 	if (!eth_is_active(udev))
 		return -EINVAL;

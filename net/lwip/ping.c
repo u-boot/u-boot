@@ -136,7 +136,6 @@ static int ping_loop(struct udevice *udev, const ip_addr_t *addr)
 	ping_send(&ctx);
 
 	do {
-		sys_check_timeouts();
 		net_lwip_rx(udev, netif);
 		if (ctx.alive)
 			break;

@@ -526,7 +526,6 @@ int wget_do_request(ulong dst_addr, char *uri)
 
 	while (!ctx.done) {
 		net_lwip_rx(udev, netif);
-		sys_check_timeouts();
 		if (ctrlc())
 			break;
 	}
