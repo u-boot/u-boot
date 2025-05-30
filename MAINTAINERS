@@ -1569,6 +1569,13 @@ F:	drivers/clk/clk_k210.c
 F:	drivers/pinctrl/pinctrl-k210.c
 F:	include/k210/
 
+RISC-V T-HEAD TH1520
+M:	Yao Zi <ziyao@disroot.org>
+S:	Maintained
+F:	arch/riscv/cpu/th1520/
+F:	drivers/clk/thead/clk-th1520-ap.c
+F:	drivers/ram/thead/th1520_ddr.c
+
 RNG
 M:	Sughosh Ganu <sughosh.ganu@linaro.org>
 R:	Heinrich Schuchardt <xypron.glpk@gmx.de>
