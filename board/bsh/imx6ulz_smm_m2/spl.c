@@ -52,28 +52,31 @@ static void ddr_cfg_write(const struct dram_timing_info *dram_timing_info)
 	}
 }
 
+static const struct dram_timing_info *board_dram_timing[] = {
+#if defined(CONFIG_M2_MEMORY)
+	&bsh_dram_timing_512mb,
+#endif
+	&bsh_dram_timing_256mb,
+	&bsh_dram_timing_128mb,
+};
+
 static void spl_dram_init(void)
 {
 	/* Configure memory to maximum supported size for detection */
-	ddr_cfg_write(&bsh_dram_timing_512mb);
+	ddr_cfg_write(board_dram_timing[0]);
 
 	/* Detect memory physically present */
-	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE, SZ_512M);
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE, board_dram_timing[0]->dram_size);
 
-	/* Reconfigure memory for actual detected size */
-	switch (gd->ram_size) {
-	case SZ_512M:
-		/* Already configured, nothing to do */
-		break;
-	case SZ_256M:
-		udelay(1);
-		ddr_cfg_write(&bsh_dram_timing_256mb);
-		break;
-	case SZ_128M:
-	default:
-		udelay(1);
-		ddr_cfg_write(&bsh_dram_timing_128mb);
-		break;
+	if (board_dram_timing[0]->dram_size == gd->ram_size)
+		return;
+
+	for (size_t index = 1; index < ARRAY_SIZE(board_dram_timing); index++) {
+		if (board_dram_timing[index]->dram_size == gd->ram_size) {
+			udelay(1);
+			ddr_cfg_write(board_dram_timing[index]);
+			break;
+		}
 	}
 }
 

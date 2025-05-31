@@ -18,6 +18,7 @@ struct dram_cfg_param {
 struct dram_timing_info {
 	const struct dram_cfg_param *ddrc_cfg;
 	unsigned int ddrc_cfg_num;
+	size_t dram_size;
 };
 
 extern struct dram_timing_info bsh_dram_timing_128mb;
