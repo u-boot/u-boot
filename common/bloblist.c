@@ -43,6 +43,7 @@ static struct tag_name {
 	{ BLOBLISTT_ACPI_TABLES, "ACPI tables for x86" },
 	{ BLOBLISTT_TPM_EVLOG, "TPM event log defined by TCG EFI" },
 	{ BLOBLISTT_TPM_CRB_BASE, "TPM Command Response Buffer address" },
+	{ BLOBLISTT_FDT_OVERLAY, "DT overlay" },
 
 	/* BLOBLISTT_AREA_FIRMWARE */
 	{ BLOBLISTT_TPM2_TCG_LOG, "TPM v2 log space" },
@@ -94,6 +95,19 @@ static inline uint rec_tag(struct bloblist_rec *rec)
 {
 	return (rec->tag_and_hdr_size & BLOBLISTR_TAG_MASK) >>
 		BLOBLISTR_TAG_SHIFT;
+}
+
+static inline void void_blob(struct bloblist_rec *rec)
+{
+	if (rec_tag(rec) == BLOBLISTT_VOID)
+		return;
+	rec->tag_and_hdr_size = BLOBLISTT_VOID |
+				sizeof(*rec) << BLOBLISTR_HDR_SIZE_SHIFT;
+}
+
+static inline struct bloblist_rec *rec_from_blob(void *blob)
+{
+	return (blob - sizeof(struct bloblist_rec));
 }
 
 static ulong bloblist_blob_end_ofs(struct bloblist_hdr *hdr,
@@ -247,6 +261,42 @@ void *bloblist_get_blob(uint tag, int *sizep)
 	return (void *)rec + rec_hdr_size(rec);
 }
 
+int bloblist_apply_blobs(uint tag, int (*func)(void **data))
+{
+	struct bloblist_hdr *hdr = gd->bloblist;
+	struct bloblist_rec *rec;
+
+	if (!func || !hdr)
+		return -ENOENT;
+
+	foreach_rec(rec, hdr) {
+		/* Apply all blobs with the specified tag */
+		if (rec_tag(rec) == tag) {
+			int ret;
+			int tag = rec_tag(rec);
+			void *blob = (void *)rec + rec_hdr_size(rec);
+
+			ret = func(&blob);
+			if (ret) {
+				log_err("Failed to apply blob with tag %d\n",
+					tag);
+				return ret;
+			}
+
+			rec = rec_from_blob(blob);
+			if (rec <= 0) {
+				log_err("Blob corrupted\n");
+				return -ENOENT;
+			}
+
+			/* Mark applied blob record as void */
+			void_blob(rec);
+		}
+	}
+
+	return 0;
+}
+
 void *bloblist_add(uint tag, int size, int align_log2)
 {
 	struct bloblist_rec *rec;
@@ -297,14 +347,14 @@ int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp)
 
 static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 			       struct bloblist_rec *rec,
-			       int new_size)
+			       int new_size, int *expand_by)
 {
-	int expand_by;	/* Number of bytes to expand by (-ve to contract) */
 	int new_alloced;
 	ulong next_ofs;	/* Offset of the record after @rec */
 
-	expand_by = ALIGN(new_size - rec->size, BLOBLIST_BLOB_ALIGN);
-	new_alloced = ALIGN(hdr->used_size + expand_by, BLOBLIST_BLOB_ALIGN);
+	*expand_by = ALIGN(new_size - rec->size, BLOBLIST_BLOB_ALIGN);
+	new_alloced = ALIGN(hdr->used_size + *expand_by, BLOBLIST_BLOB_ALIGN);
+
 	if (new_size < 0) {
 		log_debug("Attempt to shrink blob size below 0 (%x)\n",
 			  new_size);
@@ -320,13 +370,13 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 	/* Move the following blobs up or down, if this is not the last */
 	next_ofs = bloblist_blob_end_ofs(hdr, rec);
 	if (next_ofs != hdr->used_size) {
-		memmove((void *)hdr + next_ofs + expand_by,
-			(void *)hdr + next_ofs, new_alloced - next_ofs);
+		memmove((void *)hdr + next_ofs + *expand_by,
+			(void *)hdr + next_ofs, hdr->used_size - next_ofs);
 	}
 	hdr->used_size = new_alloced;
 
 	/* Zero the new part of the blob */
-	if (expand_by > 0) {
+	if (*expand_by > 0) {
 		memset((void *)rec + rec_hdr_size(rec) + rec->size, '\0',
 		       new_size - rec->size);
 	}
@@ -337,7 +387,7 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 	return 0;
 }
 
-int bloblist_resize(uint tag, int new_size)
+int bloblist_resize(uint tag, int new_size, int *expand_by)
 {
 	struct bloblist_hdr *hdr = gd->bloblist;
 	struct bloblist_rec *rec;
@@ -346,7 +396,7 @@ int bloblist_resize(uint tag, int new_size)
 	rec = bloblist_findrec(tag);
 	if (!rec)
 		return log_msg_ret("find", -ENOENT);
-	ret = bloblist_resize_rec(hdr, rec, new_size);
+	ret = bloblist_resize_rec(hdr, rec, new_size, expand_by);
 	if (ret)
 		return log_msg_ret("resize", ret);
 
