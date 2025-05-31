@@ -9,4 +9,25 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "imx6ulz_smm_m2"
 
+choice
+	prompt "Memory Type (M2/M2B) board"
+	default BSH_M2_MEMORY
+	help
+	  Memory type setup.
+	  Please choose correct memory model here.
+
+config BSH_M2_MEMORY
+	bool "Enable for bsh m2 variant"
+	help
+	  If this option is enabled, U-Boot will be configured to support
+	  imx6ulz bsh m2 revision memories.
+
+config BSH_M2B_MEMORY
+	bool "Enable for bsh m2b variant"
+	help
+	  If this option is enabled, U-Boot will be configured to support
+	  imx6ulz bsh m2b revision memories.
+
+endchoice
+
 endif
