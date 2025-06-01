@@ -1832,7 +1832,7 @@ struct dram_fsp_msg ddr_dram_fsp_msg_1gb_single_die[] = {
 };
 
 /* ddr timing config params */
-struct dram_timing_info dram_timing_1gb_single_die = {
+static struct dram_timing_info dram_timing_1gb_single_die = {
 	.ddrc_cfg = ddr_ddrc_cfg_1gb_single_die,
 	.ddrc_cfg_num = ARRAY_SIZE(ddr_ddrc_cfg_1gb_single_die),
 	.ddrphy_cfg = ddr_ddrphy_cfg_1gb_single_die,
@@ -2364,7 +2364,7 @@ static struct dram_fsp_msg ddr_dram_fsp_msg_4gb_dual_die[] = {
 };
 
 /* ddr timing config params */
-struct dram_timing_info dram_timing_4gb_dual_die = {
+static struct dram_timing_info dram_timing_4gb_dual_die = {
 	.ddrc_cfg = ddr_ddrc_cfg_4gb_dual_die,
 	.ddrc_cfg_num = ARRAY_SIZE(ddr_ddrc_cfg_4gb_dual_die),
 	.ddrphy_cfg = ddr_ddrphy_cfg_4gb_dual_die,
@@ -2377,3 +2377,22 @@ struct dram_timing_info dram_timing_4gb_dual_die = {
 	.ddrphy_pie_num = ARRAY_SIZE(ddr_phy_pie),
 	.fsp_table = { 4000, 400, 100, },
 };
+
+struct dram_timing_info *spl_dram_init(const char *model, int sizemb)
+{
+	struct dram_timing_info *dram_timing;
+
+	switch (sizemb) {
+	case 1024:
+		dram_timing = &dram_timing_1gb_single_die;
+		break;
+	case 4096:
+		dram_timing = &dram_timing_4gb_dual_die;
+		break;
+	default:
+		printf("unsupported");
+		dram_timing = &dram_timing_4gb_dual_die;
+	}
+
+	return dram_timing;
+}

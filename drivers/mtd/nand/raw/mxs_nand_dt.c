@@ -99,10 +99,8 @@ static int mxs_nand_dt_probe(struct udevice *dev)
 	info->use_minimum_ecc = dev_read_bool(dev, "fsl,use-minimum-ecc");
 
 	if (IS_ENABLED(CONFIG_CLK) &&
-	    (IS_ENABLED(CONFIG_IMX8) || IS_ENABLED(CONFIG_IMX8M))) {
-		/* Assigned clock already set clock */
-		struct clk gpmi_clk;
-
+	    (IS_ENABLED(CONFIG_IMX8) || IS_ENABLED(CONFIG_IMX8M) || IS_ENABLED(CONFIG_MX6ULL))) {
+		struct clk_bulk clk_bulk;
 		info->gpmi_clk = devm_clk_get(dev, "gpmi_io");
 
 		if (IS_ERR(info->gpmi_clk)) {
@@ -111,47 +109,11 @@ static int mxs_nand_dt_probe(struct udevice *dev)
 			return ret;
 		}
 
-		ret = clk_enable(info->gpmi_clk);
+		ret = clk_get_bulk(dev, &clk_bulk);
+		if (!ret)
+			ret = clk_enable_bulk(&clk_bulk);
 		if (ret < 0) {
-			debug("Can't enable gpmi io clk: %d\n", ret);
-			return ret;
-		}
-
-		if (IS_ENABLED(CONFIG_IMX8)) {
-			ret = clk_get_by_name(dev, "gpmi_apb", &gpmi_clk);
-			if (ret < 0) {
-				debug("Can't get gpmi_apb clk: %d\n", ret);
-				return ret;
-			}
-
-			ret = clk_enable(&gpmi_clk);
-			if (ret < 0) {
-				debug("Can't enable gpmi_apb clk: %d\n", ret);
-				return ret;
-			}
-
-			ret = clk_get_by_name(dev, "gpmi_bch", &gpmi_clk);
-			if (ret < 0) {
-				debug("Can't get gpmi_bch clk: %d\n", ret);
-				return ret;
-			}
-
-			ret = clk_enable(&gpmi_clk);
-			if (ret < 0) {
-				debug("Can't enable gpmi_bch clk: %d\n", ret);
-				return ret;
-			}
-		}
-
-		ret = clk_get_by_name(dev, "gpmi_bch_apb", &gpmi_clk);
-		if (ret < 0) {
-			debug("Can't get gpmi_bch_apb clk: %d\n", ret);
-			return ret;
-		}
-
-		ret = clk_enable(&gpmi_clk);
-		if (ret < 0) {
-			debug("Can't enable gpmi_bch_apb clk: %d\n", ret);
+			debug("Can't enable gpmi clks: %d\n", ret);
 			return ret;
 		}
 	}

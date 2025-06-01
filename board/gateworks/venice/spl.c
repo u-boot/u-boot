@@ -32,69 +32,6 @@
 
 #define PCIE_RSTN IMX_GPIO_NR(4, 6)
 
-static void spl_dram_init(int size)
-{
-	struct dram_timing_info *dram_timing;
-
-	switch (size) {
-#ifdef CONFIG_IMX8MM
-	case 512:
-		dram_timing = &dram_timing_512mb;
-		break;
-	case 1024:
-		dram_timing = &dram_timing_1gb;
-		break;
-	case 2048:
-		dram_timing = &dram_timing_2gb;
-		break;
-	case 4096:
-		dram_timing = &dram_timing_4gb;
-		break;
-	default:
-		printf("Unknown DDR configuration: %d MiB\n", size);
-		dram_timing = &dram_timing_1gb;
-		size = 1024;
-#elif CONFIG_IMX8MN
-	case 1024:
-		dram_timing = &dram_timing_1gb_single_die;
-		break;
-	case 2048:
-		if (!strcmp(eeprom_get_model(), "GW7902-SP466-A") ||
-		    !strcmp(eeprom_get_model(), "GW7902-SP466-B")) {
-			dram_timing = &dram_timing_2gb_dual_die;
-		} else {
-			dram_timing = &dram_timing_2gb_single_die;
-		}
-		break;
-	default:
-		printf("Unknown DDR configuration: %d MiB\n", size);
-		dram_timing = &dram_timing_2gb_dual_die;
-		size = 2048;
-#elif CONFIG_IMX8MP
-	case 1024:
-		dram_timing = &dram_timing_1gb_single_die;
-		break;
-	case 4096:
-		dram_timing = &dram_timing_4gb_dual_die;
-		break;
-	default:
-		printf("Unknown DDR configuration: %d GiB\n", size);
-		dram_timing = &dram_timing_4gb_dual_die;
-		size = 4096;
-#endif
-	}
-
-	printf("DRAM    : LPDDR4 ");
-	if (size > 512)
-		printf("%d GiB", size / 1024);
-	else
-		printf("%d MiB", size);
-	printf(" %dMT/s %dMHz\n",
-	       dram_timing->fsp_msg[0].drate,
-	       dram_timing->fsp_msg[0].drate / 2);
-	ddr_init(dram_timing);
-}
-
 /*
  * Model specific PMIC adjustments necessary prior to DRAM init
  *
@@ -118,21 +55,23 @@ static int dm_i2c_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set)
 	return dm_i2c_write(dev, reg, &val, 1);
 }
 
-static int power_init_board(struct udevice *gsc)
+static int power_init_board(const char *model, struct udevice *gsc)
 {
-	const char *model = eeprom_get_model();
+	const char *som = eeprom_get_som_model();
 	struct udevice *bus;
 	struct udevice *dev;
 	int ret;
 
-	/* Enable GSC voltage supervisor for new board models */
-	if ((!strncmp(model, "GW7100", 6) && model[10] > 'D') ||
-	    (!strncmp(model, "GW7101", 6) && model[10] > 'D') ||
-	    (!strncmp(model, "GW7200", 6) && model[10] > 'E') ||
-	    (!strncmp(model, "GW7201", 6) && model[10] > 'E') ||
-	    (!strncmp(model, "GW7300", 6) && model[10] > 'E') ||
-	    (!strncmp(model, "GW7301", 6) && model[10] > 'E') ||
-	    (!strncmp(model, "GW740", 5) && model[7] > 'B')) {
+	/* Enable GSC voltage supervisor only for newew board models */
+	if ((!strncmp(model, "GW7100", 6) && model[10] < 'E') ||
+	    (!strncmp(model, "GW7101", 6) && model[10] < 'E') ||
+	    (!strncmp(model, "GW7200", 6) && model[10] < 'F') ||
+	    (!strncmp(model, "GW7201", 6) && model[10] < 'F') ||
+	    (!strncmp(model, "GW7300", 6) && model[10] < 'F') ||
+	    (!strncmp(model, "GW7301", 6) && model[10] < 'F') ||
+	    (!strncmp(model, "GW740", 5) && model[7] < 'C')) {
+		printf("GSC     : voltage supervisor disabled\n");
+	} else {
 		u8 ver;
 
 		if (!dm_i2c_read(gsc, 14, &ver, 1) && ver > 62) {
@@ -141,10 +80,7 @@ static int power_init_board(struct udevice *gsc)
 		}
 	}
 
-	if ((!strncmp(model, "GW71", 4)) ||
-	    (!strncmp(model, "GW72", 4)) ||
-	    (!strncmp(model, "GW73", 4)) ||
-	    (!strncmp(model, "GW75", 4))) {
+	if (!strncmp(som, "GW70", 4)) {
 		ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
 		if (ret) {
 			printf("PMIC    : failed I2C1 probe: %d\n", ret);
@@ -251,9 +187,11 @@ static int power_init_board(struct udevice *gsc)
 
 void board_init_f(ulong dummy)
 {
+	struct dram_timing_info *dram_timing;
 	struct udevice *bus, *dev;
+	const char *model;
+	int dram_szmb;
 	int i, ret;
-	int dram_sz;
 
 	arch_cpu_init();
 
@@ -311,13 +249,23 @@ void board_init_f(ulong dummy)
 			break;
 		mdelay(1);
 	}
-	dram_sz = venice_eeprom_init(0);
+	dram_szmb = venice_eeprom_init(0);
+	model = eeprom_get_model();
 
 	/* PMIC */
-	power_init_board(dev);
+	power_init_board(model, dev);
 
 	/* DDR initialization */
-	spl_dram_init(dram_sz);
+	printf("DRAM    : LPDDR4 ");
+	if (dram_szmb > 512)
+		printf("%d GiB", dram_szmb / 1024);
+	else
+		printf("%d MiB", dram_szmb);
+	dram_timing = spl_dram_init(model, dram_szmb);
+	printf(" %dMT/s %dMHz\n",
+	       dram_timing->fsp_msg[0].drate,
+	       dram_timing->fsp_msg[0].drate / 2);
+	ddr_init(dram_timing);
 
 	board_init_r(NULL, 0);
 }

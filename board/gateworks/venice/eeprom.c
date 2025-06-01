@@ -6,9 +6,11 @@
 #include <gsc.h>
 #include <hexdump.h>
 #include <i2c.h>
+#include <dm/device.h>
 #include <dm/uclass.h>
 
 #include "eeprom.h"
+#include "../fsa.h"
 
 /* I2C */
 #define SOM_EEPROM_BUSNO		0
@@ -18,7 +20,8 @@
 
 struct venice_board_info som_info;
 struct venice_board_info base_info;
-char venice_model[32];
+char venice_model[64];
+char venice_som_model[32];
 char venice_baseboard_model[32];
 u32 venice_serial;
 
@@ -107,7 +110,7 @@ static int eeprom_read(int busno, int slave, int alen, struct venice_board_info 
 	/* validate checksum */
 	for (chksum = 0, i = 0; i < (int)sizeof(*info) - 2; i++)
 		chksum += buf[i];
-	if ((info->chksum[0] != chksum >> 8) ||
+	if ((info->chksum[0] != ((chksum >> 8) & 0xff)) ||
 	    (info->chksum[1] != (chksum & 0xff))) {
 		printf("EEPROM: I2C%d@0x%02x: Invalid Checksum\n", busno, slave);
 		print_hex_dump_bytes("", DUMP_PREFIX_NONE, buf, sizeof(*info));
@@ -119,6 +122,54 @@ static int eeprom_read(int busno, int slave, int alen, struct venice_board_info 
 	if (info->model[0] != 'G' || info->model[1] != 'W') {
 		printf("EEPROM: I2C%d@0x%02x: Invalid Model in EEPROM\n", busno, slave);
 		print_hex_dump_bytes("", DUMP_PREFIX_NONE, buf, sizeof(*info));
+		memset(info, 0, sizeof(*info));
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int fsa_eeprom_read(const char *base, int fsa, struct fsa_board_info *info)
+{
+	int i;
+	int chksum;
+	unsigned char *buf = (unsigned char *)info;
+	struct udevice *dev, *bus;
+	int ret;
+	u8 reg;
+
+	/* probe mux */
+	ret = uclass_get_device_by_seq(UCLASS_I2C, 2, &bus);
+	if (!ret)
+		ret = dm_i2c_probe(bus, 0x70, 0, &dev);
+	if (ret)
+		return ret;
+	/* steer mux */
+	if (!strncmp(base, "GW82", 4)) {
+		if (fsa < 3)
+			reg = (fsa == 1) ? BIT(1) : BIT(0);
+		else
+			return -EINVAL;
+	}
+	dm_i2c_write(dev, 0x00, &reg, 1);
+
+	/* get eeprom */
+	ret = dm_i2c_probe(bus, 0x54, 0, &dev);
+	if (ret)
+		return ret;
+
+	/* read eeprom config section */
+	ret = dm_i2c_read(dev, 0x00, buf, sizeof(*info));
+	if (ret)
+		return ret;
+
+	/* validate checksum */
+	for (chksum = 0, i = 0; i < (int)sizeof(*info) - 2; i++)
+		chksum += buf[i];
+	if ((info->chksum[0] != ((chksum >> 8) & 0xff)) ||
+	    (info->chksum[1] != (chksum & 0xff))) {
+		printf("FSA%d EEPROM (board): %s: Invalid Checksum\n", fsa, dev->name);
+		print_hex_dump_bytes("", DUMP_PREFIX_OFFSET, buf, sizeof(*info));
 		memset(info, 0, sizeof(*info));
 		return -EINVAL;
 	}
@@ -299,6 +350,8 @@ static int eeprom_info(bool verbose)
 		       base_info.mfgdate[0], base_info.mfgdate[1],
 		       base_info.mfgdate[2], base_info.mfgdate[3]);
 	}
+	if (verbose)
+		fsa_show();
 
 	return 0;
 }
@@ -315,6 +368,7 @@ int venice_eeprom_init(int quiet)
 		memset(&som_info, 0, sizeof(som_info));
 		return 0;
 	}
+	strlcpy(venice_som_model, som_info.model, sizeof(venice_som_model));
 
 	/* read optional baseboard EEPROM */
 	eeprom_read(BASEBOARD_EEPROM_BUSNO, BASEBOARD_EEPROM_ADDR, 2, &base_info);
@@ -322,7 +376,7 @@ int venice_eeprom_init(int quiet)
 	/* create model strings */
 	if (base_info.model[0]) {
 		sprintf(venice_model, "GW%c%c%c%c-%c%c-",
-			som_info.model[2], /* family */
+			base_info.model[2], /* family */
 			base_info.model[3], /* baseboard */
 			base_info.model[4], base_info.model[5], /* subload of baseboard */
 			som_info.model[4], som_info.model[5]); /* last 2digits of SOM */
@@ -347,8 +401,73 @@ int venice_eeprom_init(int quiet)
 	}
 	venice_serial = som_info.serial;
 
+	/* GW8xxx product family naming scheme */
+	if (venice_model[2] == '8') {
+		struct fsa_board_info fsa_info;
+		int i = 0;
+		int fsa;
+
+		/* baseboard */
+		if (base_info.model[0]) {
+			rev_pcb = get_pcb_rev(base_info.model);
+			rev_bom = get_bom_rev(base_info.model);
+			venice_model[i++] = 'G';
+			venice_model[i++] = 'W';
+			venice_model[i++] = base_info.model[2]; /* baseboard */
+			venice_model[i++] = base_info.model[3];
+			venice_model[i++] = base_info.model[4]; /* subload */
+			venice_model[i++] = base_info.model[5];
+			venice_model[i++] = rev_pcb;
+			if (rev_bom)
+				venice_model[i++] = rev_bom;
+			venice_model[i++] = '-';
+			venice_model[i++] = 'S';
+		} else {
+			venice_model[i++] = 'G';
+			venice_model[i++] = 'W';
+		}
+
+		/* som */
+		rev_pcb = get_pcb_rev(som_info.model);
+		rev_bom = get_bom_rev(som_info.model);
+		venice_model[i++] = som_info.model[4];
+		venice_model[i++] = som_info.model[5];
+		venice_model[i++] = rev_pcb;
+		if (rev_bom)
+			venice_model[i++] = rev_bom;
+
+		/* fsa */
+		for (fsa = 1; fsa < FSA_MAX; fsa++) {
+			if (!fsa_eeprom_read(venice_model, fsa, &fsa_info)) {
+				venice_model[i++] = '-';
+				venice_model[i++] = 'F';
+				venice_model[i++] = '0' + fsa;
+				venice_model[i++] = fsa_info.model[5];
+				venice_model[i++] = fsa_info.model[6];
+				venice_model[i++] = fsa_info.model[8];
+				if (fsa_info.model[9])
+					venice_model[i++] = fsa_info.model[9];
+			}
+		}
+
+		/* append extra model info */
+		if (som_info.config[0] >= 32 && som_info.config[0] < 0x7f) {
+			venice_model[i++] = '-';
+			strlcpy(venice_model + i, som_info.config, (sizeof(venice_model) - i) - 1);
+			i += strlen(som_info.config);
+			if (i >= sizeof(venice_model))
+				i = sizeof(venice_model) - 1;
+		}
+		venice_model[i++] = 0;
+	}
+
 	if (!quiet)
 		eeprom_info(false);
+
+	if (!strncmp(venice_model, "GW7901-SP486", 12) &&
+	    strcmp(venice_model, "GW7901-SP486-C")) {
+		return 2048;
+	}
 
 	return (16 << som_info.sdram_size);
 }
@@ -361,6 +480,11 @@ void board_gsc_info(void)
 const char *eeprom_get_model(void)
 {
 	return venice_model;
+}
+
+const char *eeprom_get_som_model(void)
+{
+	return venice_som_model;
 }
 
 const char *eeprom_get_baseboard_model(void)
