@@ -94,6 +94,13 @@ config RTC_DS1374
 	  Support for Dallas Semiconductor (now Maxim) DS1374 and compatible
 	  Real Time Clock devices.
 
+config RTC_DS1672
+	bool "Enable DS1672 driver"
+	depends on DM_RTC
+	help
+	  Support for Dallas Semiconductor (now Maxim) DS1672 compatible
+	  Real Time Clock devices.
+
 config RTC_DS3231
 	bool "Enable DS3231 driver"
 	help

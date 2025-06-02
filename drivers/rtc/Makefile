@@ -12,6 +12,7 @@ obj-$(CONFIG_RTC_DS1307) += ds1307.o
 obj-$(CONFIG_RTC_DS1338) += ds1307.o
 obj-$(CONFIG_RTC_DS1337) += ds1337.o
 obj-$(CONFIG_RTC_DS1374) += ds1374.o
+obj-$(CONFIG_RTC_DS1672) += ds1672.o
 obj-$(CONFIG_RTC_DS3231) += ds3231.o
 obj-$(CONFIG_RTC_DS3232) += ds3232.o
 obj-$(CONFIG_RTC_EMULATION) += emul_rtc.o
