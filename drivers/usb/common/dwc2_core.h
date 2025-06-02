@@ -1,0 +1,560 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Copyright (c) 2024, Kongyang Liu <seashell11234455@gmail.com>
+ *
+ */
+
+#ifndef __DWC2_CORE_H_
+#define __DWC2_CORE_H_
+
+#include <linux/bitops.h>
+
+struct dwc2_global_regs {
+	u32 gotgctl;	/* 0x000 */
+	u32 gotgint;
+	u32 gahbcfg;
+	u32 gusbcfg;
+	u32 grstctl;	/* 0x010 */
+	u32 gintsts;
+	u32 gintmsk;
+	u32 grxstsr;
+	u32 grxstsp;	/* 0x020 */
+	u32 grxfsiz;
+	u32 gnptxfsiz;
+	u32 gnptxsts;
+	u32 gi2cctl;	/* 0x030 */
+	u32 gpvndctl;
+	u32 ggpio;
+	u32 guid;
+	u32 gsnpsid;	/* 0x040 */
+	u32 ghwcfg1;
+	u32 ghwcfg2;
+	u32 ghwcfg3;
+	u32 ghwcfg4;	/* 0x050 */
+	u32 glpmcfg;
+	u32 gpwrdn;
+	u32 gdfifocfg;
+	u32 gadpctl;	/* 0x060 */
+	u32 grefclk;
+	u32 gintmsk2;
+	u32 gintsts2;
+	u8  _pad_from_0x70_to_0x100[0x100 - 0x70];
+	u32 hptxfsiz;	/* 0x100 */
+	u32 dptxfsizn[15];
+	u8  _pad_from_0x140_to_0x400[0x400 - 0x140];
+};
+
+struct dwc2_hc_regs {
+	u32 hcchar;	/* 0x500 + 0x20 * ch */
+	u32 hcsplt;
+	u32 hcint;
+	u32 hcintmsk;
+	u32 hctsiz;
+	u32 hcdma;
+	u32 reserved;
+	u32 hcdmab;
+};
+
+struct dwc2_host_regs {
+	u32 hcfg;	/* 0x400 */
+	u32 hfir;
+	u32 hfnum;
+	u32 _pad_0x40c;
+	u32 hptxsts;	/* 0x410 */
+	u32 haint;
+	u32 haintmsk;
+	u32 hflbaddr;
+	u8  _pad_from_0x420_to_0x440[0x440 - 0x420];
+	u32 hprt0;	/* 0x440 */
+	u8  _pad_from_0x444_to_0x500[0x500 - 0x444];
+	struct dwc2_hc_regs hc[16];	/* 0x500 */
+	u8  _pad_from_0x700_to_0x800[0x800 - 0x700];
+};
+
+/* Device Logical IN Endpoint-Specific Registers */
+struct dwc2_dev_in_endp {
+	u32 diepctl;	/* 0x900 + 0x20 * ep */
+	u32 reserved0;
+	u32 diepint;
+	u32 reserved1;
+	u32 dieptsiz;
+	u32 diepdma;
+	u32 reserved2;
+	u32 diepdmab;
+};
+
+/* Device Logical OUT Endpoint-Specific Registers */
+struct dwc2_dev_out_endp {
+	u32 doepctl;	/* 0xB00 + 0x20 * ep */
+	u32 reserved0;
+	u32 doepint;
+	u32 reserved1;
+	u32 doeptsiz;
+	u32 doepdma;
+	u32 reserved2;
+	u32 doepdmab;
+};
+
+struct dwc2_device_regs {
+	u32 dcfg;	/* 0x800 */
+	u32 dctl;
+	u32 dsts;
+	u32 _pad_0x80c;
+	u32 diepmsk;	/* 0x810 */
+	u32 doepmsk;
+	u32 daint;
+	u32 daintmsk;
+	u32 dtknqr1;	/* 0x820 */
+	u32 dtknqr2;
+	u32 dvbusdis;
+	u32 dvbuspulse;
+	u32 dtknqr3;	/* 0x830 */
+	u32 dtknqr4;
+	u8  _pad_from_0x838_to_0x900[0x900 - 0x838];
+	struct dwc2_dev_in_endp  in_endp[16];	/* 0x900 */
+	struct dwc2_dev_out_endp out_endp[16];	/* 0xB00 */
+};
+
+struct dwc2_core_regs {
+	struct dwc2_global_regs  global_regs;	/* 0x000 */
+	struct dwc2_host_regs    host_regs;	/* 0x400 */
+	struct dwc2_device_regs  device_regs;	/* 0x800 */
+	u8  _pad_from_0xd00_to_0xe00[0xe00 - 0xd00];
+	u32 pcgcctl;				/* 0xe00 */
+	u8  _pad_from_0xe04_to_0x1000[0x1000 - 0xe04];
+	u8  ep_fifo[16][0x1000];		/* 0x1000 */
+};
+
+int dwc2_core_reset(struct dwc2_core_regs *regs);
+int dwc2_flush_tx_fifo(struct dwc2_core_regs *regs, const int num);
+int dwc2_flush_rx_fifo(struct dwc2_core_regs *regs);
+
+/* Core Global Register */
+#define GOTGCTL_CHIRPEN				BIT(27)
+#define GOTGCTL_MULT_VALID_BC_MASK		GENMASK(26, 22)
+#define GOTGCTL_CURMODE_HOST			BIT(21)
+#define GOTGCTL_OTGVER				BIT(20)
+#define GOTGCTL_BSESVLD				BIT(19)
+#define GOTGCTL_ASESVLD				BIT(18)
+#define GOTGCTL_DBNC_SHORT			BIT(17)
+#define GOTGCTL_CONID_B				BIT(16)
+#define GOTGCTL_DBNCE_FLTR_BYPASS		BIT(15)
+#define GOTGCTL_DEVHNPEN			BIT(11)
+#define GOTGCTL_HSTSETHNPEN			BIT(10)
+#define GOTGCTL_HNPREQ				BIT(9)
+#define GOTGCTL_HSTNEGSCS			BIT(8)
+#define GOTGCTL_BVALOVAL			BIT(7)
+#define GOTGCTL_BVALOEN				BIT(6)
+#define GOTGCTL_AVALOVAL			BIT(5)
+#define GOTGCTL_AVALOEN				BIT(4)
+#define GOTGCTL_VBVALOVAL			BIT(3)
+#define GOTGCTL_VBVALOEN			BIT(2)
+#define GOTGCTL_SESREQ				BIT(1)
+#define GOTGCTL_SESREQSCS			BIT(0)
+
+#define GOTGINT_DBNCE_DONE			BIT(19)
+#define GOTGINT_A_DEV_TOUT_CHG			BIT(18)
+#define GOTGINT_HST_NEG_DET			BIT(17)
+#define GOTGINT_HST_NEG_SUC_STS_CHNG		BIT(9)
+#define GOTGINT_SES_REQ_SUC_STS_CHNG		BIT(8)
+#define GOTGINT_SES_END_DET			BIT(2)
+
+#define GAHBCFG_AHB_SINGLE			BIT(23)
+#define GAHBCFG_NOTI_ALL_DMA_WRIT		BIT(22)
+#define GAHBCFG_REM_MEM_SUPP			BIT(21)
+#define GAHBCFG_P_TXF_EMP_LVL			BIT(8)
+#define GAHBCFG_NP_TXF_EMP_LVL			BIT(7)
+#define GAHBCFG_DMA_EN				BIT(5)
+#define GAHBCFG_HBSTLEN_MASK			GENMASK(4, 1)
+#define GAHBCFG_HBSTLEN_SINGLE			0
+#define GAHBCFG_HBSTLEN_INCR			1
+#define GAHBCFG_HBSTLEN_INCR4			3
+#define GAHBCFG_HBSTLEN_INCR8			5
+#define GAHBCFG_HBSTLEN_INCR16			7
+#define GAHBCFG_GLBL_INTR_EN			BIT(0)
+#define GAHBCFG_CTRL_MASK			(GAHBCFG_P_TXF_EMP_LVL | \
+						 GAHBCFG_NP_TXF_EMP_LVL | \
+						 GAHBCFG_DMA_EN | \
+						 GAHBCFG_GLBL_INTR_EN)
+
+#define GUSBCFG_FORCEDEVMODE			BIT(30)
+#define GUSBCFG_FORCEHOSTMODE			BIT(29)
+#define GUSBCFG_TXENDDELAY			BIT(28)
+#define GUSBCFG_ICTRAFFICPULLREMOVE		BIT(27)
+#define GUSBCFG_ICUSBCAP			BIT(26)
+#define GUSBCFG_ULPI_INT_PROT_DIS		BIT(25)
+#define GUSBCFG_INDICATORPASSTHROUGH		BIT(24)
+#define GUSBCFG_INDICATORCOMPLEMENT		BIT(23)
+#define GUSBCFG_TERMSELDLPULSE			BIT(22)
+#define GUSBCFG_ULPI_INT_VBUS_IND		BIT(21)
+#define GUSBCFG_ULPI_EXT_VBUS_DRV		BIT(20)
+#define GUSBCFG_ULPI_CLK_SUSP_M			BIT(19)
+#define GUSBCFG_ULPI_AUTO_RES			BIT(18)
+#define GUSBCFG_ULPI_FS_LS			BIT(17)
+#define GUSBCFG_OTG_UTMI_FS_SEL			BIT(16)
+#define GUSBCFG_PHY_LP_CLK_SEL			BIT(15)
+#define GUSBCFG_USBTRDTIM_MASK			GENMASK(14, 10)
+#define GUSBCFG_HNPCAP				BIT(9)
+#define GUSBCFG_SRPCAP				BIT(8)
+#define GUSBCFG_DDRSEL				BIT(7)
+#define GUSBCFG_PHYSEL				BIT(6)
+#define GUSBCFG_FSINTF				BIT(5)
+#define GUSBCFG_ULPI_UTMI_SEL			BIT(4)
+#define GUSBCFG_PHYIF16				BIT(3)
+#define GUSBCFG_TOUTCAL_MASK			GENMASK(2, 0)
+
+#define GRSTCTL_AHBIDLE				BIT(31)
+#define GRSTCTL_DMAREQ				BIT(30)
+#define GRSTCTL_CSFTRST_DONE			BIT(29)
+#define GRSTCTL_TXFNUM_MASK			GENMASK(10, 6)
+#define GRSTCTL_TXFFLSH				BIT(5)
+#define GRSTCTL_RXFFLSH				BIT(4)
+#define GRSTCTL_IN_TKNQ_FLSH			BIT(3)
+#define GRSTCTL_FRMCNTRRST			BIT(2)
+#define GRSTCTL_HSFTRST				BIT(1)
+#define GRSTCTL_CSFTRST				BIT(0)
+#define GRSTCTL_TXFNUM_ALL			0x10
+
+#define GINTSTS_WKUPINT				BIT(31)
+#define GINTSTS_SESSREQINT			BIT(30)
+#define GINTSTS_DISCONNINT			BIT(29)
+#define GINTSTS_CONIDSTSCHNG			BIT(28)
+#define GINTSTS_LPMTRANRCVD			BIT(27)
+#define GINTSTS_PTXFEMP				BIT(26)
+#define GINTSTS_HCHINT				BIT(25)
+#define GINTSTS_PRTINT				BIT(24)
+#define GINTSTS_RESETDET			BIT(23)
+#define GINTSTS_FET_SUSP			BIT(22)
+#define GINTSTS_INCOMPL_IP			BIT(21)
+#define GINTSTS_INCOMPL_SOOUT			BIT(21)
+#define GINTSTS_INCOMPL_SOIN			BIT(20)
+#define GINTSTS_OEPINT				BIT(19)
+#define GINTSTS_IEPINT				BIT(18)
+#define GINTSTS_EPMIS				BIT(17)
+#define GINTSTS_RESTOREDONE			BIT(16)
+#define GINTSTS_EOPF				BIT(15)
+#define GINTSTS_ISOUTDROP			BIT(14)
+#define GINTSTS_ENUMDONE			BIT(13)
+#define GINTSTS_USBRST				BIT(12)
+#define GINTSTS_USBSUSP				BIT(11)
+#define GINTSTS_ERLYSUSP			BIT(10)
+#define GINTSTS_I2CINT				BIT(9)
+#define GINTSTS_ULPI_CK_INT			BIT(8)
+#define GINTSTS_GOUTNAKEFF			BIT(7)
+#define GINTSTS_GINNAKEFF			BIT(6)
+#define GINTSTS_NPTXFEMP			BIT(5)
+#define GINTSTS_RXFLVL				BIT(4)
+#define GINTSTS_SOF				BIT(3)
+#define GINTSTS_OTGINT				BIT(2)
+#define GINTSTS_MODEMIS				BIT(1)
+#define GINTSTS_CURMODE_HOST			BIT(0)
+
+#define GRXSTS_FN_MASK				GENMASK(31, 25)
+#define GRXSTS_PKTSTS_MASK			GENMASK(20, 17)
+#define GRXSTS_PKTSTS_GLOBALOUTNAK		1
+#define GRXSTS_PKTSTS_OUTRX			2
+#define GRXSTS_PKTSTS_HCHIN			2
+#define GRXSTS_PKTSTS_OUTDONE			3
+#define GRXSTS_PKTSTS_HCHIN_XFER_COMP		3
+#define GRXSTS_PKTSTS_SETUPDONE			4
+#define GRXSTS_PKTSTS_DATATOGGLEERR		5
+#define GRXSTS_PKTSTS_SETUPRX			6
+#define GRXSTS_PKTSTS_HCHHALTED			7
+#define GRXSTS_DPID_MASK			GENMASK(16, 15)
+#define GRXSTS_BYTECNT_MASK			GENMASK(14, 4)
+#define GRXSTS_HCHNUM_MASK			GENMASK(3, 0)
+
+#define GRXFSIZ_DEPTH_MASK			GENMASK(15, 0)
+
+#define GI2CCTL_BSYDNE				BIT(31)
+#define GI2CCTL_RW				BIT(30)
+#define GI2CCTL_I2CDATSE0			BIT(28)
+#define GI2CCTL_I2CDEVADDR_MASK			GENMASK(27, 26)
+#define GI2CCTL_I2CSUSPCTL			BIT(25)
+#define GI2CCTL_ACK				BIT(24)
+#define GI2CCTL_I2CEN				BIT(23)
+#define GI2CCTL_ADDR_MASK			GENMASK(22, 16)
+#define GI2CCTL_REGADDR_MASK			GENMASK(15, 8)
+#define GI2CCTL_RWDATA_MASK			GENMASK(7, 0)
+
+#define GGPIO_STM32_OTG_GCCFG_IDEN		BIT(22)
+#define GGPIO_STM32_OTG_GCCFG_VBDEN		BIT(21)
+#define GGPIO_STM32_OTG_GCCFG_PWRDWN		BIT(16)
+
+#define GSNPSID_ID_MASK				GENMASK(31, 16)
+#define GSNPSID_OTG_ID				0x4f54
+#define GSNPSID_VER_MASK			GENMASK(15, 0)
+
+#define GHWCFG2_OTG_ENABLE_IC_USB		BIT(31)
+#define GHWCFG2_DEV_TOKEN_Q_DEPTH_MASK		GENMASK(30, 26)
+#define GHWCFG2_HOST_PERIO_TX_Q_DEPTH_MASK	GENMASK(25, 24)
+#define GHWCFG2_NONPERIO_TX_Q_DEPTH_MASK	GENMASK(23, 22)
+#define GHWCFG2_MULTI_PROC_INT			BIT(20)
+#define GHWCFG2_DYNAMIC_FIFO			BIT(19)
+#define GHWCFG2_PERIO_EP_SUPPORTED		BIT(18)
+#define GHWCFG2_NUM_HOST_CHAN_MASK		GENMASK(17, 14)
+#define GHWCFG2_NUM_DEV_EP_MASK			GENMASK(13, 10)
+#define GHWCFG2_FS_PHY_TYPE_MASK		GENMASK(9, 8)
+#define GHWCFG2_FS_PHY_TYPE_NOT_SUPPORTED	0
+#define GHWCFG2_FS_PHY_TYPE_DEDICATED		1
+#define GHWCFG2_FS_PHY_TYPE_SHARED_UTMI		2
+#define GHWCFG2_FS_PHY_TYPE_SHARED_ULPI		3
+#define GHWCFG2_HS_PHY_TYPE_MASK		GENMASK(7, 6)
+#define GHWCFG2_HS_PHY_TYPE_NOT_SUPPORTED	0
+#define GHWCFG2_HS_PHY_TYPE_UTMI		1
+#define GHWCFG2_HS_PHY_TYPE_ULPI		2
+#define GHWCFG2_HS_PHY_TYPE_UTMI_ULPI		3
+#define GHWCFG2_POINT2POINT			BIT(5)
+#define GHWCFG2_ARCHITECTURE_MASK		GENMASK(4, 3)
+#define GHWCFG2_SLAVE_ONLY_ARCH			0
+#define GHWCFG2_EXT_DMA_ARCH			1
+#define GHWCFG2_INT_DMA_ARCH			2
+#define GHWCFG2_OP_MODE_MASK			GENMASK(2, 0)
+#define GHWCFG2_OP_MODE_HNP_SRP_CAPABLE		0
+#define GHWCFG2_OP_MODE_SRP_ONLY_CAPABLE	1
+#define GHWCFG2_OP_MODE_NO_HNP_SRP_CAPABLE	2
+#define GHWCFG2_OP_MODE_SRP_CAPABLE_DEVICE	3
+#define GHWCFG2_OP_MODE_NO_SRP_CAPABLE_DEVICE	4
+#define GHWCFG2_OP_MODE_SRP_CAPABLE_HOST	5
+#define GHWCFG2_OP_MODE_NO_SRP_CAPABLE_HOST	6
+#define GHWCFG2_OP_MODE_UNDEFINED		7
+
+#define GHWCFG4_DESC_DMA_DYN			BIT(31)
+#define GHWCFG4_DESC_DMA			BIT(30)
+#define GHWCFG4_NUM_IN_EPS_MASK			GENMASK(29, 26)
+#define GHWCFG4_DED_FIFO_EN			BIT(25)
+#define GHWCFG4_SESSION_END_FILT_EN		BIT(24)
+#define GHWCFG4_B_VALID_FILT_EN			BIT(23)
+#define GHWCFG4_A_VALID_FILT_EN			BIT(22)
+#define GHWCFG4_VBUS_VALID_FILT_EN		BIT(21)
+#define GHWCFG4_IDDIG_FILT_EN			BIT(20)
+#define GHWCFG4_NUM_DEV_MODE_CTRL_EP_MASK	GENMASK(19, 16)
+#define GHWCFG4_UTMI_PHY_DATA_WIDTH_MASK	GENMASK(15, 14)
+#define GHWCFG4_UTMI_PHY_DATA_WIDTH_8		0
+#define GHWCFG4_UTMI_PHY_DATA_WIDTH_16		1
+#define GHWCFG4_UTMI_PHY_DATA_WIDTH_8_OR_16	2
+#define GHWCFG4_ACG_SUPPORTED			BIT(12)
+#define GHWCFG4_IPG_ISOC_SUPPORTED		BIT(11)
+#define GHWCFG4_SERVICE_INTERVAL_SUPPORTED      BIT(10)
+#define GHWCFG4_XHIBER				BIT(7)
+#define GHWCFG4_HIBER				BIT(6)
+#define GHWCFG4_MIN_AHB_FREQ			BIT(5)
+#define GHWCFG4_POWER_OPTIMIZ			BIT(4)
+#define GHWCFG4_NUM_DEV_PERIO_IN_EP_MASK	GENMASK(3, 0)
+
+#define FIFOSIZE_DEPTH_MASK			GENMASK(31, 16)
+#define FIFOSIZE_STARTADDR_MASK			GENMASK(15, 0)
+
+/* Host Register */
+#define HCFG_MODECHTIMEN			BIT(31)
+#define HCFG_PERSCHEDENA			BIT(26)
+#define HCFG_FRLISTEN_MASK			GENMASK(25, 24)
+#define HCFG_FRLISTEN_8				0
+#define HCFG_FRLISTEN_16			1
+#define HCFG_FRLISTEN_32			2
+#define HCFG_FRLISTEN_64			3
+#define HCFG_DESCDMA				BIT(23)
+#define HCFG_RESVALID_MASK			GENMASK(15, 8)
+#define HCFG_ENA32KHZ				BIT(7)
+#define HCFG_FSLSSUPP				BIT(2)
+#define HCFG_FSLSPCLKSEL_MASK			GENMASK(2, 0)
+#define HCFG_FSLSPCLKSEL_30_60_MHZ		0
+#define HCFG_FSLSPCLKSEL_48_MHZ			1
+#define HCFG_FSLSPCLKSEL_6_MHZ			2
+
+#define HFNUM_FRREM_MASK			GENMASK(31, 16)
+#define HFNUM_FRNUM_MASK			GENMASK(15, 0)
+
+#define HPRT0_SPD_MASK				GENMASK(18, 17)
+#define HPRT0_SPD_HIGH_SPEED			0
+#define HPRT0_SPD_FULL_SPEED			1
+#define HPRT0_SPD_LOW_SPEED			2
+#define HPRT0_TSTCTL_MASK			GENMASK(16, 13)
+#define HPRT0_PWR				BIT(12)
+#define HPRT0_LNSTS_MASK			GENMASK(11, 10)
+#define HPRT0_RST				BIT(8)
+#define HPRT0_SUSP				BIT(7)
+#define HPRT0_RES				BIT(6)
+#define HPRT0_OVRCURRCHG			BIT(5)
+#define HPRT0_OVRCURRACT			BIT(4)
+#define HPRT0_ENACHG				BIT(3)
+#define HPRT0_ENA				BIT(2)
+#define HPRT0_CONNDET				BIT(1)
+#define HPRT0_CONNSTS				BIT(0)
+#define HPRT0_W1C_MASK				(HPRT0_CONNDET | \
+						 HPRT0_ENA | \
+						 HPRT0_ENACHG | \
+						 HPRT0_OVRCURRCHG)
+
+#define HCCHAR_CHENA				BIT(31)
+#define HCCHAR_CHDIS				BIT(30)
+#define HCCHAR_ODDFRM				BIT(29)
+#define HCCHAR_DEVADDR_MASK			GENMASK(28, 22)
+#define HCCHAR_MULTICNT_MASK			GENMASK(21, 20)
+#define HCCHAR_EPTYPE_MASK			GENMASK(19, 18)
+#define HCCHAR_EPTYPE_CONTROL			0
+#define HCCHAR_EPTYPE_ISOC			1
+#define HCCHAR_EPTYPE_BULK			2
+#define HCCHAR_EPTYPE_INTR			3
+#define HCCHAR_LSPDDEV				BIT(17)
+#define HCCHAR_EPDIR				BIT(15)
+#define HCCHAR_EPNUM_MASK			GENMASK(14, 11)
+#define HCCHAR_MPS_MASK				GENMASK(10, 0)
+
+#define HCSPLT_SPLTENA				BIT(31)
+#define HCSPLT_COMPSPLT				BIT(16)
+#define HCSPLT_XACTPOS_MASK			GENMASK(15, 14)
+#define HCSPLT_XACTPOS_MID			0
+#define HCSPLT_XACTPOS_END			1
+#define HCSPLT_XACTPOS_BEGIN			2
+#define HCSPLT_XACTPOS_ALL			3
+#define HCSPLT_HUBADDR_MASK			GENMASK(13, 7)
+#define HCSPLT_PRTADDR_MASK			GENMASK(6, 0)
+
+#define HCINTMSK_FRM_LIST_ROLL			BIT(13)
+#define HCINTMSK_XCS_XACT			BIT(12)
+#define HCINTMSK_BNA				BIT(11)
+#define HCINTMSK_DATATGLERR			BIT(10)
+#define HCINTMSK_FRMOVRUN			BIT(9)
+#define HCINTMSK_BBLERR				BIT(8)
+#define HCINTMSK_XACTERR			BIT(7)
+#define HCINTMSK_NYET				BIT(6)
+#define HCINTMSK_ACK				BIT(5)
+#define HCINTMSK_NAK				BIT(4)
+#define HCINTMSK_STALL				BIT(3)
+#define HCINTMSK_AHBERR				BIT(2)
+#define HCINTMSK_CHHLTD				BIT(1)
+#define HCINTMSK_XFERCOMPL			BIT(0)
+
+#define TSIZ_DOPNG				BIT(31)
+#define TSIZ_SC_MC_PID_MASK			GENMASK(30, 29)
+#define TSIZ_SC_MC_PID_DATA0			0
+#define TSIZ_SC_MC_PID_DATA2			1
+#define TSIZ_SC_MC_PID_DATA1			2
+#define TSIZ_SC_MC_PID_MDATA			3
+#define TSIZ_SC_MC_PID_SETUP			3
+#define TSIZ_PKTCNT_MASK			GENMASK(28, 19)
+#define TSIZ_NTD_MASK				GENMASK(15, 8)
+#define TSIZ_SCHINFO_MASK			GENMASK(7, 0)
+#define TSIZ_XFERSIZE_MASK			GENMASK(18, 0)
+
+/* Device Mode Register */
+#define DCFG_DESCDMA_EN				BIT(23)
+#define DCFG_EPMISCNT_MASK			GENMASK(22, 18)
+#define DCFG_IPG_ISOC_SUPPORDED			BIT(17)
+#define DCFG_PERFRINT_MASK			GENMASK(12, 11)
+#define DCFG_DEVADDR_MASK			GENMASK(10, 4)
+#define DCFG_NZ_STS_OUT_HSHK			BIT(2)
+#define DCFG_DEVSPD_MASK			GENMASK(1, 0)
+#define DCFG_DEVSPD_HS				0
+#define DCFG_DEVSPD_FS				1
+#define DCFG_DEVSPD_LS				2
+#define DCFG_DEVSPD_FS48			3
+
+#define DCTL_SERVICE_INTERVAL_SUPPORTED		BIT(19)
+#define DCTL_PWRONPRGDONE			BIT(11)
+#define DCTL_CGOUTNAK				BIT(10)
+#define DCTL_SGOUTNAK				BIT(9)
+#define DCTL_CGNPINNAK				BIT(8)
+#define DCTL_SGNPINNAK				BIT(7)
+#define DCTL_TSTCTL_MASK			GENMASK(6, 4)
+#define DCTL_GOUTNAKSTS				BIT(3)
+#define DCTL_GNPINNAKSTS			BIT(2)
+#define DCTL_SFTDISCON				BIT(1)
+#define DCTL_RMTWKUPSIG				BIT(0)
+
+#define DSTS_SOFFN_MASK				GENMASK(21, 8)
+#define DSTS_ERRATICERR				BIT(3)
+#define DSTS_ENUMSPD_MASK			GENMASK(2, 1)
+#define DSTS_ENUMSPD_HS				0
+#define DSTS_ENUMSPD_FS				1
+#define DSTS_ENUMSPD_LS				2
+#define DSTS_ENUMSPD_FS48			3
+#define DSTS_SUSPSTS				BIT(0)
+
+#define DIEPMSK_NAKMSK				BIT(13)
+#define DIEPMSK_BNAININTRMSK			BIT(9)
+#define DIEPMSK_TXFIFOUNDRNMSK			BIT(8)
+#define DIEPMSK_TXFIFOEMPTY			BIT(7)
+#define DIEPMSK_INEPNAKEFFMSK			BIT(6)
+#define DIEPMSK_INTKNEPMISMSK			BIT(5)
+#define DIEPMSK_INTKNTXFEMPMSK			BIT(4)
+#define DIEPMSK_TIMEOUTMSK			BIT(3)
+#define DIEPMSK_AHBERRMSK			BIT(2)
+#define DIEPMSK_EPDISBLDMSK			BIT(1)
+#define DIEPMSK_XFERCOMPLMSK			BIT(0)
+
+#define DOEPMSK_BNAMSK				BIT(9)
+#define DOEPMSK_BACK2BACKSETUP			BIT(6)
+#define DOEPMSK_STSPHSERCVDMSK			BIT(5)
+#define DOEPMSK_OUTTKNEPDISMSK			BIT(4)
+#define DOEPMSK_SETUPMSK			BIT(3)
+#define DOEPMSK_AHBERRMSK			BIT(2)
+#define DOEPMSK_EPDISBLDMSK			BIT(1)
+#define DOEPMSK_XFERCOMPLMSK			BIT(0)
+
+#define DAINT_OUTEP_MASK			GENMASK(31, 16)
+#define DAINT_INEP_MASK				GENMASK(15, 0)
+
+#define D0EPCTL_MPS_MASK			GENMASK(1, 0)
+#define D0EPCTL_MPS_64				0
+#define D0EPCTL_MPS_32				1
+#define D0EPCTL_MPS_16				2
+#define D0EPCTL_MPS_8				3
+
+#define DXEPCTL_EPENA				BIT(31)
+#define DXEPCTL_EPDIS				BIT(30)
+#define DXEPCTL_SETD1PID			BIT(29)
+#define DXEPCTL_SETODDFR			BIT(29)
+#define DXEPCTL_SETD0PID			BIT(28)
+#define DXEPCTL_SETEVENFR			BIT(28)
+#define DXEPCTL_SNAK				BIT(27)
+#define DXEPCTL_CNAK				BIT(26)
+#define DXEPCTL_TXFNUM_MASK			GENMASK(25, 22)
+#define DXEPCTL_STALL				BIT(21)
+#define DXEPCTL_SNP				BIT(20)
+#define DXEPCTL_EPTYPE_MASK			GENMASK(19, 18)
+#define DXEPCTL_EPTYPE_CONTROL			0
+#define DXEPCTL_EPTYPE_ISO			1
+#define DXEPCTL_EPTYPE_BULK			2
+#define DXEPCTL_EPTYPE_INTERRUPT		3
+#define DXEPCTL_NAKSTS				BIT(17)
+#define DXEPCTL_DPID				BIT(16)
+#define DXEPCTL_EOFRNUM				BIT(16)
+#define DXEPCTL_USBACTEP			BIT(15)
+#define DXEPCTL_NEXTEP_MASK			GENMASK(14, 11)
+#define DXEPCTL_MPS_MASK			GENMASK(10, 0)
+
+#define DXEPINT_SETUP_RCVD			BIT(15)
+#define DXEPINT_NYETINTRPT			BIT(14)
+#define DXEPINT_NAKINTRPT			BIT(13)
+#define DXEPINT_BBLEERRINTRPT			BIT(12)
+#define DXEPINT_PKTDRPSTS			BIT(11)
+#define DXEPINT_BNAINTR				BIT(9)
+#define DXEPINT_TXFIFOUNDRN			BIT(8)
+#define DXEPINT_OUTPKTERR			BIT(8)
+#define DXEPINT_TXFEMP				BIT(7)
+#define DXEPINT_INEPNAKEFF			BIT(6)
+#define DXEPINT_BACK2BACKSETUP			BIT(6)
+#define DXEPINT_INTKNEPMIS			BIT(5)
+#define DXEPINT_STSPHSERCVD			BIT(5)
+#define DXEPINT_INTKNTXFEMP			BIT(4)
+#define DXEPINT_OUTTKNEPDIS			BIT(4)
+#define DXEPINT_TIMEOUT				BIT(3)
+#define DXEPINT_SETUP				BIT(3)
+#define DXEPINT_AHBERR				BIT(2)
+#define DXEPINT_EPDISBLD			BIT(1)
+#define DXEPINT_XFERCOMPL			BIT(0)
+
+#define DIEPTSIZ0_PKTCNT_MASK			GENMASK(20, 19)
+#define DIEPTSIZ0_XFERSIZE_MASK			GENMASK(6, 0)
+
+#define DOEPTSIZ0_SUPCNT_MASK			GENMASK(30, 29)
+#define DOEPTSIZ0_PKTCNT			BIT(19)
+#define DOEPTSIZ0_XFERSIZE_MASK			GENMASK(6, 0)
+
+#define DXEPTSIZ_MC_MASK			GENMASK(30, 29)
+#define DXEPTSIZ_PKTCNT_MASK			GENMASK(28, 19)
+#define DXEPTSIZ_XFERSIZE_MASK			GENMASK(18, 0)
+
+#endif /* __DWC2_CORE_H_ */
