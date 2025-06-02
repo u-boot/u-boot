@@ -280,7 +280,7 @@ static void smbios_print_type3(struct smbios_type3 *table)
 	int i;
 	u8 *addr = (u8 *)table + offsetof(struct smbios_type3, sku_number);
 
-	printf("Baseboard Information\n");
+	printf("Chassis Information\n");
 	smbios_print_str("Manufacturer", table, table->manufacturer);
 	printf("\tType: 0x%02x\n", table->chassis_type);
 	smbios_print_str("Version", table, table->version);
