@@ -7,7 +7,7 @@
 #ifndef _AHCI_H_
 #define _AHCI_H_
 
-#include <pci.h>
+#include <linux/types.h>
 
 #define AHCI_PCI_BAR		0x24
 #define AHCI_MAX_SG		56 /* hardware max is 64K */

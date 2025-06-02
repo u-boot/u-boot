@@ -3,6 +3,7 @@
  * Copyright (c) 2024, Linaro Limited
  */
 
+#include <errno.h>
 #include <fwu.h>
 #include <fwu_mdata.h>
 #include <log.h>

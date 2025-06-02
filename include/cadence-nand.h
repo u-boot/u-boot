@@ -12,7 +12,7 @@
 #define _CADENCE_NAND_H_
 #include <clk.h>
 #include <reset.h>
-#include <linux/mtd/mtd.h>
+#include <linux/types.h>
 #include <linux/mtd/rawnand.h>
 
 /*

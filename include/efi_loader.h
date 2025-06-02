@@ -11,15 +11,11 @@
 #include <blk.h>
 #include <efi_device_path.h>
 #include <event.h>
-#include <log.h>
-#include <part_efi.h>
 #include <efi_api.h>
 #include <image.h>
-#include <pe.h>
 #include <setjmp.h>
 #include <linux/list.h>
 #include <linux/sizes.h>
-#include <linux/oid_registry.h>
 
 struct blk_desc;
 struct bootflow;

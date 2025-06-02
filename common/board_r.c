@@ -36,7 +36,6 @@
 #include <env.h>
 #include <env_internal.h>
 #include <fdtdec.h>
-#include <ide.h>
 #include <init.h>
 #include <initcall.h>
 #include <kgdb.h>

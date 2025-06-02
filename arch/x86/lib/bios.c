@@ -12,6 +12,7 @@
 #include <bios_emul.h>
 #include <irq_func.h>
 #include <log.h>
+#include <pci.h>
 #include <vesa.h>
 #include <linux/linkage.h>
 #include <asm/cache.h>

@@ -14,6 +14,8 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
+#include <linux/if_ether.h>
+
 /* Definition to control the GPIOs (for LEDs and Reset) */
 #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
 
@@ -146,7 +148,6 @@ static inline int board_is_series(void)
 #define RESET_MASK	(0x1 << 29)
 
 #define HDR_MAGIC	0x43485342
-#define HDR_ETH_ALEN	6
 #define HDR_NAME_LEN	8
 #define HDR_REV_LEN	8
 #define HDR_SER_LEN	16
@@ -176,7 +177,7 @@ struct  shc_eeprom {
 	u32  magic;
 	u16  version;
 	u16  lenght;
-	uint8_t mac_addr[HDR_ETH_ALEN];
+	uint8_t mac_addr[ETH_ALEN];
 };
 
 void enable_uart0_pin_mux(void);

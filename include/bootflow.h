@@ -11,7 +11,7 @@
 #include <bootdev.h>
 #include <image.h>
 #include <dm/ofnode_decl.h>
-#include <linux/list.h>
+#include <linux/types.h>
 
 struct bootstd_priv;
 struct expo;

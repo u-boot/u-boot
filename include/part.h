@@ -7,7 +7,6 @@
 #define _PART_H
 
 #include <blk.h>
-#include <ide.h>
 #include <u-boot/uuid.h>
 #include <linker_lists.h>
 #include <linux/errno.h>

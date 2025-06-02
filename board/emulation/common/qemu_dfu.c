@@ -7,6 +7,7 @@
 #include <env.h>
 #include <memalign.h>
 #include <mtd.h>
+#include <linux/sizes.h>
 
 #define DFU_ALT_BUF_LEN		SZ_1K
 

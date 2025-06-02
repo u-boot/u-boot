@@ -10,6 +10,8 @@
 
 /* TI EEPROM MAGIC Header identifier */
 #include <linux/bitops.h>
+#include <linux/if_ether.h>
+
 #define TI_EEPROM_HEADER_MAGIC	0xEE3355AA
 #define TI_DEAD_EEPROM_MAGIC	0xADEAD12C
 
@@ -18,7 +20,7 @@
 #define TI_EEPROM_HDR_SERIAL_LEN	12
 #define TI_EEPROM_HDR_CONFIG_LEN	32
 #define TI_EEPROM_HDR_NO_OF_MAC_ADDR	3
-#define TI_EEPROM_HDR_ETH_ALEN		6
+#define TI_EEPROM_HDR_ETH_ALEN		ETH_ALEN
 
 /**
  * struct ti_am_eeprom - This structure holds data read in from the

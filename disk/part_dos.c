@@ -15,7 +15,6 @@
 
 #include <blk.h>
 #include <command.h>
-#include <ide.h>
 #include <memalign.h>
 #include <vsprintf.h>
 #include <asm/unaligned.h>

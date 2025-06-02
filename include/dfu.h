@@ -173,7 +173,6 @@ struct dfu_entity {
 	unsigned int inited:1;
 };
 
-struct list_head;
 extern struct list_head dfu_list;
 
 #ifdef CONFIG_SET_DFU_ALT_INFO

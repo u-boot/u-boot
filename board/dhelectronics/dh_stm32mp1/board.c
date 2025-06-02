@@ -27,7 +27,6 @@
 #include <led.h>
 #include <memalign.h>
 #include <misc.h>
-#include <mtd.h>
 #include <mtd_node.h>
 #include <netdev.h>
 #include <phy.h>
