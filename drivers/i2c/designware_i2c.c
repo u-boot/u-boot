@@ -404,7 +404,7 @@ static int i2c_wait_for_bb(struct i2c_regs *i2c_base)
 
 		/* Evaluate timeout */
 		if (get_timer(start_time_bb) > (unsigned long)(I2C_BYTE_TO_BB))
-			return 1;
+			return -ETIMEDOUT;
 	}
 
 	return 0;
@@ -413,8 +413,10 @@ static int i2c_wait_for_bb(struct i2c_regs *i2c_base)
 static int i2c_xfer_init(struct i2c_regs *i2c_base, uchar chip, uint addr,
 			 int alen)
 {
-	if (i2c_wait_for_bb(i2c_base))
-		return 1;
+	int ret = i2c_wait_for_bb(i2c_base);
+
+	if (ret)
+		return ret;
 
 	i2c_setaddress(i2c_base, chip);
 	while (alen) {
@@ -429,6 +431,7 @@ static int i2c_xfer_init(struct i2c_regs *i2c_base, uchar chip, uint addr,
 static int i2c_xfer_finish(struct i2c_regs *i2c_base)
 {
 	ulong start_stop_det = get_timer(0);
+	int ret;
 
 	while (1) {
 		if ((readl(&i2c_base->ic_raw_intr_stat) & IC_STOP_DET)) {
@@ -439,9 +442,10 @@ static int i2c_xfer_finish(struct i2c_regs *i2c_base)
 		}
 	}
 
-	if (i2c_wait_for_bb(i2c_base)) {
+	ret = i2c_wait_for_bb(i2c_base);
+	if (ret) {
 		printf("Timed out waiting for bus\n");
-		return 1;
+		return ret;
 	}
 
 	i2c_flush_rxfifo(i2c_base);
@@ -464,6 +468,7 @@ static int __dw_i2c_read(struct i2c_regs *i2c_base, u8 dev, uint addr,
 {
 	unsigned long start_time_rx;
 	unsigned int active = 0;
+	int ret;
 
 #ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
@@ -484,8 +489,9 @@ static int __dw_i2c_read(struct i2c_regs *i2c_base, u8 dev, uint addr,
 	      addr);
 #endif
 
-	if (i2c_xfer_init(i2c_base, dev, addr, alen))
-		return 1;
+	ret = i2c_xfer_init(i2c_base, dev, addr, alen);
+	if (ret)
+		return ret;
 
 	start_time_rx = get_timer(0);
 	while (len) {
@@ -510,7 +516,7 @@ static int __dw_i2c_read(struct i2c_regs *i2c_base, u8 dev, uint addr,
 			start_time_rx = get_timer(0);
 			active = 0;
 		} else if (get_timer(start_time_rx) > I2C_BYTE_TO) {
-			return 1;
+			return -ETIMEDOUT;
 		}
 	}
 
@@ -532,6 +538,7 @@ static int __dw_i2c_write(struct i2c_regs *i2c_base, u8 dev, uint addr,
 {
 	int nb = len;
 	unsigned long start_time_tx;
+	int ret;
 
 #ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
@@ -552,8 +559,9 @@ static int __dw_i2c_write(struct i2c_regs *i2c_base, u8 dev, uint addr,
 	      addr);
 #endif
 
-	if (i2c_xfer_init(i2c_base, dev, addr, alen))
-		return 1;
+	ret = i2c_xfer_init(i2c_base, dev, addr, alen);
+	if (ret)
+		return ret;
 
 	start_time_tx = get_timer(0);
 	while (len) {
@@ -569,7 +577,7 @@ static int __dw_i2c_write(struct i2c_regs *i2c_base, u8 dev, uint addr,
 
 		} else if (get_timer(start_time_tx) > (nb * I2C_BYTE_TO)) {
 				printf("Timed out. i2c write Failed\n");
-				return 1;
+				return -ETIMEDOUT;
 		}
 	}
 
