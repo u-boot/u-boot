@@ -52,6 +52,7 @@ class Entry_x509_cert(Entry_collection):
         self.sysfw_inner_cert_ext_boot_block = None
         self.dm_data_ext_boot_block = None
         self.firewall_cert_data = None
+        self.debug = False
 
     def ReadNode(self):
         super().ReadNode()
@@ -114,7 +115,8 @@ class Entry_x509_cert(Entry_collection):
                 bootcore=self.bootcore,
                 bootcore_opts=self.bootcore_opts,
                 load_addr=self.load_addr,
-                sha=self.sha
+                sha=self.sha,
+                debug=self.debug
             )
         elif type == 'rom-combined':
             stdout = self.openssl.x509_cert_rom_combined(
@@ -140,7 +142,8 @@ class Entry_x509_cert(Entry_collection):
                 hashval_sysfw_data=self.hashval_sysfw_data,
                 sysfw_inner_cert_ext_boot_block=self.sysfw_inner_cert_ext_boot_block,
                 dm_data_ext_boot_block=self.dm_data_ext_boot_block,
-                bootcore_opts=self.bootcore_opts
+                bootcore_opts=self.bootcore_opts,
+                debug=self.debug
             )
         if stdout is not None:
             data = tools.read_file(output_fname)
