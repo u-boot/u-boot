@@ -149,10 +149,8 @@ and with a generic ARMv7 root file system.
 				 * to the Linux source tree as a .dts file.
 				 *
 				 * To support modifications to the device tree
-				 * in-place in U-Boot, add to Linux's
-				 * arch/arm/boot/dts/Makefile:
-				 *
-				 * DTC_FLAGS ?= -p 4096
+				 * in-place in U-Boot, set the config variable
+				 * CONFIG_SYS_DTC_PAD_BYTES as needed.
 				 *
 				 * This will leave some padding in the DTB and
 				 * thus reserve room for node additions.

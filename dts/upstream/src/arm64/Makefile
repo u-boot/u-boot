@@ -6,5 +6,5 @@ include $(srctree)/scripts/Makefile.dts
 DTC_FLAGS += -a 0x8
 
 ifdef CONFIG_RCAR_64
-DTC_FLAGS += -R 4 -p 0x1000
+	DTC_FLAGS += -R 4
 endif
