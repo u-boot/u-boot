@@ -22,6 +22,7 @@
 
 #define UBOOT_DM_CLK_AT91_SAM9X60_DIV_PLL	"at91-sam9x60-div-pll-clk"
 #define UBOOT_DM_CLK_AT91_SAM9X60_FRAC_PLL	"at91-sam9x60-frac-pll-clk"
+#define UBOOT_DM_CLK_AT91_SAM9X60_FIXED_DIV_PLL	"at91-sam9x60-fixed-div-pll-clk"
 
 #define	PMC_PLL_CTRL0_DIV_MSK	GENMASK(7, 0)
 #define	PMC_PLL_CTRL1_MUL_MSK	GENMASK(31, 24)
@@ -140,6 +141,7 @@ static ulong sam9x60_frac_pll_get_rate(struct clk *clk)
 	void __iomem *base = pll->base;
 	ulong parent_rate = clk_get_parent_rate(clk);
 	u32 mul, frac, val;
+	ulong pll_rate;
 
 	if (!parent_rate)
 		return 0;
@@ -149,8 +151,12 @@ static ulong sam9x60_frac_pll_get_rate(struct clk *clk)
 	pmc_read(base, AT91_PMC_PLL_CTRL1, &val);
 	mul = (val & pll->layout->mul_mask) >> pll->layout->mul_shift;
 	frac = (val & pll->layout->frac_mask) >> pll->layout->frac_shift;
+	pll_rate = (parent_rate * (mul + 1) + ((u64)parent_rate * frac >> 22));
 
-	return (parent_rate * (mul + 1) + ((u64)parent_rate * frac >> 22));
+	if (pll->layout->div2)
+		pll_rate >>= 1;
+
+	return pll_rate;
 }
 
 static int sam9x60_frac_pll_enable(struct clk *clk)
@@ -359,11 +365,27 @@ static ulong sam9x60_div_pll_get_rate(struct clk *clk)
 	return parent_rate / (div + 1);
 }
 
+static ulong sam9x60_fixed_div_pll_get_rate(struct clk *clk)
+{
+	ulong parent_rate = clk_get_parent_rate(clk);
+
+	if (!parent_rate)
+		return 0;
+
+	return parent_rate >> 1;
+}
+
 static const struct clk_ops sam9x60_div_pll_ops = {
 	.enable = sam9x60_div_pll_enable,
 	.disable = sam9x60_div_pll_disable,
 	.set_rate = sam9x60_div_pll_set_rate,
 	.get_rate = sam9x60_div_pll_get_rate,
+};
+
+static const struct clk_ops sam9x60_fixed_div_pll_ops = {
+	.enable = sam9x60_div_pll_enable,
+	.disable = sam9x60_div_pll_disable,
+	.get_rate = sam9x60_fixed_div_pll_get_rate,
 };
 
 static struct clk *
@@ -406,6 +428,13 @@ sam9x60_clk_register_div_pll(void __iomem *base, const char *name,
 			     const struct clk_pll_characteristics *characteristics,
 			     const struct clk_pll_layout *layout, bool critical)
 {
+	if (layout->div2) {
+		return sam9x60_clk_register_pll(base,
+			UBOOT_DM_CLK_AT91_SAM9X60_FIXED_DIV_PLL, name, parent_name,
+			id, characteristics, layout,
+			CLK_GET_RATE_NOCACHE | (critical ? CLK_IS_CRITICAL : 0));
+	}
+
 	return sam9x60_clk_register_pll(base,
 		UBOOT_DM_CLK_AT91_SAM9X60_DIV_PLL, name, parent_name, id,
 		characteristics, layout,
@@ -428,6 +457,13 @@ U_BOOT_DRIVER(at91_sam9x60_div_pll_clk) = {
 	.name = UBOOT_DM_CLK_AT91_SAM9X60_DIV_PLL,
 	.id = UCLASS_CLK,
 	.ops = &sam9x60_div_pll_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+U_BOOT_DRIVER(at91_sam9x60_fixed_div_pll_clk) = {
+	.name = UBOOT_DM_CLK_AT91_SAM9X60_FIXED_DIV_PLL,
+	.id = UCLASS_CLK,
+	.ops = &sam9x60_fixed_div_pll_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
