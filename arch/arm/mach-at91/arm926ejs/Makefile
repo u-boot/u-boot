@@ -14,6 +14,7 @@ obj-$(CONFIG_AT91SAM9G45)	+= at91sam9m10g45_devices.o
 obj-$(CONFIG_AT91SAM9N12)	+= at91sam9n12_devices.o
 obj-$(CONFIG_AT91SAM9X5)	+= at91sam9x5_devices.o
 obj-$(CONFIG_SAM9X60)		+= sam9x60_devices.o
+obj-$(CONFIG_SAM9X7)		+= sam9x7_devices.o
 obj-y += clock.o
 obj-y += cpu.o
 ifndef CONFIG_$(PHASE_)SYSRESET

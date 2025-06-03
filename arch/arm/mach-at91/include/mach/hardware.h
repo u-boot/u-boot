@@ -23,6 +23,8 @@
 # include <asm/arch/at91sam9x5.h>
 #elif defined(CONFIG_SAM9X60)
 # include <asm/arch/sam9x60.h>
+#elif defined(CONFIG_SAM9X7)
+# include <asm/arch/sam9x7.h>
 #elif defined(CONFIG_SAMA7G5)
 # include <asm/arch/sama7g5.h>
 #elif defined(CONFIG_SAMA5D2)
