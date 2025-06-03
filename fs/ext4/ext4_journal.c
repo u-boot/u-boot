@@ -131,6 +131,13 @@ int ext4fs_log_gdt(char *gd_table)
 	struct ext_filesystem *fs = get_fs();
 	short i;
 	long int var = fs->gdtable_blkno;
+
+	/* Make sure there is enough journal entries */
+	if (fs->no_blk_pergdt > MAX_JOURNAL_ENTRIES) {
+		log_err("*** Not enough journal entries allocated\n");
+		return -ENOMEM;
+	}
+
 	for (i = 0; i < fs->no_blk_pergdt; i++) {
 		journal_ptr[gindex]->buf = zalloc(fs->blksz);
 		if (!journal_ptr[gindex]->buf)
