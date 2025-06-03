@@ -52,13 +52,20 @@ struct freq_tbl {
 struct gate_clk {
 	uintptr_t reg;
 	u32 en_val;
+	uintptr_t cbcr_reg;
 	const char *name;
 };
 
+/*
+ * GATE_CLK() is deprecated: Use GATE_CLK_POLLED() instead to ensure the clock
+ * is running before we start making use of devices or registers.
+ */
 #ifdef DEBUG
-#define GATE_CLK(clk, reg, val) [clk] = { reg, val, #clk }
+#define GATE_CLK(clk, reg, val) [clk] = { reg, val, 0, #clk }
+#define GATE_CLK_POLLED(clk, en_reg, val, cbcr_reg) [clk] = { en_reg, val, cbcr_reg, #clk }
 #else
-#define GATE_CLK(clk, reg, val) [clk] = { reg, val, NULL }
+#define GATE_CLK(clk, reg, val) [clk] = { reg, val, 0, NULL }
+#define GATE_CLK_POLLED(clk, en_reg, val, cbcr_reg) [clk] = { en_reg, val, cbcr_reg, NULL }
 #endif
 
 struct qcom_reset_map {
@@ -107,19 +114,6 @@ void clk_rcg_set_rate(phys_addr_t base, uint32_t cmd_rcgr, int div,
 		      int source);
 void clk_phy_mux_enable(phys_addr_t base, uint32_t cmd_rcgr, bool enabled);
 
-static inline int qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id)
-{
-	u32 val;
-	if (id >= priv->data->num_clks || priv->data->clks[id].reg == 0) {
-		log_err("gcc@%#08llx: unknown clock ID %lu!\n",
-			priv->base, id);
-		return -ENOENT;
-	}
-
-	val = readl(priv->base + priv->data->clks[id].reg);
-	writel(val | priv->data->clks[id].en_val, priv->base + priv->data->clks[id].reg);
-
-	return 0;
-}
+int qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id);
 
 #endif
