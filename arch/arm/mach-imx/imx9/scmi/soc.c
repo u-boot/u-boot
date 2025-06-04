@@ -67,7 +67,7 @@ int mmc_get_env_dev(void)
 	u16 boot_type;
 	u8 boot_instance;
 
-	volatile gd_t *pgd = gd;
+	gd_t *pgd = gd;
 	rom_passover_t *rdata;
 
 #if IS_ENABLED(CONFIG_XPL_BUILD)
@@ -675,7 +675,7 @@ enum imx9_soc_voltage_mode soc_target_voltage_mode(void)
 #if IS_ENABLED(CONFIG_SCMI_FIRMWARE)
 enum boot_device get_boot_device(void)
 {
-	volatile gd_t *pgd = gd;
+	gd_t *pgd = gd;
 	int ret;
 	u16 boot_type;
 	u8 boot_instance;
