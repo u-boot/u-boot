@@ -17,7 +17,9 @@ config TEGRA_CLKRST
 
 config TEGRA_CRYPTO
 	bool "Tegra AES128 crypto module"
+	select DM_AES
 	select AES
+	select TEGRA_AES
 
 config TEGRA_GP_PADCTRL
 	bool
