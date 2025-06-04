@@ -26,6 +26,15 @@
 #define VBAR_EL3_BASE_ADDR		0xFFD12218
 
 /*
+ * Share sysmgr.boot_scratch_cold6 & 7 (64bit) with VBAR_LE3_BASE_ADDR
+ * Indicate L2 reset is done. HPS should trigger warm reset via RMR_EL3.
+ */
+#define L2_RESET_DONE_REG		0xFFD12218
+
+/* Magic word to indicate L2 reset is completed */
+#define L2_RESET_DONE_STATUS		0x1228E5E7
+
+/*
  * U-Boot console configurations
  */
 
