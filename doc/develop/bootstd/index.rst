@@ -12,5 +12,6 @@ Standard Boot
    qfw
    android
    cros
+   rauc
    script
    sandbox
