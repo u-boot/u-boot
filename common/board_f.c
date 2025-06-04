@@ -1079,7 +1079,7 @@ void board_init_f(ulong boot_flags)
  */
 static void initcall_run_f_r(void)
 {
-#if CONFIG_IS_ENABLED(X86_64)
+#if !CONFIG_IS_ENABLED(X86_64)
 	INITCALL(init_cache_f_r);
 #endif
 }
