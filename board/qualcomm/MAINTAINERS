@@ -1,0 +1,9 @@
+# This MAINTAINERS file is for folks with an interest in a particular platform
+# or board under ARM SNAPDRAGON
+
+# RB3 Gen 2 and similar boards
+QUALCOMM DRAGONWING QCS6490
+M:	Casey Connolly <casey.connolly@linaro.org>
+S:	Maintained
+N:	qcs6490
+N:	sc7280
