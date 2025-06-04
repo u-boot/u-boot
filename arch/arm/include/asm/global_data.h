@@ -133,9 +133,9 @@ static inline gd_t *get_gd(void)
 #else
 
 #ifdef CONFIG_ARM64
-#define DECLARE_GLOBAL_DATA_PTR		register volatile gd_t *gd asm ("x18")
+#define DECLARE_GLOBAL_DATA_PTR		register gd_t *gd asm ("x18")
 #else
-#define DECLARE_GLOBAL_DATA_PTR		register volatile gd_t *gd asm ("r9")
+#define DECLARE_GLOBAL_DATA_PTR		register gd_t *gd asm ("r9")
 #endif
 #endif
 
