@@ -38,6 +38,11 @@ choice
 	prompt "MX28 board select"
 	optional
 
+config TARGET_BTT
+	bool "Support BTT"
+	select PL01X_SERIAL
+	imply OF_UPSTREAM
+
 config TARGET_MX28EVK
 	bool "Support mx28evk"
 	select PL01X_SERIAL
@@ -70,6 +75,7 @@ config SPL_MXS_PMU_ENABLE_4P2_LINEAR_REGULATOR
 	  from VDD5V) - so the VDD4P2 power source is operational.
 
 source "board/freescale/mx28evk/Kconfig"
+source "board/liebherr/btt/Kconfig"
 source "board/liebherr/xea/Kconfig"
 
 endif

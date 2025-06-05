@@ -1,0 +1,90 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2025
+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
+ */
+
+/*
+ * The minimal augmentation DTS U-Boot file to allow eMMC driver
+ * configuration in SPL for falcon boot.
+ */
+#include "imx28-u-boot.dtsi"
+/ {
+	aliases {
+		/delete-property/ saif0;
+		/delete-property/ saif1;
+		/delete-property/ spi0;
+		/delete-property/ spi1;
+		/delete-property/ usbphy0;
+		/delete-property/ usbphy1;
+	};
+	apb@80000000 {
+		bootph-pre-ram;
+
+		apbh@80000000 {
+			bootph-pre-ram;
+		};
+
+		apbx@80040000 {
+			bootph-pre-ram;
+		};
+	};
+
+	/delete-node/ keypad;
+	/delete-node/ panel;
+	/delete-node/ sdio-pwrseq;
+	/delete-node/ sound;
+};
+
+&clks {
+	bootph-pre-ram;
+	status = "disable";
+};
+
+&duart {
+	/delete-property/ clocks;
+	bootph-pre-ram;
+	type = <1>; /* TYPE_PL011 */
+};
+
+&gpio0 {
+	bootph-pre-ram;
+};
+
+&gpio3 {
+	bootph-pre-ram;
+};
+
+&gpio4 {
+	bootph-pre-ram;
+};
+
+&pinctrl {
+	/delete-property/ pinctrl-names;
+	/delete-property/ pinctrl-0;
+	bootph-pre-ram;
+};
+
+&ssp0 {
+	bootph-pre-ram;
+};
+
+&ssp3 {
+	num-cs = <2>;
+	spi-max-frequency = <40000000>;
+	bootph-pre-ram;
+};
+
+/delete-node/ &hog_pins_a;
+/delete-node/ &keypad_pins_bttc;
+/delete-node/ &lcdif;
+/delete-node/ &lcdif_sync_pins_bttc;
+/delete-node/ &pwm;
+/delete-node/ &saif0;
+/delete-node/ &saif1;
+/delete-node/ &ssp1;
+/delete-node/ &ssp2;
+/delete-node/ &usb0;
+/delete-node/ &usb1;
+/delete-node/ &usbphy0;
+/delete-node/ &usbphy1;
