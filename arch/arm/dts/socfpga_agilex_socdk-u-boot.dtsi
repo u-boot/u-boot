@@ -6,4 +6,8 @@
  * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
+#ifdef CONFIG_TARGET_SOCFPGA_AGILEX7M
+#include "socfpga_agilex7m-u-boot-extra.dtsi"
+#else
 #include "socfpga_agilex-u-boot-common.dtsi"
+#endif
