@@ -9,7 +9,7 @@ DECLARE_GLOBAL_DATA_PTR;
 u32 rom_api_download_image(u8 *dest, u32 offset, u32 size)
 {
 	u32 xor = (uintptr_t)dest ^ offset ^ size;
-	volatile gd_t *sgd = gd;
+	gd_t *sgd = gd;
 	u32 ret;
 
 	ret = g_rom_api->download_image(dest, offset, size, xor);
@@ -21,7 +21,7 @@ u32 rom_api_download_image(u8 *dest, u32 offset, u32 size)
 u32 rom_api_query_boot_infor(u32 info_type, u32 *info)
 {
 	u32 xor = info_type ^ (uintptr_t)info;
-	volatile gd_t *sgd = gd;
+	gd_t *sgd = gd;
 	u32 ret;
 
 	ret = g_rom_api->query_boot_infor(info_type, info, xor);
@@ -34,7 +34,7 @@ extern struct rom_api *g_rom_api;
 
 enum boot_device get_boot_device(void)
 {
-	volatile gd_t *pgd = gd;
+	gd_t *pgd = gd;
 	int ret;
 	u32 boot;
 	u16 boot_type;
