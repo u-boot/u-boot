@@ -208,6 +208,7 @@ config NAND_CADENCE
 config NAND_DENALI
 	bool
 	select SYS_NAND_SELF_INIT
+	select SYS_NAND_ONFI_DETECTION if TARGET_SOCFPGA_SOC64
 	imply CMD_NAND
 
 config NAND_DENALI_DT
@@ -825,5 +826,12 @@ config SYS_NAND_HW_ECC_OOBFIRST
 	depends on SPL_NAND_SIMPLE
 
 endif	# if SPL
+
+config SPL_NAND_FRAMEWORK
+	bool "Compile the entire NAND framework into the SPL"
+	help
+	  Some drivers require a lot of functionality from the NAND framework
+	  core when used in SPL. This option allows compiling the full NAND
+	  framework into the SPL instead of it's reduced version.
 
 endif	# if MTD_RAW_NAND
