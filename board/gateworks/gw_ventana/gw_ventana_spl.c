@@ -366,34 +366,34 @@ static struct mx6_mmdc_calibration mx6dq_256x32_mmdc_calib = {
 
 static struct mx6_mmdc_calibration mx6sdl_256x32_mmdc_calib = {
 	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0X00480047,
-	.p0_mpwldectrl1 = 0X003D003F,
+	.p0_mpwldectrl0 = 0x00480047,
+	.p0_mpwldectrl1 = 0x003D003F,
 	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0X423E0241,
-	.p0_mpdgctrl1 = 0X022B022C,
+	.p0_mpdgctrl0 = 0x423E0241,
+	.p0_mpdgctrl1 = 0x022B022C,
 	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0X49454A4A,
+	.p0_mprddlctl = 0x49454A4A,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0X2E372C32,
+	.p0_mpwrdlctl = 0x2E372C32,
 };
 
 static struct mx6_mmdc_calibration mx6dq_256x64_mmdc_calib = {
 	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0X00220021,
-	.p0_mpwldectrl1 = 0X00200030,
-	.p1_mpwldectrl0 = 0X002D0027,
-	.p1_mpwldectrl1 = 0X00150026,
+	.p0_mpwldectrl0 = 0x00220021,
+	.p0_mpwldectrl1 = 0x00200030,
+	.p1_mpwldectrl0 = 0x002D0027,
+	.p1_mpwldectrl1 = 0x00150026,
 	/* Read DQS Gating calibration */
 	.p0_mpdgctrl0 = 0x43330342,
 	.p0_mpdgctrl1 = 0x0339034A,
 	.p1_mpdgctrl0 = 0x032F0325,
 	.p1_mpdgctrl1 = 0x032F022E,
 	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0X3A2E3437,
-	.p1_mprddlctl = 0X35312F3F,
+	.p0_mprddlctl = 0x3A2E3437,
+	.p1_mprddlctl = 0x35312F3F,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0X33363B37,
-	.p1_mpwrdlctl = 0X40304239,
+	.p0_mpwrdlctl = 0x33363B37,
+	.p1_mpwrdlctl = 0x40304239,
 };
 
 static struct mx6_mmdc_calibration mx6sdl_256x64_mmdc_calib = {
