@@ -151,6 +151,7 @@
 		clint: timer@ffdc000000 {
 			compatible = "thead,th1520-clint", "thead,c900-clint";
 			reg = <0xff 0xdc000000 0x0 0x00010000>;
+			bootph-pre-ram;
 			interrupts-extended = <&cpu0_intc 3>, <&cpu0_intc 7>,
 					      <&cpu1_intc 3>, <&cpu1_intc 7>,
 					      <&cpu2_intc 3>, <&cpu2_intc 7>,
