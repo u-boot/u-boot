@@ -34,6 +34,112 @@ struct signer {
 	void *signature;	/* Pointer to output signature. Do not free()!*/
 };
 
+struct ecdsa_public_key {
+	const char *curve_name;
+	const uint8_t *x;
+	const uint8_t *y;
+	int size_bits;
+};
+
+static int fdt_get_key(struct ecdsa_public_key *key, const void *fdt, int node)
+{
+	int x_len;
+	int y_len;
+
+	key->curve_name = fdt_getprop(fdt, node, "ecdsa,curve", NULL);
+	if (!key->curve_name)
+		return -ENOMSG;
+
+	if (!strcmp(key->curve_name, "prime256v1"))
+		key->size_bits = 256;
+	else if (!strcmp(key->curve_name, "secp384r1"))
+		key->size_bits = 384;
+	else
+		return -EINVAL;
+
+	key->x = fdt_getprop(fdt, node, "ecdsa,x-point", &x_len);
+	key->y = fdt_getprop(fdt, node, "ecdsa,y-point", &y_len);
+
+	if (!key->x || !key->y)
+		return -EINVAL;
+
+	if (x_len != key->size_bits / 8 || y_len != key->size_bits / 8)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int read_key_from_fdt(struct signer *ctx, const void *fdt, int node)
+{
+	struct ecdsa_public_key pubkey;
+	const EC_GROUP *group;
+	EC_POINT *point;
+	EC_KEY *ec_key;
+	int ret;
+	int nid;
+	int len;
+
+	ret = fdt_get_key(&pubkey, fdt, node);
+	if (ret) {
+		fprintf(stderr, "Failed to parse ECDSA key from FDT node %d (ret=%d)\n", node, ret);
+		return ret;
+	}
+
+	if (!strcmp(pubkey.curve_name, "prime256v1")) {
+		nid = NID_X9_62_prime256v1;
+	} else if (!strcmp(pubkey.curve_name, "secp384r1")) {
+		nid = NID_secp384r1;
+	} else {
+		fprintf(stderr, "Unsupported curve name: '%s'\n", pubkey.curve_name);
+		return -EINVAL;
+	}
+
+	fprintf(stderr, "Loading ECDSA key: curve=%s, bits=%d\n", pubkey.curve_name,
+		pubkey.size_bits);
+
+	ec_key = EC_KEY_new_by_curve_name(nid);
+	if (!ec_key) {
+		fprintf(stderr, "Failed to allocate EC_KEY for curve %s\n", pubkey.curve_name);
+		return -ENOMEM;
+	}
+
+	group = EC_KEY_get0_group(ec_key);
+	point = EC_POINT_new(group);
+	if (!point) {
+		fprintf(stderr, "Failed to allocate EC_POINT\n");
+		EC_KEY_free(ec_key);
+		return -ENOMEM;
+	}
+
+	len = pubkey.size_bits / 8;
+
+	uint8_t buf[1 + len * 2];
+
+	/* uncompressed */
+	buf[0] = 0x04;
+	memcpy(&buf[1], pubkey.x, len);
+	memcpy(&buf[1 + len], pubkey.y, len);
+	if (!EC_POINT_oct2point(group, point, buf, sizeof(buf), NULL)) {
+		fprintf(stderr, "Failed to convert (x,y) point to EC_POINT\n");
+		EC_POINT_free(point);
+		EC_KEY_free(ec_key);
+		return -EINVAL;
+	}
+
+	if (!EC_KEY_set_public_key(ec_key, point)) {
+		fprintf(stderr, "Failed to set EC_POINT as public key\n");
+		EC_POINT_free(point);
+		EC_KEY_free(ec_key);
+		return -EINVAL;
+	}
+
+	fprintf(stderr, "Successfully loaded ECDSA key from FDT node %d\n", node);
+	EC_POINT_free(point);
+	ctx->ecdsa_key = ec_key;
+
+	return 0;
+}
+
 static int alloc_ctx(struct signer *ctx, const struct image_sign_info *info)
 {
 	memset(ctx, 0, sizeof(*ctx));
@@ -153,6 +259,72 @@ static int read_key(struct signer *ctx, const char *key_name)
 	return (ctx->ecdsa_key) ? 0 : -EINVAL;
 }
 
+static int load_key_from_fdt(struct signer *ctx, const struct image_sign_info *info)
+{
+	const void *fdt = info->fdt_blob;
+	char name[128];
+	int sig_node;
+	int key_node;
+	int key_len;
+	int ret;
+
+	if (!fdt)
+		return -EINVAL;
+
+	ret = alloc_ctx(ctx, info);
+	if (ret)
+		return ret;
+
+	sig_node = fdt_subnode_offset(fdt, 0, FIT_SIG_NODENAME);
+	if (sig_node < 0) {
+		fprintf(stderr, "No /signature node found\n");
+		return -ENOENT;
+	}
+
+	/* Case 1: explicitly specified key node */
+	if (info->required_keynode >= 0) {
+		ret = read_key_from_fdt(ctx, fdt, info->required_keynode);
+		if (ret == 0)
+			goto check_key_len;
+
+		fprintf(stderr, "Failed to load required keynode %d\n", info->required_keynode);
+		return ret;
+	}
+
+	/* Case 2: use keyname hint */
+	if (info->keyname) {
+		snprintf(name, sizeof(name), "%s", info->keyname);
+		key_node = fdt_subnode_offset(fdt, sig_node, name);
+		if (key_node >= 0) {
+			ret = read_key_from_fdt(ctx, fdt, key_node);
+			if (ret == 0)
+				goto check_key_len;
+
+			fprintf(stderr, "Key hint '%s' found but failed to load\n", info->keyname);
+		}
+	}
+
+	/* Case 3: try all subnodes */
+	fdt_for_each_subnode(key_node, fdt, sig_node) {
+		ret = read_key_from_fdt(ctx, fdt, key_node);
+		if (ret == 0)
+			goto check_key_len;
+	}
+
+	fprintf(stderr, "Failed to load any usable ECDSA key from FDT\n");
+	return -EINVAL;
+
+check_key_len:
+	key_len = ecdsa_key_size_bytes(ctx->ecdsa_key);
+	if (key_len != info->crypto->key_len) {
+		fprintf(stderr, "Expected %u-bit key, got %u-bit key\n",
+			info->crypto->key_len * 8, key_len * 8);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 /* Prepare a 'signer' context that's ready to sign and verify. */
 static int prepare_ctx(struct signer *ctx, const struct image_sign_info *info)
 {
@@ -161,7 +333,9 @@ static int prepare_ctx(struct signer *ctx, const struct image_sign_info *info)
 
 	memset(ctx, 0, sizeof(*ctx));
 
-	if (info->keyfile) {
+	if (info->fdt_blob) {
+		return load_key_from_fdt(ctx, info);
+	} else if (info->keyfile) {
 		snprintf(kname,  sizeof(kname), "%s", info->keyfile);
 	} else if (info->keydir && info->keyname) {
 		snprintf(kname, sizeof(kname), "%s/%s.pem", info->keydir,
