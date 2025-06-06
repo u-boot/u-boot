@@ -1,0 +1,121 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * U-Boot additions
+ *
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
+ */
+
+#include "socfpga_agilex-u-boot.dtsi"
+#include "socfpga_soc64_u-boot.dtsi"
+
+/{
+	compatible = "intel,socfpga-agilex";
+	model = "SoCFPGA Agilex7-M SoCDK";
+	chosen {
+		stdout-path = "serial0:115200n8";
+		u-boot,spl-boot-order = &mmc;
+	};
+
+	aliases {
+		spi0 = &qspi;
+		i2c0 = &i2c1;
+		freeze_br0 = &freeze_controller;
+	};
+
+	soc@0 {
+		freeze_controller: freeze_controller@f9000450 {
+			compatible = "altr,freeze-bridge-controller";
+			reg = <0xf9000450 0x00000010>;
+			status = "disabled";
+		};
+	};
+
+	memory {
+		device_type = "memory";
+
+		/*
+		 * When LPDDR ECC is enabled, the last 1/8 of the memory region must
+		 * be reserved for the Inline ECC buffer.
+		 *
+		 * Example for memory size with 2GB:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x80000000>;
+		 * };
+		 *
+		 * Example for memory size with 8GB:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x80000000>,
+		 *	      <0x1 0x00000000 0x1 0x80000000>;
+		 * };
+		 *
+		 *
+		 * Example for memory size with 2GB with LPDDR Inline ECC ON:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x70000000>;
+		 * };
+		 *
+		 * Example for memory size with 8GB with LPDDR Inline ECC ON:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x80000000>,
+		 *	      <0x1 0x00000000 0x1 0x40000000>;
+		 * };
+		 */
+
+		/* Default memory size is 2GB */
+		reg = <0x0 0x00000000 0x0 0x80000000>;
+	};
+};
+
+&flash0 {
+	compatible = "jedec,spi-nor";
+	spi-tx-bus-width = <4>;
+	spi-rx-bus-width = <4>;
+	bootph-all;
+	/delete-property/ cdns,read-delay;
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&nand {
+	status = "okay";
+	nand-bus-width = <16>;
+	bootph-all;
+};
+
+&mmc {
+	drvsel = <3>;
+	smplsel = <0>;
+	bootph-all;
+};
+
+&sdr {
+	compatible = "intel,sdr-ctl-agilex7m";
+
+	reg = <0xf8020000 0x100>;
+};
+
+&socfpga_l3interconnect_firewall {
+	soc_noc_fw_mpfe_csr_inst_0_mpfe_scr@f8020000 {
+		intel,offset-settings =
+			/* Disable MPFE firewall for SMMU */
+			<0x00000000 0x00010101 0x00010101>;
+	};
+};
+
+&watchdog0 {
+	bootph-all;
+};
+
+&binman {
+	/delete-node/ kernel;
+};
+
+&qspi {
+	status = "disabled";
+};
+
+&uart0 {
+	clock-frequency = <100000000>;
+};
