@@ -39,6 +39,9 @@ void board_init_f(ulong dummy)
 	if (ret)
 		panic("failed to bind CPU: %d\n", ret);
 
+	riscv_cpu_setup();
+	th1520_kick_secondary_cores();
+
 	spl_dram_init();
 
 	icache_enable();
