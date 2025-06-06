@@ -8692,7 +8692,7 @@ int init_octeon3_ddr3_interface(struct ddr_priv *priv,
 		bank_bits = min((int)bank_bits, 4);
 
 		spd_package =
-		    0XFF & read_spd(&dimm_config_table[0], 0,
+		    0xFF & read_spd(&dimm_config_table[0], 0,
 				    DDR4_SPD_PACKAGE_TYPE);
 		if (spd_package & 0x80) {	// non-monolithic device
 			is_stacked_die = ((spd_package & 0x73) == 0x11);

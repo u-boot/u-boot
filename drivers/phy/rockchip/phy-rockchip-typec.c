@@ -284,7 +284,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * clock 0: PLL 0 div 1
  * clock 1: PLL 1 div 2
  */
-#define CLK_PLL_CONFIG			0X30
+#define CLK_PLL_CONFIG			0x30
 #define CLK_PLL_MASK			0x33
 
 #define CMN_READY			BIT(0)

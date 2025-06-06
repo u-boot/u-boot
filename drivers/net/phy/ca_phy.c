@@ -73,7 +73,7 @@ static void __external_phy_init(struct phy_device *phydev, int reset_phy)
 	val &= ~(1 << 2);
 	phy_write(phydev, MDIO_DEVAD_NONE, 27, val);
 
-	/* REG31 write 0X0000, back to page0 */
+	/* REG31 write 0x0000, back to page0 */
 	phy_write(phydev, MDIO_DEVAD_NONE, 31, 0x0000);
 }
 
