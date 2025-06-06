@@ -1,6 +1,7 @@
 // SPDX-License-Identifier:     GPL-2.0
 /*
  * Copyright (C) 2019-2023 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
 /dts-v1/;
@@ -308,6 +309,9 @@
 			      <0xffb80000 0x1000>;
 			reg-names = "nand_data", "denali_reg";
 			interrupts = <0 97 4>;
+			clocks = <&clkmgr AGILEX_NAND_CLK>,
+				 <&clkmgr AGILEX_NAND_X_CLK>;
+			clock-names = "nand", "nand_x";
 			resets = <&rst NAND_RESET>, <&rst NAND_OCP_RESET>;
 			status = "disabled";
 		};

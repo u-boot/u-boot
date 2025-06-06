@@ -54,16 +54,30 @@ static int socfpga_dwmci_clksel(struct dwmci_host *host)
 	u32 sdmmc_mask = ((priv->smplsel & 0x7) << SYSMGR_SDMMC_SMPLSEL_SHIFT) |
 			 ((priv->drvsel & 0x7) << SYSMGR_SDMMC_DRVSEL_SHIFT);
 
+	/* Get clock manager base address */
+	struct udevice *clkmgr_dev;
+	int ret = uclass_get_device_by_name(UCLASS_CLK, "clock-controller@ffd10000", &clkmgr_dev);
+
+	if (ret) {
+		printf("Failed to get clkmgr device: %d\n", ret);
+		return ret;
+	}
+
+	fdt_addr_t clkmgr_base = dev_read_addr(clkmgr_dev);
+
+	if (clkmgr_base == FDT_ADDR_T_NONE) {
+		printf("Failed to read base address from clkmgr DT node\n");
+		return -EINVAL;
+	}
+
 	/* Disable SDMMC clock. */
-	clrbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
+	clrbits_le32(clkmgr_base + CLKMGR_PERPLL_EN,
 		     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
 
 	debug("%s: drvsel %d smplsel %d\n", __func__,
 	      priv->drvsel, priv->smplsel);
 
 #if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_ATF)
-	int ret;
-
 	ret = socfpga_secure_reg_write32(SOCFPGA_SECURE_REG_SYSMGR_SOC64_SDMMC,
 					 sdmmc_mask);
 	if (ret) {
@@ -78,7 +92,7 @@ static int socfpga_dwmci_clksel(struct dwmci_host *host)
 #endif
 
 	/* Enable SDMMC clock */
-	setbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
+	setbits_le32(clkmgr_base + CLKMGR_PERPLL_EN,
 		     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
 
 	return 0;

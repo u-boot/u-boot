@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014       Panasonic Corporation
- * Copyright (C) 2013-2014, Altera Corporation <www.altera.com>
+ * Copyright (C) 2013-2025, Altera Corporation <www.altera.com>
  * Copyright (C) 2009-2010, Intel Corporation and its suppliers.
  */
 
 #include <dm.h>
+#include <hang.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <nand.h>
 #include <asm/cache.h>
 #include <asm/dma-mapping.h>
@@ -1373,3 +1375,65 @@ free_buf:
 
 	return ret;
 }
+
+#if IS_ENABLED(CONFIG_XPL_BUILD)
+struct mtd_info *nand_get_mtd(void)
+{
+	struct mtd_info *mtd;
+
+	mtd = get_nand_dev_by_index(nand_curr_device);
+	if (!mtd)
+		hang();
+
+	return mtd;
+}
+
+int nand_spl_load_image(u32 offset, u32 len, void *dst)
+{
+	size_t count = len, actual = 0, page_align_overhead = 0;
+	u32 page_align_offset = 0;
+	u8 *page_buffer;
+	int err = 0;
+	struct mtd_info *mtd;
+
+	if (!len || !dst)
+		return -EINVAL;
+
+	mtd = nand_get_mtd();
+
+	if ((offset & (mtd->writesize - 1)) != 0) {
+		page_buffer = malloc_cache_aligned(mtd->writesize);
+		if (!page_buffer) {
+			debug("Error: allocating buffer\n");
+			return -ENOMEM;
+		}
+
+		page_align_overhead = offset % mtd->writesize;
+		page_align_offset = (offset / mtd->writesize) * mtd->writesize;
+		count = mtd->writesize;
+
+		err = nand_read_skip_bad(mtd, page_align_offset, &count,
+					 &actual, mtd->size, page_buffer);
+
+		if (err)
+			return err;
+
+		count -= page_align_overhead;
+		count = min((size_t)len, count);
+		memcpy(dst, page_buffer + page_align_overhead, count);
+		free(page_buffer);
+
+		len -= count;
+		if (!len)
+			return err;
+
+		offset += count;
+		dst += count;
+		count = len;
+	}
+
+	return nand_read_skip_bad(mtd, offset, &count, &actual, mtd->size, dst);
+}
+
+void nand_deselect(void) {}
+#endif
