@@ -101,7 +101,7 @@ struct exynos_mipi_dsim {
 /* EXYNOS_DSIM_MDRESOL */
 #define DSIM_MAIN_STAND_BY		(1 << 31)
 #define DSIM_MAIN_VRESOL(x)		(((x) & 0x7ff) << 16)
-#define DSIM_MAIN_HRESOL(x)		(((x) & 0X7ff) << 0)
+#define DSIM_MAIN_HRESOL(x)		(((x) & 0x7ff) << 0)
 
 /* EXYNOS_DSIM_MVPORCH */
 #define DSIM_CMD_ALLOW_SHIFT		(28)

@@ -142,6 +142,6 @@ void imx_iomux_gpio_set_direction(unsigned int gpio,
 void imx_iomux_gpio_get_function(unsigned int gpio, u32 *gpio_state)
 {
 	*gpio_state = readl(base + (gpio << 2)) &
-		((0X07 << PAD_MUX_MODE_SHIFT) | PAD_CTL_OBE_IBE_ENABLE);
+		((0x07 << PAD_MUX_MODE_SHIFT) | PAD_CTL_OBE_IBE_ENABLE);
 }
 #endif

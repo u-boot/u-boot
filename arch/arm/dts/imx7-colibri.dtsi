@@ -669,7 +669,7 @@
 
 	pinctrl_can_int: canintgrp {
 		fsl,pins = <
-			MX7D_PAD_SD1_RESET_B__GPIO5_IO2		0X14 /* SODIMM 73 */
+			MX7D_PAD_SD1_RESET_B__GPIO5_IO2		0x14 /* SODIMM 73 */
 		>;
 	};
 
