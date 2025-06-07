@@ -83,6 +83,7 @@ Target Images
 Copy the below images to an SD card and boot:
 
 * tiboot3-j721e-gp-evm.bin from R5 build as tiboot3.bin
+* sysfw-j721e-gp-evm.itb from R5 build as sysfw.itb
 * tispl.bin_unsigned from Cortex-A build as tispl.bin
 * u-boot.img_unsigned from Cortex-A build as u-boot.img
 

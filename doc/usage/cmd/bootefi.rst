@@ -20,19 +20,19 @@ Synopsis
 Description
 -----------
 
-The *bootefi* command is used to launch a UEFI binary which can be either of
+The *bootefi* command is used to launch a UEFI binary which can be any of
 
 * UEFI application
 * UEFI boot services driver
 * UEFI run-time services driver
 
 An operating system requires a hardware description which can either be
-presented as ACPI table (CONFIG\_GENERATE\_ACPI\_TABLE=y) or as device-tree.
-The load address of the device-tree may be provided as parameter *fdt\_addr*. If
+presented as ACPI table (CONFIG_GENERATE_ACPI_TABLE=y) or as device-tree.
+The load address of the device-tree may be provided as parameter *fdt_addr*. If
 this address is not specified, the bootefi command will try to fall back in
 sequence to:
 
-* the device-tree specified by environment variable *fdt\_addr*
+* the device-tree specified by environment variable *fdt_addr*
 * the device-tree specified by environment variable *fdtcontroladdr*
 
 The load address of the binary is specified by parameter *image_address*. A
@@ -110,7 +110,7 @@ U-Boot can be compiled with UEFI unit tests. These unit tests are invoked using
 the *bootefi selftest* sub-command.
 
 Which unit test is executed is controlled by the environment variable
-*efi\_selftest*. If this variable is not set, all unit tests that are not marked
+*efi_selftest*. If this variable is not set, all unit tests that are not marked
 as 'on request' are executed.
 
 To show a list of the available unit tests the value *list* can be used
@@ -126,7 +126,7 @@ To show a list of the available unit tests the value *list* can be used
     'configuration tables'
     ...
 
-A single test is selected for execution by setting the *efi\_selftest*
+A single test is selected for execution by setting the *efi_selftest*
 environment variable to match one of the listed identifiers
 
 ::
@@ -140,10 +140,10 @@ return to the command line but require a board reset.
 Configuration
 -------------
 
-To use the *bootefi* command you must specify CONFIG\_CMD\_BOOTEFI=y.
-The *bootefi bootmgr* sub-command requries CMD\_BOOTEFI\_BOOTMGR=y.
-The *bootefi hello* sub-command requries CMD\_BOOTEFI\_HELLO=y.
-The *bootefi selftest* sub-command depends on CMD\_BOOTEFI\_SELFTEST=y.
+To use the *bootefi* command you must specify CONFIG_CMD_BOOTEFI=y.
+The *bootefi bootmgr* sub-command requries CMD_BOOTEFI_BOOTMGR=y.
+The *bootefi hello* sub-command requries CMD_BOOTEFI_HELLO=y.
+The *bootefi selftest* sub-command depends on CMD_BOOTEFI_SELFTEST=y.
 
 See also
 --------
