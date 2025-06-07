@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <iommu.h>
 #include <linux/bitfield.h>
+#include <linux/bug.h>
 #include <linux/list.h>
 #include <linux/err.h>
 #include <lmb.h>
