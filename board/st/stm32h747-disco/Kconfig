@@ -1,0 +1,15 @@
+if TARGET_STM32H747_DISCO
+
+config SYS_BOARD
+	default "stm32h747-disco"
+
+config SYS_VENDOR
+	default "st"
+
+config SYS_SOC
+	default "stm32h7"
+
+config SYS_CONFIG_NAME
+	default "stm32h747-disco"
+
+endif
