@@ -6,8 +6,6 @@
  *
  */
 
-#include "r8a779x-u-boot.dtsi"
-
 / {
 	soc {
 		rpc: spi@ee200000 {
