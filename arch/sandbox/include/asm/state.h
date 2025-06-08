@@ -75,6 +75,7 @@ struct sandbox_state {
 	char **argv;			/* Command line arguments */
 	const char *jumped_fname;	/* Jumped from previous U-Boot */
 	const char *prog_fname;		/* U-Boot executable filename */
+	uint8_t *mmap_addr;		/* Memory allocated via mmap */
 	uint8_t *ram_buf;		/* Emulated RAM buffer */
 	unsigned long ram_size;		/* Size of RAM buffer */
 	const char *ram_buf_fname;	/* Filename to use for RAM buffer */
