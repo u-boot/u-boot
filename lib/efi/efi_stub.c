@@ -83,7 +83,7 @@ void puts(const char *str)
 		putc(*str++);
 }
 
-static void _debug_uart_putc(int ch)
+static inline void _debug_uart_putc(int ch)
 {
 	putc(ch);
 }

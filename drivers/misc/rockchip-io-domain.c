@@ -344,8 +344,10 @@ static int rockchip_iodomain_probe(struct udevice *dev)
 			continue;
 
 		ret = device_get_supply_regulator(dev, supply_name, &reg);
-		if (ret)
+		if (ret) {
+			dev_dbg(dev, "%s: Regulator not found\n", supply_name);
 			continue;
+		}
 
 		ret = regulator_autoset(reg);
 		if (ret && ret != -EALREADY && ret != -EMEDIUMTYPE &&
@@ -353,6 +355,7 @@ static int rockchip_iodomain_probe(struct udevice *dev)
 			continue;
 
 		uV = regulator_get_value(reg);
+		dev_dbg(dev, "%s: Regulator %s at %d uV\n", supply_name, reg->name, uV);
 		if (uV <= 0)
 			continue;
 

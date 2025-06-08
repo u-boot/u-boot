@@ -91,7 +91,7 @@ void rk8xx_off_for_plugin(struct udevice *dev)
 
 static struct reg_data rk806_init_reg[] = {
 	/* RST_FUN */
-	{ RK806_REG_SYS_CFG3, GENMASK(7, 6), BIT(7)},
+	{ RK806_REG_SYS_CFG3, BIT(7), GENMASK(7, 6)},
 };
 
 static struct reg_data rk817_init_reg[] = {
