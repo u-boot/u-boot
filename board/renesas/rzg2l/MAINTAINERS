@@ -1,6 +1,7 @@
 RENESAS RZG2L BOARD FAMILY
-M:	Paul Barker <paul.barker.ct@bp.renesas.com>
-S:	Supported
+M:	Marek Vasut <marek.vasut+renesas@mailbox.org>
+R:	Paul Barker <paul@pbarker.dev>
+S:	Maintained
 N:	rz-smarc
 N:	rzg2l
 N:	r9a07g044

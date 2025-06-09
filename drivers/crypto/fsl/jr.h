@@ -83,6 +83,10 @@ struct jobring {
 	 * in-order job completion
 	 */
 	int tail;
+	/* Read index of the output ring. It may not match with tail in case
+	 * of out of order completetion
+	 */
+	int read_idx;
 	/* Write index to input ring. Would be always equal to head */
 	int write_idx;
 	/* Size of the rings. */

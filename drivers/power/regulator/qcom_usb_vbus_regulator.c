@@ -15,14 +15,33 @@
 #include <power/pmic.h>
 #include <power/regulator.h>
 
-#define CMD_OTG				0x50
+enum pm8x50b_vbus {
+	PM8150B,
+	PM8550B,
+};
+
 #define OTG_EN				BIT(0)
-// The 0 bit in this register's bit field is undocumented
-#define OTG_CFG				0x56
+
 #define OTG_EN_SRC_CFG			BIT(1)
 
+struct qcom_otg_regs {
+	u32 otg_cmd;
+	u32 otg_cfg;
+};
 struct qcom_usb_vbus_priv {
 	phys_addr_t base;
+	struct qcom_otg_regs *regs;
+};
+
+static const struct qcom_otg_regs qcom_otg[] = {
+	[PM8150B] = {
+		.otg_cmd = 0x40,
+		.otg_cfg = 0x53,
+	},
+	[PM8550B] = {
+		.otg_cmd = 0x50,
+		.otg_cfg = 0x56,
+	},
 };
 
 static int qcom_usb_vbus_regulator_of_to_plat(struct udevice *dev)
@@ -38,8 +57,9 @@ static int qcom_usb_vbus_regulator_of_to_plat(struct udevice *dev)
 
 static int qcom_usb_vbus_regulator_get_enable(struct udevice *dev)
 {
+	const struct qcom_otg_regs *regs = &qcom_otg[dev_get_driver_data(dev)];
 	struct qcom_usb_vbus_priv *priv = dev_get_priv(dev);
-	int otg_en_reg = priv->base + CMD_OTG;
+	int otg_en_reg = priv->base + regs->otg_cmd;
 	int ret;
 
 	ret = pmic_reg_read(dev->parent, otg_en_reg);
@@ -53,8 +73,9 @@ static int qcom_usb_vbus_regulator_get_enable(struct udevice *dev)
 
 static int qcom_usb_vbus_regulator_set_enable(struct udevice *dev, bool enable)
 {
+	const struct qcom_otg_regs *regs = &qcom_otg[dev_get_driver_data(dev)];
 	struct qcom_usb_vbus_priv *priv = dev_get_priv(dev);
-	int otg_en_reg = priv->base + CMD_OTG;
+	int otg_en_reg = priv->base + regs->otg_cmd;
 	int ret;
 
 	if (enable) {
@@ -76,8 +97,9 @@ static int qcom_usb_vbus_regulator_set_enable(struct udevice *dev, bool enable)
 
 static int qcom_usb_vbus_regulator_probe(struct udevice *dev)
 {
+	const struct qcom_otg_regs *regs = &qcom_otg[dev_get_driver_data(dev)];
 	struct qcom_usb_vbus_priv *priv = dev_get_priv(dev);
-	int otg_cfg_reg = priv->base + OTG_CFG;
+	int otg_cfg_reg = priv->base + regs->otg_cfg;
 	int ret;
 
 	/* Disable HW logic for VBUS enable */
@@ -96,7 +118,8 @@ static const struct dm_regulator_ops qcom_usb_vbus_regulator_ops = {
 };
 
 static const struct udevice_id qcom_usb_vbus_regulator_ids[] = {
-	{ .compatible = "qcom,pm8150b-vbus-reg"},
+	{ .compatible = "qcom,pm8150b-vbus-reg", .data = PM8150B },
+	{ .compatible = "qcom,pm8550b-vbus-reg", .data = PM8550B },
 	{ },
 };
 

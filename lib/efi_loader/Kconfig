@@ -443,10 +443,9 @@ config EFI_TCG2_PROTOCOL_MEASURE_DTB
 	help
 	  When enabled, the DTB image passed to the booted EFI image is
 	  measured using the EFI TCG2 protocol. Do not enable this feature if
-	  the passed DTB contains data that change across platform reboots
-	  and cannot be used has a predictable measurement. Otherwise
-	  this feature allows better measurement of the system boot
-	  sequence.
+	  the passed DTB contains data that changes across platform reboots
+	  and cannot be used for a predictable measurement. Otherwise, this
+	  feature allows for better measurement of the system boot sequence.
 
 config EFI_LOAD_FILE2_INITRD
 	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"

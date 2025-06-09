@@ -122,7 +122,7 @@ Out-of-tree building
 ~~~~~~~~~~~~~~~~~~~~
 
 By default building is performed locally and the objects are saved in the source
-directory. To build out-out-tree use one of the two methods below:
+directory. To build out-of-tree use one of the two methods below:
 
 Add O= parameter to the make command line:
 

@@ -1091,6 +1091,7 @@ config ARCH_QEMU
 	imply USB_XHCI_PCI
 	imply USB_KEYBOARD
 	imply CMD_USB
+	imply POSITION_INDEPENDENT
 
 config ARCH_RENESAS
 	bool "Renesas ARM SoCs"

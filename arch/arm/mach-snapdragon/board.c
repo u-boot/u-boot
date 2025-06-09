@@ -409,52 +409,39 @@ static void configure_env(void)
 		return;
 	}
 
-	/* The last compatible is always the SoC compatible */
-	ret = ofnode_read_string_index(root, "compatible", compat_count - 1, &last_compat);
-	if (ret < 0) {
-		log_warning("Can't read second compatible\n");
-		return;
-	}
-
-	/* Copy the second compat (e.g. "qcom,sdm845") into buf */
-	strlcpy(buf, last_compat, sizeof(buf) - 1);
-	tmp = buf;
-
-	/* strsep() is destructive, it replaces the comma with a \0 */
-	if (!strsep(&tmp, ",")) {
-		log_warning("second compatible '%s' has no ','\n", buf);
-		return;
-	}
-
-	/* tmp now points to just the "sdm845" part of the string */
-	env_set("soc", tmp);
-
-	/* Now figure out the "board" part from the first compatible */
-	memset(buf, 0, sizeof(buf));
 	strlcpy(buf, first_compat, sizeof(buf) - 1);
 	tmp = buf;
 
 	/* The Qualcomm reference boards (RBx, HDK, etc)  */
 	if (!strncmp("qcom", buf, strlen("qcom"))) {
+		char *soc;
+
 		/*
 		 * They all have the first compatible as "qcom,<soc>-<board>"
 		 * (e.g. "qcom,qrb5165-rb5"). We extract just the part after
 		 * the dash.
 		 */
-		if (!strsep(&tmp, "-")) {
+		if (!strsep(&tmp, ",")) {
+			log_warning("compatible '%s' has no ','\n", buf);
+			return;
+		}
+		soc = strsep(&tmp, "-");
+		if (!soc) {
 			log_warning("compatible '%s' has no '-'\n", buf);
 			return;
 		}
-		/* tmp is now "rb5" */
+
+		env_set("soc", soc);
 		env_set("board", tmp);
 	} else {
 		if (!strsep(&tmp, ",")) {
 			log_warning("compatible '%s' has no ','\n", buf);
 			return;
 		}
-		/* for thundercomm we just want the bit after the comma (e.g. "db845c"),
-		 * for all other boards we replace the comma with a '-' and take both
-		 * (e.g. "oneplus-enchilada")
+		/*
+		 * For thundercomm we just want the bit after the comma
+		 * (e.g. "db845c"), for all other boards we replace the comma
+		 * with a '-' and take both (e.g. "oneplus-enchilada")
 		 */
 		if (!strncmp("thundercomm", buf, strlen("thundercomm"))) {
 			env_set("board", tmp);
@@ -462,6 +449,28 @@ static void configure_env(void)
 			*(tmp - 1) = '-';
 			env_set("board", buf);
 		}
+
+		/* The last compatible is always the SoC compatible */
+		ret = ofnode_read_string_index(root, "compatible",
+					       compat_count - 1, &last_compat);
+		if (ret < 0) {
+			log_warning("Can't read second compatible\n");
+			return;
+		}
+
+		/* Copy the last compat (e.g. "qcom,sdm845") into buf */
+		memset(buf, 0, sizeof(buf));
+		strlcpy(buf, last_compat, sizeof(buf) - 1);
+		tmp = buf;
+
+		/* strsep() is destructive, it replaces the comma with a \0 */
+		if (!strsep(&tmp, ",")) {
+			log_warning("second compatible '%s' has no ','\n", buf);
+			return;
+		}
+
+		/* tmp now points to just the "sdm845" part of the string */
+		env_set("soc", tmp);
 	}
 
 	/* Now build the full path name */

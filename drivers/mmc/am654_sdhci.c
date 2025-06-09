@@ -527,11 +527,16 @@ static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 void am654_sdhci_set_control_reg(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
+	u32 reg;
 
+	reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
+	reg &= ~SDHCI_CTRL_UHS_MASK;
 	sdhci_set_voltage(host);
 
 	if (mmc->selected_mode > MMC_HS_52)
 		sdhci_set_uhs_timing(host);
+	else
+		sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
 }
 
 const struct sdhci_ops am654_sdhci_ops = {

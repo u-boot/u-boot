@@ -91,7 +91,10 @@
 		#interrupt-cells = <3>;
 		status = "okay";
 		interrupt-controller;
-		interrupts = <GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>;
+
+		/* vcpumntirq: virtual CPU interface maintenance interrupt */
+		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+
 		reg = /bits/ 64 <SBSA_GIC_DIST_BASE_ADDR SBSA_GIC_DIST_LENGTH>,
 		      /bits/ 64 <SBSA_GIC_REDIST_BASE_ADDR SBSA_GIC_REDIST_LENGTH>,
 		      /bits/ 64 <0 0>,

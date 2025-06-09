@@ -114,6 +114,14 @@ config ROCKCHIP_IODOMAIN
 	  for the IO-domain setting of the SoC to match the voltage supplied
 	  by the regulators.
 
+config SPL_ROCKCHIP_IODOMAIN
+	bool "Rockchip IO-domain driver support in SPL"
+	depends on SPL_MISC && SPL_DM_REGULATOR && ARCH_ROCKCHIP
+	help
+	  Enable support for IO-domains in Rockchip SoCs in SPL. It is necessary
+	  for the IO-domain setting of the SoC to match the voltage supplied
+	  by the regulators.
+
 config SIFIVE_OTP
 	bool "SiFive eMemory OTP driver"
 	depends on MISC

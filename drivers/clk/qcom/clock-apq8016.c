@@ -23,10 +23,7 @@
 #define APCS_GPLL_ENA_VOTE		(0x45000)
 #define APCS_CLOCK_BRANCH_ENA_VOTE (0x45004)
 
-#define SDCC_BCR(n)			((n * 0x1000) + 0x41000)
-#define SDCC_CMD_RCGR(n)		(((n + 1) * 0x1000) + 0x41004)
-#define SDCC_APPS_CBCR(n)		((n * 0x1000) + 0x41018)
-#define SDCC_AHB_CBCR(n)		((n * 0x1000) + 0x4101C)
+#define SDCC_CMD_RCGR(n)		(((n) * 0x1000) + 0x42004)
 
 /* BLSP1 AHB clock (root clock for BLSP) */
 #define BLSP1_AHB_CBCR			0x1008
@@ -54,9 +51,13 @@ static struct vote_clk gcc_blsp1_ahb_clk = {
 };
 
 static const struct gate_clk apq8016_clks[] = {
-	GATE_CLK(GCC_PRNG_AHB_CLK,	0x45004, BIT(8)),
-	GATE_CLK(GCC_USB_HS_AHB_CLK,    0x41008, BIT(0)),
-	GATE_CLK(GCC_USB_HS_SYSTEM_CLK,	0x41004, BIT(0)),
+	GATE_CLK_POLLED(GCC_PRNG_AHB_CLK,	0x45004, BIT(8), 0x13004),
+	GATE_CLK_POLLED(GCC_SDCC1_AHB_CLK,	0x4201c, BIT(0), 0x4201c),
+	GATE_CLK_POLLED(GCC_SDCC1_APPS_CLK,	0x42018, BIT(0), 0x42018),
+	GATE_CLK_POLLED(GCC_SDCC2_AHB_CLK,	0x4301c, BIT(0), 0x4301c),
+	GATE_CLK_POLLED(GCC_SDCC2_APPS_CLK,	0x43018, BIT(0), 0x43018),
+	GATE_CLK_POLLED(GCC_USB_HS_AHB_CLK,	0x41008, BIT(0), 0x41008),
+	GATE_CLK_POLLED(GCC_USB_HS_SYSTEM_CLK,	0x41004, BIT(0), 0x41004),
 };
 
 /* SDHCI */
@@ -67,12 +68,10 @@ static int apq8016_clk_init_sdc(struct msm_clk_priv *priv, int slot, uint rate)
 	if (rate == 200000000)
 		div = 4;
 
-	clk_enable_cbc(priv->base + SDCC_AHB_CBCR(slot));
 	/* 800Mhz/div, gpll0 */
 	clk_rcg_set_rate_mnd(priv->base, SDCC_CMD_RCGR(slot), div, 0, 0,
 			     CFG_CLK_SRC_GPLL0, 8);
 	clk_enable_gpll0(priv->base, &gpll0_vote_clk);
-	clk_enable_cbc(priv->base + SDCC_APPS_CBCR(slot));
 
 	return rate;
 }

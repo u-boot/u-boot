@@ -182,6 +182,8 @@ saved_args:
 	.word 0
 	.endr
 END(saved_args)
+
+	.section .text
 #endif
 
 #ifdef CONFIG_ARMV7_LPAE
