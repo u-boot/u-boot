@@ -489,7 +489,7 @@ config ENV_IS_IN_UBI
 	  the environment in.  This will enable redundant environments in UBI.
 	  It is assumed that both volumes are in the same MTD partition.
 
-config SYS_REDUNDAND_ENVIRONMENT
+config ENV_REDUNDANT
 	bool "Enable redundant environment support"
 	help
 	  Normally, the environemt is stored in a single location.  By
@@ -543,7 +543,7 @@ config ENV_FAT_FILE
 
 config ENV_FAT_FILE_REDUND
 	string "Name of the FAT file to use for the environment"
-	depends on ENV_IS_IN_FAT && SYS_REDUNDAND_ENVIRONMENT
+	depends on ENV_IS_IN_FAT && ENV_REDUNDANT
 	default "uboot-redund.env"
 	help
 	  It's a string of the FAT file name. This file use to store the
@@ -595,7 +595,7 @@ config ENV_ADDR
 
 config ENV_ADDR_REDUND
 	hex "Redundant environment address"
-	depends on ENV_IS_IN_FLASH && SYS_REDUNDAND_ENVIRONMENT
+	depends on ENV_IS_IN_FLASH && ENV_REDUNDANT
 	help
 	  Offset from the start of the device (or partition) of the redundant
 	  environment location.
@@ -625,7 +625,7 @@ config ENV_OFFSET
 config ENV_OFFSET_REDUND
 	hex "Redundant environment offset"
 	depends on (ENV_IS_IN_EEPROM || ENV_IS_IN_MMC || ENV_IS_IN_NAND || \
-		    ENV_IS_IN_SPI_FLASH) && SYS_REDUNDAND_ENVIRONMENT
+		    ENV_IS_IN_SPI_FLASH) && ENV_REDUNDANT
 	default 0x10C0000 if MICROBLAZE
 	default 0x0
 	help
@@ -675,7 +675,7 @@ config ENV_UBI_VOLUME
 
 config ENV_UBI_VOLUME_REDUND
 	string "UBI redundant volume name"
-	depends on ENV_IS_IN_UBI && SYS_REDUNDAND_ENVIRONMENT
+	depends on ENV_IS_IN_UBI && ENV_REDUNDANT
 	help
 	  Name of the redundant volume that you want to store the environment in.
 

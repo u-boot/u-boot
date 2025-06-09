@@ -16,7 +16,7 @@
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED
 env_t embedded_environment __UBOOT_ENV_SECTION__(environment) = {
 	ENV_CRC,	/* CRC Sum */
-#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_ENV_REDUNDANT
 	1,		/* Flags: valid */
 #endif
 	{

@@ -466,7 +466,7 @@ int env_import(const char *buf, int check, int flags)
 	return -EIO;
 }
 
-#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_ENV_REDUNDANT
 static unsigned char env_flags;
 
 int env_check_redund(const char *buf1, int buf1_read_fail,
@@ -543,7 +543,7 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 
 	return env_import((char *)ep, 0, flags);
 }
-#endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
+#endif /* CONFIG_ENV_REDUNDANT */
 
 /* Export the environment and generate CRC for it. */
 int env_export(env_t *env_out)
@@ -560,7 +560,7 @@ int env_export(env_t *env_out)
 
 	env_out->crc = crc32(0, env_out->data, ENV_SIZE);
 
-#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_ENV_REDUNDANT
 	env_out->flags = ++env_flags; /* increase the serial */
 #endif
 
