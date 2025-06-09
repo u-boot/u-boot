@@ -774,18 +774,6 @@ config ENV_VARS_UBOOT_RUNTIME_CONFIG
 	  run-time determined information about the hardware to the
 	  environment.  These will be named board_name, board_rev.
 
-config DELAY_ENVIRONMENT
-	bool "Delay environment loading"
-	depends on !OF_CONTROL
-	help
-	  Enable this to inhibit loading the environment during board
-	  initialization. This can address the security risk of untrusted data
-	  being used during boot. Normally the environment is loaded when the
-	  board is initialised so that it is available to U-Boot. This inhibits
-	  that so that the environment is not available until explicitly loaded
-	  later by U-Boot code. With CONFIG_OF_CONTROL this is instead
-	  controlled by the value of /config/load-environment.
-
 config ENV_IMPORT_FDT
 	bool "Amend environment by FDT properties"
 	depends on OF_CONTROL

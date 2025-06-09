@@ -442,9 +442,6 @@ static int should_load_env(void)
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
 		return ofnode_conf_read_int("load-environment", 1);
 
-	if (IS_ENABLED(CONFIG_DELAY_ENVIRONMENT))
-		return 0;
-
 	return 1;
 }
 
