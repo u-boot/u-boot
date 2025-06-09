@@ -157,7 +157,7 @@ static inline s64 mmc_offset(struct mmc *mmc, int copy)
 	int hwpart = 0;
 	int err;
 
-#if defined(CONFIG_SYS_MMC_ENV_PART)
+#if defined(CONFIG_ENV_MMC_EMMC_HW_PARTITION)
 	hwpart = mmc_get_env_part(mmc);
 #endif
 
@@ -216,7 +216,7 @@ static bool mmc_env_is_redundant_in_both_boot_hwparts(struct mmc *mmc)
 	if (!IS_ENABLED(CONFIG_ENV_REDUNDANT))
 		return false;
 
-	if (CONFIG_SYS_MMC_ENV_PART != 1)
+	if (CONFIG_ENV_MMC_EMMC_HW_PARTITION != 1)
 		return false;
 
 	return mmc_offset(mmc, 0) == mmc_offset(mmc, 1);
@@ -239,10 +239,10 @@ __weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 	return 0;
 }
 
-#ifdef CONFIG_SYS_MMC_ENV_PART
+#ifdef CONFIG_ENV_MMC_EMMC_HW_PARTITION
 __weak uint mmc_get_env_part(struct mmc *mmc)
 {
-	return CONFIG_SYS_MMC_ENV_PART;
+	return CONFIG_ENV_MMC_EMMC_HW_PARTITION;
 }
 
 static unsigned char env_mmc_orig_hwpart;

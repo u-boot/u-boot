@@ -540,10 +540,10 @@ int mmc_get_env_dev(void)
 	return board_mmc_get_env_dev(devno);
 }
 
-#ifdef CONFIG_SYS_MMC_ENV_PART
+#ifdef CONFIG_ENV_MMC_EMMC_HW_PARTITION
 __weak int board_mmc_get_env_part(int devno)
 {
-	return CONFIG_SYS_MMC_ENV_PART;
+	return CONFIG_ENV_MMC_EMMC_HW_PARTITION;
 }
 
 uint mmc_get_env_part(struct mmc *mmc)
@@ -552,7 +552,7 @@ uint mmc_get_env_part(struct mmc *mmc)
 
 	/* If not boot from sd/mmc, use default value */
 	if (devno < 0)
-		return CONFIG_SYS_MMC_ENV_PART;
+		return CONFIG_ENV_MMC_EMMC_HW_PARTITION;
 
 	return board_mmc_get_env_part(devno);
 }

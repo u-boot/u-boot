@@ -219,7 +219,7 @@ config ENV_IS_IN_MMC
 
 	  Specifies which MMC device the environment is stored in.
 
-	  CONFIG_SYS_MMC_ENV_PART (optional):
+	  CONFIG_ENV_MMC_EMMC_HW_PARTITION (optional):
 
 	  Specifies which MMC partition the environment is stored in. If not
 	  set, defaults to partition 0, the user area. Common values might be
@@ -252,7 +252,7 @@ config ENV_IS_IN_MMC
 	  This value may also be positive or negative; this is handled in the
 	  same way as CONFIG_ENV_OFFSET.
 
-	  In case CONFIG_SYS_MMC_ENV_PART is 1 (i.e. environment in eMMC boot
+	  In case CONFIG_ENV_MMC_EMMC_HW_PARTITION is 1 (i.e. environment in eMMC boot
 	  partition) then setting CONFIG_ENV_OFFSET_REDUND to the same value
 	  as CONFIG_ENV_OFFSET makes use of the second eMMC boot partition for
 	  the redundant environment copy.
@@ -708,8 +708,8 @@ config ENV_MMC_DEVICE_INDEX
 	  The index is often derived from DT aliases mmcN node ordering, and
 	  matches the 'mmc list' command output.
 
-config SYS_MMC_ENV_PART
-	int "mmc partition number"
+config ENV_MMC_EMMC_HW_PARTITION
+	int "eMMC hardware partition number"
 	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT
 	default 0
 	help
