@@ -164,7 +164,7 @@ static inline s64 mmc_offset(struct mmc *mmc, int copy)
 #if defined(CONFIG_ENV_MMC_PARTITION)
 	str = CONFIG_ENV_MMC_PARTITION;
 #else
-	/* look for the partition in mmc CONFIG_SYS_MMC_ENV_DEV */
+	/* look for the partition in mmc CONFIG_ENV_MMC_DEVICE_INDEX */
 	str = ofnode_conf_read_str(dt_prop.partition);
 #endif
 

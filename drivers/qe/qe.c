@@ -243,7 +243,7 @@ void u_qe_init(void)
 				CFG_SYS_FSL_QSPI_BASE);
 
 	if (src == BOOT_SOURCE_SD_MMC) {
-		int dev = CONFIG_SYS_MMC_ENV_DEV;
+		int dev = CONFIG_ENV_MMC_DEVICE_INDEX;
 		u32 cnt = CONFIG_SYS_QE_FMAN_FW_LENGTH / 512;
 		u32 blk = CONFIG_SYS_QE_FW_ADDR / 512;
 
@@ -252,7 +252,7 @@ void u_qe_init(void)
 			return;
 		}
 		addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
-		struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+		struct mmc *mmc = find_mmc_device(CONFIG_ENV_MMC_DEVICE_INDEX);
 
 		if (!mmc) {
 			free(addr);
@@ -277,7 +277,7 @@ void u_qe_init(void)
 
 	void *addr = (void *)CONFIG_SYS_QE_FW_ADDR;
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_MMC
-	int dev = CONFIG_SYS_MMC_ENV_DEV;
+	int dev = CONFIG_ENV_MMC_DEVICE_INDEX;
 	u32 cnt = CONFIG_SYS_QE_FMAN_FW_LENGTH / 512;
 	u32 blk = CONFIG_SYS_QE_FW_ADDR / 512;
 
@@ -286,7 +286,7 @@ void u_qe_init(void)
 		return;
 	}
 	addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
-	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+	struct mmc *mmc = find_mmc_device(CONFIG_ENV_MMC_DEVICE_INDEX);
 
 	if (!mmc) {
 		printf("\nMMC cannot find device for ucode\n");

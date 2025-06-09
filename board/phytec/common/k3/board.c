@@ -94,7 +94,7 @@ int mmc_get_env_dev(void)
 		return 1;
 	};
 
-	return CONFIG_SYS_MMC_ENV_DEV;
+	return CONFIG_ENV_MMC_DEVICE_INDEX;
 }
 #endif
 

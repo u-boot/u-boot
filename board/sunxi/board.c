@@ -516,7 +516,7 @@ int board_mmc_init(struct bd_info *bis)
 	return 0;
 }
 
-#ifdef CONFIG_SYS_MMC_ENV_DEV
+#ifdef CONFIG_ENV_MMC_DEVICE_INDEX
 int mmc_get_env_dev(void)
 {
 	switch (sunxi_get_boot_device()) {
@@ -525,7 +525,7 @@ int mmc_get_env_dev(void)
 	case BOOT_DEVICE_MMC2:
 		return 1;
 	default:
-		return CONFIG_SYS_MMC_ENV_DEV;
+		return CONFIG_ENV_MMC_DEVICE_INDEX;
 	}
 }
 #endif

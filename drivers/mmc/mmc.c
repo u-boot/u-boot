@@ -3278,8 +3278,8 @@ int mmc_set_bkops_enable(struct mmc *mmc, bool autobkops, bool enable)
 
 __weak int mmc_get_env_dev(void)
 {
-#ifdef CONFIG_SYS_MMC_ENV_DEV
-	return CONFIG_SYS_MMC_ENV_DEV;
+#ifdef CONFIG_ENV_MMC_DEVICE_INDEX
+	return CONFIG_ENV_MMC_DEVICE_INDEX;
 #else
 	return 0;
 #endif

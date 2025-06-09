@@ -512,8 +512,8 @@ int mmc_get_env_dev(void)
 	const char *boot_device;
 	struct udevice *dev;
 
-#ifdef CONFIG_SYS_MMC_ENV_DEV
-	devnum = CONFIG_SYS_MMC_ENV_DEV;
+#ifdef CONFIG_ENV_MMC_DEVICE_INDEX
+	devnum = CONFIG_ENV_MMC_DEVICE_INDEX;
 #else
 	devnum = 0;
 #endif

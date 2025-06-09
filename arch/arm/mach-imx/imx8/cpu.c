@@ -451,7 +451,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 #ifdef CONFIG_ENV_IS_IN_MMC
 __weak int board_mmc_get_env_dev(int devno)
 {
-	return CONFIG_SYS_MMC_ENV_DEV;
+	return CONFIG_ENV_MMC_DEVICE_INDEX;
 }
 
 int mmc_get_env_dev(void)
@@ -473,7 +473,7 @@ int mmc_get_env_dev(void)
 		break;
 	default:
 		/* If not boot from sd/mmc, use default value */
-		return CONFIG_SYS_MMC_ENV_DEV;
+		return CONFIG_ENV_MMC_DEVICE_INDEX;
 	}
 
 	return board_mmc_get_env_dev(devno);

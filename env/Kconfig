@@ -215,7 +215,7 @@ config ENV_IS_IN_MMC
 	  Define this if you have an MMC device which you want to use for the
 	  environment.
 
-	  CONFIG_SYS_MMC_ENV_DEV:
+	  CONFIG_ENV_MMC_DEVICE_INDEX:
 
 	  Specifies which MMC device the environment is stored in.
 
@@ -698,13 +698,15 @@ config ENV_MTD_DEV
 	help
 	  MTD device name on the platform where the environment is stored.
 
-config SYS_MMC_ENV_DEV
-	int "mmc device number"
+config ENV_MMC_DEVICE_INDEX
+	int "SD/MMC device index"
 	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT || ENV_IS_IN_EXT4 || \
 		CMD_MVEBU_BUBT || FMAN_ENET || QE || PHY_CORTINA
 	default 0
 	help
-	  MMC device number on the platform where the environment is stored.
+	  SD/MMC device index on the platform where the environment is stored.
+	  The index is often derived from DT aliases mmcN node ordering, and
+	  matches the 'mmc list' command output.
 
 config SYS_MMC_ENV_PART
 	int "mmc partition number"
