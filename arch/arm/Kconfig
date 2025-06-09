@@ -1067,7 +1067,7 @@ config ARCH_OWL
 	select CLK
 	select CLK_OWL
 	select OF_CONTROL
-	select SYS_RELOC_GD_ENV_ADDR
+	select ENV_RELOC_GD_ENV_ADDR
 	imply CMD_DM
 
 config ARCH_QEMU
@@ -1206,7 +1206,7 @@ config ARCH_SUNXI
 	select USB_STORAGE if DISTRO_DEFAULTS && USB_HOST
 	select SPL_USE_TINY_PRINTF if SPL
 	select USE_PREBOOT
-	select SYS_RELOC_GD_ENV_ADDR
+	select ENV_RELOC_GD_ENV_ADDR
 	imply BOARD_LATE_INIT
 	imply CMD_DM
 	imply CMD_GPT
