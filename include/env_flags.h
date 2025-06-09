@@ -50,7 +50,7 @@ enum env_flags_varaccess {
 #ifdef CONFIG_ENV_OVERWRITE
 #define ETHADDR_FLAGS "eth" ETHADDR_WILDCARD "addr:ma,"
 #else
-#ifdef CONFIG_OVERWRITE_ETHADDR_ONCE
+#ifdef CONFIG_ENV_OVERWRITE_ETHADDR_ONCE
 #define ETHADDR_FLAGS "eth" ETHADDR_WILDCARD "addr:mc,"
 #else
 #define ETHADDR_FLAGS "eth" ETHADDR_WILDCARD "addr:mo,"

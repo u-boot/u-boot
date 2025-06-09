@@ -43,7 +43,7 @@ config ENV_OVERWRITE
 	  Use this to permit overriding of certain environmental variables
 	  like Ethernet and Serial
 
-config OVERWRITE_ETHADDR_ONCE
+config ENV_OVERWRITE_ETHADDR_ONCE
 	bool "Enable overwriting ethaddr environment variables once"
 	depends on !ENV_OVERWRITE
 	help
