@@ -1973,7 +1973,7 @@ ifeq ($(wildcard $(LDSCRIPT)),)
 	@/bin/false
 endif
 
-ifeq ($(CONFIG_USE_DEFAULT_ENV_FILE),y)
+ifeq ($(CONFIG_ENV_USE_DEFAULT_ENV_TEXT_FILE),y)
 prepare1: $(defaultenv_h)
 
 envtools: $(defaultenv_h)
@@ -2053,7 +2053,7 @@ $(timestamp_h): $(srctree)/Makefile FORCE
 $(dt_h): $(srctree)/Makefile FORCE
 	$(call filechk,dt.h)
 
-$(defaultenv_h): $(CONFIG_DEFAULT_ENV_FILE:"%"=%) FORCE
+$(defaultenv_h): $(CONFIG_ENV_DEFAULT_ENV_TEXT_FILE:"%"=%) FORCE
 	$(call filechk,defaultenv.h)
 
 # ---------------------------------------------------------------------------

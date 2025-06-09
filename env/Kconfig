@@ -749,7 +749,7 @@ config SCSI_ENV_PART_UUID
 	help
 	  UUID of the SCSI partition that you want to store the environment in.
 
-config USE_DEFAULT_ENV_FILE
+config ENV_USE_DEFAULT_ENV_TEXT_FILE
 	bool "Create default environment from file"
 	help
 	  Normally, the default environment is automatically generated
@@ -758,9 +758,9 @@ config USE_DEFAULT_ENV_FILE
 	  you can instead define the entire default environment in an
 	  external file.
 
-config DEFAULT_ENV_FILE
+config ENV_DEFAULT_ENV_TEXT_FILE
 	string "Path to default environment file"
-	depends on USE_DEFAULT_ENV_FILE
+	depends on ENV_USE_DEFAULT_ENV_TEXT_FILE
 	help
 	  The path containing the default environment. The format is
 	  the same as accepted by the mkenvimage tool: lines
