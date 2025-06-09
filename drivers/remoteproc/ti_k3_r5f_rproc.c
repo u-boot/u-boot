@@ -834,8 +834,14 @@ static int k3_r5f_probe(struct udevice *dev)
 			return 0;
 		}
 
+		ret = k3_r5f_proc_request(core);
+		if (ret)
+			return ret;
+
 		/* Make sure Local reset is asserted. Redundant? */
 		reset_assert(&core->reset);
+
+		ti_sci_proc_release(&core->tsp);
 	}
 
 	ret = k3_r5f_rproc_configure(core);
