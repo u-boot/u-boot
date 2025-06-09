@@ -158,8 +158,8 @@ static inline int k3_has_gpu(void)
 
 static const u32 put_device_ids[] = {};
 
-static const u32 put_core_ids[] = {};
-
 #endif
+
+static const u32 put_core_ids[] = {};
 
 #endif /* __ASM_ARCH_AM62_HARDWARE_H */

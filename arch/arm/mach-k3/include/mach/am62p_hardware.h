@@ -141,8 +141,8 @@ static inline int k3_get_a53_max_frequency(void)
 
 static const u32 put_device_ids[] = {};
 
-static const u32 put_core_ids[] = {};
-
 #endif
+
+static const u32 put_core_ids[] = {};
 
 #endif /* __ASM_ARCH_AM62P_HARDWARE_H */
