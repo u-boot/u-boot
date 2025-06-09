@@ -30,6 +30,28 @@ struct ti_sci_version_info {
 	char firmware_description[32];
 };
 
+/**
+ * struct ti_sci_dm_version_info - version information structure
+ * @abi_major:		Major ABI version. Change here implies risk of backward
+ *			compatibility break.
+ * @abi_minor:		Minor ABI version. Change here implies new feature addition,
+ *			or compatible change in ABI.
+ * @patch_ver:		Patch version of the firmware.
+ * @sub_ver:		Sub-version of the firmware.
+ * @dm_ver:		DM version.
+ * @sci_server_version: Version string of the SCI server.
+ * @rm_pm_hal_version:  Version string of the RM PM HAL.
+ */
+struct ti_sci_dm_version_info {
+	u8 abi_major;
+	u8 abi_minor;
+	u8 patch_ver;
+	u8 sub_ver;
+	u16 dm_ver;
+	char rm_pm_hal_version[12];
+	char sci_server_version[26];
+};
+
 struct ti_sci_handle;
 
 /**
@@ -265,10 +287,14 @@ struct ti_sci_core_ops {
  * struct ti_sci_firmware_ops - DM firmware operations
  * @query_dm_cap: Query the DM capabilities
  *                Return 0 for successful query else appropriate error value.
+ * @get_dm_version: Get the DM version.
+ *                  Return 0 for successful request else appropriate error value.
  */
 struct ti_sci_firmware_ops {
 	int (*query_dm_cap)(struct ti_sci_handle *handle,
 			    u64 *dm_cap);
+	int (*get_dm_version)(struct ti_sci_handle *handle,
+			      struct ti_sci_dm_version_info *get_dm_version);
 };
 
 #define TI_SCI_MSG_FLAG_FW_CAP_DM	0x100
