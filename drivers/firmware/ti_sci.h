@@ -27,6 +27,7 @@
 #define TI_SCI_MSG_BOARD_CONFIG_SECURITY  0x000d
 #define TI_SCI_MSG_BOARD_CONFIG_PM	0x000e
 #define TISCI_MSG_QUERY_MSMC		0x0020
+#define TI_SCI_MSG_QUERY_FW_CAPS	0x0022
 
 /* Device requests */
 #define TI_SCI_MSG_SET_DEVICE_STATE	0x0200
@@ -132,6 +133,18 @@ struct ti_sci_msg_resp_version {
 	u16 firmware_revision;
 	u8 abi_major;
 	u8 abi_minor;
+} __packed;
+
+/**
+ * struct ti_sci_query_fw_caps_resp - Response for a message
+ * @hdr:	Generic header
+ * @fw_caps:	64-bit value representing the FW/SOC capabilities.
+ *
+ * Response to a message with message type TI_SCI_MSG_QUERY_FW_CAPS
+ */
+struct ti_sci_query_fw_caps_resp {
+	struct ti_sci_msg_hdr hdr;
+	u64    fw_caps;
 } __packed;
 
 /**

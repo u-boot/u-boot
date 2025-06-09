@@ -262,6 +262,18 @@ struct ti_sci_core_ops {
 };
 
 /**
+ * struct ti_sci_firmware_ops - DM firmware operations
+ * @query_dm_cap: Query the DM capabilities
+ *                Return 0 for successful query else appropriate error value.
+ */
+struct ti_sci_firmware_ops {
+	int (*query_dm_cap)(struct ti_sci_handle *handle,
+			    u64 *dm_cap);
+};
+
+#define TI_SCI_MSG_FLAG_FW_CAP_DM	0x100
+
+/**
  * struct ti_sci_proc_ops - Processor specific operations.
  *
  * @proc_request: Request for controlling a physical processor.
@@ -609,6 +621,7 @@ struct ti_sci_ops {
 	struct ti_sci_dev_ops dev_ops;
 	struct ti_sci_clk_ops clk_ops;
 	struct ti_sci_core_ops core_ops;
+	struct ti_sci_firmware_ops fw_ops;
 	struct ti_sci_proc_ops proc_ops;
 	struct ti_sci_rm_core_ops rm_core_ops;
 	struct ti_sci_rm_ringacc_ops rm_ring_ops;
