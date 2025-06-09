@@ -264,8 +264,8 @@ Check packing of Python tools:
 sandbox test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
@@ -276,8 +276,8 @@ sandbox test.py:
 sandbox with clang test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
@@ -288,8 +288,8 @@ sandbox with clang test.py:
 sandbox64 test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
@@ -299,8 +299,8 @@ sandbox64 test.py:
 sandbox64 with clang test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
@@ -311,8 +311,8 @@ sandbox64 with clang test.py:
 sandbox64_lwip test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
