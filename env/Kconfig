@@ -719,17 +719,20 @@ config ENV_MMC_EMMC_HW_PARTITION
 	  partition 0 or the first boot partition, which is 1 or some other defined
 	  partition.
 
-config USE_ENV_MMC_PARTITION
-	bool "use the mmc environment partition name"
+config ENV_MMC_USE_SW_PARTITION
+	bool "Use SD/MMC environment software partition name"
 	depends on ENV_IS_IN_MMC
 
-config ENV_MMC_PARTITION
-	string "mmc environment partition name"
-	depends on USE_ENV_MMC_PARTITION
+config ENV_MMC_SW_PARTITION
+	bool "SD/MMC environment software partition name"
+	depends on ENV_MMC_USE_SW_PARTITION
 	help
-	  MMC partition name used to save environment variables.
-	  If this variable is unset, u-boot will try to get the env partition name
-	  from the device-tree's /config node.
+	  SD/MMC software partition name used to save environment variables.
+	  This is a software partition name, i.e. one in partition table, not
+	  an eMMC HW partition (see ENV_MMC_EMMC_HW_PARTITION for eMMC HW
+	  partition configuration). If this variable is unset, u-boot will
+	  try to get the env partition name from the device-tree's /config
+	  node.
 
 config ENV_MMC_USE_DT
 	bool "Read partition name and offset in DT"
