@@ -321,6 +321,59 @@ static int ti_sci_cmd_query_dm_cap(struct ti_sci_handle *handle, u64 *fw_caps)
 }
 
 /**
+ * ti_sci_cmd_get_dm_version() - command to get the DM version of the SCI
+ *				 entity
+ * @handle:	Pointer to TI SCI handle
+ * @dm_info:	Pointer to DM version information structure
+ *
+ * Return: 0 if all went fine, else return appropriate error.
+ */
+
+static int ti_sci_cmd_get_dm_version(struct ti_sci_handle *handle,
+				     struct ti_sci_dm_version_info *dm_info)
+{
+	struct ti_sci_msg_dm_resp_version *ver_info;
+	struct ti_sci_msg_hdr hdr;
+	struct ti_sci_info *info;
+	struct ti_sci_xfer *xfer;
+	int ret;
+
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+	if (!handle || !dm_info)
+		return -EINVAL;
+
+	info = handle_to_ti_sci_info(handle);
+
+	xfer = ti_sci_setup_one_xfer(info, TI_SCI_MSG_DM_VERSION,
+				     TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				     (u32 *)&hdr, sizeof(struct ti_sci_msg_hdr),
+				     sizeof(*ver_info));
+	if (IS_ERR(xfer)) {
+		ret = PTR_ERR(xfer);
+		return ret;
+	}
+
+	ret = ti_sci_do_xfer(info, xfer);
+	if (ret)
+		return ret;
+
+	ver_info = (struct ti_sci_msg_dm_resp_version *)xfer->tx_message.buf;
+
+	dm_info->abi_major = ver_info->abi_major;
+	dm_info->abi_minor = ver_info->abi_minor;
+	dm_info->dm_ver = ver_info->version;
+	dm_info->patch_ver = ver_info->patch_version;
+	dm_info->sub_ver = ver_info->sub_version;
+	strlcpy(dm_info->sci_server_version, ver_info->sci_server_version,
+		sizeof(ver_info->sci_server_version));
+	strlcpy(dm_info->rm_pm_hal_version, ver_info->rm_pm_hal_version,
+		sizeof(ver_info->rm_pm_hal_version));
+
+	return 0;
+}
+
+/**
  * ti_sci_cmd_get_revision() - command to get the revision of the SCI entity
  * @handle:	pointer to TI SCI handle
  *
@@ -2738,6 +2791,7 @@ static void ti_sci_setup_ops(struct ti_sci_info *info)
 	fwl_ops->get_fwl_region = ti_sci_cmd_get_fwl_region;
 	fwl_ops->change_fwl_owner = ti_sci_cmd_change_fwl_owner;
 
+	fw_ops->get_dm_version = ti_sci_cmd_get_dm_version;
 	fw_ops->query_dm_cap = ti_sci_cmd_query_dm_cap;
 }
 
