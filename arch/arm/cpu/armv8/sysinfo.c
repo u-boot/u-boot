@@ -134,7 +134,7 @@ int sysinfo_get_cache_info(u8 level, struct cache_info *cinfo)
 
 	/* Select cache level */
 	csselr_el1 = (level << 1);
-	asm volatile("msr csselr_el1, %0" : : "r" (csselr_el1));
+	asm volatile("msr csselr_el1, %0" : : "r" ((u64)csselr_el1));
 
 	/* Read CCSIDR_EL1 */
 	asm volatile("mrs %0, ccsidr_el1" : "=r" (creg.data));
