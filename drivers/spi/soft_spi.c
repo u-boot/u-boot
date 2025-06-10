@@ -173,7 +173,8 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			soft_spi_scl(dev, !cidle);
 		if ((txrx & SPI_MASTER_NO_TX) == 0)
 			soft_spi_sda(dev, !!(tmpdout & 0x80));
-		udelay(plat->spi_delay_us);
+		if (plat->spi_delay_us)
+			udelay(plat->spi_delay_us);
 
 		/*
 		 * sample bit
@@ -190,7 +191,8 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 							    &plat->mosi :
 							    &plat->miso);
 		tmpdout	<<= 1;
-		udelay(plat->spi_delay_us);
+		if (plat->spi_delay_us)
+			udelay(plat->spi_delay_us);
 
 		/*
 		 * drive bit
