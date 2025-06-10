@@ -4019,7 +4019,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
-            'size': 1890,
+            'size': 1378,
 
             'u-boot:image-pos': 0,
             'u-boot:offset': 0,
@@ -4027,7 +4027,7 @@ class TestFunctional(unittest.TestCase):
 
             'fit:image-pos': 4,
             'fit:offset': 4,
-            'fit:size': 1840,
+            'fit:size': 1328,
 
             'fit/images/kernel:image-pos': 304,
             'fit/images/kernel:offset': 300,
@@ -4045,8 +4045,8 @@ class TestFunctional(unittest.TestCase):
             'fit/images/fdt-1/u-boot-spl-dtb:offset': 0,
             'fit/images/fdt-1/u-boot-spl-dtb:size': 6,
 
-            'u-boot-nodtb:image-pos': 1844,
-            'u-boot-nodtb:offset': 1844,
+            'u-boot-nodtb:image-pos': 1332,
+            'u-boot-nodtb:offset': 1332,
             'u-boot-nodtb:size': 46,
         }, props)
 
