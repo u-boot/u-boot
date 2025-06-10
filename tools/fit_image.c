@@ -627,6 +627,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	struct stat sbuf;
 	int ret;
 	int images;
+	int confs;
 	int node;
 
 	fd = mmap_fdt(params->cmdname, fname, 0, &old_fdt, &sbuf, false, false);
@@ -692,6 +693,43 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 			      fdt_strerror(ret));
 			ret = -EINVAL;
 			goto err_munmap;
+		}
+	}
+
+	confs = fdt_path_offset(fdt, FIT_CONFS_PATH);
+	static const char * const props[] = { FIT_KERNEL_PROP,
+					      FIT_RAMDISK_PROP,
+					      FIT_FDT_PROP,
+					      FIT_LOADABLE_PROP,
+					      FIT_FPGA_PROP,
+					      FIT_FIRMWARE_PROP,
+					      FIT_SCRIPT_PROP};
+
+	fdt_for_each_subnode(node, fdt, confs) {
+		const char *conf_name = fdt_get_name(fdt, node, NULL);
+
+		for (int i = 0; i < ARRAY_SIZE(props); i++) {
+			int count = fdt_stringlist_count(fdt, node, props[i]);
+
+			if (count < 0)
+				continue;
+
+			for (int j = 0; j < count; j++) {
+				const char *img_name =
+					fdt_stringlist_get(fdt, node, props[i], j, NULL);
+				if (!img_name || !*img_name)
+					continue;
+
+				int img = fdt_subnode_offset(fdt, images, img_name);
+
+				if (img < 0) {
+					fprintf(stderr,
+						"Error: configuration '%s' references undefined image '%s' in property '%s'\n",
+						conf_name, img_name, props[i]);
+					ret = FDT_ERR_NOTFOUND;
+					goto err_munmap;
+				}
+			}
 		}
 	}
 
