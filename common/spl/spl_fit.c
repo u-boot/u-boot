@@ -200,7 +200,7 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
  *		the image gets loaded to the address pointed to by the
  *		load_addr member in this struct, if load_addr is not 0
  *
- * Return:	0 on success, -EPERM if this image is not the correct phase
+ * Return:	0 on success, -EBADSLT if this image is not the correct phase
  * (for CONFIG_BOOTMETH_VBE_SIMPLE_FW), or another negative error number on
  * other error.
  */
@@ -236,7 +236,7 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 			return ret;
 		} else {
 			log_debug("- phase mismatch, skipping this image\n");
-			return -EPERM;
+			return -EBADSLT;
 		}
 	}
 
@@ -475,7 +475,7 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 			image_info.load_addr = (ulong)tmpbuffer;
 			ret = load_simple_fit(info, offset, ctx, node,
 					      &image_info);
-			if (ret == -EPERM)
+			if (ret == -EBADSLT)
 				continue;
 			else if (ret < 0)
 				break;
@@ -835,7 +835,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 		image_info.load_addr = 0;
 		ret = load_simple_fit(info, offset, &ctx, node, &image_info);
-		if (ret < 0 && ret != -EPERM) {
+		if (ret < 0 && ret != -EBADSLT) {
 			printf("%s: can't load image loadables index %d (ret = %d)\n",
 			       __func__, index, ret);
 			return ret;
