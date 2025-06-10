@@ -15,6 +15,20 @@
 			fit,fdt-list = "of-list";
 
 			images {
+				atf {
+					description = "atf firmware";
+					type = "firmware";
+					compression = "none";
+					load = <00000000>;
+					entry = <00000000>;
+				};
+				uboot {
+					description = "U-Boot firmware";
+					type = "firmware";
+					compression = "none";
+					load = <00000000>;
+					entry = <00000000>;
+				};
 				kernel {
 					description = "Vanilla Linux kernel";
 					type = "kernel";
