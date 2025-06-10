@@ -16,6 +16,7 @@
 #ifndef INT_TYPES_H
 #define INT_TYPES_H
 
+#include <linux/types.h>
 #include "int_endianness.h"
 
 // si_int is defined in Linux sysroot's asm-generic/siginfo.h

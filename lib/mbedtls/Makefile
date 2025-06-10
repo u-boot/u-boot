@@ -11,6 +11,16 @@ obj-$(CONFIG_$(PHASE_)SHA1_MBEDTLS) += sha1.o
 obj-$(CONFIG_$(PHASE_)SHA256_MBEDTLS) += sha256.o
 obj-$(CONFIG_$(PHASE_)SHA512_MBEDTLS) += sha512.o
 
+# Clang compiler-rt
+ifdef CONFIG_CC_IS_CLANG
+# Built-in macros for int128 or 64bit target will enable CRT_HAS_128BIT
+CLANG_RT_LIB_DIR = port/compiler-rt/lib/builtins
+obj-$(CONFIG_$(PHASE_)RSA_PUBLIC_KEY_PARSER_MBEDTLS) += \
+	$(CLANG_RT_LIB_DIR)/udivti3.o
+obj-$(CONFIG_$(PHASE_)RSA_PUBLIC_KEY_PARSER_MBEDTLS) += \
+	$(CLANG_RT_LIB_DIR)/udivmodti4.o
+endif
+
 # x509 libraries
 obj-$(CONFIG_$(PHASE_)ASYMMETRIC_PUBLIC_KEY_MBEDTLS) += \
 	public_key.o
