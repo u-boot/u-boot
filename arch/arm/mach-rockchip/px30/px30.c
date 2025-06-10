@@ -2,10 +2,14 @@
 /*
  * Copyright (c) 2017 Rockchip Electronics Co., Ltd
  */
+
+#define LOG_CATEGORY LOGC_ARCH
+
 #include <clk.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <misc.h>
 #include <spl.h>
 #include <asm/armv8/mmu.h>
 #include <asm/arch-rockchip/bootrom.h>
@@ -15,6 +19,7 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_px30.h>
 #include <dt-bindings/clock/px30-cru.h>
+#include <linux/bitfield.h>
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 	[BROM_BOOTSOURCE_EMMC] = "/mmc@ff390000",
@@ -442,3 +447,59 @@ void board_debug_uart_init(void)
 #endif /* CONFIG_DEBUG_UART_BASE && CONFIG_DEBUG_UART_BASE == ... */
 }
 #endif /* CONFIG_DEBUG_UART_BOARD_INIT */
+
+#define PX30_OTP_SPECIFICATION_OFFSET		0x06
+
+#define DDR_GRF_BASE_ADDR               0xff630000
+#define DDR_GRF_CON(n)                  (0 + (n) * 4)
+
+int checkboard(void)
+{
+	struct udevice *dev;
+	u8 specification;
+	u32 base_soc;
+	int ret;
+
+	if (!IS_ENABLED(CONFIG_ROCKCHIP_OTP) || !CONFIG_IS_ENABLED(MISC))
+		return 0;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_DRIVER_GET(rockchip_otp), &dev);
+	if (ret) {
+		log_debug("Could not find otp device, ret=%d\n", ret);
+		return 0;
+	}
+
+	/* base SoC: 0x26334b52 for RK3326; 0x30335850 for PX30 */
+	ret = misc_read(dev, 0, &base_soc, 4);
+	if (ret < 0) {
+		log_debug("Could not read specification, ret=%d\n", ret);
+		return 0;
+	}
+
+	if (base_soc != 0x26334b52 && base_soc != 0x30335850) {
+		log_debug("Could not identify SoC, got 0x%04x in OTP\n", base_soc);
+		return 0;
+	}
+
+	/* SoC variant: 0x21 for PX30/PX30S/RK3326/RK3326S; 0x2b for PX30K */
+	ret = misc_read(dev, PX30_OTP_SPECIFICATION_OFFSET, &specification, 1);
+	if (ret < 0) {
+		log_debug("Could not read specification, ret=%d\n", ret);
+		return 0;
+	}
+
+	if (specification == 0x2b) {
+		printf("SoC:   PX30K\n");
+		return 0;
+	}
+
+	/* From vendor kernel: drivers/soc/rockchip/rockchip-cpuinfo.c */
+	specification = FIELD_GET(GENMASK(15, 14),
+				  readl(DDR_GRF_BASE_ADDR + DDR_GRF_CON(1)));
+	log_debug("DDR specification is %d\n", specification);
+	printf("SoC:   %s%s\n", base_soc == 0x26334b52 ? "RK3326" : "PX30",
+	       specification == 0x3 ? "S" : "");
+
+	return 0;
+}
