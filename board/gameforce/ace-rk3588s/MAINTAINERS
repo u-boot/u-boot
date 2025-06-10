@@ -1,0 +1,5 @@
+GAMEFORCE-ACE-RK3588S
+M:	Chris Morgan <macromorgan@hotmail.com>
+S:	Maintained
+F:	board/gameforce/ace-rk3588s/
+F:	configs/gameforce-ace-rk3588s_defconfig

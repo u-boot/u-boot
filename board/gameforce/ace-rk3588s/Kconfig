@@ -1,0 +1,9 @@
+if TARGET_GAMEFORCE_ACE_RK3588S
+
+config SYS_BOARD
+	default "gameforce-ace-rk3588s"
+
+config SYS_VENDOR
+	default "GameForce"
+
+endif
