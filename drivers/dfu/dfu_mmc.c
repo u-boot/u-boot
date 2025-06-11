@@ -117,7 +117,7 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 		return -1;
 	}
 
-	snprintf(dev_part_str, sizeof(dev_part_str), "%d:%d",
+	snprintf(dev_part_str, sizeof(dev_part_str), "%d:%x",
 		 dfu->data.mmc.dev, dfu->data.mmc.part);
 
 	ret = fs_set_blk_dev("mmc", dev_part_str, fstype);
