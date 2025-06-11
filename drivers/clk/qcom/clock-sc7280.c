@@ -205,7 +205,7 @@ static const char *const sc7280_rcg_names[] = {
 	"GCC_PCIE_1_AUX_CLK_SRC",
 };
 
-static struct msm_clk_data qcs404_gcc_data = {
+static struct msm_clk_data sc7280_gcc_data = {
 	.resets = sc7280_gcc_resets,
 	.num_resets = ARRAY_SIZE(sc7280_gcc_resets),
 	.clks = sc7280_clks,
@@ -225,7 +225,7 @@ static struct msm_clk_data qcs404_gcc_data = {
 static const struct udevice_id gcc_sc7280_of_match[] = {
 	{
 		.compatible = "qcom,gcc-sc7280",
-		.data = (ulong)&qcs404_gcc_data,
+		.data = (ulong)&sc7280_gcc_data,
 	},
 	{ }
 };
