@@ -7,3 +7,4 @@ obj-$(CONFIG_CLK_STM32F) += clk-stm32f.o
 obj-$(CONFIG_CLK_STM32H7) += clk-stm32h7.o
 obj-$(CONFIG_CLK_STM32MP1) += clk-stm32mp1.o
 obj-$(CONFIG_CLK_STM32MP13) += clk-stm32mp13.o
+obj-$(CONFIG_CLK_STM32MP25) += clk-stm32mp25.o

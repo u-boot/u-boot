@@ -235,47 +235,47 @@ static int sandbox_clk_ccf_probe(struct udevice *dev)
 	void *base = NULL;
 	u32 reg;
 
-	clk_dm(SANDBOX_CLK_PLL3,
-	       sandbox_clk_pllv3(SANDBOX_PLLV3_USB, "pll3_usb_otg", "osc",
-				 base + 0x10, 0x3));
+	dev_clk_dm(dev, SANDBOX_CLK_PLL3,
+		   sandbox_clk_pllv3(SANDBOX_PLLV3_USB, "pll3_usb_otg", "osc",
+				     base + 0x10, 0x3));
 
-	clk_dm(SANDBOX_CLK_PLL3_60M,
-	       sandbox_clk_fixed_factor("pll3_60m",  "pll3_usb_otg",   1, 8));
+	dev_clk_dm(dev, SANDBOX_CLK_PLL3_60M,
+		   sandbox_clk_fixed_factor("pll3_60m", "pll3_usb_otg",   1, 8));
 
-	clk_dm(SANDBOX_CLK_PLL3_80M,
-	       sandbox_clk_fixed_factor("pll3_80m",  "pll3_usb_otg",   1, 6));
+	dev_clk_dm(dev, SANDBOX_CLK_PLL3_80M,
+		   sandbox_clk_fixed_factor("pll3_80m", "pll3_usb_otg",   1, 6));
 
 	/* The HW adds +1 to the divider value (2+1) is the divider */
 	reg = (2 << 19);
-	clk_dm(SANDBOX_CLK_ECSPI_ROOT,
-	       sandbox_clk_divider("ecspi_root", "pll3_60m", &reg, 19, 6));
+	dev_clk_dm(dev, SANDBOX_CLK_ECSPI_ROOT,
+		   sandbox_clk_divider("ecspi_root", "pll3_60m", &reg, 19, 6));
 
 	reg = 0;
-	clk_dm(SANDBOX_CLK_ECSPI0,
-	       sandbox_clk_gate("ecspi0", "ecspi_root", &reg, 0, 0));
+	dev_clk_dm(dev, SANDBOX_CLK_ECSPI0,
+		   sandbox_clk_gate("ecspi0", "ecspi_root", &reg, 0, 0));
 
-	clk_dm(SANDBOX_CLK_ECSPI1,
-	       sandbox_clk_gate2("ecspi1", "ecspi_root", base + 0x6c, 0));
+	dev_clk_dm(dev, SANDBOX_CLK_ECSPI1,
+		   sandbox_clk_gate2("ecspi1", "ecspi_root", base + 0x6c, 0));
 
 	/* Select 'pll3_60m' */
 	reg = 0;
-	clk_dm(SANDBOX_CLK_USDHC1_SEL,
-	       sandbox_clk_mux("usdhc1_sel", &reg, 16, 1, usdhc_sels,
-			       ARRAY_SIZE(usdhc_sels)));
+	dev_clk_dm(dev, SANDBOX_CLK_USDHC1_SEL,
+		   sandbox_clk_mux("usdhc1_sel", &reg, 16, 1, usdhc_sels,
+				   ARRAY_SIZE(usdhc_sels)));
 
 	/* Select 'pll3_80m' */
 	reg = BIT(17);
-	clk_dm(SANDBOX_CLK_USDHC2_SEL,
-	       sandbox_clk_mux("usdhc2_sel", &reg, 17, 1, usdhc_sels,
-			       ARRAY_SIZE(usdhc_sels)));
+	dev_clk_dm(dev, SANDBOX_CLK_USDHC2_SEL,
+		   sandbox_clk_mux("usdhc2_sel", &reg, 17, 1, usdhc_sels,
+				   ARRAY_SIZE(usdhc_sels)));
 
 	reg = BIT(28) | BIT(24) | BIT(16);
-	clk_dm(SANDBOX_CLK_I2C,
-	       sandbox_clk_composite("i2c", i2c_sels, ARRAY_SIZE(i2c_sels),
-				     &reg, CLK_SET_RATE_UNGATE));
+	dev_clk_dm(dev, SANDBOX_CLK_I2C,
+		   sandbox_clk_composite("i2c", i2c_sels, ARRAY_SIZE(i2c_sels),
+					 &reg, CLK_SET_RATE_UNGATE));
 
-	clk_dm(SANDBOX_CLK_I2C_ROOT,
-	       sandbox_clk_gate2("i2c_root", "i2c", base + 0x7c, 0));
+	dev_clk_dm(dev, SANDBOX_CLK_I2C_ROOT,
+		   sandbox_clk_gate2("i2c_root", "i2c", base + 0x7c, 0));
 
 	return 0;
 }

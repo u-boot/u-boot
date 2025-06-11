@@ -1,0 +1,159 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause
+/*
+ * Copyright (C) 2024, STMicroelectronics - All Rights Reserved
+ * Author(s): Gabriel Fernandez, <gabriel.fernandez@foss.st.com> for STMicroelectronics.
+ */
+
+#include <dm.h>
+#include <stm32-reset-core.h>
+#include <stm32mp25_rcc.h>
+#include <dt-bindings/reset/st,stm32mp25-rcc.h>
+
+/* Reset clear offset for STM32MP RCC */
+#define RCC_CLR_OFFSET			0x4
+
+/* Timeout for deassert */
+#define STM32_DEASSERT_TIMEOUT_US	10000
+
+#define RESET(id, _offset, _bit_idx, _set_clr)		\
+	[id] = &(struct stm32_reset_cfg){		\
+		.offset		= (_offset),		\
+		.bit_idx	= (_bit_idx),		\
+		.set_clr	= (_set_clr),		\
+	}
+
+static const struct stm32_reset_cfg *stm32mp25_reset[STM32MP25_LAST_RESET] = {
+	RESET(TIM1_R,		RCC_TIM1CFGR,		0,	0),
+	RESET(TIM2_R,		RCC_TIM2CFGR,		0,	0),
+	RESET(TIM3_R,		RCC_TIM3CFGR,		0,	0),
+	RESET(TIM4_R,		RCC_TIM4CFGR,		0,	0),
+	RESET(TIM5_R,		RCC_TIM5CFGR,		0,	0),
+	RESET(TIM6_R,		RCC_TIM6CFGR,		0,	0),
+	RESET(TIM7_R,		RCC_TIM7CFGR,		0,	0),
+	RESET(TIM8_R,		RCC_TIM8CFGR,		0,	0),
+	RESET(TIM10_R,		RCC_TIM10CFGR,		0,	0),
+	RESET(TIM11_R,		RCC_TIM11CFGR,		0,	0),
+	RESET(TIM12_R,		RCC_TIM12CFGR,		0,	0),
+	RESET(TIM13_R,		RCC_TIM13CFGR,		0,	0),
+	RESET(TIM14_R,		RCC_TIM14CFGR,		0,	0),
+	RESET(TIM15_R,		RCC_TIM15CFGR,		0,	0),
+	RESET(TIM16_R,		RCC_TIM16CFGR,		0,	0),
+	RESET(TIM17_R,		RCC_TIM17CFGR,		0,	0),
+	RESET(TIM20_R,		RCC_TIM20CFGR,		0,	0),
+	RESET(LPTIM1_R,		RCC_LPTIM1CFGR,		0,	0),
+	RESET(LPTIM2_R,		RCC_LPTIM2CFGR,		0,	0),
+	RESET(LPTIM3_R,		RCC_LPTIM3CFGR,		0,	0),
+	RESET(LPTIM4_R,		RCC_LPTIM4CFGR,		0,	0),
+	RESET(LPTIM5_R,		RCC_LPTIM5CFGR,		0,	0),
+	RESET(SPI1_R,		RCC_SPI1CFGR,		0,	0),
+	RESET(SPI2_R,		RCC_SPI2CFGR,		0,	0),
+	RESET(SPI3_R,		RCC_SPI3CFGR,		0,	0),
+	RESET(SPI4_R,		RCC_SPI4CFGR,		0,	0),
+	RESET(SPI5_R,		RCC_SPI5CFGR,		0,	0),
+	RESET(SPI6_R,		RCC_SPI6CFGR,		0,	0),
+	RESET(SPI7_R,		RCC_SPI7CFGR,		0,	0),
+	RESET(SPI8_R,		RCC_SPI8CFGR,		0,	0),
+	RESET(SPDIFRX_R,	RCC_SPDIFRXCFGR,	0,	0),
+	RESET(USART1_R,		RCC_USART1CFGR,		0,	0),
+	RESET(USART2_R,		RCC_USART2CFGR,		0,	0),
+	RESET(USART3_R,		RCC_USART3CFGR,		0,	0),
+	RESET(UART4_R,		RCC_UART4CFGR,		0,	0),
+	RESET(UART5_R,		RCC_UART5CFGR,		0,	0),
+	RESET(USART6_R,		RCC_USART6CFGR,		0,	0),
+	RESET(UART7_R,		RCC_UART7CFGR,		0,	0),
+	RESET(UART8_R,		RCC_UART8CFGR,		0,	0),
+	RESET(UART9_R,		RCC_UART9CFGR,		0,	0),
+	RESET(LPUART1_R,	RCC_LPUART1CFGR,	0,	0),
+	RESET(IS2M_R,		RCC_IS2MCFGR,		0,	0),
+	RESET(I2C1_R,		RCC_I2C1CFGR,		0,	0),
+	RESET(I2C2_R,		RCC_I2C2CFGR,		0,	0),
+	RESET(I2C3_R,		RCC_I2C3CFGR,		0,	0),
+	RESET(I2C4_R,		RCC_I2C4CFGR,		0,	0),
+	RESET(I2C5_R,		RCC_I2C5CFGR,		0,	0),
+	RESET(I2C6_R,		RCC_I2C6CFGR,		0,	0),
+	RESET(I2C7_R,		RCC_I2C7CFGR,		0,	0),
+	RESET(I2C8_R,		RCC_I2C8CFGR,		0,	0),
+	RESET(SAI1_R,		RCC_SAI1CFGR,		0,	0),
+	RESET(SAI2_R,		RCC_SAI2CFGR,		0,	0),
+	RESET(SAI3_R,		RCC_SAI3CFGR,		0,	0),
+	RESET(SAI4_R,		RCC_SAI4CFGR,		0,	0),
+	RESET(MDF1_R,		RCC_MDF1CFGR,		0,	0),
+	RESET(MDF2_R,		RCC_ADF1CFGR,		0,	0),
+	RESET(FDCAN_R,		RCC_FDCANCFGR,		0,	0),
+	RESET(HDP_R,		RCC_HDPCFGR,		0,	0),
+	RESET(ADC12_R,		RCC_ADC12CFGR,		0,	0),
+	RESET(ADC3_R,		RCC_ADC3CFGR,		0,	0),
+	RESET(ETH1_R,		RCC_ETH1CFGR,		0,	0),
+	RESET(ETH2_R,		RCC_ETH2CFGR,		0,	0),
+	RESET(USBH_R,		RCC_USBHCFGR,		0,	0),
+	RESET(USB2PHY1_R,	RCC_USB2PHY1CFGR,	0,	0),
+	RESET(USB2PHY2_R,	RCC_USB2PHY2CFGR,	0,	0),
+	RESET(USB3DR_R,		RCC_USB3DRCFGR,		0,	0),
+	RESET(USB3PCIEPHY_R,	RCC_USB3PCIEPHYCFGR,	0,	0),
+	RESET(USBTC_R,		RCC_UCPDCFGR,		0,	0),
+	RESET(ETHSW_R,		RCC_ETHSWCFGR,		0,	0),
+	RESET(SDMMC1_R,		RCC_SDMMC1CFGR,		0,	0),
+	RESET(SDMMC1DLL_R,	RCC_SDMMC1CFGR,		16,	0),
+	RESET(SDMMC2_R,		RCC_SDMMC2CFGR,		0,	0),
+	RESET(SDMMC2DLL_R,	RCC_SDMMC2CFGR,		16,	0),
+	RESET(SDMMC3_R,		RCC_SDMMC3CFGR,		0,	0),
+	RESET(SDMMC3DLL_R,	RCC_SDMMC3CFGR,		16,	0),
+	RESET(GPU_R,		RCC_GPUCFGR,		0,	0),
+	RESET(LTDC_R,		RCC_LTDCCFGR,		0,	0),
+	RESET(DSI_R,		RCC_DSICFGR,		0,	0),
+	RESET(LVDS_R,		RCC_LVDSCFGR,		0,	0),
+	RESET(CSI_R,		RCC_CSICFGR,		0,	0),
+	RESET(DCMIPP_R,		RCC_DCMIPPCFGR,		0,	0),
+	RESET(CCI_R,		RCC_CCICFGR,		0,	0),
+	RESET(VDEC_R,		RCC_VDECCFGR,		0,	0),
+	RESET(VENC_R,		RCC_VENCCFGR,		0,	0),
+	RESET(WWDG1_R,		RCC_WWDG1CFGR,		0,	0),
+	RESET(WWDG2_R,		RCC_WWDG2CFGR,		0,	0),
+	RESET(VREF_R,		RCC_VREFCFGR,		0,	0),
+	RESET(DTS_R,		RCC_DTSCFGR,		0,	0),
+	RESET(CRC_R,		RCC_CRCCFGR,		0,	0),
+	RESET(SERC_R,		RCC_SERCCFGR,		0,	0),
+	RESET(OSPIIOM_R,	RCC_OSPIIOMCFGR,	0,	0),
+	RESET(I3C1_R,		RCC_I3C1CFGR,		0,	0),
+	RESET(I3C2_R,		RCC_I3C2CFGR,		0,	0),
+	RESET(I3C3_R,		RCC_I3C3CFGR,		0,	0),
+	RESET(I3C4_R,		RCC_I3C4CFGR,		0,	0),
+	RESET(IWDG2_KER_R,	RCC_IWDGC1CFGSETR,	18,	1),
+	RESET(IWDG4_KER_R,	RCC_IWDGC2CFGSETR,	18,	1),
+	RESET(RNG_R,		RCC_RNGCFGR,		0,	0),
+	RESET(PKA_R,		RCC_PKACFGR,		0,	0),
+	RESET(SAES_R,		RCC_SAESCFGR,		0,	0),
+	RESET(HASH_R,		RCC_HASHCFGR,		0,	0),
+	RESET(CRYP1_R,		RCC_CRYP1CFGR,		0,	0),
+	RESET(CRYP2_R,		RCC_CRYP2CFGR,		0,	0),
+	RESET(PCIE_R,		RCC_PCIECFGR,		0,	0),
+};
+
+static const struct stm32_reset_cfg *stm32_get_reset_line(struct reset_ctl *reset_ctl)
+{
+	unsigned long id = reset_ctl->id;
+
+	if (id < STM32MP25_LAST_RESET)
+		return stm32mp25_reset[id];
+
+	return NULL;
+}
+
+static const struct stm32_reset_data stm32mp25_reset_data = {
+	.get_reset_line	= stm32_get_reset_line,
+	.clear_offset	= RCC_CLR_OFFSET,
+	.reset_us	= STM32_DEASSERT_TIMEOUT_US,
+};
+
+static int stm32_reset_probe(struct udevice *dev)
+{
+	return stm32_reset_core_probe(dev, &stm32mp25_reset_data);
+}
+
+U_BOOT_DRIVER(stm32mp25_rcc_reset) = {
+	.name		= "stm32mp25_reset",
+	.id		= UCLASS_RESET,
+	.probe		= stm32_reset_probe,
+	.priv_auto	= sizeof(struct stm32_reset_priv),
+	.ops		= &stm32_reset_ops,
+};

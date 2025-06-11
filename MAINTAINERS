@@ -718,7 +718,7 @@ F:	drivers/power/regulator/stm32-vrefbuf.c
 F:	drivers/power/regulator/stpmic1.c
 F:	drivers/ram/stm32mp1/
 F:	drivers/remoteproc/stm32_copro.c
-F:	drivers/reset/stm32-reset.c
+F:	drivers/reset/stm32/
 F:	drivers/rng/optee_rng.c
 F:	drivers/rng/stm32_rng.c
 F:	drivers/rtc/stm32_rtc.c
@@ -731,6 +731,7 @@ F:	include/dt-bindings/clock/stm32fx-clock.h
 F:	include/dt-bindings/clock/stm32mp*
 F:	include/dt-bindings/pinctrl/stm32-pinfunc.h
 F:	include/dt-bindings/reset/stm32mp*
+F:	include/stm32-reset-core.h
 F:	include/stm32_rcc.h
 F:	tools/logos/st.bmp
 F:	tools/stm32image.c

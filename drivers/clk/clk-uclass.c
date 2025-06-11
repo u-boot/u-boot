@@ -34,6 +34,11 @@ struct clk *dev_get_clk_ptr(struct udevice *dev)
 	return (struct clk *)dev_get_uclass_priv(dev);
 }
 
+ulong clk_get_id(const struct clk *clk)
+{
+	return (ulong)(clk->id & CLK_ID_MSK);
+}
+
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 int clk_get_by_phandle(struct udevice *dev, const struct phandle_1_arg *cells,
 		       struct clk *clk)
@@ -43,7 +48,7 @@ int clk_get_by_phandle(struct udevice *dev, const struct phandle_1_arg *cells,
 	ret = device_get_by_ofplat_idx(cells->idx, &clk->dev);
 	if (ret)
 		return ret;
-	clk->id = cells->arg[0];
+	clk->id = CLK_ID(dev, cells->arg[0]);
 
 	return 0;
 }
@@ -61,7 +66,7 @@ static int clk_of_xlate_default(struct clk *clk,
 	}
 
 	if (args->args_count)
-		clk->id = args->args[0];
+		clk->id = CLK_ID(clk->dev, args->args[0]);
 	else
 		clk->id = 0;
 

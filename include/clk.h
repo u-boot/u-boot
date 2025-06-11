@@ -13,6 +13,15 @@
 #include <linux/errno.h>
 #include <linux/types.h>
 
+#ifdef CONFIG_CLK_AUTO_ID
+#define CLK_ID_SZ	24
+#define CLK_ID_MSK	GENMASK(23, 0)
+#define CLK_ID(dev, id)	(((dev_seq(dev) + 1) << CLK_ID_SZ) | ((id) & CLK_ID_MSK))
+#else
+#define CLK_ID_MSK	(~0UL)
+#define CLK_ID(dev, id)	id
+#endif
+
 /**
  * DOC: Overview
  *
@@ -570,6 +579,16 @@ int clk_get_by_id(ulong id, struct clk **clkp);
  */
 bool clk_dev_binded(struct clk *clk);
 
+/**
+ * clk_get_id - get clk id
+ *
+ * @clk:	A clock struct
+ *
+ * Return: the clock identifier as it is defined by the clock provider in
+ * device tree or in platdata
+ */
+ulong clk_get_id(const struct clk *clk);
+
 #else /* CONFIG_IS_ENABLED(CLK) */
 
 static inline int clk_request(struct udevice *dev, struct clk *clk)
@@ -640,6 +659,11 @@ static inline int clk_get_by_id(ulong id, struct clk **clkp)
 static inline bool clk_dev_binded(struct clk *clk)
 {
 	return false;
+}
+
+static inline ulong clk_get_id(const struct clk *clk)
+{
+	return 0;
 }
 #endif /* CONFIG_IS_ENABLED(CLK) */
 

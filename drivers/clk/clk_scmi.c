@@ -84,26 +84,47 @@ static int scmi_clk_get_num_clock(struct udevice *dev, size_t *num_clocks)
 static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name,
 				 u32 *attr)
 {
+	struct scmi_clock_priv *priv = dev_get_priv(dev);
 	struct scmi_clk_attribute_in in = {
 		.clock_id = clkid,
 	};
-	struct scmi_clk_attribute_out out;
-	struct scmi_msg msg = {
-		.protocol_id = SCMI_PROTOCOL_ID_CLOCK,
-		.message_id = SCMI_CLOCK_ATTRIBUTES,
-		.in_msg = (u8 *)&in,
-		.in_msg_sz = sizeof(in),
-		.out_msg = (u8 *)&out,
-		.out_msg_sz = sizeof(out),
-	};
 	int ret;
 
-	ret = devm_scmi_process_msg(dev, &msg);
-	if (ret)
-		return ret;
+	if (priv->version >= 0x20000) {
+		struct scmi_clk_attribute_out_v2 out;
+		struct scmi_msg msg = {
+			.protocol_id = SCMI_PROTOCOL_ID_CLOCK,
+			.message_id = SCMI_CLOCK_ATTRIBUTES,
+			.in_msg = (u8 *)&in,
+			.in_msg_sz = sizeof(in),
+			.out_msg = (u8 *)&out,
+			.out_msg_sz = sizeof(out),
+		};
 
-	*name = strdup(out.clock_name);
-	*attr = out.attributes;
+		ret = devm_scmi_process_msg(dev, &msg);
+		if (ret)
+			return ret;
+
+		*name = strdup(out.clock_name);
+		*attr = out.attributes;
+	} else {
+		struct scmi_clk_attribute_out out;
+		struct scmi_msg msg = {
+			.protocol_id = SCMI_PROTOCOL_ID_CLOCK,
+			.message_id = SCMI_CLOCK_ATTRIBUTES,
+			.in_msg = (u8 *)&in,
+			.in_msg_sz = sizeof(in),
+			.out_msg = (u8 *)&out,
+			.out_msg_sz = sizeof(out),
+		};
+
+		ret = devm_scmi_process_msg(dev, &msg);
+		if (ret)
+			return ret;
+
+		*name = strdup(out.clock_name);
+		*attr = out.attributes;
+	}
 
 	return 0;
 }
@@ -111,7 +132,7 @@ static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name,
 static int scmi_clk_gate(struct clk *clk, int enable)
 {
 	struct scmi_clk_state_in in = {
-		.clock_id = clk->id,
+		.clock_id = clk_get_id(clk),
 		.attributes = enable,
 	};
 	struct scmi_clk_state_out out;
@@ -176,7 +197,7 @@ static int scmi_clk_disable(struct clk *clk)
 static ulong scmi_clk_get_rate(struct clk *clk)
 {
 	struct scmi_clk_rate_get_in in = {
-		.clock_id = clk->id,
+		.clock_id = clk_get_id(clk),
 	};
 	struct scmi_clk_rate_get_out out;
 	struct scmi_msg msg = SCMI_MSG_IN(SCMI_PROTOCOL_ID_CLOCK,
@@ -198,7 +219,7 @@ static ulong scmi_clk_get_rate(struct clk *clk)
 static ulong __scmi_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct scmi_clk_rate_set_in in = {
-		.clock_id = clk->id,
+		.clock_id = clk_get_id(clk),
 		.flags = SCMI_CLK_RATE_ROUND_CLOSEST,
 		.rate_lsb = (u32)rate,
 		.rate_msb = (u32)((u64)rate >> 32),
@@ -257,6 +278,9 @@ static int scmi_clk_probe(struct udevice *dev)
 	if (!CONFIG_IS_ENABLED(CLK_CCF))
 		return 0;
 
+	ret = scmi_generic_protocol_version(dev, SCMI_PROTOCOL_ID_CLOCK,
+					    &priv->version);
+
 	/* register CCF children: CLK UCLASS, no probed again */
 	if (device_get_uclass_id(dev->parent) == UCLASS_CLK)
 		return 0;
@@ -289,7 +313,7 @@ static int scmi_clk_probe(struct udevice *dev)
 				return ret;
 			}
 
-			clk_dm(i, &clk_scmi->clk);
+			dev_clk_dm(dev, i, &clk_scmi->clk);
 
 			if (CLK_HAS_RESTRICTIONS(attributes)) {
 				u32 perm;
