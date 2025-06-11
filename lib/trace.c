@@ -66,7 +66,7 @@ static inline uintptr_t __attribute__((no_instrument_function))
 /**
  * trace_gd - the value of the gd register
  */
-static volatile gd_t *trace_gd;
+static gd_t *trace_gd;
 
 /**
  * trace_save_gd() - save the value of the gd register
@@ -86,7 +86,7 @@ static void notrace trace_save_gd(void)
  */
 static void notrace trace_swap_gd(void)
 {
-	volatile gd_t *temp_gd = trace_gd;
+	gd_t *temp_gd = trace_gd;
 
 	trace_gd = gd;
 	set_gd(temp_gd);

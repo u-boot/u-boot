@@ -68,7 +68,7 @@ static inline gd_t *get_gd(void)
 
 #endif
 
-static inline void set_gd(volatile gd_t *gd_ptr)
+static inline void set_gd(gd_t *gd_ptr)
 {
 #ifdef CONFIG_64BIT
 	asm volatile("ld gp, %0\n" : : "m"(gd_ptr));
