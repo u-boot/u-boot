@@ -117,6 +117,13 @@ Or with no FIT image::
 	mkbootimg --kernel u-boot-nodtb.bin.gz-dtb \
 	--output boot.img --pagesize 4096 --base 0x80000000
 
+Other devices with boot image version 2 can be built like this example::
+
+	mkbootimg --pagesize 4096 --header_version 2 \
+	--kernel_offset 0x00008000 --kernel u-boot-nodtb.bin.gz \
+	--dtb_offset 0x01f00000 --dtb dts/upstream/src/arm64/qcom/qcm6490-fairphone-fp5.dtb \
+	--output boot.img
+
 - Flash boot.img using fastboot and erase dtbo to avoid conflicts with our DTB:
 
   .. code-block:: bash
