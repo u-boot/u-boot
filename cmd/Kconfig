@@ -153,6 +153,7 @@ config CMD_CONFIG
 	bool "config"
 	default SANDBOX
 	select BUILD_BIN2C
+	select GZIP
 	help
 	  Print ".config" contents.
 
