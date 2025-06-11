@@ -51,7 +51,7 @@ undefine MK_ARCH
 # descending is started. They are now explicitly listed as the
 # prepare rule.
 
-ifneq ($(sub-make-done),1)
+ifneq ($(sub_make_done),1)
 
 # Do not use make's built-in rules and variables
 # (this increases performance and avoids hard-to-debug behaviour)
@@ -176,17 +176,18 @@ MAKEFLAGS += --no-print-directory
 
 endif # ifneq ($(KBUILD_OUTPUT),)
 
+export sub_make_done := 1
 PHONY += $(MAKECMDGOALS) sub-make
 
 $(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
 	@:
 
 sub-make: FORCE
-	$(Q)$(MAKE) sub-make-done=1 \
+	$(Q)$(MAKE) \
 	$(if $(KBUILD_OUTPUT),-C $(KBUILD_OUTPUT) KBUILD_SRC=$(CURDIR)) \
 	-f $(CURDIR)/Makefile $(filter-out _all sub-make,$(MAKECMDGOALS))
 
-else # sub-make-done
+else # sub_make_done
 # We process the rest of the Makefile if this is the final invocation of make
 
 # Do not print "Entering directory ...",
@@ -2549,7 +2550,7 @@ $(cmd_files): ;        # Do not try to update included dependency files
 
 endif    #ifeq ($(config-targets),1)
 endif    #ifeq ($(mixed-targets),1)
-endif	 # sub-make-done
+endif	 # sub_make_done
 
 PHONY += FORCE
 FORCE:
