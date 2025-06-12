@@ -50,3 +50,13 @@ Please read the section on SCP firmware in board/sunxi/README.sunxi64
 tee-os:
 See the documentation for your board. You may need to build Open Portable
 Trusted Execution Environment (OP-TEE) and build with TEE=/path/to/tee.bin
+
+ti-dm:
+You are missing TI's Device Management (DM) firmware which is critical to
+provide resource and power management services for your board. Your board
+will not boot without this firmware.
+
+Have a look at your board's documentation to find the latest version of
+the DM firmware binary and how to include it in the build.
+
+    https://docs.u-boot.org/en/latest/board/ti/k3.html
