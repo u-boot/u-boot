@@ -274,6 +274,47 @@ static struct module_pin_mux uart3_icev2_pin_mux[] = {
 	{-1},
 };
 
+#if (IS_ENABLED(CONFIG_AM335X_LCD))
+static struct module_pin_mux lcd_pin_mux[] = {
+	{OFFSET(lcd_data0), (MODE(0))},		/* LCD-Data(0) */
+	{OFFSET(lcd_data1), (MODE(0))},		/* LCD-Data(1) */
+	{OFFSET(lcd_data2), (MODE(0))},		/* LCD-Data(2) */
+	{OFFSET(lcd_data3), (MODE(0))},		/* LCD-Data(3) */
+	{OFFSET(lcd_data4), (MODE(0))},		/* LCD-Data(4) */
+	{OFFSET(lcd_data5), (MODE(0))},		/* LCD-Data(5) */
+	{OFFSET(lcd_data6), (MODE(0))},		/* LCD-Data(6) */
+	{OFFSET(lcd_data7), (MODE(0))},		/* LCD-Data(7) */
+	{OFFSET(lcd_data8), (MODE(0))},		/* LCD-Data(8) */
+	{OFFSET(lcd_data9), (MODE(0))},		/* LCD-Data(9) */
+	{OFFSET(lcd_data10), (MODE(0))},	/* LCD-Data(10) */
+	{OFFSET(lcd_data11), (MODE(0))},	/* LCD-Data(11) */
+	{OFFSET(lcd_data12), (MODE(0))},	/* LCD-Data(12) */
+	{OFFSET(lcd_data13), (MODE(0))},	/* LCD-Data(13) */
+	{OFFSET(lcd_data14), (MODE(0))},	/* LCD-Data(14) */
+	{OFFSET(lcd_data15), (MODE(0))},	/* LCD-Data(15) */
+	{OFFSET(gpmc_ad15), (MODE(1))},		/* LCD-Data(16) */
+	{OFFSET(gpmc_ad14), (MODE(1))},		/* LCD-Data(17) */
+	{OFFSET(gpmc_ad13), (MODE(1))},		/* LCD-Data(18) */
+	{OFFSET(gpmc_ad12), (MODE(1))},		/* LCD-Data(19) */
+	{OFFSET(gpmc_ad11), (MODE(1))},		/* LCD-Data(20) */
+	{OFFSET(gpmc_ad10), (MODE(1))},		/* LCD-Data(21) */
+	{OFFSET(gpmc_ad9), (MODE(1))},		/* LCD-Data(22) */
+	{OFFSET(gpmc_ad8), (MODE(1))},		/* LCD-Data(23) */
+	{OFFSET(lcd_vsync), (MODE(0))},		/* LCD-VSync */
+	{OFFSET(lcd_hsync), (MODE(0))},		/* LCD-HSync */
+	{OFFSET(lcd_ac_bias_en), (MODE(0))},	/* LCD-DE */
+	{OFFSET(lcd_pclk), (MODE(0))},		/* LCD-CLK */
+	{-1},
+};
+#endif
+
+#if (IS_ENABLED(CONFIG_PWM_TI_ECAP))
+static struct module_pin_mux ecap_pin_mux[] = {
+	{OFFSET(ecap0_in_pwm0_out), (MODE(0))},         /* ecap0_in_pwm0_out */
+	{-1},
+};
+#endif
+
 #if defined(CONFIG_NOR_BOOT)
 void enable_norboot_pin_mux(void)
 {
@@ -389,6 +430,13 @@ void enable_board_pin_mux(void)
 			configure_module_pin_mux(mmc1_pin_mux);
 			configure_module_pin_mux(spi0_pin_mux);
 		}
+		#if IS_ENABLED(CONFIG_AM335X_LCD)
+			configure_module_pin_mux(lcd_pin_mux);
+		#endif
+
+		#if IS_ENABLED(CONFIG_PWM_TI_ECAP)
+			configure_module_pin_mux(ecap_pin_mux);
+		#endif
 	} else if (board_is_idk()) {
 		/* Industrial Motor Control (IDK) */
 		configure_module_pin_mux(mii1_pin_mux);
