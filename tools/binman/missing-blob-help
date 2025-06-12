@@ -70,3 +70,14 @@ Have a look at your board's documentation to find the latest version of
 the DM firmware binary and how to include it in the build.
 
     https://docs.u-boot.org/en/latest/board/ti/k3.html
+
+ti-fs-enc.bin:
+You are missing TI's Foundational Security (TIFS) firmware which is
+critical to provide foundational security services like authenticated boot,
+and firewall management for the SoC. Your board will not boot without
+this firmware.
+
+Have a look at your board's documentation to find the latest version of the
+TIFS firmware binary and how to include them in the build.
+
+    https://docs.u-boot.org/en/latest/board/ti/k3.html
