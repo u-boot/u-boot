@@ -7,7 +7,6 @@
 #include "imx93.dtsi"
 
 /delete-node/ &A55_1;
-/delete-node/ &cm33;
 /delete-node/ &mlmix;
 /delete-node/ &mu1;
 /delete-node/ &mu2;
@@ -41,28 +40,12 @@
 	assigned-clock-rates = <100000000>, <250000000>;
 };
 
-&i3c1 {
-	clocks = <&clk IMX93_CLK_BUS_AON>,
-			<&clk IMX93_CLK_I3C1_GATE>,
-			<&clk IMX93_CLK_DUMMY>;
-};
-
-&i3c2 {
-	clocks = <&clk IMX93_CLK_BUS_WAKEUP>,
-			<&clk IMX93_CLK_I3C2_GATE>,
-			<&clk IMX93_CLK_DUMMY>;
-};
-
 &iomuxc {
 	compatible = "fsl,imx91-iomuxc";
 };
 
 &tmu {
 	status = "disabled";
-};
-
-&{/soc@0/ddr-pmu@4e300dc0} {
-	compatible = "fsl,imx91-ddr-pmu", "fsl,imx93-ddr-pmu";
 };
 
 &{/thermal-zones/cpu-thermal/cooling-maps/map0} {
