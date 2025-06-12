@@ -97,7 +97,7 @@ def _ReadMissingBlobHelp():
         return tag, msg
 
     my_data = pkg_resources.resource_string(__name__, 'missing-blob-help')
-    re_tag = re.compile('^([-a-z0-9]+):$')
+    re_tag = re.compile(r"^([-\.a-z0-9]+):$")
     result = {}
     tag = None
     msg = ''
