@@ -47,6 +47,16 @@ scp-sunxi:
 SCP firmware is required for system suspend, but is otherwise optional.
 Please read the section on SCP firmware in board/sunxi/README.sunxi64
 
+sysfw-inner-cert:
+You are missing the inner certificate for TI's Foundational Security (TIFS)
+firmware which is critical to authenticating the TIFS firmware during boot.
+HS-FS and HS-SE parts will not boot without this certificate.
+
+Have a look at your board's documentation to find and include the latest
+TIFS certificate blobs and how to include them in the build.
+
+    https://docs.u-boot.org/en/latest/board/ti/k3.html
+
 tee-os:
 See the documentation for your board. You may need to build Open Portable
 Trusted Execution Environment (OP-TEE) and build with TEE=/path/to/tee.bin
