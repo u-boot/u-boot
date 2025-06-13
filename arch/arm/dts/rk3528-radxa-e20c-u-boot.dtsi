@@ -2,6 +2,10 @@
 
 #include "rk3528-u-boot.dtsi"
 
+&sdhci {
+	mmc-hs200-1_8v;
+};
+
 &sdmmc {
 	bus-width = <4>;
 	cap-mmc-highspeed;
