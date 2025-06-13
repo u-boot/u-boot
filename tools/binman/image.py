@@ -183,6 +183,8 @@ class Image(section.Entry_section):
         fname = tools.get_output_filename(self._filename)
         tout.info("Writing image to '%s'" % fname)
         with open(fname, 'wb') as fd:
+            # For final image, don't write absent blobs to file
+            self.drop_absent_optional()
             data = self.GetPaddedData()
             fd.write(data)
         tout.info("Wrote %#x bytes" % len(data))

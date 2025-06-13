@@ -760,7 +760,7 @@ class Entry(object):
                           self.image_pos)
 
     # pylint: disable=assignment-from-none
-    def GetEntries(self):
+    def GetEntries(self) -> None:
         """Return a list of entries contained by this entry
 
         Returns:
@@ -1350,6 +1350,10 @@ features to produce new behaviours.
         if not os.path.exists(cls.fake_dir):
             os.mkdir(cls.fake_dir)
         tout.notice(f"Fake-blob dir is '{cls.fake_dir}'")
+
+    def drop_absent_optional(self) -> None:
+        """Entries don't have any entries, do nothing"""
+        pass
 
     def ensure_props(self):
         """Raise an exception if properties are missing

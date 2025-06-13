@@ -251,7 +251,7 @@ class TestFunctional(unittest.TestCase):
         # ATF and OP_TEE
         TestFunctional._MakeInputFile('bl31.elf',
             tools.read_file(cls.ElfTestFile('elf_sections')))
-        TestFunctional._MakeInputFile('tee.elf',
+        TestFunctional.tee_elf_path = TestFunctional._MakeInputFile('tee.elf',
             tools.read_file(cls.ElfTestFile('elf_sections')))
 
         # Newer OP_TEE file in v1 binary format
@@ -6459,16 +6459,18 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testAbsent(self):
         """Check handling of absent entries"""
         data = self._DoReadFile('262_absent.dts')
-        self.assertEqual(U_BOOT_DATA + U_BOOT_IMG_DATA, data)
+        self.assertEqual(U_BOOT_DATA + b'aa' + U_BOOT_IMG_DATA, data)
 
-    def testPackTeeOsOptional(self):
-        """Test that an image with an optional TEE binary can be created"""
+    def testPackTeeOsElf(self):
+        """Test that an image with a TEE elf binary can be created"""
         entry_args = {
             'tee-os-path': 'tee.elf',
         }
+        tee_path = self.tee_elf_path
         data = self._DoReadFileDtb('263_tee_os_opt.dts',
                                    entry_args=entry_args)[0]
-        self.assertEqual(U_BOOT_DATA + U_BOOT_IMG_DATA, data)
+        self.assertEqual(U_BOOT_DATA + tools.read_file(tee_path) +
+                         U_BOOT_IMG_DATA, data)
 
     def checkFitTee(self, dts, tee_fname):
         """Check that a tee-os entry works and returns data
@@ -6724,7 +6726,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         node = dtb.GetNode('/configurations/conf-missing-tee-1')
         self.assertEqual('atf-1', node.props['firmware'].value)
-        self.assertEqual(['u-boot', 'atf-2'],
+        self.assertEqual(['u-boot', 'tee', 'atf-2'],
                          fdt_util.GetStringList(node, 'loadables'))
 
     def testTooldir(self):
