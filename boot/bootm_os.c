@@ -402,6 +402,17 @@ static int do_bootm_elf(int flag, struct bootm_info *bmi)
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
 
+	/*
+	 * Required per RISC-V boot protocol:
+	 * a0(argc) = hartid of the current core
+	 * a1(argv) = address of the devicetree in memory
+	 * https://www.kernel.org/doc/html/latest/arch/riscv/boot.html#register-state
+	 */
+#if defined(CONFIG_RISCV)
+	bmi->argc = gd->arch.boot_hart;
+	bmi->argv = (char **)bmi->images->ft_addr;
+#endif
+
 	bootelf(bmi->images->ep, flags, bmi->argc, bmi->argv);
 
 	return 1;
