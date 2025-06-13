@@ -84,6 +84,7 @@ FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
                          b"sorry you're alive\n")
 COMPRESS_DATA         = b'compress xxxxxxxxxxxxxxxxxxxxxx data'
 COMPRESS_DATA_BIG     = COMPRESS_DATA * 2
+MISSING_DATA          = b'missing'
 REFCODE_DATA          = b'refcode'
 FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
@@ -6537,15 +6538,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             "Node '/binman/fit/images/@tee-SEQ/tee-os': Invalid OP-TEE file: size mismatch (expected 0x4, have 0xe)",
             str(exc.exception))
 
-    def testExtblobOptional(self):
+    def testExtblobMissingOptional(self):
         """Test an image with an external blob that is optional"""
         with terminal.capture() as (stdout, stderr):
             data = self._DoReadFile('266_blob_ext_opt.dts')
         self.assertEqual(REFCODE_DATA, data)
-        err = stderr.getvalue()
-        self.assertRegex(
-            err,
-            "Image '.*' is missing optional external blobs but is still functional: missing")
+        self.assertNotIn(MISSING_DATA, data)
 
     def testSectionInner(self):
         """Test an inner section with a size"""

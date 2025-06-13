@@ -52,6 +52,8 @@ class Entry_blob(Entry):
                 fake_size = self.assume_size
             self._pathname = self.check_fake_fname(self._filename, fake_size)
             self.missing = True
+            if self.optional:
+                self.mark_absent("missing but optional")
             if not self.faked:
                 content_size = 0
                 if self.assume_size: # Ensure we get test coverage on next line
