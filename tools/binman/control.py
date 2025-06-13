@@ -645,20 +645,39 @@ def CheckForProblems(image):
         _ShowHelpForMissingBlobs(tout.ERROR, missing_list)
 
     faked_list = []
+    faked_optional_list = []
+    faked_required_list = []
     image.CheckFakedBlobs(faked_list)
-    if faked_list:
+    for e in faked_list:
+        if e.optional:
+            faked_optional_list.append(e)
+        else:
+            faked_required_list.append(e)
+    if faked_required_list:
         tout.warning(
             "Image '%s' has faked external blobs and is non-functional: %s\n" %
             (image.name, ' '.join([os.path.basename(e.GetDefaultFilename())
-                                   for e in faked_list])))
+                                   for e in faked_required_list])))
 
     optional_list = []
+    # For optional blobs, we should inform the user when the blob is not present. This will come as
+    # a warning since it may not be immediately apparent that something is missing otherwise.
+    # E.g. user thinks they supplied a blob, but there is no info of the contrary if they made an
+    # error.
+    # Faked optional blobs are not relevant for final images (as they are dropped anyway) so we
+    # will omit the message with default verbosity.
     image.CheckOptional(optional_list)
     if optional_list:
         tout.warning(
             "Image '%s' is missing optional external blobs but is still functional: %s\n" %
             (image.name, ' '.join([e.name for e in optional_list])))
         _ShowHelpForMissingBlobs(tout.WARNING, optional_list)
+
+    if faked_optional_list:
+        tout.info(
+            "Image '%s' has faked optional external blobs but is still functional: %s\n" %
+            (image.name, ' '.join([os.path.basename(e.GetDefaultFilename())
+                                   for e in faked_optional_list])))
 
     missing_bintool_list = []
     image.check_missing_bintools(missing_bintool_list)
@@ -667,7 +686,7 @@ def CheckForProblems(image):
             "Image '%s' has missing bintools and is non-functional: %s\n" %
             (image.name, ' '.join([os.path.basename(bintool.name)
                                    for bintool in missing_bintool_list])))
-    return any([missing_list, faked_list, missing_bintool_list])
+    return any([missing_list, faked_required_list, missing_bintool_list])
 
 def ProcessImage(image, update_fdt, write_map, get_contents=True,
                  allow_resize=True, allow_missing=False,
