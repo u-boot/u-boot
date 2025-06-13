@@ -33,11 +33,11 @@ class Entry_blob_ext_list(Entry_blob):
         self._filenames = fdt_util.GetStringList(self._node, 'filenames')
         self._pathnames = []
 
-    def ObtainContents(self):
+    def ObtainContents(self) -> bool:
         missing = False
         pathnames = []
         for fname in self._filenames:
-            fname, _ = self.check_fake_fname(fname)
+            fname = self.check_fake_fname(fname)
             pathname = tools.get_input_filename(
                 fname, self.external and self.section.GetAllowMissing())
             # Allow the file to be missing
