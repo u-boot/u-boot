@@ -367,7 +367,7 @@ static inline void calibration_legacy(void)
 	 */
 	if (dmc.ddr_mode == DDR3_MODE ||
 	    dmc.ddr_mode == DDR2_MODE) {
-		writel(0XFC000000, dmc.reg + REG_DMC_PHY_CTL2);
+		writel(0xFC000000, dmc.reg + REG_DMC_PHY_CTL2);
 		writel(0x0000000f, dmc.reg + REG_DMC_PHY_CTL0);
 	}
 

@@ -19,7 +19,7 @@
 #include "sdhci-cadence.h"
 
 /* IO Delay Information */
-#define SDHCI_CDNS_HRS07		0X1C
+#define SDHCI_CDNS_HRS07		0x1C
 #define   SDHCI_CDNS_HRS07_RW_COMPENSATE	GENMASK(20, 16)
 #define   SDHCI_CDNS_HRS07_IDELAY_VAL		GENMASK(4, 0)
 

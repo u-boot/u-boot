@@ -161,7 +161,7 @@
 /* SWx Output Volts */
 #define SWX_OUT_MASK	0x1F
 #define SWX_OUT_1_25	0x1A
-#define SWX_OUT_1_30    0X1C
+#define SWX_OUT_1_30    0x1C
 
 /* Buck Switchers (SW1,2,3,4) Output Voltage */
 /*

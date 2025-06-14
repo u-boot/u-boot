@@ -176,7 +176,7 @@ enum en_max_audio_interface {
 #define M98095_0FF_REV_ID		0xFF
 
 #define M98095_REG_CNT			(0xFF+1)
-#define M98095_REG_MAX_CACHED		0X97
+#define M98095_REG_MAX_CACHED		0x97
 
 /* MAX98095 Registers Bit Fields */
 

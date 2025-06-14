@@ -39,7 +39,7 @@ restore_from_hyp:
 	adr	r0, save_sp
 	ldr	sp, [r0]
 	MRC p15, 4, R0, c1, c0, 0
-	ldr     r1, =0X1004	@Set cache enable bits for hypervisor mode
+	ldr     r1, =0x1004	@Set cache enable bits for hypervisor mode
 	orr     r0, r0, r1
 	MCR p15, 4, R0, c1, c0, 0
 	b	switch_to_hypervisor_ret

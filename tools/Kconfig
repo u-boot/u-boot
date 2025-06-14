@@ -137,7 +137,7 @@ config DEVICE_TYPE
 	default 0x01
 	depends on FSPI_CONF_HEADER
 	help
-	  Flash type: Serial NOR (0X01) and Serial NAND (0x02)
+	  Flash type: Serial NOR (0x01) and Serial NAND (0x02)
 
 config FLASH_PAD_TYPE
 	hex "Flash Pad Type"

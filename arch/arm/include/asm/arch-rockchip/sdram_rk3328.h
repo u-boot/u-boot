@@ -32,7 +32,7 @@
 
 /* DDR GRF */
 #define DDR_GRF_CON(n)		(0 + (n) * 4)
-#define DDR_GRF_STATUS_BASE	(0X100)
+#define DDR_GRF_STATUS_BASE	(0x100)
 #define DDR_GRF_STATUS(n)	(DDR_GRF_STATUS_BASE + (n) * 4)
 
 /* CRU_SOFTRESET_CON5 */
