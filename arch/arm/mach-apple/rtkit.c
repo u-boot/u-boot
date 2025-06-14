@@ -9,7 +9,9 @@
 
 #include <asm/arch/rtkit.h>
 #include <linux/apple-mailbox.h>
+#include <linux/bug.h>
 #include <linux/bitfield.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/sizes.h>
 #include <linux/types.h>
