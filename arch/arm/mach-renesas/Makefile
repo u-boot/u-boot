@@ -19,12 +19,12 @@ ifneq ($(CONFIG_RCAR_64),)
 obj-$(CONFIG_ARMV8_PSCI) += psci-rcar64.o
 endif
 
-OBJCOPYFLAGS_u-boot-spl.srec := -O srec
+OBJCOPYFLAGS_u-boot-spl.srec := -I binary -O srec --change-addresses=$(CONFIG_SPL_TEXT_BASE)
 quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) --gap-fill=0x00 $(OBJCOPYFLAGS) \
 	$(OBJCOPYFLAGS_$(@F)) $< $@
 
-spl/u-boot-spl.srec: spl/u-boot-spl FORCE
+spl/u-boot-spl.srec: spl/u-boot-spl.bin FORCE
 	$(call if_changed,objcopy)
 
 srec_cat_gte_160 := ${shell expr `srec_cat -VERSION | grep ^srec_cat | sed 's/^.* //g' | cut -f1-2 -d.` \>= "1.60"}
