@@ -1598,7 +1598,7 @@ config SPL_OPENSBI_SCRATCH_OPTIONS
 config SPL_TARGET
 	string "Addtional build targets for 'make'"
 	default "spl/u-boot-spl.srec" if RCAR_GEN2
-	default "spl/u-boot-spl.scif" if RCAR_GEN3
+	default "spl/u-boot-spl.scif" if RCAR_64
 	default ""
 	help
 	  On some platforms we need to have 'make' run additional build target
