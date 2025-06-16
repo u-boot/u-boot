@@ -22,11 +22,14 @@ First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for ``QCS615``, `
   $ make qcom_qcs8300_defconfig
   $ make -j8 u-boot.mbn
 
-This will build the signed ``u-boot.mbn`` in the configured output directory.
-The firmware expects firmware ELF images to be "signed". The signature
-does not provide any security in this case, but it provides the firmware
-with some required metadata. More information
-about image signing can be found in :doc:`signing`.
+Although the board does not have secure boot set up by default,
+the firmware still expects firmware ELF images to be "signed". The signature
+does not provide any security in this case, but it provides the firmware with
+some required metadata.
+
+To "sign" ``u-boot.elf`` you can use e.g. `qtestsign`_::
+
+  $ qtestsign -v6 aboot -o u-boot.mbn u-boot.elf
 
 Then flash the resulting ``u-boot.mbn`` to the ``uefi_a`` partition
 on your device with ``fastboot flash uefi_a u-boot.mbn``.
