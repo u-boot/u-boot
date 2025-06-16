@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2019 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
 #include <log.h>
@@ -12,6 +13,7 @@
 #include <dm/util.h>
 #include <dt-bindings/clock/agilex-clock.h>
 #include <linux/bitops.h>
+#include <wait_bit.h>
 
 #include <asm/arch/clock_manager.h>
 
@@ -27,21 +29,30 @@ struct socfpga_clk_plat {
  */
 static void clk_write_bypass_mainpll(struct socfpga_clk_plat *plat, u32 val)
 {
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+
 	CM_REG_WRITEL(plat, val, CLKMGR_MAINPLL_BYPASS);
-	cm_wait_for_fsm();
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT), CLKMGR_STAT_BUSY,
+			  false, 20000, false);
 }
 
 static void clk_write_bypass_perpll(struct socfpga_clk_plat *plat, u32 val)
 {
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+
 	CM_REG_WRITEL(plat, val, CLKMGR_PERPLL_BYPASS);
-	cm_wait_for_fsm();
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT), CLKMGR_STAT_BUSY,
+			  false, 20000, false);
 }
 
 /* function to write the ctrl register which requires a poll of the busy bit */
 static void clk_write_ctrl(struct socfpga_clk_plat *plat, u32 val)
 {
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+
 	CM_REG_WRITEL(plat, val, CLKMGR_CTRL);
-	cm_wait_for_fsm();
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT), CLKMGR_STAT_BUSY,
+			  false, 20000, false);
 }
 
 #define MEMBUS_MAINPLL				0
@@ -238,6 +249,7 @@ static void clk_basic_init(struct udevice *dev,
 {
 	struct socfpga_clk_plat *plat = dev_get_plat(dev);
 	u32 vcocalib;
+	uintptr_t base_addr = (uintptr_t)plat->regs;
 
 	if (!cfg)
 		return;
@@ -302,7 +314,8 @@ static void clk_basic_init(struct udevice *dev,
 	/* Membus programming for peripll */
 	membus_pll_configs(plat, MEMBUS_PERPLL);
 
-	cm_wait_for_lock(CLKMGR_STAT_ALLPLL_LOCKED_MASK);
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT),
+			  CLKMGR_STAT_ALLPLL_LOCKED_MASK, true, 20000, false);
 
 	/* Configure ping pong counters in altera group */
 	CM_REG_WRITEL(plat, cfg->alt_emacactr, CLKMGR_ALTR_EMACACTR);
