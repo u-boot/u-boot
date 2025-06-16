@@ -45,8 +45,7 @@ static int print_guid(struct unit_test_state *uts)
 	sprintf(str, "%pUL", guid);
 	ut_asserteq_str("04030201-0605-0807-090A-0B0C0D0E0F10", str);
 	sprintf(str, "%pUs", guid_esp);
-	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID) ||
-	    IS_ENABLED(CONFIG_CMD_EFIDEBUG) || IS_ENABLED(CONFIG_EFI))
+	if (IS_ENABLED(CONFIG_EFI_PARTITION))
 		ut_asserteq_str("EFI System Partition", str);
 	else
 		ut_asserteq_str("c12a7328-f81f-11d2-ba4b-00a0c93ec93b", str);
