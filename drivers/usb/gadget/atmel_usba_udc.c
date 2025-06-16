@@ -521,16 +521,16 @@ usba_udc_set_selfpowered(struct usb_gadget *gadget, int is_selfpowered)
 static int usba_udc_pullup(struct usb_gadget *gadget, int is_on)
 {
 	struct usba_udc *udc = to_usba_udc(gadget);
-	u32 ctrl;
 
-	ctrl = usba_readl(udc, CTRL);
-
+	/*
+	 * Some chips don't reliably drive DP/DM lines to high impedance when
+	 * using the DETACH/PULLD_DIS bits.
+	 * To ensure a reliable disconnect, power cycle the controller instead
+	 */
 	if (is_on)
-		ctrl &= ~USBA_DETACH;
+		usba_writel(udc, CTRL, USBA_ENABLE_MASK);
 	else
-		ctrl |= USBA_DETACH;
-
-	usba_writel(udc, CTRL, ctrl);
+		usba_writel(udc, CTRL, USBA_DISABLE_MASK);
 
 	return 0;
 }
