@@ -3,7 +3,7 @@
 
 PLATFORM_CPPFLAGS += -D__SANDBOX__ -U_FORTIFY_SOURCE
 PLATFORM_CPPFLAGS += -fPIC -ffunction-sections -fdata-sections
-PLATFORM_LIBS += -lrt
+PLATFORM_LIBS += -lrt -lpthread
 SDL_CONFIG ?= sdl2-config
 
 # Define this to avoid linking with SDL, which requires SDL libraries

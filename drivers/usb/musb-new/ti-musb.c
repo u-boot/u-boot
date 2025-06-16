@@ -282,7 +282,6 @@ U_BOOT_DRIVER(ti_musb_peripheral) = {
 	.ops	= &ti_musb_gadget_ops,
 	.probe = ti_musb_peripheral_probe,
 	.remove = ti_musb_peripheral_remove,
-	.ops	= &musb_usb_ops,
 	.plat_auto	= sizeof(struct ti_musb_plat),
 	.priv_auto	= sizeof(struct ti_musb_peripheral),
 	.flags = DM_FLAG_PRE_RELOC,

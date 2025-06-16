@@ -96,7 +96,7 @@ static int scsi_file_op(enum dfu_op op, struct dfu_entity *dfu, u64 offset, void
 		return -1;
 	}
 
-	snprintf(dev_part_str, sizeof(dev_part_str), "%d:%d", dfu->data.scsi.dev,
+	snprintf(dev_part_str, sizeof(dev_part_str), "%d:%x", dfu->data.scsi.dev,
 		 dfu->data.scsi.part);
 
 	ret = fs_set_blk_dev("scsi", dev_part_str, fstype);

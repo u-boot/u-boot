@@ -43,7 +43,6 @@ config TARGET_IMX91_11X11_EVK
 	bool "imx91_11x11_evk"
 	select OF_BOARD_FIXUP
 	select IMX91
-	imply OF_UPSTREAM
 	imply BOOTSTD_FULL
 	imply BOOTSTD_BOOTCOMMAND
 
