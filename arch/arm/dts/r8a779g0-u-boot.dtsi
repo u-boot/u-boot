@@ -7,73 +7,25 @@
 
 / {
 	binman: binman {
-		multiple-images;
-
 		section {
 			filename = "flash.bin";
 			pad-byte = <0xff>;
 
-			/* Offset 0x0000 set to 0x0000_0000 */
-			fill@0 {
-				offset = <0x0>;
-				size = <0x4>;
-				fill-byte = [00];
-			};
+			renesas-rcar4-sa0 {
+				filename = "sa0.bin";
+				pad-byte = <0xff>;
+				renesas,loader-address = <CONFIG_SPL_TEXT_BASE>;
 
-			/* Offset 0x300c set to 0x0000_0000 */
-			fill@300c {
-				offset = <0x300c>;
-				size = <0x4>;
-				fill-byte = [00];
-			};
-
-			/* Offset 0x3154 set to 0xeb21_0000 */
-			fill@3154 {
-				offset = <0x3154>;
-				size = <0x2>;
-				fill-byte = [00];
-			};
-
-			fill@3156 {
-				offset = <0x3156>;
-				size = <0x1>;
-				fill-byte = [21];
-			};
-
-			fill@3157 {
-				offset = <0x3157>;
-				size = <0x1>;
-				fill-byte = [eb];
-			};
-
-			/* Offset 0x3264 set to 0x0003_b000 */
-			fill@3264 {
-				offset = <0x3264>;
-				size = <0x1>;
-				fill-byte = [00];
-			};
-
-			fill@3265 {
-				offset = <0x3265>;
-				size = <0x1>;
-				fill-byte = [b0];
-			};
-
-			fill@3266 {
-				offset = <0x3266>;
-				size = <0x1>;
-				fill-byte = [03];
-			};
-
-			fill@3267 {
-				offset = <0x3267>;
-				size = <0x1>;
-				fill-byte = [00];
-			};
-
-			u-boot-spl {
-				offset = <0x40000>;
-				align-end = <4>;
+				/*
+				 * This section starts after 0x40000 Bytes long
+				 * header added by the renesas-rcar4-sa0 binman
+				 * etype. That means u-boot-spl {} below starts
+				 * at offset 0x40000 in flash.bin .
+				 */
+				u-boot-spl {
+					offset = <0x40000>;
+					align-end = <4>;
+				};
 			};
 
 			u-boot {
