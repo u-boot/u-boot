@@ -5586,6 +5586,17 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFile('347_bl1.dts')
         self.assertEqual(ATF_BL1_DATA, data[:len(ATF_BL1_DATA)])
 
+    def testRenesasRCarGen4SA0Image(self):
+        """Test that binman can produce an Renesas R-Car Gen4 SA0 image"""
+        self._DoTestFile('348_renesas_rcar4_sa0.dts')
+
+    def testRenesasRCarGen4SA0ImageSize(self):
+        """Test that binman can not produce large Renesas R-Car Gen4 SA0 image"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoTestFile('349_renesas_rcar4_sa0_size.dts')
+        self.assertIn("Node '/binman/renesas-rcar4-sa0': SRAM data longer than 966656 Bytes",
+                      str(exc.exception))
+
     def testFitFdtOper(self):
         """Check handling of a specified FIT operation"""
         entry_args = {
