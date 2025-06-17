@@ -317,8 +317,34 @@ static long _lmb_free(struct alist *lmb_rgn_lst, phys_addr_t base,
 				    rgn[i].flags);
 }
 
-static long lmb_overlaps_region(struct alist *lmb_rgn_lst, phys_addr_t base,
-				phys_size_t size)
+/**
+ * lmb_overlap_checks() - perform checks to see if region can be allocated or reserved
+ * @lmb_rgn_lst: list of LMB regions
+ * @base: base address of region to be checked
+ * @size: size of region to be checked
+ * @flags: flag of the region to be checked (only for reservation requests)
+ * @alloc: if checks are to be done for allocation or reservation request
+ *
+ * Check if the region passed to the function overlaps with any one of
+ * the regions of the passed lmb region list.
+ *
+ * If the @alloc flag is set to true, this check stops as soon an
+ * overlapping region is found. The function can also be called to
+ * check if a reservation request can be satisfied, by setting
+ * @alloc to false. In that case, the function then iterates through
+ * all the regions in the list passed to ensure that the requested
+ * region does not overlap with any existing regions. An overlap is
+ * allowed only when the flag of the requested region and the existing
+ * region is LMB_NONE.
+ *
+ * Return: index of the overlapping region, -1 if no overlap is found
+ *
+ * When the function is called for a reservation request check, -1 will
+ * also be returned when there is an allowed overlap, i.e. requested
+ * region and existing regions have flags as LMB_NONE.
+ */
+static long lmb_overlap_checks(struct alist *lmb_rgn_lst, phys_addr_t base,
+			       phys_size_t size, u32 flags, bool alloc)
 {
 	unsigned long i;
 	struct lmb_region *rgn = lmb_rgn_lst->data;
@@ -326,9 +352,12 @@ static long lmb_overlaps_region(struct alist *lmb_rgn_lst, phys_addr_t base,
 	for (i = 0; i < lmb_rgn_lst->count; i++) {
 		phys_addr_t rgnbase = rgn[i].base;
 		phys_size_t rgnsize = rgn[i].size;
+		u32 rgnflags = rgn[i].flags;
 
-		if (lmb_addrs_overlap(base, size, rgnbase, rgnsize))
-			break;
+		if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
+			if (alloc || flags != LMB_NONE || flags != rgnflags)
+				break;
+		}
 	}
 
 	return (i < lmb_rgn_lst->count) ? i : -1;
@@ -390,7 +419,8 @@ phys_addr_t io_lmb_alloc(struct lmb *io_lmb, phys_size_t size, ulong align)
 		base = ALIGN_DOWN(lmbbase + lmbsize - size, align);
 
 		while (base && lmbbase <= base) {
-			rgn = lmb_overlaps_region(&io_lmb->used_mem, base, size);
+			rgn = lmb_overlap_checks(&io_lmb->used_mem, base, size,
+						 LMB_NOOVERWRITE, true);
 			if (rgn < 0) {
 				/* This area isn't reserved, take it */
 				if (lmb_add_region_flags(&io_lmb->used_mem, base,
@@ -488,45 +518,12 @@ void lmb_dump_all(void)
 #endif
 }
 
-/**
- * lmb_can_reserve_region() - check if the region can be reserved
- * @base: base address of region to be reserved
- * @size: size of region to be reserved
- * @flags: flag of the region to be reserved
- *
- * Go through all the reserved regions and ensure that the requested
- * region does not overlap with any existing regions. An overlap is
- * allowed only when the flag of the request region and the existing
- * region is LMB_NONE.
- *
- * Return: true if region can be reserved, false otherwise
- */
-static bool lmb_can_reserve_region(phys_addr_t base, phys_size_t size,
-				   u32 flags)
-{
-	uint i;
-	struct lmb_region *lmb_reserved = lmb.used_mem.data;
-
-	for (i = 0; i < lmb.used_mem.count; i++) {
-		u32 rgnflags = lmb_reserved[i].flags;
-		phys_addr_t rgnbase = lmb_reserved[i].base;
-		phys_size_t rgnsize = lmb_reserved[i].size;
-
-		if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
-			if (flags != LMB_NONE || flags != rgnflags)
-				return false;
-		}
-	}
-
-	return true;
-}
-
 static long lmb_reserve(phys_addr_t base, phys_size_t size, u32 flags)
 {
 	long ret = 0;
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
 
-	if (!lmb_can_reserve_region(base, size, flags))
+	if (lmb_overlap_checks(lmb_rgn_lst, base, size, flags, false) != -1)
 		return -EEXIST;
 
 	ret = lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
@@ -698,7 +695,8 @@ static int _lmb_alloc_base(phys_size_t size, ulong align,
 		}
 
 		while (base && lmbbase <= base) {
-			rgn = lmb_overlaps_region(&lmb.used_mem, base, size);
+			rgn = lmb_overlap_checks(&lmb.used_mem, base, size,
+						 LMB_NOOVERWRITE, true);
 			if (rgn < 0) {
 				/* This area isn't reserved, take it */
 				if (lmb_add_region_flags(&lmb.used_mem, base,
@@ -733,7 +731,8 @@ static int _lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags)
 	struct lmb_region *lmb_memory = lmb.available_mem.data;
 
 	/* Check if the requested address is in one of the memory regions */
-	rgn = lmb_overlaps_region(&lmb.available_mem, base, size);
+	rgn = lmb_overlap_checks(&lmb.available_mem, base, size,
+				 LMB_NOOVERWRITE, true);
 	if (rgn >= 0) {
 		/*
 		 * Check if the requested end address is in the same memory
@@ -786,7 +785,8 @@ phys_size_t lmb_get_free_size(phys_addr_t addr)
 	struct lmb_region *lmb_memory = lmb.available_mem.data;
 
 	/* check if the requested address is in the memory regions */
-	rgn = lmb_overlaps_region(&lmb.available_mem, addr, 1);
+	rgn = lmb_overlap_checks(&lmb.available_mem, addr, 1, LMB_NOOVERWRITE,
+				 true);
 	if (rgn >= 0) {
 		for (i = 0; i < lmb.used_mem.count; i++) {
 			if (addr < lmb_used[i].base) {
