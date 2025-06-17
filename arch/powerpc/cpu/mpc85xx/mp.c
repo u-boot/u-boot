@@ -410,9 +410,9 @@ static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 
 void cpu_mp_lmb_reserve(void)
 {
-	u32 bootpg = determine_mp_bootpg(NULL);
+	phys_addr_t bootpg = determine_mp_bootpg(NULL);
 
-	lmb_reserve(bootpg, 4096, LMB_NONE);
+	lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &bootpg, 4096, LMB_NONE);
 }
 
 void setup_mp(void)

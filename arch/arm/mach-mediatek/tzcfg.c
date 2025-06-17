@@ -173,6 +173,7 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 
 int arch_misc_init(void)
 {
+	phys_addr_t addr;
 	struct arm_smccc_res res;
 
 	/*
@@ -180,11 +181,14 @@ int arch_misc_init(void)
 	 * there's no need to check the result
 	 */
 	arm_smccc_smc(MTK_SIP_GET_BL31_REGION, 0, 0, 0, 0, 0, 0, 0, &res);
-	lmb_reserve(res.a1, res.a2, LMB_NOMAP);
+	addr = (phys_addr_t)res.a1;
+	lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &addr, res.a2, LMB_NOMAP);
 
 	arm_smccc_smc(MTK_SIP_GET_BL32_REGION, 0, 0, 0, 0, 0, 0, 0, &res);
+	addr = (phys_addr_t)res.a1;
 	if (!res.a0 && res.a1 && res.a2)
-		lmb_reserve(res.a1, res.a2, LMB_NOMAP);
+		lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &addr, res.a2,
+			      LMB_NOMAP);
 
 #if IS_ENABLED(CONFIG_CMD_PSTORE)
 	char cmd[64];

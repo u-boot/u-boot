@@ -538,6 +538,7 @@ int boot_get_ramdisk(char const *select, struct bootm_headers *images,
 int boot_ramdisk_high(ulong rd_data, ulong rd_len, ulong *initrd_start,
 		      ulong *initrd_end)
 {
+	int err;
 	char	*s;
 	phys_addr_t initrd_high;
 	int	initrd_copy_to_ram = 1;
@@ -559,10 +560,18 @@ int boot_ramdisk_high(ulong rd_data, ulong rd_len, ulong *initrd_start,
 
 	if (rd_data) {
 		if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */
+			phys_addr_t initrd_addr;
+
 			debug("   in-place initrd\n");
 			*initrd_start = rd_data;
 			*initrd_end = rd_data + rd_len;
-			lmb_reserve(rd_data, rd_len, LMB_NONE);
+			initrd_addr = (phys_addr_t)rd_data;
+			err = lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0,
+					    &initrd_addr, rd_len, LMB_NONE);
+			if (err) {
+				puts("in-place initrd alloc failed\n");
+				goto error;
+			}
 		} else {
 			if (initrd_high)
 				*initrd_start =

@@ -72,13 +72,15 @@ static const struct legacy_img_hdr *image_get_fdt(ulong fdt_addr)
 static void boot_fdt_reserve_region(u64 addr, u64 size, u32 flags)
 {
 	long ret;
+	phys_addr_t rsv_addr;
 
-	ret = lmb_reserve(addr, size, flags);
+	rsv_addr = (phys_addr_t)addr;
+	ret = lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &rsv_addr, size, flags);
 	if (!ret) {
 		debug("   reserving fdt memory region: addr=%llx size=%llx flags=%x\n",
 		      (unsigned long long)addr,
 		      (unsigned long long)size, flags);
-	} else if (ret != -EEXIST) {
+	} else if (ret != -EEXIST && ret != -EINVAL) {
 		puts("ERROR: reserving fdt memory region failed ");
 		printf("(addr=%llx size=%llx flags=%x)\n",
 		       (unsigned long long)addr,
@@ -155,7 +157,7 @@ void boot_fdt_add_mem_rsv_regions(void *fdt_blob)
  */
 int boot_relocate_fdt(char **of_flat_tree, ulong *of_size)
 {
-	u64	start, size, usable, addr, low, mapsize;
+	u64	start, size, usable, low, mapsize;
 	void	*fdt_blob = *of_flat_tree;
 	void	*of_start = NULL;
 	char	*fdt_high;
@@ -163,6 +165,7 @@ int boot_relocate_fdt(char **of_flat_tree, ulong *of_size)
 	int	bank;
 	int	err;
 	int	disable_relocation = 0;
+	phys_addr_t addr;
 
 	/* nothing to do */
 	if (*of_size == 0)
@@ -185,7 +188,15 @@ int boot_relocate_fdt(char **of_flat_tree, ulong *of_size)
 		if (desired_addr == ~0UL) {
 			/* All ones means use fdt in place */
 			of_start = fdt_blob;
-			lmb_reserve(map_to_sysmem(of_start), of_len, LMB_NONE);
+			addr = map_to_sysmem(fdt_blob);
+			err = lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &addr,
+					    of_len, LMB_NONE);
+			if (err) {
+				printf("Failed to reserve memory for fdt at %#llx\n",
+				       (u64)addr);
+				goto error;
+			}
+
 			disable_relocation = 1;
 		} else if (desired_addr) {
 			addr = lmb_alloc_base(of_len, 0x1000, desired_addr,
@@ -682,8 +693,17 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 	of_size = ret;
 
 	/* Create a new LMB reservation */
-	if (CONFIG_IS_ENABLED(LMB) && lmb)
-		lmb_reserve(map_to_sysmem(blob), of_size, LMB_NONE);
+	if (CONFIG_IS_ENABLED(LMB) && lmb) {
+		phys_addr_t fdt_addr;
+
+		fdt_addr = map_to_sysmem(blob);
+		ret = lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &fdt_addr,
+				    of_size, LMB_NONE);
+		if (ret) {
+			printf("Failed to reserve memory for the fdt at %#llx\n",
+			       (u64)fdt_addr);
+		}
+	}
 
 #if defined(CONFIG_ARCH_KEYSTONE)
 	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP))

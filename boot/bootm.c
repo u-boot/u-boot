@@ -698,9 +698,18 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		images->os.end = relocated_addr + image_size;
 	}
 
-	if (CONFIG_IS_ENABLED(LMB))
-		lmb_reserve(images->os.load, (load_end - images->os.load),
-			    LMB_NONE);
+	if (CONFIG_IS_ENABLED(LMB)) {
+		phys_addr_t load;
+
+		load = (phys_addr_t)images->os.load;
+		err = lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &load,
+				    (load_end - images->os.load), LMB_NONE);
+		if (err) {
+			log_err("Unable to allocate memory %#lx for loading OS\n",
+				images->os.load);
+			return 1;
+		}
+	}
 
 	return 0;
 }
