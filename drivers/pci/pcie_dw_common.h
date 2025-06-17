@@ -130,6 +130,8 @@ int pcie_dw_get_link_speed(struct pcie_dw *pci);
 
 int pcie_dw_get_link_width(struct pcie_dw *pci);
 
+void dw_pcie_link_set_max_link_width(struct pcie_dw *pci, u32 num_lanes);
+
 int pcie_dw_prog_outbound_atu_unroll(struct pcie_dw *pci, int index, int type, u64 cpu_addr,
 				     u64 pci_addr, u32 size);
 
