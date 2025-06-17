@@ -67,7 +67,7 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
-		u-boot,spl-boot-order = &mmc,&flash0,"/memory";
+		u-boot,spl-boot-order = &mmc,&flash0,&nand,"/memory";
 	};
 };
 
