@@ -497,7 +497,7 @@ void __weak qcom_late_init(void)
 /* Stolen from arch/arm/mach-apple/board.c */
 int board_late_init(void)
 {
-	u32 status = 0;
+	u32 status = 0, fdt_status = 0;
 	phys_addr_t addr;
 	struct fdt_header *fdt_blob = (struct fdt_header *)gd->fdt_blob;
 
@@ -520,14 +520,19 @@ int board_late_init(void)
 		status |= !lmb_alloc(FASTBOOT_BUF_SIZE, &addr) ?
 			env_set_hex("fastboot_addr_r", addr) : 1;
 
-	status |= !lmb_alloc(SZ_2M, &addr) ?
+	fdt_status |= !lmb_alloc(SZ_2M, &addr) ?
 		env_set_hex("fdt_addr_r", addr) : 1;
 
-	if (status)
+	if (status || fdt_status)
 		log_warning("%s: Failed to set run time variables\n", __func__);
 
 	/* By default copy U-Boots FDT, it will be used as a fallback */
-	memcpy((void *)addr, (void *)gd->fdt_blob, fdt32_to_cpu(fdt_blob->totalsize));
+	if (fdt_status)
+		log_warning("%s: Failed to reserve memory for copying FDT\n",
+			    __func__);
+	else
+		memcpy((void *)addr, (void *)gd->fdt_blob,
+		       fdt32_to_cpu(fdt_blob->totalsize));
 
 	configure_env();
 	qcom_late_init();
