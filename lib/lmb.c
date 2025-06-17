@@ -605,7 +605,7 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 	}
 }
 
-void lmb_add_memory(void)
+static void lmb_add_memory(void)
 {
 	int i;
 	phys_addr_t bank_end;

@@ -124,14 +124,6 @@ int lmb_alloc_mem(enum lmb_mem_type type, u64 align, phys_addr_t *addr,
  */
 int lmb_init(void);
 
-/**
- * lmb_add_memory() - Add memory range for LMB allocations.
- *
- * Add the entire available memory range to the pool of memory that
- * can be used by the LMB module for allocations.
- */
-void lmb_add_memory(void);
-
 long lmb_add(phys_addr_t base, phys_size_t size);
 
 phys_size_t lmb_get_free_size(phys_addr_t addr);
