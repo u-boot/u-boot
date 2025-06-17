@@ -17,7 +17,6 @@ U-Boot API documentation
    interrupt
    led
    linker_lists
-   lmb
    logging
    nvmem
    part

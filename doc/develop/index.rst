@@ -46,6 +46,7 @@ Implementation
    cedit
    event
    global_data
+   lmb
    logging
    makefiles
    menus
