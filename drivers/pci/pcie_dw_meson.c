@@ -115,13 +115,9 @@ static void meson_pcie_configure(struct meson_pcie *priv)
 	val &= ~PORT_LINK_FAST_LINK_MODE;
 	val |= PORT_LINK_DLL_LINK_EN;
 	val &= ~PORT_LINK_MODE_MASK;
-	val |= PORT_LINK_MODE_1_LANES;
 	writel(val, priv->dw.dbi_base + PCIE_PORT_LINK_CONTROL);
 
-	val = readl(priv->dw.dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
-	val &= ~PORT_LOGIC_LINK_WIDTH_MASK;
-	val |= PORT_LOGIC_LINK_WIDTH_1_LANES;
-	writel(val, priv->dw.dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
+	dw_pcie_link_set_max_link_width(&priv->dw, 1);
 
 	dw_pcie_dbi_write_enable(&priv->dw, false);
 }
