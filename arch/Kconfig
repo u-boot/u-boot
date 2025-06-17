@@ -213,6 +213,7 @@ config SANDBOX
 	imply BITREVERSE
 	select BLOBLIST
 	imply LTO
+	imply CMD_BOOTEFI_SELFTEST
 	imply CMD_DM
 	imply CMD_EXCEPTION
 	imply CMD_GETTIME
