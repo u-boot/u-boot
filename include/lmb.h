@@ -34,9 +34,13 @@
 /**
  * enum lmb_mem_type - type of memory allocation request
  * @LMB_MEM_ALLOC_ADDR:	request for a particular region of memory
+ * @LMB_MEM_ALLOC_ANY:	allocate any available memory region
+ * @LMB_MEM_ALLOC_MAX:	allocate memory below a particular address
  */
 enum lmb_mem_type {
 	LMB_MEM_ALLOC_ADDR = 1,
+	LMB_MEM_ALLOC_ANY,
+	LMB_MEM_ALLOC_MAX,
 };
 
 /**
@@ -130,25 +134,7 @@ void lmb_add_memory(void);
 
 long lmb_add(phys_addr_t base, phys_size_t size);
 
-phys_addr_t lmb_alloc(phys_size_t size, ulong align);
 phys_size_t lmb_get_free_size(phys_addr_t addr);
-
-/**
- * lmb_alloc_base() - Allocate specified memory region with specified
- *			    attributes
- * @size: Size of the region requested
- * @align: Alignment of the memory region requested
- * @max_addr: Maximum address of the requested region
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter. The max_addr parameter is used to specify the maximum address
- * below which the requested region should be allocated.
- *
- * Return: Base address on success, 0 on error.
- */
-phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
-			   uint flags);
 
 /**
  * lmb_is_reserved_flags() - Test if address is in reserved region with flag

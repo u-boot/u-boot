@@ -183,9 +183,9 @@ int boot_relocate_fdt(char **of_flat_tree, ulong *of_size)
 	/* If fdt_high is set use it to select the relocation address */
 	fdt_high = env_get("fdt_high");
 	if (fdt_high) {
-		ulong desired_addr = hextoul(fdt_high, NULL);
+		ulong high_addr = hextoul(fdt_high, NULL);
 
-		if (desired_addr == ~0UL) {
+		if (high_addr == ~0UL) {
 			/* All ones means use fdt in place */
 			of_start = fdt_blob;
 			addr = map_to_sysmem(fdt_blob);
@@ -198,16 +198,17 @@ int boot_relocate_fdt(char **of_flat_tree, ulong *of_size)
 			}
 
 			disable_relocation = 1;
-		} else if (desired_addr) {
-			addr = lmb_alloc_base(of_len, 0x1000, desired_addr,
-					      LMB_NONE);
-			of_start = map_sysmem(addr, of_len);
-			if (of_start == NULL) {
-				puts("Failed using fdt_high value for Device Tree");
+		} else {
+			enum lmb_mem_type type = high_addr ?
+				LMB_MEM_ALLOC_MAX : LMB_MEM_ALLOC_ANY;
+
+			addr = high_addr;
+			err = lmb_alloc_mem(type, 0x1000, &addr, of_len,
+					    LMB_NONE);
+			if (err) {
+				puts("Failed to allocate memory for Device Tree relocation\n");
 				goto error;
 			}
-		} else {
-			addr = lmb_alloc(of_len, 0x1000);
 			of_start = map_sysmem(addr, of_len);
 		}
 	} else {
@@ -229,11 +230,15 @@ int boot_relocate_fdt(char **of_flat_tree, ulong *of_size)
 			 * for LMB allocation.
 			 */
 			usable = min(start + size, low + mapsize);
-			addr = lmb_alloc_base(of_len, 0x1000, usable, LMB_NONE);
-			of_start = map_sysmem(addr, of_len);
-			/* Allocation succeeded, use this block. */
-			if (of_start != NULL)
-				break;
+			addr = usable;
+			err = lmb_alloc_mem(LMB_MEM_ALLOC_MAX, 0x1000,
+					    &addr, of_len, LMB_NONE);
+			if (!err) {
+				of_start = map_sysmem(addr, of_len);
+				/* Allocation succeeded, use this block. */
+				if (of_start)
+					break;
+			}
 
 			/*
 			 * Reduce the mapping size in the next bank

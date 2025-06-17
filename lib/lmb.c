@@ -672,16 +672,18 @@ long lmb_free(phys_addr_t base, phys_size_t size)
 	return lmb_free_flags(base, size, LMB_NONE);
 }
 
-static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
-				   phys_addr_t max_addr, u32 flags)
+static int _lmb_alloc_base(phys_size_t size, ulong align,
+			   phys_addr_t *addr, u32 flags)
 {
 	int ret;
 	long i, rgn;
+	phys_addr_t max_addr;
 	phys_addr_t base = 0;
 	phys_addr_t res_base;
 	struct lmb_region *lmb_used = lmb.used_mem.data;
 	struct lmb_region *lmb_memory = lmb.available_mem.data;
 
+	max_addr = *addr;
 	for (i = lmb.available_mem.count - 1; i >= 0; i--) {
 		phys_addr_t lmbbase = lmb_memory[i].base;
 		phys_size_t lmbsize = lmb_memory[i].size;
@@ -714,8 +716,8 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 							    flags);
 				if (ret)
 					return ret;
-
-				return base;
+				*addr = base;
+				return 0;
 			}
 
 			res_base = lmb_used[rgn].base;
@@ -728,18 +730,7 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 	log_debug("%s: Failed to allocate 0x%lx bytes below 0x%lx\n",
 		  __func__, (ulong)size, (ulong)max_addr);
 
-	return 0;
-}
-
-phys_addr_t lmb_alloc(phys_size_t size, ulong align)
-{
-	return _lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE, LMB_NONE);
-}
-
-phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
-			   uint flags)
-{
-	return _lmb_alloc_base(size, align, max_addr, flags);
+	return -1;
 }
 
 static int _lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags)
@@ -776,6 +767,11 @@ int lmb_alloc_mem(enum lmb_mem_type type, u64 align, phys_addr_t *addr,
 		return -EINVAL;
 
 	switch (type) {
+	case LMB_MEM_ALLOC_ANY:
+		*addr = LMB_ALLOC_ANYWHERE;
+	case LMB_MEM_ALLOC_MAX:
+		ret = _lmb_alloc_base(size, align, addr, flags);
+		break;
 	case LMB_MEM_ALLOC_ADDR:
 		ret = _lmb_alloc_addr(*addr, size, flags);
 		break;

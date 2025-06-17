@@ -82,6 +82,32 @@ static int lmb_reserve(phys_addr_t addr, phys_size_t size, u32 flags)
 	return 0;
 }
 
+static phys_addr_t lmb_alloc(phys_size_t size, ulong align)
+{
+	int err;
+	phys_addr_t addr;
+
+	err = lmb_alloc_mem(LMB_MEM_ALLOC_ANY, align, &addr, size, LMB_NONE);
+	if (err)
+		return 0;
+
+	return addr;
+}
+
+static phys_addr_t lmb_alloc_base(phys_size_t size, ulong align,
+				  phys_addr_t max_addr, u32 flags)
+{
+	int err;
+	phys_addr_t addr;
+
+	addr = max_addr;
+	err = lmb_alloc_mem(LMB_MEM_ALLOC_MAX, align, &addr, size, flags);
+	if (err)
+		return 0;
+
+	return addr;
+}
+
 #define lmb_alloc_addr(addr, size, flags) lmb_reserve(addr, size, flags)
 
 static int test_multi_alloc(struct unit_test_state *uts, const phys_addr_t ram,

@@ -16,6 +16,7 @@
 #include <fpga.h>
 #include <image.h>
 #include <init.h>
+#include <lmb.h>
 #include <log.h>
 #include <mapmem.h>
 #include <rtc.h>
@@ -566,27 +567,24 @@ int boot_ramdisk_high(ulong rd_data, ulong rd_len, ulong *initrd_start,
 			*initrd_start = rd_data;
 			*initrd_end = rd_data + rd_len;
 			initrd_addr = (phys_addr_t)rd_data;
-			err = lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0,
-					    &initrd_addr, rd_len, LMB_NONE);
+			err = lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &initrd_addr,
+					    rd_len, LMB_NONE);
 			if (err) {
 				puts("in-place initrd alloc failed\n");
 				goto error;
 			}
 		} else {
-			if (initrd_high)
-				*initrd_start =
-					(ulong)lmb_alloc_base(rd_len,
-								    0x1000,
-								    initrd_high,
-								    LMB_NONE);
-			else
-				*initrd_start = (ulong)lmb_alloc(rd_len,
-								 0x1000);
+			enum lmb_mem_type type = initrd_high ?
+				LMB_MEM_ALLOC_MAX : LMB_MEM_ALLOC_ANY;
 
-			if (*initrd_start == 0) {
+			err = lmb_alloc_mem(type, 0x1000, &initrd_high, rd_len,
+					    LMB_NONE);
+			if (err) {
 				puts("ramdisk - allocation error\n");
 				goto error;
 			}
+
+			*initrd_start = (ulong)initrd_high;
 			bootstage_mark(BOOTSTAGE_ID_COPY_RAMDISK);
 
 			*initrd_end = *initrd_start + rd_len;
@@ -837,9 +835,10 @@ int boot_get_loadable(struct bootm_headers *images)
  */
 int boot_get_cmdline(ulong *cmd_start, ulong *cmd_end)
 {
-	int barg;
+	int barg, err;
 	char *cmdline;
 	char *s;
+	phys_addr_t addr;
 
 	/*
 	 * Help the compiler detect that this function is only called when
@@ -849,11 +848,13 @@ int boot_get_cmdline(ulong *cmd_start, ulong *cmd_end)
 		return 0;
 
 	barg = IF_ENABLED_INT(CONFIG_SYS_BOOT_GET_CMDLINE, CONFIG_SYS_BARGSIZE);
-	cmdline = (char *)(ulong)lmb_alloc_base(barg, 0xf,
-				env_get_bootm_mapsize() + env_get_bootm_low(),
-				LMB_NONE);
-	if (!cmdline)
+	addr = env_get_bootm_mapsize() + env_get_bootm_low();
+
+	err = lmb_alloc_mem(LMB_MEM_ALLOC_MAX, 0xf, &addr, barg, LMB_NONE);
+	if (err)
 		return -1;
+
+	cmdline = (char *)(uintptr_t)addr;
 
 	s = env_get("bootargs");
 	if (!s)
@@ -883,14 +884,16 @@ int boot_get_cmdline(ulong *cmd_start, ulong *cmd_end)
  */
 int boot_get_kbd(struct bd_info **kbd)
 {
-	*kbd = (struct bd_info *)(ulong)lmb_alloc_base(sizeof(struct bd_info),
-							     0xf,
-							     env_get_bootm_mapsize() +
-							     env_get_bootm_low(),
-							     LMB_NONE);
-	if (!*kbd)
+	int err;
+	phys_addr_t addr;
+
+	addr = env_get_bootm_mapsize() + env_get_bootm_low();
+	err = lmb_alloc_mem(LMB_MEM_ALLOC_MAX, 0xf, &addr,
+			    sizeof(struct bd_info), LMB_NONE);
+	if (err)
 		return -1;
 
+	*kbd = (struct bd_info *)(uintptr_t)addr;
 	**kbd = *gd->bd;
 
 	debug("## kernel board info at 0x%08lx\n", (ulong)*kbd);
