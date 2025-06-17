@@ -690,7 +690,7 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 
 	/* Delete the old LMB reservation */
 	if (CONFIG_IS_ENABLED(LMB) && lmb)
-		lmb_free(map_to_sysmem(blob), fdt_totalsize(blob));
+		lmb_free(map_to_sysmem(blob), fdt_totalsize(blob), LMB_NONE);
 
 	ret = fdt_shrink_to_minimum(blob, 0);
 	if (ret < 0)

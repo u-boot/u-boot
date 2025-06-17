@@ -142,16 +142,14 @@ phys_size_t lmb_get_free_size(phys_addr_t addr);
 int lmb_is_reserved_flags(phys_addr_t addr, int flags);
 
 /**
- * lmb_free_flags() - Free up a region of memory
+ * lmb_free() - Free up a region of memory
  * @base: Base Address of region to be freed
  * @size: Size of the region to be freed
  * @flags: Memory region attributes
  *
  * Return: 0 on success, negative error code on failure.
  */
-long lmb_free_flags(phys_addr_t base, phys_size_t size, uint flags);
-
-long lmb_free(phys_addr_t base, phys_size_t size);
+long lmb_free(phys_addr_t base, phys_size_t size, u32 flags);
 
 void lmb_dump_all(void);
 void lmb_dump_all_force(void);

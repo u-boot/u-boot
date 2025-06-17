@@ -655,8 +655,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	return lmb_map_update_notify(base, size, LMB_MAP_OP_ADD, LMB_NONE);
 }
 
-long lmb_free_flags(phys_addr_t base, phys_size_t size,
-		    uint flags)
+long lmb_free(phys_addr_t base, phys_size_t size, u32 flags)
 {
 	long ret;
 
@@ -665,11 +664,6 @@ long lmb_free_flags(phys_addr_t base, phys_size_t size,
 		return ret;
 
 	return lmb_map_update_notify(base, size, LMB_MAP_OP_FREE, flags);
-}
-
-long lmb_free(phys_addr_t base, phys_size_t size)
-{
-	return lmb_free_flags(base, size, LMB_NONE);
 }
 
 static int _lmb_alloc_base(phys_size_t size, ulong align,

@@ -508,7 +508,7 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	ret = efi_update_memory_map(efi_addr, pages, memory_type, true, false);
 	if (ret != EFI_SUCCESS) {
 		/* Map would overlap, bail out */
-		lmb_free_flags(addr, (u64)pages << EFI_PAGE_SHIFT, flags);
+		lmb_free(addr, (u64)pages << EFI_PAGE_SHIFT, flags);
 		unmap_sysmem((void *)(uintptr_t)efi_addr);
 		return  EFI_OUT_OF_RESOURCES;
 	}
@@ -548,8 +548,8 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 	 * been mapped with map_sysmem() from efi_allocate_pages(). Convert
 	 * it back to an address LMB understands
 	 */
-	status = lmb_free_flags(map_to_sysmem((void *)(uintptr_t)memory), len,
-				LMB_NOOVERWRITE);
+	status = lmb_free(map_to_sysmem((void *)(uintptr_t)memory), len,
+			  LMB_NOOVERWRITE);
 	if (status)
 		return EFI_NOT_FOUND;
 

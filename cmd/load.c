@@ -191,7 +191,7 @@ static ulong load_serial(long offset)
 			dst = map_sysmem(dst_addr, binlen);
 			memcpy(dst, binbuf, binlen);
 			unmap_sysmem(dst);
-			lmb_free(dst_addr, binlen);
+			lmb_free(dst_addr, binlen, LMB_NONE);
 		    }
 		    if ((store_addr) < start_addr)
 			start_addr = store_addr;
