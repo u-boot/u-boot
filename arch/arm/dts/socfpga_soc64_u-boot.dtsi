@@ -6,7 +6,7 @@
  */
 
 / {
-	soc {
+	soc@0 {
 		socfpga-system-mgr-firewall {
 			compatible = "intel,socfpga-dtreg";
 			#address-cells = <1>;
@@ -157,6 +157,41 @@
 					/* i_sys_mgr_core_usb1_l3master */
 					<0x0000003c 0x00000200 0x03ff30ff>;
 				bootph-all;
+			};
+		};
+	};
+};
+
+&qspi {
+	flash0: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "mt25qu02g";
+		reg = <0>;
+		spi-max-frequency = <100000000>;
+
+		m25p,fast-read;
+		cdns,page-size = <256>;
+		cdns,block-size = <16>;
+		cdns,read-delay = <1>;
+		cdns,tshsl-ns = <50>;
+		cdns,tsd2d-ns = <50>;
+		cdns,tchsh-ns = <4>;
+		cdns,tslch-ns = <4>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			qspi_boot: partition@0 {
+				label = "u-boot";
+				reg = <0x0 0x04200000>;
+			};
+
+			root: partition@4200000 {
+				label = "root";
+				reg = <0x04200000 0x0BE00000>;
 			};
 		};
 	};

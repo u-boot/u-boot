@@ -16,13 +16,18 @@
 		freeze_br0 = &freeze_controller;
 	};
 
-	memory {
+	memory@80000000 {
+		device_type = "memory";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		bootph-all;
 	};
 
-	soc {
+	pmu {
+		compatible = "arm,armv8-pmuv3";
+	};
+
+	soc@0 {
 		bootph-all;
 
 		freeze_controller: freeze_controller@f9000450 {
@@ -43,11 +48,55 @@
 	bootph-all;
 };
 
+&gmac0 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	clocks = <&clkmgr AGILEX_EMAC0_CLK>;
+	clock-names = "stmmaceth";
+	phy-mode = "rgmii";
+	max-frame-size = <0x2328>;
+	status = "okay";
+
+	mdio0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "snps,dwmac-mdio";
+
+		ethernet_phy0: ethernet-phy@0 {
+			reg = <4>;
+			txd0-skew-ps = <0>;
+			txd1-skew-ps = <0>;
+			txd2-skew-ps = <0>;
+			txd3-skew-ps = <0>;
+			rxd0-skew-ps = <0x1a4>;
+			rxd1-skew-ps = <0x1a4>;
+			rxd2-skew-ps = <0x1a4>;
+			rxd3-skew-ps = <0x1a4>;
+			txen-skew-ps = <0>;
+			txc-skew-ps = <0x384>;
+			rxdv-skew-ps = <0x1a4>;
+			rxc-skew-ps = <0x690>;
+		};
+	};
+};
+
 &gmac1 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
+	clocks = <&clkmgr AGILEX_EMAC1_CLK>;
+	clock-names = "stmmaceth";
+	status = "disabled";
 	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
 };
 
 &gmac2 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
+	clocks = <&clkmgr AGILEX_EMAC2_CLK>;
+	clock-names = "stmmaceth";
+	status = "disabled";
 	altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
 };
 
@@ -186,4 +235,33 @@
 
 &watchdog0 {
 	bootph-all;
+};
+
+&nand {
+    clocks = <&clkmgr AGILEX_NAND_CLK>,
+         <&clkmgr AGILEX_NAND_X_CLK>;
+    clock-names = "nand", "nand_x";
+};
+
+&usb0 {
+	compatible = "snps,dwc2";
+};
+
+&usb1 {
+	compatible = "snps,dwc2";
+};
+
+&spi0 {
+	compatible = "intel,agilex-spi",
+			 "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
+};
+
+&spi1 {
+	compatible = "intel,agilex-spi",
+			 "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
+};
+
+&pdma {
+	#dma-channels = <8>;
+	#dma-requests = <32>;
 };
