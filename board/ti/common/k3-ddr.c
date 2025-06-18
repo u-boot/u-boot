@@ -7,12 +7,22 @@
 #include <dm/uclass.h>
 #include <k3-ddrss.h>
 #include <spl.h>
+#include <mach/k3-ddr.h>
 
 #include "k3-ddr.h"
 
 int dram_init(void)
 {
 	s32 ret;
+
+	if (IS_ENABLED(CONFIG_ARM64) && xpl_phase() != PHASE_SPL) {
+		ret = k3_mem_map_init();
+		if (ret) {
+			printf("%s: Error fixing up MMU memory map: %d\n",
+			       __func__, ret);
+			return ret;
+		}
+	}
 
 	ret = fdtdec_setup_mem_size_base_lowest();
 	if (ret)

@@ -13,6 +13,7 @@
 #include <spl.h>
 
 #include <asm/arch/hardware.h>
+#include <mach/k3-ddr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,6 +49,17 @@ int board_init(void)
 
 int dram_init(void)
 {
+	int ret;
+
+	if (IS_ENABLED(CONFIG_ARM64) && xpl_phase() != PHASE_SPL) {
+		ret = k3_mem_map_init();
+		if (ret) {
+			printf("%s: Error fixing up MMU memory map: %d\n",
+			       __func__, ret);
+			return ret;
+		}
+	}
+
 	return fdtdec_setup_mem_size_base();
 }
 
