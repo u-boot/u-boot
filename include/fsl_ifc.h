@@ -803,29 +803,29 @@ void init_final_memctl_regs(void);
 	((struct fsl_ifc_fcm *)CFG_SYS_IFC_ADDR)
 
 #define get_ifc_cspr_ext(i)	\
-		(ifc_in32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr_ext))
+		ifc_in32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr_ext)
 #define get_ifc_cspr(i)		\
-		(ifc_in32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr))
+		ifc_in32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr)
 #define get_ifc_csor_ext(i)	\
-		(ifc_in32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor_ext))
+		ifc_in32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor_ext)
 #define get_ifc_csor(i)		\
-		(ifc_in32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor))
+		ifc_in32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor)
 #define get_ifc_amask(i)	\
-		(ifc_in32(&(IFC_FCM_BASE_ADDR)->amask_cs[i].amask))
+		ifc_in32(&(IFC_FCM_BASE_ADDR)->amask_cs[i].amask)
 #define get_ifc_ftim(i, j)	\
-		(ifc_in32(&(IFC_FCM_BASE_ADDR)->ftim_cs[i].ftim[j]))
+		ifc_in32(&(IFC_FCM_BASE_ADDR)->ftim_cs[i].ftim[j])
 #define set_ifc_cspr_ext(i, v)	\
-		(ifc_out32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr_ext, v))
+		ifc_out32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr_ext, v)
 #define set_ifc_cspr(i, v)	\
-		(ifc_out32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr, v))
+		ifc_out32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr, v)
 #define set_ifc_csor_ext(i, v)	\
-		(ifc_out32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor_ext, v))
+		ifc_out32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor_ext, v)
 #define set_ifc_csor(i, v)	\
-		(ifc_out32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor, v))
+		ifc_out32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor, v)
 #define set_ifc_amask(i, v)	\
-		(ifc_out32(&(IFC_FCM_BASE_ADDR)->amask_cs[i].amask, v))
+		ifc_out32(&(IFC_FCM_BASE_ADDR)->amask_cs[i].amask, v)
 #define set_ifc_ftim(i, j, v)	\
-		(ifc_out32(&(IFC_FCM_BASE_ADDR)->ftim_cs[i].ftim[j], v))
+		ifc_out32(&(IFC_FCM_BASE_ADDR)->ftim_cs[i].ftim[j], v)
 
 enum ifc_chip_sel {
 	IFC_CS0,

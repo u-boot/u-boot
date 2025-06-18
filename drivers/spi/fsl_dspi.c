@@ -123,8 +123,10 @@ static uint dspi_read32(uint flags, uint *addr)
 
 static void dspi_write32(uint flags, uint *addr, uint val)
 {
-	flags & DSPI_FLAG_REGMAP_ENDIAN_BIG ?
-		out_be32(addr, val) : out_le32(addr, val);
+	if (flags & DSPI_FLAG_REGMAP_ENDIAN_BIG)
+		out_be32(addr, val);
+	else
+		out_le32(addr, val);
 }
 
 static void dspi_halt(struct fsl_dspi_priv *priv, u8 halt)
