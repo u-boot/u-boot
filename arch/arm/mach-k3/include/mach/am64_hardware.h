@@ -50,19 +50,20 @@
 
 #define AM64X_DEV_RTI8			127
 #define AM64X_DEV_RTI9			128
-#define AM64X_DEV_R5FSS0_CORE0		121
-#define AM64X_DEV_R5FSS0_CORE1		122
 
 static const u32 put_device_ids[] = {
 	AM64X_DEV_RTI9,
 	AM64X_DEV_RTI8,
 };
 
+#endif
+
+#define AM64X_DEV_R5FSS0_CORE0		121
+#define AM64X_DEV_R5FSS0_CORE1		122
+
 static const u32 put_core_ids[] = {
 	AM64X_DEV_R5FSS0_CORE1,
 	AM64X_DEV_R5FSS0_CORE0, /* Handle CPU0 after CPU1 */
 };
-
-#endif
 
 #endif /* __ASM_ARCH_DRA8_HARDWARE_H */

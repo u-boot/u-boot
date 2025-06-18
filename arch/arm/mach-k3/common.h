@@ -49,6 +49,7 @@ enum k3_device_type get_device_type(void);
 struct ti_sci_handle *get_ti_sci_handle(void);
 void do_board_detect(void);
 void ti_secure_image_check_binary(void **p_image, size_t *p_size);
+int shutdown_mcu_r5_core1(void);
 
 #if (IS_ENABLED(CONFIG_K3_QOS))
 void setup_qos(void);
