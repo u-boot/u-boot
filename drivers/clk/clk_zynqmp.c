@@ -108,6 +108,8 @@ static const resource_size_t zynqmp_crl_apb_clkc_base = 0xff5e0020;
 #define PLLCTRL_POST_SRC_MASK	(0x7 << PLLCTRL_POST_SRC_SHFT)
 #define PLLCTRL_PRE_SRC_SHFT	20
 #define PLLCTRL_PRE_SRC_MASK	(0x7 << PLLCTRL_PRE_SRC_SHFT)
+#define PLL_TO_LPD_DIV_SHIFT	8
+#define PLL_TO_LPD_DIV_MASK	(0x3f << PLL_TO_LPD_DIV_SHIFT)
 
 #define NUM_MIO_PINS	77
 
@@ -334,6 +336,8 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		return CRF_APB_TOPSW_LSBUS_CTRL;
 	case iopll_to_fpd:
 		return CRL_APB_IOPLL_TO_FPD_CTRL;
+	case dpll_to_lpd:
+		return CRF_APB_DPLL_TO_LPD_CTRL;
 	default:
 		debug("Invalid clk id%d\n", id);
 	}
@@ -396,6 +400,22 @@ static ulong zynqmp_clk_get_pll_rate(struct zynqmp_clk_priv *priv,
 
 	if (clk_ctrl & (1 << 16))
 		freq /= 2;
+
+	if (id == dpll) {
+		u32 dpll_lpd_reg, cross_div;
+
+		dpll_lpd_reg = zynqmp_clk_get_register(dpll_to_lpd);
+
+		ret = zynqmp_mmio_read(dpll_lpd_reg, &cross_div);
+		if (ret) {
+			printf("%s mio read fail\n", __func__);
+			return -EIO;
+		}
+
+		cross_div = (cross_div & PLL_TO_LPD_DIV_MASK) >>
+			     PLL_TO_LPD_DIV_SHIFT;
+		freq /= cross_div;
+	}
 
 	return freq;
 }
