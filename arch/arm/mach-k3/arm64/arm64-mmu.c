@@ -51,12 +51,56 @@ struct mm_region k3_mem_map[K3_MMU_REGIONS_COUNT] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
+		/* Framebuffer reserved, size set at runtime */
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
 		/* List terminator */
 		0,
 	}
 };
 
 struct mm_region *mem_map = k3_mem_map;
+
+int k3_spl_mem_map_init(void)
+{
+	unsigned int i;
+	int k3_map_idx = -EINVAL;
+
+	for (i = 0; i < K3_MMU_REGIONS_COUNT; i++) {
+		if (k3_mem_map[i].virt == 0 && k3_mem_map[i].phys == 0 &&
+		    k3_mem_map[i].size == 0) {
+			k3_map_idx = i;
+			break;
+		}
+	}
+
+	if (k3_map_idx == -EINVAL) {
+		pr_err("%s: Failed to find fixup region in MMU memory map\n",
+		       __func__);
+		return -EINVAL;
+	}
+
+	if (k3_map_idx >= K3_MMU_REGIONS_COUNT - 1) {
+		pr_err("%s: Not enough space in MMU map for the added entry\n",
+		       __func__);
+		return -ENOMEM;
+	}
+
+	if (CONFIG_IS_ENABLED(VIDEO)) {
+		k3_mem_map[k3_map_idx].virt = gd_video_bottom();
+		k3_mem_map[k3_map_idx].phys = gd_video_bottom();
+		k3_mem_map[k3_map_idx].size =
+			gd_video_top() - gd_video_bottom();
+		k3_mem_map[k3_map_idx].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+					       PTE_BLOCK_INNER_SHARE;
+		k3_map_idx++;
+	}
+
+	k3_mem_map[k3_map_idx] = (const struct mm_region){ 0 };
+
+	return 0;
+}
 
 static int dt_reserved_cmp(const void *a, const void *b)
 {

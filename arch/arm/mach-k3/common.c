@@ -15,6 +15,7 @@
 #include <asm/global_data.h>
 #include <linux/printk.h>
 #include "common.h"
+#include "mach/k3-ddr.h"
 #include <dm.h>
 #include <remoteproc.h>
 #include <asm/cache.h>
@@ -268,15 +269,21 @@ void spl_enable_cache(void)
 
 	dram_init();
 
-	/* reserve TLB table */
-	gd->arch.tlb_size = PGTABLE_SIZE;
-
 	gd->ram_top += get_effective_memsize();
 	gd->relocaddr = gd->ram_top;
 
 	ret = spl_reserve_video_from_ram_top();
 	if (ret)
 		panic("Failed to reserve framebuffer memory (%d)\n", ret);
+
+	if (IS_ENABLED(CONFIG_ARM64)) {
+		ret = k3_spl_mem_map_init();
+		if (ret)
+			panic("Failed to perform MMU fixups: %d\n", ret);
+	}
+
+	/* reserve TLB table */
+	gd->arch.tlb_size = PGTABLE_SIZE;
 
 	gd->arch.tlb_addr = gd->relocaddr - gd->arch.tlb_size;
 	gd->arch.tlb_addr &= ~(0x10000 - 1);

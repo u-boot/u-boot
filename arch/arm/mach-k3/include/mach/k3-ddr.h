@@ -17,6 +17,9 @@ int dram_init_banksize(void);
 void fixup_ddr_driver_for_ecc(struct spl_image_info *spl_image);
 void fixup_memory_node(struct spl_image_info *spl_image);
 
+/* Performs MMU memory map fixups at SPL stage */
+int k3_spl_mem_map_init(void);
+
 /*
  * Modifies the MMU memory map based on DDR size and reserved-memory
  * nodes in DT
