@@ -118,20 +118,4 @@ struct task_struct;
  */
 #define return_address() ({__asm__ __volatile__("":::"$31");__builtin_return_address(0);})
 
-#ifdef CONFIG_CPU_HAS_PREFETCH
-
-#define ARCH_HAS_PREFETCH
-
-static inline void prefetch(const void *addr)
-{
-	__asm__ __volatile__(
-	"	.set	mips4		\n"
-	"	pref	%0, (%1)	\n"
-	"	.set	mips0		\n"
-	:
-	: "i" (Pref_Load), "r" (addr));
-}
-
-#endif
-
 #endif /* _ASM_PROCESSOR_H */
