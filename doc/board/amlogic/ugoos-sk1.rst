@@ -1,6 +1,6 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-U-Boot for Libre Computer AML-A311D-CC 'Alta' (A311D)
+U-Boot for Libre Computer Ugoos  'SK1' (S928X-K)
 =====================================================
 
 AML-A311D-CC is a Single Board Computer manufactured by Libre Computer Technology with
