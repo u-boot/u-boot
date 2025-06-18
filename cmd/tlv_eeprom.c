@@ -1033,10 +1033,8 @@ int mac_read_from_eeprom(void)
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	int devnum = 0; // TODO: support multiple EEPROMs
 
-	puts("EEPROM: ");
-
 	if (read_eeprom(devnum, eeprom)) {
-		printf("Read failed.\n");
+		log_err("EEPROM: read failed\n");
 		return -1;
 	}
 
@@ -1082,8 +1080,8 @@ int mac_read_from_eeprom(void)
 		}
 	}
 
-	printf("%s v%u len=%u\n", eeprom_hdr->signature, eeprom_hdr->version,
-	       be16_to_cpu(eeprom_hdr->totallen));
+	log_debug("EEPROM: %s v%u len=%u\n", eeprom_hdr->signature, eeprom_hdr->version,
+		  be16_to_cpu(eeprom_hdr->totallen));
 
 	return 0;
 }
