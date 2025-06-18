@@ -1073,6 +1073,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-dfu.git
 F:	cmd/dfu.c
 F:	cmd/usb_*.c
 F:	common/dfu.c
+F:	common/spl/spl_dfu.c
 F:	common/update.c
 F:	doc/api/dfu.rst
 F:	doc/usage/dfu.rst
