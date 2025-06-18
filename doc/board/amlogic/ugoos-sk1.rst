@@ -6,7 +6,7 @@ U-Boot for Libre Computer AML-A311D-CC 'Alta' (A311D)
 AML-A311D-CC is a Single Board Computer manufactured by Libre Computer Technology with
 the following specifications:
 
- - Amlogic S928X-K Arm Cortex-A53 dual-core + Cortex-A73 quad-core SoC
+ - Amlogic S928X-K Arm Cortex-A55 dual-core + Cortex-A76 quad-core SoC
  - 8GB LPDDR4 SDRAM
  - Gigabit Ethernet
  - HDMI 2.1 display
