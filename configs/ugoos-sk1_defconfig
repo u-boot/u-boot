@@ -1,0 +1,8 @@
+BOARD_NAME="Ugoos SK1"
+BOARDFAMILY="meson-g12a"  # chip families  S928X-K
+BOARD_MAINTAINER="Nguyen Tat Hung"
+KERNEL_TARGET="current,edge"
+FULL_DESKTOP="no"
+BOOT_LOGO="desktop"
+BOOT_FDT_FILE="amlogic/s5_s928x_ugoos_sk1_8g.dtb"
+BOOTCONFIG="ugoos-sk1_defconfig"  # Cần tạo file này
