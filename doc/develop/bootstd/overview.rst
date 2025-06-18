@@ -443,6 +443,7 @@ Bootmeth drivers are provided for booting from various media:
    - :doc:`extlinux / syslinux <extlinux>` boot from a storage device
    - :doc:`extlinux / syslinux <extlinux>` boot from a network (PXE)
    - :doc:`sandbox <sandbox>` used only for testing
+   - :doc:`RAUC distro <rauc>`: A/B system with RAUC from MMC
    - :doc:`U-Boot scripts <script>` from disk, network or SPI flash
    - :doc:`QFW <qfw>`: QEMU firmware interface
    - :doc:`VBE </develop/vbe>`: Verified Boot for Embedded
