@@ -20,23 +20,108 @@ static inline void sync(void)
 {
 }
 
-/* Generic virtual read/write. */
-#define __arch_getb(a)			(*(volatile unsigned char *)(a))
-#define __arch_getw(a)			(*(volatile unsigned short *)(a))
-#define __arch_getl(a)			(*(volatile unsigned int *)(a))
-#define __arch_getq(a)			(*(volatile unsigned long long *)(a))
+#ifdef CONFIG_ARM64
+#define __W	"w"
+#else
+#define __W
+#endif
 
-#define __arch_putb(v,a)		(*(volatile unsigned char *)(a) = (v))
-#define __arch_putw(v,a)		(*(volatile unsigned short *)(a) = (v))
-#define __arch_putl(v,a)		(*(volatile unsigned int *)(a) = (v))
-#define __arch_putq(v,a)		(*(volatile unsigned long long *)(a) = (v))
+#if CONFIG_IS_ENABLED(SYS_THUMB_BUILD)
+#define __R "l"
+#define __RM "=l"
+#else
+#define __R "r"
+#define __RM "=r"
+#endif
+
+#ifdef CONFIG_KVM_VIRT_INS
+/*
+ * The __raw_writeX/__raw_readX below should be converted to static inline
+ * functions. However doing so produces a lot of compilation warnings when
+ * called with a raw address. Convert these once the callers have been fixed.
+ */
+#define __raw_writeb(val, addr)			\
+	do {					\
+		asm volatile("strb %" __W "0, [%1]"	\
+		:				\
+		: __R ((u8)(val)), __R (addr));	\
+	} while (0)
+
+#define __raw_readb(addr)				\
+	({						\
+		u32 __val;				\
+		asm volatile("ldrb %" __W "0, [%1]"		\
+		: __RM (__val)				\
+		: __R (addr));				\
+		__val;					\
+	})
+
+#define __raw_writew(val, addr)			\
+	do {					\
+		asm volatile("strh %" __W "0, [%1]"	\
+		:					\
+		: __R ((u16)(val)), __R (addr));	\
+	} while (0)
+
+#define __raw_readw(addr)				\
+	({						\
+		u32 __val;				\
+		asm volatile("ldrh %" __W "0, [%1]"		\
+		: __RM (__val)				\
+		: __R (addr));				\
+	__val;						\
+    })
+
+#define __raw_writel(val, addr)				\
+	do {						\
+		asm volatile("str %" __W "0, [%1]"		\
+		:					\
+		: __R ((u32)(val)), __R (addr));	\
+	} while (0)
+
+#define __raw_readl(addr)				\
+	({						\
+		u32 __val;				\
+		asm volatile("ldr %" __W "0, [%1]"		\
+		: __RM (__val)				\
+		: __R (addr));				\
+		__val;					\
+	})
+
+#define __raw_writeq(val, addr)				\
+	do {						\
+		asm volatile("str %0, [%1]"		\
+		:					\
+		: __R ((u64)(val)), __R (addr));	\
+	} while (0)
+
+#define __raw_readq(addr)				\
+	({						\
+		u64 __val;				\
+		asm volatile("ldr %0, [%1]"		\
+		: __RM (__val)				\
+		: __R (addr));				\
+		__val;					\
+	    })
+#else
+/* Generic virtual read/write. */
+#define __raw_readb(a)			(*(volatile unsigned char *)(a))
+#define __raw_readw(a)			(*(volatile unsigned short *)(a))
+#define __raw_readl(a)			(*(volatile unsigned int *)(a))
+#define __raw_readq(a)			(*(volatile unsigned long long *)(a))
+
+#define __raw_writeb(v, a)		(*(volatile unsigned char *)(a) = (v))
+#define __raw_writew(v, a)		(*(volatile unsigned short *)(a) = (v))
+#define __raw_writel(v, a)		(*(volatile unsigned int *)(a) = (v))
+#define __raw_writeq(v, a)		(*(volatile unsigned long long *)(a) = (v))
+#endif
 
 static inline void __raw_writesb(unsigned long addr, const void *data,
 				 int bytelen)
 {
 	uint8_t *buf = (uint8_t *)data;
 	while(bytelen--)
-		__arch_putb(*buf++, addr);
+		__raw_writeb(*buf++, addr);
 }
 
 static inline void __raw_writesw(unsigned long addr, const void *data,
@@ -44,7 +129,7 @@ static inline void __raw_writesw(unsigned long addr, const void *data,
 {
 	uint16_t *buf = (uint16_t *)data;
 	while(wordlen--)
-		__arch_putw(*buf++, addr);
+		__raw_writew(*buf++, addr);
 }
 
 static inline void __raw_writesl(unsigned long addr, const void *data,
@@ -52,39 +137,29 @@ static inline void __raw_writesl(unsigned long addr, const void *data,
 {
 	uint32_t *buf = (uint32_t *)data;
 	while(longlen--)
-		__arch_putl(*buf++, addr);
+		__raw_writel(*buf++, addr);
 }
 
 static inline void __raw_readsb(unsigned long addr, void *data, int bytelen)
 {
 	uint8_t *buf = (uint8_t *)data;
 	while(bytelen--)
-		*buf++ = __arch_getb(addr);
+		*buf++ = __raw_readb(addr);
 }
 
 static inline void __raw_readsw(unsigned long addr, void *data, int wordlen)
 {
 	uint16_t *buf = (uint16_t *)data;
 	while(wordlen--)
-		*buf++ = __arch_getw(addr);
+		*buf++ = __raw_readw(addr);
 }
 
 static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 {
 	uint32_t *buf = (uint32_t *)data;
 	while(longlen--)
-		*buf++ = __arch_getl(addr);
+		*buf++ = __raw_readl(addr);
 }
-
-#define __raw_writeb(v,a)	__arch_putb(v,a)
-#define __raw_writew(v,a)	__arch_putw(v,a)
-#define __raw_writel(v,a)	__arch_putl(v,a)
-#define __raw_writeq(v,a)	__arch_putq(v,a)
-
-#define __raw_readb(a)		__arch_getb(a)
-#define __raw_readw(a)		__arch_getw(a)
-#define __raw_readl(a)		__arch_getl(a)
-#define __raw_readq(a)		__arch_getq(a)
 
 /*
  * TODO: The kernel offers some more advanced versions of barriers, it might
@@ -98,15 +173,15 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 
 #define smp_processor_id()	0
 
-#define writeb(v,c)	({ u8  __v = v; __iowmb(); __arch_putb(__v,c); __v; })
-#define writew(v,c)	({ u16 __v = v; __iowmb(); __arch_putw(__v,c); __v; })
-#define writel(v,c)	({ u32 __v = v; __iowmb(); __arch_putl(__v,c); __v; })
-#define writeq(v,c)	({ u64 __v = v; __iowmb(); __arch_putq(__v,c); __v; })
+#define writeb(v, c)	({ u8  __v = v; __iowmb(); writeb_relaxed(__v, c); __v; })
+#define writew(v, c)	({ u16 __v = v; __iowmb(); writew_relaxed(__v, c); __v; })
+#define writel(v, c)	({ u32 __v = v; __iowmb(); writel_relaxed(__v, c); __v; })
+#define writeq(v, c)	({ u64 __v = v; __iowmb(); writeq_relaxed(__v, c); __v; })
 
-#define readb(c)	({ u8  __v = __arch_getb(c); __iormb(); __v; })
-#define readw(c)	({ u16 __v = __arch_getw(c); __iormb(); __v; })
-#define readl(c)	({ u32 __v = __arch_getl(c); __iormb(); __v; })
-#define readq(c)	({ u64 __v = __arch_getq(c); __iormb(); __v; })
+#define readb(c)	({ u8  __v = readb_relaxed(c); __iormb(); __v; })
+#define readw(c)	({ u16 __v = readw_relaxed(c); __iormb(); __v; })
+#define readl(c)	({ u32 __v = readl_relaxed(c); __iormb(); __v; })
+#define readq(c)	({ u64 __v = readq_relaxed(c); __iormb(); __v; })
 
 /*
  * Relaxed I/O memory access primitives. These follow the Device memory
@@ -121,13 +196,10 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define readq_relaxed(c)	({ u64 __r = le64_to_cpu((__force __le64) \
 						__raw_readq(c)); __r; })
 
-#define writeb_relaxed(v, c)	((void)__raw_writeb((v), (c)))
-#define writew_relaxed(v, c)	((void)__raw_writew((__force u16) \
-						    cpu_to_le16(v), (c)))
-#define writel_relaxed(v, c)	((void)__raw_writel((__force u32) \
-						    cpu_to_le32(v), (c)))
-#define writeq_relaxed(v, c)	((void)__raw_writeq((__force u64) \
-						    cpu_to_le64(v), (c)))
+#define writeb_relaxed(v, c)	__raw_writeb((v), (c))
+#define writew_relaxed(v, c)	__raw_writew((__force u16)cpu_to_le16(v), (c))
+#define writel_relaxed(v, c)	__raw_writel((__force u32)cpu_to_le32(v), (c))
+#define writeq_relaxed(v, c)	__raw_writeq((__force u64)cpu_to_le64(v), (c))
 
 /*
  * The compiler seems to be incapable of optimising constants

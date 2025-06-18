@@ -108,6 +108,18 @@ config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	  The value subtracted from CONFIG_TEXT_BASE to calculate the
 	  TEXT_OFFSET value written to the Linux kernel image header.
 
+config KVM_VIRT_INS
+	bool "Emit virtualizable instructions"
+	help
+	  Instructions in the ARM ISA that have multiple output registers,
+	  can't be used if the instruction leads to an exception to the hypervisor.
+	  These instructions cannot be emulated by KVM because they do not produce
+	  syndrome information data that KVM can use to infer the destination
+	  register, the faulting address, whether it was a load or store,
+	  if it's a 32 or 64 bit general-purpose register amongst other things.
+	  Use this to produce virtualizable instructions if you plan to run U-Boot
+	  with KVM.
+
 config NVIC
 	bool
 
