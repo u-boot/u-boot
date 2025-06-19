@@ -5,8 +5,6 @@
  * Copyright (C) 2021 Renesas Electronics Corp.
  */
 
-#include "r8a779x-rcar64-u-boot.dtsi"
-
 / {
 	binman: binman {
 		multiple-images;
@@ -135,14 +133,6 @@
 	};
 };
 
-&cpg {
-	bootph-all;
-};
-
-&hscif0 {
-	bootph-all;
-};
-
 &hscif0_pins {
 	bootph-all;
 };
@@ -151,17 +141,9 @@
 	bootph-all;
 };
 
-&pfc {
-	bootph-all;
-};
-
 &rpc {
 	bank-width = <2>;
 	num-cs = <1>;
-};
-
-&rst {
-	bootph-all;
 };
 
 &soc {

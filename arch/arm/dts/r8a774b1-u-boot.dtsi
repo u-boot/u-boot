@@ -1,8 +1,0 @@
-// SPDX-License-Identifier: GPL-2.0
-/*
- * Device Tree Source extras for U-Boot on RZ/G2 R8A774B1 SoC
- *
- * Copyright (C) 2021 Renesas Electronics Corp.
- */
-
-#include "r8a779x-rcar64-u-boot.dtsi"
