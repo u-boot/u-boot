@@ -215,7 +215,7 @@ int get_disk_guid(struct blk_desc *desc, char *guid)
 	return 0;
 }
 
-static int part_get_gpt_pte(struct blk_desc *desc, int part, gpt_entry *gpt_e)
+int part_get_gpt_pte(struct blk_desc *desc, int part, gpt_entry *gpt_e)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, desc->blksz);
 	gpt_entry *gpt_pte = NULL;
