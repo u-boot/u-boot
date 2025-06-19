@@ -99,7 +99,7 @@ def test_mmc_dev(ubman):
         devices[x]['detected'] = 'yes'
 
         for y in mmc_modes:
-            output = ubman.run_command('mmc dev %d 0 %d' % x, y)
+            output = ubman.run_command('mmc dev %d 0 %d' % (x, y))
 
             if 'Card did not respond to voltage select' in output:
                 fail = 1
@@ -122,7 +122,7 @@ def test_mmcinfo(ubman):
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
             for y in mmc_modes:
-                ubman.run_command('mmc dev %d 0 %d' % x, y)
+                ubman.run_command('mmc dev %d 0 %d' % (x, y))
                 output = ubman.run_command('mmcinfo')
                 if 'busy timeout' in output:
                     pytest.skip('No SD/MMC/eMMC device present')
@@ -146,7 +146,7 @@ def test_mmc_info(ubman):
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
             for y in mmc_modes:
-                ubman.run_command('mmc dev %d 0 %d' % x, y)
+                ubman.run_command('mmc dev %d 0 %d' % (x, y))
 
                 output = ubman.run_command('mmc info')
                 assert mmc_modes_name[mmc_modes.index(y)] in output
@@ -172,7 +172,7 @@ def test_mmc_rescan(ubman):
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
             for y in mmc_modes:
-                ubman.run_command('mmc dev %d 0 %d' % x, y)
+                ubman.run_command('mmc dev %d 0 %d' % (x, y))
                 output = ubman.run_command('mmc rescan')
                 if output:
                     pytest.fail('mmc rescan has something to check')
@@ -210,7 +210,7 @@ def test_mmc_part(ubman):
                     elif part_type == '83':
                         print('ext(2/4) detected')
                         output = ubman.run_command(
-                            'fstype mmc %d:%d' % x, part_id
+                            'fstype mmc %d:%d' % (x, part_id)
                         )
                         if 'ext2' in output:
                             part_ext2.append(part_id)
@@ -246,7 +246,7 @@ def test_mmc_fatls_fatinfo(ubman):
 
             for part in partitions:
                 for y in mmc_modes:
-                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                     output = ubman.run_command(
                             'fatls mmc %d:%s' % (x, part))
                     if 'Unrecognized filesystem type' in output:
@@ -288,7 +288,7 @@ def test_mmc_fatload_fatwrite(ubman):
 
             for part in partitions:
                 for y in mmc_modes:
-                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                     part_detect = 1
                     addr = utils.find_ram_base(ubman)
                     devices[x]['addr_%d' % part] = addr
@@ -357,7 +357,7 @@ def test_mmc_ext4ls(ubman):
 
             for part in partitions:
                 for y in mmc_modes:
-                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                     output = ubman.run_command(
                         '%sls mmc %d:%s' % (fs, x, part)
                     )
@@ -392,7 +392,7 @@ def test_mmc_ext4load_ext4write(ubman):
 
             for part in partitions:
                 for y in mmc_modes:
-                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                     part_detect = 1
                     addr = utils.find_ram_base(ubman)
                     devices[x]['addr_%d' % part] = addr
@@ -454,7 +454,7 @@ def test_mmc_ext2ls(ubman):
 
             for part in partitions:
                 for y in mmc_modes:
-                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                     part_detect = 1
                     output = ubman.run_command(
                         '%sls mmc %d:%s' % (fs, x, part)
@@ -491,7 +491,7 @@ def test_mmc_ext2load(ubman):
 
             for part in partitions:
                 for y in mmc_modes:
-                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                     part_detect = 1
                     addr = devices[x]['addr_%d' % part]
                     size = devices[x]['size_%d' % part]
@@ -534,7 +534,7 @@ def test_mmc_ls(ubman):
 
                 for part in partitions:
                     for y in mmc_modes:
-                        ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                        ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                         part_detect = 1
                         output = ubman.run_command('ls mmc %d:%s' % (x, part))
                         if re.search(r'No \w+ table on this device', output):
@@ -566,7 +566,7 @@ def test_mmc_load(ubman):
 
                 for part in partitions:
                     for y in mmc_modes:
-                        ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                        ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                         part_detect = 1
                         addr = devices[x]['addr_%d' % part]
                         size = devices[x]['size_%d' % part]
@@ -609,7 +609,7 @@ def test_mmc_save(ubman):
 
                 for part in partitions:
                     for y in mmc_modes:
-                        ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                        ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                         part_detect = 1
                         addr = devices[x]['addr_%d' % part]
                         size = 0
@@ -656,7 +656,7 @@ def test_mmc_fat_read_write_files(ubman):
 
             for part in partitions:
                 for y in mmc_modes:
-                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % (x, part, y))
                     part_detect = 1
                     addr = utils.find_ram_base(ubman)
                     count_f = 0
