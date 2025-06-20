@@ -1688,7 +1688,7 @@ struct sig_header_s {
  */
 int image_pre_load(ulong addr);
 
-#if defined(USE_HOSTCC)
+#if defined(USE_HOSTCC) && CONFIG_IS_ENABLED(LIBCRYPTO)
 /**
  * rsa_verify_openssl() - Verify a signature against some data with openssl API
  *
