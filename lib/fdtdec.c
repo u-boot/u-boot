@@ -1687,6 +1687,60 @@ void fdtdec_setup_embed(void)
 	gd->fdt_src = FDTSRC_EMBED;
 }
 
+static int fdtdec_apply_dto_from_blob(void **blob)
+{
+	int ret;
+	struct fdt_header *live_fdt;
+	size_t new_fdt_size, blob_size;
+	int expand_by;
+
+	if (!CONFIG_IS_ENABLED(OF_LIBFDT_OVERLAY) ||
+	    !CONFIG_IS_ENABLED(BLOBLIST))
+		return -EPERM;
+
+	live_fdt = bloblist_find(BLOBLISTT_CONTROL_FDT, 0);
+	ret = fdt_check_header(live_fdt);
+	if (ret)
+		return ret;
+
+	ret = fdt_check_header(*blob);
+	if (ret)
+		return ret;
+
+	blob_size = fdt_totalsize(*blob);
+
+	/* Expand the FDT for spare spaces to apply the overlay */
+	new_fdt_size = fdt_totalsize(live_fdt) + blob_size + 0x400;
+	ret = bloblist_resize(BLOBLISTT_CONTROL_FDT, new_fdt_size, &expand_by);
+	if (ret)
+		return ret;
+
+	/* The blob is shifted if it was following the FDT */
+	if (*blob > (void *)live_fdt)
+		*blob += expand_by;
+
+	ret = fdt_open_into(live_fdt, live_fdt, new_fdt_size);
+	if (ret)
+		return ret;
+
+	ret = fdt_overlay_apply_verbose(live_fdt, *blob);
+	if (ret)
+		return ret;
+
+	/* Shrink the excessive spaces */
+	fdt_pack(live_fdt);
+	new_fdt_size = fdt_totalsize(live_fdt);
+	ret = bloblist_resize(BLOBLISTT_CONTROL_FDT, new_fdt_size, &expand_by);
+	if (ret)
+		return ret;
+
+	/* The blob is shifted if it was following the FDT */
+	if (*blob > (void *)live_fdt)
+		*blob += expand_by;
+
+	return ret;
+}
+
 int fdtdec_setup(void)
 {
 	int ret = -ENOENT;
@@ -1708,6 +1762,8 @@ int fdtdec_setup(void)
 				gd->fdt_src = FDTSRC_BLOBLIST;
 				log_debug("Devicetree is in bloblist at %p\n",
 					  gd->fdt_blob);
+				bloblist_apply_blobs(BLOBLISTT_FDT_OVERLAY,
+						     fdtdec_apply_dto_from_blob);
 				goto setup_fdt;
 			} else {
 				log_debug("No FDT found in bloblist\n");
