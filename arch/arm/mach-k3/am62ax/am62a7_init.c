@@ -57,7 +57,6 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(CTRL_MMR0_BASE, 1);
 	mmr_unlock(CTRL_MMR0_BASE, 2);
 	mmr_unlock(CTRL_MMR0_BASE, 4);
-	mmr_unlock(CTRL_MMR0_BASE, 5);
 	mmr_unlock(CTRL_MMR0_BASE, 6);
 
 	/* Unlock all MCU_CTRL_MMR0 module registers */
