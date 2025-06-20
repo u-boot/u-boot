@@ -333,9 +333,9 @@ int cread_line_process_ch(struct cli_line_state *cls, char ichar)
 			uint base, wlen;
 
 			for (base = cls->num - 1;
-			     base >= 0 && buf[base] == ' ';)
+			     base > 0 && buf[base] == ' ';)
 				base--;
-			for (; base > 0 && buf[base - 1] != ' ';)
+			for (; base > 1 && buf[base - 1] != ' ';)
 				base--;
 
 			/* now delete chars from base to cls->num */
