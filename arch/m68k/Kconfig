@@ -155,10 +155,6 @@ config TARGET_M5282EVB
 	bool "Support M5282EVB"
 	select M5282
 
-config TARGET_ASTRO_MCF5373L
-	bool "Support astro_mcf5373l"
-	select M5373
-
 config TARGET_M53017EVB
 	bool "Support M53017EVB"
 	select M53015
@@ -183,7 +179,6 @@ config TARGET_STMARK2
 endchoice
 
 source "board/BuS/eb_cpu5282/Kconfig"
-source "board/astro/mcf5373l/Kconfig"
 source "board/cobra5272/Kconfig"
 source "board/freescale/m5208evbe/Kconfig"
 source "board/freescale/m5235evb/Kconfig"
