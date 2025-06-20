@@ -48,8 +48,8 @@ __weak int board_mmc_get_env_dev(int devno)
 	return devno;
 }
 
-#ifdef CONFIG_SYS_MMC_ENV_DEV
-#define IMX9_MMC_ENV_DEV CONFIG_SYS_MMC_ENV_DEV
+#ifdef CONFIG_ENV_MMC_DEVICE_INDEX
+#define IMX9_MMC_ENV_DEV CONFIG_ENV_MMC_DEVICE_INDEX
 #else
 #define IMX9_MMC_ENV_DEV 0
 #endif

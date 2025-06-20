@@ -410,12 +410,12 @@ int fm_init_common(int index, struct ccsr_fman *reg, const char *firmware_name)
 			spi_flash_free(ucode_flash);
 		}
 	} else if (src == BOOT_SOURCE_SD_MMC) {
-		int dev = CONFIG_SYS_MMC_ENV_DEV;
+		int dev = CONFIG_ENV_MMC_DEVICE_INDEX;
 
 		addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 		u32 cnt = CONFIG_SYS_QE_FMAN_FW_LENGTH / 512;
 		u32 blk = CONFIG_SYS_FMAN_FW_ADDR / 512;
-		struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+		struct mmc *mmc = find_mmc_device(CONFIG_ENV_MMC_DEVICE_INDEX);
 
 		if (!mmc) {
 			printf("\nMMC cannot find device for ucode\n");
@@ -514,11 +514,11 @@ int fm_init_common(int index, struct ccsr_fman *reg, const char *firmware_name)
 		spi_flash_free(ucode_flash);
 	}
 #elif defined(CONFIG_SYS_QE_FMAN_FW_IN_MMC)
-	int dev = CONFIG_SYS_MMC_ENV_DEV;
+	int dev = CONFIG_ENV_MMC_DEVICE_INDEX;
 	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 	u32 cnt = CONFIG_SYS_QE_FMAN_FW_LENGTH / 512;
 	u32 blk = CONFIG_SYS_FMAN_FW_ADDR / 512;
-	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+	struct mmc *mmc = find_mmc_device(CONFIG_ENV_MMC_DEVICE_INDEX);
 
 	if (!mmc)
 		printf("\nMMC cannot find device for ucode\n");

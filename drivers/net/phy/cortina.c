@@ -170,10 +170,10 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 			spi_flash_free(ucode_flash);
 		}
 	} else if (src == BOOT_SOURCE_SD_MMC) {
-		int dev = CONFIG_SYS_MMC_ENV_DEV;
+		int dev = CONFIG_ENV_MMC_DEVICE_INDEX;
 		u32 cnt = CONFIG_CORTINA_FW_LENGTH / 512;
 		u32 blk = cortina_fw_addr / 512;
-		struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+		struct mmc *mmc = find_mmc_device(CONFIG_ENV_MMC_DEVICE_INDEX);
 
 		if (!mmc) {
 			puts("Failed to find MMC device for Cortina ucode\n");
@@ -223,10 +223,10 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 		spi_flash_free(ucode_flash);
 	}
 #elif defined(CONFIG_SYS_CORTINA_FW_IN_MMC)
-	int dev = CONFIG_SYS_MMC_ENV_DEV;
+	int dev = CONFIG_ENV_MMC_DEVICE_INDEX;
 	u32 cnt = CONFIG_CORTINA_FW_LENGTH / 512;
 	u32 blk = cortina_fw_addr / 512;
-	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+	struct mmc *mmc = find_mmc_device(CONFIG_ENV_MMC_DEVICE_INDEX);
 
 	if (!mmc) {
 		puts("Failed to find MMC device for Cortina ucode\n");

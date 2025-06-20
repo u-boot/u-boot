@@ -54,7 +54,7 @@
 	"fdt_size="__stringify(TQMA6_FDT_SECTOR_COUNT)"\0"                     \
 	"kernel_start="__stringify(TQMA6_KERNEL_SECTOR_START)"\0"              \
 	"kernel_size="__stringify(TQMA6_KERNEL_SECTOR_COUNT)"\0"               \
-	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0"                       \
+	"mmcdev="__stringify(CONFIG_ENV_MMC_DEVICE_INDEX)"\0"                       \
 	"loadimage=mmc dev ${mmcdev}; "                                        \
 		"mmc read ${loadaddr} ${kernel_start} ${kernel_size};\0"       \
 	"loadfdt=mmc dev ${mmcdev}; "                                          \

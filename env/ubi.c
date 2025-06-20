@@ -27,14 +27,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#if CONFIG_ENV_REDUNDANT
 #define ENV_UBI_VOLUME_REDUND CONFIG_ENV_UBI_VOLUME_REDUND
 #else
 #define ENV_UBI_VOLUME_REDUND "invalid"
 #endif
 
 #ifdef CONFIG_CMD_SAVEENV
-#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_ENV_REDUNDANT
 static int env_ubi_save(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
@@ -76,7 +76,7 @@ static int env_ubi_save(void)
 
 	return 0;
 }
-#else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
+#else /* ! CONFIG_ENV_REDUNDANT */
 static int env_ubi_save(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
@@ -102,10 +102,10 @@ static int env_ubi_save(void)
 	puts("done\n");
 	return 0;
 }
-#endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
+#endif /* CONFIG_ENV_REDUNDANT */
 #endif /* CONFIG_CMD_SAVEENV */
 
-#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_ENV_REDUNDANT
 static int env_ubi_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, env1_buf, CONFIG_ENV_SIZE);
@@ -149,7 +149,7 @@ static int env_ubi_load(void)
 	return env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
 				 read2_fail, H_EXTERNAL);
 }
-#else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
+#else /* ! CONFIG_ENV_REDUNDANT */
 static int env_ubi_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
@@ -180,7 +180,7 @@ static int env_ubi_load(void)
 
 	return env_import(buf, 1, H_EXTERNAL);
 }
-#endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
+#endif /* CONFIG_ENV_REDUNDANT */
 
 static int env_ubi_erase(void)
 {
@@ -202,7 +202,7 @@ static int env_ubi_erase(void)
 		       CONFIG_ENV_UBI_VOLUME);
 		ret = 1;
 	}
-	if (IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT)) {
+	if (IS_ENABLED(CONFIG_ENV_REDUNDANT)) {
 		if (ubi_volume_write(ENV_UBI_VOLUME_REDUND,
 				     (void *)env_buf, 0, CONFIG_ENV_SIZE)) {
 			printf("\n** Unable to erase env to %s:%s **\n",
