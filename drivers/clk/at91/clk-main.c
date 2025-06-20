@@ -110,7 +110,7 @@ struct clk *at91_clk_main_rc(void __iomem *reg, const char *name,
 	struct clk *clk;
 	int ret;
 
-	if (!reg || !name || !parent_name)
+	if (!reg || !name)
 		return ERR_PTR(-EINVAL);
 
 	main_rc = kzalloc(sizeof(*main_rc), GFP_KERNEL);

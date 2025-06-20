@@ -95,3 +95,7 @@
 &slow_xtal {
 	bootph-all;
 };
+
+&watchdog {
+	timeout-sec = <16>;
+};

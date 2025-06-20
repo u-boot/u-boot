@@ -1,0 +1,7 @@
+SAM9X75 CURIOSITY BOARD
+M:	Manikandan Muralidharan <manikandan.m@microchip.com>
+S:	Maintained
+F:	board/atmel/sam9x75_curiosity/
+F:	include/configs/sam9x75_curiosity.h
+F:	arch/arm/dts/at91-sam9x75_curiosity-u-boot.dtsi
+F:	configs/sam9x75_curiosity_mmc_defconfig
