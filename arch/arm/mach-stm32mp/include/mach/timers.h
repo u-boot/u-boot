@@ -29,6 +29,10 @@
 #define TIM_DMAR	0x4C	/* DMA register for transfer */
 #define TIM_TISEL	0x68	/* Input Selection         */
 
+#define TIM_HWCFGR2	0x3EC	/* hardware configuration 2 Reg (MP25)	*/
+#define TIM_HWCFGR1	0x3F0	/* hardware configuration 1 Reg (MP25)	*/
+#define TIM_IPIDR	0x3F8	/* IP identification Reg (MP25)		*/
+
 #define TIM_CR1_CEN	BIT(0)	/* Counter Enable	   */
 #define TIM_CR1_ARPE	BIT(7)
 #define TIM_CCER_CCXE	(BIT(0) | BIT(4) | BIT(8) | BIT(12))
@@ -40,11 +44,16 @@
 #define TIM_CCMR_M1	(BIT(6) | BIT(5))  /* Channel PWM Mode 1 */
 #define TIM_BDTR_MOE	BIT(15)	/* Main Output Enable      */
 #define TIM_EGR_UG	BIT(0)	/* Update Generation       */
+#define TIM_HWCFGR2_CNT_WIDTH	GENMASK(15, 8)	/* Counter width */
+#define TIM_HWCFGR1_NB_OF_DT	GENMASK(7, 4)	/* Complementary outputs & dead-time generators */
 
 #define MAX_TIM_PSC		0xFFFF
 
+#define STM32MP25_TIM_IPIDR	0x00120002
+
 struct stm32_timers_plat {
 	void __iomem *base;
+	u32 ipidr;
 };
 
 struct stm32_timers_priv {

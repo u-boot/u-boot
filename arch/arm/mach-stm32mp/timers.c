@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/timers.h>
 #include <dm/device_compat.h>
+#include <linux/bitfield.h>
 
 static void stm32_timers_get_arr_size(struct udevice *dev)
 {
@@ -29,6 +30,33 @@ static void stm32_timers_get_arr_size(struct udevice *dev)
 	writel(arr, plat->base + TIM_ARR);
 }
 
+static int stm32_timers_probe_hwcfgr(struct udevice *dev)
+{
+	struct stm32_timers_plat *plat = dev_get_plat(dev);
+	struct stm32_timers_priv *priv = dev_get_priv(dev);
+	u32 val;
+
+	if (!plat->ipidr) {
+		/* fallback to legacy method for probing counter width */
+		stm32_timers_get_arr_size(dev);
+		return 0;
+	}
+
+	val = readl(plat->base + TIM_IPIDR);
+	/* Sanity check on IP identification register */
+	if (val != plat->ipidr) {
+		dev_err(dev, "Unexpected identification: %u\n", val);
+		return -EINVAL;
+	}
+
+	val = readl(plat->base + TIM_HWCFGR2);
+	/* Counter width in bits, max reload value is BIT(width) - 1 */
+	priv->max_arr = BIT(FIELD_GET(TIM_HWCFGR2_CNT_WIDTH, val)) - 1;
+	dev_dbg(dev, "TIM width: %ld\n", FIELD_GET(TIM_HWCFGR2_CNT_WIDTH, val));
+
+	return 0;
+}
+
 static int stm32_timers_of_to_plat(struct udevice *dev)
 {
 	struct stm32_timers_plat *plat = dev_get_plat(dev);
@@ -38,6 +66,7 @@ static int stm32_timers_of_to_plat(struct udevice *dev)
 		dev_err(dev, "can't get address\n");
 		return -ENOENT;
 	}
+	plat->ipidr = (u32)dev_get_driver_data(dev);
 
 	return 0;
 }
@@ -60,13 +89,16 @@ static int stm32_timers_probe(struct udevice *dev)
 
 	priv->rate = clk_get_rate(&clk);
 
-	stm32_timers_get_arr_size(dev);
+	ret = stm32_timers_probe_hwcfgr(dev);
+	if (ret)
+		clk_disable(&clk);
 
 	return ret;
 }
 
 static const struct udevice_id stm32_timers_ids[] = {
 	{ .compatible = "st,stm32-timers" },
+	{ .compatible = "st,stm32mp25-timers", .data = STM32MP25_TIM_IPIDR },
 	{}
 };
 
