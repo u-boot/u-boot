@@ -185,13 +185,6 @@ TCP Selective Acknowledgments in the legacy network stack can be enabled via
 CONFIG_PROT_TCP_SACK=y. This will improve the download speed. Selective
 Acknowledgments are enabled by default with lwIP.
 
-.. note::
-
-    U-Boot currently has no way to verify certificates for HTTPS.
-    A place to store the root CA certificates is needed, and then MBed TLS would
-    need to walk the entire chain. Therefore, man-in-the middle attacks are
-    possible and HTTPS should not be relied upon for payload authentication.
-
 Return value
 ------------
 
