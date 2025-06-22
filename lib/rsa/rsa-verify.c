@@ -570,7 +570,7 @@ int rsa_verify(struct image_sign_info *info,
 	uint8_t hash[info->crypto->key_len];
 	int ret;
 
-#ifdef USE_HOSTCC
+#if defined(USE_HOSTCC) && CONFIG_IS_ENABLED(LIBCRYPTO)
 	if (!info->fdt_blob)
 		return rsa_verify_openssl(info, region, region_count, sig, sig_len);
 #endif

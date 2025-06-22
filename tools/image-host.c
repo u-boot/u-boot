@@ -19,7 +19,7 @@
 #include <openssl/evp.h>
 #endif
 
-#if CONFIG_IS_ENABLED(IMAGE_PRE_LOAD)
+#if CONFIG_IS_ENABLED(IMAGE_PRE_LOAD) && CONFIG_IS_ENABLED(LIBCRYPTO)
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 #endif
@@ -1416,7 +1416,7 @@ int fit_check_sign(const void *fit, const void *key,
 }
 #endif
 
-#if CONFIG_IS_ENABLED(IMAGE_PRE_LOAD)
+#if CONFIG_IS_ENABLED(IMAGE_PRE_LOAD) && CONFIG_IS_ENABLED(LIBCRYPTO)
 /**
  * rsa_verify_openssl() - Verify a signature against some data with openssl API
  *
