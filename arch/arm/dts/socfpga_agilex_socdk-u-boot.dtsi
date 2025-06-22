@@ -14,20 +14,6 @@
 		u-boot,spl-boot-order = &mmc,&flash0,&nand;
 	};
 
-	aliases {
-		spi0 = &qspi;
-		i2c0 = &i2c1;
-		freeze_br0 = &freeze_controller;
-	};
-
-	soc {
-		freeze_controller: freeze_controller@f9000450 {
-			compatible = "altr,freeze-bridge-controller";
-			reg = <0xf9000450 0x00000010>;
-			status = "disabled";
-		};
-	};
-
 	memory {
 		/* 8GB */
 		reg = <0 0x00000000 0 0x80000000>,
@@ -43,28 +29,14 @@
 	/delete-property/ cdns,read-delay;
 };
 
-&i2c1 {
-	status = "okay";
-};
-
 &nand {
 	status = "okay";
 	nand-bus-width = <16>;
 	bootph-all;
 };
 
-&mmc {
-	drvsel = <3>;
-	smplsel = <0>;
-	bootph-all;
-};
-
 &qspi {
 	status = "okay";
-};
-
-&watchdog0 {
-	bootph-all;
 };
 
 #if !defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
