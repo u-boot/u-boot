@@ -19,6 +19,10 @@ obj-y += version.o
 # # boards
 obj-y += board_f.o
 obj-y += board_r.o
+ifdef CONFIG_$(PHASE_)SYS_THUMB_BUILD
+CFLAGS_REMOVE_board_f.o := $(LTO_CFLAGS)
+CFLAGS_REMOVE_board_r.o := $(LTO_CFLAGS)
+endif
 obj-$(CONFIG_DISPLAY_BOARDINFO) += board_info.o
 obj-$(CONFIG_DISPLAY_BOARDINFO_LATE) += board_info.o
 
