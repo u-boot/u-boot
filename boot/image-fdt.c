@@ -571,6 +571,7 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 {
 	ulong *initrd_start = &images->initrd_start;
 	ulong *initrd_end = &images->initrd_end;
+	bool skip_board_fixup = false;
 	int ret, fdt_ret, of_size;
 
 	if (IS_ENABLED(CONFIG_OF_ENV_SETUP)) {
@@ -621,18 +622,18 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 	fdt_fixup_pstore(blob);
 #endif
 	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP)) {
-		const char *skip_board_fixup;
+		skip_board_fixup = (env_get_ulong("skip_board_fixup", 10, 0) == 1);
 
-		skip_board_fixup = env_get("skip_board_fixup");
-		if (skip_board_fixup && ((int)simple_strtol(skip_board_fixup, NULL, 10) == 1)) {
-			printf("skip board fdt fixup\n");
-		} else {
-			fdt_ret = ft_board_setup(blob, gd->bd);
-			if (fdt_ret) {
-				printf("ERROR: board-specific fdt fixup failed: %s\n",
-				       fdt_strerror(fdt_ret));
-				goto err;
-			}
+		if (skip_board_fixup)
+			printf("skip all board fdt fixup\n");
+	}
+
+	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP) && !skip_board_fixup) {
+		fdt_ret = ft_board_setup(blob, gd->bd);
+		if (fdt_ret) {
+			printf("ERROR: board-specific fdt fixup failed: %s\n",
+			       fdt_strerror(fdt_ret));
+			goto err;
 		}
 	}
 	if (IS_ENABLED(CONFIG_OF_SYSTEM_SETUP)) {
@@ -685,10 +686,8 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 	if (CONFIG_IS_ENABLED(LMB) && lmb)
 		lmb_reserve(map_to_sysmem(blob), of_size, LMB_NONE);
 
-#if defined(CONFIG_ARCH_KEYSTONE)
-	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP))
+	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP_EXTENDED) && !skip_board_fixup)
 		ft_board_setup_ex(blob, gd->bd);
-#endif
 
 	return 0;
 err:
