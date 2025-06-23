@@ -3,8 +3,8 @@
  * Copyright (C) 2024 Texas Instruments Incorporated - https://www.ti.com/
  */
 
+#include <asm/arch/k3-common-fdt.h>
 #include <asm/hardware.h>
-#include "../common_fdt.h"
 #include <fdt_support.h>
 
 int ft_system_setup(void *blob, struct bd_info *bd)
