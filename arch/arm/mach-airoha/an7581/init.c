@@ -2,6 +2,7 @@
 
 #include <fdtdec.h>
 #include <init.h>
+#include <sysreset.h>
 #include <asm/armv8/mmu.h>
 #include <asm/system.h>
 
@@ -21,7 +22,7 @@ int dram_init_banksize(void)
 	return fdtdec_setup_memory_banksize();
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	psci_system_reset();
 }

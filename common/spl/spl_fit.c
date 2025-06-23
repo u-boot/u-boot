@@ -86,11 +86,12 @@ static int spl_fit_get_image_name(const struct spl_fit_info *ctx,
 
 	str = name;
 	for (i = 0; i < index; i++) {
-		str = strchr(str, '\0') + 1;
-		if (!str || (str - name >= len)) {
+		str = memchr(str, '\0', name + len - str);
+		if (!str) {
 			found = false;
 			break;
 		}
+		str++;
 	}
 
 	if (!found && CONFIG_IS_ENABLED(SYSINFO) && !sysinfo_get(&sysinfo)) {
@@ -199,7 +200,7 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
  *		the image gets loaded to the address pointed to by the
  *		load_addr member in this struct, if load_addr is not 0
  *
- * Return:	0 on success, -EPERM if this image is not the correct phase
+ * Return:	0 on success, -EBADSLT if this image is not the correct phase
  * (for CONFIG_BOOTMETH_VBE_SIMPLE_FW), or another negative error number on
  * other error.
  */
@@ -235,7 +236,7 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 			return ret;
 		} else {
 			log_debug("- phase mismatch, skipping this image\n");
-			return -EPERM;
+			return -EBADSLT;
 		}
 	}
 
@@ -474,7 +475,7 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 			image_info.load_addr = (ulong)tmpbuffer;
 			ret = load_simple_fit(info, offset, ctx, node,
 					      &image_info);
-			if (ret == -EPERM)
+			if (ret == -EBADSLT)
 				continue;
 			else if (ret < 0)
 				break;
@@ -702,13 +703,51 @@ static int spl_simple_fit_read(struct spl_fit_info *ctx,
 	 */
 	size = get_aligned_image_size(info, size, 0);
 	buf = board_spl_fit_buffer_addr(size, size, 1);
+	if (!buf) {
+		/*
+		 * We assume that none of the board will ever use 0x0 as a
+		 * valid load address. Theoretically some board could use it,
+		 * but this is extremely unlikely.
+		 */
+		return -EIO;
+	}
 
 	count = info->read(info, offset, size, buf);
+	if (!count) {
+		/*
+		 * FIT could not be read. This means we should free the
+		 * memory allocated by board_spl_fit_buffer_addr().
+		 * Unfortunately, we don't know what memory allocation
+		 * mechanism was used:
+		 *   - For the SPL_SYS_MALLOC_SIMPLE case nothing could
+		 *     be done. The memory just could not be freed.
+		 *   - For statically allocated memory buffer we can try
+		 *     to reuse previously allocated memory (example:
+		 *     board_spl_fit_buffer_addr() function from the
+		 *     file test/image/spl_load.c).
+		 *   - For normall malloc() -- memory leak can't be easily
+		 *     avoided. To somehow reduce memory consumption the
+		 *     next calls of board_spl_fit_buffer_addr() could
+		 *     reallocate previously allocated buffer and use
+		 *     them again. This is somethat similar to the approach
+		 *     used for statically allocated buffer.
+		 *
+		 * Please note:
+		 *   - FIT images with data placed outside of the FIT
+		 *     structure will cause small memory leak (several
+		 *     kilobytes),
+		 *   - FIT images with data placed inside to the FIT
+		 *     structure may cause huge memory leak (up to
+		 *     several megabytes). Do NOT use such images!
+		 */
+		return -EIO;
+	}
+
 	ctx->fit = buf;
 	debug("fit read offset %lx, size=%lu, dst=%p, count=%lu\n",
 	      offset, size, buf, count);
 
-	return (count == 0) ? -EIO : 0;
+	return 0;
 }
 
 static int spl_simple_fit_parse(struct spl_fit_info *ctx)
@@ -834,7 +873,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 		image_info.load_addr = 0;
 		ret = load_simple_fit(info, offset, &ctx, node, &image_info);
-		if (ret < 0 && ret != -EPERM) {
+		if (ret < 0 && ret != -EBADSLT) {
 			printf("%s: can't load image loadables index %d (ret = %d)\n",
 			       __func__, index, ret);
 			return ret;

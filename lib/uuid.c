@@ -62,184 +62,197 @@ int uuid_str_valid(const char *uuid)
 	return 1;
 }
 
+/*
+ * Array of string (short and long) for known GUID of GPT partition type
+ * at least one string must be present, @type or @description
+ *
+ * @type        : short name for the parameter 'type' of gpt command (max size UUID_STR_LEN = 36,
+ *                no space), also used as fallback description when the next field is absent
+ * @description : long description associated to type GUID, used for %pUs
+ * @guid        : known type GUID value
+ */
 static const struct {
-	const char *string;
+	const char *type;
+	const char *description;
 	efi_guid_t guid;
 } list_guid[] = {
 #ifndef USE_HOSTCC
-#if defined(CONFIG_PARTITION_TYPE_GUID) || defined(CONFIG_CMD_EFIDEBUG) || \
-	defined(CONFIG_EFI)
-	{"EFI System Partition", PARTITION_SYSTEM_GUID},
-#endif
-#ifdef CONFIG_PARTITION_TYPE_GUID
-	{"mbr",		LEGACY_MBR_PARTITION_GUID},
-	{"msft",	PARTITION_MSFT_RESERVED_GUID},
-	{"data",	PARTITION_BASIC_DATA_GUID},
-	{"linux",	PARTITION_LINUX_FILE_SYSTEM_DATA_GUID},
-	{"raid",	PARTITION_LINUX_RAID_GUID},
-	{"swap",	PARTITION_LINUX_SWAP_GUID},
-	{"lvm",		PARTITION_LINUX_LVM_GUID},
-	{"u-boot-env",	PARTITION_U_BOOT_ENVIRONMENT},
-	{"cros-kern",	PARTITION_CROS_KERNEL},
-	{"cros-root",	PARTITION_CROS_ROOT},
-	{"cros-fw",	PARTITION_CROS_FIRMWARE},
-	{"cros-rsrv",	PARTITION_CROS_RESERVED},
-#endif
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
+	{"mbr",		NULL,	LEGACY_MBR_PARTITION_GUID},
+	{"msft",	NULL,	PARTITION_MSFT_RESERVED_GUID},
+	{"data",	NULL,	PARTITION_BASIC_DATA_GUID},
+	{"linux",	NULL,	PARTITION_LINUX_FILE_SYSTEM_DATA_GUID},
+	{"raid",	NULL,	PARTITION_LINUX_RAID_GUID},
+	{"swap",	NULL,	PARTITION_LINUX_SWAP_GUID},
+	{"lvm",		NULL,	PARTITION_LINUX_LVM_GUID},
+	{"u-boot-env",	NULL,	PARTITION_U_BOOT_ENVIRONMENT},
+	{"cros-kern",	NULL,	PARTITION_CROS_KERNEL},
+	{"cros-root",	NULL,	PARTITION_CROS_ROOT},
+	{"cros-fw",	NULL,	PARTITION_CROS_FIRMWARE},
+	{"cros-rsrv",	NULL,	PARTITION_CROS_RESERVED},
+	{
+		"system", "EFI System Partition",
+		PARTITION_SYSTEM_GUID,
+	},
 #if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI)
 	{
-		"Device Path",
+		NULL, "Device Path",
+		PARTITION_SYSTEM_GUID,
+	},
+	{
+		NULL, "Device Path",
 		EFI_DEVICE_PATH_PROTOCOL_GUID,
 	},
 	{
-		"Device Path To Text",
+		NULL, "Device Path To Text",
 		EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID,
 	},
 	{
-		"Device Path Utilities",
+		NULL, "Device Path Utilities",
 		EFI_DEVICE_PATH_UTILITIES_PROTOCOL_GUID,
 	},
 	{
-		"Unicode Collation 2",
+		NULL, "Unicode Collation 2",
 		EFI_UNICODE_COLLATION_PROTOCOL2_GUID,
 	},
 	{
-		"Driver Binding",
+		NULL, "Driver Binding",
 		EFI_DRIVER_BINDING_PROTOCOL_GUID,
 	},
 	{
-		"Simple Text Input",
+		NULL, "Simple Text Input",
 		EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID,
 	},
 	{
-		"Simple Text Input Ex",
+		NULL, "Simple Text Input Ex",
 		EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID,
 	},
 	{
-		"Simple Text Output",
+		NULL, "Simple Text Output",
 		EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID,
 	},
 	{
-		"Block IO",
+		NULL, "Block IO",
 		EFI_BLOCK_IO_PROTOCOL_GUID,
 	},
 	{
-		"Disk IO",
+		NULL, "Disk IO",
 		EFI_DISK_IO_PROTOCOL_GUID,
 	},
 	{
-		"Simple File System",
+		NULL, "Simple File System",
 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID,
 	},
 	{
-		"Loaded Image",
+		NULL, "Loaded Image",
 		EFI_LOADED_IMAGE_PROTOCOL_GUID,
 	},
 	{
-		"Loaded Image Device Path",
+		NULL, "Loaded Image Device Path",
 		EFI_LOADED_IMAGE_DEVICE_PATH_PROTOCOL_GUID,
 	},
 	{
-		"Graphics Output",
+		NULL, "Graphics Output",
 		EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID,
 	},
 	{
-		"HII String",
+		NULL, "HII String",
 		EFI_HII_STRING_PROTOCOL_GUID,
 	},
 	{
-		"HII Database",
+		NULL, "HII Database",
 		EFI_HII_DATABASE_PROTOCOL_GUID,
 	},
 	{
-		"HII Config Access",
+		NULL, "HII Config Access",
 		EFI_HII_CONFIG_ACCESS_PROTOCOL_GUID,
 	},
 	{
-		"HII Config Routing",
+		NULL, "HII Config Routing",
 		EFI_HII_CONFIG_ROUTING_PROTOCOL_GUID,
 	},
 	{
-		"Load File",
+		NULL, "Load File",
 		EFI_LOAD_FILE_PROTOCOL_GUID,
 	},
 	{
-		"Load File2",
+		NULL, "Load File2",
 		EFI_LOAD_FILE2_PROTOCOL_GUID,
 	},
 	{
-		"Random Number Generator",
+		NULL, "Random Number Generator",
 		EFI_RNG_PROTOCOL_GUID,
 	},
 	{
-		"Simple Network",
+		NULL, "Simple Network",
 		EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
 	},
 	{
-		"PXE Base Code",
+		NULL, "PXE Base Code",
 		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
 	},
 	{
-		"Device-Tree Fixup",
+		NULL, "Device-Tree Fixup",
 		EFI_DT_FIXUP_PROTOCOL_GUID,
 	},
 	{
-		"TCG2",
+		NULL, "TCG2",
 		EFI_TCG2_PROTOCOL_GUID,
 	},
 	{
-		"Firmware Management",
+		NULL, "Firmware Management",
 		EFI_FIRMWARE_MANAGEMENT_PROTOCOL_GUID
 	},
 #if IS_ENABLED(CONFIG_EFI_HTTP_PROTOCOL)
 	{
-		"HTTP",
+		NULL, "HTTP",
 		EFI_HTTP_PROTOCOL_GUID,
 	},
 	{
-		"HTTP Service Binding",
+		NULL, "HTTP Service Binding",
 		EFI_HTTP_SERVICE_BINDING_PROTOCOL_GUID,
 	},
 	{
-		"IPv4 Config2",
+		NULL, "IPv4 Config2",
 		EFI_IP4_CONFIG2_PROTOCOL_GUID,
 	},
 #endif
 	/* Configuration table GUIDs */
 	{
-		"ACPI table",
+		NULL, "ACPI table",
 		EFI_ACPI_TABLE_GUID,
 	},
 	{
-		"EFI System Resource Table",
+		NULL, "EFI System Resource Table",
 		EFI_SYSTEM_RESOURCE_TABLE_GUID,
 	},
 	{
-		"device tree",
+		NULL, "device tree",
 		EFI_FDT_GUID,
 	},
 	{
-		"SMBIOS table",
+		NULL, "SMBIOS table",
 		SMBIOS_TABLE_GUID,
 	},
 	{
-		"SMBIOS3 table",
+		NULL, "SMBIOS3 table",
 		SMBIOS3_TABLE_GUID,
 	},
 	{
-		"Runtime properties",
+		NULL, "Runtime properties",
 		EFI_RT_PROPERTIES_TABLE_GUID,
 	},
 	{
-		"TCG2 Final Events Table",
+		NULL, "TCG2 Final Events Table",
 		EFI_TCG2_FINAL_EVENTS_TABLE_GUID,
 	},
 	{
-		"EFI Conformance Profiles Table",
+		NULL, "EFI Conformance Profiles Table",
 		EFI_CONFORMANCE_PROFILES_TABLE_GUID,
 	},
 #ifdef CONFIG_EFI_RISCV_BOOT_PROTOCOL
 	{
-		"RISC-V Boot",
+		NULL, "RISC-V Boot",
 		RISCV_EFI_BOOT_PROTOCOL_GUID,
 	},
 #endif
@@ -247,35 +260,36 @@ static const struct {
 #ifdef CONFIG_CMD_NVEDIT_EFI
 	/* signature database */
 	{
-		"EFI_GLOBAL_VARIABLE_GUID",
+		"EFI_GLOBAL_VARIABLE_GUID", NULL,
 		EFI_GLOBAL_VARIABLE_GUID,
 	},
 	{
-		"EFI_IMAGE_SECURITY_DATABASE_GUID",
+		"EFI_IMAGE_SECURITY_DATABASE_GUID", NULL,
 		EFI_IMAGE_SECURITY_DATABASE_GUID,
 	},
 	/* certificate types */
 	{
-		"EFI_CERT_SHA256_GUID",
+		"EFI_CERT_SHA256_GUID", NULL,
 		EFI_CERT_SHA256_GUID,
 	},
 	{
-		"EFI_CERT_X509_GUID",
+		"EFI_CERT_X509_GUID", NULL,
 		EFI_CERT_X509_GUID,
 	},
 	{
-		"EFI_CERT_TYPE_PKCS7_GUID",
+		"EFI_CERT_TYPE_PKCS7_GUID", NULL,
 		EFI_CERT_TYPE_PKCS7_GUID,
 	},
 #endif
 #if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI)
-	{ "EFI_LZMA_COMPRESSED", EFI_LZMA_COMPRESSED },
-	{ "EFI_DXE_SERVICES", EFI_DXE_SERVICES },
-	{ "EFI_HOB_LIST", EFI_HOB_LIST },
-	{ "EFI_MEMORY_TYPE", EFI_MEMORY_TYPE },
-	{ "EFI_MEM_STATUS_CODE_REC", EFI_MEM_STATUS_CODE_REC },
-	{ "EFI_GUID_EFI_ACPI1", EFI_GUID_EFI_ACPI1 },
+	{ "EFI_LZMA_COMPRESSED", NULL, EFI_LZMA_COMPRESSED },
+	{ "EFI_DXE_SERVICES", NULL, EFI_DXE_SERVICES },
+	{ "EFI_HOB_LIST", NULL, EFI_HOB_LIST },
+	{ "EFI_MEMORY_TYPE", NULL, EFI_MEMORY_TYPE },
+	{ "EFI_MEM_STATUS_CODE_REC", NULL, EFI_MEM_STATUS_CODE_REC },
+	{ "EFI_GUID_EFI_ACPI1", NULL, EFI_GUID_EFI_ACPI1 },
 #endif
+#endif /* EFI_PARTITION */
 #endif /* !USE_HOSTCC */
 };
 
@@ -284,7 +298,8 @@ int uuid_guid_get_bin(const char *guid_str, unsigned char *guid_bin)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(list_guid); i++) {
-		if (!strcmp(list_guid[i].string, guid_str)) {
+		if (list_guid[i].type &&
+		    !strcmp(list_guid[i].type, guid_str)) {
 			memcpy(guid_bin, &list_guid[i].guid, 16);
 			return 0;
 		}
@@ -298,7 +313,9 @@ const char *uuid_guid_get_str(const unsigned char *guid_bin)
 
 	for (i = 0; i < ARRAY_SIZE(list_guid); i++) {
 		if (!memcmp(list_guid[i].guid.b, guid_bin, 16)) {
-			return list_guid[i].string;
+			if (list_guid[i].description)
+				return list_guid[i].description;
+			return list_guid[i].type;
 		}
 	}
 	return NULL;
@@ -312,10 +329,9 @@ int uuid_str_to_bin(const char *uuid_str, unsigned char *uuid_bin,
 	uint64_t tmp64;
 
 	if (!uuid_str_valid(uuid_str)) {
-#ifdef CONFIG_PARTITION_TYPE_GUID
-		if (!uuid_guid_get_bin(uuid_str, uuid_bin))
+		if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID) &&
+		    !uuid_guid_get_bin(uuid_str, uuid_bin))
 			return 0;
-#endif
 		return -EINVAL;
 	}
 
