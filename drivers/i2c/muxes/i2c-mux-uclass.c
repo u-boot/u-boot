@@ -40,6 +40,11 @@ static int i2c_mux_child_post_bind(struct udevice *dev)
 	struct i2c_mux_bus *plat = dev_get_parent_plat(dev);
 	int channel;
 
+	ofnode node = dev_ofnode(dev);
+
+	if (!ofnode_has_property(node, "reg"))
+		return 0;
+
 	channel = dev_read_u32_default(dev, "reg", -1);
 	if (channel < 0)
 		return -EINVAL;
