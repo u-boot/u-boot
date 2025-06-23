@@ -8,6 +8,7 @@
 
 #include <config.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/k3-common-fdt.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm/uclass.h>
@@ -94,6 +95,13 @@ int board_fit_config_name_match(const char *name)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return ft_common_board_setup(blob, bd);
+}
+#endif
+
+#if IS_ENABLED(CONFIG_OF_BOARD_SETUP_EXTENDED)
+void ft_board_setup_ex(void *blob, struct bd_info *bd)
+{
+	fdt_fixup_thermal_critical_trips_k3(blob, 105);
 }
 #endif
 
