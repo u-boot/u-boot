@@ -86,12 +86,11 @@ static int spl_fit_get_image_name(const struct spl_fit_info *ctx,
 
 	str = name;
 	for (i = 0; i < index; i++) {
-		str = memchr(str, '\0', name + len - str);
-		if (!str) {
+		str = strchr(str, '\0') + 1;
+		if (!str || (str - name >= len)) {
 			found = false;
 			break;
 		}
-		str++;
 	}
 
 	if (!found && CONFIG_IS_ENABLED(SYSINFO) && !sysinfo_get(&sysinfo)) {
