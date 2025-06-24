@@ -73,7 +73,7 @@ static int spl_fit_get_image_name(const struct spl_fit_info *ctx,
 				  const char **outname)
 {
 	struct udevice *sysinfo;
-	const char *name, *str;
+	const char *name, *str, *end;
 	__maybe_unused int node;
 	int len, i;
 	bool found = true;
@@ -83,11 +83,17 @@ static int spl_fit_get_image_name(const struct spl_fit_info *ctx,
 		debug("cannot find property '%s': %d\n", type, len);
 		return -EINVAL;
 	}
+	/* A string property should be NUL terminated */
+	end = name + len - 1;
+	if (!len || *end) {
+		debug("malformed property '%s'\n", type);
+		return -EINVAL;
+	}
 
 	str = name;
 	for (i = 0; i < index; i++) {
 		str = strchr(str, '\0') + 1;
-		if (!str || (str - name >= len)) {
+		if (str > end) {
 			found = false;
 			break;
 		}
