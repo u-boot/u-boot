@@ -37,6 +37,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+enum qcom_boot_source qcom_boot_source __section(".data") = 0;
+
 static struct mm_region rbx_mem_map[CONFIG_NR_DRAM_BANKS + 2] = { { 0 } };
 
 struct mm_region *mem_map = rbx_mem_map;
@@ -237,6 +239,12 @@ int board_fdt_blob_setup(void **fdtp)
 
 	if (ret < 0)
 		panic("No valid memory ranges found!\n");
+
+	/* If we have an external FDT, it can only have come from the Android bootloader. */
+	if (external_valid)
+		qcom_boot_source = QCOM_BOOT_SOURCE_ANDROID;
+	else
+		qcom_boot_source = QCOM_BOOT_SOURCE_XBL;
 
 	debug("ram_base = %#011lx, ram_size = %#011llx\n",
 	      gd->ram_base, gd->ram_size);
@@ -481,6 +489,23 @@ static void configure_env(void)
 	qcom_set_serialno();
 }
 
+void qcom_show_boot_source(void)
+{
+	const char *name = "UNKNOWN";
+
+	switch (qcom_boot_source) {
+	case QCOM_BOOT_SOURCE_ANDROID:
+		name = "ABL";
+		break;
+	case QCOM_BOOT_SOURCE_XBL:
+		name = "XBL";
+		break;
+	}
+
+	log_info("U-Boot loaded from %s\n", name);
+	env_set("boot_source", name);
+}
+
 void __weak qcom_late_init(void)
 {
 }
@@ -508,8 +533,12 @@ int board_late_init(void)
 	status |= env_set_hex("ramdisk_addr_r", addr_alloc(SZ_128M));
 	status |= env_set_hex("kernel_comp_addr_r", addr_alloc(KERNEL_COMP_SIZE));
 	status |= env_set_hex("kernel_comp_size", KERNEL_COMP_SIZE);
-	if (IS_ENABLED(CONFIG_FASTBOOT))
-		status |= env_set_hex("fastboot_addr_r", addr_alloc(FASTBOOT_BUF_SIZE));
+	if (IS_ENABLED(CONFIG_FASTBOOT)) {
+		addr = addr_alloc(FASTBOOT_BUF_SIZE);
+		status |= env_set_hex("fastboot_addr_r", addr);
+		/* override loadaddr for memory rich soc */
+		status |= env_set_hex("loadaddr", addr);
+	}
 	status |= env_set_hex("scriptaddr", addr_alloc(SZ_4M));
 	status |= env_set_hex("pxefile_addr_r", addr_alloc(SZ_4M));
 	addr = addr_alloc(SZ_2M);
@@ -524,6 +553,7 @@ int board_late_init(void)
 	configure_env();
 	qcom_late_init();
 
+	qcom_show_boot_source();
 	/* Configure the dfu_string for capsule updates */
 	qcom_configure_capsule_updates();
 

@@ -23,10 +23,7 @@ Installation
 ------------
 Build
 ^^^^^
-
-	$ ./tools/buildman/buildman -o .output qcom
-
-This will build ``.output/u-boot-nodtb.bin`` using the ``qcom_defconfig``.
+We will build ``u-boot-nodtb.bin`` from the u-boot source tree.
 
 Generate FIT image (optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -81,19 +78,20 @@ Steps:
 
 - Build u-boot
 
-As above::
+Use the following commands::
 
-	./tools/buildman/buildman -o .output qcom
+	make CROSS_COMPILE=aarch64-linux-gnu- O=.output qcom_defconfig
+	make CROSS_COMPILE=aarch64-linux-gnu- O=.output -j$(nproc)
 
 Or for db410c (and other boards not supported by the generic target)::
 
 	make CROSS_COMPILE=aarch64-linux-gnu- O=.output dragonboard410c_defconfig
-	make O=.output -j$(nproc)
+	make CROSS_COMPILE=aarch64-linux-gnu- O=.output -j$(nproc)
 
 Or for smartphones::
 
 	make CROSS_COMPILE=aarch64-linux-gnu- O=.output qcom_defconfig qcom-phone.config
-	make O=.output -j$(nproc)
+	make CROSS_COMPILE=aarch64-linux-gnu- O=.output -j$(nproc)
 
 - gzip u-boot::
 
@@ -118,6 +116,13 @@ Or with no FIT image::
 
 	mkbootimg --kernel u-boot-nodtb.bin.gz-dtb \
 	--output boot.img --pagesize 4096 --base 0x80000000
+
+Other devices with boot image version 2 can be built like this example::
+
+	mkbootimg --pagesize 4096 --header_version 2 \
+	--kernel_offset 0x00008000 --kernel u-boot-nodtb.bin.gz \
+	--dtb_offset 0x01f00000 --dtb dts/upstream/src/arm64/qcom/qcm6490-fairphone-fp5.dtb \
+	--output boot.img
 
 - Flash boot.img using fastboot and erase dtbo to avoid conflicts with our DTB:
 
