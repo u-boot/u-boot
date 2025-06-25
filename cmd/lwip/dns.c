@@ -43,8 +43,6 @@ static void dns_cb(const char *name, const ip_addr_t *ipaddr, void *arg)
 
 	if (dns_cb_arg->var)
 		env_set(dns_cb_arg->var, ipstr);
-
-	printf("%s\n", ipstr);
 }
 
 static int dns_loop(struct udevice *udev, const char *name, const char *var)
@@ -89,8 +87,11 @@ static int dns_loop(struct udevice *udev, const char *name, const char *var)
 
 	net_lwip_remove_netif(netif);
 
-	if (dns_cb_arg.done && dns_cb_arg.host_ipaddr.addr != 0)
+	if (dns_cb_arg.done && dns_cb_arg.host_ipaddr.addr != 0) {
+		if (!var)
+			printf("%s\n", ipaddr_ntoa(&ipaddr));
 		return CMD_RET_SUCCESS;
+	}
 
 	return CMD_RET_FAILURE;
 }
