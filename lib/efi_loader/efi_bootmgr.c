@@ -1133,7 +1133,7 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 {
 	u32 i;
 	efi_status_t ret;
-	efi_uintn_t count, num, total;
+	efi_uintn_t count, num, total = 0;
 	efi_handle_t *handles = NULL;
 	struct eficonfig_media_boot_option *opt = NULL;
 
