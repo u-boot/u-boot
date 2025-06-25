@@ -332,8 +332,8 @@ int cread_line_process_ch(struct cli_line_state *cls, char ichar)
 		if (cls->num) {
 			uint base, wlen;
 
-			for (base = cls->num - 1;
-			     base >= 0 && buf[base] == ' ';)
+			for (base = cls->num;
+			     base > 0 && buf[base - 1] == ' ';)
 				base--;
 			for (; base > 0 && buf[base - 1] != ' ';)
 				base--;
