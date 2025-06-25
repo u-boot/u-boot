@@ -39,6 +39,8 @@ static void dns_cb(const char *name, const ip_addr_t *ipaddr, void *arg)
 		return;
 	}
 
+	dns_cb_arg->host_ipaddr.addr = ipaddr->addr;
+
 	if (dns_cb_arg->var)
 		env_set(dns_cb_arg->var, ipstr);
 
