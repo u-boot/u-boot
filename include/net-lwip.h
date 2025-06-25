@@ -6,6 +6,20 @@
 #include <lwip/ip4.h>
 #include <lwip/netif.h>
 
+/* HTTPS authentication mode */
+enum auth_mode {
+	AUTH_NONE,
+	AUTH_OPTIONAL,
+	AUTH_REQUIRED,
+};
+
+extern char *cacert;
+extern size_t cacert_size;
+extern enum auth_mode cacert_auth_mode;
+extern bool cacert_initialized;
+
+int set_cacert_builtin(void);
+
 enum proto_t {
 	TFTPGET
 };
