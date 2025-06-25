@@ -574,4 +574,6 @@ extern struct wget_http_info default_wget_info;
 extern struct wget_http_info *wget_info;
 int wget_request(ulong dst_addr, char *uri, struct wget_http_info *info);
 
+void net_sntp_set_rtc(u32 seconds);
+
 #endif /* __NET_COMMON_H__ */
