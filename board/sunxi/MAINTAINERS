@@ -296,6 +296,11 @@ M:	Adam Sampson <ats@offog.org>
 S:	Maintained
 F:	configs/Linksprite_pcDuino3_Nano_defconfig
 
+LIONTRON H-A133L BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/liontron-h-a133l_defconfig
+
 MARSBOARD-A10 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained
@@ -595,6 +600,11 @@ YONES TOPTECH BS1078 V2 BOARD
 M:	Peter Korsgaard <peter@korsgaard.com>
 S:	Maintained
 F:	configs/Yones_Toptech_BS1078_V2_defconfig
+
+YUZUKIHD CHAMELEON BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/yuzukihd-chameleon_defconfig
 
 ZEROPI BOARD
 M:	Yu-Tung Chang <mtwget@gmail.com>
