@@ -162,4 +162,8 @@
 #define LWIP_ALTCP_TLS_MBEDTLS          1
 #endif
 
+#if defined(CONFIG_CMD_SNTP)
+#define LWIP_DHCP_GET_NTP_SRV 1
+#endif
+
 #endif /* LWIP_UBOOT_LWIPOPTS_H */
