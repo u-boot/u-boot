@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY	UCLASS_TPM
 
+#include <linux/errno.h>
 #include <tpm-v1.h>
 #include <tpm-v2.h>
 #include <asm/unaligned.h>
