@@ -623,12 +623,16 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	 */
 	if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE) {
 		ulong req_size = ALIGN(image_len * 4, SZ_1M);
+		phys_addr_t addr;
 
-		load = lmb_alloc(req_size, SZ_2M);
-		if (!load)
+		err = lmb_alloc_mem(LMB_MEM_ALLOC_ANY, SZ_2M, &addr,
+				    req_size, LMB_NONE);
+		if (err)
 			return 1;
-		os.load = load;
-		images->ep = load;
+
+		load = (ulong)addr;
+		os.load = (ulong)addr;
+		images->ep = (ulong)addr;
 		debug("Allocated %lx bytes at %lx for kernel (size %lx) decompression\n",
 		      req_size, load, image_len);
 	}
@@ -698,9 +702,18 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		images->os.end = relocated_addr + image_size;
 	}
 
-	if (CONFIG_IS_ENABLED(LMB))
-		lmb_reserve(images->os.load, (load_end - images->os.load),
-			    LMB_NONE);
+	if (CONFIG_IS_ENABLED(LMB)) {
+		phys_addr_t load;
+
+		load = (phys_addr_t)images->os.load;
+		err = lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &load,
+				    (load_end - images->os.load), LMB_NONE);
+		if (err) {
+			log_err("Unable to allocate memory %#lx for loading OS\n",
+				images->os.load);
+			return 1;
+		}
+	}
 
 	return 0;
 }
