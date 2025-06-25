@@ -1410,6 +1410,7 @@ F:	net/
 NETWORK (LWIP)
 M:	Jerome Forissier <jerome.forissier@linaro.org>
 S:	Maintained
+F:	cmd/lwip/
 F:	cmd/net-lwip.c
 F:	configs/qemu_arm64_lwip_defconfig
 F:	drivers/net/sandbox-lwip.c
