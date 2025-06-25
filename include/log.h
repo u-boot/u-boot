@@ -176,7 +176,7 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 #define _LOG_MAX_LEVEL LOGL_INFO
 #endif
 
-#define log_emer(_fmt...)	log(LOG_CATEGORY, LOGL_EMERG, ##_fmt)
+#define log_emerg(_fmt...)	log(LOG_CATEGORY, LOGL_EMERG, ##_fmt)
 #define log_alert(_fmt...)	log(LOG_CATEGORY, LOGL_ALERT, ##_fmt)
 #define log_crit(_fmt...)	log(LOG_CATEGORY, LOGL_CRIT, ##_fmt)
 #define log_err(_fmt...)	log(LOG_CATEGORY, LOGL_ERR, ##_fmt)
