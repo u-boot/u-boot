@@ -38,6 +38,7 @@ struct netif *net_lwip_new_netif_noip(struct udevice *udev);
 void net_lwip_remove_netif(struct netif *netif);
 struct netif *net_lwip_get_netif(void);
 int net_lwip_rx(struct udevice *udev, struct netif *netif);
+int net_lwip_dns_resolve(char *name_or_ip, ip_addr_t *ip);
 
 /**
  * wget_validate_uri() - varidate the uri
