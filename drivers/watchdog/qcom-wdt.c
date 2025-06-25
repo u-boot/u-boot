@@ -17,6 +17,9 @@
 
 #include <asm/io.h>
 
+/* Maximum allowed timeout value in Qcom SoCs*/
+#define QCOM_WDT_MAX_TIMEOUT	0xfffff
+
 enum wdt_reg {
 	WDT_RST,
 	WDT_EN,
@@ -55,8 +58,24 @@ static void __iomem *wdt_addr(struct qcom_wdt *wdt, enum wdt_reg reg)
 int qcom_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	struct qcom_wdt *wdt = dev_get_priv(dev);
-	ulong bark_timeout_s = ((timeout_ms - 1)  * wdt->clk_rate) / 1000;
-	ulong bite_timeout_s = (timeout_ms * wdt->clk_rate) / 1000;
+	u64 tmp_timeout;
+	u32 bark_timeout_s, bite_timeout_s;
+
+	/* Compute timeout in watchdog ticks */
+	tmp_timeout = (timeout_ms * (u64)wdt->clk_rate) / 1000;
+	if (tmp_timeout > QCOM_WDT_MAX_TIMEOUT) {
+		dev_warn(dev,
+			 "Requested timeout (%llu ms) exceeds maximum allowed value (%llu ms). "
+			 "Using max timeout instead.\n",
+			 timeout_ms,
+			 ((u64)QCOM_WDT_MAX_TIMEOUT * 1000) / wdt->clk_rate);
+		tmp_timeout = (u32)QCOM_WDT_MAX_TIMEOUT;
+		timeout_ms = (tmp_timeout * 1000) / wdt->clk_rate;
+	}
+
+	bite_timeout_s = (u32)tmp_timeout;
+	tmp_timeout = ((timeout_ms - 1) * (u64)wdt->clk_rate) / 1000;
+	bark_timeout_s = (u32)tmp_timeout;
 
 	writel(0, wdt_addr(wdt, WDT_EN));
 	writel(BIT(0), wdt_addr(wdt, WDT_RST));
