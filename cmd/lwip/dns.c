@@ -9,6 +9,9 @@
 #include <net.h>
 #include <time.h>
 
+U_BOOT_CMD(dns, 3, 1, do_dns, "lookup the IP of a hostname",
+	   "hostname [envvar]");
+
 #define DNS_RESEND_MS 1000
 #define DNS_TIMEOUT_MS 10000
 

@@ -13,6 +13,9 @@
 #include <net.h>
 #include <time.h>
 
+U_BOOT_CMD(ping, 2, 1, do_ping, "send ICMP ECHO_REQUEST to network host",
+	   "pingAddress");
+
 #define PING_DELAY_MS 1000
 #define PING_COUNT 5
 /* Ping identifier - must fit on a u16_t */
