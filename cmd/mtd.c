@@ -477,7 +477,7 @@ static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct mtd_info *mtd;
 	u32 oob_len;
 	u8 *buf;
-	int ret;
+	int ret = CMD_RET_SUCCESS;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
