@@ -14,6 +14,8 @@
 #define CFG_SYS_SDRAM_BASE		0
 #define CFG_SYS_SDRAM_SIZE \
 		(SB_TO_UL(CONFIG_SANDBOX_RAM_SIZE_MB) << 20)
+/** define SB_SDRAM_ALIGN - Alignment of emulated RAM */
+#define SB_SDRAM_ALIGN			0x400000
 
 #define CFG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}

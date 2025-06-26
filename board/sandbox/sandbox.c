@@ -101,7 +101,6 @@ enum env_location env_get_location(enum env_operation op, int prio)
 
 int dram_init(void)
 {
-	gd->ram_size = CFG_SYS_SDRAM_SIZE;
 	return 0;
 }
 

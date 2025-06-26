@@ -480,7 +480,9 @@ int state_init(void)
 	state = &main_state;
 
 	state->ram_size = CFG_SYS_SDRAM_SIZE;
-	state->ram_buf = os_malloc(state->ram_size);
+	state->mmap_addr = os_malloc(state->ram_size + SB_SDRAM_ALIGN);
+	state->ram_buf = (uint8_t *)ALIGN((uintptr_t)state->mmap_addr,
+					  SB_SDRAM_ALIGN);
 	if (!state->ram_buf) {
 		printf("Out of memory\n");
 		os_exit(1);
@@ -533,7 +535,7 @@ int state_uninit(void)
 		trace_set_enabled(0);
 
 	os_free(state->state_fdt);
-	os_free(state->ram_buf);
+	os_free(state->mmap_addr);
 	memset(state, '\0', sizeof(*state));
 
 	return 0;
