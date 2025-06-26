@@ -93,7 +93,7 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 	const char *model, *compatible;
 	char *ipaddr;
 	int n_cmds, n_cpus = 0, compatlen;
-	size_t size;
+	size_t size = 0;
 	ofnode np;
 	bool skip_ascii = false;
 
