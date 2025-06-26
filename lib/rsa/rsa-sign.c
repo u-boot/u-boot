@@ -122,7 +122,7 @@ static int rsa_engine_get_pub_key(const char *keydir, const char *name,
 				fprintf(stderr, "WARNING: Legacy URI specified. Please add '%s'.\n", pkcs11_schema);
 			}
 
-			if (strstr(keydir, "object="))
+			if (strstr(keydir, "object=") || strstr(keydir, "id="))
 				snprintf(key_id, sizeof(key_id),
 					 "%s%s;type=public",
 					 pkcs11_uri_prepend, keydir);
@@ -253,7 +253,7 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 				fprintf(stderr, "WARNING: Legacy URI specified. Please add '%s'.\n", pkcs11_schema);
 			}
 
-			if (strstr(keydir, "object="))
+			if (strstr(keydir, "object=") || strstr(keydir, "id="))
 				snprintf(key_id, sizeof(key_id),
 					 "%s%s;type=private",
 					 pkcs11_uri_prepend, keydir);
