@@ -537,7 +537,7 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             entry.WriteMap(fd, indent + 1)
 
-    def GetEntries(self):
+    def GetEntries(self) -> dict[str, Entry]:
         return self._entries
 
     def GetContentsByPhandle(self, phandle, source_entry, required):
@@ -772,9 +772,17 @@ class Entry_section(Entry):
                        todo)
         return True
 
-    def drop_absent(self):
-        """Drop entries which are absent"""
-        self._entries = {n: e for n, e in self._entries.items() if not e.absent}
+    def drop_absent_optional(self) -> None:
+        """Drop entries which are absent.
+        Call for all nodes in the tree. Leaf nodes will do nothing per
+        definition. Sections however have _entries and should drop all children
+        which are absent.
+        """
+        self._entries = {n: e for n, e in self._entries.items() if not (e.absent and e.optional)}
+        # Drop nodes first before traversing children to avoid superfluous calls
+        # to children of absent nodes.
+        for e in self.GetEntries().values():
+            e.drop_absent_optional()
 
     def _SetEntryOffsetSize(self, name, offset, size):
         """Set the offset and size of an entry

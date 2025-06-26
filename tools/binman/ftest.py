@@ -84,6 +84,7 @@ FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
                          b"sorry you're alive\n")
 COMPRESS_DATA         = b'compress xxxxxxxxxxxxxxxxxxxxxx data'
 COMPRESS_DATA_BIG     = COMPRESS_DATA * 2
+MISSING_DATA          = b'missing'
 REFCODE_DATA          = b'refcode'
 FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
@@ -250,7 +251,7 @@ class TestFunctional(unittest.TestCase):
         # ATF and OP_TEE
         TestFunctional._MakeInputFile('bl31.elf',
             tools.read_file(cls.ElfTestFile('elf_sections')))
-        TestFunctional._MakeInputFile('tee.elf',
+        TestFunctional.tee_elf_path = TestFunctional._MakeInputFile('tee.elf',
             tools.read_file(cls.ElfTestFile('elf_sections')))
 
         # Newer OP_TEE file in v1 binary format
@@ -514,9 +515,9 @@ class TestFunctional(unittest.TestCase):
         return dtb.GetContents()
 
     def _DoReadFileDtb(self, fname, use_real_dtb=False, use_expanded=False,
-                       verbosity=None, map=False, update_dtb=False,
-                       entry_args=None, reset_dtbs=True, extra_indirs=None,
-                       threads=None):
+                       verbosity=None, allow_fake_blobs=True, map=False,
+                       update_dtb=False, entry_args=None, reset_dtbs=True,
+                       extra_indirs=None, threads=None):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -534,6 +535,7 @@ class TestFunctional(unittest.TestCase):
             use_expanded: True to use expanded entries where available, e.g.
                 'u-boot-expanded' instead of 'u-boot'
             verbosity: Verbosity level to use (0-3, None=don't set it)
+            allow_fake_blobs: whether binman should fake missing ext blobs
             map: True to output map files for the images
             update_dtb: Update the offset and size of each entry in the device
                 tree before packing it into the image
@@ -571,7 +573,7 @@ class TestFunctional(unittest.TestCase):
             retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
                     entry_args=entry_args, use_real_dtb=use_real_dtb,
                     use_expanded=use_expanded, verbosity=verbosity,
-                    extra_indirs=extra_indirs,
+                    allow_fake_blobs=allow_fake_blobs, extra_indirs=extra_indirs,
                     threads=threads)
             self.assertEqual(0, retcode)
             out_dtb_fname = tools.get_output_filename('u-boot.dtb.out')
@@ -5210,13 +5212,15 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testExtblobList(self):
         """Test an image with an external blob list"""
-        data = self._DoReadFile('215_blob_ext_list.dts')
-        self.assertEqual(REFCODE_DATA + FSP_M_DATA, data)
+        data = self._DoReadFileDtb('215_blob_ext_list.dts',
+                                   allow_fake_blobs=False)
+        self.assertEqual(REFCODE_DATA + FSP_M_DATA, data[0])
 
     def testExtblobListMissing(self):
         """Test an image with a missing external blob"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('216_blob_ext_list_missing.dts')
+            self._DoReadFileDtb('216_blob_ext_list_missing.dts',
+                                allow_fake_blobs=False)
         self.assertIn("Filename 'missing-file' not found in input path",
                       str(e.exception))
 
@@ -5224,7 +5228,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test an image with an missing external blob that is allowed"""
         with terminal.capture() as (stdout, stderr):
             self._DoTestFile('216_blob_ext_list_missing.dts',
-                             allow_missing=True)
+                             allow_missing=True, allow_fake_blobs=False)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing.*: blob-ext")
 
@@ -5766,10 +5770,10 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
 
     def testFitSplitElfMissing(self):
-        """Test an split-elf FIT with a missing ELF file"""
+        """Test an split-elf FIT with a missing ELF file. Don't fake the file."""
         if not elf.ELF_TOOLS:
             self.skipTest('Python elftools not available')
-        out, err = self.checkFitSplitElf(allow_missing=True)
+        out, err = self.checkFitSplitElf(allow_missing=True, allow_fake_blobs=False)
         self.assertRegex(
             err,
             "Image '.*' is missing external blobs and is non-functional: .*")
@@ -6458,16 +6462,18 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testAbsent(self):
         """Check handling of absent entries"""
         data = self._DoReadFile('262_absent.dts')
-        self.assertEqual(U_BOOT_DATA + U_BOOT_IMG_DATA, data)
+        self.assertEqual(U_BOOT_DATA + b'aa' + U_BOOT_IMG_DATA, data)
 
-    def testPackTeeOsOptional(self):
-        """Test that an image with an optional TEE binary can be created"""
+    def testPackTeeOsElf(self):
+        """Test that an image with a TEE elf binary can be created"""
         entry_args = {
             'tee-os-path': 'tee.elf',
         }
+        tee_path = self.tee_elf_path
         data = self._DoReadFileDtb('263_tee_os_opt.dts',
                                    entry_args=entry_args)[0]
-        self.assertEqual(U_BOOT_DATA + U_BOOT_IMG_DATA, data)
+        self.assertEqual(U_BOOT_DATA + tools.read_file(tee_path) +
+                         U_BOOT_IMG_DATA, data)
 
     def checkFitTee(self, dts, tee_fname):
         """Check that a tee-os entry works and returns data
@@ -6512,6 +6518,9 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertRegex(
             err,
             "Image '.*' is missing optional external blobs but is still functional: tee-os")
+        self.assertNotRegex(
+            err,
+            "Image '.*' has faked external blobs and is non-functional: tee-os")
 
     def testFitTeeOsOptionalFitBad(self):
         """Test an image with a FIT with an optional OP-TEE binary"""
@@ -6537,7 +6546,15 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             "Node '/binman/fit/images/@tee-SEQ/tee-os': Invalid OP-TEE file: size mismatch (expected 0x4, have 0xe)",
             str(exc.exception))
 
-    def testExtblobOptional(self):
+    def testExtblobMissingOptional(self):
+        """Test an image with an external blob that is optional"""
+        with terminal.capture() as (stdout, stderr):
+            data = self._DoReadFileDtb('266_blob_ext_opt.dts',
+                                       allow_fake_blobs=False)[0]
+        self.assertEqual(REFCODE_DATA, data)
+        self.assertNotIn(MISSING_DATA, data)
+
+    def testExtblobFakedOptional(self):
         """Test an image with an external blob that is optional"""
         with terminal.capture() as (stdout, stderr):
             data = self._DoReadFile('266_blob_ext_opt.dts')
@@ -6546,6 +6563,9 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertRegex(
             err,
             "Image '.*' is missing optional external blobs but is still functional: missing")
+        self.assertNotRegex(
+            err,
+            "Image '.*' has faked external blobs and is non-functional: missing")
 
     def testSectionInner(self):
         """Test an inner section with a size"""
@@ -6726,7 +6746,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         node = dtb.GetNode('/configurations/conf-missing-tee-1')
         self.assertEqual('atf-1', node.props['firmware'].value)
-        self.assertEqual(['u-boot', 'atf-2'],
+        self.assertEqual(['u-boot', 'tee', 'atf-2'],
                          fdt_util.GetStringList(node, 'loadables'))
 
     def testTooldir(self):
