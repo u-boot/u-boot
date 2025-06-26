@@ -11,10 +11,12 @@
 
 static struct imx_pinctrl_soc_info imx8ulp_pinctrl_soc_info0 = {
 	.flags = ZERO_OFFSET_VALID | SHARE_MUX_CONF_REG | CFG_IBE_OBE,
+	.mux_mask = 0xf00,
 };
 
 static struct imx_pinctrl_soc_info imx8ulp_pinctrl_soc_info1 = {
 	.flags = ZERO_OFFSET_VALID | SHARE_MUX_CONF_REG | CFG_IBE_OBE,
+	.mux_mask = 0xf00,
 };
 
 static const struct udevice_id imx8ulp_pinctrl_match[] = {
