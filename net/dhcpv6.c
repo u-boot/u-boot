@@ -128,7 +128,7 @@ static int dhcp6_add_option(int option_id, uchar *pkt)
 		break;
 	case DHCP6_OPTION_CLIENT_ARCH_TYPE:
 		client_arch_opt = (struct dhcp6_option_client_arch *)dhcp_option_start;
-		client_arch_opt->arch_type[num_client_arch++] = htons(CONFIG_DHCP6_PXE_CLIENTARCH);
+		client_arch_opt->arch_type[num_client_arch++] = htons(CONFIG_DHCP_PXE_CLIENTARCH);
 
 		opt_len = sizeof(__be16) * num_client_arch;
 		break;
@@ -194,7 +194,7 @@ static void dhcp6_send_solicit_packet(void)
 	pkt += dhcp6_add_option(DHCP6_OPTION_ELAPSED_TIME, pkt);
 	pkt += dhcp6_add_option(DHCP6_OPTION_IA_NA, pkt);
 	pkt += dhcp6_add_option(DHCP6_OPTION_ORO, pkt);
-	if (CONFIG_DHCP6_PXE_CLIENTARCH != 0xFF)
+	if (CONFIG_DHCP_PXE_CLIENTARCH != 0xFF)
 		pkt += dhcp6_add_option(DHCP6_OPTION_CLIENT_ARCH_TYPE, pkt);
 	pkt += dhcp6_add_option(DHCP6_OPTION_VENDOR_CLASS, pkt);
 	pkt += dhcp6_add_option(DHCP6_OPTION_NII, pkt);
@@ -244,7 +244,7 @@ static void dhcp6_send_request_packet(void)
 		memcpy(pkt, sm_params.server_uid.uid_ptr, sm_params.server_uid.uid_size);
 		pkt += sm_params.server_uid.uid_size;
 	}
-	if (CONFIG_DHCP6_PXE_CLIENTARCH != 0xFF)
+	if (CONFIG_DHCP_PXE_CLIENTARCH != 0xFF)
 		pkt += dhcp6_add_option(DHCP6_OPTION_CLIENT_ARCH_TYPE, pkt);
 	pkt += dhcp6_add_option(DHCP6_OPTION_VENDOR_CLASS, pkt);
 	pkt += dhcp6_add_option(DHCP6_OPTION_NII, pkt);

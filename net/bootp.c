@@ -545,14 +545,14 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	}
 #endif
 
-#ifdef CONFIG_BOOTP_PXE_CLIENTARCH
-	clientarch = CONFIG_BOOTP_PXE_CLIENTARCH;
+#ifdef CONFIG_DHCP_PXE_CLIENTARCH
+	clientarch = CONFIG_DHCP_PXE_CLIENTARCH;
 #endif
 
 	if (env_get("bootp_arch"))
 		clientarch = env_get_ulong("bootp_arch", 16, clientarch);
 
-	if (clientarch > 0) {
+	if (clientarch != 0xff) {
 		*e++ = 93;	/* Client System Architecture */
 		*e++ = 2;
 		*e++ = (clientarch >> 8) & 0xff;
