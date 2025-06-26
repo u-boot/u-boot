@@ -12,7 +12,7 @@
 			#address-cells = <1>;
 
 			images {
-				test {
+				kernel {
 					description = "Something using a bintool";
 					type = "kernel";
 					arch = "arm";
