@@ -10,6 +10,7 @@ obj-y += soc.o
 
 obj-$(CONFIG_STM32MP15X) += stm32mp1/
 obj-$(CONFIG_STM32MP13X) += stm32mp1/
+obj-$(CONFIG_STM32MP23X) += stm32mp2/
 obj-$(CONFIG_STM32MP25X) += stm32mp2/
 
 obj-$(CONFIG_MFD_STM32_TIMERS) += timers.o

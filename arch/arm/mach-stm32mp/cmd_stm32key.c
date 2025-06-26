@@ -171,7 +171,7 @@ static u8 get_key_nb(void)
 	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return ARRAY_SIZE(stm32mp15_list);
 
-	if (IS_ENABLED(CONFIG_STM32MP25X))
+	if (IS_ENABLED(CONFIG_STM32MP23X) || IS_ENABLED(CONFIG_STM32MP25X))
 		return ARRAY_SIZE(stm32mp25_list);
 }
 
@@ -183,7 +183,7 @@ static const struct stm32key *get_key(u8 index)
 	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return &stm32mp15_list[index];
 
-	if (IS_ENABLED(CONFIG_STM32MP25X))
+	if (IS_ENABLED(CONFIG_STM32MP23X) || IS_ENABLED(CONFIG_STM32MP25X))
 		return &stm32mp25_list[index];
 }
 
@@ -195,7 +195,7 @@ static u8 get_otp_close_state_nb(void)
 	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return ARRAY_SIZE(stm32mp15_close_state_otp);
 
-	if (IS_ENABLED(CONFIG_STM32MP25X))
+	if (IS_ENABLED(CONFIG_STM32MP23X) || IS_ENABLED(CONFIG_STM32MP25X))
 		return ARRAY_SIZE(stm32mp25_close_state_otp);
 }
 
@@ -207,7 +207,7 @@ static const struct otp_close *get_otp_close_state(u8 index)
 	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return &stm32mp15_close_state_otp[index];
 
-	if (IS_ENABLED(CONFIG_STM32MP25X))
+	if (IS_ENABLED(CONFIG_STM32MP23X) || IS_ENABLED(CONFIG_STM32MP25X))
 		return &stm32mp25_close_state_otp[index];
 }
 
