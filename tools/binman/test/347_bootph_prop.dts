@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+/ {
+	dummy-parent {
+		subnode-1 {
+			subnode-2 {
+				bootph-all;
+			};
+			subnode-3 {
+				bootph-some-ram;
+				subnode-4 {
+				};
+			};
+		};
+	};
+
+	binman: binman {
+	};
+};
+
