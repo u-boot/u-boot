@@ -391,7 +391,7 @@ F:	drivers/pci/pci-aardvark.c
 F:	drivers/pci/pci_mvebu.c
 
 ARM MARVELL PXA1908
-M:	Duje Mihanović <duje.mihanovic@skole.hr>
+M:	Duje Mihanović <duje@dujemihanovic.xyz>
 S:	Maintained
 T:	git git://git.dujemihanovic.xyz/u-boot.git
 F:	arch/arm/dts/pxa1908*

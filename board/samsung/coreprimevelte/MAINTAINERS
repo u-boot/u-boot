@@ -1,5 +1,5 @@
 Samsung Galaxy Core Prime VE LTE support
-M:	Duje Mihanović <duje.mihanovic@skole.hr>
+M:	Duje Mihanović <duje@dujemihanovic.xyz>
 S:	Maintained
 T:	git git://git.dujemihanovic.xyz/u-boot.git
 F:	board/samsung/coreprimevelte/
