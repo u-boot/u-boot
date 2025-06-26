@@ -408,6 +408,9 @@ void enable_board_pin_mux(void)
 
 			if (subtype_id == 'L')
 				configure_module_pin_mux(spi0_pin_mux);
+		} else if (board_is_bbge()) {
+			/* Beaglebone Green Eco pinmux */
+			configure_module_pin_mux(rgmii1_pin_mux);
 		} else {
 			/* Beaglebone LT pinmux */
 			configure_module_pin_mux(mii1_pin_mux);
