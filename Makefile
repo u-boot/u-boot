@@ -1408,7 +1408,7 @@ FINAL_DTB_CONTAINER = fit-dtb.blob
 endif
 
 fit-dtb.blob.gz: fit-dtb.blob
-	@gzip -kf9 $< > $@
+	@gzip -nkf9 $< > $@
 
 fit-dtb.blob.lzo: fit-dtb.blob
 	@lzop -f9 $< > $@
