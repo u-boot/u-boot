@@ -3,7 +3,7 @@
  * dts file for Xilinx Versal NET
  *
  * Copyright (C) 2021 - 2022, Xilinx, Inc.
- * Copyright (C) 2022, Advanced Micro Devices, Inc.
+ * Copyright (C) 2022-2025, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -45,22 +45,14 @@
 		bootph-all;
 	};
 
-	amba: axi {
-		compatible = "simple-bus";
+	serial0: serial@f1920000 {
 		bootph-all;
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		serial0: serial@f1920000 {
-			bootph-all;
-			compatible = "arm,pl011", "arm,primecell";
-			reg = <0 0xf1920000 0 0x1000>;
-			reg-io-width = <4>;
-			clock-names = "uartclk", "apb_pclk";
-			clocks = <&clk1>, <&clk1>;
-			clock = <1000000>;
-			skip-init;
-		};
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0 0xf1920000 0 0x1000>;
+		reg-io-width = <4>;
+		clock-names = "uartclk", "apb_pclk";
+		clocks = <&clk1>, <&clk1>;
+		clock = <1000000>;
+		skip-init;
 	};
 };

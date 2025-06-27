@@ -28,28 +28,20 @@
 		bootph-all;
 	};
 
-	amba: axi {
-		bootph-all;
-		compatible = "simple-bus";
-		#address-cells = <0x2>;
-		#size-cells = <0x2>;
-		ranges;
-
-		sdhci1: sdhci@f1050000 {
-			compatible = "xlnx,versal-8.9a", "arasan,sdhci-8.9a";
-			status = "okay";
-			non-removable;
-			disable-wp;
-			no-sd;
-			no-sdio;
-			cap-mmc-hw-reset;
-			bus-width = <8>;
-			reg = <0x0 0xf1050000 0x0 0x10000>;
-			clock-names = "clk_xin", "clk_ahb";
-			clocks = <&clk200 &clk200>;
-			no-1-8-v;
-			xlnx,mio-bank = <0>;
-		};
+	sdhci1: sdhci@f1050000 {
+		compatible = "xlnx,versal-8.9a", "arasan,sdhci-8.9a";
+		status = "okay";
+		non-removable;
+		disable-wp;
+		no-sd;
+		no-sdio;
+		cap-mmc-hw-reset;
+		bus-width = <8>;
+		reg = <0x0 0xf1050000 0x0 0x10000>;
+		clock-names = "clk_xin", "clk_ahb";
+		clocks = <&clk200 &clk200>;
+		no-1-8-v;
+		xlnx,mio-bank = <0>;
 	};
 
 	aliases {
