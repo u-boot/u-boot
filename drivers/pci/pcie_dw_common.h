@@ -66,8 +66,12 @@
 #define LINK_SPEED_GEN_1		0x1
 #define LINK_SPEED_GEN_2		0x2
 #define LINK_SPEED_GEN_3		0x3
+#define LINK_SPEED_GEN_4		0x4
 
 /* Synopsys-specific PCIe configuration registers */
+#define PCIE_PORT_FORCE			0x708
+#define PORT_FORCE_DO_DESKEW_FOR_SRIS	BIT(23)
+
 #define PCIE_PORT_LINK_CONTROL		0x710
 #define PORT_LINK_DLL_LINK_EN		BIT(5)
 #define PORT_LINK_FAST_LINK_MODE	BIT(7)
@@ -77,6 +81,9 @@
 #define PORT_LINK_MODE_2_LANES		PORT_LINK_MODE(0x3)
 #define PORT_LINK_MODE_4_LANES		PORT_LINK_MODE(0x7)
 #define PORT_LINK_MODE_8_LANES		PORT_LINK_MODE(0xf)
+
+#define PCIE_PORT_LANE_SKEW		0x714
+#define PORT_LANE_SKEW_INSERT_MASK	GENMASK(23, 0)
 
 #define PCIE_LINK_WIDTH_SPEED_CONTROL	0x80C
 #define PORT_LOGIC_N_FTS_MASK		GENMASK(7, 0)
@@ -129,6 +136,8 @@ struct pcie_dw {
 int pcie_dw_get_link_speed(struct pcie_dw *pci);
 
 int pcie_dw_get_link_width(struct pcie_dw *pci);
+
+void dw_pcie_link_set_max_link_width(struct pcie_dw *pci, u32 num_lanes);
 
 int pcie_dw_prog_outbound_atu_unroll(struct pcie_dw *pci, int index, int type, u64 cpu_addr,
 				     u64 pci_addr, u32 size);
