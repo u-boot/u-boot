@@ -19,8 +19,9 @@
 #include <power-domain.h>
 #include <regmap.h>
 #include <syscon.h>
-#include <pcie-cadence.h>
 #include <pci_ep.h>
+
+#include "pcie-cadence.h"
 
 #define PCIE_USER_CMD_STATUS_REG_OFFSET	0x4
 #define LINK_TRAINING_ENABLE			BIT(0)
