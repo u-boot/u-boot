@@ -187,7 +187,6 @@ int imx_pinctrl_probe_mmio(struct udevice *dev)
 		return -ENOMEM;
 	priv->info = info;
 
-	info->mux_mask = ofnode_read_u32_default(node, "fsl,mux_mask", 0);
 	/*
 	 * Refer to linux documentation for details:
 	 * Documentation/devicetree/bindings/pinctrl/fsl,imx7d-pinctrl.txt
