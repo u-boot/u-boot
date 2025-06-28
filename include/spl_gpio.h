@@ -9,7 +9,7 @@
 #ifndef __SPL_GPIO_H
 #define __SPL_GPIO_H
 
-#include <asm/gpio.h>
+#include <linux/types.h>
 
 /*
  * The functions listed here should be implemented in the SoC GPIO driver.
