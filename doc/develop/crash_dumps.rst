@@ -89,15 +89,15 @@ File u-boot.map contains the memory layout of the U-Boot binary. Here we find
 these lines::
 
    .text.do_undefined
-                  0x00000000000101fc        0xc cmd/built-in.o
+                  0x00000000000101fc        0xc cmd/built-in.a
    .text.exception_complete
-                  0x0000000000010208       0x90 cmd/built-in.o
+                  0x0000000000010208       0x90 cmd/built-in.a
    ...
    .text.cmd_process
-                  0x00000000000213b8      0x164 common/built-in.o
+                  0x00000000000213b8      0x164 common/built-in.a
                   0x00000000000213b8                cmd_process
    .text.cmd_process_error
-                  0x000000000002151c       0x40 common/built-in.o
+                  0x000000000002151c       0x40 common/built-in.a
                   0x000000000002151c                cmd_process_error
 
 So the error occurred at the start of function do\_undefined() and this
