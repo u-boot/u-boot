@@ -178,7 +178,8 @@ devicetree-overlay <path> [...] - if this label is chosen, use tftp to retrieve 
 kaslrseed           - set this label to request random number from hwrng as kaslr seed.
 
 append <string>	    - use <string> as the kernel command line when booting this
-		      label.
+		      label. Environment variable references like ${var} are
+		      substituted before boot.
 
 initrd <path>	    - if this label is chosen, use tftp to retrieve the initrd
 		      at <path>. it will be stored at the address indicated in
