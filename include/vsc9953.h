@@ -8,8 +8,6 @@
 #ifndef _VSC9953_H_
 #define _VSC9953_H_
 
-#include <config.h>
-#include <miiphy.h>
 #include <asm/types.h>
 #include <linux/bitops.h>
 
