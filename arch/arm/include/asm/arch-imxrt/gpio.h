@@ -7,13 +7,6 @@
 #ifndef __ASM_ARCH_GPIO_H__
 #define __ASM_ARCH_GPIO_H__
 
-#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
-/* GPIO registers */
-struct gpio_regs {
-	u32 gpio_dr;	/* data */
-	u32 gpio_dir;	/* direction */
-	u32 gpio_psr;	/* pad satus */
-};
-#endif
+#include <asm/mach-imx/gpio.h>
 
 #endif /* __ASM_ARCH_GPIO_H__ */
