@@ -10,8 +10,6 @@
 #ifndef __NDISC_H__
 #define __NDISC_H__
 
-#include <ndisc.h>
-
 /* struct nd_msg - ICMPv6 Neighbour Discovery message format */
 struct nd_msg {
 	struct icmp6hdr	icmph;
