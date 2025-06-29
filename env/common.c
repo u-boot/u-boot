@@ -82,6 +82,10 @@ int env_do_env_set(int flag, int argc, char *const argv[], int env_flag)
 		}
 	}
 	debug("Final value for argc=%d\n", argc);
+	/* Exit early if we don't have an env to apply */
+	if (argc < 2)
+		return 0;
+
 	name = argv[1];
 
 	if (strchr(name, '=')) {
