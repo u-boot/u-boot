@@ -10,6 +10,7 @@
 #include <dm/devres.h>
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
+#include <linux/bug.h>
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
 #include <linux/err.h>
