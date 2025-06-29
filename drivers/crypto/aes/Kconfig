@@ -1,0 +1,5 @@
+config DM_AES
+	bool "Enable Driver Model for AES crypto operations"
+	depends on DM
+	help
+	  If you want to use driver model for AES crypto operations, say Y.

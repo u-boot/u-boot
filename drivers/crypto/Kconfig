@@ -2,6 +2,8 @@ menu "Hardware crypto devices"
 
 source "drivers/crypto/hash/Kconfig"
 
+source "drivers/crypto/aes/Kconfig"
+
 source "drivers/crypto/fsl/Kconfig"
 
 source "drivers/crypto/aspeed/Kconfig"
