@@ -11,6 +11,7 @@
 
 static struct imx_pinctrl_soc_info vf610_pinctrl_soc_info = {
 	.flags = SHARE_MUX_CONF_REG | ZERO_OFFSET_VALID,
+	.mux_mask = 0x700000,
 };
 
 static const struct udevice_id vf610_pinctrl_match[] = {

@@ -28,7 +28,6 @@
 
 &iomuxc1 {
 	bootph-pre-ram;
-	fsl,mux_mask = <0xf00>;
 };
 
 &pinctrl_lpuart5 {
