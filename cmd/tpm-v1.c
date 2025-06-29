@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <vsprintf.h>
 #include <asm/unaligned.h>
+#include <linux/errno.h>
 #include <tpm-common.h>
 #include <tpm-v1.h>
 #include "tpm-user-utils.h"
