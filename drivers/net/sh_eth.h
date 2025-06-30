@@ -78,7 +78,6 @@ struct sh_eth_info {
 	u8 *rx_buf_alloc;
 	u8 *rx_buf_base;
 	u8 mac_addr[6];
-	u8 phy_addr;
 	struct eth_device *dev;
 	struct phy_device *phydev;
 	void __iomem *iobase;

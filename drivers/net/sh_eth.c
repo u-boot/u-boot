@@ -727,7 +727,6 @@ static int sh_ether_probe(struct udevice *udev)
 
 	priv->bus = mdiodev;
 
-	port_info->phy_addr = CFG_SH_ETHER_PHY_ADDR;
 	port_info->iobase = (void __iomem *)(uintptr_t)BASE_IO_ADDR;
 
 #if CONFIG_IS_ENABLED(CLK)
