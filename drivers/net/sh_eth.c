@@ -33,31 +33,24 @@
 # error "Please define CFG_SH_ETHER_PHY_ADDR"
 #endif
 
-#if defined(CFG_SH_ETHER_CACHE_WRITEBACK) && \
-	!CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
-#define flush_cache_wback(addr, len)    \
-		flush_dcache_range((unsigned long)addr, \
-		(unsigned long)(addr + ALIGN(len, CFG_SH_ETHER_ALIGNE_SIZE)))
-#else
-#define flush_cache_wback(...)
-#endif
+static void flush_cache_wback(void *addr, unsigned long len)
+{
+	flush_dcache_range((unsigned long)addr,
+			   (unsigned long)(addr + ALIGN(len, SH_ETHER_ALIGN_SIZE)));
+}
 
-#if defined(CFG_SH_ETHER_CACHE_INVALIDATE) && defined(CONFIG_ARM)
-#define invalidate_cache(addr, len)		\
-	{	\
-		unsigned long line_size = CFG_SH_ETHER_ALIGNE_SIZE;	\
-		unsigned long start, end;	\
-		\
-		start = (unsigned long)addr;	\
-		end = start + len;		\
-		start &= ~(line_size - 1);	\
-		end = ((end + line_size - 1) & ~(line_size - 1));	\
-		\
-		invalidate_dcache_range(start, end);	\
-	}
-#else
-#define invalidate_cache(...)
-#endif
+static void invalidate_cache(void *addr, unsigned long len)
+{
+	unsigned long line_size = SH_ETHER_ALIGN_SIZE;
+	unsigned long start, end;
+
+	start = (unsigned long)addr;
+	end = start + len;
+	start &= ~(line_size - 1);
+	end = (end + line_size - 1) & ~(line_size - 1);
+
+	invalidate_dcache_range(start, end);
+}
 
 #define TIMEOUT_CNT 1000
 
@@ -133,7 +126,7 @@ static int sh_eth_recv_start(struct sh_eth_info *port_info)
 
 static void sh_eth_recv_finish(struct sh_eth_info *port_info)
 {
-	invalidate_cache(ADDR_TO_P2(port_info->rx_desc_cur->rd2), MAX_BUF_SIZE);
+	invalidate_cache((void *)ADDR_TO_P2((uintptr_t)port_info->rx_desc_cur->rd2), MAX_BUF_SIZE);
 
 	/* Make current descriptor available again */
 	if (port_info->rx_desc_cur->rd0 & RD_RDLE)
