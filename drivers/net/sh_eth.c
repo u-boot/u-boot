@@ -29,9 +29,6 @@
 
 #include "sh_eth.h"
 
-#ifndef CFG_SH_ETHER_USE_PORT
-# error "Please define CFG_SH_ETHER_USE_PORT"
-#endif
 #ifndef CFG_SH_ETHER_PHY_ADDR
 # error "Please define CFG_SH_ETHER_PHY_ADDR"
 #endif
