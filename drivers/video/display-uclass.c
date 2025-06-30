@@ -10,7 +10,7 @@
 #include <edid.h>
 #include <errno.h>
 
-int display_read_edid(struct udevice *dev, u8 *buf, int buf_size)
+static int display_read_edid(struct udevice *dev, u8 *buf, int buf_size)
 {
 	struct dm_display_ops *ops = display_get_ops(dev);
 
@@ -59,9 +59,7 @@ int display_read_timing(struct udevice *dev, struct display_timing *timing)
 	if (ops && ops->read_timing)
 		return ops->read_timing(dev, timing);
 
-	if (!ops || !ops->read_edid)
-		return -ENOSYS;
-	ret = ops->read_edid(dev, buf, sizeof(buf));
+	ret = display_read_edid(dev, buf, sizeof(buf));
 	if (ret < 0)
 		return ret;
 
