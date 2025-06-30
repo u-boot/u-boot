@@ -17,33 +17,8 @@ Commands
 
 	follows PXELINUX's rules for retrieving configuration files
 	from a tftp server, and supports a subset of PXELINUX's config
-	file syntax.
-
-	**Environment**
-
-	``pxe get`` requires two environment variables to be set:
-
-	``pxefile_addr_r`` - should be set to a location in RAM large
-	enough to hold pxe files while they're being processed. Up to
-	16 config files may be held in memory at once. The exact
-	number and size of the files varies with how the system is
-	being used. A typical config file is a few hundred bytes long.
-
-	``bootfile``, ``serverip`` - these two are typically set in
-	the DHCP response handler, and correspond to fields in the
-	DHCP response.
-
-	``pxe get`` optionally supports these two environment
-	variables being set:
-
-	``ethaddr`` - this is the standard MAC address for the
-	ethernet adapter in use. ``pxe get`` uses it to look for a
-	configuration file specific to a system's MAC address.
-
-	``pxeuuid`` - this is a UUID in standard form using lower case
-	hexadecimal digits, for example,
-	550e8400-e29b-41d4-a716-446655440000. ``pxe get`` uses it to
-	look for a configuration file based on the system's UUID.
+	file syntax. It requires certain environment variables to be
+	set, see the Environment section below.
 
 	**File Paths**
 
@@ -62,54 +37,75 @@ Commands
 	``pxefile_addr_r`` is an optional argument giving the location
 	of the pxe file. The file must be terminated with a NUL byte.
 
-	**Environment**
-
 	There are some environment variables that may need to be set,
-	depending on conditions.
+	depending on conditions, see the Environment section below.
 
-	``pxefile_addr_r`` - if the optional argument
-	``pxefile_addr_r`` is not supplied, an environment variable
-	named ``pxefile_addr_r`` must be supplied. This is typically
-	the same value as is used for the ``pxe get`` command.
+Environment
+-----------
 
-	``bootfile`` - typically set in the DHCP response handler
-	based on the same field in the DHCP respone, this path is used
-	to generate the base directory that all other paths to files
-	retrieved by ``pxe boot`` will use. If no bootfile is
-	specified, paths used in pxe files will be used as is.
+``pxefile_addr_r``
+        Should be set to a location in RAM large enough to hold pxe
+        files while they're being processed. Up to 16 config files may
+        be held in memory at once. The exact number and size of the
+        files varies with how the system is being used. A typical
+        config file is a few hundred bytes long. Required for ``pxe
+        get``, for ``pxe boot`` if the optional argument
+        ``pxefile_addr_r`` is not supplied.
 
-	``serverip`` - typically set in the DHCP response handler,
-	this is the IP address of the tftp server from which other
-	files will be retrieved.
+``bootfile``
+        Typically set in the DHCP response handler, required for ``pxe
+        get``. For ``pxe boot``, this path is used to generate the
+        base directory that all other paths to files retrieved by
+        ``pxe boot`` will use. If no bootfile is specified, paths used
+        in pxe files will be used as is.
 
-	``kernel_addr_r``, ``initrd_addr_r`` - locations in RAM at
-	which ``pxe boot`` will store the kernel(or FIT image) and
-	initrd it retrieves from tftp. These locations will be passed
-	to the bootm command to boot the kernel. These environment
-	variables are required to be set.
+``serverip``
+        Typically set in the DHCP response handler, this is the IP
+        address of the tftp server from which other files will be
+        retrieved. Required for ``pxe get``.
 
-	``fdt_addr_r`` - location in RAM at which ``pxe boot`` will
-	store the fdt blob it retrieves from tftp. The retrieval is
-	possible if ``fdt`` label is defined in pxe file and
-	``fdt_addr_r`` is set. If retrieval is possible,
-	``fdt_addr_r`` will be passed to bootm command to boot the
-	kernel.
+``kernel_addr_r``, ``initrd_addr_r``
+        Locations in RAM to store the kernel (or FIT image) and
+        initrd. These locations will be passed to the ``bootm``
+        command to boot the kernel. These environment variables are
+        required to be set.
 
-	``fdt_addr`` - the location of a fdt blob. ``fdt_addr`` will
-	be passed to ``bootm`` command if it is set and ``fdt_addr_r``
-	is not passed to bootm command.
+``fdt_addr_r``
+        Location in RAM to store the retrieved fdt blob. Retrieval is
+        possible if ``fdt`` label is defined in pxe file and
+        ``fdt_addr_r`` is set. If retrieval is possible,
+        ``fdt_addr_r`` will be passed to ``bootm`` command to boot the
+        kernel.
 
-	``fdtoverlay_addr_r`` - location in RAM at which 'pxe boot'
-	will temporarily store fdt overlay(s) before applying them to
-	the fdt blob stored at ``fdt_addr_r``.
+``fdt_addr``
+        Location of a fdt blob. ``fdt_addr`` will be passed to
+        ``bootm`` command if it is set and ``fdt_addr_r`` is not
+        passed to bootm command.
 
-	``pxe_label_override`` - override label to be used, if exists,
-	instead of the default label. This will allow consumers to
-	choose a pxe label at runtime instead of having to prompt the
-	user. If ``pxe_label_override`` is set but does not exist in
-	the pxe menu, pxe would fallback to the default label if
-	given, and no failure is returned but rather a warning
-	message.
+``fdtoverlay_addr_r``
+        Location in RAM to temporarily store fdt overlay(s) before
+        applying them to the fdt blob stored at
+        ``fdt_addr_r``. Required to use the ``fdtoverlays`` command in
+        the PXE file.
+
+``pxe_label_override``
+        Override label to be used, if exists, instead of the default
+        label. This will allow consumers to choose a pxe label at
+        runtime instead of having to prompt the user. If
+        ``pxe_label_override`` is set but does not exist in the pxe
+        menu, pxe would fallback to the default label if given, and no
+        failure is returned but rather a warning message.
+
+``ethaddr``
+        This is the standard MAC address for the ethernet adapter in
+        use. ``pxe get`` uses it to look for a configuration file
+        specific to a system's MAC address.
+
+``pxeuuid``
+        This is a UUID in standard form using lower case hexadecimal
+        digits, for example,
+        550e8400-e29b-41d4-a716-446655440000. ``pxe get`` uses it to
+        look for a configuration file based on the system's UUID.
 
 pxe file format
 ---------------
