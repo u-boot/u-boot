@@ -5,7 +5,7 @@
  */
 
 #include <dm.h>
-#include <stm32-reset-core.h>
+#include "stm32-reset-core.h"
 
 /* Reset clear offset for STM32MP RCC */
 #define RCC_CLR_OFFSET			0x4

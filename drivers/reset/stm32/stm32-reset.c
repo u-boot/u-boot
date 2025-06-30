@@ -5,7 +5,7 @@
  */
 
 #include <dm.h>
-#include <stm32-reset-core.h>
+#include "stm32-reset-core.h"
 
 /* Timeout for deassert */
 #define STM32_DEASSERT_TIMEOUT_US	10000
