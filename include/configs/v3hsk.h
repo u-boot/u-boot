@@ -15,7 +15,6 @@
 /* Environment compatibility */
 
 /* SH Ether */
-#define CFG_SH_ETHER_PHY_ADDR	0x0
 #define CFG_SH_ETHER_PHY_MODE	PHY_INTERFACE_MODE_RGMII_ID
 
 /* Board Clock */

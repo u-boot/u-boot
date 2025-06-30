@@ -29,10 +29,6 @@
 
 #include "sh_eth.h"
 
-#ifndef CFG_SH_ETHER_PHY_ADDR
-# error "Please define CFG_SH_ETHER_PHY_ADDR"
-#endif
-
 static void flush_cache_wback(void *addr, unsigned long len)
 {
 	flush_dcache_range((unsigned long)addr,
