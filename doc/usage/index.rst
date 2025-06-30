@@ -12,6 +12,7 @@ Use U-Boot
    fit/index
    netconsole
    partitions
+   pxe
    cmdline
    semihosting
    measured_boot
