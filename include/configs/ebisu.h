@@ -9,8 +9,6 @@
 #ifndef __EBISU_H
 #define __EBISU_H
 
-#undef DEBUG
-
 #include "rcar-gen3-common.h"
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */

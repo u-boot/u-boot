@@ -29,8 +29,4 @@
 #define CFG_SYS_FLASH_BANKS_SIZES	{ (CFG_SYS_FLASH_SIZE) }
 #endif
 
-/* Board Clock */
-
-/* ENV setting */
-
 #endif	/* __BLANCHE_H */

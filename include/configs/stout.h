@@ -25,11 +25,7 @@
 /* SCIF */
 #define CFG_SCIF_A
 
-/* Board Clock */
-
 #define CFG_EXTRA_ENV_SETTINGS	\
 	"bootm_size=0x10000000\0"
-
-/* SPL support */
 
 #endif	/* __STOUT_H */

@@ -21,11 +21,7 @@
 #define RCAR_GEN2_SDRAM_SIZE		(1024u * 1024 * 1024)
 #define RCAR_GEN2_UBOOT_SDRAM_SIZE	(512 * 1024 * 1024)
 
-/* Board Clock */
-
 #define CFG_EXTRA_ENV_SETTINGS	\
 	"bootm_size=0x10000000\0"
-
-/* SPL support */
 
 #endif /* __SILK_H */

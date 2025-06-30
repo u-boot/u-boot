@@ -8,10 +8,6 @@
 #ifndef __GRPEACH_H
 #define __GRPEACH_H
 
-/* Board Clock , P1 clock frequency (XTAL=13.33MHz) */
-
-/* Miscellaneous */
-
 /* Internal RAM Size (RZ/A1=3M, RZ/A1M=5M, RZ/A1H=10M) */
 #define CFG_SYS_SDRAM_BASE		0x20000000
 #define CFG_SYS_SDRAM_SIZE		(10 * 1024 * 1024)

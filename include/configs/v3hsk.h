@@ -12,9 +12,4 @@
 
 #include "rcar-gen3-common.h"
 
-/* Environment compatibility */
-
-/* Board Clock */
-/* XTAL_CLK : 33.33MHz */
-
 #endif /* __V3HSK_H */
