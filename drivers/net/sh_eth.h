@@ -33,9 +33,6 @@
 #define CFG_SH_ETHER_ALIGNE_SIZE 16
 #endif
 
-/* Number of supported ports */
-#define MAX_PORT_NUM	2
-
 /* Buffers must be big enough to hold the largest ethernet frame. Also, rx
    buffers must be a multiple of 32 bytes */
 #define MAX_BUF_SIZE	(48 * 32)
@@ -88,11 +85,6 @@ struct sh_eth_info {
 	struct eth_device *dev;
 	struct phy_device *phydev;
 	void __iomem *iobase;
-};
-
-struct sh_eth_dev {
-	int port;
-	struct sh_eth_info port_info[MAX_PORT_NUM];
 };
 
 /* from linux/drivers/net/ethernet/renesas/sh_eth.h */
