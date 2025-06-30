@@ -10,7 +10,7 @@
 #include <edid.h>
 #include <errno.h>
 
-static int display_read_edid(struct udevice *dev, u8 *buf, int buf_size)
+int display_read_edid(struct udevice *dev, u8 *buf, int buf_size)
 {
 	struct dm_display_ops *ops = display_get_ops(dev);
 

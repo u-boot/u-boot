@@ -154,6 +154,7 @@ obj-$(CONFIG_CMD_WOL) += wol.o
 obj-$(CONFIG_CMD_QFW) += qfw.o
 obj-$(CONFIG_CMD_READ) += read.o
 obj-$(CONFIG_CMD_WRITE) += read.o
+obj-$(CONFIG_CMD_READ_EDID) += read_edid.o
 obj-$(CONFIG_CMD_REGINFO) += reginfo.o
 obj-$(CONFIG_CMD_REMOTEPROC) += remoteproc.o
 obj-$(CONFIG_CMD_RNG) += rng.o

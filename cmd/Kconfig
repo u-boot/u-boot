@@ -1608,6 +1608,12 @@ config CMD_READ
 	help
 	  Provides low-level access to the data in a partition.
 
+config CMD_READ_EDID
+	bool "read_edid - Read display EDID"
+	depends on DISPLAY
+	help
+	  Read and parse edid from connected display device.
+
 config CMD_REMOTEPROC
 	bool "remoteproc"
 	depends on REMOTEPROC
