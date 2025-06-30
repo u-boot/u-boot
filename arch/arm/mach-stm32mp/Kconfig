@@ -40,16 +40,19 @@ choice
 config STM32MP13X
 	bool "Support STMicroelectronics STM32MP13x Soc"
 	select ARCH_EARLY_INIT_R
-	select ARM_SMCCC
+	select ARM_SMCCC if TFABOOT
+	select ARCH_SUPPORT_PSCI if !TFABOOT
+	select BINMAN if !TFABOOT
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
-	select OF_BOARD
+	select OF_BOARD if TFABOOT
 	select OF_BOARD_SETUP
 	select PINCTRL_STM32
 	select STM32_RCC
 	select STM32_RESET
 	select STM32_SERIAL
+	select SUPPORT_SPL if !TFABOOT
 	select SYS_ARCH_TIMER
 	imply CMD_NVEDIT_INFO
 	imply OF_UPSTREAM
