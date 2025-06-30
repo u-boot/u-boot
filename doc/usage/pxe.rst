@@ -1,19 +1,22 @@
 .. SPDX-License-Identifier: GPL-2.0+
    Copyright 2010-2011 Calxeda, Inc.
 
-PXE Boot
-========
+PXE Boot and extlinux.conf
+==========================
 
 The ``pxe`` commands provide a near subset of the functionality
 provided by the PXELINUX boot loader. This allows U-Boot based systems
 to be controlled remotely using the same PXE based techniques that
 many non U-Boot based servers use.
 
+The ``sysboot`` command and Extlinux boot method use the same file
+format as PXE boot for ``extlinux.conf``.
+
 Commands
 --------
 
 ``pxe get``
-        **syntax:** ``pxe get``
+        **Syntax:** ``pxe get``
 
 	follows PXELINUX's rules for retrieving configuration files
 	from a tftp server, and supports a subset of PXELINUX's config
@@ -30,7 +33,7 @@ Commands
 	http://syslinux.zytor.com/wiki/index.php/Doc/pxelinux
 
 ``pxe boot``
-        **syntax:** ``pxe boot [pxefile_addr_r]``
+        **Syntax:** ``pxe boot [pxefile_addr_r]``
 
 	Interprets a pxe file stored in memory.
 
@@ -39,6 +42,18 @@ Commands
 
 	There are some environment variables that may need to be set,
 	depending on conditions, see the Environment section below.
+
+``sysboot``
+        **Syntax:** ``sysboot [-p] <interface> <dev[:part]> <ext2|fat|any> [addr] [filename]``
+
+	Load and boot an ``extlinux.conf`` file from a local
+	filesystem. Paths in the ``extlinux.conf`` file (kernel,
+	initrd, FDT and overlays) will be interpreted within that
+	filesystem.
+
+	Example:
+
+	``sysboot mmc 0.0:2 any ${pxefile_addr_r} /boot/extlinux.conf``
 
 Environment
 -----------
