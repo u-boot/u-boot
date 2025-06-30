@@ -190,6 +190,12 @@ config CMD_FWU_METADATA
 	help
 	  Command to read the metadata and dump it's contents
 
+config CMD_HELP
+	bool "help"
+	default y
+	help
+	  Command to show help information about other commands.
+
 config CMD_HISTORY
 	bool "history"
 	depends on CMDLINE_EDITING
