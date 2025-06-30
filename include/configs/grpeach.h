@@ -16,7 +16,4 @@
 #define CFG_SYS_SDRAM_BASE		0x20000000
 #define CFG_SYS_SDRAM_SIZE		(10 * 1024 * 1024)
 
-/* Network interface */
-#define CFG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_MII
-
 #endif	/* __GRPEACH_H */

@@ -25,9 +25,6 @@
 /* SCIF */
 #define CFG_SCIF_A
 
-/* SH Ether */
-#define CFG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_RMII
-
 /* Board Clock */
 
 #define CFG_EXTRA_ENV_SETTINGS	\

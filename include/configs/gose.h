@@ -19,9 +19,6 @@
 #define RCAR_GEN2_SDRAM_SIZE		(1048u * 1024 * 1024)
 #define RCAR_GEN2_UBOOT_SDRAM_SIZE	(512u * 1024 * 1024)
 
-/* SH Ether */
-#define CFG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_RMII
-
 /* Board Clock */
 
 #define CFG_EXTRA_ENV_SETTINGS	\
