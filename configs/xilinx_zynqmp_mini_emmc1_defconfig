@@ -40,6 +40,7 @@ CONFIG_SPL_SYS_MALLOC_SIZE=0x1000000
 # CONFIG_AUTO_COMPLETE is not set
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_CONSOLE is not set
+# CONFIG_CMD_HELP is not set
 # CONFIG_CMD_BOOTD is not set
 # CONFIG_CMD_BOOTM is not set
 # CONFIG_CMD_BOOTI is not set
