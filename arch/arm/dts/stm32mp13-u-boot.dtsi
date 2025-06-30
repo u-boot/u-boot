@@ -17,6 +17,7 @@
 		pinctrl0 = &pinctrl;
 	};
 
+#if defined(CONFIG_TFABOOT)
 	firmware {
 		optee {
 			bootph-all;
@@ -27,6 +28,86 @@
 	psci {
 		bootph-some-ram;
 	};
+#else
+	binman: binman {
+		multiple-images;
+
+		spl-stm32 {
+			filename = "u-boot-spl.stm32";
+			mkimage {
+				args = "-T stm32imagev2 -a 0x2ffe0000 -e 0x2ffe0000";
+				u-boot-spl {
+					no-write-symbols;
+				};
+			};
+		};
+	};
+
+	clocks {
+		bootph-all;
+
+		clk_hse: ck_hse {
+			bootph-all;
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <24000000>;
+		};
+
+		clk_hsi: ck_hsi {
+			bootph-all;
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <64000000>;
+		};
+
+		clk_lse: ck_lse {
+			bootph-all;
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32768>;
+		};
+
+		clk_lsi: ck_lsi {
+			bootph-all;
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32000>;
+		};
+
+		clk_csi: ck_csi {
+			bootph-all;
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <4000000>;
+		};
+	};
+
+	cpu0_opp_table: cpu0-opp-table {
+		compatible = "operating-points-v2";
+		opp-shared;
+		bootph-pre-ram;
+		opp-650000000 {
+			bootph-pre-ram;
+			opp-hz = /bits/ 64 <650000000>;
+			opp-microvolt = <1200000>;
+			opp-supported-hw = <0x1>;
+		};
+		opp-1000000000 {
+			bootph-pre-ram;
+			opp-hz = /bits/ 64 <1000000000>;
+			opp-microvolt = <1350000>;
+			opp-supported-hw = <0x2>;
+		};
+	};
+
+	reboot {
+		bootph-all;
+		compatible = "syscon-reboot";
+		regmap = <&rcc>;
+		offset = <0x114>;
+		mask = <0x1>;
+	};
+#endif
 
 	soc {
 		bootph-all;
@@ -51,6 +132,14 @@
 &etzpc {
 	bootph-all;
 };
+
+#if !defined(CONFIG_TFABOOT)
+&cpu0 {
+	nvmem-cells = <&part_number_otp>;
+	nvmem-cell-names = "part_number";
+	operating-points-v2 = <&cpu0_opp_table>;
+};
+#endif
 
 &gpioa {
 	bootph-all;
