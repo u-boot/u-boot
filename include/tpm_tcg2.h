@@ -162,12 +162,14 @@ struct tcg_efi_spec_id_event {
  * @log_position:	Current entry position
  * @log_size:		Log space available
  * @found:		Boolean indicating if an existing log was discovered
+ * @allocated:		Boolean indicating that the log was allocated by u-boot
  */
 struct tcg2_event_log {
 	u8 *log;
 	u32 log_position;
 	u32 log_size;
 	bool found;
+	bool allocated;
 };
 
 /**
@@ -291,13 +293,10 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
  *			memory region, in which case any existing log
  *			discovered will be copied to the specified memory
  *			region.
- * @ignore_existing_log Boolean to indicate whether or not to ignore an
- *			existing platform log in memory
  *
  * Return: zero on success, negative errno otherwise
  */
-int tcg2_measurement_init(struct udevice **dev, struct tcg2_event_log *elog,
-			  bool ignore_existing_log);
+int tcg2_measurement_init(struct udevice **dev, struct tcg2_event_log *elog);
 
 /**
  * Stop measurements and record separator events.
@@ -344,5 +343,7 @@ void tcg2_platform_startup_error(struct udevice *dev, int rc);
  * Return: TCG hashing algorithm bitmaps (or 0 if algo not supported)
  */
 u32 tcg2_algorithm_to_mask(enum tpm2_algorithms);
+
+struct tcg2_event_log *tcg2_platform_get_dev_log(struct udevice *dev);
 
 #endif /* __TPM_TCG_V2_H */
