@@ -566,7 +566,7 @@ void nand_wait_ready(struct mtd_info *mtd)
 				break;
 	}
 
-	if (!chip->dev_ready(mtd))
+	if (!chip->dev_ready || !chip->dev_ready(mtd))
 		pr_warn("timeout while waiting for chip to become ready\n");
 }
 EXPORT_SYMBOL_GPL(nand_wait_ready);
