@@ -1141,7 +1141,7 @@ enum tpm2_algorithms tpm2_name_to_algorithm(const char *name)
 	}
 	printf("%s: unsupported algorithm %s\n", __func__, name);
 
-	return -EINVAL;
+	return TPM2_ALG_INVAL;
 }
 
 const char *tpm2_algorithm_name(enum tpm2_algorithms algo)
