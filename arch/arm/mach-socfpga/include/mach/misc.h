@@ -52,7 +52,7 @@ bool is_periph_program_force(void);
 void set_regular_boot(unsigned int status);
 void socfpga_pl310_clear(void);
 void socfpga_get_managers_addr(void);
-void socfpga_get_sys_mgr_addr(const char *compat);
+void socfpga_get_sys_mgr_addr(void);
 int qspi_flash_software_reset(void);
 
 #endif /* _SOCFPGA_MISC_H_ */

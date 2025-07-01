@@ -7,6 +7,6 @@
 
 int board_early_init_f(void)
 {
-	socfpga_get_sys_mgr_addr("sysmgr@10d12000");
+	socfpga_get_sys_mgr_addr();
 	return 0;
 }
