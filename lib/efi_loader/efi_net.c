@@ -1130,7 +1130,7 @@ efi_status_t efi_net_register(struct udevice *dev)
 	struct efi_net_obj *netobj;
 	void *transmit_buffer = NULL;
 	uchar **receive_buffer = NULL;
-	size_t *receive_lengths;
+	size_t *receive_lengths = NULL;
 	int i, j;
 
 	if (!dev) {
