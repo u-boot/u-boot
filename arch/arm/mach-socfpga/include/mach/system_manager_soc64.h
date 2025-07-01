@@ -146,6 +146,7 @@ void populate_sysmgr_pinmux(void);
  * Bit[31] reserved for FSBL to check DBE is triggered (set by SDM to "1") ?
  *
  * Bit[30] reserved for FSBL to update the DDR init progress
+
  * 1 - means in progress, 0 - haven't started / DDR is up running.
  *
  * Bit[19] store ATF CPU0 ON OFF value.
@@ -156,6 +157,8 @@ void populate_sysmgr_pinmux(void);
  */
 #define ALT_SYSMGR_SCRATCH_REG_8_DDR_DBE_MASK	BIT(31)
 #define ALT_SYSMGR_SCRATCH_REG_8_DDR_PROGRESS_MASK	BIT(30)
+#define ALT_SYSMGR_SCRATCH_REG_8_OCRAM_DBE_MASK		BIT(29)
+#define ALT_SYSMGR_SCRATCH_REG_8_IO96B_HPS_MASK		GENMASK(28, 27)
 #define SYSMGR_SCRATCH_REG_8_ACF_DDR_RATE_MASK	BIT(18)
 #define SYSMGR_SCRATCH_REG_8_ACF_DDR_RATE_SHIFT 18
 
