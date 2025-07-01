@@ -687,7 +687,8 @@ static int send_bitstream(const void *rbf_data, size_t rbf_size)
 			debug("wr_ret = %d, rbf_data = %p, buf_size = %08lx\n",
 			      wr_ret, rbf_data, buf_size);
 
-			if (wr_ret)
+			if (wr_ret != INTEL_SIP_SMC_STATUS_OK &&
+			    wr_ret != INTEL_SIP_SMC_STATUS_BUSY)
 				continue;
 
 			rbf_size -= buf_size;
