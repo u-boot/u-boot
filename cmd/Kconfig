@@ -1693,13 +1693,6 @@ config CMD_TEMPERATURE
 	help
 	  Provides a way to list thermal sensors and to get their readings.
 
-config CMD_TSI148
-	bool "tsi148 - Command to access tsi148 device"
-	depends on DM_PCI_COMPAT
-	help
-	  This provides various sub-commands to initialise and configure the
-	  Turndra tsi148 device. See the command help for full details.
-
 config CMD_UFS
 	bool "ufs - Universal Flash Storage commands"
 	depends on UFS
