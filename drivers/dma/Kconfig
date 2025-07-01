@@ -35,16 +35,6 @@ config BCM6348_IUDMA
 	  This driver support data transfer from devices to
 	  memory and from memory to devices.
 
-config DMA_LPC32XX
-	bool "LPC32XX DMA driver"
-	select DMA_LEGACY
-	help
-	  Enable some legacy DMA code for lpc32xx. It provides some direct
-	  functions likes lpc32xx_dma_wait_status() which can be called from
-	  other code.
-
-	  This should be converted to use driver model and UCLASS_DMA.
-
 config TI_EDMA3
 	bool "TI EDMA3 driver"
 	select DMA_LEGACY
