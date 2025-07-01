@@ -428,20 +428,6 @@ config XILINX_GPIO
 	help
 	  This config enable the Xilinx GPIO driver for Microblaze.
 
-config TCA642X
-	bool "TCA642x legacy GPIO driver"
-
-config CMD_TCA642X
-	bool "tca642x - Command to access tca642x state"
-	depends on TCA642X
-	default y
-	help
-	  DEPRECATED - This needs conversion to driver model
-
-	  This provides a way to looking at the pin state of this device.
-	  This mirrors the 'gpio' command and that should be used in preference
-	  to custom code.
-
 config TEGRA_GPIO
 	bool "Tegra20..210 GPIO driver"
 	depends on DM_GPIO
