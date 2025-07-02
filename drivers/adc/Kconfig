@@ -18,7 +18,7 @@ config SPL_ADC
 
 config ADC_EXYNOS
 	bool "Enable Exynos 54xx ADC driver"
-	depends on ADC
+	depends on ADC && ARCH_EXYNOS5
 	help
 	  This enables basic driver for Exynos ADC compatible with Exynos54xx.
 	  It provides:
@@ -49,7 +49,7 @@ config SARADC_MESON
 
 config SARADC_ROCKCHIP
 	bool "Enable Rockchip SARADC driver"
-	depends on ADC
+	depends on ADC && ARCH_ROCKCHIP
 	help
 	  This enables driver for Rockchip SARADC.
 	  It provides:
