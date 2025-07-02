@@ -24,6 +24,7 @@ config L2X0_CACHE
 
 config ANDES_L2_CACHE
 	bool "Andes L2 cache driver"
+	depends on RISCV
 	select CACHE
 	help
 	  Support Andes L2 cache controller in AE350 platform.
