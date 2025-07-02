@@ -14,19 +14,31 @@
 		u-boot,spl-boot-order = &mmc,&flash0,&nand;
 	};
 
-	memory {
+	memory@0 {
 		/* 8GB */
 		reg = <0 0x00000000 0 0x80000000>,
 		      <2 0x80000000 1 0x80000000>;
 	};
 };
 
-&flash0 {
-	compatible = "jedec,spi-nor";
-	spi-tx-bus-width = <4>;
-	spi-rx-bus-width = <4>;
-	bootph-all;
-	/delete-property/ cdns,read-delay;
+&gmac0 {
+	mdio0 {
+		ethernet_phy0: ethernet-phy@0 {
+			reg = <4>;
+			txd0-skew-ps = <0>;
+			txd1-skew-ps = <0>;
+			txd2-skew-ps = <0>;
+			txd3-skew-ps = <0>;
+			rxd0-skew-ps = <0x1a4>;
+			rxd1-skew-ps = <0x1a4>;
+			rxd2-skew-ps = <0x1a4>;
+			rxd3-skew-ps = <0x1a4>;
+			txen-skew-ps = <0>;
+			txc-skew-ps = <0x384>;
+			rxdv-skew-ps = <0x1a4>;
+			rxc-skew-ps = <0x690>;
+		};
+	};
 };
 
 &nand {
@@ -43,4 +55,39 @@
 
 &qspi {
 	status = "okay";
+	/delete-property/ clocks;
+};
+
+&flash0 {
+	reg = <0>;
+	spi-tx-bus-width = <4>;
+	spi-rx-bus-width = <4>;
+	spi-max-frequency = <100000000>;
+	bootph-all;
+
+	m25p,fast-read;
+	cdns,page-size = <256>;
+	cdns,block-size = <16>;
+	cdns,read-delay = <1>;
+	cdns,tshsl-ns = <50>;
+	cdns,tsd2d-ns = <50>;
+	cdns,tchsh-ns = <4>;
+	cdns,tslch-ns = <4>;
+	/delete-property/ cdns,read-delay;
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		qspi_boot: partition@0 {
+			label = "u-boot";
+			reg = <0x0 0x04200000>;
+		};
+
+		root: partition@4200000 {
+			label = "root";
+			reg = <0x04200000 0x0BE00000>;
+		};
+	};
 };
