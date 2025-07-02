@@ -571,14 +571,15 @@ int scene_menu_display(struct scene_obj_menu *menu)
 			return log_msg_ret("txt", -EINVAL);
 
 		str = expo_get_str(exp, txt->gen.str_id);
-		printf("%s\n\n", str);
+		printf("%s\n\n", str ? str : "");
 	}
 
 	if (list_empty(&menu->item_head))
 		return 0;
 
 	pointer = scene_obj_find(scn, menu->pointer_id, SCENEOBJT_TEXT);
-	pstr = expo_get_str(scn->expo, pointer->gen.str_id);
+	if (pointer)
+		pstr = expo_get_str(scn->expo, pointer->gen.str_id);
 
 	list_for_each_entry(item, &menu->item_head, sibling) {
 		struct scene_obj_txt *key = NULL, *label = NULL;
