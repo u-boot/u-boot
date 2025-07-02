@@ -4250,6 +4250,90 @@ static struct spi_nor_fixups macronix_octal_fixups = {
 };
 #endif /* CONFIG_SPI_FLASH_MACRONIX */
 
+#if CONFIG_IS_ENABLED(SPI_FLASH_WINBOND)
+
+#define WINBOND_NOR_OP_SELDIE  0xc2    /* Select active die */
+
+struct winbond_nor_priv {
+	unsigned int n_dice;
+};
+
+/**
+ * winbond_nor_select_die() - Set active die.
+ * @nor:       pointer to 'struct spi_nor'.
+ * @die:       die to set active.
+ *
+ * Certain Winbond chips feature more than a single die. This is mostly hidden
+ * to the user, except that some chips may experience time deviation when
+ * modifying the status bits between dies, which in some corner cases may
+ * produce problematic races. Being able to explicitly select a die to check its
+ * state in this case may be useful.
+ *
+ * Return: 0 on success, -errno otherwise.
+ */
+static int winbond_nor_select_die(struct spi_nor *nor, u8 die)
+{
+	struct spi_mem_op op =
+		SPI_MEM_OP(SPI_MEM_OP_CMD(WINBOND_NOR_OP_SELDIE, 1),
+			   SPI_MEM_OP_NO_ADDR,
+			   SPI_MEM_OP_NO_DUMMY,
+			   SPI_MEM_OP_DATA_OUT(1, &die, 0));
+
+	int ret;
+
+	spi_nor_setup_op(nor, &op, SNOR_PROTO_1_1_1);
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		debug("Error %d selecting die %d\n", ret, die);
+
+	return ret;
+}
+
+static int winbond_nor_multi_die_ready(struct spi_nor *nor)
+{
+	struct winbond_nor_priv *winbond_priv = nor->priv;
+	unsigned int n_dice = winbond_priv ? winbond_priv->n_dice : 1;
+	int ret, i;
+
+	for (i = 0; i < n_dice; i++) {
+		ret = winbond_nor_select_die(nor, i);
+		if (ret)
+			return ret;
+
+		ret = spi_nor_sr_ready(nor);
+		if (ret <= 0)
+			return ret;
+	}
+
+	return 1;
+}
+
+static void winbond_nor_multi_die_post_sfdp_fixups(struct spi_nor *nor,
+						   struct spi_nor_flash_parameter *param)
+{
+	struct winbond_nor_priv *winbond_priv;
+
+	winbond_priv = kmalloc(sizeof(*winbond_priv), GFP_KERNEL);
+	if (!winbond_priv)
+		return;
+
+	winbond_priv->n_dice = param->size / SZ_64M;
+
+	/*
+	 * SFDP supports dice numbers, but this information is only available in
+	 * optional additional tables which are not provided by these chips.
+	 * Dice number has an impact though, because these devices need extra
+	 * care when reading the busy bit.
+	 */
+	nor->priv = winbond_priv;
+	nor->ready = winbond_nor_multi_die_ready;
+}
+
+static struct spi_nor_fixups winbond_nor_multi_die_fixups = {
+	.post_sfdp = winbond_nor_multi_die_post_sfdp_fixups,
+};
+#endif /* CONFIG_SPI_FLASH_WINBOND */
+
 /** spi_nor_octal_dtr_enable() - enable Octal DTR I/O if needed
  * @nor:                 pointer to a 'struct spi_nor'
  *
@@ -4464,6 +4548,23 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 	    nor->info->flags & SPI_NOR_OCTAL_DTR_READ)
 		nor->fixups = &macronix_octal_fixups;
 #endif /* SPI_FLASH_MACRONIX */
+
+#if CONFIG_IS_ENABLED(SPI_FLASH_WINBOND)
+	if (JEDEC_MFR(nor->info) == SNOR_MFR_WINBOND) {
+		u8 multi_die_models[][2] = {
+			{ 0x40, 0x21 }, /* W25Q01JV */
+			{ 0x70, 0x22 }, /* W25Q02JV */
+		};
+		int i;
+
+		for (i = 0; i < sizeof(multi_die_models) / 2; i++) {
+			if (!memcmp(nor->info->id + 1, multi_die_models[i], 2)) {
+				nor->fixups = &winbond_nor_multi_die_fixups;
+				break;
+			}
+		}
+	}
+#endif /* SPI_FLASH_WINBOND */
 }
 
 int spi_nor_scan(struct spi_nor *nor)
