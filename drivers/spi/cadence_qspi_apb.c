@@ -384,9 +384,9 @@ int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg)
 	return 0;
 }
 
-static int cadence_qspi_setup_opcode_ext(struct cadence_spi_priv *priv,
-					 const struct spi_mem_op *op,
-					 unsigned int shift)
+int cadence_qspi_setup_opcode_ext(struct cadence_spi_priv *priv,
+				  const struct spi_mem_op *op,
+				  unsigned int shift)
 {
 	unsigned int reg;
 	u8 ext;
