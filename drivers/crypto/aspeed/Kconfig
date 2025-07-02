@@ -1,3 +1,5 @@
+if ARCH_ASPEED
+
 config ASPEED_HACE
 	bool "ASPEED Hash and Crypto Engine"
 	depends on DM_HASH
@@ -38,3 +40,5 @@ config ASPEED_CPTRA_ECDSA
 
 	  Enabling this allows the use of ECDSA384 signature verification in hardware.
 	  Note that only ECDSA384 is supported by Caliptra.
+
+endif

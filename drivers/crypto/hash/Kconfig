@@ -18,7 +18,7 @@ config HASH_SOFTWARE
 
 config HASH_ASPEED
 	bool "Enable Hash with ASPEED hash accelerator"
-	depends on DM_HASH
+	depends on DM_HASH && ARCH_ASPEED
 	select ASPEED_HACE
 	help
 	  Enable this to support HW-assisted hashing operations using ASPEED Hash
