@@ -231,14 +231,6 @@ config ENV_IS_IN_MMC
 	  These two #defines specify the offset and size of the environment
 	  area within the specified MMC device.
 
-	  If offset is positive (the usual case), it is treated as relative to
-	  the start of the MMC partition. If offset is negative, it is treated
-	  as relative to the end of the MMC partition. This can be useful if
-	  your board may be fitted with different MMC devices, which have
-	  different sizes for the MMC partitions, and you always want the
-	  environment placed at the very end of the partition, to leave the
-	  maximum possible space before it, to store other data.
-
 	  These two values are in units of bytes, but must be aligned to an
 	  MMC sector boundary.
 
@@ -248,9 +240,6 @@ config ENV_IS_IN_MMC
 	  hold a redundant copy of the environment data. This provides a
 	  valid backup copy in case the other copy is corrupted, e.g. due
 	  to a power failure during a "saveenv" operation.
-
-	  This value may also be positive or negative; this is handled in the
-	  same way as CONFIG_ENV_OFFSET.
 
 	  In case CONFIG_ENV_MMC_EMMC_HW_PARTITION is 1 (i.e. environment in eMMC boot
 	  partition) then setting CONFIG_ENV_OFFSET_REDUND to the same value
@@ -618,9 +607,18 @@ config ENV_OFFSET
 	  Offset from the start of the device (or partition).
 
 	  This offset may be interpreted differently depending on the chosen
-	  ENV_IS_IN_* options. For example, for ENV_IS_IN_MMC=y, this offset may
-	  be negative to indicate an offset backwards from the end of the
-	  partition. See the relevant help messages for more details.
+	  ENV_IS_IN_* options. See the relevant help messages for more details.
+
+config ENV_OFFSET_RELATIVE_END
+	bool "Offset is relative to the end of the partition"
+	depends on ENV_IS_IN_MMC
+	help
+	  Treat the environment offset as relative to the end of the MMC
+	  hardware partition. This can be useful if your board may be fitted
+	  with different MMC devices, which have different sizes for the MMC
+	  hardware partitions, and you always want the environment placed at the
+	  very end of the partition, to leave the maximum possible space before
+	  it, to store other data.
 
 config ENV_OFFSET_REDUND
 	hex "Redundant environment offset"
@@ -633,9 +631,19 @@ config ENV_OFFSET_REDUND
 	  environment location.
 
 	  This offset may be interpreted differently depending on the chosen
-	  ENV_IS_IN_* options. For example, for ENV_IS_IN_MMC=y, this offset may
-	  be negative to indicate an offset backwards from the end of the
-	  partition. See the relevant help messages for more details.
+	  ENV_IS_IN_* options. See the relevant help messages for more details.
+
+config ENV_OFFSET_REDUND_RELATIVE_END
+	bool "Offset is relative to the end of the partition"
+	depends on SYS_REDUNDAND_ENVIRONMENT
+	depends on ENV_IS_IN_MMC
+	help
+	  Treat the redundant environment offset as relative to the end of the
+	  MMC hardware partition. This can be useful if your board may be
+	  fitted with different MMC devices, which have different sizes for the
+	  MMC hardware partitions, and you always want the environment placed at
+	  the very end of the partition, to leave the maximum possible space
+	  before it, to store other data.
 
 config ENV_SIZE
 	hex "Environment Size"

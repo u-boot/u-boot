@@ -29,10 +29,18 @@
 
 #else
 /* Default ENV offset when not defined in Device Tree */
+#if !defined(CONFIG_ENV_OFFSET_RELATIVE_END)
 #define ENV_MMC_OFFSET		CONFIG_ENV_OFFSET
+#else
+#define ENV_MMC_OFFSET		(-(CONFIG_ENV_OFFSET))
+#endif
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
+#if !defined(CONFIG_ENV_OFFSET_REDUND_RELATIVE_END)
 #define ENV_MMC_OFFSET_REDUND	CONFIG_ENV_OFFSET_REDUND
+#else
+#define ENV_MMC_OFFSET_REDUND	(-(CONFIG_ENV_OFFSET_REDUND))
+#endif
 #else
 #define ENV_MMC_OFFSET_REDUND	ENV_MMC_INVALID_OFFSET
 #endif
