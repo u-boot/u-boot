@@ -122,6 +122,7 @@ endif  # UNIT_TEST
 
 config POST
 	bool "Power On Self Test support"
+	depends on ARM || PPC
 	help
 	  See doc/README.POST for more details
 
