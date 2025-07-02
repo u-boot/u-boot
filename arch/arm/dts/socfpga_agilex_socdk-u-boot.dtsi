@@ -8,6 +8,7 @@
 
 #include "socfpga_agilex-u-boot.dtsi"
 
+#ifdef CONFIG_TARGET_SOCFPGA_AGILEX
 /{
 	chosen {
 		stdout-path = "serial0:115200n8";
@@ -20,6 +21,96 @@
 		      <2 0x80000000 1 0x80000000>;
 	};
 };
+
+&qspi {
+	status = "okay";
+};
+#endif
+
+#ifdef CONFIG_TARGET_SOCFPGA_AGILEX7M
+/{
+	model = "SoCFPGA Agilex7-M SoCDK";
+	chosen {
+		stdout-path = "serial0:115200n8";
+		u-boot,spl-boot-order = &mmc;
+	};
+
+	memory@0 {
+		/*
+		 * When LPDDR ECC is enabled, the last 1/8 of the memory region must
+		 * be reserved for the Inline ECC buffer.
+		 *
+		 * Example for memory size with 2GB:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x80000000>;
+		 * };
+		 *
+		 * Example for memory size with 8GB:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x80000000>,
+		 *	      <0x1 0x00000000 0x1 0x80000000>;
+		 * };
+		 *
+		 *
+		 * Example for memory size with 2GB with LPDDR Inline ECC ON:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x70000000>;
+		 * };
+		 *
+		 * Example for memory size with 8GB with LPDDR Inline ECC ON:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x80000000>,
+		 *	      <0x1 0x00000000 0x1 0x40000000>;
+		 * };
+		 */
+
+		/* Default memory size is 2GB */
+		reg = <0x0 0x00000000 0x0 0x80000000>;
+	};
+};
+
+&gmac2 {
+	status = "okay";
+	phy-mode = "rgmii";
+	phy-handle = <&phy0>;
+
+	max-frame-size = <3800>;
+
+	mdio2 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "snps,dwmac-mdio";
+		phy2: ethernet-phy@2 {
+			reg = <4>;
+
+			txd0-skew-ps = <0>; /* -420ps */
+			txd1-skew-ps = <0>; /* -420ps */
+			txd2-skew-ps = <0>; /* -420ps */
+			txd3-skew-ps = <0>; /* -420ps */
+			rxd0-skew-ps = <420>; /* 0ps */
+			rxd1-skew-ps = <420>; /* 0ps */
+			rxd2-skew-ps = <420>; /* 0ps */
+			rxd3-skew-ps = <420>; /* 0ps */
+			txen-skew-ps = <0>; /* -420ps */
+			txc-skew-ps = <1860>; /* 960ps */
+			rxdv-skew-ps = <420>; /* 0ps */
+			rxc-skew-ps = <1680>; /* 780ps */
+		};
+	};
+};
+
+&qspi {
+	status = "disabled";
+};
+
+&socfpga_l3interconnect_firewall {
+	soc_noc_fw_mpfe_csr_inst_0_mpfe_scr@f8020000 {
+		intel,offset-settings =
+			/* Disable MPFE firewall for SMMU */
+			<0x00000000 0x00010101 0x00010101>;
+	};
+};
+#endif
 
 &gmac0 {
 	mdio0 {
@@ -54,7 +145,6 @@
 };
 
 &qspi {
-	status = "okay";
 	/delete-property/ clocks;
 };
 
