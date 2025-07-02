@@ -37,6 +37,7 @@ config BCM6348_IUDMA
 
 config TI_EDMA3
 	bool "TI EDMA3 driver"
+	depends on ARCH_OMAP2PLUS || ARCH_KEYSTONE
 	select DMA_LEGACY
 	help
 	  Enable the TI EDMA3 driver for DRA7xx and AM43xx evms.
