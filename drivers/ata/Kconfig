@@ -131,6 +131,7 @@ config FSL_SATA_V2
 
 config SATA_MV
 	bool "Enable Marvell SATA controller driver support"
+	depends on ARCH_KIRKWOOD || ARCH_MVEBU
 	select AHCI
 	select LIBATA
 	help
@@ -148,7 +149,7 @@ config SATA_SIL
 
 config SYS_SATA_MAX_DEVICE
 	int "Maximum number of SATA devices"
-	depends on !AHCI || FSL_SATA || SATA_MV
+	depends on !AHCI || FSL_SATA || SATA_MV || API
 	help
 	  Sets the maximum number of SATA devices which can be supported
 	  by U-Boot.
