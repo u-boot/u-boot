@@ -1,5 +1,6 @@
 config NPCM_AES
 	bool "Support the NPCM AES algorithm"
+	depends on (ARM && ARCH_NPCM)
 	select NPCM_OTP
 	help
 	  This provides a means to encrypt and decrypt data using the NPCM
