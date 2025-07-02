@@ -1,0 +1,5 @@
+GENMAI BOARD
+M:	Magnus Damm <damm@opensource.se>
+S:	Maintained
+F:	arch/arm/dts/r7s72100*
+N:	genmai

@@ -1,0 +1,12 @@
+if TARGET_GENMAI
+
+config SYS_BOARD
+	default "genmai"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "genmai"
+
+endif

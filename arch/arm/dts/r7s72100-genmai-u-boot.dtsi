@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source extras for U-Boot for the Genmai board
+ * Based on GR Peach, Copyright (C) 2019 Marek Vasut <marek.vasut@gmail.com>
+ */
+
+/ {
+	soc {
+		bootph-all;
+	};
+};
+
+&bsc {
+	bootph-all;
+};
+
+&ostm0 {
+	bootph-all;
+};
+
+&pinctrl {
+	bootph-all;
+};
+
+&scif2 {
+	bootph-all;
+	clock = <66666666>;	/* ToDo: Replace by DM clock driver */
+};
+
+&scif2_pins {
+	bootph-all;
+};
