@@ -9,6 +9,7 @@
 #define _CLK_H_
 
 #include <dm/ofnode.h>
+#include <dm/device.h>
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/types.h>
