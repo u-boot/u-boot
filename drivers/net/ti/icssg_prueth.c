@@ -63,6 +63,7 @@
 
 /* Number of PRU Cores per Slice */
 #define ICSSG_NUM_PRU_CORES		3
+#define ICSSG_NUM_FIRMWARES		6
 
 static int icssg_gmii_select(struct prueth_priv *priv)
 {
@@ -192,25 +193,6 @@ static int icssg_update_link(struct prueth_priv *priv)
 	return phy->link;
 }
 
-struct icssg_firmwares {
-	char *pru;
-	char *rtu;
-	char *txpru;
-};
-
-static struct icssg_firmwares icssg_emac_firmwares[] = {
-	{
-		.pru = "/lib/firmware/ti-pruss/am65x-sr2-pru0-prueth-fw.elf",
-		.rtu = "/lib/firmware/ti-pruss/am65x-sr2-rtu0-prueth-fw.elf",
-		.txpru = "/lib/firmware/ti-pruss/am65x-sr2-txpru0-prueth-fw.elf",
-	},
-	{
-		.pru = "/lib/firmware/ti-pruss/am65x-sr2-pru1-prueth-fw.elf",
-		.rtu = "/lib/firmware/ti-pruss/am65x-sr2-rtu1-prueth-fw.elf",
-		.txpru = "/lib/firmware/ti-pruss/am65x-sr2-txpru1-prueth-fw.elf",
-	}
-};
-
 static int icssg_start_pru_cores(struct udevice *dev)
 {
 	struct prueth_priv *priv = dev_get_priv(dev);
@@ -223,7 +205,7 @@ static int icssg_start_pru_cores(struct udevice *dev)
 
 	slice = priv->port_id;
 	index = slice * ICSSG_NUM_PRU_CORES;
-	firmwares = icssg_emac_firmwares;
+	firmwares = prueth->firmwares;
 
 	ofnode_read_u32_index(dev_ofnode(prueth->dev), "ti,prus", index, &phandle);
 	ret = uclass_get_device_by_phandle_id(UCLASS_REMOTEPROC, phandle, &rproc_dev);
@@ -476,6 +458,24 @@ static const struct eth_ops prueth_ops = {
 	.stop		= prueth_stop,
 };
 
+static char *prepend_fw_path(const char *fw_name)
+{
+	static const char fw_dir[] = "/lib/firmware/";
+	char *result;
+	int len;
+
+	if (!fw_name)
+		return NULL;
+
+	len = strlen(fw_dir) + strlen(fw_name) + 1;
+	result = malloc(len);
+	if (!result)
+		return NULL;
+
+	sprintf(result, "%s%s", fw_dir, fw_name);
+	return result;
+}
+
 static int icssg_ofdata_parse_phy(struct udevice *dev)
 {
 	struct prueth_priv *priv = dev_get_priv(dev);
@@ -534,6 +534,8 @@ static int prueth_probe(struct udevice *dev)
 	struct udevice **prussdev = NULL;
 	ofnode eth_ports_node, eth_node;
 	struct udevice *port_dev;
+	const char **fw_names;
+	int fw_count, i;
 	int ret = 0;
 
 	prueth->dev = dev;
@@ -657,6 +659,18 @@ static int prueth_probe(struct udevice *dev)
 			dev_err(dev, "Failed to bind to %s node\n", ofnode_get_name(eth_node));
 			goto out;
 		}
+	}
+
+	/* Parse firmware-name property from DT */
+	fw_count = dev_read_string_list(dev, "firmware-name", &fw_names);
+	if (fw_count != ICSSG_NUM_FIRMWARES) {
+		dev_err(dev, "Expected %d firmware names, got %d\n", ICSSG_NUM_FIRMWARES, fw_count);
+		return -EINVAL;
+	}
+	for (i = 0; i < 2; i++) {
+		prueth->firmwares[i].pru   = prepend_fw_path(fw_names[i * 3 + 0]);
+		prueth->firmwares[i].rtu   = prepend_fw_path(fw_names[i * 3 + 1]);
+		prueth->firmwares[i].txpru = prepend_fw_path(fw_names[i * 3 + 2]);
 	}
 
 	return 0;
