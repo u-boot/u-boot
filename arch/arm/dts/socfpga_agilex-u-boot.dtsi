@@ -17,13 +17,18 @@
 		freeze_br0 = &freeze_controller;
 	};
 
-	memory {
+	memory@0 {
+		device_type = "memory";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		bootph-all;
 	};
 
-	soc {
+	pmu {
+		compatible = "arm,armv8-pmuv3";
+	};
+
+	soc@0 {
 		bootph-all;
 
 		freeze_controller: freeze_controller@f9000450 {
@@ -44,11 +49,39 @@
 	bootph-all;
 };
 
+&gmac0 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	clocks = <&clkmgr AGILEX_EMAC0_CLK>;
+	clock-names = "stmmaceth";
+	phy-mode = "rgmii";
+	max-frame-size = <0x2328>;
+	status = "okay";
+
+	mdio0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "snps,dwmac-mdio";
+	};
+};
+
 &gmac1 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
+	clocks = <&clkmgr AGILEX_EMAC1_CLK>;
+	clock-names = "stmmaceth";
+	status = "disabled";
 	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
 };
 
 &gmac2 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
+	clocks = <&clkmgr AGILEX_EMAC2_CLK>;
+	clock-names = "stmmaceth";
+	status = "disabled";
 	altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
 };
 
@@ -83,6 +116,15 @@
 
 &qspi {
 	bootph-all;
+	compatible = "cdns,qspi-nor";
+	flash0: flash@0 {
+	};
+};
+
+&flash0 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	compatible = "jedec,spi-nor";
 };
 
 &rst {
@@ -180,10 +222,40 @@
 
 &uart0 {
 	bootph-all;
+	clock-frequency = <100000000>;
 };
 
 &watchdog0 {
 	bootph-all;
+};
+
+&nand {
+	clocks = <&clkmgr AGILEX_NAND_CLK>,
+	<&clkmgr AGILEX_NAND_X_CLK>;
+	clock-names = "nand", "nand_x";
+};
+
+&usb0 {
+	compatible = "snps,dwc2";
+};
+
+&usb1 {
+	compatible = "snps,dwc2";
+};
+
+&spi0 {
+	compatible = "intel,agilex-spi",
+			 "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
+};
+
+&spi1 {
+	compatible = "intel,agilex-spi",
+			 "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
+};
+
+&pdma {
+	#dma-channels = <8>;
+	#dma-requests = <32>;
 };
 
 #if !defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
