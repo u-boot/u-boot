@@ -115,7 +115,7 @@ config ALTERA_PIO
 
 config BCM2835_GPIO
 	bool "BCM2835 GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && ARCH_BCM283X
 
 config BCM6345_GPIO
 	bool "BCM6345 GPIO driver"
@@ -140,6 +140,7 @@ config DWAPB_GPIO
 
 config AT91_GPIO
 	bool "AT91 PIO GPIO driver"
+	depends on ARCH_AT91
 	help
 	  Say yes here to select AT91 PIO GPIO driver. AT91 PIO
 	  controller manages up to 32 fully programmable input/output
@@ -151,7 +152,7 @@ config AT91_GPIO
 
 config ATMEL_PIO4
 	bool "ATMEL PIO4 driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && ARCH_AT91
 	help
 	  Say yes here to support the Atmel PIO4 driver.
 	  The PIO4 is new version of Atmel PIO controller, which manages
@@ -194,11 +195,11 @@ config FXL6408_GPIO
 
 config HIKEY_GPIO
 	bool "HI6220 GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && TARGET_HIKEY
 
 config INTEL_BROADWELL_GPIO
 	bool "Intel Broadwell GPIO driver"
-	depends on DM
+	depends on DM_GPIO && X86
 	help
 	  This driver supports Broadwell U devices which have an expanded
 	  GPIO feature set. The difference is large enough to merit a separate
@@ -207,7 +208,7 @@ config INTEL_BROADWELL_GPIO
 
 config INTEL_GPIO
 	bool "Intel generic GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && X86
 	help
 	  Say yes here to select Intel generic GPIO driver. This controller
 	  supports recent chips (e.g. Apollo Lake). It permits basic GPIO
@@ -216,13 +217,13 @@ config INTEL_GPIO
 
 config INTEL_ICH6_GPIO
 	bool "Intel ICH6 compatible legacy GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && X86
 	help
 	  Say yes here to select Intel ICH6 compatible legacy GPIO driver.
 
 config IMX_RGPIO2P
 	bool "i.MX7ULP RGPIO2P driver"
-	depends on DM
+	depends on DM && (ARCH_MX7ULP || ARCH_IMX8ULP || ARCH_IMX9)
 	help
 	  This driver supports i.MX7ULP Rapid GPIO2P controller.
 
@@ -244,12 +245,13 @@ config HSDK_CREG_GPIO
 
 config KIRKWOOD_GPIO
 	bool "Kirkwood GPIO driver"
+	depends on ARCH_KIRKWOOD
 	help
 	  This drdiver supports GPIOs on Kirkwood platforms
 
 config LPC32XX_GPIO
 	bool "LPC32XX GPIO driver"
-	depends on DM
+	depends on DM && ARCH_LPC32XX
 	help
 	  Support for the LPC32XX GPIO driver.
 
@@ -296,7 +298,7 @@ config MSCC_SGPIO
 
 config MSM_GPIO
 	bool "Qualcomm GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && ARCH_SNAPDRAGON
 	help
 	  Support GPIO controllers on Qualcomm Snapdragon family of SoCs.
 	  This controller have single bank (default name "soc"), every
@@ -309,24 +311,26 @@ config MSM_GPIO
 
 config MXC_GPIO
 	bool "Freescale/NXP MXC GPIO driver"
+	depends on MACH_IMX
 	help
 	  Support GPIO controllers on various i.MX platforms
 
 config MXS_GPIO
 	bool "Freescale/NXP MXS GPIO driver"
+	depends on ARCH_MX23 || ARCH_MX28
 	help
 	  Support GPIO controllers on i.MX23 and i.MX28 platforms
 
 config NPCM_GPIO
 	bool "Nuvoton NPCM GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && ARCH_NPCM
 	help
 	  Support GPIO controllers on Nuvovon NPCM SoCs.
 	  NPCM7xx/NPCM8xx contain 8 GPIO banks, each bank contains 32 pins.
 
 config NPCM_SGPIO
 	bool "Nuvoton NPCM SGPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && ARCH_NPCM
 	help
 	  Support Nuvoton BMC NPCM7xx/NPCM8xx sgpio driver support.
 	  Nuvoton NPCM SGPIO module is combine serial to parallel IC (HC595)
@@ -380,7 +384,7 @@ config RZA1_GPIO
 
 config ROCKCHIP_GPIO
 	bool "Rockchip GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && ARCH_ROCKCHIP
 	help
 	  Support GPIO access on Rockchip SoCs. The GPIOs are arranged into
 	  a number of banks (different for each SoC type) each with 32 GPIOs.
@@ -430,7 +434,7 @@ config XILINX_GPIO
 
 config TEGRA_GPIO
 	bool "Tegra20..210 GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && ARCH_TEGRA
 	help
 	  Support for the GPIO controller contained in NVIDIA Tegra20 through
 	  Tegra210.
@@ -451,7 +455,7 @@ config GPIO_UNIPHIER
 
 config VYBRID_GPIO
 	bool "Vybrid GPIO driver"
-	depends on DM
+	depends on DM && MACH_IMX
 	help
 	  Say yes here to support Vybrid vf610 GPIOs.
 
@@ -490,7 +494,7 @@ config STM32_GPIO
 
 config SIFIVE_GPIO
 	bool "SiFive GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && RISCV
 	help
 	  Device model driver for GPIO controller present in SiFive FU540 SoC. This
 	  driver enables GPIO interface on HiFive Unleashed A00 board.
@@ -577,7 +581,7 @@ config PCA953X
 
 config MPC8XXX_GPIO
 	bool "Freescale MPC8XXX GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && (PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3)
 	help
 	  This driver supports the built-in GPIO controller of MPC8XXX CPUs.
 	  Each GPIO bank is identified by its own entry in the device tree,
@@ -618,7 +622,7 @@ config QE_GPIO
 
 config MPC8XX_GPIO
 	bool "Freescale MPC8XX GPIO driver"
-	depends on DM_GPIO
+	depends on DM_GPIO && PPC
 	help
 	  This driver supports parallel IO ports from MPC8XX CPUs.
 	  Each GPIO bank is identified by its own entry in the device tree.
@@ -685,7 +689,7 @@ config SL28CPLD_GPIO
 
 config SLG7XL45106_I2C_GPO
 	bool "slg7xl45106 i2c gpo expander"
-	depends on DM_GPIO
+	depends on DM_GPIO && ARCH_ZYNQMP
 	help
 	   Support for slg7xl45106 i2c gpo expander. It is an i2c based
 	   8-bit gpo expander, all gpo lines are controlled by writing
