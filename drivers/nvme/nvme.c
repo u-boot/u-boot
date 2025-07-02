@@ -912,8 +912,10 @@ int nvme_init(struct udevice *udev)
 			goto free_id;
 
 		ret = bootdev_setup_for_sibling_blk(ns_udev, "nvme_bootdev");
-		if (ret)
-			return log_msg_ret("bootdev", ret);
+		if (ret) {
+			log_err("bootdev: returning err=%d\n", ret);
+			goto free_id;
+		}
 
 		ret = blk_probe_or_unbind(ns_udev);
 		if (ret)
