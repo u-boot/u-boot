@@ -248,7 +248,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 	return &fh->base;
 
 error:
-	free(fh->path);
+	free(path);
 	free(fh);
 	return NULL;
 }
