@@ -1,3 +1,5 @@
+if ARM || PPC
+
 config FSL_CAAM
 	bool "Freescale Crypto Driver Support"
 	select SHA_HW_ACCEL
@@ -95,3 +97,5 @@ config FSL_DCP_RNG
 	  module of the DCP. It uses the True Random Number Generator (TRNG)
 	  and a Pseudo-Random Number Generator (PRNG) to achieve a true
 	  randomness and cryptographic strength.
+
+endif
