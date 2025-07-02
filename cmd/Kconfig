@@ -414,7 +414,7 @@ config BOOTM_RTEMS
 
 config CMD_SEAMA
 	bool "Support read SEAMA NAND images"
-	depends on MTD_RAW_NAND
+	depends on (TARGET_BCMNS || TARGET_BCMNS3) && MTD_RAW_NAND
 	help
 	  Support reading NAND Seattle Image (SEAMA) images.
 
