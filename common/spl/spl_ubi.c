@@ -22,10 +22,14 @@ int spl_ubi_load_image_os(struct spl_image_info *spl_image,
 
 	volumes[0].vol_id = CONFIG_SPL_UBI_LOAD_KERNEL_ID;
 	volumes[0].load_addr = (void *)CONFIG_SYS_LOAD_ADDR;
+#if IS_ENABLED(CONFIG_SPL_OS_BOOT_ARGS)
 	volumes[1].vol_id = CONFIG_SPL_UBI_LOAD_ARGS_ID;
 	volumes[1].load_addr = (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR;
 
 	err = ubispl_load_volumes(info, volumes, 2);
+#else
+	err = ubispl_load_volumes(info, volumes, 1);
+#endif
 	if (err)
 		return err;
 

@@ -803,7 +803,7 @@ config SPL_FS_LOAD_KERNEL_NAME
 
 config SPL_FS_LOAD_ARGS_NAME
 	string "File to load for the OS kernel argument parameters from the filesystem"
-	depends on (SPL_FS_EXT4 || SPL_FS_FAT || SPL_FS_SQUASHFS) && SPL_OS_BOOT
+	depends on (SPL_FS_EXT4 || SPL_FS_FAT || SPL_FS_SQUASHFS) && SPL_OS_BOOT_ARGS
 	default "args"
 	help
 	  Filename to read to load for the OS kernel argument parameters from
@@ -1121,7 +1121,7 @@ config SPL_UBI_LOAD_KERNEL_ID
 
 config SPL_UBI_LOAD_ARGS_ID
 	int "id of kernel args volume"
-	depends on SPL_OS_BOOT
+	depends on SPL_OS_BOOT_ARGS
 	help
 	  The UBI volume id from which to load the device tree
 
@@ -1215,9 +1215,16 @@ config SPL_OS_BOOT_SECURE
 	  to use falcon mode by disabling certain inherently non-securable options
 	  in the SPL boot flow.
 
+config SPL_OS_BOOT_ARGS
+	bool "Allow SPL to load args for kernel in falcon mode"
+	depends on SPL_OS_BOOT || SPL_LOAD_FIT_OPENSBI_OS_BOOT
+	help
+	  This option enables the SPL to load an args file (usually the FDT)
+	  alongside the kernel image in falcon boot mode.
+
 config SPL_PAYLOAD_ARGS_ADDR
 	hex "Address in memory to load 'args' file for Falcon Mode to"
-	depends on SPL_OS_BOOT || SPL_LOAD_FIT_OPENSBI_OS_BOOT
+	depends on SPL_OS_BOOT_ARGS
 	default 0x88000000 if ARCH_OMAP2PLUS
 	default 0x99000000 if ARCH_SC5XX && SC59X_64
 	default 0xA0000000 if ARCH_SC5XX && TARGET_SC594_SOM_EZKIT
@@ -1257,7 +1264,7 @@ config SYS_MMCSD_RAW_MODE_KERNEL_SECTOR
 
 config SYS_MMCSD_RAW_MODE_ARGS_SECTOR
 	hex "Falcon mode: Sector to load 'args' from MMC"
-	depends on SPL_FALCON_BOOT_MMCSD
+	depends on SPL_FALCON_BOOT_MMCSD && SPL_OS_BOOT_ARGS
 	help
 	  When Falcon mode is used with an MMC or SD media, SPL needs to know
 	  where to look for the OS 'args', typically a device tree. The
@@ -1267,7 +1274,7 @@ config SYS_MMCSD_RAW_MODE_ARGS_SECTOR
 
 config SYS_MMCSD_RAW_MODE_ARGS_SECTORS
 	hex "Falcon mode: Number of sectors to load for 'args' from MMC"
-	depends on SPL_FALCON_BOOT_MMCSD && SYS_MMCSD_RAW_MODE_ARGS_SECTOR != 0x0
+	depends on SPL_FALCON_BOOT_MMCSD && SPL_OS_BOOT_ARGS
 
 config SPL_PAYLOAD
 	string "SPL payload"
@@ -1503,14 +1510,14 @@ config SYS_SPI_KERNEL_OFFS
 
 config SYS_SPI_ARGS_OFFS
 	hex "Falcon mode: address of args payload in SPI flash"
-	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT
+	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT_ARGS
 	help
 	 Address within SPI-Flash from where the args payload (usually the
 	 dtb) is fetched in falcon boot.
 
 config SYS_SPI_ARGS_SIZE
 	hex "Falcon mode: size of args payload in SPI flash"
-	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT
+	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT_ARGS
 
 config SPL_THERMAL
 	bool "Driver support for thermal devices"

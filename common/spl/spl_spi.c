@@ -61,10 +61,15 @@ static int spl_spi_load_image_os(struct spl_image_info *spl_image,
 	if (err)
 		return err;
 
+#if IS_ENABLED(CONFIG_SPL_OS_BOOT_ARGS)
 	/* Read device tree. */
 	return spi_flash_read(flash, CONFIG_SYS_SPI_ARGS_OFFS,
 			      CONFIG_SYS_SPI_ARGS_SIZE,
 			      (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR);
+#else
+	return 0;
+#endif
+
 }
 #endif
 
