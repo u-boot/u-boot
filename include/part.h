@@ -647,6 +647,20 @@ int gpt_verify_partitions(struct blk_desc *desc,
  */
 int get_disk_guid(struct blk_desc *desc, char *guid);
 
+/**
+ * part_get_gpt_pte() - Get the GPT partition table entry of a partition
+ *
+ * This function reads the GPT partition table entry (PTE) for a given
+ * block device and partition number.
+ *
+ * @desc:	block device descriptor
+ * @part:	partition number for which to return the PTE
+ * @gpt_e:	GPT partition table entry
+ *
+ * Return:	0 on success, otherwise error
+ */
+int part_get_gpt_pte(struct blk_desc *desc, int part, gpt_entry *gpt_e);
+
 #endif
 
 #if CONFIG_IS_ENABLED(DOS_PARTITION)

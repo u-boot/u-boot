@@ -453,7 +453,6 @@ static efi_status_t EFIAPI efi_http_service_binding_destroy_child(
 	efi_status_t ret = EFI_SUCCESS;
 	struct efi_http_instance *http_instance;
 	struct efi_handler *phandler;
-	void *protocol_interface;
 
 	if (num_instances == 0)
 		return EFI_EXIT(EFI_NOT_FOUND);
@@ -463,18 +462,18 @@ static efi_status_t EFIAPI efi_http_service_binding_destroy_child(
 
 	efi_search_protocol(child_handle, &efi_http_guid, &phandler);
 
-	if (phandler)
-		protocol_interface = phandler->protocol_interface;
+	if (!phandler)
+		return EFI_EXIT(EFI_UNSUPPORTED);
 
 	ret = efi_delete_handle(child_handle);
 	if (ret != EFI_SUCCESS)
 		return EFI_EXIT(ret);
 
-	http_instance = (struct efi_http_instance *)protocol_interface;
+	http_instance = phandler->protocol_interface;
 	efi_free_pool(http_instance->http_load_addr);
 	http_instance->http_load_addr = NULL;
 
-	free(protocol_interface);
+	free(phandler->protocol_interface);
 
 	num_instances--;
 

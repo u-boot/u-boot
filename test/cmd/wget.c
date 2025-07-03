@@ -241,3 +241,23 @@ static int net_test_wget(struct unit_test_state *uts)
 	return 0;
 }
 CMD_TEST(net_test_wget, UTF_CONSOLE);
+
+static int net_test_wget_uri_validate(struct unit_test_state *uts)
+{
+	ut_asserteq(true, wget_validate_uri("http://foo.com/bar.html"));
+	ut_asserteq(true, wget_validate_uri("http://1.1.2.3/bar.html"));
+	ut_asserteq(false, wget_validate_uri("http://foo/ba r.html"));
+	ut_asserteq(false, wget_validate_uri("http://"));
+
+	if (CONFIG_IS_ENABLED(WGET_HTTPS)) {
+		ut_asserteq(true,
+			    wget_validate_uri("https://foo.com/bar.html"));
+		ut_asserteq(true,
+			    wget_validate_uri("https://1.1.2.3/bar.html"));
+		ut_asserteq(false, wget_validate_uri("https://foo/ba r.html"));
+		ut_asserteq(false, wget_validate_uri("https://"));
+	}
+
+	return 0;
+}
+CMD_TEST(net_test_wget_uri_validate, UTF_CONSOLE);

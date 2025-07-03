@@ -138,4 +138,24 @@ typedef struct _legacy_mbr {
 	__le16 signature;
 } __packed legacy_mbr;
 
+#define EFI_PARTITION_INFO_PROTOCOL_GUID \
+	EFI_GUID(0x8cf2f62c, 0xbc9b, 0x4821, 0x80, \
+		 0x8d, 0xec, 0x9e, 0xc4, 0x21, 0xa1, 0xa0)
+
+#define EFI_PARTITION_INFO_PROTOCOL_REVISION 0x0001000
+#define PARTITION_TYPE_OTHER 0x00
+#define PARTITION_TYPE_MBR 0x01
+#define PARTITION_TYPE_GPT 0x02
+
+struct efi_partition_info {
+	u32 revision;
+	u32 type;
+	u8 system;
+	u8 reserved[7];
+	union {
+		struct partition mbr;
+		gpt_entry gpt;
+	} info;
+} __packed;
+
 #endif	/* _DISK_PART_EFI_H */
