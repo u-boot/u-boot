@@ -540,7 +540,7 @@ static int process_cmd(struct ec_state *ec,
 		const struct ec_params_vstore_write *req = req_data;
 		struct vstore_slot *slot;
 
-		if (req->slot >= EC_VSTORE_SLOT_MAX)
+		if (req->slot >= VSTORE_SLOT_COUNT)
 			return -EINVAL;
 		slot = &ec->slot[req->slot];
 		slot->locked = true;
@@ -553,7 +553,7 @@ static int process_cmd(struct ec_state *ec,
 		struct ec_response_vstore_read *resp = resp_data;
 		struct vstore_slot *slot;
 
-		if (req->slot >= EC_VSTORE_SLOT_MAX)
+		if (req->slot >= VSTORE_SLOT_COUNT)
 			return -EINVAL;
 		slot = &ec->slot[req->slot];
 		memcpy(resp->data, slot->data, EC_VSTORE_SLOT_SIZE);
