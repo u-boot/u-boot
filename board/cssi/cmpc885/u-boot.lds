@@ -18,8 +18,8 @@ SECTIONS
 	{
 		arch/powerpc/cpu/mpc8xx/start.o	(.text)
 		arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
-		arch/powerpc/lib/built-in.o		(.text*)
-		drivers/net/built-in.o		(.text*)
+		arch/powerpc/lib/built-in.a		(.text*)
+		drivers/net/built-in.a		(.text*)
 
 		. = DEFINED(env_offset) ? env_offset : .;
 		env/embedded.o			(.text.environment)

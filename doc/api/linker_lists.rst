@@ -130,17 +130,17 @@ the compiler cannot update the alignment of the linker_list item.
 In the first case, an 8-byte 'fill' region is added::
 
    __u_boot_list_2_driver_2_testbus_drv
-               0x0000000000270018       0x80 test/built-in.o
+               0x0000000000270018       0x80 test/built-in.a
                0x0000000000270018                _u_boot_list_2_driver_2_testbus_drv
    __u_boot_list_2_driver_2_testfdt1_drv
-               0x0000000000270098       0x80 test/built-in.o
+               0x0000000000270098       0x80 test/built-in.a
                0x0000000000270098                _u_boot_list_2_driver_2_testfdt1_drv
    *fill*         0x0000000000270118        0x8
    __u_boot_list_2_driver_2_testfdt_drv
-               0x0000000000270120       0x80 test/built-in.o
+               0x0000000000270120       0x80 test/built-in.a
                0x0000000000270120                _u_boot_list_2_driver_2_testfdt_drv
    __u_boot_list_2_driver_2_testprobe_drv
-               0x00000000002701a0       0x80 test/built-in.o
+               0x00000000002701a0       0x80 test/built-in.a
                0x00000000002701a0                _u_boot_list_2_driver_2_testprobe_drv
 
 With this, the linker_list no-longer works since items after testfdt1_drv

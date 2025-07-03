@@ -3,8 +3,8 @@
 # Author: Teresa Remmet <t.remmet@phytec.de>
 
 ifdef CONFIG_XPL_BUILD
-# necessary to create built-in.o
-obj- := __dummy__.o
+# necessary to create built-in.a
+obj- := __dummy__.a
 endif
 
 obj-y += phytec_som_detection.o phytec_som_detection_blocks.o

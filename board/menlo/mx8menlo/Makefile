@@ -16,8 +16,8 @@ endif
 
 # Common for all Toradex modules
 ifeq ($(CONFIG_XPL_BUILD),y)
-# Necessary to create built-in.o
-obj- := __dummy__.o
+# Necessary to create built-in.a
+obj- := __dummy__.a
 else
 obj-$(CONFIG_TDX_CFG_BLOCK) += ../../toradex/common/tdx-cfg-block.o
 obj-y += ../../toradex/common/tdx-common.o
