@@ -167,20 +167,27 @@ static struct phy_ops rockchip_usb2phy_ops = {
 	.of_xlate = rockchip_usb2phy_of_xlate,
 };
 
-static void rockchip_usb2phy_clkout_ctl(struct clk *clk, struct regmap **base,
-					const struct usb2phy_reg **clkout_ctl)
+static int rockchip_usb2phy_clkout_ctl(struct clk *clk, struct regmap **base,
+				       const struct usb2phy_reg **clkout_ctl)
 {
 	struct udevice *parent = dev_get_parent(clk->dev);
 	struct rockchip_usb2phy *priv = dev_get_priv(parent);
 	const struct rockchip_usb2phy_cfg *phy_cfg = priv->phy_cfg;
 
-	if (priv->phy_cfg->clkout_ctl_phy.enable) {
+	// phy_cfg can be NULL if this function called before probe (when parent
+	// clocks are enabled)
+	if (!phy_cfg)
+		return -EINVAL;
+
+	if (phy_cfg->clkout_ctl_phy.enable) {
 		*base = priv->phy_base;
 		*clkout_ctl = &phy_cfg->clkout_ctl_phy;
 	} else {
 		*base = priv->reg_base;
 		*clkout_ctl = &phy_cfg->clkout_ctl;
 	}
+
+	return 0;
 }
 
 /**
@@ -206,7 +213,8 @@ int rockchip_usb2phy_clk_enable(struct clk *clk)
 	const struct usb2phy_reg *clkout_ctl;
 	struct regmap *base;
 
-	rockchip_usb2phy_clkout_ctl(clk, &base, &clkout_ctl);
+	if (rockchip_usb2phy_clkout_ctl(clk, &base, &clkout_ctl))
+		return -ENOSYS;
 
 	/* turn on 480m clk output if it is off */
 	if (!property_enabled(base, clkout_ctl)) {
@@ -230,7 +238,8 @@ int rockchip_usb2phy_clk_disable(struct clk *clk)
 	const struct usb2phy_reg *clkout_ctl;
 	struct regmap *base;
 
-	rockchip_usb2phy_clkout_ctl(clk, &base, &clkout_ctl);
+	if (rockchip_usb2phy_clkout_ctl(clk, &base, &clkout_ctl))
+		return -ENOSYS;
 
 	/* turn off 480m clk output */
 	property_enable(base, clkout_ctl, false);
