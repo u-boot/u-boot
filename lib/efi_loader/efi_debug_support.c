@@ -11,6 +11,12 @@
 
 struct efi_system_table_pointer __efi_runtime_data * systab_pointer = NULL;
 
+struct efi_debug_image_info_table_header efi_m_debug_info_table_header = {
+	0,
+	0,
+	NULL
+};
+
 /**
  * efi_initialize_system_table_pointer() - Initialize system table pointer
  *
