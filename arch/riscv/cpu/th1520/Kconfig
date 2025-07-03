@@ -11,6 +11,7 @@ config THEAD_TH1520
 	select BINMAN if SPL
 	select SYS_CACHE_THEAD_CMO
 	select CLK_THEAD
+	select PINCTRL_TH1520
 	imply CPU
 	imply CPU_RISCV
 	imply RISCV_TIMER if (RISCV_SMODE || SPL_RISCV_SMODE)

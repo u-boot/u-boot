@@ -341,6 +341,14 @@ config SPL_PINCTRL_STMFX
 	  This option is an SPL-variant of the SPL_PINCTRL_STMFX option.
 	  See the help of PINCTRL_STMFX for details.
 
+config PINCTRL_TH1520
+	bool "T-Head TH1520 pinctrl driver"
+	depends on DM && PINCTRL_FULL
+	select PINCONF
+	help
+	  Support pin multiplexing and configuration control blocks on the
+	  T-Head TH1520 SoC.
+
 config ASPEED_AST2500_PINCTRL
 	bool "Aspeed AST2500 pin control driver"
 	depends on DM && PINCTRL_GENERIC && ASPEED_AST2500
