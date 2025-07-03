@@ -31,6 +31,19 @@
 #define LLONG_MIN   (-LLONG_MAX - 1LL)
 #define ULLONG_MAX  (LLONG_MAX * 2ULL + 1ULL)
 
+#define U8_MAX      UCHAR_MAX
+#define S8_MAX      SCHAR_MAX
+#define S8_MIN      SCHAR_MIN
+#define U16_MAX     USHRT_MAX
+#define S16_MAX     SHRT_MAX
+#define S16_MIN     SHRT_MIN
+#define U32_MAX     UINT_MAX
+#define S32_MAX     INT_MAX
+#define S32_MIN     INT_MIN
+#define U64_MAX     ULLONG_MAX
+#define S64_MAX     LLONG_MAX
+#define S64_MIN     LLONG_MIN
+
 #define CHAR_BIT    8
 #define UINT32_MAX  0xffffffffU
 #define UINT64_MAX  0xffffffffffffffffULL
