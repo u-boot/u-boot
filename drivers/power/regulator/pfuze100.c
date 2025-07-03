@@ -247,7 +247,7 @@ static struct pfuze100_regulator_desc *se_desc(struct pfuze100_regulator_desc *d
 {
 	int i;
 
-	for (i = 0; i < size; desc++) {
+	for (i = 0; i < size; i++, desc++) {
 		if (!strcmp(desc->name, name))
 			return desc;
 		continue;
