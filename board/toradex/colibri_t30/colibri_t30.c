@@ -18,7 +18,7 @@
 #include "pinmux-config-colibri_t30.h"
 #include "../common/tdx-common.h"
 
-int arch_misc_init(void)
+int misc_init_r(void)
 {
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY)

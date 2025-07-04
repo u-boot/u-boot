@@ -35,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int pci_reset_status;
 #endif /* CONFIG_APALIS_T30_PCIE_EVALBOARD_INIT */
 
-int arch_misc_init(void)
+int misc_init_r(void)
 {
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY)

@@ -36,7 +36,7 @@
 #define VCC_USBO1	TEGRA_GPIO(T, 5)
 #define VCC_USBO1_V1_0	TEGRA_GPIO(N, 4)
 
-int arch_misc_init(void)
+int misc_init_r(void)
 {
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY) {
