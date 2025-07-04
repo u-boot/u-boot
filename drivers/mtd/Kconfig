@@ -167,7 +167,7 @@ config SYS_FLASH_QUIET_TEST
 
 config SYS_FLASH_CHECKSUM
 	bool "Compute and print flash CRC if 'flashchecksum' is set in the environment"
-	depends on MTD_NOR_FLASH
+	depends on (FLASH_CFI_DRIVER && !CFI_FLASH)
 	help
 	  If the variable flashchecksum is set in the environment, perform a CRC
 	  of the flash and print the value to console.
