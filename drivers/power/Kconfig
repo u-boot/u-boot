@@ -15,6 +15,7 @@ if POWER
 
 config POWER_LEGACY
 	bool "Legacy power support"
+	depends on !DM_PMIC
 	help
 	  Note: This is a legacy option. Use DM_PMIC instead.
 
