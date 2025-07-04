@@ -1,5 +1,6 @@
 config ARCH_LS1021A
 	bool
+	select ARCH_MISC_INIT if FSL_CAAM
 	select FSL_DEVICE_DISABLE
 	select FSL_IFC if !QSPI_BOOT && !SD_BOOT_QSPI
 	select LS102XA_STREAM_ID

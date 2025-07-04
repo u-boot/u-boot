@@ -9,6 +9,7 @@ choice
 
 config TARGET_AM335X_EVM
 	bool "Support am335x_evm"
+	select ARCH_MISC_INIT
 	select BOARD_LATE_INIT
 	select DM
 	select DM_GPIO
@@ -70,6 +71,7 @@ config TARGET_AM335X_SHC
 
 config TARGET_AM335X_GUARDIAN
 	bool "Support am335x based guardian board from bosch"
+	select ARCH_MISC_INIT
 	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
@@ -116,6 +118,7 @@ config TARGET_ETAMIN
 
 config TARGET_PCM051
 	bool "Support pcm051"
+	select ARCH_MISC_INIT
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
@@ -123,6 +126,7 @@ config TARGET_PCM051
 
 config TARGET_PHYCORE_AM335X_R2
 	bool "Support phyCORE AM335X R2"
+	select ARCH_MISC_INIT
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
@@ -130,6 +134,7 @@ config TARGET_PHYCORE_AM335X_R2
 
 config TARGET_PXM2
 	bool "Support pxm2"
+	select ARCH_MISC_INIT
 	select BOARD_LATE_INIT
 	select DM
 	select DM_GPIO
@@ -148,6 +153,7 @@ config TARGET_RASTABAN
 
 config TARGET_RUT
 	bool "Support rut"
+	select ARCH_MISC_INIT
 	select BOARD_LATE_INIT
 	select DM
 	select DM_GPIO

@@ -328,6 +328,7 @@ config ARCH_LX2160A
 
 config FSL_LSCH2
 	bool
+	select ARCH_MISC_INIT if FSL_CAAM
 	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_CCSR_GUR_BE
 	select SYS_FSL_CCSR_SCFG_BE

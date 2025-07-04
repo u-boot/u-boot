@@ -42,6 +42,7 @@ config TARGET_OCTEON_EBB7304
 
 config TARGET_OCTEON_NIC23
 	bool "Marvell Octeon NIC23"
+	select ARCH_MISC_INIT
 	select OCTEON_CN73XX
 	help
 	 Choose this for the Octeon NIC23 board

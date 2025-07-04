@@ -906,6 +906,7 @@ config ARCH_IMX8
 
 config ARCH_IMX8M
 	bool "NXP i.MX8M platform"
+	select ARCH_MISC_INIT if FSL_CAAM
 	select ARM64
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
@@ -955,6 +956,7 @@ config ARCH_IMXRT
 
 config ARCH_MX23
 	bool "NXP i.MX23 family"
+	select ARCH_MISC_INIT
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
@@ -962,6 +964,7 @@ config ARCH_MX23
 
 config ARCH_MX28
 	bool "NXP i.MX28 family"
+	select ARCH_MISC_INIT
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
@@ -1103,6 +1106,7 @@ config ARCH_QEMU
 
 config ARCH_RENESAS
 	bool "Renesas ARM SoCs"
+	select ARCH_MISC_INIT if DISPLAY_CPUINFO && !(RZA1 || RZN1)
 	select DM
 	select DM_SERIAL
 	select GPIO_EXTRA_HEADER
@@ -1112,7 +1116,6 @@ config ARCH_RENESAS
 	imply FAT_WRITE
 	imply OF_UPSTREAM
 	imply SYS_THUMB_BUILD
-	imply ARCH_MISC_INIT if DISPLAY_CPUINFO
 
 config ARCH_SNAPDRAGON
 	bool "Qualcomm Snapdragon SoCs"
@@ -1541,7 +1544,6 @@ config TARGET_LX2160AQDS
 config TARGET_LX2162AQDS
 	bool "Support lx2162aqds"
 	select ARCH_LX2162A
-	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select ARCH_SUPPORT_TFABOOT
@@ -1954,7 +1956,6 @@ config TARGET_SL28
 config TARGET_TEN64
 	bool "Support ten64"
 	select ARCH_LS1088A
-	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select ARCH_SUPPORT_TFABOOT
