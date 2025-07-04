@@ -300,7 +300,7 @@ config DS4510
 
 config FSL_IIM
 	bool "Enable FSL IC Identification Module (IIM) driver"
-	depends on ARCH_MX31 || ARCH_MX5
+	depends on ARCH_MX5
 
 config FSL_SEC_MON
 	bool "Enable FSL SEC_MON Driver"

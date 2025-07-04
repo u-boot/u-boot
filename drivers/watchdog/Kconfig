@@ -27,7 +27,7 @@ config WATCHDOG_AUTOSTART
 
 config WATCHDOG_TIMEOUT_MSECS
 	int "Watchdog timeout in msec"
-	default 128000 if ARCH_MX31 || ARCH_MX5 || ARCH_MX6
+	default 128000 if ARCH_MX5 || ARCH_MX6
 	default 128000 if ARCH_MX7 || ARCH_VF610
 	default 30000 if ARCH_SNAPDRAGON
 	default 30000 if ARCH_SOCFPGA
