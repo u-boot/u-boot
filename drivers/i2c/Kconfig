@@ -615,6 +615,7 @@ endif
 
 config SYS_I2C_SOFT
 	bool "Legacy software I2C interface"
+	depends on !COMPILE_TEST
 	help
 	  Enable the legacy software defined I2C interface
 

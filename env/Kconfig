@@ -759,6 +759,7 @@ config SCSI_ENV_PART_UUID
 
 config ENV_USE_DEFAULT_ENV_TEXT_FILE
 	bool "Create default environment from file"
+	depends on !COMPILE_TEST
 	help
 	  Normally, the default environment is automatically generated
 	  based on the settings of various CONFIG_* options, as well

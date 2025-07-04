@@ -132,6 +132,7 @@ config SPL_BSS_START_ADDR
 choice
 	prompt "Enforce SPL BSS limit"
 	depends on !PPC
+	default SPL_NO_BSS_LIMIT if COMPILE_TEST
 	default SPL_BSS_LIMIT
 	help
 	  In some platforms we only want to enforce a limit on the size of the
