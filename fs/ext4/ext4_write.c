@@ -877,19 +877,19 @@ int ext4fs_write(const char *fname, const char *buffer,
 
 	if (ext4fs_init() != 0) {
 		printf("error in File System init\n");
-		return -1;
+		goto fail;
 	}
 
 	missing_feat = le32_to_cpu(fs->sb->feature_incompat) & ~EXT4_FEATURE_INCOMPAT_SUPP;
 	if (missing_feat) {
 		log_err("Unsupported features found %08x, not writing.\n", missing_feat);
-		return -1;
+		goto fail;
 	}
 
 	missing_feat = le32_to_cpu(fs->sb->feature_ro_compat) & ~EXT4_FEATURE_RO_COMPAT_SUPP;
 	if (missing_feat) {
 		log_err("Unsupported RO compat features found %08x, not writing.\n", missing_feat);
-		return -1;
+		goto fail;
 	}
 
 	inodes_per_block = fs->blksz / fs->inodesz;
