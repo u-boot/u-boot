@@ -181,6 +181,7 @@ config SYS_I2C_IPROC
 
 config SYS_I2C_FSL
        bool "Freescale I2C bus driver"
+       depends on M68K || PPC
        help
 	  Add support for Freescale I2C busses as used on MPC8240, MPC8245, and
 	  MPC85xx processors.
@@ -240,7 +241,7 @@ config SYS_I2C_DW
 
 config SYS_I2C_DW_PCI
 	bool "Designware PCI I2C Controller"
-	depends on SYS_I2C_DW && PCI && ACPIGEN
+	depends on SYS_I2C_DW && PCI && ACPIGEN && X86
 	default y
 	help
 	  Say yes here to select the Designware PCI I2C Host Controller.
@@ -277,6 +278,7 @@ config SYS_I2C_INTEL
 
 config SYS_I2C_IMX_LPI2C
 	bool "NXP i.MX LPI2C driver"
+	depends on MACH_IMX
 	help
 	  Add support for the NXP i.MX LPI2C driver.
 
@@ -314,6 +316,7 @@ config SYS_I2C_MICROCHIP
 
 config SYS_I2C_MXC
 	bool "NXP MXC I2C driver"
+	depends on ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3 || MACH_IMX
 	help
 	  Add support for the NXP I2C driver. This supports up to four bus
 	  channels and operating on standard mode up to 100 kbits/s and fast
@@ -485,7 +488,7 @@ endif
 
 config SYS_I2C_NEXELL
 	bool "Nexell I2C driver"
-	depends on DM_I2C
+	depends on DM_I2C && ARCH_NEXELL
 	help
 	  Add support for the Nexell I2C driver. This is used with various
 	  Nexell parts such as S5Pxx18 series SoCs. All chips
@@ -494,6 +497,7 @@ config SYS_I2C_NEXELL
 
 config SYS_I2C_NPCM
 	bool "Nuvoton NPCM I2C driver"
+	depends on ARCH_NPCM
 	help
 	  Support for Nuvoton I2C controller driver.
 
@@ -533,7 +537,7 @@ config SYS_I2C_RCAR_IIC
 
 config SYS_I2C_ROCKCHIP
 	bool "Rockchip I2C driver"
-	depends on DM_I2C
+	depends on DM_I2C && ARCH_ROCKCHIP
 	help
 	  Add support for the Rockchip I2C driver. This is used with various
 	  Rockchip parts such as RK3126, RK3128, RK3036 and RK3288. All chips
@@ -751,6 +755,7 @@ config SYS_I2C_MV
 
 config SYS_I2C_MVTWSI
 	bool "Marvell I2C driver"
+	depends on ARCH_KIRKWOOD || ARCH_MVEBU || ARCH_SUNXI
 	help
 	  Support for Marvell I2C controllers as used on the orion5x and
 	  kirkwood SoC families.
