@@ -11,11 +11,14 @@ static struct erofs_ctxt {
 
 int erofs_dev_read(int device_id, void *buf, u64 offset, size_t len)
 {
-	lbaint_t sect = offset >> ctxt.cur_dev->log2blksz;
-	int off = offset & (ctxt.cur_dev->blksz - 1);
+	lbaint_t sect;
+	int off;
 
 	if (!ctxt.cur_dev)
 		return -EIO;
+
+	sect = offset >> ctxt.cur_dev->log2blksz;
+	off = offset & (ctxt.cur_dev->blksz - 1);
 
 	if (fs_devread(ctxt.cur_dev, &ctxt.cur_part_info, sect,
 		       off, len, buf))
