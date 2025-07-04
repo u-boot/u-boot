@@ -27,8 +27,22 @@ config DEPRECATED
 	  code that relies on deprecated features that will be removed and
 	  the conversion deadline has passed.
 
+config COMPILE_TEST
+	bool "Compile also drivers which will not load"
+	help
+	  Some drivers can be compiled on a different platform than they are
+	  intended to be run on. Despite they cannot be loaded there (or even
+	  when they load they cannot be used due to missing HW support),
+	  developers still, opposing to distributors, might want to build such
+	  drivers to compile-test them.
+
+	  If you are a developer and want to build everything available, say Y
+	  here. If you are a user/distributor, say N here to exclude useless
+	  drivers to be distributed.
+
 config WERROR
 	bool "Compile U-Boot with warnings as errors"
+	default COMPILE_TEST
 	help
 	  A U-Boot build should not cause any compiler warnings, and this
 	  enables the '-Werror' flag to enforce that rule.
