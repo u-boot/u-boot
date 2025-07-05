@@ -38,6 +38,12 @@ enum prueth_port {
 	PRUETH_PORT_MII1,	/* physical port MII 1 */
 };
 
+struct icssg_firmwares {
+	char *pru;
+	char *rtu;
+	char *txpru;
+};
+
 struct prueth {
 	struct udevice		*dev;
 	struct udevice		*pruss;
@@ -66,6 +72,7 @@ struct prueth {
 	u8			rtu_core_id;
 	u8			txpru_core_id;
 	u8			icssg_hwcmdseq;
+	struct icssg_firmwares  firmwares[PRUETH_NUM_MACS];
 };
 
 struct prueth_priv {
