@@ -77,7 +77,6 @@
 		iomuxc: iomuxc@400e8000 {
 			compatible = "fsl,imxrt-iomuxc";
 			reg = <0x400e8000 0x4000>;
-			fsl,mux_mask = <0x7>;
 		};
 
 		anatop: anatop@40c84000 {

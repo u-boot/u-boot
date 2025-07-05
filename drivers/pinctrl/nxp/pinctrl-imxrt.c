@@ -11,6 +11,7 @@
 
 static struct imx_pinctrl_soc_info imxrt_pinctrl_soc_info = {
 	.flags = ZERO_OFFSET_VALID,
+	.mux_mask = 0x7,
 };
 
 static const struct udevice_id imxrt_pinctrl_match[] = {
