@@ -16,8 +16,8 @@ endif
 endif
 
 ifdef MINIMAL
-# necessary to create built-in.o
-obj- := __dummy__.o
+# necessary to create built-in.a
+obj- := __dummy__.a
 else
 
 obj-y				+= mmc.o
