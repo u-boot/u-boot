@@ -169,6 +169,7 @@ enum {
  * @dma_offset: Offset between the physical address space (CPU's) and the
  *		device's bus address space
  * @iommu: IOMMU device associated with this device
+ * @of_node: Associated device tree node
  */
 struct udevice {
 	const struct driver *driver;
@@ -201,6 +202,7 @@ struct udevice {
 #if CONFIG_IS_ENABLED(IOMMU)
 	struct udevice *iommu;
 #endif
+	struct device_node	*of_node;
 };
 
 static inline int dm_udevice_size(void)
