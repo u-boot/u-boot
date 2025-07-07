@@ -44,9 +44,20 @@
 #define S64_MAX     LLONG_MAX
 #define S64_MIN     LLONG_MIN
 
+#define UINT8_MAX   U8_MAX
+#define INT8_MAX    S8_MAX
+#define INT8_MIN    S8_MIN
+#define UINT16_MAX  U16_MAX
+#define INT16_MAX   S16_MAX
+#define INT16_MIN   S16_MIN
+#define UINT32_MAX  U32_MAX
+#define INT32_MAX   S32_MAX
+#define INT32_MIN   S32_MIN
+#define UINT64_MAX  U64_MAX
+#define INT64_MAX   S64_MAX
+#define INT64_MIN   S64_MIN
+
 #define CHAR_BIT    8
-#define UINT32_MAX  0xffffffffU
-#define UINT64_MAX  0xffffffffffffffffULL
 
 #if (defined(CONFIG_64BIT) && !defined(CONFIG_SPL_BUILD)) || \
 	(defined(CONFIG_SPL_64BIT) && defined(CONFIG_SPL_BUILD))

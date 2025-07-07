@@ -9,6 +9,6 @@
 #ifndef __UB_STDINT_H
 #define __UB_STDINT_H
 
-#define UINT8_MAX	0xff
+#include <limits.h>
 
 #endif
