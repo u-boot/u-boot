@@ -1394,10 +1394,6 @@ Low Level (hardware related) configuration options:
 		VPL. Code that needs phase-specific behaviour can check this,
 		or (where possible) use xpl_phase() instead.
 
-		Note that CONFIG_XPL_BUILD *is* always defined when either
-		of CONFIG_TPL_BUILD / CONFIG_VPL_BUILD is defined. This can be
-		counter-intuitive and should perhaps be changed.
-
 - CONFIG_TPL_BUILD
 		Set when the currently running compilation is for an artifact
 		that will end up in the TPL build (as opposed to SPL, VPL or
