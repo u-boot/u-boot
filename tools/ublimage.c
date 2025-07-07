@@ -219,7 +219,7 @@ static void ublimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	parse_cfg_file(ublhdr, params->imagename);
 }
 
-int ublimage_check_params(struct image_tool_params *params)
+static int ublimage_check_params(struct image_tool_params *params)
 {
 	if (!params)
 		return CFG_INVALID;
