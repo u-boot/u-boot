@@ -47,7 +47,7 @@ static void usage(const char *exec_name)
 	       exec_name);
 }
 
-long int xstrtol(const char *s)
+static long int xstrtol(const char *s)
 {
 	long int tmp;
 
