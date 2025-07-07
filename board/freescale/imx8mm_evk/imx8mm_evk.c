@@ -3,6 +3,8 @@
  * Copyright 2018 NXP
  */
 
+#include <config.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <init.h>
 #include <miiphy.h>
@@ -14,6 +16,26 @@
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+#define IMX_BOOT_IMAGE_GUID \
+	EFI_GUID(0xead2005e, 0x7780, 0x400b, 0x93, 0x48, \
+		 0xa2, 0x82, 0xeb, 0x85, 0x8b, 0x6b)
+
+struct efi_fw_image fw_images[] = {
+	{
+		.image_type_id = IMX_BOOT_IMAGE_GUID,
+		.fw_name = u"IMX8MM-EVK-RAW",
+		.image_index = 1,
+	},
+};
+
+struct efi_capsule_update_info update_info = {
+	.dfu_string = "mmc 2=flash-bin raw 0x42 0x2000 mmcpart 1",
+	.num_images = ARRAY_SIZE(fw_images),
+	.images = fw_images,
+};
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 #if IS_ENABLED(CONFIG_FEC_MXC)
 static int setup_fec(void)

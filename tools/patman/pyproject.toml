@@ -8,7 +8,7 @@ version = "0.0.6"
 authors = [
   { name="Simon Glass", email="sjg@chromium.org" },
 ]
-dependencies = ["u_boot_pylib >= 0.0.6"]
+dependencies = ["u_boot_pylib >= 0.0.6", "aiohttp >= 3.9.1" ]
 description = "Patman patch manager"
 readme = "README.rst"
 requires-python = ">=3.7"

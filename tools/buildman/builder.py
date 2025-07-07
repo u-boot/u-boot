@@ -265,7 +265,7 @@ class Builder:
                  reproducible_builds=False, force_build=False,
                  force_build_failures=False, force_reconfig=False,
                  in_tree=False, force_config_on_failure=False, make_func=None,
-                 dtc_skip=False):
+                 dtc_skip=False, build_target=None):
         """Create a new Builder object
 
         Args:
@@ -315,6 +315,7 @@ class Builder:
                 retrying a failed build
             make_func (function): Function to call to run 'make'
             dtc_skip (bool): True to skip building dtc and use the system one
+            build_target (str): Build target to use (None to use the default)
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -363,6 +364,7 @@ class Builder:
                 raise ValueError('Cannot find dtc')
         else:
             self.dtc = None
+        self.build_target = build_target
 
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES
@@ -629,10 +631,13 @@ class Builder:
         Args:
             commit_upto: Commit number to use (0..self.count-1)
             target: Target name
+
+        Return:
+            str: Output directory to use, or '' if None
         """
         output_dir = self.get_output_dir(commit_upto)
         if self.work_in_output:
-            return output_dir
+            return output_dir or ''
         return os.path.join(output_dir, target)
 
     def get_done_file(self, commit_upto, target):
@@ -1681,7 +1686,7 @@ class Builder:
         """
         thread_dir = self.get_thread_dir(thread_num)
         builderthread.mkdir(thread_dir)
-        git_dir = os.path.join(thread_dir, '.git')
+        git_dir = os.path.join(thread_dir, '.git') if thread_dir else None
 
         # Create a worktree or a git repo clone for this thread if it
         # doesn't already exist

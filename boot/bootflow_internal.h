@@ -14,7 +14,10 @@ enum {
 	START,
 
 	/* strings */
-	STR_PROMPT,
+	STR_PROMPT1A,
+	STR_PROMPT1B,
+	STR_PROMPT2,
+	STR_AUTOBOOT,
 	STR_MENU_TITLE,
 	STR_POINTER,
 
@@ -23,10 +26,14 @@ enum {
 
 	/* objects */
 	OBJ_U_BOOT_LOGO,
+	OBJ_BOX,
 	OBJ_MENU,
-	OBJ_PROMPT,
+	OBJ_PROMPT1A,
+	OBJ_PROMPT1B,
+	OBJ_PROMPT2,
 	OBJ_MENU_TITLE,
 	OBJ_POINTER,
+	OBJ_AUTOBOOT,
 
 	/* strings for menu items */
 	STR_LABEL = 100,

@@ -431,11 +431,11 @@ error message produced by Binman. Sometimes you need to add several tests, each
 with their own broken image description, in order to check all the error cases.
 
 Sometimes you need to capture the console output of Binman, to check it is
-correct. You can to this with ``test_util.capture_sys_output()``, for example:
+correct. You can to this with ``terminal.capture()``, for example:
 
 .. code-block:: python
 
-    with test_util.capture_sys_output() as (_, stderr):
+    with terminal.capture() as (_, stderr):
         self._DoTestFile('071_gbb.dts', force_missing_bintools='futility',
                          entry_args=entry_args)
     err = stderr.getvalue()
@@ -572,7 +572,7 @@ In the above example, here are some possible steps:
 
        def testNxpImx8ImageMkimageMissing(self):
            """Test that binman can produce an iMX8 image"""
-           with test_util.capture_sys_output() as (_, stderr):
+           with terminal.capture() as (_, stderr):
                self._DoTestFile('339_nxp_imx8.dts',
                                 force_missing_bintools='mkimage')
            err = stderr.getvalue()

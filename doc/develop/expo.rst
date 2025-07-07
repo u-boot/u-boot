@@ -65,6 +65,8 @@ item is highlighted.
 
 A `textline object` contains a label and an editable string.
 
+A `box object` is a rectangle with a given line width. It is not filled.
+
 All components have a name. This is mostly for debugging, so it is easy to see
 what object is referred to, although the name is also used for saving values.
 Of course the ID numbers can help as well, but they are less easy to
@@ -104,6 +106,37 @@ Menu objects do not have their own text and image objects. Instead they simply
 refer to objects which have been created. So a menu item is just a collection
 of IDs of text and image objects. When adding a menu item you must create these
 objects first, then create the menu item, passing in the relevant IDs.
+
+Position and alignment
+~~~~~~~~~~~~~~~~~~~~~~
+
+Objects are typically positioned automatically, when scene_arrange() is called.
+However it is possible to position objects manually. The scene_obj_set_pos()
+sets the coordinates of the top left of the object.
+
+All objects have a bounding box. Typically this is calculated by looking at the
+object contents, in `scene_calc_arrange()`. The calculated dimensions of each
+object are stored in the object's `dims` field.
+
+It is possible to adjust the size of an object with `scene_obj_set_size()` or
+even set the bounding box, with `scene_obj_set_bbox()`. The `SCENEOF_SIZE_VALID`
+flag tracks whether the width/height should be maintained when the position
+changes.
+
+If the bounding box is larger than the object needs, the object can be aligned
+to different edges within the box. Objects can be left- or right-aligned,
+or centred. For text objects this applies to each line of text. Normally objects
+are drawn starting at the top of their bounding box, but they can be aligned
+vertically to the bottom, or centred vertically within the box.
+
+Where the width of a text object's bounding box is smaller than the space needed
+to show the next, the text is word-wrapped onto multiple lines, assuming there
+is enough vertical space. Newline characters in the next cause a new line to be
+started. The measurement information is created by the Truetype console driver
+and stored in an alist in `struct scene_txt_generic`.
+
+When the object is drawn the `ofs` field indicates the x and y offset to use,
+from the top left of the bounding box. These values are affected by alignment.
 
 Creating an expo
 ----------------
@@ -527,6 +560,7 @@ Future ideas
 Some ideas for future work:
 
 - Default menu item and a timeout
+- Complete the text editor
 - Image formats other than BMP
 - Use of ANSI sequences to control a serial terminal
 - Colour selection

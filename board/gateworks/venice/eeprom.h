@@ -20,12 +20,13 @@ struct venice_board_info {
 	u8 sdram_width;	/* 0x2D: (8 << n) bit */
 	u8 res3[2];	/* 0x2E */
 	char model[16];		/* 0x30: model string */
-	u8 res4[14];	/* 0x40 */
+	u8 config[14];	/* 0x40: model config */
 	u8 chksum[2];	/* 0x4E */
 };
 
 int venice_eeprom_init(int quiet);
 const char *eeprom_get_model(void);
+const char *eeprom_get_som_model(void);
 const char *eeprom_get_baseboard_model(void);
 const char *eeprom_get_dtb_name(int level, char *buf, int len);
 int eeprom_getmac(int index, uint8_t *enetaddr);

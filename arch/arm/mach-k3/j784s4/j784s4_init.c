@@ -206,8 +206,19 @@ void k3_spl_init(void)
 
 	writel(AUDIO_REFCLK1_DEFAULT, (uintptr_t)CTRL_MMR_CFG0_AUDIO_REFCLK1_CTRL);
 
+	/* Shutdown MCU_R5 Core 1 in Split mode at A72 SPL Stage */
+	if (IS_ENABLED(CONFIG_ARM64)) {
+		ret = shutdown_mcu_r5_core1();
+		if (ret)
+			printf("Unable to shutdown MCU R5 core 1, %d\n", ret);
+	}
+
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
+
+	/* Output DM Firmware version info */
+	if (IS_ENABLED(CONFIG_ARM64))
+		k3_dm_print_ver();
 }
 
 void k3_mem_init(void)
@@ -242,6 +253,10 @@ void board_init_f(ulong dummy)
 	int ret;
 
 	k3_spl_init();
+
+	/* Perform board detection */
+	do_board_detect();
+
 	k3_mem_init();
 
 	if (IS_ENABLED(CONFIG_CPU_V7R) && IS_ENABLED(CONFIG_K3_AVS0)) {

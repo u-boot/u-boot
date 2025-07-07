@@ -43,7 +43,7 @@ config ENV_OVERWRITE
 	  Use this to permit overriding of certain environmental variables
 	  like Ethernet and Serial
 
-config OVERWRITE_ETHADDR_ONCE
+config ENV_OVERWRITE_ETHADDR_ONCE
 	bool "Enable overwriting ethaddr environment variables once"
 	depends on !ENV_OVERWRITE
 	help
@@ -74,7 +74,7 @@ config ENV_IS_DEFAULT
 		     !ENV_IS_IN_MMC && !ENV_IS_IN_NAND && \
 		     !ENV_IS_IN_NVRAM && !ENV_IS_IN_ONENAND && \
 		     !ENV_IS_IN_REMOTE && !ENV_IS_IN_SPI_FLASH && \
-		     !ENV_IS_IN_UBI && !ENV_IS_IN_MTD
+		     !ENV_IS_IN_UBI && !ENV_IS_IN_MTD && !ENV_IS_IN_SCSI
 	select ENV_IS_NOWHERE
 
 config ENV_IS_NOWHERE
@@ -215,11 +215,11 @@ config ENV_IS_IN_MMC
 	  Define this if you have an MMC device which you want to use for the
 	  environment.
 
-	  CONFIG_SYS_MMC_ENV_DEV:
+	  CONFIG_ENV_MMC_DEVICE_INDEX:
 
 	  Specifies which MMC device the environment is stored in.
 
-	  CONFIG_SYS_MMC_ENV_PART (optional):
+	  CONFIG_ENV_MMC_EMMC_HW_PARTITION (optional):
 
 	  Specifies which MMC partition the environment is stored in. If not
 	  set, defaults to partition 0, the user area. Common values might be
@@ -231,14 +231,6 @@ config ENV_IS_IN_MMC
 	  These two #defines specify the offset and size of the environment
 	  area within the specified MMC device.
 
-	  If offset is positive (the usual case), it is treated as relative to
-	  the start of the MMC partition. If offset is negative, it is treated
-	  as relative to the end of the MMC partition. This can be useful if
-	  your board may be fitted with different MMC devices, which have
-	  different sizes for the MMC partitions, and you always want the
-	  environment placed at the very end of the partition, to leave the
-	  maximum possible space before it, to store other data.
-
 	  These two values are in units of bytes, but must be aligned to an
 	  MMC sector boundary.
 
@@ -249,10 +241,7 @@ config ENV_IS_IN_MMC
 	  valid backup copy in case the other copy is corrupted, e.g. due
 	  to a power failure during a "saveenv" operation.
 
-	  This value may also be positive or negative; this is handled in the
-	  same way as CONFIG_ENV_OFFSET.
-
-	  In case CONFIG_SYS_MMC_ENV_PART is 1 (i.e. environment in eMMC boot
+	  In case CONFIG_ENV_MMC_EMMC_HW_PARTITION is 1 (i.e. environment in eMMC boot
 	  partition) then setting CONFIG_ENV_OFFSET_REDUND to the same value
 	  as CONFIG_ENV_OFFSET makes use of the second eMMC boot partition for
 	  the redundant environment copy.
@@ -296,6 +285,13 @@ config ENV_IS_IN_NAND
 	  "nand env.oob" command can be used to record this offset.
 	  Currently, CONFIG_ENV_OFFSET_REDUND is not supported when
 	  using CONFIG_ENV_OFFSET_OOB.
+
+config ENV_IS_IN_SCSI
+	bool "Environment in an SCSI device"
+	depends on SCSI
+	help
+	  Define this if you have an SCSI device which you want to use for the
+	  environment.
 
 config ENV_RANGE
 	hex "Length of the region in which the environment can be written"
@@ -482,7 +478,7 @@ config ENV_IS_IN_UBI
 	  the environment in.  This will enable redundant environments in UBI.
 	  It is assumed that both volumes are in the same MTD partition.
 
-config SYS_REDUNDAND_ENVIRONMENT
+config ENV_REDUNDANT
 	bool "Enable redundant environment support"
 	help
 	  Normally, the environemt is stored in a single location.  By
@@ -536,7 +532,7 @@ config ENV_FAT_FILE
 
 config ENV_FAT_FILE_REDUND
 	string "Name of the FAT file to use for the environment"
-	depends on ENV_IS_IN_FAT && SYS_REDUNDAND_ENVIRONMENT
+	depends on ENV_IS_IN_FAT && ENV_REDUNDANT
 	default "uboot-redund.env"
 	help
 	  It's a string of the FAT file name. This file use to store the
@@ -588,7 +584,7 @@ config ENV_ADDR
 
 config ENV_ADDR_REDUND
 	hex "Redundant environment address"
-	depends on ENV_IS_IN_FLASH && SYS_REDUNDAND_ENVIRONMENT
+	depends on ENV_IS_IN_FLASH && ENV_REDUNDANT
 	help
 	  Offset from the start of the device (or partition) of the redundant
 	  environment location.
@@ -611,14 +607,23 @@ config ENV_OFFSET
 	  Offset from the start of the device (or partition).
 
 	  This offset may be interpreted differently depending on the chosen
-	  ENV_IS_IN_* options. For example, for ENV_IS_IN_MMC=y, this offset may
-	  be negative to indicate an offset backwards from the end of the
-	  partition. See the relevant help messages for more details.
+	  ENV_IS_IN_* options. See the relevant help messages for more details.
+
+config ENV_OFFSET_RELATIVE_END
+	bool "Offset is relative to the end of the partition"
+	depends on ENV_IS_IN_MMC
+	help
+	  Treat the environment offset as relative to the end of the MMC
+	  hardware partition. This can be useful if your board may be fitted
+	  with different MMC devices, which have different sizes for the MMC
+	  hardware partitions, and you always want the environment placed at the
+	  very end of the partition, to leave the maximum possible space before
+	  it, to store other data.
 
 config ENV_OFFSET_REDUND
 	hex "Redundant environment offset"
 	depends on (ENV_IS_IN_EEPROM || ENV_IS_IN_MMC || ENV_IS_IN_NAND || \
-		    ENV_IS_IN_SPI_FLASH) && SYS_REDUNDAND_ENVIRONMENT
+		    ENV_IS_IN_SPI_FLASH) && ENV_REDUNDANT
 	default 0x10C0000 if MICROBLAZE
 	default 0x0
 	help
@@ -626,9 +631,19 @@ config ENV_OFFSET_REDUND
 	  environment location.
 
 	  This offset may be interpreted differently depending on the chosen
-	  ENV_IS_IN_* options. For example, for ENV_IS_IN_MMC=y, this offset may
-	  be negative to indicate an offset backwards from the end of the
-	  partition. See the relevant help messages for more details.
+	  ENV_IS_IN_* options. See the relevant help messages for more details.
+
+config ENV_OFFSET_REDUND_RELATIVE_END
+	bool "Offset is relative to the end of the partition"
+	depends on SYS_REDUNDAND_ENVIRONMENT
+	depends on ENV_IS_IN_MMC
+	help
+	  Treat the redundant environment offset as relative to the end of the
+	  MMC hardware partition. This can be useful if your board may be
+	  fitted with different MMC devices, which have different sizes for the
+	  MMC hardware partitions, and you always want the environment placed at
+	  the very end of the partition, to leave the maximum possible space
+	  before it, to store other data.
 
 config ENV_SIZE
 	hex "Environment Size"
@@ -668,7 +683,7 @@ config ENV_UBI_VOLUME
 
 config ENV_UBI_VOLUME_REDUND
 	string "UBI redundant volume name"
-	depends on ENV_IS_IN_UBI && SYS_REDUNDAND_ENVIRONMENT
+	depends on ENV_IS_IN_UBI && ENV_REDUNDANT
 	help
 	  Name of the redundant volume that you want to store the environment in.
 
@@ -679,7 +694,7 @@ config ENV_UBI_VID_OFFSET
 	help
 	  UBI VID offset for environment. If 0, no custom VID offset is used.
 
-config SYS_RELOC_GD_ENV_ADDR
+config ENV_RELOC_GD_ENV_ADDR
 	bool "Relocate gd->env_addr"
 	help
 	  Relocate the early env_addr pointer so we know it is not inside
@@ -691,16 +706,18 @@ config ENV_MTD_DEV
 	help
 	  MTD device name on the platform where the environment is stored.
 
-config SYS_MMC_ENV_DEV
-	int "mmc device number"
+config ENV_MMC_DEVICE_INDEX
+	int "SD/MMC device index"
 	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT || ENV_IS_IN_EXT4 || \
 		CMD_MVEBU_BUBT || FMAN_ENET || QE || PHY_CORTINA
 	default 0
 	help
-	  MMC device number on the platform where the environment is stored.
+	  SD/MMC device index on the platform where the environment is stored.
+	  The index is often derived from DT aliases mmcN node ordering, and
+	  matches the 'mmc list' command output.
 
-config SYS_MMC_ENV_PART
-	int "mmc partition number"
+config ENV_MMC_EMMC_HW_PARTITION
+	int "eMMC hardware partition number"
 	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT
 	default 0
 	help
@@ -710,17 +727,20 @@ config SYS_MMC_ENV_PART
 	  partition 0 or the first boot partition, which is 1 or some other defined
 	  partition.
 
-config USE_ENV_MMC_PARTITION
-	bool "use the mmc environment partition name"
+config ENV_MMC_USE_SW_PARTITION
+	bool "Use SD/MMC environment software partition name"
 	depends on ENV_IS_IN_MMC
 
-config ENV_MMC_PARTITION
-	string "mmc environment partition name"
-	depends on USE_ENV_MMC_PARTITION
+config ENV_MMC_SW_PARTITION
+	bool "SD/MMC environment software partition name"
+	depends on ENV_MMC_USE_SW_PARTITION
 	help
-	  MMC partition name used to save environment variables.
-	  If this variable is unset, u-boot will try to get the env partition name
-	  from the device-tree's /config node.
+	  SD/MMC software partition name used to save environment variables.
+	  This is a software partition name, i.e. one in partition table, not
+	  an eMMC HW partition (see ENV_MMC_EMMC_HW_PARTITION for eMMC HW
+	  partition configuration). If this variable is unset, u-boot will
+	  try to get the env partition name from the device-tree's /config
+	  node.
 
 config ENV_MMC_USE_DT
 	bool "Read partition name and offset in DT"
@@ -731,7 +751,13 @@ config ENV_MMC_USE_DT
 	  The 2 defines CONFIG_ENV_OFFSET, CONFIG_ENV_OFFSET_REDUND
 	  are not used as fallback.
 
-config USE_DEFAULT_ENV_FILE
+config SCSI_ENV_PART_UUID
+	string "SCSI partition UUID for saving environment"
+	depends on ENV_IS_IN_SCSI
+	help
+	  UUID of the SCSI partition that you want to store the environment in.
+
+config ENV_USE_DEFAULT_ENV_TEXT_FILE
 	bool "Create default environment from file"
 	help
 	  Normally, the default environment is automatically generated
@@ -740,9 +766,9 @@ config USE_DEFAULT_ENV_FILE
 	  you can instead define the entire default environment in an
 	  external file.
 
-config DEFAULT_ENV_FILE
+config ENV_DEFAULT_ENV_TEXT_FILE
 	string "Path to default environment file"
-	depends on USE_DEFAULT_ENV_FILE
+	depends on ENV_USE_DEFAULT_ENV_TEXT_FILE
 	help
 	  The path containing the default environment. The format is
 	  the same as accepted by the mkenvimage tool: lines
@@ -755,18 +781,6 @@ config ENV_VARS_UBOOT_RUNTIME_CONFIG
 	  Enable this in order to add variables describing certain
 	  run-time determined information about the hardware to the
 	  environment.  These will be named board_name, board_rev.
-
-config DELAY_ENVIRONMENT
-	bool "Delay environment loading"
-	depends on !OF_CONTROL
-	help
-	  Enable this to inhibit loading the environment during board
-	  initialization. This can address the security risk of untrusted data
-	  being used during boot. Normally the environment is loaded when the
-	  board is initialised so that it is available to U-Boot. This inhibits
-	  that so that the environment is not available until explicitly loaded
-	  later by U-Boot code. With CONFIG_OF_CONTROL this is instead
-	  controlled by the value of /config/load-environment.
 
 config ENV_IMPORT_FDT
 	bool "Amend environment by FDT properties"

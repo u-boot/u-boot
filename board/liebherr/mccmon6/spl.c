@@ -5,6 +5,7 @@
  *         Richard Hu <hakahu@gmail.com>
  */
 
+#include <env.h>
 #include <image.h>
 #include <init.h>
 #include <asm/arch/clock.h>

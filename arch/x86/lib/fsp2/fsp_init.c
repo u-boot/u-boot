@@ -140,7 +140,7 @@ int fsp_locate_fsp(enum fsp_type_t type, struct binman_entry *entry,
 		if (ret)
 			return log_msg_ret("binman entry", ret);
 		if (!use_spi_flash)
-			rom_offset = map_base + CONFIG_ROM_SIZE;
+			rom_offset = map_base;
 	} else {
 		ret = -ENOENT;
 		if (false)

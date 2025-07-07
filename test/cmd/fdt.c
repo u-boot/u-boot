@@ -6,6 +6,7 @@
  */
 
 #include <console.h>
+#include <env.h>
 #include <fdt_support.h>
 #include <mapmem.h>
 #include <asm/global_data.h>

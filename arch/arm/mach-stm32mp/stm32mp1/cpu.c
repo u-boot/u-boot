@@ -330,8 +330,7 @@ static uintptr_t nt_fw_dtb __section(".data");
 void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
 		      unsigned long r3)
 {
-	if (IS_ENABLED(CONFIG_STM32_ECDSA_VERIFY))
-		rom_api_table = r0;
+	rom_api_table = r0;
 
 	if (IS_ENABLED(CONFIG_TFABOOT))
 		nt_fw_dtb = r2;
@@ -350,7 +349,7 @@ uintptr_t get_stm32mp_bl2_dtb(void)
 }
 
 #ifdef CONFIG_XPL_BUILD
-void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+void __noreturn jump_to_image(struct spl_image_info *spl_image)
 {
 	typedef void __noreturn (*image_entry_stm32_t)(u32 romapi);
 	uintptr_t romapi = get_stm32mp_rom_api_table();

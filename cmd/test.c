@@ -7,7 +7,9 @@
 #include <command.h>
 #include <fs.h>
 #include <log.h>
+#include <slre.h>
 #include <vsprintf.h>
+#include <linux/string.h>
 
 #define OP_INVALID	0
 #define OP_NOT		1
@@ -26,6 +28,7 @@
 #define OP_INT_GT	14
 #define OP_INT_GE	15
 #define OP_FILE_EXISTS	16
+#define OP_REGEX	17
 
 const struct {
 	int arg;
@@ -49,6 +52,9 @@ const struct {
 	{0, "-z", OP_STR_EMPTY, 2},
 	{0, "-n", OP_STR_NEMPTY, 2},
 	{0, "-e", OP_FILE_EXISTS, 4},
+#ifdef CONFIG_REGEX
+	{1, "=~", OP_REGEX, 3},
+#endif
 };
 
 static int do_test(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -141,6 +147,20 @@ static int do_test(struct cmd_tbl *cmdtp, int flag, int argc,
 		case OP_FILE_EXISTS:
 			expr = file_exists(ap[1], ap[2], ap[3], FS_TYPE_ANY);
 			break;
+#ifdef CONFIG_REGEX
+		case OP_REGEX: {
+			struct slre slre;
+
+			if (slre_compile(&slre, ap[2]) == 0) {
+				printf("Error compiling regex: %s\n", slre.err_str);
+				expr = 0;
+				break;
+			}
+
+			expr = slre_match(&slre, ap[0], strlen(ap[0]), NULL);
+			break;
+		}
+#endif
 		}
 
 		switch (op) {

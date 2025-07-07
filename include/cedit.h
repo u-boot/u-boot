@@ -13,6 +13,7 @@
 
 struct abuf;
 struct expo;
+struct expo_action;
 struct scene;
 struct udevice;
 struct video_priv;
@@ -55,12 +56,24 @@ int cedit_run(struct expo *exp);
  * This ensures that all menus have a selected item.
  *
  * @exp: Expo to use
- * @vid_privp: Set to private data for the video device
+ * @dev: Video device to use
  * @scnp: Set to the first scene
  * Return: scene ID of first scene if OK, -ve on error
  */
-int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
+int cedit_prepare(struct expo *exp, struct udevice *vid_dev,
 		  struct scene **scnp);
+
+/**
+ * cedit_do_action() - Process an action on a cedit
+ *
+ * @exp: Expo to use
+ * @scn: Current scene
+ * @vid_priv: Private data for the video device
+ * @act: Action to process
+ * Return: 0 on success, -EAGAIN if there was no action taken
+ */
+int cedit_do_action(struct expo *exp, struct scene *scn,
+		    struct video_priv *vid_priv, struct expo_action *act);
 
 /**
  * cedit_write_settings() - Write settings in FDT format

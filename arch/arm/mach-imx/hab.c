@@ -74,7 +74,7 @@ static int verify_ivt_header(struct ivt_header *ivt_hdr)
 #define FSL_SIP_HAB_REPORT_STATUS	0x04
 #define FSL_SIP_HAB_FAILSAFE		0x05
 #define FSL_SIP_HAB_CHECK_TARGET	0x06
-static volatile gd_t *gd_save;
+static gd_t *gd_save;
 #endif
 
 static inline void save_gd(void)

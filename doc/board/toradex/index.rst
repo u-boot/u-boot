@@ -11,5 +11,6 @@ Toradex
    colibri-imx8x
    smarc-imx8mp
    verdin-am62
+   verdin-am62p
    verdin-imx8mm
    verdin-imx8mp

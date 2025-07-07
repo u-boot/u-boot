@@ -27,6 +27,7 @@
 #include <ext4fs.h>
 #include <malloc.h>
 #include <part.h>
+#include <rtc.h>
 #include <u-boot/uuid.h>
 #include "ext4_common.h"
 
@@ -101,17 +102,21 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 	blockcnt = lldiv(((len + pos) + blocksize - 1), blocksize);
 
 	for (i = lldiv(pos, blocksize); i < blockcnt; i++) {
-		long int blknr;
+		lbaint_t blknr;
+		long blknr_and_status;
 		int blockoff = pos - (blocksize * i);
 		int blockend = blocksize;
 		int skipfirst = 0;
-		blknr = read_allocated_block(&node->inode, i, &cache);
-		if (blknr < 0) {
+		blknr_and_status = read_allocated_block(&node->inode, i, &cache);
+		if (blknr_and_status < 0) {
 			ext_cache_fini(&cache);
 			return -1;
 		}
 
-		blknr = blknr << log2_fs_blocksize;
+		/* Block number could becomes very large when CONFIG_SYS_64BIT_LBA is enabled
+		 * and wrap around at max long int
+		 */
+		blknr = (lbaint_t)blknr_and_status << log2_fs_blocksize;
 
 		/* Last block.  */
 		if (i == blockcnt - 1) {

@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2025, Qualcomm Innovation Center, Inc. All rights reserved.
+ */
+
+/ {
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x0 0x80000000 0x0 0x7a00000>,
+		      <0x0 0x89600000 0x0 0x30100000>,
+		      <0x0 0xc0000000 0x0 0xc0000000>,
+		      <0x1 0x80000000 0x1 0x00000000>;
+	};
+};

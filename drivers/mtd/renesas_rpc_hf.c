@@ -16,7 +16,6 @@
 #include <errno.h>
 #include <fdt_support.h>
 #include <flash.h>
-#include <mtd.h>
 #include <wait_bit.h>
 #include <linux/bitops.h>
 #include <mtd/cfi_flash.h>

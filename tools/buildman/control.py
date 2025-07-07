@@ -390,7 +390,7 @@ def get_boards_obj(output_dir, regen_board_list, maintainer_check, full_check,
     read it in.
 
     Args:
-        output_dir (str): Output directory to use
+        output_dir (str): Output directory to use, or None to use current dir
         regen_board_list (bool): True to just regenerate the board list
         maintainer_check (bool): True to just run a maintainer check
         full_check (bool): True to just run a full check of Kconfig and
@@ -414,9 +414,9 @@ def get_boards_obj(output_dir, regen_board_list, maintainer_check, full_check,
             return 2
         return 0
 
-    if not os.path.exists(output_dir):
+    if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    board_file = os.path.join(output_dir, 'boards.cfg')
+    board_file = os.path.join(output_dir or '', 'boards.cfg')
     if regen_board_list and regen_board_list != '-':
         board_file = regen_board_list
 
@@ -501,7 +501,7 @@ def adjust_args(args, series, selected):
 
 
 def setup_output_dir(output_dir, work_in_output, branch, no_subdirs, col,
-                     clean_dir):
+                     in_tree, clean_dir):
     """Set up the output directory
 
     Args:
@@ -509,6 +509,7 @@ def setup_output_dir(output_dir, work_in_output, branch, no_subdirs, col,
         work_in_output (bool): True to work in the output directory
         branch (str): Name of branch to build, or None if none
         no_subdirs (bool): True to put the output in the top-level output dir
+        in_tree (bool): True if doing an in-tree build
         clean_dir: Used for tests only, indicates that the existing output_dir
             should be removed before starting the build
 
@@ -516,9 +517,11 @@ def setup_output_dir(output_dir, work_in_output, branch, no_subdirs, col,
         str: Updated output directory pathname
     """
     if not output_dir:
-        if work_in_output:
-            sys.exit(col.build(col.RED, '-w requires that you specify -o'))
         output_dir = '..'
+        if work_in_output:
+            if not in_tree:
+                sys.exit(col.build(col.RED, '-w requires that you specify -o'))
+            output_dir = None
     if branch and not no_subdirs:
         # As a special case allow the board directory to be placed in the
         # output directory itself rather than any subdirectory.
@@ -751,7 +754,7 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
 
     output_dir = setup_output_dir(
         args.output_dir, args.work_in_output, args.branch,
-        args.no_subdirs, col, clean_dir)
+        args.no_subdirs, col, args.in_tree, clean_dir)
 
     # Work out what subset of the boards we are building
     if not brds:
@@ -785,6 +788,9 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
                      args.verbose)
         return 0
 
+    if args.config_only and args.target:
+        raise ValueError('Cannot use --config-only with --target')
+
     # Create a new builder with the selected args
     builder = Builder(toolchains, output_dir, git_dir,
             args.threads, args.jobs, checkout=True,
@@ -810,7 +816,7 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
             force_build_failures = args.force_build_failures,
             force_reconfig = args.force_reconfig, in_tree = args.in_tree,
             force_config_on_failure=not args.quick, make_func=make_func,
-            dtc_skip=args.dtc_skip)
+            dtc_skip=args.dtc_skip, build_target=args.target)
 
     TEST_BUILDER = builder
 

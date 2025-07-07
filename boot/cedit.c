@@ -81,6 +81,8 @@ int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_IMAGE:
 		case SCENEOBJT_TEXT:
+		case SCENEOBJT_BOX:
+		case SCENEOBJT_TEXTEDIT:
 			break;
 		case SCENEOBJT_MENU:
 			scene_obj_set_pos(scn, obj->id, 50, y);
@@ -100,19 +102,16 @@ int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 	return 0;
 }
 
-int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
+int cedit_prepare(struct expo *exp, struct udevice *vid_dev,
 		  struct scene **scnp)
 {
+	struct udevice *dev = vid_dev;
 	struct video_priv *vid_priv;
-	struct udevice *dev;
 	struct scene *scn;
 	uint scene_id;
 	int ret;
 
 	/* For now we only support a video console */
-	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
-	if (ret)
-		return log_msg_ret("vid", ret);
 	ret = expo_set_display(exp, dev);
 	if (ret)
 		return log_msg_ret("dis", ret);
@@ -127,6 +126,7 @@ int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
 		return log_msg_ret("sid", ret);
 
 	exp->popup = true;
+	exp->show_highlight = true;
 
 	/* This is not supported for now */
 	if (0)
@@ -143,104 +143,96 @@ int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
 	if (ret)
 		return log_msg_ret("dim", ret);
 
-	*vid_privp = vid_priv;
 	*scnp = scn;
 
 	return scene_id;
 }
 
-int cedit_run(struct expo *exp)
+int cedit_do_action(struct expo *exp, struct scene *scn,
+		    struct video_priv *vid_priv, struct expo_action *act)
 {
-	struct cli_ch_state s_cch, *cch = &s_cch;
-	struct video_priv *vid_priv;
-	uint scene_id;
-	struct scene *scn;
-	bool done, save;
 	int ret;
 
-	cli_ch_init(cch);
-	ret = cedit_prepare(exp, &vid_priv, &scn);
+	switch (act->type) {
+	case EXPOACT_NONE:
+		return -EAGAIN;
+	case EXPOACT_POINT_ITEM:
+		ret = scene_menu_select_item(scn, scn->highlight_id,
+					     act->select.id);
+		if (ret)
+			return log_msg_ret("cdp", ret);
+		break;
+	case EXPOACT_POINT_OBJ:
+		scene_set_highlight_id(scn, act->select.id);
+		cedit_arange(exp, vid_priv, scn->id);
+		break;
+	case EXPOACT_OPEN:
+		scene_set_open(scn, act->select.id, true);
+		cedit_arange(exp, vid_priv, scn->id);
+		switch (scn->highlight_id) {
+		case EXPOID_SAVE:
+			exp->done = true;
+			exp->save = true;
+			break;
+		case EXPOID_DISCARD:
+			exp->done = true;
+			break;
+		}
+		break;
+	case EXPOACT_CLOSE:
+		scene_set_open(scn, act->select.id, false);
+		cedit_arange(exp, vid_priv, scn->id);
+		break;
+	case EXPOACT_SELECT:
+		scene_set_open(scn, scn->highlight_id, false);
+		cedit_arange(exp, vid_priv, scn->id);
+		break;
+	case EXPOACT_QUIT:
+		log_debug("quitting\n");
+		exp->done = true;
+		break;
+	}
+
+	return 0;
+}
+
+int cedit_run(struct expo *exp)
+{
+	struct video_priv *vid_priv;
+	struct udevice *dev;
+	struct scene *scn;
+	uint scene_id;
+	int ret;
+
+	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
+	if (ret)
+		return log_msg_ret("vid", ret);
+	vid_priv = dev_get_uclass_priv(dev);
+
+	ret = cedit_prepare(exp, dev, &scn);
 	if (ret < 0)
 		return log_msg_ret("prep", ret);
 	scene_id = ret;
 
-	done = false;
-	save = false;
+	exp->done = false;
+	exp->save = false;
 	do {
 		struct expo_action act;
-		int ichar, key;
 
 		ret = expo_render(exp);
 		if (ret)
-			break;
+			return log_msg_ret("cer", ret);
 
-		ichar = cli_ch_process(cch, 0);
-		if (!ichar) {
-			while (!ichar && !tstc()) {
-				schedule();
-				mdelay(2);
-				ichar = cli_ch_process(cch, -ETIMEDOUT);
-			}
-			if (!ichar) {
-				ichar = getchar();
-				ichar = cli_ch_process(cch, ichar);
-			}
-		}
-
-		key = 0;
-		if (ichar) {
-			key = bootmenu_conv_key(ichar);
-			if (key == BKEY_NONE || key >= BKEY_FIRST_EXTRA)
-				key = ichar;
-		}
-		if (!key)
-			continue;
-
-		ret = expo_send_key(exp, key);
-		if (ret)
-			break;
-
-		ret = expo_action_get(exp, &act);
-		if (!ret) {
-			switch (act.type) {
-			case EXPOACT_POINT_OBJ:
-				scene_set_highlight_id(scn, act.select.id);
-				cedit_arange(exp, vid_priv, scene_id);
-				break;
-			case EXPOACT_OPEN:
-				scene_set_open(scn, act.select.id, true);
-				cedit_arange(exp, vid_priv, scene_id);
-				switch (scn->highlight_id) {
-				case EXPOID_SAVE:
-					done = true;
-					save = true;
-					break;
-				case EXPOID_DISCARD:
-					done = true;
-					break;
-				}
-				break;
-			case EXPOACT_CLOSE:
-				scene_set_open(scn, act.select.id, false);
-				cedit_arange(exp, vid_priv, scene_id);
-				break;
-			case EXPOACT_SELECT:
-				scene_set_open(scn, scn->highlight_id, false);
-				cedit_arange(exp, vid_priv, scene_id);
-				break;
-			case EXPOACT_QUIT:
-				log_debug("quitting\n");
-				done = true;
-				break;
-			default:
-				break;
-			}
-		}
-	} while (!done);
+		ret = expo_poll(exp, &act);
+		if (!ret)
+			cedit_do_action(exp, scn, vid_priv, &act);
+		else if (ret != -EAGAIN)
+			return log_msg_ret("cep", ret);
+	} while (!exp->done);
 
 	if (ret)
 		return log_msg_ret("end", ret);
-	if (!save)
+	if (!exp->save)
 		return -EACCES;
 
 	return 0;
@@ -286,7 +278,7 @@ static int get_cur_menuitem_text(const struct scene_obj_menu *menu,
 	if (!txt)
 		return log_msg_ret("txt", -ENOENT);
 
-	str = expo_get_str(scn->expo, txt->str_id);
+	str = expo_get_str(scn->expo, txt->gen.str_id);
 	if (!str)
 		return log_msg_ret("str", -ENOENT);
 	*strp = str;
@@ -396,6 +388,8 @@ static int h_write_settings(struct scene_obj *obj, void *vpriv)
 	case SCENEOBJT_NONE:
 	case SCENEOBJT_IMAGE:
 	case SCENEOBJT_TEXT:
+	case SCENEOBJT_BOX:
+	case SCENEOBJT_TEXTEDIT:
 		break;
 	case SCENEOBJT_TEXTLINE: {
 		const struct scene_obj_textline *tline;
@@ -449,8 +443,7 @@ int cedit_write_settings(struct expo *exp, struct abuf *buf)
 	void *fdt;
 	int ret;
 
-	abuf_init(buf);
-	if (!abuf_realloc(buf, CEDIT_SIZE_INC))
+	if (!abuf_init_size(buf, CEDIT_SIZE_INC))
 		return log_msg_ret("buf", -ENOMEM);
 
 	fdt = abuf_data(buf);
@@ -496,6 +489,8 @@ static int h_read_settings(struct scene_obj *obj, void *vpriv)
 	case SCENEOBJT_NONE:
 	case SCENEOBJT_IMAGE:
 	case SCENEOBJT_TEXT:
+	case SCENEOBJT_BOX:
+	case SCENEOBJT_TEXTEDIT:
 		break;
 	case SCENEOBJT_TEXTLINE: {
 		const struct scene_obj_textline *tline;
@@ -567,6 +562,8 @@ static int h_write_settings_env(struct scene_obj *obj, void *vpriv)
 	case SCENEOBJT_NONE:
 	case SCENEOBJT_IMAGE:
 	case SCENEOBJT_TEXT:
+	case SCENEOBJT_BOX:
+	case SCENEOBJT_TEXTEDIT:
 		break;
 	case SCENEOBJT_MENU:
 		menu = (struct scene_obj_menu *)obj;
@@ -650,6 +647,8 @@ static int h_read_settings_env(struct scene_obj *obj, void *vpriv)
 	case SCENEOBJT_NONE:
 	case SCENEOBJT_IMAGE:
 	case SCENEOBJT_TEXT:
+	case SCENEOBJT_BOX:
+	case SCENEOBJT_TEXTEDIT:
 		break;
 	case SCENEOBJT_MENU:
 		menu = (struct scene_obj_menu *)obj;

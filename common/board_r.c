@@ -36,7 +36,6 @@
 #include <env.h>
 #include <env_internal.h>
 #include <fdtdec.h>
-#include <ide.h>
 #include <init.h>
 #include <initcall.h>
 #include <kgdb.h>
@@ -145,7 +144,7 @@ static int initr_reloc_global_data(void)
 	 */
 	fixup_cpu();
 #endif
-#ifdef CONFIG_SYS_RELOC_GD_ENV_ADDR
+#ifdef CONFIG_ENV_RELOC_GD_ENV_ADDR
 	/*
 	 * Relocate the early env_addr pointer unless we know it is not inside
 	 * the binary. Some systems need this and for the rest, it doesn't hurt.
@@ -443,9 +442,6 @@ static int should_load_env(void)
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
 		return ofnode_conf_read_int("load-environment", 1);
 
-	if (IS_ENABLED(CONFIG_DELAY_ENVIRONMENT))
-		return 0;
-
 	return 1;
 }
 
@@ -649,8 +645,7 @@ static void initcall_run_r(void)
 #if CONFIG_IS_ENABLED(ADDR_MAP)
 	INITCALL(init_addr_map);
 #endif
-#if CONFIG_IS_ENABLED(ARM) || CONFIG_IS_ENABLED(RISCV) || \
-    CONFIG_IS_ENABLED(SANDBOX)
+#if CONFIG_IS_ENABLED(BOARD_INIT)
 	INITCALL(board_init);	/* Setup chipselects */
 #endif
 	/*

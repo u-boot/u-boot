@@ -106,10 +106,21 @@ stages:
     # "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
     - export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
+      python3 -m http.server 80 --directory "${UBOOT_TRAVIS_BUILD_DIR}" > /dev/null 2>&1 &
+      HTTP_PID=$!;
+      sleep 1;
+      if ps -p ${HTTP_PID} > /dev/null; then
+        export HTTP_PID;
+      else
+        unset HTTP_PID;
+      fi;
       ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID} ${TEST_PY_EXTRA}
         ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
         --build-dir "$UBOOT_TRAVIS_BUILD_DIR"
-        --junitxml=/tmp/${TEST_PY_BD}/results.xml
+        --junitxml=/tmp/${TEST_PY_BD}/results.xml;
+      if [[ -n "${HTTP_PID}" ]]; then
+        kill ${HTTP_PID};
+      fi
   artifacts:
     when: always
     paths:
@@ -253,8 +264,8 @@ Check packing of Python tools:
 sandbox test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
@@ -265,8 +276,8 @@ sandbox test.py:
 sandbox with clang test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
@@ -277,8 +288,8 @@ sandbox with clang test.py:
 sandbox64 test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
@@ -288,8 +299,8 @@ sandbox64 test.py:
 sandbox64 with clang test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
@@ -300,8 +311,8 @@ sandbox64 with clang test.py:
 sandbox64_lwip test.py:
   parallel:
     matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
+      - HOST: "arm64"
+      - HOST: "amd64"
   tags:
     - ${HOST}
   variables:
@@ -594,8 +605,10 @@ coreboot test.py:
     - export strategy="-s uboot -e off"
     - export USE_LABGRID_SJG=1
     # export verbose="-v"
-    - ${SRC}/test/py/test.py --role ${ROLE} --build-dir "${OUT}"
-        --capture=tee-sys -k "not bootstd ${TEST_PY_TEST_SPEC}" || ret=$?
+    - ${SRC}/test/py/test.py -ra --role ${ROLE} ${TEST_PY_EXTRA:-"--capture=tee-sys"}
+        --build-dir "${OUT}"
+        ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
+        --junitxml=${OUT}/results.xml || ret=$?
     - U_BOOT_BOARD_IDENTITY="${ROLE}" u-boot-test-release || true
     - if [[ $ret -ne 0 ]]; then
         exit $ret;
@@ -605,6 +618,9 @@ coreboot test.py:
     paths:
       - "build/${BOARD}/test-log.html"
       - "build/${BOARD}/multiplexed_log.css"
+      - "build/${BOARD}/results.xml"
+    reports:
+      junit: "build/${BOARD}/results.xml"
     expire_in: 1 week
 
 rpi3:

@@ -5,6 +5,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 #include <fs.h>
 #include <net.h>
 #include <net6.h>
@@ -64,6 +65,8 @@ static int pxe_dhcp_option_path(struct pxe_context *ctx, unsigned long pxefile_a
 	int ret = get_pxe_file(ctx, pxelinux_configfile, pxefile_addr_r);
 
 	free(pxelinux_configfile);
+	/* set to NULL to avoid double-free if DHCP is tried again */
+	pxelinux_configfile = NULL;
 
 	return ret;
 }

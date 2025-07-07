@@ -20,6 +20,6 @@ struct arch_global_data {
 
 #include <asm-generic/global_data.h>
 
-#define DECLARE_GLOBAL_DATA_PTR		register volatile gd_t *gd asm ("r25")
+#define DECLARE_GLOBAL_DATA_PTR		register gd_t *gd asm ("r25")
 
 #endif /* __ASM_ARC_GLOBAL_DATA_H */

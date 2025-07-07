@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <cpu_func.h>
+#include <env.h>
 #include <flash.h>
 #include <image.h>
 #include <init.h>

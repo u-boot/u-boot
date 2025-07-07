@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <efi.h>
 #include <efi_device_path.h>
+#include <env.h>
 #include <log.h>
 #include <malloc.h>
 #include <net.h>

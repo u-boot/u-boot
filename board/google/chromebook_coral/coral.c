@@ -11,13 +11,13 @@
 #include <dm.h>
 #include <event.h>
 #include <init.h>
+#include <intel_gnvs.h>
 #include <log.h>
 #include <sysinfo.h>
 #include <acpi/acpigen.h>
 #include <asm-generic/gpio.h>
 #include <asm/acpi_nhlt.h>
 #include <asm/cb_sysinfo.h>
-#include <asm/intel_gnvs.h>
 #include <asm/intel_pinctrl.h>
 #include <dm/acpi.h>
 #include <linux/delay.h>

@@ -32,6 +32,18 @@
 #define LMB_NONOTIFY BIT(3)
 
 /**
+ * enum lmb_mem_type - type of memory allocation request
+ * @LMB_MEM_ALLOC_ADDR:	request for a particular region of memory
+ * @LMB_MEM_ALLOC_ANY:	allocate any available memory region
+ * @LMB_MEM_ALLOC_MAX:	allocate memory below a particular address
+ */
+enum lmb_mem_type {
+	LMB_MEM_ALLOC_ADDR = 1,
+	LMB_MEM_ALLOC_ANY,
+	LMB_MEM_ALLOC_MAX,
+};
+
+/**
  * enum lmb_map_op - memory map operation
  */
 enum lmb_map_op {
@@ -68,6 +80,37 @@ struct lmb {
 };
 
 /**
+ * lmb_alloc_mem() - Request LMB memory
+ * @type:		Type of memory allocation request
+ * @align:		Alignment of the memory region requested(0 for none)
+ * @addr:		Base address of the allocated memory region
+ * @size:		Size in bytes of the allocation request
+ * @flags:		Memory region attributes to be set
+ *
+ * Allocate a region of memory where the allocation is based on the parameters
+ * that have been passed to the function.The first parameter specifies the
+ * type of allocation that is being requested. The second parameter, @align
+ * is used to specify if the allocation is to be made with a particular
+ * alignment. Use 0 for no alignment requirements.
+ *
+ * The allocated address is returned through the @addr parameter when @type
+ * is @LMB_MEM_ALLOC_ANY or @LMB_MEM_ALLOC_MAX. If @type is
+ * @LMB_MEM_ALLOC_ADDR the @addr parameter would contain the address being
+ * requested.
+ *
+ * The flags parameter is used to specify the memory attributes of the
+ * requested region.
+ *
+ * Return: 0 on success, -ve value on failure
+ *
+ * When the allocation is of type @LMB_MEM_ALLOC_ADDR, the return value can
+ * be -EINVAL if the requested memory region is not part of the LMB memory
+ * map, and -EEXIST if the requested region is already allocated.
+ */
+int lmb_alloc_mem(enum lmb_mem_type type, u64 align, phys_addr_t *addr,
+		  phys_size_t size, u32 flags);
+
+/**
  * lmb_init() - Initialise the LMB module.
  *
  * Return: 0 on success, negative error code on failure.
@@ -81,63 +124,9 @@ struct lmb {
  */
 int lmb_init(void);
 
-/**
- * lmb_add_memory() - Add memory range for LMB allocations.
- *
- * Add the entire available memory range to the pool of memory that
- * can be used by the LMB module for allocations.
- */
-void lmb_add_memory(void);
-
 long lmb_add(phys_addr_t base, phys_size_t size);
 
-/**
- * lmb_reserve() - Reserve one region with a specific flags bitfield
- * @base: Base address of the memory region
- * @size: Size of the memory region
- * @flags: Flags for the memory region
- *
- * Return:
- * * %0		- Added successfully, or it's already added (only if LMB_NONE)
- * * %-EEXIST	- The region is already added, and flags != LMB_NONE
- * * %-1	- Failure
- */
-long lmb_reserve(phys_addr_t base, phys_size_t size, u32 flags);
-
-phys_addr_t lmb_alloc(phys_size_t size, ulong align);
 phys_size_t lmb_get_free_size(phys_addr_t addr);
-
-/**
- * lmb_alloc_base() - Allocate specified memory region with specified
- *			    attributes
- * @size: Size of the region requested
- * @align: Alignment of the memory region requested
- * @max_addr: Maximum address of the requested region
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter. The max_addr parameter is used to specify the maximum address
- * below which the requested region should be allocated.
- *
- * Return: Base address on success, 0 on error.
- */
-phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
-			   uint flags);
-
-/**
- * lmb_alloc_addr() - Allocate specified memory address with specified attributes
- *
- * @base: Base Address requested
- * @size: Size of the region requested
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter. The base parameter is used to specify the base address
- * of the requested region.
- *
- * Return: 0 on success -1 on error
- */
-int lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags);
 
 /**
  * lmb_is_reserved_flags() - Test if address is in reserved region with flag
@@ -153,16 +142,14 @@ int lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags);
 int lmb_is_reserved_flags(phys_addr_t addr, int flags);
 
 /**
- * lmb_free_flags() - Free up a region of memory
+ * lmb_free() - Free up a region of memory
  * @base: Base Address of region to be freed
  * @size: Size of the region to be freed
  * @flags: Memory region attributes
  *
  * Return: 0 on success, negative error code on failure.
  */
-long lmb_free_flags(phys_addr_t base, phys_size_t size, uint flags);
-
-long lmb_free(phys_addr_t base, phys_size_t size);
+long lmb_free(phys_addr_t base, phys_size_t size, u32 flags);
 
 void lmb_dump_all(void);
 void lmb_dump_all_force(void);
@@ -175,7 +162,7 @@ void lmb_pop(struct lmb *store);
 
 static inline int lmb_read_check(phys_addr_t addr, phys_size_t len)
 {
-	return lmb_alloc_addr(addr, len, LMB_NONE);
+	return lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &addr, len, LMB_NONE);
 }
 
 /**

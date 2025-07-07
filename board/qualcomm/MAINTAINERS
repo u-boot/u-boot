@@ -1,0 +1,24 @@
+# This MAINTAINERS file is for folks with an interest in a particular platform
+# or board under ARM SNAPDRAGON
+
+QUALCOMM DRAGONWING QCS615
+M:	Aswin Murugan <aswin.murugan@oss.qualcomm.com>
+S:	Maintained
+N:	qcs615
+
+# RB3 Gen 2 and similar boards
+QUALCOMM DRAGONWING QCS6490
+M:	Casey Connolly <casey.connolly@linaro.org>
+S:	Maintained
+N:	qcs6490
+N:	sc7280
+
+QUALCOMM DRAGONWING QCS8300
+M:	Balaji Selvanathan <balaji.selvanathan@oss.qualcomm.com>
+S:	Maintained
+N:	qcs8300
+
+QUALCOMM DRAGONWING QCS9100
+M:	Varadarajan Narayanan <quic_varada@quicinc.com>
+S:	Maintained
+N:	qcs9100

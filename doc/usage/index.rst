@@ -123,6 +123,7 @@ Shell commands
    cmd/source
    cmd/tcpm
    cmd/temperature
+   cmd/test
    cmd/tftpput
    cmd/trace
    cmd/true

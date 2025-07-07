@@ -42,7 +42,7 @@ class Entry_blob(Entry):
             if fdt_util.GetBool(self._node, 'write-symbols'):
                 self.auto_write_symbols = True
 
-    def ObtainContents(self, fake_size=0):
+    def ObtainContents(self, fake_size: int = 0) -> bool:
         self._filename = self.GetDefaultFilename()
         self._pathname = tools.get_input_filename(self._filename,
             self.external and (self.optional or self.section.GetAllowMissing()))
@@ -50,10 +50,11 @@ class Entry_blob(Entry):
         if not self._pathname:
             if not fake_size and self.assume_size:
                 fake_size = self.assume_size
-            self._pathname, faked = self.check_fake_fname(self._filename,
-                                                          fake_size)
+            self._pathname = self.check_fake_fname(self._filename, fake_size)
             self.missing = True
-            if not faked:
+            if self.optional:
+                self.mark_absent("missing but optional")
+            if not self.faked:
                 content_size = 0
                 if self.assume_size: # Ensure we get test coverage on next line
                     content_size = self.assume_size

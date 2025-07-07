@@ -499,8 +499,10 @@ static int write_image(char *filename, char *image, int size)
 		      S_IWUSR | S_IRGRP | S_IROTH);
 	if (new_fd < 0)
 		return perror_fname("Could not open file '%s'", filename);
-	if (write(new_fd, image, size) != size)
+	if (write(new_fd, image, size) != size) {
+		close(new_fd);
 		return perror_fname("Could not write file '%s'", filename);
+	}
 	close(new_fd);
 
 	return 0;
@@ -604,8 +606,10 @@ int open_for_read(const char *fname, int *sizep)
 
 	if (fd == -1)
 		return perror_fname("Could not open file '%s'", fname);
-	if (fstat(fd, &buf) == -1)
+	if (fstat(fd, &buf) == -1) {
+		close(fd);
 		return perror_fname("Could not stat file '%s'", fname);
+	}
 	*sizep = buf.st_size;
 	debug("File %s is %d bytes\n", fname, *sizep);
 

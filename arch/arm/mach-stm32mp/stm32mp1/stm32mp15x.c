@@ -64,10 +64,9 @@
  * - boot instance = bit 31:16
  * - boot device = bit 15:0
  */
-#define BOOTROM_PARAM_ADDR	0x2FFC0078
 #define BOOTROM_MODE_MASK	GENMASK(15, 0)
 #define BOOTROM_MODE_SHIFT	0
-#define BOOTROM_INSTANCE_MASK	 GENMASK(31, 16)
+#define BOOTROM_INSTANCE_MASK	GENMASK(31, 16)
 #define BOOTROM_INSTANCE_SHIFT	16
 
 /* Device Part Number (RPN) = OTP_DATA1 lower 8 bits */
@@ -189,7 +188,7 @@ void spl_board_init(void)
 static void update_bootmode(void)
 {
 	u32 boot_mode;
-	u32 bootrom_itf = readl(BOOTROM_PARAM_ADDR);
+	u32 bootrom_itf = readl(get_stm32mp_rom_api_table());
 	u32 bootrom_device, bootrom_instance;
 
 	/* enable TAMP clock = RTCAPBEN */

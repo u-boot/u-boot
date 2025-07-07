@@ -126,3 +126,9 @@ config PWM_TI_EHRPWM
 	default y
 	help
 	  PWM driver support for the EHRPWM controller found on TI SOCs.
+
+config PWM_TI_ECAP
+	bool "Enable support for ECAP PWM"
+	depends on DM_PWM && ARCH_OMAP2PLUS
+	help
+	  PWM driver support for the ECAP controller found on TI SOCs.

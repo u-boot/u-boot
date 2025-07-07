@@ -179,6 +179,7 @@ def test_efi_selftest_text_input_ex(ubman):
 
 @pytest.mark.buildconfigspec('cmd_bootefi_selftest')
 @pytest.mark.buildconfigspec('efi_tcg2_protocol')
+@pytest.mark.notbuildconfigspec('sandbox')
 def test_efi_selftest_tcg2(ubman):
     """Test the EFI_TCG2 PROTOCOL
 

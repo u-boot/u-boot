@@ -21,7 +21,6 @@
 #include <asm/unaligned.h>
 #include <command.h>
 #include <fdtdec.h>
-#include <ide.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <part_efi.h>
@@ -216,6 +215,34 @@ int get_disk_guid(struct blk_desc *desc, char *guid)
 	return 0;
 }
 
+int part_get_gpt_pte(struct blk_desc *desc, int part, gpt_entry *gpt_e)
+{
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, desc->blksz);
+	gpt_entry *gpt_pte = NULL;
+
+	/* "part" argument must be at least 1 */
+	if (part < 1) {
+		log_debug("Invalid Argument(s)\n");
+		return -EINVAL;
+	}
+
+	/* This function validates AND fills in the GPT header and PTE */
+	if (find_valid_gpt(desc, gpt_head, &gpt_pte) != 1)
+		return -EINVAL;
+
+	if (part > le32_to_cpu(gpt_head->num_partition_entries) ||
+	    !is_pte_valid(&gpt_pte[part - 1])) {
+		log_debug("Invalid partition number %d\n", part);
+		free(gpt_pte);
+		return -EPERM;
+	}
+
+	memcpy(gpt_e, &gpt_pte[part - 1], sizeof(*gpt_e));
+
+	free(gpt_pte);
+	return 0;
+}
+
 static void __maybe_unused part_print_efi(struct blk_desc *desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, desc->blksz);
@@ -261,45 +288,32 @@ static void __maybe_unused part_print_efi(struct blk_desc *desc)
 static int __maybe_unused part_get_info_efi(struct blk_desc *desc, int part,
 					    struct disk_partition *info)
 {
-	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, desc->blksz);
-	gpt_entry *gpt_pte = NULL;
+	gpt_entry gpt_pte = {};
+	int ret;
 
-	/* "part" argument must be at least 1 */
-	if (part < 1) {
-		log_debug("Invalid Argument(s)\n");
-		return -EINVAL;
-	}
-
-	/* This function validates AND fills in the GPT header and PTE */
-	if (find_valid_gpt(desc, gpt_head, &gpt_pte) != 1)
-		return -EINVAL;
-
-	if (part > le32_to_cpu(gpt_head->num_partition_entries) ||
-	    !is_pte_valid(&gpt_pte[part - 1])) {
-		log_debug("Invalid partition number %d\n", part);
-		free(gpt_pte);
-		return -EPERM;
-	}
+	ret = part_get_gpt_pte(desc, part, &gpt_pte);
+	if (ret)
+		return ret;
 
 	/* The 'lbaint_t' casting may limit the maximum disk size to 2 TB */
-	info->start = (lbaint_t)le64_to_cpu(gpt_pte[part - 1].starting_lba);
+	info->start = (lbaint_t)le64_to_cpu(gpt_pte.starting_lba);
 	/* The ending LBA is inclusive, to calculate size, add 1 to it */
-	info->size = (lbaint_t)le64_to_cpu(gpt_pte[part - 1].ending_lba) + 1
+	info->size = (lbaint_t)le64_to_cpu(gpt_pte.ending_lba) + 1
 		     - info->start;
 	info->blksz = desc->blksz;
 
 	snprintf((char *)info->name, sizeof(info->name), "%s",
-		 print_efiname(&gpt_pte[part - 1]));
+		 print_efiname(&gpt_pte));
 	strcpy((char *)info->type, "U-Boot");
-	info->bootable = get_bootable(&gpt_pte[part - 1]);
-	info->type_flags = gpt_pte[part - 1].attributes.fields.type_guid_specific;
+	info->bootable = get_bootable(&gpt_pte);
+	info->type_flags = gpt_pte.attributes.fields.type_guid_specific;
 	if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
-		uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b,
+		uuid_bin_to_str(gpt_pte.unique_partition_guid.b,
 				(char *)disk_partition_uuid(info),
 				UUID_STR_FORMAT_GUID);
 	}
 	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID)) {
-		uuid_bin_to_str(gpt_pte[part - 1].partition_type_guid.b,
+		uuid_bin_to_str(gpt_pte.partition_type_guid.b,
 				(char *)disk_partition_type_guid(info),
 				UUID_STR_FORMAT_GUID);
 	}
@@ -307,8 +321,6 @@ static int __maybe_unused part_get_info_efi(struct blk_desc *desc, int part,
 	log_debug("start 0x" LBAF ", size 0x" LBAF ", name %s\n", info->start,
 		  info->size, info->name);
 
-	/* Remember to free pte */
-	free(gpt_pte);
 	return 0;
 }
 

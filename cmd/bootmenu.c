@@ -114,6 +114,14 @@ static char *bootmenu_choice_entry(void *data)
 				++menu->active;
 			/* no menu key selected, regenerate menu */
 			return NULL;
+		case BKEY_SHORTCUT:
+			/* invalid shortcut, regenerate menu */
+			if (cch->shortcut_key >= menu->count - 1)
+				return NULL;
+			/* shortcut_key value for Exit is is -1 */
+			menu->active = cch->shortcut_key < 0 ? menu->count - 1 :
+							       cch->shortcut_key;
+			fallthrough;
 		case BKEY_SELECT:
 			iter = menu->first;
 			for (i = 0; i < menu->active; ++i)
@@ -161,6 +169,21 @@ static void bootmenu_destroy(struct bootmenu_data *menu)
 	free(menu);
 }
 
+static char bootmenu_entry_shortcut_key(int index)
+{
+	switch (index) {
+	/* 1-9 shortcut key (0 reserved) */
+	case 0 ... 8:
+		return '1' + index;
+	/* a-z shortcut key  */
+	case 9 ... 34:
+		return 'a' + index - 9;
+	/* We support shortcut for up to 34 options (0 reserved) */
+	default:
+		return -ENOENT;
+	}
+}
+
 /**
  * prepare_bootmenu_entry() - generate the bootmenu_xx entries
  *
@@ -184,6 +207,8 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 	struct bootmenu_entry *iter = *current;
 
 	while ((option = bootmenu_getoption(i))) {
+		char shortcut_key;
+		int len;
 
 		/* bootmenu_[num] format is "[title]=[commands]" */
 		sep = strchr(option, '=');
@@ -196,11 +221,21 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 		if (!entry)
 			return -ENOMEM;
 
-		entry->title = strndup(option, sep - option);
+		/* Add shotcut key option: %c. %s\0 */
+		len = sep - option + 4;
+
+		entry->title = malloc(len);
 		if (!entry->title) {
 			free(entry);
 			return -ENOMEM;
 		}
+
+		shortcut_key = bootmenu_entry_shortcut_key(i);
+		/* Use emtpy space if entry doesn't support shortcut key */
+		snprintf(entry->title, len, "%c%c %s",
+			 shortcut_key > 0 ? shortcut_key : ' ',
+			 shortcut_key > 0 ? '.' : ' ',
+			 option);
 
 		entry->command = strdup(sep + 1);
 		if (!entry->command) {
@@ -388,9 +423,9 @@ static struct bootmenu_data *bootmenu_create(int uefi, int delay)
 
 		/* Add Quit entry if exiting bootmenu is disabled */
 		if (!IS_ENABLED(CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE))
-			entry->title = strdup("Exit");
+			entry->title = strdup("0. Exit");
 		else
-			entry->title = strdup("Quit");
+			entry->title = strdup("0. Quit");
 
 		if (!entry->title) {
 			free(entry);

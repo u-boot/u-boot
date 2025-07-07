@@ -1865,12 +1865,6 @@ config CMD_DHCP6
 
 if CMD_DHCP6
 
-config DHCP6_PXE_CLIENTARCH
-	hex
-	default 0x16 if ARM64
-	default 0x15 if ARM
-	default 0xFF
-
 config DHCP6_PXE_DHCP_OPTION
 	bool "Request & store 'pxe_configfile' from DHCP6 server"
 
@@ -1978,15 +1972,26 @@ config BOOTP_PXE
 	help
 	  Supported for ARM, ARM64, and x86 for now.
 
-config BOOTP_PXE_CLIENTARCH
-	hex
-	depends on BOOTP_PXE
-	default 0x16 if ARM64
-	default 0x15 if ARM
-	default 0x0 if X86
+config DHCP_PXE_CLIENTARCH
+	hex "DCHCP client system architecture type"
+	depends on BOOTP_PXE || CMD_DHCP6
+	default 0x16 if ARM64 # arm 64 uboot
+	default 0x15 if ARM   # arm 32 uboot
+	default 0x0 if X86    # x86 BIOS
+	default 0xFF          # DHCP option not sent
+	help
+	  DHCP option 93 (defined in RFC4578) or DHCPv6 option 61 (defined in
+	  RFC 5970) is used to transmit the client system architecture type
+	  to the DHCP server. The DHCP server may use this information to
+	  choose the boot file. For a complete list of assigned values see
+	  https://www.iana.org/assignments/dhcpv6-parameters#processor-architecture.
+
+	  If the value is set to the reserved value 0xFF, the DHCP option will
+	  not be sent by U-Boot.
 
 config BOOTP_PXE_DHCP_OPTION
 	bool "Request & store 'pxe_configfile' from BOOTP/DHCP server"
+	default y
 	depends on BOOTP_PXE
 
 config BOOTP_VCI_STRING
@@ -1996,6 +2001,13 @@ config BOOTP_VCI_STRING
 	default "U-Boot.armv8" if ARM64
 	default "U-Boot.arm" if ARM
 	default "U-Boot"
+
+config BOOTP_RANDOM_XID
+	bool "Send random transaction ID to BOOTP/DHCP server"
+	depends on CMD_BOOTP && (LIB_RAND || LIB_HW_RAND)
+	help
+	  Selecting this will allow for a random transaction ID to get
+	  selected for each BOOTP/DHCPv4 exchange.
 
 config CMD_TFTPPUT
 	bool "tftp put"
@@ -2154,7 +2166,7 @@ config CMD_TFTPBOOT
 
 config CMD_WGET
 	bool "wget"
-	default y if SANDBOX
+	default y if SANDBOX || ARCH_QEMU
 	select WGET
 	help
 	  wget is a simple command to download kernel, or other files,

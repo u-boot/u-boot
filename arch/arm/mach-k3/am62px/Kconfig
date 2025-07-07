@@ -29,5 +29,6 @@ config TARGET_AM62P5_R5_EVM
 endchoice
 
 source "board/ti/am62px/Kconfig"
+source "board/toradex/verdin-am62p/Kconfig"
 
 endif

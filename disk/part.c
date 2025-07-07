@@ -8,7 +8,6 @@
 #include <command.h>
 #include <env.h>
 #include <errno.h>
-#include <ide.h>
 #include <log.h>
 #include <malloc.h>
 #include <part.h>
@@ -690,6 +689,45 @@ int part_get_info_by_name(struct blk_desc *desc, const char *name,
 			continue;
 		}
 		if (strcmp(name, (const char *)info->name) == 0) {
+			/* matched */
+			return i;
+		}
+	}
+
+	return -ENOENT;
+}
+
+int part_get_info_by_uuid(struct blk_desc *desc, const char *uuid,
+			  struct disk_partition *info)
+{
+	struct part_driver *part_drv;
+	int ret;
+	int i;
+
+	if (!CONFIG_IS_ENABLED(PARTITION_UUIDS))
+		return -ENOENT;
+
+	part_drv = part_driver_lookup_type(desc);
+	if (!part_drv)
+		return -1;
+
+	if (!part_drv->get_info) {
+		log_debug("## Driver %s does not have the get_info() method\n",
+			  part_drv->name);
+		return -ENOSYS;
+	}
+
+	for (i = 1; i < part_drv->max_entries; i++) {
+		ret = part_drv->get_info(desc, i, info);
+		if (ret != 0) {
+			/*
+			 * Partition with this index can't be obtained, but
+			 * further partitions might be, so keep checking.
+			 */
+			continue;
+		}
+
+		if (!strncasecmp(uuid, disk_partition_uuid(info), UUID_STR_LEN)) {
 			/* matched */
 			return i;
 		}

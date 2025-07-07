@@ -37,6 +37,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+enum qcom_boot_source qcom_boot_source __section(".data") = 0;
+
 static struct mm_region rbx_mem_map[CONFIG_NR_DRAM_BANKS + 2] = { { 0 } };
 
 struct mm_region *mem_map = rbx_mem_map;
@@ -237,6 +239,12 @@ int board_fdt_blob_setup(void **fdtp)
 
 	if (ret < 0)
 		panic("No valid memory ranges found!\n");
+
+	/* If we have an external FDT, it can only have come from the Android bootloader. */
+	if (external_valid)
+		qcom_boot_source = QCOM_BOOT_SOURCE_ANDROID;
+	else
+		qcom_boot_source = QCOM_BOOT_SOURCE_XBL;
 
 	debug("ram_base = %#011lx, ram_size = %#011llx\n",
 	      gd->ram_base, gd->ram_size);
@@ -481,6 +489,23 @@ static void configure_env(void)
 	qcom_set_serialno();
 }
 
+void qcom_show_boot_source(void)
+{
+	const char *name = "UNKNOWN";
+
+	switch (qcom_boot_source) {
+	case QCOM_BOOT_SOURCE_ANDROID:
+		name = "ABL";
+		break;
+	case QCOM_BOOT_SOURCE_XBL:
+		name = "XBL";
+		break;
+	}
+
+	log_info("U-Boot loaded from %s\n", name);
+	env_set("boot_source", name);
+}
+
 void __weak qcom_late_init(void)
 {
 }
@@ -492,38 +517,56 @@ void __weak qcom_late_init(void)
 #define FASTBOOT_BUF_SIZE 0
 #endif
 
-#define addr_alloc(size) lmb_alloc(size, SZ_2M)
+#define lmb_alloc(size, addr) lmb_alloc_mem(LMB_MEM_ALLOC_ANY, SZ_2M, addr, size, LMB_NONE)
 
 /* Stolen from arch/arm/mach-apple/board.c */
 int board_late_init(void)
 {
-	u32 status = 0;
+	u32 status = 0, fdt_status = 0;
 	phys_addr_t addr;
 	struct fdt_header *fdt_blob = (struct fdt_header *)gd->fdt_blob;
 
 	/* We need to be fairly conservative here as we support boards with just 1G of TOTAL RAM */
-	addr = addr_alloc(SZ_128M);
+	status |= !lmb_alloc(SZ_128M, &addr) ?
+		env_set_hex("loadaddr", addr) : 1;
 	status |= env_set_hex("kernel_addr_r", addr);
-	status |= env_set_hex("loadaddr", addr);
-	status |= env_set_hex("ramdisk_addr_r", addr_alloc(SZ_128M));
-	status |= env_set_hex("kernel_comp_addr_r", addr_alloc(KERNEL_COMP_SIZE));
-	status |= env_set_hex("kernel_comp_size", KERNEL_COMP_SIZE);
-	if (IS_ENABLED(CONFIG_FASTBOOT))
-		status |= env_set_hex("fastboot_addr_r", addr_alloc(FASTBOOT_BUF_SIZE));
-	status |= env_set_hex("scriptaddr", addr_alloc(SZ_4M));
-	status |= env_set_hex("pxefile_addr_r", addr_alloc(SZ_4M));
-	addr = addr_alloc(SZ_2M);
-	status |= env_set_hex("fdt_addr_r", addr);
+	status |= !lmb_alloc(SZ_128M, &addr) ?
+		env_set_hex("ramdisk_addr_r", addr) : 1;
+	status |= !lmb_alloc(KERNEL_COMP_SIZE, &addr) ?
+		env_set_hex("kernel_comp_addr_r", addr) : 1;
+	status |= !lmb_alloc(KERNEL_COMP_SIZE, &addr) ?
+		env_set_hex("kernel_comp_size", addr) : 1;
+	status |= !lmb_alloc(SZ_4M, &addr) ?
+		env_set_hex("scriptaddr", addr) : 1;
+	status |= !lmb_alloc(SZ_4M, &addr) ?
+		env_set_hex("pxefile_addr_r", addr) : 1;
 
-	if (status)
+	if (IS_ENABLED(CONFIG_FASTBOOT)) {
+		status |= !lmb_alloc(FASTBOOT_BUF_SIZE, &addr) ?
+			env_set_hex("fastboot_addr_r", addr) : 1;
+		/* override loadaddr for memory rich soc */
+		status |= !lmb_alloc(SZ_128M, &addr) ?
+			env_set_hex("loadaddr", addr) : 1;
+	}
+
+	fdt_status |= !lmb_alloc(SZ_2M, &addr) ?
+		env_set_hex("fdt_addr_r", addr) : 1;
+
+	if (status || fdt_status)
 		log_warning("%s: Failed to set run time variables\n", __func__);
 
 	/* By default copy U-Boots FDT, it will be used as a fallback */
-	memcpy((void *)addr, (void *)gd->fdt_blob, fdt32_to_cpu(fdt_blob->totalsize));
+	if (fdt_status)
+		log_warning("%s: Failed to reserve memory for copying FDT\n",
+			    __func__);
+	else
+		memcpy((void *)addr, (void *)gd->fdt_blob,
+		       fdt32_to_cpu(fdt_blob->totalsize));
 
 	configure_env();
 	qcom_late_init();
 
+	qcom_show_boot_source();
 	/* Configure the dfu_string for capsule updates */
 	qcom_configure_capsule_updates();
 

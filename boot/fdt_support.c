@@ -224,14 +224,23 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 	int is_u64;
 	uint64_t addr, size;
 
-	/* just return if the size of initrd is zero */
-	if (initrd_start == initrd_end)
-		return 0;
-
 	/* find or create "/chosen" node. */
 	nodeoffset = fdt_find_or_add_subnode(fdt, 0, "chosen");
 	if (nodeoffset < 0)
 		return nodeoffset;
+
+	/*
+	 * Although we didn't setup an initrd, there could be a stale
+	 * initrd setting from the previous boot firmware in the live
+	 * device tree. So, make sure there is no setting left if we
+	 * don't want an initrd.
+	 */
+	if (initrd_start == initrd_end) {
+		fdt_delprop(fdt, nodeoffset, "linux,initrd-start");
+		fdt_delprop(fdt, nodeoffset, "linux,initrd-end");
+
+		return 0;
+	}
 
 	total = fdt_num_mem_rsv(fdt);
 

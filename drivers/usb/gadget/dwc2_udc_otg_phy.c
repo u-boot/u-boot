@@ -48,29 +48,24 @@ void otg_phy_init(struct dwc2_udc *dev)
 	printf("USB PHY0 Enable\n");
 
 	/* Enable PHY */
-	writel(readl(usb_phy_ctrl) | USB_PHY_CTRL_EN0, usb_phy_ctrl);
+	setbits_le32(usb_phy_ctrl, USB_PHY_CTRL_EN0);
 
 	if (dev->pdata->usb_flags == PHY0_SLEEP) /* C210 Universal */
-		writel((readl(&phy->phypwr)
-			&~(PHY_0_SLEEP | OTG_DISABLE_0 | ANALOG_PWRDOWN)
-			&~FORCE_SUSPEND_0), &phy->phypwr);
+		clrbits_le32(&phy->phypwr, PHY_0_SLEEP | OTG_DISABLE_0 |
+					   ANALOG_PWRDOWN | FORCE_SUSPEND_0);
 	else /* C110 GONI */
-		writel((readl(&phy->phypwr) &~(OTG_DISABLE_0 | ANALOG_PWRDOWN)
-			&~FORCE_SUSPEND_0), &phy->phypwr);
+		clrbits_le32(&phy->phypwr, OTG_DISABLE_0 | ANALOG_PWRDOWN | FORCE_SUSPEND_0);
 
 	if (s5p_cpu_id == 0x4412)
-		writel((readl(&phy->phyclk) & ~(EXYNOS4X12_ID_PULLUP0 |
-			EXYNOS4X12_COMMON_ON_N0)) | EXYNOS4X12_CLK_SEL_24MHZ,
-		       &phy->phyclk); /* PLL 24Mhz */
+		clrsetbits_le32(&phy->phyclk, EXYNOS4X12_ID_PULLUP0 | EXYNOS4X12_COMMON_ON_N0,
+				EXYNOS4X12_CLK_SEL_24MHZ); /* PLL 24Mhz */
 	else
-		writel((readl(&phy->phyclk) & ~(ID_PULLUP0 | COMMON_ON_N0)) |
-		       CLK_SEL_24MHZ, &phy->phyclk); /* PLL 24Mhz */
+		clrsetbits_le32(&phy->phyclk, ID_PULLUP0 | COMMON_ON_N0,
+				CLK_SEL_24MHZ); /* PLL 24Mhz */
 
-	writel((readl(&phy->rstcon) &~(LINK_SW_RST | PHYLNK_SW_RST))
-	       | PHY_SW_RST0, &phy->rstcon);
+	clrsetbits_le32(&phy->rstcon, LINK_SW_RST | PHYLNK_SW_RST, PHY_SW_RST0);
 	udelay(10);
-	writel(readl(&phy->rstcon)
-	       &~(PHY_SW_RST0 | LINK_SW_RST | PHYLNK_SW_RST), &phy->rstcon);
+	clrbits_le32(&phy->rstcon, PHY_SW_RST0 | LINK_SW_RST | PHYLNK_SW_RST);
 	udelay(10);
 }
 
@@ -86,13 +81,11 @@ void otg_phy_off(struct dwc2_udc *dev)
 	writel(readl(&phy->phypwr) &~PHY_SW_RST0, &phy->rstcon);
 	udelay(20);
 
-	writel(readl(&phy->phypwr) | OTG_DISABLE_0 | ANALOG_PWRDOWN
-	       | FORCE_SUSPEND_0, &phy->phypwr);
+	setbits_le32(&phy->phypwr, OTG_DISABLE_0 | ANALOG_PWRDOWN | FORCE_SUSPEND_0);
 
-	writel(readl(usb_phy_ctrl) &~USB_PHY_CTRL_EN0, usb_phy_ctrl);
+	clrbits_le32(usb_phy_ctrl, USB_PHY_CTRL_EN0);
 
-	writel((readl(&phy->phyclk) & ~(ID_PULLUP0 | COMMON_ON_N0)),
-	      &phy->phyclk);
+	clrbits_le32(&phy->phyclk, ID_PULLUP0 | COMMON_ON_N0);
 
 	udelay(10000);
 

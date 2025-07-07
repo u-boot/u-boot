@@ -8,6 +8,7 @@
  */
 
 #include <efi_loader.h>
+#include <env.h>
 #include <generic-phy.h>
 #include <image.h>
 #include <net.h>

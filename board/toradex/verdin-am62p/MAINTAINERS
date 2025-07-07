@@ -1,0 +1,17 @@
+Verdin AM62P
+M:	Francesco Dolcini <francesco.dolcini@toradex.com>
+W:	https://www.toradex.com/computer-on-modules/verdin-arm-family/ti-am62p
+S:	Maintained
+F:	arch/arm/dts/k3-am62p-verdin-dev.dtsi
+F:	arch/arm/dts/k3-am62p-verdin-wifi.dtsi
+F:	arch/arm/dts/k3-am62p-verdin.dtsi
+F:	arch/arm/dts/k3-am62p5-verdin-lpddr4-1600.dtsi
+F:	arch/arm/dts/k3-am62p5-verdin-r5.dts
+F:	arch/arm/dts/k3-am62p5-verdin-wifi-dev-binman.dtsi
+F:	arch/arm/dts/k3-am62p5-verdin-wifi-dev-u-boot.dtsi
+F:	arch/arm/dts/k3-am62p5-verdin-wifi-dev.dts
+F:	board/toradex/verdin-am62p/
+F:	configs/verdin-am62p_a53_defconfig
+F:	configs/verdin-am62p_r5_defconfig
+F:	doc/board/toradex/verdin-am62p.rst
+F:	include/configs/verdin-am62p.h

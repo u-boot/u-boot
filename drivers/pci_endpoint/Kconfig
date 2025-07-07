@@ -22,6 +22,12 @@ config PCIE_CADENCE_EP
 	  endpoint mode. This PCIe controller may be embedded into many
 	  different vendors SoCs.
 
+config PCIE_CDNS_TI_EP
+	bool "TI K3 PCIe EP support"
+	help
+	  Say Y here to enable support for the Canence PCIe Controller
+	  in Endpoint Mode on TI's K3 Socs.
+
 config PCI_SANDBOX_EP
 	bool "Sandbox PCIe endpoint controller"
 	depends on PCI_ENDPOINT

@@ -9,8 +9,7 @@
 #ifndef _LINUX_VIRTIO_NET_H
 #define _LINUX_VIRTIO_NET_H
 
-/* TODO: needs to be removed! */
-#define ETH_ALEN				6
+#include <linux/if_ether.h>
 
 /* The feature bitmap for virtio net */
 

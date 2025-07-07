@@ -13,6 +13,9 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <env.h>
+#include <expo.h>
+#include <log.h>
 #include <mapmem.h>
 
 /**
@@ -104,24 +107,39 @@ __maybe_unused static int bootflow_handle_menu(struct bootstd_priv *std,
 					       bool text_mode,
 					       struct bootflow **bflowp)
 {
+	struct expo *exp;
 	struct bootflow *bflow;
-	int ret;
+	int ret, seq;
 
-	ret = bootflow_menu_run(std, text_mode, &bflow);
-	if (ret) {
-		if (ret == -EAGAIN) {
-			printf("Nothing chosen\n");
-			std->cur_bootflow = NULL;
-		} else {
-			printf("Menu failed (err=%d)\n", ret);
+	ret = bootflow_menu_start(std, text_mode, &exp);
+	if (ret)
+		return log_msg_ret("bhs", ret);
+
+	ret = -ERESTART;
+	do {
+		if (ret == -ERESTART) {
+			ret = expo_render(exp);
+			if (ret)
+				return log_msg_ret("bhr", ret);
 		}
+		ret = bootflow_menu_poll(exp, &seq);
+	} while (ret == -EAGAIN || ret == -ERESTART);
 
-		return ret;
+	if (ret == -EPIPE) {
+		printf("Nothing chosen\n");
+		std->cur_bootflow = NULL;
+	} else if (ret) {
+		printf("Menu failed (err=%d)\n", ret);
+	} else {
+		bflow = alist_getw(&std->bootflows, seq, struct bootflow);
+		printf("Selected: %s\n", bflow->os_name ? bflow->os_name :
+		       bflow->name);
+		std->cur_bootflow = bflow;
+		*bflowp = bflow;
 	}
-
-	printf("Selected: %s\n", bflow->os_name ? bflow->os_name : bflow->name);
-	std->cur_bootflow = bflow;
-	*bflowp = bflow;
+	expo_destroy(exp);
+	if (ret)
+		return ret;
 
 	return 0;
 }

@@ -8,7 +8,7 @@
 
 /* Include the register header directly here */
 #include "../drivers/bios_emulator/include/x86emu/regs.h"
-#include <pci.h>
+#include <linux/types.h>
 
 /****************************************************************************
 REMARKS:

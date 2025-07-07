@@ -13,6 +13,7 @@
 #include <pci.h>
 #include <dm/device_compat.h>
 #include <asm/io.h>
+#include <linux/bitfield.h>
 #include <linux/delay.h>
 #include "pcie_dw_common.h"
 
@@ -26,6 +27,50 @@ int pcie_dw_get_link_width(struct pcie_dw *pci)
 {
 	return (readl(pci->dbi_base + PCIE_LINK_STATUS_REG) &
 		PCIE_LINK_STATUS_WIDTH_MASK) >> PCIE_LINK_STATUS_WIDTH_OFF;
+}
+
+void dw_pcie_link_set_max_link_width(struct pcie_dw *pci, u32 num_lanes)
+{
+	u32 lnkcap, lwsc, plc;
+	u8 cap;
+
+	if (!num_lanes)
+		return;
+
+	/* Set the number of lanes */
+	plc = readl(pci->dbi_base + PCIE_PORT_LINK_CONTROL);
+	plc &= ~PORT_LINK_FAST_LINK_MODE;
+	plc &= ~PORT_LINK_MODE_MASK;
+
+	/* Set link width speed control register */
+	lwsc = readl(pci->dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
+	lwsc &= ~PORT_LOGIC_LINK_WIDTH_MASK;
+	lwsc |= PORT_LOGIC_LINK_WIDTH_1_LANES;
+	switch (num_lanes) {
+	case 1:
+		plc |= PORT_LINK_MODE_1_LANES;
+		break;
+	case 2:
+		plc |= PORT_LINK_MODE_2_LANES;
+		break;
+	case 4:
+		plc |= PORT_LINK_MODE_4_LANES;
+		break;
+	case 8:
+		plc |= PORT_LINK_MODE_8_LANES;
+		break;
+	default:
+		dev_err(pci->dev, "num-lanes %u: invalid value\n", num_lanes);
+		return;
+	}
+	writel(plc, pci->dbi_base + PCIE_PORT_LINK_CONTROL);
+	writel(lwsc, pci->dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
+
+	cap = pcie_dw_find_capability(pci, PCI_CAP_ID_EXP);
+	lnkcap = readl(pci->dbi_base + cap + PCI_EXP_LNKCAP);
+	lnkcap &= ~PCI_EXP_LNKCAP_MLW;
+	lnkcap |= FIELD_PREP(PCI_EXP_LNKCAP_MLW, num_lanes);
+	writel(lnkcap, pci->dbi_base + cap + PCI_EXP_LNKCAP);
 }
 
 static void dw_pcie_writel_ob_unroll(struct pcie_dw *pci, u32 index, u32 reg,

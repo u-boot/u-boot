@@ -213,17 +213,6 @@ static void qcom_pcie_clear_hpc(struct qcom_pcie *priv)
 	dw_pcie_dbi_write_enable(&priv->dw, false);
 }
 
-static void qcom_pcie_set_lanes(struct qcom_pcie *priv, unsigned int lanes)
-{
-	u8 offset = pcie_dw_find_capability(&priv->dw, PCI_CAP_ID_EXP);
-	u32 val;
-
-	val = readl(priv->dw.dbi_base + offset + PCI_EXP_LNKCAP);
-	val &= ~PCI_EXP_LNKCAP_MLW;
-	val |= FIELD_PREP(PCI_EXP_LNKCAP_MLW, lanes);
-	writel(val, priv->dw.dbi_base + offset + PCI_EXP_LNKCAP);
-}
-
 static int qcom_pcie_config_sid_1_9_0(struct qcom_pcie *priv)
 {
 	/* iommu map structure */
@@ -299,15 +288,9 @@ static void qcom_pcie_configure(struct qcom_pcie *priv)
 	val &= ~PORT_LINK_FAST_LINK_MODE;
 	val |= PORT_LINK_DLL_LINK_EN;
 	val &= ~PORT_LINK_MODE_MASK;
-	val |= PORT_LINK_MODE_2_LANES;
 	writel(val, priv->dw.dbi_base + PCIE_PORT_LINK_CONTROL);
 
-	val = readl(priv->dw.dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
-	val &= ~PORT_LOGIC_LINK_WIDTH_MASK;
-	val |= PORT_LOGIC_LINK_WIDTH_2_LANES;
-	writel(val, priv->dw.dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
-
-	qcom_pcie_set_lanes(priv, 2);
+	dw_pcie_link_set_max_link_width(&priv->dw, 2);
 
 	dw_pcie_dbi_write_enable(&priv->dw, false);
 }

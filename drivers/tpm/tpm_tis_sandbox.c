@@ -221,6 +221,7 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 	case 0x72: /* physical set deactivated */
 	case 0x99: /* startup */
 	case 0x50: /* self test full */
+	case 0x53: /* self test continue */
 	case 0x4000000a:  /* assert physical presence */
 		*recv_len = 12;
 		memset(recvbuf, '\0', *recv_len);

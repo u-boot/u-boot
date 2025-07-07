@@ -12,6 +12,7 @@
 #include <bootmeth.h>
 #include <bootstd.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <env_internal.h>
 #include <fs.h>
 #include <malloc.h>
@@ -135,16 +136,24 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global)
 		 * We don't support skipping global bootmeths. Instead, the user
 		 * should omit them from the ordering
 		 */
-		if (!include_global)
-			return log_msg_ret("glob", -EPERM);
+		if (!include_global) {
+			ret = log_msg_ret("glob", -EPERM);
+			goto err_order;
+		}
 		memcpy(order, std->bootmeth_order,
-		       count * sizeof(struct bootmeth *));
+		       count * sizeof(struct udevice *));
 
 		if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL)) {
 			for (i = 0; i < count; i++) {
 				struct udevice *dev = order[i];
 				struct bootmeth_uc_plat *ucp;
 				bool is_global;
+
+				ret = device_probe(dev);
+				if (ret) {
+					ret = log_msg_ret("probe", ret);
+					goto err_order;
+				}
 
 				ucp = dev_get_uclass_plat(dev);
 				is_global = ucp->flags &
@@ -190,8 +199,10 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global)
 		}
 		count = upto;
 	}
-	if (!count)
-		return log_msg_ret("count2", -ENOENT);
+	if (!count) {
+		ret = log_msg_ret("count2", -ENOENT);
+		goto err_order;
+	}
 
 	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) && include_global &&
 	    iter->first_glob_method != -1 && iter->first_glob_method != count) {
@@ -202,6 +213,10 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global)
 	iter->num_methods = count;
 
 	return 0;
+
+err_order:
+	free(order);
+	return ret;
 }
 
 int bootmeth_set_order(const char *order_str)

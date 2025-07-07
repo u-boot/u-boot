@@ -1,0 +1,167 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright 2025 Toradex
+ */
+
+#include "k3-am62p5-verdin-wifi-dev-binman.dtsi"
+
+/ {
+	chosen {
+		tick-timer = &main_timer0;
+	};
+
+	memory@80000000 {
+		bootph-pre-ram;
+	};
+
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+};
+
+&carrier_eth_phy {
+	bootph-all;
+};
+
+&cpsw3g {
+	ethernet-ports {
+		bootph-all;
+	};
+};
+
+/* MDIO, shared by Verdin ETH_1 (On-module PHY) and Verdin ETH_2_RGMII */
+&cpsw3g_mdio {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ assigned-clock-rates;
+	bootph-all;
+};
+
+/* Verdin ETH_1 (On-module PHY) */
+&cpsw_port1 {
+	bootph-all;
+};
+
+/* Verdin ETH_2_RGMII */
+&cpsw_port2 {
+	bootph-all;
+};
+
+&dmsc {
+	bootph-all;
+};
+
+&k3_clks {
+	bootph-all;
+};
+
+&k3_pds {
+	bootph-all;
+};
+
+&k3_reset {
+	bootph-all;
+};
+
+&main_gpio0 {
+	bootph-all;
+};
+
+/* Verdin I2C_1 */
+&main_i2c0 {
+	bootph-all;
+};
+
+&main_pktdma {
+	bootph-all;
+};
+
+&mcu_pmx0 {
+	bootph-all;
+};
+
+/* Verdin UART_3, used as the Linux console */
+&main_uart0 {
+	bootph-all;
+};
+
+&main_pmx0 {
+	bootph-all;
+};
+
+&pinctrl_main_i2c0 {
+	bootph-all;
+};
+
+&pinctrl_mdio {
+	bootph-all;
+};
+
+&pinctrl_rgmii1 {
+	bootph-all;
+};
+
+&pinctrl_rgmii2 {
+	bootph-all;
+};
+
+&pinctrl_uart0 {
+	bootph-all;
+};
+
+&pinctrl_wkup_i2c0 {
+	bootph-all;
+};
+
+&phy_gmii_sel {
+	bootph-all;
+};
+
+&sdhci0 {
+	bootph-all;
+};
+
+&sdhci2 {
+	status = "disabled";
+};
+
+&som_eth_phy {
+	bootph-all;
+};
+
+&som_gpio_expander {
+	bootph-all;
+
+	ctrl-sleep-moci-hog {
+		bootph-all;
+		gpio-hog;
+		gpios = <0 GPIO_ACTIVE_HIGH>;
+		line-name = "CTRL_SLEEP_MOCI#";
+		output-high;
+	};
+};
+
+/* Required for USB DFU Boot */
+&usb0 {
+	/* Enable peripheral mode only during bootup
+	 * to support DFU while allowing Linux to stay
+	 * in OTG mode
+	 */
+	dr_mode = "peripheral";
+	bootph-all;
+};
+
+/* Required for USB DFU Boot */
+&usb0_phy_ctrl {
+	bootph-all;
+};
+
+/* Required for USB DFU Boot */
+&usbss0 {
+	bootph-all;
+};
+
+/* On-module I2C - PMIC_I2C */
+&wkup_i2c0 {
+	bootph-all;
+};

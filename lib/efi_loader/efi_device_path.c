@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <dm/root.h>
 #include <efi_device_path.h>
+#include <ide.h>
 #include <log.h>
 #include <net.h>
 #include <usb.h>

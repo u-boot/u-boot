@@ -30,16 +30,23 @@ struct mtk_serial_regs {
 	u32 mcr;
 	u32 lsr;
 	u32 msr;
-	u32 spr;
-	u32 mdr1;
+	u32 scr;
+	u32 autobaud_en;
 	u32 highspeed;
 	u32 sample_count;
 	u32 sample_point;
+	u32 autobaud_reg;
+	u32 ratefix_ad;
+	u32 autobaud_sample;
+	u32 guard;
+	u32 escape_dat;
+	u32 escape_en;
+	u32 sleep_en;
+	u32 dma_en;
+	u32 rxtri_ad;
 	u32 fracdiv_l;
 	u32 fracdiv_m;
-	u32 escape_en;
-	u32 guard;
-	u32 rx_sel;
+	u32 fcr_rd;
 };
 
 #define thr rbr
@@ -92,10 +99,18 @@ struct mtk_serial_priv {
 	bool upstream_highspeed_logic;
 };
 
+static const unsigned short fraction_l_mapping[] = {
+	0, 1, 0x5, 0x15, 0x55, 0x57, 0x57, 0x77, 0x7F, 0xFF, 0xFF
+};
+
+static const unsigned short fraction_m_mapping[] = {
+	0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 3
+};
+
 static void _mtk_serial_setbrg(struct mtk_serial_priv *priv, int baud,
 			       uint clk_rate)
 {
-	u32 quot, realbaud, samplecount = 1;
+	u32 quot, realbaud, samplecount = 1, fraction, frac_l = 0, frac_m = 0;
 
 	/* Special case for low baud clock */
 	if (baud <= 115200 && clk_rate == 12000000) {
@@ -140,7 +155,13 @@ use_hs3:
 		writel(3, &priv->regs->highspeed);
 
 		quot = DIV_ROUND_UP(clk_rate, 256 * baud);
-		samplecount = DIV_ROUND_CLOSEST(clk_rate, quot * baud);
+		samplecount = clk_rate / (quot * baud);
+
+		fraction = ((clk_rate * 100) / quot / baud) % 100;
+		fraction = DIV_ROUND_CLOSEST(fraction, 10);
+
+		frac_l = fraction_l_mapping[fraction];
+		frac_m = fraction_m_mapping[fraction];
 	}
 
 set_baud:
@@ -152,7 +173,11 @@ set_baud:
 
 	/* set highspeed mode sample count & point */
 	writel(samplecount - 1, &priv->regs->sample_count);
-	writel((samplecount - 2) >> 1, &priv->regs->sample_point);
+	writel((samplecount >> 1) - 1, &priv->regs->sample_point);
+
+	/* set baudrate fraction compensation */
+	writel(frac_l, &priv->regs->fracdiv_l);
+	writel(frac_m, &priv->regs->fracdiv_m);
 }
 
 static int _mtk_serial_putc(struct mtk_serial_priv *priv, const char ch)

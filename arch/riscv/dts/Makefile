@@ -19,4 +19,4 @@ dtb-$(CONFIG_TARGET_ASPEED_AST2700_IBEX) += ast2700-ibex.dtb
 include $(srctree)/scripts/Makefile.dts
 
 # Add any required device tree compiler flags here
-DTC_FLAGS += -R 4 -p 0x1000
+DTC_FLAGS += -R 4

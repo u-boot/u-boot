@@ -41,12 +41,13 @@ int stm32_rcc_init(struct udevice *dev,
 		const struct clock_config *cfg = &data->tab_clocks[i];
 		struct clk *clk = ERR_PTR(-ENOENT);
 
-		if (data->check_security && data->check_security(priv->base, cfg))
+		if (data->check_security && data->check_security(dev, priv->base, cfg))
 			continue;
 
 		if (cfg->setup) {
 			clk = cfg->setup(dev, cfg);
-			clk->id = cfg->id;
+			/* set identifier of clock provider*/
+			dev_clk_dm(dev, cfg->id, clk);
 		} else {
 			dev_err(dev, "failed to register clock %s\n", cfg->name);
 			return -ENOENT;
@@ -69,11 +70,71 @@ ulong clk_stm32_get_rate_by_name(const char *name)
 	return 0;
 }
 
+static const struct clk_ops *clk_dev_ops(struct udevice *dev)
+{
+	return (const struct clk_ops *)dev->driver->ops;
+}
+
+static int stm32_clk_endisable(struct clk *clk, bool enable)
+{
+	const struct clk_ops *ops;
+	struct clk *c = NULL;
+
+	if (!clk->id || clk_get_by_id(clk->id, &c))
+		return -ENOENT;
+
+	ops = clk_dev_ops(c->dev);
+	if (!ops->enable || !ops->disable)
+		return 0;
+
+	return enable ? ops->enable(c) : ops->disable(c);
+}
+
+static int stm32_clk_enable(struct clk *clk)
+{
+	return stm32_clk_endisable(clk, true);
+}
+
+static int stm32_clk_disable(struct clk *clk)
+{
+	return stm32_clk_endisable(clk, false);
+}
+
+static ulong stm32_clk_get_rate(struct clk *clk)
+{
+	const struct clk_ops *ops;
+	struct clk *c = NULL;
+
+	if (!clk->id || clk_get_by_id(clk->id, &c))
+		return -ENOENT;
+
+	ops = clk_dev_ops(c->dev);
+	if (!ops->get_rate)
+		return -ENOSYS;
+
+	return ops->get_rate(c);
+}
+
+static ulong stm32_clk_set_rate(struct clk *clk, unsigned long clk_rate)
+{
+	const struct clk_ops *ops;
+	struct clk *c = NULL;
+
+	if (!clk->id || clk_get_by_id(clk->id, &c))
+		return -ENOENT;
+
+	ops = clk_dev_ops(c->dev);
+	if (!ops->set_rate)
+		return -ENOSYS;
+
+	return ops->set_rate(c, clk_rate);
+}
+
 const struct clk_ops stm32_clk_ops = {
-	.enable = ccf_clk_enable,
-	.disable = ccf_clk_disable,
-	.get_rate = ccf_clk_get_rate,
-	.set_rate = ccf_clk_set_rate,
+	.enable = stm32_clk_enable,
+	.disable = stm32_clk_disable,
+	.get_rate = stm32_clk_get_rate,
+	.set_rate = stm32_clk_set_rate,
 };
 
 #define RCC_MP_ENCLRR_OFFSET	4

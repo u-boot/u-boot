@@ -12,6 +12,7 @@
 #include <timer.h>
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
+#include <dm/device.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/iopoll.h>
@@ -19,7 +20,8 @@
 #include "stm32mp1_ddr.h"
 #include "stm32mp1_ddr_regs.h"
 
-#define RCC_DDRITFCR		0xD8
+#define RCC_DDRITFCR_STM32MP13xx	0x5c0
+#define RCC_DDRITFCR_STM32MP15xx	0xd8
 
 #define RCC_DDRITFCR_DDRCAPBRST		(BIT(14))
 #define RCC_DDRITFCR_DDRCAXIRST		(BIT(15))
@@ -66,9 +68,19 @@ struct reg_desc {
 #define DDRCTL_REG_REG_SIZE	25	/* st,ctl-reg */
 #define DDRCTL_REG_TIMING_SIZE	12	/* st,ctl-timing */
 #define DDRCTL_REG_MAP_SIZE	9	/* st,ctl-map */
-#define DDRCTL_REG_PERF_SIZE	17	/* st,ctl-perf */
 
-#define DDRPHY_REG_REG_SIZE	11	/* st,phy-reg */
+#define DDRCTL_REG_PERF_SIZE_STM32MP13xx	11	/* st,ctl-perf */
+#define DDRCTL_REG_PERF_SIZE_STM32MP15xx	17	/* st,ctl-perf */
+#define DDRCTL_REG_PERF_SIZE		\
+	(IS_ENABLED(CONFIG_STM32MP15X) ? DDRCTL_REG_PERF_SIZE_STM32MP15xx : \
+					 DDRCTL_REG_PERF_SIZE_STM32MP13xx)
+
+#define DDRPHY_REG_REG_SIZE_STM32MP13xx		9	/* st,phy-reg */
+#define DDRPHY_REG_REG_SIZE_STM32MP15xx		11	/* st,phy-reg */
+#define DDRPHY_REG_REG_SIZE	\
+	(IS_ENABLED(CONFIG_STM32MP15X) ? DDRPHY_REG_REG_SIZE_STM32MP15xx : \
+					 DDRPHY_REG_REG_SIZE_STM32MP13xx)
+
 #define	DDRPHY_REG_TIMING_SIZE	10	/* st,phy-timing */
 
 #define DDRCTL_REG_REG(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_reg)
@@ -142,12 +154,14 @@ static const struct reg_desc ddr_perf[DDRCTL_REG_PERF_SIZE] = {
 	DDRCTL_REG_PERF(pcfgqos1_0),
 	DDRCTL_REG_PERF(pcfgwqos0_0),
 	DDRCTL_REG_PERF(pcfgwqos1_0),
+#if IS_ENABLED(CONFIG_STM32MP15X)
 	DDRCTL_REG_PERF(pcfgr_1),
 	DDRCTL_REG_PERF(pcfgw_1),
 	DDRCTL_REG_PERF(pcfgqos0_1),
 	DDRCTL_REG_PERF(pcfgqos1_1),
 	DDRCTL_REG_PERF(pcfgwqos0_1),
 	DDRCTL_REG_PERF(pcfgwqos1_1),
+#endif
 };
 
 #define DDRPHY_REG_REG(x)	DDRPHY_REG(x, stm32mp1_ddrphy_reg)
@@ -161,8 +175,10 @@ static const struct reg_desc ddrphy_reg[DDRPHY_REG_REG_SIZE] = {
 	DDRPHY_REG_REG(zq0cr1),
 	DDRPHY_REG_REG(dx0gcr),
 	DDRPHY_REG_REG(dx1gcr),
+#if IS_ENABLED(CONFIG_STM32MP15X)
 	DDRPHY_REG_REG(dx2gcr),
 	DDRPHY_REG_REG(dx3gcr),
+#endif
 };
 
 #define DDRPHY_REG_TIMING(x)	DDRPHY_REG(x, stm32mp1_ddrphy_timing)
@@ -211,6 +227,7 @@ static const struct reg_desc ddrphy_dyn[] = {
 	DDRPHY_REG_DYN(dx1dllcr),
 	DDRPHY_REG_DYN(dx1dqtr),
 	DDRPHY_REG_DYN(dx1dqstr),
+#if IS_ENABLED(CONFIG_STM32MP15X)
 	DDRPHY_REG_DYN(dx2gsr0),
 	DDRPHY_REG_DYN(dx2gsr1),
 	DDRPHY_REG_DYN(dx2dllcr),
@@ -221,6 +238,7 @@ static const struct reg_desc ddrphy_dyn[] = {
 	DDRPHY_REG_DYN(dx3dllcr),
 	DDRPHY_REG_DYN(dx3dqtr),
 	DDRPHY_REG_DYN(dx3dqstr),
+#endif
 };
 
 #define DDRPHY_REG_DYN_SIZE	ARRAY_SIZE(ddrphy_dyn)
@@ -287,12 +305,45 @@ const char *base_name[] = {
 	[DDRPHY_BASE] = "phy",
 };
 
+bool is_stm32mp13_ddrc(const struct ddr_info *priv)
+{
+	if (IS_ENABLED(CONFIG_STM32MP13X) && !IS_ENABLED(CONFIG_STM32MP15X))
+		return true;		/* STM32MP13xx only build */
+	else if (!IS_ENABLED(CONFIG_STM32MP13X) && IS_ENABLED(CONFIG_STM32MP15X))
+		return false;	/* STM32MP15xx only build */
+
+	/* Combined STM32MP13xx and STM32MP15xx build */
+	return device_is_compatible(priv->dev, "st,stm32mp13-ddr");
+}
+
+static u32 get_rcc_ddritfcr(const struct ddr_info *priv)
+{
+	return priv->rcc + (is_stm32mp13_ddrc(priv) ?
+			    RCC_DDRITFCR_STM32MP13xx :
+			    RCC_DDRITFCR_STM32MP15xx);
+}
+
 static u32 get_base_addr(const struct ddr_info *priv, enum base_type base)
 {
 	if (base == DDRPHY_BASE)
 		return (u32)priv->phy;
 	else
 		return (u32)priv->ctl;
+}
+
+static u32 get_type_size(const struct ddr_info *priv, enum reg_type type)
+{
+	bool is_mp13 = is_stm32mp13_ddrc(priv);
+
+	if (type == REG_PERF)
+		return is_mp13 ? DDRCTL_REG_PERF_SIZE_STM32MP13xx :
+				 DDRCTL_REG_PERF_SIZE_STM32MP15xx;
+	else if (type == REGPHY_REG)
+		return is_mp13 ? DDRPHY_REG_REG_SIZE_STM32MP13xx :
+				 DDRPHY_REG_REG_SIZE_STM32MP15xx;
+
+	/* Everything else is the default size */
+	return ddr_registers[type].size;
 }
 
 static void set_reg(const struct ddr_info *priv,
@@ -304,9 +355,10 @@ static void set_reg(const struct ddr_info *priv,
 	enum base_type base = ddr_registers[type].base;
 	u32 base_addr = get_base_addr(priv, base);
 	const struct reg_desc *desc = ddr_registers[type].desc;
+	u32 size = get_type_size(priv, type);
 
 	log_debug("init %s\n", ddr_registers[type].name);
-	for (i = 0; i < ddr_registers[type].size; i++) {
+	for (i = 0; i < size; i++) {
 		ptr = (unsigned int *)(base_addr + desc[i].offset);
 		if (desc[i].par_offset == INVALID_OFFSET) {
 			log_err("invalid parameter offset for %s", desc[i].name);
@@ -656,12 +708,13 @@ static void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
 static void stm32mp1_asr_enable(struct ddr_info *priv, const u32 pwrctl)
 {
 	struct stm32mp1_ddrctl *ctl = priv->ctl;
+	u32 rcc_ddritfcr = get_rcc_ddritfcr(priv);
 
 	/* SSR is the best we can do. */
 	if (!(pwrctl & DDRCTRL_PWRCTL_EN_DFI_DRAM_CLK_DISABLE))
 		return;
 
-	clrsetbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCKMOD_MASK,
+	clrsetbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DDRCKMOD_MASK,
 			RCC_DDRITFCR_DDRCKMOD_ASR);
 
 	start_sw_done(ctl);
@@ -691,6 +744,7 @@ __maybe_unused
 void stm32mp1_ddr_init(struct ddr_info *priv,
 		       const struct stm32mp1_ddr_config *config)
 {
+	u32 rcc_ddritfcr = get_rcc_ddritfcr(priv);
 	u32 pir;
 	int ret = -EINVAL;
 	char bus_width;
@@ -732,12 +786,12 @@ start:
  * 1.1 RESETS: presetn, core_ddrc_rstn, aresetn
  */
 	/* Assert All DDR part */
-	setbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCAPBRST);
-	setbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCAXIRST);
-	setbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCORERST);
-	setbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DPHYAPBRST);
-	setbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DPHYRST);
-	setbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DPHYCTLRST);
+	setbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DDRCAPBRST);
+	setbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DDRCAXIRST);
+	setbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DDRCORERST);
+	setbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DPHYAPBRST);
+	setbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DPHYRST);
+	setbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DPHYCTLRST);
 
 /* 1.2. start CLOCK */
 	if (stm32mp1_ddr_clk_enable(priv, config->info.speed))
@@ -746,12 +800,12 @@ start:
 
 /* 1.3. deassert reset */
 	/* de-assert PHY rstn and ctl_rstn via DPHYRST and DPHYCTLRST */
-	clrbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DPHYRST);
-	clrbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DPHYCTLRST);
+	clrbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DPHYRST);
+	clrbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DPHYCTLRST);
 	/* De-assert presetn once the clocks are active
 	 * and stable via DDRCAPBRST bit
 	 */
-	clrbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCAPBRST);
+	clrbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DDRCAPBRST);
 
 /* 1.4. wait 128 cycles to permit initialization of end logic */
 	udelay(2);
@@ -781,9 +835,9 @@ start:
 		goto start;
 
 /*  2. deassert reset signal core_ddrc_rstn, aresetn and presetn */
-	clrbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCORERST);
-	clrbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCAXIRST);
-	clrbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DPHYAPBRST);
+	clrbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DDRCORERST);
+	clrbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DDRCAXIRST);
+	clrbits_le32(rcc_ddritfcr, RCC_DDRITFCR_DPHYAPBRST);
 
 /*  3. start PHY init by accessing relevant PUBL registers
  *    (DXGCR, DCR, PTR*, MR*, DTPR*)
@@ -854,9 +908,12 @@ start:
 /* Enable auto-self-refresh, which saves a bit of power at runtime. */
 	stm32mp1_asr_enable(priv, config->c_reg.pwrctl);
 
-	/* enable uMCTL2 AXI port 0 and 1 */
+	/* enable uMCTL2 AXI port 0 */
 	setbits_le32(&priv->ctl->pctrl_0, DDRCTRL_PCTRL_N_PORT_EN);
-	setbits_le32(&priv->ctl->pctrl_1, DDRCTRL_PCTRL_N_PORT_EN);
+
+	/* enable uMCTL2 AXI port 1 only on STM32MP15xx with 32bit DRAM bus */
+	if (!is_stm32mp13_ddrc(priv))
+		setbits_le32(&priv->ctl->pctrl_1, DDRCTRL_PCTRL_N_PORT_EN);
 
 	if (INTERACTIVE(STEP_DDR_READY))
 		goto start;

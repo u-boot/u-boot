@@ -49,7 +49,7 @@ def run_tests(skip_net_tests, debug, verbose, args):
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
     result = test_util.run_test_suites(
-        'buildman', debug, verbose, False, args.threads, test_name, [],
+        'buildman', debug, verbose, False, False, args.threads, test_name, [],
         [test.TestBuild, func_test.TestFunctional, 'buildman.toolchain'])
 
     return (0 if result.wasSuccessful() else 1)

@@ -11,7 +11,6 @@ dtb-$(CONFIG_TARGET_M5253DEMO) += M5253DEMO.dtb
 dtb-$(CONFIG_TARGET_M5272C3) += M5272C3.dtb
 dtb-$(CONFIG_TARGET_M5275EVB) += M5275EVB.dtb
 dtb-$(CONFIG_TARGET_M5282EVB) += M5282EVB.dtb
-dtb-$(CONFIG_TARGET_ASTRO_MCF5373L) += astro_mcf5373l.dtb
 dtb-$(CONFIG_TARGET_M53017EVB) += M53017EVB.dtb
 dtb-$(CONFIG_TARGET_M5329EVB) += M5329AFEE.dtb M5329BFEE.dtb
 dtb-$(CONFIG_TARGET_M5373EVB) += M5373EVB.dtb
@@ -21,4 +20,4 @@ dtb-$(CONFIG_TARGET_STMARK2) += stmark2.dtb
 include $(srctree)/scripts/Makefile.dts
 
 # Add any required device tree compiler flags here
-DTC_FLAGS += -R 4 -p 0x1000
+DTC_FLAGS += -R 4

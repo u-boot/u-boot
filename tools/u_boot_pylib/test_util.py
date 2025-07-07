@@ -3,7 +3,6 @@
 # Copyright (c) 2016 Google, Inc
 #
 
-from contextlib import contextmanager
 import doctest
 import glob
 import multiprocessing
@@ -13,8 +12,7 @@ import sys
 import unittest
 
 from u_boot_pylib import command
-
-from io import StringIO
+from u_boot_pylib import terminal
 
 use_concurrent = True
 try:
@@ -113,20 +111,6 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir,
         raise ValueError('Test coverage failure')
 
 
-# Use this to suppress stdout/stderr output:
-# with capture_sys_output() as (stdout, stderr)
-#   ...do something...
-@contextmanager
-def capture_sys_output():
-    capture_out, capture_err = StringIO(), StringIO()
-    old_out, old_err = sys.stdout, sys.stderr
-    try:
-        sys.stdout, sys.stderr = capture_out, capture_err
-        yield capture_out, capture_err
-    finally:
-        sys.stdout, sys.stderr = old_out, old_err
-
-
 class FullTextTestResult(unittest.TextTestResult):
     """A test result class that can print extended text results to a stream
 
@@ -172,8 +156,8 @@ class FullTextTestResult(unittest.TextTestResult):
         super().addSkip(test, reason)
 
 
-def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
-                    test_name, toolpath, class_and_module_list):
+def run_test_suites(toolname, debug, verbosity, no_capture, test_preserve_dirs,
+                    processes, test_name, toolpath, class_and_module_list):
     """Run a series of test suites and collect the results
 
     Args:
@@ -196,6 +180,9 @@ def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
         sys.argv.append('-D')
     if verbosity:
         sys.argv.append('-v%d' % verbosity)
+    if no_capture:
+        sys.argv.append('-N')
+        terminal.USE_CAPTURE = False
     if toolpath:
         for path in toolpath:
             sys.argv += ['--toolpath', path]
@@ -208,7 +195,7 @@ def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
         resultclass=FullTextTestResult,
     )
 
-    if use_concurrent and processes != 1:
+    if use_concurrent and processes != 1 and not test_name:
         suite = ConcurrentTestSuite(suite,
                 fork_for_tests(processes or multiprocessing.cpu_count()))
 
@@ -224,7 +211,7 @@ def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
             setup_test_args = getattr(module, 'setup_test_args')
             setup_test_args(preserve_indir=test_preserve_dirs,
                 preserve_outdirs=test_preserve_dirs and test_name is not None,
-                toolpath=toolpath, verbosity=verbosity)
+                toolpath=toolpath, verbosity=verbosity, no_capture=no_capture)
         if test_name:
             # Since Python v3.5 If an ImportError or AttributeError occurs
             # while traversing a name then a synthetic test that raises that

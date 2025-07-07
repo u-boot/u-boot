@@ -150,6 +150,10 @@ static void k3_spl_init(void)
 
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
+
+	/* Output DM Firmware version info */
+	if (IS_ENABLED(CONFIG_ARM64))
+		k3_dm_print_ver();
 }
 
 static void k3_mem_init(void)
@@ -162,6 +166,8 @@ static void k3_mem_init(void)
 		if (ret)
 			panic("DRAM init failed: %d\n", ret);
 	}
+
+	spl_enable_cache();
 }
 
 static __maybe_unused void enable_mcu_esm_reset(void)

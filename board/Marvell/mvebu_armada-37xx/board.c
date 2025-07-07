@@ -20,6 +20,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/delay.h>
+#include <linux/if_ether.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

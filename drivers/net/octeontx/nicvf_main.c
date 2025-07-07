@@ -279,8 +279,6 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
 		cq_desc = (struct cqe_rx_t *)GET_CQ_DESC(cq, cqe_head);
 		cqe_head++;
 		cqe_head &= (cq->dmem.q_len - 1);
-		/* Initiate prefetch for next descriptor */
-		prefetch((struct cqe_rx_t *)GET_CQ_DESC(cq, cqe_head));
 
 		switch (cq_desc->cqe_type) {
 		case CQE_TYPE_RX:

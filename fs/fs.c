@@ -580,6 +580,7 @@ static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
 	int ret;
 	loff_t size;
 	loff_t read_len;
+	phys_addr_t read_addr;
 
 	/* get the actual size of the file */
 	ret = info->size(filename, &size);
@@ -597,7 +598,9 @@ static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
 
 	lmb_dump_all();
 
-	if (!lmb_alloc_addr(addr, read_len, LMB_NONE))
+	read_addr = (phys_addr_t)addr;
+	if (!lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &read_addr, read_len,
+			   LMB_NONE))
 		return 0;
 
 	log_err("** Reading file would overwrite reserved memory **\n");

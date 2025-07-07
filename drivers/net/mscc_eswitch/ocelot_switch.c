@@ -126,7 +126,6 @@
 #define CPU_PORT		11
 #define INTERNAL_PORT_MSK	0x2FF
 #define IFH_LEN			4
-#define ETH_ALEN		6
 #define PGID_BROADCAST		13
 #define PGID_UNICAST		14
 #define PGID_SRC		80

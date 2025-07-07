@@ -5,6 +5,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 #include <env_attr.h>
 #include <test/hush.h>
 #include <test/ut.h>

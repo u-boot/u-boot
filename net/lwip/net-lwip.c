@@ -3,6 +3,7 @@
 /* Copyright (C) 2024 Linaro Ltd. */
 
 #include <command.h>
+#include <env.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <hexdump.h>

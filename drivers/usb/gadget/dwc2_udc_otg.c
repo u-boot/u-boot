@@ -29,6 +29,7 @@
 #include <linux/delay.h>
 #include <linux/printk.h>
 
+#include <linux/bitfield.h>
 #include <linux/errno.h>
 #include <linux/list.h>
 
@@ -45,6 +46,7 @@
 
 #include <power/regulator.h>
 
+#include "../common/dwc2_core.h"
 #include "dwc2_udc_otg_regs.h"
 #include "dwc2_udc_otg_priv.h"
 
@@ -154,11 +156,11 @@ static struct usb_ep_ops dwc2_ep_ops = {
 
 /***********************************************************/
 
-struct dwc2_usbotg_reg *reg;
+struct dwc2_core_regs *reg;
 
 bool dfu_usb_get_reset(void)
 {
-	return !!(readl(&reg->gintsts) & INT_RESET);
+	return !!(readl(&reg->global_regs.gintsts) & GINTSTS_USBRST);
 }
 
 __weak void otg_phy_init(struct dwc2_udc *dev) {}
@@ -229,7 +231,7 @@ static int udc_enable(struct dwc2_udc *dev)
 
 	debug_cond(DEBUG_SETUP != 0,
 		   "DWC2 USB 2.0 OTG Controller Core Initialized : 0x%x\n",
-		    readl(&reg->gintmsk));
+		    readl(&reg->global_regs.gintmsk));
 
 	dev->gadget.speed = USB_SPEED_UNKNOWN;
 
@@ -238,8 +240,8 @@ static int udc_enable(struct dwc2_udc *dev)
 
 static int dwc2_gadget_pullup(struct usb_gadget *g, int is_on)
 {
-	clrsetbits_le32(&reg->dctl, SOFT_DISCONNECT,
-			is_on ? 0 : SOFT_DISCONNECT);
+	clrsetbits_le32(&reg->device_regs.dctl, DCTL_SFTDISCON,
+			is_on ? 0 : DCTL_SFTDISCON);
 
 	return 0;
 }
@@ -463,11 +465,12 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 {
 	/* 2. Soft-reset OTG Core and then unreset again. */
 	int i;
-	unsigned int uTemp = writel(CORE_SOFT_RESET, &reg->grstctl);
-	uint32_t dflt_gusbcfg;
-	uint32_t rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz;
+	u32 dflt_gusbcfg;
+	u32 rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz;
 	u32 max_hw_ep;
 	int pdata_hw_ep;
+
+	dwc2_core_reset(reg);
 
 	debug("Resetting OTG controller\n");
 
@@ -490,47 +493,44 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	if (dev->pdata->usb_gusbcfg)
 		dflt_gusbcfg = dev->pdata->usb_gusbcfg;
 
-	writel(dflt_gusbcfg, &reg->gusbcfg);
+	writel(dflt_gusbcfg, &reg->global_regs.gusbcfg);
 
 	/* 3. Put the OTG device core in the disconnected state.*/
-	uTemp = readl(&reg->dctl);
-	uTemp |= SOFT_DISCONNECT;
-	writel(uTemp, &reg->dctl);
+	setbits_le32(&reg->device_regs.dctl, DCTL_SFTDISCON);
 
 	udelay(20);
 
 	/* 4. Make the OTG device core exit from the disconnected state.*/
-	uTemp = readl(&reg->dctl);
-	uTemp = uTemp & ~SOFT_DISCONNECT;
-	writel(uTemp, &reg->dctl);
+	clrbits_le32(&reg->device_regs.dctl, DCTL_SFTDISCON);
 
 	/* 5. Configure OTG Core to initial settings of device mode.*/
 	/* [][1: full speed(30Mhz) 0:high speed]*/
-	writel(EP_MISS_CNT(1) | DEV_SPEED_HIGH_SPEED_20, &reg->dcfg);
+	writel(FIELD_PREP(DCFG_EPMISCNT_MASK, 1) |
+	       FIELD_PREP(DCFG_DEVSPD_MASK, DCFG_DEVSPD_HS), &reg->device_regs.dcfg);
 
 	mdelay(1);
 
 	/* 6. Unmask the core interrupts*/
-	writel(GINTMSK_INIT, &reg->gintmsk);
+	writel(GINTMSK_INIT, &reg->global_regs.gintmsk);
 
 	/* 7. Set NAK bit of EP0, EP1, EP2*/
-	writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->out_endp[EP0_CON].doepctl);
-	writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->in_endp[EP0_CON].diepctl);
+	writel(DXEPCTL_EPDIS | DXEPCTL_SNAK, &reg->device_regs.out_endp[EP0_CON].doepctl);
+	writel(DXEPCTL_EPDIS | DXEPCTL_SNAK, &reg->device_regs.in_endp[EP0_CON].diepctl);
 
 	for (i = 1; i < DWC2_MAX_ENDPOINTS; i++) {
-		writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->out_endp[i].doepctl);
-		writel(DEPCTL_EPDIS|DEPCTL_SNAK, &reg->in_endp[i].diepctl);
+		writel(DXEPCTL_EPDIS | DXEPCTL_SNAK, &reg->device_regs.out_endp[i].doepctl);
+		writel(DXEPCTL_EPDIS | DXEPCTL_SNAK, &reg->device_regs.in_endp[i].diepctl);
 	}
 
 	/* 8. Unmask EPO interrupts*/
-	writel(((1 << EP0_CON) << DAINT_OUT_BIT)
-	       | (1 << EP0_CON), &reg->daintmsk);
+	writel(FIELD_PREP(DAINT_OUTEP_MASK, BIT(EP0_CON)) |
+	       FIELD_PREP(DAINT_INEP_MASK, BIT(EP0_CON)), &reg->device_regs.daintmsk);
 
 	/* 9. Unmask device OUT EP common interrupts*/
-	writel(DOEPMSK_INIT, &reg->doepmsk);
+	writel(DOEPMSK_INIT, &reg->device_regs.doepmsk);
 
 	/* 10. Unmask device IN EP common interrupts*/
-	writel(DIEPMSK_INIT, &reg->diepmsk);
+	writel(DIEPMSK_INIT, &reg->device_regs.diepmsk);
 
 	rx_fifo_sz = RX_FIFO_SIZE;
 	np_tx_fifo_sz = NPTX_FIFO_SIZE;
@@ -544,15 +544,15 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 		tx_fifo_sz = dev->pdata->tx_fifo_sz;
 
 	/* 11. Set Rx FIFO Size (in 32-bit words) */
-	writel(rx_fifo_sz, &reg->grxfsiz);
+	writel(rx_fifo_sz, &reg->global_regs.grxfsiz);
 
 	/* 12. Set Non Periodic Tx FIFO Size */
-	writel((np_tx_fifo_sz << 16) | rx_fifo_sz,
-	       &reg->gnptxfsiz);
+	writel(FIELD_PREP(FIFOSIZE_DEPTH_MASK, np_tx_fifo_sz) |
+	       FIELD_PREP(FIFOSIZE_STARTADDR_MASK, rx_fifo_sz),
+	       &reg->global_regs.gnptxfsiz);
 
 	/* retrieve the number of IN Endpoints (excluding ep0) */
-	max_hw_ep = (readl(&reg->ghwcfg4) & GHWCFG4_NUM_IN_EPS_MASK) >>
-		    GHWCFG4_NUM_IN_EPS_SHIFT;
+	max_hw_ep = FIELD_GET(GHWCFG4_NUM_IN_EPS_MASK, readl(&reg->global_regs.ghwcfg4));
 	pdata_hw_ep = dev->pdata->tx_fifo_sz_nb;
 
 	/* tx_fifo_sz_nb should equal to number of IN Endpoint */
@@ -564,33 +564,29 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 		if (pdata_hw_ep)
 			tx_fifo_sz = dev->pdata->tx_fifo_sz_array[i];
 
-		writel((rx_fifo_sz + np_tx_fifo_sz + (tx_fifo_sz * i)) |
-			tx_fifo_sz << 16, &reg->dieptxf[i]);
+		writel(FIELD_PREP(FIFOSIZE_DEPTH_MASK, tx_fifo_sz) |
+		       FIELD_PREP(FIFOSIZE_STARTADDR_MASK,
+				  rx_fifo_sz + np_tx_fifo_sz + tx_fifo_sz * i),
+		       &reg->global_regs.dptxfsizn[i]);
 	}
 	/* Flush the RX FIFO */
-	writel(RX_FIFO_FLUSH, &reg->grstctl);
-	while (readl(&reg->grstctl) & RX_FIFO_FLUSH)
-		debug("%s: waiting for DWC2_UDC_OTG_GRSTCTL\n", __func__);
+	dwc2_flush_rx_fifo(reg);
 
 	/* Flush all the Tx FIFO's */
-	writel(TX_FIFO_FLUSH_ALL, &reg->grstctl);
-	writel(TX_FIFO_FLUSH_ALL | TX_FIFO_FLUSH, &reg->grstctl);
-	while (readl(&reg->grstctl) & TX_FIFO_FLUSH)
-		debug("%s: waiting for DWC2_UDC_OTG_GRSTCTL\n", __func__);
+	dwc2_flush_tx_fifo(reg, GRSTCTL_TXFNUM_ALL);
 
 	/* 13. Clear NAK bit of EP0, EP1, EP2*/
 	/* For Slave mode*/
 	/* EP0: Control OUT */
-	writel(DEPCTL_EPDIS | DEPCTL_CNAK,
-	       &reg->out_endp[EP0_CON].doepctl);
+	writel(DXEPCTL_EPDIS | DXEPCTL_CNAK,
+	       &reg->device_regs.out_endp[EP0_CON].doepctl);
 
 	/* 14. Initialize OTG Link Core.*/
-	writel(GAHBCFG_INIT, &reg->gahbcfg);
+	writel(GAHBCFG_INIT, &reg->global_regs.gahbcfg);
 }
 
 static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed)
 {
-	unsigned int ep_ctrl;
 	int i;
 
 	if (speed == USB_SPEED_HIGH) {
@@ -610,12 +606,10 @@ static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed)
 		dev->ep[i].ep.maxpacket = ep_fifo_size;
 
 	/* EP0 - Control IN (64 bytes)*/
-	ep_ctrl = readl(&reg->in_endp[EP0_CON].diepctl);
-	writel(ep_ctrl|(0<<0), &reg->in_endp[EP0_CON].diepctl);
+	setbits_le32(&reg->device_regs.in_endp[EP0_CON].diepctl, (0 << 0));
 
 	/* EP0 - Control OUT (64 bytes)*/
-	ep_ctrl = readl(&reg->out_endp[EP0_CON].doepctl);
-	writel(ep_ctrl|(0<<0), &reg->out_endp[EP0_CON].doepctl);
+	setbits_le32(&reg->device_regs.out_endp[EP0_CON].doepctl, (0 << 0));
 }
 
 static int dwc2_ep_enable(struct usb_ep *_ep,
@@ -904,7 +898,7 @@ int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 
 	dev->pdata = pdata;
 
-	reg = (struct dwc2_usbotg_reg *)pdata->regs_otg;
+	reg = (struct dwc2_core_regs *)pdata->regs_otg;
 
 	dev->gadget.is_dualspeed = 1;	/* Hack only*/
 	dev->gadget.is_otg = 0;
@@ -932,8 +926,8 @@ int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 
 int dwc2_udc_handle_interrupt(void)
 {
-	u32 intr_status = readl(&reg->gintsts);
-	u32 gintmsk = readl(&reg->gintmsk);
+	u32 intr_status = readl(&reg->global_regs.gintsts);
+	u32 gintmsk = readl(&reg->global_regs.gintmsk);
 
 	if (intr_status & gintmsk)
 		return dwc2_udc_irq(1, (void *)the_controller);
@@ -1087,8 +1081,8 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 {
 	struct dwc2_plat_otg_data *plat = dev_get_plat(dev);
 	struct dwc2_priv_data *priv = dev_get_priv(dev);
-	struct dwc2_usbotg_reg *usbotg_reg =
-		(struct dwc2_usbotg_reg *)plat->regs_otg;
+	struct dwc2_core_regs *usbotg_reg =
+		(struct dwc2_core_regs *)plat->regs_otg;
 	int ret;
 
 	ret = dwc2_udc_otg_clk_init(dev, &priv->clks);
@@ -1123,21 +1117,22 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 		if (plat->force_b_session_valid &&
 		    !plat->force_vbus_detection) {
 			/* Override VBUS detection: enable then value*/
-			setbits_le32(&usbotg_reg->gotgctl, VB_VALOEN);
-			setbits_le32(&usbotg_reg->gotgctl, VB_VALOVAL);
+			setbits_le32(&usbotg_reg->global_regs.gotgctl, GOTGCTL_VBVALOEN);
+			setbits_le32(&usbotg_reg->global_regs.gotgctl, GOTGCTL_VBVALOVAL);
 		} else {
 			/* Enable VBUS sensing */
-			setbits_le32(&usbotg_reg->ggpio,
+			setbits_le32(&usbotg_reg->global_regs.ggpio,
 				     GGPIO_STM32_OTG_GCCFG_VBDEN);
 		}
 		if (plat->force_b_session_valid) {
 			/* Override B session bits: enable then value */
-			setbits_le32(&usbotg_reg->gotgctl, A_VALOEN | B_VALOEN);
-			setbits_le32(&usbotg_reg->gotgctl,
-				     A_VALOVAL | B_VALOVAL);
+			setbits_le32(&usbotg_reg->global_regs.gotgctl,
+				     GOTGCTL_AVALOEN | GOTGCTL_BVALOEN);
+			setbits_le32(&usbotg_reg->global_regs.gotgctl,
+				     GOTGCTL_AVALOVAL | GOTGCTL_BVALOVAL);
 		} else {
 			/* Enable ID detection */
-			setbits_le32(&usbotg_reg->ggpio,
+			setbits_le32(&usbotg_reg->global_regs.ggpio,
 				     GGPIO_STM32_OTG_GCCFG_IDEN);
 		}
 	}
@@ -1200,10 +1195,10 @@ U_BOOT_DRIVER(dwc2_udc_otg) = {
 int dwc2_udc_B_session_valid(struct udevice *dev)
 {
 	struct dwc2_plat_otg_data *plat = dev_get_plat(dev);
-	struct dwc2_usbotg_reg *usbotg_reg =
-		(struct dwc2_usbotg_reg *)plat->regs_otg;
+	struct dwc2_core_regs *usbotg_reg =
+		(struct dwc2_core_regs *)plat->regs_otg;
 
-	return readl(&usbotg_reg->gotgctl) & B_SESSION_VALID;
+	return readl(&usbotg_reg->global_regs.gotgctl) & GOTGCTL_BSESVLD;
 }
 #else
 int dm_usb_gadget_handle_interrupts(struct udevice *dev)

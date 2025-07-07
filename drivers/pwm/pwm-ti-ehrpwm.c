@@ -399,7 +399,7 @@ static int ti_ehrpwm_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	dev_dbg(dev, "regs=0x%08lx\n", priv->regs);
+	dev_dbg(dev, "regs=0x%08x\n", priv->regs);
 	return 0;
 }
 

@@ -87,7 +87,8 @@ void clock_set_pll1(unsigned int clk)
 	/* clk = 24*n/p, p is ignored if clock is >288MHz */
 	val = CCM_PLL1_CTRL_EN | CCM_PLL1_LOCK_EN | CCM_PLL1_CLOCK_TIME_2;
 	val |= CCM_PLL1_CTRL_N(clk / 24000000);
-	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616))
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616) ||
+	    IS_ENABLED(CONFIG_MACH_SUN50I_A133))
 	       val |= CCM_PLL1_OUT_EN;
 	if (IS_ENABLED(CONFIG_SUNXI_GEN_NCAT2))
 	       val |= CCM_PLL1_OUT_EN | CCM_PLL1_LDO_EN;

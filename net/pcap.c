@@ -3,6 +3,7 @@
  * Copyright 2019 Ramon Fried <rfried.dev@gmail.com>
  */
 
+#include <env.h>
 #include <net.h>
 #include <net/pcap.h>
 #include <time.h>

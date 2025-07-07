@@ -53,13 +53,14 @@ SECTIONS
 		__rel_dyn_end = .;
 	}
 
+	. = ALIGN(8);
 	_image_binary_end = .;
 	_end = .;
 
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
 		*(.bss*)
-		 . = ALIGN(4);
+		 . = ALIGN(8);
 		__bss_end = .;
 	}
 	__bss_size = __bss_end - __bss_start;

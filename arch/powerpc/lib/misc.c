@@ -36,11 +36,12 @@ int arch_misc_init(void)
 		size = min(size, (ulong)CFG_SYS_LINUX_LOWMEM_MAX_SIZE);
 
 		if (size < bootm_size) {
-			ulong base = bootmap_base + size;
+			phys_addr_t base = bootmap_base + size;
 
 			printf("WARNING: adjusting available memory from 0x%lx to 0x%llx\n",
 			       size, (unsigned long long)bootm_size);
-			lmb_reserve(base, bootm_size - size, LMB_NONE);
+			lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &base,
+				      bootm_size - size, LMB_NONE);
 		}
 
 #ifdef CONFIG_MP

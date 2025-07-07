@@ -39,11 +39,11 @@ struct stm32_clk_info {
 	bool v2;
 };
 
+/* platdata used for clk-stm32f.c driver */
 enum soc_family {
 	STM32F42X,
 	STM32F469,
 	STM32F7,
-	STM32MP1,
 };
 
 enum apb {
@@ -51,8 +51,9 @@ enum apb {
 	APB2,
 };
 
-struct stm32_rcc_clk {
-	char *drv_name;
+struct stm32_rcc {
+	char *drv_name_clk;
+	char *drv_name_rst;
 	enum soc_family soc;
 };
 

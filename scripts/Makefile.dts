@@ -16,6 +16,10 @@ dtb-y += $(subst $(dt_dir)/,,$(dtb-vendor_dts))
 
 endif
 
+ifneq ($(CONFIG_SYS_DTC_PAD_BYTES),0)
+DTC_FLAGS += -p $(CONFIG_SYS_DTC_PAD_BYTES)
+endif
+
 targets += $(dtb-y)
 
 PHONY += dtbs

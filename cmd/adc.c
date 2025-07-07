@@ -5,6 +5,7 @@
  */
 #include <command.h>
 #include <dm.h>
+#include <env.h>
 #include <adc.h>
 #include <linux/printk.h>
 

@@ -87,6 +87,8 @@ class Entry_u_boot_spl_pubkey_dtb(Entry_blob_dtb):
                                          dir=tools.get_output_dir())\
                                               as pubkey_tdb:
             tools.write_file(pubkey_tdb.name, self.GetData())
+            if '/' in self._key_name_hint:
+                self.Raise(f"'{self._key_name_hint}' is a path not a filename")
             keyname = tools.get_input_filename(self._key_name_hint + ".crt")
             self.fdt_add_pubkey.run(pubkey_tdb.name,
                                     os.path.dirname(keyname),

@@ -389,6 +389,16 @@ config PCIE_DW_QCOM
 	  Say Y here if you want to enable DW PCIe controller support on
 	  Qualcomm SoCs.
 
+config PCI_RCAR_GEN4
+	bool "Renesas R-Car Gen4 PCIe driver"
+	depends on RCAR_GEN4
+	select DM_RESET
+	select DM_GPIO
+	select PCIE_DW_COMMON
+	help
+	  Say Y here if you want to enable PCIe controller support on
+	  Renesas R-Car Gen4 SoCs.
+
 config PCIE_ROCKCHIP
 	bool "Enable Rockchip PCIe driver"
 	depends on ARCH_ROCKCHIP

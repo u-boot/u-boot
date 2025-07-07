@@ -165,4 +165,5 @@ static const struct dram_cfg_param ddr_ddrc_cfg_256mb[] = {
 struct dram_timing_info bsh_dram_timing_256mb = {
 	.ddrc_cfg = ddr_ddrc_cfg_256mb,
 	.ddrc_cfg_num = ARRAY_SIZE(ddr_ddrc_cfg_256mb),
+	.dram_size = SZ_256M,
 };

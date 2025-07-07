@@ -67,7 +67,7 @@ int mmc_get_env_dev(void)
 	u16 boot_type;
 	u8 boot_instance;
 
-	volatile gd_t *pgd = gd;
+	gd_t *pgd = gd;
 	rom_passover_t *rdata;
 
 #if IS_ENABLED(CONFIG_XPL_BUILD)
@@ -84,7 +84,7 @@ int mmc_get_env_dev(void)
 		ret = scmi_get_rom_data(rdata);
 		if (ret != 0) {
 			puts("SCMI: failure at rom_boot_info\n");
-			return CONFIG_SYS_MMC_ENV_DEV;
+			return CONFIG_ENV_MMC_DEVICE_INDEX;
 		}
 	}
 	boot_type = rdata->boot_dev_type;
@@ -95,7 +95,7 @@ int mmc_get_env_dev(void)
 
 	/* If not boot from sd/mmc, use default value */
 	if (boot_type != BOOT_TYPE_SD && boot_type != BOOT_TYPE_MMC)
-		return env_get_ulong("mmcdev", 10, CONFIG_SYS_MMC_ENV_DEV);
+		return env_get_ulong("mmcdev", 10, CONFIG_ENV_MMC_DEVICE_INDEX);
 
 	return board_mmc_get_env_dev(boot_instance);
 }
@@ -675,7 +675,7 @@ enum imx9_soc_voltage_mode soc_target_voltage_mode(void)
 #if IS_ENABLED(CONFIG_SCMI_FIRMWARE)
 enum boot_device get_boot_device(void)
 {
-	volatile gd_t *pgd = gd;
+	gd_t *pgd = gd;
 	int ret;
 	u16 boot_type;
 	u8 boot_instance;

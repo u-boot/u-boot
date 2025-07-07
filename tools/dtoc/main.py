@@ -58,8 +58,9 @@ def run_tests(processes, args):
     test_dtoc.setup()
 
     result = test_util.run_test_suites(
-        toolname='dtoc', debug=True, verbosity=1, test_preserve_dirs=False,
-        processes=processes, test_name=test_name, toolpath=[],
+        toolname='dtoc', debug=True, verbosity=1, no_capture=False,
+        test_preserve_dirs=False, processes=processes, test_name=test_name,
+        toolpath=[],
         class_and_module_list=[test_dtoc.TestDtoc,test_src_scan.TestSrcScan])
 
     return (0 if result.wasSuccessful() else 1)

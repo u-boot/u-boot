@@ -18,6 +18,7 @@
 #include <bootm.h>
 #include <bootmeth.h>
 #include <dm.h>
+#include <env.h>
 #include <image.h>
 #include <malloc.h>
 #include <mapmem.h>

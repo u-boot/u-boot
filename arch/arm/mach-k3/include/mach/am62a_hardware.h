@@ -90,8 +90,8 @@
 
 static const u32 put_device_ids[] = {};
 
-static const u32 put_core_ids[] = {};
-
 #endif
+
+static const u32 put_core_ids[] = {};
 
 #endif /* __ASM_ARCH_AM62A_HARDWARE_H */

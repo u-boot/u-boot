@@ -14,15 +14,6 @@ atf-bl31-sunxi:
 Please read the section on ARM Trusted Firmware (ATF) in
 board/sunxi/README.sunxi64
 
-scp-sunxi:
-SCP firmware is required for system suspend, but is otherwise optional.
-Please read the section on SCP firmware in board/sunxi/README.sunxi64
-
-iot2050-seboot:
-See the documentation for IOT2050 board. Your image is missing SEBoot
-which is mandatory for board startup. Prebuilt SEBoot located at
-meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild/seboot_pg*.bin.
-
 iot2050-otpcmd:
 See the documentation for IOT2050 board. Your image is missing OTP command data
 block which is used for provisioning the customer keys to the board.
@@ -31,22 +22,62 @@ meta-iot2050/tree/master/recipes-bsp/secure-boot-otp-provisioning/files/make-otp
 for how to generate this binary. If you are not using secure boot or do not
 intend to provision the keys, disable CONFIG_IOT2050_EMBED_OTPCMD.
 
+iot2050-seboot:
+See the documentation for IOT2050 board. Your image is missing SEBoot
+which is mandatory for board startup. Prebuilt SEBoot located at
+meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild/seboot_pg*.bin.
+
 k3-rti-wdt-firmware:
 If CONFIG_WDT_K3_RTI_LOAD_FW is enabled, a firmware image is needed for
 the R5F core(s) to trigger the system reset. One possible source is
 https://github.com/siemens/k3-rti-wdt.
-
-rockchip-tpl:
-An external TPL is required to initialize DRAM. Get the external TPL
-binary and build with ROCKCHIP_TPL=/path/to/ddr.bin. One possible source
-for the external TPL binary is https://github.com/rockchip-linux/rkbin.
-
-tee-os:
-See the documentation for your board. You may need to build Open Portable
-Trusted Execution Environment (OP-TEE) and build with TEE=/path/to/tee.bin
 
 opensbi:
 See the documentation for your board. The OpenSBI git repo is at
 https://github.com/riscv/opensbi.git
 You may need to build fw_dynamic.bin first and re-build u-boot with
 OPENSBI=/path/to/fw_dynamic.bin
+
+rockchip-tpl:
+An external TPL is required to initialize DRAM. Get the external TPL
+binary and build with ROCKCHIP_TPL=/path/to/ddr.bin. One possible source
+for the external TPL binary is https://github.com/rockchip-linux/rkbin.
+
+scp-sunxi:
+SCP firmware is required for system suspend, but is otherwise optional.
+Please read the section on SCP firmware in board/sunxi/README.sunxi64
+
+sysfw-inner-cert:
+You are missing the inner certificate for TI's Foundational Security (TIFS)
+firmware which is critical to authenticating the TIFS firmware during boot.
+HS-FS and HS-SE parts will not boot without this certificate.
+
+Have a look at your board's documentation to find and include the latest
+TIFS certificate blobs and how to include them in the build.
+
+    https://docs.u-boot.org/en/latest/board/ti/k3.html
+
+tee-os:
+See the documentation for your board. You may need to build Open Portable
+Trusted Execution Environment (OP-TEE) and build with TEE=/path/to/tee.bin
+
+ti-dm:
+You are missing TI's Device Management (DM) firmware which is critical to
+provide resource and power management services for your board. Your board
+will not boot without this firmware.
+
+Have a look at your board's documentation to find the latest version of
+the DM firmware binary and how to include it in the build.
+
+    https://docs.u-boot.org/en/latest/board/ti/k3.html
+
+ti-fs-enc.bin:
+You are missing TI's Foundational Security (TIFS) firmware which is
+critical to provide foundational security services like authenticated boot,
+and firewall management for the SoC. Your board will not boot without
+this firmware.
+
+Have a look at your board's documentation to find the latest version of the
+TIFS firmware binary and how to include them in the build.
+
+    https://docs.u-boot.org/en/latest/board/ti/k3.html

@@ -1143,6 +1143,13 @@ Optional entries
 
 Some entries need to exist only if certain conditions are met. For example, an
 entry may want to appear in the image only if a file has a particular format.
+Also, the ``optional`` property may be used to mark entries as optional::
+
+    tee-os {
+        filename = "tee.bin";
+        optional;
+    };
+
 Obviously the entry must exist in the image description for it to be processed
 at all, so a way needs to be found to have the entry remove itself.
 

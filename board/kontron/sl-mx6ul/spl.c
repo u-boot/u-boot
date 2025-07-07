@@ -204,7 +204,7 @@ static struct mx6_ddr3_cfg mem_512M_ddr = {
 
 static struct mx6_mmdc_calibration mx6_mmcd_512M_calib = {
 	.p0_mpwldectrl0 = 0x00000000,
-	.p0_mpdgctrl0 = 0X01440144,
+	.p0_mpdgctrl0 = 0x01440144,
 	.p0_mprddlctl = 0x40405454,
 	.p0_mpwrdlctl = 0x40404E4C,
 };

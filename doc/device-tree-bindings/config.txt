@@ -70,13 +70,13 @@ u-boot,mmc-env-offset-redundant (int)
 u-boot,mmc-env-partition (int)
 	if present, the environment shall be placed at the last
 	CONFIG_ENV_SIZE blocks of the partition on the
-	CONFIG_SYS_MMC_ENV_DEV.
+	CONFIG_ENV_MMC_DEVICE_INDEX.
 
 	if u-boot,mmc-env-offset* is present, this setting will take
 	precedence. In that case, only if the partition is not found,
 	mmc-env-offset* will be tried.
 
-	Note that CONFIG_ENV_MMC_PARTITION overrides this device-tree setting.
+	Note that CONFIG_ENV_MMC_SW_PARTITION overrides this device-tree setting.
 
 u-boot,no-apm-finalize (bool)
 	For x86 devices running on coreboot, this tells U-Boot not to lock

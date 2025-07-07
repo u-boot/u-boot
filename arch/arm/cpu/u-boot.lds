@@ -153,14 +153,14 @@ SECTIONS
 		__efi_runtime_rel_stop = .;
 	}
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 	__image_copy_end = .;
 
 	/*
 	 * if CONFIG_USE_ARCH_MEMSET is not selected __bss_end - __bss_start
-	 * needs to be a multiple of 4 and we overlay .bss with .rel.dyn
+	 * needs to be a multiple of 8 and we overlay .bss with .rel.dyn
 	 */
-	.rel.dyn ALIGN(4) : {
+	.rel.dyn ALIGN(8) : {
 		__rel_dyn_start = .;
 		*(.rel*)
 		__rel_dyn_end = .;

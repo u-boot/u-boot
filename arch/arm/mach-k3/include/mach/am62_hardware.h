@@ -79,6 +79,25 @@
 
 #define CTRLMMR_MCU_RST_CTRL			(MCU_CTRL_MMR0_BASE + 0x18170)
 
+/* Reset Reason Detection */
+#define CTRLMMR_MCU_RST_SRC			(MCU_CTRL_MMR0_BASE + 0x18178)
+
+#define RST_SRC_SAFETY_ERR			BIT(31)
+#define RST_SRC_MAIN_ESM_ERR			BIT(30)
+#define RST_SRC_SW_MAIN_POR_FROM_MAIN		BIT(25)
+#define RST_SRC_SW_MAIN_POR_FROM_MCU		BIT(24)
+#define RST_SRC_DS_MAIN_PORZ			BIT(23)
+#define RST_SRC_DM_WDT_RST			BIT(22)
+#define RST_SRC_SW_MAIN_WARM_FROM_MAIN		BIT(21)
+#define RST_SRC_SW_MAIN_WARM_FROM_MCU		BIT(20)
+#define RST_SRC_SW_MCU_WARM_RST			BIT(16)
+#define RST_SRC_SMS_WARM_RST			BIT(13)
+#define RST_SRC_SMS_COLD_RST			BIT(12)
+#define RST_SRC_DEBUG_RST			BIT(8)
+#define RST_SRC_THERMAL_RST			BIT(4)
+#define RST_SRC_MAIN_RESET_PIN			BIT(2)
+#define RST_SRC_MCU_RESET_PIN			BIT(0)
+
 /* Debounce register configuration */
 #define CTRLMMR_DBOUNCE_CFG(index)		(MCU_CTRL_MMR0_BASE + 0x4080 + (index * 4))
 
@@ -158,8 +177,8 @@ static inline int k3_has_gpu(void)
 
 static const u32 put_device_ids[] = {};
 
-static const u32 put_core_ids[] = {};
-
 #endif
+
+static const u32 put_core_ids[] = {};
 
 #endif /* __ASM_ARCH_AM62_HARDWARE_H */

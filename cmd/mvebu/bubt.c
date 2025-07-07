@@ -185,7 +185,7 @@ static int mmc_burn_image(size_t image_size)
 	lbaint_t	blk_count;
 	ulong		blk_written;
 	int		err;
-	const u8	mmc_dev_num = CONFIG_SYS_MMC_ENV_DEV;
+	const u8	mmc_dev_num = CONFIG_ENV_MMC_DEVICE_INDEX;
 #ifdef CONFIG_BLK
 	struct blk_desc *blk_desc;
 #endif
@@ -290,7 +290,7 @@ static size_t mmc_read_file(const char *file_name)
 	loff_t		act_read = 0;
 	int		rc;
 	struct mmc	*mmc;
-	const u8	mmc_dev_num = CONFIG_SYS_MMC_ENV_DEV;
+	const u8	mmc_dev_num = CONFIG_ENV_MMC_DEVICE_INDEX;
 
 	mmc = find_mmc_device(mmc_dev_num);
 	if (!mmc) {

@@ -11,6 +11,17 @@ config ANDROID_BOOT_IMAGE
 	  This enables support for booting images which use the Android
 	  image format header.
 
+config ANDROID_BOOT_IMAGE_IGNORE_BLOB_ADDR
+	bool "Android Boot Image ignore addr"
+	default n
+	help
+	  This ignore kernel/ramdisk load addr specified in androidboot header.
+
+	  There is a concern on exposing the whole memory to image loading is
+	  dangerous. Also, since it's not always possible to change the load
+	  addr by repacking the boot.img (mainly due to AVB signature mismatch),
+	  we need a way to use kernel_addr_r and ramdisk_addr_r.
+
 config TIMESTAMP
 	bool "Show image date and time when displaying image information"
 	default y if CMD_DATE
@@ -854,6 +865,56 @@ config EXPO
 
 	  The expo can be presented in graphics form using a vidconsole, or in
 	  text form on a serial console.
+
+config BOOTMETH_RAUC
+	bool "Bootdev support for RAUC A/B systems"
+	depends on CMDLINE
+	select BOOTMETH_GLOBAL
+	select HUSH_PARSER
+	help
+	  Enables support for booting RAUC A/B systems from MMC devices. This
+	  makes the bootdevs look for a 'boot.scr.uimg' or 'boot.scr' in the
+	  respective boot partitions, describing how to boot the distro.
+
+if BOOTMETH_RAUC
+
+config BOOTMETH_RAUC_BOOT_ORDER
+	string "RAUC boot order"
+	default "A B"
+	help
+	  Sets the default boot order. This must be list of space-separated
+	  strings naming the individual boot slots. Each entry in this string
+	  should correspond to an existing slot on the target's flash device.
+
+config BOOTMETH_RAUC_PARTITIONS
+	string "RAUC boot and root partitions indexes"
+	default "1,2 3,4"
+	help
+	  Sets the partition indexes of boot and root slots. This must be a list
+	  of comma-separated pair values, which in turn are separated by spaces.
+	  The first value in pair is for the boot partition and second for the
+	  root partition.
+
+config BOOTMETH_RAUC_DEFAULT_TRIES
+	int "RAUC slot default tries"
+	default 3
+	help
+	  Sets how many times a slot should be tried booting, before considering
+	  it to be bad.
+
+config BOOTMETH_RAUC_RESET_ALL_ZERO_TRIES
+	bool "Reset slot tries when all RAUC slots have zero tries left"
+	default y
+	help
+	  When all slots have zero tries left or no valid slot was found, reset
+	  to the default boot order set by BOOTMETH_RAUC_BOOT_ORDER and set the
+	  slot tries to their default value specified by
+	  BOOTMETH_RAUC_DEFAULT_TRIES.
+
+	  This prevents a system from remaining in an unbootable state, after
+	  all slot tries were decremented to zero.
+
+endif # BOOTMETH_RAUC
 
 config BOOTMETH_SANDBOX
 	def_bool y
@@ -1845,7 +1906,7 @@ config USE_BOOTARGS
 
 config BOOTARGS
 	string "Boot arguments"
-	depends on USE_BOOTARGS && !USE_DEFAULT_ENV_FILE
+	depends on USE_BOOTARGS && !ENV_USE_DEFAULT_ENV_TEXT_FILE
 	help
 	  This can be used to pass arguments to the bootm command. The value of
 	  CONFIG_BOOTARGS goes into the environment value "bootargs". Note that
@@ -1880,7 +1941,7 @@ config USE_BOOTCOMMAND
 
 config BOOTCOMMAND
 	string "bootcmd value"
-	depends on USE_BOOTCOMMAND && !USE_DEFAULT_ENV_FILE
+	depends on USE_BOOTCOMMAND && !ENV_USE_DEFAULT_ENV_TEXT_FILE
 	default "bootflow scan -lb" if BOOTSTD_DEFAULTS && CMD_BOOTFLOW_FULL
 	default "bootflow scan" if BOOTSTD_DEFAULTS && !CMD_BOOTFLOW_FULL
 	default "run distro_bootcmd" if !BOOTSTD_BOOTCOMMAND && DISTRO_DEFAULTS
@@ -1903,7 +1964,7 @@ config USE_PREBOOT
 
 config PREBOOT
 	string "preboot default value"
-	depends on USE_PREBOOT && !USE_DEFAULT_ENV_FILE
+	depends on USE_PREBOOT && !ENV_USE_DEFAULT_ENV_TEXT_FILE
 	default "usb start" if USB_KEYBOARD
 	default ""
 	help

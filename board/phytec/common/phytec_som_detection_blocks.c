@@ -4,6 +4,7 @@
  * Author: Daniel Schultz <d.schultz@phytec.de>
  */
 
+#include <env.h>
 #include <malloc.h>
 #include <u-boot/crc.h>
 #include <net.h>

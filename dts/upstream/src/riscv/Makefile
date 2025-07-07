@@ -2,5 +2,5 @@
 
 include $(srctree)/scripts/Makefile.dts
 
-DTC_FLAGS += -R 4 -p 0x1000
+DTC_FLAGS += -R 4
 

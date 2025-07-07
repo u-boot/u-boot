@@ -10,19 +10,29 @@
 # Rick Chen, Andes Technology Corporation <rick@andestech.com>
 #
 
-32bit-emul		:= elf32lriscv
-64bit-emul		:= elf64lriscv
+ifdef CONFIG_SYS_BIG_ENDIAN
+small-endian		:= b
+large-endian		:= big
+PLATFORM_CPPFLAGS       += -mbig-endian
+KBUILD_LDFLAGS          += -mbig-endian
+else
+small-endian		:= l
+large-endian		:= little
+endif
+
+32bit-emul		:= elf32$(small-endian)riscv
+64bit-emul		:= elf64$(small-endian)riscv
 
 ifdef CONFIG_32BIT
 KBUILD_LDFLAGS		+= -m $(32bit-emul)
 EFI_LDS			:= elf_riscv32_efi.lds
-PLATFORM_ELFFLAGS	+= -B riscv -O elf32-littleriscv
+PLATFORM_ELFFLAGS	+= -B riscv -O elf32-$(large-endian)riscv
 endif
 
 ifdef CONFIG_64BIT
 KBUILD_LDFLAGS		+= -m $(64bit-emul)
 EFI_LDS			:= elf_riscv64_efi.lds
-PLATFORM_ELFFLAGS	+= -B riscv -O elf64-littleriscv
+PLATFORM_ELFFLAGS	+= -B riscv -O elf64-$(large-endian)riscv
 endif
 
 PLATFORM_CPPFLAGS	+= -ffixed-x3 -fpic

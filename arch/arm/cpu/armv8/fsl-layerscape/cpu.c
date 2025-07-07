@@ -802,7 +802,7 @@ enum boot_src get_boot_src(void)
 int mmc_get_env_dev(void)
 {
 	enum boot_src src = get_boot_src();
-	int dev = CONFIG_SYS_MMC_ENV_DEV;
+	int dev = CONFIG_ENV_MMC_DEVICE_INDEX;
 
 	switch (src) {
 	case BOOT_SOURCE_SD_MMC:

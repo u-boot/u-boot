@@ -124,6 +124,7 @@ class Entry_ti_secure(Entry_x509_cert):
                 'OU': 'Processors',
                 'CN': 'TI Support',
                 'emailAddress': 'support@ti.com'}
+        self.debug = fdt_util.GetBool(self._node, 'debug', False)
 
     def ReadFirewallNode(self):
         self.firewall_cert_data['certificate'] = ""

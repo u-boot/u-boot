@@ -20,6 +20,7 @@
 #define __TPM_V2_H
 
 #include <tpm-common.h>
+#include <linux/errno.h>
 
 struct udevice;
 
@@ -266,6 +267,7 @@ enum tpm2_return_codes {
  * TPM2 algorithms.
  */
 enum tpm2_algorithms {
+	TPM2_ALG_INVAL		= -EINVAL,
 	TPM2_ALG_SHA1		= 0x04,
 	TPM2_ALG_XOR		= 0x0A,
 	TPM2_ALG_SHA256		= 0x0B,

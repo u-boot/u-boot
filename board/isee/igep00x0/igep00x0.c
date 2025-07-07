@@ -7,6 +7,7 @@
 #include <env.h>
 #include <init.h>
 #include <malloc.h>
+#include <mtd.h>
 #include <net.h>
 #include <status_led.h>
 #include <dm.h>

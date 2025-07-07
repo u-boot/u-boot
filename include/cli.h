@@ -17,12 +17,14 @@
  * @esc_save: Escape characters collected so far
  * @emit_upto: Next index to emit from esc_save
  * @emitting: true if emitting from esc_save
+ * @shortcut_key: Selected shortcut option index
  */
 struct cli_ch_state {
 	int esc_len;
 	char esc_save[8];
 	int emit_upto;
 	bool emitting;
+	int shortcut_key;
 };
 
 /**

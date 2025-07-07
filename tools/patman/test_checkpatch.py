@@ -137,7 +137,7 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
 class TestPatch(unittest.TestCase):
     """Test the u_boot_line() function in checkpatch.pl"""
 
-    def test_basic(self):
+    def test_filter(self):
         """Test basic filter operation"""
         data='''
 

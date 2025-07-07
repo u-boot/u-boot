@@ -101,3 +101,43 @@ u32 get_boot_device(void)
 
 	return bootmedia;
 }
+
+const char *get_reset_reason(void)
+{
+	u32 reset_reason = readl(CTRLMMR_MCU_RST_SRC);
+
+	/* After reading reset source register, software must clear it */
+	if (reset_reason)
+		writel(reset_reason, CTRLMMR_MCU_RST_SRC);
+
+	if (reset_reason == 0 ||
+	   (reset_reason & (RST_SRC_SW_MAIN_POR_FROM_MAIN |
+			    RST_SRC_SW_MAIN_POR_FROM_MCU |
+			    RST_SRC_DS_MAIN_PORZ)))
+		return "POR";
+
+	if (reset_reason & (RST_SRC_SAFETY_ERR | RST_SRC_MAIN_ESM_ERR))
+		return "ESM";
+
+	if (reset_reason & RST_SRC_DM_WDT_RST)
+		return "WDOG";
+
+	if (reset_reason & (RST_SRC_SW_MAIN_WARM_FROM_MAIN |
+			    RST_SRC_SW_MAIN_WARM_FROM_MCU  |
+			    RST_SRC_SW_MCU_WARM_RST))
+		return "RST";
+
+	if (reset_reason & (RST_SRC_SMS_WARM_RST | RST_SRC_SMS_COLD_RST))
+		return "DMSC";
+
+	if (reset_reason & RST_SRC_DEBUG_RST)
+		return "JTAG";
+
+	if (reset_reason & RST_SRC_THERMAL_RST)
+		return "THERMAL";
+
+	if (reset_reason & (RST_SRC_MAIN_RESET_PIN | RST_SRC_MCU_RESET_PIN))
+		return "PIN";
+
+	return "UNKNOWN";
+}

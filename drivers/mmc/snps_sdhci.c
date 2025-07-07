@@ -6,6 +6,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <linux/bitfield.h>
+#include <linux/sizes.h>
 #include <sdhci.h>
 
 /* DWCMSHC specific Mode Select value */

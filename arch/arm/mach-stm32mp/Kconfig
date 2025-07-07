@@ -139,6 +139,15 @@ config STM32_ECDSA_VERIFY
 	  ROM API provided on STM32MP.
 	  The ROM API is only available during SPL for now.
 
+config STM32MP_TAMP_NVMEM
+	bool "STM32 TAMP backup registers via NVMEM API"
+	select NVMEM
+	default y
+	help
+	  Say y to enable the uclass driver for TAMP Backup registers using the
+	  NVMEM API. It allows to access to boot mode or others shared information
+	  between software components/execution levels.
+
 config CMD_STM32KEY
 	bool "command stm32key to fuse public key hash"
 	depends on CMDLINE

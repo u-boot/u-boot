@@ -6,7 +6,6 @@
  */
 #include <command.h>
 #include <env.h>
-#include <ide.h>
 #include "part_amiga.h"
 #include <part.h>
 #include <vsprintf.h>

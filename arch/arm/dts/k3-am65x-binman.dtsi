@@ -32,12 +32,10 @@
 		ti_sci_cert: ti-sci-cert.bin {
 			filename = "ti-sysfw/ti-sci-firmware-am65x_sr2-hs-cert.bin";
 			type = "blob-ext";
-			optional;
 		};
 		ti-sci-firmware-am65x-hs-enc.bin {
 			filename = "ti-sysfw/ti-sci-firmware-am65x_sr2-hs-enc.bin";
 			type = "blob-ext";
-			optional;
 		};
 	};
 	itb {
@@ -73,7 +71,6 @@
 		ti_sci: ti-sci.bin {
 			filename = "ti-sysfw/ti-sci-firmware-am65x_sr2-gp.bin";
 			type = "blob-ext";
-			optional;
 		};
 	};
 	itb_gp {

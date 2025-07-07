@@ -13,6 +13,8 @@ obj-$(CONFIG_STM32MP13X) += stm32mp1/
 obj-$(CONFIG_STM32MP25X) += stm32mp2/
 
 obj-$(CONFIG_MFD_STM32_TIMERS) += timers.o
+obj-$(CONFIG_STM32MP_TAMP_NVMEM) += tamp_nvram.o
+
 obj-$(CONFIG_STM32_ECDSA_VERIFY) += ecdsa_romapi.o
 ifndef CONFIG_XPL_BUILD
 obj-y += cmd_stm32prog/

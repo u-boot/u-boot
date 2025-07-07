@@ -283,6 +283,7 @@ struct mtk_cg_priv {
 };
 
 extern const struct clk_ops mtk_clk_apmixedsys_ops;
+extern const struct clk_ops mtk_clk_fixed_pll_ops;
 extern const struct clk_ops mtk_clk_topckgen_ops;
 extern const struct clk_ops mtk_clk_infrasys_ops;
 extern const struct clk_ops mtk_clk_gate_ops;

@@ -112,8 +112,7 @@ def rm_board(board):
                 rm_kconfig_include(fname)
 
     # Remove unwanted files
-    cmd = ['git', 'rm', '-r'] + real
-    stdout = command.output(*cmd, capture=True)
+    stdout = command.output('git', 'rm', '-r', *real)
 
     ## Change the messages as needed
     msg = '''arm: Remove %s board
@@ -130,7 +129,8 @@ Remove it.
 
     # Check if the board is mentioned anywhere else. The user will need to deal
     # with this
-    print(command.output('git', 'grep', '-il', board, raise_on_error=False))
+    cmd = ['git', 'grep', '-il', board]
+    print(command.output(*cmd, raise_on_error=False))
     print(' '.join(cmd))
 
 for board in sys.argv[1:]:

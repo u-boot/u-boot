@@ -7,7 +7,6 @@ obj-$(CONFIG_DM_RESET) += reset-uclass.o
 obj-$(CONFIG_SANDBOX_MBOX) += sandbox-reset.o
 obj-$(CONFIG_SANDBOX_MBOX) += sandbox-reset-test.o
 obj-$(CONFIG_STI_RESET) += sti-reset.o
-obj-$(CONFIG_STM32_RESET) += stm32-reset.o
 obj-$(CONFIG_TEGRA_CAR_RESET) += tegra-car-reset.o
 obj-$(CONFIG_TEGRA186_RESET) += tegra186-reset.o
 obj-$(CONFIG_RESET_AIROHA) += reset-airoha.o
@@ -36,3 +35,6 @@ obj-$(CONFIG_RESET_AT91) += reset-at91.o
 obj-$(CONFIG_$(PHASE_)RESET_JH7110) += reset-jh7110.o
 obj-$(CONFIG_RESET_RZG2L_USBPHY_CTRL) += reset-rzg2l-usbphy-ctrl.o
 obj-$(CONFIG_RESET_SPACEMIT_K1) += reset-spacemit-k1.o
+
+obj-$(CONFIG_ARCH_STM32) += stm32/
+obj-$(CONFIG_ARCH_STM32MP) += stm32/

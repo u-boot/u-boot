@@ -557,12 +557,15 @@ class Entry_fit(Entry_section):
         Raises:
             ValueError: Filename 'rsa2048.key' not found in input path
             ValueError: Multiple key paths found
+            ValueError: 'dir/rsa2048' is a path not a filename
         """
         def _find_keys_dir(node):
             for subnode in node.subnodes:
                 if (subnode.name.startswith('signature') or
                     subnode.name.startswith('cipher')):
                     hint = subnode.props['key-name-hint'].value
+                    if '/' in hint:
+                        self.Raise(f"'{hint}' is a path not a filename")
                     name = tools.get_input_filename(
                         f"{hint}.key" if subnode.name.startswith('signature')
                         else f"{hint}.bin")

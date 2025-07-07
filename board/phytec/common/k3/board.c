@@ -94,7 +94,7 @@ int mmc_get_env_dev(void)
 		return 1;
 	};
 
-	return CONFIG_SYS_MMC_ENV_DEV;
+	return CONFIG_ENV_MMC_DEVICE_INDEX;
 }
 #endif
 
@@ -121,24 +121,37 @@ enum env_location env_get_location(enum env_operation op, int prio)
 }
 
 #if IS_ENABLED(CONFIG_BOARD_LATE_INIT)
-int board_late_init(void)
+/**
+ * Ensure the boot order favors the device we just booted from.
+ * If boot_targets is still at its default value, move the current
+ * boot device to the front of the list. Otherwise, leave any customized
+ * order untouched.
+ */
+static void boot_targets_setup(void)
 {
 	u32 boot_device = get_boot_device();
+	const char *boot_targets = NULL;
+	char boot_targets_default[100];
+	int ret;
 
 	switch (boot_device) {
 	case BOOT_DEVICE_MMC1:
 		env_set_ulong("mmcdev", 0);
 		env_set("boot", "mmc");
+		boot_targets = "mmc0 mmc1 spi_flash dhcp";
 		break;
 	case BOOT_DEVICE_MMC2:
 		env_set_ulong("mmcdev", 1);
 		env_set("boot", "mmc");
+		boot_targets = "mmc1 mmc0 spi_flash dhcp";
 		break;
 	case BOOT_DEVICE_SPI:
 		env_set("boot", "spi");
+		boot_targets = "spi_flash mmc0 mmc1 dhcp";
 		break;
 	case BOOT_DEVICE_ETHERNET:
 		env_set("boot", "net");
+		boot_targets = "dhcp mmc0 mmc1 spi_flash";
 		break;
 	case BOOT_DEVICE_UART:
 		env_set("boot", "uart");
@@ -148,26 +161,49 @@ int board_late_init(void)
 		break;
 	};
 
-	if (IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS)) {
-		struct phytec_api3_element *block_element;
-		struct phytec_eeprom_data data;
-		int ret;
+	if (!boot_targets)
+		return;
 
-		ret = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
-		if (ret || !data.valid)
-			return 0;
+	ret = env_get_default_into("boot_targets", boot_targets_default, sizeof(boot_targets_default));
+	if (ret < 0)
+		boot_targets_default[0] = '\0';
 
-		PHYTEC_API3_FOREACH_BLOCK(block_element, &data) {
-			switch (block_element->block_type) {
-			case PHYTEC_API3_BLOCK_MAC:
-				phytec_blocks_add_mac_to_env(block_element);
-				break;
-			default:
-				debug("%s: Unknown block type %i\n", __func__,
-				      block_element->block_type);
-			}
+	if (strcmp(boot_targets_default, env_get("boot_targets"))) {
+		debug("boot_targets not default, don't change it\n");
+		return;
+	}
+
+	env_set("boot_targets", boot_targets);
+}
+
+static void setup_mac_from_eeprom(void)
+{
+	struct phytec_api3_element *block_element;
+	struct phytec_eeprom_data data;
+	int ret;
+
+	ret = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
+	if (ret || !data.valid)
+		return;
+
+	PHYTEC_API3_FOREACH_BLOCK(block_element, &data) {
+		switch (block_element->block_type) {
+		case PHYTEC_API3_BLOCK_MAC:
+			phytec_blocks_add_mac_to_env(block_element);
+			break;
+		default:
+			debug("%s: Unknown block type %i\n", __func__,
+			      block_element->block_type);
 		}
 	}
+}
+
+int board_late_init(void)
+{
+	boot_targets_setup();
+
+	if (IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS))
+		setup_mac_from_eeprom();
 
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 	configure_capsule_updates();

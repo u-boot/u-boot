@@ -10,8 +10,12 @@
 
 #include <dm.h>
 #include <expo.h>
+#include <log.h>
 #include <malloc.h>
+#include <menu.h>
 #include <video.h>
+#include <watchdog.h>
+#include <linux/delay.h>
 #include "scene_internal.h"
 
 int expo_new(const char *name, void *priv, struct expo **expp)
@@ -30,6 +34,7 @@ int expo_new(const char *name, void *priv, struct expo **expp)
 	INIT_LIST_HEAD(&exp->scene_head);
 	INIT_LIST_HEAD(&exp->str_head);
 	exp->next_id = EXPOID_BASE_ID;
+	cli_ch_init(&exp->cch);
 
 	*expp = exp;
 
@@ -81,7 +86,7 @@ int expo_str(struct expo *exp, const char *name, uint id, const char *str)
 		return log_msg_ret("obj", -ENOMEM);
 
 	estr->id = resolve_id(exp, id);
-	estr->str = str;
+	abuf_init_const(&estr->buf, str, strlen(str) + 1);
 	list_add_tail(&estr->sibling, &exp->str_head);
 
 	return estr->id;
@@ -93,10 +98,31 @@ const char *expo_get_str(struct expo *exp, uint id)
 
 	list_for_each_entry(estr, &exp->str_head, sibling) {
 		if (estr->id == id)
-			return estr->str;
+			return estr->buf.data;
 	}
 
 	return NULL;
+}
+
+int expo_edit_str(struct expo *exp, uint id, struct abuf *orig,
+		  struct abuf **copyp)
+{
+	struct expo_string *estr;
+	struct abuf old;
+
+	list_for_each_entry(estr, &exp->str_head, sibling) {
+		if (estr->id == id) {
+			old = estr->buf;
+			if (!abuf_copy(&old, &estr->buf))
+				return -ENOMEM;
+			*copyp = &estr->buf;
+			if (orig)
+				*orig = old;
+			return 0;
+		}
+	}
+
+	return -ENOENT;
 }
 
 int expo_set_display(struct expo *exp, struct udevice *dev)
@@ -251,6 +277,7 @@ int expo_apply_theme(struct expo *exp, ofnode node)
 {
 	struct scene *scn;
 	struct expo_theme *theme = &exp->theme;
+	bool white_on_black;
 	int ret;
 
 	log_debug("Applying theme %s\n", ofnode_get_name(node));
@@ -261,6 +288,9 @@ int expo_apply_theme(struct expo *exp, ofnode node)
 	ofnode_read_u32(node, "menuitem-gap-y", &theme->menuitem_gap_y);
 	ofnode_read_u32(node, "menu-title-margin-x",
 			&theme->menu_title_margin_x);
+	white_on_black = ofnode_read_bool(node, "white-on-black");
+	if (exp->display)
+		video_set_white_on_black(exp->display, white_on_black);
 
 	list_for_each_entry(scn, &exp->scene_head, sibling) {
 		ret = scene_apply_theme(scn, theme);
@@ -282,6 +312,44 @@ int expo_iter_scene_objs(struct expo *exp, expo_scene_obj_iterator iter,
 		if (ret)
 			return log_msg_ret("wr", ret);
 	}
+
+	return 0;
+}
+
+int expo_poll(struct expo *exp, struct expo_action *act)
+{
+	int ichar, key, ret;
+
+	ichar = cli_ch_process(&exp->cch, 0);
+	if (!ichar) {
+		int i;
+
+		for (i = 0; i < 10 && !ichar && !tstc(); i++) {
+			schedule();
+			mdelay(2);
+			ichar = cli_ch_process(&exp->cch, -ETIMEDOUT);
+		}
+		while (!ichar && tstc()) {
+			ichar = getchar();
+			ichar = cli_ch_process(&exp->cch, ichar);
+		}
+	}
+
+	key = 0;
+	if (ichar) {
+		key = bootmenu_conv_key(ichar);
+		if (key == BKEY_NONE || key >= BKEY_FIRST_EXTRA)
+			key = ichar;
+	}
+	if (!key)
+		return -EAGAIN;
+
+	ret = expo_send_key(exp, key);
+	if (ret)
+		return log_msg_ret("epk", ret);
+	ret = expo_action_get(exp, act);
+	if (ret)
+		return log_msg_ret("eag", ret);
 
 	return 0;
 }

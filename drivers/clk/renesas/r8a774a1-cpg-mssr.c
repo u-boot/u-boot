@@ -305,7 +305,7 @@ static const struct mstp_stop_table r8a774a1_mstp_table[] = {
 	{ 0xD00C7C1F, 0, 0xD00C7C1F, 0 },
 	{ 0x80000004, 0, 0x80000004, 0 },
 	{ 0x00DF0006, 0, 0x00DF0006, 0 },
-	{ 0XC5EACCCE, 0, 0XC5EACCCE, 0 },
+	{ 0xC5EACCCE, 0, 0xC5EACCCE, 0 },
 	{ 0x29E1401C, 0, 0x29E1401C, 0 },
 	{ 0x00009FF1, 0, 0x00009FF1, 0 },
 	{ 0xFC4FDFE0, 0, 0xFC4FDFE0, 0 },

@@ -87,6 +87,7 @@ class Entry_ti_secure_rom(Entry_x509_cert):
                     'OU': 'Processors',
                     'CN': 'TI Support',
                     'emailAddress': 'support@ti.com'}
+        self.debug = fdt_util.GetBool(self._node, 'debug', False)
 
     def NonCombinedGetCertificate(self, required):
         """Generate certificate for legacy boot flow

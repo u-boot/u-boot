@@ -362,7 +362,7 @@ config ROCKCHIP_RK3528
 	imply SPL_REGMAP
 	imply SPL_SERIAL
 	imply SPL_SYSCON
-	imply SYS_RELOC_GD_ENV_ADDR
+	imply ENV_RELOC_GD_ENV_ADDR
 	imply SYSRESET
 	imply SYSRESET_PSCI if SPL_ATF
 	help
@@ -446,7 +446,7 @@ config ROCKCHIP_RK3576
 	imply SPL_REGMAP
 	imply SPL_SERIAL
 	imply SPL_SYSCON
-	imply SYS_RELOC_GD_ENV_ADDR
+	imply ENV_RELOC_GD_ENV_ADDR
 	imply SYSRESET
 	help
 	  The Rockchip RK3576 is a ARM-based SoC with quad-core Cortex-A72 and

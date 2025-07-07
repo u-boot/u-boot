@@ -10,6 +10,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 #include <serial.h>
 #include <watchdog.h>
 #include <asm/arch/clock.h>

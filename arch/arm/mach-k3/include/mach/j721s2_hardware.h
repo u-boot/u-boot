@@ -41,19 +41,20 @@
 
 #define J721S2_DEV_MCU_RTI0			295
 #define J721S2_DEV_MCU_RTI1			296
-#define J721S2_DEV_MCU_ARMSS0_CPU0		284
-#define J721S2_DEV_MCU_ARMSS0_CPU1		285
 
 static const u32 put_device_ids[] = {
 	J721S2_DEV_MCU_RTI0,
 	J721S2_DEV_MCU_RTI1,
 };
 
+#endif
+
+#define J721S2_DEV_MCU_ARMSS0_CPU0		284
+#define J721S2_DEV_MCU_ARMSS0_CPU1		285
+
 static const u32 put_core_ids[] = {
 	J721S2_DEV_MCU_ARMSS0_CPU1,
 	J721S2_DEV_MCU_ARMSS0_CPU0,	/* Handle CPU0 after CPU1 */
 };
-
-#endif
 
 #endif /* __ASM_ARCH_J721S2_HARDWARE_H */

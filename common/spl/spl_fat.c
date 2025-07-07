@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <image.h>
 #include <linux/libfdt.h>
+#include <asm/cache.h>
 
 static int fat_registered;
 

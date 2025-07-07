@@ -3,6 +3,7 @@
  * Copyright 2020-2021 NXP
  */
 
+#include <env.h>
 #include <net/dsa.h>
 #include <dm/test.h>
 #include <test/ut.h>

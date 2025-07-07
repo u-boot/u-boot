@@ -1,0 +1,7 @@
+STM32H747 DISCOVERY BOARD
+M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
+S:	Maintained
+F:	board/st/stm32h747-disco
+F:	include/configs/stm32h747-disco.h
+F:	configs/stm32h747-disco_defconfig
+F:	arch/arm/dts/stm32h747*

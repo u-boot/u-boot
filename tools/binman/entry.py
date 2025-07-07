@@ -88,6 +88,7 @@ class Entry(object):
             updated with a hash of the entry contents
         comp_bintool: Bintools used for compress and decompress data
         fake_fname: Fake filename, if one was created, else None
+        faked (bool): True if the entry is absent and faked
         required_props (dict of str): Properties which must be present. This can
             be added to by subclasses
         elf_fname (str): Filename of the ELF file, if this entry holds an ELF
@@ -759,7 +760,7 @@ class Entry(object):
                           self.image_pos)
 
     # pylint: disable=assignment-from-none
-    def GetEntries(self):
+    def GetEntries(self) -> None:
         """Return a list of entries contained by this entry
 
         Returns:
@@ -1120,7 +1121,7 @@ features to produce new behaviours.
         if self.missing and not self.optional:
             missing_list.append(self)
 
-    def check_fake_fname(self, fname, size=0):
+    def check_fake_fname(self, fname: str, size: int = 0) -> str:
         """If the file is missing and the entry allows fake blobs, fake it
 
         Sets self.faked to True if faked
@@ -1130,9 +1131,7 @@ features to produce new behaviours.
             size (int): Size of fake file to create
 
         Returns:
-            tuple:
-                fname (str): Filename of faked file
-                bool: True if the blob was faked, False if not
+            fname (str): Filename of faked file
         """
         if self.allow_fake and not pathlib.Path(fname).is_file():
             if not self.fake_fname:
@@ -1142,8 +1141,8 @@ features to produce new behaviours.
                 tout.info(f"Entry '{self._node.path}': Faked blob '{outfname}'")
                 self.fake_fname = outfname
             self.faked = True
-            return self.fake_fname, True
-        return fname, False
+            return self.fake_fname
+        return fname
 
     def CheckFakedBlobs(self, faked_blobs_list):
         """Check if any entries in this section have faked external blobs
@@ -1351,6 +1350,10 @@ features to produce new behaviours.
         if not os.path.exists(cls.fake_dir):
             os.mkdir(cls.fake_dir)
         tout.notice(f"Fake-blob dir is '{cls.fake_dir}'")
+
+    def drop_absent_optional(self) -> None:
+        """Entries don't have any entries, do nothing"""
+        pass
 
     def ensure_props(self):
         """Raise an exception if properties are missing

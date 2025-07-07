@@ -950,15 +950,6 @@ The following options need to be configured:
 		the environment like the "source" command or the
 		boot command first.
 
-		CONFIG_DELAY_ENVIRONMENT
-
-		Normally the environment is loaded when the board is
-		initialised so that it is available to U-Boot. This inhibits
-		that so that the environment is not available until
-		explicitly loaded later by U-Boot code. With CONFIG_OF_CONTROL
-		this is instead controlled by the value of
-		/config/load-environment.
-
 - Automatic software updates via TFTP server
 		CONFIG_UPDATE_TFTP
 		CONFIG_UPDATE_TFTP_CNT_MAX

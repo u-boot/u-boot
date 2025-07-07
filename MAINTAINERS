@@ -468,7 +468,6 @@ F:	drivers/memory/atmel-ebi.c
 F:	drivers/misc/microchip_flexcom.c
 F:	drivers/timer/atmel_tcb_timer.c
 F:	include/dt-bindings/clk/at91.h
-F:	include/dt-bindings/clock/at91.h
 F:	include/dt-bindings/dma/at91.h
 F:	include/dt-bindings/mfd/at91-usart.h
 F:	include/dt-bindings/mfd/atmel-flexcom.h
@@ -718,7 +717,7 @@ F:	drivers/power/regulator/stm32-vrefbuf.c
 F:	drivers/power/regulator/stpmic1.c
 F:	drivers/ram/stm32mp1/
 F:	drivers/remoteproc/stm32_copro.c
-F:	drivers/reset/stm32-reset.c
+F:	drivers/reset/stm32/
 F:	drivers/rng/optee_rng.c
 F:	drivers/rng/stm32_rng.c
 F:	drivers/rtc/stm32_rtc.c
@@ -731,6 +730,7 @@ F:	include/dt-bindings/clock/stm32fx-clock.h
 F:	include/dt-bindings/clock/stm32mp*
 F:	include/dt-bindings/pinctrl/stm32-pinfunc.h
 F:	include/dt-bindings/reset/stm32mp*
+F:	include/stm32-reset-core.h
 F:	include/stm32_rcc.h
 F:	tools/logos/st.bmp
 F:	tools/stm32image.c
@@ -1073,6 +1073,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-dfu.git
 F:	cmd/dfu.c
 F:	cmd/usb_*.c
 F:	common/dfu.c
+F:	common/spl/spl_dfu.c
 F:	common/update.c
 F:	doc/api/dfu.rst
 F:	doc/usage/dfu.rst
@@ -1569,6 +1570,14 @@ F:	drivers/clk/clk_k210.c
 F:	drivers/pinctrl/pinctrl-k210.c
 F:	include/k210/
 
+RISC-V T-HEAD TH1520
+M:	Yao Zi <ziyao@disroot.org>
+S:	Maintained
+F:	arch/riscv/cpu/th1520/
+F:	drivers/clk/thead/clk-th1520-ap.c
+F:	drivers/pinctrl/pinctrl-th1520.c
+F:	drivers/ram/thead/th1520_ddr.c
+
 RNG
 M:	Sughosh Ganu <sughosh.ganu@linaro.org>
 R:	Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -1627,6 +1636,13 @@ S:	Maintained
 F:	drivers/gpio/sl28cpld-gpio.c
 F:	drivers/misc/sl28cpld.c
 F:	drivers/watchdog/sl28cpld-wdt.c
+
+SLRE
+M:	Rasmus Villemoes <ravi@prevas.dk>
+S:	Maintained
+F:	include/slre.h
+F:	lib/slre.c
+F:	test/lib/slre.c
 
 SMCCC TRNG
 M:	Etienne Carriere <etienne.carriere@linaro.org>

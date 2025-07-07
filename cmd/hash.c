@@ -10,6 +10,7 @@
  */
 
 #include <command.h>
+#include <env.h>
 #include <hash.h>
 #include <linux/ctype.h>
 

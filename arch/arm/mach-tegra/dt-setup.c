@@ -3,8 +3,10 @@
  * Copyright (c) 2010-2016, NVIDIA CORPORATION.
  */
 
+#include <env.h>
 #include <fdtdec.h>
 #include <stdlib.h>
+#include <linux/if_ether.h>
 #include <asm/arch-tegra/cboot.h>
 #include <asm/arch-tegra/gpu.h>
 

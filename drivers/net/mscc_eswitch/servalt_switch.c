@@ -88,7 +88,6 @@
 #define MAC_VID			0
 #define CPU_PORT		11
 #define IFH_LEN			7
-#define ETH_ALEN		6
 #define PGID_BROADCAST		50
 #define PGID_UNICAST		51
 

@@ -566,7 +566,7 @@ U_BOOT_DRIVER(mtk_clk_apmixedsys) = {
 	.of_match = mt7981_fixed_pll_compat,
 	.probe = mt7981_fixed_pll_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_fixed_pll_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 

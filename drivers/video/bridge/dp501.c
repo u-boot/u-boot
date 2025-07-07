@@ -99,7 +99,7 @@
 #define SD_DB15			0x4F
 
 /* Aux Channel and PCS */
-#define DPCD_REV		0X50
+#define DPCD_REV		0x50
 #define MAX_LINK_RATE		0x51
 #define MAX_LANE_COUNT		0x52
 #define MAX_DOWNSPREAD		0x53

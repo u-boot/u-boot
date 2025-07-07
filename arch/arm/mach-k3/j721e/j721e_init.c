@@ -296,9 +296,9 @@ void do_dt_magic(void)
 
 void board_init_f(ulong dummy)
 {
+	int ret;
 #if defined(CONFIG_K3_J721E_DDRSS) || defined(CONFIG_K3_LOAD_SYSFW)
 	struct udevice *dev;
-	int ret;
 #endif
 	/*
 	 * Cannot delay this further as there is a chance that
@@ -371,8 +371,19 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 #endif
 
+	/* Shutdown MCU_R5 Core 1 in Split mode at A72 SPL Stage */
+	if (IS_ENABLED(CONFIG_ARM64)) {
+		ret = shutdown_mcu_r5_core1();
+		if (ret)
+			printf("Unable to shutdown MCU R5 core 1, %d\n", ret);
+	}
+
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
+
+	/* Output DM Firmware version info */
+	if (IS_ENABLED(CONFIG_ARM64))
+		k3_dm_print_ver();
 
 	/* Perform board detection */
 	do_board_detect();

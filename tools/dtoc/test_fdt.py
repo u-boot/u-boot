@@ -969,7 +969,7 @@ def run_tests(names, processes):
     """
     test_name = names[0] if names else None
     result = test_util.run_test_suites(
-        'test_fdt', False, False, False, processes, test_name, None,
+        'test_fdt', False, False, False, False, processes, test_name, None,
         [TestFdt, TestNode, TestProp, TestFdtUtil])
 
     return (0 if result.wasSuccessful() else 1)

@@ -610,7 +610,7 @@ class TestBuild(unittest.TestCase):
     def testToolchainDownload(self):
         """Test that we can download toolchains"""
         if use_network:
-            with test_util.capture_sys_output() as (stdout, stderr):
+            with terminal.capture() as (stdout, stderr):
                 url = self.toolchains.LocateArchUrl('arm')
             self.assertRegex(url, 'https://www.kernel.org/pub/tools/'
                     'crosstool/files/bin/x86_64/.*/'
@@ -1054,7 +1054,7 @@ class TestBuild(unittest.TestCase):
         self.assertEqual([f'{home}/mypath'], toolchains.paths)
 
         # Check scanning
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             toolchains.Scan(verbose=True, raise_on_error=False)
         lines = iter(stdout.getvalue().splitlines() + ['##done'])
         self.assertEqual('Scanning for tool chains', next(lines))
@@ -1071,7 +1071,7 @@ class TestBuild(unittest.TestCase):
         self.assertEqual('##done', next(lines))
 
         # Check adding a toolchain
-        with test_util.capture_sys_output() as (stdout, _):
+        with terminal.capture() as (stdout, _):
             toolchains.Add('~/aarch64-linux-gcc', test=True, verbose=True)
         lines = iter(stdout.getvalue().splitlines() + ['##done'])
         self.assertEqual('Tool chain test:  BAD', next(lines))

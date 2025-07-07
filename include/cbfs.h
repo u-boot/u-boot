@@ -6,8 +6,8 @@
 #ifndef __CBFS_H
 #define __CBFS_H
 
-#include <compiler.h>
 #include <linux/compiler.h>
+#include <linux/types.h>
 
 struct cbfs_priv;
 

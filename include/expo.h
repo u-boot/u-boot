@@ -8,7 +8,9 @@
 #define __EXPO_H
 
 #include <abuf.h>
+#include <alist.h>
 #include <dm/ofnode_decl.h>
+#include <linux/bitops.h>
 #include <linux/list.h>
 
 struct udevice;
@@ -104,10 +106,14 @@ struct expo_theme {
  * type set to EXPOACT_NONE if there is no action
  * @text_mode: true to use text mode for the menu (no vidconsole)
  * @popup: true to use popup menus, instead of showing all items
+ * @show_highlight: show a highlight bar on the selected menu item
  * @priv: Private data for the controller
+ * @done: Indicates that a cedit session is complete and the user has quit
+ * @save: Indicates that cedit data should be saved, rather than discarded
  * @theme: Information about fonts styles, etc.
  * @scene_head: List of scenes
  * @str_head: list of strings
+ * @cch: Keyboard context for input
  */
 struct expo {
 	char *name;
@@ -118,22 +124,26 @@ struct expo {
 	struct expo_action action;
 	bool text_mode;
 	bool popup;
+	bool show_highlight;
 	void *priv;
+	bool done;
+	bool save;
 	struct expo_theme theme;
 	struct list_head scene_head;
 	struct list_head str_head;
+	struct cli_ch_state cch;
 };
 
 /**
  * struct expo_string - a string that can be used in an expo
  *
  * @id: ID number of the string
- * @str: String
+ * @buf: String (contains nul terminator)
  * @sibling: Node to link this object to its siblings
  */
 struct expo_string {
 	uint id;
-	const char *str;
+	struct abuf buf;
 	struct list_head sibling;
 };
 
@@ -171,14 +181,18 @@ struct scene {
  *
  * @SCENEOBJT_NONE: Used to indicate that the type does not matter
  * @SCENEOBJT_IMAGE: Image data to render
+ * @SCENEOBJT_BOX: Rectangular box
  * @SCENEOBJT_TEXT: Text line to render
  * @SCENEOBJT_MENU: Menu containing items the user can select
  * @SCENEOBJT_TEXTLINE: Line of text the user can edit
+ * @SCENEOBJT_TEXTEDIT: Simple text editor
  */
 enum scene_obj_t {
 	SCENEOBJT_NONE		= 0,
 	SCENEOBJT_IMAGE,
 	SCENEOBJT_TEXT,
+	SCENEOBJT_BOX,
+	SCENEOBJT_TEXTEDIT,
 
 	/* types from here on can be highlighted */
 	SCENEOBJT_MENU,
@@ -186,18 +200,76 @@ enum scene_obj_t {
 };
 
 /**
- * struct scene_dim - Dimensions of an object
+ * struct scene_obj_bbox - Dimensions of an object
  *
- * @x: x position, in pixels from left side
- * @y: y position, in pixels from top
- * @w: width, in pixels
- * @h: height, in pixels
+ * @x0: x position, in pixels from left side
+ * @y0: y position, in pixels from top
+ * @x1: x position of right size
+ * @y1: y position of bottom
  */
-struct scene_dim {
+struct scene_obj_bbox {
+	int x0;
+	int y0;
+	int x1;
+	int y1;
+};
+
+/**
+ * struct scene_obj_offset - Offsets for drawing the object
+ *
+ * Stores the offset from x0, x1 at which objects are drawn
+ *
+ * @xofs: x offset
+ * @yofs: y offset
+ */
+struct scene_obj_offset {
+	int xofs;
+	int yofs;
+};
+
+/**
+ * struct scene_obj_dims - Dimensions of the object being drawn
+ *
+ * Image and text objects have a dimension which can change depending on what
+ * they contain. For images this stores the size. For text it stores the size as
+ * rendered on the display
+ *
+ * @x: x dimension
+ * @y: y dimension
+ */
+struct scene_obj_dims {
 	int x;
 	int y;
-	int w;
-	int h;
+};
+
+/* special values for dimensions */
+enum {
+	/* width/height of the display */
+	SCENEOB_DISPLAY_MAX	= 0x7f000000,
+};
+
+/**
+ * enum scene_obj_halign - Horizontal alignment of objects
+ *
+ * Objects are normally drawn on the left size of their bounding box. This
+ * properly allows aligning on the right or having the object centred.
+ *
+ * @SCENEOA_LEFT: Left of object is aligned with its x coordinate
+ * @SCENEOA_RIGHT: Right of object is aligned with x + w
+ * @SCENEOA_CENTRE: Centre of object is aligned with centre of bounding box
+ * @SCENEOA_TOP: Left of object is aligned with its x coordinate
+ * @SCENEOA_BOTTOM: Right of object is aligned with x + w
+ *
+ * Note: It would be nice to make this a char type but Sphinx riddles:
+ * ./include/expo.h:258: error: Cannot parse enum!
+ * enum scene_obj_align : char {
+ */
+enum scene_obj_align {
+	SCENEOA_LEFT,
+	SCENEOA_RIGHT,
+	SCENEOA_CENTRE,
+	SCENEOA_TOP = SCENEOA_LEFT,
+	SCENEOA_BOTTOM = SCENEOA_RIGHT,
 };
 
 /**
@@ -207,11 +279,14 @@ struct scene_dim {
  * @SCENEOF_POINT: object should be highlighted
  * @SCENEOF_OPEN: object should be opened (e.g. menu is opened so that an option
  * can be selected)
+ * @SCENEOF_SIZE_VALID: object's size (width/height) is valid, so any adjustment
+ * to x0/y0 should maintain the width/height of the object
  */
 enum scene_obj_flags_t {
 	SCENEOF_HIDE	= 1 << 0,
 	SCENEOF_POINT	= 1 << 1,
 	SCENEOF_OPEN	= 1 << 2,
+	SCENEOF_SIZE_VALID	= BIT(3),
 };
 
 enum {
@@ -226,7 +301,11 @@ enum {
  * @name: Name of the object (allocated)
  * @id: ID number of the object
  * @type: Type of this object
- * @dim: Dimensions for this object
+ * @bbox: Bounding box for this object
+ * @ofs: Offset from x0, y0 where the object is drawn
+ * @dims: Dimensions of the text/image (may be smaller than bbox)
+ * @horiz: Horizonal alignment
+ * @vert: Vertical alignment
  * @flags: Flags for this object
  * @bit_length: Number of bits used for this object in CMOS RAM
  * @start_bit: Start bit to use for this object in CMOS RAM
@@ -237,7 +316,11 @@ struct scene_obj {
 	char *name;
 	uint id;
 	enum scene_obj_t type;
-	struct scene_dim dim;
+	struct scene_obj_bbox bbox;
+	struct scene_obj_offset ofs;
+	struct scene_obj_dims dims;
+	enum scene_obj_align horiz;
+	enum scene_obj_align vert;
 	u8 flags;
 	u8 bit_length;
 	u16 start_bit;
@@ -264,20 +347,32 @@ struct scene_obj_img {
 };
 
 /**
+ * struct scene_txt_generic - Generic information common to text objects
+ *
+ * @str_id: ID of the text string to display
+ * @font_name: Name of font (allocated by caller)
+ * @font_size: Nominal size of font in pixels
+ * @lines: alist of struct vidconsole_mline with a separate record for each
+ *	line of text
+ */
+struct scene_txt_generic {
+	uint str_id;
+	const char *font_name;
+	uint font_size;
+	struct alist lines;
+};
+
+/**
  * struct scene_obj_txt - information about a text object in a scene
  *
  * This is a single-line text object
  *
  * @obj: Basic object information
- * @str_id: ID of the text string to display
- * @font_name: Name of font (allocated by caller)
- * @font_size: Nominal size of font in pixels
+ * @gen: Generic information common to all objects which show text
  */
 struct scene_obj_txt {
 	struct scene_obj obj;
-	uint str_id;
-	const char *font_name;
-	uint font_size;
+	struct scene_txt_generic gen;
 };
 
 /**
@@ -367,6 +462,34 @@ struct scene_obj_textline {
 };
 
 /**
+ * struct scene_obj_box - information about a box in a scene
+ *
+ * A box surrounds a part of the screen with a border
+ *
+ * @obj: Basic object information
+ * @width: Line-width in pixels
+ */
+struct scene_obj_box {
+	struct scene_obj obj;
+	uint width;
+};
+
+/**
+ * struct scene_obj_txtedit - information about a box in a scene
+ *
+ * A text editor which allows users to edit a small text file
+ *
+ * @obj: Basic object information
+ * @gen: Generic information common to all objects which show text
+ * @buf: Text buffer containing current text
+ */
+struct scene_obj_txtedit {
+	struct scene_obj obj;
+	struct scene_txt_generic gen;
+	struct abuf buf;
+};
+
+/**
  * struct expo_arrange_info - Information used when arranging a scene
  *
  * @label_width: Maximum width of labels in scene
@@ -432,6 +555,23 @@ int expo_str(struct expo *exp, const char *name, uint id, const char *str);
  * @returns string, or NULL if not found
  */
 const char *expo_get_str(struct expo *exp, uint id);
+
+/**
+ * expo_edit_str() - Make a string writeable
+ *
+ * This allows a string to be updated under the control of the caller. The
+ * buffer must remain valid while the expo is active.
+ *
+ * @exp: Expo to use
+ * @id: String ID to look up
+ * @orig: If non-NULL, returns the original buffer, which can be used by the
+ *	caller. It is no-longer used by expo so must be uninited by the caller.
+ *	It contains a snapshot of the string contents
+ * @copyp: Returns a pointer to the new, writeable buffer
+ * Return: 0 if OK, -ENOENT if the id was not found, -ENOMEM if out of memory
+ */
+int expo_edit_str(struct expo *exp, uint id, struct abuf *orig,
+		  struct abuf **copyp);
 
 /**
  * expo_set_display() - set the display to use for a expo
@@ -614,6 +754,32 @@ int scene_textline(struct scene *scn, const char *name, uint id, uint max_chars,
 		   struct scene_obj_textline **tlinep);
 
 /**
+ *  scene_box() - create a box
+ *
+ * @scn: Scene to update
+ * @name: Name to use (this is allocated by this call)
+ * @id: ID to use for the new object (0 to allocate one)
+ * @width: Line-width in pixels
+ * @boxp: If non-NULL, returns the new object
+ * Returns: ID number for the object (typically @id), or -ve on error
+ */
+int scene_box(struct scene *scn, const char *name, uint id, uint width,
+	      struct scene_obj_box **boxp);
+
+/**
+ *  scene_texted() - create a text editor
+ *
+ * @scn: Scene to update
+ * @name: Name to use (this is allocated by this call)
+ * @id: ID to use for the new object (0 to allocate one)
+ * @strid: ID of the string to edit
+ * @teditp: If non-NULL, returns the new object
+ * Returns: ID number for the object (typically @id), or -ve on error
+ */
+int scene_texted(struct scene *scn, const char *name, uint id, uint strid,
+		 struct scene_obj_txtedit **teditp);
+
+/**
  * scene_txt_set_font() - Set the font for an object
  *
  * @scn: Scene to update
@@ -623,6 +789,17 @@ int scene_textline(struct scene *scn, const char *name, uint id, uint max_chars,
  */
 int scene_txt_set_font(struct scene *scn, uint id, const char *font_name,
 		       uint font_size);
+
+/**
+ * scene_txted_set_font() - Set the font for an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @font_name: Font name to use (allocated by caller)
+ * @font_size: Font size to use (nominal height in pixels)
+ */
+int scene_txted_set_font(struct scene *scn, uint id, const char *font_name,
+			 uint font_size);
 
 /**
  * scene_obj_set_pos() - Set the postion of an object
@@ -645,6 +822,50 @@ int scene_obj_set_pos(struct scene *scn, uint id, int x, int y);
  * Returns: 0 if OK, -ENOENT if @id is invalid
  */
 int scene_obj_set_size(struct scene *scn, uint id, int w, int h);
+
+/**
+ * scene_obj_set_width() - Set the width of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @w: width in pixels
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_width(struct scene *scn, uint id, int w);
+
+/**
+ * scene_obj_set_bbox() - Set the bounding box of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @x0: x position, in pixels from left side
+ * @y0: y position, in pixels from top
+ * @x1: ending x position (right side)
+ * @y1: ending y position (botton side)
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_bbox(struct scene *scn, uint id, int x0, int y0, int x1,
+		       int y1);
+
+/**
+ * scene_obj_set_halign() - Set the horizontal alignment of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @aln: Horizontal alignment to use
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_halign(struct scene *scn, uint id, enum scene_obj_align aln);
+
+/**
+ * scene_obj_set_valign() - Set the vertical alignment of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @aln: Vertical alignment to use
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_valign(struct scene *scn, uint id, enum scene_obj_align aln);
 
 /**
  * scene_obj_set_hide() - Set whether an object is hidden
@@ -682,6 +903,26 @@ int scene_menu_set_title(struct scene *scn, uint id, uint title_id);
  * Returns: 0 if OK, -ENOENT if @id is invalid, -EINVAL if @cur_item_id is invalid
  */
 int scene_menu_set_pointer(struct scene *scn, uint id, uint cur_item_id);
+
+/**
+ * scene_menu_select_item() - move the pointer/highlight to an item
+ *
+ * @scn: Scene to update
+ * @id: ID of menu object to update
+ * @sel_id: ID of the menuitem to select
+ * Return 0 on success, -ENOENT if there was no such item
+ */
+int scene_menu_select_item(struct scene *scn, uint id, uint sel_id);
+
+/**
+ * scene_menu_get_cur_item() - get the currently pointed-to item
+ *
+ * @scn: Scene to update
+ * @id: ID of menu object to update
+ * Return ID of the current item the menu is pointing to, -ENOENT if @id is not
+ * valid, 0 if no item is pointed to
+ */
+int scene_menu_get_cur_item(struct scene *scn, uint id);
 
 /**
  * scene_obj_get_hw() - Get width and height of an object in a scene
@@ -769,5 +1010,21 @@ int expo_build(ofnode root, struct expo **expp);
  * Return: 0 if OK, -ve on error
  */
 int cb_expo_build(struct expo **expp);
+
+/**
+ * expo_poll() - see if the user takes an action
+ *
+ * This checks for a keypress. If there is one, it is processed and the
+ * resulting action returned, if any.
+ *
+ * Note that expo_render() should normally be called immediately before this
+ * function so that the user can see the latest state.
+ *
+ * @exp: Expo to poll
+ * @act: Returns action on success
+ * Return: 0 if an action was obtained, -EAGAIN if not, other error if something
+ *	went wrong
+ */
+int expo_poll(struct expo *exp, struct expo_action *act);
 
 #endif /*__EXPO_H */

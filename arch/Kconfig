@@ -63,6 +63,13 @@ config SYS_CACHELINE_SIZE
 	default 64 if RISCV
 	default 32 if MIPS
 
+config SYS_DTC_PAD_BYTES
+	int "Size in bytes to pad device tree blob"
+	default 32768 if X86 && EFI_APP
+	default 4096 if ARC || ARM64 || M68K || MICROBLAZE || NIOS2 \
+		|| RISCV || SANDBOX || X86
+	default 0
+
 config LINKER_LIST_ALIGN
 	int
 	default 32 if SANDBOX
@@ -213,6 +220,7 @@ config SANDBOX
 	imply BITREVERSE
 	select BLOBLIST
 	imply LTO
+	imply CMD_BOOTEFI_SELFTEST
 	imply CMD_DM
 	imply CMD_EXCEPTION
 	imply CMD_GETTIME

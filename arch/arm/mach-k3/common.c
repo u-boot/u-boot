@@ -31,6 +31,11 @@
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
 
+#define PROC_BOOT_CTRL_FLAG_R5_CORE_HALT	0x00000001
+#define PROC_BOOT_STATUS_FLAG_R5_WFI		0x00000002
+#define PROC_ID_MCU_R5FSS0_CORE1		0x02
+#define PROC_BOOT_CFG_FLAG_R5_LOCKSTEP		0x00000100
+
 #include <asm/arch/k3-qos.h>
 
 struct ti_sci_handle *get_ti_sci_handle(void)
@@ -66,6 +71,35 @@ void k3_sysfw_print_ver(void)
 	printf("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
 	       ti_sci->version.abi_major, ti_sci->version.abi_minor,
 	       ti_sci->version.firmware_revision, fw_desc);
+}
+
+void __maybe_unused k3_dm_print_ver(void)
+{
+	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
+	struct ti_sci_firmware_ops *fw_ops = &ti_sci->ops.fw_ops;
+	struct ti_sci_dm_version_info dm_info = {0};
+	u64 fw_caps;
+	int ret;
+
+	ret = fw_ops->query_dm_cap(ti_sci, &fw_caps);
+	if (ret) {
+		printf("Failed to query DM firmware capability %d\n", ret);
+		return;
+	}
+
+	if (!(fw_caps & TI_SCI_MSG_FLAG_FW_CAP_DM))
+		return;
+
+	ret = fw_ops->get_dm_version(ti_sci, &dm_info);
+	if (ret) {
+		printf("Failed to fetch DM firmware version %d\n", ret);
+		return;
+	}
+
+	printf("DM ABI: %d.%d (firmware ver 0x%04x '%s--%s' "
+	       "patch_ver: %d)\n", dm_info.abi_major, dm_info.abi_minor,
+	       dm_info.dm_ver, dm_info.sci_server_version,
+	       dm_info.rm_pm_hal_version, dm_info.patch_ver);
 }
 
 void mmr_unlock(uintptr_t base, u32 partition)
@@ -175,11 +209,17 @@ static const char *get_device_type_name(void)
 	}
 }
 
+__weak const char *get_reset_reason(void)
+{
+	return NULL;
+}
+
 int print_cpuinfo(void)
 {
 	struct udevice *soc;
 	char name[64];
 	int ret;
+	const char *reset_reason;
 
 	printf("SoC:   ");
 
@@ -200,6 +240,10 @@ int print_cpuinfo(void)
 	}
 
 	printf("%s\n", get_device_type_name());
+
+	reset_reason = get_reset_reason();
+	if (reset_reason)
+		printf("Reset reason: %s\n", reset_reason);
 
 	return 0;
 }
@@ -328,3 +372,67 @@ void setup_qos(void)
 		writel(qos_data[i].val, (uintptr_t)qos_data[i].reg);
 }
 #endif
+
+int __maybe_unused shutdown_mcu_r5_core1(void)
+{
+	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
+	struct ti_sci_dev_ops *dev_ops = &ti_sci->ops.dev_ops;
+	struct ti_sci_proc_ops *proc_ops = &ti_sci->ops.proc_ops;
+	u32 dev_id_mcu_r5_core1 = put_core_ids[0];
+	u64 boot_vector;
+	u32 cfg, ctrl, sts, halted;
+	int cluster_mode_lockstep, ret;
+	bool r_state = false, c_state = false;
+
+	ret = proc_ops->proc_request(ti_sci, PROC_ID_MCU_R5FSS0_CORE1);
+	if (ret) {
+		printf("Unable to request processor control for MCU1_1 core, %d\n",
+		       ret);
+		return ret;
+	}
+
+	ret = dev_ops->is_on(ti_sci, dev_id_mcu_r5_core1, &r_state, &c_state);
+	if (ret) {
+		printf("Unable to get device status for MCU1_1 core, %d\n", ret);
+		return ret;
+	}
+
+	ret = proc_ops->get_proc_boot_status(ti_sci, PROC_ID_MCU_R5FSS0_CORE1,
+					     &boot_vector, &cfg, &ctrl, &sts);
+	if (ret) {
+		printf("Unable to get Processor boot status for MCU1_1 core, %d\n",
+		       ret);
+		goto release_proc_ctrl;
+	}
+
+	halted = !!(sts & PROC_BOOT_STATUS_FLAG_R5_WFI);
+	cluster_mode_lockstep = !!(cfg & PROC_BOOT_CFG_FLAG_R5_LOCKSTEP);
+
+	/*
+	 * Shutdown MCU R5F Core 1 only if:
+	 *	- cluster is booted in SplitMode
+	 *	- core is powered on
+	 *	- core is in WFI (halted)
+	 */
+	if (cluster_mode_lockstep || !c_state || !halted) {
+		ret = -EINVAL;
+		goto release_proc_ctrl;
+	}
+
+	ret = proc_ops->set_proc_boot_ctrl(ti_sci, PROC_ID_MCU_R5FSS0_CORE1,
+					   PROC_BOOT_CTRL_FLAG_R5_CORE_HALT, 0);
+	if (ret) {
+		printf("Unable to Halt MCU1_1 core, %d\n", ret);
+		goto release_proc_ctrl;
+	}
+
+	ret = dev_ops->put_device(ti_sci, dev_id_mcu_r5_core1);
+	if (ret) {
+		printf("Unable to assert reset on MCU1_1 core, %d\n", ret);
+		return ret;
+	}
+
+release_proc_ctrl:
+	proc_ops->proc_release(ti_sci, PROC_ID_MCU_R5FSS0_CORE1);
+	return ret;
+}

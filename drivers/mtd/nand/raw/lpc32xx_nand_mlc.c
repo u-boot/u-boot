@@ -165,9 +165,9 @@ static void lpc32xx_cmd_ctrl(struct mtd_info *mtd, int cmd,
 		return;
 
 	if (ctrl & NAND_CLE)
-		writeb(cmd & 0Xff, &lpc32xx_nand_mlc_registers->cmd);
+		writeb(cmd & 0xff, &lpc32xx_nand_mlc_registers->cmd);
 	else if (ctrl & NAND_ALE)
-		writeb(cmd & 0Xff, &lpc32xx_nand_mlc_registers->addr);
+		writeb(cmd & 0xff, &lpc32xx_nand_mlc_registers->addr);
 }
 
 /**

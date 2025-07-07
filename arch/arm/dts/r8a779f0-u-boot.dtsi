@@ -5,8 +5,6 @@
  * Copyright (C) 2021 Renesas Electronics Corp.
  */
 
-#include "r8a779x-rcar64-u-boot.dtsi"
-
 / {
 	soc {
 		rpc: spi@ee200000 {
