@@ -33,6 +33,7 @@ config IMX95
 	select DM_MAILBOX
 	select SCMI_FIRMWARE
 	select SPL_IMX_CONTAINER_USE_TRAMPOLINE
+	select IMX_PQC_SUPPORT
 
 config SYS_SOC
 	default "imx9"
