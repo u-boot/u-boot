@@ -317,8 +317,7 @@ int pinctrl_select_state(struct udevice *dev, const char *statename)
 	if (!dev_has_ofnode(dev))
 		return 0;
 	/*
-	 * Try full-implemented pinctrl first.
-	 * If it fails or is not implemented, try simple one.
+	 * If full-implemented pinctrl is not implemented, try simple one.
 	 */
 	if (CONFIG_IS_ENABLED(PINCTRL_FULL))
 		return pinctrl_select_state_full(dev, statename);
