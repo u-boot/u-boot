@@ -88,7 +88,7 @@ config DM_GPIO_LOOKUP_LABEL
 	  for the same functionality in board code.
 
 config SPL_DM_GPIO_LOOKUP_LABEL
-	bool "Enable searching for gpio labelnames"
+	bool "Enable searching for gpio labelnames in SPL"
 	depends on SPL_DM_GPIO
 	help
 	  This option enables searching for gpio names in
