@@ -1961,6 +1961,12 @@ int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
 	ofnode uboot;
 
 	*bootscr_flash_offset = 0;
+
+	if (!bootscr_flash_size) {
+		dm_warn("bootscr-flash-size is zero. Ignoring properties!\n");
+		return -EINVAL;
+	}
+
 	*bootscr_flash_size = 0;
 
 	uboot = ofnode_path("/options/u-boot");
@@ -1978,12 +1984,6 @@ int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
 			      bootscr_flash_size);
 	if (ret)
 		return -EINVAL;
-
-	if (!bootscr_flash_size) {
-		dm_warn("bootscr-flash-size is zero. Ignoring properties!\n");
-		*bootscr_flash_offset = 0;
-		return -EINVAL;
-	}
 
 	return 0;
 }
