@@ -12,7 +12,11 @@
 #define IV_MAX_LEN			32
 #define HASH_MAX_LEN			64
 
+#if IS_ENABLED(CONFIG_IMX_PQC_SUPPORT)
+#define CONTAINER_HDR_ALIGNMENT 0x4000
+#else
 #define CONTAINER_HDR_ALIGNMENT 0x400
+#endif
 #define CONTAINER_HDR_EMMC_OFFSET 0
 #define CONTAINER_HDR_MMCSD_OFFSET SZ_32K
 #define CONTAINER_HDR_QSPI_OFFSET SZ_4K
@@ -72,7 +76,14 @@ int get_container_size(ulong addr, u16 *header_length);
 
 static inline bool valid_container_hdr(struct container_hdr *container)
 {
+#if IS_ENABLED(CONFIG_IMX_PQC_SUPPORT)
+	return (container->tag == CONTAINER_HDR_TAG ||
+		container->tag == 0x82) &&
+		(container->version == CONTAINER_HDR_VERSION ||
+		 container->version == 0x2);
+#else
 	return container->tag == CONTAINER_HDR_TAG &&
 	       container->version == CONTAINER_HDR_VERSION;
+#endif
 }
 #endif
