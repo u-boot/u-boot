@@ -134,6 +134,8 @@ struct ele_get_info_data {
 	u32 sha_fw[8];
 	u32 oem_srkh[16];
 	u32 state;
+	u32 oem_pqc_srkh[16];
+	u32 reserved[8];
 };
 
 int ele_release_rdc(u8 core_id, u8 xrdc, u32 *response);
