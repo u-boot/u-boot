@@ -410,7 +410,7 @@ static int abortboot_single_key(int bootdelay)
 			udelay(10000);
 		} while (!abort && get_timer(ts) < 1000);
 
-		printf("\b\b\b%2d ", bootdelay);
+		printf("\rHit any key to stop autoboot: %1d\033[K", bootdelay);
 	}
 
 	putc('\n');
