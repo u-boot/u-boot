@@ -336,8 +336,8 @@ static int scmi_clk_probe(struct udevice *dev)
 static int __scmi_clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	struct scmi_clk_parent_set_in in = {
-		.clock_id = clk->id,
-		.parent_clk = parent->id,
+		.clock_id = clk_get_id(clk),
+		.parent_clk = clk_get_id(parent),
 	};
 	struct scmi_clk_parent_set_out out;
 	struct scmi_msg msg = SCMI_MSG_IN(SCMI_PROTOCOL_ID_CLOCK,
