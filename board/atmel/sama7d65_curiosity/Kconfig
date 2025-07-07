@@ -1,0 +1,15 @@
+if TARGET_SAMA7D65_CURIOSITY
+
+config SYS_BOARD
+	default "sama7d65_curiosity"
+
+config SYS_VENDOR
+	default "atmel"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "sama7d65_curiosity"
+
+endif
