@@ -52,6 +52,11 @@ config SAMA7G5
 	select CPU_V7A
 	select AT91RESET_EXTRST
 
+config SAMA7D65
+	bool
+	select CPU_V7A
+	select AT91RESET_EXTRST
+
 config SAMA5D2
 	bool
 	select CPU_V7A
