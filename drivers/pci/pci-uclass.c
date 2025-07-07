@@ -385,8 +385,10 @@ static int pci_read_config(pci_dev_t bdf, int offset, unsigned long *valuep,
 	int ret;
 
 	ret = pci_get_bus(PCI_BUS(bdf), &bus);
-	if (ret)
+	if (ret) {
+		*valuep = 0xffffffff;
 		return ret;
+	}
 
 	return pci_bus_read_config(bus, bdf, offset, valuep, size);
 }
@@ -408,8 +410,10 @@ int pci_read_config32(pci_dev_t bdf, int offset, u32 *valuep)
 	int ret;
 
 	ret = pci_read_config(bdf, offset, &value, PCI_SIZE_32);
-	if (ret)
+	if (ret) {
+		*valuep = 0xffffffff;
 		return ret;
+	}
 	*valuep = value;
 
 	return 0;
@@ -421,8 +425,10 @@ int pci_read_config16(pci_dev_t bdf, int offset, u16 *valuep)
 	int ret;
 
 	ret = pci_read_config(bdf, offset, &value, PCI_SIZE_16);
-	if (ret)
+	if (ret) {
+		*valuep = 0xffff;
 		return ret;
+	}
 	*valuep = value;
 
 	return 0;
@@ -434,8 +440,10 @@ int pci_read_config8(pci_dev_t bdf, int offset, u8 *valuep)
 	int ret;
 
 	ret = pci_read_config(bdf, offset, &value, PCI_SIZE_8);
-	if (ret)
+	if (ret) {
+		*valuep = 0xff;
 		return ret;
+	}
 	*valuep = value;
 
 	return 0;
@@ -447,8 +455,10 @@ int dm_pci_read_config8(const struct udevice *dev, int offset, u8 *valuep)
 	int ret;
 
 	ret = dm_pci_read_config(dev, offset, &value, PCI_SIZE_8);
-	if (ret)
+	if (ret) {
+		*valuep = 0xff;
 		return ret;
+	}
 	*valuep = value;
 
 	return 0;
@@ -460,8 +470,10 @@ int dm_pci_read_config16(const struct udevice *dev, int offset, u16 *valuep)
 	int ret;
 
 	ret = dm_pci_read_config(dev, offset, &value, PCI_SIZE_16);
-	if (ret)
+	if (ret) {
+		*valuep = 0xffff;
 		return ret;
+	}
 	*valuep = value;
 
 	return 0;
@@ -473,8 +485,10 @@ int dm_pci_read_config32(const struct udevice *dev, int offset, u32 *valuep)
 	int ret;
 
 	ret = dm_pci_read_config(dev, offset, &value, PCI_SIZE_32);
-	if (ret)
+	if (ret) {
+		*valuep = 0xffffffff;
 		return ret;
+	}
 	*valuep = value;
 
 	return 0;
