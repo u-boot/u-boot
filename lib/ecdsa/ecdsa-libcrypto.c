@@ -519,10 +519,12 @@ static int do_add(struct signer *ctx, void *fdt, const char *key_node_name,
 	if (ret < 0)
 		return ret;
 
-	ret = fdt_setprop_string(fdt, key_node, FIT_KEY_REQUIRED,
-				 info->require_keys);
-	if (ret < 0)
-		return ret;
+	if (info->require_keys) {
+		ret = fdt_setprop_string(fdt, key_node, FIT_KEY_REQUIRED,
+					 info->require_keys);
+		if (ret < 0)
+			return ret;
+	}
 
 	return key_node;
 }
