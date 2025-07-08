@@ -350,8 +350,8 @@ int lattice_info(Lattice_desc *desc)
 			printf("Unsupported interface type, %d\n", desc->iface);
 		}
 
-		printf("Device Size:   \t%d bytes\n",
-				desc->size);
+		printf("Device Size:   \t%zu bytes\n",
+		       desc->size);
 
 		if (desc->iface_fns) {
 			printf("Device Function Table @ 0x%p\n",

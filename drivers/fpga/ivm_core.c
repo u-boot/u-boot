@@ -33,6 +33,7 @@
 #include <linux/string.h>
 #include <malloc.h>
 #include <lattice.h>
+#include <vsprintf.h>
 
 #define vme_out_char(c)	printf("%c", c)
 #define vme_out_hex(c)	printf("%x", c)
