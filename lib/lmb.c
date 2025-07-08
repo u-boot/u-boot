@@ -762,6 +762,7 @@ int lmb_alloc_mem(enum lmb_mem_type type, u64 align, phys_addr_t *addr,
 	switch (type) {
 	case LMB_MEM_ALLOC_ANY:
 		*addr = LMB_ALLOC_ANYWHERE;
+		fallthrough;
 	case LMB_MEM_ALLOC_MAX:
 		ret = _lmb_alloc_base(size, align, addr, flags);
 		break;
