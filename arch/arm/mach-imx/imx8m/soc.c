@@ -1151,7 +1151,7 @@ int disable_gpu_nodes(void *blob)
 {
 	static const char * const nodes_path_8mn[] = {
 		"/gpu@38000000",
-		"/soc@/gpu@38000000"
+		"/soc@0/gpu@38000000"
 	};
 
 	static const char * const nodes_path_8mp[] = {
