@@ -633,7 +633,7 @@ class BuilderThread(threading.Thread):
             # Extract the environment from U-Boot and dump it out
             cmd = [f'{self.toolchain.cross}objcopy', '-O', 'binary',
                    '-j', '.rodata.default_environment',
-                   'env/built-in.o', 'uboot.env']
+                   'env/built-in.a', 'uboot.env']
             command.run_one(*cmd, capture=True, capture_stderr=True,
                             cwd=result.out_dir, raise_on_error=False, env=env)
             if not work_in_output:

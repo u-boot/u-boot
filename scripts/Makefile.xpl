@@ -135,7 +135,7 @@ head-y		:= $(addprefix $(obj)/,$(head-y))
 libs-y		:= $(addprefix $(obj)/,$(libs-y))
 u-boot-spl-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y)))
 
-libs-y := $(patsubst %/, %/built-in.o, $(libs-y))
+libs-y := $(patsubst %/, %/built-in.a, $(libs-y))
 
 # Add GCC lib
 ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
