@@ -16,20 +16,6 @@
 static int next_desc = FPGA_INVALID_DEVICE;
 static fpga_desc desc_table[CONFIG_MAX_FPGA_DEVICES];
 
-/*
- * fpga_no_sup
- * 'no support' message function
- */
-static void fpga_no_sup(char *fn, char *msg)
-{
-	if (fn && msg)
-		printf("%s: No support for %s.\n", fn, msg);
-	else if (msg)
-		printf("No support for %s.\n", msg);
-	else
-		printf("No FPGA support!\n");
-}
-
 /* fpga_get_desc
  *	map a device number to a descriptor
  */
@@ -39,8 +25,8 @@ const fpga_desc *fpga_get_desc(int devnum)
 
 	if ((devnum >= 0) && (devnum < next_desc)) {
 		desc = &desc_table[devnum];
-		debug("%s: found fpga descriptor #%d @ 0x%p\n",
-		      __func__, devnum, desc);
+		log_debug("found fpga descriptor #%d @ 0x%p\n",
+			  devnum, desc);
 	}
 
 	return desc;
@@ -51,15 +37,15 @@ const fpga_desc *fpga_get_desc(int devnum)
  *	generic parameter checking code
  */
 const fpga_desc *fpga_validate(int devnum, const void *buf,
-			       size_t bsize, char *fn)
+			       size_t bsize)
 {
 	const fpga_desc *desc = fpga_get_desc(devnum);
 
 	if (!desc)
-		printf("%s: Invalid device number %d\n", fn, devnum);
+		log_err("Invalid device number %d\n", devnum);
 
 	if (!buf) {
-		printf("%s: Null buffer.\n", fn);
+		log_err("Null buffer.\n");
 		return NULL;
 	}
 	return desc;
@@ -75,40 +61,40 @@ static int fpga_dev_info(int devnum)
 	const fpga_desc *desc = fpga_get_desc(devnum);
 
 	if (desc) {
-		debug("%s: Device Descriptor @ 0x%p\n",
-		      __func__, desc->devdesc);
+		log_info("Device Descriptor @ 0x%p\n",
+			 desc->devdesc);
 
 		switch (desc->devtype) {
 		case fpga_xilinx:
 #if defined(CONFIG_FPGA_XILINX)
-			printf("Xilinx Device\nDescriptor @ 0x%p\n", desc);
+			log_info("Xilinx Device\nDescriptor @ 0x%p\n", desc);
 			ret_val = xilinx_info(desc->devdesc);
 #else
-			fpga_no_sup((char *)__func__, "Xilinx devices");
+			log_err("No support for Xilinx devices.\n");
 #endif
 			break;
 		case fpga_altera:
 #if defined(CONFIG_FPGA_ALTERA)
-			printf("Altera Device\nDescriptor @ 0x%p\n", desc);
+			log_info("Altera Device\nDescriptor @ 0x%p\n", desc);
 			ret_val = altera_info(desc->devdesc);
 #else
-			fpga_no_sup((char *)__func__, "Altera devices");
+			log_err("No support for Altera devices.\n");
 #endif
 			break;
 		case fpga_lattice:
 #if defined(CONFIG_FPGA_LATTICE)
-			printf("Lattice Device\nDescriptor @ 0x%p\n", desc);
+			log_info("Lattice Device\nDescriptor @ 0x%p\n", desc);
 			ret_val = lattice_info(desc->devdesc);
 #else
-			fpga_no_sup((char *)__func__, "Lattice devices");
+			log_err("No support for Lattice devices.\n");
 #endif
 			break;
 		default:
-			printf("%s: Invalid or unsupported device type %d\n",
-			       __func__, desc->devtype);
+			log_err("Invalid or unsupported device type %d\n",
+				desc->devtype);
 		}
 	} else {
-		printf("%s: Invalid device number %d\n", __func__, devnum);
+		log_err("Invalid device number %d\n", devnum);
 	}
 
 	return ret_val;
@@ -144,23 +130,22 @@ int fpga_add(fpga_type devtype, void *desc)
 	int devnum = FPGA_INVALID_DEVICE;
 
 	if (!desc) {
-		printf("%s: NULL device descriptor\n", __func__);
+		log_err("NULL device descriptor\n");
 		return devnum;
 	}
 
 	if (next_desc < 0) {
-		printf("%s: FPGA support not initialized!\n", __func__);
+		log_err("FPGA support not initialized!\n");
 	} else if ((devtype > fpga_min_type) && (devtype < fpga_undefined)) {
 		if (next_desc < CONFIG_MAX_FPGA_DEVICES) {
 			devnum = next_desc;
 			desc_table[next_desc].devtype = devtype;
 			desc_table[next_desc++].devdesc = desc;
 		} else {
-			printf("%s: Exceeded Max FPGA device count\n",
-			       __func__);
+			log_err("Exceeded Max FPGA device count\n");
 		}
 	} else {
-		printf("%s: Unsupported FPGA type %d\n", __func__, devtype);
+		log_err("Unsupported FPGA type %d\n", devtype);
 	}
 
 	return devnum;
@@ -181,7 +166,7 @@ int __weak fpga_is_partial_data(int devnum, size_t img_len)
 int __weak fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 			      bitstream_type bstype)
 {
-	printf("Bitstream support not implemented for this FPGA device\n");
+	log_err("Bitstream support not implemented for this FPGA device\n");
 	return FPGA_FAIL;
 }
 
@@ -190,8 +175,7 @@ int fpga_fsload(int devnum, const void *buf, size_t size,
 		 fpga_fs_info *fpga_fsinfo)
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
-	const fpga_desc *desc = fpga_validate(devnum, buf, size,
-					      (char *)__func__);
+	const fpga_desc *desc = fpga_validate(devnum, buf, size);
 
 	if (desc) {
 		switch (desc->devtype) {
@@ -200,12 +184,12 @@ int fpga_fsload(int devnum, const void *buf, size_t size,
 			ret_val = xilinx_loadfs(desc->devdesc, buf, size,
 						fpga_fsinfo);
 #else
-			fpga_no_sup((char *)__func__, "Xilinx devices");
+			log_err("No support for Xilinx devices.\n");
 #endif
 			break;
 		default:
-			printf("%s: Invalid or unsupported device type %d\n",
-			       __func__, desc->devtype);
+			log_err("Invalid or unsupported device type %d\n",
+				desc->devtype);
 		}
 	}
 
@@ -219,8 +203,7 @@ int fpga_loads(int devnum, const void *buf, size_t size,
 {
 	int ret_val = FPGA_FAIL;
 
-	const fpga_desc *desc = fpga_validate(devnum, buf, size,
-					      (char *)__func__);
+	const fpga_desc *desc = fpga_validate(devnum, buf, size);
 
 	if (desc) {
 		switch (desc->devtype) {
@@ -229,12 +212,12 @@ int fpga_loads(int devnum, const void *buf, size_t size,
 			ret_val = xilinx_loads(desc->devdesc, buf, size,
 					       fpga_sec_info);
 #else
-			fpga_no_sup((char *)__func__, "Xilinx devices");
+			log_err("No support for Xilinx devices.\n");
 #endif
 			break;
 		default:
-			printf("%s: Invalid or unsupported device type %d\n",
-			       __func__, desc->devtype);
+			log_err("Invalid or unsupported device type %d\n",
+				desc->devtype);
 		}
 	}
 
@@ -265,8 +248,7 @@ int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype,
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
 	int ret_notify;
-	const fpga_desc *desc = fpga_validate(devnum, buf, bsize,
-					      (char *)__func__);
+	const fpga_desc *desc = fpga_validate(devnum, buf, bsize);
 
 	if (desc) {
 		switch (desc->devtype) {
@@ -275,26 +257,26 @@ int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype,
 			ret_val = xilinx_load(desc->devdesc, buf, bsize,
 					      bstype, flags);
 #else
-			fpga_no_sup((char *)__func__, "Xilinx devices");
+			log_err("No support for Xilinx devices.\n");
 #endif
 			break;
 		case fpga_altera:
 #if defined(CONFIG_FPGA_ALTERA)
 			ret_val = altera_load(desc->devdesc, buf, bsize);
 #else
-			fpga_no_sup((char *)__func__, "Altera devices");
+			log_err("No support for Altera devices.\n");
 #endif
 			break;
 		case fpga_lattice:
 #if defined(CONFIG_FPGA_LATTICE)
 			ret_val = lattice_load(desc->devdesc, buf, bsize);
 #else
-			fpga_no_sup((char *)__func__, "Lattice devices");
+			log_err("No support for Lattice devices.\n");
 #endif
 			break;
 		default:
-			printf("%s: Invalid or unsupported device type %d\n",
-			       __func__, desc->devtype);
+			log_err("Invalid or unsupported device type %d\n",
+				desc->devtype);
 		}
 	}
 
@@ -312,8 +294,7 @@ int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype,
 int fpga_dump(int devnum, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
-	const fpga_desc *desc = fpga_validate(devnum, buf, bsize,
-					      (char *)__func__);
+	const fpga_desc *desc = fpga_validate(devnum, buf, bsize);
 
 	if (desc) {
 		switch (desc->devtype) {
@@ -321,26 +302,26 @@ int fpga_dump(int devnum, const void *buf, size_t bsize)
 #if defined(CONFIG_FPGA_XILINX)
 			ret_val = xilinx_dump(desc->devdesc, buf, bsize);
 #else
-			fpga_no_sup((char *)__func__, "Xilinx devices");
+			log_err("No support for Xilinx devices.\n");
 #endif
 			break;
 		case fpga_altera:
 #if defined(CONFIG_FPGA_ALTERA)
 			ret_val = altera_dump(desc->devdesc, buf, bsize);
 #else
-			fpga_no_sup((char *)__func__, "Altera devices");
+			log_err("No support for Altera devices.\n");
 #endif
 			break;
 		case fpga_lattice:
 #if defined(CONFIG_FPGA_LATTICE)
 			ret_val = lattice_dump(desc->devdesc, buf, bsize);
 #else
-			fpga_no_sup((char *)__func__, "Lattice devices");
+			log_err("No support for Lattice devices.\n");
 #endif
 			break;
 		default:
-			printf("%s: Invalid or unsupported device type %d\n",
-			       __func__, desc->devtype);
+			log_err("Invalid or unsupported device type %d\n",
+				desc->devtype);
 		}
 	}
 
@@ -363,7 +344,7 @@ int fpga_info(int devnum)
 
 			return FPGA_SUCCESS;
 		} else {
-			printf("%s: No FPGA devices available.\n", __func__);
+			log_err("No FPGA devices available.\n");
 			return FPGA_FAIL;
 		}
 	}
