@@ -69,10 +69,12 @@ EFIAPI efi_test_fmp_get_image_info(struct efi_firmware_management_protocol *this
 	if (package_version_name)
 		*package_version_name = NULL;
 
-	if (*image_info_size < sizeof(*image_info)) {
-		*image_info_size = *descriptor_size * *descriptor_count;
+	if (*image_info_size < sizeof(*image_info) * TEST_ESRT_NUM_ENTRIES) {
+		*image_info_size = sizeof(*image_info) * TEST_ESRT_NUM_ENTRIES;
 		return EFI_BUFFER_TOO_SMALL;
 	}
+	if (!image_info)
+		return EFI_INVALID_PARAMETER;
 
 	for (int idx = 0; idx < TEST_ESRT_NUM_ENTRIES; idx++)
 		image_info[idx] = static_img_info[idx];
