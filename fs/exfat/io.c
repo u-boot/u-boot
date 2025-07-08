@@ -442,11 +442,14 @@ off_t exfat_get_size(const struct exfat_dev* dev)
 ssize_t exfat_pread(struct exfat_dev* dev, void* buffer, size_t size,
 		off_t offset)
 {
-	lbaint_t sect = offset >> ctxt.cur_dev->log2blksz;
-	int off = offset & (ctxt.cur_dev->blksz - 1);
+	lbaint_t sect;
+	int off;
 
 	if (!ctxt.cur_dev)
 		return -EIO;
+
+	sect = offset >> ctxt.cur_dev->log2blksz;
+	off = offset & (ctxt.cur_dev->blksz - 1);
 
 	if (fs_devread(ctxt.cur_dev, &ctxt.cur_part_info, sect,
 		       off, size, buffer))
@@ -457,11 +460,14 @@ ssize_t exfat_pread(struct exfat_dev* dev, void* buffer, size_t size,
 ssize_t exfat_pwrite(struct exfat_dev* dev, const void* buffer, size_t size,
 		off_t offset)
 {
-	lbaint_t sect = offset >> ctxt.cur_dev->log2blksz;
-	int off = offset & (ctxt.cur_dev->blksz - 1);
+	lbaint_t sect;
+	int off;
 
 	if (!ctxt.cur_dev)
 		return -EIO;
+
+	sect = offset >> ctxt.cur_dev->log2blksz;
+	off = offset & (ctxt.cur_dev->blksz - 1);
 
 	if (fs_devwrite(ctxt.cur_dev, &ctxt.cur_part_info, sect,
 		       off, size, buffer))
