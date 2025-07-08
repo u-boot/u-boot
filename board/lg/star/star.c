@@ -9,6 +9,7 @@
 #include <fdt_support.h>
 #include <log.h>
 #include <spl_gpio.h>
+#include <asm/gpio.h>
 
 static int star_fix_panel(void *fdt)
 {

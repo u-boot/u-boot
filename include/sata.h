@@ -1,6 +1,7 @@
 #ifndef __SATA_H__
 #define __SATA_H__
-#include <part.h>
+
+#include <stdbool.h>
 
 int sata_probe(int devnum);
 int sata_remove(int devnum);
