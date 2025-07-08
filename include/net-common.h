@@ -492,6 +492,17 @@ int dhcp_run(ulong addr, const char *fname, bool autoload);
 int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
+ * do_sntp - Run the sntp command
+ *
+ * @cmdtp: Unused
+ * @flag: Command flags (CMD_FLAG_...)
+ * @argc: Number of arguments
+ * @argv: List of arguments
+ * Return: result (see enum command_ret_t)
+ */
+int do_sntp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
+
+/**
  * do_tftpb - Run the tftpboot command
  *
  * @cmdtp: Command information for tftpboot
@@ -573,5 +584,7 @@ struct wget_http_info {
 extern struct wget_http_info default_wget_info;
 extern struct wget_http_info *wget_info;
 int wget_request(ulong dst_addr, char *uri, struct wget_http_info *info);
+
+void net_sntp_set_rtc(u32 seconds);
 
 #endif /* __NET_COMMON_H__ */

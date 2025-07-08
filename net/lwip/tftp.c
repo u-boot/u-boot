@@ -157,8 +157,10 @@ static void no_response(void *arg)
 static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 		     ip_addr_t srvip, uint16_t srvport)
 {
+	int blksize = CONFIG_TFTP_BLOCKSIZE;
 	struct netif *netif;
 	struct tftp_ctx ctx;
+	const char *ep;
 	err_t err;
 
 	if (!fname || addr == 0)
@@ -187,7 +189,10 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 	if (!(err == ERR_OK || err == ERR_USE))
 		log_err("tftp_init_client err: %d\n", err);
 
-	tftp_client_set_blksize(CONFIG_TFTP_BLOCKSIZE);
+	ep = env_get("tftpblocksize");
+	if (ep)
+		blksize = simple_strtol(ep, NULL, 10);
+	tftp_client_set_blksize(blksize);
 
 	ctx.start_time = get_timer(0);
 	err = tftp_get(&ctx, &srvip, srvport, fname, TFTP_MODE_OCTET);
@@ -201,7 +206,6 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 	sys_timeout(NO_RSP_TIMEOUT_MS, no_response, &ctx);
 	while (!ctx.done) {
 		net_lwip_rx(udev, netif);
-		sys_check_timeouts();
 		if (ctrlc()) {
 			printf("\nAbort\n");
 			ctx.done = ABORTED;

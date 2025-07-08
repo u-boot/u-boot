@@ -13,6 +13,9 @@
 #include <net.h>
 #include <time.h>
 
+U_BOOT_CMD(ping, 2, 1, do_ping, "send ICMP ECHO_REQUEST to network host",
+	   "pingAddressOrHostName");
+
 #define PING_DELAY_MS 1000
 #define PING_COUNT 5
 /* Ping identifier - must fit on a u16_t */
@@ -136,7 +139,6 @@ static int ping_loop(struct udevice *udev, const ip_addr_t *addr)
 	ping_send(&ctx);
 
 	do {
-		sys_check_timeouts();
 		net_lwip_rx(udev, netif);
 		if (ctx.alive)
 			break;
@@ -165,7 +167,7 @@ int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	if (!ipaddr_aton(argv[1], &addr))
+	if (net_lwip_dns_resolve(argv[1], &addr))
 		return CMD_RET_USAGE;
 
 restart:

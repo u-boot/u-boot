@@ -2074,12 +2074,6 @@ config CMD_CDP
 	  and to retrieve configuration data including the VLAN id using the
 	  proprietary Cisco Discovery Protocol (CDP).
 
-config CMD_SNTP
-	bool "sntp"
-	select PROT_UDP
-	help
-	  Synchronize RTC via network
-
 config CMD_LINK_LOCAL
 	bool "linklocal"
 	depends on (LIB_RAND || LIB_HW_RAND)
@@ -2156,6 +2150,13 @@ config CMD_PING
 	select PROT_RAW_LWIP if NET_LWIP
 	help
 	  Send ICMP ECHO_REQUEST to network host
+
+config CMD_SNTP
+	bool "sntp"
+	select PROT_UDP if NET
+	select PROT_UDP_LWIP if NET_LWIP
+	help
+	  Synchronize RTC via network
 
 config CMD_TFTPBOOT
 	bool "tftp"

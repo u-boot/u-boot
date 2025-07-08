@@ -58,7 +58,6 @@ static int dhcp_loop(struct udevice *udev)
 	/* Wait for DHCP to complete */
 	do {
 		net_lwip_rx(udev, netif);
-		sys_check_timeouts();
 		bound = dhcp_supplied_address(netif);
 		if (bound)
 			break;
