@@ -909,7 +909,7 @@ static void an8855_port_isolation(struct an8855_switch_priv *priv)
 
 		/* Set port mode to user port */
 		an8855_reg_write(priv, AN8855_PVC(i),
-				 (0x8100 << AN8855_STAG_VPID_S) |
+				 (0x9100 << AN8855_STAG_VPID_S) |
 				 (VLAN_ATTR_USER << AN8855_VLAN_ATTR_S));
 	}
 }
