@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx Versal NET Mini eMMC Configuration
  *
- * (C) Copyright 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2023-2025, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  * Ashok Reddy Soma <ashok.reddy.soma@amd.com>
@@ -42,26 +42,18 @@
 		bootph-all;
 	};
 
-	amba: axi {
-		bootph-all;
-		compatible = "simple-bus";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		sdhci1: mmc@f1050000 {
-			compatible = "xlnx,versal-net-emmc";
-			status = "okay";
-			non-removable;
-			disable-wp;
-			no-sd;
-			no-sdio;
-			cap-mmc-hw-reset;
-			bus-width = <8>;
-			reg = <0 0xf1050000 0 0x10000>;
-			clock-names = "clk_xin", "clk_ahb";
-			clocks = <&clk200>, <&clk200>;
-			xlnx,mio-bank = <0>;
-		};
+	sdhci1: mmc@f1050000 {
+		compatible = "xlnx,versal-net-emmc";
+		status = "okay";
+		non-removable;
+		disable-wp;
+		no-sd;
+		no-sdio;
+		cap-mmc-hw-reset;
+		bus-width = <8>;
+		reg = <0 0xf1050000 0 0x10000>;
+		clock-names = "clk_xin", "clk_ahb";
+		clocks = <&clk200>, <&clk200>;
+		xlnx,mio-bank = <0>;
 	};
 };

@@ -422,6 +422,30 @@ U_BOOT_DRIVER(zynqmp_power) = {
 };
 #endif
 
+smc_call_handler_t __data smc_call_handler;
+
+static int smc_call_legacy(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
+			   u32 arg3, u32 *ret_payload)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = PM_SIP_SVC | api_id;
+	regs.regs[1] = ((u64)arg1 << 32) | arg0;
+	regs.regs[2] = ((u64)arg3 << 32) | arg2;
+
+	smc_call(&regs);
+
+	if (ret_payload) {
+		ret_payload[0] = (u32)regs.regs[0];
+		ret_payload[1] = upper_32_bits(regs.regs[0]);
+		ret_payload[2] = (u32)regs.regs[1];
+		ret_payload[3] = upper_32_bits(regs.regs[1]);
+		ret_payload[4] = (u32)regs.regs[2];
+	}
+
+	return (ret_payload) ? ret_payload[0] : 0;
+}
+
 int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 				     u32 arg3, u32 *ret_payload)
 {
@@ -450,38 +474,20 @@ int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 			      PAYLOAD_ARG_CNT);
 		if (ret)
 			return ret;
+
+		return (ret_payload) ? ret_payload[0] : 0;
 #else
 		return -EPERM;
 #endif
-	} else {
-		/*
-		 * Added SIP service call Function Identifier
-		 * Make sure to stay in x0 register
-		 */
-		struct pt_regs regs;
-
-		regs.regs[0] = PM_SIP_SVC | api_id;
-		regs.regs[1] = ((u64)arg1 << 32) | arg0;
-		regs.regs[2] = ((u64)arg3 << 32) | arg2;
-
-		smc_call(&regs);
-
-		if (ret_payload) {
-			ret_payload[0] = (u32)regs.regs[0];
-			ret_payload[1] = upper_32_bits(regs.regs[0]);
-			ret_payload[2] = (u32)regs.regs[1];
-			ret_payload[3] = upper_32_bits(regs.regs[1]);
-			ret_payload[4] = (u32)regs.regs[2];
-		}
-
 	}
-	return (ret_payload) ? ret_payload[0] : 0;
+
+	return smc_call_handler(api_id, arg0, arg1, arg2, arg3, ret_payload);
 }
 
 static const struct udevice_id zynqmp_firmware_ids[] = {
-	{ .compatible = "xlnx,zynqmp-firmware" },
-	{ .compatible = "xlnx,versal-firmware"},
-	{ .compatible = "xlnx,versal-net-firmware"},
+	{ .compatible = "xlnx,zynqmp-firmware", .data = (ulong)smc_call_legacy },
+	{ .compatible = "xlnx,versal-firmware", .data = (ulong)smc_call_legacy},
+	{ .compatible = "xlnx,versal-net-firmware", .data = (ulong)smc_call_legacy },
 	{ }
 };
 
@@ -489,6 +495,10 @@ static int zynqmp_firmware_bind(struct udevice *dev)
 {
 	int ret;
 	struct udevice *child;
+
+	smc_call_handler = (smc_call_handler_t)dev_get_driver_data(dev);
+	if (!smc_call_handler)
+		return -EINVAL;
 
 	if ((IS_ENABLED(CONFIG_XPL_BUILD) &&
 	     IS_ENABLED(CONFIG_SPL_POWER_DOMAIN) &&

@@ -42,22 +42,15 @@
 		clock-frequency = <125000000>;
 	};
 
-	amba: axi {
-		compatible = "simple-bus";
-		#address-cells = <2>;
-		#size-cells = <1>;
-		ranges;
-
-		qspi: spi@ff0f0000 {
-			compatible = "xlnx,zynqmp-qspi-1.0";
-			status = "disabled";
-			clock-names = "ref_clk", "pclk";
-			clocks = <&misc_clk &misc_clk>;
-			num-cs = <1>;
-			reg = <0x0 0xff0f0000 0x1000 0x0 0xc0000000 0x8000000>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-		};
+	qspi: spi@ff0f0000 {
+		compatible = "xlnx,zynqmp-qspi-1.0";
+		status = "disabled";
+		clock-names = "ref_clk", "pclk";
+		clocks = <&misc_clk &misc_clk>;
+		num-cs = <1>;
+		reg = <0x0 0xff0f0000 0x1000 0x0 0xc0000000 0x8000000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
 	};
 };
 

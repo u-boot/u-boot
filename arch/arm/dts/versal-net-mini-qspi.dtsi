@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx Versal NET Mini QSPI Configuration
  *
- * (C) Copyright 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2023-2025, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  * Ashok Reddy Soma <ashok.reddy.soma@amd.com>
@@ -42,31 +42,23 @@
 		bootph-all;
 	};
 
-	amba: axi {
-		bootph-all;
-		compatible = "simple-bus";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
+	qspi: spi@f1030000 {
+		compatible = "xlnx,versal-qspi-1.0";
+		status = "okay";
+		clock-names = "ref_clk", "pclk";
+		num-cs = <1>;
+		reg = <0 0xf1030000 0 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clk150>, <&clk150>;
 
-		qspi: spi@f1030000 {
-			compatible = "xlnx,versal-qspi-1.0";
-			status = "okay";
-			clock-names = "ref_clk", "pclk";
-			num-cs = <1>;
-			reg = <0 0xf1030000 0 0x1000>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			clocks = <&clk150>, <&clk150>;
-
-			flash0: flash@0 {
-				compatible = "n25q512a", "micron,m25p80",
-					     "jedec,spi-nor";
-				reg = <0>;
-				spi-tx-bus-width = <4>;
-				spi-rx-bus-width = <4>;
-				spi-max-frequency = <20000000>;
-			};
+		flash0: flash@0 {
+			compatible = "n25q512a", "micron,m25p80",
+				     "jedec,spi-nor";
+			reg = <0>;
+			spi-tx-bus-width = <4>;
+			spi-rx-bus-width = <4>;
+			spi-max-frequency = <20000000>;
 		};
 	};
 };

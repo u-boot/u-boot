@@ -4,6 +4,7 @@
 
 import pytest
 
+@pytest.mark.buildconfigspec('cmd_help')
 def test_help(ubman):
     """Test that the "help" command can be executed."""
 
