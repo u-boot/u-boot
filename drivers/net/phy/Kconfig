@@ -314,6 +314,10 @@ config PHY_TI_DP83867
 	---help---
 	  Adds support for the TI DP83867 1Gbit PHY.
 
+config SPL_PHY_TI_DP83867
+	select PHY_TI
+	bool "Texas Instruments Ethernet DP83867 PHY support (SPL)"
+
 config PHY_TI_DP83869
 	select PHY_TI
 	bool "Texas Instruments Ethernet DP83869 PHY support"
