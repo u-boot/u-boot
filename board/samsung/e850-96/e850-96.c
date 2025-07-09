@@ -4,6 +4,7 @@
  * Author: Sam Protsenko <semen.protsenko@linaro.org>
  */
 
+#include <efi_loader.h>
 #include <env.h>
 #include <init.h>
 #include <mapmem.h>
@@ -14,6 +15,45 @@
 #define EXYNOS850_OTP_BASE	0x10000000
 #define OTP_CHIPID0		0x4
 #define OTP_CHIPID1		0x8
+
+struct efi_fw_image fw_images[] = {
+	{
+		.image_type_id = E850_96_FWBL1_IMAGE_GUID,
+		.fw_name = u"E850-96-FWBL1",
+		.image_index = 1,
+	},
+	{
+		.image_type_id = E850_96_EPBL_IMAGE_GUID,
+		.fw_name = u"E850-96-EPBL",
+		.image_index = 2,
+	},
+	{
+		.image_type_id = E850_96_BL2_IMAGE_GUID,
+		.fw_name = u"E850-96-BL2",
+		.image_index = 3,
+	},
+	{
+		.image_type_id = E850_96_BOOTLOADER_IMAGE_GUID,
+		.fw_name = u"E850-96-BOOTLOADER",
+		.image_index = 4,
+	},
+	{
+		.image_type_id = E850_96_EL3_MON_IMAGE_GUID,
+		.fw_name = u"E850-96-EL3-MON",
+		.image_index = 5,
+	},
+};
+
+struct efi_capsule_update_info update_info = {
+	.dfu_string = "mmc 0="
+			"fwbl1.img raw 0x0 0x18 mmcpart 1;"
+			"epbl.img raw 0x18 0x98 mmcpart 1;"
+			"bl2.img raw 0xb0 0x200 mmcpart 1;"
+			"bootloader.img raw 0x438 0x1000 mmcpart 1;"
+			"el3_mon.img raw 0x1438 0x200 mmcpart 1",
+	.num_images = ARRAY_SIZE(fw_images),
+	.images = fw_images,
+};
 
 int dram_init(void)
 {
