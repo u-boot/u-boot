@@ -97,6 +97,7 @@
 	 (_n) == 2 ? GDM2_BASE : GDM1_BASE)
 
 #define REG_GDM_FWD_CFG(_n)		GDM_BASE(_n)
+#define GDM_PAD_EN			BIT(28)
 #define GDM_DROP_CRC_ERR		BIT(23)
 #define GDM_IP4_CKSUM			BIT(22)
 #define GDM_TCP_CKSUM			BIT(21)
@@ -380,8 +381,11 @@ static void airoha_fe_maccr_init(struct airoha_eth *eth)
 	int p;
 
 	for (p = 1; p <= ARRAY_SIZE(eth->ports); p++) {
-		/* Disable any kind of CRC drop or offload */
-		airoha_fe_wr(eth, REG_GDM_FWD_CFG(p), 0);
+		/*
+		 * Disable any kind of CRC drop or offload.
+		 * Enable padding of short TX packets to 60 bytes.
+		 */
+		airoha_fe_wr(eth, REG_GDM_FWD_CFG(p), GDM_PAD_EN);
 	}
 }
 
@@ -829,6 +833,11 @@ static int airoha_eth_send(struct udevice *dev, void *packet, int length)
 	u8 fport;
 	u32 val;
 	int i;
+
+	/*
+	 * There is no need to pad short TX packets to 60 bytes since the
+	 * GDM_PAD_EN bit set in the corresponding REG_GDM_FWD_CFG(n) register.
+	 */
 
 	dma_addr = dma_map_single(packet, length, DMA_TO_DEVICE);
 
