@@ -602,6 +602,7 @@ ARM SAMSUNG EXYNOS850 SOC
 M:	Sam Protsenko <semen.protsenko@linaro.org>
 S:	Maintained
 F:	drivers/clk/exynos/clk-exynos850.c
+F:	drivers/phy/phy-exynos-usbdrd.c
 F:	drivers/pinctrl/exynos/pinctrl-exynos850.c
 
 ARM SAMSUNG SOC DRIVERS
