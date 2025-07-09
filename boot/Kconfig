@@ -1850,6 +1850,16 @@ config OF_BOARD_SETUP
 	  board-specific information in the device tree for use by the OS.
 	  The device tree is then passed to the OS.
 
+config OF_BOARD_SETUP_EXTENDED
+	bool "Set up latest board-specific details in device tree before boot"
+	imply OF_BOARD_SETUP
+	help
+	  This causes U-Boot to call ft_board_setup_ex() before booting into
+	  the Operating System. Similar function as ft_board_setup(). However,
+	  its modifications are not overwritten by other system changes and are
+	  applied to the device tree as the very last step before boot.
+	  The device tree is then passed to the OS.
+
 config OF_SYSTEM_SETUP
 	bool "Set up system-specific details in device tree before boot"
 	help

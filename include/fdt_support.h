@@ -240,11 +240,16 @@ int board_rng_seed(struct abuf *buf);
  */
 const char *board_fdt_chosen_bootargs(const struct fdt_property *fdt_ba);
 
-/*
- * The keystone2 SOC requires all 32 bit aliased addresses to be converted
- * to their 36 physical format. This has to happen after all fdt nodes
- * are added or modified by the image_setup_libfdt(). The ft_board_setup_ex()
- * called at the end of the image_setup_libfdt() is to do that convertion.
+/**
+ * ft_board_setup_ex() - Latest board-specific FDT changes
+ *
+ * @blob: FDT blob to update
+ * @bd:   Pointer to board data
+ *
+ * Execute board-specific device tree modifications that must be the latest FDT
+ * changes and cannot be overwritten by other system fixups.
+ *
+ * This function is called if CONFIG_OF_BOARD_SETUP_EXTENDED is defined.
  */
 void ft_board_setup_ex(void *blob, struct bd_info *bd);
 

@@ -822,6 +822,7 @@ config ARCH_KEYSTONE
 	imply CMD_SAVES
 	imply DM_I2C
 	imply FIT
+	imply OF_BOARD_SETUP_EXTENDED
 	imply SOC_TI
 	imply TI_KEYSTONE_SERDES
 

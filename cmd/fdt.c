@@ -691,9 +691,9 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			       fdt_strerror(err));
 			return CMD_RET_FAILURE;
 		}
-#ifdef CONFIG_ARCH_KEYSTONE
-		ft_board_setup_ex(working_fdt, gd->bd);
-#endif
+
+		if (IS_ENABLED(CONFIG_OF_BOARD_SETUP_EXTENDED))
+			ft_board_setup_ex(working_fdt, gd->bd);
 	}
 #endif
 	/* Create a chosen node */
