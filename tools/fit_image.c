@@ -846,7 +846,7 @@ static int fit_handle_file(struct image_tool_params *params)
 	char tmpfile[MKIMAGE_MAX_TMPFILE_LEN];
 	char bakfile[MKIMAGE_MAX_TMPFILE_LEN + 4] = {0};
 	char cmd[MKIMAGE_MAX_DTC_CMDLINE_LEN];
-	size_t size_inc;
+	int size_inc;
 	int ret = EXIT_FAILURE;
 
 	/* Flattened Image Tree (FIT) format  handling */
