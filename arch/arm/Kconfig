@@ -835,6 +835,9 @@ config ARCH_K3
 	select FIT_SIGNATURE if ARM64
 	select LTO
 	imply TI_SECURE_DEVICE
+	imply DM_RNG if ARM64
+	imply TEE if ARM64
+	imply OPTEE if ARM64
 
 config ARCH_OMAP2PLUS
 	bool "TI OMAP2+"
