@@ -388,6 +388,7 @@
 			reg-io-width = <4>;
 			num-cs = <4>;
 			clocks = <&clkmgr AGILEX5_L4_MAIN_CLK>;
+			spi-max-frequency = <50000000>;
 			status = "disabled";
 		};
 
@@ -402,6 +403,7 @@
 			reg-io-width = <4>;
 			num-cs = <4>;
 			clocks = <&clkmgr AGILEX5_L4_MAIN_CLK>;
+			spi-max-frequency = <50000000>;
 			status = "disabled";
 		};
 
