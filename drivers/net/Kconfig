@@ -411,6 +411,14 @@ config ETH_DESIGNWARE_S700
 	  This provides glue layer to use Synopsys Designware Ethernet MAC
 	  present on Actions S700 SoC.
 
+config ETH_DESIGNWARE_THEAD
+	bool "T-Head glue driver for Synopsys Designware Ethernet MAC"
+	depends on ETH_DESIGNWARE
+	select DW_ALTDESCRIPTOR
+	help
+	  This provides glue layer to use Synopsys Designware Ethernet MAC
+	  present on T-Head SoCs.
+
 config DW_ALTDESCRIPTOR
 	bool "Designware Ethernet MAC uses alternate (enhanced) descriptors"
 	depends on ETH_DESIGNWARE
