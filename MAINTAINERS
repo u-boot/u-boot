@@ -361,7 +361,7 @@ S:	Maintained
 F:	drivers/misc/ls2_sfp.c
 
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
-M:	Stefan Roese <sr@denx.de>
+M:	Stefan Roese <stefan.roese@mailbox.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
@@ -384,7 +384,7 @@ F:	drivers/watchdog/orion_wdt.c
 F:	include/configs/mv-common.h
 
 ARM MARVELL PCIE CONTROLLER DRIVERS
-M:	Stefan Roese <sr@denx.de>
+M:	Stefan Roese <stefan.roese@mailbox.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	drivers/pci/pci-aardvark.c
@@ -400,7 +400,7 @@ F:	include/configs/pxa1908.h
 
 ARM MARVELL SERIAL DRIVERS
 M:	Pali Rohár <pali@kernel.org>
-M:	Stefan Roese <sr@denx.de>
+M:	Stefan Roese <stefan.roese@mailbox.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	drivers/serial/serial_mvebu_a3700.c
@@ -1022,7 +1022,7 @@ S:	Maintained
 F:	cmd/cat.c
 
 CFI FLASH
-M:	Stefan Roese <sr@denx.de>
+M:	Stefan Roese <stefan.roese@mailbox.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-cfi-flash.git
 F:	drivers/mtd/cfi_flash.c
@@ -1053,7 +1053,7 @@ F:	cmd/cpu.c
 F:	doc/usage/cpu.rst
 
 CYCLIC
-M:	Stefan Roese <sr@denx.de>
+M:	Stefan Roese <stefan.roese@mailbox.org>
 S:	Maintained
 F:	cmd/cyclic.c
 F:	common/cyclic.c
@@ -1251,7 +1251,7 @@ F:	drivers/i2c/
 KWBIMAGE / KWBOOT TOOLS
 M:	Pali Rohár <pali@kernel.org>
 M:	Marek Behún <kabel@kernel.org>
-M:	Stefan Roese <sr@denx.de>
+M:	Stefan Roese <stefan.roese@mailbox.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	doc/README.kwbimage
@@ -1883,7 +1883,7 @@ F:	test/dm/virtio.c
 F:	doc/develop/driver-model/virtio.rst
 
 WATCHDOG
-M:	Stefan Roese <sr@denx.de>
+M:	Stefan Roese <stefan.roese@mailbox.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-watchdog.git
 F:	cmd/wdt.c
