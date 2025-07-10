@@ -6,11 +6,13 @@
 #
 
 from collections import OrderedDict
+from typing import Dict
 
 from binman.entry import Entry
 from binman.etype.section import Entry_section
 from dtoc import fdt_util
 from u_boot_pylib import tools
+
 
 class Entry_mkimage(Entry_section):
     """Binary produced by mkimage
@@ -205,7 +207,7 @@ class Entry_mkimage(Entry_section):
             self.record_missing_bintool(self.mkimage)
             return data
 
-    def GetEntries(self) -> dict[str, Entry]:
+    def GetEntries(self) -> Dict[str, Entry]:
         # Make a copy so we don't change the original
         entries = OrderedDict(self._entries)
         if self._imagename:
