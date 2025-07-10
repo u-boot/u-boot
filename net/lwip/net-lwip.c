@@ -281,7 +281,6 @@ int net_init(void)
 
 	if (!init_done) {
 		eth_init_rings();
-		eth_init();
 		lwip_init();
 		init_done = true;
 	}
