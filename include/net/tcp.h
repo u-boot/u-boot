@@ -235,7 +235,7 @@ struct pseudo_hdr {
 	u16     len;
 } __packed;
 
-#define PSEUDO_HDR_SIZE	(sizeof(struct pseudo_hdr)) - PSEUDO_PAD_SIZE
+#define PSEUDO_HDR_SIZE	((sizeof(struct pseudo_hdr)) - PSEUDO_PAD_SIZE)
 
 /**
  * union tcp_build_pkt - union for building TCP/IP packet.
