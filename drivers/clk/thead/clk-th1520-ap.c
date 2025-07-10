@@ -32,6 +32,7 @@ struct ccu_internal {
 struct ccu_div_internal {
 	u8 shift;
 	u8 width;
+	unsigned long flags;
 };
 
 struct ccu_common {
@@ -79,6 +80,7 @@ struct ccu_pll {
 	{								\
 		.shift	= _shift,					\
 		.width	= _width,					\
+		.flags	= _flags,					\
 	}
 
 #define CCU_GATE(_clkid, _struct, _name, _parent, _reg, _gate, _flags)	\
@@ -182,7 +184,7 @@ static unsigned long ccu_div_get_rate(struct clk *clk)
 	val = val >> cd->div.shift;
 	val &= GENMASK(cd->div.width - 1, 0);
 	rate = divider_recalc_rate(clk, clk_get_parent_rate(clk), val, NULL,
-				   0, cd->div.width);
+				   cd->div.flags, cd->div.width);
 
 	return rate;
 }
