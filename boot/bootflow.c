@@ -245,7 +245,7 @@ static int iter_incr(struct bootflow_iter *iter)
 	if (iter->flags & BOOTFLOWIF_SINGLE_DEV) {
 		ret = -ENOENT;
 	} else {
-		int method_flags;
+		int method_flags = 0;
 
 		ret = 0;
 		dev = iter->dev;
@@ -264,7 +264,6 @@ static int iter_incr(struct bootflow_iter *iter)
 		} else if (IS_ENABLED(CONFIG_BOOTSTD_FULL) &&
 			   iter->flags & BOOTFLOWIF_SINGLE_MEDIA) {
 			log_debug("next in single\n");
-			method_flags = 0;
 			do {
 				/*
 				 * Move to the next bootdev child of this media
@@ -296,6 +295,7 @@ static int iter_incr(struct bootflow_iter *iter)
 					log_debug("looking for next device %s: %s\n",
 						  iter->dev->name,
 						  dev ? dev->name : "<none>");
+					method_flags = BOOTFLOW_METHF_SINGLE_UCLASS;
 				} else {
 					dev = NULL;
 				}
@@ -306,7 +306,6 @@ static int iter_incr(struct bootflow_iter *iter)
 				}
 			} else {
 				ret = bootdev_next_prio(iter, &dev);
-				method_flags = 0;
 			}
 		}
 		log_debug("ret=%d, dev=%p %s\n", ret, dev,
