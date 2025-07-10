@@ -184,16 +184,12 @@ int net_lwip_eth_start(void)
 	int ret;
 
 	net_init();
-	if (eth_is_on_demand_init()) {
+	eth_halt();
+	eth_set_current();
+	ret = eth_init();
+	if (ret < 0) {
 		eth_halt();
-		eth_set_current();
-		ret = eth_init();
-		if (ret < 0) {
-			eth_halt();
-			return ret;
-		}
-	} else {
-		eth_init_state_only();
+		return ret;
 	}
 
 	return 0;
