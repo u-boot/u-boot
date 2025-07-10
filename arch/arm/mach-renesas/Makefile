@@ -19,12 +19,12 @@ ifneq ($(CONFIG_RCAR_64),)
 obj-$(CONFIG_ARMV8_PSCI) += psci-rcar64.o
 endif
 
-OBJCOPYFLAGS_u-boot-spl.srec := -O srec
+OBJCOPYFLAGS_u-boot-spl.srec := -I binary -O srec --change-addresses=$(CONFIG_SPL_TEXT_BASE)
 quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) --gap-fill=0x00 $(OBJCOPYFLAGS) \
 	$(OBJCOPYFLAGS_$(@F)) $< $@
 
-spl/u-boot-spl.srec: spl/u-boot-spl FORCE
+spl/u-boot-spl.srec: spl/u-boot-spl.bin FORCE
 	$(call if_changed,objcopy)
 
 srec_cat_gte_160 := ${shell expr `srec_cat -VERSION | grep ^srec_cat | sed 's/^.* //g' | cut -f1-2 -d.` \>= "1.60"}
@@ -34,6 +34,15 @@ else
 	srec_cat_le_cmd := "-l-e-constant"
 endif
 
+ifneq ($(CONFIG_RCAR_GEN4),)
+quiet_cmd_srec_cat = SRECCAT $@
+      cmd_srec_cat = srec_cat -output $@ -M 8 $< -M 8 \
+			-Output_Block_Size 16 \
+			-generate 0xeb203000 0xeb203154 $(srec_cat_le_cmd) 0x0 4 \
+			-generate 0xeb203154 0xeb203158 $(srec_cat_le_cmd) $(CONFIG_SPL_TEXT_BASE) 4 \
+			-generate 0xeb203158 0xeb203264 $(srec_cat_le_cmd) 0x0 4 \
+			-generate 0xeb203264 0xeb203268 $(srec_cat_le_cmd) $$(( ( $2 + 4 ) / 4 )) 4
+else
 ifneq ($(CONFIG_R8A774C0)$(CONFIG_R8A77990)$(CONFIG_R8A77995),)
 #
 # The first 6 generate statements generate the R-Car Gen3 SCIF loader header.
@@ -89,6 +98,7 @@ quiet_cmd_srec_cat = SRECCAT $@
 			-generate 0xe63006e4 0xe63006e8 $(srec_cat_le_cmd) $2 4 \
 			-generate 0xe6301154 0xe6301158 $(srec_cat_le_cmd) $(CONFIG_SPL_TEXT_BASE) 4 \
 			-generate 0xe6301264 0xe6301268 $(srec_cat_le_cmd) $2 4
+endif
 endif
 
 spl/u-boot-spl.scif: spl/u-boot-spl.srec spl/u-boot-spl.bin

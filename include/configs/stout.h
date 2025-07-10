@@ -25,19 +25,7 @@
 /* SCIF */
 #define CFG_SCIF_A
 
-/* SH Ether */
-#define CFG_SH_ETHER_USE_PORT	0
-#define CFG_SH_ETHER_PHY_ADDR	0x1
-#define CFG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_RMII
-#define CFG_SH_ETHER_CACHE_WRITEBACK
-#define CFG_SH_ETHER_CACHE_INVALIDATE
-#define CFG_SH_ETHER_ALIGNE_SIZE	64
-
-/* Board Clock */
-
 #define CFG_EXTRA_ENV_SETTINGS	\
 	"bootm_size=0x10000000\0"
-
-/* SPL support */
 
 #endif	/* __STOUT_H */

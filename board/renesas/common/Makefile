@@ -5,6 +5,7 @@
 #
 
 # R-Car SoCs
+ifndef CONFIG_RZA1
 ifndef CONFIG_RZG2L
 
 # 32 bit SoCs
@@ -44,4 +45,11 @@ endif
 endif
 endif
 
+endif
+endif
+
+# RZ/A1 SoCs
+ifdef CONFIG_RZA1
+obj-y	+= rza1-common.o
+obj-y	+= rza1-lowlevel_init.o
 endif

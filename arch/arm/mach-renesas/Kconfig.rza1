@@ -14,12 +14,16 @@ choice
 	prompt "Renesas RZ/A1 board select"
 
 # Renesas Supported Boards
+config TARGET_GENMAI
+	bool "GENMAI board"
+
 config TARGET_GRPEACH
 	bool "GR-PEACH board"
 
 endchoice
 
 # Renesas Supported Boards
+source "board/renesas/genmai/Kconfig"
 source "board/renesas/grpeach/Kconfig"
 
 endif

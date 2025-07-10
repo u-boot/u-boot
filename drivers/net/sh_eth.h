@@ -19,22 +19,16 @@
 
 /* The ethernet controller needs to use physical addresses */
 #define ADDR_TO_PHY(addr)	((uintptr_t)(addr) & ~0xe0000000)
+#define SH_ETHER_ALIGN_SIZE	16
 #elif defined(CONFIG_ARM)
 #ifndef inl
 #define inl	readl
 #define outl	writel
+#define SH_ETHER_ALIGN_SIZE	64
 #endif
 #define ADDR_TO_PHY(addr)	((uintptr_t)(addr))
 #define ADDR_TO_P2(addr)	(addr)
 #endif /* defined(CONFIG_SH) */
-
-/* base padding size is 16 */
-#ifndef CFG_SH_ETHER_ALIGNE_SIZE
-#define CFG_SH_ETHER_ALIGNE_SIZE 16
-#endif
-
-/* Number of supported ports */
-#define MAX_PORT_NUM	2
 
 /* Buffers must be big enough to hold the largest ethernet frame. Also, rx
    buffers must be a multiple of 32 bytes */
@@ -47,7 +41,7 @@
 
 /* The size of the tx descriptor is determined by how much padding is used.
    4, 20, or 52 bytes of padding can be used */
-#define TX_DESC_PADDING	(CFG_SH_ETHER_ALIGNE_SIZE - 12)
+#define TX_DESC_PADDING	(SH_ETHER_ALIGN_SIZE - 12)
 
 /* Tx descriptor. We always use 3 bytes of padding */
 struct tx_desc_s {
@@ -62,9 +56,9 @@ struct tx_desc_s {
 
 /* The size of the rx descriptor is determined by how much padding is used.
    4, 20, or 52 bytes of padding can be used */
-#define RX_DESC_PADDING	(CFG_SH_ETHER_ALIGNE_SIZE - 12)
+#define RX_DESC_PADDING	(SH_ETHER_ALIGN_SIZE - 12)
 /* aligned cache line size */
-#define RX_BUF_ALIGNE_SIZE	(CFG_SH_ETHER_ALIGNE_SIZE > 32 ? 64 : 32)
+#define RX_BUF_ALIGNE_SIZE	(SH_ETHER_ALIGN_SIZE > 32 ? 64 : 32)
 
 /* Rx descriptor. We always use 4 bytes of padding */
 struct rx_desc_s {
@@ -84,15 +78,9 @@ struct sh_eth_info {
 	u8 *rx_buf_alloc;
 	u8 *rx_buf_base;
 	u8 mac_addr[6];
-	u8 phy_addr;
 	struct eth_device *dev;
 	struct phy_device *phydev;
 	void __iomem *iobase;
-};
-
-struct sh_eth_dev {
-	int port;
-	struct sh_eth_info port_info[MAX_PORT_NUM];
 };
 
 /* from linux/drivers/net/ethernet/renesas/sh_eth.h */
@@ -388,11 +376,11 @@ enum DMAC_M_BIT {
 #endif
 };
 
-#if CFG_SH_ETHER_ALIGNE_SIZE == 64
+#if SH_ETHER_ALIGN_SIZE == 64
 # define EMDR_DESC EDMR_DL1
-#elif CFG_SH_ETHER_ALIGNE_SIZE == 32
+#elif SH_ETHER_ALIGN_SIZE == 32
 # define EMDR_DESC EDMR_DL0
-#elif CFG_SH_ETHER_ALIGNE_SIZE == 16 /* Default */
+#elif SH_ETHER_ALIGN_SIZE == 16 /* Default */
 # define EMDR_DESC 0
 #endif
 

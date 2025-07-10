@@ -11,7 +11,4 @@
 
 #include "rcar-gen4-common.h"
 
-/* Board Clock */
-/* XTAL_CLK : 16.66MHz */
-
 #endif /* __FALCON_H */
