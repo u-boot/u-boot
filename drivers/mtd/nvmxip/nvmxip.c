@@ -41,7 +41,7 @@ static ulong nvmxip_blk_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcn
 	if (!buffer)
 		return -EINVAL;
 
-	log_debug("[%s]: reading from blknr: %lu , blkcnt: %lu\n", dev->name, blknr, blkcnt);
+	log_debug("[%s]: reading from blknr: " LBAF " , blkcnt: " LBAF "\n", dev->name, blknr, blkcnt);
 
 	virt_blkaddr = map_sysmem(blkaddr, 0);
 
@@ -86,7 +86,7 @@ static int nvmxip_blk_probe(struct udevice *dev)
 	desc->blksz = BIT(plat->lba_shift);
 	desc->bdev = dev;
 
-	log_debug("[%s]: block storage layout\n    lbas: %lu , log2blksz: %d, blksz: %lu\n",
+	log_debug("[%s]: block storage layout\n    lbas: " LBAF " , log2blksz: %d, blksz: %lu\n",
 		  dev->name, desc->lba, desc->log2blksz, desc->blksz);
 
 	return 0;
