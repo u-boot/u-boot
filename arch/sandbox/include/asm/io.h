@@ -8,6 +8,10 @@
 
 #include <linux/types.h>
 
+static inline void sync(void)
+{
+}
+
 enum sandboxio_size_t {
 	SB_SIZE_8,
 	SB_SIZE_16,
