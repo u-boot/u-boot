@@ -6,6 +6,7 @@
 #
 
 from collections import OrderedDict
+from typing import Dict
 
 from binman import cbfs_util
 from binman.cbfs_util import CbfsWriter
@@ -276,7 +277,7 @@ class Entry_cbfs(Entry):
         for entry in self._entries.values():
             entry.ListEntries(entries, indent + 1)
 
-    def GetEntries(self) -> dict[str, Entry]:
+    def GetEntries(self) -> Dict[str, Entry]:
         """Returns the entries (tree children) of this section"""
         return self._entries
 

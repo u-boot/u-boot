@@ -1,7 +1,6 @@
 # SPDX-License-Identifier:      GPL-2.0+
 # Copyright (c) 2018 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
-
 """Entry-type module for sections (groups of entries)
 
 Sections are entries which can contain other entries. This allows hierarchical
@@ -12,6 +11,7 @@ from collections import OrderedDict
 import concurrent.futures
 import re
 import sys
+from typing import Dict
 
 from binman.entry import Entry
 from binman import state
@@ -537,7 +537,7 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             entry.WriteMap(fd, indent + 1)
 
-    def GetEntries(self) -> dict[str, Entry]:
+    def GetEntries(self) -> Dict[str, Entry]:
         return self._entries
 
     def GetContentsByPhandle(self, phandle, source_entry, required):
