@@ -4,8 +4,8 @@
  */
 
 #include <nuvoton_nct6102d.h>
+#include <pnp_def.h>
 #include <asm/io.h>
-#include <asm/pnp_def.h>
 
 static void superio_outb(int reg, int val)
 {

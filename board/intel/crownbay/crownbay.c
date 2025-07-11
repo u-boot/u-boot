@@ -4,8 +4,8 @@
  */
 
 #include <init.h>
+#include <pnp_def.h>
 #include <asm/ibmpc.h>
-#include <asm/pnp_def.h>
 #include <smsc_lpc47m.h>
 
 int board_early_init_f(void)

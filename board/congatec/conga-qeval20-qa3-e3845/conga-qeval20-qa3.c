@@ -5,10 +5,10 @@
 
 #include <i2c.h>
 #include <init.h>
+#include <pnp_def.h>
 #include <winbond_w83627.h>
 #include <asm/gpio.h>
 #include <asm/ibmpc.h>
-#include <asm/pnp_def.h>
 
 int board_early_init_f(void)
 {
