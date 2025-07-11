@@ -967,12 +967,6 @@ config ARCH_MX28
 	select MACH_IMX
 	select SUPPORT_SPL
 
-config ARCH_MX31
-	bool "NXP i.MX31 family"
-	select CPU_ARM1136
-	select GPIO_EXTRA_HEADER
-	select MACH_IMX
-
 config ARCH_MX7ULP
 	bool "NXP MX7ULP"
 	select BOARD_POSTCLK_INIT
@@ -2317,8 +2311,6 @@ source "arch/arm/mach-octeontx/Kconfig"
 source "arch/arm/mach-octeontx2/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
-
-source "arch/arm/mach-imx/mx3/Kconfig"
 
 source "arch/arm/mach-imx/mx5/Kconfig"
 
