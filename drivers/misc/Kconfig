@@ -650,7 +650,7 @@ config GDSYS_SOC
 
 config IHS_FPGA
 	bool "Enable IHS FPGA driver"
-	depends on MISC
+	depends on MISC && (GDSYS_LEGACY_DRIVERS || SYS_FPGA_FLAVOR_GAZERBEAM)
 	help
 	  Support IHS (Integrated Hardware Systems) FPGA, the main FPGAs on
 	  gdsys devices, which supply the majority of the functionality offered
