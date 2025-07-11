@@ -1,1 +1,1 @@
-main.py
+python3 tools/binman/main.py $@
