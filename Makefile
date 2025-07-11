@@ -635,8 +635,9 @@ ifeq ($(config-targets),1)
 # Read arch specific Makefile to set KBUILD_DEFCONFIG as needed.
 # KBUILD_DEFCONFIG may point out an alternative default configuration
 # used for 'make defconfig'
-# Modified for U-Boot
--include arch/$(SRCARCH)/Makefile
+# Modified for U-Boot: we don't include arch/$(SRCARCH)/Makefile for config
+# targets, which is useless since U-Boot has no architecture defining its own
+# KBUILD_{DEF,K}CONFIG, or CROSS_COMPILE.
 export KBUILD_DEFCONFIG KBUILD_KCONFIG CC_VERSION_TEXT
 
 config: scripts_basic outputmakefile FORCE
@@ -724,8 +725,10 @@ endif
 ARCH_CPPFLAGS :=
 ARCH_AFLAGS :=
 ARCH_CFLAGS :=
-# Modified for U-Boot
--include arch/$(SRCARCH)/Makefile
+# Modified for U-Boot: we put off the include of arch/$(SRCARCH)/Makefile until
+# making sure include/config/auto.conf is up-to-date and include of config.mk,
+# because the architecture-specific Makefile may make use of variables defined
+# in config.mk. See also the comment about autoconf_is_old.
 
 ifeq ($(dot-config),1)
 ifeq ($(may-sync-config),1)
