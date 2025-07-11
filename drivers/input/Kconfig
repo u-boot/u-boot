@@ -98,6 +98,7 @@ config I8042_KEYB
 
 config TEGRA_KEYBOARD
 	bool "NVIDIA Tegra internal matrix keyboard controller support"
+	depends on ARCH_TEGRA
 	help
 	  A matrix keyboard connected directly to the internal keyboard
 	  controller on Tegra SoCs.
