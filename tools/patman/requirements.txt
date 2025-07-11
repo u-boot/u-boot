@@ -1,6 +1,6 @@
-aiohttp==3.9.1
+aiohttp==3.10.11
 ConfigParser==7.1.0
 importlib_resources==6.5.2
 pygit2==1.14.1
-Requests==2.32.3
-setuptools==75.8.0
+requests==2.32.4
+setuptools==78.1.1
