@@ -1,0 +1,12 @@
+config DM_AES
+	bool "Enable Driver Model for AES crypto operations"
+	depends on DM
+	help
+	  If you want to use driver model for AES crypto operations, say Y.
+
+config AES_SOFTWARE
+	bool "Enable driver for AES in software"
+	depends on DM_AES && AES
+	help
+	  Enable driver for AES crypto operations in software. Uses U-Boot
+	  AES library.

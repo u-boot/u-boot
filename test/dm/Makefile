@@ -29,6 +29,7 @@ obj-(CONFIG_DM_GPIO) += gpio.o
 obj-y += irq.o
 endif
 obj-$(CONFIG_ADC) += adc.o
+obj-$(CONFIG_AES_SOFTWARE) += aes.o
 obj-$(CONFIG_SOUND) += audio.o
 obj-$(CONFIG_AXI) += axi.o
 obj-$(CONFIG_BLK) += blk.o
