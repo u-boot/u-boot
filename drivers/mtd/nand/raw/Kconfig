@@ -551,12 +551,6 @@ config NAND_MXS_USE_MINIMUM_ECC
 
 endif
 
-config NAND_MXIC
-	bool "Macronix raw NAND controller"
-	select SYS_NAND_SELF_INIT
-	help
-	  This selects the Macronix raw NAND controller driver.
-
 config NAND_ZYNQ
 	bool "Support for Zynq Nand controller"
 	select SPL_SYS_NAND_SELF_INIT
