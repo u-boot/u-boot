@@ -73,6 +73,7 @@
 #define __BLOBLIST_H
 
 #include <mapmem.h>
+#include <errno.h>
 
 enum {
 	BLOBLIST_VERSION	= 1,
@@ -110,7 +111,8 @@ enum bloblist_tag_t {
 	BLOBLISTT_ACPI_TABLES = 4,
 	BLOBLISTT_TPM_EVLOG = 5,
 	BLOBLISTT_TPM_CRB_BASE = 6,
-	BLOBLISTT_ACPI_PP = 7,
+	BLOBLISTT_FDT_OVERLAY = 7,
+	BLOBLISTT_ACPI_PP = 8,
 
 	/* Standard area to allocate blobs used across firmware components */
 	BLOBLISTT_AREA_FIRMWARE = 0x10,
@@ -231,6 +233,16 @@ enum {
 	BLOBLIST_REC_HDR_SIZE		= sizeof(struct bloblist_rec),
 };
 
+/*
+ * struct dto_blob_hdr - Blob inline header for BLOBLISTT_FDT_OVERLAY
+ *
+ * @subtype: IMP-DEF per the agreement between the DT overlay producer and
+ *	consumer. Default value is 0.
+ */
+struct dto_blob_hdr {
+	u64 subtype;
+};
+
 /**
  * bloblist_check_magic() - return a bloblist if the magic matches
  *
@@ -265,6 +277,26 @@ void *bloblist_get_blob(uint tag, int *sizep);
 static inline void *bloblist_get_blob(uint tag, int *sizep)
 {
 	return NULL;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(BLOBLIST)
+/**
+ * bloblist_apply_blobs() - Apply the data of blobs by tag
+ *
+ * Scan the bloblist, find the blobs with the matching tag and apply the data
+ * of blobs
+ *
+ * @tag:	Tag to search for (enum bloblist_tag_t)
+ * @func:	Function to apply the data of blobs
+ * Return: 0 if OK, otherwise error.
+ */
+int bloblist_apply_blobs(uint tag, int (*func)(void **data, int size));
+#else
+static inline int bloblist_apply_blobs(uint tag,
+				       int (*func)(void **data, int size))
+{
+	return -EPERM;
 }
 #endif
 
@@ -336,6 +368,7 @@ void *bloblist_ensure(uint tag, int size);
  */
 int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp);
 
+#if CONFIG_IS_ENABLED(BLOBLIST)
 /**
  * bloblist_resize() - resize a blob
  *
@@ -344,10 +377,17 @@ int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp);
  *
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @new_size:	New size of the blob (>0 to expand, <0 to contract)
+ * @expand_by:	Number of bytes actually expanded by (-ve to contract)
  * Return: 0 if OK, -ENOSPC if the bloblist does not have enough space, -ENOENT
  * if the tag is not found
  */
-int bloblist_resize(uint tag, int new_size);
+int bloblist_resize(uint tag, int new_size, int *expand_by);
+#else
+static inline int bloblist_resize(uint tag, int new_size, int *expand_by)
+{
+	return -EPERM;
+}
+#endif
 
 /**
  * bloblist_new() - Create a new, empty bloblist of a given size
