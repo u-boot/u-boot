@@ -277,7 +277,7 @@ int ext4fs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 				       sizeof(struct ext2_dirent),
 				       (char *)&dirent, &actread);
 		if (ret < 0)
-			return -ret;
+			return ret;
 
 		if (!dirent.direntlen)
 			return -EIO;

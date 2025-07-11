@@ -198,15 +198,17 @@ void put_ext4(uint64_t off, const void *buf, uint32_t size)
 	uint64_t remainder;
 	unsigned char *temp_ptr = NULL;
 	struct ext_filesystem *fs = get_fs();
-	int log2blksz = fs->dev_desc->log2blksz;
+	int log2blksz;
+
+	if (!fs->dev_desc)
+		return;
+
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, sec_buf, fs->dev_desc->blksz);
 
+	log2blksz = fs->dev_desc->log2blksz;
 	startblock = off >> log2blksz;
 	startblock += part_offset;
 	remainder = off & (uint64_t)(fs->dev_desc->blksz - 1);
-
-	if (fs->dev_desc == NULL)
-		return;
 
 	if ((startblock + (size >> log2blksz)) >
 	    (part_offset + fs->total_sect)) {
