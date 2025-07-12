@@ -140,6 +140,7 @@
 };
 
 &sfc {
+	bootph-some-ram;
 	u-boot,spl-sfc-no-dma;
 };
 
