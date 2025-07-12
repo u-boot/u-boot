@@ -40,7 +40,7 @@ static int spl_node_to_boot_device(int node)
 	 * aware of the block-device layer.  Until then (and to avoid unneeded
 	 * delays in getting this feature out), it lives at the board-level.
 	 */
-	if (!uclass_get_device_by_of_offset(UCLASS_MMC, node, &parent)) {
+	if (!uclass_find_device_by_of_offset(UCLASS_MMC, node, &parent)) {
 		struct udevice *dev;
 		struct blk_desc *desc = NULL;
 
@@ -72,7 +72,7 @@ static int spl_node_to_boot_device(int node)
 	 * extended with awareness of the BLK layer (and matching OF_CONTROL)
 	 * soon.
 	 */
-	if (!uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node, &parent))
+	if (!uclass_find_device_by_of_offset(UCLASS_SPI_FLASH, node, &parent))
 		return BOOT_DEVICE_SPI;
 
 	return -1;
