@@ -416,8 +416,8 @@ HOST_LFS_CFLAGS := $(shell getconf LFS_CFLAGS 2>/dev/null)
 HOST_LFS_LDFLAGS := $(shell getconf LFS_LDFLAGS 2>/dev/null)
 HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 
-HOSTCC       = gcc
-HOSTCXX      = g++
+HOSTCC       = cc
+HOSTCXX      = c++
 KBUILD_HOSTCFLAGS   := -Wall -Wstrict-prototypes -O2 \
 		-fomit-frame-pointer -std=gnu11 $(HOST_LFS_CFLAGS) \
 		$(HOSTCFLAGS) #-Wmissing-prototypes Enable it and fix warnings
