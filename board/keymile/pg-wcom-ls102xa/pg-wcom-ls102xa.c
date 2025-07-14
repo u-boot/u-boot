@@ -38,7 +38,7 @@ static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 int checkboard(void)
 {
 	show_qrio();
-
+	i2c_deblock_gpio_cfg();
 	return 0;
 }
 
@@ -95,8 +95,6 @@ int board_early_init_f(void)
 	/* deasset debug phy reset only if piggy is present */
 	qrio_prstcfg(KM_DBG_ETH_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
 	qrio_prst(KM_DBG_ETH_RST, !qrio_get_pgy_pres_pin(), false);
-
-	i2c_deblock_gpio_cfg();
 
 	/* enable the Unit LED (red) & Boot LED (on) */
 	qrio_set_leds();
