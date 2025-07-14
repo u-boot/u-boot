@@ -180,7 +180,7 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 			return log_msg_ret("buf", -ENOMEM);
 		priv->slots = new_slots;
 		priv->slots[i - 1] = s;
-		priv->slots[i]->name = NULL;
+		priv->slots[i] = NULL;
 	}
 
 	bflow->bootmeth_priv = priv;
