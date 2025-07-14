@@ -131,6 +131,7 @@ struct msm_serial_data {
 	phys_addr_t base;
 	u32 baud;
 	u32 oversampling;
+	struct clk *se;
 };
 
 unsigned long root_freq[] = {7372800,  14745600, 19200000, 29491200,
@@ -179,19 +180,6 @@ static int get_clk_div_rate(u32 baud, u64 sampling_rate, u32 *clk_div)
 
 	*clk_div = ser_clk / desired_clk;
 	return ser_clk;
-}
-
-static int geni_serial_set_clock_rate(struct udevice *dev, u64 rate)
-{
-	struct clk *clk;
-	int ret;
-
-	clk = devm_clk_get(dev, NULL);
-	if (IS_ERR(clk))
-		return PTR_ERR(clk);
-
-	ret = clk_set_rate(clk, rate);
-	return ret;
 }
 
 /**
@@ -256,7 +244,7 @@ static int msm_serial_setbrg(struct udevice *dev, int baud)
 		pr_err("%s: Couldn't get clock division rate\n", __func__);
 		return -EINVAL;
 	}
-	ret = geni_serial_set_clock_rate(dev, clk_rate);
+	ret = clk_set_rate(priv->se, clk_rate);
 	if (ret < 0) {
 		pr_err("%s: Couldn't set clock rate: %d\n", __func__, ret);
 		return ret;
@@ -561,6 +549,16 @@ static int msm_serial_probe(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
 	int ret;
+	struct clk *clk;
+
+	clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
+	priv->se = clk;
+
+	ret = clk_enable(clk);
+	if (ret)
+		return ret;
 
 	ret = geni_set_oversampling(dev);
 	if (ret < 0)
