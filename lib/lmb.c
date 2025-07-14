@@ -8,6 +8,7 @@
 
 #include <alist.h>
 #include <efi_loader.h>
+#include <env.h>
 #include <event.h>
 #include <image.h>
 #include <mapmem.h>
@@ -538,6 +539,7 @@ static void lmb_reserve_uboot_region(void)
 	int bank;
 	ulong end, bank_end;
 	phys_addr_t rsv_start;
+	ulong pram = 0;
 
 	rsv_start = gd->start_addr_sp - CONFIG_STACK_SIZE;
 	end = gd->ram_top;
@@ -547,6 +549,11 @@ static void lmb_reserve_uboot_region(void)
 	 * until end of RAM area to prevent LMB from overwriting that memory.
 	 */
 	debug("## Current stack ends at 0x%08lx ", (ulong)rsv_start);
+
+#ifdef CFG_PRAM
+	pram = env_get_ulong("pram", 10, CFG_PRAM);
+	pram = pram << 10; /* size is in kB */
+#endif
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
 		if (!gd->bd->bi_dram[bank].size ||
@@ -560,7 +567,8 @@ static void lmb_reserve_uboot_region(void)
 		if (bank_end > end)
 			bank_end = end - 1;
 
-		lmb_reserve(rsv_start, bank_end - rsv_start + 1, LMB_NOOVERWRITE);
+		lmb_reserve(rsv_start, bank_end - rsv_start - pram + 1,
+			    LMB_NOOVERWRITE);
 
 		if (gd->flags & GD_FLG_SKIP_RELOC)
 			lmb_reserve((phys_addr_t)(uintptr_t)_start,
