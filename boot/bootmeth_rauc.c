@@ -168,13 +168,17 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 	     (slot = strsep(&boot_order_copy, " "));
 	     i++) {
 		struct distro_rauc_slot *s;
+		struct distro_rauc_slot **new_slots;
 
 		s = calloc(1, sizeof(struct distro_rauc_slot));
 		s->name = strdup(slot);
 		s->boot_part = simple_strtoul(strsep(&parts, ","), NULL, 10);
 		s->root_part = simple_strtoul(strsep(&parts, ","), NULL, 10);
-		priv->slots = realloc(priv->slots, (i + 1) *
-				      sizeof(struct distro_rauc_slot));
+		new_slots = realloc(priv->slots, (i + 1) *
+				    sizeof(struct distro_rauc_slot));
+		if (!new_slots)
+			return log_msg_ret("buf", -ENOMEM);
+		priv->slots = new_slots;
 		priv->slots[i - 1] = s;
 		priv->slots[i]->name = NULL;
 	}
