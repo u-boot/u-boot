@@ -215,8 +215,6 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 
 			coalesced++;
 			break;
-
-			return -1;
 		}
 	}
 
