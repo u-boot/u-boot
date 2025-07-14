@@ -1,6 +1,6 @@
 Hitachi Power Grids LS102XA BOARD
-M:	Aleksandar Gerasimovski <aleksandar.gerasimovski@hitachienergy.com>
-M:	Rainer Boschung <rainer.boschung@hitachienergy.com>
+M:	Holger Brunck <holger.brunck@hitachienergy.com>
+M:	Tomas Alvarez Vanoli <tomas.alvarez-vanoli@hitachienergy.com>
 S:	Maintained
 F:	board/keymile/pg-wcom-ls102xa/
 F:	board/keymile/common/
