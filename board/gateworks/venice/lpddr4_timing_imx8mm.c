@@ -10,6 +10,8 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/lpddr4_define.h>
 
+#include "eeprom.h"
+
 /* ddr phy trained csr */
 static struct dram_cfg_param lpddr4_ddrphy_trained_csr[] = {
 	{ 0x200b2, 0x0 },
@@ -3561,9 +3563,36 @@ static struct dram_cfg_param ddr_ddrphy_cfg_alt_patch[] = {
 	{ 0x120a5, 0x2 },
 };
 
-struct dram_timing_info *spl_dram_init(const char *model, int sizemb)
+/* 4GB single Die patch (MT53E1G32D2FW-046 revC) */
+static struct dram_cfg_param ddr_ddrc_cfg_4gb_single_die_patch[] = {
+	{ 0x3d400000, 0xa1080020 },
+	{ 0x3d400064, 0x5b011d },
+	{ 0x3d40011c, 0x402 },
+	{ 0x3d400138, 0x123 },
+	{ 0x3d4000f4, 0x699 },
+	{ 0x3d400200, 0x1f },
+	{ 0x3d40021c, 0xf07 },
+	{ 0x3d402064, 0xc0026 },
+	{ 0x3d40211c, 0x302 },
+	{ 0x3d402138, 0x27 },
+	{ 0x3d4020f4, 0x599 },
+	{ 0x3d403064, 0x3000a },
+	{ 0x3d40311c, 0x302 },
+	{ 0x3d403138, 0xa },
+	{ 0x3d4030f4, 0x599 }
+};
+
+static struct dram_cfg_param fsp_msg_4gb_single_die_patch[] = {
+	{ 0x00054012, 0x110 },
+	{ 0x0005402c, 0x1 },
+};
+
+struct dram_timing_info *spl_dram_init(const char *model, struct venice_board_info *info,
+				       char *dram_desc, size_t sz_desc)
 {
 	struct dram_timing_info *dram_timing;
+	int sizemb = (16 << info->sdram_size);
+	int i;
 
 	switch (sizemb) {
 	case 512:
@@ -3577,6 +3606,21 @@ struct dram_timing_info *spl_dram_init(const char *model, int sizemb)
 		break;
 	case 4096:
 		dram_timing = &dram_timing_4gb;
+		if (info->sdram_variant == 1) {
+			if (dram_desc)
+				strlcpy(dram_desc, "single-die", sz_desc);
+			apply_cfg_patch(dram_timing->ddrc_cfg, dram_timing->ddrc_cfg_num,
+					ddr_ddrc_cfg_4gb_single_die_patch,
+					ARRAY_SIZE(ddr_ddrc_cfg_4gb_single_die_patch));
+			for (i = 0; i < 4; i++) {
+				apply_cfg_patch(dram_timing->fsp_msg[i].fsp_cfg,
+						dram_timing->fsp_msg[i].fsp_cfg_num,
+						fsp_msg_4gb_single_die_patch,
+						ARRAY_SIZE(fsp_msg_4gb_single_die_patch));
+			}
+		} else if (dram_desc) {
+			strlcpy(dram_desc, "dual-die", sz_desc);
+		}
 		break;
 	default:
 		printf("unsupported");
@@ -3595,6 +3639,9 @@ struct dram_timing_info *spl_dram_init(const char *model, int sizemb)
 				ddr_ddrphy_cfg_alt_patch,
 				ARRAY_SIZE(ddr_ddrphy_cfg_alt_patch));
 	}
+
+	if (ddr_init(dram_timing))
+		return NULL;
 
 	return dram_timing;
 }

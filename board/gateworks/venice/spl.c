@@ -188,9 +188,10 @@ static int power_init_board(const char *model, struct udevice *gsc)
 void board_init_f(ulong dummy)
 {
 	struct dram_timing_info *dram_timing;
+	struct venice_board_info *eeprom;
 	struct udevice *bus, *dev;
 	const char *model;
-	int dram_szmb;
+	char dram_desc[32];
 	int i, ret;
 
 	arch_cpu_init();
@@ -249,23 +250,31 @@ void board_init_f(ulong dummy)
 			break;
 		mdelay(1);
 	}
-	dram_szmb = venice_eeprom_init(0);
+	eeprom = venice_eeprom_init(0);
 	model = eeprom_get_model();
 
 	/* PMIC */
 	power_init_board(model, dev);
 
 	/* DDR initialization */
-	printf("DRAM    : LPDDR4 ");
-	if (dram_szmb > 512)
-		printf("%d GiB", dram_szmb / 1024);
-	else
-		printf("%d MiB", dram_szmb);
-	dram_timing = spl_dram_init(model, dram_szmb);
-	printf(" %dMT/s %dMHz\n",
-	       dram_timing->fsp_msg[0].drate,
-	       dram_timing->fsp_msg[0].drate / 2);
-	ddr_init(dram_timing);
+	dram_desc[0] = 0;
+	dram_timing = spl_dram_init(model, eeprom, dram_desc, sizeof(dram_desc));
+	if (dram_timing) {
+		int dram_szmb = (16 << eeprom->sdram_size);
+
+		printf("DRAM    : LPDDR4 ");
+		if (dram_szmb > 512)
+			printf("%d GiB", dram_szmb / 1024);
+		else
+			printf("%d MiB", dram_szmb);
+		printf(" %dMT/s %dMHz %s",
+		       dram_timing->fsp_msg[0].drate,
+		       dram_timing->fsp_msg[0].drate / 2,
+		       dram_desc[0] ? dram_desc : "");
+		puts("\n");
+	} else {
+		hang();
+	}
 
 	board_init_r(NULL, 0);
 }
