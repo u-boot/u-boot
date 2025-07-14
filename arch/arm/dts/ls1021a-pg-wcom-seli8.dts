@@ -44,6 +44,26 @@
 
 &i2c0 {
 	status = "okay";
+
+	pca9547@70 {
+		compatible = "nxp,pca9547";
+		reg = <0x70>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		i2c-mux-idle-disconnect;
+
+		i2c@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			ivm@50 {
+				compatible = "atmel,24c02";
+				reg = <0x50>;
+				label = "MAIN_CTRL";
+			};
+		};
+	};
 };
 
 &ifc {
