@@ -10,11 +10,14 @@
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <errno.h>
 #include <linux/delay.h>
 #include <linux/time.h>
 #include <misc.h>
 #include <serial.h>
+#include <soc/qcom/qup-fw-load.h>
+#include <soc/qcom/geni-se.h>
 
 #define UART_OVERSAMPLING	32
 #define STALE_TIMEOUT	160
@@ -22,8 +25,6 @@
 /* Registers*/
 #define GENI_FORCE_DEFAULT_REG	0x20
 #define GENI_SER_M_CLK_CFG	0x48
-#define GENI_SER_S_CLK_CFG	0x4C
-#define SE_HW_PARAM_0	0xE24
 #define SE_GENI_STATUS	0x40
 #define SE_GENI_S_CMD0	0x630
 #define SE_GENI_S_CMD_CTRL_REG	0x634
@@ -39,7 +40,6 @@
 #define SE_GENI_RX_FIFOn	0x780
 #define SE_GENI_TX_FIFO_STATUS	0x800
 #define SE_GENI_RX_FIFO_STATUS	0x804
-#define SE_GENI_TX_WATERMARK_REG	0x80C
 #define SE_GENI_TX_PACKING_CFG0	0x260
 #define SE_GENI_TX_PACKING_CFG1	0x264
 #define SE_GENI_RX_PACKING_CFG0	0x284
@@ -54,59 +54,24 @@
 #define SE_UART_RX_TRANS_CFG	0x280
 #define SE_UART_RX_PARITY_CFG	0x2a8
 
-#define M_TX_FIFO_WATERMARK_EN	(BIT(30))
 #define DEF_TX_WM	2
 /* GENI_FORCE_DEFAULT_REG fields */
-#define FORCE_DEFAULT	(BIT(0))
-
-#define S_CMD_ABORT_EN	(BIT(5))
 
 #define UART_START_READ	0x1
 
-/* GENI_M_CMD_CTRL_REG */
-#define M_GENI_CMD_CANCEL	(BIT(2))
-#define M_GENI_CMD_ABORT	(BIT(1))
-#define M_GENI_DISABLE	(BIT(0))
-
-#define M_CMD_ABORT_EN	(BIT(5))
-#define M_CMD_DONE_EN	(BIT(0))
 #define M_CMD_DONE_DISABLE_MASK	(~M_CMD_DONE_EN)
-
-#define S_GENI_CMD_ABORT	(BIT(1))
-
-/* GENI_S_CMD0 fields */
-#define S_OPCODE_MSK	(GENMASK(31, 27))
-#define S_PARAMS_MSK	(GENMASK(26, 0))
-
-/* GENI_STATUS fields */
-#define M_GENI_CMD_ACTIVE	(BIT(0))
-#define S_GENI_CMD_ACTIVE	(BIT(12))
-#define M_CMD_DONE_EN	(BIT(0))
-#define S_CMD_DONE_EN	(BIT(0))
 
 #define M_OPCODE_SHIFT	27
 #define S_OPCODE_SHIFT	27
-#define M_TX_FIFO_WATERMARK_EN	(BIT(30))
 #define UART_START_TX	0x1
 #define UART_CTS_MASK	(BIT(1))
-#define M_SEC_IRQ_EN	(BIT(31))
 #define TX_FIFO_WC_MSK	(GENMASK(27, 0))
-#define RX_FIFO_WC_MSK	(GENMASK(24, 0))
-
-#define S_RX_FIFO_WATERMARK_EN	(BIT(26))
-#define S_RX_FIFO_LAST_EN	(BIT(27))
-#define M_RX_FIFO_WATERMARK_EN	(BIT(26))
-#define M_RX_FIFO_LAST_EN	(BIT(27))
 
 /* GENI_SER_M_CLK_CFG/GENI_SER_S_CLK_CFG */
-#define SER_CLK_EN	(BIT(0))
-#define CLK_DIV_MSK	(GENMASK(15, 4))
 #define CLK_DIV_SHFT	4
 
 /* SE_HW_PARAM_0 fields */
-#define TX_FIFO_WIDTH_MSK	(GENMASK(29, 24))
 #define TX_FIFO_WIDTH_SHFT	24
-#define TX_FIFO_DEPTH_MSK	(GENMASK(21, 16))
 #define TX_FIFO_DEPTH_SHFT	16
 
 /* GENI SE QUP Registers */
@@ -549,6 +514,7 @@ static int msm_serial_probe(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
 	int ret;
+	u32 proto;
 	struct clk *clk;
 
 	clk = devm_clk_get(dev, NULL);
@@ -556,7 +522,32 @@ static int msm_serial_probe(struct udevice *dev)
 		return PTR_ERR(clk);
 	priv->se = clk;
 
+	/* Try enable clock */
 	ret = clk_enable(clk);
+
+	/* Check if firmware loading is needed (BT UART) */
+	proto = readl(priv->base + GENI_FW_REVISION_RO);
+	proto &= FW_REV_PROTOCOL_MSK;
+	proto >>= FW_REV_PROTOCOL_SHFT;
+
+	if (proto == GENI_SE_INVALID_PROTO) {
+		qcom_geni_load_firmware(priv->base, dev);
+		proto = readl(priv->base + GENI_FW_REVISION_RO);
+		proto &= FW_REV_PROTOCOL_MSK;
+		proto >>= FW_REV_PROTOCOL_SHFT;
+	}
+
+	if (proto != GENI_SE_UART) {
+		dev_err(dev, "Invalid proto %d\n", proto);
+		clk_disable(clk);
+		return -ENXIO;
+	}
+
+	/* Don't actually probe non-debug UARTs */
+	if (ofnode_device_is_compatible(dev_ofnode(dev), "qcom,geni-uart"))
+		return -ENOENT;
+
+	/* Now handle clock enable return value */
 	if (ret)
 		return ret;
 
@@ -589,6 +580,7 @@ static int msm_serial_ofdata_to_platdata(struct udevice *dev)
 
 static const struct udevice_id msm_serial_ids[] = {
 	{ .compatible = "qcom,geni-debug-uart" },
+	{ .compatible = "qcom,geni-uart" },
 	{ }
 };
 
