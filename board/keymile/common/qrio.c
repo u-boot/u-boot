@@ -18,6 +18,11 @@
 #define DIRECT_OFF		0x18
 #define GPRT_OFF		0x1c
 
+// used to keep track of the user settings for the input/output
+static u32 gprt_user[2] = { 0x0, 0x0 };
+// convert the bank offset to the correct static user gprt
+#define QRIO_USER_GRPT_BANK(bank) gprt_user[(bank - 0x40) / 0x20]
+
 void show_qrio(void)
 {
 	void __iomem *qrio_base = (void *)CFG_SYS_QRIO_BASE;
@@ -72,12 +77,13 @@ void qrio_set_gpio(u8 port_off, u8 gpio_nr, bool value)
 
 	mask = 1U << gpio_nr;
 
-	gprt = in_be32(qrio_base + port_off + GPRT_OFF);
+	gprt = QRIO_USER_GRPT_BANK(port_off);
 	if (value)
 		gprt |= mask;
 	else
 		gprt &= ~mask;
 
+	QRIO_USER_GRPT_BANK(port_off) = gprt;
 	out_be32(qrio_base + port_off + GPRT_OFF, gprt);
 }
 
