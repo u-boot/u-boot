@@ -149,10 +149,8 @@ int uclass_find_first_device(enum uclass_id id, struct udevice **devp);
  *
  * The device is not prepared for use - this is an internal function.
  * The function uclass_get_device_tail() can be used to probe the device.
- *
- * Return: 0 if OK (found or not found), -ve on error
  */
-int uclass_find_next_device(struct udevice **devp);
+void uclass_find_next_device(struct udevice **devp);
 
 /**
  * uclass_find_device_by_namelen() - Find uclass device based on ID and name

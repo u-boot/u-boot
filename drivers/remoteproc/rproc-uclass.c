@@ -55,9 +55,12 @@ static int for_each_remoteproc_device(int (*fn) (struct udevice *dev,
 	struct dm_rproc_uclass_pdata *uc_pdata;
 	int ret;
 
-	for (ret = uclass_find_first_device(UCLASS_REMOTEPROC, &dev); dev;
-	     ret = uclass_find_next_device(&dev)) {
-		if (ret || dev == skip_dev)
+	ret = uclass_find_first_device(UCLASS_REMOTEPROC, &dev);
+	if (ret)
+		return ret;
+
+	for (; dev; uclass_find_next_device(&dev)) {
+		if (dev == skip_dev)
 			continue;
 		uc_pdata = dev_get_uclass_plat(dev);
 		ret = fn(dev, uc_pdata, data);
