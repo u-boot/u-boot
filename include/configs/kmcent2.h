@@ -158,11 +158,10 @@
 /******************************************************************************
  * (PRAM usage)
  * ... -------------------------------------------------------
- * ... |ROOTFSSIZE | PNVRAM |PHRAM |RESERVED_PRAM | END_OF_RAM
+ * ... |ROOTFSSIZE | PNVRAM |PHRAM | END_OF_RAM              |
  * ... |<------------------- pram -------------------------->|
  * ... -------------------------------------------------------
  * @END_OF_RAM:
- * @CONFIG_KM_RESERVED_PRAM: reserved pram for special purpose
  * @CONFIG_KM_PHRAM: address for /var
  * @CONFIG_KM_PNVRAM: address for PNVRAM (for the application)
  */

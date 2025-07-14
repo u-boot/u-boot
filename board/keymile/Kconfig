@@ -29,14 +29,6 @@ config KM_PHRAM
 	help
 	  Start address of the physical RAM, which is the mounted /var folder.
 
-config KM_RESERVED_PRAM
-	hex "Reserved RAM"
-	default 0x0 if MPC83xx
-	default 0x1000 if MPC85xx || ARCH_LS1021A
-	depends on !ARCH_SOCFPGA
-	help
-	  Reserved physical RAM area at the end of memory for special purposes.
-
 config KM_CRAMFS_ADDR
 	hex "CRAMFS Address"
 	default 0x83000000 if ARCH_LS1021A
