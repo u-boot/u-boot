@@ -8,6 +8,7 @@ Sections are entries which can contain other entries. This allows hierarchical
 images to be created.
 """
 
+from __future__ import annotations
 from collections import OrderedDict
 import concurrent.futures
 import re

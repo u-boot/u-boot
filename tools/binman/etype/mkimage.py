@@ -5,6 +5,7 @@
 # Entry-type module for producing an image using mkimage
 #
 
+from __future__ import annotations
 from collections import OrderedDict
 
 from binman.entry import Entry
