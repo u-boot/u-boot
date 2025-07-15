@@ -203,7 +203,7 @@ static int lib_test_abuf_large(struct unit_test_state *uts)
 
 	/* Try an impossible size */
 	abuf_init(&buf);
-	ut_asserteq(false, abuf_realloc(&buf, CONFIG_SYS_MALLOC_LEN));
+	ut_asserteq(false, abuf_realloc(&buf, 0x60000000));
 	ut_assertnull(buf.data);
 	ut_asserteq(0, buf.size);
 	ut_asserteq(false, buf.alloced);
@@ -222,7 +222,7 @@ static int lib_test_abuf_large(struct unit_test_state *uts)
 	ut_assert(delta > 0);
 
 	/* try to increase it */
-	ut_asserteq(false, abuf_realloc(&buf, CONFIG_SYS_MALLOC_LEN));
+	ut_asserteq(false, abuf_realloc(&buf, 0x60000000));
 	ut_asserteq(TEST_DATA_LEN, buf.size);
 	ut_asserteq(true, buf.alloced);
 	ut_asserteq(delta, ut_check_delta(start));
@@ -233,8 +233,8 @@ static int lib_test_abuf_large(struct unit_test_state *uts)
 
 	/* Start with a huge unallocated buf and try to move it */
 	abuf_init(&buf);
-	abuf_map_sysmem(&buf, 0, CONFIG_SYS_MALLOC_LEN);
-	ut_asserteq(CONFIG_SYS_MALLOC_LEN, buf.size);
+	abuf_map_sysmem(&buf, 0, 0x60000000);
+	ut_asserteq(0x60000000, buf.size);
 	ut_asserteq(false, buf.alloced);
 	ut_assertnull(abuf_uninit_move(&buf, &size));
 
