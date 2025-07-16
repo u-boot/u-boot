@@ -101,8 +101,7 @@ static int ab_control_create_from_disk(struct blk_desc *dev_desc,
 	abc_blocks = DIV_ROUND_UP(sizeof(struct bootloader_control),
 				  part_info->blksz);
 	if (abc_offset + abc_blocks > part_info->size) {
-		log_err("ANDROID: boot control partition too small. Need at");
-		log_err(" least %lu blocks but have %lu blocks.\n",
+		log_err("ANDROID: boot control partition too small. Need at least %lu blocks but have " LBAF " blocks.\n",
 			abc_offset + abc_blocks, part_info->size);
 		return -EINVAL;
 	}

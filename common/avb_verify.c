@@ -320,7 +320,7 @@ static unsigned long mmc_read_and_flush(struct mmc_part *part,
 	}
 	if ((start + sectors) > (part->info.start + part->info.size)) {
 		sectors = part->info.start + part->info.size - start;
-		printf("%s: read sector aligned to partition bounds (%ld)\n",
+		printf("%s: read sector aligned to partition bounds (" LBAF ")\n",
 		       __func__, sectors);
 	}
 
@@ -363,7 +363,7 @@ static unsigned long mmc_write(struct mmc_part *part, lbaint_t start,
 	}
 	if ((start + sectors) > (part->info.start + part->info.size)) {
 		sectors = part->info.start + part->info.size - start;
-		printf("%s: sector aligned to partition bounds (%ld)\n",
+		printf("%s: sector aligned to partition bounds (" LBAF ")\n",
 		       __func__, sectors);
 	}
 	if (unaligned) {

@@ -147,7 +147,7 @@ int dfu_config_interfaces(char *env)
 			break;
 		a = strsep(&s, "&");
 		if (!a)
-			a = s;
+			a = d;
 		do {
 			part = strsep(&a, ";");
 			part = skip_spaces(part);
