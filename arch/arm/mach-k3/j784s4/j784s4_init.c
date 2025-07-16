@@ -17,6 +17,7 @@
 #include <dm/pinctrl.h>
 #include <mmc.h>
 #include <remoteproc.h>
+#include <k3_bist.h>
 
 #include "../sysfw-loader.h"
 #include "../common.h"
@@ -120,6 +121,48 @@ static void setup_navss_nb(void)
 {
 	writel(NB_THREADMAP_BIT1, (uintptr_t)NAVSS0_NBSS_NB0_CFG_NB_THREADMAP);
 	writel(NB_THREADMAP_BIT2, (uintptr_t)NAVSS0_NBSS_NB1_CFG_NB_THREADMAP);
+}
+
+/* Execute and check results of BIST executed on MCU1_x and MCU4_O */
+static void run_bist_j784s4(struct udevice *dev)
+{
+	struct bist_ops *ops;
+	struct ti_sci_handle *handle;
+	int ret;
+
+	ops = (struct bist_ops *)device_get_ops(dev);
+	handle = get_ti_sci_handle();
+
+	/* get status of HW POST PBIST on MCU1_x */
+	if (ops->run_pbist_post())
+		panic("HW POST LBIST on MCU1_x failed\n");
+
+	/* trigger PBIST tests on MCU4_0 */
+	ret = prepare_pbist(handle);
+	ret |= ops->run_pbist_neg();
+	ret |= deprepare_pbist(handle);
+
+	ret |= prepare_pbist(handle);
+	ret |= ops->run_pbist();
+	ret |= deprepare_pbist(handle);
+
+	ret |= prepare_pbist(handle);
+	ret |= ops->run_pbist_rom();
+	ret |= deprepare_pbist(handle);
+
+	if (ret)
+		panic("PBIST on MCU4_0 failed: %d\n", ret);
+
+	/* get status of HW POST PBIST on MCU1_x */
+	if (ops->run_lbist_post())
+		panic("HW POST LBIST on MCU1_x failed\n");
+
+	/* trigger LBIST tests on MCU1_x */
+	ret = prepare_lbist(handle);
+	ret |= ops->run_lbist();
+	ret |= deprepare_lbist(handle);
+	if (ret)
+		panic("LBIST on MCU4_0 failed: %d\n", ret);
 }
 
 /*
@@ -264,6 +307,15 @@ void board_init_f(ulong dummy)
 						  &dev);
 		if (ret)
 			printf("AVS init failed: %d\n", ret);
+	}
+
+	if (!IS_ENABLED(CONFIG_CPU_V7R) && IS_ENABLED(CONFIG_K3_BIST)) {
+		ret = uclass_get_device_by_driver(UCLASS_MISC,
+						  DM_DRIVER_GET(k3_bist),
+						  &dev);
+		if (ret)
+			panic("Failed to get BIST device: %d\n", ret);
+		run_bist_j784s4(dev);
 	}
 
 	if (IS_ENABLED(CONFIG_CPU_V7R))
