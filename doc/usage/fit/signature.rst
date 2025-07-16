@@ -433,16 +433,14 @@ CONFIG_LEGACY_IMAGE_FORMAT
 Testing
 -------
 
-An easy way to test signing and verification is to use the test script
-provided in test/vboot/vboot_test.sh. This uses sandbox (a special version
+An easy way to test signing and verification is to use the vboot tests
+provided in the pytest suite. This uses sandbox (a special version
 of U-Boot which runs under Linux) to show the operation of a 'bootm'
 command loading and verifying images.
 
 A sample run is show below::
 
-    $ make O=sandbox sandbox_config
-    $ make O=sandbox
-    $ O=sandbox ./test/vboot/vboot_test.sh
+    $ ./test/py/test.py --bd sandbox --build -k vboot
 
 
 Simple Verified Boot Test
