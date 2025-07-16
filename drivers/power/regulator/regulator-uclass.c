@@ -260,13 +260,13 @@ int regulator_get_by_platname(const char *plat_name, struct udevice **devp)
 
 	*devp = NULL;
 
-	for (ret = uclass_find_first_device(UCLASS_REGULATOR, &dev); dev;
-	     ret = uclass_find_next_device(&dev)) {
-		if (ret) {
-			dev_dbg(dev, "ret=%d\n", ret);
-			continue;
-		}
+	ret = uclass_find_first_device(UCLASS_REGULATOR, &dev);
+	if (ret) {
+		dev_dbg(dev, "ret=%d\n", ret);
+		return ret;
+	}
 
+	for (; dev; uclass_find_next_device(&dev)) {
 		uc_pdata = dev_get_uclass_plat(dev);
 		if (!uc_pdata || strcmp(plat_name, uc_pdata->name))
 			continue;
@@ -410,9 +410,12 @@ static bool regulator_name_is_unique(struct udevice *check_dev,
 	int ret;
 	int len;
 
-	for (ret = uclass_find_first_device(UCLASS_REGULATOR, &dev); dev;
-	     ret = uclass_find_next_device(&dev)) {
-		if (ret || dev == check_dev)
+	ret = uclass_find_first_device(UCLASS_REGULATOR, &dev);
+	if (ret)
+		return true;
+
+	for (; dev; uclass_find_next_device(&dev)) {
+		if (dev == check_dev)
 			continue;
 
 		uc_pdata = dev_get_uclass_plat(dev);

@@ -96,11 +96,11 @@ static int do_list(struct cmd_tbl *cmdtp, int flag, int argc,
 	       LIMIT_OFNAME, LIMIT_OFNAME, "regulator-name",
 	       "Parent");
 
-	for (ret = uclass_find_first_device(UCLASS_REGULATOR, &dev); dev;
-	     ret = uclass_find_next_device(&dev)) {
-		if (ret)
-			continue;
+	ret = uclass_find_first_device(UCLASS_REGULATOR, &dev);
+	if (ret)
+		return ret;
 
+	for (; dev; uclass_find_next_device(&dev)) {
 		uc_pdata = dev_get_uclass_plat(dev);
 		printf("| %-*.*s| %-*.*s| %s\n",
 		       LIMIT_DEVNAME, LIMIT_DEVNAME, dev->name,
