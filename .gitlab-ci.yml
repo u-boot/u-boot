@@ -519,12 +519,13 @@ r2dplus_tulip test.py:
     TEST_PY_ID: "--id tulip_qemu"
   <<: *buildman_and_testpy_dfn
 
-sifive_unleashed_sdcard test.py:
-  variables:
-    TEST_PY_BD: "sifive_unleashed"
-    TEST_PY_TEST_SPEC: "not sleep"
-    TEST_PY_ID: "--id sdcard_qemu"
-  <<: *buildman_and_testpy_dfn
+# This is broken upsteam: https://gitlab.com/qemu-project/qemu/-/issues/2945
+#sifive_unleashed_sdcard test.py:
+#  variables:
+#    TEST_PY_BD: "sifive_unleashed"
+#    TEST_PY_TEST_SPEC: "not sleep"
+#    TEST_PY_ID: "--id sdcard_qemu"
+#  <<: *buildman_and_testpy_dfn
 
 sifive_unleashed_spi-nor test.py:
   variables:
