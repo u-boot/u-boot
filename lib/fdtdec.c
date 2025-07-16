@@ -1731,7 +1731,7 @@ static int fdtdec_apply_bloblist_dtos(void)
 
 	if (!CONFIG_IS_ENABLED(OF_LIBFDT_OVERLAY) ||
 	    !CONFIG_IS_ENABLED(BLOBLIST))
-		return -EPERM;
+		return 0;
 
 	/* Get the total space reserved for FDT in blob */
 	live_fdt = bloblist_get_blob(BLOBLISTT_CONTROL_FDT, &blob_size);
