@@ -14,9 +14,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/ele_api.h>
 #include <asm/sections.h>
-#include <hang.h>
 #include <init.h>
-#include <log.h>
 #include <power/pmic.h>
 #include <power/pca9450.h>
 #include <spl.h>
