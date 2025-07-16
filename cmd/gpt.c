@@ -911,8 +911,9 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 		goto out;
 
 	if (!strcmp(subcomm, "swap")) {
-		if ((strlen(name1) > PART_NAME_LEN) || (strlen(name2) > PART_NAME_LEN)) {
-			printf("Names longer than %d characters are truncated.\n", PART_NAME_LEN);
+		if ((strlen(name1) >= PART_NAME_LEN) || (strlen(name2) >= PART_NAME_LEN)) {
+			printf("Names longer than %d characters are truncated.\n",
+			       PART_NAME_LEN - 1);
 			ret = -EINVAL;
 			goto out;
 		}
@@ -967,8 +968,9 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 		*first = *second;
 		*second = tmp_part;
 	} else { /* rename */
-		if (strlen(name2) > PART_NAME_LEN) {
-			printf("Names longer than %d characters are truncated.\n", PART_NAME_LEN);
+		if (strlen(name2) >= PART_NAME_LEN) {
+			printf("Names longer than %d characters are truncated.\n",
+			       PART_NAME_LEN - 1);
 			ret = -EINVAL;
 			goto out;
 		}
