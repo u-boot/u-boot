@@ -559,9 +559,6 @@ int cadence_qspi_apb_command_write(struct cadence_spi_priv *priv,
 	u8 opcode;
 
 	if (priv->dtr)
-		txlen += txlen & 1;
-
-	if (priv->dtr)
 		opcode = op->cmd.opcode >> 8;
 	else
 		opcode = op->cmd.opcode;
