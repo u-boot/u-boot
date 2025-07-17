@@ -32,7 +32,7 @@ The following OEM commands are supported (if enabled):
 - ``oem console`` - this dumps U-Boot console record buffer
 - ``oem board`` - this executes a custom board function which is defined by the vendor
 
-Support for both eMMC and NAND devices is included.
+Support for eMMC, NAND and SPI flash memory devices is included.
 
 Client installation
 -------------------
@@ -97,14 +97,24 @@ Raw partition descriptors
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In cases where no partition table is present, a raw partition descriptor can be
-defined, specifying the offset, size, and optionally the MMC hardware partition
-number for a given partition name.
+defined, specifying the memory offset and size.
+
+Currently, this support is available only for eMMC and SPI flash memory devices.
 
 This is useful when using fastboot to flash files (e.g. SPL or U-Boot) to a
 specific offset in the eMMC boot partition, without having to update the entire
 boot partition.
 
 To define a raw partition descriptor, add an environment variable similar to::
+
+    fastboot_raw_partition_<raw partition name>=<offset> <size>
+
+for example::
+
+    fastboot_raw_partition_boot=0x100 0x1f00
+
+Optionally, in the eMMC case, the hardware partition number can also be
+specified for a given partition name::
 
     fastboot_raw_partition_<raw partition name>=<offset> <size> [mmcpart <num>]
 

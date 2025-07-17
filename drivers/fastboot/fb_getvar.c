@@ -8,6 +8,7 @@
 #include <fastboot-internal.h>
 #include <fb_mmc.h>
 #include <fb_nand.h>
+#include <fb_spi_flash.h>
 #include <fs.h>
 #include <part.h>
 #include <version.h>
@@ -123,6 +124,11 @@ static int getvar_get_part_info(const char *part_name, char *response,
 		r = fastboot_nand_get_part_info(part_name, &part_info, response);
 		if (r >= 0 && size)
 			*size = part_info->size;
+	} else if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_SPI)) {
+		r = fastboot_spi_flash_get_part_info(part_name, &disk_part,
+						     response);
+		if (r >= 0 && size)
+			*size = disk_part.size * disk_part.blksz;
 	} else {
 		fastboot_fail("this storage is not supported in bootloader", response);
 		r = -ENODEV;
