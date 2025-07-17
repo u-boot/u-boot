@@ -794,7 +794,7 @@
 
 			uart11: serial@1e790500 {
 				compatible = "ns16550a";
-				reg = <0x1e790400 0x20>;
+				reg = <0x1e790500 0x20>;
 				reg-shift = <2>;
 				interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
 				clocks = <&scu ASPEED_CLK_GATE_UART11CLK>;
