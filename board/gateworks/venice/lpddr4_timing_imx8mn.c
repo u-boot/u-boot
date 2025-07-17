@@ -4,6 +4,8 @@
 #include <string.h>
 #include <asm/arch/ddr.h>
 
+#include "eeprom.h"
+
 /*
  * Generated code from MX8M_DDR_tool v3.20 using RPAv15
  */
@@ -2369,26 +2371,36 @@ static struct dram_timing_info dram_timing_2gb_dual_die = {
 	.fsp_table = { 3200, 400, 100, },
 };
 
-struct dram_timing_info *spl_dram_init(const char *model, int sizemb)
+struct dram_timing_info *spl_dram_init(const char *model, struct venice_board_info *info,
+				       char *dram_desc, size_t sz_desc)
 {
 	struct dram_timing_info *dram_timing;
+	int sizemb = (16 << info->sdram_size);
 
 	switch (sizemb) {
 	case 1024:
 		dram_timing = &dram_timing_1gb_single_die;
+		if (dram_desc)
+			strlcpy(dram_desc, "single-die", sz_desc);
 		break;
 	case 2048:
 		if (!strcmp(model, "GW7902-SP466-A") ||
 		    !strcmp(model, "GW7902-SP466-B")) {
 			dram_timing = &dram_timing_2gb_dual_die;
+			if (dram_desc)
+				strlcpy(dram_desc, "dual-die", sz_desc);
 		} else {
 			dram_timing = &dram_timing_2gb_single_die;
+			if (dram_desc)
+				strlcpy(dram_desc, "single-die", sz_desc);
 		}
 		break;
 	default:
 		printf("unsupported");
 		dram_timing = &dram_timing_2gb_dual_die;
 	}
+	if (ddr_init(dram_timing))
+		return NULL;
 
 	return dram_timing;
 }

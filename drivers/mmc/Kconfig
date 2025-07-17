@@ -333,15 +333,6 @@ config MMC_MESON_GX
 	help
 	 Support for EMMC host controller on Meson GX ARM SoCs platform (S905)
 
-config MMC_MXC
-	bool "Freescale i.MX21/27/31 or MPC512x Multimedia Card support"
-	help
-	  This selects the Freescale i.MX21, i.MX27, i.MX31 or MPC512x
-	  Multimedia Card Interface. If you have an i.MX or MPC512x platform
-	  with a Multimedia Card slot, say Y here.
-
-	  If unsure, say N.
-
 config MMC_OWL
 	bool "Actions OWL Multimedia Card Interface support"
 	depends on ARCH_OWL

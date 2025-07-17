@@ -371,6 +371,13 @@ config SPL_IMX_CONTAINER_USE_TRAMPOLINE
 	help
 	  Enable SPL load reader to load data to a trampoline buffer.
 
+config IMX_PQC_SUPPORT
+	bool "Enable to support i.MX ROM PQC Container"
+	depends on SPL && SPL_LOAD_IMX_CONTAINER
+	help
+	  Support i.MX ROM new PQC container format. If your chip does not use
+	  PQC container, say 'n'.
+
 config IMX_CONTAINER_CFG
 	string "i.MX8 Container config file"
 	depends on SPL && SPL_LOAD_IMX_CONTAINER

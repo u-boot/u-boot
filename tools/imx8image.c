@@ -19,6 +19,7 @@ static bool dcd_skip;
 static image_t param_stack[IMG_STACK_SIZE];
 static uint8_t fuse_version;
 static uint16_t sw_version;
+static uint8_t cntr_version;
 static uint32_t custom_partition;
 static uint32_t scfw_flags;
 
@@ -57,6 +58,8 @@ static table_entry_t imx8image_cmds[] = {
 	{CMD_DATA,              "DATA",                 "new data",           },
 	{CMD_DUMMY_V2X,         "DUMMY_V2X",            "v2x",                },
 	{CMD_HOLD,              "HOLD",                 "hold",               },
+	{CMD_CNTR_VERSION,      "CNTR_VERSION",         "cntr version",       },
+	{CMD_DUMMY_DDR,         "DUMMY_DDR",            "ddr",                },
 	{-1,                    "",                     "",	              }
 };
 
@@ -157,6 +160,10 @@ static void parse_cfg_cmd(image_t *param_stack, int32_t cmd, char *token,
 		param_stack[p_idx].option = HOLD;
 		param_stack[p_idx].entry = (uint32_t)strtoll(token, NULL, 0);
 		param_stack[p_idx++].filename = NULL;
+		break;
+	case CMD_CNTR_VERSION:
+		cntr_version = (uint8_t)(strtoll(token, NULL, 0) & 0xFF);
+		break;
 	default:
 		break;
 	}
@@ -177,6 +184,8 @@ static void parse_cfg_fld(image_t *param_stack, int32_t *cmd, char *token,
 		if (*cmd == CMD_CONTAINER) {
 			fprintf(stdout, "New Container: \t%d\n", ++container);
 			param_stack[p_idx++].option = NEW_CONTAINER;
+		} else if (*cmd == CMD_DUMMY_DDR) {
+			param_stack[p_idx++].option = DUMMY_DDR;
 		}
 		break;
 	case CFG_CORE_TYPE:
@@ -588,7 +597,8 @@ static void set_image_array_entry(flash_header_v3_t *container,
 	img->offset = offset;  /* Is re-adjusted later */
 	img->size = size;
 
-	if (type != DUMMY_V2X) {
+	/* skip hash generation here if dummy image */
+	if (type != DUMMY_V2X && type != DUMMY_DDR) {
 		set_image_hash(img, tmp_filename, IMAGE_HASH_ALGO_DEFAULT);
 	}
 
@@ -632,6 +642,15 @@ static void set_image_array_entry(flash_header_v3_t *container,
 		img->entry = entry;
 		img->meta = meta;
 		custom_partition = 0;
+
+		if (container->num_images) {
+			/* if at least 2 images in container, [0] and [1] */
+			boot_img_t *ddr_dummy = &container->img[container->num_images - 1];
+			if ((ddr_dummy->hab_flags & 0x0F) == IMG_TYPE_DDR_DUMMY) {
+				ddr_dummy->offset = img->offset + img->size;
+				set_image_hash(ddr_dummy, "/dev/null", IMAGE_HASH_ALGO_DEFAULT);
+			}
+		}
 		break;
 	case AP:
 		if (soc == QX && core == CORE_CA35) {
@@ -751,6 +770,11 @@ static void set_image_array_entry(flash_header_v3_t *container,
 		img->entry = entry;
 		img->size = 0; /* dummy image has no size */
 		break;
+	case DUMMY_DDR:
+		img->hab_flags |= IMG_TYPE_DDR_DUMMY;
+		tmp_name = "DDR Dummy";
+		img->size = 0; /* dummy image has no size */
+		break;
 	default:
 		fprintf(stderr, "unrecognized image type (%d)\n", type);
 		exit(EXIT_FAILURE);
@@ -776,22 +800,27 @@ void set_container(flash_header_v3_t *container,  uint16_t sw_version,
 static int get_container_image_start_pos(image_t *image_stack, uint32_t align, uint32_t *v2x)
 {
 	image_t *img_sp = image_stack;
-	/*8K total container header*/
-	int file_off = CONTAINER_IMAGE_ARRAY_START_OFFSET;
+	/*
+	 * 8K total container header for legacy container, for version 2
+	 * container, the total container header is 0x4000 * 3 = 0xC000.
+	 */
+	int file_off = cntr_version ? 0xC000 : CONTAINER_IMAGE_ARRAY_START_OFFSET;
+	size_t size = cntr_version ? SZ_32K : SZ_4K;
+	uint32_t cntr_header_len = cntr_version ? CONTAINER_PQC_ALIGNMENT : FIRST_CONTAINER_HEADER_LENGTH;
 	FILE *fd = NULL;
 	flash_header_v3_t *header;
 	flash_header_v3_t *header2;
 	void *p;
 	int ret;
 
-	p = calloc(1, SZ_4K);
+	p = calloc(1, size);
 	if (!p) {
-		fprintf(stderr, "Fail to alloc 4K memory\n");
+		fprintf(stderr, "Fail to alloc %lx memory\n", size);
 		exit(EXIT_FAILURE);
 	}
 
 	header = p;
-	header2 = p + FIRST_CONTAINER_HEADER_LENGTH;
+	header2 = p + cntr_header_len;
 
 	while (img_sp->option != NO_IMG) {
 		if (img_sp->option == APPEND) {
@@ -801,7 +830,7 @@ static int get_container_image_start_pos(image_t *image_stack, uint32_t align, u
 				exit(EXIT_FAILURE);
 			}
 
-			ret = fread(header, SZ_4K, 1, fd);
+			ret = fread(header, size, 1, fd);
 			if (ret != 1) {
 				printf("Failure Read header %d\n", ret);
 				exit(EXIT_FAILURE);
@@ -813,11 +842,11 @@ static int get_container_image_start_pos(image_t *image_stack, uint32_t align, u
 				fprintf(stderr, "header tag mismatched \n");
 				exit(EXIT_FAILURE);
 			} else {
-				if (header2->tag != IVT_HEADER_TAG_B0) {
+				if ((header2->tag != IVT_HEADER_TAG_B0) && (header2->tag != 0x82)) {
 					file_off += header->img[header->num_images - 1].size;
 					file_off = ALIGN(file_off, align);
 				} else {
-					file_off = header2->img[header2->num_images - 1].offset + FIRST_CONTAINER_HEADER_LENGTH;
+					file_off = header2->img[header2->num_images - 1].offset + cntr_header_len;
 					file_off += header2->img[header2->num_images - 1].size;
 					file_off = ALIGN(file_off, align);
 					fprintf(stderr, "Has 2nd container %x\n", file_off);
@@ -839,7 +868,7 @@ static void set_imx_hdr_v3(imx_header_v3_t *imxhdr, uint32_t cont_id)
 
 	/* Set magic number, Only >= B0 supported */
 	fhdr_v3->tag = IVT_HEADER_TAG_B0;
-	fhdr_v3->version = IVT_VERSION_B0;
+	fhdr_v3->version = cntr_version ? 0x2 : IVT_VERSION_B0;
 }
 
 static uint8_t *flatten_container_header(imx_header_v3_t *imx_header,
@@ -921,6 +950,7 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 	char *tmp_filename = NULL;
 	uint32_t size = 0;
 	uint32_t file_padding = 0;
+	uint32_t cntr_header_len = cntr_version ? CONTAINER_PQC_ALIGNMENT : FIRST_CONTAINER_HEADER_LENGTH;
 	uint32_t v2x = false;
 	int ret;
 
@@ -978,6 +1008,7 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 			break;
 
 		case DUMMY_V2X:
+		case DUMMY_DDR:
 			if (container < 0) {
 				fprintf(stderr, "No container found\n");
 				exit(EXIT_FAILURE);
@@ -1023,7 +1054,7 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 		case NEW_CONTAINER:
 			container++;
 			set_container(&imx_header.fhdr[container], sw_version,
-				      CONTAINER_ALIGNMENT,
+				      cntr_version ? CONTAINER_PQC_ALIGNMENT : CONTAINER_ALIGNMENT,
 				      CONTAINER_FLAGS_DEFAULT,
 				      fuse_version);
 			scfw_flags = 0;
@@ -1073,9 +1104,9 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 		if (img_sp->option == APPEND) {
 			copy_file(ofd, img_sp->filename, 0, 0);
 			if (v2x)
-				file_padding += FIRST_CONTAINER_HEADER_LENGTH * 2;
+				file_padding += cntr_header_len * 2;
 			else
-				file_padding += FIRST_CONTAINER_HEADER_LENGTH;
+				file_padding += cntr_header_len;
 		}
 		img_sp++;
 	} while (img_sp->option != NO_IMG);

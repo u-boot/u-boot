@@ -66,7 +66,7 @@ static bool is_v2x_fw_container(ulong addr)
 	struct boot_img_t *img_entry;
 
 	phdr = (struct container_hdr *)addr;
-	if (phdr->tag != 0x87 || phdr->version != 0x0) {
+	if ((phdr->tag != 0x87 && phdr->tag != 0x82) || phdr->version != 0x0) {
 		debug("Wrong container header\n");
 		return false;
 	}

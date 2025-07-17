@@ -188,9 +188,10 @@ static int power_init_board(const char *model, struct udevice *gsc)
 void board_init_f(ulong dummy)
 {
 	struct dram_timing_info *dram_timing;
+	struct venice_board_info *eeprom;
 	struct udevice *bus, *dev;
 	const char *model;
-	int dram_szmb;
+	char dram_desc[32];
 	int i, ret;
 
 	arch_cpu_init();
@@ -249,23 +250,89 @@ void board_init_f(ulong dummy)
 			break;
 		mdelay(1);
 	}
-	dram_szmb = venice_eeprom_init(0);
+	eeprom = venice_eeprom_init(0);
 	model = eeprom_get_model();
 
 	/* PMIC */
 	power_init_board(model, dev);
 
 	/* DDR initialization */
-	printf("DRAM    : LPDDR4 ");
-	if (dram_szmb > 512)
-		printf("%d GiB", dram_szmb / 1024);
-	else
-		printf("%d MiB", dram_szmb);
-	dram_timing = spl_dram_init(model, dram_szmb);
-	printf(" %dMT/s %dMHz\n",
-	       dram_timing->fsp_msg[0].drate,
-	       dram_timing->fsp_msg[0].drate / 2);
-	ddr_init(dram_timing);
+	dram_desc[0] = 0;
+	dram_timing = spl_dram_init(model, eeprom, dram_desc, sizeof(dram_desc));
+	if (dram_timing) {
+		int dram_szmb = (16 << eeprom->sdram_size);
+
+		printf("DRAM    : LPDDR4 ");
+		if (dram_szmb > 512)
+			printf("%d GiB", dram_szmb / 1024);
+		else
+			printf("%d MiB", dram_szmb);
+		printf(" %dMT/s %dMHz %s",
+		       dram_timing->fsp_msg[0].drate,
+		       dram_timing->fsp_msg[0].drate / 2,
+		       dram_desc[0] ? dram_desc : "");
+
+#ifdef DEBUG
+		u8 mr[9] = { 0 };
+		/* Read MR5-MR8 to obtain details about DRAM part (and verify DRAM working) */
+		for (i = 5; i < 9; i++)
+			mr[i] = lpddr4_mr_read(0xf, i) & 0xff;
+
+		printf(" (0x%02x%02x%02x%02x", mr[5], mr[6], mr[7], mr[8]);
+		/* MR5 MFG_ID */
+		switch (mr[5]) {
+		case 0xff:
+			printf(" Micron");
+			break;
+		default:
+			break;
+		}
+		/* MR8 OP[7:6] Width */
+		i = 0;
+		switch ((mr[8] >> 6) & 0x3) {
+		case 0:
+			i = 16;
+			break;
+		case 1:
+			i = 8;
+			break;
+		}
+		if (i)
+			printf(" x%d", i);
+		/* MR8 OP[5:2] Density */
+		i = 0;
+		switch ((mr[8] >> 2) & 0xf) {
+		case 0:
+			i = 4;
+			break;
+		case 1:
+			i = 6;
+			break;
+		case 2:
+			i = 8;
+			break;
+		case 3:
+			i = 12;
+			break;
+		case 4:
+			i = 16;
+			break;
+		case 5:
+			i = 24;
+			break;
+		case 6:
+			i = 32;
+			break;
+		default:
+			break;
+		}
+		if (i)
+			printf(" %dGb per die", i);
+#endif
+		puts(")\n");
+	} else {
+		hang();
+	}
 
 	board_init_r(NULL, 0);
 }

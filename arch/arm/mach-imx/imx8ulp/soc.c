@@ -279,7 +279,7 @@ int print_cpuinfo(void)
 	if (!ret) {
 		ret = thermal_get_temp(udev, &temp);
 		if (!ret)
-			printf("CPU current temperature: %d\n", temp);
+			printf("CPU current temperature: %dC\n", temp);
 		else
 			debug(" - failed to get CPU current temperature\n");
 	} else {

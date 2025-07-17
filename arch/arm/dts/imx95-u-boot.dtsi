@@ -22,12 +22,12 @@
 				type = "nxp-header-ddrfw";
 
 				imx-lpddr-imem {
-					filename = "lpddr5_imem_v202311.bin";
+					filename = "lpddr5_imem_v202409.bin";
 					type = "blob-ext";
 				};
 
 				imx-lpddr-dmem {
-					filename = "lpddr5_dmem_v202311.bin";
+					filename = "lpddr5_dmem_v202409.bin";
 					type = "blob-ext";
 				};
 			};
@@ -36,12 +36,12 @@
 				type = "nxp-header-ddrfw";
 
 				imx-lpddr-imem-qb {
-					filename = "lpddr5_imem_qb_v202311.bin";
+					filename = "lpddr5_imem_qb_v202409.bin";
 					type = "blob-ext";
 				};
 
 				imx-lpddr-dmem-qb {
-					filename = "lpddr5_dmem_qb_v202311.bin";
+					filename = "lpddr5_dmem_qb_v202409.bin";
 					type = "blob-ext";
 				};
 			};

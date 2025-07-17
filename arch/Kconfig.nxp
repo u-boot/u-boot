@@ -84,6 +84,28 @@ config SYS_FSL_SFP_VER_3_4
 
 endchoice
 
+config FSL_SEC_MON
+	bool
+	help
+	  Freescale Security Monitor block is responsible for monitoring
+	  system states.
+	  Security Monitor can be transitioned on any security failures,
+	  like software violations or hardware security violations.
+
+choice
+	prompt "Security monitor interaction endianess"
+	depends on FSL_SEC_MON
+	default SYS_FSL_SEC_MON_BE if PPC
+	default SYS_FSL_SEC_MON_LE
+
+config SYS_FSL_SEC_MON_LE
+	bool "Security monitor interactions are little endian"
+
+config SYS_FSL_SEC_MON_BE
+	bool "Security monitor interactions are big endian"
+
+endchoice
+
 config SPL_UBOOT_KEY_HASH
 	string "Non-SRK key hash for U-Boot public/private key pair"
 	depends on SPL

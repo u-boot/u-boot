@@ -41,7 +41,6 @@ obj-$(CONFIG_MMC_MESON_GX) += meson_gx_mmc.o
 obj-$(CONFIG_MMC_SPI) += mmc_spi.o
 obj-$(CONFIG_MVEBU_MMC) += mvebu_mmc.o
 obj-$(CONFIG_MMC_OMAP_HS)		+= omap_hsmmc.o
-obj-$(CONFIG_MMC_MXC)			+= mxcmmc.o
 obj-$(CONFIG_MMC_MXS)			+= mxsmmc.o
 obj-$(CONFIG_MMC_OCTEONTX)		+= octeontx_hsmmc.o
 obj-$(CONFIG_MMC_OWL)			+= owl_mmc.o
