@@ -170,9 +170,9 @@ int misc_init_r(void)
 	 * Detect the presence of the platform bus node, and
 	 * create a virtual memory mapping for it.
 	 */
-	for (ret = uclass_find_first_device(UCLASS_SIMPLE_BUS, &dev);
+	for (uclass_find_first_device(UCLASS_SIMPLE_BUS, &dev);
 	     dev;
-	     ret = uclass_find_next_device(&dev)) {
+	     uclass_find_next_device(&dev)) {
 		if (device_is_compatible(dev, "qemu,platform")) {
 			struct simple_bus_plat *plat = dev_get_uclass_plat(dev);
 

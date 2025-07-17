@@ -167,8 +167,6 @@ static int dm_test_autobind_uclass_pdata_alloc(struct unit_test_state *uts)
 	for (uclass_find_first_device(UCLASS_TEST, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		ut_assertnonnull(dev);
-
 		uc_pdata = dev_get_uclass_plat(dev);
 		ut_assert(uc_pdata);
 	}
@@ -223,8 +221,6 @@ static int dm_test_autobind_uclass_pdata_valid(struct unit_test_state *uts)
 	for (uclass_find_first_device(UCLASS_TEST, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
-		ut_assertnonnull(dev);
-
 		uc_pdata = dev_get_uclass_plat(dev);
 		ut_assert(uc_pdata);
 		ut_assert(uc_pdata->intval1 == TEST_UC_PDATA_INTVAL1);
@@ -734,114 +730,90 @@ static int dm_test_device_reparent(struct unit_test_state *uts)
 
 	/* Re-parent top-level children with no grandchildren. */
 	ut_assertok(device_reparent(top[3], top[0]));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	ut_assertok(device_reparent(top[4], top[0]));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	/* Re-parent top-level children with grandchildren. */
 	ut_assertok(device_reparent(top[2], top[0]));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	ut_assertok(device_reparent(top[5], top[2]));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	/* Re-parent grandchildren. */
 	ut_assertok(device_reparent(grandchild[0], top[1]));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	ut_assertok(device_reparent(grandchild[1], top[1]));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	/* Remove re-pareneted devices. */
 	ut_assertok(device_remove(top[3], DM_REMOVE_NORMAL));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	ut_assertok(device_remove(top[4], DM_REMOVE_NORMAL));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	ut_assertok(device_remove(top[5], DM_REMOVE_NORMAL));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	ut_assertok(device_remove(top[2], DM_REMOVE_NORMAL));
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	ut_assertok(device_remove(grandchild[0], DM_REMOVE_NORMAL));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	ut_assertok(device_remove(grandchild[1], DM_REMOVE_NORMAL));
+
 	/* try to get devices */
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	/* Try the same with unbind */
 	ut_assertok(device_unbind(top[3]));
@@ -1090,12 +1062,9 @@ static int dm_test_uclass_devices_find(struct unit_test_state *uts)
 	struct udevice *dev;
 	int ret;
 
-	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_find_next_device(&dev)) {
-		ut_assert(!ret);
-		ut_assertnonnull(dev);
-	}
+	ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	ut_assert(!ret);
+	ut_assertnonnull(dev);
 
 	ut_assertok(uclass_find_first_device(UCLASS_TEST_DUMMY, &dev));
 	ut_assertnull(dev);
@@ -1121,18 +1090,16 @@ static int dm_test_uclass_devices_find_by_name(struct unit_test_state *uts)
 	 * this will fail on checking condition: testdev == finddev, since the
 	 * uclass_find_device_by_name(), returns the first device by given name.
 	*/
-	for (ret = uclass_find_first_device(UCLASS_TEST_FDT, &testdev);
-	     testdev;
-	     ret = uclass_find_next_device(&testdev)) {
-		ut_assertok(ret);
-		ut_assertnonnull(testdev);
+	ret = uclass_find_first_device(UCLASS_TEST_FDT, &testdev);
+	ut_assertok(ret);
+	ut_assertnonnull(testdev);
 
+	for (; testdev; uclass_find_next_device(&testdev)) {
 		findret = uclass_find_device_by_name(UCLASS_TEST_FDT,
 						     testdev->name,
 						     &finddev);
 
 		ut_assertok(findret);
-		ut_assert(testdev);
 		ut_asserteq_str(testdev->name, finddev->name);
 		ut_asserteq_ptr(testdev, finddev);
 	}

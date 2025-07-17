@@ -261,17 +261,14 @@ int uclass_find_first_device(enum uclass_id id, struct udevice **devp)
 	return 0;
 }
 
-int uclass_find_next_device(struct udevice **devp)
+void uclass_find_next_device(struct udevice **devp)
 {
 	struct udevice *dev = *devp;
 
 	*devp = NULL;
-	if (list_is_last(&dev->uclass_node, &dev->uclass->dev_head))
-		return 0;
-
-	*devp = list_entry(dev->uclass_node.next, struct udevice, uclass_node);
-
-	return 0;
+	if (!list_is_last(&dev->uclass_node, &dev->uclass->dev_head))
+		*devp = list_entry(dev->uclass_node.next, struct udevice,
+				   uclass_node);
 }
 
 int uclass_find_device_by_namelen(enum uclass_id id, const char *name, int len,
@@ -675,11 +672,8 @@ int uclass_first_device_check(enum uclass_id id, struct udevice **devp)
 
 int uclass_next_device_check(struct udevice **devp)
 {
-	int ret;
+	uclass_find_next_device(devp);
 
-	ret = uclass_find_next_device(devp);
-	if (ret)
-		return ret;
 	if (!*devp)
 		return 0;
 

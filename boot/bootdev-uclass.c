@@ -213,10 +213,12 @@ void bootdev_list(bool probe)
 		       device_active(dev) ? '+' : ' ',
 		       ret ? simple_itoa(-ret) : "OK",
 		       dev_get_uclass_name(dev_get_parent(dev)), dev->name);
-		if (probe)
+		if (probe) {
 			ret = uclass_next_device_check(&dev);
-		else
-			ret = uclass_find_next_device(&dev);
+		} else {
+			uclass_find_next_device(&dev);
+			ret = 0;
+		}
 	}
 	printf("---  ------  ------  --------  ------------------\n");
 	printf("(%d bootdev%s)\n", i, i != 1 ? "s" : "");
