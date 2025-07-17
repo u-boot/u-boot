@@ -719,5 +719,10 @@ config SPL_ADP5585_GPIO
 	depends on SPL_DM_GPIO && SPL_I2C
 	help
 	  Support ADP5585 GPIO expander in SPL.
+config MPFS_GPIO
+	bool "Enable Polarfire SoC GPIO driver"
+	depends on DM_GPIO
+	help
+		Enable to support the GPIO driver on Polarfire SoC
 
 endif

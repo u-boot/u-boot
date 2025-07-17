@@ -73,13 +73,22 @@ int board_fit_config_name_match(const char *name)
 	for (int i = 0; i < list_len; i++) {
 		int len, match;
 		const char *compat;
+		char copy[64];
 		char *devendored;
 
 		compat = fdt_stringlist_get(fdt, 0, "compatible", i, &len);
 		if (!compat)
 			return -EINVAL;
 
-		strtok((char *)compat, ",");
+		/*
+		 * The naming scheme for compatibles doesn't produce anything
+		 * close to this long.
+		 */
+		if (len >= 64)
+			return -EINVAL;
+
+		strncpy(copy, compat, 64);
+		strtok(copy, ",");
 
 		devendored = strtok(NULL, ",");
 		if (!devendored)

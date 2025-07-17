@@ -1576,6 +1576,7 @@ M:	Yao Zi <ziyao@disroot.org>
 S:	Maintained
 F:	arch/riscv/cpu/th1520/
 F:	drivers/clk/thead/clk-th1520-ap.c
+F:	drivers/net/dwmac_thead.c
 F:	drivers/pinctrl/pinctrl-th1520.c
 F:	drivers/ram/thead/th1520_ddr.c
 

@@ -16,6 +16,7 @@
 #include <linux/delay.h>
 #include <linux/types.h>
 #include <linux/sizes.h>
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -97,6 +98,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define REG_X4_TX_DATA         (0x4c)
 #define REG_FRAMESUP           (0x50)
 
+#define MAX_CS_COUNT 1
+
 /**
  * struct mchp_coreqspi - Defines qspi driver instance
  * @regs:              Address of the QSPI controller registers
@@ -113,6 +116,7 @@ struct mchp_coreqspi {
 	u8 *rxbuf;
 	int tx_len;
 	int rx_len;
+	struct gpio_desc cs_gpios[MAX_CS_COUNT];
 };
 
 static void mchp_coreqspi_init_hw(struct mchp_coreqspi *qspi)
@@ -172,7 +176,7 @@ static inline void mchp_coreqspi_write_op(struct mchp_coreqspi *qspi, bool word)
 	while (qspi->tx_len >= 4) {
 		while (readl(qspi->regs + REG_STATUS) & STATUS_TXFIFOFULL)
 			;
-		data = *(u32 *)qspi->txbuf;
+		data = qspi->txbuf ? *((u32 *)qspi->txbuf) : 0xFF;
 		qspi->txbuf += 4;
 		qspi->tx_len -= 4;
 		writel(data, qspi->regs + REG_X4_TX_DATA);
@@ -184,7 +188,7 @@ static inline void mchp_coreqspi_write_op(struct mchp_coreqspi *qspi, bool word)
 	while (qspi->tx_len--) {
 		while (readl(qspi->regs + REG_STATUS) & STATUS_TXFIFOFULL)
 			;
-		data =  *qspi->txbuf++;
+		data = qspi->txbuf ? *qspi->txbuf++ : 0xFF;
 		writel(data, qspi->regs + REG_TX_DATA);
 	}
 }
@@ -471,6 +475,110 @@ static int mchp_coreqspi_probe(struct udevice *dev)
 	/* Init the mpfs qspi hw */
 	mchp_coreqspi_init_hw(qspi);
 
+	if (CONFIG_IS_ENABLED(DM_GPIO)) {
+		int i;
+
+		ret = gpio_request_list_by_name(dev, "cs-gpios", qspi->cs_gpios,
+							ARRAY_SIZE(qspi->cs_gpios), 0);
+
+		if (ret < 0) {
+			pr_err("Can't get %s gpios! Error: %d", dev->name, ret);
+			return ret;
+		}
+
+		for (i = 0; i < ARRAY_SIZE(qspi->cs_gpios); i++) {
+			if (!dm_gpio_is_valid(&qspi->cs_gpios[i]))
+				continue;
+			dm_gpio_set_dir_flags(&qspi->cs_gpios[i], GPIOD_IS_OUT);
+		}
+	}
+
+	u32 control = readl(qspi->regs + REG_CONTROL);
+
+	control |= (CONTROL_MASTER | CONTROL_ENABLE);
+	control &= ~CONTROL_CLKIDLE;
+	writel(control, qspi->regs + REG_CONTROL);
+
+	return 0;
+}
+
+static void mchp_coreqspi_cs_activate(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct mchp_coreqspi *qspi = dev_get_priv(bus);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
+	u32 cs = slave_plat->cs[0];
+
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&qspi->cs_gpios[cs]))
+		dm_gpio_set_value(&qspi->cs_gpios[cs], 1);
+}
+
+static void mchp_coreqspi_cs_deactivate(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct mchp_coreqspi *qspi = dev_get_priv(bus);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
+	u32 cs = slave_plat->cs[0];
+
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&qspi->cs_gpios[cs]))
+		dm_gpio_set_value(&qspi->cs_gpios[cs], 0);
+}
+
+static int mchp_coreqspi_xfer(struct udevice *dev, unsigned int bitlen,
+				const void *dout, void *din, unsigned long flags)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct mchp_coreqspi *qspi = dev_get_priv(bus);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
+	uint total_bytes = bitlen >> 3; /* fixed 8-bit word length */
+	u32 control, frames;
+
+	int err = 0;
+
+	err = mchp_coreqspi_wait_for_ready(slave);
+	if (err)
+		return err;
+
+	control = readl(qspi->regs + REG_CONTROL);
+	control &= ~(CONTROL_MODE12_MASK | CONTROL_MODE0);
+	writel(control, qspi->regs + REG_CONTROL);
+
+	frames = total_bytes & BYTESUPPER_MASK;
+	writel(frames, qspi->regs + REG_FRAMESUP);
+
+	frames |= FRAMES_FLAGBYTE;
+	writel(frames, qspi->regs + REG_FRAMES);
+
+	if (flags & SPI_XFER_BEGIN)
+		mchp_coreqspi_cs_activate(dev);
+
+	if (bitlen == 0)
+		goto out;
+
+	if (bitlen % 8) { // Non byte aligned SPI transfer
+		flags |= SPI_XFER_END;
+		goto out;
+	}
+
+	qspi->txbuf = (u8 *)dout;
+	qspi->rxbuf = (u8 *)din;
+
+	while (total_bytes) {
+		qspi->tx_len = 1;
+		qspi->rx_len = 1;
+		total_bytes--;
+
+		if (din) {
+			mchp_coreqspi_write_op(qspi, true);
+			mchp_coreqspi_read_op(qspi);
+		} else {
+			mchp_coreqspi_write_op(qspi, true);
+		}
+	}
+out:
+	if (flags & SPI_XFER_END)
+		mchp_coreqspi_cs_deactivate(dev);
+
 	return 0;
 }
 
@@ -483,6 +591,7 @@ static const struct spi_controller_mem_ops mchp_coreqspi_mem_ops = {
 static const struct dm_spi_ops mchp_coreqspi_ops = {
 	.claim_bus      = mchp_coreqspi_claim_bus,
 	.release_bus    = mchp_coreqspi_release_bus,
+	.xfer           = mchp_coreqspi_xfer,
 	.set_speed      = mchp_coreqspi_set_speed,
 	.set_mode       = mchp_coreqspi_set_mode,
 	.mem_ops        = &mchp_coreqspi_mem_ops,
