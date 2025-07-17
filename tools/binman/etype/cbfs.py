@@ -5,6 +5,7 @@
 # Entry-type module for a Coreboot Filesystem (CBFS)
 #
 
+from __future__ import annotations
 from collections import OrderedDict
 
 from binman import cbfs_util
