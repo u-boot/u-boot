@@ -2365,8 +2365,10 @@ static int mmc_startup_v4(struct mmc *mmc)
 		return -ENOMEM;
 	memcpy(mmc->ext_csd, ext_csd, MMC_MAX_BLOCK_LEN);
 #endif
-	if (ext_csd[EXT_CSD_REV] >= ARRAY_SIZE(mmc_versions))
-		return -EINVAL;
+	if (ext_csd[EXT_CSD_REV] >= ARRAY_SIZE(mmc_versions)) {
+		err = -EINVAL;
+		goto error;
+	}
 
 	mmc->version = mmc_versions[ext_csd[EXT_CSD_REV]];
 
