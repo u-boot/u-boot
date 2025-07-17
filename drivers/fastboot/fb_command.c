@@ -413,7 +413,7 @@ static void __maybe_unused run_acmd(char *cmd_parameter, char *response)
 		return;
 	}
 
-	if (strlen(cmd_parameter) > sizeof(g_a_cmd_buff)) {
+	if (strlen(cmd_parameter) >= sizeof(g_a_cmd_buff)) {
 		pr_err("too long command\n");
 		fastboot_fail("too long command", response);
 		return;
