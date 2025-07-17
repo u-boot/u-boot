@@ -229,30 +229,7 @@ static int dm_test_blk_flags(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 
-	/* Iterate through devices without probing them */
-	ut_assertok(blk_find_first(BLKF_BOTH, &dev));
-	ut_assertnonnull(dev);
-	ut_asserteq_str("mmc2.blk", dev->name);
-
-	ut_assertok(blk_find_next(BLKF_BOTH, &dev));
-	ut_assertnonnull(dev);
-	ut_asserteq_str("mmc1.blk", dev->name);
-
-	ut_assertok(blk_find_next(BLKF_BOTH, &dev));
-	ut_assertnonnull(dev);
-	ut_asserteq_str("mmc0.blk", dev->name);
-
-	ut_asserteq(-ENODEV, blk_find_next(BLKF_BOTH, &dev));
-	ut_assertnull(dev);
-
-	/* All devices are removable until probed */
-	ut_asserteq(-ENODEV, blk_find_first(BLKF_FIXED, &dev));
-
-	ut_assertok(blk_find_first(BLKF_REMOVABLE, &dev));
-	ut_assertnonnull(dev);
-	ut_asserteq_str("mmc2.blk", dev->name);
-
-	/* Now probe them and iterate again */
+	/* Probe and look through block devices */
 	ut_assertok(blk_first_device_err(BLKF_BOTH, &dev));
 	ut_assertnonnull(dev);
 	ut_asserteq_str("mmc2.blk", dev->name);
@@ -289,30 +266,13 @@ static int dm_test_blk_flags(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_blk_flags, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
-/* Test blk_foreach() and friend */
+/* Test blk_foreach_probe() */
 static int dm_test_blk_foreach(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	int found;
 
-	/* Test blk_foreach() - use the 3rd bytes of the name (0/1/2) */
-	found = 0;
-	blk_foreach(BLKF_BOTH, dev)
-		found |= 1 << dectoul(&dev->name[3], NULL);
-	ut_asserteq(7, found);
-
-	/* All devices are removable until probed */
-	found = 0;
-	blk_foreach(BLKF_FIXED, dev)
-		found |= 1 << dectoul(&dev->name[3], NULL);
-	ut_asserteq(0, found);
-
-	found = 0;
-	blk_foreach(BLKF_REMOVABLE, dev)
-		found |= 1 << dectoul(&dev->name[3], NULL);
-	ut_asserteq(7, found);
-
-	/* Now try again with the probing functions */
+	/* The test device tree has two fixed and one removable block device(s) */
 	found = 0;
 	blk_foreach_probe(BLKF_BOTH, dev)
 		found |= 1 << dectoul(&dev->name[3], NULL);

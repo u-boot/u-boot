@@ -782,51 +782,6 @@ int blk_first_device_err(enum blk_flag_t flags, struct udevice **devp);
 int blk_next_device_err(enum blk_flag_t flags, struct udevice **devp);
 
 /**
- * blk_find_first() - Return the first matching block device
- * @flags: Indicates type of device to return
- * @devp:	Returns pointer to device, or NULL on error
- *
- * The device is not prepared for use - this is an internal function.
- * The function uclass_get_device_tail() can be used to probe the device.
- *
- * Note that some devices are considered removable until they have been probed
- *
- * @return 0 if found, -ENODEV if not found
- */
-int blk_find_first(enum blk_flag_t flags, struct udevice **devp);
-
-/**
- * blk_find_next() - Return the next matching block device
- * @flags: Indicates type of device to return
- * @devp: On entry, pointer to device to lookup. On exit, returns pointer
- * to the next device in the same uclass, or NULL if none
- *
- * The device is not prepared for use - this is an internal function.
- * The function uclass_get_device_tail() can be used to probe the device.
- *
- * Note that some devices are considered removable until they have been probed
- *
- * @return 0 if found, -ENODEV if not found
- */
-int blk_find_next(enum blk_flag_t flags, struct udevice **devp);
-
-/**
- * blk_foreach() - iterate through block devices
- *
- * This creates a for() loop which works through the available block devices in
- * order from start to end.
- *
- * If for some reason the uclass cannot be found, this does nothing.
- *
- * @_flags: Indicates type of device to return
- * @_pos: struct udevice * to hold the current device. Set to NULL when there
- * are no more devices.
- */
-#define blk_foreach(_flags, _pos) \
-	for (int _ret = blk_find_first(_flags, &_pos); !_ret && _pos; \
-	     _ret = blk_find_next(_flags, &_pos))
-
-/**
  * blk_foreach_probe() - Helper function to iteration through block devices
  *
  * This creates a for() loop which works through the available devices in
