@@ -4,7 +4,3 @@
  * Author: Sam Shih <sam.shih@mediatek.com>
  */
 
-int board_init(void)
-{
-	return 0;
-}

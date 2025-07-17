@@ -43,8 +43,3 @@ int board_early_init_f(void)
 {
 	return sram_init();
 }
-
-int board_init(void)
-{
-	return 0;
-}

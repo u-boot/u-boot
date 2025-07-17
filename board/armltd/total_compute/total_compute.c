@@ -70,11 +70,6 @@ int misc_init_r(void)
 	return 0;
 }
 
-int board_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	return fdtdec_setup_mem_size_base();

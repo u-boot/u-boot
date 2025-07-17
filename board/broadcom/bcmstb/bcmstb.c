@@ -32,11 +32,6 @@ union reg_value_union {
 	const phys_addr_t *address;
 };
 
-int board_init(void)
-{
-	return 0;
-}
-
 void reset_cpu(void)
 {
 }

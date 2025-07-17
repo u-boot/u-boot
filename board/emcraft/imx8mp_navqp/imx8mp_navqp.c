@@ -4,7 +4,3 @@
  * Copyright 2024 Gilles Talis <gilles.talis@gmail.com>
  */
 
-int board_init(void)
-{
-	return 0;
-}

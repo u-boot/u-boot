@@ -20,6 +20,7 @@ CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyAS1,115200 CONSOLE=/dev/ttyAS1 consoleblank=0 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait mem=992M@0x40000000 vmalloc=256m"
 CONFIG_SYS_PBSIZE=1058
 # CONFIG_DISPLAY_CPUINFO is not set
+# CONFIG_BOARD_INIT is not set
 CONFIG_SYS_PROMPT="stih410-b2260 => "
 CONFIG_CMD_ASKENV=y
 CONFIG_CMD_GPT=y

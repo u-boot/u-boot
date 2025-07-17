@@ -13,8 +13,3 @@ int mmc_get_env_dev(void)
 		return 1;
 	return 0;
 }
-
-int board_init(void)
-{
-	return 0;
-}

@@ -9,11 +9,6 @@
 #include <netdev.h>
 #include <asm/arch/sys_proto.h>
 
-int board_init(void)
-{
-	return 0;
-}
-
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_IS_IN_MMC

@@ -29,6 +29,7 @@ CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="fdt addr ${fdtcontroladdr}; fdt move ${fdtcontroladdr} ${fdt_addr_r}; load mmc ${mmcdev}:${mmcpart} ${kernel_addr_r} ${image}; booti ${kernel_addr_r} - ${fdt_addr_r}; "
 CONFIG_SYS_CBSIZE=256
 CONFIG_SYS_PBSIZE=284
+# CONFIG_BOARD_INIT is not set
 CONFIG_SPL_MAX_SIZE=0x100000
 # CONFIG_SPL_LEGACY_IMAGE_FORMAT is not set
 CONFIG_SPL_SYS_MALLOC_SIMPLE=y

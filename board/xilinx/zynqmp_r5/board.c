@@ -7,11 +7,6 @@
 #include <init.h>
 #include <linux/errno.h>
 
-int board_init(void)
-{
-	return 0;
-}
-
 int dram_init_banksize(void)
 {
 	return fdtdec_setup_memory_banksize();

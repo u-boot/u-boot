@@ -15,11 +15,6 @@
 #include <asm/arch/k3-ddr.h>
 #include "../common/fdt_ops.h"
 
-int board_init(void)
-{
-	return 0;
-}
-
 #if defined(CONFIG_XPL_BUILD)
 void spl_perform_fixups(struct spl_image_info *spl_image)
 {

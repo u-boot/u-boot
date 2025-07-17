@@ -13,11 +13,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_init(void)
-{
-	return 0;
-}
-
 unsigned long get_board_sys_clk(void)
 {
 	return gd->cpu_clk ? gd->cpu_clk : 40000000;

@@ -19,11 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_init(void)
-{
-	return 0;
-}
-
 static u8 phytec_get_am62_ddr_size_default(void)
 {
 	int ret;

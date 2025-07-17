@@ -28,11 +28,6 @@ int is_flash_available(void)
 }
 #endif
 
-int board_init(void)
-{
-	return 0;
-}
-
 int board_late_init(void)
 {
 	/* start usb so that usb keyboard can be used as input device */

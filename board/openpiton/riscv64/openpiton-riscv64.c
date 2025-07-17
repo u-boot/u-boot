@@ -25,8 +25,3 @@ void board_boot_order(u32 *spl_boot_list)
 		spl_boot_list[i] = boot_devices[i];
 }
 #endif
-
-int board_init(void)
-{
-		return 0;
-}

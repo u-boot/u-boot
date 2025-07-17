@@ -72,11 +72,6 @@ static struct mm_region thunderx_mem_map[] = {
 
 struct mm_region *mem_map = thunderx_mem_map;
 
-int board_init(void)
-{
-	return 0;
-}
-
 int timer_init(void)
 {
 	return 0;

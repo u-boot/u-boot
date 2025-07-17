@@ -45,11 +45,6 @@ struct efi_capsule_update_info update_info = {
 	.images = fw_images,
 };
 
-int board_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	return fdtdec_setup_mem_size_base();

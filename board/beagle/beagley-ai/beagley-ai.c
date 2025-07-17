@@ -21,11 +21,6 @@ void set_dfu_alt_info(char *interface, char *devstr)
 }
 #endif
 
-int board_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	return fdtdec_setup_mem_size_base();

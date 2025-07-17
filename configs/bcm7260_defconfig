@@ -20,6 +20,7 @@ CONFIG_USE_PREBOOT=y
 CONFIG_PREBOOT="fdt addr ${fdtcontroladdr};fdt move ${fdtcontroladdr} ${fdtsaveaddr};fdt addr ${fdtsaveaddr};"
 CONFIG_SYS_CBSIZE=512
 CONFIG_SYS_PBSIZE=536
+# CONFIG_BOARD_INIT is not set
 CONFIG_BOARD_LATE_INIT=y
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_PROMPT="U-Boot>"

@@ -33,11 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GUEST_VIRTIO_MMIO_BASE	0x2000000
 #define GUEST_VIRTIO_MMIO_SIZE	0x100000
 
-int board_init(void)
-{
-	return 0;
-}
-
 /*
  * Use fdt provided by Xen: according to
  * https://www.kernel.org/doc/Documentation/arm64/booting.txt

@@ -74,11 +74,6 @@ struct efi_capsule_update_info update_info = {
 	.images = fw_images,
 };
 
-int board_init(void)
-{
-	return 0;
-}
-
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {

@@ -102,11 +102,6 @@ static struct mm_region qemu_arm64_mem_map[] = {
 struct mm_region *mem_map = qemu_arm64_mem_map;
 #endif
 
-int board_init(void)
-{
-	return 0;
-}
-
 int board_late_init(void)
 {
 	/*

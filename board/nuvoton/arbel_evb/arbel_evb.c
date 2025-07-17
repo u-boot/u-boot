@@ -22,11 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_init(void)
-{
-	return 0;
-}
-
 phys_size_t get_effective_memsize(void)
 {
 	/* Use bank0 only */

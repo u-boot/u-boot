@@ -367,11 +367,6 @@ static void m2_connector_setup(void)
 	m2_overlay_prepare();
 }
 
-int board_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	struct udevice *sysinfo;

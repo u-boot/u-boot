@@ -93,11 +93,6 @@ int board_late_init(void)
 	return 0;
 }
 
-int board_init(void)
-{
-	return 0;
-}
-
 /**
  * dtb_dt_qemu - Return the address of the QEMU provided FDT.
  *

@@ -104,11 +104,6 @@ int dram_init(void)
 	return 0;
 }
 
-int board_init(void)
-{
-	return 0;
-}
-
 int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	/* Create an arbitrary reservation to allow testing OF_BOARD_SETUP.*/

@@ -54,11 +54,6 @@ struct efi_capsule_update_info update_info = {
 	.images = fw_images,
 };
 
-int board_init(void)
-{
-	return 0;
-}
-
 #if defined(CONFIG_SPL_LOAD_FIT)
 int board_fit_config_name_match(const char *name)
 {

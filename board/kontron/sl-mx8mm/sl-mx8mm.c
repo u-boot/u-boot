@@ -116,11 +116,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return fdt_fixup_memory(blob, PHYS_SDRAM, gd->ram_size);
 }
 
-int board_init(void)
-{
-	return 0;
-}
-
 int board_late_init(void)
 {
 	if (!fdt_node_check_compatible(gd->fdt_blob, 0, "kontron,imx8mm-n802x-som") ||

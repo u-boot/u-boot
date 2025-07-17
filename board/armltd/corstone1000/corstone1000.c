@@ -77,11 +77,6 @@ static struct mm_region corstone1000_mem_map[] = {
 
 struct mm_region *mem_map = corstone1000_mem_map;
 
-int board_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	gd->ram_size = PHYS_SDRAM_1_SIZE;

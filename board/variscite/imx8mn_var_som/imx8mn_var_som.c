@@ -44,11 +44,6 @@ struct var_imx8_eeprom_info {
 	u8 partnumber2[5];        /* Part number 2 */
 } __packed;
 
-int board_init(void)
-{
-	return 0;
-}
-
 int board_mmc_get_env_dev(int devno)
 {
 	return devno;

@@ -5,11 +5,6 @@
 
 #include <fdtdec.h>
 
-int board_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	if (fdtdec_setup_mem_size_base() != 0)

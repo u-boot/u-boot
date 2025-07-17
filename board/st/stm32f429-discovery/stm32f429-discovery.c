@@ -45,11 +45,6 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-int board_init(void)
-{
-	return 0;
-}
-
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {

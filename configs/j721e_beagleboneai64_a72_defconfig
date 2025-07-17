@@ -37,6 +37,7 @@ CONFIG_AUTOBOOT_STOP_STR=" "
 CONFIG_OF_SYSTEM_SETUP=y
 CONFIG_BOOTCOMMAND="run set_led_state_start_load; run envboot; bootflow scan -lb;run set_led_state_fail_load"
 CONFIG_LOGLEVEL=7
+# CONFIG_BOARD_INIT is not set
 CONFIG_BOARD_LATE_INIT=y
 CONFIG_SPL_MAX_SIZE=0xc0000
 CONFIG_SPL_SYS_MALLOC_SIMPLE=y

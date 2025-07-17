@@ -153,11 +153,6 @@ void dh_add_item_number_and_serial_to_env(struct eeprom_id_page *eip)
 	}
 }
 
-int board_init(void)
-{
-	return 0;
-}
-
 int board_late_init(void)
 {
 	u8 eeprom_buffer[DH_EEPROM_ID_PAGE_MAX_SIZE] = { 0 };

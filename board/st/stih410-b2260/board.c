@@ -32,11 +32,6 @@ void enable_caches(void)
 }
 #endif
 
-int board_init(void)
-{
-	return 0;
-}
-
 #ifdef CONFIG_USB_DWC3
 int g_dnl_board_usb_cable_connected(void)
 {
