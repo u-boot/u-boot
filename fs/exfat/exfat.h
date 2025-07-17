@@ -237,8 +237,10 @@ int exfat_rename(struct exfat* ef, const char* old_path, const char* new_path);
 void exfat_utimes(struct exfat_node* node, const struct timespec tv[2]);
 void exfat_update_atime(struct exfat_node* node);
 void exfat_update_mtime(struct exfat_node* node);
+#ifndef __UBOOT__
 const char* exfat_get_label(struct exfat* ef);
 int exfat_set_label(struct exfat* ef, const char* label);
+#endif /* __UBOOT__ */
 
 int exfat_soil_super_block(const struct exfat* ef);
 int exfat_mount(struct exfat* ef, const char* spec, const char* options);

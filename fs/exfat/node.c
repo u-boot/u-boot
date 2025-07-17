@@ -1188,6 +1188,7 @@ void exfat_update_mtime(struct exfat_node* node)
 	node->is_dirty = true;
 }
 
+#ifndef __UBOOT__
 const char* exfat_get_label(struct exfat* ef)
 {
 	return ef->label;
@@ -1241,3 +1242,4 @@ int exfat_set_label(struct exfat* ef, const char* label)
 	strcpy(ef->label, label);
 	return 0;
 }
+#endif /* __UBOOT__ */
