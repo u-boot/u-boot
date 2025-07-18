@@ -56,11 +56,12 @@ fit-dtb.blob*
 /*.log
 
 #
-# git files that we don't want to ignore even it they are dot-files
+# We don't want to ignore the following even if they are dot-files
 #
+!.get_maintainer.*
+!.gitattributes
 !.gitignore
 !.mailmap
-!.get_maintainer.*
 
 #
 # Generated files
