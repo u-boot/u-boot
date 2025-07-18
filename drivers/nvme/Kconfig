@@ -11,6 +11,7 @@ config NVME
 
 config NVME_APPLE
 	bool "Apple NVMe controller support"
+	depends on ARCH_APPLE
 	select NVME
 	help
 	  This option enables support for the NVMe storage
