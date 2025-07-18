@@ -131,7 +131,7 @@ config CLK_BOSTON
 
 config CLK_CDCE9XX
 	bool "Enable CDCD9XX clock driver"
-	depends on CLK
+	depends on CLK && ARCH_OMAP2PLUS
 	help
 	   Enable the clock synthesizer driver for CDCE913/925/937/949
 	   series of chips.
@@ -169,7 +169,7 @@ config CLK_K210_SET_RATE
 
 config CLK_MPC83XX
 	bool "Enable MPC83xx clock driver"
-	depends on CLK
+	depends on CLK && MPC83xx
 	help
 	  Support for the clock driver of the MPC83xx series of SoCs.
 

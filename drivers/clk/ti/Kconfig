@@ -5,14 +5,14 @@
 
 config CLK_TI_AM3_DPLL
 	bool "TI AM33XX Digital Phase-Locked Loop (DPLL) clock drivers"
-	depends on CLK && OF_CONTROL
+	depends on CLK && OF_CONTROL && ARCH_OMAP2PLUS
 	help
 	  This enables the DPLL clock drivers support on AM33XX SoCs. The DPLL
 	  provides all interface clocks and functional clocks to the processor.
 
 config CLK_TI_CTRL
 	bool "TI OMAP4 clock controller"
-	depends on CLK && OF_CONTROL
+	depends on CLK && OF_CONTROL && ARCH_OMAP2PLUS
 	help
 	  This enables the clock controller driver support on TI's SoCs.
 

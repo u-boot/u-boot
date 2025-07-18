@@ -1,6 +1,6 @@
 config CLK_AT91
 	bool "AT91 clock drivers"
-	depends on CLK
+	depends on CLK && ARCH_AT91
 	select MISC
 	help
 	  This option is used to enable the AT91 clock driver.
