@@ -6,6 +6,7 @@
 #ifndef _ASM_PROCESSOR_H
 #define _ASM_PROCESSOR_H
 
-/* This file is required for PCI */
+/* Assorted dummy functions */
+#define cpu_relax()
 
 #endif
