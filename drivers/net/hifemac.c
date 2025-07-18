@@ -9,6 +9,7 @@
 
 #include <dm.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <miiphy.h>
 #include <net.h>
 #include <reset.h>
