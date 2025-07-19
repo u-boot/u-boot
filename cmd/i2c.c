@@ -917,9 +917,9 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 #endif	/* NOPROBES */
 	int ret;
 #if CONFIG_IS_ENABLED(DM_I2C)
-	struct udevice *bus, *dev;
+	struct udevice *cur_bus, *dev;
 
-	if (i2c_get_cur_bus(&bus))
+	if (i2c_get_cur_bus(&cur_bus))
 		return CMD_RET_FAILURE;
 #endif
 
@@ -943,7 +943,7 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 			continue;
 #endif
 #if CONFIG_IS_ENABLED(DM_I2C)
-		ret = dm_i2c_probe(bus, j, 0, &dev);
+		ret = dm_i2c_probe(cur_bus, j, 0, &dev);
 #else
 		ret = i2c_probe(j);
 #endif

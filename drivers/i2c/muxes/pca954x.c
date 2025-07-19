@@ -22,6 +22,7 @@ enum pca_type {
 	MAX7369,
 	PCA9543,
 	PCA9544,
+	PCA9545,
 	PCA9546,
 	PCA9547,
 	PCA9548,
@@ -77,6 +78,10 @@ static const struct chip_desc chips[] = {
 	[PCA9544] = {
 		.enable = 0x4,
 		.muxtype = pca954x_ismux,
+		.width = 4,
+	},
+	[PCA9545] = {
+		.muxtype = pca954x_isswi,
 		.width = 4,
 	},
 	[PCA9546] = {
@@ -141,6 +146,7 @@ static const struct udevice_id pca954x_ids[] = {
 	{ .compatible = "maxim,max7369", .data = MAX7369 },
 	{ .compatible = "nxp,pca9543", .data = PCA9543 },
 	{ .compatible = "nxp,pca9544", .data = PCA9544 },
+	{ .compatible = "nxp,pca9545", .data = PCA9545 },
 	{ .compatible = "nxp,pca9546", .data = PCA9546 },
 	{ .compatible = "nxp,pca9547", .data = PCA9547 },
 	{ .compatible = "nxp,pca9548", .data = PCA9548 },

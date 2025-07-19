@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <config.h>
 #include <dm.h>
+#include <linux/delay.h>
 #include <linux/printk.h>
 #include "errno.h"
 #include <i2c.h>
