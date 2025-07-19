@@ -259,11 +259,12 @@ Why Bother?
 References
 ----------
 
-In the Linux kernel, Documentation/x86/boot.txt defines the boot protocol for
+In the Linux kernel, `Documentation/arch/x86/boot.rst
+<https://docs.kernel.org/arch/x86/boot.html>`_ defines the boot protocol for
 the kernel including the setup.bin format. This is handled in U-Boot in
 arch/x86/lib/zimage.c and arch/x86/lib/bootm.c.
 
-Various files in the same directory as this file describe the FIT format.
-
+The FIT file format is described in the `Flattened Image Tree Specification
+<https://fitspec.osfw.foundation/>`_.
 
 .. sectionauthor:: Simon Glass <sjg@chromium.org> 7-Oct-2014
