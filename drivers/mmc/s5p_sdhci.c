@@ -226,6 +226,7 @@ static int s5p_sdhci_bind(struct udevice *dev)
 
 static const struct udevice_id s5p_sdhci_ids[] = {
 	{ .compatible = "samsung,exynos4412-sdhci"},
+	{ .compatible = "samsung,exynos4210-sdhci"},
 	{ }
 };
 
