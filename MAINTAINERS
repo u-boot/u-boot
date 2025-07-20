@@ -1865,7 +1865,7 @@ F:	common/spl_reloc.c
 F:	include/vbe.h
 
 VIDEO
-M:	Anatolij Gustschin <agust@denx.de>
+M:	Anatolij Gustschin <ag.dev.uboot@gmail.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-video.git
 F:	drivers/video/

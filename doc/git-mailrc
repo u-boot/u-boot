@@ -13,7 +13,7 @@ alias u-boot uboot
 alias abiessmann     Andreas Bießmann <andreas@biessmann.org>
 alias abrodkin       Alexey Brodkin <alexey.brodkin@synopsys.com>
 alias afleming       Andy Fleming <afleming@gmail.com>
-alias ag             Anatolij Gustschin <agust@denx.de>
+alias ag             Anatolij Gustschin <ag.dev.uboot@gmail.com>
 alias agraf          Alexander Graf <agraf@csgraf.de>
 alias alexnemirovsky Alex Nemirovsky <alex.nemirovsky@cortina-access.com>
 alias alisonwang     Alison Wang <alison.wang@nxp.com>

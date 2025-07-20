@@ -1,5 +1,5 @@
 DE1-SoC BOARD
-M:	Anatolij Gustschin <agust@denx.de>
+M:	Anatolij Gustschin <ag.dev.uboot@gmail.com>
 S:	Maintained
 F:	board/terasic/de1-soc/
 F:	include/configs/socfpga_de1_soc.h
