@@ -176,22 +176,19 @@ static const struct phy_ops rockchip_combphy_ops = {
 static int rockchip_combphy_parse_dt(struct udevice *dev,
 				     struct rockchip_combphy_priv *priv)
 {
-	struct udevice *syscon;
 	int ret;
 
-	ret = uclass_get_device_by_phandle(UCLASS_SYSCON, dev, "rockchip,pipe-grf", &syscon);
-	if (ret) {
-		dev_err(dev, "failed to find peri_ctrl pipe-grf regmap");
-		return ret;
+	priv->pipe_grf = syscon_regmap_lookup_by_phandle(dev, "rockchip,pipe-grf");
+	if (IS_ERR(priv->pipe_grf)) {
+		dev_err(dev, "failed to find peri_ctrl pipe-grf regmap\n");
+		return PTR_ERR(priv->pipe_grf);
 	}
-	priv->pipe_grf = syscon_get_regmap(syscon);
 
-	ret = uclass_get_device_by_phandle(UCLASS_SYSCON, dev, "rockchip,pipe-phy-grf", &syscon);
-	if (ret) {
+	priv->phy_grf = syscon_regmap_lookup_by_phandle(dev, "rockchip,pipe-phy-grf");
+	if (IS_ERR(priv->phy_grf)) {
 		dev_err(dev, "failed to find peri_ctrl pipe-phy-grf regmap\n");
-		return ret;
+		return PTR_ERR(priv->phy_grf);
 	}
-	priv->phy_grf = syscon_get_regmap(syscon);
 
 	ret = clk_get_by_index(dev, 0, &priv->ref_clk);
 	if (ret) {
