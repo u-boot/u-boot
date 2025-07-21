@@ -587,11 +587,15 @@ static int udphy_power_off(struct rockchip_udphy *udphy, u8 mode)
 static int rockchip_u3phy_of_xlate(struct phy *phy,
 				   struct ofnode_phandle_args *args)
 {
+	struct rockchip_udphy *udphy = dev_get_priv(phy->dev);
+
 	if (args->args_count == 0)
 		return -EINVAL;
 
 	if (args->args[0] != PHY_TYPE_USB3)
 		return -EINVAL;
+
+	phy->id = udphy->id;
 
 	return 0;
 }
