@@ -99,89 +99,6 @@ static int param_write(struct regmap *base,
 	return regmap_write(base, reg->offset, val);
 }
 
-static int rockchip_combphy_pcie_init(struct rockchip_combphy_priv *priv)
-{
-	int ret = 0;
-
-	if (priv->cfg->combphy_cfg) {
-		ret = priv->cfg->combphy_cfg(priv);
-		if (ret) {
-			dev_err(priv->dev, "failed to init phy for pcie\n");
-			return ret;
-		}
-	}
-
-	return ret;
-}
-
-static int rockchip_combphy_usb3_init(struct rockchip_combphy_priv *priv)
-{
-	int ret = 0;
-
-	if (priv->cfg->combphy_cfg) {
-		ret = priv->cfg->combphy_cfg(priv);
-		if (ret) {
-			dev_err(priv->dev, "failed to init phy for usb3\n");
-			return ret;
-		}
-	}
-
-	return ret;
-}
-
-static int rockchip_combphy_sata_init(struct rockchip_combphy_priv *priv)
-{
-	int ret = 0;
-
-	if (priv->cfg->combphy_cfg) {
-		ret = priv->cfg->combphy_cfg(priv);
-		if (ret) {
-			dev_err(priv->dev, "failed to init phy for sata\n");
-			return ret;
-		}
-	}
-
-	return ret;
-}
-
-static int rockchip_combphy_sgmii_init(struct rockchip_combphy_priv *priv)
-{
-	int ret = 0;
-
-	if (priv->cfg->combphy_cfg) {
-		ret = priv->cfg->combphy_cfg(priv);
-		if (ret) {
-			dev_err(priv->dev, "failed to init phy for sgmii\n");
-			return ret;
-		}
-	}
-
-	return ret;
-}
-
-static int rockchip_combphy_set_mode(struct rockchip_combphy_priv *priv)
-{
-	switch (priv->mode) {
-	case PHY_TYPE_PCIE:
-		rockchip_combphy_pcie_init(priv);
-		break;
-	case PHY_TYPE_USB3:
-		rockchip_combphy_usb3_init(priv);
-		break;
-	case PHY_TYPE_SATA:
-		rockchip_combphy_sata_init(priv);
-		break;
-	case PHY_TYPE_SGMII:
-	case PHY_TYPE_QSGMII:
-		return rockchip_combphy_sgmii_init(priv);
-	default:
-		dev_err(priv->dev, "incompatible PHY type\n");
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
 static int rockchip_combphy_init(struct phy *phy)
 {
 	struct rockchip_combphy_priv *priv = dev_get_priv(phy->dev);
@@ -191,11 +108,31 @@ static int rockchip_combphy_init(struct phy *phy)
 	if (ret < 0 && ret != -ENOSYS)
 		return ret;
 
-	ret = rockchip_combphy_set_mode(priv);
+	switch (priv->mode) {
+	case PHY_TYPE_PCIE:
+	case PHY_TYPE_USB3:
+	case PHY_TYPE_SATA:
+	case PHY_TYPE_SGMII:
+	case PHY_TYPE_QSGMII:
+		if (priv->cfg->combphy_cfg)
+			ret = priv->cfg->combphy_cfg(priv);
+		else
+			ret = 0;
+		break;
+	default:
+		dev_err(priv->dev, "incompatible PHY type\n");
+		ret = -EINVAL;
+		break;
+	}
+
+	if (ret) {
+		dev_err(priv->dev, "failed to init phy for phy type %x\n", priv->mode);
+		goto err_clk;
+	}
+
+	ret = reset_deassert_bulk(&priv->phy_rsts);
 	if (ret)
 		goto err_clk;
-
-	reset_deassert_bulk(&priv->phy_rsts);
 
 	return 0;
 
@@ -306,7 +243,7 @@ static int rockchip_combphy_probe(struct udevice *udev)
 	}
 
 	priv->dev = udev;
-	priv->mode = PHY_TYPE_SATA;
+	priv->mode = PHY_NONE;
 	priv->cfg = phy_cfg;
 
 	return rockchip_combphy_parse_dt(udev, priv);
