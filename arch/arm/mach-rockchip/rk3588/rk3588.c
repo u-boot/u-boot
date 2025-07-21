@@ -15,6 +15,10 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/ioc_rk3588.h>
 
+#define USB_GRF_BASE			0xfd5ac000
+#define USB3OTG0_CON1			0x001c
+#define USB3OTG1_CON1			0x0034
+
 #define FIREWALL_DDR_BASE		0xfe030000
 #define FW_DDR_MST5_REG			0x54
 #define FW_DDR_MST13_REG		0x74
@@ -184,6 +188,10 @@ int arch_cpu_init(void)
 	/* Disable JTAG exposed on SDMMC */
 	rk_clrreg(&sys_grf->soc_con[6], SYS_GRF_FORCE_JTAG);
 #endif
+
+	/* Disable USB3OTG U3 ports, later enabled by USBDP PHY driver */
+	writel(0xffff0188, USB_GRF_BASE + USB3OTG0_CON1);
+	writel(0xffff0188, USB_GRF_BASE + USB3OTG1_CON1);
 #endif
 
 	return 0;
