@@ -573,7 +573,7 @@ U_BOOT_DRIVER(rockchip_usb2phy_clock) = {
 
 U_BOOT_DRIVER(rockchip_usb2phy) = {
 	.name	= "rockchip_usb2phy",
-	.id	= UCLASS_PHY,
+	.id	= UCLASS_NOP,
 	.of_match = rockchip_usb2phy_ids,
 	.probe = rockchip_usb2phy_probe,
 	.bind = rockchip_usb2phy_bind,
