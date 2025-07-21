@@ -21,6 +21,8 @@
 #include <linux/linkage.h>
 #endif
 
+#define BOOTLINE_BUF_LEN 128
+
 /* Interpreter command to boot an arbitrary ELF image from memory */
 int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
@@ -114,7 +116,7 @@ int do_bootvx(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	unsigned long bootaddr = 0; /* Address to put the bootline */
 	char *bootline; /* Text of the bootline */
 	char *tmp; /* Temporary char pointer */
-	char build_buf[128]; /* Buffer for building the bootline */
+	char build_buf[BOOTLINE_BUF_LEN]; /* Buffer for building the bootline */
 	int ptr = 0;
 #ifdef CONFIG_X86
 	ulong base;
@@ -226,7 +228,7 @@ int do_bootvx(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (!bootline) {
 		tmp = env_get("bootdev");
 		if (tmp) {
-			strcpy(build_buf, tmp);
+			strlcpy(build_buf, tmp, BOOTLINE_BUF_LEN);
 			ptr = strlen(tmp);
 		} else {
 			printf("## VxWorks boot device not specified\n");
