@@ -224,6 +224,7 @@ static int rockchip_combphy_xlate(struct phy *phy, struct ofnode_phandle_args *a
 		return -EINVAL;
 	}
 
+	phy->id = priv->id;
 	priv->mode = args->args[0];
 
 	return 0;
