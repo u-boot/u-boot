@@ -96,9 +96,7 @@ struct rockchip_udphy {
 
 	/* PHY status management */
 	bool flip;
-	bool mode_change;
 	u8 mode;
-	u8 status;
 
 	/* utilized for USB */
 	bool hs; /* flag for high-speed */
@@ -525,65 +523,6 @@ static int udphy_parse_dt(struct rockchip_udphy *udphy, struct udevice *dev)
 	return 0;
 }
 
-static int udphy_power_on(struct rockchip_udphy *udphy, u8 mode)
-{
-	int ret;
-
-	if (!(udphy->mode & mode)) {
-		dev_info(udphy->dev, "mode 0x%02x is not support\n", mode);
-		return 0;
-	}
-
-	if (udphy->status == UDPHY_MODE_NONE) {
-		udphy->mode_change = false;
-		ret = udphy_setup(udphy);
-		if (ret)
-			return ret;
-
-		if (udphy->mode & UDPHY_MODE_USB)
-			udphy_u3_port_disable(udphy, false);
-	} else if (udphy->mode_change) {
-		udphy->mode_change = false;
-		udphy->status = UDPHY_MODE_NONE;
-		if (udphy->mode == UDPHY_MODE_DP)
-			udphy_u3_port_disable(udphy, true);
-
-		ret = udphy_disable(udphy);
-		if (ret)
-			return ret;
-		ret = udphy_setup(udphy);
-		if (ret)
-			return ret;
-	}
-
-	udphy->status |= mode;
-
-	return 0;
-}
-
-static int udphy_power_off(struct rockchip_udphy *udphy, u8 mode)
-{
-	int ret;
-
-	if (!(udphy->mode & mode)) {
-		dev_info(udphy->dev, "mode 0x%02x is not supported\n", mode);
-		return 0;
-	}
-
-	if (!udphy->status)
-		return 0;
-
-	udphy->status &= ~mode;
-
-	if (udphy->status == UDPHY_MODE_NONE) {
-		ret = udphy_disable(udphy);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-
 static int rockchip_u3phy_of_xlate(struct phy *phy,
 				   struct ofnode_phandle_args *args)
 {
@@ -603,6 +542,7 @@ static int rockchip_u3phy_of_xlate(struct phy *phy,
 static int rockchip_u3phy_init(struct phy *phy)
 {
 	struct rockchip_udphy *udphy = dev_get_priv(phy->dev);
+	int ret;
 
 	/* DP only or high-speed, disable U3 port */
 	if (!(udphy->mode & UDPHY_MODE_USB) || udphy->hs) {
@@ -610,7 +550,12 @@ static int rockchip_u3phy_init(struct phy *phy)
 		return 0;
 	}
 
-	return udphy_power_on(udphy, UDPHY_MODE_USB);
+	ret = udphy_setup(udphy);
+	if (ret)
+		return ret;
+
+	udphy_u3_port_disable(udphy, false);
+	return 0;
 }
 
 static int rockchip_u3phy_exit(struct phy *phy)
@@ -621,7 +566,7 @@ static int rockchip_u3phy_exit(struct phy *phy)
 	if (!(udphy->mode & UDPHY_MODE_USB) || udphy->hs)
 		return 0;
 
-	return udphy_power_off(udphy, UDPHY_MODE_USB);
+	return udphy_disable(udphy);
 }
 
 static const struct phy_ops rockchip_u3phy_ops = {
