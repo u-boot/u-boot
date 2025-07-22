@@ -363,7 +363,7 @@ static int mv_start_edma_engine(struct udevice *dev, int port)
 	return 0;
 }
 
-static int mv_reset_channel(struct udevice *dev, int port)
+static void mv_reset_channel(struct udevice *dev, int port)
 {
 	struct mv_priv *priv = dev_get_plat(dev);
 
@@ -374,8 +374,6 @@ static int mv_reset_channel(struct udevice *dev, int port)
 	udelay(25);		/* allow reset propagation */
 	out_le32(priv->regbase + EDMA_CMD, 0);
 	mdelay(10);
-
-	return 0;
 }
 
 static void mv_reset_port(struct udevice *dev, int port)
@@ -578,9 +576,9 @@ static void process_responses(struct udevice *dev, int port)
 	}
 }
 
-static int mv_ata_exec_ata_cmd(struct udevice *dev, int port,
-			       struct sata_fis_h2d *cfis,
-			       u8 *buffer, u32 len, u32 iswrite)
+static void mv_ata_exec_ata_cmd(struct udevice *dev, int port,
+				struct sata_fis_h2d *cfis,
+				u8 *buffer, lbaint_t len, u32 iswrite)
 {
 	struct mv_priv *priv = dev_get_plat(dev);
 	struct crqb *req;
@@ -589,7 +587,7 @@ static int mv_ata_exec_ata_cmd(struct udevice *dev, int port,
 
 	if (len >= 64 * 1024) {
 		printf("We only support <64K transfers for now\n");
-		return -1;
+		return;
 	}
 
 	/* Initialize request */
@@ -653,7 +651,7 @@ static int mv_ata_exec_ata_cmd(struct udevice *dev, int port,
 	/* Wait for completion */
 	if (wait_dma_completion(dev, port, slot, 10000)) {
 		printf("ATA operation timed out\n");
-		return -1;
+		return;
 	}
 
 	process_responses(dev, port);
@@ -664,16 +662,13 @@ static int mv_ata_exec_ata_cmd(struct udevice *dev, int port,
 		invalidate_dcache_range(start,
 					start + ALIGN(len, ARCH_DMA_MINALIGN));
 	}
-
-	return len;
 }
 
-static u32 mv_sata_rw_cmd_ext(struct udevice *dev, int port, lbaint_t start,
-			      u32 blkcnt,
-			      u8 *buffer, int is_write)
+static void mv_sata_rw_cmd_ext(struct udevice *dev, int port, lbaint_t start,
+			       lbaint_t blkcnt,
+			       u8 *buffer, int is_write)
 {
 	struct sata_fis_h2d cfis;
-	u32 res;
 	u64 block;
 
 	block = (u64)start;
@@ -693,18 +688,15 @@ static u32 mv_sata_rw_cmd_ext(struct udevice *dev, int port, lbaint_t start,
 	cfis.sector_count_exp = (blkcnt >> 8) & 0xff;
 	cfis.sector_count = blkcnt & 0xff;
 
-	res = mv_ata_exec_ata_cmd(dev, port, &cfis, buffer,
-				  ATA_SECT_SIZE * blkcnt, is_write);
-
-	return res >= 0 ? blkcnt : res;
+	mv_ata_exec_ata_cmd(dev, port, &cfis, buffer,
+			    ATA_SECT_SIZE * blkcnt, is_write);
 }
 
-static u32 mv_sata_rw_cmd(struct udevice *dev, int port, lbaint_t start,
-			  u32 blkcnt, u8 *buffer, int is_write)
+static void mv_sata_rw_cmd(struct udevice *dev, int port, lbaint_t start,
+			   lbaint_t blkcnt, u8 *buffer, int is_write)
 {
 	struct sata_fis_h2d cfis;
 	lbaint_t block;
-	u32 res;
 
 	block = start;
 
@@ -720,19 +712,16 @@ static u32 mv_sata_rw_cmd(struct udevice *dev, int port, lbaint_t start,
 	cfis.lba_low = block & 0xff;
 	cfis.sector_count = (u8)(blkcnt & 0xff);
 
-	res = mv_ata_exec_ata_cmd(dev, port, &cfis, buffer,
-				  ATA_SECT_SIZE * blkcnt, is_write);
-
-	return res >= 0 ? blkcnt : res;
+	mv_ata_exec_ata_cmd(dev, port, &cfis, buffer,
+			    ATA_SECT_SIZE * blkcnt, is_write);
 }
 
 static u32 ata_low_level_rw(struct udevice *dev, int port, lbaint_t blknr,
 			    lbaint_t blkcnt, void *buffer, int is_write)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
-	lbaint_t start, blks;
+	lbaint_t start, blks, max_blks;
 	u8 *addr;
-	int max_blks;
 
 	debug("%s: " LBAFU " " LBAFU "\n", __func__, blknr, blkcnt);
 
