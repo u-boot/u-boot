@@ -272,6 +272,12 @@ static const struct onboard_hub_data usb5744_data = {
 	.supply_names = { "vdd-supply" },
 };
 
+static const struct onboard_hub_data usbhx3_data = {
+	.reset_us = 10000,
+	.num_supplies = 2,
+	.supply_names = { "vdd-supply", "vdd2-supply" },
+};
+
 static const struct udevice_id usb_onboard_hub_ids[] = {
 	/* Use generic usbVID,PID dt-bindings (usb-device.yaml) */
 	{	.compatible = "usb424,2514",	/* USB2514B USB 2.0 */
@@ -282,7 +288,14 @@ static const struct udevice_id usb_onboard_hub_ids[] = {
 	}, {
 		.compatible = "usb424,5744",	/* USB5744 USB 3.0 */
 		.data = (ulong)&usb5744_data,
-	}
+	}, {
+		.compatible = "usb4b4,6504",	/* Cypress HX3 USB 3.0 */
+		.data = (ulong)&usbhx3_data,
+	}, {
+		.compatible = "usb4b4,6506",	/* Cypress HX3 USB 2.0 */
+		.data = (ulong)&usbhx3_data,
+	},
+	{ /* sentinel */ }
 };
 
 U_BOOT_DRIVER(usb_onboard_hub) = {
