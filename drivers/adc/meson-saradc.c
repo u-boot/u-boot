@@ -205,9 +205,9 @@ static int meson_saradc_lock(struct meson_saradc_priv *priv)
 	do {
 		udelay(1);
 		regmap_read(priv->regmap, MESON_SAR_ADC_DELAY, &val);
-	} while (val & MESON_SAR_ADC_DELAY_BL30_BUSY && timeout--);
+	} while (val & MESON_SAR_ADC_DELAY_BL30_BUSY && --timeout);
 
-	if (timeout < 0) {
+	if (!timeout) {
 		printf("Timeout while waiting for BL30 unlock\n");
 		return -ETIMEDOUT;
 	}
@@ -256,9 +256,9 @@ static int meson_saradc_wait_busy_clear(struct meson_saradc_priv *priv)
 	do {
 		udelay(1);
 		regmap_read(priv->regmap, MESON_SAR_ADC_REG0, &regval);
-	} while (FIELD_GET(MESON_SAR_ADC_REG0_BUSY_MASK, regval) && timeout--);
+	} while (FIELD_GET(MESON_SAR_ADC_REG0_BUSY_MASK, regval) && --timeout);
 
-	if (timeout < 0)
+	if (!timeout)
 		return -ETIMEDOUT;
 
 	return 0;
