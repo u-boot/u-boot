@@ -2,7 +2,7 @@
 /*
  * dts file for AMD MicroBlaze V
  *
- * (C) Copyright 2023 - 2024, Advanced Micro Devices, Inc.
+ * (C) Copyright 2023 - 2025, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -26,6 +26,7 @@
 			device_type = "cpu";
 			reg = <0>;
 			riscv,isa = "rv64imafdc";
+			mmu-type = "riscv,sv39";
 			i-cache-size = <32768>;
 			d-cache-size = <32768>;
 			clock-frequency = <100000000>;
