@@ -10,6 +10,7 @@
 #include <asm/gpio.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <dm/uclass-internal.h>
 #include <i2c.h>
 #include <linux/delay.h>
 #include <power/regulator.h>
@@ -179,8 +180,8 @@ err:
 static int usb_onboard_hub_bind(struct udevice *dev)
 {
 	struct ofnode_phandle_args phandle;
-	const void *fdt = gd->fdt_blob;
-	int ret, off;
+	struct udevice *peerdev;
+	int ret;
 
 	ret = dev_read_phandle_with_args(dev, "peer-hub", NULL, 0, 0, &phandle);
 	if (ret == -ENOENT) {
@@ -193,10 +194,14 @@ static int usb_onboard_hub_bind(struct udevice *dev)
 		return ret;
 	}
 
-	off = ofnode_to_offset(phandle.node);
-	ret = fdt_node_check_compatible(fdt, off, "usb424,5744");
-	if (!ret)
+	ret = uclass_find_device_by_ofnode(UCLASS_USB_HUB, phandle.node, &peerdev);
+	if (ret) {
+		dev_dbg(dev, "binding before peer-hub %s\n",
+			ofnode_get_name(phandle.node));
 		return 0;
+	}
+
+	dev_dbg(dev, "peer-hub %s has been bound\n", peerdev->name);
 
 	return -ENODEV;
 }
