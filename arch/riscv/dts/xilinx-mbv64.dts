@@ -71,7 +71,8 @@
 			interrupt-controller;
 			interrupt-parent = <&cpu0_intc>;
 			#interrupt-cells = <2>;
-			kind-of-intr = <0>;
+			xlnx,num-intr-inputs = <2>;
+			xlnx,kind-of-intr = <0>;
 		};
 
 		xlnx_timer0: timer@41c00000 {
