@@ -211,9 +211,6 @@ static int usb_onboard_hub_remove(struct udevice *dev)
 	struct onboard_hub *hub = dev_get_priv(dev);
 	int ret = 0;
 
-	if (hub->reset_gpio)
-		dm_gpio_free(hub->reset_gpio->dev, hub->reset_gpio);
-
 	if (hub->vdd) {
 		ret = regulator_set_enable_if_allowed(hub->vdd, false);
 		if (ret)

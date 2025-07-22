@@ -112,6 +112,7 @@ config USB_KEYBOARD
 config USB_ONBOARD_HUB
 	bool "Onboard USB hub support"
 	depends on DM_USB
+	select DEVRES
 	---help---
 	  Say Y here if you want to support discrete onboard USB hubs that
 	  don't require an additional control bus for initialization, but
