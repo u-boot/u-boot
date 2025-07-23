@@ -208,7 +208,7 @@
 			fit,fdt-list-val = "ti/k3-am6528-iot2050-basic", "ti/k3-am6548-iot2050-advanced";
 
 			configurations {
-				default = "ti/k3-am6528-iot2050-basic";
+				default = "config-1";
 				@config-SEQ {
 					loadables =
 #ifdef CONFIG_WDT_K3_RTI_FW_FILE
@@ -265,7 +265,7 @@
 			};
 
 			configurations {
-				default = "ti/k3-am6528-iot2050-basic-pg2";
+				default = "config-1";
 				@config-SEQ {
 					loadables =
 #ifdef CONFIG_WDT_K3_RTI_FW_FILE
