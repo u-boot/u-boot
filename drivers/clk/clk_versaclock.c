@@ -850,7 +850,7 @@ static char *versaclock_get_name(const char *dev_name, const char *clk_name, int
 
 	buf = malloc(length);
 	if (!buf)
-		ERR_PTR(-ENOMEM);
+		return ERR_PTR(-ENOMEM);
 
 	if (index < 0)
 		snprintf(buf, length, "%s.%s", dev_name, clk_name);
