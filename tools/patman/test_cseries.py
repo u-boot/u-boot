@@ -3278,7 +3278,7 @@ Date:   .*
         self.assertIn('bootm.c:1: check: Avoid CamelCase: <Fix>',
                       err.getvalue())
         self.assertIn(
-            'Cc:  Anatolij Gustschin <agust@denx.de>', out.getvalue())
+            'Cc:  Anatolij Gustschin <ag.dev.uboot@gmail.com>', out.getvalue())
 
         self.assertTrue(os.path.exists(os.path.join(
             self.tmpdir, '0001-video-Some-video-improvements.patch')))
