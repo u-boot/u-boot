@@ -1,0 +1,12 @@
+if TARGET_ORANGEPI_5_ULTRA_RK3588
+
+config SYS_BOARD
+	default "orangepi-5-ultra-rk3588"
+
+config SYS_VENDOR
+	default "xunlong"
+
+config SYS_CONFIG_NAME
+	default "evb_rk3588"
+
+endif
