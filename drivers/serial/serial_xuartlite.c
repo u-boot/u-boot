@@ -35,6 +35,10 @@ struct uartlite_plat {
 	struct uartlite *regs;
 };
 
+struct uartlite_priv {
+	struct uartlite *regs;
+};
+
 static u32 uart_in32(void __iomem *addr)
 {
 	if (little_endian)
@@ -53,8 +57,8 @@ static void uart_out32(void __iomem *addr, u32 val)
 
 static int uartlite_serial_putc(struct udevice *dev, const char ch)
 {
-	struct uartlite_plat *plat = dev_get_plat(dev);
-	struct uartlite *regs = plat->regs;
+	struct uartlite_priv *priv = dev_get_priv(dev);
+	struct uartlite *regs = priv->regs;
 
 	if (uart_in32(&regs->status) & SR_TX_FIFO_FULL)
 		return -EAGAIN;
@@ -66,8 +70,8 @@ static int uartlite_serial_putc(struct udevice *dev, const char ch)
 
 static int uartlite_serial_getc(struct udevice *dev)
 {
-	struct uartlite_plat *plat = dev_get_plat(dev);
-	struct uartlite *regs = plat->regs;
+	struct uartlite_priv *priv = dev_get_priv(dev);
+	struct uartlite *regs = priv->regs;
 
 	if (!(uart_in32(&regs->status) & SR_RX_FIFO_VALID_DATA))
 		return -EAGAIN;
@@ -77,8 +81,8 @@ static int uartlite_serial_getc(struct udevice *dev)
 
 static int uartlite_serial_pending(struct udevice *dev, bool input)
 {
-	struct uartlite_plat *plat = dev_get_plat(dev);
-	struct uartlite *regs = plat->regs;
+	struct uartlite_priv *priv = dev_get_priv(dev);
+	struct uartlite *regs = priv->regs;
 
 	if (input)
 		return uart_in32(&regs->status) & SR_RX_FIFO_VALID_DATA;
@@ -89,8 +93,11 @@ static int uartlite_serial_pending(struct udevice *dev, bool input)
 static int uartlite_serial_probe(struct udevice *dev)
 {
 	struct uartlite_plat *plat = dev_get_plat(dev);
+	struct uartlite_priv *priv = dev_get_priv(dev);
 	struct uartlite *regs = plat->regs;
 	int ret;
+
+	priv->regs = regs;
 
 	uart_out32(&regs->control, 0);
 	uart_out32(&regs->control, ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
@@ -131,6 +138,7 @@ U_BOOT_DRIVER(serial_uartlite) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = uartlite_serial_ids,
 	.of_to_plat = uartlite_serial_of_to_plat,
+	.priv_auto	= sizeof(struct uartlite_priv),
 	.plat_auto	= sizeof(struct uartlite_plat),
 	.probe = uartlite_serial_probe,
 	.ops	= &uartlite_serial_ops,
