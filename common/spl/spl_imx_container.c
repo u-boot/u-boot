@@ -31,7 +31,7 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 					  ulong container_offset)
 {
 	struct boot_img_t *images;
-	ulong offset, overhead, size;
+	ulong offset, size;
 	void *buf, *trampoline;
 
 	if (image_index > container->num_images) {
@@ -54,7 +54,7 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 	debug("%s: container: %p offset: %lu size: %lu\n", __func__,
 	      container, offset, size);
 
-	buf = map_sysmem(images[image_index].dst - overhead, images[image_index].size);
+	buf = map_sysmem(images[image_index].dst, images[image_index].size);
 	if (IS_ENABLED(CONFIG_SPL_IMX_CONTAINER_USE_TRAMPOLINE) &&
 	    arch_check_dst_in_secure(buf, size)) {
 		trampoline = arch_get_container_trampoline();
