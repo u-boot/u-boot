@@ -2173,7 +2173,7 @@ static void set_ddr_zq_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int zq_en)
 	/* Normal Operation Short Calibration Time (tZQCS) */
 	unsigned int zqcs = 0;
 #ifdef CONFIG_SYS_FSL_DDR4
-	unsigned int zqcs_init;
+	unsigned int zqcs_init = 0;
 #endif
 
 	if (zq_en) {
