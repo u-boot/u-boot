@@ -346,7 +346,7 @@ static bool isrxready(struct axi_mrmac_priv *priv)
  * axi_mrmac_recv - MRMAC Rx function
  * @dev:	udevice structure
  * @flags:	flags from network stack
- * @packetp	pointer to received data
+ * @packetp:	pointer to received data
  *
  * Return:	received data length on success, negative value on errors
  *
@@ -399,7 +399,7 @@ static int axi_mrmac_recv(struct udevice *dev, int flags, uchar **packetp)
  * axi_mrmac_free_pkt - MRMAC free packet function
  * @dev:	udevice structure
  * @packet:	receive buffer pointer
- * @length	received data length
+ * @length:	received data length
  *
  * Return:	0 on success, negative value on errors
  *

@@ -184,6 +184,7 @@ static const struct zynq_platform_data zynq_gpio_def = {
  *		pin
  * @bank_pin_num: an output parameter used to return pin number within a bank
  *		  for the given gpio pin
+ * @dev:	Pointer to our device structure.
  *
  * Returns the bank number and pin offset within the bank.
  */

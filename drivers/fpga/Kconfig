@@ -15,6 +15,7 @@ config FPGA_ALTERA
 
 config FPGA_SOCFPGA
 	bool "Enable Gen5 and Arria10 common FPGA drivers"
+	depends on ARCH_SOCFPGA
 	select FPGA_ALTERA
 	help
 	  Say Y here to enable the Gen5 and Arria10 common FPGA driver

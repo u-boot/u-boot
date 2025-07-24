@@ -500,11 +500,8 @@ static int zynqmp_firmware_bind(struct udevice *dev)
 	if (!smc_call_handler)
 		return -EINVAL;
 
-	if ((IS_ENABLED(CONFIG_XPL_BUILD) &&
-	     IS_ENABLED(CONFIG_SPL_POWER_DOMAIN) &&
-	     IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN)) ||
-	     (!IS_ENABLED(CONFIG_XPL_BUILD) &&
-	      IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN))) {
+	if (CONFIG_IS_ENABLED(POWER_DOMAIN) &&
+	    IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN)) {
 		ret = device_bind_driver_to_node(dev, "zynqmp_power_domain",
 						 "zynqmp_power_domain",
 						 dev_ofnode(dev), &child);

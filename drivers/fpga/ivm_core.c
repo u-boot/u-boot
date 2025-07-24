@@ -33,6 +33,7 @@
 #include <linux/string.h>
 #include <malloc.h>
 #include <lattice.h>
+#include <vsprintf.h>
 
 #define vme_out_char(c)	printf("%c", c)
 #define vme_out_hex(c)	printf("%x", c)
@@ -291,7 +292,7 @@ unsigned short g_usLVDSPairCount;
  */
 
 static signed char ispVMDataCode(void);
-static long int ispVMDataSize(void);
+static long ispVMDataSize(void);
 static void ispVMData(unsigned char *Data);
 static signed char ispVMShift(signed char Code);
 static signed char ispVMAmble(signed char Code);
@@ -589,7 +590,7 @@ void ispVMFreeMem(void)
  *
  */
 
-long int ispVMDataSize()
+long ispVMDataSize(void)
 {
 	/* 09/11/07 NN added local variables initialization */
 	long int iSize           = 0;
@@ -614,7 +615,7 @@ long int ispVMDataSize()
  *
  */
 
-signed char ispVMCode()
+signed char ispVMCode(void)
 {
 	/* 09/11/07 NN added local variables initialization */
 	unsigned short iRepeatSize = 0;
@@ -1113,7 +1114,7 @@ signed char ispVMCode()
  *
  */
 
-signed char ispVMDataCode()
+signed char ispVMDataCode(void)
 {
 	/* 09/11/07 NN added local variables initialization */
 	signed char cDataByte    = 0;
@@ -2475,7 +2476,7 @@ void ispVMStateMachine(signed char cNextJTAGState)
  *
  */
 
-void ispVMStart()
+void ispVMStart(void)
 {
 #ifdef DEBUG
 	printf("// ISPVM EMBEDDED ADDED\n");
@@ -2504,7 +2505,7 @@ void ispVMStart()
  *
  */
 
-void ispVMEnd()
+void ispVMEnd(void)
 {
 #ifdef DEBUG
 	printf("// ISPVM EMBEDDED ADDED\n");

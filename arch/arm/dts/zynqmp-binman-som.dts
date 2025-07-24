@@ -20,7 +20,6 @@
 	binman: binman {
 		multiple-images;
 
-#ifdef CONFIG_SPL
 		fit-dtb.blob {
 			filename = "fit-dtb.blob";
 			pad-byte = <0>;
@@ -109,6 +108,7 @@
 			};
 		};
 
+#ifdef CONFIG_SPL
 		/* Generation in a static way */
 		itb {
 			filename = U_BOOT_ITB_FILENAME;

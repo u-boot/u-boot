@@ -191,8 +191,8 @@ static int zynqmp_validate_bitstream(xilinx_desc *desc, const void *buf,
 	}
 
 	if ((ulong)buf < SZ_1M) {
-		printf("%s: Bitstream has to be placed up to 1MB (%px)\n",
-		       __func__, buf);
+		log_err("Bitstream has to be placed above 1MB (%px)\n",
+			buf);
 		return FPGA_FAIL;
 	}
 

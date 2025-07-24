@@ -19,6 +19,7 @@
 #include <log.h>
 #include <virtex2.h>
 #include <linux/delay.h>
+#include <time.h>
 
 /*
  * If the SelectMap interface can be overrun by the processor, enable
@@ -301,6 +302,7 @@ static int virtex2_ssm_load(xilinx_desc *desc, const void *buf, size_t bsize)
 	size_t bytecount = 0;
 	unsigned char *data = (unsigned char *)buf;
 	int cookie = desc->cookie;
+	unsigned long ts;
 
 	ret_val = virtex2_slave_pre(fn, cookie);
 	if (ret_val != FPGA_SUCCESS)
