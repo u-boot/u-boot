@@ -66,6 +66,14 @@ config TARGET_IMX93_11X11_EVK
 	imply BOOTSTD_FULL
 	imply BOOTSTD_BOOTCOMMAND
 
+config TARGET_IMX93_FRDM
+	bool "imx93_frdm"
+	select OF_BOARD_FIXUP
+	select IMX93
+	select IMX9_LPDDR4X
+	imply BOOTSTD_FULL
+	imply BOOTSTD_BOOTCOMMAND
+
 config TARGET_IMX93_VAR_SOM
 	bool "imx93_var_som"
 	select IMX93
@@ -90,6 +98,7 @@ endchoice
 
 source "board/freescale/imx91_evk/Kconfig"
 source "board/freescale/imx93_evk/Kconfig"
+source "board/freescale/imx93_frdm/Kconfig"
 source "board/freescale/imx93_qsb/Kconfig"
 source "board/phytec/phycore_imx93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"

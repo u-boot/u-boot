@@ -118,6 +118,7 @@ void ddrphy_init_set_dfi_clk(unsigned int drate);
 void ddrphy_init_read_msg_block(enum fw_type type);
 
 void get_trained_CDD(unsigned int fsp);
+u32 lpddr4_mr_read(u32 mr_rank, u32 mr_addr);
 
 ulong ddrphy_addr_remap(u32 paddr_apb_from_ctlr);
 
