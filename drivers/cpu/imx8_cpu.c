@@ -201,6 +201,10 @@ static int cpu_imx_get_temp(struct cpu_imx_plat *plat)
 
 __weak u32 get_cpu_temp_grade(int *minc, int *maxc)
 {
+	if (minc && maxc) {
+		*minc = 0;
+		*maxc = 95;
+	}
 	return 0;
 }
 
