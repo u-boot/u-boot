@@ -128,6 +128,7 @@ static int virtio_net_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 	/* Put the buffer back to the rx ring */
 	virtqueue_add(priv->rx_vq, sgs, 0, 1);
+	virtqueue_kick(priv->rx_vq);
 
 	return 0;
 }
