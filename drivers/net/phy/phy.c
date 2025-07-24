@@ -9,6 +9,7 @@
  */
 #include <console.h>
 #include <dm.h>
+#include <env.h>
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
@@ -242,7 +243,9 @@ int genphy_update_link(struct phy_device *phydev)
 
 	if ((phydev->autoneg == AUTONEG_ENABLE) &&
 	    !(mii_reg & BMSR_ANEGCOMPLETE)) {
-		int i = 0;
+		u32 i = 0;
+		u32 aneg_timeout = env_get_ulong("phy_aneg_timeout", 10,
+						 CONFIG_PHY_ANEG_TIMEOUT);
 
 		printf("%s Waiting for PHY auto negotiation to complete",
 		       phydev->dev->name);
@@ -250,7 +253,7 @@ int genphy_update_link(struct phy_device *phydev)
 			/*
 			 * Timeout reached ?
 			 */
-			if (i > (CONFIG_PHY_ANEG_TIMEOUT / 50)) {
+			if (i > (aneg_timeout / 50)) {
 				printf(" TIMEOUT !\n");
 				phydev->link = 0;
 				return -ETIMEDOUT;
