@@ -26,6 +26,10 @@
 #define MPHY_FAST_RX_AFE_CAL		BIT(2)
 #define MPHY_FW_CALIB_CFG_VAL		BIT(8)
 
+#define MPHY_RX_OVRD_EN			BIT(3)
+#define MPHY_RX_OVRD_VAL		BIT(2)
+#define MPHY_RX_ACK_MASK		BIT(0)
+
 #define TX_RX_CFG_RDY_MASK		GENMASK(3, 0)
 
 #define TIMEOUT_MICROSEC		1000000L
@@ -422,10 +426,118 @@ static int ufs_versal2_link_startup_notify(struct ufs_hba *hba,
 	return ret;
 }
 
+static int ufs_versal2_phy_ratesel(struct ufs_hba *hba, u32 activelanes, u32 rx_req)
+{
+	u32 time_left, reg, lane;
+	int ret;
+
+	for (lane = 0; lane < activelanes; lane++) {
+		time_left = TIMEOUT_MICROSEC;
+		ret = ufs_versal2_phy_reg_read(hba, RX_OVRD_IN_1(lane), &reg);
+		if (ret)
+			return ret;
+
+		reg |= MPHY_RX_OVRD_EN;
+		if (rx_req)
+			reg |= MPHY_RX_OVRD_VAL;
+		else
+			reg &= ~MPHY_RX_OVRD_VAL;
+
+		ret = ufs_versal2_phy_reg_write(hba, RX_OVRD_IN_1(lane), reg);
+		if (ret)
+			return ret;
+
+		do {
+			ret = ufs_versal2_phy_reg_read(hba, RX_PCS_OUT(lane), &reg);
+			if (ret)
+				return ret;
+
+			reg &= MPHY_RX_ACK_MASK;
+			if (reg == rx_req)
+				break;
+
+			time_left--;
+			mdelay(5);
+		} while (time_left);
+
+		if (!time_left) {
+			dev_err(hba->dev, "Invalid Rx Ack value.\n");
+			return -ETIMEDOUT;
+		}
+	}
+
+	return 0;
+}
+
+static int ufs_get_max_pwr_mode(struct ufs_hba *hba,
+				struct ufs_pwr_mode_info *max_pwr_info)
+{
+	struct ufs_versal2_priv *priv = dev_get_priv(hba->dev);
+	u32 lane, reg, rate = 0;
+	int ret = 0;
+
+	/* If it is not a calibrated part, switch PWRMODE to SLOW_MODE */
+	if (!priv->attcompval0 && !priv->attcompval1 &&
+	    !priv->ctlecompval0 && !priv->ctlecompval1) {
+		max_pwr_info->info.pwr_rx = SLOWAUTO_MODE;
+		max_pwr_info->info.pwr_tx = SLOWAUTO_MODE;
+		max_pwr_info->info.gear_rx = UFS_PWM_G1;
+		max_pwr_info->info.gear_tx = UFS_PWM_G1;
+		max_pwr_info->info.lane_tx = 1;
+		max_pwr_info->info.lane_rx = 1;
+		max_pwr_info->info.hs_rate = 0;
+			return 0;
+	}
+
+	if (max_pwr_info->info.pwr_rx == SLOWAUTO_MODE ||
+	    max_pwr_info->info.pwr_tx == SLOWAUTO_MODE)
+		return 0;
+
+	if (max_pwr_info->info.hs_rate == PA_HS_MODE_B)
+		rate = 1;
+
+	/* Select the rate */
+	ret = ufshcd_dme_set(hba, UIC_ARG_MIB(CBRATESEL), rate);
+	if (ret)
+		return ret;
+
+	ret = ufshcd_dme_set(hba, UIC_ARG_MIB(VS_MPHYCFGUPDT), 1);
+	if (ret)
+		return ret;
+
+	ret = ufs_versal2_phy_ratesel(hba, max_pwr_info->info.lane_tx, 1);
+	if (ret)
+		return ret;
+
+	ret = ufs_versal2_phy_ratesel(hba, max_pwr_info->info.lane_tx, 0);
+	if (ret)
+		return ret;
+
+	/* Remove rx_req override */
+	for (lane = 0; lane < max_pwr_info->info.lane_tx; lane++) {
+		ret = ufs_versal2_phy_reg_read(hba, RX_OVRD_IN_1(lane), &reg);
+		if (ret)
+			return ret;
+
+		reg &= ~MPHY_RX_OVRD_EN;
+		ret = ufs_versal2_phy_reg_write(hba, RX_OVRD_IN_1(lane), reg);
+		if (ret)
+			return ret;
+	}
+
+	if (max_pwr_info->info.lane_tx == UFS_LANE_2 &&
+	    max_pwr_info->info.lane_rx == UFS_LANE_2)
+		ret = ufshcd_dme_configure_adapt(hba, max_pwr_info->info.gear_tx,
+						 PA_INITIAL_ADAPT);
+
+	return 0;
+}
+
 static struct ufs_hba_ops ufs_versal2_hba_ops = {
 	.init = ufs_versal2_init,
 	.link_startup_notify = ufs_versal2_link_startup_notify,
 	.hce_enable_notify = ufs_versal2_hce_enable_notify,
+	.get_max_pwr_mode = ufs_get_max_pwr_mode,
 };
 
 static int ufs_versal2_probe(struct udevice *dev)
