@@ -6,10 +6,7 @@
  * Copyright (C) 2024 PHYTEC Messtechnik GmbH
  */
 
-#include <asm/arch-imx9/ccm_regs.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch-imx9/imx93_pins.h>
-#include <asm/arch/clock.h>
 #include <asm/global_data.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <env.h>

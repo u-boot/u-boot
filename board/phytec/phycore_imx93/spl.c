@@ -14,9 +14,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/ele_api.h>
 #include <asm/sections.h>
-#include <hang.h>
 #include <init.h>
-#include <log.h>
 #include <power/pmic.h>
 #include <power/pca9450.h>
 #include <spl.h>
@@ -25,11 +23,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * Will be part of drivers/power/regulator/pca9450.c
- * when pca9451a support is added.
- */
-#define PCA9450_REG_PWRCTRL_TOFF_DEB    BIT(5)
 #define EEPROM_ADDR            0x50
 
 /*

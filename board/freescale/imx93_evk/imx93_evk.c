@@ -13,11 +13,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx9/imx93_pins.h>
 #include <asm/arch/clock.h>
-#include <power/pmic.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
-#include <usb.h>
-#include <dwc3-uboot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

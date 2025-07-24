@@ -6,8 +6,6 @@
 #ifndef __IMX93_EVK_H
 #define __IMX93_EVK_H
 
-#include <linux/sizes.h>
-#include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
 #define CFG_SYS_UBOOT_BASE	\
