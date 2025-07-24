@@ -641,6 +641,14 @@ config ESM_K3
 	help
 	  Support ESM (Error Signaling Module) on TI K3 SoCs.
 
+config K3_BIST
+	bool "Enable K3 BIST driver"
+	depends on ARCH_K3
+	help
+	  Support BIST (Built-In Self Test) module on TI K3 SoCs. This driver
+	  supports running both PBIST (Memory BIST) and LBIST (Logic BIST) on
+	  a region or IP in the SoC.
+
 config MICROCHIP_FLEXCOM
 	bool "Enable Microchip Flexcom driver"
 	depends on MISC
