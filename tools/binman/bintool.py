@@ -421,7 +421,7 @@ class Bintool:
         Returns:
             True, assuming it completes without error
         """
-        args = ['sudo', 'apt', 'install', '-y', package]
+        args = ['sudo', 'apt-get', 'install', '-y', package]
         print('- %s' % ' '.join(args))
         tools.run(*args)
         return True
