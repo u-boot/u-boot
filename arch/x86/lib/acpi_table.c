@@ -144,7 +144,7 @@ int acpi_write_tcpa(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	struct acpi_table_header *header;
 	struct acpi_tcpa *tcpa;
 	u32 current;
-	int size = 0x10000;	/* Use this as the default size */
+	int size = 1500;	/* Use this as the default size */
 	void *log;
 	int ret;
 
@@ -165,7 +165,6 @@ int acpi_write_tcpa(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	ret = bloblist_ensure_size_ret(BLOBLISTT_TCPA_LOG, &size, &log);
 	if (ret)
 		return log_msg_ret("blob", ret);
-
 	tcpa->platform_class = 0;
 	tcpa->laml = size;
 	tcpa->lasa = nomap_to_sysmem(log);
