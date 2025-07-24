@@ -373,6 +373,12 @@ static const struct udevice_id exynos_dwmmc_ids[] = {
 		.compatible	= "samsung,exynos4412-dw-mshc",
 		.data		= (ulong)&exynos4_drv_data,
 	}, {
+		.compatible	= "samsung,exynos5420-dw-mshc-smu",
+		.data		= (ulong)&exynos5_drv_data,
+	}, {
+		.compatible	= "samsung,exynos5420-dw-mshc",
+		.data		= (ulong)&exynos5_drv_data,
+	}, {
 		.compatible	= "samsung,exynos-dwmmc",
 		.data		= (ulong)&exynos5_drv_data,
 	}, {

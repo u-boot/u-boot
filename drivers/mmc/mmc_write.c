@@ -155,6 +155,7 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 	int timeout_ms = 1000;
+	int err;
 
 	if ((start + blkcnt) > mmc_get_blk_desc(mmc)->lba) {
 		printf("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
@@ -181,9 +182,13 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	data.blocksize = mmc->write_bl_len;
 	data.flags = MMC_DATA_WRITE;
 
-	if (mmc_send_cmd(mmc, &cmd, &data)) {
+	err = mmc_send_cmd(mmc, &cmd, &data);
+	if (err) {
 		printf("mmc write failed\n");
-		return 0;
+		/*
+		 * Don't return 0 here since the emmc will still be in data
+		 * transfer mode continue to send the STOP_TRANSMISSION command
+		 */
 	}
 
 	/* SPI multiblock writes terminate using a special
@@ -201,6 +206,9 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 
 	/* Waiting for the ready status */
 	if (mmc_poll_for_busy(mmc, timeout_ms))
+		return 0;
+
+	if (err)
 		return 0;
 
 	return blkcnt;

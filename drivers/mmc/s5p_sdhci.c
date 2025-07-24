@@ -141,14 +141,6 @@ static int do_sdhci_init(struct sdhci_host *host)
 		}
 	}
 
-	if (dm_gpio_is_valid(&host->cd_gpio)) {
-		ret = dm_gpio_get_value(&host->cd_gpio);
-		if (ret) {
-			debug("no SD card detected (%d)\n", ret);
-			return -ENODEV;
-		}
-	}
-
 	return s5p_sdhci_core_init(host);
 }
 
@@ -183,8 +175,6 @@ static int sdhci_get_config(const void *blob, int node, struct sdhci_host *host)
 
 	gpio_request_by_name_nodev(offset_to_ofnode(node), "pwr-gpios", 0,
 				   &host->pwr_gpio, GPIOD_IS_OUT);
-	gpio_request_by_name_nodev(offset_to_ofnode(node), "cd-gpios", 0,
-				   &host->cd_gpio, GPIOD_IS_IN);
 
 	return 0;
 }
@@ -236,6 +226,7 @@ static int s5p_sdhci_bind(struct udevice *dev)
 
 static const struct udevice_id s5p_sdhci_ids[] = {
 	{ .compatible = "samsung,exynos4412-sdhci"},
+	{ .compatible = "samsung,exynos4210-sdhci"},
 	{ }
 };
 
