@@ -43,17 +43,19 @@ Legend:
   BL31 in terms of ARM boot flow
 * ``LDFW``: Loadable Firmware
 
-Build Procedure
+Unbricking Note
 ---------------
 
-.. warning::
-  At the moment USB is not enabled in U-Boot for this board. Although eMMC is
-  enabled, you won't be able to flash images over USB (fastboot). So flashing
-  U-Boot binary **WILL** effectively brick your board. The ``dltool`` [8]_ can
-  be used then to perform USB boot and flash LittleKernel bootloader binary [7]_
-  to unbrick and revive the board. Flashing U-Boot binary might be helpful for
-  developers or anybody who want to check current state of U-Boot enablement on
-  E850-96 (which is mostly serial console, eMMC and related blocks).
+In case the board is bricked for some reason, the ``dltool`` [8]_ can be used to
+unbrick and revive it. This tool performs USB boot, and uploads the LittleKernel
+bootloader over USB, which is then being executed on the board. The loaded
+bootloader further enters fastboot mode, so that the user can flash the
+functional bootloader binary (U-Boot or LittleKernel [7]_) to eMMC using
+``fastboot`` tool. Please read the ``dltool`` README file for more details about
+the procedure.
+
+Build Procedure
+---------------
 
 Build U-Boot binary from source code (using AArch64 baremetal GCC toolchain):
 
@@ -64,8 +66,9 @@ Build U-Boot binary from source code (using AArch64 baremetal GCC toolchain):
   make e850-96_defconfig
   make
 
-Boot E850-96 board into fastboot mode as described in board software doc [9]_,
-and flash U-Boot binary into ``bootloader`` eMMC partition:
+The original E850-96 board is shipped with LittleKernel-based bootloader flashed
+in eMMC. To replace it with U-Boot, boot into fastboot mode (as described in
+the board software documentation [9]_), and flash U-Boot binary:
 
 .. prompt:: bash $
 
@@ -73,6 +76,66 @@ and flash U-Boot binary into ``bootloader`` eMMC partition:
   fastboot reboot
 
 U-Boot will boot up to the shell.
+
+Flashing
+--------
+
+User area of eMMC contains GPT partition table (either Linux or Android). Boot
+Partition A (``mmc0boot0``) contains all firmware/bootloaders. Boot Partition
+B (``mmc0boot1``) contains U-Boot environment.
+
+First make sure to format eMMC accordingly. Prepare the initial environment:
+
+.. prompt:: bash =>
+
+  env default -f -a
+  env save
+
+For Linux, just format eMMC using default ``$partitions`` definitions:
+
+.. prompt:: bash =>
+
+  gpt write mmc 0 $partitions
+
+For Android, use ``$partitions_android`` instead:
+
+.. prompt:: bash =>
+
+  setenv partitions_linux $partitions
+  setenv partitions $partitions_android
+  env save
+  gpt write mmc 0 $partitions
+
+In case of Linux, there are two partitions available: ``esp`` (EFI System
+Partition) and ``rootfs``. It is recommended to use fastboot to flash images to
+those partitions. Enter fastboot mode on your device:
+
+.. prompt:: bash =>
+
+  fastboot usb 0
+
+And then flash the images:
+
+.. prompt:: bash $
+
+  fastboot flash esp esp.img
+  fastboot flash rootfs rootfs.img
+
+To update the firmware, it's easier to use DFU. Enter DFU mode on the board:
+
+.. prompt:: bash =>
+
+  dfu 0 mmc 0
+
+To update U-Boot:
+
+.. prompt:: bash $
+
+  dfu-util -D u-boot.bin -a bootloader
+
+It's also possible to use fastboot to flash the whole ``mmc0boot0`` HW
+partition, but it's not so straightforward, as one have to prepare the image for
+the whole ``boot0`` partition containing all firmware binaries first.
 
 References
 ----------

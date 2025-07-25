@@ -259,6 +259,15 @@ config MT76X8_USB_PHY
 
 	  This PHY is found on MT76x8 devices supporting USB.
 
+config PHY_EXYNOS_USBDRD
+	bool "Exynos SoC series USB DRD PHY driver"
+	depends on PHY && CLK
+	depends on ARCH_EXYNOS
+	select REGMAP
+	select SYSCON
+	help
+	  Enable USB DRD PHY support for Exynos SoC series.
+
 config PHY_MTK_TPHY
 	bool "MediaTek T-PHY Driver"
 	depends on PHY
