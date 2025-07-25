@@ -57,6 +57,8 @@ def test_fit_invalid_image_reference(ubman):
     assert result.returncode != 0, "mkimage should fail due to missing image reference"
     assert "references undefined image 'notexist'" in result.stderr
 
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.requiredtool('dtc')
 def test_fit_invalid_default_config(ubman):
     """Test that mkimage fails when default config is missing"""
 
