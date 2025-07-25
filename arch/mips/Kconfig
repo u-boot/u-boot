@@ -75,7 +75,6 @@ config ARCH_MTMIPS
 	select DM_SERIAL
 	select PINCTRL
 	select PINMUX
-	select PINCONF
 	select RESET_MTMIPS
 	imply MTD
 	imply DM_SPI

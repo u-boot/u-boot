@@ -84,6 +84,7 @@ config SOC_MT7621
 	select SYS_CACHE_SHIFT_5
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	select PINCTRL_MT7621
+	select PINCONF
 	select MTK_SERIAL
 	select REGMAP
 	select SYSCON
@@ -101,6 +102,7 @@ config SOC_MT7628
 	select MIPS_SRAM_INIT
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	select PINCTRL_MT7628
+	select PINCONF
 	select MTK_SERIAL
 	select SYSRESET
 	select SYSRESET_RESETCTL
