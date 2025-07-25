@@ -3083,7 +3083,10 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 		dev_err(dev, "%s resource type ids not available\n", of_prop);
 		return ERR_PTR(sets);
 	}
-	temp = malloc(sets);
+	temp = devm_kmalloc(dev, sets, GFP_KERNEL);
+	if (!temp)
+		return ERR_PTR(-ENOMEM);
+
 	sets /= sizeof(u32);
 	res->sets = sets;
 
@@ -3123,6 +3126,7 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 			return ERR_PTR(-ENOMEM);
 	}
 
+	devm_kfree(dev, temp);
 	if (valid_set)
 		return res;
 
