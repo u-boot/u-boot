@@ -116,26 +116,26 @@ static int intel_gpio_set_flags(struct udevice *dev, unsigned int offset,
 {
 	struct udevice *pinctrl = dev_get_parent(dev);
 	u32 bic0 = 0, bic1 = 0;
-	u32 or0, or1;
+	u32 or0 = 0, or1 = 0;
 	uint config_offset;
 
 	config_offset = intel_pinctrl_get_config_reg_offset(pinctrl, offset);
 
 	if (flags & GPIOD_IS_OUT) {
-		bic0 |= PAD_CFG0_MODE_MASK | PAD_CFG0_RX_STATE |
+		bic0 = PAD_CFG0_MODE_MASK | PAD_CFG0_RX_STATE |
 			PAD_CFG0_TX_DISABLE;
-		or0 |= PAD_CFG0_MODE_GPIO | PAD_CFG0_RX_DISABLE;
+		or0 = PAD_CFG0_MODE_GPIO | PAD_CFG0_RX_DISABLE;
 	} else if (flags & GPIOD_IS_IN) {
-		bic0 |= PAD_CFG0_MODE_MASK | PAD_CFG0_TX_STATE |
+		bic0 = PAD_CFG0_MODE_MASK | PAD_CFG0_TX_STATE |
 			PAD_CFG0_RX_DISABLE;
-		or0 |= PAD_CFG0_MODE_GPIO | PAD_CFG0_TX_DISABLE;
+		or0 = PAD_CFG0_MODE_GPIO | PAD_CFG0_TX_DISABLE;
 	}
 	if (flags & GPIOD_PULL_UP) {
-		bic1 |= PAD_CFG1_PULL_MASK;
-		or1 |= PAD_CFG1_PULL_UP_20K;
+		bic1 = PAD_CFG1_PULL_MASK;
+		or1 = PAD_CFG1_PULL_UP_20K;
 	} else if (flags & GPIOD_PULL_DOWN) {
-		bic1 |= PAD_CFG1_PULL_MASK;
-		or1 |= PAD_CFG1_PULL_DN_20K;
+		bic1 = PAD_CFG1_PULL_MASK;
+		or1 = PAD_CFG1_PULL_DN_20K;
 	}
 
 	pcr_clrsetbits32(pinctrl, PAD_CFG0_OFFSET(config_offset), bic0, or0);
