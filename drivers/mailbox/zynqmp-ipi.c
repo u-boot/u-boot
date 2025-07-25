@@ -241,7 +241,7 @@ static int zynqmp_ipi_probe(struct udevice *dev)
 	return 0;
 };
 
-struct mbox_ops zynqmp_ipi_dest_mbox_ops = {
+static const struct mbox_ops zynqmp_ipi_dest_mbox_ops = {
 	.send = zynqmp_ipi_send,
 	.recv = zynqmp_ipi_recv,
 };
