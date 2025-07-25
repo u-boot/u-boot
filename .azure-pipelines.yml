@@ -531,10 +531,11 @@ stages:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id tulip_qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-        sifive_unleashed_sdcard:
-          TEST_PY_BD: "sifive_unleashed"
-          TEST_PY_ID: "--id sdcard_qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
+# This is broken upsteam: https://gitlab.com/qemu-project/qemu/-/issues/2945
+#        sifive_unleashed_sdcard:
+#          TEST_PY_BD: "sifive_unleashed"
+#          TEST_PY_ID: "--id sdcard_qemu"
+#          TEST_PY_TEST_SPEC: "not sleep"
         sifive_unleashed_spi-nor:
           TEST_PY_BD: "sifive_unleashed"
           TEST_PY_ID: "--id spi-nor_qemu"
