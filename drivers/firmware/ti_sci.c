@@ -191,9 +191,9 @@ static int ti_sci_get_response(struct ti_sci_info *info,
 
 	/* Sanity check for message response */
 	if (hdr->seq != info->seq) {
-		dev_dbg(info->dev, "%s: Message for %d is not expected\n",
+		dev_err(info->dev, "%s: Message for %d is not expected\n",
 			__func__, hdr->seq);
-		return ret;
+		return -EINVAL;
 	}
 
 	if (msg->len > info->desc->max_msg_size) {
