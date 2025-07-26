@@ -54,17 +54,28 @@ static int socfpga_dwmci_clksel(struct dwmci_host *host)
 	u32 sdmmc_mask = ((priv->smplsel & 0x7) << SYSMGR_SDMMC_SMPLSEL_SHIFT) |
 			 ((priv->drvsel & 0x7) << SYSMGR_SDMMC_DRVSEL_SHIFT);
 
-	/* Get clock manager base address */
+	struct udevice *mmc_dev = host->mmc->dev;
+	struct ofnode_phandle_args clkmgr_args;
 	struct udevice *clkmgr_dev;
-	int ret = uclass_get_device_by_name(UCLASS_CLK, "clock-controller@ffd10000", &clkmgr_dev);
+	fdt_addr_t clkmgr_base;
+	int ret;
 
+	/*
+	 * Get the clkmgr device from the first phandle in the "clocks" property.
+	 */
+	ret = dev_read_phandle_with_args(mmc_dev, "clocks", "#clock-cells", 0, 0, &clkmgr_args);
+	if (ret) {
+		printf("Failed to parse clocks property: %d\n", ret);
+		return ret;
+	}
+
+	ret = uclass_get_device_by_ofnode(UCLASS_CLK, clkmgr_args.node, &clkmgr_dev);
 	if (ret) {
 		printf("Failed to get clkmgr device: %d\n", ret);
 		return ret;
 	}
 
-	fdt_addr_t clkmgr_base = dev_read_addr(clkmgr_dev);
-
+	clkmgr_base = dev_read_addr(clkmgr_dev);
 	if (clkmgr_base == FDT_ADDR_T_NONE) {
 		printf("Failed to read base address from clkmgr DT node\n");
 		return -EINVAL;
