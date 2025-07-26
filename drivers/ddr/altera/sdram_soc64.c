@@ -29,7 +29,10 @@
 
 #define PGTABLE_OFF	0x4000
 
-#if !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#define SINGLE_RANK_CLAMSHELL	0xc3c3
+#define DUAL_RANK_CLAMSHELL	0xa5a5
+
+#if !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5) && !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M)
 u32 hmc_readl(struct altera_sdram_plat *plat, u32 reg)
 {
 	return readl(plat->iomhc + reg);
@@ -258,8 +261,19 @@ phys_size_t sdram_calculate_size(struct altera_sdram_plat *plat)
 {
 	u32 dramaddrw = hmc_readl(plat, DRAMADDRW);
 
+	u32 reg_ctrlcfg6_value = hmc_readl(plat, CTRLCFG6);
+	u32 cs_rank = CTRLCFG6_CFG_CS_CHIP(reg_ctrlcfg6_value);
+	u32 cs_addr_width;
+
+	if (cs_rank == SINGLE_RANK_CLAMSHELL)
+		cs_addr_width = 0;
+	else if (cs_rank == DUAL_RANK_CLAMSHELL)
+		cs_addr_width = 1;
+	else
+		cs_addr_width = DRAMADDRW_CFG_CS_ADDR_WIDTH(dramaddrw);
+
 	phys_size_t size = (phys_size_t)1 <<
-			(DRAMADDRW_CFG_CS_ADDR_WIDTH(dramaddrw) +
+			(cs_addr_width +
 			 DRAMADDRW_CFG_BANK_GRP_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_BANK_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_ROW_ADDR_WIDTH(dramaddrw) +
@@ -398,7 +412,7 @@ static int altera_sdram_of_to_plat(struct udevice *dev)
 	/* These regs info are part of DDR handoff in bitstream */
 #if IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
 	return 0;
-#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5) || IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M)
 	addr = dev_read_addr_index(dev, 0);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
@@ -467,6 +481,7 @@ static const struct udevice_id altera_sdram_ids[] = {
 	{ .compatible = "intel,sdr-ctl-agilex" },
 	{ .compatible = "intel,sdr-ctl-n5x" },
 	{ .compatible = "intel,sdr-ctl-agilex5" },
+	{ .compatible = "intel,sdr-ctl-agilex7m" },
 	{ /* sentinel */ }
 };
 
