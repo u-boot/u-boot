@@ -349,9 +349,10 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 
 	/* TODO: allocate each queue chunk individually */
 	for (; num && vring_size(num, vring_align) > PAGE_SIZE; num /= 2) {
-		size_t sz = vring_size(num, vring_align);
+		vring.size = vring_size(num, vring_align);
 
-		queue = virtio_alloc_pages(vdev, DIV_ROUND_UP(sz, PAGE_SIZE));
+		queue = virtio_alloc_pages(vdev,
+					   DIV_ROUND_UP(vring.size, PAGE_SIZE));
 		if (queue)
 			break;
 	}
@@ -362,6 +363,7 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 	if (!queue) {
 		/* Try to get a single page. You are my only hope! */
 		queue = virtio_alloc_pages(vdev, 1);
+		vring.size = PAGE_SIZE;
 	}
 	if (!queue)
 		return NULL;
