@@ -168,6 +168,7 @@ static int read_bin_file(char *bin, uint8_t **data, off_t *bin_size)
 	if (size < bin_stat.st_size) {
 		fprintf(stderr, "read failed (%zx)\n", size);
 		ret = -1;
+		free(buf);
 		goto err;
 	}
 
