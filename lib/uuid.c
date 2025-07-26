@@ -94,7 +94,7 @@ static const struct {
 		"system", "EFI System Partition",
 		PARTITION_SYSTEM_GUID,
 	},
-#if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI)
+#if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI_CLIENT)
 	{
 		NULL, "Device Path",
 		PARTITION_SYSTEM_GUID,
@@ -281,7 +281,7 @@ static const struct {
 		EFI_CERT_TYPE_PKCS7_GUID,
 	},
 #endif
-#if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI)
+#if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI_CLIENT)
 	{ "EFI_LZMA_COMPRESSED", NULL, EFI_LZMA_COMPRESSED },
 	{ "EFI_DXE_SERVICES", NULL, EFI_DXE_SERVICES },
 	{ "EFI_HOB_LIST", NULL, EFI_HOB_LIST },

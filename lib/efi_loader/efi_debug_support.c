@@ -22,7 +22,7 @@ struct efi_debug_image_info_table_header efi_m_debug_info_table_header = {
  */
 static u32 efi_m_max_table_entries;
 
-#define EFI_DEBUG_TABLE_ENTRY_SIZE  (sizeof(union efi_debug_image_info *))
+#define EFI_DEBUG_TABLE_ENTRY_SIZE  (sizeof(union efi_debug_image_info))
 
 /**
  * efi_initialize_system_table_pointer() - Initialize system table pointer

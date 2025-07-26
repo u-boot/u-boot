@@ -45,15 +45,15 @@ First choose a board that has EFI support and obtain an EFI implementation
 for that board. It will be either 32-bit or 64-bit. Alternatively, you can
 opt for using QEMU [1] and the OVMF [2], as detailed below.
 
-To build U-Boot as an EFI application, enable CONFIG_EFI and CONFIG_EFI_APP.
-The efi-x86_app32 and efi-x86_app64 configs are set up for this. Just build
-U-Boot as normal, e.g.::
+To build U-Boot as an EFI application, enable CONFIG_EFI_CLIENT and
+CONFIG_EFI_APP. The efi-x86_app32 and efi-x86_app64 configs are set up for
+this. Just build U-Boot as normal, e.g.::
 
    make efi-x86_app32_defconfig
    make
 
 To build U-Boot as an EFI payload (32-bit or 64-bit EFI can be used), enable
-CONFIG_EFI, CONFIG_EFI_STUB, and select either CONFIG_EFI_STUB_32BIT or
+CONFIG_EFI_CLIENT, CONFIG_EFI_STUB, and select either CONFIG_EFI_STUB_32BIT or
 CONFIG_EFI_STUB_64BIT. The efi-x86_payload configs (efi-x86_payload32_defconfig
 and efi-x86_payload32_defconfig) are set up for this. Then build U-Boot as
 normal, e.g.::
@@ -113,7 +113,7 @@ implemented completely differently.
 EFI Application
 ~~~~~~~~~~~~~~~
 For the application the whole of U-Boot is built as a shared library. The
-efi_main() function is in lib/efi/efi_app.c. It sets up some basic EFI
+efi_main() function is in lib/efi_client/efi_app.c. It sets up some basic EFI
 functions with efi_init(), sets up U-Boot global_data, allocates memory for
 U-Boot's malloc(), etc. and enters the normal init sequence (board_init_f()
 and board_init_r()).
@@ -121,7 +121,7 @@ and board_init_r()).
 Since U-Boot limits its memory access to the allocated regions very little
 special code is needed. The CONFIG_EFI_APP option controls a few things
 that need to change so 'git grep CONFIG_EFI_APP' may be instructive.
-The CONFIG_EFI option controls more general EFI adjustments.
+The CONFIG_EFI_CLIENT option controls more general EFI adjustments.
 
 The only available driver is the serial driver. This calls back into EFI
 'boot services' to send and receive characters. Although it is implemented
@@ -149,7 +149,7 @@ image (including device tree) into a small EFI stub application responsible
 for booting it. The stub application is built as a normal EFI application
 except that it has a lot of data attached to it.
 
-The stub application is implemented in lib/efi/efi_stub.c. The efi_main()
+The stub application is implemented in lib/efi_client/efi_stub.c. The efi_main()
 function is called by EFI. It is responsible for copying U-Boot from its
 original location into memory, disabling EFI boot services and starting
 U-Boot. U-Boot then starts as normal, relocates, starts all drivers, etc.
@@ -192,7 +192,7 @@ careful to build the correct one so that your UEFI firmware can start it. Most
 UEFI images are 64-bit at present.
 
 The payload stub can be build as either 32- or 64-bits. Only a small amount
-of code is built this way (see the extra- line in lib/efi/Makefile).
+of code is built this way (see the extra- line in lib/efi_client/Makefile).
 Everything else is built as a normal U-Boot, so is always 32-bit on x86 at
 present.
 
@@ -353,7 +353,7 @@ This work could be extended in a number of ways:
 
 Where is the code?
 ------------------
-lib/efi
+lib/efi_client
 	payload stub, application, support code. Mostly arch-neutral
 
 arch/x86/cpu/efi

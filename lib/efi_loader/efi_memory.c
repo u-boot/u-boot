@@ -714,6 +714,8 @@ efi_status_t efi_realloc(void **ptr, size_t size)
 		sizeof(struct efi_pool_allocation);
 
 	new_ptr = efi_alloc(size);
+	if (!new_ptr)
+		return EFI_OUT_OF_RESOURCES;
 
 	/* copy old data to new alloced buffer */
 	memcpy(new_ptr, *ptr, min(size, old_size));

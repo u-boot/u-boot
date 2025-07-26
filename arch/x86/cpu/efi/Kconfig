@@ -1,4 +1,4 @@
-if EFI
+if EFI_CLIENT
 
 config SYS_CAR_ADDR
 	hex

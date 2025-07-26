@@ -90,6 +90,15 @@ Set the variables corresponding to this platform:
    export OPTEE_PLATFORM=k3-j784s4
    export OPTEE_EXTRA_ARGS="CFG_CONSOLE_UART=0x8"
 
+.. note::
+
+   For AM69-SK, use the following U_BOOT_CFG instead:
+
+   .. prompt:: bash
+
+      export UBOOT_CFG_CORTEXR=am69_sk_r5_defconfig
+      export UBOOT_CFG_CORTEXA=am69_sk_a72_defconfig
+
 .. j784s4_evm_rst_include_start_build_steps
 
 1. Trusted Firmware-A
