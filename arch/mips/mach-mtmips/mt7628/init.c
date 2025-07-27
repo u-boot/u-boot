@@ -110,3 +110,11 @@ ulong notrace get_tbclk(void)
 {
 	return gd->arch.timer_freq;
 }
+
+void _machine_restart(void)
+{
+	void __iomem *sysc = ioremap_nocache(SYSCTL_BASE, SYSCTL_SIZE);
+
+	while (1)
+		writel(SYS_RST, sysc + SYSCTL_RSTCTL_REG);
+}

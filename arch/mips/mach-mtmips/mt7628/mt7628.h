@@ -49,6 +49,7 @@
 
 #define SYSCTL_RSTCTL_REG		0x34
 #define MC_RST				0x400
+#define SYS_RST				0x01
 
 #define SYSCTL_AGPIO_CFG_REG		0x3c
 #define EPHY_GPIO_AIO_EN_S		17
