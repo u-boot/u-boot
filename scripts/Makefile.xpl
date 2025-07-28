@@ -390,7 +390,6 @@ $(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
 endif
 
 $(obj)/u-boot-spl.ldr: $(obj)/u-boot-spl
-	$(CREATE_LDR_ENV)
 	$(LDR) -T $(CONFIG_LDR_CPU) -c $@ $< $(LDR_FLAGS)
 	$(BOARD_SIZE_CHECK)
 
