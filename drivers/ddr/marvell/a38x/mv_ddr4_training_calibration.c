@@ -64,7 +64,7 @@ static u8 center_high_element_get(u8 dir, u8 pbs_element, u16 lambda, u8 pbs_max
 static int mv_ddr4_centralization(u8 dev_num, u16 (*lambda)[MAX_BUS_NUM][BUS_WIDTH_IN_BITS], u8 (*copt)[MAX_BUS_NUM],
 				  u8 (*pbs_result)[MAX_BUS_NUM][BUS_WIDTH_IN_BITS], u8 (*vw_size)[MAX_BUS_NUM],
 				  u8 mode, u16 param0, u8 param1);
-static int mv_ddr4_dqs_reposition(u8 dir, u16 *lambda, u8 *pbs_result, char delta, u8 *copt, u8 *dqs_pbs);
+static int mv_ddr4_dqs_reposition(u8 dir, u16 *lambda, u8 *pbs_result, s8 delta, u8 *copt, u8 *dqs_pbs);
 static int mv_ddr4_copt_get(u8 dir, u16 *lambda, u8 *vw_l, u8 *vw_h, u8 *pbs_result, u8 *copt);
 static int mv_ddr4_center_of_mass_calc(u8 dev_num, u8 if_id, u8 subphy_num, u8 mode, u8 *vw_l, u8 *vw_h, u8 *vw_v,
 				       u8 vw_num, u8 *v_opt, u8 *t_opt);
@@ -659,7 +659,7 @@ static int mv_ddr4_centralization(u8 dev_num, u16 (*lambda)[MAX_BUS_NUM][BUS_WID
 	} /* if_id */
 
 	/* restore cs enable value*/
-	for (if_id = 0; if_id < MAX_INTERFACE_NUM - 1; if_id++) {
+	for (if_id = 0; if_id < MAX_INTERFACE_NUM; if_id++) {
 		VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 		status = ddr3_tip_if_write(dev_num, ACCESS_TYPE_UNICAST, if_id, DUAL_DUNIT_CFG_REG,
 					   cs_ena_reg_val[if_id], MASK_ALL_BITS);
@@ -895,7 +895,7 @@ static int mv_ddr4_copt_get(u8 dir, u16 *lambda, u8 *vw_l, u8 *vw_h, u8 *pbs_res
  * It provides with a solution for a single subphy (8 bits).
  * The calling function is responsible for any additional pbs taps for dqs
  */
-static int mv_ddr4_dqs_reposition(u8 dir, u16 *lambda, u8 *pbs_result, char delta, u8 *copt, u8 *dqs_pbs)
+static int mv_ddr4_dqs_reposition(u8 dir, u16 *lambda, u8 *pbs_result, s8 delta, u8 *copt, u8 *dqs_pbs)
 {
 	u8 dq_idx;
 	u32 pbs_max_val = 0;
@@ -952,7 +952,8 @@ static int mv_ddr4_center_of_mass_calc(u8 dev_num, u8 if_id, u8 subphy_num, u8 m
 	int t_opt_temp = 0, v_opt_temp = 0;
 	int vw_avg = 0, v_avg = 0;
 	int s0 = 0, s1 = 0, s2 = 0, slope = 1, r_sq = 0;
-	u32 d_min = 10000, reg_val = 0;
+	u32 reg_val = 0;
+	int d_min = 10000;
 	int status;
 
 	/*
@@ -2189,7 +2190,7 @@ int mv_ddr4_dm_tuning(u32 cs, u16 (*pbs_tap_factor)[MAX_BUS_NUM][BUS_WIDTH_IN_BI
 				for (dq = 0; dq < BUS_WIDTH_IN_BITS; dq++) {
 					idx = dq + subphy * BUS_WIDTH_IN_BITS;
 					reg_val = new_dq_pbs[dq] - dq_pbs_diff;
-					if (reg_val < 0) {
+					if (new_dq_pbs[dq] < dq_pbs_diff) {
 						DEBUG_DM_TUNING(DEBUG_LEVEL_ERROR,
 								("unexpected negative value found\n"));
 						return MV_FAIL;
@@ -2267,7 +2268,7 @@ int mv_ddr4_dm_tuning(u32 cs, u16 (*pbs_tap_factor)[MAX_BUS_NUM][BUS_WIDTH_IN_BI
 						idx = dq + subphy * BUS_WIDTH_IN_BITS;
 						pad = dq_map_table[idx];
 						reg_val = new_dq_pbs[dq] - dq_pbs_diff;
-						if (reg_val < 0) {
+						if (new_dq_pbs[dq] < dq_pbs_diff) {
 							DEBUG_DM_TUNING(DEBUG_LEVEL_ERROR,
 									("unexpected negative value found\n"));
 							return MV_FAIL;
