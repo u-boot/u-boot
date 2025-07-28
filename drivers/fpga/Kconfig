@@ -34,12 +34,6 @@ config FPGA_STRATIX_V
 	help
 	  Say Y here to enable the Altera Stratix V FPGA specific driver.
 
-config FPGA_ACEX1K
-	bool "Enable Altera ACEX 1K driver"
-	depends on FPGA_ALTERA
-	help
-	  Say Y here to enable the Altera ACEX 1K FPGA specific driver.
-
 config FPGA_CYCLON2
 	bool "Enable Altera FPGA driver for Cyclone II"
 	depends on FPGA_ALTERA
