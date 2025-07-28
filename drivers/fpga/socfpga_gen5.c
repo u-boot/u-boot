@@ -119,27 +119,14 @@ static int fpgamgr_program_poll_cd(void)
 {
 	const uint32_t mask = FPGAMGRREGS_MON_GPIO_EXT_PORTA_NS_MASK |
 			      FPGAMGRREGS_MON_GPIO_EXT_PORTA_CD_MASK;
-	unsigned long reg, i;
+	unsigned long reg;
 
-	/* (3) wait until full config done */
-	for (i = 0; i < FPGA_TIMEOUT_CNT; i++) {
-		reg = readl(&fpgamgr_regs->gpio_ext_porta);
+	reg = readl(&fpgamgr_regs->gpio_ext_porta);
 
-		/* Config error */
-		if (!(reg & mask)) {
-			printf("FPGA: Configuration error.\n");
-			return -3;
-		}
-
-		/* Config done without error */
-		if (reg & mask)
-			break;
-	}
-
-	/* Timeout happened, return error */
-	if (i == FPGA_TIMEOUT_CNT) {
-		printf("FPGA: Timeout waiting for program.\n");
-		return -4;
+	/* Config error */
+	if (!(reg & mask)) {
+		printf("FPGA: Configuration error.\n");
+		return -3;
 	}
 
 	/* Disable AXI configuration */
