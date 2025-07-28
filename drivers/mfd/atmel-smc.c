@@ -347,7 +347,7 @@ const struct atmel_hsmc_reg_layout *
 atmel_hsmc_get_reg_layout(ofnode np)
 {
 	int i;
-	const struct udevice_id *match;
+	const struct udevice_id *match = NULL;
 	const char *name;
 	int len;
 
