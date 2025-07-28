@@ -228,13 +228,11 @@ static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			blocks = max_blks;
 			scsi_setup_read_ext(pccb, start, blocks);
 			start += max_blks;
-			blks -= max_blks;
 		} else {
 			pccb->datalen = block_dev->blksz * blks;
 			blocks = blks;
 			scsi_setup_read_ext(pccb, start, blocks);
 			start += blks;
-			blks = 0;
 		}
 		debug("scsi_read_ext: startblk " LBAF
 		      ", blccnt " LBAF " buffer %lX\n",
@@ -244,6 +242,7 @@ static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			blkcnt -= blks;
 			break;
 		}
+		blks -= blocks;
 		buf_addr += pccb->datalen;
 	} while (blks != 0);
 	debug("scsi_read_ext: end startblk " LBAF
@@ -286,13 +285,11 @@ static ulong scsi_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			blocks = max_blks;
 			scsi_setup_write_ext(pccb, start, blocks);
 			start += max_blks;
-			blks -= max_blks;
 		} else {
 			pccb->datalen = block_dev->blksz * blks;
 			blocks = blks;
 			scsi_setup_write_ext(pccb, start, blocks);
 			start += blks;
-			blks = 0;
 		}
 		debug("%s: startblk " LBAF ", blccnt " LBAF " buffer %lx\n",
 		      __func__, start, blocks, buf_addr);
@@ -301,6 +298,7 @@ static ulong scsi_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			blkcnt -= blks;
 			break;
 		}
+		blks -= blocks;
 		buf_addr += pccb->datalen;
 	} while (blks != 0);
 
@@ -322,7 +320,7 @@ static ulong scsi_erase(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt)
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 	struct udevice *bdev = dev->parent;
 	struct scsi_plat *uc_plat = dev_get_uclass_plat(bdev);
-	lbaint_t start, blks, max_blks;
+	lbaint_t start, blks, max_blks, blocks;
 	struct scsi_cmd *pccb = (struct scsi_cmd *)&tempccb;
 
 	/* Setup device */
@@ -339,19 +337,20 @@ static ulong scsi_erase(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt)
 	      __func__, block_dev->devnum, start, blks);
 	do {
 		if (blks > max_blks) {
+			blocks = max_blks;
 			scsi_setup_erase_ext(pccb, start, max_blks);
 			start += max_blks;
-			blks -= max_blks;
 		} else {
+			blocks = blks;
 			scsi_setup_erase_ext(pccb, start, blks);
 			start += blks;
-			blks = 0;
 		}
 		if (scsi_exec(bdev, pccb)) {
 			scsi_print_error(pccb);
 			blkcnt -= blks;
 			break;
 		}
+		blks -= blocks;
 	} while (blks != 0);
 	return blkcnt;
 }
