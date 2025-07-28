@@ -129,4 +129,18 @@ config CLK_SUN50I_A100
 	  This enables common clock driver support for platforms based
 	  on Allwinner A100/A133 SoCs.
 
+config CLK_SUN55I_A523
+	bool "Clock driver for Allwinner A523/T527"
+	default MACH_SUN55I_A523
+	help
+	  This enables common clock driver support for platforms based
+	  on Allwinner A523/T527 SoC.
+
+config CLK_SUN55I_A523_R
+	bool "Clock driver for Allwinner A523 generation PRCM"
+	default MACH_SUN55I_A523
+	help
+	  This enables common clock driver support for the PRCM
+	  in Allwinner A523/T527 SoCs.
+
 endif # CLK_SUNXI

@@ -41,10 +41,11 @@ ENTRY(return_to_fel)
 	str	w2, [x1]
 
 	ldr	w0, =0xfa50392f		// CPU hotplug magic
-#if defined(CONFIG_MACH_SUN50I_H616) || defined(CONFIG_MACH_SUN50I_A133)
+#if defined(CONFIG_MACH_SUN50I_H616) || defined(CONFIG_MACH_SUN50I_A133) || \
+    defined(CONFIG_MACH_SUN55I_A523)
 	ldr	w2, =(SUNXI_R_CPUCFG_BASE + 0x1c0)
 	str	w0, [x2], #0x4
-#elif CONFIG_MACH_SUN50I_H6
+#elif defined(CONFIG_MACH_SUN50I_H6)
 	ldr	w2, =(SUNXI_RTC_BASE + 0x1b8)	// BOOT_CPU_HP_FLAG_REG
 	str	w0, [x2], #0x4
 #else

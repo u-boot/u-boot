@@ -78,19 +78,19 @@ static void mctl_clk_init(u32 clk)
 	clrbits_le32(ccm + CCU_H6_MBUS_CFG, MBUS_RESET);
 	clrbits_le32(ccm + CCU_H6_DRAM_GATE_RESET, BIT(GATE_SHIFT));
 	clrbits_le32(ccm + CCU_H6_DRAM_GATE_RESET, BIT(RESET_SHIFT));
-	clrbits_le32(ccm + CCU_H6_PLL5_CFG, CCM_PLL5_CTRL_EN);
+	clrbits_le32(ccm + CCU_H6_PLL5_CFG, CCM_PLL_CTRL_EN);
 	clrbits_le32(ccm + CCU_H6_DRAM_CLK_CFG, DRAM_MOD_RESET);
 	udelay(5);
 
 	/* Set up PLL5 clock, used for DRAM */
 	clrsetbits_le32(ccm + CCU_H6_PLL5_CFG, 0xff03,
-			CCM_PLL5_CTRL_N((clk * 2) / 24) | CCM_PLL5_CTRL_EN);
+			CCM_PLL5_CTRL_N((clk * 2) / 24) | CCM_PLL_CTRL_EN);
 	setbits_le32(ccm + CCU_H6_PLL5_CFG, BIT(24));
 	clrsetbits_le32(ccm + CCU_H6_PLL5_CFG, 0x3,
-			CCM_PLL5_LOCK_EN | CCM_PLL5_CTRL_EN | BIT(30));
-	clrbits_le32(ccm + CCU_H6_PLL5_CFG, 0x3 | BIT(30));
+			CCM_PLL_LOCK_EN | CCM_PLL_CTRL_EN | CCM_PLL_LDO_EN);
+	clrbits_le32(ccm + CCU_H6_PLL5_CFG, 0x3 | CCM_PLL_LDO_EN);
 	mctl_await_completion(ccm + CCU_H6_PLL5_CFG,
-			      CCM_PLL5_LOCK, CCM_PLL5_LOCK);
+			      CCM_PLL_LOCK, CCM_PLL_LOCK);
 
 	/* Enable DRAM clock and gate*/
 	clrbits_le32(ccm + CCU_H6_DRAM_CLK_CFG, BIT(24) | BIT(25));

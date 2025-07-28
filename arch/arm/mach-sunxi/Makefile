@@ -47,4 +47,6 @@ obj-$(CONFIG_DRAM_SUN50I_H616)	+= dram_sun50i_h616.o dram_dw_helpers.o
 obj-$(CONFIG_DRAM_SUN50I_H616)	+= dram_timings/
 obj-$(CONFIG_DRAM_SUN50I_A133)	+= dram_sun50i_a133.o
 obj-$(CONFIG_DRAM_SUN50I_A133)	+= dram_timings/
+obj-$(CONFIG_MACH_SUN55I_A523)	+= dram_sun55i_a523.o
+obj-$(CONFIG_DRAM_SUN55I_A523)	+= dram_timings/
 endif
