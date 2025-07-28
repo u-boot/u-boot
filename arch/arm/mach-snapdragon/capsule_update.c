@@ -3,7 +3,7 @@
  * Capsule update support for Qualcomm boards.
  *
  * Copyright (c) 2024 Linaro Ltd.
- * Author: Caleb Connolly <caleb.connolly@linaro.org>
+ * Author: Casey Connolly <casey.connolly@linaro.org>
  */
 
 #define pr_fmt(fmt) "QCOM-FMP: " fmt

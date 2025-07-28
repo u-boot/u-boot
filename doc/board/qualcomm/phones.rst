@@ -1,5 +1,5 @@
 .. SPDX-License-Identifier: GPL-2.0+
-.. sectionauthor:: Caleb Connolly <caleb.connolly@linaro.org>
+.. sectionauthor:: Casey Connolly <casey.connolly@linaro.org>
 
 ======================================
 Booting U-Boot on Qualcomm smartphones

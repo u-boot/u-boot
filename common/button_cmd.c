@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2023 Linaro Ltd.
- *   Author: Caleb Connolly <caleb.connolly@linaro.org>
+ *   Author: Casey Connolly <casey.connolly@linaro.org>
  */
 
 #include <button.h>
