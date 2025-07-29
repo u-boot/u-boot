@@ -206,10 +206,9 @@ static u32 mci_data_read(atmel_mci_t *mci, u32* data, u32 error_flags)
 			goto io_fail;
 	} while (!(status & MMCI_BIT(RXRDY)));
 
-	if (status & MMCI_BIT(RXRDY)) {
-		*data = readl(&mci->rdr);
-		status = 0;
-	}
+	*data = readl(&mci->rdr);
+	status = 0;
+
 io_fail:
 	return status;
 }
@@ -225,10 +224,9 @@ static u32 mci_data_write(atmel_mci_t *mci, u32* data, u32 error_flags)
 			goto io_fail;
 	} while (!(status & MMCI_BIT(TXRDY)));
 
-	if (status & MMCI_BIT(TXRDY)) {
-		writel(*data, &mci->tdr);
-		status = 0;
-	}
+	writel(*data, &mci->tdr);
+	status = 0;
+
 io_fail:
 	return status;
 }
