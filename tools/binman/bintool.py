@@ -55,6 +55,9 @@ class Bintool:
     # must be called before this class is used.
     tooldir = ''
 
+    # Flag to run 'apt-get update -y' once on first use of apt_install()
+    apt_updated = False
+
     def __init__(self, name, desc, version_regex=None, version_args='-V'):
         self.name = name
         self.desc = desc
@@ -421,7 +424,12 @@ class Bintool:
         Returns:
             True, assuming it completes without error
         """
-        args = ['sudo', 'apt', 'install', '-y', package]
+        if not cls.apt_updated:
+            args = ['sudo', 'apt-get', 'update', '-y']
+            print('- %s' % ' '.join(args))
+            tools.run(*args)
+            cls.apt_updated = True
+        args = ['sudo', 'apt-get', 'install', '-y', package]
         print('- %s' % ' '.join(args))
         tools.run(*args)
         return True
