@@ -351,6 +351,8 @@ config MTK_SPIM
 
 config MVEBU_A3700_SPI
 	bool "Marvell Armada 3700 SPI driver"
+	depends on ARCH_MVEBU && ARM64
+	select CLK_MVEBU
 	select CLK_ARMADA_3720
 	help
 	  Enable the Marvell Armada 3700 SPI driver. This driver can be

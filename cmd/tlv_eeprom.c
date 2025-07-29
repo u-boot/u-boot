@@ -41,7 +41,7 @@ static int set_date(char *buf, const char *string);
 static int set_bytes(char *buf, const char *string, int *converted_accum);
 static void show_tlv_devices(int current_dev);
 
-/* The EERPOM contents after being read into memory */
+/* The EEPROM contents after being read into memory */
 static u8 eeprom[TLV_INFO_MAX_LEN];
 
 static struct udevice *tlv_devices[MAX_TLV_DEVICES];
@@ -430,7 +430,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	static int has_been_read;
 	int ret;
 
-	// If no arguments, read the EERPOM and display its contents
+	// If no arguments, read the EEPROM and display its contents
 	if (argc == 1) {
 		if (!has_been_read) {
 			ret = read_eeprom(current_dev, eeprom);
@@ -560,7 +560,7 @@ U_BOOT_CMD(tlv_eeprom, 4, 1,  do_tlv_eeprom,
 /**
  *  tlvinfo_find_tlv
  *
- *  This function finds the TLV with the supplied code in the EERPOM.
+ *  This function finds the TLV with the supplied code in the EEPROM.
  *  An offset from the beginning of the EEPROM is returned in the
  *  eeprom_index parameter if the TLV is found.
  */
@@ -631,7 +631,7 @@ static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
 	char data[MAX_TLV_VALUE_LEN];
 	int eeprom_index;
 
-	// Encode each TLV type into the format to be stored in the EERPOM
+	// Encode each TLV type into the format to be stored in the EEPROM
 	switch (tcode) {
 	case TLV_CODE_PRODUCT_NAME:
 	case TLV_CODE_PART_NUMBER:
@@ -691,7 +691,7 @@ static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval)
 	// Is there room for this TLV?
 	if ((be16_to_cpu(eeprom_hdr->totallen) + ENT_SIZE + new_tlv_len) >
 			TLV_TOTAL_LEN_MAX) {
-		printf("ERROR: There is not enough room in the EERPOM to save data.\n");
+		printf("ERROR: There is not enough room in the EEPROM to save data.\n");
 		return false;
 	}
 
@@ -1033,10 +1033,8 @@ int mac_read_from_eeprom(void)
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
 	int devnum = 0; // TODO: support multiple EEPROMs
 
-	puts("EEPROM: ");
-
 	if (read_eeprom(devnum, eeprom)) {
-		printf("Read failed.\n");
+		log_err("EEPROM: read failed\n");
 		return -1;
 	}
 
@@ -1082,8 +1080,8 @@ int mac_read_from_eeprom(void)
 		}
 	}
 
-	printf("%s v%u len=%u\n", eeprom_hdr->signature, eeprom_hdr->version,
-	       be16_to_cpu(eeprom_hdr->totallen));
+	log_debug("EEPROM: %s v%u len=%u\n", eeprom_hdr->signature, eeprom_hdr->version,
+		  be16_to_cpu(eeprom_hdr->totallen));
 
 	return 0;
 }
