@@ -10,6 +10,7 @@ obj-$(CONFIG_SAMA5D2)	+= sama5d2_devices.o clock.o
 obj-$(CONFIG_SAMA5D3)	+= sama5d3_devices.o clock.o
 obj-$(CONFIG_SAMA5D4)	+= sama5d4_devices.o clock.o
 obj-$(CONFIG_SAMA7G5)	+= sama7g5_devices.o
+obj-$(CONFIG_SAMA7D65)	+= sama7d65_devices.o
 obj-y += cpu.o
 ifneq ($(CONFIG_ATMEL_TCB_TIMER),y)
 ifneq ($(CONFIG_ATMEL_PIT_TIMER),y)

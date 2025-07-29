@@ -37,7 +37,7 @@
 
 #define PMC_MCR_ID(x)		((x) & PMC_MCR_ID_MSK)
 
-#define MASTER_MAX_ID		4
+#define MASTER_MAX_ID		10
 
 struct clk_master {
 	void __iomem *base;

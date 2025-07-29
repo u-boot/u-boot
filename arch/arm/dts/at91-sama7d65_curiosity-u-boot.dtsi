@@ -1,0 +1,80 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ *  at91-sama7d65_curiosity-u-boot.dtsi - Device Tree Include file for
+ *  SAMA7D65 CURIOSITY.
+ *
+ *  Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries
+ *
+ *  Author: Ryan Wanner <ryan.wanner@microchip.com>
+ */
+
+/{
+	aliases {
+		serial0 = &uart6;
+	};
+
+	chosen {
+		bootph-all;
+	};
+
+	clocks {
+		slow_rc_osc: slow_rc_osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <32000>;
+		};
+	};
+
+	cpus {
+		cpu@0 {
+			clocks = <&pmc PMC_TYPE_CORE 8>, <&pmc PMC_TYPE_CORE 26>, <&main_xtal>;
+			clock-names = "cpu", "master", "xtal";
+		};
+	};
+
+	soc {
+		bootph-all;
+	};
+};
+
+&clk32k {
+	clocks = <&slow_rc_osc>, <&slow_xtal>;
+};
+
+&main_xtal {
+	bootph-all;
+};
+
+&pioa {
+	bootph-all;
+};
+
+&pinctrl_uart6_default {
+	bootph-all;
+};
+
+&pit64b0 {
+	bootph-all;
+};
+
+&pmc {
+	bootph-all;
+};
+
+&sdmmc1 {
+	assigned-clock-parents = <&pmc PMC_TYPE_CORE 27>; /* MCK1 div */
+	microchip,sdcal-inverted;
+	no-1-8-v;
+};
+
+&slow_rc_osc {
+	bootph-all;
+};
+
+&slow_xtal {
+	bootph-all;
+};
+
+&uart6 {
+	bootph-all;
+};

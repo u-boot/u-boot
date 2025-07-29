@@ -27,6 +27,8 @@
 # include <asm/arch/sam9x7.h>
 #elif defined(CONFIG_SAMA7G5)
 # include <asm/arch/sama7g5.h>
+#elif defined(CONFIG_SAMA7D65)
+# include <asm/arch/sama7d65.h>
 #elif defined(CONFIG_SAMA5D2)
 # include <asm/arch/sama5d2.h>
 #elif defined(CONFIG_SAMA5D3)
