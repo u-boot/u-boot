@@ -66,7 +66,7 @@ void x86emuOp2_illegal_op(
     END_OF_INSTR();
 }
 
-#define xorl(a,b)   ((a) && !(b)) || (!(a) && (b))
+#define xorl(a, b)   (((a) && !(b)) || (!(a) && (b)))
 
 /****************************************************************************
 REMARKS:
