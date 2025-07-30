@@ -21,11 +21,13 @@
 #define IWDG_PR		0x04	/* Prescaler Register */
 #define IWDG_RLR	0x08	/* ReLoad Register */
 #define IWDG_SR		0x0C	/* Status Register */
+#define IWDG_VERR	0x3F4	/* Version Register */
 
 /* IWDG_KR register bit mask */
 #define KR_KEY_RELOAD	0xAAAA	/* Reload counter enable */
 #define KR_KEY_ENABLE	0xCCCC	/* Peripheral enable */
 #define KR_KEY_EWA	0x5555	/* Write access enable */
+#define KR_KEY_DWA	0x0000	/* Write access disable*/
 
 /* IWDG_PR register bit values */
 #define PR_256		0x06	/* Prescaler set to 256 */
@@ -36,10 +38,17 @@
 /* IWDG_SR register bit values */
 #define SR_PVU		BIT(0)	/* Watchdog prescaler value update */
 #define SR_RVU		BIT(1)	/* Watchdog counter reload value update */
+#define SR_ONF		BIT(8)	/* Watchdog enable status bit */
+
+/* IWDG Compatibility */
+#define ONF_MIN_VER	0x31
+
+#define TIMEOUT_US	10000
 
 struct stm32mp_wdt_priv {
 	fdt_addr_t base;		/* registers addr in physical memory */
 	unsigned long wdt_clk_rate;	/* Watchdog dedicated clock rate */
+	unsigned int hw_version;	/* Peripheral version */
 };
 
 static int stm32mp_wdt_reset(struct udevice *dev)
@@ -90,6 +99,7 @@ static int stm32mp_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 static int stm32mp_wdt_probe(struct udevice *dev)
 {
 	struct stm32mp_wdt_priv *priv = dev_get_priv(dev);
+	u32 rlr, sr;
 	struct clk clk;
 	int ret;
 
@@ -114,6 +124,29 @@ static int stm32mp_wdt_probe(struct udevice *dev)
 		return ret;
 
 	priv->wdt_clk_rate = clk_get_rate(&clk);
+
+	priv->hw_version = readl(priv->base + IWDG_VERR);
+
+	if (priv->hw_version >= ONF_MIN_VER) {
+		if (readl(priv->base + IWDG_SR) & SR_ONF)
+			wdt_set_force_autostart(dev);
+	} else {
+		/*
+		 * Workaround for old versions without IWDG_SR_ONF bit:
+		 * - write in IWDG_RLR_OFFSET
+		 * - wait for sync
+		 * - if sync succeeds, then iwdg is running
+		 */
+		writel(KR_KEY_EWA, priv->base + IWDG_KR);
+		rlr = readl(priv->base + IWDG_RLR);
+		writel(rlr, priv->base + IWDG_RLR);
+		ret = readl_poll_timeout(priv->base + IWDG_SR, sr, sr & SR_RVU,
+					 TIMEOUT_US);
+		if (!ret)
+			wdt_set_force_autostart(dev);
+
+		writel(KR_KEY_DWA, priv->base + IWDG_KR);
+	}
 
 	dev_dbg(dev, "IWDG init done\n");
 

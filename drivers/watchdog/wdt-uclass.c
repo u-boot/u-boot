@@ -46,6 +46,15 @@ struct wdt_priv {
 	struct cyclic_info cyclic;
 };
 
+int wdt_set_force_autostart(struct udevice *dev)
+{
+	struct wdt_priv *priv = dev_get_uclass_priv(dev);
+
+	priv->autostart = true;
+
+	return 0;
+}
+
 static void wdt_cyclic(struct cyclic_info *c)
 {
 	struct wdt_priv *priv = container_of(c, struct wdt_priv, cyclic);
