@@ -10,6 +10,7 @@
 #include <asm/gpio.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <dm/uclass-internal.h>
 #include <i2c.h>
 #include <linux/delay.h>
 #include <power/regulator.h>
@@ -19,14 +20,18 @@
 #define USB5744_CONFIG_REG_ACCESS	0x0037
 #define USB5744_CONFIG_REG_ACCESS_LSB	0x99
 
+#define MAX_SUPPLIES 2
+
 struct onboard_hub {
-	struct udevice *vdd;
+	struct udevice *vdd[MAX_SUPPLIES];
 	struct gpio_desc *reset_gpio;
 };
 
 struct onboard_hub_data {
 	unsigned long reset_us;
 	unsigned long power_on_delay_us;
+	unsigned int num_supplies;
+	const char * const supply_names[MAX_SUPPLIES];
 	int (*init)(struct udevice *dev);
 };
 
@@ -138,30 +143,59 @@ int usb_onboard_hub_reset(struct udevice *dev)
 	return 0;
 }
 
+static int usb_onboard_hub_power_off(struct udevice *dev)
+{
+	struct onboard_hub_data *data =
+		(struct onboard_hub_data *)dev_get_driver_data(dev);
+	struct onboard_hub *hub = dev_get_priv(dev);
+	int ret = 0, ret2;
+	unsigned int i;
+
+	for (i = data->num_supplies; i > 0; i--) {
+		if (hub->vdd[i-1]) {
+			ret2 = regulator_set_enable_if_allowed(hub->vdd[i-1], false);
+			if (ret2 && ret2 != -ENOSYS) {
+				dev_err(dev, "can't disable %s: %d\n", data->supply_names[i-1], ret2);
+				ret |= ret2;
+			}
+		}
+	}
+
+	return ret;
+}
+
 static int usb_onboard_hub_probe(struct udevice *dev)
 {
 	struct onboard_hub_data *data =
 		(struct onboard_hub_data *)dev_get_driver_data(dev);
 	struct onboard_hub *hub = dev_get_priv(dev);
+	unsigned int i;
 	int ret;
 
-	ret = device_get_supply_regulator(dev, "vdd-supply", &hub->vdd);
-	if (ret && ret != -ENOENT && ret != -ENOSYS) {
-		dev_err(dev, "can't get vdd-supply: %d\n", ret);
-		return ret;
+	if (data->num_supplies > MAX_SUPPLIES) {
+		dev_err(dev, "invalid supplies number, max supported: %d\n", MAX_SUPPLIES);
+		return -EINVAL;
 	}
 
-	if (hub->vdd) {
-		ret = regulator_set_enable_if_allowed(hub->vdd, true);
-		if (ret && ret != -ENOSYS) {
-			dev_err(dev, "can't enable vdd-supply: %d\n", ret);
-			return ret;
+	for (i = 0; i < data->num_supplies; i++) {
+		ret = device_get_supply_regulator(dev, data->supply_names[i], &hub->vdd[i]);
+		if (ret && ret != -ENOENT && ret != -ENOSYS) {
+			dev_err(dev, "can't get %s: %d\n", data->supply_names[i], ret);
+			goto err_supply;
+		}
+
+		if (hub->vdd[i]) {
+			ret = regulator_set_enable_if_allowed(hub->vdd[i], true);
+			if (ret && ret != -ENOSYS) {
+				dev_err(dev, "can't enable %s: %d\n", data->supply_names[i], ret);
+				goto err_supply;
+			}
 		}
 	}
 
 	ret = usb_onboard_hub_reset(dev);
 	if (ret)
-		return ret;
+		goto err_supply;
 
 	if (data->init) {
 		ret = data->init(dev);
@@ -173,14 +207,16 @@ static int usb_onboard_hub_probe(struct udevice *dev)
 	return 0;
 err:
 	dm_gpio_set_value(hub->reset_gpio, 0);
+err_supply:
+	usb_onboard_hub_power_off(dev);
 	return ret;
 }
 
 static int usb_onboard_hub_bind(struct udevice *dev)
 {
 	struct ofnode_phandle_args phandle;
-	const void *fdt = gd->fdt_blob;
-	int ret, off;
+	struct udevice *peerdev;
+	int ret;
 
 	ret = dev_read_phandle_with_args(dev, "peer-hub", NULL, 0, 0, &phandle);
 	if (ret == -ENOENT) {
@@ -193,10 +229,14 @@ static int usb_onboard_hub_bind(struct udevice *dev)
 		return ret;
 	}
 
-	off = ofnode_to_offset(phandle.node);
-	ret = fdt_node_check_compatible(fdt, off, "usb424,5744");
-	if (!ret)
+	ret = uclass_find_device_by_ofnode(UCLASS_USB_HUB, phandle.node, &peerdev);
+	if (ret) {
+		dev_dbg(dev, "binding before peer-hub %s\n",
+			ofnode_get_name(phandle.node));
 		return 0;
+	}
+
+	dev_dbg(dev, "peer-hub %s has been bound\n", peerdev->name);
 
 	return -ENODEV;
 }
@@ -206,27 +246,36 @@ static int usb_onboard_hub_remove(struct udevice *dev)
 	struct onboard_hub *hub = dev_get_priv(dev);
 	int ret = 0;
 
-	if (hub->reset_gpio)
-		dm_gpio_free(hub->reset_gpio->dev, hub->reset_gpio);
-
-	if (hub->vdd) {
-		ret = regulator_set_enable_if_allowed(hub->vdd, false);
+	if (hub->reset_gpio) {
+		ret = dm_gpio_set_value(hub->reset_gpio, 1);
 		if (ret)
-			dev_err(dev, "can't disable vdd-supply: %d\n", ret);
+			dev_err(dev, "can't set gpio %s: %d\n", hub->reset_gpio->dev->name,
+				ret);
 	}
 
+	ret |= usb_onboard_hub_power_off(dev);
 	return ret;
 }
 
 static const struct onboard_hub_data usb2514_data = {
 	.power_on_delay_us = 500,
 	.reset_us = 1,
+	.num_supplies = 1,
+	.supply_names = { "vdd-supply" },
 };
 
 static const struct onboard_hub_data usb5744_data = {
 	.init = usb5744_i2c_init,
 	.power_on_delay_us = 1000,
 	.reset_us = 5,
+	.num_supplies = 1,
+	.supply_names = { "vdd-supply" },
+};
+
+static const struct onboard_hub_data usbhx3_data = {
+	.reset_us = 10000,
+	.num_supplies = 2,
+	.supply_names = { "vdd-supply", "vdd2-supply" },
 };
 
 static const struct udevice_id usb_onboard_hub_ids[] = {
@@ -239,7 +288,14 @@ static const struct udevice_id usb_onboard_hub_ids[] = {
 	}, {
 		.compatible = "usb424,5744",	/* USB5744 USB 3.0 */
 		.data = (ulong)&usb5744_data,
-	}
+	}, {
+		.compatible = "usb4b4,6504",	/* Cypress HX3 USB 3.0 */
+		.data = (ulong)&usbhx3_data,
+	}, {
+		.compatible = "usb4b4,6506",	/* Cypress HX3 USB 2.0 */
+		.data = (ulong)&usbhx3_data,
+	},
+	{ /* sentinel */ }
 };
 
 U_BOOT_DRIVER(usb_onboard_hub) = {
