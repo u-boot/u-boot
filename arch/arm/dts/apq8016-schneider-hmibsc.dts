@@ -463,7 +463,7 @@
 	drive-strength = <16>;
 };
 
-&blsp_uart1_default {
+&blsp_uart1_console_default {
 	bootph-all;
 };
 

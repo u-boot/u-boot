@@ -15,6 +15,6 @@
  * because SBL de-initialises them. Indicate that the UART pins should be configured
  * during all boot stages.
  */
-&blsp_uart2_default {
+&blsp_uart2_console_default {
 	bootph-all;
 };
