@@ -10,6 +10,11 @@
 	model = "Generic RK3528";
 	compatible = "rockchip,rk3528";
 
+	aliases {
+		mmc0 = &sdhci;
+		serial0 = &uart0;
+	};
+
 	chosen {
 		stdout-path = "serial0:1500000n8";
 	};
