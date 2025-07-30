@@ -1535,6 +1535,7 @@ static ulong rk3528_clk_set_rate(struct clk *clk, ulong rate)
 	/* Might occur in cru assigned-clocks, can be ignored here */
 	case ACLK_BUS_VOPGL_ROOT:
 	case BCLK_EMMC:
+	case CLK_REF_PCIE_INNER_PHY:
 	case XIN_OSC0_DIV:
 		ret = 0;
 		break;
