@@ -41,6 +41,7 @@ Get DDR init (TPL) binary
    cd rkbin
    export ROCKCHIP_TPL=$(readlink -f bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v*.bin | head -1)
    sed -i 's/^uart baudrate=.*$/uart baudrate=115200/' tools/ddrbin_param.txt
+   sed -i 's/^uart iomux=.*$/uart iomux=0/' tools/ddrbin_param.txt
    python3 ./tools/ddrbin_tool.py rk3588 tools/ddrbin_param.txt "$ROCKCHIP_TPL"
    ./tools/boot_merger RKBOOT/RK3588MINIALL.ini
    export RKDB=$(readlink -f rk3588_spl_loader_v*.bin | head -1)
