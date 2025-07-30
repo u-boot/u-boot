@@ -552,7 +552,7 @@ config BOARD_SIZE_LIMIT
 	  Maximum size of the U-Boot image. When defined, the build system
 	  checks that the actual size does not exceed it.  This does not
 	  include SPL nor TPL, on platforms that use that functionality, they
-	  have a separate option to restict size.
+	  have separate options to restrict size.
 
 config SYS_CUSTOM_LDSCRIPT
 	bool "Use a custom location for the U-Boot linker script"
