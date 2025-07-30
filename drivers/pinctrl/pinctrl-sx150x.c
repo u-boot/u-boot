@@ -3,8 +3,12 @@
  * Copyright (C) 2024, Exfo Inc - All Rights Reserved
  *
  * Author: Anis CHALI <anis.chali@exfo.com>
- * inspired and adapted from linux driver of sx150x written by Gregory Bean
- * <gbean@codeaurora.org>
+ *
+ * Inspired and adapted from the Linux pinctrl-sx150x driver:
+ * Copyright (c) 2016, BayLibre, SAS. All rights reserved.
+ * Author: Neil Armstrong <narmstrong@baylibre.com>
+ * Copyright (c) 2010, Code Aurora Forum. All rights reserved.
+ * Author: Gregory Bean <gbean@codeaurora.org>
  */
 
 #include <dm.h>
