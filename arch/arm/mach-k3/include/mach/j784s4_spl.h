@@ -44,4 +44,6 @@
 #define K3_PRIMARY_BOOTMODE		0x0
 #define K3_BACKUP_BOOTMODE		0x1
 
+#define BOOT_DEVICE_CPGMAC              0x04
+
 #endif
