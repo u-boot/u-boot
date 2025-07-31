@@ -5,7 +5,7 @@
  */
 
 #include <dm.h>
-#include <stm32-reset-core.h>
+#include "stm32-reset-core.h"
 
 /* Timeout for deassert */
 #define STM32_DEASSERT_TIMEOUT_US	10000
@@ -19,7 +19,7 @@ static const struct stm32_reset_cfg *stm32_get_reset_line(struct reset_ctl *rese
 
 	ptr_line->offset = bank;
 	ptr_line->bit_idx = offset;
-	ptr_line->set_clr = true;
+	ptr_line->set_clr = false;
 
 	return ptr_line;
 }

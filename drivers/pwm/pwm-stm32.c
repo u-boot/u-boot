@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <asm/arch/timers.h>
 #include <dm/device_compat.h>
+#include <linux/bitfield.h>
 #include <linux/time.h>
 
 #define CCMR_CHANNEL_SHIFT	8
@@ -157,7 +158,14 @@ static void stm32_pwm_detect_complementary(struct udevice *dev)
 {
 	struct stm32_timers_plat *plat = dev_get_plat(dev_get_parent(dev));
 	struct stm32_pwm_priv *priv = dev_get_priv(dev);
-	u32 ccer;
+	u32 ccer, val;
+
+	if (plat->ipidr) {
+		/* Simply read from HWCFGR the number of complementary outputs (MP25). */
+		val = readl(plat->base + TIM_HWCFGR1);
+		priv->have_complementary_output = !!FIELD_GET(TIM_HWCFGR1_NB_OF_DT, val);
+		return;
+	}
 
 	/*
 	 * If complementary bit doesn't exist writing 1 will have no
@@ -192,6 +200,7 @@ static const struct pwm_ops stm32_pwm_ops = {
 
 static const struct udevice_id stm32_pwm_ids[] = {
 	{ .compatible = "st,stm32-pwm" },
+	{ .compatible = "st,stm32mp25-pwm" },
 	{ }
 };
 

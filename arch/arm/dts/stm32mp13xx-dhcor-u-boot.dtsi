@@ -3,7 +3,9 @@
  * Copyright (C) 2024 Marek Vasut <marex@denx.de>
  */
 
+#include <dt-bindings/clock/stm32mp13-clksrc.h>
 #include "stm32mp13-u-boot.dtsi"
+#include "stm32mp13-ddr3-dhsom-1x2Gb-1066-binG.dtsi"
 
 / {
 	aliases {
@@ -18,8 +20,12 @@
 	};
 };
 
+&etzpc {
+	compatible = "simple-bus";
+};
+
 &flash0 {
-	bootph-pre-ram;
+	bootph-all;
 
 	partitions {
 		compatible = "fixed-partitions";
@@ -48,10 +54,162 @@
 	};
 };
 
+&i2c3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c3_pins_a>;
+};
+
+&qspi {
+	bootph-all;
+};
+
+&qspi_clk_pins_a {
+	bootph-all;
+	pins {
+		bootph-all;
+	};
+};
+
+&qspi_bk1_pins_a {
+	bootph-all;
+	pins {
+		bootph-all;
+	};
+};
+
+&qspi_cs1_pins_a {
+	bootph-all;
+	pins {
+		bootph-all;
+	};
+};
+
+&pinctrl {
+	bootph-all;
+	i2c3_pins_a: i2c3-0 {
+		bootph-all;
+		pins {
+			bootph-all;
+			pinmux = <STM32_PINMUX('B', 8, AF5)>, /* I2C3_SCL */
+				 <STM32_PINMUX('H', 14, AF4)>; /* I2C3_SDA */
+			bias-disable;
+			drive-open-drain;
+			slew-rate = <0>;
+		};
+	};
+};
+
+#if !defined(CONFIG_TFABOOT)
+&rcc {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	clocks = <&clk_hse>, <&clk_hsi>, <&clk_csi>, <&clk_lse>, <&clk_lsi>;
+
+	st,clksrc = <
+		CLK_MPU_PLL1P
+		CLK_AXI_PLL2P
+		CLK_MLAHBS_PLL3
+		CLK_PLL12_HSE
+		CLK_PLL3_HSE
+		CLK_PLL4_HSE
+		CLK_CKPER_HSE
+		CLK_RTC_LSE
+		CLK_MCO1_LSI
+		CLK_MCO2_HSI
+	>;
+
+	st,clkdiv = <
+		0 /*AXI*/
+		0 /*MLHAB*/
+		1 /*APB1*/
+		1 /*APB2*/
+		1 /*APB3*/
+		1 /*APB4*/
+		2 /*APB5*/
+		1 /*APB6*/
+		0 /*RTC*/
+	>;
+
+	st,pkcs = <
+		CLK_I2C12_HSI
+		CLK_I2C3_HSI
+		CLK_QSPI_PLL3R
+		CLK_SAES_AXI
+		CLK_SDMMC1_PLL3R
+		CLK_SDMMC2_PLL3R
+		CLK_STGEN_HSE
+		CLK_UART2_HSI
+		CLK_UART4_HSI
+		CLK_USBO_USBPHY
+		CLK_USBPHY_HSE
+	>;
+
+	/*
+	 * cfg = < DIVM1 DIVN P Q R PQR(p,q,r) >;
+	 * frac = < f >;
+	 *
+	 * PRQ(p,q,r) ... for p,q,r: 0-output disabled / 1-output enabled
+	 * DIVN ... actually multiplier, but RCC_PLL1CFGR1 calls the field DIVN
+	 * m ... for PLL1,2: m=2 ; for PLL3,4: m=1
+	 * XTAL = 24 MHz
+	 *
+	 * VCO = ( XTAL / (DIVM1 + 1) ) * m * ( DIVN + 1 + ( f / 8192 ) )
+	 *   P = VCO / (P + 1)
+	 *   Q = VCO / (Q + 1)
+	 *   R = VCO / (R + 1)
+	 */
+
+	/* VCO = 1066.0 MHz => P = 266 (AXI), Q = 266, R = 533 (DDR) */
+	pll2: st,pll@1 {
+		compatible = "st,stm32mp1-pll";
+		reg = <1>;
+		cfg = < 2 65 1 1 0 PQR(1,1,1) >;
+		frac = < 0x1400 >;
+		bootph-all;
+	};
+
+	/* VCO = 600 MHz => P = 200, Q = 150, R = 200 */
+	pll3: st,pll@2 {
+		compatible = "st,stm32mp1-pll";
+		reg = <2>;
+		cfg = < 2 74 2 3 2 PQR(1,1,1) >;
+		bootph-all;
+	};
+
+	/* VCO = 750.0 MHz => P = 125, Q = 83, R = 75 */
+	pll4: st,pll@3 {
+		compatible = "st,stm32mp1-pll";
+		reg = <3>;
+		cfg = < 3 124 5 8 9 PQR(1,1,1) >;
+		bootph-all;
+	};
+};
+#endif
+
 &sdmmc1 {
 	status = "disabled";
 };
 
 &usbotg_hs {
 	u-boot,force-b-session-valid;
+};
+
+&vddcpu {
+	bootph-all;
+};
+
+&vdd_ddr {
+	bootph-all;
+};
+
+&vdd {
+	bootph-all;
+};
+
+&vddcore {
+	bootph-all;
+};
+
+&vref_ddr {
+	bootph-all;
 };

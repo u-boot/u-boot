@@ -549,8 +549,8 @@ static u32 stm32_get_PLL1_rate(struct stm32_rcc_regs *regs,
 	divr1 = readl(&regs->pll1divr) & RCC_PLL1DIVR_DIVR1_MASK;
 	divr1 = (divr1 >> RCC_PLL1DIVR_DIVR1_SHIFT) + 1;
 
-	fracn1 = readl(&regs->pll1fracr) & RCC_PLL1DIVR_DIVR1_MASK;
-	fracn1 = fracn1 & RCC_PLL1DIVR_DIVR1_SHIFT;
+	fracn1 = readl(&regs->pll1fracr) & RCC_PLL1FRACR_FRACN1_MASK;
+	fracn1 = (fracn1 >> RCC_PLL1FRACR_FRACN1_SHIFT) + 1;
 
 	vco = (pllsrc / divm1) * divn1;
 	rate = (pllsrc * fracn1) / (divm1 * 8192);

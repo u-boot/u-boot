@@ -28,7 +28,9 @@
  * early TLB into the .data section so that it not get cleared
  * with 16kB allignment (see TTBR0_BASE_ADDR_MASK)
  */
+#if (!IS_ENABLED(CONFIG_XPL_BUILD) || !IS_ENABLED(CONFIG_STM32MP13X))
 u8 early_tlb[PGTABLE_SIZE] __section(".data") __aligned(0x4000);
+#endif
 
 u32 get_bootmode(void)
 {
@@ -95,18 +97,19 @@ void dram_bank_mmu_setup(int bank)
  */
 static void early_enable_caches(void)
 {
+#if (!IS_ENABLED(CONFIG_XPL_BUILD) || !IS_ENABLED(CONFIG_STM32MP13X))
 	/* I-cache is already enabled in start.S: cpu_init_cp15 */
-
 	if (CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 		return;
 
 #if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
-		gd->arch.tlb_size = PGTABLE_SIZE;
-		gd->arch.tlb_addr = (unsigned long)&early_tlb;
+	gd->arch.tlb_size = PGTABLE_SIZE;
+	gd->arch.tlb_addr = (unsigned long)&early_tlb;
 #endif
 
 	/* enable MMU (default configuration) */
 	dcache_enable();
+#endif
 }
 
 /*

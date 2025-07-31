@@ -20,10 +20,11 @@ config TARGET_ST_STM32MP13X
 endchoice
 
 config TEXT_BASE
-	default 0xC0000000
+	default 0xC0000000 if TFABOOT
+	default 0xC0100000 if !TFABOOT
 
 config PRE_CON_BUF_ADDR
-	default 0xC0800000
+	default 0xC2FFF000
 
 config PRE_CON_BUF_SZ
 	default 4096

@@ -16,7 +16,7 @@ config RESET_STM32MP1
 
 config RESET_STM32MP25
 	bool "Enable the STM32MP25 reset"
-	depends on STM32MP25X
+	depends on STM32MP23X || STM32MP25X
 	default y
 	help
 	  Support for reset controllers on STMicroelectronics STM32MP2 family SoCs.

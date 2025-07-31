@@ -29,7 +29,7 @@
  *
  * Currently valid part Names are (PART):
  * M_NAND - Micron NAND
- * STNOR - STMicrolelctronics M29W128GL
+ * STNOR - STMicroelectronics M29W128GL
  */
 #define GPMC_SIZE_256M		0x0
 #define GPMC_SIZE_128M		0x8

@@ -156,6 +156,8 @@ enum forced_boot_mode {
 #endif
 
 #ifdef CONFIG_STM32MP13X
+#define TAMP_BACKUP_MAGIC_NUMBER	TAMP_BACKUP_REGISTER(4)
+#define TAMP_BACKUP_BRANCH_ADDRESS	TAMP_BACKUP_REGISTER(5)
 #define TAMP_BOOTCOUNT			TAMP_BACKUP_REGISTER(31)
 #define TAMP_BOOT_CONTEXT		TAMP_BACKUP_REGISTER(30)
 #endif
@@ -163,7 +165,7 @@ enum forced_boot_mode {
 #endif /* __ASSEMBLY__ */
 #endif /* CONFIG_STM32MP15X || CONFIG_STM32MP13X */
 
-#ifdef CONFIG_STM32MP25X
+#if defined(CONFIG_STM32MP23X) || defined(CONFIG_STM32MP25X)
 #define STM32_USART2_BASE		0x400E0000
 #define STM32_USART3_BASE		0x400F0000
 #define STM32_UART4_BASE		0x40100000
@@ -188,7 +190,7 @@ enum forced_boot_mode {
 
 /* TAMP registers zone 3 RIF 1 (RW) at 96*/
 #define TAMP_BOOT_CONTEXT		TAMP_BACKUP_REGISTER(96)
-#endif /* STM32MP25X */
+#endif /* defined(CONFIG_STM32MP23X) || defined(CONFIG_STM32MP25X) */
 
 /* offset used for BSEC driver: misc_read and misc_write */
 #define STM32_BSEC_SHADOW_OFFSET	0x0
@@ -212,14 +214,14 @@ enum forced_boot_mode {
 #define BSEC_OTP_MAC	57
 #define BSEC_OTP_BOARD	60
 #endif
-#ifdef CONFIG_STM32MP25X
+#if defined(CONFIG_STM32MP23X) || defined(CONFIG_STM32MP25X)
 #define BSEC_OTP_SERIAL	5
 #define BSEC_OTP_RPN	9
 #define BSEC_OTP_REVID	102
 #define BSEC_OTP_PKG	122
 #define BSEC_OTP_BOARD	246
 #define BSEC_OTP_MAC	247
-#endif
+#endif /* defined(CONFIG_STM32MP23X) || defined(CONFIG_STM32MP25X) */
 
 #ifndef __ASSEMBLY__
 #include <asm/types.h>

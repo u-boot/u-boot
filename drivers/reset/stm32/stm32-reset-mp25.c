@@ -5,7 +5,7 @@
  */
 
 #include <dm.h>
-#include <stm32-reset-core.h>
+#include "stm32-reset-core.h"
 #include <stm32mp25_rcc.h>
 #include <dt-bindings/reset/st,stm32mp25-rcc.h>
 

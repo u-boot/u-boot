@@ -6,7 +6,7 @@
 
 #include <dm.h>
 #include <reset-uclass.h>
-#include <stm32-reset-core.h>
+#include "stm32-reset-core.h"
 #include <stm32_rcc.h>
 #include <dm/device_compat.h>
 #include <linux/iopoll.h>
