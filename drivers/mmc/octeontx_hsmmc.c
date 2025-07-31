@@ -1545,7 +1545,7 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	slot->is_acmd = (cmd->cmdidx == MMC_CMD_APP_CMD);
 
-	if (!cmd->resp_type & MMC_RSP_PRESENT)
+	if (!(cmd->resp_type & MMC_RSP_PRESENT))
 		debug("  Response type: 0x%x, no response expected\n",
 		      cmd->resp_type);
 	/* Get the response if present */
