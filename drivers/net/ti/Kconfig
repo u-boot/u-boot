@@ -46,6 +46,7 @@ config TI_AM65_CPSW_NUSS
 	imply MISC
 	imply SYSCON
 	imply MDIO_TI_CPSW
+	imply SPL_SYSCON
 	select PHYLIB
 	help
 	  This driver supports TI K3 MCU CPSW Nuss Ethernet controller
