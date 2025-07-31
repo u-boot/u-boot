@@ -135,19 +135,19 @@ static void owl_mmc_prepare_data(struct owl_mmc_priv *priv,
 
 	setbits_le32(priv->reg_base + OWL_REG_SD_EN, OWL_SD_EN_BSEL);
 
-	writel(data->blocks, priv->reg_base + OWL_REG_SD_BLK_NUM);
-	writel(data->blocksize, priv->reg_base + OWL_REG_SD_BLK_SIZE);
-	total = data->blocksize * data->blocks;
-
-	if (total < 512)
-		writel(total, priv->reg_base + OWL_REG_SD_BUF_SIZE);
-	else
-		writel(512, priv->reg_base + OWL_REG_SD_BUF_SIZE);
-
 	/* DMA STOP */
 	writel(0x0, SD_DMA_CHANNEL(priv->dma_channel, 0) + DMA_START);
 
 	if (data) {
+		writel(data->blocks, priv->reg_base + OWL_REG_SD_BLK_NUM);
+		writel(data->blocksize, priv->reg_base + OWL_REG_SD_BLK_SIZE);
+		total = data->blocksize * data->blocks;
+
+		if (total < 512)
+			writel(total, priv->reg_base + OWL_REG_SD_BUF_SIZE);
+		else
+			writel(512, priv->reg_base + OWL_REG_SD_BUF_SIZE);
+
 		if (data->flags == MMC_DATA_READ) {
 			buf = (ulong) (data->dest);
 			owl_dma_config(priv, (ulong) priv->reg_base +
