@@ -5,7 +5,7 @@
  * This file is auto generated. Please do not hand edit and report any issues
  * to Dave Gerlach <d-gerlach@ti.com>.
  *
- * Copyright (C) 2020-2021 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2020-2025 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <linux/clk-provider.h>
@@ -53,6 +53,32 @@ static const char * const mcu_ospi_ref_clk_sel_out0_parents[] = {
 static const char * const mcu_ospi_ref_clk_sel_out1_parents[] = {
 	"hsdiv4_16fft_mcu_1_hsdivout4_clk",
 	"hsdiv4_16fft_mcu_2_hsdivout4_clk",
+};
+
+static const char * const wkup_gpio0_clksel_out0_parents[] = {
+	"k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk",
+	"k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk",
+	"j7am_wakeup_16ff_wkup_0_wkup_rcosc_32k_clk",
+	"j7am_wakeup_16ff_wkup_0_wkup_rcosc_12p5m_clk",
+};
+
+static const char * const cpsw2g_cpts_rclk_sel_out0_parents[] = {
+	"hsdiv4_16fft_main_3_hsdivout1_clk",
+	"postdiv3_16fft_main_0_hsdivout6_clk",
+	"board_0_mcu_cpts0_rft_clk_out",
+	"board_0_cpts0_rft_clk_out",
+	"board_0_mcu_ext_refclk0_out",
+	"board_0_ext_refclk1_out",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	"hsdiv4_16fft_mcu_2_hsdivout1_clk",
+	"k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk",
 };
 
 static const char * const mcu_usart_clksel_out0_parents[] = {
@@ -174,7 +200,11 @@ static const struct clk_data clk_list[] = {
 	CLK_FIXED_RATE("board_0_hfosc1_clk_out", 0, 0),
 	CLK_FIXED_RATE("board_0_mcu_ospi0_dqs_out", 0, 0),
 	CLK_FIXED_RATE("board_0_mcu_ospi1_dqs_out", 0, 0),
+	CLK_FIXED_RATE("board_0_mcu_rgmii1_rxc_out", 0, 0),
+	CLK_FIXED_RATE("board_0_mcu_rmii1_ref_clk_out", 0, 0),
 	CLK_FIXED_RATE("board_0_wkup_i2c0_scl_out", 0, 0),
+	CLK_FIXED_RATE("cpsw_2guss_mcu_0_mdio_mdclk_o", 0, 0),
+	CLK_FIXED_RATE("cpsw_2guss_mcu_0_rgmii1_txc_o", 0, 0),
 	CLK_FIXED_RATE("fss_mcu_0_hyperbus1p0_0_hpb_out_clk_n", 0, 0),
 	CLK_FIXED_RATE("fss_mcu_0_hyperbus1p0_0_hpb_out_clk_p", 0, 0),
 	CLK_FIXED_RATE("fss_mcu_0_ospi_0_ospi_oclk_clk", 0, 0),
@@ -199,6 +229,8 @@ static const struct clk_data clk_list[] = {
 	CLK_DIV("k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk", "k3_pll_ctrl_wrap_wkup_0_sysclkout_clk", 0x42010118, 0, 5, 0, 0),
 	CLK_MUX("mcu_ospi_ref_clk_sel_out0", mcu_ospi_ref_clk_sel_out0_parents, 2, 0x40f08030, 0, 1, 0),
 	CLK_MUX("mcu_ospi_ref_clk_sel_out1", mcu_ospi_ref_clk_sel_out1_parents, 2, 0x40f08034, 0, 1, 0),
+	CLK_MUX("wkup_gpio0_clksel_out0", wkup_gpio0_clksel_out0_parents, 4, 0x43008070, 0, 2, 0),
+	CLK_MUX("cpsw2g_cpts_rclk_sel_out0", cpsw2g_cpts_rclk_sel_out0_parents, 16, 0x40f08050, 8, 4, 0),
 	CLK_MUX("mcu_usart_clksel_out0", mcu_usart_clksel_out0_parents, 2, 0x40f081c0, 0, 1, 0),
 	CLK_MUX("wkup_i2c_mcupll_bypass_out0", wkup_i2c_mcupll_bypass_out0_parents, 2, 0x43008060, 0, 1, 0),
 	CLK_MUX("main_pll_hfosc_sel_out0", main_pll_hfosc_sel_out0_parents, 2, 0x43008080, 0, 1, 0),
@@ -275,6 +307,24 @@ static const struct dev_clk soc_dev_clk_data[] = {
 	DEV_CLK(4, 0, "hsdiv0_16fft_main_8_hsdivout0_clk"),
 	DEV_CLK(4, 1, "hsdiv0_16fft_main_7_hsdivout0_clk"),
 	DEV_CLK(4, 2, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
+	DEV_CLK(29, 3, "cpsw2g_cpts_rclk_sel_out0"),
+	DEV_CLK(29, 4, "hsdiv4_16fft_main_3_hsdivout1_clk"),
+	DEV_CLK(29, 5, "postdiv3_16fft_main_0_hsdivout6_clk"),
+	DEV_CLK(29, 6, "board_0_mcu_cpts0_rft_clk_out"),
+	DEV_CLK(29, 7, "board_0_cpts0_rft_clk_out"),
+	DEV_CLK(29, 8, "board_0_mcu_ext_refclk0_out"),
+	DEV_CLK(29, 9, "board_0_ext_refclk1_out"),
+	DEV_CLK(29, 18, "hsdiv4_16fft_mcu_2_hsdivout1_clk"),
+	DEV_CLK(29, 19, "k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk"),
+	DEV_CLK(29, 20, "hsdiv4_16fft_mcu_2_hsdivout0_clk"),
+	DEV_CLK(29, 21, "hsdiv4_16fft_mcu_2_hsdivout0_clk"),
+	DEV_CLK(29, 22, "board_0_mcu_rgmii1_rxc_out"),
+	DEV_CLK(29, 26, "board_0_mcu_rmii1_ref_clk_out"),
+	DEV_CLK(29, 28, "k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk"),
+	DEV_CLK(29, 29, "hsdiv4_16fft_mcu_2_hsdivout0_clk"),
+	DEV_CLK(29, 30, "hsdiv4_16fft_mcu_2_hsdivout0_clk"),
+	DEV_CLK(29, 32, "hsdiv4_16fft_mcu_2_hsdivout0_clk"),
+	DEV_CLK(29, 33, "hsdiv4_16fft_mcu_2_hsdivout0_clk"),
 	DEV_CLK(43, 0, "postdiv3_16fft_main_0_hsdivout8_clk"),
 	DEV_CLK(43, 1, "hsdiv4_16fft_main_0_hsdivout3_clk"),
 	DEV_CLK(43, 2, "gluelogic_hfosc0_clkout"),
@@ -367,6 +417,7 @@ static const struct dev_clk soc_dev_clk_data[] = {
 	DEV_CLK(157, 187, "fss_mcu_0_ospi_1_ospi_oclk_clk"),
 	DEV_CLK(157, 194, "emmcsd4ss_main_0_emmcsdss_io_clk_o"),
 	DEV_CLK(157, 197, "j7am_ddr_ew_wrap_dv_wrap_main_0_ddrss_io_ck_n"),
+	DEV_CLK(157, 207, "cpsw_2guss_mcu_0_mdio_mdclk_o"),
 	DEV_CLK(157, 208, "j7am_ddr_ew_wrap_dv_wrap_main_1_ddrss_io_ck_n"),
 	DEV_CLK(157, 214, "fss_mcu_0_hyperbus1p0_0_hpb_out_clk_p"),
 	DEV_CLK(157, 221, "mcu_clkout_mux_out0"),
@@ -374,6 +425,7 @@ static const struct dev_clk soc_dev_clk_data[] = {
 	DEV_CLK(157, 223, "hsdiv4_16fft_mcu_2_hsdivout0_clk"),
 	DEV_CLK(157, 225, "emmc8ss_16ffc_main_0_emmcss_io_clk"),
 	DEV_CLK(157, 231, "fss_mcu_0_hyperbus1p0_0_hpb_out_clk_n"),
+	DEV_CLK(157, 244, "cpsw_2guss_mcu_0_rgmii1_txc_o"),
 	DEV_CLK(157, 352, "dpi0_ext_clksel_out0"),
 	DEV_CLK(180, 0, "gluelogic_hfosc0_clkout"),
 	DEV_CLK(180, 2, "k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk"),
@@ -400,7 +452,7 @@ static const struct dev_clk soc_dev_clk_data[] = {
 
 const struct ti_k3_clk_platdata j721s2_clk_platdata = {
 	.clk_list = clk_list,
-	.clk_list_cnt = 105,
+	.clk_list_cnt = ARRAY_SIZE(clk_list),
 	.soc_dev_clk_data = soc_dev_clk_data,
-	.soc_dev_clk_data_cnt = 124,
+	.soc_dev_clk_data_cnt = ARRAY_SIZE(soc_dev_clk_data),
 };
