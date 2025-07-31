@@ -2828,9 +2828,6 @@ static void octeontx_mmc_io_drive_setup(struct mmc *mmc)
 		struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 		union mio_emm_io_ctl io_ctl;
 
-		if (slot->drive < 0 || slot->slew < 0)
-			return;
-
 		io_ctl.u = 0;
 		io_ctl.s.drive = slot->drive;
 		io_ctl.s.slew = slot->slew;
