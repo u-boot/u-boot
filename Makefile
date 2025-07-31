@@ -2131,6 +2131,11 @@ $(filter-out tools, $(u-boot-dirs)): tools
 # is "yes"), so compile examples after U-Boot is compiled.
 examples: $(filter-out examples, $(u-boot-dirs))
 
+ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
+# lib/efi_loader apps depend on arch/$(ARCH)/lib for lib.a
+lib: $(filter arch/$(ARCH)/lib, $(u-boot-dirs))
+endif
+
 # The setlocalversion script comes from linux and expects a
 # KERNELVERSION variable in the environment for figuring out which
 # annotated tags are relevant. Pass UBOOTVERSION.
