@@ -3,19 +3,39 @@
  * U-Boot additions
  *
  * Copyright (C) 2019-2020 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
+#include "socfpga_soc64_u-boot.dtsi"
 #include "socfpga_soc64_fit-u-boot.dtsi"
 
 /{
-	memory {
+	aliases {
+		spi0 = &qspi;
+		i2c0 = &i2c1;
+		sysmgr = &sysmgr;
+		freeze_br0 = &freeze_controller;
+	};
+
+	memory@0 {
+		device_type = "memory";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		bootph-all;
 	};
 
-	soc {
+	pmu {
+		compatible = "arm,armv8-pmuv3";
+	};
+
+	soc@0 {
 		bootph-all;
+
+		freeze_controller: freeze_controller@f9000450 {
+			compatible = "altr,freeze-bridge-controller";
+			reg = <0xf9000450 0x00000010>;
+			status = "disabled";
+		};
 
 		ccu: cache-controller@f7000000 {
 			compatible = "arteris,ncore-ccu";
@@ -29,11 +49,39 @@
 	bootph-all;
 };
 
+&gmac0 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	clocks = <&clkmgr AGILEX_EMAC0_CLK>;
+	clock-names = "stmmaceth";
+	phy-mode = "rgmii";
+	max-frame-size = <0x2328>;
+	status = "okay";
+
+	mdio0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "snps,dwmac-mdio";
+	};
+};
+
 &gmac1 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
+	clocks = <&clkmgr AGILEX_EMAC1_CLK>;
+	clock-names = "stmmaceth";
+	status = "disabled";
 	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
 };
 
 &gmac2 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
+	clocks = <&clkmgr AGILEX_EMAC2_CLK>;
+	clock-names = "stmmaceth";
+	status = "disabled";
 	altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
 };
 
@@ -43,6 +91,7 @@
 
 &i2c1 {
 	reset-names = "i2c";
+	status = "okay";
 };
 
 &i2c2 {
@@ -67,6 +116,15 @@
 
 &qspi {
 	bootph-all;
+	compatible = "cdns,qspi-nor";
+	flash0: flash@0 {
+	};
+};
+
+&flash0 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	compatible = "jedec,spi-nor";
 };
 
 &rst {
@@ -84,6 +142,79 @@
 	bootph-all;
 };
 
+&socfpga_l3interconnect_firewall {
+	CCU_coh_cpu0_bypass_OC_Firewall_main_Firewall@f7100200 {
+		reg = <0xf7100200 0x00000014>;
+		intel,offset-settings =
+			/* Disable ocram security at CCU for non secure access */
+			<0x0000004 0x8000ffff 0xe003ffff>,
+			<0x0000008 0x8000ffff 0xe003ffff>,
+			<0x000000c 0x8000ffff 0xe003ffff>,
+			<0x0000010 0x8000ffff 0xe003ffff>;
+		bootph-all;
+	};
+
+	soc_noc_fw_mpfe_csr_inst_0_mpfe_scr@f8020000 {
+		reg = <0xf8020000 0x0000001c>;
+		intel,offset-settings =
+			/* Disable MPFE firewall for SMMU */
+			<0x00000000 0x00010101 0x00010101>,
+			/* Disable MPFE firewall for HMC adapter */
+			<0x00000004 0x00000001 0x00010101>;
+		bootph-all;
+	};
+
+	/*
+	 * Below are all fpga2sdram firewall settings with default
+	 * reset value for the sake of easy reference by users.
+	 * Users may choose to remove any of these register
+	 * configurations that they do not require in their specific
+	 * implementation.
+	 */
+	soc_noc_fw_ddr_fpga2sdram_inst_0_ddr_scr@f8020100 {
+		reg = <0xf8020100 0x00000050>;
+		intel,offset-settings =
+			<0x0000000 0x00000000 0x0000000f>,
+			<0x0000004 0x00000000 0x0000000f>,
+			<0x0000008 0x00000000 0x0000000f>,
+			<0x0000010 0x00000000 0xffff0000>,
+			<0x0000014 0x00000000 0x000000ff>,
+			<0x0000018 0x00000000 0xffff0000>,
+			<0x000001c 0x00000000 0x000000ff>,
+			<0x0000020 0x00000000 0xffff0000>,
+			<0x0000024 0x00000000 0x000000ff>,
+			<0x0000028 0x00000000 0xffff0000>,
+			<0x000002c 0x00000000 0x000000ff>,
+			<0x0000030 0x00000000 0xffff0000>,
+			<0x0000034 0x00000000 0x000000ff>,
+			<0x0000038 0x00000000 0xffff0000>,
+			<0x000003c 0x00000000 0x000000ff>,
+			<0x0000040 0x00000000 0xffff0000>,
+			<0x0000044 0x00000000 0x000000ff>,
+			<0x0000048 0x00000000 0xffff0000>,
+			<0x000004c 0x00000000 0x000000ff>;
+		bootph-all;
+	};
+
+	/*
+	 * Example of ccu_mem0_I_main QOS settings with
+	 * default reset value for the sake of easy reference
+	 * by users. Users may choose to remove any of these register
+	 * configurations that they do not require in their specific
+	 * implementation.
+	 */
+	soc_mpfe_noc_inst_0_ccu_mem0_I_main_QosGenerator@f8022080 {
+		reg = <0xf8022080 0x0000001c>;
+		intel,offset-settings =
+			<0x0000008 0x00000200 0x00000303>,
+			<0x000000c 0x00000003 0x00000003>,
+			<0x0000010 0x00000BFE 0x00007fff>,
+			<0x0000014 0x00000008 0x000003ff>,
+			<0x0000018 0x00000000 0x0000000f>;
+		bootph-all;
+	};
+};
+
 &sysmgr {
 	compatible = "altr,sys-mgr", "syscon";
 	bootph-all;
@@ -91,8 +222,51 @@
 
 &uart0 {
 	bootph-all;
+	clock-frequency = <100000000>;
 };
 
 &watchdog0 {
 	bootph-all;
 };
+
+&nand {
+	clocks = <&clkmgr AGILEX_NAND_CLK>,
+	<&clkmgr AGILEX_NAND_X_CLK>;
+	clock-names = "nand", "nand_x";
+};
+
+&usb0 {
+	compatible = "snps,dwc2";
+};
+
+&usb1 {
+	compatible = "snps,dwc2";
+};
+
+&spi0 {
+	compatible = "intel,agilex-spi",
+			 "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
+};
+
+&spi1 {
+	compatible = "intel,agilex-spi",
+			 "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
+};
+
+&pdma {
+	#dma-channels = <8>;
+	#dma-requests = <32>;
+};
+
+#if !defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
+&binman {
+	/delete-node/ kernel;
+};
+#endif
+
+#ifdef CONFIG_TARGET_SOCFPGA_AGILEX7M
+&sdr {
+	compatible = "intel,sdr-ctl-agilex7m";
+	reg = <0xf8020000 0x100>;
+};
+#endif

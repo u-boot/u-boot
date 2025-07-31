@@ -1,0 +1,163 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * U-Boot additions
+ *
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
+ */
+
+/ {
+	soc@0 {
+		socfpga-system-mgr-firewall {
+			compatible = "intel,socfpga-dtreg";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			bootph-all;
+
+			i_sys_mgr_core@ffd12000 {
+				reg = <0xffd12000 0x00000230>;
+				intel,offset-settings =
+					/* Enable non-secure interface to DMA */
+					<0x00000020 0xff010000 0xff010011>,
+					/* Enable non-secure interface to DMA periph */
+					<0x00000024 0xffffffff 0xffffffff>;
+				bootph-all;
+			};
+		};
+
+		socfpga_l3interconnect_firewall:socfpga-l3interconnect-firewall {
+			compatible = "intel,socfpga-dtreg";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			bootph-all;
+
+			noc_fw_l4_per_l4_per_scr@ffd21000 {
+				reg = <0xffd21000 0x00000074>;
+				intel,offset-settings =
+					/* Disable L4 periphs firewall */
+					<0x00000000 0x01010001 0x01010001>,
+					<0x00000004 0x01010001 0x01010001>,
+					<0x0000000c 0x01010001 0x01010001>,
+					<0x00000010 0x01010001 0x01010001>,
+					<0x0000001c 0x01010001 0x01010101>,
+					<0x00000020 0x01010001 0x01010101>,
+					<0x00000024 0x01010001 0x01010101>,
+					<0x00000028 0x01010001 0x01010101>,
+					<0x0000002c 0x01010001 0x01010001>,
+					<0x00000030 0x01010001 0x01010001>,
+					<0x00000034 0x01010001 0x01010001>,
+					<0x00000040 0x01010001 0x01010001>,
+					<0x00000044 0x01010001 0x01010101>,
+					<0x00000048 0x01010001 0x01010101>,
+					<0x00000050 0x01010001 0x01010101>,
+					<0x00000054 0x01010001 0x01010101>,
+					<0x00000058 0x01010001 0x01010101>,
+					<0x0000005c 0x01010001 0x01010101>,
+					<0x00000060 0x01010001 0x01010101>,
+					<0x00000064 0x01010001 0x01010101>,
+					<0x00000068 0x01010001 0x01010101>,
+					<0x0000006c 0x01010001 0x01010101>,
+					<0x00000070 0x01010001 0x01010101>;
+				bootph-all;
+			};
+
+			noc_fw_l4_sys_l4_sys_scr@ffd21100 {
+				reg = <0xffd21100 0x00000098>;
+				intel,offset-settings =
+					/* Disable L4 system firewall */
+					<0x00000008 0x01010001 0x01010001>,
+					<0x0000000c 0x01010001 0x01010001>,
+					<0x00000010 0x01010001 0x01010001>,
+					<0x00000014 0x01010001 0x01010001>,
+					<0x00000018 0x01010001 0x01010001>,
+					<0x0000001c 0x01010001 0x01010001>,
+					<0x00000020 0x01010001 0x01010001>,
+					<0x0000002c 0x01010001 0x01010001>,
+					<0x00000030 0x01010001 0x01010001>,
+					<0x00000034 0x01010001 0x01010001>,
+					<0x00000038 0x01010001 0x01010001>,
+					<0x00000040 0x01010001 0x01010001>,
+					<0x00000044 0x01010001 0x01010001>,
+					<0x00000048 0x01010001 0x01010001>,
+					<0x0000004c 0x01010001 0x01010001>,
+					<0x00000054 0x01010001 0x01010001>,
+					<0x00000058 0x01010001 0x01010001>,
+					<0x0000005c 0x01010001 0x01010001>,
+					<0x00000060 0x01010001 0x01010101>,
+					<0x00000064 0x01010001 0x01010101>,
+					<0x00000068 0x01010001 0x01010101>,
+					<0x0000006c 0x01010001 0x01010101>,
+					<0x00000070 0x01010001 0x01010101>,
+					<0x00000074 0x01010001 0x01010101>,
+					<0x00000078 0x01010001 0x03010001>,
+					<0x00000090 0x01010001 0x01010001>,
+					<0x00000094 0x01010001 0x01010001>;
+				bootph-all;
+			};
+
+			noc_fw_soc2fpga_soc2fpga_scr@ffd21200 {
+				reg = <0xffd21200 0x00000004>;
+				/* Disable soc2fpga security access */
+				intel,offset-settings = <0x00000000 0x0ffe0101 0x0ffe0101>;
+				bootph-all;
+			};
+
+			noc_fw_lwsoc2fpga_lwsoc2fpga_scr@ffd21300 {
+				reg = <0xffd21300 0x00000004>;
+				/* Disable lightweight soc2fpga security access */
+				intel,offset-settings = <0x00000000 0x0ffe0101 0x0ffe0101>;
+				bootph-all;
+			};
+
+			noc_fw_tcu_tcu_scr@ffd21400 {
+				reg = <0xffd21400 0x00000004>;
+				/* Disable DMA ECC security access, for SMMU use */
+				intel,offset-settings = <0x00000000 0x01010001 0x01010001>;
+				bootph-all;
+			};
+
+			noc_fw_priv_MemoryMap_priv@ffd24800 {
+				reg = <0xffd24800 0x0000000c>;
+				intel,offset-settings =
+				/* Enable non-prviledged access to various periphs */
+					<0x00000000 0xfff73ffb 0xfff73ffb>;
+				bootph-all;
+			};
+		};
+
+		socfpga_smmu_secure_config: socfpga-smmu-secure-config {
+			compatible = "intel,socfpga-dtreg";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			bootph-all;
+
+			/* TCU */
+			noc_fw_tcu_tcu_scr@ffd21400 {
+				reg = <0xffd21400 0x00000004>;
+				intel,offset-settings =
+					<0x00000000 0x01010001 0x01010001>;
+				bootph-all;
+			};
+
+			/* System manager */
+			i_sys_mgt_sysmgr_csr@ffd12000 {
+				reg = <0xffd12000 0x00000500>;
+				intel,offset-settings =
+					/* i_sys_mgr_core_emac0 */
+					<0x00000044 0x0a000000 0xffff0103>,
+					/* i_sys_mgr_core_emac1 */
+					<0x00000048 0x0a000000 0xffff0103>,
+					/* i_sys_mgr_core_emac2 */
+					<0x0000004c 0x0a000000 0xffff0103>,
+					/* i_sys_mgr_core_nand_l3master */
+					<0x00000034 0x00220000 0x007733ff>,
+					/* i_sys_mgr_core_sdmmc_l3master */
+					<0x0000002c 0x00000020 0x03ff03ff>,
+					/* i_sys_mgr_core_usb0_l3master */
+					<0x00000038 0x00000200 0x03ff30ff>,
+					/* i_sys_mgr_core_usb1_l3master */
+					<0x0000003c 0x00000200 0x03ff30ff>;
+				bootph-all;
+			};
+		};
+	};
+};
