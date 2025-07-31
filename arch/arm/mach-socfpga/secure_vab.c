@@ -1,17 +1,18 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 /*
  * Copyright (C) 2020 Intel Corporation <www.intel.com>
- *
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
+#include <log.h>
+#include <malloc.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/secure_vab.h>
 #include <asm/arch/smc_api.h>
 #include <asm/unaligned.h>
-#include <exports.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/intel-smc.h>
-#include <log.h>
 
 #define CHUNKSZ_PER_WD_RESET		(256 * SZ_1K)
 

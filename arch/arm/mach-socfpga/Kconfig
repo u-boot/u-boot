@@ -120,7 +120,6 @@ config TARGET_SOCFPGA_N5X
 	select BINMAN if SPL_ATF
 	select CLK
 	select GICV2
-	select FPGA_INTEL_SDM_MAILBOX
 	select NCORE_CACHE
 	select SPL_ALTERA_SDRAM
 	select SPL_CLK if SPL

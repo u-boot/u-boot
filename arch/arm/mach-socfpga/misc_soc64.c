@@ -22,6 +22,22 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* Agilex5 Sub Device Jtag ID List */
+#define A3690_JTAG_ID	0x036090DD
+#define A3694_JTAG_ID	0x436090DD
+#define A36C0_JTAG_ID	0x0360C0DD
+#define A36C4_JTAG_ID	0x4360C0DD
+#define A36D0_JTAG_ID	0x0360D0DD
+#define A36D4_JTAG_ID	0x4360D0DD
+#define A36F0_JTAG_ID	0x0360F0DD
+#define A36F4_JTAG_ID	0x4360F0DD
+#define A3610_JTAG_ID	0x036010DD
+#define A3614_JTAG_ID	0x436010DD
+#define A3630_JTAG_ID	0x036030DD
+#define A3634_JTAG_ID	0x436030DD
+
+#define JTAG_ID_MASK	0xCFF0FFFF
+
 /*
  * FPGA programming support for SoC FPGA Stratix 10
  */
@@ -41,6 +57,22 @@ static Altera_desc altera_fpga[] = {
 		0
 	},
 };
+
+u32 socfpga_get_jtag_id(void)
+{
+	u32 jtag_id;
+
+	jtag_id = readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_BOOT_SCRATCH_COLD4);
+
+	if (!jtag_id) {
+		debug("Failed to read JTAG ID. Default JTAG ID to A36F4_JTAG_ID.\n");
+		jtag_id = A36F4_JTAG_ID;
+	}
+
+	debug("%s: jtag_id: 0x%x\n", __func__, jtag_id);
+
+	return jtag_id;
+}
 
 /*
  * The Agilex5 platform has enabled the bloblist feature, and the bloblist

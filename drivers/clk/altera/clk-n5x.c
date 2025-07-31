@@ -386,8 +386,8 @@ static u32 clk_get_emac_clk_hz(struct socfpga_clk_plat *plat, u32 emac_id)
 		} else {
 			clock /= 1 + ((CM_REG_READL(plat,
 				       CLKMGR_PERPLL_PLLOUTDIV) &
-				       CLKMGR_PLLOUTDIV_C3CNT_MASK >>
-				       CLKMGR_PLLOUTDIV_C3CNT_OFFSET));
+				       CLKMGR_PLLOUTDIV_C3CNT_MASK) >>
+				       CLKMGR_PLLOUTDIV_C3CNT_OFFSET);
 		}
 		break;
 

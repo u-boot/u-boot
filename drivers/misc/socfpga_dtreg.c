@@ -76,15 +76,14 @@ static int socfpga_dtreg_probe(struct udevice *dev)
 				return -EINVAL;
 			}
 
+			reg = base + offset;
+
 			if (mask != 0) {
 				if (mask == 0xffffffff) {
-					reg = base + offset;
 					writel(val, (uintptr_t)reg);
 				} else {
 					/* Mask the value with the masking bits */
 					set_mask = val & mask;
-
-					reg = base + offset;
 
 					/* Clears and sets specific bits in the register */
 					clrsetbits_le32((uintptr_t)reg, mask, set_mask);
