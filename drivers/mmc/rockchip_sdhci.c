@@ -500,7 +500,7 @@ static int rockchip_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 {
 	struct rockchip_sdhc *priv = dev_get_priv(mmc->dev);
 	struct sdhci_host *host = &priv->host;
-	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
+	s8 tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
 	struct mmc_cmd cmd;
 	u32 ctrl, blk_size;
 	int ret;
