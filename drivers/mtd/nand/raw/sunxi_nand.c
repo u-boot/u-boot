@@ -1403,8 +1403,10 @@ static int sunxi_nand_hw_common_ecc_ctrl_init(struct mtd_info *mtd,
 	if (!data)
 		return -ENOMEM;
 
-	if (ecc->size != 512 && ecc->size != 1024)
+	if (ecc->size != 512 && ecc->size != 1024) {
+		kfree(data);
 		return -EINVAL;
+	}
 
 	/* Prefer 1k ECC chunk over 512 ones */
 	if (ecc->size == 512 && mtd->writesize > 512) {
@@ -1641,17 +1643,20 @@ static int sunxi_nand_chip_init(struct udevice *dev, struct sunxi_nfc *nfc,
 		if (ret) {
 			dev_err(dev, "could not retrieve reg property: %d\n",
 				ret);
+			kfree(chip);
 			return ret;
 		}
 
 		if (tmp > NFC_MAX_CS) {
 			dev_err(dev,
 				"invalid reg value: %u (max CS = 7)\n", tmp);
+			kfree(chip);
 			return -EINVAL;
 		}
 
 		if (test_and_set_bit(tmp, &nfc->assigned_cs)) {
 			dev_err(dev, "CS %d already assigned\n", tmp);
+			kfree(chip);
 			return -EINVAL;
 		}
 
@@ -1678,12 +1683,14 @@ static int sunxi_nand_chip_init(struct udevice *dev, struct sunxi_nfc *nfc,
 		dev_err(dev,
 			"could not retrieve timings for ONFI mode 0: %d\n",
 			ret);
+		kfree(chip);
 		return ret;
 	}
 
 	ret = sunxi_nand_chip_set_timings(nfc, chip, timings);
 	if (ret) {
 		dev_err(dev, "could not configure chip timings: %d\n", ret);
+		kfree(chip);
 		return ret;
 	}
 
@@ -1705,8 +1712,10 @@ static int sunxi_nand_chip_init(struct udevice *dev, struct sunxi_nfc *nfc,
 
 	mtd = nand_to_mtd(nand);
 	ret = nand_scan_ident(mtd, nsels, NULL);
-	if (ret)
+	if (ret) {
+		kfree(chip);
 		return ret;
+	}
 
 	if (nand->bbt_options & NAND_BBT_USE_FLASH)
 		nand->bbt_options |= NAND_BBT_NO_OOB;
@@ -1719,24 +1728,28 @@ static int sunxi_nand_chip_init(struct udevice *dev, struct sunxi_nfc *nfc,
 	ret = sunxi_nand_chip_init_timings(nfc, chip);
 	if (ret) {
 		dev_err(dev, "could not configure chip timings: %d\n", ret);
+		kfree(chip);
 		return ret;
 	}
 
 	ret = sunxi_nand_ecc_init(mtd, &nand->ecc);
 	if (ret) {
 		dev_err(dev, "ECC init failed: %d\n", ret);
+		kfree(chip);
 		return ret;
 	}
 
 	ret = nand_scan_tail(mtd);
 	if (ret) {
 		dev_err(dev, "nand_scan_tail failed: %d\n", ret);
+		kfree(chip);
 		return ret;
 	}
 
 	ret = nand_register(devnum, mtd);
 	if (ret) {
 		dev_err(dev, "failed to register mtd device: %d\n", ret);
+		kfree(chip);
 		return ret;
 	}
 
