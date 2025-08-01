@@ -2168,6 +2168,8 @@ static ulong rk3576_clk_set_rate(struct clk *clk, ulong rate)
 	case CLK_CPLL_DIV10:
 	case FCLK_DDR_CM0_CORE:
 	case ACLK_PHP_ROOT:
+	case CLK_REF_PCIE0_PHY:
+	case CLK_REF_PCIE1_PHY:
 		ret = 0;
 		break;
 #ifndef CONFIG_SPL_BUILD
