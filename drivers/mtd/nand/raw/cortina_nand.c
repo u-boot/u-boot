@@ -186,14 +186,13 @@ int init_nand_dma(struct nand_chip *nand)
 
 	info->tx_desc = malloc_cache_aligned((sizeof(struct tx_descriptor_t) *
 					      CA_DMA_DESC_NUM));
+	if (!info->tx_desc) {
+		printf("Fail to alloc DMA descript!\n");
+		return -ENOMEM;
+	}
 	info->rx_desc = malloc_cache_aligned((sizeof(struct rx_descriptor_t) *
 					      CA_DMA_DESC_NUM));
-
-	if (!info->rx_desc && info->tx_desc) {
-		printf("Fail to alloc DMA descript!\n");
-		kfree(info->tx_desc);
-		return -ENOMEM;
-	} else if (info->rx_desc && !info->tx_desc) {
+	if (!info->rx_desc) {
 		printf("Fail to alloc DMA descript!\n");
 		kfree(info->tx_desc);
 		return -ENOMEM;
