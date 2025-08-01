@@ -804,7 +804,7 @@ void tcp_parse_options(struct tcp_stream *tcp, uchar *o, int o_len)
 		}
 
 		/* Process optional NOPs */
-		if (p[0] == TCP_O_NOP)
+		if (p[0] == TCP_1_NOP)
 			p++;
 		else
 			p += p[1];

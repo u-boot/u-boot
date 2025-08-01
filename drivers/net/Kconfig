@@ -138,30 +138,6 @@ config ALTERA_TSE
 	  Please find details on the "Triple-Speed Ethernet MegaCore Function
 	  Resource Center" of Altera.
 
-config BCM_SF2_ETH
-	bool "Broadcom SF2 (Starfighter2) Ethernet support"
-	select PHYLIB
-	help
-	  This is an abstract framework which provides a generic interface
-	  to MAC and DMA management for multiple Broadcom SoCs such as
-	  Cygnus, NSP and bcm28155_ap platforms.
-
-config BCM_SF2_ETH_DEFAULT_PORT
-	int "Broadcom SF2 (Starfighter2) Ethernet default port number"
-	depends on BCM_SF2_ETH
-	default 0
-	help
-	  Default port number for the Starfighter2 ethernet driver.
-
-config BCM_SF2_ETH_GMAC
-	bool "Broadcom SF2 (Starfighter2) GMAC Ethernet support"
-	depends on BCM_SF2_ETH
-	help
-	  This flag enables the ethernet support for Broadcom platforms with
-	  GMAC such as Cygnus. This driver is based on the framework provided
-	  by the BCM_SF2_ETH driver.
-	  Say Y to any bcmcygnus based platforms.
-
 config BCM6348_ETH
 	bool "BCM6348 EMAC support"
 	depends on ARCH_BMIPS
@@ -197,6 +173,7 @@ config CORTINA_NI_ENET
 
 config CALXEDA_XGMAC
 	bool "Calxeda XGMAC support"
+	depends on ARCH_HIGHBANK
 	help
 	  This driver supports the XGMAC in Calxeda Highbank and Midway
 	  machines.
@@ -246,14 +223,14 @@ config DWC_ETH_QOS
 
 config DWC_ETH_QOS_ADI
 	bool "Synopsys DWC Ethernet QOS device support for ADI SC59x-64 parts"
-	depends on DWC_ETH_QOS
+	depends on DWC_ETH_QOS && ARCH_SC5XX
 	help
 		The Synopsis Designware Ethernet QoS IP block with the specific
 		configuration used in the ADI ADSP-SC59X 64 bit SoCs
 
 config DWC_ETH_QOS_IMX
 	bool "Synopsys DWC Ethernet QOS device support for IMX"
-	depends on DWC_ETH_QOS
+	depends on DWC_ETH_QOS && MACH_IMX
 	help
 	  The Synopsys Designware Ethernet QOS IP block with the specific
 	  configuration used in IMX soc.
@@ -267,7 +244,7 @@ config DWC_ETH_QOS_INTEL
 
 config DWC_ETH_QOS_ROCKCHIP
 	bool "Synopsys DWC Ethernet QOS device support for Rockchip SoCs"
-	depends on DWC_ETH_QOS
+	depends on DWC_ETH_QOS && ARCH_ROCKCHIP
 	select DM_ETH_PHY
 	help
 	  The Synopsys Designware Ethernet QOS IP block with specific
@@ -275,7 +252,7 @@ config DWC_ETH_QOS_ROCKCHIP
 
 config DWC_ETH_QOS_STM32
 	bool "Synopsys DWC Ethernet QOS device support for STM32"
-	depends on DWC_ETH_QOS
+	depends on DWC_ETH_QOS && ARCH_STM32MP
 	select DM_ETH_PHY
 	default y if ARCH_STM32MP
 	help
@@ -327,7 +304,7 @@ config E1000_SPI_GENERIC
 
 config E1000_SPI
 	bool "Enable SPI bus utility code"
-	depends on E1000
+	depends on E1000 && !E1000_NO_NVM
 	help
 	  Utility code for direct access to the SPI bus on Intel 8257x.
 	  This does not do anything useful unless you set at least one
@@ -343,6 +320,7 @@ config CMD_E1000
 
 config EEPRO100
 	bool "Intel PRO/100 82557/82559/82559ER Fast Ethernet support"
+	depends on !64BIT
 	help
 	  This driver supports Intel(R) PRO/100 82557/82559/82559ER fast
 	  ethernet family of adapters.
@@ -406,7 +384,7 @@ config ETH_DESIGNWARE_SOCFPGA
 
 config ETH_DESIGNWARE_S700
 	bool "Actins S700 glue driver for Synopsys Designware Ethernet MAC"
-	depends on ETH_DESIGNWARE
+	depends on ETH_DESIGNWARE && ARCH_OWL
 	help
 	  This provides glue layer to use Synopsys Designware Ethernet MAC
 	  present on Actions S700 SoC.
@@ -448,7 +426,7 @@ config FEC_MXC
 
 config FMAN_ENET
 	bool "Freescale FMan ethernet support"
-	depends on ARM || PPC
+	depends on FSL_LSCH2 || PPC
 	select SYS_FMAN_V3 if ARCH_B4420 || ARCH_B4860 || ARCH_LS1043A || \
 		ARCH_LS1046A || ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || \
 		ARCH_T2080 || ARCH_T4240
@@ -520,6 +498,7 @@ config SYS_DISCOVER_PHY
 
 config MCFFEC
 	bool "ColdFire Ethernet Support"
+	depends on M68K
 	select PHYLIB
 	select SYS_DISCOVER_PHY
 	help
@@ -583,6 +562,7 @@ config MVPP2
 
 config MACB
 	bool "Cadence MACB/GEM Ethernet Interface"
+	depends on ARM || RISCV
 	select PHYLIB
 	help
 	  The Cadence MACB ethernet interface is found on many Atmel
@@ -619,6 +599,7 @@ config MT7628_ETH
 
 config NET_NPCM750
 	bool "Nuvoton NPCM750 Ethernet MAC"
+	depends on ARCH_NPCM
 	help
 	  support NPCM750 EMAC
 
@@ -693,6 +674,7 @@ source "drivers/net/qe/Kconfig"
 
 config RTL8139
 	bool "Realtek 8139 series Ethernet controller driver"
+	depends on !64BIT
 	help
 	  This driver supports Realtek 8139 series fast ethernet family of
 	  PCI chipsets/adapters.
@@ -746,6 +728,7 @@ config SUN7I_GMAC_FORCE_TXERR
 
 config SUN4I_EMAC
 	bool "Allwinner Sun4i Ethernet MAC support"
+	depends on ARCH_SUNXI
 	select PHYLIB
 	help
 	  This driver supports the Allwinner based SUN4I Ethernet MAC.
@@ -761,6 +744,7 @@ config SUN8I_EMAC
 
 config SH_ETHER
 	bool "Renesas SH Ethernet MAC"
+	depends on ARCH_RENESAS
 	select PHYLIB
 	select PHY_ETHERNET_ID
 	help
@@ -770,6 +754,7 @@ source "drivers/net/ti/Kconfig"
 
 config TULIP
 	bool "DEC Tulip DC2114x Ethernet support"
+	depends on !64BIT
 	help
 	  This driver supports DEC DC2114x Fast ethernet chips.
 
@@ -823,6 +808,7 @@ config XILINX_AXIMRMAC
 
 config VSC7385_ENET
 	bool "Vitesse 7385 Switch Firmware Upload driver"
+	depends on !COMPILE_TEST && PPC
 
 config XILINX_EMACLITE
 	select PHYLIB
@@ -834,6 +820,7 @@ config XILINX_EMACLITE
 config ZYNQ_GEM
 	select PHYLIB
 	bool "Xilinx Ethernet GEM"
+	depends on ARCH_VERSAL || ARCH_VERSAL_NET || ARCH_VERSAL2 || ARCH_ZYNQ || ARCH_ZYNQMP
 	help
 	  This MAC is present in Xilinx Zynq and ZynqMP SoCs.
 
@@ -847,7 +834,7 @@ config PIC32_ETH
 
 config GMAC_ROCKCHIP
 	bool "Rockchip Synopsys Designware Ethernet MAC"
-	depends on ETH_DESIGNWARE
+	depends on ETH_DESIGNWARE && ARCH_ROCKCHIP
 	help
 	  This driver provides Rockchip SoCs network support based on the
 	  Synopsys Designware driver.
@@ -974,6 +961,7 @@ config SYS_FSL_QMAN_V3
 config TSEC_ENET
 	select PHYLIB
 	bool "Enable Three-Speed Ethernet Controller"
+	depends on ARCH_LS1021A || PPC
 	help
 	  This driver implements support for the (Enhanced) Three-Speed
 	  Ethernet Controller found on Freescale SoCs.

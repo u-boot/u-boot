@@ -214,7 +214,7 @@ static void tcp_stream_on_rcv_nxt_update(struct tcp_stream *tcp, u32 rx_bytes)
 			content_length = -1;
 	}
 
-	if (content_length >= 0) {
+	if (content_length != -1) {
 		debug_cond(DEBUG_WGET,
 			   "wget: Connected Len %lu\n",
 			   content_length);

@@ -1,5 +1,6 @@
 menuconfig FSL_PFE
 	bool "NXP PFE Ethernet driver"
+	depends on ARCH_LS1012A
 	help
 	  This driver provides support for NXP's Packet Forwarding Engine.
 

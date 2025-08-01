@@ -11,6 +11,7 @@ config QE
 
 config U_QE
 	bool "Enable support for U QUICC Engine"
+	depends on PPC || ARCH_LS1012A || ARCH_LS1021A || ARCH_LS1043A
 	default y if (ARCH_LS1021A && !SD_BOOT && !NAND_BOOT && !QSPI_BOOT) \
 		|| (TARGET_T1024QDS) \
 		|| (TARGET_T1024RDB) \

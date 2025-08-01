@@ -335,6 +335,15 @@ netretry
     Useful on scripts which control the retry operation
     themselves.
 
+phy_aneg_timeout
+    If set, the specified value will override CONFIG_PHY_ANEG_TIMEOUT.
+    This variable has the same base and unit as CONFIG_PHY_ANEG_TIMEOUT
+    which is "decimal" and "millisecond" respectively. The default value
+    of CONFIG_PHY_ANEG_TIMEOUT may be sufficient for most use-cases, but
+    certain link-partners may require a larger timeout due to the Ethernet
+    PHY they use. Alternatively, the timeout can be reduced as well if the
+    use-case demands it.
+
 rng_seed_size
     Size of random value added to device-tree node /chosen/rng-seed.
     This variable is given as a decimal number.

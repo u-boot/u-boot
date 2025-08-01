@@ -47,4 +47,13 @@
 void sntp_set_system_time(uint32_t sec);
 #define SNTP_SET_SYSTEM_TIME(sec) sntp_set_system_time(sec)
 
+static inline const char *sntp_format_time(time_t t)
+{
+	static char buf[29]; /* "(time_t)" + 20 digits max + \0 */
+
+	snprintf(buf, sizeof(buf), "(time_t)%llu", t);
+	return buf;
+}
+
+#define sntp_format_time sntp_format_time
 #endif /* LWIP_ARCH_CC_H */

@@ -23,7 +23,10 @@ config PHY_ANEG_TIMEOUT
 	int "PHY auto-negotiation timeout"
 	default 4000
 	help
-	  Default PHY auto-negotiation timeout.
+	  Value of PHY auto-negotiation timeout with the base being
+	  "decimal" and the unit being "millisecond". This can be
+	  overridden by the "phy_aneg_timeout" environment variable
+	  that has the same base (decimal) and unit (millisecond).
 
 if PHY_ADDR_ENABLE
 config PHY_ADDR

@@ -546,7 +546,7 @@ static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 		return -EPERM;
 	}
 
-	debug("%s(%x, %x)\n", __func__, (int)packet, length);
+	debug("%s(%p, %x)\n", __func__, packet, length);
 
 	length = (length < ETH_ZLEN) ? ETH_ZLEN : length;
 
