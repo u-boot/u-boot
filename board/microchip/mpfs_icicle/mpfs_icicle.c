@@ -22,6 +22,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SERVICE_CR_REQ			0x1u
 #define SERVICE_SR_BUSY			0x2u
 
+static unsigned char mac_addr[6];
+
 static void read_device_serial_number(u8 *response, u8 response_size)
 {
 	u8 idx;
@@ -145,10 +147,7 @@ int board_late_init(void)
 {
 	u32 ret;
 	int node;
-	u8 idx;
-	u8 device_serial_number[16] = { 0 };
-	unsigned char mac_addr[6];
-	char icicle_mac_addr[20];
+	u8 device_serial_number[16] = {0};
 	void *blob = (void *)gd->fdt_blob;
 
 	read_device_serial_number(device_serial_number, 16);
@@ -170,19 +169,6 @@ int board_late_init(void)
 		}
 	}
 
-	icicle_mac_addr[0] = '[';
-
-	sprintf(&icicle_mac_addr[1], "%pM", mac_addr);
-
-	icicle_mac_addr[18] = ']';
-	icicle_mac_addr[19] = '\0';
-
-	for (idx = 0; idx < 20; idx++) {
-		if (icicle_mac_addr[idx] == ':')
-			icicle_mac_addr[idx] = ' ';
-	}
-	env_set("icicle_mac_addr0", icicle_mac_addr);
-
 	mac_addr[5] = device_serial_number[0] + 1;
 
 	node = fdt_path_offset(blob, "/soc/ethernet@20110000");
@@ -194,18 +180,33 @@ int board_late_init(void)
 		}
 	}
 
-	icicle_mac_addr[0] = '[';
+	return 0;
+}
 
-	sprintf(&icicle_mac_addr[1], "%pM", mac_addr);
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	u32 ret;
+	int node;
 
-	icicle_mac_addr[18] = ']';
-	icicle_mac_addr[19] = '\0';
-
-	for (idx = 0; idx < 20; idx++) {
-		if (icicle_mac_addr[idx] == ':')
-			icicle_mac_addr[idx] = ' ';
+	node = fdt_path_offset(blob, "/soc/ethernet@20110000");
+	if (node >= 0) {
+		ret = fdt_setprop(blob, node, "local-mac-address", mac_addr, 6);
+		if (ret) {
+			printf("Error setting local-mac-address property for ethernet@20110000\n");
+			return -ENODEV;
+		}
 	}
-	env_set("icicle_mac_addr1", icicle_mac_addr);
+
+	mac_addr[5] -= 1;
+
+	node = fdt_path_offset(blob, "/soc/ethernet@20112000");
+	if (node >= 0) {
+		ret = fdt_setprop(blob, node, "local-mac-address", mac_addr, 6);
+		if (ret) {
+			printf("Error setting local-mac-address property for ethernet@20112000\n");
+			return -ENODEV;
+		}
+	}
 
 	return 0;
 }
