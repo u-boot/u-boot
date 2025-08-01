@@ -1,0 +1,5 @@
+GENERIC-RK3576
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	arch/arm/dts/rk3576-generic*
+F:	configs/generic-rk3576_defconfig
