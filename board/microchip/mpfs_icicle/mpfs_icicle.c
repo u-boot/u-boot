@@ -4,54 +4,21 @@
  * Padmarao Begari <padmarao.begari@microchip.com>
  */
 
-#include <dm.h>
-#include <env.h>
-#include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/sections.h>
+#include <dm.h>
+#include <dm/devres.h>
+#include <env.h>
+#include <linux/compat.h>
+#include <mpfs-mailbox.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MPFS_SYSREG_SOFT_RESET		((unsigned int *)0x20002088)
-#define MPFS_SYS_SERVICE_CR		((unsigned int *)0x37020050)
-#define MPFS_SYS_SERVICE_SR		((unsigned int *)0x37020054)
-#define MPFS_SYS_SERVICE_MAILBOX	((unsigned char *)0x37020800)
-
+#define MPFS_SYSREG_SOFT_RESET	((unsigned int *)0x20002088)
 #define PERIPH_RESET_VALUE		0x1e8u
-#define SERVICE_CR_REQ			0x1u
-#define SERVICE_SR_BUSY			0x2u
 
 static unsigned char mac_addr[6];
-
-static void read_device_serial_number(u8 *response, u8 response_size)
-{
-	u8 idx;
-	u8 *response_buf;
-	unsigned int val;
-
-	response_buf = (u8 *)response;
-
-	writel(SERVICE_CR_REQ, MPFS_SYS_SERVICE_CR);
-	/*
-	 * REQ bit will remain set till the system controller starts
-	 * processing.
-	 */
-	do {
-		val = readl(MPFS_SYS_SERVICE_CR);
-	} while (SERVICE_CR_REQ == (val & SERVICE_CR_REQ));
-
-	/*
-	 * Once system controller starts processing the busy bit will
-	 * go high and service is completed when busy bit is gone low
-	 */
-	do {
-		val = readl(MPFS_SYS_SERVICE_SR);
-	} while (SERVICE_SR_BUSY == (val & SERVICE_SR_BUSY));
-
-	for (idx = 0; idx < response_size; idx++)
-		response_buf[idx] = readb(MPFS_SYS_SERVICE_MAILBOX + idx);
-}
 
 #if defined(CONFIG_MULTI_DTB_FIT)
 int board_fit_config_name_match(const char *name)
@@ -149,8 +116,33 @@ int board_late_init(void)
 	int node;
 	u8 device_serial_number[16] = {0};
 	void *blob = (void *)gd->fdt_blob;
+	struct udevice *dev;
+	struct mpfs_sys_serv *sys_serv_priv;
 
-	read_device_serial_number(device_serial_number, 16);
+	ret = uclass_get_device_by_name(UCLASS_MISC, "syscontroller", &dev);
+	if (ret) {
+		debug("%s: system controller setup failed\n", __func__);
+		return ret;
+	}
+
+	sys_serv_priv = kzalloc(sizeof(*sys_serv_priv), GFP_KERNEL);
+	if (!sys_serv_priv)
+		return -ENOMEM;
+
+	sys_serv_priv->dev = dev;
+
+	sys_serv_priv->sys_controller = mpfs_syscontroller_get(dev);
+	ret = IS_ERR(sys_serv_priv->sys_controller);
+	if (ret) {
+		debug("%s:  Failed to register system controller sub device ret=%d\n", __func__, ret);
+		return -ENODEV;
+	}
+
+	ret = mpfs_syscontroller_read_sernum(sys_serv_priv, device_serial_number);
+	if (ret) {
+		printf("Cannot read device serial number\n");
+		return -EINVAL;
+	}
 
 	/* Update MAC address with device serial number */
 	mac_addr[0] = 0x00;
