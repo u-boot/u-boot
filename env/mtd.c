@@ -131,6 +131,8 @@ static int env_mtd_save(void)
 	puts("done\n");
 
 done:
+	put_mtd_device(mtd_env);
+
 	if (saved_buf)
 		free(saved_buf);
 
@@ -188,6 +190,8 @@ static int env_mtd_load(void)
 		gd->env_valid = ENV_VALID;
 
 out:
+	put_mtd_device(mtd_env);
+
 	free(buf);
 
 	return ret;
@@ -197,7 +201,7 @@ static int env_mtd_erase(void)
 {
 	struct mtd_info *mtd_env;
 	u32 sect_size, sect_num;
-	char *saved_buf, *tmp;
+	char *saved_buf = NULL, *tmp;
 	struct erase_info ei;
 	size_t ret_len;
 	int remaining;
@@ -280,6 +284,8 @@ static int env_mtd_erase(void)
 	ret = 0;
 
 done:
+	put_mtd_device(mtd_env);
+
 	if (saved_buf)
 		free(saved_buf);
 
