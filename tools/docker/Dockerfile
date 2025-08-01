@@ -54,6 +54,83 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 		wget -O - https://github.com/foss-xtensa/toolchain/releases/download/2020.07/x86_64-2020.07-xtensa-dc233c-elf.tar.gz | tar -C /opt -xz; \
 	fi
 
+# Build OP-TEE
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y \
+	adb \
+	acpica-tools \
+	autoconf \
+	automake \
+	bc \
+	bison \
+	build-essential \
+	ccache \
+	cpio \
+	cscope \
+	curl \
+	device-tree-compiler \
+	e2tools \
+	expect \
+	fastboot \
+	flex \
+	ftp-upload \
+	gdisk \
+	git \
+	libgnutls28-dev \
+	libattr1-dev \
+	libcap-ng-dev \
+	libfdt-dev \
+	libftdi-dev \
+	libglib2.0-dev \
+	libgmp3-dev \
+	libhidapi-dev \
+	libmpc-dev \
+	libncurses5-dev \
+	libpixman-1-dev \
+	libslirp-dev \
+	libssl-dev \
+	libtool \
+	libusb-1.0-0-dev \
+	make \
+	mtools \
+	netcat \
+	ninja-build \
+	python3-cryptography \
+	python3-pip \
+	python3-pyelftools \
+	python3-serial \
+	python3-tomli \
+	python-is-python3 \
+	rsync \
+	swig \
+	unzip \
+	uuid-dev \
+	wget \
+	xdg-utils \
+	xsltproc \
+	xterm \
+	xz-utils \
+	zlib1g-dev
+
+RUN git clone https://github.com/OP-TEE/optee_os.git /tmp/optee_os && \
+	cd /tmp/optee_os/ && \
+	git checkout 4.7.0 && \
+	make CROSS_COMPILE=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		CROSS_COMPILE_core=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		CROSS_COMPILE32=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi- \
+		CROSS_COMPILE_ta_arm32=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi- \
+		CROSS_COMPILE_ta_arm64=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		ARCH=arm \
+		CFG_ARM64_core=y \
+		CFG_TRANSFER_LIST=y CFG_MAP_EXT_DT_SECURE=y \
+		PLATFORM=vexpress-qemu_armv8a CFG_RPMB_FS=y \
+		CFG_RPMB_FS_DEV_ID=0 CFG_CORE_HEAP_SIZE=524288 CFG_RPMB_WRITE_KEY=y \
+		CFG_CORE_HEAP_SIZE=524288 CFG_CORE_DYN_SHM=y CFG_RPMB_TESTKEY=y \
+		CFG_RPMB_WRITE_KEY=1 \
+		CFG_REE_FS=n CFG_CORE_ARM64_PA_BITS=48  \
+		CFG_TEE_CORE_LOG_LEVEL=4 CFG_TEE_TA_LOG_LEVEL=1 DEBUG=y
+
 # Update and install things from apt now
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
