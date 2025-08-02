@@ -8,6 +8,7 @@
 #include <log.h>
 #include <mmc.h>
 #include <spl.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/global_data.h>
 #include <dm/uclass-internal.h>
 
@@ -98,15 +99,22 @@ __weak const char *board_spl_was_booted_from(void)
 
 void board_boot_order(u32 *spl_boot_list)
 {
+	int idx = 0;
+
+	/* Add RAM boot for maskrom mode boot over USB */
+	if (BROM_BOOTSOURCE_ID_ADDR && CONFIG_IS_ENABLED(RAM_DEVICE) &&
+	    read_brom_bootsource_id() == BROM_BOOTSOURCE_USB) {
+		spl_boot_list[idx++] = BOOT_DEVICE_RAM;
+	}
+
 	/* In case of no fdt (or only plat), use spl_boot_device() */
 	if (!CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_PLATDATA)) {
-		spl_boot_list[0] = spl_boot_device();
+		spl_boot_list[idx++] = spl_boot_device();
 		return;
 	}
 
 	const void *blob = gd->fdt_blob;
 	int chosen_node = fdt_path_offset(blob, "/chosen");
-	int idx = 0;
 	int elem;
 	int boot_device;
 	int node;
@@ -115,7 +123,7 @@ void board_boot_order(u32 *spl_boot_list)
 	if (chosen_node < 0) {
 		debug("%s: /chosen not found, using spl_boot_device()\n",
 		      __func__);
-		spl_boot_list[0] = spl_boot_device();
+		spl_boot_list[idx++] = spl_boot_device();
 		return;
 	}
 
