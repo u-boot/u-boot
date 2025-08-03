@@ -61,7 +61,6 @@ obj-$(CONFIG_NAND_FSL_IFC) += fsl_ifc_nand.o
 obj-$(CONFIG_NAND_KIRKWOOD) += kirkwood_nand.o
 obj-$(CONFIG_NAND_KMETER1) += kmeter1_nand.o
 obj-$(CONFIG_NAND_LPC32XX_MLC) += lpc32xx_nand_mlc.o
-obj-$(CONFIG_NAND_LPC32XX_SLC) += lpc32xx_nand_slc.o
 obj-$(CONFIG_NAND_VF610_NFC) += vf610_nfc.o
 obj-$(CONFIG_NAND_MESON) += meson_nand.o
 obj-$(CONFIG_NAND_MXC) += mxc_nand.o
