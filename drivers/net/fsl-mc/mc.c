@@ -1438,6 +1438,7 @@ err_close:
 err_open:
 err_create:
 	free(dflt_dpbp);
+	dflt_dpbp = NULL;
 err_calloc:
 	return err;
 }
@@ -1445,6 +1446,9 @@ err_calloc:
 static int dpbp_exit(void)
 {
 	int err;
+
+	if (!dflt_dpbp)
+		return -ENODEV;
 
 	err = dpbp_destroy(dflt_mc_io, dflt_dprc_handle, MC_CMD_NO_FLAGS,
 			   dflt_dpbp->dpbp_id);
@@ -1457,8 +1461,8 @@ static int dpbp_exit(void)
 	printf("Exit: DPBP.%d\n", dflt_dpbp->dpbp_attr.id);
 #endif
 
-	if (dflt_dpbp)
-		free(dflt_dpbp);
+	free(dflt_dpbp);
+	dflt_dpbp = NULL;
 	return 0;
 
 err:
