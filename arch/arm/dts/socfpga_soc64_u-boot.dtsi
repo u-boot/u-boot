@@ -6,7 +6,7 @@
  */
 
 / {
-	soc {
+	soc@0 {
 		socfpga-system-mgr-firewall {
 			compatible = "intel,socfpga-dtreg";
 			#address-cells = <1>;
