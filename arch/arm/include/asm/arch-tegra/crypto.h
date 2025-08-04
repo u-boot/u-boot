@@ -7,41 +7,36 @@
 #ifndef _CRYPTO_H_
 #define _CRYPTO_H_
 
+#define TEGRA_AES_SLOT_SBK		0
+
 /**
- * Sign a block of data
+ * sign_data_block - Sign a block of data
  *
- * \param source	Source data
- * \param length	Size of source data
- * \param signature	Destination address for signature, AES_KEY_LENGTH bytes
+ * @source		Source data
+ * @length		Size of source data in bytes
+ * @signature		Destination address for signature, AES_KEY_LENGTH bytes
+ * Return:		0 on success, negative value on failure
  */
 int sign_data_block(u8 *source, unsigned int length, u8 *signature);
 
 /**
- * Sign an encrypted block of data
+ * encrypt_data_block - Encrypt a block of data
  *
- * \param source	Source data
- * \param length	Size of source data
- * \param signature	Destination address for signature, AES_KEY_LENGTH bytes
- * \param key		AES128 encryption key
+ * @source		Source data
+ * @dest		Destination data
+ * @length		Size of source data in bytes
+ * Return:		0 on success, negative value on failure
  */
-int sign_enc_data_block(u8 *source, unsigned int length, u8 *signature, u8 *key);
+int encrypt_data_block(u8 *source, u8 *dest, unsigned int length);
 
 /**
- * Encrypt a block of data
+ * decrypt_data_block - Decrypt a block of data
  *
- * \param source	Source data
- * \param length	Size of source data
- * \param key		AES128 encryption key
+ * @source		Source data
+ * @dest		Destination data
+ * @length		Size of source data in bytes
+ * Return:		0 on success, negative value on failure
  */
-int encrypt_data_block(u8 *source, unsigned int length, u8 *key);
-
-/**
- * Decrypt a block of data
- *
- * \param source	Source data
- * \param length	Size of source data
- * \param key		AES128 encryption key
- */
-int decrypt_data_block(u8 *source, unsigned int length, u8 *key);
+int decrypt_data_block(u8 *source, u8 *dest, unsigned int length);
 
 #endif /* #ifndef _CRYPTO_H_ */

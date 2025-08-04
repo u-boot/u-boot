@@ -1,0 +1,9 @@
+N1 BOARD
+M:	Ion Agorria <ion@agorria.com>
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+S:	Maintained
+F:	arch/arm/dts/tegra20-samsung-bose.dts
+F:	arch/arm/dts/tegra20-samsung-n1.dts
+F:	board/samsung/n1/
+F:	configs/n1_defconfig
+F:	doc/board/samsung/n1.rst

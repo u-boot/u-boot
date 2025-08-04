@@ -55,6 +55,13 @@ int tegra_get_chip_sku(void);
 int tegra_get_chip(void);
 
 /**
+ * Returns the pure SOC major version from the HIDREV register
+ *
+ * Return:	SOC major version
+ */
+u32 tegra_get_major_version(void);
+
+/**
  * Returns the SKU ID from the sku_info register
  *
  * Return:	SKU ID - see SKU_ID_Txx...

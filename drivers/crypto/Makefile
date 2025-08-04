@@ -10,3 +10,4 @@ obj-y += fsl/
 obj-y += hash/
 obj-y += aspeed/
 obj-y += nuvoton/
+obj-y += tegra/

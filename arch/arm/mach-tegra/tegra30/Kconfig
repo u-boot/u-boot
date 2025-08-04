@@ -16,6 +16,10 @@ config TARGET_CARDHU
 	bool "NVIDIA Tegra30 Cardhu evaluation board"
 	select BOARD_LATE_INIT
 
+config TARGET_CHAGALL
+	bool "Pegatron Tegra30 Chagall board"
+	select BOARD_LATE_INIT
+
 config TARGET_COLIBRI_T30
 	bool "Toradex Colibri T30 board"
 	select BOARD_LATE_INIT
@@ -64,6 +68,7 @@ config SYS_SOC
 source "board/toradex/apalis_t30/Kconfig"
 source "board/nvidia/beaver/Kconfig"
 source "board/nvidia/cardhu/Kconfig"
+source "board/pegatron/chagall/Kconfig"
 source "board/toradex/colibri_t30/Kconfig"
 source "board/htc/endeavoru/Kconfig"
 source "board/asus/grouper/Kconfig"

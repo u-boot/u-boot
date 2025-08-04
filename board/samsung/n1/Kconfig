@@ -1,0 +1,13 @@
+if TARGET_SAMSUNG_N1
+
+config SYS_BOARD
+	default "n1"
+
+config SYS_VENDOR
+	default "samsung"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "Samsung N1"
+
+endif

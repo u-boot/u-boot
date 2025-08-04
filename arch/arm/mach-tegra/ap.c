@@ -37,6 +37,14 @@ int tegra_get_chip(void)
 	return rev;
 }
 
+u32 tegra_get_major_version(void)
+{
+	struct apb_misc_gp_ctlr *gp =
+		(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
+
+	return (readl(&gp->hidrev) & HIDREV_MAJORPREV_MASK) >> HIDREV_MAJORPREV_SHIFT;
+}
+
 int tegra_get_sku_info(void)
 {
 	int sku_id;

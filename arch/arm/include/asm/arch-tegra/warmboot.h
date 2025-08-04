@@ -10,12 +10,6 @@
 #define STRAP_OPT_A_RAM_CODE_SHIFT	4
 #define STRAP_OPT_A_RAM_CODE_MASK	(0xf << STRAP_OPT_A_RAM_CODE_SHIFT)
 
-/* Defines the supported operating modes */
-enum fuse_operating_mode {
-	MODE_PRODUCTION = 3,
-	MODE_UNDEFINED,
-};
-
 /* Defines the CMAC-AES-128 hash length in 32 bit words. (128 bits = 4 words) */
 enum {
 	HASH_LENGTH = 4
@@ -125,7 +119,6 @@ union scratch3_reg {
 int warmboot_save_sdram_params(void);
 
 int warmboot_prepare_code(u32 seg_address, u32 seg_length);
-int sign_data_block(u8 *source, u32 length, u8 *signature);
 void wb_start(void);	/* Start of WB assembly code */
 void wb_end(void);	/* End of WB assembly code */
 

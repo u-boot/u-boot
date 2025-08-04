@@ -66,3 +66,11 @@ config VIDEO_BRIDGE_LVDS_CODEC
 	help
 	  Support for transparent LVDS encoders and decoders that don't
 	  require any configuration.
+
+config VIDEO_BRIDGE_SAMSUNG_CMC623
+	bool "Samsung CMC623 Image Converter driver"
+	depends on VIDEO_BRIDGE && DM_GPIO
+	select DM_I2C
+	help
+	  Samsung CMC623 image converter chip driver.
+	  Found in several Samsung devices such as N1

@@ -1,0 +1,184 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra20-samsung-n1-common.dtsi"
+
+/ {
+	model = "Samsung Galaxy R (GT-I9103)";
+	compatible = "samsung,n1", "nvidia,tegra20";
+
+	aliases {
+		i2c10 = &cmc_i2c;
+		spi0 = &panel_spi;
+	};
+
+	host1x@50000000 {
+		dc@54200000 {
+			rgb {
+				status = "okay";
+
+				port {
+					dpi_output: endpoint {
+						remote-endpoint = <&bridge_input>;
+						bus-width = <24>;
+					};
+				};
+			};
+		};
+	};
+
+	pinmux@70000014 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&state_default>;
+
+		state_default: pinmux {
+			conf-dtf {
+				nvidia,pins = "dtf", "spdi", "spih";
+				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
+				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+			};
+
+			conf-gpv {
+				nvidia,pins = "gpv", "spib";
+				nvidia,pull = <TEGRA_PIN_PULL_DOWN>;
+				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+			};
+
+			conf-kbcd {
+				nvidia,pins = "kbcd";
+				nvidia,pull = <TEGRA_PIN_PULL_UP>;
+				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+			};
+		};
+	};
+
+	i2c@7000d000 {
+		max8907@3c {
+			regulators {
+				vcmc623_io_1v8: ldo15 {
+					regulator-name = "vcmc623_io_1v8";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+				};
+			};
+		};
+	};
+
+	cmc_i2c: i2c-10 {
+		compatible = "i2c-gpio";
+
+		sda-gpios = <&gpio TEGRA_GPIO(Z, 3) GPIO_ACTIVE_HIGH>;
+		scl-gpios = <&gpio TEGRA_GPIO(C, 6) GPIO_ACTIVE_HIGH>;
+
+		i2c-gpio,scl-output-only;
+		i2c-gpio,delay-us = <1>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cmc623: bridge@38 {
+			compatible = "samsung,cmc623";
+			reg = <0x38>;
+
+			enable-gpios = <&gpio TEGRA_GPIO(Q, 4) GPIO_ACTIVE_HIGH>;
+			reset-gpios = <&gpio TEGRA_GPIO(J, 6) GPIO_ACTIVE_HIGH>;
+
+			bypass-gpios = <&gpio TEGRA_GPIO(BB, 5) GPIO_ACTIVE_LOW>;
+			sleep-gpios = <&gpio TEGRA_GPIO(W, 0) GPIO_ACTIVE_HIGH>;
+
+			vdd3v0-supply = <&vcmc623_3v0>;
+			vdd1v2-supply = <&vcmc623_1v2>;
+			vddio1v8-supply = <&vcmc623_io_1v8>;
+
+			cmc623_backlight: backlight {
+				compatible = "samsung,cmc623-backlight";
+
+				enable-gpios = <&gpio TEGRA_GPIO(R, 3) GPIO_ACTIVE_HIGH>;
+			};
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					bridge_input: endpoint {
+						remote-endpoint = <&dpi_output>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					bridge_output: endpoint {
+						remote-endpoint = <&panel_input>;
+					};
+				};
+			};
+		};
+	};
+
+	panel_spi: spi@7000d800 {
+		status = "okay";
+		spi-max-frequency = <1000000>;
+
+		panel: panel@2 {
+			/* 480x800 TFT LCD panel */
+			compatible = "sony,l4f00430t01";
+			reg = <2>;
+
+			spi-max-frequency = <1000000>;
+
+			spi-cpol;
+			spi-cpha;
+
+			reset-gpios = <&gpio TEGRA_GPIO(C, 1) GPIO_ACTIVE_LOW>;
+
+			vdd1v8-supply = <&vlcd_1v8_reg>;
+			vdd3v0-supply = <&vlcd_3v0_reg>;
+
+			panel-width-mm = <55>;
+			panel-height-mm = <91>;
+
+			backlight = <&cmc623_backlight>;
+
+			port {
+				panel_input: endpoint {
+					remote-endpoint = <&bridge_output>;
+				};
+			};
+		};
+	};
+
+	sdhci@c8000400 {
+		/* battery blocks the sdcard slot and the device lacks CD pin */
+		non-removable;
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		key-home {
+			label = "Home";
+			gpios = <&gpio TEGRA_GPIO(O, 5) GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_ENTER>;
+		};
+	};
+
+	vcmc623_3v0: regulator-cmc623-3v0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcmc623_3v0";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	vcmc623_1v2: regulator-cmc623-1v2 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcmc623_1v2";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		gpio = <&gpio TEGRA_GPIO(L, 5) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};

@@ -1,0 +1,51 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+U-Boot for the Samsung N1 device family
+=======================================
+
+``DISCLAMER!`` Moving your Samsung Galaxy R (GT-I9103) or Samsung Captivate Glide
+(SGH-i927) to use U-Boot assumes replacement of the sboot. Vendor android firmwares
+will no longer be able to run on the device. This replacement IS reversible.
+
+Quick Start
+-----------
+
+- Build U-Boot
+- Boot
+
+Build U-Boot
+------------
+
+Device support is implemented by applying config fragment to a generic board
+defconfig. Generic board defconfig is suitable for Samsung Galaxy R (GT-I9103)
+while Samsung Captivate Glide (SGH-i927) support is provided by applying
+``bose.config`` fragment.
+
+.. code-block:: bash
+
+    $ export CROSS_COMPILE=arm-none-eabi-
+    $ make n1_defconfig bose.config # For Captivate Glide
+    $ make
+
+After the build succeeds, you will obtain the final ``u-boot-dtb-tegra.bin``
+image, ready for further processing.
+
+Boot
+----
+
+Currently, U-Boot can be preloaded into RAM via the NvFlash. To enter
+RCM protocol use ``home`` and ``volume up`` for Galaxy R and ``volume down``
+and ``volume up`` Captivate Glide key combination plus plugging usb in.
+The host PC should recognize an APX device.
+
+Built U-Boot ``u-boot-dtb-tegra.bin`` can be loaded from fusee-tools
+directory with
+
+.. code-block:: bash
+
+    $ ./utils/nvflash_t20 --setbct --bct ./bct/i927.bct --configfile ./utils/flash.cfg --bl u-boot-dtb-tegra.bin --sbk (in form of 0xABCDABCD 4 times) --sync # For Captivate Glide
+
+To boot Linux, U-Boot will look for an ``extlinux.conf`` on MicroSD and then on
+eMMC. Additionally, if the Volume Down button is pressed while loading, the
+device will enter bootmenu. Bootmenu contains entries to mount MicroSD and eMMC
+as mass storage, fastboot, reboot, reboot RCM and poweroff.

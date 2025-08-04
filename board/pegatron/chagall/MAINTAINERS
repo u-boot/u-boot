@@ -1,0 +1,7 @@
+CHAGALL BOARD
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+S:	Maintained
+F:	arch/arm/dts/tegra30-pegatron-chagall.dts
+F:	board/pegatron/chagall/
+F:	configs/chagall_defconfig
+F:	doc/board/pegatron/chagall.rst

@@ -1,0 +1,119 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra20-samsung-n1-common.dtsi"
+
+/ {
+	model = "Samsung Captivate Glide (SGH-i927)";
+	compatible = "samsung,bose", "nvidia,tegra20";
+
+	aliases {
+		spi0 = &panel_spi;
+	};
+
+	host1x@50000000 {
+		dc@54200000 {
+			rgb {
+				status = "okay";
+
+				port {
+					dpi_output: endpoint {
+						remote-endpoint = <&panel_input>;
+						bus-width = <24>;
+					};
+				};
+			};
+		};
+	};
+
+	pinmux@70000014 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&state_default>;
+
+		state_default: pinmux {
+			conf-dtf {
+				nvidia,pins = "dtf", "spdi", "spib", "spih";
+				nvidia,pull = <TEGRA_PIN_PULL_UP>;
+				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+			};
+
+			conf-gpv {
+				nvidia,pins = "gpv";
+				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
+				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+			};
+
+			conf-kbcd {
+				nvidia,pins = "kbcd";
+				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
+				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+			};
+
+			drive-dap {
+				nvidia,pins = "drive_dap2", "drive_dap3";
+				nvidia,high-speed-mode = <TEGRA_PIN_ENABLE>;
+				nvidia,schmitt = <TEGRA_PIN_ENABLE>;
+				nvidia,low-power-mode = <TEGRA_PIN_LP_DRIVE_DIV_1>;
+				nvidia,pull-down-strength = <31>;
+				nvidia,pull-up-strength = <31>;
+				nvidia,slew-rate-rising = <TEGRA_PIN_SLEW_RATE_SLOWEST>;
+				nvidia,slew-rate-falling = <TEGRA_PIN_SLEW_RATE_SLOWEST>;
+			};
+		};
+	};
+
+	panel_spi: spi@7000d800 {
+		status = "okay";
+		spi-max-frequency = <1000000>;
+
+		panel: panel@2 {
+			/* 480x800 AMOLED panel */
+			compatible = "samsung,bose-panel", "samsung,s6e63m0";
+			reg = <2>;
+
+			spi-max-frequency = <1000000>;
+
+			spi-cpol;
+			spi-cpha;
+
+			reset-gpios = <&gpio TEGRA_GPIO(C, 1) GPIO_ACTIVE_LOW>;
+
+			vdd3-supply = <&vlcd_1v8_reg>;
+			vci-supply = <&vlcd_3v0_reg>;
+
+			panel-width-mm = <52>;
+			panel-height-mm = <87>;
+
+			port {
+				panel_input: endpoint {
+					remote-endpoint = <&dpi_output>;
+				};
+			};
+		};
+	};
+
+	sdhci@c8000400 {
+		broken-cd;
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		switch-hall {
+			label = "Keyboard Slide";
+			gpios = <&gpio TEGRA_GPIO(W, 3) GPIO_ACTIVE_HIGH>;
+			linux,input-type = <EV_SW>;
+			linux,code = <SW_KEYPAD_SLIDE>;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led-kbd {
+			label = "Keyboard backlight";
+			gpios = <&gpio TEGRA_GPIO(L, 5) GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+	};
+};

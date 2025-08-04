@@ -19,6 +19,7 @@
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/fuse.h>
 #include <asm/arch-tegra/warmboot.h>
+#include <asm/arch-tegra/crypto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -182,98 +183,36 @@ int warmboot_save_sdram_params(void)
 	return 0;
 }
 
-static u32 get_major_version(void)
+static void determine_crypto_options(int *is_encrypted, int *is_signed)
 {
-	u32 major_id;
-	struct apb_misc_gp_ctlr *gp =
-		(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
-
-	major_id = (readl(&gp->hidrev) & HIDREV_MAJORPREV_MASK) >>
-			HIDREV_MAJORPREV_SHIFT;
-	return major_id;
-}
-
-static int is_production_mode_fuse_set(struct fuse_regs *fuse)
-{
-	return readl(&fuse->production_mode);
-}
-
-static int is_odm_production_mode_fuse_set(struct fuse_regs *fuse)
-{
-	return readl(&fuse->security_mode);
-}
-
-static int is_failure_analysis_mode(struct fuse_regs *fuse)
-{
-	return readl(&fuse->fa);
-}
-
-static int ap20_is_odm_production_mode(void)
-{
-	struct fuse_regs *fuse = (struct fuse_regs *)NV_PA_FUSE_BASE;
-
-	if (!is_failure_analysis_mode(fuse) &&
-	    is_odm_production_mode_fuse_set(fuse))
-		return 1;
-	else
-		return 0;
-}
-
-static int ap20_is_production_mode(void)
-{
-	struct fuse_regs *fuse = (struct fuse_regs *)NV_PA_FUSE_BASE;
-
-	if (get_major_version() == 0)
-		return 1;
-
-	if (!is_failure_analysis_mode(fuse) &&
-	    is_production_mode_fuse_set(fuse) &&
-	    !is_odm_production_mode_fuse_set(fuse))
-		return 1;
-	else
-		return 0;
-}
-
-static enum fuse_operating_mode fuse_get_operation_mode(void)
-{
-	u32 chip_id;
-	struct apb_misc_gp_ctlr *gp =
-		(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
-
-	chip_id = (readl(&gp->hidrev) & HIDREV_CHIPID_MASK) >>
-			HIDREV_CHIPID_SHIFT;
-	if (chip_id == CHIPID_TEGRA20) {
-		if (ap20_is_odm_production_mode()) {
-			printf("!! odm_production_mode is not supported !!\n");
-			return MODE_UNDEFINED;
-		} else
-			if (ap20_is_production_mode())
-				return MODE_PRODUCTION;
-			else
-				return MODE_UNDEFINED;
-	}
-	return MODE_UNDEFINED;
-}
-
-static void determine_crypto_options(int *is_encrypted, int *is_signed,
-				     int *use_zero_key)
-{
-	switch (fuse_get_operation_mode()) {
+	switch (tegra_fuse_get_operation_mode()) {
+	case MODE_ODM_PRODUCTION_SECURE:
+		*is_encrypted = 1;
+		*is_signed = 1;
+		break;
+	case MODE_ODM_PRODUCTION_OPEN:
 	case MODE_PRODUCTION:
 		*is_encrypted = 0;
 		*is_signed = 1;
-		*use_zero_key = 1;
 		break;
 	case MODE_UNDEFINED:
 	default:
 		*is_encrypted = 0;
 		*is_signed = 0;
-		*use_zero_key  = 0;
 		break;
 	}
 }
 
-static int sign_wb_code(u32 start, u32 length, int use_zero_key)
+static int encrypt_wb_code(u8 *source, u8 *destination, u32 length)
+{
+	source += offsetof(struct wb_header, random_aes_block);
+	destination += offsetof(struct wb_header, random_aes_block);
+	length -= offsetof(struct wb_header, random_aes_block);
+
+	return encrypt_data_block(source, destination, length);
+}
+
+static int sign_wb_code(u32 start, u32 length)
 {
 	int err;
 	u8 *source;		/* Pointer to source */
@@ -295,10 +234,9 @@ int warmboot_prepare_code(u32 seg_address, u32 seg_length)
 	struct wb_header *dst_header;	/* Pointer to dest WB header */
 	int is_encrypted;		/* Segment is encrypted */
 	int is_signed;			/* Segment is signed */
-	int use_zero_key;		/* Use key of all zeros */
 
 	/* Determine crypto options. */
-	determine_crypto_options(&is_encrypted, &is_signed, &use_zero_key);
+	determine_crypto_options(&is_encrypted, &is_signed);
 
 	/* Get the actual code limits. */
 	length = roundup(((u32)wb_end - (u32)wb_start), 16);
@@ -346,18 +284,15 @@ int warmboot_prepare_code(u32 seg_address, u32 seg_length)
 	dst_header->entry_point = NV_WB_RUN_ADDRESS;
 	dst_header->code_length = length;
 
-	if (is_encrypted) {
-		printf("!!!! Encryption is not supported !!!!\n");
-		dst_header->length_insecure = 0;
-		err = -EACCES;
-		goto fail;
-	} else
-		/* copy the wb code directly following dst_header. */
-		memcpy((char *)(dst_header+1), (char *)wb_start, length);
+	if (is_encrypted)
+		encrypt_wb_code((u8 *)wb_start, (u8 *)dst_header,
+				length + sizeof(struct wb_header));
+	else
+		/* copy the wb code directly following dst_header */
+		memcpy((char *)(dst_header + 1), (char *)wb_start, length);
 
 	if (is_signed)
-		err = sign_wb_code(seg_address, dst_header->length_insecure,
-				   use_zero_key);
+		err = sign_wb_code(seg_address, dst_header->length_insecure);
 
 fail:
 	if (err)
