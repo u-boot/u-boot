@@ -727,12 +727,15 @@ static int fm_eth_bind(struct udevice *dev)
 	char mac_name[11];
 	u32 fm, num;
 
+	if (!dev)
+		return -EINVAL;
+
 	if (ofnode_read_u32(ofnode_get_parent(dev_ofnode(dev)), "cell-index", &fm)) {
 		printf("FMan node property cell-index missing\n");
 		return -EINVAL;
 	}
 
-	if (dev && dev_read_u32(dev, "cell-index", &num)) {
+	if (dev_read_u32(dev, "cell-index", &num)) {
 		printf("FMan MAC node property cell-index missing\n");
 		return -EINVAL;
 	}
