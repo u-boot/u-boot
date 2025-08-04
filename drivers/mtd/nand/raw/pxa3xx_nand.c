@@ -1765,6 +1765,7 @@ static int pxa3xx_nand_probe_dt(struct udevice *dev, struct pxa3xx_nand_info *in
 	pdata->num_cs = dev_read_u32_default(dev, "num-cs", 1);
 	if (pdata->num_cs != 1) {
 		pr_err("pxa3xx driver supports single CS only\n");
+		kfree(pdata);
 		return -EINVAL;
 	}
 

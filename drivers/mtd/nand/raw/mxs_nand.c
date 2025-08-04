@@ -1640,10 +1640,12 @@ int mxs_nand_init_ctrl(struct mxs_nand_info *nand_info)
 		nand->setup_data_interface = mxs_nand_setup_interface;
 
 	/* first scan to find the device and get the page size */
-	if (nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_DEVICE, NULL))
+	err = nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_DEVICE, NULL);
+	if (err)
 		goto err_free_buffers;
 
-	if (mxs_nand_setup_ecc(mtd))
+	err = mxs_nand_setup_ecc(mtd);
+	if (err)
 		goto err_free_buffers;
 
 	nand->ecc.read_page	= mxs_nand_ecc_read_page;

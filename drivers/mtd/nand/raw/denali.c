@@ -173,13 +173,9 @@ static uint32_t denali_wait_for_irq(struct denali_nand_info *denali,
 		time_left--;
 	}
 
-	if (!time_left) {
-		dev_err(denali->dev, "timeout while waiting for irq 0x%x\n",
-			irq_mask);
-		return 0;
-	}
-
-	return denali->irq_status;
+	dev_err(denali->dev, "timeout while waiting for irq 0x%x\n",
+		irq_mask);
+	return 0;
 }
 
 static uint32_t denali_check_irq(struct denali_nand_info *denali)
