@@ -197,7 +197,7 @@ config PINCTRL_AR933X
 
 config PINCTRL_AT91
 	bool "AT91 pinctrl driver"
-	depends on DM
+	depends on DM && ARCH_AT91
 	help
 	  This option is to enable the AT91 pinctrl driver for AT91 PIO
 	  controller.
@@ -213,13 +213,14 @@ config PINCTRL_AT91
 
 config PINCTRL_AT91PIO4
 	bool "AT91 PIO4 pinctrl driver"
-	depends on DM
+	depends on DM && ARCH_AT91
 	help
 	  This option is to enable the AT91 pinctrl driver for AT91 PIO4
 	  controller which is available on SAMA5D2 SoC.
 
 config PINCTRL_INTEL
 	bool "Standard Intel pin-control and pin-mux driver"
+	depends on X86
 	help
 	  Recent Intel chips such as Apollo Lake (APL) use a common pin control
 	  and GPIO scheme. The settings for this come from an SoC-specific
@@ -248,7 +249,7 @@ config PINCTRL_QCA953X
 
 config PINCTRL_QE
 	bool "QE based pinctrl driver, like on mpc83xx"
-	depends on DM
+	depends on DM && MPC83xx
 	help
 	  This option is to enable the QE pinctrl driver for QE based io
 	  controller.
