@@ -218,7 +218,7 @@ config RTC_PL031
 
 config RTC_MV
 	bool "Enable Marvell RTC driver"
-	depends on DM_RTC
+	depends on DM_RTC && ARCH_KIRKWOOD
 	help
 	  Enable Marvell RTC driver. This driver supports the rtc that is present
 	  on some Marvell SoCs.
