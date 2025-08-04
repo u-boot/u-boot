@@ -366,8 +366,8 @@ static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
 		noff = fdt_add_subnode(blob, nodeoffset, mac_name);
 		if (noff < 0) {
 			printf("fdt_add_subnode: err=%s\n",
-			       fdt_strerror(err));
-			return err;
+			       fdt_strerror(noff));
+			return noff;
 		}
 
 		/* add default property of fixed link */
