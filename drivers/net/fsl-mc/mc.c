@@ -1539,6 +1539,7 @@ err_get_version:
 		     dflt_dpni->dpni_id);
 err_create:
 	free(dflt_dpni);
+	dflt_dpni = NULL;
 err_calloc:
 	return err;
 }
@@ -1546,6 +1547,9 @@ err_calloc:
 static int dpni_exit(void)
 {
 	int err;
+
+	if (!dflt_dpni)
+		return -ENODEV;
 
 	err = dpni_destroy(dflt_mc_io, dflt_dprc_handle, MC_CMD_NO_FLAGS,
 			   dflt_dpni->dpni_id);
@@ -1558,8 +1562,8 @@ static int dpni_exit(void)
 	printf("Exit: DPNI.%d\n", dflt_dpni->dpni_id);
 #endif
 
-	if (dflt_dpni)
-		free(dflt_dpni);
+	free(dflt_dpni);
+	dflt_dpni = NULL;
 	return 0;
 
 err:
