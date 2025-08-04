@@ -23,7 +23,7 @@ config I2S
 
 config I2S_ROCKCHIP
 	bool "Enable I2S support for Rockchip SoCs"
-	depends on I2S
+	depends on I2S && ARCH_ROCKCHIP
 	help
 	  Rockchip SoCs support an I2S interface for sending audio data to an
 	  audio codec. This option enables support for this, using one of the
@@ -32,7 +32,7 @@ config I2S_ROCKCHIP
 
 config I2S_SAMSUNG
 	bool "Enable I2C support for Samsung SoCs"
-	depends on I2S
+	depends on I2S && ARCH_EXYNOS
 	help
 	  Samsung Exynos SoCs support an I2S interface for sending audio
 	  data to an audio codec. This option enables support for this,
@@ -51,7 +51,7 @@ config SOUND_DA7219
 
 config SOUND_I8254
 	bool "Intel i8254 timer / beeper"
-	depends on SOUND
+	depends on SOUND && X86
 	help
 	  This enables support for a beeper that uses the i8254 timer chip.
 	  This can emit beeps at a fixed frequency. It is possible to control
@@ -82,7 +82,7 @@ config SOUND_IVYBRIDGE
 
 config I2S_TEGRA
 	bool "Enable I2S support for Nvidia Tegra SoCs"
-	depends on I2S
+	depends on I2S && ARCH_TEGRA
 	select TEGRA124_DMA
 	help
 	  Nvidia Tegra SoCs support several I2S interfaces for sending audio
