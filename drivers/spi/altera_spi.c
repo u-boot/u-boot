@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <fdtdec.h>
 #include <spi.h>
+#include <time.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 
