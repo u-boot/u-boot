@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2019 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  *
  */
 
@@ -114,20 +115,6 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	printf("DDR: %lld MiB\n", gd->ram_size >> 20);
 
-	/* This enables nonsecure access to DDR */
-	/* mpuregion0addr_limit */
-	FW_MPU_DDR_SCR_WRITEL(gd->ram_size - 1,
-			      FW_MPU_DDR_SCR_MPUREGION0ADDR_LIMIT);
-	FW_MPU_DDR_SCR_WRITEL(0x1F, FW_MPU_DDR_SCR_MPUREGION0ADDR_LIMITEXT);
-
-	/* nonmpuregion0addr_limit */
-	FW_MPU_DDR_SCR_WRITEL(gd->ram_size - 1,
-			      FW_MPU_DDR_SCR_NONMPUREGION0ADDR_LIMIT);
-
-	/* Enable mpuregion0enable and nonmpuregion0enable */
-	FW_MPU_DDR_SCR_WRITEL(MPUREGION0_ENABLE | NONMPUREGION0_ENABLE,
-			      FW_MPU_DDR_SCR_EN_SET);
-
 	u32 ctrlcfg1 = hmc_readl(plat, CTRLCFG1);
 
 	/* Enable or disable the DDR ECC */
@@ -161,6 +148,8 @@ int sdram_mmr_init_full(struct udevice *dev)
 	writel(FW_HMC_ADAPTOR_MPU_MASK, FW_HMC_ADAPTOR_REG_ADDR);
 
 	sdram_size_check(&bd);
+
+	sdram_set_firewall(&bd);
 
 	priv->info.base = bd.bi_dram[0].start;
 	priv->info.size = gd->ram_size;
