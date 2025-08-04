@@ -11,6 +11,7 @@
 #include <hang.h>
 #include <watchdog.h>
 #include <fdtdec.h>
+#include <dm/ofnode.h>
 #include <linux/libfdt.h>
 #include <linux/printk.h>
 #include <miiphy.h>
@@ -274,17 +275,24 @@ void socfpga_get_managers_addr(void)
 		hang();
 }
 
-void socfpga_get_sys_mgr_addr(const char *compat)
+void socfpga_get_sys_mgr_addr(void)
 {
 	int ret;
-	struct udevice *sysmgr_dev;
+	struct udevice *dev;
 
-	ret = uclass_get_device_by_name(UCLASS_NOP, compat, &sysmgr_dev);
+	ofnode node = ofnode_get_aliases_node("sysmgr");
+
+	if (!ofnode_valid(node)) {
+		printf("'sysmgr' alias not found in device tree\n");
+		hang();
+	}
+
+	ret = uclass_get_device_by_ofnode(UCLASS_NOP, node, &dev);
 	if (ret) {
 		printf("Altera system manager init failed: %d\n", ret);
 		hang();
 	} else {
-		socfpga_sysmgr_base = (phys_addr_t)dev_read_addr(sysmgr_dev);
+		socfpga_sysmgr_base = (phys_addr_t)dev_read_addr(dev);
 	}
 }
 
