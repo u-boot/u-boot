@@ -283,6 +283,7 @@ config SYSRESET_TPL_X86
 
 config SYSRESET_MPC83XX
 	bool "Enable support MPC83xx SoC family reboot driver"
+	depends on PPC
 	help
 	  Reboot support for NXP MPC83xx SoCs.
 
