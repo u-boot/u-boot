@@ -10,6 +10,13 @@
 #include "socfpga_soc64_fit-u-boot.dtsi"
 
 /{
+	aliases {
+		spi0 = &qspi;
+		i2c0 = &i2c1;
+		sysmgr = &sysmgr;
+		freeze_br0 = &freeze_controller;
+	};
+
 	memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -18,6 +25,12 @@
 
 	soc {
 		bootph-all;
+
+		freeze_controller: freeze_controller@f9000450 {
+			compatible = "altr,freeze-bridge-controller";
+			reg = <0xf9000450 0x00000010>;
+			status = "disabled";
+		};
 
 		ccu: cache-controller@f7000000 {
 			compatible = "arteris,ncore-ccu";
@@ -45,6 +58,7 @@
 
 &i2c1 {
 	reset-names = "i2c";
+	status = "okay";
 };
 
 &i2c2 {
@@ -171,3 +185,9 @@
 &watchdog0 {
 	bootph-all;
 };
+
+#if !defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
+&binman {
+	/delete-node/ kernel;
+};
+#endif
