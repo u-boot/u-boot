@@ -6,6 +6,7 @@
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <asm/system.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dm/lists.h>
@@ -336,6 +337,18 @@ static void clk_basic_init(struct udevice *dev,
 	/* Take all ping pong counters out of reset */
 	CM_REG_CLRBITS(plat, CLKMGR_ALTR_EXTCNTRST,
 		       CLKMGR_ALT_EXTCNTRST_ALLCNTRST);
+
+#ifdef COUNTER_FREQUENCY_REAL
+	u32 cntfrq = COUNTER_FREQUENCY_REAL;
+	u32 counter_freq = 0;
+
+	/* Update with accurate clock frequency */
+	if (current_el() == 3) {
+		asm volatile("msr cntfrq_el0, %0" : : "r" (cntfrq) : "memory");
+		asm volatile("mrs %0, cntfrq_el0" : "=r" (counter_freq));
+		debug("Counter freq = 0x%x\n", counter_freq);
+	}
+#endif
 
 	/* Out of boot mode */
 	clk_write_ctrl(plat,
