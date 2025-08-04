@@ -24,6 +24,11 @@
  */
 #define L2_RESET_DONE_REG		0xFFD12218
 
+/* sysmgr.boot_scratch_cold8 bit 17 (1bit) will be used to check whether CPU0
+ * is being powered off/on from kernel
+ */
+#define BOOT_SCRATCH_COLD8		0xFFD12220
+
 /* Magic word to indicate L2 reset is completed */
 #define L2_RESET_DONE_STATUS		0x1228E5E7
 
