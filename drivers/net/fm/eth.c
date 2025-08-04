@@ -169,7 +169,7 @@ static void bmi_rx_port_disable(struct fm_bmi_rx_port *rx_port)
 	/* wait until the rx port is not busy */
 	while ((in_be32(&rx_port->fmbm_rst) & FMBM_RST_BSY) && timeout--)
 		;
-	if (!timeout)
+	if (timeout == -1)
 		printf("%s - timeout\n", __func__);
 }
 
@@ -199,7 +199,7 @@ static void bmi_tx_port_disable(struct fm_bmi_tx_port *tx_port)
 	/* wait until the tx port is not busy */
 	while ((in_be32(&tx_port->fmbm_tst) & FMBM_TST_BSY) && timeout--)
 		;
-	if (!timeout)
+	if (timeout == -1)
 		printf("%s - timeout\n", __func__);
 }
 
