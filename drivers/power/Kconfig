@@ -463,6 +463,7 @@ config TWL4030_POWER
 
 config POWER_MT6323
 	bool "Poweroff driver for mediatek mt6323"
+	depends on ARCH_MEDIATEK
 	select CMD_POWEROFF
 	help
 	  This adds poweroff driver for mt6323
