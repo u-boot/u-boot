@@ -14,6 +14,7 @@ static inline void sync(void)
 
 #define mb()	sync()
 #define dmb()	sync()
+#define wmb()	sync()
 
 enum sandboxio_size_t {
 	SB_SIZE_8,
