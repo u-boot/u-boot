@@ -125,6 +125,7 @@ config REMOTEPROC_TI_PRU
 config REMOTEPROC_TI_IPU
 	bool "Support for TI's K3 based IPU remoteproc driver"
 	select REMOTEPROC
+	depends on ARCH_K3
 	depends on DM
 	depends on SPL_DRIVERS_MISC
 	depends on SPL_FS_LOADER
