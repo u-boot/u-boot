@@ -730,13 +730,6 @@ config CORTINA_UART
 	  Select this to enable UART support for Cortina-Access UART devices
 	  found on CAxxxx SoCs.
 
-config FSL_LINFLEXUART
-	bool "Freescale Linflex UART support"
-	depends on DM_SERIAL
-	help
-	  Select this to enable the Linflex serial module found on some
-	  NXP SoCs like S32V234.
-
 config FSL_LPUART
 	bool "Freescale LPUART support"
 	depends on MACH_IMX || ARCH_LS1021A || ARCH_LS1028A
