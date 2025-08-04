@@ -1178,6 +1178,7 @@ err_get_api_ver:
 		     dflt_dpio->dpio_id);
 err_create:
 	free(dflt_dpio);
+	dflt_dpio = NULL;
 err_calloc:
 	return err;
 }
@@ -1185,6 +1186,9 @@ err_calloc:
 static int dpio_exit(void)
 {
 	int err;
+
+	if (!dflt_dpio)
+		return -ENODEV;
 
 	err = dpio_disable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 	if (err < 0) {
@@ -1211,8 +1215,8 @@ static int dpio_exit(void)
 	printf("Exit: DPIO.%d\n", dflt_dpio->dpio_id);
 #endif
 
-	if (dflt_dpio)
-		free(dflt_dpio);
+	free(dflt_dpio);
+	dflt_dpio = NULL;
 
 	return 0;
 err:
