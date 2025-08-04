@@ -144,9 +144,6 @@ int sdram_mmr_init_full(struct udevice *dev)
 			      DDR_HMC_ECCCTL2_AWB_EN_SET_MSK));
 	}
 
-	/* Enable non-secure reads/writes to HMC Adapter for SDRAM ECC */
-	writel(FW_HMC_ADAPTOR_MPU_MASK, FW_HMC_ADAPTOR_REG_ADDR);
-
 	sdram_size_check(&bd);
 
 	sdram_set_firewall(&bd);
