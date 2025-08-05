@@ -4734,7 +4734,7 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	int port_node = dev_of_offset(dev);
 	int phy_node;
 	u32 id;
-	u32 phyaddr = 0;
+	int phyaddr = 0;
 	int fixed_link = 0;
 	int ret;
 
