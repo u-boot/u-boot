@@ -5353,7 +5353,7 @@ static int mvpp2_probe(struct udevice *dev)
 	} else {
 		port->gop_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					      "gop-port-id", -1);
-		if (port->id == -1) {
+		if (port->gop_id == -1) {
 			dev_err(dev, "missing gop-port-id value\n");
 			return -EINVAL;
 		}
