@@ -1722,8 +1722,7 @@ static struct mvpp2_prs_entry *mvpp2_prs_flow_find(struct mvpp2 *priv, int flow)
 }
 
 /* Return first free tcam index, seeking from start to end */
-static int mvpp2_prs_tcam_first_free(struct mvpp2 *priv, unsigned char start,
-				     unsigned char end)
+static int mvpp2_prs_tcam_first_free(struct mvpp2 *priv, int start, int end)
 {
 	int tid;
 
