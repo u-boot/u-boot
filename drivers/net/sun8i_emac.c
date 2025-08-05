@@ -57,10 +57,9 @@
 #define TX_TOTAL_BUFSIZE	(CFG_ETH_BUFSIZE * CFG_TX_DESCR_NUM)
 #define RX_TOTAL_BUFSIZE	(CFG_ETH_BUFSIZE * CFG_RX_DESCR_NUM)
 
-#define H3_EPHY_DEFAULT_VALUE	0x58000
-#define H3_EPHY_DEFAULT_MASK	GENMASK(31, 15)
 #define H3_EPHY_ADDR_SHIFT	20
 #define REG_PHY_ADDR_MASK	GENMASK(4, 0)
+#define H3_EPHY_CLK_SEL		BIT(18) /* 1: 24MHz, 0: 25MHz */
 #define H3_EPHY_LED_POL		BIT(17)	/* 1: active low, 0: active high */
 #define H3_EPHY_SHUTDOWN	BIT(16)	/* 1: shutdown, 0: power up */
 #define H3_EPHY_SELECT		BIT(15) /* 1: internal PHY, 0: external PHY */
@@ -287,34 +286,21 @@ static void sun8i_adjust_link(struct emac_eth_dev *priv,
 	writel(v, priv->mac_reg + EMAC_CTL0);
 }
 
-static u32 sun8i_emac_set_syscon_ephy(struct emac_eth_dev *priv, u32 reg)
+static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
+				 struct emac_eth_dev *priv)
 {
+	u32 reg = 0;
+
 	if (priv->use_internal_phy) {
 		/* H3 based SoC's that has an Internal 100MBit PHY
 		 * needs to be configured and powered up before use
 		*/
-		reg &= ~H3_EPHY_DEFAULT_MASK;
-		reg |=  H3_EPHY_DEFAULT_VALUE;
 		reg |= priv->phyaddr << H3_EPHY_ADDR_SHIFT;
-		reg &= ~H3_EPHY_SHUTDOWN;
-		return reg | H3_EPHY_SELECT;
+		reg |= H3_EPHY_CLK_SEL;
+		reg |= H3_EPHY_SELECT;
+	} else {
+		reg |= H3_EPHY_SHUTDOWN;
 	}
-
-	/* This is to select External Gigabit PHY on those boards with
-	 * an internal PHY. Does not hurt on other SoCs. Linux does
-	 * it as well.
-	 */
-	return reg & ~H3_EPHY_SELECT;
-}
-
-static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
-				 struct emac_eth_dev *priv)
-{
-	u32 reg;
-
-	reg = readl(priv->sysctl_reg);
-
-	reg = sun8i_emac_set_syscon_ephy(priv, reg);
 
 	reg &= ~(SC_ETCS_MASK | SC_EPIT);
 	if (priv->variant->support_rmii)
