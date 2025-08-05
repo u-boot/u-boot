@@ -232,7 +232,7 @@ static int nicvf_rcv_pkt_handler(struct nicvf *nic,
 
 	size_t pkt_len;
 	struct cqe_rx_t *cqe_rx = (struct cqe_rx_t *)cq_desc;
-	int err = 0;
+	int err;
 
 	/* Check for errors */
 	err = nicvf_check_cqe_rx_errs(nic, cq, cq_desc);
@@ -245,8 +245,7 @@ static int nicvf_rcv_pkt_handler(struct nicvf *nic,
 		return -1;
 	}
 
-	if (pkt)
-		*ppkt = pkt;
+	*ppkt = pkt;
 
 	return pkt_len;
 }
