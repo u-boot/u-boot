@@ -135,6 +135,7 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 	int i, line_cnt = 0, column_cnt = 0;
 	struct cortina_reg_config fw_temp;
 	char *addr = NULL;
+	char *to_be_freed = NULL;
 	ulong cortina_fw_addr = (ulong)cs4340_get_fw_addr();
 
 #ifdef CONFIG_TFABOOT
@@ -147,6 +148,7 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 		size_t fw_length = CONFIG_CORTINA_FW_LENGTH;
 
 		addr = malloc(CONFIG_CORTINA_FW_LENGTH);
+		to_be_freed = addr;
 		ret = nand_read(get_nand_dev_by_index(0),
 					   (loff_t)cortina_fw_addr,	&fw_length, (u_char *)addr);
 		if (ret == -EUCLEAN) {
@@ -158,6 +160,7 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 		struct spi_flash *ucode_flash;
 
 		addr = malloc(CONFIG_CORTINA_FW_LENGTH);
+		to_be_freed = addr;
 		ucode_flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
 									 CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE);
 		if (!ucode_flash) {
@@ -179,6 +182,7 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 			puts("Failed to find MMC device for Cortina ucode\n");
 		} else {
 			addr = malloc(CONFIG_CORTINA_FW_LENGTH);
+			to_be_freed = addr;
 			printf("MMC read: dev # %u, block # %u, count %u ...\n",
 				  dev, blk, cnt);
 			mmc_init(mmc);
@@ -199,6 +203,7 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 	size_t fw_length = CONFIG_CORTINA_FW_LENGTH;
 
 	addr = malloc(CONFIG_CORTINA_FW_LENGTH);
+	to_be_freed = addr;
 	ret = nand_read(get_nand_dev_by_index(0),
 			(loff_t)cortina_fw_addr,
 			&fw_length, (u_char *)addr);
@@ -211,6 +216,7 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 	struct spi_flash *ucode_flash;
 
 	addr = malloc(CONFIG_CORTINA_FW_LENGTH);
+	to_be_freed = addr;
 	ucode_flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
 				CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE);
 	if (!ucode_flash) {
@@ -232,6 +238,7 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 		puts("Failed to find MMC device for Cortina ucode\n");
 	} else {
 		addr = malloc(CONFIG_CORTINA_FW_LENGTH);
+		to_be_freed = addr;
 		printf("MMC read: dev # %u, block # %u, count %u ...\n",
 		       dev, blk, cnt);
 		mmc_init(mmc);
@@ -280,6 +287,8 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 				     0xffff;
 		phy_write(phydev, 0x00, fw_temp.reg_addr, fw_temp.reg_value);
 	}
+	if (to_be_freed)
+		free(to_be_freed);
 }
 #endif
 
