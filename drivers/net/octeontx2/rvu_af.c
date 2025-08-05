@@ -114,7 +114,7 @@ struct nix_af *rvu_af_init(struct rvu_af *rvu_af)
 	return nix_af;
 
 error:
-	if (nix_af->npa_af) {
+	if (nix_af && nix_af->npa_af) {
 		free(nix_af->npa_af);
 		memset(nix_af, 0, sizeof(*nix_af));
 	}
