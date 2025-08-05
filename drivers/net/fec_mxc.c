@@ -1344,6 +1344,7 @@ static int fecmxc_probe(struct udevice *dev)
 	while (readl(&priv->eth->ecntrl) & FEC_ECNTRL_RESET) {
 		if (get_timer(start) > (CONFIG_SYS_HZ * 5)) {
 			printf("FEC MXC: Timeout resetting chip\n");
+			ret = -ETIMEDOUT;
 			goto err_timeout;
 		}
 		udelay(10);
