@@ -458,7 +458,7 @@ static int ldpaa_eth_open(struct udevice *dev)
 	link_state.up == 1 ? printf("up\n") : printf("error state\n");
 #endif
 
-	memset(&d_queue, 0, sizeof(struct dpni_queue));
+	memset(&d_queue, 0, sizeof(struct dpni_queue_id));
 	err = dpni_get_queue(dflt_mc_io, MC_CMD_NO_FLAGS,
 			     dflt_dpni->dpni_handle, DPNI_QUEUE_RX,
 			     0, 0, &d_queue_cfg, &d_queue);
