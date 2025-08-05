@@ -175,6 +175,7 @@ struct sun8i_eth_pdata {
 	u32 reset_delays[3];
 	int tx_delay_ps;
 	int rx_delay_ps;
+	bool leds_active_low;
 };
 
 static int sun8i_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
@@ -298,6 +299,9 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 		reg |= priv->phyaddr << H3_EPHY_ADDR_SHIFT;
 		reg |= H3_EPHY_CLK_SEL;
 		reg |= H3_EPHY_SELECT;
+
+		if (pdata->leds_active_low)
+			reg |= H3_EPHY_LED_POL;
 	} else {
 		reg |= H3_EPHY_SHUTDOWN;
 	}
@@ -844,6 +848,10 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	if (sun8i_pdata->rx_delay_ps < 0 || sun8i_pdata->rx_delay_ps > 3100)
 		printf("%s: Invalid RX delay value %d\n", __func__,
 		       sun8i_pdata->rx_delay_ps);
+
+	sun8i_pdata->leds_active_low =
+		fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
+				"allwinner,leds-active-low");
 
 	if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 			    "snps,reset-active-low"))
