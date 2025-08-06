@@ -24,6 +24,12 @@
 #define EXYNOS850_APM_SHMEM_OFFSET	0x3200
 #define EXYNOS850_IPC_AP_I3C		10
 
+/* LDFW firmware definitions */
+#define LDFW_NWD_ADDR			0x88000000
+#define EMMC_IFNAME			"mmc"
+#define EMMC_DEV_NUM			0
+#define EMMC_ESP_PART			1
+
 struct efi_fw_image fw_images[] = {
 	{
 		.image_type_id = E850_96_FWBL1_IMAGE_GUID,
@@ -141,7 +147,8 @@ int board_late_init(void)
 	 * Do this in board_late_init() to make sure MMC is not probed before
 	 * efi_init_early().
 	 */
-	err = load_ldfw();
+	err = load_ldfw(EMMC_IFNAME, EMMC_DEV_NUM, EMMC_ESP_PART,
+			LDFW_NWD_ADDR);
 	if (err)
 		printf("ERROR: LDFW loading failed (%d)\n", err);
 
