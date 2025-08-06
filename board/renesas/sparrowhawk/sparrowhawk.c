@@ -116,7 +116,7 @@ dbsc5_get_board_data(struct udevice *dev, const u32 modemr0)
 	 * Use MD[19] setting to discern 8 GiB and 16 GiB DRAM Sparrow Hawk
 	 * board variants from each other automatically.
 	 */
-	if (modemr0 & BIT(19))
+	if ((renesas_get_cpu_rev_integer() >= 3) && (modemr0 & BIT(19)))
 		return &renesas_v4h_sparrowhawk_16g_5500_dbsc5_board_config;
 	else
 		return &renesas_v4h_sparrowhawk_8g_6400_dbsc5_board_config;
@@ -244,7 +244,7 @@ void renesas_dram_init_banksize(void)
 	int bank;
 
 	/* 8 GiB device, do nothing. */
-	if (!(modemr0 & BIT(19)))
+	if (!((renesas_get_cpu_rev_integer() >= 3) && (modemr0 & BIT(19))))
 		return;
 
 	/* 16 GiB device, adjust memory map. */
