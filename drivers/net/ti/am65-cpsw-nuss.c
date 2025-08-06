@@ -628,7 +628,7 @@ static int am65_cpsw_phy_init(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct phy_device *phydev;
 	u32 supported = PHY_GBIT_FEATURES;
-	int ret;
+	int ret = 0;
 
 	phydev = dm_eth_phy_connect(dev);
 	if (!phydev) {
