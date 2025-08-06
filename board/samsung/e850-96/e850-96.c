@@ -8,6 +8,7 @@
 #include <env.h>
 #include <init.h>
 #include <mapmem.h>
+#include <net.h>
 #include <asm/io.h>
 #include "fw.h"
 
@@ -92,11 +93,35 @@ static void setup_serial(void)
 	env_set("serial#", serial_str);
 }
 
+static void setup_ethaddr(void)
+{
+	u64 serial_num;
+	u32 mac_hi, mac_lo;
+	u8 mac_addr[6];
+
+	if (env_get("ethaddr"))
+		return;
+
+	serial_num = get_chip_id();
+	mac_lo = (u32)serial_num;		/* OTP_CHIPID0 */
+	mac_hi = (u32)(serial_num >> 32UL);	/* OTP_CHIPID1 */
+	mac_addr[0] = (mac_hi >> 8) & 0xff;
+	mac_addr[1] = mac_hi & 0xff;
+	mac_addr[2] = (mac_lo >> 24) & 0xff;
+	mac_addr[3] = (mac_lo >> 16) & 0xff;
+	mac_addr[4] = (mac_lo >> 8) & 0xff;
+	mac_addr[5] = mac_lo & 0xff;
+	mac_addr[0] &= ~0x1; /* make sure it's not a multicast address */
+	if (is_valid_ethaddr(mac_addr))
+		eth_env_set_enetaddr("ethaddr", mac_addr);
+}
+
 int board_late_init(void)
 {
 	int err;
 
 	setup_serial();
+	setup_ethaddr();
 
 	/*
 	 * Do this in board_late_init() to make sure MMC is not probed before
