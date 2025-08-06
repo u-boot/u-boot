@@ -11,11 +11,18 @@
 #include <net.h>
 #include <asm/io.h>
 #include "fw.h"
+#include "pmic.h"
 
 /* OTP Controller base address and register offsets */
-#define EXYNOS850_OTP_BASE	0x10000000
-#define OTP_CHIPID0		0x4
-#define OTP_CHIPID1		0x8
+#define EXYNOS850_OTP_BASE		0x10000000
+#define OTP_CHIPID0			0x4
+#define OTP_CHIPID1			0x8
+
+/* ACPM and PMIC definitions */
+#define EXYNOS850_MBOX_APM2AP_BASE	0x11900000
+#define EXYNOS850_APM_SRAM_BASE		0x02039000	/* in iRAM */
+#define EXYNOS850_APM_SHMEM_OFFSET	0x3200
+#define EXYNOS850_IPC_AP_I3C		10
 
 struct efi_fw_image fw_images[] = {
 	{
@@ -54,6 +61,13 @@ struct efi_capsule_update_info update_info = {
 			"el3_mon.img raw 0x1438 0x200 mmcpart 1",
 	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
+};
+
+static struct acpm acpm = {
+	.mbox_base	= (void __iomem *)EXYNOS850_MBOX_APM2AP_BASE,
+	.sram_base	= (void __iomem *)(EXYNOS850_APM_SRAM_BASE +
+					   EXYNOS850_APM_SHMEM_OFFSET),
+	.ipc_ch		= EXYNOS850_IPC_AP_I3C,
 };
 
 int dram_init(void)
@@ -130,6 +144,17 @@ int board_late_init(void)
 	err = load_ldfw();
 	if (err)
 		printf("ERROR: LDFW loading failed (%d)\n", err);
+
+	return 0;
+}
+
+int power_init_board(void)
+{
+	int err;
+
+	err = pmic_init(&acpm);
+	if (err)
+		printf("ERROR: Failed to configure PMIC (%d)\n", err);
 
 	return 0;
 }
