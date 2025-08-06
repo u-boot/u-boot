@@ -9,6 +9,7 @@
 #include <init.h>
 #include <mapmem.h>
 #include <net.h>
+#include <usb.h>
 #include <asm/io.h>
 #include "fw.h"
 #include "pmic.h"
@@ -136,21 +137,40 @@ static void setup_ethaddr(void)
 		eth_env_set_enetaddr("ethaddr", mac_addr);
 }
 
-int board_late_init(void)
+/*
+ * Call this in board_late_init() to avoid probing block devices before
+ * efi_init_early().
+ */
+void load_firmware(void)
 {
+	const char *ifname;
+	ulong dev, part;
 	int err;
 
-	setup_serial();
-	setup_ethaddr();
+	ifname = env_get("bootdev");
+	if (!ifname)
+		ifname = EMMC_IFNAME;
+	dev = env_get_ulong("bootdevnum", 10, EMMC_DEV_NUM);
+	part = env_get_ulong("bootdevpart", 10, EMMC_ESP_PART);
 
-	/*
-	 * Do this in board_late_init() to make sure MMC is not probed before
-	 * efi_init_early().
-	 */
-	err = load_ldfw(EMMC_IFNAME, EMMC_DEV_NUM, EMMC_ESP_PART,
-			LDFW_NWD_ADDR);
+	if (!strcmp(ifname, "usb")) {
+		printf("Starting USB (bootdev=usb)...\n");
+		err = usb_init();
+		if (err)
+			return;
+	}
+
+	printf("Loading LDFW firmware (from %s %ld)...\n", ifname, dev);
+	err = load_ldfw(ifname, dev, part, LDFW_NWD_ADDR);
 	if (err)
 		printf("ERROR: LDFW loading failed (%d)\n", err);
+}
+
+int board_late_init(void)
+{
+	setup_serial();
+	setup_ethaddr();
+	load_firmware();
 
 	return 0;
 }
