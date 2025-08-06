@@ -13,3 +13,9 @@ menuconfig I3C
 
 	  If you want I3C support, you should say Y here and also to the
 	  specific driver for your bus adapter(s) below.
+
+if I3C
+
+source "drivers/i3c/master/Kconfig"
+
+endif # I3C
