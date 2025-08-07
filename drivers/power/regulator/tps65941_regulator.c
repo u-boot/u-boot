@@ -277,8 +277,8 @@ static const struct tps65941_reg_conv_ops buck_conv_ops[] = {
 
 static int tps65941_buck_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, adr;
-	int ret, delta, uwait, slew, idx;
+	unsigned int adr;
+	int hex, ret, delta, uwait, slew, idx;
 	struct dm_regulator_uclass_plat *uc_pdata;
 	const struct tps65941_reg_conv_ops *conv_ops;
 	ulong chip_id;
@@ -479,8 +479,8 @@ static const struct tps65941_reg_conv_ops ldo_conv_ops[] = {
 
 static int tps65941_ldo_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, adr;
-	int ret, ret_volt, idx, ldo_bypass;
+	unsigned int adr;
+	int hex, ret, ret_volt, idx, ldo_bypass;
 	struct dm_regulator_uclass_plat *uc_pdata;
 	const struct tps65941_reg_conv_ops *conv_ops;
 	ulong chip_id;
