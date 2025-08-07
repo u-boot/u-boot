@@ -27,7 +27,7 @@ static int rzg2l_usbphy_regulator_get_enable(struct udevice *dev)
 {
 	struct rzg2l_usbphy_ctrl_priv *priv = dev_get_priv(dev->parent);
 
-	return !!readl(priv->regs + VBENCTL) & VBENCTL_VBUS_SEL;
+	return !!(readl(priv->regs + VBENCTL) & VBENCTL_VBUS_SEL);
 }
 
 static const struct dm_regulator_ops rzg2l_usbphy_regulator_ops = {
