@@ -141,7 +141,7 @@
 
 			host_intf: host_intf@9f000 {
 				compatible = "nuvoton,npcm845-host-intf";
-				reg = <0x9f000 0x1000>;
+				reg = <0x9f000 0x1000>, <0x7000 0x40>;
 				type = "espi";
 				ioaddr = <0x4e>;
 				channel-support = <0xf>;

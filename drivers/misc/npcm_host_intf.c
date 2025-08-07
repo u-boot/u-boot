@@ -45,10 +45,20 @@
 #define ESPI_TEN_ENABLE		0x55
 #define ESPI_TEN_DISABLE	0
 
+/* KCS/BPC interrupt control */
+#define BPCFEN			0x46
+#define FRIE			BIT(3)
+#define HRIE			BIT(4)
+#define KCS1CTL			0x18
+#define KCS2CTL			0x2a
+#define KCS3CTL			0x3c
+#define IBFIE			BIT(0)
+#define OBEIE			BIT(1)
+
 static int npcm_host_intf_bind(struct udevice *dev)
 {
 	struct regmap *syscon;
-	void __iomem *base;
+	void __iomem *base, *kcs_base;
 	u32 ch_supp, val;
 	u32 ioaddr;
 	const char *type;
@@ -103,6 +113,15 @@ static int npcm_host_intf_bind(struct udevice *dev)
 
 	/* Release host wait */
 	setbits_8(SMC_CTL_REG_ADDR, SMC_CTL_HOSTWAIT);
+
+	kcs_base = dev_read_addr_index_ptr(dev, 1);
+	if (kcs_base) {
+		/* Disable KCS/BPC interrupts */
+		clrbits_8(kcs_base + BPCFEN, FRIE | HRIE);
+		clrbits_8(kcs_base + KCS1CTL, IBFIE | OBEIE);
+		clrbits_8(kcs_base + KCS2CTL, IBFIE | OBEIE);
+		clrbits_8(kcs_base + KCS3CTL, IBFIE | OBEIE);
+	}
 
 	return 0;
 }
