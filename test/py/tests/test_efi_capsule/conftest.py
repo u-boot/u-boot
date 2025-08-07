@@ -103,6 +103,7 @@ def efi_capsule_data(request, ubman):
         pytest.skip('Setup failed: %s' % exception.cmd)
         return
     else:
+        ubman.restart_uboot()
         yield image_path
     finally:
         call('rm -rf %s' % mnt_point, shell=True)
