@@ -121,12 +121,7 @@ Set the variables corresponding to this platform:
 Target Images
 --------------
 In order to boot we need tiboot3.bin, tispl.bin and u-boot.img.  Each SoC
-variant (GP, HS-FS, HS-SE) requires a different source for these files.
-
- - GP
-
-        * tiboot3-am62ax-gp-evm.bin from step 3.1
-        * tispl.bin_unsigned, u-boot.img_unsigned from step 3.2
+variant (HS-FS, HS-SE) requires a different source for these files.
 
  - HS-FS
 
