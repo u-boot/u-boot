@@ -83,8 +83,8 @@ static int lp873x_buck_hex2volt(int hex)
 
 static int lp873x_buck_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, adr;
-	int ret;
+	unsigned int adr;
+	int hex, ret;
 	struct dm_regulator_uclass_plat *uc_pdata;
 
 	uc_pdata = dev_get_uclass_plat(dev);
@@ -177,8 +177,8 @@ static int lp873x_ldo_hex2volt(int hex)
 
 static int lp873x_ldo_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, adr;
-	int ret;
+	unsigned int adr;
+	int hex, ret;
 
 	struct dm_regulator_uclass_plat *uc_pdata;
 
