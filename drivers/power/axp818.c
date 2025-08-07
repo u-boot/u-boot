@@ -248,8 +248,6 @@ int axp_init(void)
 
 	if (!(axp_chip_id == 0x51))
 		return -ENODEV;
-	else
-		return ret;
 
 	return 0;
 }
