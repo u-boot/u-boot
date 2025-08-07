@@ -204,7 +204,7 @@ static int zynqmp_pinctrl_prepare_func_groups(u32 fid,
 	const char **fgroups;
 	char name[MAX_GROUP_NAME_LEN];
 	u16 resp[NUM_GROUPS_PER_RESP] = {0};
-	int ret, index, i;
+	int ret = 0, index, i;
 
 	fgroups = kcalloc(func->ngroups, sizeof(*fgroups), GFP_KERNEL);
 	if (!fgroups)
