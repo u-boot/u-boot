@@ -23,6 +23,7 @@
 #define TIPRSTC		0x50
 #define CORSTC		0x5c
 #define FLOCKR1		0x74
+#define INTCR		0x3c
 #define INTCR4		0xc0
 #define I2CSEGSEL	0xe0
 #define MFSEL1		0x260
@@ -280,6 +281,7 @@ struct npcm8xx_pinctrl_priv {
 	FUNC(lkgpo2, FLOCKR1, 8, 9) \
 	FUNC(nprd_smi, FLOCKR1, 20, 190) \
 	FUNC(mmcwp, FLOCKR1, 24, 153) \
+	FUNC(vcdhs, INTCR, 27) \
 	FUNC(rg2refck, INTCR4, 6) \
 	FUNC(r1en, INTCR4, 12) \
 	FUNC(r2en, INTCR4, 13) \
