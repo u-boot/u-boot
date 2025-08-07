@@ -22,6 +22,8 @@
 /* ESPI Register offsets */
 #define ESPICFG			0x4
 #define ESPIHINDP		0x80
+#define ESPI_TEN		0xF0
+#define ESPI_ENG		0xF1
 
 /* MFSEL bit fileds */
 #define MFSEL1_LPCSEL		BIT(26)
@@ -39,6 +41,9 @@
 #define AUTO_HS1		BIT(8)
 #define AUTO_HS2		BIT(12)
 #define AUTO_HS3		BIT(16)
+
+#define ESPI_TEN_ENABLE		0x55
+#define ESPI_TEN_DISABLE	0
 
 static int npcm_host_intf_bind(struct udevice *dev)
 {
@@ -83,6 +88,13 @@ static int npcm_host_intf_bind(struct udevice *dev)
 		val &= ~(CHSUPP_MASK | IOMODE_MASK | MAXFREQ_MASK);
 		val |= IOMODE_SDQ | MAXFREQ_33MHZ | FIELD_PREP(CHSUPP_MASK, ch_supp);
 		writel(val, base + ESPICFG);
+
+		if (device_is_compatible(dev, "nuvoton,npcm845-host-intf")) {
+			/* Workaround: avoid eSPI module getting into wrong state */
+			writeb(ESPI_TEN_ENABLE, base + ESPI_TEN);
+			writeb(BIT(6), base + ESPI_ENG);
+			writeb(ESPI_TEN_DISABLE, base + ESPI_TEN);
+		}
 	} else if (!strcmp(type, "lpc")) {
 		/* Select LPC pin function */
 		regmap_update_bits(syscon, MFSEL4, MFSEL4_ESPISEL, 0);
