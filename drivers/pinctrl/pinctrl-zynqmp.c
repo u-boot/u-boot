@@ -460,14 +460,14 @@ static int zynqmp_pinconf_set(struct udevice *dev, unsigned int pin,
 	case PIN_CFG_IOSTANDARD:
 		param = PM_PINCTRL_CONFIG_VOLTAGE_STATUS;
 		ret = zynqmp_pm_pinctrl_get_config(pin, param, &value);
-		if (arg != value)
+		if (!ret && arg != value)
 			dev_warn(dev, "Invalid IO Standard requested for pin %d\n",
 				 pin);
 		break;
 	case PIN_CONFIG_POWER_SOURCE:
 		param = PM_PINCTRL_CONFIG_VOLTAGE_STATUS;
 		ret = zynqmp_pm_pinctrl_get_config(pin, param, &value);
-		if (arg != value)
+		if (!ret && arg != value)
 			dev_warn(dev, "Invalid IO Standard requested for pin %d\n",
 				 pin);
 		break;
