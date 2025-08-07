@@ -137,6 +137,8 @@ def do_reboot_dtb_specified(u_boot_config, ubman, dtb_filename):
         dtb_filename -- DTB file name.
     """
     mnt_point = u_boot_config.persistent_data_dir + '/scratch'
+    old_dtb = ubman.config.dtb
     ubman.config.dtb = mnt_point + CAPSULE_DATA_DIR \
                                 + f'/{dtb_filename}'
     ubman.restart_uboot()
+    ubman.config.dtb = old_dtb
