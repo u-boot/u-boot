@@ -18,6 +18,7 @@ enum imx9_soc_voltage_mode {
 void soc_power_init(void);
 bool m33_is_rom_kicked(void);
 int m33_prepare(void);
+int low_drive_freq_update(void *blob);
 
 enum imx9_soc_voltage_mode soc_target_voltage_mode(void);
 
