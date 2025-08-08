@@ -1,6 +1,7 @@
 // SPDX-License-Identifier:     GPL-2.0
 /*
  * Copyright (C) 2024 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 #include "socfpga_agilex5.dtsi"
 
@@ -85,6 +86,10 @@
 &usb0 {
 	status = "okay";
 	disable-over-current;
+};
+
+&usb31 {
+	status = "okay";
 };
 
 &watchdog0 {
