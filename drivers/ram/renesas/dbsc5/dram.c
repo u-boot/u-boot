@@ -3735,7 +3735,7 @@ static u32 dbsc5_read_vref_training(struct udevice *dev)
 	if (vref_stop_index > 0x80)
 		return 0;
 
-	for (i = 0; i <= vref_stop_index; i++) {
+	for (i = 0; i < vref_stop_index; i++) {
 		r_foreach_vch(dev, ch) {
 			reg = dbsc5_ddr_getval_slice(dev, ch, 0, PHY_PAD_VREF_CTRL_DQ);
 			reg &= 0xF << 10;
@@ -3819,7 +3819,7 @@ static u32 dbsc5_read_vref_training(struct udevice *dev)
 		best_vref_byte0_index = 0;
 		best_dvw_min_byte0 = dvw_min_byte0_table[ch][0];
 
-		for (i = 0; i <= vref_stop_index; i++) {
+		for (i = 0; i < vref_stop_index; i++) {
 			if (best_dvw_min_byte0 >= dvw_min_byte0_table[ch][i])
 				continue;
 
@@ -3858,7 +3858,7 @@ static u32 dbsc5_read_vref_training(struct udevice *dev)
 		vref_outlier = dbsc5_ddr_getval_slice(dev, ch, 0, PHY_RDLVL_VREF_OUTLIER);
 		best_upper_vref = best_vref_byte0;
 		outlier_cnt = vref_outlier;
-		for (i = best_vref_byte0_index; i <= vref_stop_index; i++) {
+		for (i = best_vref_byte0_index; i < vref_stop_index; i++) {
 			if (dvw_min_byte0_table[ch][i] <= 0)
 				break;
 
@@ -3879,7 +3879,7 @@ static u32 dbsc5_read_vref_training(struct udevice *dev)
 		best_vref_byte1 = vref_start;
 		best_vref_byte1_index = 0;
 		best_dvw_min_byte1 = dvw_min_byte1_table[ch][0];
-		for (i = 0; i <= vref_stop_index; i++) {
+		for (i = 0; i < vref_stop_index; i++) {
 			if (best_dvw_min_byte1 >= dvw_min_byte1_table[ch][i])
 				continue;
 
@@ -3918,7 +3918,7 @@ static u32 dbsc5_read_vref_training(struct udevice *dev)
 		vref_outlier = dbsc5_ddr_getval_slice(dev, ch, 1, PHY_RDLVL_VREF_OUTLIER);
 		best_upper_vref = best_vref_byte1;
 		outlier_cnt = vref_outlier;
-		for (i = best_vref_byte1_index; i <= vref_stop_index; i++) {
+		for (i = best_vref_byte1_index; i < vref_stop_index; i++) {
 			if (dvw_min_byte1_table[ch][i] <= 0)
 				break;
 
