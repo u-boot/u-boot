@@ -19,7 +19,7 @@
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include "ti_sci_proc.h"
 
-#define INVALID_ID	0xffff
+#define INVALID_ID	0xff
 
 #define GTC_CNTCR_REG	0x0
 #define GTC_CNTFID0_REG	0x20
