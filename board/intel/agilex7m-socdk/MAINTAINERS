@@ -1,0 +1,10 @@
+SOCFPGA BOARD
+M:	Tien Fong Chee <tien.fong.chee@altera.com>
+M:	Alif Zakuan Yuslaimi <alif.zakuan.yuslaimi@altera.com>
+S:	Maintained
+F:	arch/arm/dts/socfpga_soc64_u-boot.dtsi
+F:	arch/arm/dts/socfpga_agilex7m*
+F:	arch/arm/mach-socfpga/spl_agilex7m.c
+F:	board/intel/agilex7m-socdk/
+F:	include/configs/socfpga_agilex7m_socdk.h
+F:	configs/socfpga_agilex7m_sdmmc_defconfig

@@ -10,6 +10,8 @@
 #include <linux/bitops.h>
 #endif
 
+#define COUNTER_FREQUENCY_REAL	400000000
+
 #define CM_REG_READL(plat, reg)				\
 	readl((plat)->regs + (reg))
 

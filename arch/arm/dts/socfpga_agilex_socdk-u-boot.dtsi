@@ -3,41 +3,139 @@
  * U-Boot additions
  *
  * Copyright (C) 2019-2022 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
 #include "socfpga_agilex-u-boot.dtsi"
 
+#ifdef CONFIG_TARGET_SOCFPGA_AGILEX
 /{
-	aliases {
-		spi0 = &qspi;
-		i2c0 = &i2c1;
-		freeze_br0 = &freeze_controller;
+	chosen {
+		stdout-path = "serial0:115200n8";
+		u-boot,spl-boot-order = &mmc,&flash0,&nand;
 	};
 
-	soc {
-		freeze_controller: freeze_controller@f9000450 {
-			compatible = "altr,freeze-bridge-controller";
-			reg = <0xf9000450 0x00000010>;
-			status = "disabled";
-		};
-	};
-
-	memory {
+	memory@0 {
 		/* 8GB */
 		reg = <0 0x00000000 0 0x80000000>,
 		      <2 0x80000000 1 0x80000000>;
 	};
 };
 
-&flash0 {
-	compatible = "jedec,spi-nor";
-	spi-tx-bus-width = <4>;
-	spi-rx-bus-width = <4>;
-	bootph-all;
+&qspi {
+	status = "okay";
+};
+#endif
+
+#ifdef CONFIG_TARGET_SOCFPGA_AGILEX7M
+/{
+	model = "SoCFPGA Agilex7-M SoCDK";
+	chosen {
+		stdout-path = "serial0:115200n8";
+		u-boot,spl-boot-order = &mmc;
+	};
+
+	memory@0 {
+		/*
+		 * When LPDDR ECC is enabled, the last 1/8 of the memory region must
+		 * be reserved for the Inline ECC buffer.
+		 *
+		 * Example for memory size with 2GB:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x80000000>;
+		 * };
+		 *
+		 * Example for memory size with 8GB:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x80000000>,
+		 *	      <0x1 0x00000000 0x1 0x80000000>;
+		 * };
+		 *
+		 *
+		 * Example for memory size with 2GB with LPDDR Inline ECC ON:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x70000000>;
+		 * };
+		 *
+		 * Example for memory size with 8GB with LPDDR Inline ECC ON:
+		 * memory {
+		 *	reg = <0x0 0x00000000 0x0 0x80000000>,
+		 *	      <0x1 0x00000000 0x1 0x40000000>;
+		 * };
+		 */
+
+		/* Default memory size is 2GB */
+		reg = <0x0 0x00000000 0x0 0x80000000>;
+	};
 };
 
-&i2c1 {
+&gmac2 {
 	status = "okay";
+	phy-mode = "rgmii";
+	phy-handle = <&phy0>;
+
+	max-frame-size = <3800>;
+
+	mdio2 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "snps,dwmac-mdio";
+		phy2: ethernet-phy@2 {
+			reg = <4>;
+
+			txd0-skew-ps = <0>; /* -420ps */
+			txd1-skew-ps = <0>; /* -420ps */
+			txd2-skew-ps = <0>; /* -420ps */
+			txd3-skew-ps = <0>; /* -420ps */
+			rxd0-skew-ps = <420>; /* 0ps */
+			rxd1-skew-ps = <420>; /* 0ps */
+			rxd2-skew-ps = <420>; /* 0ps */
+			rxd3-skew-ps = <420>; /* 0ps */
+			txen-skew-ps = <0>; /* -420ps */
+			txc-skew-ps = <1860>; /* 960ps */
+			rxdv-skew-ps = <420>; /* 0ps */
+			rxc-skew-ps = <1680>; /* 780ps */
+		};
+	};
+};
+
+&qspi {
+	status = "disabled";
+};
+
+&socfpga_l3interconnect_firewall {
+	soc_noc_fw_mpfe_csr_inst_0_mpfe_scr@f8020000 {
+		intel,offset-settings =
+			/* Disable MPFE firewall for SMMU */
+			<0x00000000 0x00010101 0x00010101>;
+	};
+};
+#endif
+
+&gmac0 {
+	mdio0 {
+		ethernet_phy0: ethernet-phy@0 {
+			reg = <4>;
+			txd0-skew-ps = <0>;
+			txd1-skew-ps = <0>;
+			txd2-skew-ps = <0>;
+			txd3-skew-ps = <0>;
+			rxd0-skew-ps = <0x1a4>;
+			rxd1-skew-ps = <0x1a4>;
+			rxd2-skew-ps = <0x1a4>;
+			rxd3-skew-ps = <0x1a4>;
+			txen-skew-ps = <0>;
+			txc-skew-ps = <0x384>;
+			rxdv-skew-ps = <0x1a4>;
+			rxc-skew-ps = <0x690>;
+		};
+	};
+};
+
+&nand {
+	status = "okay";
+	nand-bus-width = <16>;
+	bootph-all;
 };
 
 &mmc {
@@ -47,9 +145,39 @@
 };
 
 &qspi {
-	status = "okay";
+	/delete-property/ clocks;
 };
 
-&watchdog0 {
+&flash0 {
+	reg = <0>;
+	spi-tx-bus-width = <4>;
+	spi-rx-bus-width = <4>;
+	spi-max-frequency = <100000000>;
 	bootph-all;
+
+	m25p,fast-read;
+	cdns,page-size = <256>;
+	cdns,block-size = <16>;
+	cdns,read-delay = <1>;
+	cdns,tshsl-ns = <50>;
+	cdns,tsd2d-ns = <50>;
+	cdns,tchsh-ns = <4>;
+	cdns,tslch-ns = <4>;
+	/delete-property/ cdns,read-delay;
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		qspi_boot: partition@0 {
+			label = "u-boot";
+			reg = <0x0 0x04200000>;
+		};
+
+		root: partition@4200000 {
+			label = "root";
+			reg = <0x04200000 0x0BE00000>;
+		};
+	};
 };

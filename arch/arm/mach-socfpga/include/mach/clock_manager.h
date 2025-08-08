@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- *  Copyright (C) 2013-2024 Altera Corporation <www.altera.com>
+ *  Copyright (C) 2013-2025 Altera Corporation <www.altera.com>
  */
 
 #ifndef _CLOCK_MANAGER_H_
@@ -28,7 +28,7 @@ int cm_set_qspi_controller_clk_hz(u32 clk_hz);
 #include <asm/arch/clock_manager_arria10.h>
 #elif defined(CONFIG_TARGET_SOCFPGA_STRATIX10)
 #include <asm/arch/clock_manager_s10.h>
-#elif defined(CONFIG_TARGET_SOCFPGA_AGILEX)
+#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) || IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M)
 #include <asm/arch/clock_manager_agilex.h>
 #elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
 #include <asm/arch/clock_manager_agilex5.h>

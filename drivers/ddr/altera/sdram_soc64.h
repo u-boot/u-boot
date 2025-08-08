@@ -21,6 +21,17 @@ struct altera_sdram_plat {
 	bool dualport;
 	bool dualemif;
 };
+#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M)
+enum memory_type {
+	DDR_MEMORY = 0,
+	HBM_MEMORY
+};
+
+struct altera_sdram_plat {
+	fdt_addr_t mpfe_base_addr;
+	bool multichannel_interleaving;
+	enum memory_type mem_type;
+};
 #else
 struct altera_sdram_plat {
 	void __iomem *hmc;
@@ -48,6 +59,8 @@ struct altera_sdram_plat {
 #define RSTHANDSHAKESTAT		0x218
 
 #define DDR_HMC_DDRIOCTRL_IOSIZE_MSK		0x00000003
+#define DDR_HMC_DDRIOCTRL_MPFE_HMCA_DATA_RATE_MSK BIT(2)
+#define DDR_HMC_DDRIOCTRL_MPFE_HMCA_DATA_RATE_SHIFT 2
 #define DDR_HMC_DDRCALSTAT_CAL_MSK		BIT(0)
 #define DDR_HMC_ECCCTL_AWB_CNT_RST_SET_MSK	BIT(16)
 #define DDR_HMC_ECCCTL_CNT_RST_SET_MSK		BIT(8)
@@ -63,7 +76,7 @@ struct altera_sdram_plat {
 #define DDR_HMC_INTSTAT_ADDRMTCFLG_SET_MSK	BIT(16)
 #define DDR_HMC_INTMODE_INTMODE_SET_MSK		BIT(0)
 #define DDR_HMC_RSTHANDSHAKE_MASK		0x0000000f
-#define DDR_HMC_CORE2SEQ_INT_REQ		0xF
+#define DDR_HMC_CORE2SEQ_INT_REQ		0x0000000f
 #define DDR_HMC_SEQ2CORE_INT_RESP_MASK		BIT(3)
 #define DDR_HMC_HPSINTFCSEL_ENABLE_MASK		0x001f1f1f
 
@@ -75,6 +88,8 @@ struct altera_sdram_plat {
 #define CTRLCFG0			0x28
 #define CTRLCFG1			0x2c
 #define CTRLCFG3                        0x34
+#define CTRLCFG5                        0x3c
+#define CTRLCFG6                        0x40
 #define DRAMTIMING0			0x50
 #define CALTIMING0			0x7c
 #define CALTIMING1			0x80
@@ -89,90 +104,93 @@ struct altera_sdram_plat {
 #define NIOSRESERVED2			0x118
 
 #define DRAMADDRW_CFG_COL_ADDR_WIDTH(x)			\
-	(((x) >> 0) & 0x1F)
+	((x) & 0x1f)
 #define DRAMADDRW_CFG_ROW_ADDR_WIDTH(x)			\
-	(((x) >> 5) & 0x1F)
+	(((x) >> 5) & 0x1f)
 #define DRAMADDRW_CFG_BANK_ADDR_WIDTH(x)		\
-	(((x) >> 10) & 0xF)
+	(((x) >> 10) & 0xf)
 #define DRAMADDRW_CFG_BANK_GRP_ADDR_WIDTH(x)		\
 	(((x) >> 14) & 0x3)
 #define DRAMADDRW_CFG_CS_ADDR_WIDTH(x)			\
 	(((x) >> 16) & 0x7)
 
 #define CTRLCFG0_CFG_MEMTYPE(x)				\
-	(((x) >> 0) & 0xF)
+	((x) & 0xf)
 #define CTRLCFG0_CFG_DIMM_TYPE(x)			\
 	(((x) >> 4) & 0x7)
 #define CTRLCFG0_CFG_AC_POS(x)				\
 	(((x) >> 7) & 0x3)
 #define CTRLCFG0_CFG_CTRL_BURST_LEN(x)			\
-	(((x) >> 9) & 0x1F)
+	(((x) >> 9) & 0x1f)
 
 #define CTRLCFG1_CFG_DBC3_BURST_LEN(x)			\
-	(((x) >> 0) & 0x1F)
+	((x) & 0x1f)
 #define CTRLCFG1_CFG_ADDR_ORDER(x)			\
 	(((x) >> 5) & 0x3)
 #define CTRLCFG1_CFG_CTRL_EN_ECC(x)			\
 	(((x) >> 7) & 0x1)
 
+#define CTRLCFG6_CFG_CS_CHIP(x)				\
+	((x) & 0xFFFF)
+
 #define DRAMTIMING0_CFG_TCL(x)				\
-	(((x) >> 0) & 0x7F)
+	((x) & 0x7f)
 
 #define CALTIMING0_CFG_ACT_TO_RDWR(x)			\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3f)
 #define CALTIMING0_CFG_ACT_TO_PCH(x)			\
-	(((x) >> 6) & 0x3F)
+	(((x) >> 6) & 0x3f)
 #define CALTIMING0_CFG_ACT_TO_ACT(x)			\
-	(((x) >> 12) & 0x3F)
+	(((x) >> 12) & 0x3f)
 #define CALTIMING0_CFG_ACT_TO_ACT_DB(x)			\
-	(((x) >> 18) & 0x3F)
+	(((x) >> 18) & 0x3f)
 
 #define CALTIMING1_CFG_RD_TO_RD(x)			\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3f)
 #define CALTIMING1_CFG_RD_TO_RD_DC(x)			\
-	(((x) >> 6) & 0x3F)
+	(((x) >> 6) & 0x3f)
 #define CALTIMING1_CFG_RD_TO_RD_DB(x)			\
-	(((x) >> 12) & 0x3F)
+	(((x) >> 12) & 0x3f)
 #define CALTIMING1_CFG_RD_TO_WR(x)			\
 	(((x) >> 18) & 0x3F)
 #define CALTIMING1_CFG_RD_TO_WR_DC(x)			\
-	(((x) >> 24) & 0x3F)
+	(((x) >> 24) & 0x3f)
 
 #define CALTIMING2_CFG_RD_TO_WR_DB(x)			\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3f)
 #define CALTIMING2_CFG_RD_TO_WR_PCH(x)			\
-	(((x) >> 6) & 0x3F)
+	(((x) >> 6) & 0x3f)
 #define CALTIMING2_CFG_RD_AP_TO_VALID(x)		\
-	(((x) >> 12) & 0x3F)
+	(((x) >> 12) & 0x3f)
 #define CALTIMING2_CFG_WR_TO_WR(x)			\
-	(((x) >> 18) & 0x3F)
+	(((x) >> 18) & 0x3f)
 #define CALTIMING2_CFG_WR_TO_WR_DC(x)			\
-	(((x) >> 24) & 0x3F)
+	(((x) >> 24) & 0x3f)
 
 #define CALTIMING3_CFG_WR_TO_WR_DB(x)			\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3F)
 #define CALTIMING3_CFG_WR_TO_RD(x)			\
-	(((x) >> 6) & 0x3F)
+	(((x) >> 6) & 0x3f)
 #define CALTIMING3_CFG_WR_TO_RD_DC(x)			\
-	(((x) >> 12) & 0x3F)
+	(((x) >> 12) & 0x3f)
 #define CALTIMING3_CFG_WR_TO_RD_DB(x)			\
-	(((x) >> 18) & 0x3F)
+	(((x) >> 18) & 0x3f)
 #define CALTIMING3_CFG_WR_TO_PCH(x)			\
-	(((x) >> 24) & 0x3F)
+	(((x) >> 24) & 0x3f)
 
 #define CALTIMING4_CFG_WR_AP_TO_VALID(x)		\
-	(((x) >> 0) & 0x3F)
+	((x) & 0x3f)
 #define CALTIMING4_CFG_PCH_TO_VALID(x)			\
-	(((x) >> 6) & 0x3F)
+	(((x) >> 6) & 0x3f)
 #define CALTIMING4_CFG_PCH_ALL_TO_VALID(x)		\
-	(((x) >> 12) & 0x3F)
+	(((x) >> 12) & 0x3f)
 #define CALTIMING4_CFG_ARF_TO_VALID(x)			\
-	(((x) >> 18) & 0xFF)
+	(((x) >> 18) & 0xff)
 #define CALTIMING4_CFG_PDN_TO_VALID(x)			\
-	(((x) >> 26) & 0x3F)
+	(((x) >> 26) & 0x3f)
 
 #define CALTIMING9_CFG_4_ACT_TO_ACT(x)			\
-	(((x) >> 0) & 0xFF)
+	((x) & 0xff)
 
 /* Firewall DDR scheduler MPFE */
 #define FW_HMC_ADAPTOR_REG_ADDR			0xf8020004
