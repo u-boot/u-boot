@@ -1,6 +1,6 @@
 KM83XX BOARD
 M:	Holger Brunck <holger.brunck@hitachienergy.com>
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 F:	board/keymile/km83xx/
 F:	board/keymile/common/

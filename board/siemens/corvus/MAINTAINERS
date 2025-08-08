@@ -1,5 +1,5 @@
 CORVUS BOARD
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 F:	board/siemens/corvus/
 F:	include/configs/corvus.h

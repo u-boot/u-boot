@@ -1,5 +1,5 @@
 SMARTWEB_HW BOARD
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 F:	board/siemens/smartweb
 F:	include/configs/smartweb.h

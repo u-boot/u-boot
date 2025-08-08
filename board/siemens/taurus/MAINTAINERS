@@ -1,5 +1,5 @@
 TAURUS BOARD
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 F:	board/siemens/taurus/
 F:	include/configs/taurus.h

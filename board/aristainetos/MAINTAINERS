@@ -1,5 +1,5 @@
 ARISTAINETOS BOARD
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 F:	board/aristainetos/
 F:	include/configs/aristainetos2.h

@@ -1244,7 +1244,7 @@ F:	drivers/misc/gsc.c
 F:	include/gsc.h
 
 I2C
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-i2c.git
 F:	drivers/i2c/
@@ -1498,7 +1498,7 @@ F:	drivers/pci_endpoint/
 F:  include/pci_ep.h
 
 PCI MPC85xx
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 F:	drivers/pci/pci_mpc85xx.c
 
@@ -1795,7 +1795,7 @@ F:	lib/optee
 
 UBI
 M:	Kyungmin Park <kmpark@infradead.org>
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-ubi.git
 F:	drivers/mtd/ubi/
