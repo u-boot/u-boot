@@ -441,7 +441,7 @@ proc_release:
 
 static int k3_r5f_split_reset(struct k3_r5f_core *core)
 {
-	int ret;
+	int ret = 0;
 
 	dev_dbg(core->dev, "%s\n", __func__);
 
@@ -476,7 +476,7 @@ static int k3_r5f_unprepare(struct udevice *dev)
 {
 	struct k3_r5f_core *core = dev_get_priv(dev);
 	struct k3_r5f_cluster *cluster = core->cluster;
-	int ret;
+	int ret = 0;
 
 	dev_dbg(dev, "%s\n", __func__);
 
