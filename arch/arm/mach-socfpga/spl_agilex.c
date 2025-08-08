@@ -43,6 +43,9 @@ void board_init_f(ulong dummy)
 	int ret;
 	struct udevice *dev;
 
+	/* Enable Async */
+	asm volatile("msr daifclr, #4");
+
 #if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_RECOVER_DATA_SECTION)
     spl_save_restore_data();
 #endif
