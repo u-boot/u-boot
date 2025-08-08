@@ -626,7 +626,7 @@ static void k3_lpddr4_bist_init_mem_region(struct k3_ddrss_desc *ddrss,
 	while (i < BIST_MEM_INIT_TIMEOUT) {
 		status = driverdt->checkctlinterrupt(pd, LPDDR4_INTR_BIST_DONE,
 						     &int_status);
-		if (!status & int_status) {
+		if (!status && int_status) {
 			/* Clear LPDDR4_INTR_BIST_DONE */
 			driverdt->ackctlinterrupt(pd, LPDDR4_INTR_BIST_DONE);
 			break;
