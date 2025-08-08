@@ -12,7 +12,7 @@ Synopsis
 
 ::
 
-    bootefi <image_addr>[:<image_size>] [<fdt_addr>]
+    bootefi <image_addr>[:<image_size>] [<initrd_addr>:<initrd_size>] [<fdt_address>]
     bootefi bootmgr [<fdt_addr>]
     bootefi hello [<fdt_addr>]
     bootefi selftest [<fdt_addr>]
@@ -44,6 +44,16 @@ command sequence to run a UEFI application might look like
     load mmc 0:1 $kernel_addr_r /EFI/grub/grubaa64.efi
     bootefi $kernel_addr_r $fdt_addr_r
 
+or
+
+::
+
+    setenv bootargs root=/dev/vda1
+    load mmc 0:1 $fdt_addr_r dtb
+    load mmc 0:1 $kernel_addr_r vmlinux
+    load mmc 0:1 $initrd_addr_r intird
+    bootefi $kernel_addr_r $initrd_addr_r:$filesize $fdt_addr_r
+
 The last UEFI binary loaded defines the image file path in the loaded image
 protocol.
 
@@ -51,20 +61,33 @@ The value of the environment variable *bootargs* is converted from UTF-8 to
 UTF-16 and passed as load options in the loaded image protocol to the UEFI
 binary.
 
+.. note::
+
+    The bootefi command accepts one to three arguments.
+    If the second argument contains a colon ':', it is assumed to specify the
+    initial RAM disk.
+
 image_addr
     Address of the UEFI binary.
-
-fdt_addr
-    Address of the device-tree or '-'. If no address is specifiy, the
-    environment variable $fdt_addr is used as first fallback, the address of
-    U-Boot's internal device-tree $fdtcontroladdr as second fallback.
-    When using ACPI no device-tree shall be specified.
 
 image_size
     Size of the UEFI binary file. This argument is only needed if *image_addr*
     does not match the address of the last loaded UEFI binary. In this case
     a memory device path will be used as image file path in the loaded image
     protocol.
+
+initrd_addr
+    Address of the Linux initial RAM disk or '-'. If no address is specified,
+    no RAM disk is used when booting.
+
+initrd_size
+    Size of the Linux initial RAM disk.
+
+fdt_addr
+    Address of the device-tree or '-'. If no address is specified, the
+    environment variable $fdt_addr is used as first fallback, the address of
+    U-Boot's internal device-tree $fdtcontroladdr as second fallback.
+    When using ACPI no device-tree shall be specified.
 
 Note
     UEFI binaries that are contained in FIT images are launched via the
