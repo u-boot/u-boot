@@ -430,7 +430,7 @@ static int stm32mp25_check_security(struct udevice *dev, void __iomem *base,
 		u32 index = (u32)cfg->sec_id;
 
 		if (index & SEC_RIFSC_FLAG)
-			ret = stm32_rifsc_check_access_by_id(dev_ofnode(dev),
+			ret = stm32_rifsc_grant_access_by_id(dev_ofnode(dev),
 							     index & ~SEC_RIFSC_FLAG);
 		else
 			ret = stm32_rcc_get_access(dev, index);
