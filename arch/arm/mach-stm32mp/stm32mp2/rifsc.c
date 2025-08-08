@@ -73,7 +73,8 @@ static int stm32_rif_acquire_semaphore(void *base, u32 id)
 	void *addr = base + RIFSC_RISC_PER0_SEMCR(id);
 
 	/* Check that the semaphore is available */
-	if (!stm32_rif_is_semaphore_available(base, id))
+	if (!stm32_rif_is_semaphore_available(base, id) &&
+	    FIELD_GET(RIFSC_RISC_SCID_MASK, (readl(addr)) != RIF_CID1))
 		return -EACCES;
 
 	setbits_le32(addr, SEMCR_MUTEX);
@@ -171,7 +172,7 @@ static int rifsc_check_access(void *base, u32 id)
 			return -EACCES;
 		}
 		if (!stm32_rif_is_semaphore_available(base, id) &&
-		    !(FIELD_GET(RIFSC_RISC_SCID_MASK, sem_reg_value) & BIT(RIF_CID1))) {
+		    !(FIELD_GET(RIFSC_RISC_SCID_MASK, sem_reg_value) & RIF_CID1)) {
 			log_debug("Semaphore unavailable for peripheral %d\n", id);
 			return -EACCES;
 		}
