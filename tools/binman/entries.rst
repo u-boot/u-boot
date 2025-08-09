@@ -1689,6 +1689,18 @@ together. See imx95_evk.rst for how to get DDR PHY Firmware Images.
 
 
 
+.. _etype_nxp_imx9image:
+
+Entry: nxp_imx9image: data file generator and mkimage invocation
+-----------------------------------------------------------------------------
+
+This entry is used to generate a data file that is passed to mkimage with the -n
+option. Each line in this data file represents a command defined in the enum
+imx8image_cmd. The imx8image_copy_image() function parses all commands and
+constructs a .bin file accordingly.
+
+
+
 .. _etype_opensbi:
 
 Entry: opensbi: RISC-V OpenSBI fw_dynamic blob
