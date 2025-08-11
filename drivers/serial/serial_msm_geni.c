@@ -252,6 +252,10 @@ static int msm_serial_setbrg(struct udevice *dev, int baud)
 	priv->baud = baud;
 
 	clk_rate = get_clk_div_rate(baud, priv->oversampling, &clk_div);
+	if (!clk_rate) {
+		pr_err("%s: Couldn't get clock division rate\n", __func__);
+		return -EINVAL;
+	}
 	ret = geni_serial_set_clock_rate(dev, clk_rate);
 	if (ret < 0) {
 		pr_err("%s: Couldn't set clock rate: %d\n", __func__, ret);
