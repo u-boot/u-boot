@@ -58,7 +58,7 @@ Current Status
 * The Merge Window for the next release (|next_ver|) is **closed** with the -rc1
   release on Monday, 28 July 2025.
 
-* The next branch is now **closed** until the -rc2 release on Monday, 11 August
+* The next branch is now **open** with the -rc2 release on Monday, 11 August
   2025.
 
 * Release "|next_ver|" is scheduled for Monday, 06 October 2025.
@@ -73,7 +73,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot |next_ver|-rc1 was released on Mon 28 July 2025.
 
-.. * U-Boot |next_ver|-rc2 was released on Mon 11 August 2025.
+* U-Boot |next_ver|-rc2 was released on Mon 11 August 2025.
 
 .. * U-Boot |next_ver|-rc3 was released on Mon 25 August 2025.
 
