@@ -56,6 +56,7 @@ struct pca9450_plat {
 	struct pca9450_vrange	*ranges;
 	unsigned int		numranges;
 	struct gpio_desc	*sd_vsel_gpio;
+	bool			sd_vsel_fixed_low;
 };
 
 #define PCA_RANGE(_min, _vstep, _sel_low, _sel_hi) \
@@ -229,7 +230,8 @@ static int pca9450_set_enable(struct udevice *dev, bool enable)
 static u8 pca9450_get_vsel_reg(struct pca9450_plat *plat)
 {
 	if (!strcmp(plat->name, "LDO5") &&
-	    (plat->sd_vsel_gpio && !dm_gpio_get_value(plat->sd_vsel_gpio)) {
+	    ((plat->sd_vsel_gpio && !dm_gpio_get_value(plat->sd_vsel_gpio)) ||
+	     plat->sd_vsel_fixed_low)) {
 		return PCA9450_LDO5CTRL_L;
 	}
 
@@ -360,6 +362,8 @@ static int pca9450_regulator_probe(struct udevice *dev)
 						return ret;
 				}
 			}
+
+			plat->sd_vsel_fixed_low = dev_read_bool(dev, "nxp,sd-vsel-fixed-low");
 		}
 
 		return 0;
