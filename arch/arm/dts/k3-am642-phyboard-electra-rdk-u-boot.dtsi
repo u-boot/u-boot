@@ -156,6 +156,10 @@
 	bootph-all;
 };
 
+&main_rti1 {
+	status = "disabled";
+};
+
 &sdhci0 {
 	bootph-all;
 };
