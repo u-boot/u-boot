@@ -288,23 +288,19 @@ static bool qcom_geni_serial_poll_bit(const struct udevice *dev, int offset,
 	unsigned int tx_fifo_depth;
 	unsigned int tx_fifo_width;
 	unsigned int fifo_bits;
-	unsigned long timeout_us = 10000;
+	unsigned long timeout_us;
 
-	baud = 115200;
-
-	if (priv) {
-		baud = priv->baud;
-		if (!baud)
-			baud = 115200;
-		tx_fifo_depth = geni_se_get_tx_fifo_depth(priv->base);
-		tx_fifo_width = geni_se_get_tx_fifo_width(priv->base);
-		fifo_bits = tx_fifo_depth * tx_fifo_width;
-		/*
-		 * Total polling iterations based on FIFO worth of bytes to be
-		 * sent at current baud. Add a little fluff to the wait.
-		 */
-		timeout_us = ((fifo_bits * USEC_PER_SEC) / baud) + 500;
-	}
+	baud = priv->baud;
+	if (!baud)
+		baud = 115200;
+	tx_fifo_depth = geni_se_get_tx_fifo_depth(priv->base);
+	tx_fifo_width = geni_se_get_tx_fifo_width(priv->base);
+	fifo_bits = tx_fifo_depth * tx_fifo_width;
+	/*
+	 * Total polling iterations based on FIFO worth of bytes to be
+	 * sent at current baud. Add a little fluff to the wait.
+	 */
+	timeout_us = ((fifo_bits * USEC_PER_SEC) / baud) + 500;
 
 	timeout_us = DIV_ROUND_UP(timeout_us, 10) * 10;
 	while (timeout_us) {
