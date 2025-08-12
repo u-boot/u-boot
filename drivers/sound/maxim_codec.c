@@ -45,7 +45,7 @@ unsigned int maxim_i2c_read(struct maxim_priv *priv, unsigned int reg,
 {
 	int ret;
 
-	return dm_i2c_read(priv->dev, reg, data, 1);
+	ret = dm_i2c_read(priv->dev, reg, data, 1);
 	if (ret != 0) {
 		debug("%s: Error while reading register %#04x\n",
 		      __func__, reg);
