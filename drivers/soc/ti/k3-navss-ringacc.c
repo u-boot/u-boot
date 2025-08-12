@@ -932,7 +932,7 @@ static int k3_nav_ringacc_probe_dt(struct k3_nav_ringacc *ringacc)
 
 	ringacc->num_rings = dev_read_u32_default(dev, "ti,num-rings", 0);
 	if (!ringacc->num_rings) {
-		dev_err(dev, "ti,num-rings read failure %d\n", ret);
+		dev_err(dev, "ti,num-rings read failure\n");
 		return -EINVAL;
 	}
 
