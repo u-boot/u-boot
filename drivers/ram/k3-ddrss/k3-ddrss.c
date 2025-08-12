@@ -829,11 +829,13 @@ static void k3_ddrss_lpddr4_ecc_init(struct k3_ddrss_desc *ddrss)
 
 static int k3_ddrss_probe(struct udevice *dev)
 {
-	u64 end;
+	u64 end, bank0, bank1;
 	int ret;
 	struct k3_ddrss_desc *ddrss = dev_get_priv(dev);
 	__maybe_unused u64 ddr_ram_size, ecc_res;
+	__maybe_unused u32 inst, st;
 	__maybe_unused struct k3_ddrss_ecc_region *range = &ddrss->ecc_range;
+	__maybe_unused struct k3_msmc *msmc_parent = NULL;
 
 	debug("%s(dev=%p)\n", __func__, dev);
 
@@ -874,31 +876,67 @@ static int k3_ddrss_probe(struct udevice *dev)
 		k3_ddrss_ddr_inline_ecc_base_size_calc(range);
 
 		end = ddrss->ecc_range.start + ddrss->ecc_range.range;
+		inst = ddrss->instance;
 		ddr_ram_size = ddrss->ddr_ram_size;
 		ecc_res = ddrss->ecc_reserved_space;
+		bank0 = ddrss->ddr_bank_base[0];
+		bank1 = ddrss->ddr_bank_base[1];
 
 		if (!range->range) {
 			/* Configure entire DDR space by default */
 			debug("%s: Defaulting to protecting entire DDR space using inline ECC\n",
 			      __func__);
-			ddrss->ecc_range.start = ddrss->ddr_bank_base[0];
+			ddrss->ecc_range.start = bank0;
 			ddrss->ecc_range.range = ddr_ram_size - ecc_res;
 		} else {
 			ddrss->ecc_range.start = range->start;
 			ddrss->ecc_range.range = range->range;
 		}
 
-		/*
-		 * As we are converting the system address to the DDR controller
-		 * address, account for case when the region is in the second
-		 * bank
-		 */
-		if (end > (ddr_ram_size - ecc_res))
-			ddrss->ecc_regions[0].range = ddr_ram_size - ecc_res;
-		else
-			ddrss->ecc_regions[0].range = ddrss->ecc_range.range;
+		st = ddrss->ecc_range.start;
 
-		ddrss->ecc_regions[0].start = ddrss->ecc_range.start - ddrss->ddr_bank_base[0];
+		if (!CONFIG_IS_ENABLED(K3_MULTI_DDR)) {
+			if (end > (ddr_ram_size - ecc_res))
+				ddrss->ecc_regions[0].range = ddr_ram_size - ecc_res;
+			else
+				ddrss->ecc_regions[0].range = ddrss->ecc_range.range;
+
+			/* Check in which bank we are */
+			if (st > bank1)
+				ddrss->ecc_regions[0].start = st - bank1 + ddrss->ddr_bank_size[0];
+			else
+				ddrss->ecc_regions[0].start = st - bank0;
+		} else {
+			/* For multi-DDR, we rely on MSMC's calculation of regions for each DDR */
+			msmc_parent = kzalloc(sizeof(msmc_parent), GFP_KERNEL);
+			if (!msmc_parent)
+				return -ENOMEM;
+
+			msmc_parent = dev_get_priv(dev->parent);
+			if (!msmc_parent) {
+				printf("%s: could not get MSMC parent to set up inline ECC regions\n",
+				       __func__);
+				kfree(msmc_parent);
+				return -EINVAL;
+			}
+
+			if (msmc_parent->R0[0].start < 0) {
+				/* Configure entire DDR space by default */
+				ddrss->ecc_regions[0].start = ddrss->ddr_bank_base[0];
+				ddrss->ecc_regions[0].range = ddr_ram_size - ecc_res;
+			} else {
+				end = msmc_parent->R0[inst].start + msmc_parent->R0[inst].range;
+
+				if (end > (ddr_ram_size - ecc_res))
+					ddrss->ecc_regions[0].range = ddr_ram_size - ecc_res;
+				else
+					ddrss->ecc_regions[0].range = msmc_parent->R0[inst].range;
+
+				ddrss->ecc_regions[0].start =  msmc_parent->R0[inst].start;
+			}
+
+			kfree(msmc_parent);
+		}
 
 		k3_ddrss_lpddr4_ecc_init(ddrss);
 	}
