@@ -80,9 +80,9 @@ void
 icmp_input(struct pbuf *p, struct netif *inp)
 {
   u8_t type;
-#ifdef LWIP_DEBUG
+#if defined(LWIP_DEBUG) || defined(ICMP_DEST_UNREACH_CB)
   u8_t code;
-#endif /* LWIP_DEBUG */
+#endif
   struct icmp_echo_hdr *iecho;
   const struct ip_hdr *iphdr_in;
   u16_t hlen;
@@ -103,11 +103,11 @@ icmp_input(struct pbuf *p, struct netif *inp)
   }
 
   type = *((u8_t *)p->payload);
-#ifdef LWIP_DEBUG
+#if defined(LWIP_DEBUG) || defined(ICMP_DEST_UNREACH_CB)
   code = *(((u8_t *)p->payload) + 1);
   /* if debug is enabled but debug statement below is somehow disabled: */
   LWIP_UNUSED_ARG(code);
-#endif /* LWIP_DEBUG */
+#endif
   switch (type) {
     case ICMP_ER:
       /* This is OK, echo reply might have been parsed by a raw PCB
@@ -257,6 +257,15 @@ icmp_input(struct pbuf *p, struct netif *inp)
     default:
       if (type == ICMP_DUR) {
         MIB2_STATS_INC(mib2.icmpindestunreachs);
+#ifdef ICMP_DEST_UNREACH_CB
+        /*
+         * The callback receives the IP packet (not the ICMP message) so that
+         * it can extract the source address for example
+         */
+        pbuf_add_header(p, IP_HLEN);
+        ICMP_DEST_UNREACH_CB(code, p);
+        pbuf_remove_header(p, IP_HLEN);
+#endif
       } else if (type == ICMP_TE) {
         MIB2_STATS_INC(mib2.icmpintimeexcds);
       } else if (type == ICMP_PP) {
