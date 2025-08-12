@@ -94,8 +94,8 @@ static int rt5677_i2c_write(struct rt5677_priv *priv, uint reg, uint data)
 static int rt5677_bic_or(struct rt5677_priv *priv, uint reg, uint bic,
 			 uint set)
 {
-	uint old, new_value;
-	int ret;
+	uint new_value;
+	int old, ret;
 
 	old = rt5677_i2c_read(priv, reg);
 	if (old < 0)
