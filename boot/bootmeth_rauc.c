@@ -410,7 +410,7 @@ static int distro_rauc_bootmeth_bind(struct udevice *dev)
 	struct bootmeth_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	plat->desc = "RAUC distro boot from MMC";
-	plat->flags = BOOTMETHF_GLOBAL;
+	plat->flags = BOOTMETHF_ANY_PART;
 
 	return 0;
 }
