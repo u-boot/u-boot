@@ -155,6 +155,7 @@ struct k3_ddrss_desc {
 	lpddr4_obj *driverdt;
 	lpddr4_config config;
 	lpddr4_privatedata pd;
+	struct k3_ddrss_ecc_region ecc_range;
 	struct k3_ddrss_ecc_region ecc_regions[K3_DDRSS_MAX_ECC_REG];
 	u64 ecc_reserved_space;
 	u64 ddr_bank_base[CONFIG_NR_DRAM_BANKS];
@@ -733,6 +734,30 @@ static void k3_ddrss_ddr_reg_init(struct k3_ddrss_desc *ddrss)
 	writel(DDRSS_ECC_CTRL_REG_DEFAULT, ddrss->ddrss_ss_cfg + DDRSS_ECC_CTRL_REG);
 }
 
+static void k3_ddrss_ddr_inline_ecc_base_size_calc(struct k3_ddrss_ecc_region *range)
+{
+	fdt_addr_t base;
+	fdt_size_t size;
+	ofnode node1;
+
+	node1 = ofnode_null();
+
+	do {
+		node1 = ofnode_by_prop_value(node1, "device_type", "ecc", 4);
+	} while (!ofnode_is_enabled(node1));
+
+	base = ofnode_get_addr_size(node1, "reg", &size);
+
+	if (base == FDT_ADDR_T_NONE) {
+		debug("%s: Failed to get ECC node reg and size\n", __func__);
+		range->start = 0;
+		range->range = 0;
+	} else {
+		range->start = base;
+		range->range = size;
+	}
+}
+
 static void k3_ddrss_lpddr4_ecc_calc_reserved_mem(struct k3_ddrss_desc *ddrss)
 {
 	fdtdec_setup_mem_size_base_lowest();
@@ -783,8 +808,11 @@ static void k3_ddrss_lpddr4_ecc_init(struct k3_ddrss_desc *ddrss)
 
 static int k3_ddrss_probe(struct udevice *dev)
 {
+	u64 end;
 	int ret;
 	struct k3_ddrss_desc *ddrss = dev_get_priv(dev);
+	__maybe_unused u64 ddr_ram_size, ecc_res;
+	__maybe_unused struct k3_ddrss_ecc_region *range = &ddrss->ecc_range;
 
 	debug("%s(dev=%p)\n", __func__, dev);
 
@@ -822,9 +850,35 @@ static int k3_ddrss_probe(struct udevice *dev)
 
 		k3_ddrss_lpddr4_ecc_calc_reserved_mem(ddrss);
 
-		/* Always configure one region that covers full DDR space */
-		ddrss->ecc_regions[0].start = 0;
-		ddrss->ecc_regions[0].range = ddrss->ddr_ram_size - ddrss->ecc_reserved_space;
+		k3_ddrss_ddr_inline_ecc_base_size_calc(range);
+
+		end = ddrss->ecc_range.start + ddrss->ecc_range.range;
+		ddr_ram_size = ddrss->ddr_ram_size;
+		ecc_res = ddrss->ecc_reserved_space;
+
+		if (!range->range) {
+			/* Configure entire DDR space by default */
+			debug("%s: Defaulting to protecting entire DDR space using inline ECC\n",
+			      __func__);
+			ddrss->ecc_range.start = ddrss->ddr_bank_base[0];
+			ddrss->ecc_range.range = ddr_ram_size - ecc_res;
+		} else {
+			ddrss->ecc_range.start = range->start;
+			ddrss->ecc_range.range = range->range;
+		}
+
+		/*
+		 * As we are converting the system address to the DDR controller
+		 * address, account for case when the region is in the second
+		 * bank
+		 */
+		if (end > (ddr_ram_size - ecc_res))
+			ddrss->ecc_regions[0].range = ddr_ram_size - ecc_res;
+		else
+			ddrss->ecc_regions[0].range = ddrss->ecc_range.range;
+
+		ddrss->ecc_regions[0].start = ddrss->ecc_range.start - ddrss->ddr_bank_base[0];
+
 		k3_ddrss_lpddr4_ecc_init(ddrss);
 	}
 
