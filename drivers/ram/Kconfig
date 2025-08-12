@@ -128,6 +128,16 @@ config K3_INLINE_ECC
 	  need to be primed with a predefined value prior to enabling ECC
 	  check.
 
+config K3_MULTI_DDR
+	bool "Enable support for multiple K3 DDRSS controllers"
+	depends on K3_DDRSS
+	help
+	  Enabling this option adds support for configuring multiple DDR memory
+	  controllers for K3 devices. The external memory interleave layer
+	  present in the MSMC (Multicore Shared Memory Controller) is
+	  responsible for interleaving between the controllers.
+	default y if SOC_K3_J721S2 || SOC_K3_J784S4
+
 source "drivers/ram/aspeed/Kconfig"
 source "drivers/ram/cadence/Kconfig"
 source "drivers/ram/octeon/Kconfig"
