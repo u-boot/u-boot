@@ -273,8 +273,7 @@ static int npcm_fiu_uma_operation(struct npcm_fiu_priv *priv, const struct spi_m
 	if (op->data.dir == SPI_MEM_DATA_OUT && nbytes) {
 		memcpy(data_reg, tx, nbytes);
 
-		if (nbytes)
-			writel(data_reg[0], &regs->uma_dw0);
+		writel(data_reg[0], &regs->uma_dw0);
 		if (nbytes > DW_SIZE)
 			writel(data_reg[1], &regs->uma_dw1);
 		if (nbytes > DW_SIZE * 2)
