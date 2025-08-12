@@ -176,7 +176,7 @@ struct k3_ddrss_desc {
 	lpddr4_obj *driverdt;
 	lpddr4_config config;
 	lpddr4_privatedata pd;
-	struct k3_ddrss_ecc_region ecc_range;
+	struct k3_ddrss_ecc_region ecc_ranges[K3_DDRSS_MAX_ECC_REG];
 	struct k3_ddrss_ecc_region ecc_regions[K3_DDRSS_MAX_ECC_REG];
 	u64 ecc_reserved_space;
 	u64 ddr_bank_base[CONFIG_NR_DRAM_BANKS];
@@ -576,10 +576,26 @@ void k3_lpddr4_start(struct k3_ddrss_desc *ddrss)
 	}
 }
 
-static void k3_ddrss_set_ecc_range_r0(u32 base, u64 start_address, u64 size)
+static void k3_ddrss_set_ecc_range_rx(u32 x, u32 base, u64 start_address, u64 size)
 {
-	writel((start_address) >> 16, base + DDRSS_ECC_R0_STR_ADDR_REG);
-	writel((start_address + size - 1) >> 16, base + DDRSS_ECC_R0_END_ADDR_REG);
+	u32 start_reg, end_reg;
+
+	switch (x) {
+	case 1:
+		start_reg = DDRSS_ECC_R1_STR_ADDR_REG;
+		end_reg = DDRSS_ECC_R1_END_ADDR_REG;
+		break;
+	case 2:
+		start_reg = DDRSS_ECC_R2_STR_ADDR_REG;
+		end_reg = DDRSS_ECC_R2_END_ADDR_REG;
+		break;
+	default:
+		start_reg = DDRSS_ECC_R0_STR_ADDR_REG;
+		end_reg = DDRSS_ECC_R0_END_ADDR_REG;
+		break;
+	}
+	writel((start_address) >> 16, base + start_reg);
+	writel((start_address + size - 1) >> 16, base + end_reg);
 }
 
 #define BIST_MODE_MEM_INIT		4
@@ -755,27 +771,40 @@ static void k3_ddrss_ddr_reg_init(struct k3_ddrss_desc *ddrss)
 	writel(DDRSS_ECC_CTRL_REG_DEFAULT, ddrss->ddrss_ss_cfg + DDRSS_ECC_CTRL_REG);
 }
 
+ofnode get_next_ecc_node(ofnode ecc)
+{
+	do {
+		ecc = ofnode_by_prop_value(ecc, "device_type", "ecc", 4);
+	} while (!ofnode_is_enabled(ecc));
+
+	return ecc;
+}
+
 static void k3_ddrss_ddr_inline_ecc_base_size_calc(struct k3_ddrss_ecc_region *range)
 {
 	fdt_addr_t base;
 	fdt_size_t size;
-	ofnode node1;
+	ofnode ecc_node = ofnode_null();
 
-	node1 = ofnode_null();
-
-	do {
-		node1 = ofnode_by_prop_value(node1, "device_type", "ecc", 4);
-	} while (!ofnode_is_enabled(node1));
-
-	base = ofnode_get_addr_size(node1, "reg", &size);
-
-	if (base == FDT_ADDR_T_NONE) {
-		debug("%s: Failed to get ECC node reg and size\n", __func__);
+	ecc_node = get_next_ecc_node(ecc_node);
+	if (!ofnode_valid(ecc_node)) {
+		debug("%s: No ECC node, enabling for entire region\n", __func__);
 		range->start = 0;
 		range->range = 0;
-	} else {
+		return;
+	}
+
+	for (int i = 0; i < K3_DDRSS_MAX_ECC_REG; i++) {
+		base = ofnode_get_addr_size(ecc_node, "reg", &size);
+		if (base == FDT_ADDR_T_NONE) {
+			range->start = 0;
+			range->range = 0;
+			break;
+		}
 		range->start = base;
 		range->range = size;
+		range++;
+		ecc_node = get_next_ecc_node(ecc_node);
 	}
 }
 
@@ -798,13 +827,21 @@ static void k3_ddrss_lpddr4_ecc_calc_reserved_mem(struct k3_ddrss_desc *ddrss)
 
 static void k3_ddrss_lpddr4_ecc_init(struct k3_ddrss_desc *ddrss)
 {
-	u64 ecc_region_start = ddrss->ecc_regions[0].start;
-	u64 ecc_range = ddrss->ecc_regions[0].range;
+	u64 ecc_region0_start = ddrss->ecc_regions[0].start;
+	u64 ecc_range0 = ddrss->ecc_regions[0].range;
+	u64 ecc_region1_start = ddrss->ecc_regions[1].start;
+	u64 ecc_range1 = ddrss->ecc_regions[1].range;
+	u64 ecc_region2_start = ddrss->ecc_regions[2].start;
+	u64 ecc_range2 = ddrss->ecc_regions[2].range;
 	u32 base = (u32)ddrss->ddrss_ss_cfg;
 	u32 val;
 
 	/* Only Program region 0 which covers full ddr space */
-	k3_ddrss_set_ecc_range_r0(base, ecc_region_start, ecc_range);
+	k3_ddrss_set_ecc_range_rx(0, base, ecc_region0_start, ecc_range0);
+	if (ecc_range1)
+		k3_ddrss_set_ecc_range_rx(1, base, ecc_region1_start, ecc_range1);
+	if (ecc_range2)
+		k3_ddrss_set_ecc_range_rx(2, base, ecc_region2_start, ecc_range2);
 
 	/* Enable ECC, RMW, WR_ALLOC */
 	writel(DDRSS_ECC_CTRL_REG_ECC_EN | DDRSS_ECC_CTRL_REG_RMW_EN |
@@ -829,12 +866,12 @@ static void k3_ddrss_lpddr4_ecc_init(struct k3_ddrss_desc *ddrss)
 
 static int k3_ddrss_probe(struct udevice *dev)
 {
-	u64 end, bank0, bank1;
+	u64 end, bank0, bank1, bank0_size;
 	int ret;
 	struct k3_ddrss_desc *ddrss = dev_get_priv(dev);
 	__maybe_unused u64 ddr_ram_size, ecc_res;
-	__maybe_unused u32 inst, st;
-	__maybe_unused struct k3_ddrss_ecc_region *range = &ddrss->ecc_range;
+	__maybe_unused u32 inst;
+	__maybe_unused struct k3_ddrss_ecc_region *range = ddrss->ecc_ranges;
 	__maybe_unused struct k3_msmc *msmc_parent = NULL;
 
 	debug("%s(dev=%p)\n", __func__, dev);
@@ -875,39 +912,43 @@ static int k3_ddrss_probe(struct udevice *dev)
 
 		k3_ddrss_ddr_inline_ecc_base_size_calc(range);
 
-		end = ddrss->ecc_range.start + ddrss->ecc_range.range;
-		inst = ddrss->instance;
-		ddr_ram_size = ddrss->ddr_ram_size;
-		ecc_res = ddrss->ecc_reserved_space;
 		bank0 = ddrss->ddr_bank_base[0];
 		bank1 = ddrss->ddr_bank_base[1];
+		bank0_size = ddrss->ddr_bank_size[0];
 
 		if (!range->range) {
 			/* Configure entire DDR space by default */
 			debug("%s: Defaulting to protecting entire DDR space using inline ECC\n",
 			      __func__);
-			ddrss->ecc_range.start = bank0;
-			ddrss->ecc_range.range = ddr_ram_size - ecc_res;
+			ddrss->ecc_ranges[0].start = bank0;
+			ddrss->ecc_ranges[0].range = ddr_ram_size - ecc_res;
 		} else {
-			ddrss->ecc_range.start = range->start;
-			ddrss->ecc_range.range = range->range;
+			ddrss->ecc_ranges[0].start = range->start;
+			ddrss->ecc_ranges[0].range = range->range;
 		}
 
-		st = ddrss->ecc_range.start;
-
 		if (!CONFIG_IS_ENABLED(K3_MULTI_DDR)) {
-			if (end > (ddr_ram_size - ecc_res))
-				ddrss->ecc_regions[0].range = ddr_ram_size - ecc_res;
-			else
-				ddrss->ecc_regions[0].range = ddrss->ecc_range.range;
+			struct k3_ddrss_ecc_region *r = range;
 
-			/* Check in which bank we are */
-			if (st > bank1)
-				ddrss->ecc_regions[0].start = st - bank1 + ddrss->ddr_bank_size[0];
-			else
-				ddrss->ecc_regions[0].start = st - bank0;
+			for (int i = 0; (i < K3_DDRSS_MAX_ECC_REG) && (r->range != 0); i++, r++) {
+				end = r->start + r->range;
+				ddr_ram_size = ddrss->ddr_ram_size;
+				ecc_res = ddrss->ecc_reserved_space;
+
+				if (end > (ddr_ram_size - ecc_res))
+					ddrss->ecc_regions[i].range = ddr_ram_size - ecc_res;
+				else
+					ddrss->ecc_regions[i].range = r->range;
+
+				/* Check in which bank we are */
+				if (r->start > bank1)
+					ddrss->ecc_regions[i].start = r->start - bank1 + bank0_size;
+				else
+					ddrss->ecc_regions[i].start = r->start - bank0;
+			}
 		} else {
 			/* For multi-DDR, we rely on MSMC's calculation of regions for each DDR */
+			inst = ddrss->instance;
 			msmc_parent = kzalloc(sizeof(msmc_parent), GFP_KERNEL);
 			if (!msmc_parent)
 				return -ENOMEM;
@@ -922,7 +963,7 @@ static int k3_ddrss_probe(struct udevice *dev)
 
 			if (msmc_parent->R0[0].start < 0) {
 				/* Configure entire DDR space by default */
-				ddrss->ecc_regions[0].start = ddrss->ddr_bank_base[0];
+				ddrss->ecc_regions[0].start = bank0;
 				ddrss->ecc_regions[0].range = ddr_ram_size - ecc_res;
 			} else {
 				end = msmc_parent->R0[inst].start + msmc_parent->R0[inst].range;
