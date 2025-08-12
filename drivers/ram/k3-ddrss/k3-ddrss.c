@@ -737,6 +737,12 @@ static void k3_ddrss_lpddr4_ecc_calc_reserved_mem(struct k3_ddrss_desc *ddrss)
 {
 	fdtdec_setup_mem_size_base_lowest();
 
+	/*
+	 * For every 512-byte data block, 64 bytes are used to store inline ECC
+	 * information into a reserved region. It remains 1/9th of the total DDR
+	 * size irrespective of the size of the region under protection.
+	 */
+
 	ddrss->ecc_reserved_space = ddrss->ddr_ram_size;
 	do_div(ddrss->ecc_reserved_space, 9);
 
