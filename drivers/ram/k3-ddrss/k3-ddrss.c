@@ -121,19 +121,19 @@ enum emif_active {
 	EMIF_ALL
 };
 
+#define K3_DDRSS_MAX_ECC_REG		3
+
+struct k3_ddrss_ecc_region {
+	u64 start;
+	u64 range;
+};
+
 struct k3_msmc {
 	enum intrlv_gran gran;
 	enum intrlv_size size;
 	enum ecc_enable enable;
 	enum emif_config config;
 	enum emif_active active;
-};
-
-#define K3_DDRSS_MAX_ECC_REGIONS		3
-
-struct k3_ddrss_ecc_region {
-	u64 start;
-	u64 range;
 };
 
 struct k3_ddrss_desc {
@@ -155,7 +155,7 @@ struct k3_ddrss_desc {
 	lpddr4_obj *driverdt;
 	lpddr4_config config;
 	lpddr4_privatedata pd;
-	struct k3_ddrss_ecc_region ecc_regions[K3_DDRSS_MAX_ECC_REGIONS];
+	struct k3_ddrss_ecc_region ecc_regions[K3_DDRSS_MAX_ECC_REG];
 	u64 ecc_reserved_space;
 	u64 ddr_bank_base[CONFIG_NR_DRAM_BANKS];
 	u64 ddr_bank_size[CONFIG_NR_DRAM_BANKS];
