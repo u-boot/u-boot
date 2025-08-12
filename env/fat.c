@@ -14,8 +14,10 @@
 #include <memalign.h>
 #include <search.h>
 #include <errno.h>
+#include <init.h>
 #include <fat.h>
 #include <mmc.h>
+#include <nvme.h>
 #include <scsi.h>
 #include <virtio.h>
 #include <asm/cache.h>
@@ -135,6 +137,14 @@ static int env_fat_load(void)
 #if defined(CONFIG_VIRTIO)
 	if (!strcmp(ifname, "virtio"))
 		virtio_init();
+#endif
+#if defined(CONFIG_NVME)
+	if (!strcmp(ifname, "nvme")) {
+		if (IS_ENABLED(CONFIG_PCI))
+			pci_init();
+
+		nvme_scan_namespace();
+	}
 #endif
 #endif
 	part = blk_get_device_part_str(ifname, dev_and_part,
