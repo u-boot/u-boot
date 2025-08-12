@@ -1078,18 +1078,18 @@ static bool mctl_phy_init(const struct dram_para *para,
 		mctl_await_completion(&mctl_ctl->mrctrl0, BIT(31), 0);
 		break;
 	case SUNXI_DRAM_TYPE_LPDDR3:
-		writel(mr0, &mctl_ctl->mrctrl1);
+		/* MR0 is read-only */
+		/* MR1: nWR=14, BL8 */
+		writel(0x183, &mctl_ctl->mrctrl1);
 		writel(0x800000f0, &mctl_ctl->mrctrl0);
 		mctl_await_completion(&mctl_ctl->mrctrl0, BIT(31), 0);
 
-		writel(4, &mctl_ctl->mrctrl1);
+		/* MR2: no WR leveling, WL set A, use nWR>9, nRL=14/nWL=8 */
+		writel(0x21c, &mctl_ctl->mrctrl1);
 		writel(0x800000f0, &mctl_ctl->mrctrl0);
 		mctl_await_completion(&mctl_ctl->mrctrl0, BIT(31), 0);
 
-		writel(mr2, &mctl_ctl->mrctrl1);
-		writel(0x800000f0, &mctl_ctl->mrctrl0);
-		mctl_await_completion(&mctl_ctl->mrctrl0, BIT(31), 0);
-
+		/* MR3: 34.3 Ohm pull-up/pull-down resistor */
 		writel(0x301, &mctl_ctl->mrctrl1);
 		writel(0x800000f0, &mctl_ctl->mrctrl0);
 		mctl_await_completion(&mctl_ctl->mrctrl0, BIT(31), 0);
