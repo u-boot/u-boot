@@ -256,7 +256,7 @@ static int ich_spi_exec_op_swseq(struct spi_slave *slave,
 	struct ich_spi_priv *ctlr = dev_get_priv(bus);
 	uint16_t control;
 	int16_t opcode_index;
-	int with_address;
+	int with_address = 0;
 	int status;
 	struct spi_trans *trans = &ctlr->trans;
 	bool lock = spi_lock_status(plat, ctlr->base);
