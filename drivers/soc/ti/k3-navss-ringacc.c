@@ -632,11 +632,13 @@ err_free_ops:
 int k3_nav_ringacc_ring_cfg(struct k3_nav_ring *ring,
 			    struct k3_nav_ring_cfg *cfg)
 {
-	struct k3_nav_ringacc *ringacc = ring->parent;
+	struct k3_nav_ringacc *ringacc;
 	int ret = 0;
 
 	if (!ring || !cfg)
 		return -EINVAL;
+
+	ringacc = ring->parent;
 
 	if (ringacc->dual_ring)
 		return k3_dmaring_ring_cfg(ring, cfg);
