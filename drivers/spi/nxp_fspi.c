@@ -882,9 +882,9 @@ static void erratum_err050568(struct nxp_fspi *f)
 
 	/* Check for LS1028A variants */
 	svr = SVR_SOC_VER(get_svr());
-	if (svr != SVR_LS1017A ||
-	    svr != SVR_LS1018A ||
-	    svr != SVR_LS1027A ||
+	if (svr != SVR_LS1017A &&
+	    svr != SVR_LS1018A &&
+	    svr != SVR_LS1027A &&
 	    svr != SVR_LS1028A) {
 		dev_dbg(f->dev, "Errata applicable only for LS1028A variants\n");
 		return;
