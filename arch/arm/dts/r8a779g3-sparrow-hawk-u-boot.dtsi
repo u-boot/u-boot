@@ -48,3 +48,7 @@
 		spi-rx-bus-width = <1>;
 	};
 };
+
+&vcc_sdhi {
+	states = <1800000 0>, <3300000 1>;
+};
