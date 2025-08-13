@@ -21,3 +21,4 @@ config THEAD_TH1520
 	imply SPL_CPU
 	imply SPL_OPENSBI
 	imply SPL_LOAD_FIT
+	imply OF_UPSTREAM

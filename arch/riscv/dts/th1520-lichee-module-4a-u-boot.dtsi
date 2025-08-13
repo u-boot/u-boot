@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2025 Yao Zi <ziyao@disroot.org>
+ */
+
+#include "th1520-u-boot.dtsi"
+
+&{/memory@0} {
+	bootph-pre-ram;
+};
