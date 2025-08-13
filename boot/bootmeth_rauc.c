@@ -187,7 +187,7 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 
 	ret = distro_rauc_scan_parts(bflow);
 	if (ret < 0) {
-		for (i = 0; priv->slots[i]->name; i++) {
+		for (i = 0; priv->slots[i]; i++) {
 			free(priv->slots[i]->name);
 			free(priv->slots[i]);
 		}
