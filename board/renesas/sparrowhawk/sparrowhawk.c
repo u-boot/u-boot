@@ -231,6 +231,18 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 		printf("Failed to disable UHS pins in MicroSD node: %d\n", err);
 		return;
 	}
+
+	offs = fdt_path_offset(blob, "/soc/pinctrl@e6050000/avb0/pins-vddq18-25-avb");
+	if (offs < 0) {
+		printf("Failed to locate AVB pinctrl node: %d\n", offs);
+		return;
+	}
+
+	err = fdt_setprop_u32(blob, offs, "power-source", 2500);
+	if (err < 0) {
+		printf("Failed to set AVB IO voltage: %d\n", err);
+		return;
+	}
 }
 #endif
 
