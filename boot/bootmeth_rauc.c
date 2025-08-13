@@ -52,6 +52,18 @@ struct distro_rauc_priv {
 	struct distro_rauc_slot **slots;
 };
 
+static void distro_rauc_priv_free(struct distro_rauc_priv *priv)
+{
+	int i;
+
+	for (i = 0; priv->slots[i]; i++) {
+		free(priv->slots[i]->name);
+		free(priv->slots[i]);
+	}
+	free(priv->slots);
+	free(priv);
+}
+
 static struct distro_rauc_slot *get_slot(struct distro_rauc_priv *priv,
 					 const char *slot_name)
 {
@@ -187,11 +199,7 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 
 	ret = distro_rauc_scan_parts(bflow);
 	if (ret < 0) {
-		for (i = 0; priv->slots[i]; i++) {
-			free(priv->slots[i]->name);
-			free(priv->slots[i]);
-		}
-		free(priv);
+		distro_rauc_priv_free(priv);
 		free(boot_order_copy);
 		return ret;
 	}
