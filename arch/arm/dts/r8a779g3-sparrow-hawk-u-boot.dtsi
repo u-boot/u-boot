@@ -51,6 +51,11 @@
 
 &rpc {
 	flash@0 {
+		/*
+		 * EVTA1 is populated with Spansion S25FS512S
+		 * EVTB1 is populated with Winbond W77Q51NW
+		 */
+		compatible = "jedec,spi-nor";
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <1>;
 	};
