@@ -235,6 +235,7 @@ U_BOOT_DRIVER(th1520_clk_div) = {
 	.name	= "th1520_clk_div",
 	.id	= UCLASS_CLK,
 	.ops	= &ccu_div_ops,
+	.flags	= DM_FLAG_PRE_RELOC,
 };
 
 static unsigned long th1520_pll_vco_recalc_rate(struct clk *clk,
@@ -302,6 +303,7 @@ U_BOOT_DRIVER(th1520_clk_pll) = {
 	.name	= "th1520_clk_pll",
 	.id	= UCLASS_CLK,
 	.ops	= &clk_pll_ops,
+	.flags	= DM_FLAG_PRE_RELOC,
 };
 
 static struct ccu_pll cpu_pll0_clk = {
@@ -1030,4 +1032,5 @@ U_BOOT_DRIVER(th1520_clk) = {
 	.of_match	= th1520_clk_match,
 	.probe		= th1520_clk_probe,
 	.ops		= &th1520_clk_ops,
+	.flags		= DM_FLAG_PRE_RELOC,
 };
