@@ -233,7 +233,7 @@ static int k3_r5f_prepare(struct udevice *dev)
 
 	dev_dbg(dev, "%s\n", __func__);
 
-	if (cluster->mode == CLUSTER_MODE_LOCKSTEP)
+	if ((cluster->mode == CLUSTER_MODE_LOCKSTEP) || (cluster->mode == CLUSTER_MODE_SINGLECPU))
 		ret = k3_r5f_lockstep_release(cluster);
 	else
 		ret = k3_r5f_split_release(core);
@@ -265,6 +265,13 @@ static int k3_r5f_core_sanity_check(struct k3_r5f_core *core)
 	if (cluster->mode == CLUSTER_MODE_LOCKSTEP && !is_primary_core(core)) {
 		dev_err(core->dev,
 			"Invalid op: Trying to start secondary core %d in lockstep mode\n",
+			core->tsp.proc_id);
+		return -EINVAL;
+	}
+
+	if (cluster->mode == CLUSTER_MODE_SINGLECPU && !is_primary_core(core)) {
+		dev_err(core->dev,
+			"Invalid op: Trying to start secondary core %d in single CPU mode\n",
 			core->tsp.proc_id);
 		return -EINVAL;
 	}
@@ -768,7 +775,7 @@ static void k3_r5f_core_adjust_tcm_sizes(struct k3_r5f_core *core)
 {
 	struct k3_r5f_cluster *cluster = core->cluster;
 
-	if (cluster->mode == CLUSTER_MODE_LOCKSTEP)
+	if ((cluster->mode == CLUSTER_MODE_LOCKSTEP) || (cluster->mode == CLUSTER_MODE_SINGLECPU))
 		return;
 
 	if (!core->ipdata->tcm_is_double)
