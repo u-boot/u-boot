@@ -409,6 +409,8 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 	if (ret)
 		return log_msg_ret("boot", ret);
 
+	distro_rauc_priv_free(priv);
+
 	return 0;
 }
 
