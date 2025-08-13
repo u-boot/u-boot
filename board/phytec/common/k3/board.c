@@ -176,6 +176,7 @@ static void boot_targets_setup(void)
 	env_set("boot_targets", boot_targets);
 }
 
+#if IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS)
 static void setup_mac_from_eeprom(void)
 {
 	struct phytec_api3_element *block_element;
@@ -197,13 +198,15 @@ static void setup_mac_from_eeprom(void)
 		}
 	}
 }
+#endif
 
 int board_late_init(void)
 {
 	boot_targets_setup();
 
-	if (IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS))
-		setup_mac_from_eeprom();
+#if IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS)
+	setup_mac_from_eeprom();
+#endif
 
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 	configure_capsule_updates();
