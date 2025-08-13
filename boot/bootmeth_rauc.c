@@ -193,7 +193,6 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 		}
 		free(priv);
 		free(boot_order_copy);
-		bflow->bootmeth_priv = NULL;
 		return ret;
 	}
 
