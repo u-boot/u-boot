@@ -191,7 +191,8 @@ int serial_init(void)
 {
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 	serial_find_console_or_panic();
-	gd->flags |= GD_FLG_SERIAL_READY;
+	if (gd->cur_serial_dev)
+		gd->flags |= GD_FLG_SERIAL_READY;
 
 	if (IS_ENABLED(CONFIG_OF_SERIAL_BAUD)) {
 		int ret = 0;
