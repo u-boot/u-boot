@@ -1,0 +1,8 @@
+Andestech Voyager BOARD
+M:	Randolph <randolph@andestech.com>
+S:	Maintained
+F:	board/andestech/voyager/
+F:	configs/voyager_spl_defconfig
+F:	doc/board/andestech/voyager.rst
+F:	include/configs/qilai.h
+

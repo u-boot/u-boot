@@ -278,8 +278,8 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 	} else {
 		spl_image->entry_point = CONFIG_SYS_UBOOT_START;
 		spl_image->load_addr = CONFIG_TEXT_BASE;
-		log_debug("Default load addr %x (u_boot_pos=%lx)\n",
-			  CONFIG_TEXT_BASE, u_boot_pos);
+		log_debug("Default load addr %lx (u_boot_pos=%lx)\n",
+			  spl_image->load_addr, u_boot_pos);
 	}
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = xpl_name(xpl_next_phase());

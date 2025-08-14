@@ -8,3 +8,4 @@ Andes Tech
 
    adp-ag101p
    ae350
+   voyager
