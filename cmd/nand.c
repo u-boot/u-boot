@@ -37,6 +37,7 @@
 #include <asm/byteorder.h>
 #include <jffs2/jffs2.h>
 #include <nand.h>
+#include <display_options.h>
 
 #include "legacy-mtd-utils.h"
 
@@ -198,30 +199,18 @@ static int nand_dump(struct mtd_info *mtd, ulong off, int only_oob,
 		ret = 1;
 		goto free_all;
 	}
-	printf("Page %08lx dump:\n", off);
+	printf("\nPage at offset %08lx dump:\n", off);
 
 	if (!only_oob) {
-		i = mtd->writesize >> 4;
+		i = mtd->writesize;
 		p = datbuf;
-
-		while (i--) {
-			printf("\t%02x %02x %02x %02x %02x %02x %02x %02x"
-			       "  %02x %02x %02x %02x %02x %02x %02x %02x\n",
-			       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7],
-			       p[8], p[9], p[10], p[11], p[12], p[13], p[14],
-			       p[15]);
-			p += 16;
-		}
+		print_buffer(off, p, 1, i, 16);
 	}
 
-	puts("OOB:\n");
-	i = mtd->oobsize >> 3;
+	puts("\nOOB:\n");
+	i = mtd->oobsize;
 	p = oobbuf;
-	while (i--) {
-		printf("\t%02x %02x %02x %02x %02x %02x %02x %02x\n",
-		       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
-		p += 8;
-	}
+	print_buffer(0, p, 1, i, 8);
 
 free_all:
 	free(oobbuf);
