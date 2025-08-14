@@ -160,7 +160,7 @@ free_memory:
 }
 
 static int nand_dump(struct mtd_info *mtd, ulong off, int only_oob,
-		     int repeat)
+		     int ecc, int repeat)
 {
 	int i;
 	u_char *datbuf, *oobbuf, *p;
@@ -192,12 +192,16 @@ static int nand_dump(struct mtd_info *mtd, ulong off, int only_oob,
 	ops.oobbuf = oobbuf;
 	ops.len = mtd->writesize;
 	ops.ooblen = mtd->oobsize;
-	ops.mode = MTD_OPS_RAW;
+	if (ecc)
+		ops.mode = MTD_OPS_PLACE_OOB;
+	else
+		ops.mode = MTD_OPS_RAW;
 	i = mtd_read_oob(mtd, addr, &ops);
 	if (i < 0) {
-		printf("Error (%d) reading page %08lx\n", i, off);
+		printf("Error reading page at offset %08lx, %d %s\n",
+		       off, i, i == -EUCLEAN ? "correctable" :
+		       "uncorrectable, dumping raw data");
 		ret = 1;
-		goto free_all;
 	}
 	printf("\nPage at offset %08lx dump:\n", off);
 
@@ -212,7 +216,6 @@ static int nand_dump(struct mtd_info *mtd, ulong off, int only_oob,
 	p = oobbuf;
 	print_buffer(0, p, 1, i, 8);
 
-free_all:
 	free(oobbuf);
 free_dat:
 	free(datbuf);
@@ -697,11 +700,19 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	if (strncmp(cmd, "dump", 4) == 0) {
+		int only_oob, ecc;
+
 		if (argc < 3)
 			goto usage;
 
+		only_oob = !strcmp(&cmd[4], ".oob") || !strcmp(&cmd[4], ".ecc.oob") ||
+			!strcmp(&cmd[4], ".oob.ecc");
+
+		ecc = !strcmp(&cmd[4], ".ecc") || !strcmp(&cmd[4], ".ecc.oob") ||
+			!strcmp(&cmd[4], ".oob.ecc");
+
 		off = (int)hextoul(argv[2], NULL);
-		ret = nand_dump(mtd, off, !strcmp(&cmd[4], ".oob"), repeat);
+		ret = nand_dump(mtd, off, only_oob, ecc, repeat);
 
 		return ret == 0 ? 1 : 0;
 	}
@@ -1031,7 +1042,7 @@ U_BOOT_LONGHELP(nand,
 	"nand erase.part [clean] partition - erase entire mtd partition'\n"
 	"nand erase.chip [clean] - erase entire chip'\n"
 	"nand bad - show bad blocks\n"
-	"nand dump[.oob] off - dump page\n"
+	"nand dump[.oob][.ecc] off - dump raw (default) or ecc corrected page at offset\n"
 #ifdef CONFIG_CMD_NAND_WATCH
 	"nand watch <off> <size> - check an area for bitflips\n"
 	"nand watch.part <part> - check a partition for bitflips\n"
