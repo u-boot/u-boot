@@ -275,7 +275,7 @@ int get_nand_env_oob(struct mtd_info *mtd, unsigned long *result)
 	int ret;
 
 	ops.datbuf	= NULL;
-	ops.mode	= MTD_OOB_AUTO;
+	ops.mode	= MTD_OPS_AUTO_OOB;
 	ops.ooboffs	= 0;
 	ops.ooblen	= ENV_OFFSET_SIZE;
 	ops.oobbuf	= (void *)oob_buf;
