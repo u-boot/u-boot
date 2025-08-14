@@ -23,7 +23,7 @@ Required Properties:
 Example (AM65x):
 ----------------
 	sysfw: sysfw {
-		compatible = "ti,am654-system-controller";
+		compatible = "ti,am654-tisci-rproc-r5";
 		...
 		k3_reset: reset-controller {
 			compatible = "ti,sci-reset";
