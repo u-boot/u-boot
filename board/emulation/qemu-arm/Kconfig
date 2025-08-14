@@ -8,6 +8,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select HAS_CUSTOM_SYS_INIT_SP_ADDR
 	select QFW if ACPI
 	select QFW_MMIO if CMD_QFW
+	imply SYS_EARLY_PCI_INIT
 	imply VIRTIO_MMIO
 	imply VIRTIO_PCI
 	imply VIRTIO_NET
