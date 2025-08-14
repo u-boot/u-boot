@@ -1026,8 +1026,8 @@ U_BOOT_LONGHELP(nand,
 	"nand write - addr off|partition size\n"
 	"    read/write 'size' bytes starting at offset 'off'\n"
 	"    to/from memory address 'addr', skipping bad blocks.\n"
-	"nand read.raw - addr off|partition [count]\n"
-	"nand write.raw[.noverify] - addr off|partition [count]\n"
+	"nand read.raw - addr off|partition [pages]\n"
+	"nand write.raw[.noverify] - addr off|partition [pages]\n"
 	"    Use read.raw/write.raw to avoid ECC and access the flash as-is.\n"
 #ifdef CONFIG_CMD_NAND_TRIMFFS
 	"nand write.trimffs - addr off|partition size\n"
