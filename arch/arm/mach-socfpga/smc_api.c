@@ -57,6 +57,7 @@ int smc_send_mailbox(u32 cmd, u32 len, u32 *arg, u8 urgent, u32 *resp_buf_len,
 			 resp, ARRAY_SIZE(resp));
 
 	if (ret == INTEL_SIP_SMC_STATUS_OK && resp_buf && resp_buf_len) {
+		invalidate_dcache_range((uintptr_t)resp_buf, (uintptr_t)(resp_buf + *resp_buf_len));
 		if (!resp[0])
 			*resp_buf_len = resp[1];
 	}
