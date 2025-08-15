@@ -134,12 +134,10 @@ static const u8 __maybe_unused reg_map_ip_v2[] = {
 };
 
 struct omap_i2c {
-	struct udevice *clk;
 	int ip_rev;
 	struct i2c *regs;
 	unsigned int speed;
 	int waitdelay;
-	int clk_id;
 };
 
 static inline const u8 *omap_i2c_get_ip_reg_map(int ip_rev)
