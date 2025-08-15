@@ -869,7 +869,6 @@ config EXPO
 config BOOTMETH_RAUC
 	bool "Bootdev support for RAUC A/B systems"
 	depends on CMDLINE
-	select BOOTMETH_GLOBAL
 	select HUSH_PARSER
 	help
 	  Enables support for booting RAUC A/B systems from MMC devices. This
