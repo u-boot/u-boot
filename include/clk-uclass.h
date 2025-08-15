@@ -132,11 +132,7 @@ ulong round_rate(struct clk *clk, ulong rate);
  *
  * Return:
  * * The rate of @clk
- * * -%ENOSYS if this function is not implemented for @clk
- * * -%ENOENT if @clk->id is invalid. Prefer using an assert instead, and doing
- *   this check in request().
- * * Another negative error value (such as %EIO or %ECOMM) if the rate could
- *   not be determined due to a bus error.
+ * * 0 if the rate cannot be determined for any reason.
  */
 ulong get_rate(struct clk *clk);
 
