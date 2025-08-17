@@ -7,6 +7,13 @@
 
 #include "r8a779g0-u-boot.dtsi"
 
+&avb0_pins {
+	pins-vddq18-25-avb {
+		pins = "PIN_VDDQ_AVB0", "PIN_VDDQ_AVB1", "PIN_VDDQ_AVB2", "PIN_VDDQ_TSN0";
+		power-source = <1800>;
+	};
+};
+
 /* Page 31 / FAN */
 &gpio1 {
 	pwm-fan-hog {
@@ -44,7 +51,16 @@
 
 &rpc {
 	flash@0 {
+		/*
+		 * EVTA1 is populated with Spansion S25FS512S
+		 * EVTB1 is populated with Winbond W77Q51NW
+		 */
+		compatible = "jedec,spi-nor";
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <1>;
 	};
+};
+
+&vcc_sdhi {
+	states = <1800000 0>, <3300000 1>;
 };
