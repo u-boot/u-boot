@@ -30,6 +30,12 @@
 
 #define SMMU_SID_SDM2HPS_PSI_BE		0
 
+#define SDM2HPS_PSI_BE_ADDR_BASE	0
+/* PSI BE 512MB address window */
+#define SDM2HPS_PSI_BE_WINDOW_SZ	0x20000000
+#define SDM2HPS_PSI_BE_ADDR_END		\
+	(SDM2HPS_PSI_BE_ADDR_BASE + SDM2HPS_PSI_BE_WINDOW_SZ - 1)
+
 void socfpga_init_smmu(void);
 int is_smmu_bypass(void);
 int is_smmu_stream_id_enabled(u32 stream_id);
