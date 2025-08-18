@@ -79,6 +79,14 @@ enum tftp_error {
 
 #include <string.h>
 
+struct tftp_req {
+  ip_addr_t addr;
+  u16_t port;
+  u16_t opcode;
+  enum tftp_transfer_mode mode;
+  char* fname;
+};
+
 struct tftp_state {
   const struct tftp_context *ctx;
   void *handle;
@@ -97,14 +105,33 @@ struct tftp_state {
 };
 
 static struct tftp_state tftp_state;
+static struct tftp_req tftp_req;
 
 static void tftp_tmr(void *arg);
+static void tftp_req_tmr(void *arg);
+static const char *mode_to_string(enum tftp_transfer_mode mode);
+
+static void
+clear_req(void)
+{
+  ip_addr_set_any(0, &tftp_req.addr);
+  tftp_req.port = 0;
+  tftp_req.opcode = 0;
+  free(tftp_req.fname);
+  tftp_req.fname = NULL;
+  tftp_req.mode = 0;
+
+  sys_untimeout(tftp_req_tmr, NULL);
+}
 
 static void
 close_handle(void)
 {
+  clear_req();
+
   tftp_state.port = 0;
   ip_addr_set_any(0, &tftp_state.addr);
+  tftp_state.retries = 0;
 
   if (tftp_state.last_data != NULL) {
     pbuf_free(tftp_state.last_data);
@@ -207,6 +234,12 @@ send_ack(const ip_addr_t *addr, u16_t port, u16_t blknum)
   ret = udp_sendto(tftp_state.upcb, p, addr, port);
   pbuf_free(p);
   return ret;
+}
+
+static err_t
+resend_request(void)
+{
+  return send_request(&tftp_req.addr, tftp_req.port, tftp_req.opcode, tftp_req.fname, mode_to_string(tftp_req.mode));
 }
 
 static err_t
@@ -335,6 +368,9 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
 
   tftp_state.last_pkt = tftp_state.timer;
   tftp_state.retries = 0;
+
+  if (tftp_req.fname)
+    clear_req();
 
   switch (opcode) {
     case PP_HTONS(TFTP_RRQ): /* fall through */
@@ -542,6 +578,26 @@ tftp_tmr(void *arg)
   }
 }
 
+static void
+tftp_req_tmr(void *arg)
+{
+  if (tftp_state.handle == NULL) {
+    return;
+  }
+
+  sys_timeout(TFTP_TIMER_MSECS, tftp_req_tmr, NULL);
+
+  if (tftp_state.retries < TFTP_MAX_RETRIES) {
+    LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: req timeout, retrying\n"));
+    resend_request();
+    tftp_state.retries++;
+  } else {
+    LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: req timeout\n"));
+    tftp_state.ctx->error(tftp_state.handle, -1, "Request timeout", strlen("Request timeout"));
+    close_handle();
+  }
+}
+
 /**
  * Initialize TFTP client/server.
  * @param mode TFTP mode (client/server)
@@ -638,6 +694,20 @@ mode_to_string(enum tftp_transfer_mode mode)
 }
 
 err_t
+start_send_requests(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname, enum tftp_transfer_mode mode)
+{
+  tftp_req.addr = *addr;
+  tftp_req.port = port;
+  tftp_req.opcode = opcode;
+  tftp_req.fname = strdup(fname);
+  tftp_req.mode = mode;
+  if (!tftp_req.fname)
+    return ERR_MEM;
+  sys_timeout(TFTP_TIMER_MSECS, tftp_req_tmr, NULL);
+  return resend_request();
+}
+
+err_t
 tftp_get(void* handle, const ip_addr_t *addr, u16_t port, const char* fname, enum tftp_transfer_mode mode)
 {
   LWIP_ERROR("TFTP client is not enabled (tftp_init)", (tftp_state.tftp_mode & LWIP_TFTP_MODE_CLIENT) != 0, return ERR_VAL);
@@ -647,7 +717,7 @@ tftp_get(void* handle, const ip_addr_t *addr, u16_t port, const char* fname, enu
   tftp_state.handle = handle;
   tftp_state.blknum = 1;
   tftp_state.mode_write = 1; /* We want to receive data */
-  return send_request(addr, port, TFTP_RRQ, fname, mode_to_string(mode));
+  return start_send_requests(addr, port, TFTP_RRQ, fname, mode);
 }
 
 err_t
@@ -660,7 +730,7 @@ tftp_put(void* handle, const ip_addr_t *addr, u16_t port, const char* fname, enu
   tftp_state.handle = handle;
   tftp_state.blknum = 1;
   tftp_state.mode_write = 0; /* We want to send data */
-  return send_request(addr, port, TFTP_WRQ, fname, mode_to_string(mode));
+  return start_send_requests(addr, port, TFTP_WRQ, fname, mode);
 }
 
 #endif /* LWIP_UDP */

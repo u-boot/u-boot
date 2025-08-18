@@ -28,7 +28,7 @@ static const char *get_speed_string(u32 speed)
 		"10.3125 Gbps"
 	};
 
-	if (speed < 0 || speed > COMPHY_SPEED_MAX)
+	if (speed < 0 || speed >= COMPHY_SPEED_MAX)
 		return "invalid";
 
 	return speed_strings[speed];
@@ -44,7 +44,7 @@ static const char *get_type_string(u32 type)
 		"IGNORE"
 	};
 
-	if (type < 0 || type > COMPHY_TYPE_MAX)
+	if (type < 0 || type >= COMPHY_TYPE_MAX)
 		return "invalid";
 
 	return type_strings[type];

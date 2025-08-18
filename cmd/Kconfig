@@ -2117,7 +2117,7 @@ config CMD_DHCP
 
 config CMD_DNS
 	bool "dns"
-	select PROT_DNS_LWIP if NET_LWIP
+	select DNS
 	help
 	  Lookup the IP of a hostname
 

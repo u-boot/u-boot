@@ -1461,7 +1461,7 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 		priv->phy_addr = ofnode_read_s32_default(args.node, "reg", -1);
 		if (priv->phy_addr < 0) {
 			printf("error: phy address is not specified\n");
-			return ret;
+			return priv->phy_addr;
 		}
 	}
 
