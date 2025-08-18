@@ -49,7 +49,7 @@ static int cdns_ufs_set_hclkdiv(struct ufs_hba *hba)
 	}
 
 	core_clk_rate = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(core_clk_rate)) {
+	if (!core_clk_rate) {
 		dev_err(hba->dev, "%s: unable to find core_clk rate\n",
 			__func__);
 		return core_clk_rate;
