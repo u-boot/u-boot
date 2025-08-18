@@ -1056,5 +1056,9 @@
 			groups = "jtag2";
 			function = "jtag2";
 		};
+		vcdhs_pins: vcdhs-pins {
+			groups = "vcdhs";
+			function = "vcdhs";
+		};
 	};
 };
