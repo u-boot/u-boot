@@ -164,11 +164,8 @@ static int tiecap_pwm_probe(struct udevice *dev)
 	}
 
 	priv->clk_rate = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(priv->clk_rate) || !priv->clk_rate) {
+	if (!priv->clk_rate) {
 		dev_err(dev, "failed to get clock rate\n");
-		if (IS_ERR_VALUE(priv->clk_rate))
-			return priv->clk_rate;
-
 		return -EINVAL;
 	}
 
