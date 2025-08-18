@@ -118,7 +118,7 @@ static int sifive_serial_setbrg(struct udevice *dev, int baudrate)
 		}
 	} else {
 		clock = clk_get_rate(&clk);
-		if (IS_ERR_VALUE(clock)) {
+		if (!clock) {
 			debug("SiFive UART clock get rate failed\n");
 			return 0;
 		}
