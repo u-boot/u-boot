@@ -313,7 +313,7 @@ static unsigned long inno_dsidphy_pll_calc_rate(struct inno_dsidphy *inno,
 	 * fails do the second.
 	 */
 	prate = clk_get_rate(inno->ref_clk);
-	if (IS_ERR_VALUE(prate))
+	if (!prate)
 		prate = 24000000;
 
 	/*
