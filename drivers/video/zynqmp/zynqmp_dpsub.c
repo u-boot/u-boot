@@ -2110,9 +2110,9 @@ static int zynqmp_dpsub_probe(struct udevice *dev)
 	}
 
 	priv->clock = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(priv->clock)) {
+	if (!priv->clock) {
 		dev_err(dev, "failed to get rate\n");
-		return priv->clock;
+		return -EINVAL;
 	}
 
 	ret = clk_enable(&clk);
