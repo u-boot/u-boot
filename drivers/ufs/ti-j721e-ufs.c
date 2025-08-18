@@ -29,7 +29,7 @@ static int ti_j721e_ufs_probe(struct udevice *dev)
 	}
 
 	clock = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(clock)) {
+	if (!clock) {
 		dev_err(dev, "failed to get rate\n");
 		return ret;
 	}
