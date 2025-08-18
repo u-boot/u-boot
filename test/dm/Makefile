@@ -126,7 +126,7 @@ obj-$(CONFIG_TEE) += tee.o
 obj-$(CONFIG_TIMER) += timer.o
 obj-$(CONFIG_TPM_V2) += tpm.o
 obj-$(CONFIG_DM_USB) += usb.o
-obj-$(CONFIG_VIDEO) += video.o
+obj-$(CONFIG_VIDEO_SANDBOX_SDL) += video.o
 ifeq ($(CONFIG_VIRTIO_SANDBOX),y)
 obj-y += virtio.o
 obj-$(CONFIG_VIRTIO_RNG) += virtio_device.o
