@@ -10,6 +10,7 @@
 #include <watchdog.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/smc_api.h>
+#include <asm/arch/smmu_s10.h>
 #include <asm/cache.h>
 #include <cpu_func.h>
 #include <linux/delay.h>
@@ -1030,6 +1031,18 @@ int intel_sdm_mb_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 	u32 resp_buf[2];
 
 	flush_dcache_range((unsigned long)rbf_data, (unsigned long)(rbf_data + rbf_size));
+
+	/*
+	 * Don't start the FPGA reconfiguration if bitstream location exceed the
+	 * PSI BE 512MB address window and SMMU is not setup for PSI BE address
+	 * translation.
+	 */
+	if (((u64)rbf_data + rbf_size) >= SDM2HPS_PSI_BE_ADDR_END &&
+	    !is_smmu_stream_id_enabled(SMMU_SID_SDM2HPS_PSI_BE)) {
+		printf("Failed: Bitstream location must not exceed 0x%08x\n",
+		       SDM2HPS_PSI_BE_ADDR_END);
+		return -EINVAL;
+	}
 
 	debug("Sending MBOX_RECONFIG...\n");
 	ret = mbox_send_cmd(MBOX_ID_UBOOT, MBOX_RECONFIG, MBOX_CMD_DIRECT, 0,
