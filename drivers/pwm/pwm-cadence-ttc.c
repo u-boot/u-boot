@@ -193,9 +193,9 @@ static int cadence_ttc_pwm_probe(struct udevice *dev)
 	}
 
 	priv->frequency = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(priv->frequency)) {
+	if (!priv->frequency) {
 		dev_err(dev, "failed to get rate\n");
-		return priv->frequency;
+		return -EINVAL;
 	}
 	dev_dbg(dev, "Clk frequency: %ld\n", priv->frequency);
 
