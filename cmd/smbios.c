@@ -119,6 +119,55 @@ static const struct str_lookup_table associativity_strings[] = {
 
 };
 
+static const struct str_lookup_table slot_type_strings[] = {
+	{ SMBIOS_SYSSLOT_TYPE_OTHER,		"Other" },
+	{ SMBIOS_SYSSLOT_TYPE_UNKNOWN,		"Unknown" },
+	{ SMBIOS_SYSSLOT_TYPE_ISA,		"ISA" },
+	{ SMBIOS_SYSSLOT_TYPE_PCI,		"PCI" },
+	{ SMBIOS_SYSSLOT_TYPE_PCMCIA,		"PC Card (PCMCIA)" },
+	{ SMBIOS_SYSSLOT_TYPE_PCIE,		"PCI Express" },
+	{ SMBIOS_SYSSLOT_TYPE_PCIEGEN2,		"PCI Express Gen 2" },
+	{ SMBIOS_SYSSLOT_TYPE_PCIEGEN3,		"PCI Express Gen 3" },
+	{ SMBIOS_SYSSLOT_TYPE_PCIEGEN3X16,	"PCI Express Gen 3 x16" },
+	{ SMBIOS_SYSSLOT_TYPE_PCIEGEN4,		"PCI Express Gen 4" },
+	{ SMBIOS_SYSSLOT_TYPE_PCIEGEN4X8,	"PCI Express Gen 4 x8" },
+	{ SMBIOS_SYSSLOT_TYPE_PCIEGEN4X16,	"PCI Express Gen 4 x16" },
+};
+
+static const struct str_lookup_table slot_bus_width_strings[] = {
+	{ SMBIOS_SYSSLOT_WIDTH_OTHER,	"Other" },
+	{ SMBIOS_SYSSLOT_WIDTH_UNKNOWN,	"Unknown" },
+	{ SMBIOS_SYSSLOT_WIDTH_8BIT,	"8 bit" },
+	{ SMBIOS_SYSSLOT_WIDTH_16BIT,	"16 bit" },
+	{ SMBIOS_SYSSLOT_WIDTH_32BIT,	"32 bit" },
+	{ SMBIOS_SYSSLOT_WIDTH_64BIT,	"64 bit" },
+	{ SMBIOS_SYSSLOT_WIDTH_128BIT,	"128 bit " },
+	{ SMBIOS_SYSSLOT_WIDTH_1X,	"1x or x1" },
+	{ SMBIOS_SYSSLOT_WIDTH_2X,	"2x or x2" },
+	{ SMBIOS_SYSSLOT_WIDTH_4X,	"4x or x4" },
+	{ SMBIOS_SYSSLOT_WIDTH_8X,	"8x or x8" },
+	{ SMBIOS_SYSSLOT_WIDTH_12X,	"12x or x12" },
+	{ SMBIOS_SYSSLOT_WIDTH_16X,	"16x or x16" },
+	{ SMBIOS_SYSSLOT_WIDTH_32X,	"32x or x32" },
+};
+
+static const struct str_lookup_table slot_usage_strings[] = {
+	{ SMBIOS_SYSSLOT_USAGE_OTHER,		"Other" },
+	{ SMBIOS_SYSSLOT_USAGE_UNKNOWN,		"Unknown" },
+	{ SMBIOS_SYSSLOT_USAGE_AVAILABLE,	"Available" },
+	{ SMBIOS_SYSSLOT_USAGE_INUSE,		"In use" },
+	{ SMBIOS_SYSSLOT_USAGE_NA,		"Unavailable" },
+};
+
+static const struct str_lookup_table slot_length_strings[] = {
+	{ SMBIOS_SYSSLOT_LENG_OTHER,	"Other" },
+	{ SMBIOS_SYSSLOT_LENG_UNKNOWN,	"Unknown" },
+	{ SMBIOS_SYSSLOT_LENG_SHORT,	"Short Length" },
+	{ SMBIOS_SYSSLOT_LENG_LONG,	"Long Length" },
+	{ SMBIOS_SYSSLOT_LENG_2_5INDRV,	"2.5 inch drive form factor" },
+	{ SMBIOS_SYSSLOT_LENG_3_5INDRV,	"3.5 inch drive form factor" },
+};
+
 /**
  * smbios_get_string() - get SMBIOS string from table
  *
@@ -403,6 +452,68 @@ static void smbios_print_type7(struct smbios_type7 *table)
 	printf("\tInstalled Cache Size 2: 0x%08x\n", table->inst_size2.data);
 }
 
+static void smbios_print_type9(struct smbios_type9 *table)
+{
+	int i;
+	u8 *addr = (u8 *)table +
+		   offsetof(struct smbios_type9, slot_information);
+
+	printf("System Slots:\n");
+	smbios_print_str("Socket Designation", table,
+			 table->socket_design);
+	smbios_print_lookup_str(slot_type_strings,
+				table->slot_type,
+				ARRAY_SIZE(slot_type_strings),
+				"Slot Type");
+	smbios_print_lookup_str(slot_bus_width_strings,
+				table->slot_data_bus_width,
+				ARRAY_SIZE(slot_bus_width_strings),
+				"Slot Data Bus Width");
+	smbios_print_lookup_str(slot_usage_strings,
+				table->current_usage,
+				ARRAY_SIZE(slot_usage_strings),
+				"Current Usage");
+	smbios_print_lookup_str(slot_length_strings,
+				table->slot_length,
+				ARRAY_SIZE(slot_length_strings),
+				"Slot Length");
+	printf("\tSlot ID: 0x%04x\n", table->slot_id);
+	printf("\tSlot Characteristics 1: 0x%04x\n",
+	       table->slot_characteristics_1);
+	printf("\tSlot Characteristics 2: 0x%04x\n",
+	       table->slot_characteristics_2);
+	printf("\tSegment Group Number (Base): 0x%04x\n",
+	       table->segment_group_number);
+	printf("\tBus Number (Base): 0x%04x\n", table->bus_number);
+	printf("\tDevice/Function Number (Base): 0x%04x\n",
+	       table->device_function_number.data);
+	printf("\tData Bus Width (Base): 0x%04x\n",
+	       table->electrical_bus_width);
+	printf("\tPeer (S/B/D/F/Width) grouping count: 0x%04x\n",
+	       table->peer_grouping_count);
+	printf("\tPeer (S/B/D/F/Width) groups:\n");
+	for (i = 0; i < table->peer_grouping_count; i++) {
+		printf("\t\tPeer group[%03d]:\n", i);
+		if (CONFIG_IS_ENABLED(HEXDUMP))
+			print_hex_dump("\t\t", DUMP_PREFIX_OFFSET, 16, 1, addr,
+				       SMBIOS_TYPE9_PGROUP_SIZE, false);
+		addr += SMBIOS_TYPE9_PGROUP_SIZE;
+	}
+	printf("\n");
+
+	/* table->slot_information */
+	printf("\tSlot Information: 0x%04x\n", *addr);
+	/* table->slot_physical_width */
+	addr += sizeof(table->slot_information);
+	printf("\tSlot Physical Width: 0x%04x\n", *addr);
+	/* table->slot_pitch */
+	addr += sizeof(table->slot_physical_width);
+	printf("\tSlot Pitch: 0x%04x\n", *(u16 *)addr);
+	/* table->slot_height */
+	addr += sizeof(table->slot_pitch);
+	printf("\tSlot Height: 0x%04x\n", *addr);
+}
+
 static void smbios_print_type127(struct smbios_type127 *table)
 {
 	printf("End Of Table\n");
@@ -481,6 +592,9 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 			break;
 		case SMBIOS_CACHE_INFORMATION:
 			smbios_print_type7((struct smbios_type7 *)pos);
+			break;
+		case SMBIOS_SYSTEM_SLOTS:
+			smbios_print_type9((struct smbios_type9 *)pos);
 			break;
 		case SMBIOS_END_OF_TABLE:
 			smbios_print_type127((struct smbios_type127 *)pos);
