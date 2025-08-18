@@ -4,7 +4,35 @@
  * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
+/* SMMU registers */
+#define SMMU_SCR0			0
+#define SMMU_SIDR0			0x20
+#define SMMU_SIDR1			0x24
+
+#define SMMU_SCR0_CLIENTPD		BIT(0)
+#define SMMU_SIDR0_NUMSMRG_MASK		GENMASK(7, 0)
+#define SMMU_SIDR1_NUMCB_MASK		GENMASK(7, 0)
+
+/* Stream mapping registers */
+#define SMMU_GR0_SMR(n)			(0x800 + ((n) << 2))
+#define SMMU_SMR_VALID			BIT(31)
+#define SMMU_SMR_MASK			GENMASK(30, 16)
+#define SMMU_SMR_ID			GENMASK(14, 0)
+
+#define SMMU_GR0_S2CR(n)		(0xc00 + ((n) << 2))
+#define SMMU_S2CR_TYPE			GENMASK(17, 16)
+#define SMMU_S2CR_CBNDX			GENMASK(7, 0)
+
+/* Register groups for Context Bank */
+#define SMMU_GR0_CB(n, r)		(0x20000 + ((n) << 12) + ((r) << 2))
+#define SMMU_CB_SCTLR			0
+#define SMMU_CB_SCTLR_M			BIT(0)
+
+#define SMMU_SID_SDM2HPS_PSI_BE		0
+
 void socfpga_init_smmu(void);
+int is_smmu_bypass(void);
+int is_smmu_stream_id_enabled(u32 stream_id);
 
 #define SMMU_SET_STREAMID(x, r, w)	(((x) << (r)) | ((x) << (w)))
 
