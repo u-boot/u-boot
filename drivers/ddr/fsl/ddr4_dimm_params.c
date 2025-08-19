@@ -106,12 +106,11 @@ compute_ranksize(const struct ddr4_spd_eeprom_s *spd)
 		printf("Warning: not supported SDRAM package type\n");
 		return 0;
 	}
-	if (package_3ds)
-		die_count = (spd->package_type >> 4) & 0x7;
+	die_count = ((spd->package_type >> 4) & 0x7) + 1;
 
-	bsize = 1ULL << (nbit_sdram_cap_bsize - 3 +
-			 nbit_primary_bus_width - nbit_sdram_width +
-			 die_count);
+	bsize = (1ULL << (nbit_sdram_cap_bsize - 3 +
+			 nbit_primary_bus_width - nbit_sdram_width))
+			 * die_count;
 
 	debug("DDR: DDR rank density = 0x%16llx\n", bsize);
 
