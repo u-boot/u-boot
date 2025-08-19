@@ -1062,9 +1062,9 @@ static int sdhci_zynqmp_set_dynamic_config(struct arasan_sdhci_priv *priv,
 	}
 
 	clock = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(clock)) {
+	if (!clock) {
 		dev_err(dev, "failed to get rate\n");
-		return clock;
+		return -EINVAL;
 	}
 
 	mhz = DIV64_U64_ROUND_UP(clock, 1000000);
@@ -1156,9 +1156,9 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	}
 
 	clock = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(clock)) {
+	if (!clock) {
 		dev_err(dev, "failed to get rate\n");
-		return clock;
+		return -EINVAL;
 	}
 
 	dev_dbg(dev, "%s: CLK %ld\n", __func__, clock);
