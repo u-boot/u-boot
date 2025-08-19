@@ -664,7 +664,7 @@ static int versal_clock_get_freq_by_name(char *name, struct udevice *dev,
 	}
 
 	*freq = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(*freq)) {
+	if (!(*freq)) {
 		dev_err(dev, "failed to get rate %s\n", name);
 		return -EINVAL;
 	}
