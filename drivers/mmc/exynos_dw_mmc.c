@@ -83,8 +83,8 @@ static int exynos_dwmmc_get_sclk(struct dwmci_host *host, unsigned long *rate)
 	*rate = clk_get_rate(&priv->clk);
 #endif
 
-	if (IS_ERR_VALUE(*rate))
-		return *rate;
+	if (!(*rate))
+		return -EINVAL;
 
 	return 0;
 }
