@@ -33,8 +33,8 @@ static int pic32_sdhci_probe(struct udevice *dev)
 
 	clk_rate = clk_get_rate(&clk);
 
-	if (IS_ERR_VALUE(clk_rate))
-		return clk_rate;
+	if (!clk_rate)
+		return -EINVAL;
 
 	host->ioaddr = dev_remap_addr(dev);
 
