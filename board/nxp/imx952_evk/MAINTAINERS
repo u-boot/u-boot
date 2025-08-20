@@ -1,0 +1,6 @@
+i.MX952 EVK BOARD
+M:	Alice Guo <alice.guo@nxp.com>
+S:	Maintained
+F:	board/nxp/imx952_evk/
+F:	include/configs/imx952_evk.h
+F:	configs/imx952_evk_defconfig
