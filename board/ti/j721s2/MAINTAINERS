@@ -9,6 +9,8 @@ F:	configs/j721s2_evm_r5_defconfig
 F:	configs/j721s2_evm_a72_defconfig
 F:	configs/am68_sk_r5_defconfig
 F:	configs/am68_sk_a72_defconfig
+F:	configs/am68_sk_r5_ethboot_defconfig
+F:	configs/am68_sk_a72_ethboot_defconfig
 F:	arch/arm/dts/k3-j721s2-common-proc-board-u-boot.dtsi
 F:	arch/arm/dts/k3-j721s2-r5.dtsi
 F:	arch/arm/dts/k3-j721s2-r5-common-proc-board.dts
