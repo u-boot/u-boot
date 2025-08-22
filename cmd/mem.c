@@ -732,6 +732,8 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 		0x00000055,	/* four non-adjacent bits */
 		0xaaaaaaaa,	/* alternating 1/0 */
 	};
+	/* Rate-limit schedule() calls to one for every 256 words. */
+	u8 count = 0;
 
 	num_words = (end_addr - start_addr) / sizeof(vu_long);
 
@@ -887,7 +889,8 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	 * Fill memory with a known pattern.
 	 */
 	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
-		schedule();
+		if (!count++)
+			schedule();
 		addr[offset] = pattern;
 	}
 
@@ -895,7 +898,8 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	 * Check each location and invert it for the second pass.
 	 */
 	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
-		schedule();
+		if (!count++)
+			schedule();
 		temp = addr[offset];
 		if (temp != pattern) {
 			printf("\nFAILURE (read/write) @ 0x%.8lx:"
@@ -915,7 +919,8 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	 * Check each location for the inverted pattern and zero it.
 	 */
 	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
-		schedule();
+		if (!count++)
+			schedule();
 		anti_pattern = ~pattern;
 		temp = addr[offset];
 		if (temp != anti_pattern) {
