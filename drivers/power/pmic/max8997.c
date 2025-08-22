@@ -47,6 +47,7 @@ static struct dm_pmic_ops max8997_ops = {
 
 static const struct udevice_id max8997_ids[] = {
 	{ .compatible = "maxim,max8997" },
+	{ .compatible = "maxim,max8997-pmic" },
 	{ },
 };
 
