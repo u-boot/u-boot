@@ -719,12 +719,9 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	ulong errs = 0;
 	ulong val, readback;
 	int j;
-	vu_long offset;
-	vu_long test_offset;
-	vu_long pattern;
-	vu_long temp;
-	vu_long anti_pattern;
-	vu_long num_words;
+	ulong offset, test_offset;
+	ulong pattern, anti_pattern;
+	ulong temp, num_words;
 	static const ulong bitpattern[] = {
 		0x00000001,	/* single bit */
 		0x00000003,	/* two adjacent bits */
