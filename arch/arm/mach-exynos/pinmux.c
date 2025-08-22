@@ -102,7 +102,7 @@ static int exynos5_mmc_config(int peripheral, int flags)
 	}
 	if ((flags & PINMUX_FLAG_8BIT_MODE) && !start_ext) {
 		debug("SDMMC device %d does not support 8bit mode",
-				peripheral);
+		      peripheral);
 		return -1;
 	}
 	if (flags & PINMUX_FLAG_8BIT_MODE) {
@@ -902,7 +902,7 @@ static int exynos4_pinmux_decode_periph_id(const void *blob, int node)
 	u32 cell[3];
 
 	err = fdtdec_get_int_array(blob, node, "interrupts", cell,
-					ARRAY_SIZE(cell));
+				   ARRAY_SIZE(cell));
 	if (err) {
 		debug(" invalid peripheral id\n");
 		return PERIPH_ID_NONE;
@@ -917,7 +917,7 @@ static int exynos5_pinmux_decode_periph_id(const void *blob, int node)
 	u32 cell[3];
 
 	err = fdtdec_get_int_array(blob, node, "interrupts", cell,
-					ARRAY_SIZE(cell));
+				   ARRAY_SIZE(cell));
 	if (err)
 		return PERIPH_ID_NONE;
 
