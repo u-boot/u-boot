@@ -40,7 +40,7 @@
 		s2mps11_pmic@66 {
 			compatible = "samsung,s2mps11-pmic";
 			reg = <0x66>;
-			voltage-regulators {
+			regulators {
 				ldo1_reg: LDO1 {
 					regulator-name = "vdd_ldo1";
 					regulator-min-microvolt = <1000000>;
