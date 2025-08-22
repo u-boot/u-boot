@@ -966,6 +966,9 @@ config TSEC_ENET
 	  This driver implements support for the (Enhanced) Three-Speed
 	  Ethernet Controller found on Freescale SoCs.
 
+config MDIO_MT7531
+	bool
+
 source "drivers/net/mtk_eth/Kconfig"
 
 config HIFEMAC_ETH

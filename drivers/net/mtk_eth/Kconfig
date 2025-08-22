@@ -4,6 +4,7 @@ config MEDIATEK_ETH
 	select PHYLIB
 	select DM_GPIO
 	select DM_RESET
+	select MDIO_MT7531
 	help
 	  This Driver support MediaTek Ethernet GMAC
 	  Say Y to enable support for the MediaTek Ethernet GMAC.
