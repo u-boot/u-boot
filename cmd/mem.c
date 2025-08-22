@@ -712,10 +712,10 @@ static int do_mem_loopw(struct cmd_tbl *cmdtp, int flag, int argc,
 #endif /* CONFIG_LOOPW */
 
 #ifdef CONFIG_CMD_MEMTEST
-static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
-			  vu_long *dummy)
+static ulong mem_test_alt(volatile ulong *buf, ulong start_addr, ulong end_addr,
+			  volatile ulong *dummy)
 {
-	vu_long *addr;
+	volatile ulong *addr;
 	ulong errs = 0;
 	ulong val, readback;
 	int j;
@@ -735,7 +735,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	/* Rate-limit schedule() calls to one for every 256 words. */
 	u8 count = 0;
 
-	num_words = (end_addr - start_addr) / sizeof(vu_long);
+	num_words = (end_addr - start_addr) / sizeof(ulong);
 
 	/*
 	 * Data line test: write a pattern to the first
@@ -817,8 +817,8 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	 *
 	 * Returns:     0 if the test succeeds, 1 if the test fails.
 	 */
-	pattern = (vu_long)0xaaaaaaaaaaaaaaaa;
-	anti_pattern = (vu_long)0x5555555555555555;
+	pattern = (ulong)0xaaaaaaaaaaaaaaaa;
+	anti_pattern = (ulong)0x5555555555555555;
 
 	debug("%s:%d: length = 0x%.8lx\n", __func__, __LINE__, num_words);
 	/*
@@ -839,7 +839,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 		if (temp != pattern) {
 			printf("\nFAILURE: Address bit stuck high @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx\n",
-				start_addr + offset*sizeof(vu_long),
+				start_addr + offset*sizeof(ulong),
 				pattern, temp);
 			errs++;
 			if (ctrlc())
@@ -861,7 +861,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 				printf("\nFAILURE: Address bit stuck low or"
 					" shorted @ 0x%.8lx: expected 0x%.8lx,"
 					" actual 0x%.8lx\n",
-					start_addr + offset*sizeof(vu_long),
+					start_addr + offset*sizeof(ulong),
 					pattern, temp);
 				errs++;
 				if (ctrlc())
@@ -904,7 +904,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 		if (temp != pattern) {
 			printf("\nFAILURE (read/write) @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx)\n",
-				start_addr + offset*sizeof(vu_long),
+				start_addr + offset*sizeof(ulong),
 				pattern, temp);
 			errs++;
 			if (ctrlc())
@@ -926,7 +926,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 		if (temp != anti_pattern) {
 			printf("\nFAILURE (read/write): @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx)\n",
-				start_addr + offset*sizeof(vu_long),
+				start_addr + offset*sizeof(ulong),
 				anti_pattern, temp);
 			errs++;
 			if (ctrlc())
