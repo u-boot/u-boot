@@ -191,7 +191,7 @@ static int rcar_iic_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 			return -EREMOTEIO;
 	}
 
-	return ret;
+	return 0;
 }
 
 static int rcar_iic_set_speed(struct udevice *dev, uint speed)

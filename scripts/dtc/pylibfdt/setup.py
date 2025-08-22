@@ -158,7 +158,6 @@ setup(
     long_description_content_type="text/plain",
     url="https://git.kernel.org/pub/scm/utils/dtc/dtc.git",
     license="GPL-2.0-or-later OR BSD-2-Clause",
-    license_files=["Licenses/gpl-2.0.txt", "Licenses/bsd-2-clause.txt"],
 
     classifiers=[
         "Programming Language :: Python :: 3",

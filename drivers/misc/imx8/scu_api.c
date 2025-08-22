@@ -1282,8 +1282,7 @@ int sc_seco_secvio_dgo_config(sc_ipc_t ipc, u8 id, u8 access, u32 *data)
 		printf("%s, id:0x%x, access:%x, res:%d\n",
 		       __func__, id, access, RPC_R8(&msg));
 
-	if (data)
-		*data = RPC_U32(&msg, 0U);
+	*data = RPC_U32(&msg, 0U);
 
 	return ret;
 }

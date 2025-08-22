@@ -1,6 +1,6 @@
 CAPRICORN BOARD
 M:	Alexander Sverdlin <alexander.sverdlin@siemens.com>
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 M:	Walter Schweizer <walter.schweizer@siemens.com>
 S:	Maintained
 F:	arch/arm/dts/imx8-capricorn-cxg3.dts

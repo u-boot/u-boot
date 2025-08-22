@@ -28,7 +28,6 @@ config BOARD_SPECIFIC_OPTIONS
 	imply SPL_RAM_DEVICE
 	imply CMD_SBI
 	imply CMD_PING
-	imply OF_HAS_PRIOR_STAGE
 
 source "board/xilinx/Kconfig"
 

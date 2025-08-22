@@ -331,8 +331,9 @@ static int qcom_snps_eusb2_phy_probe(struct udevice *dev)
 
 	qcom_snps_eusb2->ref_clk = devm_clk_get(dev, "ref");
 	if (IS_ERR(qcom_snps_eusb2->ref_clk)) {
+		ret = PTR_ERR(qcom_snps_eusb2->ref_clk);
 		printf("%s: failed to get ref clk %d\n", __func__, ret);
-		return PTR_ERR(qcom_snps_eusb2->ref_clk);
+		return ret;
 	}
 
 	ret = reset_get_bulk(dev, &qcom_snps_eusb2->resets);

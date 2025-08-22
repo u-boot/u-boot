@@ -641,12 +641,10 @@ static int low_drive_fdt_fix_clock(void *fdt, int node_off, u32 clk_index, u32 n
 	return -ENOENT;
 }
 
-static int low_drive_freq_update(void *blob)
+int low_drive_freq_update(void *blob)
 {
-	int nodeoff, ret;
-	int i;
+	int nodeoff, ret, i;
 
-	/* Update kernel dtb clocks for low drive mode */
 	struct low_drive_freq_entry table[] = {
 		{"/soc@0/bus@42800000/mmc@42850000", 0, 266666667},
 		{"/soc@0/bus@42800000/mmc@42860000", 0, 266666667},
@@ -658,8 +656,8 @@ static int low_drive_freq_update(void *blob)
 		if (nodeoff >= 0) {
 			ret = low_drive_fdt_fix_clock(blob, nodeoff, table[i].clk,
 						      table[i].new_rate);
-			if (!ret)
-				printf("%s freq updated\n", table[i].node_path);
+			if (ret)
+				printf("freq update failed for %s\n", table[i].node_path);
 		}
 	}
 
@@ -671,23 +669,8 @@ static int low_drive_freq_update(void *blob)
 int board_fix_fdt(void *fdt)
 {
 	/* Update dtb clocks for low drive mode */
-	if (is_voltage_mode(VOLT_LOW_DRIVE)) {
-		int nodeoff;
-		int i;
-
-		struct low_drive_freq_entry table[] = {
-			{"/soc@0/bus@42800000/mmc@42850000", 0, 266666667},
-			{"/soc@0/bus@42800000/mmc@42860000", 0, 266666667},
-			{"/soc@0/bus@42800000/mmc@428b0000", 0, 266666667},
-		};
-
-		for (i = 0; i < ARRAY_SIZE(table); i++) {
-			nodeoff = fdt_path_offset(fdt, table[i].node_path);
-			if (nodeoff >= 0)
-				low_drive_fdt_fix_clock(fdt, nodeoff, table[i].clk,
-							table[i].new_rate);
-		}
-	}
+	if (is_voltage_mode(VOLT_LOW_DRIVE))
+		low_drive_freq_update(fdt);
 
 	return 0;
 }

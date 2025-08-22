@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2019 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  *
  */
 
@@ -72,12 +73,22 @@ int sdram_mmr_init_full(struct udevice *dev)
 	 */
 	/* Configure DDR IO size x16, x32 and x64 mode */
 	u32 update_value;
+	u32 reg;
 
 	update_value = hmc_readl(plat, NIOSRESERVED0);
 	update_value = (update_value & 0xFF) >> 5;
 
-	/* Configure DDR data rate 0-HAlf-rate 1-Quarter-rate */
-	update_value |= (hmc_readl(plat, CTRLCFG3) & 0x4);
+	/* Read ACF from boot_scratch_cold_8 register bit[18]*/
+	reg = readl(socfpga_get_sysmgr_addr() +
+		    SYSMGR_SOC64_BOOT_SCRATCH_COLD8);
+	reg = ((reg & SYSMGR_SCRATCH_REG_8_ACF_DDR_RATE_MASK)
+	       >> SYSMGR_SCRATCH_REG_8_ACF_DDR_RATE_SHIFT);
+
+	/* bit-2 of DDRIOCTRL: Configure DDR data rate 0-Half-rate 1-Quarter-rate */
+	clrsetbits_le32(&update_value,
+			DDR_HMC_DDRIOCTRL_MPFE_HMCA_DATA_RATE_MSK,
+			reg << DDR_HMC_DDRIOCTRL_MPFE_HMCA_DATA_RATE_SHIFT);
+
 	hmc_ecc_writel(plat, update_value, DDRIOCTRL);
 
 	/* Copy values MMR IOHMC dramaddrw to HMC adp DRAMADDRWIDTH */
@@ -114,20 +125,6 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	printf("DDR: %lld MiB\n", gd->ram_size >> 20);
 
-	/* This enables nonsecure access to DDR */
-	/* mpuregion0addr_limit */
-	FW_MPU_DDR_SCR_WRITEL(gd->ram_size - 1,
-			      FW_MPU_DDR_SCR_MPUREGION0ADDR_LIMIT);
-	FW_MPU_DDR_SCR_WRITEL(0x1F, FW_MPU_DDR_SCR_MPUREGION0ADDR_LIMITEXT);
-
-	/* nonmpuregion0addr_limit */
-	FW_MPU_DDR_SCR_WRITEL(gd->ram_size - 1,
-			      FW_MPU_DDR_SCR_NONMPUREGION0ADDR_LIMIT);
-
-	/* Enable mpuregion0enable and nonmpuregion0enable */
-	FW_MPU_DDR_SCR_WRITEL(MPUREGION0_ENABLE | NONMPUREGION0_ENABLE,
-			      FW_MPU_DDR_SCR_EN_SET);
-
 	u32 ctrlcfg1 = hmc_readl(plat, CTRLCFG1);
 
 	/* Enable or disable the DDR ECC */
@@ -157,10 +154,9 @@ int sdram_mmr_init_full(struct udevice *dev)
 			      DDR_HMC_ECCCTL2_AWB_EN_SET_MSK));
 	}
 
-	/* Enable non-secure reads/writes to HMC Adapter for SDRAM ECC */
-	writel(FW_HMC_ADAPTOR_MPU_MASK, FW_HMC_ADAPTOR_REG_ADDR);
-
 	sdram_size_check(&bd);
+
+	sdram_set_firewall(&bd);
 
 	priv->info.base = bd.bi_dram[0].start;
 	priv->info.size = gd->ram_size;

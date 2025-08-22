@@ -12,7 +12,7 @@ Synopsis
 ::
 
     sntp [serverip]
-    sntp [servername]  # NET_LWIP=y && CMD_DNS=y only
+    sntp [servername]  # NET_LWIP=y && DNS=y only
 
 
 Description
@@ -27,8 +27,8 @@ The address of the NTP server does not need to be given if the DHCP server
 provides one. The legacy network stack (`CONFIG_NET=y`) can only use the
 first NTP server provided in the `ntp-servers` DHCP option.
 
-When the network stack is lwIP (`CONFIG_NET_LWIP=y`) and the dns command
-is enabled (`CONFIG_CMD_DNS=y`), then the sntp command accepts a server
+When the network stack is lwIP (`CONFIG_NET_LWIP=y`) and DNS resolution
+is enabled (`CONFIG_DNS=y`), then the sntp command accepts a server
 name as an argument.
 
 The network time is sent as UTC. So, if you want to set the RTC to any local
@@ -61,7 +61,7 @@ Examples
     => date
     Date: 2025-06-16 (Monday)    Time: 17:19:57
 
-With `CONFIG_NET_LWIP=y` and `CONFIG_CMD_DNS=y`:
+With `CONFIG_NET_LWIP=y` and `CONFIG_DNS=y`:
 
 ::
 

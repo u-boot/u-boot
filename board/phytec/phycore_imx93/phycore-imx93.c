@@ -79,12 +79,21 @@ int board_fix_fdt(void *blob)
 
 	emmc_fixup(blob, &data);
 
+	/* Update dtb clocks for low drive mode */
+	if (is_voltage_mode(VOLT_LOW_DRIVE))
+		low_drive_freq_update(blob);
+
 	return 0;
 }
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	emmc_fixup(blob, NULL);
+
+	/**
+	 * NOTE: VOLT_LOW_DRIVE fixup is done by the ft_system_setup()
+	 * in arch/arm/mach-imx/imx9/soc.c for Linux device-tree.
+	 */
 
 	return 0;
 }

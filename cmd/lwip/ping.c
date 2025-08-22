@@ -170,6 +170,7 @@ int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (net_lwip_dns_resolve(argv[1], &addr))
 		return CMD_RET_USAGE;
 
+	net_try_count = 1;
 restart:
 	if (net_lwip_eth_start() < 0 || ping_loop(eth_get_dev(), &addr) < 0) {
 		if (net_start_again() == 0)

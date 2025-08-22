@@ -51,7 +51,7 @@ void board_init_f(ulong dummy)
 	if (ret)
 		hang();
 
-	socfpga_get_sys_mgr_addr("sysmgr@10d12000");
+	socfpga_get_sys_mgr_addr();
 	socfpga_get_managers_addr();
 
 	sysmgr_pinmux_init();

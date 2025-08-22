@@ -125,6 +125,14 @@ WEAK(memcpy)
 .copy_end:
 	ret
 
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define M_SLL sll
+#define M_SRL srl
+#else
+#define M_SLL srl
+#define M_SRL sll
+#endif
+
 .Lmisaligned_word_copy:
 	/*
 	 * Misaligned word-wise copy.
@@ -144,10 +152,10 @@ WEAK(memcpy)
 	addi	t0, t0, -(SZREG-1)
 	/* At least one iteration will be executed here, no check */
 1:
-	srl	a4, a5, t3
+	M_SRL	a4, a5, t3
 	REG_L	a5, SZREG(a1)
 	addi	a1, a1, SZREG
-	sll	a2, a5, t4
+	M_SLL	a2, a5, t4
 	or	a2, a2, a4
 	REG_S	a2, 0(a0)
 	addi	a0, a0, SZREG

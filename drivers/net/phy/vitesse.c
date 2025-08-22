@@ -239,7 +239,7 @@ static int vsc8514_config(struct phy_device *phydev)
 	while ((val & MIIM_VSC8514_18G_CMDSTAT) && timeout--)
 		val = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_VSC8514_GENERAL18);
 
-	if (0 == timeout) {
+	if (timeout == -1) {
 		printf("PHY 8514 config failed\n");
 		return -1;
 	}

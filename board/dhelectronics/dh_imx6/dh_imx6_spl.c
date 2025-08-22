@@ -49,6 +49,10 @@
 	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |	\
 	 PAD_CTL_SRE_FAST | PAD_CTL_HYS)
 
+#define OTG_PAD_CTRL							\
+	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
+	 PAD_CTL_SRE_SLOW | PAD_CTL_HYS)
+
 static const struct mx6dq_iomux_ddr_regs dhcom6dq_ddr_ioregs = {
 	.dram_sdclk_0	= 0x00020030,
 	.dram_sdclk_1	= 0x00020030,
@@ -509,7 +513,7 @@ int board_mmc_init(struct bd_info *bis)
 
 /* USB */
 static iomux_v3_cfg_t const usb_pads[] = {
-	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID	| MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID	| MUX_PAD_CTRL(OTG_PAD_CTRL)),
 	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31	| MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 

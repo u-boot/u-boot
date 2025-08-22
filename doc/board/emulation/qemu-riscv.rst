@@ -179,6 +179,32 @@ Provide the U-Boot S-mode ELF image as *-kernel* parameter and do not add a
 
     qemu-system-riscv64 -accel kvm -nographic -machine virt -kernel u-boot
 
+Running as flash binary
+-----------------------
+
+U-Boot can be provided to QEMU as an emulated flash drive.
+This can for instance be used to test capsule updates.
+
+Build qemu-riscv64_smode_defconfig with::
+
+    CONFIG_XIP=y
+    CONFIG_TEXT_BASE=0x20000000
+    CONFIG_CMD_MTD=y
+    CONFIG_FLASH_CFI_MTD=y
+
+Pad u-boot.bin to 32 MiB size:
+
+.. code-block:: bash
+
+    truncate -s 32M u-boot.bin
+
+Invoke QEMU with:
+
+.. code-block:: bash
+
+    qemu-system-riscv64 -M virt -nographic \
+    -drive if=pflash,format=raw,unit=0,file=u-boot.bin,readonly=off
+
 Debug UART
 ----------
 

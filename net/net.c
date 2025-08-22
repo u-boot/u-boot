@@ -1,9 +1,8 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: GPL-2.0-only
 /*
  *	Copied from Linux Monitor (LiMon) - Networking.
  *
  *	Copyright 1994 - 2000 Neil Russell.
- *	(See License)
  *	Copyright 2000 Roland Borde
  *	Copyright 2000 Paolo Scaffardi
  *	Copyright 2000-2002 Wolfgang Denk, wd@denx.de
@@ -115,7 +114,7 @@
 #include "bootp.h"
 #include "cdp.h"
 #include "dhcpv6.h"
-#if defined(CONFIG_CMD_DNS)
+#if defined(CONFIG_DNS)
 #include "dns.h"
 #endif
 #include "link_local.h"
@@ -288,7 +287,7 @@ static int on_vlan(const char *name, const char *value, enum env_op op,
 }
 U_BOOT_ENV_CALLBACK(vlan, on_vlan);
 
-#if defined(CONFIG_CMD_DNS)
+#if defined(CONFIG_DNS)
 static int on_dnsip(const char *name, const char *value, enum env_op op,
 	int flags)
 {
@@ -582,7 +581,7 @@ restart:
 			nc_start();
 			break;
 #endif
-#if defined(CONFIG_CMD_DNS)
+#if defined(CONFIG_DNS)
 		case DNS:
 			dns_start();
 			break;
@@ -1507,7 +1506,7 @@ static int net_check_prereq(enum proto_t protocol)
 		}
 		goto common;
 #endif
-#if defined(CONFIG_CMD_DNS)
+#if defined(CONFIG_DNS)
 	case DNS:
 		if (net_dns_server.s_addr == 0) {
 			puts("*** ERROR: DNS server address not given\n");
@@ -1540,7 +1539,7 @@ static int net_check_prereq(enum proto_t protocol)
 			return 1;
 		}
 #if	defined(CONFIG_CMD_PING) || \
-	defined(CONFIG_CMD_DNS) || defined(CONFIG_PROT_UDP)
+	defined(CONFIG_DNS) || defined(CONFIG_PROT_UDP)
 common:
 #endif
 		/* Fall through */

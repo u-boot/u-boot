@@ -80,7 +80,11 @@
 
 #define IP_DEFAULT_TTL                  255
 
+#if defined(CONFIG_PROT_ICMP_LWIP)
+#define LWIP_ICMP                       1
+#else
 #define LWIP_ICMP                       0
+#endif
 
 #if defined(CONFIG_PROT_RAW_LWIP)
 #define LWIP_RAW                        1

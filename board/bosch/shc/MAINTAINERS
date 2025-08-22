@@ -1,5 +1,5 @@
 SHC BOARD
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 F:	board/bosch/shc
 F:	include/configs/am335x_shc.h

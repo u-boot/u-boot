@@ -658,6 +658,15 @@ config MICROCHIP_FLEXCOM
 	  Only one function can be used at a time and is chosen at boot time
 	  according to the device tree.
 
+config MPFS_SYSCONTROLLER
+	bool "Enable Microchip PolarFire SoC (MPFS) System Services support"
+	depends on MISC
+	depends on MPFS_MBOX
+	help
+	  This driver adds support for the PolarFire SoC (MPFS) system controller.
+
+	  If unsure, say N.
+
 config K3_AVS0
 	depends on ARCH_K3 && SPL_DM_REGULATOR
 	bool "AVS class 0 support for K3 devices"

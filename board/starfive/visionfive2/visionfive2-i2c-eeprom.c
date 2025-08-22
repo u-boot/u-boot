@@ -275,7 +275,7 @@ static int prog_eeprom(unsigned int size)
 
 	if (is_match_magic()) {
 		printf("MAGIC ERROR, Please check the data@%p.\n", pbuf.buf);
-		return -1;
+		return CMD_RET_FAILURE;
 	}
 
 	ret = i2c_get_chip_for_busnum(CONFIG_SYS_EEPROM_BUS_NUM,
@@ -285,7 +285,7 @@ static int prog_eeprom(unsigned int size)
 	if (ret) {
 		printf("Get i2c bus:%d addr:%d fail.\n", CONFIG_SYS_EEPROM_BUS_NUM,
 		       CONFIG_SYS_I2C_EEPROM_ADDR);
-		return ret;
+		return CMD_RET_FAILURE;
 	}
 
 	for (i = 0, p = (u8 *)pbuf.buf; i < size; ) {
@@ -314,11 +314,11 @@ static int prog_eeprom(unsigned int size)
 	if (ret) {
 		has_been_read = -1;
 		printf("Programming failed.\n");
-		return -1;
+		return CMD_RET_FAILURE;
 	}
 
 	printf("Programming passed.\n");
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 /**

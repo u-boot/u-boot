@@ -27,7 +27,7 @@
 #if defined(CONFIG_API) || defined(CONFIG_EFI_LOADER)
 void (*push_packet)(void *, int len) = 0;
 #endif
-static int net_try_count;
+int net_try_count;
 static int net_restarted;
 int net_restart_wrap;
 static uchar net_pkt_buf[(PKTBUFSRX) * PKTSIZE_ALIGN + PKTALIGN];
@@ -147,7 +147,7 @@ static int get_udev_ipv4_info(struct udevice *dev, ip4_addr_t *ip,
  */
 int net_lwip_dns_init(void)
 {
-#if CONFIG_IS_ENABLED(CMD_DNS)
+#if CONFIG_IS_ENABLED(DNS)
 	bool has_server = false;
 	ip_addr_t ns;
 	char *nsenv;
@@ -364,7 +364,7 @@ int net_lwip_rx(struct udevice *udev, struct netif *netif)
  */
 int net_lwip_dns_resolve(char *name_or_ip, ip_addr_t *ip)
 {
-#if defined(CONFIG_CMD_DNS)
+#if defined(CONFIG_DNS)
 	char *var = "_dnsres";
 	char *argv[] = { "dns", name_or_ip, var, NULL };
 	int argc = ARRAY_SIZE(argv) - 1;
@@ -373,7 +373,7 @@ int net_lwip_dns_resolve(char *name_or_ip, ip_addr_t *ip)
 	if (ipaddr_aton(name_or_ip, ip))
 		return 0;
 
-#if defined(CONFIG_CMD_DNS)
+#if defined(CONFIG_DNS)
 	if (do_dns(NULL, 0, argc, argv) != CMD_RET_SUCCESS)
 		return -1;
 
