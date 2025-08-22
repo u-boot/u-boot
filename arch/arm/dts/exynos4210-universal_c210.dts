@@ -77,7 +77,7 @@
 	max8998-pmic@66 {
 		compatible = "maxim,max8998";
 		reg = <0x66 0 0>;
-		voltage-regulators {
+		regulators {
 			ldo2_reg: LDO2 {
 				regulator-name = "VALIVE_1.2V";
 				regulator-min-microvolt = <1200000>;
