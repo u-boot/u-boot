@@ -52,11 +52,14 @@ static int s2mps11_probe(struct udevice *dev)
 	ofnode regulators_node;
 	int children;
 
-	regulators_node = dev_read_subnode(dev, "voltage-regulators");
+	regulators_node = dev_read_subnode(dev, "regulators");
 	if (!ofnode_valid(regulators_node)) {
-		debug("%s: %s regulators subnode not found!\n", __func__,
-		      dev->name);
-		return -ENXIO;
+		regulators_node = dev_read_subnode(dev, "voltage-regulators");
+		if (!ofnode_valid(regulators_node)) {
+			debug("%s: %s regulators subnode not found!\n", __func__,
+			      dev->name);
+			return -ENXIO;
+		}
 	}
 
 	debug("%s: '%s' - found regulators subnode\n", __func__, dev->name);
