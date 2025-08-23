@@ -344,7 +344,7 @@ properties:
             resasg_entries:
                 type: array
                 minItems: 0
-                maxItems: 468
+                maxItems: 586
                 items:
                     type: object
                     properties:
@@ -420,7 +420,7 @@ properties:
             resasg_entries:
                 type: array
                 minItems: 0
-                maxItems: 468
+                maxItems: 586
                 items:
                     type: object
                     properties:
