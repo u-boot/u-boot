@@ -246,8 +246,9 @@ static int apple_pcie_setup_port(struct apple_pcie_priv *pcie, ofnode np)
 {
 	struct apple_pcie_port *port;
 	struct gpio_desc reset;
+	struct fdt_pci_addr pci_addr;
 	fdt_addr_t addr;
-	u32 stat, idx;
+	u32 stat;
 	int ret;
 	char name[16];
 
@@ -259,12 +260,13 @@ static int apple_pcie_setup_port(struct apple_pcie_priv *pcie, ofnode np)
 	if (!port)
 		return -ENOMEM;
 
-	ret = ofnode_read_u32_index(np, "reg", 0, &idx);
+	ret = ofnode_read_pci_addr(np, FDT_PCI_SPACE_CONFIG, "reg",
+				   &pci_addr, NULL);
 	if (ret)
 		return ret;
 
 	/* Use the first reg entry to work out the port index */
-	port->idx = idx >> 11;
+	port->idx = PCI_DEV(pci_addr.phys_hi);
 	port->pcie = pcie;
 	port->reset = reset;
 	port->np = np;
@@ -333,9 +335,10 @@ static int apple_pcie_setup_port(struct apple_pcie_priv *pcie, ofnode np)
 static int apple_pcie_probe(struct udevice *dev)
 {
 	struct apple_pcie_priv *pcie = dev_get_priv(dev);
+	struct fdt_pci_addr pci_addr;
 	fdt_addr_t addr;
 	ofnode of_port;
-	int i, ret;
+	int ret;
 
 	pcie->hw = (struct reg_info *)dev_get_driver_data(dev);
 
@@ -357,9 +360,14 @@ static int apple_pcie_probe(struct udevice *dev)
 	     of_port = ofnode_next_subnode(of_port)) {
 		if (!ofnode_is_enabled(of_port))
 			continue;
+		ret = ofnode_read_pci_addr(of_port, FDT_PCI_SPACE_CONFIG,
+					   "reg", &pci_addr, NULL);
+		if (ret)
+			continue;
 		ret = apple_pcie_setup_port(pcie, of_port);
 		if (ret) {
-			dev_err(pcie->dev, "Port %d setup fail: %d\n", i, ret);
+			dev_err(pcie->dev, "Port %d setup fail: %d\n",
+				PCI_DEV(pci_addr.phys_hi), ret);
 			return ret;
 		}
 	}
