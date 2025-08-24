@@ -17,6 +17,7 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <mtd.h>
+#include <time.h>
 #include <dm/devres.h>
 #include <linux/err.h>
 
@@ -466,8 +467,9 @@ static int mtd_special_write_oob(struct mtd_info *mtd, u64 off,
 static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
-	bool dump, read, raw, woob, write_empty_pages, has_pages = false;
+	bool dump, read, raw, woob, benchmark, write_empty_pages, has_pages = false;
 	u64 start_off, off, len, remaining, default_len;
+	unsigned long bench_start, bench_end;
 	struct mtd_oob_ops io_op = {};
 	uint user_addr = 0, npages;
 	const char *cmd = argv[0];
@@ -490,6 +492,7 @@ static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
 	read = dump || !strncmp(cmd, "read", 4);
 	raw = strstr(cmd, ".raw");
 	woob = strstr(cmd, ".oob");
+	benchmark = strstr(cmd, ".benchmark");
 	write_empty_pages = !has_pages || strstr(cmd, ".dontskipff");
 
 	argc -= 2;
@@ -559,6 +562,9 @@ static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	led_activity_blink();
 
+	if (benchmark)
+		bench_start = timer_get_us();
+
 	/* Loop over the pages to do the actual read/write */
 	while (remaining) {
 		/* Skip the block if it is bad */
@@ -584,6 +590,13 @@ static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
 		remaining -= io_op.retlen;
 		io_op.datbuf += io_op.retlen;
 		io_op.oobbuf += io_op.oobretlen;
+	}
+
+	if (benchmark && bench_start) {
+		bench_end = timer_get_us();
+		printf("%s speed: %lukiB/s\n",
+		       read ? "Read" : "Write",
+		       ((io_op.len * 1000000) / (bench_end - bench_start)) / 1024);
 	}
 
 	led_activity_off();
