@@ -24,22 +24,10 @@
 /* Board and environment settings */
 #define CFG_MXC_UART_BASE		UART4_BASE
 
-/* Boot order for distro boot */
-#define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 1) \
-	func(MMC, mmc, 0) \
-	func(UBIFS, ubifs, 0, UBI, boot) \
-	func(USB, usb, 0) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
-#include <config_distro_bootcmd.h>
-
 /* MMC Configs */
 #ifdef CONFIG_FSL_USDHC
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
 #define CFG_SYS_FSL_USDHC_NUM	2
 #endif
-
-#define CFG_EXTRA_ENV_SETTINGS BOOTENV
 
 #endif /* __KONTRON_MX6UL_CONFIG_H */
