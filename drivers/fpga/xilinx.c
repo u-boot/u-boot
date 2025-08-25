@@ -50,6 +50,9 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 	dataptr = (unsigned char *)fpgadata;
 	/* Find out fpga_description */
 	desc = fpga_validate(devnum, dataptr, 0);
+	if (!desc)
+		return FPGA_FAIL;
+
 	/* Assign xilinx device description */
 	xdesc = desc->devdesc;
 
