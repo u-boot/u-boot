@@ -22,10 +22,10 @@ example Raspberry Pi 2):
 What is this?
 -------------
 
-This tool handles building U-Boot to check that you have not broken it
-with your patch series. It can build each individual commit and report
-which boards fail on which commits, and which errors come up. It aims
-to make full use of multi-processor machines.
+This tool builds U-Boot to check that you have not broken it with your
+patch series. It can build each individual commit and report which boards
+fail on which commits, and which errors come up. It aims to make full use
+of multi-processor machines.
 
 A key feature of buildman is its output summary, which allows warnings,
 errors or image size increases in a particular commit or board to be
@@ -83,7 +83,7 @@ incremental build (i.e. not using 'make xxx_defconfig' unless you use -C).
 Eventually the thread reaches the last commit and stops. If a commit causes
 an error or warning, buildman will try it again after reconfiguring (but see
 -Q). Thus some commits may be built twice, with the first result silently
-discarded. Lots of errors and warnings will causes lots of reconfigures and your
+discarded. Lots of errors and warnings will cause lots of reconfigures and your
 build will be very slow. This is because a file that produces just a warning
 would not normally be rebuilt in an incremental build. Once a thread finishes
 building all the commits for a board, it starts on the commits for another
@@ -154,7 +154,7 @@ means to build all arm boards except nvidia, freescale and anything ending
 with 'ball'.
 
 For building specific boards you can use the --boards (or --bo) option, which
-takes a comma-separated list of board target names and be used multiple times
+takes a comma-separated list of board target names and can be used multiple times
 on the command line:
 
 .. code-block:: bash
@@ -212,7 +212,7 @@ Setting up
    The toolchain-alias section indicates that the i386 toolchain should be used
    to build x86 commits.
 
-   Note that you can also specific exactly toolchain prefixes if you like::
+   Note that you can also specify toolchain prefixes if you like::
 
       [toolchain-prefix]
       arm: /opt/arm-eabi-4.6/bin/arm-eabi-
@@ -243,9 +243,9 @@ Setting up
 
    This tells buildman to use a compiler wrapper in front of CROSS_COMPILE. In
    this example, ccache. It doesn't affect the toolchain scan. The wrapper is
-   added when CROSS_COMPILE environtal variable is set. The name in this
-   section is ignored. If more than one line is provided, only the last one
-   is taken.
+   added when the CROSS_COMPILE environment variable is set. The tag name in
+   this section is not important. If more than one line is provided, only the
+   last one is used.
 
 #. Make sure you have the required Python pre-requisites
 
@@ -484,7 +484,7 @@ Setting up
 How to run it
 -------------
 
-First do a dry run using the -n flag: (replace <branch> with a real, local
+First do a dry run using the -n flag (replace <branch> with a real, local
 branch with a valid upstream):
 
 .. code-block:: bash
@@ -898,7 +898,7 @@ The .buildman settings file
 
 The .buildman file provides information about the available toolchains and
 also allows build flags to be passed to 'make'. It consists of several
-sections, with the section name in square brackets. Within each section are
+sections, with the section name in square brackets. Within each section there are
 a set of (tag, value) pairs.
 
 '[global]' section
@@ -939,8 +939,7 @@ a set of (tag, value) pairs.
 '[toolchain-prefix]' section
     This can be used to provide the full toolchain-prefix for one or more
     architectures. The full CROSS_COMPILE prefix must be provided. These
-    typically have a higher priority than matches in the '[toolchain]', due to
-    this prefix.
+    typically have a higher priority than matches in the '[toolchain]'.
 
     The tilde character ``~`` is supported in paths, to represent the home
     directory.
@@ -1062,7 +1061,7 @@ For example::
     + u-boot.cfg: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_NET=1
     + u-boot-spl.cfg: CONFIG_SPL_MMC=1 CONFIG_SPL_NAND_SUPPORT=1
     + all: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_MMC=1 CONFIG_SPL_NAND_SUPPORT=1 CONFIG_SPL_NET=1
-    am335x_evm_usbspl :
+    am335x_evm_usbspl:
     + u-boot.cfg: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_NET=1
     + u-boot-spl.cfg: CONFIG_SPL_MMC=1 CONFIG_SPL_NAND_SUPPORT=1
     + all: CONFIG_SPL_ENV_SUPPORT=1 CONFIG_SPL_MMC=1 CONFIG_SPL_NAND_SUPPORT=1 CONFIG_SPL_NET=1
@@ -1073,15 +1072,15 @@ This shows that commit 44 enabled three new options for the board
 am335x_evm_usbspl which were not enabled in commit 43. There is also a
 summary for 'arm' showing all the changes detected for that architecture.
 In this case there is only one board with changes, so 'arm' output is the
-same as 'am335x_evm_usbspl'/
+same as 'am335x_evm_usbspl'.
 
 The -K option uses the u-boot.cfg, spl/u-boot-spl.cfg and tpl/u-boot-tpl.cfg
 files which are produced by a build. If all you want is to check the
 configuration you can in fact avoid doing a full build, using --config-only.
-This tells buildman to configuration U-Boot and create the .cfg files, but not
+This tells buildman to configure U-Boot and create the .cfg files, but not
 actually build the source. This is 5-10 times faster than doing a full build.
 
-By default buildman considers the follow two configuration methods
+By default buildman considers the following two configuration methods
 equivalent::
 
    #define CONFIG_SOME_OPTION
@@ -1089,7 +1088,7 @@ equivalent::
    CONFIG_SOME_OPTION=y
 
 The former would appear in a header filer and the latter in a defconfig
-file. The achieve this, buildman considers 'y' to be '1' in configuration
+file. To achieve this, buildman considers 'y' to be '1' in configuration
 variables. This avoids lots of useless output when converting a CONFIG
 option to Kconfig. To disable this behaviour, use --squash-config-y.
 
@@ -1364,7 +1363,7 @@ regeneration of the file - in that case buildman exits after writing the file
 with exit code 2 if there was an error in the maintainer files. To use the
 default filename, use a hyphen, i.e. `-R -`.
 
-You should use 'buildman -nv <criteria>' instead of greoing the boards.cfg file,
+You should use 'buildman -nv <criteria>' instead of greping the boards.cfg file,
 since it may be dropped altogether in future.
 
 
@@ -1378,7 +1377,7 @@ Use the `--maintainer-check` option to check this::
    WARNING: board/mikrotik/crs3xx-98dx3236/MAINTAINERS: missing defconfig ending at line 7
    WARNING: no maintainers for 'clearfog_spi'
 
-Buildman returns with an exit code of 2 if there area any warnings.
+Buildman returns with an exit code of 2 if there are any warnings.
 
 An experimental `--full-check option` also checks for boards which don't have a
 CONFIG_TARGET_xxx where xxx corresponds to their defconfig filename. This is

@@ -39,7 +39,7 @@ course) to have an up-to-date database.
 
 The database will be in the root of the repository. No further modifications are
 needed for it to be usable by the LSP, unless you set a name for the database
-other than it's default one (compile_commands.json).
+other than the default one (compile_commands.json).
 
 Compatible IDEs
 ---------------
