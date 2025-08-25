@@ -1273,8 +1273,9 @@ Some options have values, in which case you can change them:
 
     buildman -a 'BOOTCOMMAND="echo hello"' CONFIG_SYS_LOAD_ADDR=0x1000
 
-Note that you must put quotes around string options and the whole thing must be
-in single quotes, to make sure the shell leave it alone.
+Note that you must put quotes around string options and the whole argument must
+be in single quotes to ensure that the shell recognizes it as a single
+argument.
 
 If you try to set an option that does not exist, or that cannot be changed for
 some other reason (e.g. it is 'selected' by another option), then buildman
