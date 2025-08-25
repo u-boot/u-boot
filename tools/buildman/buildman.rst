@@ -100,8 +100,8 @@ threads do not affect the state of your git repository. Any checkouts done
 by the thread affect only the working directory for that thread.
 
 Buildman automatically selects the correct tool chain for each board. You
-must supply suitable tool chains (see --fetch-arch), but buildman takes care
-of selecting the right one.
+must supply suitable tool chains (see ``--fetch-arch``), but buildman takes
+care of selecting the right one.
 
 Buildman generally builds a branch (with the -b flag), and in this case
 builds the upstream commit as well, for comparison. So even if you have one
@@ -153,9 +153,9 @@ You can also use -x to specifically exclude some boards. For example:
 means to build all arm boards except nvidia, freescale and anything ending
 with 'ball'.
 
-For building specific boards you can use the --boards (or --bo) option, which
-takes a comma-separated list of board target names and can be used multiple times
-on the command line:
+For building specific boards you can use the ``--boards`` (or ``--bo``) option,
+which takes a comma-separated list of board target names and can be used
+multiple times on the command line:
 
 .. code-block:: bash
 
@@ -492,7 +492,7 @@ branch with a valid upstream):
    ./tools/buildman/buildman -b <branch> -n
 
 If it can't detect the upstream branch, try checking out the branch, and
-doing something like 'git branch --set-upstream-to upstream/master'
+doing something like ``git branch --set-upstream-to upstream/master``
 or something similar. Buildman will try to guess a suitable upstream branch
 if it can't find one (you will see a message like "Guessing upstream as ...").
 You can also use the -c option to manually specify the number of commits to
@@ -731,17 +731,17 @@ Note that the 'text' region and 'rodata' are split out. You should add the
 two together to get the total read-only size (reported as the first column
 in the output from binutil's 'size' utility).
 
-A useful option is --step which lets you skip some commits. For example
---step 2 will show the image sizes for only every 2nd commit (so it will
+A useful option is ``--step`` which lets you skip some commits. For example
+``--step 2`` will show the image sizes for only every 2nd commit (so it will
 compare the image sizes of the 1st, 3rd, 5th... commits). You can also use
---step 0 which will compare only the first and last commits. This is useful
+``--step 0`` which will compare only the first and last commits. This is useful
 for an overview of how your entire series affects code size. It will build
 only the upstream commit and your final branch commit.
 
 You can also use -d to see a detailed size breakdown for each board. This
 list is sorted in order from largest growth to largest reduction.
 
-It is even possible to go a little further with the -B option (--bloat). This
+It is even possible to go a little further with the -B option (``--bloat``). This
 shows where U-Boot has bloated, breaking the size change down to the function
 level. Example output is below::
 
@@ -924,7 +924,7 @@ a set of (tag, value) pairs.
     This lists the available toolchains. The tag here doesn't matter, but
     make sure it is unique. The value is the path to the toolchain. Buildman
     will look in that path for a file ending in 'gcc'. It will then execute
-    it to check that it is a C compiler, passing only the --version flag to
+    it to check that it is a C compiler, passing only the ``--version`` flag to
     it. If the return code is 0, buildman assumes that it is a valid C
     compiler. It uses the first part of the name as the architecture and
     strips off the last part when setting the CROSS_COMPILE environment
@@ -1005,7 +1005,7 @@ By default, buildman doesn't execute 'make mrproper' prior to building the
 first commit for each board. This reduces the amount of work 'make' does, and
 hence speeds up the build. To force use of 'make mrproper', use -the -m flag.
 This flag will slow down any buildman invocation, since it increases the amount
-of work done on any build. An alternative is to use the --fallback-mrproper
+of work done on any build. An alternative is to use the ``--fallback-mrproper``
 flag, which retries the build with 'make mrproper' only after a build failure.
 
 One possible application of buildman is as part of a continual edit, build,
@@ -1040,7 +1040,7 @@ of the source tree, thus allowing rapid tested evolution of the code::
 
     ./tools/buildman/buildman -Pr tegra
 
-Note also the `--dtc-skip` option which uses the system device-tree compiler to
+Note also the ``--dtc-skip`` option which uses the system device-tree compiler to
 avoid needing to build it for each board. This can save 10-20% of build time.
 An alternative is to set DTC=/path/to/dtc when running buildman.
 
@@ -1076,7 +1076,7 @@ same as 'am335x_evm_usbspl'.
 
 The -K option uses the u-boot.cfg, spl/u-boot-spl.cfg and tpl/u-boot-tpl.cfg
 files which are produced by a build. If all you want is to check the
-configuration you can in fact avoid doing a full build, using --config-only.
+configuration you can in fact avoid doing a full build, using ``--config-only``.
 This tells buildman to configure U-Boot and create the .cfg files, but not
 actually build the source. This is 5-10 times faster than doing a full build.
 
@@ -1090,7 +1090,7 @@ equivalent::
 The former would appear in a header filer and the latter in a defconfig
 file. To achieve this, buildman considers 'y' to be '1' in configuration
 variables. This avoids lots of useless output when converting a CONFIG
-option to Kconfig. To disable this behaviour, use --squash-config-y.
+option to Kconfig. To disable this behaviour, use ``--squash-config-y``.
 
 
 Checking the environment
@@ -1165,7 +1165,7 @@ Link-time optimisation (LTO) is designed to reduce code size by globally
 optimising the U-Boot build. Unfortunately this can dramatically slow down
 builds. This is particularly noticeable when running a lot of builds.
 
-Use the -L (--no-lto) flag to disable LTO.
+Use the -L (``--no-lto``) flag to disable LTO.
 
 .. code-block:: bash
 
@@ -1195,7 +1195,7 @@ each error line. Also, buildman prints information about what it is about to do,
 along with a summary at the end.
 
 When using buildman from an IDE, it is helpful to drop this behaviour. Use the
--I/--ide option for that. You might find -W helpful also so that warnings do
+``-I/--ide`` option for that. You might also find -W helpful so that warnings do
 not cause the build to fail:
 
 .. code-block:: bash
@@ -1287,7 +1287,7 @@ rebuild. You can use -f to work around that.
 Other options
 -------------
 
-Buildman has various other command-line options. Try --help to see them.
+Buildman has various other command-line options. Try ``--help`` to see them.
 
 To find out what toolchain prefix buildman will use for a build, use the -A
 option.
@@ -1325,11 +1325,11 @@ figure out the root cause of the build failure.
 
 For situations where buildman is invoked from multiple running processes, it is
 sometimes useful to have buildman wait until the others have finished. Use the
---process-limit option for this: --process-limit 1 will allow only one buildman
-to process jobs at a time.
+``--process-limit`` option for this: ``--process-limit 1`` will allow only one
+buildman to process jobs at a time.
 
 To build a particular target, rather than the default U-Boot target, use the
-`--target` option. This is unlikely to be useful unless you are building a
+``--target`` option. This is unlikely to be useful unless you are building a
 single board.
 
 Buildman normally builds out-of-tree, meaning that the source directory is not
@@ -1358,7 +1358,7 @@ Using boards.cfg
 
 This file is no-longer needed by buildman but it is still generated in the
 working directory. This helps avoid a delay on every build, since scanning all
-the Kconfig files takes a few seconds. Use the `-R <filename>` flag to force
+the Kconfig files takes a few seconds. Use the ``-R <filename>`` flag to force
 regeneration of the file - in that case buildman exits after writing the file
 with exit code 2 if there was an error in the maintainer files. To use the
 default filename, use a hyphen, i.e. `-R -`.
@@ -1371,7 +1371,7 @@ Checking maintainers
 --------------------
 
 Sometimes a board is added without a corresponding entry in a MAINTAINERS file.
-Use the `--maintainer-check` option to check this::
+Use the ``--maintainer-check`` option to check this::
 
    $ buildman --maintainer-check
    WARNING: board/mikrotik/crs3xx-98dx3236/MAINTAINERS: missing defconfig ending at line 7
@@ -1379,8 +1379,8 @@ Use the `--maintainer-check` option to check this::
 
 Buildman returns with an exit code of 2 if there are any warnings.
 
-An experimental `--full-check option` also checks for boards which don't have a
-CONFIG_TARGET_xxx where xxx corresponds to their defconfig filename. This is
+An experimental ``--full-check option`` also checks for boards which don't have
+a CONFIG_TARGET_xxx where xxx corresponds to their defconfig filename. This is
 not strictly necessary, but may be useful information.
 
 
