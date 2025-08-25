@@ -478,7 +478,20 @@ Setting up
 
    At the time of writing, U-Boot supports these architectures:
 
-      arc, arm, m68k, microblaze, mips, nios2, powerpc, sandbox, sh, x86, xtensa
+   - ARC (arc)
+   - ARM (arm)
+   - Motorola 68k (m68k)
+   - MicroBlaze (microblaze)
+   - MIPS (mips)
+   - Nios II (nios2)
+   - PowerPC (powerpc)
+   - RISC-V (riscv)
+   - Sandbox (sandbox)
+   - SuperH (sh)
+   - x86 (x86)
+   - Xtensa (xtensa)
+
+   Each entry list the architecture's name, followed by its code name in U-Boot.
 
 
 How to run it
