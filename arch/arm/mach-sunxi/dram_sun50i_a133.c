@@ -416,7 +416,7 @@ static void mctl_com_init(const struct dram_para *para,
 static void mctl_drive_odt_config(const struct dram_para *para)
 {
 	u32 val;
-	u64 base;
+	ulong base;
 	u32 i;
 
 	/* DX drive */

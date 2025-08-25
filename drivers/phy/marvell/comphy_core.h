@@ -47,8 +47,8 @@ struct chip_serdes_phy_config {
 	int (*rx_training)(struct chip_serdes_phy_config *, u32);
 	void __iomem *comphy_base_addr;
 	void __iomem *hpipe3_base_addr;
-	u32 comphy_lanes_count;
-	u32 comphy_mux_bitcount;
+	int comphy_lanes_count;
+	int comphy_mux_bitcount;
 	const fdt32_t *comphy_mux_lane_order;
 	u32 cp_index;
 	struct comphy_map comphy_map_data[MAX_LANE_OPTIONS];

@@ -476,8 +476,8 @@ void board_init_f(ulong dummy)
 	/* Enable non-secure access to some peripherals */
 	tzpc_init();
 
-	clock_init();
 	timer_init();
+	clock_init();
 	gpio_init();
 
 	spl_init();

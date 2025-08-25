@@ -204,7 +204,7 @@ static int zynqmp_pinctrl_prepare_func_groups(u32 fid,
 	const char **fgroups;
 	char name[MAX_GROUP_NAME_LEN];
 	u16 resp[NUM_GROUPS_PER_RESP] = {0};
-	int ret, index, i;
+	int ret = 0, index, i;
 
 	fgroups = kcalloc(func->ngroups, sizeof(*fgroups), GFP_KERNEL);
 	if (!fgroups)
@@ -460,14 +460,14 @@ static int zynqmp_pinconf_set(struct udevice *dev, unsigned int pin,
 	case PIN_CFG_IOSTANDARD:
 		param = PM_PINCTRL_CONFIG_VOLTAGE_STATUS;
 		ret = zynqmp_pm_pinctrl_get_config(pin, param, &value);
-		if (arg != value)
+		if (!ret && arg != value)
 			dev_warn(dev, "Invalid IO Standard requested for pin %d\n",
 				 pin);
 		break;
 	case PIN_CONFIG_POWER_SOURCE:
 		param = PM_PINCTRL_CONFIG_VOLTAGE_STATUS;
 		ret = zynqmp_pm_pinctrl_get_config(pin, param, &value);
-		if (arg != value)
+		if (!ret && arg != value)
 			dev_warn(dev, "Invalid IO Standard requested for pin %d\n",
 				 pin);
 		break;
