@@ -5,7 +5,9 @@
 
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch-mx6/imx-regs.h>
 #include <asm/global_data.h>
+#include <env.h>
 #include <env_internal.h>
 #include <fdt_support.h>
 #include <phy.h>
@@ -83,6 +85,16 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 	setup_fec();
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+	if (is_boot_from_usb()) {
+		env_set("bootdelay", "0");
+		env_set("bootcmd", "fastboot 0");
+	}
 
 	return 0;
 }
