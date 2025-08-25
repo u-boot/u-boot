@@ -104,10 +104,16 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	if (prio)
 		return ENVL_UNKNOWN;
 
+	if (CONFIG_IS_ENABLED(ENV_IS_NOWHERE) && is_boot_from_usb())
+		return ENVL_NOWHERE;
+
 	if (sl_mx6ul_is_spi_nor_boot() && CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
 		return ENVL_SPI_FLASH;
 	else if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
 		return ENVL_MMC;
 
-	return ENVL_NOWHERE;
+	if (CONFIG_IS_ENABLED(ENV_IS_NOWHERE))
+		return ENVL_NOWHERE;
+
+	return ENVL_UNKNOWN;
 }
