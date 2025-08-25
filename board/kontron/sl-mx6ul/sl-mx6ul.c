@@ -9,7 +9,8 @@
 #include <env_internal.h>
 #include <fdt_support.h>
 #include <phy.h>
-#include <sl-mx6ul-common.h>
+
+#include "sl-mx6ul-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
