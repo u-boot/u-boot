@@ -476,7 +476,7 @@ Setting up
 
    Buildman should now be set up to use your new toolchain.
 
-   At the time of writing, U-Boot has these architectures:
+   At the time of writing, U-Boot supports these architectures:
 
       arc, arm, m68k, microblaze, mips, nios2, powerpc, sandbox, sh, x86, xtensa
 
