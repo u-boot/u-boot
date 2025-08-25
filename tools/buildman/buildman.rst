@@ -1188,7 +1188,7 @@ Use the -L (``--no-lto``) flag to disable LTO.
 Doing a simple build
 --------------------
 
-In some cases you just want to build a single board and get the full output, use
+In case you want to build a single board and get the full output, use
 the -w option, for example:
 
 .. code-block:: bash
