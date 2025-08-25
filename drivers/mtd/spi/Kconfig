@@ -292,4 +292,10 @@ config SPL_SPI_FLASH_MTD
 
 	  If unsure, say N
 
+config SPI_FRAM_FUJITSU
+	bool "Fujitsu SPI FRAM support"
+	help
+	  Add support for the Fujitsu MB85RS256TY FRAM chip. It's treated the same
+	  as SPI NOR flash at the moment.
+
 endmenu # menu "SPI Flash Support"
