@@ -1294,7 +1294,7 @@ shows an error::
 
 One major caveat with this feature with branches (-b) is that buildman does not
 name the output directories differently when you change the configuration, so
-doing the same build with a different configuration will not trigger a rebuild.
+re-launching Buildman with an updated configuration will not trigger a rebuild.
 You can use -f to work around that.
 
 
