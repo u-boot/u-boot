@@ -1,0 +1,6 @@
+NETWORK DW XGMAC
+M:	Boon Khai Ng <boon.khai.ng@altera.com>
+S:	Supported
+F:	drivers/net/dwc_eth_xgmac.c
+F:	drivers/net/dwc_eth_xgmac.h
+F:	drivers/net/dwc_eth_xgmac_socfpga.c
