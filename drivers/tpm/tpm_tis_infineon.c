@@ -353,8 +353,7 @@ static int tpm_tis_i2c_recv_data(struct udevice *dev, u8 *buf, size_t count)
 	while (size < count) {
 		burstcnt = tpm_tis_i2c_get_burstcount(dev);
 
-		/* burstcount < 0 -> tpm is busy */
-		if (burstcnt < 0)
+		if (burstcnt == -EBUSY)
 			return burstcnt;
 
 		/* Limit received data to max left */
@@ -396,7 +395,7 @@ static int tpm_tis_i2c_recv(struct udevice *dev, u8 *buf, size_t count)
 
 	expected = get_unaligned_be32(buf + TPM_RSP_SIZE_BYTE);
 	if ((size_t)expected > count || (size_t)expected < TPM_HEADER_SIZE) {
-		debug("Error size=%x, expected=%x, count=%x\n", size, expected,
+		debug("Error size=%x, expected=%x, count=%zx\n", size, expected,
 		      count);
 		return -ENOSPC;
 	}
@@ -429,7 +428,7 @@ static int tpm_tis_i2c_send(struct udevice *dev, const u8 *buf, size_t len)
 	int retry = 0;
 	u8 sts = TPM_STS_GO;
 
-	debug("%s: len=%d\n", __func__, len);
+	debug("%s: len=%zd\n", __func__, len);
 	if (len > TPM_DEV_BUFSIZE)
 		return -E2BIG;  /* Command is too long for our tpm, sorry */
 
@@ -449,8 +448,7 @@ static int tpm_tis_i2c_send(struct udevice *dev, const u8 *buf, size_t len)
 
 	burstcnt = tpm_tis_i2c_get_burstcount(dev);
 
-	/* burstcount < 0 -> tpm is busy */
-	if (burstcnt < 0)
+	if (burstcnt == -EBUSY)
 		return burstcnt;
 
 	while (count < len) {
