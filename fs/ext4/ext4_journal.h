@@ -38,7 +38,7 @@
 #define EXT3_JOURNAL_FLAG_LAST_TAG	8
 
 /* Maximum entries in 1 journal transaction */
-#define MAX_JOURNAL_ENTRIES 100
+#define MAX_JOURNAL_ENTRIES CONFIG_EXT4_MAX_JOURNAL_ENTRIES
 struct journal_log {
 	char *buf;
 	int blknr;
