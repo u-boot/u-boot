@@ -183,7 +183,7 @@ static void setup_mac_from_eeprom(void)
 	struct phytec_eeprom_data data;
 	int ret;
 
-	ret = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
+	ret = phytec_eeprom_data_setup(&data, CONFIG_PHYTEC_EEPROM_BUS, EEPROM_ADDR);
 	if (ret || !data.valid)
 		return;
 
@@ -248,7 +248,7 @@ static void fdt_apply_som_overlays(void *blob)
 
 	memcpy(fdt_copy, blob, fdt_size);
 
-	err = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
+	err = phytec_eeprom_data_setup(&data, CONFIG_PHYTEC_EEPROM_BUS, EEPROM_ADDR);
 	if (err)
 		goto fixup_error;
 
@@ -295,7 +295,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	fdt_apply_som_overlays(blob);
 	fdt_copy_fixed_partitions(blob);
 
-	ret = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
+	ret = phytec_eeprom_data_setup(&data, CONFIG_PHYTEC_EEPROM_BUS, EEPROM_ADDR);
 	if (ret || !data.valid)
 		return 0;
 

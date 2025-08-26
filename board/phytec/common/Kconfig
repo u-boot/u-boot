@@ -42,7 +42,7 @@ config PHYTEC_AM62A_SOM_DETECTION
 	bool "Support SoM detection for AM62Ax PHYTEC platforms"
 	depends on (TARGET_PHYCORE_AM62AX_A53 || TARGET_PHYCORE_AM62AX_R5) && \
 		   PHYTEC_SOM_DETECTION
-	select SUPPORT_EXTENSION_SCAN
+	select PHYTEC_SOM_DETECTION_BLOCKS
 	depends on SPL_I2C && DM_I2C
 	default y
 	help
@@ -59,3 +59,9 @@ config PHYTEC_AM64_SOM_DETECTION
 	help
 	   Support of I2C EEPROM based SoM detection. Supported
 	   for PHYTEC AM64x boards.
+
+config PHYTEC_EEPROM_BUS
+	int "Board EEPROM's I2C bus number"
+	range 0 8
+	default 0
+	depends on PHYTEC_SOM_DETECTION
