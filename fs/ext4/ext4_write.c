@@ -877,7 +877,8 @@ int ext4fs_write(const char *fname, const char *buffer,
 
 	if (ext4fs_init() != 0) {
 		printf("error in File System init\n");
-		goto fail;
+		/* Skip ext4fs_deinit since ext4fs_init() already done that */
+		goto fail_init;
 	}
 
 	missing_feat = le32_to_cpu(fs->sb->feature_incompat) & ~EXT4_FEATURE_INCOMPAT_SUPP;
@@ -1050,6 +1051,7 @@ int ext4fs_write(const char *fname, const char *buffer,
 	return 0;
 fail:
 	ext4fs_deinit();
+fail_init:
 	free(inode_buffer);
 	free(g_parent_inode);
 	free(temp_ptr);
