@@ -23,10 +23,25 @@ struct caam_rng_priv {
 	u8 data[CAAM_RNG_MAX_FIFO_STORE_SIZE] __aligned(ARCH_DMA_MINALIGN);
 };
 
+static int caam_init_desc(struct caam_rng_priv *priv)
+{
+	ulong size = ALIGN(CAAM_RNG_DESC_LEN, ARCH_DMA_MINALIGN);
+
+	inline_cnstr_jobdesc_rng(priv->desc, priv->data,
+				 CAAM_RNG_MAX_FIFO_STORE_SIZE);
+
+	flush_dcache_range((unsigned long)priv->desc,
+			   (unsigned long)priv->desc + size);
+
+	return 0;
+}
+
 static int caam_rng_read_one(struct caam_rng_priv *priv)
 {
 	int size = ALIGN(CAAM_RNG_MAX_FIFO_STORE_SIZE, ARCH_DMA_MINALIGN);
 	int ret;
+
+	caam_init_desc(priv);
 
 	ret = run_descriptor_jr(priv->desc);
 	if (ret < 0)
@@ -63,12 +78,8 @@ static int caam_rng_read(struct udevice *dev, void *data, size_t len)
 static int caam_rng_probe(struct udevice *dev)
 {
 	struct caam_rng_priv *priv = dev_get_priv(dev);
-	ulong size = ALIGN(CAAM_RNG_DESC_LEN, ARCH_DMA_MINALIGN);
 
-	inline_cnstr_jobdesc_rng(priv->desc, priv->data,
-				 CAAM_RNG_MAX_FIFO_STORE_SIZE);
-	flush_dcache_range((unsigned long)priv->desc,
-			   (unsigned long)priv->desc + size);
+	caam_init_desc(priv);
 
 	return 0;
 }

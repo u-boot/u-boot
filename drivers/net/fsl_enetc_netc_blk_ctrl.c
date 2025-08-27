@@ -293,7 +293,7 @@ static int netc_blk_ctrl_probe(struct udevice *dev)
 	err = clk_prepare_enable(ipg_clk);
 	if (err) {
 		dev_err(dev, "Enable ipg clock failed\n");
-		return PTR_ERR(ipg_clk);
+		return err;
 	}
 
 	regs = dev_read_addr_name(dev, "ierb");

@@ -46,7 +46,7 @@ static int memac_wait_until_free(struct memac_mdio_controller *regs)
 	while ((memac_in_32(&regs->mdio_stat) & MDIO_STAT_BSY) && timeout--)
 		;
 
-	if (!timeout) {
+	if (timeout == -1) {
 		printf("timeout waiting for MDIO bus to be free\n");
 		return -ETIMEDOUT;
 	}
@@ -64,7 +64,7 @@ static int memac_wait_until_done(struct memac_mdio_controller *regs)
 	while ((memac_in_32(&regs->mdio_stat) & MDIO_STAT_BSY) && timeout--)
 		;
 
-	if (!timeout) {
+	if (timeout == -1) {
 		printf("timeout waiting for MDIO operation to complete\n");
 		return -ETIMEDOUT;
 	}

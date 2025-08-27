@@ -255,7 +255,6 @@ void u_qe_init(void)
 		struct mmc *mmc = find_mmc_device(CONFIG_ENV_MMC_DEVICE_INDEX);
 
 		if (!mmc) {
-			free(addr);
 			printf("\nMMC cannot find device for ucode\n");
 		} else {
 			printf("\nMMC read: dev # %u, block # %u, count %u ...\n",

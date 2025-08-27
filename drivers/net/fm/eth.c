@@ -169,7 +169,7 @@ static void bmi_rx_port_disable(struct fm_bmi_rx_port *rx_port)
 	/* wait until the rx port is not busy */
 	while ((in_be32(&rx_port->fmbm_rst) & FMBM_RST_BSY) && timeout--)
 		;
-	if (!timeout)
+	if (timeout == -1)
 		printf("%s - timeout\n", __func__);
 }
 
@@ -199,7 +199,7 @@ static void bmi_tx_port_disable(struct fm_bmi_tx_port *tx_port)
 	/* wait until the tx port is not busy */
 	while ((in_be32(&tx_port->fmbm_tst) & FMBM_TST_BSY) && timeout--)
 		;
-	if (!timeout)
+	if (timeout == -1)
 		printf("%s - timeout\n", __func__);
 }
 
@@ -727,12 +727,15 @@ static int fm_eth_bind(struct udevice *dev)
 	char mac_name[11];
 	u32 fm, num;
 
+	if (!dev)
+		return -EINVAL;
+
 	if (ofnode_read_u32(ofnode_get_parent(dev_ofnode(dev)), "cell-index", &fm)) {
 		printf("FMan node property cell-index missing\n");
 		return -EINVAL;
 	}
 
-	if (dev && dev_read_u32(dev, "cell-index", &num)) {
+	if (dev_read_u32(dev, "cell-index", &num)) {
 		printf("FMan MAC node property cell-index missing\n");
 		return -EINVAL;
 	}
