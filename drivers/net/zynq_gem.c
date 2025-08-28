@@ -162,7 +162,9 @@ struct zynq_gem_regs {
 	u32 idr; /* 0x2c - Interrupt Disable reg */
 	u32 reserved3;
 	u32 phymntnc; /* 0x34 - Phy Maintaince reg */
-	u32 reserved4[18];
+	u32 reserved4[6];
+	u32 hsmaccfg; /* 0x50 - HS MAC Config reg */
+	u32 reserved5[11];
 	u32 hashl; /* 0x80 - Hash Low address reg */
 	u32 hashh; /* 0x84 - Hash High address reg */
 #define LADDR_LOW	0
@@ -185,6 +187,10 @@ struct zynq_gem_regs {
 	u32 upper_txqbase; /* 0x4C8 - Upper tx_q base addr */
 	u32 reserved11[2];
 	u32 upper_rxqbase; /* 0x4D4 - Upper rx_q base addr */
+	u32 reserved13[362];
+	u32 usxctrlreg;  /* 0xA80 - Usx Control reg */
+	u32 reserved14;
+	u32 usxstatusreg; /* 0xA88 - Usx Status reg */
 };
 
 /* BD descriptors */
@@ -208,6 +214,27 @@ struct emac_bd {
 
 /* Setup the first free TX descriptor */
 #define TX_FREE_DESC	2
+
+#define HS_SPEED_1000M                          1
+#define HS_SPEED_2500M                          2
+#define HS_SPEED_5000M                          3
+#define HS_SPEED_10000M                         4
+#define MACB_SERDES_RATE_5G_2G5_1G              0
+#define MACB_SERDES_RATE_10G                    1
+#define USX_BLOCK_LOCK                          BIT(0)
+#define TX_SCR_BYPASS                           BIT(8)
+#define RX_SCR_BYPASS                           BIT(9)
+#define RX_SYNC_RESET                           BIT(2)
+#define SPEED_5000                              5000
+#define TX_EN                                   BIT(1)
+#define SIGNAL_OK                               BIT(0)
+#define ENABLE_HS_MAC                           BIT(31)
+#define PCSSEL                                  BIT(11)
+#define HS_MAC_SPEED_MASK                       0x3
+#define USX_CONFIG_SERDES_RATE_MASK             0x3
+#define USX_CONFIG_SERDES_RATE_SHIFT            12
+#define USX_CONFIG_SPEED_MASK                   0x3
+#define USX_CONFIG_SPEED_SHIFT                  14
 
 /* Initialized, rxbd_current, rx_first_buf must be 0 after init */
 struct zynq_gem_priv {
@@ -391,9 +418,11 @@ static int zynq_phy_init(struct udevice *dev)
 
 static int zynq_gem_init(struct udevice *dev)
 {
-	u32 i, nwconfig, nwcfg;
 	int ret;
+	u32 i, nwconfig, nwcfg, ctrl, ncr;
 	unsigned long clk_rate = 0;
+	unsigned long speed_val, serdes_rate, config;
+	unsigned long clear_speed_val_mask, clear_serdes_rate_mask;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs = priv->iobase;
 	struct zynq_gem_regs *regs_mdio = priv->mdiobase;
@@ -498,6 +527,67 @@ static int zynq_gem_init(struct udevice *dev)
 	}
 
 	nwconfig = ZYNQ_GEM_NWCFG_INIT;
+
+	if (device_is_compatible(dev, "amd,versal2-10gbe")) {
+		if (priv->interface == PHY_INTERFACE_MODE_10GBASER) {
+			ctrl = readl(&regs->nwcfg);
+			ctrl |= PCSSEL;
+			writel(ctrl, &regs->nwcfg);
+			ncr  = readl(&regs->nwctrl);
+			ncr  |= ENABLE_HS_MAC;
+			writel(ncr, &regs->nwctrl);
+		}
+		switch (priv->phydev->speed) {
+		case SPEED_1000:
+			speed_val = HS_SPEED_1000M;
+			serdes_rate = MACB_SERDES_RATE_5G_2G5_1G;
+			break;
+		case SPEED_2500:
+			speed_val = HS_SPEED_2500M;
+			serdes_rate = MACB_SERDES_RATE_5G_2G5_1G;
+			break;
+		case SPEED_5000:
+			speed_val = HS_SPEED_5000M;
+			serdes_rate = MACB_SERDES_RATE_5G_2G5_1G;
+			break;
+		case SPEED_10000:
+			speed_val = HS_SPEED_10000M;
+			serdes_rate = MACB_SERDES_RATE_10G;
+			break;
+		default:
+			printf("Specified speed not supported =%d\n", priv->phydev->speed);
+			break;
+		}
+
+		config = readl(&regs->hsmaccfg);
+		config = (config & ~HS_MAC_SPEED_MASK) | speed_val;
+		writel(config, &regs->hsmaccfg);
+
+		config = readl(&regs->usxctrlreg);
+		config |= SIGNAL_OK;
+		clear_serdes_rate_mask = ~(USX_CONFIG_SERDES_RATE_MASK <<
+					   USX_CONFIG_SERDES_RATE_SHIFT);
+		config = (config & clear_serdes_rate_mask) |
+			  serdes_rate << USX_CONFIG_SERDES_RATE_SHIFT;
+
+		clear_speed_val_mask = ~(USX_CONFIG_SPEED_MASK <<
+					 USX_CONFIG_SPEED_SHIFT);
+		config = (config & clear_speed_val_mask) |
+			  speed_val << USX_CONFIG_SPEED_SHIFT;
+		config &= ~(TX_SCR_BYPASS | RX_SCR_BYPASS);
+		config |= RX_SYNC_RESET;
+		writel(config, &regs->usxctrlreg);
+
+		mdelay(250);
+		config &= ~(RX_SYNC_RESET);
+		config |= (TX_EN);
+		writel(config, &regs->usxctrlreg);
+
+		ret = wait_for_bit_le32(&regs->usxstatusreg, USX_BLOCK_LOCK,
+					true, 20000, true);
+		if (ret)
+			printf("usx block lock failed\n");
+	}
 
 	/*
 	 * Set SGMII enable PCS selection only if internal PCS/PMA
@@ -997,6 +1087,7 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 }
 
 static const struct udevice_id zynq_gem_ids[] = {
+	{ .compatible = "amd,versal2-10gbe" },
 	{ .compatible = "xlnx,versal-gem", .data = RXCLK_EN },
 	{ .compatible = "cdns,versal-gem", .data = RXCLK_EN },
 	{ .compatible = "xlnx,zynqmp-gem" },
