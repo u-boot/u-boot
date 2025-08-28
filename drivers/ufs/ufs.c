@@ -226,6 +226,21 @@ static int ufshcd_send_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd)
 	return 0;
 }
 
+int ufshcd_dme_configure_adapt(struct ufs_hba *hba,
+			       int agreed_gear,
+			       int adapt_val)
+{
+	int ret;
+
+	if (agreed_gear < UFS_HS_G4)
+		adapt_val = PA_NO_ADAPT;
+
+	ret = ufshcd_dme_set(hba,
+			     UIC_ARG_MIB(PA_TXHSADAPTTYPE),
+			     adapt_val);
+	return ret;
+}
+
 /**
  * ufshcd_dme_set_attr - UIC command for DME_SET, DME_PEER_SET
  *

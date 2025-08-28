@@ -32,7 +32,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct driver_info root_info = {
+static const struct driver_info root_info = {
 	.name		= "root_driver",
 };
 
