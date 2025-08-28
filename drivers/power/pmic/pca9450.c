@@ -6,13 +6,17 @@
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <dm/lists.h>
 #include <i2c.h>
 #include <log.h>
 #include <asm/global_data.h>
+#include <linux/delay.h>
 #include <linux/printk.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/pca9450.h>
+#include <sysreset.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,6 +83,15 @@ static int pca9450_bind(struct udevice *dev)
 static int pca9450_probe(struct udevice *dev)
 {
 	unsigned int reset_ctrl;
+	int ret;
+
+	if (CONFIG_IS_ENABLED(SYSRESET)) {
+		ret = device_bind_driver_to_node(dev, "pca9450_sysreset",
+						 "pca9450_sysreset",
+						 dev_ofnode(dev), NULL);
+		if (ret)
+			return ret;
+	}
 
 	if (ofnode_read_bool(dev_ofnode(dev), "nxp,wdog_b-warm-reset"))
 		reset_ctrl = PCA9450_PMIC_RESET_WDOG_B_CFG_WARM;
@@ -112,3 +125,34 @@ U_BOOT_DRIVER(pmic_pca9450) = {
 	.probe = pca9450_probe,
 	.ops = &pca9450_ops,
 };
+
+#ifdef CONFIG_SYSRESET
+static int pca9450_sysreset_request(struct udevice *dev, enum sysreset_t type)
+{
+	u8 cmd = PCA9450_SW_RST_COLD_RST;
+
+	if (type != SYSRESET_COLD)
+		return -EPROTONOSUPPORT;
+
+	if (pmic_write(dev->parent, PCA9450_SW_RST, &cmd, 1)) {
+		dev_err(dev, "reset command failed\n");
+	} else {
+		/* tRESTART is 250ms, delay 300ms just to be sure */
+		mdelay(300);
+		/* Should not get here, warn if we do */
+		dev_warn(dev, "didn't respond to reset command\n");
+	}
+
+	return -EINPROGRESS;
+}
+
+static struct sysreset_ops pca9450_sysreset_ops = {
+	.request	= pca9450_sysreset_request,
+};
+
+U_BOOT_DRIVER(pca9450_sysreset) = {
+	.name		= "pca9450_sysreset",
+	.id		= UCLASS_SYSRESET,
+	.ops		= &pca9450_sysreset_ops,
+};
+#endif /* CONFIG_SYSRESET */
