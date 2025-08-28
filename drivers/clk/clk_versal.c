@@ -121,7 +121,12 @@ static unsigned int clock_max_idx __section(".data");
 
 #define PM_QUERY_DATA	35
 
-static int versal_pm_query(struct versal_pm_query_data qdata, u32 *ret_payload)
+typedef int (*versal_pm_query_t)(struct versal_pm_query_data qdata,
+				 u32 *ret_payload);
+static versal_pm_query_t __data versal_pm_query;
+
+static int versal_pm_query_legacy(struct versal_pm_query_data qdata,
+				  u32 *ret_payload)
 {
 	int ret;
 
@@ -668,6 +673,10 @@ static int versal_clk_probe(struct udevice *dev)
 
 	debug("%s\n", __func__);
 
+	versal_pm_query = (versal_pm_query_t)dev_get_driver_data(dev);
+	if (!versal_pm_query)
+		return -EINVAL;
+
 	ret = versal_clock_get_freq_by_name("pl_alt_ref",
 					    dev, &pl_alt_ref_clk);
 	if (ret == -ENODATA) {
@@ -772,7 +781,7 @@ static struct clk_ops versal_clk_ops = {
 };
 
 static const struct udevice_id versal_clk_ids[] = {
-	{ .compatible = "xlnx,versal-clk" },
+	{ .compatible = "xlnx,versal-clk", .data = (ulong)versal_pm_query_legacy },
 	{ }
 };
 
