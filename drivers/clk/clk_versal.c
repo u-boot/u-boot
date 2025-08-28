@@ -123,23 +123,12 @@ static unsigned int clock_max_idx __section(".data");
 
 static int versal_pm_query(struct versal_pm_query_data qdata, u32 *ret_payload)
 {
-	struct pt_regs regs;
+	int ret;
 
-	regs.regs[0] = PM_SIP_SVC | PM_QUERY_DATA;
-	regs.regs[1] = ((u64)qdata.arg1 << 32) | qdata.qid;
-	regs.regs[2] = ((u64)qdata.arg3 << 32) | qdata.arg2;
+	ret = smc_call_handler(PM_QUERY_DATA, qdata.qid, qdata.arg1, qdata.arg2,
+			       qdata.arg3, ret_payload);
 
-	smc_call(&regs);
-
-	if (ret_payload) {
-		ret_payload[0] = (u32)regs.regs[0];
-		ret_payload[1] = upper_32_bits(regs.regs[0]);
-		ret_payload[2] = (u32)regs.regs[1];
-		ret_payload[3] = upper_32_bits(regs.regs[1]);
-		ret_payload[4] = (u32)regs.regs[2];
-	}
-
-	return qdata.qid == PM_QID_CLOCK_GET_NAME ? 0 : regs.regs[0];
+	return qdata.qid == PM_QID_CLOCK_GET_NAME ? 0 : ret;
 }
 
 static inline int versal_is_valid_clock(u32 clk_id)
