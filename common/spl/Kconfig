@@ -1141,7 +1141,7 @@ config SPL_DM_SPI
 
 config SPL_DM_SPI_FLASH
 	bool "Support SPI DM FLASH drivers in SPL"
-	depends on SPL_DM
+	depends on SPL_DM_SPI
 	help
 	  Enable support for SPI DM flash drivers in SPL.
 
