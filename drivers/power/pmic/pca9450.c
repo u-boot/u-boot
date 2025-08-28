@@ -146,8 +146,46 @@ static int pca9450_sysreset_request(struct udevice *dev, enum sysreset_t type)
 	return -EINPROGRESS;
 }
 
+int pca9450_sysreset_get_status(struct udevice *dev, char *buf, int size)
+{
+	const char *reason;
+	int ret;
+	u8 reg;
+
+	ret = pmic_read(dev->parent, PCA9450_PWRON_STAT, &reg, 1);
+	if (ret)
+		return ret;
+
+	switch (reg) {
+	case PCA9450_PWRON_STAT_PWRON_MASK:
+		reason = "PWRON";
+		break;
+	case PCA9450_PWRON_STAT_WDOG_MASK:
+		reason = "WDOGB";
+		break;
+	case PCA9450_PWRON_STAT_SW_RST_MASK:
+		reason = "SW_RST";
+		break;
+	case PCA9450_PWRON_STAT_PMIC_RST_MASK:
+		reason = "PMIC_RST";
+		break;
+	default:
+		reason = "UNKNOWN";
+		break;
+	}
+
+	ret = snprintf(buf, size, "Reset Status: %s\n", reason);
+	if (ret < 0) {
+		dev_err(dev, "Write reset status error (err = %d)\n", ret);
+		return -EIO;
+	}
+
+	return 0;
+}
+
 static struct sysreset_ops pca9450_sysreset_ops = {
 	.request	= pca9450_sysreset_request,
+	.get_status	= pca9450_sysreset_get_status,
 };
 
 U_BOOT_DRIVER(pca9450_sysreset) = {
