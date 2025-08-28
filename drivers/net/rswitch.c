@@ -1110,8 +1110,10 @@ static int rswitch_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->rsw_clk = devm_clk_get(dev, NULL);
-	if (ret)
+	if (IS_ERR(priv->rsw_clk)) {
+		ret = PTR_ERR(priv->rsw_clk);
 		goto err_map;
+	}
 
 	ret = clk_prepare_enable(priv->rsw_clk);
 	if (ret)

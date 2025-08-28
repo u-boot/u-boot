@@ -608,14 +608,14 @@ static inline bool supports_extension(char ext)
 
 static int riscv_cpu_probe(void)
 {
-#ifdef CONFIG_CPU
-	int ret;
+	if (CONFIG_IS_ENABLED(CPU)) {
+		int ret;
 
-	/* probe cpus so that RISC-V timer can be bound */
-	ret = cpu_probe_all();
-	if (ret)
-		return log_msg_ret("RISC-V cpus probe failed\n", ret);
-#endif
+		/* probe cpus so that RISC-V timer can be bound */
+		ret = cpu_probe_all();
+		if (ret)
+			return log_msg_ret("RISC-V cpus probe failed\n", ret);
+	}
 
 	return 0;
 }

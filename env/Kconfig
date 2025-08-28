@@ -732,7 +732,7 @@ config ENV_MMC_USE_SW_PARTITION
 	depends on ENV_IS_IN_MMC
 
 config ENV_MMC_SW_PARTITION
-	bool "SD/MMC environment software partition name"
+	string "SD/MMC environment software partition name"
 	depends on ENV_MMC_USE_SW_PARTITION
 	help
 	  SD/MMC software partition name used to save environment variables.
@@ -957,6 +957,7 @@ config USE_BOOTFILE
 
 config BOOTFILE
 	string "'bootfile' environment variable value"
+	default kernel.itb if SPL_ATF && TARGET_SOCFPGA_SOC64
 	depends on USE_BOOTFILE
 	help
 	  The value to set the "bootfile" variable to.

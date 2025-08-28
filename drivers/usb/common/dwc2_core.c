@@ -17,7 +17,7 @@ int dwc2_core_reset(struct dwc2_core_regs *regs)
 	bool host_mode = false;
 
 	if (!(readl(&regs->global_regs.gotgctl) & GOTGCTL_CONID_B) ||
-	    (readl(&regs->global_regs.gusbcfg) & GUSBCFG_FORCEDEVMODE))
+	    (readl(&regs->global_regs.gusbcfg) & GUSBCFG_FORCEHOSTMODE))
 		host_mode = true;
 
 	/* Core Soft Reset */

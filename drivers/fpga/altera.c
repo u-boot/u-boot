@@ -28,10 +28,7 @@ static const struct altera_fpga {
 	int			(*dump)(Altera_desc *, const void *, size_t);
 	int			(*info)(Altera_desc *);
 } altera_fpga[] = {
-#if defined(CONFIG_FPGA_ACEX1K)
-	{ Altera_ACEX1K, "ACEX1K", ACEX1K_load, ACEX1K_dump, ACEX1K_info },
-	{ Altera_CYC2,   "ACEX1K", ACEX1K_load, ACEX1K_dump, ACEX1K_info },
-#elif defined(CONFIG_FPGA_CYCLON2)
+#if defined(CONFIG_FPGA_CYCLON2)
 	{ Altera_ACEX1K, "CycloneII", CYC2_load, CYC2_dump, CYC2_info },
 	{ Altera_CYC2,   "CycloneII", CYC2_load, CYC2_dump, CYC2_info },
 #endif

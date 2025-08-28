@@ -93,7 +93,7 @@ static int do_meminfo(struct cmd_tbl *cmdtp, int flag, int argc,
 	print_region("stack", stk_bot, CONFIG_STACK_SIZE, &upto);
 	if (IS_ENABLED(CONFIG_LMB))
 		show_lmb(lmb_get(), &upto);
-	print_region("free", gd->ram_base, upto, &upto);
+	print_region("free", gd->ram_base, upto - gd->ram_base, &upto);
 
 	return 0;
 }

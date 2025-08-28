@@ -98,43 +98,6 @@
 	};
 };
 
-&binman {
-	tiboot3-am62ax-gp-evm.bin {
-		filename = "tiboot3-am62ax-gp-evm.bin";
-		ti-secure-rom {
-			content = <&u_boot_spl_unsigned>, <&ti_fs_gp>,
-				<&combined_tifs_cfg_gp>, <&combined_dm_cfg_gp>;
-			combined;
-			dm-data;
-			content-sbl = <&u_boot_spl_unsigned>;
-			load = <CONFIG_SPL_TEXT_BASE>;
-			content-sysfw = <&ti_fs_gp>;
-			load-sysfw = <0x40000>;
-			content-sysfw-data = <&combined_tifs_cfg_gp>;
-			load-sysfw-data = <0x67000>;
-			content-dm-data = <&combined_dm_cfg_gp>;
-			load-dm-data = <0x43c3a800>;
-			sw-rev = <1>;
-			keyfile = "ti-degenerate-key.pem";
-		};
-		u_boot_spl_unsigned: u-boot-spl {
-			no-expanded;
-		};
-		ti_fs_gp: ti-fs-gp.bin {
-			filename = "ti-sysfw/ti-fs-firmware-am62ax-gp.bin";
-			type = "blob-ext";
-		};
-		combined_tifs_cfg_gp: combined-tifs-cfg-gp.bin {
-			filename = "combined-tifs-cfg.bin";
-			type = "blob-ext";
-		};
-		combined_dm_cfg_gp: combined-dm-cfg-gp.bin {
-			filename = "combined-dm-cfg.bin";
-			type = "blob-ext";
-		};
-	};
-};
-
 #endif
 
 #ifdef CONFIG_TARGET_AM62A7_A53_EVM
@@ -181,23 +144,6 @@
 
 	};
 
-	tifsstub-gp {
-		filename = "tifsstub.bin_gp";
-		ti-secure-rom {
-			content = <&tifsstub_gp>;
-			core = "secure";
-			load = <0x60000>;
-			sw-rev = <CONFIG_K3_X509_SWRV>;
-			keyfile = "ti-degenerate-key.pem";
-			tifsstub;
-		};
-		tifsstub_gp: tifsstub-gp.bin {
-			filename = "ti-sysfw/ti-fs-stub-firmware-am62ax-gp.bin";
-			type = "blob-ext";
-			optional;
-		};
-	};
-
 	ti-spl {
 		insert-template = <&ti_spl_template>;
 
@@ -229,18 +175,6 @@
 					};
 				};
 
-				tifsstub-gp {
-					description = "TIFSSTUB";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-gp";
-					load = <0x9ca00000>;
-					entry = <0x9ca00000>;
-					blob-ext {
-						filename = "tifsstub.bin_gp";
-					};
-				};
 				dm {
 					ti-secure {
 						content = <&dm>;
@@ -275,7 +209,7 @@
 					description = "k3-am62a7-sk";
 					firmware = "atf";
 					loadables = "tee", "dm", "spl",
-					"tifsstub-hs", "tifsstub-fs", "tifsstub-gp";
+					"tifsstub-hs", "tifsstub-fs";
 					fdt = "fdt-0";
 				};
 			};
@@ -326,117 +260,4 @@
 	};
 };
 
-&binman {
-	ti-spl_unsigned {
-		insert-template = <&ti_spl_unsigned_template>;
-
-		fit {
-			images {
-				tifsstub-hs {
-					description = "tifsstub";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-hs";
-					load = <0x9ca00000>;
-					entry = <0x9ca00000>;
-					blob-ext {
-						filename = "tifsstub.bin_hs";
-					};
-				};
-
-				tifsstub-fs {
-					description = "tifsstub";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-fs";
-					load = <0x9ca00000>;
-					entry = <0x9ca00000>;
-					blob-ext {
-						filename = "tifsstub.bin_fs";
-					};
-				};
-
-				tifsstub-gp {
-					description = "tifsstub";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-gp";
-					load = <0x9ca00000>;
-					entry = <0x9ca00000>;
-					blob-ext {
-						filename = "tifsstub.bin_gp";
-					};
-				};
-				dm {
-					ti-dm {
-						filename = "ti-dm/am62axx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-					};
-				};
-
-				fdt-0 {
-					description = "k3-am62a7-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = SPL_AM62A7_SK_DTB;
-					};
-				};
-			};
-
-			configurations {
-				default = "conf-0";
-
-				conf-0 {
-					description = "k3-am62a7-sk";
-					firmware = "atf";
-					loadables = "tee", "dm", "spl",
-					"tifsstub-hs", "tifsstub-fs", "tifsstub-gp";
-					fdt = "fdt-0";
-				};
-			};
-		};
-	};
-};
-
-&binman {
-	u-boot_unsigned {
-		insert-template = <&u_boot_unsigned_template>;
-
-		fit {
-			images {
-				uboot {
-					description = "U-Boot for AM62Ax Board";
-				};
-
-				fdt-0 {
-					description = "k3-am62a7-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = AM62A7_SK_DTB;
-					};
-					hash {
-						algo = "crc32";
-					};
-				};
-			};
-
-			configurations {
-				default = "conf-0";
-
-				conf-0 {
-					description = "k3-am62a7-sk";
-					firmware = "uboot";
-					loadables = "uboot";
-					fdt = "fdt-0";
-				};
-			};
-		};
-	};
-};
 #endif

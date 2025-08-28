@@ -615,7 +615,8 @@ static int atmel_qspi_set_cfg(struct atmel_qspi *aq,
 static int atmel_qspi_transfer(struct atmel_qspi *aq,
 			       const struct spi_mem_op *op, u32 offset)
 {
-	u32 sr, imr;
+	u32 imr, val = 0;
+	unsigned long timeout;
 
 	/* Skip to the final steps if there is no data */
 	if (op->data.nbytes) {
@@ -636,8 +637,16 @@ static int atmel_qspi_transfer(struct atmel_qspi *aq,
 
 	/* Poll INSTruction End and Chip Select Rise flags. */
 	imr = QSPI_SR_INSTRE | QSPI_SR_CSR;
-	return readl_poll_timeout(aq->regs + QSPI_SR, sr, (sr & imr) == imr,
-				  ATMEL_QSPI_TIMEOUT);
+
+	timeout = timer_get_us() + ATMEL_QSPI_TIMEOUT;
+	while (1) {
+		val |= readl(aq->regs + QSPI_SR) & imr;
+		if ((val & imr) == imr)
+			return 0;
+
+		if (time_after(timer_get_us(), timeout))
+			return -ETIMEDOUT;
+	}
 }
 
 static int atmel_qspi_sama7g5_set_cfg(struct atmel_qspi *aq,

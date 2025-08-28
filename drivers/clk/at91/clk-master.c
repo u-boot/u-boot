@@ -335,8 +335,8 @@ struct clk *at91_clk_sama7g5_register_master(void __iomem *base,
 {
 	struct clk_master *master;
 	struct clk *clk;
-	u32 val, index;
-	int ret;
+	u32 val;
+	int ret, index;
 
 	if (!base || !name || !num_parents || !parent_names ||
 	    !mux_table || !clk_mux_table || id > MASTER_MAX_ID)

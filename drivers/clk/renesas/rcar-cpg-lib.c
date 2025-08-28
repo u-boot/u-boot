@@ -92,7 +92,8 @@ int rcar_clk_set_rate64_div_table(unsigned int parent, u64 parent_rate, ulong ra
 				  void __iomem *reg, const u32 mask,
 				  const struct clk_div_table *table, char *name)
 {
-	u32 value = 0, div = 0;
+	u32 div;
+	int value;
 
 	div = DIV_ROUND_CLOSEST(parent_rate, rate);
 	value = rcar_clk_get_table_val(table, div);
@@ -101,7 +102,7 @@ int rcar_clk_set_rate64_div_table(unsigned int parent, u64 parent_rate, ulong ra
 
 	clrsetbits_le32(reg, mask, field_prep(mask, value));
 
-	debug("%s[%i] %s clk: parent=%i div=%u rate=%lu => val=%u\n",
+	debug("%s[%i] %s clk: parent=%i div=%u rate=%lu => val=%d\n",
 	      __func__, __LINE__, name, parent, div, rate, value);
 
 	return 0;

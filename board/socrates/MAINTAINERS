@@ -1,5 +1,5 @@
 SOCRATES BOARD
-M:	Heiko Schocher <hs@denx.de>
+M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
 F:	board/socrates/
 F:	include/configs/socrates.h

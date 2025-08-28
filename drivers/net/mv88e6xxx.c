@@ -631,7 +631,7 @@ static int mv88e6xxx_port_enable(struct udevice *dev, int port, struct phy_devic
 			dev_dbg(dev, "configure internal RGMII delays\n");
 
 			/* RGMII delays */
-			val &= ~(PORT_REG_PHYS_CTRL_RGMII_DELAY_RXCLK ||
+			val &= ~(PORT_REG_PHYS_CTRL_RGMII_DELAY_RXCLK |
 				 PORT_REG_PHYS_CTRL_RGMII_DELAY_TXCLK);
 			if (phy->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 			    phy->interface == PHY_INTERFACE_MODE_RGMII_RXID)

@@ -299,7 +299,8 @@ static int do_i2c_write(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	uint	chip;
-	uint	devaddr, length;
+	uint	devaddr;
+	int length;
 	int alen;
 	u_char  *memaddr;
 	int ret;

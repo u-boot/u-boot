@@ -516,7 +516,9 @@ static const char *sa8775p_get_function_name(struct udevice *dev,
 static const char *sa8775p_get_pin_name(struct udevice *dev,
 					unsigned int selector)
 {
-	if (selector >= 149 && selector <= 155)
+	if (selector > 153)
+		strcpy(pin_name, "unknown");
+	else if (selector >= 149)
 		snprintf(pin_name, MAX_PIN_NAME_LEN,
 			 msm_special_pins_data[selector - 149].name);
 	else

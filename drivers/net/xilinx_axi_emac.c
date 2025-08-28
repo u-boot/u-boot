@@ -558,7 +558,7 @@ static int axiemac_write_hwaddr(struct udevice *dev)
 /* Reset DMA engine */
 static void axi_dma_init(struct axidma_priv *priv)
 {
-	u32 timeout = 500;
+	int timeout = 500;
 
 	/* Reset the engine so the hardware starts from a known state */
 	writel(XAXIDMA_CR_RESET_MASK, &priv->dmatx->control);
@@ -571,11 +571,11 @@ static void axi_dma_init(struct axidma_priv *priv)
 		if (!((readl(&priv->dmatx->control) |
 				readl(&priv->dmarx->control))
 						& XAXIDMA_CR_RESET_MASK)) {
-			break;
+			return;
 		}
 	}
-	if (!timeout)
-		printf("%s: Timeout\n", __func__);
+
+	printf("%s: Timeout\n", __func__);
 }
 
 static int axiemac_start(struct udevice *dev)

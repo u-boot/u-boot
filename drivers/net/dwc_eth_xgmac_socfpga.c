@@ -39,11 +39,9 @@ phy_interface_t dwxgmac_of_get_mac_mode(struct udevice *dev)
 	if (!mac_mode)
 		return PHY_INTERFACE_MODE_NA;
 
-	if (mac_mode) {
-		for (i = 0; i < PHY_INTERFACE_MODE_MAX; i++) {
-			if (!strcmp(mac_mode, phy_interface_strings[i]))
-				return i;
-		}
+	for (i = 0; i < PHY_INTERFACE_MODE_MAX; i++) {
+		if (!strcmp(mac_mode, phy_interface_strings[i]))
+			return i;
 	}
 	return PHY_INTERFACE_MODE_NA;
 }

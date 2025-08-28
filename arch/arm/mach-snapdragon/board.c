@@ -534,8 +534,7 @@ int board_late_init(void)
 		env_set_hex("ramdisk_addr_r", addr) : 1;
 	status |= !lmb_alloc(KERNEL_COMP_SIZE, &addr) ?
 		env_set_hex("kernel_comp_addr_r", addr) : 1;
-	status |= !lmb_alloc(KERNEL_COMP_SIZE, &addr) ?
-		env_set_hex("kernel_comp_size", addr) : 1;
+	status |= env_set_hex("kernel_comp_size", KERNEL_COMP_SIZE);
 	status |= !lmb_alloc(SZ_4M, &addr) ?
 		env_set_hex("scriptaddr", addr) : 1;
 	status |= !lmb_alloc(SZ_4M, &addr) ?
@@ -544,9 +543,13 @@ int board_late_init(void)
 	if (IS_ENABLED(CONFIG_FASTBOOT)) {
 		status |= !lmb_alloc(FASTBOOT_BUF_SIZE, &addr) ?
 			env_set_hex("fastboot_addr_r", addr) : 1;
-		/* override loadaddr for memory rich soc */
-		status |= !lmb_alloc(SZ_128M, &addr) ?
-			env_set_hex("loadaddr", addr) : 1;
+		/*
+		 * Override loadaddr for memory rich soc since ${loadaddr} and
+		 * ${kernel_addr_r} need to be different for the Android boot image
+		 * flow. It's typically safe for ${loadaddr} to be the same address
+		 * as the fastboot buffer.
+		 */
+		status |= env_set_hex("loadaddr", addr);
 	}
 
 	fdt_status |= !lmb_alloc(SZ_2M, &addr) ?

@@ -4,6 +4,16 @@
 
 if NET_LWIP
 
+config LWIP_ICMP_SHOW_UNREACH
+	bool "Print ICMP Destination Unreachable messages"
+	default y
+	depends on CMD_TFTPBOOT || CMD_SNTP
+	select PROT_ICMP_LWIP
+	help
+	  Prints a message whenever an ICMP Destination Unreachable message is
+	  received while running a network command that sends requests via UDP.
+	  Enabling this can make troubleshooting easier.
+
 config LWIP_DEBUG
 	bool "Enable debug traces in the lwIP library"
 	help
@@ -30,6 +40,9 @@ config PROT_DHCP_LWIP
 config PROT_DNS_LWIP
 	bool
 	select PROT_UDP_LWIP
+
+config PROT_ICMP_LWIP
+	bool
 
 config PROT_RAW_LWIP
 	bool

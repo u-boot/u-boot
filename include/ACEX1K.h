@@ -12,25 +12,9 @@
 
 #include <altera.h>
 
-extern int ACEX1K_load(Altera_desc *desc, const void *image, size_t size);
-extern int ACEX1K_dump(Altera_desc *desc, const void *buf, size_t bsize);
-extern int ACEX1K_info(Altera_desc *desc);
-
 extern int CYC2_load(Altera_desc *desc, const void *image, size_t size);
 extern int CYC2_dump(Altera_desc *desc, const void *buf, size_t bsize);
 extern int CYC2_info(Altera_desc *desc);
-
-/* Slave Serial Implementation function table */
-typedef struct {
-	Altera_pre_fn		pre;
-	Altera_config_fn	config;
-	Altera_clk_fn		clk;
-	Altera_status_fn	status;
-	Altera_done_fn		done;
-	Altera_data_fn		data;
-	Altera_abort_fn		abort;
-	Altera_post_fn		post;
-} Altera_ACEX1K_Passive_Serial_fns;
 
 /* Slave Serial Implementation function table */
 typedef struct {
@@ -45,16 +29,6 @@ typedef struct {
 
 /* Device Image Sizes
  *********************************************************************/
-/* ACEX1K */
-/* FIXME: Which size do we mean?
- * Datasheet says 1337000/8=167125Bytes,
- * Filesize of an *.rbf file is 166965 Bytes
- */
-#if 0
-#define Altera_EP1K100_SIZE	1337000/8	/* 167125 Bytes */
-#endif
-#define Altera_EP1K100_SIZE	(166965*8)
-
 #define Altera_EP2C8_SIZE	247942
 #define Altera_EP2C20_SIZE	586562
 #define Altera_EP2C35_SIZE	883905
@@ -69,11 +43,5 @@ typedef struct {
 #define ALTERA_EP4CE55_SIZE	1861195		/* 14889560 Bits */
 #define ALTERA_EP4CE75_SIZE	2495719		/* 19965752 Bits */
 #define ALTERA_EP4CE115_SIZE	3571462		/* 28571696 Bits */
-
-/* Descriptor Macros
- *********************************************************************/
-/* ACEX1K devices */
-#define Altera_EP1K100_DESC(iface, fn_table, cookie) \
-{ Altera_ACEX1K, iface, Altera_EP1K100_SIZE, fn_table, cookie }
 
 #endif /* _ACEX1K_H_ */

@@ -298,6 +298,8 @@ int nix_lf_setup(struct nix *nix)
 			goto error;
 	}
 
+	err = -1;
+
 	/* Alloc memory for Qints HW contexts */
 	nix->qint_base = nix_memalloc(nix_af->qints, nix_af->qint_ctx_sz,
 				      "Qint CTX");

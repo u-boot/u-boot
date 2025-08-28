@@ -232,7 +232,7 @@ static int nicvf_rcv_pkt_handler(struct nicvf *nic,
 
 	size_t pkt_len;
 	struct cqe_rx_t *cqe_rx = (struct cqe_rx_t *)cq_desc;
-	int err = 0;
+	int err;
 
 	/* Check for errors */
 	err = nicvf_check_cqe_rx_errs(nic, cq, cq_desc);
@@ -245,8 +245,7 @@ static int nicvf_rcv_pkt_handler(struct nicvf *nic,
 		return -1;
 	}
 
-	if (pkt)
-		*ppkt = pkt;
+	*ppkt = pkt;
 
 	return pkt_len;
 }
@@ -274,31 +273,29 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
 	cqe_head >>= 9;
 	cqe_head &= 0xFFFF;
 
-	if (cqe_count) {
-		/* Get the CQ descriptor */
-		cq_desc = (struct cqe_rx_t *)GET_CQ_DESC(cq, cqe_head);
-		cqe_head++;
-		cqe_head &= (cq->dmem.q_len - 1);
+	/* Get the CQ descriptor */
+	cq_desc = (struct cqe_rx_t *)GET_CQ_DESC(cq, cqe_head);
+	cqe_head++;
+	cqe_head &= (cq->dmem.q_len - 1);
 
-		switch (cq_desc->cqe_type) {
-		case CQE_TYPE_RX:
-			debug("%s: Got Rx CQE\n", nic->dev->name);
-			*pkt_len = nicvf_rcv_pkt_handler(nic, cq, cq_desc,
-							 ppkt, CQE_TYPE_RX);
-			processed_rq_cqe++;
-			break;
-		case CQE_TYPE_SEND:
-			debug("%s: Got Tx CQE\n", nic->dev->name);
-			nicvf_snd_pkt_handler(nic, cq, cq_desc, CQE_TYPE_SEND);
-			processed_sq_cqe++;
-			break;
-		default:
-			debug("%s: Got CQ type %u\n", nic->dev->name,
-			      cq_desc->cqe_type);
-			break;
-		}
-		processed_cqe++;
+	switch (cq_desc->cqe_type) {
+	case CQE_TYPE_RX:
+		debug("%s: Got Rx CQE\n", nic->dev->name);
+		*pkt_len = nicvf_rcv_pkt_handler(nic, cq, cq_desc,
+						 ppkt, CQE_TYPE_RX);
+		processed_rq_cqe++;
+		break;
+	case CQE_TYPE_SEND:
+		debug("%s: Got Tx CQE\n", nic->dev->name);
+		nicvf_snd_pkt_handler(nic, cq, cq_desc, CQE_TYPE_SEND);
+		processed_sq_cqe++;
+		break;
+	default:
+		debug("%s: Got CQ type %u\n", nic->dev->name,
+		      cq_desc->cqe_type);
+		break;
 	}
+	processed_cqe++;
 
 	/* Dequeue CQE */
 	nicvf_queue_reg_write(nic, NIC_QSET_CQ_0_7_DOOR,

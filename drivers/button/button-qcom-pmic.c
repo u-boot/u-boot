@@ -195,8 +195,9 @@ static int button_qcom_pmic_bind(struct udevice *parent)
 			continue;
 		}
 
+		label = ofnode_get_name(node);
 		ret = device_bind_driver_to_node(parent, "qcom_pwrkey",
-						 ofnode_get_name(node),
+						 label,
 						 node, &dev);
 		if (ret) {
 			printf("Failed to bind %s! %d\n", label, ret);

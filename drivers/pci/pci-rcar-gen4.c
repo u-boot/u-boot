@@ -235,7 +235,7 @@ static int rcar_gen4_pcie_ltssm_control(struct rcar_gen4_pcie *rcar, bool enable
 	clrsetbits_le32(rcar->phy_base + 0x148, GENMASK(23, 22), BIT(22));
 	clrsetbits_le32(rcar->phy_base + 0x148, GENMASK(18, 16), GENMASK(17, 16));
 	clrsetbits_le32(rcar->phy_base + 0x148, GENMASK(7, 6), BIT(6));
-	clrsetbits_le32(rcar->phy_base + 0x148, GENMASK(2, 0), GENMASK(11, 0));
+	clrsetbits_le32(rcar->phy_base + 0x148, GENMASK(2, 0), GENMASK(1, 0));
 	clrsetbits_le32(rcar->phy_base + 0x1d4, GENMASK(16, 15), GENMASK(16, 15));
 	clrsetbits_le32(rcar->phy_base + 0x514, BIT(26), BIT(26));
 	clrsetbits_le32(rcar->phy_base + 0x0f8, BIT(16), 0);

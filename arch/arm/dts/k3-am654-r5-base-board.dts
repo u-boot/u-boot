@@ -47,7 +47,7 @@
 
 &cbass_wakeup {
 	sysctrler: sysctrler {
-		compatible = "ti,am654-system-controller";
+		compatible = "ti,am654-tisci-rproc-r5";
 		mboxes= <&secure_proxy_mcu 4>, <&secure_proxy_mcu 5>;
 		mbox-names = "tx", "rx";
 		bootph-pre-ram;

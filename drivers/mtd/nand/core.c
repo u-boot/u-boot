@@ -201,14 +201,17 @@ EXPORT_SYMBOL_GPL(nanddev_mtd_erase);
 int nanddev_init(struct nand_device *nand, const struct nand_ops *ops,
 		 struct module *owner)
 {
-	struct mtd_info *mtd = nanddev_to_mtd(nand);
-	struct nand_memory_organization *memorg = nanddev_get_memorg(nand);
+	struct mtd_info *mtd;
+	struct nand_memory_organization *memorg;
 
 	if (!nand || !ops)
 		return -EINVAL;
 
 	if (!ops->erase || !ops->markbad || !ops->isbad)
 		return -EINVAL;
+
+	mtd = nanddev_to_mtd(nand);
+	memorg = nanddev_get_memorg(nand);
 
 	if (!memorg->bits_per_cell || !memorg->pagesize ||
 	    !memorg->pages_per_eraseblock || !memorg->eraseblocks_per_lun ||

@@ -43,7 +43,7 @@
 
 &cbass_main {
 	sysctrler: sysctrler {
-		compatible = "ti,am654-system-controller";
+		compatible = "ti,am654-tisci-rproc-r5";
 		mboxes= <&secure_proxy_main 1>, <&secure_proxy_main 0>;
 		mbox-names = "tx", "rx";
 		bootph-pre-ram;

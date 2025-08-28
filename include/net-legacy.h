@@ -1,9 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-only */
 /*
  *	LiMon Monitor (LiMon) - Network.
  *
  *	Copyright 1994 - 2000 Neil Russell.
- *	(See License)
  *
  * History
  *	9/16/00	  bor  adapted to TQM823L/STK8xxL board, RARP/TFTP boot added
@@ -316,7 +315,7 @@ extern u32	net_boot_file_size;
 /* Boot file size in blocks as reported by the DHCP server */
 extern u32	net_boot_file_expected_size_in_blocks;
 
-#if defined(CONFIG_CMD_DNS)
+#if defined(CONFIG_DNS)
 extern char *net_dns_resolve;		/* The host to resolve  */
 extern char *net_dns_env_var;		/* the env var to put the ip into */
 #endif

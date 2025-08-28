@@ -3784,8 +3784,10 @@ static int s25_s28_mdp_ready(struct spi_nor *nor)
 
 	for (addr = 0; addr < nor->mtd.size; addr += SZ_128M) {
 		ret = spansion_sr_ready(nor, addr, nor->rdsr_dummy);
-		if (!ret)
+		if (ret < 0)
 			return ret;
+		else if (ret == 0)
+			return 0;
 	}
 
 	return 1;

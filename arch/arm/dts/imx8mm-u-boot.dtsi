@@ -164,7 +164,6 @@
 					};
 #endif
 
-#ifdef CONFIG_OPTEE
 					tee: tee {
 						description = "OP-TEE";
 						type = "tee";
@@ -176,9 +175,9 @@
 
 						tee-os {
 							filename = "tee.bin";
+							optional;
 						};
 					};
-#endif
 
 					binman_fip: fip {
 						arch = "arm64";
@@ -208,11 +207,7 @@
 						fdt = "fdt-SEQ";
 						firmware = "uboot";
 #ifndef CONFIG_ARMV8_PSCI
-#ifdef CONFIG_OPTEE
 						loadables = "atf", "tee";
-#else
-						loadables = "atf";
-#endif
 #endif
 					};
 				};

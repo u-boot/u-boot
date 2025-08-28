@@ -2196,7 +2196,7 @@ static int cadence_nand_chip_init(struct cadence_nand_info *cadence, ofnode node
 	chip->controller = &cadence->controller;
 	nand_set_flash_node(chip, node);
 	mtd = nand_to_mtd(chip);
-	mtd->dev->parent = cadence->dev;
+	mtd->dev = cadence->dev;
 
 	chip->options |= NAND_BUSWIDTH_AUTO;
 	chip->select_chip = cadence_nand_select_chip;

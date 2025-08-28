@@ -79,7 +79,6 @@ static int sntp_loop(struct udevice *udev, ip_addr_t *srvip)
 	sys_timeout(SNTP_TIMEOUT, no_response, NULL);
 	while (sntp_state == NOT_DONE) {
 		net_lwip_rx(udev, netif);
-		sys_check_timeouts();
 		if (ctrlc()) {
 			printf("\nAbort\n");
 			sntp_state = ABORTED;

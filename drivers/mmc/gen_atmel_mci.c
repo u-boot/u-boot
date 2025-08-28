@@ -206,10 +206,9 @@ static u32 mci_data_read(atmel_mci_t *mci, u32* data, u32 error_flags)
 			goto io_fail;
 	} while (!(status & MMCI_BIT(RXRDY)));
 
-	if (status & MMCI_BIT(RXRDY)) {
-		*data = readl(&mci->rdr);
-		status = 0;
-	}
+	*data = readl(&mci->rdr);
+	status = 0;
+
 io_fail:
 	return status;
 }
@@ -225,10 +224,9 @@ static u32 mci_data_write(atmel_mci_t *mci, u32* data, u32 error_flags)
 			goto io_fail;
 	} while (!(status & MMCI_BIT(TXRDY)));
 
-	if (status & MMCI_BIT(TXRDY)) {
-		writel(*data, &mci->tdr);
-		status = 0;
-	}
+	writel(*data, &mci->tdr);
+	status = 0;
+
 io_fail:
 	return status;
 }
@@ -265,13 +263,15 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	/* Figure out the transfer arguments */
 	cmdr = mci_encode_cmd(cmd, data, &error_flags);
 
-	mci_set_blklen(mci, data->blocksize);
+	if (data) {
+		mci_set_blklen(mci, data->blocksize);
 
-	/* For multi blocks read/write, set the block register */
-	if ((cmd->cmdidx == MMC_CMD_READ_MULTIPLE_BLOCK)
-			|| (cmd->cmdidx == MMC_CMD_WRITE_MULTIPLE_BLOCK))
-		writel(data->blocks | MMCI_BF(BLKLEN, data->blocksize),
-		       &mci->blkr);
+		/* For multi blocks read/write, set the block register */
+		if (cmd->cmdidx == MMC_CMD_READ_MULTIPLE_BLOCK ||
+		    cmd->cmdidx == MMC_CMD_WRITE_MULTIPLE_BLOCK)
+			writel(data->blocks | MMCI_BF(BLKLEN, data->blocksize),
+			       &mci->blkr);
+	}
 
 	/* Send the command */
 	writel(cmd->cmdarg, &mci->argr);

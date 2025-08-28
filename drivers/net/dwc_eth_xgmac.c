@@ -1102,7 +1102,7 @@ static int xgmac_probe(struct udevice *dev)
 	ret = xgmac->config->ops->xgmac_start_clks(dev);
 	if (ret < 0) {
 		pr_err("%s xgmac_start_clks() failed: %d\n", dev->name, ret);
-		return ret;
+		goto err_remove_resources_core;
 	}
 
 	if (IS_ENABLED(CONFIG_DM_ETH_PHY))

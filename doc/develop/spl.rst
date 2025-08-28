@@ -142,7 +142,7 @@ fdtgrep is also used to remove:
 - the properties defined in CONFIG_OF_SPL_REMOVE_PROPS
 - all the pre-relocation properties
   ('bootph-all', 'bootph-pre-ram' (SPL), 'bootph-pre-sram' (TPL) and
-  'bootph-verify' (TPL))
+  'bootph-verify' (VPL))
 
 All the nodes remaining in the SPL devicetree are bound
 (see doc/driver-model/design.rst).

@@ -145,12 +145,14 @@
 
 #else /* CONFIG_DISTRO_DEFAULTS */
 # define BOOTENV
+# define BOOTENV_DEV_SHARED_XSPI
 #endif /* CONFIG_DISTRO_DEFAULTS */
 
 /* Initial environment variables */
 #ifndef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
+	"usb_pgood_delay=2000\0" \
 	BOOTENV \
 	BOOTENV_DEV_SHARED_XSPI \
 	DFU_ALT_INFO

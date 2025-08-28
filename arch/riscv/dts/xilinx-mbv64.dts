@@ -2,14 +2,12 @@
 /*
  * dts file for AMD MicroBlaze V
  *
- * (C) Copyright 2023 - 2024, Advanced Micro Devices, Inc.
+ * (C) Copyright 2023 - 2025, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
 
 /dts-v1/;
-
-#include "binman.dtsi"
 
 / {
 	#address-cells = <2>;
@@ -26,6 +24,7 @@
 			device_type = "cpu";
 			reg = <0>;
 			riscv,isa = "rv64imafdc";
+			mmu-type = "riscv,sv39";
 			i-cache-size = <32768>;
 			d-cache-size = <32768>;
 			clock-frequency = <100000000>;
@@ -70,7 +69,8 @@
 			interrupt-controller;
 			interrupt-parent = <&cpu0_intc>;
 			#interrupt-cells = <2>;
-			kind-of-intr = <0>;
+			xlnx,num-intr-inputs = <2>;
+			xlnx,kind-of-intr = <0>;
 		};
 
 		xlnx_timer0: timer@41c00000 {

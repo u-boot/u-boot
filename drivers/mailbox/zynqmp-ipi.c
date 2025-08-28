@@ -188,7 +188,7 @@ static int zynqmp_ipi_dest_probe(struct udevice *dev)
 		return -EINVAL;
 	};
 	zynqmp->local_req_regs = devm_ioremap(dev, res.start,
-					      (res.start - res.end));
+					      resource_size(&res));
 	if (!zynqmp->local_req_regs)
 		return -EINVAL;
 
@@ -197,7 +197,7 @@ static int zynqmp_ipi_dest_probe(struct udevice *dev)
 		return -EINVAL;
 	};
 	zynqmp->local_res_regs = devm_ioremap(dev, res.start,
-					      (res.start - res.end));
+					      resource_size(&res));
 	if (!zynqmp->local_res_regs)
 		return -EINVAL;
 
@@ -206,7 +206,7 @@ static int zynqmp_ipi_dest_probe(struct udevice *dev)
 		return -EINVAL;
 	};
 	zynqmp->remote_req_regs = devm_ioremap(dev, res.start,
-					       (res.start - res.end));
+					       resource_size(&res));
 	if (!zynqmp->remote_req_regs)
 		return -EINVAL;
 
@@ -215,7 +215,7 @@ static int zynqmp_ipi_dest_probe(struct udevice *dev)
 		return -EINVAL;
 	};
 	zynqmp->remote_res_regs = devm_ioremap(dev, res.start,
-					       (res.start - res.end));
+					       resource_size(&res));
 	if (!zynqmp->remote_res_regs)
 		return -EINVAL;
 

@@ -1034,6 +1034,7 @@ static int stm32_fmc2_nfc_probe(struct udevice *dev)
 		ecclayout->eccpos[i] = oob_index;
 	ecclayout->oobfree->offset = oob_index;
 	ecclayout->oobfree->length = mtd->oobsize - ecclayout->oobfree->offset;
+	ecclayout->oobavail = ecclayout->oobfree->length;
 	chip->ecc.layout = ecclayout;
 
 	if (chip->options & NAND_BUSWIDTH_16)

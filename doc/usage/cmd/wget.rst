@@ -38,7 +38,7 @@ address
     memory address for the data downloaded
 
 host
-    IP address (or host name if `CONFIG_CMD_DNS` is enabled) of the HTTP
+    IP address (or host name if `CONFIG_DNS` is enabled) of the HTTP
     server, defaults to the value of environment variable *serverip*.
 
 path

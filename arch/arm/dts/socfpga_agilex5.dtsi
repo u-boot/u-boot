@@ -596,4 +596,8 @@
 			};
 		};
 	};
+
+	aliases {
+		sysmgr = &sysmgr;
+	};
 };

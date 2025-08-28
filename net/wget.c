@@ -393,7 +393,7 @@ int wget_do_request(ulong dst_addr, char *uri)
 	if (string_to_ip(host_name).s_addr) {
 		s = host_name;
 	} else {
-#if IS_ENABLED(CONFIG_CMD_DNS)
+#if IS_ENABLED(CONFIG_DNS)
 		net_dns_resolve = host_name;
 		net_dns_env_var = "httpserverip";
 		if (net_loop(DNS) < 0) {
