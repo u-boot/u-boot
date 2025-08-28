@@ -291,7 +291,7 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	buf_hi = upper_32_bits(bin_buf);
 
 	ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo, buf_hi,
-				bsize_req, bstype, ret_payload);
+				bsize_req, bstype, 0, 0, ret_payload);
 	if (ret)
 		printf("PL FPGA LOAD failed with err: 0x%08x\n", ret);
 
@@ -335,11 +335,11 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
 				buf_hi,
 				(u32)(uintptr_t)fpga_sec_info->userkey_addr,
-				flag, ret_payload);
+				flag, 0, 0, ret_payload);
 	else
 		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
 					buf_hi, (u32)bsize,
-					flag, ret_payload);
+					flag, 0, 0, ret_payload);
 
 	if (ret)
 		puts("PL FPGA LOAD fail\n");
@@ -356,7 +356,7 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
 	ret = xilinx_pm_request(PM_FPGA_GET_STATUS, 0, 0, 0,
-				0, ret_payload);
+				0, 0, 0, ret_payload);
 	if (!ret)
 		printf("PCAP status\t0x%x\n", ret_payload[1]);
 

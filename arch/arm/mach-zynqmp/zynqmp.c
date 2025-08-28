@@ -57,7 +57,7 @@ static int do_zynqmp_verify_secure(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	ret = xilinx_pm_request(PM_SECURE_IMAGE, src_lo, src_hi,
-				key_lo, key_hi, ret_payload);
+				key_lo, key_hi, 0, 0, ret_payload);
 	if (ret) {
 		printf("Failed: secure op status:0x%x\n", ret);
 	} else {
@@ -260,7 +260,7 @@ static int do_zynqmp_rsa(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	ret = xilinx_pm_request(PM_SECURE_RSA, upper_32_bits((ulong)srcaddr),
 				lower_32_bits((ulong)srcaddr), srclen, rsaop,
-				ret_payload);
+				0, 0, ret_payload);
 	if (ret || ret_payload[1]) {
 		printf("Failed: RSA status:0x%x, errcode:0x%x\n",
 		       ret, ret_payload[1]);
@@ -309,7 +309,7 @@ static int do_zynqmp_sha3(struct cmd_tbl *cmdtp, int flag,
 			   srcaddr + roundup(srclen, ARCH_DMA_MINALIGN));
 
 	ret = xilinx_pm_request(PM_SECURE_SHA, 0, 0, 0,
-				ZYNQMP_SHA3_INIT, ret_payload);
+				ZYNQMP_SHA3_INIT, 0, 0, ret_payload);
 	if (ret || ret_payload[1]) {
 		printf("Failed: SHA INIT status:0x%x, errcode:0x%x\n",
 		       ret, ret_payload[1]);
@@ -318,7 +318,7 @@ static int do_zynqmp_sha3(struct cmd_tbl *cmdtp, int flag,
 
 	ret = xilinx_pm_request(PM_SECURE_SHA, upper_32_bits((ulong)srcaddr),
 				lower_32_bits((ulong)srcaddr),
-				srclen, ZYNQMP_SHA3_UPDATE, ret_payload);
+				srclen, ZYNQMP_SHA3_UPDATE, 0, 0, ret_payload);
 	if (ret || ret_payload[1]) {
 		printf("Failed: SHA UPDATE status:0x%x, errcode:0x%x\n",
 		       ret, ret_payload[1]);
@@ -328,7 +328,7 @@ static int do_zynqmp_sha3(struct cmd_tbl *cmdtp, int flag,
 	ret = xilinx_pm_request(PM_SECURE_SHA, upper_32_bits((ulong)hashaddr),
 				lower_32_bits((ulong)hashaddr),
 				ZYNQMP_SHA3_SIZE, ZYNQMP_SHA3_FINAL,
-				ret_payload);
+				0, 0, ret_payload);
 	if (ret || ret_payload[1]) {
 		printf("Failed: SHA FINAL status:0x%x, errcode:0x%x\n",
 		       ret, ret_payload[1]);

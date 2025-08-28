@@ -199,12 +199,12 @@ void cadence_qspi_apb_enable_linear_mode(bool enable)
 			/* ahb read mode */
 			xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI,
 					  IOCTL_OSPI_MUX_SELECT,
-					  PM_OSPI_MUX_SEL_LINEAR, 0, NULL);
+					  PM_OSPI_MUX_SEL_LINEAR, 0, 0, 0, NULL);
 		else
 			/* DMA mode */
 			xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI,
 					  IOCTL_OSPI_MUX_SELECT,
-					  PM_OSPI_MUX_SEL_DMA, 0, NULL);
+					  PM_OSPI_MUX_SEL_DMA, 0, 0, 0, NULL);
 	} else {
 		if (enable)
 			writel(readl(VERSAL_AXI_MUX_SEL) |

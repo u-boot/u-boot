@@ -230,7 +230,7 @@ static int cadence_spi_probe(struct udevice *bus)
 	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE))
 		xilinx_pm_request(PM_REQUEST_NODE, PM_DEV_OSPI,
 				  ZYNQMP_PM_CAPABILITY_ACCESS, ZYNQMP_PM_MAX_QOS,
-				  ZYNQMP_PM_REQUEST_ACK_NO, NULL);
+				  ZYNQMP_PM_REQUEST_ACK_NO, 0, 0, NULL);
 
 	if (priv->ref_clk_hz == 0) {
 		ret = clk_get_by_index(bus, 0, &clk);

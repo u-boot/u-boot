@@ -17,7 +17,7 @@ static int zynqmp_pm_request_node(const u32 node, const u32 capabilities,
 				  const u32 qos, const enum zynqmp_pm_request_ack ack)
 {
 	return xilinx_pm_request(PM_REQUEST_NODE, node, capabilities,
-				   qos, ack, NULL);
+				   qos, ack, 0, 0, NULL);
 }
 
 static int zynqmp_power_domain_request(struct power_domain *power_domain)

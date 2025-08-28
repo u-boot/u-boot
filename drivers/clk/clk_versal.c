@@ -131,7 +131,7 @@ static int versal_pm_query_legacy(struct versal_pm_query_data qdata,
 	int ret;
 
 	ret = smc_call_handler(PM_QUERY_DATA, qdata.qid, qdata.arg1, qdata.arg2,
-			       qdata.arg3, ret_payload);
+			       qdata.arg3, 0, 0, ret_payload);
 
 	return qdata.qid == PM_QID_CLOCK_GET_NAME ? 0 : ret;
 }
@@ -350,7 +350,8 @@ static u32 versal_clock_get_div(u32 clk_id)
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	u32 div;
 
-	xilinx_pm_request(PM_CLOCK_GETDIVIDER, clk_id, 0, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_GETDIVIDER, clk_id, 0, 0, 0, 0, 0,
+			  ret_payload);
 	div = ret_payload[1];
 
 	return div;
@@ -360,7 +361,8 @@ static u32 versal_clock_set_div(u32 clk_id, u32 div)
 {
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	xilinx_pm_request(PM_CLOCK_SETDIVIDER, clk_id, div, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_SETDIVIDER, clk_id, div, 0, 0, 0, 0,
+			  ret_payload);
 
 	return div;
 }
@@ -418,7 +420,7 @@ static u32 versal_clock_get_parentid(u32 clk_id)
 
 	if (versal_clock_mux(clk_id)) {
 		xilinx_pm_request(PM_CLOCK_GETPARENT, clk_id, 0, 0, 0,
-				  ret_payload);
+				  0, 0, ret_payload);
 		parent_id = ret_payload[1];
 	}
 
@@ -436,7 +438,8 @@ static u64 versal_clock_get_pll_rate(u32 clk_id)
 	u32 parent_rate, parent_id, parent_ref_clk_id;
 	u32 id = clk_id & 0xFFF;
 
-	xilinx_pm_request(PM_CLOCK_GETSTATE, clk_id, 0, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_GETSTATE, clk_id, 0, 0, 0, 0, 0,
+			  ret_payload);
 	res = ret_payload[1];
 	if (!res) {
 		printf("0%x PLL not enabled\n", clk_id);
@@ -447,9 +450,11 @@ static u64 versal_clock_get_pll_rate(u32 clk_id)
 	parent_ref_clk_id = versal_clock_get_parentid(parent_id);
 	parent_rate = versal_clock_get_ref_rate(parent_ref_clk_id);
 
-	xilinx_pm_request(PM_CLOCK_GETDIVIDER, clk_id, 0, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_GETDIVIDER, clk_id, 0, 0, 0, 0, 0,
+			  ret_payload);
 	fbdiv = ret_payload[1];
-	xilinx_pm_request(PM_CLOCK_PLL_GETPARAM, clk_id, 2, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_PLL_GETPARAM, clk_id, 2, 0, 0, 0, 0,
+			  ret_payload);
 	frac = ret_payload[1];
 
 	freq = (fbdiv * parent_rate) >> (1 << frac);
@@ -765,8 +770,10 @@ static int versal_clk_enable(struct clk *clk)
 
 	clk_id = priv->clk[clk->id].clk_id;
 
-	if (versal_clock_gate(clk_id))
-		return xilinx_pm_request(PM_CLOCK_ENABLE, clk_id, 0, 0, 0, NULL);
+	if (versal_clock_gate(clk_id)) {
+		return xilinx_pm_request(PM_CLOCK_ENABLE, clk_id, 0, 0, 0,
+					 0, 0, NULL);
+	}
 
 	return 0;
 }

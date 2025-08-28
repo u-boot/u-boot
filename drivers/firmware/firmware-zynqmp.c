@@ -3,6 +3,7 @@
  * Xilinx Zynq MPSoC Firmware driver
  *
  * Copyright (C) 2018-2019 Xilinx, Inc.
+ * Copyright (C) 2022 - 2025, Advanced Micro Devices, Inc.
  */
 
 #include <asm/arch/hardware.h>
@@ -158,7 +159,7 @@ unsigned int zynqmp_firmware_version(void)
 	if (pm_api_version == ZYNQMP_PM_VERSION_INVALID) {
 
 		ret = xilinx_pm_request(PM_GET_API_VERSION, 0, 0, 0, 0,
-					ret_payload);
+					0, 0, ret_payload);
 		if (ret)
 			panic("PMUFW is not found - Please load it!\n");
 
@@ -202,7 +203,7 @@ int zynqmp_pm_set_gem_config(u32 node, enum pm_gem_config_type config, u32 value
 	int ret;
 
 	ret = xilinx_pm_request(PM_IOCTL, node, IOCTL_SET_GEM_CONFIG,
-				config, value, NULL);
+				config, value, 0, 0, NULL);
 	if (ret)
 		printf("%s: node %d: set_gem_config %d failed\n",
 		       __func__, node, config);
@@ -215,7 +216,7 @@ int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value)
 	int ret;
 
 	ret = xilinx_pm_request(PM_IOCTL, node, IOCTL_SET_SD_CONFIG,
-				config, value, NULL);
+				config, value, 0, 0, NULL);
 	if (ret)
 		printf("%s: node %d: set_sd_config %d failed\n",
 		       __func__, node, config);
@@ -236,7 +237,7 @@ u32 zynqmp_pm_get_bootmode_reg(void)
 	}
 
 	ret = xilinx_pm_request(PM_IOCTL, CRP_BOOT_MODE_REG_NODE, IOCTL_READ_REG,
-				CRP_BOOT_MODE_REG_OFFSET, 0, ret_payload);
+				CRP_BOOT_MODE_REG_OFFSET, 0, 0, 0, ret_payload);
 	if (ret) {
 		printf("%s: node 0x%x: get_bootmode 0x%x failed\n",
 		       __func__, CRP_BOOT_MODE_REG_NODE, CRP_BOOT_MODE_REG_OFFSET);
@@ -259,7 +260,8 @@ u32 zynqmp_pm_get_pmc_multi_boot_reg(void)
 	}
 
 	ret = xilinx_pm_request(PM_IOCTL, PM_REG_PMC_GLOBAL_NODE, IOCTL_READ_REG,
-				PMC_MULTI_BOOT_MODE_REG_OFFSET, 0, ret_payload);
+				PMC_MULTI_BOOT_MODE_REG_OFFSET, 0, 0, 0,
+				ret_payload);
 	if (ret) {
 		printf("%s: node 0x%x: get_bootmode 0x%x failed\n",
 		       __func__, PM_REG_PMC_GLOBAL_NODE, PMC_MULTI_BOOT_MODE_REG_OFFSET);
@@ -276,7 +278,7 @@ int zynqmp_pm_feature(const u32 api_id)
 
 	/* Check feature check API version */
 	ret = xilinx_pm_request(PM_FEATURE_CHECK, api_id, 0, 0, 0,
-				ret_payload);
+				0, 0, ret_payload);
 	if (ret)
 		return ret;
 
@@ -296,7 +298,7 @@ int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
 
 	/* Check feature check API version */
 	ret = xilinx_pm_request(PM_FEATURE_CHECK, PM_FEATURE_CHECK, 0, 0, 0,
-				ret_payload);
+				0, 0, ret_payload);
 	if (ret)
 		return ret;
 
@@ -308,7 +310,7 @@ int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
 		 */
 
 		ret = xilinx_pm_request(PM_FEATURE_CHECK, api_id, 0, 0, 0,
-					ret_payload);
+					0, 0, ret_payload);
 		if (ret)
 			return ret;
 
@@ -340,7 +342,7 @@ int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 	flush_dcache_range((ulong)cfg_obj, (ulong)(cfg_obj + size));
 
 	err = xilinx_pm_request(PM_SET_CONFIGURATION, (u32)(u64)cfg_obj, 0, 0,
-				0, ret_payload);
+				0, 0, 0, ret_payload);
 	if (err == XST_PM_NO_ACCESS) {
 		return -EACCES;
 	}
@@ -425,13 +427,14 @@ U_BOOT_DRIVER(zynqmp_power) = {
 smc_call_handler_t __data smc_call_handler;
 
 static int smc_call_legacy(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
-			   u32 arg3, u32 *ret_payload)
+			   u32 arg3, u32 arg4, u32 arg5, u32 *ret_payload)
 {
 	struct pt_regs regs;
 
 	regs.regs[0] = PM_SIP_SVC | api_id;
 	regs.regs[1] = ((u64)arg1 << 32) | arg0;
 	regs.regs[2] = ((u64)arg3 << 32) | arg2;
+	regs.regs[3] = arg4;
 
 	smc_call(&regs);
 
@@ -441,16 +444,18 @@ static int smc_call_legacy(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		ret_payload[2] = (u32)regs.regs[1];
 		ret_payload[3] = upper_32_bits(regs.regs[1]);
 		ret_payload[4] = (u32)regs.regs[2];
+		ret_payload[5] = upper_32_bits((u32)regs.regs[2]);
+		ret_payload[6] = (u32)regs.regs[3];
 	}
 
 	return (ret_payload) ? ret_payload[0] : 0;
 }
 
 int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
-				     u32 arg3, u32 *ret_payload)
+				     u32 arg3, u32 arg4, u32 arg5, u32 *ret_payload)
 {
-	debug("%s at EL%d, API ID: 0x%0x, 0x%0x, 0x%0x, 0x%0x, 0x%0x\n",
-	      __func__, current_el(), api_id, arg0, arg1, arg2, arg3);
+	debug("%s at EL%d, API ID: 0x%0x, 0x%0x, 0x%0x, 0x%0x, 0x%0x, 0x%0x, 0x%0x\n",
+	      __func__, current_el(), api_id, arg0, arg1, arg2, arg3, arg4, arg5);
 
 	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3) {
 #if defined(CONFIG_ZYNQMP_IPI)
@@ -459,7 +464,7 @@ int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		 * is capable to handle PMUFW_PAYLOAD_ARG_CNT bytes but the
 		 * firmware API is limited by the SMC call size
 		 */
-		u32 regs[] = {api_id, arg0, arg1, arg2, arg3};
+		u32 regs[] = {api_id, arg0, arg1, arg2, arg3, arg4, arg5};
 		int ret;
 
 		if (api_id == PM_FPGA_LOAD) {
@@ -481,7 +486,8 @@ int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 #endif
 	}
 
-	return smc_call_handler(api_id, arg0, arg1, arg2, arg3, ret_payload);
+	return smc_call_handler(api_id, arg0, arg1, arg2, arg3, arg4,
+				arg5, ret_payload);
 }
 
 static const struct udevice_id zynqmp_firmware_ids[] = {

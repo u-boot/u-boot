@@ -205,7 +205,7 @@ int zynqmp_mmio_write(const u32 address,
 #if defined(CONFIG_ZYNQMP_FIRMWARE)
 	else
 		return xilinx_pm_request(PM_MMIO_WRITE, address, mask,
-					 value, 0, NULL);
+					 value, 0, 0, 0, NULL);
 #endif
 
 	return -EINVAL;
@@ -226,7 +226,7 @@ int zynqmp_mmio_read(const u32 address, u32 *value)
 		u32 ret_payload[PAYLOAD_ARG_CNT];
 
 		ret = xilinx_pm_request(PM_MMIO_READ, address, 0, 0,
-					0, ret_payload);
+					0, 0, 0, ret_payload);
 		*value = ret_payload[1];
 	}
 #endif
