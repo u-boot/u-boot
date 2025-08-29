@@ -1109,7 +1109,7 @@ void util_usage(const char *errmsg, const char *synopsis,
 	util_usage(errmsg, usage_synopsis, usage_short_opts, \
 		   usage_long_opts, usage_opts_help)
 
-void util_version(void)
+static void util_version(void)
 {
 	printf("Version: %s\n", "(U-Boot)");
 	exit(0);
