@@ -475,7 +475,7 @@ static int generate_fspi_header (int ifd)
 }
 #endif
 
-void build_image(int ofd)
+static void build_image(int ofd)
 {
 	int file_off, header_hdmi_off = 0, header_image_off;
 
