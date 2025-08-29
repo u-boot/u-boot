@@ -1040,7 +1040,7 @@ static const char * const usage_opts_help[] = {
 #define util_getopt_long() getopt_long(argc, argv, usage_short_opts, \
 				       usage_long_opts, NULL)
 
-void util_usage(const char *errmsg, const char *synopsis,
+static void util_usage(const char *errmsg, const char *synopsis,
 		const char *short_opts, struct option const long_opts[],
 		const char * const opts_help[])
 {
