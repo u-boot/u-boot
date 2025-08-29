@@ -445,7 +445,7 @@ static void verify_image(const struct image_type_params *tparams)
 	(void)close(ifd);
 }
 
-void copy_datafile(int ifd, char *file)
+static void copy_datafile(int ifd, char *file)
 {
 	if (!file)
 		return;
