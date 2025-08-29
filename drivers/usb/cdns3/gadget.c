@@ -557,10 +557,10 @@ static void cdns3_wa2_remove_old_request(struct cdns3_endpoint *priv_ep)
 
 		trace_cdns3_wa2(priv_ep, "removes eldest request");
 
+		list_del_init(&priv_req->list);
 		kfree(priv_req->request.buf);
 		cdns3_gadget_ep_free_request(&priv_ep->endpoint,
 					     &priv_req->request);
-		list_del_init(&priv_req->list);
 		--priv_ep->wa2_counter;
 
 		if (!chain)
@@ -1959,10 +1959,10 @@ static int cdns3_gadget_ep_disable(struct usb_ep *ep)
 	while (!list_empty(&priv_ep->wa2_descmiss_req_list)) {
 		priv_req = cdns3_next_priv_request(&priv_ep->wa2_descmiss_req_list);
 
+		list_del_init(&priv_req->list);
 		kfree(priv_req->request.buf);
 		cdns3_gadget_ep_free_request(&priv_ep->endpoint,
 					     &priv_req->request);
-		list_del_init(&priv_req->list);
 		--priv_ep->wa2_counter;
 	}
 
