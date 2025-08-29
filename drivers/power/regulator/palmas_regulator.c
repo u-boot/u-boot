@@ -115,8 +115,8 @@ static int palmas_smps_hex2volt(int hex, bool range)
 
 static int palmas_smps_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, adr;
-	int ret;
+	unsigned int adr;
+	int hex, ret;
 	bool range;
 	struct dm_regulator_uclass_plat *uc_pdata;
 
@@ -251,8 +251,8 @@ static int palmas_ldo_hex2volt(int hex)
 
 static int palmas_ldo_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, adr;
-	int ret;
+	unsigned int adr;
+	int hex, ret;
 
 	struct dm_regulator_uclass_plat *uc_pdata;
 
