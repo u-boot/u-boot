@@ -631,10 +631,12 @@ int clk_set_parent(struct clk *clk, struct clk *parent)
 	if (!ops->set_parent)
 		return -ENOSYS;
 
-	ret = clk_enable(parent);
-	if (ret && ret != -ENOSYS) {
-		printf("Cannot enable parent %s\n", parent->dev->name);
-		return ret;
+	if (clk->enable_count) {
+		ret = clk_enable(parent);
+		if (ret && ret != -ENOSYS) {
+			printf("Cannot enable parent %s\n", parent->dev->name);
+			return ret;
+		}
 	}
 
 	ret = ops->set_parent(clk, parent);
