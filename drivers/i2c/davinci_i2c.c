@@ -19,6 +19,7 @@
 #include <asm/arch/i2c_defs.h>
 #include <asm/io.h>
 #include <linux/delay.h>
+#include <linux/types.h>
 #include "davinci_i2c.h"
 
 /* Information about i2c controller */
@@ -87,7 +88,7 @@ static void _flush_rx(struct i2c_regs *i2c_base)
 static uint _davinci_i2c_setspeed(struct i2c_regs *i2c_base,
 				  uint speed)
 {
-	uint32_t	div, psc;
+	u32	div, psc;
 
 	psc = 2;
 	/* SCLL + SCLH */
@@ -122,10 +123,10 @@ static void _davinci_i2c_init(struct i2c_regs *i2c_base,
 	udelay(1000);
 }
 
-static int _davinci_i2c_read(struct i2c_regs *i2c_base, uint8_t chip,
-			     uint32_t addr, int alen, uint8_t *buf, int len)
+static int _davinci_i2c_read(struct i2c_regs *i2c_base, u8 chip,
+			     u32 addr, int alen, u8 *buf, int len)
 {
-	uint32_t	tmp;
+	u32	tmp;
 	int		i;
 
 	if ((alen < 0) || (alen > 2)) {
@@ -220,10 +221,10 @@ static int _davinci_i2c_read(struct i2c_regs *i2c_base, uint8_t chip,
 	return 0;
 }
 
-static int _davinci_i2c_write(struct i2c_regs *i2c_base, uint8_t chip,
-			      uint32_t addr, int alen, uint8_t *buf, int len)
+static int _davinci_i2c_write(struct i2c_regs *i2c_base, u8 chip,
+			      u32 addr, int alen, u8 *buf, int len)
 {
-	uint32_t	tmp;
+	u32	tmp;
 	int		i;
 
 	if ((alen < 0) || (alen > 2)) {
@@ -302,7 +303,7 @@ static int _davinci_i2c_write(struct i2c_regs *i2c_base, uint8_t chip,
 	return 0;
 }
 
-static int _davinci_i2c_probe_chip(struct i2c_regs *i2c_base, uint8_t chip)
+static int _davinci_i2c_probe_chip(struct i2c_regs *i2c_base, u8 chip)
 {
 	int	rc = 1;
 
