@@ -23,7 +23,7 @@
 #include <image.h>
 #include <u-boot/crc.h>
 
-void usage(char *cmdname)
+static void usage(char *cmdname)
 {
 	fprintf(stderr, "Usage: %s -f fit file -k key file -c config name\n"
 			 "          -f ==> set fit file which should be checked'\n"
