@@ -16,7 +16,6 @@
 		mmc0 = &sdmmc;
 		serial1 = &uart1;
 		serial2 = &uart2;
-		spi0 = &sfc;
 	};
 
 	dmc {
