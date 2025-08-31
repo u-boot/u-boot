@@ -6,8 +6,12 @@
 #include "rockchip-u-boot.dtsi"
 
 / {
+	aliases {
+		spi2 = &sfc;
+	};
+
 	chosen {
-		u-boot,spl-boot-order = &sdmmc;
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc;
 	};
 
 	dmc {
@@ -21,6 +25,17 @@
 		reg = <0x0 0xff0b0000 0x0 0x4000>;
 	};
 };
+
+#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+&binman {
+	simple-bin-spi {
+		mkimage {
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
+			offset = <0x10000>;
+		};
+	};
+};
+#endif
 
 &cru {
 	bootph-all;
@@ -102,6 +117,7 @@
 
 &sfc {
 	bootph-some-ram;
+	u-boot,spl-sfc-no-dma;
 };
 
 &sfc_bus2 {
