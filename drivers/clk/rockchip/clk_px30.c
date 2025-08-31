@@ -1360,6 +1360,9 @@ static ulong px30_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_GMAC_RMII:
 		ret = px30_mac_set_speed_clk(priv, rate);
 		break;
+	/* Might occur in cru assigned-clocks, can be ignored here */
+	case SCLK_GPU:
+		break;
 #endif
 	default:
 		return -ENOENT;
@@ -1725,6 +1728,9 @@ static ulong px30_pmuclk_set_rate(struct clk *clk, ulong rate)
 		break;
 	case SCLK_UART0_PMU:
 		ret = px30_pmu_uart0_set_clk(priv, rate);
+		break;
+	/* Might occur in pmucru assigned-clocks, can be ignored here */
+	case SCLK_WIFI_PMU:
 		break;
 	default:
 		return -ENOENT;
