@@ -1,6 +1,8 @@
 GO2
 M:      Heiko Stuebner <heiko.stuebner@cherry.de>
+R:      Jonas Karlman <jonas@kwiboo.se>
 S:      Maintained
 F:      board/hardkernel/odroid_go2/
 F:      include/configs/odroid_go2.h
+F:      arch/arm/dts/rk3326-odroid-go*
 F:      configs/odroid-go2_defconfig
