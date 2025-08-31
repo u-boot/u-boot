@@ -5,6 +5,11 @@
 
 #include "rk3326-u-boot.dtsi"
 
+&blue_led {
+	default-state = "on";
+	u-boot,default-brightness = <127>;
+};
+
 &i2c0_xfer {
 	bootph-pre-ram;
 };
