@@ -27,22 +27,18 @@
 };
 
 &gpio0 {
-	bootph-all;
 	gpio-ranges = <&pinctrl 0 0 32>;
 };
 
 &gpio1 {
-	bootph-all;
 	gpio-ranges = <&pinctrl 0 32 32>;
 };
 
 &gpio2 {
-	bootph-all;
 	gpio-ranges = <&pinctrl 0 64 32>;
 };
 
 &gpio3 {
-	bootph-all;
 	gpio-ranges = <&pinctrl 0 96 32>;
 };
 
@@ -78,28 +74,30 @@
 };
 
 &sdmmc {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 
 	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
 	u-boot,spl-fifo-mode;
 };
 
 &sfc {
-	bootph-all;
+	bootph-some-ram;
 };
 
 &{/spi@ff3a0000/flash@0} {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &uart1 {
-	clock-frequency = <24000000>;
 	bootph-all;
+	clock-frequency = <24000000>;
 };
 
 &uart2 {
-	clock-frequency = <24000000>;
 	bootph-all;
+	clock-frequency = <24000000>;
 };
 
 &xin24m {
