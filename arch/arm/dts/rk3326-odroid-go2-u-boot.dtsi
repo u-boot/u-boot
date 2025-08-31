@@ -5,8 +5,26 @@
 
 #include "rk3326-u-boot.dtsi"
 
+&i2c0_xfer {
+	bootph-pre-ram;
+};
+
+&i2s1_2ch_mclk {
+	bootph-pre-ram;
+};
+
+&pcfg_pull_none_smt {
+	bootph-pre-ram;
+};
+
+&pmic_int {
+	bootph-pre-ram;
+};
+
 &rk817 {
 	regulators {
+		bootph-pre-ram;
+
 		vcc_cam: LDO_REG9 {
 			regulator-name = "vcc_cam";
 			regulator-min-microvolt = <3000000>;
