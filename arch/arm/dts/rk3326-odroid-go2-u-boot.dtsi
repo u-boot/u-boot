@@ -10,14 +10,6 @@
 		u-boot,spl-boot-order = &sdmmc;
 	};
 
-	aliases {
-		i2c0 = &i2c0;
-		i2c1 = &i2c1;
-		mmc0 = &sdmmc;
-		serial1 = &uart1;
-		serial2 = &uart2;
-	};
-
 	dmc {
 		bootph-all;
 		compatible = "rockchip,px30-dmc", "syscon";
@@ -27,7 +19,6 @@
 	rng: rng@ff0b0000 {
 		compatible = "rockchip,cryptov2-rng";
 		reg = <0x0 0xff0b0000 0x0 0x4000>;
-		status = "okay";
 	};
 };
 
@@ -84,7 +75,6 @@
 
 &saradc {
 	bootph-all;
-	status = "okay";
 };
 
 &sdmmc {
