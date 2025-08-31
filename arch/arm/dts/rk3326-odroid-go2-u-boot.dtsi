@@ -35,3 +35,13 @@
 	bootph-all;
 	clock-frequency = <24000000>;
 };
+
+&uart1_cts {
+	bootph-pre-sram;
+	bootph-pre-ram;
+};
+
+&uart1_xfer {
+	bootph-pre-sram;
+	bootph-pre-ram;
+};
