@@ -10,6 +10,8 @@
 #include <env.h>
 #include <stdlib.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define DTB_DIR			"rockchip/"
 
 struct oga_model {
@@ -20,7 +22,7 @@ struct oga_model {
 };
 
 enum oga_device_id {
-	OGA,
+	OGA = 1,
 	OGA_V11,
 	OGS,
 };
@@ -50,15 +52,10 @@ static const struct oga_model oga_model_details[] = {
 	},
 };
 
-/* Detect which Odroid Go Advance device we are using so as to load the
- * correct devicetree for Linux. Set an environment variable once
- * found. The detection depends on the value of ADC channel 0.
- */
-int oga_detect_device(void)
+static int oga_read_board_id(void)
 {
 	u32 adc_info;
-	int ret, i;
-	int board_id = -ENXIO;
+	int i, ret;
 
 	ret = adc_channel_single_shot("saradc@ff288000", 0, &adc_info);
 	if (ret) {
@@ -72,22 +69,32 @@ int oga_detect_device(void)
 	 * accounted for this with a 5% tolerance, so assume a +- value
 	 * of 50 should be enough.
 	 */
-	for (i = 0; i < ARRAY_SIZE(oga_model_details); i++) {
+	for (i = 1; i < ARRAY_SIZE(oga_model_details); i++) {
 		u32 adc_min = oga_model_details[i].adc_value - 50;
 		u32 adc_max = oga_model_details[i].adc_value + 50;
 
-		if (adc_min < adc_info && adc_max > adc_info) {
-			board_id = i;
-			break;
-		}
+		if (adc_min < adc_info && adc_max > adc_info)
+			return i;
 	}
 
+	return -ENODEV;
+}
+
+/* Detect which Odroid Go Advance device we are using so as to load the
+ * correct devicetree for Linux. Set an environment variable once
+ * found. The detection depends on the value of ADC channel 0.
+ */
+static int oga_detect_device(void)
+{
+	int board_id;
+
+	board_id = oga_read_board_id();
 	if (board_id < 0)
 		return board_id;
+	gd->board_type = board_id;
 
 	env_set("board", oga_model_details[board_id].board);
-	env_set("board_name",
-		oga_model_details[board_id].board_name);
+	env_set("board_name", oga_model_details[board_id].board_name);
 	env_set("fdtfile", oga_model_details[board_id].fdtfile);
 
 	return 0;
@@ -104,4 +111,21 @@ int rk_board_late_init(void)
 	}
 
 	return 0;
+}
+
+int board_fit_config_name_match(const char *name)
+{
+	int board_id;
+
+	if (!gd->board_type) {
+		board_id = oga_read_board_id();
+		if (board_id < 0)
+			return board_id;
+		gd->board_type = board_id;
+	}
+
+	if (!strcmp(name, oga_model_details[gd->board_type].fdtfile))
+		return 0;
+
+	return -EINVAL;
 }
