@@ -7,7 +7,9 @@
 #include <adc.h>
 #include <asm/io.h>
 #include <dm.h>
+#include <dm/uclass-internal.h>
 #include <env.h>
+#include <env_internal.h>
 #include <stdlib.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -128,4 +130,36 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 
 	return -EINVAL;
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	const char *boot_device;
+	struct udevice *dev;
+	ofnode node;
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	boot_device = ofnode_read_chosen_string("u-boot,spl-boot-device");
+	if (!boot_device) {
+		debug("%s: /chosen/u-boot,spl-boot-device not set\n", __func__);
+		return ENVL_NOWHERE;
+	}
+
+	debug("%s: booted from %s\n", __func__, boot_device);
+
+	node = ofnode_path(boot_device);
+	if (!ofnode_valid(node))
+		return ENVL_NOWHERE;
+
+	if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH) &&
+	    !uclass_find_device_by_ofnode(UCLASS_SPI_FLASH, node, &dev))
+		return ENVL_SPI_FLASH;
+
+	if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC) &&
+	    !uclass_find_device_by_ofnode(UCLASS_MMC, node, &dev))
+		return ENVL_MMC;
+
+	return ENVL_NOWHERE;
 }
