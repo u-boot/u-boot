@@ -32,18 +32,8 @@
 	};
 };
 
-/* U-Boot clk driver for px30 cannot set GPU_CLK */
 &cru {
 	bootph-all;
-	assigned-clocks = <&cru PLL_NPLL>,
-		<&cru ACLK_BUS_PRE>, <&cru ACLK_PERI_PRE>,
-		<&cru HCLK_BUS_PRE>, <&cru HCLK_PERI_PRE>,
-		<&cru PCLK_BUS_PRE>, <&cru PLL_CPLL>;
-
-	assigned-clock-rates = <1188000000>,
-		<200000000>, <200000000>,
-		<150000000>, <150000000>,
-		<100000000>, <17000000>;
 };
 
 &gpio0 {
