@@ -6,4 +6,14 @@
 / {
 	model = "ASUS EeePad Transformer TF101";
 	compatible = "asus,tf101", "nvidia,tegra20";
+
+	extcon-keys {
+		compatible = "gpio-keys";
+
+		switch-dock-hall-sensor {
+			label = "Lid sensor";
+			gpios = <&gpio TEGRA_GPIO(S, 4) GPIO_ACTIVE_LOW>;
+			linux,code = <SW_LID>;
+		};
+	};
 };

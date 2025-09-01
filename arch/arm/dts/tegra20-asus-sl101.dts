@@ -6,4 +6,14 @@
 / {
 	model = "ASUS EeePad Slider SL101";
 	compatible = "asus,sl101", "nvidia,tegra20";
+
+	extcon-keys {
+		compatible = "gpio-keys";
+
+		switch-tablet-mode {
+			label = "Tablet Mode";
+			gpios = <&gpio TEGRA_GPIO(S, 4) GPIO_ACTIVE_LOW>;
+			linux,code = <SW_TABLET_MODE>;
+		};
+	};
 };
