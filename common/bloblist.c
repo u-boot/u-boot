@@ -149,7 +149,8 @@ static int bloblist_addrec(uint tag, int size, int align_log2,
 {
 	struct bloblist_hdr *hdr = gd->bloblist;
 	struct bloblist_rec *rec;
-	int data_start, aligned_start, new_alloced;
+	phys_addr_t data_start, aligned_start;
+	phys_size_t new_alloced;
 
 	if (!align_log2)
 		align_log2 = BLOBLIST_BLOB_ALIGN_LOG2;
