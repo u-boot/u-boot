@@ -228,9 +228,9 @@ config PMIC_MAX8997
 	This is a Power Management IC with RTC, Fuel Gauge, MUIC control on Chip.
 	- 21x LDOs
 	- 12x GPIOs
-	- Haptic Motor driver
+	- Haptic motor driver
 	- RTC with two alarms
-	- Fueal Gauge and One backup battery charger
+	- Fuel Gauge and one backup battery charger
 	- MUIC
 	- Others
 

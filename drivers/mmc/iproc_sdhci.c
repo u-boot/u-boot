@@ -182,7 +182,7 @@ static int sdhci_iproc_execute_tuning(struct mmc *mmc, u8 opcode)
 	u32 ctrl;
 	u32 blocksize = SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG, 64);
 	struct sdhci_host *host = dev_get_priv(mmc->dev);
-	char tuning_loop_counter = MAX_TUNING_LOOP;
+	s8 tuning_loop_counter = MAX_TUNING_LOOP;
 	int ret = 0;
 
 	sdhci_start_tuning(host);

@@ -45,7 +45,7 @@
 			compatible = "maxim,max8998";
 			reg = <0x66 0 0>;
 
-			voltage-regulators {
+			regulators {
 				ldo2_reg: LDO2 {
 					regulator-compatible = "LDO2";
 					regulator-name = "VALIVE_1.1V";

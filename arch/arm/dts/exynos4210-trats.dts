@@ -102,9 +102,9 @@
 	status = "okay";
 
 	max8997-pmic@66 {
-		compatible = "maxim,max8997";
+		compatible = "maxim,max8997-pmic";
 		reg = <0x66 0 0>;
-		voltage-regulators {
+		regulators {
 			valive_reg: LDO2 {
 			     regulator-name = "VALIVE_1.1V_C210";
 			     regulator-min-microvolt = <1100000>;

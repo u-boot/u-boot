@@ -428,21 +428,6 @@ void exynos_init(void)
 	board_gpio_init();
 }
 
-int exynos_power_init(void)
-{
-	const char *mmc_regulators[] = {
-		"VDDQ_EMMC_1.8V",
-		"VDDQ_EMMC_2.8V",
-		"TFLASH_2.8V",
-		NULL,
-	};
-
-	if (regulator_list_autoset(mmc_regulators, NULL, true))
-		pr_err("Unable to init all mmc regulators\n");
-
-	return 0;
-}
-
 #ifdef CONFIG_USB_GADGET
 static int s5pc210_phy_control(int on)
 {
