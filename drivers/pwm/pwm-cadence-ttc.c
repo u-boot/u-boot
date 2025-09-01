@@ -47,6 +47,8 @@
 #define TTC_MATCH_1_COUNTER(reg, channel) \
 	TTC_REG((reg) + MATCH_1_COUNTER, (channel))
 
+#define TTC_PWM_CHANNELS	3
+
 struct cadence_ttc_pwm_plat {
 	u8 *regs;
 	u32 timer_width;
@@ -57,7 +59,7 @@ struct cadence_ttc_pwm_priv {
 	u32 timer_width;
 	u32 timer_mask;
 	unsigned long frequency;
-	bool invert[2];
+	bool invert[TTC_PWM_CHANNELS];
 };
 
 static int cadence_ttc_pwm_set_invert(struct udevice *dev, uint channel,
@@ -65,7 +67,7 @@ static int cadence_ttc_pwm_set_invert(struct udevice *dev, uint channel,
 {
 	struct cadence_ttc_pwm_priv *priv = dev_get_priv(dev);
 
-	if (channel > 2) {
+	if (channel >= TTC_PWM_CHANNELS) {
 		dev_err(dev, "Unsupported channel number %d(max 2)\n", channel);
 		return -EINVAL;
 	}
@@ -87,7 +89,7 @@ static int cadence_ttc_pwm_set_config(struct udevice *dev, uint channel,
 	dev_dbg(dev, "channel %d, duty %d/period %d ns\n", channel,
 		duty_ns, period_ns);
 
-	if (channel > 2) {
+	if (channel >= TTC_PWM_CHANNELS) {
 		dev_err(dev, "Unsupported channel number %d(max 2)\n", channel);
 		return -EINVAL;
 	}
@@ -153,7 +155,7 @@ static int cadence_ttc_pwm_set_enable(struct udevice *dev, uint channel,
 {
 	struct cadence_ttc_pwm_priv *priv = dev_get_priv(dev);
 
-	if (channel > 2) {
+	if (channel >= TTC_PWM_CHANNELS) {
 		dev_err(dev, "Unsupported channel number %d(max 2)\n", channel);
 		return -EINVAL;
 	}
