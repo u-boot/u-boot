@@ -37,6 +37,6 @@ struct ti_fdt_map {
  * @board_name: match to search with (max of TI_BOARD_NAME_MAX chars)
  * @fdt_map: NULL terminated array of device tree file name matches.
  */
-void ti_set_fdt_env(const char *board_name, struct ti_fdt_map *fdt_map);
+void ti_set_fdt_env(const char *board_name, const struct ti_fdt_map *fdt_map);
 
 #endif /* __FDT_OPS_H */
