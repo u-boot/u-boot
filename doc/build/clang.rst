@@ -46,9 +46,9 @@ It can also be used to compile sandbox:
 FreeBSD 11
 ----------
 
-Since llvm 3.4 is currently in the base system, the integrated assembler as
-is incapable of building U-Boot. Therefore gas from devel/arm-gnueabi-binutils
-is used instead. It needs a symlink to be picked up correctly though:
+Since LLVM 3.4 is currently in the base system, the integrated assembler is
+incapable of building U-Boot. Therefore gas from devel/arm-gnueabi-binutils is
+used instead. It needs a symbolic link to be picked up correctly though:
 
 .. code-block:: bash
 
@@ -64,7 +64,7 @@ The following commands compile U-Boot using the Clang xdev toolchain.
     gmake rpi_2_defconfig
     gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd" -j8
 
-Given that U-Boot will default to gcc, above commands can be
+Given that U-Boot will default to gcc, the commands above can be
 simplified with a simple wrapper script - saved as
 /usr/local/bin/arm-gnueabi-freebsd-gcc - listed below:
 

@@ -195,6 +195,7 @@ endchoice
 
 config EFI_VARIABLES_PRESEED
 	bool "Initial values for UEFI variables"
+	depends on !COMPILE_TEST
 	depends on !EFI_MM_COMM_TEE
 	help
 	  Include a file with the initial values for non-volatile UEFI variables
@@ -564,6 +565,7 @@ config EFI_HTTP_BOOT
 	bool "EFI HTTP Boot support"
 	depends on NET || NET_LWIP
 	select CMD_NET
+	select CMD_DHCP
 	select CMD_DNS
 	select CMD_WGET
 	select BLKMAP
