@@ -104,8 +104,7 @@ __weak int board_mmc_getcd(struct mmc *mmc)
 	return -1;
 }
 #endif
-
-#ifdef CONFIG_MMC_TRACE
+#if IS_ENABLED(CONFIG_MMC_TRACE)
 void mmmc_trace_before_send(struct mmc *mmc, struct mmc_cmd *cmd)
 {
 	printf("CMD_SEND:%d\n", cmd->cmdidx);
@@ -3190,7 +3189,7 @@ static int mmc_probe(struct bd_info *bis)
 
 int mmc_initialize(struct bd_info *bis)
 {
-	static int initialized = 0;
+	static int initialized;
 	int ret;
 	if (initialized)	/* Avoid initializing mmc multiple times */
 		return 0;
