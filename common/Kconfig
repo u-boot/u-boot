@@ -1128,8 +1128,8 @@ config BLOBLIST_SIZE
 
 config BLOBLIST_SIZE_RELOC
 	hex "Size of bloblist after relocation"
-	default BLOBLIST_SIZE if BLOBLIST_FIXED || BLOBLIST_ALLOC
-	default 0x20000 if (ARM && EFI_LOADER && GENERATE_ACPI_TABLE)
+	default BLOBLIST_SIZE if BLOBLIST_FIXED
+	default 0x20000
 	help
 	  Sets the size of the bloblist in bytes after relocation. Since U-Boot
 	  has a lot more memory available then, it is possible to use a larger
