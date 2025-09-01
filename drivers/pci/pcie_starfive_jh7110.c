@@ -292,8 +292,6 @@ static int starfive_pcie_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	dev_err(dev, "Starfive PCIe bus probed.\n");
-
 	return 0;
 }
 
