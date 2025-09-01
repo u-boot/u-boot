@@ -105,13 +105,9 @@ static int spi_rx_tx(struct exynos_spi_priv *priv, int todo,
 	uint out_bytes, in_bytes;
 	int toread;
 	unsigned start = get_timer(0);
-	int stopping;
 	int step;
 
 	out_bytes = in_bytes = todo;
-
-	stopping = priv->skip_preamble && (flags & SPI_XFER_END) &&
-					!(priv->mode & SPI_SLAVE);
 
 	/*
 	 * Try to transfer words if we can. This helps read performance at
@@ -161,12 +157,10 @@ static int spi_rx_tx(struct exynos_spi_priv *priv, int todo,
 			while (rx_lvl >= step) {
 				temp = readl(&regs->rx_data);
 				if (priv->skip_preamble) {
-					if (temp == SPI_PREAMBLE_END_BYTE) {
+					if (temp == SPI_PREAMBLE_END_BYTE)
 						priv->skip_preamble = 0;
-						stopping = 0;
-					}
 				} else {
-					if (rxp || stopping) {
+					if (rxp) {
 						if (step == 4)
 							*(uint32_t *)rxp = temp;
 						else
