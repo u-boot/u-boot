@@ -27,6 +27,23 @@ config TARGET_CM3588_NAS_RK3588
 	  - 3.5mm Headphone out, 2.0mm PH-2A Mic in
 	  - 5V Fan connector, PWM beeper, IR receiver, RTC battery connector
 
+config TARGET_GAMEFORCE_ACE_RK3588S
+	bool "GameForce Ace"
+	help
+	  The GameForce Ace is a handheld game console from GameForce with
+	  the Rockchip RK3588S SoC.
+
+	  Hardware features:
+	  - Rockchip RK3588S SoC
+	  - 12GB LPDDR4x RAM
+	  - 128GB eMMC
+	  - MicroSD card slot
+	  - 1x USB 3.0 Type-C with DP AltMode support
+	  - 1x HDMI 2.1 micro-HDMI out
+	  - 1920x1080 touchscreen MIPI-DSI panel
+	  - Analog joysticks and L/R triggers
+	  - 16 digital buttons
+
 config TARGET_GENBOOK_CM5_RK3588
 	bool "Cool Pi CM5 GenBook"
 	help
@@ -410,6 +427,7 @@ source "board/friendlyelec/cm3588-nas-rk3588/Kconfig"
 source "board/friendlyelec/nanopc-t6-rk3588/Kconfig"
 source "board/friendlyelec/nanopi-r6c-rk3588s/Kconfig"
 source "board/friendlyelec/nanopi-r6s-rk3588s/Kconfig"
+source "board/gameforce/ace-rk3588s/Kconfig"
 source "board/hardkernel/odroid_m2/Kconfig"
 source "board/indiedroid/nova/Kconfig"
 source "board/khadas/khadas-edge2-rk3588s/Kconfig"

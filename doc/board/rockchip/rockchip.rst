@@ -134,7 +134,9 @@ List of mainline supported Rockchip boards:
      - Radxa ROCK 3B (rock-3b-rk3568)
 
 * rk3576
+     - ArmSoM Sige5 (sige5-rk3576)
      - Firefly ROC-RK3576-PC (roc-pc-rk3576)
+     - Generic RK3576 (generic-rk3576)
 
 * rk3588
      - ArmSoM Sige7 (sige7-rk3588)
@@ -145,6 +147,7 @@ List of mainline supported Rockchip boards:
      - FriendlyElec NanoPC-T6 (nanopc-t6-rk3588)
      - FriendlyElec NanoPi R6C (nanopi-r6c-rk3588s)
      - FriendlyElec NanoPi R6S (nanopi-r6s-rk3588s)
+     - GameForce Ace (gameforce-ace-rk3588s)
      - Generic RK3588S/RK3588 (generic-rk3588)
      - Hardkernel ODROID-M2 (odroid-m2-rk3588s)
      - Indiedroid Nova (nova-rk3588s)
@@ -161,6 +164,7 @@ List of mainline supported Rockchip boards:
      - Xunlong Orange Pi 5 (orangepi-5-rk3588s)
      - Xunlong Orange Pi 5 Max (orangepi-5-max-rk3588)
      - Xunlong Orange Pi 5 Plus (orangepi-5-plus-rk3588)
+     - Xunlong Orange Pi 5 Ultra (orangepi-5-ultra-rk3588)
      - Yanyi Tech CoolPi 4 Model B (coolpi-4b-rk3588s)
      - Yanyi Tech CoolPi CM5 EVB (coolpi-cm5-evb-rk3588)
      - Yanyi Tech CoolPi CM5 GenBook (coolpi-cm5-genbook-rk3588)

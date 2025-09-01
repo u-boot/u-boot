@@ -51,3 +51,22 @@ int rockchip_early_misc_init_r(void)
 
 	return 0;
 }
+
+#define GPIO0B7_PU_EN BIT(15)
+
+void spl_board_init(void)
+{
+	/*
+	 * GPIO0_B7 is routed to CAN TX. This SoC pin has a pull-down per default.
+	 * So on power-up, we block the CAN bus with a dominant zero. We want to keep
+	 * this blocking time to a minimum, so we want to get this pin high in SPL.
+	 *
+	 * The CAN driver in Linux disables the pull-down and sets the pin to
+	 * output high. We don't have a CAN driver in U-Boot and don't need one,
+	 * so we just use the easiest way to get the pin high, which is setting a
+	 * pull-up.
+	 */
+	struct rk3588_pmu2_ioc * const ioc = (void *)PMU2_IOC_BASE;
+
+	rk_setreg(&ioc->gpio0b_p, GPIO0B7_PU_EN);
+}

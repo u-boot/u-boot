@@ -48,3 +48,9 @@ S:	Maintained
 F:	configs/orangepi-5-plus-rk3588_defconfig
 F:	arch/arm/dts/rk3588-orangepi-5-plus.dts
 F:	arch/arm/dts/rk3588-orangepi-5-plus-u-boot.dtsi
+
+ORANGEPI-5-RK3588-ULTRA
+M:	Niu Zhihong <zhihong@nzhnb.com>
+S:	Maintained
+F:	configs/orangepi-5-ultra-rk3588_defconfig
+F:	arch/arm/dts/rk3588-orangepi-5-ultra-u-boot.dtsi

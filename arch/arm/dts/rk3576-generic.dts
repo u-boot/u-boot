@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Minimal generic DT for RK3528 with eMMC and SD-card enabled
+ * Minimal generic DT for RK3576 with eMMC, SD-card and USB OTG enabled
  */
 
 /dts-v1/;
-#include "rk3528.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
+#include "rk3576.dtsi"
 
 / {
-	model = "Generic RK3528";
-	compatible = "rockchip,rk3528";
+	model = "Generic RK3576";
+	compatible = "rockchip,rk3576";
 
 	aliases {
 		mmc0 = &sdhci;
 		mmc1 = &sdmmc;
-		serial0 = &uart0;
 	};
 
 	chosen {
@@ -40,8 +41,23 @@
 	status = "okay";
 };
 
+&u2phy0 {
+	status = "okay";
+};
+
+&u2phy0_otg {
+	status = "okay";
+};
+
 &uart0 {
-	pinctrl-names = "default";
 	pinctrl-0 = <&uart0m0_xfer>;
+	status = "okay";
+};
+
+&usb_drd0_dwc3 {
+	dr_mode = "peripheral";
+	maximum-speed = "high-speed";
+	phys = <&u2phy0_otg>;
+	phy-names = "usb2-phy";
 	status = "okay";
 };

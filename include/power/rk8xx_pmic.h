@@ -212,6 +212,8 @@ enum {
 #define RK817_POWER_EN_SAVE0	0x99
 #define RK817_POWER_EN_SAVE1	0xa4
 
+#define RK806_RST_FUN_MSK	GENMASK(7, 6)
+
 #define RK806_POWER_EN(x)			(0x00 + (x))
 /* POWER_ENx register lower 4 bits are write-protected unless the associated top bit is set */
 #define RK806_POWER_EN_CLRSETBITS(bit, val)	(((val) << (bit)) | (1 << ((bit) + 4)))
