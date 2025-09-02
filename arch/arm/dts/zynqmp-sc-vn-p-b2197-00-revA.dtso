@@ -397,13 +397,13 @@
 
 	/* EXT_PMBUS main - J10 - disable extended PMBUS */
 	vccint: tps53681@60 { /* u1712 - J1770 reset jumper */
-		compatible = "ti,tps53681", "ti,tps53679";
+		compatible = "ti,tps53681";
 		reg = <0x60>;
 		/* vccint, vcc_cpm5n */
 	};
 
 	vcc_io_soc: tps53681@61 { /* u1721 - J1772 reset jumper */
-		compatible = "ti,tps53681", "ti,tps53679";
+		compatible = "ti,tps53681";
 		reg = <0x61>;
 		/* vcc_io_soc, vcc_fpd */
 	};
