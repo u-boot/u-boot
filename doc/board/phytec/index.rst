@@ -6,6 +6,7 @@ PHYTEC
 .. toctree::
    :maxdepth: 2
 
+   imx8mp-libra-fpsc
    imx8mm-phygate-tauri-l
    imx93-phycore
    phycore-am62x

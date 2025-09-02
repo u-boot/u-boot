@@ -345,6 +345,15 @@ config TARGET_PHYCORE_IMX8MP
 	select IMX8M_LPDDR4
 	imply OF_UPSTREAM
 
+config TARGET_IMX8MP_LIBRA_FPSC
+	bool "PHYTEC Libra i.MX 8M Plus FPSC"
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
+	help
+	  Libra i.MX8M Plus FPSC is an SBC based on the NXP i.MX 8M Plus SoC.
+
 config TARGET_IMX8MM_CL_IOT_GATE
 	bool "CompuLab iot-gate-imx8"
 	select IMX8MM
@@ -409,6 +418,7 @@ source "board/kontron/sl-mx8mm/Kconfig"
 source "board/menlo/mx8menlo/Kconfig"
 source "board/msc/sm2s_imx8mp/Kconfig"
 source "board/mntre/imx8mq_reform2/Kconfig"
+source "board/phytec/imx8mp-libra-fpsc/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/polyhex/imx8mp_debix_model_a/Kconfig"
