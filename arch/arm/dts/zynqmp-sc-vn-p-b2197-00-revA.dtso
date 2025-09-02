@@ -356,7 +356,7 @@
 	};
 
 	vcco_503: regulator@12 { /* u1744 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x12>;
 	};
 
@@ -414,17 +414,17 @@
 	};
 
 	vcco_500: regulator@13 { /* u1738 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x13>;
 	};
 
 	vcco_501: regulator@10 { /* u1740 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x10>;
 	};
 
 	vcco_502: regulator@11 { /* u1742 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x11>;
 	};
 
@@ -454,7 +454,7 @@
 	};
 
 	lp5_vddq_0v5: regulator@14 { /* u1763 - FIXME no ina226 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x14>;
 	};
 };
