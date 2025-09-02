@@ -80,6 +80,15 @@
 
 			system-slot {
 			};
+
+			memory-array {
+			};
+
+			memory-device {
+			};
+
+			memory-array-mapped-address {
+			};
 		};
 	};
 };

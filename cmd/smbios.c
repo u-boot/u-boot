@@ -168,6 +168,100 @@ static const struct str_lookup_table slot_length_strings[] = {
 	{ SMBIOS_SYSSLOT_LENG_3_5INDRV,	"3.5 inch drive form factor" },
 };
 
+static const struct str_lookup_table ma_location_strings[] = {
+	{ SMBIOS_MA_LOCATION_OTHER,		"Other" },
+	{ SMBIOS_MA_LOCATION_UNKNOWN,		"Unknown" },
+	{ SMBIOS_MA_LOCATION_MOTHERBOARD,	"System board or motherboard" },
+};
+
+static const struct str_lookup_table ma_use_strings[] = {
+	{ SMBIOS_MA_USE_OTHER,		"Other" },
+	{ SMBIOS_MA_USE_UNKNOWN,	"Unknown" },
+	{ SMBIOS_MA_USE_SYSTEM,		"System memory" },
+	{ SMBIOS_MA_USE_VIDEO,		"Video memory" },
+	{ SMBIOS_MA_USE_FLASH,		"Flash memory" },
+	{ SMBIOS_MA_USE_NVRAM,		"Non-volatile RAM" },
+	{ SMBIOS_MA_USE_CACHE,		"Cache memory" },
+};
+
+static const struct str_lookup_table ma_err_corr_strings[] = {
+	{ SMBIOS_MA_ERRCORR_OTHER,	"Other" },
+	{ SMBIOS_MA_ERRCORR_UNKNOWN,	"Unknown" },
+	{ SMBIOS_MA_ERRCORR_NONE,	"None" },
+	{ SMBIOS_MA_ERRCORR_PARITY,	"Parity" },
+	{ SMBIOS_MA_ERRCORR_SBITECC,	"Single-bit ECC" },
+	{ SMBIOS_MA_ERRCORR_MBITECC,	"Multi-bit ECC" },
+	{ SMBIOS_MA_ERRCORR_CRC,	"CRC" },
+};
+
+static const struct str_lookup_table md_form_factor_strings[] = {
+	{ SMBIOS_MD_FF_OTHER,		"Other" },
+	{ SMBIOS_MD_FF_UNKNOWN,		"Unknown" },
+	{ SMBIOS_MD_FF_SIMM,		"SIMM" },
+	{ SMBIOS_MD_FF_SIP,		"SIP" },
+	{ SMBIOS_MD_FF_CHIP,		"Chip" },
+	{ SMBIOS_MD_FF_DIP,		"DIP" },
+	{ SMBIOS_MD_FF_ZIP,		"ZIP" },
+	{ SMBIOS_MD_FF_PROPCARD,	"Proprietary Card" },
+	{ SMBIOS_MD_FF_DIMM,		"DIMM" },
+	{ SMBIOS_MD_FF_TSOP,		"TSOP" },
+	{ SMBIOS_MD_FF_ROC,		"Row of chips" },
+	{ SMBIOS_MD_FF_RIMM,		"RIMM" },
+	{ SMBIOS_MD_FF_SODIMM,		"SODIMM" },
+	{ SMBIOS_MD_FF_SRIMM,		"SRIMM" },
+	{ SMBIOS_MD_FF_FBDIMM,		"FB-DIMM" },
+	{ SMBIOS_MD_FF_DIE,		"Die" },
+};
+
+static const struct str_lookup_table md_type_strings[] = {
+	{ SMBIOS_MD_TYPE_OTHER,		"Other" },
+	{ SMBIOS_MD_TYPE_UNKNOWN,	"Unknown" },
+	{ SMBIOS_MD_TYPE_DRAM,		"DRAM" },
+	{ SMBIOS_MD_TYPE_EDRAM,		"EDRAM" },
+	{ SMBIOS_MD_TYPE_VRAM,		"VRAM" },
+	{ SMBIOS_MD_TYPE_SRAM,		"SRAM" },
+	{ SMBIOS_MD_TYPE_RAM,		"RAM" },
+	{ SMBIOS_MD_TYPE_ROM,		"ROM" },
+	{ SMBIOS_MD_TYPE_FLASH,		"FLASH" },
+	{ SMBIOS_MD_TYPE_EEPROM,	"EEPROM" },
+	{ SMBIOS_MD_TYPE_FEPROM,	"FEPROM" },
+	{ SMBIOS_MD_TYPE_EPROM,		"EPROM" },
+	{ SMBIOS_MD_TYPE_CDRAM,		"CDRAM" },
+	{ SMBIOS_MD_TYPE_3DRAM,		"3DRAM" },
+	{ SMBIOS_MD_TYPE_SDRAM,		"SDRAM" },
+	{ SMBIOS_MD_TYPE_SGRAM,		"SGRAM" },
+	{ SMBIOS_MD_TYPE_RDRAM,		"RDRAM" },
+	{ SMBIOS_MD_TYPE_DDR,		"DDR" },
+	{ SMBIOS_MD_TYPE_DDR2,		"DDR2" },
+	{ SMBIOS_MD_TYPE_DDR2FBD,	"DDR2 FB-DIMM" },
+	{ SMBIOS_MD_TYPE_RSVD1,		"Reserved" },
+	{ SMBIOS_MD_TYPE_RSVD2,		"Reserved" },
+	{ SMBIOS_MD_TYPE_DSVD3,		"Reserved" },
+	{ SMBIOS_MD_TYPE_DDR3,		"DDR3" },
+	{ SMBIOS_MD_TYPE_FBD2,		"FBD2" },
+	{ SMBIOS_MD_TYPE_DDR4,		"DDR4" },
+	{ SMBIOS_MD_TYPE_LPDDR,		"LPDDR" },
+	{ SMBIOS_MD_TYPE_LPDDR2,	"LPDDR2" },
+	{ SMBIOS_MD_TYPE_LPDDR3,	"LPDDR3" },
+	{ SMBIOS_MD_TYPE_LPDDR4,	"LPDDR4" },
+	{ SMBIOS_MD_TYPE_LNVD,		"Logical non-volatile device" },
+	{ SMBIOS_MD_TYPE_HBM,		"HBM" },
+	{ SMBIOS_MD_TYPE_HBM2,		"HBM2" },
+	{ SMBIOS_MD_TYPE_DDR5,		"DDR5" },
+	{ SMBIOS_MD_TYPE_LPDDR5,	"LPDDR5" },
+	{ SMBIOS_MD_TYPE_HBM3,		"HBM3" },
+};
+
+static const struct str_lookup_table md_tech_strings[] = {
+	{ SMBIOS_MD_TECH_OTHER,		"Other" },
+	{ SMBIOS_MD_TECH_UNKNOWN,	"Unknown" },
+	{ SMBIOS_MD_TECH_DRAM,		"DRAM" },
+	{ SMBIOS_MD_TECH_NVDIMMN,	"NVDIMM-N" },
+	{ SMBIOS_MD_TECH_NVDIMMF,	"NVDIMM-F" },
+	{ SMBIOS_MD_TECH_NVDIMMP,	"NVDIMM-P" },
+	{ SMBIOS_MD_TECH_OPTANE,	"Intel Optane persistent memory" },
+};
+
 /**
  * smbios_get_string() - get SMBIOS string from table
  *
@@ -514,6 +608,89 @@ static void smbios_print_type9(struct smbios_type9 *table)
 	printf("\tSlot Height: 0x%04x\n", *addr);
 }
 
+static void smbios_print_type16(struct smbios_type16 *table)
+{
+	printf("Physical Memory Array:\n");
+	smbios_print_lookup_str(ma_location_strings, table->location,
+				ARRAY_SIZE(ma_location_strings), "Location");
+	smbios_print_lookup_str(ma_use_strings, table->use,
+				ARRAY_SIZE(ma_use_strings), "Use");
+	smbios_print_lookup_str(ma_err_corr_strings, table->mem_err_corr,
+				ARRAY_SIZE(ma_err_corr_strings),
+				"Memory Error Correction");
+	printf("\tMaximum Capacity: 0x%08x\n", table->max_cap);
+	printf("\tMemory Error Information Handle: 0x%04x\n",
+	       table->mem_err_info_hdl);
+	printf("\tNumber of Memory Devices: 0x%04x\n", table->num_of_mem_dev);
+	printf("\tExtended Maximum Capacity: 0x%016llx\n", table->ext_max_cap);
+}
+
+static void smbios_print_type17(struct smbios_type17 *table)
+{
+	printf("Memory Device:\n");
+	printf("\tPhysical Memory Array Handle: 0x%04x\n",
+	       table->phy_mem_array_hdl);
+	printf("\tMemory Error Information Handle: 0x%04x\n",
+	       table->mem_err_info_hdl);
+	printf("\tTotal Width: 0x%04x\n", table->total_width);
+	printf("\tData Width: 0x%04x\n", table->data_width);
+	printf("\tSize: 0x%04x\n", table->size);
+	smbios_print_lookup_str(md_form_factor_strings, table->form_factor,
+				ARRAY_SIZE(md_form_factor_strings),
+				"Form Factor");
+	printf("\tDevice Set: 0x%04x\n", table->dev_set);
+	smbios_print_str("Device Locator", table, table->dev_locator);
+	smbios_print_str("Bank Locator", table, table->bank_locator);
+	smbios_print_lookup_str(md_type_strings, table->mem_type,
+				ARRAY_SIZE(md_type_strings), "Memory Type");
+	printf("\tType Detail: 0x%04x\n", table->type_detail);
+	printf("\tSpeed: 0x%04x\n", table->speed);
+	smbios_print_str("Manufacturer", table, table->manufacturer);
+	smbios_print_str("Serial Number", table, table->serial_number);
+	smbios_print_str("Asset Tag", table, table->asset_tag);
+	smbios_print_str("Part Number", table, table->part_number);
+	printf("\tAttributes: 0x%04x\n", table->attributes);
+	printf("\tExtended Size: 0x%08x\n", table->ext_size);
+	printf("\tConfigured Memory Speed: 0x%04x\n", table->config_mem_speed);
+	printf("\tMinimum voltage: 0x%04x\n", table->min_voltage);
+	printf("\tMaximum voltage: 0x%04x\n", table->max_voltage);
+	printf("\tConfigured voltage: 0x%04x\n", table->config_voltage);
+	smbios_print_lookup_str(md_tech_strings, table->mem_tech,
+				ARRAY_SIZE(md_tech_strings),
+				"Memory Technology");
+	printf("\tMemory Operating Mode Capability: 0x%04x\n",
+	       table->mem_op_mode_cap);
+	smbios_print_str("Firmware Version", table, table->fw_ver);
+	printf("\tModule Manufacturer ID: 0x%04x\n", table->module_man_id);
+	printf("\tModule Product ID: 0x%04x\n", table->module_prod_id);
+	printf("\tMemory Subsystem Controller Manufacturer ID: 0x%04x\n",
+	       table->mem_subsys_con_man_id);
+	printf("\tMemory Subsystem Controller Product ID: 0x%04x\n",
+	       table->mem_subsys_con_prod_id);
+	printf("\tNon-volatile Size: 0x%016llx\n", table->nonvolatile_size);
+	printf("\tVolatile Size: 0x%016llx\n", table->volatile_size);
+	printf("\tCache Size: 0x%016llx\n", table->cache_size);
+	printf("\tLogical Size: 0x%016llx\n", table->logical_size);
+	printf("\tExtended Speed: 0x%04x\n", table->ext_speed);
+	printf("\tExtended Configured Memory Speed: 0x%04x\n",
+	       table->ext_config_mem_speed);
+	printf("\tPMIC0 Manufacturer ID: 0x%04x\n", table->pmic0_man_id);
+	printf("\tPMIC0 Revision Number: 0x%04x\n", table->pmic0_rev_num);
+	printf("\tRCD Manufacturer ID: 0x%04x\n", table->rcd_man_id);
+	printf("\tRCD Revision Number: 0x%04x\n", table->rcd_rev_num);
+}
+
+static void smbios_print_type19(struct smbios_type19 *table)
+{
+	printf("Memory Array Mapped Address:\n");
+	printf("\tStarting Address: 0x%08x\n", table->start_addr);
+	printf("\tEnding Address: 0x%08x\n", table->end_addr);
+	printf("\tMemory Array Handle: 0x%04x\n", table->mem_array_hdl);
+	printf("\tPartition Width: 0x%04x\n", table->partition_wid);
+	printf("\tExtended Starting Address: 0x%016llx\n", table->ext_start_addr);
+	printf("\tExtended Ending Address: 0x%016llx\n", table->ext_end_addr);
+}
+
 static void smbios_print_type127(struct smbios_type127 *table)
 {
 	printf("End Of Table\n");
@@ -595,6 +772,15 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 			break;
 		case SMBIOS_SYSTEM_SLOTS:
 			smbios_print_type9((struct smbios_type9 *)pos);
+			break;
+		case SMBIOS_PHYS_MEMORY_ARRAY:
+			smbios_print_type16((struct smbios_type16 *)pos);
+			break;
+		case SMBIOS_MEMORY_DEVICE:
+			smbios_print_type17((struct smbios_type17 *)pos);
+			break;
+		case SMBIOS_MEMORY_ARRAY_MAPPED_ADDRESS:
+			smbios_print_type19((struct smbios_type19 *)pos);
 			break;
 		case SMBIOS_END_OF_TABLE:
 			smbios_print_type127((struct smbios_type127 *)pos);
