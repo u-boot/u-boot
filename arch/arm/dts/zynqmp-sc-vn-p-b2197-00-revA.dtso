@@ -142,7 +142,7 @@
 	};
 
 	/* FMC eeproms at 0x50/0x51 */
-	/* via j3/j5 to 0x68 to u32/9FGV1006C
+	/* via j3/j5 to 0x68 to u32/9FGV1006C */
 
 	/* i2c_main_1 - u147 - j157 - disable translation, add 8 */
 	/* J1 - OE for u43@55 + 8 - 161,132813MHz - QSFP56G_0 */
