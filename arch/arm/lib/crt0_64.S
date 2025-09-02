@@ -158,8 +158,10 @@ relocation_return:
 /*
  * Clear BSS section
  */
-	ldr	x0, =__bss_start		/* this is auto-relocated! */
-	ldr	x1, =__bss_end			/* this is auto-relocated! */
+	adrp	x0, __bss_start
+	add	x0, x0, #:lo12:__bss_start
+	adrp	x1, __bss_end
+	add	x1, x1, #:lo12:__bss_end
 clear_loop:
 	str	xzr, [x0], #8
 	cmp	x0, x1
