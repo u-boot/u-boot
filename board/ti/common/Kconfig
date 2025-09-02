@@ -40,6 +40,8 @@ config TI_COMMON_CMD_OPTIONS
 	imply CMD_GPIO
 	imply CMD_GPT
 	imply CMD_I2C
+	imply CMD_MEMINFO
+	imply CMD_MEMINFO_MAP
 	imply CMD_MII
 	imply CMD_MMC
 	imply CMD_MMC_REG
