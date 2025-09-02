@@ -99,6 +99,8 @@ struct image_tool_params {
 	const char *engine_id;	/* Engine to use for signing */
 	bool reset_timestamp;	/* Reset the timestamp on an existing image */
 	struct image_summary summary;	/* results of signing process */
+	char *fit_tfa_bl31;	/* TFA BL31 file to include */
+	unsigned int fit_tfa_bl31_addr;	/* TFA BL31 load and entry point address */
 };
 
 /*
