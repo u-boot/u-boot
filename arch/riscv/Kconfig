@@ -23,8 +23,8 @@ config TARGET_K230_CANMV
 config TARGET_LICHEERV_NANO
 	bool "Support LicheeRV Nano Board"
 
-config TARGET_MICROCHIP_ICICLE
-	bool "Support Microchip PolarFire-SoC Icicle Board"
+config TARGET_MICROCHIP_GENERIC
+	bool "Support Microchip PolarFire-SoC Boards"
 
 config TARGET_MILKV_DUO
 	bool "Support Milk-v Duo Board"
@@ -108,7 +108,7 @@ source "board/andestech/voyager/Kconfig"
 source "board/aspeed/ibex_ast2700/Kconfig"
 source "board/canaan/k230_canmv/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
-source "board/microchip/mpfs_icicle/Kconfig"
+source "board/microchip/mpfs_generic/Kconfig"
 source "board/openpiton/riscv64/Kconfig"
 source "board/sifive/unleashed/Kconfig"
 source "board/sifive/unmatched/Kconfig"

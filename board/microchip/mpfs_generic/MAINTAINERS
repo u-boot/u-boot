@@ -1,0 +1,7 @@
+Microchip MPFS Generic
+M:	Conor Dooley <conor.dooley@microchip.com>
+M:	Jamie Gibbons <jamie.gibbons@microchip.com>
+S:	Maintained
+F:	board/microchip/mpfs_generic/
+F:	include/configs/microchip_mpfs_generic.h
+F:	configs/microchip_mpfs_generic_defconfig

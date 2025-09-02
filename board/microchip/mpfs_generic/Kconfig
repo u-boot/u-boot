@@ -1,7 +1,7 @@
-if TARGET_MICROCHIP_ICICLE
+if TARGET_MICROCHIP_GENERIC
 
 config SYS_BOARD
-	default "mpfs_icicle"
+	default "mpfs_generic"
 
 config SYS_VENDOR
 	default "microchip"
@@ -10,7 +10,7 @@ config SYS_CPU
 	default "generic"
 
 config SYS_CONFIG_NAME
-	default "microchip_mpfs_icicle"
+	default "microchip_mpfs_generic"
 
 config TEXT_BASE
 	default 0x80000000 if !RISCV_SMODE
