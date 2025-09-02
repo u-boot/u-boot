@@ -172,6 +172,8 @@ int board_late_init(void)
 		}
 	}
 
+	mpfs_syscontroller_process_dtbo(sys_serv_priv);
+
 	return 0;
 }
 
