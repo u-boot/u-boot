@@ -2327,7 +2327,7 @@ static int udma_send(struct dma *dma, void *src, size_t len, void *metadata)
 {
 	struct udma_dev *ud = dev_get_priv(dma->dev);
 	struct cppi5_host_desc_t *desc_tx;
-	dma_addr_t dma_src = (dma_addr_t)src;
+	dma_addr_t dma_src = (uintptr_t)src;
 	struct ti_udma_drv_packet_data packet_data = { 0 };
 	dma_addr_t paddr;
 	struct udma_chan *uc;
@@ -2426,7 +2426,7 @@ static int udma_receive(struct dma *dma, void **dst, void *metadata)
 
 	cppi5_desc_get_tags_ids(&desc_rx->hdr, &port_id, NULL);
 
-	*dst = (void *)buf_dma;
+	*dst = (void *)(uintptr_t)buf_dma;
 	uc->num_rx_bufs--;
 
 	return pkt_len;
@@ -2518,7 +2518,7 @@ int udma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size)
 
 	desc_num = uc->desc_rx_cur % UDMA_RX_DESC_NUM;
 	desc_rx = uc->desc_rx + (desc_num * uc->config.hdesc_size);
-	dma_dst = (dma_addr_t)dst;
+	dma_dst = (uintptr_t)dst;
 
 	cppi5_hdesc_reset_hbdesc(desc_rx);
 
