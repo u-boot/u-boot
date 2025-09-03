@@ -126,19 +126,11 @@ int board_fit_config_name_match(const char *name)
 		    !strncmp(get_product_id_from_eeprom(), "STAR64", 6)) {
 		return 0;
 	} else if (!strcmp(name, "starfive/jh7110-starfive-visionfive-2-v1.2a") &&
-		    !strncmp(get_product_id_from_eeprom(), "VF7110", 6)) {
-		switch (get_pcb_revision_from_eeprom()) {
-		case 'a':
-		case 'A':
-			return 0;
-		}
+		    !strncmp(get_product_id_from_eeprom(), "VF7110A", 7)) {
+		return 0;
 	} else if (!strcmp(name, "starfive/jh7110-starfive-visionfive-2-v1.3b") &&
-		    !strncmp(get_product_id_from_eeprom(), "VF7110", 6)) {
-		switch (get_pcb_revision_from_eeprom()) {
-		case 'b':
-		case 'B':
-			return 0;
-		}
+		    !strncmp(get_product_id_from_eeprom(), "VF7110B", 7)) {
+		return 0;
 	}
 
 	return -EINVAL;
