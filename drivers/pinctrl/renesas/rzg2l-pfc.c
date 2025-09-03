@@ -353,7 +353,7 @@ static int rzg2l_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 		/* The pin selector refers to a multiplexed pin */
 		int port = rzg2l_selector_decode(data, pin_selector, &pin);
 		if (port < 0) {
-			dev_err(dev, "Invalid pin selector %u:%u\n", port, pin);
+			dev_err(dev, "Invalid pin selector %u\n", pin_selector);
 			return port;
 		}
 
@@ -550,7 +550,7 @@ static int rzg2l_get_pin_muxing(struct udevice *dev, unsigned int selector,
 
 	port = rzg2l_selector_decode(data, selector, &pin);
 	if (port < 0) {
-		dev_err(dev, "Invalid pin selector %u:%u\n", port, pin);
+		dev_err(dev, "Invalid pin selector %u\n", selector);
 		return port;
 	}
 
