@@ -19,21 +19,17 @@ int misc_init_r(void)
 {
 	u8 mac_addr[ARP_HLEN + 1];
 	char serial[SM_SERIAL_SIZE];
-	u32 sid;
+	u16 sid;
 
 	if (!meson_sm_get_serial(serial, SM_SERIAL_SIZE)) {
-		sid = crc32(0, (unsigned char *)serial, SM_SERIAL_SIZE);
-		/* Ensure the NIC specific bytes of the mac are not all 0 */
-		if ((sid & 0xffff) == 0)
-			sid |= 0x800000;
-
-		/* OUI registered MAC address */
-		mac_addr[0] = 0x10;
-		mac_addr[1] = 0x27;
-		mac_addr[2] = 0xBE;
-		mac_addr[3] = (sid >> 16) & 0xff;
-		mac_addr[4] = (sid >>  8) & 0xff;
-		mac_addr[5] = (sid >>  0) & 0xff;
+		sid = crc32(0, (unsigned char *)serial, SM_SERIAL_SIZE) & 0xFFFF;
+		/* OUI registered fallback MAC address */
+		mac_addr[0] = 0xF0;
+		mac_addr[1] = 0x57;
+		mac_addr[2] = 0x8D;
+		mac_addr[3] = 0x00;
+		mac_addr[4] = (sid >>  8) & 0xFF;
+		mac_addr[5] = sid & 0xFF;
 		mac_addr[ARP_HLEN] = '\0';
 
 		eth_env_set_enetaddr("ethaddr", mac_addr);
