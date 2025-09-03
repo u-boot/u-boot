@@ -8,6 +8,10 @@ config TARGET_DALMORE
 	bool "NVIDIA Tegra114 Dalmore evaluation board"
 	select BOARD_LATE_INIT
 
+config TARGET_SURFACE_2
+	bool "Microsoft Surface 2"
+	select BOARD_LATE_INIT
+
 config TARGET_TEGRATAB
 	bool "NVIDIA Tegra114 TegraTab evaluation board"
 	select BOARD_LATE_INIT
@@ -22,6 +26,7 @@ config SYS_SOC
 	default "tegra114"
 
 source "board/nvidia/dalmore/Kconfig"
+source "board/microsoft/surface-2/Kconfig"
 source "board/nvidia/tegratab/Kconfig"
 source "board/asus/transformer-t114/Kconfig"
 
