@@ -5,11 +5,14 @@
 
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch-mx6/imx-regs.h>
 #include <asm/global_data.h>
+#include <env.h>
 #include <env_internal.h>
 #include <fdt_support.h>
 #include <phy.h>
-#include <sl-mx6ul-common.h>
+
+#include "sl-mx6ul-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -86,15 +89,31 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+	if (is_boot_from_usb()) {
+		env_set("bootdelay", "0");
+		env_set("bootcmd", "fastboot 0");
+	}
+
+	return 0;
+}
+
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	if (prio)
 		return ENVL_UNKNOWN;
+
+	if (CONFIG_IS_ENABLED(ENV_IS_NOWHERE) && is_boot_from_usb())
+		return ENVL_NOWHERE;
 
 	if (sl_mx6ul_is_spi_nor_boot() && CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
 		return ENVL_SPI_FLASH;
 	else if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
 		return ENVL_MMC;
 
-	return ENVL_NOWHERE;
+	if (CONFIG_IS_ENABLED(ENV_IS_NOWHERE))
+		return ENVL_NOWHERE;
+
+	return ENVL_UNKNOWN;
 }
