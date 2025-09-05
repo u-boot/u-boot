@@ -7906,6 +7906,17 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                          len(IMX_LPDDR_DMEM_DATA).to_bytes(4, 'little') +
                          IMX_LPDDR_IMEM_DATA + IMX_LPDDR_DMEM_DATA, data)
 
+    def testNxpImx9Image(self):
+        """Test that binman can generate a .bin file"""
+        testdir = tempfile.mkdtemp(prefix='binman.')
+        image_path = os.path.join(testdir, 'image.bin')
+        with open(image_path, 'w') as f:
+            pass
+        container_path = os.path.join(testdir, 'mx95b0-ahab-container.img')
+        with open(container_path, 'w') as f:
+            f.write(bytes([0x87]).decode('latin1') * 32768)
+        self._DoTestFile('350_nxp_imx95.dts', output_dir=testdir)
+
     def testFitSignSimple(self):
         """Test that image with FIT and signature nodes can be signed"""
         if not elf.ELF_TOOLS:
