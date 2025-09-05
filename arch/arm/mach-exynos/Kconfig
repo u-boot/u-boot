@@ -88,7 +88,7 @@ config TARGET_S5PC210_UNIVERSAL
 	select MISC_COMMON
 
 config TARGET_ORIGEN
-	bool "Exynos4412 Origen board"
+	bool "Exynos4210 Origen board"
 	select EXYNOS4210
 	select SUPPORT_SPL
 
