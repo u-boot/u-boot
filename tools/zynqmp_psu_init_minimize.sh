@@ -82,7 +82,7 @@ for i in $FUNCS_TO_REMOVE; do
 sed -i "/$i/,/^}$/d" ${OUT}
 done
 
-scripts/Lindent ${OUT}
+clang-format -i -style=file ${OUT}
 
 # Prepend 'static' to internal functions
 sed -i 's/^.*data(void)$/static &/g' ${OUT}
