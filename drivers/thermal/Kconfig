@@ -35,6 +35,14 @@ config IMX_TMU
 	  The boot is hold to the cool device to throttle CPUs when the
 	  passive trip is crossed
 
+config RCAR_GEN3_THERMAL
+	bool "Renesas R-Car Gen3/Gen4 and RZ/G2 thermal driver"
+	depends on ARCH_RENESAS
+	depends on RCAR_64
+	help
+	  Enable this to plug the R-Car Gen3/Gen4 or RZ/G2 thermal sensor
+	  driver into the U-Boot thermal framework.
+
 config TI_DRA7_THERMAL
         bool "Temperature sensor driver for TI dra7xx SOCs"
         help
