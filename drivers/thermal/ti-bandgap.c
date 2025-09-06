@@ -163,7 +163,7 @@ static int ti_bandgap_get_temp(struct udevice *dev,  int *temp)
 	struct ti_bandgap *bgp = dev_get_priv(dev);
 
 	bgp->adc_val = 0x3ff & readl(bgp->base + CTRL_CORE_TEMP_SENSOR_MPU);
-	*temp = dra752_adc_to_temp[bgp->adc_val - DRA752_ADC_START_VALUE];
+	*temp = dra752_adc_to_temp[bgp->adc_val - DRA752_ADC_START_VALUE] * 1000;
 
 	return 0;
 }

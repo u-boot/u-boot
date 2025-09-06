@@ -245,7 +245,7 @@ int imx_tmu_get_temp(struct udevice *dev, int *temp)
 			return ret;
 	}
 
-	*temp = cpu_tmp / 1000;
+	*temp = cpu_tmp;
 
 	return 0;
 }

@@ -12,7 +12,7 @@
 static int sandbox_thermal_get_temp(struct udevice *dev, int *temp)
 {
 	/* Simply return 100 deg C */
-	*temp = 100;
+	*temp = 100 * 1000;
 
 	return 0;
 }

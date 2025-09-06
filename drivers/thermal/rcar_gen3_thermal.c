@@ -160,7 +160,7 @@ static int rcar_gen3_thermal_get_temp(struct udevice *dev, int *temp)
 	const struct equation_set_coef *coef;
 	int adj, decicelsius, reg, thcode;
 
-	/* Read register and convert to degree Celsius */
+	/* Read register and convert to millidegree Celsius */
 	reg = rcar_gen3_thermal_read(tsc, REG_GEN3_TEMP) & CTEMP_MASK;
 
 	if (reg < tsc->thcode[1]) {
@@ -183,8 +183,8 @@ static int rcar_gen3_thermal_get_temp(struct udevice *dev, int *temp)
 
 	/* Guaranteed operating range is -40C to 125C. */
 
-	/* Reporting is done in degree Celsius */
-	*temp = (decicelsius * 100 + adj * 1000) / 1000;
+	/* Reporting is done in millidegree Celsius */
+	*temp = decicelsius * 100 + adj * 1000;
 
 	return 0;
 }

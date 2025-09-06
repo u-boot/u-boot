@@ -25,7 +25,7 @@ struct dm_thermal_ops {
 	 * It will enable and initialize any Thermal hardware as necessary.
 	 *
 	 * @dev:	The Thermal device
-	 * @temp:	pointer that returns the measured temperature
+	 * @temp:	pointer that returns the measured temperature in millidegree Celsius
 	 */
 	int (*get_temp)(struct udevice *dev, int *temp);
 };

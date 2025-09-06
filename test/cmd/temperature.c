@@ -27,7 +27,7 @@ static int dm_test_cmd_temperature(struct unit_test_state *uts)
 	/* Test that "temperature get thermal" returns expected value */
 	console_record_reset();
 	ut_assertok(run_command("temperature get thermal", 0));
-	ut_assert_nextline("thermal: 100 C");
+	ut_assert_nextline("thermal: 100000 mC");
 	ut_assert_console_end();
 
 	return 0;

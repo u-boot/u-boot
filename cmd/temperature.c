@@ -32,7 +32,7 @@ static int do_get(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (ret)
 		return CMD_RET_FAILURE;
 
-	printf("%s: %d C\n", dev->name, temp);
+	printf("%s: %d mC\n", dev->name, temp);
 
 	return CMD_RET_SUCCESS;
 }

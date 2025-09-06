@@ -28,7 +28,7 @@ static int ti_lm74_get_temp(struct udevice *dev, int *temp)
 
 	raw = ((buf[0] << 8) + buf[1]) >> 3;
 
-	*temp = (((int)raw * 125) + 1000) / 2000;
+	*temp = (((int)raw * 125) + 1000) / 2;
 
 	return 0;
 }

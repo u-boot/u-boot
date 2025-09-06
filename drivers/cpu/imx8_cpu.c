@@ -192,7 +192,7 @@ static int cpu_imx_get_temp(struct cpu_imx_plat *plat)
 		return 0xdeadbeef;
 	}
 
-	return cpu_tmp;
+	return cpu_tmp / 1000;
 }
 #else
 static int cpu_imx_get_temp(struct cpu_imx_plat *plat)

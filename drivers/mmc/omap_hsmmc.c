@@ -651,6 +651,7 @@ static int omap_hsmmc_execute_tuning(struct udevice *dev, uint opcode)
 		printf("Couldn't get temperature for tuning\n");
 		return ret;
 	}
+	temperature /= 1000;
 	val = readl(&mmc_base->dll);
 	val |= DLL_SWT;
 	writel(val, &mmc_base->dll);

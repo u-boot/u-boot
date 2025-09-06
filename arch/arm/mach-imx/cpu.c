@@ -230,6 +230,7 @@ int print_cpuinfo(void)
 	ret = uclass_get_device(UCLASS_THERMAL, 0, &thermal_dev);
 	if (!ret) {
 		ret = thermal_get_temp(thermal_dev, &cpu_tmp);
+		cpu_tmp /= 1000;
 
 		if (!ret)
 			printf(" at %dC", cpu_tmp);
