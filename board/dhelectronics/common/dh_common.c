@@ -88,9 +88,9 @@ int dh_read_eeprom_id_page(u8 *eeprom_buffer, const char *alias)
 	/* Validate header ID */
 	if (eip->hdr.id[0] != 'D' || eip->hdr.id[1] != 'H' || eip->hdr.id[2] != 'E') {
 		printf("%s: Error validating header ID! (got %c%c%c (0x%02x 0x%02x 0x%02x) != expected DHE)\n",
-		       __func__, isprint(eip->hdr.id[0]) ? eip->hdr.id[0] : '.',
-		       isprint(eip->hdr.id[1]) ? eip->hdr.id[1] : '.',
-		       isprint(eip->hdr.id[2]) ? eip->hdr.id[2] : '.',
+		       __func__, (isascii(eip->hdr.id[0]) && isprint(eip->hdr.id[0])) ? eip->hdr.id[0] : '.',
+		       (isascii(eip->hdr.id[1]) && isprint(eip->hdr.id[1])) ? eip->hdr.id[1] : '.',
+		       (isascii(eip->hdr.id[2]) && isprint(eip->hdr.id[2])) ? eip->hdr.id[2] : '.',
 		       eip->hdr.id[0], eip->hdr.id[1], eip->hdr.id[2]);
 		return -EINVAL;
 	}
