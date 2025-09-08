@@ -232,7 +232,7 @@ int request_firmware_into_buf_via_script(void **buf, size_t max_size,
 					 const char *script_name,
 					 size_t *retsize)
 {
-	char *args[2] = { (char *)"run", (char *)script_name };
+	char *args[2] = { "run", (char *)script_name };
 	int ret, repeatable;
 	ulong addr, size;
 
