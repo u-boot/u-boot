@@ -71,6 +71,7 @@ int get_fs_loader(struct udevice **dev);
  * @buf: Pointer to a pointer where the firmware buffer will be stored.
  * @max_size: Maximum allowed size for the firmware to be loaded.
  * @script_name: Name of the U-Boot script to execute for firmware loading.
+ * @retsize: Return the actual firmware data size (optional).
  *
  * Executes a U-Boot script (@script_name) that loads firmware into
  * memory and sets the environment variables 'fw_addr' (address) and
@@ -87,5 +88,6 @@ int get_fs_loader(struct udevice **dev);
  * Return: 0 on success, negative value on error.
  */
 int request_firmware_into_buf_via_script(void **buf, size_t max_size,
-					 const char *script_name);
+					 const char *script_name,
+					 size_t *retsize);
 #endif
