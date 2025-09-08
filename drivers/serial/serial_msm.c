@@ -219,11 +219,12 @@ static void uart_dm_init(struct msm_serial_data *priv)
 	/* Enable RS232 flow control to support RS232 db9 connector */
 	writel(UARTDM_MR1_RX_RDY_CTL, priv->base + UARTDM_MR1);
 	writel(UARTDM_MR2_8_N_1_MODE, priv->base + UARTDM_MR2);
-	writel(UARTDM_CR_CMD_RESET_RX, priv->base + UARTDM_CR);
-	writel(UARTDM_CR_CMD_RESET_TX, priv->base + UARTDM_CR);
 
 	/* Make sure BAM/single character mode is disabled */
 	writel(0x0, priv->base + UARTDM_DMEN);
+
+	writel(UARTDM_CR_CMD_RESET_RX, priv->base + UARTDM_CR);
+	writel(UARTDM_CR_CMD_RESET_TX, priv->base + UARTDM_CR);
 }
 static int msm_serial_probe(struct udevice *dev)
 {
