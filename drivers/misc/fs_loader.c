@@ -232,18 +232,15 @@ int request_firmware_into_buf_via_script(void **buf, size_t max_size,
 					 const char *script_name,
 					 size_t *retsize)
 {
+	char *args[2] = { (char *)"run", (char *)script_name };
+	int ret, repeatable;
 	ulong addr, size;
-	int ret;
-	char cmd[32];
 
 	if (!buf || !script_name || !max_size)
 		return -EINVAL;
 
-	/* Create command to run the firmware loading script */
-	snprintf(cmd, sizeof(cmd), "run %s", script_name);
-
 	/* Run the firmware loading script */
-	ret = run_command_list(cmd, -1, 0);
+	ret = cmd_process(0, 2, args, &repeatable, NULL);
 	if (ret) {
 		log_err("Firmware loading script '%s' not defined or failed.\n",
 			script_name);
