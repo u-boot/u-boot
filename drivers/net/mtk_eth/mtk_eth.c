@@ -100,6 +100,7 @@ struct mtk_eth_priv {
 	bool pn_swap;
 
 	struct phy_device *phydev;
+	ofnode phy_node;
 	int phy_interface;
 	int phy_addr;
 
@@ -572,6 +573,7 @@ static int mtk_phy_probe(struct udevice *dev)
 	if (!phydev)
 		return -ENODEV;
 
+	phydev->node = priv->phy_node;
 	phydev->supported &= PHY_GBIT_FEATURES;
 	phydev->advertising = phydev->supported;
 
@@ -1457,6 +1459,8 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 			printf("error: phy-handle is not specified\n");
 			return ret;
 		}
+
+		priv->phy_node = args.node;
 
 		priv->phy_addr = ofnode_read_s32_default(args.node, "reg", -1);
 		if (priv->phy_addr < 0) {
