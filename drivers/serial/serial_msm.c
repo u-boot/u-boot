@@ -50,6 +50,8 @@
 #define UARTDM_SR_UART_OVERRUN   (1 << 4) /* Receive overrun */
 
 #define UARTDM_CR                         0xA8 /* Command register */
+#define UARTDM_CR_RX_ENABLE               (1 << 0) /* Enable receiver */
+#define UARTDM_CR_TX_ENABLE               (1 << 2) /* Enable transmitter */
 #define UARTDM_CR_CMD_RESET_RX            (1 << 4) /* Reset receiver */
 #define UARTDM_CR_CMD_RESET_TX            (2 << 4) /* Reset transmitter */
 #define UARTDM_CR_CMD_RESET_ERR           (3 << 4) /* Clear overrun error */
@@ -225,6 +227,8 @@ static void uart_dm_init(struct msm_serial_data *priv)
 
 	writel(UARTDM_CR_CMD_RESET_RX, priv->base + UARTDM_CR);
 	writel(UARTDM_CR_CMD_RESET_TX, priv->base + UARTDM_CR);
+	writel(UARTDM_CR_RX_ENABLE, priv->base + UARTDM_CR);
+	writel(UARTDM_CR_TX_ENABLE, priv->base + UARTDM_CR);
 }
 static int msm_serial_probe(struct udevice *dev)
 {
