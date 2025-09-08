@@ -29,7 +29,9 @@
 #define UARTDM_RXFS_BUF_SHIFT   0x7  /* Number of bytes in the packing buffer */
 #define UARTDM_RXFS_BUF_MASK    0x7
 #define UARTDM_MR1				 0x00
+#define UARTDM_MR1_RX_RDY_CTL			 BIT(7)
 #define UARTDM_MR2				 0x04
+#define UARTDM_MR2_8_N_1_MODE			 0x34
 /*
  * This is documented on page 1817 of the apq8016e technical reference manual.
  * section 6.2.5.3.26
@@ -48,6 +50,8 @@
 #define UARTDM_SR_UART_OVERRUN   (1 << 4) /* Receive overrun */
 
 #define UARTDM_CR                         0xA8 /* Command register */
+#define UARTDM_CR_CMD_RESET_RX            (1 << 4) /* Reset receiver */
+#define UARTDM_CR_CMD_RESET_TX            (2 << 4) /* Reset transmitter */
 #define UARTDM_CR_CMD_RESET_ERR           (3 << 4) /* Clear overrun error */
 #define UARTDM_CR_CMD_RESET_STALE_INT     (8 << 4) /* Clears stale irq */
 #define UARTDM_CR_CMD_RESET_TX_READY      (3 << 8) /* Clears TX Ready irq*/
@@ -60,11 +64,6 @@
 
 #define UARTDM_TF               0x100 /* UART Transmit FIFO register */
 #define UARTDM_RF               0x140 /* UART Receive FIFO register */
-
-#define MSM_BOOT_UART_DM_8_N_1_MODE	0x34
-#define MSM_BOOT_UART_DM_CMD_RESET_RX	0x10
-#define MSM_BOOT_UART_DM_CMD_RESET_TX	0x20
-#define MSM_UART_MR1_RX_RDY_CTL		BIT(7)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -218,10 +217,10 @@ static void uart_dm_init(struct msm_serial_data *priv)
 
 	writel(bitrate, priv->base + UARTDM_CSR);
 	/* Enable RS232 flow control to support RS232 db9 connector */
-	writel(MSM_UART_MR1_RX_RDY_CTL, priv->base + UARTDM_MR1);
-	writel(MSM_BOOT_UART_DM_8_N_1_MODE, priv->base + UARTDM_MR2);
-	writel(MSM_BOOT_UART_DM_CMD_RESET_RX, priv->base + UARTDM_CR);
-	writel(MSM_BOOT_UART_DM_CMD_RESET_TX, priv->base + UARTDM_CR);
+	writel(UARTDM_MR1_RX_RDY_CTL, priv->base + UARTDM_MR1);
+	writel(UARTDM_MR2_8_N_1_MODE, priv->base + UARTDM_MR2);
+	writel(UARTDM_CR_CMD_RESET_RX, priv->base + UARTDM_CR);
+	writel(UARTDM_CR_CMD_RESET_TX, priv->base + UARTDM_CR);
 
 	/* Make sure BAM/single character mode is disabled */
 	writel(0x0, priv->base + UARTDM_DMEN);
