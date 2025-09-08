@@ -9,6 +9,18 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "am57xx_evm"
 
+config ENV_SOURCE_FILE
+	default "am57xx"
+
+source "board/ti/common/Kconfig"
+
+endif
+
+if TARGET_DRA7XX_EVM
+
+config ENV_SOURCE_FILE
+	default "am57xx"
+
 source "board/ti/common/Kconfig"
 
 endif
