@@ -27,24 +27,6 @@
 			compatible = "rockchip,rk3528-otp";
 			reg = <0x0 0xffce0000 0x0 0x4000>;
 		};
-
-		sdmmc: mmc@ffc30000 {
-			compatible = "rockchip,rk3528-dw-mshc",
-				     "rockchip,rk3288-dw-mshc";
-			reg = <0x0 0xffc30000 0x0 0x4000>;
-			clocks = <&cru HCLK_SDMMC0>, <&cru CCLK_SRC_SDMMC0>;
-			clock-names = "biu", "ciu";
-			fifo-depth = <0x100>;
-			interrupts = <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>;
-			max-frequency = <150000000>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&sdmmc_bus4>, <&sdmmc_clk>, <&sdmmc_cmd>,
-				    <&sdmmc_det>;
-			resets = <&cru SRST_H_SDMMC0>;
-			reset-names = "reset";
-			rockchip,default-sample-phase = <90>;
-			status = "disabled";
-		};
 	};
 };
 

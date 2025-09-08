@@ -86,6 +86,7 @@ config USB_GADGET_PRODUCT_NUM
 	default 0x350a if ROCKCHIP_RK3568
 	default 0x350b if ROCKCHIP_RK3588
 	default 0x350c if ROCKCHIP_RK3528
+	default 0x350e if ROCKCHIP_RK3576
 	default 0x0
 	help
 	  Product ID of the USB device emulated, reported to the host device.
@@ -201,12 +202,13 @@ config USB_FUNCTION_MASS_STORAGE
 	  the eMMC/SD card content to HOST PC so it can be mounted.
 
 config USB_FUNCTION_ROCKUSB
-        bool "Enable USB rockusb gadget"
-        help
-          Rockusb protocol is widely used by Rockchip SoC based devices. It can
-          read/write info, image to/from devices. This enables the USB part of
-          the rockusb gadget.for more detail about Rockusb protocol, please see
-          doc/README.rockusb
+	bool "Enable USB rockusb gadget"
+	depends on ARCH_ROCKCHIP
+	help
+	  Rockusb protocol is widely used by Rockchip SoC based devices. It can
+	  read/write info, image to/from devices. This enables the USB part of
+	  the rockusb gadget.for more detail about Rockusb protocol, please see
+	  doc/README.rockusb
 
 config USB_FUNCTION_SDP
 	bool "Enable USB SDP (Serial Download Protocol)"

@@ -27,6 +27,10 @@
 	};
 };
 
+&otp {
+	bootph-some-ram;
+};
+
 &uart2 {
 	clock-frequency = <24000000>;
 	bootph-all;

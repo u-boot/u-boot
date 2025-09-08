@@ -1,0 +1,6 @@
+ORANGEPI-5-RK3588-ULTRA
+M:	Niu Zhihong <zhihong@nzhnb.com>
+S:	Maintained
+F:	board/xunlong/orangepi-5-rk3588-ultra
+F:	configs/orangepi-5-ultra-rk3588_defconfig
+F:	arch/arm/dts/rk3588-orangepi-5-ultra.dts

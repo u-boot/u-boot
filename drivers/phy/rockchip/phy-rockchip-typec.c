@@ -788,7 +788,7 @@ U_BOOT_DRIVER(rockchip_tcphy_usb3_port) = {
 
 U_BOOT_DRIVER(rockchip_typec_phy) = {
 	.name	= "rockchip_typec_phy",
-	.id	= UCLASS_PHY,
+	.id	= UCLASS_NOP,
 	.of_match = rockchip_typec_phy_ids,
 	.probe = rockchip_tcphy_probe,
 	.bind = rockchip_tcphy_bind,

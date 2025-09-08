@@ -4,7 +4,7 @@
  */
 
 #include "rk3328-u-boot.dtsi"
-#include "rk3328-sdram-ddr4-666.dtsi"
+#include "rk3328-sdram-ddr4-1600.dtsi"
 
 / {
 	smbios {

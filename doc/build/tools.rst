@@ -8,7 +8,7 @@ Building tools for Linux
 ------------------------
 
 To allow distributions to distribute all possible tools in a generic way,
-avoiding the need of specific tools building for each machine, a tools only
+avoiding the need of specific building tools for each machine, a tools-only
 defconfig file is provided.
 
 Using this, we can build the tools by doing::
@@ -30,9 +30,8 @@ installed all required packages below in order to build these host tools::
    * diffutils (3.7)
    * openssl-devel (1.1.1.d)
 
-Note the version numbers in these parentheses above are the package versions
-at the time being when writing this document. The MSYS2 installer tested is
-http://repo.msys2.org/distrib/x86_64/msys2-x86_64-20190524.exe.
+Note that the version numbers in parentheses above are the package versions at
+the time of writing this document.
 
 There are 3 MSYS subsystems installed: MSYS2, MinGW32 and MinGW64. Each
 subsystem provides an environment to build Windows applications. The MSYS2
@@ -50,7 +49,7 @@ Launch the MSYS2 shell of the MSYS2 environment, and do the following::
 Building without Python
 -----------------------
 
-The tools-only builds bytes pylibfdt by default. To disable this, use the
+The tools-only builds pylibfdt by default. To disable this, use the
 NO_PYTHON variable::
 
    NO_PYTHON=1 make tools-only_defconfig tools-only

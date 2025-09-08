@@ -1,0 +1,13 @@
+if TARGET_SURFACE_2
+
+config SYS_BOARD
+	default "surface-2"
+
+config SYS_VENDOR
+	default "microsoft"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "Microsoft Surface 2"
+
+endif

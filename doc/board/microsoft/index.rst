@@ -6,4 +6,5 @@ Microsoft
 .. toctree::
    :maxdepth: 2
 
+   surface-2
    surface-rt

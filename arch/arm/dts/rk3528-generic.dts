@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Minimal generic DT for RK3528 with eMMC enabled
+ * Minimal generic DT for RK3528 with eMMC and SD-card enabled
  */
 
 /dts-v1/;
@@ -9,6 +9,12 @@
 / {
 	model = "Generic RK3528";
 	compatible = "rockchip,rk3528";
+
+	aliases {
+		mmc0 = &sdhci;
+		mmc1 = &sdmmc;
+		serial0 = &uart0;
+	};
 
 	chosen {
 		stdout-path = "serial0:1500000n8";
@@ -22,6 +28,15 @@
 	no-sd;
 	no-sdio;
 	non-removable;
+	status = "okay";
+};
+
+&sdmmc {
+	bus-width = <4>;
+	cap-sd-highspeed;
+	disable-wp;
+	no-mmc;
+	no-sdio;
 	status = "okay";
 };
 

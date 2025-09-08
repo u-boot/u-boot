@@ -124,6 +124,8 @@ dtb-$(CONFIG_ARCH_TEGRA) += \
 	tegra30-wexler-qc750.dtb \
 	tegra114-asus-tf701t.dtb \
 	tegra114-dalmore.dtb \
+	tegra114-microsoft-surface-2-0b.dtb \
+	tegra114-microsoft-surface-2-13.dtb \
 	tegra114-nvidia-tegratab.dtb \
 	tegra124-apalis.dtb \
 	tegra124-jetson-tk1.dtb \

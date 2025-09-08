@@ -385,15 +385,29 @@ static int stm32_sdmmc2_end_data(struct udevice *dev,
 	u32 mask = SDMMC_STA_DCRCFAIL | SDMMC_STA_DTIMEOUT |
 		   SDMMC_STA_IDMATE | SDMMC_STA_DATAEND;
 	u32 status;
+	unsigned long timeout_msecs = ctx->data_length >> 8;
+	unsigned long start_timeout;
+
+	/* At least, a timeout of 2 seconds is set */
+	if (timeout_msecs < 2000)
+		timeout_msecs = 2000;
 
 	if (data->flags & MMC_DATA_READ)
 		mask |= SDMMC_STA_RXOVERR;
 	else
 		mask |= SDMMC_STA_TXUNDERR;
 
+	start_timeout = get_timer(0);
 	status = readl(plat->base + SDMMC_STA);
-	while (!(status & mask))
+	while (!(status & mask)) {
+		if (get_timer(start_timeout) > timeout_msecs) {
+			ctx->dpsm_abort = true;
+			return -ETIMEDOUT;
+		}
+
+		schedule();
 		status = readl(plat->base + SDMMC_STA);
+	}
 
 	/*
 	 * Need invalidate the dcache again to avoid any

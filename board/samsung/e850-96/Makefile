@@ -3,4 +3,4 @@
 # Copyright (C) 2024, Linaro Limited
 # Sam Protsenko <semen.protsenko@linaro.org>
 
-obj-y	:= e850-96.o fw.o
+obj-y := e850-96.o fw.o acpm.o pmic.o
