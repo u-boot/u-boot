@@ -75,7 +75,7 @@ static int mchp_gpio_direction_output(struct udevice *dev, u32 offset, int value
 	return 0;
 }
 
-static bool mchp_gpio_get_value(struct udevice *dev, u32 offset)
+static int mchp_gpio_get_value(struct udevice *dev, u32 offset)
 {
 	struct mchp_gpio_plat *plat = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
@@ -136,7 +136,7 @@ static int mchp_gpio_probe(struct udevice *dev)
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	char name[18], *str;
 
-	plat->regs = dev_get_driver_data(dev);
+	plat->regs = (struct mpfs_gpio_reg_offsets *)dev_get_driver_data(dev);
 	sprintf(name, "gpio@%4lx_", (uintptr_t)plat->base);
 	str = strdup(name);
 	if (!str)
@@ -160,10 +160,10 @@ static const struct mpfs_gpio_reg_offsets coregpio_reg_offsets = {
 static const struct udevice_id mchp_gpio_match[] = {
 	{
 		.compatible = "microchip,mpfs-gpio",
-		.data = &mpfs_reg_offsets,
+		.data = (unsigned long)&mpfs_reg_offsets,
 	}, {
 		.compatible = "microchip,coregpio-rtl-v3",
-		.data = &coregpio_reg_offsets,
+		.data = (unsigned long)&coregpio_reg_offsets,
 	},
 	{ /* end of list */ }
 };
