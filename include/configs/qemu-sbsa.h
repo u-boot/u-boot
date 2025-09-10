@@ -86,4 +86,8 @@
 #define CFG_SYS_INIT_RAM_ADDR		SBSA_MEM_BASE_ADDR
 #define CFG_SYS_INIT_RAM_SIZE		0x1000000
 
+/* Generic Interrupt Controller Definitions */
+#define GICD_BASE			SBSA_GIC_DIST_BASE_ADDR
+#define GICR_BASE			SBSA_GIC_REDIST_BASE_ADDR
+
 #endif /* __CONFIG_H */
