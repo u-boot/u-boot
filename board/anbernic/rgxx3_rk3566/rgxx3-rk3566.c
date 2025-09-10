@@ -695,7 +695,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	if (gd->board_type == RG353M)
 		fdt_setprop(blob, 0, "model",
 			    rg3xx_model_details[RG353M].board_name,
-			    sizeof(rg3xx_model_details[RG353M].board_name));
+			    strlen(rg3xx_model_details[RG353M].board_name));
 
 	if (rg3xx_model_details[gd->board_type].detect_panel) {
 		ret = rgxx3_panel_fixup(blob);
