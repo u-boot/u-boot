@@ -40,6 +40,17 @@ Also relevant are the generic filesystem commands, selected by:
 This does not automatically enable EXT4 support for you, you still need
 to do that yourself.
 
+Lastly, the current u-boot implementation for Ext4 write requires a lot
+of memory to run successfully. The following enable support for
+large Ext4 partitions:
+
+	CONFIG_EXT4_MAX_JOURNAL_ENTRIES
+	CONFIG_SYS_MALLOC_LEN
+
+The number of journal entries and dynamic memory allocation are proportional
+to the partition capacity. For example, an ext4 4TB HDD partition could
+require approximately 500 entries and more than 128 MB heap space.
+
 Some sample commands to test ext4 support:
 
 1. Check that the commands can be seen in the output of U-Boot help:
