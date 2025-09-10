@@ -11,7 +11,7 @@
 #include <linux/types.h>
 
 /**
- * simple_strtoul - convert a string to an unsigned long
+ * simple_strtoul() - convert a string to an unsigned long
  *
  * @cp: The string to be converted
  * @endp: Updated to point to the first character not converted
@@ -32,7 +32,7 @@
 ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
 
 /**
- * hex_strtoul - convert a string in hex to an unsigned long
+ * hex_strtoul() - convert a string in hex to an unsigned long
  *
  * @cp: The string to be converted
  * @endp: Updated to point to the first character not converted
@@ -45,7 +45,7 @@ ulong simple_strtoul(const char *cp, char **endp, unsigned int base);
 unsigned long hextoul(const char *cp, char **endp);
 
 /**
- * hex_strtoull - convert a string in hex to an unsigned long long
+ * hex_strtoull() - convert a string in hex to an unsigned long long
  *
  * @cp: The string to be converted
  * @endp: Updated to point to the first character not converted
@@ -58,7 +58,7 @@ unsigned long hextoul(const char *cp, char **endp);
 unsigned long long hextoull(const char *cp, char **endp);
 
 /**
- * dec_strtoul - convert a string in decimal to an unsigned long
+ * dec_strtoul() - convert a string in decimal to an unsigned long
  *
  * @cp: The string to be converted
  * @endp: Updated to point to the first character not converted
@@ -71,7 +71,7 @@ unsigned long long hextoull(const char *cp, char **endp);
 unsigned long dectoul(const char *cp, char **endp);
 
 /**
- * strict_strtoul - convert a string to an unsigned long strictly
+ * strict_strtoul() - convert a string to an unsigned long strictly
  * @cp: The string to be converted
  * @base: The number base to use (0 for the default)
  * @res: The converted result value
@@ -100,6 +100,7 @@ unsigned long dectoul(const char *cp, char **endp);
  *
  */
 int strict_strtoul(const char *cp, unsigned int base, unsigned long *res);
+
 unsigned long long simple_strtoull(const char *cp, char **endp,
 					unsigned int base);
 long simple_strtol(const char *cp, char **endp, unsigned int base);
@@ -178,7 +179,7 @@ void panic(const char *fmt, ...)
 void panic_str(const char *str) __attribute__ ((noreturn));
 
 /**
- * Format a string and place it in a buffer
+ * sprintf() - Format a string and place it in a buffer
  *
  * @buf: The buffer to place the result into
  * @fmt: The format string to use
@@ -193,7 +194,7 @@ int sprintf(char *buf, const char *fmt, ...)
 		__attribute__ ((format (__printf__, 2, 3)));
 
 /**
- * Format a string and place it in a buffer (va_list version)
+ * vsprintf() - Format a string and place it in a buffer (va_list version)
  *
  * @buf: The buffer to place the result into
  * @fmt: The format string to use
@@ -232,7 +233,7 @@ char *simple_itoa(ulong val);
 char *simple_xtoa(ulong num);
 
 /**
- * Format a string and place it in a buffer
+ * scnprintf() - Format a string and place it in a buffer
  *
  * @buf: The buffer to place the result into
  * @size: The size of the buffer, including the trailing null space
@@ -248,7 +249,7 @@ int scnprintf(char *buf, size_t size, const char *fmt, ...)
 		__attribute__ ((format (__printf__, 3, 4)));
 
 /**
- * Format a string and place it in a buffer (base function)
+ * vsnprintf() - Format a string and place it in a buffer (base function)
  *
  * @buf: The buffer to place the result into
  * @size: The size of the buffer, including the trailing null space
@@ -273,7 +274,7 @@ int scnprintf(char *buf, size_t size, const char *fmt, ...)
 int vsnprintf(char *buf, size_t size, const char *fmt, va_list args);
 
 /**
- * Format a string and place it in a buffer (va_list version)
+ * vscnprintf() - Format a string and place it in a buffer (va_list version)
  *
  * @buf: The buffer to place the result into
  * @size: The size of the buffer, including the trailing null space
@@ -349,7 +350,7 @@ const char **str_to_list(const char *instr);
 void str_free_list(const char **ptr);
 
 /**
- * vsscanf - Unformat a buffer into a list of arguments
+ * vsscanf() - Unformat a buffer into a list of arguments
  * @inp: input buffer
  * @fmt0: format of buffer
  * @ap: arguments
@@ -357,7 +358,7 @@ void str_free_list(const char **ptr);
 int vsscanf(const char *inp, char const *fmt0, va_list ap);
 
 /**
- * sscanf - Unformat a buffer into a list of arguments
+ * sscanf() - Unformat a buffer into a list of arguments
  * @buf:	input buffer
  * @fmt:	formatting of buffer
  * @...:	resulting arguments
