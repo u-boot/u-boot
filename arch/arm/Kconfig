@@ -2004,7 +2004,6 @@ config ARCH_SYNQUACER
 	bool "Socionext SynQuacer SoCs"
 	select ARM64
 	select DM
-	select GIC_V3
 	select PSCI_RESET
 	select SYSRESET
 	select SYSRESET_PSCI
