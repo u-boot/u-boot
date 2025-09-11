@@ -709,6 +709,7 @@ F:	drivers/gpio/stm32_gpio.c
 F:	drivers/hwspinlock/stm32_hwspinlock.c
 F:	drivers/i2c/stm32f7_i2c.c
 F:	drivers/mailbox/stm32-ipcc.c
+F:	drivers/memory/stm32-omm.c
 F:	drivers/misc/stm32mp_fuse.c
 F:	drivers/misc/stm32_rcc.c
 F:	drivers/mmc/stm32_sdmmc2.c
