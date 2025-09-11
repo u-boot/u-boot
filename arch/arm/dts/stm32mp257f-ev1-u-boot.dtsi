@@ -12,6 +12,47 @@
 	};
 };
 
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		partition@0 {
+			label = "fsbla1";
+			reg = <0x00000000 0x00040000>;
+		};
+		partition@40000 {
+			label = "fsbla2";
+			reg = <0x00040000 0x00040000>;
+		};
+		partition@80000 {
+			label = "metadata1";
+			reg = <0x00080000 0x00040000>;
+		};
+		partition@C0000 {
+			label = "metadata2";
+			reg = <0x000C0000 0x00040000>;
+		};
+		partition@100000 {
+			label = "fip-a";
+			reg = <0x00100000 0x00400000>;
+		};
+		partition@500000 {
+			label = "fip-b";
+			reg = <0x00500000 0x00400000>;
+		};
+		partition@900000 {
+			label = "u-boot-env";
+			reg = <0x00900000 0x00080000>;
+		};
+		partition@980000 {
+			label = "nor-user";
+			reg = <0x00980000 0x03680000>;
+		};
+	};
+};
+
 &usart2 {
 	bootph-all;
 };
