@@ -17,6 +17,7 @@ comment "Platform Glue Driver Support"
 
 config USB_DWC3_OMAP
 	bool "Texas Instruments OMAP5 and similar Platforms"
+	depends on ARCH_OMAP2PLUS
 	help
 	  Some platforms from Texas Instruments like OMAP5, DRA7xxx and
 	  AM437x use this IP for USB2/3 functionality.
@@ -39,14 +40,14 @@ config SPL_USB_DWC3_GENERIC
 
 config SPL_USB_DWC3_AM62
 	bool "TI AM62 USB wrapper"
-	depends on SPL_DM_USB && SPL_USB_DWC3_GENERIC && SPL_SYSCON
+	depends on SPL_DM_USB && SPL_USB_DWC3_GENERIC && SPL_SYSCON && ARCH_K3
 	help
 	  Select this for TI AM62 Platforms.
 	  This wrapper supports Host and Peripheral operation modes.
 
 config USB_DWC3_AM62
 	bool "TI AM62 USB wrapper"
-	depends on DM_USB && USB_DWC3_GENERIC && SYSCON
+	depends on DM_USB && USB_DWC3_GENERIC && SYSCON && ARCH_K3
 	help
 	  Select this for TI AM62 Platforms.
 	  This wrapper supports Host and Peripheral operation modes.
@@ -80,7 +81,7 @@ config USB_DWC3_UNIPHIER
 config USB_DWC3_LAYERSCAPE
 	bool "Freescale Layerscape platform support"
 	depends on DM_USB && USB_DWC3
-	depends on !USB_XHCI_FSL
+	depends on !USB_XHCI_FSL && ARM
 	help
 	  Select this for Freescale Layerscape Platforms.
 
@@ -99,12 +100,14 @@ menu "PHY Subsystem"
 
 config USB_DWC3_PHY_OMAP
 	bool "TI OMAP SoC series USB DRD PHY driver"
+	depends on ARCH_OMAP2PLUS
 	help
 	  Enable single driver for both USB2 PHY programming and USB3 PHY
 	  programming for TI SoCs.
 
 config USB_DWC3_PHY_SAMSUNG
 	bool "Exynos5 SoC series USB DRD PHY driver"
+	depends on ARCH_EXYNOS
 	help
 	  Enable USB DRD PHY support for Exynos 5 SoC series.
 	  This driver provides PHY interface for USB 3.0 DRD controller
