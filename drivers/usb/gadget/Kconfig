@@ -93,6 +93,7 @@ config USB_GADGET_PRODUCT_NUM
 
 config USB_GADGET_ATMEL_USBA
 	bool "Atmel USBA"
+	depends on ARCH_AT91
 	select USB_GADGET_DUALSPEED
 	help
 	  USBA is the integrated high-speed USB Device controller on
