@@ -75,6 +75,7 @@ obj-$(CONFIG_SPI_SIFIVE) += spi-sifive.o
 obj-$(CONFIG_SPI_SN_F_OSPI) += spi-sn-f-ospi.o
 obj-$(CONFIG_SPI_SUNXI) += spi-sunxi.o
 obj-$(CONFIG_SH_QSPI) += sh_qspi.o
+obj-$(CONFIG_STM32_OSPI) += stm32_ospi.o
 obj-$(CONFIG_STM32_QSPI) += stm32_qspi.o
 obj-$(CONFIG_STM32_SPI) += stm32_spi.o
 obj-$(CONFIG_TEGRA114_SPI) += tegra114_spi.o
