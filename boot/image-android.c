@@ -107,7 +107,12 @@ static void android_vendor_boot_image_v3_v4_parse_hdr(const struct andr_vnd_boot
 	data->dtb_load_addr = hdr->dtb_addr;
 	data->bootconfig_size = hdr->bootconfig_size;
 	end = (ulong)hdr;
-	end += hdr->page_size;
+
+	if (hdr->header_version > 3)
+		end += ALIGN(ANDR_VENDOR_BOOT_V4_SIZE, hdr->page_size);
+	else
+		end += ALIGN(ANDR_VENDOR_BOOT_V3_SIZE, hdr->page_size);
+
 	if (hdr->vendor_ramdisk_size) {
 		data->vendor_ramdisk_ptr = end;
 		data->vendor_ramdisk_size = hdr->vendor_ramdisk_size;
