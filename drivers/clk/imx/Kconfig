@@ -167,3 +167,12 @@ config CLK_IMXRT1170
 	select CLK_CCF
 	help
 	  This enables support clock driver for i.MXRT1170 platforms.
+
+config CLK_IMX95_BLKCTRL
+	bool "Enable i.MX95 blkctrl clock driver"
+	depends on IMX95 || IMX94
+	select CLK
+	select CLK_CCF
+	select CLK_AUTO_ID
+	help
+	  Enable support for clocks in i.MX95 MIX blkctrl like HSIO and LVDS.
