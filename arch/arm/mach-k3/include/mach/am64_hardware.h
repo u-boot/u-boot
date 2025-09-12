@@ -46,6 +46,24 @@
 /* Use Last 2K as Scratch pad */
 #define TI_SRAM_SCRATCH_BOARD_EEPROM_START		0x7019f800
 
+/* Reset Reason Detection */
+#define CTRLMMR_MCU_RST_SRC			(MCU_CTRL_MMR0_BASE + 0x18178)
+
+/* Reset causes by bit mapping */
+#define RST_SRC_SAFETY_ERR			BIT(31)
+#define RST_SRC_MAIN_ESM_ERR			BIT(30)
+#define RST_SRC_SW_MAIN_POR_FROM_MAIN		BIT(25)
+#define RST_SRC_SW_MAIN_POR_FROM_MCU		BIT(24)
+#define RST_SRC_SW_MAIN_WARM_FROM_MAIN		BIT(21)
+#define RST_SRC_SW_MAIN_WARM_FROM_MCU		BIT(20)
+#define RST_SRC_SW_MCU_WARM_RST			BIT(16)
+#define RST_SRC_SMS_WARM_RST			BIT(13)
+#define RST_SRC_SMS_COLD_RST			BIT(12)
+#define RST_SRC_DEBUG_RST			BIT(8)
+#define RST_SRC_THERMAL_RST			BIT(4)
+#define RST_SRC_MAIN_RESET_PIN			BIT(2)
+#define RST_SRC_MCU_RESET_PIN			BIT(0)
+
 #if defined(CONFIG_SYS_K3_SPL_ATF) && !defined(__ASSEMBLY__)
 
 #define AM64X_DEV_RTI8			127
