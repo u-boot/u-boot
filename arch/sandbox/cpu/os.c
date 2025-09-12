@@ -35,7 +35,6 @@
 #include <asm/state.h>
 #include <os.h>
 #include <rtc_def.h>
-#include <env.h>
 
 /* Environment variable for time offset */
 #define ENV_TIME_OFFSET "UBOOT_SB_TIME_OFFSET"
@@ -284,7 +283,7 @@ int os_unmap(void *buf, int size)
 
 int os_persistent_file(char *buf, int maxsize, const char *fname)
 {
-	const char *dirname = env_get("U_BOOT_PERSISTENT_DATA_DIR");
+	const char *dirname = getenv("U_BOOT_PERSISTENT_DATA_DIR");
 	char *ptr;
 	int len;
 
@@ -1015,7 +1014,7 @@ long os_get_time_offset(void)
 {
 	const char *offset;
 
-	offset = env_get(ENV_TIME_OFFSET);
+	offset = getenv(ENV_TIME_OFFSET);
 	if (offset)
 		return strtol(offset, NULL, 0);
 	return 0;
@@ -1133,7 +1132,7 @@ static void *fuzzer_thread(void * ptr)
 	const char *fuzz_test;
 
 	/* Find which test to run from an environment variable. */
-	fuzz_test = env_get("UBOOT_SB_FUZZ_TEST");
+	fuzz_test = getenv("UBOOT_SB_FUZZ_TEST");
 	if (!fuzz_test)
 		os_abort();
 
