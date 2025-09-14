@@ -32,7 +32,6 @@
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	CFG_STD_DEVICES_SETTINGS \
-	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"kernel_addr_r=0x84000000\0" \
 	"kernel_comp_addr_r=0x88000000\0" \
