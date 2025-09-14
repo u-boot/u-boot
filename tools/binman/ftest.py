@@ -7986,7 +7986,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'Node \'/binman/fit\': multiple key paths found',
             str(e.exception))
 
-    def testFitSignNoSingatureNodes(self):
+    def testFitSignNoSignatureNodes(self):
         """Test that fit,sign doens't raise error if no signature nodes found"""
         if not elf.ELF_TOOLS:
             self.skipTest('Python elftools not available')
