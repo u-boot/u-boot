@@ -22,7 +22,7 @@ copies U-Boot image into the memory.
 
 The Falcon Mode extends this way allowing to start the Linux kernel directly
 from SPL. A new command is added to U-Boot to prepare the parameters that SPL
-must pass to the kernel, using ATAGS or Device Tree.
+must pass to the kernel using a Device Tree.
 
 In normal mode, these parameters are generated each time before
 loading the kernel, passing to Linux the address in memory where
@@ -117,10 +117,7 @@ spl - SPL configuration
 
 Usage::
 
-    spl export <img=atags|fdt> [kernel_addr] [initrd_addr] [fdt_addr ]
-
-img
-    "atags" or "fdt"
+    spl export fdt [kernel_addr] [initrd_addr] [fdt_addr ]
 
 kernel_addr
     kernel is loaded as part of the boot process, but it is not started.
@@ -134,11 +131,11 @@ fdt_addr
     in case of fdt, the address of the device tree.
 
 The *spl export* command does not write to a storage media. The user is
-responsible to transfer the gathered information (assembled ATAGS list
-or prepared FDT) from temporary storage in RAM into persistent storage
-after each run of *spl export*. Unfortunately the position of temporary
-storage can not be predicted nor provided at command line, it depends
-highly on your system setup and your provided data (ATAGS or FDT).
+responsible to transfer the gathered information (prepared FDT) from temporary
+storage in RAM into persistent storage after each run of *spl export*.
+Unfortunately the position of temporary storage can not be predicted nor
+provided at command line, it depends highly on your system setup and your
+provided device tree.
 However at the end of an successful *spl export* run it will print the
 RAM address of temporary storage. The RAM address of FDT will also be
 set in the environment variable *fdtargsaddr*, the new length of the
@@ -151,73 +148,6 @@ to the pre-defined address in persistent storage
 (CONFIG_CMD_SPL_NAND_OFS in case of NAND).
 The following example shows how to prepare the data for Falcon Mode on
 twister board with ATAGS BLOB.
-
-The *spl export* command is prepared to work with ATAGS and FDT. However,
-using FDT is at the moment untested. The ppc port (see a3m071 example
-later) prepares the fdt blob with the fdt command instead.
-
-
-Usage on the twister board
---------------------------
-
-Using mtd names with the following (default) configuration
-for mtdparts::
-
-    device nand0 <omap2-nand.0>, # parts = 9
-     #: name        size        offset      mask_flags
-     0: MLO                 0x00080000      0x00000000      0
-     1: u-boot              0x00100000      0x00080000      0
-     2: env1                0x00040000      0x00180000      0
-     3: env2                0x00040000      0x001c0000      0
-     4: kernel              0x00600000      0x00200000      0
-     5: bootparms           0x00040000      0x00800000      0
-     6: splashimg           0x00200000      0x00840000      0
-     7: mini                0x02800000      0x00a40000      0
-     8: rootfs              0x1cdc0000      0x03240000      0
-
-::
-
-    twister => nand read 82000000 kernel
-
-    NAND read: device 0 offset 0x200000, size 0x600000
-    6291456 bytes read: OK
-
-Now the kernel is in RAM at address 0x82000000::
-
-    twister => spl export atags 0x82000000
-    ## Booting kernel from Legacy Image at 82000000 ...
-       Image Name:   Linux-3.5.0-rc4-14089-gda0b7f4
-       Image Type:   ARM Linux Kernel Image (uncompressed)
-       Data Size:    3654808 Bytes = 3.5 MiB
-       Load Address: 80008000
-       Entry Point:  80008000
-       Verifying Checksum ... OK
-       Loading Kernel Image ... OK
-    OK
-    cmdline subcommand not supported
-    bdt subcommand not supported
-    Argument image is now in RAM at: 0x80000100
-
-The result can be checked at address 0x80000100::
-
-    twister => md 0x80000100
-    80000100: 00000005 54410001 00000000 00000000    ......AT........
-    80000110: 00000000 00000067 54410009 746f6f72    ....g.....ATroot
-    80000120: 65642f3d 666e2f76 77722073 73666e20    =/dev/nfs rw nfs
-
-The parameters generated with this step can be saved into NAND at the offset
-0x800000 (value for twister for CONFIG_CMD_SPL_NAND_OFS)::
-
-    nand erase.part bootparms
-    nand write 0x80000100 bootparms 0x4000
-
-Now the parameters are stored into the NAND flash at the address
-CONFIG_CMD_SPL_NAND_OFS (=0x800000).
-
-Next time, the board can be started into Falcon Mode moving the
-setting the GPIO (on twister GPIO 55 is used) to kernel mode.
-
-The kernel is loaded directly by the SPL without passing through U-Boot.
 
 Example with FDT: a3m071 board
 ------------------------------
