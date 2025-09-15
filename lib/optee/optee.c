@@ -87,7 +87,7 @@ static int optee_copy_firmware_node(ofnode node, void *fdt_blob)
 	/* copy the compatible property */
 	prop = ofnode_get_property(node, "compatible", &len);
 	if (!prop) {
-		debug("missing OP-TEE compatible property");
+		debug("missing OP-TEE compatible property\n");
 		return -EINVAL;
 	}
 
@@ -98,7 +98,7 @@ static int optee_copy_firmware_node(ofnode node, void *fdt_blob)
 	/* copy the method property */
 	prop = ofnode_get_property(node, "method", &len);
 	if (!prop) {
-		debug("missing OP-TEE method property");
+		debug("missing OP-TEE method property\n");
 		return -EINVAL;
 	}
 
@@ -121,7 +121,7 @@ int optee_copy_fdt_nodes(void *new_blob)
 	/* only proceed if there is an /firmware/optee node */
 	node = ofnode_path("/firmware/optee");
 	if (!ofnode_valid(node)) {
-		debug("No OP-TEE firmware node in old fdt, nothing to do");
+		debug("No OP-TEE firmware node in old fdt, nothing to do\n");
 		return 0;
 	}
 
@@ -131,7 +131,7 @@ int optee_copy_fdt_nodes(void *new_blob)
 	 * so do not interfere.
 	 */
 	if (fdt_path_offset(new_blob, "/firmware/optee") >= 0) {
-		debug("OP-TEE Device Tree node already exists in target");
+		debug("OP-TEE Device Tree node already exists in target\n");
 		return 0;
 	}
 
