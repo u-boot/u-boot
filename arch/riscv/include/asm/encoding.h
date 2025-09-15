@@ -95,7 +95,6 @@
 #define DEFAULT_MTVEC		0x00001010
 #define CFG_STRING_ADDR	0x0000100C
 #define EXT_IO_BASE		0x40000000
-#define DRAM_BASE		0x80000000
 
 // page table entry (PTE) fields
 #define PTE_V		0x001 // Valid
