@@ -88,9 +88,9 @@ int dh_read_eeprom_id_page(u8 *eeprom_buffer, const char *alias)
 	/* Validate header ID */
 	if (eip->hdr.id[0] != 'D' || eip->hdr.id[1] != 'H' || eip->hdr.id[2] != 'E') {
 		printf("%s: Error validating header ID! (got %c%c%c (0x%02x 0x%02x 0x%02x) != expected DHE)\n",
-		       __func__, isprint(eip->hdr.id[0]) ? eip->hdr.id[0] : '.',
-		       isprint(eip->hdr.id[1]) ? eip->hdr.id[1] : '.',
-		       isprint(eip->hdr.id[2]) ? eip->hdr.id[2] : '.',
+		       __func__, (isascii(eip->hdr.id[0]) && isprint(eip->hdr.id[0])) ? eip->hdr.id[0] : '.',
+		       (isascii(eip->hdr.id[1]) && isprint(eip->hdr.id[1])) ? eip->hdr.id[1] : '.',
+		       (isascii(eip->hdr.id[2]) && isprint(eip->hdr.id[2])) ? eip->hdr.id[2] : '.',
 		       eip->hdr.id[0], eip->hdr.id[1], eip->hdr.id[2]);
 		return -EINVAL;
 	}
@@ -131,13 +131,16 @@ int dh_read_eeprom_id_page(u8 *eeprom_buffer, const char *alias)
 int dh_get_value_from_eeprom_buffer(enum eip_request_values request, u8 *data, int data_len,
 				    struct eeprom_id_page *eip)
 {
-	const char fin_chr = (eip->pl.item_prefix & DH_ITEM_PREFIX_FIN_BIT) ?
-			     DH_ITEM_PREFIX_FIN_FLASHED_CHR : DH_ITEM_PREFIX_FIN_HALF_CHR;
-	const u8 soc_coded = eip->pl.item_prefix & 0xf;
+	char fin_chr;
+	u8 soc_coded;
 	char soc_chr;
 
 	if (!eip)
 		return -EINVAL;
+
+	fin_chr = (eip->pl.item_prefix & DH_ITEM_PREFIX_FIN_BIT) ?
+		  DH_ITEM_PREFIX_FIN_FLASHED_CHR : DH_ITEM_PREFIX_FIN_HALF_CHR;
+	soc_coded = eip->pl.item_prefix & 0xf;
 
 	/* Copy requested data */
 	switch (request) {
