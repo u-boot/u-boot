@@ -57,6 +57,7 @@ static void announce_and_cleanup(int fake)
 #ifdef CONFIG_BOOTSTAGE_FDT
 	bootstage_fdt_add_report();
 #endif
+	bootstage_stash_default();
 #ifdef CONFIG_BOOTSTAGE_REPORT
 	bootstage_report();
 #endif
