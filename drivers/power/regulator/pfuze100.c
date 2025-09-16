@@ -241,56 +241,46 @@ static struct dm_regulator_mode pfuze_ldo_modes[] = {
 	MODE(LDO_MODE_ON, LDO_MODE_ON, "LDO_MODE_ON"),
 };
 
-static struct pfuze100_regulator_desc *se_desc(struct pfuze100_regulator_desc *desc,
-					       int size,
-					       const char *name)
-{
-	int i;
-
-	for (i = 0; i < size; desc++) {
-		if (!strcmp(desc->name, name))
-			return desc;
-		continue;
-	}
-
-	return NULL;
-}
-
 static int pfuze100_regulator_probe(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct pfuze100_regulator_plat *plat = dev_get_plat(dev);
 	struct pfuze100_regulator_desc *desc;
+	int i, size;
 
 	switch (dev_get_driver_data(dev_get_parent(dev))) {
 	case PFUZE100:
-		desc = se_desc(pfuze100_regulators,
-			       ARRAY_SIZE(pfuze100_regulators),
-			       dev->name);
+		desc = pfuze100_regulators;
+		size = ARRAY_SIZE(pfuze100_regulators);
 		break;
 	case PFUZE200:
-		desc = se_desc(pfuze200_regulators,
-			       ARRAY_SIZE(pfuze200_regulators),
-			       dev->name);
+		desc = pfuze200_regulators;
+		size = ARRAY_SIZE(pfuze200_regulators);
 		break;
 	case PFUZE3000:
-		desc = se_desc(pfuze3000_regulators,
-			       ARRAY_SIZE(pfuze3000_regulators),
-			       dev->name);
+		desc = pfuze3000_regulators;
+		size = ARRAY_SIZE(pfuze3000_regulators);
 		break;
 	default:
 		debug("Unsupported PFUZE\n");
 		return -EINVAL;
 	}
-	if (!desc) {
+
+	for (i = 0; i < size; i++) {
+		if (strcmp(desc[i].name, dev->name))
+			continue;
+		break;
+	}
+
+	if (i == size) {
 		debug("Do not support regulator %s\n", dev->name);
 		return -EINVAL;
 	}
 
-	plat->desc = desc;
+	plat->desc = &desc[i];
 	uc_pdata = dev_get_uclass_plat(dev);
 
-	uc_pdata->type = desc->type;
+	uc_pdata->type = desc[i].type;
 	if (uc_pdata->type == REGULATOR_TYPE_BUCK) {
 		if (!strcmp(dev->name, "swbst")) {
 			uc_pdata->mode = pfuze_swbst_modes;
