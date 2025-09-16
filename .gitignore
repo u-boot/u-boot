@@ -58,6 +58,7 @@ fit-dtb.blob*
 #
 # We don't want to ignore the following even if they are dot-files
 #
+!.clang-format
 !.get_maintainer.*
 !.gitattributes
 !.gitignore
