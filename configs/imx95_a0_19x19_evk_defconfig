@@ -1,1 +1,2 @@
 #include <configs/imx95_evk.config>
+CONFIG_IMX95_A0=y
