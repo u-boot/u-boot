@@ -21,6 +21,8 @@ config VEXPRESS64_BASE_MODEL
 	imply EFI_SET_TIME if DM_RTC
 	select LINUX_KERNEL_IMAGE_HEADER
 	select POSITION_INDEPENDENT
+	imply DM_RNG
+	imply RNG_ARM_RNDR
 
 choice
 	prompt "VExpress64 board variant"
