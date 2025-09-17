@@ -29,7 +29,9 @@ struct socfpga_dwmci_plat {
 
 /* socfpga implmentation specific driver private data */
 struct dwmci_socfpga_priv_data {
+	struct udevice *dev;
 	struct dwmci_host	host;
+	struct clk mmc_clk_ciu;
 	unsigned int		drvsel;
 	unsigned int		smplsel;
 };
@@ -51,28 +53,23 @@ static void socfpga_dwmci_reset(struct udevice *dev)
 static int socfpga_dwmci_clksel(struct dwmci_host *host)
 {
 	struct dwmci_socfpga_priv_data *priv = host->priv;
+	int ret;
+
 	u32 sdmmc_mask = ((priv->smplsel & 0x7) << SYSMGR_SDMMC_SMPLSEL_SHIFT) |
 			 ((priv->drvsel & 0x7) << SYSMGR_SDMMC_DRVSEL_SHIFT);
 
-	/* Get clock manager base address */
-	struct udevice *clkmgr_dev;
-	int ret = uclass_get_device_by_name(UCLASS_CLK, "clock-controller@ffd10000", &clkmgr_dev);
-
+	ret = clk_get_by_name(priv->dev, "ciu", &priv->mmc_clk_ciu);
 	if (ret) {
-		printf("Failed to get clkmgr device: %d\n", ret);
+		debug("%s: Failed to get SDMMC clock from dts\n", __func__);
 		return ret;
 	}
 
-	fdt_addr_t clkmgr_base = dev_read_addr(clkmgr_dev);
-
-	if (clkmgr_base == FDT_ADDR_T_NONE) {
-		printf("Failed to read base address from clkmgr DT node\n");
-		return -EINVAL;
-	}
-
 	/* Disable SDMMC clock. */
-	clrbits_le32(clkmgr_base + CLKMGR_PERPLL_EN,
-		     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
+	ret = clk_disable(&priv->mmc_clk_ciu);
+	if (ret) {
+		printf("%s: Failed to disable SDMMC clock\n", __func__);
+		return ret;
+	}
 
 	debug("%s: drvsel %d smplsel %d\n", __func__,
 	      priv->drvsel, priv->smplsel);
@@ -92,8 +89,11 @@ static int socfpga_dwmci_clksel(struct dwmci_host *host)
 #endif
 
 	/* Enable SDMMC clock */
-	setbits_le32(clkmgr_base + CLKMGR_PERPLL_EN,
-		     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
+	ret = clk_enable(&priv->mmc_clk_ciu);
+	if (ret) {
+		printf("%s: Failed to enable SDMMC clock\n", __func__);
+		return ret;
+	}
 
 	return 0;
 }
@@ -169,6 +169,7 @@ static int socfpga_dwmmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct dwmci_socfpga_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
+	priv->dev = dev;
 	int ret;
 
 	ret = socfpga_dwmmc_get_clk_rate(dev);
