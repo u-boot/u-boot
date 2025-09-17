@@ -68,10 +68,10 @@ config INIT_SP_RELATIVE
 	  SYS_INIT_SP_BSS_OFFSET.
 
 config SYS_INIT_SP_BSS_OFFSET
-	int "Early stack offset from the .bss base address"
+	hex "Early stack offset from the .bss base address"
 	depends on ARM64
 	depends on INIT_SP_RELATIVE
-	default 524288
+	default 0x80000
 	help
 	  This option's value is the offset added to &_bss_start in order to
 	  calculate the stack pointer. This offset should be large enough so
