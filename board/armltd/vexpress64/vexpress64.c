@@ -206,11 +206,6 @@ int board_fdt_blob_setup(void **fdtp)
 #endif
 #endif
 
-/* Actual reset is done via PSCI. */
-void reset_cpu(void)
-{
-}
-
 /*
  * Board specific ethernet initialization routine.
  */
