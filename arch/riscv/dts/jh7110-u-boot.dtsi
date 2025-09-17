@@ -83,3 +83,4 @@
 	assigned-clock-rates = <0>; /* FIXME: delete property and implement cpufreq */
 };
 
+#include "starfive-visionfive2-binman.dtsi"
