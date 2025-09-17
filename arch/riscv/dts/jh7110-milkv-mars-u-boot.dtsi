@@ -3,5 +3,5 @@
  * Copyright (C) 2024 StarFive Technology Co., Ltd.
  */
 
-#include "jh7110-common-u-boot.dtsi"
+#include "jh7110-u-boot.dtsi"
 #include "starfive-visionfive2-binman.dtsi"
