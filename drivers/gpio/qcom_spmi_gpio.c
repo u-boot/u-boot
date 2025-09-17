@@ -744,6 +744,7 @@ static int qcom_spmi_pmic_gpio_probe(struct udevice *dev)
 
 static const struct udevice_id qcom_spmi_pmic_gpio_ids[] = {
 	{ .compatible = "qcom,pm6150l-gpio" },
+	{ .compatible = "qcom,pm6350-gpio" },
 	{ .compatible = "qcom,pm660l-gpio" },
 	{ .compatible = "qcom,pm8550-gpio" },
 	{ .compatible = "qcom,pm8550b-gpio" },
