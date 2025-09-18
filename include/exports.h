@@ -40,7 +40,7 @@ struct jt_funcs {
 #undef EXPORT_FUNC
 };
 
-#define XF_VERSION	9
+#define XF_VERSION	10
 
 #if defined(CONFIG_X86)
 extern gd_t *global_data;
