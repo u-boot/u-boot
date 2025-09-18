@@ -47,19 +47,10 @@
 	EXPORT_FUNC(i2c_read, int, i2c_read, uchar, uint, int , uchar * , int)
 #endif
 
-#if !defined(CONFIG_CMD_SPI) || defined(CONFIG_DM_SPI)
-	EXPORT_FUNC(dummy, void, spi_setup_slave, void)
-	EXPORT_FUNC(dummy, void, spi_free_slave, void)
-#else
+#if defined(CONFIG_CMD_SPI)
 	EXPORT_FUNC(spi_setup_slave, struct spi_slave *, spi_setup_slave,
 		    unsigned int, unsigned int, unsigned int, unsigned int)
 	EXPORT_FUNC(spi_free_slave, void, spi_free_slave, struct spi_slave *)
-#endif
-#ifndef CONFIG_CMD_SPI
-	EXPORT_FUNC(dummy, void, spi_claim_bus, void)
-	EXPORT_FUNC(dummy, void, spi_release_bus, void)
-	EXPORT_FUNC(dummy, void, spi_xfer, void)
-#else
 	EXPORT_FUNC(spi_claim_bus, int, spi_claim_bus, struct spi_slave *)
 	EXPORT_FUNC(spi_release_bus, void, spi_release_bus, struct spi_slave *)
 	EXPORT_FUNC(spi_xfer, int, spi_xfer, struct spi_slave *,
