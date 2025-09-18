@@ -20,9 +20,6 @@
 		    int, interrupt_handler_t, void*)
 
 	EXPORT_FUNC(irq_free_handler, void, free_hdlr, int)
-#else
-	EXPORT_FUNC(dummy, void, install_hdlr, void)
-	EXPORT_FUNC(dummy, void, free_hdlr, void)
 #endif
 	EXPORT_FUNC(malloc, void *, malloc, size_t)
 #if !CONFIG_IS_ENABLED(SYS_MALLOC_SIMPLE)
