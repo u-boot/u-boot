@@ -9,7 +9,7 @@ Quick Start
 -----------
 
 - Build the ARM Trusted firmware binary
-- Build the OP-TEE binary (optional)
+- Build the OP-TEE binary
 - Get ddr firmware
 - Build U-Boot
 - Boot
@@ -23,23 +23,19 @@ Build the ARM Trusted firmware binary
    $ cd trusted-firmware-a
    $ export CROSS_COMPILE=aarch64-linux-gnu-
    $ export IMX_BOOT_UART_BASE=0x30860000
-   $ # with optee
-   $ make PLAT=imx8mp SPD=opteed bl31
-   $ # without optee
-   $ make PLAT=imx8mp bl31
+   $ make PLAT=imx8mp BL32_BASE=0x7e000000 SPD=opteed bl31
 
-Build the OP-TEE binary (optional)
-----------------------------------
+Build the OP-TEE binary
+-----------------------
 
 .. code-block:: bash
 
    $ git clone https://github.com/OP-TEE/optee_os.git
    $ cd optee_os
-   $ make CFG_TEE_BENCHMARK=n \
-     CROSS_COMPILE=aarch64-linux-gnu- \
+   $ make CROSS_COMPILE=aarch64-linux-gnu- \
      O=out/arm \
      PLATFORM=imx-mx8mp_phyboard_pollux \
-     CFG_TZDRAM_START=0x56000000
+     CFG_TZDRAM_START=0x7e000000
 
 Get the ddr firmware
 --------------------
