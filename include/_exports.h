@@ -15,6 +15,7 @@
 	EXPORT_FUNC(flush, void, flush, void)
 #endif
 	EXPORT_FUNC(printf, int, printf, const char*, ...)
+	EXPORT_FUNC(vprintf, int, vprintf, const char *, va_list)
 #if (defined(CONFIG_X86) && !defined(CONFIG_X86_64)) || defined(CONFIG_PPC)
 	EXPORT_FUNC(irq_install_handler, void, install_hdlr,
 		    int, interrupt_handler_t, void*)
@@ -25,9 +26,9 @@
 #if !CONFIG_IS_ENABLED(SYS_MALLOC_SIMPLE)
 	EXPORT_FUNC(free, void, free, void *)
 #endif
+	EXPORT_FUNC(mdelay, void, mdelay, unsigned long msec)
 	EXPORT_FUNC(udelay, void, udelay, unsigned long)
 	EXPORT_FUNC(get_timer, unsigned long, get_timer, unsigned long)
-	EXPORT_FUNC(vprintf, int, vprintf, const char *, va_list)
 	EXPORT_FUNC(do_reset, int, do_reset, struct cmd_tbl *,
 		    int , int , char * const [])
 	EXPORT_FUNC(env_get, char  *, env_get, const char*)
@@ -38,7 +39,13 @@
 		    const char *, unsigned int , unsigned long *)
 	EXPORT_FUNC(simple_strtol, long, simple_strtol,
 		    const char *, char **, unsigned int)
+	EXPORT_FUNC(ustrtoul, unsigned long, ustrtoul,
+		    const char *, char **, unsigned int)
+	EXPORT_FUNC(ustrtoull, unsigned long long, ustrtoull,
+		    const char *, char **, unsigned int)
+	EXPORT_FUNC(memset, void *, memset, void *, int, size_t)
 	EXPORT_FUNC(strcmp, int, strcmp, const char *cs, const char *ct)
+	EXPORT_FUNC(strcpy, char *, strcpy, char *dest, const char *src)
 #if defined(CONFIG_CMD_I2C) && CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	EXPORT_FUNC(i2c_write, int, i2c_write, uchar, uint, int , uchar * , int)
 	EXPORT_FUNC(i2c_read, int, i2c_read, uchar, uint, int , uchar * , int)
@@ -53,13 +60,6 @@
 	EXPORT_FUNC(spi_xfer, int, spi_xfer, struct spi_slave *,
 		    unsigned int, const void *, void *, unsigned long)
 #endif
-	EXPORT_FUNC(ustrtoul, unsigned long, ustrtoul,
-		    const char *, char **, unsigned int)
-	EXPORT_FUNC(ustrtoull, unsigned long long, ustrtoull,
-		    const char *, char **, unsigned int)
-	EXPORT_FUNC(strcpy, char *, strcpy, char *dest, const char *src)
-	EXPORT_FUNC(mdelay, void, mdelay, unsigned long msec)
-	EXPORT_FUNC(memset, void *, memset, void *, int, size_t)
 #ifdef CONFIG_PHY_AQUANTIA
 	EXPORT_FUNC(mdio_get_current_dev, struct mii_dev *,
 		    mdio_get_current_dev, void)
