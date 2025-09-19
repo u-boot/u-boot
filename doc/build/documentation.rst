@@ -16,6 +16,9 @@ the following dependencies are needed to build the documentation:
 
 * texinfo (if building the `Infodoc documentation`_)
 
+When submitting patches for documentation always build with KDOC_WERROR=1 to
+treat warnings as errors.
+
 HTML documentation
 ------------------
 
