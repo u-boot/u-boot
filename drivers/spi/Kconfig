@@ -530,6 +530,14 @@ config SPI_SUNXI
 
 	  Same controller driver can reuse in all Allwinner SoC variants.
 
+config STM32_OSPI
+	bool "STM32MP2 OSPI driver"
+	depends on STM32MP25X && STM32_OMM
+	help
+	  Enable the STM32MP2 Octo-SPI (OSPI) driver. This driver can be
+	  used to access the SPI NOR flash chips on platforms embedding
+	  this ST IP core.
+
 config STM32_QSPI
 	bool "STM32F7 QSPI driver"
 	depends on STM32F4 || STM32F7 || ARCH_STM32MP

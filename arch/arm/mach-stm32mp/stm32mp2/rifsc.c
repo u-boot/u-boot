@@ -61,42 +61,41 @@ struct stm32_rifsc_child_plat {
 	u32 domain_id;
 };
 
-static bool stm32_rif_is_semaphore_available(void *base, u32 id)
+static bool stm32_rif_is_semaphore_available(void *addr)
 {
-	void *addr = base + RIFSC_RISC_PER0_SEMCR(id);
-
 	return !(readl(addr) & SEMCR_MUTEX);
 }
 
-static int stm32_rif_acquire_semaphore(void *base, u32 id)
+static int stm32_rifsc_acquire_semaphore(void *base, u32 id)
 {
 	void *addr = base + RIFSC_RISC_PER0_SEMCR(id);
 
 	/* Check that the semaphore is available */
-	if (!stm32_rif_is_semaphore_available(base, id))
+	if (!stm32_rif_is_semaphore_available(addr) &&
+	    FIELD_GET(RIFSC_RISC_SCID_MASK, (readl(addr)) != RIF_CID1))
 		return -EACCES;
 
 	setbits_le32(addr, SEMCR_MUTEX);
 
 	/* Check that CID1 has the semaphore */
-	if (stm32_rif_is_semaphore_available(base, id) ||
+	if (stm32_rif_is_semaphore_available(addr) ||
 	    FIELD_GET(RIFSC_RISC_SCID_MASK, (readl(addr)) != RIF_CID1))
 		return -EACCES;
 
 	return 0;
 }
 
-static int stm32_rif_release_semaphore(void *base, u32 id)
+static int stm32_rifsc_release_semaphore(void *base, u32 id)
 {
 	void *addr = base + RIFSC_RISC_PER0_SEMCR(id);
 
-	if (stm32_rif_is_semaphore_available(base, id))
+	if (stm32_rif_is_semaphore_available(addr))
 		return 0;
 
 	clrbits_le32(addr, SEMCR_MUTEX);
 
 	/* Ok if another compartment takes the semaphore before the check */
-	if (!stm32_rif_is_semaphore_available(base, id) &&
+	if (!stm32_rif_is_semaphore_available(addr) &&
 	    FIELD_GET(RIFSC_RISC_SCID_MASK, (readl(addr)) == RIF_CID1))
 		return -EACCES;
 
@@ -105,11 +104,10 @@ static int stm32_rif_release_semaphore(void *base, u32 id)
 
 static int rifsc_parse_access_controller(ofnode node, struct ofnode_phandle_args *args)
 {
-	int ret;
+	int ret = ofnode_parse_phandle_with_args(node, "access-controllers",
+						 "#access-controller-cells", 0,
+						 0, args);
 
-	ret = ofnode_parse_phandle_with_args(node, "access-controllers",
-					     "#access-controller-cells", 0,
-					     0, args);
 	if (ret) {
 		log_debug("failed to parse access-controller (%d)\n", ret);
 		return ret;
@@ -170,8 +168,8 @@ static int rifsc_check_access(void *base, u32 id)
 			log_debug("Not in semaphore whitelist for peripheral %d\n", id);
 			return -EACCES;
 		}
-		if (!stm32_rif_is_semaphore_available(base, id) &&
-		    !(FIELD_GET(RIFSC_RISC_SCID_MASK, sem_reg_value) & BIT(RIF_CID1))) {
+		if (!stm32_rif_is_semaphore_available(base + RIFSC_RISC_PER0_SEMCR(id)) &&
+		    !(FIELD_GET(RIFSC_RISC_SCID_MASK, sem_reg_value) & RIF_CID1)) {
 			log_debug("Semaphore unavailable for peripheral %d\n", id);
 			return -EACCES;
 		}
@@ -187,42 +185,24 @@ skip_cid_check:
 	return 0;
 }
 
-int stm32_rifsc_check_access_by_id(ofnode device_node, u32 id)
+int stm32_rifsc_grant_access_by_id(ofnode device_node, u32 id)
 {
 	struct ofnode_phandle_args args;
-	int err;
-
-	if (id >= STM32MP25_RIFSC_ENTRIES)
-		return -EINVAL;
-
-	err = rifsc_parse_access_controller(device_node, &args);
-	if (err)
-		return err;
-
-	return rifsc_check_access((void *)ofnode_get_addr(args.node), id);
-}
-
-int stm32_rifsc_check_access(ofnode device_node)
-{
-	struct ofnode_phandle_args args;
-	int err;
-
-	err = rifsc_parse_access_controller(device_node, &args);
-	if (err)
-		return err;
-
-	return rifsc_check_access((void *)ofnode_get_addr(args.node), args.args[0]);
-}
-
-static int stm32_rifsc_child_pre_probe(struct udevice *dev)
-{
-	struct stm32_rifsc_plat *plat = dev_get_plat(dev->parent);
-	struct stm32_rifsc_child_plat *child_plat = dev_get_parent_plat(dev);
 	u32 cid_reg_value;
+	void *rifsc_base;
 	int err;
-	u32 id = child_plat->domain_id;
 
-	cid_reg_value = readl(plat->base + RIFSC_RISC_PER0_CIDCFGR(id));
+	err = rifsc_parse_access_controller(device_node, &args);
+	if (err)
+		panic("Failed to parse access-controllers property\n");
+
+	rifsc_base = (void *)ofnode_get_addr(args.node);
+
+	err = rifsc_check_access(rifsc_base, id);
+	if (err)
+		return err;
+
+	cid_reg_value = readl(rifsc_base + RIFSC_RISC_PER0_CIDCFGR(id));
 
 	/*
 	 * If the peripheral is in semaphore mode, take the semaphore so that
@@ -230,39 +210,81 @@ static int stm32_rifsc_child_pre_probe(struct udevice *dev)
 	 */
 	if (cid_reg_value & CIDCFGR_SEMEN &&
 	    (FIELD_GET(RIFSC_RISC_SEMWL_MASK, cid_reg_value) & BIT(RIF_CID1))) {
-		err = stm32_rif_acquire_semaphore(plat->base, id);
+		err = stm32_rifsc_acquire_semaphore(rifsc_base, id);
 		if (err) {
-			dev_err(dev, "Couldn't acquire RIF semaphore for peripheral %d (%d)\n",
-				id, err);
+			pr_err("Couldn't acquire RIF semaphore for peripheral %d (%d)\n",
+			       id, err);
 			return err;
 		}
-		dev_dbg(dev, "Acquiring semaphore for peripheral %d\n", id);
+		pr_debug("Acquiring RIF semaphore for peripheral %d\n", id);
 	}
 
 	return 0;
 }
 
-static int stm32_rifsc_child_post_remove(struct udevice *dev)
+int stm32_rifsc_grant_access(ofnode device_node)
 {
-	struct stm32_rifsc_plat *plat = dev_get_plat(dev->parent);
-	struct stm32_rifsc_child_plat *child_plat = dev_get_parent_plat(dev);
-	u32 cid_reg_value;
+	struct ofnode_phandle_args args;
 	int err;
-	u32 id = child_plat->domain_id;
 
-	cid_reg_value = readl(plat->base + RIFSC_RISC_PER0_CIDCFGR(id));
+	err = rifsc_parse_access_controller(device_node, &args);
+	if (err)
+		return err;
 
-	/*
-	 * If the peripheral is in semaphore mode, release the semaphore so that
-	 * there's no ownership.
-	 */
+	return stm32_rifsc_grant_access_by_id(device_node, args.args[0]);
+
+}
+
+void stm32_rifsc_release_access_by_id(ofnode device_node, u32 id)
+{
+	struct ofnode_phandle_args args;
+	u32 cid_reg_value;
+	void *rifsc_base;
+	int err;
+
+	err = rifsc_parse_access_controller(device_node, &args);
+	if (err)
+		panic("Failed to parse access-controllers property\n");
+
+	rifsc_base = (void *)ofnode_get_addr(args.node);
+
+	cid_reg_value = readl(rifsc_base + RIFSC_RISC_PER0_CIDCFGR(id));
+
+	/* If the peripheral is in semaphore mode, release it if we have the ownership */
 	if (cid_reg_value & CIDCFGR_SEMEN &&
 	    (FIELD_GET(RIFSC_RISC_SEMWL_MASK, cid_reg_value) & BIT(RIF_CID1))) {
-		err = stm32_rif_release_semaphore(plat->base, id);
-		if (err)
-			dev_err(dev, "Couldn't release rif semaphore for peripheral %d (%d)\n",
-				id, err);
+		err = stm32_rifsc_release_semaphore(rifsc_base, id);
+		if (err) {
+			panic("Couldn't release RIF semaphore for peripheral %d (%d)\n", id, err);
+		}
+		pr_debug("Releasing RIF semaphore for peripheral %d\n", id);
 	}
+}
+
+void stm32_rifsc_release_access(ofnode device_node)
+{
+	struct ofnode_phandle_args args;
+	int err;
+
+	err = rifsc_parse_access_controller(device_node, &args);
+	if (err)
+		panic("Failed to parse access-controllers property\n");
+
+	stm32_rifsc_release_access_by_id(device_node, args.args[0]);
+}
+
+static int stm32_rifsc_child_pre_probe(struct udevice *dev)
+{
+	struct stm32_rifsc_child_plat *child_plat = dev_get_parent_plat(dev);
+
+	return stm32_rifsc_grant_access_by_id(dev_ofnode(dev), child_plat->domain_id);
+}
+
+static int stm32_rifsc_child_post_remove(struct udevice *dev)
+{
+	struct stm32_rifsc_child_plat *child_plat = dev_get_parent_plat(dev);
+
+	stm32_rifsc_release_access_by_id(dev_ofnode(dev), child_plat->domain_id);
 
 	return 0;
 }
