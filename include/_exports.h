@@ -1,7 +1,6 @@
 /*
  * You need to use #ifdef around functions that may not exist
  * in the final configuration (such as i2c).
- * use a dummyfunction as first parameter to EXPORT_FUNC.
  * As an example see the CONFIG_CMD_I2C section below
  */
 #ifndef EXPORT_FUNC
@@ -43,12 +42,9 @@
 	EXPORT_FUNC(simple_strtol, long, simple_strtol,
 		    const char *, char **, unsigned int)
 	EXPORT_FUNC(strcmp, int, strcmp, const char *cs, const char *ct)
-#if defined(CONFIG_CMD_I2C) && !CONFIG_IS_ENABLED(DM_I2C)
+#if defined(CONFIG_CMD_I2C) && CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	EXPORT_FUNC(i2c_write, int, i2c_write, uchar, uint, int , uchar * , int)
 	EXPORT_FUNC(i2c_read, int, i2c_read, uchar, uint, int , uchar * , int)
-#else
-	EXPORT_FUNC(dummy, void, i2c_write, void)
-	EXPORT_FUNC(dummy, void, i2c_read, void)
 #endif
 
 #if !defined(CONFIG_CMD_SPI) || defined(CONFIG_DM_SPI)
