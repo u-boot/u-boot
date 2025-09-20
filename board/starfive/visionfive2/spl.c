@@ -23,7 +23,8 @@ DECLARE_GLOBAL_DATA_PTR;
 void spl_perform_fixups(struct spl_image_info *spl_image)
 {
 	/* Update the memory size which read from eeprom or DT */
-	fdt_fixup_memory(spl_image->fdt_addr, 0x40000000, gd->ram_size);
+	if (spl_image->fdt_addr)
+		fdt_fixup_memory(spl_image->fdt_addr, 0x40000000, gd->ram_size);
 }
 
 static void jh7110_jtag_init(void)

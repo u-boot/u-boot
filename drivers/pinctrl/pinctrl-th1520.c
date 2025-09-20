@@ -697,4 +697,5 @@ U_BOOT_DRIVER(th1520_pinctrl) = {
 	.probe = th1520_pinctrl_probe,
 	.priv_auto = sizeof(struct th1520_pinctrl),
 	.ops = &th1520_pinctrl_ops,
+	.flags = DM_FLAG_PRE_RELOC,
 };

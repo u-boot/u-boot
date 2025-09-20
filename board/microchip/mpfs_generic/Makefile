@@ -4,4 +4,4 @@
 # Padmarao Begari <padmarao.begari@microchip.com>
 #
 
-obj-y	+= mpfs_icicle.o
+obj-y	+= mpfs_generic.o

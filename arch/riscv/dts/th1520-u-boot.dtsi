@@ -1,0 +1,44 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2025 Yao Zi <ziyao@disroot.org>
+ */
+
+&{/soc} {
+	ddrc: ddrc@fffd000000 {
+		compatible = "thead,th1520-ddrc";
+		reg = <0xff 0xfd000000 0x0 0x1000000>,
+		      <0xff 0xfe000000 0x0 0x1000000>,
+		      <0xff 0xff000000 0x0 0x4000>,
+		      <0xff 0xff005000 0x0 0x1000>;
+		reg-names = "phy-0", "phy-1", "ctrl", "sys";
+		bootph-pre-ram;
+	};
+};
+
+&cpus {
+	bootph-pre-ram;
+};
+
+&c910_0 {
+	bootph-pre-ram;
+};
+
+&c910_1 {
+	bootph-pre-ram;
+};
+
+&c910_2 {
+	bootph-pre-ram;
+};
+
+&c910_3 {
+	bootph-pre-ram;
+};
+
+&clint {
+	bootph-pre-ram;
+};
+
+&uart0 {
+	bootph-pre-ram;
+};

@@ -1,6 +1,6 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-Microchip PolarFire SoC Icicle Kit
+Microchip PolarFire SoC Video Kit
 ==================================
 
 RISC-V PolarFire SoC
@@ -8,7 +8,7 @@ RISC-V PolarFire SoC
 
 The PolarFire SoC is the 4+1 64-bit RISC-V SoC from Microchip.
 
-The Icicle Kit development platform is based on PolarFire SoC and capable
+The Video Kit development platform is based on PolarFire SoC and capable
 of running Linux.
 
 Mainline support
@@ -38,15 +38,15 @@ Build the HSS (Hart Software Services) - Microchip boot-flow
 
 .. code-block:: none
 
-   make BOARD=mpfs-icicle-kit-es config
+   make BOARD=mpfs-video-kit config
 
 Alternatively, copy the default config for Microchip boot-flow.
 
 .. code-block:: none
 
-   cp boards/mpfs-icicle-kit-es/def_config .config
+   cp boards/mpfs-video-kit/def_config .config
 
-2. make BOARD=mpfs-icicle-kit-es
+2. make BOARD=mpfs-video-kit
 3. In the Default subdirectory, the standard build will create hss.elf and
    various binary formats (hss.hex and hss.bin).
 
@@ -74,7 +74,7 @@ Build OpenSBI
 .. code-block:: none
 
    make PLATFORM=generic FW_PAYLOAD_PATH=<u-boot-directory>/u-boot.bin
-   FW_FDT_PATH=<u-boot-directory>/dts/upstream/src/riscv/microchip/mpfs-icicle-kit-.dtb
+   FW_FDT_PATH=<u-boot-directory>/dts/upstream/src/riscv/microchip/mpfs-sev-kit-.dtb
 
 3. Output "fw_payload.bin" file available at
    "<opensbi-directory>/build/platform/generic/firmware/fw_payload.bin"
@@ -88,15 +88,15 @@ Build the HSS (Hart Software Services)- Custom boot-flow
 
 .. code-block:: none
 
-   make BOARD=mpfs-icicle-kit-es config
+   make BOARD=mpfs-video-kit config
 
 Alternatively, copy the default custom config for Custom boot-flow.
 
 .. code-block:: none
 
-   cp boards/mpfs-icicle-kit-es/def_config_custom .config
+   cp boards/mpfs-video-kit/def_config_custom .config
 
-2. make BOARD=mpfs-icicle-kit-es
+2. make BOARD=mpfs-video-kit
 3. In the Default subdirectory, the standard build will create hss.elf and
    various binary formats (hss.hex and hss.bin).
 

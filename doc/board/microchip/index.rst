@@ -7,3 +7,4 @@ Microchip
    :maxdepth: 2
 
    mpfs_icicle
+   mpfs_video
