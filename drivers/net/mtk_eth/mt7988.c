@@ -61,7 +61,7 @@ static void mt7988_mac_control(struct mtk_eth_switch_priv *swpriv, bool enable)
 static int mt7988_setup(struct mtk_eth_switch_priv *swpriv)
 {
 	struct mt753x_switch_priv *priv = (struct mt753x_switch_priv *)swpriv;
-	u16 phy_addr, phy_val;
+	u16 phy_val;
 	u32 pmcr;
 	int i;
 
@@ -72,10 +72,9 @@ static int mt7988_setup(struct mtk_eth_switch_priv *swpriv)
 
 	/* Turn off PHYs */
 	for (i = 0; i < MT753X_NUM_PHYS; i++) {
-		phy_addr = MT753X_PHY_ADDR(priv->phy_base, i);
-		phy_val = mt7531_mii_read(priv, phy_addr, MII_BMCR);
+		phy_val = mt7531_mii_read(priv, i, MII_BMCR);
 		phy_val |= BMCR_PDOWN;
-		mt7531_mii_write(priv, phy_addr, MII_BMCR, phy_val);
+		mt7531_mii_write(priv, i, MII_BMCR, phy_val);
 	}
 
 	switch (priv->epriv.phy_interface) {
@@ -128,10 +127,9 @@ static int mt7988_setup(struct mtk_eth_switch_priv *swpriv)
 
 	/* Turn on PHYs */
 	for (i = 0; i < MT753X_NUM_PHYS; i++) {
-		phy_addr = MT753X_PHY_ADDR(priv->phy_base, i);
-		phy_val = mt7531_mii_read(priv, phy_addr, MII_BMCR);
+		phy_val = mt7531_mii_read(priv, i, MII_BMCR);
 		phy_val &= ~BMCR_PDOWN;
-		mt7531_mii_write(priv, phy_addr, MII_BMCR, phy_val);
+		mt7531_mii_write(priv, i, MII_BMCR, phy_val);
 	}
 
 	mt7988_phy_setting(priv);
