@@ -142,11 +142,13 @@ static int mt7988_setup(struct mtk_eth_switch_priv *swpriv)
 	return mt7531_mdio_register(priv);
 }
 
-static int mt7531_cleanup(struct mtk_eth_switch_priv *swpriv)
+static int mt7988_cleanup(struct mtk_eth_switch_priv *swpriv)
 {
 	struct mt753x_switch_priv *priv = (struct mt753x_switch_priv *)swpriv;
+	struct mii_dev *mdio_bus = priv->mdio_bus;
 
-	mdio_unregister(priv->mdio_bus);
+	mdio_unregister(mdio_bus);
+	mdio_free(mdio_bus);
 
 	return 0;
 }
@@ -158,6 +160,6 @@ MTK_ETH_SWITCH(mt7988) = {
 	.reset_wait_time = 50,
 
 	.setup = mt7988_setup,
-	.cleanup = mt7531_cleanup,
+	.cleanup = mt7988_cleanup,
 	.mac_control = mt7988_mac_control,
 };
