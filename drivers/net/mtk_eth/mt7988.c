@@ -34,8 +34,10 @@ static void mt7988_phy_setting(struct mt753x_switch_priv *priv)
 	u32 i;
 
 	for (i = 0; i < MT753X_NUM_PHYS; i++) {
-		/* Enable HW auto downshift */
+		/* Set PHY to PHY page 1 */
 		mt7531_mii_write(priv, i, 0x1f, 0x1);
+
+		/* Enable HW auto downshift */
 		val = mt7531_mii_read(priv, i, PHY_EXT_REG_14);
 		val |= PHY_EN_DOWN_SHFIT;
 		mt7531_mii_write(priv, i, PHY_EXT_REG_14, val);
@@ -44,6 +46,9 @@ static void mt7988_phy_setting(struct mt753x_switch_priv *priv)
 		val = mt7531_mii_read(priv, i, PHY_EXT_REG_17);
 		val |= PHY_LINKDOWN_POWER_SAVING_EN;
 		mt7531_mii_write(priv, i, PHY_EXT_REG_17, val);
+
+		/* Restore PHY to PHY page 0 */
+		mt7531_mii_write(priv, i, 0x1f, 0x0);
 	}
 }
 
