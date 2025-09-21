@@ -228,7 +228,7 @@ int request_firmware_into_buf(struct udevice *dev,
 	return ret;
 }
 
-int request_firmware_into_buf_via_script(void **buf, size_t max_size,
+int request_firmware_into_buf_via_script(void *buf, size_t max_size,
 					 const char *script_name,
 					 size_t *retsize)
 {
@@ -270,7 +270,7 @@ int request_firmware_into_buf_via_script(void **buf, size_t max_size,
 	if (retsize)
 		*retsize = size;
 
-	memcpy(*buf, (void *)addr, size);
+	memcpy(buf, (void *)addr, size);
 
 	return 0;
 }

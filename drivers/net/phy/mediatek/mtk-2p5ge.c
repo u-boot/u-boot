@@ -249,7 +249,7 @@ int __weak mt7987_i2p5ge_get_fw(void **fw, size_t *fwsize,
 		return -ENOMEM;
 
 	ret = request_firmware_into_buf_via_script(
-		&pmb, MT7987_2P5GE_PMB_FW_SIZE,
+		pmb, MT7987_2P5GE_PMB_FW_SIZE,
 		"mt7987_i2p5ge_load_pmb_firmware", fwsize);
 	if (ret) {
 		free(pmb);
@@ -263,7 +263,7 @@ int __weak mt7987_i2p5ge_get_fw(void **fw, size_t *fwsize,
 	}
 
 	ret = request_firmware_into_buf_via_script(
-		&dsp, MT7987_2P5GE_DSPBITTB_SIZE,
+		dsp, MT7987_2P5GE_DSPBITTB_SIZE,
 		"mt7987_i2p5ge_load_dspbit_firmware", dspfwsize);
 	if (ret) {
 		free(pmb);
@@ -476,7 +476,7 @@ int __weak mt7988_i2p5ge_get_fw(void **fw, size_t *size)
 		return -ENOMEM;
 
 	ret = request_firmware_into_buf_via_script(
-		&pmb, MT7988_2P5GE_PMB_FW_SIZE,
+		pmb, MT7988_2P5GE_PMB_FW_SIZE,
 		"mt7988_i2p5ge_load_pmb_firmware", size);
 	if (ret) {
 		free(pmb);

@@ -87,7 +87,7 @@ int get_fs_loader(struct udevice **dev);
  *   env set fw_addr ${loadaddr} && env set fw_size ${filesize}
  * Return: 0 on success, negative value on error.
  */
-int request_firmware_into_buf_via_script(void **buf, size_t max_size,
+int request_firmware_into_buf_via_script(void *buf, size_t max_size,
 					 const char *script_name,
 					 size_t *retsize);
 #endif
