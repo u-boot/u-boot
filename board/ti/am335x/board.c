@@ -283,7 +283,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 
 static u8 bone_not_connected_to_ac_power(void)
 {
-	if (board_is_bone()) {
+	if (IS_ENABLED(CONFIG_PMIC_TPS65217) && board_is_bone()) {
 		uchar pmic_status_reg;
 		if (tps65217_reg_read(TPS65217_STATUS,
 				      &pmic_status_reg))
@@ -331,6 +331,9 @@ const struct dpll_params *get_dpll_mpu_params(void)
 static void scale_vcores_bone(int freq)
 {
 	int usb_cur_lim, mpu_vdd;
+
+	if (!IS_ENABLED(CONFIG_PMIC_TPS65217))
+		return;
 
 	/*
 	 * Only perform PMIC configurations if board rev > A1
@@ -425,6 +428,9 @@ static void scale_vcores_bone(int freq)
 void scale_vcores_generic(int freq)
 {
 	int sil_rev, mpu_vdd;
+
+	if (!IS_ENABLED(CONFIG_DM_PMIC_TPS65910))
+		return;
 
 	/*
 	 * The GP EVM, IDK and EVM SK use a TPS65910 PMIC.  For all
