@@ -33,6 +33,7 @@ static int dhcp_loop(struct udevice *udev)
 	char ipstr[] = "ipaddr\0\0";
 	char maskstr[] = "netmask\0\0";
 	char gwstr[] = "gatewayip\0\0";
+	const ip_addr_t *ntpserverip;
 	unsigned long start;
 	struct netif *netif;
 	struct dhcp *dhcp;
@@ -110,6 +111,11 @@ static int dhcp_loop(struct udevice *udev)
 		strncpy(boot_file_name, dhcp->boot_file_name,
 			sizeof(boot_file_name));
 #endif
+	if (CONFIG_IS_ENABLED(CMD_SNTP)) {
+		ntpserverip = sntp_getserver(1);
+		if (ntpserverip != IP_ADDR_ANY)
+			env_set("ntpserverip", ip4addr_ntoa(ntpserverip));
+	}
 
 	printf("DHCP client bound to address %pI4 (%lu ms)\n",
 	       &dhcp->offered_ip_addr, get_timer(start));
