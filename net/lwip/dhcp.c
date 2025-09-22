@@ -8,6 +8,7 @@
 #include <dm/device.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <lwip/apps/sntp.h>
 #include <lwip/dhcp.h>
 #include <lwip/dns.h>
 #include <lwip/timeouts.h>
@@ -47,6 +48,13 @@ static int dhcp_loop(struct udevice *udev)
 	netif = net_lwip_new_netif_noip(udev);
 	if (!netif)
 		return CMD_RET_FAILURE;
+
+	/*
+	 * Request the DHCP stack to parse and store the NTP servers for
+	 * eventual use by the SNTP command
+	 */
+	if (CONFIG_IS_ENABLED(CMD_SNTP))
+		sntp_servermode_dhcp(1);
 
 	start = get_timer(0);
 
