@@ -9,6 +9,8 @@
 #include <linux/types.h>
 #include <dm.h>
 #include <dm/device.h>
+#include <dm/device-internal.h>
+#include <dm/uclass.h>
 #include <fw_loader.h>
 
 #ifdef CONFIG_CMD_UBIFS
@@ -95,6 +97,27 @@ UCLASS_DRIVER(fw_loader) = {
 	.per_device_plat_auto = sizeof(struct device_plat),
 	.per_device_auto = sizeof(struct firmware),
 };
+
+int get_fw_loader_from_node(ofnode node, struct udevice **dev)
+{
+	struct udevice *fw_dev;
+	int ret;
+
+	node = ofnode_parse_phandle(node, "firmware-loader", 0);
+	if (!ofnode_valid(node))
+		return -ENODEV;
+
+	ret = device_find_global_by_ofnode(node, &fw_dev);
+	if (ret)
+		return ret;
+
+	ret = device_probe(fw_dev);
+	if (ret)
+		return ret;
+
+	*dev = fw_dev;
+	return 0;
+}
 
 /**
  * _request_firmware_prepare - Prepare firmware struct.
