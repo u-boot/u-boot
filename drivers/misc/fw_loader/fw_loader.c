@@ -8,6 +8,7 @@
 #include <blk.h>
 #include <linux/types.h>
 #include <dm/device.h>
+#include <dm/uclass.h>
 #include <fw_loader.h>
 
 #ifdef CONFIG_CMD_UBIFS
@@ -88,6 +89,45 @@ int generic_fw_loader_probe(struct udevice *dev)
 #endif
 
 	return 0;
+}
+
+static int fw_loaders[] = {
+#if CONFIG_IS_ENABLED(FS_LOADER)
+	UCLASS_FS_FIRMWARE_LOADER,
+#endif
+};
+
+/**
+ * get_fw_loader_from_node - Get FW loader dev from @node.
+ *
+ * @node: ofnode where "firmware-loader" phandle is stored.
+ * @dev: pointer where to store the FW loader dev.
+ *
+ * Loop over all the supported FW loader and find a matching
+ * one.
+ *
+ * Return: Negative value if fail, 0 for successful.
+ */
+int get_fw_loader_from_node(ofnode node, struct udevice **dev)
+{
+	int i, ret;
+
+	node = ofnode_parse_phandle(node, "firmware-loader", 0);
+	if (!ofnode_valid(node))
+		return -ENODEV;
+
+	/*
+	 * Loop over all the available FW loaders and stop when
+	 * found one.
+	 */
+	for (i = 0; i < ARRAY_SIZE(fw_loaders); i++) {
+		ret = uclass_get_device_by_ofnode(fw_loaders[i],
+						  node, dev);
+		if (!ret)
+			return 0;
+	}
+
+	return -ENODEV;
 }
 
 /**
