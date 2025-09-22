@@ -49,7 +49,7 @@ config CLK_K3_PLL
 	  Enables PLL clock support for K3 SoC family of devices.
 
 config SPL_CLK_K3_PLL
-	bool "PLL clock support for K3 SoC family of devices"
+	bool "PLL clock support for K3 SoC family of devices in SPL"
 	depends on CLK && LIB_RATIONAL && SPL
 	help
 	  Enables PLL clock support for K3 SoC family of devices.
@@ -61,7 +61,7 @@ config CLK_K3
 	  Enables the clock translation layer from DT to device clocks.
 
 config SPL_CLK_K3
-	bool "Clock support for K3 SoC family of devices"
+	bool "Clock support for K3 SoC family of devices in SPL"
 	depends on CLK && SPL
 	help
 	  Enables the clock translation layer from DT to device clocks.
