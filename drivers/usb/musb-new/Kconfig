@@ -40,6 +40,7 @@ config USB_MUSB_DA8XX
 config USB_MUSB_TI
 	bool "Enable TI OTG USB controller"
 	depends on AM33XX
+	select MISC if OF_CONTROL
 	select USB_MUSB_DSPS
 	help
 	  Say y here to enable support for the dual role high
