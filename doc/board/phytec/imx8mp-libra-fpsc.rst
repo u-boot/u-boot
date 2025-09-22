@@ -40,7 +40,6 @@ Build the OP-TEE binary
    $ cd optee_os
    $ make -j $(nproc) \
           CROSS_COMPILE=aarch64-linux-gnu- \
-          CFG_TEE_BENCHMARK=n \
           O=out/arm \
           PLATFORM=imx-mx8mp_libra_fpsc
 

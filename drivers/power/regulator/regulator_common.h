@@ -14,6 +14,7 @@ struct regulator_common_plat {
 	unsigned int startup_delay_us;
 	unsigned int off_on_delay_us;
 	unsigned int enable_count;
+	struct udevice *vin_supply;
 };
 
 int regulator_common_of_to_plat(struct udevice *dev,

@@ -7,7 +7,6 @@
  *
  * Copyright (C) 2018 Texas Instruments, Inc
  */
-
 #include <dm.h>
 #include <log.h>
 #include <pci.h>
@@ -385,7 +384,7 @@ void pcie_dw_setup_host(struct pcie_dw *pci)
 			0xffffff, 0x00ff0100);
 
 	/* setup command register */
-	clrsetbits_le32(pci->dbi_base + PCI_PRIMARY_BUS,
+	clrsetbits_le32(pci->dbi_base + PCI_COMMAND,
 			0xffff,
 			PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
 			PCI_COMMAND_MASTER | PCI_COMMAND_SERR);

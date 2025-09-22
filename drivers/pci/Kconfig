@@ -461,7 +461,7 @@ config PCIE_STARFIVE_JH7110
 
 config PCIE_DW_IMX
 	bool "i.MX DW PCIe controller support"
-	depends on ARCH_IMX8M
+	depends on ARCH_IMX8M || ARCH_IMX9
 	select PCIE_DW_COMMON
 	select DM_REGULATOR
 	select REGMAP

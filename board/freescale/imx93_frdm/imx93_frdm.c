@@ -10,6 +10,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx9/imx93_pins.h>
 #include <asm/arch/clock.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 
@@ -53,6 +54,11 @@ int board_late_init(void)
 	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)) {
 		env_set("board_name", "11X11_FRDM");
 		env_set("board_rev", "iMX93");
+	}
+
+	if (get_boot_device() == USB_BOOT) {
+		printf("USB boot detected. Will enter fasboot mode\n");
+		env_set_ulong("dofastboot", 1);
 	}
 
 	return 0;

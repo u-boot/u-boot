@@ -156,6 +156,12 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_gate2(dev, "i2c3", "ipg_per", base + 0x70, 10));
 	clk_dm(IMX6QDL_CLK_PWM1,
 	       imx_clk_gate2(dev, "pwm1", "ipg_per", base + 0x78, 16));
+	clk_dm(IMX6QDL_CLK_PWM2,
+	       imx_clk_gate2(dev, "pwm2", "ipg_per", base + 0x78, 18));
+	clk_dm(IMX6QDL_CLK_PWM3,
+	       imx_clk_gate2(dev, "pwm3", "ipg_per", base + 0x78, 20));
+	clk_dm(IMX6QDL_CLK_PWM4,
+	       imx_clk_gate2(dev, "pwm4", "ipg_per", base + 0x78, 22));
 
 	clk_dm(IMX6QDL_CLK_ENET, imx_clk_gate2(dev, "enet", "ipg", base + 0x6c, 10));
 	clk_dm(IMX6QDL_CLK_ENET_REF,
