@@ -1954,7 +1954,7 @@ musb_init_controller(struct musb_hdrc_platform_data *plat, struct device *dev,
 
 	/* The musb_platform_init() call:
 	 *   - adjusts musb->mregs and musb->isr if needed,
-	 *   - may initialize an integrated tranceiver
+	 *   - may initialize an integrated transceiver
 	 *   - initializes musb->xceiv, usually by otg_get_phy()
 	 *   - stops powering VBUS
 	 *
