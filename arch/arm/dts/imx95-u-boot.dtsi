@@ -52,15 +52,47 @@
 			pad-byte = <0x00>;
 
 			spl {
-				align = <0x400>;
-				align-size = <0x400>;
-				type = "mkimage";
-				args = "-n spl/u-boot-spl.cfgout -T imx8image";
+				type = "nxp-imx9image";
+				cfg-path = "spl/u-boot-spl.cfgout";
+				args;
+
+#ifndef CONFIG_IMX95_A0
+				cntr-version = <2>;
+#endif
+				boot-from = "sd";
+				soc-type = "IMX9";
+#ifdef CONFIG_IMX95_A0
+				append = "mx95a0-ahab-container.img";
+#else
+				append = "mx95b0-ahab-container.img";
+#endif
+				container;
+#ifndef CONFIG_IMX95_A0
+				dummy-ddr;
+#endif
+				image0 = "oei", "m33-oei-ddrfw.bin", "0x1ffc0000";
+				hold = <0x10000>;
+#ifdef CONFIG_IMX95_A0
+				image1 = "oei", "oei-m33-tcm.bin", "0x1ffc0000";
+#endif
+				image2 = "m33", "m33_image.bin", "0x1ffc0000";
+				image3 = "a55", "spl/u-boot-spl.bin", "0x20480000";
+				dummy-v2x = <0x8b000000>;
 			};
 
 			u-boot {
-				type = "mkimage";
-				args = "-n u-boot-container.cfgout -T imx8image";
+				type = "nxp-imx9image";
+				cfg-path = "u-boot-container.cfgout";
+				args;
+
+#ifndef CONFIG_IMX95_A0
+				cntr-version = <2>;
+#endif
+				boot-from = "sd";
+				soc-type = "IMX9";
+				container;
+				image0 = "a55", "bl31.bin", "0x8a200000";
+				image1 = "a55", "u-boot.bin", "0x90200000";
 			};
 		};
 	};

@@ -111,7 +111,7 @@ struct ccm_reg {
 	u32 reserved_3[192];
 	struct ccm_lpcg_oscpll clk_oscplls[19]; /* 0x5000 */
 	u32 reserved_4[2768];
-	struct ccm_lpcg_oscpll clk_lpcgs[122]; /* 0x8000 */
+	struct ccm_lpcg_oscpll clk_lpcgs[127]; /* 0x8000 */
 };
 
 struct ana_pll_reg_elem {

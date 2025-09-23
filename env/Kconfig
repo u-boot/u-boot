@@ -635,7 +635,7 @@ config ENV_OFFSET_REDUND
 
 config ENV_OFFSET_REDUND_RELATIVE_END
 	bool "Offset is relative to the end of the partition"
-	depends on SYS_REDUNDAND_ENVIRONMENT
+	depends on ENV_REDUNDANT
 	depends on ENV_IS_IN_MMC
 	help
 	  Treat the redundant environment offset as relative to the end of the

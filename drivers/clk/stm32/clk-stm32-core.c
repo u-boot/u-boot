@@ -309,7 +309,7 @@ clk_stm32_register_composite(struct udevice *dev,
 		gate_ops = &clk_stm32_gate_ops;
 	}
 
-	clk = clk_register_composite(NULL, cfg->name,
+	clk = clk_register_composite(dev, cfg->name,
 				     parent_names, num_parents,
 				     mux_clk, mux_ops,
 				     div_clk, div_ops,

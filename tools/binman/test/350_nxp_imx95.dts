@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		u-boot {
+			type = "nxp-imx9image";
+			cfg-path = "u-boot-container.cfgout";
+			args;
+
+			cntr-version = <2>;
+			boot-from = "sd";
+			soc-type = "IMX9";
+			append0 = "mx95b0-ahab-container.img";
+			append1 = "container.img";
+			container;
+			image0 = "a55", "bl31.bin", "0x8a200000";
+			image1 = "a55", "image.bin", "0x90200000";
+		};
+	};
+};

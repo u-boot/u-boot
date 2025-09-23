@@ -80,7 +80,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	spl_load_init(&load, spl_spi_fit_read, flash, 1);
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
-	if (spl_start_uboot()) {
+	if (!spl_start_uboot()) {
 		int err = spl_load(spl_image, bootdev, &load, 0,
 				   CONFIG_SYS_SPI_KERNEL_OFFS);
 

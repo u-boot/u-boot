@@ -59,20 +59,10 @@ static void set_fdtfile(void)
 		fdtfile = "starfive/jh7110-milkv-mars.dtb";
 	} else if (!strncmp(get_product_id_from_eeprom(), "STAR64", 6)) {
 		fdtfile = "starfive/jh7110-pine64-star64.dtb";
-	} else if (!strncmp(get_product_id_from_eeprom(), "VF7110", 6)) {
-		switch (get_pcb_revision_from_eeprom()) {
-		case 'a':
-		case 'A':
-			fdtfile = "starfive/jh7110-starfive-visionfive-2-v1.2a.dtb";
-			break;
-		case 'b':
-		case 'B':
-			fdtfile = "starfive/jh7110-starfive-visionfive-2-v1.3b.dtb";
-			break;
-		default:
-			log_err("Unknown revision\n");
-			return;
-		}
+	} else if (!strncmp(get_product_id_from_eeprom(), "VF7110A", 7)) {
+		fdtfile = "starfive/jh7110-starfive-visionfive-2-v1.2a.dtb";
+	} else if (!strncmp(get_product_id_from_eeprom(), "VF7110B", 7)) {
+		fdtfile = "starfive/jh7110-starfive-visionfive-2-v1.3b.dtb";
 	} else {
 		log_err("Unknown product\n");
 		return;

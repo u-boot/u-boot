@@ -804,6 +804,7 @@ int imx8ulp_dm_post_init(void)
 	return 0;
 }
 EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, imx8ulp_dm_post_init);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_R, imx8ulp_dm_post_init);
 
 #if defined(CONFIG_XPL_BUILD)
 __weak void __noreturn jump_to_image(struct spl_image_info *spl_image)
