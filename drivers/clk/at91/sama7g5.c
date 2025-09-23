@@ -169,6 +169,7 @@ static const struct clk_pll_characteristics pll_characteristics = {
 	.num_output = ARRAY_SIZE(pll_outputs),
 	.output = pll_outputs,
 	.core_output = core_outputs,
+	.acr = 0x00070010UL,
 };
 
 /* Layout for fractional PLLs. */
