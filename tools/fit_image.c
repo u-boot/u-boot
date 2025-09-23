@@ -793,10 +793,16 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 		debug("Importing data size %x\n", len);
 
 		ret = fdt_setprop(fdt, node, FIT_DATA_PROP, data, len);
-		ret = fdt_delprop(fdt, node, ext_data_prop);
-
 		if (ret) {
 			debug("%s: Failed to write property: %s\n", __func__,
+			      fdt_strerror(ret));
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+
+		ret = fdt_delprop(fdt, node, ext_data_prop);
+		if (ret) {
+			debug("%s: Failed to erase property: %s\n", __func__,
 			      fdt_strerror(ret));
 			ret = -EINVAL;
 			goto err_munmap;
