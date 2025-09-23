@@ -1791,6 +1791,14 @@ endmenu
 
 menu "Shell scripting commands"
 
+
+config CMD_C5_PL330_DMA
+	bool "Release Reset DMA Channels for PL330 Handshake"
+	depends on TARGET_SOCFPGA_CYCLONE5_SOCDK
+	help
+	  Provides access to Reset Manager Per2ModRst. Enables DMA
+	  channels for ARM PrimeCell PL330 via reset release.
+
 config CMD_CAT
 	bool "cat"
 	help
