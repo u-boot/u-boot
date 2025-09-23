@@ -819,6 +819,14 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 			ret = -EINVAL;
 			goto err_munmap;
 		}
+
+		ret = fdt_delprop(fdt, node, FIT_DATA_SIZE_PROP);
+		if (ret) {
+			debug("%s: Failed to erase %s property: %s\n", __func__,
+			      FIT_DATA_SIZE_PROP, fdt_strerror(ret));
+			ret = -EINVAL;
+			goto err_munmap;
+		}
 	}
 
 	confs = fdt_path_offset(fdt, FIT_CONFS_PATH);
