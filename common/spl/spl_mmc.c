@@ -152,6 +152,16 @@ static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 {
 	int ret;
 
+	ret = mmc_load_image_raw_sector(spl_image, bootdev, mmc,
+		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
+	if (ret)
+		return ret;
+
+	if (spl_image->os != IH_OS_LINUX && spl_image->os != IH_OS_TEE) {
+		puts("Expected image is not found. Trying to start U-Boot\n");
+		return -ENOENT;
+	}
+
 #if defined(CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR)
 	unsigned long count;
 
@@ -164,16 +174,6 @@ static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 		return -EIO;
 	}
 #endif	/* CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR */
-
-	ret = mmc_load_image_raw_sector(spl_image, bootdev, mmc,
-		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
-	if (ret)
-		return ret;
-
-	if (spl_image->os != IH_OS_LINUX && spl_image->os != IH_OS_TEE) {
-		puts("Expected image is not found. Trying to start U-Boot\n");
-		return -ENOENT;
-	}
 
 	return 0;
 }
