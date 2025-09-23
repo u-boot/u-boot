@@ -282,7 +282,7 @@ U-Boot can be divided into three phases: TPL, SPL and U-Boot proper.
 
 The full devicetree is available to U-Boot proper, but normally only a subset
 (or none at all) is available to TPL and SPL. See 'Pre-Relocation Support' and
-'SPL Support' in doc/driver-model/design.rst for more details.
+'SPL Support' in :doc:`/develop/driver-model/design` for more details.
 
 
 Using several DTBs in the SPL (SPL_MULTI_DTB_FIT Kconfig option)

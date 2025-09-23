@@ -13,7 +13,7 @@ Please refer to the link for Linux port and toolchains:
 http://rocketboards.org/foswiki/view/Documentation/NiosIILinuxUserManual
 
 The Nios II port of u-boot is controlled by device tree. Please check
-out doc/README.fdt-control.
+out :doc:`/develop/devicetree/control`.
 
 To add a new board/configuration (eg, mysystem) to u-boot, you will need
 three files.
