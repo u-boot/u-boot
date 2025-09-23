@@ -338,7 +338,7 @@ static int aquantia_set_proto(struct phy_device *phydev,
 
 static int aquantia_dts_config(struct phy_device *phydev)
 {
-	ofnode node = phydev->node;
+	ofnode node = phy_get_ofnode(phydev);
 	u32 prop;
 	u16 reg;
 
