@@ -87,6 +87,9 @@ static int fw_loader_pre_probe(struct udevice *dev)
 
 		plat->ubivol = (char *)ofnode_read_string(fw_loader_node,
 							  "ubivol");
+
+		ofnode_read_u32(fw_loader_node, "partoffset",
+				&plat->partoffset);
 	}
 
 	if (plat->phandlepart.phandle) {
