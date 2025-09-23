@@ -95,6 +95,9 @@ static int fw_loaders[] = {
 #if CONFIG_IS_ENABLED(FS_LOADER)
 	UCLASS_FS_FIRMWARE_LOADER,
 #endif
+#if CONFIG_IS_ENABLED(FIP_LOADER)
+	UCLASS_FIP_FIRMWARE_LOADER,
+#endif
 };
 
 /**
