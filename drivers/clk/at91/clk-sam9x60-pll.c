@@ -183,11 +183,8 @@ static int sam9x60_frac_pll_enable(struct clk *clk)
 			AT91_PMC_PLL_UPDT_ID_MSK,
 			AT91_PMC_PLL_UPDT_STUPTIM(0x3f) | pll->id);
 
-	/* Recommended value for AT91_PMC_PLL_ACR */
-	if (pll->characteristics->upll)
-		val = AT91_PMC_PLL_ACR_DEFAULT_UPLL;
-	else
-		val = AT91_PMC_PLL_ACR_DEFAULT_PLLA;
+	/* Load recommended value for PMC_PLL_ACR */
+	val = pll->characteristics->acr;
 	pmc_write(base, AT91_PMC_PLL_ACR, val);
 
 	if (pll->characteristics->upll) {
