@@ -22,6 +22,20 @@
 #include <version.h>
 #include <u-boot/crc.h>
 
+struct fit_region {
+	ulong load;
+	ulong size;
+	const char *name;
+};
+
+static int regions_overlap(const struct fit_region *a, const struct fit_region *b)
+{
+	ulong a_end = a->load + a->size;
+	ulong b_end = b->load + b->size;
+
+	return !(a_end <= b->load || b_end <= a->load);
+}
+
 static struct legacy_img_hdr header;
 
 static int fit_estimate_hash_sig_size(struct image_tool_params *params, const char *fname)
@@ -823,9 +837,12 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	}
 
 	fdt_for_each_subnode(node, fdt, confs) {
+		struct fit_region *regions = NULL;
+		unsigned int img_count = 0;
+		unsigned int regions_allocated = 0;
 		const char *conf_name = fdt_get_name(fdt, node, NULL);
 
-		for (int i = 0; i < ARRAY_SIZE(props); i++) {
+		for (unsigned int i = 0; i < ARRAY_SIZE(props); i++) {
 			int count = fdt_stringlist_count(fdt, node, props[i]);
 
 			if (count < 0)
@@ -846,8 +863,79 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 					ret = FDT_ERR_NOTFOUND;
 					goto err_munmap;
 				}
+
+				ulong img_load = 0;
+				int img_size = 0;
+
+				if (fit_image_get_load(fdt, img, &img_load)) {
+					fprintf(stderr,
+						"Warning: not able to get `load` of node '%s'\n",
+						img_name);
+					// Skip checking the components that do not have a
+					// definition for `load`
+					continue;
+				}
+				const char *img_data = fdt_getprop(fdt, img,
+								   FIT_DATA_PROP,
+								   &img_size);
+
+				if (!img_data || !img_size)
+					continue;
+
+				// Check if we've already added this image to avoid duplicates
+				for (unsigned int k = 0; k < img_count; k++) {
+					if (!strcmp(regions[k].name, img_name))
+						goto next_node;
+				}
+
+				// Expand regions array if needed
+				if (img_count >= regions_allocated) {
+					unsigned int new_size = regions_allocated ?
+								regions_allocated * 2 : 8;
+					struct fit_region *new_regions = realloc(regions,
+							new_size * sizeof(struct fit_region));
+					if (!new_regions) {
+						fprintf(stderr,
+							"Failed to allocate memory for regions in config %s\n",
+							fdt_get_name(fdt, node, NULL));
+						free(regions);
+						ret = -ENOMEM;
+						goto err_munmap;
+					}
+					regions = new_regions;
+					regions_allocated = new_size;
+				}
+
+				regions[img_count].load = img_load;
+				regions[img_count].size = img_size;
+				regions[img_count].name = img_name;
+				img_count++;
+next_node:;
 			}
 		}
+
+		// Check for overlap within this config only
+		for (unsigned int i = 0; i < img_count; i++) {
+			for (unsigned int j = i + 1; j < img_count; j++) {
+				if (regions_overlap(&regions[i], &regions[j])) {
+					fprintf(stderr,
+						"[Config: %s] Error: Overlap detected:\n"
+						"  - %s: [0x%lx - 0x%lx]\n"
+						"  - %s: [0x%lx - 0x%lx]\n",
+						fdt_get_name(fdt, node, NULL),
+						regions[i].name, regions[i].load,
+						regions[i].load + regions[i].size,
+						regions[j].name, regions[j].load,
+						regions[j].load + regions[j].size);
+					ret = FDT_ERR_BADSTRUCTURE;
+					free(regions);
+					goto err_munmap;
+				}
+			}
+		}
+
+		// Clean up allocated memory for this configuration
+		free(regions);
 	}
 
 	munmap(old_fdt, sbuf.st_size);

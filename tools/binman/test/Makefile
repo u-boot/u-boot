@@ -30,12 +30,13 @@ LDS_BINMAN_BAD := -T $(SRC)u_boot_binman_syms_bad.lds
 LDS_BINMAN_X86 := -T $(SRC)u_boot_binman_syms_x86.lds
 LDS_BINMAN_EMBED := -T $(SRC)u_boot_binman_embed.lds
 LDS_EFL_SECTIONS := -T $(SRC)elf_sections.lds
+LDS_EFL_SECTIONS_TEE := -T $(SRC)elf_sections_tee.lds
 LDS_BLOB := -T $(SRC)blob_syms.lds
 
 TARGETS = u_boot_ucode_ptr u_boot_no_ucode_ptr bss_data bss_data_zero \
 	u_boot_binman_syms u_boot_binman_syms.bin u_boot_binman_syms_bad \
 	u_boot_binman_syms_size u_boot_binman_syms_x86 embed_data \
-	u_boot_binman_embed u_boot_binman_embed_sm elf_sections blob_syms.bin
+	u_boot_binman_embed u_boot_binman_embed_sm elf_sections elf_sections_tee blob_syms.bin
 
 all: $(TARGETS)
 
@@ -83,6 +84,9 @@ blob_syms: blob_syms.c
 
 elf_sections: CFLAGS += $(LDS_EFL_SECTIONS)
 elf_sections: elf_sections.c
+
+elf_sections_tee: CFLAGS += $(LDS_EFL_SECTIONS_TEE)
+elf_sections_tee: elf_sections_tee.c
 
 clean:
 	rm -f $(TARGETS)

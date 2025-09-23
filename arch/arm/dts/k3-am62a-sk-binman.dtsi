@@ -168,8 +168,8 @@
 					arch = "arm32";
 					compression = "none";
 					os = "tifsstub-fs";
-					load = <0x9ca00000>;
-					entry = <0x9ca00000>;
+					load = <0x9ca10000>;
+					entry = <0x9ca10000>;
 					blob-ext {
 						filename = "tifsstub.bin_fs";
 					};
