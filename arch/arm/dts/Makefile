@@ -1109,6 +1109,8 @@ dtb-$(CONFIG_SOC_K3_AM62A7) += \
 	k3-am62a7-r5-sk.dtb \
 	k3-am62a7-r5-phycore-som-2gb.dtb
 
+dtb-$(CONFIG_SOC_K3_AM62D2) += k3-am62d2-r5-evm.dtb
+
 dtb-$(CONFIG_SOC_K3_AM62P5) += k3-am62p5-r5-sk.dtb \
 			       k3-am62p5-verdin-r5.dtb \
 			       k3-am62p5-verdin-wifi-dev.dtb

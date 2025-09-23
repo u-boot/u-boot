@@ -50,9 +50,30 @@ config TARGET_PHYCORE_AM62AX_R5
 	select BINMAN
 	imply SYS_K3_SPL_ATF
 
+config TARGET_AM62D2_A53_EVM
+	bool "TI K3 based AM62D2 EVM running on A53"
+	select ARM64
+	select BINMAN
+	imply BOARD
+	imply SPL_BOARD
+	imply TI_I2C_BOARD_DETECT
+
+config TARGET_AM62D2_R5_EVM
+	bool "TI K3 based AM62D2 EVM running on R5"
+	select CPU_V7R
+	select SYS_THUMB_BUILD
+	select K3_LOAD_SYSFW
+	select RAM
+	select SPL_RAM
+	select K3_DDRSS
+	select BINMAN
+	imply SYS_K3_SPL_ATF
+	imply TI_I2C_BOARD_DETECT
+
 endchoice
 
 source "board/ti/am62ax/Kconfig"
 source "board/phytec/phycore_am62ax/Kconfig"
+source "board/ti/am62dx/Kconfig"
 
 endif

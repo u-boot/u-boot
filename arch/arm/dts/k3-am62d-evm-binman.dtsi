@@ -1,0 +1,104 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2024-2025 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+#include "k3-binman.dtsi"
+#include "k3-am62a-sk-binman.dtsi"
+
+#ifdef CONFIG_TARGET_AM62D2_R5_EVM
+
+&bcfg_yaml {
+	config = "board/ti/am62ax/board-cfg.yaml";
+};
+
+&rcfg_yaml {
+	config = "board/ti/am62ax/rm-cfg.yaml";
+};
+
+&scfg_yaml {
+	config = "board/ti/am62ax/sec-cfg.yaml";
+};
+
+&pcfg_yaml {
+	config = "board/ti/am62ax/pm-cfg.yaml";
+};
+
+&bcfg_yaml_tifs {
+	config = "board/ti/am62ax/board-cfg.yaml";
+};
+
+&scfg_yaml_tifs {
+	config = "board/ti/am62ax/sec-cfg.yaml";
+};
+
+&pcfg_yaml_tifs {
+	config = "board/ti/am62ax/pm-cfg.yaml";
+};
+
+&rcfg_yaml_tifs {
+	config = "board/ti/am62ax/tifs-rm-cfg.yaml";
+};
+
+&pcfg_yaml_dm {
+	config = "board/ti/am62ax/pm-cfg.yaml";
+};
+
+&rcfg_yaml_dm {
+	config = "board/ti/am62ax/rm-cfg.yaml";
+};
+
+&bcfg_yaml_sysfw {
+	config = "board/ti/am62ax/board-cfg.yaml";
+};
+
+&scfg_yaml_sysfw {
+	config = "board/ti/am62ax/sec-cfg.yaml";
+};
+
+&pcfg_yaml_sysfw {
+	config = "board/ti/am62ax/pm-cfg.yaml";
+};
+
+&rcfg_yaml_sysfw {
+	config = "board/ti/am62ax/rm-cfg.yaml";
+};
+
+#endif
+
+#ifdef CONFIG_TARGET_AM62D2_A53_EVM
+
+&ti_spl_fdt_0 {
+	description = "k3-am62d2-evm";
+
+	ti-secure {
+		content = <&spl_am62a7_sk_dtb>;
+		keyfile = "custMpk.pem";
+	};
+
+	spl_am62d2_evm_dtb: blob-ext {
+		filename = "spl/dts/ti/k3-am62d2-evm.dtb";
+	};
+};
+
+&ti_spl_conf_0 {
+	description = "k3-am62d2-evm";
+};
+
+&u_boot_fdt_0 {
+	description = "k3-am62d2-evm";
+
+	ti-secure {
+		content = <&am62d2_evm_dtb>;
+		keyfile = "custMpk.pem";
+	};
+	am62d2_evm_dtb: blob-ext {
+		filename = AM62A7_SK_DTB;
+	};
+};
+
+&u_boot_conf_0 {
+	description = "k3-am62d2-evm";
+};
+
+#endif
