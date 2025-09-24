@@ -42,7 +42,6 @@ Older boards (db410c and db820c)
 
 Open ``configs/dragonboard<BOARD>_defconfig``
 
-	CONFIG_BAUDRATE=115200
 	CONFIG_DEBUG_UART=y
 	CONFIG_DEBUG_UART_ANNOUNCE=y
 	# db410c - 0x78b0000
@@ -50,7 +49,6 @@ Open ``configs/dragonboard<BOARD>_defconfig``
 	CONFIG_DEBUG_UART_BASE=0x75b0000
 	CONFIG_DEBUG_UART_MSM=y
 	CONFIG_DEBUG_UART_CLOCK=7372800
-	#CONFIG_DEBUG_UART_SKIP_INIT=y
 
 	CONFIG_LOG=y
 	CONFIG_HEXDUMP=y
