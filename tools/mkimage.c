@@ -533,8 +533,7 @@ int main(int argc, char **argv)
 			retval = tparams->fflag_handle(&params);
 
 		if (retval != EXIT_SUCCESS) {
-			if (retval == FDT_ERR_NOTFOUND ||
-			    retval == FDT_ERR_BADSTRUCTURE) {
+			if (retval == FDT_ERR_NOTFOUND) {
 				// Already printed error, exit cleanly
 				exit(EXIT_FAILURE);
 			}

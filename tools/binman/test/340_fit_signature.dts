@@ -20,8 +20,8 @@
 					arch = "arm64";
 					os = "u-boot";
 					compression = "none";
-					load = <0x00002000>;
-					entry = <0x00002000>;
+					load = <0x00000000>;
+					entry = <0x00000000>;
 
 					u-boot-nodtb {
 					};
