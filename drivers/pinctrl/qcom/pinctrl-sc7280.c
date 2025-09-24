@@ -10,10 +10,6 @@
 
 #include "pinctrl-qcom.h"
 
-#define WEST 0x00000000
-#define SOUTH 0x00400000
-#define NORTH 0x00800000
-
 #define MAX_PIN_NAME_LEN 32
 static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 
@@ -47,7 +43,7 @@ static const struct pinctrl_function msm_pinctrl_functions[] = {
 	}
 
 static const struct msm_special_pin_data sc7280_special_pins_data[] = {
-	[0] = UFS_RESET("ufs_reset", SOUTH + 0xbe000),
+	[0] = UFS_RESET("ufs_reset", 0xbe000),
 	[1] = SDC_PINGROUP("sdc1_rclk", 0xb3004, 0, 6),
 	[2] = SDC_PINGROUP("sdc1_clk", 0xb3000, 13, 6),
 	[3] = SDC_PINGROUP("sdc1_cmd", 0xb3000, 11, 3),
