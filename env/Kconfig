@@ -481,7 +481,7 @@ config ENV_IS_IN_UBI
 config ENV_REDUNDANT
 	bool "Enable redundant environment support"
 	help
-	  Normally, the environemt is stored in a single location.  By
+	  Normally, the environment is stored in a single location.  By
 	  selecting this option, you can then define where to hold a redundant
 	  copy of the environment data, so that there is a valid backup copy in
 	  case there is a power failure during a "saveenv" operation.
@@ -497,7 +497,7 @@ config ENV_FAT_INTERFACE
 	  Define this to a string that is the name of the block device.
 
 config ENV_FAT_DEVICE_AND_PART
-	string "Device and partition for where to store the environemt in FAT"
+	string "Device and partition for where to store the environment in FAT"
 	depends on ENV_IS_IN_FAT
 	default "0:1" if TI_COMMON_CMD_OPTIONS
 	default "0:auto" if ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL || ARCH_VERSAL_NET || ARCH_VERSAL2
@@ -545,7 +545,7 @@ config ENV_EXT4_INTERFACE
 	  Define this to a string that is the name of the block device.
 
 config ENV_EXT4_DEVICE_AND_PART
-	string "Device and partition for where to store the environemt in EXT4"
+	string "Device and partition for where to store the environment in EXT4"
 	depends on ENV_IS_IN_EXT4
 	help
 	  Define this to a string to specify the partition of the device. It can
