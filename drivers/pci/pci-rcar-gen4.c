@@ -243,7 +243,7 @@ static int rcar_gen4_pcie_ltssm_control(struct rcar_gen4_pcie *rcar, bool enable
 
 	clrbits_le32(rcar->app_base + PCIERSTCTRL1, APP_HOLD_PHY_RST);
 
-	ret = readl_poll_timeout(rcar->phy_base + 0x0f8, val, !(val & BIT(18)), 10000);
+	ret = readl_poll_timeout(rcar->phy_base + 0x0f8, val, val & BIT(18), 10000);
 	if (ret < 0)
 		return ret;
 
