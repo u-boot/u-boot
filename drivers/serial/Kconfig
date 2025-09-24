@@ -328,7 +328,7 @@ config DEBUG_UART_MSM
 	  be available until the real driver-model serial is running.
 
 config DEBUG_UART_MSM_GENI
-	bool "Qualcomm snapdragon"
+	bool "Qualcomm GENI UART debug"
 	depends on ARCH_SNAPDRAGON
 	help
 	  Select this to enable a debug UART using the serial_msm driver. You
