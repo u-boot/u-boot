@@ -87,6 +87,10 @@
 	disable-over-current;
 };
 
+&usb31 {
+	status = "okay";
+};
+
 &watchdog0 {
 	status = "okay";
 };
