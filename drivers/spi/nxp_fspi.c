@@ -539,6 +539,15 @@ static void nxp_fspi_prepare_lut(struct nxp_fspi *f,
 		fspi_writel(f, lutval[i], base + target_lut_reg);
 	}
 
+	if (op->data.nbytes && op->data.dir == SPI_MEM_DATA_IN &&
+	    op->addr.nbytes) {
+		lut_offset = (f->devtype_data->lut_num - 2) * 4 * 4;
+		for (i = 0; i < ARRAY_SIZE(lutval); i++) {
+			target_lut_reg = FSPI_LUT_BASE + lut_offset + i * 4;
+			fspi_writel(f, lutval[i], base + target_lut_reg);
+		}
+	}
+
 	dev_dbg(f->dev, "CMD[%x] lutval[0:%x \t 1:%x \t 2:%x \t 3:%x], size: 0x%08x\n",
 		op->cmd.opcode, lutval[0], lutval[1], lutval[2], lutval[3], op->data.nbytes);
 
@@ -943,9 +952,10 @@ static int nxp_fspi_default_setup(struct nxp_fspi *f)
 	/*
 	 * The driver only uses one single LUT entry, that is updated on
 	 * each call of exec_op(). Index 0 is preset at boot with a basic
-	 * read operation, so let's use the last entry.
+	 * read operation, last entry is used for dynamic lut, the second
+	 * last entry is used for AHB read.
 	 */
-	seqid_lut = f->devtype_data->lut_num - 1;
+	seqid_lut = f->devtype_data->lut_num - 2;
 	/* AHB Read - Set lut sequence ID for all CS. */
 	fspi_writel(f, seqid_lut, base + FSPI_FLSHA1CR2);
 	fspi_writel(f, seqid_lut, base + FSPI_FLSHA2CR2);
