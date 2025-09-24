@@ -314,6 +314,9 @@ static int rcar_gen4_pcie_common_init(struct rcar_gen4_pcie *rcar)
 	if (ret)
 		goto err_unprepare;
 
+	reset_status(&rcar->pwr_rst);
+	mdelay(1);
+
 	rcar_gen4_pcie_additional_common_init(rcar);
 
 	return 0;
