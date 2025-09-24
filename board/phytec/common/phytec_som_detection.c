@@ -309,7 +309,7 @@ static int phytec_get_product_name(struct phytec_eeprom_data *data,
 		som_type = 1;
 		break;
 	default:
-		pr_err("%s: Invalid SOM type: %i", __func__, api2->som_type);
+		pr_err("%s: Invalid SOM type: %i\n", __func__, api2->som_type);
 		return -EINVAL;
 	};
 
