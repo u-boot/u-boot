@@ -20,7 +20,7 @@ config APPLE_PMGR_POWER_DOMAIN
 
 config AGILEX5_PMGR_POWER_DOMAIN
 	bool "Enable the Agilex5 PMGR power domain driver"
-	depends on SPL_POWER_DOMAIN
+	depends on SPL_POWER_DOMAIN && TARGET_SOCFPGA_SOC64
 	help
 	  Enable support for power gating peripherals' SRAM specified in
 	  the handoff data values obtained from the bitstream to reduce
