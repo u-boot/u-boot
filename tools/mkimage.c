@@ -101,6 +101,8 @@ static void usage(const char *msg)
 		"          -d ==> use image data from 'datafile'\n"
 		"          -x ==> set XIP (execute in place)\n"
 		"          -s ==> create an image with no data\n"
+		"          -y ==> append TFA BL31 file to the image\n"
+		"          -Y ==> set TFA BL31 file load and entry point address\n"
 		"          -v ==> verbose\n",
 		params.cmdname);
 	fprintf(stderr,
