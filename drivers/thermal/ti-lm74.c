@@ -44,7 +44,7 @@ static const struct udevice_id of_ti_lm74_match[] = {
 	{},
 };
 
-U_BOOT_DRIVER(ti_bandgap_thermal) = {
+U_BOOT_DRIVER(ti_lm74_thermal) = {
 	.name	= "ti_lm74_thermal",
 	.id	= UCLASS_THERMAL,
 	.ops	= &ti_lm74_ops,
