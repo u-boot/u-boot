@@ -2437,7 +2437,7 @@ config CMD_SLEEP
 
 config CMD_MP
 	bool "support for multiprocessor commands"
-	depends on MP
+	depends on MP && !CPU
 	default y
 	help
 	  This enables commands to bringup different processors
