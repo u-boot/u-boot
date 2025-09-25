@@ -3009,7 +3009,7 @@ config CMD_EVENT
 
 config CMD_IRQ
 	bool "irq - Show information about interrupts"
-	depends on !ARM && !MIPS && !RISCV && !SH
+	depends on NIOS2 || PPC || X86
 	help
 	  This enables two commands:
 
