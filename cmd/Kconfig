@@ -1238,6 +1238,7 @@ config CMD_FPGAD
 
 config CMD_FUSE
 	bool "fuse - support for the fuse subssystem"
+	depends on !COMPILE_TEST
 	help
 	  (deprecated - needs conversion to driver model)
 	  This allows reading, sensing, programming or overriding fuses
@@ -1289,6 +1290,7 @@ config CMD_GPT_RENAME
 
 config CMD_IDE
 	bool "ide - Support for IDE drivers"
+	depends on !COMPILE_TEST
 	select IDE
 	help
 	  Provides an 'ide' command which allows accessing the IDE drive,
@@ -1558,6 +1560,7 @@ config CMD_NVME
 config CMD_ONENAND
 	bool "onenand - access to onenand device"
 	depends on MTD
+	depends on !COMPILE_TEST
 	help
 	  OneNAND is a brand of NAND ('Not AND' gate) flash which provides
 	  various useful features. This command allows reading, writing,
@@ -1567,6 +1570,7 @@ config CMD_ONENAND
 config USE_ONENAND_BOARD_INIT
 	bool "Call onenand_board_init() in the onenand command"
 	depends on CMD_ONENAND
+	depends on !COMPILE_TEST
 
 config CMD_OSD
 	bool "osd"
@@ -2891,6 +2895,7 @@ config JFFS2_PART_SIZE
 
 config CMD_MTDPARTS
 	bool "MTD partition support"
+	depends on !COMPILE_TEST
 	depends on MTD
 	select MTD_PARTITIONS
 	help

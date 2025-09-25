@@ -280,6 +280,7 @@ config SYS_CONSOLE_IS_IN_ENV
 
 config SYS_CONSOLE_OVERWRITE_ROUTINE
 	bool "Allow board control over console overwriting"
+	depends on !COMPILE_TEST
 	help
 	  If this is enabled, and the board-specific function
 	  overwrite_console() returns 1, the stdin, stderr and stdout are
@@ -714,6 +715,7 @@ config ARCH_MISC_INIT
 
 config BOARD_EARLY_INIT_F
 	bool "Call board-specific init before relocation"
+	depends on !COMPILE_TEST
 	help
 	  Some boards need to perform initialisation as soon as possible
 	  after boot. With this option, U-Boot calls board_early_init_f()
@@ -723,6 +725,7 @@ config BOARD_EARLY_INIT_F
 
 config BOARD_EARLY_INIT_R
 	bool "Call board-specific init after relocation"
+	depends on !COMPILE_TEST
 	help
 	  Some boards need to perform initialisation as directly after
 	  relocation. With this option, U-Boot calls board_early_init_r()
@@ -730,6 +733,7 @@ config BOARD_EARLY_INIT_R
 
 config BOARD_INIT
 	bool "Call board-specific init board_init() during init-calls"
+	depends on !COMPILE_TEST
 	default y if ARM || RISCV || SANDBOX
 	help
 	  Some boards need an board_init() function called during the initcall
@@ -737,6 +741,7 @@ config BOARD_INIT
 
 config BOARD_POSTCLK_INIT
 	bool "Call board_postclk_init"
+	depends on !COMPILE_TEST
 	help
 	  Some boards need this to initialize select items, after clocks /
 	  timebase and before env / serial.
@@ -780,6 +785,7 @@ config LAST_STAGE_INIT
 
 config MISC_INIT_R
 	bool "Execute Misc Init"
+	depends on !COMPILE_TEST
 	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx
 	default y if ARCH_OMAP2PLUS && !AM33XX
 	help
@@ -842,6 +848,7 @@ config SYS_EARLY_PCI_INIT
 
 config RESET_PHY_R
 	bool "Reset ethernet PHY during init"
+	depends on !COMPILE_TEST
 	help
 	  Implement reset_phy() in board code if required to reset the ethernet
 	  PHY.
@@ -952,6 +959,7 @@ config TPL_STACKPROTECTOR
 
 config BOARD_RNG_SEED
 	bool "Provide /chosen/rng-seed property to the linux kernel"
+	depends on !COMPILE_TEST
 	help
 	  Selecting this option requires the board to define a
 	  board_rng_seed() function, which should return a buffer

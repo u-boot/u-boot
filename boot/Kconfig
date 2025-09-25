@@ -1852,6 +1852,7 @@ config OF_BOARD_SETUP
 
 config OF_BOARD_SETUP_EXTENDED
 	bool "Set up latest board-specific details in device tree before boot"
+	depends on !COMPILE_TEST
 	imply OF_BOARD_SETUP
 	help
 	  This causes U-Boot to call ft_board_setup_ex() before booting into
@@ -1862,6 +1863,7 @@ config OF_BOARD_SETUP_EXTENDED
 
 config OF_SYSTEM_SETUP
 	bool "Set up system-specific details in device tree before boot"
+	depends on !COMPILE_TEST
 	help
 	  This causes U-Boot to call ft_system_setup() before booting into
 	  the Operating System. This function can set up various

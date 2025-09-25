@@ -720,6 +720,7 @@ config TPL_SYS_MONITOR_BASE
 
 config DYNAMIC_SYS_CLK_FREQ
 	bool "Determine CPU clock frequency at run-time"
+	depends on !COMPILE_TEST
 	help
 	  Implement a get_board_sys_clk function that will determine the CPU
 	  clock frequency at run time, rather than define it statically.

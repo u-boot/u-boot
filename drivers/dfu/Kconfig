@@ -98,6 +98,7 @@ config DFU_SCSI
 
 config SET_DFU_ALT_INFO
 	bool "Dynamic set of DFU alternate information"
+	depends on !COMPILE_TEST
 	help
 	  This option allows to call the function set_dfu_alt_info to
 	  dynamically build dfu_alt_info in board.

@@ -37,6 +37,7 @@ config OF_REAL
 
 config OF_BOARD_FIXUP
 	bool "Board-specific manipulation of Device Tree"
+	depends on !COMPILE_TEST
 	help
 	  In certain circumstances it is necessary to be able to modify
 	  U-Boot's device tree (e.g. to delete device from it). This option
@@ -87,6 +88,7 @@ config OF_LIVE
 
 config OF_UPSTREAM
 	bool "Enable use of devicetree imported from Linux kernel release"
+	depends on !COMPILE_TEST
 	help
 	  Traditionally, U-Boot platforms used to have their custom devicetree
 	  files or copy devicetree files from Linux kernel which are hard to
@@ -306,6 +308,7 @@ config MULTI_DTB_FIT_USER_DEF_ADDR
 
 config DTB_RESELECT
 	bool "Support swapping dtbs at a later point in boot"
+	depends on !COMPILE_TEST
 	depends on MULTI_DTB_FIT
 	help
 	  It is possible during initial boot you may need to use a generic

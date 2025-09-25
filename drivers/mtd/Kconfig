@@ -41,6 +41,7 @@ config MTD_BLOCK
 
 config SYS_MTDPARTS_RUNTIME
 	bool "Allow MTDPARTS to be configured at runtime"
+	depends on !COMPILE_TEST
 	help
 	  This option allows to call the function board_mtdparts_default to
 	  dynamically build the variables mtdids and mtdparts at runtime.

@@ -137,6 +137,7 @@ endif  # EFI_MEDIA
 
 config IDE
 	bool "Support IDE controllers"
+	depends on !COMPILE_TEST
 	select BLK
 	help
 	  Enables support for IDE (Integrated Drive Electronics) hard drives.
