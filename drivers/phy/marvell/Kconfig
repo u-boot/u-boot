@@ -1,5 +1,6 @@
 config MVEBU_COMPHY_SUPPORT
 	bool "ComPhy SerDes driver"
+	depends on ARMADA_3700 || ARMADA_8K
 	help
 	  Choose this option to add support
 	  for Comphy driver.
