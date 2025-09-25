@@ -491,9 +491,6 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 #endif
 	int clientarch = -1;
 
-#if defined(CONFIG_BOOTP_VENDOREX)
-	u8 *x;
-#endif
 #if defined(CONFIG_BOOTP_SEND_HOSTNAME)
 	char *hostname;
 #endif
@@ -583,12 +580,6 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 #endif
 
 	e = add_vci(e);
-
-#if defined(CONFIG_BOOTP_VENDOREX)
-	x = dhcp_vendorex_prep(e);
-	if (x)
-		return x - start;
-#endif
 
 	*e++ = 55;		/* Parameter Request List */
 	 cnt = e++;		/* Pointer to count of requested items */
@@ -977,10 +968,6 @@ static void dhcp_process_options(uchar *popt, uchar *end)
 			}
 			break;
 		default:
-#if defined(CONFIG_BOOTP_VENDOREX)
-			if (dhcp_vendorex_proc(popt))
-				break;
-#endif
 			printf("*** Unhandled DHCP Option in OFFER/ACK:"
 			       " %d\n", *popt);
 			break;
