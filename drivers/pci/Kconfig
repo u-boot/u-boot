@@ -333,12 +333,6 @@ config PCIE_IMX
 	bool "i.MX PCIe support"
 	depends on ARCH_MX6
 
-config PCIE_INTEL_FPGA
-	bool "Intel FPGA PCIe support"
-	help
-	  Say Y here if you want to enable PCIe controller support on Intel
-	  FPGA, example Stratix 10.
-
 config PCIE_IPROC
 	bool "Iproc PCIe support"
 	help
