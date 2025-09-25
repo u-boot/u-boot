@@ -108,7 +108,7 @@ static const struct udevice_id ds1672_of_id[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(rtc_max313xx) = {
+U_BOOT_DRIVER(rtc_ds1672) = {
 	.name	= "rtc-ds1672",
 	.id     = UCLASS_RTC,
 	.probe  = ds1672_probe,
