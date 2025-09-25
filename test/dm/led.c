@@ -162,7 +162,7 @@ DM_TEST(dm_test_led_blink, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 #ifdef CONFIG_LED_BOOT
 static int dm_test_led_boot(struct unit_test_state *uts)
 {
-	struct udevice *dev
+	struct udevice *dev;
 
 	/* options/u-boot/boot-led is set to phandle to "sandbox:green" */
 	ut_assertok(led_get_by_label("sandbox:green", &dev));
@@ -180,7 +180,7 @@ DM_TEST(dm_test_led_boot, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 #ifndef CONFIG_LED_BLINK
 static int dm_test_led_boot_blink(struct unit_test_state *uts)
 {
-	struct udevice *dev
+	struct udevice *dev;
 
 	/* options/u-boot/boot-led is set to phandle to "sandbox:green" */
 	ut_assertok(led_get_by_label("sandbox:green", &dev));
@@ -200,7 +200,7 @@ DM_TEST(dm_test_led_boot_blink, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 #ifdef CONFIG_LED_ACTIVITY
 static int dm_test_led_activity(struct unit_test_state *uts)
 {
-	struct udevice *dev
+	struct udevice *dev;
 
 	/* options/u-boot/activity-led is set to phandle to "sandbox:red" */
 	ut_assertok(led_get_by_label("sandbox:red", &dev));
@@ -218,7 +218,7 @@ DM_TEST(dm_test_led_activity, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 #ifndef CONFIG_LED_BLINK
 static int dm_test_led_activityt_blink(struct unit_test_state *uts)
 {
-	struct udevice *dev
+	struct udevice *dev;
 
 	/* options/u-boot/activity-led is set to phandle to "sandbox:red" */
 	ut_assertok(led_get_by_label("sandbox:red", &dev));
