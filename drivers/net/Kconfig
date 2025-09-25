@@ -179,7 +179,7 @@ config CALXEDA_XGMAC
 	  machines.
 
 config DWC_ETH_XGMAC
-        bool "Synopsys DWC Ethernet XGMAC device support"
+        bool
 	select PHYLIB
         help
           This driver supports the Synopsys Designware Ethernet XGMAC (10G
@@ -190,7 +190,8 @@ config DWC_ETH_XGMAC_SOCFPGA
 	bool "Synopsys DWC Ethernet XGMAC device support for SOCFPGA"
 	select REGMAP
 	select SYSCON
-	depends on ARCH_SOCFPGA && DWC_ETH_XGMAC
+	select DWC_ETH_XGMAC
+	depends on ARCH_SOCFPGA
 	default y if TARGET_SOCFPGA_AGILEX5
 	help
 	  The Synopsys Designware Ethernet XGMAC IP block with specific

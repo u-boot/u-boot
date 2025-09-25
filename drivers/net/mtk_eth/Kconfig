@@ -1,6 +1,7 @@
 
 config MEDIATEK_ETH
 	bool "MediaTek Ethernet GMAC Driver"
+	depends on ARCH_MEDIATEK || ARCH_MTMIPS
 	select PHYLIB
 	select DM_GPIO
 	select DM_RESET
