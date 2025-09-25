@@ -176,7 +176,7 @@ config SPL_SYS_STACK_F_CHECK_BYTE
 	  Constant used to check the stack
 
 config SPL_SYS_REPORT_STACK_F_USAGE
-	depends on SPL_SIZE_LIMIT_PROVIDE_STACK != 0
+	depends on SPL_SIZE_LIMIT_PROVIDE_STACK > 0
 	bool "Check and report stack usage in SPL before relocation"
 	help
 	  If this option is enabled, the initial SPL stack is filled with 0xaa
