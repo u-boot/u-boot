@@ -1093,6 +1093,7 @@ config SYS_RAMBOOT
 
 config RAMBOOT_PBL
 	bool "Freescale PBL(pre-boot loader) image format support"
+	depends on ARCH_LS1021A || PPC
 	select SYS_RAMBOOT if PPC
 	help
 	  Some SoCs use PBL to load RCW and/or pre-initialization instructions.
