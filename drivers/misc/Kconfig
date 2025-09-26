@@ -440,6 +440,7 @@ config STM32MP_FUSE
 config K3_FUSE
 	bool "Enable TI K3 fuse wrapper providing the fuse API"
 	depends on MISC && CMD_FUSE && CMD_FUSE_WRITEBUFF
+	depends on ARCH_K3
 	help
 	  If you say Y here, you will get support for the fuse API (OTP)
 	  for TI K3 architecture.
