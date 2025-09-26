@@ -40,7 +40,7 @@ config RNG_MSM
 
 config RNG_NPCM
 	bool "Nuvoton NPCM SoCs Random Number Generator support"
-	depends on DM_RNG
+	depends on DM_RNG && !LIB_RAND
 	help
 	  Enable random number generator on NPCM SoCs.
 	  This unit can provide 750 to 1000 random bits per second
@@ -122,7 +122,7 @@ config RNG_TURRIS_RWTM
 
 config RNG_EXYNOS
 	bool "Samsung Exynos True Random Number Generator support"
-	depends on DM_RNG
+	depends on DM_RNG && ARM
 	help
 	  Enable support for True Random Number Generator (TRNG) available on
 	  Exynos SoCs.
