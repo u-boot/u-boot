@@ -137,7 +137,8 @@ config SPL_LED_GPIO
 	  See the help of LED_GPIO for details.
 
 config LED_STATUS
-	bool "Enable status LED API"
+	bool "Enable legacy status LED API"
+	depends on !LED
 	help
 	  Allows common u-boot commands to use a board's leds to
 	  provide status for activities like booting and downloading files.
