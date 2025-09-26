@@ -206,9 +206,4 @@
 #endif
 #endif
 
-/* NAND support */
-#ifdef CONFIG_MTD_RAW_NAND
-#define GPMC_NAND_ECC_LP_x8_LAYOUT	1
-#endif
-
 #endif	/* ! __CONFIG_BALTOS_H */
