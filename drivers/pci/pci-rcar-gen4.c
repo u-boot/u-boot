@@ -243,7 +243,7 @@ static int rcar_gen4_pcie_ltssm_control(struct rcar_gen4_pcie *rcar, bool enable
 
 	clrbits_le32(rcar->app_base + PCIERSTCTRL1, APP_HOLD_PHY_RST);
 
-	ret = readl_poll_timeout(rcar->phy_base + 0x0f8, val, !(val & BIT(18)), 10000);
+	ret = readl_poll_timeout(rcar->phy_base + 0x0f8, val, val & BIT(18), 10000);
 	if (ret < 0)
 		return ret;
 
@@ -306,6 +306,8 @@ static int rcar_gen4_pcie_common_init(struct rcar_gen4_pcie *rcar)
 	if (ret)
 		goto err_unprepare;
 
+	mdelay(1);
+
 	setbits_le32(rcar->app_base + PCIEMSR0,
 		     DEVICE_TYPE_RC |
 		     ((rcar->num_lanes < 4) ? BIFUR_MOD_SET_ON : 0));
@@ -313,6 +315,9 @@ static int rcar_gen4_pcie_common_init(struct rcar_gen4_pcie *rcar)
 	ret = reset_deassert(&rcar->pwr_rst);
 	if (ret)
 		goto err_unprepare;
+
+	reset_status(&rcar->pwr_rst);
+	mdelay(1);
 
 	rcar_gen4_pcie_additional_common_init(rcar);
 

@@ -22,7 +22,7 @@ int board_fit_config_name_match(const char *name)
 {
 	void *atf_fdt_blob = (void *)(rcar_atf_boot_args[1]);
 
-	if (fdt_magic(atf_fdt_blob) != FDT_MAGIC)
+	if (!atf_fdt_blob || fdt_magic(atf_fdt_blob) != FDT_MAGIC)
 		return -1;
 
 	if (is_rzg2l_board("renesas,r9a07g044l2"))
@@ -36,7 +36,7 @@ static void apply_atf_overlay(void *fdt_blob)
 {
 	void *atf_fdt_blob = (void *)(rcar_atf_boot_args[1]);
 
-	if (fdt_magic(atf_fdt_blob) == FDT_MAGIC)
+	if (atf_fdt_blob && fdt_magic(atf_fdt_blob) == FDT_MAGIC)
 		fdt_overlay_apply_node(fdt_blob, 0, atf_fdt_blob, 0);
 }
 
