@@ -1223,7 +1223,7 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-freebsd.git
 
 FREESCALE QORIQ
-M:	Priyanka Jain <priyanka.jain@nxp.com>
+M:	Peng Fan <peng.fan@nxp.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-fsl-qoriq.git
 F:	drivers/watchdog/sp805_wdt.c
@@ -1410,6 +1410,7 @@ M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mmc.git
 F:	drivers/mmc/
+N:	mmc
 
 NETWORK
 M:	Joe Hershberger <joe.hershberger@ni.com>
@@ -1517,6 +1518,7 @@ F:	test/cmd/pci_mps.c
 
 POWER
 M:	Jaehoon Chung <jh80.chung@samsung.com>
+M:	Peng Fan <peng.fan@nxp.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-pmic.git
 F:	drivers/power/
