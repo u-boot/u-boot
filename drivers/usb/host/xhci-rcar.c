@@ -149,7 +149,7 @@ static const struct udevice_id xhci_rcar_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(usb_xhci) = {
+U_BOOT_DRIVER(xhci_rcar) = {
 	.name		= "xhci_rcar",
 	.id		= UCLASS_USB,
 	.probe		= xhci_rcar_probe,
