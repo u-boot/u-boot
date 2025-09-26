@@ -147,7 +147,7 @@ config SPL_ATMEL_TCB_TIMER
 
 config CADENCE_TTC_TIMER
 	bool "Cadence TTC (Triple Timer Counter)"
-	depends on TIMER
+	depends on TIMER && ARCH_ZYNQMP_R5
 	help
 	  Enables support for the cadence ttc driver. This driver is present
 	  on Xilinx Zynq and ZynqMP SoCs.
