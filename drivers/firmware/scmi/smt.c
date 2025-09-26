@@ -129,7 +129,7 @@ int scmi_read_resp_from_smt(struct udevice *dev, struct scmi_smt *smt,
 	}
 
 	if (hdr->length > msg->out_msg_sz + sizeof(hdr->msg_header)) {
-		dev_err(dev, "Buffer to small\n");
+		dev_err(dev, "Buffer too small\n");
 		return -ETOOSMALL;
 	}
 
@@ -191,7 +191,7 @@ int scmi_msg_from_smt_msg(struct udevice *dev, struct scmi_smt *smt,
 	struct scmi_smt_msg_header *hdr = (void *)smt->buf;
 
 	if (buf_size > msg->out_msg_sz + sizeof(hdr->msg_header)) {
-		dev_err(dev, "Buffer to small\n");
+		dev_err(dev, "Buffer too small\n");
 		return -ETOOSMALL;
 	}
 
