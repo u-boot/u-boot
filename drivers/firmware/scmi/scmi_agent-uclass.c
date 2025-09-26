@@ -35,6 +35,7 @@ static const struct error_code scmi_linux_errmap[] = {
 	{ .scmi = SCMI_GENERIC_ERROR, .errno = -EIO, },
 	{ .scmi = SCMI_HARDWARE_ERROR, .errno = -EREMOTEIO, },
 	{ .scmi = SCMI_PROTOCOL_ERROR, .errno = -EPROTO, },
+	{ .scmi = SCMI_IN_USE, .errno = -EADDRINUSE, },
 };
 
 /**
