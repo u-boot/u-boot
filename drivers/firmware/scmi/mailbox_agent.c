@@ -16,7 +16,7 @@
 
 #include "smt.h"
 
-#define TIMEOUT_US_10MS			10000
+#define TIMEOUT_US_30MS			30000
 
 /**
  * struct scmi_mbox_channel - Description of an SCMI mailbox transport
@@ -87,7 +87,7 @@ static int setup_channel(struct udevice *dev, struct scmi_mbox_channel *chan)
 		return ret;
 	}
 
-	chan->timeout_us = TIMEOUT_US_10MS;
+	chan->timeout_us = TIMEOUT_US_30MS;
 
 	return 0;
 }
