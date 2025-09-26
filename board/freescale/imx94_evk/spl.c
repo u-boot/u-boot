@@ -6,7 +6,9 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/mu.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/ele_api.h>
 #include <asm/sections.h>
 #include <hang.h>
 #include <init.h>
@@ -25,6 +27,8 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 		return BOOT_DEVICE_MMC2;
 	case USB_BOOT:
 		return BOOT_DEVICE_BOARD;
+	case QSPI_BOOT:
+		return BOOT_DEVICE_SPI;
 	default:
 		return BOOT_DEVICE_NONE;
 	}
@@ -32,9 +36,16 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 
 void spl_board_init(void)
 {
+	int ret;
+
 	puts("Normal Boot\n");
+
+	ret = ele_start_rng();
+	if (ret)
+		printf("Fail to start RNG: %d\n", ret);
 }
 
+/* SCMI support by default */
 void board_init_f(ulong dummy)
 {
 	int ret;
@@ -42,14 +53,12 @@ void board_init_f(ulong dummy)
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
-#ifdef CONFIG_SPL_RECOVER_DATA_SECTION
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_SPL_RECOVER_DATA_SECTION) &&
+	    IS_ENABLED(CONFIG_SPL_BUILD))
 		spl_save_restore_data();
-#endif
 
 	timer_init();
 
-	/* Need dm_init() to run before any SCMI calls can be made. */
 	spl_early_init();
 
 	/* Need enable SCMI drivers and ELE driver before enabling console */
