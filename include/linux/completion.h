@@ -129,42 +129,14 @@ extern void complete_all(struct completion *);
 #define wait_for_completion(x)		do {} while (0)
 #define wait_for_completion_io(x)	do {} while (0)
 
-inline int wait_for_completion_interruptible(struct completion *x)
-{
-	return 1;
-}
-inline int wait_for_completion_killable(struct completion *x)
-{
-	return 1;
-}
-inline unsigned long wait_for_completion_timeout(struct completion *x,
-						 unsigned long timeout)
-{
-	return 1;
-}
-inline unsigned long wait_for_completion_io_timeout(struct completion *x,
-						    unsigned long timeout)
-{
-	return 1;
-}
-inline long wait_for_completion_interruptible_timeout(struct completion *x,
-						      unsigned long timeout)
-{
-	return 1;
-}
-inline long wait_for_completion_killable_timeout(struct completion *x,
-						 unsigned long timeout)
-{
-	return 1;
-}
-inline bool try_wait_for_completion(struct completion *x)
-{
-	return 1;
-}
-inline bool completion_done(struct completion *x)
-{
-	return 1;
-}
+#define wait_for_completion_interruptible(x)			1
+#define wait_for_completion_killable(x)				1
+#define wait_for_completion_timeout(x, timeout)			1
+#define wait_for_completion_io_timeout(x, timeout)		1
+#define wait_for_completion_interruptible_timeout(x, timeout)	1
+#define wait_for_completion_killable_timeout(x, timeout)	1
+#define try_wait_for_completion(x)				1
+#define completion_done(x)					1
 
 #define complete(x)		do {} while (0)
 #define complete_all(x)		do {} while (0)
