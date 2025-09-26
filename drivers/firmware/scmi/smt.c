@@ -92,7 +92,9 @@ int scmi_write_msg_to_smt(struct udevice *dev, struct scmi_smt *smt,
 
 	if (smt->size < (sizeof(*hdr) + msg->in_msg_sz) ||
 	    smt->size < (sizeof(*hdr) + msg->out_msg_sz)) {
-		dev_dbg(dev, "Buffer too small\n");
+		dev_err(dev,
+			"Buffer write too small: mst->size:%zu, in_msg_sz:%zu, out_msg_sz:%zu\n",
+			smt->size, msg->in_msg_sz, msg->out_msg_sz);
 		return -ETOOSMALL;
 	}
 
@@ -130,7 +132,8 @@ int scmi_read_resp_from_smt(struct udevice *dev, struct scmi_smt *smt,
 	}
 
 	if (ioread32(&hdr->length) > msg->out_msg_sz + sizeof(hdr->msg_header)) {
-		dev_err(dev, "Buffer too small\n");
+		dev_err(dev, "Buffer too small: hdr->length:%u, out_msg_sz:%zu\n",
+			ioread32(&hdr->length), msg->out_msg_sz);
 		return -ETOOSMALL;
 	}
 
@@ -167,7 +170,8 @@ int scmi_msg_to_smt_msg(struct udevice *dev, struct scmi_smt *smt,
 
 	if (smt->size < (sizeof(*hdr) + msg->in_msg_sz) ||
 	    smt->size < (sizeof(*hdr) + msg->out_msg_sz)) {
-		dev_dbg(dev, "Buffer too small\n");
+		dev_err(dev, "Buffer too small: mst->size:%zu, in_msg_sz:%zu, out_msg_sz:%zu\n",
+			smt->size, msg->in_msg_sz, msg->out_msg_sz);
 		return -ETOOSMALL;
 	}
 
@@ -193,7 +197,8 @@ int scmi_msg_from_smt_msg(struct udevice *dev, struct scmi_smt *smt,
 	struct scmi_smt_msg_header *hdr = (void *)smt->buf;
 
 	if (buf_size > msg->out_msg_sz + sizeof(hdr->msg_header)) {
-		dev_err(dev, "Buffer too small\n");
+		dev_err(dev, "Buffer too small: buf_size:%zu, out_msg_sz:%zu\n",
+			buf_size, msg->out_msg_sz);
 		return -ETOOSMALL;
 	}
 
