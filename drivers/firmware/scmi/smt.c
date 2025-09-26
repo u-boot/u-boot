@@ -25,9 +25,9 @@ static void scmi_smt_enable_intr(struct scmi_smt *smt, bool enable)
 	struct scmi_smt_header *hdr = (void *)smt->buf;
 
 	if (enable)
-		hdr->flags |= SCMI_SHMEM_FLAG_INTR_ENABLED;
+		iowrite32(ioread32(&hdr->flags) | SCMI_SHMEM_FLAG_INTR_ENABLED, &hdr->flags);
 	else
-		hdr->flags &= ~SCMI_SHMEM_FLAG_INTR_ENABLED;
+		iowrite32(ioread32(&hdr->flags) & ~SCMI_SHMEM_FLAG_INTR_ENABLED, &hdr->flags);
 }
 
 /**
@@ -85,7 +85,7 @@ int scmi_write_msg_to_smt(struct udevice *dev, struct scmi_smt *smt,
 	    (!msg->out_msg && msg->out_msg_sz))
 		return -EINVAL;
 
-	if (!(hdr->channel_status & SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE)) {
+	if (!(ioread32(&hdr->channel_status) & SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE)) {
 		dev_dbg(dev, "Channel busy\n");
 		return -EBUSY;
 	}
@@ -97,12 +97,13 @@ int scmi_write_msg_to_smt(struct udevice *dev, struct scmi_smt *smt,
 	}
 
 	/* Load message in shared memory */
-	hdr->channel_status &= ~SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE;
-	hdr->length = msg->in_msg_sz + sizeof(hdr->msg_header);
-	hdr->msg_header = SMT_HEADER_TOKEN(0) |
-			  SMT_HEADER_MESSAGE_TYPE(0) |
-			  SMT_HEADER_PROTOCOL_ID(msg->protocol_id) |
-			  SMT_HEADER_MESSAGE_ID(msg->message_id);
+	iowrite32(ioread32(&hdr->channel_status) & ~SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE,
+		  &hdr->channel_status);
+	iowrite32(msg->in_msg_sz + sizeof(hdr->msg_header), &hdr->length);
+	iowrite32(SMT_HEADER_TOKEN(0) |
+		  SMT_HEADER_MESSAGE_TYPE(0) |
+		  SMT_HEADER_PROTOCOL_ID(msg->protocol_id) |
+		  SMT_HEADER_MESSAGE_ID(msg->message_id), &hdr->msg_header);
 
 	memcpy_toio(hdr->msg_payload, msg->in_msg, msg->in_msg_sz);
 
@@ -118,23 +119,23 @@ int scmi_read_resp_from_smt(struct udevice *dev, struct scmi_smt *smt,
 {
 	struct scmi_smt_header *hdr = (void *)smt->buf;
 
-	if (!(hdr->channel_status & SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE)) {
+	if (!(ioread32(&hdr->channel_status) & SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE)) {
 		dev_err(dev, "Channel unexpectedly busy\n");
 		return -EBUSY;
 	}
 
-	if (hdr->channel_status & SCMI_SHMEM_CHAN_STAT_CHANNEL_ERROR) {
+	if (ioread32(&hdr->channel_status) & SCMI_SHMEM_CHAN_STAT_CHANNEL_ERROR) {
 		dev_err(dev, "Channel error reported, reset channel\n");
 		return -ECOMM;
 	}
 
-	if (hdr->length > msg->out_msg_sz + sizeof(hdr->msg_header)) {
+	if (ioread32(&hdr->length) > msg->out_msg_sz + sizeof(hdr->msg_header)) {
 		dev_err(dev, "Buffer too small\n");
 		return -ETOOSMALL;
 	}
 
 	/* Get the data */
-	msg->out_msg_sz = hdr->length - sizeof(hdr->msg_header);
+	msg->out_msg_sz = ioread32(&hdr->length) - sizeof(hdr->msg_header);
 	memcpy_fromio(msg->out_msg, hdr->msg_payload, msg->out_msg_sz);
 
 	return 0;
@@ -147,7 +148,8 @@ void scmi_clear_smt_channel(struct scmi_smt *smt)
 {
 	struct scmi_smt_header *hdr = (void *)smt->buf;
 
-	hdr->channel_status &= ~SCMI_SHMEM_CHAN_STAT_CHANNEL_ERROR;
+	iowrite32(ioread32(&hdr->channel_status) & ~SCMI_SHMEM_CHAN_STAT_CHANNEL_ERROR,
+		  &hdr->channel_status);
 }
 
 /**
@@ -171,12 +173,12 @@ int scmi_msg_to_smt_msg(struct udevice *dev, struct scmi_smt *smt,
 
 	*buf_size = msg->in_msg_sz + sizeof(hdr->msg_header);
 
-	hdr->msg_header = SMT_HEADER_TOKEN(0) |
-			  SMT_HEADER_MESSAGE_TYPE(0) |
-			  SMT_HEADER_PROTOCOL_ID(msg->protocol_id) |
-			  SMT_HEADER_MESSAGE_ID(msg->message_id);
+	iowrite32(SMT_HEADER_TOKEN(0) |
+		  SMT_HEADER_MESSAGE_TYPE(0) |
+		  SMT_HEADER_PROTOCOL_ID(msg->protocol_id) |
+		  SMT_HEADER_MESSAGE_ID(msg->message_id), &hdr->msg_header);
 
-	memcpy(hdr->msg_payload, msg->in_msg, msg->in_msg_sz);
+	memcpy_fromio(hdr->msg_payload, msg->in_msg, msg->in_msg_sz);
 
 	return 0;
 }
@@ -196,7 +198,7 @@ int scmi_msg_from_smt_msg(struct udevice *dev, struct scmi_smt *smt,
 	}
 
 	msg->out_msg_sz = buf_size - sizeof(hdr->msg_header);
-	memcpy(msg->out_msg, hdr->msg_payload, msg->out_msg_sz);
+	memcpy_toio(msg->out_msg, hdr->msg_payload, msg->out_msg_sz);
 
 	return 0;
 }
