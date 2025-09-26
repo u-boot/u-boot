@@ -51,6 +51,7 @@ config SYS_NAND_NO_SUBPAGE_WRITE
 config DM_NAND_ATMEL
 	bool "Support Atmel NAND controller with DM support"
 	depends on ARCH_AT91
+	select ATMEL_EBI
 	select SYS_NAND_SELF_INIT
 	imply SYS_NAND_USE_FLASH_BBT
 	help
