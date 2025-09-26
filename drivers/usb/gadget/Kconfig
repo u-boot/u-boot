@@ -151,6 +151,7 @@ config USB_GADGET_OS_DESCRIPTORS
 
 config CI_UDC
 	bool "ChipIdea device controller"
+	depends on !DM_USB_GADGET
 	select USB_GADGET_DUALSPEED
 	help
 	  Say Y here to enable device controller functionality of the
