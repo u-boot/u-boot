@@ -29,6 +29,11 @@ F:	configs/generic-rk3588_defconfig
 F:	arch/arm/dts/rk3588-generic.dts
 F:	arch/arm/dts/rk3588-generic-u-boot.dtsi
 
+MNT-REFORM2-RK3588
+M:	Peter Robinson <pbrobinson@gmail.com>
+S:	Maintained
+F:	configs/mnt-reform2-rk3588_defconfig
+
 ORANGEPI-5-RK3588
 M:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
