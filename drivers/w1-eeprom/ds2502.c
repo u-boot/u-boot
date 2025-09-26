@@ -243,7 +243,7 @@ U_BOOT_DRIVER(ds2502) = {
 	.probe		= ds2502_probe,
 };
 
-u8 family_supported[] = {
+static u8 family_supported[] = {
 	W1_FAMILY_DS2502,
 };
 
