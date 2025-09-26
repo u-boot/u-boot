@@ -938,6 +938,7 @@ config STACKPROTECTOR
 
 config MMU_PGPROT
 	bool "Enable RO, RW and RX mappings"
+	depends on !SANDBOX
 	help
 	  U-Boot maps all pages as RWX. If selected pages will
 	  be marked as RO(.rodata), RX(.text), RW(.data) right after
