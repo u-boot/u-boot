@@ -8,7 +8,7 @@ own ethernet device driver.  Here we will describe a new pseudo 'APE' driver.
 
 Most existing drivers do already - and new network driver MUST - use the
 U-Boot core driver model. Generic information about this can be found in
-doc/driver-model/design.rst, this document will thus focus on the network
+:doc:`/develop/driver-model/design`, this document will thus focus on the network
 specific code parts.
 Some drivers are still using the old Ethernet interface, differences between
 the two and hints about porting will be handled at the end.

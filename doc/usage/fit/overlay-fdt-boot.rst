@@ -13,7 +13,7 @@ that matches the desired configuration.
 
 This document focuses on specifically using overlays as part of a FIT image.
 General information regarding overlays including its syntax and building it
-can be found in doc/README.fdt-overlays
+can be found in :doc:`/usage/fdt_overlays`
 
 Configuration without overlays
 ------------------------------

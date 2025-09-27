@@ -145,7 +145,7 @@ fdtgrep is also used to remove:
   'bootph-verify' (VPL))
 
 All the nodes remaining in the SPL devicetree are bound
-(see doc/driver-model/design.rst).
+(see :doc:`/develop/driver-model/design`).
 
 NOTE: U-Boot migrated to a new schema for the u-boot,dm-* tags in 2023. Please
 update to use the new bootph-* tags as described in the
