@@ -7,6 +7,8 @@
 
 #include <hang.h>
 #include <spl.h>
+#include <asm/arch/mailbox_s10.h>
+#include <asm/arch/smmu_s10.h>
 #include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -132,6 +134,7 @@ u32 spl_boot_mode(const u32 boot_device)
 /* board specific function prior loading SSBL / U-Boot */
 void spl_perform_fixups(struct spl_image_info *spl_image)
 {
+#if (IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5))
 	int ret;
 	struct udevice *dev;
 
@@ -140,4 +143,7 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 		printf("HPS SMMU secure settings init failed: %d\n", ret);
 		hang();
 	}
+#endif
+
+	socfpga_init_smmu();
 }
