@@ -799,10 +799,7 @@ static void dwc3_ep0_complete_data(struct dwc3 *dwc,
 	status = DWC3_TRB_SIZE_TRBSTS(trb->size);
 	if (status == DWC3_TRBSTS_SETUP_PENDING) {
 		dev_dbg(dwc->dev, "Setup Pending received");
-
-		if (r)
-			dwc3_gadget_giveback(ep0, r, -ECONNRESET);
-
+		dwc3_gadget_giveback(ep0, r, -ECONNRESET);
 		return;
 	}
 
