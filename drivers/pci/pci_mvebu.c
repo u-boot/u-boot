@@ -763,6 +763,7 @@ static int mvebu_pcie_bind(struct udevice *parent)
 			pcie->mem.start = mem.start;
 			pcie->mem.end = mem.start + SZ_128M - 1;
 			mem.start += SZ_128M;
+			mem.end = mem.start + SZ_128M - 1;
 		} else {
 			printf("%s: unable to assign mbus window for mem\n", pcie->name);
 			pcie->mem.start = 0;
@@ -773,6 +774,7 @@ static int mvebu_pcie_bind(struct udevice *parent)
 			pcie->io.start = io.start;
 			pcie->io.end = io.start + SZ_64K - 1;
 			io.start += SZ_64K;
+			io.end = io.start + SZ_64K - 1;
 		} else {
 			printf("%s: unable to assign mbus window for io\n", pcie->name);
 			pcie->io.start = 0;
