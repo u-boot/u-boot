@@ -99,9 +99,6 @@ For this particular issue you can use ``DEFAULT_DEVICE_TREE`` instead::
 
 There is no general way to remove quotes.
 
-If CONFIG_ENV_SOURCE_FILE is empty and the default filename is not present, then
-the old-style C environment is used instead. See below.
-
 Old-style C environment
 -----------------------
 
@@ -114,6 +111,9 @@ Board maintainers are encouraged to migrate to the text-based environment as it
 is easier to maintain. The distro-board script still requires the old-style
 environments, so use :doc:`/develop/bootstd/index` instead.
 
+If both the text-based environment file and the old-style C environment are
+defined, the variables from the old-style C environment will override those set
+in the text-based environment file.
 
 List of environment variables
 -----------------------------

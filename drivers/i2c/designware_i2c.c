@@ -764,7 +764,7 @@ int designware_i2c_of_to_plat(struct udevice *bus)
 
 	ret = reset_get_bulk(bus, &priv->resets);
 	if (ret) {
-		if (ret != -ENOTSUPP)
+		if (ret != -ENOTSUPP && ret != -ENOENT)
 			dev_warn(bus, "Can't get reset: %d\n", ret);
 	} else {
 		reset_deassert_bulk(&priv->resets);

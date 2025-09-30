@@ -52,7 +52,10 @@ long get_ram_size(long *base, long maxsize)
 	long           val;
 	long           size;
 	int            i = 0;
-	int            dcache_en = dcache_status();
+	int            dcache_en = 0;
+
+	if (!CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		dcache_en = dcache_status();
 
 	for (cnt = (maxsize / sizeof(long)) >> 1; cnt > 0; cnt >>= 1) {
 		addr = base + cnt;	/* pointer arith! */

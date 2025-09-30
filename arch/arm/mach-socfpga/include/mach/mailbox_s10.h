@@ -398,10 +398,8 @@ int mbox_rcv_resp(u32 *resp_buf, u32 resp_buf_max_len);
 int mbox_rcv_resp_psci(u32 *resp_buf, u32 resp_buf_max_len);
 int mbox_init(void);
 
-#ifdef CONFIG_CADENCE_QSPI
 int mbox_qspi_close(void);
 int mbox_qspi_open(void);
-#endif
 
 int mbox_reset_cold(void);
 int mbox_hps_stage_notify(u32 execution_stage);

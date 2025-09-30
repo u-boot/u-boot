@@ -139,7 +139,9 @@ comments). Even a "I have no time now, will look into it later"
 message is better than nothing. Also, if there are remarks to a
 patch, these should leave no doubt if they were just comments and the
 patch will be accepted anyway, or if the patch should be
-reworked/resubmitted, or if it was rejected.
+reworked/resubmitted, or if it was rejected. However, if a submitter
+feels it has been too long since posting their patch and not received
+any feedback, it is OK to follow-up and ask.
 
 Review Process, Git Tags
 ------------------------

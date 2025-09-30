@@ -123,22 +123,6 @@ config EFI_VARIABLE_FILE_STORE
 	  Select this option if you want non-volatile UEFI variables to be
 	  stored as file /ubootefi.var on the EFI system partition.
 
-config EFI_RT_VOLATILE_STORE
-	bool "Allow variable runtime services in volatile storage (e.g RAM)"
-	depends on EFI_VARIABLE_FILE_STORE
-	help
-	  When EFI variables are stored on file we don't allow SetVariableRT,
-	  since the OS doesn't know how to write that file. At the same time
-	  we copy runtime variables in DRAM and support GetVariableRT
-
-	  Enable this option to allow SetVariableRT on the RAM backend of
-	  the EFI variable storage. The OS will be responsible for syncing
-	  the RAM contents to the file, otherwise any changes made during
-	  runtime won't persist reboots.
-	  Authenticated variables are not supported. Note that this will
-	  violate the EFI spec since writing auth variables will return
-	  EFI_INVALID_PARAMETER
-
 config EFI_MM_COMM_TEE
 	bool "UEFI variables storage service via the trusted world"
 	depends on OPTEE
@@ -156,6 +140,31 @@ config EFI_MM_COMM_TEE
 	  A door bell mechanism is used to notify the SP when there is data in the shared
 	  MM buffer. The data is copied by u-boot to the shared buffer before issuing
 	  the door bell event.
+
+config EFI_VARIABLE_NO_STORE
+	bool "Don't persist non-volatile UEFI variables"
+	help
+	  If you choose this option, non-volatile variables cannot be persisted.
+	  You could still provide non-volatile variables via
+	  EFI_VARIABLES_PRESEED.
+
+endchoice
+
+config EFI_RT_VOLATILE_STORE
+	bool "Allow variable runtime services in volatile storage (e.g RAM)"
+	depends on EFI_VARIABLE_FILE_STORE
+	help
+	  When EFI variables are stored on file we don't allow SetVariableRT,
+	  since the OS doesn't know how to write that file. At the same time
+	  we copy runtime variables in DRAM and support GetVariableRT
+
+	  Enable this option to allow SetVariableRT on the RAM backend of
+	  the EFI variable storage. The OS will be responsible for syncing
+	  the RAM contents to the file, otherwise any changes made during
+	  runtime won't persist reboots.
+	  Authenticated variables are not supported. Note that this will
+	  violate the EFI spec since writing auth variables will return
+	  EFI_INVALID_PARAMETER
 
 config FFA_SHARED_MM_BUF_SIZE
 	int "Memory size of the shared MM communication buffer"
@@ -183,15 +192,6 @@ config FFA_SHARED_MM_BUF_ADDR
 	  used for communication between the MM feature in U-Boot and
 	  the MM SP in secure world.
 	  It is assumed that the MM SP knows the address of the shared MM communication buffer.
-
-config EFI_VARIABLE_NO_STORE
-	bool "Don't persist non-volatile UEFI variables"
-	help
-	  If you choose this option, non-volatile variables cannot be persisted.
-	  You could still provide non-volatile variables via
-	  EFI_VARIABLES_PRESEED.
-
-endchoice
 
 config EFI_VARIABLES_PRESEED
 	bool "Initial values for UEFI variables"

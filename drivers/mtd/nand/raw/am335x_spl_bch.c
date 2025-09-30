@@ -212,6 +212,8 @@ void nand_init(void)
 	if (nand_chip.select_chip)
 		nand_chip.select_chip(mtd, 0);
 
+	mtd->writesize = CONFIG_SYS_NAND_PAGE_SIZE;
+
 	/* NAND chip may require reset after power-on */
 	nand_command(0, 0, 0, NAND_CMD_RESET);
 }

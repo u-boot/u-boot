@@ -30,7 +30,7 @@ static const struct tfa_info *get_tfa_info(void)
 {
 	void *atf_fdt_blob = (void *)(rcar_atf_boot_args[1]);
 
-	if (fdt_magic(atf_fdt_blob) == FDT_MAGIC) {
+	if (atf_fdt_blob && fdt_magic(atf_fdt_blob) == FDT_MAGIC) {
 		unsigned int i;
 		for (i = 0; i < ARRAY_SIZE(tfa_info); i++) {
 			if (!fdt_node_check_compatible(atf_fdt_blob, 0,
