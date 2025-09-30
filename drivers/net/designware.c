@@ -894,7 +894,7 @@ int designware_eth_probe(struct udevice *dev)
 	if (ret) {
 		debug("%s: No phy supply\n", dev->name);
 	} else {
-		ret = regulator_set_enable(phy_supply, true);
+		ret = regulator_set_enable_if_allowed(phy_supply, true);
 		if (ret) {
 			puts("Error enabling phy supply\n");
 			return ret;

@@ -7,6 +7,7 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <hexdump.h>
+#include <linux/compiler_attributes.h>
 #include <linux/kernel.h>
 #include <lwip/ip4_addr.h>
 #include <lwip/dns.h>
@@ -30,7 +31,8 @@ void (*push_packet)(void *, int len) = 0;
 int net_try_count;
 static int net_restarted;
 int net_restart_wrap;
-static uchar net_pkt_buf[(PKTBUFSRX) * PKTSIZE_ALIGN + PKTALIGN];
+static uchar net_pkt_buf[(PKTBUFSRX) * PKTSIZE_ALIGN + PKTALIGN]
+	__aligned(PKTALIGN);
 uchar *net_rx_packets[PKTBUFSRX];
 uchar *net_rx_packet;
 const u8 net_bcast_ethaddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };

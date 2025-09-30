@@ -44,6 +44,7 @@
 #define DNS_DEBUG                       LWIP_DBG_ON
 #define IP6_DEBUG                       LWIP_DBG_OFF
 #define DHCP6_DEBUG                     LWIP_DBG_OFF
+#define SNTP_DEBUG                      LWIP_DBG_ON
 #endif
 
 #define LWIP_TESTMODE                   0
