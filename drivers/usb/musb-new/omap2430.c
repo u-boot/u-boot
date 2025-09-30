@@ -142,41 +142,49 @@ static int omap2430_musb_of_to_plat(struct udevice *dev)
 	struct omap2430_musb_plat *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
+	int ret;
 
 	plat->base = (void *)dev_read_addr_ptr(dev);
 
-	plat->musb_config.multipoint = fdtdec_get_int(fdt, node, "multipoint",
-						      -1);
-	if (plat->musb_config.multipoint < 0) {
+	ret = fdtdec_get_int(fdt, node, "multipoint", -1);
+	if (ret < 0) {
 		pr_err("MUSB multipoint DT entry missing\n");
 		return -ENOENT;
+	} else {
+		plat->musb_config.multipoint = ret;
 	}
 
 	plat->musb_config.dyn_fifo = 1;
-	plat->musb_config.num_eps = fdtdec_get_int(fdt, node, "num-eps", -1);
-	if (plat->musb_config.num_eps < 0) {
+	ret = fdtdec_get_int(fdt, node, "num-eps", -1);
+	if (ret < 0) {
 		pr_err("MUSB num-eps DT entry missing\n");
 		return -ENOENT;
+	} else {
+		plat->musb_config.num_eps = ret;
 	}
 
-	plat->musb_config.ram_bits = fdtdec_get_int(fdt, node, "ram-bits", -1);
-	if (plat->musb_config.ram_bits < 0) {
+	ret = fdtdec_get_int(fdt, node, "ram-bits", -1);
+	if (ret < 0) {
 		pr_err("MUSB ram-bits DT entry missing\n");
 		return -ENOENT;
+	} else {
+		plat->musb_config.ram_bits = ret;
 	}
 
-	plat->plat.power = fdtdec_get_int(fdt, node, "power", -1);
-	if (plat->plat.power < 0) {
+	ret = fdtdec_get_int(fdt, node, "power", -1);
+	if (ret < 0) {
 		pr_err("MUSB power DT entry missing\n");
 		return -ENOENT;
+	} else {
+		plat->plat.power = ret;
 	}
 
-	plat->otg_board_data.interface_type = fdtdec_get_int(fdt, node,
-							     "interface-type",
-							     -1);
-	if (plat->otg_board_data.interface_type < 0) {
+	ret = fdtdec_get_int(fdt, node, "interface-type", -1);
+	if (ret < 0) {
 		pr_err("MUSB interface-type DT entry missing\n");
 		return -ENOENT;
+	} else {
+		plat->otg_board_data.interface_type = ret;
 	}
 
 #if 0 /* In a perfect world, mode would be set to OTG, mode 3 from DT */
