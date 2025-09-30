@@ -92,13 +92,21 @@ uintptr_t get_stm32mp_bl2_dtb(void)
 }
 
 /*
- * Save the FDT address provided by TF-A in r2 at boot time
+ * Save the FDT address provided by TF-A at boot time
  * This function is called from start.S
  */
-void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
-		      unsigned long r3)
+void save_boot_params(unsigned long x0, unsigned long x1, unsigned long x2,
+		      unsigned long x3)
 {
-	nt_fw_dtb = r2;
+	/* use the ARM64 kernel booting register settings:
+	 * x0 = physical address of device tree blob (dtb) in system RAM.
+	 * so kernel can replace U-Boot in FIP wihtout BL31 modification
+	 * else falback to x2 used in previous TF-A version
+	 */
+	if (x0)
+		nt_fw_dtb = x0;
+	else
+		nt_fw_dtb = x2;
 
 	save_boot_params_ret();
 }
