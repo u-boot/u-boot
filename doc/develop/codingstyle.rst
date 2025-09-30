@@ -23,13 +23,55 @@ The following rules apply:
   <https://peps.python.org/pep-0008/>`_. Use `pylint
   <https://github.com/pylint-dev/pylint>`_ for checking the code.
 
-* Use patman to send your patches (``tools/patman/patman -H`` for full
-  instructions). With a few tags in your commits this will check your patches
-  and take care of emailing them.
+* Use the `b4 <https://git.kernel.org/pub/scm/utils/b4/b4.git/>`_ tool to prepare and
+  send your patches. b4 has become the preferred tool to sending patches for many
+  Linux kernel contributors, and U-Boot ships with a ready-to-use ``.b4-config`` that
+  targets ``u-boot@lists.denx.de`` and integrates with ``scripts/get_maintainer.pl`` for
+  recipient discovery.
 
-* If you don't use patman, make sure to run ``scripts/checkpatch.pl``. For
-  more information, read :doc:`checkpatch`. Note that this should be done
-  *before* posting on the mailing list!
+  Start a topical series with ``b4 prep`` and keep the commits organised with
+  ``git rebase -i``. ``b4 prep --edit-cover`` opens an editor for the cover
+  letter, while ``b4 prep --auto-to-cc`` collects reviewers and maintainers from
+  both the configuration file and ``scripts/get_maintainer.pl``.
+
+  .. code-block:: bash
+
+     b4 prep -n mmc-fixes
+     git rebase -i origin/master
+     b4 prep --edit-cover
+     b4 prep --auto-to-cc
+
+  Run the style checks before sending. ``b4 prep --check`` wraps the existing
+  tooling so you see the output from ``scripts/checkpatch.pl`` alongside b4's
+  own validation. You can always invoke ``scripts/checkpatch.pl`` directly for
+  additional runs.
+
+  .. code-block:: bash
+
+     b4 prep --check
+
+  When the series is ready, use ``b4 send``. Begin with ``--dry-run`` to review
+  the generated emails and ``--reflect`` to copy yourself for records before
+  dispatching to ``u-boot@lists.denx.de``.
+
+  .. code-block:: bash
+
+     b4 send --dry-run
+     b4 send --reflect
+     b4 send
+
+  After reviews arrive, collect Acked-by/Tested-by tags with ``b4 trailers -u``
+  and fold them into your commits before resending the updated series.
+
+  .. code-block:: bash
+
+     b4 trailers -u
+     git rebase -i origin/master
+     b4 send
+
+* Run ``scripts/checkpatch.pl`` directly or via ``b4 prep --check`` so that all
+  issues are resolved *before* posting on the mailing list. For more information,
+  read :doc:`checkpatch`.
 
 * Source files originating from different projects (for example the MTD
   subsystem or the hush shell code from the BusyBox project) may, after
