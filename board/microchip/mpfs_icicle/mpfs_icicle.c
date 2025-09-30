@@ -74,7 +74,7 @@ int board_fit_config_name_match(const char *name)
 
 int board_fdt_blob_setup(void **fdtp)
 {
-	fdtp = (void *)_end;
+	*fdtp = (void *)_end;
 
 	/*
 	 * The devicetree provided by the previous stage is very minimal due to
@@ -85,7 +85,7 @@ int board_fdt_blob_setup(void **fdtp)
 	 */
 	if (IS_ENABLED(CONFIG_OF_BOARD) && !IS_ENABLED(CONFIG_MULTI_DTB_FIT)) {
 		if (gd->arch.firmware_fdt_addr)
-			fdtp = (void *)(uintptr_t)gd->arch.firmware_fdt_addr;
+			*fdtp = (void *)(uintptr_t)gd->arch.firmware_fdt_addr;
 	}
 
 	return 0;
