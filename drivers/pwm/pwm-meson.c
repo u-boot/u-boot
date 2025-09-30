@@ -359,8 +359,9 @@ static int meson_pwm_probe(struct udevice *dev)
 
 			/* We have our source clock, do not alter HW clock mux */
 			continue;
-		} else
+		} else if (err) {
 			return err;
+		}
 
 		/* Get id in list */
 		for (p = 0 ; p < data->num_parents ; ++p) {
