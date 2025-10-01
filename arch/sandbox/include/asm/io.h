@@ -44,17 +44,17 @@ phys_addr_t map_to_sysmem(const void *ptr);
 unsigned long sandbox_read(const void *addr, enum sandboxio_size_t size);
 void sandbox_write(void *addr, unsigned int val, enum sandboxio_size_t size);
 
-#define readb(addr) sandbox_read((const void *)addr, SB_SIZE_8)
-#define readw(addr) sandbox_read((const void *)addr, SB_SIZE_16)
-#define readl(addr) sandbox_read((const void *)addr, SB_SIZE_32)
+#define readb(addr) ({ u8 __v = sandbox_read((const void *)addr, SB_SIZE_8); __v; })
+#define readw(addr) ({ u16 __v = sandbox_read((const void *)addr, SB_SIZE_16); __v; })
+#define readl(addr) ({ u32 __v = sandbox_read((const void *)addr, SB_SIZE_32); __v; })
 #ifdef CONFIG_64BIT
-#define readq(addr) sandbox_read((const void *)addr, SB_SIZE_64)
+#define readq(addr) ({ u64 __v = sandbox_read((const void *)addr, SB_SIZE_64); __v; })
 #endif
-#define writeb(v, addr) sandbox_write((void *)addr, v, SB_SIZE_8)
-#define writew(v, addr) sandbox_write((void *)addr, v, SB_SIZE_16)
-#define writel(v, addr) sandbox_write((void *)addr, v, SB_SIZE_32)
+#define writeb(v, addr) ({ u8 __v = v; sandbox_write((void *)addr, __v, SB_SIZE_8); __v; })
+#define writew(v, addr) ({ u16 __v = v; sandbox_write((void *)addr, __v, SB_SIZE_16); __v; })
+#define writel(v, addr) ({ u32 __v = v; sandbox_write((void *)addr, __v, SB_SIZE_32); __v; })
 #ifdef CONFIG_64BIT
-#define writeq(v, addr) sandbox_write((void *)addr, v, SB_SIZE_64)
+#define writeq(v, addr) ({ u64 __v = v; sandbox_write((void *)addr, __v, SB_SIZE_64); __v; })
 #endif
 
 #define readb_relaxed			readb
