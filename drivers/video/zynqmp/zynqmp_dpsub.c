@@ -240,7 +240,6 @@ static void avbuf_video_select(struct udevice *dev, enum av_buf_video_stream vid
 static void config_gfx_pipeline(struct udevice *dev)
 {
 	struct zynqmp_dpsub_priv *dp_sub = dev_get_priv(dev);
-	u16 *csc_matrix, *offset_matrix;
 	u32 regval = 0, index = 0, *scaling_factors = NULL;
 	u16 rgb_coeffs[] = { 0x1000, 0x0000, 0x0000,
 			     0x0000, 0x1000, 0x0000,
@@ -262,19 +261,18 @@ static void config_gfx_pipeline(struct udevice *dev)
 								video->sampling_en;
 	writel(regval, dp_sub->base_addr + AVBUF_V_BLEND_LAYER1_CONTROL);
 
-	if (video->is_rgb) {
-		csc_matrix = rgb_coeffs;
-		offset_matrix = rgb_offset;
-	}
+	if (!video->is_rgb)
+		return;
+
 	/* Program Colorspace conversion coefficients */
 	for (index = 9; index < 12; index++) {
-		writel(offset_matrix[index - 9], dp_sub->base_addr +
+		writel(rgb_offset[index - 9], dp_sub->base_addr +
 		       AVBUF_V_BLEND_IN2CSC_COEFF0 + (index * 4));
 	}
 
 	/* Program Colorspace conversion matrix */
 	for (index = 0; index < 9; index++) {
-		writel(csc_matrix[index], dp_sub->base_addr +
+		writel(rgb_coeffs[index], dp_sub->base_addr +
 		       AVBUF_V_BLEND_IN2CSC_COEFF0 + (index * 4));
 	}
 }
