@@ -190,7 +190,7 @@ config WDT_DA9063
 
 config WDT_DAVINCI
 	bool "DaVinci watchdog timer support"
-	depends on WDT
+	depends on WDT && (ARCH_DAVINCI || ARCH_KEYSTONE)
 	help
 	  Select this to enable the watchdog timer for DaVinci SoCs such as the
 	  OMAP-L138.
