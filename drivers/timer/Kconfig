@@ -312,7 +312,7 @@ config MTK_TIMER
 
 config MCHP_PIT64B_TIMER
 	bool "Microchip 64-bit periodic interval timer support"
-	depends on TIMER
+	depends on TIMER && ARCH_AT91
 	help
 	  Select this to enable support for Microchip 64-bit periodic
 	  interval timer.
