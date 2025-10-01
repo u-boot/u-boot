@@ -695,12 +695,6 @@ config SLG7XL45106_I2C_GPO
 	   8-bit gpo expander, all gpo lines are controlled by writing
 	   value into data register.
 
-config FTGPIO010
-	bool "Faraday Technology FTGPIO010 driver"
-	depends on DM_GPIO
-	help
-	   Support for GPIOs on Faraday Technology's FTGPIO010 controller.
-
 config ADP5585_GPIO
 	bool "ADP5585 GPIO driver"
 	depends on DM_GPIO && DM_I2C
