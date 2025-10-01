@@ -1308,11 +1308,22 @@ config CMD_IO
 
 config CMD_IOTRACE
 	bool "iotrace - Support for tracing I/O activity"
+	depends on IO_TRACE
 	help
 	  Provides an 'iotrace' command which supports recording I/O reads and
 	  writes in a trace buffer in memory . It also maintains a checksum
 	  of the trace records (even if space is exhausted) so that the
 	  sequence of I/O accesses can be verified.
+
+	  Example output from the 'iotrace stats' command is below.
+
+		iotrace is enabled
+		Start:  10000000	(buffer start address)
+		Size:   00010000	(buffer size)
+		Offset: 00000120	(current buffer offset)
+		Output: 10000120	(start + offset)
+		Count:  00000018	(number of trace records)
+		CRC32:  9526fb66	(CRC32 of all trace records)
 
 	  When debugging drivers it is useful to see what I/O accesses were
 	  done and in what order.

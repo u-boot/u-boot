@@ -1264,4 +1264,13 @@ config VPL_IMAGE_SIGN_INFO
 endif
 
 config IO_TRACE
-	bool
+	bool "Intercept and checksum all I/O accesses"
+	depends on ARM || SANDBOX
+	default y if SANDBOX
+	help
+	  When enabled, U-Boot intercepts all I/O accesses and can checksum
+	  them or write a list of them out to memory. See the 'iotrace' command
+	  for details. This is useful for testing device drivers since it can
+	  confirm that the driver behaves the same way before and after a code
+	  change. To add support for your architecture, add '#include
+	  <iotrace.h>' to the bottom of arch/<arch>/include/asm/io.h and test.

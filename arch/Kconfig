@@ -202,7 +202,6 @@ config SANDBOX
 	select DM_SPI
 	select DM_SPI_FLASH
 	select GZIP_COMPRESSED
-	select IO_TRACE
 	select LZO
 	select MMC
 	select MTD
