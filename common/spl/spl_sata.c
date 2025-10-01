@@ -14,10 +14,12 @@
 #include <errno.h>
 #include <fat.h>
 #include <image.h>
+#include <linux/compiler.h>
 
-static int spl_sata_load_image_raw(struct spl_image_info *spl_image,
-		struct spl_boot_device *bootdev,
-		struct blk_desc *stor_dev, unsigned long sector)
+static int __maybe_unused spl_sata_load_image_raw(struct spl_image_info *spl_image,
+						  struct spl_boot_device *bootdev,
+						  struct blk_desc *stor_dev,
+						  unsigned long sector)
 {
 	struct legacy_img_hdr *header;
 	unsigned long count;
