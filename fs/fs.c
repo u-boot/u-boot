@@ -316,8 +316,7 @@ static struct fstype_info fstypes[] = {
 	},
 #endif
 #endif
-#ifndef CONFIG_XPL_BUILD
-#ifdef CONFIG_FS_BTRFS
+#if CONFIG_IS_ENABLED(FS_BTRFS)
 	{
 		.fstype = FS_TYPE_BTRFS,
 		.name = "btrfs",
@@ -336,7 +335,6 @@ static struct fstype_info fstypes[] = {
 		.ln = fs_ln_unsupported,
 		.rename = fs_rename_unsupported,
 	},
-#endif
 #endif
 #if CONFIG_IS_ENABLED(FS_SQUASHFS)
 	{
@@ -360,7 +358,7 @@ static struct fstype_info fstypes[] = {
 		.rename = fs_rename_unsupported,
 	},
 #endif
-#if IS_ENABLED(CONFIG_FS_EROFS)
+#if CONFIG_IS_ENABLED(FS_EROFS)
 	{
 		.fstype = FS_TYPE_EROFS,
 		.name = "erofs",
@@ -382,7 +380,7 @@ static struct fstype_info fstypes[] = {
 		.rename = fs_rename_unsupported,
 	},
 #endif
-#if IS_ENABLED(CONFIG_FS_EXFAT)
+#if CONFIG_IS_ENABLED(FS_EXFAT)
 	{
 		.fstype = FS_TYPE_EXFAT,
 		.name = "exfat",
