@@ -1546,7 +1546,7 @@ static int sd_select_bus_width(struct mmc *mmc, int w)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(MMC_WRITE)
+#if CONFIG_IS_ENABLED(MMC_WRITE) && !CONFIG_IS_ENABLED(MMC_TINY)
 static int sd_read_ssr(struct mmc *mmc)
 {
 	static const unsigned int sd_au_size[] = {
