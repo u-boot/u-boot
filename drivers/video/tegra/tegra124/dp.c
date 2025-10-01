@@ -1515,7 +1515,6 @@ int tegra_dp_enable(struct udevice *dev, int panel_bpp,
 	if (ret || retry >= DP_POWER_ON_MAX_TRIES) {
 		debug("dp: failed to power on panel (0x%x)\n", ret);
 		return -ENETUNREACH;
-		goto error_enable;
 	}
 
 	/* Confirm DP plugging status */
@@ -1561,7 +1560,6 @@ int tegra_dp_enable(struct udevice *dev, int panel_bpp,
 	}
 
 	priv->enabled = true;
-error_enable:
 	return 0;
 }
 
