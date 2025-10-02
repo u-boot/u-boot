@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <string.h>
+#include <linux/stringify.h>
 #include <asm/cache.h>
 
 /* Length of env var "BOOT_*_LEFT" */
@@ -304,7 +305,7 @@ static int find_active_slot(char **slot_name, ulong *slot_tries)
 	if (!slot_found) {
 		if (IS_ENABLED(CONFIG_BOOTMETH_RAUC_RESET_ALL_ZERO_TRIES)) {
 			log_warning("WARNING: No valid slot found\n");
-			log_info("INFO: Resetting boot order and all slot tries\n");
+			log_info("INFO: Resetting all slot tries to " __stringify(CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES) "\n");
 			boot_order_list = str_to_list(CONFIG_BOOTMETH_RAUC_BOOT_ORDER);
 			for (i = 0; boot_order_list[i]; i++) {
 				sprintf(boot_left, "BOOT_%s_LEFT", boot_order_list[i]);
