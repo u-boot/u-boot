@@ -1584,8 +1584,10 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 	table_offset = frag_entry.start - (start * ctxt.cur_dev->blksz);
 	n_blks = DIV_ROUND_UP(table_size + table_offset, ctxt.cur_dev->blksz);
 
-	if (__builtin_mul_overflow(n_blks, ctxt.cur_dev->blksz, &buf_size))
-		return -EINVAL;
+	if (__builtin_mul_overflow(n_blks, ctxt.cur_dev->blksz, &buf_size)) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 	fragment = malloc_cache_aligned(buf_size);
 
