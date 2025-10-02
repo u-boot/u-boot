@@ -994,14 +994,12 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 				}
 			}
 
-			if (i_version >= 0) {
-				if (jDir->type == DT_LNK)
-					jNode = get_node_mem(i_offset, NULL);
-				else
-					jNode = get_fl_mem(i_offset,
-							   sizeof(*jNode),
-							   NULL);
-			}
+			if (jDir->type == DT_LNK)
+				jNode = get_node_mem(i_offset, NULL);
+			else
+				jNode = get_fl_mem(i_offset,
+						   sizeof(*jNode),
+						   NULL);
 
 			dump_inode(pL, jDir, jNode);
 			put_fl_mem(jNode, NULL);
