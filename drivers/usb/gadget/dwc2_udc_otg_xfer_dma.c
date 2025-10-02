@@ -526,7 +526,7 @@ static int dwc2_udc_irq(int irq, void *_dev)
 		if (gotgint & GOTGINT_SES_END_DET) {
 			debug_cond(DEBUG_ISR, "\t\tSession End Detected\n");
 			/* Let gadget detect disconnected state */
-			if (dev->driver->disconnect) {
+			if (dev->driver && dev->driver->disconnect) {
 				spin_unlock_irqrestore(&dev->lock, flags);
 				dev->driver->disconnect(&dev->gadget);
 				spin_lock_irqsave(&dev->lock, flags);
