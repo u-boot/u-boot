@@ -404,7 +404,7 @@ static int do_bootflow_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	printf("Name:      %s\n", bflow->name);
-	printf("Device:    %s\n", bflow->dev->name);
+	printf("Device:    %s\n", bflow->dev ? bflow->dev->name : "(none)");
 	printf("Block dev: %s\n", bflow->blk ? bflow->blk->name : "(none)");
 	printf("Method:    %s\n", bflow->method->name);
 	printf("State:     %s\n", bootflow_state_get_name(bflow->state));
