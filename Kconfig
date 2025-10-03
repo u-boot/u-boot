@@ -511,6 +511,7 @@ config SPL_IMAGE
 
 config REMAKE_ELF
 	bool "Recreate an ELF image from raw U-Boot binary"
+	depends on !COMPILE_TEST
 	help
 	  Enable this to recreate an ELF image (u-boot.elf) from the raw
 	  U-Boot binary (u-boot.bin), which may already have been statically
