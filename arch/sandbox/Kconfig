@@ -27,14 +27,17 @@ config SANDBOX_RAM_SIZE_MB
 
 config SANDBOX_SPL
 	bool "Enable SPL for sandbox"
+	depends on !COMPILE_TEST
 	select SUPPORT_SPL
 
 config SANDBOX_TPL
 	bool "Enable TPL for sandbox"
+	depends on !COMPILE_TEST
 	select SUPPORT_TPL
 
 config SANDBOX_VPL
 	bool "Enable VPL for sandbox"
+	depends on !COMPILE_TEST
 	select SUPPORT_VPL
 
 config SYS_CONFIG_NAME
