@@ -12,7 +12,7 @@ config SPL_DFU_NO_RESET
 
 config SPL
 	bool "Enable SPL"
-	depends on SUPPORT_SPL
+	depends on SUPPORT_SPL && !COMPILE_TEST
 	help
 	  If you want to build SPL as well as the normal image, say Y.
 
@@ -1629,7 +1629,7 @@ config SPL_AT91_MCK_BYPASS
 endmenu
 
 config TPL
-	depends on SUPPORT_TPL
+	depends on SUPPORT_TPL && !COMPILE_TEST
 	bool "Enable TPL"
 	help
 	  If you want to build TPL as well as the normal image and SPL, say Y.
@@ -1637,7 +1637,7 @@ config TPL
 source "common/spl/Kconfig.tpl"
 
 config VPL
-	depends on SUPPORT_SPL
+	depends on SUPPORT_SPL && !COMPILE_TEST
 	bool "Enable VPL"
 	help
 	  If you want to build VPL as well as the normal image, TPL and SPL,
