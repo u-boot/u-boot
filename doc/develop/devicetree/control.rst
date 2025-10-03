@@ -79,7 +79,7 @@ regularly synced with the Linux kernel and hence no need for manual devicetree
 sync. You may find that the `dts/upstream/` already has a suitable devicetree
 file for your board. Look in `dts/upstream/src/<arch>/<vendor>`.
 
-If not you might find other boards with suitable files that you can
+If not, you might find other boards with suitable files that you can
 modify to your needs. Look in the board directories for files with a
 .dts extension.
 
@@ -98,7 +98,7 @@ Linux kernel release. To sync the `dts/upstream/` subtree, run::
 
     ./tools/update-subtree.sh pull dts <devicetree-rebasing-release-tag>
 
-If required it is also possible to cherry-pick fixes from the
+If required, it is also possible to cherry-pick fixes from the
 devicetree-rebasing repository prior to next sync, usage::
 
     ./tools/update-subtree.sh pick dts <devicetree-rebasing-commit-id>
@@ -192,7 +192,7 @@ With `dts/upstream` Git subtree, it is ensured that devicetree files in U-Boot
 are an exact copy of those in Linux kernel available under
 `dts/upstream/src/<arch>/<vendor>`.
 
-U-Boot is of course a very different project from Linux, e.g. it operates under
+U-Boot is, of course, a very different project from Linux, e.g. it operates under
 much more restrictive memory and code-size constraints. Where Linux may use a
 full clock driver with Common Clock Format (CCF) to find the input clock to the
 UART, U-Boot typically wants to output a banner as early as possible before too
@@ -212,7 +212,7 @@ order::
    <CONFIG_SYS_VENDOR>-u-boot.dtsi
    u-boot.dtsi
 
-Only one of these is selected but of course you can #include another one within
+Only one of these is selected, but, of course, you can #include another one within
 that file, to create a hierarchy of shared files.
 
 
@@ -309,8 +309,8 @@ Limitations
 Devicetrees can help reduce the complexity of supporting variants of boards
 which use the same SOC / CPU.
 
-However U-Boot is designed to build for a single architecture type and CPU
-type. So for example it is not possible to build a single ARM binary
+However, U-Boot is designed to build for a single architecture type and CPU
+type. So, for example, it is not possible to build a single ARM binary
 which runs on your AT91 and OMAP boards, relying on an fdt to configure
 the various features. This is because you must select one of
 the CPU families within arch/arm/cpu/arm926ejs (omap or at91) at build
@@ -328,7 +328,7 @@ files are pulled in, and the fdt controls *how* those files work.
 History
 -------
 
-U-Boot configuration was previous done using CONFIG options in the board
+U-Boot configuration was previously done using CONFIG options in the board
 config file. This eventually got out of hand with nearly 10,000 options.
 
 U-Boot adopted devicetrees around the same time as Linux and early boards
