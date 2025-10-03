@@ -133,8 +133,7 @@ static inline bool image_supported(enum spl_test_image type)
 		return IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER);
 	case FIT_INTERNAL:
 	case FIT_EXTERNAL:
-		return IS_ENABLED(CONFIG_SPL_LOAD_FIT) ||
-		       IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL);
+		return IS_ENABLED(CONFIG_SPL_LOAD_FIT);
 	}
 
 	return false;
