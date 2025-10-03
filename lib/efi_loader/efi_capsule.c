@@ -1096,8 +1096,10 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
 	while (1) {
 		tmp_size = dirent_size;
 		ret = EFI_CALL((*dirh->read)(dirh, &tmp_size, dirent));
-		if (ret != EFI_SUCCESS)
+		if (ret != EFI_SUCCESS) {
+			free(tmp_files);
 			goto err;
+		}
 		if (!tmp_size)
 			break;
 
