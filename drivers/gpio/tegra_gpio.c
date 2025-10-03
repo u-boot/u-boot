@@ -182,21 +182,6 @@ static int tegra_gpio_get_value(struct udevice *dev, unsigned offset)
 	return (val >> GPIO_BIT(gpio)) & 1;
 }
 
-/* write GPIO OUT value to pin 'gpio' */
-static int tegra_gpio_set_value(struct udevice *dev, unsigned offset, int value)
-{
-	struct tegra_port_info *state = dev_get_priv(dev);
-	int gpio = state->base_gpio + offset;
-
-	debug("gpio_set_value: pin = %d (port %d:bit %d), value = %d\n",
-	      gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio), value);
-
-	/* Configure GPIO output value. */
-	set_level(gpio, value);
-
-	return 0;
-}
-
 void gpio_config_table(const struct tegra_gpio_config *config, int len)
 {
 	int i;
@@ -258,11 +243,30 @@ static int tegra_gpio_rfree(struct udevice *dev, unsigned int offset)
 	return 0;
 }
 
+static int tegra_gpio_set_flags(struct udevice *dev, unsigned int offset, ulong flags)
+{
+	struct tegra_port_info *state = dev_get_priv(dev);
+	int gpio = state->base_gpio + offset;
+
+	debug("gpio_set_flags: pin = %d (port %d:bit %d), flag = %lx\n",
+	      gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio), flags);
+
+	if (flags & GPIOD_IS_AF) {
+		return tegra_gpio_rfree(dev, offset);
+	} else if (flags & GPIOD_IS_IN) {
+		return tegra_gpio_direction_input(dev, offset);
+	} else if (flags & GPIOD_IS_OUT) {
+		bool value = flags & GPIOD_IS_OUT_ACTIVE;
+
+		return tegra_gpio_direction_output(dev, offset, value);
+	}
+
+	return 0;
+}
+
 static const struct dm_gpio_ops gpio_tegra_ops = {
-	.direction_input	= tegra_gpio_direction_input,
-	.direction_output	= tegra_gpio_direction_output,
+	.set_flags		= tegra_gpio_set_flags,
 	.get_value		= tegra_gpio_get_value,
-	.set_value		= tegra_gpio_set_value,
 	.get_function		= tegra_gpio_get_function,
 	.xlate			= tegra_gpio_xlate,
 	.rfree			= tegra_gpio_rfree,
