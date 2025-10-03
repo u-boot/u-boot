@@ -17,6 +17,14 @@
 	bootph-all;
 };
 
+&evm_12v0 {
+	bootph-all;
+};
+
+&vcc3v3_io {
+	bootph-all;
+};
+
 &vtt_supply {
 	bootph-all;
 };
