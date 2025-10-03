@@ -39,6 +39,7 @@ menuconfig USB_GADGET
 
 config SPL_USB_GADGET
 	bool "USB Gadget Support in SPL"
+	depends on SPL_FRAMEWORK
 	help
 	  Enable USB Gadget API which allows to enable USB device functions
 	  in SPL.
