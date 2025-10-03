@@ -2425,7 +2425,7 @@ retry:
 	if (!s) {
 		spin_unlock(&sb_lock);
 		s = alloc_super(type, flags);
-		if (!s)
+		if (IS_ERR_OR_NULL(s))
 			return ERR_PTR(-ENOMEM);
 #ifndef __UBOOT__
 		goto retry;
