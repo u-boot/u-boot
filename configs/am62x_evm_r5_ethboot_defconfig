@@ -1,4 +1,4 @@
-#include<configs/am62x_evm_r5_defconfig>
+#include <configs/am62x_evm_r5_defconfig>
 
 CONFIG_ARM=y
 CONFIG_ARCH_K3=y
