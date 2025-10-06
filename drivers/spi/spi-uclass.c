@@ -449,7 +449,8 @@ int _spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 #if CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)
 	if ((dev_read_bool(dev, "parallel-memories")) && !slave->multi_cs_cap) {
 		dev_err(dev, "controller doesn't support multi CS\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err;
 	}
 #endif
 	/*
