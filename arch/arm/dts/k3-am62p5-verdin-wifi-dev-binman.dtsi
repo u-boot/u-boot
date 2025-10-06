@@ -112,7 +112,7 @@
 
 #if IS_ENABLED(CONFIG_TARGET_VERDIN_AM62P_A53)
 
-#define SPL_VERDIN_AM62P_DTB "spl/dts/k3-am62p5-verdin-wifi-dev.dtb"
+#define SPL_VERDIN_AM62P_DTB "spl/dts/ti/k3-am62p5-verdin-wifi-dev.dtb"
 #define VERDIN_AM62P_DTB "u-boot.dtb"
 
 &binman {

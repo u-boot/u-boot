@@ -12,6 +12,7 @@ config TARGET_VERDIN_AM62P_A53
         select ARM64
         select BINMAN
         select OF_SYSTEM_SETUP
+        imply OF_UPSTREAM
 
 config TARGET_VERDIN_AM62P_R5
         bool "Toradex Verdin AM62P running on R5"
