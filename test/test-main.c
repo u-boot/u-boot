@@ -687,7 +687,7 @@ void ut_report(struct ut_stats *stats, int run_count)
 	else
 		printf("Tests");
 	printf(" run: %d, ", stats->test_count);
-	if (stats && stats->test_count) {
+	if (stats->test_count) {
 		ulong dur = stats->duration_ms;
 
 		printf("%ld ms, average: %ld ms, ", dur,
