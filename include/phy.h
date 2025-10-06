@@ -123,6 +123,11 @@ struct phy_driver {
 	int (*write_mmd)(struct phy_device *phydev, int devad, int reg,
 			 u16 val);
 
+	/** @read_page: Return the current PHY register page number */
+	int (*read_page)(struct phy_device *phydev);
+	/** @write_page: Set the current PHY register page number */
+	int (*write_page)(struct phy_device *phydev, int page);
+
 	/* driver private data */
 	ulong data;
 };
@@ -314,6 +319,9 @@ int phy_modify_mmd_changed(struct phy_device *phydev, int devad, u32 regnum,
 			   u16 mask, u16 set);
 int phy_modify_mmd(struct phy_device *phydev, int devad, u32 regnum,
 		   u16 mask, u16 set);
+int phy_save_page(struct phy_device *phydev);
+int phy_select_page(struct phy_device *phydev, int page);
+int phy_restore_page(struct phy_device *phydev, int oldpage, int ret);
 
 int phy_startup(struct phy_device *phydev);
 int phy_config(struct phy_device *phydev);

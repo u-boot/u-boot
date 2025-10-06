@@ -1250,3 +1250,116 @@ bool phy_interface_is_ncsi(void)
 	return 0;
 #endif
 }
+
+/**
+ * __phy_read_page() - read the current page
+ * @phydev: a pointer to a &struct phy_device
+ *
+ * Returns page index or < 0 on error
+ */
+static int __phy_read_page(struct phy_device *phydev)
+{
+	struct phy_driver *drv = phydev->drv;
+
+	if (!drv->read_page) {
+		debug("read_page callback not available, PHY driver not loaded?\n");
+		return -EOPNOTSUPP;
+	}
+
+	return drv->read_page(phydev);
+}
+
+/**
+ * __phy_write_page() - Write a new page
+ * @phydev: a pointer to a &struct phy_device
+ * @page: page index to select
+ *
+ * Returns 0 or < 0 on error.
+ */
+static int __phy_write_page(struct phy_device *phydev, int page)
+{
+	struct phy_driver *drv = phydev->drv;
+
+	if (!drv->write_page) {
+		debug("write_page callback not available, PHY driver not loaded?\n");
+		return -EOPNOTSUPP;
+	}
+
+	return drv->write_page(phydev, page);
+}
+
+/**
+ * phy_save_page() - save the current page
+ * @phydev: a pointer to a &struct phy_device
+ *
+ * Return the current page number. On error,
+ * returns a negative errno. phy_restore_page() must always be called
+ * after this, irrespective of success or failure of this call.
+ */
+int phy_save_page(struct phy_device *phydev)
+{
+	return __phy_read_page(phydev);
+}
+
+/**
+ * phy_select_page - Switch to a PHY page and return the previous page
+ * @phydev: a pointer to a &struct phy_device
+ * @page: desired page
+ *
+ * NOTE: Save the current PHY page, and set the current page.
+ * On error, returns a negative errno, otherwise returns the previous page number.
+ * phy_restore_page() must always be called after this, irrespective
+ * of success or failure of this call.
+ */
+int phy_select_page(struct phy_device *phydev, int page)
+{
+	int ret, oldpage;
+
+	oldpage = ret = phy_save_page(phydev);
+	if (ret < 0)
+		return ret;
+
+	if (oldpage != page) {
+		ret = __phy_write_page(phydev, page);
+		if (ret < 0)
+			return ret;
+	}
+
+	return oldpage;
+}
+
+/**
+ * phy_restore_page - Restore a previously saved page and propagate status
+ * @phydev: a pointer to a &struct phy_device
+ * @oldpage: the old page, return value from phy_save_page() or phy_select_page()
+ * @ret: operation's return code
+ *
+ * Restoring @oldpage if it is a valid page.
+ * This function propagates the earliest error code from the group of
+ * operations.
+ *
+ * Returns:
+ *   @oldpage if it was a negative value, otherwise
+ *   @ret if it was a negative errno value, otherwise
+ *   phy_write_page()'s negative value if it were in error, otherwise
+ *   @ret.
+ */
+int phy_restore_page(struct phy_device *phydev, int oldpage, int ret)
+{
+	int r;
+
+	if (oldpage >= 0) {
+		r = __phy_write_page(phydev, oldpage);
+
+		/* Propagate the operation return code if the page write
+		 * was successful.
+		 */
+		if (ret >= 0 && r < 0)
+			ret = r;
+	} else {
+		/* Propagate the phy page selection error code */
+		ret = oldpage;
+	}
+
+	return ret;
+}
