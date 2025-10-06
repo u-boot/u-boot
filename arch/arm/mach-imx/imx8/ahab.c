@@ -401,6 +401,29 @@ static int do_ahab_close(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_ahab_commit(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
+{
+	u32 info;
+	int ret;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	info = simple_strtoul(argv[1], NULL, 16);
+	printf("Commit index is 0x%x\n", info);
+
+	ret = sc_seco_commit(-1, &info);
+	if (ret) {
+		printf("Error in AHAB commit\n");
+		return ret;
+	}
+
+	printf("AHAB commit succeeded.\n");
+
+	return CMD_RET_SUCCESS;
+}
+
 U_BOOT_CMD(auth_cntr, CONFIG_SYS_MAXARGS, 1, do_authenticate,
 	   "autenticate OS container via AHAB",
 	   "addr\n"
@@ -414,5 +437,11 @@ U_BOOT_CMD(ahab_status, CONFIG_SYS_MAXARGS, 1, do_ahab_status,
 
 U_BOOT_CMD(ahab_close, CONFIG_SYS_MAXARGS, 1, do_ahab_close,
 	   "Change AHAB lifecycle to OEM closed",
+	   ""
+);
+
+U_BOOT_CMD(ahab_commit, CONFIG_SYS_MAXARGS, 1, do_ahab_commit,
+	   "commit into the fuses any new SRK revocation information that have been found\n"
+	   "into the NXP (SECO FW) and OEM containers. For SRK revocation use 0x10 for the value.",
 	   ""
 );

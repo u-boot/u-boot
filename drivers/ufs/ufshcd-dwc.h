@@ -17,6 +17,7 @@
 #define CBREFCLKCTRL2		0x8132
 #define CBCRCTRL		0x811F
 #define CBC10DIRECTCONF2	0x810E
+#define CBRATESEL		0x8114
 #define CBCREGADDRLSB		0x8116
 #define CBCREGADDRMSB		0x8117
 #define CBCREGWRLSB		0x8118
@@ -32,6 +33,8 @@
 #define MRX_FSM_STATE		0xC1
 
 /* M-PHY registers */
+#define RX_OVRD_IN_1(n)		(0x3006 + ((n) * 0x100))
+#define RX_PCS_OUT(n)		(0x300F + ((n) * 0x100))
 #define FAST_FLAGS(n)		(0x401C + ((n) * 0x100))
 #define RX_AFE_ATT_IDAC(n)	(0x4000 + ((n) * 0x100))
 #define RX_AFE_CTLE_IDAC(n)	(0x4001 + ((n) * 0x100))

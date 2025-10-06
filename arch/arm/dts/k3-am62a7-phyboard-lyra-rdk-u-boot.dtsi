@@ -156,6 +156,22 @@
 	bootph-all;
 };
 
+&main_rti1 {
+	status = "disabled";
+};
+
+&main_rti2 {
+	status = "disabled";
+};
+
+&main_rti3 {
+	status = "disabled";
+};
+
+&main_rti4 {
+	status = "disabled";
+};
+
 &main_uart0 {
 	bootph-all;
 };

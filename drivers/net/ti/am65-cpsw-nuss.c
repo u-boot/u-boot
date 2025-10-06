@@ -628,7 +628,7 @@ static int am65_cpsw_phy_init(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct phy_device *phydev;
 	u32 supported = PHY_GBIT_FEATURES;
-	int ret;
+	int ret = 0;
 
 	phydev = dm_eth_phy_connect(dev);
 	if (!phydev) {
@@ -705,7 +705,6 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 	struct am65_cpsw_common *cpsw_common = dev_get_priv(dev);
 	ofnode ports_np, node;
 	int ret, i;
-	struct udevice *port_dev;
 
 	cpsw_common->dev = dev;
 	cpsw_common->ss_base = dev_read_addr(dev);
@@ -732,6 +731,7 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 	ports_np = dev_read_subnode(dev, "ethernet-ports");
 	if (!ofnode_valid(ports_np)) {
 		ret = -ENOENT;
+		dev_err(dev, "Invalid device tree node %d\n", ret);
 		goto out;
 	}
 
@@ -763,12 +763,6 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 			continue;
 
 		cpsw_common->ports[port_id].disabled = disabled;
-		if (disabled)
-			continue;
-
-		ret = device_bind_driver_to_node(dev, "am65_cpsw_nuss_port", ofnode_get_name(node), node, &port_dev);
-		if (ret)
-			dev_err(dev, "Failed to bind to %s node\n", ofnode_get_name(node));
 	}
 
 	for (i = 0; i < AM65_CPSW_CPSWNU_MAX_PORTS; i++) {
@@ -798,6 +792,37 @@ out:
 	return ret;
 }
 
+static int am65_cpsw_nuss_bind(struct udevice *dev)
+{
+	struct uclass_driver *drv;
+	struct udevice *port_dev;
+	ofnode ports_np, node;
+	int ret;
+
+	drv = lists_uclass_lookup(UCLASS_ETH);
+	if (!drv) {
+		puts("Cannot find eth driver");
+		return -ENOENT;
+	}
+
+	ports_np = dev_read_subnode(dev, "ethernet-ports");
+	if (!ofnode_valid(ports_np))
+		return -ENOENT;
+
+	ofnode_for_each_subnode(node, ports_np) {
+		const char *node_name;
+
+		node_name = ofnode_get_name(node);
+
+		ret = device_bind_driver_to_node(dev, "am65_cpsw_nuss_port", node_name, node,
+						 &port_dev);
+		if (ret)
+			dev_err(dev, "Failed to bind to %s node\n", node_name);
+	}
+
+	return ret;
+}
+
 static const struct udevice_id am65_cpsw_nuss_ids[] = {
 	{ .compatible = "ti,am654-cpsw-nuss" },
 	{ .compatible = "ti,j721e-cpsw-nuss" },
@@ -809,6 +834,7 @@ U_BOOT_DRIVER(am65_cpsw_nuss) = {
 	.name	= "am65_cpsw_nuss",
 	.id	= UCLASS_MISC,
 	.of_match = am65_cpsw_nuss_ids,
+	.bind	= am65_cpsw_nuss_bind,
 	.probe	= am65_cpsw_probe_nuss,
 	.priv_auto = sizeof(struct am65_cpsw_common),
 };

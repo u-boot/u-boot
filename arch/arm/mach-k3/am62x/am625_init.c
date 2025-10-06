@@ -294,15 +294,6 @@ void board_init_f(ulong dummy)
 	}
 	spl_enable_cache();
 
-	if (IS_ENABLED(CONFIG_SPL_ETH) && IS_ENABLED(CONFIG_TI_AM65_CPSW_NUSS) &&
-	    spl_boot_device() == BOOT_DEVICE_ETHERNET) {
-		struct udevice *cpswdev;
-
-		if (uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(am65_cpsw_nuss),
-						&cpswdev))
-			printf("Failed to probe am65_cpsw_nuss driver\n");
-	}
-
 	fixup_a53_cpu_freq_by_speed_grade();
 }
 
@@ -313,6 +304,11 @@ u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 				MAIN_DEVSTAT_PRIMARY_BOOTMODE_SHIFT;
 	u32 bootmode_cfg = (devstat & MAIN_DEVSTAT_PRIMARY_BOOTMODE_CFG_MASK) >>
 			    MAIN_DEVSTAT_PRIMARY_BOOTMODE_CFG_SHIFT;
+
+	if (bootindex != K3_PRIMARY_BOOTMODE) {
+		pr_alert("Fallback to backup bootmode MMCSD_MODE_FS\n");
+		return MMCSD_MODE_FS;
+	}
 
 	switch (bootmode) {
 	case BOOT_DEVICE_EMMC:

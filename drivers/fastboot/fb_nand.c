@@ -157,8 +157,13 @@ int fastboot_nand_get_part_info(const char *part_name,
 				struct part_info **part_info, char *response)
 {
 	struct mtd_info *mtd = NULL;
+	int ret;
 
-	return fb_nand_lookup(part_name, &mtd, part_info, response);
+	ret = fb_nand_lookup(part_name, &mtd, part_info, response);
+	if (ret)
+		return -ENOENT;
+
+	return ret;
 }
 
 /**

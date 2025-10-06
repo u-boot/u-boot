@@ -11,7 +11,12 @@ ifeq ($(CONFIG_ARCH_RV32I),y)
 	ARCH_BASE = rv32im
 	ABI_BASE = ilp32
 endif
-ifeq ($(CONFIG_RISCV_ISA_A),y)
+# GCC starts to recognize "Zaamo" and "Zalrsc" from version 15, which is quite
+# recent. We don't bother checking the exact compiler version, but pass "A"
+# extension for -march as long as one of "Zaamo" or "Zalrsc" is available.
+ifeq ($(findstring y,$(CONFIG_RISCV_ISA_A)	\
+		     $(CONFIG_RISCV_ISA_ZAAMO)	\
+		     $(CONFIG_RISCV_ISA_ZALRSC)),y)
 	ARCH_A = a
 endif
 ifeq ($(CONFIG_RISCV_ISA_F),y)

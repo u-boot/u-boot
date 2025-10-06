@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	int ret = phytec_eeprom_data_setup(NULL, 2, EEPROM_ADDR);
+	int ret = phytec_eeprom_data_setup(NULL, CONFIG_PHYTEC_EEPROM_BUS, EEPROM_ADDR);
 
 	if (ret)
 		printf("%s: EEPROM data init failed\n", __func__);

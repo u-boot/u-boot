@@ -366,8 +366,8 @@ static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
 		noff = fdt_add_subnode(blob, nodeoffset, mac_name);
 		if (noff < 0) {
 			printf("fdt_add_subnode: err=%s\n",
-			       fdt_strerror(err));
-			return err;
+			       fdt_strerror(noff));
+			return noff;
 		}
 
 		/* add default property of fixed link */
@@ -1178,6 +1178,7 @@ err_get_api_ver:
 		     dflt_dpio->dpio_id);
 err_create:
 	free(dflt_dpio);
+	dflt_dpio = NULL;
 err_calloc:
 	return err;
 }
@@ -1185,6 +1186,9 @@ err_calloc:
 static int dpio_exit(void)
 {
 	int err;
+
+	if (!dflt_dpio)
+		return -ENODEV;
 
 	err = dpio_disable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 	if (err < 0) {
@@ -1211,8 +1215,8 @@ static int dpio_exit(void)
 	printf("Exit: DPIO.%d\n", dflt_dpio->dpio_id);
 #endif
 
-	if (dflt_dpio)
-		free(dflt_dpio);
+	free(dflt_dpio);
+	dflt_dpio = NULL;
 
 	return 0;
 err:
@@ -1434,6 +1438,7 @@ err_close:
 err_open:
 err_create:
 	free(dflt_dpbp);
+	dflt_dpbp = NULL;
 err_calloc:
 	return err;
 }
@@ -1441,6 +1446,9 @@ err_calloc:
 static int dpbp_exit(void)
 {
 	int err;
+
+	if (!dflt_dpbp)
+		return -ENODEV;
 
 	err = dpbp_destroy(dflt_mc_io, dflt_dprc_handle, MC_CMD_NO_FLAGS,
 			   dflt_dpbp->dpbp_id);
@@ -1453,8 +1461,8 @@ static int dpbp_exit(void)
 	printf("Exit: DPBP.%d\n", dflt_dpbp->dpbp_attr.id);
 #endif
 
-	if (dflt_dpbp)
-		free(dflt_dpbp);
+	free(dflt_dpbp);
+	dflt_dpbp = NULL;
 	return 0;
 
 err:
@@ -1531,6 +1539,7 @@ err_get_version:
 		     dflt_dpni->dpni_id);
 err_create:
 	free(dflt_dpni);
+	dflt_dpni = NULL;
 err_calloc:
 	return err;
 }
@@ -1538,6 +1547,9 @@ err_calloc:
 static int dpni_exit(void)
 {
 	int err;
+
+	if (!dflt_dpni)
+		return -ENODEV;
 
 	err = dpni_destroy(dflt_mc_io, dflt_dprc_handle, MC_CMD_NO_FLAGS,
 			   dflt_dpni->dpni_id);
@@ -1550,8 +1562,8 @@ static int dpni_exit(void)
 	printf("Exit: DPNI.%d\n", dflt_dpni->dpni_id);
 #endif
 
-	if (dflt_dpni)
-		free(dflt_dpni);
+	free(dflt_dpni);
+	dflt_dpni = NULL;
 	return 0;
 
 err:

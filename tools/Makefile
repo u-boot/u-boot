@@ -333,7 +333,9 @@ HOST_EXTRACFLAGS += -include $(srctree)/include/compiler.h \
 		-D__KERNEL_STRICT_NAMES \
 		-D_GNU_SOURCE
 
+ifeq ($(CROSS_BUILD_TOOLS),)
 __build:	$(LOGO-y)
+endif
 
 $(LOGO_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-info $(LOGO_BMP) > $@
@@ -344,7 +346,6 @@ $(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
 else
 $(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-data $(LOGO_BMP) > $@
-#endif
 endif
 
 # Let clean descend into subdirs

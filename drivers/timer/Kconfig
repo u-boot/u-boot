@@ -96,8 +96,8 @@ config ARM_TWD_TIMER
 
 config AST_TIMER
 	bool "Aspeed ast2400/ast2500 timer support"
-	depends on TIMER
-	default y if ARCH_ASPEED
+	depends on TIMER && ARCH_ASPEED
+	default y
 	help
 	  Select this to enable timer for Aspeed ast2400/ast2500 devices.
 	  This is a simple sys timer driver, it is compatible with lib/time.c,
@@ -108,16 +108,9 @@ config AST_TIMER
 
 config AST_IBEX_TIMER
 	bool "Aspeed ast2700 Ibex timer"
-	depends on TIMER
+	depends on TIMER && RISCV
 	help
 	  Select this to enable a timer support for the Ibex RV32-based MCUs in AST2700.
-
-config ATCPIT100_TIMER
-	bool "ATCPIT100 timer support"
-	depends on TIMER
-	help
-	  Select this to enable a ATCPIT100 timer which will be embedded
-	  in AE3XX, AE250 boards.
 
 config ATMEL_PIT_TIMER
 	bool "Atmel periodic interval timer support"
@@ -161,17 +154,10 @@ config CADENCE_TTC_TIMER
 
 config DESIGNWARE_APB_TIMER
 	bool "Designware APB Timer"
-	depends on TIMER
+	depends on TIMER && (ARCH_SOCFPGA || ARCH_ROCKCHIP)
 	help
 	  Enables support for the Designware APB Timer driver. This timer is
 	  present on Altera SoCFPGA SoCs.
-
-config FTTMR010_TIMER
-	bool "Faraday Technology timer support"
-	depends on TIMER
-	help
-	  Select this to enable support for the timer found on
-	  devices using Faraday Technology's IP.
 
 config GXP_TIMER
 	bool "HPE GXP Timer"
@@ -182,7 +168,7 @@ config GXP_TIMER
 
 config MPC83XX_TIMER
 	bool "MPC83xx timer support"
-	depends on TIMER
+	depends on TIMER && PPC
 	help
 	  Select this to enable support for the timer found on
 	  devices based on the MPC83xx family of SoCs.
@@ -224,14 +210,14 @@ config NPCM_TIMER
 
 config OMAP_TIMER
 	bool "Omap timer support"
-	depends on TIMER
+	depends on TIMER && (ARCH_OMAP2PLUS || ARCH_K3)
 	help
 	  Select this to enable an timer for Omap devices.
 
 config ORION_TIMER
 	bool "Orion timer support"
-	depends on TIMER
-	default y if ARCH_KIRKWOOD || (ARCH_MVEBU && ARMADA_32BIT)
+	depends on TIMER && (ARCH_KIRKWOOD || (ARCH_MVEBU && ARMADA_32BIT))
+	default y
 	select TIMER_EARLY if ARCH_MVEBU
 	help
 	  Select this to enable an timer for Orion and Armada devices
@@ -246,7 +232,7 @@ config RISCV_TIMER
 
 config ROCKCHIP_TIMER
 	bool "Rockchip timer support"
-	depends on TIMER
+	depends on TIMER && ARCH_ROCKCHIP
 	help
 	  Select this to enable support for the timer found on
 	  Rockchip devices.
@@ -275,14 +261,14 @@ config SP804_TIMER
 
 config STM32_TIMER
 	bool "STM32 timer support"
-	depends on TIMER
+	depends on TIMER && ARCH_STM32
 	help
 	  Select this to enable support for the timer found on
 	  STM32 devices.
 
 config TEGRA_TIMER
 	bool "Tegra timer support"
-	depends on TIMER
+	depends on TIMER && ARCH_TEGRA
 	select TIMER_EARLY
 	help
 	  Select this to enable support for the timer found on

@@ -12,6 +12,10 @@ static inline void sync(void)
 {
 }
 
+#define mb()	sync()
+#define dmb()	sync()
+#define wmb()	sync()
+
 enum sandboxio_size_t {
 	SB_SIZE_8,
 	SB_SIZE_16,
@@ -52,6 +56,16 @@ void sandbox_write(void *addr, unsigned int val, enum sandboxio_size_t size);
 #ifdef CONFIG_64BIT
 #define writeq(v, addr) sandbox_write((void *)addr, v, SB_SIZE_64)
 #endif
+
+#define readb_relaxed			readb
+#define readw_relaxed			readw
+#define readl_relaxed			readl
+#define readq_relaxed			readq
+
+#define writeb_relaxed			writeb
+#define writew_relaxed			writew
+#define writel_relaxed			writel
+#define writeq_relaxed			writeq
 
 /*
  * Clear and set bits in one shot. These macros can be used to clear and

@@ -39,7 +39,7 @@ config VPL_RAM
 
 config STM32_SDRAM
 	bool "Enable STM32 SDRAM support"
-	depends on RAM
+	depends on RAM && ARCH_STM32
 	help
 	  STM32F7 family devices support flexible memory controller(FMC) to
 	  support external memories like sdram, psram & nand.
@@ -47,7 +47,7 @@ config STM32_SDRAM
 
 config MPC83XX_SDRAM
 	bool "Enable MPC83XX SDRAM support"
-	depends on RAM
+	depends on RAM && MPC83xx
 	help
 	  Enable support for the internal DDR Memory Controller of the MPC83xx
 	  family of SoCs. Both static configurations, as well as configuring
@@ -67,7 +67,7 @@ config K3_AM654_DDRSS
 
 config K3_DDRSS
 	bool "Enable K3 DDRSS support"
-	depends on RAM
+	depends on RAM && ARCH_K3
 
 choice
 	depends on K3_DDRSS
@@ -127,6 +127,16 @@ config K3_INLINE_ECC
 	  use. Enabling ECC increases boot time as the ECC protected regions
 	  need to be primed with a predefined value prior to enabling ECC
 	  check.
+
+config K3_MULTI_DDR
+	bool "Enable support for multiple K3 DDRSS controllers"
+	depends on K3_DDRSS
+	help
+	  Enabling this option adds support for configuring multiple DDR memory
+	  controllers for K3 devices. The external memory interleave layer
+	  present in the MSMC (Multicore Shared Memory Controller) is
+	  responsible for interleaving between the controllers.
+	default y if SOC_K3_J721S2 || SOC_K3_J784S4
 
 source "drivers/ram/aspeed/Kconfig"
 source "drivers/ram/cadence/Kconfig"

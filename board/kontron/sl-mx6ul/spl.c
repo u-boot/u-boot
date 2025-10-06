@@ -18,7 +18,8 @@
 #include <linux/sizes.h>
 #include <linux/errno.h>
 #include <mmc.h>
-#include <sl-mx6ul-common.h>
+
+#include "sl-mx6ul-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

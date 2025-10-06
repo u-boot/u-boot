@@ -13,6 +13,7 @@ Quick Start
 - Get ahab-container.img
 - Build U-Boot
 - Boot from the SD card
+- Boot using USB serial download (uuu)
 
 Get and Build the ARM Trusted firmware
 --------------------------------------
@@ -73,3 +74,24 @@ Boot from the SD card
   at /dev/ttyACM0.
 - Power on the board by connecting a USB Type-C cable into the P1
   Power USB Port.
+
+Boot using USB serial download (uuu)
+------------------------------------
+
+- Configure SW1 boot switches to serial download boot mode:
+  0001 SW1[3:0] - ("Serial downloader (USB)" Boot Mode)
+- Plug USB Type-C cable into the P2 device port.
+- Connect a USB Type-C cable into the P16 Debug USB Port and connect
+  using a terminal emulator at 115200 bps, 8n1. The console will show up
+  at /dev/ttyACM0.
+- Power on the board by connecting a USB Type-C cable into the P1
+  Power USB Port.
+- Use NXP Universal Update Utility `NXP Universal Update Utility`_ to boot or
+  flash the device. E.g. following command can be used to flash an image onto
+  the eMMC storage:
+
+.. code-block:: bash
+
+   $ uuu -V -b emmc_all <image file>
+
+.. _`NXP Universal Update Utility`: https://github.com/nxp-imx/mfgtools

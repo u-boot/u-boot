@@ -93,15 +93,11 @@ config USB_GADGET_PRODUCT_NUM
 
 config USB_GADGET_ATMEL_USBA
 	bool "Atmel USBA"
+	depends on ARCH_AT91
 	select USB_GADGET_DUALSPEED
 	help
 	  USBA is the integrated high-speed USB Device controller on
 	  the AT32AP700x, some AT91SAM9 and AT91CAP9 processors from Atmel.
-
-config USB_GADGET_BCM_UDC_OTG_PHY
-	bool "Broadcom UDC OTG PHY"
-	help
-	  Enable the Broadcom UDC OTG physical device interface.
 
 config USB_GADGET_AT91
 	bool "Atmel AT91 USB Gadget Controller"
@@ -155,12 +151,6 @@ config CI_UDC
 	help
 	  Say Y here to enable device controller functionality of the
 	  ChipIdea driver.
-
-config USB_GADGET_MAX3420
-	bool "MAX3420 USB Over SPI"
-	depends on DM_SPI
-	help
-	  MAX3420, from MAXIM, implements USB-over-SPI Full-Speed device controller.
 
 config USB_GADGET_VBUS_DRAW
 	int "Maximum VBUS Power usage (2-500 mA)"

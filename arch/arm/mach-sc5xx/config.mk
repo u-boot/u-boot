@@ -12,5 +12,7 @@ ifdef CONFIG_XPL_BUILD
 INPUTS-y += $(obj)/u-boot-spl.ldr
 endif
 
+INPUTS-y += u-boot.ldr
+
 LDR_FLAGS += --bcode=$(CONFIG_SC_BOOT_MODE)
 LDR_FLAGS += --use-vmas

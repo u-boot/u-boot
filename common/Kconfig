@@ -833,6 +833,13 @@ config PCI_INIT_R
 	  case of DM PCI-based Ethernet devices, which will not be detected
 	  without having the enumeration performed earlier.
 
+config SYS_EARLY_PCI_INIT
+	bool "Enumerate PCI buses early during init"
+	depends on PCI
+	help
+	  Do early PCI configuration before the eMMC gets initialised,
+	  because PCI resources are crucial for eMMC access on some boards.
+
 config RESET_PHY_R
 	bool "Reset ethernet PHY during init"
 	help
@@ -1121,8 +1128,8 @@ config BLOBLIST_SIZE
 
 config BLOBLIST_SIZE_RELOC
 	hex "Size of bloblist after relocation"
-	default BLOBLIST_SIZE if BLOBLIST_FIXED || BLOBLIST_ALLOC
-	default 0x20000 if (ARM && EFI_LOADER && GENERATE_ACPI_TABLE)
+	default BLOBLIST_SIZE if BLOBLIST_FIXED
+	default 0x20000
 	help
 	  Sets the size of the bloblist in bytes after relocation. Since U-Boot
 	  has a lot more memory available then, it is possible to use a larger

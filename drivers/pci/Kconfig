@@ -183,6 +183,7 @@ config SYS_FSL_PCI_VER_3_X
 config PCIE_FSL
 	bool "FSL PowerPC PCIe support"
 	select SYS_FSL_PCI_VER_3_X if ARCH_T2080 || ARCH_T4240
+	depends on PPC
 	help
 	  Say Y here if you want to enable PCIe controller support on FSL
 	  PowerPC MPC85xx, MPC86xx, B series, P series and T series SoCs.
@@ -190,6 +191,7 @@ config PCIE_FSL
 
 config PCI_MPC85XX
 	bool "MPC85XX PowerPC PCI support"
+	depends on MPC85xx
 	help
 	  Say Y here if you want to enable PCI controller support on FSL
 	  PowerPC MPC85xx SoC.
@@ -265,6 +267,7 @@ config PCIE_LAYERSCAPE
 
 config PCIE_LAYERSCAPE_RC
 	bool "Layerscape PCIe Root Complex mode support"
+	depends on ARM
 	select PCIE_LAYERSCAPE
 	help
 	  Enable Layerscape PCIe Root Complex mode driver support. The Layerscape
@@ -286,6 +289,7 @@ config PCI_IOMMU_EXTRA_MAPPINGS
 
 config PCIE_LAYERSCAPE_EP
 	bool "Layerscape PCIe Endpoint mode support"
+	depends on ARM
 	select PCIE_LAYERSCAPE
 	select PCI_ENDPOINT
 	help
@@ -296,6 +300,7 @@ config PCIE_LAYERSCAPE_EP
 
 config PCIE_LAYERSCAPE_GEN4
 	bool "Layerscape Gen4 PCIe support"
+	depends on ARM
 	help
 	  Support PCIe Gen4 on NXP Layerscape SoCs, which may have one or
 	  several PCIe controllers. The PCIe controller can work in RC or
@@ -456,7 +461,7 @@ config PCIE_STARFIVE_JH7110
 
 config PCIE_DW_IMX
 	bool "i.MX DW PCIe controller support"
-	depends on ARCH_IMX8M
+	depends on ARCH_IMX8M || ARCH_IMX9
 	select PCIE_DW_COMMON
 	select DM_REGULATOR
 	select REGMAP

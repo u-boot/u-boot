@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "fdt_ops.h"
 
-void ti_set_fdt_env(const char *board_name, struct ti_fdt_map *fdt_map)
+void ti_set_fdt_env(const char *board_name, const struct ti_fdt_map *fdt_map)
 {
 	char *fdt_file_name = NULL;
 	char fdtfile[TI_FDT_FILE_MAX];

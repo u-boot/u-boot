@@ -176,13 +176,14 @@ static void boot_targets_setup(void)
 	env_set("boot_targets", boot_targets);
 }
 
+#if IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS)
 static void setup_mac_from_eeprom(void)
 {
 	struct phytec_api3_element *block_element;
 	struct phytec_eeprom_data data;
 	int ret;
 
-	ret = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
+	ret = phytec_eeprom_data_setup(&data, CONFIG_PHYTEC_EEPROM_BUS, EEPROM_ADDR);
 	if (ret || !data.valid)
 		return;
 
@@ -197,13 +198,15 @@ static void setup_mac_from_eeprom(void)
 		}
 	}
 }
+#endif
 
 int board_late_init(void)
 {
 	boot_targets_setup();
 
-	if (IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS))
-		setup_mac_from_eeprom();
+#if IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS)
+	setup_mac_from_eeprom();
+#endif
 
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 	configure_capsule_updates();
@@ -245,7 +248,7 @@ static void fdt_apply_som_overlays(void *blob)
 
 	memcpy(fdt_copy, blob, fdt_size);
 
-	err = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
+	err = phytec_eeprom_data_setup(&data, CONFIG_PHYTEC_EEPROM_BUS, EEPROM_ADDR);
 	if (err)
 		goto fixup_error;
 
@@ -292,7 +295,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	fdt_apply_som_overlays(blob);
 	fdt_copy_fixed_partitions(blob);
 
-	ret = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
+	ret = phytec_eeprom_data_setup(&data, CONFIG_PHYTEC_EEPROM_BUS, EEPROM_ADDR);
 	if (ret || !data.valid)
 		return 0;
 

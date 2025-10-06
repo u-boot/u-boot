@@ -46,8 +46,7 @@ void __weak board_init_f(ulong dummy)
 }
 
 /*
- * This function jumps to an image with argument. Normally an FDT or ATAGS
- * image.
+ * This function jumps to an image with argument, usually an FDT.
  */
 #if CONFIG_IS_ENABLED(OS_BOOT)
 #ifdef CONFIG_ARM64

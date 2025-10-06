@@ -26,7 +26,7 @@
 #include <image.h>
 #include <u-boot/crc.h>
 
-void usage(char *cmdname)
+static void usage(char *cmdname)
 {
 	fprintf(stderr, "Usage: %s -f fit file -n node -p property\n"
 			 "          -f ==> set fit file which is used'\n"

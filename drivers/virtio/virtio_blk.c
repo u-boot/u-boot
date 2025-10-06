@@ -12,10 +12,17 @@
 #include <virtio_types.h>
 #include <virtio.h>
 #include <virtio_ring.h>
+#include <linux/log2.h>
 #include "virtio_blk.h"
 
+/**
+ * struct virtio_blk_priv - private date for virtio block device
+ */
 struct virtio_blk_priv {
+	/** @virtqueue - virtqueue to process */
 	struct virtqueue *vq;
+	/** @blksz_shift - log2 of block size divided by 512 */
+	u32 blksz_shift;
 };
 
 static const u32 feature[] = {
@@ -71,6 +78,8 @@ static ulong virtio_blk_do_req(struct udevice *dev, u64 sector,
 	u8 status;
 	int ret;
 
+	sector <<= priv->blksz_shift;
+	blkcnt <<= priv->blksz_shift;
 	virtio_blk_init_header_sg(dev, sector, type, &out_hdr, &hdr_sg);
 	sgs[num_out++] = &hdr_sg;
 
@@ -109,7 +118,7 @@ static ulong virtio_blk_do_req(struct udevice *dev, u64 sector,
 		;
 	log_debug("done\n");
 
-	return status == VIRTIO_BLK_S_OK ? blkcnt : -EIO;
+	return status == VIRTIO_BLK_S_OK ? blkcnt >> priv->blksz_shift : -EIO;
 }
 
 static ulong virtio_blk_read(struct udevice *dev, lbaint_t start,
@@ -177,15 +186,25 @@ static int virtio_blk_probe(struct udevice *dev)
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	u64 cap;
 	int ret;
+	u32 blk_size;
 
 	ret = virtio_find_vqs(dev, 1, &priv->vq);
 	if (ret)
 		return ret;
 
-	desc->blksz = 512;
-	desc->log2blksz = 9;
 	virtio_cread(dev, struct virtio_blk_config, capacity, &cap);
 	desc->lba = cap;
+	if (!virtio_has_feature(dev, VIRTIO_BLK_F_BLK_SIZE)) {
+		virtio_cread(dev, struct virtio_blk_config, blk_size, &blk_size);
+		desc->blksz = blk_size;
+		if (!is_power_of_2(blk_size) || desc->blksz < 512)
+			return -EIO;
+	} else {
+		desc->blksz = 512;
+	}
+	desc->log2blksz = LOG2(desc->blksz);
+	priv->blksz_shift = desc->log2blksz - 9;
+	desc->lba >>= priv->blksz_shift;
 
 	return 0;
 }

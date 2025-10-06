@@ -52,7 +52,7 @@ void spl_dram_init(void)
 	int ret;
 	enum phytec_imx93_ddr_eeprom_code ddr_opt = PHYTEC_IMX93_DDR_INVALID;
 
-	ret = phytec_eeprom_data_setup(NULL, 2, EEPROM_ADDR);
+	ret = phytec_eeprom_data_setup(NULL, CONFIG_PHYTEC_EEPROM_BUS, EEPROM_ADDR);
 	if (ret && !IS_ENABLED(CONFIG_PHYCORE_IMX93_RAM_TYPE_FIX))
 		goto out;
 

@@ -7,9 +7,12 @@
  * ROHM BD71837 regulator driver
  */
 
+#include <asm-generic/gpio.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <log.h>
 #include <linux/bitops.h>
+#include <linux/err.h>
 #include <power/pca9450.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
@@ -52,6 +55,8 @@ struct pca9450_plat {
 	u8			volt_mask;
 	struct pca9450_vrange	*ranges;
 	unsigned int		numranges;
+	struct gpio_desc	*sd_vsel_gpio;
+	bool			sd_vsel_fixed_low;
 };
 
 #define PCA_RANGE(_min, _vstep, _sel_low, _sel_hi) \
@@ -144,7 +149,7 @@ static struct pca9450_plat pca9450_reg_data[] = {
 	PCA_DATA("LDO4", PCA9450_LDO4CTRL, HW_STATE_CONTROL,
 		 PCA9450_LDO4CTRL, PCA9450_LDO34_MASK,
 		 pca9450_ldo34_vranges),
-	PCA_DATA("LDO5", PCA9450_LDO5CTRL_H, HW_STATE_CONTROL,
+	PCA_DATA("LDO5", PCA9450_LDO5CTRL_L, HW_STATE_CONTROL,
 		 PCA9450_LDO5CTRL_H, PCA9450_LDO5_MASK,
 		 pca9450_ldo5_vranges),
 };
@@ -222,13 +227,24 @@ static int pca9450_set_enable(struct udevice *dev, bool enable)
 			       val);
 }
 
+static u8 pca9450_get_vsel_reg(struct pca9450_plat *plat)
+{
+	if (!strcmp(plat->name, "LDO5") &&
+	    ((plat->sd_vsel_gpio && !dm_gpio_get_value(plat->sd_vsel_gpio)) ||
+	     plat->sd_vsel_fixed_low)) {
+		return PCA9450_LDO5CTRL_L;
+	}
+
+	return plat->volt_reg;
+}
+
 static int pca9450_get_value(struct udevice *dev)
 {
 	struct pca9450_plat *plat = dev_get_plat(dev);
 	unsigned int reg, tmp;
 	int i, ret;
 
-	ret = pmic_reg_read(dev->parent, plat->volt_reg);
+	ret = pmic_reg_read(dev->parent, pca9450_get_vsel_reg(plat));
 	if (ret < 0)
 		return ret;
 
@@ -274,7 +290,7 @@ static int pca9450_set_value(struct udevice *dev, int uvolt)
 	if (!found)
 		return -EINVAL;
 
-	return pmic_clrsetbits(dev->parent, plat->volt_reg,
+	return pmic_clrsetbits(dev->parent, pca9450_get_vsel_reg(plat),
 			       plat->volt_mask, sel);
 }
 
@@ -334,6 +350,21 @@ static int pca9450_regulator_probe(struct udevice *dev)
 		}
 
 		*plat = pca9450_reg_data[i];
+
+		if (!strcmp(plat->name, "LDO5")) {
+			if (CONFIG_IS_ENABLED(DM_GPIO) && CONFIG_IS_ENABLED(DM_REGULATOR_PCA9450)) {
+				plat->sd_vsel_gpio = devm_gpiod_get_optional(dev, "sd-vsel",
+									     GPIOD_IS_IN);
+				if (IS_ERR(plat->sd_vsel_gpio)) {
+					ret = PTR_ERR(plat->sd_vsel_gpio);
+					dev_err(dev, "Failed to request SD_VSEL GPIO: %d\n", ret);
+					if (ret)
+						return ret;
+				}
+			}
+
+			plat->sd_vsel_fixed_low = dev_read_bool(dev, "nxp,sd-vsel-fixed-low");
+		}
 
 		return 0;
 	}

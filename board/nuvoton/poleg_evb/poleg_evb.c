@@ -64,7 +64,9 @@ static int last_stage_init(void)
 		}
 		sprintf(value, "ttyS%d,115200n8", dev->seq_);
 		env_set("console", value);
+#ifdef CONFIG_SYS_SKIP_UART_INIT
 		return board_set_console();
+#endif
 	}
 
 	return 0;

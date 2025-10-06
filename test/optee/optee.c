@@ -5,15 +5,19 @@
 
 #include <command.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <fdt_support.h>
 #include <log.h>
 #include <malloc.h>
 #include <tee/optee.h>
+#include <asm/global_data.h>
 
 #include <linux/sizes.h>
 
 #include <test/ut.h>
 #include <test/optee.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* 4k ought to be enough for anybody */
 #define FDT_COPY_SIZE	(4 * SZ_1K)
@@ -39,14 +43,6 @@ static int optee_test_init(struct unit_test_state *uts)
 	fdt = malloc(FDT_COPY_SIZE);
 	if (!fdt)
 		return ret;
-
-	/*
-	 * Resize the FDT to 4k so that we have room to operate on
-	 *
-	 * (and relocate it since the memory might be mapped
-	 * read-only)
-	 */
-	ut_assertok(fdt_open_into(fdt_base, fdt, FDT_COPY_SIZE));
 
 	return 0;
 }
@@ -127,9 +123,21 @@ static int optee_fdt_protected_memory(struct unit_test_state *uts)
 static int optee_fdt_copy_empty(struct unit_test_state *uts)
 {
 	void *fdt_no_optee = &__dtb_test_optee_no_optee_begin;
+	const void *fdt_blob = gd->fdt_blob;
+
+	/*
+	 * Resize the FDT to 4k so that we have room to operate on
+	 *
+	 * (and relocate it since the memory might be mapped
+	 * read-only)
+	 */
+	ut_assertok(fdt_open_into(&__dtb_test_optee_base_begin, fdt,
+				  FDT_COPY_SIZE));
 
 	/* This should still run successfully */
-	ut_assertok(optee_copy_fdt_nodes(fdt_no_optee, fdt));
+	gd->fdt_blob = fdt_no_optee;
+	ut_assertok(optee_copy_fdt_nodes(fdt));
+	gd->fdt_blob = fdt_blob;
 
 	expect_success = false;
 	ut_assertok(optee_fdt_firmware(uts));
@@ -143,8 +151,14 @@ OPTEE_TEST(optee_fdt_copy_empty, 0);
 static int optee_fdt_copy_prefilled(struct unit_test_state *uts)
 {
 	void *fdt_optee = &__dtb_test_optee_optee_begin;
+	const void *fdt_blob = gd->fdt_blob;
 
-	ut_assertok(optee_copy_fdt_nodes(fdt_optee, fdt));
+	ut_assertok(fdt_open_into(&__dtb_test_optee_base_begin, fdt,
+				  FDT_COPY_SIZE));
+
+	gd->fdt_blob = fdt_optee;
+	ut_assertok(optee_copy_fdt_nodes(fdt));
+	gd->fdt_blob = fdt_blob;
 
 	expect_success = true;
 	ut_assertok(optee_fdt_firmware(uts));
@@ -158,9 +172,15 @@ OPTEE_TEST(optee_fdt_copy_prefilled, 0);
 static int optee_fdt_copy_already_filled(struct unit_test_state *uts)
 {
 	void *fdt_optee = &__dtb_test_optee_optee_begin;
+	const void *fdt_blob = gd->fdt_blob;
+
+	ut_assertok(fdt_open_into(&__dtb_test_optee_base_begin, fdt,
+				  FDT_COPY_SIZE));
 
 	ut_assertok(fdt_open_into(fdt_optee, fdt, FDT_COPY_SIZE));
-	ut_assertok(optee_copy_fdt_nodes(fdt_optee, fdt));
+	gd->fdt_blob = fdt_optee;
+	ut_assertok(optee_copy_fdt_nodes(fdt));
+	gd->fdt_blob = fdt_blob;
 
 	expect_success = true;
 	ut_assertok(optee_fdt_firmware(uts));

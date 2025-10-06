@@ -160,7 +160,7 @@ static int add_content(int type, const char *fname)
 }
 
 static const char optstring[] =
-	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:qrR:stT:vVx";
+	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:qrR:stT:vVxy:Y:";
 
 static const struct option longopts[] = {
 	{ "load-address", required_argument, NULL, 'a' },
@@ -196,6 +196,8 @@ static const struct option longopts[] = {
 	{ "verbose", no_argument, NULL, 'v' },
 	{ "version", no_argument, NULL, 'V' },
 	{ "xip", no_argument, NULL, 'x' },
+	{ "tfa-bl31-file", no_argument, NULL, 'y' },
+	{ "tfa-bl31-addr", no_argument, NULL, 'Y' },
 	{ /* sentinel */ },
 };
 
@@ -367,6 +369,17 @@ static void process_args(int argc, char **argv)
 		case 'x':
 			params.xflag++;
 			break;
+		case 'y':
+			params.fit_tfa_bl31 = optarg;
+			break;
+		case 'Y':
+			params.fit_tfa_bl31_addr = strtoull(optarg, &ptr, 16);
+			if (*ptr) {
+				fprintf(stderr, "%s: invalid TFA BL31 address %s\n",
+					params.cmdname, optarg);
+				exit(EXIT_FAILURE);
+			}
+			break;
 		default:
 			usage("Invalid option");
 		}
@@ -445,7 +458,7 @@ static void verify_image(const struct image_type_params *tparams)
 	(void)close(ifd);
 }
 
-void copy_datafile(int ifd, char *file)
+static void copy_datafile(int ifd, char *file)
 {
 	if (!file)
 		return;

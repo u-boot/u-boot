@@ -42,7 +42,6 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 	status = "okay";
-	must_tx;
 	enhance_timing;
 	dma_ext;
 	ipm_design;

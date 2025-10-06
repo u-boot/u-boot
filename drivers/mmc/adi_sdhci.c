@@ -15,6 +15,7 @@
 #include <malloc.h>
 #include <sdhci.h>
 #include <asm/cache.h>
+#include <linux/sizes.h>
 
 /* 400KHz is max freq for card ID etc. Use that as min */
 #define EMMC_MIN_FREQ	400000

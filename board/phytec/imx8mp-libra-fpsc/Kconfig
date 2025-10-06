@@ -1,0 +1,16 @@
+if TARGET_IMX8MP_LIBRA_FPSC
+
+config SYS_BOARD
+	default "imx8mp-libra-fpsc"
+
+config SYS_VENDOR
+	default "phytec"
+
+config IMX_CONFIG
+	default "board/phytec/imx8mp-libra-fpsc/imximage-8mp-sd.cfg"
+
+config SYS_CONFIG_NAME
+	default "imx8mp-libra-fpsc"
+
+source "board/phytec/common/Kconfig"
+endif

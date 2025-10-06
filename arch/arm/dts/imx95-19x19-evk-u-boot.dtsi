@@ -5,6 +5,13 @@
 
 #include "imx95-u-boot.dtsi"
 
+/ {
+	aliases {
+		pci0 = &netc_bus0;
+		pci1 = &netc_bus1;
+	};
+};
+
 &lpuart1 {
 	bootph-pre-ram;
 };

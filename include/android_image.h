@@ -21,6 +21,8 @@
 #define ANDR_BOOT_ARGS_SIZE 512
 #define ANDR_BOOT_EXTRA_ARGS_SIZE 1024
 #define VENDOR_BOOT_MAGIC "VNDRBOOT"
+#define ANDR_VENDOR_BOOT_V3_SIZE 2112 /* sz(andr_vnd_boot_img_hdr) - sz(vendor_ramdisk_table*) */
+#define ANDR_VENDOR_BOOT_V4_SIZE 2128 /* sz(andr_vnd_boot_img_hdr) */
 #define ANDR_VENDOR_BOOT_MAGIC_SIZE 8
 #define ANDR_VENDOR_BOOT_ARGS_SIZE 2048
 #define ANDR_VENDOR_BOOT_NAME_SIZE 16

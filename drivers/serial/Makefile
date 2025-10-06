@@ -36,7 +36,6 @@ obj-$(CONFIG_SCIF_CONSOLE) += serial_sh.o
 obj-$(CONFIG_SEMIHOSTING_SERIAL) += serial_semihosting.o
 obj-$(CONFIG_ZYNQ_SERIAL) += serial_zynq.o
 obj-$(CONFIG_FSL_LPUART) += serial_lpuart.o
-obj-$(CONFIG_FSL_LINFLEXUART) += serial_linflexuart.o
 obj-$(CONFIG_ARC_SERIAL) += serial_arc.o
 obj-$(CONFIG_UNIPHIER_SERIAL) += serial_uniphier.o
 obj-$(CONFIG_STM32_SERIAL) += serial_stm32.o

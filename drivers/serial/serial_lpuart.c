@@ -129,7 +129,7 @@ static int get_lpuart_clk_rate(struct udevice *dev, u32 *clk_rate)
 	rate = clk_get_rate(&clk);
 	if ((long)rate <= 0) {
 		dev_err(dev, "Failed to get clk rate: %ld\n", (long)rate);
-		return ret;
+		return rate;
 	}
 	*clk_rate = rate;
 	return 0;

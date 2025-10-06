@@ -428,6 +428,9 @@ enum uic_link_state {
 #define ATTR_SET_NOR	0	/* NORMAL */
 #define ATTR_SET_ST	1	/* STATIC */
 
+int ufshcd_dme_configure_adapt(struct ufs_hba *hba,
+			       int agreed_gear,
+			       int adapt_val);
 int ufshcd_dme_set_attr(struct ufs_hba *hba, u32 attr_sel,
 			u8 attr_set, u32 mib_val, u8 peer);
 int ufshcd_dme_get_attr(struct ufs_hba *hba, u32 attr_sel,

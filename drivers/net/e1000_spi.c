@@ -472,6 +472,7 @@ static int do_e1000_spi_checksum(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
 	uint16_t i, length, checksum = 0, checksum_reg;
 	uint16_t *buffer;
 	bool upd;
+	int ret = 0;
 
 	if (argc == 0)
 		upd = 0;
@@ -493,14 +494,15 @@ static int do_e1000_spi_checksum(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
 	/* Acquire the EEPROM */
 	if (e1000_acquire_eeprom(hw)) {
 		E1000_ERR(hw, "EEPROM SPI cannot be acquired!\n");
-		return 1;
+		ret = 1;
+		goto free_exit;
 	}
 
 	/* Read the EEPROM */
 	if (e1000_spi_eeprom_dump(hw, buffer, 0, length, true) < 0) {
 		E1000_ERR(hw, "Interrupted!\n");
-		e1000_release_eeprom(hw);
-		return 1;
+		ret = 1;
+		goto release_exit;
 	}
 
 	/* Compute the checksum and read the expected value */
@@ -513,8 +515,8 @@ static int do_e1000_spi_checksum(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
 	if (checksum_reg == checksum) {
 		printf("%s: INFO: EEPROM checksum is correct! (0x%04hx)\n",
 				hw->name, checksum);
-		e1000_release_eeprom(hw);
-		return 0;
+		ret = 0;
+		goto release_exit;
 	}
 
 	/* Hrm, verification failed, print an error */
@@ -524,8 +526,8 @@ static int do_e1000_spi_checksum(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
 
 	/* If they didn't ask us to update it, just return an error */
 	if (!upd) {
-		e1000_release_eeprom(hw);
-		return 1;
+		ret = 1;
+		goto release_exit;
 	}
 
 	/* Ok, correct it! */
@@ -534,12 +536,15 @@ static int do_e1000_spi_checksum(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
 	if (e1000_spi_eeprom_program(hw, &buffer[i], i * sizeof(uint16_t),
 			sizeof(uint16_t), true)) {
 		E1000_ERR(hw, "Interrupted!\n");
-		e1000_release_eeprom(hw);
-		return 1;
+		ret = 1;
+		/* goto release_exit; */
 	}
 
+release_exit:
 	e1000_release_eeprom(hw);
-	return 0;
+free_exit:
+	free(buffer);
+	return ret;
 }
 
 int do_e1000_spi(struct cmd_tbl *cmdtp, struct e1000_hw *hw,

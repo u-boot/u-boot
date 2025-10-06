@@ -74,8 +74,8 @@ config RESET_UNIPHIER
 
 config RESET_AST2500
 	bool "Reset controller driver for AST2500 SoCs"
-	depends on DM_RESET
-	default y if ASPEED_AST2500
+	depends on DM_RESET && ASPEED_AST2500
+	default y
 	help
 	  Support for reset controller on AST2500 SoC.
 	  Say Y if you want to control reset signals of different peripherals
@@ -83,8 +83,8 @@ config RESET_AST2500
 
 config RESET_AST2600
 	bool "Reset controller driver for AST2600 SoCs"
-	depends on DM_RESET
-	default y if ASPEED_AST2600
+	depends on DM_RESET && ASPEED_AST2600
+	default y
 	help
 	  Support for reset controller on AST2600 SoC.
 	  Say Y if you want to control reset signals of different peripherals
@@ -223,7 +223,7 @@ config RESET_ZYNQMP
 
 config RESET_DRA7
 	bool "Support for TI's DRA7 Reset driver"
-	depends on DM_RESET
+	depends on DM_RESET && ARCH_OMAP2PLUS
 	help
 	  Support for TI DRA7-RESET subsystem. Basic Assert/Deassert
 	  is supported.

@@ -337,6 +337,33 @@ static struct nxp_fspi_devtype_data imxrt1170_data = {
 	.little_endian = true,
 };
 
+static const struct nxp_fspi_devtype_data imx8qxp_data = {
+	.rxfifo = SZ_512,       /* (64  * 64 bits)  */
+	.txfifo = SZ_1K,        /* (128 * 64 bits)  */
+	.ahb_buf_size = SZ_2K,  /* (256 * 64 bits)  */
+	.quirks = 0,
+	.lut_num = 32,
+	.little_endian = true,  /* little-endian    */
+};
+
+static const struct nxp_fspi_devtype_data imx8dxl_data = {
+	.rxfifo = SZ_512,       /* (64  * 64 bits)  */
+	.txfifo = SZ_1K,        /* (128 * 64 bits)  */
+	.ahb_buf_size = SZ_2K,  /* (256 * 64 bits)  */
+	.quirks = FSPI_QUIRK_USE_IP_ONLY,
+	.lut_num = 32,
+	.little_endian = true,  /* little-endian    */
+};
+
+static const struct nxp_fspi_devtype_data imx8ulp_data = {
+	.rxfifo = SZ_1K,       /* (128  * 64 bits)  */
+	.txfifo = SZ_1K,        /* (128 * 64 bits)  */
+	.ahb_buf_size = SZ_2K,  /* (256 * 64 bits)  */
+	.quirks = 0,
+	.lut_num = 16,
+	.little_endian = true,  /* little-endian    */
+};
+
 struct nxp_fspi {
 	struct udevice *dev;
 	void __iomem *iobase;
@@ -537,6 +564,15 @@ static void nxp_fspi_prepare_lut(struct nxp_fspi *f,
 	for (i = 0; i < ARRAY_SIZE(lutval); i++) {
 		target_lut_reg = FSPI_LUT_BASE + lut_offset + i * 4;
 		fspi_writel(f, lutval[i], base + target_lut_reg);
+	}
+
+	if (op->data.nbytes && op->data.dir == SPI_MEM_DATA_IN &&
+	    op->addr.nbytes) {
+		lut_offset = (f->devtype_data->lut_num - 2) * 4 * 4;
+		for (i = 0; i < ARRAY_SIZE(lutval); i++) {
+			target_lut_reg = FSPI_LUT_BASE + lut_offset + i * 4;
+			fspi_writel(f, lutval[i], base + target_lut_reg);
+		}
 	}
 
 	dev_dbg(f->dev, "CMD[%x] lutval[0:%x \t 1:%x \t 2:%x \t 3:%x], size: 0x%08x\n",
@@ -943,9 +979,10 @@ static int nxp_fspi_default_setup(struct nxp_fspi *f)
 	/*
 	 * The driver only uses one single LUT entry, that is updated on
 	 * each call of exec_op(). Index 0 is preset at boot with a basic
-	 * read operation, so let's use the last entry.
+	 * read operation, last entry is used for dynamic lut, the second
+	 * last entry is used for AHB read.
 	 */
-	seqid_lut = f->devtype_data->lut_num - 1;
+	seqid_lut = f->devtype_data->lut_num - 2;
 	/* AHB Read - Set lut sequence ID for all CS. */
 	fspi_writel(f, seqid_lut, base + FSPI_FLSHA1CR2);
 	fspi_writel(f, seqid_lut, base + FSPI_FLSHA2CR2);
@@ -1071,6 +1108,9 @@ static const struct udevice_id nxp_fspi_ids[] = {
 	{ .compatible = "nxp,lx2160a-fspi", .data = (ulong)&lx2160a_data, },
 	{ .compatible = "nxp,imx8mm-fspi", .data = (ulong)&imx8mm_data, },
 	{ .compatible = "nxp,imx8mp-fspi", .data = (ulong)&imx8mm_data, },
+	{ .compatible = "nxp,imx8qxp-fspi", .data = (ulong)&imx8qxp_data, },
+	{ .compatible = "nxp,imx8dxl-fspi", .data = (ulong)&imx8dxl_data, },
+	{ .compatible = "nxp,imx8ulp-fspi", .data = (ulong)&imx8ulp_data, },
 	{ .compatible = "nxp,imxrt1170-fspi", .data = (ulong)&imxrt1170_data, },
 	{ }
 };

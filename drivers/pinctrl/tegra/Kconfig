@@ -2,7 +2,7 @@
 
 config PINCTRL_TEGRA
 	bool "Nvidia Tegra pinctrl driver"
-	depends on DM
+	depends on DM && ARCH_TEGRA
 	help
 	  Support pin multiplexing control on Nvidia Tegra SoCs.
 	  The driver is an overlay to existing driver and allows
@@ -11,7 +11,7 @@ config PINCTRL_TEGRA
 
 config SPL_PINCTRL_TEGRA
 	bool "Nvidia Tegra SPL pinctrl driver"
-	depends on SPL_PINCTRL
+	depends on SPL_PINCTRL && ARCH_TEGRA
 	help
 	  Enables support of pre-DM version of pin multiplexing
 	  control driver used on SPL stage for board setup and

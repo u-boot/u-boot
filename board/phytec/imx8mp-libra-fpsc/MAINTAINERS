@@ -1,0 +1,9 @@
+Libra-i.MX 8M Plus
+M:	Teresa Remmet <t.remmet@phytec.de>
+W:	https://www.phytec.eu/en/produkte/system-on-modules/phycore-imx-8m-plus-fpsc/
+S:	Maintained
+F:	arch/arm/dts/imx8mp-libra-rdk-fpsc-u-boot.dtsi
+F:	board/phytec/imx8mp-libra-fpsc/
+F:	configs/imx8mp-libra-fpsc_defconfig
+F:	include/configs/imx8mp-libra-fpsc.h
+F:	doc/board/phytec/imx8mp-libra-fpsc.rst

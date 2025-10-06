@@ -1,0 +1,6 @@
+i.MX94 EVK BOARD
+M:	Alice Guo <alice.guo@nxp.com>
+S:	Maintained
+F:	board/freescale/imx94_evk/
+F:	include/configs/imx94_evk.h
+F:	configs/imx943_evk_defconfig

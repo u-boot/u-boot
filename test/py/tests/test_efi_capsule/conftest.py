@@ -44,8 +44,6 @@ def efi_capsule_data(request, ubman):
                        % (key_dir, data_dir), shell=True)
             check_call('cp %s/capsule_pub_key_good.crt %s/SIGNER.crt'
                        % (key_dir, data_dir), shell=True)
-            check_call('cp %s/capsule_pub_esl_good.esl %s/SIGNER.esl'
-                       % (key_dir, data_dir), shell=True)
 
             check_call('cp %s/capsule_priv_key_bad.key %s/SIGNER2.key'
                        % (key_dir, data_dir), shell=True)
@@ -103,6 +101,7 @@ def efi_capsule_data(request, ubman):
         pytest.skip('Setup failed: %s' % exception.cmd)
         return
     else:
+        ubman.restart_uboot()
         yield image_path
     finally:
         call('rm -rf %s' % mnt_point, shell=True)

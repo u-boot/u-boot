@@ -7,15 +7,16 @@
 #include <errno.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <dm/lists.h>
 #include <i2c.h>
-#include <linux/err.h>
 #include <log.h>
 #include <asm/global_data.h>
-#include <asm-generic/gpio.h>
+#include <linux/delay.h>
 #include <linux/printk.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/pca9450.h>
+#include <sysreset.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -27,10 +28,6 @@ static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "l", .driver = PCA9450_REGULATOR_DRIVER},
 	{ .prefix = "L", .driver = PCA9450_REGULATOR_DRIVER},
 	{ },
-};
-
-struct pca9450_priv {
-	struct gpio_desc *sd_vsel_gpio;
 };
 
 static int pca9450_reg_count(struct udevice *dev)
@@ -85,20 +82,15 @@ static int pca9450_bind(struct udevice *dev)
 
 static int pca9450_probe(struct udevice *dev)
 {
-	struct pca9450_priv *priv = dev_get_priv(dev);
 	unsigned int reset_ctrl;
-	int ret = 0;
+	int ret;
 
-	if (CONFIG_IS_ENABLED(DM_GPIO) && CONFIG_IS_ENABLED(DM_REGULATOR_PCA9450)) {
-		priv->sd_vsel_gpio = devm_gpiod_get_optional(dev, "sd-vsel",
-							     GPIOD_IS_OUT |
-							     GPIOD_IS_OUT_ACTIVE);
-		if (IS_ERR(priv->sd_vsel_gpio)) {
-			ret = PTR_ERR(priv->sd_vsel_gpio);
-			dev_err(dev, "Failed to request SD_VSEL GPIO: %d\n", ret);
-			if (ret)
-				return ret;
-		}
+	if (CONFIG_IS_ENABLED(SYSRESET)) {
+		ret = device_bind_driver_to_node(dev, "pca9450_sysreset",
+						 "pca9450_sysreset",
+						 dev_ofnode(dev), NULL);
+		if (ret)
+			return ret;
 	}
 
 	if (ofnode_read_bool(dev_ofnode(dev), "nxp,wdog_b-warm-reset"))
@@ -132,5 +124,73 @@ U_BOOT_DRIVER(pmic_pca9450) = {
 	.bind = pca9450_bind,
 	.probe = pca9450_probe,
 	.ops = &pca9450_ops,
-	.priv_auto = sizeof(struct pca9450_priv),
 };
+
+#ifdef CONFIG_SYSRESET
+static int pca9450_sysreset_request(struct udevice *dev, enum sysreset_t type)
+{
+	u8 cmd = PCA9450_SW_RST_COLD_RST;
+
+	if (type != SYSRESET_COLD)
+		return -EPROTONOSUPPORT;
+
+	if (pmic_write(dev->parent, PCA9450_SW_RST, &cmd, 1)) {
+		dev_err(dev, "reset command failed\n");
+	} else {
+		/* tRESTART is 250ms, delay 300ms just to be sure */
+		mdelay(300);
+		/* Should not get here, warn if we do */
+		dev_warn(dev, "didn't respond to reset command\n");
+	}
+
+	return -EINPROGRESS;
+}
+
+int pca9450_sysreset_get_status(struct udevice *dev, char *buf, int size)
+{
+	const char *reason;
+	int ret;
+	u8 reg;
+
+	ret = pmic_read(dev->parent, PCA9450_PWRON_STAT, &reg, 1);
+	if (ret)
+		return ret;
+
+	switch (reg) {
+	case PCA9450_PWRON_STAT_PWRON_MASK:
+		reason = "PWRON";
+		break;
+	case PCA9450_PWRON_STAT_WDOG_MASK:
+		reason = "WDOGB";
+		break;
+	case PCA9450_PWRON_STAT_SW_RST_MASK:
+		reason = "SW_RST";
+		break;
+	case PCA9450_PWRON_STAT_PMIC_RST_MASK:
+		reason = "PMIC_RST";
+		break;
+	default:
+		reason = "UNKNOWN";
+		break;
+	}
+
+	ret = snprintf(buf, size, "Reset Status: %s\n", reason);
+	if (ret < 0) {
+		dev_err(dev, "Write reset status error (err = %d)\n", ret);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+static struct sysreset_ops pca9450_sysreset_ops = {
+	.request	= pca9450_sysreset_request,
+	.get_status	= pca9450_sysreset_get_status,
+};
+
+U_BOOT_DRIVER(pca9450_sysreset) = {
+	.name		= "pca9450_sysreset",
+	.id		= UCLASS_SYSRESET,
+	.ops		= &pca9450_sysreset_ops,
+};
+#endif /* CONFIG_SYSRESET */

@@ -193,7 +193,7 @@ static int gpio_dwapb_bind(struct udevice *dev)
 				 ofnode_get_name(node));
 			plat->name = strdup(name);
 			if (!plat->name) {
-				kfree(plat);
+				devm_kfree(dev, plat);
 				return -ENOMEM;
 			}
 		}

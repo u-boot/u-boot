@@ -572,7 +572,7 @@ static int do_imls(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (ret_nand)
 		return ret_nand;
 
-	return (0);
+	return 0;
 }
 
 U_BOOT_CMD(

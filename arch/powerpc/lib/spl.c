@@ -9,8 +9,7 @@
 #include <linux/compiler.h>
 
 /*
- * This function jumps to an image with argument. Normally an FDT or ATAGS
- * image.
+ * This function jumps to an image with argument, usually an FDT.
  */
 #ifdef CONFIG_SPL_OS_BOOT
 void __noreturn jump_to_image_linux(struct spl_image_info *spl_image)

@@ -121,8 +121,9 @@ config USB_XHCI_DRA7XX_INDEX
 
 config USB_XHCI_FSL
 	bool "Support for NXP Layerscape on-chip xHCI USB controller"
-	default y if ARCH_LS1021A || FSL_LSCH3 || FSL_LSCH2
+	depends on ARCH_LS1021A || FSL_LSCH3 || FSL_LSCH2
 	depends on !SPL_NO_USB
+	default y
 	help
 	  Enables support for the on-chip xHCI controller on NXP Layerscape SoCs.
 
@@ -286,7 +287,8 @@ config USB_EHCI_TEGRA
 
 config USB_EHCI_ZYNQ
 	bool "Support for Xilinx Zynq on-chip EHCI USB controller"
-	default y if ARCH_ZYNQ
+	depends on ARCH_ZYNQ
+	default y
 	select USB_EHCI_IS_TDI
 	---help---
 	  Enable support for Zynq on-chip EHCI USB controller
@@ -303,6 +305,7 @@ config EHCI_HCD_INIT_AFTER_RESET
 
 config USB_EHCI_FSL
 	bool  "Support for FSL on-chip EHCI USB controller"
+	depends on PPC
 	select EHCI_HCD_INIT_AFTER_RESET
 	select SYS_FSL_USB_INTERNAL_UTMI_PHY if MPC85xx && \
 		!(ARCH_B4860 || ARCH_B4420 || ARCH_P4080 || ARCH_P1020 || ARCH_P2020)
@@ -362,6 +365,7 @@ config USB_OHCI_GENERIC
 
 config USB_OHCI_DA8XX
 	bool "Support for da850 OHCI USB controller"
+	depends on ARCH_DAVINCI
 	help
 	  Enable support for the da850 USB controller.
 

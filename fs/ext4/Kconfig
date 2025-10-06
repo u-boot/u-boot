@@ -12,3 +12,11 @@ config EXT4_WRITE
 	help
 	  This provides support for creating and writing new files to an
 	  existing ext4 filesystem partition.
+
+config EXT4_MAX_JOURNAL_ENTRIES
+	int "Maximum numbers of journal entries for ext4 filesystem"
+	default 100
+	depends on EXT4_WRITE
+	help
+	  This provides support for allocating the maximum number of
+	  journal entries in disks formatted with ext4 filesysyem.

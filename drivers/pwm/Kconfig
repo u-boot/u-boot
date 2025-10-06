@@ -42,7 +42,7 @@ config PWM_CROS_EC
 
 config PWM_EXYNOS
 	bool "Enable support for the Exynos PWM"
-	depends on DM_PWM
+	depends on DM_PWM && ARCH_EXYNOS
 	help
 	  This PWM is found on Samsung Exynos 5250 and other Samsung SoCs. It
 	  supports a programmable period and duty cycle. A 32-bit counter is
@@ -51,6 +51,7 @@ config PWM_EXYNOS
 
 config PWM_IMX
 	bool "Enable support for i.MX27 and later PWM"
+	depends on MACH_IMX
 	help
 	  This PWM is found i.MX27 and later i.MX SoCs.
 
@@ -70,7 +71,7 @@ config PWM_MTK
 
 config PWM_ROCKCHIP
 	bool "Enable support for the Rockchip PWM"
-	depends on DM_PWM
+	depends on DM_PWM && ARCH_ROCKCHIP
 	help
 	  This PWM is found on RK3288 and other Rockchip SoCs. It supports a
 	  programmable period and duty cycle. A 32-bit counter is used.
@@ -98,7 +99,7 @@ config PWM_SIFIVE
 
 config PWM_TEGRA
 	bool "Enable support for the Tegra PWM"
-	depends on DM_PWM
+	depends on DM_PWM && ARCH_TEGRA
 	help
 	  This PWM is found on Tegra 20 and other Nvidia SoCs. It supports
 	  four channels with a programmable period and duty cycle. Only a
@@ -115,7 +116,7 @@ config PWM_STM32
 
 config PWM_SUNXI
 	bool "Enable support for the Allwinner Sunxi PWM"
-	depends on DM_PWM
+	depends on DM_PWM && ARCH_SUNXI
 	help
 	  This PWM is found on H3, A64 and other Allwinner SoCs. It supports a
 	  programmable period and duty cycle. A 16-bit counter is used.

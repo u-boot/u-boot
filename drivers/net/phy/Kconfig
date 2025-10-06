@@ -184,6 +184,8 @@ config PHY_MARVELL_10G
 	help
 	  Support for the Marvell Alaska MV88X3310 and compatible PHYs.
 
+source "drivers/net/phy/mediatek/Kconfig"
+
 config PHY_MESON_GXL
 	bool "Amlogic Meson GXL Internal PHY support"
 

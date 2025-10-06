@@ -647,8 +647,6 @@ static int prueth_probe(struct udevice *dev)
 			return -EINVAL;
 		}
 
-		if (port_id < 0)
-			continue;
 		if (disabled)
 			continue;
 

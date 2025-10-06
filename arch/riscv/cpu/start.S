@@ -151,8 +151,15 @@ call_harts_early_init:
 	 */
 	la	t0, hart_lottery
 	li	t1, 1
+#if CONFIG_IS_ENABLED(RISCV_ISA_ZAAMO)
 	amoswap.w s2, t1, 0(t0)
 	bnez	s2, wait_for_gd_init
+#else
+	lr.w	s2, (t0)
+	bnez	s2, wait_for_gd_init
+	sc.w	s2, t1, (t0)
+	bnez	s2, wait_for_gd_init
+#endif
 #else
 	/*
 	 * FIXME: gp is set before it is initialized. If an XIP U-Boot ever
@@ -177,7 +184,12 @@ call_harts_early_init:
 #if !CONFIG_IS_ENABLED(XIP)
 #ifdef CONFIG_AVAILABLE_HARTS
 	la	t0, available_harts_lock
+#if CONFIG_IS_ENABLED(RISCV_ISA_ZAAMO)
 	amoswap.w.rl zero, zero, 0(t0)
+#else
+	fence	rw, w
+	sw	zero, 0(t0)
+#endif
 #endif
 
 wait_for_gd_init:
@@ -190,7 +202,14 @@ wait_for_gd_init:
 #ifdef CONFIG_AVAILABLE_HARTS
 	la	t0, available_harts_lock
 	li	t1, 1
-1:	amoswap.w.aq t1, t1, 0(t0)
+1:
+#if CONFIG_IS_ENABLED(RISCV_ISA_ZAAMO)
+	amoswap.w.aq t1, t1, 0(t0)
+#else
+	lr.w.aq	t1, 0(t0)
+	bnez	t1, 1b
+	sc.w.rl t1, t1, 0(t0)
+#endif
 	bnez	t1, 1b
 
 	/* register available harts in the available_harts mask */
@@ -200,7 +219,12 @@ wait_for_gd_init:
 	or	t2, t2, t1
 	SREG	t2, GD_AVAILABLE_HARTS(gp)
 
+#if CONFIG_IS_ENABLED(RISCV_ISA_ZAAMO)
 	amoswap.w.rl zero, zero, 0(t0)
+#else
+	fence	rw, w
+	sw	zero, 0(t0)
+#endif
 #endif
 
 	/*

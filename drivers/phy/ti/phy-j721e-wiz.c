@@ -1201,6 +1201,7 @@ static int j721e_wiz_probe(struct udevice *dev)
 
 	if (num_lanes > WIZ_MAX_LANES) {
 		dev_err(dev, "Cannot support %d lanes\n", num_lanes);
+		rc = -EINVAL;
 		goto err_addr_to_resource;
 	}
 

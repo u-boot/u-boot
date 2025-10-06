@@ -21,10 +21,6 @@
 #include <linux/iopoll.h>
 #include <linux/i3c/master.h>
 
-#ifdef CONFIG_SANDBOX
-#define cpu_relax() do {} while (0)
-#endif
-
 static u8 even_parity(u8 p)
 {
 	p ^= p >> 4;

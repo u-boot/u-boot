@@ -42,7 +42,7 @@ def init_content(ubman, target, filename, expected):
         'sf probe 0:0',
         f'fatload host 0:1 4000000 {CAPSULE_DATA_DIR}/{filename}',
         f'sf write 4000000 {target} 10',
-        'sf read 5000000 100000 10',
+        f'sf read 5000000 {target} 10',
         'md.b 5000000 10'])
     assert expected in ''.join(output)
 
@@ -137,6 +137,8 @@ def do_reboot_dtb_specified(u_boot_config, ubman, dtb_filename):
         dtb_filename -- DTB file name.
     """
     mnt_point = u_boot_config.persistent_data_dir + '/scratch'
+    old_dtb = ubman.config.dtb
     ubman.config.dtb = mnt_point + CAPSULE_DATA_DIR \
                                 + f'/{dtb_filename}'
     ubman.restart_uboot()
+    ubman.config.dtb = old_dtb

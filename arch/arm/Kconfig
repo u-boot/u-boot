@@ -68,10 +68,10 @@ config INIT_SP_RELATIVE
 	  SYS_INIT_SP_BSS_OFFSET.
 
 config SYS_INIT_SP_BSS_OFFSET
-	int "Early stack offset from the .bss base address"
+	hex "Early stack offset from the .bss base address"
 	depends on ARM64
 	depends on INIT_SP_RELATIVE
-	default 524288
+	default 0x80000
 	help
 	  This option's value is the offset added to &_bss_start in order to
 	  calculate the stack pointer. This offset should be large enough so
@@ -1418,6 +1418,8 @@ config ARCH_VEXPRESS64
 	select MTD_NOR_FLASH if MTD
 	select FLASH_CFI_DRIVER if MTD
 	select ENV_IS_IN_FLASH if MTD
+	select SYSRESET
+	select SYSRESET_PSCI if ARM_PSCI_FW
 	imply DISTRO_DEFAULTS
 
 config TARGET_CORSTONE1000

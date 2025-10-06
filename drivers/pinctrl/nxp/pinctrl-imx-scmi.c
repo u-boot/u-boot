@@ -16,6 +16,7 @@
 #include "pinctrl-imx.h"
 
 #define DAISY_OFFSET_IMX95      0x408
+#define DAISY_OFFSET_IMX94      0x608
 
 /* SCMI pin control types */
 #define PINCTRL_TYPE_MUX        192
@@ -133,6 +134,8 @@ static int imx_scmi_pinctrl_probe(struct udevice *dev)
 
 	if (IS_ENABLED(CONFIG_IMX95))
 		priv->daisy_offset = DAISY_OFFSET_IMX95;
+	else if (IS_ENABLED(CONFIG_IMX94))
+		priv->daisy_offset = DAISY_OFFSET_IMX94;
 	else
 		return -EINVAL;
 
@@ -141,7 +144,7 @@ static int imx_scmi_pinctrl_probe(struct udevice *dev)
 
 static int imx_scmi_pinctrl_bind(struct udevice *dev)
 {
-	if (IS_ENABLED(CONFIG_IMX95))
+	if (IS_ENABLED(CONFIG_IMX95) || IS_ENABLED(CONFIG_IMX94))
 		return 0;
 
 	return -ENODEV;

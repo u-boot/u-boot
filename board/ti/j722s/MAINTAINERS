@@ -7,3 +7,5 @@ F:	board/ti/j722s/
 F:	include/configs/j722s_evm.h
 F:	configs/j722s_evm_r5_defconfig
 F:	configs/j722s_evm_a53_defconfig
+F:	configs/j722s_evm_r5_ethboot_defconfig
+F:	configs/j722s_evm_a53_ethboot_defconfig

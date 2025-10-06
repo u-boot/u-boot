@@ -34,7 +34,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select PCIE_ECAM_GENERIC
 	select SYS_PCI_64BIT
 	select USB
-	select GIC_V3
+	select GICV3
 	select GIC_V3_ITS
 	select SYS_FLASH_CFI_WIDTH_16BIT
 	imply AHCI_GENERIC

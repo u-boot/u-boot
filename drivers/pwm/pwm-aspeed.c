@@ -46,6 +46,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <dm/device_compat.h>
+#include <linux/log2.h>
 #include <linux/math64.h>
 #include <linux/bitfield.h>
 #include <linux/time.h>

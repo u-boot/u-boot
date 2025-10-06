@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2025 Yao Zi <ziyao@disroot.org>
+ */
+
+#include "th1520-lichee-module-4a-u-boot.dtsi"
+#include "thead-th1520-binman.dtsi"
+
+&clk {
+	bootph-some-ram;
+};
+
+&padctrl0_apsys {
+	bootph-some-ram;
+};
+
+&uart0_pins {
+	bootph-some-ram;
+
+	tx-pins {
+		bootph-some-ram;
+	};
+
+	rx-pins {
+		bootph-some-ram;
+	};
+};

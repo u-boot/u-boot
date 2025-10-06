@@ -632,11 +632,13 @@ err_free_ops:
 int k3_nav_ringacc_ring_cfg(struct k3_nav_ring *ring,
 			    struct k3_nav_ring_cfg *cfg)
 {
-	struct k3_nav_ringacc *ringacc = ring->parent;
+	struct k3_nav_ringacc *ringacc;
 	int ret = 0;
 
 	if (!ring || !cfg)
 		return -EINVAL;
+
+	ringacc = ring->parent;
 
 	if (ringacc->dual_ring)
 		return k3_dmaring_ring_cfg(ring, cfg);
@@ -930,7 +932,7 @@ static int k3_nav_ringacc_probe_dt(struct k3_nav_ringacc *ringacc)
 
 	ringacc->num_rings = dev_read_u32_default(dev, "ti,num-rings", 0);
 	if (!ringacc->num_rings) {
-		dev_err(dev, "ti,num-rings read failure %d\n", ret);
+		dev_err(dev, "ti,num-rings read failure\n");
 		return -EINVAL;
 	}
 

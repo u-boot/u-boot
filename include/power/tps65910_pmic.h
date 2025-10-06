@@ -123,7 +123,7 @@ enum {
 
 /* platform data */
 struct tps65910_regulator_pdata {
-	u32 supply;	/* regulator supply voltage in uV */
+	int supply;	/* regulator supply voltage in uV */
 	uint unit;	/* unit-address according to DT */
 };
 

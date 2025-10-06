@@ -165,7 +165,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi_flash_pins>;
 	status = "okay";
-	must_tx;
 	enhance_timing;
 	dma_ext;
 	ipm_design;

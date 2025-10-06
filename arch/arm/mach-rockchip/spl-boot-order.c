@@ -242,30 +242,38 @@ int spl_decode_boot_device(u32 boot_device, char *buf, size_t buflen)
 
 void spl_perform_fixups(struct spl_image_info *spl_image)
 {
+	const char *bootrom_ofpath = board_spl_was_booted_from();
 	void *blob = spl_image_fdt_addr(spl_image);
 	char boot_ofpath[512];
 	int chosen, ret;
 
-	/*
-	 * Inject the ofpath of the device the full U-Boot (or Linux in
-	 * Falcon-mode) was booted from into the FDT, if a FDT has been
-	 * loaded at the same time.
-	 */
 	if (!blob)
 		return;
-
-	ret = spl_decode_boot_device(spl_image->boot_device, boot_ofpath, sizeof(boot_ofpath));
-	if (ret) {
-		pr_err("%s: could not map boot_device to ofpath: %d\n", __func__, ret);
-		return;
-	}
 
 	chosen = fdt_find_or_add_subnode(blob, 0, "chosen");
 	if (chosen < 0) {
 		pr_err("%s: could not find/create '/chosen'\n", __func__);
 		return;
 	}
-	fdt_setprop_string(blob, chosen,
-			   "u-boot,spl-boot-device", boot_ofpath);
+
+	/*
+	 * Inject the ofpath of the device the full U-Boot (or Linux in
+	 * Falcon-mode) was booted from into the FDT.
+	 */
+	ret = spl_decode_boot_device(spl_image->boot_device, boot_ofpath, sizeof(boot_ofpath));
+	if (ret)
+		pr_err("%s: could not map boot_device to ofpath: %d\n", __func__, ret);
+	else
+		fdt_setprop_string(blob, chosen,
+				   "u-boot,spl-boot-device", boot_ofpath);
+
+	/*
+	 * Inject the ofpath of the device the BootROM loaded the very first
+	 * stage from into the FDT.
+	 */
+	if (!bootrom_ofpath)
+		pr_err("%s: could not map BootROM boot device to ofpath\n", __func__);
+	else
+		fdt_setprop_string(blob, chosen, "bootsource", bootrom_ofpath);
 }
 #endif

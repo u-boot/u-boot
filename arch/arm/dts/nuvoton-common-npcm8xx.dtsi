@@ -62,6 +62,11 @@
 			reg = <0x0 0xf0801000 0x0 0x1000>;
 		};
 
+		timer0: timer@f0801068 {
+			compatible = "nuvoton,npcm845-timer";
+			reg = <0x0 0xf0801068 0x0 0x8>;
+		};
+
 		sdhci0: sdhci@f0842000 {
 			compatible = "nuvoton,npcm845-sdhci";
 			reg = <0x0 0xf0842000 0x0 0x100>;
@@ -136,7 +141,7 @@
 
 			host_intf: host_intf@9f000 {
 				compatible = "nuvoton,npcm845-host-intf";
-				reg = <0x9f000 0x1000>;
+				reg = <0x9f000 0x1000>, <0x7000 0x40>;
 				type = "espi";
 				ioaddr = <0x4e>;
 				channel-support = <0xf>;
@@ -155,14 +160,6 @@
 				clock-names = "clk_apb5";
 				resets = <&rstc NPCM8XX_RESET_IPSRST2 NPCM8XX_RESET_PSPI2>;
 				status = "disabled";
-			};
-
-			timer0: timer@8000 {
-				compatible = "nuvoton,npcm845-timer";
-				interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
-				reg = <0x8000 0x1C>;
-				clocks = <&clk NPCM8XX_CLK_REFCLK>;
-				clock-names = "refclk";
 			};
 
 			serial0: serial@0 {

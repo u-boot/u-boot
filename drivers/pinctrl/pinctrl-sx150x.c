@@ -3,11 +3,14 @@
  * Copyright (C) 2024, Exfo Inc - All Rights Reserved
  *
  * Author: Anis CHALI <anis.chali@exfo.com>
- * inspired and adapted from linux driver of sx150x written by Gregory Bean
- * <gbean@codeaurora.org>
+ *
+ * Inspired and adapted from the Linux pinctrl-sx150x driver:
+ * Copyright (c) 2016, BayLibre, SAS. All rights reserved.
+ * Author: Neil Armstrong <narmstrong@baylibre.com>
+ * Copyright (c) 2010, Code Aurora Forum. All rights reserved.
+ * Author: Gregory Bean <gbean@codeaurora.org>
  */
 
-#include <asm/gpio.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/device.h>
@@ -22,6 +25,8 @@
 #include <log.h>
 #include <power/regulator.h>
 #include <regmap.h>
+#include <linux/bug.h>
+#include <asm/gpio.h>
 
 #define err(format, arg...) printf("ERR:" format "\n", ##arg)
 #define dbg(format, arg...) printf("DBG:" format "\n", ##arg)
@@ -413,7 +418,7 @@ static int sx150x_reg_read(struct sx150x_pinctrl_priv *pctl, unsigned int reg,
 {
 	int ret, n;
 	const int width = sx150x_reg_width(pctl, reg);
-	unsigned int idx, val;
+	unsigned int val, idx;
 
 	/*
 	 * There are four potential cases covered by this function:
@@ -444,8 +449,9 @@ static int sx150x_reg_read(struct sx150x_pinctrl_priv *pctl, unsigned int reg,
 	 *		reg  3 [ 3 3 2 2 1 1 0 0 ]
 	 */
 
-	for (n = width, val = 0, idx = reg; n > 0; n -= 8, idx) {
+	for (n = width, val = 0; n > 0; n -= 8) {
 		val <<= 8;
+		idx = reg;
 
 		ret = dm_i2c_reg_read(pctl->i2c, idx);
 		if (ret < 0)
@@ -475,7 +481,6 @@ static int sx150x_reg_write(struct sx150x_pinctrl_priv *pctl, unsigned int reg,
 		if (ret < 0)
 			return ret;
 
-		reg;
 		n -= 8;
 	} while (n >= 0);
 
@@ -724,7 +729,7 @@ static const struct udevice_id sx150x_pinctrl_of_match[] = {
 	{},
 };
 
-static const struct pinconf_param sx150x_conf_params[] = {
+static const struct pinconf_param __maybe_unused sx150x_conf_params[] = {
 	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, 0 },
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 1 },
 	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_DOWN, 1 },
@@ -750,7 +755,7 @@ static const char *sx150x_pinctrl_get_pin_name(struct udevice *dev,
 	return pin_name;
 }
 
-static int sx150x_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
+static int __maybe_unused sx150x_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
 				   unsigned int param, unsigned int arg)
 {
 	int ret;
@@ -834,12 +839,10 @@ static int sx150x_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
 static int sx150x_pinctrl_bind(struct udevice *dev)
 {
 	struct sx150x_pinctrl_priv *pctl = dev_get_plat(dev);
-	int ret, reg;
+	int ret;
 
 	if (!dev_read_bool(dev, "gpio-controller"))
 		return 0;
-
-	reg = (int)dev_read_addr_ptr(dev);
 
 	ret = device_bind(dev, &sx150x_gpio_driver, dev_read_name(dev), NULL,
 			  dev_ofnode(dev), &pctl->gpio);
@@ -861,7 +864,10 @@ static int sx150x_pinctrl_probe(struct udevice *dev)
 
 	pctl->data = drv_data;
 
-	reg = (int)dev_read_addr_ptr(dev);
+	reg = dev_read_u32_default(dev, "reg", -ENODEV);
+	if (reg < 0)
+		return -ENODEV;
+
 	ret = dm_i2c_probe(dev->parent, reg, 0, &pctl->i2c);
 	if (ret) {
 		err("Cannot find I2C chip %02x (%d)", reg, ret);
