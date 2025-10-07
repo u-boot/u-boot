@@ -18,6 +18,10 @@
 	};
 };
 
+&aips4 {
+	bootph-pre-ram;
+};
+
 &i2c1 {
 	bootph-pre-ram;
 	bootph-all;
@@ -106,6 +110,18 @@
 &uart3 {
 	bootph-pre-ram;
 	bootph-all;
+};
+
+&usbmisc1 {
+	bootph-pre-ram;
+};
+
+&usbphynop1 {
+	bootph-pre-ram;
+};
+
+&usbotg1 {
+	bootph-pre-ram;
 };
 
 &usdhc1 {
