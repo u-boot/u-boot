@@ -17,7 +17,7 @@
 static int ti_j721e_ufs_probe(struct udevice *dev)
 {
 	void __iomem *base;
-	unsigned int clock;
+	unsigned long clock;
 	struct clk clk;
 	u32 reg = 0;
 	int ret;
@@ -29,9 +29,9 @@ static int ti_j721e_ufs_probe(struct udevice *dev)
 	}
 
 	clock = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(clock)) {
+	if ((long)clock <= 0) {
 		dev_err(dev, "failed to get rate\n");
-		return ret;
+		return clock ? clock : -EIO;
 	}
 
 	base = dev_remap_addr_index(dev, 0);
