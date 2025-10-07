@@ -14,6 +14,7 @@
 #include <fdt_support.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
+#include <mmc.h>
 #include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -108,12 +109,43 @@ int fdt_set_usb_eth_addr(void *blob)
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	int ret = fdt_set_usb_eth_addr(blob);
+	enum env_location env_loc;
+	enum boot_device boot_dev;
+	char env_str_sd[] = "sd-card";
+	char env_str_nor[] = "spi-nor";
+	char env_str_emmc[] = "emmc";
+	char *env_config_str;
+	int ret;
 
+	ret = fdt_set_usb_eth_addr(blob);
 	if (ret)
 		return ret;
 
-	return fdt_fixup_memory(blob, PHYS_SDRAM, gd->ram_size);
+	ret = fdt_fixup_memory(blob, PHYS_SDRAM, gd->ram_size);
+	if (ret)
+		return ret;
+
+	env_loc = env_get_location(0, 0);
+	if (env_loc == ENVL_MMC) {
+		boot_dev = get_boot_device();
+		if (boot_dev == SD2_BOOT)
+			env_config_str = env_str_sd;
+		else if (boot_dev == MMC1_BOOT)
+			env_config_str = env_str_emmc;
+		else
+			return 0;
+	} else if (env_loc == ENVL_SPI_FLASH) {
+		env_config_str = env_str_nor;
+	} else {
+		return 0;
+	}
+
+	/*
+	 * Export a string to the devicetree that tells userspace tools like
+	 * libubootenv where the environment is currently coming from.
+	 */
+	return fdt_find_and_setprop(blob, "/chosen", "u-boot,env-config",
+				    env_config_str, strlen(env_config_str) + 1, 1);
 }
 
 int board_late_init(void)
