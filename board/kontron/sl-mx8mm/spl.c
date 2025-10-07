@@ -129,17 +129,6 @@ int do_board_detect(void)
 		       (unsigned int)gd->ram_size);
 	}
 
-	/*
-	 * Check the I2C PMIC to detect the deprecated SoM with DA9063.
-	 */
-	imx_iomux_v3_setup_multiple_pads(i2c1_pads, ARRAY_SIZE(i2c1_pads));
-
-	if (i2c_get_chip_for_busnum(0, 0x58, 0, &udev) == 0) {
-		printf("### ATTENTION: DEPRECATED SOM REVISION (N8010 Rev0) DETECTED! ###\n");
-		printf("###  THIS HW IS NOT SUPPORTED AND BOOTING WILL PROBABLY FAIL  ###\n");
-		printf("###             PLEASE UPGRADE TO LATEST MODULE               ###\n");
-	}
-
 	return 0;
 }
 
