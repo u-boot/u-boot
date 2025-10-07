@@ -34,9 +34,7 @@ static int spl_register_fat_device(struct blk_desc *block_dev, int partition)
 
 	err = fat_register_device(block_dev, partition);
 	if (err) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: fat register err - %d\n", __func__, err);
-#endif
 		return err;
 	}
 
@@ -98,11 +96,9 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 	err = spl_load(spl_image, bootdev, &load, size, 0);
 
 end:
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 	if (err < 0)
 		printf("%s: error reading image %s, err - %d\n",
 		       __func__, filename, err);
-#endif
 
 	return err;
 }
@@ -119,45 +115,50 @@ int spl_load_image_fat_os(struct spl_image_info *spl_image,
 	if (err)
 		return err;
 
-#if defined(CONFIG_SPL_ENV_SUPPORT) && defined(CONFIG_SPL_OS_BOOT)
-	file = env_get("falcon_args_file");
+	if (!CONFIG_IS_ENABLED(ENV_SUPPORT))
+		goto defaults;
+
+	file = env_get("falcon_image_file");
 	if (file) {
-		err = file_fat_read(file, (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR, 0);
-		if (err <= 0) {
-			printf("spl: error reading image %s, err - %d, falling back to default\n",
-			       file, err);
+		err = spl_load_image_fat(spl_image, bootdev, block_dev,
+					 partition, file);
+		if (err != 0) {
+			puts("spl: falling back to default\n");
 			goto defaults;
 		}
-		file = env_get("falcon_image_file");
+
+		file = env_get("falcon_args_file");
 		if (file) {
-			err = spl_load_image_fat(spl_image, bootdev, block_dev,
-						 partition, file);
-			if (err != 0) {
-				puts("spl: falling back to default\n");
+			err = file_fat_read(
+				file, (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR, 0);
+			if (err <= 0) {
+				printf("spl: error reading args %s, err - %d, falling back to default\n",
+				       file, err);
 				goto defaults;
 			}
-
 			return 0;
 		} else
-			puts("spl: falcon_image_file not set in environment, falling back to default\n");
+			puts("spl: falcon_args_file not set in environment, falling back to default\n");
 	} else
-		puts("spl: falcon_args_file not set in environment, falling back to default\n");
+		puts("spl: falcon_image_file not set in environment, falling back to default\n");
 
 defaults:
-#endif
+
+	err = spl_load_image_fat(spl_image, bootdev, block_dev, partition,
+				 CONFIG_SPL_FS_LOAD_KERNEL_NAME);
+
+	if (err)
+		return err;
 
 	err = file_fat_read(CONFIG_SPL_FS_LOAD_ARGS_NAME,
 			    (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR, 0);
 	if (err <= 0) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: error reading image %s, err - %d\n",
 		       __func__, CONFIG_SPL_FS_LOAD_ARGS_NAME, err);
-#endif
 		return -1;
 	}
 
-	return spl_load_image_fat(spl_image, bootdev, block_dev, partition,
-			CONFIG_SPL_FS_LOAD_KERNEL_NAME);
+	return 0;
 }
 #else
 int spl_load_image_fat_os(struct spl_image_info *spl_image,

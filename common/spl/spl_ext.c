@@ -47,9 +47,7 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 
 	err = ext4fs_mount();
 	if (!err) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: ext4fs mount err - %d\n", __func__, err);
-#endif
 		return -1;
 	}
 
@@ -63,11 +61,9 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 	err = spl_load(spl_image, bootdev, &load, filelen, 0);
 
 end:
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 	if (err < 0)
 		printf("%s: error reading image %s, err - %d\n",
 		       __func__, filename, err);
-#endif
 
 	return err < 0;
 }
@@ -91,60 +87,68 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 
 	err = ext4fs_mount();
 	if (!err) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: ext4fs mount err - %d\n", __func__, err);
-#endif
 		return -1;
 	}
-#if defined(CONFIG_SPL_ENV_SUPPORT)
-	file = env_get("falcon_args_file");
+
+	if (!CONFIG_IS_ENABLED(ENV_SUPPORT))
+		goto defaults;
+
+	file = env_get("falcon_image_file");
 	if (file) {
-		err = ext4fs_open(file, &filelen);
-		if (err < 0) {
-			puts("spl: ext4fs_open failed\n");
+		err = spl_load_image_ext(spl_image, bootdev, block_dev,
+					 partition, file);
+		if (err != 0) {
+			puts("spl: falling back to default\n");
 			goto defaults;
 		}
-		err = ext4fs_read((void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR, 0, filelen, &actlen);
-		if (err < 0) {
-			printf("spl: error reading image %s, err - %d, falling back to default\n",
-			       file, err);
-			goto defaults;
-		}
-		file = env_get("falcon_image_file");
+
+		ext4fs_set_blk_dev(block_dev, &part_info);
+		ext4fs_mount();
+		file = env_get("falcon_args_file");
 		if (file) {
-			err = spl_load_image_ext(spl_image, bootdev, block_dev,
-						 partition, file);
-			if (err != 0) {
-				puts("spl: falling back to default\n");
+			err = ext4fs_open(file, &filelen);
+			if (err < 0) {
+				puts("spl: ext4fs_open failed\n");
 				goto defaults;
 			}
-
+			err = ext4fs_read((void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR,
+					  0, filelen, &actlen);
+			if (err < 0) {
+				printf("spl: error reading args %s, err - %d, falling back to default\n",
+				       file, err);
+				goto defaults;
+			}
 			return 0;
 		} else {
-			puts("spl: falcon_image_file not set in environment, falling back to default\n");
+			puts("spl: falcon_args_file not set in environment, falling back to default\n");
 		}
 	} else {
-		puts("spl: falcon_args_file not set in environment, falling back to default\n");
+		puts("spl: falcon_image_file not set in environment, falling back to default\n");
 	}
 
 defaults:
-#endif
 
+	err = spl_load_image_ext(spl_image, bootdev, block_dev, partition,
+				 CONFIG_SPL_FS_LOAD_KERNEL_NAME);
+
+	if (err)
+		return err;
+
+	ext4fs_set_blk_dev(block_dev, &part_info);
+	ext4fs_mount();
 	err = ext4fs_open(CONFIG_SPL_FS_LOAD_ARGS_NAME, &filelen);
 	if (err < 0)
 		puts("spl: ext4fs_open failed\n");
 
 	err = ext4fs_read((void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR, 0, filelen, &actlen);
 	if (err < 0) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: error reading image %s, err - %d\n",
 		       __func__, CONFIG_SPL_FS_LOAD_ARGS_NAME, err);
-#endif
 		return -1;
 	}
 
-	return spl_load_image_ext(spl_image, bootdev, block_dev, partition,
-			CONFIG_SPL_FS_LOAD_KERNEL_NAME);
+	return 0;
 }
 #else
 int spl_load_image_ext_os(struct spl_image_info *spl_image,
