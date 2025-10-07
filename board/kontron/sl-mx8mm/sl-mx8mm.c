@@ -167,6 +167,11 @@ int board_late_init(void)
 		env_set("touch_rst_gpio", "87");
 	}
 
+	if (is_usb_boot()) {
+		env_set("bootcmd", "fastboot 0");
+		env_set("bootdelay", "0");
+	}
+
 	return 0;
 }
 
