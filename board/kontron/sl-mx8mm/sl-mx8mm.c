@@ -142,7 +142,8 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	 * the MMC if we are running from SD card or eMMC.
 	 */
 	if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC) &&
-	    (boot_dev == SD1_BOOT || boot_dev == SD2_BOOT))
+	    (boot_dev == SD1_BOOT || boot_dev == SD2_BOOT ||
+	     boot_dev == MMC1_BOOT || boot_dev == MMC2_BOOT))
 		return ENVL_MMC;
 
 	if (CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
@@ -155,5 +156,47 @@ enum env_location env_get_location(enum env_operation op, int prio)
 int board_mmc_get_env_dev(int devno)
 {
 	return devno;
+}
+
+uint mmc_get_env_part(struct mmc *mmc)
+{
+	if (IS_SD(mmc))
+		return EMMC_HWPART_DEFAULT;
+
+	switch (EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
+	case EMMC_BOOT_PART_BOOT1:
+		return EMMC_HWPART_BOOT1;
+	case EMMC_BOOT_PART_BOOT2:
+		return EMMC_HWPART_BOOT2;
+	default:
+		return EMMC_HWPART_DEFAULT;
+	}
+}
+
+int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
+{
+	/* use normal offset for SD card */
+	if (IS_SD(mmc)) {
+		*env_addr = CONFIG_ENV_OFFSET;
+		if (copy)
+			*env_addr = CONFIG_ENV_OFFSET_REDUND;
+
+		return 0;
+	}
+
+	switch (EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
+	case EMMC_BOOT_PART_BOOT1:
+	case EMMC_BOOT_PART_BOOT2:
+		*env_addr = mmc->capacity - CONFIG_ENV_SIZE - CONFIG_ENV_SIZE;
+		if (copy)
+			*env_addr = mmc->capacity - CONFIG_ENV_SIZE;
+	break;
+	default:
+		*env_addr = CONFIG_ENV_OFFSET;
+		if (copy)
+			*env_addr = CONFIG_ENV_OFFSET_REDUND;
+	}
+
+	return 0;
 }
 #endif
