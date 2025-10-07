@@ -182,6 +182,9 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	if (prio)
 		return ENVL_UNKNOWN;
 
+	if (CONFIG_IS_ENABLED(ENV_IS_NOWHERE) && is_usb_boot())
+		return ENVL_NOWHERE;
+
 	/*
 	 * Make sure that the environment is loaded from
 	 * the MMC if we are running from SD card or eMMC.
@@ -194,7 +197,10 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	if (CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
 		return ENVL_SPI_FLASH;
 
-	return ENVL_NOWHERE;
+	if (CONFIG_IS_ENABLED(ENV_IS_NOWHERE))
+		return ENVL_NOWHERE;
+
+	return ENVL_UNKNOWN;
 }
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
