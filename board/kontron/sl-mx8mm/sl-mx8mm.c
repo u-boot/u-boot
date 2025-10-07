@@ -8,6 +8,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <dm/uclass.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <env_internal.h>
@@ -150,10 +151,17 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 int board_late_init(void)
 {
+	struct udevice *dev;
+	int ret;
+
 	if (!fdt_node_check_compatible(gd->fdt_blob, 0, "kontron,imx8mm-n802x-som") ||
 	    !fdt_node_check_compatible(gd->fdt_blob, 0, "kontron,imx8mm-osm-s")) {
 		env_set("som_type", "osm-s");
 		env_set("touch_rst_gpio", "111");
+
+		ret = uclass_get_device_by_name(UCLASS_MISC, "usb-hub@2c", &dev);
+		if (ret)
+			printf("Error bringing up USB hub (%d)\n", ret);
 	} else {
 		env_set("som_type", "sl");
 		env_set("touch_rst_gpio", "87");

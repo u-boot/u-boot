@@ -198,6 +198,7 @@
 	usb1@1 {
 		compatible = "usb424,9514";
 		reg = <1>;
+		vdd-supply = <&reg_vdd_3v3>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
