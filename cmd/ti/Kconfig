@@ -8,6 +8,14 @@ config CMD_DDR3
 	   supports memory verification, memory comapre and ecc
 	   verification if supported.
 
+config CMD_DDR4
+	bool "command for verifying DDRSS Inline ECC features"
+	depends on ARCH_K3
+	help
+	   Support for testing DDRSS on TI platforms. This command supports
+	   memory verification, memory compare and inline ECC verification
+	   if supported.
+
 config CMD_PD
 	bool "command for verifying power domains"
 	depends on TI_POWER_DOMAIN
