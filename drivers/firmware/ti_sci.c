@@ -1365,6 +1365,8 @@ static int ti_sci_cmd_clk_get_parent(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
+	resp = (struct ti_sci_msg_resp_get_clock_parent *)xfer->tx_message.buf;
+
 	*parent_id = resp->parent_id;
 
 	return ret;
