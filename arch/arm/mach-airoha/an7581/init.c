@@ -8,8 +8,6 @@
 #include <asm/global_data.h>
 #include <asm/system.h>
 
-#define CFG_MAX_MEM_MAPPED  SZ_2G
-
 DECLARE_GLOBAL_DATA_PTR;
 
 int print_cpuinfo(void)
