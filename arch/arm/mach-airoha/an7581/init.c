@@ -18,15 +18,7 @@ int print_cpuinfo(void)
 
 int dram_init(void)
 {
-	int ret;
-
-	ret = fdtdec_setup_mem_size_base();
-	if (ret)
-		return ret;
-
-	gd->ram_size = get_ram_size((void *)gd->ram_base, SZ_8G);
-
-	return 0;
+	return fdtdec_setup_mem_size_base();
 }
 
 int dram_init_banksize(void)
