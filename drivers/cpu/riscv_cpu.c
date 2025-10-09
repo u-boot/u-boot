@@ -42,9 +42,7 @@ static int riscv_cpu_get_info(const struct udevice *dev, struct cpu_info *info)
 	/* First try getting the frequency from the assigned clock */
 	ret = clk_get_by_index((struct udevice *)dev, 0, &clk);
 	if (!ret) {
-		ret = clk_get_rate(&clk);
-		if (!IS_ERR_VALUE(ret))
-			info->cpu_freq = ret;
+		info->cpu_freq = clk_get_rate(&clk);
 	}
 
 	if (!info->cpu_freq)
