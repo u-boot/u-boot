@@ -42,7 +42,7 @@ static int octeontx_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 
 	if (priv->data->has_clk) {
 		clk_rate = clk_get_rate(&priv->clk);
-		if (IS_ERR_VALUE(clk_rate))
+		if (!clk_rate)
 			return -EINVAL;
 	} else {
 		clk_rate = gd->bus_clk;
