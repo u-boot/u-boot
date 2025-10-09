@@ -571,7 +571,7 @@ static int zynq_gem_init(struct udevice *dev)
 		ret = clk_get_rate(&priv->tx_clk);
 		if (ret != clk_rate) {
 			ret = clk_set_rate(&priv->tx_clk, clk_rate);
-			if (IS_ERR_VALUE(ret)) {
+			if (ret < 0) {
 				dev_err(dev, "failed to set tx clock rate %ld\n", clk_rate);
 				return ret;
 			}
