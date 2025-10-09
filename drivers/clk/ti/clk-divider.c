@@ -105,8 +105,8 @@ static int clk_ti_divider_best_div(struct clk *clk, ulong rate,
 	int i, best_div = 0;
 
 	parent_rate = clk_get_rate(&priv->parent);
-	if (IS_ERR_VALUE(parent_rate))
-		return parent_rate;
+	if (!parent_rate)
+		return 0;
 
 	if (!rate)
 		rate = 1;
@@ -216,8 +216,8 @@ static ulong clk_ti_divider_get_rate(struct clk *clk)
 	u32 v;
 
 	parent_rate = clk_get_rate(&priv->parent);
-	if (IS_ERR_VALUE(parent_rate))
-		return parent_rate;
+	if (!parent_rate)
+		return 0;
 
 	v = clk_ti_readl(&priv->reg) >> priv->shift;
 	v &= priv->mask;
