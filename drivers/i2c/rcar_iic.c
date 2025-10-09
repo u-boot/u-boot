@@ -202,8 +202,8 @@ static int rcar_iic_set_speed(struct udevice *dev, uint speed)
 	int clkrate, denom;
 
 	clkrate = clk_get_rate(&priv->clk);
-	if (clkrate < 0)
-		return clkrate;
+	if (!clkrate)
+		return -EINVAL;
 
 	/*
 	 * Calculate the value for ICCL and ICCH. From the data sheet:
