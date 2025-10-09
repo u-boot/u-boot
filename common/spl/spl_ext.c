@@ -103,6 +103,7 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 			goto defaults;
 		}
 
+#if IS_ENABLED(CONFIG_SPL_OS_BOOT_ARGS)
 		ext4fs_set_blk_dev(block_dev, &part_info);
 		ext4fs_mount();
 		file = env_get("falcon_args_file");
@@ -123,6 +124,7 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 		} else {
 			puts("spl: falcon_args_file not set in environment, falling back to default\n");
 		}
+#endif
 	} else {
 		puts("spl: falcon_image_file not set in environment, falling back to default\n");
 	}
@@ -135,6 +137,7 @@ defaults:
 	if (err)
 		return err;
 
+#if IS_ENABLED(CONFIG_SPL_OS_BOOT_ARGS)
 	ext4fs_set_blk_dev(block_dev, &part_info);
 	ext4fs_mount();
 	err = ext4fs_open(CONFIG_SPL_FS_LOAD_ARGS_NAME, &filelen);
@@ -147,6 +150,7 @@ defaults:
 		       __func__, CONFIG_SPL_FS_LOAD_ARGS_NAME, err);
 		return -1;
 	}
+#endif
 
 	return 0;
 }
