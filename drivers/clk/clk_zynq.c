@@ -490,8 +490,7 @@ static void zynq_clk_dump(struct udevice *dev)
 
 			rate = clk_get_rate(&clk);
 
-			if ((rate == (unsigned long)-ENOSYS) ||
-			    (rate == (unsigned long)-ENXIO))
+			if (!rate)
 				printf("%10s%20s\n", name, "unknown");
 			else
 				printf("%10s%20lu\n", name, rate);
