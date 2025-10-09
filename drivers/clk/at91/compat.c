@@ -795,8 +795,8 @@ static ulong generic_clk_set_rate(struct clk *clk, ulong rate)
 			return ret;
 
 		parent_rate = clk_get_rate(&parent);
-		if (IS_ERR_VALUE(parent_rate))
-			return parent_rate;
+		if (!parent_rate)
+			return -EINVAL;
 
 		for (div = 1; div < GENERATED_MAX_DIV + 2; div++) {
 			tmp_rate = DIV_ROUND_CLOSEST(parent_rate, div);
@@ -929,8 +929,8 @@ static ulong at91_usb_clk_set_rate(struct clk *clk, ulong rate)
 			return ret;
 
 		source_rate = clk_get_rate(&source);
-		if (IS_ERR_VALUE(source_rate))
-			return source_rate;
+		if (!source_rate)
+			return -EINVAL;
 
 		for (div = 1; div < AT91_USB_CLK_MAX_DIV + 2; div++) {
 			tmp_rate = DIV_ROUND_CLOSEST(source_rate, div);
