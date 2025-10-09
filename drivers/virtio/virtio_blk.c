@@ -26,6 +26,7 @@ struct virtio_blk_priv {
 };
 
 static const u32 feature[] = {
+	VIRTIO_BLK_F_BLK_SIZE,
 	VIRTIO_BLK_F_WRITE_ZEROES
 };
 
@@ -194,7 +195,7 @@ static int virtio_blk_probe(struct udevice *dev)
 
 	virtio_cread(dev, struct virtio_blk_config, capacity, &cap);
 	desc->lba = cap;
-	if (!virtio_has_feature(dev, VIRTIO_BLK_F_BLK_SIZE)) {
+	if (virtio_has_feature(dev, VIRTIO_BLK_F_BLK_SIZE)) {
 		virtio_cread(dev, struct virtio_blk_config, blk_size, &blk_size);
 		desc->blksz = blk_size;
 		if (!is_power_of_2(blk_size) || desc->blksz < 512)
