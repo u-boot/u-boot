@@ -318,7 +318,7 @@ static void ssd2825_setup_pll(struct udevice *dev)
 	u8 hzd, hpd;
 
 	tx_freq_khz = clk_get_rate(priv->tx_clk) / 1000;
-	if (!tx_freq_khz || tx_freq_khz < 0)
+	if (!tx_freq_khz)
 		tx_freq_khz = SSD2825_REF_MIN_CLK;
 
 	pd_lines = mipi_dsi_pixel_format_to_bpp(device->format);
