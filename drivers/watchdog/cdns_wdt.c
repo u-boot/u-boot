@@ -137,7 +137,7 @@ static int cdns_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 	}
 
 	clk_f = clk_get_rate(&clock);
-	if (IS_ERR_VALUE(clk_f)) {
+	if (!clk_f) {
 		dev_err(dev, "failed to get rate\n");
 		return -1;
 	}
