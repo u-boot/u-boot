@@ -234,7 +234,7 @@ static int meson_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	unsigned int div;
 
 	clk_rate = clk_get_rate(&i2c->clk);
-	if (IS_ERR_VALUE(clk_rate))
+	if (!clk_rate)
 		return -EINVAL;
 
 	div = DIV_ROUND_UP(clk_rate, speed * i2c->data->div_factor);
