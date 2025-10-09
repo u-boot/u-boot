@@ -244,8 +244,8 @@ static int cadence_spi_probe(struct udevice *bus)
 #endif
 		} else {
 			priv->ref_clk_hz = clk_get_rate(&clk);
-			if (IS_ERR_VALUE(priv->ref_clk_hz))
-				return priv->ref_clk_hz;
+			if (!priv->ref_clk_hz)
+				return -EINVAL;
 		}
 	}
 
