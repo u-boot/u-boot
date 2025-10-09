@@ -65,6 +65,9 @@ int led_get_by_label(const char *label, struct udevice **devp)
 		/* Ignore the top-level LED node */
 		if (uc_plat->label && !strcmp(label, uc_plat->label))
 			return uclass_get_device_tail(dev, 0, devp);
+
+		if (!strcmp(label, ofnode_get_name(dev_ofnode(dev))))
+			return uclass_get_device_tail(dev, 0, devp);
 	}
 
 	return -ENODEV;
