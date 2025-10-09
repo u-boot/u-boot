@@ -420,7 +420,6 @@ out:
 static int ubifs_finddir(struct super_block *sb, char *dirname,
 			 unsigned long root_inum, unsigned long *inum)
 {
-	int err;
 	struct qstr nm;
 	union ubifs_key key;
 	struct ubifs_dent_node *dent;
@@ -435,8 +434,8 @@ static int ubifs_finddir(struct super_block *sb, char *dirname,
 	dir = kzalloc(sizeof(struct inode), 0);
 	if (!file || !dentry || !dir) {
 		printf("%s: Error, no memory for malloc!\n", __func__);
-		err = -ENOMEM;
-		goto out;
+		ret = -ENOMEM;
+		goto out_free;
 	}
 
 	dir->i_sb = sb;
@@ -453,7 +452,7 @@ static int ubifs_finddir(struct super_block *sb, char *dirname,
 	nm.name = NULL;
 	dent = ubifs_tnc_next_ent(c, &key, &nm);
 	if (IS_ERR(dent)) {
-		err = PTR_ERR(dent);
+		ret = PTR_ERR(dent);
 		goto out;
 	}
 
@@ -481,7 +480,7 @@ static int ubifs_finddir(struct super_block *sb, char *dirname,
 		nm.name = (char *)dent->name;
 		dent = ubifs_tnc_next_ent(c, &key, &nm);
 		if (IS_ERR(dent)) {
-			err = PTR_ERR(dent);
+			ret = PTR_ERR(dent);
 			goto out;
 		}
 
@@ -492,11 +491,12 @@ static int ubifs_finddir(struct super_block *sb, char *dirname,
 	}
 
 out:
-	if (err != -ENOENT)
-		dbg_gen("cannot find next direntry, error %d", err);
+	if (ret < 0 && ret != -ENOENT)
+		dbg_gen("cannot find next direntry, error %d", ret);
 
 out_free:
-	kfree(file->private_data);
+	if (file)
+		kfree(file->private_data);
 	free(file);
 	free(dentry);
 	free(dir);

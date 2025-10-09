@@ -779,7 +779,7 @@ static int ubi_scan_fastmap(struct ubi_scan_info *ubi,
 		 * that already so we merily copy it over.
 		 */
 		if (pnum == fm_anchor)
-			memcpy(vh, ubi->blockinfo + pnum, sizeof(*fm));
+			memcpy(vh, ubi->blockinfo + pnum, sizeof(*vh));
 
 		if (i == 0) {
 			if (be32_to_cpu(vh->vol_id) != UBI_FM_SB_VOLUME_ID) {

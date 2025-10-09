@@ -549,6 +549,7 @@ int ubi_volume_read(char *volume, char *buf, loff_t offset, size_t size)
 	}
 	len = size > tbuf_size ? tbuf_size : size;
 
+	led_activity_blink();
 	tmp = offp;
 	off = do_div(tmp, vol->usable_leb_size);
 	lnum = tmp;
@@ -582,6 +583,7 @@ int ubi_volume_read(char *volume, char *buf, loff_t offset, size_t size)
 		env_set_hex("filesize", len_read);
 
 	free(tbuf);
+	led_activity_off();
 	return err;
 }
 
@@ -600,7 +602,9 @@ static int ubi_dev_scan(struct mtd_info *info, const char *vid_header_offset)
 	if (err)
 		return -err;
 
+	led_activity_blink();
 	err = ubi_init();
+	led_activity_off();
 	if (err)
 		return -err;
 
