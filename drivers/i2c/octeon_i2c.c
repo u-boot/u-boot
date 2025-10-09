@@ -730,7 +730,7 @@ static int octeon_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	debug("%s(%p, %u)\n", __func__, bus, speed);
 
 	clk_rate = clk_get_rate(&twsi->clk);
-	if (IS_ERR_VALUE(clk_rate))
+	if (!clk_rate)
 		return -EINVAL;
 
 	twsi_calc_div(bus, clk_rate, speed, &m_div, &n_div);
