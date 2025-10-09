@@ -10,7 +10,7 @@
 #include <dm/of_access.h>
 #include <dm/pinctrl.h>
 #include <dm/ofnode.h>
-#include <fs_loader.h>
+#include <fw_loader.h>
 #include <linux/bitfield.h>
 #include <linux/delay.h>
 #include <linux/iopoll.h>
