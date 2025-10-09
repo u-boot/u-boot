@@ -105,8 +105,8 @@ static int qcom_wdt_probe(struct udevice *dev)
 		return ret;
 
 	rate = clk_get_rate(&clk);
-	if (rate <= 0)
-		return rate < 0 ? (int)rate : -EINVAL;
+	if (!rate)
+		return -EINVAL;
 
 	wdt->clk_rate = (ulong)rate;
 
