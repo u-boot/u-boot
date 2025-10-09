@@ -40,6 +40,7 @@ enum scmi_status_code {
 	SCMI_GENERIC_ERROR = -8,
 	SCMI_HARDWARE_ERROR = -9,
 	SCMI_PROTOCOL_ERROR = -10,
+	SCMI_IN_USE = -11,
 };
 
 /*

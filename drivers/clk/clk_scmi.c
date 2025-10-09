@@ -7,6 +7,7 @@
 
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <scmi_agent.h>
 #include <scmi_agent-uclass.h>
 #include <scmi_protocols.h>
@@ -41,19 +42,21 @@ static int scmi_clk_get_permissions(struct udevice *dev, int clkid, u32 *perm)
 	};
 
 	if (priv->version < CLOCK_PROTOCOL_VERSION_3_0) {
-		log_debug("%s: SCMI clock management protocol version is less than 3.0.\n", __func__);
+		dev_dbg(dev,
+			"%s: SCMI clock management protocol version is less than 3.0.\n", __func__);
 		return -EINVAL;
 	}
 
 	ret = devm_scmi_process_msg(dev, &msg);
 	if (ret) {
-		log_debug("%s: get SCMI clock management protocol permissions failed\n", __func__);
+		dev_dbg(dev,
+			"%s: get SCMI clock management protocol permissions failed\n", __func__);
 		return ret;
 	}
 
 	ret = scmi_to_linux_errno(out.status);
 	if (ret < 0) {
-		log_debug("%s: the status code of getting permissions: %d\n", __func__, ret);
+		dev_dbg(dev, "%s: the status code of getting permissions: %d\n", __func__, ret);
 		return ret;
 	}
 
@@ -167,7 +170,7 @@ static int scmi_clk_enable(struct clk *clk)
 		return scmi_clk_gate(clk, 1);
 
 	/* Following Linux drivers/clk/clk-scmi.c, directly return 0 if agent has no permission. */
-	log_debug("%s: SCMI CLOCK: the clock cannot be enabled by the agent.\n", __func__);
+	dev_dbg(clk->dev, "%s: SCMI CLOCK: the clock cannot be enabled by the agent.\n", __func__);
 	return 0;
 }
 
@@ -190,7 +193,8 @@ static int scmi_clk_disable(struct clk *clk)
 		return scmi_clk_gate(clk, 0);
 
 	/* Following Linux drivers/clk/clk-scmi.c, directly return 0 if agent has no permission. */
-	log_debug("%s: SCMI CLOCK: the clock cannot be disabled by the agent.\n", __func__);
+	dev_dbg(clk->dev,
+		"%s: SCMI CLOCK: the clock cannot be disabled by the agent.\n", __func__);
 	return 0;
 }
 
@@ -260,7 +264,8 @@ static ulong scmi_clk_set_rate(struct clk *clk, ulong rate)
 		return __scmi_clk_set_rate(clk, rate);
 
 	/* Following Linux drivers/clk/clk-scmi.c, directly return 0 if agent has no permission. */
-	log_debug("%s: SCMI CLOCK: the clock rate cannot be changed by the agent.\n", __func__);
+	dev_dbg(clk->dev,
+		"%s: SCMI CLOCK: the clock rate cannot be changed by the agent.\n", __func__);
 	return 0;
 }
 
@@ -291,7 +296,7 @@ static int scmi_clk_probe(struct udevice *dev)
 
 	ret = scmi_generic_protocol_version(dev, SCMI_PROTOCOL_ID_CLOCK, &priv->version);
 	if (ret) {
-		log_debug("%s: get SCMI clock management protocol version failed\n", __func__);
+		dev_dbg(dev, "%s: get SCMI clock management protocol version failed\n", __func__);
 		return ret;
 	}
 
@@ -371,7 +376,8 @@ static int scmi_clk_set_parent(struct clk *clk, struct clk *parent)
 		return __scmi_clk_set_parent(clk, parent);
 
 	/* Following Linux drivers/clk/clk-scmi.c, directly return 0 if agent has no permission. */
-	log_debug("%s: SCMI CLOCK: the clock's parent cannot be changed by the agent.\n", __func__);
+	dev_dbg(clk->dev,
+		"%s: SCMI CLOCK: the clock's parent cannot be changed by the agent.\n", __func__);
 	return 0;
 }
 

@@ -1626,6 +1626,13 @@ F:	drivers/*/*sandbox*.c
 F:	include/dt-bindings/*/sandbox*.h
 F:	include/os.h
 
+SCMI
+M:	Peng Fan <peng.fan@nxp.com>
+S:	Maintained
+F:	drivers/firmware/scmi/
+F:	include/scmi*
+N:	scmi
+
 SEAMA
 M:	Linus Walleij <linus.walleij@linaro.org>
 S:	Maintained
