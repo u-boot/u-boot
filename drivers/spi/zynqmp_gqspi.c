@@ -461,9 +461,9 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 	}
 
 	clock = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(clock)) {
+	if (!clock) {
 		dev_err(bus, "failed to get rate\n");
-		return clock;
+		return 0;
 	}
 
 	ret = clk_enable(&clk);
