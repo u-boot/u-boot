@@ -660,7 +660,7 @@ static int meson_clk_dump_single(struct clk *clk)
 		return -EINVAL;
 
 	rate = clk_get_rate(clk);
-	if (IS_ERR_VALUE(rate))
+	if (!rate)
 		sprintf(frequency, "unknown");
 	else
 		sprintf(frequency, "%lu", rate);
