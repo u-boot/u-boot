@@ -55,8 +55,8 @@ static int arm_global_timer_probe(struct udevice *dev)
 	err = clk_get_by_index(dev, 0, &clk);
 	if (!err) {
 		ret = clk_get_rate(&clk);
-		if (IS_ERR_VALUE(ret))
-			return ret;
+		if (!ret)
+			return -EINVAL;
 		uc_priv->clock_rate = ret;
 	} else {
 		uc_priv->clock_rate = CFG_SYS_HZ_CLOCK;
