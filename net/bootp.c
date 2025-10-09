@@ -379,6 +379,14 @@ static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	debug("got BOOTP packet (src=%d, dst=%d, len=%d want_len=%zu)\n",
 	      src, dest, len, sizeof(struct bootp_hdr));
 
+	/* Check the minimum size of a BOOTP packet is respected.
+	 * A BOOTP packet is between 300 bytes and 576 bytes big
+	 */
+	if (len < offsetof(struct bootp_hdr, bp_vend) + 64) {
+		printf("Error: got an invalid BOOTP packet (len=%u)\n", len);
+		return;
+	}
+
 	bp = (struct bootp_hdr *)pkt;
 
 	/* Filter out pkts we don't want */
@@ -396,7 +404,8 @@ static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 	/* Retrieve extended information (we must parse the vendor area) */
 	if (net_read_u32((u32 *)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
-		bootp_process_vendor((uchar *)&bp->bp_vend[4], len);
+		bootp_process_vendor((uchar *)&bp->bp_vend[4], len -
+				     (offsetof(struct bootp_hdr, bp_vend) + 4));
 
 	net_set_timeout_handler(0, (thand_f *)0);
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP, "bootp_stop");
