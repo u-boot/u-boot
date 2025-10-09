@@ -347,7 +347,7 @@ int dw_i2c_gen_speed_config(const struct udevice *dev, int speed_hz,
 
 #if CONFIG_IS_ENABLED(CLK)
 	rate = clk_get_rate(&priv->clk);
-	if (IS_ERR_VALUE(rate))
+	if (!rate)
 		return log_msg_ret("clk", -EINVAL);
 #else
 	rate = IC_CLK;
@@ -727,7 +727,7 @@ static int designware_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 
 #if CONFIG_IS_ENABLED(CLK)
 	rate = clk_get_rate(&i2c->clk);
-	if (IS_ERR_VALUE(rate))
+	if (!rate)
 		return log_ret(-EINVAL);
 #else
 	rate = IC_CLK;
