@@ -223,8 +223,6 @@ struct cadence_spi_plat {
 	u32		tchsh_ns;
 	u32		tslch_ns;
 	u32		quirks;
-
-	bool            is_dma;
 };
 
 struct cadence_spi_priv {
@@ -261,7 +259,6 @@ struct cadence_spi_priv {
 	bool		ddr_init;
 	bool		is_decoded_cs;
 	bool		use_dac_mode;
-	bool		is_dma;
 
 	/* Transaction protocol parameters. */
 	u8		inst_width;
@@ -292,8 +289,6 @@ int cadence_qspi_apb_command_write(struct cadence_spi_priv *priv,
 
 int cadence_qspi_apb_read_setup(struct cadence_spi_priv *priv,
 				const struct spi_mem_op *op);
-int cadence_qspi_apb_read_execute(struct cadence_spi_priv *priv,
-				  const struct spi_mem_op *op);
 int cadence_qspi_apb_write_setup(struct cadence_spi_priv *priv,
 				 const struct spi_mem_op *op);
 int cadence_qspi_apb_write_execute(struct cadence_spi_priv *priv,
