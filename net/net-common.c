@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include <dm/uclass.h>
+#include <env.h>
 #include <net-common.h>
 #include <linux/time.h>
 #include <rtc.h>
@@ -48,3 +49,37 @@ void net_sntp_set_rtc(u32 seconds)
 	       tm.tm_year, tm.tm_mon, tm.tm_mday,
 	       tm.tm_hour, tm.tm_min, tm.tm_sec);
 }
+
+#if defined(CONFIG_CMD_DHCP)
+int dhcp_run(ulong addr, const char *fname, bool autoload)
+{
+	char *dhcp_argv[] = {"dhcp", NULL, (char *)fname, NULL};
+	struct cmd_tbl cmdtp = {};	/* dummy */
+	char file_addr[17];
+	int old_autoload;
+	int ret, result;
+
+	log_debug("addr=%lx, fname=%s, autoload=%d\n", addr, fname, autoload);
+	old_autoload = env_get_yesno("autoload");
+	ret = env_set("autoload", autoload ? "y" : "n");
+	if (ret)
+		return log_msg_ret("en1", -EINVAL);
+
+	if (autoload) {
+		sprintf(file_addr, "%lx", addr);
+		dhcp_argv[1] = file_addr;
+	}
+
+	result = do_dhcp(&cmdtp, 0, !autoload ? 1 : fname ? 3 : 2, dhcp_argv);
+
+	ret = env_set("autoload", old_autoload == -1 ? NULL :
+		      old_autoload ? "y" : "n");
+	if (ret)
+		return log_msg_ret("en2", -EINVAL);
+
+	if (result)
+		return log_msg_ret("res", -ENOENT);
+
+	return 0;
+}
+#endif
