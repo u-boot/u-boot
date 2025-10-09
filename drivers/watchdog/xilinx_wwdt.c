@@ -95,9 +95,9 @@ static int xlnx_wwdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	struct xlnx_wwdt_priv *wdt = dev_get_priv(dev);
 
 	clock_f = clk_get_rate(&wdt->clk);
-	if (IS_ERR_VALUE(clock_f)) {
+	if (!clock_f) {
 		dev_err(dev, "failed to get rate\n");
-		return clock_f;
+		return -EINVAL;
 	}
 
 	dev_dbg(dev, "%s: CLK %ld\n", __func__, clock_f);
