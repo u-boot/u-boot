@@ -827,12 +827,14 @@ if SPL_ENV_SUPPORT
 config SPL_ENV_IS_NOWHERE
 	bool "SPL Environment is not stored"
 	default y if ENV_IS_NOWHERE
+	default y if SPL_OS_BOOT_SECURE
 	help
 	  Similar to ENV_IS_NOWHERE, used for SPL environment.
 
 config SPL_ENV_IS_IN_MMC
 	bool "SPL Environment in an MMC device"
 	depends on !SPL_ENV_IS_NOWHERE
+	depends on !SPL_OS_BOOT_SECURE
 	depends on ENV_IS_IN_MMC
 	default y
 	help
@@ -841,6 +843,7 @@ config SPL_ENV_IS_IN_MMC
 config SPL_ENV_IS_IN_FAT
 	bool "SPL Environment is in a FAT filesystem"
 	depends on !SPL_ENV_IS_NOWHERE
+	depends on !SPL_OS_BOOT_SECURE
 	depends on ENV_IS_IN_FAT
 	default y
 	help
@@ -849,6 +852,7 @@ config SPL_ENV_IS_IN_FAT
 config SPL_ENV_IS_IN_EXT4
 	bool "SPL Environment is in a EXT4 filesystem"
 	depends on !SPL_ENV_IS_NOWHERE
+	depends on !SPL_OS_BOOT_SECURE
 	depends on ENV_IS_IN_EXT4
 	default y
 	help
@@ -857,6 +861,7 @@ config SPL_ENV_IS_IN_EXT4
 config SPL_ENV_IS_IN_NAND
 	bool "SPL Environment in a NAND device"
 	depends on !SPL_ENV_IS_NOWHERE
+	depends on !SPL_OS_BOOT_SECURE
 	depends on ENV_IS_IN_NAND
 	default y
 	help
@@ -865,6 +870,7 @@ config SPL_ENV_IS_IN_NAND
 config SPL_ENV_IS_IN_SPI_FLASH
 	bool "SPL Environment is in SPI flash"
 	depends on !SPL_ENV_IS_NOWHERE
+	depends on !SPL_OS_BOOT_SECURE
 	depends on ENV_IS_IN_SPI_FLASH
 	default y
 	help
@@ -873,6 +879,7 @@ config SPL_ENV_IS_IN_SPI_FLASH
 config SPL_ENV_IS_IN_FLASH
 	bool "SPL Environment in flash memory"
 	depends on !SPL_ENV_IS_NOWHERE
+	depends on !SPL_OS_BOOT_SECURE
 	depends on ENV_IS_IN_FLASH
 	default y
 	help
