@@ -517,7 +517,7 @@ static int qup_i2c_set_bus_speed(struct udevice *dev, unsigned int clk_freq)
 	}
 
 	src_clk_freq = clk_get_rate(&qup->iface);
-	if ((int)src_clk_freq < 0) {
+	if (!src_clk_freq) {
 		src_clk_freq = DEFAULT_SRC_CLK;
 		dev_dbg(dev, "using default core freq %d\n", src_clk_freq);
 	}
