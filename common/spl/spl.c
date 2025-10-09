@@ -800,6 +800,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			fdt = spl_image_fdt_addr(&spl_image);
 		spl_fixup_fdt(fdt);
 		spl_board_prepare_for_linux();
+		spl_image.arg = fdt;
 		jumper = &jump_to_image_linux;
 	} else {
 		debug("Unsupported OS image.. Jumping nevertheless..\n");

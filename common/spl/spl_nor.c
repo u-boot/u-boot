@@ -69,10 +69,6 @@ static int spl_nor_load_image_os(struct spl_image_info *spl_image,
 	       (void *)(CONFIG_SYS_OS_BASE + sizeof(struct legacy_img_hdr)),
 	       spl_image->size);
 
-#ifdef CONFIG_SPL_PAYLOAD_ARGS_ADDR
-	spl_image->arg = (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR;
-#endif
-
 	return 0;
 }
 #endif
