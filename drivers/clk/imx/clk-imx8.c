@@ -58,17 +58,11 @@ static void imx8_clk_dump(struct udevice *dev)
 			continue;
 		}
 
-		ret = clk_get_rate(&clk);
-		rate = ret;
+		rate = clk_get_rate(&clk);
 
-		if (ret == -EINVAL) {
+		if (!rate) {
 			printf("clk ID %lu not supported yet\n",
 			       imx8_clk_names[i].id);
-			continue;
-		}
-		if (ret < 0) {
-			printf("%s %lu: get_rate err: %d\n",
-			       __func__, imx8_clk_names[i].id, ret);
 			continue;
 		}
 
