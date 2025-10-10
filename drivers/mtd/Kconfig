@@ -223,6 +223,7 @@ config SYS_MAX_FLASH_SECT
 
 config SAMSUNG_ONENAND
 	bool "Samsung OneNAND driver support"
+	depends on S5P
 
 config USE_SYS_MAX_FLASH_BANKS
 	bool "Enable Max number of Flash memory banks"
