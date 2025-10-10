@@ -548,11 +548,11 @@ static ulong sifive_prci_parent_rate(struct __prci_clock *pc, struct prci_clk_de
 		}
 
 		if (i >= data->num_clks)
-			return -ENXIO;
+			return 0;
 
 		p = &data->clks[i];
 		if (!p->pd || !p->ops->recalc_rate)
-			return -ENXIO;
+			return 0;
 
 		return p->ops->recalc_rate(p, sifive_prci_parent_rate(p, data));
 	}
@@ -572,11 +572,11 @@ static ulong sifive_prci_get_rate(struct clk *clk)
 		(struct prci_clk_desc *)dev_get_driver_data(clk->dev);
 
 	if (data->num_clks <= clk->id)
-		return -ENXIO;
+		return 0;
 
 	pc = &data->clks[clk->id];
 	if (!pc->pd || !pc->ops->recalc_rate)
-		return -ENXIO;
+		return 0;
 
 	return pc->ops->recalc_rate(pc, sifive_prci_parent_rate(pc, data));
 }
