@@ -242,8 +242,8 @@ struct phy_device *dm_mdio_phy_connect(struct udevice *mdiodev, int phyaddr,
 	return phy_connect(pdata->mii_bus, phyaddr, ethdev, interface);
 }
 
-static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
-						    phy_interface_t interface)
+struct phy_device *dm_eth_phy_connect_interface(struct udevice *ethdev,
+						phy_interface_t interface)
 {
 	u32 phy_addr;
 	struct udevice *mdiodev;
@@ -282,8 +282,10 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	phy = dm_mdio_phy_connect(mdiodev, phy_addr, ethdev, interface);
 
 out:
-	if (phy)
+	if (phy) {
 		phy->node = phynode;
+		phy->interface = interface;
+	}
 
 	return phy;
 }
@@ -292,7 +294,6 @@ out:
 struct phy_device *dm_eth_phy_connect(struct udevice *ethdev)
 {
 	phy_interface_t interface;
-	struct phy_device *phy;
 
 	if (!dev_has_ofnode(ethdev)) {
 		debug("%s: supplied eth dev has no DT node!\n", ethdev->name);
@@ -303,14 +304,7 @@ struct phy_device *dm_eth_phy_connect(struct udevice *ethdev)
 	if (interface == PHY_INTERFACE_MODE_NA)
 		dev_dbg(ethdev, "can't find interface mode, default to NA\n");
 
-	phy = dm_eth_connect_phy_handle(ethdev, interface);
-
-	if (!phy)
-		return NULL;
-
-	phy->interface = interface;
-
-	return phy;
+	return dm_eth_phy_connect_interface(ethdev, interface);
 }
 
 UCLASS_DRIVER(mdio) = {

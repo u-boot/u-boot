@@ -234,14 +234,11 @@ out:
 #define AM65_GMII_SEL_MODE_RGMII	2
 #define AM65_GMII_SEL_MODE_SGMII	3
 
-#define AM65_GMII_SEL_RGMII_IDMODE	BIT(4)
-
 static int am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 				 phy_interface_t phy_mode)
 {
 	struct udevice *dev = priv->dev;
 	u32 offset, reg, phandle;
-	bool rgmii_id = false;
 	fdt_addr_t gmii_sel;
 	u32 mode = 0;
 	ofnode node;
@@ -278,12 +275,6 @@ static int am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 		mode = AM65_GMII_SEL_MODE_RGMII;
 		break;
 
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		mode = AM65_GMII_SEL_MODE_RGMII;
-		rgmii_id = true;
-		break;
-
 	case PHY_INTERFACE_MODE_SGMII:
 		mode = AM65_GMII_SEL_MODE_SGMII;
 		break;
@@ -297,9 +288,6 @@ static int am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 		mode = AM65_GMII_SEL_MODE_MII;
 		break;
 	};
-
-	if (rgmii_id)
-		mode |= AM65_GMII_SEL_RGMII_IDMODE;
 
 	reg = mode;
 	dev_dbg(dev, "gmii_sel PHY mode: %u, new gmii_sel: %08x\n",
@@ -630,7 +618,7 @@ static int am65_cpsw_phy_init(struct udevice *dev)
 	u32 supported = PHY_GBIT_FEATURES;
 	int ret = 0;
 
-	phydev = dm_eth_phy_connect(dev);
+	phydev = dm_eth_phy_connect_interface(dev, pdata->phy_interface);
 	if (!phydev) {
 		dev_err(dev, "phy_connect() failed\n");
 		return -ENODEV;
@@ -657,9 +645,28 @@ static int am65_cpsw_ofdata_parse_phy(struct udevice *dev)
 	dev_read_u32(dev, "reg", &priv->port_id);
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA) {
+
+	/* CPSW controllers supported by this driver have a fixed internal TX
+	 * delay in RGMII mode. Fix up PHY mode to account for this and warn
+	 * about Device Trees that claim to have a TX delay on the PCB.
+	 */
+	switch (pdata->phy_interface) {
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		pdata->phy_interface = PHY_INTERFACE_MODE_RGMII_RXID;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		pdata->phy_interface = PHY_INTERFACE_MODE_RGMII;
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+		dev_warn(dev,
+			 "RGMII mode without internal TX delay unsupported; please fix your Device Tree\n");
+		break;
+	case PHY_INTERFACE_MODE_NA:
 		dev_err(dev, "Invalid PHY mode, port %u\n", priv->port_id);
 		return -EINVAL;
+	default:
+		break;
 	}
 
 	dev_read_u32(dev, "max-speed", (u32 *)&pdata->max_speed);
