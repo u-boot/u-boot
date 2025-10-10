@@ -82,7 +82,7 @@ static ulong gen2_clk_get_rate(struct clk *clk)
 	ret = renesas_clk_get_parent(clk, info, &parent);
 	if (ret) {
 		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
-		return ret;
+		return 0;
 	}
 
 	if (renesas_clk_is_mod(clk)) {
@@ -94,7 +94,7 @@ static ulong gen2_clk_get_rate(struct clk *clk)
 
 	ret = renesas_clk_get_core(clk, info, &core);
 	if (ret)
-		return ret;
+		return 0;
 
 	switch (core->type) {
 	case CLK_TYPE_IN:
@@ -112,7 +112,7 @@ static ulong gen2_clk_get_rate(struct clk *clk)
 			return rate;
 		}
 
-		return -EINVAL;
+		return 0;
 
 	case CLK_TYPE_FF:
 		rate = (gen2_clk_get_rate(&parent) * core->mult) / core->div;
@@ -198,7 +198,7 @@ static ulong gen2_clk_get_rate(struct clk *clk)
 
 	printf("%s[%i] unknown fail\n", __func__, __LINE__);
 
-	return -ENOENT;
+	return 0;
 }
 
 static int gen2_clk_setup_mmcif_div(struct clk *clk, ulong rate)

@@ -225,7 +225,7 @@ static ulong rzg2l_core_clk_get_rate(struct udevice *dev, const struct cpg_core_
 		return rzg2l_div_clk_get_rate(dev, cc);
 	default:
 		dev_err(dev, "get_rate needed for clock %u, type %d\n", cc->id, cc->type);
-		return -ENOSYS;
+		return 0;
 	}
 }
 
@@ -244,7 +244,7 @@ static ulong rzg2l_cpg_clk_get_rate_by_id(struct udevice *dev, unsigned int id)
 		}
 
 		dev_err(dev, "Module clock ID %u not found\n", cpg_clk_id);
-		return -ENODEV;
+		return 0;
 	}
 
 	for (i = 0; i < data->info->num_core_clks; i++) {
@@ -253,7 +253,7 @@ static ulong rzg2l_cpg_clk_get_rate_by_id(struct udevice *dev, unsigned int id)
 	}
 
 	dev_err(dev, "Core clock ID %u not found\n", cpg_clk_id);
-	return -ENODEV;
+	return 0;
 }
 
 static ulong rzg2l_cpg_clk_get_rate_by_name(struct udevice *dev, const char *name)
@@ -272,7 +272,7 @@ static ulong rzg2l_cpg_clk_get_rate_by_name(struct udevice *dev, const char *nam
 	}
 
 	dev_err(dev, "Clock name %s not found\n", name);
-	return -EINVAL;
+	return 0;
 }
 
 static ulong rzg2l_cpg_clk_get_rate(struct clk *clk)
