@@ -642,7 +642,7 @@ static int rng_init(uint8_t sec_idx, ccsr_sec_t *sec)
 		 */
 		if (!inst_handles) {
 			kick_trng(ent_delay, sec);
-			ent_delay += 400;
+			ent_delay = ent_delay * 2;
 		}
 		/*
 		 * if instantiate_rng(...) fails, the loop will rerun
