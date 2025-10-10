@@ -180,10 +180,8 @@ static int sdhci_cdns6_reset_phy_dll(struct sdhci_cdns_plat *plat, bool reset)
 
 int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 mode)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	struct sdhci_cdns6_phy_cfg *sdhci_cdns6_phy_cfgs;
 	struct sdhci_cdns6_ctrl_cfg *sdhci_cdns6_ctrl_cfgs;
-	const fdt32_t *prop;
 	u32 tmp;
 	int i, ret;
 
@@ -216,19 +214,11 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 		return -EINVAL;
 	}
 
-	for (i = 0; i < SDHCI_CDNS6_PHY_CFG_NUM; i++) {
-		prop = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
-				   sdhci_cdns6_phy_cfgs[i].property, NULL);
-		if (prop)
-			sdhci_cdns6_phy_cfgs[i].val = *prop;
-	}
+	for (i = 0; i < SDHCI_CDNS6_PHY_CFG_NUM; i++)
+		dev_read_u32(dev, sdhci_cdns6_phy_cfgs[i].property, &sdhci_cdns6_phy_cfgs[i].val);
 
-	for (i = 0; i < SDHCI_CDNS6_CTRL_CFG_NUM; i++) {
-		prop = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
-				   sdhci_cdns6_ctrl_cfgs[i].property, NULL);
-		if (prop)
-			sdhci_cdns6_ctrl_cfgs[i].val = *prop;
-	}
+	for (i = 0; i < SDHCI_CDNS6_CTRL_CFG_NUM; i++)
+		dev_read_u32(dev, sdhci_cdns6_ctrl_cfgs[i].property, &sdhci_cdns6_ctrl_cfgs[i].val);
 
 	/* Switch On the DLL Reset */
 	sdhci_cdns6_reset_phy_dll(plat, true);

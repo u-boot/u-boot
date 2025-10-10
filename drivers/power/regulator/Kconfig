@@ -143,7 +143,7 @@ config REGULATOR_PWM
 
 config SPL_REGULATOR_PWM
 	bool "Enable Driver for PWM regulators in SPL"
-	depends on REGULATOR_PWM && SPL
+	depends on SPL_DM_REGULATOR && SPL && SPL_DM_PWM
 	help
 	  This config enables implementation of driver-model regulator uclass
 	  features for PWM regulators in SPL.
