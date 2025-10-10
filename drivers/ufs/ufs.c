@@ -761,7 +761,8 @@ static void ufshcd_prepare_req_desc_hdr(struct ufs_hba *hba,
 		*upiu_flags = UPIU_CMD_FLAGS_NONE;
 	}
 
-	dword_0 = data_direction | (0x1 << UPIU_COMMAND_TYPE_OFFSET);
+	dword_0 = (data_direction << UPIU_DATA_DIRECTION_OFFSET)
+		| (0x1 << UPIU_COMMAND_TYPE_OFFSET);
 
 	/* Enable Interrupt for command */
 	dword_0 |= UTP_REQ_DESC_INT_CMD;
