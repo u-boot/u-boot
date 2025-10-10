@@ -10,6 +10,7 @@
 
 #include <bouncebuf.h>
 #include <charset.h>
+#include <clk.h>
 #include <dm.h>
 #include <log.h>
 #include <dm/device_compat.h>
@@ -1789,6 +1790,88 @@ out:
 	return err;
 }
 
+struct ufs_ref_clk {
+	unsigned long freq_hz;
+	enum ufs_ref_clk_freq val;
+};
+
+static const struct ufs_ref_clk ufs_ref_clk_freqs[] = {
+	{19200000, REF_CLK_FREQ_19_2_MHZ},
+	{26000000, REF_CLK_FREQ_26_MHZ},
+	{38400000, REF_CLK_FREQ_38_4_MHZ},
+	{52000000, REF_CLK_FREQ_52_MHZ},
+	{0, REF_CLK_FREQ_INVAL},
+};
+
+static enum ufs_ref_clk_freq
+ufs_get_bref_clk_from_hz(unsigned long freq)
+{
+	int i;
+
+	for (i = 0; ufs_ref_clk_freqs[i].freq_hz; i++)
+		if (ufs_ref_clk_freqs[i].freq_hz == freq)
+			return ufs_ref_clk_freqs[i].val;
+
+	return REF_CLK_FREQ_INVAL;
+}
+
+enum ufs_ref_clk_freq ufshcd_parse_dev_ref_clk_freq(struct ufs_hba *hba, struct clk *refclk)
+{
+	unsigned long freq;
+
+	freq = clk_get_rate(refclk);
+	return ufs_get_bref_clk_from_hz(freq);
+}
+
+static int ufshcd_set_dev_ref_clk(struct ufs_hba *hba)
+{
+	int err;
+	struct clk *ref_clk;
+	u32 host_ref_clk_freq;
+	u32 dev_ref_clk_freq;
+
+	/* get ref_clk */
+	ref_clk = devm_clk_get(hba->dev, "ref_clk");
+	if (IS_ERR((const void *)ref_clk)) {
+		err = PTR_ERR(ref_clk);
+		goto out;
+	}
+
+	host_ref_clk_freq = ufshcd_parse_dev_ref_clk_freq(hba, ref_clk);
+	if (host_ref_clk_freq == REF_CLK_FREQ_INVAL)
+		dev_err(hba->dev,
+			"invalid ref_clk setting = %ld\n", clk_get_rate(ref_clk));
+
+	if (host_ref_clk_freq == REF_CLK_FREQ_INVAL)
+		goto out;
+
+	err = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_READ_ATTR,
+				      QUERY_ATTR_IDN_REF_CLK_FREQ, 0, 0, &dev_ref_clk_freq);
+
+	if (err) {
+		dev_err(hba->dev, "failed reading bRefClkFreq. err = %d\n", err);
+		goto out;
+	}
+
+	if (dev_ref_clk_freq == host_ref_clk_freq)
+		goto out; /* nothing to update */
+
+	err = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_WRITE_ATTR,
+				      QUERY_ATTR_IDN_REF_CLK_FREQ, 0, 0, &host_ref_clk_freq);
+
+	if (err) {
+		dev_err(hba->dev, "bRefClkFreq setting to %lu Hz failed\n",
+			ufs_ref_clk_freqs[host_ref_clk_freq].freq_hz);
+		goto out;
+	}
+
+	dev_dbg(hba->dev, "bRefClkFreq setting to %lu Hz succeeded\n",
+		ufs_ref_clk_freqs[host_ref_clk_freq].freq_hz);
+
+out:
+	return err;
+}
+
 /**
  * ufshcd_get_max_pwr_mode - reads the max power mode negotiated with device
  */
@@ -2015,6 +2098,8 @@ static int ufs_start(struct ufs_hba *hba)
 
 		return ret;
 	}
+
+	ufshcd_set_dev_ref_clk(hba);
 
 	if (ufshcd_get_max_pwr_mode(hba)) {
 		dev_err(hba->dev,
