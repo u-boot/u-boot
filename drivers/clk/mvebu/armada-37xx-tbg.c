@@ -88,7 +88,7 @@ static ulong armada_37xx_tbg_clk_get_rate(struct clk *clk)
 	struct a37xx_tbgclk *priv = dev_get_priv(clk->dev);
 
 	if (clk->id >= NUM_TBG)
-		return -ENODEV;
+		return 0;
 
 	return priv->rates[clk->id];
 }
