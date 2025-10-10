@@ -236,7 +236,7 @@ efi_status_t efi_esrt_add_from_fmp(struct efi_firmware_management_protocol *fmp)
 	 * TODO: set the field image_type depending on the FW image type
 	 * defined in a platform basis.
 	 */
-	u32 image_type = ESRT_FW_TYPE_UNKNOWN;
+	u32 image_type = ESRT_FW_TYPE_SYSTEMFIRMWARE;
 
 	/* TODO: set the capsule flags as a function of the FW image type. */
 	u32 flags = 0;
