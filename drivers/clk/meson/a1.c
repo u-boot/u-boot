@@ -359,7 +359,7 @@ static ulong meson_div_get_rate(struct clk *clk, unsigned long id)
 
 	info = meson_clk_get_info(clk, id, MESON_CLK_DIV);
 	if (IS_ERR(info))
-		return PTR_ERR(info);
+		return 0;
 
 	/* Actual divider value is (field value + 1), hence the increment */
 	n = GET_PARM_VALUE(priv, info->parm) + 1;
@@ -402,7 +402,7 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 
 	info = meson_clk_get_info(clk, id, MESON_CLK_ANY);
 	if (IS_ERR(info))
-		return PTR_ERR(info);
+		return 0;
 
 	pm = &info->parm[0];
 	pn = &info->parm[1];
@@ -411,7 +411,7 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 	m = GET_PARM_VALUE(priv, pm);
 
 	if (n == 0)
-		return -EINVAL;
+		return 0;
 
 	parent = info->parents[0];
 	parent_rate_mhz = meson_clk_get_rate_by_id(clk, parent) / 1000000;
@@ -453,13 +453,13 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 
 		ret = clk_get_by_name(clk->dev, info->name, &external_clk);
 		if (ret)
-			return ret;
+			return 0;
 
 		rate = clk_get_rate(&external_clk);
 		break;
 	}
 	default:
-		rate = -EINVAL;
+		rate = 0;
 		break;
 	}
 

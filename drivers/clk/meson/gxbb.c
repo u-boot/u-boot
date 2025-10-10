@@ -306,7 +306,7 @@ static ulong meson_div_get_rate(struct clk *clk, unsigned long id)
 		parent = meson_hdmi_div_parent;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	regmap_read(priv->map, parm->reg_off, &reg);
@@ -315,8 +315,8 @@ static ulong meson_div_get_rate(struct clk *clk, unsigned long id)
 	debug("%s: div of %ld is %d\n", __func__, id, reg + 1);
 
 	parent_rate = meson_clk_get_rate_by_id(clk, parent);
-	if (IS_ERR_VALUE(parent_rate))
-		return parent_rate;
+	if (!parent_rate)
+		return 0;
 
 	debug("%s: parent rate of %ld is %d\n", __func__, id, parent_rate);
 
@@ -596,8 +596,8 @@ static ulong meson_mux_get_rate(struct clk *clk, unsigned long id)
 {
 	int parent = meson_mux_get_parent(clk, id);
 
-	if (IS_ERR_VALUE(parent))
-		return parent;
+	if (parent < 0)
+		return 0;
 
 	return meson_clk_get_rate_by_id(clk, parent);
 }
@@ -627,7 +627,7 @@ static unsigned long meson_clk81_get_rate(struct clk *clk)
 		parent_rate = XTAL_RATE;
 		break;
 	case 1:
-		return -ENOENT;
+		return 0;
 	default:
 		parent_rate = meson_clk_get_rate_by_id(clk, parents[reg]);
 	}
@@ -695,12 +695,12 @@ static ulong meson_mpll_get_rate(struct clk *clk, unsigned long id)
 		pn2 = &meson_mpll2_parm[1];
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	parent_rate = meson_clk_get_rate_by_id(clk, CLKID_FIXED_PLL);
-	if (IS_ERR_VALUE(parent_rate))
-		return parent_rate;
+	if (!parent_rate)
+		return 0;
 
 	regmap_read(priv->map, psdm->reg_off, &reg);
 	sdm = PARM_GET(psdm->width, psdm->shift, reg);
@@ -833,7 +833,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 			rate = meson_clk81_get_rate(clk);
 			break;
 		}
-		return -ENOENT;
+		return 0;
 	}
 
 	debug("clock %lu has rate %lu\n", id, rate);
