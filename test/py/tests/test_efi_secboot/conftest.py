@@ -162,9 +162,12 @@ def efi_boot_env_intca(request, ubman):
         # PK
         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_PK/ -keyout PK.key -out PK.crt -nodes -days 365'
                    % mnt_point, shell=True)
-        check_call('cd %s; %scert-to-efi-sig-list -g %s PK.crt PK.esl; %ssign-efi-sig-list -c PK.crt -k PK.key PK PK.esl PK.auth'
+        check_call('cd %s; %scert-to-efi-sig-list -g %s PK.crt PK.esl; %ssign-efi-sig-list -t "2020-04-01" -c PK.crt -k PK.key PK PK.esl PK.auth'
                    % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                    shell=True)
+        # PK_null for deletion
+        check_call('cd %s; touch PK_null.esl; %ssign-efi-sig-list -c PK.crt -k PK.key PK PK_null.esl PK_null.auth'
+                   % (mnt_point, EFITOOLS_PATH), shell=True)
         # KEK
         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_KEK/ -keyout KEK.key -out KEK.crt -nodes -days 365'
                    % mnt_point, shell=True)

@@ -133,3 +133,12 @@ class TestEfiSignedImageIntca(object):
                 'efidebug test bootmgr'])
             assert '\'HELLO_abc\' failed' in ''.join(output)
             assert 'efi_bootmgr_load() returned: 26' in ''.join(output)
+
+        with ubman.log.section('Test Case 3c'):
+            # Test Case 3c, Uninstall PK
+            output = ubman.run_command_list([
+                'fatload host 0:1 4000000 PK_null.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK',
+                'printenv -e -n PK'])
+            assert 'Failed to set EFI variable' not in ''.join(output)
+            assert '\"PK\" not defined' in ''.join(output)
