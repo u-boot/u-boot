@@ -84,7 +84,7 @@ ulong ccf_clk_get_rate(struct clk *clk)
 	int err = clk_get_by_id(clk->id, &c);
 
 	if (err)
-		return err;
+		return 0;
 	return clk_get_rate(c);
 }
 
