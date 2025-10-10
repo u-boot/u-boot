@@ -357,6 +357,10 @@ following configuration fragment to enable Falcon Mode:
         CONFIG_SPL_FIT_SIGNATURE=y
         CONFIG_SPL_RSA=y
 
+        # Disable support for booting raw kernel image
+        CONFIG_CMD_BOOTI=n
+        CONFIG_CMD_BOOTZ=n
+
         # Only support MMC falcon mode
         CONFIG_SPL_SPI_FLASH_SUPPORT=n
         CONFIG_SPL_NOR_SUPPORT=n
