@@ -15,6 +15,20 @@ config CADENCE_UFS
 	  This selects the platform driver for the Cadence UFS host
 	  controller present on present TI's J721e devices.
 
+config UFS_MEDIATEK
+	tristate "MediaTek UFS Host Controller Driver"
+	depends on UFS && ARCH_MEDIATEK
+	select PHY_MTK_UFS
+	help
+	  This selects the MediaTek specific additions to UFSHCD platform driver.
+	  UFS host on Mediatek needs some vendor specific configuration before
+	  accessing the hardware which includes PHY configuration and vendor
+	  specific registers.
+
+	  Select this if you have UFS controller on MediaTek chipset.
+
+	  If unsure, say N.
+
 config UFS_PCI
 	bool "PCI bus based UFS Controller support"
 	depends on PCI && UFS
