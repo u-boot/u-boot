@@ -250,7 +250,8 @@ enum bootflow_meth_flags_t {
  * @cur_label: Current label being processed
  * @num_methods: Number of bootmeth devices in @method_order
  * @cur_method: Current method number, an index into @method_order
- * @first_glob_method: First global method, if any, else -1
+ * @first_glob_method: Index of first global method within @method_order[], if
+ * any, else -1
  * @cur_prio: Current priority being scanned
  * @method_order: List of bootmeth devices to use, in order. The normal methods
  *	appear first, then the global ones, if any
