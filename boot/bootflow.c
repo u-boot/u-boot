@@ -178,6 +178,32 @@ static void scan_next_in_uclass(struct udevice **devp)
 }
 
 /**
+ * prepare_bootdev() - Get ready to use a bootdev
+ *
+ * @iter: Bootflow iterator being used
+ * @dev: UCLASS_BOOTDEV device to use
+ * @method_flags: Method flag for the bootdev
+ * Return 0 if OK, -ve if the bootdev failed to probe
+ */
+static int prepare_bootdev(struct bootflow_iter *iter, struct udevice *dev,
+			   int method_flags)
+{
+	int ret;
+
+	/*
+	 * Probe the bootdev. This does not probe any attached block device,
+	 * since they are siblings
+	 */
+	ret = device_probe(dev);
+	log_debug("probe %s %d\n", dev->name, ret);
+	if (ret)
+		return log_msg_ret("probe", ret);
+	bootflow_iter_set_dev(iter, dev, method_flags);
+
+	return 0;
+}
+
+/**
  * iter_incr() - Move to the next item (method, part, bootdev)
  *
  * Return: 0 if OK, BF_NO_MORE_DEVICES if there are no more bootdevs
@@ -310,18 +336,10 @@ static int iter_incr(struct bootflow_iter *iter)
 		}
 		log_debug("ret=%d, dev=%p %s\n", ret, dev,
 			  dev ? dev->name : "none");
-		if (ret) {
+		if (ret)
 			bootflow_iter_set_dev(iter, NULL, 0);
-		} else {
-			/*
-			 * Probe the bootdev. This does not probe any attached
-			 * block device, since they are siblings
-			 */
-			ret = device_probe(dev);
-			log_debug("probe %s %d\n", dev->name, ret);
-			if (!log_msg_ret("probe", ret))
-				bootflow_iter_set_dev(iter, dev, method_flags);
-		}
+		else
+			ret = prepare_bootdev(iter, dev, method_flags);
 	}
 
 	/* if there are no more bootdevs, give up */
