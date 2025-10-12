@@ -47,23 +47,7 @@ static struct part_driver *part_driver_get_type(int part_type)
 	return NULL;
 }
 
-/**
- * part_driver_lookup_type() - Look up the partition driver for a blk device
- *
- * If @desc->part_type is PART_TYPE_UNKNOWN, this checks each parition driver
- * against the blk device to see if there is a valid partition table acceptable
- * to that driver.
- *
- * If @desc->part_type is already set, it just returns the driver for that
- * type, without testing if the driver can find a valid partition on the
- * descriptor.
- *
- * On success it updates @desc->part_type if set to PART_TYPE_UNKNOWN on entry
- *
- * @dev_desc: Device descriptor
- * Return: Driver found, or NULL if none
- */
-static struct part_driver *part_driver_lookup_type(struct blk_desc *desc)
+struct part_driver *part_driver_lookup_type(struct blk_desc *desc)
 {
 	struct part_driver *drv =
 		ll_entry_start(struct part_driver, part_driver);
