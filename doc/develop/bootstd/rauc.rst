@@ -21,14 +21,21 @@ with the left one tried first.
 The default number of boot tries of each slot is set by
 ``CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES``.
 
-In case no valid slot can be found and/or all slots have zero tries left, the
-boot order and slot tries are reset to their default values, if
-``CONFIG_BOOTMETH_RAUC_RESET_ALL_ZERO_TRIES`` is enabled. This prevents a system
-from locking up in the bootloader and tries booting again after a specified
-number of tries.
+If ``BOOT_ORDER`` does not exist in environment, it will be created and set to
+``CONFIG_BOOTMETH_RAUC_BOOT_ORDER``.  If any ``BOOT_x_LEFT`` (for example
+``BOOT_A_LEFT`` and/or ``BOOT_B_LEFT``) does not exist in environment, it will
+be created and set to ``CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES``.
+
+If ``CONFIG_BOOTMETH_RAUC_RESET_ALL_ZERO_TRIES`` is enabled, and no valid slot
+is found (all slots in ``BOOT_ORDER`` have ``BOOT_x_LEFT`` set to 0), *all* slot
+tries are reset to their default values.  This prevents a system from locking up
+in the bootloader and tries booting again after a specified number of tries.
+
+If a valid slot is found, its LEFT value in environment is decremented by 1.
 
 The boot script must be located in each boot partition. The bootmeth searches
-for "boot.scr.uimg" first, then "boot.scr" if not found.
+for ``boot.scr`` first, then ``boot.scr.uimg`` if not found. It will search in
+all directories of the bootstd list of prefixes (``"/", "/boot"`` by default).
 
 When the bootflow is booted, the bootmeth sets these environment variables:
 
