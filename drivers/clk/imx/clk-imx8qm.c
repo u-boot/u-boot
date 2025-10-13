@@ -135,16 +135,16 @@ ulong imx8_clk_get_rate(struct clk *clk)
 		    clk->id >= IMX8QM_CLK_END) {
 			printf("%s(Invalid clk ID #%lu)\n",
 			       __func__, clk->id);
-			return -EINVAL;
+			return 0;
 		}
-		return -EINVAL;
+		return 0;
 	};
 
 	ret = sc_pm_get_clock_rate(-1, resource, pm_clk,
 				   (sc_pm_clock_rate_t *)&rate);
 	if (ret) {
 		printf("%s err %d\n", __func__, ret);
-		return ret;
+		return 0;
 	}
 
 	return rate;
