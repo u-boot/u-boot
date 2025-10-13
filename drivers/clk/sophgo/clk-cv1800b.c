@@ -704,7 +704,7 @@ static ulong cv1800b_clk_get_rate(struct clk *clk)
 	int err = clk_get_by_id(CV1800B_CLK_ID_TRANSFORM(clk->id), &c);
 
 	if (err)
-		return err;
+		return 0;
 	return clk_get_rate(c);
 }
 
