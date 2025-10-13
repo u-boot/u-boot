@@ -8,6 +8,7 @@
 / {
 	chosen {
 		bootph-all;
+		tick-timer = &pit;
 	};
 
 	ahb {
