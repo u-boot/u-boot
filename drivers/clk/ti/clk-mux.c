@@ -129,7 +129,7 @@ static ulong clk_ti_mux_get_rate(struct clk *clk)
 	index = clk_ti_mux_get_index(clk);
 	parent = clk_ti_mux_get_parent_by_index(&priv->parents, index);
 	if (IS_ERR(parent))
-		return PTR_ERR(parent);
+		return 0;
 
 	rate = clk_get_rate(parent);
 	dev_dbg(clk->dev, "rate=%ld\n", rate);
