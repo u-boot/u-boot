@@ -197,7 +197,7 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 		break;
 	default:
 		debug("%s: unknown clk %ld\n", __func__, clk->id);
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
