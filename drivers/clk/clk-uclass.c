@@ -525,11 +525,11 @@ ulong clk_get_parent_rate(struct clk *clk)
 
 	pclk = clk_get_parent(clk);
 	if (IS_ERR(pclk))
-		return -ENODEV;
+		return 0;
 
 	ops = clk_dev_ops(pclk->dev);
 	if (!ops->get_rate)
-		return -ENOSYS;
+		return 0;
 
 	/* Read the 'rate' if not already set or if proper flag set*/
 	if (!pclk->rate || pclk->flags & CLK_GET_RATE_NOCACHE)

@@ -211,11 +211,11 @@ static ulong scmi_clk_get_rate(struct clk *clk)
 
 	ret = devm_scmi_process_msg(clk->dev, &msg);
 	if (ret < 0)
-		return ret;
+		return 0;
 
 	ret = scmi_to_linux_errno(out.status);
 	if (ret < 0)
-		return ret;
+		return 0;
 
 	return (ulong)(((u64)out.rate_msb << 32) | out.rate_lsb);
 }

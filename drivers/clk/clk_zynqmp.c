@@ -382,7 +382,7 @@ static ulong zynqmp_clk_get_pll_rate(struct zynqmp_clk_priv *priv,
 	ret = zynqmp_mmio_read(zynqmp_clk_get_register(id), &clk_ctrl);
 	if (ret) {
 		printf("%s mio read fail\n", __func__);
-		return -EIO;
+		return 0;
 	}
 
 	if (clk_ctrl & PLLCTRL_BYPASS_MASK)
@@ -409,7 +409,7 @@ static ulong zynqmp_clk_get_pll_rate(struct zynqmp_clk_priv *priv,
 		ret = zynqmp_mmio_read(dpll_lpd_reg, &cross_div);
 		if (ret) {
 			printf("%s mio read fail\n", __func__);
-			return -EIO;
+			return 0;
 		}
 
 		cross_div = (cross_div & PLL_TO_LPD_DIV_MASK) >>
@@ -431,7 +431,7 @@ static ulong zynqmp_clk_get_cpu_rate(struct zynqmp_clk_priv *priv,
 	ret = zynqmp_mmio_read(CRF_APB_ACPU_CTRL, &clk_ctrl);
 	if (ret) {
 		printf("%s mio read fail\n", __func__);
-		return -EIO;
+		return 0;
 	}
 
 	div = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
@@ -439,8 +439,8 @@ static ulong zynqmp_clk_get_cpu_rate(struct zynqmp_clk_priv *priv,
 	srcsel = clk_ctrl & CLK_CTRL_SRCSEL_MASK;
 	pll = pll_src[ACPU_CLK_SRC][srcsel];
 	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
-	if (IS_ERR_VALUE(pllrate))
-		return pllrate;
+	if (!pllrate)
+		return 0;
 
 	return DIV_ROUND_CLOSEST(pllrate, div);
 }
@@ -455,7 +455,7 @@ static ulong zynqmp_clk_get_ddr_rate(struct zynqmp_clk_priv *priv)
 	ret = zynqmp_mmio_read(CRF_APB_DDR_CTRL, &clk_ctrl);
 	if (ret) {
 		printf("%s mio read fail\n", __func__);
-		return -EIO;
+		return 0;
 	}
 
 	div = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
@@ -463,8 +463,8 @@ static ulong zynqmp_clk_get_ddr_rate(struct zynqmp_clk_priv *priv)
 	srcsel = clk_ctrl & CLK_CTRL_SRCSEL_MASK;
 	pll = pll_src[DDR_CLK_SRC][srcsel];
 	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
-	if (IS_ERR_VALUE(pllrate))
-		return pllrate;
+	if (!pllrate)
+		return 0;
 
 	return DIV_ROUND_CLOSEST(pllrate, div);
 }
@@ -479,14 +479,14 @@ static ulong zynqmp_clk_get_dll_rate(struct zynqmp_clk_priv *priv)
 	ret = zynqmp_mmio_read(CRL_APB_DLL_REF_CTRL, &clk_ctrl);
 	if (ret) {
 		printf("%s mio read fail\n", __func__);
-		return -EIO;
+		return 0;
 	}
 
 	srcsel = clk_ctrl & CLK_CTRL_SRCSEL_MASK;
 	pll = pll_src[DLL_CLK_SRC][srcsel];
 	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
-	if (IS_ERR_VALUE(pllrate))
-		return pllrate;
+	if (!pllrate)
+		return 0;
 
 	return pllrate;
 }
@@ -503,7 +503,7 @@ static ulong zynqmp_clk_get_peripheral_rate(struct zynqmp_clk_priv *priv,
 	ret = zynqmp_mmio_read(zynqmp_clk_get_register(id), &clk_ctrl);
 	if (ret) {
 		printf("%s mio read fail\n", __func__);
-		return -EIO;
+		return 0;
 	}
 
 	div0 = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
@@ -523,8 +523,8 @@ static ulong zynqmp_clk_get_peripheral_rate(struct zynqmp_clk_priv *priv,
 		pll = pll_src[PERI_CLK_SRC][srcsel];
 
 	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
-	if (IS_ERR_VALUE(pllrate))
-		return pllrate;
+	if (!pllrate)
+		return 0;
 
 	return
 		DIV_ROUND_CLOSEST(
@@ -543,7 +543,7 @@ static ulong zynqmp_clk_get_crf_crl_rate(struct zynqmp_clk_priv *priv,
 	ret = zynqmp_mmio_read(zynqmp_clk_get_register(id), &clk_ctrl);
 	if (ret) {
 		printf("%d %s mio read fail\n", __LINE__, __func__);
-		return -EIO;
+		return 0;
 	}
 
 	div0 = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
@@ -586,13 +586,13 @@ static ulong zynqmp_clk_get_crf_crl_rate(struct zynqmp_clk_priv *priv,
 		pll = pll_src[CPU_R5_CLK_SRC][srcsel];
 		break;
 	default:
-		return -ENXIO;
+		return 0;
 	}
 	if (two_divs) {
 		ret = zynqmp_mmio_read(zynqmp_clk_get_register(pll), &clk_ctrl);
 		if (ret) {
 			printf("%d %s mio read fail\n", __LINE__, __func__);
-			return -EIO;
+			return 0;
 		}
 		div1 = (clk_ctrl & CLK_CTRL_DIV0_MASK) >> CLK_CTRL_DIV0_SHIFT;
 		if (!div1)
@@ -603,8 +603,8 @@ static ulong zynqmp_clk_get_crf_crl_rate(struct zynqmp_clk_priv *priv,
 		pll = iopll;
 
 	pllrate = zynqmp_clk_get_pll_rate(priv, pll);
-	if (IS_ERR_VALUE(pllrate))
-		return pllrate;
+	if (!pllrate)
+		return 0;
 
 	return
 		DIV_ROUND_CLOSEST(
@@ -729,7 +729,7 @@ static ulong zynqmp_clk_get_rate(struct clk *clk)
 	case gdma_ref ... dpdma_ref:
 		return zynqmp_clk_get_crf_crl_rate(priv, id, two_divs);
 	default:
-		return -ENXIO;
+		return 0;
 	}
 }
 

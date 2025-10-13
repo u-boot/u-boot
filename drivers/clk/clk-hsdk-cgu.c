@@ -703,7 +703,7 @@ static ulong hsdk_cgu_get_rate(struct clk *sclk)
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
 
 	if (hsdk_prepare_clock_tree_branch(sclk))
-		return -EINVAL;
+		return 0;
 
 	return clk->map[sclk->id].get_rate(sclk);
 }
