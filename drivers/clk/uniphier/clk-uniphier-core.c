@@ -168,7 +168,7 @@ static unsigned long uniphier_clk_get_rate(struct clk *clk)
 
 	data = uniphier_clk_get_data(priv, clk->id);
 	if (!data)
-		return -ENODEV;
+		return 0;
 
 	return __uniphier_clk_get_rate(priv, data);
 }
