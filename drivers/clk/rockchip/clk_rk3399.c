@@ -546,7 +546,7 @@ static ulong rk3399_i2c_get_clk(struct rockchip_cru *cru, ulong clk_id)
 		break;
 	default:
 		printf("do not support this i2c bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(GPLL_HZ, div);
@@ -641,7 +641,7 @@ static ulong rk3399_spi_get_clk(struct rockchip_cru *cru, ulong clk_id)
 
 	default:
 		pr_err("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
-		return -EINVAL;
+		return 0;
 	}
 
 	val = readl(&cru->clksel_con[spiclk->reg]);
@@ -744,7 +744,7 @@ static ulong rk3399_mmc_get_clk(struct rockchip_cru *cru, uint clk_id)
 		div = 1;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	div *= (con & CLK_EMMC_DIV_CON_MASK) >> CLK_EMMC_DIV_CON_SHIFT;
@@ -1003,7 +1003,7 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 		break;
 	default:
 		log_debug("Unknown clock %lu\n", clk->id);
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -1557,7 +1557,7 @@ static ulong rk3399_i2c_get_pmuclk(struct rk3399_pmucru *pmucru, ulong clk_id)
 		break;
 	default:
 		printf("do not support this i2c bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(PPLL_HZ, div);
@@ -1621,7 +1621,7 @@ static ulong rk3399_pmuclk_get_rate(struct clk *clk)
 		rate = rk3399_i2c_get_pmuclk(priv->pmucru, clk->id);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;

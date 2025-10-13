@@ -234,7 +234,7 @@ static ulong rockchip_mmc_get_clk(struct rk322x_cru *cru, uint clk_general_rate,
 		div = (con & MMC0_DIV_MASK) >> MMC0_DIV_SHIFT;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	src_rate = mux == EMMC_SEL_24M ? OSC_HZ : clk_general_rate;
@@ -367,7 +367,7 @@ static ulong rk322x_clk_get_rate(struct clk *clk)
 		rate = rockchip_mmc_get_clk(priv->cru, gclk_rate, clk->id);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;

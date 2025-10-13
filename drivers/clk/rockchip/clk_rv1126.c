@@ -201,7 +201,7 @@ static ulong rv1126_i2c_get_pmuclk(struct rv1126_pmuclk_priv *priv,
 		div = (con & CLK_I2C1_DIV_MASK) >> CLK_I2C1_DIV_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(priv->gpll_hz, div);
@@ -254,7 +254,7 @@ static ulong rv1126_pwm_get_pmuclk(struct rv1126_pmuclk_priv *priv,
 			return OSC_HZ;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(priv->gpll_hz, div);
@@ -372,7 +372,7 @@ static ulong rv1126_pmuclk_get_rate(struct clk *clk)
 
 	if (!priv->gpll_hz) {
 		printf("%s gpll=%lu\n", __func__, priv->gpll_hz);
-		return -ENOENT;
+		return 0;
 	}
 
 	debug("%s %ld\n", __func__, clk->id);
@@ -399,7 +399,7 @@ static ulong rv1126_pmuclk_get_rate(struct clk *clk)
 		break;
 	default:
 		debug("%s: Unsupported CLK#%ld\n", __func__, clk->id);
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -602,7 +602,7 @@ static ulong rv1126_pdbus_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 		else if (sel == ACLK_PDBUS_SEL_CPLL)
 			parent = priv->cpll_hz;
 		else
-			return -ENOENT;
+			return 0;
 		break;
 	case HCLK_PDBUS:
 		con = readl(&cru->clksel_con[2]);
@@ -613,7 +613,7 @@ static ulong rv1126_pdbus_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 		else if (sel == HCLK_PDBUS_SEL_CPLL)
 			parent = priv->cpll_hz;
 		else
-			return -ENOENT;
+			return 0;
 		break;
 	case PCLK_PDBUS:
 	case PCLK_WDT:
@@ -625,10 +625,10 @@ static ulong rv1126_pdbus_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 		else if (sel == PCLK_PDBUS_SEL_CPLL)
 			parent = priv->cpll_hz;
 		else
-			return -ENOENT;
+			return 0;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -698,7 +698,7 @@ static ulong rv1126_pdphp_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 		parent = priv->gpll_hz;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -781,7 +781,7 @@ static ulong rv1126_i2c_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 		div = (con & CLK_I2C5_DIV_MASK) >> CLK_I2C5_DIV_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(priv->gpll_hz, div);
@@ -921,7 +921,7 @@ static ulong rv1126_crypto_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 		else if (sel == CLK_CRYPTO_CORE_SEL_CPLL)
 			parent = priv->cpll_hz;
 		else
-			return -ENOENT;
+			return 0;
 		break;
 	case CLK_CRYPTO_PKA:
 		con = readl(&cru->clksel_con[7]);
@@ -932,7 +932,7 @@ static ulong rv1126_crypto_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 		else if (sel == CLK_CRYPTO_PKA_SEL_CPLL)
 			parent = priv->cpll_hz;
 		else
-			return -ENOENT;
+			return 0;
 		break;
 	case ACLK_CRYPTO:
 		con = readl(&cru->clksel_con[4]);
@@ -943,10 +943,10 @@ static ulong rv1126_crypto_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 		else if (sel == ACLK_CRYPTO_SEL_CPLL)
 			parent = priv->cpll_hz;
 		else
-			return -ENOENT;
+			return 0;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -1011,7 +1011,7 @@ static ulong rv1126_mmc_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 		con_id = 57;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
@@ -1024,7 +1024,7 @@ static ulong rv1126_mmc_get_clk(struct rv1126_clk_priv *priv, ulong clk_id)
 	else if (sel == EMMC_SEL_XIN24M)
 		return DIV_TO_RATE(OSC_HZ, div) / 2;
 
-	return -ENOENT;
+	return 0;
 }
 
 static ulong rv1126_mmc_set_clk(struct rv1126_clk_priv *priv, ulong clk_id,
@@ -1085,7 +1085,7 @@ static ulong rv1126_sfc_get_clk(struct rv1126_clk_priv *priv)
 	else if (sel == SCLK_SFC_SEL_CPLL)
 		parent = priv->cpll_hz;
 	else
-		return -ENOENT;
+		return 0;
 
 	return DIV_TO_RATE(parent, div);
 }
@@ -1117,7 +1117,7 @@ static ulong rv1126_nand_get_clk(struct rv1126_clk_priv *priv)
 	else if (sel == CLK_NANDC_SEL_CPLL)
 		parent = priv->cpll_hz;
 	else
-		return -ENOENT;
+		return 0;
 
 	return DIV_TO_RATE(parent, div);
 }
@@ -1149,7 +1149,7 @@ static ulong rv1126_aclk_vop_get_clk(struct rv1126_clk_priv *priv)
 	else if (sel == ACLK_PDVO_SEL_CPLL)
 		parent = priv->cpll_hz;
 	else
-		return -ENOENT;
+		return 0;
 
 	return DIV_TO_RATE(parent, div);
 }
@@ -1182,7 +1182,7 @@ static ulong rv1126_dclk_vop_get_clk(struct rv1126_clk_priv *priv)
 	else if (sel == DCLK_VOP_SEL_CPLL)
 		parent = priv->cpll_hz;
 	else
-		return -ENOENT;
+		return 0;
 
 	return DIV_TO_RATE(parent, div);
 }
@@ -1245,7 +1245,7 @@ static ulong rv1126_scr1_get_clk(struct rv1126_clk_priv *priv)
 	else if (sel == CLK_SCR1_SEL_CPLL)
 		parent = priv->cpll_hz;
 	else
-		return -ENOENT;
+		return 0;
 
 	return DIV_TO_RATE(parent, div);
 }
@@ -1278,7 +1278,7 @@ static ulong rv1126_gmac_src_get_clk(struct rv1126_clk_priv *priv)
 	else if (sel == CLK_GMAC_SRC_SEL_GPLL)
 		parent = priv->gpll_hz;
 	else
-		return -ENOENT;
+		return 0;
 
 	return DIV_TO_RATE(parent, div);
 }
@@ -1311,7 +1311,7 @@ static ulong rv1126_gmac_out_get_clk(struct rv1126_clk_priv *priv)
 	else if (sel == CLK_GMAC_OUT_SEL_GPLL)
 		parent = priv->gpll_hz;
 	else
-		return -ENOENT;
+		return 0;
 
 	return DIV_TO_RATE(parent, div);
 }
@@ -1386,7 +1386,7 @@ static ulong rv1126_dclk_decom_get_clk(struct rv1126_clk_priv *priv)
 	else if (sel == DCLK_DECOM_SEL_CPLL)
 		parent = priv->cpll_hz;
 	else
-		return -ENOENT;
+		return 0;
 
 	return DIV_TO_RATE(parent, div);
 }
@@ -1413,7 +1413,7 @@ static ulong rv1126_clk_get_rate(struct clk *clk)
 
 	if (!priv->gpll_hz) {
 		printf("%s gpll=%lu\n", __func__, priv->gpll_hz);
-		return -ENOENT;
+		return 0;
 	}
 
 	switch (clk->id) {
@@ -1509,7 +1509,7 @@ static ulong rv1126_clk_get_rate(struct clk *clk)
 		break;
 	default:
 		debug("%s: Unsupported CLK#%ld\n", __func__, clk->id);
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;

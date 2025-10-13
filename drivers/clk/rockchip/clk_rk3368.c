@@ -174,7 +174,7 @@ static ulong rk3368_mmc_get_clk(struct rk3368_cru *cru, uint clk_id)
 		con_id = 48;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
@@ -190,7 +190,7 @@ static ulong rk3368_mmc_get_clk(struct rk3368_cru *cru, uint clk_id)
 		break;
 	case MMC_PLL_SEL_USBPHY_480M:
 	default:
-		return -EINVAL;
+		return 0;
 	}
 	div = (con & MMC_CLK_DIV_MASK) >> MMC_CLK_DIV_SHIFT;
 	rate = DIV_TO_RATE(pll_rate, div);
@@ -391,7 +391,7 @@ static ulong rk3368_spi_get_clk(struct rk3368_cru *cru, ulong clk_id)
 
 	default:
 		pr_err("%s: SPI clk-id %ld not supported\n", __func__, clk_id);
-		return -EINVAL;
+		return 0;
 	}
 
 	val = readl(&cru->clksel_con[spiclk->reg]);
@@ -479,7 +479,7 @@ static ulong rk3368_clk_get_rate(struct clk *clk)
 		rate = rk3368_saradc_get_clk(priv->cru);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;

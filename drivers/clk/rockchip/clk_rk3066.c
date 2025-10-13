@@ -272,7 +272,7 @@ static ulong rk3066_clk_mmc_get_clk(struct rk3066_cru *cru, uint gclk_rate,
 		div = bitfield_extract_by_mask(con, SDIO_DIV_MASK);
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(gclk_rate, div) / 2;
@@ -330,7 +330,7 @@ static ulong rk3066_clk_spi_get_clk(struct rk3066_cru *cru, uint gclk_rate,
 		div = bitfield_extract_by_mask(con, SPI1_DIV_MASK);
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(gclk_rate, div);
@@ -376,7 +376,7 @@ static ulong rk3066_clk_saradc_get_clk(struct rk3066_cru *cru, int periph)
 		div = bitfield_extract_by_mask(con, TSADC_DIV_MASK);
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 	return DIV_TO_RATE(PERI_PCLK_HZ, div);
 }
@@ -534,7 +534,7 @@ static ulong rk3066_clk_get_rate(struct clk *clk)
 	case SCLK_UART3:
 		return OSC_HZ;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return new_rate;

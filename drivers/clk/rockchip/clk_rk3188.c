@@ -281,7 +281,7 @@ static ulong rockchip_mmc_get_clk(struct rk3188_cru *cru, uint gclk_rate,
 		div = (con >> SDIO_DIV_SHIFT) & SDIO_DIV_MASK;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(gclk_rate, div) / 2;
@@ -339,7 +339,7 @@ static ulong rockchip_spi_get_clk(struct rk3188_cru *cru, uint gclk_rate,
 		div = (con >> SPI1_DIV_SHIFT) & SPI1_DIV_MASK;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(gclk_rate, div);
@@ -489,7 +489,7 @@ static ulong rk3188_clk_get_rate(struct clk *clk)
 	case PCLK_I2C4:
 		return gclk_rate;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return new_rate;

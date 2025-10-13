@@ -599,7 +599,7 @@ static ulong rockchip_mmc_get_clk(struct rockchip_cru *cru, uint gclk_rate,
 		div = (con & SDIO0_DIV_MASK) >> SDIO0_DIV_SHIFT;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	src_rate = mux == EMMC_PLL_SELECT_24MHZ ? OSC_HZ : gclk_rate;
@@ -679,7 +679,7 @@ static ulong rockchip_spi_get_clk(struct rockchip_cru *cru, uint gclk_rate,
 		div = (con & SPI2_DIV_MASK) >> SPI2_DIV_SHIFT;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 	assert(mux == SPI0_PLL_SELECT_GENERAL);
 
@@ -782,7 +782,7 @@ static ulong rk3288_clk_get_rate(struct clk *clk)
 		new_rate = rockchip_saradc_get_clk(priv->cru);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return new_rate;

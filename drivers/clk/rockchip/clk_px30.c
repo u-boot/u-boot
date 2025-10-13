@@ -308,7 +308,7 @@ static ulong px30_i2c_get_clk(struct px30_clk_priv *priv, ulong clk_id)
 		break;
 	default:
 		printf("do not support this i2c bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(priv->gpll_hz, div);
@@ -436,7 +436,7 @@ static ulong px30_i2s_get_clk(struct px30_clk_priv *priv, ulong clk_id)
 		break;
 	default:
 		printf("do not support this i2s bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return clk_src * n / m;
@@ -523,7 +523,7 @@ static ulong px30_mmc_get_clk(struct px30_clk_priv *priv, uint clk_id)
 		con_id = 20;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
@@ -621,7 +621,7 @@ static ulong px30_pwm_get_clk(struct px30_clk_priv *priv, ulong clk_id)
 		break;
 	default:
 		printf("do not support this pwm bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(priv->gpll_hz, div);
@@ -726,7 +726,7 @@ static ulong px30_spi_get_clk(struct px30_clk_priv *priv, ulong clk_id)
 		break;
 	default:
 		printf("do not support this pwm bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(priv->gpll_hz, div);
@@ -786,7 +786,7 @@ static ulong px30_vop_get_clk(struct px30_clk_priv *priv, ulong clk_id)
 		parent = rkclk_pll_get_rate(&cru->pll[NPLL], &cru->mode, NPLL);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -883,7 +883,7 @@ static ulong px30_bus_get_clk(struct px30_clk_priv *priv, ulong clk_id)
 		div = (con & BUS_PCLK_DIV_MASK) >> BUS_PCLK_DIV_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -949,7 +949,7 @@ static ulong px30_peri_get_clk(struct px30_clk_priv *priv, ulong clk_id)
 		parent = priv->gpll_hz;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -1007,7 +1007,7 @@ static ulong px30_crypto_get_clk(struct px30_clk_priv *priv, ulong clk_id)
 		parent = priv->gpll_hz;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -1189,7 +1189,7 @@ static ulong px30_clk_get_rate(struct clk *clk)
 
 	if (!priv->gpll_hz && clk->id > ARMCLK) {
 		printf("%s gpll=%lu\n", __func__, priv->gpll_hz);
-		return -ENOENT;
+		return 0;
 	}
 
 	debug("%s %ld\n", __func__, clk->id);
@@ -1268,7 +1268,7 @@ static ulong px30_clk_get_rate(struct clk *clk)
 		break;
 #endif
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -1704,7 +1704,7 @@ static ulong px30_pmuclk_get_rate(struct clk *clk)
 		rate = px30_pmu_uart0_get_clk(priv);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
