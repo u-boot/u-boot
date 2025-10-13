@@ -23,7 +23,7 @@ static ulong tegra186_clk_get_rate(struct clk *clk)
 	ret = misc_call(clk->dev->parent, MRQ_CLK, &req, sizeof(req), &resp,
 			sizeof(resp));
 	if (ret < 0)
-		return ret;
+		return 0;
 
 	return resp.clk_get_rate.rate;
 }
