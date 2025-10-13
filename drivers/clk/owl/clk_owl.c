@@ -202,7 +202,7 @@ static ulong owl_clk_get_rate(struct clk *clk)
 		rate = owl_get_sd_clk_rate(priv, 0);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
