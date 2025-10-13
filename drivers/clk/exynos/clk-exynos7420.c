@@ -199,7 +199,7 @@ static ulong exynos7420_peric1_get_rate(struct clk *clk)
 	case SCLK_UART2:
 		ret = clk_get_by_index(clk->dev, 3, &in_clk);
 		if (ret < 0)
-			return ret;
+			return 0;
 		freq = clk_get_rate(&in_clk);
 		break;
 	}
