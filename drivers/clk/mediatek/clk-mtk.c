@@ -725,7 +725,7 @@ static ulong mtk_clk_gate_get_rate(struct clk *clk)
 	const struct mtk_gate *gate;
 
 	if (id < priv->tree->gates_offs)
-		return -EINVAL;
+		return 0;
 
 	gate = &priv->gates[id - priv->tree->gates_offs];
 	/*
