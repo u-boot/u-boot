@@ -626,7 +626,7 @@ static const struct udevice_id tpm_tis_i2c_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(tpm_tis_i2c) = {
+U_BOOT_DRIVER(tpm_tis_infineon) = {
 	.name   = "tpm_tis_infineon",
 	.id     = UCLASS_TPM,
 	.of_match = tpm_tis_i2c_ids,
