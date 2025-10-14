@@ -18,3 +18,8 @@ obj-$(CONFIG_$(PHASE_)ISO_PARTITION)   += part_iso.o
 obj-$(CONFIG_$(PHASE_)AMIGA_PARTITION) += part_amiga.o
 obj-$(CONFIG_$(PHASE_)EFI_PARTITION)   += part_efi.o
 endif
+
+# Avoid empty dts/built-in.a during SPL/TPL/VPL builds
+ifdef CONFIG_XPL_BUILD
+obj-y += dummy.o
+endif

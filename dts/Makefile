@@ -89,3 +89,8 @@ subdir- += ../arch/arc/dts ../arch/arm/dts ../arch/m68k/dts ../arch/microblaze/d
 	   ../arch/mips/dts ../arch/nios2/dts ../arch/powerpc/dts ../arch/riscv/dts	\
 	   ../arch/sandbox/dts ../arch/sh/dts ../arch/x86/dts ../arch/xtensa/dts	\
 	   ./upstream/src/arm64 ./upstream/src/$(ARCH)
+
+# Avoid empty dts/built-in.a during SPL/TPL/VPL builds
+ifdef CONFIG_XPL_BUILD
+obj-y += dummy.o
+endif

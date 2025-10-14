@@ -31,3 +31,8 @@ obj-$(CONFIG_$(PHASE_)ENV_IS_IN_FLASH) += flash.o
 obj-$(CONFIG_$(PHASE_)ENV_IS_IN_SCSI) += scsi.o
 
 CFLAGS_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)
+
+# Avoid empty dts/built-in.a during SPL/TPL/VPL builds
+ifdef CONFIG_XPL_BUILD
+obj-y += dummy.o
+endif
