@@ -55,7 +55,7 @@ static int soc_amd_versal2_probe(struct udevice *dev)
 
 	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
 		ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0,
-					ret_payload);
+					0, 0, ret_payload);
 		if (ret)
 			return ret;
 	} else {

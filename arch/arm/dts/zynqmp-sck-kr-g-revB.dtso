@@ -157,7 +157,7 @@
 	assigned-clock-rates = <27000000>, <25000000>, <300000000>;
 
 	ports {
-		port@5 {
+		out_dp: port@5 {
 			dpsub_dp_out: endpoint {
 				remote-endpoint = <&dpcon_in>;
 			};

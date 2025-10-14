@@ -210,7 +210,6 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	priv->regbase		= plat->regbase;
 	priv->ahbbase		= plat->ahbbase;
-	priv->is_dma		= plat->is_dma;
 	priv->is_decoded_cs	= plat->is_decoded_cs;
 	priv->fifo_depth	= plat->fifo_depth;
 	priv->fifo_width	= plat->fifo_width;
@@ -230,7 +229,7 @@ static int cadence_spi_probe(struct udevice *bus)
 	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE))
 		xilinx_pm_request(PM_REQUEST_NODE, PM_DEV_OSPI,
 				  ZYNQMP_PM_CAPABILITY_ACCESS, ZYNQMP_PM_MAX_QOS,
-				  ZYNQMP_PM_REQUEST_ACK_NO, NULL);
+				  ZYNQMP_PM_REQUEST_ACK_NO, 0, 0, NULL);
 
 	if (priv->ref_clk_hz == 0) {
 		ret = clk_get_by_index(bus, 0, &clk);
@@ -348,10 +347,7 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 	case CQSPI_READ:
 		err = cadence_qspi_apb_read_setup(priv, op);
 		if (!err) {
-			if (priv->is_dma)
-				err = cadence_qspi_apb_dma_read(priv, op);
-			else
-				err = cadence_qspi_apb_read_execute(priv, op);
+			err = cadence_qspi_apb_dma_read(priv, op);
 		}
 		break;
 	case CQSPI_WRITE:
@@ -411,8 +407,6 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 	/* Use DAC mode only when MMIO window is at least 8M wide */
 	if (plat->ahbsize >= SZ_8M)
 		priv->use_dac_mode = true;
-
-	plat->is_dma = dev_read_bool(bus, "cdns,is-dma");
 
 	/* All other parameters are embedded in the child node */
 	subnode = cadence_qspi_get_subnode(bus);

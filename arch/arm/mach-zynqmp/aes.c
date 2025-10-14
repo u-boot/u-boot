@@ -47,7 +47,8 @@ int zynqmp_aes_operation(struct zynqmp_aes *aes)
 			   roundup(sizeof(struct zynqmp_aes), ARCH_DMA_MINALIGN));
 
 	ret = xilinx_pm_request(PM_SECURE_AES, upper_32_bits((ulong)aes),
-				lower_32_bits((ulong)aes), 0, 0, ret_payload);
+				lower_32_bits((ulong)aes), 0, 0, 0, 0,
+				ret_payload);
 	if (ret || ret_payload[1]) {
 		printf("Failed: AES op status:0x%x, errcode:0x%x\n",
 		       ret, ret_payload[1]);

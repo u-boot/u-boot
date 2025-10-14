@@ -38,7 +38,6 @@
 		num-cs = <1>;
 		cdns,fifo-depth = <256>;
 		cdns,fifo-width = <4>;
-		cdns,is-dma = <1>;
 		cdns,trigger-address = <0xc0000000>;
 		#address-cells = <1>;
 		#size-cells = <0>;

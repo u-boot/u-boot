@@ -142,7 +142,7 @@
 	};
 
 	/* FMC eeproms at 0x50/0x51 */
-	/* via j3/j5 to 0x68 to u32/9FGV1006C
+	/* via j3/j5 to 0x68 to u32/9FGV1006C */
 
 	/* i2c_main_1 - u147 - j157 - disable translation, add 8 */
 	/* J1 - OE for u43@55 + 8 - 161,132813MHz - QSFP56G_0 */
@@ -356,7 +356,7 @@
 	};
 
 	vcco_503: regulator@12 { /* u1744 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x12>;
 	};
 
@@ -397,13 +397,13 @@
 
 	/* EXT_PMBUS main - J10 - disable extended PMBUS */
 	vccint: tps53681@60 { /* u1712 - J1770 reset jumper */
-		compatible = "ti,tps53681", "ti,tps53679";
+		compatible = "ti,tps53681";
 		reg = <0x60>;
 		/* vccint, vcc_cpm5n */
 	};
 
 	vcc_io_soc: tps53681@61 { /* u1721 - J1772 reset jumper */
-		compatible = "ti,tps53681", "ti,tps53679";
+		compatible = "ti,tps53681";
 		reg = <0x61>;
 		/* vcc_io_soc, vcc_fpd */
 	};
@@ -414,17 +414,17 @@
 	};
 
 	vcco_500: regulator@13 { /* u1738 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x13>;
 	};
 
 	vcco_501: regulator@10 { /* u1740 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x10>;
 	};
 
 	vcco_502: regulator@11 { /* u1742 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x11>;
 	};
 
@@ -454,7 +454,7 @@
 	};
 
 	lp5_vddq_0v5: regulator@14 { /* u1763 - FIXME no ina226 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x14>;
 	};
 };

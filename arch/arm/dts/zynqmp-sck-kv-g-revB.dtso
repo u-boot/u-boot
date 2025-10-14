@@ -3,7 +3,7 @@
  * dts file for KV260 revA Carrier Card
  *
  * (C) Copyright 2020 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2025, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -118,7 +118,7 @@
 	assigned-clock-rates = <27000000>, <25000000>, <300000000>;
 
 	ports {
-		port@5 {
+		out_dp: port@5 {
 			dpsub_dp_out: endpoint {
 				remote-endpoint = <&dpcon_in>;
 			};

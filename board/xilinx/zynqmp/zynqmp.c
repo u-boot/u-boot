@@ -293,7 +293,7 @@ void reset_cpu(void)
 	 * will send command over IPI and requires pmufw to be present.
 	 */
 	xilinx_pm_request(PM_RESET_ASSERT, ZYNQMP_PM_RESET_SOFT,
-			  PM_RESET_ACTION_ASSERT, 0, 0, NULL);
+			  PM_RESET_ACTION_ASSERT, 0, 0, 0, 0, NULL);
 }
 #endif
 

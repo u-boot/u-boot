@@ -440,18 +440,18 @@ enum pm_gem_config_type {
 /*
  * Return payload size
  * Not every firmware call expects the same amount of return bytes, however the
- * firmware driver always copies 5 bytes from RX buffer to the ret_payload
+ * firmware driver always copies 7 words from RX buffer to the ret_payload
  * buffer. Therefore allocating with this defined value is recommended to avoid
  * overflows.
  */
-#define PAYLOAD_ARG_CNT	5U
+#define PAYLOAD_ARG_CNT	7U
 
 unsigned int zynqmp_firmware_version(void);
 int zynqmp_pmufw_node(u32 id);
 int zynqmp_pmufw_config_close(void);
 int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
 int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
-		      u32 arg3, u32 *ret_payload);
+		      u32 arg3, u32 arg4, u32 arg5, u32 *ret_payload);
 int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value);
 int zynqmp_pm_set_gem_config(u32 node, enum pm_gem_config_type config,
 			     u32 value);
@@ -517,7 +517,7 @@ struct zynqmp_ipi_msg {
 #define __data __section(".data")
 
 typedef int (*smc_call_handler_t)(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
-				  u32 arg3, u32 *ret_payload);
+				  u32 arg3, u32 arg4, u32 arg5, u32 *ret_payload);
 
 extern smc_call_handler_t __data smc_call_handler;
 

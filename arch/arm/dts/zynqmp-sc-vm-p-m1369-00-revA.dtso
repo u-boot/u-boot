@@ -262,73 +262,73 @@
 
 	/* pmbus - j105 - disable main PMBUS - also going to j102 connector */
 	vcc_pslp: regulator@15 { /* u24 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x15>;
 	};
 
 	vccaux_pmc: regulator@17 { /* u26 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x17>;
 	};
 
 	vcco_500: regulator@18 { /* u27 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x18>;
 	};
 
 	vcco_501: regulator@19 { /* u28 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x19>;
 	};
 
 	vcco_502: regulator@1a { /* u29 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x1a>;
 	};
 
 	vcco_503: regulator@1b { /* u30 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x1b>;
 	};
 
 	vcc_ddr5_rdimm: regulator@1c { /* u31 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x1c>;
 	};
 
 	gtm_avcc: regulator@22 { /* u37 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x22>;
 	};
 
 	gtm_avtt: regulator@20 { /* u38 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x20>;
 	};
 
 	gtm_avccaux: regulator@21 { /* u39 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x21>;
 	};
 
 	vccint_gt: regulator@2a { /* u44 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x2a>;
 	};
 
 	util_1v8: regulator@2b { /* u1839 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x2b>;
 	};
 
 	vcc_pmc: regulator@2c { /* u46 */
-		compatible = "ti,tps546b24a";
+		compatible = "ti,tps546b24";
 		reg = <0x2c>;
 	};
 
 	/* pmbus via U62 as ext_pmbus - disable via j104 */
 	vccint: regulator@10 { /* u18 */
-		compatible = "ti,tps546b24";
+		compatible = "ti,tps546d24";
 		reg = <0x10>;
 	};
 

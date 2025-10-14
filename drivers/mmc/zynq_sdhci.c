@@ -125,7 +125,7 @@ __weak int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value)
 }
 
 __weak int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
-			     u32 arg3, u32 *ret_payload)
+			     u32 arg3, u32 arg4, u32 arg5, u32 *ret_payload)
 {
 	return 0;
 }
@@ -331,7 +331,8 @@ static inline int arasan_zynqmp_set_in_tapdelay(u32 node_id, u32 itap_delay)
 	} else {
 		return xilinx_pm_request(PM_IOCTL, node_id,
 					 IOCTL_SET_SD_TAPDELAY,
-					 PM_TAPDELAY_INPUT, itap_delay, NULL);
+					 PM_TAPDELAY_INPUT, itap_delay, 0, 0,
+					 NULL);
 	}
 
 	return 0;
@@ -350,7 +351,8 @@ static inline int arasan_zynqmp_set_out_tapdelay(u32 node_id, u32 otap_delay)
 	} else {
 		return xilinx_pm_request(PM_IOCTL, node_id,
 					 IOCTL_SET_SD_TAPDELAY,
-					 PM_TAPDELAY_OUTPUT, otap_delay, NULL);
+					 PM_TAPDELAY_OUTPUT, otap_delay, 0, 0,
+					 NULL);
 	}
 }
 
@@ -367,7 +369,8 @@ static inline int zynqmp_dll_reset(u32 node_id, u32 type)
 					 SD1_DLL_RST : 0);
 	} else {
 		return xilinx_pm_request(PM_IOCTL, node_id,
-					 IOCTL_SD_DLL_RESET, type, 0, NULL);
+					 IOCTL_SD_DLL_RESET, type, 0, 0, 0,
+					 NULL);
 	}
 }
 
@@ -1021,7 +1024,7 @@ static int sdhci_zynqmp_set_dynamic_config(struct arasan_sdhci_priv *priv,
 
 	ret = xilinx_pm_request(PM_REQUEST_NODE, priv->node_id,
 				ZYNQMP_PM_CAPABILITY_ACCESS, ZYNQMP_PM_MAX_QOS,
-				ZYNQMP_PM_REQUEST_ACK_NO, NULL);
+				ZYNQMP_PM_REQUEST_ACK_NO, 0, 0, NULL);
 	if (ret) {
 		dev_err(dev, "Request node failed for %d\n", priv->node_id);
 		return ret;

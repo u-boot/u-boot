@@ -90,7 +90,7 @@
 		};
 	};
 
-	pwm-fan {
+	pwm_fan: pwm-fan {
 		compatible = "pwm-fan";
 		status = "okay";
 		pwms = <&ttc0 2 40000 1>;
@@ -373,7 +373,6 @@
 
 &rtc {
 	status = "okay";
-	calibration = <0x7fff>;
 };
 
 &lpd_dma_chan1 {
