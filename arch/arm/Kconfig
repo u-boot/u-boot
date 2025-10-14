@@ -883,6 +883,7 @@ config ARCH_MMP
 	select OF_CONTROL
 	select SAVE_PREV_BL_FDT_ADDR
 	select SAVE_PREV_BL_INITRAMFS_START_ADDR
+	imply OF_UPSTREAM
 
 config ARCH_LPC32XX
 	bool "NXP LPC32xx platform"

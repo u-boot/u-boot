@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2025 Duje Mihanović <duje@dujemihanovic.xyz>
+ */
+
+/ {
+	pxa,rev-id = <3928 0>, <3928 1>, <3928 2>;
+
+	memory@0 {
+		reg = <0 0x1000000 0 0x3f000000>;
+	};
+};
+
+&uart0 {
+	clock-frequency = <14745600>;
+};
+
+&pmx {
+	compatible = "marvell,pxa1908-padconf", "pinctrl-single";
+};

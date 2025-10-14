@@ -1545,7 +1545,7 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	slot->is_acmd = (cmd->cmdidx == MMC_CMD_APP_CMD);
 
-	if (!cmd->resp_type & MMC_RSP_PRESENT)
+	if (!(cmd->resp_type & MMC_RSP_PRESENT))
 		debug("  Response type: 0x%x, no response expected\n",
 		      cmd->resp_type);
 	/* Get the response if present */
@@ -2827,9 +2827,6 @@ static void octeontx_mmc_io_drive_setup(struct mmc *mmc)
 	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
 		struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
 		union mio_emm_io_ctl io_ctl;
-
-		if (slot->drive < 0 || slot->slew < 0)
-			return;
 
 		io_ctl.u = 0;
 		io_ctl.s.drive = slot->drive;
