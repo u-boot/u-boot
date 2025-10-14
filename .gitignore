@@ -50,6 +50,7 @@ fit-dtb.blob*
 /SPL*
 /System.map
 /boards.cfg
+/mkimage*mkimage
 /mkimage-in-simple-bin*
 /simple-bin*
 /u-boot*
