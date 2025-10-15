@@ -11,7 +11,8 @@
 #include <bootdev.h>
 #include <image.h>
 #include <dm/ofnode_decl.h>
-#include <linux/types.h>
+#include <linux/list.h>
+#include <linux/build_bug.h>
 
 struct bootstd_priv;
 struct expo;
@@ -213,6 +214,10 @@ enum bootflow_meth_flags_t {
 	BOOTFLOW_METHF_SINGLE_UCLASS	= 1 << 3,
 };
 
+enum {
+	BOOTMETH_MAX_COUNT	= 32,
+};
+
 /**
  * struct bootflow_iter - state for iterating through bootflows
  *
@@ -260,6 +265,8 @@ enum bootflow_meth_flags_t {
  *	happens before the normal ones)
  * @method_flags: flags controlling which methods should be used for this @dev
  * (enum bootflow_meth_flags_t)
+ * @methods_done: indicates which methods have been processed, one bit for
+ * each method in @method_order[]
  */
 struct bootflow_iter {
 	int flags;
@@ -282,6 +289,7 @@ struct bootflow_iter {
 	bool have_global;
 	bool doing_global;
 	int method_flags;
+	uint methods_done;
 };
 
 /**

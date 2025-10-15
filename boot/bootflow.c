@@ -17,6 +17,10 @@
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
+/* ensure BOOTMETH_MAX_COUNT fits in method_flags field */
+static_assert(BOOTMETH_MAX_COUNT <=
+	      (sizeof(((struct bootflow_iter *)NULL)->method_flags) * 8));
+
 /* error codes used to signal running out of things */
 enum {
 	BF_NO_MORE_PARTS	= -ESHUTDOWN,
@@ -433,6 +437,10 @@ int bootflow_scan_first(struct udevice *dev, const char *label,
 		bootflow_iter_set_dev(iter, dev, method_flags);
 	}
 
+	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL)) {
+		iter->methods_done |= BIT(iter->cur_method);
+		log_debug("methods_done now %x\n", iter->cur_method);
+	}
 	ret = bootflow_check(iter, bflow);
 	if (ret) {
 		log_debug("check - ret=%d\n", ret);
@@ -460,6 +468,11 @@ int bootflow_scan_next(struct bootflow_iter *iter, struct bootflow *bflow)
 			return log_msg_ret("done", ret);
 
 		if (!ret) {
+			if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL)) {
+				iter->methods_done |= BIT(iter->cur_method);
+				log_debug("methods_done now %x\n",
+					  iter->cur_method);
+			}
 			ret = bootflow_check(iter, bflow);
 			log_debug("check - ret=%d\n", ret);
 			if (!ret)
