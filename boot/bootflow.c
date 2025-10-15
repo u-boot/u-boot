@@ -109,11 +109,17 @@ int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
 	    iter->method_order[iter->cur_method] != bmeth)
 		return -EINVAL;
 
+	log_debug("Dropping bootmeth '%s'\n", bmeth->name);
+
 	memmove(&iter->method_order[iter->cur_method],
 		&iter->method_order[iter->cur_method + 1],
 		(iter->num_methods - iter->cur_method - 1) * sizeof(void *));
 
 	iter->num_methods--;
+	if (iter->first_glob_method > 0) {
+		iter->first_glob_method--;
+		log_debug("first_glob_method %d\n", iter->first_glob_method);
+	}
 
 	return 0;
 }

@@ -482,7 +482,11 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 	/* Try to boot the bootmgr flow, which will fail */
 	console_record_reset_enable();
 	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
+
+	/* at this point the global bootmeths are stranded above num_methods */
 	ut_asserteq(3, iter.num_methods);
+	ut_assert(!iter.doing_global);
+	ut_asserteq(3, iter.first_glob_method);
 	ut_asserteq_str("sandbox", iter.method->name);
 	ut_assertok(inject_response(uts));
 	ut_asserteq(-ENOTSUPP, bootflow_run_boot(&iter, &bflow));
@@ -492,8 +496,12 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 
 	/* Check that the sandbox bootmeth has been removed */
 	ut_asserteq(2, iter.num_methods);
+
 	for (i = 0; i < iter.num_methods; i++)
 		ut_assert(strcmp("sandbox", iter.method_order[i]->name));
+
+	/* the first global bootmeth is now down one place in the list */
+	ut_asserteq(2, iter.first_glob_method);
 
 	return 0;
 }
