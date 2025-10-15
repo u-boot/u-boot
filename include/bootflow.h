@@ -267,6 +267,9 @@ enum {
  * (enum bootflow_meth_flags_t)
  * @methods_done: indicates which methods have been processed, one bit for
  * each method in @method_order[]
+ * @pending_bootdev: if non-NULL, bootdev which will be used when the global
+ * bootmeths are done
+ * @pending_method_flags: method flags which will be used with @pending_bootdev
  */
 struct bootflow_iter {
 	int flags;
@@ -290,6 +293,8 @@ struct bootflow_iter {
 	bool doing_global;
 	int method_flags;
 	uint methods_done;
+	struct udevice *pending_bootdev;
+	int pending_method_flags;
 };
 
 /**

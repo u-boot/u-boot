@@ -188,17 +188,79 @@ static void scan_next_in_uclass(struct udevice **devp)
 }
 
 /**
+ * bootmeth_glob_allowed() - Check if a global bootmeth is usable at this point
+ *
+ * @iter: Bootflow iterator being used
+ * Return: true if the global bootmeth has not already been used
+ */
+static bool bootmeth_glob_allowed(struct bootflow_iter *iter, int meth_seq)
+{
+	struct udevice *meth = iter->method_order[meth_seq];
+	bool done = iter->methods_done & BIT(meth_seq);
+
+	log_debug("considering glob '%s': done %d\n", meth->name, done);
+
+	/* if this one has already been used, try the next */
+	if (done)
+		return false;
+
+	return true;
+}
+
+/**
+ * next_glob_bootmeth() - Find the next global bootmeth to use
+ *
+ * Scans the global bootmeths to find the first unused one whose priority has
+ * been reached. If found, iter->cur_method and iter->method are set up and
+ * doing_global is set to true
+ *
+ * @iter: Bootflow iterator being used
+ * Return 0 if found, -ENOENT if no more global bootmeths are available
+ */
+static int next_glob_bootmeth(struct bootflow_iter *iter)
+{
+	log_debug("rescan global bootmeths have_global %d\n",
+		  iter->have_global);
+	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) && iter->have_global) {
+		int i;
+
+		/* rescan the global bootmeths */
+		log_debug("first_glob_method %d num_methods %d methods_done %x\n",
+			  iter->first_glob_method, iter->num_methods,
+			  iter->methods_done);
+		for (i = iter->first_glob_method; i < iter->num_methods; i++) {
+			if (bootmeth_glob_allowed(iter, i)) {
+				iter->cur_method = i;
+				iter->method = iter->method_order[i];
+				iter->doing_global = true;
+				iter->dev = NULL;
+				return 0;
+			}
+		}
+	}
+
+	return -ENOENT;
+}
+
+/**
  * prepare_bootdev() - Get ready to use a bootdev
  *
  * @iter: Bootflow iterator being used
  * @dev: UCLASS_BOOTDEV device to use
  * @method_flags: Method flag for the bootdev
+ * @check_global: true to check global bootmeths before processing @dev
  * Return 0 if OK, -ve if the bootdev failed to probe
  */
 static int prepare_bootdev(struct bootflow_iter *iter, struct udevice *dev,
-			   int method_flags)
+			   int method_flags, bool check_global)
 {
 	int ret;
+
+	if (check_global && !next_glob_bootmeth(iter)) {
+		iter->pending_bootdev = dev;
+		iter->pending_method_flags = method_flags;
+		return 0;
+	}
 
 	/*
 	 * Probe the bootdev. This does not probe any attached block device,
@@ -244,6 +306,30 @@ static int iter_incr(struct bootflow_iter *iter)
 	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) && global) {
 		iter->num_methods = iter->first_glob_method;
 		iter->doing_global = false;
+
+		/*
+		 * we've come to the end, so see if we should use a pending
+		 * bootdev from when we decided to rescan the global bootmeths
+		 */
+		if (iter->pending_bootdev) {
+			int meth_flags = iter->pending_method_flags;
+
+			dev = iter->pending_bootdev;
+			iter->pending_bootdev = NULL;
+			iter->pending_method_flags = 0;
+
+			ret = prepare_bootdev(iter, dev, meth_flags, false);
+			if (ret)
+				return log_msg_ret("ipb", ret);
+
+			iter->cur_method = 0;
+			iter->method = iter->method_order[iter->cur_method];
+
+			log_debug("-> using pending bootdev '%s' method '%s'\n",
+				  dev->name, iter->method->name);
+
+			return 0;
+		}
 
 		/*
 		 * Don't move to the next dev as we haven't tried this
@@ -347,7 +433,7 @@ static int iter_incr(struct bootflow_iter *iter)
 		if (ret)
 			bootflow_iter_set_dev(iter, NULL, 0);
 		else
-			ret = prepare_bootdev(iter, dev, method_flags);
+			ret = prepare_bootdev(iter, dev, method_flags, true);
 	}
 
 	/* if there are no more bootdevs, give up */
