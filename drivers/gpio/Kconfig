@@ -138,6 +138,14 @@ config DWAPB_GPIO
 	help
 	  Support for the Designware APB GPIO driver.
 
+config SPL_DWAPB_GPIO
+	bool "DWAPB GPIO driver in SPL"
+	depends on SPL_DM_GPIO
+	help
+	  Support for the Designware APB GPIO driver in SPL.
+
+	  If unsure, say N.
+
 config AT91_GPIO
 	bool "AT91 PIO GPIO driver"
 	depends on ARCH_AT91
