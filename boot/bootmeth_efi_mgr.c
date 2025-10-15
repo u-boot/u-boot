@@ -99,6 +99,15 @@ static int bootmeth_efi_mgr_bind(struct udevice *dev)
 	plat->desc = "EFI bootmgr flow";
 	plat->flags = BOOTMETHF_GLOBAL;
 
+	/*
+	 * bootmgr scans all available devices which can take a while,
+	 * especially for network devices. So choose the priority so that it
+	 * comes just before the 'very slow' devices. This allows systems which
+	 * don't rely on bootmgr to boot quickly, while allowing bootmgr to run
+	 * on systems which need it.
+	 */
+	plat->glob_prio = BOOTDEVP_6_NET_BASE;
+
 	return 0;
 }
 
