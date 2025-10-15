@@ -307,6 +307,8 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq(0, iter.max_part);
 	ut_asserteq_str("extlinux", iter.method->name);
 	ut_asserteq(0, bflow.err);
+	ut_assert(!iter.doing_global);
+	ut_asserteq(-1, iter.first_glob_method);
 
 	/*
 	 * This shows MEDIA even though there is none, since in
@@ -388,6 +390,48 @@ static int bootflow_iter(struct unit_test_state *uts)
 BOOTSTD_TEST(bootflow_iter, UTF_DM | UTF_SCAN_FDT | UTF_CONSOLE);
 
 #if defined(CONFIG_SANDBOX) && defined(CONFIG_BOOTMETH_GLOBAL)
+
+/* Check iterating through available bootflows to test global bootmeths */
+static int bootflow_iter_glob(struct unit_test_state *uts)
+{
+	struct bootflow_iter iter;
+	struct bootflow bflow;
+
+	bootstd_clear_glob();
+
+	/* we should get the global bootmeth initially */
+	ut_asserteq(-EINVAL,
+		    bootflow_scan_first(NULL, NULL, &iter, BOOTFLOWIF_ALL |
+					BOOTFLOWIF_SHOW, &bflow));
+	ut_asserteq(3, iter.num_methods);
+	ut_assert(iter.doing_global);
+	ut_asserteq(2, iter.first_glob_method);
+
+	ut_asserteq(2, iter.cur_method);
+	ut_asserteq(0, iter.part);
+	ut_asserteq(0, iter.max_part);
+	ut_asserteq_str("firmware0", iter.method->name);
+	ut_asserteq(0, bflow.err);
+	bootflow_free(&bflow);
+
+	/* next we should get the first non-global bootmeth */
+	ut_asserteq(-EPROTONOSUPPORT, bootflow_scan_next(&iter, &bflow));
+
+	/* at this point the global bootmeths are stranded above num_methods */
+	ut_asserteq(2, iter.num_methods);
+	ut_asserteq(2, iter.first_glob_method);
+	ut_assert(!iter.doing_global);
+
+	ut_asserteq(0, iter.cur_method);
+	ut_asserteq(0, iter.part);
+	ut_asserteq(0, iter.max_part);
+	ut_asserteq_str("extlinux", iter.method->name);
+	ut_asserteq(0, bflow.err);
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_iter_glob, UTF_DM | UTF_SCAN_FDT);
+
 /* Check using the system bootdev */
 static int bootflow_system(struct unit_test_state *uts)
 {
