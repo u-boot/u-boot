@@ -255,6 +255,7 @@ enum bootflow_meth_flags_t {
  * @cur_prio: Current priority being scanned
  * @method_order: List of bootmeth devices to use, in order. The normal methods
  *	appear first, then the global ones, if any
+ * @have_global: true if we have global bootmeths in @method_order[]
  * @doing_global: true if we are iterating through the global bootmeths (which
  *	happens before the normal ones)
  * @method_flags: flags controlling which methods should be used for this @dev
@@ -278,6 +279,7 @@ struct bootflow_iter {
 	int first_glob_method;
 	enum bootdev_prio_t cur_prio;
 	struct udevice **method_order;
+	bool have_global;
 	bool doing_global;
 	int method_flags;
 };

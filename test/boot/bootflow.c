@@ -308,6 +308,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq_str("extlinux", iter.method->name);
 	ut_asserteq(0, bflow.err);
 	ut_assert(!iter.doing_global);
+	ut_assert(!iter.have_global);
 	ut_asserteq(-1, iter.first_glob_method);
 
 	/*
@@ -405,6 +406,7 @@ static int bootflow_iter_glob(struct unit_test_state *uts)
 					BOOTFLOWIF_SHOW, &bflow));
 	ut_asserteq(3, iter.num_methods);
 	ut_assert(iter.doing_global);
+	ut_assert(iter.have_global);
 	ut_asserteq(2, iter.first_glob_method);
 
 	ut_asserteq(2, iter.cur_method);
@@ -421,6 +423,7 @@ static int bootflow_iter_glob(struct unit_test_state *uts)
 	ut_asserteq(2, iter.num_methods);
 	ut_asserteq(2, iter.first_glob_method);
 	ut_assert(!iter.doing_global);
+	ut_assert(iter.have_global);
 
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(0, iter.part);
@@ -486,6 +489,7 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 	/* at this point the global bootmeths are stranded above num_methods */
 	ut_asserteq(3, iter.num_methods);
 	ut_assert(!iter.doing_global);
+	ut_assert(iter.have_global);
 	ut_asserteq(3, iter.first_glob_method);
 	ut_asserteq_str("sandbox", iter.method->name);
 	ut_assertok(inject_response(uts));
