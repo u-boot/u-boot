@@ -354,6 +354,18 @@ static int iter_incr(struct bootflow_iter *iter)
 			return 0;
 		}
 
+		/* if this was the final global bootmeth check, we are done */
+		if (iter->cur_prio == BOOTDEVP_COUNT) {
+			log_debug("-> done global bootmeths\n");
+
+			/* print the same message as bootflow_iter_set_dev() */
+			if ((iter->flags & (BOOTFLOWIF_SHOW |
+					    BOOTFLOWIF_SINGLE_DEV)) ==
+					    BOOTFLOWIF_SHOW)
+				printf("No more bootdevs\n");
+			return BF_NO_MORE_DEVICES;
+		}
+
 		/*
 		 * Don't move to the next dev as we haven't tried this
 		 * one yet!
@@ -457,6 +469,17 @@ static int iter_incr(struct bootflow_iter *iter)
 			bootflow_iter_set_dev(iter, NULL, 0);
 		else
 			ret = prepare_bootdev(iter, dev, method_flags, true);
+	}
+
+	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) && ret) {
+		log_debug("no more bootdevs, trying global\n");
+
+		/* allow global bootmeths with any priority */
+		iter->cur_prio = BOOTDEVP_COUNT;
+		if (!next_glob_bootmeth(iter)) {
+			log_debug("-> next method '%s'\n", iter->method->name);
+			return 0;
+		}
 	}
 
 	/* if there are no more bootdevs, give up */
