@@ -191,17 +191,24 @@ static void scan_next_in_uclass(struct udevice **devp)
  * bootmeth_glob_allowed() - Check if a global bootmeth is usable at this point
  *
  * @iter: Bootflow iterator being used
- * Return: true if the global bootmeth has not already been used
+ * Return: true if the global bootmeth has a suitable priority and has not
+ * already been used
  */
 static bool bootmeth_glob_allowed(struct bootflow_iter *iter, int meth_seq)
 {
 	struct udevice *meth = iter->method_order[meth_seq];
 	bool done = iter->methods_done & BIT(meth_seq);
+	struct bootmeth_uc_plat *ucp;
 
-	log_debug("considering glob '%s': done %d\n", meth->name, done);
+	ucp = dev_get_uclass_plat(meth);
+	log_debug("considering glob '%s': done %d glob_prio %d\n", meth->name,
+		  done, ucp->glob_prio);
 
-	/* if this one has already been used, try the next */
-	if (done)
+	/*
+	 * if this one has already been used, or its priority is too low, try
+	 * the next
+	 */
+	if (done || ucp->glob_prio > iter->cur_prio)
 		return false;
 
 	return true;

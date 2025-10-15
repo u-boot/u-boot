@@ -262,7 +262,7 @@ enum {
  *	appear first, then the global ones, if any
  * @have_global: true if we have global bootmeths in @method_order[]
  * @doing_global: true if we are iterating through the global bootmeths (which
- *	happens before the normal ones)
+ *	generally happens before the normal ones)
  * @method_flags: flags controlling which methods should be used for this @dev
  * (enum bootflow_meth_flags_t)
  * @methods_done: indicates which methods have been processed, one bit for

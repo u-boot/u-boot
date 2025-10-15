@@ -30,10 +30,14 @@ enum bootmeth_flags {
  *
  * @desc: A long description of the bootmeth
  * @flags: Flags for this bootmeth (enum bootmeth_flags)
+ * @glob_prio: Priority for this bootmeth. If unset (0) the bootmeth is started
+ * before all other bootmeths. Otherwise it is started before the iteration
+ * reaches the given priority.
  */
 struct bootmeth_uc_plat {
 	const char *desc;
 	int flags;
+	enum bootdev_prio_t glob_prio;
 };
 
 /** struct bootmeth_ops - Operations for boot methods */
