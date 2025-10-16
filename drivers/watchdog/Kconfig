@@ -44,6 +44,7 @@ config HW_WATCHDOG
 
 config IMX_WATCHDOG
 	bool "Enable Watchdog Timer support for IMX and LSCH2 of NXP"
+	depends on MACH_IMX
 	select HW_WATCHDOG if !WDT
 	help
 	  Select this to enable the IMX and LSCH2 of Layerscape watchdog
@@ -65,6 +66,7 @@ config OMAP_WATCHDOG
 
 config ULP_WATCHDOG
 	bool "i.MX7ULP watchdog"
+	depends on MACH_IMX
 	help
 	  Say Y here to enable i.MX7ULP watchdog driver.
 
@@ -117,8 +119,8 @@ config WDT_ARMADA_37XX
 
 config WDT_ASPEED
 	bool "Aspeed ast2400/ast2500 watchdog timer support"
-	depends on WDT
-	default y if ARCH_ASPEED
+	depends on WDT && ARCH_ASPEED
+	default y
 	help
 	  Select this to enable watchdog timer for Aspeed ast2500/ast2400 devices.
 	  The watchdog timer is stopped when initialized. It performs reset, either
@@ -128,8 +130,8 @@ config WDT_ASPEED
 
 config WDT_AST2600
 	bool "Aspeed AST2600 watchdog timer support"
-	depends on WDT
-	default y if ASPEED_AST2600
+	depends on WDT && ASPEED_AST2600
+	default y
 	help
 	  Select this to enable watchdog timer for Aspeed ast2500/ast2400 devices.
 	  The watchdog timer is stopped when initialized. It performs reset, either
@@ -137,7 +139,7 @@ config WDT_AST2600
 
 config WDT_AT91
 	bool "AT91 watchdog timer support"
-	depends on WDT
+	depends on WDT && ARCH_AT91
 	help
 	  Select this to enable Microchip watchdog timer, which can be found on
 	  some AT91 devices.
@@ -174,7 +176,7 @@ config WDT_CDNS
 
 config WDT_CORTINA
 	bool "Cortina Access CAxxxx watchdog timer support"
-	depends on WDT
+	depends on WDT && TARGET_PRESIDIO_ASIC
 	help
 	  Cortina Access CAxxxx watchdog timer support.
 	  This driver support all CPU ISAs supported by Cortina
@@ -188,7 +190,7 @@ config WDT_DA9063
 
 config WDT_DAVINCI
 	bool "DaVinci watchdog timer support"
-	depends on WDT
+	depends on WDT && (ARCH_DAVINCI || ARCH_KEYSTONE)
 	help
 	  Select this to enable the watchdog timer for DaVinci SoCs such as the
 	  OMAP-L138.
@@ -220,7 +222,7 @@ config WDT_MAX6370
 
 config WDT_MCF
 	bool "ColdFire family watchdog timer support"
-	depends on WDT
+	depends on WDT && M68K
 	help
 	  Select this to enable ColdFire watchdog timer,
 	  which supports mcf52x2 mcf532x mcf523x families.
@@ -304,7 +306,7 @@ config WDT_OMAP3
 
 config WDT_ORION
 	bool "Orion watchdog timer support"
-	depends on WDT
+	depends on WDT && ARCH_MVEBU
 	select CLK
 	help
 	  Select this to enable Orion watchdog timer, which can be found on some
