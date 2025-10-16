@@ -191,9 +191,9 @@ static int ti_sci_get_response(struct ti_sci_info *info,
 
 	/* Sanity check for message response */
 	if (hdr->seq != info->seq) {
-		dev_dbg(info->dev, "%s: Message for %d is not expected\n",
+		dev_err(info->dev, "%s: Message for %d is not expected\n",
 			__func__, hdr->seq);
-		return ret;
+		return -EINVAL;
 	}
 
 	if (msg->len > info->desc->max_msg_size) {
@@ -1364,6 +1364,8 @@ static int ti_sci_cmd_clk_get_parent(const struct ti_sci_handle *handle,
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
 		return ret;
+
+	resp = (struct ti_sci_msg_resp_get_clock_parent *)xfer->tx_message.buf;
 
 	*parent_id = resp->parent_id;
 
@@ -3083,7 +3085,10 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 		dev_err(dev, "%s resource type ids not available\n", of_prop);
 		return ERR_PTR(sets);
 	}
-	temp = malloc(sets);
+	temp = devm_kmalloc(dev, sets, GFP_KERNEL);
+	if (!temp)
+		return ERR_PTR(-ENOMEM);
+
 	sets /= sizeof(u32);
 	res->sets = sets;
 
@@ -3123,6 +3128,7 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 			return ERR_PTR(-ENOMEM);
 	}
 
+	devm_kfree(dev, temp);
 	if (valid_set)
 		return res;
 
