@@ -161,6 +161,11 @@ SECTIONS
 #ifdef CONFIG_MMU_PGPROT
 		. = ALIGN(CONSTANT(COMMONPAGESIZE));
 #endif
+	}
+
+	.noinit (NOLOAD) : {
+		. = ALIGN(16);
+		KEEP(*(.noinit*))
 		__end_data = .;
 	}
 
