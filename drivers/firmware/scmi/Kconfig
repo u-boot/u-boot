@@ -47,3 +47,5 @@ config SCMI_ID_VENDOR_80
 
 config SCMI_ID_VENDOR_82
 	bool
+
+source "drivers/firmware/scmi/vendors/imx/Kconfig"
