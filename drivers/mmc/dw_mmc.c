@@ -419,6 +419,10 @@ static int dwmci_send_cmd_common(struct dwmci_host *host, struct mmc_cmd *cmd,
 	if (cmd->resp_type & MMC_RSP_CRC)
 		flags |= DWMCI_CMD_CHECK_CRC;
 
+	host->volt_switching = (cmd->cmdidx == SD_CMD_SWITCH_UHS18V);
+	if (host->volt_switching)
+		flags |= DWMCI_CMD_VOLT_SWITCH;
+
 	flags |= cmd->cmdidx | DWMCI_CMD_START | DWMCI_CMD_USE_HOLD_REG;
 
 	debug("Sending CMD%d\n", cmd->cmdidx);
@@ -427,6 +431,10 @@ static int dwmci_send_cmd_common(struct dwmci_host *host, struct mmc_cmd *cmd,
 
 	for (i = 0; i < retry; i++) {
 		mask = dwmci_readl(host, DWMCI_RINTSTS);
+		if (host->volt_switching && (mask & DWMCI_INTMSK_VOLTSW)) {
+			dwmci_writel(host, DWMCI_RINTSTS, DWMCI_INTMSK_VOLTSW);
+			break;
+		}
 		if (mask & DWMCI_INTMSK_CDONE) {
 			if (!data)
 				dwmci_writel(host, DWMCI_RINTSTS, mask);
@@ -508,12 +516,15 @@ static int dwmci_control_clken(struct dwmci_host *host, bool on)
 	const u32 val = on ? DWMCI_CLKEN_ENABLE | DWMCI_CLKEN_LOW_PWR : 0;
 	const u32 cmd_only_clk = DWMCI_CMD_PRV_DAT_WAIT | DWMCI_CMD_UPD_CLK;
 	int i, timeout = 10000;
-	u32 mask;
+	u32 flags, mask;
 
 	dwmci_writel(host, DWMCI_CLKENA, val);
 
 	/* Inform CIU */
-	dwmci_writel(host, DWMCI_CMD, DWMCI_CMD_START | cmd_only_clk);
+	flags = DWMCI_CMD_START | cmd_only_clk;
+	if (host->volt_switching)
+		flags |= DWMCI_CMD_VOLT_SWITCH;
+	dwmci_writel(host, DWMCI_CMD, flags);
 
 	for (i = 0; i < timeout; i++) {
 		mask = dwmci_readl(host, DWMCI_RINTSTS);
