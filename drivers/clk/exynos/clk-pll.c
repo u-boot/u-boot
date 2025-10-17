@@ -117,6 +117,7 @@ static struct clk *_samsung_clk_register_pll(void __iomem *base,
 
 	switch (pll_clk->type) {
 	case pll_0822x:
+	case pll_1417x:
 		drv_name = UBOOT_DM_CLK_SAMSUNG_PLL0822X;
 		break;
 	case pll_0831x:
