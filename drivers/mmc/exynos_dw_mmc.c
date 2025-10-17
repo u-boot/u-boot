@@ -18,7 +18,7 @@
 #include <linux/printk.h>
 
 #define	DWMMC_MAX_CH_NUM		4
-#define	DWMMC_MAX_FREQ			200000000
+#define	DWMMC_MAX_FREQ			208000000
 #define	DWMMC_MIN_FREQ			400000
 #define	DWMMC_MMC0_SDR_TIMING_VAL	0x03030001
 #define	DWMMC_MMC2_SDR_TIMING_VAL	0x03020001
@@ -126,22 +126,6 @@ static int exynos_dwmmc_set_sclk(struct dwmci_host *host, unsigned long rate)
 	return 0;
 }
 
-/* Configure CLKSEL register with chosen timing values */
-static int exynos_dwmci_clksel(struct dwmci_host *host)
-{
-	struct dwmci_exynos_priv_data *priv = exynos_dwmmc_get_priv(host);
-	u32 timing;
-
-	if (host->mmc->selected_mode == MMC_DDR_52)
-		timing = priv->ddr_timing;
-	else
-		timing = priv->sdr_timing;
-
-	dwmci_writel(host, priv->chip->clksel, timing);
-
-	return 0;
-}
-
 /**
  * exynos_dwmmc_get_ciu_div - Get internal clock divider value
  * @host: MMC controller object
@@ -163,6 +147,33 @@ static u8 exynos_dwmmc_get_ciu_div(struct dwmci_host *host)
 	 */
 	return ((dwmci_readl(host, priv->chip->clksel) >> DWMCI_DIVRATIO_BIT)
 				& DWMCI_DIVRATIO_MASK) + 1;
+}
+
+/* Configure CLKSEL register with chosen timing values */
+static int exynos_dwmci_clksel(struct dwmci_host *host)
+{
+	struct dwmci_exynos_priv_data *priv = exynos_dwmmc_get_priv(host);
+	u8 clk_div = exynos_dwmmc_get_ciu_div(host) - 1;
+	u32 timing;
+
+	switch (host->mmc->selected_mode) {
+	case MMC_DDR_52:
+		timing = priv->ddr_timing;
+		break;
+	case UHS_SDR104:
+	case UHS_SDR50:
+		timing = (priv->sdr_timing & 0xfff8ffff) | (clk_div << 16);
+		break;
+	case UHS_DDR50:
+		timing = (priv->ddr_timing & 0xfff8ffff) | (clk_div << 16);
+		break;
+	default:
+		timing = priv->sdr_timing;
+	}
+
+	dwmci_writel(host, priv->chip->clksel, timing);
+
+	return 0;
 }
 
 static unsigned int exynos_dwmci_get_clk(struct dwmci_host *host, uint freq)
@@ -393,7 +404,8 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 
 	host->name = dev->name;
 	host->board_init = exynos_dwmci_board_init;
-	host->caps = MMC_MODE_DDR_52MHz | MMC_MODE_HS200 | MMC_MODE_HS400;
+	host->caps = MMC_MODE_DDR_52MHz | MMC_MODE_HS200 | MMC_MODE_HS400 |
+		     UHS_CAPS;
 	host->clksel = exynos_dwmci_clksel;
 	host->get_mmc_clk = exynos_dwmci_get_clk;
 
