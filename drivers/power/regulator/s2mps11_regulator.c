@@ -204,10 +204,11 @@ static int s2mps11_buck_val(struct udevice *dev, int op, int *uV)
 
 static int s2mps11_buck_mode(struct udevice *dev, int op, int *opmode)
 {
+	struct dm_regulator_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	const struct sec_regulator_desc *buck_desc;
 	unsigned int addr, mode;
 	unsigned char val;
-	int num_bucks, buck, ret;
+	int num_bucks, buck, ret, i;
 
 	switch (s2mps11_get_variant(dev)) {
 	case VARIANT_S2MPS11:
@@ -233,42 +234,29 @@ static int s2mps11_buck_mode(struct udevice *dev, int op, int *opmode)
 
 	if (op == PMIC_OP_GET) {
 		val &= buck_desc[buck].mode_mask;
-		switch (val) {
-		case S2MPS11_BUCK_MODE_OFF:
-			*opmode = OP_OFF;
-			break;
-		case S2MPS11_BUCK_MODE_STANDBY:
-			*opmode = OP_STANDBY;
-			break;
-		case S2MPS11_BUCK_MODE_ON:
-			*opmode = OP_ON;
-			break;
-		default:
-			return -EINVAL;
-		}
-		return 0;
-	}
+		for (i = 0; i < uc_pdata->mode_count; i++) {
+			if (uc_pdata->mode[i].register_value != val)
+				continue;
 
-	switch (*opmode) {
-	case OP_OFF:
-		mode = S2MPS11_BUCK_MODE_OFF;
-		break;
-	case OP_STANDBY:
-		mode = S2MPS11_BUCK_MODE_STANDBY;
-		break;
-	case OP_ON:
-		mode = S2MPS11_BUCK_MODE_ON;
-		break;
-	default:
-		pr_err("Wrong mode: %d for buck: %d\n", *opmode, buck);
+			*opmode = uc_pdata->mode[i].id;
+			return 0;
+		}
+
 		return -EINVAL;
 	}
 
-	val &= ~buck_desc[buck].mode_mask;
-	val |= mode;
-	ret = pmic_write(dev->parent, addr, &val, 1);
+	for (i = 0; i < uc_pdata->mode_count; i++) {
+		if (uc_pdata->mode[i].id != *opmode)
+			continue;
 
-	return ret;
+		mode = uc_pdata->mode[i].register_value;
+		val &= ~buck_desc[buck].mode_mask;
+		val |= mode;
+		return pmic_write(dev->parent, addr, &val, 1);
+	}
+
+	pr_err("Wrong mode: %d for buck: %d\n", *opmode, buck);
+	return -EINVAL;
 }
 
 static int s2mps11_buck_enable(struct udevice *dev, int op, bool *enable)
@@ -357,10 +345,17 @@ static int s2mps11_buck_probe(struct udevice *dev)
 	struct dm_regulator_uclass_plat *uc_pdata;
 
 	uc_pdata = dev_get_uclass_plat(dev);
-
 	uc_pdata->type = REGULATOR_TYPE_BUCK;
-	uc_pdata->mode = s2mps11_buck_modes;
-	uc_pdata->mode_count = ARRAY_SIZE(s2mps11_buck_modes);
+
+	switch (s2mps11_get_variant(dev)) {
+	case VARIANT_S2MPS11:
+		uc_pdata->mode = s2mps11_buck_modes;
+		uc_pdata->mode_count = ARRAY_SIZE(s2mps11_buck_modes);
+		break;
+	default:
+		pr_err("Unknown device type\n");
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -434,10 +429,11 @@ static int s2mps11_ldo_val(struct udevice *dev, int op, int *uV)
 
 static int s2mps11_ldo_mode(struct udevice *dev, int op, int *opmode)
 {
+	struct dm_regulator_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
 	const struct sec_regulator_desc *ldo_desc;
 	unsigned int addr, mode;
 	unsigned char val;
-	int num_ldos, ldo, ret;
+	int num_ldos, ldo, ret, i;
 
 	switch (s2mps11_get_variant(dev)) {
 	case VARIANT_S2MPS11:
@@ -463,48 +459,30 @@ static int s2mps11_ldo_mode(struct udevice *dev, int op, int *opmode)
 
 	if (op == PMIC_OP_GET) {
 		val &= ldo_desc[ldo].mode_mask;
-		switch (val) {
-		case S2MPS11_LDO_MODE_OFF:
-			*opmode = OP_OFF;
-			break;
-		case S2MPS11_LDO_MODE_STANDBY:
-			*opmode = OP_STANDBY;
-			break;
-		case S2MPS11_LDO_MODE_STANDBY_LPM:
-			*opmode = OP_STANDBY_LPM;
-			break;
-		case S2MPS11_LDO_MODE_ON:
-			*opmode = OP_ON;
-			break;
-		default:
-			return -EINVAL;
-		}
-		return 0;
-	}
 
-	switch (*opmode) {
-	case OP_OFF:
-		mode = S2MPS11_LDO_MODE_OFF;
-		break;
-	case OP_STANDBY:
-		mode = S2MPS11_LDO_MODE_STANDBY;
-		break;
-	case OP_STANDBY_LPM:
-		mode = S2MPS11_LDO_MODE_STANDBY_LPM;
-		break;
-	case OP_ON:
-		mode = S2MPS11_LDO_MODE_ON;
-		break;
-	default:
-		pr_err("Wrong mode: %d for ldo: %d\n", *opmode, ldo);
+		for (i = 0; i < uc_pdata->mode_count; i++) {
+			if (uc_pdata->mode[i].register_value != val)
+				continue;
+
+			*opmode = uc_pdata->mode[i].id;
+			return 0;
+		}
+
 		return -EINVAL;
 	}
 
-	val &= ~ldo_desc[ldo].mode_mask;
-	val |= mode;
-	ret = pmic_write(dev->parent, addr, &val, 1);
+	for (i = 0; i < uc_pdata->mode_count; i++) {
+		if (uc_pdata->mode[i].id != *opmode)
+			continue;
 
-	return ret;
+		mode = uc_pdata->mode[i].register_value;
+		val &= ~ldo_desc[ldo].mode_mask;
+		val |= mode;
+		return pmic_write(dev->parent, addr, &val, 1);
+	}
+
+	pr_err("Wrong mode: %d for ldo: %d\n", *opmode, ldo);
+	return -EINVAL;
 }
 
 static int s2mps11_ldo_enable(struct udevice *dev, int op, bool *enable)
@@ -602,8 +580,16 @@ static int s2mps11_ldo_probe(struct udevice *dev)
 
 	uc_pdata = dev_get_uclass_plat(dev);
 	uc_pdata->type = REGULATOR_TYPE_LDO;
-	uc_pdata->mode = s2mps11_ldo_modes;
-	uc_pdata->mode_count = ARRAY_SIZE(s2mps11_ldo_modes);
+
+	switch (s2mps11_get_variant(dev)) {
+	case VARIANT_S2MPS11:
+		uc_pdata->mode = s2mps11_ldo_modes;
+		uc_pdata->mode_count = ARRAY_SIZE(s2mps11_ldo_modes);
+		break;
+	default:
+		pr_err("Unknown device type\n");
+		return -EINVAL;
+	}
 
 	return 0;
 }
