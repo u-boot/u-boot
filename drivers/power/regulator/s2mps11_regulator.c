@@ -119,6 +119,87 @@ static const struct sec_regulator_desc s2mps11_ldo_desc[] = {
 	regulator_desc_s2mps11_ldo_type2(38),
 };
 
+#define regulator_desc_s2mpu05_buck(num, which)						\
+	[num] = {									\
+		.mode_reg	= S2MPU05_REG_B##num##CTRL1,				\
+		.mode_mask	= S2MPS11_BUCK_MODE_MASK << S2MPS11_BUCK_MODE_SHIFT,	\
+		.volt_reg	= S2MPU05_REG_B##num##CTRL2,				\
+		.volt_mask	= S2MPS11_BUCK_VOLT_MASK,				\
+		.volt_min	= S2MPU05_BUCK_MIN##which,				\
+		.volt_step	= S2MPU05_BUCK_STEP##which,				\
+		.volt_max_hex	= S2MPS11_BUCK_VOLT_MASK,				\
+	}
+
+#define regulator_desc_s2mpu05_buck1_2_3(num)	\
+	regulator_desc_s2mpu05_buck(num, 1)
+
+#define regulator_desc_s2mpu05_buck4_5(num)	\
+	regulator_desc_s2mpu05_buck(num, 2)
+
+static const struct sec_regulator_desc s2mpu05_buck_desc[] = {
+	regulator_desc_s2mpu05_buck1_2_3(1),
+	regulator_desc_s2mpu05_buck1_2_3(2),
+	regulator_desc_s2mpu05_buck1_2_3(3),
+	regulator_desc_s2mpu05_buck4_5(4),
+	regulator_desc_s2mpu05_buck4_5(5),
+};
+
+#define regulator_desc_s2mpu05_ldo(num, reg, min, step)					\
+	[num] = {									\
+		.mode_reg	= S2MPU05_REG_L##num##reg,				\
+		.mode_mask	= S2MPS11_LDO_MODE_MASK << S2MPS11_LDO_MODE_SHIFT,	\
+		.volt_reg	= S2MPU05_REG_L##num##reg,				\
+		.volt_mask	= S2MPS11_LDO_VOLT_MASK,				\
+		.volt_min	= min,							\
+		.volt_step	= step,							\
+		.volt_max_hex	= S2MPS11_LDO_VOLT_MAX_HEX,				\
+	}
+
+#define regulator_desc_s2mpu05_ldo_type1(num)				\
+	regulator_desc_s2mpu05_ldo(num, CTRL, S2MPU05_LDO_MIN1,		\
+					      S2MPU05_LDO_STEP1)
+
+#define regulator_desc_s2mpu05_ldo_type2(num)				\
+	regulator_desc_s2mpu05_ldo(num, CTRL, S2MPU05_LDO_MIN1,		\
+					      S2MPU05_LDO_STEP2)
+
+#define regulator_desc_s2mpu05_ldo_type3(num)				\
+	regulator_desc_s2mpu05_ldo(num, CTRL, S2MPU05_LDO_MIN2,		\
+					      S2MPU05_LDO_STEP2)
+
+#define regulator_desc_s2mpu05_ldo_type4(num)				\
+	regulator_desc_s2mpu05_ldo(num, CTRL, S2MPU05_LDO_MIN3,		\
+					      S2MPU05_LDO_STEP2)
+
+#define regulator_desc_s2mpu05_ldo_type5(num)				\
+	regulator_desc_s2mpu05_ldo(num, CTRL1, S2MPU05_LDO_MIN3,	\
+					       S2MPU05_LDO_STEP2)
+
+static const struct sec_regulator_desc s2mpu05_ldo_desc[] = {
+	regulator_desc_s2mpu05_ldo_type4(1),
+	regulator_desc_s2mpu05_ldo_type3(2),
+	regulator_desc_s2mpu05_ldo_type2(3),
+	regulator_desc_s2mpu05_ldo_type1(4),
+	regulator_desc_s2mpu05_ldo_type1(5),
+	regulator_desc_s2mpu05_ldo_type1(6),
+	regulator_desc_s2mpu05_ldo_type2(7),
+	regulator_desc_s2mpu05_ldo_type3(8),
+	regulator_desc_s2mpu05_ldo_type5(9),
+	regulator_desc_s2mpu05_ldo_type4(10),
+	/* LDOs 11-24 are used for CP. They aren't documented. */
+	regulator_desc_s2mpu05_ldo_type2(25),
+	regulator_desc_s2mpu05_ldo_type3(26),
+	regulator_desc_s2mpu05_ldo_type2(27),
+	regulator_desc_s2mpu05_ldo_type3(28),
+	regulator_desc_s2mpu05_ldo_type3(29),
+	regulator_desc_s2mpu05_ldo_type2(30),
+	regulator_desc_s2mpu05_ldo_type3(31),
+	regulator_desc_s2mpu05_ldo_type3(32),
+	regulator_desc_s2mpu05_ldo_type3(33),
+	regulator_desc_s2mpu05_ldo_type3(34),
+	regulator_desc_s2mpu05_ldo_type3(35),
+};
+
 #define MODE(_id, _val, _name) { \
 	.id = _id, \
 	.register_value = _val, \
@@ -136,6 +217,11 @@ static struct dm_regulator_mode s2mps11_ldo_modes[] = {
 	MODE(OP_OFF, S2MPS11_LDO_MODE_OFF, "OFF"),
 	MODE(OP_STANDBY, S2MPS11_LDO_MODE_STANDBY, "ON/OFF"),
 	MODE(OP_STANDBY_LPM, S2MPS11_LDO_MODE_STANDBY_LPM, "ON/LPM"),
+	MODE(OP_ON, S2MPS11_LDO_MODE_ON, "ON"),
+};
+
+static struct dm_regulator_mode s2mpu05_regulator_modes[] = {
+	MODE(OP_OFF, S2MPS11_LDO_MODE_OFF, "OFF"),
 	MODE(OP_ON, S2MPS11_LDO_MODE_ON, "ON"),
 };
 
@@ -162,6 +248,10 @@ static int s2mps11_buck_val(struct udevice *dev, int op, int *uV)
 	case VARIANT_S2MPS11:
 		buck_desc = s2mps11_buck_desc;
 		num_bucks = ARRAY_SIZE(s2mps11_buck_desc);
+		break;
+	case VARIANT_S2MPU05:
+		buck_desc = s2mpu05_buck_desc;
+		num_bucks = ARRAY_SIZE(s2mpu05_buck_desc);
 		break;
 	default:
 		pr_err("Unknown device type\n");
@@ -214,6 +304,10 @@ static int s2mps11_buck_mode(struct udevice *dev, int op, int *opmode)
 	case VARIANT_S2MPS11:
 		buck_desc = s2mps11_buck_desc;
 		num_bucks = ARRAY_SIZE(s2mps11_buck_desc);
+		break;
+	case VARIANT_S2MPU05:
+		buck_desc = s2mpu05_buck_desc;
+		num_bucks = ARRAY_SIZE(s2mpu05_buck_desc);
 		break;
 	default:
 		pr_err("Unknown device type\n");
@@ -352,6 +446,10 @@ static int s2mps11_buck_probe(struct udevice *dev)
 		uc_pdata->mode = s2mps11_buck_modes;
 		uc_pdata->mode_count = ARRAY_SIZE(s2mps11_buck_modes);
 		break;
+	case VARIANT_S2MPU05:
+		uc_pdata->mode = s2mpu05_regulator_modes;
+		uc_pdata->mode_count = ARRAY_SIZE(s2mpu05_regulator_modes);
+		break;
 	default:
 		pr_err("Unknown device type\n");
 		return -EINVAL;
@@ -387,6 +485,10 @@ static int s2mps11_ldo_val(struct udevice *dev, int op, int *uV)
 	case VARIANT_S2MPS11:
 		ldo_desc = s2mps11_ldo_desc;
 		num_ldos = ARRAY_SIZE(s2mps11_ldo_desc);
+		break;
+	case VARIANT_S2MPU05:
+		ldo_desc = s2mpu05_ldo_desc;
+		num_ldos = ARRAY_SIZE(s2mpu05_ldo_desc);
 		break;
 	default:
 		pr_err("Unknown device type\n");
@@ -439,6 +541,10 @@ static int s2mps11_ldo_mode(struct udevice *dev, int op, int *opmode)
 	case VARIANT_S2MPS11:
 		ldo_desc = s2mps11_ldo_desc;
 		num_ldos = ARRAY_SIZE(s2mps11_ldo_desc);
+		break;
+	case VARIANT_S2MPU05:
+		ldo_desc = s2mpu05_ldo_desc;
+		num_ldos = ARRAY_SIZE(s2mpu05_ldo_desc);
 		break;
 	default:
 		pr_err("Unknown device type\n");
@@ -585,6 +691,10 @@ static int s2mps11_ldo_probe(struct udevice *dev)
 	case VARIANT_S2MPS11:
 		uc_pdata->mode = s2mps11_ldo_modes;
 		uc_pdata->mode_count = ARRAY_SIZE(s2mps11_ldo_modes);
+		break;
+	case VARIANT_S2MPU05:
+		uc_pdata->mode = s2mpu05_regulator_modes;
+		uc_pdata->mode_count = ARRAY_SIZE(s2mpu05_regulator_modes);
 		break;
 	default:
 		pr_err("Unknown device type\n");
