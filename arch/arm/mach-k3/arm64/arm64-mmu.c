@@ -41,3 +41,8 @@ struct mm_region k3_mem_map[K3_MEM_MAP_LEN] = {
 };
 
 struct mm_region *mem_map = k3_mem_map;
+
+u64 get_page_table_size(void)
+{
+	return SZ_128K;
+}
