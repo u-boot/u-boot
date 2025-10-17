@@ -115,4 +115,5 @@ U_BOOT_DRIVER(pinctrl_exynos78x0) = {
 	.priv_auto = sizeof(struct exynos_pinctrl_priv),
 	.ops		= &exynos78x0_pinctrl_ops,
 	.probe		= exynos_pinctrl_probe,
+	.bind		= exynos_pinctrl_bind,
 };

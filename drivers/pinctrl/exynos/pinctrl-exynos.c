@@ -7,6 +7,7 @@
 
 #include <log.h>
 #include <dm.h>
+#include <dm/lists.h>
 #include <errno.h>
 #include <asm/io.h>
 #include "pinctrl-exynos.h"
@@ -177,4 +178,14 @@ int exynos_pinctrl_probe(struct udevice *dev)
 				dev_seq(dev);
 
 	return 0;
+}
+
+int exynos_pinctrl_bind(struct udevice *dev)
+{
+	/*
+	 * Attempt to bind the Exynos GPIO driver. The GPIOs and
+	 * pin controller descriptors are found in the same OF node.
+	 */
+	return device_bind_driver_to_node(dev, "gpio_exynos", "gpio-banks",
+					  dev_ofnode(dev), NULL);
 }
