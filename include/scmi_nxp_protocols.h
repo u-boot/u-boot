@@ -10,6 +10,7 @@
 #include <linux/bitops.h>
 
 #define SCMI_PROTOCOL_ID_IMX_LMM	0x80
+#define SCMI_PROTOCOL_ID_IMX_CPU	0x82
 #define SCMI_PROTOCOL_ID_IMX_MISC	0x84
 
 #define SCMI_PAYLOAD_LEN	100
@@ -91,6 +92,29 @@ scmi_imx_lmm_reset_vector_set(struct udevice *dev, u32 lmid, u32 cpuid, u32 flag
 }
 
 static inline int scmi_imx_lmm_shutdown(struct udevice *dev, u32 lmid, bool flags)
+{
+	return -EOPNOTSUPP;
+}
+#endif
+
+#if IS_ENABLED(CONFIG_IMX_SM_CPU)
+int scmi_imx_cpu_started(struct udevice *dev, u32 cpuid, bool *started);
+int scmi_imx_cpu_reset_vector_set(struct udevice *dev, u32 cpuid, u32 flags, u64 vector,
+				  bool start, bool boot, bool resume);
+int scmi_imx_cpu_start(struct udevice *dev, u32 cpuid, bool start);
+#else
+static inline int scmi_imx_cpu_started(struct udevice *dev, u32 cpuid, bool *started)
+{
+	return -EOPNOTSUPP;
+}
+
+static inline int scmi_imx_cpu_reset_vector_set(struct udevice *dev, u32 cpuid, u32 flags,
+						u64 vector, bool start, bool boot, bool resume)
+{
+	return -EOPNOTSUPP;
+}
+
+static inline int scmi_imx_cpu_start(struct udevice *dev, u32 cpuid, bool start)
 {
 	return -EOPNOTSUPP;
 }
