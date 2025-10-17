@@ -194,8 +194,19 @@ struct mm_region {
 	u64 attrs;
 };
 
+/* Used as the memory map for MMU configuration by mmu_setup */
 extern struct mm_region *mem_map;
 void setup_pgtables(void);
+
+/**
+ * mem_map_from_dram_banks() - Populate mem_map with entries corresponding to
+ * dram banks as per the gd. This should be called prior to mmu_setup.
+ *
+ * @index: The entry in mem_map to start the over-write
+ * @len: The size of mem_map
+ */
+int mem_map_from_dram_banks(unsigned int index, unsigned int len, u64 attrs);
+
 u64 get_tcr(u64 *pips, u64 *pva_bits);
 
 /**

@@ -58,6 +58,34 @@ static int get_effective_el(void)
 	return el;
 }
 
+int mem_map_from_dram_banks(unsigned int index, unsigned int len, u64 attrs)
+{
+	unsigned int i;
+	int ret = fdtdec_setup_memory_banksize();
+
+	if (ret) {
+		log_err("%s: Failed to setup dram banks\n", __func__);
+		return ret;
+	}
+
+	if (index + CONFIG_NR_DRAM_BANKS >= len) {
+		log_err("%s: Provided mem_map array has insufficient size for DRAM entries\n",
+			__func__);
+		return -ENOMEM;
+	}
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		mem_map[index].virt = gd->bd->bi_dram[i].start;
+		mem_map[index].phys = gd->bd->bi_dram[i].start;
+		mem_map[index].size = gd->bd->bi_dram[i].size;
+		mem_map[index].attrs = attrs;
+		index++;
+	}
+
+	memset(&mem_map[index], 0, sizeof(mem_map[index]));
+
+	return 0;
+}
 u64 get_tcr(u64 *pips, u64 *pva_bits)
 {
 	int el = get_effective_el();
