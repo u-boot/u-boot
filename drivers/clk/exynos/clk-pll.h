@@ -22,7 +22,8 @@ enum samsung_pll_type {
 	pll_0831x,
 };
 
-void samsung_clk_register_pll(void __iomem *base, unsigned int cmu_id,
+void samsung_clk_register_pll(struct udevice *dev, void __iomem *base,
+			      unsigned int cmu_id,
 			      const struct samsung_pll_clock *clk_list,
 			      unsigned int nr_clk);
 
