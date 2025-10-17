@@ -507,20 +507,21 @@ static int dwmci_control_clken(struct dwmci_host *host, bool on)
 {
 	const u32 val = on ? DWMCI_CLKEN_ENABLE | DWMCI_CLKEN_LOW_PWR : 0;
 	const u32 cmd_only_clk = DWMCI_CMD_PRV_DAT_WAIT | DWMCI_CMD_UPD_CLK;
-	int timeout = 10000;
-	u32 status;
+	int i, timeout = 10000;
+	u32 mask;
 
 	dwmci_writel(host, DWMCI_CLKENA, val);
 
 	/* Inform CIU */
 	dwmci_writel(host, DWMCI_CMD, DWMCI_CMD_START | cmd_only_clk);
-	do {
-		status = dwmci_readl(host, DWMCI_CMD);
-		if (timeout-- < 0) {
-			debug("%s: Timeout!\n", __func__);
-			return -ETIMEDOUT;
+
+	for (i = 0; i < timeout; i++) {
+		mask = dwmci_readl(host, DWMCI_RINTSTS);
+		if (mask & DWMCI_INTMSK_CDONE) {
+			dwmci_writel(host, DWMCI_RINTSTS, DWMCI_INTMSK_CDONE);
+			break;
 		}
-	} while (status & DWMCI_CMD_START);
+	}
 
 	return 0;
 }
