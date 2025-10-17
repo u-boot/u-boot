@@ -106,9 +106,6 @@ enum s2mps11_reg {
 
 #define S2MPS11_LDO26_ENABLE	0xec
 
-#define S2MPS11_LDO_NUM		26
-#define S2MPS11_BUCK_NUM	10
-
 /* Driver name */
 #define S2MPS11_BUCK_DRIVER	"s2mps11_buck"
 #define S2MPS11_OF_BUCK_PREFIX	"BUCK"
@@ -152,6 +149,20 @@ enum s2mps11_reg {
 #define S2MPS11_LDO_MODE_STANDBY	(0x1 << 6)
 #define S2MPS11_LDO_MODE_STANDBY_LPM	(0x2 << 6)
 #define S2MPS11_LDO_MODE_ON		(0x3 << 6)
+
+struct sec_regulator_desc {
+	/* regulator mode control */
+	unsigned int mode_reg;
+	unsigned int mode_mask;
+
+	/* regulator voltage control */
+	unsigned int volt_reg;
+	unsigned int volt_mask;
+
+	unsigned int volt_min;
+	unsigned int volt_step;
+	unsigned int volt_max_hex;
+};
 
 enum {
 	OP_OFF = 0,
