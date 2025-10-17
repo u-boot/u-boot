@@ -55,6 +55,12 @@ struct scmi_agent_priv {
 #if IS_ENABLED(CONFIG_PINCTRL_IMX_SCMI)
 	struct udevice *pinctrl_dev;
 #endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_80)
+	struct udevice *vendor_dev_80;
+#endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_82)
+	struct udevice *vendor_dev_82;
+#endif
 };
 
 static inline u32 scmi_version(struct udevice *dev)

@@ -111,6 +111,16 @@ struct udevice *scmi_get_protocol(struct udevice *dev,
 		proto = priv->pinctrl_dev;
 		break;
 #endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_80)
+	case SCMI_PROTOCOL_ID_VENDOR_80:
+		proto = priv->vendor_dev_80;
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_82)
+	case SCMI_PROTOCOL_ID_VENDOR_82:
+		proto = priv->vendor_dev_82;
+		break;
+#endif
 	default:
 		dev_err(dev, "Protocol not supported\n");
 		proto = NULL;
@@ -172,6 +182,16 @@ static int scmi_add_protocol(struct udevice *dev,
 #if IS_ENABLED(CONFIG_PINCTRL_IMX_SCMI)
 	case SCMI_PROTOCOL_ID_PINCTRL:
 		priv->pinctrl_dev = proto;
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_80)
+	case SCMI_PROTOCOL_ID_VENDOR_80:
+		priv->vendor_dev_80 = proto;
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_82)
+	case SCMI_PROTOCOL_ID_VENDOR_82:
+		priv->vendor_dev_82 = proto;
 		break;
 #endif
 	default:
