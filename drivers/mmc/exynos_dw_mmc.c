@@ -18,12 +18,17 @@
 #include <linux/printk.h>
 
 #define	DWMMC_MAX_CH_NUM		4
-#define	DWMMC_MAX_FREQ			52000000
+#define	DWMMC_MAX_FREQ			200000000
 #define	DWMMC_MIN_FREQ			400000
 #define	DWMMC_MMC0_SDR_TIMING_VAL	0x03030001
 #define	DWMMC_MMC2_SDR_TIMING_VAL	0x03020001
 
 #define EXYNOS4412_FIXED_CIU_CLK_DIV	4
+
+/* CLKSEL register defines */
+#define CLKSEL_CCLK_SAMPLE(x)	(((x) & 7) << 0)
+#define CLKSEL_UP_SAMPLE(x, y)	(((x) & ~CLKSEL_CCLK_SAMPLE(7)) |\
+					 CLKSEL_CCLK_SAMPLE(y))
 
 /* Quirks */
 #define DWMCI_QUIRK_DISABLE_SMU		BIT(0)
@@ -166,8 +171,9 @@ static unsigned int exynos_dwmci_get_clk(struct dwmci_host *host, uint freq)
 	u8 clk_div;
 	int err;
 
-	/* Should be double rate for DDR mode */
-	if (host->mmc->selected_mode == MMC_DDR_52 && host->mmc->bus_width == 8)
+	/* Should be double rate for DDR or HS mode */
+	if ((host->mmc->selected_mode == MMC_DDR_52 && host->mmc->bus_width == 8) ||
+	    host->mmc->selected_mode == MMC_HS_400)
 		freq *= 2;
 
 	clk_div = exynos_dwmmc_get_ciu_div(host);
@@ -282,6 +288,72 @@ static int exynos_dwmmc_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static int exynos_dwmmc_get_best_clksmpl(u8 candidates)
+{
+	u8 i;
+
+	for (i = 0; i < 8; i++) {
+		candidates = (candidates >> 1) | (candidates << 7); /* ror */
+		if ((candidates & 0xc7) == 0xc7)
+			return i;
+	}
+
+	for (i = 0; i < 8; i++) {
+		candidates = (candidates >> 1) | (candidates << 7); /* ror */
+		if ((candidates & 0x83) == 0x83)
+			return i;
+	}
+
+	/*
+	 * If no valid clock sample values are found, use the first
+	 * canditate bit for clock sample value.
+	 */
+	for (i = 0; i < 8; i++) {
+		candidates = (candidates >> 1) | (candidates << 7); /* ror */
+		if ((candidates & 0x1) == 0x1)
+			return i;
+	}
+
+	return -EIO;
+}
+
+static int exynos_dwmmc_execute_tuning(struct udevice *dev, u32 opcode)
+{
+	struct dwmci_exynos_priv_data *priv = dev_get_priv(dev);
+	struct dwmci_host *host = &priv->host;
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	u8 start_smpl, smpl, candidates = 0;
+	u32 clksel;
+	int ret;
+
+	clksel = dwmci_readl(host, priv->chip->clksel);
+	start_smpl = CLKSEL_CCLK_SAMPLE(clksel);
+
+	do {
+		dwmci_writel(host, DWMCI_TMOUT, ~0);
+
+		/* move to the next clksmpl */
+		smpl = (clksel + 1) & 0x7;
+		clksel = CLKSEL_UP_SAMPLE(clksel, smpl);
+		dwmci_writel(host, priv->chip->clksel, clksel);
+
+		if (!mmc_send_tuning(mmc, opcode))
+			candidates |= (1 << smpl);
+
+	} while (start_smpl != smpl);
+
+	ret = exynos_dwmmc_get_best_clksmpl(candidates);
+	if (ret < 0) {
+		printf("DWMMC%d: No candidates for clksmpl\n", host->dev_index);
+		return ret;
+	}
+
+	dwmci_writel(host, priv->chip->clksel,
+		     CLKSEL_UP_SAMPLE(clksel, ret));
+
+	return 0;
+}
+
 static int exynos_dwmmc_probe(struct udevice *dev)
 {
 	struct exynos_mmc_plat *plat = dev_get_plat(dev);
@@ -321,7 +393,7 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 
 	host->name = dev->name;
 	host->board_init = exynos_dwmci_board_init;
-	host->caps = MMC_MODE_DDR_52MHz;
+	host->caps = MMC_MODE_DDR_52MHz | MMC_MODE_HS200 | MMC_MODE_HS400;
 	host->clksel = exynos_dwmci_clksel;
 	host->get_mmc_clk = exynos_dwmci_get_clk;
 
@@ -391,6 +463,12 @@ static const struct udevice_id exynos_dwmmc_ids[] = {
 	{ }
 };
 
+struct dm_mmc_ops exynos_dwmmc_ops = {
+	.send_cmd	= dwmci_send_cmd,
+	.set_ios	= dwmci_set_ios,
+	.execute_tuning	= exynos_dwmmc_execute_tuning,
+};
+
 U_BOOT_DRIVER(exynos_dwmmc_drv) = {
 	.name		= "exynos_dwmmc",
 	.id		= UCLASS_MMC,
@@ -398,7 +476,7 @@ U_BOOT_DRIVER(exynos_dwmmc_drv) = {
 	.of_to_plat	= exynos_dwmmc_of_to_plat,
 	.bind		= exynos_dwmmc_bind,
 	.probe		= exynos_dwmmc_probe,
-	.ops		= &dm_dwmci_ops,
+	.ops		= &exynos_dwmmc_ops,
 	.priv_auto	= sizeof(struct dwmci_exynos_priv_data),
 	.plat_auto	= sizeof(struct exynos_mmc_plat),
 };
