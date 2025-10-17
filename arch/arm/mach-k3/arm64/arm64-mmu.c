@@ -12,8 +12,9 @@
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 #include <linux/sizes.h>
+#include <mach/k3-ddr.h>
 
-struct mm_region k3_mem_map[] = {
+struct mm_region k3_mem_map[K3_MEM_MAP_LEN] = {
 	{ /* SoC Peripherals */
 		.virt = 0x0UL,
 		.phys = 0x0UL,
@@ -28,7 +29,7 @@ struct mm_region k3_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, { /* First DRAM Bank of size 2G */
+	}, [K3_MEM_MAP_FIRST_BANK_IDX] = { /* First DRAM Bank of size 2G */
 		.virt = CFG_SYS_SDRAM_BASE,
 		.phys = CFG_SYS_SDRAM_BASE,
 		.size = SZ_2G,
