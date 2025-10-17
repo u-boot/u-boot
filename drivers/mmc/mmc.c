@@ -2844,6 +2844,16 @@ static int mmc_power_on(struct mmc *mmc)
 			return ret;
 		}
 	}
+
+	if (mmc->vqmmc_supply) {
+		int ret = regulator_set_enable_if_allowed(mmc->vqmmc_supply,
+							  true);
+
+		if (ret && ret != -ENOSYS) {
+			printf("Error enabling VQMMC supply : %d\n", ret);
+			return ret;
+		}
+	}
 #endif
 	return 0;
 }
@@ -2858,6 +2868,16 @@ static int mmc_power_off(struct mmc *mmc)
 
 		if (ret && ret != -ENOSYS) {
 			pr_debug("Error disabling VMMC supply : %d\n", ret);
+			return ret;
+		}
+	}
+
+	if (mmc->vqmmc_supply) {
+		int ret = regulator_set_enable_if_allowed(mmc->vqmmc_supply,
+							  false);
+
+		if (ret && ret != -ENOSYS) {
+			pr_debug("Error disabling VQMMC supply : %d\n", ret);
 			return ret;
 		}
 	}
