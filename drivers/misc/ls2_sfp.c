@@ -248,11 +248,9 @@ static int ls2_sfp_probe(struct udevice *dev)
 		}
 
 		rate = clk_get_rate(&clk);
-		if (!rate || IS_ERR_VALUE(rate)) {
-			ret = rate ? rate : -ENOENT;
-			dev_dbg(dev, "could not get clock rate (err %d)\n",
-				ret);
-			return ret;
+		if (!rate) {
+			dev_dbg(dev, "could not get clock rate\n");
+			return -ENOENT;
 		}
 	}
 

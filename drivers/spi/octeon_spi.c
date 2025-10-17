@@ -523,7 +523,7 @@ static int octeon_spi_set_speed(struct udevice *bus, uint max_hz)
 		clk_rate = 100000000;
 	else
 		clk_rate = clk_get_rate(&priv->clk);
-	if (IS_ERR_VALUE(clk_rate))
+	if (!clk_rate)
 		return -EINVAL;
 
 	debug("%s(%s, %u, %lu)\n", __func__, bus->name, max_hz, clk_rate);

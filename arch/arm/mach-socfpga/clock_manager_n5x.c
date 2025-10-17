@@ -19,7 +19,6 @@ static ulong cm_get_rate_dm(u32 id)
 {
 	struct udevice *dev;
 	struct clk clk;
-	ulong rate;
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
@@ -33,16 +32,7 @@ static ulong cm_get_rate_dm(u32 id)
 	if (ret < 0)
 		return 0;
 
-	rate = clk_get_rate(&clk);
-
-	if ((rate == (unsigned long)-ENXIO) ||
-	    (rate == (unsigned long)-EIO)) {
-		debug("%s id %u: clk_get_rate err: %ld\n",
-		      __func__, id, rate);
-		return 0;
-	}
-
-	return rate;
+	return clk_get_rate(&clk);
 }
 
 static u32 cm_get_rate_dm_khz(u32 id)

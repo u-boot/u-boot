@@ -177,8 +177,8 @@ static int bcm_cpu_probe(struct udevice *dev)
 		if (ret && (ret != -ENOSYS || ret != -EOPNOTSUPP))
 			return ret;
 		ret = clk_get_rate(&clk);
-		if (IS_ERR_VALUE(ret))
-			return ret;
+		if (!ret)
+			return -EINVAL;
 		plat->timebase_freq = ret;
 	}
 

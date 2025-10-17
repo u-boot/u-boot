@@ -776,9 +776,7 @@ static void zynqmp_clk_dump(struct udevice *dev)
 
 			rate = clk_get_rate(&clk);
 
-			if ((rate == (unsigned long)-ENOSYS) ||
-			    (rate == (unsigned long)-ENXIO) ||
-			    (rate == (unsigned long)-EIO))
+			if (!rate)
 				printf("%10s%20s\n", name, "unknown");
 			else
 				printf("%10s%20lu\n", name, rate);
@@ -799,7 +797,7 @@ static int zynqmp_get_freq_by_name(char *name, struct udevice *dev, ulong *freq)
 	}
 
 	*freq = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(*freq)) {
+	if (!*freq) {
 		dev_err(dev, "failed to get rate %s\n", name);
 		return -EINVAL;
 	}

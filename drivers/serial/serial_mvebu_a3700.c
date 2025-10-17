@@ -183,7 +183,7 @@ static int mvebu_serial_probe(struct udevice *dev)
 		}
 
 		rate = clk_get_rate(&clk);
-		if (!rate || IS_ERR_VALUE(rate)) {
+		if (!rate) {
 			printf("%s: Cannot get rate for TBG clock %i\n",
 			       __func__, i);
 			return -EINVAL;

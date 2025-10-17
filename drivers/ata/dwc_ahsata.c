@@ -941,7 +941,7 @@ int dwc_ahsata_probe(struct udevice *dev)
 
 	sataclk = clk_get_rate(&clk);
 #endif
-	if (IS_ERR_VALUE(sataclk)) {
+	if (!sataclk) {
 		log_err("Unable to get SATA clock rate\n");
 		return -EINVAL;
 	}

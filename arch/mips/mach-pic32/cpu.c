@@ -40,7 +40,7 @@ static ulong rate(int id)
 	clk.id = id;
 	ret = clk_request(dev, &clk);
 	if (ret < 0)
-		return ret;
+		return 0;
 
 	return clk_get_rate(&clk);
 }

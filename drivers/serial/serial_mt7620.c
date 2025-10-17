@@ -165,9 +165,7 @@ static int mt7620_serial_of_to_plat(struct udevice *dev)
 
 	err = clk_get_by_index(dev, 0, &clk);
 	if (!err) {
-		err = clk_get_rate(&clk);
-		if (!IS_ERR_VALUE(err))
-			plat->clock = err;
+		plat->clock = clk_get_rate(&clk);
 	} else if (err != -ENOENT && err != -ENODEV && err != -ENOSYS) {
 		dev_err(dev, "mt7620_serial: failed to get clock\n");
 		return err;

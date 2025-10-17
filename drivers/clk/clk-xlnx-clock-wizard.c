@@ -128,9 +128,9 @@ static int clk_wzrd_probe(struct udevice *dev)
 	}
 
 	clock = clk_get_rate(&clk_in1);
-	if (IS_ERR_VALUE(clock)) {
+	if (!clock) {
 		dev_err(dev, "failed to get rate\n");
-		return clock;
+		return -EINVAL;
 	}
 
 	ret = clk_enable(&clk_in1);

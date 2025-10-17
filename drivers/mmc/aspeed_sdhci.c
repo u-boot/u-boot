@@ -41,9 +41,9 @@ static int aspeed_sdhci_probe(struct udevice *dev)
 	host->ioaddr = dev_read_addr_ptr(dev);
 
 	max_clk = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(max_clk)) {
-		ret = max_clk;
-		debug("%s: clock rate get failed %d\n", __func__, ret);
+	if (!max_clk) {
+		ret = -EINVAL;
+		debug("%s: clock rate get failed\n", __func__);
 		goto err;
 	}
 

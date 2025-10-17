@@ -1139,17 +1139,11 @@ static void ast2600_clk_dump(struct udevice *dev)
 			continue;
 		}
 
-		ret = clk_get_rate(&clk);
-		rate = ret;
+		rate = clk_get_rate(&clk);
 
-		if (ret == -EINVAL) {
+		if (!rate) {
 			printf("clk ID %lu not supported yet\n",
 			       aspeed_clk_names[i].id);
-			continue;
-		}
-		if (ret < 0) {
-			printf("%s %lu: get_rate err: %d\n", __func__,
-			       aspeed_clk_names[i].id, ret);
 			continue;
 		}
 

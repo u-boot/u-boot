@@ -199,7 +199,7 @@ static int mscc_sgpio_probe(struct udevice *dev)
 	err = clk_get_by_index(dev, 0, &clk);
 	if (!err) {
 		err = clk_get_rate(&clk);
-		if (IS_ERR_VALUE(err)) {
+		if (!err) {
 			dev_err(dev, "Invalid clk rate\n");
 			return -EINVAL;
 		}

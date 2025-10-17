@@ -400,9 +400,9 @@ int pl01x_serial_of_to_plat(struct udevice *dev)
 		}
 
 		plat->clock = clk_get_rate(&clk);
-		if (IS_ERR_VALUE(plat->clock)) {
+		if (!plat->clock) {
 			dev_err(dev, "failed to get rate\n");
-			return plat->clock;
+			return -EINVAL;
 		}
 		debug("%s: CLK %d\n", __func__, plat->clock);
 	}

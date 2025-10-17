@@ -429,7 +429,7 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 		break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
-		return -1;
+		return 0;
 	};
 
 	if (bit_info->src_bit >= 0)
@@ -520,7 +520,7 @@ static unsigned long exynos542x_get_periph_rate(int peripheral)
 		break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
-		return -1;
+		return 0;
 	};
 
 	if (bit_info->src_bit >= 0)

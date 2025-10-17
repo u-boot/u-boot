@@ -135,7 +135,7 @@ static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 	}
 
 	clock = clk_get_rate(&clk);
-	if (IS_ERR_VALUE(clock)) {
+	if (!clock) {
 		dev_err(dev, "failed to get rate\n");
 		return clock;
 	}

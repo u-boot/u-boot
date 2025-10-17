@@ -65,7 +65,7 @@ static int timer_pre_probe(struct udevice *dev)
 		err = clk_get_by_index(dev, 0, &timer_clk);
 		if (!err) {
 			ret = clk_get_rate(&timer_clk);
-			if (!IS_ERR_VALUE(ret)) {
+			if (ret) {
 				uc_priv->clock_rate = ret;
 				return 0;
 			}

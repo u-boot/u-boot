@@ -87,9 +87,7 @@ static int xtensa_cpu_probe(struct udevice *dev)
 		ret = clk_enable(&clk);
 		if (ret && (ret != -ENOSYS || ret != -ENOTSUPP))
 			return ret;
-		ret = clk_get_rate(&clk);
-		if (!IS_ERR_VALUE(ret))
-			plat->timebase_freq = ret;
+		plat->timebase_freq = clk_get_rate(&clk);
 	}
 
 	return 0;

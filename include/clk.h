@@ -447,8 +447,8 @@ int clk_request(struct udevice *dev, struct clk *clk);
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
  *
- * Return: clock rate in Hz on success, 0 for invalid clock, or -ve error code
- *	   for other errors.
+ * Return: clock rate in Hz on success, 0 for a failure to return a valid clock
+ * for any reason.
  */
 ulong clk_get_rate(struct clk *clk);
 
@@ -466,7 +466,7 @@ struct clk *clk_get_parent(struct clk *clk);
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
  *
- * Return: clock rate in Hz, or -ve error code.
+ * Return: clock rate in Hz, or 0 on failure for any reason.
  */
 ulong clk_get_parent_rate(struct clk *clk);
 
