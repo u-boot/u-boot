@@ -19,11 +19,19 @@ static const struct pmic_child_info s2mps11_pmic_children_info[] = {
 	{ },
 };
 
+static const struct pmic_child_info s2mpu05_pmic_children_info[] = {
+	{ .prefix = S2MPU05_OF_LDO_PREFIX, .driver = S2MPS11_LDO_DRIVER },
+	{ .prefix = S2MPU05_OF_BUCK_PREFIX, .driver = S2MPS11_BUCK_DRIVER },
+	{ },
+};
+
 static int s2mps11_reg_count(struct udevice *dev)
 {
 	switch (dev_get_driver_data(dev)) {
 	case VARIANT_S2MPS11:
 		return S2MPS11_REG_COUNT;
+	case VARIANT_S2MPU05:
+		return S2MPU05_REG_COUNT;
 	default:
 		return -EINVAL;
 	}
@@ -71,6 +79,9 @@ static int s2mps11_bind(struct udevice *dev)
 	case VARIANT_S2MPS11:
 		pmic_children_info = s2mps11_pmic_children_info;
 		break;
+	case VARIANT_S2MPU05:
+		pmic_children_info = s2mpu05_pmic_children_info;
+		break;
 	default:
 		debug("%s: unknown device type\n", __func__);
 		return -EINVAL;
@@ -91,6 +102,7 @@ static struct dm_pmic_ops s2mps11_ops = {
 
 static const struct udevice_id s2mps11_ids[] = {
 	{ .compatible = "samsung,s2mps11-pmic", .data = VARIANT_S2MPS11 },
+	{ .compatible = "samsung,s2mpu05-pmic", .data = VARIANT_S2MPU05 },
 	{ }
 };
 
