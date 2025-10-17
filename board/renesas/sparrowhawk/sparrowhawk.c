@@ -134,7 +134,7 @@ unsigned int spl_spi_get_uboot_offs(struct spi_flash *flash)
 	return CONFIG_SYS_SPI_U_BOOT_OFFS;
 }
 
-void spl_perform_fixups(struct spl_image_info *spl_image)
+void spl_perform_board_fixups(struct spl_image_info *spl_image)
 {
 	void *blob = spl_image_fdt_addr(spl_image);
 	int err, offs;

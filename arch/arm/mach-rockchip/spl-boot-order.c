@@ -240,7 +240,7 @@ int spl_decode_boot_device(u32 boot_device, char *buf, size_t buflen)
 #endif
 }
 
-void spl_perform_fixups(struct spl_image_info *spl_image)
+void spl_perform_arch_fixups(struct spl_image_info *spl_image)
 {
 	const char *bootrom_ofpath = board_spl_was_booted_from();
 	void *blob = spl_image_fdt_addr(spl_image);

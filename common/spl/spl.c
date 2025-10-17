@@ -120,8 +120,13 @@ int __weak booti_setup(ulong image, ulong *relocated_addr, ulong *size, bool for
 }
 #endif
 
-/* Weak default function for arch/board-specific fixups to the spl_image_info */
-void __weak spl_perform_fixups(struct spl_image_info *spl_image)
+/* Weak default function for arch specific fixups to the spl_image_info */
+void __weak spl_perform_arch_fixups(struct spl_image_info *spl_image)
+{
+}
+
+/* Weak default function for board specific fixups to the spl_image_info */
+void __weak spl_perform_board_fixups(struct spl_image_info *spl_image)
 {
 }
 
@@ -776,7 +781,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		hang();
 	}
 
-	spl_perform_fixups(&spl_image);
+	spl_perform_arch_fixups(&spl_image);
+	spl_perform_board_fixups(&spl_image);
 
 	os = spl_image.os;
 	if (os == IH_OS_U_BOOT) {

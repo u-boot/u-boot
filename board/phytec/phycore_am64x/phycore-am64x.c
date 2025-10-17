@@ -118,7 +118,7 @@ int do_board_detect(void)
 #endif
 
 #if IS_ENABLED(CONFIG_XPL_BUILD)
-void spl_perform_fixups(struct spl_image_info *spl_image)
+void spl_perform_board_fixups(struct spl_image_info *spl_image)
 {
 	if (IS_ENABLED(CONFIG_K3_DDRSS) && IS_ENABLED(CONFIG_K3_INLINE_ECC))
 		fixup_ddr_driver_for_ecc(spl_image);
