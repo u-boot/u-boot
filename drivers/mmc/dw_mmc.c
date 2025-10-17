@@ -554,7 +554,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	unsigned long sclk;
 	int ret;
 
-	if (freq == host->clock || freq == 0)
+	if (!freq)
 		return 0;
 
 	/*
