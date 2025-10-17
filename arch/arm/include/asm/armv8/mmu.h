@@ -197,6 +197,11 @@ struct mm_region {
 extern struct mm_region *mem_map;
 void setup_pgtables(void);
 u64 get_tcr(u64 *pips, u64 *pva_bits);
+
+/**
+ * mmu_setup() - Sets up the mmu page tables as per mem_map
+ */
+void mmu_setup(void);
 #endif
 
 #endif /* _ASM_ARMV8_MMU_H_ */

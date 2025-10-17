@@ -30,6 +30,7 @@
 #include <soc.h>
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
+#include <asm/armv8/mmu.h>
 
 #define PROC_BOOT_CTRL_FLAG_R5_CORE_HALT	0x00000001
 #define PROC_BOOT_STATUS_FLAG_R5_WFI		0x00000002
@@ -261,6 +262,8 @@ void board_prep_linux(struct bootm_headers *images)
 
 void enable_caches(void)
 {
+	mmu_setup();
+
 	icache_enable();
 	dcache_enable();
 }
