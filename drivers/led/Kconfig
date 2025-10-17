@@ -11,6 +11,7 @@ config LED
 
 config LED_BOOT
 	bool "Enable LED boot support"
+	depends on LED
 	help
 	  Enable LED boot support.
 
@@ -22,6 +23,7 @@ config LED_BOOT
 
 config LED_ACTIVITY
 	bool "Enable LED activity support"
+	depends on LED
 	help
 	  Enable LED activity support.
 
