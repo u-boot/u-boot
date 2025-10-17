@@ -10,6 +10,14 @@
 		u-boot,boot-led = "led-blue";
 		u-boot,mmc-env-partition = "u-boot-env";
 	};
+
+	clocks {
+		txbyteclk {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <0>;
+		};
+	};
 };
 
 &usart2 {
