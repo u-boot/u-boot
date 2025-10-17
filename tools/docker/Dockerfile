@@ -103,6 +103,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	libsdl2-dev \
 	libseccomp-dev \
 	libslirp-dev \
+	libsqlite3-dev \
 	libssl-dev \
 	libtool \
 	libudev-dev \
@@ -345,3 +346,7 @@ RUN /bin/echo -e "\nx86 = i386" >> ~/.buildman;
 # Add mkbootimg tool
 RUN git clone https://android.googlesource.com/platform/system/tools/mkbootimg /home/uboot/mkbootimg
 ENV PYTHONPATH="${PYTHONPATH}:/home/uboot/mkbootimg"
+
+# Install and build Smatch
+RUN git clone https://github.com/error27/smatch.git /home/uboot/smatch
+RUN cd /home/uboot/smatch && make

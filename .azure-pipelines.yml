@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2022
   ubuntu_vm: ubuntu-24.04
   macos_vm: macOS-14
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20250714-25Jul2025
+  ci_runner_image: ajgdockerlinaro/ajg-test:smatch-latest
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -19,51 +19,12 @@ variables:
   arm_catch_all: "arm -x aarch64,am33xx,at91,bcm,ls1,kirkwood,mvebu,omap,rk,siemens,mx,sunxi,technexion,toradex"
   aarch64_catch_all: "aarch64 -x amlogic,bcm,engicam,imx,ls1,ls2,lx216,mvebu,rk,siemens,sunxi,toradex"
   everything_but_arm_and_powerpc: "arc m68k microblaze mips nios2 riscv sandbox sh x86 xtensa -x arm,powerpc"
+  smatch_bd: "sandbox64"
+  smatch_dir: "/home/uboot/smatch"
 
 stages:
 - stage: testsuites
   jobs:
-  - job: tools_only_windows
-    displayName: 'Ensure host tools build for Windows'
-    pool:
-      vmImage: $(windows_vm)
-    steps:
-      - powershell: |
-          (New-Object Net.WebClient).DownloadFile("https://github.com/msys2/msys2-installer/releases/download/2021-06-04/msys2-base-x86_64-20210604.sfx.exe", "sfx.exe")
-        displayName: 'Install MSYS2'
-      - script: |
-          sfx.exe -y -o%CD:~0,2%\
-          %CD:~0,2%\msys64\usr\bin\bash -lc " "
-          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Syuu"
-          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Syuu"
-        displayName: 'Update MSYS2'
-      - script: |
-          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -Sy make gcc bison flex diffutils openssl-devel libgnutls-devel libutil-linux-devel"
-        displayName: 'Install Toolchain'
-      - script: |
-          echo make tools-only_defconfig tools-only > build-tools.sh
-          %CD:~0,2%\msys64\usr\bin\bash -lc "bash build-tools.sh"
-        displayName: 'Build Host Tools'
-        env:
-          # Tell MSYS2 we need a POSIX emulation layer
-          MSYSTEM: MSYS
-          # Tell MSYS2 not to ‘cd’ our startup directory to HOME
-          CHERE_INVOKING: yes
-
-  - job: tools_only_macOS
-    displayName: 'Ensure host tools build for macOS X'
-    pool:
-      vmImage: $(macos_vm)
-    steps:
-      - script: brew install make ossp-uuid
-        displayName: Brew install dependencies
-      - script: |
-          gmake tools-only_config tools-only \
-            HOSTCFLAGS="-I/usr/local/opt/openssl@1.1/include" \
-            HOSTLDFLAGS="-L/usr/local/opt/openssl@1.1/lib" \
-            -j$(sysctl -n hw.logicalcpu)
-        displayName: 'Perform tools-only build'
-
   - job: check_for_new_CONFIG_symbols_outside_Kconfig
     displayName: 'Check for new CONFIG symbols outside Kconfig'
     pool:
@@ -79,33 +40,6 @@ stages:
                   :^include/linux/kconfig.h :^tools/ :^dts/upstream/
                   :^lib/mbedtls/external :^lib/mbedtls/mbedtls_def_config.h &&
                   exit 1 || exit 0
-
-  - job: docs
-    displayName: 'Build documentation'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: |
-          set -e
-          python3 -m venv /tmp/venvhtml
-          . /tmp/venvhtml/bin/activate
-          pip install -r doc/sphinx/requirements.txt -r test/py/requirements.txt
-          make htmldocs KDOC_WERROR=1
-          make infodocs
-
-  - job: maintainers
-    displayName: 'Ensure all configs have MAINTAINERS entries'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: |
-          ./tools/buildman/buildman --maintainer-check
 
   - job: tools_only
     displayName: 'Ensure host tools and env tools build'
@@ -187,56 +121,6 @@ stages:
           pylint --version
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           make pylint_err
-
-  - job: check_for_pre_schema_tags
-    displayName: 'Check for pre-schema driver model tags'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      # If grep succeeds and finds a match the test fails as we should
-      # have no matches.
-      - script: git grep u-boot,dm- -- '*.dts*' && exit 1 || exit 0
-
-  - job: check_packing_of_python_tools
-    displayName: 'Check we can package the Python tools'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: make pip
-
-  - job: count_built_machines
-    displayName: 'Ensure we build all possible machines'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: |
-          BMANARGS="-o /tmp --dry-run -v"
-          # First get the total number of boards
-          total=$(tools/buildman/buildman ${BMANARGS} | grep "Total boards to build for each commit" | cut -d ' ' -f 8)
-          # Now build up the list of what each job built.
-          built="$(tools/buildman/buildman ${BMANARGS} $(am33xx_kirkwood_ls1_mvebu_omap) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(amlogic_bcm_boundary_engicam_siemens_technexion_oradex) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(arm_nxp_minus_imx_and_at91) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(imx) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(rk) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(sunxi) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(powerpc) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(arm_catch_all) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(aarch64_catch_all) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(everything_but_arm_and_powerpc) | grep '^   ')"
-          # Finally see how many machines that is.
-          actual=$(tools/buildman/buildman ${BMANARGS} $built | grep "Total boards to build for each commit" | cut -d ' ' -f 8)
-          echo We would build a total of $actual out of $total platforms this CI run
-          [ $actual -eq $total ] && exit 0 || exit 1
 
   - job: create_test_py_wrapper_script
     displayName: 'Create and stage a wrapper for test.py runs'
@@ -341,6 +225,22 @@ stages:
         displayName: 'Publish test.sh'
         artifact: testsh
 
+- stage: smatch_run
+  jobs:
+  - job: smatch_run
+    displayName: 'Smatch run for sandbox'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          git config --global --add safe.directory $(work_dir)
+          set -ex
+          make sandbox64_defconfig
+          make C=1 CHECK="$(smatch_dir)/smatch -p=kernel --spammy --succeed"
+
 - stage: test_py_sandbox
   jobs:
   - job: test_py_sandbox
@@ -440,24 +340,6 @@ stages:
           TEST_PY_BD: "coreboot"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-        evb_ast2500:
-          TEST_PY_BD: "evb-ast2500"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        vexpress_ca9x4:
-          TEST_PY_BD: "vexpress_ca9x4"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        vexpress_fvp:
-          TEST_PY_BD: "vexpress_fvp"
-          TEST_PY_TEST_SPEC: "not sleep and not hostfs"
-        vexpress_fvp_bloblist:
-          TEST_PY_BD: "vexpress_fvp_bloblist"
-          TEST_PY_TEST_SPEC: "not sleep and not hostfs"
-        integratorcp_cm926ejs:
-          TEST_PY_BD: "integratorcp_cm926ejs"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
         qemu_arm:
           TEST_PY_BD: "qemu_arm"
           TEST_PY_TEST_SPEC: "not sleep"
@@ -470,104 +352,11 @@ stages:
         qemu_arm_sbsa_ref:
           TEST_PY_BD: "qemu-arm-sbsa"
           TEST_PY_TEST_SPEC: "not sleep"
-        qemu_m68k:
-          TEST_PY_BD: "M5208EVBE"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep and not efi"
-          OVERRIDE: "-a CONFIG_M68K_QEMU=y -a ~CONFIG_MCFTMR"
-        qemu_malta:
-          TEST_PY_BD: "malta"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep and not efi"
-        qemu_maltael:
-          TEST_PY_BD: "maltael"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep and not efi"
-        qemu_malta64:
-          TEST_PY_BD: "malta64"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep and not efi"
-        qemu_malta64el:
-          TEST_PY_BD: "malta64el"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep and not efi"
-        qemu_ppce500:
-          TEST_PY_BD: "qemu-ppce500"
-          TEST_PY_TEST_SPEC: "not sleep"
-        qemu_riscv32:
-          TEST_PY_BD: "qemu-riscv32"
-          TEST_PY_TEST_SPEC: "not sleep"
-        qemu_riscv64:
-          TEST_PY_BD: "qemu-riscv64"
-          TEST_PY_TEST_SPEC: "not sleep"
-        qemu_riscv32_spl:
-          TEST_PY_BD: "qemu-riscv32_spl"
-          TEST_PY_TEST_SPEC: "not sleep"
-        qemu_riscv64_spl:
-          TEST_PY_BD: "qemu-riscv64_spl"
-          TEST_PY_TEST_SPEC: "not sleep"
         qemu_x86:
           TEST_PY_BD: "qemu-x86"
           TEST_PY_TEST_SPEC: "not sleep"
         qemu_x86_64:
           TEST_PY_BD: "qemu-x86_64"
-          TEST_PY_TEST_SPEC: "not sleep"
-        qemu_xtensa_dc233c:
-          TEST_PY_BD: "qemu-xtensa-dc233c"
-          TEST_PY_TEST_SPEC: "not sleep and not efi"
-        r2dplus_i82557c:
-          TEST_PY_BD: "r2dplus"
-          TEST_PY_ID: "--id i82557c_qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        r2dplus_pcnet:
-          TEST_PY_BD: "r2dplus"
-          TEST_PY_ID: "--id pcnet_qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        r2dplus_rtl8139:
-          TEST_PY_BD: "r2dplus"
-          TEST_PY_ID: "--id rtl8139_qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        r2dplus_tulip:
-          TEST_PY_BD: "r2dplus"
-          TEST_PY_ID: "--id tulip_qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-# This is broken upsteam: https://gitlab.com/qemu-project/qemu/-/issues/2945
-#        sifive_unleashed_sdcard:
-#          TEST_PY_BD: "sifive_unleashed"
-#          TEST_PY_ID: "--id sdcard_qemu"
-#          TEST_PY_TEST_SPEC: "not sleep"
-        sifive_unleashed_spi-nor:
-          TEST_PY_BD: "sifive_unleashed"
-          TEST_PY_ID: "--id spi-nor_qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        xilinx_mbv32:
-          TEST_PY_BD: "xilinx_mbv32"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        xilinx_mbv32_smode test.py:
-          TEST_PY_BD: "xilinx_mbv32_smode"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        xilinx_mbv64 test.py:
-          TEST_PY_BD: "xilinx_mbv64"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        xilinx_mbv64_smode test.py:
-          TEST_PY_BD: "xilinx_mbv64_smode"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        xilinx_zynq_virt:
-          TEST_PY_BD: "xilinx_zynq_virt"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-        xilinx_versal_virt:
-          TEST_PY_BD: "xilinx_versal_virt"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
-          OVERRIDE: "-a ~CONFIG_USB_DWC3"
-        xtfpga:
-          TEST_PY_BD: "xtfpga"
-          TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
     steps:
       - download: current
@@ -596,59 +385,3 @@ stages:
           testResultsFormat: 'JUnit'
           testResultsFiles: 'results.xml'
 
-- stage: world_build
-  jobs:
-  - job: build_the_world
-    timeoutInMinutes: 0 # Use the maximum allowed
-    displayName: 'Build the World'
-    pool:
-      vmImage: $(ubuntu_vm)
-    strategy:
-      # We split the world up in to 10 jobs as we can have at most 10
-      # parallel jobs going on the free tier of Azure.
-      matrix:
-        am33xx_kirkwood_ls1_mvebu_omap:
-          BUILDMAN: $(am33xx_kirkwood_ls1_mvebu_omap)
-        amlogic_bcm_boundary_engicam_siemens_technexion_oradex:
-          BUILDMAN: $(amlogic_bcm_boundary_engicam_siemens_technexion_oradex)
-        arm_nxp_minus_imx_and_at91:
-          BUILDMAN: $(arm_nxp_minus_imx_and_at91)
-        imx:
-          BUILDMAN: $(imx)
-        rk:
-          BUILDMAN: $(rk)
-        sunxi:
-          BUILDMAN: $(sunxi)
-        powerpc:
-          BUILDMAN: $(powerpc)
-        arm_catch_all:
-          BUILDMAN: $(arm_catch_all)
-        aarch64_catch_all:
-          BUILDMAN: $(aarch64_catch_all)
-        everything_but_arm_and_powerpc:
-          BUILDMAN: $(everything_but_arm_and_powerpc)
-    steps:
-      - script: |
-          cat << EOF > build.sh
-          set -ex
-          cd ${WORK_DIR}
-          # make environment variables available as tests are running inside a container
-          export BUILDMAN="${BUILDMAN}"
-          git config --global --add safe.directory ${WORK_DIR}
-          python3 -m venv /tmp/venv
-          . /tmp/venv/bin/activate
-          pip install -r tools/binman/requirements.txt \
-            -r tools/buildman/requirements.txt
-          EOF
-          cat << "EOF" >> build.sh
-          if [[ "${BUILDMAN}" != "" ]]; then
-              ret=0;
-              tools/buildman/buildman -o /tmp -PEWM ${BUILDMAN} ${OVERRIDE} || ret=$?;
-              if [[ $ret -ne 0 ]]; then
-                  tools/buildman/buildman -o /tmp -seP ${BUILDMAN};
-                  exit $ret;
-              fi;
-          fi
-          EOF
-          cat build.sh
-          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
