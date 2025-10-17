@@ -47,7 +47,7 @@ static int s2mps11_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 	return ret;
 }
 
-static int s2mps11_probe(struct udevice *dev)
+static int s2mps11_bind(struct udevice *dev)
 {
 	ofnode regulators_node;
 	int children;
@@ -84,5 +84,5 @@ U_BOOT_DRIVER(pmic_s2mps11) = {
 	.id = UCLASS_PMIC,
 	.of_match = s2mps11_ids,
 	.ops = &s2mps11_ops,
-	.probe = s2mps11_probe,
+	.bind = s2mps11_bind,
 };
