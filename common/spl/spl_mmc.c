@@ -272,6 +272,8 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image,
 			return 0;
 		printf("%s, Failed to load falcon payload: %d\n", __func__,
 		       ret);
+		if (IS_ENABLED(CONFIG_SPL_OS_BOOT_SECURE))
+			return ret;
 		printf("Fallback to U-Boot\n");
 	}
 
@@ -412,6 +414,8 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 			ret = mmc_load_image_raw_os(spl_image, bootdev, mmc);
 			if (!ret)
 				return 0;
+			if (IS_ENABLED(CONFIG_SPL_OS_BOOT_SECURE))
+				return ret;
 		}
 
 		raw_sect = spl_mmc_get_uboot_raw_sector(mmc, raw_sect);
