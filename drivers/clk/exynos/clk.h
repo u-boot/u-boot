@@ -9,9 +9,12 @@
 #ifndef __EXYNOS_CLK_H
 #define __EXYNOS_CLK_H
 
+#include <clk.h>
 #include <errno.h>
 #include <linux/clk-provider.h>
 #include "clk-pll.h"
+
+int samsung_clk_request(struct clk *clk);
 
 #define _SAMSUNG_CLK_OPS(_name, _cmu)					\
 static int _name##_of_xlate(struct clk *clk,				\
@@ -37,6 +40,7 @@ static const struct clk_ops _name##_clk_ops = {				\
 	.enable = ccf_clk_enable,					\
 	.disable = ccf_clk_disable,					\
 	.of_xlate = _name##_of_xlate,					\
+	.request = samsung_clk_request,					\
 }
 
 /**

@@ -10,6 +10,19 @@
 #include <dm.h>
 #include "clk.h"
 
+int samsung_clk_request(struct clk *clk)
+{
+	struct clk *c;
+	int ret;
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	clk->dev = c->dev;
+	return 0;
+}
+
 static void
 samsung_clk_register_fixed_rate(struct udevice *dev, void __iomem *base,
 				unsigned int cmu_id,
