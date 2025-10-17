@@ -9,9 +9,7 @@
 #include <asm/types.h>
 #include <linux/bitops.h>
 
-enum scmi_imx_protocol {
-	SCMI_IMX_PROTOCOL_ID_MISC = 0x84,
-};
+#define SCMI_PROTOCOL_ID_IMX_MISC	0x84
 
 #define SCMI_PAYLOAD_LEN	100
 
