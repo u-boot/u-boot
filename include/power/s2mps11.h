@@ -161,4 +161,9 @@ enum {
 	OP_ON,
 };
 
+enum {
+	VARIANT_NONE,
+	VARIANT_S2MPS11,
+};
+
 #endif
