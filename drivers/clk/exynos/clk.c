@@ -10,6 +10,47 @@
 #include <dm.h>
 #include "clk.h"
 
+static void
+samsung_clk_register_fixed_rate(struct udevice *dev, void __iomem *base,
+				unsigned int cmu_id,
+				const struct samsung_fixed_rate_clock *clk_list,
+				unsigned int nr_clk)
+{
+	unsigned int cnt;
+
+	for (cnt = 0; cnt < nr_clk; cnt++) {
+		struct clk *clk;
+		const struct samsung_fixed_rate_clock *m;
+		unsigned long clk_id;
+
+		m = &clk_list[cnt];
+		clk = clk_register_fixed_rate(NULL, m->name, m->fixed_rate);
+		clk_id = SAMSUNG_TO_CLK_ID(cmu_id, m->id);
+		clk_dm(clk_id, clk);
+	}
+}
+
+static void
+samsung_clk_register_fixed_factor(struct udevice *dev, void __iomem *base,
+				  unsigned int cmu_id,
+				  const struct samsung_fixed_factor_clock *clk_list,
+				  unsigned int nr_clk)
+{
+	unsigned int cnt;
+
+	for (cnt = 0; cnt < nr_clk; cnt++) {
+		struct clk *clk;
+		const struct samsung_fixed_factor_clock *m;
+		unsigned long clk_id;
+
+		m = &clk_list[cnt];
+		clk = clk_register_fixed_factor(dev, m->name, m->parent_name,
+						m->flags, m->mult, m->div);
+		clk_id = SAMSUNG_TO_CLK_ID(cmu_id, m->id);
+		clk_dm(clk_id, clk);
+	}
+}
+
 static void samsung_clk_register_mux(struct udevice *dev, void __iomem *base,
 				     unsigned int cmu_id,
 				     const struct samsung_mux_clock *clk_list,
@@ -79,6 +120,8 @@ typedef void (*samsung_clk_register_fn)(struct udevice *dev, void __iomem *base,
 					unsigned int nr_clk);
 
 static const samsung_clk_register_fn samsung_clk_register_fns[] = {
+	[S_CLK_FRATE]	= (samsung_clk_register_fn)samsung_clk_register_fixed_rate,
+	[S_CLK_FFACTOR]	= (samsung_clk_register_fn)samsung_clk_register_fixed_factor,
 	[S_CLK_MUX]	= (samsung_clk_register_fn)samsung_clk_register_mux,
 	[S_CLK_DIV]	= (samsung_clk_register_fn)samsung_clk_register_div,
 	[S_CLK_GATE]	= (samsung_clk_register_fn)samsung_clk_register_gate,
