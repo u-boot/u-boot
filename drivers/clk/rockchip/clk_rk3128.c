@@ -360,7 +360,7 @@ static ulong rk3128_peri_get_pclk(struct rk3128_cru *cru, ulong clk_id)
 		break;
 	default:
 		printf("do not support this peripheral bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(PERI_ACLK_HZ, div);
@@ -475,7 +475,7 @@ static ulong rk3128_vop_get_rate(struct rk3128_cru *cru, ulong clk_id)
 		parent = rkclk_pll_get_rate(cru, CLK_CODEC);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 	return DIV_TO_RATE(parent, div);
 }
@@ -500,7 +500,7 @@ static ulong rk3128_clk_get_rate(struct clk *clk)
 	case ACLK_VIO1:
 		return rk3128_vop_get_rate(priv->cru, clk->id);
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 

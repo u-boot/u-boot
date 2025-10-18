@@ -357,7 +357,7 @@ static ulong rk3328_i2c_get_clk(struct rk3328_cru *cru, ulong clk_id)
 		break;
 	default:
 		printf("do not support this i2c bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(GPLL_HZ, div);
@@ -459,7 +459,7 @@ static ulong rk3328_mmc_get_clk(struct rk3328_cru *cru, uint clk_id)
 		con_id = 32;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 	con = readl(&cru->clksel_con[con_id]);
 	div = (con & CLK_EMMC_DIV_CON_MASK) >> CLK_EMMC_DIV_CON_SHIFT;
@@ -708,7 +708,7 @@ static ulong rk3328_clk_get_rate(struct clk *clk)
 		rate = OSC_HZ;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;

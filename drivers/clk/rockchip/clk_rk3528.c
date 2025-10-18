@@ -239,7 +239,7 @@ static ulong rk3528_ppll_matrix_get_rate(struct rk3528_clk_priv *priv,
 		reg = &cru->clksel_con[60];
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	div = (readl(reg) & mask) >> shift;
@@ -378,7 +378,7 @@ static ulong rk3528_cgpll_matrix_get_rate(struct rk3528_clk_priv *priv,
 		break;
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	if (sel_mask) {
@@ -575,7 +575,7 @@ static ulong rk3528_i2c_get_clk(struct rk3528_clk_priv *priv, ulong clk_id)
 		break;
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	if (is_pmucru)
@@ -692,7 +692,7 @@ static ulong rk3528_spi_get_clk(struct rk3528_clk_priv *priv, ulong clk_id)
 		shift = CLK_SPI1_SEL_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[id]);
@@ -765,7 +765,7 @@ static ulong rk3528_pwm_get_clk(struct rk3528_clk_priv *priv, ulong clk_id)
 		break;
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[id]);
@@ -838,7 +838,7 @@ static ulong rk3528_adc_get_clk(struct rk3528_clk_priv *priv, ulong clk_id)
 		break;
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(OSC_HZ, div);
@@ -1045,7 +1045,7 @@ static ulong rk3528_dclk_vop_get_clk(struct rk3528_clk_priv *priv, ulong clk_id)
 		break;
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[id]);
@@ -1177,7 +1177,7 @@ static ulong rk3528_uart_get_rate(struct rk3528_clk_priv *priv, ulong clk_id)
 		break;
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[id - 2]);
@@ -1310,7 +1310,7 @@ static ulong rk3528_clk_get_rate(struct clk *clk)
 	if (!priv->gpll_hz || !priv->cpll_hz) {
 		printf("%s: gpll=%lu, cpll=%ld\n",
 		       __func__, priv->gpll_hz, priv->cpll_hz);
-		return -ENOENT;
+		return 0;
 	}
 
 	switch (clk->id) {
@@ -1416,7 +1416,7 @@ static ulong rk3528_clk_get_rate(struct clk *clk)
 		rate = rk3528_ppll_matrix_get_rate(priv, clk->id);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;

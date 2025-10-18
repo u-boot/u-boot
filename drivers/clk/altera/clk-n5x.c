@@ -436,7 +436,7 @@ static ulong socfpga_clk_get_rate(struct clk *clk)
 	case N5X_NAND_CLK:
 		return clk_get_l4_mp_clk_hz(plat) / 4;
 	default:
-		return -ENXIO;
+		return 0;
 	}
 }
 

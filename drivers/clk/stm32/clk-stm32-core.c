@@ -106,11 +106,11 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 	struct clk *c = NULL;
 
 	if (!clk->id || clk_get_by_id(clk->id, &c))
-		return -ENOENT;
+		return 0;
 
 	ops = clk_dev_ops(c->dev);
 	if (!ops->get_rate)
-		return -ENOSYS;
+		return 0;
 
 	return ops->get_rate(c);
 }

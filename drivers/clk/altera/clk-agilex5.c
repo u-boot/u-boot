@@ -705,7 +705,7 @@ static ulong socfpga_clk_get_rate(struct clk *clk)
 	case AGILEX5_NAND_X_CLK:
 		return clk_get_l4_mp_clk_hz(plat);
 	default:
-		return -ENXIO;
+		return 0;
 	}
 }
 

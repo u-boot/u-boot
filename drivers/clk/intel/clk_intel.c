@@ -15,7 +15,7 @@ static ulong intel_clk_get_rate(struct clk *clk)
 		/* Hard-coded to 133MHz on current platforms */
 		return 133333333;
 	default:
-		return -ENODEV;
+		return 0;
 	}
 }
 

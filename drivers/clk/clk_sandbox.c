@@ -16,10 +16,10 @@ static ulong sandbox_clk_get_rate(struct clk *clk)
 	ulong id = clk_get_id(clk);
 
 	if (!priv->probed)
-		return -ENODEV;
+		return 0;
 
 	if (id >= SANDBOX_CLK_ID_COUNT)
-		return -EINVAL;
+		return 0;
 
 	return priv->rate[id];
 }

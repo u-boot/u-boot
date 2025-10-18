@@ -57,7 +57,7 @@ static ulong tegra_car_clk_get_rate(struct clk *clk)
 		return clock_get_periph_rate(clk->id, parent);
 	}
 
-	return -1U;
+	return 0;
 }
 
 static ulong tegra_car_clk_set_rate(struct clk *clk, ulong rate)

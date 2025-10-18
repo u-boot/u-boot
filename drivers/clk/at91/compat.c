@@ -291,7 +291,7 @@ static ulong at91_plladiv_clk_get_rate(struct clk *clk)
 
 	ret = clk_get_by_index(clk->dev, 0, &source);
 	if (ret)
-		return -EINVAL;
+		return 0;
 
 	clk_rate = clk_get_rate(&source);
 	if (readl(&pmc->mckr) & AT91_PMC_MCKR_PLLADIV_2)
@@ -387,7 +387,7 @@ static ulong system_clk_get_rate(struct clk *clk)
 
 	ret = clk_get_by_index(clk->dev, 0, &clk_dev);
 	if (ret)
-		return -EINVAL;
+		return 0;
 
 	return clk_get_rate(&clk_dev);
 }
@@ -522,7 +522,7 @@ static ulong periph_get_rate(struct clk *clk)
 
 	ret = clk_get_by_index(dev, 0, &clk_dev);
 	if (ret)
-		return ret;
+		return 0;
 
 	return clk_get_rate(&clk_dev);
 }

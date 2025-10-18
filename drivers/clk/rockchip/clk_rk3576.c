@@ -164,7 +164,7 @@ static ulong rk3576_bus_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 			rate = OSC_HZ;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -281,7 +281,7 @@ static ulong rk3576_top_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 			rate = OSC_HZ;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -406,7 +406,7 @@ static ulong rk3576_i2c_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 		break;
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 	if (sel == CLK_I2C_SEL_200M)
 		rate = 200 * MHz;
@@ -509,7 +509,7 @@ static ulong rk3576_spi_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 		sel = (con & CLK_SPI4_SEL_MASK) >> CLK_SPI4_SEL_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	switch (sel) {
@@ -522,7 +522,7 @@ static ulong rk3576_spi_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 	case CLK_SPI_SEL_OSC:
 		return OSC_HZ;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -593,7 +593,7 @@ static ulong rk3576_pwm_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 		sel = (con & CLK_PMU1PWM_SEL_MASK) >> CLK_PMU1PWM_SEL_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	switch (sel) {
@@ -604,7 +604,7 @@ static ulong rk3576_pwm_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 	case CLK_PWM_SEL_OSC:
 		return OSC_HZ;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -667,7 +667,7 @@ static ulong rk3576_adc_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 		prate = OSC_HZ;
 		return DIV_TO_RATE(prate, div);
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -808,7 +808,7 @@ static ulong rk3576_mmc_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 		return DIV_TO_RATE(prate, div);
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -992,7 +992,7 @@ static ulong rk3576_aclk_vop_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 			return OSC_HZ;
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1106,7 +1106,7 @@ static ulong rk3576_dclk_vop_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 		sel = (con & DCLK0_VOP_SRC_SEL_MASK) >> DCLK0_VOP_SRC_SEL_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	if (sel == DCLK_VOP_SRC_SEL_VPLL)
@@ -1249,7 +1249,7 @@ static ulong rk3576_clk_csihost_get_clk(struct rk3576_clk_priv *priv, ulong clk_
 		sel = (con & CLK_DSIHOST0_SEL_MASK) >> CLK_DSIHOST0_SEL_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	if (sel == CLK_DSIHOST0_SEL_VPLL)
@@ -1384,7 +1384,7 @@ static ulong rk3576_dclk_ebc_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 		m >>= CLK_UART_FRAC_DENOMINATOR_SHIFT;
 		return parent * n / m;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1552,7 +1552,7 @@ static ulong rk3576_gmac_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 		div = (con & CLK_GMAC1_125M_DIV_MASK) >> CLK_GMAC1_125M_DIV_SHIFT;
 		return DIV_TO_RATE(priv->cpll_hz, div);
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1634,7 +1634,7 @@ static ulong rk3576_uart_frac_get_rate(struct rk3576_clk_priv *priv, ulong clk_i
 		reg = 25;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 	con = readl(&cru->clksel_con[reg + 1]);
 	p_src = (con & CLK_UART_SRC_SEL_MASK) >> CLK_UART_SRC_SEL_SHIFT;
@@ -1760,7 +1760,7 @@ static ulong rk3576_uart_get_rate(struct rk3576_clk_priv *priv, ulong clk_id)
 		con = readl(&cru->clksel_con[70]);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 	if (clk_id == SCLK_UART1) {
 		src = (con & CLK_UART1_SRC_SEL_SHIFT) >> CLK_UART1_SRC_SEL_SHIFT;
@@ -1899,7 +1899,7 @@ static ulong rk3576_clk_get_rate(struct clk *clk)
 
 	if (!priv->gpll_hz) {
 		printf("%s gpll=%lu\n", __func__, priv->gpll_hz);
-		return -ENOENT;
+		return 0;
 	}
 
 	if (!priv->ppll_hz) {
@@ -2051,7 +2051,7 @@ static ulong rk3576_clk_get_rate(struct clk *clk)
 		break;
 
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;

@@ -195,7 +195,7 @@ static ulong rk3308_i2c_get_clk(struct clk *clk)
 		break;
 	default:
 		printf("do not support this i2c bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
@@ -301,7 +301,7 @@ static ulong rk3308_mmc_get_clk(struct clk *clk)
 		con_id = 41;
 		break;
 	default:
-		return -EINVAL;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
@@ -430,7 +430,7 @@ static ulong rk3308_spi_get_clk(struct clk *clk)
 		break;
 	default:
 		printf("do not support this spi bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
@@ -524,7 +524,7 @@ static ulong rk3308_uart_get_clk(struct clk *clk)
 		break;
 	default:
 		printf("do not support this uart interface\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
@@ -546,7 +546,7 @@ static ulong rk3308_uart_get_clk(struct clk *clk)
 		break;
 	default:
 		printf("do not support this uart pll sel\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -578,11 +578,11 @@ static ulong rk3308_vop_get_clk(struct clk *clk)
 			break;
 		default:
 			printf("do not support this vop pll sel\n");
-			return -EINVAL;
+			return 0;
 		}
 	} else {
 		printf("do not support this vop sel\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -663,7 +663,7 @@ static ulong rk3308_bus_get_clk(struct rk3308_clk_priv *priv, ulong clk_id)
 		div = (con & BUS_PCLK_DIV_MASK) >> BUS_PCLK_DIV_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -726,7 +726,7 @@ static ulong rk3308_peri_get_clk(struct rk3308_clk_priv *priv, ulong clk_id)
 		div = (con & PERI_PCLK_DIV_MASK) >> PERI_PCLK_DIV_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -785,7 +785,7 @@ static ulong rk3308_audio_get_clk(struct rk3308_clk_priv *priv, ulong clk_id)
 		div = (con & AUDIO_PCLK_DIV_MASK) >> AUDIO_PCLK_DIV_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -842,7 +842,7 @@ static ulong rk3308_crypto_get_clk(struct rk3308_clk_priv *priv, ulong clk_id)
 		parent = priv->vpll0_hz;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -891,7 +891,7 @@ static ulong rk3308_rtc32k_get_clk(struct rk3308_clk_priv *priv, ulong clk_id)
 	con = readl(&cru->clksel_con[2]);
 	if ((con & CLK_RTC32K_SEL_MASK) >> CLK_RTC32K_SEL_SHIFT !=
 	    CLK_RTC32K_FRAC_DIV)
-		return -EINVAL;
+		return 0;
 
 	fracdiv = readl(&cru->clksel_con[3]);
 	m = fracdiv & CLK_RTC32K_FRAC_NUMERATOR_MASK;
@@ -1004,7 +1004,7 @@ static ulong rk3308_clk_get_rate(struct clk *clk)
 		rate = rk3308_rtc32k_get_clk(priv, clk->id);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;

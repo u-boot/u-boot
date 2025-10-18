@@ -32,7 +32,7 @@ static ulong vexpress_osc_clk_get_rate(struct clk *clk)
 	data = CLK_FUNCTION | priv->osc;
 	err = misc_read(vexpress_cfg, 0, &data, sizeof(data));
 	if (err < 0)
-		return err;
+		return 0;
 
 	return data;
 }

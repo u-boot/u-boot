@@ -573,7 +573,7 @@ static u32 stm32_get_PLL1_rate(struct stm32_rcc_regs *regs,
 		break;
 	}
 
-	return -EINVAL;
+	return 0;
 }
 
 static u32 stm32_get_apb_psc(struct stm32_rcc_regs *regs, enum apb apb)
@@ -780,7 +780,7 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 	default:
 		dev_err(clk->dev, "unexpected gate_offset value (0x%x)\n",
 			gate_offset);
-		return -EINVAL;
+		return 0;
 		break;
 	}
 }

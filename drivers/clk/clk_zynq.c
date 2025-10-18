@@ -283,7 +283,7 @@ static ulong zynq_clk_get_gem_rate(struct zynq_clk_priv *priv, enum zynq_clk id)
 	debug("%s: gem%d emio rx clock source unknown\n", __func__,
 	      id - gem0_clk);
 
-	return -ENOSYS;
+	return 0;
 }
 
 static unsigned long zynq_clk_calc_peripheral_two_divs(ulong rate,
@@ -398,7 +398,7 @@ static ulong zynq_clk_get_rate(struct clk *clk)
 	case usb0_aper_clk ... swdt_clk:
 		return zynq_clk_get_cpu_rate(priv, cpu_1x_clk);
 	default:
-		return -ENXIO;
+		return 0;
 	}
 }
 

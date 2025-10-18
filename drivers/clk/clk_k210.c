@@ -1049,8 +1049,8 @@ static ulong do_k210_clk_get_rate(struct k210_clk_priv *priv, int id)
 
 	parent = k210_clk_get_parent(priv, id);
 	parent_rate = do_k210_clk_get_rate(priv, parent);
-	if (IS_ERR_VALUE(parent_rate))
-		return parent_rate;
+	if (!parent_rate)
+		return 0;
 
 	if (k210_clks[id].flags & K210_CLKF_PLL)
 		return k210_pll_get_rate(priv, k210_clks[id].pll, parent_rate);
@@ -1075,7 +1075,7 @@ static ulong do_k210_clk_get_rate(struct k210_clk_priv *priv, int id)
 		return parent_rate / (2 << val);
 	default:
 		assert(false);
-		return -EINVAL;
+		return 0;
 	};
 }
 

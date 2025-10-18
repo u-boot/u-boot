@@ -310,7 +310,7 @@ static unsigned long stm32_clk_get_pllsai_rate(struct stm32_clk *priv,
 		break;
 	default:
 		log_err("incorrect PLLSAI output %d\n", output);
-		return -EINVAL;
+		return 0;
 	}
 
 	return (stm32_clk_get_pllsai_vco_rate(priv) / pll_div_output);
@@ -414,7 +414,7 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 		vco = (priv->hse_rate / pllm) * plln;
 		sysclk = vco / pllp;
 	} else {
-		return -EINVAL;
+		return 0;
 	}
 
 	switch (clk->id) {
@@ -491,7 +491,7 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 
 	default:
 		dev_err(clk->dev, "clock index %ld out of range\n", clk->id);
-		return -EINVAL;
+		return 0;
 	}
 }
 

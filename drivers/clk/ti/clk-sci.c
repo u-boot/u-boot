@@ -76,7 +76,7 @@ static ulong ti_sci_clk_get_rate(struct clk *clk)
 	ret = cops->get_freq(sci, clk->id, clk->data, &current_freq);
 	if (ret) {
 		dev_err(clk->dev, "%s: get_freq failed (%d)\n", __func__, ret);
-		return ret;
+		return 0;
 	}
 
 	debug("%s(current_freq=%llu)\n", __func__, current_freq);

@@ -104,7 +104,7 @@ static unsigned long meson_clk81_get_rate(struct clk *clk)
 		parent_rate = XTAL_RATE;
 		break;
 	case 1:
-		return -ENOENT;
+		return 0;
 	default:
 		parent_rate = meson_clk_get_rate_by_id(clk, parents[reg]);
 	}
@@ -123,7 +123,7 @@ static long mpll_rate_from_params(unsigned long parent_rate,
 	unsigned long divisor = (SDM_DEN * n2) + sdm;
 
 	if (n2 < N2_MIN)
-		return -EINVAL;
+		return 0;
 
 	return DIV_ROUND_UP_ULL((u64)parent_rate * SDM_DEN, divisor);
 }
@@ -171,7 +171,7 @@ static ulong meson_mpll_get_rate(struct clk *clk, unsigned long id)
 		pn2 = &meson_mpll2_parm[1];
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	parent_rate = meson_clk_get_rate_by_id(clk, CLKID_FIXED_PLL);
@@ -219,7 +219,7 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 		pod = &meson_sys_pll_parm[2];
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	regmap_read(priv->map, pn->reg_off, &reg);
@@ -272,7 +272,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 			rate = meson_clk81_get_rate(clk);
 			break;
 		}
-		return -ENOENT;
+		return 0;
 	}
 
 	debug("clock %lu has rate %lu\n", id, rate);

@@ -292,7 +292,7 @@ static ulong jh7110_pllx_recalc_rate(struct clk *clk)
 	else if (dacpd == 0 && dsmpd == 0)
 		do_div(frac, 1 << 24);
 	else
-		return -EINVAL;
+		return 0;
 
 	refclk *= (fbdiv + frac);
 	do_div(refclk, prediv * postdiv1);

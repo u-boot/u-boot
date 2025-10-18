@@ -233,7 +233,7 @@ static ulong rk3568_i2c_get_pmuclk(struct rk3568_pmuclk_priv *priv,
 		div = (con & CLK_I2C0_DIV_MASK) >> CLK_I2C0_DIV_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(priv->ppll_hz, div);
@@ -277,7 +277,7 @@ static ulong rk3568_pwm_get_pmuclk(struct rk3568_pmuclk_priv *priv,
 			parent = priv->ppll_hz;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return DIV_TO_RATE(parent, div);
@@ -353,7 +353,7 @@ static ulong rk3568_pmuclk_get_rate(struct clk *clk)
 
 	if (!priv->ppll_hz) {
 		printf("%s ppll=%lu\n", __func__, priv->ppll_hz);
-		return -ENOENT;
+		return 0;
 	}
 
 	debug("%s %ld\n", __func__, clk->id);
@@ -380,7 +380,7 @@ static ulong rk3568_pmuclk_get_rate(struct clk *clk)
 		rate = rk3568_pmu_get_pmuclk(priv);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -641,7 +641,7 @@ static ulong rk3568_cpll_div_get_rate(struct rk3568_clk_priv *priv,
 		shift = CPLL_25M_DIV_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	div = (readl(&cru->clksel_con[con]) & mask) >> shift;
@@ -741,7 +741,7 @@ static ulong rk3568_bus_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 			rate = OSC_HZ;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -821,7 +821,7 @@ static ulong rk3568_perimid_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 			rate = OSC_HZ;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -924,7 +924,7 @@ static ulong rk3568_top_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 			rate = OSC_HZ;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -1022,7 +1022,7 @@ static ulong rk3568_i2c_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 			rate = OSC_HZ;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;
@@ -1078,7 +1078,7 @@ static ulong rk3568_spi_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 		sel = (con & CLK_SPI3_SEL_MASK) >> CLK_SPI3_SEL_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	switch (sel) {
@@ -1089,7 +1089,7 @@ static ulong rk3568_spi_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 	case CLK_SPI_SEL_CPLL_100M:
 		return 100 * MHz;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1152,7 +1152,7 @@ static ulong rk3568_pwm_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 		sel = (con & CLK_PWM3_SEL_MASK) >> CLK_PWM3_SEL_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	switch (sel) {
@@ -1163,7 +1163,7 @@ static ulong rk3568_pwm_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 	case CLK_PWM_SEL_CPLL_100M:
 		return 100 * MHz;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1226,7 +1226,7 @@ static ulong rk3568_adc_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 		prate = rk3568_adc_get_clk(priv, CLK_TSADC_TSEN);
 		return DIV_TO_RATE(prate, div);
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1331,7 +1331,7 @@ static ulong rk3568_crypto_get_rate(struct rk3568_clk_priv *priv, ulong clk_id)
 		else
 			return 100 * MHz;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1418,7 +1418,7 @@ static ulong rk3568_sdmmc_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 		sel = (con & CLK_SDMMC2_SEL_MASK) >> CLK_SDMMC2_SEL_SHIFT;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	switch (sel) {
@@ -1435,7 +1435,7 @@ static ulong rk3568_sdmmc_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 	case CLK_SDMMC_SEL_750K:
 		return 750 * KHz;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1517,7 +1517,7 @@ static ulong rk3568_sfc_get_clk(struct rk3568_clk_priv *priv)
 	case SCLK_SFC_SEL_150M:
 		return 150 * MHz;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1565,7 +1565,7 @@ static ulong rk3568_nand_get_clk(struct rk3568_clk_priv *priv)
 	case NCLK_NANDC_SEL_24M:
 		return OSC_HZ;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1619,7 +1619,7 @@ static ulong rk3568_emmc_get_clk(struct rk3568_clk_priv *priv)
 	case CCLK_EMMC_SEL_24M:
 		return OSC_HZ;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1677,7 +1677,7 @@ static ulong rk3568_emmc_get_bclk(struct rk3568_clk_priv *priv)
 	case BCLK_EMMC_SEL_125M:
 		return 125 * MHz;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1765,7 +1765,7 @@ static ulong rk3568_dclk_vop_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 		conid = 41;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	con = readl(&cru->clksel_con[conid]);
@@ -1781,7 +1781,7 @@ static ulong rk3568_dclk_vop_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 	else if (sel == DCLK_VOP_SEL_CPLL)
 		parent = priv->cpll_hz;
 	else
-		return -ENOENT;
+		return 0;
 
 	return DIV_TO_RATE(parent, div);
 }
@@ -1886,7 +1886,7 @@ static ulong rk3568_gmac_src_get_clk(struct rk3568_clk_priv *priv,
 	case CLK_MAC0_2TOP_SEL_PPLL:
 		return rk3568_pmu_pll_get_rate(priv, HPLL);
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1936,7 +1936,7 @@ static ulong rk3568_gmac_out_get_clk(struct rk3568_clk_priv *priv,
 	case CLK_MAC0_OUT_SEL_24M:
 		return OSC_HZ;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -1989,7 +1989,7 @@ static ulong rk3568_gmac_ptp_ref_get_clk(struct rk3568_clk_priv *priv,
 	case CLK_GMAC0_PTP_REF_SEL_24M:
 		return OSC_HZ;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -2074,7 +2074,7 @@ static ulong rk3568_ebc_get_clk(struct rk3568_clk_priv *priv)
 	case DCLK_EBC_SEL_GPLL_200M:
 		return 200 * MHz;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -2127,7 +2127,7 @@ static ulong rk3568_rkvdec_get_clk(struct rk3568_clk_priv *priv, ulong clk_id)
 			p_rate = priv->gpll_hz;
 		return DIV_TO_RATE(p_rate, div);
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 
@@ -2216,7 +2216,7 @@ static ulong rk3568_uart_get_rate(struct rk3568_clk_priv *priv, ulong clk_id)
 		reg = 68;
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 	con = readl(&cru->clksel_con[reg]);
 	src = (con & CLK_UART_SEL_MASK) >> CLK_UART_SEL_SHIFT;
@@ -2323,7 +2323,7 @@ static ulong rk3568_clk_get_rate(struct clk *clk)
 
 	if (!priv->gpll_hz) {
 		printf("%s gpll=%lu\n", __func__, priv->gpll_hz);
-		return -ENOENT;
+		return 0;
 	}
 
 	switch (clk->id) {
@@ -2487,7 +2487,7 @@ static ulong rk3568_clk_get_rate(struct clk *clk)
 		rate = rk3568_cpll_div_get_rate(priv, clk->id);
 		break;
 	default:
-		return -ENOENT;
+		return 0;
 	}
 
 	return rate;

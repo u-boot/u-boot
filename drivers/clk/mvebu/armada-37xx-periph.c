@@ -325,7 +325,7 @@ static ulong armada_37xx_periph_clk_get_rate(struct clk *clk)
 	struct a37xx_periphclk *priv = dev_get_priv(clk->dev);
 
 	if (clk->id >= priv->count)
-		return -EINVAL;
+		return 0;
 
 	return periph_clk_get_rate(priv, clk->id);
 }

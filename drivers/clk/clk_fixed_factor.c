@@ -28,8 +28,8 @@ static ulong clk_fixed_factor_get_rate(struct clk *clk)
 	struct clk_fixed_factor *ff = to_clk_fixed_factor(clk->dev);
 
 	rate = clk_get_rate(&ff->parent);
-	if (IS_ERR_VALUE(rate))
-		return rate;
+	if (!rate)
+		return 0;
 
 	do_div(rate, ff->div);
 

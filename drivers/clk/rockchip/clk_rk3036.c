@@ -287,7 +287,7 @@ static ulong rk3036_clk_get_rate(struct clk *clk)
 	case 0 ... 63:
 		return rkclk_pll_get_rate(priv->cru, clk->id);
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 

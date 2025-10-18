@@ -177,11 +177,11 @@ static ulong npcm_clk_get_fout(struct clk *clk)
 
 	parent_rate = npcm_clk_get_fin(clk);
 	if (!parent_rate)
-		return -EINVAL;
+		return 0;
 
 	div = npcm_clk_get_div(clk);
 	if (!div)
-		return -EINVAL;
+		return 0;
 
 	debug("fout of clk%lu = (%lu / %u)\n", clk->id, parent_rate, div);
 	return (parent_rate / div);
@@ -199,12 +199,12 @@ static ulong npcm_clk_get_pll_fout(struct clk *clk)
 
 	pll = npcm_clk_pll_get(priv->clk_data, clk->id);
 	if (!pll)
-		return -ENODEV;
+		return 0;
 
 	parent.id = pll->parent_id;
 	ret = clk_request(clk->dev, &parent);
 	if (ret)
-		return ret;
+		return 0;
 
 	parent_rate = clk_get_rate(&parent);
 
@@ -236,7 +236,7 @@ static ulong npcm_clk_get_rate(struct clk *clk)
 		if (!ret)
 			return clk_get_rate(&refclk);
 		else
-			return ret;
+			return 0;
 	}
 
 	if (clk->id >= clk_data->pll0_id &&

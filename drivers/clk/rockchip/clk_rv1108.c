@@ -441,7 +441,7 @@ static ulong rv1108_i2c_get_clk(struct rv1108_cru *cru, ulong clk_id)
 		break;
 	default:
 		printf("do not support this i2c bus\n");
-		return -EINVAL;
+		return 0;
 	}
 
 	return DIV_TO_RATE(GPLL_HZ, div);
@@ -568,7 +568,7 @@ static ulong rv1108_clk_get_rate(struct clk *clk)
 	case SCLK_EMMC_SAMPLE:
 		return rv1108_mmc_get_clk(priv->cru);
 	default:
-		return -ENOENT;
+		return 0;
 	}
 }
 

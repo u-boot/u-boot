@@ -22,8 +22,8 @@ static ulong clk_ti_am3_dpll_x2_get_rate(struct clk *clk)
 	unsigned long rate;
 
 	rate = clk_get_rate(&priv->parent);
-	if (IS_ERR_VALUE(rate))
-		return rate;
+	if (!rate)
+		return 0;
 
 	rate *= 2;
 	dev_dbg(clk->dev, "rate=%ld\n", rate);
