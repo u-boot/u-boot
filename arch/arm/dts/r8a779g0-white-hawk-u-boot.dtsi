@@ -23,6 +23,8 @@
 
 &rpc {
 	bootph-all;
+	status = "disabled";
+
 	flash@0 {
 		bootph-all;
 		spi-tx-bus-width = <1>;

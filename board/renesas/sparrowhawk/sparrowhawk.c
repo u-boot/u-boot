@@ -267,3 +267,30 @@ void renesas_dram_init_banksize(void)
 			gd->bd->bi_dram[bank].size = 0x200000000ULL;
 	}
 }
+
+#define SRCR6			0xe6152c18
+#define SRCR11			0xe6152c2c
+#define SRSTCLR6		0xe6152c98
+#define SRSTCLR11		0xe6152cac
+#define SRCR_PCIEC0_PWR_RESET	BIT(24)
+#define SRCR_PCIEC1_PWR_RESET	BIT(25)
+#define SRCR_PCIEC0_APP_RESET	BIT(21)
+#define SRCR_PCIEC1_APP_RESET	BIT(22)
+
+void board_cleanup_before_linux(void)
+{
+	if (!IS_ENABLED(CONFIG_PCI_RCAR_GEN4))
+		return;
+
+	/* Set cold and application reset for both PCIe cores */
+	writel(SRCR_PCIEC0_PWR_RESET | SRCR_PCIEC1_PWR_RESET, SRCR6);
+	readl(SRCR6);
+	writel(SRCR_PCIEC0_APP_RESET | SRCR_PCIEC1_APP_RESET, SRCR11);
+	readl(SRCR11);
+
+	/* Clear cold and application reset for both PCIe cores */
+	writel(SRCR_PCIEC0_PWR_RESET | SRCR_PCIEC1_PWR_RESET, SRSTCLR6);
+	readl(SRSTCLR6);
+	writel(SRCR_PCIEC0_APP_RESET | SRCR_PCIEC1_APP_RESET, SRSTCLR11);
+	readl(SRSTCLR11);
+}

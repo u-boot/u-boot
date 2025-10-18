@@ -477,6 +477,10 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 
 	if (!rcar_gen4_pcie_link_up(rcar)) {
 		printf("PCIE-%d: Link down\n", dev_seq(dev));
+		rcar_gen4_pcie_ltssm_control(rcar, false);
+		dm_gpio_set_value(&rcar->pe_rst, 1);
+		reset_assert(&rcar->pwr_rst);
+		clk_disable_unprepare(rcar->ref_clk);
 		return -ENODEV;
 	}
 
@@ -489,6 +493,26 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 					 PCIE_ATU_TYPE_MEM,
 					 rcar->dw.mem.phys_start,
 					 rcar->dw.mem.bus_start, rcar->dw.mem.size);
+
+	return 0;
+}
+
+/**
+ * rcar_gen4_pcie_remove() - Stop the PCIe bus active link
+ * @dev: A pointer to the device being operated on
+ *
+ * Stop an active link on the PCIe bus and deconfigure the controller.
+ *
+ * Return: 0 on success, else -ENODEV
+ */
+static int rcar_gen4_pcie_remove(struct udevice *dev)
+{
+	struct rcar_gen4_pcie *rcar = dev_get_priv(dev);
+
+	rcar_gen4_pcie_ltssm_control(rcar, false);
+	dm_gpio_set_value(&rcar->pe_rst, 1);
+	reset_assert(&rcar->pwr_rst);
+	clk_disable_unprepare(rcar->ref_clk);
 
 	return 0;
 }
@@ -566,5 +590,7 @@ U_BOOT_DRIVER(rcar_gen4_pcie) = {
 	.ops		= &rcar_gen4_pcie_ops,
 	.of_to_plat	= rcar_gen4_pcie_of_to_plat,
 	.probe		= rcar_gen4_pcie_probe,
+	.remove		= rcar_gen4_pcie_remove,
 	.priv_auto	= sizeof(struct rcar_gen4_pcie),
+	.flags		= DM_FLAG_ACTIVE_DMA,
 };
