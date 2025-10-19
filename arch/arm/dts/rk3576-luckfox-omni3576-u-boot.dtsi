@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+
+#include "rk3576-u-boot.dtsi"
+
+&green_led {
+	default-state = "on";
+};
+
+&sdhci {
+	cap-mmc-highspeed;
+};
