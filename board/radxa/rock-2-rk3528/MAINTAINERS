@@ -1,0 +1,6 @@
+RADXA-ROCK-2-RK3528
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	board/radxa/rock-2-rk3528
+F:	configs/rock-2-rk3528_defconfig
+F:	arch/arm/dts/rk3528-rock-2*
