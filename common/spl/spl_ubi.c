@@ -11,6 +11,32 @@
 #include <ubispl.h>
 #include <spl.h>
 
+#if IS_ENABLED(CONFIG_SPL_OS_BOOT)
+int spl_ubi_load_image_os(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev,
+			  struct ubispl_info *info)
+{
+	struct legacy_img_hdr *header;
+	struct ubispl_load volumes[2];
+	int err;
+
+	volumes[0].vol_id = CONFIG_SPL_UBI_LOAD_KERNEL_ID;
+	volumes[0].load_addr = (void *)CONFIG_SYS_LOAD_ADDR;
+	volumes[1].vol_id = CONFIG_SPL_UBI_LOAD_ARGS_ID;
+	volumes[1].load_addr = (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR;
+
+	err = ubispl_load_volumes(info, volumes, 2);
+	if (err)
+		return err;
+
+	header = (struct legacy_img_hdr *)volumes[0].load_addr;
+	spl_parse_image_header(spl_image, bootdev, header);
+	puts("Linux loaded.\n");
+
+	return 0;
+}
+#endif
+
 int spl_ubi_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev)
 {
@@ -46,21 +72,17 @@ int spl_ubi_load_image(struct spl_image_info *spl_image,
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
 	if (!spl_start_uboot()) {
-		volumes[0].vol_id = CONFIG_SPL_UBI_LOAD_KERNEL_ID;
-		volumes[0].load_addr = (void *)CONFIG_SYS_LOAD_ADDR;
-		volumes[1].vol_id = CONFIG_SPL_UBI_LOAD_ARGS_ID;
-		volumes[1].load_addr = (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR;
+		ret = spl_ubi_load_image_os(spl_image, bootdev, &info);
+		if (!ret)
+			return 0;
 
-		ret = ubispl_load_volumes(&info, volumes, 2);
-		if (!ret) {
-			header = (struct legacy_img_hdr *)volumes[0].load_addr;
-			spl_parse_image_header(spl_image, bootdev, header);
-			puts("Linux loaded.\n");
-			goto out;
-		}
-		puts("Loading Linux failed, falling back to U-Boot.\n");
+		printf("%s: Failed in falcon boot: %d", __func__, ret);
+		if (IS_ENABLED(CONFIG_SPL_OS_BOOT_SECURE))
+			return ret;
+		printf("Fallback to U-Boot\n");
 	}
 #endif
+
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(header));
 #ifdef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
 	volumes[0].vol_id = -1;
