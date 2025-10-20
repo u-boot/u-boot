@@ -1219,6 +1219,7 @@ config SPL_OS_BOOT_SECURE
 config SPL_OS_BOOT_ARGS
 	bool "Allow SPL to load args for kernel in falcon mode"
 	depends on (SPL_OS_BOOT || SPL_LOAD_FIT_OPENSBI_OS_BOOT) && !SPL_OS_BOOT_SECURE
+	default y if !SPL_OS_BOOT_SECURE
 	help
 	  This option enables the SPL to load an args file (usually the FDT)
 	  alongside the kernel image in falcon boot mode.
