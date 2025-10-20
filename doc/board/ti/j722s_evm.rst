@@ -201,11 +201,6 @@ The following table shows some common boot modes used on J722S-EVM
 platform. More details can be found in the Technical Reference Manual:
 https://www.ti.com/lit/zip/sprujb3 under the `Boot Mode Pins` section.
 
-.. note::
-
-   This device is very new. Currently only UART boot is available while
-   we continue to add support for the other bootmodes.
-
 .. list-table:: Boot Modes
    :widths: 16 16 16
    :header-rows: 1

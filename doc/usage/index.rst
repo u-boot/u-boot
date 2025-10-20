@@ -57,6 +57,7 @@ Shell commands
    cmd/cpu
    cmd/cpuid
    cmd/cyclic
+   cmd/dmareset
    cmd/dm
    cmd/ebtupdate
    cmd/echo

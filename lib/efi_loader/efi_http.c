@@ -460,14 +460,16 @@ static efi_status_t EFIAPI efi_http_service_binding_destroy_child(
 	if (!child_handle)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	efi_search_protocol(child_handle, &efi_http_guid, &phandler);
-
-	if (!phandler)
-		return EFI_EXIT(EFI_UNSUPPORTED);
+	ret = efi_search_protocol(child_handle, &efi_http_guid, &phandler);
+	if (ret != EFI_SUCCESS) {
+		if (ret != EFI_INVALID_PARAMETER)
+			ret = EFI_UNSUPPORTED;
+		goto out;
+	}
 
 	ret = efi_delete_handle(child_handle);
 	if (ret != EFI_SUCCESS)
-		return EFI_EXIT(ret);
+		goto out;
 
 	http_instance = phandler->protocol_interface;
 	efi_free_pool(http_instance->http_load_addr);
@@ -476,8 +478,8 @@ static efi_status_t EFIAPI efi_http_service_binding_destroy_child(
 	free(phandler->protocol_interface);
 
 	num_instances--;
-
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 /**

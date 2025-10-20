@@ -7,29 +7,33 @@ WinLink E850-96 board
 Overview
 --------
 
-WinLink's E850-96 board [1]_ is based on Samsung Exynos850 SoC and follows
-96Boards Consumer Edition specification [2]_. That makes it possible to use
-96Boards mezzanine boards [3]_ along with it. It's an open-hardware board and
-the hardware design files [4]_ were published, along with the supported
-software [5]_ and related documentation.
+WinLink's E850-96 board [1]_ is based on the Samsung Exynos850 SoC and follows
+the 96Boards Consumer Edition specification [2]_. This makes it possible to use
+96Boards mezzanine boards [3]_ with it. It's an open-hardware board, and
+the hardware design files were published [4]_ along with supported software and
+related documentation [5]_.
 
-U-Boot can be used on E850-96 instead of the original Samsung LittleKernel based
-bootloader [6]_. Because FWBL1 [7]_ doesn't verify bootloader's signature, there
-is no need to sign a U-Boot binary. That means U-Boot binary can be flashed into
-``bootloader`` partition (instead of LittleKernel bootloader) and it will just
-work.
+U-Boot can be used on E850-96 instead of the original (factory pre-flashed)
+Samsung's LittleKernel based bootloader [6]_. Because the E850-96's version of
+FWBL1 [7]_ doesn't verify bootloader's signature, there is no need to sign the
+U-Boot binary. This means the U-Boot binary can be flashed to eMMC instead of
+the LittleKernel bootloader, and it will just work.
 
-Because BL2 bootloader already sets up DRAM and runs the final bootloader
-(U-Boot) from DRAM, there is no need in U-Boot SPL. It's enough to have only
-U-Boot proper (``u-boot.bin``).
+The BL2 bootloader sets up DRAM and runs the final bootloader (U-Boot) from
+DRAM, so there is no need for U-Boot SPL. It's enough to have only U-Boot proper
+(``u-boot.bin``).
 
 Boot Flow
 ---------
 
-The boot path for Exynos850 is shown on the figure below.
+The boot path for Exynos850 is shown in :ref:`Figure 1 <figure1>`.
 
-.. image:: img/exynos850-boot-architecture.svg
-  :alt: Exynos850 SoC boot flow
+.. _figure1:
+
+.. kernel-figure:: img/exynos850-boot-architecture.svg
+   :align: center
+
+   Figure 1: Exynos850 SoC boot architecture
 
 Legend:
 
@@ -37,24 +41,52 @@ Legend:
 * ``BL1``: Software part of Boot ROM
 * ``EPBL``: Exynos Primary Boot Loader
 * ``BL2``: Initializes CMU and DRAM and runs the final bootloader
-* ``Bootloader``: Final bootloader (e.g. U-Boot); also called BL33 in terms of
-  ARM boot flow
-* ``EL3_MON``: EL3 monitor (trusted firmware, handles SMC calls); also called
-  BL31 in terms of ARM boot flow
-* ``LDFW``: Loadable Firmware
+* ``Bootloader``: The final bootloader (e.g. U-Boot); it's also called BL33 in
+  terms of ARM boot flow
+* ``EL3_MON``: EL3 monitor (trusted firmware, handles SMC calls); it's also
+  called BL31 in terms of ARM boot flow
+* ``LDFW``: Loadable Firmware (loaded by U-Boot)
 
-Unbricking Note
----------------
+On a "power-on" event, the processor starts executing code at address 0x00000000
+where the internal ROM (iROM) is mapped. iROM contains the Boot ROM code (BL0).
+All other bootloaders are stored in external storage (usually eMMC), so the user
+can update those later.
 
-In case the board is bricked for some reason, the ``dltool`` [8]_ can be used to
-unbrick and revive it. This tool performs USB boot, and uploads the LittleKernel
-bootloader over USB, which is then being executed on the board. The loaded
-bootloader further enters fastboot mode, so that the user can flash the
-functional bootloader binary (U-Boot or LittleKernel [7]_) to eMMC using
-``fastboot`` tool. Please read the ``dltool`` README file for more details about
-the procedure.
+By default the board is configured to boot from eMMC. On power-on, the Boot ROM
+code (BL0) jumps to the beginning of eMMC boot partition 0 (``mmc0boot0``)
+where BL1 must reside. The boot flow then progresses through multiple various
+bootloaders (as shown in :ref:`Figure 1 <figure1>`), eventually ending up
+executing U-Boot (designated as "Bootloader" in the figure).
 
-Build Procedure
+Boot Device Configuration
+-------------------------
+
+The boot device can be chosen using the SW1 DIP switch. It controls the eXternal
+Operating Mode (XOM) SoC pins. :ref:`Table 1 <table1>` shows how the boot source
+can be configured using the SW1.
+
+.. _table1:
+
+.. table:: Table 1: Boot device configuration using the SW1 DIP switch
+
+   ========================  =======================
+   SW1 pin positions (1234)  Boot order
+   ========================  =======================
+   0000                      1st: eMMC, 2nd: USB
+   1000                      1st: USB, 2nd: -
+   0100                      1st: SD card, 2nd: USB
+   1100                      1st: eMMC, 2nd: SD card
+   ========================  =======================
+
+The default boot source is eMMC (all SW1 pins are "OFF", i.e. in "down"
+position). USB boot method can be useful for unbricking the board (in case
+some incorrect or broken bootloader was flashed to eMMC by mistake), which
+allows one to upload and execute all bootloaders over USB. See the
+``dltool`` [8]_ README file for details. SD card boot was never tested on
+E850-96, so it leaves two options: eMMC boot (regular boot) or USB boot (mainly
+used for unbricking the board and during the bootloader development process).
+
+Building U-Boot
 ---------------
 
 Build U-Boot binary from source code (using AArch64 baremetal GCC toolchain):
@@ -66,49 +98,92 @@ Build U-Boot binary from source code (using AArch64 baremetal GCC toolchain):
   make e850-96_defconfig
   make
 
-The original E850-96 board is shipped with LittleKernel-based bootloader flashed
-in eMMC. To replace it with U-Boot, boot into fastboot mode (as described in
-the board software documentation [9]_), and flash U-Boot binary:
+The output file is ``u-boot.bin``.
+
+Flashing Overview
+-----------------
+
+.. note::
+
+  In case the board is bricked for some reason, the ``dltool`` [8]_ can be used
+  to unbrick and revive it. This tool performs USB boot and uploads all E850-96
+  bootloaders over USB, which are then executed on the board. The loaded
+  bootloader (e.g. LittleKernel or U-Boot) further enters fastboot mode, so that
+  the user can flash the functional bootloader binary (U-Boot or
+  LittleKernel [7]_) to eMMC using ``fastboot`` tool. See the ``dltool`` README
+  file for more details about the procedure.
+
+eMMC layout on E850-96 looks like this:
+
+* User area of eMMC: contains GPT partition table with OS partitions (either
+  Linux or Android)
+* Boot Partition 0 (``mmc0boot0``): contains all bootloaders (firmware)
+* Boot Partition 1 (``mmc0boot1``): contains U-Boot environment
+
+There are several methods enabled in U-Boot for flashing software to eMMC on
+E850-96:
+
+* **fastboot** (USB): most useful for flashing OS partitions (Linux or Android)
+* **DFU** (USB): convenient for flashing bootloaders (firmware) to boot partition
+  0
+* **Capsule Update**: EFI mechanism, can update bootloaders without the need to
+  use USB
+
+Flashing U-Boot from LK (Initial)
+---------------------------------
+
+The original E850-96 board is shipped with the LittleKernel-based bootloader
+flashed in eMMC. This LK bootloader allows flashing images in the ``bootloader``
+area of eMMC boot partition 0 using fastboot just like flashing a regular
+partition in the user area of eMMC.
+
+So to replace the original bootloader with U-Boot, first boot into fastboot mode
+(as described in the board software documentation [9]_, in section 6 "Flashing
+the Software"):
+
+* Connect the power cable to your E850-96 board
+* Press the "POWER" button (SW2) for 1 sec to start booting the bootloader
+* Press and hold the "VOL_UP" button (SW4) for 7 seconds
+
+Flash the U-Boot binary:
 
 .. prompt:: bash $
 
   fastboot flash bootloader u-boot.bin
   fastboot reboot
 
-U-Boot will boot up to the shell.
-
-Flashing
---------
-
-User area of eMMC contains GPT partition table (either Linux or Android). Boot
-Partition A (``mmc0boot0``) contains all firmware/bootloaders. Boot Partition
-B (``mmc0boot1``) contains U-Boot environment.
-
-First make sure to format eMMC accordingly. Prepare the initial environment:
+U-Boot will boot up to the shell. Configure the default U-Boot environment
+before starting to work with U-Boot:
 
 .. prompt:: bash =>
 
   env default -f -a
   env save
 
-For Linux, just format eMMC using default ``$partitions`` definitions:
+.. _flashing-linux-label:
+
+Flashing Linux Images
+---------------------
+
+The Linux partition table contains only two partitions:
+
+1. ``esp`` (EFI System Partition)
+2. ``rootfs``
+
+Format eMMC to have Linux partition table (using the default ``$partitions``
+definitions):
 
 .. prompt:: bash =>
 
   gpt write mmc 0 $partitions
 
-For Android, use ``$partitions_android`` instead:
+...or do the same using fastboot:
 
-.. prompt:: bash =>
+.. prompt:: bash $
 
-  setenv partitions_linux $partitions
-  setenv partitions $partitions_android
-  env save
-  gpt write mmc 0 $partitions
+  fastboot oem format
 
-In case of Linux, there are two partitions available: ``esp`` (EFI System
-Partition) and ``rootfs``. It is recommended to use fastboot to flash images to
-those partitions. Enter fastboot mode on your device:
+Enter fastboot mode on your device:
 
 .. prompt:: bash =>
 
@@ -121,21 +196,845 @@ And then flash the images:
   fastboot flash esp esp.img
   fastboot flash rootfs rootfs.img
 
-To update the firmware, it's easier to use DFU. Enter DFU mode on the board:
+.. _flashing-android-label:
+
+Flashing Android Images
+-----------------------
+
+Use ``$partitions_android`` as current partition definitions:
+
+.. prompt:: bash =>
+
+  setenv partitions_linux $partitions
+  setenv partitions $partitions_android
+  env save
+
+Format eMMC to have Android partition table:
+
+.. prompt:: bash =>
+
+  gpt write mmc 0 $partitions
+
+...or do the same using fastboot:
+
+.. prompt:: bash $
+
+  fastboot oem format
+
+Currently, flashing Android images using U-Boot's fastboot implementation
+doesn't work on E850-96. Instead it's recommended to boot the GBL EFI app
+(Android Generic Bootloader) [10]_ and use its fastboot implementation. See
+:ref:`booting-android-gbl-label` section for details. But first the ESP image
+containing the GBL app has to be flashed.
+
+Enter fastboot mode on your device:
+
+.. prompt:: bash =>
+
+  fastboot usb 0
+
+And flash the ESP image:
+
+.. prompt:: bash $
+
+  fastboot flash esp esp.img
+  fastboot reboot
+
+Now configure EFI boot variables (from U-Boot shell) to boot GBL app by default,
+as described in the :ref:`booting-label` section. Boot GBL and enter fastboot
+mode.
+
+The Android flashing procedure is complex and may vary across different Android
+versions. So there is usually a flashing script (or flashing instructions)
+provided with AOSP images for the E850-96 board to flash all Android images to
+eMMC. Run it:
+
+.. prompt:: bash $
+
+   ./flash-all.sh
+
+Flashing Bootloaders using DFU
+------------------------------
+
+All bootloaders are stored in eMMC boot partition 0 (``mmc0boot0``), which
+doesn't have any partition table (it's a raw storage area). Hence **the most
+convenient way to update bootloaders over USB on E850-96 board is using DFU**
+(Device Firmware Upgrade) protocol, because it allows one to flash images to a
+particular area of boot0.
+
+DFU uses only USB endpoint 0 (EP0), which means this flashing method is quite
+slow. That's why it's better to limit its usage for flashing only bootloaders
+(which are relatively small binaries), and not use it for flashing rootfs and
+other big images.
+
+eMMC boot partition 0 (``mmc0boot0``) on E850-96 board has the next layout (all
+offsets on the left are specified in 512B blocks)::
+
+               boot0 partition (4 MiB)
+     0x0 +----------------------------------+
+         |         fwbl1 (12 KiB)           |    // BL1 bootloader
+    0x18 +----------------------------------+
+         |         epbl (76 KiB)            |    // EPBL bootloader
+    0xb0 +----------------------------------+
+         |         bl2 (256 KiB)            |    // BL2 bootloader
+   0x2b0 +----------------------------------+
+         |         dram_train (16 KiB)      |    // (not a bootloader)
+   0x2d0 +----------------------------------+
+         |         ect_test (50 KiB)        |    // (not a bootloader)
+   0x334 +----------------------------------+
+         |         acpm_test (130 KiB)      |    // (not a bootloader)
+   0x438 +----------------------------------+
+         |         bootloader (2 MiB)       |    // U-Boot
+  0x1438 +----------------------------------+
+         |         el3_mon (256 KiB)        |    // EL3 monitor firmware
+  0x1638 +----------------------------------+
+
+This layout information is stored in the ``$dfu_alt_info`` U-Boot environment
+variable, so one can provide a particular bootloader name to ``dfu-util`` tool
+to update it.
+
+Enter DFU mode on the board:
 
 .. prompt:: bash =>
 
   dfu 0 mmc 0
 
-To update U-Boot:
+To update U-Boot via DFU:
 
 .. prompt:: bash $
 
   dfu-util -D u-boot.bin -a bootloader
 
+To update another bootloader just use the names from the boot0 partition layout
+above in ``-a`` option.
+
+Flashing Bootloaders using Fastboot
+-----------------------------------
+
 It's also possible to use fastboot to flash the whole ``mmc0boot0`` HW
-partition, but it's not so straightforward, as one have to prepare the image for
-the whole ``boot0`` partition containing all firmware binaries first.
+partition. It might not be as convenient as using the DFU method though, as an
+image containing all binaries has to be prepared first.
+
+One way to generate such an image is to use ``dd`` tool, e.g.:
+
+.. code-block:: bash
+
+  # $1: output image file
+  # $2: input image file to append
+  # $3: offset to append after, in LBA (512 bytes)
+  # $4: size to append, in LBA (512 bytes)
+  append() {
+      dd if="$2" of="$1" bs=512 conv=notrunc seek=$(($3)) count=$(($4))
+  }
+
+  # Create boot0 image
+  dd if=/dev/zero of=$img bs=4M count=1
+  append boot0.img fwbl1.img    0x0     0x18
+  append boot0.img epbl.img     0x18    0x98
+  append boot0.img bl2.img      0xb0    0x200
+  append boot0.img u-boot.bin   0x438   0x1000
+  append boot0.img el3_mon.img  0x1438  0x200
+
+Once the image is generated, it can be flashed like this:
+
+.. prompt:: bash $
+
+  fastboot flash mmc0boot0 boot0.img
+
+Updating BLs using Capsule Update
+---------------------------------
+
+The bootloaders (in eMMC boot partition 0) can be updated using the EFI Capsule
+Update mechanism. It doesn't require using USB, so it can be useful in some
+scenarios.
+
+It works like this:
+
+1. Generate the "capsule" file for the desired bootloader binary
+2. Copy this capsule file to a particular location in ESP partition
+3. Reboot the board
+
+U-Boot will handle it automatically, using the next procedure:
+
+1. Locate the capsule file and update the corresponding bootloader
+2. Remove the capsule file from ESP after updating
+3. Reboot again to make use of the updated bootloader
+
+To generate capsule files, some extra information is needed for each bootloader,
+which is provided in :ref:`Table 2 <table2>` below.
+
+.. _table2:
+
+.. table:: Table 2: Image indexes and GUIDs for Capsule Update
+
+   ===========  ==========  ========================================
+   Image index  Image name  GUID
+   ===========  ==========  ========================================
+   1            fwbl1       ``181cd3f2-e375-44d2-8078-3221e1dfb95e``
+   2            epbl        ``66c1a54d-d149-415d-aada-b8aee499b370``
+   3            bl2         ``89471c2a-6c8d-4158-acad-23d3b2873d35``
+   4            bootloader  ``629578c3-ffb3-4a89-ac0c-611840727779``
+   5            el3_mon     ``df5718a2-930a-4916-bb19-3213214d8486``
+   ===========  ==========  ========================================
+
+The kernel also exposes this information via the EFI ESRT table in SysFS, in
+``/sys/firmware/efi/esrt/entries``.
+
+For example, to update the U-Boot binary, the capsule file can be generated like
+this:
+
+.. prompt:: bash $
+
+  ./tools/mkeficapsule --index 4 \
+                         --guid 629578c3-ffb3-4a89-ac0c-611840727779 \
+                         u-boot.bin capsule4.bin
+
+The resulting ``capsule4.bin`` should be copied to ESP partition, in this
+directory::
+
+  /EFI/UpdateCapsule/
+
+Then after reboot U-Boot will update the ``bootloader`` area in eMMC boot
+partition 0 (boot0) and remove the capsule file. It's done by the EFI boot
+manager executed as a part of Standard Boot. To confirm the bootloader was
+updated U-Boot will print the next message in the serial console::
+
+    Applying capsule capsule4.bin succeeded.
+    Reboot after firmware update.
+
+.. _booting-label:
+
+Booting Overview
+----------------
+
+OS booting is performed using a U-Boot mechanism called
+:doc:`/develop/bootstd/index`. The Standard Boot resembles the BIOS boot menu on
+a PC: it allows one to choose which boot source to use, specify the desired boot
+order, etc. All OS booting related information (like the next bootloader file,
+kernel image location, device tree blob location, kernel parameters, etc.) is
+provided in corresponding files in EFI System Partition (see :ref:`esp-label`
+section for details), or in rootfs partition. This way there is no need to
+modify U-Boot (or U-Boot environment) each time the OS is modified or replaced.
+
+With EFI enabled in U-Boot, that covers the requirements of ARM SystemReady
+compliance program [11]_, making it easy for end users to install and run
+different OSes on the same device, and be able to do that in a similar manner
+across different devices. For example, using Standard Boot and EFI capabilities
+enabled in U-Boot it should be possible for the user to insert a USB media drive
+with a Debian installer into the E850-96 board and install Debian OS to eMMC,
+the same way it's done on a PC (or do the network installation).
+
+When the autoboot happens on U-Boot countdown timeout, this command (bootcmd) is
+automatically executed:
+
+.. prompt:: bash =>
+
+  bootflow scan -lb
+
+It goes through all present storage devices, and searches for all available boot
+methods on all partitions that have the **bootable** flag, and boots the first
+found method. Next partitions will be searched:
+
+* Linux: both ``esp`` and ``rootfs`` partitions are bootable
+* Android: only ``esp`` is bootable
+
+Next boot methods are currently enabled in E850-86 U-Boot:
+
+.. _table3:
+
+.. table:: Table 3: Standard Boot methods
+
+   ========  ===============================================================
+   Method    Description
+   ========  ===============================================================
+   efi_mgr   EFI boot manager flow (booting using ``Boot*`` EFI variables)
+   efi       EFI boot from ``/EFI/BOOT/BOOTAA64.EFI`` file
+   extlinux  Booting using ``/boot/extlinux/extlinux.conf`` file from rootfs
+   script    Booting using ``/boot/boot.scr`` U-Boot script from rootfs
+   pxe       Network boot using PXE protocol
+   ========  ===============================================================
+
+The most flexible, convenient and modern boot method is ``efi_mgr``. It will be
+used by default (if EFI ``Boot*`` variables are configured properly). If another
+boot method or boot device should be used by default, the desired boot ordering
+can be controlled with ``$boot_targets`` and ``$bootmeths`` environment
+variables, as described in :doc:`/develop/bootstd/overview` documentation.
+
+.. _booting-efi-mgr-label:
+
+Booting with ``efi_mgr`` Method
+-------------------------------
+
+The ``'efi_mgr'`` boot method can run EFI apps by using the configuration from
+``Boot*`` EFI variables. **It's a recommended boot method** and should be
+preferred if there are no other requirements.
+
+For example it can run:
+
+* GRUB EFI app (booting Debian OS further)
+* Android GBL EFI app (booting Android OS)
+* Linux kernel image (EFI stub), mounting further Debian rootfs from eMMC
+
+The most convenient way to configure ``Boot*`` EFI variables is by using the
+``eficonfig`` U-Boot command. It's an interactive pseudo-graphic menu-like boot
+configurator.
+
+For example, let's configure EFI boot variables for booting GRUB EFI app from
+ESP partition. First, run ``eficonfig`` command:
+
+.. prompt:: bash =>
+
+  eficonfig
+
+Add GRUB EFI app to the boot list, and make it the highest priority boot
+source:
+
+1. Select "Add Boot Option" menu item
+2. Set "Description:" to "GRUB"
+3. Press "File:" -> "Select File" -> "mmc 0:1", and select the GRUB EFI app
+   (e.g. ``/EFI\debian\grubaa64.efi``)
+4. The created entry should look like this::
+
+     Description: GRUB
+     File: mmc 0:1/EFI\debian\grubaa64.efi
+
+5. Press "Save"
+6. Press "Change Boot Order" and move the "GRUB" item on the top (using "+" key)
+7. Press "Save"
+8. Press "Quit"
+
+Now reboot the board (with ``reset`` command); U-Boot will run GRUB, which
+should boot Debian OS. So the whole execution chain will look like this:
+
+  U-Boot -> ``'bootflow scan -lb'`` (bootcmd) -> efi_mgr -> GRUB -> Debian
+
+The same way Android GBL can be booted::
+
+  Description: Android GBL
+  File: mmc 0:1/EFI\android\gbl_aarch64.efi
+
+Linux kernel can be booted directly, as modern kernel images usually have EFI
+stub format (when ``CONFIG_EFI_STUB=y`` kernel option is enabled). An example of
+such boot configuration::
+
+  Description: Debian
+  File: mmc 0:1/EFI\Linux\Image
+  Fdt File: mmc 0:1/EFI\Linux\exynos850-e850-96.dtb
+  Optional Data: root=/dev/mmcblk0p2 rootwait rw console=ttySAC0,115200n8
+
+Booting with ``efi`` Method
+---------------------------
+
+The ``'efi'`` boot method just executes the ``/EFI/BOOT/BOOTAA64.EFI`` file from
+the ESP partition, which should be some kind of an OS loader. For example it can
+be systemd-boot UEFI boot manager, which is provided by ``systemd-boot`` Debian
+package. This method is probably only useful if the system has an EFI
+bootloader which resides at the fixed path mentioned above. It's not very
+flexible and usually the ``'efi_mgr'`` method should be preferred for running
+EFI apps.
+
+To run the ``'efi'`` boot method (assuming it has ``Seq=1`` order in
+``'bootflow scan -l'`` output):
+
+.. prompt:: bash =>
+
+  bootflow scan -l
+  bootflow select 1
+  bootflow boot
+
+Booting with ``extlinux`` Method
+--------------------------------
+
+The ``'extlinux'`` boot method looks for the ``extlinux.conf`` configuration
+file, reads it and uses the obtained information to find Linux kernel and dtb,
+and run it with kernel parameters also supplied by ``extlinux.conf``. This
+method is useful if it's not possible to do EFI boot.
+
+The ``extlinux.conf`` file can be generated automatically with ``u-boot-update``
+command (from Linux). An example of ``/boot/extlinux/extlinux.conf`` (stored in
+rootfs)::
+
+  default l0
+  menu title U-Boot menu
+  prompt 0
+  timeout 50
+
+  label l0
+      menu label Debian GNU/Linux 6.16.0-09930-gecbe0323440c
+      linux /boot/vmlinuz-6.16.0-09930-gecbe0323440c
+      fdt /usr/lib/linux-image-6.16.0-09930-gecbe0323440c/exynos/exynos850-e850-96.dtb
+      append root=/dev/mmcblk0p2 rootwait rw console=ttySAC0,115200n8
+
+To run the extlinux boot method (assuming it has ``Seq=2`` order in
+``'bootflow scan -l'`` output):
+
+.. prompt:: bash =>
+
+  bootflow scan -l
+  bootflow select 2
+  bootflow boot
+
+Booting with ``script`` Method
+------------------------------
+
+The ``'script'`` boot method looks for the ``boot.scr`` file, reads it and
+executes U-Boot commands specified there. It can be useful for debugging and
+development purposes, but it's outdated and not very secure, and should be
+avoided in production.
+
+First, prepare the ``boot.txt`` file with OS boot instructions, for example:
+
+.. code-block:: bash
+
+  setenv mmcroot     2
+  setenv console     ttySAC0,115200n8
+  setenv kernel_file Image
+  setenv fdtfile     exynos/exynos850-e850-96.dtb
+  setenv loadaddr    0x80000000
+  setenv fdt_addr_r  0x8c000000
+
+  echo Booting Linux from eMMC...
+  mmc dev $mmcdev
+  mmc rescan
+  setenv bootargs console=$console root=/dev/mmcblk${mmcdev}p${mmcroot} rootwait rw
+  load mmc $mmcdev:$mmcroot $fdt_addr_r /boot/$fdtfile
+  load mmc $mmcdev:$mmcroot $loadaddr /boot/$kernel_file
+  booti $loadaddr - $fdt_addr_r
+
+Generate ``boot.scr`` file (in legacy U-Boot image format) like this:
+
+.. prompt:: bash $
+
+  mkimage -A arm64 -O linux -T script -n "E850-96 Debian bootscript" -C none \
+            -d boot.txt boot.scr
+
+Then copy it to rootfs, e.g. at ``/boot/boot.scr`` path. The Standard Boot will
+be able to find it by its name, and execute it to boot the OS.
+
+Booting with ``pxe`` Method
+---------------------------
+
+The ``'pxe'`` boot method implements PXE protocol, and performs network boot
+over Ethernet. When used together with NFS for mounting the rootfs over the
+network, it may be one of **the most convenient boot methods for development**.
+That's because it makes it possible to modify rootfs files (like kernel modules
+or programs that are being developed) on the host machine, which is instantly
+reflected on the board side due to the network-transparent nature of NFS.
+
+PXE protocol requires TFTP and DHCP servers to be configured on the host
+machine:
+
+* DHCP server should be configured to provide an IP address to your board
+* TFTP server should be configured to hand out the configuration file (in
+  extlinux format) specifying loadable binaries.
+
+  An example of a server-side TFTP directory::
+
+    /srv/tftp/
+    |-- exynos
+    |   `-- exynos850-e850-96.dtb
+    |-- Image
+    `-- pxelinux.cfg
+        `-- 01-02-36-f5-1c-81-13
+
+  where ``'01-02-36-f5-1c-81-13'`` file contains extlinux configuration for
+  TFTP to load and boot. The name of this file is the Ethernet MAC address,
+  which can be looked up in the ``$ethaddr`` environment variable in U-Boot.
+
+  An example of such configuration file is::
+
+    prompt 0
+    timeout 5
+    default local
+
+    menu title PXE Boot Menu serving from joe-pc
+
+    label local
+        menu label Debian GNU/Linux
+        linux Image
+        fdt exynos/exynos850-e850-96.dtb
+        append console=ttySAC0,115200n8 root=/dev/nfs nfsroot=${serverip}:/srv/nfs/debian,nolock,nfsvers=4 rw ip=dhcp
+
+* If it's desired to mount the rootfs over NFS (instead of mounting it from
+  eMMC or using an ``initrd`` ramdisk) -- NFS server should be configured
+  accordingly. E.g. it can share Debian rootfs in ``/srv/nfs/debian/``
+  directory.
+
+  NFS support should also be enabled in the kernel. Although NFS options are
+  already enabled in ARM64 defconfig, the USB PHY and LAN9514 (Ethernet) drivers
+  must be made built-in, so the next change is needed::
+
+    arch/arm64/configs/defconfig
+    ----------------------------
+
+    # Needed for boot from USB storage (mounting rootfs from USB drive)
+    CONFIG_PHY_EXYNOS5_USBDRD=y
+    CONFIG_TYPEC=y
+
+    # Needed for NFS boot
+    CONFIG_USB_NET_SMSC95XX=y
+    CONFIG_USB_USBNET=y
+
+To enable PXE boot:
+
+1. First, make sure to enable USB host mode in U-Boot, as discussed in
+   :ref:`usb-host-label` section
+2. Check if ``'pxe'`` boot method is present in ``'bootflow scan -l'`` output.
+   It should look like this::
+
+     Seq  Method       State   Uclass    Part  Name                      Filename
+     ---  -----------  ------  --------  ----  ------------------------  ----------------
+       5  pxe          ready   ethernet     0  smsc95xx_eth.bootdev.0    extlinux/extlinux.conf
+
+3. Select and boot it:
+
+   .. prompt:: bash =>
+
+     bootflow select 5
+     bootflow boot
+
+It'll run the network boot process which works like this:
+
+  * U-Boot will obtain an IP address over DHCP from the host
+  * U-Boot will obtain the extlinux configuration file over TFTP from the host
+  * U-Boot will use the information from extlinux file to consequently obtain
+    the Linux kernel image and device tree blob from the host
+  * U-Boot will boot the Linux kernel, providing kernel parameters from the
+    extlinux file
+  * Linux kernel will use the kernel parameters to mount the rootfs over NFS
+
+The Ethernet MAC address (``$ethaddr``) will be passed from U-Boot to Linux
+kernel via device tree.
+
+.. _booting-from-usb-label:
+
+Booting from USB Flash Drive
+----------------------------
+
+It's possible to boot an OS from a USB flash drive. That might be useful to
+prevent eMMC part wearing off, or for development reasons.
+
+eMMC will still be used for its boot0 and boot1 partitions (where all
+bootloaders and a U-Boot environment are stored, respectively). But it's
+possible to make U-Boot load the LDFW firmware from USB media by setting
+``$bootdev*`` environment variables accordingly. There are three environment
+variables that can be used to specify the storage where the loadable firmware
+should be loaded from:
+
+* ``bootdev``: block device interface name (``"mmc"`` or ``"usb"``)
+* ``bootdevnum``: block device number
+* ``bootdevpart``: partition number
+
+Assuming that the USB drive layout follows the same partitioning scheme as
+defined in ``$partitions``, it's enough to only set ``$bootdev`` like this:
+
+.. prompt:: bash =>
+
+  setenv bootdev usb
+  env save
+
+Another thing to be aware of: in order to perform USB boot the USB PHY kernel
+driver has to be built-in. For example, in ARM64 defconfig it's specified as a
+loadable module, not a built-in one. So the next change to the kernel config
+might be needed::
+
+  arch/arm64/configs/defconfig
+  ----------------------------
+
+  # Needed for boot from USB storage (mounting rootfs from USB drive)
+  CONFIG_PHY_EXYNOS5_USBDRD=y
+  CONFIG_TYPEC=y
+
+Follow the instructions below to boot from a USB storage device:
+
+1. First, make sure to enable USB host mode in U-Boot, as discussed in
+   :ref:`usb-host-label` section
+2. Format your USB stick to follow the ``$partitions`` layout::
+
+     Zero /dev/sdX:
+     # dd if=/dev/zero of=/dev/sdX bs=1M count=100
+
+     Create GPT table matching eMMC:
+     # cfdisk
+         - 1st partition: EFI System (128 MiB)
+         - 2nd partition: Linux filesystem (all remaining space)
+
+     Set ESP partition (#1) type to EFI System (0xEF00):
+     # sgdisk --typecode=1:ef00 /dev/sdX
+     # partprobe /dev/sdX
+
+     Format both partitions:
+     # mkfs.fat -F 32 /dev/sdX1
+     # mkfs.ext4 /dev/sdX2
+
+     Set FS labels for partitions:
+     # fatlabel /dev/sdX1 ESP
+     # e2label /dev/sdX2 rootfs
+
+     Set GPT names for partitions:
+     # gdisk /dev/sdX
+     c          - change a partition's name
+     1          - partition number
+     esp        - new name
+     c          - change a partition's name
+     2          - partition number
+     rootfs     - new name
+     w          - write table to disk and exit
+
+     Set bootable flag for rootfs partition:
+     # gdisk /dev/sdX
+     x           - extra functionality (experts only)
+     a           - set attributes
+     2           - partition number
+     2           - legacy BIOS bootable
+     Enter       - exit
+     w           - write table to the disk and exit
+     y           - yes, want to proceed
+
+3. Copy Debian rootfs and ESP to your USB flash drive:
+
+   .. prompt:: bash #
+
+     dd if=esp.img of=/dev/sdX1 bs=64M
+     dd if=rootfs.img of=/dev/sdX2 bs=64M status=progress
+
+4. Insert the prepared USB media into the E850-96 USB port
+5. Tell U-Boot to search for LDFW firmware on USB stick:
+
+   .. prompt:: bash =>
+
+     setenv bootdev usb
+     env save
+
+6. Erase eMMC partition table to make U-Boot use ESP from USB drive:
+
+   .. prompt:: bash =>
+
+    mmc dev 0
+    mmc erase 0 0x2400
+    reset
+
+7. Make sure ``'bootflow scan -l'`` is able to detect boot methods on your
+   USB stick
+8. Setup EFI variables (using ``eficonfig`` command) for booting from USB stick
+   with ``efi_mgr`` boot method, as described in :ref:`booting-label` section
+
+Now U-Boot will be able to boot the OS from the USB drive using Standard Boot.
+
+.. _booting-android-gbl-label:
+
+Booting Android with GBL
+------------------------
+
+.. warning::
+
+  Android GBL support for E850-96 in U-Boot is experimental at the moment, and
+  it requires additional actions from the user to make GBL work with U-Boot.
+
+Android GBL (Generic Bootloader) [10]_ is an EFI app that acts as an Android OS
+bootloader. It's able to recognize and boot different versions of Android OS,
+and provides its own fastboot protocol implementation. Nowadays GBL is a
+preferred method of running Android, and it's recommended to use it instead of
+U-Boot Android booting capabilities.
+
+Unfortunately, GBL support in U-Boot hasn't been upstreamed yet. The reference
+U-Boot tree for GBL is Vim3 U-Boot [12]_. There was also some independent GBL
+work done in "Devboards for Android" U-Boot tree [13]_. In order to be able to
+run GBL with upstream U-Boot, next two patches have to be cherry-picked:
+
+* ``ANDROID: [efi] Implement EFI_ANDROID_BOOT_PROTOCOL``
+* ``ANDROID: [efi] EFI_ANDROID_BOOT_PROTOCOL: Fixup
+  usb_gadget_handle_interrupts()``
+
+They can be found in "Devboards for Android" U-Boot tree [13]_, in
+``wip/sm8x50-gbl-fastboot`` branch. Cherry-pick those patches:
+
+.. prompt:: bash $
+
+  git remote add db4a https://gerrit.devboardsforandroid.linaro.org/platform/external/u-boot
+  git fetch db4a
+  git cherry-pick cdc73ef81fdc
+  git cherry-pick 7d60b5bbe434
+
+As GBL's ``EFI_FASTBOOT_USB_PROTOCOL`` was recently changed (and it's not
+supported in the cherry-picked patches above), GBL source code should be
+modified by reverting the latest changes and built manually. Follow GBL
+deployment instructions [14]_ to obtain GBL source code, and then introduce next
+changes before building it:
+
+.. prompt:: bash $
+
+  cd bootable/libbootloader
+  git checkout -b e850-96-functional-fb
+  git reset --hard f1bc0ca523e1
+  git cherry-pick 5cd4ad9999ab
+
+Now build GBL and copy the built GBL binary (``gbl_aarch64.efi``) to your ESP
+partition, at this path::
+
+  /EFI/android/gbl_aarch64.efi
+
+Configure EFI manager to boot GBL EFI app by default, as described in
+:ref:`booting-efi-mgr-label` section, and run ``efi_mgr`` boot method:
+
+.. prompt:: bash =>
+
+  bootflow scan -lb
+
+U-Boot will execute the GBL app. GBL also prints messages to the serial console,
+starting with::
+
+  ****Generic Bootloader Application****
+
+Let's use GBL capabilities to flash and boot Android images (assuming eMMC
+already has an Android partition table created as described in
+:ref:`flashing-android-label` section).
+
+1. Press Backspace to enter GBL's fastboot mode. Flash E850-96 Android images
+   as described in corresponding documentation.
+2. Reboot the board and run GBL again. It will boot Android automatically.
+
+GBL was successfully used to run AOSP/main on the E850-96 board using AOSP
+projects from "Devboards for Android" [15]_.
+
+.. _esp-label:
+
+EFI System Partition
+--------------------
+
+EFI System Partition (ESP) is required by UEFI specification and needed for EFI
+boot methods in U-Boot to be functional. Because EFI boot is now the recommended
+way of booting operating systems (see SystemReady [11]_), it has to be properly
+prepared and flashed to eMMC on the E850-96. It's needed for both Linux and
+Android boot (at least when using GBL).
+
+ESP is the first partition in the E850-96 partition table, 128 MiB in size. It
+must be formatted as FAT, and the ``bootable`` flag ("Legacy BIOS bootable" GPT
+partition attribute, which is 0x4) has to be set for it, to make Standard Boot
+look for boot methods on it.
+
+The initial ESP image can be prepared like this:
+
+.. prompt:: bash $
+
+  dd if=/dev/zero of=esp.img bs=1M count=128
+  /sbin/mkfs.fat -F 32 -n ESP esp.img
+  mmd -i esp.img EFI EFI/BOOT EFI/firmware
+  mcopy -i esp.img ldfw.bin ::EFI/firmware
+  mdir -i esp.img ::EFI/firmware
+
+The created ESP image will contain only LDFW firmware (see
+:ref:`loadable-firmware-label` section for details). The same way other files
+can be added to it.
+
+Here is an example of an ESP partition for E850-96::
+
+  /
+  |-- EFI
+  |   |-- BOOT
+  |   |   `-- BOOTAA64.EFI              // systemd-boot
+  |   |-- Linux
+  |   |   |-- Image                     // Linux kernel image
+  |   |   `-- exynos850-e850-96.dtb     // Linux device tree
+  |   |-- UpdateCapsule
+  |   |-- android
+  |   |   `-- gbl_aarch64.efi           // Android GBL
+  |   |-- debian
+  |   |   |-- BOOTAA64.CSV              // GRUB
+  |   |   |-- fbaa64.efi                // GRUB
+  |   |   |-- grub.cfg                  // GRUB
+  |   |   |-- grubaa64.efi              // GRUB: EFI app
+  |   |   |-- mmaa64.efi                // GRUB
+  |   |   `-- shimaa64.efi              // GRUB
+  |   |-- firmware
+  |   |   `-- ldfw.bin                  // Exynos loadable firmware
+  |   |-- systemd
+  |       `-- systemd-bootaa64.efi      // systemd-boot
+  |-- loader
+  |   |-- entries
+  |   |   |-- debian.conf               // systemd-boot (created manually)
+  |   |   `-- grub.conf                 // systemd-boot (created manually)
+  |   |-- entries.srel                  // systemd-boot
+  |   |-- loader.conf                   // systemd-boot (modified manually)
+  |   `-- random-seed                   // systemd-boot
+  `-- ubootefi.var                      // EFI variables (created by U-Boot)
+
+A simple way to start is to copy only 3 files to the ESP:
+
+* ``/EFI/firmware/ldfw.bin``
+* ``/EFI/Linux/Image``
+* ``/EFI/Linux/exynos850-e850-96.dtb``
+
+and then run the Linux kernel image (``/EFI/Linux/Image``) using U-Boot's
+``efi_mgr`` boot method, supplying ``"root=/dev/mmcblk0p2"`` kernel param to
+mount Debian rootfs from eMMC. Once in Debian shell, it should be easy to
+install and configure other bootloaders (like GRUB, systemd-boot, etc.) in ESP.
+
+Once the image with desired files is prepared, it can be flashed to eMMC as
+described in :ref:`flashing-linux-label`.
+
+.. _loadable-firmware-label:
+
+Loadable Firmware
+-----------------
+
+For the E850-96 system to function properly, loadable firmware (LDFW) has to be
+loaded using an SMC call to the EL3 monitor. It's needed for both bootloader and
+kernel, as it makes features like TRNG (true random number generator)
+functional. U-Boot looks for this firmware on ESP partition, where it should be
+present at this path::
+
+  /EFI/firmware/ldfw.bin
+
+If LDFW binary is present at that location, U-Boot will read and load it during
+its initialization stage. LDFW binary can be obtained from E850-96 images
+repository [7]_.
+
+In case of booting from a media different than eMMC, the location of LDFW can
+be specified using ``$bootdev*`` environment variables. The details are
+discussed in :ref:`booting-from-usb-label`.
+
+.. _usb-host-label:
+
+Ethernet and USB Host Support
+-----------------------------
+
+.. warning::
+
+  With changes suggested in this section, all USB gadget functionality (like
+  fastboot and DFU) will be disabled in U-Boot. This won't affect the dynamic
+  role switching later in the Linux kernel, as a separate (different) device
+  tree blob is provided to the kernel.
+
+E850-96 has only one USB controller, so it can only work in one role at a time:
+either USB peripheral, or USB host role. It makes it **impossible to use both
+host ports and the device (micro-USB) port simultaneously**. Also, the Ethernet
+bridge chip (LAN9514) is controlled by the USB host bus, so USB host mode has
+to be enabled to make Ethernet functional. U-Boot doesn't support dynamic USB
+role switching, so in order to enable USB host and Ethernet support, U-Boot's
+device tree has to be modified accordingly. And then the micro-USB cable has to
+be disconnected to make the board circuitry switch the USB lines to a correct
+USB connector.
+
+By default U-Boot configures the USB controller in peripheral mode. To enable
+USB host mode, do the following two things:
+
+1. Modify ``dts/upstream/src/arm64/exynos/exynos850-e850-96.dts`` file like
+   this:
+
+   .. code-block:: diff
+
+      &usbdrd_dwc3 {
+     -       dr_mode = "otg";
+     +       dr_mode = "host";
+             usb-role-switch;
+             role-switch-default-mode = "host";
+
+   Rebuild and flash the updated U-Boot binary.
+
+2. Disconnect the micro-USB cable from the board.
+
+To re-enable USB peripheral mode, just revert the above changes.
 
 References
 ----------
@@ -146,6 +1045,12 @@ References
 .. [4] https://www.96boards.org/documentation/consumer/e850-96b/hardware-docs/
 .. [5] https://gitlab.com/Linaro/96boards/e850-96/
 .. [6] https://gitlab.com/Linaro/96boards/e850-96/lk
-.. [7] https://gitlab.com/Linaro/96boards/e850-96/images
-.. [8] https://gitlab.com/Linaro/96boards/e850-96/tools/dltool
+.. [7] https://gitlab.com/LinaroLtd/e850-96/images.git
+.. [8] https://gitlab.com/LinaroLtd/e850-96/tools/dltool.git
 .. [9] https://gitlab.com/Linaro/96boards/e850-96/doc
+.. [10] https://source.android.com/docs/core/architecture/bootloader/generic-bootloader
+.. [11] https://www.arm.com/architecture/system-architectures/systemready-compliance-program/systemready-devicetree-band
+.. [12] https://third-party-mirror.googlesource.com/u-boot/+log/refs/heads/vim3
+.. [13] https://source.devboardsforandroid.linaro.org/platform/external/u-boot/+log/refs/heads/wip/sm8x50-gbl-fastboot
+.. [14] https://source.android.com/docs/core/architecture/bootloader/generic-bootloader/gbl-dev
+.. [15] https://source.devboardsforandroid.linaro.org/platform/manifest/

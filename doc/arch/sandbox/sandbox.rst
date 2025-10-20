@@ -72,7 +72,7 @@ console::
    Err:   lcd
    =>
 
-You can issue commands as your would normally. If the command you want is
+You can issue commands as you would normally. If the command you want is
 not supported you can add it to include/configs/sandbox.h.
 
 To exit, type 'poweroff' or press Ctrl-C.
@@ -634,7 +634,7 @@ There are at least four possible ways to address this:
 * Use the host malloc and free instead of U-Boot's custom allocator. This will
   eliminate the need to annotate dlmalloc. However, using a different allocator
   for sandbox will mean that bugs in dlmalloc will only be tested when running
-  on read (or emulated) hardware.
+  on real (or emulated) hardware.
 
 Until one of the above options are implemented, it will remain difficult
 to sift through the massive amount of spurious warnings.

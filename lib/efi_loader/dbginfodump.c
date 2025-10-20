@@ -24,10 +24,8 @@ static efi_guid_t guid_device_path_to_text_protocol =
 
 static struct efi_device_path_to_text_protocol *device_path_to_text;
 
-/* EFI_DEBUG_IMAGE_INFO_TABLE_GUID */
 static const efi_guid_t dbg_info_guid =
-	EFI_GUID(0x49152E77, 0x1ADA, 0x4764, 0xB7, 0xA2,
-		 0x7A, 0xFE, 0xFE, 0xD9, 0x5E, 0x8B);
+	EFI_DEBUG_IMAGE_INFO_TABLE_GUID;
 
 /* EFI_DEBUG_IMAGE_INFO_NORMAL */
 struct dbg_info {
