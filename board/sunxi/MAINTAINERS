@@ -435,6 +435,11 @@ M:	Andre Heider <a.heider@gmail.com>
 S:	Maintained
 F:	configs/orangepi_3_defconfig
 
+ORANGEPI 4A BOARD
+M:	Chen-Yu Tsai <wens@kernel.org>
+S:	Maintained
+F:	configs/orangepi_4a_defconfig
+
 ORANGEPI LITE2 BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
