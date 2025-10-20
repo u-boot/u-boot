@@ -692,6 +692,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_jump_to_image_t jumper = &jump_to_image;
 	struct spl_image_info spl_image;
 	int ret, os;
+	void *fdt;
 
 	debug(">>" PHASE_PROMPT "board_init_r()\n");
 
@@ -793,9 +794,13 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		jumper = &spl_invoke_opensbi;
 	} else if (CONFIG_IS_ENABLED(OS_BOOT) && os == IH_OS_LINUX) {
 		debug("Jumping to Linux\n");
-		if (IS_ENABLED(CONFIG_SPL_OS_BOOT))
-			spl_fixup_fdt((void *)SPL_PAYLOAD_ARGS_ADDR);
+		if (CONFIG_IS_ENABLED(OS_BOOT_ARGS))
+			fdt = (void *)SPL_PAYLOAD_ARGS_ADDR;
+		else
+			fdt = spl_image_fdt_addr(&spl_image);
+		spl_fixup_fdt(fdt);
 		spl_board_prepare_for_linux();
+		spl_image.arg = fdt;
 		jumper = &jump_to_image_linux;
 	} else {
 		debug("Unsupported OS image.. Jumping nevertheless..\n");

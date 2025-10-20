@@ -79,7 +79,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 static int spl_nand_load_image_os(struct spl_image_info *spl_image,
 				  struct spl_boot_device *bootdev)
 {
-	int *src, *dst, err;
+	int err;
 	struct legacy_img_hdr *header = spl_get_load_buffer(0, sizeof(*header));
 
 	/* load linux */
@@ -101,12 +101,14 @@ static int spl_nand_load_image_os(struct spl_image_info *spl_image,
 	if (err)
 		return err;
 
+#if IS_ENABLED(CONFIG_SPL_OS_BOOT_ARGS)
 	/*
 	 * load parameter image load to temp position since nand_spl_load_image
 	 * reads a whole block which is typically larger than
 	 * CONFIG_CMD_SPL_WRITE_SIZE therefore may overwrite following sections
 	 * like BSS
 	 */
+	int *src, *dst;
 	nand_spl_load_image(CONFIG_CMD_SPL_NAND_OFS, CONFIG_CMD_SPL_WRITE_SIZE,
 			    (void *)CONFIG_TEXT_BASE);
 	/* copy to destintion */
@@ -116,6 +118,7 @@ static int spl_nand_load_image_os(struct spl_image_info *spl_image,
 	     src++, dst++) {
 		writel(readl(src), dst);
 	}
+#endif
 
 	return 0;
 }
