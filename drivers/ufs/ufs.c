@@ -369,6 +369,36 @@ static int ufshcd_dme_link_startup(struct ufs_hba *hba)
 	return ret;
 }
 
+int ufshcd_dme_enable(struct ufs_hba *hba)
+{
+	struct uic_command uic_cmd = {0};
+	int ret;
+
+	uic_cmd.command = UIC_CMD_DME_ENABLE;
+
+	ret = ufshcd_send_uic_cmd(hba, &uic_cmd);
+	if (ret)
+		dev_dbg(hba->dev,
+			"dme-enable: error code %d\n", ret);
+
+	return ret;
+}
+
+int ufshcd_dme_reset(struct ufs_hba *hba)
+{
+	struct uic_command uic_cmd = {0};
+	int ret;
+
+	uic_cmd.command = UIC_CMD_DME_RESET;
+
+	ret = ufshcd_send_uic_cmd(hba, &uic_cmd);
+	if (ret)
+		dev_dbg(hba->dev,
+			"dme-reset: error code %d\n", ret);
+
+	return ret;
+}
+
 /**
  * ufshcd_disable_intr_aggr - Disables interrupt aggregation.
  *
