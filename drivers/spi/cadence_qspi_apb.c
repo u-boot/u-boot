@@ -667,6 +667,125 @@ int cadence_qspi_apb_read_setup(struct cadence_spi_priv *priv,
 	return 0;
 }
 
+static u32 cadence_qspi_get_rd_sram_level(struct cadence_spi_priv *priv)
+{
+	u32 reg = readl(priv->regbase + CQSPI_REG_SDRAMLEVEL);
+	reg >>= CQSPI_REG_SDRAMLEVEL_RD_LSB;
+	return reg & CQSPI_REG_SDRAMLEVEL_RD_MASK;
+}
+
+static int cadence_qspi_wait_for_data(struct cadence_spi_priv *priv)
+{
+	unsigned int timeout = 10000;
+	u32 reg;
+
+	while (timeout--) {
+		reg = cadence_qspi_get_rd_sram_level(priv);
+		if (reg)
+			return reg;
+		udelay(1);
+	}
+
+	return -ETIMEDOUT;
+}
+
+static int
+cadence_qspi_apb_indirect_read_execute(struct cadence_spi_priv *priv,
+				       unsigned int n_rx, u8 *rxbuf)
+{
+	unsigned int remaining = n_rx;
+	unsigned int bytes_to_read = 0;
+	int ret;
+
+	writel(n_rx, priv->regbase + CQSPI_REG_INDIRECTRDBYTES);
+
+	/* Start the indirect read transfer */
+	writel(CQSPI_REG_INDIRECTRD_START,
+	       priv->regbase + CQSPI_REG_INDIRECTRD);
+
+	while (remaining > 0) {
+		ret = cadence_qspi_wait_for_data(priv);
+		if (ret < 0) {
+			printf("Indirect write timed out (%i)\n", ret);
+			goto failrd;
+		}
+
+		bytes_to_read = ret;
+
+		while (bytes_to_read != 0) {
+			bytes_to_read *= priv->fifo_width;
+			bytes_to_read = bytes_to_read > remaining ?
+					remaining : bytes_to_read;
+			/*
+			 * Handle non-4-byte aligned access to avoid
+			 * data abort.
+			 */
+			if (((uintptr_t)rxbuf % 4) || (bytes_to_read % 4))
+				readsb(priv->ahbbase, rxbuf, bytes_to_read);
+			else
+				readsl(priv->ahbbase, rxbuf,
+				       bytes_to_read >> 2);
+			rxbuf += bytes_to_read;
+			remaining -= bytes_to_read;
+			bytes_to_read = cadence_qspi_get_rd_sram_level(priv);
+		}
+	}
+
+	/* Check indirect done status */
+	ret = wait_for_bit_le32(priv->regbase + CQSPI_REG_INDIRECTRD,
+				CQSPI_REG_INDIRECTRD_DONE, 1, 10, 0);
+	if (ret) {
+		printf("Indirect read completion error (%i)\n", ret);
+		goto failrd;
+	}
+
+	/* Clear indirect completion status */
+	writel(CQSPI_REG_INDIRECTRD_DONE,
+	       priv->regbase + CQSPI_REG_INDIRECTRD);
+
+	/* Check indirect done status */
+	ret = wait_for_bit_le32(priv->regbase + CQSPI_REG_INDIRECTRD,
+				CQSPI_REG_INDIRECTRD_DONE, 0, 10, 0);
+	if (ret) {
+		printf("Indirect read clear completion error (%i)\n", ret);
+		goto failrd;
+	}
+
+	/* Wait til QSPI is idle */
+	if (!cadence_qspi_wait_idle(priv->regbase))
+		return -EIO;
+
+	return 0;
+
+failrd:
+	/* Cancel the indirect read */
+	writel(CQSPI_REG_INDIRECTRD_CANCEL,
+	       priv->regbase + CQSPI_REG_INDIRECTRD);
+	return ret;
+}
+
+int cadence_qspi_apb_read_execute(struct cadence_spi_priv *priv,
+				  const struct spi_mem_op *op)
+{
+	u64 from = op->addr.val;
+	void *buf = op->data.buf.in;
+	size_t len = op->data.nbytes;
+
+	cadence_qspi_apb_enable_linear_mode(true);
+
+	if (priv->use_dac_mode && (from + len < priv->ahbsize)) {
+		if (len < 256 ||
+		    dma_memcpy(buf, priv->ahbbase + from, len) < 0) {
+			memcpy_fromio(buf, priv->ahbbase + from, len);
+		}
+		if (!cadence_qspi_wait_idle(priv->regbase))
+			return -EIO;
+		return 0;
+	}
+
+	return cadence_qspi_apb_indirect_read_execute(priv, len, buf);
+}
+
 /* Opcode + Address (3/4 bytes) */
 int cadence_qspi_apb_write_setup(struct cadence_spi_priv *priv,
 				 const struct spi_mem_op *op)
