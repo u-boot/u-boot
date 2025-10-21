@@ -1543,7 +1543,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	init_clk_usdhc(dev_seq(dev));
 
 	priv->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK + dev_seq(dev));
-	if (priv->sdhc_clk <= 0) {
+	if (!priv->sdhc_clk || IS_ERR_VALUE(priv->sdhc_clk)) {
 		dev_err(dev, "Unable to get clk for %s\n", dev->name);
 		return -EINVAL;
 	}
