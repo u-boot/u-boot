@@ -143,8 +143,28 @@ void mctl_auto_detect_dram_size(const struct dram_para *para,
 
 unsigned long mctl_calc_size(const struct dram_config *config)
 {
+	unsigned long size;
 	u8 width = config->bus_full_width ? 4 : 2;
 
 	/* 8 banks */
-	return (1ULL << (config->cols + config->rows + 3)) * width * config->ranks;
+	size = (1ULL << (config->cols + config->rows + 3)) * width *
+		config->ranks;
+
+	/*
+	 * There are boards with non-power-of-2 sized DRAM chips, like 1.5GB
+	 * or 3GB. They are detected as the larger power-of-2 (2GB and 4GB),
+	 * so test the last quarter for being able to store values.
+	 */
+	if (!mctl_check_memory(CFG_SYS_SDRAM_BASE + size / 4 * 3)) {
+		if (mctl_check_memory(CFG_SYS_SDRAM_BASE + size / 4 * 3 - 64)) {
+			size = (size / 4) * 3;
+			debug("capping memory at %ld MB\n", size >> 20);
+		} else {
+			printf("DRAM test failure at address 0x%lx\n",
+			       CFG_SYS_SDRAM_BASE + size / 4 * 3 - 64);
+			return 0;
+		}
+	}
+
+	return size;
 }

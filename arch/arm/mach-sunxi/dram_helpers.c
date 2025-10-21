@@ -62,3 +62,15 @@ bool mctl_mem_matches(u32 offset)
 	return mctl_mem_matches_base(offset, CFG_SYS_SDRAM_BASE);
 }
 #endif
+
+bool mctl_check_memory(phys_addr_t addr)
+{
+	uint32_t orig, val;
+
+	orig = readl(addr);
+	writel(~orig, addr);
+	val = readl(addr);
+	writel(orig, addr);
+
+	return ~orig == val;
+}
