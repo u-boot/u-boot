@@ -14,6 +14,8 @@
 #include <linux/bitops.h>
 #include <linux/bitfield.h>
 
+#include "../mdio-mt7531.h"
+
 struct mtk_eth_priv;
 
 #define MT753X_NUM_PHYS		5
@@ -254,6 +256,7 @@ struct mtk_eth_priv;
 
 struct mt753x_switch_priv {
 	struct mtk_eth_switch_priv epriv;
+	struct mt7531_mdio_priv mdio_priv;
 	struct mii_dev *mdio_bus;
 	u32 smi_addr;
 	u32 phy_base;

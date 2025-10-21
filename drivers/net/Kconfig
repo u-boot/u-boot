@@ -121,11 +121,15 @@ config AG7XXX
 	  This driver supports the Atheros AG7xxx Ethernet MAC. This MAC is
 	  present in the Atheros AR7xxx, AR9xxx and QCA9xxx MIPS chips.
 
+source "drivers/net/airoha/Kconfig"
+
 config AIROHA_ETH
 	bool "Airoha Ethernet QDMA Driver"
 	depends on ARCH_AIROHA
 	select PHYLIB
 	select DM_RESET
+	select MDIO_MT7531
+	select PCS_AIROHA_AN7581
 	help
 	  This Driver support Airoha Ethernet QDMA Driver
 	  Say Y to enable support for the Airoha Ethernet QDMA.
@@ -965,6 +969,9 @@ config TSEC_ENET
 	help
 	  This driver implements support for the (Enhanced) Three-Speed
 	  Ethernet Controller found on Freescale SoCs.
+
+config MDIO_MT7531
+	bool
 
 source "drivers/net/mtk_eth/Kconfig"
 

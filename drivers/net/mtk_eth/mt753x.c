@@ -138,8 +138,8 @@ int mt7531_mii_read(struct mt753x_switch_priv *priv, u8 phy, u8 reg)
 
 	phy_addr = MT753X_PHY_ADDR(priv->phy_base, phy);
 
-	return mt7531_mii_rw(priv, phy_addr, reg, 0, MDIO_CMD_READ,
-			     MDIO_ST_C22);
+	return mt7531_mdio_read(&priv->mdio_priv, phy_addr, MDIO_DEVAD_NONE,
+				reg);
 }
 
 int mt7531_mii_write(struct mt753x_switch_priv *priv, u8 phy, u8 reg, u16 val)
@@ -151,48 +151,36 @@ int mt7531_mii_write(struct mt753x_switch_priv *priv, u8 phy, u8 reg, u16 val)
 
 	phy_addr = MT753X_PHY_ADDR(priv->phy_base, phy);
 
-	return mt7531_mii_rw(priv, phy_addr, reg, val, MDIO_CMD_WRITE,
-			     MDIO_ST_C22);
+	return mt7531_mdio_write(&priv->mdio_priv, phy_addr, MDIO_DEVAD_NONE,
+				 reg, val);
 }
 
 int mt7531_mmd_read(struct mt753x_switch_priv *priv, u8 addr, u8 devad,
 		    u16 reg)
 {
 	u8 phy_addr;
-	int ret;
 
 	if (addr >= MT753X_NUM_PHYS)
 		return -EINVAL;
 
 	phy_addr = MT753X_PHY_ADDR(priv->phy_base, addr);
 
-	ret = mt7531_mii_rw(priv, phy_addr, devad, reg, MDIO_CMD_ADDR,
-			    MDIO_ST_C45);
-	if (ret)
-		return ret;
-
-	return mt7531_mii_rw(priv, phy_addr, devad, 0, MDIO_CMD_READ_C45,
-			     MDIO_ST_C45);
+	return mt7531_mdio_read(&priv->mdio_priv, phy_addr, devad,
+				reg);
 }
 
 int mt7531_mmd_write(struct mt753x_switch_priv *priv, u8 addr, u8 devad,
 		     u16 reg, u16 val)
 {
 	u8 phy_addr;
-	int ret;
 
 	if (addr >= MT753X_NUM_PHYS)
 		return 0;
 
 	phy_addr = MT753X_PHY_ADDR(priv->phy_base, addr);
 
-	ret = mt7531_mii_rw(priv, phy_addr, devad, reg, MDIO_CMD_ADDR,
-			    MDIO_ST_C45);
-	if (ret)
-		return ret;
-
-	return mt7531_mii_rw(priv, phy_addr, devad, val, MDIO_CMD_WRITE,
-			     MDIO_ST_C45);
+	return mt7531_mdio_write(&priv->mdio_priv, phy_addr, devad,
+				 reg, val);
 }
 
 static int mt7531_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
@@ -224,6 +212,7 @@ int mt7531_mdio_register(struct mt753x_switch_priv *priv)
 	if (!mdio_bus)
 		return -ENOMEM;
 
+	priv->mdio_priv.switch_regs = priv->epriv.ethsys_base + GSW_BASE;
 	mdio_bus->read = mt7531_mdio_read;
 	mdio_bus->write = mt7531_mdio_write;
 	snprintf(mdio_bus->name, sizeof(mdio_bus->name), priv->epriv.sw->name);

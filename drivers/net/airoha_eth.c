@@ -18,9 +18,12 @@
 #include <linux/bitfield.h>
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
+#include <linux/ethtool.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/time.h>
+
+#include "airoha/pcs-airoha.h"
 
 #define AIROHA_MAX_NUM_GDM_PORTS	1
 #define AIROHA_MAX_NUM_QDMA		1
@@ -645,9 +648,71 @@ static int airoha_qdma_init(struct udevice *dev,
 	return airoha_qdma_hw_init(qdma);
 }
 
+static int airoha_pcs_init(struct udevice *dev, ofnode node)
+{
+	struct airoha_pcs_priv *priv;
+	struct udevice *pcs_dev;
+	phy_interface_t mode;
+	const char *managed;
+	int pcs_phandle;
+	bool neg_mode;
+	int speed;
+	int ret;
+
+	/* PCS property is mandatory */
+	if (!ofnode_read_bool(node, "pcs"))
+		return 0;
+
+	ret = ofnode_read_u32(node, "pcs", &pcs_phandle);
+	if (ret)
+		return ret;
+
+	ret = uclass_get_device_by_phandle_id(UCLASS_MISC, pcs_phandle, &pcs_dev);
+	if (ret || !pcs_dev)
+		return ret;
+
+	priv = dev_get_priv(pcs_dev);
+
+	mode = ofnode_read_phy_mode(node);
+	managed = ofnode_read_string(node, "managed");
+	neg_mode = !strncmp(managed, "in-band-status", sizeof("in-band-status"));
+
+	airoha_pcs_pre_config(priv, mode);
+
+	ret = airoha_pcs_post_config(priv, mode);
+	if (ret)
+		return ret;
+
+	ret = airoha_pcs_config(priv, neg_mode, mode, NULL, true);
+	if (ret)
+		return ret;
+
+	/* Hardcode speed for linkup */
+	switch (mode) {
+	case PHY_INTERFACE_MODE_USXGMII:
+	case PHY_INTERFACE_MODE_10GBASER:
+		speed = SPEED_10000;
+		break;
+	case PHY_INTERFACE_MODE_2500BASEX:
+		speed = SPEED_2500;
+		break;
+	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_1000BASEX:
+		speed = SPEED_1000;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	airoha_pcs_link_up(priv, neg_mode, mode, speed, DUPLEX_FULL);
+
+	return 0;
+}
+
 static int airoha_hw_init(struct udevice *dev,
 			  struct airoha_eth *eth)
 {
+	ofnode node;
 	int ret, i;
 
 	/* disable xsi */
@@ -665,6 +730,10 @@ static int airoha_hw_init(struct udevice *dev,
 	if (ret)
 		return ret;
 
+	ret = reset_deassert_bulk(&eth->xsi_rsts);
+	if (ret)
+		return ret;
+
 	mdelay(20);
 
 	ret = airoha_fe_init(eth);
@@ -675,6 +744,26 @@ static int airoha_hw_init(struct udevice *dev,
 		ret = airoha_qdma_init(dev, eth, &eth->qdma[i]);
 		if (ret)
 			return ret;
+	}
+
+	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
+		u32 id;
+
+		if (!ofnode_device_is_compatible(node, "airoha,eth-mac"))
+			continue;
+
+		if (!ofnode_is_enabled(node))
+			continue;
+
+		ret = ofnode_read_u32(node, "reg", &id);
+		if (ret)
+			continue;
+
+		/* Skip PCS init for embedded Switch */
+		if (id == 1)
+			continue;
+
+		airoha_pcs_init(dev, node);
 	}
 
 	return 0;
@@ -971,6 +1060,31 @@ static int arht_eth_write_hwaddr(struct udevice *dev)
 	return 0;
 }
 
+static int airoha_eth_bind(struct udevice *dev)
+{
+	struct airoha_eth_soc_data *data = (void *)dev_get_driver_data(dev);
+	struct udevice *mdio_dev;
+	ofnode switch_node;
+	int ret = 0;
+
+	if (!CONFIG_IS_ENABLED(MDIO_MT7531))
+		return 0;
+
+	switch_node = ofnode_by_compatible(ofnode_null(),
+					   "airoha,en7581-switch");
+	if (!ofnode_valid(switch_node)) {
+		debug("Warning: missing switch node\n");
+		return 0;
+	}
+
+	ret = device_bind_driver_to_node(dev, "mt7531-mdio", "mdio",
+					 switch_node, &mdio_dev);
+	if (ret)
+		debug("Warning: failed to bind mdio controller\n");
+
+	return 0;
+}
+
 static const struct udevice_id airoha_eth_ids[] = {
 	{ .compatible = "airoha,en7581-eth" },
 	{ }
@@ -990,6 +1104,7 @@ U_BOOT_DRIVER(airoha_eth) = {
 	.id = UCLASS_ETH,
 	.of_match = airoha_eth_ids,
 	.probe = airoha_eth_probe,
+	.bind = airoha_eth_bind,
 	.ops = &airoha_eth_ops,
 	.priv_auto = sizeof(struct airoha_eth),
 	.plat_auto = sizeof(struct eth_pdata),
