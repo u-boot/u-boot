@@ -104,7 +104,7 @@ static int env_fat_save(void)
 	}
 
 #ifdef CONFIG_ENV_REDUNDANT
-	gd->env_valid = (gd->env_valid == ENV_REDUND) ? ENV_VALID : ENV_REDUND;
+	gd->env_valid = gd->env_valid == ENV_VALID ? ENV_REDUND : ENV_VALID;
 #endif
 
 	return 0;
