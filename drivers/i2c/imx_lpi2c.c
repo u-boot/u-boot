@@ -304,7 +304,7 @@ static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 
 	if (CONFIG_IS_ENABLED(CLK)) {
 		clock_rate = clk_get_rate(&i2c_bus->per_clk);
-		if (clock_rate <= 0) {
+		if (!clock_rate || IS_ERR_VALUE(clock_rate)) {
 			dev_err(bus, "Failed to get i2c clk: %d\n", clock_rate);
 			return clock_rate;
 		}
