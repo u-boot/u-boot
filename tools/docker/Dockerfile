@@ -58,6 +58,9 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y \
+	adb \
+	acpica-tools \
+	autoconf \
 	automake \
 	autopoint \
 	bc \
@@ -65,21 +68,26 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	bison \
 	build-essential \
 	byacc \
+	ccache \
 	cgpt \
 	clang-18 \
 	coreutils \
 	cpio \
+	cscope \
 	curl \
 	device-tree-compiler \
 	dosfstools \
 	e2fsprogs \
+	e2tools \
 	efitools \
 	erofs-utils \
 	exfatprogs \
 	expect \
 	fakeroot \
+	fastboot \
 	fdisk \
 	flex \
+	ftp-upload \
 	gawk \
 	gdisk \
 	gettext \
@@ -92,11 +100,20 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	imagemagick \
 	inetutils-telnet \
 	iputils-ping \
+	libattr1-dev \
+	libcap-ng-dev \
 	libconfuse-dev \
+	libfdt-dev \
+	libftdi-dev \
 	libgit2-dev \
 	libjson-glib-dev \
+	libglib2.0-dev \
+	libgmp3-dev \
 	libgnutls28-dev \
 	libgnutls30 \
+	libhidapi-dev \
+	libmpc-dev \
+	libncurses5-dev \
 	libpixman-1-dev \
 	libpython3-dev \
 	libsdl1.2-dev \
@@ -110,9 +127,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	lz4 \
 	lzma-alone \
 	lzop \
+	make \
 	mount \
 	mtd-utils \
 	mtools \
+	netcat \
 	net-tools \
 	ninja-build \
 	openssl \
@@ -122,12 +141,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	python-is-python3 \
 	python2.7 \
 	python3 \
+	python3-cryptography \
 	python3-dev \
 	python3-pip \
+	python3-pyelftools \
+	python3-serial \
 	python3-sphinx \
 	python3-tomli \
 	python3-venv \
 	rpm2cpio \
+	rsync \
 	sbsigntool \
 	socat \
 	softhsm2 \
@@ -136,13 +159,20 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	sudo \
 	swig \
 	texinfo \
+	unzip \
 	util-linux \
 	uuid-dev \
 	vboot-kernel-utils \
 	vboot-utils \
+	wget \
+	xdg-utils \
 	xilinx-bootgen \
+	xsltproc \
+	xterm \
 	xxd \
-	zip
+	xz-utils \
+	zip \
+	zlib1g-dev
 
 # Build GRUB UEFI targets for ARM & RISC-V, 32-bit and 64-bit
 RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
@@ -227,10 +257,30 @@ RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	make -j$(nproc) all install && \
 	rm -rf /tmp/qemu
 
-# Build fiptool
+# Build OP-TEE for qemu_arm64
+RUN git clone https://github.com/OP-TEE/optee_os.git /tmp/optee_os && \
+	cd /tmp/optee_os/ && \
+	git checkout 4.7.0 && \
+	make CROSS_COMPILE=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		CROSS_COMPILE_core=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		CROSS_COMPILE32=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi- \
+		CROSS_COMPILE_ta_arm32=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi- \
+		CROSS_COMPILE_ta_arm64=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		ARCH=arm \
+		CFG_ARM64_core=y \
+		CFG_TRANSFER_LIST=y CFG_MAP_EXT_DT_SECURE=y \
+		PLATFORM=vexpress-qemu_armv8a CFG_RPMB_FS=y \
+		CFG_RPMB_FS_DEV_ID=0 CFG_CORE_HEAP_SIZE=524288 CFG_RPMB_WRITE_KEY=y \
+		CFG_CORE_HEAP_SIZE=524288 CFG_CORE_DYN_SHM=y CFG_RPMB_TESTKEY=y \
+		CFG_RPMB_WRITE_KEY=1 \
+		CFG_REE_FS=n CFG_CORE_ARM64_PA_BITS=48  \
+		CFG_TEE_CORE_LOG_LEVEL=4 CFG_TEE_TA_LOG_LEVEL=1 DEBUG=y
+
+# Build fiptool, bl1 and fip for fvp and qemu_arm64
+RUN git clone --branch mbedtls-3.6 https://github.com/ARMmbed/mbedtls.git /tmp/mbedtls
 RUN git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git /tmp/tf-a && \
 	cd /tmp/tf-a/ && \
-	git checkout v2.12.0 && \
+	git checkout v2.13.0 && \
 	make CROSS_COMPILE=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
 		PLAT=fvp BL33=/dev/null -j$(nproc) all fip && \
 	mkdir -p /usr/local/bin /opt/tf-a/vexpress_fvp && \
@@ -243,6 +293,24 @@ RUN git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git /tmp/t
 	mkdir -p /opt/tf-a/vexpress_fvp_bloblist && \
 	cp build/fvp/release/fip.bin build/fvp/release/bl1.bin \
 		/opt/tf-a/vexpress_fvp_bloblist/ && \
+	make CROSS_COMPILE=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		PLAT=qemu \
+		BL33=/dev/null \
+		BL32=/tmp/optee_os/out/arm-plat-vexpress/core/tee-header_v2.bin \
+		BL32_EXTRA1=/tmp/optee_os/out/arm-plat-vexpress/core/tee-pager_v2.bin \
+		BL32_EXTRA2=/tmp/optee_os/out/arm-plat-vexpress/core/tee-pageable_v2.bin \
+		BL32_RAM_LOCATION=tdram SPD=opteed \
+		TRANSFER_LIST=1 E=0 \
+		MEASURED_BOOT=1 \
+		EVENT_LOG_LEVEL=10 \
+		MBOOT_EL_HASH_ALG=sha256 \
+		MBEDTLS_DIR=/tmp/mbedtls \
+		-j$(nproc) all fip && \
+	mkdir -p /opt/tf-a/qemu_arm64_fw_handoff_tfa_optee && \
+	cp build/qemu/release/fip.bin build/qemu/release/bl1.bin \
+		/opt/tf-a/qemu_arm64_fw_handoff_tfa_optee/ && \
+	rm -rf /tmp/optee_os && \
+	rm -rf /tmp/mbedtls && \
 	rm -rf /tmp/tf-a
 
 # Download the Arm Architecture FVP platform. This file is double compressed.
