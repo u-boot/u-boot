@@ -319,7 +319,7 @@ static int gpio_exynos_bind(struct udevice *parent)
 	base = dev_read_addr_ptr(parent);
 	for (node = fdt_first_subnode(blob, dev_of_offset(parent)), bank = base;
 	     node > 0;
-	     node = fdt_next_subnode(blob, node), bank++) {
+	     node = fdt_next_subnode(blob, node)) {
 		struct exynos_gpio_plat *plat;
 		struct udevice *dev;
 		fdt_addr_t reg;
@@ -341,9 +341,8 @@ static int gpio_exynos_bind(struct udevice *parent)
 		if (reg != FDT_ADDR_T_NONE)
 			bank = (struct s5p_gpio_bank *)((ulong)base + reg);
 
-		plat->bank = bank;
-
 		debug("dev at %p: %s\n", bank, plat->bank_name);
+		plat->bank = bank++;
 	}
 
 	return 0;
