@@ -57,6 +57,12 @@ static void set_fdtfile(void)
 		fdtfile = "starfive/jh7110-deepcomputing-fml13v01.dtb";
 	} else if (!strncmp(get_product_id_from_eeprom(), "MARS", 4)) {
 		fdtfile = "starfive/jh7110-milkv-mars.dtb";
+	} else if (!strncmp(get_product_id_from_eeprom(), "MARC", 4)) {
+		if (get_mmc_size_from_eeprom()) {
+			fdtfile = "starfive/jh7110-milkv-marscm-emmc.dtb";
+		} else {
+			fdtfile = "starfive/jh7110-milkv-marscm-lite.dtb";
+		}
 	} else if (!strncmp(get_product_id_from_eeprom(), "STAR64", 6)) {
 		fdtfile = "starfive/jh7110-pine64-star64.dtb";
 	} else if (!strncmp(get_product_id_from_eeprom(), "VF7110A", 7)) {
