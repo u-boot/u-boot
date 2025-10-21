@@ -12,8 +12,10 @@ list of prefixes (``{"/", "/boot"}`` by default) and can be adjust with the
 `filename-prefixes` property in the bootstd device.
 
 For a network device, the filename is obtained from the `boot_script_dhcp`
-environment variable and the file is read using tftp. It must be in the
-top-level directory of the tftp server.
+environment variable. By setting the `ip_dyn` environment variable it can be
+decided if dynamic ip (dhcp command) or static ip (tftp command) is used for
+reading the file. By default dhcp is used. The file must be in the top-level
+directory of the tftp server.
 
 In either case (file or network), the bootmeth searches for the file and creates
 a bootflow if found. The bootmeth searches for "boot.scr.uimg" first, then

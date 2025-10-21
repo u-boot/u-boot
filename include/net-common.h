@@ -491,6 +491,15 @@ int dhcp_run(ulong addr, const char *fname, bool autoload);
 int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
+ * tftpb_run() - Run TFTP on the current ethernet device
+ *
+ * @addr: Address to load the file into
+ * @fname: Filename of file to load (NULL to use the default filename)
+ * @return 0 if OK, -ENOENT if ant file was not found
+ */
+int tftpb_run(ulong addr, const char *fname);
+
+/**
  * do_ping - Run the ping command
  *
  * @cmdtp: Unused

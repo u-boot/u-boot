@@ -262,6 +262,10 @@ fdt_addr_r
 fdtoverlay_addr_r (needed if overlays are used)
     Address at which to load the overlay for the FDT, e.g. 0x02000000
 
+ip_dyn
+    Use dynamic IP (dhcp) or static IP (tftp) for loading the bootscript over
+    ethernet. Default is dhcp. e.g. no
+
 kernel_addr_r
     Address at which to load the kernel, e.g. 0x02080000
 
