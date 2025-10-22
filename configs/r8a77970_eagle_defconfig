@@ -20,7 +20,7 @@ CONFIG_SPL_BSS_MAX_SIZE=0x1000
 # CONFIG_EFI_LOADER is not set
 CONFIG_USE_BOOTARGS=y
 CONFIG_USE_BOOTCOMMAND=y
-CONFIG_BOOTCOMMAND="tftp 0x48080000 Image; tftp 0x48000000 Image-r8a77970-eagle.dtb; booti 0x48080000 - 0x48000000"
+CONFIG_BOOTCOMMAND="setexpr dloadaddr ${loadaddr} + 0x200000 && setexpr dloadaddr ${dloadaddr} \\\\& 0xffc00000 && setexpr kloadaddr ${dloadaddr} + 0x200000 && tftp ${dloadaddr} Image-r8a77970-eagle.dtb && tftp ${kloadaddr} Image && booti ${kloadaddr} - ${dloadaddr}"
 CONFIG_DEFAULT_FDT_FILE="r8a77970-eagle.dtb"
 # CONFIG_SPL_SHARES_INIT_SP_ADDR is not set
 CONFIG_CMD_DFU=y

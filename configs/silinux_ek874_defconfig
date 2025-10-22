@@ -20,7 +20,7 @@ CONFIG_SPL_BSS_MAX_SIZE=0x1000
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="root=/dev/nfs rw nfsroot=192.168.0.1:/export/rfs ip=192.168.0.20"
 CONFIG_USE_BOOTCOMMAND=y
-CONFIG_BOOTCOMMAND="tftp 0x48080000 Image; tftp 0x48000000 Image-r8a774c0-ek874.dtb; booti 0x48080000 - 0x48000000"
+CONFIG_BOOTCOMMAND="setexpr dloadaddr ${loadaddr} + 0x200000 && setexpr dloadaddr ${dloadaddr} \\\\& 0xffc00000 && setexpr kloadaddr ${dloadaddr} + 0x200000 && tftp ${dloadaddr} Image-r8a774c0-ek874.dtb && tftp ${kloadaddr} Image && booti ${kloadaddr} - ${dloadaddr}"
 CONFIG_DEFAULT_FDT_FILE="r8a774c0-ek874.dtb"
 # CONFIG_BOARD_EARLY_INIT_F is not set
 # CONFIG_SPL_SHARES_INIT_SP_ADDR is not set
