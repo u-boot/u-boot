@@ -1216,9 +1216,6 @@ Note: once the monitor has been relocated, then it will complain if
 the default environment is used; a new CRC is computed as soon as you
 use the "saveenv" command to store a valid environment.
 
-- CONFIG_SYS_FAULT_MII_ADDR:
-		MII address of the PHY to check for the Ethernet link state.
-
 - CONFIG_DISPLAY_BOARDINFO
 		Display information about the board that U-Boot is running on
 		when U-Boot starts up. The board function checkboard() is called

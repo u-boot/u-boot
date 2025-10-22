@@ -56,6 +56,7 @@ endif # B53_SWITCH
 
 config MV88E61XX_SWITCH
 	bool "Marvell MV88E61xx Ethernet switch PHY support."
+	depends on !COMPILE_TEST
 
 if MV88E61XX_SWITCH
 
@@ -119,6 +120,7 @@ config PHY_BROADCOM
 
 config PHY_CORTINA
 	bool "Cortina Ethernet PHYs support"
+	depends on !COMPILE_TEST
 
 config SYS_CORTINA_NO_FW_UPLOAD
 	bool "Cortina firmware loading support"

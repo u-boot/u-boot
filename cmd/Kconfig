@@ -1951,10 +1951,6 @@ config BOOTP_BOOTPATH
 	  Even though the config is called BOOTP_BOOTPATH, it stores the
 	  path in the variable 'rootpath'.
 
-config BOOTP_VENDOREX
-	bool "Support vendor extensions from BOOTP/DHCP server"
-	depends on CMD_BOOTP
-
 config BOOTP_BOOTFILESIZE
 	bool "Request & store 'bootfilesize' from BOOTP/DHCP server"
 	depends on CMD_BOOTP

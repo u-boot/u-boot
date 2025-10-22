@@ -926,14 +926,13 @@ void tftp_start(enum proto_t protocol)
 	/* Use a pseudo-random port unless a specific port is set */
 	tftp_our_port = 1024 + (get_timer(0) % 3072);
 
-#ifdef CONFIG_TFTP_PORT
 	ep = env_get("tftpdstp");
 	if (ep != NULL)
 		tftp_remote_port = simple_strtol(ep, NULL, 10);
 	ep = env_get("tftpsrcp");
 	if (ep != NULL)
 		tftp_our_port = simple_strtol(ep, NULL, 10);
-#endif
+
 	tftp_cur_block = 0;
 	tftp_windowsize = 1;
 	tftp_last_nack = 0;

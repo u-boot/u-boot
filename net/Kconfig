@@ -60,23 +60,9 @@ config SYS_FAULT_ECHO_LINK_DOWN
 	  this option is active, then CONFIG_SYS_FAULT_MII_ADDR also needs to
 	  be configured.
 
-config TFTP_PORT
-	bool "Set TFTP UDP source/destination ports via the environment"
-	help
-	  If this is defined, the environment variable tftpsrcp is used to
-	  supply the TFTP UDP source port value.  If tftpsrcp isn't defined,
-	  the normal pseudo-random port number generator is used.
-
-	  Also, the environment variable tftpdstp is used to supply the TFTP
-	  UDP destination port value.  If tftpdstp isn't defined, the normal
-	  port 69 is used.
-
-	  The purpose for tftpsrcp is to allow a TFTP server to blindly start
-	  the TFTP transfer using the pre-configured target IP address and UDP
-	  port. This has the effect of "punching through" the (Windows XP)
-	  firewall, allowing the remainder of the TFTP transfer to proceed
-	  normally.  A better solution is to properly configure the firewall,
-	  but sometimes that is not allowed.
+config SYS_FAULT_MII_ADDR
+	hex "MII address of the PHY to check for the Ethernet link state"
+	depends on SYS_FAULT_ECHO_LINK_DOWN && LED_STATUS_RED_ENABLE
 
 config TFTP_WINDOWSIZE
 	int "TFTP window size"

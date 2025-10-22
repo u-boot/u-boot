@@ -1,6 +1,7 @@
 
 config MEDIATEK_ETH
 	bool "MediaTek Ethernet GMAC Driver"
+	depends on ARCH_MEDIATEK || ARCH_MTMIPS
 	select PHYLIB
 	select DM_GPIO
 	select DM_RESET
@@ -30,6 +31,7 @@ config MTK_ETH_SWITCH_MT7531
 config MTK_ETH_SWITCH_MT7988
 	bool "Support for MediaTek MT7988 built-in ethernet switch"
 	depends on TARGET_MT7988
+	select MDIO_MT7531_MMIO
 	default y
 
 config MTK_ETH_SWITCH_AN8855

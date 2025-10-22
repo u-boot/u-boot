@@ -449,14 +449,10 @@ static int airoha_qdma_init_rx_queue(struct airoha_queue *q,
 			RX_RING_SIZE_MASK,
 			FIELD_PREP(RX_RING_SIZE_MASK, ndesc));
 
-	/*
-	 * See arht_eth_free_pkt() for the reasons used to fill
-	 * REG_RX_CPU_IDX(qid) register.
-	 */
 	airoha_qdma_rmw(qdma, REG_RX_RING_SIZE(qid), RX_RING_THR_MASK,
 			FIELD_PREP(RX_RING_THR_MASK, 0));
 	airoha_qdma_rmw(qdma, REG_RX_CPU_IDX(qid), RX_RING_CPU_IDX_MASK,
-			FIELD_PREP(RX_RING_CPU_IDX_MASK, q->ndesc - 3));
+			FIELD_PREP(RX_RING_CPU_IDX_MASK, q->ndesc - 1));
 	airoha_qdma_rmw(qdma, REG_RX_DMA_IDX(qid), RX_RING_DMA_IDX_MASK,
 			FIELD_PREP(RX_RING_DMA_IDX_MASK, q->head));
 
@@ -920,7 +916,6 @@ static int arht_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 	struct airoha_qdma *qdma = &eth->qdma[0];
 	struct airoha_queue *q;
 	int qid;
-	u16 prev, pprev;
 
 	if (!packet)
 		return 0;
@@ -930,22 +925,29 @@ static int arht_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 	/*
 	 * Due to cpu cache issue the airoha_qdma_reset_rx_desc() function
-	 * will always touch 2 descriptors:
-	 *   - if current descriptor is even, then the previous and the one
-	 *     before previous descriptors will be touched (previous cacheline)
-	 *   - if current descriptor is odd, then only current and previous
-	 *     descriptors will be touched (current cacheline)
+	 * will always touch 2 descriptors placed on the same cacheline:
+	 *   - if current descriptor is even, then current and next
+	 *     descriptors will be touched
+	 *   - if current descriptor is odd, then current and previous
+	 *     descriptors will be touched
 	 *
-	 * Thus, to prevent possible destroying of rx queue, only (q->ndesc - 2)
-	 * descriptors might be used for packet receiving.
+	 * Thus, to prevent possible destroying of rx queue, we should:
+	 *   - do nothing in the even descriptor case,
+	 *   - utilize 2 descriptors (current and previous one) in the
+	 *     odd descriptor case.
+	 *
+	 * WARNING: Observations shows that PKTBUFSRX must be even and
+	 *          larger than 7 for reliable driver operations.
 	 */
-	prev  = (q->head + q->ndesc - 1) % q->ndesc;
-	pprev = (q->head + q->ndesc - 2) % q->ndesc;
-	q->head = (q->head + 1) % q->ndesc;
+	if (q->head & 0x01) {
+		airoha_qdma_reset_rx_desc(q, q->head - 1);
+		airoha_qdma_reset_rx_desc(q, q->head);
 
-	airoha_qdma_reset_rx_desc(q, prev);
-	airoha_qdma_rmw(qdma, REG_RX_CPU_IDX(qid), RX_RING_CPU_IDX_MASK,
-			FIELD_PREP(RX_RING_CPU_IDX_MASK, pprev));
+		airoha_qdma_rmw(qdma, REG_RX_CPU_IDX(qid), RX_RING_CPU_IDX_MASK,
+				FIELD_PREP(RX_RING_CPU_IDX_MASK, q->head));
+	}
+
+	q->head = (q->head + 1) % q->ndesc;
 
 	return 0;
 }

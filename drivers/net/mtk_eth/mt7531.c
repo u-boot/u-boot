@@ -22,17 +22,13 @@
 
 static int mt7531_core_reg_read(struct mt753x_switch_priv *priv, u32 reg)
 {
-	u8 phy_addr = MT753X_PHY_ADDR(priv->phy_base, 0);
-
-	return mt7531_mmd_read(priv, phy_addr, 0x1f, reg);
+	return mt7531_mmd_read(priv, 0, 0x1f, reg);
 }
 
 static void mt7531_core_reg_write(struct mt753x_switch_priv *priv, u32 reg,
 				  u32 val)
 {
-	u8 phy_addr = MT753X_PHY_ADDR(priv->phy_base, 0);
-
-	mt7531_mmd_write(priv, phy_addr, 0x1f, reg, val);
+	mt7531_mmd_write(priv, 0, 0x1f, reg, val);
 }
 
 static void mt7531_core_pll_setup(struct mt753x_switch_priv *priv)
@@ -171,7 +167,7 @@ static int mt7531_setup(struct mtk_eth_switch_priv *swpriv)
 {
 	struct mt753x_switch_priv *priv = (struct mt753x_switch_priv *)swpriv;
 	u32 i, val, pmcr, port5_sgmii;
-	u16 phy_addr, phy_val;
+	u16 phy_val;
 
 	priv->smi_addr = MT753X_DFL_SMI_ADDR;
 	priv->phy_base = (priv->smi_addr + 1) & MT753X_SMI_ADDR_MASK;
@@ -180,10 +176,9 @@ static int mt7531_setup(struct mtk_eth_switch_priv *swpriv)
 
 	/* Turn off PHYs */
 	for (i = 0; i < MT753X_NUM_PHYS; i++) {
-		phy_addr = MT753X_PHY_ADDR(priv->phy_base, i);
-		phy_val = mt7531_mii_read(priv, phy_addr, MII_BMCR);
+		phy_val = mt7531_mii_read(priv, i, MII_BMCR);
 		phy_val |= BMCR_PDOWN;
-		mt7531_mii_write(priv, phy_addr, MII_BMCR, phy_val);
+		mt7531_mii_write(priv, i, MII_BMCR, phy_val);
 	}
 
 	/* Force MAC link down before reset */
@@ -239,10 +234,9 @@ static int mt7531_setup(struct mtk_eth_switch_priv *swpriv)
 
 	/* Turn on PHYs */
 	for (i = 0; i < MT753X_NUM_PHYS; i++) {
-		phy_addr = MT753X_PHY_ADDR(priv->phy_base, i);
-		phy_val = mt7531_mii_read(priv, phy_addr, MII_BMCR);
+		phy_val = mt7531_mii_read(priv, i, MII_BMCR);
 		phy_val &= ~BMCR_PDOWN;
-		mt7531_mii_write(priv, phy_addr, MII_BMCR, phy_val);
+		mt7531_mii_write(priv, i, MII_BMCR, phy_val);
 	}
 
 	mt7531_phy_setting(priv);

@@ -134,8 +134,8 @@ U_BOOT_CMD(dhcp6,	3,	1,	do_dhcp6,
 #endif
 
 #if defined(CONFIG_CMD_DHCP)
-static int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc,
-		   char *const argv[])
+int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc,
+	    char *const argv[])
 {
 	return netboot_common(DHCP, cmdtp, argc, argv);
 }
@@ -145,38 +145,6 @@ U_BOOT_CMD(
 	"boot image via network using DHCP/TFTP protocol",
 	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
-
-int dhcp_run(ulong addr, const char *fname, bool autoload)
-{
-	char *dhcp_argv[] = {"dhcp", NULL, (char *)fname, NULL};
-	struct cmd_tbl cmdtp = {};	/* dummy */
-	char file_addr[17];
-	int old_autoload;
-	int ret, result;
-
-	log_debug("addr=%lx, fname=%s, autoload=%d\n", addr, fname, autoload);
-	old_autoload = env_get_yesno("autoload");
-	ret = env_set("autoload", autoload ? "y" : "n");
-	if (ret)
-		return log_msg_ret("en1", -EINVAL);
-
-	if (autoload) {
-		sprintf(file_addr, "%lx", addr);
-		dhcp_argv[1] = file_addr;
-	}
-
-	result = do_dhcp(&cmdtp, 0, !autoload ? 1 : fname ? 3 : 2, dhcp_argv);
-
-	ret = env_set("autoload", old_autoload == -1 ? NULL :
-		      old_autoload ? "y" : "n");
-	if (ret)
-		return log_msg_ret("en2", -EINVAL);
-
-	if (result)
-		return log_msg_ret("res", -ENOENT);
-
-	return 0;
-}
 #endif
 
 #if defined(CONFIG_CMD_NFS)

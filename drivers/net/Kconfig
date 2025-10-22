@@ -179,7 +179,7 @@ config CALXEDA_XGMAC
 	  machines.
 
 config DWC_ETH_XGMAC
-        bool "Synopsys DWC Ethernet XGMAC device support"
+        bool
 	select PHYLIB
         help
           This driver supports the Synopsys Designware Ethernet XGMAC (10G
@@ -190,7 +190,8 @@ config DWC_ETH_XGMAC_SOCFPGA
 	bool "Synopsys DWC Ethernet XGMAC device support for SOCFPGA"
 	select REGMAP
 	select SYSCON
-	depends on DWC_ETH_XGMAC
+	select DWC_ETH_XGMAC
+	depends on ARCH_SOCFPGA
 	default y if TARGET_SOCFPGA_AGILEX5
 	help
 	  The Synopsys Designware Ethernet XGMAC IP block with specific
@@ -376,7 +377,7 @@ config ETH_DESIGNWARE_SOCFPGA
 	select SYSCON
 	select DW_ALTDESCRIPTOR
 	bool "Altera SoCFPGA extras for Synopsys Designware Ethernet MAC"
-	depends on ETH_DESIGNWARE
+	depends on ARCH_SOCFPGA && ETH_DESIGNWARE
 	help
 	  The Altera SoCFPGA requires additional configuration of the
 	  Altera system manager to correctly interface with the PHY.
@@ -965,6 +966,9 @@ config TSEC_ENET
 	help
 	  This driver implements support for the (Enhanced) Three-Speed
 	  Ethernet Controller found on Freescale SoCs.
+
+config MDIO_MT7531_MMIO
+	bool
 
 source "drivers/net/mtk_eth/Kconfig"
 
