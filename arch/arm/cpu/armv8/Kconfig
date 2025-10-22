@@ -4,6 +4,14 @@ config CMO_BY_VA_ONLY
 	bool "Force cache maintenance to be exclusively by VA"
 	depends on !SYS_DISABLE_DCACHE_OPS
 
+config ARMV8_CNTFRQ_BROKEN
+	bool "Fix broken ARMv8 generic timer"
+	depends on SYS_ARCH_TIMER
+	help
+	  Say Y here if U-Boot depends on a prior stage bootloader, which
+	  does not set the CNTFRQ_EL0 frequency, and its not possible to
+	  set it from U-Boot either.
+
 config ARMV8_SPL_EXCEPTION_VECTORS
 	bool "Install crash dump exception vectors"
 	depends on SPL
