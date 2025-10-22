@@ -194,9 +194,34 @@ struct mm_region {
 	u64 attrs;
 };
 
+/* Used as the memory map for MMU configuration by mmu_setup */
 extern struct mm_region *mem_map;
 void setup_pgtables(void);
+
+/**
+ * mem_map_from_dram_banks() - Populate mem_map with entries corresponding to
+ * dram banks as per the gd. This should be called prior to mmu_setup.
+ *
+ * @index: The entry in mem_map to start the over-write
+ * @len: The size of mem_map
+ */
+int mem_map_from_dram_banks(unsigned int index, unsigned int len, u64 attrs);
+
+/**
+ * mmu_unmap_reserved_mem() - Unmaps a reserved-memory node as PTE_TYPE_FAULT
+ * once MMU is configured by mmu_setup.
+ *
+ * @name: The name of the node under "/reserved-memory/" path
+ * @check_nomap: Check if the node is marked "no-map" before unmapping it
+ */
+int mmu_unmap_reserved_mem(const char *name, bool check_nomap);
+
 u64 get_tcr(u64 *pips, u64 *pva_bits);
+
+/**
+ * mmu_setup() - Sets up the mmu page tables as per mem_map
+ */
+void mmu_setup(void);
 #endif
 
 #endif /* _ASM_ARMV8_MMU_H_ */

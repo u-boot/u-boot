@@ -58,6 +58,60 @@ static int get_effective_el(void)
 	return el;
 }
 
+int mem_map_from_dram_banks(unsigned int index, unsigned int len, u64 attrs)
+{
+	unsigned int i;
+	int ret = fdtdec_setup_memory_banksize();
+
+	if (ret) {
+		log_err("%s: Failed to setup dram banks\n", __func__);
+		return ret;
+	}
+
+	if (index + CONFIG_NR_DRAM_BANKS >= len) {
+		log_err("%s: Provided mem_map array has insufficient size for DRAM entries\n",
+			__func__);
+		return -ENOMEM;
+	}
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		mem_map[index].virt = gd->bd->bi_dram[i].start;
+		mem_map[index].phys = gd->bd->bi_dram[i].start;
+		mem_map[index].size = gd->bd->bi_dram[i].size;
+		mem_map[index].attrs = attrs;
+		index++;
+	}
+
+	memset(&mem_map[index], 0, sizeof(mem_map[index]));
+
+	return 0;
+}
+
+int mmu_unmap_reserved_mem(const char *name, bool check_nomap)
+{
+	void *fdt = (void *)gd->fdt_blob;
+	char node_path[128];
+	fdt_addr_t addr;
+	fdt_size_t size;
+	int ret;
+
+	snprintf(node_path, sizeof(node_path), "/reserved-memory/%s", name);
+	ret = fdt_path_offset(fdt, node_path);
+	if (ret < 0)
+		return ret;
+
+	if (check_nomap && !fdtdec_get_bool(fdt, ret, "no-map"))
+		return -EINVAL;
+
+	addr = fdtdec_get_addr_size(fdt, ret, "reg", &size);
+	if (addr == FDT_ADDR_T_NONE)
+		return -1;
+
+	mmu_change_region_attr_nobreak(addr, size, PTE_TYPE_FAULT);
+
+	return 0;
+}
+
 u64 get_tcr(u64 *pips, u64 *pva_bits)
 {
 	int el = get_effective_el();
@@ -830,16 +884,15 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 void dcache_enable(void)
 {
 	/* The data cache is not active unless the mmu is enabled */
-	if (!(get_sctlr() & CR_M)) {
-		invalidate_dcache_all();
-		__asm_invalidate_tlb_all();
+	if (!mmu_status())
 		mmu_setup();
-	}
 
 	/* Set up page tables only once (it is done also by mmu_setup()) */
 	if (!gd->arch.tlb_fillptr)
 		setup_all_pgtables();
 
+	invalidate_dcache_all();
+	__asm_invalidate_tlb_all();
 	set_sctlr(get_sctlr() | CR_C);
 }
 

@@ -57,7 +57,7 @@ void reset_cpu(void)
 		| V7M_AIRCR_SYSRESET, &V7M_SCB->aircr);
 }
 
-void spl_perform_fixups(struct spl_image_info *spl_image)
+void spl_perform_arch_fixups(struct spl_image_info *spl_image)
 {
 	spl_image->entry_point |= 0x1;
 }

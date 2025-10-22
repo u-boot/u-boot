@@ -1116,10 +1116,16 @@ int board_return_to_bootrom(struct spl_image_info *spl_image,
 ulong board_spl_fit_size_align(ulong size);
 
 /**
- * spl_perform_fixups() - arch/board-specific callback before processing
- *                        the boot-payload
+ * spl_perform_arch_fixups() - arch specific callback before processing the
+ *                        boot-payload
  */
-void spl_perform_fixups(struct spl_image_info *spl_image);
+void spl_perform_arch_fixups(struct spl_image_info *spl_image);
+
+/**
+ * spl_perform_board_fixups() - board specific callback before processing the
+ *                        boot-payload
+ */
+void spl_perform_board_fixups(struct spl_image_info *spl_image);
 
 /*
  * spl_get_load_buffer() - get buffer for loading partial image data

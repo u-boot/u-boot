@@ -130,7 +130,7 @@ u32 spl_boot_mode(const u32 boot_device)
 #endif
 
 /* board specific function prior loading SSBL / U-Boot */
-void spl_perform_fixups(struct spl_image_info *spl_image)
+void spl_perform_arch_fixups(struct spl_image_info *spl_image)
 {
 	int ret;
 	struct udevice *dev;

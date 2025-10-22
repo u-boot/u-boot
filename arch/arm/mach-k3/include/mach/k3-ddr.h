@@ -8,6 +8,12 @@
 
 #include <spl.h>
 
+/* We need 3 extra entries for:
+ *   SoC peripherals, flash and the sentinel value.
+ */
+#define K3_MEM_MAP_LEN			((CONFIG_NR_DRAM_BANKS) + 3)
+#define K3_MEM_MAP_FIRST_BANK_IDX	2
+
 int dram_init(void);
 int dram_init_banksize(void);
 
