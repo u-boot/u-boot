@@ -2666,6 +2666,10 @@ help:
 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
 	@echo  'For further info see the ./README file'
 
+ifneq ($(filter tests pcheck qcheck tcheck,$(MAKECMDGOALS)),)
+export sub_make_done := 0
+endif
+
 tests check:
 	$(srctree)/test/run
 
