@@ -11,7 +11,8 @@
 #include <bootdev.h>
 #include <image.h>
 #include <dm/ofnode_decl.h>
-#include <linux/types.h>
+#include <linux/list.h>
+#include <linux/build_bug.h>
 
 struct bootstd_priv;
 struct expo;
@@ -213,6 +214,10 @@ enum bootflow_meth_flags_t {
 	BOOTFLOW_METHF_SINGLE_UCLASS	= 1 << 3,
 };
 
+enum {
+	BOOTMETH_MAX_COUNT	= 32,
+};
+
 /**
  * struct bootflow_iter - state for iterating through bootflows
  *
@@ -255,10 +260,16 @@ enum bootflow_meth_flags_t {
  * @cur_prio: Current priority being scanned
  * @method_order: List of bootmeth devices to use, in order. The normal methods
  *	appear first, then the global ones, if any
+ * @have_global: true if we have global bootmeths in @method_order[]
  * @doing_global: true if we are iterating through the global bootmeths (which
- *	happens before the normal ones)
+ *	generally happens before the normal ones)
  * @method_flags: flags controlling which methods should be used for this @dev
  * (enum bootflow_meth_flags_t)
+ * @methods_done: indicates which methods have been processed, one bit for
+ * each method in @method_order[]
+ * @pending_bootdev: if non-NULL, bootdev which will be used when the global
+ * bootmeths are done
+ * @pending_method_flags: method flags which will be used with @pending_bootdev
  */
 struct bootflow_iter {
 	int flags;
@@ -278,8 +289,12 @@ struct bootflow_iter {
 	int first_glob_method;
 	enum bootdev_prio_t cur_prio;
 	struct udevice **method_order;
+	bool have_global;
 	bool doing_global;
 	int method_flags;
+	uint methods_done;
+	struct udevice *pending_bootdev;
+	int pending_method_flags;
 };
 
 /**

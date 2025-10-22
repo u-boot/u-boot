@@ -133,7 +133,8 @@ which scans for available bootflows, optionally listing each find it finds (-l)
 and trying to boot it (-b).
 
 When global bootmeths are available, these are typically checked before the
-above bootdev scanning.
+above bootdev scanning, but it is possible provide a priority to make them
+run later, by setting the glob_prio field in the driver's bind() method.
 
 
 Controlling ordering
@@ -612,9 +613,9 @@ simply copied into the iterator. Either way, the `method_order` array it set up,
 along with `num_methods`.
 
 Note that global bootmeths are always put at the end of the ordering. If any are
-present, `cur_method` is set to the first one, so that global bootmeths are done
-first. Once all have been used, these bootmeths are dropped from the iteration.
-When there are no global bootmeths, `cur_method` is set to 0.
+present, `cur_method` is set to the first one, so that global bootmeths are
+processed first, so long as their priority allows it. Bootstd keeps track of
+which global bootmeths have been used, to make sure they are only used once.
 
 At this point the iterator is ready to use, with the first bootmeth selected.
 Most of the other fields are 0. This means that the current partition
@@ -714,8 +715,35 @@ to the next partition, or bootdev, for example. The special values
 `BF_NO_MORE_PARTS` and `BF_NO_MORE_DEVICES` handle this. When `iter_incr` sees
 `BF_NO_MORE_PARTS` it knows that it should immediately move to the next bootdev.
 When it sees `BF_NO_MORE_DEVICES` it knows that there is nothing more it can do
-so it should immediately return. The caller of `iter_incr()` is responsible for
-updating the `err` field, based on the return value it sees.
+so it should immediately run any unused global bootmeths and then return. The
+caller of `iter_incr()` is responsible for updating the `err` field, based on
+the return value it sees.
+
+Global bootmeths can have a non-zero priority, which indicates where in the
+iteration sequence they should run. Each time a new bootdev is produced by a
+hunter, all of the global bootmeths are first checked to see if they should run
+before this new bootdev. For example, if the bootdev was produced by a hunter
+with priority BOOTDEVP_6_NET_BASE, then a quick check is made for global
+bootmeths with that priority or less. If there are any, they run before the new
+bootdev is processed.
+
+Assuming they are enabled and the iteration sequence runs right to the end, all
+global bootmeths will be used. This is handled by a special case at the end of
+iter_incr(), where it processes amy so-far-unused global bootmeths.
+
+It is important to note the special nature of global bootmeths, with respect to
+priority. If there are two normal bootmeths and a global one, the normal ones
+are run for each bootdev, but the global one is independent of bootdevs. The
+order might be:
+
+    bootdev priority 3: normal-1, normal-3
+    global-2, prio 4
+    bootdev priority 5: normal-1, normal-3
+
+Of course if a specific bootmeth ordering is provided, then this overrides the
+default ordering. Global bootmeths must be listed at the end, reflecting their
+hybrid nature (they are bootmeths but operate on the system as a whole, not on
+a particular bootdev).
 
 The above describes the iteration process at a high level. It is basically a
 very simple increment function with a checker called `bootflow_check()` that

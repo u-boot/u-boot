@@ -209,7 +209,18 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global)
 	    iter->first_glob_method != -1 && iter->first_glob_method != count) {
 		iter->cur_method = iter->first_glob_method;
 		iter->doing_global = true;
+		iter->have_global = true;
 	}
+
+	/*
+	 * check we don't exceed the maximum bits in methods_done when tracking
+	 * which global bootmeths have run
+	 */
+	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) && count > BOOTMETH_MAX_COUNT) {
+		free(order);
+		return log_msg_ret("tmb", -ENOSPC);
+	}
+
 	iter->method_order = order;
 	iter->num_methods = count;
 
