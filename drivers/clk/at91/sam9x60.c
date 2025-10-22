@@ -123,6 +123,7 @@ static const struct clk_pll_characteristics apll_characteristics = {
 	.num_output = ARRAY_SIZE(plla_outputs),
 	.output = plla_outputs,
 	.core_output = core_outputs,
+	.acr = 0x00020010UL,
 };
 
 static const struct clk_pll_characteristics upll_characteristics = {
@@ -131,6 +132,7 @@ static const struct clk_pll_characteristics upll_characteristics = {
 	.output = upll_outputs,
 	.core_output = core_outputs,
 	.upll = true,
+	.acr = 0x12023010UL, /* fIN = [18 MHz, 32 MHz]*/
 };
 
 /* Layout for fractional PLLs. */
