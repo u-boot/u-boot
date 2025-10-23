@@ -974,6 +974,8 @@ static efi_status_t handle_user_input(u16 *buf, int buf_size,
 	if (!tmp)
 		return EFI_OUT_OF_RESOURCES;
 
+	/* Populate tmp so user can edit existing string */
+	u16_strcpy(tmp, buf);
 	ret = efi_console_get_u16_string(cin, tmp, buf_size, NULL, 4, cursor_col);
 	if (ret == EFI_SUCCESS)
 		u16_strcpy(buf, tmp);
