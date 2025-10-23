@@ -10,6 +10,7 @@
 / {
 	aliases {
 		eeprom0 = &eeprom0;
+		eeprom0wl = &eeprom0wl;
 	};
 
 	config {

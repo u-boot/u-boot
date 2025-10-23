@@ -119,7 +119,7 @@ static bool dh_stm32_mac_is_in_ks8851(void)
 	return false;
 }
 
-static int dh_stm32_setup_ethaddr(void)
+static int dh_stm32_setup_ethaddr(struct eeprom_id_page *eip)
 {
 	unsigned char enetaddr[6];
 
@@ -129,13 +129,19 @@ static int dh_stm32_setup_ethaddr(void)
 	if (dh_get_mac_is_enabled("ethernet0"))
 		return 0;
 
+	if (!dh_get_value_from_eeprom_buffer(DH_MAC0, enetaddr, sizeof(enetaddr), eip))
+		goto out;
+
 	if (!dh_get_mac_from_eeprom(enetaddr, "eeprom0"))
-		return eth_env_set_enetaddr("ethaddr", enetaddr);
+		goto out;
 
 	return -ENXIO;
+
+out:
+	return eth_env_set_enetaddr("ethaddr", enetaddr);
 }
 
-static int dh_stm32_setup_eth1addr(void)
+static int dh_stm32_setup_eth1addr(struct eeprom_id_page *eip)
 {
 	unsigned char enetaddr[6];
 
@@ -148,20 +154,47 @@ static int dh_stm32_setup_eth1addr(void)
 	if (dh_stm32_mac_is_in_ks8851())
 		return 0;
 
-	if (!dh_get_mac_from_eeprom(enetaddr, "eeprom0")) {
-		enetaddr[5]++;
-		return eth_env_set_enetaddr("eth1addr", enetaddr);
-	}
+	if (!dh_get_value_from_eeprom_buffer(DH_MAC1, enetaddr, sizeof(enetaddr), eip))
+		goto out;
+
+	if (!dh_get_mac_from_eeprom(enetaddr, "eeprom0"))
+		goto increment_out;
 
 	return -ENXIO;
+
+increment_out:
+	enetaddr[5]++;
+
+out:
+	return eth_env_set_enetaddr("eth1addr", enetaddr);
 }
 
 int setup_mac_address(void)
 {
-	if (dh_stm32_setup_ethaddr())
+	u8 eeprom_buffer[DH_EEPROM_ID_PAGE_MAX_SIZE] = { 0 };
+	struct eeprom_id_page *eip = (struct eeprom_id_page *)eeprom_buffer;
+	int ret;
+
+	ret = dh_read_eeprom_id_page(eeprom_buffer, "eeprom0wl");
+	if (ret) {
+		/*
+		 * The EEPROM ID page is available on SoM rev. 200 and greater.
+		 * For SoM rev. 100 the return value will be -ENODEV. Suppress
+		 * the error message for that, because the absence cannot be
+		 * treated as an error.
+		 */
+		if (ret != -ENODEV)
+			printf("%s: Cannot read valid data from EEPROM ID page! ret = %d\n",
+			       __func__, ret);
+		eip = NULL;
+	} else {
+		dh_add_item_number_and_serial_to_env(eip);
+	}
+
+	if (dh_stm32_setup_ethaddr(eip))
 		log_err("%s: Unable to setup ethaddr!\n", __func__);
 
-	if (dh_stm32_setup_eth1addr())
+	if (dh_stm32_setup_eth1addr(eip))
 		log_err("%s: Unable to setup eth1addr!\n", __func__);
 
 	return 0;
