@@ -299,6 +299,7 @@ static int exynos_dwmmc_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 static int exynos_dwmmc_get_best_clksmpl(u8 candidates)
 {
 	u8 i;
@@ -364,6 +365,7 @@ static int exynos_dwmmc_execute_tuning(struct udevice *dev, u32 opcode)
 
 	return 0;
 }
+#endif
 
 static int exynos_dwmmc_probe(struct udevice *dev)
 {
@@ -481,7 +483,9 @@ static const struct udevice_id exynos_dwmmc_ids[] = {
 struct dm_mmc_ops exynos_dwmmc_ops = {
 	.send_cmd	= dwmci_send_cmd,
 	.set_ios	= dwmci_set_ios,
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	.execute_tuning	= exynos_dwmmc_execute_tuning,
+#endif
 };
 
 U_BOOT_DRIVER(exynos_dwmmc_drv) = {
