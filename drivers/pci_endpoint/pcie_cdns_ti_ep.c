@@ -97,9 +97,20 @@ static int pcie_cdns_reset(struct udevice *dev, struct power_domain *pci_pwrdmn)
 
 static int pcie_cdns_config_serdes(struct udevice *dev)
 {
+	int ret;
+
+	if (CONFIG_IS_ENABLED(MUX_MMIO)) {
+		struct udevice *mux;
+
+		ret = uclass_get_device_by_seq(UCLASS_MUX, 0, &mux);
+		if (ret) {
+			dev_err(dev, "unable to get mux\n");
+			return ret;
+		}
+	}
+
 	if (CONFIG_IS_ENABLED(PHY_CADENCE_TORRENT)) {
 		struct phy serdes;
-		int ret = 7;
 
 		ret = generic_phy_get_by_name(dev,  "pcie-phy", &serdes);
 		if (ret != 0 && ret != -EBUSY) {
