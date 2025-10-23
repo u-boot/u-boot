@@ -275,9 +275,11 @@ static int pcie_cdns_ti_ep_probe(struct udevice *dev)
 	struct pcie_cdns_ti_ep *pcie = dev_get_priv(dev);
 	struct pcie_cdns_ti_ep_data *data;
 	struct power_domain pci_pwrdmn;
+	struct cdns_pcie pcie_dev;
 	struct clk *clk;
 	int ret;
 
+	pcie_dev.reg_base = pcie->reg_base;
 	pcie->dev = dev;
 	data = (struct pcie_cdns_ti_ep_data *)dev_get_driver_data(dev);
 	if (!data)
@@ -327,6 +329,13 @@ static int pcie_cdns_ti_ep_probe(struct udevice *dev)
 		dev_err(dev, "failed to initialize controller: %d\n", ret);
 		return ret;
 	}
+
+	/*
+	 * Disable all the functions except function 0 (anyway BIT(0) is
+	 * hardwired to 1). This is required to avoid RC from enumerating
+	 * those functions which are not even configured.
+	 */
+	cdns_pcie_writel(&pcie_dev, CDNS_PCIE_LM_EP_FUNC_CFG, BIT(0));
 
 	return 0;
 }
@@ -389,10 +398,18 @@ static const struct pcie_cdns_ti_ep_data am64_pcie_ep_data = {
 	.max_lanes = 1,
 };
 
+static const struct pcie_cdns_ti_ep_data j784s4_pcie_ep_data = {
+	.max_lanes = 4,
+};
+
 static const struct udevice_id pcie_cdns_ti_ep_ids[] = {
 	{
 		.compatible = "ti,am64-pcie-ep",
 		.data = (ulong)&am64_pcie_ep_data,
+	},
+	{
+		.compatible = "ti,j784s4-pcie-ep",
+		.data = (ulong)&j784s4_pcie_ep_data,
 	},
 	{},
 };
