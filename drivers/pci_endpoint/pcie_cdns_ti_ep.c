@@ -20,6 +20,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <pci_ep.h>
+#include <linux/delay.h>
 
 #include "pcie-cadence.h"
 
@@ -90,7 +91,7 @@ static int pcie_cdns_reset(struct udevice *dev, struct power_domain *pci_pwrdmn)
 		dev_err(dev, "failed to power on: %d\n", ret);
 		return ret;
 	}
-
+	mdelay(1);
 	return 0;
 }
 
