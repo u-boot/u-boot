@@ -119,6 +119,29 @@ static bool dh_stm32_mac_is_in_ks8851(void)
 	return false;
 }
 
+static int dh_stm32_get_mac_from_fuse(unsigned char *enetaddr, int index)
+{
+	struct udevice *dev;
+	u8 otp[12];
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_DRIVER_GET(stm32mp_bsec),
+					  &dev);
+	if (ret)
+		return ret;
+
+	ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_MAC), otp, sizeof(otp));
+	if (ret < 0)
+		return ret;
+
+	memcpy(enetaddr, otp + ARP_HLEN * index, ARP_HLEN);
+	if (!is_valid_ethaddr(enetaddr))
+		return -EINVAL;
+
+	return 0;
+}
+
 static int dh_stm32_setup_ethaddr(struct eeprom_id_page *eip)
 {
 	unsigned char enetaddr[6];
@@ -128,6 +151,9 @@ static int dh_stm32_setup_ethaddr(struct eeprom_id_page *eip)
 
 	if (dh_get_mac_is_enabled("ethernet0"))
 		return 0;
+
+	if (!dh_stm32_get_mac_from_fuse(enetaddr, 0))
+		goto out;
 
 	if (!dh_get_value_from_eeprom_buffer(DH_MAC0, enetaddr, sizeof(enetaddr), eip))
 		goto out;
@@ -153,6 +179,9 @@ static int dh_stm32_setup_eth1addr(struct eeprom_id_page *eip)
 
 	if (dh_stm32_mac_is_in_ks8851())
 		return 0;
+
+	if (!dh_stm32_get_mac_from_fuse(enetaddr, 1))
+		goto out;
 
 	if (!dh_get_value_from_eeprom_buffer(DH_MAC1, enetaddr, sizeof(enetaddr), eip))
 		goto out;
