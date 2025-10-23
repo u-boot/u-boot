@@ -116,43 +116,6 @@ int dh_setup_mac_address(struct eeprom_id_page *eip)
 	return ret;
 }
 
-void dh_add_item_number_and_serial_to_env(struct eeprom_id_page *eip)
-{
-	char *item_number_env;
-	char item_number[8];	/* String with 7 characters + string termination */
-	char *serial_env;
-	char serial[10];	/* String with 9 characters + string termination */
-	int ret;
-
-	ret = dh_get_value_from_eeprom_buffer(DH_ITEM_NUMBER, item_number, sizeof(item_number),
-					      eip);
-	if (ret) {
-		printf("%s: Unable to get DHSOM item number from EEPROM ID page! ret = %d\n",
-		       __func__, ret);
-	} else {
-		item_number_env = env_get("dh_som_item_number");
-		if (!item_number_env)
-			env_set("dh_som_item_number", item_number);
-		else if (strcmp(item_number_env, item_number))
-			printf("Warning: Environment dh_som_item_number differs from EEPROM ID page value (%s != %s)\n",
-			       item_number_env, item_number);
-	}
-
-	ret = dh_get_value_from_eeprom_buffer(DH_SERIAL_NUMBER, serial, sizeof(serial),
-					      eip);
-	if (ret) {
-		printf("%s: Unable to get DHSOM serial number from EEPROM ID page! ret = %d\n",
-		       __func__, ret);
-	} else {
-		serial_env = env_get("dh_som_serial_number");
-		if (!serial_env)
-			env_set("dh_som_serial_number", serial);
-		else if (strcmp(serial_env, serial))
-			printf("Warning: Environment dh_som_serial_number differs from EEPROM ID page value (%s != %s)\n",
-			       serial_env, serial);
-	}
-}
-
 int board_late_init(void)
 {
 	u8 eeprom_buffer[DH_EEPROM_ID_PAGE_MAX_SIZE] = { 0 };
