@@ -692,6 +692,34 @@ void board_quiesce_devices(void)
 #endif
 }
 
+#ifdef CONFIG_TARGET_DH_STM32MP13X
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bootmode = get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode & TAMP_BOOT_DEVICE_MASK) {
+	case BOOT_FLASH_SD:
+	case BOOT_FLASH_EMMC:
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
+			return ENVL_MMC;
+		else
+			return ENVL_NOWHERE;
+
+	case BOOT_FLASH_NOR:
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		else
+			return ENVL_NOWHERE;
+
+	default:
+		return ENVL_NOWHERE;
+	}
+}
+#endif
+
 static void dh_stm32_ks8851_fixup(void *blob)
 {
 	struct gpio_desc ks8851intrn;
