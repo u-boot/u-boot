@@ -142,7 +142,7 @@ void *memchr_inv(const void *, int, size_t);
  *	memory is available
  *
  */
-char *memdup(const void *src, size_t len);
+void *memdup(const void *src, size_t len);
 
 unsigned long ustrtoul(const char *cp, char **endp, unsigned int base);
 unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base);
