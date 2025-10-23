@@ -43,6 +43,7 @@ static struct tag_name {
 	{ BLOBLISTT_ACPI_TABLES, "ACPI tables for x86" },
 	{ BLOBLISTT_TPM_EVLOG, "TPM event log defined by TCG EFI" },
 	{ BLOBLISTT_TPM_CRB_BASE, "TPM Command Response Buffer address" },
+	{ BLOBLISTT_FDT_OVERLAY, "DT overlay" },
 
 	/* BLOBLISTT_AREA_FIRMWARE */
 	{ BLOBLISTT_TPM2_TCG_LOG, "TPM v2 log space" },
@@ -94,6 +95,19 @@ static inline uint rec_tag(struct bloblist_rec *rec)
 {
 	return (rec->tag_and_hdr_size & BLOBLISTR_TAG_MASK) >>
 		BLOBLISTR_TAG_SHIFT;
+}
+
+static inline void void_blob(struct bloblist_rec *rec)
+{
+	if (rec_tag(rec) == BLOBLISTT_VOID)
+		return;
+	rec->tag_and_hdr_size = BLOBLISTT_VOID |
+				sizeof(*rec) << BLOBLISTR_HDR_SIZE_SHIFT;
+}
+
+static inline struct bloblist_rec *rec_from_blob(void *blob)
+{
+	return (blob - sizeof(struct bloblist_rec));
 }
 
 static ulong bloblist_blob_end_ofs(struct bloblist_hdr *hdr,
@@ -222,6 +236,19 @@ static int bloblist_ensurerec(uint tag, struct bloblist_rec **recp, int size,
 	return 0;
 }
 
+static int bloblist_get_blob_data_offset(uint tag)
+{
+	switch (tag) {
+	case BLOBLISTT_FDT_OVERLAY:
+		return sizeof(struct dto_blob_hdr);
+	/*
+	 * return the data offset if it is not following the blob
+	 * header immediately.
+	 */
+	}
+	return 0;
+}
+
 void *bloblist_find(uint tag, int size)
 {
 	void *blob = NULL;
@@ -246,6 +273,44 @@ void *bloblist_get_blob(uint tag, int *sizep)
 	*sizep = rec->size;
 
 	return (void *)rec + rec_hdr_size(rec);
+}
+
+int bloblist_apply_blobs(uint tag, int (*func)(void **data, int size))
+{
+	struct bloblist_hdr *hdr = gd->bloblist;
+	struct bloblist_rec *rec;
+
+	if (!func || !hdr)
+		return -ENOENT;
+
+	foreach_rec(rec, hdr) {
+		/* Apply all blobs with the specified tag */
+		if (rec_tag(rec) == tag) {
+			int ret;
+			int tag = rec_tag(rec);
+			void *blob = (void *)rec + rec_hdr_size(rec);
+			int dat_off = bloblist_get_blob_data_offset(tag);
+
+			blob += dat_off;
+			ret = func(&blob, rec->size - dat_off);
+			if (ret) {
+				log_err("Failed to apply blob with tag %d\n",
+					tag);
+				return ret;
+			}
+
+			rec = rec_from_blob(blob - dat_off);
+			if (rec <= 0) {
+				log_err("Blob corrupted\n");
+				return -ENOENT;
+			}
+
+			/* Mark applied blob record as void */
+			void_blob(rec);
+		}
+	}
+
+	return 0;
 }
 
 void *bloblist_add(uint tag, int size, int align_log2)
@@ -322,7 +387,7 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 	next_ofs = bloblist_blob_end_ofs(hdr, rec);
 	if (next_ofs != hdr->used_size) {
 		memmove((void *)hdr + next_ofs + expand_by,
-			(void *)hdr + next_ofs, new_alloced - next_ofs);
+			(void *)hdr + next_ofs, hdr->used_size - next_ofs);
 	}
 	hdr->used_size = new_alloced;
 
