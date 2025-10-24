@@ -898,6 +898,7 @@ config ARCH_LPC32XX
 
 config ARCH_IMX8
 	bool "NXP i.MX8 platform"
+	select ARCH_MISC_INIT if FSL_CAAM
 	select ARM64
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
