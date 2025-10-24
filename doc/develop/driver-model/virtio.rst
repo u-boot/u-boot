@@ -118,9 +118,9 @@ By default QEMU creates VirtIO legacy devices by default. To create non-legacy
 
   $ qemu-system-i386 -nographic -bios u-boot.rom \
     -netdev tap,ifname=tap0,id=net0 \
-    -device virtio-net-pci,netdev=net0,disable-legacy=true,disable-modern=false \
+    -device virtio-net-pci,netdev=net0,disable-legacy=on,disable-modern=off \
     -drive if=none,file=test.img,format=raw,id=hd0 \
-    -device virtio-blk-pci,drive=hd0,disable-legacy=true,disable-modern=false
+    -device virtio-blk-pci,drive=hd0,disable-legacy=on,disable-modern=off
 
 A 'virtio' command is provided in U-Boot shell.
 
