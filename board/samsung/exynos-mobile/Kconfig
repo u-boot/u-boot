@@ -1,0 +1,18 @@
+if TARGET_EXYNOS_MOBILE
+
+config ENV_SOURCE_FILE
+	default "exynos-mobile"
+
+config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	default TEXT_BASE
+
+config SYS_BOARD
+	default "exynos-mobile"
+
+config SYS_CONFIG_NAME
+	default "exynos-mobile"
+
+config SYS_VENDOR
+	default "samsung"
+
+endif # TARGET_EXYNOS_MOBILE

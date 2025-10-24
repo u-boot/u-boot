@@ -2,7 +2,7 @@ if ARCH_EXYNOS
 
 config BOARD_COMMON
 	def_bool y
-	depends on !TARGET_SMDKV310 && !TARGET_ARNDALE && !TARGET_E850_96
+	depends on !TARGET_SMDKV310 && !TARGET_ARNDALE && !TARGET_EXYNOS_MOBILE && !TARGET_E850_96
 
 config SPI_BOOTING
 	bool
@@ -252,6 +252,14 @@ config TARGET_E850_96
 endchoice
 endif
 
+config TARGET_EXYNOS_MOBILE
+	bool "Samsung Exynos Generic Boards (for mobile devices)"
+	select ARM64
+	select BOARD_EARLY_INIT_F
+	select CLK_EXYNOS
+	select LINUX_KERNEL_IMAGE_HEADER
+	select OF_CONTROL
+
 config SYS_SOC
 	default "exynos"
 
@@ -277,5 +285,6 @@ source "board/samsung/smdk5420/Kconfig"
 source "board/samsung/espresso7420/Kconfig"
 source "board/samsung/axy17lte/Kconfig"
 source "board/samsung/e850-96/Kconfig"
+source "board/samsung/exynos-mobile/Kconfig"
 
 endif
