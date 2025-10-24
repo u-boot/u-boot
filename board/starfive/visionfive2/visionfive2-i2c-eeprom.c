@@ -105,7 +105,8 @@ struct eeprom_atom4_data {
 	u8 bom_revision;		/* BOM version */
 	u8 mac0_addr[MAC_ADDR_BYTES];	/* Ethernet0 MAC */
 	u8 mac1_addr[MAC_ADDR_BYTES];	/* Ethernet1 MAC */
-	u8 reserved[2];
+	u8 onboard_module;	/* Onboard module flag: bit7-1: reserved, bit0: WIFI/BT */
+	u8 reserved;
 };
 
 struct starfive_eeprom_atom4 {
@@ -176,7 +177,7 @@ static void show_eeprom(void)
 	printf("Vendor : %s\n", pbuf.eeprom.atom1.data.vstr);
 	printf("Product full SN: %s\n", pbuf.eeprom.atom1.data.pstr);
 	printf("data version: 0x%x\n", pbuf.eeprom.atom4.data.version);
-	if (pbuf.eeprom.atom4.data.version == 2) {
+	if (pbuf.eeprom.atom4.data.version == 2 || pbuf.eeprom.atom4.data.version == 3) {
 		printf("PCB revision: 0x%x\n", pbuf.eeprom.atom4.data.pcb_revision);
 		printf("BOM revision: %c\n", pbuf.eeprom.atom4.data.bom_revision);
 		printf("Ethernet MAC0 address: %02x:%02x:%02x:%02x:%02x:%02x\n",
@@ -187,6 +188,14 @@ static void show_eeprom(void)
 		       pbuf.eeprom.atom4.data.mac1_addr[0], pbuf.eeprom.atom4.data.mac1_addr[1],
 		       pbuf.eeprom.atom4.data.mac1_addr[2], pbuf.eeprom.atom4.data.mac1_addr[3],
 		       pbuf.eeprom.atom4.data.mac1_addr[4], pbuf.eeprom.atom4.data.mac1_addr[5]);
+		if (pbuf.eeprom.atom4.data.version == 3) {
+			char str[25] = "Onboard module: ";
+
+			if (pbuf.eeprom.atom4.data.onboard_module & BIT(0))
+				strcat(str, "WIFI/BT");
+
+			printf("%s\n", str);
+		}
 	} else {
 		printf("Custom data v%d is not Supported\n", pbuf.eeprom.atom4.data.version);
 		dump_raw_eeprom();
@@ -260,6 +269,7 @@ static void init_local_copy(void)
 	pbuf.eeprom.atom4.data.bom_revision = BOM_VERSION;
 	set_mac_address(STARFIVE_DEFAULT_MAC0, 0);
 	set_mac_address(STARFIVE_DEFAULT_MAC1, 1);
+	pbuf.eeprom.atom4.data.onboard_module = 0;
 }
 
 /**
@@ -386,6 +396,23 @@ static void set_bom_revision(char *string)
 }
 
 /**
+ * set_onboard_module() - stores a StarFive onboard module flag into the local EEPROM copy
+ *
+ * Takes a pointer to a string representing the numeric onboard module flag in
+ * Hexadecimal ("0" - "FF"), stores it in the onboard_module field of the
+ * EEPROM local copy, and updates the CRC of the local copy.
+ */
+static void set_onboard_module(char *string)
+{
+	u8 onboard_module;
+
+	onboard_module = simple_strtoul(string, &string, 16);
+	pbuf.eeprom.atom4.data.onboard_module = onboard_module;
+
+	update_crc();
+}
+
+/**
  * set_product_id() - stores a StarFive product ID into the local EEPROM copy
  *
  * Takes a pointer to a string representing the numeric product ID  in
@@ -477,6 +504,9 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 0;
 	} else if (!strcmp(cmd, "bom_revision")) {
 		set_bom_revision(argv[2]);
+		return 0;
+	} else if (!strcmp(cmd, "onboard_module")) {
+		set_onboard_module(argv[2]);
 		return 0;
 	} else if (!strcmp(cmd, "product_id")) {
 		set_product_id(argv[2]);
@@ -585,6 +615,8 @@ U_BOOT_LONGHELP(mac,
 	"    - stores a StarFive PCB revision into the local EEPROM copy\n"
 	"mac bom_revision <A>\n"
 	"    - stores a StarFive BOM revision into the local EEPROM copy\n"
+	"mac onboard_module <?>\n"
+	"    - stores a StarFive onboard module flag into the local EEPROM copy\n"
 	"mac product_id <VF7110A1-2228-D008E000-xxxxxxxx>\n"
 	"    - stores a StarFive product ID into the local EEPROM copy\n"
 	"mac vendor <Vendor Name>\n"
