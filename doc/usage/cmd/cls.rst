@@ -22,8 +22,3 @@ Configuration
 -------------
 
 The cls command is only available if CONFIG_CMD_CLS=y.
-
-Return value
-------------
-
-The return value $? is 0 (true) on success and 1 (false) on failure.

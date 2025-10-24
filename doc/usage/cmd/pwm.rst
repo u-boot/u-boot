@@ -83,9 +83,3 @@ Configuration
 -------------
 
 The ``pwm`` command is only available if CONFIG_CMD_PWM=y.
-
-Return value
-------------
-
-If the command succeeds, the return value ``$?`` is set to 0. If an error occurs, the
-return value ``$?`` is set to 1.

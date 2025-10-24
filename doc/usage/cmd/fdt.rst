@@ -66,8 +66,3 @@ address and expand it to 0xf000 in size::
     Working FDT set to 10000
     => md 10000 4
     00010000: edfe0dd0 00f00000 78000000 7c270000  ...........x..'|
-
-Return value
-------------
-
-The return value $? indicates whether the command succeeded.

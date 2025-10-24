@@ -56,8 +56,3 @@ Configuration
 -------------
 
 The sound command is enabled by CONFIG_CMD_SOUND=y.
-
-Return value
-------------
-
-The return value $? is 0 (true) if the command succeeds, 1 (false) otherwise.

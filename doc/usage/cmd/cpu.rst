@@ -93,9 +93,3 @@ Configuration
 -------------
 
 The cpu command is available if CONFIG_CMD_CPU=y.
-
-Return code
------------
-
-The return value $? is set to 0 (true) if the command is successful,
-1 (false) otherwise.

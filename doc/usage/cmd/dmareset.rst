@@ -47,9 +47,3 @@ Configuration
 
 The dmareset command is only available if CONFIG_CMD_C5_PL330_DMA=y in
 "Shell scripting commands".
-
-Return value
-------------
-
-If the command succeeds, the return value $? is set to 0 (true).
-If an error occurs, the return value $? is set to 1 (false).

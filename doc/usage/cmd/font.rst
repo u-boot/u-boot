@@ -54,9 +54,3 @@ Configuration
 -------------
 
 The command is only available if CONFIG_CONSOLE_TRUETYPE=y.
-
-Return value
-------------
-
-The return value $? is 0 (true) if the command completes.
-The return value is 1 (false) if the command fails.

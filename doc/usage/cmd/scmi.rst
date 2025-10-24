@@ -119,11 +119,4 @@ Configuration
 The scmi command is only available if CONFIG_CMD_SCMI=y.
 Default n because this command is mainly for debug purpose.
 
-Return value
-------------
-
-The return value ($?) is set to 0 if the operation succeeded,
-1 if the operation failed or -1 if the operation failed due to
-a syntax error.
-
 .. _`SCMI specification`: https://developer.arm.com/documentation/den0056/e/?lang=en

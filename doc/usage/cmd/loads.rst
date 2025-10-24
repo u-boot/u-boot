@@ -92,8 +92,3 @@ Configuration
 
 The command is only available if CONFIG_CMD_LOADS=y. The parameter to set the
 baud rate is only available if CONFIG_SYS_LOADS_BAUD_CHANGE=y
-
-Return value
-------------
-
-The return value $? is 0 (true) on success, 1 (false) otherwise.

@@ -73,8 +73,3 @@ The command is only available if CONFIG_CMD_LOADB=y.
 Initial timeout in seconds while waiting for transfer is configured by
 config option CMD_LOADXY_TIMEOUT or by env variable $loadxy_timeout.
 Setting it to 0 means infinite timeout.
-
-Return value
-------------
-
-The return value $? is 0 (true) on success, 1 (false) otherwise.
