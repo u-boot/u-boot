@@ -13,6 +13,7 @@
 #include <env.h>
 #include <errno.h>
 #include <init.h>
+#include <limits.h>
 #include <linux/sizes.h>
 #include <lmb.h>
 #include <part.h>
@@ -53,6 +54,96 @@ static struct mm_region exynos_mem_map[CONFIG_NR_DRAM_BANKS + 2] = {
 
 struct mm_region *mem_map = exynos_mem_map;
 
+static const u64 exynos7870_common_dram_bank_bases[CONFIG_NR_DRAM_BANKS] = {
+	0x40000000, 0x80000000, 0x100000000,
+};
+
+static const char *exynos_prev_bl_get_bootargs(void)
+{
+	void *prev_bl_fdt_base = (void *)get_prev_bl_fdt_addr();
+	int chosen_node_offset, ret;
+	const struct fdt_property *bootargs_prop;
+
+	ret = fdt_check_header(prev_bl_fdt_base);
+	if (ret < 0) {
+		log_err("%s: FDT is invalid (FDT_ERR %d)\n", __func__, ret);
+		return NULL;
+	}
+
+	ret = fdt_path_offset(prev_bl_fdt_base, "/chosen");
+	chosen_node_offset = ret;
+	if (ret < 0) {
+		log_err("%s: /chosen node not found (FDT_ERR %d)\n", __func__,
+			ret);
+		return NULL;
+	}
+
+	bootargs_prop = fdt_get_property(prev_bl_fdt_base, chosen_node_offset,
+					 "bootargs", &ret);
+	if (!bootargs_prop) {
+		log_err("%s: /chosen/bootargs property not found (FDT_ERR %d)\n",
+			__func__, ret);
+		return NULL;
+	}
+
+	return bootargs_prop->data;
+}
+
+static int exynos7870_fdt_match(struct exynos_board_info *board_info)
+{
+	const char *prev_bl_bootargs;
+	int val, ret;
+
+	prev_bl_bootargs = exynos_prev_bl_get_bootargs();
+	if (!prev_bl_bootargs)
+		return -1;
+
+	/*
+	 * Read the cmdline property which stores the
+	 * bootloader/firmware version. An example value of the option
+	 * can be: "J600GDXU3ARH5". This can be used to verify the model
+	 * of the device.
+	 */
+	ret = cmdline_get_arg(prev_bl_bootargs, "androidboot.bootloader", &val);
+	if (ret < 0) {
+		log_err("%s: unable to find property for bootloader version (%d)\n",
+			__func__, ret);
+		return -1;
+	}
+
+	if (strncmp(prev_bl_bootargs + val, board_info->match_model,
+		    strlen(board_info->match_model)))
+		return -1;
+
+	/*
+	 * Read the cmdline property which stores the hardware revision.
+	 * This is required to allow selecting one of multiple dtbs
+	 * available of a single device, varying in hardware changes in
+	 * different revisions.
+	 */
+	ret = cmdline_get_arg(prev_bl_bootargs, "androidboot.revision", &val);
+	if (ret < 0)
+		ret = cmdline_get_arg(prev_bl_bootargs, "androidboot.hw_rev", &val);
+	if (ret < 0) {
+		log_err("%s: unable to find property for bootloader revision (%d)\n",
+			__func__, ret);
+		return -1;
+	}
+
+	if (strtoul(prev_bl_bootargs + val, NULL, 10) > board_info->match_max_rev)
+		return -1;
+
+	/*
+	 * Read the cmdline property which stores the serial number.
+	 * Store this in the board info struct.
+	 */
+	ret = cmdline_get_arg(prev_bl_bootargs, "androidboot.serialno", &val);
+	if (ret > 0)
+		strlcpy(board_info->serial, prev_bl_bootargs + val, ret);
+
+	return 0;
+}
+
 /*
  * This array is used for matching the models and revisions with the
  * devicetree used by U-Boot. This allows a single U-Boot to work on
@@ -62,6 +153,31 @@ struct mm_region *mem_map = exynos_mem_map;
  * board names.
  */
 static struct exynos_board_info exynos_board_info_match[] = {
+	{
+		/* Samsung Galaxy A2 Core */
+		.name = "a2corelte",
+		.chip = "exynos7870",
+		.dram_bank_bases = exynos7870_common_dram_bank_bases,
+		.match = exynos7870_fdt_match,
+		.match_model = "A260",
+		.match_max_rev = U8_MAX,
+	}, {
+		/* Samsung Galaxy J6 */
+		.name = "j6lte",
+		.chip = "exynos7870",
+		.dram_bank_bases = exynos7870_common_dram_bank_bases,
+		.match = exynos7870_fdt_match,
+		.match_model = "J600",
+		.match_max_rev = U8_MAX,
+	}, {
+		/* Samsung Galaxy J7 Prime */
+		.name = "on7xelte",
+		.chip = "exynos7870",
+		.dram_bank_bases = exynos7870_common_dram_bank_bases,
+		.match = exynos7870_fdt_match,
+		.match_model = "G610",
+		.match_max_rev = U8_MAX,
+	},
 };
 
 static void exynos_parse_dram_banks(const struct exynos_board_info *board_info,
