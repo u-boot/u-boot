@@ -138,10 +138,10 @@ class RunAndLog(object):
         self.logfile.write(self, msg)
 
         try:
-            p = subprocess.Popen(cmd, cwd=cwd,
-                stdin=subprocess.PIPE if stdin else None,
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
-            (stdout, stderr) = p.communicate(input=stdin)
+            p = subprocess.run(cmd, cwd=cwd, capture_output=True, input=stdin,
+                               env=env)
+            stdout = p.stdout
+            stderr = p.stderr
             if stdout is not None:
                 stdout = stdout.decode('utf-8')
             if stderr is not None:
