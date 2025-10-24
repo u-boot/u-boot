@@ -69,6 +69,8 @@ static void set_fdtfile(void)
 		fdtfile = "starfive/jh7110-starfive-visionfive-2-v1.2a.dtb";
 	} else if (!strncmp(get_product_id_from_eeprom(), "VF7110B", 7)) {
 		fdtfile = "starfive/jh7110-starfive-visionfive-2-v1.3b.dtb";
+	} else if (!strncmp(get_product_id_from_eeprom(), "VF7110SL", 8)) {
+		fdtfile = "starfive/jh7110-starfive-visionfive-2-lite.dtb";
 	} else {
 		log_err("Unknown product\n");
 		return;
