@@ -9,6 +9,11 @@
 
 #include <linux/types.h>
 
+/**
+ * get_pcb_revision_from_eeprom() - get the PCB revision
+ *
+ * @return: the PCB revision or 0 on error.
+ */
 u8 get_pcb_revision_from_eeprom(void);
 
 /**
