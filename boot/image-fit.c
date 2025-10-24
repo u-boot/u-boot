@@ -1662,7 +1662,7 @@ int fit_check_format(const void *fit, ulong size)
 
 	if (CONFIG_IS_ENABLED(FIT_FULL_CHECK)) {
 		/*
-		 * If we are not given the size, make do wtih calculating it.
+		 * If we are not given the size, make do with calculating it.
 		 * This is not as secure, so we should consider a flag to
 		 * control this.
 		 */
