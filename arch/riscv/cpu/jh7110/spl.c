@@ -41,7 +41,7 @@ int spl_dram_init(void)
 	/* Read the definition of the DDR size from eeprom, and if not,
 	 * use the definition in DT
 	 */
-	size = (get_ddr_size_from_eeprom() >> 16) & 0xFF;
+	size = get_ddr_size_from_eeprom();
 	if (check_ddr_size(size))
 		gd->ram_size = size << 30;
 

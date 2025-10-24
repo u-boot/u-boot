@@ -550,23 +550,12 @@ u8 get_pcb_revision_from_eeprom(void)
 	return pbuf.eeprom.atom1.data.pstr[6];
 }
 
-/**
- * get_ddr_size_from_eeprom - get the DDR size
- * pstr:  VF7110A1-2228-D008E000-00000001
- * VF7110A1/VF7110B1 : VisionFive JH7110A /VisionFive JH7110B
- * D008: 8GB LPDDR4
- * E000: No emmc device, ECxx: include emmc device, xx: Capacity size[GB]
- * return: the field of 'D008E000'
- */
-
-u32 get_ddr_size_from_eeprom(void)
+u8 get_ddr_size_from_eeprom(void)
 {
-	u32 pv = 0xFFFFFFFF;
-
 	if (read_eeprom())
-		return pv;
+		return 0;
 
-	return hextoul(&pbuf.eeprom.atom1.data.pstr[14], NULL);
+	return (hextoul(&pbuf.eeprom.atom1.data.pstr[14], NULL) >> 16) & 0xFF;
 }
 
 u32 get_mmc_size_from_eeprom(void)
