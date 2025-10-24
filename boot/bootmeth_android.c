@@ -512,6 +512,37 @@ static int run_avb_verification(struct bootflow *bflow)
 }
 #endif /* AVB_VERIFY */
 
+static int append_bootargs_to_cmdline(struct bootflow *bflow)
+{
+	char *bootargs;
+	int len = 0;
+
+	/*
+	 * Check any additionnal bootargs coming from U-Boot env. If any,
+	 * merge them with the current cmdline
+	 */
+	bootargs = env_get("bootargs");
+	if (bootargs) {
+		len += strlen(bootargs) + 1; /* Extra space character needed */
+		len += strlen(bflow->cmdline);
+
+		char *newcmdline = malloc(len + 1); /* +1 for the '\0' */
+
+		if (!newcmdline)
+			return log_msg_ret("newcmdline malloc", -ENOMEM);
+
+		strcpy(newcmdline, bootargs);
+		strcat(newcmdline, " ");
+		strcat(newcmdline, bflow->cmdline);
+
+		/* Free the previous cmdline and replace it */
+		free(bflow->cmdline);
+		bflow->cmdline = newcmdline;
+	}
+
+	return 0;
+}
+
 static int boot_android_normal(struct bootflow *bflow)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
@@ -545,6 +576,10 @@ static int boot_android_normal(struct bootflow *bflow)
 
 	if (priv->slot)
 		free(priv->slot);
+
+	ret = append_bootargs_to_cmdline(bflow);
+	if (ret < 0)
+		return log_msg_ret("bootargs append", ret);
 
 	ret = bootm_boot_start(loadaddr, bflow->cmdline);
 
