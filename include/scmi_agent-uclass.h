@@ -40,11 +40,27 @@ struct scmi_agent_priv {
 	u8 *agent_name;
 	u32 agent_id;
 	struct udevice *base_dev;
+#if IS_ENABLED(CONFIG_SCMI_POWER_DOMAIN)
 	struct udevice *pwdom_dev;
+#endif
+#if IS_ENABLED(CONFIG_CLK_SCMI)
 	struct udevice *clock_dev;
+#endif
+#if IS_ENABLED(CONFIG_RESET_SCMI)
 	struct udevice *resetdom_dev;
+#endif
+#if IS_ENABLED(CONFIG_DM_REGULATOR_SCMI)
 	struct udevice *voltagedom_dev;
+#endif
+#if IS_ENABLED(CONFIG_PINCTRL_IMX_SCMI)
 	struct udevice *pinctrl_dev;
+#endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_80)
+	struct udevice *vendor_dev_80;
+#endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_82)
+	struct udevice *vendor_dev_82;
+#endif
 };
 
 static inline u32 scmi_version(struct udevice *dev)
