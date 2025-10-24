@@ -1780,7 +1780,7 @@ menu "Image support"
 config IMAGE_PRE_LOAD
 	bool "Image pre-load support"
 	help
-	  Enable an image pre-load stage in the SPL.
+	  Enable an image pre-load stage.
 	  This pre-load stage allows to do some manipulation
 	  or check (for example signature check) on an image
 	  before launching it.
@@ -1812,7 +1812,7 @@ config IMAGE_PRE_LOAD_SIG
 	  u-boot.
 
 config SPL_IMAGE_PRE_LOAD_SIG
-	bool "Image pre-load signature support witin SPL"
+	bool "Image pre-load signature support within SPL"
 	depends on SPL_IMAGE_PRE_LOAD && IMAGE_PRE_LOAD_SIG
 	select SPL_FIT_SIGNATURE
 	select SPL_RSA
