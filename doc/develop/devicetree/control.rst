@@ -288,7 +288,7 @@ The full devicetree is available to U-Boot proper, but normally only a subset
 Using several DTBs in the SPL (SPL_MULTI_DTB_FIT Kconfig option)
 ----------------------------------------------------------------
 In some rare cases it is desirable to let SPL be able to select one DTB among
-many. This usually not very useful as the DTB for the SPL is small and usually
+many. This is usually not very useful as the DTB for the SPL is small and usually
 fits several platforms. However the DTB sometimes include information that do
 work on several platforms (like IO tuning parameters).
 In this case it is possible to use SPL_MULTI_DTB_FIT Kconfig option. This option

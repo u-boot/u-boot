@@ -213,7 +213,7 @@ updatefile
 
 autoload
     if set to "no" (any string beginning with 'n'),
-    "bootp" and "dhcp" will just load perform a lookup of the
+    "bootp" and "dhcp" will just perform a lookup of the
     configuration from the BOOTP server, but not try to
     load any image.
 

@@ -354,7 +354,7 @@ Writing Out Trace Data
 ----------------------
 
 Once the trace data is in an output buffer in memory there are various ways
-to transmit it to the host. Notably you can use tftput to send the data
+to transmit it to the host. Notably you can use tftpput to send the data
 over a network link::
 
     fakegocmd=trace pause; usb start; set autoload n; bootp;

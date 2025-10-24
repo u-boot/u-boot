@@ -45,7 +45,7 @@ An additional problem with the device tree in U-Boot is that it is read-only,
 and the current mechanisms don't allow easy manipulation of the device tree
 after the driver model has been initialized. While migrating to a live device
 tree (at least after the relocation) would greatly simplify the solution of
-this problem, it is a non-negligible task to implement it, an a interim
+this problem, it is a non-negligible task to implement it, an ad interim
 solution is needed to address the problem at least in the medium-term.
 
 Hence, we propose a solution to this problem by offering a board-specific
