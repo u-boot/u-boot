@@ -378,7 +378,7 @@ U_BOOT_DRIVER(gpio_hog) = {
 #else
 int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
 {
-	return 0;
+	return -ENODEV;
 }
 #endif
 
