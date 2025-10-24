@@ -38,3 +38,8 @@ Preparation and Flashing
 ^^^^^^^^^^^^^^^^^^^^^^^^
 Since U-Boot supports multiple boards, and devices have different requirements,
 this step will vary depending on your target.
+
+.. toctree::
+	:maxdepth: 1
+
+	exynos-mobile/exynos7870
