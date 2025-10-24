@@ -1338,12 +1338,17 @@ file with the new devicetree.
 This is handled by the --update-fdt-in-elf option. It takes four arguments,
 separated by comma:
 
-   infile     - filename of input ELF file, e.g. 'u-boot's
-   outfile    - filename of output ELF file, e.g. 'u-boot.out'
-   begin_sym - symbol at the start of the embedded devicetree, e.g.
-   '__dtb_dt_begin'
-   end_sym   - symbol at the start of the embedded devicetree, e.g.
-   '__dtb_dt_end'
+infile:
+    filename of input ELF file, e.g. 'u-boot's
+
+outfile:
+    filename of output ELF file, e.g. 'u-boot.out'
+
+begin_sym:
+    symbol at the start of the embedded devicetree, e.g. '__dtb_dt_begin'
+
+end_sym:
+    symbol at the start of the embedded devicetree, e.g. '__dtb_dt_end'
 
 When this flag is used, U-Boot does all the normal packaging, but as an
 additional step, it creates a new ELF file with the new devicetree embedded in
@@ -1546,19 +1551,19 @@ Logging
 -------
 
 Binman normally operates silently unless there is an error, in which case it
-just displays the error. The -D/--debug option can be used to create a full
+just displays the error. The ``-D/--debug`` option can be used to create a full
 backtrace when errors occur. You can use BINMAN_DEBUG=1 when building to select
 this.
 
 Internally binman logs some output while it is running. This can be displayed
-by increasing the -v/--verbosity from the default of 1:
+by increasing the ``-v/--verbosity`` from the default of 1:
 
-   0: silent
-   1: warnings only
-   2: notices (important messages)
-   3: info about major operations
-   4: detailed information about each operation
-   5: debug (all output)
+   - 0: silent
+   - 1: warnings only
+   - 2: notices (important messages)
+   - 3: info about major operations
+   - 4: detailed information about each operation
+   - 5: debug (all output)
 
 You can use BINMAN_VERBOSE=5 (for example) when building to select this.
 
@@ -1616,19 +1621,19 @@ To fetch tools which are missing, use::
 
     binman tool --fetch missing
 
-You can also use `--fetch all` to fetch all tools or `--fetch <tool>` to fetch
+You can also use ``--fetch all`` to fetch all tools or ``--fetch <tool>`` to fetch
 a particular tool. Some tools are built from source code, in which case you will
 need to have at least the `build-essential` and `git` packages installed.
 
 Tools are fetched into the `~/.binman-tools` directory. This directory is
-automatically added to the toolpath so there is no need to use `--toolpath` to
+automatically added to the toolpath so there is no need to use ``--toolpath`` to
 specify it. If you want to use these tools outside binman, you may want to
 add this directory to your `PATH`. For example, if you use bash, add this to
 the end of `.bashrc`::
 
    PATH="$HOME/.binman-tools:$PATH"
 
-To select a custom directory, use the `--tooldir` option.
+To select a custom directory, use the ``--tooldir`` option.
 
 Bintool Documentation
 =====================
