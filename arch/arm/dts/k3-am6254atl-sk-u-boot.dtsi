@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Common AM6254atl SK dts file for SPLs
+ * Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+#include "k3-am625-sk-u-boot.dtsi"
+
+#ifdef CONFIG_TARGET_AM625_A53_EVM
+
+#define SPL_AM6254ATL_SK_DTB "spl/dts/ti/k3-am6254atl-sk.dtb"
+
+&spl_am625_sk_dtb {
+	filename = SPL_AM6254ATL_SK_DTB;
+};
+
+&spl_am625_sk_dtb_unsigned {
+	filename = SPL_AM6254ATL_SK_DTB;
+};
+
+#endif

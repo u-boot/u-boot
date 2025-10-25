@@ -10,3 +10,5 @@ F:	configs/am62x_evm_r5_ethboot_defconfig
 F:	configs/am62x_evm_a53_ethboot_defconfig
 F:	configs/am62x_lpsk_r5_defconfig
 F:	configs/am62x_lpsk_a53_defconfig
+F:	configs/am6254atl_evm_r5_defconfig
+F:	configs/am6254atl_evm_a53_defconfig
