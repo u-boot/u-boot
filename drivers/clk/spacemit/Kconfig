@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Copyright (c) 2025, Junhui Liu <junhui.liu@pigmoral.tech>
+
+config CLK_SPACEMIT
+	bool "Clock support for SpacemiT SoCs"
+	depends on CLK
+	select REGMAP
+	help
+	  This enables support clock driver for Spacemit SoC
+	  family.
+
+if CLK_SPACEMIT
+
+config CLK_SPACEMIT_K1
+	bool "SpacemiT K1 clock support"
+	select CLK_CCF
+	default SPACEMIT_K1
+	help
+	  This enables support clock driver for Spacemit K1 SoC.
+	  It's based on Common Clock Framework.
+
+config SPL_CLK_SPACEMIT_K1
+	bool "Enable Spacemit K1 SoC clock support in SPL"
+	select SPL_CLK_CCF
+	default SPACEMIT_K1
+	help
+	  It allows to use the Spacemit K1 SoC clock driver in
+	  SPL.
+
+endif
