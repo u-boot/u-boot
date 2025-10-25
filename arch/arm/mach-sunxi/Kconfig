@@ -499,6 +499,7 @@ config MACH_SUN9I
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"

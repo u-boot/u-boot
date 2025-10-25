@@ -691,8 +691,6 @@ dtb-$(CONFIG_MACH_SUN50I) += \
 	sun50i-a64-sopine-baseboard.dtb \
 	sun50i-a64-teres-i.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
-	sun9i-a80-optimus.dtb \
-	sun9i-a80-cubieboard4.dtb \
 	sun9i-a80-cx-a99.dtb
 
 dtb-$(CONFIG_VF610) += vf610-colibri-eval-v3.dtb \
