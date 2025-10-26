@@ -367,6 +367,8 @@ static int exynos_dwmmc_execute_tuning(struct udevice *dev, u32 opcode)
 }
 #endif
 
+struct dm_mmc_ops exynos_dwmmc_ops;
+
 static int exynos_dwmmc_probe(struct udevice *dev)
 {
 	struct exynos_mmc_plat *plat = dev_get_plat(dev);
@@ -375,6 +377,12 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 	struct dwmci_host *host = &priv->host;
 	unsigned long freq;
 	int err;
+
+	/* Extend generic 'dm_dwmci_ops' with .execute_tuning implementation */
+	memcpy(&exynos_dwmmc_ops, &dm_dwmci_ops, sizeof(struct dm_mmc_ops));
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+	exynos_dwmmc_ops.execute_tuning = exynos_dwmmc_execute_tuning;
+#endif
 
 #ifndef CONFIG_CPU_V7A
 	err = clk_get_by_index(dev, 1, &priv->clk); /* ciu */
@@ -478,14 +486,6 @@ static const struct udevice_id exynos_dwmmc_ids[] = {
 		.data		= (ulong)&exynos7_smu_drv_data,
 	},
 	{ }
-};
-
-struct dm_mmc_ops exynos_dwmmc_ops = {
-	.send_cmd	= dwmci_send_cmd,
-	.set_ios	= dwmci_set_ios,
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
-	.execute_tuning	= exynos_dwmmc_execute_tuning,
-#endif
 };
 
 U_BOOT_DRIVER(exynos_dwmmc_drv) = {
