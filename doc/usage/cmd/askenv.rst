@@ -42,9 +42,8 @@ Value of a environment variable env1 without message and size parameters:
 
 ::
 
-    => askenv env1;echo $?
+    => askenv env1
     Please enter 'env1': val1
-    0
     => printenv env1
     env1=val1
 
@@ -52,9 +51,8 @@ Value of a environment variable env2 with message and size parameters:
 
 ::
 
-    => askenv env2 Please type-in a value for env2: 10;echo $?
+    => askenv env2 Please type-in a value for env2: 10
     Please type-in a value for env2: 1234567890123
-    0
     => printenv env2
     env2=1234567890
 
@@ -62,31 +60,12 @@ Value of a environment variable env3 with size parameter only:
 
 ::
 
-    => askenv env3 10;echo $?
+    => askenv env3 10
     Please enter 'env3': val3
-    0
     => printenv env3
     env3=val3
-
-Return Value of askenv command, when used without any other arguments:
-
-::
-
-    => askenv;echo $?
-    askenv - get environment variables from stdin
-
-    Usage:
-    askenv name [message] [size]
-        - display 'message' and get environment variable 'name' from stdin (max 'size' chars)
-    1
 
 Configuration
 -------------
 
 The askenv command is only available if CMD_ASKENV=y
-
-Return value
-------------
-
-The return value $? is set to 0 (true).
-If no other arguments are specified (along with askenv), it is set to 1 (false).

@@ -129,12 +129,6 @@ Configuration
 
 The ``i3c`` command is only available if CONFIG_CMD_I3C=y.
 
-Return value
-------------
-
-If the command succeeds, the return value ``$?`` is set to 0. If an error
-occurs, the return value ``$?`` is set to 1.
-
 Note
 ----
 

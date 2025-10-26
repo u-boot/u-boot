@@ -46,9 +46,3 @@ Configuration
 -------------
 
 The fatinfo command is only available if CONFIG_CMD_FAT=y.
-
-Return value
-------------
-
-The return value $? is set to 0 (true) if the partition is a FAT partition.
-Otherwise it is set to 1 (false).

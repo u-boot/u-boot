@@ -147,10 +147,3 @@ Configuration
 * The *setexpr gsub* and *setexpr sub* sub-commands are only available
   if CONFIG_REGEX=y. For an overview of the supported regex syntax,
   see :doc:`test`.
-
-Return value
-------------
-
-The return value $? is set to 0 (true) if the operation was successful.
-
-If an error occurs, the return value $? is set to 1 (false).

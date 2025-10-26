@@ -115,8 +115,3 @@ Configuration
 -------------
 
 The bdinfo command is available if CONFIG_CMD_BDI=y.
-
-Return code
------------
-
-The return code $? is 0 (true).

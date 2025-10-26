@@ -66,8 +66,3 @@ Configuration
 -------------
 
 The command is only available if CONFIG_CMD_LOADB=y.
-
-Return value
-------------
-
-The return value $? is 0 (true) on success, 1 (false) on error.

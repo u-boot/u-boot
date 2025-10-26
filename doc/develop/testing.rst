@@ -28,7 +28,7 @@ run. Type this::
 
     make tcheck
 
-You can also run a selection tests in parallel with::
+You can also run a selection of tests in parallel with::
 
     make pcheck
 
@@ -39,7 +39,7 @@ are run. See :doc:`pytest/usage` for more information.
 Sandbox
 -------
 U-Boot can be built as a user-space application (e.g. for Linux). This
-allows test to be executed without needing target hardware. The 'sandbox'
+allows tests to be executed without needing target hardware. The 'sandbox'
 target provides this feature and it is widely used in tests.
 
 See :doc:`tests_sandbox` for more information.

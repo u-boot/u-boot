@@ -38,11 +38,6 @@ Configuration
 
 The msr command is only available on x86.
 
-Return value
-------------
-
-The return value $? is 0 (true).
-
 Example
 -------
 

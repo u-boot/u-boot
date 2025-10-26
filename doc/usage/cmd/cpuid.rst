@@ -25,11 +25,6 @@ Configuration
 
 The cpuid command is only available on x86.
 
-Return value
-------------
-
-The return value $? is 0 (true).
-
 Example
 -------
 

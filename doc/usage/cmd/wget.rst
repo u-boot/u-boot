@@ -184,8 +184,3 @@ CONFIG_WGET_CACERT=y (for the wget cacert command).
 TCP Selective Acknowledgments in the legacy network stack can be enabled via
 CONFIG_PROT_TCP_SACK=y. This will improve the download speed. Selective
 Acknowledgments are enabled by default with lwIP.
-
-Return value
-------------
-
-The return value $? is 0 (true) on success and 1 (false) otherwise.

@@ -70,8 +70,3 @@ compiled::
     modern
     => cli set old
     Want to set current parser to old, but its code was not compiled!
-
-Return value
-------------
-
-The return value $? indicates whether the command succeeded.

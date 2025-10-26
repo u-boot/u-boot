@@ -90,8 +90,3 @@ Configuration
 -------------
 
 The command is available if CONFIG_CMD_ARMFFA=y and CONFIG_ARM_FFA_TRANSPORT=y.
-
-Return value
-------------
-
-The return value $? is 0 (true) on success, 1 (false) on failure.

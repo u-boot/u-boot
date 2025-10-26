@@ -99,8 +99,3 @@ Configuration
 -------------
 
 The bind command is only available if CONFIG_CMD_BIND=y.
-
-Return code
------------
-
-The return code $? is 0 (true) on success and 1 (false) on failure.

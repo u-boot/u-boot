@@ -111,9 +111,3 @@ Unbind a device::
     => host info
     dev       blocks label           path
       1         2048 fat             1MB.fat32.img
-
-
-Return value
-------------
-
-The return value $? indicates whether the command succeeded.

@@ -168,9 +168,3 @@ Configuration
 
 The fuse commands are available if CONFIG_CMD_FUSE=y.
 The fuse writebuff command is available if CONFIG_CMD_FUSE_WRITEBUFF=y.
-
-Return code
------------
-
-The return value $? is set to 0 (true) if the command is successful,
-1 (false) otherwise.

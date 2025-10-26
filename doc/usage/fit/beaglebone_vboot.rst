@@ -473,7 +473,7 @@ you sign::
 Here we are overriding the normal device tree file with our one, which
 contains the public key.
 
-Now you have a special U-Boot image with the public key. It can verify can
+Now you have a special U-Boot image with the public key. It can verify any
 kernel that you sign with the private key as in step 5.
 
 If you like you can take a look at the public key information that mkimage

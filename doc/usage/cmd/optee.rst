@@ -63,8 +63,3 @@ Configuration
 -------------
 
 The optee command is enabled by CONFIG_OPTEE=y and CONFIG_CMD_OPTEE=y.
-
-Return value
-------------
-
-The return value $? is 0 (true) if the command succeeds, 1 (false) otherwise.

@@ -25,7 +25,7 @@ struct cmd_tbl;
  * @addr_img: Address of image to bootm, as passed to
  *	genimg_get_kernel_addr_fit() for processing:
  *
- *    NULL: Usees default load address, i.e. image_load_addr
+ *    NULL: Uses default load address, i.e. image_load_addr
  *    <addr>: Uses hex address
  *
  * For FIT:

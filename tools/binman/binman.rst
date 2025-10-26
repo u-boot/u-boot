@@ -272,7 +272,7 @@ Then, in practice binman is often used twice:
 - Once within the U-Boot build system, for development and testing
 - Again, outside U-Boot to assembly and final production images
 
-While the same input binaries are used in each case, you will of course you will
+While the same input binaries are used in each case, you will of course
 need to create your own binman command line, like that in `cmd_binman` in
 the Makefile. You may find the -I and --toolpath options useful. The
 devicetree file is provided to binman in binary form, so there is no need to
@@ -1184,7 +1184,7 @@ size is written to the node in an 'uncomp-size' property, if -u is used.
 
 Compression is also supported for sections. In that case the entire section is
 compressed in one block, including all its contents. This means that accessing
-an entry from the section required decompressing the entire section. Also, the
+an entry from the section requires decompressing the entire section. Also, the
 size of a section indicates the space that it consumes in its parent section
 (and typically the image). With compression, the section may contain more data,
 and the uncomp-size property indicates that, as above. The contents of the
@@ -1224,8 +1224,8 @@ If you are having trouble figuring out what is going on, you can use
 Templates
 =========
 
-Sometimes multiple images need to be created which have all have a common
-part. For example, a board may generate SPI and eMMC images which both include
+Sometimes multiple images need to be created which all have a common part.
+For example, a board may generate SPI and eMMC images which both include
 a FIT. Since the FIT includes many entries, it is tedious to repeat them twice
 in the image description.
 
@@ -1250,7 +1250,7 @@ Templates provide a simple way to handle this::
 
             /* things specific to SPI follow */
             footer {
-            ];
+            };
 
             text {
                 text = "SPI image";
@@ -1263,7 +1263,7 @@ Templates provide a simple way to handle this::
 
             /* things specific to MMC follow */
             footer {
-            ];
+            };
 
             text {
                 text = "MMC image";
@@ -1330,20 +1330,25 @@ Updating an ELF file
 
 For the EFI app, where U-Boot is loaded from UEFI and runs as an app, there is
 no way to update the devicetree after U-Boot is built. Normally this works by
-creating a new u-boot.dtb.out with he updated devicetree, which is automatically
+creating a new u-boot.dtb.out with the updated devicetree, which is automatically
 built into the output image. With ELF this is not possible since the ELF is
-not part of an image, just a stand-along file. We must create an updated ELF
+not part of an image, just a stand-alone file. We must create an updated ELF
 file with the new devicetree.
 
 This is handled by the --update-fdt-in-elf option. It takes four arguments,
 separated by comma:
 
-   infile     - filename of input ELF file, e.g. 'u-boot's
-   outfile    - filename of output ELF file, e.g. 'u-boot.out'
-   begin_sym - symbol at the start of the embedded devicetree, e.g.
-   '__dtb_dt_begin'
-   end_sym   - symbol at the start of the embedded devicetree, e.g.
-   '__dtb_dt_end'
+infile:
+    filename of input ELF file, e.g. 'u-boot's
+
+outfile:
+    filename of output ELF file, e.g. 'u-boot.out'
+
+begin_sym:
+    symbol at the start of the embedded devicetree, e.g. '__dtb_dt_begin'
+
+end_sym:
+    symbol at the start of the embedded devicetree, e.g. '__dtb_dt_end'
 
 When this flag is used, U-Boot does all the normal packaging, but as an
 additional step, it creates a new ELF file with the new devicetree embedded in
@@ -1450,7 +1455,7 @@ or just a selection::
     $ binman extract -i image.bin "*u-boot*" -O outdir
 
 Some entry types have alternative formats, for example fdtmap which allows
-extracted just the devicetree binary without the fdtmap header::
+extracting just the devicetree binary without the fdtmap header::
 
     $ binman extract -i /tmp/b/odroid-c4/image.bin -f out.dtb -F fdt fdtmap
     $ fdtdump out.dtb
@@ -1488,7 +1493,7 @@ that there is an 'fdtmap' entry in the image. For example::
     $ binman replace -i image.bin section/cbfs/u-boot
 
 which will write the contents of the file 'u-boot' from the current directory
-to the that entry, compressing if necessary. If the entry size changes, you must
+to that entry, compressing if necessary. If the entry size changes, you must
 add the 'allow-repack' property to the original image before generating it (see
 above), otherwise you will get an error.
 
@@ -1517,27 +1522,27 @@ original offset and size properties of each entry, if any were specified, in
 the 'orig-offset' and 'orig-size' properties. This allows Binman to distinguish
 between an entry which ended up being packed at an offset (or assigned a size)
 and an entry which had a particular offset / size requested in the Binman
-configuration. Where are particular offset / size was requested, this is treated
+configuration. Where a particular offset / size was requested, this is treated
 as set in stone, so Binman will ensure it doesn't change. Without this feature,
 repacking an entry might cause it to disobey the original constraints provided
 when it was created.
 
 
-Signing FIT container with private key in an image
---------------------------------------------------
+Signing a FIT container with private key in an image
+----------------------------------------------------
 
-You can sign FIT container with private key in your image.
+You can sign a FIT container with private key in your image.
 For example::
 
     $ binman sign -i image.bin -k privatekey -a sha256,rsa4096 fit
 
-binman will extract FIT container, sign and replace it immediately.
+binman will extract the FIT container, sign and replace it immediately.
 
-If you want to sign and replace FIT container in place::
+If you want to sign and replace a FIT container in place::
 
     $ binman sign -i image.bin -k privatekey -a sha256,rsa4096 -f fit.fit fit
 
-which will sign FIT container with private key and replace it immediately
+which will sign the FIT container with a private key and replace it immediately
 inside your image.
 
 .. _`BinmanLogging`:
@@ -1546,19 +1551,19 @@ Logging
 -------
 
 Binman normally operates silently unless there is an error, in which case it
-just displays the error. The -D/--debug option can be used to create a full
+just displays the error. The ``-D/--debug`` option can be used to create a full
 backtrace when errors occur. You can use BINMAN_DEBUG=1 when building to select
 this.
 
 Internally binman logs some output while it is running. This can be displayed
-by increasing the -v/--verbosity from the default of 1:
+by increasing the ``-v/--verbosity`` from the default of 1:
 
-   0: silent
-   1: warnings only
-   2: notices (important messages)
-   3: info about major operations
-   4: detailed information about each operation
-   5: debug (all output)
+   - 0: silent
+   - 1: warnings only
+   - 2: notices (important messages)
+   - 3: info about major operations
+   - 4: detailed information about each operation
+   - 5: debug (all output)
 
 You can use BINMAN_VERBOSE=5 (for example) when building to select this.
 
@@ -1616,19 +1621,19 @@ To fetch tools which are missing, use::
 
     binman tool --fetch missing
 
-You can also use `--fetch all` to fetch all tools or `--fetch <tool>` to fetch
+You can also use ``--fetch all`` to fetch all tools or ``--fetch <tool>`` to fetch
 a particular tool. Some tools are built from source code, in which case you will
 need to have at least the `build-essential` and `git` packages installed.
 
 Tools are fetched into the `~/.binman-tools` directory. This directory is
-automatically added to the toolpath so there is no need to use `--toolpath` to
+automatically added to the toolpath so there is no need to use ``--toolpath`` to
 specify it. If you want to use these tools outside binman, you may want to
 add this directory to your `PATH`. For example, if you use bash, add this to
 the end of `.bashrc`::
 
    PATH="$HOME/.binman-tools:$PATH"
 
-To select a custom directory, use the `--tooldir` option.
+To select a custom directory, use the ``--tooldir`` option.
 
 Bintool Documentation
 =====================

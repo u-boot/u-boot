@@ -69,9 +69,3 @@ Configuration
 -------------
 
 The blkcache command is only available if CONFIG_CMD_BLOCK_CACHE=y.
-
-Return code
------------
-
-If the command succeeds, the return code $? is set 0 (true). In case of an
-error the return code is set to 1 (false).

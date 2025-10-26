@@ -55,6 +55,12 @@ General rules
    command will cause "run" to terminate, i. e. the remaining
    variables are not executed.
 
+#. The variable ``$?`` will be set as the return value of any command. The
+   possible values are 0 on success or 1 on any error e. g. invalid syntax or
+   failure of the command. Any exceptions to this are documented by the
+   specific command, e.g. the :doc:`for command <cmd/for>` sets ``$?`` based on
+   the last command run within the loop.
+
 Representing numbers
 --------------------
 

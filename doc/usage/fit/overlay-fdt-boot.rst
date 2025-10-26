@@ -19,85 +19,85 @@ Configuration without overlays
 ------------------------------
 
 Take a hypothetical board named 'foo' where there are different supported
-revisions, reva and revb. Assume that both board revisions can use add a bar
+revisions, reva and revb. Assume that both board revisions can add a bar
 add-on board, while only the revb board can use a baz add-on board.
 
 Without using overlays the configuration would be as follows for every case::
 
-	/dts-v1/;
-	/ {
-	    images {
-	    kernel {
-		data = /incbin/("./zImage");
-		type = "kernel";
-		arch = "arm";
-		os = "linux";
-		load = <0x82000000>;
-		entry = <0x82000000>;
-	    };
-	    fdt-1 {
-		data = /incbin/("./foo-reva.dtb");
-		type = "flat_dt";
-		arch = "arm";
-	    };
-	    fdt-2 {
-		data = /incbin/("./foo-revb.dtb");
-		type = "flat_dt";
-		arch = "arm";
-	    };
-	    fdt-3 {
-		data = /incbin/("./foo-reva-bar.dtb");
-		type = "flat_dt";
-		arch = "arm";
-	    };
-	    fdt-4 {
-		data = /incbin/("./foo-revb-bar.dtb");
-		type = "flat_dt";
-		arch = "arm";
-	    };
-	    fdt-5 {
-		data = /incbin/("./foo-revb-baz.dtb");
-		type = "flat_dt";
-		arch = "arm";
-	    };
-	    fdt-6 {
-		data = /incbin/("./foo-revb-bar-baz.dtb");
-		type = "flat_dt";
-		arch = "arm";
-	    };
-	    };
+    /dts-v1/;
+    / {
+        images {
+            kernel {
+                data = /incbin/("./zImage");
+                type = "kernel";
+                arch = "arm";
+                os = "linux";
+                load = <0x82000000>;
+                entry = <0x82000000>;
+            };
+            fdt-1 {
+                data = /incbin/("./foo-reva.dtb");
+                type = "flat_dt";
+                arch = "arm";
+            };
+            fdt-2 {
+                data = /incbin/("./foo-revb.dtb");
+                type = "flat_dt";
+                arch = "arm";
+            };
+            fdt-3 {
+                data = /incbin/("./foo-reva-bar.dtb");
+                type = "flat_dt";
+                arch = "arm";
+            };
+            fdt-4 {
+                data = /incbin/("./foo-revb-bar.dtb");
+                type = "flat_dt";
+                arch = "arm";
+            };
+            fdt-5 {
+                data = /incbin/("./foo-revb-baz.dtb");
+                type = "flat_dt";
+                arch = "arm";
+            };
+            fdt-6 {
+                data = /incbin/("./foo-revb-bar-baz.dtb");
+                type = "flat_dt";
+                arch = "arm";
+            };
+        };
 
-	    configurations {
-	    default = "foo-reva.dtb;
-	    foo-reva.dtb {
-		kernel = "kernel";
-		fdt = "fdt-1";
-	    };
-	    foo-revb.dtb {
-		kernel = "kernel";
-		fdt = "fdt-2";
-	    };
-	    foo-reva-bar.dtb {
-		kernel = "kernel";
-		fdt = "fdt-3";
-	    };
-	    foo-revb-bar.dtb {
-		kernel = "kernel";
-		fdt = "fdt-4";
-	    };
-	    foo-revb-baz.dtb {
-		kernel = "kernel";
-		fdt = "fdt-5";
-	    };
-	    foo-revb-bar-baz.dtb {
-		kernel = "kernel";
-		fdt = "fdt-6";
-	    };
-	    };
-	};
+        configurations {
+            default = "foo-reva.dtb";
+            foo-reva.dtb {
+                kernel = "kernel";
+                fdt = "fdt-1";
+            };
+            foo-revb.dtb {
+                kernel = "kernel";
+                fdt = "fdt-2";
+            };
+            foo-reva-bar.dtb {
+                kernel = "kernel";
+                fdt = "fdt-3";
+            };
+            foo-revb-bar.dtb {
+                kernel = "kernel";
+                fdt = "fdt-4";
+            };
+            foo-revb-baz.dtb {
+                kernel = "kernel";
+                fdt = "fdt-5";
+            };
+            foo-revb-bar-baz.dtb {
+                kernel = "kernel";
+                fdt = "fdt-6";
+            };
+        };
+    };
 
 Note the blob needs to be compiled for each case and the combinatorial explosion of
-configurations. A typical device tree blob is in the low hunderds of kbytes so a
+configurations. A typical device tree blob is in the low hundreds of kbytes so a
 multitude of configuration grows the image quite a bit.
 
 Booting this image is done by using::
@@ -117,7 +117,7 @@ Configuration using overlays
 ----------------------------
 
 Device tree overlays can be applied to a base DT and result in the same blob
-being passed to the booting kernel. This saves on space and avoid the combinatorial
+being passed to the booting kernel. This saves on space and avoids the combinatorial
 explosion problem::
 
     /dts-v1/;
@@ -164,7 +164,7 @@ explosion problem::
         };
 
         configurations {
-            default = "foo-reva.dtb;
+            default = "foo-reva.dtb";
             foo-reva.dtb {
                 kernel = "kernel";
                 fdt = "fdt-1", "fdt-2";
@@ -209,9 +209,9 @@ to be writeable.
 Configuration using overlays and feature selection
 --------------------------------------------------
 
-Although the configuration in the previous section works is a bit inflexible
-since it requires all possible configuration options to be laid out before
-hand in the FIT image. For the add-on boards the extra config selection method
+Although the configuration in the previous section works, it is a bit inflexible
+since it requires all possible configuration options to be laid out beforehand
+in the FIT image. For the add-on boards the extra config selection method
 might make sense.
 
 Note the two bar & baz configuration nodes. To boot a reva board with

@@ -79,8 +79,3 @@ after which an ACK response is required. The window size defaults to 1.
 
 If CONFIG_TFTP_TSIZE=y, the progress bar is limited to 50 '#' characters.
 Otherwise an '#' is written per UDP package which may decrease performance.
-
-Return value
-------------
-
-The return value $? is 0 (true) on success and 1 (false) otherwise.
