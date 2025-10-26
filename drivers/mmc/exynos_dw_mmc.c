@@ -490,7 +490,7 @@ static const struct exynos_dwmmc_variant exynos7_smu_drv_data = {
 
 static const struct exynos_dwmmc_variant exynos850_drv_data = {
 	.clksel	= DWMCI_CLKSEL64,
-	.quirks	= DWMCI_QUIRK_DISABLE_SMU,
+	.quirks	= DWMCI_QUIRK_DISABLE_SMU | DWMCI_QUIRK_DISABLE_FMP,
 };
 
 static const struct udevice_id exynos_dwmmc_ids[] = {
