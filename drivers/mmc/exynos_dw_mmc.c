@@ -488,6 +488,11 @@ static const struct exynos_dwmmc_variant exynos7_smu_drv_data = {
 	.quirks	= DWMCI_QUIRK_DISABLE_SMU,
 };
 
+static const struct exynos_dwmmc_variant exynos850_drv_data = {
+	.clksel	= DWMCI_CLKSEL64,
+	.quirks	= DWMCI_QUIRK_DISABLE_SMU,
+};
+
 static const struct udevice_id exynos_dwmmc_ids[] = {
 	{
 		.compatible	= "samsung,exynos4412-dw-mshc",
@@ -510,6 +515,9 @@ static const struct udevice_id exynos_dwmmc_ids[] = {
 	}, {
 		.compatible	= "samsung,exynos7870-dw-mshc-smu",
 		.data		= (ulong)&exynos7_smu_drv_data,
+	}, {
+		.compatible	= "samsung,exynos850-dw-mshc-smu",
+		.data		= (ulong)&exynos850_drv_data,
 	},
 	{ }
 };
