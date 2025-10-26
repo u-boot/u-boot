@@ -35,8 +35,16 @@
  *
  * %DWMCI_QUIRK_DISABLE_SMU: DW MMC block has Security Management Unit (SMU)
  * which has to be configured in non-encryption mode during driver's init.
+ *
+ * %DWMCI_QUIRK_DISABLE_FMP: DW MMC block has Flash Memory Protector (FMP) which
+ * has to be disabled during driver's init. This flag disables FMP encryption
+ * and lets external non-secure main CPUs access the SFR (peripheral memory
+ * region, i.e. registers) in MMC core. Although it's usually done by early
+ * bootloaders (before U-Boot), in some cases like during USB boot the FMP might
+ * be left unconfigured.
  */
 #define DWMCI_QUIRK_DISABLE_SMU		BIT(0)
+#define DWMCI_QUIRK_DISABLE_FMP		BIT(1)
 
 #ifdef CONFIG_DM_MMC
 #include <dm.h>
@@ -223,6 +231,18 @@ static void exynos_dwmci_board_init(struct dwmci_host *host)
 			     MPSCTRL_SECURE_WRITE_BIT |
 			     MPSCTRL_NON_SECURE_READ_BIT |
 			     MPSCTRL_NON_SECURE_WRITE_BIT | MPSCTRL_VALID);
+	}
+
+	if (priv->chip->quirks & DWMCI_QUIRK_DISABLE_FMP) {
+		u32 reg;
+
+		reg = dwmci_readl(host, EMMCP_MPSECURITY);
+		if (reg & MPSECURITY_FMP_ON ||
+		    reg & MPSECURITY_MMC_SFR_PROT_ON) {
+			reg &= ~MPSECURITY_FMP_ON;
+			reg &= ~MPSECURITY_MMC_SFR_PROT_ON;
+			dwmci_writel(host, EMMCP_MPSECURITY, reg);
+		}
 	}
 
 	if (priv->sdr_timing)
