@@ -20,6 +20,17 @@ enum sunxi_dram_type {
 };
 
 /*
+ * Chip-IDs taken from
+ * https://github.com/ua1arn/hftrx/blob/25d8cb9e4cfe1d7d0e4a2f641025c88a9ec5e758/inc/clocks.h#L250
+ */
+enum sunxi_soc_chipid {
+	SUNXI_CHIPID_F133A = 0x5C00,
+	SUNXI_CHIPID_D1S = 0x5E00,
+	SUNXI_CHIPID_T113S3 = 0x6000,
+	SUNXI_CHIPID_T113M4020DC0 = 0x7200,
+};
+
+/*
  * This structure contains a mixture of fixed configuration settings,
  * variables that are used at runtime to communicate settings between
  * different stages and functions, and unused values.
