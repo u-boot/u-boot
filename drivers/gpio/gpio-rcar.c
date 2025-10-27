@@ -28,9 +28,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct rcar_gpio_data {
+	u32				quirks;
+};
+
 struct rcar_gpio_priv {
-	void __iomem		*regs;
-	u32			quirks;
+	void __iomem			*regs;
+	const struct rcar_gpio_data	*data;
 };
 
 static int rcar_gpio_get_value(struct udevice *dev, unsigned offset)
@@ -65,6 +69,7 @@ static void rcar_gpio_set_direction(struct udevice *dev, unsigned offset,
 				    bool output)
 {
 	struct rcar_gpio_priv *priv = dev_get_priv(dev);
+	const struct rcar_gpio_data *data = priv->data;
 	void __iomem *regs = priv->regs;
 
 	/*
@@ -77,7 +82,7 @@ static void rcar_gpio_set_direction(struct udevice *dev, unsigned offset,
 	clrbits_le32(regs + GPIO_POSNEG, BIT(offset));
 
 	/* Select "Input Enable/Disable" in INEN */
-	if (priv->quirks & RCAR_GPIO_HAS_INEN) {
+	if (data->quirks & RCAR_GPIO_HAS_INEN) {
 		if (output)
 			clrbits_le32(regs + GPIO_INEN, BIT(offset));
 		else
@@ -141,7 +146,7 @@ static int rcar_gpio_probe(struct udevice *dev)
 	int ret;
 
 	priv->regs = dev_read_addr_ptr(dev);
-	priv->quirks = dev_get_driver_data(dev);
+	priv->data = (const struct rcar_gpio_data *)dev_get_driver_data(dev);
 	uc_priv->bank_name = dev->name;
 
 	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, node, "gpio-ranges",
@@ -163,17 +168,24 @@ static int rcar_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
+static const struct rcar_gpio_data rcar_gpio_gen2_data = {
+};
+
+static const struct rcar_gpio_data rcar_gpio_gen3_data = {
+	.quirks = RCAR_GPIO_HAS_INEN,
+};
+
 static const struct udevice_id rcar_gpio_ids[] = {
-	{ .compatible = "renesas,gpio-r8a7795" },
-	{ .compatible = "renesas,gpio-r8a7796" },
-	{ .compatible = "renesas,gpio-r8a77965" },
-	{ .compatible = "renesas,gpio-r8a77970" },
-	{ .compatible = "renesas,gpio-r8a77990" },
-	{ .compatible = "renesas,gpio-r8a77995" },
-	{ .compatible = "renesas,gpio-r8a779a0", .data = RCAR_GPIO_HAS_INEN },
-	{ .compatible = "renesas,rcar-gen2-gpio" },
-	{ .compatible = "renesas,rcar-gen3-gpio" },
-	{ .compatible = "renesas,rcar-gen4-gpio", .data = RCAR_GPIO_HAS_INEN },
+	{ .compatible = "renesas,gpio-r8a7795", .data = (ulong)&rcar_gpio_gen2_data },
+	{ .compatible = "renesas,gpio-r8a7796", .data = (ulong)&rcar_gpio_gen2_data },
+	{ .compatible = "renesas,gpio-r8a77965", .data = (ulong)&rcar_gpio_gen2_data },
+	{ .compatible = "renesas,gpio-r8a77970", .data = (ulong)&rcar_gpio_gen2_data },
+	{ .compatible = "renesas,gpio-r8a77990", .data = (ulong)&rcar_gpio_gen2_data },
+	{ .compatible = "renesas,gpio-r8a77995", .data = (ulong)&rcar_gpio_gen2_data },
+	{ .compatible = "renesas,gpio-r8a779a0", .data = (ulong)&rcar_gpio_gen3_data },
+	{ .compatible = "renesas,rcar-gen2-gpio", .data = (ulong)&rcar_gpio_gen2_data },
+	{ .compatible = "renesas,rcar-gen3-gpio", .data = (ulong)&rcar_gpio_gen2_data },
+	{ .compatible = "renesas,rcar-gen4-gpio", .data = (ulong)&rcar_gpio_gen3_data },
 	{ /* sentinel */ }
 };
 
