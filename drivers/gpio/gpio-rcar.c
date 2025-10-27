@@ -38,7 +38,6 @@ DECLARE_GLOBAL_DATA_PTR;
 struct rcar_gpio_priv {
 	void __iomem		*regs;
 	u32			quirks;
-	int			pfc_offset;
 };
 
 static int rcar_gpio_get_value(struct udevice *dev, unsigned offset)
@@ -154,7 +153,6 @@ static int rcar_gpio_probe(struct udevice *dev)
 
 	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, node, "gpio-ranges",
 					     NULL, 3, 0, &args);
-	priv->pfc_offset = ret == 0 ? args.args[1] : -1;
 	uc_priv->gpio_count = ret == 0 ? args.args[2] : RCAR_MAX_GPIO_PER_BANK;
 
 	ret = clk_get_by_index(dev, 0, &clk);
