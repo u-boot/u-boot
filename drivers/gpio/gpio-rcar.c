@@ -22,6 +22,10 @@
 #define GPIO_POSNEG_G2	0x20	/* Positive/Negative Logic Select Register */
 #define GPIO_INEN_G4	0x50	/* General Input Enable Register */
 
+#define GPIO_INDT_G5	0x1c	/* General Input Register */
+#define GPIO_POSNEG_G5	0x90	/* Positive/Negative Logic Select Register */
+#define GPIO_INEN_G5	0x18	/* General Input Enable Register */
+
 #define RCAR_MAX_GPIO_PER_BANK		32
 
 #define RCAR_GPIO_HAS_INEN		BIT(0)
@@ -184,6 +188,13 @@ static const struct rcar_gpio_data rcar_gpio_gen3_data = {
 	.inen_offset = GPIO_INEN_G4,
 };
 
+static const struct rcar_gpio_data rcar_gpio_gen5_data = {
+	.quirks = RCAR_GPIO_HAS_INEN,
+	.indt_offset = GPIO_INDT_G5,
+	.posneg_offset = GPIO_POSNEG_G5,
+	.inen_offset = GPIO_INEN_G5,
+};
+
 static const struct udevice_id rcar_gpio_ids[] = {
 	{ .compatible = "renesas,gpio-r8a7795", .data = (ulong)&rcar_gpio_gen2_data },
 	{ .compatible = "renesas,gpio-r8a7796", .data = (ulong)&rcar_gpio_gen2_data },
@@ -195,6 +206,7 @@ static const struct udevice_id rcar_gpio_ids[] = {
 	{ .compatible = "renesas,rcar-gen2-gpio", .data = (ulong)&rcar_gpio_gen2_data },
 	{ .compatible = "renesas,rcar-gen3-gpio", .data = (ulong)&rcar_gpio_gen2_data },
 	{ .compatible = "renesas,rcar-gen4-gpio", .data = (ulong)&rcar_gpio_gen3_data },
+	{ .compatible = "renesas,rcar-gen5-gpio", .data = (ulong)&rcar_gpio_gen5_data },
 	{ /* sentinel */ }
 };
 
