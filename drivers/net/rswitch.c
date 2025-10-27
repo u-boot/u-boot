@@ -601,7 +601,7 @@ static void rswitch_rx_desc_init(struct rswitch_port_priv *priv)
 	priv->rx_desc_index = 0;
 
 	for (i = 0; i < RSWITCH_NUM_RX_DESC; i++) {
-		priv->rx_desc[i].data.die_dt = DT_EEMPTY;
+		priv->rx_desc[i].data.die_dt = DT_FEMPTY;
 		priv->rx_desc[i].data.info_ds = PKTSIZE_ALIGN;
 		packet_addr = (uintptr_t)priv->rx_desc[i].packet;
 		priv->rx_desc[i].data.dptrl = lower_32_bits(packet_addr);
