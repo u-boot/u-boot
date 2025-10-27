@@ -272,7 +272,7 @@ struct rswitch_port_priv {
 
 struct rswitch_priv {
 	void __iomem		*addr;
-	struct clk		*rsw_clk;
+	struct clk_bulk		rsw_clk;
 };
 
 static inline void rswitch_flush_dcache(u32 addr, u32 len)
@@ -1101,13 +1101,11 @@ static int rswitch_probe(struct udevice *dev)
 	if (!priv->addr)
 		return -EINVAL;
 
-	priv->rsw_clk = devm_clk_get(dev, NULL);
-	if (IS_ERR(priv->rsw_clk)) {
-		ret = PTR_ERR(priv->rsw_clk);
+	ret = clk_get_bulk(dev, &priv->rsw_clk);
+	if (ret < 0)
 		goto err_map;
-	}
 
-	ret = clk_prepare_enable(priv->rsw_clk);
+	ret = clk_enable_bulk(&priv->rsw_clk);
 	if (ret)
 		goto err_map;
 
@@ -1122,7 +1120,7 @@ static int rswitch_remove(struct udevice *dev)
 {
 	struct rswitch_priv *priv = dev_get_plat(dev);
 
-	clk_disable_unprepare(priv->rsw_clk);
+	clk_disable_bulk(&priv->rsw_clk);
 	unmap_physmem(priv->addr, MAP_NOCACHE);
 
 	return 0;
