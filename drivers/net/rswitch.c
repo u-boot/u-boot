@@ -27,8 +27,8 @@
 #define RSWITCH_SLEEP_US	1000
 #define RSWITCH_TIMEOUT_US	1000000
 
-#define GWCA_TO_HW_INDEX(i)	((i) + 3)
-#define HW_INDEX_TO_GWCA(i)	((i) - 3)
+#define GWCA_TO_HW_INDEX(i, pt)	((i) + (pt))
+#define HW_INDEX_TO_GWCA(i, pt)	((i) - (pt))
 
 #define RSWITCH_MAX_CTAG_PCP	7
 
@@ -282,6 +282,7 @@ struct rswitch_drv_data {
 	u32			coma_offset;
 	u32			etha_offset;
 	u32			gwca_offset;
+	int			ports;
 };
 
 static inline void rswitch_flush_dcache(u32 addr, u32 len)
@@ -674,13 +675,14 @@ static void rswitch_mfwd_init(struct rswitch_port_priv *priv)
 {
 	struct rswitch_etha *etha = &priv->etha;
 	struct rswitch_gwca *gwca = &priv->gwca;
+	int gwca_index = HW_INDEX_TO_GWCA(gwca->index, priv->drv_data->ports);
 	int etha_index = etha->serdes.index;
 
 	writel(FWPC0_DEFAULT, priv->addr + FWPC0(etha_index));
 	writel(FWPC0_DEFAULT, priv->addr + FWPC0(gwca->index));
 
 	writel(RSWITCH_RX_CHAIN_INDEX,
-	       priv->addr + FWPBFCSDC(HW_INDEX_TO_GWCA(gwca->index), etha_index));
+	       priv->addr + FWPBFCSDC(gwca_index, etha_index));
 
 	writel(BIT(gwca->index),
 	       priv->addr + FWPBFC(etha_index));
@@ -1041,7 +1043,7 @@ static int rswitch_port_probe(struct udevice *dev)
 
 	gwca->index = 1;
 	gwca->addr = priv->addr + priv->drv_data->gwca_offset + gwca->index * RSWITCH_GWCA_SIZE;
-	gwca->index = GWCA_TO_HW_INDEX(gwca->index);
+	gwca->index = GWCA_TO_HW_INDEX(gwca->index, priv->drv_data->ports);
 
 	/* Toggle the reset so we can access the PHYs */
 	ret = rswitch_reset(priv);
@@ -1189,6 +1191,7 @@ static int rswitch_bind(struct udevice *parent)
 }
 
 static const struct rswitch_drv_data r8a779f0_drv_data = {
+	.ports		= 3,
 	.coma_offset	= 0x9000,
 	.etha_offset	= 0xa000,
 	.gwca_offset	= 0x10000,
