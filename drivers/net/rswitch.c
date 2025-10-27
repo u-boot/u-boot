@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Driver for Renesas Ethernet RSwitch2 (Ethernet-TSN).
+ * Driver for Renesas Ethernet RSwitch2 and RSwitch3 (Ethernet-TSN).
  *
- * Copyright (C) 2021 Renesas Electronics Corporation
+ * Copyright (C) 2021-2025 Renesas Electronics Corporation
  *
  * Based on the Renesas Ethernet AVB driver.
  */
@@ -47,6 +47,7 @@
 #define GWMS			0x0004
 #define GWMTIRM			0x0100
 #define GWVCC			0x0130
+#define GWCKSC			0x013c
 #define GWTTFC			0x0138
 #define GWDCBAC0		0x0194
 #define GWDCBAC1		0x0198
@@ -65,6 +66,7 @@
 /* List of RMAC registers (RMAC) */
 #define MPSM			0x1000
 #define MPIC			0x1004
+#define MIOC			0x1010
 #define MRMAC0			0x1084
 #define MRMAC1			0x1088
 #define MRAFC			0x108c
@@ -77,6 +79,9 @@
 #define MANM			0x119c
 #define MMIS0			0x1210
 #define MMIS1			0x1220
+
+/* MIOC */
+#define MIOC_BIT3_SET		BIT(3)
 
 /* COMA */
 #define RRC_RR			BIT(0)
@@ -180,6 +185,7 @@ enum rswitch_gwca_mode {
 #define GWDCC(i)		(GWDCCR + (i) * 0x04)
 #define	GWDCC_DQT		BIT(11)
 #define GWDCC_BALR		BIT(24)
+#define GWCKSC_USMFSPE		BIT(31)
 
 struct rswitch_etha_io {
 	int			index;
@@ -192,6 +198,7 @@ struct rswitch_etha {
 	struct phy_device	*phydev;
 	struct mii_dev		*bus;
 	unsigned char		*enetaddr;
+	bool			xpcs;
 };
 
 struct rswitch_gwca {
@@ -282,6 +289,7 @@ struct rswitch_drv_data {
 	u8			fwpbfcsdc_offset;
 	u8			cabpirm_offset;
 	int			ports;
+	bool			is_rsw3;
 };
 
 static inline void rswitch_flush_dcache(u32 addr, u32 len)
@@ -764,6 +772,10 @@ static int rswitch_gwca_init(struct rswitch_port_priv *priv)
 	writel(GWDCC_DQT | GWDCC_BALR, gwca->addr + GWDCC(RSWITCH_TX_CHAIN_INDEX));
 	writel(GWDCC_BALR, gwca->addr + GWDCC(RSWITCH_RX_CHAIN_INDEX));
 
+	/* Enable Under Switch Minimum Frame Size Padding */
+	if (priv->drv_data->is_rsw3)
+		writel(GWCKSC_USMFSPE, gwca->addr + GWCKSC);
+
 	ret = rswitch_gwca_change_mode(priv, GWMC_OPC_DISABLE);
 	if (ret)
 		return ret;
@@ -812,6 +824,13 @@ static int rswitch_etha_init(struct rswitch_port_priv *priv)
 		writel(EATDQDC_DQD, etha_serdes->addr + EATDQDC(prio));
 
 	rswitch_rmac_init(etha);
+
+	if (etha->xpcs) {
+		if (etha_serdes->index >= 5 && etha_serdes->index <= 7)
+			writel(MIOC_BIT3_SET, etha_serdes->addr + MIOC);
+		else
+			printf("RSW: Invalid port %d\n", etha_serdes->index);
+	}
 
 	ret = rswitch_etha_change_mode(priv, etha_serdes, EAMC_OPC_OPERATION);
 	if (ret)
@@ -1037,6 +1056,11 @@ static int rswitch_port_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	if (priv->drv_data->is_rsw3) {
+		etha->xpcs = device_is_compatible(priv->serdes.dev,
+						  "renesas,r8a78000-ether-pcs");
+	}
+
 	etha->enetaddr = pdata->enetaddr;
 
 	etha->mii.index = dev_read_u32_default(dev, "reg", 0);
@@ -1207,8 +1231,22 @@ static const struct rswitch_drv_data r8a779f0_drv_data = {
 	.cabpirm_offset	= 0x0,
 };
 
+static const struct rswitch_drv_data r8a78000_drv_data = {
+	.ports		= 13,
+	.coma_offset	= 0x1c000,
+	.etha_offset	= 0x1d000,
+	.gwca_offset	= 0x37000,
+	.mpid_mdc_clk	= 0x060c0000,
+	.etha_incr	= 0x20,
+	.gwdcbac_offset	= 0x50,
+	.fwpbfcsdc_offset = 0xfc,
+	.cabpirm_offset	= 0x20,
+	.is_rsw3	= true,
+};
+
 static const struct udevice_id rswitch_ids[] = {
 	{ .compatible = "renesas,r8a779f0-ether-switch", .data = (ulong)&r8a779f0_drv_data },
+	{ .compatible = "renesas,r8a78000-ether-switch3", .data = (ulong)&r8a78000_drv_data },
 	{ }
 };
 

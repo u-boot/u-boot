@@ -842,11 +842,12 @@ config GMAC_ROCKCHIP
 
 config RENESAS_ETHER_SWITCH
 	bool "Renesas Ethernet Switch support"
-	depends on DM_ETH && R8A779F0
+	depends on DM_ETH && (R8A779F0 || R8A78000)
 	select PHYLIB
 	help
 	  This driver implements support for the Renesas Ethernet Switch
-	  which is available on R-Car S4 SoC (r8a779f0).
+	  which is available on R-Car S4 SoC (R8A779F0) and newer version
+	  on R-Car X5H SoC (R8A78000).
 
 config RENESAS_RAVB
 	bool "Renesas Ethernet AVB MAC"
