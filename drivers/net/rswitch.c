@@ -220,43 +220,43 @@ struct rswitch_gwca {
 #define RSWITCH_NUM_RX_DESC		8
 
 enum RX_DS_CC_BIT {
-	RX_DS   = 0x0fff, /* Data size */
-	RX_TR   = 0x1000, /* Truncation indication */
-	RX_EI   = 0x2000, /* Error indication */
-	RX_PS   = 0xc000, /* Padding selection */
+	RX_DS	= 0x0fff, /* Data size */
+	RX_TR	= 0x1000, /* Truncation indication */
+	RX_EI	= 0x2000, /* Error indication */
+	RX_PS	= 0xc000, /* Padding selection */
 };
 
 enum DIE_DT {
 	/* Frame data */
-	DT_FSINGLE      = 0x80,
-	DT_FSTART       = 0x90,
-	DT_FMID         = 0xa0,
-	DT_FEND         = 0xb8,
+	DT_FSINGLE	= 0x80,
+	DT_FSTART	= 0x90,
+	DT_FMID		= 0xa0,
+	DT_FEND		= 0xb8,
 
 	/* Chain control */
-	DT_LEMPTY       = 0xc0,
-	DT_EEMPTY       = 0xd0,
-	DT_LINKFIX      = 0x00,
-	DT_LINK         = 0xe0,
-	DT_EOS          = 0xf0,
+	DT_LEMPTY	= 0xc0,
+	DT_EEMPTY	= 0xd0,
+	DT_LINKFIX	= 0x00,
+	DT_LINK		= 0xe0,
+	DT_EOS		= 0xf0,
 	/* HW/SW arbitration */
-	DT_FEMPTY       = 0x40,
-	DT_FEMPTY_IS    = 0x10,
-	DT_FEMPTY_IC    = 0x20,
-	DT_FEMPTY_ND    = 0x38,
+	DT_FEMPTY	= 0x40,
+	DT_FEMPTY_IS	= 0x10,
+	DT_FEMPTY_IC	= 0x20,
+	DT_FEMPTY_ND	= 0x38,
 	DT_FEMPTY_START = 0x50,
-	DT_FEMPTY_MID   = 0x60,
-	DT_FEMPTY_END   = 0x70,
+	DT_FEMPTY_MID	= 0x60,
+	DT_FEMPTY_END	= 0x70,
 
-	DT_MASK         = 0xf0,
-	DIE             = 0x08, /* Descriptor Interrupt Enable */
+	DT_MASK		= 0xf0,
+	DIE		= 0x08, /* Descriptor Interrupt Enable */
 };
 
 struct rswitch_desc {
 	__le16 info_ds; /* Descriptor size */
-	u8 die_dt;      /* Descriptor interrupt enable and type */
-	__u8  dptrh;    /* Descriptor pointer MSB */
-	__le32 dptrl;   /* Descriptor pointer LSW */
+	u8 die_dt;	/* Descriptor interrupt enable and type */
+	__u8 dptrh;	/* Descriptor pointer MSB */
+	__le32 dptrl;	/* Descriptor pointer LSW */
 } __packed;
 
 struct rswitch_rxdesc {
