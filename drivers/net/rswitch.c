@@ -106,8 +106,8 @@
 				 FWPC0_MACHLA | FWPC0_MACHMA | FWPC0_VLANSA)
 
 #define FWPBFC(i)		(FWPBFCR + (i) * 0x10)
-#define FWPBFCSDC(gwcaidx, ethaidx, ethaincr)		\
-	(FWPBFCSDCR + (ethaidx) * (ethaincr) + (gwcaidx) * 0x04)
+#define FWPBFCSDC(regoff, gwcaidx, ethaidx, ethaincr)		\
+	(FWPBFCSDCR + (regoff) + (ethaidx) * (ethaincr) + (gwcaidx) * 0x04)
 
 /* ETHA */
 #define EATASRIRM_TASRIOG	BIT(0)
@@ -278,6 +278,9 @@ struct rswitch_drv_data {
 	u32			etha_offset;
 	u32			gwca_offset;
 	u8			etha_incr;
+	u8			gwdcbac_offset;
+	u8			fwpbfcsdc_offset;
+	u8			cabpirm_offset;
 	int			ports;
 };
 
@@ -660,9 +663,11 @@ static int rswitch_bpool_init(struct rswitch_port_priv *priv)
 	struct rswitch_drv_data *drv_data = priv->drv_data;
 	u32 pval;
 
-	writel(CABPIRM_BPIOG, priv->addr + drv_data->coma_offset + CABPIRM);
+	writel(CABPIRM_BPIOG, priv->addr + drv_data->coma_offset +
+	       CABPIRM + drv_data->cabpirm_offset);
 
-	return readl_poll_sleep_timeout(priv->addr + drv_data->coma_offset + CABPIRM,
+	return readl_poll_sleep_timeout(priv->addr + drv_data->coma_offset +
+					CABPIRM + drv_data->cabpirm_offset,
 					pval, pval & CABPIRM_BPR,
 					RSWITCH_SLEEP_US, RSWITCH_TIMEOUT_US);
 }
@@ -678,7 +683,8 @@ static void rswitch_mfwd_init(struct rswitch_port_priv *priv)
 	writel(FWPC0_DEFAULT, priv->addr + FWPC0(gwca->index));
 
 	writel(RSWITCH_RX_CHAIN_INDEX,
-	       priv->addr + FWPBFCSDC(gwca_index, etha_index,
+	       priv->addr + FWPBFCSDC(priv->drv_data->fwpbfcsdc_offset,
+				      gwca_index, etha_index,
 				      priv->drv_data->etha_incr));
 
 	writel(BIT(gwca->index),
@@ -751,8 +757,10 @@ static int rswitch_gwca_init(struct rswitch_port_priv *priv)
 	/* Setting flow */
 	writel(GWVCC_VEM_SC_TAG, gwca->addr + GWVCC);
 	writel(0, gwca->addr + GWTTFC);
-	writel(upper_32_bits((uintptr_t)priv->bat_desc) & GWDCBAC0_DCBAUP, gwca->addr + GWDCBAC0);
-	writel(lower_32_bits((uintptr_t)priv->bat_desc), gwca->addr + GWDCBAC1);
+	writel(upper_32_bits((uintptr_t)priv->bat_desc) & GWDCBAC0_DCBAUP,
+	       gwca->addr + GWDCBAC0 + priv->drv_data->gwdcbac_offset);
+	writel(lower_32_bits((uintptr_t)priv->bat_desc),
+	       gwca->addr + GWDCBAC1 + priv->drv_data->gwdcbac_offset);
 	writel(GWDCC_DQT | GWDCC_BALR, gwca->addr + GWDCC(RSWITCH_TX_CHAIN_INDEX));
 	writel(GWDCC_BALR, gwca->addr + GWDCC(RSWITCH_RX_CHAIN_INDEX));
 
@@ -1193,6 +1201,9 @@ static const struct rswitch_drv_data r8a779f0_drv_data = {
 	.etha_offset	= 0xa000,
 	.gwca_offset	= 0x10000,
 	.etha_incr	= 0x10,
+	.gwdcbac_offset	= 0x0,
+	.fwpbfcsdc_offset = 0x0,
+	.cabpirm_offset	= 0x0,
 };
 
 static const struct udevice_id rswitch_ids[] = {
