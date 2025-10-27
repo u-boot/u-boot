@@ -127,7 +127,6 @@
 
 #define MPIC_PSMCS_MASK		(0x7f << 16)
 #define MPIC_PSMHT_MASK		(0x06 << 24)
-#define MPIC_MDC_CLK_SET	(0x06050000)
 
 #define MPSM_MFF_C45		BIT(2)
 #define MPSM_MFF_C22		0x0
@@ -277,6 +276,7 @@ struct rswitch_drv_data {
 	u32			coma_offset;
 	u32			etha_offset;
 	u32			gwca_offset;
+	u32			mpid_mdc_clk;
 	u8			etha_incr;
 	u8			gwdcbac_offset;
 	u8			fwpbfcsdc_offset;
@@ -469,7 +469,7 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 	/* Enable Station Management clock */
 	clrsetbits_le32(etha_mii->addr + MPIC,
 			MPIC_PSMCS_MASK | MPIC_PSMHT_MASK,
-			MPIC_MDC_CLK_SET);
+			priv->drv_data->mpid_mdc_clk);
 
 	/* Access PHY register */
 	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
@@ -503,7 +503,7 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 	/* Enable Station Management clock */
 	clrsetbits_le32(etha_mii->addr + MPIC,
 			MPIC_PSMCS_MASK | MPIC_PSMHT_MASK,
-			MPIC_MDC_CLK_SET);
+			priv->drv_data->mpid_mdc_clk);
 
 	/* Access PHY register */
 	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
@@ -1200,6 +1200,7 @@ static const struct rswitch_drv_data r8a779f0_drv_data = {
 	.coma_offset	= 0x9000,
 	.etha_offset	= 0xa000,
 	.gwca_offset	= 0x10000,
+	.mpid_mdc_clk	= 0x06050000,
 	.etha_incr	= 0x10,
 	.gwdcbac_offset	= 0x0,
 	.fwpbfcsdc_offset = 0x0,
