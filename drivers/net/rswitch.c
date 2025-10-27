@@ -27,9 +27,6 @@
 #define RSWITCH_SLEEP_US	1000
 #define RSWITCH_TIMEOUT_US	1000000
 
-#define RSWITCH_NUM_HW		5
-
-#define ETHA_TO_GWCA(i)		((i) % 2)
 #define GWCA_TO_HW_INDEX(i)	((i) + 3)
 #define HW_INDEX_TO_GWCA(i)	((i) - 3)
 
@@ -206,11 +203,6 @@ struct rswitch_gwca {
 	void __iomem		*addr;
 	int			num_chain;
 };
-
-/* Setting value */
-#define LINK_SPEED_100		100
-#define LINK_SPEED_1000		1000
-#define LINK_SPEED_2500		2500
 
 /* Decriptor */
 #define RSWITCH_NUM_BASE_DESC		2
