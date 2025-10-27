@@ -111,8 +111,9 @@
 				 FWPC0_IPDSA | FWPC0_IPHLA | FWPC0_MACSDA | \
 				 FWPC0_MACHLA | FWPC0_MACHMA | FWPC0_VLANSA)
 
-#define FWPBFC(i)	(FWPBFCR + (i) * 0x10)
-#define FWPBFCSDC(j, i)	(FWPBFCSDCR + (i) * 0x10 + (j) * 0x04)
+#define FWPBFC(i)		(FWPBFCR + (i) * 0x10)
+#define FWPBFCSDC(gwcaidx, ethaidx, ethaincr)		\
+	(FWPBFCSDCR + (ethaidx) * (ethaincr) + (gwcaidx) * 0x04)
 
 /* ETHA */
 #define EATASRIRM_TASRIOG	BIT(0)
@@ -282,6 +283,7 @@ struct rswitch_drv_data {
 	u32			coma_offset;
 	u32			etha_offset;
 	u32			gwca_offset;
+	u8			etha_incr;
 	int			ports;
 };
 
@@ -682,7 +684,8 @@ static void rswitch_mfwd_init(struct rswitch_port_priv *priv)
 	writel(FWPC0_DEFAULT, priv->addr + FWPC0(gwca->index));
 
 	writel(RSWITCH_RX_CHAIN_INDEX,
-	       priv->addr + FWPBFCSDC(gwca_index, etha_index));
+	       priv->addr + FWPBFCSDC(gwca_index, etha_index,
+				      priv->drv_data->etha_incr));
 
 	writel(BIT(gwca->index),
 	       priv->addr + FWPBFC(etha_index));
@@ -1195,6 +1198,7 @@ static const struct rswitch_drv_data r8a779f0_drv_data = {
 	.coma_offset	= 0x9000,
 	.etha_offset	= 0xa000,
 	.gwca_offset	= 0x10000,
+	.etha_incr	= 0x10,
 };
 
 static const struct udevice_id rswitch_ids[] = {
