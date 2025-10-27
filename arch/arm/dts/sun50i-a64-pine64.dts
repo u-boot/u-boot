@@ -9,7 +9,7 @@
 #include <dt-bindings/gpio/gpio.h>
 
 / {
-	model = "Pine64";
+	model = "Pine64 PINE A64";
 	compatible = "pine64,pine64", "allwinner,sun50i-a64";
 
 	aliases {
@@ -122,6 +122,17 @@
 	disable-wp;
 	bus-width = <4>;
 	status = "okay";
+};
+
+/* On Wifi/BT connector */
+&mmc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc1_pins>;
+	vmmc-supply = <&reg_dldo4>;
+	vqmmc-supply = <&reg_eldo1>;
+	bus-width = <4>;
+	non-removable;
+	status = "disabled";
 };
 
 &ohci0 {
@@ -286,6 +297,7 @@
 &uart1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart1_pins>, <&uart1_rts_cts_pins>;
+	uart-has-rtscts;
 	status = "disabled";
 };
 

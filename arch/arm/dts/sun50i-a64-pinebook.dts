@@ -13,7 +13,7 @@
 #include <dt-bindings/pwm/pwm.h>
 
 / {
-	model = "Pinebook";
+	model = "Pine64 Pinebook";
 	compatible = "pine64,pinebook", "allwinner,sun50i-a64";
 	chassis-type = "laptop";
 
@@ -390,6 +390,8 @@
 &tcon0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&lcd_rgb666_pins>;
+	assigned-clocks = <&ccu CLK_TCON0>;
+	assigned-clock-parents = <&ccu CLK_PLL_VIDEO0_2X>;
 
 	status = "okay";
 };

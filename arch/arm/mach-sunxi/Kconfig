@@ -475,6 +475,7 @@ config MACH_SUN8I_R528
 	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
 	select DRAM_SUN20I_D1
+	imply OF_UPSTREAM
 
 config MACH_SUN8I_V3S
 	bool "sun8i (Allwinner V3/V3s/S3/S3L)"
@@ -498,6 +499,7 @@ config MACH_SUN9I
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
