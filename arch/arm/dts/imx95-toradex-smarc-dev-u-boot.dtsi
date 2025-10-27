@@ -1,0 +1,110 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/* Copyright (C) 2025 Toradex */
+
+#include "imx95-u-boot.dtsi"
+
+/ {
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+};
+
+&gpio1 {
+	reg = <0 0x47400000 0 0x1000>, <0 0x47400040 0 0x40>;
+	bootph-pre-ram;
+};
+
+&lpi2c4 {
+	bootph-pre-ram;
+};
+
+&lpuart1 {
+	clocks = <&scmi_clk IMX95_CLK_LPUART1>, <&scmi_clk IMX95_CLK_LPUART1>;
+	clock-names = "ipg", "per";
+	bootph-pre-ram;
+};
+
+/* Conflict with JTAG interface */
+&lpuart5 {
+	status = "disabled";
+};
+
+&pinctrl_lpi2c4 {
+	bootph-pre-ram;
+};
+
+&pinctrl_lpi2c4_gpio {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc1_200mhz {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_200mhz {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_cd {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_pwr_en {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_vsel {
+	bootph-pre-ram;
+};
+
+&reg_usdhc2_vmmc {
+	bootph-pre-ram;
+};
+
+&reg_usdhc2_vqmmc {
+	bootph-pre-ram;
+};
+
+&som_gpio_expander_0 {
+	bootph-pre-ram;
+};
+
+&som_gpio_expander_1 {
+	bootph-pre-ram;
+};
+
+&usb2 {
+	/delete-property/power-domains;
+};
+
+&usb3 {
+	status = "disabled";
+};
+
+&usb3_dwc3 {
+	status = "disabled";
+};
+
+&usdhc1 {
+	bootph-pre-ram;
+};
+
+&usdhc2 {
+	bootph-pre-ram;
+};
+
+&wdog3 {
+	status = "disabled";
+};
