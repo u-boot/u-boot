@@ -36,53 +36,47 @@
 #define RSWITCH_ETHA_SIZE	0x00002000	/* with RMAC */
 #define RSWITCH_GWCA_SIZE	0x00002000
 
-#define FWRO			0
-#define CARO			0
-#define GWRO			0
-#define TARO			0
-#define RMRO			0x1000
-
 /* List of TSNA registers (ETHA) */
-#define EAMC			(TARO + 0x0000)
-#define EAMS			(TARO + 0x0004)
-#define EATDQDCR		(TARO + 0x0060)
-#define EATTFC			(TARO + 0x0138)
-#define EATASRIRM		(TARO + 0x03e4)
+#define EAMC			0x0000
+#define EAMS			0x0004
+#define EATDQDCR		0x0060
+#define EATTFC			0x0138
+#define EATASRIRM		0x03e4
 /* Gateway CPU agent block (GWCA) */
-#define GWMC			(GWRO + 0x0000)
-#define GWMS			(GWRO + 0x0004)
-#define GWMTIRM			(GWRO + 0x0100)
-#define GWVCC			(GWRO + 0x0130)
-#define GWTTFC			(GWRO + 0x0138)
-#define GWDCBAC0		(GWRO + 0x0194)
-#define GWDCBAC1		(GWRO + 0x0198)
-#define GWTRCR			(GWRO + 0x0200)
-#define GWARIRM			(GWRO + 0x0380)
-#define GWDCCR			(GWRO + 0x0400)
+#define GWMC			0x0000
+#define GWMS			0x0004
+#define GWMTIRM			0x0100
+#define GWVCC			0x0130
+#define GWTTFC			0x0138
+#define GWDCBAC0		0x0194
+#define GWDCBAC1		0x0198
+#define GWTRCR			0x0200
+#define GWARIRM			0x0380
+#define GWDCCR			0x0400
 /* List of Common Agent registers (COMA) */
-#define RRC			(CARO + 0x0004)
-#define RCEC			(CARO + 0x0008)
-#define RCDC			(CARO + 0x000c)
-#define CABPIRM			(CARO + 0x0140)
+#define RRC			0x0004
+#define RCEC			0x0008
+#define RCDC			0x000c
+#define CABPIRM			0x0140
 /* List of MFWD registers */
-#define FWPC			(FWRO + 0x0100)
-#define FWPBFCR			(FWRO + 0x4a00)
-#define FWPBFCSDCR		(FWRO + 0x4a04)
+#define FWPC			0x0100
+#define FWPBFCR			0x4a00
+#define FWPBFCSDCR		0x4a04
 /* List of RMAC registers (RMAC) */
-#define MPSM			(RMRO + 0x0000)
-#define MPIC			(RMRO + 0x0004)
-#define MRMAC0			(RMRO + 0x0084)
-#define MRMAC1			(RMRO + 0x0088)
-#define MRAFC			(RMRO + 0x008c)
-#define MRSCE			(RMRO + 0x0090)
-#define MRSCP			(RMRO + 0x0094)
-#define MLVC			(RMRO + 0x0180)
-#define MLBC			(RMRO + 0x0188)
-#define MXGMIIC			(RMRO + 0x0190)
-#define MPCH			(RMRO + 0x0194)
-#define MANM			(RMRO + 0x019c)
-#define MMIS0			(RMRO + 0x0210)
-#define MMIS1			(RMRO + 0x0220)
+#define MPSM			0x1000
+#define MPIC			0x1004
+#define MRMAC0			0x1084
+#define MRMAC1			0x1088
+#define MRAFC			0x108c
+#define MRSCE			0x1090
+#define MRSCP			0x1094
+#define MLVC			0x1180
+#define MLBC			0x1188
+#define MXGMIIC			0x1190
+#define MPCH			0x1194
+#define MANM			0x119c
+#define MMIS0			0x1210
+#define MMIS1			0x1220
 
 /* COMA */
 #define RRC_RR			BIT(0)
