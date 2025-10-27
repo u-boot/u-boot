@@ -245,6 +245,8 @@ struct sh_pfc_soc_operations {
 			 unsigned int bias);
 	int (*pin_to_pocctrl)(unsigned int pin, u32 *pocctrl);
 	int (*pin_to_portcr)(unsigned int pin);
+	int (*set_drive_strength)(struct sh_pfc *pfc, unsigned int pin,
+				  u16 strength);
 };
 
 struct sh_pfc_soc_info {
@@ -741,5 +743,7 @@ rcar_pin_to_bias_reg(const struct sh_pfc_soc_info *info, unsigned int pin,
 unsigned int rcar_pinmux_get_bias(struct sh_pfc *pfc, unsigned int pin);
 void rcar_pinmux_set_bias(struct sh_pfc *pfc, unsigned int pin,
 			  unsigned int bias);
+int rcar_pinconf_set_drive_strength(struct sh_pfc *pfc,
+				    unsigned int pin, u16 strength);
 
 #endif /* __SH_PFC_H */

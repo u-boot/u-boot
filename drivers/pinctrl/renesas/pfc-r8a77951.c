@@ -6184,6 +6184,7 @@ static const struct sh_pfc_soc_operations r8a77951_pfc_ops = {
 	.pin_to_pocctrl = r8a77951_pin_to_pocctrl,
 	.get_bias = rcar_pinmux_get_bias,
 	.set_bias = rcar_pinmux_set_bias,
+	.set_drive_strength = rcar_pinconf_set_drive_strength,
 };
 
 #ifdef CONFIG_PINCTRL_PFC_R8A774E1
