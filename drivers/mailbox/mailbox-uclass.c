@@ -132,6 +132,15 @@ int mbox_recv(struct mbox_chan *chan, void *data, ulong timeout_us)
 	debug("%s(chan=%p, data=%p, timeout_us=%ld)\n", __func__, chan, data,
 	      timeout_us);
 
+	/*
+	 * Some shared memory mailboxes may have empty receive operation,
+	 * because the data are polled by upper layers directly from the
+	 * shared memory region, and there is no completion interrupt or
+	 * bit of any sort.
+	 */
+	if (!ops->recv)
+		return 0;
+
 	start_time = timer_get_us();
 	/*
 	 * Account for partial us ticks, but if timeout_us is 0, ensure we
