@@ -18,9 +18,9 @@
 #define GPIO_IOINTSEL	0x00	/* General IO/Interrupt Switching Register */
 #define GPIO_INOUTSEL	0x04	/* General Input/Output Switching Register */
 #define GPIO_OUTDT	0x08	/* General Output Register */
-#define GPIO_INDT	0x0c	/* General Input Register */
-#define GPIO_POSNEG	0x20	/* Positive/Negative Logic Select Register */
-#define GPIO_INEN	0x50	/* General Input Enable Register */
+#define GPIO_INDT_G2	0x0c	/* General Input Register */
+#define GPIO_POSNEG_G2	0x20	/* Positive/Negative Logic Select Register */
+#define GPIO_INEN_G4	0x50	/* General Input Enable Register */
 
 #define RCAR_MAX_GPIO_PER_BANK		32
 
@@ -30,6 +30,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct rcar_gpio_data {
 	u32				quirks;
+	u32				indt_offset;
+	u32				posneg_offset;
+	u32				inen_offset;
 };
 
 struct rcar_gpio_priv {
@@ -40,6 +43,7 @@ struct rcar_gpio_priv {
 static int rcar_gpio_get_value(struct udevice *dev, unsigned offset)
 {
 	struct rcar_gpio_priv *priv = dev_get_priv(dev);
+	const struct rcar_gpio_data *data = priv->data;
 	const u32 bit = BIT(offset);
 
 	/*
@@ -49,7 +53,7 @@ static int rcar_gpio_get_value(struct udevice *dev, unsigned offset)
 	if (readl(priv->regs + GPIO_INOUTSEL) & bit)
 		return !!(readl(priv->regs + GPIO_OUTDT) & bit);
 	else
-		return !!(readl(priv->regs + GPIO_INDT) & bit);
+		return !!(readl(priv->regs + data->indt_offset) & bit);
 }
 
 static int rcar_gpio_set_value(struct udevice *dev, unsigned offset,
@@ -79,14 +83,14 @@ static void rcar_gpio_set_direction(struct udevice *dev, unsigned offset,
 	 */
 
 	/* Configure postive logic in POSNEG */
-	clrbits_le32(regs + GPIO_POSNEG, BIT(offset));
+	clrbits_le32(regs + data->posneg_offset, BIT(offset));
 
 	/* Select "Input Enable/Disable" in INEN */
 	if (data->quirks & RCAR_GPIO_HAS_INEN) {
 		if (output)
-			clrbits_le32(regs + GPIO_INEN, BIT(offset));
+			clrbits_le32(regs + data->inen_offset, BIT(offset));
 		else
-			setbits_le32(regs + GPIO_INEN, BIT(offset));
+			setbits_le32(regs + data->inen_offset, BIT(offset));
 	}
 
 	/* Select "General Input/Output Mode" in IOINTSEL */
@@ -169,10 +173,15 @@ static int rcar_gpio_probe(struct udevice *dev)
 }
 
 static const struct rcar_gpio_data rcar_gpio_gen2_data = {
+	.indt_offset = GPIO_INDT_G2,
+	.posneg_offset = GPIO_POSNEG_G2,
 };
 
 static const struct rcar_gpio_data rcar_gpio_gen3_data = {
 	.quirks = RCAR_GPIO_HAS_INEN,
+	.indt_offset = GPIO_INDT_G2,
+	.posneg_offset = GPIO_POSNEG_G2,
+	.inen_offset = GPIO_INEN_G4,
 };
 
 static const struct udevice_id rcar_gpio_ids[] = {
