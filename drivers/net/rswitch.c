@@ -33,14 +33,11 @@
 #define RSWITCH_MAX_CTAG_PCP	7
 
 /* Registers */
-#define RSWITCH_COMA_OFFSET	0x00009000
-#define RSWITCH_ETHA_OFFSET	0x0000a000	/* with RMAC */
 #define RSWITCH_ETHA_SIZE	0x00002000	/* with RMAC */
-#define RSWITCH_GWCA_OFFSET	0x00010000
 #define RSWITCH_GWCA_SIZE	0x00002000
 
 #define FWRO			0
-#define CARO			RSWITCH_COMA_OFFSET
+#define CARO			0
 #define GWRO			0
 #define TARO			0
 #define RMRO			0x1000
@@ -265,6 +262,7 @@ struct rswitch_rxdesc {
 
 struct rswitch_port_priv {
 	void __iomem		*addr;
+	struct rswitch_drv_data	*drv_data;
 	struct phy		serdes;
 	struct rswitch_etha	etha;
 	struct rswitch_gwca	gwca;
@@ -278,6 +276,12 @@ struct rswitch_port_priv {
 struct rswitch_priv {
 	void __iomem		*addr;
 	struct clk_bulk		rsw_clk;
+};
+
+struct rswitch_drv_data {
+	u32			coma_offset;
+	u32			etha_offset;
+	u32			gwca_offset;
 };
 
 static inline void rswitch_flush_dcache(u32 addr, u32 len)
@@ -295,14 +299,17 @@ static inline void rswitch_invalidate_dcache(u32 addr, u32 len)
 
 static void rswitch_agent_clock_ctrl(struct rswitch_port_priv *priv, int port, int enable)
 {
+	struct rswitch_drv_data *drv_data = priv->drv_data;
 	u32 val;
 
 	if (enable) {
-		val = readl(priv->addr + RCEC);
-		if ((val & (RCEC_RCE | BIT(port))) != (RCEC_RCE | BIT(port)))
-			writel(val | RCEC_RCE | BIT(port), priv->addr + RCEC);
+		val = readl(priv->addr + drv_data->coma_offset + RCEC);
+		if ((val & (RCEC_RCE | BIT(port))) != (RCEC_RCE | BIT(port))) {
+			writel(val | RCEC_RCE | BIT(port),
+			       priv->addr + drv_data->coma_offset + RCEC);
+		}
 	} else {
-		setbits_le32(priv->addr + RCDC, BIT(port));
+		setbits_le32(priv->addr + drv_data->coma_offset + RCDC, BIT(port));
 	}
 }
 
@@ -537,10 +544,11 @@ static int rswitch_check_link(struct rswitch_etha_io *etha_serdes)
 
 static int rswitch_reset(struct rswitch_port_priv *priv)
 {
+	struct rswitch_drv_data *drv_data = priv->drv_data;
 	int ret;
 
-	setbits_le32(priv->addr + RRC, RRC_RR);
-	clrbits_le32(priv->addr + RRC, RRC_RR);
+	setbits_le32(priv->addr + drv_data->coma_offset + RRC, RRC_RR);
+	clrbits_le32(priv->addr + drv_data->coma_offset + RRC, RRC_RR);
 
 	ret = rswitch_gwca_change_mode(priv, GWMC_OPC_DISABLE);
 	if (ret)
@@ -641,21 +649,24 @@ static void rswitch_rx_desc_init(struct rswitch_port_priv *priv)
 
 static void rswitch_clock_enable(struct rswitch_port_priv *priv)
 {
+	struct rswitch_drv_data *drv_data = priv->drv_data;
 	struct rswitch_etha *etha = &priv->etha;
 	struct rswitch_gwca *gwca = &priv->gwca;
 	int etha_index = etha->serdes.index;
 
-	setbits_le32(priv->addr + RCEC, BIT(etha_index) | BIT(gwca->index) | RCEC_RCE);
+	setbits_le32(priv->addr + drv_data->coma_offset + RCEC,
+		     BIT(etha_index) | BIT(gwca->index) | RCEC_RCE);
 }
 
 static int rswitch_bpool_init(struct rswitch_port_priv *priv)
 {
+	struct rswitch_drv_data *drv_data = priv->drv_data;
 	u32 pval;
 
-	writel(CABPIRM_BPIOG, priv->addr + CABPIRM);
+	writel(CABPIRM_BPIOG, priv->addr + drv_data->coma_offset + CABPIRM);
 
-	return readl_poll_sleep_timeout(priv->addr + CABPIRM, pval,
-					pval & CABPIRM_BPR,
+	return readl_poll_sleep_timeout(priv->addr + drv_data->coma_offset + CABPIRM,
+					pval, pval & CABPIRM_BPR,
 					RSWITCH_SLEEP_US, RSWITCH_TIMEOUT_US);
 }
 
@@ -1013,6 +1024,7 @@ static int rswitch_port_probe(struct udevice *dev)
 	int ret;
 
 	priv->addr = rpriv->addr;
+	priv->drv_data = (void *)dev_get_driver_data(dev->parent);
 
 	ret = generic_phy_get_by_index(dev, 0, &priv->serdes);
 	if (ret)
@@ -1022,13 +1034,13 @@ static int rswitch_port_probe(struct udevice *dev)
 
 	etha->mii.index = dev_read_u32_default(dev, "reg", 0);
 	etha->serdes.index = priv->serdes.id;
-	etha->mii.addr = priv->addr + RSWITCH_ETHA_OFFSET +
+	etha->mii.addr = priv->addr + priv->drv_data->etha_offset +
 			 etha->mii.index * RSWITCH_ETHA_SIZE;
-	etha->serdes.addr = priv->addr + RSWITCH_ETHA_OFFSET +
+	etha->serdes.addr = priv->addr + priv->drv_data->etha_offset +
 			    etha->serdes.index * RSWITCH_ETHA_SIZE;
 
 	gwca->index = 1;
-	gwca->addr = priv->addr + RSWITCH_GWCA_OFFSET + gwca->index * RSWITCH_GWCA_SIZE;
+	gwca->addr = priv->addr + priv->drv_data->gwca_offset + gwca->index * RSWITCH_GWCA_SIZE;
 	gwca->index = GWCA_TO_HW_INDEX(gwca->index);
 
 	/* Toggle the reset so we can access the PHYs */
@@ -1176,8 +1188,14 @@ static int rswitch_bind(struct udevice *parent)
 	return 0;
 }
 
+static const struct rswitch_drv_data r8a779f0_drv_data = {
+	.coma_offset	= 0x9000,
+	.etha_offset	= 0xa000,
+	.gwca_offset	= 0x10000,
+};
+
 static const struct udevice_id rswitch_ids[] = {
-	{ .compatible = "renesas,r8a779f0-ether-switch" },
+	{ .compatible = "renesas,r8a779f0-ether-switch", .data = (ulong)&r8a779f0_drv_data },
 	{ }
 };
 
