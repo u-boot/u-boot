@@ -20,6 +20,7 @@
 #ifndef __EXT_COMMON__
 #define __EXT_COMMON__
 
+#include <blk.h>
 #include <compiler.h>
 
 struct cmd_tbl;
