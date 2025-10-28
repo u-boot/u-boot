@@ -29,17 +29,6 @@ config UFS_MEDIATEK
 
 	  If unsure, say N.
 
-config UFS_PCI
-	bool "PCI bus based UFS Controller support"
-	depends on PCI && UFS
-	help
-	  This selects the PCI UFS Host Controller Interface. Select this if
-	  you have UFS Host Controller with PCI Interface.
-
-	  If you have a controller with this interface, say Y here.
-
-	  If unsure, say N.
-
 config QCOM_UFS
 	bool "Qualcomm Host Controller driver for UFS"
 	depends on UFS && ARCH_SNAPDRAGON
@@ -62,6 +51,25 @@ config TI_J721E_UFS
 	  This selects the glue layer driver for Cadence controller
 	  present on TI's J721E devices.
 
+config UFS_AMD_VERSAL2
+	bool "AMD Versal Gen 2 UFS controller platform driver"
+	depends on UFS && ZYNQMP_FIRMWARE
+	help
+	  This selects the AMD specific additions to UFSHCD platform driver.
+	  UFS host on AMD needs some vendor specific configuration before accessing
+	  the hardware.
+
+config UFS_PCI
+	bool "PCI bus based UFS Controller support"
+	depends on PCI && UFS
+	help
+	  This selects the PCI UFS Host Controller Interface. Select this if
+	  you have UFS Host Controller with PCI Interface.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
 config UFS_RENESAS
 	bool "Renesas specific hooks to UFS controller platform driver"
 	depends on UFS
@@ -70,13 +78,5 @@ config UFS_RENESAS
 	  This selects the Renesas specific additions to UFSHCD platform driver.
 	  UFS host on Renesas needs some vendor specific configuration before
 	  accessing the hardware.
-
-config UFS_AMD_VERSAL2
-	bool "AMD Versal Gen 2 UFS controller platform driver"
-	depends on UFS && ZYNQMP_FIRMWARE
-	help
-	  This selects the AMD specific additions to UFSHCD platform driver.
-	  UFS host on AMD needs some vendor specific configuration before accessing
-	  the hardware.
 
 endmenu
