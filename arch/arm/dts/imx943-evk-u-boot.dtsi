@@ -22,6 +22,30 @@
 	status = "okay";
 };
 
+&usb3 {
+	bootph-pre-ram;
+	status = "okay";
+};
+
+&usb3_dwc3 {
+	bootph-pre-ram;
+	dr_mode = "otg";
+	hnp-disable;
+	srp-disable;
+	adp-disable;
+	usb-role-switch;
+	role-switch-default-mode = "peripheral";
+	snps,dis-u1-entry-quirk;
+	snps,dis-u2-entry-quirk;
+	status = "okay";
+};
+
+&usb3_phy {
+	bootph-pre-ram;
+	orientation-switch;
+	status = "okay";
+};
+
 &usdhc1 {
 	bootph-pre-ram;
 };
