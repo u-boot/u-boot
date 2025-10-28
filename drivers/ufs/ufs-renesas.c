@@ -351,13 +351,6 @@ static struct ufs_hba_ops ufs_renesas_vops = {
 	.hce_enable_notify = ufs_renesas_hce_enable_notify,
 };
 
-static int ufs_renesas_pltfm_bind(struct udevice *dev)
-{
-	struct udevice *scsi_dev;
-
-	return ufs_scsi_bind(dev, &scsi_dev);
-}
-
 static int ufs_renesas_pltfm_probe(struct udevice *dev)
 {
 	struct ufs_renesas_priv *priv = dev_get_priv(dev);
@@ -405,7 +398,6 @@ U_BOOT_DRIVER(ufs_renesas) = {
 	.name		= "ufs-renesas",
 	.id		= UCLASS_UFS,
 	.of_match	= ufs_renesas_pltfm_ids,
-	.bind		= ufs_renesas_pltfm_bind,
 	.probe		= ufs_renesas_pltfm_probe,
 	.remove		= ufs_renesas_pltfm_remove,
 	.priv_auto	= sizeof(struct ufs_renesas_priv),

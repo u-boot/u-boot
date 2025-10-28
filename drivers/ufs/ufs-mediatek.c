@@ -381,13 +381,6 @@ static int ufs_mtk_probe(struct udevice *dev)
 	return 0;
 }
 
-static int ufs_mtk_bind(struct udevice *dev)
-{
-	struct udevice *scsi_dev;
-
-	return ufs_scsi_bind(dev, &scsi_dev);
-}
-
 static const struct udevice_id ufs_mtk_ids[] = {
 	{ .compatible = "mediatek,mt6878-ufshci" },
 	{},
@@ -398,6 +391,5 @@ U_BOOT_DRIVER(mediatek_ufshci) = {
 	.id		= UCLASS_UFS,
 	.of_match	= ufs_mtk_ids,
 	.probe		= ufs_mtk_probe,
-	.bind		= ufs_mtk_bind,
 	.priv_auto	= sizeof(struct ufs_mtk_host),
 };

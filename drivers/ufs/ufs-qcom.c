@@ -648,13 +648,6 @@ static int ufs_qcom_probe(struct udevice *dev)
 	return 0;
 }
 
-static int ufs_qcom_bind(struct udevice *dev)
-{
-	struct udevice *scsi_dev;
-
-	return ufs_scsi_bind(dev, &scsi_dev);
-}
-
 static const struct udevice_id ufs_qcom_ids[] = {
 	{ .compatible = "qcom,ufshc" },
 	{},
@@ -665,6 +658,5 @@ U_BOOT_DRIVER(qcom_ufshcd) = {
 	.id		= UCLASS_UFS,
 	.of_match	= ufs_qcom_ids,
 	.probe		= ufs_qcom_probe,
-	.bind		= ufs_qcom_bind,
 	.priv_auto	= sizeof(struct ufs_qcom_priv),
 };

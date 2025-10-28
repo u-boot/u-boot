@@ -552,13 +552,6 @@ static int ufs_versal2_probe(struct udevice *dev)
 	return ret;
 }
 
-static int ufs_versal2_bind(struct udevice *dev)
-{
-	struct udevice *scsi_dev;
-
-	return ufs_scsi_bind(dev, &scsi_dev);
-}
-
 static const struct udevice_id ufs_versal2_ids[] = {
 	{
 		.compatible = "amd,versal2-ufs",
@@ -571,5 +564,4 @@ U_BOOT_DRIVER(ufs_versal2_pltfm) = {
 	.id		= UCLASS_UFS,
 	.of_match	= ufs_versal2_ids,
 	.probe		= ufs_versal2_probe,
-	.bind		= ufs_versal2_bind,
 };

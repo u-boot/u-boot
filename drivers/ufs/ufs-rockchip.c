@@ -194,18 +194,10 @@ static int ufs_rockchip_probe(struct udevice *dev)
 	return err;
 }
 
-static int ufs_rockchip_bind(struct udevice *dev)
-{
-	struct udevice *scsi_dev;
-
-	return ufs_scsi_bind(dev, &scsi_dev);
-}
-
 U_BOOT_DRIVER(rockchip_ufs) = {
 	.name		= "ufshcd-rockchip",
 	.id		= UCLASS_UFS,
 	.of_match	= ufs_rockchip_of_match,
 	.probe		= ufs_rockchip_probe,
-	.bind		= ufs_rockchip_bind,
 	.priv_auto	= sizeof(struct ufs_rockchip_host),
 };
