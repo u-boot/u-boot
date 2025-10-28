@@ -142,7 +142,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 
 	if (range_lo == -1) {
 		puts("SF: Calibration failed (low range)\n");
-		return err;
+		return -EIO;
 	}
 
 	/* Disable QSPI for subsequent initialization */

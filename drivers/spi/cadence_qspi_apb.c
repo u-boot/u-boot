@@ -354,7 +354,7 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_priv *priv)
 
 int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg)
 {
-	unsigned int retry = CQSPI_REG_RETRY;
+	int retry = CQSPI_REG_RETRY;
 
 	/* Write the CMDCTRL without start execution. */
 	writel(reg, reg_base + CQSPI_REG_CMDCTRL);
@@ -369,7 +369,7 @@ int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg)
 		udelay(1);
 	}
 
-	if (!retry) {
+	if (retry == -1) {
 		printf("QSPI: flash command execution timeout\n");
 		return -EIO;
 	}
