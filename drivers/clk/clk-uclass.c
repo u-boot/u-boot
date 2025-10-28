@@ -199,7 +199,7 @@ static struct clk *clk_set_default_get_by_id(struct clk *clk)
 		if (ret) {
 			debug("%s(): could not get parent clock pointer, id %lu\n",
 			      __func__, clk->id);
-			return ERR_PTR(ret);
+			ERR_PTR(ret);
 		}
 	}
 
