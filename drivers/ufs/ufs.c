@@ -2302,3 +2302,9 @@ U_BOOT_DRIVER(ufs_scsi) = {
 	.name = "ufs_scsi",
 	.ops = &ufs_ops,
 };
+
+UCLASS_DRIVER(ufs) = {
+	.id			= UCLASS_UFS,
+	.name			= "ufs",
+	.per_device_auto	= sizeof(struct ufs_hba),
+};
