@@ -850,7 +850,7 @@ static char *versaclock_get_name(const char *dev_name, const char *clk_name, int
 
 	buf = malloc(length);
 	if (!buf)
-		ERR_PTR(-ENOMEM);
+		return ERR_PTR(-ENOMEM);
 
 	if (index < 0)
 		snprintf(buf, length, "%s.%s", dev_name, clk_name);
@@ -904,12 +904,12 @@ int versaclock_probe(struct udevice *dev)
 	if (IS_ERR(mux_name))
 		return PTR_ERR(mux_name);
 
-	clk_register(&vc5->clk_mux, "versaclock-mux", mux_name, vc5->pin_xin->dev->name);
-
-	if (!IS_ERR(vc5->pin_xin))
+	if (!IS_ERR(vc5->pin_xin)) {
+		clk_register(&vc5->clk_mux, "versaclock-mux", mux_name, vc5->pin_xin->dev->name);
 		vc5_mux_set_parent(&vc5->clk_mux, 1);
-	else
+	} else {
 		vc5_mux_set_parent(&vc5->clk_mux, 0);
+	}
 
 	/* Configure Optional Loading Capacitance for external XTAL */
 	if (!(vc5->chip_info->flags & VC5_HAS_INTERNAL_XTAL)) {
