@@ -79,4 +79,13 @@ config UFS_RENESAS
 	  platform driver. UFS host on Renesas needs some vendor
 	  specific configuration before accessing the hardware.
 
+config UFS_RENESAS_GEN5
+	bool "Renesas R-Car X5H UFS Controller support"
+	depends on UFS
+	select BOUNCE_BUFFER
+	help
+	  This selects the Renesas X5H specific additions to UFSHCD
+	  platform driver. UFS host on Renesas needs some vendor
+	  specific configuration before accessing the hardware.
+
 endmenu
