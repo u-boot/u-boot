@@ -71,12 +71,12 @@ config UFS_PCI
 	  If unsure, say N.
 
 config UFS_RENESAS
-	bool "Renesas specific hooks to UFS controller platform driver"
+	bool "Renesas R-Car S4 UFS Controller support"
 	depends on UFS
 	select BOUNCE_BUFFER
 	help
-	  This selects the Renesas specific additions to UFSHCD platform driver.
-	  UFS host on Renesas needs some vendor specific configuration before
-	  accessing the hardware.
+	  This selects the Renesas S4 specific additions to UFSHCD
+	  platform driver. UFS host on Renesas needs some vendor
+	  specific configuration before accessing the hardware.
 
 endmenu
