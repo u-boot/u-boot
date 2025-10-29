@@ -211,13 +211,13 @@ config SPL_FIT_PRINT
 	  Support printing the content of the fitImage in a verbose manner in SPL.
 
 config SPL_FIT_FULL_CHECK
-	bool "Do a full check of the FIT before using it"
+	bool "Do a full check of the FIT within SPL before using it"
 	depends on SPL_FIT
 	help
-	  Enable this do a full check of the FIT to make sure it is valid. This
-	  helps to protect against carefully crafted FITs which take advantage
-	  of bugs or omissions in the code. This includes a bad structure,
-	  multiple root nodes and the like.
+	  Enable this do a full check of the FIT within SPL to make sure it is
+	  valid. This helps to protect against carefully crafted FITs which take
+	  advantage of bugs or omissions in the code. This includes a bad
+	  structure, multiple root nodes and the like.
 
 config SPL_FIT_SIGNATURE
 	bool "Enable signature verification of FIT firmware within SPL"
