@@ -22,10 +22,14 @@ static int qemu_fwcfg_cmd_list_firmware(void)
 	if (ret)
 		return ret;
 
+	printf("            Addr     Size Sel Name\n");
+	printf("---------------- -------- --- ------------\n");
 	for (file = qfw_file_iter_init(qfw_dev, &iter);
 	     !qfw_file_iter_end(&iter);
 	     file = qfw_file_iter_next(&iter)) {
-		printf("%08lx %-56s\n", file->addr, file->cfg.name);
+		printf("%16lx %8x %3x %-48s\n", file->addr,
+		       be32_to_cpu(file->cfg.size),
+		       be16_to_cpu(file->cfg.select), file->cfg.name);
 	}
 
 	return 0;
