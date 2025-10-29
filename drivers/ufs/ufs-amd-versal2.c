@@ -330,7 +330,7 @@ static int ufs_versal2_init(struct ufs_hba *hba)
 		return PTR_ERR(priv->rstphy);
 	}
 
-	ret =  zynqmp_pm_ufs_cal_reg(&cal);
+	ret = zynqmp_pm_ufs_cal_reg(&cal);
 	if (ret)
 		return ret;
 
@@ -552,13 +552,6 @@ static int ufs_versal2_probe(struct udevice *dev)
 	return ret;
 }
 
-static int ufs_versal2_bind(struct udevice *dev)
-{
-	struct udevice *scsi_dev;
-
-	return ufs_scsi_bind(dev, &scsi_dev);
-}
-
 static const struct udevice_id ufs_versal2_ids[] = {
 	{
 		.compatible = "amd,versal2-ufs",
@@ -567,9 +560,8 @@ static const struct udevice_id ufs_versal2_ids[] = {
 };
 
 U_BOOT_DRIVER(ufs_versal2_pltfm) = {
-	.name           = "ufs-versal2-pltfm",
-	.id             = UCLASS_UFS,
-	.of_match       = ufs_versal2_ids,
-	.probe          = ufs_versal2_probe,
-	.bind           = ufs_versal2_bind,
+	.name		= "ufs-versal2-pltfm",
+	.id		= UCLASS_UFS,
+	.of_match	= ufs_versal2_ids,
+	.probe		= ufs_versal2_probe,
 };

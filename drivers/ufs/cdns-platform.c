@@ -101,13 +101,6 @@ static int cdns_ufs_pltfm_probe(struct udevice *dev)
 	return err;
 }
 
-static int cdns_ufs_pltfm_bind(struct udevice *dev)
-{
-	struct udevice *scsi_dev;
-
-	return ufs_scsi_bind(dev, &scsi_dev);
-}
-
 static const struct udevice_id cdns_ufs_pltfm_ids[] = {
 	{
 		.compatible = "cdns,ufshc-m31-16nm",
@@ -120,5 +113,4 @@ U_BOOT_DRIVER(cdns_ufs_pltfm) = {
 	.id		= UCLASS_UFS,
 	.of_match	= cdns_ufs_pltfm_ids,
 	.probe		= cdns_ufs_pltfm_probe,
-	.bind		= cdns_ufs_pltfm_bind,
 };

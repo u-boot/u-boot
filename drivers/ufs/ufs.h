@@ -77,6 +77,9 @@ enum {
 /* UTP Transfer Request Command Offset */
 #define UPIU_COMMAND_TYPE_OFFSET	28
 
+/* UTP Transfer Request Data Direction Offset */
+#define UPIU_DATA_DIRECTION_OFFSET	25
+
 /* Offset of the response code in the UPIU header */
 #define UPIU_RSP_CODE_OFFSET		8
 
@@ -170,6 +173,15 @@ enum query_opcode {
 	UPIU_QUERY_OPCODE_SET_FLAG	= 0x6,
 	UPIU_QUERY_OPCODE_CLEAR_FLAG	= 0x7,
 	UPIU_QUERY_OPCODE_TOGGLE_FLAG	= 0x8,
+};
+
+/* bRefClkFreq attribute values */
+enum ufs_ref_clk_freq {
+	REF_CLK_FREQ_19_2_MHZ	= 0,
+	REF_CLK_FREQ_26_MHZ	= 1,
+	REF_CLK_FREQ_38_4_MHZ	= 2,
+	REF_CLK_FREQ_52_MHZ	= 3,
+	REF_CLK_FREQ_INVAL	= -1,
 };
 
 /* Query response result code */
@@ -435,6 +447,8 @@ int ufshcd_dme_set_attr(struct ufs_hba *hba, u32 attr_sel,
 			u8 attr_set, u32 mib_val, u8 peer);
 int ufshcd_dme_get_attr(struct ufs_hba *hba, u32 attr_sel,
 			u32 *mib_val, u8 peer);
+int ufshcd_dme_enable(struct ufs_hba *hba);
+int ufshcd_dme_reset(struct ufs_hba *hba);
 
 static inline int ufshcd_dme_set(struct ufs_hba *hba, u32 attr_sel,
 				 u32 mib_val)
