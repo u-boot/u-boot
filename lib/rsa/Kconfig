@@ -44,7 +44,7 @@ config RSA_VERIFY_WITH_PKEY
 	  This does not suit the use case where there is no way defined to
 	  provide such additional key properties in standardized form,
 	  particularly UEFI secure boot.
-	  This options enables RSA signature verification with a public key
+	  This option enables RSA signature verification with a public key
 	  directly specified in image_sign_info, where all the necessary
 	  key properties will be calculated on the fly in verification code.
 
@@ -62,7 +62,7 @@ config SPL_RSA_VERIFY_WITH_PKEY
 	  This does not suit the use case where there is no way defined to
 	  provide such additional key properties in standardized form,
 	  particularly UEFI secure boot.
-	  This options enables RSA signature verification with a public key
+	  This option enables RSA signature verification with a public key
 	  directly specified in image_sign_info, where all the necessary
 	  key properties will be calculated on the fly in verification code
 	  in the SPL.
