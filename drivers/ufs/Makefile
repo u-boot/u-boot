@@ -5,11 +5,11 @@
 
 obj-$(CONFIG_UFS) += ufs-uclass.o
 obj-$(CONFIG_CADENCE_UFS) += cdns-platform.o
-obj-$(CONFIG_UFS_MEDIATEK) += ufs-mediatek.o
 obj-$(CONFIG_QCOM_UFS) += ufs-qcom.o
+obj-$(CONFIG_ROCKCHIP_UFS) += ufs-rockchip.o
 obj-$(CONFIG_TI_J721E_UFS) += ti-j721e-ufs.o
 obj-$(CONFIG_UFS_AMD_VERSAL2) += ufs-amd-versal2.o ufshcd-dwc.o
+obj-$(CONFIG_UFS_MEDIATEK) += ufs-mediatek.o
 obj-$(CONFIG_UFS_PCI) += ufs-pci.o
 obj-$(CONFIG_UFS_RENESAS) += ufs-renesas.o
 obj-$(CONFIG_UFS_RENESAS_GEN5) += ufs-renesas-rcar-gen5.o
-obj-$(CONFIG_ROCKCHIP_UFS) += ufs-rockchip.o
