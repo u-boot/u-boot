@@ -194,7 +194,7 @@ config TPL_DM_SERIAL
 
 config VPL_DM_SERIAL
 	bool "Enable Driver Model for serial drivers in VPL"
-	depends on DM_SERIAL
+	depends on DM_SERIAL && VPL_DM
 	default y if VPL && DM_SERIAL
 	help
 	  Enable driver model for serial in VPL. This replaces
