@@ -35,7 +35,6 @@ class Bintoolmkimage(bintool.Bintool):
                 signatures
             align: Bytes to use for alignment of the FIT and its external data
             keys_dir: Path to directory containing private and encryption keys
-            version: True to get the mkimage version
         """
         args = []
         if external:
