@@ -1071,7 +1071,7 @@ if MEASURED_BOOT
 endif # MEASURED_BOOT
 
 config SYS_BOOTM_LEN
-	hex "Maximum size of a decompresed OS image"
+	hex "Maximum size of a decompressed OS image"
 	depends on CMD_BOOTM || CMD_BOOTI || CMD_BOOTZ || \
 		LEGACY_IMAGE_FORMAT || SPL_LEGACY_IMAGE_FORMAT
 	default 0x8000000 if PPC || ARM64 || RISCV
