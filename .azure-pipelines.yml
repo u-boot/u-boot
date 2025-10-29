@@ -290,6 +290,7 @@ stages:
           cp /opt/grub/grubriscv64.efi \${UBOOT_TRAVIS_BUILD_DIR}/grub_riscv64.efi
           cp /opt/grub/grubaa64.efi \${UBOOT_TRAVIS_BUILD_DIR}/grub_arm64.efi
           cp /opt/grub/grubarm.efi \${UBOOT_TRAVIS_BUILD_DIR}/grub_arm.efi
+          ./tools/post_build_tfa_fw_handoff.sh \${UBOOT_TRAVIS_BUILD_DIR} \${TEST_PY_BD} \${TEST_PY_ID}
           # create sdcard / spi-nor images for sifive unleashed using genimage
           if [[ "\${TEST_PY_BD}" == "sifive_unleashed" ]]; then
               mkdir -p root;
