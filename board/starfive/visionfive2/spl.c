@@ -123,6 +123,14 @@ int board_fit_config_name_match(const char *name)
 	} else if (!strcmp(name, "starfive/jh7110-milkv-mars") &&
 		    !strncmp(get_product_id_from_eeprom(), "MARS", 4)) {
 		return 0;
+	} else if (!strcmp(name, "starfive/jh7110-milkv-marscm-emmc") &&
+		    !strncmp(get_product_id_from_eeprom(), "MARC", 4) &&
+		    get_mmc_size_from_eeprom()) {
+		return 0;
+	} else if (!strcmp(name, "starfive/jh7110-milkv-marscm-lite") &&
+		    !strncmp(get_product_id_from_eeprom(), "MARC", 4) &&
+		    !get_mmc_size_from_eeprom()) {
+		return 0;
 	} else if (!strcmp(name, "starfive/jh7110-pine64-star64") &&
 		    !strncmp(get_product_id_from_eeprom(), "STAR64", 6)) {
 		return 0;
