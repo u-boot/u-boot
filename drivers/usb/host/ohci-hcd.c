@@ -1040,9 +1040,11 @@ static void dl_transfer_length(td_t *td)
 static void check_status(td_t *td_list)
 {
 	urb_priv_t *lurb_priv = td_list->ed->purb;
-	int	   urb_len    = lurb_priv->length;
 	__u32      *phwHeadP  = &td_list->ed->hwHeadP;
-	int	   cc;
+	int	   cc, urb_len;
+
+	if (lurb_priv)
+		urb_len = lurb_priv->length;
 
 	cc = TD_CC_GET(m32_swap(td_list->hwINFO));
 	if (cc) {

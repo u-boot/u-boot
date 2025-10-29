@@ -86,6 +86,7 @@ static int ti_musb_of_to_plat(struct udevice *dev)
 	int phys;
 	int ctrl_mod;
 	int usb_index;
+	int ret;
 	struct musb_hdrc_config *musb_config;
 
 	plat->base = devfdt_get_addr_index_ptr(dev, 1);
@@ -108,35 +109,40 @@ static int ti_musb_of_to_plat(struct udevice *dev)
 	musb_config = malloc(sizeof(struct musb_hdrc_config));
 	memset(musb_config, 0, sizeof(struct musb_hdrc_config));
 
-	musb_config->multipoint = fdtdec_get_int(fdt, node,
-						 "mentor,multipoint", -1);
-	if (musb_config->multipoint < 0) {
+	ret = fdtdec_get_int(fdt, node, "mentor,multipoint", -1);
+	if (ret < 0) {
 		pr_err("MUSB multipoint DT entry missing\n");
 		return -ENOENT;
+	} else {
+		musb_config->multipoint = ret;
 	}
 
 	musb_config->dyn_fifo = 1;
 
-	musb_config->num_eps = fdtdec_get_int(fdt, node, "mentor,num-eps",
-					      -1);
-	if (musb_config->num_eps < 0) {
+	ret = fdtdec_get_int(fdt, node, "mentor,num-eps", -1);
+	if (ret < 0) {
 		pr_err("MUSB num-eps DT entry missing\n");
 		return -ENOENT;
+	} else {
+		musb_config->num_eps = ret;
 	}
 
-	musb_config->ram_bits = fdtdec_get_int(fdt, node, "mentor,ram-bits",
-					       -1);
-	if (musb_config->ram_bits < 0) {
+	ret = fdtdec_get_int(fdt, node, "mentor,ram-bits", -1);
+	if (ret < 0) {
 		pr_err("MUSB ram-bits DT entry missing\n");
 		return -ENOENT;
+	} else {
+		musb_config->ram_bits = ret;
 	}
 
 	plat->plat.config = musb_config;
 
-	plat->plat.power = fdtdec_get_int(fdt, node, "mentor,power", -1);
-	if (plat->plat.power < 0) {
+	ret = fdtdec_get_int(fdt, node, "mentor,power", -1);
+	if (ret < 0) {
 		pr_err("MUSB mentor,power DT entry missing\n");
 		return -ENOENT;
+	} else {
+		plat->plat.power = ret;
 	}
 
 	plat->plat.platform_ops = &musb_dsps_ops;

@@ -127,7 +127,7 @@ int ulpi_set_vbus_indicator(struct ulpi_viewport *ulpi_vp, int external,
 	if (val == ULPI_ERROR)
 		return val;
 
-	val = val & ~(ULPI_IFACE_PASSTHRU & ULPI_IFACE_EXTVBUS_COMPLEMENT);
+	val = val & ~(ULPI_IFACE_PASSTHRU | ULPI_IFACE_EXTVBUS_COMPLEMENT);
 	val |= flags;
 	val = ulpi_write(ulpi_vp, &ulpi->iface_ctrl, val);
 	if (val)
