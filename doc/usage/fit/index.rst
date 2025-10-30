@@ -14,6 +14,7 @@ images that it reads and boots. Documentation about FIT is available in
     howto
     kernel_fdt
     kernel_fdts_compressed
+    kernel_fdt_optee
     kernel
     multi
     multi_spl
