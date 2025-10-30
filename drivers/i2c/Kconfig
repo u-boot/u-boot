@@ -308,6 +308,13 @@ config SYS_I2C_MTK
 	  If you want to use MediaTek I2C interface, say Y here.
 	  If unsure, say N.
 
+config SYS_I2C_MT7621
+	bool "Mediatek MT7621 I2C driver"
+	help
+	  This selects the Mediatek MT7621 I2C driver.
+	  If you want to use the MediaTek MT7621 I2C controller, say Y here.
+	  If unsure, say N.
+
 config SYS_I2C_MICROCHIP
 	bool "Microchip I2C driver"
 	help
