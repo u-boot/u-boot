@@ -548,7 +548,7 @@ config CMD_FDT
 config CMD_EXTENSION
 	bool "Extension board management command"
 	select CMD_FDT
-	depends on SUPPORT_EXTENSION_SCAN
+	depends on SUPPORT_EXTENSION_SCAN || SUPPORT_DM_EXTENSION_SCAN
 	help
 	  Enables the "extension" command, which allows to detect
 	  extension boards connected to the system, and apply
