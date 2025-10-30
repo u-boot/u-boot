@@ -72,6 +72,7 @@
 #define DWMCI_INTMSK_RTO	BIT(8)
 #define DWMCI_INTMSK_DRTO	BIT(9)
 #define DWMCI_INTMSK_HTO	BIT(10)
+#define DWMCI_INTMSK_VOLTSW	BIT(10) /* overlap! */
 #define DWMCI_INTMSK_FRUN	BIT(11)
 #define DWMCI_INTMSK_HLE	BIT(12)
 #define DWMCI_INTMSK_SBE	BIT(13)
@@ -104,6 +105,7 @@
 #define DWMCI_CMD_ABORT_STOP	BIT(14)
 #define DWMCI_CMD_PRV_DAT_WAIT	BIT(13)
 #define DWMCI_CMD_UPD_CLK	BIT(21)
+#define DWMCI_CMD_VOLT_SWITCH	BIT(28)
 #define DWMCI_CMD_USE_HOLD_REG	BIT(29)
 #define DWMCI_CMD_START		BIT(31)
 
@@ -190,6 +192,7 @@ struct dwmci_idmac_regs {
  * @cfg:	Internal MMC configuration, for !CONFIG_BLK cases
  * @fifo_mode:	Use FIFO mode (not DMA) to read and write data
  * @dma_64bit_address: Whether DMA supports 64-bit address mode or not
+ * @volt_switching: Whether SD voltage switching is in process or not
  * @regs:	Registers that can vary for different DW MMC block versions
  */
 struct dwmci_host {
@@ -229,6 +232,7 @@ struct dwmci_host {
 
 	bool fifo_mode;
 	bool dma_64bit_address;
+	bool volt_switching;
 	const struct dwmci_idmac_regs *regs;
 };
 
@@ -334,6 +338,9 @@ int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk);
 #ifdef CONFIG_DM_MMC
 /* Export the operations to drivers */
 int dwmci_probe(struct udevice *dev);
+int dwmci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+		   struct mmc_data *data);
+int dwmci_set_ios(struct udevice *dev);
 extern const struct dm_mmc_ops dm_dwmci_ops;
 #endif
 

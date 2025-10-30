@@ -759,6 +759,9 @@ struct mmc {
 #endif
 	u8 *ext_csd;
 	u32 cardtype;		/* cardtype read from the MMC */
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+	u32 sd3_bus_mode;	/* Supported UHS-I bus speed modes */
+#endif
 	enum mmc_voltage current_voltage;
 	enum bus_mode selected_mode; /* mode currently used */
 	enum bus_mode best_mode; /* best mode is the supported mode with the

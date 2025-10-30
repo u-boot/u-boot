@@ -12,7 +12,6 @@
 #include <linux/printk.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
-#include "regulator_common.h"
 
 #include "regulator_common.h"
 
