@@ -2,10 +2,8 @@
 
 variables:
   DEFAULT_ALL_TAG: "all"
-  DEFAULT_ARM64_TAG: "arm64"
-  DEFAULT_FAST_ARM64_TAG: "fast arm64"
   DEFAULT_AMD64_TAG: "amd64"
-  DEFAULT_FAST_AMD64_TAG: "fast amd64"
+  DEFAULT_FAST_TAG: "fast"
   MIRROR_DOCKER: docker.io
   SJG_LAB: ""
   PLATFORM: linux/amd64,linux/arm64
@@ -144,12 +142,8 @@ stages:
 build all platforms in a single job:
   stage: world build
   dependencies: []
-  parallel:
-    matrix:
-      - HOST: "fast arm64"
-      - HOST: "fast amd64"
   tags:
-    - ${HOST}
+    - ${DEFAULT_FAST_TAG}
   script:
     # Prepare python environment
     - python3 -m venv /tmp/venv;
@@ -319,12 +313,6 @@ sandbox64 with clang test.py:
   <<: *buildman_and_testpy_dfn
 
 sandbox64_lwip test.py:
-  parallel:
-    matrix:
-      - HOST: "arm64"
-      - HOST: "amd64"
-  tags:
-    - ${HOST}
   variables:
     TEST_PY_BD: "sandbox64_lwip"
   <<: *buildman_and_testpy_dfn
@@ -371,8 +359,6 @@ evb-ast2500 test.py:
   <<: *buildman_and_testpy_dfn
 
 sandbox_flattree test.py:
-  tags:
-    - ${DEFAULT_AMD64_TAG}
   variables:
     TEST_PY_BD: "sandbox_flattree"
   <<: *buildman_and_testpy_dfn
