@@ -8,13 +8,6 @@ config UFS
 	  This selects support for Universal Flash Subsystem (UFS).
 	  Say Y here if you want UFS Support.
 
-config CADENCE_UFS
-	bool "Cadence platform driver for UFS"
-	depends on UFS
-        help
-	  This selects the platform driver for the Cadence UFS host
-	  controller present on present TI's J721e devices.
-
 config QCOM_UFS
 	bool "Qualcomm Host Controller driver for UFS"
 	depends on UFS && ARCH_SNAPDRAGON
@@ -44,6 +37,13 @@ config UFS_AMD_VERSAL2
 	  This selects the AMD specific additions to UFSHCD platform driver.
 	  UFS host on AMD needs some vendor specific configuration before accessing
 	  the hardware.
+
+config UFS_CADENCE
+	bool "Cadence platform driver for UFS"
+	depends on UFS
+        help
+	  This selects the platform driver for the Cadence UFS host
+	  controller present on present TI's J721e devices.
 
 config UFS_MEDIATEK
 	tristate "MediaTek UFS Host Controller Driver"
