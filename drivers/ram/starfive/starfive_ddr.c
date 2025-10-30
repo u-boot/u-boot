@@ -43,7 +43,7 @@ static int starfive_ddr_setup(struct udevice *dev, struct starfive_ddr_priv *pri
 		size = DDR_SIZE_4G;
 		break;
 
-	case 0x200000000:
+	case SZ_8G:
 		size = DDR_SIZE_8G;
 		break;
 
