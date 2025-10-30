@@ -7,7 +7,89 @@
 #include <alist.h>
 #include <exports.h>
 #include <command.h>
+#include <env.h>
 #include <extension_board.h>
+
+static int
+cmd_extension_load_overlay_from_env(const struct extension *extension,
+				    ulong *filesize)
+{
+	ulong size, overlay_addr;
+	char *overlay_cmd;
+	int ret;
+
+	overlay_cmd = env_get("extension_overlay_cmd");
+	if (!overlay_cmd) {
+		printf("Environment extension_overlay_cmd is missing\n");
+		return -EINVAL;
+	}
+
+	overlay_addr = env_get_hex("extension_overlay_addr", 0);
+	if (!overlay_addr) {
+		printf("Environment extension_overlay_addr is missing\n");
+		return -EINVAL;
+	}
+
+	env_set("extension_overlay_name", extension->overlay);
+	ret = run_command(overlay_cmd, 0);
+	if (ret)
+		return ret;
+
+	size = env_get_hex("filesize", 0);
+	if (!size)
+		return -EINVAL;
+
+	*filesize = size;
+	return 0;
+}
+
+static int cmd_extension_apply(int extension_num)
+{
+	struct alist *extension_list = extension_get_list();
+	const struct extension *extension;
+	ulong size;
+	int ret;
+
+	if (!extension_list)
+		return -ENODEV;
+
+	extension = alist_get(extension_list, extension_num,
+			      struct extension);
+	if (!extension) {
+		printf("Wrong extension number\n");
+		return -ENODEV;
+	}
+
+	ret = cmd_extension_load_overlay_from_env(extension, &size);
+	if (ret)
+		return ret;
+
+	return extension_apply(working_fdt, size);
+}
+
+static int cmd_extension_apply_all(void)
+{
+	struct alist *extension_list = extension_get_list();
+	const struct extension *extension;
+	int ret;
+
+	if (!extension_list)
+		return -ENODEV;
+
+	alist_for_each(extension, extension_list) {
+		ulong size;
+
+		ret = cmd_extension_load_overlay_from_env(extension, &size);
+		if (ret)
+			return ret;
+
+		ret = extension_apply(working_fdt, size);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
 
 static int do_extension_list(struct cmd_tbl *cmdtp, int flag,
 			     int argc, char *const argv[])
@@ -55,12 +137,18 @@ static int do_extension_apply(struct cmd_tbl *cmdtp, int flag,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
+	if (!working_fdt) {
+		printf("No FDT memory address configured. Please configure\n"
+		       "the FDT address via \"fdt addr <address>\" command.\n");
+		return -EINVAL;
+	}
+
 	if (strcmp(argv[1], "all") == 0) {
-		if (extension_apply_all())
+		if (cmd_extension_apply_all())
 			return CMD_RET_FAILURE;
 	} else {
 		extension_id = simple_strtol(argv[1], NULL, 10);
-		if (extension_apply(extension_id))
+		if (cmd_extension_apply(extension_id))
 			return CMD_RET_FAILURE;
 	}
 

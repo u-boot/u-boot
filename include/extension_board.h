@@ -44,17 +44,11 @@ int extension_scan(void);
 
 /**
  * extension_apply - Apply extension board overlay to the devicetree
- * @extension_num: Extension number to be applied
+ * @working_fdt: Pointer to working flattened device tree
+ * @size: Size of the devicetree overlay
  * Return: Zero on success, negative on failure.
  */
-int extension_apply(int extension_num);
-
-/**
- * extension_apply_all - Apply all extension board overlays to the
- *			    devicetree
- * Return: Zero on success, negative on failure.
- */
-int extension_apply_all(void);
+int extension_apply(struct fdt_header *working_fdt, ulong size);
 
 /**
  * extension - Description fields of an extension board
