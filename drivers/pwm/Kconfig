@@ -82,6 +82,7 @@ config PWM_ROCKCHIP
 
 config PWM_SANDBOX
 	bool "Enable support for the sandbox PWM"
+	depends on DM_PWM
 	help
 	  This is a sandbox PWM used for testing. It provides 3 channels and
 	  records the settings passed into it, but otherwise does nothing
