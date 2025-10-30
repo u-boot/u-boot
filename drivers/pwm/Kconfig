@@ -1,3 +1,5 @@
+menu "Pulse-width modulation (PWM)"
+
 config DM_PWM
 	bool "Enable support for pulse-width modulation devices (PWM)"
 	depends on DM
@@ -133,3 +135,5 @@ config PWM_TI_ECAP
 	depends on DM_PWM && ARCH_OMAP2PLUS
 	help
 	  PWM driver support for the ECAP controller found on TI SOCs.
+
+endmenu
