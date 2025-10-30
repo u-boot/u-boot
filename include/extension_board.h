@@ -9,6 +9,8 @@
 
 #include <linux/list.h>
 
+extern struct list_head extension_list;
+
 /**
  * extension - Description fields of an extension board
  * @list: List head
@@ -38,5 +40,19 @@ struct extension {
  *
  */
 int extension_board_scan(struct list_head *extension_list);
+
+/**
+ * extension_apply - Apply extension board overlay to the devicetree
+ * @extension: Extension to be applied
+ * Return: Zero on success, negative on failure.
+ */
+int extension_apply(struct extension *extension);
+
+/**
+ * extension_scan - Scan extension boards available.
+ * @show: Flag to enable verbose log
+ * Return: Zero on success, negative on failure.
+ */
+int extension_scan(bool show);
 
 #endif /* __EXTENSION_SUPPORT_H */
