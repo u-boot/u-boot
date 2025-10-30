@@ -5,6 +5,7 @@
  */
 
 #define LOG_CATEGORY UCLASS_CLK
+//#define LOG_DEBUG
 
 #include <clk.h>
 #include <clk-uclass.h>
@@ -21,6 +22,7 @@ int clk_register(struct clk *clk, const char *drv_name,
 	struct driver *drv;
 	int ret;
 
+	debug("%s: AJG entry parent_name = %s dev = %p\n", __func__, parent_name ? parent_name : "NULL", clk->dev);
 	if (parent_name) {
 		ret = uclass_get_device_by_name(UCLASS_CLK, parent_name, &parent);
 		if (ret) {
@@ -45,6 +47,8 @@ int clk_register(struct clk *clk, const char *drv_name,
 			ret);
 		return ret;
 	}
+
+	debug ("%s: AJG device bound %s clk = %p dev = %p\n", __func__, name, clk, clk->dev);
 
 	clk->enable_count = 0;
 

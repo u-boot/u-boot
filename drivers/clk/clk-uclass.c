@@ -7,6 +7,7 @@
  */
 
 #define LOG_CATEGORY UCLASS_CLK
+//#define LOG_DEBUG
 
 #include <clk.h>
 #include <clk-uclass.h>
@@ -70,6 +71,7 @@ static int clk_of_xlate_default(struct clk *clk,
 	else
 		clk->id = 0;
 
+	debug("%s(clk=%p) id set to %lu\n", __func__, clk, clk->id);
 	clk->data = 0;
 
 	return 0;
@@ -122,7 +124,7 @@ static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
 	int ret;
 	struct ofnode_phandle_args args;
 
-	debug("%s(dev=%p, index=%d, clk=%p)\n", __func__, dev, index, clk);
+	debug("%s(dev=%p %s, index=%d, clk=%p) prop=%s\n", __func__, dev, dev_read_name(dev), index, clk, prop_name);
 
 	assert(clk);
 	clk->dev = NULL;
@@ -141,6 +143,7 @@ static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
 
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 {
+	debug("%s: AJG entry\n", __func__);
 	return clk_get_by_index_nodev(dev_ofnode(dev), index, clk);
 }
 
@@ -160,6 +163,7 @@ int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)
 {
 	int i, ret, err, count;
 
+	debug("%s: AJG entry\n", __func__);
 	bulk->count = 0;
 
 	count = dev_count_phandle_with_args(dev, "clocks", "#clock-cells", 0);
@@ -199,7 +203,10 @@ static struct clk *clk_set_default_get_by_id(struct clk *clk)
 		if (ret) {
 			debug("%s(): could not get parent clock pointer, id %lu\n",
 			      __func__, clk->id);
-			ERR_PTR(ret);
+			return ERR_PTR(ret);
+		} else {
+			debug("%s(): could get parent clock pointer, id %lu, clk = %p\n",
+			      __func__, clk->id, c);
 		}
 	}
 
@@ -217,8 +224,8 @@ static int clk_set_default_parents(struct udevice *dev,
 	num_parents = dev_count_phandle_with_args(dev, "assigned-clock-parents",
 						  "#clock-cells", 0);
 	if (num_parents < 0) {
-		debug("%s: could not read assigned-clock-parents for %p\n",
-		      __func__, dev);
+		debug("%s: could not read assigned-clock-parents for %p %s %s\n",
+		      __func__, dev, dev_read_name(dev), dev->name);
 		return 0;
 	}
 
@@ -236,8 +243,13 @@ static int clk_set_default_parents(struct udevice *dev,
 		}
 
 		p = clk_set_default_get_by_id(&parent_clk);
-		if (IS_ERR(p))
-			return PTR_ERR(p);
+		if (IS_ERR(p)) {
+			//return PTR_ERR(p);
+			dev_warn(dev,
+				 "failed to get clock by id 2 %d (%ld) (error = %ld)\n",
+				 index, clk.id, PTR_ERR(p));
+			continue;
+		}
 
 		ret = clk_get_by_indexed_prop(dev, "assigned-clocks",
 					      index, &clk);
@@ -268,8 +280,13 @@ static int clk_set_default_parents(struct udevice *dev,
 			continue;
 
 		c = clk_set_default_get_by_id(&clk);
-		if (IS_ERR(c))
-			return PTR_ERR(c);
+		if (IS_ERR(c)) {
+			//return PTR_ERR(c);
+			dev_warn(dev,
+				 "failed to get clock by id 3 %d (%ld) (error = %ld)\n",
+				 index, clk.id, PTR_ERR(c));
+			continue;
+		}
 
 		ret = clk_set_parent(c, p);
 		/*
@@ -299,6 +316,7 @@ static int clk_set_default_rates(struct udevice *dev,
 	int ret = 0;
 	u32 *rates = NULL;
 
+	debug("%s: dev = %p %s\n", __func__, dev, dev->name);
 	size = dev_read_size(dev, "assigned-clock-rates");
 	if (size < 0)
 		return 0;
@@ -338,31 +356,49 @@ static int clk_set_default_rates(struct udevice *dev,
 				continue;
 			}
 
-			return ret;
+			goto fail;
 		}
+
+		debug("%s: assigned clocks returned for index %d clk = %s id=%lu\n", __func__, index, clk.dev->name, clk.id);
 
 		/* This is clk provider device trying to program itself
 		 * It cannot be done right now but need to wait after the
 		 * device is probed
 		 */
-		if (stage == CLK_DEFAULTS_PRE && clk.dev == dev)
+		if (stage == CLK_DEFAULTS_PRE && clk.dev == dev) {
+			debug("%s: clock provider programming itself! too early\n", __func__);
 			continue;
+		}
 
-		if (stage != CLK_DEFAULTS_PRE && clk.dev != dev)
+		if (stage != CLK_DEFAULTS_PRE && clk.dev != dev) {
 			/* do not setup twice the parent clocks */
+			debug("%s: clock provider attempting to re-set parent\n", __func__);
 			continue;
+		}
 
 		c = clk_set_default_get_by_id(&clk);
-		if (IS_ERR(c))
-			return PTR_ERR(c);
+		if (IS_ERR(c)) {
+			//return PTR_ERR(c);
+			dev_warn(dev,
+				 "failed to get clock by id 1 %d (%ld) (error = %ld)\n",
+				 index, clk.id, PTR_ERR(c));
+			debug("%s: failed to get clock by id %d (%ld) dev = %s\n", __func__, index, clk.id, clk.dev->name);
+			continue;
+			//c = &clk;
+		} else {
+			debug("%s: succeeded to get clock by id %d (%ld) dev = %s\n", __func__, index, clk.id, clk.dev->name);
+		}
 
+		debug("%s: Setting clock rate for clk = %p index = %d dev = %s\n", __func__, c, index, c->dev->name);
 		ret = clk_set_rate(c, rates[index]);
 
 		if (IS_ERR_VALUE(ret)) {
 			dev_warn(dev,
 				 "failed to set rate on clock index %d (%ld) (error = %d)\n",
 				 index, clk.id, ret);
-			break;
+			debug("%s: failed to set rate on clock index %d (%ld) (error = %d)\n",
+				__func__, index, clk.id, ret);
+			ret = 0;
 		}
 	}
 
@@ -387,7 +423,7 @@ int clk_set_defaults(struct udevice *dev, enum clk_defaults_stage stage)
 		if (stage != CLK_DEFAULTS_POST_FORCE)
 			return 0;
 
-	debug("%s(%s)\n", __func__, dev_read_name(dev));
+	debug("%s(%s) dev->clk = %p\n", __func__, dev_read_name(dev), dev_get_clk_ptr(dev));
 
 	ret = clk_set_default_parents(dev, stage);
 	if (ret)
@@ -467,7 +503,7 @@ int clk_request(struct udevice *dev, struct clk *clk)
 {
 	const struct clk_ops *ops;
 
-	debug("%s(dev=%p, clk=%p)\n", __func__, dev, clk);
+	debug("%s(dev=%p, clk=%p) dev->clk %p\n", __func__, dev, clk, dev_get_clk_ptr(dev));
 	if (!clk)
 		return 0;
 	ops = clk_dev_ops(dev);
@@ -483,8 +519,9 @@ int clk_request(struct udevice *dev, struct clk *clk)
 ulong clk_get_rate(struct clk *clk)
 {
 	const struct clk_ops *ops;
+	ulong rate;
 
-	debug("%s(clk=%p)\n", __func__, clk);
+	debug("%s(clk=%p) dev = %s\n", __func__, clk, clk ? clk->dev->name : "NULL");
 	if (!clk_valid(clk))
 		return 0;
 	ops = clk_dev_ops(clk->dev);
@@ -492,7 +529,9 @@ ulong clk_get_rate(struct clk *clk)
 	if (!ops->get_rate)
 		return -ENOSYS;
 
-	return ops->get_rate(clk);
+	rate = ops->get_rate(clk);
+	debug("%s(clk=%p) rate = %lu\n", __func__, clk, rate);
+	return rate;
 }
 
 struct clk *clk_get_parent(struct clk *clk)
@@ -595,12 +634,15 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 		return 0;
 	ops = clk_dev_ops(clk->dev);
 
+	debug("%s: dev = %s\n", __func__, clk ? clk->dev->name : "NULL");
 	/* Try to find parents which can set rate */
 	while (!ops->set_rate) {
 		struct clk *parent;
 
-		if (!(clk->flags & CLK_SET_RATE_PARENT))
+		if (!(clk->flags & CLK_SET_RATE_PARENT)) {
+			debug("%s: returnining -ENOSYS for clk_set_rate for clk = %p from dev = %s\n", __func__, clk, clk ? clk->dev->name : "NULL");
 			return -ENOSYS;
+		}
 
 		parent = clk_get_parent(clk);
 		if (IS_ERR_OR_NULL(parent) || !clk_valid(parent))
@@ -792,13 +834,23 @@ int clk_get_by_id(ulong id, struct clk **clkp)
 
 	uclass_foreach_dev(dev, uc) {
 		struct clk *clk = dev_get_clk_ptr(dev);
+		if (clk)
+			debug("%s: dev = %p %s clk = %p id = %lu\n", __func__, dev, clk->dev->name, clk, clk->id);
+		else
+			debug("%s: dev = %p %s but no clock!\n", __func__, dev, dev->name);
+	}
+
+	uclass_foreach_dev(dev, uc) {
+		struct clk *clk = dev_get_clk_ptr(dev);
 
 		if (clk && clk->id == id) {
 			*clkp = clk;
+			debug("%s: Found clock by ID %lu clk = %p dev = %s\n", __func__, id, clk, clk->dev->name);
 			return 0;
 		}
 	}
 
+	debug("%s: returning -ENOENT id = %lu\n", __func__, id);
 	return -ENOENT;
 }
 
@@ -843,6 +895,7 @@ int clk_uclass_post_probe(struct udevice *dev)
 	 * where the DT is used to setup default parents and rates
 	 * using assigned-clocks
 	 */
+	debug("%s: calling clk_set_defaults post probe for dev = %p %s\n", __func__, dev, dev->name);
 	clk_set_defaults(dev, CLK_DEFAULTS_POST);
 
 	return 0;

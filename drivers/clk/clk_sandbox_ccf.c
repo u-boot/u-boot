@@ -6,6 +6,8 @@
  * Common Clock Framework [CCF] driver for Sandbox
  */
 
+//#define LOG_DEBUG
+
 #include <dm.h>
 #include <clk.h>
 #include <malloc.h>
@@ -234,6 +236,8 @@ static int sandbox_clk_ccf_probe(struct udevice *dev)
 {
 	void *base = NULL;
 	u32 reg;
+
+	debug("%s: AJG %s\n", __func__, dev->name);
 
 	dev_clk_dm(dev, SANDBOX_CLK_PLL3,
 		   sandbox_clk_pllv3(SANDBOX_PLLV3_USB, "pll3_usb_otg", "osc",

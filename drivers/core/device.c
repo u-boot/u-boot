@@ -8,6 +8,9 @@
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  */
 
+#define LOG_CATEGORY UCLASS_ROOT
+//#define LOG_DEBUG
+
 #include <cpu_func.h>
 #include <errno.h>
 #include <event.h>
@@ -353,8 +356,10 @@ static int device_alloc_priv(struct udevice *dev)
 	drv = dev->driver;
 	assert(drv);
 
+	debug("%s: AJG 0 dev = %s\n", __func__, dev->name);
 	/* Allocate private data if requested and not reentered */
 	if (drv->priv_auto && !dev_get_priv(dev)) {
+		debug("%s: AJG 1 dev = %s\n", __func__, dev->name);
 		ptr = alloc_priv(drv->priv_auto, drv->flags);
 		if (!ptr)
 			return -ENOMEM;
@@ -364,6 +369,7 @@ static int device_alloc_priv(struct udevice *dev)
 	/* Allocate private data if requested and not reentered */
 	size = dev->uclass->uc_drv->per_device_auto;
 	if (size && !dev_get_uclass_priv(dev)) {
+		debug("%s: AJG 2 dev = %s\n", __func__, dev->name);
 		ptr = alloc_priv(size, dev->uclass->uc_drv->flags);
 		if (!ptr)
 			return -ENOMEM;
@@ -372,6 +378,7 @@ static int device_alloc_priv(struct udevice *dev)
 
 	/* Allocate parent data for this child */
 	if (dev->parent) {
+		debug("%s: AJG 3 dev = %s\n", __func__, dev->name);
 		size = dev->parent->driver->per_child_auto;
 		if (!size)
 			size = dev->parent->uclass->uc_drv->per_child_auto;
@@ -382,6 +389,7 @@ static int device_alloc_priv(struct udevice *dev)
 			dev_set_parent_priv(dev, ptr);
 		}
 	}
+	debug("%s: AJG 4 dev = %s\n", __func__, dev->name);
 
 	return 0;
 }
@@ -397,6 +405,7 @@ int device_of_to_plat(struct udevice *dev)
 	if (dev_get_flags(dev) & DM_FLAG_PLATDATA_VALID)
 		return 0;
 
+	debug("%s: AJG entry dev = %s\n", __func__, dev->name);
 	/*
 	 * This is not needed if binding is disabled, since data is allocated
 	 * at build time.
@@ -418,9 +427,11 @@ int device_of_to_plat(struct udevice *dev)
 				return 0;
 		}
 
+		debug("%s: AJG allocating uclass_priv\n", __func__);
 		ret = device_alloc_priv(dev);
 		if (ret)
 			goto fail;
+		debug("%s: AJG allocated uclass_priv = %p\n", __func__, dev->uclass_priv_);
 	}
 	drv = dev->driver;
 	assert(drv);
@@ -575,6 +586,7 @@ int device_probe(struct udevice *dev)
 		 * Process 'assigned-{clocks/clock-parents/clock-rates}'
 		 * properties
 		 */
+		debug("%s: calling clk_set_defaults for %s with valid ofnode\n", __func__, dev->name);
 		ret = clk_set_defaults(dev, CLK_DEFAULTS_PRE);
 		if (ret)
 			goto fail;

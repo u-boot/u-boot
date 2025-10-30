@@ -3,6 +3,8 @@
  * Copyright (C) 2015 Google, Inc
  */
 
+//#define LOG_DEBUG
+
 #include <clk.h>
 #include <dm.h>
 #include <log.h>
@@ -53,35 +55,46 @@ static int dm_test_clk(struct unit_test_state *uts)
 	struct udevice *dev_fixed, *dev_fixed_factor, *dev_clk, *dev_test;
 	ulong rate;
 
+	debug("%s: AJG 0\n", __func__);
 	ut_assertok(uclass_get_device_by_name(UCLASS_CLK, "clk-fixed",
 					      &dev_fixed));
 
+	debug("%s: AJG 1\n", __func__);
 	ut_assertok(uclass_get_device_by_name(UCLASS_CLK, "clk-fixed-factor",
 					      &dev_fixed_factor));
 
+	debug("%s: AJG 2\n", __func__);
 	ut_assertok(uclass_get_device_by_name(UCLASS_CLK, "clk-sbox",
 					      &dev_clk));
+	debug("%s: AJG 3\n", __func__);
 	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_SPI));
 	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_I2C));
 	ut_asserteq(0, sandbox_clk_query_rate(dev_clk, SANDBOX_CLK_ID_SPI));
 	ut_asserteq(0, sandbox_clk_query_rate(dev_clk, SANDBOX_CLK_ID_I2C));
 
+	debug("%s: AJG 4\n", __func__);
 	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "clk-test",
 					      &dev_test));
+	debug("%s: AJG 5\n", __func__);
 	ut_assertok(sandbox_clk_test_get(dev_test));
 	ut_assertok(sandbox_clk_test_devm_get(dev_test));
 	ut_assertok(sandbox_clk_test_valid(dev_test));
+	//ut_assertok(clk_set_defaults(dev_clk, CLK_DEFAULTS_POST));
 
+	debug("%s: AJG 6\n", __func__);
 	ut_asserteq(0, sandbox_clk_test_get_rate(dev_test,
 						 SANDBOX_CLK_TEST_ID_DEVM_NULL));
+	debug("%s: AJG 7\n", __func__);
 	ut_asserteq(0, sandbox_clk_test_set_rate(dev_test,
 						 SANDBOX_CLK_TEST_ID_DEVM_NULL,
 						 0));
+	debug("%s: AJG 8\n", __func__);
 	ut_asserteq(0, sandbox_clk_test_enable(dev_test,
 					       SANDBOX_CLK_TEST_ID_DEVM_NULL));
 	ut_asserteq(0, sandbox_clk_test_disable(dev_test,
 						SANDBOX_CLK_TEST_ID_DEVM_NULL));
 
+	debug("%s: AJG 9\n", __func__);
 	ut_asserteq(1234,
 		    sandbox_clk_test_get_rate(dev_test,
 					      SANDBOX_CLK_TEST_ID_FIXED));

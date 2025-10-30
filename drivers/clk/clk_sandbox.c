@@ -3,12 +3,30 @@
  * (C) Copyright 2015 Google, Inc
  */
 
+//#define LOG_DEBUG
+
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <asm/clk.h>
+#include <dm/device-internal.h>
 #include <linux/clk-provider.h>
+
+static int sandbox_clk_of_to_plat(struct udevice *dev)
+{
+	struct clk *clk;
+	struct sandbox_clk_priv *priv = dev_get_priv(dev);
+
+	clk = &priv->clk;
+	debug("%s: Setting up sandbox clock dev = %s %p clk = %p\n", __func__, dev-> name, dev, clk);
+
+	/* FIXME: This is not allowed */
+	dev_set_uclass_priv(dev, clk);
+
+	clk->dev = dev;
+	return 0;
+}
 
 static ulong sandbox_clk_get_rate(struct clk *clk)
 {
@@ -99,9 +117,11 @@ static int sandbox_clk_request(struct clk *clk)
 	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
 	ulong id = clk_get_id(clk);
 
+	debug("%s: clk = %p id = %lu dev = %p %s\n", __func__, clk, clk->id, clk->dev, clk->dev->name);
 	if (id >= SANDBOX_CLK_ID_COUNT)
 		return -EINVAL;
 
+	priv->clk.id = id;
 	priv->requested[id] = true;
 	return 0;
 }
@@ -118,7 +138,11 @@ static struct clk_ops sandbox_clk_ops = {
 static int sandbox_clk_probe(struct udevice *dev)
 {
 	struct sandbox_clk_priv *priv = dev_get_priv(dev);
+	//struct clk *clk;
 
+	//clk = &priv->clk;
+	debug("%s: AJG %s\n", __func__, dev->name);
+	//clk_register(clk, "sandbox_clk", dev->name, NULL);
 	priv->probed = true;
 	return 0;
 }
@@ -132,6 +156,7 @@ U_BOOT_DRIVER(sandbox_clk) = {
 	.name		= "sandbox_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= sandbox_clk_ids,
+	.of_to_plat	= sandbox_clk_of_to_plat,
 	.ops		= &sandbox_clk_ops,
 	.probe		= sandbox_clk_probe,
 	.priv_auto	= sizeof(struct sandbox_clk_priv),
