@@ -12,41 +12,23 @@
 static int do_extension_list(struct cmd_tbl *cmdtp, int flag,
 			     int argc, char *const argv[])
 {
-#if CONFIG_IS_ENABLED(SUPPORT_DM_EXTENSION_SCAN)
-	struct alist *dm_extension_list;
-#endif
+	struct alist *extension_list;
 	struct extension *extension;
 	int i = 0;
 
-#if CONFIG_IS_ENABLED(SUPPORT_DM_EXTENSION_SCAN)
-	dm_extension_list = dm_extension_get_list();
-
-	if (!alist_get_ptr(dm_extension_list, 0)) {
+	extension_list = extension_get_list();
+	if (!alist_get_ptr(extension_list, 0)) {
 		printf("No extension registered - Please run \"extension scan\"\n");
 		return CMD_RET_SUCCESS;
 	}
 
-	alist_for_each(extension, dm_extension_list) {
+	alist_for_each(extension, extension_list) {
 		printf("Extension %d: %s\n", i++, extension->name);
 		printf("\tManufacturer: \t\t%s\n", extension->owner);
 		printf("\tVersion: \t\t%s\n", extension->version);
 		printf("\tDevicetree overlay: \t%s\n", extension->overlay);
 		printf("\tOther information: \t%s\n", extension->other);
 	}
-#else
-	if (list_empty(&extension_list)) {
-		printf("No extension registered - Please run \"extension scan\"\n");
-		return CMD_RET_SUCCESS;
-	}
-
-	list_for_each_entry(extension, &extension_list, list) {
-		printf("Extension %d: %s\n", i++, extension->name);
-		printf("\tManufacturer: \t\t%s\n", extension->owner);
-		printf("\tVersion: \t\t%s\n", extension->version);
-		printf("\tDevicetree overlay: \t%s\n", extension->overlay);
-		printf("\tOther information: \t%s\n", extension->other);
-	}
-#endif
 	return CMD_RET_SUCCESS;
 }
 
@@ -55,69 +37,31 @@ static int do_extension_scan(struct cmd_tbl *cmdtp, int flag,
 {
 	int extension_num;
 
-#if CONFIG_IS_ENABLED(SUPPORT_DM_EXTENSION_SCAN)
-	extension_num = dm_extension_scan();
+	extension_num = extension_scan();
 	if (extension_num == -ENODEV)
 		extension_num = 0;
 	else if (extension_num < 0)
 		return CMD_RET_FAILURE;
 
 	printf("Found %d extension board(s).\n", extension_num);
-#else
-	extension_num = extension_scan(true);
-	if (extension_num < 0 && extension_num != -ENODEV)
-		return CMD_RET_FAILURE;
-#endif
-
 	return CMD_RET_SUCCESS;
 }
 
 static int do_extension_apply(struct cmd_tbl *cmdtp, int flag,
 			      int argc, char *const argv[])
 {
-#if !CONFIG_IS_ENABLED(SUPPORT_DM_EXTENSION_SCAN)
-	struct extension *extension = NULL;
-	struct list_head *entry;
-	int i = 0;
-#endif
-	int extension_id, ret;
+	int extension_id;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
 	if (strcmp(argv[1], "all") == 0) {
-		ret = CMD_RET_FAILURE;
-#if CONFIG_IS_ENABLED(SUPPORT_DM_EXTENSION_SCAN)
-		if (dm_extension_apply_all())
+		if (extension_apply_all())
 			return CMD_RET_FAILURE;
-#else
-		list_for_each_entry(extension, &extension_list, list) {
-			ret = extension_apply(extension);
-			if (ret != CMD_RET_SUCCESS)
-				break;
-		}
-#endif
 	} else {
 		extension_id = simple_strtol(argv[1], NULL, 10);
-#if CONFIG_IS_ENABLED(SUPPORT_DM_EXTENSION_SCAN)
-		if (dm_extension_apply(extension_id))
+		if (extension_apply(extension_id))
 			return CMD_RET_FAILURE;
-#else
-		list_for_each(entry, &extension_list) {
-			if (i == extension_id) {
-				extension = list_entry(entry, struct extension,  list);
-				break;
-			}
-			i++;
-		}
-
-		if (!extension) {
-			printf("Wrong extension number\n");
-			return CMD_RET_FAILURE;
-		}
-
-		ret = extension_apply(extension);
-#endif
 	}
 
 	return CMD_RET_SUCCESS;

@@ -14,7 +14,7 @@
 #include <dm/lists.h>
 #include <dm/uclass.h>
 
-struct alist *dm_extension_get_list(void)
+struct alist *extension_get_list(void)
 {
 	struct udevice *dev;
 
@@ -24,7 +24,7 @@ struct alist *dm_extension_get_list(void)
 	return dev_get_priv(dev);
 }
 
-int dm_extension_probe(struct udevice *dev)
+int extension_probe(struct udevice *dev)
 {
 	struct alist *extension_list = dev_get_priv(dev);
 
@@ -32,7 +32,7 @@ int dm_extension_probe(struct udevice *dev)
 	return 0;
 }
 
-int dm_extension_remove(struct udevice *dev)
+int extension_remove(struct udevice *dev)
 {
 	struct alist *extension_list = dev_get_priv(dev);
 
@@ -40,9 +40,9 @@ int dm_extension_remove(struct udevice *dev)
 	return 0;
 }
 
-int dm_extension_scan(void)
+int extension_scan(void)
 {
-	struct alist *extension_list = dm_extension_get_list();
+	struct alist *extension_list = extension_get_list();
 	const struct extension_ops *ops;
 	struct udevice *dev;
 	int ret;
@@ -109,9 +109,9 @@ static int _extension_apply(const struct extension *extension)
 	return ret;
 }
 
-int dm_extension_apply(int extension_num)
+int extension_apply(int extension_num)
 {
-	struct alist *extension_list = dm_extension_get_list();
+	struct alist *extension_list = extension_get_list();
 	const struct extension *extension;
 
 	if (!extension_list)
@@ -127,9 +127,9 @@ int dm_extension_apply(int extension_num)
 	return _extension_apply(extension);
 }
 
-int dm_extension_apply_all(void)
+int extension_apply_all(void)
 {
-	struct alist *extension_list = dm_extension_get_list();
+	struct alist *extension_list = extension_get_list();
 	const struct extension *extension;
 	int ret;
 

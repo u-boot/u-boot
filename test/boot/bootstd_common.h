@@ -21,8 +21,8 @@
 #define TEST_VERNUM		0x00010002
 
 enum {
-	MAX_HUNTER	= 9,
-	MMC_HUNTER	= 3,	/* ID of MMC hunter */
+	MAX_HUNTER	= 8,
+	MMC_HUNTER	= 2,	/* ID of MMC hunter */
 };
 
 struct unit_test_state;
