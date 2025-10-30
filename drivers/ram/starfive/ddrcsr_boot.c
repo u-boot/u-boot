@@ -231,7 +231,6 @@ void ddrcsr_boot(u32 *csrreg, u32 *secreg, u32 *phyreg, enum ddr_size_t size)
 		mask = REG8G;
 		break;
 
-	case DDR_SIZE_16G:
 	default:
 		return;
 	};
@@ -260,7 +259,6 @@ void ddrcsr_boot(u32 *csrreg, u32 *secreg, u32 *phyreg, enum ddr_size_t size)
 		out_le32(csrreg + REGOFFSET(0x10), 0x3c);
 		break;
 
-	case DDR_SIZE_16G:
 	default:
 		break;
 	};
@@ -286,7 +284,6 @@ void ddrcsr_boot(u32 *csrreg, u32 *secreg, u32 *phyreg, enum ddr_size_t size)
 		break;
 
 	case DDR_SIZE_2G:
-	case DDR_SIZE_16G:
 	default:
 		break;
 	};

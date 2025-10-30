@@ -267,7 +267,6 @@ void ddr_phy_start(u32 *phyreg, enum ddr_size_t size)
 		mask = REG8G;
 		break;
 
-	case DDR_SIZE_16G:
 	default:
 		return;
 	};
