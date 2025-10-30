@@ -10,6 +10,7 @@
 #include <command.h>
 #include <dm.h>
 #include <env.h>
+#include <extension_board.h>
 #include <image.h>
 #include <log.h>
 #include <malloc.h>
@@ -432,6 +433,95 @@ skip_overlay:
 }
 #endif
 
+/*
+ * label_boot_extension - scan extension boards and load overlay associated
+ */
+
+static void label_boot_extension(struct pxe_context *ctx,
+				 struct pxe_label *label)
+{
+#if CONFIG_IS_ENABLED(SUPPORT_EXTENSION_SCAN)
+	const struct extension *extension;
+	struct fdt_header *working_fdt;
+	struct alist *extension_list;
+	int ret, dir_len, len;
+	char *overlay_dir;
+	const char *slash;
+	ulong fdt_addr;
+
+	ret = extension_scan();
+	if (ret < 0)
+		return;
+
+	extension_list = extension_get_list();
+	if (!extension_list)
+		return;
+
+	/* Get the main fdt and map it */
+	fdt_addr = env_get_hex("fdt_addr_r", 0);
+	working_fdt = map_sysmem(fdt_addr, 0);
+	if (fdt_check_header(working_fdt))
+		return;
+
+	/* Use fdtdir for now as the overlay devicetree directory */
+	if (label->fdtdir) {
+		len = strlen(label->fdtdir);
+		if (!len)
+			slash = "./";
+		else if (label->fdtdir[len - 1] != '/')
+			slash = "/";
+		else
+			slash = "";
+
+		dir_len = strlen(label->fdtdir) + strlen(slash) + 1;
+		overlay_dir = calloc(1, len);
+		if (!overlay_dir)
+			return;
+
+		snprintf(overlay_dir, dir_len, "%s%s", label->fdtdir,
+			 slash);
+	} else {
+		dir_len = 2;
+		snprintf(overlay_dir, dir_len, "/");
+	}
+
+	alist_for_each(extension, extension_list) {
+		char *overlay_file;
+		ulong size;
+
+		len = dir_len + strlen(extension->overlay);
+		overlay_file = calloc(1, len);
+		if (!overlay_file)
+			goto cleanup;
+
+		snprintf(overlay_file, len, "%s%s", overlay_dir,
+			 extension->overlay);
+
+		/* Load extension overlay file */
+		ret = get_relfile_envaddr(ctx, overlay_file,
+					  "extension_overlay_addr",
+					  (enum bootflow_img_t)IH_TYPE_FLATDT,
+					  &size);
+		if (ret < 0) {
+			printf("Failed loading overlay %s\n", overlay_file);
+			free(overlay_file);
+			continue;
+		}
+
+		ret = extension_apply(working_fdt, size);
+		if (ret) {
+			printf("Failed applying overlay %s\n", overlay_file);
+			free(overlay_file);
+			continue;
+		}
+		free(overlay_file);
+	}
+
+cleanup:
+	free(overlay_dir);
+#endif
+}
+
 /**
  * label_boot() - Boot according to the contents of a pxe_label
  *
@@ -685,6 +775,8 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 			if (label->fdtoverlays)
 				label_boot_fdtoverlay(ctx, label);
 #endif
+			label_boot_extension(ctx, label);
+
 		} else {
 			bootm_argv[3] = NULL;
 		}
