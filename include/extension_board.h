@@ -9,6 +9,15 @@
 
 #include <linux/list.h>
 
+/**
+ * extension - Description fields of an extension board
+ * @list: List head
+ * @name: Name of the extension
+ * @owner: Owner of the extension
+ * @version: Version of the extension
+ * @overlay: Devicetree overlay name to be loaded for this extension
+ * @other: Other information of this extension
+ */
 struct extension {
 	struct list_head list;
 	char name[32];
