@@ -8,13 +8,6 @@ config UFS
 	  This selects support for Universal Flash Subsystem (UFS).
 	  Say Y here if you want UFS Support.
 
-config QCOM_UFS
-	bool "Qualcomm Host Controller driver for UFS"
-	depends on UFS && ARCH_SNAPDRAGON
-        help
-	  This selects the platform driver for the UFS host
-	  controller present on Qualcomm Snapdragon SoCs.
-
 config ROCKCHIP_UFS
 	bool "Rockchip specific hooks to UFS controller platform driver"
 	depends on UFS
@@ -69,6 +62,13 @@ config UFS_PCI
 	  If you have a controller with this interface, say Y here.
 
 	  If unsure, say N.
+
+config UFS_QCOM
+	bool "Qualcomm Host Controller driver for UFS"
+	depends on UFS && ARCH_SNAPDRAGON
+        help
+	  This selects the platform driver for the UFS host
+	  controller present on Qualcomm Snapdragon SoCs.
 
 config UFS_RENESAS
 	bool "Renesas R-Car S4 UFS Controller support"
