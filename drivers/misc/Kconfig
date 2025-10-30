@@ -83,6 +83,15 @@ config GATEWORKS_SC
 	  boards to provide a boot watchdog, power control, temperature monitor,
 	  voltage ADCs, and EEPROM.
 
+config QCOM_GENI
+	bool "Qualcomm Generic Interface (GENI) driver"
+	depends on MISC
+	select PARTITION_TYPE_GUID
+	help
+	  Enable support for Qualcomm GENI and it's peripherals. GENI is responseible
+	  for providing a common interface for various peripherals like UART, I2C, SPI,
+	  etc.
+
 config ROCKCHIP_EFUSE
         bool "Rockchip e-fuse support"
 	depends on MISC

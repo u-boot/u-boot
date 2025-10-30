@@ -103,6 +103,21 @@ config CLK_QCOM_SM6115
 	  on the Snapdragon SM6115 SoC. This driver supports the clocks
 	  and resets exposed by the GCC hardware block.
 
+config CLK_QCOM_SM6350
+	bool "Qualcomm SM6350 GCC"
+	select CLK_QCOM
+	help
+	  Say Y here to enable support for the Global Clock Controller
+	  on the Snapdragon SM6350 SoC. This driver supports the clocks
+
+config CLK_QCOM_SM7150
+	bool "Qualcomm SM7150 GCC"
+	select CLK_QCOM
+	help
+	  Say Y here to enable support for the Global Clock Controller
+	  on the Snapdragon SM7150 SoC. This driver supports the clocks
+	  and resets exposed by the GCC hardware block.
+
 config CLK_QCOM_SM8150
 	bool "Qualcomm SM8150 GCC"
 	select CLK_QCOM

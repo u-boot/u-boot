@@ -17,20 +17,17 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
-#include <linux/delay.h>
 #include <dm/pinctrl.h>
 
 /* Serial registers - this driver works in uartdm mode*/
 
-#define UARTDM_DMRX             0x34 /* Max RX transfer length */
-#define UARTDM_DMEN             0x3C /* DMA/data-packing mode */
-#define UARTDM_NCF_TX           0x40 /* Number of chars to TX */
+#define UARTDM_DMEN			0x3C /* DMA/data-packing mode */
+#define UARTDM_DMEN_TXRX_SC_ENABLE	(BIT(4) | BIT(5))
 
-#define UARTDM_RXFS             0x50 /* RX channel status register */
-#define UARTDM_RXFS_BUF_SHIFT   0x7  /* Number of bytes in the packing buffer */
-#define UARTDM_RXFS_BUF_MASK    0x7
 #define UARTDM_MR1				 0x00
+#define UARTDM_MR1_RX_RDY_CTL			 BIT(7)
 #define UARTDM_MR2				 0x04
+#define UARTDM_MR2_8_N_1_MODE			 0x34
 /*
  * This is documented on page 1817 of the apq8016e technical reference manual.
  * section 6.2.5.3.26
@@ -44,119 +41,56 @@
 #define UARTDM_CSR				 0xA0
 
 #define UARTDM_SR                0xA4 /* Status register */
-#define UARTDM_SR_RX_READY       (1 << 0) /* Word is the receiver FIFO */
+#define UARTDM_SR_RX_READY       (1 << 0) /* Receiver FIFO has data */
+#define UARTDM_SR_TX_READY       (1 << 2) /* Transmitter FIFO has space */
 #define UARTDM_SR_TX_EMPTY       (1 << 3) /* Transmitter underrun */
-#define UARTDM_SR_UART_OVERRUN   (1 << 4) /* Receive overrun */
 
 #define UARTDM_CR                         0xA8 /* Command register */
-#define UARTDM_CR_CMD_RESET_ERR           (3 << 4) /* Clear overrun error */
-#define UARTDM_CR_CMD_RESET_STALE_INT     (8 << 4) /* Clears stale irq */
-#define UARTDM_CR_CMD_RESET_TX_READY      (3 << 8) /* Clears TX Ready irq*/
-#define UARTDM_CR_CMD_FORCE_STALE         (4 << 8) /* Causes stale event */
-#define UARTDM_CR_CMD_STALE_EVENT_DISABLE (6 << 8) /* Disable stale event */
-
-#define UARTDM_IMR                0xB0 /* Interrupt mask register */
-#define UARTDM_ISR                0xB4 /* Interrupt status register */
-#define UARTDM_ISR_TX_READY       0x80 /* TX FIFO empty */
+#define UARTDM_CR_RX_ENABLE               (1 << 0) /* Enable receiver */
+#define UARTDM_CR_TX_ENABLE               (1 << 2) /* Enable transmitter */
+#define UARTDM_CR_CMD_RESET_RX            (1 << 4) /* Reset receiver */
+#define UARTDM_CR_CMD_RESET_TX            (2 << 4) /* Reset transmitter */
 
 #define UARTDM_TF               0x100 /* UART Transmit FIFO register */
 #define UARTDM_RF               0x140 /* UART Receive FIFO register */
-
-#define MSM_BOOT_UART_DM_8_N_1_MODE	0x34
-#define MSM_BOOT_UART_DM_CMD_RESET_RX	0x10
-#define MSM_BOOT_UART_DM_CMD_RESET_TX	0x20
-#define MSM_UART_MR1_RX_RDY_CTL		BIT(7)
+#define UARTDM_RF_CHAR          0xff /* higher bits contain error information */
 
 DECLARE_GLOBAL_DATA_PTR;
 
 struct msm_serial_data {
 	phys_addr_t base;
-	unsigned chars_cnt; /* number of buffered chars */
-	uint32_t chars_buf; /* buffered chars */
 	uint32_t clk_rate; /* core clock rate */
 };
-
-static int msm_serial_fetch(struct udevice *dev)
-{
-	struct msm_serial_data *priv = dev_get_priv(dev);
-	unsigned sr;
-
-	if (priv->chars_cnt)
-		return priv->chars_cnt;
-
-	/* Clear error in case of buffer overrun */
-	if (readl(priv->base + UARTDM_SR) & UARTDM_SR_UART_OVERRUN)
-		writel(UARTDM_CR_CMD_RESET_ERR, priv->base + UARTDM_CR);
-
-	/* We need to fetch new character */
-	sr = readl(priv->base + UARTDM_SR);
-
-	if (sr & UARTDM_SR_RX_READY) {
-		/* There are at least 4 bytes in fifo */
-		priv->chars_buf = readl(priv->base + UARTDM_RF);
-		priv->chars_cnt = 4;
-	} else {
-		/* Check if there is anything in fifo */
-		priv->chars_cnt = readl(priv->base + UARTDM_RXFS);
-		/* Extract number of characters in UART packing buffer*/
-		priv->chars_cnt = (priv->chars_cnt >>
-				   UARTDM_RXFS_BUF_SHIFT) &
-				  UARTDM_RXFS_BUF_MASK;
-		if (!priv->chars_cnt)
-			return 0;
-
-		/* There is at least one charcter, move it to fifo */
-		writel(UARTDM_CR_CMD_FORCE_STALE,
-		       priv->base + UARTDM_CR);
-
-		priv->chars_buf = readl(priv->base + UARTDM_RF);
-		writel(UARTDM_CR_CMD_RESET_STALE_INT,
-		       priv->base + UARTDM_CR);
-		writel(0x7, priv->base + UARTDM_DMRX);
-	}
-
-	return priv->chars_cnt;
-}
 
 static int msm_serial_getc(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
-	char c;
 
-	if (!msm_serial_fetch(dev))
+	if (!(readl(priv->base + UARTDM_SR) & UARTDM_SR_RX_READY))
 		return -EAGAIN;
 
-	c = priv->chars_buf & 0xFF;
-	priv->chars_buf >>= 8;
-	priv->chars_cnt--;
-
-	return c;
+	return readl(priv->base + UARTDM_RF) & UARTDM_RF_CHAR;
 }
 
 static int msm_serial_putc(struct udevice *dev, const char ch)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
 
-	if (!(readl(priv->base + UARTDM_SR) & UARTDM_SR_TX_EMPTY) &&
-	    !(readl(priv->base + UARTDM_ISR) & UARTDM_ISR_TX_READY))
+	if (!(readl(priv->base + UARTDM_SR) & UARTDM_SR_TX_READY))
 		return -EAGAIN;
 
-	writel(UARTDM_CR_CMD_RESET_TX_READY, priv->base + UARTDM_CR);
-
-	writel(1, priv->base + UARTDM_NCF_TX);
 	writel(ch, priv->base + UARTDM_TF);
-
 	return 0;
 }
 
 static int msm_serial_pending(struct udevice *dev, bool input)
 {
-	if (input) {
-		if (msm_serial_fetch(dev))
-			return 1;
-	}
+	struct msm_serial_data *priv = dev_get_priv(dev);
 
-	return 0;
+	if (input)
+		return !!(readl(priv->base + UARTDM_SR) & UARTDM_SR_RX_READY);
+	else
+		return !(readl(priv->base + UARTDM_SR) & UARTDM_SR_TX_EMPTY);
 }
 
 static const struct dm_serial_ops msm_serial_ops = {
@@ -207,8 +141,6 @@ static int calc_csr_bitrate(struct msm_serial_data *priv)
 
 static void uart_dm_init(struct msm_serial_data *priv)
 {
-	/* Delay initialization for a bit to let pins stabilize if necessary */
-	mdelay(5);
 	int bitrate = calc_csr_bitrate(priv);
 	if (bitrate < 0) {
 		log_warning("Couldn't calculate bit clock divider! Using default\n");
@@ -221,13 +153,16 @@ static void uart_dm_init(struct msm_serial_data *priv)
 
 	writel(bitrate, priv->base + UARTDM_CSR);
 	/* Enable RS232 flow control to support RS232 db9 connector */
-	writel(MSM_UART_MR1_RX_RDY_CTL, priv->base + UARTDM_MR1);
-	writel(MSM_BOOT_UART_DM_8_N_1_MODE, priv->base + UARTDM_MR2);
-	writel(MSM_BOOT_UART_DM_CMD_RESET_RX, priv->base + UARTDM_CR);
-	writel(MSM_BOOT_UART_DM_CMD_RESET_TX, priv->base + UARTDM_CR);
+	writel(UARTDM_MR1_RX_RDY_CTL, priv->base + UARTDM_MR1);
+	writel(UARTDM_MR2_8_N_1_MODE, priv->base + UARTDM_MR2);
 
-	/* Make sure BAM/single character mode is disabled */
-	writel(0x0, priv->base + UARTDM_DMEN);
+	/* Enable single character mode */
+	writel(UARTDM_DMEN_TXRX_SC_ENABLE, priv->base + UARTDM_DMEN);
+
+	writel(UARTDM_CR_CMD_RESET_RX, priv->base + UARTDM_CR);
+	writel(UARTDM_CR_CMD_RESET_TX, priv->base + UARTDM_CR);
+	writel(UARTDM_CR_RX_ENABLE, priv->base + UARTDM_CR);
+	writel(UARTDM_CR_TX_ENABLE, priv->base + UARTDM_CR);
 }
 static int msm_serial_probe(struct udevice *dev)
 {
@@ -319,13 +254,9 @@ static inline void _debug_uart_putc(int ch)
 {
 	struct msm_serial_data *priv = &init_serial_data;
 
-	while (!(readl(priv->base + UARTDM_SR) & UARTDM_SR_TX_EMPTY) &&
-	       !(readl(priv->base + UARTDM_ISR) & UARTDM_ISR_TX_READY))
+	while (!(readl(priv->base + UARTDM_SR) & UARTDM_SR_TX_READY))
 		;
 
-	writel(UARTDM_CR_CMD_RESET_TX_READY, priv->base + UARTDM_CR);
-
-	writel(1, priv->base + UARTDM_NCF_TX);
 	writel(ch, priv->base + UARTDM_TF);
 }
 

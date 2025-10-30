@@ -6,6 +6,13 @@
 #ifndef _QCOM_GENI_SE
 #define _QCOM_GENI_SE
 
+enum geni_se_xfer_mode {
+	GENI_SE_INVALID,
+	GENI_SE_FIFO,
+	GENI_SE_DMA,
+	GENI_GPI_DMA,
+};
+
 /* Protocols supported by GENI Serial Engines */
 enum geni_se_protocol_type {
 	GENI_SE_NONE,
@@ -14,6 +21,7 @@ enum geni_se_protocol_type {
 	GENI_SE_I2C,
 	GENI_SE_I3C,
 	GENI_SE_SPI_SLAVE,
+	GENI_SE_INVALID_PROTO = 255,
 };
 
 #define QUP_HW_VER_REG			0x4
@@ -29,6 +37,7 @@ enum geni_se_protocol_type {
 #define GENI_SER_S_CLK_CFG		0x4c
 #define GENI_IF_DISABLE_RO		0x64
 #define GENI_FW_REVISION_RO		0x68
+#define GENI_DFS_IF_CFG			0x80
 #define SE_GENI_CLK_SEL			0x7c
 #define SE_GENI_CFG_SEQ_START		0x84
 #define SE_GENI_BYTE_GRAN		0x254
@@ -57,15 +66,24 @@ enum geni_se_protocol_type {
 #define SE_GENI_IOS			0x908
 #define SE_DMA_TX_IRQ_STAT		0xc40
 #define SE_DMA_TX_IRQ_CLR		0xc44
+#define SE_DMA_TX_IRQ_EN_SET		0xc4c
 #define SE_DMA_TX_FSM_RST		0xc58
 #define SE_DMA_RX_IRQ_STAT		0xd40
 #define SE_DMA_RX_IRQ_CLR		0xd44
+#define SE_DMA_RX_IRQ_EN_SET		0xd4c
 #define SE_DMA_RX_LEN_IN		0xd54
 #define SE_DMA_RX_FSM_RST		0xd58
 #define SE_GSI_EVENT_EN			0xe18
 #define SE_IRQ_EN			0xe1c
 #define SE_HW_PARAM_0			0xe24
 #define SE_HW_PARAM_1			0xe28
+#define SE_DMA_GENERAL_CFG		0xe30
+
+/* GENI_DFS_IF_CFG fields */
+#define DFS_IF_EN BIT(0)
+
+/* SE_DMA_RX_IRQ_EN_SET fields */
+#define RESET_DONE_EN_SET BIT(3)
 
 /* GENI_FORCE_DEFAULT_REG fields */
 #define FORCE_DEFAULT	BIT(0)
@@ -261,5 +279,23 @@ enum geni_se_protocol_type {
 
 /* QUP SE VERSION value for major number 2 and minor number 5 */
 #define QUP_SE_VERSION_2_5                  0x20050000
+
+/* SE_DMA_GENERAL_CFG */
+#define DMA_RX_CLK_CGC_ON		BIT(0)
+#define DMA_TX_CLK_CGC_ON		BIT(1)
+#define DMA_AHB_SLV_CFG_ON		BIT(2)
+#define AHB_SEC_SLV_CLK_CGC_ON		BIT(3)
+#define DUMMY_RX_NON_BUFFERABLE		BIT(4)
+#define RX_DMA_ZERO_PADDING_EN		BIT(5)
+#define RX_DMA_IRQ_DELAY_MSK		GENMASK(8, 6)
+#define RX_DMA_IRQ_DELAY_SHFT		6
+
+#define GENI_SE_DMA_DONE_EN	BIT(0)
+#define GENI_SE_DMA_EOT_EN	BIT(1)
+#define GENI_SE_DMA_AHB_ERR_EN	BIT(2)
+
+#define GENI_SE_DMA_EOT_BUF	BIT(0)
+
+#define GENI_DMA_MODE_EN	BIT(0)
 
 #endif
