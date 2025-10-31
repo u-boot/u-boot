@@ -261,8 +261,8 @@ static int dm_test_acpi_fill_header(struct unit_test_state *uts)
 	ut_asserteq_mem(OEM_TABLE_ID, hdr.oem_table_id,
 			sizeof(hdr.oem_table_id));
 	ut_asserteq(OEM_REVISION, hdr.oem_revision);
-	ut_asserteq_mem(ASLC_ID, hdr.creator_id, sizeof(hdr.creator_id));
-	ut_asserteq(ASL_REVISION, hdr.creator_revision);
+	ut_asserteq_mem(ACPI_CREATOR_ID, hdr.creator_id, sizeof(hdr.creator_id));
+	ut_asserteq(ACPI_CREATOR_REVISION, hdr.creator_revision);
 
 	return 0;
 }
@@ -415,22 +415,27 @@ static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
 	ut_assert_nextline("RSDP  %16lx  %5zx  v02 U-BOOT", addr,
 			   sizeof(struct acpi_rsdp));
 	addr = ALIGN(addr + sizeof(struct acpi_rsdp), 16);
-	ut_assert_nextline("RSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
+	ut_assert_nextline("RSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x",
 			   addr, sizeof(struct acpi_table_header) +
-			   3 * sizeof(u32), OEM_REVISION);
+			   3 * sizeof(u32), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_rsdt), 16);
-	ut_assert_nextline("XSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
+	ut_assert_nextline("XSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x",
 			   addr, sizeof(struct acpi_table_header) +
-			   3 * sizeof(u64), OEM_REVISION);
+			   3 * sizeof(u64), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_xsdt), 64);
-	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
-			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x",
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
-	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
-			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x",
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
-	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
-			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x",
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	ut_assert_console_end();
 	unmap_sysmem(buf);
 	free(buf);
@@ -459,23 +464,27 @@ static int dm_test_acpi_cmd_list_chksum(struct unit_test_state *uts)
 	ut_assert_nextline("RSDP  %16lx  %5zx  v02 U-BOOT  OK  OK", addr,
 			   sizeof(struct acpi_rsdp));
 	addr = ALIGN(addr + sizeof(struct acpi_rsdp), 16);
-	ut_assert_nextline("RSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
+	ut_assert_nextline("RSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x  OK",
 			   addr, sizeof(struct acpi_table_header) +
-			   3 * sizeof(u32), OEM_REVISION);
+			   3 * sizeof(u32), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_rsdt), 16);
-	ut_assert_nextline("XSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
+	ut_assert_nextline("XSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x  OK",
 			   addr, sizeof(struct acpi_table_header) +
-			   3 * sizeof(u64), OEM_REVISION);
+			   3 * sizeof(u64), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_xsdt), 64);
-	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
-			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x  OK",
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
-	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
-			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x  OK",
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
-	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
-			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
-	ut_assert_console_end();
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x UBOO %x  OK",
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION,
+			   ACPI_CREATOR_REVISION);
 	ut_assert_console_end();
 	unmap_sysmem(buf);
 	free(buf);

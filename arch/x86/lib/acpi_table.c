@@ -224,7 +224,7 @@ static int acpi_write_tpm2(struct acpi_ctx *ctx,
 
 	/* Fill out header fields. */
 	acpi_fill_header(header, "TPM2");
-	memcpy(header->creator_id, ASLC_ID, 4);
+	memcpy(header->creator_id, ACPI_CREATOR_ID, 4);
 
 	header->length = sizeof(struct acpi_tpm2);
 	header->revision = acpi_get_table_revision(ACPITAB_TPM2);
