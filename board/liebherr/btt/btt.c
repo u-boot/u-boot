@@ -110,10 +110,23 @@ static int spi_load_boot_info(void)
 #define BTT_MONITORING_DEVICE_TIMEOUT 100
 static int rescue_val;
 
+static void lookup_and_request(struct gpio_desc *desc, const char *name, const char *label)
+{
+	int ret;
+
+	ret = dm_gpio_lookup_name(name, desc);
+	if (ret)
+		printf("Cannot get %s\n", name);
+
+	ret = dm_gpio_request(desc, label);
+	if (ret)
+		printf("Cannot request %s\n", name);
+}
+
 void spl_board_init(void)
 {
 	struct gpio_desc phy_rst, boot, rescue, wifi_en, bt_en;
-	int ret, i;
+	int i;
 
 	/*
 	 * On the new HW version of BTTC/3 (with LAN8720ai PHY) the !RST pin
@@ -125,14 +138,7 @@ void spl_board_init(void)
 	 * to set the RESET pin to HIGH after 100us, so there was no need to
 	 * set it explicitly.
 	 */
-	ret = dm_gpio_lookup_name("GPIO4_12", &phy_rst);
-	if (ret)
-		printf("Cannot get GPIO4_12\n");
-
-	ret = dm_gpio_request(&phy_rst, "phy-rst");
-	if (ret)
-		printf("Cannot request GPIO4_12\n");
-
+	lookup_and_request(&phy_rst, "GPIO4_12", "phy-rst");
 	dm_gpio_set_dir_flags(&phy_rst, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 
 	/*
@@ -140,14 +146,7 @@ void spl_board_init(void)
 	 * it is directly connected to Jody module without any externa pull up
 	 * down register.
 	 */
-	ret = dm_gpio_lookup_name("GPIO0_27", &wifi_en);
-	if (ret)
-		printf("Cannot get GPIO0_27\n");
-
-	ret = dm_gpio_request(&wifi_en, "wifi-en");
-	if (ret)
-		printf("Cannot request GPIO0_27\n");
-
+	lookup_and_request(&wifi_en, "GPIO0_27", "wifi-en");
 	dm_gpio_set_dir_flags(&wifi_en, GPIOD_IS_OUT | GPIOD_ACTIVE_LOW |
 			      GPIOD_IS_OUT_ACTIVE);
 
@@ -157,36 +156,15 @@ void spl_board_init(void)
 	 * time this pin is set to HIGH). However, the manual recommends setting
 	 * it high from LOW state.
 	 */
-	ret = dm_gpio_lookup_name("GPIO3_27", &bt_en);
-	if (ret)
-		printf("Cannot get GPIO3_27\n");
-
-	ret = dm_gpio_request(&bt_en, "bt-en");
-	if (ret)
-		printf("Cannot request GPIO3_27\n");
-
+	lookup_and_request(&bt_en, "GPIO3_27", "bt-en");
 	dm_gpio_set_dir_flags(&bt_en, GPIOD_IS_OUT | GPIOD_ACTIVE_LOW |
 			      GPIOD_IS_OUT_ACTIVE);
 
 	/* 'boot' and 'rescue' pins */
-	ret = dm_gpio_lookup_name("GPIO4_9", &boot);
-	if (ret)
-		printf("Cannot get GPIO4_9\n");
-
-	ret = dm_gpio_request(&boot, "boot");
-	if (ret)
-		printf("Cannot request GPIO4_9\n");
-
+	lookup_and_request(&boot, "GPIO4_9", "boot");
 	dm_gpio_set_dir_flags(&boot, GPIOD_IS_IN);
 
-	ret = dm_gpio_lookup_name("GPIO4_11", &rescue);
-	if (ret)
-		printf("Cannot get GPIO4_11\n");
-
-	ret = dm_gpio_request(&rescue, "rescue");
-	if (ret)
-		printf("Cannot request GPIO4_11\n");
-
+	lookup_and_request(&rescue, "GPIO4_11", "rescue");
 	dm_gpio_set_dir_flags(&rescue, GPIOD_IS_IN);
 
 	/* Wait for ready signal from system "monitoring" device */

@@ -1,0 +1,11 @@
+Toradex SMARC iMX95
+F:	arch/arm/dts/imx95-toradex-smarc.dtsi
+F:	arch/arm/dts/imx95-toradex-smarc-dev.dts
+F:	arch/arm/dts/imx95-toradex-smarc-dev-u-boot.dtsi
+F:	board/toradex/smarc-imx95/
+F:	configs/toradex-smarc-imx95_defconfig
+F:	doc/board/toradex/smarc-imx95.rst
+F:	include/configs/toradex-smarc-imx95.h
+M:	Francesco Dolcini <francesco.dolcini@toradex.com>
+S:	Maintained
+W:	https://www.toradex.com/computer-on-modules/smarc-arm-family/nxp-imx95

@@ -360,23 +360,21 @@ static void init_bandgap(void)
 	/*
 	 * On i.MX6ULL,we need to set VBGADJ bits according to the
 	 * REFTOP_TRIM[3:0] in fuse table
-	 *	000 - set REFTOP_VBGADJ[2:0] to 3b'110,
-	 *	110 - set REFTOP_VBGADJ[2:0] to 3b'000,
-	 *	001 - set REFTOP_VBGADJ[2:0] to 3b'001,
-	 *	010 - set REFTOP_VBGADJ[2:0] to 3b'010,
-	 *	011 - set REFTOP_VBGADJ[2:0] to 3b'011,
-	 *	100 - set REFTOP_VBGADJ[2:0] to 3b'100,
-	 *	101 - set REFTOP_VBGADJ[2:0] to 3b'101,
-	 *	111 - set REFTOP_VBGADJ[2:0] to 3b'111,
+	 *	000 - set REFTOP_VBGADJ[2:0] to 3'b000
+	 *	001 - set REFTOP_VBGADJ[2:0] to 3'b001
+	 *	010 - set REFTOP_VBGADJ[2:0] to 3'b010
+	 *	011 - set REFTOP_VBGADJ[2:0] to 3'b011
+	 *	100 - set REFTOP_VBGADJ[2:0] to 3'b100
+	 *	101 - set REFTOP_VBGADJ[2:0] to 3'b101
+	 *	110 - set REFTOP_VBGADJ[2:0] to 3'b110
+	 *	111 - set REFTOP_VBGADJ[2:0] to 3'b111
 	 */
 	if (is_mx6ull()) {
-		static const u32 map[] = {6, 1, 2, 3, 4, 5, 0, 7};
-
 		val = readl(&fuse->mem0);
 		val >>= OCOTP_MEM0_REFTOP_TRIM_SHIFT;
 		val &= 0x7;
 
-		writel(map[val] << BM_ANADIG_ANA_MISC0_REFTOP_VBGADJ_SHIFT,
+		writel(val << BM_ANADIG_ANA_MISC0_REFTOP_VBGADJ_SHIFT,
 		       &anatop->ana_misc0_set);
 	}
 }

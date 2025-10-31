@@ -113,6 +113,10 @@ config TARGET_IMX943_EVK
 	imply BOOTSTD_FULL
 	imply OF_UPSTREAM
 
+config TARGET_TORADEX_SMARC_IMX95
+	bool "Support Toradex SMARC iMX95"
+	select IMX95
+
 endchoice
 
 source "board/freescale/imx91_evk/Kconfig"
@@ -123,6 +127,7 @@ source "board/phytec/phycore_imx93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
 source "board/freescale/imx94_evk/Kconfig"
 source "board/freescale/imx95_evk/Kconfig"
+source "board/toradex/smarc-imx95/Kconfig"
 
 endif
 
