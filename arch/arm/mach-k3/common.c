@@ -311,6 +311,7 @@ void spl_enable_cache(void)
 	int ret = 0;
 
 	dram_init();
+	dram_init_banksize();
 
 	/* reserve TLB table */
 	gd->arch.tlb_size = PGTABLE_SIZE;

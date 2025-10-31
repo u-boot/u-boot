@@ -61,12 +61,6 @@ static int get_effective_el(void)
 int mem_map_from_dram_banks(unsigned int index, unsigned int len, u64 attrs)
 {
 	unsigned int i;
-	int ret = fdtdec_setup_memory_banksize();
-
-	if (ret) {
-		log_err("%s: Failed to setup dram banks\n", __func__);
-		return ret;
-	}
 
 	if (index + CONFIG_NR_DRAM_BANKS >= len) {
 		log_err("%s: Provided mem_map array has insufficient size for DRAM entries\n",
