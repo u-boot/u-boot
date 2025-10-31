@@ -13,6 +13,9 @@ endif
 obj-y += exit.o
 obj-$(CONFIG_X86) += cpuid.o msr.o
 obj-$(CONFIG_CMD_ADDRMAP) += addrmap.o
+ifdef CONFIG_CONSOLE_RECORD
+obj-$(CONFIG_CMD_ACPI) += acpi.o
+endif
 obj-$(CONFIG_CMD_BDI) += bdinfo.o
 obj-$(CONFIG_COREBOOT_SYSINFO) += coreboot.o
 obj-$(CONFIG_CMD_FDT) += fdt.o
