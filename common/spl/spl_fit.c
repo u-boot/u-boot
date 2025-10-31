@@ -448,8 +448,8 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 				debug("%s: No additional FDT node\n", __func__);
 				ret = 0;
 				break;
-			} else if (ret < 0) {
-				continue;
+			} else if (ret) {
+				break;
 			}
 
 			ret = board_spl_fit_append_fdt_skip(str);
