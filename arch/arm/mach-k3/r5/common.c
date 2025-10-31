@@ -376,3 +376,49 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 	}
 }
 #endif
+
+#ifdef CONFIG_SPL_OS_BOOT_SECURE
+
+static bool tifalcon_loaded = false;
+
+int spl_start_uboot(void)
+{
+	/* If tifalcon.bin is not loaded, proceed to regular boot */
+	if (!tifalcon_loaded)
+		return 1;
+
+	/* Boot to linux on R5 SPL with tifalcon.bin loaded */
+	return 0;
+}
+
+int k3_r5_falcon_prep(void)
+{
+	struct spl_image_loader *loader, *drv;
+	struct spl_image_info kernel_image;
+	struct spl_boot_device bootdev;
+	int ret = -ENXIO, n_ents;
+
+	tifalcon_loaded = true;
+	memset(&kernel_image, '\0', sizeof(kernel_image));
+	drv = ll_entry_start(struct spl_image_loader, spl_image_loader);
+	n_ents = ll_entry_count(struct spl_image_loader, spl_image_loader);
+	bootdev.boot_device = spl_boot_device();
+
+	for (loader = drv; loader != drv + n_ents; loader++) {
+		if (loader && bootdev.boot_device != loader->boot_device)
+			continue;
+
+		printf("Load falcon from %s\n", spl_loader_name(loader));
+		ret = loader->load_image(&kernel_image, &bootdev);
+		if (ret)
+			continue;
+
+		return 0;
+	}
+
+	printf("%s: ERROR: No supported loader for boot dev '%d'\n", __func__,
+	       bootdev.boot_device);
+
+	return ret;
+}
+#endif
