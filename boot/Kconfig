@@ -174,12 +174,6 @@ config SPL_FIT
 	select SPL_HASH
 	select SPL_OF_LIBFDT
 
-config VPL_FIT
-	bool "Support Flattened Image Tree within VPL"
-	depends on VPL
-	select VPL_HASH
-	select VPL_OF_LIBFDT
-
 config TPL_FIT
 	bool "Support Flattened Image Tree within TPL"
 	depends on TPL
