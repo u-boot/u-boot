@@ -643,26 +643,26 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 			if (loader && bootdev != loader->boot_device)
 				continue;
 			if (!CONFIG_IS_ENABLED(SILENT_CONSOLE)) {
-				if (loader)
-					printf("Trying to boot from %s\n",
-					       spl_loader_name(loader));
-				else if (CONFIG_IS_ENABLED(SHOW_ERRORS)) {
-					printf(PHASE_PROMPT
-					       "Unsupported Boot Device %d\n",
-					       bootdev);
-				} else {
-					puts(PHASE_PROMPT
-					     "Unsupported Boot Device!\n");
-				}
+				printf("Trying to boot from %s\n",
+				       spl_loader_name(loader));
 			}
-			if (loader) {
-				ret = spl_load_image(spl_image, loader);
-				if (!ret) {
-					spl_image->boot_device = bootdev;
-					return 0;
-				}
-				printf("Error: %d\n", ret);
+
+			ret = spl_load_image(spl_image, loader);
+			if (!ret) {
+				spl_image->boot_device = bootdev;
+				return 0;
 			}
+			printf("Error: %d\n", ret);
+		}
+
+		if (!CONFIG_IS_ENABLED(SILENT_CONSOLE)) {
+			if (CONFIG_IS_ENABLED(SHOW_ERRORS))
+				printf(PHASE_PROMPT
+				       "Unsupported Boot Device %d\n",
+				       bootdev);
+			else
+				printf(PHASE_PROMPT
+				       "Unsupported Boot Device!\n");
 		}
 	}
 
