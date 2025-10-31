@@ -406,12 +406,43 @@ int k3_r5_falcon_bootmode(void)
 		return BOOT_DEVICE_NOBOOT;
 }
 
+static int k3_falcon_fdt_fixup(void *fdt)
+{
+	int ret;
+
+	if (!fdt)
+		return -EINVAL;
+
+	fdt_set_totalsize(fdt, fdt_totalsize(fdt) + CONFIG_SYS_FDT_PAD);
+
+	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP)) {
+		ret = ft_board_setup(fdt, gd->bd);
+		if (ret) {
+			printf("%s: Failed in board setup: %s\n", __func__,
+			       fdt_strerror(ret));
+			return ret;
+		}
+	}
+
+	if (IS_ENABLED(CONFIG_OF_SYSTEM_SETUP)) {
+		ret = ft_system_setup(fdt, gd->bd);
+		if (ret) {
+			printf("%s: Failed in system setup: %s\n", __func__,
+			       fdt_strerror(ret));
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
 int k3_r5_falcon_prep(void)
 {
 	struct spl_image_loader *loader, *drv;
 	struct spl_image_info kernel_image;
 	struct spl_boot_device bootdev;
 	int ret = -ENXIO, n_ents;
+	void *fdt;
 
 	tifalcon_loaded = true;
 	memset(&kernel_image, '\0', sizeof(kernel_image));
@@ -427,6 +458,13 @@ int k3_r5_falcon_prep(void)
 		ret = loader->load_image(&kernel_image, &bootdev);
 		if (ret)
 			continue;
+
+		fdt = spl_image_fdt_addr(&kernel_image);
+		ret = k3_falcon_fdt_fixup(fdt);
+		if (ret) {
+			printf("Failed to fixup fdt in falcon mode: %d\n", ret);
+			return ret;
+		}
 
 		return 0;
 	}
