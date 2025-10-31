@@ -7,3 +7,4 @@ BSH Hausgeraete GmbH
    :maxdepth: 2
 
    imx8mn_bsh_smm_s2
+   imx6ulz_bsh_smm_m2
