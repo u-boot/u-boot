@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause -->
+
+<!-- Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com/ -->
+
+<svg
+   version="1.1"
+   width="231"
+   height="220"
+   viewBox="-0.5 -0.5 231 220"
+   id="svg72"
+   sodipodi:docname="fitImage_falcon.svg"
+   inkscape:version="1.4.1 (93de688d07, 2025-03-30)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview74"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="2.9"
+     inkscape:cx="83.62069"
+     inkscape:cy="131.72414"
+     inkscape:window-width="1918"
+     inkscape:window-height="1078"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="g62"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1" />
+  <defs
+     id="defs2">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 104.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="231 : 104.5 : 1"
+       inkscape:persp3d-origin="115.5 : 46 : 1"
+       id="perspective1" />
+  </defs>
+  <g
+     id="g62">
+    <rect
+       x="-0.06279549"
+       y="-0.062792346"
+       width="230.12561"
+       height="219.12558"
+       rx="34.518837"
+       ry="27.33382"
+       fill="#d5e8d4"
+       stroke="#82b366"
+       pointer-events="all"
+       id="rect4"
+       style="display:inline;fill:#dbe4f4;fill-opacity:1;stroke:#8166b3;stroke-width:0.888796;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="115.15599"
+       y="156.49472"
+       fill="#000000"
+       font-family="Helvetica"
+       font-size="12px"
+       text-anchor="middle"
+       id="text8-8-7-6-6"
+       style="display:inline"
+       inkscape:label="x509 cert">x509 Certificate</text>
+    <text
+       x="115.15598"
+       y="85.615631"
+       fill="#000000"
+       font-family="Helvetica"
+       font-size="12px"
+       text-anchor="middle"
+       id="text8-8-7-6-6-1"
+       style="display:inline"
+       inkscape:label="x509 cert">x509 Certificate</text>
+    <text
+       x="114.532"
+       y="42.263863"
+       fill="#000000"
+       font-family="Helvetica"
+       font-size="12px"
+       text-anchor="middle"
+       id="text8-8-7-6-6-5"
+       style="display:inline"
+       inkscape:label="x509 cert">Fit Header</text>
+    <text
+       x="114.78398"
+       y="106.884"
+       fill="#000000"
+       font-family="Helvetica"
+       font-size="12px"
+       text-anchor="middle"
+       id="text8-8-7-6-6-5-5"
+       style="display:inline"
+       inkscape:label="x509 cert">Kernel Image</text>
+    <rect
+       style="display:none;fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:1.00157;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1"
+       width="171.46796"
+       height="210.89911"
+       x="36.799908"
+       y="21.652758"
+       transform="translate(-7.533886,15.237117)" />
+    <text
+       xml:space="preserve"
+       style="font-size:21.3333px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#db8c8c;fill-opacity:1;stroke:#000000;stroke-width:1.13386"
+       x="90.327087"
+       y="177.15775"
+       id="text1"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         x="90.327087"
+         y="177.15775" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:21.3333px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#db8c8c;fill-opacity:1;stroke:#000000;stroke-width:1.13386"
+       x="106.45526"
+       y="214.93161"
+       id="text2"><tspan
+         sodipodi:role="line"
+         id="tspan2"
+         x="106.45526"
+         y="214.93161" /></text>
+    <g
+       id="g62-6"
+       transform="translate(-5.6022949,-9.676433)">
+      <text
+         x="120.33229"
+         y="188.7475"
+         fill="#000000"
+         font-family="Helvetica"
+         font-size="12px"
+         text-anchor="middle"
+         id="text8-8-7-6-6-5-2"
+         style="display:inline"
+         inkscape:label="x509 cert">DTB</text>
+    </g>
+    <rect
+       style="fill:#db8c8c;fill-opacity:0;stroke:#000000;stroke-width:1.13386"
+       id="rect2"
+       width="82.644012"
+       height="17.6518"
+       x="73.677986"
+       y="94.992081" />
+    <rect
+       style="fill:#db8c8c;fill-opacity:0;stroke:#000000;stroke-width:1.13386;stroke-dasharray:none"
+       id="rect2-7"
+       width="32.336376"
+       height="18.068098"
+       x="98.83181"
+       y="165.66302" />
+    <rect
+       style="fill:#db8c8c;fill-opacity:0;stroke:#000000;stroke-width:1.77036;stroke-dasharray:none"
+       id="rect3"
+       width="152.43475"
+       height="70.500725"
+       x="38.782627"
+       y="127.54861" />
+    <rect
+       style="fill:#db8c8c;fill-opacity:0;stroke:#000000;stroke-width:1.77036;stroke-dasharray:none"
+       id="rect3-9"
+       width="152.43475"
+       height="70.500732"
+       x="38.782623"
+       y="56.777336" />
+    <rect
+       style="fill:#db8c8c;fill-opacity:0;stroke:#000000;stroke-width:1.78506;stroke-dasharray:none"
+       id="rect5"
+       width="152.41736"
+       height="36.60006"
+       x="38.791306"
+       y="20.211617" />
+  </g>
+</svg>
