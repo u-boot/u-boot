@@ -174,12 +174,6 @@ config SPL_FIT
 	select SPL_HASH
 	select SPL_OF_LIBFDT
 
-config TPL_FIT
-	bool "Support Flattened Image Tree within TPL"
-	depends on TPL
-	select TPL_HASH
-	select TPL_OF_LIBFDT
-
 config SPL_FIT_PRINT
 	bool "Support FIT printing within SPL"
 	depends on SPL_FIT
@@ -285,6 +279,27 @@ config SPL_LOAD_FIT_FULL
 	  particular it can handle selecting from multiple device tree
 	  and passing the correct one to U-Boot.
 
+config SPL_FIT_IMAGE_POST_PROCESS
+	bool "Enable post-processing of FIT artifacts after loading by the SPL"
+	depends on SPL_LOAD_FIT
+	default y if TI_SECURE_DEVICE
+	help
+	  Allows doing any sort of manipulation to blobs after they got extracted
+	  from the U-Boot FIT image like stripping off headers or modifying the
+	  size of the blob, verification, authentication, decryption etc. in a
+	  platform or board specific way. In order to use this feature a platform
+	  or board-specific implementation of board_fit_image_post_process() must
+	  be provided. Also, anything done during this post-processing step would
+	  need to be comprehended in how the images were prepared before being
+	  injected into the FIT creation (i.e. the blobs would have been pre-
+	  processed before being added to the FIT image).
+
+config TPL_FIT
+	bool "Support Flattened Image Tree within TPL"
+	depends on TPL
+	select TPL_HASH
+	select TPL_OF_LIBFDT
+
 config TPL_LOAD_FIT
 	bool "Enable TPL loading U-Boot as a FIT (basic fitImage features)"
 	depends on TPL
@@ -306,21 +321,6 @@ config TPL_LOAD_FIT
 	     doc/uImage.FIT/source_file_format.txt.
 	  3. FDTs are only loaded for images with an "os" property of "u-boot".
 	     "linux" images are also supported with Falcon boot mode.
-
-config SPL_FIT_IMAGE_POST_PROCESS
-	bool "Enable post-processing of FIT artifacts after loading by the SPL"
-	depends on SPL_LOAD_FIT
-	default y if TI_SECURE_DEVICE
-	help
-	  Allows doing any sort of manipulation to blobs after they got extracted
-	  from the U-Boot FIT image like stripping off headers or modifying the
-	  size of the blob, verification, authentication, decryption etc. in a
-	  platform or board specific way. In order to use this feature a platform
-	  or board-specific implementation of board_fit_image_post_process() must
-	  be provided. Also, anything done during this post-processing step would
-	  need to be comprehended in how the images were prepared before being
-	  injected into the FIT creation (i.e. the blobs would have been pre-
-	  processed before being added to the FIT image).
 
 if VPL
 
