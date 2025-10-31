@@ -180,11 +180,79 @@ int spi_write_then_read(struct spi_slave *slave, const u8 *opcode,
 static int spi_child_post_bind(struct udevice *dev)
 {
 	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
+	int __maybe_unused ret;
+	int mode = 0;
+	int value;
 
 	if (!dev_has_ofnode(dev))
 		return 0;
 
-	return spi_slave_of_to_plat(dev, plat);
+#if CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)
+	ret = dev_read_u32_array(dev, "reg", plat->cs, SPI_CS_CNT_MAX);
+
+	if (ret == -EOVERFLOW || ret == -FDT_ERR_BADLAYOUT) {
+		dev_read_u32(dev, "reg", &plat->cs[0]);
+	} else {
+		dev_err(dev, "has no valid 'reg' property (%d)\n", ret);
+		return ret;
+	}
+#else
+	plat->cs[0] = dev_read_u32_default(dev, "reg", -1);
+#endif
+
+	plat->max_hz = dev_read_u32_default(dev, "spi-max-frequency",
+					    SPI_DEFAULT_SPEED_HZ);
+	if (dev_read_bool(dev, "spi-cpol"))
+		mode |= SPI_CPOL;
+	if (dev_read_bool(dev, "spi-cpha"))
+		mode |= SPI_CPHA;
+	if (dev_read_bool(dev, "spi-cs-high"))
+		mode |= SPI_CS_HIGH;
+	if (dev_read_bool(dev, "spi-3wire"))
+		mode |= SPI_3WIRE;
+	if (dev_read_bool(dev, "spi-half-duplex"))
+		mode |= SPI_PREAMBLE;
+
+	/* Device DUAL/QUAD mode */
+	value = dev_read_u32_default(dev, "spi-tx-bus-width", 1);
+	switch (value) {
+	case 1:
+		break;
+	case 2:
+		mode |= SPI_TX_DUAL;
+		break;
+	case 4:
+		mode |= SPI_TX_QUAD;
+		break;
+	case 8:
+		mode |= SPI_TX_OCTAL;
+		break;
+	default:
+		warn_non_xpl("spi-tx-bus-width %d not supported\n", value);
+		break;
+	}
+
+	value = dev_read_u32_default(dev, "spi-rx-bus-width", 1);
+	switch (value) {
+	case 1:
+		break;
+	case 2:
+		mode |= SPI_RX_DUAL;
+		break;
+	case 4:
+		mode |= SPI_RX_QUAD;
+		break;
+	case 8:
+		mode |= SPI_RX_OCTAL;
+		break;
+	default:
+		warn_non_xpl("spi-rx-bus-width %d not supported\n", value);
+		break;
+	}
+
+	plat->mode = mode;
+
+	return 0;
 }
 #endif
 
@@ -509,81 +577,6 @@ struct spi_slave *spi_setup_slave(unsigned int busnum, unsigned int cs,
 void spi_free_slave(struct spi_slave *slave)
 {
 	device_remove(slave->dev, DM_REMOVE_NORMAL);
-}
-
-int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)
-{
-	int mode = 0;
-	int value;
-
-#if CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)
-	int ret;
-
-	ret = dev_read_u32_array(dev, "reg", plat->cs, SPI_CS_CNT_MAX);
-
-	if (ret == -EOVERFLOW || ret == -FDT_ERR_BADLAYOUT) {
-		dev_read_u32(dev, "reg", &plat->cs[0]);
-	} else {
-		dev_err(dev, "has no valid 'reg' property (%d)\n", ret);
-		return ret;
-	}
-#else
-	plat->cs[0] = dev_read_u32_default(dev, "reg", -1);
-#endif
-
-	plat->max_hz = dev_read_u32_default(dev, "spi-max-frequency",
-					    SPI_DEFAULT_SPEED_HZ);
-	if (dev_read_bool(dev, "spi-cpol"))
-		mode |= SPI_CPOL;
-	if (dev_read_bool(dev, "spi-cpha"))
-		mode |= SPI_CPHA;
-	if (dev_read_bool(dev, "spi-cs-high"))
-		mode |= SPI_CS_HIGH;
-	if (dev_read_bool(dev, "spi-3wire"))
-		mode |= SPI_3WIRE;
-	if (dev_read_bool(dev, "spi-half-duplex"))
-		mode |= SPI_PREAMBLE;
-
-	/* Device DUAL/QUAD mode */
-	value = dev_read_u32_default(dev, "spi-tx-bus-width", 1);
-	switch (value) {
-	case 1:
-		break;
-	case 2:
-		mode |= SPI_TX_DUAL;
-		break;
-	case 4:
-		mode |= SPI_TX_QUAD;
-		break;
-	case 8:
-		mode |= SPI_TX_OCTAL;
-		break;
-	default:
-		warn_non_xpl("spi-tx-bus-width %d not supported\n", value);
-		break;
-	}
-
-	value = dev_read_u32_default(dev, "spi-rx-bus-width", 1);
-	switch (value) {
-	case 1:
-		break;
-	case 2:
-		mode |= SPI_RX_DUAL;
-		break;
-	case 4:
-		mode |= SPI_RX_QUAD;
-		break;
-	case 8:
-		mode |= SPI_RX_OCTAL;
-		break;
-	default:
-		warn_non_xpl("spi-rx-bus-width %d not supported\n", value);
-		break;
-	}
-
-	plat->mode = mode;
-
-	return 0;
 }
 
 UCLASS_DRIVER(spi) = {

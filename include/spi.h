@@ -658,17 +658,6 @@ int spi_chip_select(struct udevice *slave);
 int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp);
 
 /**
- * spi_slave_of_to_plat() - decode standard SPI platform data
- *
- * This decodes the speed and mode for a slave from a device tree node
- *
- * @blob:	Device tree blob
- * @node:	Node offset to read from
- * @plat:	Place to put the decoded information
- */
-int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat);
-
-/**
  * spi_cs_info() - Check information on a chip select
  *
  * This checks a particular chip select on a bus to see if it has a device
