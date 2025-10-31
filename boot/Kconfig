@@ -117,8 +117,8 @@ config FIT_SIGNATURE_MAX_SIZE
 	  space.
 
 config FIT_RSASSA_PSS
-	bool "Support rsassa-pss signature scheme of FIT image contents"
-	depends on FIT_SIGNATURE
+	bool "Support rsassa-pss signature scheme"
+	depends on RSA_VERIFY
 	help
 	  Enable this to support the pss padding algorithm as described
 	  in the rfc8017 (https://tools.ietf.org/html/rfc8017).
@@ -225,8 +225,8 @@ config SPL_FIT_SIGNATURE_MAX_SIZE
 	  space.
 
 config SPL_FIT_RSASSA_PSS
-	bool "Support rsassa-pss signature scheme of FIT image contents in SPL"
-	depends on SPL_FIT_SIGNATURE
+	bool "Support rsassa-pss signature scheme in SPL"
+	depends on SPL_RSA_VERIFY
 	help
 	  Enable this to support the pss padding algorithm as described
 	  in the rfc8017 (https://tools.ietf.org/html/rfc8017) in SPL.
