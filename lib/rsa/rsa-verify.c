@@ -89,7 +89,7 @@ U_BOOT_PADDING_ALGO(pkcs_15) = {
 };
 #endif
 
-#if CONFIG_IS_ENABLED(FIT_RSASSA_PSS)
+#if CONFIG_IS_ENABLED(RSASSA_PSS)
 static void u32_i2osp(uint32_t val, uint8_t *buf)
 {
 	buf[0] = (uint8_t)((val >> 24) & 0xff);
