@@ -180,25 +180,22 @@ int spi_write_then_read(struct spi_slave *slave, const u8 *opcode,
 static int spi_child_post_bind(struct udevice *dev)
 {
 	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
-	int __maybe_unused ret;
 	int mode = 0;
 	int value;
+	int ret;
 
 	if (!dev_has_ofnode(dev))
 		return 0;
 
-#if CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)
-	ret = dev_read_u32_array(dev, "reg", plat->cs, SPI_CS_CNT_MAX);
-
-	if (ret == -EOVERFLOW || ret == -FDT_ERR_BADLAYOUT) {
-		dev_read_u32(dev, "reg", &plat->cs[0]);
-	} else {
-		dev_err(dev, "has no valid 'reg' property (%d)\n", ret);
-		return ret;
+	if (CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)) {
+		ret = dev_read_u32_array(dev, "reg", plat->cs, SPI_CS_CNT_MAX);
+		if (ret && ret != -EOVERFLOW && ret != -FDT_ERR_BADLAYOUT) {
+			dev_err(dev, "has no valid 'reg' property (%d)\n", ret);
+			return ret;
+		}
 	}
-#else
+
 	plat->cs[0] = dev_read_u32_default(dev, "reg", -1);
-#endif
 
 	plat->max_hz = dev_read_u32_default(dev, "spi-max-frequency",
 					    SPI_DEFAULT_SPEED_HZ);
