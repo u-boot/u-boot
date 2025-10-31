@@ -54,6 +54,7 @@ int shutdown_mcu_r5_core1(void);
 
 #if IS_ENABLED(CONFIG_SPL_OS_BOOT_SECURE) && !IS_ENABLED(CONFIG_ARM64)
 int k3_r5_falcon_bootmode(void);
+int k3_r5_falcon_prep(void);
 #endif
 
 #if (IS_ENABLED(CONFIG_K3_QOS))
