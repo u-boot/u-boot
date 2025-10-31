@@ -12,9 +12,10 @@ config SOUND
 	  audio codecs are called from the sound-i2s code. This could be
 	  converted to driver model.
 
+if SOUND
+
 config I2S
 	bool "Enable I2S support"
-	depends on SOUND
 	help
 	  I2S is a serial bus often used to transmit audio data from the
 	  SoC to the audio codec. This option enables sound support using
@@ -42,7 +43,6 @@ config I2S_SAMSUNG
 
 config SOUND_DA7219
 	bool "Dialog Semiconductor audio codec"
-	depends on SOUND
 	help
 	  The DA7219 is an ultra-low-power audio codec with Advanced Accessory
 	  Detection (AAD). This driver only supports generation of ACPI tables.
@@ -51,7 +51,7 @@ config SOUND_DA7219
 
 config SOUND_I8254
 	bool "Intel i8254 timer / beeper"
-	depends on SOUND && X86
+	depends on X86
 	help
 	  This enables support for a beeper that uses the i8254 timer chip.
 	  This can emit beeps at a fixed frequency. It is possible to control
@@ -63,7 +63,6 @@ config SOUND_I8254
 
 config SOUND_INTEL_HDA
 	bool "Intel HDA audio codec"
-	depends on SOUND
 	help
 	  Most Intel chips have an HDA (High-definition audio) codec which can
 	  be used by U-Boot to play simple beeps. This is also sometimes called
@@ -72,7 +71,6 @@ config SOUND_INTEL_HDA
 
 config SOUND_IVYBRIDGE
 	bool "Intel Ivybridge sound support"
-	depends on SOUND
 	select SOUND_INTEL_HDA
 	help
 	  Enable sound output on supported Intel Ivybridge-based boards. This
@@ -147,5 +145,7 @@ config SOUND_WM8994
 	  Enable the wm8994 audio codec. This is connected via I2S for
 	  audio data and I2C for codec control. At present it only works
 	  with the Samsung I2S driver.
+
+endif
 
 endmenu
