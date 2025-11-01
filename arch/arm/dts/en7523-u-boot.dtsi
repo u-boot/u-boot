@@ -22,6 +22,27 @@
 		#reset-cells = <1>;
 	};
 
+	eth: ethernet@1fb50000 {
+		compatible = "airoha,en7523-eth";
+		reg = <0x1fb50000 0x2600>,
+		      <0x1fb54000 0x2000>,
+		      <0x1fb56000 0x2000>;
+		reg-names = "fe", "qdma0", "qdma1";
+
+		resets = <&scu EN7523_FE_RST>,
+			 <&scu EN7523_FE_PDMA_RST>,
+			 <&scu EN7523_FE_QDMA_RST>,
+			 <&scu EN7523_DUAL_HSI0_MAC_RST>,
+			 <&scu EN7523_DUAL_HSI1_MAC_RST>,
+			 <&scu EN7523_HSI_MAC_RST>;
+		reset-names = "fe", "pdma", "qdma",
+			      "hsi0-mac", "hsi1-mac", "hsi-mac";
+	};
+
+	switch: switch@1fb58000 {
+		compatible = "airoha,en7523-switch";
+		reg = <0x1fb58000 0x8000>;
+	};
 };
 
 &uart1 {
