@@ -16,7 +16,7 @@
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <regmap.h>
-#include <syscon.h>
+#include <asm/arch/scu-regmap.h>
 
 #include <dt-bindings/clock/en7523-clk.h>
 
@@ -400,14 +400,8 @@ const struct clk_ops airoha_clk_ops = {
 static int airoha_clk_probe(struct udevice *dev)
 {
 	struct airoha_clk_priv *priv = dev_get_priv(dev);
-	ofnode chip_scu_node;
 
-	chip_scu_node = ofnode_by_compatible(ofnode_null(),
-					     "airoha,en7581-chip-scu");
-	if (!ofnode_valid(chip_scu_node))
-		return -EINVAL;
-
-	priv->chip_scu_map = syscon_node_to_regmap(chip_scu_node);
+	priv->chip_scu_map = airoha_get_chip_scu_regmap();
 	if (IS_ERR(priv->chip_scu_map))
 		return PTR_ERR(priv->chip_scu_map);
 
