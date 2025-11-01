@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2022
   ubuntu_vm: ubuntu-24.04
   macos_vm: macOS-14
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20251001-04Nov2025
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:noble-20251001-10Nov2025
   # Ensure we do a shallow clone
   Agent.Source.Git.ShallowFetchDepth: 1
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
@@ -273,6 +273,7 @@ stages:
             -r tools/buildman/requirements.txt \
             -r test/py/requirements.txt \
             -r tools/u_boot_pylib/requirements.txt \
+            setuptools \
             pytest-azurepipelines
           tools/buildman/buildman -o \${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board \${TEST_PY_BD} \${OVERRIDE}
           cp /opt/grub/grub_x86.efi \${UBOOT_TRAVIS_BUILD_DIR}/
@@ -352,6 +353,8 @@ stages:
         sandbox:
           TEST_PY_BD: "sandbox"
           TEST_PY_EXTRA: "--timing"
+          # addr2line in Ubuntu 'Noble' and later are broken.
+          TEST_PY_TEST_SPEC: "not event_dump"
         sandbox_asan:
           TEST_PY_BD: "sandbox"
           OVERRIDE: "-a ASAN"
@@ -359,6 +362,8 @@ stages:
         sandbox_clang:
           TEST_PY_BD: "sandbox"
           OVERRIDE: "-O clang-18"
+          # addr2line in Ubuntu 'Noble' and later are broken.
+          TEST_PY_TEST_SPEC: "not event_dump"
         sandbox_clang_asan:
           TEST_PY_BD: "sandbox"
           OVERRIDE: "-O clang-18 -a ASAN"
@@ -642,7 +647,8 @@ stages:
           python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r tools/binman/requirements.txt \
-            -r tools/buildman/requirements.txt
+            -r tools/buildman/requirements.txt \
+            setuptools
           EOF
           cat << "EOF" >> build.sh
           if [[ "${BUILDMAN}" != "" ]]; then

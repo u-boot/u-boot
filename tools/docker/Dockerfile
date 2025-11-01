@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:jammy-20251001
+FROM ubuntu:noble-20251001
 LABEL org.opencontainers.image.authors="Tom Rini <trini@konsulko.com>"
 LABEL org.opencontainers.image.description=" This image is for building U-Boot inside a container"
 
@@ -27,12 +27,10 @@ ENV TCVER=14.2.0
 
 RUN echo "Building on $BUILDPLATFORM, for target $TARGETPLATFORM"
 
-# Add LLVM repository
+# Add tools to fetch archives with
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y gnupg2 wget xz-utils
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main | tee /etc/apt/sources.list.d/llvm.list
+    apt-get update && apt-get install -y wget xz-utils
 
 # Create a list of URLs to process, then pass them into a 'while read' loop
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then HOSTARCH=x86_64; else HOSTARCH=arm64; fi; ( \
@@ -53,6 +51,10 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then HOSTARCH=x86_64; else HOSTARC
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 		wget -O - https://github.com/foss-xtensa/toolchain/releases/download/2020.07/x86_64-2020.07-xtensa-dc233c-elf.tar.gz | tar -C /opt -xz; \
 	fi
+
+# Add LLVM repository
+RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
+RUN echo deb http://apt.llvm.org/noble/ llvm-toolchain-noble-18 main | tee /etc/apt/sources.list.d/llvm.list
 
 # Update and install things from apt now
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -359,7 +361,8 @@ RUN python3 -m venv /tmp/venv && \
 		-r /tmp/binman-requirements.txt \
 		-r /tmp/buildman-requirements.txt \
 		-r /tmp/patman-requirements.txt \
-		-r /tmp/u_boot_pylib-requirements.txt && \
+		-r /tmp/u_boot_pylib-requirements.txt \
+		setuptools pytest-azurepipelines && \
 	deactivate && \
 	rm -rf /tmp/venv /tmp/*-requirements.txt
 
@@ -377,4 +380,3 @@ RUN /bin/echo -e "\nx86 = i386" >> ~/.buildman;
 
 # Add mkbootimg tool
 RUN git clone https://android.googlesource.com/platform/system/tools/mkbootimg /home/uboot/mkbootimg
-ENV PYTHONPATH="${PYTHONPATH}:/home/uboot/mkbootimg"
