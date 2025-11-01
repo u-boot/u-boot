@@ -16,7 +16,9 @@
 #include <u-boot/crc.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
-#include <fs.h>
+#if (IS_ENABLED(CONFIG_PHY_AQUANTIA_UPLOAD_FW))
+#include <fw_loader.h>
+#endif
 
 #define AQUNTIA_10G_CTL		0x20
 #define AQUNTIA_VENDOR_P1	0xc400
@@ -127,52 +129,29 @@ struct fw_header {
 
 #pragma pack()
 
-#if defined(CONFIG_PHY_AQUANTIA_UPLOAD_FW)
-static int aquantia_read_fw(u8 **fw_addr, size_t *fw_length)
+#if (IS_ENABLED(CONFIG_PHY_AQUANTIA_UPLOAD_FW))
+int __weak aquantia_read_fw(struct phy_device *phydev,
+			    u8 **fw_addr, size_t *fw_length)
 {
-	loff_t length, read;
 	int ret;
-	void *addr = NULL;
+	u8 *microcode;
 
-	*fw_addr = NULL;
-	*fw_length = 0;
-	debug("Loading Aquantia microcode from %s %s\n",
-	      CONFIG_PHY_AQUANTIA_FW_PART, CONFIG_PHY_AQUANTIA_FW_NAME);
-	ret = fs_set_blk_dev("mmc", CONFIG_PHY_AQUANTIA_FW_PART, FS_TYPE_ANY);
-	if (ret < 0)
-		goto cleanup;
-
-	ret = fs_size(CONFIG_PHY_AQUANTIA_FW_NAME, &length);
-	if (ret < 0)
-		goto cleanup;
-
-	addr = malloc(length);
-	if (!addr) {
-		ret = -ENOMEM;
-		goto cleanup;
+	microcode = malloc(CONFIG_PHY_AQUANTIA_FW_MAX_SIZE);
+	if (!microcode) {
+		printf("Failed to allocate memory for firmware\n");
+		return -ENOMEM;
 	}
 
-	ret = fs_set_blk_dev("mmc", CONFIG_PHY_AQUANTIA_FW_PART, FS_TYPE_ANY);
-	if (ret < 0)
-		goto cleanup;
-
-	ret = fs_read(CONFIG_PHY_AQUANTIA_FW_NAME, (ulong)addr, 0, length,
-		      &read);
-	if (ret < 0)
-		goto cleanup;
-
-	*fw_addr = addr;
-	*fw_length = length;
-	debug("Found Aquantia microcode.\n");
-
-cleanup:
-	if (ret < 0) {
-		printf("loading firmware file %s %s failed with error %d\n",
-		       CONFIG_PHY_AQUANTIA_FW_PART,
-		       CONFIG_PHY_AQUANTIA_FW_NAME, ret);
-		free(addr);
+	ret = request_firmware_into_buf_via_script(
+		microcode, CONFIG_PHY_AQUANTIA_FW_MAX_SIZE,
+		"aqr_phy_load_firmware", fw_length);
+	if (ret) {
+		free(microcode);
+		return ret;
 	}
-	return ret;
+
+	*fw_addr = microcode;
+	return 1;
 }
 
 /* load data into the phy's memory */
@@ -293,16 +272,17 @@ static int aquantia_do_upload_firmware(struct phy_device *phydev,
 
 static int aquantia_upload_firmware(struct phy_device *phydev)
 {
-	int ret;
+	int ret, fwrc;
 	u8 *addr = NULL;
-	size_t fw_length = 0;
+	size_t fw_length;
 
-	ret = aquantia_read_fw(&addr, &fw_length);
-	if (ret != 0)
-		return ret;
+	fwrc = aquantia_read_fw(phydev, &addr, &fw_length);
+	if (fwrc < 0)
+		return fwrc;
 
 	ret = aquantia_do_upload_firmware(phydev, addr, fw_length);
-	free(addr);
+	if (fwrc > 0)
+		free(addr);
 
 	return ret;
 }
