@@ -11,6 +11,7 @@
 #include <linux/io.h>
 #include <reset-uclass.h>
 #include <regmap.h>
+#include <asm/arch/scu-regmap.h>
 
 #include <dt-bindings/reset/airoha,en7581-reset.h>
 
@@ -153,11 +154,10 @@ static struct reset_ops airoha_reset_ops = {
 static int airoha_reset_probe(struct udevice *dev)
 {
 	struct airoha_reset_priv *priv = dev_get_priv(dev);
-	int ret;
 
-	ret = regmap_init_mem(dev_ofnode(dev), &priv->map);
-	if (ret)
-		return ret;
+	priv->map = airoha_get_scu_regmap();
+	if (IS_ERR(priv->map))
+		return PTR_ERR(priv->map);
 
 	priv->bank_ofs = en7581_rst_ofs;
 	priv->idx_map = en7581_rst_map;
