@@ -6,6 +6,17 @@ config SYS_VENDOR
 choice
 	prompt "Airoha board select"
 
+config TARGET_EN7523
+	bool "Airoha EN7523 SoC"
+	select CPU_V7A
+	select ARMV7_SET_CORTEX_SMPEN
+	help
+	  The Airoha EN7523 family (en7523/en7529/en7562) is an ARM-based
+	  SoCs with a dual-core CPU. It comes with Wi-Fi 5/6 support and
+	  connectivity to Ethernet PHY, DDR, PCIe, USB, UART and VoIP.
+	  With advanced hardware design, EN7523 provides high processing
+	  performance and low power consumption.
+
 config TARGET_AN7581
 	bool "Airoha AN7581 SoC"
 	select ARM64
@@ -20,12 +31,15 @@ config TARGET_AN7581
 endchoice
 
 config SYS_SOC
+	default "en7523" if TARGET_EN7523
 	default "an7581" if TARGET_AN7581
 
 config SYS_BOARD
+	default "en7523" if TARGET_EN7523
 	default "an7581" if TARGET_AN7581
 
 config SYS_CONFIG_NAME
+	default "en7523" if TARGET_EN7523
 	default "an7581" if TARGET_AN7581
 
 endif

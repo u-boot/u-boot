@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/ {
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		atf-reserved-memory@80000000 {
+			no-map;
+			reg = <0x80000000 0x40000>;
+		};
+	};
+
+	scu: system-controller@1fa20000 {
+		compatible = "airoha,en7523-scu";
+		reg = <0x1fa20000 0x400>,
+		      <0x1fb00000 0x1000>;
+		#clock-cells = <1>;
+	};
+
+};
+
+&uart1 {
+	bootph-all;
+};
