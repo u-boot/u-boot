@@ -21,6 +21,7 @@
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/time.h>
+#include <asm/arch/scu-regmap.h>
 
 #define AIROHA_MAX_NUM_GDM_PORTS	1
 #define AIROHA_MAX_NUM_QDMA		1
@@ -720,14 +721,9 @@ static int airoha_eth_probe(struct udevice *dev)
 {
 	struct airoha_eth *eth = dev_get_priv(dev);
 	struct regmap *scu_regmap;
-	ofnode scu_node;
 	int ret;
 
-	scu_node = ofnode_by_compatible(ofnode_null(), "airoha,en7581-scu");
-	if (!ofnode_valid(scu_node))
-		return -EINVAL;
-
-	scu_regmap = syscon_node_to_regmap(scu_node);
+	scu_regmap = airoha_get_scu_regmap();
 	if (IS_ERR(scu_regmap))
 		return PTR_ERR(scu_regmap);
 
