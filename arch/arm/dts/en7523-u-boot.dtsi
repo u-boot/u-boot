@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+#include <dt-bindings/reset/airoha,en7523-reset.h>
+
 / {
 	reserved-memory {
 		#address-cells = <1>;
@@ -17,6 +19,7 @@
 		reg = <0x1fa20000 0x400>,
 		      <0x1fb00000 0x1000>;
 		#clock-cells = <1>;
+		#reset-cells = <1>;
 	};
 
 };
