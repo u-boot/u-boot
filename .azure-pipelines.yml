@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2022
   ubuntu_vm: ubuntu-24.04
   macos_vm: macOS-14
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:noble-20251001-10Nov2025
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:noble-20251001-11Nov2025
   # Ensure we do a shallow clone
   Agent.Source.Git.ShallowFetchDepth: 1
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
@@ -361,18 +361,18 @@ stages:
           TEST_PY_TEST_SPEC: "version"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
-          OVERRIDE: "-O clang-18"
+          OVERRIDE: "-O clang-20"
           # addr2line in Ubuntu 'Noble' and later are broken.
           TEST_PY_TEST_SPEC: "not event_dump"
         sandbox_clang_asan:
           TEST_PY_BD: "sandbox"
-          OVERRIDE: "-O clang-18 -a ASAN"
+          OVERRIDE: "-O clang-20 -a ASAN"
           TEST_PY_TEST_SPEC: "version"
         sandbox64:
           TEST_PY_BD: "sandbox64"
         sandbox64_clang:
           TEST_PY_BD: "sandbox64"
-          OVERRIDE: "-O clang-18"
+          OVERRIDE: "-O clang-20"
         sandbox64_lwip:
           TEST_PY_BD: "sandbox64_lwip"
         sandbox_spl:

@@ -54,7 +54,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 
 # Add LLVM repository
 RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
-RUN echo deb http://apt.llvm.org/noble/ llvm-toolchain-noble-18 main | tee /etc/apt/sources.list.d/llvm.list
+RUN echo deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main | tee /etc/apt/sources.list.d/llvm.list
 
 # Update and install things from apt now
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -68,7 +68,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	build-essential \
 	byacc \
 	cgpt \
-	clang-18 \
+	clang-20 \
 	coreutils \
 	cpio \
 	curl \
