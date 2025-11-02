@@ -10,8 +10,8 @@
 #define TIMER_LOAD_COUNT_H	0x04
 #define TIMER_CONTROL_REG	0x10
 #define TIMER_EN	0x1
-#define	TIMER_FMODE	BIT(0)
-#define	TIMER_RMODE	BIT(1)
+#define	TIMER_FMODE	(0 << 1)
+#define	TIMER_RMODE	(1 << 1)
 
 __weak void rockchip_stimer_init(void)
 {

@@ -1,5 +1,10 @@
 if ROCKCHIP_RK3528
 
+config TARGET_RADXA_ROCK_2_RK3528
+	bool "Radxa ROCK 2A/2F"
+	help
+	  Radxa ROCK 2A/2F single board computers with a RK3528A SoC.
+
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xff370200
 
@@ -8,6 +13,8 @@ config ROCKCHIP_STIMER_BASE
 
 config SYS_SOC
 	default "rk3528"
+
+source "board/radxa/rock-2-rk3528/Kconfig"
 
 config SYS_CONFIG_NAME
 	default "rk3528_common"

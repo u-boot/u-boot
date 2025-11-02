@@ -9,4 +9,11 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "odroid_go2"
 
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select ADC
+	select BOARD_TYPES
+	select ENV_IS_NOWHERE
+	select SPL_ADC
+
 endif

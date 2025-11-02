@@ -4,6 +4,24 @@ S:	Maintained
 F:	arch/arm/dts/rk3576-generic*
 F:	configs/generic-rk3576_defconfig
 
+NANOPI-M5-RK3576
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	arch/arm/dts/rk3576-nanopi-m5*
+F:	configs/nanopi-m5-rk3576_defconfig
+
+OMNI3576-RK3576
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	arch/arm/dts/rk3576-luckfox-omni3576*
+F:	configs/omni3576-rk3576_defconfig
+
+ROCK-4D-RK3576
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	arch/arm/dts/rk3576-rock-4d*
+F:	configs/rock-4d-rk3576_defconfig
+
 SIGE5-RK3576
 M:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained

@@ -9,3 +9,9 @@ M:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	arch/arm/dts/rk3528-radxa-e20c*
 F:	configs/radxa-e20c-rk3528_defconfig
+
+SIGE1-RK3528
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	arch/arm/dts/rk3528-armsom-sige1*
+F:	configs/sige1-rk3528_defconfig

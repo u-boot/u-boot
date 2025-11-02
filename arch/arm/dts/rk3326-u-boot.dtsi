@@ -1,0 +1,154 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2020 Theobroma Systems Design und Consulting GmbH
+ */
+
+#include "rockchip-u-boot.dtsi"
+
+/ {
+	aliases {
+		spi2 = &sfc;
+	};
+
+	chosen {
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc;
+	};
+
+	dmc {
+		compatible = "rockchip,px30-dmc", "syscon";
+		reg = <0x0 0xff2a0000 0x0 0x1000>;
+		bootph-all;
+	};
+
+	rng: rng@ff0b0000 {
+		compatible = "rockchip,cryptov2-rng";
+		reg = <0x0 0xff0b0000 0x0 0x4000>;
+	};
+};
+
+#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+&binman {
+	simple-bin-spi {
+		mkimage {
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
+			offset = <0x10000>;
+		};
+	};
+};
+#endif
+
+&cru {
+	bootph-all;
+};
+
+&gpio0 {
+	gpio-ranges = <&pinctrl 0 0 32>;
+};
+
+&gpio1 {
+	gpio-ranges = <&pinctrl 0 32 32>;
+};
+
+&gpio2 {
+	gpio-ranges = <&pinctrl 0 64 32>;
+};
+
+&gpio3 {
+	gpio-ranges = <&pinctrl 0 96 32>;
+};
+
+&grf {
+	bootph-all;
+};
+
+&otp {
+	bootph-some-ram;
+};
+
+&pcfg_pull_none {
+	bootph-all;
+};
+
+&pcfg_pull_none_8ma {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
+&pcfg_pull_up_8ma {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&pmucru {
+	bootph-all;
+};
+
+&pmugrf {
+	bootph-all;
+};
+
+&sdmmc {
+	bootph-pre-ram;
+	bootph-some-ram;
+
+	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
+	u-boot,spl-fifo-mode;
+};
+
+&sdmmc_bus4 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_det {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sfc {
+	bootph-some-ram;
+	u-boot,spl-sfc-no-dma;
+};
+
+&sfc_bus2 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sfc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sfc_cs0 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&uart2 {
+	bootph-all;
+	clock-frequency = <24000000>;
+};
+
+&uart2m1_xfer {
+	bootph-pre-sram;
+	bootph-pre-ram;
+};
+
+&xin24m {
+	bootph-all;
+};

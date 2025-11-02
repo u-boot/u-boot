@@ -31,6 +31,11 @@ int board_return_to_bootrom(struct spl_image_info *spl_image,
 __weak const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 };
 
+__weak u32 read_brom_bootsource_id(void)
+{
+	return readl(BROM_BOOTSOURCE_ID_ADDR);
+}
+
 const char *board_spl_was_booted_from(void)
 {
 	static u32 brom_bootsource_id_cache = BROM_BOOTSOURCE_UNKNOWN;
@@ -40,7 +45,7 @@ const char *board_spl_was_booted_from(void)
 	if (brom_bootsource_id_cache != BROM_BOOTSOURCE_UNKNOWN)
 		bootdevice_brom_id = brom_bootsource_id_cache;
 	else
-		bootdevice_brom_id = readl(BROM_BOOTSOURCE_ID_ADDR);
+		bootdevice_brom_id = read_brom_bootsource_id();
 
 	if (bootdevice_brom_id < ARRAY_SIZE(boot_devices))
 		bootdevice_ofpath = boot_devices[bootdevice_brom_id];

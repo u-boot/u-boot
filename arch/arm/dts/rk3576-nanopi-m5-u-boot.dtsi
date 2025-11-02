@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+
+#include "rk3576-u-boot.dtsi"
+
+&led1 {
+	default-state = "off";
+};
+
+&led2 {
+	default-state = "off";
+};
+
+&led_sys {
+	default-state = "on";
+};
+
+&sfc1 {
+	flash@0 {
+		bootph-pre-ram;
+		bootph-some-ram;
+	};
+};

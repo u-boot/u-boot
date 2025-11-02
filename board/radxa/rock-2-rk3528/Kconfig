@@ -1,0 +1,14 @@
+if TARGET_RADXA_ROCK_2_RK3528
+
+config SYS_BOARD
+	default "rock-2-rk3528"
+
+config SYS_VENDOR
+	default "radxa"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select ADC
+	select SPL_ADC
+
+endif

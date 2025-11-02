@@ -132,6 +132,10 @@
 	bootph-pre-ram;
 };
 
+&spi0 {
+	bootph-some-ram;
+};
+
 &uart2 {
 	bootph-all;
 	clock-frequency = <24000000>;

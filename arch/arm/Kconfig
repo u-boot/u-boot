@@ -2073,30 +2073,30 @@ config ARCH_ROCKCHIP
 	bool "Support Rockchip SoCs"
 	select BINMAN if SPL_OPTEE || SPL
 	select DM
-	select DM_GPIO
-	select DM_I2C
-	select DM_PWM
-	select DM_REGULATOR
-	select DM_SERIAL
-	select DM_SPI
-	select DM_SPI_FLASH
 	select DM_USB_GADGET if USB_DWC3_GADGET
 	select ENABLE_ARM_SOC_BOOT0_HOOK
 	select OF_CONTROL
-	select MMC
-	select MTD
-	select SPI
 	select SPL_DM if SPL
-	select SPL_DM_SPI if SPL
-	select SPL_DM_SPI_FLASH if SPL
 	select SYS_MALLOC_F
 	select SYS_THUMB_BUILD if !ARM64
 	imply ADC
+	imply BOOTSTD_DEFAULTS
 	imply CMD_DM
 	imply DEBUG_UART_BOARD_INIT
-	imply BOOTSTD_DEFAULTS
+	imply DM_GPIO
+	imply DM_I2C
+	imply DM_PWM
+	imply DM_REGULATOR
+	imply DM_SERIAL
+	imply DM_SPI
+	imply DM_SPI_FLASH
 	imply FAT_WRITE
+	imply MMC
+	imply MTD
 	imply SARADC_ROCKCHIP
+	imply SPI
+	imply SPL_DM_SPI if SPL
+	imply SPL_DM_SPI_FLASH if SPL
 	imply SPL_SYSRESET
 	imply SPL_SYS_MALLOC_SIMPLE
 	imply SYS_NS16550

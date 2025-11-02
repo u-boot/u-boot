@@ -6,6 +6,11 @@
 #include "rockchip-u-boot.dtsi"
 
 / {
+	aliases {
+		spi5 = &sfc0;
+		spi6 = &sfc1;
+	};
+
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
 	};
@@ -15,6 +20,17 @@
 		bootph-all;
 	};
 };
+
+#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+&binman {
+	simple-bin-spi {
+		mkimage {
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
+			offset = <0x8000>;
+		};
+	};
+};
+#endif
 
 &cru {
 	bootph-all;
@@ -41,6 +57,26 @@
 };
 
 &emmc_strb {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&fspi0_csn0 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&fspi0_pins {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&fspi1m1_csn0 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&fspi1m1_pins {
 	bootph-pre-ram;
 	bootph-some-ram;
 };
@@ -114,6 +150,16 @@
 &sdmmc0_pwren {
 	bootph-pre-ram;
 	bootph-some-ram;
+};
+
+&sfc0 {
+	bootph-some-ram;
+	u-boot,spl-sfc-no-dma;
+};
+
+&sfc1 {
+	bootph-some-ram;
+	u-boot,spl-sfc-no-dma;
 };
 
 &sys_grf {

@@ -100,8 +100,10 @@ List of mainline supported Rockchip boards:
      - Theobroma Systems RK3399-Q7 SoM - Puma (puma_rk3399)
 
 * rk3528
+     - ArmSoM Sige1 (sige1-rk3528)
      - Generic RK3528 (generic-rk3528)
      - Radxa E20C (radxa-e20c-rk3528)
+     - Radxa ROCK 2A/2F (rock-2-rk3528)
 
 * rk3566
      - Anbernic RGxx3 (anbernic-rgxx3-rk3566)
@@ -128,6 +130,7 @@ List of mainline supported Rockchip boards:
      - FriendlyElec NanoPi R5S (nanopi-r5s-rk3568)
      - Generic RK3566/RK3568 (generic-rk3568)
      - Hardkernel ODROID-M1 (odroid-m1-rk3568)
+     - Lunzn FastRhino R66S (fastrhino-r66s-rk3568)
      - QNAP TS-433 (qnap-ts433-rk3568)
      - Radxa E25 Carrier Board (radxa-e25-rk3568)
      - Radxa ROCK 3A (rock-3a-rk3568)
@@ -136,7 +139,10 @@ List of mainline supported Rockchip boards:
 * rk3576
      - ArmSoM Sige5 (sige5-rk3576)
      - Firefly ROC-RK3576-PC (roc-pc-rk3576)
+     - FriendlyElec NanoPi M5 (nanopi-m5-rk3576)
      - Generic RK3576 (generic-rk3576)
+     - Luckfox Omni3576 (omni3576-rk3576)
+     - Radxa ROCK 4D (rock-4d-rk3576)
 
 * rk3588
      - ArmSoM Sige7 (sige7-rk3588)
@@ -152,6 +158,7 @@ List of mainline supported Rockchip boards:
      - Hardkernel ODROID-M2 (odroid-m2-rk3588s)
      - Indiedroid Nova (nova-rk3588s)
      - Khadas Edge2 (khadas-edge2-rk3588s)
+     - MNT Reform2 (mnt-reform2-rk3588)
      - Pine64 QuartzPro64 (quartzpro64-rk3588)
      - Radxa ROCK 5 ITX (rock-5-itx-rk3588)
      - Radxa ROCK 5A (rock5a-rk3588s)
