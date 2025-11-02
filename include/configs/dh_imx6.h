@@ -38,6 +38,7 @@
 #define CFG_EXTRA_ENV_SETTINGS	\
 	"bootm_size=0x10000000\0"	\
 	"console=ttymxc0,115200\0"	\
+	"dfu_alt_info=sf 0:0=flash-bin raw 0 0x200000\0"	\
 	"fdt_addr=0x18000000\0"		\
 	"kernel_addr_r=0x10008000\0"	\
 	"fdt_addr_r=0x13000000\0"	\
