@@ -59,7 +59,7 @@ if args.required_conf:
 elif args.required_image:
     out.write('\t\t\trequired = "image";\n')
 if args.spl:
-    out.write('\t\t\tu-boot,dm-spl;\n')
+    out.write('\t\t\tbootph-pre-ram;\n')
 out.write('\t\t};\n')
 out.write('\t};\n')
 out.write('};\n')

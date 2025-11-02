@@ -522,11 +522,5 @@ index 0000000..2234c87
         self.check_strl("cat");
         self.check_strl("cpy");
 
-    def test_schema(self):
-        """Check for uses of strn(cat|cpy)"""
-        pm = PatchMaker()
-        pm.add_line('arch/sandbox/dts/sandbox.dtsi', '\tu-boot,dm-pre-proper;')
-        self.check_single_message(pm, 'PRE_SCHEMA', 'error')
-
 if __name__ == "__main__":
     unittest.main()

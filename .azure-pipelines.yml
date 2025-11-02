@@ -190,18 +190,6 @@ stages:
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           make pylint_err
 
-  - job: check_for_pre_schema_tags
-    displayName: 'Check for pre-schema driver model tags'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      # If grep succeeds and finds a match the test fails as we should
-      # have no matches.
-      - script: git grep u-boot,dm- -- '*.dts*' && exit 1 || exit 0
-
   - job: check_packing_of_python_tools
     displayName: 'Check we can package the Python tools'
     pool:
