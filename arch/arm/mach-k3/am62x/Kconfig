@@ -14,6 +14,8 @@ config TARGET_AM625_A53_EVM
 	select ARM64
 	select BINMAN
 	select OF_SYSTEM_SETUP
+	imply TI_COMMON_CMD_OPTIONS
+	imply TI_I2C_BOARD_DETECT
 
 config TARGET_AM625_R5_EVM
 	bool "TI K3 based AM625 EVM running on R5"
@@ -25,6 +27,7 @@ config TARGET_AM625_R5_EVM
 	select K3_DDRSS
 	select BINMAN
 	imply SYS_K3_SPL_ATF
+	imply TI_I2C_BOARD_DETECT
 
 config TARGET_PHYCORE_AM62X_A53
 	bool "PHYTEC phyCORE-AM62x running on A53"
