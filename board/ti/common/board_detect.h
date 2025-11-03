@@ -313,6 +313,28 @@ int __maybe_unused ti_i2c_eeprom_am6_get(int bus_addr, int dev_addr,
  */
 int __maybe_unused ti_i2c_eeprom_am6_get_base(int bus_addr, int dev_addr);
 
+/**
+ * do_board_detect_am6() - Detect AM6x board and read EEPROM data
+ *
+ * This is a generic board detection function for AM6x family boards.
+ * It attempts to read the on-board EEPROM at the configured address,
+ * and if that fails, tries the alternate address (CONFIG_EEPROM_CHIP_ADDRESS + 1).
+ *
+ * Return: 0 on success or corresponding error on failure.
+ */
+int do_board_detect_am6(void);
+
+/**
+ * setup_serial_am6() - Setup serial number environment variable for AM6x boards
+ *
+ * This function reads the serial number from the AM6x EEPROM data and
+ * sets the "serial#" environment variable. The serial number is converted
+ * from hexadecimal string format to a 16-character hexadecimal representation.
+ *
+ * EEPROM should be already read before calling this function.
+ */
+void setup_serial_am6(void);
+
 #ifdef CONFIG_TI_I2C_BOARD_DETECT
 /**
  * board_ti_is() - Board detection logic for TI EVMs
