@@ -3,6 +3,8 @@ variables:
   ubuntu_vm: ubuntu-24.04
   macos_vm: macOS-14
   ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20251001-04Nov2025
+  # Ensure we do a shallow clone
+  Agent.Source.Git.ShallowFetchDepth: 1
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
