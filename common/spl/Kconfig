@@ -1216,6 +1216,22 @@ config SPL_OS_BOOT_SECURE
 	  to use falcon mode by disabling certain inherently non-securable options
 	  in the SPL boot flow.
 
+config SPL_BOOTZ
+	bool "Allow booting a zImage style Linux kernel from SPL"
+	depends on SPL_OS_BOOT && !SPL_OS_BOOT_SECURE
+	default y if ARM && !ARM64
+	select SPL_LIB_BOOTZ
+	help
+	  Boot a linux zimage from memory in falcon boot.
+
+config SPL_BOOTI
+	bool "Allow booting an Image style Linux kernel from SPL"
+	depends on SPL_OS_BOOT && !SPL_OS_BOOT_SECURE
+	default y if ARM64 || RISCV
+	select SPL_LIB_BOOTI
+	help
+	  Boot an uncompressed linux kernel image from memory in falcon boot.
+
 config SPL_OS_BOOT_ARGS
 	bool "Allow SPL to load args for kernel in falcon mode"
 	depends on (SPL_OS_BOOT || SPL_LOAD_FIT_OPENSBI_OS_BOOT) && !SPL_OS_BOOT_SECURE
