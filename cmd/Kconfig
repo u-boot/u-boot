@@ -545,9 +545,6 @@ config CMD_FDT
 	help
 	  Do FDT related setup before booting into the Operating System.
 
-config SUPPORT_EXTENSION_SCAN
-	bool
-
 config CMD_EXTENSION
 	bool "Extension board management command"
 	select CMD_FDT

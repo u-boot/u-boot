@@ -861,7 +861,7 @@ static int bootflow_cmd_hunt_single(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* check that the hunter was used */
-	ut_asserteq(BIT(MMC_HUNTER) | BIT(1), std->hunters_used);
+	ut_asserteq(BIT(MMC_HUNTER), std->hunters_used);
 
 	return 0;
 }
@@ -883,14 +883,12 @@ static int bootflow_cmd_hunt_label(struct unit_test_state *uts)
 	ut_assertok(run_command("bootflow scan -l mmc", 0));
 
 	/* check that the hunter was used */
-	ut_asserteq(BIT(MMC_HUNTER) | BIT(1), std->hunters_used);
+	ut_asserteq(BIT(MMC_HUNTER), std->hunters_used);
 
 	/* check that we got the mmc1 bootflow */
 	ut_assert_nextline("Scanning for bootflows with label 'mmc'");
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("Hunting with: simple_bus");
-	ut_assert_nextline("Found 2 extension board(s).");
 	ut_assert_nextline("Hunting with: mmc");
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");

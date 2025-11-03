@@ -9,6 +9,7 @@ obj-$(CONFIG_BOOT_RETRY) += bootretry.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTI) += bootm.o bootm_os.o
+obj-$(CONFIG_SUPPORT_EXTENSION_SCAN) += extension-uclass.o
 
 obj-$(CONFIG_PXE_UTILS) += pxe_utils.o
 

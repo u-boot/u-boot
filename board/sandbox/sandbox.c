@@ -110,24 +110,33 @@ int ft_board_setup(void *fdt, struct bd_info *bd)
 	return fdt_add_mem_rsv(fdt, 0x00d02000, 0x4000);
 }
 
-#ifdef CONFIG_CMD_EXTENSION
-int extension_board_scan(struct list_head *extension_list)
+#if CONFIG_IS_ENABLED(SUPPORT_EXTENSION_SCAN) && \
+	!CONFIG_IS_ENABLED(XPL_BUILD)
+static int sandbox_extension_board_scan(struct udevice *dev,
+					struct alist *extension_list)
 {
-	struct extension *extension;
 	int i;
 
 	for (i = 0; i < 2; i++) {
-		extension = calloc(1, sizeof(struct extension));
-		snprintf(extension->overlay, sizeof(extension->overlay), "overlay%d.dtbo", i);
-		snprintf(extension->name, sizeof(extension->name), "extension board %d", i);
-		snprintf(extension->owner, sizeof(extension->owner), "sandbox");
-		snprintf(extension->version, sizeof(extension->version), "1.1");
-		snprintf(extension->other, sizeof(extension->other), "Fictional extension board");
-		list_add_tail(&extension->list, extension_list);
+		struct extension extension = {0};
+
+		snprintf(extension.overlay, sizeof(extension.overlay), "overlay%d.dtbo", i);
+		snprintf(extension.name, sizeof(extension.name), "extension board %d", i);
+		snprintf(extension.owner, sizeof(extension.owner), "sandbox");
+		snprintf(extension.version, sizeof(extension.version), "1.1");
+		snprintf(extension.other, sizeof(extension.other), "Fictional extension board");
+		if (!alist_add(extension_list, extension))
+			return -ENOMEM;
 	}
 
 	return i;
 }
+
+U_BOOT_EXTENSION(sandbox_extension, sandbox_extension_board_scan);
+
+U_BOOT_DRVINFO(sandbox_extension) = {
+	.name = "sandbox_extension",
+};
 #endif
 
 #ifdef CONFIG_BOARD_LATE_INIT

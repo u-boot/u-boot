@@ -249,6 +249,8 @@ int board_mmc_get_env_dev(int devno)
 #define IOT_GATE_IMX8_EXT_I2C_ADDR_GPIO 0x22 /* I2C address of the GPIO
 						extender */
 
+#if !IS_ENABLED(CONFIG_XPL_BUILD)
+
 static int iot_gate_imx8_ext_id = IOT_GATE_EXT_EMPTY; /* Extension board ID */
 static int iot_gate_imx8_ext_ied_id [3] = {
 	IOT_GATE_IMX8_CARD_ID_EMPTY,
@@ -434,9 +436,10 @@ static int iot_gate_imx8_update_ext_ied(void)
 	return 0;
 }
 
-int extension_board_scan(struct list_head *extension_list)
+static int iot_gate_imx8_extension_board_scan(struct udevice *dev,
+					      struct alist *extension_list)
 {
-	struct extension *extension = NULL;
+	struct extension extension = {0};
 	int i;
 	int ret = 0;
 
@@ -446,25 +449,21 @@ int extension_board_scan(struct list_head *extension_list)
 	case IOT_GATE_EXT_EMPTY:
 		break;
 	case IOT_GATE_EXT_CAN:
-		extension = calloc(1, sizeof(struct extension));
-		snprintf(extension->name, sizeof(extension->name),
+		snprintf(extension.name, sizeof(extension.name),
 			 "IOT_GATE_EXT_CAN");
 		break;
 	case IOT_GATE_EXT_IED:
-		extension = calloc(1, sizeof(struct extension));
-		snprintf(extension->name, sizeof(extension->name),
+		snprintf(extension.name, sizeof(extension.name),
 			 "IOT_GATE_EXT_IED");
-		snprintf(extension->overlay, sizeof(extension->overlay),
+		snprintf(extension.overlay, sizeof(extension.overlay),
 			 "imx8mm-cl-iot-gate-ied.dtbo");
 		break;
 	case IOT_GATE_EXT_POE:
-		extension = calloc(1, sizeof(struct extension));
-		snprintf(extension->name, sizeof(extension->name),
+		snprintf(extension.name, sizeof(extension.name),
 			 "IOT_GATE_EXT_POE");
 		break;
 	case IOT_GATE_EXT_POEV2:
-		extension = calloc(1, sizeof(struct extension));
-		snprintf(extension->name, sizeof(extension->name),
+		snprintf(extension.name, sizeof(extension.name),
 			 "IOT_GATE_EXT_POEV2");
 		break;
 	default:
@@ -472,10 +471,11 @@ int extension_board_scan(struct list_head *extension_list)
 		break;
 	}
 
-	if (extension) {
-		snprintf(extension->owner, sizeof(extension->owner),
+	if (extension.name[0]) {
+		snprintf(extension.owner, sizeof(extension.owner),
 			 "Compulab");
-		list_add_tail(&extension->list, extension_list);
+		if (!alist_add(extension_list, extension))
+			return -ENOMEM;
 		ret = 1;
 	} else
 		return ret;
@@ -484,44 +484,38 @@ int extension_board_scan(struct list_head *extension_list)
 
 	iot_gate_imx8_update_ext_ied();
 	for (i=0; i<ARRAY_SIZE(iot_gate_imx8_ext_ied_id); i++) {
-		extension = NULL;
+		memset(&extension, 0, sizeof(extension));
 		switch (iot_gate_imx8_ext_ied_id[i]) {
 		case IOT_GATE_IMX8_CARD_ID_EMPTY:
 			break;
 		case IOT_GATE_IMX8_CARD_ID_RS_485:
-			extension = calloc(1, sizeof(struct extension));
-			snprintf(extension->name, sizeof(extension->name),
+			snprintf(extension.name, sizeof(extension.name),
 				 "IOT_GATE_IMX8_CARD_ID_RS_485");
 			break;
 		case IOT_GATE_IMX8_CARD_ID_RS_232:
-			extension = calloc(1, sizeof(struct extension));
-			snprintf(extension->name, sizeof(extension->name),
+			snprintf(extension.name, sizeof(extension.name),
 				 "IOT_GATE_IMX8_CARD_ID_RS_232");
 			break;
 		case IOT_GATE_IMX8_CARD_ID_CAN:
-			extension = calloc(1, sizeof(struct extension));
-			snprintf(extension->name, sizeof(extension->name),
+			snprintf(extension.name, sizeof(extension.name),
 				 "IOT_GATE_IMX8_CARD_ID_CAN");
-			snprintf(extension->overlay, sizeof(extension->overlay),
+			snprintf(extension.overlay, sizeof(extension.overlay),
 				 "imx8mm-cl-iot-gate-ied-can%d.dtbo", i);
 			break;
 		case IOT_GATE_IMX8_CARD_ID_TPM:
-			extension = calloc(1, sizeof(struct extension));
-			snprintf(extension->name, sizeof(extension->name),
+			snprintf(extension.name, sizeof(extension.name),
 				 "IOT_GATE_IMX8_CARD_ID_TPM");
-			snprintf(extension->overlay, sizeof(extension->overlay),
+			snprintf(extension.overlay, sizeof(extension.overlay),
 				 "imx8mm-cl-iot-gate-ied-tpm%d.dtbo", i);
 			break;
 		case IOT_GATE_IMX8_CARD_ID_CL420:
-			extension = calloc(1, sizeof(struct extension));
-			snprintf(extension->name, sizeof(extension->name),
+			snprintf(extension.name, sizeof(extension.name),
 				 "IOT_GATE_IMX8_CARD_ID_CL420");
-			snprintf(extension->overlay, sizeof(extension->overlay),
+			snprintf(extension.overlay, sizeof(extension.overlay),
 				 "imx8mm-cl-iot-gate-ied-can%d.dtbo", i);
 			break;
 		case IOT_GATE_IMX8_CARD_ID_DI4O4:
-			extension = calloc(1, sizeof(struct extension));
-			snprintf(extension->name, sizeof(extension->name),
+			snprintf(extension.name, sizeof(extension.name),
 				 "IOT_GATE_IMX8_CARD_ID_DI4O4");
 			break;
 		default:
@@ -529,18 +523,26 @@ int extension_board_scan(struct list_head *extension_list)
 			       __func__, i, iot_gate_imx8_ext_ied_id[i]);
 			break;
 		}
-		if (extension) {
-			snprintf(extension->owner, sizeof(extension->owner),
+		if (extension.name[0]) {
+			snprintf(extension.owner, sizeof(extension.owner),
 				 "Compulab");
-			snprintf(extension->other, sizeof(extension->other),
+			snprintf(extension.other, sizeof(extension.other),
 				 "On slot %d", i);
-			list_add_tail(&extension->list, extension_list);
+			if (!alist_add(extension_list, extension))
+				return -ENOMEM;
 			ret = ret + 1;
 		}
 	}
 
         return ret;
 }
+
+U_BOOT_EXTENSION(iot_gate_imx8_extension, iot_gate_imx8_extension_board_scan);
+
+U_BOOT_DRVINFO(iot_gate_imx8_extension) = {
+	.name = "iot_gate_imx8_extension",
+};
+#endif
 
 static int setup_mac_address(void)
 {

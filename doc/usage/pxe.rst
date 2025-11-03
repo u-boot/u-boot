@@ -103,6 +103,10 @@ Environment
         ``fdt_addr_r``. Required to use the ``fdtoverlays`` command in
         the PXE file.
 
+``extension_overlay_addr``
+	Location in RAM to temporarily store extension fdt overlay(s)
+	before applying them to the fdt blob stored at ``fdt_addr_r``.
+
 ``pxe_label_override``
         Override label to be used, if exists, instead of the default
         label. This will allow consumers to choose a pxe label at

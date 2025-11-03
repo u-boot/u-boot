@@ -22,21 +22,21 @@ static void sanitize_field(char *text, size_t size)
 	}
 }
 
-int extension_board_scan(struct list_head *extension_list)
+static int ti_extension_board_scan(struct udevice *dev,
+				   struct alist *extension_list)
 {
-	struct extension *cape;
-	struct am335x_cape_eeprom_id eeprom_header;
-
-	int num_capes = 0;
-	int ret, i;
-	struct udevice *dev;
 	unsigned char addr;
-
-	char process_cape_part_number[17] = {'0'};
-	char process_cape_version[5] = {'0'};
-	uint8_t cursor = 0;
+	int num_capes = 0;
 
 	for (addr = CAPE_EEPROM_FIRST_ADDR; addr <= CAPE_EEPROM_LAST_ADDR; addr++) {
+		struct am335x_cape_eeprom_id eeprom_header;
+		char process_cape_part_number[17] = {'0'};
+		char process_cape_version[5] = {'0'};
+		struct extension cape = {0};
+		struct udevice *dev;
+		u8 cursor = 0;
+		int ret, i;
+
 		ret = i2c_get_chip_for_busnum(CONFIG_CAPE_EEPROM_BUS_NUM, addr, 1, &dev);
 		if (ret)
 			continue;
@@ -59,8 +59,8 @@ int extension_board_scan(struct list_head *extension_list)
 		sanitize_field(eeprom_header.part_number, sizeof(eeprom_header.part_number));
 
 		/* Process cape part_number */
-		memset(process_cape_part_number, 0, sizeof(process_cape_part_number));
-		strncpy(process_cape_part_number, eeprom_header.part_number, 16);
+		strlcpy(process_cape_part_number, eeprom_header.part_number,
+			sizeof(process_cape_part_number));
 		/* Some capes end with '.' */
 		for (i = 15; i >= 0; i--) {
 			if (process_cape_part_number[i] == '.')
@@ -70,8 +70,8 @@ int extension_board_scan(struct list_head *extension_list)
 		}
 
 		/* Process cape version */
-		memset(process_cape_version, 0, sizeof(process_cape_version));
-		strncpy(process_cape_version, eeprom_header.version, 4);
+		strlcpy(process_cape_version, eeprom_header.version,
+			sizeof(process_cape_version));
 		for (i = 0; i < 4; i++) {
 			if (process_cape_version[i] == 0)
 				process_cape_version[i] = '0';
@@ -79,19 +79,23 @@ int extension_board_scan(struct list_head *extension_list)
 
 		printf("BeagleBone Cape: %s (0x%x)\n", eeprom_header.board_name, addr);
 
-		cape = calloc(1, sizeof(struct extension));
-		if (!cape) {
-			printf("Error in memory allocation\n");
-			return num_capes;
-		}
-
-		snprintf(cape->overlay, sizeof(cape->overlay), "%s-%s.dtbo",
+		snprintf(cape.overlay, sizeof(cape.overlay), "%s-%s.dtbo",
 			 process_cape_part_number, process_cape_version);
-		strncpy(cape->name, eeprom_header.board_name, 32);
-		strncpy(cape->version, process_cape_version, 4);
-		strncpy(cape->owner, eeprom_header.manufacturer, 16);
-		list_add_tail(&cape->list, extension_list);
+		strlcpy(cape.name, eeprom_header.board_name,
+			sizeof(eeprom_header.board_name));
+		strlcpy(cape.version, process_cape_version,
+			sizeof(process_cape_version));
+		strlcpy(cape.owner, eeprom_header.manufacturer,
+			sizeof(eeprom_header.manufacturer) + 1);
+		if (!alist_add(extension_list, cape))
+			return -ENOMEM;
 		num_capes++;
 	}
 	return num_capes;
 }
+
+U_BOOT_EXTENSION(cape, ti_extension_board_scan);
+
+U_BOOT_DRVINFO(cape) = {
+	.name	= "cape",
+};

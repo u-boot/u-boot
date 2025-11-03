@@ -25,9 +25,8 @@ Device Tree overlays depending on the detected extension boards.
 
 The "extension" command comes with three sub-commands:
 
- - "extension scan" makes the generic code call the board-specific
-   extension_board_scan() function to retrieve the list of detected
-   extension boards.
+ - "extension scan" makes the generic code call a board-specific extension
+   function to retrieve the list of detected extension boards.
 
  - "extension list" allows to list the detected extension boards.
 
@@ -98,17 +97,23 @@ Simple extension_board_scan function example
 
 .. code-block:: c
 
-    int extension_board_scan(struct list_head *extension_list)
+    static int foo_extension_board_scan(struct alist *extension_list)
     {
-        struct extension *extension;
+        struct extension extension = {0};
 
-        extension = calloc(1, sizeof(struct extension));
-        snprintf(extension->overlay, sizeof(extension->overlay), "overlay.dtbo");
-        snprintf(extension->name, sizeof(extension->name), "extension board");
-        snprintf(extension->owner, sizeof(extension->owner), "sandbox");
-        snprintf(extension->version, sizeof(extension->version), "1.1");
-        snprintf(extension->other, sizeof(extension->other), "Extension board information");
-        list_add_tail(&extension->list, extension_list);
+        snprintf(extension.overlay, sizeof(extension.overlay), "overlay.dtbo");
+        snprintf(extension.name, sizeof(extension.name), "extension board");
+        snprintf(extension.owner, sizeof(extension.owner), "sandbox");
+        snprintf(extension.version, sizeof(extension.version), "1.1");
+        snprintf(extension.other, sizeof(extension.other), "Extension board information");
+        if (!alist_add(extension_list, extension))
+                return -ENOMEM;
 
         return 1;
     }
+
+    U_BOOT_EXTENSION(foo_extension_name, foo_extension_board_scan);
+
+    U_BOOT_DRVINFO(foo_extension_name) = {
+        .name = "foo_extension_name",
+    };
