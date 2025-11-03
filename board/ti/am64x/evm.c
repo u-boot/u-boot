@@ -114,30 +114,11 @@ void spl_perform_board_fixups(struct spl_image_info *spl_image)
 #endif
 
 #ifdef CONFIG_TI_I2C_BOARD_DETECT
-int do_board_detect(void)
-{
-	int ret;
-
-	ret = ti_i2c_eeprom_am6_get_base(CONFIG_EEPROM_BUS_ADDRESS,
-					 CONFIG_EEPROM_CHIP_ADDRESS);
-	if (ret) {
-		printf("EEPROM not available at 0x%02x, trying to read at 0x%02x\n",
-			CONFIG_EEPROM_CHIP_ADDRESS, CONFIG_EEPROM_CHIP_ADDRESS + 1);
-		ret = ti_i2c_eeprom_am6_get_base(CONFIG_EEPROM_BUS_ADDRESS,
-						 CONFIG_EEPROM_CHIP_ADDRESS + 1);
-		if (ret)
-			pr_err("Reading on-board EEPROM at 0x%02x failed %d\n",
-			       CONFIG_EEPROM_CHIP_ADDRESS + 1, ret);
-	}
-
-	return ret;
-}
-
 int checkboard(void)
 {
 	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
 
-	if (!do_board_detect())
+	if (!do_board_detect_am6())
 		printf("Board: %s rev %s\n", ep->name, ep->version);
 
 	return 0;
@@ -154,7 +135,7 @@ static void setup_board_eeprom_env(void)
 {
 	char *name = "am64x_gpevm";
 
-	if (do_board_detect())
+	if (do_board_detect_am6())
 		goto invalid_eeprom;
 
 	if (board_is_am64x_gpevm())
@@ -169,26 +150,6 @@ invalid_eeprom:
 	set_board_info_env_am6(name);
 	ti_set_fdt_env(name, ti_am64_evm_fdt_map);
 }
-
-static void setup_serial(void)
-{
-	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
-	unsigned long board_serial;
-	char *endp;
-	char serial_string[17] = { 0 };
-
-	if (env_get("serial#"))
-		return;
-
-	board_serial = hextoul(ep->serial, &endp);
-	if (*endp != '\0') {
-		pr_err("Error: Can't set serial# to %s\n", ep->serial);
-		return;
-	}
-
-	snprintf(serial_string, sizeof(serial_string), "%016lx", board_serial);
-	env_set("serial#", serial_string);
-}
 #endif
 #endif
 
@@ -199,7 +160,7 @@ int board_late_init(void)
 		struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
 
 		setup_board_eeprom_env();
-		setup_serial();
+		setup_serial_am6();
 		/*
 		 * The first MAC address for ethernet a.k.a. ethernet0 comes from
 		 * efuse populated via the am654 gigabit eth switch subsystem driver.
