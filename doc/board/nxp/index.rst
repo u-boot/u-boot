@@ -26,4 +26,5 @@ NXP Semiconductors
    mx6sabresd
    mx6ul_14x14_evk
    mx6ullevk
+   rproc
    psb
