@@ -12,7 +12,7 @@ int imx_clk_scmi_enable(u32 clock_id, bool enable)
 {
 	struct scmi_clk_state_in in = {
 		.clock_id = clock_id,
-		.attributes = (enable) ? 1 : 0,
+		.attributes = !!enable,
 	};
 	struct scmi_clk_state_out out;
 	struct scmi_msg msg = SCMI_MSG_IN(SCMI_PROTOCOL_ID_CLOCK,
