@@ -4,3 +4,23 @@
  */
 
 #include "imx8mp-dhcom-u-boot.dtsi"
+
+/ {
+	led {
+		led-0 {
+			function-enumerator = <0>;
+		};
+
+		led-1 {
+			function-enumerator = <1>;
+		};
+
+		led-2 {
+			function-enumerator = <2>;
+		};
+
+		led-3 {
+			function-enumerator = <3>;
+		};
+	};
+};

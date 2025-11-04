@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright 2025 NXP
  */
 #include <cpu_func.h>
 #include <dm.h>
@@ -9,6 +10,7 @@
 #include <mapmem.h>
 #include <remoteproc.h>
 #include <asm/cache.h>
+#include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/compat.h>
 #include <linux/printk.h>
@@ -181,27 +183,38 @@ int rproc_elf32_load_image(struct udevice *dev, unsigned long addr, ulong size)
 	for (i = 0; i < ehdr->e_phnum; i++, phdr++) {
 		void *dst = (void *)(uintptr_t)phdr->p_paddr;
 		void *src = (void *)addr + phdr->p_offset;
+		bool is_iomem = false;
 		ulong dst_addr;
 
-		if (phdr->p_type != PT_LOAD)
+		if (phdr->p_type != PT_LOAD || !phdr->p_memsz)
 			continue;
 
 		if (ops->device_to_virt)
 			dst = ops->device_to_virt(dev, (ulong)dst,
-						  phdr->p_memsz);
+						  phdr->p_memsz, &is_iomem);
 
 		dev_dbg(dev, "Loading phdr %i to 0x%p (%i bytes)\n",
 			i, dst, phdr->p_filesz);
-		if (phdr->p_filesz)
-			memcpy(dst, src, phdr->p_filesz);
-		if (phdr->p_filesz != phdr->p_memsz)
-			memset(dst + phdr->p_filesz, 0x00,
-			       phdr->p_memsz - phdr->p_filesz);
+		if (phdr->p_filesz) {
+			if (is_iomem)
+				memcpy_toio(dst, src, phdr->p_filesz);
+			else
+				memcpy(dst, src, phdr->p_filesz);
+		}
+		if (phdr->p_filesz != phdr->p_memsz) {
+			if (is_iomem)
+				memset_io(dst + phdr->p_filesz, 0x00,
+					  phdr->p_memsz - phdr->p_filesz);
+			else
+				memset(dst + phdr->p_filesz, 0x00,
+				       phdr->p_memsz - phdr->p_filesz);
+		}
 		dst_addr = map_to_sysmem(dst);
-		flush_cache(rounddown(dst_addr, ARCH_DMA_MINALIGN),
-			    roundup(dst_addr + phdr->p_filesz,
-				    ARCH_DMA_MINALIGN) -
-			    rounddown(dst_addr, ARCH_DMA_MINALIGN));
+		if (!is_iomem) {
+			flush_cache(rounddown(dst_addr, ARCH_DMA_MINALIGN),
+				    roundup(dst_addr + phdr->p_filesz, ARCH_DMA_MINALIGN) -
+				    rounddown(dst_addr, ARCH_DMA_MINALIGN));
+		}
 	}
 
 	return 0;
@@ -230,6 +243,7 @@ int rproc_elf64_load_image(struct udevice *dev, ulong addr, ulong size)
 		memsz = phdr->p_memsz;
 		filesz = phdr->p_filesz;
 		offset = phdr->p_offset;
+		bool is_iomem = false;
 
 		if (phdr->p_type != PT_LOAD)
 			continue;
@@ -239,7 +253,7 @@ int rproc_elf64_load_image(struct udevice *dev, ulong addr, ulong size)
 
 		ptr = (void *)(uintptr_t)da;
 		if (ops->device_to_virt) {
-			ptr = ops->device_to_virt(dev, da, phdr->p_memsz);
+			ptr = ops->device_to_virt(dev, da, phdr->p_memsz, &is_iomem);
 			if (!ptr) {
 				dev_err(dev, "bad da 0x%llx mem 0x%llx\n", da,
 					memsz);
@@ -248,14 +262,24 @@ int rproc_elf64_load_image(struct udevice *dev, ulong addr, ulong size)
 			}
 		}
 
-		if (filesz)
-			memcpy(ptr, (void *)addr + offset, filesz);
-		if (filesz != memsz)
-			memset(ptr + filesz, 0x00, memsz - filesz);
+		if (filesz) {
+			if (is_iomem)
+				memcpy_toio(ptr, (void *)addr + offset, filesz);
+			else
+				memcpy(ptr, (void *)addr + offset, filesz);
+		}
+		if (filesz != memsz) {
+			if (is_iomem)
+				memset_io(ptr + filesz, 0x00, memsz - filesz);
+			else
+				memset(ptr + filesz, 0x00, memsz - filesz);
+		}
 
-		flush_cache(rounddown((ulong)ptr, ARCH_DMA_MINALIGN),
-			    roundup((ulong)ptr + filesz, ARCH_DMA_MINALIGN) -
-			    rounddown((ulong)ptr, ARCH_DMA_MINALIGN));
+		if (!is_iomem) {
+			flush_cache(rounddown((ulong)ptr, ARCH_DMA_MINALIGN),
+				    roundup((ulong)ptr + filesz, ARCH_DMA_MINALIGN) -
+				    rounddown((ulong)ptr, ARCH_DMA_MINALIGN));
+		}
 	}
 
 	return ret;
@@ -381,6 +405,7 @@ int rproc_elf32_load_rsc_table(struct udevice *dev, ulong fw_addr,
 	Elf32_Shdr *shdr;
 	void *src, *dst;
 	ulong dst_addr;
+	bool is_iomem = false;
 
 	shdr = rproc_elf32_find_rsc_table(dev, fw_addr, fw_size);
 	if (!shdr)
@@ -394,18 +419,22 @@ int rproc_elf32_load_rsc_table(struct udevice *dev, ulong fw_addr,
 
 	src = (void *)fw_addr + shdr->sh_offset;
 	if (ops->device_to_virt)
-		dst = (void *)ops->device_to_virt(dev, *rsc_addr, *rsc_size);
+		dst = (void *)ops->device_to_virt(dev, *rsc_addr, *rsc_size, &is_iomem);
 	else
 		dst = (void *)rsc_addr;
 
 	dev_dbg(dev, "Loading resource table to 0x%8lx (%ld bytes)\n",
 		(ulong)dst, *rsc_size);
 
-	memcpy(dst, src, *rsc_size);
-	dst_addr = map_to_sysmem(dst);
-	flush_cache(rounddown(dst_addr, ARCH_DMA_MINALIGN),
-		    roundup(dst_addr + *rsc_size, ARCH_DMA_MINALIGN) -
-		    rounddown(dst_addr, ARCH_DMA_MINALIGN));
+	if (is_iomem) {
+		memcpy_toio(dst, src, *rsc_size);
+	} else {
+		memcpy(dst, src, *rsc_size);
+		dst_addr = map_to_sysmem(dst);
+		flush_cache(rounddown(dst_addr, ARCH_DMA_MINALIGN),
+			    roundup(dst_addr + *rsc_size, ARCH_DMA_MINALIGN) -
+			    rounddown(dst_addr, ARCH_DMA_MINALIGN));
+	}
 
 	return 0;
 }
@@ -490,6 +519,7 @@ int rproc_elf64_load_rsc_table(struct udevice *dev, ulong fw_addr,
 	const struct dm_rproc_ops *ops;
 	Elf64_Shdr *shdr;
 	void *src, *dst;
+	bool is_iomem = false;
 
 	shdr = rproc_elf64_find_rsc_table(dev, fw_addr, fw_size);
 	if (!shdr)
@@ -503,18 +533,21 @@ int rproc_elf64_load_rsc_table(struct udevice *dev, ulong fw_addr,
 
 	src = (void *)fw_addr + shdr->sh_offset;
 	if (ops->device_to_virt)
-		dst = (void *)ops->device_to_virt(dev, *rsc_addr, *rsc_size);
+		dst = (void *)ops->device_to_virt(dev, *rsc_addr, *rsc_size, &is_iomem);
 	else
 		dst = (void *)rsc_addr;
 
 	dev_dbg(dev, "Loading resource table to 0x%8lx (%ld bytes)\n",
 		(ulong)dst, *rsc_size);
 
-	memcpy(dst, src, *rsc_size);
-	flush_cache(rounddown((unsigned long)dst, ARCH_DMA_MINALIGN),
-		    roundup((unsigned long)dst + *rsc_size,
-			    ARCH_DMA_MINALIGN) -
-		    rounddown((unsigned long)dst, ARCH_DMA_MINALIGN));
+	if (is_iomem) {
+		memcpy_toio(dst, src, *rsc_size);
+	} else {
+		memcpy(dst, src, *rsc_size);
+		flush_cache(rounddown((unsigned long)dst, ARCH_DMA_MINALIGN),
+			    roundup((unsigned long)dst + *rsc_size, ARCH_DMA_MINALIGN) -
+			    rounddown((unsigned long)dst, ARCH_DMA_MINALIGN));
+	}
 
 	return 0;
 }

@@ -18,7 +18,36 @@
 #include <mmc.h>
 #include <net.h>
 
+#include "../common/hw-uid.h"
+
 DECLARE_GLOBAL_DATA_PTR;
+
+#if IS_ENABLED(CONFIG_KONTRON_HW_UID)
+
+struct uid_otp_loc uid_otp_locations[] = {
+	{
+		.addr = (u32 *)(OCOTP_BASE_ADDR + 0x7A0),
+		.len = 2,
+		.format = UID_OTP_FORMAT_DEC,
+		.desc = "BOARD"
+	},
+	{
+		.addr = (u32 *)(OCOTP_BASE_ADDR + 0x780),
+		.len = 2,
+		.format = UID_OTP_FORMAT_DEC,
+		.desc = "SOM"
+	},
+#if IS_ENABLED(CONFIG_KONTRON_HW_UID_USE_SOC_FALLBACK)
+	{
+		.addr = (u32 *)(OCOTP_BASE_ADDR + 0x410),
+		.len = 2,
+		.format = UID_OTP_FORMAT_HEX,
+		.desc = "SOC"
+	}
+#endif
+};
+
+#endif /* CONFIG_KONTRON_HW_UID */
 
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_image fw_images[] = {
@@ -166,6 +195,9 @@ int board_late_init(void)
 		env_set("som_type", "sl");
 		env_set("touch_rst_gpio", "87");
 	}
+
+	if (IS_ENABLED(CONFIG_KONTRON_HW_UID))
+		get_serial_number(uid_otp_locations, ARRAY_SIZE(uid_otp_locations));
 
 	if (is_usb_boot()) {
 		env_set("bootcmd", "fastboot 0");

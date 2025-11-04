@@ -53,9 +53,7 @@ static void ddr_cfg_write(const struct dram_timing_info *dram_timing_info)
 }
 
 static const struct dram_timing_info *board_dram_timing[] = {
-#if defined(CONFIG_M2_MEMORY)
 	&bsh_dram_timing_512mb,
-#endif
 	&bsh_dram_timing_256mb,
 	&bsh_dram_timing_128mb,
 };

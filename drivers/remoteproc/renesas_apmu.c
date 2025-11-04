@@ -170,11 +170,12 @@ static int renesas_apmu_rproc_init(struct udevice *dev)
  * @dev:	corresponding remote processor device
  * @da:		device address
  * @size:	Size of the memory region @da is pointing to
+ * @is_iomem:	optional pointer filled in to indicate if @da is iomapped memory
  *
  * Return: converted virtual address
  */
 static void *renesas_apmu_rproc_device_to_virt(struct udevice *dev, ulong da,
-					       ulong size)
+					       ulong size, bool *is_iomem)
 {
 	/*
 	 * The Cortex R52 and A76 share the same address space,

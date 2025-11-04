@@ -48,6 +48,7 @@ Note: srctree is U-Boot source directory
    $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.28-994fa14.bin
    $ sh firmware-imx-8.28-994fa14.bin --auto-accept
    $ cp firmware-imx-8.28-994fa14/firmware/ddr/synopsys/lpddr5*v202409.bin $(srctree)
+   $ cp firmware-imx-8.28-994fa14/firmware/ddr/synopsys/lpddr4x*v202409.bin $(srctree)
 
 Get and Build OEI Images
 --------------------------------------
@@ -65,7 +66,7 @@ branch: master
    $ git clone -b master https://github.com/nxp-imx/imx-oei.git
    $ cd imx-oei
 
-i.MX95 A0 silicon version
+i.MX95 A0 silicon version on 19x19 LPDDR5 EVK
 
 .. code-block:: bash
 
@@ -75,12 +76,19 @@ i.MX95 A0 silicon version
    $ make board=mx95lp5 oei=tcm DEBUG=1 r=A0 all
    $ cp build/mx95lp5/tcm/oei-m33-tcm.bin $(srctree)
 
-i.MX95 B0 silicon version
+i.MX95 B0 silicon version on 19x19 LPDDR5 EVK
 
 .. code-block:: bash
 
    $ make board=mx95lp5 oei=ddr DEBUG=1 r=B0 all
    $ cp build/mx95lp5/ddr/oei-m33-ddr.bin $(srctree)
+
+i.MX95 B0 silicon version on 15x15 LPDDR4X EVK
+
+.. code-block:: bash
+
+   $ make board=mx95lp4x-15 oei=ddr DEBUG=1 r=B0 all
+   $ cp build/mx95lp4x-15/ddr/oei-m33-ddr.bin $(srctree)
 
 Get and Build System Manager Image
 --------------------------------------
@@ -120,7 +128,7 @@ branch: lf_v2.12
 Build the Bootloader Image
 --------------------------
 
-i.MX95 A0 silicon version
+i.MX95 A0 silicon version on 19x19 LPDDR5 EVK
 
 .. code-block:: bash
 
@@ -128,12 +136,20 @@ i.MX95 A0 silicon version
    $ make imx95_a0_19x19_evk_defconfig
    $ make
 
-i.MX95 B0 silicon version
+i.MX95 B0 silicon version on 19x19 LPDDR5 EVK
 
 .. code-block:: bash
 
    $ export CROSS_COMPILE=aarch64-poky-linux-
    $ make imx95_19x19_evk_defconfig
+   $ make
+
+i.MX95 B0 silicon version on 15x15 LPDDR4X EVK
+
+.. code-block:: bash
+
+   $ export CROSS_COMPILE=aarch64-poky-linux-
+   $ make imx95_15x15_evk_defconfig
    $ make
 
 Copy imx-boot-imx95.bin to the MicroSD card:
