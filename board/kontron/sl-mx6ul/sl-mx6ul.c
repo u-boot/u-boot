@@ -14,7 +14,36 @@
 
 #include "sl-mx6ul-common.h"
 
+#include "../common/hw-uid.h"
+
 DECLARE_GLOBAL_DATA_PTR;
+
+#if IS_ENABLED(CONFIG_KONTRON_HW_UID)
+
+struct uid_otp_loc uid_otp_locations[] = {
+	{
+		.addr = (u32 *)(OCOTP_BASE_ADDR + 0x670),
+		.len = 1,
+		.format = UID_OTP_FORMAT_DEC,
+		.desc = "BOARD"
+	},
+	{
+		.addr = (u32 *)(OCOTP_BASE_ADDR + 0x660),
+		.len = 1,
+		.format = UID_OTP_FORMAT_DEC,
+		.desc = "SOM"
+	},
+#if IS_ENABLED(CONFIG_KONTRON_HW_UID_USE_SOC_FALLBACK)
+	{
+		.addr = (u32 *)(OCOTP_BASE_ADDR + 0x410),
+		.len = 2,
+		.format = UID_OTP_FORMAT_HEX,
+		.desc = "SOC"
+	}
+#endif
+};
+
+#endif /* CONFIG_KONTRON_HW_UID */
 
 int dram_init(void)
 {
@@ -91,6 +120,9 @@ int board_init(void)
 
 int board_late_init(void)
 {
+	if (IS_ENABLED(CONFIG_KONTRON_HW_UID))
+		get_serial_number(uid_otp_locations, ARRAY_SIZE(uid_otp_locations));
+
 	if (is_boot_from_usb()) {
 		env_set("bootdelay", "0");
 		env_set("bootcmd", "fastboot 0");
