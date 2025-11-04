@@ -328,7 +328,7 @@ static int virtio_uclass_child_pre_probe(struct udevice *vdev)
 		debug("(%s): legacy virtio device\n", vdev->name);
 		uc_priv->features = driver_features_legacy & device_features;
 	} else {
-		debug("(%s): v1.0 complaint virtio device\n", vdev->name);
+		debug("(%s): v1.0 compliant virtio device\n", vdev->name);
 		uc_priv->features = driver_features & device_features;
 	}
 
