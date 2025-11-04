@@ -33,6 +33,13 @@ config REMOTEPROC_ADI_SC5XX
 	  Say 'y' here to add support for loading code onto SHARC cores in
 	  an ADSP-SC5xx SoC from Analog Devices
 
+config REMOTEPROC_IMX
+	bool "Support for NXP i.MX remoteproc"
+	select REMOTEPROC
+	depends on DM && MACH_IMX && OF_CONTROL
+	help
+	  Say 'y' here to add support for i.MX remoteproc.
+
 config REMOTEPROC_RENESAS_APMU
 	bool "Support for Renesas R-Car Gen4 APMU start of CR52 processor"
 	select REMOTEPROC
