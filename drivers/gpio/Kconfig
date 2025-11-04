@@ -340,6 +340,7 @@ config NPCM_SGPIO
 config OMAP_GPIO
 	bool "TI OMAP GPIO driver"
 	depends on ARCH_OMAP2PLUS
+	select TI_SYSC if OF_CONTROL
 	default y
 	help
 	  Support GPIO controllers on the TI OMAP3/4/5 and related (such as
