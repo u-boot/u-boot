@@ -456,6 +456,12 @@ config WDT_TANGIER
 	  Intel Tangier SoC. If you're using a board with Intel Tangier
 	  SoC, say Y here.
 
+config WDT_TEGRA
+	bool "Tegra watchdog"
+	depends on WDT && ARCH_TEGRA
+	help
+	  Enable support for the watchdog timer found in Tegra SoCs.
+
 config WDT_ARM_SMC
 	bool "ARM SMC watchdog timer support"
 	depends on WDT && ARM_SMCCC

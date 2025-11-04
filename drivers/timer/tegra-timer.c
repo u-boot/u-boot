@@ -4,6 +4,7 @@
  */
 
 #include <dm.h>
+#include <dm/lists.h>
 #include <errno.h>
 #include <timer.h>
 
@@ -106,6 +107,14 @@ static int tegra_timer_probe(struct udevice *dev)
 	return 0;
 }
 
+static int tegra_timer_bind(struct udevice *dev)
+{
+	if (CONFIG_IS_ENABLED(WDT_TEGRA))
+		return device_bind_driver_to_node(dev, "tegra_wdt", "tegra-wdt",
+						  dev_ofnode(dev), NULL);
+	return 0;
+}
+
 static const struct timer_ops tegra_timer_ops = {
 	.get_count = tegra_timer_get_count,
 };
@@ -123,6 +132,7 @@ U_BOOT_DRIVER(tegra_timer) = {
 	.name		= "tegra_timer",
 	.id		= UCLASS_TIMER,
 	.of_match	= tegra_timer_ids,
+	.bind		= tegra_timer_bind,
 	.probe		= tegra_timer_probe,
 	.ops		= &tegra_timer_ops,
 	.flags		= DM_FLAG_PRE_RELOC,
