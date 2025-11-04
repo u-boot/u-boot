@@ -377,7 +377,7 @@ static int scmi_clk_set_parent(struct clk *clk, struct clk *parent)
 	int ret;
 
 	if (!CONFIG_IS_ENABLED(CLK_CCF))
-		return -ENOTSUPP;
+		return __scmi_clk_set_parent(clk, parent);
 
 	ret = clk_get_by_id(clk->id, &c);
 	if (ret)
