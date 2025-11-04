@@ -1,0 +1,14 @@
+menuconfig KONTRON_HW_UID
+	bool "Enable reading Kontron HW UID from OTP fuses"
+	help
+	  Enable support for reading Kontron hardware UIDs from OTP fuse registers.
+	  The UIDs are factory-programmed for SoMs and boards and are printed to the
+	  console and used as serial numbers if this option is enabled.
+
+menuconfig KONTRON_HW_UID_USE_SOC_FALLBACK
+	bool "Use the unique ID of the SoC as fallback serial number"
+	depends on KONTRON_HW_UID
+	default n
+	help
+	  Enable the fallback to the UID of the SoC programmed by the SoC
+	  manufacturer if no Kontron UID is found in the OTP fuses.
