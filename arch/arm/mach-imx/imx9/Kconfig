@@ -155,16 +155,16 @@ config TARGET_TORADEX_SMARC_IMX95
 
 endchoice
 
-source "board/freescale/imx91_evk/Kconfig"
-source "board/freescale/imx91_frdm/Kconfig"
-source "board/freescale/imx93_evk/Kconfig"
-source "board/freescale/imx93_frdm/Kconfig"
-source "board/freescale/imx93_qsb/Kconfig"
+source "board/nxp/imx91_evk/Kconfig"
+source "board/nxp/imx91_frdm/Kconfig"
+source "board/nxp/imx93_evk/Kconfig"
+source "board/nxp/imx93_frdm/Kconfig"
+source "board/nxp/imx93_qsb/Kconfig"
 source "board/kontron/osm-s-mx93/Kconfig"
 source "board/phytec/phycore_imx93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
-source "board/freescale/imx94_evk/Kconfig"
-source "board/freescale/imx95_evk/Kconfig"
+source "board/nxp/imx94_evk/Kconfig"
+source "board/nxp/imx95_evk/Kconfig"
 source "board/toradex/smarc-imx95/Kconfig"
 
 endif

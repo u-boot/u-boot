@@ -71,8 +71,8 @@ config SYS_SOC
 	default "mx5"
 
 source "board/beckhoff/mx53cx9020/Kconfig"
-source "board/freescale/mx51evk/Kconfig"
-source "board/freescale/mx53loco/Kconfig"
+source "board/nxp/mx51evk/Kconfig"
+source "board/nxp/mx53loco/Kconfig"
 source "board/ge/mx53ppd/Kconfig"
 source "board/inversepath/usbarmory/Kconfig"
 source "board/k+p/kp_imx53/Kconfig"

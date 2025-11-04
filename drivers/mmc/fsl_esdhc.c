@@ -29,7 +29,7 @@
 #include <linux/iopoll.h>
 #include <linux/dma-mapping.h>
 #include <sdhci.h>
-#include "../../board/freescale/common/qixis.h"
+#include "../../board/nxp/common/qixis.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

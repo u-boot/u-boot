@@ -25,7 +25,7 @@ Command syntax:
 		-e <execution address> -d <u-boot binary>  <output image file>
 
 For example, for the mx51evk board:
-./tools/mkimage -n ./board/freescale/mx51evk/imximage.cfg \
+./tools/mkimage -n ./board/nxp/mx51evk/imximage.cfg \
 		-T imximage -e 0x97800000  \
 		-d u-boot.bin u-boot.imx
 
