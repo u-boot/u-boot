@@ -110,7 +110,7 @@ void *memset(void *inptr, int ch, size_t size)
 	while (ptr < end)
 		*ptr++ = ch;
 
-	return ptr;
+	return inptr;
 }
 
 static void jump_to_uboot(ulong cs32, ulong addr, ulong info)
