@@ -868,7 +868,6 @@ To do
 
 Some things that need to be done to completely replace the distro-boot scripts:
 
-- implement extensions (devicetree overlays with add-on boards)
 - implement legacy (boot image v2) android boot flow
 
 Other ideas:
