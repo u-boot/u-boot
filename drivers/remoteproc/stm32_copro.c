@@ -61,10 +61,11 @@ static int stm32_copro_probe(struct udevice *dev)
  * @dev:	corresponding STM32 remote processor device
  * @da:		device address
  * @size:	Size of the memory region @da is pointing to
+ * @is_iomem:	optional pointer filled in to indicate if @da is iomapped memory
  * Return: converted virtual address
  */
 static void *stm32_copro_device_to_virt(struct udevice *dev, ulong da,
-					ulong size)
+					ulong size, bool *is_iomem)
 {
 	fdt32_t in_addr = cpu_to_be32(da), end_addr;
 	u64 paddr;

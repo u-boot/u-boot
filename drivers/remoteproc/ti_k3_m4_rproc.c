@@ -181,7 +181,7 @@ static int k3_m4_stop(struct udevice *dev)
 	return 0;
 }
 
-static void *k3_m4_da_to_va(struct udevice *dev, ulong da, ulong len)
+static void *k3_m4_da_to_va(struct udevice *dev, ulong da, ulong len, bool *is_iomem)
 {
 	struct k3_m4_privdata *m4 = dev_get_priv(dev);
 	phys_addr_t bus_addr, dev_addr;

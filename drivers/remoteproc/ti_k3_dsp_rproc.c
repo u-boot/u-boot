@@ -261,7 +261,7 @@ static int k3_dsp_reset(struct udevice *dev)
 	return 0;
 }
 
-static void *k3_dsp_da_to_va(struct udevice *dev, ulong da, ulong len)
+static void *k3_dsp_da_to_va(struct udevice *dev, ulong da, ulong len, bool *is_iomem)
 {
 	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
 	phys_addr_t bus_addr, dev_addr;
