@@ -227,7 +227,7 @@ static efi_status_t EFIAPI efi_uc_stop(
 				goto out;
 		}
 		ret = EFI_SUCCESS;
-			goto out;
+		goto out;
 	}
 
 	/* Destroy all children */
