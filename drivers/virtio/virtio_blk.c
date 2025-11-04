@@ -16,7 +16,7 @@
 #include "virtio_blk.h"
 
 /**
- * struct virtio_blk_priv - private date for virtio block device
+ * struct virtio_blk_priv - private data for virtio block device
  */
 struct virtio_blk_priv {
 	/** @virtqueue - virtqueue to process */
