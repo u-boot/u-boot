@@ -155,7 +155,7 @@ int efi_store_memory_map(struct efi_priv *priv)
 		putc(' ');
 		printhex2(ret);
 		puts(" No memory map\n");
-		return ret;
+		return -EFAULT;
 	}
 	/*
 	 * Since doing a malloc() may change the memory map and also we want to
@@ -168,7 +168,7 @@ int efi_store_memory_map(struct efi_priv *priv)
 	if (!priv->memmap_desc) {
 		printhex2(ret);
 		puts(" No memory for memory descriptor\n");
-		return ret;
+		return -EFAULT;
 	}
 
 	ret = boot->get_memory_map(&priv->memmap_size, priv->memmap_desc,
@@ -177,7 +177,7 @@ int efi_store_memory_map(struct efi_priv *priv)
 	if (ret) {
 		printhex2(ret);
 		puts(" Can't get memory map\n");
-		return ret;
+		return -EFAULT;
 	}
 
 	return 0;
