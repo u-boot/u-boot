@@ -1490,15 +1490,6 @@ struct efi_hii_config_access_protocol {
 #define EFI_GOT_BGRA8		1
 #define EFI_GOT_BITMASK		2
 
-struct efi_gop_mode_info {
-	u32 version;
-	u32 width;
-	u32 height;
-	u32 pixel_format;
-	u32 pixel_bitmask[4];
-	u32 pixels_per_scanline;
-};
-
 struct efi_gop_mode {
 	u32 max_mode;
 	u32 mode;
