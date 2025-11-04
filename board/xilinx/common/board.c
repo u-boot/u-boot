@@ -766,6 +766,17 @@ int fwu_platform_hook(struct udevice *dev, struct fwu_data *data)
 	/* Copy image type GUID */
 	memcpy(&fw_images[0].image_type_id, &img_entry->image_type_guid, 16);
 
+	if (IS_ENABLED(CONFIG_EFI_ESRT)) {
+		efi_status_t ret;
+
+		/* Rebuild the ESRT to reflect any updated FW images. */
+		ret = efi_esrt_populate();
+		if (ret != EFI_SUCCESS) {
+			log_warning("ESRT update failed\n");
+			return ret;
+		}
+	}
+
 	return 0;
 }
 
