@@ -67,8 +67,8 @@ static int bclk_divs[] = {
  * Writes value to a device register through i2c
  *
  * @param priv	Private data for driver
- * @param reg	reg number to be write
- * @param data	data to be writen to the above registor
+ * @param reg	reg number to be written
+ * @param data	data to be written to the above registor
  *
  * Return:	int value 1 for change, 0 for no change or negative error code.
  */
