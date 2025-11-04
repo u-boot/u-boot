@@ -19,7 +19,7 @@ static int simple_video_probe(struct udevice *dev)
 	int ret;
 	fdt_addr_t base;
 	fdt_size_t size;
-	u32 width, height, rot;
+	u32 width, height, stride, rot;
 
 	base = dev_read_addr_size(dev, &size);
 	if (base == FDT_ADDR_T_NONE) {
@@ -51,6 +51,11 @@ static int simple_video_probe(struct udevice *dev)
 	uc_priv->rot = rot;
 	uc_priv->xsize = width;
 	uc_priv->ysize = height;
+
+	/* Optional - in most cases, auto-calculation works */
+	ret = ofnode_read_u32(node, "stride", &stride);
+	if (!ret || stride)
+		uc_priv->line_length = stride;
 
 	format = ofnode_read_string(node, "format");
 	debug("%s: %dx%d@%s\n", __func__, uc_priv->xsize, uc_priv->ysize, format);
