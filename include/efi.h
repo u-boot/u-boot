@@ -454,7 +454,7 @@ static inline struct efi_mem_desc *efi_get_next_mem_desc(
  * @memmap_key: Key returned from get_memory_map()
  * @memmap_desc: List of memory-map records
  * @memmap_alloc: Amount of memory allocated for memory map list
- * @memmap_size Size of memory-map list in bytes
+ * @memmap_size: Size of memory-map list in bytes
  * @memmap_desc_size: Size of an individual memory-map record, in bytes
  * @memmap_version: Memory-map version
  *
