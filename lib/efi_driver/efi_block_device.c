@@ -84,7 +84,7 @@ static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
  * efi_bl_write() - write to block device
  *
  * @dev:	device
- * @blknr:	first block to be write
+ * @blknr:	first block to write
  * @blkcnt:	number of blocks to write
  * @buffer:	input buffer
  * Return:	number of blocks transferred
