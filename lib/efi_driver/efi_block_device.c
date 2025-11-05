@@ -124,7 +124,7 @@ efi_bl_create_block_device(efi_handle_t handle, void *interface)
 	efi_status_t ret;
 	int r;
 	int devnum;
-	char *name;
+	char name[18]; /* strlen("efiblk#2147483648") + 1 */
 	struct efi_block_io *io = interface;
 	struct efi_blk_plat *plat;
 
@@ -136,9 +136,6 @@ efi_bl_create_block_device(efi_handle_t handle, void *interface)
 	if (devnum < 0)
 		return EFI_OUT_OF_RESOURCES;
 
-	name = calloc(1, 18); /* strlen("efiblk#2147483648") + 1 */
-	if (!name)
-		return EFI_OUT_OF_RESOURCES;
 	sprintf(name, "efiblk#%d", devnum);
 
 	/* Create driver model udevice for the EFI block io device */
@@ -146,7 +143,6 @@ efi_bl_create_block_device(efi_handle_t handle, void *interface)
 			       devnum, io->media->block_size,
 			       (lbaint_t)io->media->last_block, &bdev)) {
 		ret = EFI_OUT_OF_RESOURCES;
-		free(name);
 		goto err;
 	}
 
