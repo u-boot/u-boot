@@ -10,7 +10,7 @@
 
 int imx_clk_scmi_enable(u32 clock_id, bool enable)
 {
-	struct scmi_clk_state_in in = {
+	struct scmi_clk_state_in_v1 in = {
 		.clock_id = clock_id,
 		.attributes = !!enable,
 	};
