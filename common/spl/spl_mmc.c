@@ -12,7 +12,6 @@
 #include <spl_load.h>
 #include <linux/compiler.h>
 #include <errno.h>
-#include <errno.h>
 #include <mmc.h>
 #include <image.h>
 #include <imx_container.h>
