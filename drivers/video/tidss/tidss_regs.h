@@ -231,27 +231,6 @@ enum dss_common_regs {
 #define DSS_VP_DSS_DMA_THREADSIZE		0x170 /* J721E */
 #define DSS_VP_DSS_DMA_THREADSIZE_STATUS	0x174 /* J721E */
 
-/*
- * OLDI IO_CTRL register offsets. On AM654 the registers are found
- * from CTRL_MMR0, there the syscon regmap should map 0x14 bytes from
- * CTRLMMR0P1_OLDI_DAT0_IO_CTRL to CTRLMMR0P1_OLDI_CLK_IO_CTRL
- * register range.
- */
-#define OLDI_DAT0_IO_CTRL			0x00
-#define OLDI_DAT1_IO_CTRL			0x04
-#define OLDI_DAT2_IO_CTRL			0x08
-#define OLDI_DAT3_IO_CTRL			0x0C
-#define OLDI_CLK_IO_CTRL			0x10
-
-/* Only for AM625 OLDI TX */
-#define OLDI_PD_CTRL				0x100
-#define OLDI_LB_CTRL				0x104
-
-#define OLDI_BANDGAP_PWR			BIT(8)
-#define OLDI_PWRDN_TX				BIT(8)
-#define OLDI0_PWRDN_TX				BIT(0)
-#define OLDI1_PWRDN_TX				BIT(1)
-
 /* Supported plane formats */
 #define DSS_FORMAT_ARGB4444 0x0
 #define DSS_FORMAT_ABGR4444 0x1

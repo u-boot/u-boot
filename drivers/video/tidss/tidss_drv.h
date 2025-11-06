@@ -13,9 +13,12 @@
 #define __TIDSS_DRV_H__
 
 #include <media_bus_format.h>
+#include <syscon.h>
+#include <regmap.h>
 
 #define TIDSS_MAX_PORTS 4
 #define TIDSS_MAX_PLANES 4
+#define TIDSS_MAX_OLDI_TXES 2
 
 enum dss_vp_bus_type {
 	DSS_VP_DPI,		/* DPI output */
@@ -24,12 +27,16 @@ enum dss_vp_bus_type {
 	DSS_VP_MAX_BUS_TYPE,
 };
 
-enum dss_oldi_modes {
-	OLDI_MODE_OFF,				/* OLDI turned off / tied off in IP. */
-	OLDI_SINGLE_LINK_SINGLE_MODE,		/* Single Output over OLDI 0. */
-	OLDI_SINGLE_LINK_DUPLICATE_MODE,	/* Duplicate Output over OLDI 0 and 1. */
-	OLDI_DUAL_LINK,				/* Combined Output over OLDI 0 and 1. */
+enum tidss_oldi_link_type {
+	OLDI_MODE_UNSUPPORTED,
+	OLDI_MODE_SINGLE_LINK,
+	OLDI_MODE_CLONE_SINGLE_LINK,
+	OLDI_MODE_SECONDARY_CLONE_SINGLE_LINK,
+	OLDI_MODE_DUAL_LINK,
+	OLDI_MODE_SECONDARY_DUAL_LINK,
 };
+
+enum oldi_mode_reg_val { SPWG_18 = 0, JEIDA_24 = 1, SPWG_24 = 2 };
 
 struct dss_features_scaling {
 	u32 in_width_max_5tap_rgb;
@@ -96,25 +103,11 @@ struct dss_features {
 	u32 vid_order[TIDSS_MAX_PLANES];
 };
 
-enum dss_oldi_mode_reg_val { SPWG_18 = 0, JEIDA_24 = 1, SPWG_24 = 2 };
-
 struct dss_bus_format {
 	u32 bus_fmt;
 	u32 data_width;
 	bool is_oldi_fmt;
-	enum dss_oldi_mode_reg_val oldi_mode_reg_val;
-};
-
-static struct dss_bus_format dss_bus_formats[] = {
-	{ MEDIA_BUS_FMT_RGB444_1X12,		12, false, 0 },
-	{ MEDIA_BUS_FMT_RGB565_1X16,		16, false, 0 },
-	{ MEDIA_BUS_FMT_RGB666_1X18,		18, false, 0 },
-	{ MEDIA_BUS_FMT_RGB888_1X24,		24, false, 0 },
-	{ MEDIA_BUS_FMT_RGB101010_1X30,		30, false, 0 },
-	{ MEDIA_BUS_FMT_RGB121212_1X36,		36, false, 0 },
-	{ MEDIA_BUS_FMT_RGB666_1X7X3_SPWG,	18, true, SPWG_18 },
-	{ MEDIA_BUS_FMT_RGB888_1X7X4_SPWG,	24, true, SPWG_24 },
-	{ MEDIA_BUS_FMT_RGB888_1X7X4_JEIDA,	24, true, JEIDA_24 },
+	enum oldi_mode_reg_val oldi_mode_reg_val;
 };
 
 struct tidss_drv_priv {
@@ -128,10 +121,15 @@ struct tidss_drv_priv {
 	const struct dss_features *feat;
 	struct clk fclk;
 	struct dss_vp_data vp_data[TIDSS_MAX_PORTS];
-	enum dss_oldi_modes oldi_mode;
+	enum tidss_oldi_link_type oldi_mode;
 	struct dss_bus_format *bus_format;
 	u32 pixel_format;
 	u32 memory_bandwidth_limit;
+	unsigned int num_oldis;
+	struct tidss_oldi *oldis[TIDSS_MAX_OLDI_TXES];
+	u8 active_hw_vps[TIDSS_MAX_PORTS];
+	u8 active_pipelines;
 };
 
+struct tidss_oldi;
 #endif
