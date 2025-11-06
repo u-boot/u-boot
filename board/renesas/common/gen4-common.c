@@ -16,10 +16,6 @@
 #include <image.h>
 #include <linux/errno.h>
 
-#define RST_BASE	0xE6160000 /* Domain0 */
-#define RST_WDTRSTCR	(RST_BASE + 0x10)
-#define RST_RWDT	0xA55A8002
-
 DECLARE_GLOBAL_DATA_PTR;
 
 static void init_generic_timer(void)
@@ -76,10 +72,6 @@ int board_init(void)
 
 	return 0;
 }
-
-#define RST_BASE	0xE6160000 /* Domain0 */
-#define RST_SRESCR0	(RST_BASE + 0x18)
-#define RST_SPRES	0x5AA58000
 
 void __weak reset_cpu(void)
 {

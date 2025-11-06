@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/psci.h>
 #include <asm/secure.h>
+#include <asm/arch/renesas.h>
 
 int __secure psci_features(u32 function_id, u32 psci_fid)
 {
@@ -28,10 +29,6 @@ u32 __secure psci_version(void)
 {
 	return ARM_PSCI_VER_0_2;
 }
-
-#define RST_BASE	0xE6160000 /* Domain0 */
-#define RST_SRESCR0	(RST_BASE + 0x18)
-#define RST_SPRES	0x5AA58000
 
 void __secure __noreturn psci_system_reset(void)
 {

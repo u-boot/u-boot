@@ -1,1 +1,3 @@
 obj-$(CONFIG_PHY_R8A779F0_ETHERNET_SERDES)	+= r8a779f0-ether-serdes.o
+obj-$(CONFIG_PHY_R8A78000_ETHERNET_PCS)		+= r8a78000-ether-pcs.o
+obj-$(CONFIG_PHY_R8A78000_MP_PHY)		+= r8a78000-mp-phy.o

@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * ./arch/arm/mach-renesas/include/mach/rcar-gen3-base.h
- *
  * Copyright (C) 2015 Renesas Electronics Corporation
  */
 
@@ -73,11 +71,11 @@
 #define GICC_BASE		0xF1020000
 
 /* PFC */
-#define PFC_PUEN5	0xE6060414
-#define PUEN_SSI_SDATA4	BIT(17)
-#define PFC_PUEN6       0xE6060418
-#define PUEN_USB1_OVC   (1 << 2)
-#define PUEN_USB1_PWEN  (1 << 1)
+#define PFC_PUEN5		0xE6060414
+#define PUEN_SSI_SDATA4		BIT(17)
+#define PFC_PUEN6		0xE6060418
+#define PUEN_USB1_OVC		BIT(2)
+#define PUEN_USB1_PWEN		BIT(1)
 
 #ifndef __ASSEMBLY__
 #include <asm/types.h>

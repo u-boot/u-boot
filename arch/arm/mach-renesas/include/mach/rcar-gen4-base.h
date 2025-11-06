@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * ./arch/arm/mach-renesas/include/mach/rcar-gen4-base.h
- *
  * Copyright (C) 2021 Renesas Electronics Corp.
  */
 
@@ -31,6 +29,8 @@
 #define RST_BASE		0xE6160000 /* Domain0 */
 #define RST_SRESCR0		(RST_BASE + 0x18)
 #define RST_SPRES		0x5AA58000
+#define RST_WDTRSTCR		(RST_BASE + 0x10)
+#define RST_RWDT		0xA55A8002
 
 /* Arm Generic Timer */
 #define CNTCR_BASE		0xE6080000

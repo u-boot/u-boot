@@ -53,28 +53,28 @@ config PINCTRL_PFC_R8A7794
 	  Support pin multiplexing control on Renesas R-Car Gen2 R8A7794 SoCs.
 
 config PINCTRL_PFC_R8A774A1
-        bool "Renesas RZ/G2 R8A774A1 pin control driver"
-        depends on PINCTRL_PFC
-        help
-          Support pin multiplexing control on Renesas RZ/G2M R8A774A1 SoCs.
+	bool "Renesas RZ/G2 R8A774A1 pin control driver"
+	depends on PINCTRL_PFC
+	help
+	  Support pin multiplexing control on Renesas RZ/G2M R8A774A1 SoCs.
 
 config PINCTRL_PFC_R8A774B1
-        bool "Renesas RZ/G2 R8A774B1 pin control driver"
-        depends on PINCTRL_PFC
-        help
-          Support pin multiplexing control on Renesas RZ/G2N R8A774B1 SoCs.
+	bool "Renesas RZ/G2 R8A774B1 pin control driver"
+	depends on PINCTRL_PFC
+	help
+	  Support pin multiplexing control on Renesas RZ/G2N R8A774B1 SoCs.
 
 config PINCTRL_PFC_R8A774C0
-        bool "Renesas RZ/G2 R8A774C0 pin control driver"
-        depends on PINCTRL_PFC
-        help
-          Support pin multiplexing control on Renesas RZ/G2E R8A774C0 SoCs.
+	bool "Renesas RZ/G2 R8A774C0 pin control driver"
+	depends on PINCTRL_PFC
+	help
+	  Support pin multiplexing control on Renesas RZ/G2E R8A774C0 SoCs.
 
 config PINCTRL_PFC_R8A774E1
-        bool "Renesas RZ/G2 R8A774E1 pin control driver"
-        depends on PINCTRL_PFC
-        help
-          Support pin multiplexing control on Renesas RZ/G2H R8A774E1 SoCs.
+	bool "Renesas RZ/G2 R8A774E1 pin control driver"
+	depends on PINCTRL_PFC
+	help
+	  Support pin multiplexing control on Renesas RZ/G2H R8A774E1 SoCs.
 
 config PINCTRL_PFC_R8A77951
 	bool "Renesas R-Car Gen3 R8A7795 pin control driver"
@@ -147,6 +147,12 @@ config PINCTRL_PFC_R8A779H0
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas R-Car Gen4 R8A779H0 SoCs.
+
+config PINCTRL_PFC_R8A78000
+	bool "Renesas R-Car Gen5 R8A78000 pin control driver"
+	depends on PINCTRL_PFC
+	help
+	  Support pin multiplexing control on Renesas R-Car Gen5 R8A78000 SoCs.
 
 config PINCTRL_RZA1
 	bool "Renesas RZ/A1 R7S72100 pin control driver"

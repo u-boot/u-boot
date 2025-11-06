@@ -45,6 +45,7 @@ enum sh_pfc_model {
 	SH_PFC_R8A779F0,
 	SH_PFC_R8A779G0,
 	SH_PFC_R8A779H0,
+	SH_PFC_R8A78000,
 };
 
 struct sh_pfc_pin_config {
@@ -188,9 +189,9 @@ static void sh_pfc_write_config_reg(struct sh_pfc *pfc,
 
 	sh_pfc_config_reg_helper(pfc, crp, field, &mapped_reg, &mask, &pos);
 
-	dev_dbg(pfc->dev, "write_reg addr = %x, value = 0x%x, field = %u, "
-		"r_width = %u, f_width = %u\n",
-		crp->reg, value, field, crp->reg_width, crp->field_width);
+	dev_dbg(pfc->dev,
+		"write_reg addr = %x, value = 0x%x, field = %u, pos = %u, r_width = %u, f_width = %u\n",
+		crp->reg, value, field, pos, crp->reg_width, crp->field_width);
 
 	mask = ~(mask << pos);
 	value = value << pos;
@@ -743,8 +744,8 @@ sh_pfc_pinconf_find_drive_strength_reg(struct sh_pfc *pfc, unsigned int pin,
 	return NULL;
 }
 
-static int sh_pfc_pinconf_set_drive_strength(struct sh_pfc *pfc,
-					     unsigned int pin, u16 strength)
+int rcar_pinconf_set_drive_strength(struct sh_pfc *pfc,
+				    unsigned int pin, u16 strength)
 {
 	unsigned int offset;
 	unsigned int size;
@@ -831,7 +832,10 @@ static int sh_pfc_pinconf_set(struct sh_pfc_pinctrl *pmx, unsigned _pin,
 		break;
 
 	case PIN_CONFIG_DRIVE_STRENGTH:
-		ret = sh_pfc_pinconf_set_drive_strength(pfc, _pin, arg);
+		if (!pfc->info->ops || !pfc->info->ops->set_drive_strength)
+			return -ENOTSUPP;
+
+		ret = pfc->info->ops->set_drive_strength(pfc, _pin, arg);
 		if (ret < 0)
 			return ret;
 
@@ -1003,6 +1007,8 @@ static int sh_pfc_pinctrl_probe(struct udevice *dev)
 		priv->pfc.info = &r8a779g0_pinmux_info;
 	else if (IS_ENABLED(CONFIG_PINCTRL_PFC_R8A779H0) && model == SH_PFC_R8A779H0)
 		priv->pfc.info = &r8a779h0_pinmux_info;
+	else if (IS_ENABLED(CONFIG_PINCTRL_PFC_R8A78000) && model == SH_PFC_R8A78000)
+		priv->pfc.info = &r8a78000_pinmux_info;
 	else
 		return -ENODEV;
 
@@ -1138,6 +1144,12 @@ static const struct udevice_id sh_pfc_pinctrl_ids[] = {
 	{
 		.compatible = "renesas,pfc-r8a779h0",
 		.data = SH_PFC_R8A779H0,
+	},
+#endif
+#if IS_ENABLED(CONFIG_PINCTRL_PFC_R8A78000)
+	{
+		.compatible = "renesas,pfc-r8a78000",
+		.data = SH_PFC_R8A78000,
 	},
 #endif
 

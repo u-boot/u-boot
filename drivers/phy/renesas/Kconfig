@@ -7,3 +7,15 @@ config PHY_R8A779F0_ETHERNET_SERDES
 	depends on RCAR_64 && PHY
 	help
 	  Support for Ethernet SERDES found on Renesas R-Car S4-8 SoCs.
+
+config PHY_R8A78000_ETHERNET_PCS
+	tristate "Renesas R-Car X5H Ethernet PCS driver"
+	depends on RCAR_64 && PHY
+	help
+	  Support for Ethernet PCS found on Renesas R-Car X5H SoCs.
+
+config PHY_R8A78000_MP_PHY
+	tristate "Renesas R-Car X5H Multi-Protocol PHY driver"
+	depends on RCAR_64 && PHY
+	help
+	  Support for Multi-Protocol PHY on Renesas R-Car X5H SoCs.
