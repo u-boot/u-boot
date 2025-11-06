@@ -142,6 +142,7 @@ stages:
 build all platforms in a single job:
   stage: world build
   dependencies: []
+  needs: [ "sandbox test.py" ]
   tags:
     - ${DEFAULT_FAST_TAG}
   script:
@@ -596,6 +597,7 @@ coreboot test.py:
       when: manual
       allow_failure: true
   dependencies: []
+  needs: [ "sandbox test.py" ]
   tags: [ 'lab' ]
   script:
     # Environment:
