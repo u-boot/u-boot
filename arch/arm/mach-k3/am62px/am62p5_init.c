@@ -375,6 +375,10 @@ u32 spl_boot_device(void)
 	u32 devstat = readl(CTRLMMR_MAIN_DEVSTAT);
 	u32 bootmedia;
 
+#if IS_ENABLED(CONFIG_SPL_OS_BOOT_SECURE) && !IS_ENABLED(CONFIG_ARM64)
+	return k3_r5_falcon_bootmode();
+#endif
+
 	if (bootindex == K3_PRIMARY_BOOTMODE)
 		bootmedia = __get_primary_bootmedia(devstat);
 	else
