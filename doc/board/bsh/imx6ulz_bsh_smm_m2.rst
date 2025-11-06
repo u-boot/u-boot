@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-How to Update U-Boot on imx6ulz_smm_m2 and imx6ulz_smm_m2b boards
-=================================================================
+How to Update U-Boot on imx6ulz_smm_m2, imx6ulz_smm_m2b and imx6ulz_smm_m2d boards
+==================================================================================
 
 Required software on the host PC:
 
@@ -21,6 +21,14 @@ Build U-Boot for m2b:
 
    $ make mrproper
    $ make imx6ulz_smm_m2b_defconfig
+   $ make
+
+Build U-Boot for m2d:
+
+.. code-block:: bash
+
+   $ make mrproper
+   $ make imx6ulz_smm_m2d_defconfig
    $ make
 
 This generates the SPL and u-boot-dtb.img binaries.
