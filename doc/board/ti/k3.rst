@@ -33,6 +33,7 @@ K3 Based SoCs
    am62ax_sk
    am62x_sk
    am62px_sk
+   am6254atl_sk
    am64x_evm
    am65x_evm
    j7200_evm
