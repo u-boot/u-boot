@@ -106,8 +106,8 @@ struct versal_clk_priv {
 	struct versal_clock *clk;
 };
 
-static ulong pl_alt_ref_clk __section(".data");
-static ulong ref_clk __section(".data");
+static ulong __data pl_alt_ref_clk;
+static ulong __data ref_clk;
 
 struct versal_pm_query_data {
 	u32 qid;
@@ -116,8 +116,8 @@ struct versal_pm_query_data {
 	u32 arg3;
 };
 
-static struct versal_clock *clock __section(".data");
-static unsigned int clock_max_idx __section(".data");
+static struct versal_clock __data *clock;
+static unsigned int __data clock_max_idx;
 
 #define PM_QUERY_DATA	35
 
