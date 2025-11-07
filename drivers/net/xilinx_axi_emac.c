@@ -619,11 +619,11 @@ static int axiemac_start(struct udevice *dev)
 #endif
 	rx_bd.cntrl = sizeof(rxframe);
 	/* Flush the last BD so DMA core could see the updates */
-	flush_cache((phys_addr_t)&rx_bd, sizeof(rx_bd));
+	flush_cache((phys_addr_t)(uintptr_t)&rx_bd, sizeof(rx_bd));
 
 	/* It is necessary to flush rxframe because if you don't do it
 	 * then cache can contain uninitialized data */
-	flush_cache((phys_addr_t)&rxframe, sizeof(rxframe));
+	flush_cache((phys_addr_t)(uintptr_t)&rxframe, sizeof(rxframe));
 
 	/* Start the hardware */
 	temp = readl(&priv->dmarx->control);
@@ -675,7 +675,7 @@ static int axiemac_send(struct udevice *dev, void *ptr, int len)
 	}
 
 	/* Flush packet to main memory to be trasfered by DMA */
-	flush_cache((phys_addr_t)ptr, len);
+	flush_cache((phys_addr_t)(uintptr_t)ptr, len);
 
 	/* Setup Tx BD */
 	memset(&tx_bd, 0, sizeof(tx_bd));
@@ -691,7 +691,7 @@ static int axiemac_send(struct udevice *dev, void *ptr, int len)
 						XAXIDMA_BD_CTRL_TXEOF_MASK;
 
 	/* Flush the last BD so DMA core could see the updates */
-	flush_cache((phys_addr_t)&tx_bd, sizeof(tx_bd));
+	flush_cache((phys_addr_t)(uintptr_t)&tx_bd, sizeof(tx_bd));
 
 	if (readl(&priv->dmatx->status) & XAXIDMA_HALTED_MASK) {
 		u32 temp;
@@ -791,11 +791,11 @@ static int axiemac_free_pkt(struct udevice *dev, uchar *packet, int length)
 	rx_bd.cntrl = sizeof(rxframe);
 
 	/* Write bd to HW */
-	flush_cache((phys_addr_t)&rx_bd, sizeof(rx_bd));
+	flush_cache((phys_addr_t)(uintptr_t)&rx_bd, sizeof(rx_bd));
 
 	/* It is necessary to flush rxframe because if you don't do it
 	 * then cache will contain previous packet */
-	flush_cache((phys_addr_t)&rxframe, sizeof(rxframe));
+	flush_cache((phys_addr_t)(uintptr_t)&rxframe, sizeof(rxframe));
 
 	/* Rx BD is ready - start again */
 	axienet_dma_write(&rx_bd, &priv->dmarx->tail);
@@ -831,10 +831,10 @@ static int axi_emac_probe(struct udevice *dev)
 	struct axidma_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	priv->iobase = (struct axi_regs *)pdata->iobase;
+	priv->iobase = (struct axi_regs *)(uintptr_t)pdata->iobase;
 	priv->dmatx = plat->dmatx;
 	/* RX channel offset is 0x30 */
-	priv->dmarx = (struct axidma_reg *)((phys_addr_t)priv->dmatx + 0x30);
+	priv->dmarx = (struct axidma_reg *)((uintptr_t)priv->dmatx + 0x30);
 	priv->mactype = plat->mactype;
 
 	if (priv->mactype == EMAC_1G) {
