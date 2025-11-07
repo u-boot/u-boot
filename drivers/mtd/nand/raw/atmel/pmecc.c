@@ -820,8 +820,7 @@ EXPORT_SYMBOL_GPL(atmel_pmecc_wait_rdy);
 static struct atmel_pmecc *
 atmel_pmecc_create(struct udevice *dev,
 		   const struct atmel_pmecc_caps *caps,
-		   int pmecc_res_idx, int errloc_res_idx,
-		   int timing_res_idx)
+		   int pmecc_res_idx, int errloc_res_idx)
 {
 	struct atmel_pmecc *pmecc;
 	struct resource res;
@@ -838,8 +837,6 @@ atmel_pmecc_create(struct udevice *dev,
 	pmecc->regs.base = (void *)res.start;
 	ofnode_read_resource(dev->node_, 1, &res);
 	pmecc->regs.errloc = (void *)res.start;
-
-	pmecc->regs.timing = 0;
 
 	/* pmecc data setup time */
 	if (caps->clk_ctrl)
@@ -952,7 +949,7 @@ static int atmel_pmecc_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	pmecc = atmel_pmecc_create(dev, caps, 0, 1, 2);
+	pmecc = atmel_pmecc_create(dev, caps, 0, 1);
 	if (IS_ERR(pmecc))
 		return PTR_ERR(pmecc);
 
