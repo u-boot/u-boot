@@ -26,12 +26,25 @@
 #define EXYNOS4412_FIXED_CIU_CLK_DIV	4
 
 /* CLKSEL register defines */
-#define CLKSEL_CCLK_SAMPLE(x)	(((x) & 7) << 0)
-#define CLKSEL_UP_SAMPLE(x, y)	(((x) & ~CLKSEL_CCLK_SAMPLE(7)) |\
+#define CLKSEL_CCLK_SAMPLE(x)		(((x) & 7) << 0)
+#define CLKSEL_UP_SAMPLE(x, y)		(((x) & ~CLKSEL_CCLK_SAMPLE(7)) | \
 					 CLKSEL_CCLK_SAMPLE(y))
 
-/* Quirks */
+/**
+ * DOC: Quirk flags for different Exynos DW MMC blocks
+ *
+ * %DWMCI_QUIRK_DISABLE_SMU: DW MMC block has Security Management Unit (SMU)
+ * which has to be configured in non-encryption mode during driver's init.
+ *
+ * %DWMCI_QUIRK_DISABLE_FMP: DW MMC block has Flash Memory Protector (FMP) which
+ * has to be disabled during driver's init. This flag disables FMP encryption
+ * and lets external non-secure main CPUs access the SFR (peripheral memory
+ * region, i.e. registers) in MMC core. Although it's usually done by early
+ * bootloaders (before U-Boot), in some cases like during USB boot the FMP might
+ * be left unconfigured.
+ */
 #define DWMCI_QUIRK_DISABLE_SMU		BIT(0)
+#define DWMCI_QUIRK_DISABLE_FMP		BIT(1)
 
 #ifdef CONFIG_DM_MMC
 #include <dm.h>
@@ -183,9 +196,11 @@ static unsigned int exynos_dwmci_get_clk(struct dwmci_host *host, uint freq)
 	int err;
 
 	/* Should be double rate for DDR or HS mode */
-	if ((host->mmc->selected_mode == MMC_DDR_52 && host->mmc->bus_width == 8) ||
-	    host->mmc->selected_mode == MMC_HS_400)
+	if ((host->mmc->selected_mode == MMC_DDR_52 &&
+	     host->mmc->bus_width == 8) ||
+	    host->mmc->selected_mode == MMC_HS_400) {
 		freq *= 2;
+	}
 
 	clk_div = exynos_dwmmc_get_ciu_div(host);
 	err = exynos_dwmmc_set_sclk(host, freq * clk_div);
@@ -216,6 +231,18 @@ static void exynos_dwmci_board_init(struct dwmci_host *host)
 			     MPSCTRL_SECURE_WRITE_BIT |
 			     MPSCTRL_NON_SECURE_READ_BIT |
 			     MPSCTRL_NON_SECURE_WRITE_BIT | MPSCTRL_VALID);
+	}
+
+	if (priv->chip->quirks & DWMCI_QUIRK_DISABLE_FMP) {
+		u32 reg;
+
+		reg = dwmci_readl(host, EMMCP_MPSECURITY);
+		if (reg & MPSECURITY_FMP_ON ||
+		    reg & MPSECURITY_MMC_SFR_PROT_ON) {
+			reg &= ~MPSECURITY_FMP_ON;
+			reg &= ~MPSECURITY_MMC_SFR_PROT_ON;
+			dwmci_writel(host, EMMCP_MPSECURITY, reg);
+		}
 	}
 
 	if (priv->sdr_timing)
@@ -302,7 +329,7 @@ static int exynos_dwmmc_of_to_plat(struct udevice *dev)
 #if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 static int exynos_dwmmc_get_best_clksmpl(u8 candidates)
 {
-	u8 i;
+	int i;
 
 	for (i = 0; i < 8; i++) {
 		candidates = (candidates >> 1) | (candidates << 7); /* ror */
@@ -317,8 +344,8 @@ static int exynos_dwmmc_get_best_clksmpl(u8 candidates)
 	}
 
 	/*
-	 * If no valid clock sample values are found, use the first
-	 * canditate bit for clock sample value.
+	 * If no valid clock sample values are found, use the first candidate
+	 * bit for clock sample value.
 	 */
 	for (i = 0; i < 8; i++) {
 		candidates = (candidates >> 1) | (candidates << 7); /* ror */
@@ -344,7 +371,7 @@ static int exynos_dwmmc_execute_tuning(struct udevice *dev, u32 opcode)
 	do {
 		dwmci_writel(host, DWMCI_TMOUT, ~0);
 
-		/* move to the next clksmpl */
+		/* Move to the next clksmpl */
 		smpl = (clksel + 1) & 0x7;
 		clksel = CLKSEL_UP_SAMPLE(clksel, smpl);
 		dwmci_writel(host, priv->chip->clksel, clksel);
@@ -360,12 +387,13 @@ static int exynos_dwmmc_execute_tuning(struct udevice *dev, u32 opcode)
 		return ret;
 	}
 
-	dwmci_writel(host, priv->chip->clksel,
-		     CLKSEL_UP_SAMPLE(clksel, ret));
+	dwmci_writel(host, priv->chip->clksel, CLKSEL_UP_SAMPLE(clksel, ret));
 
 	return 0;
 }
-#endif
+#endif /* CONFIG_MMC_SUPPORTS_TUNING */
+
+struct dm_mmc_ops exynos_dwmmc_ops;
 
 static int exynos_dwmmc_probe(struct udevice *dev)
 {
@@ -375,6 +403,12 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 	struct dwmci_host *host = &priv->host;
 	unsigned long freq;
 	int err;
+
+	/* Extend generic 'dm_dwmci_ops' with .execute_tuning implementation */
+	memcpy(&exynos_dwmmc_ops, &dm_dwmci_ops, sizeof(struct dm_mmc_ops));
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+	exynos_dwmmc_ops.execute_tuning = exynos_dwmmc_execute_tuning;
+#endif
 
 #ifndef CONFIG_CPU_V7A
 	err = clk_get_by_index(dev, 1, &priv->clk); /* ciu */
@@ -388,7 +422,7 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 	flag = host->buswidth == 8 ? PINMUX_FLAG_8BIT_MODE : PINMUX_FLAG_NONE;
 	err = exynos_pinmux_config(host->dev_id, flag);
 	if (err) {
-		printf("DWMMC%d not configure\n", host->dev_index);
+		printf("DWMMC%d not configured\n", host->dev_index);
 		return err;
 	}
 #endif
@@ -454,6 +488,11 @@ static const struct exynos_dwmmc_variant exynos7_smu_drv_data = {
 	.quirks	= DWMCI_QUIRK_DISABLE_SMU,
 };
 
+static const struct exynos_dwmmc_variant exynos850_drv_data = {
+	.clksel	= DWMCI_CLKSEL64,
+	.quirks	= DWMCI_QUIRK_DISABLE_SMU | DWMCI_QUIRK_DISABLE_FMP,
+};
+
 static const struct udevice_id exynos_dwmmc_ids[] = {
 	{
 		.compatible	= "samsung,exynos4412-dw-mshc",
@@ -476,16 +515,11 @@ static const struct udevice_id exynos_dwmmc_ids[] = {
 	}, {
 		.compatible	= "samsung,exynos7870-dw-mshc-smu",
 		.data		= (ulong)&exynos7_smu_drv_data,
+	}, {
+		.compatible	= "samsung,exynos850-dw-mshc-smu",
+		.data		= (ulong)&exynos850_drv_data,
 	},
 	{ }
-};
-
-struct dm_mmc_ops exynos_dwmmc_ops = {
-	.send_cmd	= dwmci_send_cmd,
-	.set_ios	= dwmci_set_ios,
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
-	.execute_tuning	= exynos_dwmmc_execute_tuning,
-#endif
 };
 
 U_BOOT_DRIVER(exynos_dwmmc_drv) = {
@@ -499,4 +533,4 @@ U_BOOT_DRIVER(exynos_dwmmc_drv) = {
 	.priv_auto	= sizeof(struct dwmci_exynos_priv_data),
 	.plat_auto	= sizeof(struct exynos_mmc_plat),
 };
-#endif
+#endif /* CONFIG_DM_MMC */
