@@ -1,0 +1,70 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+#include <dt-bindings/reset/airoha,en7523-reset.h>
+
+/ {
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		atf-reserved-memory@80000000 {
+			no-map;
+			reg = <0x80000000 0x40000>;
+		};
+	};
+
+	scu: system-controller@1fa20000 {
+		compatible = "airoha,en7523-scu";
+		reg = <0x1fa20000 0x400>,
+		      <0x1fb00000 0x1000>;
+		#clock-cells = <1>;
+		#reset-cells = <1>;
+	};
+
+	eth: ethernet@1fb50000 {
+		compatible = "airoha,en7523-eth";
+		reg = <0x1fb50000 0x2600>,
+		      <0x1fb54000 0x2000>,
+		      <0x1fb56000 0x2000>;
+		reg-names = "fe", "qdma0", "qdma1";
+
+		resets = <&scu EN7523_FE_RST>,
+			 <&scu EN7523_FE_PDMA_RST>,
+			 <&scu EN7523_FE_QDMA_RST>,
+			 <&scu EN7523_DUAL_HSI0_MAC_RST>,
+			 <&scu EN7523_DUAL_HSI1_MAC_RST>,
+			 <&scu EN7523_HSI_MAC_RST>;
+		reset-names = "fe", "pdma", "qdma",
+			      "hsi0-mac", "hsi1-mac", "hsi-mac";
+	};
+
+	switch: switch@1fb58000 {
+		compatible = "airoha,en7523-switch";
+		reg = <0x1fb58000 0x8000>;
+	};
+
+	snfi: spi@1fa10000 {
+		compatible = "airoha,en7523-snand", "airoha,en7581-snand";
+		reg = <0x1fa10000 0x140>,
+		      <0x1fa11000 0x600>;
+
+		clocks = <&scu EN7523_CLK_SPI>;
+		clock-names = "spi";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		spi_nand: nand@0 {
+			compatible = "spi-nand";
+			reg = <0>;
+			spi-max-frequency = <50000000>;
+			spi-tx-bus-width = <1>;
+			spi-rx-bus-width = <1>;
+		};
+	};
+};
+
+&uart1 {
+	bootph-all;
+};

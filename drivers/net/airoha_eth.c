@@ -21,6 +21,7 @@
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/time.h>
+#include <asm/arch/scu-regmap.h>
 
 #define AIROHA_MAX_NUM_GDM_PORTS	1
 #define AIROHA_MAX_NUM_QDMA		1
@@ -310,6 +311,25 @@ struct airoha_eth {
 
 	struct airoha_qdma qdma[AIROHA_MAX_NUM_QDMA];
 	struct airoha_gdm_port *ports[AIROHA_MAX_NUM_GDM_PORTS];
+};
+
+struct airoha_eth_soc_data {
+	int num_xsi_rsts;
+	const char * const *xsi_rsts_names;
+	const char *switch_compatible;
+};
+
+static const char * const en7523_xsi_rsts_names[] = {
+	"hsi0-mac",
+	"hsi1-mac",
+	"hsi-mac",
+};
+
+static const char * const en7581_xsi_rsts_names[] = {
+	"hsi0-mac",
+	"hsi1-mac",
+	"hsi-mac",
+	"xfp-mac",
 };
 
 static u32 airoha_rr(void __iomem *base, u32 offset)
@@ -678,10 +698,12 @@ static int airoha_hw_init(struct udevice *dev,
 
 static int airoha_switch_init(struct udevice *dev, struct airoha_eth *eth)
 {
+	struct airoha_eth_soc_data *data = (void *)dev_get_driver_data(dev);
 	ofnode switch_node;
 	fdt_addr_t addr;
 
-	switch_node = ofnode_by_compatible(ofnode_null(), "airoha,en7581-switch");
+	switch_node = ofnode_by_compatible(ofnode_null(),
+					   data->switch_compatible);
 	if (!ofnode_valid(switch_node))
 		return -EINVAL;
 
@@ -718,16 +740,12 @@ static int airoha_switch_init(struct udevice *dev, struct airoha_eth *eth)
 
 static int airoha_eth_probe(struct udevice *dev)
 {
+	struct airoha_eth_soc_data *data = (void *)dev_get_driver_data(dev);
 	struct airoha_eth *eth = dev_get_priv(dev);
 	struct regmap *scu_regmap;
-	ofnode scu_node;
-	int ret;
+	int i, ret;
 
-	scu_node = ofnode_by_compatible(ofnode_null(), "airoha,en7581-scu");
-	if (!ofnode_valid(scu_node))
-		return -EINVAL;
-
-	scu_regmap = syscon_node_to_regmap(scu_node);
+	scu_regmap = airoha_get_scu_regmap();
 	if (IS_ERR(scu_regmap))
 		return PTR_ERR(scu_regmap);
 
@@ -747,11 +765,11 @@ static int airoha_eth_probe(struct udevice *dev)
 		return -ENOMEM;
 	eth->rsts.count = AIROHA_MAX_NUM_RSTS;
 
-	eth->xsi_rsts.resets = devm_kcalloc(dev, AIROHA_MAX_NUM_XSI_RSTS,
+	eth->xsi_rsts.resets = devm_kcalloc(dev, data->num_xsi_rsts,
 					    sizeof(struct reset_ctl), GFP_KERNEL);
 	if (!eth->xsi_rsts.resets)
 		return -ENOMEM;
-	eth->xsi_rsts.count = AIROHA_MAX_NUM_XSI_RSTS;
+	eth->xsi_rsts.count = data->num_xsi_rsts;
 
 	ret = reset_get_by_name(dev, "fe", &eth->rsts.resets[0]);
 	if (ret)
@@ -765,21 +783,12 @@ static int airoha_eth_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = reset_get_by_name(dev, "hsi0-mac", &eth->xsi_rsts.resets[0]);
-	if (ret)
-		return ret;
-
-	ret = reset_get_by_name(dev, "hsi1-mac", &eth->xsi_rsts.resets[1]);
-	if (ret)
-		return ret;
-
-	ret = reset_get_by_name(dev, "hsi-mac", &eth->xsi_rsts.resets[2]);
-	if (ret)
-		return ret;
-
-	ret = reset_get_by_name(dev, "xfp-mac", &eth->xsi_rsts.resets[3]);
-	if (ret)
-		return ret;
+	for (i = 0; i < data->num_xsi_rsts; i++) {
+		ret = reset_get_by_name(dev, data->xsi_rsts_names[i],
+					&eth->xsi_rsts.resets[i]);
+		if (ret)
+			return ret;
+	}
 
 	ret = airoha_hw_init(dev, eth);
 	if (ret)
@@ -973,8 +982,25 @@ static int arht_eth_write_hwaddr(struct udevice *dev)
 	return 0;
 }
 
+static const struct airoha_eth_soc_data en7523_data = {
+	.xsi_rsts_names = en7523_xsi_rsts_names,
+	.num_xsi_rsts = ARRAY_SIZE(en7523_xsi_rsts_names),
+	.switch_compatible = "airoha,en7523-switch",
+};
+
+static const struct airoha_eth_soc_data en7581_data = {
+	.xsi_rsts_names = en7581_xsi_rsts_names,
+	.num_xsi_rsts = ARRAY_SIZE(en7581_xsi_rsts_names),
+	.switch_compatible = "airoha,en7581-switch",
+};
+
 static const struct udevice_id airoha_eth_ids[] = {
-	{ .compatible = "airoha,en7581-eth" },
+	{ .compatible = "airoha,en7523-eth",
+	  .data = (ulong)&en7523_data,
+	},
+	{ .compatible = "airoha,en7581-eth",
+	  .data = (ulong)&en7581_data,
+	},
 	{ }
 };
 

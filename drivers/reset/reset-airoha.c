@@ -10,7 +10,10 @@
 #include <dm.h>
 #include <linux/io.h>
 #include <reset-uclass.h>
+#include <regmap.h>
+#include <asm/arch/scu-regmap.h>
 
+#include <dt-bindings/reset/airoha,en7523-reset.h>
 #include <dt-bindings/reset/airoha,en7581-reset.h>
 
 #define RST_NR_PER_BANK			32
@@ -21,12 +24,60 @@
 struct airoha_reset_priv {
 	const u16 *bank_ofs;
 	const u16 *idx_map;
-	void __iomem *base;
+	int num_rsts;
+	struct regmap *map;
 };
 
 static const u16 en7581_rst_ofs[] = {
 	REG_RESET_CONTROL2,
 	REG_RESET_CONTROL1,
+};
+
+static const u16 en7523_rst_map[] = {
+	/* RST_CTRL2 */
+	[EN7523_XPON_PHY_RST]		= 0,
+	[EN7523_XSI_MAC_RST]		= 7,
+	[EN7523_XSI_PHY_RST]		= 8,
+	[EN7523_NPU_RST]		= 9,
+	[EN7523_I2S_RST]		= 10,
+	[EN7523_TRNG_RST]		= 11,
+	[EN7523_TRNG_MSTART_RST]	= 12,
+	[EN7523_DUAL_HSI0_RST]		= 13,
+	[EN7523_DUAL_HSI1_RST]		= 14,
+	[EN7523_HSI_RST]		= 15,
+	[EN7523_DUAL_HSI0_MAC_RST]	= 16,
+	[EN7523_DUAL_HSI1_MAC_RST]	= 17,
+	[EN7523_HSI_MAC_RST]		= 18,
+	[EN7523_WDMA_RST]		= 19,
+	[EN7523_WOE0_RST]		= 20,
+	[EN7523_WOE1_RST]		= 21,
+	[EN7523_HSDMA_RST]		= 22,
+	[EN7523_I2C2RBUS_RST]		= 23,
+	[EN7523_TDMA_RST]		= 24,
+	/* RST_CTRL1 */
+	[EN7523_PCM1_ZSI_ISI_RST]	= RST_NR_PER_BANK + 0,
+	[EN7523_FE_PDMA_RST]		= RST_NR_PER_BANK + 1,
+	[EN7523_FE_QDMA_RST]		= RST_NR_PER_BANK + 2,
+	[EN7523_PCM_SPIWP_RST]		= RST_NR_PER_BANK + 4,
+	[EN7523_CRYPTO_RST]		= RST_NR_PER_BANK + 6,
+	[EN7523_TIMER_RST]		= RST_NR_PER_BANK + 8,
+	[EN7523_PCM1_RST]		= RST_NR_PER_BANK + 11,
+	[EN7523_UART_RST]		= RST_NR_PER_BANK + 12,
+	[EN7523_GPIO_RST]		= RST_NR_PER_BANK + 13,
+	[EN7523_GDMA_RST]		= RST_NR_PER_BANK + 14,
+	[EN7523_I2C_MASTER_RST]		= RST_NR_PER_BANK + 16,
+	[EN7523_PCM2_ZSI_ISI_RST]	= RST_NR_PER_BANK + 17,
+	[EN7523_SFC_RST]		= RST_NR_PER_BANK + 18,
+	[EN7523_UART2_RST]		= RST_NR_PER_BANK + 19,
+	[EN7523_GDMP_RST]		= RST_NR_PER_BANK + 20,
+	[EN7523_FE_RST]			= RST_NR_PER_BANK + 21,
+	[EN7523_USB_HOST_P0_RST]	= RST_NR_PER_BANK + 22,
+	[EN7523_GSW_RST]		= RST_NR_PER_BANK + 23,
+	[EN7523_SFC2_PCM_RST]		= RST_NR_PER_BANK + 25,
+	[EN7523_PCIE0_RST]		= RST_NR_PER_BANK + 26,
+	[EN7523_PCIE1_RST]		= RST_NR_PER_BANK + 27,
+	[EN7523_PCIE_HB_RST]		= RST_NR_PER_BANK + 29,
+	[EN7523_XPON_MAC_RST]		= RST_NR_PER_BANK + 31,
 };
 
 static const u16 en7581_rst_map[] = {
@@ -90,17 +141,11 @@ static const u16 en7581_rst_map[] = {
 static int airoha_reset_update(struct airoha_reset_priv *priv,
 			       unsigned long id, bool assert)
 {
-	void __iomem *addr = priv->base + priv->bank_ofs[id / RST_NR_PER_BANK];
-	u32 val;
+	u16 offset = priv->bank_ofs[id / RST_NR_PER_BANK];
 
-	val = readl(addr);
-	if (assert)
-		val |= BIT(id % RST_NR_PER_BANK);
-	else
-		val &= ~BIT(id % RST_NR_PER_BANK);
-	writel(val, addr);
-
-	return 0;
+	return regmap_update_bits(priv->map, offset,
+				  BIT(id % RST_NR_PER_BANK),
+				  assert ? BIT(id % RST_NR_PER_BANK) : 0);
 }
 
 static int airoha_reset_assert(struct reset_ctl *reset_ctl)
@@ -123,11 +168,16 @@ static int airoha_reset_status(struct reset_ctl *reset_ctl)
 {
 	struct airoha_reset_priv *priv = dev_get_priv(reset_ctl->dev);
 	int id = reset_ctl->id;
-	void __iomem *addr;
+	u16 offset;
+	u32 val;
+	int ret;
 
-	addr = priv->base + priv->bank_ofs[id / RST_NR_PER_BANK];
+	offset = priv->bank_ofs[id / RST_NR_PER_BANK];
+	ret = regmap_read(priv->map, offset, &val);
+	if (ret)
+		return ret;
 
-	return !!(readl(addr) & BIT(id % RST_NR_PER_BANK));
+	return !!(val & BIT(id % RST_NR_PER_BANK));
 }
 
 static int airoha_reset_xlate(struct reset_ctl *reset_ctl,
@@ -135,7 +185,7 @@ static int airoha_reset_xlate(struct reset_ctl *reset_ctl,
 {
 	struct airoha_reset_priv *priv = dev_get_priv(reset_ctl->dev);
 
-	if (args->args[0] >= ARRAY_SIZE(en7581_rst_map))
+	if (args->args[0] >= priv->num_rsts)
 		return -EINVAL;
 
 	reset_ctl->id = priv->idx_map[args->args[0]];
@@ -150,18 +200,34 @@ static struct reset_ops airoha_reset_ops = {
 	.rst_status = airoha_reset_status,
 };
 
-static int airoha_reset_probe(struct udevice *dev)
+static int reset_init(struct udevice *dev, const u16 *rst_map, int num_rsts)
 {
 	struct airoha_reset_priv *priv = dev_get_priv(dev);
 
-	priv->base = dev_remap_addr(dev);
-	if (!priv->base)
-		return -ENOMEM;
+	priv->map = airoha_get_scu_regmap();
+	if (IS_ERR(priv->map))
+		return PTR_ERR(priv->map);
 
 	priv->bank_ofs = en7581_rst_ofs;
-	priv->idx_map = en7581_rst_map;
+	priv->idx_map = rst_map;
+	priv->num_rsts = num_rsts;
 
 	return 0;
+}
+
+static int airoha_reset_probe(struct udevice *dev)
+{
+	if (ofnode_device_is_compatible(dev_ofnode(dev),
+					"airoha,en7523-scu"))
+		return reset_init(dev, en7523_rst_map,
+				  ARRAY_SIZE(en7523_rst_map));
+
+	if (ofnode_device_is_compatible(dev_ofnode(dev),
+					"airoha,en7581-scu"))
+		return reset_init(dev, en7581_rst_map,
+				  ARRAY_SIZE(en7581_rst_map));
+
+	return -ENODEV;
 }
 
 U_BOOT_DRIVER(airoha_reset) = {

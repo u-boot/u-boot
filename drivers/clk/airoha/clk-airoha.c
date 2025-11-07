@@ -16,7 +16,7 @@
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <regmap.h>
-#include <syscon.h>
+#include <asm/arch/scu-regmap.h>
 
 #include <dt-bindings/clock/en7523-clk.h>
 
@@ -26,6 +26,7 @@
 #define REG_SPI_CLK_DIV_SEL		0x1c4
 #define REG_SPI_CLK_FREQ_SEL		0x1c8
 #define REG_NPU_CLK_DIV_SEL		0x1fc
+#define REG_CRYPTO_CLKSRC		0x200
 
 #define REG_NP_SCU_PCIC			0x88
 #define REG_NP_SCU_SSTR			0x9c
@@ -33,6 +34,7 @@
 #define REG_PCIE_XSI1_SEL_MASK		GENMASK(12, 11)
 #define REG_CRYPTO_CLKSRC2		0x20c
 
+#define EN7523_MAX_CLKS			8
 #define EN7581_MAX_CLKS			9
 
 struct airoha_clk_desc {
@@ -66,13 +68,118 @@ struct airoha_clk_soc_data {
 };
 
 static const u32 gsw_base[] = { 400000000, 500000000 };
+static const u32 emi_base[] = { 333000000, 400000000 };
+static const u32 bus_base[] = { 500000000, 540000000 };
 static const u32 slic_base[] = { 100000000, 3125000 };
-
+static const u32 npu_base[] = { 333000000, 400000000, 500000000 };
+/* EN7581 */
 static const u32 emi7581_base[] = { 540000000, 480000000, 400000000, 300000000 };
 static const u32 bus7581_base[] = { 600000000, 540000000 };
 static const u32 npu7581_base[] = { 800000000, 750000000, 720000000, 600000000 };
 static const u32 crypto_base[] = { 540000000, 480000000 };
 static const u32 emmc7581_base[] = { 200000000, 150000000 };
+
+static const struct airoha_clk_desc en7523_base_clks[EN7523_MAX_CLKS] = {
+	[EN7523_CLK_GSW] = {
+		.id = EN7523_CLK_GSW,
+		.name = "gsw",
+
+		.base_reg = REG_GSW_CLK_DIV_SEL,
+		.base_bits = 1,
+		.base_shift = 8,
+		.base_values = gsw_base,
+		.n_base_values = ARRAY_SIZE(gsw_base),
+
+		.div_bits = 3,
+		.div_shift = 0,
+		.div_step = 1,
+		.div_offset = 1,
+	},
+	[EN7523_CLK_EMI] = {
+		.id = EN7523_CLK_EMI,
+		.name = "emi",
+
+		.base_reg = REG_EMI_CLK_DIV_SEL,
+		.base_bits = 1,
+		.base_shift = 8,
+		.base_values = emi_base,
+		.n_base_values = ARRAY_SIZE(emi_base),
+
+		.div_bits = 3,
+		.div_shift = 0,
+		.div_step = 1,
+		.div_offset = 1,
+	},
+	[EN7523_CLK_BUS] = {
+		.id = EN7523_CLK_BUS,
+		.name = "bus",
+
+		.base_reg = REG_BUS_CLK_DIV_SEL,
+		.base_bits = 1,
+		.base_shift = 8,
+		.base_values = bus_base,
+		.n_base_values = ARRAY_SIZE(bus_base),
+
+		.div_bits = 3,
+		.div_shift = 0,
+		.div_step = 1,
+		.div_offset = 1,
+	},
+	[EN7523_CLK_SLIC] = {
+		.id = EN7523_CLK_SLIC,
+		.name = "slic",
+
+		.base_reg = REG_SPI_CLK_FREQ_SEL,
+		.base_bits = 1,
+		.base_shift = 0,
+		.base_values = slic_base,
+		.n_base_values = ARRAY_SIZE(slic_base),
+
+		.div_reg = REG_SPI_CLK_DIV_SEL,
+		.div_bits = 5,
+		.div_shift = 24,
+		.div_val0 = 20,
+		.div_step = 2,
+	},
+	[EN7523_CLK_SPI] = {
+		.id = EN7523_CLK_SPI,
+		.name = "spi",
+
+		.base_reg = REG_SPI_CLK_DIV_SEL,
+
+		.base_value = 400000000,
+
+		.div_bits = 5,
+		.div_shift = 8,
+		.div_val0 = 40,
+		.div_step = 2,
+	},
+	[EN7523_CLK_NPU] = {
+		.id = EN7523_CLK_NPU,
+		.name = "npu",
+
+		.base_reg = REG_NPU_CLK_DIV_SEL,
+		.base_bits = 2,
+		.base_shift = 8,
+		.base_values = npu_base,
+		.n_base_values = ARRAY_SIZE(npu_base),
+
+		.div_bits = 3,
+		.div_shift = 0,
+		.div_step = 1,
+		.div_offset = 1,
+	},
+	[EN7523_CLK_CRYPTO] = {
+		.id = EN7523_CLK_CRYPTO,
+		.name = "crypto",
+
+		.base_reg = REG_CRYPTO_CLKSRC,
+		.base_bits = 1,
+		.base_shift = 0,
+		.base_values = emi_base,
+		.n_base_values = ARRAY_SIZE(emi_base),
+	}
+};
 
 static const struct airoha_clk_desc en7581_base_clks[EN7581_MAX_CLKS] = {
 	[EN7523_CLK_GSW] = {
@@ -400,14 +507,8 @@ const struct clk_ops airoha_clk_ops = {
 static int airoha_clk_probe(struct udevice *dev)
 {
 	struct airoha_clk_priv *priv = dev_get_priv(dev);
-	ofnode chip_scu_node;
 
-	chip_scu_node = ofnode_by_compatible(ofnode_null(),
-					     "airoha,en7581-chip-scu");
-	if (!ofnode_valid(chip_scu_node))
-		return -EINVAL;
-
-	priv->chip_scu_map = syscon_node_to_regmap(chip_scu_node);
+	priv->chip_scu_map = airoha_get_chip_scu_regmap();
 	if (IS_ERR(priv->chip_scu_map))
 		return PTR_ERR(priv->chip_scu_map);
 
@@ -431,12 +532,20 @@ static int airoha_clk_bind(struct udevice *dev)
 	return ret;
 }
 
+static const struct airoha_clk_soc_data en7523_data = {
+	.num_clocks = ARRAY_SIZE(en7523_base_clks),
+	.descs = en7523_base_clks,
+};
+
 static const struct airoha_clk_soc_data en7581_data = {
 	.num_clocks = ARRAY_SIZE(en7581_base_clks),
 	.descs = en7581_base_clks,
 };
 
 static const struct udevice_id airoha_clk_ids[] = {
+	{ .compatible = "airoha,en7523-scu",
+	  .data = (ulong)&en7523_data,
+	},
 	{ .compatible = "airoha,en7581-scu",
 	  .data = (ulong)&en7581_data,
 	},
