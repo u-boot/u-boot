@@ -252,6 +252,9 @@ Various environment variables are used by standard boot. These allow the board
 to control where things are placed when booting the OS. You should ensure that
 your boards sets values for these.
 
+extension_overlay_addr (needed if extension is used)
+    Address at which to load the extension FDT overlays, e.g. 0x02000000
+
 fdtfile
     Name of the flattened device tree (FDT) file to load, e.g.
     "rockchip/rk3399-rockpro64.dtb"
@@ -868,7 +871,6 @@ To do
 
 Some things that need to be done to completely replace the distro-boot scripts:
 
-- implement extensions (devicetree overlays with add-on boards)
 - implement legacy (boot image v2) android boot flow
 
 Other ideas:

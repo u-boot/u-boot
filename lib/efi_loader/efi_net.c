@@ -372,7 +372,7 @@ out:
 }
 
 /*
- * efi_net_receive_filters() - mange multicast receive filters
+ * efi_net_receive_filters() - manage multicast receive filters
  *
  * This function implements the ReceiveFilters service of the
  * EFI_SIMPLE_NETWORK_PROTOCOL. See the Unified Extensible Firmware Interface

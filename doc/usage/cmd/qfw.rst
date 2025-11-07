@@ -44,18 +44,21 @@ QEMU firmware files are listed via the *qfw list* command:
 ::
 
     => qfw list
-    00000000 bios-geometry
-    00000000 bootorder
-    000f0060 etc/acpi/rsdp
-    bed14040 etc/acpi/tables
-    00000000 etc/boot-fail-wait
-    00000000 etc/e820
-    00000000 etc/smbios/smbios-anchor
-    00000000 etc/smbios/smbios-tables
-    00000000 etc/system-states
-    00000000 etc/table-loader
-    00000000 etc/tpm/log
-    00000000 genroms/kvmvapic.bin
+                Addr     Size Sel Name
+    ---------------- -------- --- ------------
+                   0        0  20 bios-geometry
+                   0        0  21 bootorder
+            1fc6c000       14  22 etc/acpi/rsdp
+            1fc6c040    20000  23 etc/acpi/tables
+                   0        4  24 etc/boot-fail-wait
+                   0       28  25 etc/e820
+                   0        8  26 etc/msr_feature_control
+                   0       18  27 etc/smbios/smbios-anchor
+                   0      151  28 etc/smbios/smbios-tables
+                   0        6  29 etc/system-states
+                   0     1000  2a etc/table-loader
+                   0        0  2b etc/tpm/log
+                   0     2400  2c genroms/kvmvapic.bin
 
 Where an address is shown, it indicates where the data is available for
 inspection, e.g. using the :doc:`md`.
