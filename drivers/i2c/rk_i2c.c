@@ -255,8 +255,6 @@ static int rk_i2c_read(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 	}
 
 i2c_exit:
-	rk_i2c_disable(i2c);
-
 	return err;
 }
 
@@ -333,8 +331,6 @@ static int rk_i2c_write(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 	}
 
 i2c_exit:
-	rk_i2c_disable(i2c);
-
 	return err;
 }
 
@@ -359,6 +355,18 @@ static int rockchip_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 			ret = -EREMOTEIO;
 			break;
 		}
+
+		/*
+		 * The HW is actually not capable of REPEATED START. But we can
+		 * get the intended effect by resetting its internal state
+		 * and issuing an ordinary START.
+		 *
+		 * Do NOT disable the controller after the last message (before
+		 * sending the STOP condition) as this triggers an illegal
+		 * START condition followed by a STOP condition.
+		 */
+		if (nmsgs > 1)
+			rk_i2c_disable(i2c);
 	}
 
 	rk_i2c_send_stop_bit(i2c);
