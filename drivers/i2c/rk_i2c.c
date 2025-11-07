@@ -195,13 +195,14 @@ static int rk_i2c_read(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 
 	while (bytes_remain_len) {
 		if (bytes_remain_len > RK_I2C_FIFO_SIZE) {
+			/*
+			 * The hw can read up to 32 bytes at a time. If we need
+			 * more than one chunk, send an ACK after the last byte
+			 * of the current chunk.
+			 */
 			con = I2C_CON_EN;
 			bytes_xferred = 32;
 		} else {
-			/*
-			 * The hw can read up to 32 bytes at a time. If we need
-			 * more than one chunk, send an ACK after the last byte.
-			 */
 			con = I2C_CON_EN | I2C_CON_LASTACK;
 			bytes_xferred = bytes_remain_len;
 		}
