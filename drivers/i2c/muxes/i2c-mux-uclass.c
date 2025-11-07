@@ -130,7 +130,7 @@ static int i2c_mux_post_probe(struct udevice *mux)
 	return 0;
 }
 
-int i2c_mux_select(struct udevice *dev)
+static int i2c_mux_select(struct udevice *dev)
 {
 	struct i2c_mux_bus *plat = dev_get_parent_plat(dev);
 	struct udevice *mux = dev->parent;
@@ -142,7 +142,7 @@ int i2c_mux_select(struct udevice *dev)
 	return ops->select(mux, dev, plat->channel);
 }
 
-int i2c_mux_deselect(struct udevice *dev)
+static int i2c_mux_deselect(struct udevice *dev)
 {
 	struct i2c_mux_bus *plat = dev_get_parent_plat(dev);
 	struct udevice *mux = dev->parent;
