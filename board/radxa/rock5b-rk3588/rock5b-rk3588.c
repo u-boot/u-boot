@@ -23,6 +23,7 @@ struct board_model {
 };
 
 static const struct board_model board_models[] = {
+	{ LPDDR5,  926, 1106, "rockchip/rk3588-rock-5t.dtb" },
 	{ LPDDR5, 4005, 4185, "rockchip/rk3588-rock-5b-plus.dtb" },
 };
 
