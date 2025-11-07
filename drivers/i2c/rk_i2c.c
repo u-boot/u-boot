@@ -137,7 +137,7 @@ static int rk_i2c_send_stop_bit(struct rk_i2c *i2c)
 	writel(I2C_IPD_ALL_CLEAN, &regs->ipd);
 
 	writel(I2C_CON_EN | I2C_CON_STOP, &regs->con);
-	writel(I2C_CON_STOP, &regs->ien);
+	writel(I2C_STOPIEN, &regs->ien);
 
 	start = get_timer(0);
 	while (1) {
