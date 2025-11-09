@@ -28,7 +28,7 @@ config ARMV7_BOOT_SEC_DEFAULT
 	variable to "sec" or "nonsec".
 
 config HAS_ARMV7_SECURE_BASE
-	bool "Enable support for a ahardware secure memory area"
+	bool "Enable support for a hardware secure memory area"
 	default y if ARCH_LS1021A || ARCH_MX7 || ARCH_MX7ULP || ARCH_STM32MP \
 			|| MACH_SUN6I || MACH_SUN7I || MACH_SUN8I || TEGRA124
 
