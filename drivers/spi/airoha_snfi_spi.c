@@ -218,13 +218,6 @@ struct airoha_snand_priv {
 	struct regmap *regmap_nfi;
 	struct clk *spi_clk;
 
-	struct {
-		size_t page_size;
-		size_t sec_size;
-		u8 sec_num;
-		u8 spare_size;
-	} nfi_cfg;
-
 	u8 *txrx_buf;
 };
 
@@ -486,55 +479,6 @@ static int airoha_snand_nfi_init(struct airoha_snand_priv *priv)
 				  SPI_NFI_ALL_IRQ_EN, SPI_NFI_AHB_DONE_EN);
 }
 
-static int airoha_snand_nfi_config(struct airoha_snand_priv *priv)
-{
-	int err;
-	u32 val;
-
-	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_CON,
-			   SPI_NFI_FIFO_FLUSH | SPI_NFI_RST);
-	if (err)
-		return err;
-
-	/* auto FDM */
-	err = regmap_clear_bits(priv->regmap_nfi, REG_SPI_NFI_CNFG,
-				SPI_NFI_AUTO_FDM_EN);
-	if (err)
-		return err;
-
-	/* HW ECC */
-	err = regmap_clear_bits(priv->regmap_nfi, REG_SPI_NFI_CNFG,
-				SPI_NFI_HW_ECC_EN);
-	if (err)
-		return err;
-
-	/* DMA Burst */
-	err = regmap_set_bits(priv->regmap_nfi, REG_SPI_NFI_CNFG,
-			      SPI_NFI_DMA_BURST_EN);
-	if (err)
-		return err;
-
-	/* sec num */
-	val = FIELD_PREP(SPI_NFI_SEC_NUM, 1);
-	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_CON,
-				 SPI_NFI_SEC_NUM, val);
-	if (err)
-		return err;
-
-	/* enable cust sec size */
-	err = regmap_set_bits(priv->regmap_nfi, REG_SPI_NFI_SECCUS_SIZE,
-			      SPI_NFI_CUS_SEC_SIZE_EN);
-	if (err)
-		return err;
-
-	/* set cust sec size */
-	val = FIELD_PREP(SPI_NFI_CUS_SEC_SIZE,
-			 priv->nfi_cfg.sec_size * priv->nfi_cfg.sec_num);
-	return regmap_update_bits(priv->regmap_nfi,
-				  REG_SPI_NFI_SECCUS_SIZE,
-				  SPI_NFI_CUS_SEC_SIZE, val);
-}
-
 static bool airoha_snand_is_page_ops(const struct spi_mem_op *op)
 {
 	if (op->addr.nbytes != 2)
@@ -618,7 +562,8 @@ static ssize_t airoha_snand_dirmap_read(struct spi_mem_dirmap_desc *desc,
 	size_t bytes;
 	int err;
 
-	bytes = priv->nfi_cfg.sec_num * priv->nfi_cfg.sec_size;
+	/* minimum oob size is 64 */
+	bytes = round_up(offs + len, 64);
 
 	/*
 	 * DUALIO and QUADIO opcodes are not supported by the spi controller,
@@ -805,7 +750,8 @@ static ssize_t airoha_snand_dirmap_write(struct spi_mem_dirmap_desc *desc,
 	size_t bytes;
 	int err;
 
-	bytes = priv->nfi_cfg.sec_num * priv->nfi_cfg.sec_size;
+	/* minimum oob size is 64 */
+	bytes = round_up(offs + len, 64);
 
 	opcode = desc->info.op_tmpl.cmd.opcode;
 	switch (opcode) {
@@ -1098,37 +1044,6 @@ static int airoha_snand_nfi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
-static int airoha_snand_nfi_setup(struct spi_slave *slave,
-				  const struct spinand_info *spinand_info)
-{
-	struct udevice *bus = slave->dev->parent;
-	struct airoha_snand_priv *priv;
-	u32 sec_size, sec_num;
-	int pagesize, oobsize;
-
-	priv = dev_get_priv(bus);
-
-	pagesize = spinand_info->memorg.pagesize;
-	oobsize = spinand_info->memorg.oobsize;
-
-	if (pagesize == 2 * 1024)
-		sec_num = 4;
-	else if (pagesize == 4 * 1024)
-		sec_num = 8;
-	else
-		sec_num = 1;
-
-	sec_size = (pagesize + oobsize) / sec_num;
-
-	/* init default value */
-	priv->nfi_cfg.sec_size = sec_size;
-	priv->nfi_cfg.sec_num = sec_num;
-	priv->nfi_cfg.page_size = round_down(sec_size * sec_num, 1024);
-	priv->nfi_cfg.spare_size = 16;
-
-	return airoha_snand_nfi_config(priv);
-}
-
 static const struct spi_controller_mem_ops airoha_snand_mem_ops = {
 	.supports_op = airoha_snand_supports_op,
 	.exec_op = airoha_snand_exec_op,
@@ -1141,7 +1056,6 @@ static const struct dm_spi_ops airoha_snfi_spi_ops = {
 	.mem_ops = &airoha_snand_mem_ops,
 	.set_speed = airoha_snand_nfi_set_speed,
 	.set_mode = airoha_snand_nfi_set_mode,
-	.setup_for_spinand = airoha_snand_nfi_setup,
 };
 
 static const struct udevice_id airoha_snand_ids[] = {
