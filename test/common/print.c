@@ -266,74 +266,70 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 {
 	u8 *buf;
 	int i;
+	ulong addr;
 
 	buf = calloc(1, BUF_SIZE);
 	ut_assertnonnull(buf);
+	addr = map_to_sysmem(buf);
 	for (i = 0; i < 0x11; i++)
 		buf[i] = i * 0x11;
 
 	/* bytes */
 	print_hex_dump_bytes("", DUMP_PREFIX_ADDRESS, buf, 0x12);
 	ut_assert_nextline("%0*lx: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........",
-			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf);
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_nextline("%0*lx: 10 00                                            ..",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf + 0x10UL);
+			   addr + 0x10UL);
 	ut_assert_console_end();
 
 	/* line length */
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 8, 1, buf, 0x12, true);
 	ut_assert_nextline("%0*lx: 00 11 22 33 44 55 66 77  ..\"3DUfw",
-			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf);
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_nextline("%0*lx: 88 99 aa bb cc dd ee ff  ........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf + 0x8UL);
+			   addr + 0x8UL);
 	ut_assert_nextline("%0*lx: 10 00                    ..",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf + 0x10UL);
+			   addr + 0x10UL);
 	ut_assert_console_end();
 
 	/* long line */
 	buf[0x41] = 0x41;
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0x40, 1, buf, 0x42, true);
 	ut_assert_nextline("%0*lx: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ..\"3DUfw........................................................",
-			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf);
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_nextline("%0*lx: 00 41                                                                                                                                                                                            .A",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf + 0x40UL);
+			   addr + 0x40UL);
 	ut_assert_console_end();
 
 	/* 16-bit */
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 2, buf, 0x12, true);
 	ut_assert_nextline("%0*lx: 1100 3322 5544 7766 9988 bbaa ddcc ffee  ..\"3DUfw........",
-			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf);
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_nextline("%0*lx: 0010                                     ..",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf + 0x10UL);
+			   addr + 0x10UL);
 	ut_assert_console_end();
 
 	/* 32-bit */
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 4, buf, 0x14, true);
 	ut_assert_nextline("%0*lx: 33221100 77665544 bbaa9988 ffeeddcc  ..\"3DUfw........",
-			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf);
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_nextline("%0*lx: 00000010                             ....",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf + 0x10UL);
+			   addr + 0x10UL);
 	ut_assert_console_end();
 
 	/* 64-bit */
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 8, buf, 0x18, true);
 	ut_assert_nextline("%0*lx: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........",
-			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf);
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_nextline("%0*lx: 0000000000000010                   ........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf + 0x10UL);
+			   addr + 0x10UL);
 	ut_assert_console_end();
 
 	/* ASCII */
@@ -345,8 +341,7 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	buf[8] = 255;
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 1, buf, 10, true);
 	ut_assert_nextline("%0*lx: 00 1f 20 21 7e 7f 80 81 ff 99                    .. !~.....",
-			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
-			   (uintptr_t)buf);
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_console_end();
 	free(buf);
 

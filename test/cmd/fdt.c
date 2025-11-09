@@ -265,7 +265,7 @@ FDT_TEST(fdt_test_addr_resize, UTF_CONSOLE);
 static int fdt_test_move(struct unit_test_state *uts)
 {
 	char fdt[256];
-	ulong addr, newaddr = 0x10000;
+	ulong addr, newaddr;
 	const int size = sizeof(fdt);
 	uint32_t ts;
 	void *buf;
@@ -275,8 +275,10 @@ static int fdt_test_move(struct unit_test_state *uts)
 	ts = fdt_totalsize(fdt);
 
 	/* Moved target DT location */
-	buf = map_sysmem(newaddr, size);
+	buf = memalign(8, size);
+	ut_assertnonnull(buf);
 	memset(buf, 0, size);
+	newaddr = map_to_sysmem(buf);
 
 	/* Test moving the working FDT to a new location */
 	ut_assertok(run_commandf("fdt move %08lx %08lx %x", addr, newaddr, ts));
@@ -287,6 +289,8 @@ static int fdt_test_move(struct unit_test_state *uts)
 	ut_assertok(run_commandf("cmp.b %08lx %08lx %x", addr, newaddr, ts));
 	ut_assert_nextline("Total of %d byte(s) were the same", ts);
 	ut_assert_console_end();
+
+	free(buf);
 
 	return 0;
 }
