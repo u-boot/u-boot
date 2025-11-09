@@ -215,8 +215,15 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 		ut_assertok(test_num_l(uts, "malloc base", gd_malloc_start()));
 	}
 
+	/* Check arch_print_bdinfo() output */
 	if (IS_ENABLED(CONFIG_X86))
-		ut_check_skip_to_linen(uts, " high end   =");
+		ut_check_skip_to_linen(uts, "tsc");
+
+#ifdef CONFIG_RISCV
+	ut_check_console_linen(uts, "boot hart");
+	if (gd->arch.firmware_fdt_addr)
+		ut_check_console_linen(uts, "firmware fdt");
+#endif
 
 	return 0;
 }
