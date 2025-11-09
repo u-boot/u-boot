@@ -219,6 +219,7 @@ struct airoha_snand_priv {
 	struct clk *spi_clk;
 
 	u8 *txrx_buf;
+	int dma;
 };
 
 static int airoha_snand_set_fifo_op(struct airoha_snand_priv *priv,
@@ -562,6 +563,20 @@ static ssize_t airoha_snand_dirmap_read(struct spi_mem_dirmap_desc *desc,
 	size_t bytes;
 	int err;
 
+	if (!priv->dma) {
+		/* simplified version of spi_mem_no_dirmap_read() */
+		struct spi_mem_op op = desc->info.op_tmpl;
+
+		op.addr.val = desc->info.offset + offs;
+		op.data.buf.in = buf;
+		op.data.nbytes = len;
+		err = spi_mem_exec_op(desc->slave, &op);
+		if (err)
+			return err;
+
+		return op.data.nbytes;
+	}
+
 	/* minimum oob size is 64 */
 	bytes = round_up(offs + len, 64);
 
@@ -749,6 +764,20 @@ static ssize_t airoha_snand_dirmap_write(struct spi_mem_dirmap_desc *desc,
 	u32 wr_mode, val, opcode;
 	size_t bytes;
 	int err;
+
+	if (!priv->dma) {
+		/* simplified version of spi_mem_no_dirmap_write() */
+		struct spi_mem_op op = desc->info.op_tmpl;
+
+		op.addr.val = desc->info.offset + offs;
+		op.data.buf.out = buf;
+		op.data.nbytes = len;
+		err = spi_mem_exec_op(desc->slave, &op);
+		if (err)
+			return err;
+
+		return op.data.nbytes;
+	}
 
 	/* minimum oob size is 64 */
 	bytes = round_up(offs + len, 64);
@@ -998,6 +1027,7 @@ static int airoha_snand_probe(struct udevice *dev)
 {
 	struct airoha_snand_priv *priv = dev_get_priv(dev);
 	int ret;
+	u32 sfc_strap;
 
 	priv->txrx_buf = memalign(ARCH_DMA_MINALIGN, SPI_NAND_CACHE_SIZE);
 	if (!priv->txrx_buf) {
@@ -1023,6 +1053,25 @@ static int airoha_snand_probe(struct udevice *dev)
 		return PTR_ERR(priv->regmap_ctrl);
 	}
 	clk_enable(priv->spi_clk);
+
+	priv->dma = 1;
+	if (device_is_compatible(dev, "airoha,en7523-snand")){
+		ret = regmap_read(priv->regmap_ctrl, REG_SPI_CTRL_SFC_STRAP, &sfc_strap);
+		if (ret)
+			return ret;
+
+		if (!(sfc_strap & 0x04)) {
+			priv->dma = 0;
+			printf("\n"
+				"=== WARNING ======================================================\n"
+				"Detected booting in RESERVED mode (UART_TXD was short to GND).\n"
+				"This mode is known for incorrect DMA reading of some flashes.\n"
+				"Usage of DMA for flash operations will be disabled to prevent data\n"
+				"damage. Unplug your serial console and power cycle the board\n"
+				"to boot with full performance.\n"
+				"==================================================================\n\n");
+		}
+	}
 
 	return airoha_snand_nfi_init(priv);
 }
