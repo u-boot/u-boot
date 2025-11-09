@@ -19,6 +19,7 @@ struct clk_scmi {
 	struct clk clk;
 	char name[SCMI_CLOCK_NAME_LENGTH_MAX];
 	u32 ctrl_flags;
+	bool attrs_resolved;
 };
 
 struct scmi_clock_priv {
@@ -86,7 +87,7 @@ static int scmi_clk_get_num_clock(struct udevice *dev, size_t *num_clocks)
 	return 0;
 }
 
-static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name,
+static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char *name,
 				 u32 *attr)
 {
 	struct scmi_clock_priv *priv = dev_get_priv(dev);
@@ -110,7 +111,7 @@ static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name,
 		if (ret)
 			return ret;
 
-		*name = strdup(out.clock_name);
+		strncpy(name, out.clock_name, SCMI_CLOCK_NAME_LENGTH_MAX);
 		*attr = out.attributes;
 	} else {
 		struct scmi_clk_attribute_out out;
@@ -127,7 +128,7 @@ static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name,
 		if (ret)
 			return ret;
 
-		*name = strdup(out.clock_name);
+		strncpy(name, out.clock_name, SCMI_CLOCK_NAME_LENGTH_MAX);
 		*attr = out.attributes;
 	}
 
@@ -167,6 +168,8 @@ static int scmi_clk_gate(struct clk *clk, int enable)
 static int scmi_clk_get_ctrl_flags(struct clk *clk, u32 *ctrl_flags)
 {
 	struct clk_scmi *clkscmi;
+	struct udevice *dev;
+	u32 attributes;
 	struct clk *c;
 	int ret;
 
@@ -174,7 +177,34 @@ static int scmi_clk_get_ctrl_flags(struct clk *clk, u32 *ctrl_flags)
 	if (ret)
 		return ret;
 
+	dev = c->dev->parent;
+
 	clkscmi = container_of(c, struct clk_scmi, clk);
+
+	if (!clkscmi->attrs_resolved) {
+		char name[SCMI_CLOCK_NAME_LENGTH_MAX];
+		ret = scmi_clk_get_attibute(dev, clk->id & CLK_ID_MSK,
+					    name, &attributes);
+		if (ret)
+			return ret;
+
+		strncpy(clkscmi->name, name, SCMI_CLOCK_NAME_LENGTH_MAX);
+		if (CLK_HAS_RESTRICTIONS(attributes)) {
+			u32 perm;
+
+			ret = scmi_clk_get_permissions(dev, clk->id & CLK_ID_MSK, &perm);
+			if (ret < 0)
+				clkscmi->ctrl_flags = 0;
+			else
+				clkscmi->ctrl_flags = perm;
+		} else {
+			clkscmi->ctrl_flags = SUPPORT_CLK_STAT_CONTROL |
+					      SUPPORT_CLK_PARENT_CONTROL |
+					      SUPPORT_CLK_RATE_CONTROL;
+		}
+
+		clkscmi->attrs_resolved = true;
+	}
 
 	*ctrl_flags = clkscmi->ctrl_flags;
 
@@ -328,7 +358,6 @@ static int scmi_clk_probe(struct udevice *dev)
 	for (i = 0; i < num_clocks; i++) {
 		clk_scmi = clk_scmi_bulk + i;
 		char *clock_name = clk_scmi->name;
-		u32 attributes;
 
 		snprintf(clock_name, SCMI_CLOCK_NAME_LENGTH_MAX, "scmi-%zu", i);
 
@@ -339,21 +368,6 @@ static int scmi_clk_probe(struct udevice *dev)
 
 		dev_clk_dm(dev, i, &clk_scmi->clk);
 		dev_set_parent_priv(clk_scmi->clk.dev, priv);
-
-		if (!scmi_clk_get_attibute(dev, i, &clock_name, &attributes)) {
-			if (CLK_HAS_RESTRICTIONS(attributes)) {
-				u32 perm;
-
-				ret = scmi_clk_get_permissions(dev, i, &perm);
-				if (ret < 0)
-					clk_scmi->ctrl_flags = 0;
-				else
-					clk_scmi->ctrl_flags = perm;
-			} else {
-				clk_scmi->ctrl_flags = SUPPORT_CLK_STAT_CONTROL | SUPPORT_CLK_PARENT_CONTROL |
-						       SUPPORT_CLK_RATE_CONTROL;
-			}
-		}
 	}
 
 	return 0;
