@@ -114,7 +114,7 @@ int dm_extended_scan(bool pre_reloc_only);
  *
  * Some devices may not be visible to Driver Model. This weak function can
  * be provided by boards which wish to create their own devices
- * programmaticaly. They should do this by calling device_bind() on each
+ * programmatically. They should do this by calling device_bind() on each
  * device.
  *
  * @pre_reloc_only: If true, bind only nodes with special devicetree properties,
