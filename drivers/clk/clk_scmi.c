@@ -17,6 +17,7 @@
 
 struct clk_scmi {
 	struct clk clk;
+	char name[SCMI_CLOCK_NAME_LENGTH_MAX];
 	u32 ctrl_flags;
 };
 
@@ -325,25 +326,21 @@ static int scmi_clk_probe(struct udevice *dev)
 		return -ENOMEM;
 
 	for (i = 0; i < num_clocks; i++) {
-		char *clock_name;
+		clk_scmi = clk_scmi_bulk + i;
+		char *clock_name = clk_scmi->name;
 		u32 attributes;
 
+		snprintf(clock_name, SCMI_CLOCK_NAME_LENGTH_MAX, "scmi-%zu", i);
+
+		ret = clk_register(&clk_scmi->clk, dev->driver->name,
+				   clock_name, dev->name);
+		if (ret)
+			return ret;
+
+		dev_clk_dm(dev, i, &clk_scmi->clk);
+		dev_set_parent_priv(clk_scmi->clk.dev, priv);
+
 		if (!scmi_clk_get_attibute(dev, i, &clock_name, &attributes)) {
-			clk_scmi = clk_scmi_bulk + i;
-			if (!clock_name)
-				ret = -ENOMEM;
-			else
-				ret = clk_register(&clk_scmi->clk, dev->driver->name,
-						   clock_name, dev->name);
-
-			if (ret) {
-				free(clock_name);
-				return ret;
-			}
-
-			dev_clk_dm(dev, i, &clk_scmi->clk);
-			dev_set_parent_priv(clk_scmi->clk.dev, priv);
-
 			if (CLK_HAS_RESTRICTIONS(attributes)) {
 				u32 perm;
 
