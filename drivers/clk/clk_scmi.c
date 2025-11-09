@@ -163,14 +163,11 @@ static int scmi_clk_gate(struct clk *clk, int enable)
 	return scmi_to_linux_errno(out.status);
 }
 
-static int scmi_clk_enable(struct clk *clk)
+static int scmi_clk_get_ctrl_flags(struct clk *clk, u32 *ctrl_flags)
 {
 	struct clk_scmi *clkscmi;
 	struct clk *c;
 	int ret;
-
-	if (!CONFIG_IS_ENABLED(CLK_CCF))
-		return scmi_clk_gate(clk, 1);
 
 	ret = clk_get_by_id(clk->id, &c);
 	if (ret)
@@ -178,7 +175,24 @@ static int scmi_clk_enable(struct clk *clk)
 
 	clkscmi = container_of(c, struct clk_scmi, clk);
 
-	if (clkscmi->ctrl_flags & SUPPORT_CLK_STAT_CONTROL)
+	*ctrl_flags = clkscmi->ctrl_flags;
+
+	return 0;
+}
+
+static int scmi_clk_enable(struct clk *clk)
+{
+	u32 ctrl_flags;
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(CLK_CCF))
+		return scmi_clk_gate(clk, 1);
+
+	ret = scmi_clk_get_ctrl_flags(clk, &ctrl_flags);
+	if (ret)
+		return ret;
+
+	if (ctrl_flags & SUPPORT_CLK_STAT_CONTROL)
 		return scmi_clk_gate(clk, 1);
 
 	/* Following Linux drivers/clk/clk-scmi.c, directly return 0 if agent has no permission. */
@@ -188,20 +202,17 @@ static int scmi_clk_enable(struct clk *clk)
 
 static int scmi_clk_disable(struct clk *clk)
 {
-	struct clk_scmi *clkscmi;
-	struct clk *c;
+	u32 ctrl_flags;
 	int ret;
 
 	if (!CONFIG_IS_ENABLED(CLK_CCF))
 		return scmi_clk_gate(clk, 0);
 
-	ret = clk_get_by_id(clk->id, &c);
+	ret = scmi_clk_get_ctrl_flags(clk, &ctrl_flags);
 	if (ret)
 		return ret;
 
-	clkscmi = container_of(c, struct clk_scmi, clk);
-
-	if (clkscmi->ctrl_flags & SUPPORT_CLK_STAT_CONTROL)
+	if (ctrl_flags & SUPPORT_CLK_STAT_CONTROL)
 		return scmi_clk_gate(clk, 0);
 
 	/* Following Linux drivers/clk/clk-scmi.c, directly return 0 if agent has no permission. */
@@ -259,20 +270,17 @@ static ulong __scmi_clk_set_rate(struct clk *clk, ulong rate)
 
 static ulong scmi_clk_set_rate(struct clk *clk, ulong rate)
 {
-	struct clk_scmi *clkscmi;
-	struct clk *c;
+	u32 ctrl_flags;
 	int ret;
 
 	if (!CONFIG_IS_ENABLED(CLK_CCF))
 		return __scmi_clk_set_rate(clk, rate);
 
-	ret = clk_get_by_id(clk->id, &c);
+	ret = scmi_clk_get_ctrl_flags(clk, &ctrl_flags);
 	if (ret)
 		return ret;
 
-	clkscmi = container_of(c, struct clk_scmi, clk);
-
-	if (clkscmi->ctrl_flags & SUPPORT_CLK_RATE_CONTROL)
+	if (ctrl_flags & SUPPORT_CLK_RATE_CONTROL)
 		return __scmi_clk_set_rate(clk, rate);
 
 	/* Following Linux drivers/clk/clk-scmi.c, directly return 0 if agent has no permission. */
@@ -375,20 +383,17 @@ static int __scmi_clk_set_parent(struct clk *clk, struct clk *parent)
 
 static int scmi_clk_set_parent(struct clk *clk, struct clk *parent)
 {
-	struct clk_scmi *clkscmi;
-	struct clk *c;
+	u32 ctrl_flags;
 	int ret;
 
 	if (!CONFIG_IS_ENABLED(CLK_CCF))
 		return __scmi_clk_set_parent(clk, parent);
 
-	ret = clk_get_by_id(clk->id, &c);
+	ret = scmi_clk_get_ctrl_flags(clk, &ctrl_flags);
 	if (ret)
 		return ret;
 
-	clkscmi = container_of(c, struct clk_scmi, clk);
-
-	if (clkscmi->ctrl_flags & SUPPORT_CLK_PARENT_CONTROL)
+	if (ctrl_flags & SUPPORT_CLK_PARENT_CONTROL)
 		return __scmi_clk_set_parent(clk, parent);
 
 	/* Following Linux drivers/clk/clk-scmi.c, directly return 0 if agent has no permission. */
