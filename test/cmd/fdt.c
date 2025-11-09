@@ -1319,6 +1319,9 @@ static int fdt_test_apply(struct unit_test_state *uts)
 	char fdt[8192], fdto[8192];
 	ulong addr, addro;
 
+	if (!IS_ENABLED(CONFIG_OF_LIBFDT_OVERLAY))
+		return -EAGAIN;
+
 	/* Create base DT with __symbols__ node */
 	ut_assertok(fdt_create(fdt, sizeof(fdt)));
 	ut_assertok(fdt_finish_reservemap(fdt));
