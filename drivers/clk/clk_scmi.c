@@ -283,7 +283,7 @@ static ulong scmi_clk_set_rate(struct clk *clk, ulong rate)
 
 static int scmi_clk_probe(struct udevice *dev)
 {
-	struct clk_scmi *clk_scmi;
+	struct clk_scmi *clk_scmi_bulk, *clk_scmi;
 	struct scmi_clock_priv *priv = dev_get_priv(dev);
 	size_t num_clocks, i;
 	int ret;
@@ -312,20 +312,23 @@ static int scmi_clk_probe(struct udevice *dev)
 		return ret;
 	}
 
+	clk_scmi_bulk = kzalloc(num_clocks * sizeof(*clk_scmi), GFP_KERNEL);
+	if (!clk_scmi_bulk)
+		return -ENOMEM;
+
 	for (i = 0; i < num_clocks; i++) {
 		char *clock_name;
 		u32 attributes;
 
 		if (!scmi_clk_get_attibute(dev, i, &clock_name, &attributes)) {
-			clk_scmi = kzalloc(sizeof(*clk_scmi), GFP_KERNEL);
-			if (!clk_scmi || !clock_name)
+			clk_scmi = clk_scmi_bulk + i;
+			if (!clock_name)
 				ret = -ENOMEM;
 			else
 				ret = clk_register(&clk_scmi->clk, dev->driver->name,
 						   clock_name, dev->name);
 
 			if (ret) {
-				free(clk_scmi);
 				free(clock_name);
 				return ret;
 			}
