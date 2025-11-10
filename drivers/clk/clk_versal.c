@@ -719,8 +719,6 @@ static ulong versal_clk_get_rate(struct clk *clk)
 	if (id >= clock_max_idx)
 		return -ENODEV;
 
-	debug("%s\n", __func__);
-
 	clk_id = priv->clk[id].clk_id;
 
 	versal_clock_get_rate(clk_id, &clk_rate);
@@ -736,8 +734,6 @@ static ulong versal_clk_set_rate(struct clk *clk, ulong rate)
 	u64 clk_rate = 0;
 	u32 div;
 	int ret;
-
-	debug("%s\n", __func__);
 
 	if (id >= clock_max_idx)
 		return -ENODEV;
@@ -764,7 +760,7 @@ static ulong versal_clk_set_rate(struct clk *clk, ulong rate)
 	} while (((clk_id >> NODE_SUBCLASS_SHIFT) &
 		 NODE_CLASS_MASK) != NODE_SUBCLASS_CLOCK_REF);
 
-	printf("Clock didn't has Divisors:0x%x\n", priv->clk[id].clk_id);
+	printf("Clock has no divider: 0x%x\n", clk_id);
 
 	return clk_rate;
 }
@@ -780,10 +776,9 @@ static int versal_clk_enable(struct clk *clk)
 
 	clk_id = priv->clk[id].clk_id;
 
-	if (versal_clock_gate(clk_id)) {
+	if (versal_clock_gate(clk_id))
 		return xilinx_pm_request(PM_CLOCK_ENABLE, clk_id, 0, 0, 0,
 					 0, 0, NULL);
-	}
 
 	return 0;
 }
