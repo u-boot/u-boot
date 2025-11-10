@@ -5,12 +5,20 @@
  * Copyright (c) 2019 Simon Goldschmidt
  */
 /{
+	memory {
+		bootph-all;
+	};
+
 	soc {
 		bootph-all;
 	};
 };
 
 &clkmgr {
+	bootph-all;
+};
+
+&L2 {
 	bootph-all;
 };
 
