@@ -136,6 +136,25 @@ static int versal_pm_query_legacy(struct versal_pm_query_data qdata,
 	return qdata.qid == PM_QID_CLOCK_GET_NAME ? 0 : ret;
 }
 
+static int versal_pm_query_enhanced(struct versal_pm_query_data qdata,
+				    u32 *ret_payload)
+{
+	int ret;
+
+	ret = smc_call_handler(PM_QUERY_DATA, qdata.qid, qdata.arg1, qdata.arg2,
+			       qdata.arg3, 0, 0, ret_payload);
+
+	if (qdata.qid == PM_QID_CLOCK_GET_NAME) {
+		ret_payload[0] = ret_payload[1];
+		ret_payload[1] = ret_payload[2];
+		ret_payload[2] = ret_payload[3];
+		ret_payload[3] = ret_payload[4];
+		ret_payload[4] = 0;
+	}
+
+	return ret;
+}
+
 static inline int versal_is_valid_clock(u32 clk_id)
 {
 	if (clk_id >= clock_max_idx)
@@ -794,6 +813,7 @@ static struct clk_ops versal_clk_ops = {
 
 static const struct udevice_id versal_clk_ids[] = {
 	{ .compatible = "xlnx,versal-clk", .data = (ulong)versal_pm_query_legacy },
+	{ .compatible = "xlnx,versal2-clk", .data = (ulong)versal_pm_query_enhanced },
 	{ }
 };
 
