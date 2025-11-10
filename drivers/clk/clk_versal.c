@@ -712,9 +712,12 @@ static int versal_clk_probe(struct udevice *dev)
 static ulong versal_clk_get_rate(struct clk *clk)
 {
 	struct versal_clk_priv *priv = dev_get_priv(clk->dev);
-	u32 id = clk->id;
+	u32 id = clk_get_id(clk);
 	u32 clk_id;
 	u64 clk_rate = 0;
+
+	if (id >= clock_max_idx)
+		return -ENODEV;
 
 	debug("%s\n", __func__);
 
@@ -728,13 +731,16 @@ static ulong versal_clk_get_rate(struct clk *clk)
 static ulong versal_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct versal_clk_priv *priv = dev_get_priv(clk->dev);
-	u32 id = clk->id;
+	u32 id = clk_get_id(clk);
 	u32 clk_id;
 	u64 clk_rate = 0;
 	u32 div;
 	int ret;
 
 	debug("%s\n", __func__);
+
+	if (id >= clock_max_idx)
+		return -ENODEV;
 
 	clk_id = priv->clk[id].clk_id;
 
@@ -766,9 +772,13 @@ static ulong versal_clk_set_rate(struct clk *clk, ulong rate)
 static int versal_clk_enable(struct clk *clk)
 {
 	struct versal_clk_priv *priv = dev_get_priv(clk->dev);
+	u32 id = clk_get_id(clk);
 	u32 clk_id;
 
-	clk_id = priv->clk[clk->id].clk_id;
+	if (id >= clock_max_idx)
+		return -ENODEV;
+
+	clk_id = priv->clk[id].clk_id;
 
 	if (versal_clock_gate(clk_id)) {
 		return xilinx_pm_request(PM_CLOCK_ENABLE, clk_id, 0, 0, 0,
