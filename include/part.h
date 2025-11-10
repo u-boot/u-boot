@@ -509,6 +509,22 @@ struct part_driver {
 	int (*test)(struct blk_desc *desc);
 };
 
+/**
+ * part_driver_get_info() - Call the part_driver's get_info method
+ *
+ * On success, string members of info are guaranteed to be properly
+ * initialized, though they may be empty.
+ *
+ * @drv:	Partition driver
+ * @desc:	Block device descriptor
+ * @part:	Partition number to read
+ * @info:	Returned partition information
+ *
+ * Return: 0 on success, negative errno on failure.
+ */
+int part_driver_get_info(struct part_driver *drv, struct blk_desc *desc, int part,
+			 struct disk_partition *info);
+
 /* Declare a new U-Boot partition 'driver' */
 #define U_BOOT_PART_TYPE(__name)					\
 	ll_entry_declare(struct part_driver, __name, part_driver)
