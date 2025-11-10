@@ -29,7 +29,7 @@
 	};
 
 	ospi: spi@f1010000 {
-		compatible = "cdns,qspi-nor";
+		compatible = "xlnx,versal-ospi-1.0", "cdns,qspi-nor";
 		status = "okay";
 		reg = <0 0xf1010000 0 0x10000 0 0xc0000000 0 0x20000000>;
 		clock-names = "ref_clk", "pclk";
@@ -38,7 +38,6 @@
 		num-cs = <1>;
 		cdns,fifo-depth = <256>;
 		cdns,fifo-width = <4>;
-		cdns,is-dma = <1>;
 		cdns,trigger-address = <0xc0000000>;
 		#address-cells = <1>;
 		#size-cells = <0>;

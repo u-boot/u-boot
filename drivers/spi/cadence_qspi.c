@@ -29,6 +29,7 @@
 
 /* Quirks */
 #define CQSPI_DISABLE_STIG_MODE		BIT(0)
+#define CQSPI_DMA_MODE			BIT(1)
 
 __weak int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 				     const struct spi_mem_op *op)
@@ -210,7 +211,6 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	priv->regbase		= plat->regbase;
 	priv->ahbbase		= plat->ahbbase;
-	priv->is_dma		= plat->is_dma;
 	priv->is_decoded_cs	= plat->is_decoded_cs;
 	priv->fifo_depth	= plat->fifo_depth;
 	priv->fifo_width	= plat->fifo_width;
@@ -226,6 +226,11 @@ static int cadence_spi_probe(struct udevice *bus)
 	priv->tchsh_ns		= plat->tchsh_ns;
 	priv->tslch_ns		= plat->tslch_ns;
 	priv->quirks		= plat->quirks;
+
+	if (priv->quirks & CQSPI_DMA_MODE) {
+		priv->is_dma = true;
+		debug("Cadence QSPI: DMA mode enabled\n");
+	}
 
 	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE))
 		xilinx_pm_request(PM_REQUEST_NODE, PM_DEV_OSPI,
@@ -412,8 +417,6 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 	if (plat->ahbsize >= SZ_8M)
 		priv->use_dac_mode = true;
 
-	plat->is_dma = dev_read_bool(bus, "cdns,is-dma");
-
 	/* All other parameters are embedded in the child node */
 	subnode = cadence_qspi_get_subnode(bus);
 	if (!ofnode_valid(subnode)) {
@@ -473,6 +476,10 @@ static const struct cqspi_driver_platdata cdns_qspi = {
 	.quirks = CQSPI_DISABLE_STIG_MODE,
 };
 
+static const struct cqspi_driver_platdata cdns_xilinx_qspi = {
+	.quirks = CQSPI_DMA_MODE,
+};
+
 static const struct udevice_id cadence_spi_ids[] = {
 	{
 		.compatible = "cdns,qspi-nor",
@@ -482,7 +489,12 @@ static const struct udevice_id cadence_spi_ids[] = {
 		.compatible = "ti,am654-ospi"
 	},
 	{
-		.compatible = "amd,versal2-ospi"
+		.compatible = "amd,versal2-ospi",
+		.data = (ulong)&cdns_xilinx_qspi,
+	},
+	{
+		.compatible = "xlnx,versal-ospi-1.0",
+		.data = (ulong)&cdns_xilinx_qspi,
 	},
 	{ }
 };
