@@ -1,0 +1,3 @@
+#include <configs/kontron-osm-s-mx8mp.config>
+
+CONFIG_SPL_BOOTROM_SUPPORT=y

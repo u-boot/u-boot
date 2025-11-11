@@ -1,0 +1,17 @@
+if TARGET_KONTRON_MX8MP
+
+config SYS_BOARD
+	string
+	default "osm-s-mx8mp"
+
+config SYS_VENDOR
+	string
+	default "kontron"
+
+config SYS_CONFIG_NAME
+	string
+	default "kontron-osm-s-mx8mp"
+
+source "board/kontron/common/Kconfig"
+
+endif
