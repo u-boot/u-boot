@@ -19,10 +19,6 @@
 	dr_mode="peripheral";
 };
 
-&main_mmc1_pins_default {
-	bootph-all;
-};
-
 &sdhci0 {
 	bootph-all;
 };
