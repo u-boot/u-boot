@@ -55,7 +55,7 @@ config TOOLS_FIT_PRINT
 	help
 	  Print the content of the FIT verbosely in the tools builds
 
-config TOOLS_FIT_RSASSA_PSS
+config TOOLS_RSASSA_PSS
 	def_bool y
 	help
 	  Support the rsassa-pss signature scheme in the tools builds
