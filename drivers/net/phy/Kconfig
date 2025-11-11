@@ -188,6 +188,8 @@ config PHY_MARVELL_10G
 
 source "drivers/net/phy/mediatek/Kconfig"
 
+source "drivers/net/phy/airoha/Kconfig"
+
 config PHY_MESON_GXL
 	bool "Amlogic Meson GXL Internal PHY support"
 
