@@ -399,7 +399,7 @@ int scmi_generic_protocol_version(struct udevice *dev,
 int scmi_base_protocol_version(struct udevice *dev, u32 *version);
 
 /**
- * scmi_protocol_attrs - get protocol attributes
+ * scmi_base_protocol_attrs - get protocol attributes
  * @dev:		SCMI protocol device
  * @num_agents:		Number of SCMI agents
  * @num_protocols:	Number of SCMI protocols
@@ -414,7 +414,7 @@ int scmi_base_protocol_attrs(struct udevice *dev, u32 *num_agents,
 			     u32 *num_protocols);
 
 /**
- * scmi_protocol_message_attrs - get message-specific attributes
+ * scmi_base_protocol_message_attrs - get message-specific attributes
  * @dev:		SCMI protocol device
  * @message_id:		SCMI message ID
  * @attributes:		Message-specific attributes
@@ -733,6 +733,7 @@ int scmi_pwd_name_get(struct udevice *dev, u32 domain_id, u8 **name);
 /*
  * SCMI Clock Protocol
  */
+#define CLOCK_PROTOCOL_VERSION_2_1	0x20001
 #define CLOCK_PROTOCOL_VERSION_3_0	0x30000
 
 enum scmi_clock_message_id {
@@ -754,7 +755,7 @@ enum scmi_clock_message_id {
 #define SCMI_CLOCK_NAME_LENGTH_MAX 16
 
 /**
- * struct scmi_clk_get_nb_out - Response for SCMI_PROTOCOL_ATTRIBUTES command
+ * struct scmi_clk_protocol_attr_out - Response for SCMI_PROTOCOL_ATTRIBUTES command
  * @status:	SCMI command status
  * @attributes:	Attributes of the clock protocol, mainly number of clocks exposed
  */
@@ -772,7 +773,7 @@ struct scmi_clk_attribute_in {
 };
 
 /**
- * struct scmi_clk_get_nb_out - Response payload for SCMI_CLOCK_ATTRIBUTES command
+ * struct scmi_clk_attribute_out - Response payload for SCMI_CLOCK_ATTRIBUTES command
  * @status:	SCMI command status
  * @attributes:	clock attributes
  * @clock_name:	name of the clock
@@ -785,7 +786,7 @@ struct scmi_clk_attribute_out {
 };
 
 /**
- * struct scmi_clk_get_nb_out_v2 - Response payload for SCMI_CLOCK_ATTRIBUTES command
+ * struct scmi_clk_attribute_out_v2 - Response payload for SCMI_CLOCK_ATTRIBUTES command
  * Clock management Protocol 2.0
  * @status:	SCMI command status
  * @attributes:	clock attributes
@@ -800,13 +801,25 @@ struct scmi_clk_attribute_out_v2 {
 };
 
 /**
- * struct scmi_clk_state_in - Message payload for CLOCK_CONFIG_SET command
+ * struct scmi_clk_state_in_v1 - Message payload for CLOCK_CONFIG_SET command for protocol < 2.1
  * @clock_id:	SCMI clock ID
  * @attributes:	Attributes of the targets clock state
  */
-struct scmi_clk_state_in {
+struct scmi_clk_state_in_v1 {
 	u32 clock_id;
 	u32 attributes;
+};
+
+/**
+ * struct scmi_clk_state_in_v2 - Message payload for CLOCK_CONFIG_SET command for protocol >= 2.1
+ * @clock_id:	SCMI clock ID
+ * @attributes:	Attributes of the targets clock state
+ * @extended_config_val: Extended and OEM specific configuration
+ */
+struct scmi_clk_state_in_v2 {
+	u32 clock_id;
+	u32 attributes;
+	u32 extended_config_val;
 };
 
 /**
@@ -818,7 +831,7 @@ struct scmi_clk_state_out {
 };
 
 /**
- * struct scmi_clk_state_in - Message payload for CLOCK_RATE_GET command
+ * struct scmi_clk_rate_get_in - Message payload for CLOCK_RATE_GET command
  * @clock_id:	SCMI clock ID
  * @attributes:	Attributes of the targets clock state
  */
@@ -839,7 +852,7 @@ struct scmi_clk_rate_get_out {
 };
 
 /**
- * struct scmi_clk_state_in - Message payload for CLOCK_RATE_SET command
+ * struct scmi_clk_rate_set_in - Message payload for CLOCK_RATE_SET command
  * @flags:	Flags for the clock rate set request
  * @clock_id:	SCMI clock ID
  * @rate_lsb:	32bit LSB of the clock rate in Hertz
@@ -861,7 +874,7 @@ struct scmi_clk_rate_set_out {
 };
 
 /**
- * struct scmi_clk_parent_state_in - Message payload for CLOCK_PARENT_SET command
+ * struct scmi_clk_parent_set_in - Message payload for CLOCK_PARENT_SET command
  * @clock_id:		SCMI clock ID
  * @parent_clk:		SCMI clock ID
  */
@@ -879,6 +892,7 @@ struct scmi_clk_parent_set_out {
 };
 
 /**
+ * struct scmi_clk_get_permissions_in - Message payload for CLOCK_GET_PERMISSIONS command
  * @clock_id:	Identifier for the clock device.
  */
 struct scmi_clk_get_permissions_in {
@@ -886,6 +900,7 @@ struct scmi_clk_get_permissions_in {
 };
 
 /**
+ * struct scmi_clk_get_permissions_out - Response payload for CLOCK_GET_PERMISSIONS command
  * @status:	Negative 32-bit integers are used to return error status codes.
  * @permissions:	Bit[31] Clock state control, Bit[30] Clock parent control,
  * Bit[29] Clock rate control, Bits[28:0] Reserved, must be zero.
@@ -1082,7 +1097,7 @@ struct scmi_pin_config {
 };
 
 /**
- * struct scmi_pad_config_set_in - Message payload for PAD_CONFIG_SET command
+ * struct scmi_pinctrl_config_set_in - Message payload for PAD_CONFIG_SET command
  * @identifier:		Identifier for the pin or group.
  * @function_id:	Identifier for the function selected to be enabled
  * 			for the selected pin or group. This field is set to
