@@ -573,6 +573,22 @@ static void *k3_r5f_da_to_va(struct udevice *dev, ulong da, ulong size, bool *is
 	return map_physmem(da, size, MAP_NOCACHE);
 }
 
+static int k3_r5f_is_running(struct udevice *dev)
+{
+	struct k3_r5f_core *core = dev_get_priv(dev);
+	u32 cfg, ctrl, sts;
+	u64 boot_vec;
+	int ret;
+
+	dev_dbg(dev, "%s\n", __func__);
+
+	ret = ti_sci_proc_get_status(&core->tsp, &boot_vec, &cfg, &ctrl, &sts);
+	if (ret)
+		return -1;
+
+	return !!(ctrl & PROC_BOOT_CTRL_FLAG_R5_CORE_HALT);
+}
+
 static int k3_r5f_init(struct udevice *dev)
 {
 	return 0;
@@ -590,6 +606,7 @@ static const struct dm_rproc_ops k3_r5f_rproc_ops = {
 	.stop = k3_r5f_stop,
 	.load = k3_r5f_load,
 	.device_to_virt = k3_r5f_da_to_va,
+	.is_running = k3_r5f_is_running,
 };
 
 static int k3_r5f_rproc_configure(struct k3_r5f_core *core)
