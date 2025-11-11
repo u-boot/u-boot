@@ -823,6 +823,7 @@
 			#gpio-cells = <1>;
 			gpio-bank-name = "a";
 			sandbox,gpio-count = <25>;
+			gpio-line-names = "", "eth1-reset", "rtc-irq";
 			hog_input_active_low {
 				gpio-hog;
 				input;
@@ -851,6 +852,7 @@
 			#gpio-cells = <5>;
 			gpio-bank-name = "b";
 			sandbox,gpio-count = <10>;
+			gpio-line-names = "factory-reset";
 		};
 
 		gpio_c: pinmux-gpios {

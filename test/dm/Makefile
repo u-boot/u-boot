@@ -25,7 +25,7 @@ ifeq ($(CONFIG_ACPIGEN),y)
 obj-y += acpi.o
 obj-y += acpigen.o
 obj-y += acpi_dp.o
-obj-(CONFIG_DM_GPIO) += gpio.o
+obj-$(CONFIG_DM_GPIO) += gpio.o
 obj-y += irq.o
 endif
 obj-$(CONFIG_ADC) += adc.o
