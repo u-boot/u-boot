@@ -315,6 +315,7 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
 	bool mem_auto_init;
 	void *image_addr = (void *)addr;
 	int ret;
+	size_t size_img;
 
 	dev_dbg(dev, "%s addr = 0x%lx, size = 0x%lx\n", __func__, addr, size);
 
@@ -341,7 +342,9 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
 
 	k3_r5f_init_tcm_memories(core, mem_auto_init);
 
-	ti_secure_image_post_process(&image_addr, &size);
+	size_img = size;
+	ti_secure_image_post_process(&image_addr, &size_img);
+	size = size_img;
 
 	ret = rproc_elf_load_image(dev, addr, size);
 	if (ret < 0) {
