@@ -346,13 +346,13 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
 	ti_secure_image_post_process(&image_addr, &size_img);
 	size = size_img;
 
-	ret = rproc_elf_load_image(dev, addr, size);
+	ret = rproc_elf_load_image(dev, (ulong)image_addr, size);
 	if (ret < 0) {
 		dev_err(dev, "Loading elf failedi %d\n", ret);
 		goto proc_release;
 	}
 
-	boot_vector = rproc_elf_get_boot_addr(dev, addr);
+	boot_vector = rproc_elf_get_boot_addr(dev, (ulong)image_addr);
 
 	dev_dbg(dev, "%s: Boot vector = 0x%llx\n", __func__, boot_vector);
 
