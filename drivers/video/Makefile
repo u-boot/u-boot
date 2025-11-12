@@ -47,7 +47,6 @@ obj-$(CONFIG_LOGICORE_DP_TX) += logicore_dp_tx.o
 obj-$(CONFIG_NXP_TDA19988) += tda19988.o
 obj-$(CONFIG_OSD) += video_osd-uclass.o
 obj-$(CONFIG_SANDBOX_OSD) += sandbox_osd.o
-obj-$(CONFIG_VIDEO_ARM_MALIDP) += mali_dp.o
 obj-$(CONFIG_VIDEO_BCM2835) += bcm2835.o
 obj-$(CONFIG_VIDEO_BOCHS) += bochs.o
 obj-$(CONFIG_VIDEO_BROADWELL_IGD) += broadwell_igd.o
