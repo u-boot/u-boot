@@ -60,7 +60,7 @@ Set the variables corresponding to this platform:
   export UBOOT_CFG_CORTEXR=am6254atl_evm_r5_defconfig
   export UBOOT_CFG_CORTEXA=am6254atl_evm_a53_defconfig
   export TFA_BOARD=lite
-  export TFA_EXTRA_ARGS="PRELOADED_BL33_BASE=0x81880000 BL32_BASE=0x80080000"
+  export TFA_EXTRA_ARGS="PRELOADED_BL33_BASE=0x82000000 BL32_BASE=0x80080000"
   export OPTEE_PLATFORM=k3-am62x
   export OPTEE_EXTRA_ARGS="CFG_TZDRAM_START=0x80080000"
 
