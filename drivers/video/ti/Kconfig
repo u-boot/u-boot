@@ -4,5 +4,6 @@
 #
 config AM335X_LCD
 	bool "Enable AM335x video support"
+	depends on ARCH_OMAP2PLUS
 	help
 	   Supports video output to an attached LCD panel.
