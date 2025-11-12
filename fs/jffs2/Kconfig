@@ -1,5 +1,6 @@
 config FS_JFFS2
 	bool "Enable JFFS2 filesystem support"
+	depends on !64BIT
 	help
 	  This provides support for reading images from JFFS2 (Journalling
 	  Flash File System version 2). JFFS2 is a log-structured file system

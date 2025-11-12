@@ -2927,6 +2927,7 @@ config CMD_FS_UUID
 
 config CMD_JFFS2
 	bool "jffs2 command"
+	depends on !64BIT
 	select FS_JFFS2
 	help
 	  Enables commands to support the JFFS2 (Journalling Flash File System
