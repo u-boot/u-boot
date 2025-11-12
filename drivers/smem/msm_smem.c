@@ -88,7 +88,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SMEM_GLOBAL_HOST	0xfffe
 
 /* Max number of processors/hosts in a system */
-#define SMEM_HOST_COUNT		10
+#define SMEM_HOST_COUNT		25
 
 /**
  * struct smem_proc_comm - proc_comm communication struct (legacy)
@@ -821,23 +821,34 @@ static int qcom_smem_enumerate_partitions(struct qcom_smem *smem,
 static int qcom_smem_map_memory(struct qcom_smem *smem, struct udevice *dev,
 				const char *name, int i)
 {
-	struct fdt_resource r;
 	int ret;
-	int node = dev_of_offset(dev);
+	struct ofnode_phandle_args args;
+	struct resource r;
 
-	ret = fdtdec_lookup_phandle(gd->fdt_blob, node, name);
-	if (ret < 0) {
-		dev_err(dev, "No %s specified\n", name);
+	if (!dev_read_prop(dev, name, NULL)) {
+		dev_err(dev, "%s prop not found\n", name);
 		return -EINVAL;
 	}
 
-	ret = fdt_get_resource(gd->fdt_blob, ret, "reg", 0, &r);
-	if (ret)
-		return ret;
+	ret = dev_read_phandle_with_args(dev, name, NULL, 0, 0, &args);
+	if (ret) {
+		dev_err(dev, "%s phandle read failed\n", name);
+		return -EINVAL;
+	}
 
+	if (!ofnode_valid(args.node)) {
+		dev_err(dev, "Invalid node from phandle args\n");
+		return -EINVAL;
+	}
+
+	ret = ofnode_read_resource(args.node, 0, &r);
+	if (ret) {
+		dev_err(dev, "Can't get mmap base address(%d)\n", ret);
+		return ret;
+	}
 	smem->regions[i].aux_base = (u32)r.start;
-	smem->regions[i].size = fdt_resource_size(&r);
-	smem->regions[i].virt_base = devm_ioremap(dev, r.start, fdt_resource_size(&r));
+	smem->regions[i].size = resource_size(&r);
+	smem->regions[i].virt_base = devm_ioremap(dev, r.start, resource_size(&r));
 	if (!smem->regions[i].virt_base)
 		return -ENOMEM;
 
@@ -852,10 +863,14 @@ static int qcom_smem_probe(struct udevice *dev)
 	int num_regions;
 	u32 version;
 	int ret;
-	int node = dev_of_offset(dev);
+	fdt_addr_t addr;
+	fdt_size_t size;
+
+	if (__smem)
+		return 0;
 
 	num_regions = 1;
-	if (fdtdec_lookup_phandle(gd->fdt_blob, node, "qcomrpm-msg-ram") >= 0)
+	if (dev_read_prop(dev, "qcom,rpm-msg-ram", NULL))
 		num_regions++;
 
 	array_size = num_regions * sizeof(struct smem_region);
@@ -866,9 +881,18 @@ static int qcom_smem_probe(struct udevice *dev)
 	smem->dev = dev;
 	smem->num_regions = num_regions;
 
-	ret = qcom_smem_map_memory(smem, dev, "memory-region", 0);
-	if (ret)
-		return ret;
+	addr = dev_read_addr_size(dev, &size);
+	if (addr == FDT_ADDR_T_NONE) {
+		ret = qcom_smem_map_memory(smem, dev, "memory-region", 0);
+		if (ret)
+			return ret;
+	} else {
+		smem->regions[0].aux_base = (u32)addr;
+		smem->regions[0].size = size;
+		smem->regions[0].virt_base = devm_ioremap(dev, addr, size);
+		if (!smem->regions[0].virt_base)
+			return -ENOMEM;
+	}
 
 	if (num_regions > 1) {
 		ret = qcom_smem_map_memory(smem, dev,
