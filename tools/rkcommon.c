@@ -76,13 +76,29 @@ struct header0_info_v2 {
 /**
  * struct header0_info - header block for boot ROM
  *
- * This is stored at SD card block 64 (where each block is 512 bytes, or at
- * the start of SPI flash. It is encoded with RC4.
+ * This is stored at MMC block 64 (where each block is 512 bytes), or at
+ * the start of SPI flash. It is encoded with RC4 with the below rc4_key.
+ *
+ * In Rockchip terminology:
+ *
+ * "init" means the stage that is loaded into SRAM. TPL if there is one, SPL
+ * otherwise.
+ *
+ * "boot" means the next stages after "init" stage that are loaded by the
+ * BootROM into DRAM. Only applicable if "init" stage returns to BootROM (via
+ * the appropriate ROCKCHIP_BACK_TO_BROM symbol, BOOT_DEVICE_BOOTROM is used as
+ * boot device for the next stage and the "init" stage successfully booted) and
+ * if "init_boot_size" > "init_size".
+ * Basically, it is the content of "init" plus the SPL or even U-Boot proper if
+ * relevant.
  *
  * @magic:		Magic (must be RK_MAGIC)
  * @disable_rc4:	0 to use rc4 for boot image,  1 to use plain binary
- * @init_offset:	Offset in blocks of the SPL code from this header
- *			block. E.g. 4 means 2KB after the start of this header.
+ * @init_offset:	Offset in 512-byte blocks of the "init" code from the
+ *			start of this header. For instance, 4 means 2KiB.
+ * @init_size:		Size (in blocks) of the "init" code.
+ * @init_boot_size:	Size (in blocks) of the "init" and "boot" code combined.
+ *
  * Other fields are not used by U-Boot
  */
 struct header0_info {
