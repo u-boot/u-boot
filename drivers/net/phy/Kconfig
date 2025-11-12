@@ -238,6 +238,7 @@ config PHY_MOTORCOMM
 	  Currently supports the YT8511 and YT8531 Gigabit Ethernet PHYs.
 
 config PHY_MSCC
+	depends on !COMPILE_TEST
 	bool "Microsemi Corp Ethernet PHYs support"
 
 config PHY_NATSEMI
@@ -342,6 +343,7 @@ config PHY_TI_GENERIC
 
 config PHY_VITESSE
 	bool "Vitesse Ethernet PHYs support"
+	depends on !COMPILE_TEST
 
 config PHY_XILINX
 	bool "Xilinx Ethernet PHYs support"
