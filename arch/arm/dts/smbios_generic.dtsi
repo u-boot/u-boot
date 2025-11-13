@@ -83,6 +83,9 @@
 
 			memory-array {
 			};
+
+			memory-device {
+			};
 		};
 	};
 };
