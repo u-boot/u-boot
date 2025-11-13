@@ -126,6 +126,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	python3-pip \
 	python3-pyelftools \
 	python3-sphinx \
+	python3-tk \
 	python3-tomli \
 	python3-venv \
 	rpm2cpio \
