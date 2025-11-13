@@ -37,7 +37,7 @@ SECTIONS
 		KEEP(*(SORT(__u_boot_list*)));
 	}
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 	__image_copy_end = .;
 	__init_end = .;
 
@@ -56,7 +56,7 @@ SECTIONS
 		. += CONFIG_MIPS_RELOCATION_TABLE_SIZE - 4;
 	}
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 	_end = .;
 
 	.bss __rel_start (OVERLAY) : {
@@ -64,7 +64,7 @@ SECTIONS
 		*(.sbss.*)
 		*(.bss.*)
 		*(COMMON)
-		. = ALIGN(4);
+		. = ALIGN(8);
 		__bss_end = .;
 	}
 
