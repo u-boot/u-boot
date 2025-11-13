@@ -39,7 +39,7 @@ static inline int power_pmic_get(struct unit_test_state *uts, char *name)
 /* Test PMIC get method */
 static int dm_test_power_pmic_get(struct unit_test_state *uts)
 {
-	power_pmic_get(uts, "sandbox_pmic");
+	power_pmic_get(uts, "sandbox_pmic@40");
 
 	return 0;
 }
@@ -57,7 +57,7 @@ DM_TEST(dm_test_power_pmic_mc34708_get, UTF_SCAN_FDT);
 /* Test PMIC I/O */
 static int dm_test_power_pmic_io(struct unit_test_state *uts)
 {
-	const char *name = "sandbox_pmic";
+	const char *name = "sandbox_pmic@40";
 	uint8_t out_buffer, in_buffer;
 	struct udevice *dev;
 	int reg_count, i;
