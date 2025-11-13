@@ -290,6 +290,49 @@ static int smbios_get_val_si(struct smbios_ctx * __maybe_unused ctx,
 	return val_def;
 }
 
+#if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE)
+static u64 smbios_get_u64_si(struct smbios_ctx * __maybe_unused ctx,
+			     const char * __maybe_unused prop,
+			     int __maybe_unused sysinfo_id, u64 val_def)
+{
+	size_t len;
+	void *data;
+	const fdt32_t *prop_val;
+	int prop_len;
+	u64 val = 0;
+
+	if (!ctx->dev)
+		return val_def;
+
+	if (!sysinfo_get_data(ctx->dev, sysinfo_id, &data, &len))
+		return *((u64 *)data);
+
+	if (!IS_ENABLED(CONFIG_OF_CONTROL) || !prop || !ofnode_valid(ctx->node))
+		return val_def;
+
+	prop_val = ofnode_read_prop(ctx->node, prop, &prop_len);
+	if (!prop_val || prop_len < sizeof(fdt32_t) ||
+	    prop_len % sizeof(fdt32_t)) {
+		/*
+		 * If the node or property is not valid fallback and try the root
+		 */
+		prop_val = ofnode_read_prop(ofnode_root(), prop, &prop_len);
+		if (!prop_val || prop_len < sizeof(fdt32_t) ||
+		    prop_len % sizeof(fdt32_t))
+			return val_def;
+	}
+
+	/* 64-bit: <hi lo> or 32-bit */
+	if (prop_len >= sizeof(fdt32_t) * 2) {
+		val = ((u64)fdt32_to_cpu(prop_val[0]) << 32) |
+		     fdt32_to_cpu(prop_val[1]);
+	} else {
+		val = fdt32_to_cpu(prop_val[0]);
+	}
+	return val;
+}
+#endif
+
 /**
  * smbios_add_prop_si() - Add a property from the devicetree or sysinfo
  *
@@ -1151,6 +1194,244 @@ static int smbios_write_type9(ulong *current, int *handle,
 	return len;
 }
 
+static u64 smbios_pop_size_from_memory_node(ofnode node)
+{
+	const fdt32_t *reg;
+	int len;
+	u64 size_bytes;
+
+	/* Read property 'reg' from the node */
+	reg = ofnode_read_prop(node, "reg", &len);
+	if (!reg || len < sizeof(fdt32_t) * 4 || len % sizeof(fdt32_t))
+		return 0;
+
+	/* Combine hi/lo for size (typically 64-bit) */
+	size_bytes = ((u64)fdt32_to_cpu(reg[2]) << 32) | fdt32_to_cpu(reg[3]);
+
+	return size_bytes;
+}
+
+static int
+smbios_write_type16_sum_memory_nodes(ulong *current, int handle,
+				     struct smbios_ctx *ctx, u16 cnt, u64 size)
+{
+	struct smbios_type16 *t;
+	int len = sizeof(*t);
+	u8 *eos_addr;
+	void *hdl;
+	size_t hdl_size;
+
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_PHYS_MEMORY_ARRAY, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	/* default attributes */
+	t->location = SMBIOS_MA_LOCATION_MOTHERBOARD;
+	t->use = SMBIOS_MA_USE_SYSTEM;
+	t->mem_err_corr = SMBIOS_MA_ERRCORR_UNKNOWN;
+	t->mem_err_info_hdl = SMBIOS_MA_ERRINFO_NONE;
+	t->num_of_mem_dev = cnt;
+
+	/* Use extended field */
+	t->max_cap = cpu_to_le32(0x80000000);
+	t->ext_max_cap = cpu_to_le64(size >> 10); /* In KB */
+
+	/* Save the memory array handles */
+	if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+			      &hdl_size) &&
+	    hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+		*((u16 *)hdl) = handle;
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static void
+smbios_pop_type16_from_memcontroller_node(ofnode node, struct smbios_type16 *t)
+{
+	ofnode child;
+	int count = 0;
+	u64 total = 0;
+
+	/* default attributes */
+	t->location = SMBIOS_MA_LOCATION_MOTHERBOARD;
+	t->use = SMBIOS_MA_USE_SYSTEM;
+	t->mem_err_info_hdl = SMBIOS_MA_ERRINFO_NONE;
+
+	/* Check custom property 'ecc-enabled' */
+	if (ofnode_read_bool(node, "ecc-enabled"))
+		t->mem_err_corr = SMBIOS_MA_ERRCORR_SBITECC;
+	else
+		t->mem_err_corr = SMBIOS_MA_ERRCORR_UNKNOWN;
+
+	/* Read subnodes with 'size' property */
+	for (child = ofnode_first_subnode(node); ofnode_valid(child);
+	     child = ofnode_next_subnode(child)) {
+		u64 sz = 0;
+		const fdt32_t *size;
+		int len;
+
+		size = ofnode_read_prop(child, "size", &len);
+		if (!size || len < sizeof(fdt32_t) || len % sizeof(fdt32_t))
+			continue;
+
+		/* 64-bit size: <hi lo> or 32-bit size */
+		if (len >= sizeof(fdt32_t) * 2)
+			sz = ((u64)fdt32_to_cpu(size[0]) << 32) |
+			     fdt32_to_cpu(size[1]);
+		else
+			sz = fdt32_to_cpu(size[0]);
+
+		count++;
+		total += sz;
+	}
+
+	/*
+	 * Number of memory devices associated with this array
+	 * (i.e., how many Type17 entries link to this Type16 array)
+	 */
+	t->num_of_mem_dev = count;
+
+	/* Use extended field */
+	t->max_cap = cpu_to_le32(0x80000000);
+	t->ext_max_cap = cpu_to_le64(total >> 10); /* In KB */
+}
+
+static void smbios_pop_type16_si(struct smbios_ctx *ctx,
+				 struct smbios_type16 *t)
+{
+	t->location = smbios_get_val_si(ctx, "location", SYSID_NONE,
+					SMBIOS_MA_LOCATION_UNKNOWN);
+	t->use = smbios_get_val_si(ctx, "use", SYSID_NONE,
+				   SMBIOS_MA_USE_UNKNOWN);
+	t->mem_err_corr = smbios_get_val_si(ctx, "memory-error-correction", SYSID_NONE,
+					    SMBIOS_MA_ERRCORR_UNKNOWN);
+	t->max_cap = smbios_get_val_si(ctx, "maximum-capacity", SYSID_NONE, 0);
+	t->mem_err_info_hdl = smbios_get_val_si(ctx, "memory-error-information-handle",
+						SYSID_NONE, SMBIOS_MA_ERRINFO_NONE);
+	t->num_of_mem_dev = smbios_get_val_si(ctx, "number-of-memory-devices", SYSID_NONE, 1);
+	t->ext_max_cap = smbios_get_u64_si(ctx, "extended-maximum-capacity", SYSID_NONE, 0);
+}
+
+static int smbios_write_type16_1array(ulong *current, int handle,
+				      struct smbios_ctx *ctx, int idx,
+				      int type)
+{
+	struct smbios_type16 *t;
+	int len = sizeof(*t);
+	u8 *eos_addr;
+	void *hdl;
+	size_t hdl_size;
+
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_PHYS_MEMORY_ARRAY, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	if (type == SMBIOS_MEM_CUSTOM)
+		smbios_pop_type16_si(ctx, t);
+	else if (type == SMBIOS_MEM_FDT_MEMCON_NODE)
+		smbios_pop_type16_from_memcontroller_node(ctx->node, t);
+
+	/* Save the memory array handles */
+	if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+			      &hdl_size) &&
+	    hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+		*((u16 *)hdl + idx) = handle;
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type16(ulong *current, int *handle,
+			       struct smbios_ctx *ctx)
+{
+	int len;
+	struct smbios_ctx ctx_bak;
+	ofnode child;
+	int idx;
+	u64 total = 0;
+	int count = 0;
+	int hdl_base = *handle;
+
+	if (!IS_ENABLED(CONFIG_OF_CONTROL))
+		return 0;	/* Error, return 0-length */
+
+	/* Step 1: Scan any subnode exists under 'memory-array' */
+	len = smbios_scan_subnodes(current, ctx, handle,
+				   smbios_write_type16_1array,
+				   SMBIOS_MEM_CUSTOM);
+	if (len)
+		return len;
+
+	/* Step 2: Scan 'memory' node from the entire FDT */
+	for (child = ofnode_first_subnode(ofnode_root());
+	     ofnode_valid(child); child = ofnode_next_subnode(child)) {
+		const char *str;
+
+		/* Look up for 'device_type = "memory"' */
+		str = ofnode_read_string(child, "device_type");
+		if (str && !strcmp(str, "memory")) {
+			count++;
+			total += smbios_pop_size_from_memory_node(child);
+		}
+	}
+	/*
+	 * Generate one type16 instance for all 'memory' nodes,
+	 * use idx=0 implicitly
+	 */
+	if (count)
+		len += smbios_write_type16_sum_memory_nodes(current, *handle,
+							    ctx, count, total);
+
+	/* Step 3: Scan 'memory-controller' node from the entire FDT */
+	/* idx starts from 1 */
+	memcpy(&ctx_bak, ctx, sizeof(ctx_bak));
+	for (idx = 1, child = ofnode_first_subnode(ofnode_root());
+	     ofnode_valid(child); child = ofnode_next_subnode(child)) {
+		const char *compat;
+		const char *name;
+
+		/*
+		 * Look up for node with name or property 'compatible'
+		 * containing 'memory-controller'.
+		 */
+		name = ofnode_get_name(child);
+		compat = ofnode_read_string(child, "compatible");
+		if ((!compat || !strstr(compat, "memory-controller")) &&
+		    (!name || !strstr(name, "memory-controller")))
+			continue;
+
+		*handle = hdl_base + idx;
+		ctx->node = child;
+		/*
+		 * Generate one type16 instance for each 'memory-controller'
+		 * node, sum the 'size' of all subnodes.
+		 */
+		len += smbios_write_type16_1array(current, *handle, ctx, idx,
+						  SMBIOS_MEM_FDT_MEMCON_NODE);
+		idx++;
+		memcpy(ctx, &ctx_bak, sizeof(*ctx));
+	}
+
+	return len;
+}
+
 #endif /* #if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE) */
 
 static int smbios_write_type32(ulong *current, int *handle,
@@ -1199,6 +1480,7 @@ static struct smbios_write_method smbios_write_funcs[] = {
 	{ smbios_write_type4, "processor"},
 #if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE)
 	{ smbios_write_type9, "system-slot"},
+	{ smbios_write_type16, "memory-array"},
 #endif
 	{ smbios_write_type32, },
 	{ smbios_write_type127 },
