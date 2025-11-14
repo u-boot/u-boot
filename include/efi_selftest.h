@@ -19,6 +19,7 @@
 
 extern const struct efi_system_table *st_systable;
 extern const struct efi_boot_services *st_boottime;
+extern const struct efi_runtime_services *st_runtime;
 
 /**
  * efi_st_printf() - print a message
