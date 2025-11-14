@@ -53,8 +53,7 @@ static int execute(void)
 	efi_guid_t guid;
 	int test_ret;
 
-	test_ret = efi_st_query_variable_common(runtime,
-						EFI_VARIABLE_BOOTSERVICE_ACCESS);
+	test_ret = efi_st_query_variable_common(EFI_VARIABLE_BOOTSERVICE_ACCESS);
 	if (test_ret != EFI_ST_SUCCESS) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;

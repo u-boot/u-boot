@@ -60,8 +60,8 @@ static int execute(void)
 	memset(v2, 0x1, sizeof(v2));
 
 	if (IS_ENABLED(CONFIG_EFI_VARIABLE_FILE_STORE)) {
-		test_ret = efi_st_query_variable_common(runtime, EFI_VARIABLE_BOOTSERVICE_ACCESS |
-								 EFI_VARIABLE_RUNTIME_ACCESS);
+		test_ret = efi_st_query_variable_common(EFI_VARIABLE_BOOTSERVICE_ACCESS |
+							EFI_VARIABLE_RUNTIME_ACCESS);
 		if (test_ret != EFI_ST_SUCCESS) {
 			efi_st_error("QueryVariableInfo failed\n");
 			return EFI_ST_FAILURE;
