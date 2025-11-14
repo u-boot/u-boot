@@ -58,41 +58,6 @@ int checkboard(void)
 	return 0;
 }
 
-static int get_led(struct udevice **dev, char *led_string)
-{
-	const char *led_name;
-	int ret;
-
-	led_name = ofnode_conf_read_str(led_string);
-	if (!led_name) {
-		log_debug("could not find %s config string\n", led_string);
-		return -ENOENT;
-	}
-	ret = led_get_by_label(led_name, dev);
-	if (ret) {
-		log_debug("get=%d\n", ret);
-		return ret;
-	}
-
-	return 0;
-}
-
-static int setup_led(enum led_state_t cmd)
-{
-	struct udevice *dev;
-	int ret;
-
-	if (!CONFIG_IS_ENABLED(LED))
-		return 0;
-
-	ret = get_led(&dev, "u-boot,boot-led");
-	if (ret)
-		return ret;
-
-	ret = led_set_state(dev, cmd);
-	return ret;
-}
-
 static void check_user_button(void)
 {
 	struct udevice *button;
@@ -118,7 +83,6 @@ static void check_user_button(void)
 /* board dependent setup after realloc */
 int board_init(void)
 {
-	setup_led(LEDST_ON);
 	check_user_button();
 
 	return 0;
@@ -222,5 +186,5 @@ int board_late_init(void)
 
 void board_quiesce_devices(void)
 {
-	setup_led(LEDST_OFF);
+	led_boot_off();
 }
