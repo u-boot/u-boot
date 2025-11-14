@@ -200,6 +200,7 @@ err_aclk_disable:
 static const struct udevice_id stm32_adc_core_ids[] = {
 	{ .compatible = "st,stm32h7-adc-core" },
 	{ .compatible = "st,stm32mp1-adc-core" },
+	{ .compatible = "st,stm32mp13-adc-core" },
 	{}
 };
 
