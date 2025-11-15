@@ -21,7 +21,6 @@
 #include <asm/global_data.h>
 #include <linux/err.h>
 #include <linux/types.h>
-#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/root.h>

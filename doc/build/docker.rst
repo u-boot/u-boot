@@ -36,7 +36,7 @@ To build the image yourself:
 
 .. code-block:: bash
 
-    sudo docker buildx build --platform linux/arm64/v8,linux/amd64 -t your-namespace:your-tag .
+    sudo docker buildx build --platform linux/arm64,linux/amd64 -t your-namespace:your-tag .
 
 Or to use an existing container
 

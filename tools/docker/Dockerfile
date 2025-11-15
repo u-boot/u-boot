@@ -6,7 +6,7 @@ FROM ubuntu:jammy-20251001
 LABEL org.opencontainers.image.authors="Tom Rini <trini@konsulko.com>"
 LABEL org.opencontainers.image.description=" This image is for building U-Boot inside a container"
 
-# Used by docker to set the target platform: valid values are linux/arm64/v8
+# Used by Docker to set the target platform: valid values are linux/arm64
 # and linux/amd64
 ARG TARGETPLATFORM
 
