@@ -11,4 +11,6 @@
 #include <net-legacy.h>
 #endif
 
+int custom_packet_auth(void);
+
 #endif /* __NET_H__ */
