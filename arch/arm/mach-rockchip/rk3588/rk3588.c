@@ -63,7 +63,20 @@ static struct mm_region rk3588_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
-		.size = 0xf0000000UL,
+		.size = 0x10f000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		/* SCMI shared memory area must be mapped as non-cacheable. */
+		.virt = 0x10f000UL,
+		.phys = 0x10f000UL,
+		.size = 0x1000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL_NC) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x110000UL,
+		.phys = 0x110000UL,
+		.size = 0xefef0000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
