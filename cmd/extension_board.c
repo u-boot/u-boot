@@ -99,6 +99,10 @@ static int do_extension_list(struct cmd_tbl *cmdtp, int flag,
 	int i = 0;
 
 	extension_list = extension_get_list();
+	if (!extension_list) {
+		printf("No extension device\n");
+		return CMD_RET_FAILURE;
+	}
 	if (!alist_get_ptr(extension_list, 0)) {
 		printf("No extension registered - Please run \"extension scan\"\n");
 		return CMD_RET_SUCCESS;
