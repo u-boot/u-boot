@@ -37,6 +37,11 @@
 	soc@0 {
 		bootph-all;
 	};
+
+	/* temporary until kernel DT update */
+	watchdog {
+		arm,smc-id = <0xbc000000>;
+	};
 };
 
 &bsec {

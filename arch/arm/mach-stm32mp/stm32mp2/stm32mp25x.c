@@ -77,6 +77,14 @@ int get_eth_nb(void)
 	case CPU_STM32MP257Axx:
 		nb_eth = 5; /* dual ETH with TSN support */
 		break;
+	case CPU_STM32MP255Fxx:
+		fallthrough;
+	case CPU_STM32MP255Dxx:
+		fallthrough;
+	case CPU_STM32MP255Cxx:
+		fallthrough;
+	case CPU_STM32MP255Axx:
+		fallthrough;
 	case CPU_STM32MP253Fxx:
 		fallthrough;
 	case CPU_STM32MP253Dxx:

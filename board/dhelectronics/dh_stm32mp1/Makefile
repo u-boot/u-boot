@@ -3,6 +3,8 @@
 # Copyright (C) 2018, STMicroelectronics - All Rights Reserved
 #
 
-obj-y += ../../st/common/stpmic1.o board.o
+obj-$(CONFIG_PMIC_STPMIC1) += ../../st/common/stpmic1.o
+obj-y += board.o
 
 obj-$(CONFIG_SET_DFU_ALT_INFO) += ../../st/common/stm32mp_dfu.o
+obj-$(CONFIG_$(PHASE_)DFU_VIRT) += ../../st/common/stm32mp_dfu_virt.o

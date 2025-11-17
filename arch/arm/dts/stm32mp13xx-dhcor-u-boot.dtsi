@@ -10,6 +10,7 @@
 / {
 	aliases {
 		eeprom0 = &eeprom0;
+		eeprom0wl = &eeprom0wl;
 	};
 
 	config {
@@ -185,6 +186,14 @@
 	};
 };
 #endif
+
+&reg11 {
+	regulator-always-on;
+};
+
+&reg18 {
+	regulator-always-on;
+};
 
 &sdmmc1 {
 	status = "disabled";

@@ -25,6 +25,7 @@ kernel binding directory = Documentation/devicetree/bindings/
 * display
 	- display/st,stm32-dsi.yaml
 	- display/st,stm32-ltdc.yaml
+        - display/st,stm32mp25-lvds.yaml
 * gpio
 	- pinctrl/st,stm32-pinctrl.yaml
 * hwlock
