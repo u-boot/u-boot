@@ -222,7 +222,7 @@ static int do_bridge(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(bridge, 3, 1, do_bridge,
-	   "SoCFPGA HPS FPGA bridge control",
+	   "GEN5 SoCFPGA HPS FPGA bridge control",
 	   "enable [mask] - Enable HPS-to-FPGA (Bit 0), LWHPS-to-FPGA (Bit 1), FPGA-to-HPS (Bit 2) bridges\n"
 	   "bridge disable [mask] - Disable HPS-to-FPGA (Bit 0), LWHPS-to-FPGA (Bit 1), FPGA-to-HPS (Bit 2) bridges\n"
 	   ""
@@ -261,7 +261,16 @@ void socfpga_get_managers_addr(void)
 	if (ret)
 		hang();
 
-	else if (IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X))
+	if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
+	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M) &&
+	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)) {
+		ret = socfpga_get_base_addr("altr,sys-mgr",
+					    &socfpga_sysmgr_base);
+		if (ret)
+			hang();
+	}
+
+	if (IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X))
 		ret = socfpga_get_base_addr("intel,n5x-clkmgr",
 					    &socfpga_clkmgr_base);
 	else if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
