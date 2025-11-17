@@ -161,6 +161,14 @@ config RTC_MAX313XX
 	  - Temperature sensor
 	  - CLKOUT generation
 
+config RTC_PCF85063
+	bool "Enable PCF85063 driver"
+	depends on DM_I2C
+	depends on DM_RTC
+	help
+	  If you say yes here you get support for the NXP PCF85063 RTC
+	  and compatible chips.
+
 config RTC_PCF8563
 	bool "Philips PCF8563"
 	help
