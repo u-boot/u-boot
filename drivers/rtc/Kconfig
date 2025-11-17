@@ -162,7 +162,7 @@ config RTC_MAX313XX
 	  - CLKOUT generation
 
 config RTC_PCF8563
-	tristate "Philips PCF8563"
+	bool "Philips PCF8563"
 	help
 	  If you say yes here you get support for the Philips PCF8563 RTC
 	  and compatible chips.
