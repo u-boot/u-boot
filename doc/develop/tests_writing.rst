@@ -228,6 +228,14 @@ Note that the MEM_TEST() macros is defined at the top of the file.
 
 Example commit: 9fe064646d2 ("bloblist: Support relocating to a larger space") [1]
 
+* A successful test returns 0.
+* A skipped test returns -EAGAIN.
+* Any other value signals a failure.
+
+Include ``test/ut.h`` defines a number of macros to check values and to return
+from the test function if the assertion fails. See :doc:`../api/test`
+for details.
+
 [1] https://gitlab.denx.de/u-boot/u-boot/-/commit/9fe064646d2
 
 
