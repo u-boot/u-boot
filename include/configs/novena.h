@@ -53,7 +53,6 @@
 
 /* Extra U-Boot environment. */
 #define CFG_EXTRA_ENV_SETTINGS					\
-	"fdt_high=0xffffffff\0"						\
 	"initrd_high=0xffffffff\0"					\
 	"consdev=ttymxc1\0"						\
 	"baudrate=115200\0"						\
