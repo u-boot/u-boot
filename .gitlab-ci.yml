@@ -5,6 +5,7 @@ variables:
   DEFAULT_AMD64_TAG: "amd64"
   DEFAULT_FAST_TAG: "fast"
   MIRROR_DOCKER: docker.io
+  SAGE_LAB: ""
   SJG_LAB: ""
   PLATFORM: linux/amd64,linux/arm64
 
@@ -24,6 +25,7 @@ image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:noble-20251001-11Nov2025
 stages:
   - testsuites
   - test.py
+  - sage-lab
   - sjg-lab
   - world build
 
@@ -592,6 +594,9 @@ coreboot test.py:
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
+
+# Add sage-lab stage
+include: .gitlab-ci-sage-lab.yml
 
 .sjg_lab_template: &sjg_lab_dfn
   stage: sjg-lab
