@@ -57,7 +57,6 @@
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
-	"fdt_high=0xffffffff\0" \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdtfile=imx7d-sdb.dtb\0" \
