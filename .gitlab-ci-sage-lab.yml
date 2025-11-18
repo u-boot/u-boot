@@ -27,8 +27,6 @@
       pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt -r tools/u_boot_pylib/requirements.txt
         labgrid setuptools
-    # Add more tools
-    - sudo apt-get update && sudo apt-get -y install snmp rsync
     # Acquire and turn on the exporter.
     - labgrid-client reserve --wait board=${LABGRID_EXPORTER} &&
       labgrid-client -p ${LABGRID_EXPORTER} acquire &&
