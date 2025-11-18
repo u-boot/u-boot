@@ -77,16 +77,6 @@ static struct acpm acpm = {
 	.ipc_ch		= EXYNOS850_IPC_AP_I3C,
 };
 
-int dram_init(void)
-{
-	return fdtdec_setup_mem_size_base();
-}
-
-int dram_init_banksize(void)
-{
-	return fdtdec_setup_memory_banksize();
-}
-
 /* Read the unique SoC ID from OTP registers */
 static u64 get_chip_id(void)
 {
@@ -164,6 +154,16 @@ void load_firmware(void)
 	err = load_ldfw(ifname, dev, part, LDFW_NWD_ADDR);
 	if (err)
 		printf("ERROR: LDFW loading failed (%d)\n", err);
+}
+
+int dram_init(void)
+{
+	return fdtdec_setup_mem_size_base();
+}
+
+int dram_init_banksize(void)
+{
+	return fdtdec_setup_memory_banksize();
 }
 
 int board_late_init(void)
