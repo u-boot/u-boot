@@ -17,6 +17,7 @@
 #include <fs.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <part.h>
 #include <string.h>
 #include <linux/stringify.h>
 #include <asm/cache.h>
@@ -121,10 +122,9 @@ static int distro_rauc_scan_parts(struct bootflow *bflow)
 			if (ret)
 				return log_msg_ret("part", ret);
 			fs_close();
-			ret = fs_set_blk_dev_with_part(desc, slot->root_part);
+			ret = part_get_info(desc, slot->root_part, NULL);
 			if (ret)
 				return log_msg_ret("part", ret);
-			fs_close();
 		}
 	}
 	str_free_list(boot_order_list);
