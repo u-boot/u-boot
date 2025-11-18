@@ -16,7 +16,7 @@ int display_get_info(int type, struct display_info *di)
 
 	switch (type) {
 	default:
-		debug("%s: unsupport display device type: %d\n",
+		debug("%s: unsupported display device type: %d\n",
 				__FILE__, type);
 		return API_ENODEV;
 	}
