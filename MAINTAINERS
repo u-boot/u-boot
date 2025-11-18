@@ -1686,6 +1686,12 @@ F:	include/slre.h
 F:	lib/slre.c
 F:	test/lib/slre.c
 
+SM3
+M:	Heiko Schocher <hs@nabladev.com>
+S:	Maintained
+F:	include/u-boot/sm3.h
+F:	lib/sm3.c
+
 SMCCC TRNG
 M:	Etienne Carriere <etienne.carriere@linaro.org>
 S:	Maintained
