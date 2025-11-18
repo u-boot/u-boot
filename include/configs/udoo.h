@@ -17,7 +17,6 @@
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc1,115200\0" \
-	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdtfile=undefined\0" \
 	"fdt_addr=0x18000000\0" \
