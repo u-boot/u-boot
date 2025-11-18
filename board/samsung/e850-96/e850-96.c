@@ -209,6 +209,12 @@ int board_late_init(void)
 	else
 		load_firmware_blk();
 
+	if (bootdev_is_usb()) {
+		env_set("bootcmd", "echo \"Entering DFU mode...\"; "
+			"dfu 0 mmc 0");
+		env_set("bootdelay", "0");
+	}
+
 	return 0;
 }
 
