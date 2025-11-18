@@ -35,7 +35,6 @@
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
 	"ethact=usb_ether\0" \
-	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=imx7s-warp.dtb\0" \
 	"fdt_addr=0x83000000\0" \
