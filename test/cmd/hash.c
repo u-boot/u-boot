@@ -39,7 +39,7 @@ static int dm_test_cmd_hash_md5(struct unit_test_state *uts)
 					  "d41d8cd98f00b204e9800998ecf8427e"));
 
 	if (!CONFIG_IS_ENABLED(HASH_VERIFY)) {
-		ut_assert(run_command("hash -v sha256 $loadaddr 0 foo", 0));
+		ut_assert(run_command("hash -v md5 $loadaddr 0 foo", 0));
 		ut_assertok(ut_check_console_line(
 				uts, "hash - compute hash message digest"));
 
