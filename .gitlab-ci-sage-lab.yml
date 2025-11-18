@@ -36,14 +36,21 @@
     # Prepare ssh
     - mkdir --mode=0700 ~/.ssh;
       printf 'Host sage-exporter-*\n\tUser labgrid\n' > ~/.ssh/config
+    # If we have TF-A binaries, we need to use them.
+    - if [[ -d /opt/tf-a/${TEST_PY_BD}${TEST_PY_ID//--id /_} ]]; then
+        cp /opt/tf-a/${TEST_PY_BD}${TEST_PY_ID//--id /_}/* /tmp/;
+      elif [[ -d /opt/tf-a/${TEST_PY_BD} ]]; then
+        cp /opt/tf-a/${TEST_PY_BD}/* /tmp/;
+      fi;
+      export BINMAN_INDIRS=/tmp;
   script:
     - export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD}
     # Don't stop on non-zero exit codes now, to provide as much chance as
     # possible to ensure we don't leave lab resources acquired.
     - set +e;
-    # Sage is 16 threads and has 3 devices attached, so 6 builder threads.
+    # Sage is 16 threads and has 4 devices attached, so 4 builder threads.
     - tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e
-        --board ${TEST_PY_BD} ${OVERRIDE} -T 6;
+        --board ${TEST_PY_BD} ${OVERRIDE} -T 4;
       RC=`echo $?`;
     # Wait for the exporter to have the device ready
     - while test `labgrid-client resources |
@@ -79,6 +86,25 @@
     reports:
       junit: results.xml
     expire_in: 1 week
+
+Pine64+:
+  <<: *sage_lab_dfn
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-pine64-1"
+    LG_PLACE: "pine64-1"
+    TEST_PY_BD: "pine64_plus"
+    OVERRIDE: "-a CMD_BOOTMENU -a CMD_LOG"
+
+Pine64+ (lwIP):
+  <<: *sage_lab_dfn
+  needs: [ "Pine64+" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-pine64-1"
+    LG_PLACE: "pine64-1"
+    TEST_PY_BD: "pine64_plus"
+    # Leads to crash on lwIP, needs investigation.
+    TEST_PY_TEST_SPEC: "not test_net_pxe_boot_config"
+    OVERRIDE: "-a CMD_BOOTMENU -a CMD_LOG -a NET_LWIP"
 
 SolidRun Hummingboard 2:
   <<: *sage_lab_dfn
