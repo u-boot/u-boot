@@ -203,7 +203,6 @@
 	"fdt_addr="__stringify(TQMA6_FDT_ADDRESS)"\0"                          \
 	"console=" CONSOLE_DEV "\0"                                            \
 	"cma_size="__stringify(TQMA6_CMA_SIZE)"\0"                             \
-	"fdt_high=0xffffffff\0"                                                \
 	"initrd_high=0xffffffff\0"                                             \
 	"rootfsmode=ro\0"                                                      \
 	"addcma=setenv bootargs ${bootargs} cma=${cma_size}\0"                 \
