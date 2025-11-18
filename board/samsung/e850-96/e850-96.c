@@ -151,9 +151,14 @@ void load_firmware(void)
 	}
 
 	printf("Loading LDFW firmware (from %s %ld)...\n", ifname, dev);
-	err = load_ldfw(ifname, dev, part, LDFW_NWD_ADDR);
-	if (err)
+	err = load_ldfw_from_blk(ifname, dev, part, LDFW_NWD_ADDR);
+	if (err) {
 		printf("ERROR: LDFW loading failed (%d)\n", err);
+		return;
+	}
+	err = init_ldfw(LDFW_NWD_ADDR);
+	if (err)
+		printf("ERROR: LDFW init failed (%d)\n", err);
 }
 
 int dram_init(void)

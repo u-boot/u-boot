@@ -9,6 +9,7 @@
 
 #include <asm/types.h>
 
-int load_ldfw(const char *ifname, int dev, int part, phys_addr_t addr);
+int load_ldfw_from_blk(const char *ifname, int dev, int part, phys_addr_t addr);
+int init_ldfw(phys_addr_t addr);
 
 #endif /* __E850_96_FW_H */

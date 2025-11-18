@@ -94,7 +94,7 @@ static int read_fw_from_raw(const char *ifname, int dev, const char *part_name,
 }
 
 /**
- * load_ldfw - Load the loadable firmware (LDFW)
+ * load_ldfw_from_blk - Load the loadable firmware (LDFW) from block device
  * @ifname: Interface name of the block device to load the firmware from
  * @dev: Device number
  * @part: Partition number
@@ -102,24 +102,37 @@ static int read_fw_from_raw(const char *ifname, int dev, const char *part_name,
  *
  * Return: 0 on success or a negative value on error.
  */
-int load_ldfw(const char *ifname, int dev, int part, phys_addr_t addr)
+int load_ldfw_from_blk(const char *ifname, int dev, int part, phys_addr_t addr)
 {
-	struct ldfw_header *hdr;
-	struct arm_smccc_res res;
 	void *buf = (void *)addr;
-	u64 size = 0;
-	int err, i;
+	int err;
 
 	/* First try to read LDFW from EFI partition, then from the raw one */
 	err = read_fw_from_fat(ifname, dev, part, LDFW_FAT_PATH, buf);
-	if (err) {
-		err = read_fw_from_raw(ifname, dev, LDFW_RAW_PART, buf);
-		if (err)
-			return err;
-	}
+	if (err)
+		return read_fw_from_raw(ifname, dev, LDFW_RAW_PART, buf);
+
+	return 0;
+}
+
+/**
+ * init_ldfw - Provide the LDFW (loaded to RAM) to EL3 monitor to make use of it
+ * @addr: Memory address where LDFW resides
+ *
+ * EL3 monitor will copy the LDFW from the provided Normal World memory @addr to
+ * Secure World location, and start using it.
+ *
+ * Return: 0 on success or a negative value on error.
+ */
+int init_ldfw(phys_addr_t addr)
+{
+	struct ldfw_header *hdr;
+	struct arm_smccc_res res;
+	u64 size = 0;
+	int err, i;
 
 	/* Validate LDFW by magic number in its header */
-	hdr = buf;
+	hdr = (struct ldfw_header *)addr;
 	if (hdr->magic != LDFW_MAGIC) {
 		debug("%s: Wrong LDFW magic; is LDFW flashed?\n", __func__);
 		return -EINVAL;
