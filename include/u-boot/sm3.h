@@ -24,4 +24,12 @@ struct sm3_context {
 	uint8_t buffer[SM3_BLOCK_SIZE];
 	int buflen;
 };
+
+void sm3_init(struct sm3_context *sctx);
+void sm3_update(struct sm3_context *sctx, const uint8_t *input, size_t ilen);
+void sm3_final(struct sm3_context *sctx, uint8_t output[SM3_DIGEST_SIZE]);
+void sm3_hash(const uint8_t *input, size_t ilen, uint8_t output[SM3_DIGEST_SIZE]);
+
+void sm3_csum_wd(const unsigned char *input, uint32_t len,
+		 unsigned char *output, unsigned int chunk_sz);
 #endif

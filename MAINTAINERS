@@ -1689,6 +1689,7 @@ F:	test/lib/slre.c
 SM3
 M:	Heiko Schocher <hs@nabladev.com>
 S:	Maintained
+F:	cmd/sm3sum.c
 F:	include/u-boot/sm3.h
 F:	lib/sm3.c
 

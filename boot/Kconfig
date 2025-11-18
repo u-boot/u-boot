@@ -1042,6 +1042,7 @@ config MEASURED_BOOT
 	select SHA256
 	select SHA384
 	select SHA512
+	select SM3
 	help
 	  This option enables measurement of the boot process when booting
 	  without UEFI . Measurement involves creating cryptographic hashes

@@ -185,3 +185,128 @@ static inline void sm3_block(struct sm3_context *sctx,
 		data += SM3_BLOCK_SIZE;
 	}
 }
+
+void sm3_init(struct sm3_context *sctx)
+{
+	memset(sctx, 0, sizeof(*sctx));
+
+	/* Load initial values */
+	sctx->state[0] = SM3_IVA;
+	sctx->state[1] = SM3_IVB;
+	sctx->state[2] = SM3_IVC;
+	sctx->state[3] = SM3_IVD;
+	sctx->state[4] = SM3_IVE;
+	sctx->state[5] = SM3_IVF;
+	sctx->state[6] = SM3_IVG;
+	sctx->state[7] = SM3_IVH;
+	sctx->count = 0;
+}
+
+void sm3_update(struct sm3_context *sctx, const uint8_t *input, size_t ilen)
+{
+	unsigned int partial = sctx->count % SM3_BLOCK_SIZE;
+	u32 W[16];
+
+	sctx->count += ilen;
+
+	if ((partial + ilen) >= SM3_BLOCK_SIZE) {
+		int blocks;
+
+		if (partial) {
+			int p = SM3_BLOCK_SIZE - partial;
+
+			memcpy(sctx->buffer + partial, input, p);
+			input += p;
+			ilen -= p;
+
+			sm3_block(sctx, sctx->buffer, 1, W);
+		}
+
+		blocks = ilen / SM3_BLOCK_SIZE;
+		ilen %= SM3_BLOCK_SIZE;
+
+		if (blocks) {
+			sm3_block(sctx, input, blocks, W);
+			input += blocks * SM3_BLOCK_SIZE;
+		}
+
+		memset(W, 0, sizeof(W));
+
+		partial = 0;
+	}
+	if (ilen)
+		memcpy(sctx->buffer + partial, input, ilen);
+}
+
+void sm3_final(struct sm3_context *sctx, uint8_t output[SM3_DIGEST_SIZE])
+{
+	const int bit_offset = SM3_BLOCK_SIZE - sizeof(u64);
+	__be64 *bits = (__be64 *)(sctx->buffer + bit_offset);
+	__be32 *digest = (__be32 *)&output[0];
+	unsigned int partial = sctx->count % SM3_BLOCK_SIZE;
+	u32 W[16];
+	int i;
+
+	sctx->buffer[partial++] = 0x80;
+	if (partial > bit_offset) {
+		memset(sctx->buffer + partial, 0, SM3_BLOCK_SIZE - partial);
+		partial = 0;
+
+		sm3_block(sctx, sctx->buffer, 1, W);
+	}
+
+	memset(sctx->buffer + partial, 0, bit_offset - partial);
+	*bits = cpu_to_be64(sctx->count << 3);
+	sm3_block(sctx, sctx->buffer, 1, W);
+
+	for (i = 0; i < 8; i++)
+		put_unaligned_be32(sctx->state[i], digest++);
+
+	/* Zeroize sensitive information. */
+	memset(W, 0, sizeof(W));
+	memset(sctx, 0, sizeof(*sctx));
+}
+
+/**
+ * sm3_hash - Calculate SM3 hash of input data
+ * @input: Input data
+ * @ilen: Input data length in bytes
+ * @output: Output buffer for hash (32 bytes)
+ */
+void sm3_hash(const uint8_t *input, size_t ilen, uint8_t output[SM3_DIGEST_SIZE])
+{
+	struct sm3_context sctx;
+
+	sm3_init(&sctx);
+	sm3_update(&sctx, input, ilen);
+	sm3_final(&sctx, output);
+}
+
+/**
+ * sm3_csum_wd - Calculate SM3 checksum on memory region using watchdog
+ * @addr: Starting address
+ * @len: Length in bytes
+ * @output: Output buffer for checksum (32 bytes)
+ * @flags: Flags for watchdog behavior
+ *
+ * This is the U-Boot API entry function for SM3 hash calculation
+ */
+void sm3_csum_wd(const unsigned char *input, uint32_t len,
+		 unsigned char *output, unsigned int chunk_sz)
+{
+	struct sm3_context ctx;
+	uint32_t chunk;
+
+	sm3_init(&ctx);
+
+	/* Process data in chunks, kicking watchdog between chunks */
+	while (len > 0) {
+		chunk = (len > chunk_sz) ? chunk_sz : len;
+		sm3_update(&ctx, input, chunk);
+		input += chunk;
+		len -= chunk;
+
+		schedule();
+	}
+	sm3_final(&ctx, output);
+}
