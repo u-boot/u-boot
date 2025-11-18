@@ -11,14 +11,19 @@
 #include <linux/arm-smccc.h>
 #include "fw.h"
 
-#define LDFW_RAW_PART		"ldfw"
-#define LDFW_FAT_PATH		"/EFI/firmware/ldfw.bin"
+#define LDFW_RAW_PART			"ldfw"
+#define LDFW_FAT_PATH			"/EFI/firmware/ldfw.bin"
+#define LDFW_MAGIC			0x10adab1e
 
-#define LDFW_MAGIC		0x10adab1e
-#define SMC_CMD_LOAD_LDFW	-0x500
-#define SDM_HW_RESET_STATUS	0x1230
-#define SDM_SW_RESET_STATUS	0x1231
-#define SB_ERROR_PREFIX		0xfdaa0000
+/* SMC command for providing LDFW to EL3 monitor */
+#define SMC_CMD_LOAD_LDFW		-0x500
+/* SMC command for loading some binary over USB */
+#define SMC_CMD_LOAD_IMAGE_BY_USB	-0x512
+
+/* Error codes for SMC_CMD_LOAD_LDFW */
+#define SDM_HW_RESET_STATUS		0x1230
+#define SDM_SW_RESET_STATUS		0x1231
+#define SB_ERROR_PREFIX			0xfdaa0000
 
 struct ldfw_header {
 	u32 magic;
@@ -89,6 +94,26 @@ static int read_fw_from_raw(const char *ifname, int dev, const char *part_name,
 		debug("%s: Can't read LDFW partition\n", __func__);
 		return -EIO;
 	}
+
+	return 0;
+}
+
+/**
+ * load_image_usb - Load some binary over USB during USB boot
+ * @type: Image type
+ * @addr: Memory address where the image should be downloaded to
+ * @size: Image size
+ *
+ * Return: 0 on success or a negative value on error.
+ */
+int load_image_usb(enum usb_dn_image type, phys_addr_t addr, phys_size_t size)
+{
+	struct arm_smccc_res res;
+
+	arm_smccc_smc(SMC_CMD_LOAD_IMAGE_BY_USB, (u64)type, addr, size,
+		      0, 0, 0, 0, &res);
+	if (res.a0)
+		return -EIO;
 
 	return 0;
 }
