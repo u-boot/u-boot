@@ -25,7 +25,6 @@
 	"loadaddr=0x80200000\0" \
 	"kloadaddr=0x84000000\0" \
 	"fdtaddr=0x85000000\0" \
-	"fdt_high=0xffffffff\0" \
 	"rdaddr=0x81000000\0" \
 	"bootfile=uImage\0" \
 	"fdtfile=am335x-shc.dtb\0" \
