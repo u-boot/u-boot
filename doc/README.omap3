@@ -46,12 +46,6 @@ make
 make omap3_zoom2_config
 make
 
-* CM-T35:
-
-make cm_t35_config
-make
-
-
 Custom commands
 ===============
 
