@@ -179,7 +179,6 @@
 		"  bootm ${boot_addr_r} ${boot_addr_r} ${fdt_addr_r};"	\
 		"else"							\
 		"  if load hostfs - ${kernel_addr_r} ${kernel_name}; then"	\
-		"    setenv fdt_high 0xffffffffffffffff;"		\
 		"    setenv initrd_high 0xffffffffffffffff;"		\
 		"    if test -n load hostfs - ${fdt_addr_r} ${fdtfile}; then"			\
 		"        fdt move $fdtcontroladdr $fdt_addr_r;"			\
