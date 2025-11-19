@@ -19,7 +19,6 @@
 #undef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
-	"fdt_high=0xffffffffffffffff\0"		\
 	"kernel_addr=0x01000000\0"		\
 	"scriptaddr=0x80000000\0"		\
 	"fdtheader_addr_r=0x80100000\0"		\
