@@ -139,7 +139,6 @@
 #endif
 
 #define CFG_EXTRA_ENV_SETTINGS				\
-	"fdt_high=0xffffffff\0"					\
 	"initrd_high=0xffffffff\0"				\
 	"rootdev=" __stringify(CONFIG_ROOT_DEV) "\0"		\
 	"rootpart=" __stringify(CONFIG_ROOT_PART) "\0"		\
