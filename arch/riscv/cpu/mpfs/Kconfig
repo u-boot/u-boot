@@ -14,3 +14,20 @@ config MICROCHIP_MPFS
 	imply SPL_LOAD_FIT
 	imply REGMAP
 	imply SYSCON
+	imply CLK_CCF
+	imply CLK_MPFS
+	imply SYS_NS16550
+	imply MACB
+	imply MII
+	imply CMD_I2C
+	imply DM_I2C
+	imply SYS_I2C_MICROCHIP
+	imply MMC
+	imply MMC_WRITE
+	imply MMC_SDHCI
+	imply MMC_SDHCI_CADENCE
+	imply MMC_SDHCI_ADMA
+	imply MMC_HS200_SUPPORT
+	imply SPI
+	imply DM_SPI
+	imply MICROCHIP_QSPI
