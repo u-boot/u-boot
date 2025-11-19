@@ -40,7 +40,6 @@
 	"hostname=vining_fpga\0"					\
 	"kernel_addr_r=0x10000000\0"					\
 	"fdt_addr_r=0x20000000\0"					\
-	"fdt_high=0xffffffff\0"						\
 	"initrd_high=0xffffffff\0"					\
 	"dfu_alt_info=qspi0 sf 0:0;qspi1 sf 0:1\0"			\
 	"mtdparts_0_16m=ff705000.spi.0:" /* 16MiB+128MiB SF config */	\
