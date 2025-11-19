@@ -70,6 +70,8 @@ struct efi_capsule_update_info update_info = {
 #define EEPROM_HDR_ETH_ALEN		ETH_ALEN
 #define EEPROM_HDR_UUID_LEN		16
 
+#define EEPROM_FRU_READ_RETRY		5
+
 struct xilinx_board_description {
 	u32 header;
 	char manufacturer[EEPROM_HDR_MANUFACTURER_LEN + 1];
@@ -207,8 +209,14 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 	debug("%s: I2C EEPROM read pass data at %p\n", __func__,
 	      fru_content);
 
-	ret = dm_i2c_read(dev, 0, (uchar *)fru_content,
-			  eeprom_size);
+	i = 0;
+	do {
+		ret = dm_i2c_read(dev, 0, (uchar *)fru_content,
+				  eeprom_size);
+		if (!ret)
+			break;
+	} while (++i < EEPROM_FRU_READ_RETRY && ret == -ETIMEDOUT);
+
 	if (ret) {
 		debug("%s: I2C EEPROM read failed\n", __func__);
 		goto end;
