@@ -46,23 +46,7 @@ static inline void status_led_boot_blink(void)
 #endif
 }
 
-/*****  MVS v1  **********************************************************/
-#if (defined(CONFIG_MVS) && CONFIG_MVS < 2)
-# define STATUS_LED_PAR		im_ioport.iop_pdpar
-# define STATUS_LED_DIR		im_ioport.iop_pddir
-# undef  STATUS_LED_ODR
-# define STATUS_LED_DAT		im_ioport.iop_pddat
-
-# define STATUS_LED_ACTIVE	1		/* LED on for bit == 1	*/
-
-/*****  Someone else defines these  *************************************/
-#elif defined(STATUS_LED_PAR)
-  /*
-   * ADVICE: Define in your board configuration file rather than
-   * filling this file up with lots of custom board stuff.
-   */
-
-#elif defined(CONFIG_LED_STATUS_BOARD_SPECIFIC)
+#if defined(CONFIG_LED_STATUS_BOARD_SPECIFIC)
 /* led_id_t is unsigned long mask */
 typedef unsigned long led_id_t;
 
@@ -72,11 +56,6 @@ extern void __led_set (led_id_t mask, int state);
 void __led_blink(led_id_t mask, int freq);
 #else
 # error Status LED configuration missing
-#endif
-/************************************************************************/
-
-#ifndef CONFIG_LED_STATUS_BOARD_SPECIFIC
-# include <asm/status_led.h>
 #endif
 
 #else
