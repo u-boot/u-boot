@@ -72,6 +72,7 @@ SECTIONS
 
 	__u_boot_list : {
 		KEEP(*(SORT(__u_boot_list*)));
+		. = ALIGN(8);
 	} >ram
 
 	PROVIDE (__init_end = .);
@@ -83,7 +84,7 @@ SECTIONS
 	.bss :
 	{
 		*(.bss)
-		. = ALIGN(4);
+		. = ALIGN(8);
 	} >ram
 	PROVIDE (bss_end = .);
 	PROVIDE (__bss_end = .);
