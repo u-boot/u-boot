@@ -258,7 +258,7 @@ static const struct udevice_id ufs_renesas_pltfm_ids[] = {
 	{ /* sentinel */ }
 };
 
-U_BOOT_DRIVER(ufs_renesas) = {
+U_BOOT_DRIVER(ufs_renesas_gen5) = {
 	.name		= "ufs-renesas-gen5",
 	.id		= UCLASS_UFS,
 	.of_match	= ufs_renesas_pltfm_ids,
