@@ -7,7 +7,7 @@ config SYS_VENDOR
 	default "microchip"
 
 config SYS_CPU
-	default "generic"
+	default "mpfs"
 
 config SYS_CONFIG_NAME
 	default "microchip_mpfs_generic"
@@ -18,7 +18,7 @@ config TEXT_BASE
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	select GENERIC_RISCV
+	select MICROCHIP_MPFS
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	imply SMP
