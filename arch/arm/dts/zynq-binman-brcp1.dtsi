@@ -15,7 +15,7 @@
 
 		blob@0 {
 			filename = "spl/boot.bin";
-			offset = <0x0>;
+			offset = <0x8000>;
 		};
 
 		fit {
