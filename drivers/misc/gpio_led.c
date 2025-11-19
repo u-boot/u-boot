@@ -79,28 +79,4 @@ void green_led_off(void)
 }
 #endif
 
-#ifdef CONFIG_LED_STATUS_YELLOW
-void yellow_led_on(void)
-{
-	__led_set(CONFIG_LED_STATUS_YELLOW, CONFIG_LED_STATUS_ON);
-}
-
-void yellow_led_off(void)
-{
-	__led_set(CONFIG_LED_STATUS_YELLOW, CONFIG_LED_STATUS_OFF);
-}
-#endif
-
-#ifdef CONFIG_LED_STATUS_BLUE
-void blue_led_on(void)
-{
-	__led_set(CONFIG_LED_STATUS_BLUE, CONFIG_LED_STATUS_ON);
-}
-
-void blue_led_off(void)
-{
-	__led_set(CONFIG_LED_STATUS_BLUE, CONFIG_LED_STATUS_OFF);
-}
-#endif
-
 #endif /* CONFIG_GPIO_LED_STUBS */

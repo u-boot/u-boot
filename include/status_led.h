@@ -70,25 +70,15 @@ static inline void status_led_boot_blink(void) { }
  * Coloured LEDs API
  */
 #ifndef	__ASSEMBLY__
-void coloured_LED_init(void);
 void red_led_on(void);
 void red_led_off(void);
 void green_led_on(void);
 void green_led_off(void);
-void yellow_led_on(void);
-void yellow_led_off(void);
-void blue_led_on(void);
-void blue_led_off(void);
 #else
-	.extern LED_init
 	.extern red_led_on
 	.extern red_led_off
-	.extern yellow_led_on
-	.extern yellow_led_off
 	.extern green_led_on
 	.extern green_led_off
-	.extern blue_led_on
-	.extern blue_led_off
 #endif
 
 #endif	/* _STATUS_LED_H_	*/
