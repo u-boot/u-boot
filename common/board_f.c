@@ -67,8 +67,6 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 __weak void red_led_on(void) {}
 __weak void red_led_off(void) {}
-__weak void green_led_on(void) {}
-__weak void green_led_off(void) {}
 
 /*
  * Why is gd allocated a register? Prior to reloc it might be better to

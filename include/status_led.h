@@ -72,13 +72,9 @@ static inline void status_led_boot_blink(void) { }
 #ifndef	__ASSEMBLY__
 void red_led_on(void);
 void red_led_off(void);
-void green_led_on(void);
-void green_led_off(void);
 #else
 	.extern red_led_on
 	.extern red_led_off
-	.extern green_led_on
-	.extern green_led_off
 #endif
 
 #endif	/* _STATUS_LED_H_	*/

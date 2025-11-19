@@ -58,8 +58,7 @@ CONFIG_STATUS_LED_BOOT is the LED to light when the board is booting.
 This must be a valid LED number (0-5).
 
 CONFIG_STATUS_LED_RED is the red LED. It is used to signal errors. This must be
-a valid LED number (0-5). Other similar color LED's macros are
-CONFIG_STATUS_LED_GREEN.
+a valid LED number (0-5).
 
 General LED functions
 ~~~~~~~~~~~~~~~~~~~~~
@@ -81,8 +80,6 @@ The functions names explain their purpose.
 
 - red_LED_on
 - red_LED_off
-- green_LED_on
-- green_LED_off
 
 These are weakly defined in arch/arm/lib/board.c to noops. Where applicable, define
 these functions in the board specific source.

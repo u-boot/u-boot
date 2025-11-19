@@ -67,16 +67,4 @@ void red_led_off(void)
 }
 #endif
 
-#ifdef CONFIG_LED_STATUS_GREEN
-void green_led_on(void)
-{
-	__led_set(CONFIG_LED_STATUS_GREEN, CONFIG_LED_STATUS_ON);
-}
-
-void green_led_off(void)
-{
-	__led_set(CONFIG_LED_STATUS_GREEN, CONFIG_LED_STATUS_OFF);
-}
-#endif
-
 #endif /* CONFIG_GPIO_LED_STUBS */
