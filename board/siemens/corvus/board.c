@@ -52,17 +52,6 @@ static void corvus_request_gpio(void)
 	gpio_request(AT91_PIN_PD3, "USB1");
 	gpio_request(AT91_PIN_PB18, "SPICS1");
 	gpio_request(AT91_PIN_PB3, "SPICS0");
-	gpio_request(AT91_PIN_PD31, "red led"); /* this is the user1 led */
-}
-
-void red_led_on(void)
-{
-	gpio_set_value(AT91_PIN_PD31, 1);
-}
-
-void red_led_off(void)
-{
-	gpio_set_value(AT91_PIN_PD31, 0);
 }
 
 static void corvus_nand_hw_init(void)
