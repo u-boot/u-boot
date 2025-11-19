@@ -499,6 +499,31 @@ int spi_mem_adjust_op_size(struct spi_slave *slave, struct spi_mem_op *op)
 }
 EXPORT_SYMBOL_GPL(spi_mem_adjust_op_size);
 
+static inline u64 spi_mem_bytes_to_ncycles(u32 nbytes, u8 buswidth, u8 dtr)
+{
+	u64 ncycles;
+	u32 divider = buswidth * (dtr ? 2 : 1);
+
+	/*
+	 * Theoretically
+	 *
+	 *   ncycles = (nbytes * 8) / (buswidth * (dtr ? 2 : 1));
+	 *
+	 * may lead to an integer overflow, if nbytes will be larger than
+	 * 0x1fffffff. Lets split this operation on:
+	 *
+	 *   1) Operation with bits 0..28 (overflow will not happen),
+	 *
+	 *   2) Operation with bits 29..31. Here we'll take into account
+	 *      that buswidth is a small power of 2 (so whole divider is
+	 *      small power of 2). Hense we may divide first, then multiply.
+	 */
+	ncycles = ((nbytes & 0x1fffffff) * 8) / divider;
+	ncycles += ((u64) ((nbytes & ~0x1fffffff) / divider)) * 8;
+
+	return ncycles;
+}
+
 /**
  * spi_mem_calc_op_duration() - Derives the theoretical length (in cpu cycles)
  *				of an operation. This helps finding the best
@@ -518,14 +543,22 @@ u64 spi_mem_calc_op_duration(struct spi_mem_op *op)
 {
 	u64 ncycles = 0;
 
-	ncycles += ((op->cmd.nbytes * 8) / op->cmd.buswidth) / (op->cmd.dtr ? 2 : 1);
-	ncycles += ((op->addr.nbytes * 8) / op->addr.buswidth) / (op->addr.dtr ? 2 : 1);
+	ncycles += spi_mem_bytes_to_ncycles(op->cmd.nbytes,
+					    op->cmd.buswidth,
+					    op->cmd.dtr);
+	ncycles += spi_mem_bytes_to_ncycles(op->addr.nbytes,
+					    op->addr.buswidth,
+					    op->addr.dtr);
 
 	/* Dummy bytes are optional for some SPI flash memory operations */
 	if (op->dummy.nbytes)
-		ncycles += ((op->dummy.nbytes * 8) / op->dummy.buswidth) / (op->dummy.dtr ? 2 : 1);
+		ncycles += spi_mem_bytes_to_ncycles(op->dummy.nbytes,
+						    op->dummy.buswidth,
+						    op->dummy.dtr);
 
-	ncycles += ((op->data.nbytes * 8) / op->data.buswidth) / (op->data.dtr ? 2 : 1);
+	ncycles += spi_mem_bytes_to_ncycles(op->data.nbytes,
+					    op->data.buswidth,
+					    op->data.dtr);
 
 	return ncycles;
 }

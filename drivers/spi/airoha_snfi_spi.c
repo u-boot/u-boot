@@ -141,12 +141,15 @@
 #define SPI_NFI_CUS_SEC_SIZE_EN			BIT(16)
 
 #define REG_SPI_NFI_RD_CTL2			0x0510
+#define SPI_NFI_DATA_READ_CMD			GENMASK(7, 0)
+
 #define REG_SPI_NFI_RD_CTL3			0x0514
 
 #define REG_SPI_NFI_PG_CTL1			0x0524
 #define SPI_NFI_PG_LOAD_CMD			GENMASK(15, 8)
 
 #define REG_SPI_NFI_PG_CTL2			0x0528
+
 #define REG_SPI_NFI_NOR_PROG_ADDR		0x052c
 #define REG_SPI_NFI_NOR_RD_ADDR			0x0534
 
@@ -173,7 +176,9 @@
 #define SPI_NAND_OP_READ_FROM_CACHE_SINGLE	0x03
 #define SPI_NAND_OP_READ_FROM_CACHE_SINGLE_FAST	0x0b
 #define SPI_NAND_OP_READ_FROM_CACHE_DUAL	0x3b
+#define SPI_NAND_OP_READ_FROM_CACHE_DUALIO	0xbb
 #define SPI_NAND_OP_READ_FROM_CACHE_QUAD	0x6b
+#define SPI_NAND_OP_READ_FROM_CACHE_QUADIO	0xeb
 #define SPI_NAND_OP_WRITE_ENABLE		0x06
 #define SPI_NAND_OP_WRITE_DISABLE		0x04
 #define SPI_NAND_OP_PROGRAM_LOAD_SINGLE		0x02
@@ -185,6 +190,14 @@
 #define SPI_NAND_OP_BLOCK_ERASE			0xd8
 #define SPI_NAND_OP_RESET			0xff
 #define SPI_NAND_OP_DIE_SELECT			0xc2
+
+/* SNAND FIFO commands */
+#define SNAND_FIFO_TX_BUSWIDTH_SINGLE		0x08
+#define SNAND_FIFO_TX_BUSWIDTH_DUAL		0x09
+#define SNAND_FIFO_TX_BUSWIDTH_QUAD		0x0a
+#define SNAND_FIFO_RX_BUSWIDTH_SINGLE		0x0c
+#define SNAND_FIFO_RX_BUSWIDTH_DUAL		0x0e
+#define SNAND_FIFO_RX_BUSWIDTH_QUAD		0x0f
 
 #define SPI_NAND_CACHE_SIZE			(SZ_4K + SZ_256)
 #define SPI_MAX_TRANSFER_SIZE			511
@@ -205,12 +218,8 @@ struct airoha_snand_priv {
 	struct regmap *regmap_nfi;
 	struct clk *spi_clk;
 
-	struct {
-		size_t page_size;
-		size_t sec_size;
-		u8 sec_num;
-		u8 spare_size;
-	} nfi_cfg;
+	u8 *txrx_buf;
+	int dma;
 };
 
 static int airoha_snand_set_fifo_op(struct airoha_snand_priv *priv,
@@ -380,10 +389,26 @@ static int airoha_snand_set_mode(struct airoha_snand_priv *priv,
 	return regmap_write(priv->regmap_ctrl, REG_SPI_CTRL_DUMMY, 0);
 }
 
-static int airoha_snand_write_data(struct airoha_snand_priv *priv, u8 cmd,
-				   const u8 *data, int len)
+static int airoha_snand_write_data(struct airoha_snand_priv *priv,
+				   const u8 *data, int len, int buswidth)
 {
 	int i, data_len;
+	u8 cmd;
+
+	switch (buswidth) {
+	case 0:
+	case 1:
+		cmd = SNAND_FIFO_TX_BUSWIDTH_SINGLE;
+		break;
+	case 2:
+		cmd = SNAND_FIFO_TX_BUSWIDTH_DUAL;
+		break;
+	case 4:
+		cmd = SNAND_FIFO_TX_BUSWIDTH_QUAD;
+		break;
+	default:
+		return -EINVAL;
+	}
 
 	for (i = 0; i < len; i += data_len) {
 		int err;
@@ -402,16 +427,32 @@ static int airoha_snand_write_data(struct airoha_snand_priv *priv, u8 cmd,
 	return 0;
 }
 
-static int airoha_snand_read_data(struct airoha_snand_priv *priv, u8 *data,
-				  int len)
+static int airoha_snand_read_data(struct airoha_snand_priv *priv,
+				  u8 *data, int len, int buswidth)
 {
 	int i, data_len;
+	u8 cmd;
+
+	switch (buswidth) {
+	case 0:
+	case 1:
+		cmd = SNAND_FIFO_RX_BUSWIDTH_SINGLE;
+		break;
+	case 2:
+		cmd = SNAND_FIFO_RX_BUSWIDTH_DUAL;
+		break;
+	case 4:
+		cmd = SNAND_FIFO_RX_BUSWIDTH_QUAD;
+		break;
+	default:
+		return -EINVAL;
+	}
 
 	for (i = 0; i < len; i += data_len) {
 		int err;
 
 		data_len = min(len - i, SPI_MAX_TRANSFER_SIZE);
-		err = airoha_snand_set_fifo_op(priv, 0xc, data_len);
+		err = airoha_snand_set_fifo_op(priv, cmd, data_len);
 		if (err)
 			return err;
 
@@ -439,105 +480,36 @@ static int airoha_snand_nfi_init(struct airoha_snand_priv *priv)
 				  SPI_NFI_ALL_IRQ_EN, SPI_NFI_AHB_DONE_EN);
 }
 
-static int airoha_snand_nfi_config(struct airoha_snand_priv *priv)
+static bool airoha_snand_is_page_ops(const struct spi_mem_op *op)
 {
-	int err;
-	u32 val;
+	if (op->addr.nbytes != 2)
+		return false;
 
-	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_CON,
-			   SPI_NFI_FIFO_FLUSH | SPI_NFI_RST);
-	if (err)
-		return err;
+	if (op->addr.buswidth != 1 && op->addr.buswidth != 2 &&
+	    op->addr.buswidth != 4)
+		return false;
 
-	/* auto FDM */
-	err = regmap_clear_bits(priv->regmap_nfi, REG_SPI_NFI_CNFG,
-				SPI_NFI_AUTO_FDM_EN);
-	if (err)
-		return err;
+	switch (op->data.dir) {
+	case SPI_MEM_DATA_IN:
+		if (op->dummy.nbytes * BITS_PER_BYTE / op->dummy.buswidth > 0xf)
+			return false;
 
-	/* HW ECC */
-	err = regmap_clear_bits(priv->regmap_nfi, REG_SPI_NFI_CNFG,
-				SPI_NFI_HW_ECC_EN);
-	if (err)
-		return err;
+		/* quad in / quad out */
+		if (op->addr.buswidth == 4)
+			return op->data.buswidth == 4;
 
-	/* DMA Burst */
-	err = regmap_set_bits(priv->regmap_nfi, REG_SPI_NFI_CNFG,
-			      SPI_NFI_DMA_BURST_EN);
-	if (err)
-		return err;
+		if (op->addr.buswidth == 2)
+			return op->data.buswidth == 2;
 
-	/* page format */
-	switch (priv->nfi_cfg.spare_size) {
-	case 26:
-		val = FIELD_PREP(SPI_NFI_SPARE_SIZE, 0x1);
-		break;
-	case 27:
-		val = FIELD_PREP(SPI_NFI_SPARE_SIZE, 0x2);
-		break;
-	case 28:
-		val = FIELD_PREP(SPI_NFI_SPARE_SIZE, 0x3);
-		break;
+		/* standard spi */
+		return op->data.buswidth == 4 || op->data.buswidth == 2 ||
+		       op->data.buswidth == 1;
+	case SPI_MEM_DATA_OUT:
+		return !op->dummy.nbytes && op->addr.buswidth == 1 &&
+		       (op->data.buswidth == 4 || op->data.buswidth == 1);
 	default:
-		val = FIELD_PREP(SPI_NFI_SPARE_SIZE, 0x0);
-		break;
+		return false;
 	}
-
-	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_PAGEFMT,
-				 SPI_NFI_SPARE_SIZE, val);
-	if (err)
-		return err;
-
-	switch (priv->nfi_cfg.page_size) {
-	case 2048:
-		val = FIELD_PREP(SPI_NFI_PAGE_SIZE, 0x1);
-		break;
-	case 4096:
-		val = FIELD_PREP(SPI_NFI_PAGE_SIZE, 0x2);
-		break;
-	default:
-		val = FIELD_PREP(SPI_NFI_PAGE_SIZE, 0x0);
-		break;
-	}
-
-	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_PAGEFMT,
-				 SPI_NFI_PAGE_SIZE, val);
-	if (err)
-		return err;
-
-	/* sec num */
-	val = FIELD_PREP(SPI_NFI_SEC_NUM, priv->nfi_cfg.sec_num);
-	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_CON,
-				 SPI_NFI_SEC_NUM, val);
-	if (err)
-		return err;
-
-	/* enable cust sec size */
-	err = regmap_set_bits(priv->regmap_nfi, REG_SPI_NFI_SECCUS_SIZE,
-			      SPI_NFI_CUS_SEC_SIZE_EN);
-	if (err)
-		return err;
-
-	/* set cust sec size */
-	val = FIELD_PREP(SPI_NFI_CUS_SEC_SIZE, priv->nfi_cfg.sec_size);
-	return regmap_update_bits(priv->regmap_nfi,
-				  REG_SPI_NFI_SECCUS_SIZE,
-				  SPI_NFI_CUS_SEC_SIZE, val);
-}
-
-static int airoha_snand_adjust_op_size(struct spi_slave *slave,
-				       struct spi_mem_op *op)
-{
-	size_t max_len;
-
-	max_len = 1 + op->addr.nbytes + op->dummy.nbytes;
-	if (max_len >= 160)
-		return -EOPNOTSUPP;
-
-	if (op->data.nbytes > 160 - max_len)
-		op->data.nbytes = 160 - max_len;
-
-	return 0;
 }
 
 static bool airoha_snand_supports_op(struct spi_slave *slave,
@@ -549,20 +521,456 @@ static bool airoha_snand_supports_op(struct spi_slave *slave,
 	if (op->cmd.buswidth != 1)
 		return false;
 
+	if (airoha_snand_is_page_ops(op))
+		return true;
+
 	return (!op->addr.nbytes || op->addr.buswidth == 1) &&
 	       (!op->dummy.nbytes || op->dummy.buswidth == 1) &&
 	       (!op->data.nbytes || op->data.buswidth == 1);
 }
 
+static int airoha_snand_dirmap_create(struct spi_mem_dirmap_desc *desc)
+{
+	struct spi_slave *slave = desc->slave;
+	struct udevice *bus = slave->dev->parent;
+	struct airoha_snand_priv *priv = dev_get_priv(bus);
+
+	if (!priv->txrx_buf)
+		return -EINVAL;
+
+	if (desc->info.offset + desc->info.length > U32_MAX)
+		return -EINVAL;
+
+	/* continuous reading is not supported */
+	if (desc->info.length > SPI_NAND_CACHE_SIZE)
+		return -E2BIG;
+
+	if (!airoha_snand_supports_op(desc->slave, &desc->info.op_tmpl))
+		return -EOPNOTSUPP;
+
+	return 0;
+}
+
+static ssize_t airoha_snand_dirmap_read(struct spi_mem_dirmap_desc *desc,
+					u64 offs, size_t len, void *buf)
+{
+	struct spi_slave *slave = desc->slave;
+	struct udevice *bus = slave->dev->parent;
+	struct airoha_snand_priv *priv = dev_get_priv(bus);
+	u8 *txrx_buf = priv->txrx_buf;
+	dma_addr_t dma_addr;
+	u32 val, rd_mode, opcode;
+	size_t bytes;
+	int err;
+
+	if (!priv->dma) {
+		/* simplified version of spi_mem_no_dirmap_read() */
+		struct spi_mem_op op = desc->info.op_tmpl;
+
+		op.addr.val = desc->info.offset + offs;
+		op.data.buf.in = buf;
+		op.data.nbytes = len;
+		err = spi_mem_exec_op(desc->slave, &op);
+		if (err)
+			return err;
+
+		return op.data.nbytes;
+	}
+
+	/* minimum oob size is 64 */
+	bytes = round_up(offs + len, 64);
+
+	/*
+	 * DUALIO and QUADIO opcodes are not supported by the spi controller,
+	 * replace them with supported opcodes.
+	 */
+	opcode = desc->info.op_tmpl.cmd.opcode;
+	switch (opcode) {
+	case SPI_NAND_OP_READ_FROM_CACHE_SINGLE:
+	case SPI_NAND_OP_READ_FROM_CACHE_SINGLE_FAST:
+		rd_mode = 0;
+		break;
+	case SPI_NAND_OP_READ_FROM_CACHE_DUAL:
+	case SPI_NAND_OP_READ_FROM_CACHE_DUALIO:
+		opcode = SPI_NAND_OP_READ_FROM_CACHE_DUAL;
+		rd_mode = 1;
+		break;
+	case SPI_NAND_OP_READ_FROM_CACHE_QUAD:
+	case SPI_NAND_OP_READ_FROM_CACHE_QUADIO:
+		opcode = SPI_NAND_OP_READ_FROM_CACHE_QUAD;
+		rd_mode = 2;
+		break;
+	default:
+		/* unknown opcode */
+		return -EOPNOTSUPP;
+	}
+
+	err = airoha_snand_set_mode(priv, SPI_MODE_DMA);
+	if (err < 0)
+		return err;
+
+	/* NFI reset */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_CON,
+			   SPI_NFI_FIFO_FLUSH | SPI_NFI_RST);
+	if (err)
+		goto error_dma_mode_off;
+
+	/* NFI configure:
+	 *   - No AutoFDM (custom sector size (SECCUS) register will be used)
+	 *   - No SoC's hardware ECC (flash internal ECC will be used)
+	 *   - Use burst mode (faster, but requires 16 byte alignment for addresses)
+	 *   - Setup for reading (SPI_NFI_READ_MODE)
+	 *   - Setup reading command: FIELD_PREP(SPI_NFI_OPMODE, 6)
+	 *   - Use DMA instead of PIO for data reading
+	 */
+	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_CNFG,
+				 SPI_NFI_DMA_MODE |
+				 SPI_NFI_READ_MODE |
+				 SPI_NFI_DMA_BURST_EN |
+				 SPI_NFI_HW_ECC_EN |
+				 SPI_NFI_AUTO_FDM_EN |
+				 SPI_NFI_OPMODE,
+				 SPI_NFI_DMA_MODE |
+				 SPI_NFI_READ_MODE |
+				 SPI_NFI_DMA_BURST_EN |
+				 FIELD_PREP(SPI_NFI_OPMODE, 6));
+	if (err)
+		goto error_dma_mode_off;
+
+	/* Set number of sector will be read */
+	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_CON,
+				 SPI_NFI_SEC_NUM,
+				 FIELD_PREP(SPI_NFI_SEC_NUM, 1));
+	if (err)
+		goto error_dma_mode_off;
+
+	/* Set custom sector size */
+	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_SECCUS_SIZE,
+				 SPI_NFI_CUS_SEC_SIZE |
+				 SPI_NFI_CUS_SEC_SIZE_EN,
+				 FIELD_PREP(SPI_NFI_CUS_SEC_SIZE, bytes) |
+				 SPI_NFI_CUS_SEC_SIZE_EN);
+	if (err)
+		goto error_dma_mode_off;
+
+	dma_addr = dma_map_single(txrx_buf, SPI_NAND_CACHE_SIZE,
+				  DMA_FROM_DEVICE);
+
+	/* set dma addr */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_STRADDR,
+			   dma_addr);
+	if (err)
+		goto error_dma_unmap;
+
+	/*
+	 * Setup transfer length
+	 * ---------------------
+	 * The following rule MUST be met:
+	 *     transfer_length =
+	 *        = NFI_SNF_MISC_CTL2.read_data_byte_number =
+	 *        = NFI_CON.sector_number * NFI_SECCUS.custom_sector_size
+	 */
+	err = regmap_update_bits(priv->regmap_nfi,
+				 REG_SPI_NFI_SNF_MISC_CTL2,
+				 SPI_NFI_READ_DATA_BYTE_NUM,
+				 FIELD_PREP(SPI_NFI_READ_DATA_BYTE_NUM, bytes));
+	if (err)
+		goto error_dma_unmap;
+
+	/* set read command */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_RD_CTL2,
+			   FIELD_PREP(SPI_NFI_DATA_READ_CMD, opcode));
+	if (err)
+		goto error_dma_unmap;
+
+	/* set read mode */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_SNF_MISC_CTL,
+			   FIELD_PREP(SPI_NFI_DATA_READ_WR_MODE, rd_mode));
+	if (err)
+		goto error_dma_unmap;
+
+	/* set read addr: zero page offset + descriptor read offset */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_RD_CTL3,
+			   desc->info.offset);
+	if (err)
+		goto error_dma_unmap;
+
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_CMD, 0x0);
+	if (err)
+		goto error_dma_unmap;
+
+	/* trigger dma reading */
+	err = regmap_clear_bits(priv->regmap_nfi, REG_SPI_NFI_CON,
+				SPI_NFI_RD_TRIG);
+	if (err)
+		goto error_dma_unmap;
+
+	err = regmap_set_bits(priv->regmap_nfi, REG_SPI_NFI_CON,
+			      SPI_NFI_RD_TRIG);
+	if (err)
+		goto error_dma_unmap;
+
+	err = regmap_read_poll_timeout(priv->regmap_nfi,
+				       REG_SPI_NFI_SNF_STA_CTL1, val,
+				       (val & SPI_NFI_READ_FROM_CACHE_DONE),
+				       0, 1 * MSEC_PER_SEC);
+	if (err)
+		goto error_dma_unmap;
+
+	/*
+	 * SPI_NFI_READ_FROM_CACHE_DONE bit must be written at the end
+	 * of dirmap_read operation even if it is already set.
+	 */
+	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_SNF_STA_CTL1,
+				 SPI_NFI_READ_FROM_CACHE_DONE,
+				 SPI_NFI_READ_FROM_CACHE_DONE);
+	if (err)
+		goto error_dma_unmap;
+
+	err = regmap_read_poll_timeout(priv->regmap_nfi, REG_SPI_NFI_INTR,
+				       val, (val & SPI_NFI_AHB_DONE), 0,
+				       1 * MSEC_PER_SEC);
+	if (err)
+		goto error_dma_unmap;
+
+	/* DMA read need delay for data ready from controller to DRAM */
+	udelay(1);
+
+	dma_unmap_single(dma_addr, SPI_NAND_CACHE_SIZE, DMA_FROM_DEVICE);
+
+	err = airoha_snand_set_mode(priv, SPI_MODE_MANUAL);
+	if (err < 0)
+		return err;
+
+	memcpy(buf, txrx_buf + offs, len);
+
+	return len;
+
+error_dma_unmap:
+	dma_unmap_single(dma_addr, SPI_NAND_CACHE_SIZE, DMA_FROM_DEVICE);
+error_dma_mode_off:
+	airoha_snand_set_mode(priv, SPI_MODE_MANUAL);
+	return err;
+}
+
+static ssize_t airoha_snand_dirmap_write(struct spi_mem_dirmap_desc *desc,
+					 u64 offs, size_t len, const void *buf)
+{
+	struct spi_slave *slave = desc->slave;
+	struct udevice *bus = slave->dev->parent;
+	struct airoha_snand_priv *priv = dev_get_priv(bus);
+	u8 *txrx_buf = priv->txrx_buf;
+	dma_addr_t dma_addr;
+	u32 wr_mode, val, opcode;
+	size_t bytes;
+	int err;
+
+	if (!priv->dma) {
+		/* simplified version of spi_mem_no_dirmap_write() */
+		struct spi_mem_op op = desc->info.op_tmpl;
+
+		op.addr.val = desc->info.offset + offs;
+		op.data.buf.out = buf;
+		op.data.nbytes = len;
+		err = spi_mem_exec_op(desc->slave, &op);
+		if (err)
+			return err;
+
+		return op.data.nbytes;
+	}
+
+	/* minimum oob size is 64 */
+	bytes = round_up(offs + len, 64);
+
+	opcode = desc->info.op_tmpl.cmd.opcode;
+	switch (opcode) {
+	case SPI_NAND_OP_PROGRAM_LOAD_SINGLE:
+	case SPI_NAND_OP_PROGRAM_LOAD_RAMDOM_SINGLE:
+		wr_mode = 0;
+		break;
+	case SPI_NAND_OP_PROGRAM_LOAD_QUAD:
+	case SPI_NAND_OP_PROGRAM_LOAD_RAMDON_QUAD:
+		wr_mode = 2;
+		break;
+	default:
+		/* unknown opcode */
+		return -EOPNOTSUPP;
+	}
+
+	if (offs > 0)
+		memset(txrx_buf, 0xff, offs);
+	memcpy(txrx_buf + offs, buf, len);
+	if (bytes > offs + len)
+		memset(txrx_buf + offs + len, 0xff, bytes - offs - len);
+
+	err = airoha_snand_set_mode(priv, SPI_MODE_DMA);
+	if (err < 0)
+		return err;
+
+	/* NFI reset */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_CON,
+			   SPI_NFI_FIFO_FLUSH | SPI_NFI_RST);
+	if (err)
+		goto error_dma_mode_off;
+
+	/*
+	 * NFI configure:
+	 *   - No AutoFDM (custom sector size (SECCUS) register will be used)
+	 *   - No SoC's hardware ECC (flash internal ECC will be used)
+	 *   - Use burst mode (faster, but requires 16 byte alignment for addresses)
+	 *   - Setup for writing (SPI_NFI_READ_MODE bit is cleared)
+	 *   - Setup writing command: FIELD_PREP(SPI_NFI_OPMODE, 3)
+	 *   - Use DMA instead of PIO for data writing
+	 */
+	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_CNFG,
+				 SPI_NFI_DMA_MODE |
+				 SPI_NFI_READ_MODE |
+				 SPI_NFI_DMA_BURST_EN |
+				 SPI_NFI_HW_ECC_EN |
+				 SPI_NFI_AUTO_FDM_EN |
+				 SPI_NFI_OPMODE,
+				 SPI_NFI_DMA_MODE |
+				 SPI_NFI_DMA_BURST_EN |
+				 FIELD_PREP(SPI_NFI_OPMODE, 3));
+	if (err)
+		goto error_dma_mode_off;
+
+	/* Set number of sector will be written */
+	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_CON,
+				 SPI_NFI_SEC_NUM,
+				 FIELD_PREP(SPI_NFI_SEC_NUM, 1));
+	if (err)
+		goto error_dma_mode_off;
+
+	/* Set custom sector size */
+	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_SECCUS_SIZE,
+				 SPI_NFI_CUS_SEC_SIZE |
+				 SPI_NFI_CUS_SEC_SIZE_EN,
+				 FIELD_PREP(SPI_NFI_CUS_SEC_SIZE, bytes) |
+				 SPI_NFI_CUS_SEC_SIZE_EN);
+	if (err)
+		goto error_dma_mode_off;
+
+	dma_addr = dma_map_single(txrx_buf, SPI_NAND_CACHE_SIZE,
+				  DMA_TO_DEVICE);
+
+	/* set dma addr */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_STRADDR,
+			   dma_addr);
+	if (err)
+		goto error_dma_unmap;
+
+	/*
+	 * Setup transfer length
+	 * ---------------------
+	 * The following rule MUST be met:
+	 *     transfer_length =
+	 *        = NFI_SNF_MISC_CTL2.write_data_byte_number =
+	 *        = NFI_CON.sector_number * NFI_SECCUS.custom_sector_size
+	 */
+	err = regmap_update_bits(priv->regmap_nfi,
+				 REG_SPI_NFI_SNF_MISC_CTL2,
+				 SPI_NFI_PROG_LOAD_BYTE_NUM,
+				 FIELD_PREP(SPI_NFI_PROG_LOAD_BYTE_NUM, bytes));
+	if (err)
+		goto error_dma_unmap;
+
+	/* set write command */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_PG_CTL1,
+			   FIELD_PREP(SPI_NFI_PG_LOAD_CMD, opcode));
+	if (err)
+		goto error_dma_unmap;
+
+	/* set write mode */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_SNF_MISC_CTL,
+			   FIELD_PREP(SPI_NFI_DATA_READ_WR_MODE, wr_mode));
+	if (err)
+		goto error_dma_unmap;
+
+	/* set write addr: zero page offset + descriptor write offset */
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_PG_CTL2,
+			   desc->info.offset);
+	if (err)
+		goto error_dma_unmap;
+
+	err = regmap_write(priv->regmap_nfi, REG_SPI_NFI_CMD, 0x80);
+	if (err)
+		goto error_dma_unmap;
+
+	/* trigger dma writing */
+	err = regmap_clear_bits(priv->regmap_nfi, REG_SPI_NFI_CON,
+				SPI_NFI_WR_TRIG);
+	if (err)
+		goto error_dma_unmap;
+
+	err = regmap_set_bits(priv->regmap_nfi, REG_SPI_NFI_CON,
+			      SPI_NFI_WR_TRIG);
+	if (err)
+		goto error_dma_unmap;
+
+	err = regmap_read_poll_timeout(priv->regmap_nfi, REG_SPI_NFI_INTR,
+				       val, (val & SPI_NFI_AHB_DONE), 0,
+				       1 * MSEC_PER_SEC);
+	if (err)
+		goto error_dma_unmap;
+
+	err = regmap_read_poll_timeout(priv->regmap_nfi,
+				       REG_SPI_NFI_SNF_STA_CTL1, val,
+				       (val & SPI_NFI_LOAD_TO_CACHE_DONE),
+				       0, 1 * MSEC_PER_SEC);
+	if (err)
+		goto error_dma_unmap;
+
+	/*
+	 * SPI_NFI_LOAD_TO_CACHE_DONE bit must be written at the end
+	 * of dirmap_write operation even if it is already set.
+	 */
+	err = regmap_update_bits(priv->regmap_nfi, REG_SPI_NFI_SNF_STA_CTL1,
+				 SPI_NFI_LOAD_TO_CACHE_DONE,
+				 SPI_NFI_LOAD_TO_CACHE_DONE);
+	if (err)
+		goto error_dma_unmap;
+
+	dma_unmap_single(dma_addr, SPI_NAND_CACHE_SIZE, DMA_TO_DEVICE);
+
+	err = airoha_snand_set_mode(priv, SPI_MODE_MANUAL);
+	if (err < 0)
+		return err;
+
+	return len;
+
+error_dma_unmap:
+	dma_unmap_single(dma_addr, SPI_NAND_CACHE_SIZE, DMA_TO_DEVICE);
+error_dma_mode_off:
+	airoha_snand_set_mode(priv, SPI_MODE_MANUAL);
+	return err;
+}
+
 static int airoha_snand_exec_op(struct spi_slave *slave,
 				const struct spi_mem_op *op)
 {
-	u8 data[8], cmd, opcode = op->cmd.opcode;
 	struct udevice *bus = slave->dev->parent;
 	struct airoha_snand_priv *priv;
+	int op_len, addr_len, dummy_len;
+	u8 buf[20], *data;
 	int i, err;
 
 	priv = dev_get_priv(bus);
+
+	op_len = op->cmd.nbytes;
+	addr_len = op->addr.nbytes;
+	dummy_len = op->dummy.nbytes;
+
+	if (op_len + dummy_len + addr_len > sizeof(buf))
+		return -EIO;
+
+	data = buf;
+	for (i = 0; i < op_len; i++)
+		*data++ = op->cmd.opcode >> (8 * (op_len - i - 1));
+	for (i = 0; i < addr_len; i++)
+		*data++ = op->addr.val >> (8 * (addr_len - i - 1));
+	for (i = 0; i < dummy_len; i++)
+		*data++ = 0xff;
 
 	/* switch to manual mode */
 	err = airoha_snand_set_mode(priv, SPI_MODE_MANUAL);
@@ -574,40 +982,40 @@ static int airoha_snand_exec_op(struct spi_slave *slave,
 		return err;
 
 	/* opcode */
-	err = airoha_snand_write_data(priv, 0x8, &opcode, sizeof(opcode));
+	data = buf;
+	err = airoha_snand_write_data(priv, data, op_len,
+				      op->cmd.buswidth);
 	if (err)
 		return err;
 
 	/* addr part */
-	cmd = opcode == SPI_NAND_OP_GET_FEATURE ? 0x11 : 0x8;
-	put_unaligned_be64(op->addr.val, data);
-
-	for (i = ARRAY_SIZE(data) - op->addr.nbytes;
-	     i < ARRAY_SIZE(data); i++) {
-		err = airoha_snand_write_data(priv, cmd, &data[i],
-					      sizeof(data[0]));
+	data += op_len;
+	if (addr_len) {
+		err = airoha_snand_write_data(priv, data, addr_len,
+					      op->addr.buswidth);
 		if (err)
 			return err;
 	}
 
 	/* dummy */
-	data[0] = 0xff;
-	for (i = 0; i < op->dummy.nbytes; i++) {
-		err = airoha_snand_write_data(priv, 0x8, &data[0],
-					      sizeof(data[0]));
+	data += addr_len;
+	if (dummy_len) {
+		err = airoha_snand_write_data(priv, data, dummy_len,
+					      op->dummy.buswidth);
 		if (err)
 			return err;
 	}
 
 	/* data */
-	if (op->data.dir == SPI_MEM_DATA_IN) {
-		err = airoha_snand_read_data(priv, op->data.buf.in,
-					     op->data.nbytes);
-		if (err)
-			return err;
-	} else {
-		err = airoha_snand_write_data(priv, 0x8, op->data.buf.out,
-					      op->data.nbytes);
+	if (op->data.nbytes) {
+		if (op->data.dir == SPI_MEM_DATA_IN)
+			err = airoha_snand_read_data(priv, op->data.buf.in,
+						     op->data.nbytes,
+						     op->data.buswidth);
+		else
+			err = airoha_snand_write_data(priv, op->data.buf.out,
+						      op->data.nbytes,
+						      op->data.buswidth);
 		if (err)
 			return err;
 	}
@@ -619,6 +1027,13 @@ static int airoha_snand_probe(struct udevice *dev)
 {
 	struct airoha_snand_priv *priv = dev_get_priv(dev);
 	int ret;
+	u32 sfc_strap;
+
+	priv->txrx_buf = memalign(ARCH_DMA_MINALIGN, SPI_NAND_CACHE_SIZE);
+	if (!priv->txrx_buf) {
+		dev_err(dev, "failed to alloacate memory for dirmap\n");
+		return -ENOMEM;
+	}
 
 	ret = regmap_init_mem_index(dev_ofnode(dev), &priv->regmap_ctrl, 0);
 	if (ret) {
@@ -638,6 +1053,25 @@ static int airoha_snand_probe(struct udevice *dev)
 		return PTR_ERR(priv->regmap_ctrl);
 	}
 	clk_enable(priv->spi_clk);
+
+	priv->dma = 1;
+	if (device_is_compatible(dev, "airoha,en7523-snand")){
+		ret = regmap_read(priv->regmap_ctrl, REG_SPI_CTRL_SFC_STRAP, &sfc_strap);
+		if (ret)
+			return ret;
+
+		if (!(sfc_strap & 0x04)) {
+			priv->dma = 0;
+			printf("\n"
+				"=== WARNING ======================================================\n"
+				"Detected booting in RESERVED mode (UART_TXD was short to GND).\n"
+				"This mode is known for incorrect DMA reading of some flashes.\n"
+				"Usage of DMA for flash operations will be disabled to prevent data\n"
+				"damage. Unplug your serial console and power cycle the board\n"
+				"to boot with full performance.\n"
+				"==================================================================\n\n");
+		}
+	}
 
 	return airoha_snand_nfi_init(priv);
 }
@@ -659,48 +1093,18 @@ static int airoha_snand_nfi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
-static int airoha_snand_nfi_setup(struct spi_slave *slave,
-				  const struct spinand_info *spinand_info)
-{
-	struct udevice *bus = slave->dev->parent;
-	struct airoha_snand_priv *priv;
-	u32 sec_size, sec_num;
-	int pagesize, oobsize;
-
-	priv = dev_get_priv(bus);
-
-	pagesize = spinand_info->memorg.pagesize;
-	oobsize = spinand_info->memorg.oobsize;
-
-	if (pagesize == 2 * 1024)
-		sec_num = 4;
-	else if (pagesize == 4 * 1024)
-		sec_num = 8;
-	else
-		sec_num = 1;
-
-	sec_size = (pagesize + oobsize) / sec_num;
-
-	/* init default value */
-	priv->nfi_cfg.sec_size = sec_size;
-	priv->nfi_cfg.sec_num = sec_num;
-	priv->nfi_cfg.page_size = round_down(sec_size * sec_num, 1024);
-	priv->nfi_cfg.spare_size = 16;
-
-	return airoha_snand_nfi_config(priv);
-}
-
 static const struct spi_controller_mem_ops airoha_snand_mem_ops = {
-	.adjust_op_size = airoha_snand_adjust_op_size,
 	.supports_op = airoha_snand_supports_op,
 	.exec_op = airoha_snand_exec_op,
+	.dirmap_create = airoha_snand_dirmap_create,
+	.dirmap_read = airoha_snand_dirmap_read,
+	.dirmap_write = airoha_snand_dirmap_write,
 };
 
 static const struct dm_spi_ops airoha_snfi_spi_ops = {
 	.mem_ops = &airoha_snand_mem_ops,
 	.set_speed = airoha_snand_nfi_set_speed,
 	.set_mode = airoha_snand_nfi_set_mode,
-	.setup_for_spinand = airoha_snand_nfi_setup,
 };
 
 static const struct udevice_id airoha_snand_ids[] = {
