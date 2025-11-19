@@ -93,10 +93,16 @@ dtb_dump_resp="""## DTB area contents (concat format):
 loadaddr = 0x1000
 # Address in RAM where to load the vendor boot image ('abootimg' looks in $vloadaddr)
 vloadaddr= 0x10000
+# Expected DTB #1 size
+dtb1_size = 0x7d
+# Expected DTB #2 size
+dtb2_size = 0x7d
 # Expected DTB #1 offset from the boot image start address
-dtb1_offset = 0x187d
+dtb1_offset = 0x1800 + dtb1_size
 # Expected DTB offset from the vendor boot image start address
-dtb2_offset = 0x207d
+dtb2_offset = 0x2000 + dtb2_size
+# Expected DTB aligned offset
+dtba_offset = 0x4000
 # DTB #1 start address in RAM
 dtb1_addr = loadaddr + dtb1_offset
 # DTB #2 start address in RAM
@@ -214,11 +220,16 @@ def test_abootimg(abootimg_disk_image, ubman):
     assert response == 'a=11f00000'
 
     ubman.log.action('Testing \'abootimg get dtb --index\'...')
-    ubman.run_command('abootimg get dtb --index=1 dtb1_start')
+    ubman.run_command('abootimg get dtb --index=1 dtb1_start dtb1_size')
     response = ubman.run_command('env print dtb1_start')
     correct_str = "dtb1_start=%x" % (dtb1_addr)
     assert response == correct_str
-    ubman.run_command('fdt addr $dtb1_start')
+    response = ubman.run_command('env print dtb1_size')
+    correct_str = "dtb1_size=%x" % (dtb1_size)
+    assert response == correct_str
+    ubman.run_command('setenv dtbaaddr 0x%x' % (dtba_offset))
+    ubman.run_command('cp.b $dtb1_start $dtbaaddr $dtb1_size')
+    ubman.run_command('fdt addr $dtbaaddr')
     ubman.run_command('fdt get value v / model')
     response = ubman.run_command('env print v')
     assert response == 'v=x2'
@@ -257,12 +268,17 @@ def test_abootimgv4(abootimgv4_disk_image_vboot, abootimgv4_disk_image_boot, ubm
     assert response == 'a=11f00000'
 
     ubman.log.action('Testing \'abootimg get dtb --index\'...')
-    ubman.run_command('abootimg get dtb --index=1 dtb2_start')
+    ubman.run_command('abootimg get dtb --index=1 dtb2_start dtb2_size')
     response = ubman.run_command('env print dtb2_start')
     correct_str = "dtb2_start=%x" % (dtb2_addr)
     assert response == correct_str
+    response = ubman.run_command('env print dtb2_size')
+    correct_str = "dtb2_size=%x" % (dtb2_size)
+    assert response == correct_str
 
-    ubman.run_command('fdt addr $dtb2_start')
+    ubman.run_command('setenv dtbaaddr 0x%x' % (dtba_offset))
+    ubman.run_command('cp.b $dtb2_start $dtbaaddr $dtb2_size')
+    ubman.run_command('fdt addr $dtbaaddr')
     ubman.run_command('fdt get value v / model')
     response = ubman.run_command('env print v')
     assert response == 'v=x2'
