@@ -1,0 +1,291 @@
+#!/usr/bin/fontforge
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# This script uses FontForge to strip unused symbols from a TrueType font.
+# Only symbols in code page 437 and two glyphs used by GRUB are left in.
+#
+# Usage
+#
+#     ./437.ff <font_in> <font_out.ttf>
+#
+# e.g.
+#
+#     ./437.ff dejavu-fonts-2.37/src/DejaVuSansMono.sfd dejavu_mono.ttf
+#
+# or
+#
+#     ./437.ff /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf dejavu_mono.ttf
+
+Print()
+Print("Strip unused symbols from TrueType font")
+if ($argc != 3)
+	Print()
+	Print("Usage:")
+	Print($0, " <font_in> <font_out.ttf>")
+	return
+endif
+
+Print("Loading ", $1)
+Open($1)
+
+# Code page 437
+SelectMore("u263A") # WHITE SMILING FACE
+SelectMore("u263B") # BLACK SMILING FACE
+SelectMore("u2665") # BLACK HEART SUIT
+SelectMore("u2666") # BLACK DIAMOND SUIT
+SelectMore("u2663") # BLACK CLUB SUIT
+SelectMore("u2660") # BLACK SPADE SUIT
+SelectMore("u2022") # BULLET
+SelectMore("u25D8") # INVERSE BULLET
+SelectMore("u25CB") # WHITE CIRCLE
+SelectMore("u25D9") # INVERSE WHITE CIRCLE
+SelectMore("u2642") # MALE SIGN
+SelectMore("u2640") # FEMALE SIGN
+SelectMore("u266A") # EIGHTH NOTE
+SelectMore("u266B") # BEAMED EIGHTH NOTES
+SelectMore("u263C") # WHITE SUN WITH RAYS
+SelectMore("u25BA") # BLACK RIGHT-POINTING POINTER
+SelectMore("u25C4") # BLACK LEFT-POINTING POINTER
+SelectMore("u2195") # UP DOWN ARROW
+SelectMore("u203C") # DOUBLE EXCLAMATION MARK
+SelectMore("u00B6") # PILCROW SIGN
+SelectMore("u00A7") # SECTION SIGN
+SelectMore("u25AC") # BLACK RECTANGLE
+SelectMore("u21A8") # UP DOWN ARROW WITH BASE
+SelectMore("u2191") # UPWARDS ARROW
+SelectMore("u2193") # DOWNWARDS ARROW
+SelectMore("u2192") # RIGHTWARDS ARROW
+SelectMore("u2190") # LEFTWARDS ARROW
+SelectMore("u221F") # RIGHT ANGLE
+SelectMore("u2194") # LEFT RIGHT ARROW
+SelectMore("u25B2") # BLACK UP-POINTING TRIANGLE
+SelectMore("u25BC") # BLACK DOWN-POINTING TRIANGLE
+SelectMore("u0020") # SPACE
+SelectMore("u0021")
+SelectMore("u0022")
+SelectMore("u0023")
+SelectMore("u0024")
+SelectMore("u0025")
+SelectMore("u0026")
+SelectMore("u0027")
+SelectMore("u0028")
+SelectMore("u0029")
+SelectMore("u002a")
+SelectMore("u002b")
+SelectMore("u002c")
+SelectMore("u002d")
+SelectMore("u002e")
+SelectMore("u002f")
+SelectMore("u0030")
+SelectMore("u0031")
+SelectMore("u0032")
+SelectMore("u0033")
+SelectMore("u0034")
+SelectMore("u0035")
+SelectMore("u0036")
+SelectMore("u0037")
+SelectMore("u0038")
+SelectMore("u0039")
+SelectMore("u003a")
+SelectMore("u003b")
+SelectMore("u003c")
+SelectMore("u003d")
+SelectMore("u003e")
+SelectMore("u003f")
+SelectMore("u0040")
+SelectMore("u0041")
+SelectMore("u0042")
+SelectMore("u0043")
+SelectMore("u0044")
+SelectMore("u0045")
+SelectMore("u0046")
+SelectMore("u0047")
+SelectMore("u0048")
+SelectMore("u0049")
+SelectMore("u004a")
+SelectMore("u004b")
+SelectMore("u004c")
+SelectMore("u004d")
+SelectMore("u004e")
+SelectMore("u004f")
+SelectMore("u0050")
+SelectMore("u0051")
+SelectMore("u0052")
+SelectMore("u0053")
+SelectMore("u0054")
+SelectMore("u0055")
+SelectMore("u0056")
+SelectMore("u0057")
+SelectMore("u0058")
+SelectMore("u0059")
+SelectMore("u005a")
+SelectMore("u005b")
+SelectMore("u005c")
+SelectMore("u005d")
+SelectMore("u005e")
+SelectMore("u005f")
+SelectMore("u0060")
+SelectMore("u0061")
+SelectMore("u0062")
+SelectMore("u0063")
+SelectMore("u0064")
+SelectMore("u0065")
+SelectMore("u0066")
+SelectMore("u0067")
+SelectMore("u0068")
+SelectMore("u0069")
+SelectMore("u006a")
+SelectMore("u006b")
+SelectMore("u006c")
+SelectMore("u006d")
+SelectMore("u006e")
+SelectMore("u006f")
+SelectMore("u0070")
+SelectMore("u0071")
+SelectMore("u0072")
+SelectMore("u0073")
+SelectMore("u0074")
+SelectMore("u0075")
+SelectMore("u0076")
+SelectMore("u0077")
+SelectMore("u0078")
+SelectMore("u0079")
+SelectMore("u007a")
+SelectMore("u007b")
+SelectMore("u007c")
+SelectMore("u007d")
+SelectMore("u007e")
+SelectMore("u00c7")
+SelectMore("u00fc")
+SelectMore("u00e9")
+SelectMore("u00e2")
+SelectMore("u00e4")
+SelectMore("u00e0")
+SelectMore("u00e5")
+SelectMore("u00e7")
+SelectMore("u00ea")
+SelectMore("u00eb")
+SelectMore("u00e8")
+SelectMore("u00ef")
+SelectMore("u00ee")
+SelectMore("u00ec")
+SelectMore("u00c4")
+SelectMore("u00c5")
+SelectMore("u00c9")
+SelectMore("u00e6")
+SelectMore("u00c6")
+SelectMore("u00f4")
+SelectMore("u00f6")
+SelectMore("u00f2")
+SelectMore("u00fb")
+SelectMore("u00f9")
+SelectMore("u00ff")
+SelectMore("u00d6")
+SelectMore("u00dc")
+SelectMore("u00a2")
+SelectMore("u00a3")
+SelectMore("u00a5")
+SelectMore("u20a7")
+SelectMore("u0192")
+SelectMore("u00e1")
+SelectMore("u00ed")
+SelectMore("u00f3")
+SelectMore("u00fa")
+SelectMore("u00f1")
+SelectMore("u00d1")
+SelectMore("u00aa")
+SelectMore("u00ba")
+SelectMore("u00bf")
+SelectMore("u2310")
+SelectMore("u00ac")
+SelectMore("u00bd")
+SelectMore("u00bc")
+SelectMore("u00a1")
+SelectMore("u00ab")
+SelectMore("u00bb")
+SelectMore("u2591")
+SelectMore("u2592")
+SelectMore("u2593")
+SelectMore("u2502")
+SelectMore("u2524")
+SelectMore("u2561")
+SelectMore("u2562")
+SelectMore("u2556")
+SelectMore("u2555")
+SelectMore("u2563")
+SelectMore("u2551")
+SelectMore("u2557")
+SelectMore("u255d")
+SelectMore("u255c")
+SelectMore("u255b")
+SelectMore("u2510")
+SelectMore("u2514")
+SelectMore("u2534")
+SelectMore("u252c")
+SelectMore("u251c")
+SelectMore("u2500")
+SelectMore("u253c")
+SelectMore("u255e")
+SelectMore("u255f")
+SelectMore("u255a")
+SelectMore("u2554")
+SelectMore("u2569")
+SelectMore("u2566")
+SelectMore("u2560")
+SelectMore("u2550")
+SelectMore("u256c")
+SelectMore("u2567")
+SelectMore("u2568")
+SelectMore("u2564")
+SelectMore("u2565")
+SelectMore("u2559")
+SelectMore("u2558")
+SelectMore("u2552")
+SelectMore("u2553")
+SelectMore("u256b")
+SelectMore("u256a")
+SelectMore("u2518")
+SelectMore("u250c")
+SelectMore("u2588")
+SelectMore("u2584")
+SelectMore("u258c")
+SelectMore("u2590")
+SelectMore("u2580")
+SelectMore("u03b1")
+SelectMore("u00df")
+SelectMore("u0393")
+SelectMore("u03c0")
+SelectMore("u03a3")
+SelectMore("u03c3")
+SelectMore("u00b5")
+SelectMore("u03c4")
+SelectMore("u03a6")
+SelectMore("u0398")
+SelectMore("u03a9")
+SelectMore("u03b4")
+SelectMore("u221e")
+SelectMore("u03c6")
+SelectMore("u03b5")
+SelectMore("u2229")
+SelectMore("u2261")
+SelectMore("u00b1")
+SelectMore("u2265")
+SelectMore("u2264")
+SelectMore("u2320")
+SelectMore("u2321")
+SelectMore("u00f7")
+SelectMore("u2248")
+SelectMore("u00b0")
+SelectMore("u2219")
+SelectMore("u00b7")
+SelectMore("u221a")
+SelectMore("u207f")
+SelectMore("u00b2")
+SelectMore("u25a0")
+SelectMore("u00a0")
+
+SelectInvert()
+DetachAndRemoveGlyphs()
+
+Print("Saving ", $2)
+Generate($2)
