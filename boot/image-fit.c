@@ -2142,13 +2142,15 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 		noffset = fit_conf_get_prop_node(fit, cfg_noffset, prop_name,
 						 image_ph_phase(ph_type));
-		fit_uname = fit_get_name(fit, noffset, NULL);
 	}
 	if (noffset < 0) {
 		printf("Could not find subimage node type '%s'\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_SUBNODE);
 		return -ENOENT;
 	}
+
+	if (!fit_uname)
+		fit_uname = fit_get_name(fit, noffset, NULL);
 
 	printf("   Trying '%s' %s subimage\n", fit_uname, prop_name);
 
