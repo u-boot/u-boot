@@ -9,7 +9,7 @@
 #include <asm/gpio.h>
 
 /*
- * In case of initializing the driver statically (using U_BOOT_DEVICE macro),
+ * In case of initializing the driver statically (using U_BOOT_DRVINFO macro),
  * we can use this struct to declare the pins used.
  */
 
