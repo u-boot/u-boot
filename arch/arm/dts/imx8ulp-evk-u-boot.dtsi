@@ -10,16 +10,16 @@
 		compatible = "fsl,imx8ulp-mu";
 		reg = <0 0x27020000 0 0x10000>;
 		status = "okay";
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &soc {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &per_bridge3 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &per_bridge4 {
@@ -27,15 +27,15 @@
 };
 
 &iomuxc1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pinctrl_lpuart5 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &lpuart5 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usdhc0 {
