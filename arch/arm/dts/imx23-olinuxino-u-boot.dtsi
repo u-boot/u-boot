@@ -1,5 +1,20 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+/ {
+	leds {
+		user_led: user {
+			default-state = "on";
+		};
+	};
+
+	options {
+		u-boot {
+			compatible = "u-boot,config";
+			boot-led = <&user_led>;
+		};
+	};
+};
+
 &ssp0 {
 	non-removable;
 };
