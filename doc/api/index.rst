@@ -15,6 +15,7 @@ U-Boot API documentation
    fs
    getopt
    interrupt
+   interconnect
    i3c
    led
    linker_lists
