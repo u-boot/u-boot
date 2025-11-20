@@ -5,3 +5,4 @@
 
 obj-$(CONFIG_$(PHASE_)INTERCONNECT) += interconnect-uclass.o
 obj-$(CONFIG_$(PHASE_)INTERCONNECT_SANDBOX) += sandbox-interconnect.o sandbox-interconnect-test.o
+obj-y += qcom/

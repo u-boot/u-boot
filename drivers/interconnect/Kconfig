@@ -15,6 +15,8 @@ config INTERCONNECT_SANDBOX
 	help
 	  Enable support for the interconnect sandbox drivers.
 
+source "drivers/interconnect/qcom/Kconfig"
+
 endif
 
 endmenu
