@@ -52,7 +52,6 @@
 #include <pvblock.h>
 #include <scsi.h>
 #include <serial.h>
-#include <status_led.h>
 #include <stdio_dev.h>
 #include <timer.h>
 #include <trace.h>
@@ -482,17 +481,8 @@ static int initr_malloc_bootparams(void)
 }
 #endif
 
-static int initr_status_led(void)
-{
-	status_led_init();
-
-	return 0;
-}
-
 static int initr_boot_led_blink(void)
 {
-	status_led_boot_blink();
-
 	led_boot_blink();
 
 	return 0;
@@ -758,7 +748,6 @@ static void initcall_run_r(void)
 #if defined(CONFIG_MICROBLAZE) || defined(CONFIG_M68K)
 	INITCALL(timer_init);		/* initialize timer */
 #endif
-	INITCALL(initr_status_led);
 	INITCALL(initr_boot_led_blink);
 	/* PPC has a udelay(20) here dating from 2002. Why? */
 #if CONFIG_IS_ENABLED(BOARD_LATE_INIT)
