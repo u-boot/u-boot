@@ -379,9 +379,6 @@ static int clk_set_default_rates(struct udevice *dev,
 		c = clk_set_default_get_by_id(&clk);
 		if (IS_ERR(c)) {
 			//return PTR_ERR(c);
-			dev_warn(dev,
-				 "failed to get clock by id 1 %d (%ld) (error = %ld)\n",
-				 index, clk.id, PTR_ERR(c));
 			debug("%s: failed to get clock by id %d (%ld) dev = %s\n", __func__, index, clk.id, clk.dev->name);
 			continue;
 			//c = &clk;
