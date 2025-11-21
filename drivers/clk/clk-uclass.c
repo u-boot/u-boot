@@ -199,7 +199,7 @@ static struct clk *clk_set_default_get_by_id(struct clk *clk)
 		if (ret) {
 			debug("%s(): could not get parent clock pointer, id %lu\n",
 			      __func__, clk->id);
-			ERR_PTR(ret);
+			return ERR_PTR(ret);
 		}
 	}
 
@@ -354,7 +354,7 @@ static int clk_set_default_rates(struct udevice *dev,
 
 		c = clk_set_default_get_by_id(&clk);
 		if (IS_ERR(c))
-			return PTR_ERR(c);
+			continue;
 
 		ret = clk_set_rate(c, rates[index]);
 
