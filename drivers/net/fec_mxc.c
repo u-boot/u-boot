@@ -1373,13 +1373,17 @@ static int fecmxc_probe(struct udevice *dev)
 	if (!bus)
 		bus = fec_get_miibus(dev, (ulong)priv->eth, dev_seq(dev));
 #else
+	if (!bus) {
+		ulong regs = (ulong)priv->eth;
 
-	dm_mii_bus = false;
-#ifdef CONFIG_FEC_MXC_MDIO_BASE
-	bus = fec_get_miibus(dev, (ulong)CONFIG_FEC_MXC_MDIO_BASE, dev_seq(dev));
-#else
-	bus = fec_get_miibus(dev, (ulong)priv->eth, dev_seq(dev));
+		dm_mii_bus = false;
+
+#if defined(CONFIG_FEC_MXC_MDIO_BASE)
+		regs = CONFIG_FEC_MXC_MDIO_BASE;
 #endif
+
+		bus = fec_get_miibus(dev, regs, dev_seq(dev));
+	}
 
 #endif /* CONFIG_DM_ETH_PHY */
 	if (!bus) {
