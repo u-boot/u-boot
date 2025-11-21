@@ -1084,7 +1084,7 @@ static int dm_fec_bind_mdio(struct udevice *dev)
 
 		fec_set_dev_name(fec->mdio_name, dev_seq(dev));
 		ret = device_bind_driver_to_node(dev, "fec_mdio",
-						 fec->mdio_name, mdio, &mdiodev);
+						 fec->mdio_name, mdio, NULL);
 		if (ret) {
 			printf("%s bind %s failed: %d\n", __func__, name, ret);
 			break;
