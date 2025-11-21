@@ -255,6 +255,9 @@ struct fec_priv {
 	int phy_id;
 	int (*mii_postcall)(int);
 #endif
+#ifdef CONFIG_DM_MDIO
+	struct udevice *mdio_bus;
+#endif
 #ifdef CONFIG_DM_REGULATOR
 	struct udevice *phy_supply;
 #endif

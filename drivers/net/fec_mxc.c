@@ -9,6 +9,7 @@
 
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <env.h>
 #include <log.h>
 #include <malloc.h>
@@ -1089,8 +1090,12 @@ static int dm_fec_bind_mdio(struct udevice *dev)
 
 		/* need to probe it as there is no compatible to do so */
 		ret = uclass_get_device_by_ofnode(UCLASS_MDIO, mdio, &mdiodev);
-		if (!ret)
+		if (!ret) {
+			struct fec_priv *priv = dev_get_priv(dev);
+
+			priv->mdio_bus = mdiodev;
 			return 0;
+		}
 		printf("%s probe %s failed: %d\n", __func__, name, ret);
 	}
 
@@ -1431,8 +1436,15 @@ static int fecmxc_remove(struct udevice *dev)
 
 	free(priv->phydev);
 	fec_free_descs(priv);
+#ifdef CONFIG_DM_MDIO
+	if (priv->mdio_bus) {
+		device_remove(priv->mdio_bus, DM_REMOVE_NORMAL);
+		device_unbind(priv->mdio_bus);
+	}
+#else
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
+#endif
 
 #ifdef CONFIG_DM_REGULATOR
 	if (priv->phy_supply)
