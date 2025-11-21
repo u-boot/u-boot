@@ -338,7 +338,7 @@ static int clk_set_default_rates(struct udevice *dev,
 				continue;
 			}
 
-			return ret;
+			goto fail;
 		}
 
 		/* This is clk provider device trying to program itself
