@@ -1189,9 +1189,11 @@ static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 
 	priv->phydev = phydev;
 	priv->phydev->node = priv->phy_of_node;
-	phy_config(phydev);
+	ret = phy_config(phydev);
+	if (ret)
+		pr_err("phy_config failed: %d", ret);
 
-	return 0;
+	return ret;
 }
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
