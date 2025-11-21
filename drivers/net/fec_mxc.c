@@ -1067,6 +1067,7 @@ U_BOOT_DRIVER(fec_mdio) = {
 
 static int dm_fec_bind_mdio(struct udevice *dev)
 {
+	struct fec_priv *fec = dev_get_priv(dev);
 	struct udevice *mdiodev;
 	const char *name;
 	ofnode mdio;
@@ -1081,8 +1082,9 @@ static int dm_fec_bind_mdio(struct udevice *dev)
 		if (strcmp(name, "mdio"))
 			continue;
 
+		fec_set_dev_name(fec->mdio_name, dev_seq(dev));
 		ret = device_bind_driver_to_node(dev, "fec_mdio",
-						 name, mdio, &mdiodev);
+						 fec->mdio_name, mdio, &mdiodev);
 		if (ret) {
 			printf("%s bind %s failed: %d\n", __func__, name, ret);
 			break;
@@ -1369,7 +1371,7 @@ static int fecmxc_probe(struct udevice *dev)
 	 */
 	ret = dm_fec_bind_mdio(dev);
 	if (!ret)
-		bus = miiphy_get_dev_by_name("mdio");
+		bus = miiphy_get_dev_by_name(priv->mdio_name);
 	else if (ret != -ENODEV)
 		return ret;
 #endif

@@ -256,6 +256,7 @@ struct fec_priv {
 	int (*mii_postcall)(int);
 #endif
 #ifdef CONFIG_DM_MDIO
+	char mdio_name[MDIO_NAME_LEN];
 	struct udevice *mdio_bus;
 #endif
 #ifdef CONFIG_DM_REGULATOR
