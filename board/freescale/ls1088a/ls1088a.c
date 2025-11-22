@@ -948,7 +948,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	total_memory_banks = CONFIG_NR_DRAM_BANKS + mc_memory_bank;
 
 	base = calloc(total_memory_banks, sizeof(u64));
+	if (!base)
+		return -ENOMEM;
+
 	size = calloc(total_memory_banks, sizeof(u64));
+	if (!size) {
+		free(base);
+		return -ENOMEM;
+	}
 
 	/* fixup DT for the two GPP DDR banks */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
