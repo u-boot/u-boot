@@ -510,6 +510,12 @@ stages:
         qemu_riscv64_spl:
           TEST_PY_BD: "qemu-riscv64_spl"
           TEST_PY_TEST_SPEC: "not sleep"
+        qemu_riscv64_smode:
+          TEST_PY_BD: "qemu-riscv64_smode"
+          TEST_PY_TEST_SPEC: "not sleep"
+        qemu_riscv64_smode_acpi:
+          TEST_PY_BD: "qemu-riscv64_smode_acpi"
+          TEST_PY_TEST_SPEC: "not sleep"
         qemu_x86:
           TEST_PY_BD: "qemu-x86"
           TEST_PY_TEST_SPEC: "not sleep"

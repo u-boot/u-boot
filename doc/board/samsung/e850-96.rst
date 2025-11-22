@@ -637,9 +637,14 @@ machine:
     `-- pxelinux.cfg
         `-- 01-02-36-f5-1c-81-13
 
-  where ``'01-02-36-f5-1c-81-13'`` file contains extlinux configuration for
-  TFTP to load and boot. The name of this file is the Ethernet MAC address,
-  which can be looked up in the ``$ethaddr`` environment variable in U-Boot.
+  where ``'01-02-36-f5-1c-81-13'`` file contains extlinux configuration for TFTP
+  to load and boot. The name of this file has to be in the format of
+  ``'01-MAC-address'``. The Ethernet MAC address in this case is
+  ``02-36-f5-1c-81-13``, and it can be looked up in the ``$ethaddr`` environment
+  variable in U-Boot::
+
+    => env print ethaddr
+    ethaddr=02:36:f5:1c:81:13
 
   An example of such configuration file is::
 
@@ -667,11 +672,11 @@ machine:
     arch/arm64/configs/defconfig
     ----------------------------
 
-    # Needed for boot from USB storage (mounting rootfs from USB drive)
+    # Keep USB PHY driver built-in, as the Ethernet controller sits on USB bus
     CONFIG_PHY_EXYNOS5_USBDRD=y
     CONFIG_TYPEC=y
 
-    # Needed for NFS boot
+    # Keep Ethernet driver built-in
     CONFIG_USB_NET_SMSC95XX=y
     CONFIG_USB_USBNET=y
 

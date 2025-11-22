@@ -392,7 +392,7 @@ to flash, pulsing the board's reset signal is likely all this script needs to
 do. However, in some scenarios, this script may perform other actions. For
 example, it may call out to some SoC- or board-specific vendor utility in order
 to download the U-Boot binary directly into RAM and execute it. This would
-avoid the need for ``u-boot-test-flash1`` to actually write U-Boot to flash,
+avoid the need for ``u-boot-test-flash`` to actually write U-Boot to flash,
 thus saving wear on the flash chip(s).
 
 u-boot-test-release

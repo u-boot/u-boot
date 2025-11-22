@@ -161,9 +161,9 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	ut_assertok(bdinfo_check_mem(uts));
 
 	/* CONFIG_SYS_HAS_SRAM testing not supported */
-	ut_assertok(test_num_l(uts, "flashstart", 0));
-	ut_assertok(test_num_l(uts, "flashsize", 0));
-	ut_assertok(test_num_l(uts, "flashoffset", 0));
+	ut_check_console_linen(uts, "flashstart");
+	ut_check_console_linen(uts, "flashsize");
+	ut_check_console_linen(uts, "flashoffset");
 	ut_assert_nextline("baudrate    = %lu bps",
 			   env_get_ulong("baudrate", 10, 1234));
 	ut_assertok(test_num_l(uts, "relocaddr", gd->relocaddr));
@@ -215,8 +215,15 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 		ut_assertok(test_num_l(uts, "malloc base", gd_malloc_start()));
 	}
 
+	/* Check arch_print_bdinfo() output */
 	if (IS_ENABLED(CONFIG_X86))
-		ut_check_skip_to_linen(uts, " high end   =");
+		ut_check_skip_to_linen(uts, "tsc");
+
+#ifdef CONFIG_RISCV
+	ut_check_console_linen(uts, "boot hart");
+	if (gd->arch.firmware_fdt_addr)
+		ut_check_console_linen(uts, "firmware fdt");
+#endif
 
 	return 0;
 }

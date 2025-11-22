@@ -184,7 +184,7 @@ online
 
 * **TI Firmware (TIFS, DM, SYSFW)**
 
-  | **source:** https://git.ti.com/git/processor-firmware/ti-linux-firmware.git
+  | **source:** https://github.com/TexasInstruments/ti-linux-firmware
   | **branch:** ti-linux-firmware
 
 .. note::
