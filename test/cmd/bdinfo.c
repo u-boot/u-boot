@@ -156,7 +156,9 @@ static int bdinfo_check_mem(struct unit_test_state *uts)
 
 static int bdinfo_test_all(struct unit_test_state *uts)
 {
-	ut_assertok(test_num_l(uts, "boot_params", 0));
+	struct bd_info *bd = gd->bd;
+
+	ut_assertok(test_num_l(uts, "boot_params", bd->bi_boot_params));
 
 	ut_assertok(bdinfo_check_mem(uts));
 
