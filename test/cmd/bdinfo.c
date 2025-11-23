@@ -224,6 +224,34 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	if (gd->arch.firmware_fdt_addr)
 		ut_check_console_linen(uts, "firmware fdt");
 #endif
+#ifdef CONFIG_ARM
+	ut_check_console_linen(uts, "arch_number");
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
+	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_SECURED)
+		ut_check_console_linen(uts, "Secure ram");
+#endif
+#ifdef CONFIG_RESV_RAM
+	if (gd->arch.resv_ram)
+		ut_check_console_linen(uts, "Reserved ram");
+#endif
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+	ut_check_console_linen(uts, "TLB addr");
+#endif
+	ut_check_console_linen(uts, "irq_sp");
+	ut_check_console_linen(uts, "sp start");
+#ifdef CONFIG_CLOCKS
+	ut_check_console_linen(uts, "ARM frequency =");
+	ut_check_console_linen(uts, "DSP frequency =");
+	ut_check_console_linen(uts, "DDR frequency =");
+#endif
+#ifdef CONFIG_BOARD_TYPES
+	ut_check_console_linen(uts, "Board Type  =");
+#endif
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
+	ut_check_console_linen(uts, "Early malloc usage:");
+#endif
+
+#endif /* CONFIG_ARM */
 
 	return 0;
 }
