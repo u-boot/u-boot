@@ -216,8 +216,25 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	}
 
 	/* Check arch_print_bdinfo() output */
-	if (IS_ENABLED(CONFIG_X86))
-		ut_check_skip_to_linen(uts, "tsc");
+	if (IS_ENABLED(CONFIG_X86)) {
+		ut_check_console_linen(uts, "prev table");
+		ut_check_console_linen(uts, "clock_rate");
+		ut_check_console_linen(uts, "tsc_base");
+		ut_check_console_linen(uts, "vendor");
+		if (!IS_ENABLED(CONFIG_X86_64))
+			ut_check_console_linen(uts, " name");
+		ut_check_console_linen(uts, "model");
+		ut_check_console_linen(uts, "phys_addr in bits");
+		ut_check_console_linen(uts, "table start");
+		ut_check_console_linen(uts, "table end");
+		ut_check_console_linen(uts, " high start");
+		ut_check_console_linen(uts, " high end");
+		ut_check_console_linen(uts, "tsc");
+		if (IS_ENABLED(CONFIG_EFI_STUB)) {
+			ut_check_console_linen(uts, "efi_table");
+			ut_check_console_linen(uts, " revision");
+		}
+	}
 
 #ifdef CONFIG_RISCV
 	ut_check_console_linen(uts, "boot hart");
