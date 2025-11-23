@@ -10,10 +10,10 @@
 #include <video_console.h>
 #include <test/ut.h>
 
-/* Declare a new fdt test */
+/* Declare a new font test */
 #define FONT_TEST(_name, _flags)	UNIT_TEST(_name, _flags, font)
 
-/* Test 'fdt addr' resizing an fdt */
+/* Test the 'font' command */
 static int font_test_base(struct unit_test_state *uts)
 {
 	struct udevice *dev;
