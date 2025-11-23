@@ -4,6 +4,7 @@
  */
 
 #include <command.h>
+#include <compiler.h>
 #include <efi_api.h>
 #include <display_options.h>
 #include <log.h>
@@ -212,10 +213,12 @@ static int print_display_buffer(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* 64-bit */
-	print_buffer(0, buf, 8, 3, 0);
-	ut_assert_nextline("00000000: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........");
-	ut_assert_nextline("00000010: 0000000000000010                   ........");
-	ut_assert_console_end();
+	if (MEM_SUPPORT_64BIT_DATA) {
+		print_buffer(0, buf, 8, 3, 0);
+		ut_assert_nextline("00000000: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........");
+		ut_assert_nextline("00000010: 0000000000000010                   ........");
+		ut_assert_console_end();
+	}
 
 	/* ASCII */
 	buf[1] = 31;
