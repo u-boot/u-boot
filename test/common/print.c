@@ -271,6 +271,9 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	int i;
 	ulong addr;
 
+	if (!CONFIG_IS_ENABLED(HEXDUMP))
+		return -EAGAIN;
+
 	buf = calloc(1, BUF_SIZE);
 	ut_assertnonnull(buf);
 	addr = map_to_sysmem(buf);
