@@ -218,6 +218,15 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	}
 
 	/* Check arch_print_bdinfo() output */
+	if (IS_ENABLED(CONFIG_PPC)) {
+		ut_check_console_linen(uts, "busfreq");
+		if (IS_ENABLED(CONFIG_MPC8xx) || IS_ENABLED(CONFIG_E500))
+			ut_check_console_linen(uts, "immr_base");
+		ut_check_console_linen(uts, "bootflags");
+		ut_check_console_linen(uts, "intfreq");
+		ut_check_console_linen(uts, "addressing");
+	}
+
 	if (IS_ENABLED(CONFIG_X86)) {
 		ut_check_console_linen(uts, "prev table");
 		ut_check_console_linen(uts, "clock_rate");
