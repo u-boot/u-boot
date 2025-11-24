@@ -69,13 +69,13 @@ Future Releases
 .. The following commented out dates are for when release candidates are
    planned to be tagged.
 
-For the next scheduled release, release candidates were made on::
+For the next scheduled release, release candidates were made on:
 
 * U-Boot |next_ver|-rc1 was released on Mon 27 October 2025.
 
 * U-Boot |next_ver|-rc2 was released on Mon 10 November 2025.
 
-.. * U-Boot |next_ver|-rc3 was released on Mon 24 November 2025.
+* U-Boot |next_ver|-rc3 was released on Mon 24 November 2025.
 
 .. * U-Boot |next_ver|-rc4 was released on Mon 08 December 2025.
 
