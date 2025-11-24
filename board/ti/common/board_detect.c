@@ -825,7 +825,7 @@ bool __maybe_unused board_ti_was_eeprom_read(void)
 		return false;
 }
 
-#if CONFIG_IS_ENABLED(TI_I2C_BOARD_DETECT)
+#if IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT)
 int do_board_detect_am6(void)
 {
 	int ret;

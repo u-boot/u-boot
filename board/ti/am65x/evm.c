@@ -72,11 +72,16 @@ int board_fit_config_name_match(const char *name)
 #endif
 
 #ifdef CONFIG_TI_I2C_BOARD_DETECT
+int do_board_detect(void)
+{
+	return do_board_detect_am6();
+}
+
 int checkboard(void)
 {
 	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
 
-	if (do_board_detect_am6())
+	if (do_board_detect())
 		/* EEPROM not populated */
 		printf("Board: %s rev %s\n", "AM6-COMPROCEVM", "E3");
 	else
@@ -89,7 +94,7 @@ static void setup_board_eeprom_env(void)
 {
 	char *name = "am65x";
 
-	if (do_board_detect_am6())
+	if (do_board_detect())
 		goto invalid_eeprom;
 
 	if (board_is_am65x_base_board())
