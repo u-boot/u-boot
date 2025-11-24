@@ -550,19 +550,6 @@ int i2c_get_chip_by_phandle(const struct udevice *parent, const char *prop_name,
 			    struct udevice **devp);
 
 /**
- * i2c_chip_of_to_plat() - Decode standard I2C platform data
- *
- * This decodes the chip address from a device tree node and puts it into
- * its dm_i2c_chip structure. This should be called in your driver's
- * of_to_plat() method.
- *
- * @blob:	Device tree blob
- * @node:	Node offset to read from
- * @spi:	Place to put the decoded information
- */
-int i2c_chip_of_to_plat(struct udevice *dev, struct dm_i2c_chip *chip);
-
-/**
  * i2c_dump_msgs() - Dump a list of I2C messages
  *
  * This may be useful for debugging.

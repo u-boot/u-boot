@@ -701,26 +701,6 @@ int i2c_deblock(struct udevice *bus)
 	return ops->deblock(bus);
 }
 
-#if CONFIG_IS_ENABLED(OF_REAL)
-int i2c_chip_of_to_plat(struct udevice *dev, struct dm_i2c_chip *chip)
-{
-	int addr;
-
-	chip->offset_len = dev_read_u32_default(dev, "u-boot,i2c-offset-len",
-						1);
-	chip->flags = 0;
-	addr = dev_read_u32_default(dev, "reg", -1);
-	if (addr == -1) {
-		debug("%s: I2C Node '%s' has no 'reg' property %s\n", __func__,
-		      dev_read_name(dev), dev->name);
-		return log_ret(-EINVAL);
-	}
-	chip->chip_addr = addr;
-
-	return 0;
-}
-#endif
-
 static int i2c_pre_probe(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_REAL)
@@ -760,15 +740,24 @@ static int i2c_post_probe(struct udevice *dev)
 
 static int i2c_child_post_bind(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(OF_REAL)
-	struct dm_i2c_chip *plat = dev_get_parent_plat(dev);
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
+	int addr;
 
 	if (!dev_has_ofnode(dev))
 		return 0;
-	return i2c_chip_of_to_plat(dev, plat);
-#else
+
+	chip->offset_len = dev_read_u32_default(dev, "u-boot,i2c-offset-len",
+						1);
+	chip->flags = 0;
+	addr = dev_read_u32_default(dev, "reg", -1);
+	if (addr == -1) {
+		debug("%s: I2C Node '%s' has no 'reg' property %s\n", __func__,
+		      dev_read_name(dev), dev->name);
+		return log_ret(-EINVAL);
+	}
+	chip->chip_addr = addr;
+
 	return 0;
-#endif
 }
 
 static int i2c_post_bind(struct udevice *dev)
