@@ -5,6 +5,7 @@
  *
  * Aneesh V <aneesh@ti.com>
  */
+
 #include <dm.h>
 #include <log.h>
 #include <part.h>
@@ -422,7 +423,8 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 						spl_mmc_raw_uboot_offset(part));
 		if (!ret)
 			return 0;
-#else
+#elif defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION) || \
+      defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE)
 		ret = mmc_load_image_raw_partition(spl_image, bootdev,
 						   mmc, raw_part,
 						   raw_sect);
