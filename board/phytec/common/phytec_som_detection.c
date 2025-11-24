@@ -346,8 +346,8 @@ static int phytec_get_part_number(struct phytec_eeprom_data *data,
 		return 0;
 	}
 	if (api2->som_type <= 3) {
-		snprintf(part, PHYTEC_PART_NUMBER_MAX_LEN + 1, "%s.%s",
-			 product_name, api2->bom_rev);
+		len = snprintf(part, PHYTEC_PART_NUMBER_MAX_LEN + 1, "%s.%s",
+			       product_name, api2->bom_rev);
 		if (len != PHYTEC_PART_NUMBER_KSP_LEN)
 			return -EINVAL;
 		return 0;
