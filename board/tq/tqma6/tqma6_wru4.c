@@ -254,11 +254,6 @@ static void gpio_init(void)
 		gpio_direction_output(GPIO_UART3_PWRON, 0);
 }
 
-void tqma6_iomuxc_spi(void)
-{
-	/* No SPI on this baseboard */
-}
-
 int tqma6_bb_board_early_init_f(void)
 {
 	setup_iomuxc_uart4();

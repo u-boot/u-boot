@@ -48,9 +48,6 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#ifndef CONFIG_DM_SPI
-	tqma6_iomuxc_spi();
-#endif
 	tqma6_bb_board_init();
 
 	return 0;
