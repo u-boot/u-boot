@@ -534,6 +534,7 @@
 			interrupts = <0 118 4>;
 			resets = <&rst WATCHDOG1_RESET>;
 			clocks = <&clkmgr AGILEX5_L4_SYS_FREE_CLK>;
+			u-boot,noautostart;
 			status = "disabled";
 		};
 
@@ -543,6 +544,7 @@
 			interrupts = <0 125 4>;
 			resets = <&rst WATCHDOG2_RESET>;
 			clocks = <&clkmgr AGILEX5_L4_SYS_FREE_CLK>;
+			u-boot,noautostart;
 			status = "disabled";
 		};
 
@@ -552,6 +554,7 @@
 			interrupts = <0 126 4>;
 			resets = <&rst WATCHDOG3_RESET>;
 			clocks = <&clkmgr AGILEX5_L4_SYS_FREE_CLK>;
+			u-boot,noautostart;
 			status = "disabled";
 		};
 
@@ -561,6 +564,7 @@
 			interrupts = <0 175 4>;
 			resets = <&rst WATCHDOG4_RESET>;
 			clocks = <&clkmgr AGILEX5_L4_SYS_FREE_CLK>;
+			u-boot,noautostart;
 			status = "disabled";
 		};
 
