@@ -1,22 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause
 /*
- * Copyright (C) STMicroelectronics 2024 - All Rights Reserved
+ * Copyright (C) STMicroelectronics 2025 - All Rights Reserved
  */
 
-#include "stm32mp23-u-boot.dtsi"
+#include "stm32mp25-u-boot.dtsi"
 
 / {
 	config {
-		u-boot,boot-led = "led-blue";
 		u-boot,mmc-env-partition = "u-boot-env";
-	};
-
-	clocks {
-		txbyteclk {
-			#clock-cells = <0>;
-			compatible = "fixed-clock";
-			clock-frequency = <0>;
-		};
 	};
 };
 

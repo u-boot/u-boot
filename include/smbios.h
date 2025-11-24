@@ -204,7 +204,7 @@ struct __packed smbios_type4 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
-union cache_config {
+union __packed cache_config {
 	struct {
 		u16 level:3;
 		u16 bsocketed:1;
@@ -217,7 +217,7 @@ union cache_config {
 	u16 data;
 };
 
-union cache_size_word {
+union __packed cache_size_word {
 	struct {
 		u16 size:15;
 		u16 granu:1;
@@ -225,7 +225,7 @@ union cache_size_word {
 	u16 data;
 };
 
-union cache_size_dword {
+union __packed cache_size_dword {
 	struct {
 		u32 size:31;
 		u32 granu:1;
@@ -233,7 +233,7 @@ union cache_size_dword {
 	u32 data;
 };
 
-union cache_sram_type {
+union __packed cache_sram_type {
 	struct {
 		u16 other:1;
 		u16 unknown:1;

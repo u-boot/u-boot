@@ -109,7 +109,7 @@ int qemu_fwcfg_setup_kernel(struct udevice *qfw_dev, ulong load_addr,
 			    ulong initrd_addr)
 {
 	char *data_addr;
-	u32 setup_size, kernel_size, cmdline_size, initrd_size;
+	u32 setup_size = 0, kernel_size = 0, cmdline_size = 0, initrd_size = 0;
 
 	qfw_read_entry(qfw_dev, FW_CFG_SETUP_SIZE, 4, &setup_size);
 	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_SIZE, 4, &kernel_size);

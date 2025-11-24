@@ -168,8 +168,8 @@ static efi_status_t EFIAPI efi_ip4_config2_register_notify(struct efi_ip4_config
 }
 
 /*
- * efi_ip4_config2_unregister_notify() -  Remove a previously registered eventfor
- * the specified configuration data
+ * efi_ip4_config2_unregister_notify() -  Remove a previously registered event
+ * for the specified configuration data
  *
  * This function implements EFI_IP4_CONFIG2_PROTOCOL.UnregisterDataNotify()
  * See the Unified Extensible Firmware Interface

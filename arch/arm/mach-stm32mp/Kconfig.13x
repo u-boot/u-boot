@@ -17,6 +17,17 @@ config TARGET_ST_STM32MP13X
 		managed by board/st/stm32mp1.
 		The difference between board are managed with devicetree
 
+config TARGET_DH_STM32MP13X
+	bool "DH electronics STM32MP13x boards"
+	imply BOOTSTAGE
+	imply CMD_BOOTSTAGE
+	imply CMD_CLS if CMD_BMP
+	imply DISABLE_CONSOLE
+	imply PRE_CONSOLE_BUFFER
+	imply SILENT_CONSOLE
+	help
+		Target the DH DHSBC development kit with STM32MP13x SoM.
+
 endchoice
 
 config TEXT_BASE
@@ -50,6 +61,7 @@ config DEBUG_UART_CLOCK
 	default 64000000
 endif
 
+source "board/dhelectronics/dh_stm32mp1/Kconfig"
 source "board/st/stm32mp1/Kconfig"
 
 endif

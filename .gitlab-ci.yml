@@ -143,6 +143,7 @@ stages:
 build all platforms in a single job:
   stage: world build
   dependencies: []
+  needs: [ "sandbox test.py" ]
   tags:
     - ${DEFAULT_FAST_TAG}
   script:
@@ -471,6 +472,18 @@ qemu-riscv64_spl test.py:
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
+qemu-riscv64_smode test.py:
+  variables:
+    TEST_PY_BD: "qemu-riscv64_smode"
+    TEST_PY_TEST_SPEC: "not sleep"
+  <<: *buildman_and_testpy_dfn
+
+qemu-riscv64_smode_acpi test.py:
+  variables:
+    TEST_PY_BD: "qemu-riscv64_smode_acpi"
+    TEST_PY_TEST_SPEC: "not sleep"
+  <<: *buildman_and_testpy_dfn
+
 qemu-x86 test.py:
   variables:
     TEST_PY_BD: "qemu-x86"
@@ -602,6 +615,7 @@ coreboot test.py:
       when: manual
       allow_failure: true
   dependencies: []
+  needs: [ "sandbox test.py" ]
   tags: [ 'lab' ]
   script:
     # Environment:

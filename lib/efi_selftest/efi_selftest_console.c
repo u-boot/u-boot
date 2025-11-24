@@ -12,12 +12,12 @@
 struct efi_simple_text_output_protocol *con_out;
 struct efi_simple_text_input_protocol *con_in;
 
-/*
- * Print a MAC address to an u16 string
+/**
+ * mac() - print a MAC address to an u16 string
  *
- * @pointer: mac address
- * @buf: pointer to buffer address
- * on return position of terminating zero word
+ * @pointer:	mac address
+ * @buf:	pointer to buffer address,
+ *		on return position of terminating zero word
  */
 static void mac(void *pointer, u16 **buf)
 {
@@ -43,7 +43,7 @@ static void mac(void *pointer, u16 **buf)
 	*buf = pos;
 }
 
-/*
+/**
  * printx() - print hexadecimal number to an u16 string
  *
  * @p:		value to print
@@ -71,7 +71,7 @@ static void printx(u64 p, int prec, u16 **buf)
 }
 
 /**
- * print_guid() - print GUID to an u16 string
+ * print_uuid() - print GUID to an u16 string
  *
  * @p:		GUID to print
  * @buf:	pointer to buffer address,
@@ -92,12 +92,12 @@ static void print_uuid(u8 *p, u16 **buf)
 	}
 }
 
-/*
- * Print an unsigned 32bit value as decimal number to an u16 string
+/**
+ * uint2dec() - print an unsigned 32bit value as decimal number to an u16 string
  *
  * @value:	value to be printed
  * @prec:	minimum number of digits to display
- * @buf:	pointer to buffer address
+ * @buf:	pointer to buffer address,
  *		on return position of terminating zero word
  */
 static void uint2dec(u32 value, int prec, u16 **buf)
@@ -132,13 +132,13 @@ static void uint2dec(u32 value, int prec, u16 **buf)
 	*buf = pos;
 }
 
-/*
- * Print a signed 32bit value as decimal number to an u16 string
+/**
+ * int2dec() - print a signed 32bit value as decimal number to an u16 string
  *
  * @value:	value to be printed
  * @prec:	minimum number of digits to display
- * @buf:	pointer to buffer address
- * on return position of terminating zero word
+ * @buf:	pointer to buffer address,
+ *		on return position of terminating zero word
  */
 static void int2dec(s32 value, int prec, u16 **buf)
 {
@@ -155,12 +155,12 @@ static void int2dec(s32 value, int prec, u16 **buf)
 	*buf = pos;
 }
 
-/*
- * Print a colored formatted string to the EFI console
+/**
+ * efi_st_printc() - print a colored message
  *
- * @color	color, see constants in efi_api.h, use -1 for no color
- * @fmt		format string
- * @...		optional arguments
+ * @color:	color, see constants in efi_api.h, use -1 for no color
+ * @fmt:	printf style format string
+ * @...:	arguments to be printed
  */
 void efi_st_printc(int color, const char *fmt, ...)
 {
@@ -271,10 +271,10 @@ void efi_st_printc(int color, const char *fmt, ...)
 		con_out->set_attribute(con_out, EFI_LIGHTGRAY);
 }
 
-/*
- * Reads an Unicode character from the input device.
+/**
+ * efi_st_get_key() - read an Unicode character from the input device
  *
- * Return: Unicode character
+ * Return:	Unicode character
  */
 u16 efi_st_get_key(void)
 {

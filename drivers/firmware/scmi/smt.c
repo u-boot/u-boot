@@ -61,20 +61,6 @@ int scmi_dt_get_smt_buffer(struct udevice *dev, struct scmi_smt *smt)
 	if (device_is_compatible(dev, "arm,scmi") && ofnode_has_property(dev_ofnode(dev), "mboxes"))
 		scmi_smt_enable_intr(smt, true);
 
-#ifdef CONFIG_ARM
-	if (dcache_status()) {
-		u32 align_size;
-
-		if (IS_ENABLED(CONFIG_ARM64))
-			align_size = PAGE_SIZE;
-		else
-			align_size = MMU_SECTION_SIZE;
-
-		mmu_set_region_dcache_behaviour(ALIGN_DOWN((uintptr_t)smt->buf, align_size),
-						ALIGN(smt->size, align_size), DCACHE_OFF);
-	}
-#endif
-
 	return 0;
 }
 

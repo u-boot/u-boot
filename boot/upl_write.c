@@ -301,7 +301,7 @@ static int add_upl_memory(const struct upl *upl, ofnode root)
 	for (i = 0; i < upl->mem.count; i++) {
 		const struct upl_mem *mem = alist_get(&upl->mem, i,
 						      struct upl_mem);
-		char buf[mem->region.count * sizeof(64) * 2];
+		char buf[mem->region.count * sizeof(u64) * 2];
 		const struct memregion *first;
 		char name[26];
 		int ret, len;
@@ -354,7 +354,7 @@ static int add_upl_memmap(const struct upl *upl, ofnode root)
 	for (i = 0; i < upl->memmap.count; i++) {
 		const struct upl_memmap *memmap = alist_get(&upl->memmap, i,
 							struct upl_memmap);
-		char buf[memmap->region.count * sizeof(64) * 2];
+		char buf[memmap->region.count * sizeof(u64) * 2];
 		const struct memregion *first;
 		char name[26];
 		int ret, len;
@@ -411,7 +411,7 @@ static int add_upl_memres(const struct upl *upl, ofnode root,
 	for (i = 0; i < upl->memres.count; i++) {
 		const struct upl_memres *memres = alist_get(&upl->memres, i,
 							struct upl_memres);
-		char buf[memres->region.count * sizeof(64) * 2];
+		char buf[memres->region.count * sizeof(u64) * 2];
 		const struct memregion *first;
 		char name[26];
 		int ret, len;

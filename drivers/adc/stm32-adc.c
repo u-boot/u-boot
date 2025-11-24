@@ -49,17 +49,26 @@
 /* STM32H7_ADC_SQR1 - bit fields */
 #define STM32H7_SQ1_SHIFT		6
 
+/* STM32H7_ADC_DIFSEL - bit fields */
+#define STM32H7_DIFSEL_SHIFT	0
+#define STM32H7_DIFSEL_MASK		GENMASK(19, 0)
+
 /* BOOST bit must be set on STM32H7 when ADC clock is above 20MHz */
 #define STM32H7_BOOST_CLKRATE		20000000UL
 
+/* STM32MP13 - Registers for each ADC instance */
+#define STM32MP13_ADC_DIFSEL	0xB0
+
+/* STM32MP13_ADC_CFGR specific bit fields */
+#define STM32MP13_DMAEN			BIT(0)
+#define STM32MP13_DMACFG		BIT(1)
+
+/* STM32MP13_ADC_DIFSEL - bit fields */
+#define STM32MP13_DIFSEL_SHIFT	0
+#define STM32MP13_DIFSEL_MASK	GENMASK(18, 0)
+
 #define STM32_ADC_CH_MAX		20	/* max number of channels */
 #define STM32_ADC_TIMEOUT_US		100000
-
-struct stm32_adc_cfg {
-	unsigned int max_channels;
-	unsigned int num_bits;
-	bool has_vregready;
-};
 
 struct stm32_adc {
 	void __iomem *regs;
@@ -67,11 +76,41 @@ struct stm32_adc {
 	const struct stm32_adc_cfg *cfg;
 };
 
+struct stm32_adc_regs {
+	int reg;
+	int mask;
+	int shift;
+};
+
+struct stm32_adc_regspec {
+	const struct stm32_adc_regs difsel;
+};
+
+struct stm32_adc_cfg {
+	const struct stm32_adc_regspec *regs;
+	unsigned int max_channels;
+	unsigned int num_bits;
+	bool has_vregready;
+	bool has_boostmode;
+	bool has_linearcal;
+	bool has_presel;
+};
+
+static const struct stm32_adc_regspec stm32h7_adc_regspec = {
+	.difsel = { STM32H7_ADC_DIFSEL, STM32H7_DIFSEL_MASK },
+};
+
+static const struct stm32_adc_regspec stm32mp13_adc_regspec = {
+	.difsel = { STM32MP13_ADC_DIFSEL, STM32MP13_DIFSEL_MASK },
+};
+
 static void stm32_adc_enter_pwr_down(struct udevice *dev)
 {
 	struct stm32_adc *adc = dev_get_priv(dev);
 
-	clrbits_le32(adc->regs + STM32H7_ADC_CR, STM32H7_BOOST);
+	if (adc->cfg->has_boostmode)
+		clrbits_le32(adc->regs + STM32H7_ADC_CR, STM32H7_BOOST);
+
 	/* Setting DEEPPWD disables ADC vreg and clears ADVREGEN */
 	setbits_le32(adc->regs + STM32H7_ADC_CR, STM32H7_DEEPPWD);
 }
@@ -90,8 +129,7 @@ static int stm32_adc_exit_pwr_down(struct udevice *dev)
 	/* Exit deep power down, then enable ADC voltage regulator */
 	clrbits_le32(adc->regs + STM32H7_ADC_CR, STM32H7_DEEPPWD);
 	setbits_le32(adc->regs + STM32H7_ADC_CR, STM32H7_ADVREGEN);
-
-	if (common->rate > STM32H7_BOOST_CLKRATE)
+	if (adc->cfg->has_boostmode && common->rate > STM32H7_BOOST_CLKRATE)
 		setbits_le32(adc->regs + STM32H7_ADC_CR, STM32H7_BOOST);
 
 	/* Wait for startup time */
@@ -134,7 +172,7 @@ static int stm32_adc_start_channel(struct udevice *dev, int channel)
 		return ret;
 
 	/* Only use single ended channels */
-	writel(0, adc->regs + STM32H7_ADC_DIFSEL);
+	clrbits_le32(adc->regs + adc->cfg->regs->difsel.reg, adc->cfg->regs->difsel.mask);
 
 	/* Enable ADC, Poll for ADRDY to be set (after adc startup time) */
 	setbits_le32(adc->regs + STM32H7_ADC_CR, STM32H7_ADEN);
@@ -147,7 +185,8 @@ static int stm32_adc_start_channel(struct udevice *dev, int channel)
 	}
 
 	/* Preselect channels */
-	writel(uc_pdata->channel_mask, adc->regs + STM32H7_ADC_PCSEL);
+	if (adc->cfg->has_presel)
+		writel(uc_pdata->channel_mask, adc->regs + STM32H7_ADC_PCSEL);
 
 	/* Set sampling time to max value by default */
 	writel(0xffffffff, adc->regs + STM32H7_ADC_SMPR1);
@@ -156,9 +195,11 @@ static int stm32_adc_start_channel(struct udevice *dev, int channel)
 	/* Program regular sequence: chan in SQ1 & len = 0 for one channel */
 	writel(channel << STM32H7_SQ1_SHIFT, adc->regs + STM32H7_ADC_SQR1);
 
-	/* Trigger detection disabled (conversion can be launched in SW) */
-	clrbits_le32(adc->regs + STM32H7_ADC_CFGR, STM32H7_EXTEN |
-		     STM32H7_DMNGT);
+	/*
+	 * Trigger detection disabled (conversion can be launched in SW)
+	 * STM32H7_DMNGT is equivalent to STM32MP13_DMAEN & STM32MP13_DMACFG
+	 */
+	clrbits_le32(adc->regs + STM32H7_ADC_CFGR, STM32H7_EXTEN | STM32H7_DMNGT);
 	adc->active_channel = channel;
 
 	return 0;
@@ -206,7 +247,7 @@ static int stm32_adc_selfcalib(struct udevice *dev)
 {
 	struct stm32_adc *adc = dev_get_priv(dev);
 	int ret;
-	u32 val;
+	u32 val, mask;
 
 	/*
 	 * Select calibration mode:
@@ -231,7 +272,10 @@ static int stm32_adc_selfcalib(struct udevice *dev)
 	 * - Linearity calibration (needs to be done only once for single/diff)
 	 *   will run simultaneously with offset calibration.
 	 */
-	setbits_le32(adc->regs + STM32H7_ADC_CR, STM32H7_ADCALDIF | STM32H7_ADCALLIN);
+	mask = STM32H7_ADCALDIF;
+	if (adc->cfg->has_linearcal)
+		mask |= STM32H7_ADCALLIN;
+	setbits_le32(adc->regs + STM32H7_ADC_CR, mask);
 
 	/* Start calibration, then wait for completion */
 	setbits_le32(adc->regs + STM32H7_ADC_CR, STM32H7_ADCAL);
@@ -394,14 +438,28 @@ static const struct adc_ops stm32_adc_ops = {
 };
 
 static const struct stm32_adc_cfg stm32h7_adc_cfg = {
+	.regs = &stm32h7_adc_regspec,
 	.num_bits = 16,
 	.max_channels = STM32_ADC_CH_MAX,
+	.has_boostmode = true,
+	.has_linearcal = true,
+	.has_presel = true,
 };
 
 static const struct stm32_adc_cfg stm32mp1_adc_cfg = {
+	.regs = &stm32h7_adc_regspec,
 	.num_bits = 16,
 	.max_channels = STM32_ADC_CH_MAX,
 	.has_vregready = true,
+	.has_boostmode = true,
+	.has_linearcal = true,
+	.has_presel = true,
+};
+
+static const struct stm32_adc_cfg stm32mp13_adc_cfg = {
+	.regs = &stm32mp13_adc_regspec,
+	.num_bits = 12,
+	.max_channels = STM32_ADC_CH_MAX - 1,
 };
 
 static const struct udevice_id stm32_adc_ids[] = {
@@ -409,6 +467,8 @@ static const struct udevice_id stm32_adc_ids[] = {
 	  .data = (ulong)&stm32h7_adc_cfg },
 	{ .compatible = "st,stm32mp1-adc",
 	  .data = (ulong)&stm32mp1_adc_cfg },
+	{ .compatible = "st,stm32mp13-adc",
+	  .data = (ulong)&stm32mp13_adc_cfg },
 	{}
 };
 

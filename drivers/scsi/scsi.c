@@ -584,7 +584,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	struct udevice *bdev;
 	struct blk_desc bd;
 	struct blk_desc *bdesc;
-	char str[10], *name;
+	char str[10];
 
 	/*
 	 * detect the scsi driver to get information about its geometry (block
@@ -600,10 +600,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	* block devices created
 	*/
 	snprintf(str, sizeof(str), "id%dlun%d", id, lun);
-	name = strdup(str);
-	if (!name)
-		return log_msg_ret("nam", -ENOMEM);
-	ret = blk_create_devicef(dev, "scsi_blk", name, UCLASS_SCSI, -1,
+	ret = blk_create_devicef(dev, "scsi_blk", str, UCLASS_SCSI, -1,
 				 bd.blksz, bd.lba, &bdev);
 	if (ret) {
 		debug("Can't create device\n");

@@ -651,6 +651,7 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 	efi_status_t status;
 	struct fmp_state state = { 0 };
 	char *orig_dfu_env;
+	void *img;
 
 	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
@@ -677,7 +678,20 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 	}
 
-	ret = fit_update(image);
+	/* Make sure the update fitImage is properly aligned to 8-bytes */
+	if (!IS_ALIGNED((uintptr_t)image, 8)) {
+		img = memalign(8, image_size);
+		if (!img)
+			return EFI_EXIT(EFI_BAD_BUFFER_SIZE);
+		memcpy(img, image, image_size);
+	} else {
+		img = (void *)image;
+	}
+
+	ret = fit_update(img);
+
+	if (!IS_ALIGNED((uintptr_t)image, 8))
+		free(img);
 
 	if (env_set("dfu_alt_info", orig_dfu_env))
 		log_warning("Unable to restore env variable \"dfu_alt_info\".  Further DFU operations may fail!\n");

@@ -73,15 +73,15 @@ fit-dtb.blob*
 /defconfig
 /generated_defconfig
 /Test*
-/capsule.*.efi-capsule
+/capsule*.efi-capsule
 /capsule*.map
 /keep-syms-lto.*
 /*imx8mimage*
 /*imx8mcst*
 /*rcar4-sa0*
 /drivers/video/u_boot_logo.S
-/test/overlay/test-fdt-overlay.dtbo.S
-/test/overlay/test-fdt-overlay-stacked.dtbo.S
+/test/fdt_overlay/test-fdt-overlay-stacked.dtbo.S
+/test/fdt_overlay/test-fdt-overlay.dtbo.S
 capsule_esl_file
 
 #

@@ -107,7 +107,16 @@ int dh_get_value_from_eeprom_buffer(enum eip_request_values request, u8 *data, i
 
 /*
  * dh_setup_mac_address - Try to get MAC address from various locations and write it to env
+ * @eip: ID EEPROM buffer
  *
  * Return: 0 if OK, other value on error
  */
 int dh_setup_mac_address(struct eeprom_id_page *eip);
+
+/*
+ * dh_add_item_number_and_serial_to_env - Try to get DH IDs from WLP write them to env
+ * @eip: ID EEPROM buffer
+ *
+ * Return: 0 if OK, other value on error
+ */
+void dh_add_item_number_and_serial_to_env(struct eeprom_id_page *eip);

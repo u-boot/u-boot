@@ -206,8 +206,44 @@ some common test tasks.
 
 (there are also UEFI C tests in lib/efi_selftest/ not considered here.)
 
+Add a C test to an existing suite
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use this when you are adding to or modifying an existing feature outside driver
+model. An example is bloblist.
+
+Add a new function in the same file as the rest of the suite and register it
+with the suite. For example, to add a new mem_search test::
+
+   /* Test 'ms' command with 32-bit values */
+   static int mem_test_ms_new_thing(struct unit_test_state *uts)
+   {
+         /* test code here */
+
+         return 0;
+   }
+   MEM_TEST(mem_test_ms_new_thing, UTF_CONSOLE);
+
+Note that the MEM_TEST() macros is defined at the top of the file.
+
+Example commit: 9fe064646d2 ("bloblist: Support relocating to a larger space") [1]
+
+* A successful test returns 0.
+* A skipped test returns -EAGAIN.
+* Any other value signals a failure.
+
+Include ``test/ut.h`` defines a number of macros to check values and to return
+from the test function if the assertion fails. See :doc:`../api/test`
+for details.
+
+[1] https://gitlab.denx.de/u-boot/u-boot/-/commit/9fe064646d2
+
+
 Add a new driver model test
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'''''''''''''''''''''''''''
+
+``dm`` is the test suite that contains C tests for U-boot
+:doc:`Driver Model <driver-model/index>`.
 
 Use this when adding a test for a new or existing uclass, adding new operations
 or features to a uclass, adding new ofnode or dev_read_() functions, or anything
@@ -247,31 +283,6 @@ implementations work as expected.
 Example commit: c48cb7ebfb4 ("sandbox: add ADC unit tests") [1]
 
 [1] https://gitlab.denx.de/u-boot/u-boot/-/commit/c48cb7ebfb4
-
-
-Add a C test to an existing suite
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Use this when you are adding to or modifying an existing feature outside driver
-model. An example is bloblist.
-
-Add a new function in the same file as the rest of the suite and register it
-with the suite. For example, to add a new mem_search test::
-
-   /* Test 'ms' command with 32-bit values */
-   static int mem_test_ms_new_thing(struct unit_test_state *uts)
-   {
-         /* test code here */
-
-         return 0;
-   }
-   MEM_TEST(mem_test_ms_new_thing, UTF_CONSOLE);
-
-Note that the MEM_TEST() macros is defined at the top of the file.
-
-Example commit: 9fe064646d2 ("bloblist: Support relocating to a larger space") [1]
-
-[1] https://gitlab.denx.de/u-boot/u-boot/-/commit/9fe064646d2
 
 
 Add a new test suite

@@ -10,6 +10,7 @@
 
 #include <command.h>
 #include <console.h>
+#include <div64.h>
 #include <led.h>
 #if CONFIG_IS_ENABLED(CMD_MTD_OTP)
 #include <hexdump.h>
@@ -595,10 +596,10 @@ static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (benchmark && bench_start) {
 		bench_end = timer_get_us();
-		speed = (len * 1000000) / (bench_end - bench_start);
+		speed = lldiv(len * 1000000, bench_end - bench_start);
 		printf("%s speed: %lukiB/s\n",
 		       read ? "Read" : "Write",
-		       (unsigned long)(speed / 1024));
+		       (unsigned long)(speed >> 10));
 	}
 
 	led_activity_off();

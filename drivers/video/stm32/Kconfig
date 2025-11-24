@@ -23,6 +23,15 @@ config VIDEO_STM32_DSI
 	  This option enables support DSI internal bridge which can be used on
 	  devices which have DSI devices connected.
 
+config VIDEO_STM32_LVDS
+	bool "Enable STM32 LVDS video support"
+	depends on VIDEO_STM32
+	select VIDEO_BRIDGE
+	select VIDEO_DW_MIPI_DSI
+	help
+	  This enables Low Voltage Differential Signaling (LVDS) display
+	  support.
+
 config VIDEO_STM32_MAX_XRES
 	int "Maximum horizontal resolution (for memory allocation purposes)"
 	depends on VIDEO_STM32

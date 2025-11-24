@@ -4,6 +4,25 @@ config OPTEE_LIB
 	help
 	  Selecting this option will enable the shared OPTEE library code.
 
+config HAS_TEE_IN_BUILD_ENV
+	def_bool $(success, test -n "$(TEE)")
+	select OPTEE_LIB if OF_CONTROL
+	select OF_LIBFDT if OF_CONTROL
+	help
+	  It is typical whenever OP-TEE OS is loaded before U-Boot proper that
+	  it modifies the FDT passed to U-Boot proper to add reserved-memory
+	  nodes for the RAM it just reserved for itself.
+
+	  U-Boot must copy those reserved-nodes in the FDT for the next OS to
+	  boot.
+
+	  Failing to do so will incur random crashes or device reboots once the
+	  next OS is running.
+
+	  This makes sure that whenever TEE is present in the environment,
+	  meaning a TEE OS will be part of the boot flow, the copy made by the
+	  OP-TEE lib will happen.
+
 config OPTEE_IMAGE
 	bool "Support OPTEE images"
 	help

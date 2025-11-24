@@ -43,7 +43,7 @@ struct dhcp_hdr {
 	u8 chaddr[16];
 	u8 sname[64];
 	u8 file[128];
-};
+} __packed;
 
 /*
  * Message type option.

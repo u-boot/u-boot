@@ -35,21 +35,26 @@ can be installed via the command
    pip install -r requirements.txt
 
 In order to execute certain tests on their supported platforms other tools
-will be required. The following is an incomplete list:
+will be required. The following packages may be needed:
 
-* gdisk
-* dfu-util
-* dtc
-* openssl
-* e2fsprogs
-* util-linux
+* cgpt
 * coreutils
+* device-tree-compiler
+* dfu-util
 * dosfstools
+* e2fsprogs
 * efitools
+* fdisk
+* gdisk
+* libgnutls28-dev / gnutls-devel
 * mount
 * mtools
+* openssl
 * sbsigntool
+* swig
 * udisks2
+* util-linux
+* vboot-kernel-utils / vboot-utils
 
 Please use the appropriate commands for your distribution to match these tools
 up with the package that provides them.
@@ -63,7 +68,7 @@ The test script supports either:
   Further details are described later.
 
 The usage of the command ``sudo`` is not allowed in tests. Using elevated
-priviledges can lead to security concerns. Furthermore not all users may have
+privileges can lead to security concerns. Furthermore not all users may have
 administrator rights. Therefore the command ``sudo`` must not be used in tests.
 To create disk images we have helper functions located in
 ``test/py/tests/fs_helper.py`` which shall be used in any tests that require
@@ -387,7 +392,7 @@ to flash, pulsing the board's reset signal is likely all this script needs to
 do. However, in some scenarios, this script may perform other actions. For
 example, it may call out to some SoC- or board-specific vendor utility in order
 to download the U-Boot binary directly into RAM and execute it. This would
-avoid the need for ``u-boot-test-flash1`` to actually write U-Boot to flash,
+avoid the need for ``u-boot-test-flash`` to actually write U-Boot to flash,
 thus saving wear on the flash chip(s).
 
 u-boot-test-release
