@@ -74,7 +74,7 @@ int board_mmc_get_env_dev(int devno)
 	 * the boot device first ...
 	 * Note: SDHC3 == idx2
 	 */
-	return (2 == devno) ? 0 : 1;
+	return (devno == 2) ? 0 : 1;
 }
 
 int board_phy_config(struct phy_device *phydev)
