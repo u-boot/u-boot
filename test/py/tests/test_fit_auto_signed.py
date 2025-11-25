@@ -138,6 +138,28 @@ class SignedFitHelper(object):
 @pytest.mark.buildconfigspec('fit_signature')
 @pytest.mark.requiredtool('fdtget')
 def test_fit_auto_signed(ubman):
+    def generate_and_check_fit_image(cmd, crc=False, simgs=False, scfgs=False, bl31present=False, key_name="", sign_algo="", verifier=""):
+        """Generate fitImage and test for expected entries.
+
+        Generate a fitImage and test whether suitable entries are part of
+        the generated fitImage. Test whether checksums and signatures are
+        part of the generated fitImage.
+        """
+        mkimage = ubman.config.build_dir + '/tools/mkimage'
+        utils.run_and_log(ubman, mkimage + cmd)
+
+        fit = SignedFitHelper(ubman, fit_file)
+        if fit.build_nodes_sets() == 0:
+            raise ValueError(f'FIT has no "/image" nor "/configuration" nodes, test settings: cmd={cmd} crc={crc} simgs={simgs} scfgs={scfgs} bl31present={bl31present} teepresent={teepresent} key_name={key_name} sign_algo={sign_algo} verifier={verifier}')
+        if crc:
+            fit.check_fit_crc32_images()
+        if simgs:
+            fit.check_fit_signed_images(key_name, sign_algo, verifier)
+        if scfgs:
+            fit.check_fit_signed_confgs(key_name, sign_algo)
+
+        fit.check_fit_loadables(bl31present)
+
     """Test that mkimage generates auto-FIT with signatures/hashes as expected.
 
     The mkimage tool can create auto generated (i.e. without an ITS file
@@ -150,7 +172,6 @@ def test_fit_auto_signed(ubman):
 
     The test does not run the sandbox. It only checks the host tool mkimage.
     """
-    mkimage = ubman.config.build_dir + '/tools/mkimage'
     tempdir = os.path.join(ubman.config.result_dir, 'auto_fit')
     os.makedirs(tempdir, exist_ok=True)
     kernel_file = f'{tempdir}/vmlinuz'
@@ -186,39 +207,18 @@ def test_fit_auto_signed(ubman):
     s_args = " -k" + tempdir + " -g" + key_name + " -o" + sign_algo
 
     # 1 - Create auto FIT with images crc32 checksum, and verify it
-    utils.run_and_log(ubman, mkimage + ' -fauto' + b_args + " " + fit_file)
-
-    fit = SignedFitHelper(ubman, fit_file)
-    if fit.build_nodes_sets() == 0:
-        raise ValueError('FIT-1 has no "/image" nor "/configuration" nodes')
-
-    fit.check_fit_crc32_images()
-
-    fit.check_fit_loadables(present=False)
+    generate_and_check_fit_image(' -fauto' + b_args + " " + fit_file,
+                                 crc=True)
 
     # 2 - Create auto FIT with signed images, and verify it
-    utils.run_and_log(ubman, mkimage + ' -fauto' + b_args + s_args + " " +
-                      fit_file)
-
-    fit = SignedFitHelper(ubman, fit_file)
-    if fit.build_nodes_sets() == 0:
-        raise ValueError('FIT-2 has no "/image" nor "/configuration" nodes')
-
-    fit.check_fit_signed_images(key_name, sign_algo, verifier)
-
-    fit.check_fit_loadables(present=False)
+    generate_and_check_fit_image(' -fauto' + b_args + s_args + " " + fit_file,
+                                 simgs=True,
+                                 key_name=key_name, sign_algo=sign_algo, verifier=verifier)
 
     # 3 - Create auto FIT with signed configs and hashed images, and verify it
-    utils.run_and_log(ubman, mkimage + ' -fauto-conf' + b_args + s_args + " " +
-                      fit_file)
-
-    fit = SignedFitHelper(ubman, fit_file)
-    if fit.build_nodes_sets() == 0:
-        raise ValueError('FIT-3 has no "/image" nor "/configuration" nodes')
-
-    fit.check_fit_signed_confgs(key_name, sign_algo)
-
-    fit.check_fit_loadables(present=False)
+    generate_and_check_fit_image(' -fauto-conf' + b_args + s_args + " " + fit_file,
+                                 scfgs=True,
+                                 key_name=key_name, sign_algo=sign_algo)
 
     # Run the same tests as 1/2/3 above, but this time with TFA BL31
     # options -y tfa-bl31.bin -Y 0x12340000 to cover both mkimage with
@@ -226,36 +226,15 @@ def test_fit_auto_signed(ubman):
     b_args = " -d" + kernel_file + " -b" + dt1_file + " -b" + dt2_file + " -y" + tfa_file + " -Y 0x12340000"
 
     # 4 - Create auto FIT with images crc32 checksum, and verify it
-    utils.run_and_log(ubman, mkimage + ' -fauto' + b_args + " " + fit_file)
-
-    fit = SignedFitHelper(ubman, fit_file)
-    if fit.build_nodes_sets() == 0:
-        raise ValueError('FIT-4 has no "/image" nor "/configuration" nodes')
-
-    fit.check_fit_crc32_images()
-
-    fit.check_fit_loadables(present=True)
+    generate_and_check_fit_image(' -fauto' + b_args + " " + fit_file,
+                                 crc=True, bl31present=True)
 
     # 5 - Create auto FIT with signed images, and verify it
-    utils.run_and_log(ubman, mkimage + ' -fauto' + b_args + s_args + " " +
-                      fit_file)
-
-    fit = SignedFitHelper(ubman, fit_file)
-    if fit.build_nodes_sets() == 0:
-        raise ValueError('FIT-5 has no "/image" nor "/configuration" nodes')
-
-    fit.check_fit_signed_images(key_name, sign_algo, verifier)
-
-    fit.check_fit_loadables(present=True)
+    generate_and_check_fit_image(' -fauto' + b_args + s_args + " " + fit_file,
+                                 simgs=True, bl31present=True,
+                                 key_name=key_name, sign_algo=sign_algo, verifier=verifier)
 
     # 6 - Create auto FIT with signed configs and hashed images, and verify it
-    utils.run_and_log(ubman, mkimage + ' -fauto-conf' + b_args + s_args + " " +
-                      fit_file)
-
-    fit = SignedFitHelper(ubman, fit_file)
-    if fit.build_nodes_sets() == 0:
-        raise ValueError('FIT-6 has no "/image" nor "/configuration" nodes')
-
-    fit.check_fit_signed_confgs(key_name, sign_algo)
-
-    fit.check_fit_loadables(present=True)
+    generate_and_check_fit_image(' -fauto-conf' + b_args + s_args + " " + fit_file,
+                                 scfgs=True, bl31present=True,
+                                 key_name=key_name, sign_algo=sign_algo)
