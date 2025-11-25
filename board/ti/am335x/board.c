@@ -429,7 +429,7 @@ void scale_vcores_generic(int freq)
 {
 	int sil_rev, mpu_vdd;
 
-	if (!IS_ENABLED(CONFIG_DM_PMIC_TPS65910))
+	if (!IS_ENABLED(CONFIG_SPL_POWER_TPS65910))
 		return;
 
 	/*
