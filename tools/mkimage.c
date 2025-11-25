@@ -103,6 +103,8 @@ static void usage(const char *msg)
 		"          -s ==> create an image with no data\n"
 		"          -y ==> append TFA BL31 file to the image\n"
 		"          -Y ==> set TFA BL31 file load and entry point address\n"
+		"          -z ==> append raw TEE file to the image\n"
+		"          -Z ==> set raw TEE file load and entry point address\n"
 		"          -v ==> verbose\n",
 		params.cmdname);
 	fprintf(stderr,
@@ -162,7 +164,7 @@ static int add_content(int type, const char *fname)
 }
 
 static const char optstring[] =
-	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:qrR:stT:vVxy:Y:";
+	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:qrR:stT:vVxy:Y:z:Z:";
 
 static const struct option longopts[] = {
 	{ "load-address", required_argument, NULL, 'a' },
@@ -200,6 +202,8 @@ static const struct option longopts[] = {
 	{ "xip", no_argument, NULL, 'x' },
 	{ "tfa-bl31-file", no_argument, NULL, 'y' },
 	{ "tfa-bl31-addr", no_argument, NULL, 'Y' },
+	{ "tee-file", no_argument, NULL, 'z' },
+	{ "tee-addr", no_argument, NULL, 'Z' },
 	{ /* sentinel */ },
 };
 
@@ -378,6 +382,17 @@ static void process_args(int argc, char **argv)
 			params.fit_tfa_bl31_addr = strtoull(optarg, &ptr, 16);
 			if (*ptr) {
 				fprintf(stderr, "%s: invalid TFA BL31 address %s\n",
+					params.cmdname, optarg);
+				exit(EXIT_FAILURE);
+			}
+			break;
+		case 'z':
+			params.fit_tee = optarg;
+			break;
+		case 'Z':
+			params.fit_tee_addr = strtoull(optarg, &ptr, 16);
+			if (*ptr) {
+				fprintf(stderr, "%s: invalid TEE address %s\n",
 					params.cmdname, optarg);
 				exit(EXIT_FAILURE);
 			}

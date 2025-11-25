@@ -180,6 +180,13 @@ static int fit_calc_size(struct image_tool_params *params)
 		total_size += size;
 	}
 
+	if (params->fit_tee) {
+		size = imagetool_get_filesize(params, params->fit_tee);
+		if (size < 0)
+			return -1;
+		total_size += size;
+	}
+
 	for (cont = params->content_head; cont; cont = cont->next) {
 		size = imagetool_get_filesize(params, cont->fname);
 		if (size < 0)
@@ -433,6 +440,30 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 		fdt_end_node(fdt);
 	}
 
+	/* And a TEE file if available */
+	if (params->fit_tee) {
+		fdt_begin_node(fdt, FIT_TEE_PROP "-1");
+
+		fdt_property_string(fdt, FIT_TYPE_PROP, FIT_TEE_PROP);
+		fdt_property_string(fdt, FIT_OS_PROP,
+				    genimg_get_os_short_name(params->os));
+		fdt_property_string(fdt, FIT_ARCH_PROP,
+				    genimg_get_arch_short_name(params->arch));
+		get_basename(str, sizeof(str), params->fit_tee);
+		fdt_property_string(fdt, FIT_DESC_PROP, str);
+
+		ret = fdt_property_file(params, fdt, FIT_DATA_PROP,
+					params->fit_tee);
+		if (ret)
+			return ret;
+		fdt_property_u32(fdt, FIT_LOAD_PROP, params->fit_tee_addr);
+		fdt_property_u32(fdt, FIT_ENTRY_PROP, params->fit_tee_addr);
+		fit_add_hash_or_sign(params, fdt, true);
+		if (ret)
+			return ret;
+		fdt_end_node(fdt);
+	}
+
 	fdt_end_node(fdt);
 
 	return 0;
@@ -474,9 +505,13 @@ static void fit_write_configs(struct image_tool_params *params, char *fdt)
 		fdt_property_string(fdt, typename, str);
 
 		if (params->fit_tfa_bl31) {
-			snprintf(str, sizeof(str), "%s-1." FIT_TFA_BL31_PROP "-1", typename);
-			str[len] = 0;
-			len += strlen(FIT_TFA_BL31_PROP "-1") + 1;
+			snprintf(&str[len + 1], sizeof(str) - (len + 1), FIT_TFA_BL31_PROP "-1");
+			len += strlen(&str[len + 1]) + 1;
+		}
+
+		if (params->fit_tee) {
+			snprintf(&str[len + 1], sizeof(str) - (len + 1), FIT_TEE_PROP "-1");
+			len += strlen(&str[len + 1]) + 1;
 		}
 
 		fdt_property(fdt, FIT_LOADABLE_PROP, str, len + 1);
@@ -499,9 +534,13 @@ static void fit_write_configs(struct image_tool_params *params, char *fdt)
 		fdt_property_string(fdt, typename, str);
 
 		if (params->fit_tfa_bl31) {
-			snprintf(str, sizeof(str), "%s-1." FIT_TFA_BL31_PROP "-1", typename);
-			str[len] = 0;
-			len += strlen(FIT_TFA_BL31_PROP "-1") + 1;
+			snprintf(&str[len + 1], sizeof(str) - (len + 1), FIT_TFA_BL31_PROP "-1");
+			len += strlen(&str[len + 1]) + 1;
+		}
+
+		if (params->fit_tee) {
+			snprintf(&str[len + 1], sizeof(str) - (len + 1), FIT_TEE_PROP "-1");
+			len += strlen(&str[len + 1]) + 1;
 		}
 
 		fdt_property(fdt, FIT_LOADABLE_PROP, str, len + 1);
