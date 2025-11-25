@@ -334,13 +334,27 @@ int dram_init(void)
 #ifdef CONFIG_OF_BOARD
 int dram_init_banksize(void)
 {
+	phys_addr_t total_size = 0;
+	int i;
 	int ret;
 
 	ret = fdtdec_setup_memory_banksize();
 	if (ret)
 		return ret;
 
-	return fdtdec_setup_mem_size_base();
+	ret = fdtdec_setup_mem_size_base();
+	if (ret)
+		return ret;
+
+	/* Update gd->ram_size to reflect total RAM across all banks */
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		if (gd->bd->bi_dram[i].size == 0)
+			break;
+		total_size += gd->bd->bi_dram[i].size;
+	}
+	gd->ram_size = total_size;
+
+	return 0;
 }
 #endif
 
