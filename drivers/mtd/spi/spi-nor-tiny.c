@@ -220,6 +220,7 @@ static inline int set_4byte(struct spi_nor *nor, const struct flash_info *info,
 		/* Some Micron need WREN command; all will accept it */
 		need_wren = true;
 		fallthrough;
+	case SNOR_MFR_ISSI:
 	case SNOR_MFR_MACRONIX:
 	case SNOR_MFR_WINBOND:
 		if (need_wren)
@@ -246,6 +247,9 @@ static inline int set_4byte(struct spi_nor *nor, const struct flash_info *info,
 		}
 
 		return status;
+	case SNOR_MFR_CYPRESS:
+		cmd = enable ? SPINOR_OP_EN4B : SPINOR_OP_EX4B_CYPRESS;
+		return spi_nor_write_reg(nor, cmd, NULL, 0);
 	default:
 		/* Spansion style */
 		nor->cmd_buf[0] = enable << 7;
