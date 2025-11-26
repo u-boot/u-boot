@@ -18,7 +18,7 @@ workflow:
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20251001-04Nov2025
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20251013-26Nov2025
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
