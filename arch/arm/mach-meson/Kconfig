@@ -17,6 +17,8 @@ config MESON64_COMMON
 config MESON_GX
 	bool
 	select MESON64_COMMON
+	select SUPPORT_SPL
+	select BINMAN if SPL
 
 choice
 	prompt "Platform select"
@@ -69,7 +71,7 @@ config SYS_SOC
 	default "meson"
 
 config SYS_MALLOC_F_LEN
-	default 0x1000
+	default 0x2000
 
 config SYS_VENDOR
 	string "Vendor name"
@@ -93,4 +95,42 @@ config SYS_BOARD
 	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
 	  be used.
 
+if MESON_GX && SPL
+config SPL_SYS_MALLOC_F_LEN
+	default 0x2000
+
+choice
+	prompt "Set VDDEE init voltage"
+	default SPL_MESON_GX_VDDEE_1000MV
+	help
+	  This option is used to set the VDDEE voltage on boot up.
+	  If unsure, leave it to the board default.
+
+config SPL_MESON_GX_VDDEE_1000MV
+	bool "Set VDDEE to 1000 mv"
+
+config SPL_MESON_GX_VDDEE_1100MV
+	bool "Set VDDEE to 1100 mv"
+
+endchoice
+
+choice
+	prompt "Set VCCK init voltage"
+	default SPL_MESON_GX_VCCK_1100MV
+	help
+	  This option is used to set the VCCK voltage on boot up.
+	  If unsure, leave it to the board default.
+
+config SPL_MESON_GX_VCCK_1000MV
+	bool "Set VCCK to 1000 mv"
+
+config SPL_MESON_GX_VCCK_1100MV
+	bool "Set VCCK to 1100 mv"
+
+config SPL_MESON_GX_VCCK_1120MV
+	bool "Set VCCK to 1120 mv"
+
+endchoice
+
+endif
 endif

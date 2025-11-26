@@ -30,6 +30,7 @@ __weak int board_init(void)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 int dram_init(void)
 {
 	const fdt64_t *val;
@@ -49,6 +50,7 @@ int dram_init(void)
 
 	return 0;
 }
+#endif
 
 __weak int meson_ft_board_setup(void *blob, struct bd_info *bd)
 {
@@ -150,5 +152,14 @@ int board_late_init(void)
 
 void reset_cpu(void)
 {
+#if CONFIG_SPL_BUILD
+	/*
+	 * We do not have BL31 running yet, so no PSCI.
+	 * Instead, let the watchdog reset the board.
+	 */
+	for (;;)
+		;
+#else
 	psci_system_reset();
+#endif
 }

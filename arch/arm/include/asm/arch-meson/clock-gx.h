@@ -87,6 +87,7 @@
 #define HHI_VDAC_CNTL0			0x2F4 /* 0xbd offset in data sheet */
 #define HHI_VDAC_CNTL1			0x2F8 /* 0xbe offset in data sheet */
 
+#define HHI_SYS_PLL_CNTL1		0x2fc /* 0xbf offset in data sheet */
 #define HHI_SYS_PLL_CNTL		0x300 /* 0xc0 offset in data sheet */
 #define HHI_SYS_PLL_CNTL2		0x304 /* 0xc1 offset in data sheet */
 #define HHI_SYS_PLL_CNTL3		0x308 /* 0xc2 offset in data sheet */
@@ -113,5 +114,18 @@
 #define HHI_SAR_CLK_CNTL		0x3D8 /* 0xf6 offset in data sheet */
 
 ulong meson_measure_clk_rate(unsigned int clk);
+
+#if defined(CONFIG_SPL_BUILD)
+#define HHI_SCC_CNTL0_FINAL_MUX_SEL	BIT(11)
+#define HHI_SCC_CNTL0_FINAL_DYN_MUX_SEL	BIT(10)
+#define HHI_SCC_CNTL0_MUX0_DIVN_TCNT	(0x3f << 4)
+#define HHI_SCC_CNTL0_MUX1_DIVN_TCNT	(0x3f << 20)
+#define HHI_SCC_CNTL0_POSTMUX0	BIT(2)
+#define HHI_SCC_CNTL0_POSTMUX1	BIT(18)
+#define HHI_SCC_CNTL0_PREMUX0	3
+#define HHI_SCC_CNTL0_PREMUX1	(3 << 16)
+#define HHI_SCC_CNTL0_DYN_ENABLE	BIT(26)
+#define HHI_SCC_CNTL0_BUSY	BIT(28)
+#endif
 
 #endif
