@@ -8,14 +8,16 @@ choice
 	prompt "Target select"
 	optional
 
+config ARCH_K1
+	bool "Spacemit K1 Architecture"
+	help
+	  This enables support for Spacemit K1 SoC family.
+
 config TARGET_ANDES_AE350
 	bool "Support Andes ae350"
 
 config TARGET_ANDES_VOYAGER
 	bool "Support Andes Voyager Board"
-
-config TARGET_BANANAPI_F3
-	bool "Support BananaPi F3 Board"
 
 config TARGET_K230_CANMV
 	bool "Support K230 CanMV Board"
@@ -115,7 +117,7 @@ source "board/sifive/unmatched/Kconfig"
 source "board/sipeed/maix/Kconfig"
 source "board/sophgo/milkv_duo/Kconfig"
 source "board/sophgo/licheerv_nano/Kconfig"
-source "board/spacemit/bananapi-f3/Kconfig"
+source "board/spacemit/k1/Kconfig"
 source "board/starfive/visionfive2/Kconfig"
 source "board/thead/th1520_lpi4a/Kconfig"
 source "board/xilinx/mbv/Kconfig"
