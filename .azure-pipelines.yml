@@ -613,6 +613,9 @@ stages:
     displayName: 'Build the World'
     pool:
       vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
     strategy:
       # We split the world up in to 10 jobs as we can have at most 10
       # parallel jobs going on the free tier of Azure.
@@ -639,18 +642,15 @@ stages:
           BUILDMAN: $(everything_but_arm_and_powerpc)
     steps:
       - script: |
-          cat << EOF > build.sh
           set -ex
-          cd ${WORK_DIR}
-          # make environment variables available as tests are running inside a container
-          export BUILDMAN="${BUILDMAN}"
-          git config --global --add safe.directory ${WORK_DIR}
+          # Copy things from /home/uboot to the Azure container user
+          sudo cp -a /home/uboot/.buildman /home/uboot/.cache ~
+          sudo chown -R 1001 ~/.cache ~/.buildman
+          # Setup venv, perform build
           python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r tools/binman/requirements.txt \
             -r tools/buildman/requirements.txt
-          EOF
-          cat << "EOF" >> build.sh
           if [[ "${BUILDMAN}" != "" ]]; then
               ret=0;
               tools/buildman/buildman -o /tmp -PEWM ${BUILDMAN} ${OVERRIDE} || ret=$?;
@@ -659,6 +659,3 @@ stages:
                   exit $ret;
               fi;
           fi
-          EOF
-          cat build.sh
-          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
