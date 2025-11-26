@@ -11,16 +11,35 @@ variables:
   container_option: -u 0
   work_dir: /u
   # We define all of these as variables so we can easily reference them twice
-  am33xx_kirkwood_ls1_mvebu_omap: "am33xx kirkwood ls1 mvebu omap -x siemens,freescale"
-  amlogic_bcm_boundary_engicam_siemens_technexion_oradex: "amlogic bcm boundary engicam siemens technexion toradex -x mips"
-  arm_nxp_minus_imx_and_at91: "at91 freescale -x powerpc,m68k,imx,mx"
-  imx: "mx imx -x boundary,engicam,technexion,toradex"
-  rk: "rk"
-  sunxi: "sunxi"
+  am33xx_kirkwood: "am33xx kirkwood"
+  amd: "amd xilinx zynq"
+  amlogic_bcm: "amlogic bcm -x mips"
+  atmel: "atmel"
+  engicam_renesas: "engicam renesas"
+  k3_32b: "k3 -x aarch64,phytec,toradex"
+  k3_64b: "k3 -x armv7,phytec,toradex"
+  kirkwood_mvebu: "kirkwood mvebu"
+  layerscape_vf610: "ls1 ls2 lx2 vf610 -x phytec,toradex"
+  m68k_remaining_mx_xtensa: "m68k imxrt mx xtensa -x mx6,aarch64"
+  mips_x86: "mips x86 -x mediatek"
+  mx6: "mx6 -x engicam,phytec,toradex"
+  imx8: "imx8 -x engicam,phytec,toradex"
+  imx9_arc_nios2_socfpga: "imx9 arc nios2 socfpga -x phytec,toradex"
+  phytec_toradex: "phytec toradex"
   powerpc: "powerpc"
-  arm_catch_all: "arm -x aarch64,am33xx,at91,bcm,ls1,kirkwood,mvebu,omap,rk,siemens,mx,sunxi,technexion,toradex"
-  aarch64_catch_all: "aarch64 -x amlogic,bcm,engicam,imx,ls1,ls2,lx216,mvebu,rk,siemens,sunxi,toradex"
-  everything_but_arm_and_powerpc: "arc m68k microblaze mips nios2 riscv sandbox sh x86 xtensa -x arm,powerpc"
+  riscv_stm32: "riscv stm32 -x engicam,xilinx"
+  rk3399: "rk3399"
+  rk352x_rk358x: "rk352 rk358"
+  rk356x_rk357x: "rk356 rk357"
+  rk3xxx_rest: "rk30 rk31 rk32 rk33 -x rk3399,phytec"
+  sandbox_tegra: "tegra sandbox -x toradex"
+  samsung_omap_mediatek: "samsung omap mediatek"
+  sun4i_5i: "sun4i sun5i"
+  sun6i_sun7i: "sun6i sun7i"
+  sun8i: "sun8i"
+  sunxi_rest: "sunxi -x sun4i,sun5i,sun6i,sun7i,sun8i"
+  arm_catch_all: "arm -x aarch64,am33xx,atmel,bcm,ls,lx,imx,k3,kirkwood,mvebu,mx,omap,renesas,rk,samsung,socfpga,stm32,sunxi,tegra,vf610,xilinx,zynq"
+  aarch64_catch_all: "aarch64 -x amd,amlogic,bcm,engicam,imx,k3,ls,lx,mediatek,mvebu,renesas,rk,samsung,socfpga,stm32,sunxi,tegra,xilinx,zynq"
 
 stages:
 - stage: testsuites
@@ -213,16 +232,36 @@ stages:
           # First get the total number of boards
           total=$(tools/buildman/buildman ${BMANARGS} | grep "Total boards to build for each commit" | cut -d ' ' -f 8)
           # Now build up the list of what each job built.
-          built="$(tools/buildman/buildman ${BMANARGS} $(am33xx_kirkwood_ls1_mvebu_omap) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(amlogic_bcm_boundary_engicam_siemens_technexion_oradex) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(arm_nxp_minus_imx_and_at91) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(imx) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(rk) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(sunxi) | grep '^   ')"
+          built="$(tools/buildman/buildman ${BMANARGS} $(am33xx_kirkwood) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(amd) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(amlogic_bcm) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(atmel) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(engicam_renesas) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(k3_32b) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(k3_64b) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(kirkwood_mvebu) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(layerscape_vf610) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(m68k_remaining_mx_xtensa) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(mips_x86) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(mx6) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(imx8) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(imx9_arc_nios2_socfpga) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(phytec_toradex) | grep '^   ')"
           built="$built $(tools/buildman/buildman ${BMANARGS} $(powerpc) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(riscv_stm32) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(rk3399) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(rk352x_rk358x) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(rk356x_rk357x) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(rk3xxx_rest) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(sandbox_tegra) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(samsung_omap_mediatek) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(sun4i_5i) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(sun6i_sun7i) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(sun8i) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(sunxi_rest) | grep '^   ')"
           built="$built $(tools/buildman/buildman ${BMANARGS} $(arm_catch_all) | grep '^   ')"
           built="$built $(tools/buildman/buildman ${BMANARGS} $(aarch64_catch_all) | grep '^   ')"
-          built="$built $(tools/buildman/buildman ${BMANARGS} $(everything_but_arm_and_powerpc) | grep '^   ')"
+
           # Finally see how many machines that is.
           actual=$(tools/buildman/buildman ${BMANARGS} $built | grep "Total boards to build for each commit" | cut -d ' ' -f 8)
           echo We would build a total of $actual out of $total platforms this CI run
@@ -617,26 +656,64 @@ stages:
       # We split the world up in to 10 jobs as we can have at most 10
       # parallel jobs going on the free tier of Azure.
       matrix:
-        am33xx_kirkwood_ls1_mvebu_omap:
-          BUILDMAN: $(am33xx_kirkwood_ls1_mvebu_omap)
-        amlogic_bcm_boundary_engicam_siemens_technexion_oradex:
-          BUILDMAN: $(amlogic_bcm_boundary_engicam_siemens_technexion_oradex)
-        arm_nxp_minus_imx_and_at91:
-          BUILDMAN: $(arm_nxp_minus_imx_and_at91)
-        imx:
-          BUILDMAN: $(imx)
-        rk:
-          BUILDMAN: $(rk)
-        sunxi:
-          BUILDMAN: $(sunxi)
+        am33xx_kirkwood:
+          BUILDMAN: $(am33xx_kirkwood)
+        amd:
+          BUILDMAN: $(amd)
+        amlogic_bcm:
+          BUILDMAN: $(amlogic_bcm)
+        atmel:
+          BUILDMAN: $(atmel)
+        engicam_renesas:
+          BUILDMAN: $(engicam_renesas)
+        k3_32b:
+          BUILDMAN: $(k3_32b)
+        k3_64b:
+          BUILDMAN: $(k3_64b)
+        kirkwood_mvebu:
+          BUILDMAN: $(kirkwood_mvebu)
+        layerscape_vf610:
+          BUILDMAN: $(layerscape_vf610)
+        m68k_remaining_mx_xtensa:
+          BUILDMAN: $(m68k_remaining_mx_xtensa)
+        mips_x86:
+          BUILDMAN: $(mips_x86)
+        mx6:
+          BUILDMAN: $(mx6)
+        imx8:
+          BUILDMAN: $(imx8)
+        imx9_arc_nios2_socfpga:
+          BUILDMAN: $(imx9_arc_nios2_socfpga)
+        phytec_toradex:
+          BUILDMAN: $(phytec_toradex)
         powerpc:
           BUILDMAN: $(powerpc)
+        riscv_stm32:
+          BUILDMAN: $(riscv_stm32)
+        rk3399:
+          BUILDMAN: $(rk3399)
+        rk352x_rk358x:
+          BUILDMAN: $(rk352x_rk358x)
+        rk356x_rk357x:
+          BUILDMAN: $(rk356x_rk357x)
+        rk3xxx_rest:
+          BUILDMAN: $(rk3xxx_rest)
+        sandbox_tegra:
+          BUILDMAN: $(sandbox_tegra)
+        samsung_omap_mediatek:
+          BUILDMAN: $(samsung_omap_mediatek)
+        sun4i_5i:
+          BUILDMAN: $(sun4i_5i)
+        sun6i_sun7i:
+          BUILDMAN: $(sun6i_sun7i)
+        sun8i:
+          BUILDMAN: $(sun8i)
+        sunxi_rest:
+          BUILDMAN: $(sunxi_rest)
         arm_catch_all:
           BUILDMAN: $(arm_catch_all)
         aarch64_catch_all:
           BUILDMAN: $(aarch64_catch_all)
-        everything_but_arm_and_powerpc:
-          BUILDMAN: $(everything_but_arm_and_powerpc)
     steps:
       - script: |
           cat << EOF > build.sh
