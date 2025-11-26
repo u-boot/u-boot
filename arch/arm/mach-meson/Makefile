@@ -5,6 +5,9 @@
 obj-y += board-common.o sm.o board-info.o
 obj-$(CONFIG_MESON_GX) += board-gx.o
 ifeq ($(CONFIG_SPL_BUILD),y)
+obj-$(CONFIG_MESON_GXBB) += dram-gxbb.o
+obj-$(CONFIG_MESON_GXL) += dram-gxl.o
+obj-$(CONFIG_MESON_GX) += dram-gx.o
 obj-$(CONFIG_MESON_GXBB) += spl-gxbb.o
 obj-$(CONFIG_MESON_GXL) += spl-gxl.o
 obj-$(CONFIG_MESON_GX) += spl-gx.o

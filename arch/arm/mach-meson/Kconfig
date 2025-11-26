@@ -100,6 +100,76 @@ config SPL_SYS_MALLOC_F_LEN
 	default 0x2000
 
 choice
+	prompt "DRAM rank mode"
+	help
+	  Choose rank mode. This heavily depends on the board and you should
+	  leave the board default set if you don't know what this is.
+	  If you choose the wrong rank mode DRAM init in SPL may either fail
+	  or in rare occasions require multiple resets before it succeeds.
+
+config DRAM_ONE_RANK
+	bool "One rank"
+
+config DRAM_TWO_IDENTICAL_RANKS
+	bool "Two identical ranks"
+
+if MESON_GXBB
+config DRAM_TWO_DIFF_RANKS
+	bool "Two different ranks"
+endif
+
+if MESON_GXL
+config DRAM_16BIT_RANK
+	bool "One 16-bit rank"
+endif
+endchoice
+
+choice
+	prompt "DRAM memory type"
+	default DRAM_DDR3
+	help
+	  Select the DDR type according to your board design.  GXBB/S905
+	  currently only supports DDR3.
+
+config DRAM_DDR3
+	bool "DDR3"
+
+if MESON_GXL
+config DRAM_DDR4
+	bool "DDR4"
+endif
+endchoice
+
+config DRAM_DQS_CORR
+	bool "Enable DQS correction"
+
+config DRAM_CLK
+	int "DRAM clock"
+	default 912
+	help
+	  This option contains the DRAM clock to use in MHz.
+
+config DRAM_SIZE
+	int "DRAM size"
+	default 1024
+	help
+	  This option contains the DRAM size. Units in MB.
+
+choice
+	prompt "Enable DRAM 2T mode"
+	default DRAM_1T_MODE
+	help
+	  Choose whenever to use 2T mode or not.
+
+config DRAM_1T_MODE
+	bool "Use DRAM 1T mode"
+
+config DRAM_2T_MODE
+	bool "Use DRAM 2T mode"
+
+endchoice
+
+choice
 	prompt "Set VDDEE init voltage"
 	default SPL_MESON_GX_VDDEE_1000MV
 	help
