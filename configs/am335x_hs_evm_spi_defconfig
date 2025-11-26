@@ -1,8 +1,5 @@
 #include <configs/am335x_hs_evm_defconfig>
 
-CONFIG_ARM=y
-CONFIG_ARCH_OMAP2PLUS=y
-
 CONFIG_SPL_SPI_FLASH_SUPPORT=y
 CONFIG_SPL_SPI_SUPPORT=y
 
