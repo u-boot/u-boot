@@ -311,17 +311,19 @@ RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm && \
 
 # Build trace-cmd
 RUN mkdir /tmp/trace && \
-    git clone https://git.kernel.org/pub/scm/libs/libtrace/libtraceevent.git /tmp/trace/libtraceevent && \
+    git clone --depth=1 https://git.kernel.org/pub/scm/libs/libtrace/libtraceevent.git /tmp/trace/libtraceevent \
+	-b libtraceevent-1.8.6 && \
     cd /tmp/trace/libtraceevent && \
-    make -j$(nproc) && \
+    make && \
     sudo make install && \
-    git clone https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git /tmp/trace/libtracefs && \
+    git clone --depth=1 https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git /tmp/trace/libtracefs \
+	-b libtracefs-1.8.2 && \
     cd /tmp/trace/libtracefs && \
-    make -j$(nproc) && \
+    make && \
     sudo make install && \
     git clone https://github.com/rostedt/trace-cmd.git /tmp/trace/trace-cmd && \
     cd /tmp/trace/trace-cmd && \
-    make -j$(nproc) && \
+    make && \
     sudo make install && \
     rm -rf /tmp/trace
 
