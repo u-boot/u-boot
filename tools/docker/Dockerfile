@@ -141,6 +141,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	sudo \
 	swig \
 	texinfo \
+	trace-cmd \
 	util-linux \
 	uuid-dev \
 	vboot-kernel-utils \
@@ -315,22 +316,6 @@ RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm && \
 	make -j$(nproc) && \
 	make install && \
 	rm -rf /tmp/swtpm
-
-# Build trace-cmd
-RUN mkdir /tmp/trace && \
-    git clone https://git.kernel.org/pub/scm/libs/libtrace/libtraceevent.git /tmp/trace/libtraceevent && \
-    cd /tmp/trace/libtraceevent && \
-    make -j$(nproc) && \
-    sudo make install && \
-    git clone https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git /tmp/trace/libtracefs && \
-    cd /tmp/trace/libtracefs && \
-    make -j$(nproc) && \
-    sudo make install && \
-    git clone https://github.com/rostedt/trace-cmd.git /tmp/trace/trace-cmd && \
-    cd /tmp/trace/trace-cmd && \
-    make -j$(nproc) && \
-    sudo make install && \
-    rm -rf /tmp/trace
 
 # Build coreboot
 RUN wget -O - https://coreboot.org/releases/coreboot-25.03.tar.xz | tar -C /tmp -xJ && \
