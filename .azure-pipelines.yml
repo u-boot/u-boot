@@ -126,13 +126,17 @@ stages:
     displayName: 'Run binman, buildman, dtoc, Kconfig and patman testsuites'
     pool:
       vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
     steps:
       - script: |
-          cat << "EOF" > build.sh
-          cd $(work_dir)
+          # Copy things from /home/uboot to the Azure container user
+          sudo cp -a /home/uboot/.buildman /home/uboot/.cache ~
+          sudo chown -R 1001 ~/.cache ~/.buildman
+          # Configure git
           git config --global user.name "Azure Pipelines"
           git config --global user.email bmeng.cn@gmail.com
-          git config --global --add safe.directory $(work_dir)
           export USER=azure
           python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
@@ -155,11 +159,6 @@ stages:
           ./tools/dtoc/dtoc -t
           ./tools/patman/patman test
           make O=${UBOOT_TRAVIS_BUILD_DIR} testconfig
-          EOF
-          cat build.sh
-          # We cannot use "container" like other jobs above, as buildman
-          # seems to hang forever with pre-configured "container" environment
-          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
 
   - job: pylint
     displayName: Check for any pylint regressions
