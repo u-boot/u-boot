@@ -5,3 +5,23 @@
  */
 
 #include "meson-gx-u-boot.dtsi"
+
+#if defined(CONFIG_BINMAN)
+/* GXL-specific binman configuration */
+&binman {
+	u-boot-amlogic {
+		mkimage {
+			args = "-n", "gxl", "-T", "amlimage";
+		};
+
+		fit: fit {
+			images {
+				atf {
+					load = <0x5100000>;
+					entry = <0x5100000>;
+				};
+			};
+		};
+	};
+};
+#endif
