@@ -270,8 +270,6 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	/* Reset ospi flash device */
 	return cadence_qspi_flash_reset(bus);
-
-	return 0;
 }
 
 static int cadence_spi_remove(struct udevice *dev)
