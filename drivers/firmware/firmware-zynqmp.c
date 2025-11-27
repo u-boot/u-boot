@@ -248,6 +248,7 @@ u32 zynqmp_pm_get_bootmode_reg(void)
 	return ret_payload[1];
 }
 
+#if defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL2)
 u32 zynqmp_pm_get_pmc_multi_boot_reg(void)
 {
 	int ret;
@@ -271,6 +272,7 @@ u32 zynqmp_pm_get_pmc_multi_boot_reg(void)
 
 	return ret_payload[1];
 }
+#endif
 
 int zynqmp_pm_feature(const u32 api_id)
 {

@@ -21,6 +21,7 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <versalpl.h>
+#include <zynqmp_firmware.h>
 #include "../../xilinx/common/board.h"
 
 #include <linux/bitfield.h>
@@ -180,6 +181,23 @@ static u8 versal2_get_bootmode(void)
 	return bootmode;
 }
 
+static u32 versal2_multi_boot(void)
+{
+	u8 bootmode = versal2_get_bootmode();
+	u32 reg = 0;
+
+	/* Mostly workaround for QEMU CI pipeline */
+	if (bootmode == JTAG_MODE)
+		return 0;
+
+	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE) && current_el() != 3)
+		reg = zynqmp_pm_get_pmc_multi_boot_reg();
+	else
+		reg = readl(PMC_MULTI_BOOT_REG);
+
+	return reg & PMC_MULTI_BOOT_MASK;
+}
+
 static int boot_targets_setup(void)
 {
 	u8 bootmode;
@@ -319,6 +337,7 @@ static int boot_targets_setup(void)
 int board_late_init(void)
 {
 	int ret;
+	u32 multiboot;
 
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
 		debug("Saved variables - Skipping\n");
@@ -327,6 +346,9 @@ int board_late_init(void)
 
 	if (!IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG))
 		return 0;
+
+	multiboot = versal2_multi_boot();
+	env_set_hex("multiboot", multiboot);
 
 	if (IS_ENABLED(CONFIG_DISTRO_DEFAULTS)) {
 		ret = boot_targets_setup();
