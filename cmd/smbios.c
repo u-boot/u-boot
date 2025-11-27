@@ -348,6 +348,8 @@ static void smbios_print_type0(struct smbios_type0 *table)
 	printf("\tBIOS ROM Size: 0x%02x\n", table->bios_rom_size);
 	printf("\tBIOS Characteristics: 0x%016llx\n",
 	       table->bios_characteristics);
+	if (table->hdr.length < SMBIOS_TYPE0_LENGTH_V24)
+		return;
 	printf("\tBIOS Characteristics Extension Byte 1: 0x%02x\n",
 	       table->bios_characteristics_ext1);
 	printf("\tBIOS Characteristics Extension Byte 2: 0x%02x\n",
@@ -360,6 +362,8 @@ static void smbios_print_type0(struct smbios_type0 *table)
 	       table->ec_major_release);
 	printf("\tEmbedded Controller Firmware Minor Release: 0x%02x\n",
 	       table->ec_minor_release);
+	if (table->hdr.length < SMBIOS_TYPE0_LENGTH_V31)
+		return;
 	printf("\tExtended BIOS ROM Size: 0x%04x\n",
 	       table->extended_bios_rom_size);
 }
@@ -371,17 +375,16 @@ static void smbios_print_type1(struct smbios_type1 *table)
 	smbios_print_str("Product Name", table, table->product_name);
 	smbios_print_str("Version", table, table->version);
 	smbios_print_str("Serial Number", table, table->serial_number);
-	if (table->hdr.length >= SMBIOS_TYPE1_LENGTH_V21) {
-		printf("\tUUID: %pUl\n", table->uuid);
-		smbios_print_lookup_str(wakeup_type_strings,
-					table->wakeup_type,
-					ARRAY_SIZE(wakeup_type_strings),
-					"Wake-up Type");
-	}
-	if (table->hdr.length >= SMBIOS_TYPE1_LENGTH_V24) {
-		smbios_print_str("SKU Number", table, table->sku_number);
-		smbios_print_str("Family", table, table->family);
-	}
+	if (table->hdr.length < SMBIOS_TYPE1_LENGTH_V21)
+		return;
+	printf("\tUUID: %pUl\n", table->uuid);
+	smbios_print_lookup_str(wakeup_type_strings, table->wakeup_type,
+				ARRAY_SIZE(wakeup_type_strings),
+				"Wake-up Type");
+	if (table->hdr.length < SMBIOS_TYPE1_LENGTH_V24)
+		return;
+	smbios_print_str("SKU Number", table, table->sku_number);
+	smbios_print_str("Family", table, table->family);
 }
 
 static void smbios_print_type2(struct smbios_type2 *table)
@@ -501,21 +504,31 @@ static void smbios_print_type4(struct smbios_type4 *table)
 	printf("\tL1 Cache Handle: 0x%04x\n", table->l1_cache_handle);
 	printf("\tL2 Cache Handle: 0x%04x\n", table->l2_cache_handle);
 	printf("\tL3 Cache Handle: 0x%04x\n", table->l3_cache_handle);
+	if (table->hdr.length < SMBIOS_TYPE4_LENGTH_V23)
+		return;
 	smbios_print_str("Serial Number", table, table->serial_number);
 	smbios_print_str("Asset Tag", table, table->asset_tag);
 	smbios_print_str("Part Number", table, table->part_number);
+	if (table->hdr.length < SMBIOS_TYPE4_LENGTH_V25)
+		return;
 	printf("\tCore Count: 0x%02x\n", table->core_count);
 	printf("\tCore Enabled: 0x%02x\n", table->core_enabled);
 	printf("\tThread Count: 0x%02x\n", table->thread_count);
 	printf("\tProcessor Characteristics: 0x%04x\n",
 	       table->processor_characteristics);
+	if (table->hdr.length < SMBIOS_TYPE4_LENGTH_V26)
+		return;
 	smbios_print_lookup_str(processor_family_strings,
 				table->processor_family2,
 				ARRAY_SIZE(processor_family_strings),
 				"Processor Family 2");
+	if (table->hdr.length < SMBIOS_TYPE4_LENGTH_V30)
+		return;
 	printf("\tCore Count 2: 0x%04x\n", table->core_count2);
 	printf("\tCore Enabled 2: 0x%04x\n", table->core_enabled2);
 	printf("\tThread Count 2: 0x%04x\n", table->thread_count2);
+	if (table->hdr.length < SMBIOS_TYPE4_LENGTH_V36)
+		return;
 	printf("\tThread Enabled: 0x%04x\n", table->thread_enabled);
 }
 
@@ -529,6 +542,8 @@ static void smbios_print_type7(struct smbios_type7 *table)
 	printf("\tInstalled Size: 0x%04x\n", table->inst_size.data);
 	printf("\tSupported SRAM Type: 0x%04x\n", table->supp_sram_type.data);
 	printf("\tCurrent SRAM Type: 0x%04x\n", table->curr_sram_type.data);
+	if (table->hdr.length < SMBIOS_TYPE7_LENGTH_V21)
+		return;
 	printf("\tCache Speed: 0x%02x\n", table->speed);
 	smbios_print_lookup_str(err_corr_type_strings,
 				table->err_corr_type,
@@ -542,6 +557,8 @@ static void smbios_print_type7(struct smbios_type7 *table)
 				table->associativity,
 				ARRAY_SIZE(associativity_strings),
 				"Associativity");
+	if (table->hdr.length < SMBIOS_TYPE7_LENGTH_V31)
+		return;
 	printf("\tMaximum Cache Size 2: 0x%08x\n", table->max_size2.data);
 	printf("\tInstalled Cache Size 2: 0x%08x\n", table->inst_size2.data);
 }
@@ -574,8 +591,12 @@ static void smbios_print_type9(struct smbios_type9 *table)
 	printf("\tSlot ID: 0x%04x\n", table->slot_id);
 	printf("\tSlot Characteristics 1: 0x%04x\n",
 	       table->slot_characteristics_1);
+	if (table->hdr.length < SMBIOS_TYPE9_LENGTH_V21)
+		return;
 	printf("\tSlot Characteristics 2: 0x%04x\n",
 	       table->slot_characteristics_2);
+	if (table->hdr.length < SMBIOS_TYPE9_LENGTH_V26)
+		return;
 	printf("\tSegment Group Number (Base): 0x%04x\n",
 	       table->segment_group_number);
 	printf("\tBus Number (Base): 0x%04x\n", table->bus_number);
@@ -611,6 +632,8 @@ static void smbios_print_type9(struct smbios_type9 *table)
 static void smbios_print_type16(struct smbios_type16 *table)
 {
 	printf("Physical Memory Array:\n");
+	if (table->hdr.length < SMBIOS_TYPE16_LENGTH_V21)
+		return;
 	smbios_print_lookup_str(ma_location_strings, table->location,
 				ARRAY_SIZE(ma_location_strings), "Location");
 	smbios_print_lookup_str(ma_use_strings, table->use,
@@ -622,12 +645,16 @@ static void smbios_print_type16(struct smbios_type16 *table)
 	printf("\tMemory Error Information Handle: 0x%04x\n",
 	       table->mem_err_info_hdl);
 	printf("\tNumber of Memory Devices: 0x%04x\n", table->num_of_mem_dev);
+	if (table->hdr.length < SMBIOS_TYPE16_LENGTH_V27)
+		return;
 	printf("\tExtended Maximum Capacity: 0x%016llx\n", table->ext_max_cap);
 }
 
 static void smbios_print_type17(struct smbios_type17 *table)
 {
 	printf("Memory Device:\n");
+	if (table->hdr.length < SMBIOS_TYPE17_LENGTH_V21)
+		return;
 	printf("\tPhysical Memory Array Handle: 0x%04x\n",
 	       table->phy_mem_array_hdl);
 	printf("\tMemory Error Information Handle: 0x%04x\n",
@@ -644,17 +671,27 @@ static void smbios_print_type17(struct smbios_type17 *table)
 	smbios_print_lookup_str(md_type_strings, table->mem_type,
 				ARRAY_SIZE(md_type_strings), "Memory Type");
 	printf("\tType Detail: 0x%04x\n", table->type_detail);
+	if (table->hdr.length < SMBIOS_TYPE17_LENGTH_V23)
+		return;
 	printf("\tSpeed: 0x%04x\n", table->speed);
 	smbios_print_str("Manufacturer", table, table->manufacturer);
 	smbios_print_str("Serial Number", table, table->serial_number);
 	smbios_print_str("Asset Tag", table, table->asset_tag);
 	smbios_print_str("Part Number", table, table->part_number);
+	if (table->hdr.length < SMBIOS_TYPE17_LENGTH_V26)
+		return;
 	printf("\tAttributes: 0x%04x\n", table->attributes);
+	if (table->hdr.length < SMBIOS_TYPE17_LENGTH_V27)
+		return;
 	printf("\tExtended Size: 0x%08x\n", table->ext_size);
 	printf("\tConfigured Memory Speed: 0x%04x\n", table->config_mem_speed);
+	if (table->hdr.length < SMBIOS_TYPE17_LENGTH_V28)
+		return;
 	printf("\tMinimum voltage: 0x%04x\n", table->min_voltage);
 	printf("\tMaximum voltage: 0x%04x\n", table->max_voltage);
 	printf("\tConfigured voltage: 0x%04x\n", table->config_voltage);
+	if (table->hdr.length < SMBIOS_TYPE17_LENGTH_V32)
+		return;
 	smbios_print_lookup_str(md_tech_strings, table->mem_tech,
 				ARRAY_SIZE(md_tech_strings),
 				"Memory Technology");
@@ -671,6 +708,8 @@ static void smbios_print_type17(struct smbios_type17 *table)
 	printf("\tVolatile Size: 0x%016llx\n", table->volatile_size);
 	printf("\tCache Size: 0x%016llx\n", table->cache_size);
 	printf("\tLogical Size: 0x%016llx\n", table->logical_size);
+	if (table->hdr.length < SMBIOS_TYPE17_LENGTH_V33)
+		return;
 	printf("\tExtended Speed: 0x%04x\n", table->ext_speed);
 	printf("\tExtended Configured Memory Speed: 0x%04x\n",
 	       table->ext_config_mem_speed);
@@ -683,10 +722,14 @@ static void smbios_print_type17(struct smbios_type17 *table)
 static void smbios_print_type19(struct smbios_type19 *table)
 {
 	printf("Memory Array Mapped Address:\n");
+	if (table->hdr.length < SMBIOS_TYPE19_LENGTH_V21)
+		return;
 	printf("\tStarting Address: 0x%08x\n", table->start_addr);
 	printf("\tEnding Address: 0x%08x\n", table->end_addr);
 	printf("\tMemory Array Handle: 0x%04x\n", table->mem_array_hdl);
 	printf("\tPartition Width: 0x%04x\n", table->partition_wid);
+	if (table->hdr.length < SMBIOS_TYPE19_LENGTH_V27)
+		return;
 	printf("\tExtended Starting Address: 0x%016llx\n", table->ext_start_addr);
 	printf("\tExtended Ending Address: 0x%016llx\n", table->ext_end_addr);
 }
