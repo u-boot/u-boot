@@ -7,6 +7,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CFG_SYS_NS16550_CLK	    14700000
+
 #define CFG_SYS_SDRAM_BASE         0x0
 #define CFG_SYS_NS16550_IER        0x40 /* UART Unit Enable */
 

@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright (C) 2023-2026 Spacemit, Inc
+ * Copyright (C) 2025-2026 RISCStar Ltd.
+ */
+
+/dts-v1/;
+#include "k1.dtsi"
+#include "binman.dtsi"
+
+/ {
+	model = "spacemit k1 spl";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&soc {
+	bootph-all;
+	serial@d4017000 {
+		status = "okay";
+		bootph-pre-ram;
+	};
+};
