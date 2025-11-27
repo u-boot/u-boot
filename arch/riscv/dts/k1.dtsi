@@ -318,7 +318,7 @@
 		};
 	};
 
-	soc {
+	soc: soc {
 		compatible = "simple-bus";
 		interrupt-parent = <&plic>;
 		#address-cells = <2>;
