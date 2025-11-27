@@ -1249,7 +1249,7 @@ static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 
 	reg = xhci_readl(&hccr->cr_hcsparams1);
 	ctrl->hub_desc.bNbrPorts = HCS_MAX_PORTS(reg);
-	printf("Register %x NbrPorts %d\n", reg, ctrl->hub_desc.bNbrPorts);
+	debug("Register %x NbrPorts %d\n", reg, ctrl->hub_desc.bNbrPorts);
 
 	/* Port Indicators */
 	reg = xhci_readl(&hccr->cr_hccparams);
