@@ -45,20 +45,6 @@
 		clock-frequency = <200000000>;
 		bootph-pre-ram;
 	};
-
-	vtt_supply: vtt-supply {
-		compatible = "regulator-fixed";
-		regulator-name = "vtt";
-		pinctrl-names = "default";
-		pinctrl-0 = <&ddr_vtt_pins_default>;
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-		regulator-always-on;
-		regulator-boot-on;
-		bootph-pre-ram;
-	};
 };
 
 &cbass_main {
@@ -70,10 +56,6 @@
 	};
 };
 
-&cbass_mcu {
-	bootph-pre-ram;
-};
-
 &dmsc {
 	mboxes= <&secure_proxy_main 0>,
 		<&secure_proxy_main 1>,
@@ -81,24 +63,6 @@
 	mbox-names = "rx", "tx", "notify";
 	ti,host-id = <35>;
 	ti,secure-host;
-};
-
-&main_esm {
-	bootph-pre-ram;
-};
-
-&main_gpio0 {
-	bootph-pre-ram;
-};
-
-&main_pmx0 {
-	bootph-pre-ram;
-	ddr_vtt_pins_default: ddr-vtt-default-pins {
-		bootph-pre-ram;
-		pinctrl-single,pins = <
-			AM64X_IOPAD(0x0038, PIN_OUTPUT_PULLUP, 7) /* (L18) OSPI0_CSN3.GPIO0_14 */
-		>;
-	};
 };
 
 /* timer init is called as part of rproc_start() while
@@ -124,14 +88,6 @@
 	/delete-property/ power-domains;
 	/delete-property/ clocks;
 	/delete-property/ clock-names;
-};
-
-&mcu_esm {
-	bootph-pre-ram;
-};
-
-&memorycontroller {
-	vtt-supply = <&vtt_supply>;
 };
 
 &ospi0 {
