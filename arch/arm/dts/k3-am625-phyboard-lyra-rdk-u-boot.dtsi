@@ -19,33 +19,13 @@
 		mmc0 = &sdhci0;
 		mmc1 = &sdhci1;
 	};
-
-	memory@80000000 {
-		bootph-all;
-	};
-};
-
-&cpsw3g {
-	bootph-all;
-};
-
-&cpsw_port1 {
-	bootph-all;
 };
 
 &cpsw_port2 {
 	status = "disabled";
 };
 
-&cpsw3g_phy1 {
-	bootph-all;
-};
-
 &phy_gmii_sel {
-	bootph-all;
-};
-
-&fss {
 	bootph-all;
 };
 
@@ -61,38 +41,6 @@
 	      <0x00 0x484c2000 0x00 0x2000>;
 	reg-names = "gcfg", "bchanrt", "rchanrt", "tchanrt",
 		    "ringrt" , "cfg", "tchan", "rchan";
-};
-
-&main_gpio0 {
-	bootph-all;
-};
-
-&main_mdio1_pins_default {
-	bootph-all;
-};
-
-&main_i2c0 {
-	bootph-all;
-};
-
-&main_i2c0_pins_default {
-	bootph-all;
-};
-
-&main_mmc0_pins_default {
-	bootph-all;
-};
-
-&main_mmc1_pins_default {
-	bootph-all;
-};
-
-&main_pktdma {
-	bootph-all;
-};
-
-&main_rgmii1_pins_default {
-	bootph-all;
 };
 
 &main_rti1 {
@@ -111,27 +59,8 @@
 	status = "disabled";
 };
 
-&main_uart0 {
-	bootph-all;
-};
-
-&main_uart0_pins_default {
-	bootph-all;
-};
-
-&main_uart1 {
-	bootph-all;
-};
-
-&main_uart1_pins_default {
-	bootph-all;
-};
-
 &ospi0 {
-	bootph-all;
-
 	flash@0 {
-		bootph-all;
 		partitions {
 			compatible = "fixed-partitions";
 			#address-cells = <1>;
@@ -161,40 +90,11 @@
 	};
 };
 
-&ospi0_pins_default {
-	bootph-all;
-};
-
-&sdhci0 {
-	bootph-all;
-};
-
-&sdhci1 {
-	bootph-all;
-};
-
-&usbss0 {
-	bootph-all;
-};
-
 &usb0 {
 	dr_mode = "peripheral";
-	bootph-all;
 };
 
 &usb0_phy_ctrl {
-	bootph-all;
-};
-
-&vcc_3v3_mmc {
-	bootph-all;
-};
-
-&vcc_5v0_som {
-	bootph-all;
-};
-
-&vddshv5_sdio {
 	bootph-all;
 };
 

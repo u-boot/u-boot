@@ -93,14 +93,6 @@
 	ti,sci = <&dm_tifs>;
 };
 
-/* Main UART1 is used for TIFS firmware logs */
-&main_uart1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart1_pins_default>;
-	status = "okay";
-	bootph-pre-ram;
-};
-
 &mcu_pmx0 {
 	wkup_uart0_pins_default: wkup-uart0-pins-default {
 		pinctrl-single,pins = <
