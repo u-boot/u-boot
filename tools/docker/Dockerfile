@@ -153,7 +153,7 @@ RUN git clone https://https.git.savannah.gnu.org/git/grub.git /tmp/grub && \
 	git checkout grub-2.12 && \
 	git config --global user.name "GitLab CI Runner" && \
 	git config --global user.email trini@konsulko.com && \
-	./bootstrap && \
+	GNULIB_URL=https://https.git.savannah.gnu.org/git/gnulib.git ./bootstrap && \
 	mkdir -p /opt/grub && \
 	./configure --target=aarch64 --with-platform=efi \
 	CC=gcc \
