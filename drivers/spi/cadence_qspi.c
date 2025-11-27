@@ -20,7 +20,6 @@
 #include <linux/time.h>
 #include <zynqmp_firmware.h>
 #include "cadence_qspi.h"
-#include <dt-bindings/power/xlnx-versal-power.h>
 
 #define CQSPI_STIG_READ			0
 #define CQSPI_STIG_WRITE		1
