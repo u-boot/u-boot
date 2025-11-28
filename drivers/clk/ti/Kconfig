@@ -10,6 +10,13 @@ config CLK_TI_OMAP2PLUS
 	help
 	  Common clock functions used in some TI clock drivers.
 
+config CLK_TI_OMAP4_CM
+	bool "TI OMAP4 clock manager driver"
+	depends on CLK && ARCH_OMAP2PLUS
+	default y
+	help
+	  This enables the OMAP4 clock manager (CM) stub driver.
+
 config CLK_TI_AM3_DPLL
 	bool "TI AM33XX Digital Phase-Locked Loop (DPLL) clock drivers"
 	depends on CLK && OF_CONTROL && ARCH_OMAP2PLUS
