@@ -132,7 +132,7 @@
 
 			/* TCU */
 			noc_fw_tcu_tcu_scr@ffd21400 {
-				reg = <0xffd21400 0x00000004>;
+				reg = <0xffd21400 0x00000100>;
 				intel,offset-settings =
 					<0x00000000 0x01010001 0x01010001>;
 				bootph-all;
