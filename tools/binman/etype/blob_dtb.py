@@ -8,6 +8,8 @@
 from binman.entry import Entry
 from binman.etype.blob import Entry_blob
 from dtoc import fdt_util
+import errno
+import os
 import struct
 
 # This is imported if needed
@@ -39,9 +41,16 @@ class Entry_blob_dtb(Entry_blob):
                        (self._node.name, self.prepend))
 
     def ObtainContents(self, fake_size=0):
-        """Get the device-tree from the list held by the 'state' module"""
+        """Get the device-tree from the list held by the 'state' module
+
+        Raises:
+            FileNotFoundError: If the device-tree blob is not found.
+        """
         self._filename = self.GetDefaultFilename()
         self._pathname, _ = self.FdtContents(self.GetFdtEtype())
+        if self._pathname is None:
+            raise FileNotFoundError(errno.ENOENT, # pragma: no cover
+                                    os.strerror(errno.ENOENT), self._filename)
         return super().ReadBlobContents()
 
     def ProcessContents(self):
