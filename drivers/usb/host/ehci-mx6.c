@@ -160,25 +160,30 @@ static void __maybe_unused
 usb_power_config_mx7(void *usbnc) { }
 #endif
 
-#if defined(CONFIG_MX7ULP) && !defined(CONFIG_PHY)
+#if (defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8ULP)) && !defined(CONFIG_PHY)
 static void usb_power_config_mx7ulp(struct usbphy_regs __iomem *usbphy)
 {
-	if (!is_mx7ulp())
+	if (!(is_mx7ulp() || is_imx8ulp()))
 		return;
 
 	writel(ANADIG_USB2_CHRG_DETECT_EN_B |
 	       ANADIG_USB2_CHRG_DETECT_CHK_CHRG_B,
 	       &usbphy->usb1_chrg_detect);
 
+#if IS_ENABLED(CONFIG_IMX8ULP)
+	enable_usb_pll((ulong)usbphy);
+#else
 	scg_enable_usb_pll(true);
+#endif
 }
 #else
 static void __maybe_unused
 usb_power_config_mx7ulp(void *usbphy) { }
 #endif
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMXRT)
-static const unsigned phy_bases[] = {
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMXRT) || \
+    defined(CONFIG_IMX8ULP)
+static const ulong phy_bases[] = {
 	USB_PHY0_BASE_ADDR,
 #if defined(USB_PHY1_BASE_ADDR)
 	USB_PHY1_BASE_ADDR,
@@ -374,6 +379,11 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		(struct usbphy_regs __iomem *)USB_PHY0_BASE_ADDR;
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
 			(0x10000 * index) + USBNC_OFFSET);
+#elif defined(CONFIG_IMX8ULP)
+	u32 controller_spacing = 0x20000;
+	struct usbphy_regs __iomem *usbphy = (struct usbphy_regs __iomem *)(ulong)phy_bases[index];
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+				    (controller_spacing * index) + USBNC_OFFSET);
 #endif
 	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
 		(controller_spacing * index));
@@ -404,7 +414,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	usb_power_config_mx6(anatop, index);
 #elif defined (CONFIG_MX7)
 	usb_power_config_mx7(usbnc);
-#elif defined (CONFIG_MX7ULP)
+#elif defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8ULP)
 	usb_power_config_mx7ulp(usbphy);
 #endif
 
@@ -544,12 +554,15 @@ static int ehci_usb_phy_mode(struct udevice *dev)
 	 * About fsl,usbphy, Refer to
 	 * Documentation/devicetree/bindings/usb/ci-hdrc-usb2.txt.
 	 */
-	if (is_mx6() || is_mx7ulp() || is_imxrt()) {
+	if (is_mx6() || is_mx7ulp() || is_imxrt() || is_imx8ulp()) {
 		phy_off = fdtdec_lookup_phandle(blob,
 						offset,
 						"fsl,usbphy");
-		if (phy_off < 0)
-			return -EINVAL;
+		if (phy_off < 0) {
+			phy_off = fdtdec_lookup_phandle(blob, offset, "phys");
+			if (phy_off < 0)
+				return -EINVAL;
+		}
 
 		addr = (void __iomem *)fdtdec_get_addr_size_auto_noparent(blob, phy_off,
 									  "reg", 0, NULL, false);
@@ -727,7 +740,8 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	usb_oc_config(priv->misc_addr, priv->portnr);
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMXRT)
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMXRT) || \
+    defined(CONFIG_IMX8ULP)
 	usb_internal_phy_clock_gate(priv->phy_addr, 1);
 	usb_phy_enable(ehci, priv->phy_addr);
 #endif
