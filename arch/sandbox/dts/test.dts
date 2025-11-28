@@ -947,8 +947,8 @@
 			sandbox,emul = <&emul1>;
 		};
 
-		i2c_emul: emul {
-			reg = <0xff>;
+		i2c_emul: emul@7f {
+			reg = <0x7f>;
 			compatible = "sandbox,i2c-emul-parent";
 			emul_eeprom: emul-eeprom {
 				compatible = "sandbox,i2c-eeprom";
@@ -963,7 +963,7 @@
 			};
 		};
 
-		sandbox_pmic: sandbox_pmic {
+		sandbox_pmic: sandbox_pmic@40 {
 			reg = <0x40>;
 			sandbox,emul = <&emul_pmic0>;
 		};
@@ -1842,7 +1842,7 @@
 		pinctrl-0 = <&pinctrl_gpios>, <&pinctrl_i2s>;
 		pinctrl-1 = <&pinctrl_spi>, <&pinctrl_i2c>;
 
-		pinctrl_gpios: gpios {
+		pinctrl_gpios: pins-gpios {
 			gpio0 {
 				pins = "P5";
 				function = "GPIO";
@@ -1866,7 +1866,7 @@
 			};
 		};
 
-		pinctrl_i2c: i2c {
+		pinctrl_i2c: pins-i2c {
 			groups {
 				groups = "I2C_UART";
 				function = "I2C";
@@ -1878,12 +1878,12 @@
 			};
 		};
 
-		pinctrl_i2s: i2s {
+		pinctrl_i2s: pins-i2s {
 			groups = "SPI_I2S";
 			function = "I2S";
 		};
 
-		pinctrl_spi: spi {
+		pinctrl_spi: pins-spi {
 			groups = "SPI_I2S";
 			function = "SPI";
 
