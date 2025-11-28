@@ -101,4 +101,12 @@
 	description = "k3-am62d2-evm";
 };
 
+&dm_falcon {
+	filename = "ti-dm/am62dxx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+};
+
+&dm {
+	filename = "ti-dm/am62dxx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+};
+
 #endif
