@@ -26,6 +26,16 @@
 #define BCM2835_GPIO_FSEL_BANK(gpio)	(gpio / 10)
 #define BCM2835_GPIO_FSEL_SHIFT(gpio)	((gpio % 10) * 3)
 
+/* BCM2835 GPIO Pull-up/down register offsets */
+#define BCM2835_GPPUD		37
+#define BCM2835_GPPUDCLK0	38
+
+/* BCM2711 GPIO Pull-up/down control */
+#define BCM2711_GPPUD_CNTRL_REG0	57
+#define BCM2711_PUD_REG_OFFSET(gpio)	((gpio) / 16)
+#define BCM2711_PUD_REG_SHIFT(gpio)	(((gpio) % 16) * 2)
+#define BCM2711_PUD_2711_MASK		0x3
+
 struct bcm2835_gpio_regs {
 	u32 gpfsel[6];
 	u32 reserved1;
