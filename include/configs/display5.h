@@ -175,7 +175,6 @@
 	"fdtaddr=0x12800000\0" \
 	"console=ttymxc4,115200 quiet cma=256M\0" \
 	"fdtfile=imx6q-display5.dtb\0" \
-	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"kernel_file=fitImage\0" \
 	"fitImg_fw_sz=0x2200\0" \

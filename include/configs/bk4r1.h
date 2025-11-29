@@ -57,7 +57,6 @@
 /* Extra env settings (including the target-defined ones if any) */
 #define CFG_EXTRA_ENV_SETTINGS \
 	BK4_EXTRA_ENV_SETTINGS \
-	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"blimg_file=u-boot.vyb\0" \
 	"blimg_addr=0x81000000\0" \

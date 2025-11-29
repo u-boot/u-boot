@@ -1,0 +1,153 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright (C) 2024 Kontron Electronics GmbH
+ */
+
+#include "imx93-u-boot.dtsi"
+
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog3>;
+		bootph-all;
+	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+};
+
+&A55_0 {
+	clocks = <&clk IMX93_CLK_ARM_PLL>;
+};
+
+&A55_1 {
+	clocks = <&clk IMX93_CLK_ARM_PLL>;
+};
+
+&{/soc@0} {
+	bootph-all;
+};
+
+&reg_vdd_carrier {
+	bootph-all;
+};
+
+&pinctrl_reg_vdd_carrier {
+	bootph-all;
+};
+
+&aips1 {
+	bootph-all;
+};
+
+&aips2 {
+	bootph-all;
+};
+
+&aips3 {
+	bootph-all;
+};
+
+&iomuxc {
+	bootph-all;
+};
+
+&pinctrl_usdhc2_gpio {
+	bootph-all;
+};
+
+&pinctrl_usdhc2 {
+	bootph-all;
+};
+
+&gpio1 {
+	bootph-all;
+};
+
+&gpio2 {
+	bootph-all;
+};
+
+&gpio3 {
+	bootph-all;
+};
+
+&gpio4 {
+	bootph-all;
+};
+
+&lpuart1 {
+	bootph-all;
+};
+
+&pinctrl_lpuart1 {
+	bootph-all;
+};
+
+&usdhc1 {
+	bootph-all;
+};
+
+&usdhc2 {
+	bootph-all;
+	fsl,signal-voltage-switch-extra-delay-ms = <8>;
+};
+
+&lpi2c1 {
+	bootph-all;
+};
+
+/* Enable I2C2 to probe for a touch controller on LVDS connector */
+&lpi2c2 {
+	bootph-all;
+	status = "okay";
+};
+
+&pca9451 {
+	bootph-all;
+};
+
+&{/soc@0/bus@44000000/i2c@44340000/pmic@25/regulators} {
+	bootph-all;
+};
+
+&pinctrl_lpi2c1 {
+	bootph-all;
+};
+
+&s4muap {
+	bootph-all;
+	status = "okay";
+};
+
+&clk {
+	bootph-all;
+};
+
+&osc_32k {
+	bootph-all;
+};
+
+&osc_24m {
+	bootph-all;
+};
+
+&clk_ext1 {
+	bootph-all;
+};
+
+&wdog3 {
+	bootph-all;
+};
+
+&reg_vdd_3v3 {
+	bootph-all;
+};
+
+&reg_nvcc_sd {
+	bootph-all;
+};

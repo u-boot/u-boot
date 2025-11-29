@@ -24,7 +24,6 @@
 	"scriptaddr=0x14000000\0"	\
 	"fdt_addr_r=0x13000000\0"	\
 	"kernel_addr_r=0x10008000\0"	\
-	"fdt_high=0xffffffff\0"		\
 	"dfu_alt_info_spl=spl raw 0x2 0x400\0" \
 	"dfu_alt_info_uboot=u-boot raw 0x8a 0x11400\0" \
 	BOOTENV

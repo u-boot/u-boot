@@ -1,6 +1,9 @@
-# SPDX-License-Identifier: GPL-2.0+
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
-# Copyright (C) 2014, Markus Niebel <Markus.Niebel@tq-group.com>
+# Copyright (c) 2014 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+# D-82229 Seefeld, Germany.
+# Author: Markus Niebel
+#
 
 obj-y  := tqma6.o
 

@@ -30,7 +30,6 @@
 	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"image=uImage\0" \
 	"fit_image=fit.itb\0" \
-	"fdt_high=0xffffffff\0" \
 	"fdt_addr=" FDT_ADDR "\0" \
 	"boot_fdt=try\0" \
 	"mmcpart=1\0" \
