@@ -131,7 +131,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	python3-tomli \
 	python3-venv \
 	rpm2cpio \
+	rsync \
 	sbsigntool \
+	snmp \
 	socat \
 	softhsm2 \
 	sparse \
@@ -276,6 +278,10 @@ RUN git clone --depth=1 https://git.trustedfirmware.org/TF-A/trusted-firmware-a.
 	mkdir -p /opt/tf-a/qemu_arm64_fw_handoff_tfa_optee && \
 	cp build/qemu/release/fip.bin build/qemu/release/bl1.bin \
 		/opt/tf-a/qemu_arm64_fw_handoff_tfa_optee/ && \
+	make CROSS_COMPILE=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		PLAT=sun50i_a64 -j$(nproc) all && \
+	mkdir -p /opt/tf-a/pine64_plus && \
+	cp build/sun50i_a64/release/bl31.bin /opt/tf-a/pine64_plus/ && \
 	rm -rf /tmp/optee_os && \
 	rm -rf /tmp/mbedtls && \
 	rm -rf /tmp/tf-a
