@@ -8,7 +8,7 @@
 #include <env.h>
 #include <init.h>
 #include <net.h>
-#include <status_led.h>
+#include <led.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -24,10 +24,16 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_late_init(void)
 {
 	const unsigned int usb_nrst_gpio = 35;
+	struct udevice *dev;
 	int ret;
 
-	status_led_set(1, CONFIG_LED_STATUS_ON);
-	status_led_set(2, CONFIG_LED_STATUS_ON);
+	ret = led_get_by_label("status_1", &dev);
+	if (!ret)
+		led_set_state(dev, LEDST_ON);
+
+	ret = led_get_by_label("status_2", &dev);
+	if (!ret)
+		led_set_state(dev, LEDST_ON);
 
 	/* Address of boot parameters for ATAG (if ATAG is used) */
 	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;

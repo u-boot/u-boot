@@ -180,6 +180,21 @@ config CADENCE_OSPI_VERSAL
 	  This option is used to enable Versal OSPI DMA operations which
 	  are used for ospi flash read using cadence qspi controller.
 
+config CADENCE_XSPI
+	bool "Cadence XSPI driver (Experimental feature)"
+	help
+	  Important: this feature is experimental so far and tested only
+	  on simulated environment.
+
+	  Enable the Cadence eXpanded Serial Periheral Interface (xSPI) flash
+	  driver. This driver can be used to access the SPI NOR flash on
+	  platforms embedding this Cadence IP core up to 8 bit wide bus.
+	  xSPI flash controller IP offers three work mode, Auto Command (ACMD)
+	  work mode, Software Triggered Instruction Generator (STIG) work mode
+	  and Direct work mode. This flash controller able to coomunicate
+	  with Flash Memory Devices supporting JESD216 and JESD251 stadards
+	  by using the Auto Command work mode.
+
 config CF_SPI
         bool "ColdFire SPI driver"
         depends on M68K

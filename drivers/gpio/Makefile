@@ -4,12 +4,12 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 ifndef CONFIG_XPL_BUILD
-obj-$(CONFIG_DWAPB_GPIO)	+= dwapb_gpio.o
 obj-$(CONFIG_AXP_GPIO)		+= axp_gpio.o
 obj-$(CONFIG_DM_74X164)		+= 74x164_gpio.o
 endif
 obj-$(CONFIG_$(PHASE_)DM_GPIO) += gpio-uclass.o
 
+obj-$(CONFIG_$(PHASE_)DWAPB_GPIO)	+= dwapb_gpio.o
 obj-$(CONFIG_$(PHASE_)DM_PCA953X)	+= pca953x_gpio.o
 
 obj-$(CONFIG_ADI_GPIO)		+= gpio-adi-adsp.o

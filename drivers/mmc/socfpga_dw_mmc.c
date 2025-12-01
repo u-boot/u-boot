@@ -58,17 +58,24 @@ static int socfpga_dwmci_clksel(struct dwmci_host *host)
 	u32 sdmmc_mask = ((priv->smplsel & 0x7) << SYSMGR_SDMMC_SMPLSEL_SHIFT) |
 			 ((priv->drvsel & 0x7) << SYSMGR_SDMMC_DRVSEL_SHIFT);
 
-	ret = clk_get_by_name(priv->dev, "ciu", &priv->mmc_clk_ciu);
-	if (ret) {
-		debug("%s: Failed to get SDMMC clock from dts\n", __func__);
-		return ret;
-	}
+	if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
+	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M)) {
+		/* Disable SDMMC clock. */
+		clrbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
+			     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
+	} else {
+		ret = clk_get_by_name(priv->dev, "ciu", &priv->mmc_clk_ciu);
+		if (ret) {
+			debug("%s: Failed to get SDMMC clock from dts\n", __func__);
+			return ret;
+		}
 
-	/* Disable SDMMC clock. */
-	ret = clk_disable(&priv->mmc_clk_ciu);
-	if (ret) {
-		printf("%s: Failed to disable SDMMC clock\n", __func__);
-		return ret;
+		/* Disable SDMMC clock. */
+		ret = clk_disable(&priv->mmc_clk_ciu);
+		if (ret) {
+			printf("%s: Failed to disable SDMMC clock\n", __func__);
+			return ret;
+		}
 	}
 
 	debug("%s: drvsel %d smplsel %d\n", __func__,
@@ -88,11 +95,18 @@ static int socfpga_dwmci_clksel(struct dwmci_host *host)
 		readl(socfpga_get_sysmgr_addr() + SYSMGR_SDMMC));
 #endif
 
-	/* Enable SDMMC clock */
-	ret = clk_enable(&priv->mmc_clk_ciu);
-	if (ret) {
-		printf("%s: Failed to enable SDMMC clock\n", __func__);
-		return ret;
+	if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
+	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M)) {
+		/* Enable SDMMC clock */
+		setbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
+			     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
+	} else {
+		/* Enable SDMMC clock */
+		ret = clk_enable(&priv->mmc_clk_ciu);
+		if (ret) {
+			printf("%s: Failed to enable SDMMC clock\n", __func__);
+			return ret;
+		}
 	}
 
 	return 0;
