@@ -4,6 +4,7 @@
  */
 
 #define LOG_CATEGORY UCLASS_CLK
+//#define LOG_DEBUG
 
 #include <clk-uclass.h>
 #include <dm.h>
@@ -39,6 +40,7 @@ void clk_fixed_rate_ofdata_to_plat_(struct udevice *dev,
 		plat->fixed_rate = dev_read_u32_default(dev, "clock-frequency",
 							0);
 
+	debug("%s: AJG setting %s dev->clk to %p\n", __func__, dev->name, clk);
 	/* Make fixed rate clock accessible from higher level struct clk */
 	/* FIXME: This is not allowed */
 	dev_set_uclass_priv(dev, clk);

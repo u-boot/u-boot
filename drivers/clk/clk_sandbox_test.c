@@ -3,6 +3,8 @@
  * Copyright (c) 2016, NVIDIA CORPORATION.
  */
 
+//#define LOG_DEBUG
+
 #include <dm.h>
 #include <clk.h>
 #include <malloc.h>
@@ -37,6 +39,7 @@ int sandbox_clk_test_devm_get(struct udevice *dev)
 	struct sandbox_clk_test *sbct = dev_get_priv(dev);
 	struct clk *clk;
 
+	debug("%s: AJG device = %s\n", __func__, dev_read_name(dev));
 	clk = devm_clk_get(dev, "no-an-existing-clock");
 	if (!IS_ERR(clk)) {
 		dev_err(dev, "devm_clk_get() should have failed\n");
@@ -47,11 +50,13 @@ int sandbox_clk_test_devm_get(struct udevice *dev)
 	if (IS_ERR(clk))
 		return PTR_ERR(clk);
 	sbct->clkps[SANDBOX_CLK_TEST_ID_DEVM1] = clk;
+	debug("%s: AJG device = %s setting uart2 = %p dev = %s\n", __func__, dev_read_name(dev), clk, clk->dev->name);
 
 	clk = devm_clk_get_optional(dev, "uart1");
 	if (IS_ERR(clk))
 		return PTR_ERR(clk);
 	sbct->clkps[SANDBOX_CLK_TEST_ID_DEVM2] = clk;
+	debug("%s: AJG device = %s setting uart1 = %p dev = %s\n", __func__, dev_read_name(dev), clk, clk->dev->name);
 
 	sbct->clkps[SANDBOX_CLK_TEST_ID_DEVM_NULL] = NULL;
 	clk = devm_clk_get_optional(dev, "not_an_existing_clock");
@@ -160,6 +165,7 @@ static int sandbox_clk_test_probe(struct udevice *dev)
 	struct sandbox_clk_test *sbct = dev_get_priv(dev);
 	int i;
 
+	debug("%s: AJG entry %s\n", __func__, dev->name);
 	for (i = 0; i < SANDBOX_CLK_TEST_ID_DEVM1; i++)
 		sbct->clkps[i] = &sbct->clks[i];
 	for (i = SANDBOX_CLK_TEST_ID_DEVM1; i < SANDBOX_CLK_TEST_ID_COUNT; i++)
