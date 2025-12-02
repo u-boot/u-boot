@@ -10,7 +10,62 @@
 #include <dm.h>
 #include "clk.h"
 
-static void samsung_clk_register_mux(void __iomem *base, unsigned int cmu_id,
+int samsung_clk_request(struct clk *clk)
+{
+	struct clk *c;
+	int ret;
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	clk->dev = c->dev;
+	return 0;
+}
+
+static void
+samsung_clk_register_fixed_rate(struct udevice *dev, void __iomem *base,
+				unsigned int cmu_id,
+				const struct samsung_fixed_rate_clock *clk_list,
+				unsigned int nr_clk)
+{
+	unsigned int cnt;
+
+	for (cnt = 0; cnt < nr_clk; cnt++) {
+		struct clk *clk;
+		const struct samsung_fixed_rate_clock *m;
+		unsigned long clk_id;
+
+		m = &clk_list[cnt];
+		clk = clk_register_fixed_rate(NULL, m->name, m->fixed_rate);
+		clk_id = SAMSUNG_TO_CLK_ID(cmu_id, m->id);
+		clk_dm(clk_id, clk);
+	}
+}
+
+static void
+samsung_clk_register_fixed_factor(struct udevice *dev, void __iomem *base,
+				  unsigned int cmu_id,
+				  const struct samsung_fixed_factor_clock *clk_list,
+				  unsigned int nr_clk)
+{
+	unsigned int cnt;
+
+	for (cnt = 0; cnt < nr_clk; cnt++) {
+		struct clk *clk;
+		const struct samsung_fixed_factor_clock *m;
+		unsigned long clk_id;
+
+		m = &clk_list[cnt];
+		clk = clk_register_fixed_factor(dev, m->name, m->parent_name,
+						m->flags, m->mult, m->div);
+		clk_id = SAMSUNG_TO_CLK_ID(cmu_id, m->id);
+		clk_dm(clk_id, clk);
+	}
+}
+
+static void samsung_clk_register_mux(struct udevice *dev, void __iomem *base,
+				     unsigned int cmu_id,
 				     const struct samsung_mux_clock *clk_list,
 				     unsigned int nr_clk)
 {
@@ -22,15 +77,17 @@ static void samsung_clk_register_mux(void __iomem *base, unsigned int cmu_id,
 		unsigned long clk_id;
 
 		m = &clk_list[cnt];
-		clk = clk_register_mux(NULL, m->name, m->parent_names,
-			m->num_parents, m->flags, base + m->offset, m->shift,
-			m->width, m->mux_flags);
+		clk = clk_register_mux(dev, m->name, m->parent_names,
+				       m->num_parents, m->flags,
+				       base + m->offset, m->shift, m->width,
+				       m->mux_flags);
 		clk_id = SAMSUNG_TO_CLK_ID(cmu_id, m->id);
 		clk_dm(clk_id, clk);
 	}
 }
 
-static void samsung_clk_register_div(void __iomem *base, unsigned int cmu_id,
+static void samsung_clk_register_div(struct udevice *dev, void __iomem *base,
+				     unsigned int cmu_id,
 				     const struct samsung_div_clock *clk_list,
 				     unsigned int nr_clk)
 {
@@ -42,15 +99,16 @@ static void samsung_clk_register_div(void __iomem *base, unsigned int cmu_id,
 		unsigned long clk_id;
 
 		d = &clk_list[cnt];
-		clk = clk_register_divider(NULL, d->name, d->parent_name,
-			d->flags, base + d->offset, d->shift,
-			d->width, d->div_flags);
+		clk = clk_register_divider(dev, d->name, d->parent_name,
+					   d->flags, base + d->offset, d->shift,
+					   d->width, d->div_flags);
 		clk_id = SAMSUNG_TO_CLK_ID(cmu_id, d->id);
 		clk_dm(clk_id, clk);
 	}
 }
 
-static void samsung_clk_register_gate(void __iomem *base, unsigned int cmu_id,
+static void samsung_clk_register_gate(struct udevice *dev, void __iomem *base,
+				      unsigned int cmu_id,
 				      const struct samsung_gate_clock *clk_list,
 				      unsigned int nr_clk)
 {
@@ -62,19 +120,21 @@ static void samsung_clk_register_gate(void __iomem *base, unsigned int cmu_id,
 		unsigned long clk_id;
 
 		g = &clk_list[cnt];
-		clk = clk_register_gate(NULL, g->name, g->parent_name,
-			g->flags, base + g->offset, g->bit_idx,
-			g->gate_flags, NULL);
+		clk = clk_register_gate(dev, g->name, g->parent_name,
+					g->flags, base + g->offset, g->bit_idx,
+					g->gate_flags, NULL);
 		clk_id = SAMSUNG_TO_CLK_ID(cmu_id, g->id);
 		clk_dm(clk_id, clk);
 	}
 }
 
-typedef void (*samsung_clk_register_fn)(void __iomem *base, unsigned int cmu_id,
-					const void *clk_list,
+typedef void (*samsung_clk_register_fn)(struct udevice *dev, void __iomem *base,
+					unsigned int cmu_id, const void *clk_list,
 					unsigned int nr_clk);
 
 static const samsung_clk_register_fn samsung_clk_register_fns[] = {
+	[S_CLK_FRATE]	= (samsung_clk_register_fn)samsung_clk_register_fixed_rate,
+	[S_CLK_FFACTOR]	= (samsung_clk_register_fn)samsung_clk_register_fixed_factor,
 	[S_CLK_MUX]	= (samsung_clk_register_fn)samsung_clk_register_mux,
 	[S_CLK_DIV]	= (samsung_clk_register_fn)samsung_clk_register_div,
 	[S_CLK_GATE]	= (samsung_clk_register_fn)samsung_clk_register_gate,
@@ -91,16 +151,17 @@ static const samsung_clk_register_fn samsung_clk_register_fns[] = {
  * Having the array of clock groups @clk_groups makes it possible to keep a
  * correct clocks registration order.
  */
-static void samsung_cmu_register_clocks(void __iomem *base, unsigned int cmu_id,
-				const struct samsung_clk_group *clk_groups,
-				unsigned int nr_groups)
+static void samsung_cmu_register_clocks(struct udevice *dev, void __iomem *base,
+					unsigned int cmu_id,
+					const struct samsung_clk_group *clk_groups,
+					unsigned int nr_groups)
 {
 	unsigned int i;
 
 	for (i = 0; i < nr_groups; i++) {
 		const struct samsung_clk_group *g = &clk_groups[i];
 
-		samsung_clk_register_fns[g->type](base, cmu_id,
+		samsung_clk_register_fns[g->type](dev, base, cmu_id,
 						  g->clk_list, g->nr_clk);
 	}
 }
@@ -124,7 +185,7 @@ int samsung_cmu_register_one(struct udevice *dev, unsigned int cmu_id,
 	if (!base)
 		return -EINVAL;
 
-	samsung_cmu_register_clocks(base, cmu_id, clk_groups, nr_groups);
+	samsung_cmu_register_clocks(dev, base, cmu_id, clk_groups, nr_groups);
 
 	return 0;
 }

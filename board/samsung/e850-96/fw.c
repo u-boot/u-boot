@@ -11,14 +11,19 @@
 #include <linux/arm-smccc.h>
 #include "fw.h"
 
-#define LDFW_RAW_PART		"ldfw"
-#define LDFW_FAT_PATH		"/EFI/firmware/ldfw.bin"
+#define LDFW_RAW_PART			"ldfw"
+#define LDFW_FAT_PATH			"/EFI/firmware/ldfw.bin"
+#define LDFW_MAGIC			0x10adab1e
 
-#define LDFW_MAGIC		0x10adab1e
-#define SMC_CMD_LOAD_LDFW	-0x500
-#define SDM_HW_RESET_STATUS	0x1230
-#define SDM_SW_RESET_STATUS	0x1231
-#define SB_ERROR_PREFIX		0xfdaa0000
+/* SMC command for providing LDFW to EL3 monitor */
+#define SMC_CMD_LOAD_LDFW		-0x500
+/* SMC command for loading some binary over USB */
+#define SMC_CMD_LOAD_IMAGE_BY_USB	-0x512
+
+/* Error codes for SMC_CMD_LOAD_LDFW */
+#define SDM_HW_RESET_STATUS		0x1230
+#define SDM_SW_RESET_STATUS		0x1231
+#define SB_ERROR_PREFIX			0xfdaa0000
 
 struct ldfw_header {
 	u32 magic;
@@ -94,7 +99,27 @@ static int read_fw_from_raw(const char *ifname, int dev, const char *part_name,
 }
 
 /**
- * load_ldfw - Load the loadable firmware (LDFW)
+ * load_image_usb - Load some binary over USB during USB boot
+ * @type: Image type
+ * @addr: Memory address where the image should be downloaded to
+ * @size: Image size
+ *
+ * Return: 0 on success or a negative value on error.
+ */
+int load_image_usb(enum usb_dn_image type, phys_addr_t addr, phys_size_t size)
+{
+	struct arm_smccc_res res;
+
+	arm_smccc_smc(SMC_CMD_LOAD_IMAGE_BY_USB, (u64)type, addr, size,
+		      0, 0, 0, 0, &res);
+	if (res.a0)
+		return -EIO;
+
+	return 0;
+}
+
+/**
+ * load_ldfw_from_blk - Load the loadable firmware (LDFW) from block device
  * @ifname: Interface name of the block device to load the firmware from
  * @dev: Device number
  * @part: Partition number
@@ -102,24 +127,37 @@ static int read_fw_from_raw(const char *ifname, int dev, const char *part_name,
  *
  * Return: 0 on success or a negative value on error.
  */
-int load_ldfw(const char *ifname, int dev, int part, phys_addr_t addr)
+int load_ldfw_from_blk(const char *ifname, int dev, int part, phys_addr_t addr)
 {
-	struct ldfw_header *hdr;
-	struct arm_smccc_res res;
 	void *buf = (void *)addr;
-	u64 size = 0;
-	int err, i;
+	int err;
 
 	/* First try to read LDFW from EFI partition, then from the raw one */
 	err = read_fw_from_fat(ifname, dev, part, LDFW_FAT_PATH, buf);
-	if (err) {
-		err = read_fw_from_raw(ifname, dev, LDFW_RAW_PART, buf);
-		if (err)
-			return err;
-	}
+	if (err)
+		return read_fw_from_raw(ifname, dev, LDFW_RAW_PART, buf);
+
+	return 0;
+}
+
+/**
+ * init_ldfw - Provide the LDFW (loaded to RAM) to EL3 monitor to make use of it
+ * @addr: Memory address where LDFW resides
+ *
+ * EL3 monitor will copy the LDFW from the provided Normal World memory @addr to
+ * Secure World location, and start using it.
+ *
+ * Return: 0 on success or a negative value on error.
+ */
+int init_ldfw(phys_addr_t addr)
+{
+	struct ldfw_header *hdr;
+	struct arm_smccc_res res;
+	u64 size = 0;
+	int err, i;
 
 	/* Validate LDFW by magic number in its header */
-	hdr = buf;
+	hdr = (struct ldfw_header *)addr;
 	if (hdr->magic != LDFW_MAGIC) {
 		debug("%s: Wrong LDFW magic; is LDFW flashed?\n", __func__);
 		return -EINVAL;

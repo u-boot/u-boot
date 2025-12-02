@@ -45,6 +45,11 @@ static const struct samsung_pin_bank_data exynos78x0_pin_banks2[] = {
 	EXYNOS_PIN_BANK(4, 0x040, "gpz2"),
 };
 
+/* pin banks of exynos78x0 pin-controller 3 (ESE) */
+static const struct samsung_pin_bank_data exynos78x0_pin_banks3[] = {
+	EXYNOS_PIN_BANK(5, 0x000, "gpc7"),
+};
+
 /* pin banks of exynos78x0 pin-controller 4 (FSYS) */
 static const struct samsung_pin_bank_data exynos78x0_pin_banks4[] = {
 	EXYNOS_PIN_BANK(3, 0x000, "gpr0"),
@@ -52,6 +57,11 @@ static const struct samsung_pin_bank_data exynos78x0_pin_banks4[] = {
 	EXYNOS_PIN_BANK(2, 0x040, "gpr2"),
 	EXYNOS_PIN_BANK(4, 0x060, "gpr3"),
 	EXYNOS_PIN_BANK(6, 0x080, "gpr4"),
+};
+
+/* pin banks of exynos78x0 pin-controller 5 (NFC) */
+static const struct samsung_pin_bank_data exynos78x0_pin_banks5[] = {
+	EXYNOS_PIN_BANK(4, 0x000, "gpc2"),
 };
 
 /* pin banks of exynos78x0 pin-controller 6 (TOP) */
@@ -75,6 +85,11 @@ static const struct samsung_pin_bank_data exynos78x0_pin_banks6[] = {
 	EXYNOS_PIN_BANK(2, 0x200, "gpf2"),
 	EXYNOS_PIN_BANK(4, 0x220, "gpf3"),
 	EXYNOS_PIN_BANK(5, 0x240, "gpf4"),
+};
+
+/* pin banks of exynos7870 pin-controller 7 (TOUCH) */
+static const struct samsung_pin_bank_data exynos78x0_pin_banks7[] = {
+	EXYNOS_PIN_BANK(3, 0x000, "gpc3"),
 };
 
 const struct samsung_pin_ctrl exynos78x0_pin_ctrl[] = {
@@ -102,9 +117,53 @@ const struct samsung_pin_ctrl exynos78x0_pin_ctrl[] = {
 	{/* list terminator */}
 };
 
+/*
+ * In Exynos7870, the CCORE block is named as MIF instead. As the
+ * pinctrl blocks are sorted in lexical order of their names, the
+ * order isn't the same as Exynos7880.
+ */
+const struct samsung_pin_ctrl exynos7870_pin_ctrl[] = {
+	{
+		/* pin-controller instance 0 Alive data */
+		.pin_banks	= exynos78x0_pin_banks0,
+		.nr_banks	= ARRAY_SIZE(exynos78x0_pin_banks0),
+	}, {
+		/* pin-controller instance 1 DISPAUD data */
+		.pin_banks	= exynos78x0_pin_banks2,
+		.nr_banks	= ARRAY_SIZE(exynos78x0_pin_banks2),
+	}, {
+		/* pin-controller instance 2 ESE data */
+		.pin_banks	= exynos78x0_pin_banks3,
+		.nr_banks	= ARRAY_SIZE(exynos78x0_pin_banks3),
+	}, {
+		/* pin-controller instance 3 FSYS data */
+		.pin_banks	= exynos78x0_pin_banks4,
+		.nr_banks	= ARRAY_SIZE(exynos78x0_pin_banks4),
+	}, {
+		/* pin-controller instance 4 MIF data */
+		.pin_banks	= exynos78x0_pin_banks1,
+		.nr_banks	= ARRAY_SIZE(exynos78x0_pin_banks1),
+	}, {
+		/* pin-controller instance 5 NFC data */
+		.pin_banks	= exynos78x0_pin_banks5,
+		.nr_banks	= ARRAY_SIZE(exynos78x0_pin_banks5),
+	}, {
+		/* pin-controller instance 6 TOP data */
+		.pin_banks	= exynos78x0_pin_banks6,
+		.nr_banks	= ARRAY_SIZE(exynos78x0_pin_banks6),
+	}, {
+		/* pin-controller instance 7 TOUCH data */
+		.pin_banks	= exynos78x0_pin_banks7,
+		.nr_banks	= ARRAY_SIZE(exynos78x0_pin_banks7),
+	},
+	{/* list terminator */}
+};
+
 static const struct udevice_id exynos78x0_pinctrl_ids[] = {
 	{ .compatible = "samsung,exynos78x0-pinctrl",
 		.data = (ulong)exynos78x0_pin_ctrl },
+	{ .compatible = "samsung,exynos7870-pinctrl",
+		.data = (ulong)exynos7870_pin_ctrl },
 	{ }
 };
 
@@ -115,4 +174,5 @@ U_BOOT_DRIVER(pinctrl_exynos78x0) = {
 	.priv_auto = sizeof(struct exynos_pinctrl_priv),
 	.ops		= &exynos78x0_pinctrl_ops,
 	.probe		= exynos_pinctrl_probe,
+	.bind		= exynos_pinctrl_bind,
 };

@@ -1,0 +1,6 @@
+Exynos Generic Boards (for mobile devices)
+M:	Kaustabh Chakraborty <kauschluss@disroot.org>
+S:	Maintained
+F:	board/samsung/exynos-mobile/
+F:	configs/exynos-mobile_defconfig
+F:	include/configs/exynos-mobile.h
