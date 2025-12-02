@@ -46,6 +46,11 @@ config RCAR_GEN4
 	select RCAR_64
 	select PINCTRL_PFC
 
+config RCAR_GEN5
+	bool "Renesas ARM SoCs R-Car Gen5 (64bit)"
+	select RCAR_64
+	select PINCTRL_PFC
+
 config RZA1
 	prompt "Renesas ARM SoCs RZ/A1 (32bit)"
 	select CPU_V7A
