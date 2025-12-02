@@ -217,6 +217,31 @@ static int ksz9031_center_flp_timing(struct phy_device *phydev)
 	return ret;
 }
 
+static void ksz90x1_workaround_asymmetric_pause(struct phy_device *phydev)
+{
+	u32 features = phydev->drv->features;
+
+	/* Silicon Errata Sheet (DS80000691D or DS80000692D):
+	 * Whenever the device's Asymmetric Pause capability is set to 1,
+	 * link-up may fail after a link-up to link-down transition.
+	 *
+	 * The Errata Sheet is for ksz9031, but ksz9021 has the same issue
+	 *
+	 * Workaround:
+	 * Do not enable the Asymmetric Pause capability bit.
+	 */
+	features &= ~ADVERTISE_PAUSE_ASYM;
+
+	/* We force setting the Pause capability as the core will force the
+	 * Asymmetric Pause capability to 1 otherwise.
+	 */
+	features |= ADVERTISE_PAUSE_CAP;
+
+	/* update feature support and forward to advertised features */
+	phydev->supported = features;
+	phydev->advertising = phydev->supported;
+}
+
 /*
  * KSZ9021
  */
@@ -259,6 +284,8 @@ static int ksz9021_config(struct phy_device *phydev)
 	ret = ksz9021_of_config(phydev);
 	if (ret)
 		return ret;
+
+	ksz90x1_workaround_asymmetric_pause(phydev);
 
 	if (env_get("disable_giga"))
 		features &= ~(SUPPORTED_1000baseT_Half |
@@ -344,6 +371,8 @@ static int ksz9031_config(struct phy_device *phydev)
 	ret = ksz9031_center_flp_timing(phydev);
 	if (ret)
 		return ret;
+
+	ksz90x1_workaround_asymmetric_pause(phydev);
 
 	/* add an option to disable the gigabit feature of this PHY */
 	if (env_get("disable_giga")) {
