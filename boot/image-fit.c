@@ -16,6 +16,9 @@
 #include <linux/libfdt.h>
 #include <u-boot/crc.h>
 #include <linux/kconfig.h>
+
+/* C11 standard function for aligned allocations */
+extern void *aligned_alloc(size_t alignment, size_t size);
 #else
 #include <linux/compiler.h>
 #include <linux/sizes.h>
@@ -23,19 +26,21 @@
 #include <log.h>
 #include <mapmem.h>
 #include <asm/io.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <asm/global_data.h>
 #ifdef CONFIG_DM_HASH
 #include <dm.h>
 #include <u-boot/hash.h>
 #endif
+#define aligned_alloc(a, s)	memalign((a), (s))
+
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
 #include <bootm.h>
 #include <image.h>
 #include <bootstage.h>
-#include <malloc.h>
 #include <upl.h>
 #include <u-boot/crc.h>
 
@@ -2279,7 +2284,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 		log_debug("decompressing image\n");
 		if (load == data) {
-			loadbuf = memalign(8, max_decomp_len);
+			loadbuf = aligned_alloc(8, max_decomp_len);
 			load = map_to_sysmem(loadbuf);
 		} else {
 			loadbuf = map_sysmem(load, max_decomp_len);
@@ -2293,7 +2298,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		len = load_end - load;
 	} else if (load_op != FIT_LOAD_IGNORED && image_type == IH_TYPE_FLATDT &&
 		   ((uintptr_t)buf & 7)) {
-		loadbuf = memalign(8, len);
+		loadbuf = aligned_alloc(8, len);
 		load = map_to_sysmem(loadbuf);
 		memcpy(loadbuf, buf, len);
 	} else if (load != data) {
