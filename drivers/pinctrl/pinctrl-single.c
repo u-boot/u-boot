@@ -282,8 +282,10 @@ static struct single_func *single_allocate_function(struct udevice *dev,
 
 	func->pins = devm_kmalloc(dev, sizeof(unsigned int) * group_pins,
 				  GFP_KERNEL);
-	if (!func->pins)
+	if (!func->pins) {
+		devm_kfree(dev, func);
 		return ERR_PTR(-ENOMEM);
+	}
 
 	return func;
 }
