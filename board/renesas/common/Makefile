@@ -43,6 +43,10 @@ else
 obj-y	+= gen4-common.o
 endif
 endif
+
+ifdef CONFIG_RCAR_GEN5
+obj-y	+= gen5-common.o
+endif
 endif
 
 endif

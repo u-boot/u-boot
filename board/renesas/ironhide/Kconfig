@@ -1,0 +1,15 @@
+if TARGET_IRONHIDE
+
+config SYS_SOC
+	default "renesas"
+
+config SYS_BOARD
+	default "ironhide"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "ironhide"
+
+endif
