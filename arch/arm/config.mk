@@ -58,7 +58,7 @@ endif
 
 # Only test once
 ifeq ($(CONFIG_$(PHASE_)SYS_THUMB_BUILD),y)
-archprepare: checkthumb checkgcc6
+archprepare: checkthumb checkgcc10
 
 checkthumb:
 	@if test "$(call cc-name)" = "gcc" -a \
@@ -69,13 +69,13 @@ checkthumb:
 		false; \
 	fi
 else
-archprepare: checkgcc6
+archprepare: checkgcc10
 endif
 
-checkgcc6:
+checkgcc10:
 	@if test "$(call cc-name)" = "gcc" -a \
-			"$(call cc-version)" -lt "0600"; then \
-		echo '*** Your GCC is older than 6.0 and is not supported'; \
+			"$(call cc-version)" -lt "1000"; then \
+		echo '*** Your GCC is older than 10.0 and is not supported'; \
 		false; \
 	fi
 
