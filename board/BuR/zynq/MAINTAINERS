@@ -1,5 +1,5 @@
 ZYNQ BOARD
-M:	Wolfgang Wallner <wolfgang.wallner@br-automation.com>
+M:	Wolfgang Wallner <wolfgang.wallner@at.abb.com>
 S:	Maintained
 F:	board/BuR/zynq/
 F:	board/BuR/common/
