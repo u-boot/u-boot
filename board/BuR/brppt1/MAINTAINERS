@@ -5,5 +5,4 @@ F:	board/BuR/brppt1/
 F:	board/BuR/common/
 F:	include/configs/brppt1.h
 F:	configs/brppt1_mmc_defconfig
-F:	configs/brppt1_nand_defconfig
-F:	configs/brppt1_spi_defconfig
+F:	arch/arm/dts/am335x-brppt1-mmc*

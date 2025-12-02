@@ -5,3 +5,4 @@ F:	board/BuR/brsmarc1/
 F:	board/BuR/common/
 F:	include/configs/brsmarc1.h
 F:	configs/brsmarc1_defconfig
+F:	arch/arm/dts/am335x-brsmarc1.dts

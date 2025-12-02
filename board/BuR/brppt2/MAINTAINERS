@@ -5,3 +5,4 @@ F:	board/BuR/brppt2/
 F:	board/BuR/common/
 F:	include/configs/brppt2.h
 F:	configs/brppt2_defconfig
+F:	arch/arm/dts/imx6dl-brppt2.dts
