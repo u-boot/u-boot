@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2023 Starfive.
  *   Author: Kuan Lim Lee <kuanlim.lee@starfivetech.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
 #include <dm.h>
@@ -77,6 +78,13 @@ static struct sdhci_cdns6_phy_cfg sd_ds_phy_cfgs[] = {
 	{ "cdns,phy-dq-timing-delay-sd-ds", 0x00000001, },
 };
 
+static struct sdhci_cdns6_phy_cfg sd_hs_phy_cfgs[] = {
+	{ "cdns,phy-dqs-timing-delay-sd-hs", 0x00380004, },
+	{ "cdns,phy-gate-lpbk_ctrl-delay-sd-hs", 0x01A00040, },
+	{ "cdns,phy-dll-slave-ctrl-sd-hs", 0x00000000, },
+	{ "cdns,phy-dq-timing-delay-sd-hs", 0x00000001, },
+};
+
 static struct sdhci_cdns6_phy_cfg emmc_sdr_phy_cfgs[] = {
 	{ "cdns,phy-dqs-timing-delay-semmc-sdr", 0x00380004, },
 	{ "cdns,phy-gate-lpbk_ctrl-delay-emmc-sdr", 0x01A00040, },
@@ -110,6 +118,13 @@ static struct sdhci_cdns6_ctrl_cfg sd_ds_ctrl_cfgs[] = {
 	{ "cdns,ctrl-hrs10-lpbk_ctrl-delay-sd-ds", 0x00020000, },
 	{ "cdns,ctrl-hrs16-slave-ctrl-sd-ds", 0x00000000, },
 	{ "cdns,ctrl-hrs07-timing-delay-sd-ds", 0x00080000, },
+};
+
+static struct sdhci_cdns6_ctrl_cfg sd_hs_ctrl_cfgs[] = {
+	{ "cdns,ctrl-hrs09-timing-delay-sd-hs", 0x0001800C, },
+	{ "cdns,ctrl-hrs10-lpbk_ctrl-delay-sd-hs", 0x00030000, },
+	{ "cdns,ctrl-hrs16-slave-ctrl-sd-hs", 0x00000000, },
+	{ "cdns,ctrl-hrs07-timing-delay-sd-hs", 0x00080000, },
 };
 
 static struct sdhci_cdns6_ctrl_cfg emmc_sdr_ctrl_cfgs[] = {
@@ -186,27 +201,39 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 	int i, ret;
 
 	switch (mode) {
-	case SDHCI_CDNS_HRS06_MODE_SD:
+	case UHS_SDR12:
+	case MMC_LEGACY:
 		sdhci_cdns6_phy_cfgs = sd_ds_phy_cfgs;
 		sdhci_cdns6_ctrl_cfgs = sd_ds_ctrl_cfgs;
 		break;
 
-	case SDHCI_CDNS_HRS06_MODE_MMC_SDR:
+	case SD_HS:
+	case UHS_SDR25:
+	case MMC_HS:
+		sdhci_cdns6_phy_cfgs = sd_hs_phy_cfgs;
+		sdhci_cdns6_ctrl_cfgs = sd_hs_ctrl_cfgs;
+		break;
+
+	case UHS_SDR50:
+	case MMC_HS_52:
 		sdhci_cdns6_phy_cfgs = emmc_sdr_phy_cfgs;
 		sdhci_cdns6_ctrl_cfgs = emmc_sdr_ctrl_cfgs;
 		break;
 
-	case SDHCI_CDNS_HRS06_MODE_MMC_DDR:
+	case UHS_DDR50:
+	case MMC_DDR_52:
 		sdhci_cdns6_phy_cfgs = emmc_ddr_phy_cfgs;
 		sdhci_cdns6_ctrl_cfgs = emmc_ddr_ctrl_cfgs;
 		break;
 
-	case SDHCI_CDNS_HRS06_MODE_MMC_HS200:
+	case UHS_SDR104:
+	case MMC_HS_200:
 		sdhci_cdns6_phy_cfgs = emmc_hs200_phy_cfgs;
 		sdhci_cdns6_ctrl_cfgs = emmc_hs200_ctrl_cfgs;
 		break;
 
-	case SDHCI_CDNS_HRS06_MODE_MMC_HS400:
+	case MMC_HS_400:
+	case MMC_HS_400_ES:
 		sdhci_cdns6_phy_cfgs = emmc_hs400_phy_cfgs;
 		sdhci_cdns6_ctrl_cfgs = emmc_hs400_ctrl_cfgs;
 		break;
@@ -263,7 +290,7 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 
 int sdhci_cdns6_phy_init(struct udevice *dev, struct sdhci_cdns_plat *plat)
 {
-	return sdhci_cdns6_phy_adj(dev, plat, SDHCI_CDNS_HRS06_MODE_SD);
+	return sdhci_cdns6_phy_adj(dev, plat, MMC_LEGACY);
 }
 
 int sdhci_cdns6_set_tune_val(struct sdhci_cdns_plat *plat, unsigned int val)

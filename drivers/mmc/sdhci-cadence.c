@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
 #include <dm.h>
@@ -84,39 +85,74 @@ static int sdhci_cdns_phy_init(struct sdhci_cdns_plat *plat,
 	return 0;
 }
 
+static unsigned int sdhci_cdns_get_hrs06_mode(struct mmc *mmc)
+{
+	unsigned int mode;
+
+	if (IS_SD(mmc)) {
+		mode = SDHCI_CDNS_HRS06_MODE_SD;
+	} else {
+		switch (mmc->selected_mode) {
+		case MMC_LEGACY:
+			mode = SDHCI_CDNS_HRS06_MODE_SD; /* use this for Legacy */
+			break;
+
+		case MMC_HS:
+		case MMC_HS_52:
+			mode = SDHCI_CDNS_HRS06_MODE_MMC_SDR;
+			break;
+
+		case UHS_DDR50:
+		case MMC_DDR_52:
+			mode = SDHCI_CDNS_HRS06_MODE_MMC_DDR;
+			break;
+
+		case UHS_SDR104:
+		case MMC_HS_200:
+			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS200;
+			break;
+
+		case MMC_HS_400:
+		case MMC_HS_400_ES:
+			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400;
+			break;
+
+		default:
+			mode = SDHCI_CDNS_HRS06_MODE_SD;
+			break;
+		}
+	}
+	return mode;
+}
+
 static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
 	struct sdhci_cdns_plat *plat = dev_get_plat(mmc->dev);
-	unsigned int clock = mmc->clock;
 	u32 mode, tmp;
 
 	/*
-	 * REVISIT:
-	 * The mode should be decided by MMC_TIMING_* like Linux, but
-	 * U-Boot does not support timing.  Use the clock frequency instead.
+	 * Select HRS06 mode based on card type and selected timing mode.
+	 * For SD cards, always use SD mode (000b) as per Cadence user guide,
+	 * section 12.7 (HRS06), Part Number: IP6061.
+	 * For eMMC, use selected_mode to pick the appropriate mode.
 	 */
-	if (clock <= 26000000) {
-		mode = SDHCI_CDNS_HRS06_MODE_SD; /* use this for Legacy */
-	} else if (clock <= 52000000) {
-		if (mmc->ddr_mode)
-			mode = SDHCI_CDNS_HRS06_MODE_MMC_DDR;
-		else
-			mode = SDHCI_CDNS_HRS06_MODE_MMC_SDR;
-	} else {
-		if (mmc->ddr_mode)
-			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400;
-		else
-			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS200;
-	}
+	mode = sdhci_cdns_get_hrs06_mode(mmc);
 
 	tmp = readl(plat->hrs_addr + SDHCI_CDNS_HRS06);
 	tmp &= ~SDHCI_CDNS_HRS06_MODE;
 	tmp |= FIELD_PREP(SDHCI_CDNS_HRS06_MODE, mode);
 	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS06);
 
+	/*
+	 * For SD cards, program standard SDHCI Host Control2 UHS/voltage
+	 * registers for UHS-I support.
+	 */
+	if (IS_SD(mmc))
+		sdhci_set_control_reg(host);
+
 	if (device_is_compatible(mmc->dev, "cdns,sd6hc"))
-		sdhci_cdns6_phy_adj(mmc->dev, plat, mode);
+		sdhci_cdns6_phy_adj(mmc->dev, plat, mmc->selected_mode);
 }
 
 static const struct sdhci_ops sdhci_cdns_ops = {
