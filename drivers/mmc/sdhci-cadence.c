@@ -253,7 +253,7 @@ static int sdhci_cdns_probe(struct udevice *dev)
 
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;
-	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
+	ret = sdhci_setup_cfg(&plat->cfg, host, plat->cfg.f_max, 0);
 	if (ret)
 		return ret;
 
