@@ -118,16 +118,13 @@ int do_led(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
-#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
-#define BLINK "|blink [blink-freq in ms]"
-#else
-#define BLINK ""
-#endif
-
 U_BOOT_CMD(
 	led, 4, 1, do_led,
 	"manage LEDs",
-	"<led_label> on|off|toggle" BLINK "\tChange LED state\n"
+	"<led_label> on|off|toggle\tChange LED state\n"
+#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
+	"led <led_label> blink <blink-freq in ms>\tBlink LED (duty cycle 50%)\n"
+#endif
 	"led <led_label>\tGet LED state\n"
 	"led list\t\tshow a list of LEDs"
 );
