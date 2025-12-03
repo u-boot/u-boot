@@ -6,6 +6,9 @@
 #include <linux/time.h>
 #include <rtc.h>
 
+/* Network loop state */
+enum net_loop_state net_state;
+
 void copy_filename(char *dst, const char *src, int size)
 {
 	if (src && *src && (*src == '"')) {

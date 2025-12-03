@@ -13,6 +13,7 @@
 #include <time.h>
 
 #define DEBUG_NET_PKT_TRACE 0	/* Trace all packet data */
+#define DEBUG_INT_STATE 0	/* Internal network state changes */
 
 /*
  *	The number of receive packet buffers, and the required packet buffer
@@ -113,6 +114,22 @@ struct ip_udp_hdr {
  */
 #define RINGSZ		4
 #define RINGSZ_LOG2	2
+
+/* Network loop state */
+enum net_loop_state {
+	NETLOOP_CONTINUE,
+	NETLOOP_RESTART,
+	NETLOOP_SUCCESS,
+	NETLOOP_FAIL
+};
+
+extern enum net_loop_state net_state;
+
+static inline void net_set_state(enum net_loop_state state)
+{
+	debug_cond(DEBUG_INT_STATE, "--- NetState set to %d\n", state);
+	net_state = state;
+}
 
 extern int		net_restart_wrap;	/* Tried all network devices */
 extern uchar               *net_rx_packets[PKTBUFSRX]; /* Receive packets */

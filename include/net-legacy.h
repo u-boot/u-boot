@@ -25,7 +25,6 @@ struct udevice;
 #define DEBUG_LL_STATE 0	/* Link local state machine changes */
 #define DEBUG_DEV_PKT 0		/* Packets or info directed to the device */
 #define DEBUG_NET_PKT 0		/* Packets on info on the network at large */
-#define DEBUG_INT_STATE 0	/* Internal network state changes */
 
 /* ARP hardware address length */
 #define ARP_HLEN 6
@@ -368,22 +367,6 @@ void net_set_arp_handler(rxhand_f *f);	/* Set ARP RX packet handler */
 bool arp_is_waiting(void);		/* Waiting for ARP reply? */
 void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
 void net_set_timeout_handler(ulong t, thand_f *f);/* Set timeout handler */
-
-/* Network loop state */
-enum net_loop_state {
-	NETLOOP_CONTINUE,
-	NETLOOP_RESTART,
-	NETLOOP_SUCCESS,
-	NETLOOP_FAIL
-};
-
-extern enum net_loop_state net_state;
-
-static inline void net_set_state(enum net_loop_state state)
-{
-	debug_cond(DEBUG_INT_STATE, "--- NetState set to %d\n", state);
-	net_state = state;
-}
 
 /*
  * net_get_async_tx_pkt_buf - Get a packet buffer that is not in use for
