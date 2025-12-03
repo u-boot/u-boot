@@ -151,7 +151,7 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 	if (IS_SD(mmc))
 		sdhci_set_control_reg(host);
 
-	if (device_is_compatible(mmc->dev, "cdns,sd6hc"))
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_420)
 		sdhci_cdns6_phy_adj(mmc->dev, plat, mmc->selected_mode);
 }
 
@@ -162,11 +162,13 @@ static const struct sdhci_ops sdhci_cdns_ops = {
 static int sdhci_cdns_set_tune_val(struct sdhci_cdns_plat *plat,
 				   unsigned int val)
 {
+	struct mmc *mmc = &plat->mmc;
+	struct sdhci_host *host = dev_get_priv(mmc->dev);
 	void __iomem *reg = plat->hrs_addr + SDHCI_CDNS_HRS06;
 	u32 tmp;
 	int i, ret;
 
-	if (device_is_compatible(plat->mmc.dev, "cdns,sd6hc"))
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_420)
 		return sdhci_cdns6_set_tune_val(plat, val);
 
 	if (WARN_ON(!FIELD_FIT(SDHCI_CDNS_HRS06_TUNE, val)))
