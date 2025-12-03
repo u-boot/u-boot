@@ -8,5 +8,6 @@ config OF_LIBFDT_OVERLAY
 
 source "arch/arm/mach-renesas/Kconfig.rcar3"
 source "arch/arm/mach-renesas/Kconfig.rcar4"
+source "arch/arm/mach-renesas/Kconfig.rcar5"
 
 endif

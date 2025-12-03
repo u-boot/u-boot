@@ -1,0 +1,26 @@
+if RCAR_GEN5
+
+menu "Select Target SoC"
+
+config R8A78000
+	bool "Renesas SoC R8A78000"
+	select GICV3
+	imply PINCTRL_PFC_R8A78000
+
+endmenu
+
+choice
+	prompt "Renesas ARM64 SoCs board select"
+	optional
+
+config TARGET_IRONHIDE
+	bool "Ironhide board"
+	imply R8A78000
+	help
+	  Support for Renesas R-Car Gen5 Ironhide platform
+
+endchoice
+
+source "board/renesas/ironhide/Kconfig"
+
+endif

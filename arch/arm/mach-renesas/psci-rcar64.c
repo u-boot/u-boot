@@ -32,7 +32,12 @@ u32 __secure psci_version(void)
 
 void __secure __noreturn psci_system_reset(void)
 {
+#if defined(CONFIG_RCAR_GEN5)
+	writel(RST_KCPROT_DIS, RST_RESKCPROT0);
+	writel(0x1, RST_SWSRES1A);
+#else
 	writel(RST_SPRES, RST_SRESCR0);
+#endif
 
 	while (1)
 		;
