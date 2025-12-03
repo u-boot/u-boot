@@ -1760,7 +1760,7 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 			fdt = fit;		  /* search in FIT image */
 			compat_noffset = noffset; /* search under config node */
 		} else {	/* Otherwise extract it from the kernel FDT. */
-			kfdt_name = fdt_getprop(fit, noffset, "fdt", &len);
+			kfdt_name = fdt_getprop(fit, noffset, FIT_FDT_PROP, &len);
 			if (!kfdt_name) {
 				debug("No fdt property found.\n");
 				continue;
