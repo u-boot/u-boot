@@ -12,6 +12,7 @@
 #include <asm/cache.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
+#include <malloc.h>
 #include <phy.h>
 #ifdef CONFIG_FSL_LSCH3
 #include <asm/arch/fdt.h>
@@ -48,6 +49,61 @@ int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc)
 }
 
 #ifdef CONFIG_MP
+static void fdt_fixup_thermal_cooling_device(void *blob, int cpu_off)
+{
+	int cnt, idx, len;
+	int map, maps;
+	int offline, phandle;
+	int ret;
+	int zone, zones;
+	u32 *tbl;
+	struct fdtdec_phandle_args dev;
+
+	zones = fdt_subnode_offset(blob, 0, "thermal-zones");
+	if (zones < 0)
+		return;
+
+	offline = fdt_get_phandle(blob, cpu_off);
+	fdt_for_each_subnode(zone, blob, zones) {
+		maps = fdt_subnode_offset(blob, zone, "cooling-maps");
+		if (maps < 0)
+			continue;
+		fdt_for_each_subnode(map, blob, maps) {
+			if (!fdt_getprop(blob, map, "cooling-device", &len))
+				continue;
+			cnt = fdtdec_parse_phandle_with_args(blob, map,
+							     "cooling-device",
+							     "#cooling-cells",
+							     0, -1, NULL);
+			if (cnt <= 0)
+				continue;
+			tbl = (u32 *)malloc(len);
+			if (!tbl)
+				return;
+			idx = 0;
+			for (int i = 0; i < cnt; i++) {
+				ret = fdtdec_parse_phandle_with_args(blob, map,
+								     "cooling-device",
+								     "#cooling-cells",
+								     0, i,
+								     &dev);
+				if (ret < 0)
+					goto skip_update;
+				phandle = fdt_get_phandle(blob, dev.node);
+				if (phandle == offline)
+					continue;
+				tbl[idx++] = cpu_to_fdt32(phandle);
+				for (int j = 0; j < dev.args_count; j++)
+					tbl[idx++] = cpu_to_fdt32(dev.args[j]);
+			}
+			fdt_setprop(blob, map, "cooling-device", tbl,
+				    (idx*sizeof(*tbl)));
+skip_update:
+			free(tbl);
+		}
+	}
+}
+
 void ft_fixup_cpu(void *blob)
 {
 	int off;
@@ -73,6 +129,7 @@ void ft_fixup_cpu(void *blob)
 		if (reg) {
 			core_id = fdt_read_number(reg, addr_cells);
 			if (!test_bit(id_to_core(core_id), &mask)) {
+				fdt_fixup_thermal_cooling_device(blob, off);
 				fdt_del_node(blob, off);
 				off = off_prev;
 			}
