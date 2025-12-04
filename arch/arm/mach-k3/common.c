@@ -273,14 +273,14 @@ void enable_caches(void)
 	if (ret)
 		debug("%s: Failed to setup dram banks\n", __func__);
 
+	ret = fdt_fixup_reserved(fdt);
+	if (ret)
+		printf("%s: Failed to perform reserved-memory fixups (%s)\n",
+		       __func__, fdt_strerror(ret));
+
 	mmu_setup();
 
 	if (CONFIG_K3_ATF_LOAD_ADDR >= CFG_SYS_SDRAM_BASE) {
-		ret = fdt_fixup_reserved(fdt, "tfa", CONFIG_K3_ATF_LOAD_ADDR,
-					 0x80000);
-		if (ret)
-			printf("%s: Failed to perform tfa fixups (%s)\n",
-			       __func__, fdt_strerror(ret));
 		ret = mmu_unmap_reserved_mem("tfa", true);
 		if (ret)
 			printf("%s: Failed to unmap tfa reserved mem (%d)\n",
@@ -288,11 +288,6 @@ void enable_caches(void)
 	}
 
 	if (CONFIG_K3_OPTEE_LOAD_ADDR >= CFG_SYS_SDRAM_BASE) {
-		ret = fdt_fixup_reserved(fdt, "optee",
-					 CONFIG_K3_OPTEE_LOAD_ADDR, 0x1800000);
-		if (ret)
-			printf("%s: Failed to perform optee fixups (%s)\n",
-			       __func__, fdt_strerror(ret));
 		ret = mmu_unmap_reserved_mem("optee", true);
 		if (ret)
 			printf("%s: Failed to unmap optee reserved mem (%d)\n",
@@ -463,8 +458,7 @@ void spl_perform_arch_fixups(struct spl_image_info *spl_image)
 	if (!fdt)
 		return;
 
-	fdt_fixup_reserved(fdt, "tfa", CONFIG_K3_ATF_LOAD_ADDR, 0x80000);
-	fdt_fixup_reserved(fdt, "optee", CONFIG_K3_OPTEE_LOAD_ADDR, 0x1800000);
+	fdt_fixup_reserved(fdt);
 }
 
 void spl_board_prepare_for_boot(void)
