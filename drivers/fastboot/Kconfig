@@ -90,8 +90,9 @@ config FASTBOOT_USB_DEV
 
 config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
-	default y if ARCH_SUNXI || ARCH_ROCKCHIP
-	depends on MMC || (MTD_RAW_NAND && CMD_MTDPARTS) || DM_SPI_FLASH
+	default y if ARCH_SUNXI && ( MMC || MTD_RAW_NAND )
+	default y if ARCH_ROCKCHIP && MMC
+	depends on MMC || (MTD_RAW_NAND && CMD_MTDPARTS) || DM_SPI_FLASH || BLK
 	select IMAGE_SPARSE
 	help
 	  The fastboot protocol includes a "flash" command for writing
@@ -122,6 +123,10 @@ config FASTBOOT_FLASH_NAND
 config FASTBOOT_FLASH_SPI
 	bool "FASTBOOT on SPI flash"
 	depends on DM_SPI_FLASH
+
+config FASTBOOT_FLASH_BLOCK
+	bool "FASTBOOT on block device"
+	depends on BLK
 
 endchoice
 
@@ -196,6 +201,29 @@ config FASTBOOT_MMC_USER_NAME
 	  "fastboot flash" and the "fastboot erase" commands match the value
 	  defined here.
 	  The default target name for erasing EMMC_USER is "mmc0".
+
+config FASTBOOT_FLASH_BLOCK_INTERFACE_NAME
+	string "Define FASTBOOT block interface name"
+	depends on FASTBOOT_FLASH_BLOCK
+	help
+	  The fastboot "flash" and "erase" commands support operations
+	  on any Block device, this should specify the block device name
+	  like ide, scsi, usb, sata, nvme, virtio, blkmap, mtd...
+	  The mmc block device type can be used but most of the features
+	  available in the FASTBOOT_MMC will be missing.
+	  Consider using FASTBOOT_MMC on a MMC block device until all
+	  features are migrated.
+
+config FASTBOOT_FLASH_BLOCK_DEVICE_ID
+	int "Define FASTBOOT block device identifier"
+	depends on FASTBOOT_FLASH_BLOCK
+	default 0
+	help
+	  The fastboot "flash" and "erase" commands support operations
+	  on any Block device, this should specify the block device
+	  identifier on the system, as a number.
+	  Device identifiers are numbered starting from 0 and the most
+	  common case is to use the first controller on the system.
 
 config FASTBOOT_GPT_NAME
 	string "Target name for updating GPT"
