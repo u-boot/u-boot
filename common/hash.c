@@ -34,6 +34,7 @@
 #include <u-boot/sha256.h>
 #include <u-boot/sha512.h>
 #include <u-boot/md5.h>
+#include <u-boot/sm3.h>
 
 static int __maybe_unused hash_init_sha1(struct hash_algo *algo, void **ctxp)
 {
@@ -139,6 +140,34 @@ static int __maybe_unused hash_finish_sha512(struct hash_algo *algo, void *ctx,
 		return -1;
 
 	sha512_finish((sha512_context *)ctx, dest_buf);
+	free(ctx);
+	return 0;
+}
+
+static int __maybe_unused hash_init_sm3(struct hash_algo *algo, void **ctxp)
+{
+	struct sm3_context *ctx = malloc(sizeof(struct sm3_context));
+
+	sm3_init(ctx);
+	*ctxp = ctx;
+	return 0;
+}
+
+static int __maybe_unused hash_update_sm3(struct hash_algo *algo, void *ctx,
+					  const void *buf, uint size,
+					  int is_last)
+{
+	sm3_update((struct sm3_context *)ctx, buf, size);
+	return 0;
+}
+
+static int __maybe_unused hash_finish_sm3(struct hash_algo *algo, void *ctx,
+					  void *dest_buf, int size)
+{
+	if (size < algo->digest_size)
+		return -1;
+
+	sm3_final((struct sm3_context *)ctx, dest_buf);
 	free(ctx);
 	return 0;
 }
@@ -298,6 +327,17 @@ static struct hash_algo hash_algo[] = {
 #endif
 	},
 #endif
+#if CONFIG_IS_ENABLED(SM3)
+	{
+		.name		= "sm3_256",
+		.digest_size	= SM3_DIGEST_SIZE,
+		.chunk_size	= SM3_BLOCK_SIZE,
+		.hash_func_ws	= sm3_csum_wd,
+		.hash_init	= hash_init_sm3,
+		.hash_update	= hash_update_sm3,
+		.hash_finish	= hash_finish_sm3,
+	},
+#endif
 #if CONFIG_IS_ENABLED(CRC16)
 	{
 		.name		= "crc16-ccitt",
@@ -334,7 +374,7 @@ static struct hash_algo hash_algo[] = {
 #if CONFIG_IS_ENABLED(SHA256) || IS_ENABLED(CONFIG_CMD_SHA1SUM) || \
 	CONFIG_IS_ENABLED(CRC32_VERIFY) || IS_ENABLED(CONFIG_CMD_HASH) || \
 	CONFIG_IS_ENABLED(SHA384) || CONFIG_IS_ENABLED(SHA512) || \
-	IS_ENABLED(CONFIG_CMD_MD5SUM)
+	IS_ENABLED(CONFIG_CMD_MD5SUM) || CONFIG_IS_ENABLED(SM3)
 #define multi_hash()	1
 #else
 #define multi_hash()	0

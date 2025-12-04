@@ -12,6 +12,7 @@
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
 #include <u-boot/sha512.h>
+#include <u-boot/sm3.h>
 #include <version_string.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
@@ -142,6 +143,12 @@ int tcg2_create_digest(struct udevice *dev, const u8 *input, u32 length,
 			sha512_update(&ctx_512, input, length);
 			sha512_finish(&ctx_512, final);
 			len = TPM2_SHA512_DIGEST_SIZE;
+			break;
+#endif
+#if IS_ENABLED(CONFIG_SM3)
+		case TPM2_ALG_SM3_256:
+			sm3_hash(input, length, final);
+			len = TPM2_SM3_256_DIGEST_SIZE;
 			break;
 #endif
 		default:
@@ -319,6 +326,7 @@ static int tcg2_replay_eventlog(struct tcg2_event_log *elog,
 			case TPM2_ALG_SHA256:
 			case TPM2_ALG_SHA384:
 			case TPM2_ALG_SHA512:
+			case TPM2_ALG_SM3_256:
 				len = tpm2_algorithm_to_len(algo);
 				break;
 			default:
@@ -431,6 +439,7 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog,
 		case TPM2_ALG_SHA256:
 		case TPM2_ALG_SHA384:
 		case TPM2_ALG_SHA512:
+		case TPM2_ALG_SM3_256:
 			len = get_unaligned_le16(&event->digest_sizes[i].digest_size);
 			if (tpm2_algorithm_to_len(algo) != len) {
 				log_err("EventLog invalid algorithm length\n");
