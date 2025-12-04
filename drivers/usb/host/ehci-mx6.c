@@ -551,8 +551,8 @@ static int ehci_usb_phy_mode(struct udevice *dev)
 		if (phy_off < 0)
 			return -EINVAL;
 
-		addr = (void __iomem *)fdtdec_get_addr(blob, phy_off,
-						       "reg");
+		addr = (void __iomem *)fdtdec_get_addr_size_auto_noparent(blob, phy_off,
+									  "reg", 0, NULL, false);
 		if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
 			return -EINVAL;
 
@@ -620,13 +620,15 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 	if (misc_off < 0)
 		return -EINVAL;
 
-	addr = (void __iomem *)fdtdec_get_addr(blob, phy_off, "reg");
+	addr = (void __iomem *)fdtdec_get_addr_size_auto_noparent(blob, phy_off,
+								  "reg", 0, NULL, false);
 	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
 		addr = NULL;
 
 	priv->phy_addr = addr;
 
-	addr = (void __iomem *)fdtdec_get_addr(blob, misc_off, "reg");
+	addr = (void __iomem *)fdtdec_get_addr_size_auto_noparent(blob, misc_off,
+								  "reg", 0, NULL, false);
 	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -646,7 +648,8 @@ static int mx6_parse_dt_addrs(struct udevice *dev)
 	if (anatop_off < 0)
 		return -EINVAL;
 
-	addr = (void __iomem *)fdtdec_get_addr(blob, anatop_off, "reg");
+	addr = (void __iomem *)fdtdec_get_addr_size_auto_noparent(blob, anatop_off,
+								  "reg", 0, NULL, false);
 	if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
