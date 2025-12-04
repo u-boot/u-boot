@@ -573,7 +573,7 @@ static int npcm_i2c_probe(struct udevice *dev)
 		return ret;
 	}
 	bus->apb_clk = clk_get_rate(&clk);
-	if (bus->apb_clk <= 0) {
+	if (!bus->apb_clk || IS_ERR_VALUE(bus->apb_clk)) {
 		printf("%s: fail to get rate\n", __func__);
 		return -EINVAL;
 	}
