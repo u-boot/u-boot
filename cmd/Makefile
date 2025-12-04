@@ -3,7 +3,9 @@
 # (C) Copyright 2004-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifndef CONFIG_XPL_BUILD
+ifdef CONFIG_XPL_BUILD
+obj-y += dummy.o
+else
 # core command
 obj-y += boot.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o

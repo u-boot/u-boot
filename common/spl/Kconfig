@@ -573,6 +573,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 	bool "MMC raw mode: by partition type"
+	select SPL_LOAD_BLOCK
 	depends on DOS_PARTITION
 	help
 	  Use partition type for specifying U-Boot partition on MMC/SD in
