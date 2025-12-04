@@ -34,6 +34,10 @@
 	bootph-pre-ram;
 };
 
+&usbotg2 {
+	compatible = "fsl,imx8ulp-usb", "fsl,imx7ulp-usb", "fsl,imx27-usb";
+};
+
 &iomuxc1 {
 	bootph-all;
 };
