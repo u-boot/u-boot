@@ -132,12 +132,29 @@ static inline void net_set_state(enum net_loop_state state)
 }
 
 extern int		net_restart_wrap;	/* Tried all network devices */
-extern uchar               *net_rx_packets[PKTBUFSRX]; /* Receive packets */
+extern uchar		*net_rx_packets[PKTBUFSRX]; /* Receive packets */
+extern uchar		*net_rx_packet;		/* Current receive packet */
 extern const u8		net_bcast_ethaddr[ARP_HLEN];	/* Ethernet broadcast address */
-extern char	net_boot_file_name[1024];/* Boot File name */
 extern struct in_addr	net_ip;		/* Our    IP addr (0 = unknown) */
 /* Indicates whether the pxe path prefix / config file was specified in dhcp option */
 extern char *pxelinux_configfile;
+
+/* Our IP addr (0 = unknown) */
+extern struct in_addr	net_ip;
+/* Server IP addr (0 = unknown) */
+extern struct in_addr	net_server_ip;
+/* Our subnet mask (0=unknown) */
+extern struct in_addr net_netmask;
+/* Our gateways IP address */
+extern struct in_addr net_gateway;
+/* Boot File name */
+extern char	net_boot_file_name[1024];
+/* Indicates whether the file name was specified on the command line */
+extern bool	net_boot_file_name_explicit;
+/* The actual transferred size of the bootfile (in bytes) */
+extern u32	net_boot_file_size;
+/* Boot file size in blocks as reported by the DHCP server */
+extern u32	net_boot_file_expected_size_in_blocks;
 
 /**
  * compute_ip_checksum() - Compute IP checksum
