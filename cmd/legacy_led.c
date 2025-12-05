@@ -45,12 +45,6 @@ static const led_tbl_t led_commands[] = {
 	{ "5", CONFIG_LED_STATUS_BIT5, NULL, NULL, NULL },
 #endif
 #endif
-#ifdef CONFIG_LED_STATUS_GREEN
-	{ "green", CONFIG_LED_STATUS_GREEN, green_led_off, green_led_on, NULL },
-#endif
-#ifdef CONFIG_LED_STATUS_RED
-	{ "red", CONFIG_LED_STATUS_RED, red_led_off, red_led_on, NULL },
-#endif
 	{ NULL, 0, NULL, NULL, NULL }
 };
 
@@ -161,12 +155,6 @@ U_BOOT_CMD(
 #ifdef CONFIG_LED_STATUS5
 	"5|"
 #endif
-#endif
-#ifdef CONFIG_LED_STATUS_GREEN
-	"green|"
-#endif
-#ifdef CONFIG_LED_STATUS_RED
-	"red|"
 #endif
 	"all] [on|off|toggle|blink] [blink-freq in ms]",
 	"[led_name] [on|off|toggle|blink] sets or clears led(s)"
