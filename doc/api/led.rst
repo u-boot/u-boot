@@ -59,7 +59,7 @@ This must be a valid LED number (0-5).
 
 CONFIG_STATUS_LED_RED is the red LED. It is used to signal errors. This must be
 a valid LED number (0-5). Other similar color LED's macros are
-CONFIG_STATUS_LED_GREEN, CONFIG_STATUS_LED_YELLOW and CONFIG_STATUS_LED_BLUE.
+CONFIG_STATUS_LED_GREEN.
 
 General LED functions
 ~~~~~~~~~~~~~~~~~~~~~
@@ -79,15 +79,10 @@ Colour LED's are at present only used by ARM.
 
 The functions names explain their purpose.
 
-- coloured_LED_init
 - red_LED_on
 - red_LED_off
 - green_LED_on
 - green_LED_off
-- yellow_LED_on
-- yellow_LED_off
-- blue_LED_on
-- blue_LED_off
 
 These are weakly defined in arch/arm/lib/board.c to noops. Where applicable, define
 these functions in the board specific source.

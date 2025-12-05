@@ -29,9 +29,6 @@ int miiphy_reset(const char *devname, unsigned char addr);
 int miiphy_speed(const char *devname, unsigned char addr);
 int miiphy_duplex(const char *devname, unsigned char addr);
 int miiphy_is_1000base_x(const char *devname, unsigned char addr);
-#ifdef CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-int miiphy_link(const char *devname, unsigned char addr);
-#endif
 
 int miiphy_set_current_dev(const char *devname);
 const char *miiphy_get_current_dev(void);
