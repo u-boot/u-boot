@@ -297,6 +297,7 @@ static struct pbuf *alloc_pbuf_and_copy(uchar *data, int len)
 	/* We allocate a pbuf chain of pbufs from the pool. */
 	p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
 	if (!p) {
+		debug("Failed to allocate pbuf !!!!!\n");
 		LINK_STATS_INC(link.memerr);
 		LINK_STATS_INC(link.drop);
 		return NULL;
