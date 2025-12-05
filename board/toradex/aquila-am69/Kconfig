@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Copyright (C) 2025 Toradex
+#
+
+if TARGET_AQUILA_AM69_A72
+
+config SYS_BOARD
+       default "aquila-am69"
+
+config SYS_VENDOR
+       default "toradex"
+
+config SYS_CONFIG_NAME
+       default "aquila-am69"
+
+config TDX_CFG_BLOCK
+	default y
+
+config TDX_CFG_BLOCK_2ND_ETHADDR
+	default y
+
+config TDX_CFG_BLOCK_DEV
+	default "0"
+
+config TDX_CFG_BLOCK_EXTRA
+	default y
+
+config TDX_CFG_BLOCK_OFFSET
+	default "-512"
+
+config TDX_CFG_BLOCK_PART
+	default "1"
+
+config TDX_HAVE_EEPROM_EXTRA
+	default y
+
+config TDX_HAVE_MMC
+	default y
+
+source "board/toradex/common/Kconfig"
+
+endif
+
+if TARGET_AQUILA_AM69_R5
+
+config SYS_BOARD
+       default "aquila-am69"
+
+config SYS_VENDOR
+       default "toradex"
+
+config SYS_CONFIG_NAME
+       default "aquila-am69"
+
+config SPL_LDSCRIPT
+	default "arch/arm/mach-omap2/u-boot-spl.lds"
+
+endif

@@ -1,0 +1,13 @@
+AQUILA AM69
+M:	Francesco Dolcini <francesco.dolcini@toradex.com>
+W:	https://www.toradex.com/computer-on-modules/aquila-arm-family/ti-am69
+S:	Maintained
+F:	arch/arm/dts/k3-am69-aquila-dev-u-boot.dtsi
+F:	arch/arm/dts/k3-am69-aquila-dev.dts
+F:	arch/arm/dts/k3-am69-aquila-lpddr4-4266.dtsi
+F:	arch/arm/dts/k3-am69-aquila.dtsi
+F:	arch/arm/dts/k3-am69-r5-aquila-dev.dts
+F:	board/toradex/aquila-am69
+F:	configs/aquila-am69_a72_defconfig
+F:	configs/aquila-am69_r5_defconfig
+F:	include/configs/aquila-am69.h
