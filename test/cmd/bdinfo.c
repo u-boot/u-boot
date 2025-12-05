@@ -156,7 +156,9 @@ static int bdinfo_check_mem(struct unit_test_state *uts)
 
 static int bdinfo_test_all(struct unit_test_state *uts)
 {
-	ut_assertok(test_num_l(uts, "boot_params", 0));
+	struct bd_info *bd = gd->bd;
+
+	ut_assertok(test_num_l(uts, "boot_params", bd->bi_boot_params));
 
 	ut_assertok(bdinfo_check_mem(uts));
 
@@ -216,14 +218,68 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	}
 
 	/* Check arch_print_bdinfo() output */
-	if (IS_ENABLED(CONFIG_X86))
-		ut_check_skip_to_linen(uts, "tsc");
+	if (IS_ENABLED(CONFIG_PPC)) {
+		ut_check_console_linen(uts, "busfreq");
+		if (IS_ENABLED(CONFIG_MPC8xx) || IS_ENABLED(CONFIG_E500))
+			ut_check_console_linen(uts, "immr_base");
+		ut_check_console_linen(uts, "bootflags");
+		ut_check_console_linen(uts, "intfreq");
+		ut_check_console_linen(uts, "addressing");
+	}
+
+	if (IS_ENABLED(CONFIG_X86)) {
+		ut_check_console_linen(uts, "prev table");
+		ut_check_console_linen(uts, "clock_rate");
+		ut_check_console_linen(uts, "tsc_base");
+		ut_check_console_linen(uts, "vendor");
+		if (!IS_ENABLED(CONFIG_X86_64))
+			ut_check_console_linen(uts, " name");
+		ut_check_console_linen(uts, "model");
+		ut_check_console_linen(uts, "phys_addr in bits");
+		ut_check_console_linen(uts, "table start");
+		ut_check_console_linen(uts, "table end");
+		ut_check_console_linen(uts, " high start");
+		ut_check_console_linen(uts, " high end");
+		ut_check_console_linen(uts, "tsc");
+		if (IS_ENABLED(CONFIG_EFI_STUB)) {
+			ut_check_console_linen(uts, "efi_table");
+			ut_check_console_linen(uts, " revision");
+		}
+	}
 
 #ifdef CONFIG_RISCV
 	ut_check_console_linen(uts, "boot hart");
 	if (gd->arch.firmware_fdt_addr)
 		ut_check_console_linen(uts, "firmware fdt");
 #endif
+#ifdef CONFIG_ARM
+	ut_check_console_linen(uts, "arch_number");
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
+	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_SECURED)
+		ut_check_console_linen(uts, "Secure ram");
+#endif
+#ifdef CONFIG_RESV_RAM
+	if (gd->arch.resv_ram)
+		ut_check_console_linen(uts, "Reserved ram");
+#endif
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+	ut_check_console_linen(uts, "TLB addr");
+#endif
+	ut_check_console_linen(uts, "irq_sp");
+	ut_check_console_linen(uts, "sp start");
+#ifdef CONFIG_CLOCKS
+	ut_check_console_linen(uts, "ARM frequency =");
+	ut_check_console_linen(uts, "DSP frequency =");
+	ut_check_console_linen(uts, "DDR frequency =");
+#endif
+#ifdef CONFIG_BOARD_TYPES
+	ut_check_console_linen(uts, "Board Type  =");
+#endif
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
+	ut_check_console_linen(uts, "Early malloc usage:");
+#endif
+
+#endif /* CONFIG_ARM */
 
 	return 0;
 }

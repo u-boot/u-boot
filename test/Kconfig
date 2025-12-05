@@ -3,6 +3,8 @@ menu "Testing"
 config UNIT_TEST
 	bool "Unit tests"
 	depends on CMDLINE
+	imply CONSOLE_RECORD
+	imply HEXDUMP
 	help
 	  Select this to compile in unit tests for various parts of
 	  U-Boot. Test suites will be subcommands of the "ut" command.

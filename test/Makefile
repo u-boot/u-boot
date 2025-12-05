@@ -9,7 +9,7 @@ obj-$(CONFIG_$(PHASE_)CMDLINE) += cmd_ut.o
 obj-y += dm/
 obj-$(CONFIG_FUZZ) += fuzz/
 ifndef CONFIG_SANDBOX_VPL
-obj-$(CONFIG_UNIT_TEST) += lib/
+obj-y += lib/
 endif
 ifneq ($(CONFIG_HUSH_PARSER),)
 obj-$(CONFIG_$(PHASE_)CMDLINE) += hush/
@@ -19,7 +19,7 @@ obj-y += ut.o
 
 ifeq ($(CONFIG_XPL_BUILD),)
 obj-y += boot/
-obj-$(CONFIG_UNIT_TEST) += common/
+obj-y += common/
 obj-$(CONFIG_UT_ENV) += env/
 obj-$(CONFIG_UT_FDT_OVERLAY) += fdt_overlay/
 obj-y += log/
