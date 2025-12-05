@@ -82,11 +82,12 @@ void dram_bank_mmu_setup(int bank)
 	     i++) {
 		addr = i << MMU_SECTION_SHIFT;
 		option = DCACHE_DEFAULT_OPTION;
-		if (use_lmb &&
-		    (lmb_is_reserved_flags(i << MMU_SECTION_SHIFT, LMB_NOMAP) ||
-		     (gd->ram_top && addr >= gd->ram_top))
-		   )
-			option = 0; /* INVALID ENTRY in TLB */
+		if (use_lmb) {
+			if (lmb_is_reserved_flags(i << MMU_SECTION_SHIFT, LMB_NOMAP))
+				continue;
+			if (gd->ram_top && addr >= gd->ram_top)
+				option = 0; /* INVALID ENTRY in TLB */
+		}
 		set_section_dcache(i, option);
 	}
 }

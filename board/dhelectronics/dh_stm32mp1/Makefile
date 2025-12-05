@@ -3,6 +3,8 @@
 # Copyright (C) 2018, STMicroelectronics - All Rights Reserved
 #
 
+obj-$(CONFIG_DEBUG_UART_BOARD_INIT) += ../../st/stm32mp1/debug_uart.o
+
 obj-$(CONFIG_PMIC_STPMIC1) += ../../st/common/stpmic1.o
 obj-y += board.o
 
