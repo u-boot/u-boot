@@ -26,7 +26,8 @@ static struct legacy_img_hdr header;
 
 static int fit_estimate_hash_sig_size(struct image_tool_params *params, const char *fname)
 {
-	bool signing = IMAGE_ENABLE_SIGN && (params->keydir || params->keyfile);
+	bool signing = IMAGE_ENABLE_SIGN &&
+		(params->keydir || params->keyfile || params->engine_id);
 	struct stat sbuf;
 	void *fdt;
 	int fd;

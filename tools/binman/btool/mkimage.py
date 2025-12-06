@@ -22,7 +22,7 @@ class Bintoolmkimage(bintool.Bintool):
 
     # pylint: disable=R0913
     def run(self, reset_timestamp=False, output_fname=None, external=False,
-            pad=None, align=None, keys_dir=None):
+            pad=None, align=None, keys_dir=None, engine=None):
         """Run mkimage
 
         Args:
@@ -35,6 +35,7 @@ class Bintoolmkimage(bintool.Bintool):
                 signatures
             align: Bytes to use for alignment of the FIT and its external data
             keys_dir: Path to directory containing private and encryption keys
+            engine: Name of the OpenSSL engine to use
         """
         args = []
         if external:
@@ -49,6 +50,8 @@ class Bintoolmkimage(bintool.Bintool):
             args += ['-k', f'{keys_dir}']
         if output_fname:
             args += ['-F', output_fname]
+        if engine:
+            args += ['-N', engine]
         return self.run_cmd(*args)
 
     def fetch(self, method):
