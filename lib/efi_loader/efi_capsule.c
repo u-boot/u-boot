@@ -857,18 +857,9 @@ static efi_status_t get_dp_device(u16 *boot_var,
 	struct efi_device_path *file_dp;
 	efi_status_t ret;
 
-	size = 0;
-	ret = efi_get_variable_int(boot_var, &efi_global_variable_guid,
-				   NULL, &size, NULL, NULL);
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		buf = malloc(size);
-		if (!buf)
-			return EFI_OUT_OF_RESOURCES;
-		ret = efi_get_variable_int(boot_var, &efi_global_variable_guid,
-					   NULL, &size, buf, NULL);
-	}
-	if (ret != EFI_SUCCESS)
-		return ret;
+	buf = efi_get_var(boot_var, &efi_global_variable_guid, &size);
+	if (!buf)
+		return EFI_NOT_FOUND;
 
 	efi_deserialize_load_option(&lo, buf, &size);
 
@@ -960,22 +951,11 @@ static efi_status_t find_boot_device(void)
 
 skip:
 	/* find active boot device in BootOrder */
-	size = 0;
-	ret = efi_get_variable_int(u"BootOrder", &efi_global_variable_guid,
-				   NULL, &size, NULL, NULL);
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		boot_order = malloc(size);
-		if (!boot_order) {
-			ret = EFI_OUT_OF_RESOURCES;
-			goto out;
-		}
-
-		ret = efi_get_variable_int(u"BootOrder",
-					   &efi_global_variable_guid,
-					   NULL, &size, boot_order, NULL);
-	}
-	if (ret != EFI_SUCCESS)
+	boot_order = efi_get_var(u"BootOrder", &efi_global_variable_guid, &size);
+	if (!boot_order) {
+		ret = EFI_NOT_FOUND;
 		goto out;
+	}
 
 	/* check in higher order */
 	num = size / sizeof(u16);
