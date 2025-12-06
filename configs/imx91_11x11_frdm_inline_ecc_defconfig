@@ -1,0 +1,3 @@
+#include <configs/imx91_11x11_frdm_defconfig>
+
+CONFIG_IMX9_DRAM_INLINE_ECC=y
