@@ -27,6 +27,8 @@ config TARGET_IMX8ULP_EVK
 	select IMX8ULP
 	select SUPPORT_SPL
 	select IMX8ULP_DRAM
+	imply BOOTSTD_FULL
+	imply OF_UPSTREAM
 
 endchoice
 
