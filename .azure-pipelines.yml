@@ -145,13 +145,14 @@ stages:
     displayName: 'Run binman, buildman, dtoc, Kconfig and patman testsuites'
     pool:
       vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
     steps:
       - script: |
-          cat << "EOF" > build.sh
-          cd $(work_dir)
+          # Configure git
           git config --global user.name "Azure Pipelines"
           git config --global user.email bmeng.cn@gmail.com
-          git config --global --add safe.directory $(work_dir)
           export USER=azure
           python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
@@ -174,11 +175,6 @@ stages:
           ./tools/dtoc/dtoc -t
           ./tools/patman/patman test
           make O=${UBOOT_TRAVIS_BUILD_DIR} testconfig
-          EOF
-          cat build.sh
-          # We cannot use "container" like other jobs above, as buildman
-          # seems to hang forever with pre-configured "container" environment
-          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
 
   - job: pylint
     displayName: Check for any pylint regressions
@@ -657,6 +653,9 @@ stages:
     displayName: 'Build the World'
     pool:
       vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
     strategy:
       # We split the world up in to 10 jobs as we can have at most 10
       # parallel jobs going on the free tier of Azure.
@@ -721,19 +720,13 @@ stages:
           BUILDMAN: $(aarch64_catch_all)
     steps:
       - script: |
-          cat << EOF > build.sh
           set -ex
-          cd ${WORK_DIR}
-          # make environment variables available as tests are running inside a container
-          export BUILDMAN="${BUILDMAN}"
-          git config --global --add safe.directory ${WORK_DIR}
+          # Setup venv, perform build
           python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r tools/binman/requirements.txt \
             -r tools/buildman/requirements.txt \
             setuptools
-          EOF
-          cat << "EOF" >> build.sh
           if [[ "${BUILDMAN}" != "" ]]; then
               ret=0;
               tools/buildman/buildman -o /tmp -PEWM ${BUILDMAN} ${OVERRIDE} || ret=$?;
@@ -742,6 +735,3 @@ stages:
                   exit $ret;
               fi;
           fi
-          EOF
-          cat build.sh
-          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
