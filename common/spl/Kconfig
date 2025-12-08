@@ -489,15 +489,18 @@ config SPL_SYS_MALLOC
 config SPL_HAS_CUSTOM_MALLOC_START
 	bool "For the SPL malloc pool, define a custom starting address"
 	depends on SPL_SYS_MALLOC
+	default y if ARCH_K3 && CPU_V7R
 
 config SPL_CUSTOM_SYS_MALLOC_ADDR
 	hex "SPL malloc addr"
 	depends on SPL_HAS_CUSTOM_MALLOC_START
+	default 0x84000000 if ARCH_K3 && CPU_V7R
 
 config SPL_SYS_MALLOC_SIZE
 	hex "Size of the SPL malloc pool"
 	depends on SPL_SYS_MALLOC
 	default 0x800000 if RISCV
+	default 0x1000000 if ARCH_K3 && CPU_V7R
 	default 0x100000
 
 config SPL_READ_ONLY
