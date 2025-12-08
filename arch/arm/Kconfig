@@ -835,6 +835,7 @@ config ARCH_K3
 	select FIT_SIGNATURE if ARM64
 	select DMA_ADDR_T_64BIT
 	select LTO
+	select SPL_LOAD_FIT if SPL
 	imply TI_SECURE_DEVICE
 	imply DM_RNG if ARM64
 	imply TEE if ARM64
