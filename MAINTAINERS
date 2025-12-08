@@ -1605,7 +1605,7 @@ F:	drivers/pinctrl/pinctrl-k210.c
 F:	include/k210/
 
 RISC-V T-HEAD TH1520
-M:	Yao Zi <ziyao@disroot.org>
+M:	Yao Zi <me@ziyao.cc>
 S:	Maintained
 F:	arch/riscv/cpu/th1520/
 F:	drivers/clk/thead/clk-th1520-ap.c
