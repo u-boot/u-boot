@@ -653,9 +653,9 @@ Refer (:ref:`U-boot ARMV8 build <k3_rst_include_start_build_steps_uboot>`)
 Saving environment
 ------------------
 
-SAVEENV is disabled by default and for the new flow uses Uenv.txt as the default
-way for saving the environments. This has been done as Uenv.txt is more granular
-then the saveenv command and can be used across various bootmodes too.
+SAVEENV is disabled by default and for the new flow uses uEnv.txt as the default
+way for saving the environments. This has been done as uEnv.txt is more granular
+than the saveenv command and can be used across various bootmodes too.
 
 **Writing to MMC/EMMC**
 
