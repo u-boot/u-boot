@@ -50,10 +50,10 @@ cmd_u-boot-spl = (cd $(obj) && \
 
 ifeq ($(HOST_ARCH),$(HOST_ARCH_X86_64))
 EFI_LDS := ${SRCDIR}/../../../arch/x86/lib/elf_x86_64_efi.lds
-EFI_TARGET := --target=efi-app-x86_64
+EFI_TARGET := --output-target=efi-app-x86_64
 else ifeq ($(HOST_ARCH),$(HOST_ARCH_X86))
 EFI_LDS := ${SRCDIR}/../../../arch/x86/lib/elf_ia32_efi.lds
-EFI_TARGET := --target=efi-app-ia32
+EFI_TARGET := --output-target=efi-app-ia32
 else ifeq ($(HOST_ARCH),$(HOST_ARCH_AARCH64))
 EFI_LDS := ${SRCDIR}/../../../arch/arm/lib/elf_aarch64_efi.lds
 OBJCOPYFLAGS += -j .text -j .secure_text -j .secure_data -j .rodata -j .data \
