@@ -5,7 +5,7 @@
  * Copyright (c) 2019 Simon Goldschmidt
  */
 /{
-	memory {
+	memory@0 {
 		bootph-all;
 	};
 
