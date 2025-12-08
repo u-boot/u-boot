@@ -1,0 +1,139 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/*
+ * Device Tree Source extras for U-Boot on R-Car R8A78000 SoC
+ *
+ * Copyright (C) 2025 Renesas Electronics Corp.
+ */
+
+/ {
+	soc {
+		bootph-all;
+	};
+
+	/* Placeholder clock until the clock provider is in place */
+	clk_stub_gpio: clk-stub-gpio {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <1000000>;
+	};
+
+	clk_stub_i2c0: clk-stub-i2c0 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <150000000>;
+	};
+
+	clk_stub_i2c1: clk-stub-i2c1 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <133333333>;
+	};
+
+	clk_stub_mmc: clk-stub-mmc {
+		compatible = "renesas,compound-clock";
+		#clock-cells = <0>;
+		clocks = <&scmi_clk SCP_CLOCK_ID_MDLC_SDHI0>,
+			 <&scmi_clk 1691>;
+		clock-names = "mdlc", "per";
+	};
+};
+
+&cpg {
+	bootph-all;
+};
+
+&extal_clk {
+	bootph-all;
+};
+
+&extalr_clk {
+	bootph-all;
+};
+
+&gpio0 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio1 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio2 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio3 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio4 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio5 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio6 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio7 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio8 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio9 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&gpio10 {
+	clocks = <&clk_stub_gpio>;
+};
+
+&i2c0 {
+	clocks = <&clk_stub_i2c0>;
+};
+
+&i2c1 {
+	clocks = <&clk_stub_i2c1>;
+};
+
+&i2c2 {
+	clocks = <&clk_stub_i2c1>;
+};
+
+&i2c3 {
+	clocks = <&clk_stub_i2c1>;
+};
+
+&i2c4 {
+	clocks = <&clk_stub_i2c1>;
+};
+
+&i2c5 {
+	clocks = <&clk_stub_i2c1>;
+};
+
+&i2c6 {
+	clocks = <&clk_stub_i2c1>;
+};
+
+&i2c7 {
+	clocks = <&clk_stub_i2c1>;
+};
+
+&i2c8 {
+	clocks = <&clk_stub_i2c1>;
+};
+
+&mmc0 {
+	clocks = <&clk_stub_mmc>;
+};
+
+&prr {
+	bootph-all;
+};

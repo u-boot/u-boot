@@ -819,6 +819,10 @@ static int am65_cpsw_nuss_bind(struct udevice *dev)
 	ofnode_for_each_subnode(node, ports_np) {
 		const char *node_name;
 
+		/* Ignore disabled ports */
+		if (!ofnode_is_enabled(node))
+			continue;
+
 		node_name = ofnode_get_name(node);
 
 		ret = device_bind_driver_to_node(dev, "am65_cpsw_nuss_port", node_name, node,

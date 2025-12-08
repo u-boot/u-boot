@@ -97,5 +97,6 @@ void exynos_pinctrl_setup_peri(struct exynos_pinctrl_config_data *conf,
 int exynos_pinctrl_set_state(struct udevice *dev,
 		struct udevice *config);
 int exynos_pinctrl_probe(struct udevice *dev);
+int exynos_pinctrl_bind(struct udevice *dev);
 
 #endif /* __PINCTRL_EXYNOS_H_ */

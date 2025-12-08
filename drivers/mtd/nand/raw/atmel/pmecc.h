@@ -65,7 +65,6 @@ struct atmel_pmecc {
 	struct {
 		void __iomem *base;
 		void __iomem *errloc;
-		void __iomem *timing;
 	} regs;
 
 	/* Mutex used for pmecc enable/disable */

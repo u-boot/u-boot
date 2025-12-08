@@ -1274,6 +1274,7 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 	char fdt[8192];
 	struct udevice *dev;
 	ulong addr;
+	ulong smbiosaddr = gd_smbios_start();
 
 	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt), &addr));
 	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
@@ -1292,6 +1293,10 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 		ut_assert(0 < console_record_readline(uts->actual_str,
 						      sizeof(uts->actual_str)));
 	ut_asserteq_str("chosen {", uts->actual_str);
+	if (CONFIG_IS_ENABLED(GENERATE_SMBIOS_TABLE))
+		ut_assert_nextline("\tsmbios3-entrypoint = <0x%08x 0x%08x>;",
+				   upper_32_bits(smbiosaddr),
+				   lower_32_bits(smbiosaddr));
 	ut_assert_nextlinen("\tu-boot,version = "); /* Ignore the version string */
 	if (env_bootargs)
 		ut_assert_nextline("\tbootargs = \"%s\";", env_bootargs);
@@ -1316,6 +1321,10 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 			   lower_32_bits(0x1234 + 0x5678 - 1));
 	ut_assert_nextline("\tlinux,initrd-start = <0x%08x 0x%08x>;",
 			   upper_32_bits(0x1234), lower_32_bits(0x1234));
+	if (CONFIG_IS_ENABLED(GENERATE_SMBIOS_TABLE))
+		ut_assert_nextline("\tsmbios3-entrypoint = <0x%08x 0x%08x>;",
+				   upper_32_bits(smbiosaddr),
+				   lower_32_bits(smbiosaddr));
 	ut_assert_nextlinen("\tu-boot,version = "); /* Ignore the version string */
 	if (env_bootargs)
 		ut_assert_nextline("\tbootargs = \"%s\";", env_bootargs);

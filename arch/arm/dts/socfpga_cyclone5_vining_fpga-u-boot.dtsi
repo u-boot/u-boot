@@ -13,6 +13,32 @@
 		spi0 = "/soc/spi@ff705000";
 		udc0 = &usb1;
 	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led-0 {
+			default-state = "off";
+			gpios = <&portb 20 GPIO_ACTIVE_HIGH>;
+		};
+
+		led-1 {
+			default-state = "off";
+			gpios = <&portb 25 GPIO_ACTIVE_HIGH>;
+			label = "status_1";
+		};
+
+		led-2 {
+			default-state = "off";
+			gpios = <&portb 26 GPIO_ACTIVE_HIGH>;
+			label = "status_2";
+		};
+
+		led-3 {
+			default-state = "off";
+			gpios = <&portc 7 GPIO_ACTIVE_HIGH>;
+		};
+	};
 };
 
 &mmc {

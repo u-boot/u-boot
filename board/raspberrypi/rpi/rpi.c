@@ -3,6 +3,8 @@
  * (C) Copyright 2012-2016 Stephen Warren
  */
 
+#define LOG_CATEGORY	LOGC_BOARD
+
 #include <config.h>
 #include <dm.h>
 #include <env.h>
@@ -332,13 +334,27 @@ int dram_init(void)
 #ifdef CONFIG_OF_BOARD
 int dram_init_banksize(void)
 {
+	phys_addr_t total_size = 0;
+	int i;
 	int ret;
 
 	ret = fdtdec_setup_memory_banksize();
 	if (ret)
 		return ret;
 
-	return fdtdec_setup_mem_size_base();
+	ret = fdtdec_setup_mem_size_base();
+	if (ret)
+		return ret;
+
+	/* Update gd->ram_size to reflect total RAM across all banks */
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		if (gd->bd->bi_dram[i].size == 0)
+			break;
+		total_size += gd->bd->bi_dram[i].size;
+	}
+	gd->ram_size = total_size;
+
+	return 0;
 }
 #endif
 
@@ -354,15 +370,13 @@ static void set_fdtfile(void)
 }
 
 /*
- * If the firmware provided a valid FDT at boot time, let's expose it in
- * ${fdt_addr} so it may be passed unmodified to the kernel.
+ * Allow U-Boot to use its control FDT with extlinux if one is not provided.
+ * This will then go through the usual fixups that U-Boot does, before being
+ * handed off to Linux
  */
 static void set_fdt_addr(void)
 {
-	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC)
-		return;
-
-	env_set_hex("fdt_addr", fw_dtb_pointer);
+	env_set_hex("fdt_addr", (ulong)gd->fdt_blob);
 }
 
 /*
@@ -608,7 +622,10 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int node;
 
-	update_fdt_from_fw(blob, (void *)fw_dtb_pointer);
+	if (blob == gd->fdt_blob)
+		log_debug("Same FDT: nothing to do\n");
+	else
+		update_fdt_from_fw(blob, (void *)gd->fdt_blob);
 
 	if (CONFIG_IS_ENABLED(FDT_SIMPLEFB)) {
 		node = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");

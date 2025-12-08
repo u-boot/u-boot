@@ -9,9 +9,12 @@
 #ifndef __EXYNOS_CLK_H
 #define __EXYNOS_CLK_H
 
+#include <clk.h>
 #include <errno.h>
 #include <linux/clk-provider.h>
 #include "clk-pll.h"
+
+int samsung_clk_request(struct clk *clk);
 
 #define _SAMSUNG_CLK_OPS(_name, _cmu)					\
 static int _name##_of_xlate(struct clk *clk,				\
@@ -37,6 +40,7 @@ static const struct clk_ops _name##_clk_ops = {				\
 	.enable = ccf_clk_enable,					\
 	.disable = ccf_clk_disable,					\
 	.of_xlate = _name##_of_xlate,					\
+	.request = samsung_clk_request,					\
 }
 
 /**
@@ -57,6 +61,53 @@ static const struct clk_ops _name##_clk_ops = {				\
  * Keeps a range of 256 available clocks for every CMU.
  */
 #define SAMSUNG_TO_CLK_ID(_cmu, _id)	(((_cmu) << 8) | ((_id) & 0xff))
+
+/**
+ * struct samsung_fixed_rate_clock - information about fixed-rate clock
+ * @id: platform specific id of the clock
+ * @name: name of this fixed-rate clock
+ * @fixed_rate: fixed clock rate of this clock
+ */
+struct samsung_fixed_rate_clock {
+	unsigned int		id;
+	const char		*name;
+	unsigned long		fixed_rate;
+};
+
+#define FRATE(_id, cname, frate)			\
+	{						\
+		.id		= _id,			\
+		.name		= cname,		\
+		.fixed_rate	= frate,		\
+	}
+
+/**
+ * struct samsung_fixed_factor_clock - information about fixed-factor clock
+ * @id: platform specific id of the clock
+ * @name: name of this fixed-factor clock
+ * @parent_name: parent clock name
+ * @mult: fixed multiplication factor
+ * @div: fixed division factor
+ * @flags: optional fixed-factor clock flags
+ */
+struct samsung_fixed_factor_clock {
+	unsigned int		id;
+	const char		*name;
+	const char		*parent_name;
+	unsigned long		mult;
+	unsigned long		div;
+	unsigned long		flags;
+};
+
+#define FFACTOR(_id, cname, pname, m, d, f)		\
+	{						\
+		.id		= _id,			\
+		.name		= cname,		\
+		.parent_name	= pname,		\
+		.mult		= m,			\
+		.div		= d,			\
+		.flags		= f,			\
+	}
 
 /**
  * struct samsung_mux_clock - information about mux clock
@@ -206,6 +257,8 @@ struct samsung_pll_clock {
 	}
 
 enum samsung_clock_type {
+	S_CLK_FRATE,
+	S_CLK_FFACTOR,
 	S_CLK_MUX,
 	S_CLK_DIV,
 	S_CLK_GATE,

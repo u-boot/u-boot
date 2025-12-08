@@ -6,4 +6,5 @@ Learn about U-Boot
 .. toctree::
    :maxdepth: 1
 
+   logo
    talks

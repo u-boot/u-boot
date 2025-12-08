@@ -227,7 +227,7 @@ static int ti_pd_get(struct ti_pd *pd)
 
 	pd_write(pdctl, pd, PSC_PDCTL);
 
-	return 0;
+	return ti_pd_wait(pd);
 }
 
 static int ti_pd_put(struct ti_pd *pd)

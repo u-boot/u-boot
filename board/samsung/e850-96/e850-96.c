@@ -11,6 +11,7 @@
 #include <net.h>
 #include <usb.h>
 #include <asm/io.h>
+#include "bootdev.h"
 #include "fw.h"
 #include "pmic.h"
 
@@ -30,6 +31,10 @@
 #define EMMC_IFNAME			"mmc"
 #define EMMC_DEV_NUM			0
 #define EMMC_ESP_PART			1
+
+/* Firmware size */
+#define LDFW_MAX_SIZE			SZ_4M
+#define SP_MAX_SIZE			SZ_1M
 
 struct efi_fw_image fw_images[] = {
 	{
@@ -76,16 +81,6 @@ static struct acpm acpm = {
 					   EXYNOS850_APM_SHMEM_OFFSET),
 	.ipc_ch		= EXYNOS850_IPC_AP_I3C,
 };
-
-int dram_init(void)
-{
-	return fdtdec_setup_mem_size_base();
-}
-
-int dram_init_banksize(void)
-{
-	return fdtdec_setup_memory_banksize();
-}
 
 /* Read the unique SoC ID from OTP registers */
 static u64 get_chip_id(void)
@@ -137,11 +132,34 @@ static void setup_ethaddr(void)
 		eth_env_set_enetaddr("ethaddr", mac_addr);
 }
 
+static void load_firmware_usb(void)
+{
+	int err;
+
+	printf("Loading LDFW firmware (over USB)...\n");
+	err = load_image_usb(USB_DN_IMAGE_LDFW, LDFW_NWD_ADDR, LDFW_MAX_SIZE);
+	if (err) {
+		printf("ERROR: LDFW loading failed (%d)\n", err);
+		return;
+	}
+
+	err = init_ldfw(LDFW_NWD_ADDR);
+	if (err) {
+		printf("ERROR: LDFW init failed (%d)\n", err);
+		/* Do not return, still need to download SP */
+	}
+
+	printf("Loading SP firmware (over USB)...\n");
+	err = load_image_usb(USB_DN_IMAGE_SP, LDFW_NWD_ADDR, SP_MAX_SIZE);
+	if (err)
+		printf("ERROR: SP loading failed (%d)\n", err);
+}
+
 /*
  * Call this in board_late_init() to avoid probing block devices before
  * efi_init_early().
  */
-void load_firmware(void)
+static void load_firmware_blk(void)
 {
 	const char *ifname;
 	ulong dev, part;
@@ -161,16 +179,41 @@ void load_firmware(void)
 	}
 
 	printf("Loading LDFW firmware (from %s %ld)...\n", ifname, dev);
-	err = load_ldfw(ifname, dev, part, LDFW_NWD_ADDR);
-	if (err)
+	err = load_ldfw_from_blk(ifname, dev, part, LDFW_NWD_ADDR);
+	if (err) {
 		printf("ERROR: LDFW loading failed (%d)\n", err);
+		return;
+	}
+	err = init_ldfw(LDFW_NWD_ADDR);
+	if (err)
+		printf("ERROR: LDFW init failed (%d)\n", err);
+}
+
+int dram_init(void)
+{
+	return fdtdec_setup_mem_size_base();
+}
+
+int dram_init_banksize(void)
+{
+	return fdtdec_setup_memory_banksize();
 }
 
 int board_late_init(void)
 {
 	setup_serial();
 	setup_ethaddr();
-	load_firmware();
+
+	if (bootdev_is_usb())
+		load_firmware_usb();
+	else
+		load_firmware_blk();
+
+	if (bootdev_is_usb()) {
+		env_set("bootcmd", "echo \"Entering DFU mode...\"; "
+			"dfu 0 mmc 0");
+		env_set("bootdelay", "0");
+	}
 
 	return 0;
 }

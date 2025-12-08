@@ -1,7 +1,8 @@
 BUR_PPT2 BOARD
-M:	Wolfgang Wallner <wolfgang.wallner@br-automation.com>
+M:	Wolfgang Wallner <wolfgang.wallner@at.abb.com>
 S:	Maintained
 F:	board/BuR/brppt2/
 F:	board/BuR/common/
 F:	include/configs/brppt2.h
 F:	configs/brppt2_defconfig
+F:	arch/arm/dts/imx6dl-brppt2.dts

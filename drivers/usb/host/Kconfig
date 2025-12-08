@@ -271,6 +271,7 @@ config USB_EHCI_MSM
 
 config USB_EHCI_PCI
 	bool "Support for PCI-based EHCI USB controller"
+	depends on PCI
 	default y if X86
 	help
 	  Enables support for the PCI-based EHCI controller.

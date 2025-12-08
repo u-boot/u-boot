@@ -8,4 +8,5 @@ Samsung
 
    axy17lte
    e850-96
+   exynos-mobile
    n1

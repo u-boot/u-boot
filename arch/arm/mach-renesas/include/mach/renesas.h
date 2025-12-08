@@ -16,6 +16,8 @@
 #include <asm/arch/rcar-gen3-base.h>
 #elif defined(CONFIG_RCAR_GEN4)
 #include <asm/arch/rcar-gen4-base.h>
+#elif defined(CONFIG_RCAR_GEN5)
+#include <asm/arch/rcar-gen5-base.h>
 #elif defined(CONFIG_R7S72100)
 #elif defined(CONFIG_RZG2L)
 #include <asm/arch/rzg2l.h>
@@ -42,6 +44,7 @@
 #define RENESAS_CPU_TYPE_R8A779F0	0x5A
 #define RENESAS_CPU_TYPE_R8A779G0	0x5C
 #define RENESAS_CPU_TYPE_R8A779H0	0x5D
+#define RMOBILE_CPU_TYPE_R8A78000	0x60
 #define RENESAS_CPU_TYPE_R9A07G044L	0x9A070440
 
 #ifndef __ASSEMBLY__

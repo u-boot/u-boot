@@ -82,11 +82,16 @@ struct efi_capsule_update_info update_info = {
 };
 
 #if CONFIG_IS_ENABLED(TI_I2C_BOARD_DETECT)
+int do_board_detect(void)
+{
+	return do_board_detect_am6();
+}
+
 int checkboard(void)
 {
 	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
 
-	if (!do_board_detect_am6())
+	if (!do_board_detect())
 		printf("Board: %s rev %s\n", ep->name, ep->version);
 
 	return 0;
@@ -97,7 +102,7 @@ static void setup_board_eeprom_env(void)
 {
 	char *name = "am62x_skevm";
 
-	if (do_board_detect_am6())
+	if (do_board_detect())
 		goto invalid_eeprom;
 
 	if (board_is_am62x_skevm())

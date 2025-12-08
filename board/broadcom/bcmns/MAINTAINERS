@@ -1,5 +1,5 @@
 BCMNS BOARD
-M:	Linus Walleij <linus.walleij@linaro.org>
+M:	Linus Walleij <linusw@kernel.org>
 S:	Maintained
 F:	board/broadcom/bcmns/
 F:	configs/bcmns_defconfig

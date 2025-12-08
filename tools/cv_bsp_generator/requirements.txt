@@ -1,0 +1,5 @@
+# requirements.txt for cv_bsp_generator.py
+# All dependencies are either standard library modules
+# or local Python files included in this BSP tool.
+# No external pip packages are required.
+

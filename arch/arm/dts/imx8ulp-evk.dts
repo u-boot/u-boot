@@ -119,3 +119,7 @@
 		>;
 	};
 };
+
+&wdog3 {
+	status = "disabled";
+};

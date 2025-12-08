@@ -142,6 +142,7 @@ struct atmel_pmecc_caps {
 	int nstrengths;
 	int el_offset;
 	bool correct_erased_chunks;
+	bool clk_ctrl;
 };
 
 struct atmel_pmecc_user_conf_cache {
@@ -819,8 +820,7 @@ EXPORT_SYMBOL_GPL(atmel_pmecc_wait_rdy);
 static struct atmel_pmecc *
 atmel_pmecc_create(struct udevice *dev,
 		   const struct atmel_pmecc_caps *caps,
-		   int pmecc_res_idx, int errloc_res_idx,
-		   int timing_res_idx)
+		   int pmecc_res_idx, int errloc_res_idx)
 {
 	struct atmel_pmecc *pmecc;
 	struct resource res;
@@ -838,7 +838,9 @@ atmel_pmecc_create(struct udevice *dev,
 	ofnode_read_resource(dev->node_, 1, &res);
 	pmecc->regs.errloc = (void *)res.start;
 
-	pmecc->regs.timing = 0;
+	/* pmecc data setup time */
+	if (caps->clk_ctrl)
+		writel(PMECC_CLK_133MHZ, pmecc->regs.base + ATMEL_PMECC_CLK);
 
 	/* Disable all interrupts before registering the PMECC handler. */
 	writel(0xffffffff, pmecc->regs.base + ATMEL_PMECC_IDR);
@@ -884,6 +886,7 @@ static struct atmel_pmecc_caps at91sam9g45_caps = {
 	.strengths = atmel_pmecc_strengths,
 	.nstrengths = 5,
 	.el_offset = 0x8c,
+	.clk_ctrl = true,
 };
 
 static struct atmel_pmecc_caps sama5d4_caps = {
@@ -946,7 +949,7 @@ static int atmel_pmecc_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	pmecc = atmel_pmecc_create(dev, caps, 0, 1, 2);
+	pmecc = atmel_pmecc_create(dev, caps, 0, 1);
 	if (IS_ERR(pmecc))
 		return PTR_ERR(pmecc);
 

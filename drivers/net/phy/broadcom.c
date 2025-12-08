@@ -176,11 +176,11 @@ static int bcm54210e_config(struct phy_device *phydev)
 {
 	int ret;
 
-	ret = bcm54xx_config_clock_delay(phydev);
+	ret = bcm5461_config(phydev);
 	if (ret < 0)
 		return ret;
 
-	ret = bcm5461_config(phydev);
+	ret = bcm54xx_config_clock_delay(phydev);
 	if (ret < 0)
 		return ret;
 
