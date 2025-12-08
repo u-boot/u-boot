@@ -212,7 +212,7 @@ config IMAGE_SPARSE_FILLBUF_SIZE
 config USE_PRIVATE_LIBGCC
 	bool "Use private libgcc"
 	depends on HAVE_PRIVATE_LIBGCC
-	default y if HAVE_PRIVATE_LIBGCC && ((ARM && !ARM64) || MIPS)
+	default y if HAVE_PRIVATE_LIBGCC && ((ARM && !ARM64) || MIPS || RISCV)
 	help
 	  This option allows you to use the built-in libgcc implementation
 	  of U-Boot instead of the one provided by the compiler.

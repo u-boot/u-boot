@@ -17,8 +17,8 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,38400n8 debug loglevel=7";
-		stdout-path = "uart0:38400n8";
+		bootargs = "console=ttyS0,115200n8 debug loglevel=7";
+		stdout-path = "uart0:115200n8";
 	};
 
 	cpus {
