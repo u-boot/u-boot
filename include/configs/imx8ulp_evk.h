@@ -21,18 +21,8 @@
 #define CFG_FEC_MXC_PHYADDR		1
 #endif
 
-#ifdef CONFIG_DISTRO_DEFAULTS
-#define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0)
-
-#include <config_distro_bootcmd.h>
-#else
-#define BOOTENV
-#endif
-
 /* Initial environment variables */
 #define CFG_EXTRA_ENV_SETTINGS		\
-	BOOTENV \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"image=Image\0" \
