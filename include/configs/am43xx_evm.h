@@ -148,9 +148,4 @@
 #define NANDBOOT
 #endif /* CONFIG_MTD_RAW_NAND */
 
-#if defined(CONFIG_TI_SECURE_DEVICE)
-/* Avoid relocating onto firewalled area at end of DRAM */
-#define CFG_PRAM (64 * 1024)
-#endif /* CONFIG_TI_SECURE_DEVICE */
-
 #endif	/* __CONFIG_AM43XX_EVM_H */
