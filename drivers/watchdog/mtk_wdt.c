@@ -145,6 +145,7 @@ static const struct udevice_id mtk_wdt_ids[] = {
 	{ .compatible = "mediatek,wdt"},
 	{ .compatible = "mediatek,mt6589-wdt"},
 	{ .compatible = "mediatek,mt7986-wdt" },
+	{ .compatible = "mediatek,mt8188-wdt" },
 	{}
 };
 

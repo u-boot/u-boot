@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (c) 2025 Baylibre SAS.
+ * Author: Julien Masson <jmasson@baylibre.com>
+ */
+
+&u3phy0 {
+	compatible = "mediatek,mt8188-tphy", "mediatek,generic-tphy-v3",
+		     "mediatek,generic-tphy-v2";
+};
