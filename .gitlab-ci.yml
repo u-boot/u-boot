@@ -387,6 +387,7 @@ qemu_arm64 test.py:
   variables:
     TEST_PY_BD: "qemu_arm64"
     TEST_PY_TEST_SPEC: "not sleep"
+    OVERRIDE: "-a CONFIG_SEMIHOSTING=y"
   <<: *buildman_and_testpy_dfn
 
 qemu_arm64_lwip test.py:
