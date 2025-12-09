@@ -23,8 +23,17 @@
 #include <linux/printk.h>
 #include <linux/sizes.h>
 
-struct stm32_ltdc_priv {
+struct stm32_ltdc_plat {
 	void __iomem *regs;
+	struct udevice *bridge;
+	struct udevice *panel;
+	struct reset_ctl rst;
+	struct clk pclk;
+	struct clk bclk;
+};
+
+struct stm32_ltdc_priv {
+	struct display_timing timings;
 	enum video_log2_bpp l2bpp;
 	u32 bg_col_argb;
 	const u32 *layer_regs;
@@ -365,18 +374,20 @@ static bool has_alpha(u32 fmt)
 	}
 }
 
-static void stm32_ltdc_enable(struct stm32_ltdc_priv *priv)
+static void stm32_ltdc_enable(void __iomem *regs)
 {
 	/* Reload configuration immediately & enable LTDC */
-	setbits_le32(priv->regs + LTDC_SRCR, SRCR_IMR);
-	setbits_le32(priv->regs + LTDC_GCR, GCR_LTDCEN);
+	setbits_le32(regs + LTDC_SRCR, SRCR_IMR);
+	setbits_le32(regs + LTDC_GCR, GCR_LTDCEN);
 }
 
-static void stm32_ltdc_set_mode(struct stm32_ltdc_priv *priv,
-				struct display_timing *timings)
+static void stm32_ltdc_set_mode(struct udevice *dev)
 {
-	void __iomem *regs = priv->regs;
+	struct stm32_ltdc_plat *plat = dev_get_plat(dev);
+	struct stm32_ltdc_priv *priv = dev_get_priv(dev);
+	struct display_timing *timings = &priv->timings;
 	u32 hsync, vsync, acc_hbp, acc_vbp, acc_act_w, acc_act_h;
+	void __iomem *regs = plat->regs;
 	u32 total_w, total_h;
 	u32 val;
 
@@ -423,12 +434,14 @@ static void stm32_ltdc_set_mode(struct stm32_ltdc_priv *priv,
 			GCR_HSPOL | GCR_VSPOL | GCR_DEPOL | GCR_PCPOL, val);
 
 	/* Overall background color */
-	writel(priv->bg_col_argb, priv->regs + LTDC_BCCR);
+	writel(priv->bg_col_argb, regs + LTDC_BCCR);
 }
 
-static void stm32_ltdc_set_layer1(struct stm32_ltdc_priv *priv, ulong fb_addr)
+static void stm32_ltdc_set_layer1(struct udevice *dev, ulong fb_addr)
 {
-	void __iomem *regs = priv->regs;
+	struct stm32_ltdc_plat *plat = dev_get_plat(dev);
+	struct stm32_ltdc_priv *priv = dev_get_priv(dev);
+	void __iomem *regs = plat->regs;
 	u32 x0, x1, y0, y1;
 	u32 pitch_in_bytes;
 	u32 line_length;
@@ -494,7 +507,7 @@ static void stm32_ltdc_set_layer1(struct stm32_ltdc_priv *priv, ulong fb_addr)
 	writel(fb_addr, regs + LTDC_L1CFBAR);
 
 	/* Enable layer 1 */
-	setbits_le32(priv->regs + LTDC_L1CR, LXCR_LEN);
+	setbits_le32(regs + LTDC_L1CR, LXCR_LEN);
 }
 
 static int stm32_ltdc_get_remote_device(struct udevice *dev, ofnode ep_node,
@@ -619,53 +632,99 @@ static inline int stm32_ltdc_alloc_fb(struct udevice *dev)
 }
 #endif
 
-static int stm32_ltdc_probe(struct udevice *dev)
+static int stm32_ltdc_of_to_plat(struct udevice *dev)
 {
-	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
-	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct stm32_ltdc_plat *plat = dev_get_plat(dev);
 	struct stm32_ltdc_priv *priv = dev_get_priv(dev);
-	struct udevice *bridge = NULL;
-	struct udevice *panel = NULL;
-	struct display_timing timings;
-	struct clk pclk, bclk;
-	struct reset_ctl rst;
 	ofnode node, port;
-	ulong rate;
 	int ret;
 
-	priv->regs = dev_read_addr_ptr(dev);
-	if (!priv->regs) {
+	plat->regs = dev_read_addr_ptr(dev);
+	if (!plat->regs) {
 		dev_err(dev, "ltdc dt register address error\n");
 		return -EINVAL;
 	}
 
-	ret = clk_get_by_name(dev, "bus", &bclk);
-	if (ret) {
-		if (ret != -ENODATA) {
-			dev_err(dev, "bus clock get error %d\n", ret);
-			return ret;
-		}
-	} else {
-		ret = clk_enable(&bclk);
-		if (ret) {
-			dev_err(dev, "bus clock enable error %d\n", ret);
-			return ret;
-		}
+	ret = clk_get_by_name(dev, "bus", &plat->bclk);
+	if (ret && ret != -ENODATA) {
+		dev_err(dev, "bus clock get error %d\n", ret);
+		return ret;
 	}
 
-	ret = clk_get_by_name(dev, "lcd", &pclk);
+	ret = clk_get_by_name(dev, "lcd", &plat->pclk);
 	if (ret) {
 		dev_err(dev, "peripheral clock get error %d\n", ret);
 		return ret;
 	}
 
-	ret = clk_enable(&pclk);
+	/*
+	 * Try all the ports until one working.
+	 *
+	 * This is done in two times. First is checks for the
+	 * UCLASS_VIDEO_BRIDGE available, and then for this bridge
+	 * it scans for a UCLASS_PANEL.
+	 */
+	port = dev_read_subnode(dev, "port");
+	if (!ofnode_valid(port)) {
+		dev_err(dev, "%s(%s): 'port' subnode not found\n",
+			__func__, dev_read_name(dev));
+		return -EINVAL;
+	}
+
+	for (node = ofnode_first_subnode(port);
+	     ofnode_valid(node);
+	     node = dev_read_next_subnode(node)) {
+		ret = stm32_ltdc_display_init(dev, &node, &plat->panel, &plat->bridge);
+		if (ret)
+			dev_dbg(dev, "Device failed ret=%d\n", ret);
+		else
+			break;
+	}
+
+	/* Sanity check */
+	if (ret)
+		return ret;
+
+	ret = panel_get_display_timing(plat->panel, &priv->timings);
+	if (ret) {
+		ret = ofnode_decode_display_timing(dev_ofnode(plat->panel),
+						   0, &priv->timings);
+		if (ret) {
+			dev_err(dev, "decode display timing error %d\n", ret);
+			return ret;
+		}
+	}
+
+	ret = reset_get_by_index(dev, 0, &plat->rst);
+	if (ret)
+		dev_err(dev, "missing ltdc hardware reset\n");
+
+	return ret;
+}
+
+static int stm32_ltdc_probe(struct udevice *dev)
+{
+	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct stm32_ltdc_plat *plat = dev_get_plat(dev);
+	struct stm32_ltdc_priv *priv = dev_get_priv(dev);
+	struct display_timing *timings = &priv->timings;
+	ulong rate;
+	int ret;
+
+	ret = clk_enable(&plat->bclk);
+	if (ret) {
+		dev_err(dev, "bus clock enable error %d\n", ret);
+		return ret;
+	}
+
+	ret = clk_enable(&plat->pclk);
 	if (ret) {
 		dev_err(dev, "peripheral clock enable error %d\n", ret);
 		return ret;
 	}
 
-	priv->hw_version = readl(priv->regs + LTDC_IDR);
+	priv->hw_version = readl(plat->regs + LTDC_IDR);
 	dev_dbg(dev, "%s: LTDC hardware 0x%x\n", __func__, priv->hw_version);
 
 	switch (priv->hw_version) {
@@ -687,67 +746,22 @@ static int stm32_ltdc_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	/*
-	 * Try all the ports until one working.
-	 *
-	 * This is done in two times. First is checks for the
-	 * UCLASS_VIDEO_BRIDGE available, and then for this bridge
-	 * it scans for a UCLASS_PANEL.
-	 */
-
-	port = dev_read_subnode(dev, "port");
-	if (!ofnode_valid(port)) {
-		dev_err(dev, "%s(%s): 'port' subnode not found\n",
-			__func__, dev_read_name(dev));
-		return -EINVAL;
-	}
-
-	for (node = ofnode_first_subnode(port);
-	     ofnode_valid(node);
-	     node = dev_read_next_subnode(node)) {
-		ret = stm32_ltdc_display_init(dev, &node, &panel, &bridge);
-		if (ret)
-			dev_dbg(dev, "Device failed ret=%d\n", ret);
-		else
-			break;
-	}
-
-	/* Sanity check */
-	if (ret)
-		return ret;
-
-	ret = panel_get_display_timing(panel, &timings);
-	if (ret) {
-		ret = ofnode_decode_display_timing(dev_ofnode(panel),
-						   0, &timings);
-		if (ret) {
-			dev_err(dev, "decode display timing error %d\n", ret);
-			return ret;
-		}
-	}
-
-	rate = clk_set_rate(&pclk, timings.pixelclock.typ);
+	rate = clk_set_rate(&plat->pclk, timings->pixelclock.typ);
 	if (IS_ERR_VALUE(rate))
 		dev_warn(dev, "fail to set pixel clock %d hz, ret=%ld\n",
-			 timings.pixelclock.typ, rate);
+			 timings->pixelclock.typ, rate);
 
 	dev_dbg(dev, "Set pixel clock req %d hz get %ld hz\n",
-		timings.pixelclock.typ, rate);
-
-	ret = reset_get_by_index(dev, 0, &rst);
-	if (ret) {
-		dev_err(dev, "missing ltdc hardware reset\n");
-		return ret;
-	}
+		timings->pixelclock.typ, rate);
 
 	/* Reset */
-	reset_deassert(&rst);
+	reset_deassert(&plat->rst);
 
 	if (IS_ENABLED(CONFIG_VIDEO_BRIDGE)) {
-		if (bridge) {
-			ret = video_bridge_attach(bridge);
+		if (plat->bridge) {
+			ret = video_bridge_attach(plat->bridge);
 			if (ret) {
-				dev_err(bridge, "fail to attach bridge\n");
+				dev_err(plat->bridge, "fail to attach bridge\n");
 				return ret;
 			}
 		}
@@ -758,8 +772,8 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	priv->bg_col_argb = 0xFFFFFFFF; /* white no transparency */
 	priv->crop_x = 0;
 	priv->crop_y = 0;
-	priv->crop_w = timings.hactive.typ;
-	priv->crop_h = timings.vactive.typ;
+	priv->crop_w = timings->hactive.typ;
+	priv->crop_h = timings->vactive.typ;
 	priv->alpha = 0xFF;
 
 	ret = stm32_ltdc_alloc_fb(dev);
@@ -767,30 +781,30 @@ static int stm32_ltdc_probe(struct udevice *dev)
 		return ret;
 
 	dev_dbg(dev, "%dx%d %dbpp frame buffer at 0x%lx\n",
-		timings.hactive.typ, timings.vactive.typ,
+		timings->hactive.typ, timings->vactive.typ,
 		VNBITS(priv->l2bpp), uc_plat->base);
 	dev_dbg(dev, "crop %d,%d %dx%d bg 0x%08x alpha %d\n",
 		priv->crop_x, priv->crop_y, priv->crop_w, priv->crop_h,
 		priv->bg_col_argb, priv->alpha);
 
 	/* Configure & start LTDC */
-	stm32_ltdc_set_mode(priv, &timings);
-	stm32_ltdc_set_layer1(priv, uc_plat->base);
-	stm32_ltdc_enable(priv);
+	stm32_ltdc_set_mode(dev);
+	stm32_ltdc_set_layer1(dev, uc_plat->base);
+	stm32_ltdc_enable(plat->regs);
 
-	uc_priv->xsize = timings.hactive.typ;
-	uc_priv->ysize = timings.vactive.typ;
+	uc_priv->xsize = timings->hactive.typ;
+	uc_priv->ysize = timings->vactive.typ;
 	uc_priv->bpix = priv->l2bpp;
 
-	if (!bridge) {
-		ret = panel_enable_backlight(panel);
+	if (!plat->bridge) {
+		ret = panel_enable_backlight(plat->panel);
 		if (ret) {
 			dev_err(dev, "panel %s enable backlight error %d\n",
-				panel->name, ret);
+				plat->panel->name, ret);
 			return ret;
 		}
 	} else if (IS_ENABLED(CONFIG_VIDEO_BRIDGE)) {
-		ret = video_bridge_set_backlight(bridge, 80);
+		ret = video_bridge_set_backlight(plat->bridge, 80);
 		if (ret) {
 			dev_err(dev, "fail to set backlight\n");
 			return ret;
@@ -828,7 +842,9 @@ U_BOOT_DRIVER(stm32_ltdc) = {
 	.name			= "stm32_display",
 	.id			= UCLASS_VIDEO,
 	.of_match		= stm32_ltdc_ids,
+	.of_to_plat		= stm32_ltdc_of_to_plat,
 	.probe			= stm32_ltdc_probe,
 	.bind			= stm32_ltdc_bind,
+	.plat_auto	= sizeof(struct stm32_ltdc_plat),
 	.priv_auto	= sizeof(struct stm32_ltdc_priv),
 };
