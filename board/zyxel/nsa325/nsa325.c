@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2014-2023 Tony Dinh <mibodhi@gmail.com>
+ * Copyright (C) 2014-2025 Tony Dinh <mibodhi@gmail.com>
  *
  * Based on
  * Copyright (C) 2014  Jason Plum <jplum@archlinuxarm.org>
@@ -51,11 +51,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define HDD1_GREEN_LED		BIT(9)
 #define HDD1_RED_LED		BIT(10)
 #define HDD2_POWER		BIT(15)
-#define WATCHDOG_SIGNAL		BIT(14)
 
 #define NSA325_OE_HIGH		(~(COPY_GREEN_LED | COPY_RED_LED | \
-				   HDD1_GREEN_LED | HDD1_RED_LED | HDD2_POWER | WATCHDOG_SIGNAL))
-#define NSA325_VAL_HIGH		(WATCHDOG_SIGNAL | HDD2_POWER)
+				   HDD1_GREEN_LED | HDD1_RED_LED | HDD2_POWER))
+#define NSA325_VAL_HIGH		(HDD2_POWER)
 
 #define BTN_POWER				46
 #define BTN_RESET				36
