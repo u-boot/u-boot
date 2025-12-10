@@ -114,6 +114,9 @@ static int msm_sdc_clk_init(struct udevice *dev)
 		return -EINVAL;
 	}
 
+	/* This is the base clock sdhci core will use to configure the SDCLK */
+	prv->host.max_clk = clk_rate;
+
 	writel_relaxed(CORE_VENDOR_SPEC_POR_VAL,
 		       prv->host.ioaddr + var_info->core_vendor_spec);
 
