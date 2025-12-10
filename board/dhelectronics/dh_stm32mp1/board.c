@@ -304,17 +304,29 @@ static void board_get_coding_straps(void)
 int board_stm32mp1_ddr_config_name_match(struct udevice *dev,
 					 const char *name)
 {
-	if (ddr3code == 1 &&
-	    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x1gb-533mhz"))
-		return 0;
+	if (IS_ENABLED(CONFIG_TARGET_DH_STM32MP13X)) {
+		if (ddr3code == 1 &&
+		    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-1x2gb-533mhz"))
+			return 0;
 
-	if (ddr3code == 2 &&
-	    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x2gb-533mhz"))
-		return 0;
+		if (ddr3code == 2 &&
+		    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-1x4gb-533mhz"))
+			return 0;
+	}
 
-	if (ddr3code == 3 &&
-	    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x4gb-533mhz"))
-		return 0;
+	if (IS_ENABLED(CONFIG_TARGET_DH_STM32MP15X)) {
+		if (ddr3code == 1 &&
+		    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x1gb-533mhz"))
+			return 0;
+
+		if (ddr3code == 2 &&
+		    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x2gb-533mhz"))
+			return 0;
+
+		if (ddr3code == 3 &&
+		    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x4gb-533mhz"))
+			return 0;
+	}
 
 	return -EINVAL;
 }

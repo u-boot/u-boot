@@ -3,22 +3,22 @@
  * Copyright (C) 2025, DH electronics - All Rights Reserved
  *
  * STM32MP13xx DHSOM configuration
- * 1x DDR3L 4Gb, 16-bit, 533MHz, Single Die Package in flyby topology.
- * Reference used W634GU6RB11I from Winbond
+ * 1x DDR3L 8Gb, 16-bit, 533MHz, Single Die Package in flyby topology.
+ * Reference used W638GU6QB11I from Winbond
  *
  * DDR type / Platform	DDR3/3L
  * freq		533MHz
  * width	16
- * datasheet	0  = W634GU6RB11I / DDR3-1866
- * DDR density	2
+ * datasheet	0  = W638GU6QB11I / DDR3-1866
+ * DDR density	4
  * timing mode	optimized
  * address mapping : RBC
  * Tc > + 85C : J
  */
-#define DDR_MEM_COMPATIBLE ddr3l-dhsom-1066-888-bin-g-1x2gb-533mhz
+#define DDR_MEM_COMPATIBLE ddr3l-dhsom-1066-888-bin-g-1x4gb-533mhz
 #define DDR_MEM_NAME	"DDR3-DDR3L 16bits 533000kHz"
 #define DDR_MEM_SPEED	533000
-#define DDR_MEM_SIZE	0x20000000
+#define DDR_MEM_SIZE	0x40000000
 
 #define DDR_MSTR 0x00040401
 #define DDR_MRCTRL0 0x00000010
@@ -55,7 +55,7 @@
 #define DDR_ADDRMAP3 0x00000000
 #define DDR_ADDRMAP4 0x00001F1F
 #define DDR_ADDRMAP5 0x07070707
-#define DDR_ADDRMAP6 0x0F070707
+#define DDR_ADDRMAP6 0x07070707
 #define DDR_ADDRMAP9 0x00000000
 #define DDR_ADDRMAP10 0x00000000
 #define DDR_ADDRMAP11 0x00000000
