@@ -13,6 +13,10 @@
 #include <dt-bindings/clock/mediatek,mt8365-clk.h>
 #include "clk-mtk.h"
 
+/* Missing topckgen clocks definition in dt-bindings */
+#define CLK_TOP_CLK26M		141
+#define CLK_TOP_CLK32K		142
+
 /* apmixedsys */
 #define MT8365_PLL_FMAX		(3800UL * MHZ)
 #define MT8365_PLL_FMIN		(1500UL * MHZ)
