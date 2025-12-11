@@ -6,18 +6,176 @@
 #include "sc5xx.dtsi"
 
 / {
-	gic: interrupt-controller@310b2000 {
-		compatible = "arm,cortex-a5-gic";
+	gic: interrupt-controller@310B2000 {
+		compatible = "arm,cortex-a5-gic", "arm,cortex-a9-gic";
 		#interrupt-cells = <3>;
 		#address-cells = <0>;
 		interrupt-controller;
 		reg = <0x310B2000 0x1000>,
 		      <0x310B4000 0x100>;
 	};
+
+	soc {
+		rcu: rcu@0x3108B000 {
+			compatible = "adi,reset-controller";
+			reg = <0x3108B000 0x1000>;
+			adi,sharc-min = <1>;
+			adi,sharc-max = <2>;
+			adi,enable-reboot;
+			status = "disabled";
+		};
+
+		mmc: mmc0@31010000 {
+			compatible = "snps,dw-mshc";
+			reg = <0x31010000 0x400>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc_default>;
+			bus-width = <4>;
+			fifo-depth = <128>;
+			clock-names = "biu", "ciu";
+			max-frequency = <52000000>;
+			status = "disabled";
+		};
+
+		usb0: musb@310c1000 {
+			compatible = "adi,sc5xx-musb";
+			reg = <0x310c1000 0x390>;
+			interrupts = <GIC_SPI 132 IRQ_TYPE_LEVEL_HIGH>,
+						 <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "mc", "dma";
+			status = "okay";
+		};
+
+		usb1: musb@310c2000 {
+			compatible = "adi,sc5xx-musb";
+			reg = <0x310c2000 0x390>;
+			interrupts = <GIC_SPI 134 IRQ_TYPE_LEVEL_HIGH>,
+						 <GIC_SPI 135 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "mc", "dma";
+			status = "disabled";
+		};
+
+		sharc1: sharc@0x28240000 {
+			compatible = "adi,sc5xx-rproc";
+			reg = <0x28240000 0x100>;
+			coreid = <1>;
+			adi,rcu = <&rcu>;
+			status = "disabled";
+		};
+
+		sharc2: sharc@0x28a40000 {
+			compatible = "adi,sc5xx-rproc";
+			reg = <0x28a40000 0x100>;
+			coreid = <2>;
+			adi,rcu = <&rcu>;
+			status = "disabled";
+		};
+	};
 };
 
 &timer0 {
 	reg = <0x31001004 0x100>,
-	      <0x31001060 0x100>;
+			<0x31001060 0x100>;
+	clocks = <&clk ADSP_SC58X_CLK_CGU0_SCLK0>;
+};
+
+&pinctrl0 {
+	mmc_default: mmc_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('F', 2) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 3) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 4) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 5) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 10) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 11) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 12) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	eth0_default: eth0_pins {
+		adi,pins = <ADI_ADSP_PIN('A', 0) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 1) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 2) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 3) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 4) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 5) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 6) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 7) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 8) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 9) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 10) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 11) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 12) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 13) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	uart0_default: uart0_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('C', 13) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('C', 14) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	spi2_default: spi2_pins {
+		adi,pins = <ADI_ADSP_PIN('C', 1) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('C', 2) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('C', 3) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('C', 4) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('C', 5) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('C', 6) ADI_ADSP_PINFUNC_ALT0>;
+	};
+};
+
+&pinctrl0 {
+	adi,npins = <102>;
+};
+
+&gpio0 {
+	adi,ngpios = <102>;
+};
+
+&clk {
+	compatible = "adi,sc58x-clocks";
+};
+
+&uart0 {
+	clocks = <&clk ADSP_SC58X_CLK_CGU0_SCLK0>;
+};
+
+&spi2 {
+	clocks = <&clk ADSP_SC58X_CLK_CGU0_SCLK1>;
+	reg = <0x31044000 0x1000>;
+
+	flash1: is25lp512@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor", "is25lp512";
+		reg = <1>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <10000000>;
+		bootph-pre-ram;
+	};
+};
+
+&wdog {
+	clocks = <&clk ADSP_SC58X_CLK_CGU0_SCLK0>;
+};
+
+&eth0 {
+	reg = <0x3100C000 0x1000>;
+};
+
+&mmc {
+	clocks = <&dummy>, <&clk ADSP_SC58X_CLK_CGU0_SCLK0>;
+};
+
+&i2c0 {
+	clocks = <&clk ADSP_SC58X_CLK_CGU0_SCLK0>;
+};
+
+&i2c1 {
+	clocks = <&clk ADSP_SC58X_CLK_CGU0_SCLK0>;
+};
+
+&i2c2 {
 	clocks = <&clk ADSP_SC58X_CLK_CGU0_SCLK0>;
 };
