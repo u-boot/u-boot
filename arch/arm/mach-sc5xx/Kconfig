@@ -153,14 +153,16 @@ config ADI_IMAGE
 	  The image built by the ADI ADSP Linux build system.
 	  Is one of tiny, minimal, full.
 
-config SC_BOOT_MODE
-	int "SC5XX boot mode select"
+config SC_BCODE
+	int "SC5XX SPI BCODE select"
 	default 1
-	range 0 7
+	range 0 15
 	help
-	  Mode 0: do nothing, just idle
-	  Mode 1: boot ldr out of serial flash
-	  Mode 7: boot ldr over uart
+	  This sets the BCODE option for the generated LDR file. The BCODE
+	  is only used in SPI boots (QSPI/OSPI) but is set with no impact
+	  in other boot modes so that one LDR file may be reused from any
+	  boot media. The interpretation of this value is SoC and boot mode
+	  specific, so you must refer to the HRM to interpret it.
 
 config SC_BOOT_SPI_BUS
 	int "sc5xx spi boot bus"
