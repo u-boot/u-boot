@@ -142,6 +142,7 @@ config SPL_EFI_PARTITION
 	bool "Enable EFI GPT partition table for SPL"
 	depends on  SPL
 	default n if ARCH_MVEBU
+	default n if ARCH_SOCFPGA
 	default n if ARCH_SUNXI
 	default y if EFI_PARTITION
 	select SPL_PARTITIONS
