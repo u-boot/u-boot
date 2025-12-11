@@ -241,21 +241,27 @@ config ADI_BUG_EZKHW21
 	  This workaround affects the SC584 EZKIT and addresses bug EZKHW21.
 	  It disables gigabit ethernet mode and limits the board to 100 Mbps
 
+choice
+	prompt "Analog Devices SOM Carrier Board Variant"
+	depends on (SC59X || SC59X_64)
+	default ADI_CARRIER_SOMCRR_EZKIT
+	help
+	  Select the specific EV-SOMCRR carrier board that you are using.
+	  Using a SOM without a carrier board is not supported.
+
 config ADI_CARRIER_SOMCRR_EZKIT
 	bool "Support the EV-SOMCRR-EZKIT"
-	depends on (SC59X || SC59X_64)
 	help
 	  Say y to include support for the EV-SOMCRR-EZKIT carrier board,
-	  which is compatible with the SC594 and SC598 SOMs. The EZKIT is
-	  mutually incompatible with the EZLITE.
+	  which is compatible with the SC594 and SC598 SOMs.
 
 config ADI_CARRIER_SOMCRR_EZLITE
 	bool "Support the EV-SOMCRR-EZLITE"
-	depends on (SC59X || SC59X_64)
 	help
 	  Say y to include support for the EV-SOMCRR-EZLITE carrier board,
-	  which is compatible with the SC594 and SC598 SOMs. The EZLITE is
-	  mutually incompatible with the EZKIT.
+	  which is compatible with the SC594 and SC598 SOMs.
+
+endchoice
 
 config ADI_SPL_FORCE_BMODE
 	int "Force the SPL to use this BMODE device during next boot stage"
