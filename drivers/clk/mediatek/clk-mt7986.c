@@ -519,7 +519,7 @@ static const struct mtk_clk_tree mt7986_fixed_pll_clk_tree = {
 	.fdivs_offs = CLK_APMIXED_NR_CLK,
 	.xtal_rate = 40 * MHZ,
 	.fclks = fixed_pll_clks,
-	.flags = CLK_APMIXED,
+	.flags = CLK_PARENT_APMIXED,
 };
 
 static const struct mtk_clk_tree mt7986_topckgen_clk_tree = {
@@ -528,7 +528,7 @@ static const struct mtk_clk_tree mt7986_topckgen_clk_tree = {
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
-	.flags = CLK_BYPASS_XTAL | CLK_TOPCKGEN,
+	.flags = CLK_BYPASS_XTAL | CLK_PARENT_TOPCKGEN,
 };
 
 static const struct mtk_clk_tree mt7986_infracfg_clk_tree = {
@@ -538,7 +538,7 @@ static const struct mtk_clk_tree mt7986_infracfg_clk_tree = {
 	.fdivs = infra_fixed_divs,
 	.muxes = infra_muxes,
 	.gates = infracfg_gates,
-	.flags = CLK_INFRASYS,
+	.flags = CLK_PARENT_INFRASYS,
 };
 
 static const struct udevice_id mt7986_fixed_pll_compat[] = {

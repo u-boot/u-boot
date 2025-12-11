@@ -41,11 +41,6 @@
 #define CLK_PARENT_MIXED		BIT(8)
 #define CLK_PARENT_MASK			GENMASK(8, 4)
 
-/* alias to reference clk type */
-#define CLK_APMIXED			CLK_PARENT_APMIXED
-#define CLK_TOPCKGEN			CLK_PARENT_TOPCKGEN
-#define CLK_INFRASYS			CLK_PARENT_INFRASYS
-
 #define ETHSYS_HIFSYS_RST_CTRL_OFS	0x34
 
 /* struct mtk_pll_data - hardware-specific PLLs data */

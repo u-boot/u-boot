@@ -773,7 +773,7 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 static const struct mtk_clk_tree mt7988_fixed_pll_clk_tree = {
 	.fdivs_offs = ARRAY_SIZE(apmixedsys_mtk_plls),
 	.fclks = apmixedsys_mtk_plls,
-	.flags = CLK_APMIXED,
+	.flags = CLK_PARENT_APMIXED,
 	.xtal_rate = 40 * MHZ,
 };
 
@@ -783,7 +783,7 @@ static const struct mtk_clk_tree mt7988_topckgen_clk_tree = {
 	.fclks = topckgen_mtk_fixed_clks,
 	.fdivs = topckgen_mtk_fixed_factors,
 	.muxes = topckgen_mtk_muxes,
-	.flags = CLK_BYPASS_XTAL | CLK_TOPCKGEN,
+	.flags = CLK_BYPASS_XTAL | CLK_PARENT_TOPCKGEN,
 	.xtal_rate = 40 * MHZ,
 };
 
