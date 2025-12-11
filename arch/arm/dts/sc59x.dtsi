@@ -1,0 +1,183 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * (C) Copyright 2024 - Analog Devices, Inc.
+ */
+
+/ {
+
+	aliases {
+		spi0 = "/ospi";
+	};
+
+	soc {
+		rcu: rcu@0x3108C000 {
+			compatible = "adi,reset-controller";
+			reg = <0x3108C000 0x1000>;
+			adi,sharc-min = <1>;
+			adi,sharc-max = <2>;
+			status = "disabled";
+		};
+
+		mdma: dma@0x310A7000 {
+			compatible = "adi,mdma-controller";
+			reg = <0x310A7000 0x1000>;
+			status = "okay";
+			#dma-cells = <1>;
+
+			sdma0: channel@8 {
+				adi,id = <8>;
+				interrupts = <GIC_SPI 193 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 282 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 192 IRQ_TYPE_LEVEL_HIGH>,
+					<GIC_SPI 281 IRQ_TYPE_LEVEL_HIGH>;
+				interrupt-names = "complete", "error", "complete2", "error2";
+				adi,src-offset = <0>;
+				adi,dest-offset = <0x80>;
+			};
+		};
+
+		ospi: ospi {
+			compatible = "adi,sc59x-ospi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x31027000 0x1000>,
+			      <0x60000000 0x20000000>;
+			interrupts = <0 151 4>;
+			dmas = <&mdma 8>, <&mdma 9>;
+			dma-names = "src", "dst";
+			/*clocks = <&ospi_clk>;*/
+			ext-decoder = <0>;	/* external decoder */
+			num-cs = <1>;
+			fifo-depth = <128>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&ospi_default>;
+			bus-num = <0>;
+			clock-names = "ospi";
+			cdns,max-read-delay = <9>;
+			status = "disabled";
+			bootph-pre-ram;
+		};
+
+		eth1: eth1 {
+			compatible = "snps,arc-dwmac-3.70a";
+			reg = <0x31042000 0x1000>;
+			phy-mode = "mii";
+			pinctrl-names = "default";
+			pinctrl-0 = <&eth1_default>;
+		};
+
+		usb0_phy: usbphy {
+			compatible = "usb-nop-xceiv";
+			#phy-cells = <0>;
+			reset = <&gpio0 ADI_ADSP_PIN('G', 11) GPIO_ACTIVE_HIGH>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&usb0_default>;
+			status = "disabled";
+		};
+
+		usb0: usb@310c5000 {
+			compatible = "snps,dwc2";
+			dr_mode = "host";
+			reg = <0x310c5000 0x2000>;
+			interrupts = <GIC_SPI 241 IRQ_TYPE_LEVEL_HIGH>;
+			phys = <&usb0_phy>;
+			phy-names = "usb2-phy";
+			pinctrl-names = "default";
+			pinctrl-0 = <&usb0_default>;
+			status = "disabled";
+		};
+	};
+};
+
+&pinctrl0 {
+	adi,npins = <135>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&soc_defaults>;
+
+	eth0_default: eth0_pins {
+		adi,pins = <ADI_ADSP_PIN('H', 3) ADI_ADSP_PINFUNC_ALT0>, /* eth0 */
+					<ADI_ADSP_PIN('H', 4) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 5) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 6) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 7) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 8) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 9) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 10) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 11) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 12) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 13) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 14) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('H', 15) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('I', 0) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	eth1_default: eth1_pins {
+		adi,pins = <ADI_ADSP_PIN('E', 11) ADI_ADSP_PINFUNC_ALT0>, /* eth1 */
+					<ADI_ADSP_PIN('E', 12) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('E', 13) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('E', 14) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('E', 15) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 0) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 1) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 2) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 3) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	uart0_default: uart0_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('A', 6) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('A', 7) ADI_ADSP_PINFUNC_ALT1>;
+	};
+
+	spi2_default: spi2_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('A', 0) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 1) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 2) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 3) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 4) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 5) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	usb0_default: usb0_pins {
+		adi,pins = <ADI_ADSP_PIN('F', 3) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 4) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 5) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 6) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 7) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 8) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 9) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 10) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 11) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 12) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 13) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('F', 14) ADI_ADSP_PINFUNC_ALT2>;
+	};
+};
+
+&gpio0 {
+	adi,ngpios = <135>;
+
+	pushbutton0 {
+		gpio-hog;
+		input;
+		gpios = <ADI_ADSP_PIN('D', 0) GPIO_ACTIVE_HIGH>;
+		bootph-pre-ram;
+	};
+
+	pushbutton1 {
+		gpio-hog;
+		input;
+		gpios = <ADI_ADSP_PIN('H', 0) GPIO_ACTIVE_HIGH>;
+		bootph-pre-ram;
+	};
+};
+
+&spi2 {
+	reg = <0x31030000 0x1000>;
+};
+
+&eth0 {
+	reg = <0x31040000 0x1000>;
+};

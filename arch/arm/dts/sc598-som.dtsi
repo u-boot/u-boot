@@ -6,6 +6,7 @@
 /dts-v1/;
 
 #include "sc5xx.dtsi"
+#include "sc59x.dtsi"
 
 / {
 	gic: interrupt-controller@31200000 {
@@ -15,15 +16,162 @@
 		reg = <0x31200000 0x40000>, /* GIC Dist */
 		      <0x31240000 0x40000>; /* GICR */
 	};
+
+	soc {
+		sharc1: sharc@0x28240000 {
+			compatible = "adi,sc5xx-rproc";
+			reg = <0x28240000 0x100>;
+			coreid = <1>;
+			adi,rcu = <&rcu>;
+			status = "okay";
+		};
+
+		sharc2: sharc@0x28a40000 {
+			compatible = "adi,sc5xx-rproc";
+			reg = <0x28a40000 0x100>;
+			coreid = <2>;
+			adi,rcu = <&rcu>;
+			status = "okay";
+		};
+
+		clocks {
+			compatible = "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			bootph-pre-ram;
+
+			emmcclk: emmcclk@0 {
+				compatible = "fixed-clock";
+				reg = <0>;
+				#clock-cells = <0>;
+				clock-frequency = <50000000>; /* 50 MHz */
+				bootph-pre-ram;
+			};
+		};
+
+		mmc0: mmc@310C7000 {
+			compatible = "adi,dwc-sdhci";
+			reg = <0x310C7000 0x1000>;
+			interrupts = <GIC_SPI 237 IRQ_TYPE_LEVEL_HIGH>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc_defaults>;
+			clocks = <&emmcclk>;
+			clock-names = "core";
+			max-frequency = <50000000>;
+			bus-width = <8>;
+			bootph-pre-ram;
+		};
+	};
+};
+
+&pinctrl0 {
+	soc_defaults: soc_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('A', 14) ADI_ADSP_PINFUNC_ALT0>, /* i2c */
+					<ADI_ADSP_PIN('A', 15) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	mmc_defaults: mmc_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('D', 15) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('B', 15) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('C', 4) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('C', 6) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('E', 1) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('E', 6) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('E', 8) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('E', 9) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('G', 1) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('G', 2) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('G', 8) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('G', 9) ADI_ADSP_PINFUNC_ALT3>,
+					<ADI_ADSP_PIN('G', 10) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('I', 6) ADI_ADSP_PINFUNC_ALT1>;
+	};
+
+	ospi_default: ospi_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('A', 0) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('A', 1) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('A', 2) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('A', 3) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('A', 4) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('A', 5) ADI_ADSP_PINFUNC_ALT1>,
+					<ADI_ADSP_PIN('A', 6) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('A', 7) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('A', 8) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('A', 9) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('D', 4) ADI_ADSP_PINFUNC_ALT2>;
+	};
 };
 
 &clk {
 	compatible = "adi,sc598-clocks";
 	reg = <0x3108d000 0x1000>,
-	      <0x3108e000 0x1000>,
-	      <0x3108f000 0x1000>,
-	      <0x310a9000 0x1000>;
+			<0x3108e000 0x1000>,
+			<0x3108f000 0x1000>,
+			<0x310a9000 0x1000>;
 	reg-names = "cgu0", "cgu1", "cdu", "pll3";
+};
+
+&rcu {
+	status = "okay";
+};
+
+&uart0 {
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+};
+
+&wdog {
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+};
+
+&i2c0 {
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+};
+
+&i2c1 {
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+};
+
+&i2c2 {
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+};
+
+&spi2 {
+	clocks = <&clk ADSP_SC598_CLK_SPI>;
+};
+
+&mmc0 {
+	status = "okay";
+};
+
+&usb0_phy {
+	status = "okay";
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+	clock-names = "sclk0";
+};
+
+&usb0 {
+	status = "okay";
+};
+
+&eth0 {
+	compatible = "adi,sc59x-dwmac-eqos";
+	reg = <0x31040000 0x10000>;
+	phy-handle = <&dp83867>;
+	phy-mode = "rgmii-id";
+
+	mdio {
+		compatible = "snps,dwmac-mdio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dp83867: ethernet-phy@0 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <0>;
+		};
+	};
 };
 
 &timer0 {
