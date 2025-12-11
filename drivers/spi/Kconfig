@@ -677,6 +677,14 @@ config SH_QSPI
 	  Enable the Renesas Quad SPI controller driver. This driver can be
 	  used on Renesas SoCs.
 
+config SPL_DESIGNWARE_SPI
+	bool "Designware SPI driver in SPL"
+	depends on SPL_DM_SPI
+	default y if DESIGNWARE_SPI
+	help
+	  Enable the Designware SPI driver during SPL.
+	  See the help of DESIGNWARE_SPI for details.
+
 config MXC_SPI
 	bool "MXC SPI Driver"
 	depends on MACH_IMX
