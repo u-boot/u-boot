@@ -17,7 +17,9 @@ static inline unsigned int bcd2bin(unsigned int val)
 
 static inline unsigned int bin2bcd(unsigned int val)
 {
-	return (((val / 10) << 4) | (val % 10));
+	const unsigned int t = (val * 103) >> 10;
+
+	return (t << 4) | (val - t * 10);
 }
 
 #endif /* _BCD_H */
