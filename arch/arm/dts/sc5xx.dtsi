@@ -10,6 +10,58 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 
+	chosen {
+		stdout-path = "serial0:115200";
+		bootph-pre-ram;
+	};
+
+	aliases {
+		spi2 = "/spi2";
+		serial0 = &uart0;
+		bootph-pre-ram;
+	};
+
+#ifdef CONFIG_SC5XX_USE_BINMAN
+	binman {
+		filename = CONFIG_SC5XX_BINMAN_FILENAME;
+		stage1-boot {
+			offset = <CONFIG_SC5XX_UBOOT_SPL_OFFSET>;
+			type = "blob-ext";
+			filename = "spl/u-boot-spl.ldr";
+		};
+
+		/* since falcon mode can jump from SPL to OS directly
+		 * full u-boot is optional
+		 *
+		 * @todo: review if we can say this given support has
+		 * not yet been upstreamed. Otherwise we might have to
+		 * invoke binman only for full u-boot.
+		 */
+		stage2-boot {
+			offset = <CONFIG_SC5XX_UBOOT_OFFSET>;
+			type = "blob-ext";
+			filename = "u-boot.ldr";
+			optional;
+		};
+
+#ifdef CONFIG_SC5XX_FITIMAGE_NAME
+		fitImage {
+			offset = <CONFIG_SC5XX_FITIMAGE_OFFSET>;
+			type = "blob-ext";
+			filename = CONFIG_SC5XX_FITIMAGE_NAME;
+		};
+#endif
+
+#ifdef CONFIG_SC5XX_ROOTFS_NAME
+		rfs {
+			offset = <CONFIG_SC5XX_ROOTFS_OFFSET>;
+			type = "blob-ext";
+			filename = CONFIG_SC5XX_ROOTFS_NAME;
+		};
+#endif
+	};
+#endif
+
 	clocks {
 		sys_clkin0: sys_clkin0 {
 			compatible = "fixed-clock";
