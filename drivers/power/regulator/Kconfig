@@ -133,7 +133,7 @@ config DM_REGULATOR_PFUZE100
 
 config REGULATOR_PWM
 	bool "Enable driver for PWM regulators"
-	depends on DM_REGULATOR
+	depends on DM_REGULATOR && DM_PWM
 	---help---
 	Enable support for the PWM regulator functions which voltage are
 	controlled by PWM duty ratio. Some of Rockchip board using this kind
