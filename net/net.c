@@ -157,8 +157,6 @@ const u8 net_null_ethaddr[6];
 #if defined(CONFIG_API) || defined(CONFIG_EFI_LOADER)
 void (*push_packet)(void *, int len) = 0;
 #endif
-/* Network loop state */
-enum net_loop_state net_state;
 /* Tried all network devices */
 int		net_restart_wrap;
 /* Network loop restarted */
