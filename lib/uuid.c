@@ -140,6 +140,10 @@ static const struct {
 		EFI_DISK_IO_PROTOCOL_GUID,
 	},
 	{
+		NULL, "Partition Info",
+		EFI_PARTITION_INFO_PROTOCOL_GUID,
+	},
+	{
 		NULL, "Simple File System",
 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID,
 	},
