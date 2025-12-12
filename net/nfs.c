@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * NFS support driver - based on etherboot and U-BOOT's tftp.c
  *
