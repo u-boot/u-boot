@@ -141,8 +141,6 @@ char *pxelinux_configfile;
 u8 net_ethaddr[6];
 /* Boot server enet address */
 u8 net_server_ethaddr[6];
-/* Our IP addr (0 = unknown) */
-struct in_addr	net_ip;
 /* Server IP addr (0 = unknown) */
 struct in_addr	net_server_ip;
 /* Current receive packet */
@@ -170,18 +168,10 @@ ushort		net_our_vlan = 0xFFFF;
 /* ditto */
 ushort		net_native_vlan = 0xFFFF;
 
-/* Boot File name */
-char net_boot_file_name[1024];
 /* Indicates whether the file name was specified on the command line */
 bool net_boot_file_name_explicit;
-/* The actual transferred size of the bootfile (in bytes) */
-u32 net_boot_file_size;
-/* Boot file size in blocks as reported by the DHCP server */
-u32 net_boot_file_expected_size_in_blocks;
 
 static uchar net_pkt_buf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
-/* Receive packets */
-uchar *net_rx_packets[PKTBUFSRX];
 /* Current UDP RX packet handler */
 static rxhand_f *udp_packet_handler;
 /* Current ARP RX packet handler */

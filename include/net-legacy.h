@@ -289,7 +289,6 @@ extern u8		net_ethaddr[ARP_HLEN];		/* Our ethernet address */
 extern u8		net_server_ethaddr[ARP_HLEN];	/* Boot server enet address */
 extern struct in_addr	net_server_ip;	/* Server IP addr (0 = unknown) */
 extern uchar		*net_tx_packet;		/* THE transmit packet */
-extern uchar		*net_rx_packets[PKTBUFSRX]; /* Receive packets */
 extern uchar		*net_rx_packet;		/* Current receive packet */
 extern int		net_rx_packet_len;	/* Current rx packet length */
 extern const u8		net_null_ethaddr[ARP_HLEN];
@@ -309,10 +308,6 @@ enum proto_t {
 
 /* Indicates whether the file name was specified on the command line */
 extern bool	net_boot_file_name_explicit;
-/* The actual transferred size of the bootfile (in bytes) */
-extern u32	net_boot_file_size;
-/* Boot file size in blocks as reported by the DHCP server */
-extern u32	net_boot_file_expected_size_in_blocks;
 
 #if defined(CONFIG_DNS)
 extern char *net_dns_resolve;		/* The host to resolve  */

@@ -33,13 +33,8 @@ static int net_restarted;
 int net_restart_wrap;
 static uchar net_pkt_buf[(PKTBUFSRX) * PKTSIZE_ALIGN + PKTALIGN]
 	__aligned(PKTALIGN);
-uchar *net_rx_packets[PKTBUFSRX];
-uchar *net_rx_packet;
 const u8 net_bcast_ethaddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 char *pxelinux_configfile;
-/* Our IP addr (0 = unknown) */
-struct in_addr	net_ip;
-char net_boot_file_name[1024];
 
 static err_t net_lwip_tx(struct netif *netif, struct pbuf *p)
 {
