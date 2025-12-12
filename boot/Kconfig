@@ -269,7 +269,7 @@ config SPL_LOAD_FIT_APPLY_OVERLAY
 config SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ
 	depends on SPL_LOAD_FIT_APPLY_OVERLAY
 	default 0x10000
-	hex "size of temporary buffer used to load the overlays"
+	hex "size of temporary buffer used to load the overlays within SPL"
 	help
 	  The size of the area where the overlays will be loaded and
 	  uncompress. Must be at least as large as biggest overlay
