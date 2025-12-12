@@ -140,6 +140,15 @@ config SPL_OPTIMIZE_INLINING
 	  do what it thinks is best, which is desirable in some cases for size
 	  reasons.
 
+config TPL_OPTIMIZE_INLINING
+	bool "Allow compiler to uninline functions marked 'inline' in TPL"
+	depends on TPL
+	help
+	  This option determines if U-Boot forces gcc to inline the functions
+	  developers have marked 'inline'. Doing so takes away freedom from gcc to
+	  do what it thinks is best, which is desirable in some cases for size
+	  reasons.
+
 config ARCH_SUPPORTS_LTO
 	bool
 
@@ -162,15 +171,6 @@ config LTO
 	  nproc command).
 
 	  If unsure, say n.
-
-config TPL_OPTIMIZE_INLINING
-	bool "Allow compiler to uninline functions marked 'inline' in TPL"
-	depends on TPL
-	help
-	  This option determines if U-Boot forces gcc to inline the functions
-	  developers have marked 'inline'. Doing so takes away freedom from gcc to
-	  do what it thinks is best, which is desirable in some cases for size
-	  reasons.
 
 config CC_COVERAGE
 	bool "Enable code coverage analysis"
