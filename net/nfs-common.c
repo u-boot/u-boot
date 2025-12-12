@@ -286,9 +286,11 @@ static void nfs_umountall_req(void)
 	u32 *p;
 	int len;
 
-	if ((nfs_server_mount_port == -1) || !fs_mounted)
+	if ((nfs_server_mount_port == -1) || !fs_mounted) {
 		/* Nothing mounted, nothing to umount */
+		net_set_state(NETLOOP_FAIL);
 		return;
+	}
 
 	p = &data[0];
 	p = rpc_add_credentials(p);
