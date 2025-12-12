@@ -8,22 +8,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <asm/clk.h>
-#include <dm/device-internal.h>
 #include <linux/clk-provider.h>
-
-static int sandbox_clk_of_to_plat(struct udevice *dev)
-{
-	struct clk *clk;
-	struct sandbox_clk_priv *priv = dev_get_priv(dev);
-
-	clk = &priv->clk;
-
-	/* FIXME: This is not allowed */
-	dev_set_uclass_priv(dev, clk);
-
-	clk->dev = dev;
-	return 0;
-}
 
 static ulong sandbox_clk_get_rate(struct clk *clk)
 {
@@ -117,7 +102,6 @@ static int sandbox_clk_request(struct clk *clk)
 	if (id >= SANDBOX_CLK_ID_COUNT)
 		return -EINVAL;
 
-	priv->clk.id = id;
 	priv->requested[id] = true;
 	return 0;
 }
@@ -148,7 +132,6 @@ U_BOOT_DRIVER(sandbox_clk) = {
 	.name		= "sandbox_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= sandbox_clk_ids,
-	.of_to_plat	= sandbox_clk_of_to_plat,
 	.ops		= &sandbox_clk_ops,
 	.probe		= sandbox_clk_probe,
 	.priv_auto	= sizeof(struct sandbox_clk_priv),

@@ -89,9 +89,8 @@ static int dm_test_clk(struct unit_test_state *uts)
 						 SANDBOX_CLK_TEST_ID_SPI));
 	ut_asserteq(0, sandbox_clk_test_get_rate(dev_test,
 						 SANDBOX_CLK_TEST_ID_I2C));
-	if (!CONFIG_IS_ENABLED(CLK_AUTO_ID))
-		ut_asserteq(321, sandbox_clk_test_get_rate(dev_test,
-							   SANDBOX_CLK_TEST_ID_DEVM1));
+	ut_asserteq(321, sandbox_clk_test_get_rate(dev_test,
+						   SANDBOX_CLK_TEST_ID_DEVM1));
 	ut_asserteq(0, sandbox_clk_test_get_rate(dev_test,
 						 SANDBOX_CLK_TEST_ID_DEVM2));
 

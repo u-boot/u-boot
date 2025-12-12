@@ -50,7 +50,6 @@ enum sandbox_clk_test_id {
 
 struct sandbox_clk_priv {
 	bool probed;
-	struct clk clk;
 	ulong rate[SANDBOX_CLK_ID_COUNT];
 	bool enabled[SANDBOX_CLK_ID_COUNT];
 	bool requested[SANDBOX_CLK_ID_COUNT];
