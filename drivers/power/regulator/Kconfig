@@ -141,13 +141,6 @@ config REGULATOR_PWM
 	This driver is controlled by a device tree node
 	which includes voltage limits.
 
-config SPL_REGULATOR_PWM
-	bool "Enable Driver for PWM regulators in SPL"
-	depends on SPL_DM_REGULATOR && SPL && SPL_DM_PWM
-	help
-	  This config enables implementation of driver-model regulator uclass
-	  features for PWM regulators in SPL.
-
 config DM_REGULATOR_MAX8907
 	bool "Enable Driver Model for REGULATOR MAX8907"
 	depends on DM_REGULATOR && DM_PMIC_MAX8907
