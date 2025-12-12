@@ -246,7 +246,7 @@ config SPL_LOAD_FIT
 	     "linux" images are also supported with Falcon boot mode.
 
 config SPL_LOAD_FIT_ADDRESS
-	hex "load address of fit image"
+	hex "load address of fit image in SPL"
 	depends on SPL_LOAD_FIT
 	default 0x44000000 if ARCH_IMX8M
 	default 0x60080000 if ARCH_ROCKCHIP && SPL_TEXT_BASE = 0x60000000
