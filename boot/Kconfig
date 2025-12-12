@@ -344,7 +344,7 @@ config VPL_LOAD_FIT
 	default y
 
 config VPL_LOAD_FIT_FULL
-	bool "Enable SPL loading U-Boot as a FIT (full fitImage features)"
+	bool "Enable VPL loading U-Boot as a FIT (full fitImage features)"
 	select VPL_FIT
 	help
 	  Normally with the SPL framework a legacy image is generated as part
