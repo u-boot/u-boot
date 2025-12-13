@@ -5,6 +5,7 @@
  */
 
 /dts-v1/;
+
 #include "k1.dtsi"
 #include "binman.dtsi"
 
@@ -61,6 +62,33 @@
 			 <&pll CLK_PLL1_D4>;
 		clock-names = "osc", "vctcxo_1m", "vctcxo_3m",
 			      "vctcxo_24m", "pll1_d78_31p5", "pll1_d4";
+		status = "okay";
+		bootph-pre-ram;
+	};
+
+	i2c@d4012000 {		/* i2c2 */
+		status = "okay";
+		bootph-pre-ram;
+		eeprom: eeprom {
+			compatible = "atmel,24c02";
+			reg = <0x50>;
+			status = "okay";
+			bootph-pre-ram;
+		};
+	};
+
+	i2c@d401d800 {		/* i2c8 */
+		status = "okay";
+		bootph-pre-ram;
+		pmic@41 {
+			compatible = "pmic";
+			reg = <0x41>;
+			status = "okay";
+			bootph-pre-ram;
+		};
+	};
+
+	reset-controller@d4050000 {
 		status = "okay";
 		bootph-pre-ram;
 	};
