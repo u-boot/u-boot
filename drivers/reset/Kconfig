@@ -252,5 +252,12 @@ config RESET_SPACEMIT_K1
 	  Support for SPACEMIT's K1 Reset system. Basic Assert/Deassert
 	  is supported.
 
+config SPL_RESET_SPACEMIT_K1
+	bool "SPL Reset driver for Spacemit K1 SoC"
+	depends on SPL && RESET_SPACEMIT_K1
+	default y
+	help
+	  Support for reset controller on Spacemit K1 SoCs in SPL.
+
 source "drivers/reset/stm32/Kconfig"
 endmenu
