@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <init.h>
 #include <log.h>
+#include <hang.h>
 #include <malloc.h>
 #include <wait_bit.h>
 #include <watchdog.h>
@@ -654,6 +655,22 @@ static int of_sdram_firewall_setup(const void *blob)
 	return 0;
 }
 
+static void sdram_size_check(void)
+{
+	phys_size_t ram_check = 0;
+
+	debug("DDR: Running SDRAM size sanity check\n");
+
+	ram_check = get_ram_size((long *)gd->bd->bi_dram[0].start,
+				 gd->bd->bi_dram[0].size);
+	if (ram_check != gd->bd->bi_dram[0].size) {
+		puts("DDR: SDRAM size check failed!\n");
+		hang();
+	}
+
+	debug("DDR: SDRAM size check passed!\n");
+}
+
 int ddr_calibration_sequence(void)
 {
 	schedule();
@@ -689,11 +706,26 @@ int ddr_calibration_sequence(void)
 	/* setup the dram info within bd */
 	dram_init_banksize();
 
+	if (gd->ram_size != gd->bd->bi_dram[0].size) {
+		printf("DDR: Warning: DRAM size from device tree (%ld MiB)\n",
+		       gd->bd->bi_dram[0].size >> 20);
+		printf(" mismatch with hardware (%ld MiB).\n",
+		       gd->ram_size >> 20);
+	}
+
+	if (gd->bd->bi_dram[0].size > gd->ram_size) {
+		printf("DDR: Error: DRAM size from device tree is greater\n");
+		printf(" than hardware size.\n");
+		hang();
+	}
+
 	if (of_sdram_firewall_setup(gd->fdt_blob))
 		puts("FW: Error Configuring Firewall\n");
 
 	if (sdram_is_ecc_enabled())
 		sdram_init_ecc_bits();
+
+	sdram_size_check();
 
 	return 0;
 }
