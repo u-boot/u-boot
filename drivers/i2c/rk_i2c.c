@@ -137,7 +137,7 @@ static int rk_i2c_send_stop_bit(struct rk_i2c *i2c)
 	writel(I2C_IPD_ALL_CLEAN, &regs->ipd);
 
 	writel(I2C_CON_EN | I2C_CON_STOP, &regs->con);
-	writel(I2C_CON_STOP, &regs->ien);
+	writel(I2C_STOPIEN, &regs->ien);
 
 	start = get_timer(0);
 	while (1) {
@@ -195,13 +195,14 @@ static int rk_i2c_read(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 
 	while (bytes_remain_len) {
 		if (bytes_remain_len > RK_I2C_FIFO_SIZE) {
+			/*
+			 * The hw can read up to 32 bytes at a time. If we need
+			 * more than one chunk, send an ACK after the last byte
+			 * of the current chunk.
+			 */
 			con = I2C_CON_EN;
 			bytes_xferred = 32;
 		} else {
-			/*
-			 * The hw can read up to 32 bytes at a time. If we need
-			 * more than one chunk, send an ACK after the last byte.
-			 */
 			con = I2C_CON_EN | I2C_CON_LASTACK;
 			bytes_xferred = bytes_remain_len;
 		}
@@ -254,8 +255,6 @@ static int rk_i2c_read(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 	}
 
 i2c_exit:
-	rk_i2c_disable(i2c);
-
 	return err;
 }
 
@@ -332,8 +331,6 @@ static int rk_i2c_write(struct rk_i2c *i2c, uchar chip, uint reg, uint r_len,
 	}
 
 i2c_exit:
-	rk_i2c_disable(i2c);
-
 	return err;
 }
 
@@ -358,6 +355,18 @@ static int rockchip_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 			ret = -EREMOTEIO;
 			break;
 		}
+
+		/*
+		 * The HW is actually not capable of REPEATED START. But we can
+		 * get the intended effect by resetting its internal state
+		 * and issuing an ordinary START.
+		 *
+		 * Do NOT disable the controller after the last message (before
+		 * sending the STOP condition) as this triggers an illegal
+		 * START condition followed by a STOP condition.
+		 */
+		if (nmsgs > 1)
+			rk_i2c_disable(i2c);
 	}
 
 	rk_i2c_send_stop_bit(i2c);

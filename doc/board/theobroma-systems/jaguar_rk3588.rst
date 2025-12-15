@@ -32,24 +32,47 @@ It provides the following features:
 Here is the step-by-step to boot to U-Boot on SBC-RK3588-AMR Jaguar from Theobroma
 Systems.
 
-Get the TF-A and DDR init (TPL) binaries
-----------------------------------------
+Get DDR init (TPL) binary
+-------------------------
 
 .. prompt:: bash
 
    git clone https://github.com/rockchip-linux/rkbin
    cd rkbin
-   export RKBIN=$(pwd)
-   export BL31=$RKBIN/bin/rk35/rk3588_bl31_v1.47.elf
-   export ROCKCHIP_TPL=$RKBIN/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin
+   export ROCKCHIP_TPL=$(readlink -f bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v*.bin | head -1)
    sed -i 's/^uart baudrate=.*$/uart baudrate=115200/' tools/ddrbin_param.txt
-   ./tools/ddrbin_tool rk3588 tools/ddrbin_param.txt "$ROCKCHIP_TPL"
+   sed -i 's/^uart iomux=.*$/uart iomux=0/' tools/ddrbin_param.txt
+   python3 ./tools/ddrbin_tool.py rk3588 tools/ddrbin_param.txt "$ROCKCHIP_TPL"
    ./tools/boot_merger RKBOOT/RK3588MINIALL.ini
-   export RKDB=$RKBIN/rk3588_spl_loader_v1.11.112.bin
+   export RKDB=$(readlink -f rk3588_spl_loader_v*.bin | head -1)
 
 This will setup all required external dependencies for compiling U-Boot. This will
-be updated in the future once upstream Trusted-Firmware-A supports RK3588 or U-Boot
-gains support for open-source DRAM initialization in TPL.
+be updated in the future once U-Boot gains support for open-source DRAM initialization
+in TPL.
+
+Get TF-A
+--------
+
+There are two possible options, pick one or the other. Note that the instructions need
+to be run from the ``rkbin`` directory.
+
+Prebuilt binary from Rockchip
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. prompt:: bash
+
+   export BL31=$(readlink -f bin/rk35/rk3588_bl31_v*.elf | head -1)
+
+Upstream
+~~~~~~~~
+
+.. prompt:: bash
+
+   cd ../
+   git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+   cd trusted-firmware-a
+   make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3588 bl31
+   export BL31=$PWD/build/rk3588/release/bl31/bl31.elf
 
 Build U-Boot
 ------------
@@ -58,6 +81,11 @@ Build U-Boot
 
    cd ../u-boot
    make CROSS_COMPILE=aarch64-linux-gnu- jaguar-rk3588_defconfig all
+
+.. note::
+   If using upstream TF-A, one should disable ``SPL_ATF_NO_PLATFORM_PARAM`` symbol in
+   U-Boot config (via e.g. ``make CROSS_COMPILE=aarch64-linux-gnu- menuconfig``) which
+   will, among other things, enable console output in TF-A.
 
 This will build ``u-boot-rockchip.bin`` which can be written to an MMC device
 (eMMC or SD card).

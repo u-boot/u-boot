@@ -5,5 +5,4 @@ S:	Maintained
 F:	board/radxa/rock5b-rk3588
 F:	include/configs/rock5b-rk3588.h
 F:	configs/rock5b-rk3588_defconfig
-F:	arch/arm/dts/rk3588-rock-5b.dts
-F:	arch/arm/dts/rk3588-rock-5b-u-boot.dtsi
+F:	arch/arm/dts/rk3588-rock-5b*

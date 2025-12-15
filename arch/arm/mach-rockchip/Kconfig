@@ -706,6 +706,14 @@ config ROCKCHIP_SPI_IMAGE
 	  option to produce a SPI-flash image containing U-Boot. The image
 	  is built by binman. U-Boot sits near the start of the image.
 
+config ROCKCHIP_MASKROM_IMAGE
+	bool "Build a maskrom mode image for Rockchip"
+	depends on TPL || ROCKCHIP_EXTERNAL_TPL
+	select SPL_RAM_DEVICE
+	help
+	  Rockchip SoCs support maskrom mode boot over USB. Enable this
+	  option to produce maskrom mode boot images containing U-Boot.
+
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	default TEXT_BASE
 
@@ -768,9 +776,9 @@ config TPL_SYS_MALLOC_F_LEN
 	default 0x4000 if CUSTOM_SYS_INIT_SP_ADDR = 0x03f00000
 
 config TEXT_BASE
-	default 0x60200000 if SPL_TEXT_BASE = 0x60000000
-	default 0x40200000 if SPL_TEXT_BASE = 0x40000000
-	default 0x00200000 if SPL_TEXT_BASE = 0x00000000
+	default 0x60800000 if SPL_TEXT_BASE = 0x60000000
+	default 0x40800000 if SPL_TEXT_BASE = 0x40000000
+	default 0x00800000 if SPL_TEXT_BASE = 0x00000000
 
 config SPL_TEXT_BASE
 	default 0x60000000 if ROCKCHIP_RK3036 || ROCKCHIP_RK3066 || \

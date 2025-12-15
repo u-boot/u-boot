@@ -90,6 +90,7 @@ To flash U-Boot on the eMMC with ``rkdeveloptool``:
    git clone https://github.com/rockchip-linux/rkbin.git
    cd rkbin
    ./tools/boot_merger RKBOOT/PX30MINIALL.ini
+   export RKDB=$(readlink -f px30_loader_v*.bin | head -1)
    cd ..
-   ./rkdeveloptool db rkbin/px30_loader_v2.08.135.bin
+   ./rkdeveloptool db "$RKDB"
    ./rkdeveloptool wl 64 ../u-boot-rockchip.bin

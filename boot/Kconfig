@@ -275,6 +275,9 @@ config SPL_LOAD_FIT_ADDRESS
 	hex "load address of fit image"
 	depends on SPL_LOAD_FIT
 	default 0x44000000 if ARCH_IMX8M
+	default 0x60080000 if ARCH_ROCKCHIP && SPL_TEXT_BASE = 0x60000000
+	default 0x40200000 if ARCH_ROCKCHIP && SPL_TEXT_BASE = 0x40000000
+	default 0x00200000 if ARCH_ROCKCHIP && SPL_TEXT_BASE = 0x00000000
 	default 0x0
 	help
 	  Specify the load address of the fit image that will be loaded
