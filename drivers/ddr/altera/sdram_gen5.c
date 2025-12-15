@@ -2,6 +2,7 @@
 /*
  * Copyright Altera Corporation (C) 2014-2015
  */
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <div64.h>
@@ -19,8 +20,11 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
-
+#include <linux/sizes.h>
 #include "sequencer.h"
+#include "sdram_soc32.h"
+
+#define PGTABLE_OFF	0x4000
 
 #ifdef CONFIG_XPL_BUILD
 
@@ -566,6 +570,19 @@ static unsigned long sdram_calculate_size(struct socfpga_sdr_ctrl *sdr_ctrl)
 	return temp;
 }
 
+#if IS_ENABLED(CONFIG_SOCFPGA_ECC_SUPPORT)
+static int sdram_is_ecc_enabled(struct socfpga_sdr_ctrl *sdr_ctrl)
+{
+	return !!(readl(&sdr_ctrl->ctrl_cfg) &
+		  SDR_CTRLGRP_CTRLCFG_ECCEN_MASK);
+}
+#else
+static int sdram_is_ecc_enabled(struct socfpga_sdr_ctrl *sdr_ctrl)
+{
+    return 0;
+}
+#endif
+
 static int altera_gen5_sdram_of_to_plat(struct udevice *dev)
 {
 	struct altera_gen5_sdram_plat *plat = dev_get_plat(dev);
@@ -608,10 +625,13 @@ static int altera_gen5_sdram_probe(struct udevice *dev)
 	sdram_size = sdram_calculate_size(sdr_ctrl);
 	debug("SDRAM: %ld MiB\n", sdram_size >> 20);
 
-#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
+#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK) || \
+    IS_ENABLED(CONFIG_SOCFPGA_ECC_SUPPORT)
 	/* setup the dram info within bd */
 	dram_init_banksize();
+#endif
 
+#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
 	if (sdram_size != gd->bd->bi_dram[0].size) {
 		printf("DDR: Warning: DRAM size from device tree (%lu MiB)\n",
 		       (ulong)(gd->bd->bi_dram[0].size >> 20));
@@ -626,8 +646,23 @@ static int altera_gen5_sdram_probe(struct udevice *dev)
 	}
 #endif
 
+	if (sdram_is_ecc_enabled(sdr_ctrl)) {
+#if IS_ENABLED(CONFIG_SOCFPGA_ECC_SUPPORT)
+		/* Must set USEECCASDATA to 0 if ECC is enabled */
+		clrbits_le32(&sdr_ctrl->static_cfg,
+			     SDR_CTRLGRP_STATICCFG_USEECCASDATA_MASK);
+		sdram_init_ecc_bits();
+#else
+		puts("DDR: Enable CONFIG_SOCFPGA_ECC_SUPPORT when SDRAM ");
+		puts("ECC is enabled.\n");
+		puts("DDR: Without scrub, false ECC errors may occur.\n");
+		hang();
+#endif
+}
+
 	/* Sanity check ensure correct SDRAM size specified */
-#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
+#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK) || \
+    IS_ENABLED(CONFIG_SOCFPGA_ECC_SUPPORT)
 	if (get_ram_size(0, gd->bd->bi_dram[0].size) !=
 	    gd->bd->bi_dram[0].size) {
 #else
