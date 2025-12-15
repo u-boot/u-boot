@@ -395,14 +395,14 @@ void __udelay(unsigned long usec)
 #endif
 }
 
-static u64 tsc_timer_get_count(struct udevice *dev)
+static u64 notrace tsc_timer_get_count(struct udevice *dev)
 {
 	u64 now_tick = rdtsc();
 
 	return now_tick - gd->arch.tsc_base;
 }
 
-static void tsc_timer_ensure_setup(bool early)
+static void notrace tsc_timer_ensure_setup(bool early)
 {
 	if (gd->arch.tsc_inited)
 		return;
