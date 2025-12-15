@@ -1,0 +1,6 @@
+#include <configs/socfpga_agilex5_defconfig>
+
+CONFIG_DEFAULT_DEVICE_TREE="socfpga_agilex5_socdk_emmc"
+# CONFIG_SPL_DM_REGULATOR_GPIO is not set
+# CONFIG_DM_REGULATOR_GPIO is not set
+# CONFIG_SPL_DWAPB_GPIO is not set
