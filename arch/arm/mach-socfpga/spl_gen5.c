@@ -22,12 +22,14 @@
 #include <debug_uart.h>
 #include <fdtdec.h>
 #include <watchdog.h>
+#include <wdt.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
+#if IS_ENABLED(CONFIG_SOCFPGA_ECC_SUPPORT) || \
+	IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
 static struct bd_info bdata __attribute__ ((section(".data")));
 #endif
 
@@ -113,6 +115,9 @@ void board_init_f(ulong dummy)
 	if (cm_basic_init(cm_default_cfg))
 		hang();
 
+	if (CONFIG_IS_ENABLED(WDT))
+		initr_watchdog();
+
 	/* Enable bootrom to configure IOs. */
 	sysmgr_config_warmrstcfgio(1);
 
@@ -150,7 +155,8 @@ void board_init_f(ulong dummy)
 	/* enable console uart printing */
 	preloader_console_init();
 
-#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
+#if IS_ENABLED(CONFIG_SOCFPGA_ECC_SUPPORT) || \
+	IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
 	gd->bd = &bdata;
 #endif
 
