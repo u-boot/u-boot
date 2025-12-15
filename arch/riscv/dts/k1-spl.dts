@@ -7,7 +7,6 @@
 /dts-v1/;
 
 #include "k1.dtsi"
-#include "binman.dtsi"
 
 / {
 	model = "spacemit k1 spl";
@@ -19,6 +18,29 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
+	};
+
+	binman {
+		u-boot-spl-ddr {
+			type = "section";
+			filename = "u-boot-spl-ddr.bin";
+			pad-byte = <0xff>;
+
+			u-boot-spl {
+			};
+
+			ddr-fw {
+				type = "blob";
+				filename = "ddr_fw.bin";
+				align = <64>;
+			};
+
+			u-boot-any {
+				type = "section";
+				size = <0>;
+				offset = <0>;
+			};
+		};
 	};
 };
 
