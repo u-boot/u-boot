@@ -303,30 +303,33 @@
 			status = "disabled";
 		};
 
-		combophy0: combophy@0 {
-			#phy-cells = <0>;
-			phy-type = <1>;
-			compatible = "cdns,combophy";
-			reg = <0x10808000 0x1000>;
-			resets = <&rst COMBOPHY_RESET>;
-			reset-names = "reset";
-			status = "disabled";
+		sd_emmc_power: regulator-fixed-3p3v {
+			compatible = "regulator-fixed";
+			regulator-name = "card-power";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-always-on;
+		};
+
+		sd_io_1v8_reg: regulator-1p8v {
+			compatible = "regulator-gpio";
+			regulator-name = "sd-bus-io-power";
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <3300000>;
+			states =	<1800000 0x1>,
+						<3300000 0x0>;
 		};
 
 		mmc: mmc0@10808000 {
 			#address-cells = <1>;
 			#size-cells = <0>;
-			compatible = "cdns,sd4hc";
+			compatible = "altr,agilex5-sd6hc", "cdns,sd6hc";
 			reg = <0x10808000 0x1000>;
 			interrupts = <0 96 4>;
-			phys = <&combophy0>;
-			phy-names = "combo-phy";
 			clocks = <&clkmgr AGILEX5_L4_MP_CLK>,
 				 <&clkmgr AGILEX5_SDMMC_CLK>;
 			clock-names = "biu", "ciu";
 			fifo-depth = <0x800>;
-			resets = <&rst SDMMC_RESET>;
-			reset-names = "reset";
 			iommus = <&smmu 5>;
 			status = "disabled";
 		};

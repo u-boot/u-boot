@@ -260,6 +260,7 @@ static int sdhci_cdns_probe(struct udevice *dev)
 static const struct udevice_id sdhci_cdns_match[] = {
 	{ .compatible = "socionext,uniphier-sd4hc" },
 	{ .compatible = "cdns,sd4hc" },
+	{ .compatible = "altr,agilex5-sd6hc" },
 	{ .compatible = "cdns,sd6hc" },
 	{ /* sentinel */ }
 };

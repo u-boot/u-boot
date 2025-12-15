@@ -698,7 +698,8 @@
 };
 
 &mmc {
-	resets = <&rst SDMMC_RESET>, <&rst SDMMC_OCP_RESET>;
+	resets = <&rst COMBOPHY_RESET>, <&rst SDMMC_OCP_RESET>, <&rst SDMMC_RESET>;
+	reset-names =  "combophy", "sdmmc-ocp", "sdhc-reset";
 };
 
 &porta {
