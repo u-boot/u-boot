@@ -6,10 +6,12 @@
 #include <asm/io.h>
 #include <clk.h>
 #include <clk-uclass.h>
+#include <cpu_func.h>
 #include <configs/k1.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <dt-bindings/pinctrl/k1-pinctrl.h>
+#include <generated/ddr_fw_info.h>
 #include <i2c.h>
 #include <linux/delay.h>
 #include <log.h>
@@ -115,6 +117,33 @@ void serial_early_init(void)
 		panic("Serial uclass init failed: %d\n", ret);
 }
 
+/* Load DDR training firmware */
+int init_ddr_firmware(void)
+{
+	void __iomem *src, *dst;
+	unsigned long size;
+
+	src = (void __iomem *)(CONFIG_SPL_TEXT_BASE +
+			       CONFIG_SPL_DDR_FIRMWARE_OFFSET);
+	dst = (void __iomem *)(DDR_TRAINING_DATA_BASE);
+	memcpy(dst, src, DDR_FW_FILE_SIZE);
+	size = round_up(DDR_FW_FILE_SIZE, 64);
+	flush_dcache_range((u32)(u64)dst, (u32)(u64)dst + size);
+	return 0;
+}
+
+void ddr_early_init(void)
+{
+	void __iomem *addr;
+
+	init_ddr_firmware();
+	addr = (void __iomem *)(CONFIG_SPL_TEXT_BASE +
+				CONFIG_SPL_DDR_FIRMWARE_OFFSET);
+	// verify DDR firmware header
+	log_info("[0x%x]:0x%x, firmware size:%d\n",
+		 (uint)(u64)addr, readl(addr), DDR_FW_FILE_SIZE);
+}
+
 void board_init_f(ulong dummy)
 {
 	u8 i2c_buf[I2C_BUF_SIZE];
@@ -138,6 +167,7 @@ void board_init_f(ulong dummy)
 		log_info("Fail to detect board:%d\n", ret);
 	else
 		log_info("Get board name:%s\n", (char *)i2c_buf);
+	ddr_early_init();
 }
 
 u32 spl_boot_device(void)

@@ -15,6 +15,14 @@ config SYS_CONFIG_NAME
 config TEXT_BASE
 	default 0x00200000
 
+config SPL_DDR_FIRMWARE_OFFSET
+	hex "DDR firmware offset in SPL image"
+	depends on SPL
+	default 0x20000
+	help
+	  Offset where DDR firmware should be placed in the SPL
+	  image.
+
 config SPL_OPENSBI_LOAD_ADDR
 	default 0x00000000
 
