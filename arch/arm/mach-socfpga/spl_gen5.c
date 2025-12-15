@@ -27,6 +27,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static struct bd_info bdata __attribute__ ((section(".data")));
+
 u32 spl_boot_device(void)
 {
 	const u32 bsel = readl(socfpga_get_sysmgr_addr() +
@@ -145,6 +147,8 @@ void board_init_f(ulong dummy)
 
 	/* enable console uart printing */
 	preloader_console_init();
+
+	gd->bd = &bdata;
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
