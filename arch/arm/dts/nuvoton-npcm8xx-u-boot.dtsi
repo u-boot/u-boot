@@ -544,14 +544,6 @@
 			groups = "spi0cs1";
 			function = "spi0cs1";
 		};
-		spi0cs2_pins: spi0cs2-pins {
-			groups = "spi0cs2";
-			function = "spi0cs2";
-		};
-		spi0cs3_pins: spi0cs3-pins {
-			groups = "spi0cs3";
-			function = "spi0cs3";
-		};
 		smb3c_pins: smb3c-pins {
 			groups = "smb3c";
 			function = "smb3c";
