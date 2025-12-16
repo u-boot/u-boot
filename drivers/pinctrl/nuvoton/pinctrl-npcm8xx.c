@@ -166,6 +166,8 @@ struct npcm8xx_pinctrl_priv {
 			     213, 214, 215) \
 	FUNC(spix, MFSEL4, 27, 224, 225, 226, 227, 229, 230) \
 	FUNC(spixcs1, MFSEL4, 28, 228) \
+	FUNC(smb11ddcm, MFSEL4, 29) \
+	FUNC(smb11ddcs, MFSEL4, 30) \
 	FUNC(spi1cs1, MFSEL5, 0, 233) \
 	FUNC(jm2, MFSEL5, 1) \
 	FUNC(j2j3, MFSEL5, 2, 44, 62, 45, 46) \

@@ -1060,5 +1060,13 @@
 			groups = "vcdhs";
 			function = "vcdhs";
 		};
+		smb11ddcm_pins: smb11ddcm-pins {
+			groups = "smb11ddcm";
+			function = "smb11ddcm";
+		};
+		smb11ddcs_pins: smb11ddcs-pins {
+			groups = "smb11ddcs";
+			function = "smb11ddcs";
+		};
 	};
 };
