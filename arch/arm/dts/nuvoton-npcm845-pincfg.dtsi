@@ -1619,27 +1619,27 @@
 			output-low;
 		};
 		gpio191o_pins: gpio191o-pins {
-			pins = "GPIO191/SPI1_D1/FANIN17/FM1_D1/STRAP10";
+			pins = "GPIO191/SPI1_D2/SPI1_nCS2/FM1_D2/SMB15B_SDA";
 			bias-disable;
 			output-high;
 		};
 		gpio191ol_pins: gpio191ol-pins {
-			pins = "GPIO191/SPI1_D1/FANIN17/FM1_D1/STRAP10";
+			pins = "GPIO191/SPI1_D2/SPI1_nCS2/FM1_D2/SMB15B_SDA";
 			bias-disable;
 			output-low;
 		};
 		gpio192_pins: gpio192-pins {
-			pins = "GPIO192/SPI1_D3/SPI_nCS3/FM1_D3/SMB15_SCL";
+			pins = "GPIO192/SPI1_D3/SPI_nCS3/FM1_D3/SMB15B_SCL";
 			bias-disable;
 			input-enable;
 		};
 		gpio192o_pins: gpio192o-pins {
-			pins = "GPIO192/SPI1_D3/SPI_nCS3/FM1_D3/SMB15_SCL";
+			pins = "GPIO192/SPI1_D3/SPI_nCS3/FM1_D3/SMB15B_SCL";
 			bias-disable;
 			output-high;
 		};
 		gpio192ol_pins: gpio192ol-pins {
-			pins = "GPIO192/SPI1_D3/SPI_nCS3/FM1_D3/SMB15_SCL";
+			pins = "GPIO192/SPI1_D3/SPI_nCS3/FM1_D3/SMB15B_SCL";
 			bias-disable;
 			output-low;
 		};
