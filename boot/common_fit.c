@@ -46,12 +46,12 @@ int fit_find_config_node(const void *fdt)
 		return -EINVAL;
 	}
 
-	dflt_conf_name = fdt_getprop(fdt, conf, "default", &len);
+	dflt_conf_name = fdt_getprop(fdt, conf, FIT_DEFAULT_PROP, &len);
 
 	for (node = fdt_first_subnode(fdt, conf);
 	     node >= 0;
 	     node = fdt_next_subnode(fdt, node)) {
-		name = fdt_getprop(fdt, node, "description", &len);
+		name = fdt_getprop(fdt, node, FIT_DESC_PROP, &len);
 		if (!name) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 			printf("%s: Missing FDT description in DTB\n",

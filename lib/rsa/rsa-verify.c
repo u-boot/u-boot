@@ -448,7 +448,7 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 		return -EBADF;
 	}
 
-	algo = fdt_getprop(blob, node, "algo", NULL);
+	algo = fdt_getprop(blob, node, FIT_ALGO_PROP, NULL);
 	if (!algo) {
 		debug("%s: Missing 'algo' property\n", __func__);
 		return -EFAULT;
