@@ -29,8 +29,8 @@ INPUTS-y += $(hw-platform-y)_prog.bin
 INPUTS-y += $(hw-platform-y)_prod.zip
 endif
 
-$(hw-platform-y)_prog.bin: u-boot-dtb.img spl/u-boot-spl.bin
+$(hw-platform-y)_prog.bin: u-boot-dtb.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,prodbin)
 
-$(hw-platform-y)_prod.zip: $(hw-platform-y)_prog.bin
+$(hw-platform-y)_prod.zip: $(hw-platform-y)_prog.bin FORCE
 	$(call if_changed,prodzip)

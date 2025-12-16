@@ -36,7 +36,7 @@ endif
 ifdef CONFIG_$(PHASE_)SYS_THUMB_BUILD
 ifndef CONFIG_HAS_THUMB2
 
-CFLAGS_cache.o := -marm
+CFLAGS_arch/arm/cpu/arm926ejs/cache.o := -marm
 
 endif
 endif

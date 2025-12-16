@@ -395,9 +395,6 @@ more details, with real examples.
 	These three flags apply only to the kbuild makefile in which they
 	are assigned. They are used for all the normal cc, as and ld
 	invocations happening during a recursive build.
-	Note: Flags with the same behaviour were previously named:
-	EXTRA_CFLAGS, EXTRA_AFLAGS and EXTRA_LDFLAGS.
-	They are still supported but their usage is deprecated.
 
 	ccflags-y specifies options for compiling with $(CC).
 

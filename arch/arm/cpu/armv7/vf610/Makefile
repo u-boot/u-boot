@@ -7,5 +7,5 @@ obj-y	+= timer.o
 
 MKIMAGEFLAGS_u-boot.vyb = -T vybridimage
 
-u-boot.vyb: u-boot.imx
+u-boot.vyb: u-boot.imx FORCE
 	$(call if_changed,mkimage)

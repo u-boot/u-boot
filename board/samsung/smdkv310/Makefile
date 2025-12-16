@@ -6,8 +6,7 @@ ifdef CONFIG_XPL_BUILD
 # necessary to create built-in.a
 obj- := __dummy__.a
 
-hostprogs-y := tools/mksmdkv310spl
-always := $(hostprogs-y)
+hostprogs-always-y += tools/mksmdkv310spl
 else
 obj-y	+= smdkv310.o
 endif

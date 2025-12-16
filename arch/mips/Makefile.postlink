@@ -6,7 +6,7 @@ PHONY := __archpost
 __archpost:
 
 -include include/config/auto.conf
-include scripts/Kbuild.include
+include scripts/Kbuild.uboot
 
 CMD_RELOCS = tools/mips-relocs
 quiet_cmd_relocs = RELOCS  $@

@@ -41,7 +41,7 @@ $(obj)/dt.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
 	$(call if_changed,fdt_rm_props)
 else
 $(obj)/dt.dtb: $(DTB) FORCE
-	$(call if_changed,shipped)
+	$(call if_changed,copy)
 endif
 
 targets += dt.dtb
