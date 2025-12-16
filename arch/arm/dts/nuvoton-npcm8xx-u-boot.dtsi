@@ -395,6 +395,36 @@
 				gpio-bank-name = "gpio7";
 			};
 
+			gpio8: sgpio1@101000 {
+				compatible = "nuvoton,npcm845-sgpio";
+				reg = <0x101000 0x200>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&iox1_pins>;
+				syscon-rst = <&rstc>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio8";
+				nuvoton,input-ngpios = <0>;
+				nuvoton,output-ngpios = <0>;
+			};
+
+			gpio9: sgpio2@102000 {
+				compatible = "nuvoton,npcm845-sgpio";
+				reg = <0x102000 0x200>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&iox2_pins>;
+				syscon-rst = <&rstc>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio9";
+				nuvoton,input-ngpios = <8>;
+				nuvoton,output-ngpios = <8>;
+			};
+
 			rng: rng@b000 {
 				compatible = "nuvoton,npcm845-rng";
 				reg = <0xb000 0x8>;
