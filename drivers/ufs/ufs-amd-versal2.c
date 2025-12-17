@@ -305,7 +305,7 @@ static int ufs_versal2_init(struct ufs_hba *hba)
 
 	priv->phy_mode = UFSHCD_DWC_PHY_MODE_ROM;
 
-	ret = clk_get_by_name(hba->dev, "core_clk", &clk);
+	ret = clk_get_by_name(hba->dev, "core", &clk);
 	if (ret) {
 		dev_err(hba->dev, "failed to get core_clk clock\n");
 		return ret;
