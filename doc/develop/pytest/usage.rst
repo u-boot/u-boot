@@ -546,7 +546,7 @@ either of ``CONFIG_NET`` or ``CONFIG_NET_LWIP`` is set:
 
 .. code-block:: python
 
-    @pytest.mark.buildconfigspec('net', 'net lwip')
+    @pytest.mark.buildconfigspec('net', 'net_lwip')
 
 The ``notbuildconfigspec()`` annotation can be used to require a configuration
 option not to be set. The following annotation requires ``CONFIG_RISCV=n``:
