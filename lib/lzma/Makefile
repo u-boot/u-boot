@@ -7,5 +7,6 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 ccflags-y += -D_LZMA_PROB32
+ccflags-$(CONFIG_$(PHASE_)LZMA_SIZE_OPTIMIZATION) += -D_LZMA_SIZE_OPT
 
 obj-y += LzmaDec.o LzmaTools.o
