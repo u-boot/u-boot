@@ -14,6 +14,6 @@
  */
 #define Byte LZByte
 
-#include "../../lib/lzma/Types.h"
+#include "../../lib/lzma/7zTypes.h"
 
 #endif

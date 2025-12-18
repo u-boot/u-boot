@@ -835,8 +835,9 @@ config LZMA
 	help
 	  This enables support for LZMA (Lempel-Ziv-Markov chain algorithm),
 	  a dictionary compression algorithm that provides a high compression
-	  ratio and fairly fast decompression speed. See also
-	  CONFIG_CMD_LZMADEC which provides a decode command.
+	  ratio and fairly fast decompression speed. Our implementation comes
+	  from the LZMA SDK. See also CONFIG_CMD_LZMADEC which provides a
+	  decode command.
 
 config LZMA_SIZE_OPTIMIZATION
 	bool "Optimize the LZMA algorithm for smaller binary size"
