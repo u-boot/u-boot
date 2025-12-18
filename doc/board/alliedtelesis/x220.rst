@@ -1,0 +1,39 @@
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (C) 2026 Allied Telesis Labs
+
+x220 Platforms
+==============
+
+Introduction
+------------
+
+The x220 has is a range of L2+ switches using the Marvell AlleyCat3 switch with
+integrated ARMv7 CPU. It is also sold under some different brands for different
+markets.
+
+- x220-52GP
+- x220-52GT
+- x220-28GS
+- GS980M/52PS
+- GS980M/52
+- x230-52
+
+DDR Traning (binhdr)
+--------------------
+
+The AlleyCat3 uses a binary blob for it's DDR training. This is launched by
+the built-in bootloader prior to U-Boot starting.
+
+To generate binary.0 from Marvell's bin_hdr.elf use the following command
+
+.. prompt:: bash $
+
+  arm-softfloat-linux-gnueabi-objcopy -S -O binary bin_hdr.elf \
+     board/alliedtelesis/x220/binary.0
+
+Alternatively, it is possible to extract the binary.0 from an existing U-Boot
+image
+
+.. prompt:: bash $
+
+   ./tools/dumpimage -T kwbimage -p 1 -o board/alliedtelesis/x220/binary.0 u-boot.kwb

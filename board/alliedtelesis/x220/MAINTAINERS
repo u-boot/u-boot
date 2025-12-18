@@ -1,0 +1,8 @@
+x220 BOARD
+M:	Chris Packham <chris.packham@alliedtelesis.co.nz>
+S:	Maintained
+F:	board/alliedtelesis/x220
+F:	include/configs/x220.h
+F:	configs/x220_defconfig
+F:	arch/arm/dts/armada-xp-atl-x220.dts
+F:	doc/board/alliedtelesis/x220.rst
