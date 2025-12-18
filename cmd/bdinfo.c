@@ -213,5 +213,19 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 U_BOOT_CMD(
 	bdinfo,	2,	1,	do_bdinfo,
 	"print Board Info structure",
-	""
+// Long help prepended with command's name, and `bdinfo` is a valid command
+	"\n"
+#if CONFIG_IS_ENABLED(GETOPT)
+	"bdinfo -a\n"
+#endif
+	"  - print all Board Info structure"
+#if CONFIG_IS_ENABLED(GETOPT)
+	"\n"
+#if IS_ENABLED(CONFIG_NET) || IS_ENABLED(CONFIG_NET_LWIP)
+	"bdinfo -e\n"
+	"  - print Board Info related to network\n"
+#endif
+	"bdinfo -m\n"
+	"  - print Board Info related to DRAM"
+#endif
 );

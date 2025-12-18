@@ -310,6 +310,17 @@ static int bdinfo_test_help(struct unit_test_state *uts)
 		ut_assert_nextline_empty();
 		ut_assert_nextlinen("Usage:");
 		ut_assert_nextlinen("bdinfo");
+		if (CONFIG_IS_ENABLED(GETOPT))
+			ut_assert_nextlinen("bdinfo -a");
+		ut_assert_nextlinen("  - print all Board Info structure");
+		if (CONFIG_IS_ENABLED(GETOPT)) {
+			if (IS_ENABLED(CONFIG_NET) || IS_ENABLED(CONFIG_NET_LWIP)) {
+				ut_assert_nextlinen("bdinfo -e");
+				ut_assert_nextlinen("  - print Board Info related to network");
+			}
+			ut_assert_nextlinen("bdinfo -m");
+			ut_assert_nextlinen("  - print Board Info related to DRAM");
+		}
 	}
 	ut_assert_console_end();
 
