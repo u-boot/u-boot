@@ -77,8 +77,12 @@ Build
 current eth
     name of the active network device
 
+    Only shown if CONFIG_NET=y or CONFIG_NET_LWIP=y.
+
 IP addr
     network address, value of the environment variable *ipaddr*
+
+    Only shown if CONFIG_NET=y or CONFIG_NET_LWIP=y.
 
 fdt_blob
     address of U-Boot's own device tree, NULL if none
@@ -92,8 +96,12 @@ fdt_size
 lmb_dump_all
     available memory and memory reservations
 
+    Only shown if CONFIG_LMB=y.
+
 devicetree
     source of the device-tree
+
+    Only shown if CONFIG_OF_REAL=y.
 
 arch_number
     unique id for the board
