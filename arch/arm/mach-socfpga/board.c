@@ -14,6 +14,7 @@
 #include <hang.h>
 #include <handoff.h>
 #include <image.h>
+#include <spl.h>
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 #include <asm/global_data.h>
@@ -207,5 +208,15 @@ void lmb_arch_add_memory(void)
 		if (bd->bi_dram[i].size)
 			lmb_add(bd->bi_dram[i].start, bd->bi_dram[i].size);
 	}
+}
+#endif
+
+#if (defined(CONFIG_TARGET_SOCFPGA_ARRIA10) || \
+     defined(CONFIG_TARGET_SOCFPGA_GEN5)) && defined(CONFIG_XPL_BUILD)
+unsigned long board_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+						 unsigned long raw_sect)
+{
+	/* offset of u-boot proper inside u-boot-with-spl.sfp image */
+	return (CONFIG_SPL_PAD_TO * 4) / 512 + raw_sect;
 }
 #endif

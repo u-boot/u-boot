@@ -95,8 +95,9 @@ To flash U-Boot on the eMMC with ``rkdeveloptool``:
    git clone https://github.com/rockchip-linux/rkbin.git
    cd rkbin
    ./tools/boot_merger RKBOOT/RK3399MINIALL.ini
+   export RKDB=$(readlink -f rk3399_loader_v*.bin | head -1)
    cd ..
-   ./rkdeveloptool db rkbin/rk3399_loader_v1.30.130.bin
+   ./rkdeveloptool db "$RKDB"
    ./rkdeveloptool wl 64 ../u-boot-rockchip.bin
 
 NOR-Flash
@@ -121,7 +122,8 @@ To flash U-Boot on the SPI with ``rkdeveloptool``:
    git clone https://github.com/rockchip-linux/rkbin.git
    cd rkbin
    ./tools/boot_merger RKBOOT/RK3399MINIALL_SPINOR.ini
+   export RKDB=$(readlink -f rk3399_loader_spinor_v*.bin | head -1)
    cd ..
-   ./rkdeveloptool db rkbin/rk3399_loader_spinor_v1.30.114.bin
+   ./rkdeveloptool db "$RKDB"
    ./rkdeveloptool ef
    ./rkdeveloptool wl 0 ../u-boot-rockchip-spi.bin

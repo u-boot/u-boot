@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * U-Boot additions
+ * U-Boot additions for Agilex5 SocDK eMMC
  *
- * Copyright (C) 2024 Intel Corporation <www.intel.com>
  * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
@@ -101,35 +100,11 @@
 	bootph-all;
 };
 
-&sd_io_1v8_reg {
-	gpios = <&portb 3 GPIO_ACTIVE_HIGH>;
+&emmc_io_1v8_reg {
 	bootph-all;
 };
 
 &mmc {
-	status = "okay";
-
-	no-mmc;
-	no-1-8-v;
-	disable-wp;
-	cap-sd-highspeed;
-	vmmc-supply = <&sd_emmc_power>;
-	vqmmc-supply = <&sd_io_1v8_reg>;
-	max-frequency = <200000000>;
-
-	/* SD card default speed (DS) and UHS-I SDR12 mode timing configuration */
-	cdns,phy-dqs-timing-delay-sd-ds = <0x00780000>;
-	cdns,phy-gate-lpbk_ctrl-delay-sd-ds = <0x81a40040>;
-	cdns,phy-dll-slave-ctrl-sd-ds = <0x00a000fe>;
-	cdns,phy-dq-timing-delay-sd-ds = <0x28000001>;
-
-	/* SD card high speed and UHS-I SDR25 mode timing configuration */
-	cdns,phy-dqs-timing-delay-sd-hs = <0x780001>;
-	cdns,phy-gate-lpbk_ctrl-delay-sd-hs = <0x81a40040>;
-	cdns,phy-dq-timing-delay-sd-hs = <0x10000001>;
-	cdns,ctrl-hrs16-slave-ctrl-sd-hs = <0x101>;
-	cdns,ctrl-hrs07-timing-delay-sd-hs = <0xA0001>;
-
 	bootph-all;
 };
 
@@ -138,6 +113,7 @@
 };
 
 &nand {
+	status = "disabled";
 	bootph-all;
 };
 

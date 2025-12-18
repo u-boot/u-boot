@@ -345,6 +345,21 @@ int dram_init_banksize(void)
 	return 0;
 }
 
+u8 rockchip_sdram_type(phys_addr_t reg)
+{
+	u32 dram_type, version;
+	u32 sys_reg2 = readl(reg);
+	u32 sys_reg3 = readl(reg + 4);
+
+	dram_type = (sys_reg2 >> SYS_REG_DDRTYPE_SHIFT) & SYS_REG_DDRTYPE_MASK;
+	version = (sys_reg3 >> SYS_REG_VERSION_SHIFT) & SYS_REG_VERSION_MASK;
+	if (version >= 3)
+		dram_type |= ((sys_reg3 >> SYS_REG_EXTEND_DDRTYPE_SHIFT) &
+			      SYS_REG_EXTEND_DDRTYPE_MASK) << 3;
+
+	return dram_type;
+}
+
 size_t rockchip_sdram_size(phys_addr_t reg)
 {
 	u32 rank, cs0_col, bk, cs0_row, cs1_row, bw, row_3_4;

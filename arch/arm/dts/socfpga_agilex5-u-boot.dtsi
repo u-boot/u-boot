@@ -681,17 +681,6 @@
 	bootph-all;
 };
 
-&gpio1 {
-	/* Configure GPIO 1 pin 3 as output pin with value 0 during GPIO probe */
-	portb: gpio-controller@0{
-		sdio_sel {
-			gpio-hog;
-			gpios = <3 GPIO_ACTIVE_HIGH>;
-			output-low;
-		};
-	};
-};
-
 &i2c0 {
 	reset-names = "i2c";
 };
@@ -709,7 +698,8 @@
 };
 
 &mmc {
-	resets = <&rst SDMMC_RESET>, <&rst SDMMC_OCP_RESET>;
+	resets = <&rst COMBOPHY_RESET>, <&rst SDMMC_OCP_RESET>, <&rst SDMMC_RESET>;
+	reset-names =  "combophy", "sdmmc-ocp", "sdhc-reset";
 };
 
 &porta {

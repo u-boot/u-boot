@@ -87,6 +87,9 @@ enum {
 #define SYS_REG_CS1_COL_SHIFT(ch)		(0 + (ch) * 2)
 #define SYS_REG_CS1_COL_MASK			3
 
+/* Get sdram type decode from reg */
+u8 rockchip_sdram_type(phys_addr_t reg);
+
 /* Get sdram size decode from reg */
 size_t rockchip_sdram_size(phys_addr_t reg);
 

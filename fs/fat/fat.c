@@ -216,6 +216,11 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 		if (flush_dirty_fat_buffer(mydata) < 0)
 			return -1;
 
+		if (getsize > FATBUFBLOCKS) {
+			debug("getsize is too large for bufptr\n");
+			getsize = FATBUFBLOCKS;
+		}
+
 		if (disk_read(startblock, getsize, bufptr) < 0) {
 			debug("Error reading FAT blocks\n");
 			return ret;

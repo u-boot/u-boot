@@ -1,0 +1,49 @@
+// SPDX-License-Identifier:     GPL-2.0
+/*
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
+ */
+
+#include "socfpga_agilex5_socdk.dts"
+
+/ {
+	soc {
+		emmc_io_1v8_reg: regulator-fixed-1p8v {
+			compatible = "regulator-fixed";
+			regulator-name = "emmc-io-power";
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			regulator-always-on;
+		};
+	};
+};
+
+&mmc {
+	status = "okay";
+
+	no-sd;
+	no-sdio;
+	disable-wp;
+	non-removable;
+	cap-mmc-highspeed;
+
+	bus-width = <8>;
+	vmmc-supply = <&sd_emmc_power>;
+	vqmmc-supply = <&emmc_io_1v8_reg>;
+	max-frequency = <200000000>;
+
+	/* eMMC legacy mode timing configuration */
+	cdns,phy-dqs-timing-delay-sd-ds = <0x00780000>;
+	cdns,phy-gate-lpbk-ctrl-delay-sd-ds = <0x81a40040>;
+	cdns,phy-dll-slave-ctrl-sd-ds = <0x00a000fe>;
+	cdns,phy-dq-timing-delay-sd-ds = <0x28000001>;
+
+	/* eMMC SDR mode timing configuration */
+	cdns,phy-dqs-timing-delay-emmc-sdr = <0x780001>;
+	cdns,phy-gate-lpbk-ctrl-delay-emmc-sdr = <0x81a40040>;
+	cdns,phy-dll-slave-ctrl-emmc-sdr = <0x00000000>;
+	cdns,phy-dq-timing-delay-emmc-sdr = <0x10000001>;
+	cdns,ctrl-hrs09-timing-delay-emmc-sdr = <0x1800c>;
+	cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-sdr = <0x30000>;
+	cdns,ctrl-hrs16-slave-ctrl-emmc-sdr = <0x101>;
+	cdns,ctrl-hrs07-timing-delay-emmc-sdr = <0xA0001>;
+};

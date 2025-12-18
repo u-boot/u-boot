@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause */
+// SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause)
 #include "fdt_host.h"
 #include "../../scripts/dtc/libfdt/fdt_rw.c"
 

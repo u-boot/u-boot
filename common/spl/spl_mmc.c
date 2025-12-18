@@ -106,7 +106,8 @@ static int spl_mmc_find_device(struct mmc **mmcp, int mmc_dev)
 	return 0;
 }
 
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
+#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION) || \
+    defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE)
 static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
 					struct spl_boot_device *bootdev,
 					struct mmc *mmc, int partition,
@@ -136,11 +137,7 @@ static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
 		return ret;
 	}
 
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 	return mmc_load_image_raw_sector(spl_image, bootdev, mmc, info.start + sector);
-#else
-	return mmc_load_image_raw_sector(spl_image, bootdev, mmc, info.start);
-#endif
 }
 #endif
 
@@ -419,17 +416,17 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 
 		raw_sect = spl_mmc_get_uboot_raw_sector(mmc, raw_sect);
 
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
-		ret = mmc_load_image_raw_partition(spl_image, bootdev,
-						   mmc, raw_part,
-						   raw_sect);
-		if (!ret)
-			return 0;
-#endif
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 		ret = mmc_load_image_raw_sector(spl_image, bootdev, mmc,
 						raw_sect +
 						spl_mmc_raw_uboot_offset(part));
+		if (!ret)
+			return 0;
+#elif defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION) || \
+      defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE)
+		ret = mmc_load_image_raw_partition(spl_image, bootdev,
+						   mmc, raw_part,
+						   raw_sect);
 		if (!ret)
 			return 0;
 #endif

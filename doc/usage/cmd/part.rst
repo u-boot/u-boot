@@ -83,7 +83,7 @@ part must be specified as partition name.
     dev
         device number
     part
-        partition number
+        partition name
     varname
         a variable to store the current partition number value into
 
