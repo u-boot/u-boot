@@ -329,7 +329,7 @@ When using dfu-util the following commands can be used to boot to a U-Boot shell
 .. prompt:: bash $
 
   dfu-util -a bootloader -D tiboot3.bin
-  dfu-util -R -a tispl -D tispl.bin
+  dfu-util -R -a tispl.bin -D tispl.bin
   dfu-util -R -a u-boot.img -D u-boot.img
 
 .. am62x_evm_rst_include_end_dfu_boot
