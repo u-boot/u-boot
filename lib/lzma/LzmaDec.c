@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LZMA-SDK-9.22
 /* LzmaDec.c -- LZMA Decoder
 2023-04-07 : Igor Pavlov : Public domain */
 

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LZMA-SDK-9.22 */
 /* Precomp.h -- precompilation file
 2024-01-25 : Igor Pavlov : Public domain */
 

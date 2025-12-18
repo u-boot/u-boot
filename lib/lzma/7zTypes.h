@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LZMA-SDK-9.22 */
 /* 7zTypes.h -- Basic types
 2024-01-24 : Igor Pavlov : Public domain */
 

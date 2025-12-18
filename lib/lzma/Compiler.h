@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LZMA-SDK-9.22 */
 /* Compiler.h : Compiler specific defines and pragmas
 : Igor Pavlov : Public domain */
 
