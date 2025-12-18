@@ -137,7 +137,7 @@ static int scmi_clk_get_attribute(struct udevice *dev, int clkid, char *name,
 
 static int scmi_clk_gate(struct clk *clk, int enable)
 {
-	struct scmi_clock_priv *priv = dev_get_parent_priv(clk->dev);
+	struct scmi_clock_priv *priv;
 	struct scmi_clk_state_in_v1 in_v1 = {
 		.clock_id = clk_get_id(clk),
 		.attributes = enable,
@@ -155,6 +155,16 @@ static int scmi_clk_gate(struct clk *clk, int enable)
 					     SCMI_CLOCK_CONFIG_SET,
 					     in_v2, out);
 	int ret;
+
+	/*
+	 * In scmi_clk_probe(), in case of CLK_CCF is set, SCMI clock
+	 * version is set in dev's parent priv struct. Otherwise
+	 * SCMI clock version is set in dev priv struct.
+	 */
+	if (CONFIG_IS_ENABLED(CLK_CCF))
+		priv = dev_get_parent_priv(clk->dev);
+	else
+		priv = dev_get_priv(clk->dev);
 
 	ret = devm_scmi_process_msg(clk->dev,
 				    (priv->version < CLOCK_PROTOCOL_VERSION_2_1) ?
