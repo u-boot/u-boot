@@ -424,6 +424,26 @@ ifeq ($(CONFIG_OF_LIBFDT_OVERLAY),y)
 DTC_FLAGS += -@
 endif
 
+# In case DEVICE_TREE_DEBUG is set, produce a diff between the base DT and
+# DT with U-Boot extras, to show how much does the U-Boot DT differ from
+# the base DT. This is particularly useful together with OF_UPSTREAM, to
+# minimize the diff between upstream DTs and U-Boot DTs.
+ifdef DEVICE_TREE_DEBUG
+cmd_dtc_diff = \
+	$(HOSTCC) -E $(dtc_cpp_flags) -I$(obj) -x assembler-with-cpp -o $(dtn-tmp) $< ; \
+	$(DTC) -s -O dts -o $@.clean.dts -b 0 \
+		-i $(dir $<) $(DTC_FLAGS) $(dtn-tmp) || \
+		(echo "Check $(shell pwd)/$< for errors" && false); \
+	$(DTC) -s -O dts -o $@.full.dts -b 0 \
+		-i $(dir $<) -i $(u_boot_dtsi_loc) $(DTC_FLAGS) $(dtc-tmp) || \
+		(echo "Check $(shell pwd)/$(pre-tmp) for errors" && false); \
+	(diff -Naru $@.clean.dts $@.full.dts > $@.diff || true)
+
+dtn-tmp = $(subst $(comma),_,$(dot-target).dtn.tmp)
+else
+cmd_dtc_diff = true
+endif
+
 quiet_cmd_dtc = DTC     $@
 # Modified for U-Boot
 # Bring in any U-Boot-specific include at the end of the file
@@ -438,7 +458,8 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 		-d $(depfile).dtc.tmp $(dtc-tmp) || \
 		(echo "Check $(shell pwd)/$(pre-tmp) for errors" && false) \
 		; \
-	sed "s:$(pre-tmp):$(<):" $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile)
+	sed "s:$(pre-tmp):$(<):" $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile) ; \
+	$(cmd_dtc_diff)
 
 dtsi_include_list_deps := $(addprefix $(u_boot_dtsi_loc),$(subst $(quote),,$(dtsi_include_list)))
 
