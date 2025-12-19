@@ -872,6 +872,38 @@ __weak extern void board_pci_fixup_dev(struct udevice *bus, struct udevice *dev)
 {
 }
 
+static int only_one_child(struct udevice *bus)
+{
+	int pos;
+
+	if (!dev_get_parent_plat(bus))
+		return 0;
+
+	/*
+	 * A PCIe Downstream Port normally leads to a Link with only Device
+	 * 0 on it (PCIe spec r3.1, sec 7.3.1).  As an optimization, scan
+	 * only for Device 0 in that situation.
+	 */
+	pos = dm_pci_find_capability(bus, PCI_CAP_ID_EXP);
+	if (pos) {
+		ulong reg;
+		ulong pcie_type;
+
+		dm_pci_read_config(bus, pos + PCI_EXP_FLAGS,
+				   &reg, PCI_SIZE_16);
+
+		pcie_type = (reg & PCI_EXP_FLAGS_TYPE) >> 4;
+
+		if (pcie_type == PCI_EXP_TYPE_ROOT_PORT ||
+		    pcie_type == PCI_EXP_TYPE_DOWNSTREAM ||
+		    pcie_type == PCI_EXP_TYPE_PCIE_BRIDGE) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 int pci_bind_bus_devices(struct udevice *bus)
 {
 	ulong vendor, device;
@@ -893,6 +925,9 @@ int pci_bind_bus_devices(struct udevice *bus)
 		if (!PCI_FUNC(bdf))
 			found_multi = false;
 		if (PCI_FUNC(bdf) && !found_multi)
+			continue;
+
+		if (only_one_child(bus) && (PCI_MASK_BUS(bdf) > 0))
 			continue;
 
 		/* Check only the first access, we don't expect problems */
