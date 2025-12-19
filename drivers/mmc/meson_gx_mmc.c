@@ -16,6 +16,7 @@
 #include <linux/log2.h>
 #include "meson_gx_mmc.h"
 
+#if CONFIG_IS_ENABLED(DM_MMC)
 bool meson_gx_mmc_is_compatible(struct udevice *dev,
 				enum meson_gx_mmc_compatible family)
 {
@@ -23,6 +24,7 @@ bool meson_gx_mmc_is_compatible(struct udevice *dev,
 
 	return compat == family;
 }
+#endif
 
 static inline void *get_regbase(const struct mmc *mmc)
 {
@@ -67,10 +69,14 @@ static void meson_mmc_config_clock(struct mmc *mmc)
 	 * Other SoCs use CLK_CO_PHASE_180 by default.
 	 * It needs to find what is a proper value about each SoCs.
 	 */
+#if CONFIG_IS_ENABLED(DM_MMC)
 	if (meson_gx_mmc_is_compatible(mmc->dev, MMC_COMPATIBLE_SM1))
 		meson_mmc_clk |= CLK_CO_PHASE_270;
 	else
 		meson_mmc_clk |= CLK_CO_PHASE_180;
+#else /* U-Boot SPL on GX SoCs */
+	meson_mmc_clk |= CLK_CO_PHASE_180;
+#endif
 
 	/* 180 phase tx clock */
 	meson_mmc_clk |= CLK_TX_PHASE_000;
@@ -82,9 +88,14 @@ static void meson_mmc_config_clock(struct mmc *mmc)
 	meson_write(mmc, meson_mmc_clk, MESON_SD_EMMC_CLOCK);
 }
 
+#if CONFIG_IS_ENABLED(DM_MMC)
 static int meson_dm_mmc_set_ios(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
+#else /* U-Boot SPL */
+static int meson_legacy_mmc_set_ios(struct mmc *mmc)
+{
+#endif
 	uint32_t meson_mmc_cfg;
 
 	meson_mmc_config_clock(mmc);
@@ -193,10 +204,16 @@ static void meson_mmc_read_response(struct mmc *mmc, struct mmc_cmd *cmd)
 	}
 }
 
+#if CONFIG_IS_ENABLED(DM_MMC)
 static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 				 struct mmc_data *data)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
+#else /* U-Boot SPL */
+static int meson_legacy_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+				     struct mmc_data *data)
+{
+#endif
 	struct meson_mmc_plat *pdata = mmc->priv;
 	uint32_t status;
 	ulong start;
@@ -235,6 +252,59 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	return ret;
 }
 
+#if !CONFIG_IS_ENABLED(DM_MMC) /* Non-DM MMC driver for use in U-Boot SPL */
+struct meson_mmc_plat mmc_plat[2];
+
+static int meson_legacy_mmc_init(struct mmc *mmc)
+{
+	/* reset all status bits */
+	meson_write(mmc, STATUS_MASK, MESON_SD_EMMC_STATUS);
+
+	/* disable interrupts */
+	meson_write(mmc, 0, MESON_SD_EMMC_IRQ_EN);
+
+	return 0;
+}
+
+static const struct mmc_ops meson_mmc_ops = {
+	.send_cmd	= meson_legacy_mmc_send_cmd,
+	.set_ios	= meson_legacy_mmc_set_ios,
+	.init		= meson_legacy_mmc_init,
+};
+
+struct mmc *meson_mmc_init(int mmc_no)
+{
+	struct meson_mmc_plat *pdata = &mmc_plat[mmc_no];
+	struct mmc_config *cfg = &pdata->cfg;
+
+	cfg->voltages = MMC_VDD_33_34 | MMC_VDD_32_33 |
+			MMC_VDD_31_32 | MMC_VDD_165_195;
+	cfg->host_caps = MMC_MODE_8BIT | MMC_MODE_4BIT;
+	cfg->f_min = DIV_ROUND_UP(SD_EMMC_CLKSRC_24M, CLK_MAX_DIV);
+	cfg->f_max = 6000000; /* 6 MHz */
+	cfg->b_max = 127; /* max 128 - 1 block */
+	cfg->name = "Meson SD/eMMC";
+	cfg->ops = &meson_mmc_ops;
+
+	if (mmc_no == 0) /* MMC1: SD card */
+		pdata->regbase = (void *)0xd0072000;
+	else if (mmc_no == 1) /* MMC2: eMMC */
+		pdata->regbase = (void *)0xd0074000;
+
+#if CONFIG_IS_ENABLED(MMC_PWRSEQ)
+	/* Enable power if needed */
+	ret = mmc_pwrseq_get_power(dev, cfg);
+	if (!ret) {
+		ret = pwrseq_set_power(cfg->pwr_dev, true);
+		if (ret)
+			return ret;
+	}
+#endif
+
+	return mmc_create(cfg, pdata);
+}
+
+#else /* DM-based driver for use in U-Boot proper */
 static const struct dm_mmc_ops meson_dm_mmc_ops = {
 	.send_cmd = meson_dm_mmc_send_cmd,
 	.set_ios = meson_dm_mmc_set_ios,
@@ -278,9 +348,15 @@ static int meson_mmc_probe(struct udevice *dev)
 	cfg->host_caps = MMC_MODE_8BIT | MMC_MODE_4BIT |
 			MMC_MODE_HS_52MHz | MMC_MODE_HS;
 	cfg->f_min = DIV_ROUND_UP(SD_EMMC_CLKSRC_24M, CLK_MAX_DIV);
-	cfg->f_max = 100000000; /* 100 MHz */
+	cfg->f_max = 40000000; /* 40 MHz */
 	cfg->b_max = 511; /* max 512 - 1 blocks */
 	cfg->name = dev->name;
+
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		cfg->host_caps &= ~(MMC_MODE_HS_52MHz | MMC_MODE_HS);
+		cfg->f_max = 6000000; /* 6 MHz */
+		cfg->b_max = 127; /* max 128 - 1 block */
+	}
 
 	mmc->priv = pdata;
 	upriv->mmc = mmc;
@@ -336,3 +412,4 @@ U_BOOT_DRIVER(meson_mmc) = {
 	.of_to_plat = meson_mmc_of_to_plat,
 	.plat_auto	= sizeof(struct meson_mmc_plat),
 };
+#endif /* CONFIG_IS_ENABLED(DM_MMC) */

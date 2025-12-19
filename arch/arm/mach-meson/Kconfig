@@ -17,6 +17,8 @@ config MESON64_COMMON
 config MESON_GX
 	bool
 	select MESON64_COMMON
+	select SUPPORT_SPL
+	select BINMAN if SPL
 
 choice
 	prompt "Platform select"
@@ -69,7 +71,7 @@ config SYS_SOC
 	default "meson"
 
 config SYS_MALLOC_F_LEN
-	default 0x1000
+	default 0x2000
 
 config SYS_VENDOR
 	string "Vendor name"
@@ -93,4 +95,112 @@ config SYS_BOARD
 	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
 	  be used.
 
+if MESON_GX && SPL
+config SPL_SYS_MALLOC_F_LEN
+	default 0x2000
+
+choice
+	prompt "DRAM rank mode"
+	help
+	  Choose rank mode. This heavily depends on the board and you should
+	  leave the board default set if you don't know what this is.
+	  If you choose the wrong rank mode DRAM init in SPL may either fail
+	  or in rare occasions require multiple resets before it succeeds.
+
+config DRAM_ONE_RANK
+	bool "One rank"
+
+config DRAM_TWO_IDENTICAL_RANKS
+	bool "Two identical ranks"
+
+if MESON_GXBB
+config DRAM_TWO_DIFF_RANKS
+	bool "Two different ranks"
+endif
+
+if MESON_GXL
+config DRAM_16BIT_RANK
+	bool "One 16-bit rank"
+endif
+endchoice
+
+choice
+	prompt "DRAM memory type"
+	default DRAM_DDR3
+	help
+	  Select the DDR type according to your board design.  GXBB/S905
+	  currently only supports DDR3.
+
+config DRAM_DDR3
+	bool "DDR3"
+
+if MESON_GXL
+config DRAM_DDR4
+	bool "DDR4"
+endif
+endchoice
+
+config DRAM_DQS_CORR
+	bool "Enable DQS correction"
+
+config DRAM_CLK
+	int "DRAM clock"
+	default 912
+	help
+	  This option contains the DRAM clock to use in MHz.
+
+config DRAM_SIZE
+	int "DRAM size"
+	default 1024
+	help
+	  This option contains the DRAM size. Units in MB.
+
+choice
+	prompt "Enable DRAM 2T mode"
+	default DRAM_1T_MODE
+	help
+	  Choose whenever to use 2T mode or not.
+
+config DRAM_1T_MODE
+	bool "Use DRAM 1T mode"
+
+config DRAM_2T_MODE
+	bool "Use DRAM 2T mode"
+
+endchoice
+
+choice
+	prompt "Set VDDEE init voltage"
+	default SPL_MESON_GX_VDDEE_1000MV
+	help
+	  This option is used to set the VDDEE voltage on boot up.
+	  If unsure, leave it to the board default.
+
+config SPL_MESON_GX_VDDEE_1000MV
+	bool "Set VDDEE to 1000 mv"
+
+config SPL_MESON_GX_VDDEE_1100MV
+	bool "Set VDDEE to 1100 mv"
+
+endchoice
+
+choice
+	prompt "Set VCCK init voltage"
+	default SPL_MESON_GX_VCCK_1100MV
+	help
+	  This option is used to set the VCCK voltage on boot up.
+	  If unsure, leave it to the board default.
+
+config SPL_MESON_GX_VCCK_1000MV
+	bool "Set VCCK to 1000 mv"
+
+config SPL_MESON_GX_VCCK_1100MV
+	bool "Set VCCK to 1100 mv"
+
+config SPL_MESON_GX_VCCK_1120MV
+	bool "Set VCCK to 1120 mv"
+
+endchoice
+
+endif
 endif

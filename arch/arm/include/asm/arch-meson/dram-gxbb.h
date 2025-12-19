@@ -1,0 +1,168 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Copyright (C) 2015, Amlogic, Inc. All rights reserved.
+ * Copyright (C) 2023-2025, Ferass El Hafidi <funderscore@postmarketos.org>
+ */
+#ifndef DRAM_GXBB_H
+#define DRAM_GXBB_H
+
+/* PUB (not much documented) */
+#define DDR0_PUB_REG_BASE	0xc8836000
+
+#define DDR0_PUB_PIR	(DDR0_PUB_REG_BASE + (0x01 << 2))
+
+#define DDR0_PUB_PGCR1	(DDR0_PUB_REG_BASE + (0x03 << 2))
+#define DDR0_PUB_PGCR2	(DDR0_PUB_REG_BASE + (0x04 << 2))
+#define DDR0_PUB_PGCR3	(DDR0_PUB_REG_BASE + (0x05 << 2))
+#define DDR0_PUB_PGSR0	(DDR0_PUB_REG_BASE + (0x06 << 2))
+
+#define DDR0_PUB_ACLCDLR	(DDR0_PUB_REG_BASE + (0x0F << 2))
+#define DDR0_PUB_ACBDLR0	(DDR0_PUB_REG_BASE + (0x10 << 2))
+#define DDR0_PUB_ACIOCR1	(DDR0_PUB_REG_BASE + (0x1B << 2))
+#define DDR0_PUB_ACIOCR2	(DDR0_PUB_REG_BASE + (0x1C << 2))
+#define DDR0_PUB_ACIOCR3	(DDR0_PUB_REG_BASE + (0x1D << 2))
+#define DDR0_PUB_ACIOCR4	(DDR0_PUB_REG_BASE + (0x1E << 2))
+#define DDR0_PUB_ACIOCR5	(DDR0_PUB_REG_BASE + (0x1F << 2))
+
+#define DDR0_PUB_DXCCR	(DDR0_PUB_REG_BASE + (0x20 << 2))
+#define DDR0_PUB_DSGCR	(DDR0_PUB_REG_BASE + (0x21 << 2))
+#define DDR0_PUB_DCR	(DDR0_PUB_REG_BASE + (0x22 << 2))
+
+#define DDR0_PUB_DTPR0	(DDR0_PUB_REG_BASE + (0x23 << 2))
+#define DDR0_PUB_DTPR1	(DDR0_PUB_REG_BASE + (0x24 << 2))
+#define DDR0_PUB_DTPR2	(DDR0_PUB_REG_BASE + (0x25 << 2))
+#define DDR0_PUB_DTPR3	(DDR0_PUB_REG_BASE + (0x26 << 2))
+
+#define DDR0_PUB_MR0	(DDR0_PUB_REG_BASE + (0x27 << 2))
+#define DDR0_PUB_MR1	(DDR0_PUB_REG_BASE + (0x28 << 2))
+#define DDR0_PUB_MR2	(DDR0_PUB_REG_BASE + (0x29 << 2))
+#define DDR0_PUB_MR3	(DDR0_PUB_REG_BASE + (0x2A << 2))
+
+#define DDR0_PUB_ODTCR	(DDR0_PUB_REG_BASE + (0x2B << 2))
+
+#define DDR0_PUB_DTCR	(DDR0_PUB_REG_BASE + (0x2C << 2))
+
+#define DDR0_PUB_DTAR0	(DDR0_PUB_REG_BASE + (0x2D << 2))
+#define DDR0_PUB_DTAR1	(DDR0_PUB_REG_BASE + (0x2E << 2))
+#define DDR0_PUB_DTAR2	(DDR0_PUB_REG_BASE + (0x2F << 2))
+#define DDR0_PUB_DTAR3	(DDR0_PUB_REG_BASE + (0x30 << 2))
+
+#define DDR0_PUB_IOVCR0	(DDR0_PUB_REG_BASE + (0x8E << 2))
+#define DDR0_PUB_IOVCR1	(DDR0_PUB_REG_BASE + (0x8F << 2))
+
+#define DDR0_PUB_ZQCR	(DDR0_PUB_REG_BASE + (0x90 << 2))
+
+#define DDR0_PUB_ZQ0PR	(DDR0_PUB_REG_BASE + (0x91 << 2))
+#define DDR0_PUB_ZQ1PR	(DDR0_PUB_REG_BASE + (0x95 << 2))
+#define DDR0_PUB_ZQ2PR	(DDR0_PUB_REG_BASE + (0x99 << 2))
+#define DDR0_PUB_ZQ3PR	(DDR0_PUB_REG_BASE + (0x9D << 2))
+
+#define DDR0_PUB_DX0GCR1	(DDR0_PUB_REG_BASE + (0xA1 << 2))
+#define DDR0_PUB_DX0GCR2	(DDR0_PUB_REG_BASE + (0xA2 << 2))
+#define DDR0_PUB_DX0GCR3	(DDR0_PUB_REG_BASE + (0xA3 << 2))
+
+#define DDR0_PUB_DX0LCDLR0	(DDR0_PUB_REG_BASE + (0xAE << 2))
+#define DDR0_PUB_DX0LCDLR2	(DDR0_PUB_REG_BASE + (0xB0 << 2))
+
+#define DDR0_PUB_DX0GTR		(DDR0_PUB_REG_BASE + (0xB2 << 2))
+#define DDR0_PUB_DX1GTR		(DDR0_PUB_REG_BASE + (0xD2 << 2))
+#define DDR0_PUB_DX2GTR		(DDR0_PUB_REG_BASE + (0xF2 << 2))
+#define DDR0_PUB_DX3GTR		(DDR0_PUB_REG_BASE + (0x112 << 2))
+
+#define DDR0_PUB_DX1GCR1	(DDR0_PUB_REG_BASE + (0xC1 << 2))
+#define DDR0_PUB_DX1GCR2	(DDR0_PUB_REG_BASE + (0xC2 << 2))
+#define DDR0_PUB_DX1GCR3	(DDR0_PUB_REG_BASE + (0xC3 << 2))
+#define DDR0_PUB_DX1LCDLR0	(DDR0_PUB_REG_BASE + (0xCE << 2))
+#define DDR0_PUB_DX1LCDLR2	(DDR0_PUB_REG_BASE + (0xD0 << 2))
+
+#define DDR0_PUB_DX2GCR1	(DDR0_PUB_REG_BASE + (0xE1 << 2))
+#define DDR0_PUB_DX2GCR2	(DDR0_PUB_REG_BASE + (0xE2 << 2))
+#define DDR0_PUB_DX2GCR3	(DDR0_PUB_REG_BASE + (0xE3 << 2))
+#define DDR0_PUB_DX2LCDLR2	(DDR0_PUB_REG_BASE + (0xF0 << 2))
+
+#define DDR0_PUB_DX3GCR1	(DDR0_PUB_REG_BASE + (0x101 << 2))
+#define DDR0_PUB_DX3GCR2	(DDR0_PUB_REG_BASE + (0x102 << 2))
+#define DDR0_PUB_DX3GCR3	(DDR0_PUB_REG_BASE + (0x103 << 2))
+#define DDR0_PUB_DX3LCDLR0	(DDR0_PUB_REG_BASE + (0x10E << 2))
+#define DDR0_PUB_DX3LCDLR2	(DDR0_PUB_REG_BASE + (0x110 << 2))
+
+/* PCTL */
+#define DDR0_PCTL_BASE	0xc8839000
+/* DDR1_PCTL_BASE is DDR0_PCTL_BASE + 0x400 */
+
+#define PCTL_SCFG	(DDR0_PCTL_BASE + 0x000)
+#define PCTL_SCTL	(DDR0_PCTL_BASE + (0x1  << 2))
+#define PCTL_STAT	(DDR0_PCTL_BASE + (0x2  << 2))
+
+#define PCTL_POWSTAT	(DDR0_PCTL_BASE + (0x12 << 2))
+#define PCTL_POWCTL	(DDR0_PCTL_BASE + (0x11 << 2))
+
+#define PCTL_CMDTSTAT	(DDR0_PCTL_BASE + (0x13 << 2))
+#define PCTL_CMDTSTATEN	(DDR0_PCTL_BASE + (0x14 << 2))
+
+#define PCTL_PPCFG	(DDR0_PCTL_BASE + (0x21 << 2))
+
+#define PCTL_MCFG	(DDR0_PCTL_BASE + (0x20 << 2))
+#define PCTL_MCFG1	(DDR0_PCTL_BASE + (0x1f << 2))
+
+#define PCTL_TCKSRE	(DDR0_PCTL_BASE + (0x49 << 2))
+#define PCTL_TZQCSI	(DDR0_PCTL_BASE + (0x47 << 2))
+#define PCTL_TINIT		(DDR0_PCTL_BASE + (0x31 << 2))
+#define PCTL_TOGCNT1U	(DDR0_PCTL_BASE + (0x30 << 2))
+#define PCTL_TCKE		(DDR0_PCTL_BASE + (0x4b << 2))
+#define PCTL_TMOD		(DDR0_PCTL_BASE + (0x4c << 2))
+#define PCTL_TEXSR		(DDR0_PCTL_BASE + (0x43 << 2))
+#define PCTL_TAL		(DDR0_PCTL_BASE + (0x39 << 2))
+#define PCTL_TRTP		(DDR0_PCTL_BASE + (0x40 << 2))
+#define PCTL_TCKSRX	(DDR0_PCTL_BASE + (0x4a << 2))
+#define PCTL_TRTW		(DDR0_PCTL_BASE + (0x38 << 2))
+#define PCTL_TCWL		(DDR0_PCTL_BASE + (0x3b << 2))
+#define PCTL_TWR		(DDR0_PCTL_BASE + (0x41 << 2))
+#define PCTL_TCL		(DDR0_PCTL_BASE + (0x3a << 2))
+#define PCTL_TDQS		(DDR0_PCTL_BASE + (0x48 << 2))
+#define PCTL_TRSTH		(DDR0_PCTL_BASE + (0x32 << 2))
+#define PCTL_TRCD		(DDR0_PCTL_BASE + (0x3e << 2))
+#define PCTL_TXP		(DDR0_PCTL_BASE + (0x44 << 2))
+#define PCTL_TOGCNT100N	(DDR0_PCTL_BASE + (0x33 << 2))
+#define PCTL_TMRD		(DDR0_PCTL_BASE + (0x35 << 2))
+#define PCTL_TREFI		(DDR0_PCTL_BASE + (0x34 << 2))
+#define PCTL_TRAS		(DDR0_PCTL_BASE + (0x3c << 2))
+#define PCTL_TREFI_MEM_DDR3	(DDR0_PCTL_BASE + (0x52 << 2))
+#define PCTL_TWTR		(DDR0_PCTL_BASE + (0x42 << 2))
+#define PCTL_TRC		(DDR0_PCTL_BASE + (0x3d << 2))
+#define PCTL_TRFC		(DDR0_PCTL_BASE + (0x36 << 2))
+#define PCTL_TCKESR	(DDR0_PCTL_BASE + (0x50 << 2))
+#define PCTL_TZQCL		(DDR0_PCTL_BASE + (0x4e << 2))
+#define PCTL_TRRD		(DDR0_PCTL_BASE + (0x3f << 2))
+#define PCTL_TRP		(DDR0_PCTL_BASE + (0x37 << 2))
+#define PCTL_TZQCS		(DDR0_PCTL_BASE + (0x46 << 2))
+#define PCTL_TXPDLL	(DDR0_PCTL_BASE + (0x45 << 2))
+
+#define PCTL_DFIODTCFG	(DDR0_PCTL_BASE + (0x91 << 2))
+#define PCTL_DFIODTCFG1	(DDR0_PCTL_BASE + (0x92 << 2))
+#define PCTL_DFITCTRLDELAY	(DDR0_PCTL_BASE + (0x90 << 2))
+#define PCTL_DFITPHYWRLAT	(DDR0_PCTL_BASE + (0x95 << 2))
+#define PCTL_DFITPHYWRDATA	(DDR0_PCTL_BASE + (0x94 << 2))
+#define PCTL_DFITRDDATAEN	(DDR0_PCTL_BASE + (0x98 << 2))
+#define PCTL_DFITPHYRDLAT	(DDR0_PCTL_BASE + (0x99 << 2))
+#define PCTL_DFITPHYUPDTYPE1	(DDR0_PCTL_BASE + (0x9d << 2))
+#define PCTL_DFISTCFG0	(DDR0_PCTL_BASE + (0xb1 << 2))
+#define PCTL_DFISTCFG1	(DDR0_PCTL_BASE + (0xb2 << 2))
+#define PCTL_DFISTSTAT0	(DDR0_PCTL_BASE + (0xb0 << 2))
+#define PCTL_DFILPCFG0	(DDR0_PCTL_BASE + (0xbc << 2))
+#define PCTL_DFITCTRLUPDMIN	(DDR0_PCTL_BASE + (0xa0 << 2))
+#define PCTL_DFITDRAMCLKEN	(DDR0_PCTL_BASE + (0xb4 << 2))
+#define PCTL_DFITDRAMCLKDIS	(DDR0_PCTL_BASE + (0xb5 << 2))
+
+/* DDR MMC (see dram-gx.h for more details) */
+#define DDR_MMC_BASE	0xc8836800
+
+#define DDR0_SOFT_RESET	(DDR_MMC_BASE + 0x404)
+#define DDR_CLK_CNTL	(DDR_MMC_BASE + 0x18)
+#define DDR0_APD_CTRL	(DDR_MMC_BASE + 0x408)
+
+/* These will get optimized out by the compiler */
+#define AM_DDR_PLL_CNTL5	0
+#define PCTL_TCCD		0
+#define PCTL_TFAW		0
+#endif
