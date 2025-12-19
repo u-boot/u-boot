@@ -9,7 +9,7 @@
 
 #include <asm/types.h>
 
-#define MEM_RGN_COUNT	16
+#define MEM_RGN_COUNT	64
 
 struct region {
 	phys_addr_t base;

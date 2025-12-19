@@ -85,6 +85,8 @@ struct cdns_i2c_regs {
 
 #define CDNS_I2C_ARB_LOST_MAX_RETRIES	10
 
+#define CDNS_I2C_RXDV_TIMEOUT_MS	1000
+
 #ifdef DEBUG
 static void cdns_i2c_debug_status(struct cdns_i2c_regs *cdns_i2c)
 {
@@ -349,6 +351,11 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 	hold_quirk = (i2c_bus->quirks & CDNS_I2C_BROKEN_HOLD_BIT) && updatetx;
 
 	while (recv_count && !is_arbitration_lost(regs)) {
+		int err = wait_for_bit_le32(&regs->status, CDNS_I2C_STATUS_RXDV,
+					    true, CDNS_I2C_RXDV_TIMEOUT_MS, false);
+		if (err)
+			return err;
+
 		while (readl(&regs->status) & CDNS_I2C_STATUS_RXDV) {
 			if (recv_count < i2c_bus->fifo_depth &&
 			    !i2c_bus->hold_flag) {
@@ -452,6 +459,10 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 			ret = cdns_i2c_write_data(i2c_bus, msg->addr, msg->buf,
 						  msg->len);
 		}
+
+		if (ret == -ETIMEDOUT)
+			return ret;
+
 		if (ret == -EAGAIN) {
 			msg = message;
 			nmsgs = num_msgs;

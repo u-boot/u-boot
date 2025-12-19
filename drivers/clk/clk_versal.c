@@ -106,8 +106,8 @@ struct versal_clk_priv {
 	struct versal_clock *clk;
 };
 
-static ulong pl_alt_ref_clk __section(".data");
-static ulong ref_clk __section(".data");
+static ulong __data pl_alt_ref_clk;
+static ulong __data ref_clk;
 
 struct versal_pm_query_data {
 	u32 qid;
@@ -116,8 +116,8 @@ struct versal_pm_query_data {
 	u32 arg3;
 };
 
-static struct versal_clock *clock __section(".data");
-static unsigned int clock_max_idx __section(".data");
+static struct versal_clock __data *clock;
+static unsigned int __data clock_max_idx;
 
 #define PM_QUERY_DATA	35
 
@@ -134,6 +134,25 @@ static int versal_pm_query_legacy(struct versal_pm_query_data qdata,
 			       qdata.arg3, 0, 0, ret_payload);
 
 	return qdata.qid == PM_QID_CLOCK_GET_NAME ? 0 : ret;
+}
+
+static int versal_pm_query_enhanced(struct versal_pm_query_data qdata,
+				    u32 *ret_payload)
+{
+	int ret;
+
+	ret = smc_call_handler(PM_QUERY_DATA, qdata.qid, qdata.arg1, qdata.arg2,
+			       qdata.arg3, 0, 0, ret_payload);
+
+	if (qdata.qid == PM_QID_CLOCK_GET_NAME) {
+		ret_payload[0] = ret_payload[1];
+		ret_payload[1] = ret_payload[2];
+		ret_payload[2] = ret_payload[3];
+		ret_payload[3] = ret_payload[4];
+		ret_payload[4] = 0;
+	}
+
+	return ret;
 }
 
 static inline int versal_is_valid_clock(u32 clk_id)
@@ -712,11 +731,12 @@ static int versal_clk_probe(struct udevice *dev)
 static ulong versal_clk_get_rate(struct clk *clk)
 {
 	struct versal_clk_priv *priv = dev_get_priv(clk->dev);
-	u32 id = clk->id;
+	u32 id = clk_get_id(clk);
 	u32 clk_id;
 	u64 clk_rate = 0;
 
-	debug("%s\n", __func__);
+	if (id >= clock_max_idx)
+		return -ENODEV;
 
 	clk_id = priv->clk[id].clk_id;
 
@@ -728,13 +748,14 @@ static ulong versal_clk_get_rate(struct clk *clk)
 static ulong versal_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct versal_clk_priv *priv = dev_get_priv(clk->dev);
-	u32 id = clk->id;
+	u32 id = clk_get_id(clk);
 	u32 clk_id;
 	u64 clk_rate = 0;
 	u32 div;
 	int ret;
 
-	debug("%s\n", __func__);
+	if (id >= clock_max_idx)
+		return -ENODEV;
 
 	clk_id = priv->clk[id].clk_id;
 
@@ -758,7 +779,7 @@ static ulong versal_clk_set_rate(struct clk *clk, ulong rate)
 	} while (((clk_id >> NODE_SUBCLASS_SHIFT) &
 		 NODE_CLASS_MASK) != NODE_SUBCLASS_CLOCK_REF);
 
-	printf("Clock didn't has Divisors:0x%x\n", priv->clk[id].clk_id);
+	printf("Clock has no divider: 0x%x\n", clk_id);
 
 	return clk_rate;
 }
@@ -766,14 +787,17 @@ static ulong versal_clk_set_rate(struct clk *clk, ulong rate)
 static int versal_clk_enable(struct clk *clk)
 {
 	struct versal_clk_priv *priv = dev_get_priv(clk->dev);
+	u32 id = clk_get_id(clk);
 	u32 clk_id;
 
-	clk_id = priv->clk[clk->id].clk_id;
+	if (id >= clock_max_idx)
+		return -ENODEV;
 
-	if (versal_clock_gate(clk_id)) {
+	clk_id = priv->clk[id].clk_id;
+
+	if (versal_clock_gate(clk_id))
 		return xilinx_pm_request(PM_CLOCK_ENABLE, clk_id, 0, 0, 0,
 					 0, 0, NULL);
-	}
 
 	return 0;
 }
@@ -789,6 +813,7 @@ static struct clk_ops versal_clk_ops = {
 
 static const struct udevice_id versal_clk_ids[] = {
 	{ .compatible = "xlnx,versal-clk", .data = (ulong)versal_pm_query_legacy },
+	{ .compatible = "xlnx,versal2-clk", .data = (ulong)versal_pm_query_enhanced },
 	{ }
 };
 

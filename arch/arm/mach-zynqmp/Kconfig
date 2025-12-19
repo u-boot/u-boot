@@ -138,7 +138,7 @@ config BL31_LOAD_ADDR
 
 config BL32_LOAD_ADDR
 	hex "Load address of BL32 image (mostly secure OS)"
-	default 0
+	default 0x60000000
 	help
 	  The load address for the BL32 image. This value is used to build the
 	  FIT image header that places BL32 in memory where it will run.

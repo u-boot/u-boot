@@ -16,6 +16,7 @@
 #include <zynqmp_firmware.h>
 #include <asm/cache.h>
 #include <asm/ptrace.h>
+#include <linux/bitfield.h>
 
 #if defined(CONFIG_ZYNQMP_IPI)
 #include <mailbox.h>
@@ -247,6 +248,7 @@ u32 zynqmp_pm_get_bootmode_reg(void)
 	return ret_payload[1];
 }
 
+#if defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL2)
 u32 zynqmp_pm_get_pmc_multi_boot_reg(void)
 {
 	int ret;
@@ -270,6 +272,7 @@ u32 zynqmp_pm_get_pmc_multi_boot_reg(void)
 
 	return ret_payload[1];
 }
+#endif
 
 int zynqmp_pm_feature(const u32 api_id)
 {
@@ -451,6 +454,38 @@ static int smc_call_legacy(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 	return (ret_payload) ? ret_payload[0] : 0;
 }
 
+static int smc_call_enhanced(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
+			     u32 arg3, u32 arg4, u32 arg5, u32 *ret_payload)
+{
+	struct pt_regs regs;
+	u32 module_id = FIELD_GET(PLM_MODULE_ID_MASK, api_id);
+
+	if (module_id == 0)
+		module_id = PM_MODULE_ID;
+
+	regs.regs[0] = PM_SIP_SVC | PASS_THROUGH_FW_CMD_ID;
+	regs.regs[1] = ((u64)arg0 << 32U) |
+			FIELD_PREP(PLM_MODULE_ID_MASK, module_id) |
+			(api_id & API_ID_MASK);
+	regs.regs[2] = arg1 | ((u64)arg2 << 32);
+	regs.regs[3] = arg3 | ((u64)arg4 << 32);
+	regs.regs[4] = arg5;
+
+	smc_call(&regs);
+
+	if (ret_payload) {
+		ret_payload[0] = regs.regs[0];
+		ret_payload[1] = upper_32_bits(regs.regs[0]);
+		ret_payload[2] = (u32)regs.regs[1];
+		ret_payload[3] = upper_32_bits(regs.regs[1]);
+		ret_payload[4] = (u32)regs.regs[2];
+		ret_payload[5] = upper_32_bits((u32)regs.regs[2]);
+		ret_payload[6] = (u32)regs.regs[3];
+	}
+
+	return regs.regs[0];
+}
+
 int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 				     u32 arg3, u32 arg4, u32 arg5, u32 *ret_payload)
 {
@@ -494,6 +529,7 @@ static const struct udevice_id zynqmp_firmware_ids[] = {
 	{ .compatible = "xlnx,zynqmp-firmware", .data = (ulong)smc_call_legacy },
 	{ .compatible = "xlnx,versal-firmware", .data = (ulong)smc_call_legacy},
 	{ .compatible = "xlnx,versal-net-firmware", .data = (ulong)smc_call_legacy },
+	{ .compatible = "xlnx,versal2-firmware", .data = (ulong)smc_call_enhanced},
 	{ }
 };
 
