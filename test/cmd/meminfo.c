@@ -17,7 +17,7 @@ static int cmd_test_meminfo(struct unit_test_state *uts)
 	ut_assert_nextlinen("DRAM:  ");
 	ut_assert_nextline_empty();
 
-	ut_assert_nextline("Region           Base     Size      End      Gap");
+	ut_assert_nextline("Region                Base          Size           End           Gap");
 	ut_assert_nextlinen("-");
 
 	/* For now we don't worry about checking the values */
