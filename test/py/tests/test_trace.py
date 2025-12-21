@@ -159,7 +159,8 @@ def check_function(ubman, fname, proftool, map_fname, trace_dat):
             base = timestamp
 
     # Check for some expected functions
-    assert 'initf_malloc' in vals.keys()
+    if ubman.config.buildconfig.get('config_trace_early'):
+        assert 'initf_malloc' in vals.keys()
     assert 'initr_watchdog' in vals.keys()
     assert 'initr_dm' in vals.keys()
 
