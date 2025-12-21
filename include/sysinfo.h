@@ -12,6 +12,7 @@
 struct udevice;
 
 #define SYSINFO_CACHE_LVL_MAX 3
+#define SYSINFO_MEM_HANDLE_MAX 8
 
 /*
  * This uclass encapsulates hardware methods to gather information about a
@@ -148,6 +149,9 @@ enum sysinfo_id {
 		SYSID_SM_CACHE_MAX_SIZE2 + SYSINFO_CACHE_LVL_MAX,
 	SYSID_SM_CACHE_INFO_END =
 		SYSID_SM_CACHE_INST_SIZE2 + SYSINFO_CACHE_LVL_MAX - 1,
+
+	/* Memory Array (Type 16) */
+	SYSID_SM_MEMARRAY_HANDLE,
 
 	/* For show_board_info() */
 	SYSID_BOARD_MODEL,
