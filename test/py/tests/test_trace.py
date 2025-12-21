@@ -2,9 +2,11 @@
 # Copyright 2022 Google LLC
 # Written by Simon Glass <sjg@chromium.org>
 
+"""Tests for the function trace facility"""
+
 import os
-import pytest
 import re
+import pytest
 
 import utils
 
@@ -183,26 +185,25 @@ def check_funcgraph(ubman, fname, proftool, map_fname, trace_dat):
     """
 
     # Generate the funcgraph format
-    out = utils.run_and_log(
-        ubman, [proftool, '-t', fname, '-o', trace_dat, '-m', map_fname,
-               'dump-ftrace', '-f', 'funcgraph'])
+    utils.run_and_log(ubman, [proftool, '-t', fname, '-o', trace_dat, '-m',
+                      map_fname, 'dump-ftrace', '-f', 'funcgraph'])
 
     # Check that the trace has what we expect
     cmd = f'trace-cmd report -l {trace_dat} |head -n 70'
     out = utils.run_and_log(ubman, ['sh', '-c', cmd])
 
     # First look for this:
-    #  u-boot-1     0.....   282.101360: funcgraph_entry:        0.004 us   |    initf_malloc();
+    #  u-boot-1     0.....   282.101360: funcgraph_entry:   0.004 us   |    initf_malloc();
     # ...
-    #  u-boot-1     0.....   282.101369: funcgraph_entry:                   |    initf_bootstage() {
-    #  u-boot-1     0.....   282.101369: funcgraph_entry:                   |      bootstage_init() {
-    #  u-boot-1     0.....   282.101369: funcgraph_entry:                   |        dlmalloc() {
+    #  u-boot-1     0.....   282.101369: funcgraph_entry:              |    initf_bootstage() {
+    #  u-boot-1     0.....   282.101369: funcgraph_entry:              |      bootstage_init() {
+    #  u-boot-1     0.....   282.101369: funcgraph_entry:              |        dlmalloc() {
     # ...
-    #  u-boot-1     0.....   282.101375: funcgraph_exit:         0.001 us   |        }
+    #  u-boot-1     0.....   282.101375: funcgraph_exit:    0.001 us   |        }
     # Then look for this:
-    #  u-boot-1     0.....   282.101375: funcgraph_exit:         0.006 us   |      }
+    #  u-boot-1     0.....   282.101375: funcgraph_exit:    0.006 us   |      }
     # Then check for this:
-    #  u-boot-1     0.....   282.101375: funcgraph_entry:        0.000 us   |    event_init();
+    #  u-boot-1     0.....   282.101375: funcgraph_entry:   0.000 us   |    event_init();
 
     expected_indent = None
     found_start = False
@@ -218,7 +219,7 @@ def check_funcgraph(ubman, fname, proftool, map_fname, trace_dat):
             if found_end:
                 upto = func
                 break
-            elif func == 'initf_bootstage() ':
+            if func == 'initf_bootstage() ':
                 found_start = True
                 expected_indent = indent + '  '
             elif found_start and indent == expected_indent and brace == '}':
@@ -268,9 +269,8 @@ def check_flamegraph(ubman, fname, proftool, map_fname, trace_fg):
     """
 
     # Generate the flamegraph format
-    out = utils.run_and_log(
-        ubman, [proftool, '-t', fname, '-o', trace_fg, '-m', map_fname,
-               'dump-flamegraph'])
+    utils.run_and_log(ubman, [proftool, '-t', fname, '-o', trace_fg, '-m', map_fname,
+                      'dump-flamegraph'])
 
     # We expect dm_timer_init() to be called twice: once before relocation and
     # once after
@@ -291,16 +291,15 @@ def check_flamegraph(ubman, fname, proftool, map_fname, trace_fg):
 
     # Add up all the time spend in initf_dm() and its children
     total = 0
-    with open(trace_fg, 'r') as fd:
+    with open(trace_fg, 'r', encoding='utf-8') as fd:
         for line in fd:
             line = line.strip()
             if line.startswith('initf_dm'):
-                func, val = line.split()
+                _, val = line.split()
                 count = int(val)
                 total += count
     return total
 
-check_flamegraph
 @pytest.mark.slow
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('trace')
