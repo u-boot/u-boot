@@ -279,7 +279,7 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (!arg)
 		arg = net_boot_file_name;
 
-	if (arg) {
+	if (*arg) {
 		/* Parse [ip:[port:]]fname */
 		i = 0;
 		while ((*(words + i) = strsep(&arg, ":")))
@@ -342,6 +342,7 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (tftp_loop(eth_get_dev(), laddr, fname, srvip, port) < 0)
 		ret = CMD_RET_FAILURE;
 out:
-	free(arg);
+	if (arg != net_boot_file_name)
+		free(arg);
 	return ret;
 }
