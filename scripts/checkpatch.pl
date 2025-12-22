@@ -2753,6 +2753,12 @@ sub u_boot_line {
 		ERROR("CONFIG_xPL_BUILD",
 		      "Do not use CONFIG_xPL_BUILD in device trees\n" . $herecurr);
 	}
+
+	# Kconfig should use tabs for indentation
+	if ($realfile =~ /Kconfig/ && $line =~ /^\+ /) {
+		WARN("KCONFIG_INDENT",
+		     "Kconfig indentation should use tabs\n" . $herecurr);
+	}
 }
 
 sub exclude_global_initialisers {
@@ -3943,6 +3949,10 @@ sub process {
 			     "It's generally not useful to have the filename in the file\n" . $herecurr);
 		}
 
+		if ($u_boot) {
+			u_boot_line($realfile, $line, $rawline, $herecurr);
+		}
+
 # check we are in a valid source file if not then ignore this hunk
 		next if ($realfile !~ /\.(h|c|rs|s|S|sh|dtsi|dts|env)$/);
 
@@ -4032,10 +4042,6 @@ sub process {
 		    $line =~ /^\+\s*(?:[A-Z]+_)?SYM_[A-Z]+_(?:START|END)(?:_[A-Z_]+)?\s*\(\s*\.L/) {
 			WARN("AVOID_L_PREFIX",
 			     "Avoid using '.L' prefixed local symbol names for denoting a range of code via 'SYM_*_START/END' annotations; see Documentation/core-api/asm-annotations.rst\n" . $herecurr);
-		}
-
-		if ($u_boot) {
-			u_boot_line($realfile, $line, $rawline, $herecurr);
 		}
 
 # check we are in a valid source file C or perl if not then ignore this hunk
