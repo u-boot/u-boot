@@ -489,6 +489,17 @@ config ENV_REDUNDANT
 	  which is used by env import/export commands which are independent of
 	  storing variables to redundant location on a non volatile device.
 
+config ENV_REDUNDANT_UPGRADE
+	bool "Enable single-copy to redundant environment upgrade support"
+	depends on ENV_REDUNDANT
+	help
+	  Normally, redundant environment is expected to always operate on
+	  two copies of the environment. However, hardware that may have
+	  originally shipped with single-copy environment can be upgraded
+	  to redundant environment without loss of existing environment
+	  content by correctly configuring the location of the redundant
+	  environment copy and by enabling this option.
+
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"
 	depends on ENV_IS_IN_FAT

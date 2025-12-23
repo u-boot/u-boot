@@ -473,14 +473,24 @@ int env_import(const char *buf, int check, int flags)
 #ifdef CONFIG_ENV_REDUNDANT
 static unsigned char env_flags;
 
+#define ENV_SINGLE_HEADER_SIZE	(sizeof(uint32_t))
+#define ENV_SINGLE_SIZE		(CONFIG_ENV_SIZE - ENV_SINGLE_HEADER_SIZE)
+
+typedef struct {
+	uint32_t	crc;			/* CRC32 over data bytes */
+	unsigned char	data[ENV_SINGLE_SIZE];	/* Environment data */
+} env_single_t;
+
 int env_check_redund(const char *buf1, int buf1_read_fail,
 		     const char *buf2, int buf2_read_fail)
 {
-	int crc1_ok = 0, crc2_ok = 0;
+	int crc1_ok = 0, crc2_ok = 0, i;
 	env_t *tmp_env1, *tmp_env2;
+	env_single_t *tmp_envs;
 
 	tmp_env1 = (env_t *)buf1;
 	tmp_env2 = (env_t *)buf2;
+	tmp_envs = (env_single_t *)buf1;
 
 	if (buf1_read_fail && buf2_read_fail) {
 		puts("*** Error - No Valid Environment Area found\n");
@@ -498,6 +508,25 @@ int env_check_redund(const char *buf1, int buf1_read_fail,
 				tmp_env2->crc;
 
 	if (!crc1_ok && !crc2_ok) {
+		/*
+		 * Upgrade single-copy environment to redundant environment.
+		 * In case CRC checks on both environment copies fail, try
+		 * one more CRC check on the primary environment copy and
+		 * treat it as single-copy environment. If that check does
+		 * pass, rewrite the single-copy environment into redundant
+		 * environment format and indicate the environment is valid.
+		 * The follow up calls will import the environment as if it
+		 * was a redundant environment. Follow up 'env save' will
+		 * then store two environment copies.
+		 */
+		if (CONFIG_IS_ENABLED(ENV_REDUNDANT_UPGRADE) && !buf1_read_fail &&
+		    crc32(0, tmp_envs->data, ENV_SINGLE_SIZE) == tmp_envs->crc) {
+			for (i = ENV_SIZE - 1; i >= 0; i--)
+				tmp_env1->data[i] = tmp_envs->data[i];
+			tmp_env1->flags = 0;
+			gd->env_valid = ENV_VALID;
+			return 0;
+		}
 		gd->env_valid = ENV_INVALID;
 		return -ENOMSG; /* needed for env_load() */
 	} else if (crc1_ok && !crc2_ok) {
