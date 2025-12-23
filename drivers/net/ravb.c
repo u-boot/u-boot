@@ -42,6 +42,8 @@
 #define RAVB_REG_RFLR		0x508
 #define RAVB_REG_ECSIPR		0x518
 #define RAVB_REG_PIR		0x520
+#define RAVB_REG_CXR31		0x530 /* RZ/G2L only */
+#define RAVB_REG_CXR35		0x540 /* RZ/G2L only */
 #define RAVB_REG_GECMR		0x5b0
 #define RAVB_REG_MAHR		0x5c0
 #define RAVB_REG_MALR		0x5c8
@@ -50,6 +52,12 @@
 #define CCC_OPC_CONFIG		BIT(0)
 #define CCC_OPC_OPERATION	BIT(1)
 #define CCC_BOC			BIT(20)
+
+#define CXR31_SEL_LINK0         BIT(0)
+#define CXR31_SEL_LINK1         BIT(3)
+
+#define CXR35_SEL_XMII_RGMII    0
+#define CXR35_SEL_XMII_MII      2
 
 #define CSR_OPS			0x0000000F
 #define CSR_OPS_CONFIG		BIT(1)
@@ -399,6 +407,20 @@ static void ravb_mac_init_rcar(struct udevice *dev)
 static void ravb_mac_init_rzg2l(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_MII) {
+		writel((1000 << 16) | CXR35_SEL_XMII_MII,
+		       eth->iobase + RAVB_REG_CXR35);
+		clrsetbits_32(eth->iobase + RAVB_REG_CXR31,
+			      CXR31_SEL_LINK0 | CXR31_SEL_LINK1, 0);
+	} else {
+		writel((1000 << 16) | CXR35_SEL_XMII_RGMII,
+		       eth->iobase + RAVB_REG_CXR35);
+		clrsetbits_32(eth->iobase + RAVB_REG_CXR31,
+			      CXR31_SEL_LINK0 | CXR31_SEL_LINK1,
+			      CXR31_SEL_LINK0);
+	}
 
 	setbits_32(eth->iobase + RAVB_REG_ECMR,
 		   ECMR_PRM | ECMR_RXF | ECMR_TXF | ECMR_RCPT |
