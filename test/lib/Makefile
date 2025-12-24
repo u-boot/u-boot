@@ -16,7 +16,7 @@ obj-$(CONFIG_USE_PRIVATE_LIBGCC) += test_ctz.o
 endif
 obj-y += hexdump.o
 obj-$(CONFIG_SANDBOX) += kconfig.o
-obj-y += lmb.o
+obj-$(CONFIG_LMB) += lmb.o
 obj-$(CONFIG_HAVE_SETJMP) += longjmp.o
 obj-$(CONFIG_SANDBOX) += membuf.o
 obj-$(CONFIG_HAVE_INITJMP) += initjmp.o
