@@ -309,7 +309,7 @@ config SPL_LOAD_BLOCK
 	  to struct spl_load_info.
 
 config SPL_BOOTROM_SUPPORT
-	bool "Support returning to the BOOTROM"
+	bool "Support returning to the BOOTROM (from SPL)"
 	select SPL_LOAD_BLOCK if MACH_IMX
 	help
 	  Some platforms (e.g. the Rockchip RK3368) provide support in their

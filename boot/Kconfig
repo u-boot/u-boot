@@ -246,7 +246,7 @@ config SPL_LOAD_FIT
 	     "linux" images are also supported with Falcon boot mode.
 
 config SPL_LOAD_FIT_ADDRESS
-	hex "load address of fit image"
+	hex "load address of fit image in SPL"
 	depends on SPL_LOAD_FIT
 	default 0x44000000 if ARCH_IMX8M
 	default 0x60080000 if ARCH_ROCKCHIP && SPL_TEXT_BASE = 0x60000000
@@ -269,7 +269,7 @@ config SPL_LOAD_FIT_APPLY_OVERLAY
 config SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ
 	depends on SPL_LOAD_FIT_APPLY_OVERLAY
 	default 0x10000
-	hex "size of temporary buffer used to load the overlays"
+	hex "size of temporary buffer used to load the overlays within SPL"
 	help
 	  The size of the area where the overlays will be loaded and
 	  uncompress. Must be at least as large as biggest overlay
@@ -344,7 +344,7 @@ config VPL_LOAD_FIT
 	default y
 
 config VPL_LOAD_FIT_FULL
-	bool "Enable SPL loading U-Boot as a FIT (full fitImage features)"
+	bool "Enable VPL loading U-Boot as a FIT (full fitImage features)"
 	select VPL_FIT
 	help
 	  Normally with the SPL framework a legacy image is generated as part
@@ -362,13 +362,13 @@ config VPL_FIT_PRINT
 	  Support printing the content of the fitImage in a verbose manner in VPL.
 
 config VPL_FIT_FULL_CHECK
-	bool "Do a full check of the FIT before using it"
+	bool "Do a full check of the FIT within VPL before using it"
 	default y
 	help
-	  Enable this do a full check of the FIT to make sure it is valid. This
-	  helps to protect against carefully crafted FITs which take advantage
-	  of bugs or omissions in the code. This includes a bad structure,
-	  multiple root nodes and the like.
+	  Enable this do a full check of the FIT within VPL to make sure it is
+	  valid. This helps to protect against carefully crafted FITs which take
+	  advantage of bugs or omissions in the code. This includes a bad
+	  structure, multiple root nodes and the like.
 
 config VPL_FIT_SIGNATURE
 	bool "Enable signature verification of FIT firmware within VPL"

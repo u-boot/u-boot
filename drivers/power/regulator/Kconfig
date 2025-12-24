@@ -133,20 +133,13 @@ config DM_REGULATOR_PFUZE100
 
 config REGULATOR_PWM
 	bool "Enable driver for PWM regulators"
-	depends on DM_REGULATOR
+	depends on DM_REGULATOR && DM_PWM
 	---help---
 	Enable support for the PWM regulator functions which voltage are
 	controlled by PWM duty ratio. Some of Rockchip board using this kind
 	of regulator. The driver implements get/set api for the various BUCKS.
 	This driver is controlled by a device tree node
 	which includes voltage limits.
-
-config SPL_REGULATOR_PWM
-	bool "Enable Driver for PWM regulators in SPL"
-	depends on SPL_DM_REGULATOR && SPL && SPL_DM_PWM
-	help
-	  This config enables implementation of driver-model regulator uclass
-	  features for PWM regulators in SPL.
 
 config DM_REGULATOR_MAX8907
 	bool "Enable Driver Model for REGULATOR MAX8907"
@@ -249,7 +242,7 @@ config DM_REGULATOR_QCOM_USB_VBUS
 
 config SPL_DM_REGULATOR_GPIO
 	bool "Enable Driver Model for GPIO REGULATOR in SPL"
-	depends on DM_REGULATOR_GPIO && SPL_GPIO
+	depends on DM_REGULATOR_GPIO && SPL_DM_GPIO
 	select SPL_DM_REGULATOR_COMMON
 	---help---
 	This config enables implementation of driver-model regulator uclass
