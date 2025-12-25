@@ -13,11 +13,21 @@ Synopsis
 ::
 
     bdinfo
+    bdinfo -a
+    bdinfo -e
+    bdinfo -m
 
 Description
 -----------
 
 The *bdinfo* command prints information about the board.
+
+``bdinfo -a`` command is an alias of the ``bdinfo`` command and prints all
+information about the board.
+
+``bdinfo -e`` command prints network-related information about the board.
+
+``bdinfo -m`` command prints the DRAM-related information about the board.
 
 Example
 -------
@@ -54,7 +64,44 @@ Example
     irq_sp      = 0x000000013edbada0
     sp start    = 0x000000013edbada0
     Early malloc usage: 3a8 / 2000
-    =>
+    => bdinfo -a
+    boot_params = 0x0000000000000000
+    DRAM bank   = 0x0000000000000000
+    -> start    = 0x0000000040000000
+    -> size     = 0x0000000100000000
+    flashstart  = 0x0000000000000000
+    flashsize   = 0x0000000004000000
+    flashoffset = 0x00000000000e87f8
+    baudrate    = 115200 bps
+    relocaddr   = 0x000000013fefb000
+    reloc off   = 0x000000013fefb000
+    Build       = 64-bit
+    current eth = virtio-net#32
+    ethaddr     = 52:52:52:52:52:52
+    IP addr     = 10.0.2.15
+    fdt_blob    = 0x000000013edbadb0
+    new_fdt     = 0x000000013edbadb0
+    fdt_size    = 0x0000000000100000
+    lmb_dump_all:
+     memory.cnt  = 0x1
+     memory[0]      [0x40000000-0x13fffffff], 0x100000000 bytes flags: 0
+     reserved.cnt  = 0x2
+     reserved[0]    [0x13ddb3000-0x13fffffff], 0x0224d000 bytes flags: 0
+     reserved[1]    [0x13edb6930-0x13fffffff], 0x012496d0 bytes flags: 0
+    devicetree  = board
+    arch_number = 0x0000000000000000
+    TLB addr    = 0x000000013fff0000
+    irq_sp      = 0x000000013edbada0
+    sp start    = 0x000000013edbada0
+    Early malloc usage: 3a8 / 2000
+    => bdinfo -e
+    current eth = virtio-net#32
+    ethaddr     = 52:52:52:52:52:52
+    IP addr     = 10.0.2.15
+    => bdinfo -m
+    DRAM bank   = 0x0000000000000000
+    -> start    = 0x0000000040000000
+    -> size     = 0x0000000100000000
 
 boot_params
     address of the memory area for boot parameters
@@ -77,8 +124,12 @@ Build
 current eth
     name of the active network device
 
+    Only shown if CONFIG_NET=y or CONFIG_NET_LWIP=y.
+
 IP addr
     network address, value of the environment variable *ipaddr*
+
+    Only shown if CONFIG_NET=y or CONFIG_NET_LWIP=y.
 
 fdt_blob
     address of U-Boot's own device tree, NULL if none
@@ -92,8 +143,12 @@ fdt_size
 lmb_dump_all
     available memory and memory reservations
 
+    Only shown if CONFIG_LMB=y.
+
 devicetree
     source of the device-tree
+
+    Only shown if CONFIG_OF_REAL=y.
 
 arch_number
     unique id for the board
@@ -115,3 +170,8 @@ Configuration
 -------------
 
 The bdinfo command is available if CONFIG_CMD_BDI=y.
+
+The options to bdinfo are only available if CONFIG_GETOPT=y.
+
+The ``-e`` option is additionally only available if CONFIG_NET=y or
+CONFIG_NET_LWIP=y.

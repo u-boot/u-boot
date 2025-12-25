@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#include <dm/device.h>
 #include <efi_device_path.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
@@ -878,30 +879,47 @@ static efi_status_t get_dp_device(u16 *boot_var,
 }
 
 /**
- * device_is_present_and_system_part - check if a device exists
+ * get_esp_handle - Check if any direct child of the dp handle is an ESP
  *
  * Check if a device pointed to by the device path, @dp, exists and is
- * located in UEFI system partition.
+ * either an ESP or a disk containing an ESP.
  *
  * @dp		device path
- * Return:	true - yes, false - no
+ * Return:	ESP handle or NULL
  */
-static bool device_is_present_and_system_part(struct efi_device_path *dp)
+efi_handle_t get_esp_handle(struct efi_device_path *dp)
 {
-	efi_handle_t handle;
+	efi_handle_t handle, dev_handle;
+	struct udevice *child_dev;
 	struct efi_device_path *rem;
+	efi_status_t ret;
 
 	/* Check device exists */
-	handle = efi_dp_find_obj(dp, NULL, NULL);
-	if (!handle)
-		return false;
+	dev_handle = efi_dp_find_obj(dp, NULL, NULL);
+	if (!dev_handle)
+		return NULL;
 
-	/* Check device is on system partition */
+	/* Check if the device path points to an EFI system partition */
 	handle = efi_dp_find_obj(dp, &efi_system_partition_guid, &rem);
-	if (!handle)
-		return false;
+	if (handle)
+		return handle;
 
-	return true;
+	list_for_each_entry(child_dev, &dev_handle->dev->child_head, sibling_node) {
+		if (device_get_uclass_id(child_dev) != UCLASS_PARTITION)
+			continue;
+		if (dev_tag_get_ptr(child_dev, DM_TAG_EFI, (void **)&handle))
+			continue;
+
+		ret = EFI_CALL(systab.boottime->open_protocol(
+			       handle, &efi_system_partition_guid, NULL, NULL,
+			       NULL, EFI_OPEN_PROTOCOL_TEST_PROTOCOL));
+		if (ret != EFI_SUCCESS)
+			continue;
+
+		return handle;
+	}
+
+	return NULL;
 }
 
 /**
@@ -920,6 +938,8 @@ static efi_status_t find_boot_device(void)
 	int i, num;
 	struct efi_simple_file_system_protocol *volume;
 	struct efi_device_path *boot_dev = NULL;
+	struct efi_handler *handler;
+	efi_handle_t esp = NULL;
 	efi_status_t ret;
 
 	/* find active boot device in BootNext */
@@ -940,7 +960,8 @@ static efi_status_t find_boot_device(void)
 
 		ret = get_dp_device(boot_var16, &boot_dev);
 		if (ret == EFI_SUCCESS) {
-			if (device_is_present_and_system_part(boot_dev)) {
+			esp = get_esp_handle(boot_dev);
+			if (esp) {
 				goto found;
 			} else {
 				efi_free_pool(boot_dev);
@@ -967,26 +988,29 @@ skip:
 		if (ret != EFI_SUCCESS)
 			continue;
 
-		if (device_is_present_and_system_part(boot_dev))
+		esp = get_esp_handle(boot_dev);
+		if (esp)
 			break;
 
 		efi_free_pool(boot_dev);
 		boot_dev = NULL;
 	}
+
 found:
-	if (boot_dev) {
+	ret = EFI_NOT_FOUND;
+	if (esp) {
 		log_debug("Boot device %pD\n", boot_dev);
 
-		volume = efi_fs_from_path(boot_dev);
-		if (!volume)
-			ret = EFI_DEVICE_ERROR;
-		else
+		efi_free_pool(boot_dev);
+		ret = efi_search_protocol(esp, &efi_simple_file_system_protocol_guid,
+					  &handler);
+		if (ret == EFI_SUCCESS) {
+			volume = handler->protocol_interface;
 			ret = EFI_CALL(volume->open_volume(volume,
 							   &bootdev_root));
-		efi_free_pool(boot_dev);
-	} else {
-		ret = EFI_NOT_FOUND;
+		}
 	}
+
 out:
 	free(boot_order);
 

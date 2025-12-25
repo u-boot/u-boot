@@ -191,11 +191,11 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	ut_assertok(test_num_l(uts, "multi_dtb_fit", (ulong)gd->multi_dtb_fit));
 #endif
 
-	if (IS_ENABLED(CONFIG_LMB) && gd->fdt_blob) {
+	if (IS_ENABLED(CONFIG_LMB))
 		ut_assertok(lmb_test_dump_all(uts));
-		if (IS_ENABLED(CONFIG_OF_REAL))
-			ut_assert_nextline("devicetree  = %s", fdtdec_get_srcname());
-	}
+
+	if (IS_ENABLED(CONFIG_OF_REAL) && gd->fdt_blob)
+		ut_assert_nextline("devicetree  = %s", fdtdec_get_srcname());
 
 	if (IS_ENABLED(CONFIG_DM_SERIAL)) {
 		struct serial_device_info info;
@@ -310,6 +310,17 @@ static int bdinfo_test_help(struct unit_test_state *uts)
 		ut_assert_nextline_empty();
 		ut_assert_nextlinen("Usage:");
 		ut_assert_nextlinen("bdinfo");
+		if (CONFIG_IS_ENABLED(GETOPT))
+			ut_assert_nextlinen("bdinfo -a");
+		ut_assert_nextlinen("  - print all Board Info structure");
+		if (CONFIG_IS_ENABLED(GETOPT)) {
+			if (IS_ENABLED(CONFIG_NET) || IS_ENABLED(CONFIG_NET_LWIP)) {
+				ut_assert_nextlinen("bdinfo -e");
+				ut_assert_nextlinen("  - print Board Info related to network");
+			}
+			ut_assert_nextlinen("bdinfo -m");
+			ut_assert_nextlinen("  - print Board Info related to DRAM");
+		}
 	}
 	ut_assert_console_end();
 

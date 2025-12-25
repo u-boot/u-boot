@@ -17,8 +17,7 @@
 #define EFI_ST_MAX_VARNAME_SIZE 40
 
 static const efi_guid_t guid_vendor0 = EFI_GLOBAL_VARIABLE_GUID;
-static const efi_guid_t __efi_runtime_data efi_rt_var_guid =
-	U_BOOT_EFI_RT_VAR_FILE_GUID;
+static const efi_guid_t efi_rt_var_guid = U_BOOT_EFI_RT_VAR_FILE_GUID;
 
 /**
  * execute() - execute unit test
