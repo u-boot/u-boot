@@ -85,6 +85,23 @@
       junit: results.xml
     expire_in: 1 week
 
+BeagleBone Black:
+  <<: *sage_lab_dfn
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-bbb-1"
+    LG_PLACE: "bbb-1"
+    TEST_PY_BD: "am335x_evm"
+    OVERRIDE: "-a CMD_BOOTMENU -a CMD_LOG -a CMD_BOOTEFI_HELLO -a CMD_BOOTEFI_SELFTEST"
+
+BeagleBone Black (lwIP):
+  <<: *sage_lab_dfn
+  needs: [ "BeagleBone Black" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-bbb-1"
+    LG_PLACE: "bbb-1"
+    TEST_PY_BD: "am335x_evm"
+    OVERRIDE: "-a CMD_BOOTMENU -a CMD_LOG -a CMD_BOOTEFI_HELLO -a CMD_BOOTEFI_SELFTEST -a NET_LWIP"
+
 Pine64+:
   <<: *sage_lab_dfn
   variables:
