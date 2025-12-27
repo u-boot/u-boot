@@ -212,7 +212,7 @@ config IMAGE_SPARSE_FILLBUF_SIZE
 config USE_PRIVATE_LIBGCC
 	bool "Use private libgcc"
 	depends on HAVE_PRIVATE_LIBGCC
-	default y if HAVE_PRIVATE_LIBGCC && ((ARM && !ARM64) || MIPS)
+	default y if HAVE_PRIVATE_LIBGCC && ((ARM && !ARM64) || MIPS || RISCV)
 	help
 	  This option allows you to use the built-in libgcc implementation
 	  of U-Boot instead of the one provided by the compiler.
@@ -605,6 +605,13 @@ config SHA384
 	  because these implementations share the bulk of the code..
 	  The SHA384 algorithm produces a 384-bit (48-byte) hash value
 	  (digest).
+
+config SM3
+	bool "Enable SM3 support"
+	help
+	  This option enables support of hashing using
+	  SM3 (ShangMi 3) secure hash function (OSCCA GM/T 0004-2012, ISO/IEC 10118-3)
+	  The hash is calculated in software.
 
 config SHA_HW_ACCEL
 	bool "Enable hardware acceleration for SHA hash functions"

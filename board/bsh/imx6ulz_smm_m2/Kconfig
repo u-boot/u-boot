@@ -28,6 +28,12 @@ config BSH_M2B_MEMORY
 	  If this option is enabled, U-Boot will be configured to support
 	  imx6ulz bsh m2b revision memories.
 
+config BSH_M2D_MEMORY
+	bool "Enable for bsh m2d variant"
+	help
+	  If this option is enabled, U-Boot will be configured to support
+	  imx6ulz bsh m2d revision memories.
+
 endchoice
 
 endif

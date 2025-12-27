@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-only
+menuconfig PHY_AIROHA
+	bool "Airoha Ethernet PHYs support"
+
+config PHY_AIROHA_EN8811
+	bool "Airoha Ethernet EN8811H support"
+	depends on PHY_AIROHA
+	select FW_LOADER
+	help
+	  AIROHA EN8811H supported.
+

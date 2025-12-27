@@ -6,6 +6,71 @@
 / {
 	binman: binman {
 		multiple-images;
+
+		u-boot-spl-ddr {
+			align = <4>;
+			align-size = <4>;
+			filename = "u-boot-spl-ddr.bin";
+			pad-byte = <0xff>;
+
+			u-boot-spl {
+				align-end = <4>;
+				filename = "u-boot-spl.bin";
+			};
+
+			ddr-1d-imem-fw {
+				filename = "lpddr4_imem_1d_v202201.bin";
+				align-end = <4>;
+				type = "blob-ext";
+			};
+
+			ddr-1d-dmem-fw {
+				filename = "lpddr4_dmem_1d_v202201.bin";
+				align-end = <4>;
+				type = "blob-ext";
+			};
+
+			ddr-2d-imem-fw {
+				filename = "lpddr4_imem_2d_v202201.bin";
+				align-end = <4>;
+				type = "blob-ext";
+			};
+
+			ddr-2d-dmem-fw {
+				filename = "lpddr4_dmem_2d_v202201.bin";
+				align-end = <4>;
+				type = "blob-ext";
+			};
+		};
+
+		imx-boot {
+			filename = "flash.bin";
+			pad-byte = <0x00>;
+
+			spl {
+				type = "nxp-imx9image";
+				cfg-path = "spl/u-boot-spl.cfgout";
+				args;
+
+				boot-from = "sd";
+				soc-type = "IMX9";
+				append = "mx93a1-ahab-container.img";
+				container;
+				image = "a55", "u-boot-spl-ddr.bin", "0x2049A000";
+			};
+
+			u-boot {
+				type = "nxp-imx9image";
+				cfg-path = "u-boot-container.cfgout";
+				args;
+
+				boot-from = "sd";
+				soc-type = "IMX9";
+				container;
+				image0 = "a55", "bl31.bin", "0x204E0000";
+				image1 = "a55", "u-boot.bin", "0x80200000";
+			};
+		};
 	};
 };
 
@@ -15,84 +80,6 @@
 
 &A55_1 {
 	clocks = <&clk IMX93_CLK_ARM_PLL>;
-};
-
-&binman {
-	u-boot-spl-ddr {
-		align = <4>;
-		align-size = <4>;
-		filename = "u-boot-spl-ddr.bin";
-		pad-byte = <0xff>;
-
-		u-boot-spl {
-			align-end = <4>;
-			filename = "u-boot-spl.bin";
-		};
-
-		ddr-1d-imem-fw {
-			filename = "lpddr4_imem_1d_v202201.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-
-		ddr-1d-dmem-fw {
-			filename = "lpddr4_dmem_1d_v202201.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-
-		ddr-2d-imem-fw {
-			filename = "lpddr4_imem_2d_v202201.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-
-		ddr-2d-dmem-fw {
-			filename = "lpddr4_dmem_2d_v202201.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-	};
-
-	spl {
-		filename = "spl.bin";
-
-		mkimage {
-			args = "-n spl/u-boot-spl.cfgout -T imx8image -e 0x2049A000";
-
-			blob {
-				filename = "u-boot-spl-ddr.bin";
-			};
-		};
-	};
-
-	u-boot-container {
-		filename = "u-boot-container.bin";
-
-		mkimage {
-			args = "-n u-boot-container.cfgout -T imx8image -e 0x0";
-
-			blob {
-				filename = "u-boot.bin";
-			};
-		};
-	};
-
-	imx-boot {
-		filename = "flash.bin";
-		pad-byte = <0x00>;
-
-		spl: blob-ext@1 {
-			filename = "spl.bin";
-			offset = <0x0>;
-			align-size = <0x400>;
-			align = <0x400>;
-		};
-
-		uboot: blob-ext@2 {
-			filename = "u-boot-container.bin";
-		};
-	};
 };
 
 &tmu {

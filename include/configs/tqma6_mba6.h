@@ -1,6 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright (C) 2013 - 2017 Markus Niebel <Markus.Niebel@tq-group.com>
+ * Copyright (c) 2013-2017 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+ * D-82229 Seefeld, Germany.
+ * Author: Markus Niebel
  *
  * Configuration settings for the TQ-Systems TQMa6<Q,D,DL,S> module on
  * MBa6 starter kit

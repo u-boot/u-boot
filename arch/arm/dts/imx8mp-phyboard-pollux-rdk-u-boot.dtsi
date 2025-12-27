@@ -12,6 +12,26 @@
 		wdt = <&wdog1>;
 		bootph-pre-ram;
 	};
+
+	bootstd {
+		bootph-verify;
+		compatible = "u-boot,boot-std";
+
+		filename-prefixes = "/", "/boot/";
+		bootdev-order = "mmc2", "mmc1", "ethernet";
+
+		efi {
+			compatible = "u-boot,distro-efi";
+		};
+
+		rauc {
+			compatible = "u-boot,distro-rauc";
+		};
+
+		script {
+			compatible = "u-boot,script";
+		};
+	};
 };
 
 &reg_usdhc2_vmmc {

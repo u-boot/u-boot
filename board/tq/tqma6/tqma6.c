@@ -1,10 +1,12 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  *
- * Copyright (C) 2013, 2014 TQ-Systems (ported SabreSD to TQMa6x)
- * Author: Markus Niebel <markus.niebel@tq-group.com>
+ * ported SabreSD to TQMa6x
+ * Copyright (c) 2013-2014 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+ * D-82229 Seefeld, Germany.
+ * Author: Markus Niebel
  */
 
 #include <init.h>
@@ -37,7 +39,6 @@ int dram_init(void)
 
 static const uint16_t tqma6_emmc_dsr = 0x0100;
 
-
 int board_early_init_f(void)
 {
 	return tqma6_bb_board_early_init_f();
@@ -48,9 +49,6 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#ifndef CONFIG_DM_SPI
-	tqma6_iomuxc_spi();
-#endif
 	tqma6_bb_board_init();
 
 	return 0;
@@ -63,16 +61,12 @@ static const char *tqma6_get_boardname(void)
 	switch ((cpurev & 0xFF000) >> 12) {
 	case MXC_CPU_MX6SOLO:
 		return "TQMa6S";
-		break;
 	case MXC_CPU_MX6DL:
 		return "TQMa6DL";
-		break;
 	case MXC_CPU_MX6D:
 		return "TQMa6D";
-		break;
 	case MXC_CPU_MX6Q:
 		return "TQMa6Q";
-		break;
 	default:
 		return "??";
 	};

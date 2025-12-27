@@ -43,13 +43,12 @@ static int starfive_ddr_setup(struct udevice *dev, struct starfive_ddr_priv *pri
 		size = DDR_SIZE_4G;
 		break;
 
-	case 0x200000000:
+	case SZ_8G:
 		size = DDR_SIZE_8G;
 		break;
 
-	case 0x400000000:
 	default:
-		pr_err("unsupport size %lx\n", priv->info.size);
+		pr_err("Unknown DDR size %lx\n", priv->info.size);
 		return -EINVAL;
 	}
 

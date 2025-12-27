@@ -26,11 +26,6 @@ bootdelay (int)
 	images is being packed for testing or a user holds down a button, it may
 	allow a delay, but disable it for production.
 
-u-boot,boot-led (string)
-u-boot,error-led (string)
-	This is used to specify the label for an LED to indicate an error and
-	a successful boot, on supported hardware.
-
 bootsecure (int)
 	Indicates that U-Boot should use secure_boot_cmd() to run commands,
 	rather than the normal CLI. This can be used in production images, to

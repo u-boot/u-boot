@@ -8,35 +8,6 @@ config UFS
 	  This selects support for Universal Flash Subsystem (UFS).
 	  Say Y here if you want UFS Support.
 
-config CADENCE_UFS
-	bool "Cadence platform driver for UFS"
-	depends on UFS
-        help
-	  This selects the platform driver for the Cadence UFS host
-	  controller present on present TI's J721e devices.
-
-config QCOM_UFS
-	bool "Qualcomm Host Controller driver for UFS"
-	depends on UFS && ARCH_SNAPDRAGON
-        help
-	  This selects the platform driver for the UFS host
-	  controller present on Qualcomm Snapdragon SoCs.
-
-config ROCKCHIP_UFS
-	bool "Rockchip specific hooks to UFS controller platform driver"
-	depends on UFS
-	help
-	  This selects the Rockchip specific additions to UFSHCD platform driver.
-
-	  Select this if you have UFS controller on Rockchip chipset.
-	  If unsure, say N.
-
-config TI_J721E_UFS
-	bool "Glue Layer driver for UFS on TI J721E devices"
-	help
-	  This selects the glue layer driver for Cadence controller
-	  present on TI's J721E devices.
-
 config UFS_AMD_VERSAL2
 	bool "AMD Versal Gen 2 UFS controller platform driver"
 	depends on UFS && ZYNQMP_FIRMWARE
@@ -44,6 +15,13 @@ config UFS_AMD_VERSAL2
 	  This selects the AMD specific additions to UFSHCD platform driver.
 	  UFS host on AMD needs some vendor specific configuration before accessing
 	  the hardware.
+
+config UFS_CADENCE
+	bool "Cadence platform driver for UFS"
+	depends on UFS
+        help
+	  This selects the platform driver for the Cadence UFS host
+	  controller present on present TI's J721e devices.
 
 config UFS_MEDIATEK
 	tristate "MediaTek UFS Host Controller Driver"
@@ -70,6 +48,13 @@ config UFS_PCI
 
 	  If unsure, say N.
 
+config UFS_QCOM
+	bool "Qualcomm Host Controller driver for UFS"
+	depends on UFS && ARCH_SNAPDRAGON
+        help
+	  This selects the platform driver for the UFS host
+	  controller present on Qualcomm Snapdragon SoCs.
+
 config UFS_RENESAS
 	bool "Renesas R-Car S4 UFS Controller support"
 	depends on UFS
@@ -87,5 +72,20 @@ config UFS_RENESAS_GEN5
 	  This selects the Renesas X5H specific additions to UFSHCD
 	  platform driver. UFS host on Renesas needs some vendor
 	  specific configuration before accessing the hardware.
+
+config UFS_ROCKCHIP
+	bool "Rockchip specific hooks to UFS controller platform driver"
+	depends on UFS
+	help
+	  This selects the Rockchip specific additions to UFSHCD platform driver.
+
+	  Select this if you have UFS controller on Rockchip chipset.
+	  If unsure, say N.
+
+config UFS_TI_J721E
+	bool "Glue Layer driver for UFS on TI J721E devices"
+	help
+	  This selects the glue layer driver for Cadence controller
+	  present on TI's J721E devices.
 
 endmenu

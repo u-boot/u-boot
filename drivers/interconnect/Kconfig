@@ -1,0 +1,22 @@
+menu "Interconnect Support"
+
+config INTERCONNECT
+	bool "Enable interconnect support using Driver Model"
+	depends on DM && OF_CONTROL
+	help
+	  Enable support for the interconnect driver class. Many SoCs allow
+	  bandwidth to be tuned on busses within the SoC.
+
+if INTERCONNECT
+
+config INTERCONNECT_SANDBOX
+	bool "Enable interconnect sandbox driver"
+	depends on SANDBOX
+	help
+	  Enable support for the interconnect sandbox drivers.
+
+source "drivers/interconnect/qcom/Kconfig"
+
+endif
+
+endmenu

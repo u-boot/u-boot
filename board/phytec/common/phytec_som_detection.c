@@ -308,14 +308,24 @@ static int phytec_get_product_name(struct phytec_eeprom_data *data,
 	case 7:
 		som_type = 1;
 		break;
+	case 8:
+	case 9:
+	case 10:
+	case 11:
+		som_type = SOM_TYPE_PFL_G;
+		break;
 	default:
 		pr_err("%s: Invalid SOM type: %i\n", __func__, api2->som_type);
 		return -EINVAL;
 	};
 
-	len = snprintf(product, PHYTEC_PRODUCT_NAME_MAX_LEN + 1, "%s-%03u",
+	const char *fmt = (som_type == SOM_TYPE_PFL_G) ? "%s-%02u" : "%s-%03u";
+
+	len = snprintf(product, PHYTEC_PRODUCT_NAME_MAX_LEN + 1, fmt,
 		       phytec_som_type_str[som_type], api2->som_no);
-	if (len != PHYTEC_PRODUCT_NAME_STD_LEN)
+	if (som_type != SOM_TYPE_PFL_G && len != PHYTEC_PRODUCT_NAME_PCX_LEN)
+		return -EINVAL;
+	if (som_type == SOM_TYPE_PFL_G && len != PHYTEC_PRODUCT_NAME_PFL_LEN)
 		return -EINVAL;
 	return 0;
 }
@@ -327,6 +337,7 @@ static int phytec_get_part_number(struct phytec_eeprom_data *data,
 	struct phytec_api2_data *api2;
 	unsigned int ksp_type;
 	int res, len;
+	char *variant = "SP";
 
 	if (!data->valid || data->payload.api_rev < PHYTEC_API_REV2)
 		return -EINVAL;
@@ -341,14 +352,35 @@ static int phytec_get_part_number(struct phytec_eeprom_data *data,
 		len = snprintf(part, PHYTEC_PART_NUMBER_MAX_LEN + 1,
 			       "%s-%s.%s", product_name, api2->opt,
 			       api2->bom_rev);
-		if (len < PHYTEC_PART_NUMBER_STD_LEN)
+		if (len < PHYTEC_PART_NUMBER_PCX_LEN)
 			return -EINVAL;
 		return 0;
 	}
 	if (api2->som_type <= 3) {
-		snprintf(part, PHYTEC_PART_NUMBER_MAX_LEN + 1, "%s.%s",
-			 product_name, api2->bom_rev);
+		len = snprintf(part, PHYTEC_PART_NUMBER_MAX_LEN + 1, "%s.%s",
+			       product_name, api2->bom_rev);
 		if (len != PHYTEC_PART_NUMBER_KSP_LEN)
+			return -EINVAL;
+		return 0;
+	}
+
+	if (api2->som_type >= 8 && api2->som_type <= 11) {
+		switch (api2->som_type) {
+		case 8:
+			variant = "PT";
+			break;
+		case 10:
+			variant = "KP";
+			break;
+		case 11:
+			variant = "KM";
+			break;
+		}
+
+		len = snprintf(part, PHYTEC_PART_NUMBER_MAX_LEN + 1,
+			       "%s-%s%03u.%s", product_name, variant,
+			       api2->ksp_no, api2->bom_rev);
+		if (len != PHYTEC_PART_NUMBER_PFL_LEN)
 			return -EINVAL;
 		return 0;
 	}

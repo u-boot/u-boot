@@ -1,0 +1,12 @@
+config INTERCONNECT_QCOM_RPMH
+	bool "Enable interconnect support for SoCs with RPMh"
+	depends on QCOM_RPMH
+	help
+	  Enable support for the interconnect helpers to vote with
+	  the RPMh subsystems in Qualcomm SoCs
+
+config INTERCONNECT_QCOM_SM8650
+	bool "Enable interconnect support for SM8650 SoC"
+	depends on INTERCONNECT_QCOM_RPMH
+	help
+	  Enable support for the interconnect driver for the SM8650 SoC.

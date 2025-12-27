@@ -31,7 +31,6 @@
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttyLP0\0" \
-	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=imx7ulp-evk.dtb\0" \
 	"fdt_addr=0x63000000\0" \

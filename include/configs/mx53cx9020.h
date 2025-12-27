@@ -40,7 +40,6 @@
 	"scriptaddr=0x74000000\0" \
 	"ramdisk_addr_r=0x80000000\0" \
 	"kernel_addr_r=0x72000000\0"  \
-	"fdt_high=0xffffffff\0" \
 	"console=ttymxc1,115200\0" \
 	"stdin=serial\0" \
 	"stdout=serial,vidconsole\0" \

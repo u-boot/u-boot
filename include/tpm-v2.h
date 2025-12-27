@@ -345,6 +345,18 @@ static const struct digest_info hash_algo_list[] = {
 		false,
 #endif
 	},
+	{
+		"sm3_256",
+		TPM2_ALG_SM3_256,
+		TCG2_BOOT_HASH_ALG_SM3_256,
+		TPM2_SM3_256_DIGEST_SIZE,
+#if IS_ENABLED(CONFIG_SM3)
+		true,
+#else
+		false,
+#endif
+	},
+
 };
 
 /* NV index attributes */

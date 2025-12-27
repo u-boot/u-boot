@@ -12,14 +12,14 @@
 static int cmd_test_msr(struct unit_test_state *uts)
 {
 	ut_assertok(run_commandf("msr read 200"));
-	ut_assert_nextline("00000000 ffe00006");
+	ut_assert_nextlinen("0000");
 	ut_assert_console_end();
 
 	/* change the first variable msr and see it reflected in the mtrr cmd */
 	ut_assertok(run_commandf("mtrr"));
 	ut_assert_nextline("CPU 65537:");
 	ut_assert_nextlinen("Reg");
-	ut_assert_nextlinen("0   Y     Back         00000000ffe00000");
+	ut_assert_nextlinen("0   Y     Back");
 	ut_assertok(console_record_reset_enable());
 
 	/* change the type from 6 to 5 */

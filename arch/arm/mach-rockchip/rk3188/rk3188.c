@@ -105,39 +105,3 @@ int rk_board_late_init(void)
 
 	return rk3188_board_late_init();
 }
-
-#ifdef CONFIG_XPL_BUILD
-static int setup_led(void)
-{
-#ifdef CONFIG_SPL_LED
-	struct udevice *dev;
-	char *led_name;
-	int ret;
-
-	led_name = ofnode_conf_read_str("u-boot,boot-led");
-	if (!led_name)
-		return 0;
-	ret = led_get_by_label(led_name, &dev);
-	if (ret) {
-		debug("%s: get=%d\n", __func__, ret);
-		return ret;
-	}
-	ret = led_set_state(dev, LEDST_ON);
-	if (ret)
-		return ret;
-#endif
-
-	return 0;
-}
-
-void spl_board_init(void)
-{
-	int ret;
-
-	ret = setup_led();
-	if (ret) {
-		debug("LED ret=%d\n", ret);
-		hang();
-	}
-}
-#endif

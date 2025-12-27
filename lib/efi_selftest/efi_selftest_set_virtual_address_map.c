@@ -10,8 +10,6 @@
 
 #include <efi_selftest.h>
 
-static const struct efi_boot_services *boottime;
-static const struct efi_runtime_services *runtime;
 static struct efi_event *event;
 static struct efi_mem_desc *memory_map;
 static efi_uintn_t map_size;
@@ -39,7 +37,7 @@ static void EFIAPI notify(struct efi_event *event, void *context)
 	++notify_call_count;
 
 	addr = (void *)(uintptr_t)page1;
-	ret = runtime->convert_pointer(0, &addr);
+	ret = st_runtime->convert_pointer(0, &addr);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("ConvertPointer failed\n");
 		convert_pointer_failed = true;
@@ -52,7 +50,7 @@ static void EFIAPI notify(struct efi_event *event, void *context)
 	}
 
 	addr = (void *)(uintptr_t)page2;
-	ret = runtime->convert_pointer(0, &addr);
+	ret = st_runtime->convert_pointer(0, &addr);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("ConvertPointer failed\n");
 		convert_pointer_failed = true;
@@ -82,19 +80,15 @@ static int setup(const efi_handle_t handle,
 	efi_status_t ret;
 	struct efi_mem_desc *end, *pos1, *pos2;
 
-	boottime = systable->boottime;
-	runtime = systable->runtime;
-
-	ret = boottime->create_event(EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE,
-				     TPL_CALLBACK, notify, NULL,
-				     &event);
+	ret = st_boottime->create_event(EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE,
+					TPL_CALLBACK, notify, NULL, &event);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("could not create event\n");
 		return EFI_ST_FAILURE;
 	}
 
-	ret = boottime->get_memory_map(&map_size, NULL, &map_key, &desc_size,
-				       &desc_version);
+	ret = st_boottime->get_memory_map(&map_size, NULL, &map_key, &desc_size,
+					  &desc_version);
 	if (ret != EFI_BUFFER_TOO_SMALL) {
 		efi_st_error(
 			"GetMemoryMap did not return EFI_BUFFER_TOO_SMALL\n");
@@ -102,26 +96,26 @@ static int setup(const efi_handle_t handle,
 	}
 	/* Allocate extra space for newly allocated memory */
 	map_size += 3 * sizeof(struct efi_mem_desc);
-	ret = boottime->allocate_pool(EFI_BOOT_SERVICES_DATA, map_size,
-				      (void **)&memory_map);
+	ret = st_boottime->allocate_pool(EFI_BOOT_SERVICES_DATA, map_size,
+					 (void **)&memory_map);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("AllocatePool failed\n");
 		return EFI_ST_FAILURE;
 	}
-	ret = boottime->get_memory_map(&map_size, memory_map, &map_key,
-				       &desc_size, &desc_version);
+	ret = st_boottime->get_memory_map(&map_size, memory_map, &map_key,
+					  &desc_size, &desc_version);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("GetMemoryMap failed\n");
 		return EFI_ST_FAILURE;
 	}
-	ret = boottime->allocate_pages(EFI_ALLOCATE_ANY_PAGES,
-				       EFI_BOOT_SERVICES_DATA, 2, &page1);
+	ret = st_boottime->allocate_pages(EFI_ALLOCATE_ANY_PAGES,
+					  EFI_BOOT_SERVICES_DATA, 2, &page1);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("AllocatePages failed\n");
 		return EFI_ST_FAILURE;
 	}
-	ret = boottime->allocate_pages(EFI_ALLOCATE_ANY_PAGES,
-				       EFI_BOOT_SERVICES_DATA, 3, &page2);
+	ret = st_boottime->allocate_pages(EFI_ALLOCATE_ANY_PAGES,
+					  EFI_BOOT_SERVICES_DATA, 3, &page2);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("AllocatePages failed\n");
 		return EFI_ST_FAILURE;
@@ -182,8 +176,8 @@ static int execute(void)
 {
 	efi_status_t ret;
 
-	ret = runtime->set_virtual_address_map(map_size, desc_size,
-					       desc_version, memory_map);
+	ret = st_runtime->set_virtual_address_map(map_size, desc_size,
+						  desc_version, memory_map);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("SetVirtualAddressMap failed\n");
 		return EFI_ST_FAILURE;

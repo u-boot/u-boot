@@ -22,6 +22,44 @@ struct fwl_data cbass_main_fwls[] = {
        { "FSS_DAT_REG3", 7, 8 },
 };
 
+const struct k3_speed_grade_map am62a_map[] = {
+	{'M', 800000000},
+	{'N', 800000000},
+	{'O', 1000000000},
+	{'P', 1000000000},
+	{'Q', 1000000000},
+	{'R', 1000000000},
+	{'S', 1250000000},
+	{'T', 1250000000},
+	{'U', 1250000000},
+	{'V', 1250000000},
+	{/* List Terminator */ },
+};
+
+char k3_get_speed_grade(void)
+{
+	u32 efuse_val = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
+	u32 efuse_speed = (efuse_val & JTAG_DEV_SPEED_MASK) >>
+			  JTAG_DEV_SPEED_SHIFT;
+
+	char speed_grade = ('A' - 1) + efuse_speed;
+
+	/* Speed grades for AM62a are not sequential */
+	switch (efuse_speed) {
+	case 'T':
+		return 'V';
+	case 'V':
+		return 'T';
+	default:
+		return speed_grade;
+	}
+}
+
+const struct k3_speed_grade_map *k3_get_speed_grade_map(void)
+{
+	return am62a_map;
+}
+
 /*
  * This uninitialized global variable would normal end up in the .bss section,
  * but the .bss is cleared between writing and reading this variable, so move
@@ -207,6 +245,7 @@ void board_init_f(ulong dummy)
 			printf("Failed to probe am65_cpsw_nuss driver\n");
 	}
 
+	k3_fix_rproc_clock("/a53@0");
 	debug("am62a_init: %s done\n", __func__);
 }
 

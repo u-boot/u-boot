@@ -199,7 +199,7 @@ static struct clk *clk_set_default_get_by_id(struct clk *clk)
 		if (ret) {
 			debug("%s(): could not get parent clock pointer, id %lu\n",
 			      __func__, clk->id);
-			ERR_PTR(ret);
+			return ERR_PTR(ret);
 		}
 	}
 
@@ -338,7 +338,7 @@ static int clk_set_default_rates(struct udevice *dev,
 				continue;
 			}
 
-			return ret;
+			goto fail;
 		}
 
 		/* This is clk provider device trying to program itself
@@ -354,7 +354,7 @@ static int clk_set_default_rates(struct udevice *dev,
 
 		c = clk_set_default_get_by_id(&clk);
 		if (IS_ERR(c))
-			return PTR_ERR(c);
+			continue;
 
 		ret = clk_set_rate(c, rates[index]);
 
@@ -631,10 +631,12 @@ int clk_set_parent(struct clk *clk, struct clk *parent)
 	if (!ops->set_parent)
 		return -ENOSYS;
 
-	ret = clk_enable(parent);
-	if (ret && ret != -ENOSYS) {
-		printf("Cannot enable parent %s\n", parent->dev->name);
-		return ret;
+	if (clk->enable_count) {
+		ret = clk_enable(parent);
+		if (ret && ret != -ENOSYS) {
+			printf("Cannot enable parent %s\n", parent->dev->name);
+			return ret;
+		}
 	}
 
 	ret = ops->set_parent(clk, parent);
@@ -660,7 +662,7 @@ int clk_enable(struct clk *clk)
 	struct clk *clkp = NULL;
 	int ret;
 
-	debug("%s(clk=%p name=%s)\n", __func__, clk, clk->dev->name);
+	debug("%s(clk=%p name=%s)\n", __func__, clk, clk ? clk->dev->name : "NULL");
 	if (!clk_valid(clk))
 		return 0;
 	ops = clk_dev_ops(clk->dev);
@@ -721,7 +723,7 @@ int clk_disable(struct clk *clk)
 	struct clk *clkp = NULL;
 	int ret;
 
-	debug("%s(clk=%p name=%s)\n", __func__, clk, clk->dev->name);
+	debug("%s(clk=%p name=%s)\n", __func__, clk, clk ? clk->dev->name : "NULL");
 	if (!clk_valid(clk))
 		return 0;
 	ops = clk_dev_ops(clk->dev);

@@ -14,8 +14,6 @@
 	};
 
 	config {
-		u-boot,boot-led = "led-blue";
-		u-boot,error-led = "led-red";
 		u-boot,mmc-env-partition = "fip";
 	};
 
@@ -55,18 +53,6 @@
 			label = "User-2";
 			linux,code = <BTN_2>;
 			gpios = <&gpioa 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-		};
-	};
-
-	led {
-		compatible = "gpio-leds";
-
-		led-blue {
-			gpios = <&gpiod 9 GPIO_ACTIVE_HIGH>;
-		};
-
-		led-red {
-			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
 		};
 	};
 };

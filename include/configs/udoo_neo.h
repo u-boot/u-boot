@@ -21,7 +21,6 @@
 /* Linux only */
 #define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200\0" \
-	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdtfile=undefined\0" \
 	"fdt_addr=0x83000000\0" \

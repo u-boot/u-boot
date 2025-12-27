@@ -1,0 +1,2 @@
+#include <configs/imx6ulz_smm_m2.config>
+CONFIG_BSH_M2D_MEMORY=y

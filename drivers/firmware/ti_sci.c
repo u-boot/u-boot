@@ -3083,23 +3083,33 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 	sets = dev_read_size(dev, of_prop);
 	if (sets < 0) {
 		dev_err(dev, "%s resource type ids not available\n", of_prop);
+		devm_kfree(dev, res);
 		return ERR_PTR(sets);
 	}
 	temp = devm_kmalloc(dev, sets, GFP_KERNEL);
-	if (!temp)
+	if (!temp) {
+		devm_kfree(dev, res);
 		return ERR_PTR(-ENOMEM);
+	}
 
 	sets /= sizeof(u32);
 	res->sets = sets;
 
 	res->desc = devm_kcalloc(dev, res->sets, sizeof(*res->desc),
 				 GFP_KERNEL);
-	if (!res->desc)
+	if (!res->desc) {
+		devm_kfree(dev, temp);
+		devm_kfree(dev, res);
 		return ERR_PTR(-ENOMEM);
+	}
 
 	ret = dev_read_u32_array(dev, of_prop, temp, res->sets);
-	if (ret)
+	if (ret) {
+		devm_kfree(dev, temp);
+		devm_kfree(dev, res->desc);
+		devm_kfree(dev, res);
 		return ERR_PTR(-EINVAL);
+	}
 
 	for (i = 0; i < res->sets; i++) {
 		resource_subtype = temp[i];
@@ -3124,13 +3134,29 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 		res->desc[i].res_map =
 			devm_kzalloc(dev, BITS_TO_LONGS(res->desc[i].num) *
 				     sizeof(*res->desc[i].res_map), GFP_KERNEL);
-		if (!res->desc[i].res_map)
+		if (!res->desc[i].res_map) {
+			int j;
+
+			devm_kfree(dev, temp);
+
+			for (j = 0; j < i; j++)
+				devm_kfree(dev, res->desc[j].res_map);
+
+			devm_kfree(dev, res->desc);
+			devm_kfree(dev, res);
 			return ERR_PTR(-ENOMEM);
+		}
 	}
 
 	devm_kfree(dev, temp);
 	if (valid_set)
 		return res;
+
+	for (i = 0; i < res->sets; i++)
+		devm_kfree(dev, res->desc[i].res_map);
+
+	devm_kfree(dev, res->desc);
+	devm_kfree(dev, res);
 
 	return ERR_PTR(-EINVAL);
 }

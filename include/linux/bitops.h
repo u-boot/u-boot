@@ -148,6 +148,17 @@ static inline unsigned long hweight_long(unsigned long w)
 	return sizeof(w) == 4 ? generic_hweight32(w) : generic_hweight64(w);
 }
 
+/**
+ * rol32 - rotate a 32-bit value left
+ * @word: value to rotate
+ * @shift: bits to roll
+ */
+
+static inline __u32 rol32(__u32 word, unsigned int shift)
+{
+	return (word << (shift & 31)) | (word >> ((-shift) & 31));
+}
+
 #include <asm/bitops.h>
 
 /* linux/include/asm-generic/bitops/non-atomic.h */

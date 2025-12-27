@@ -71,8 +71,8 @@ extern phys_addr_t prior_stage_fdt_address;
  *
  * We want to keep the ramdisk and FDT in the FIT image in-place, to
  * accommodate stblinux's bmem and CMA regions.  To accomplish this,
- * we set initrd_high and fdt_high to 0xffffffff, and the load and
- * entry addresses of the FIT ramdisk entry to 0x0.
+ * we set initrd_high to 0xffffffff, bootm_size to 0x7000000 and the
+ * load and entry addresses of the FIT ramdisk entry to 0x0.
  *
  * Overwriting the prior stage bootloader causes memory instability,
  * so the compressed initramfs needs to fit between the load address
@@ -121,7 +121,7 @@ extern phys_addr_t prior_stage_fdt_address;
 #define CFG_EXTRA_ENV_SETTINGS					\
 	"fdtsaveaddr=" __stringify(CONFIG_SYS_FDT_SAVE_ADDRESS) "\0"	\
 	"initrd_high=0xffffffff\0"					\
-	"fdt_high=0xffffffff\0"
+	"bootm_size=0x7000000\0"
 
 /*
  * Set fdtaddr to prior stage-provided DTB in board_late_init, when

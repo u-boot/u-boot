@@ -163,7 +163,7 @@ static int pruss_probe(struct udevice *dev)
 	for (i = 0; i < ARRAY_SIZE(mem_names); i++) {
 		idx = ofnode_stringlist_search(memories, "reg-names", mem_names[i]);
 		priv->mem_regions[i].pa = ofnode_get_addr_size_index(memories, idx,
-						       (u64 *)&priv->mem_regions[i].size);
+						       (fdt_size_t *)&priv->mem_regions[i].size);
 	}
 
 	sub_node = ofnode_find_subnode(node, "cfg");

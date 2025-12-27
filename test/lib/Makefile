@@ -10,6 +10,10 @@ obj-y += abuf.o
 obj-y += alist.o
 obj-$(CONFIG_EFI_LOADER) += efi_device_path.o efi_memory.o
 obj-$(CONFIG_EFI_SECURE_BOOT) += efi_image_region.o
+ifdef CONFIG_RISCV
+obj-$(CONFIG_USE_PRIVATE_LIBGCC) += test_clz.o
+obj-$(CONFIG_USE_PRIVATE_LIBGCC) += test_ctz.o
+endif
 obj-y += hexdump.o
 obj-$(CONFIG_SANDBOX) += kconfig.o
 obj-y += lmb.o

@@ -9,6 +9,7 @@
 #include <env.h>
 #include <dm.h>
 #include <dm/test.h>
+#include <test/cmd.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -38,7 +39,7 @@ static int dm_test_cmd_hash_md5(struct unit_test_state *uts)
 					  "d41d8cd98f00b204e9800998ecf8427e"));
 
 	if (!CONFIG_IS_ENABLED(HASH_VERIFY)) {
-		ut_assert(run_command("hash -v sha256 $loadaddr 0 foo", 0));
+		ut_assert(run_command("hash -v md5 $loadaddr 0 foo", 0));
 		ut_assertok(ut_check_console_line(
 				uts, "hash - compute hash message digest"));
 
@@ -103,3 +104,49 @@ static int dm_test_cmd_hash_sha256(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_cmd_hash_sha256, UTF_CONSOLE);
+
+static int cmd_test_hash_sm3_256(struct unit_test_state *uts)
+{
+	const char *sum = "1ab21d8355cfa17f8e61194831e81a8f22bec8c728fefb747ed035eb5082aa2b";
+
+	if (!CONFIG_IS_ENABLED(SM3)) {
+		ut_assert(run_command("hash sm3_256 $loadaddr 0", 0));
+
+		return 0;
+	}
+
+	ut_assertok(run_command("hash sm3_256 $loadaddr 0", 0));
+	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
+	ut_asserteq_ptr(uts->actual_str,
+			strstr(uts->actual_str, "sm3_256 for "));
+	ut_assert(strstr(uts->actual_str, sum));
+	ut_assert_console_end();
+
+	ut_assertok(run_command("hash sm3_256 $loadaddr 0 foo; echo $foo", 0));
+	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
+	ut_asserteq_ptr(uts->actual_str,
+			strstr(uts->actual_str, "sm3_256 for "));
+	ut_assert(strstr(uts->actual_str, sum));
+	ut_assertok(ut_check_console_line(uts, sum));
+
+	if (!CONFIG_IS_ENABLED(HASH_VERIFY)) {
+		ut_assert(run_command("hash -v sm3_256 $loadaddr 0 foo", 0));
+		ut_assertok(ut_check_console_line(uts,
+						  "hash - compute hash message digest"));
+
+		return 0;
+	}
+
+	ut_assertok(run_command("hash -v sm3_256 $loadaddr 0 foo", 0));
+	ut_assert_console_end();
+
+	env_set("foo",
+		"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+	ut_assert(run_command("hash -v sm3_256 $loadaddr 0 foo", 0));
+	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
+	ut_assert(strstr(uts->actual_str, "!="));
+	ut_assert_console_end();
+
+	return 0;
+}
+CMD_TEST(cmd_test_hash_sm3_256, UTF_CONSOLE);

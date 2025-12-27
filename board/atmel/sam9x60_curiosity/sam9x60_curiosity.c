@@ -28,21 +28,7 @@ void at91_prepare_cpu_var(void);
 
 static void board_leds_init(void)
 {
-#if CONFIG_IS_ENABLED(LED)
-	const char *led_name;
-	struct udevice *dev;
-	int ret;
-
-	led_name = ofnode_conf_read_str("u-boot,boot-led");
-	if (!led_name)
-		return;
-
-	ret = led_get_by_label(led_name, &dev);
-	if (ret)
-		return;
-
-	led_set_state(dev, LEDST_ON);
-#else
+#if !CONFIG_IS_ENABLED(LED_BOOT)
 	at91_set_pio_output(AT91_PIO_PORTD, 17, 0);	/* LED RED */
 	at91_set_pio_output(AT91_PIO_PORTD, 19, 0);	/* LED GREEN */
 	at91_set_pio_output(AT91_PIO_PORTD, 21, 1);	/* LED BLUE */

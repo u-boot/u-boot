@@ -494,7 +494,7 @@ static int fdt_test_get_value_common(struct unit_test_state *uts,
 	 * longer is an error. This is a special case for handling hashes.
 	 */
 	ut_assertok(fdt_test_get_value_string(uts, node, "regs", NULL,
-					      "3412000000100000", 0));
+					      "0000123400001000", 0));
 
 	/* Test getting 0th element of $node node regs property */
 	ut_assertok(fdt_test_get_value_string(uts, node, "regs", "0", NULL,

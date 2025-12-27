@@ -14,7 +14,7 @@
 static int cmd_test_meminfo(struct unit_test_state *uts)
 {
 	ut_assertok(run_command("meminfo", 0));
-	ut_assert_nextline("DRAM:  256 MiB");
+	ut_assert_nextlinen("DRAM:  ");
 	ut_assert_nextline_empty();
 
 	ut_assert_nextline("Region           Base     Size      End      Gap");

@@ -78,7 +78,7 @@ SECTIONS
   SECTION_text(XTENSA_SYS_TEXT_ADDR, FOLLOWING(.DoubleExceptionVector.text))
   SECTION_rodata(ALIGN(16), FOLLOWING(.text))
   SECTION_u_boot_list(ALIGN(16), FOLLOWING(.rodata))
-  SECTION_data(ALIGN(16), FOLLOWING(__u_boot_list))
+  SECTION_data(ALIGN(16), FOLLOWINGDT(__u_boot_list))
 
   __reloc_end = .;
   __init_end = .;

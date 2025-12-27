@@ -421,7 +421,7 @@ static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 		goto err_sign;
 	}
 
-	if (CONFIG_IS_ENABLED(FIT_RSASSA_PSS) && padding_algo &&
+	if (CONFIG_IS_ENABLED(RSASSA_PSS) && padding_algo &&
 	    !strcmp(padding_algo->name, "pss")) {
 		if (EVP_PKEY_CTX_set_rsa_padding(ckey,
 						 RSA_PKCS1_PSS_PADDING) <= 0) {

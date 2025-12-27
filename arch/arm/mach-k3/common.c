@@ -304,6 +304,114 @@ void enable_caches(void)
 }
 #endif
 
+__weak char k3_get_speed_grade(void)
+{
+	return K3_SPEED_GRADE_UNKNOWN;
+}
+
+__weak const struct k3_speed_grade_map *k3_get_speed_grade_map(void)
+{
+	return NULL;
+}
+
+static int k3_fdt_set_assigned_clk_rate(const char *path, const char *clk_name,
+					unsigned int new_clk_rate)
+{
+	int size, clk_name_index, phandle_count;
+	struct ofnode_phandle_args phandle_args;
+	unsigned int dev_id, clock_id, i;
+	ofnode node = ofnode_path(path);
+	u32 *clk_rates;
+	int ret;
+
+	debug("%s: Setting clock '%s' frequency of '%s' to %u\n", __func__,
+	      path, clk_name, new_clk_rate);
+
+	clk_name_index =
+		ofnode_stringlist_search(node, "clock-names", clk_name);
+	if (clk_name_index < 0)
+		return clk_name_index;
+
+	ret = ofnode_parse_phandle_with_args(node, "clocks", "#clock-cells", 0,
+					     clk_name_index, &phandle_args);
+
+	if (ret || phandle_args.args_count != 2)
+		return -EINVAL;
+
+	dev_id = phandle_args.args[0];
+	clock_id = phandle_args.args[1];
+
+	debug("%s: Found dev_id: %u, clock_id: %u\n", __func__, dev_id,
+	      clock_id);
+
+	phandle_count = ofnode_count_phandle_with_args(node, "assigned-clocks",
+						       "#clock-cells", 0);
+
+	for (i = 0; i < phandle_count; i++) {
+		ret = ofnode_parse_phandle_with_args(node, "assigned-clocks",
+						     "#clock-cells", 0, i,
+						     &phandle_args);
+
+		if (ret || phandle_args.args_count != 2)
+			continue;
+
+		if (phandle_args.args[0] == dev_id &&
+		    phandle_args.args[1] == clock_id) {
+			clk_rates = (u32 *)ofnode_read_prop(node,
+				"assigned-clock-rates", &size);
+
+			if (i >= (size / sizeof(u32)))
+				return -EOVERFLOW;
+
+			clk_rates[i] = cpu_to_fdt32(new_clk_rate);
+			return 0;
+		}
+	}
+
+	return -EINVAL;
+}
+
+static u32 k3_get_a_core_frequency(char speed_grade)
+{
+	const struct k3_speed_grade_map *map = k3_get_speed_grade_map();
+	unsigned int i;
+
+	if (!map)
+		return 0;
+
+	for (i = 0; map[i].speed_grade != 0; i++) {
+		if (map[i].speed_grade == speed_grade)
+			return map[i].a_core_frequency;
+	}
+
+	return 0;
+}
+
+void k3_fix_rproc_clock(const char *path)
+{
+	u32 a_core_frequency;
+	char speed_grade;
+	int ret;
+
+	if (IS_ENABLED(CONFIG_ARM64))
+		return;
+
+	speed_grade = k3_get_speed_grade();
+	a_core_frequency = k3_get_a_core_frequency(speed_grade);
+
+	if (!a_core_frequency) {
+		printf("%s: Failed to get speed grade frequency\n", __func__);
+		return;
+	}
+
+	ret = k3_fdt_set_assigned_clk_rate(path, "core", a_core_frequency);
+	if (ret)
+		printf("Failed to set clock rates for '%s': %d\n", path, ret);
+	else
+		printf("Set clock rates for '%s', CPU: %dMHz at Speed Grade '%c'\n",
+		       path, a_core_frequency / 1000000, speed_grade);
+}
+
 void spl_enable_cache(void)
 {
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))

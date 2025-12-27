@@ -10,11 +10,6 @@
 /*		stdout-path = &uart2; */
 		stdout-path = "serial2:115200n8";
 	};
-
-	config {
-		u-boot,boot-led = "rock:red:power";
-		bootph-all;
-	};
 };
 
 &cru {

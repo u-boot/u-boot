@@ -430,6 +430,9 @@ static efi_status_t tcg2_hash_pe_image(void *efi, u64 efi_size,
 		case TPM2_ALG_SHA512:
 			hash_calculate("sha512", regs->reg, regs->num, hash);
 			break;
+		case TPM2_ALG_SM3_256:
+			hash_calculate("sm3_256", regs->reg, regs->num, hash);
+			break;
 		default:
 			continue;
 		}

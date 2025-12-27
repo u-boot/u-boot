@@ -7952,6 +7952,229 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self.assertIsNotNone(signature)
             self.assertIsNotNone(signature.props.get('value'))
 
+    def testFitSignEngineSimple(self):
+        """Test that image with FIT and signature nodes can be signed with an
+           OpenSSL Engine"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+        }
+
+        x509_pubkey = '340_dummy-rsa4096.crt'
+        data = tools.read_file(self.TestFile(x509_pubkey))
+        self._MakeInputFile('dev.crt', data)
+
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        ossl_engines_path = TestFunctional._elf_testdir
+        # Make OpenSSL find our dummy-rsa-engine engine
+        with unittest.mock.patch.dict('os.environ',
+                                      {'OPENSSL_ENGINES': ossl_engines_path}):
+            data = self._DoReadFileDtb(
+                '340_fit_signature_engine.dts',
+                entry_args=entry_args,
+                extra_indirs=[test_subdir])[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        conf = dtb.GetNode('/configurations/conf-uboot-1')
+        self.assertIsNotNone(conf)
+        signature = conf.FindNode('signature')
+        self.assertIsNotNone(signature)
+        self.assertIsNotNone(signature.props.get('value'))
+
+        images = dtb.GetNode('/images')
+        self.assertIsNotNone(images)
+        for subnode in images.subnodes:
+            signature = subnode.FindNode('signature')
+            self.assertIsNotNone(signature)
+            self.assertIsNotNone(signature.props.get('value'))
+
+        some_dtb = tools.get_output_filename('source.dtb')
+        tools.run('fdt_add_pubkey', '-a', 'sha256,rsa4096', '-k', self._indir,
+                  '-n', 'dev', '-r', 'conf', some_dtb)
+        tools.run('fit_check_sign', '-k', some_dtb,
+                  '-f', tools.get_output_filename('fit.fit'))
+
+    def testFitSignEncryptEngine(self):
+        """Test that FIT image binman is requested to sign with engine does not
+           request to encrypt as well"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+        }
+
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb(
+                    '340_fit_signature_engine_encrypt.dts',
+                    entry_args=entry_args,
+                    extra_indirs=[test_subdir])
+
+        self.assertIn(
+            'fit,engine currently does not support encryption',
+            str(e.exception))
+
+    def testFitSignPKCS11Simple(self):
+        """Test that image with FIT and signature nodes can be signed with a
+           PKCS11 OpenSSL Engine"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        softhsm2_util = bintool.Bintool.create('softhsm2_util')
+        self._CheckBintool(softhsm2_util)
+
+        try:
+            tools.run('openssl', 'engine', 'dynamic', '-c', 'pkcs11')
+        except ValueError:
+            self.skipTest('PKCS11 engine setup not functional, '
+                          'did you install libengine-pkcs11-openssl?')
+
+        prefix = "testFitSignPKCS11Simple."
+        # Configure SoftHSMv2
+        data = tools.read_file(self.TestFile('340_softhsm2.conf'))
+        softhsm2_conf = self._MakeInputFile(f'{prefix}softhsm2.conf', data)
+        softhsm2_tokens_dir = self._MakeInputDir(f'{prefix}softhsm2.tokens')
+
+        with open(softhsm2_conf, 'a') as f:
+            f.write(f'directories.tokendir = {softhsm2_tokens_dir}\n')
+
+        # Generate pubkey DTB with random RSA4096 key
+        _, _, private_key, pubkey_dtb = self._PrepareSignEnv()
+
+        with unittest.mock.patch.dict('os.environ',
+                                      {'SOFTHSM2_CONF': softhsm2_conf}):
+            tools.run('softhsm2-util', '--init-token', '--free', '--label',
+                      'U-Boot token', '--pin', '1111', '--so-pin',
+                      '222222')
+            tools.run('softhsm2-util', '--import', private_key, '--token',
+                      'U-Boot token', '--label', 'test_key', '--id', '999999',
+                      '--pin', '1111')
+
+        # Make sure the private key can only be accessed through the engine
+        os.remove(private_key)
+
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+        }
+
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+
+        # Make OpenSSL use softhsm2 engine
+        ossl_conf = self.TestFile('340_openssl.conf')
+        with unittest.mock.patch.dict('os.environ',
+                                      {'OPENSSL_CONF': ossl_conf,
+                                       'SOFTHSM2_CONF': softhsm2_conf}):
+            data = self._DoReadFileDtb(
+                '340_fit_signature_engine_pkcs11.dts',
+                entry_args=entry_args,
+                extra_indirs=[test_subdir])[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        conf = dtb.GetNode('/configurations/conf-uboot-1')
+        self.assertIsNotNone(conf)
+        signature = conf.FindNode('signature')
+        self.assertIsNotNone(signature)
+        self.assertIsNotNone(signature.props.get('value'))
+
+        images = dtb.GetNode('/images')
+        self.assertIsNotNone(images)
+        for subnode in images.subnodes:
+            signature = subnode.FindNode('signature')
+            self.assertIsNotNone(signature)
+            self.assertIsNotNone(signature.props.get('value'))
+
+        tools.run('fit_check_sign', '-k', pubkey_dtb,
+                  '-f', tools.get_output_filename('fit.fit'))
+
+    def testFitSignPKCS11Object(self):
+        """Test that image with FIT and signature nodes can be signed with a
+           PKCS11 OpenSSL Engine with a specified object="""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        softhsm2_util = bintool.Bintool.create('softhsm2_util')
+        self._CheckBintool(softhsm2_util)
+
+        try:
+            tools.run('openssl', 'engine', 'dynamic', '-c', 'pkcs11')
+        except ValueError:
+            self.skipTest('PKCS11 engine setup not functional, '
+                          'did you install libengine-pkcs11-openssl?')
+
+        prefix = "testFitSignPKCS11Object."
+        # Configure SoftHSMv2
+        data = tools.read_file(self.TestFile('340_softhsm2.conf'))
+        softhsm2_conf = self._MakeInputFile(f'{prefix}softhsm2.conf', data)
+        softhsm2_tokens_dir = self._MakeInputDir(f'{prefix}softhsm2.tokens')
+
+        with open(softhsm2_conf, 'a') as f:
+            f.write(f'directories.tokendir = {softhsm2_tokens_dir}')
+
+        # Generate pubkey DTB with random RSA4096 key
+        _, _, private_key, pubkey_dtb = self._PrepareSignEnv()
+
+        with unittest.mock.patch.dict('os.environ',
+                                      {'SOFTHSM2_CONF': softhsm2_conf}):
+            tools.run('softhsm2-util', '--init-token', '--free', '--label',
+                      'U-Boot prod token', '--pin', '1234', '--so-pin',
+                      '222222')
+            tools.run('softhsm2-util', '--import', private_key, '--token',
+                      'U-Boot prod token', '--label', 'prod', '--id', '999999',
+                      '--pin', '1234')
+
+        # Make sure the private key can only be accessed through the engine
+        os.remove(private_key)
+
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+        }
+
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+
+        # Make OpenSSL use softhsm2 engine and configure PIN for token
+        # The PIN is incorrect on purpose, the correct one will be passed by
+        # MKIMAGE_SIGN_PIN
+        ossl_conf = self.TestFile('340_openssl.conf')
+        with unittest.mock.patch.dict('os.environ',
+                                      {'OPENSSL_CONF': ossl_conf,
+                                       'SOFTHSM2_CONF': softhsm2_conf,
+                                       'MKIMAGE_SIGN_PIN': '1234'}):
+            data = self._DoReadFileDtb(
+                '340_fit_signature_engine_pkcs11_object.dts',
+                entry_args=entry_args,
+                extra_indirs=[test_subdir])[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        conf = dtb.GetNode('/configurations/conf-uboot-1')
+        self.assertIsNotNone(conf)
+        signature = conf.FindNode('signature')
+        self.assertIsNotNone(signature)
+        self.assertIsNotNone(signature.props.get('value'))
+
+        images = dtb.GetNode('/images')
+        self.assertIsNotNone(images)
+        for subnode in images.subnodes:
+            signature = subnode.FindNode('signature')
+            self.assertIsNotNone(signature)
+            self.assertIsNotNone(signature.props.get('value'))
+
+        tools.run('fit_check_sign', '-k', pubkey_dtb,
+                  '-f', tools.get_output_filename('fit.fit'))
+
     def testFitSignKeyNotFound(self):
         """Test that missing keys raise an error"""
         if not elf.ELF_TOOLS:

@@ -21,8 +21,11 @@
 		bootph-all;
 	};
 
-	config {
-		u-boot,boot-led = "blue";
+	options {
+		u-boot {
+			compatible = "u-boot,config";
+			boot-led = <&led_blue>;
+		};
 	};
 
 	leds {
@@ -34,7 +37,7 @@
 			default-state = "off";
 		};
 
-		led-blue {
+		led_blue: led-blue {
 			default-state = "off";
 		};
 	};

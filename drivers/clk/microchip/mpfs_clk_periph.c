@@ -176,7 +176,7 @@ int mpfs_clk_register_periphs(struct udevice *dev, struct regmap *regmap)
 		name = mpfs_periph_clks[i].periph.name;
 		ret = clk_register(hw, MPFS_PERIPH_CLOCK, name, parent.dev->name);
 		if (ret)
-			ERR_PTR(ret);
+			return ret;
 		id = mpfs_periph_clks[i].periph.id;
 		clk_dm(id, hw);
 	}

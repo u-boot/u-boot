@@ -88,15 +88,9 @@
 #include <image.h>
 #include <led.h>
 #include <log.h>
-#if defined(CONFIG_LED_STATUS)
-#include <miiphy.h>
-#endif
 #include <net.h>
 #include <net6.h>
 #include <ndisc.h>
-#if defined(CONFIG_LED_STATUS)
-#include <status_led.h>
-#endif
 #include <watchdog.h>
 #include <linux/compiler.h>
 #include <net/fastboot_udp.h>
@@ -615,19 +609,6 @@ restart:
 		break;
 	}
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-#if	defined(CONFIG_SYS_FAULT_ECHO_LINK_DOWN)	&& \
-	defined(CONFIG_LED_STATUS)			&& \
-	defined(CONFIG_LED_STATUS_RED)
-	/*
-	 * Echo the inverted link state to the fault LED.
-	 */
-	if (miiphy_link(eth_get_dev()->name, CONFIG_SYS_FAULT_MII_ADDR))
-		status_led_set(CONFIG_LED_STATUS_RED, CONFIG_LED_STATUS_OFF);
-	else
-		status_led_set(CONFIG_LED_STATUS_RED, CONFIG_LED_STATUS_ON);
-#endif /* CONFIG_SYS_FAULT_ECHO_LINK_DOWN, ... */
-#endif /* CONFIG_MII, ... */
 #ifdef CONFIG_USB_KEYBOARD
 	net_busy_flag = 1;
 #endif
@@ -688,22 +669,6 @@ restart:
 		    ((get_timer(0) - time_start) > time_delta)) {
 			thand_f *x;
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-#if	defined(CONFIG_SYS_FAULT_ECHO_LINK_DOWN)	&& \
-	defined(CONFIG_LED_STATUS)			&& \
-	defined(CONFIG_LED_STATUS_RED)
-			/*
-			 * Echo the inverted link state to the fault LED.
-			 */
-			if (miiphy_link(eth_get_dev()->name,
-					CONFIG_SYS_FAULT_MII_ADDR))
-				status_led_set(CONFIG_LED_STATUS_RED,
-					       CONFIG_LED_STATUS_OFF);
-			else
-				status_led_set(CONFIG_LED_STATUS_RED,
-					       CONFIG_LED_STATUS_ON);
-#endif /* CONFIG_SYS_FAULT_ECHO_LINK_DOWN, ... */
-#endif /* CONFIG_MII, ... */
 			debug_cond(DEBUG_INT_STATE, "--- net_loop timeout\n");
 			x = time_handler;
 			time_handler = (thand_f *)0;

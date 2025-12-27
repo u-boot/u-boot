@@ -6,7 +6,6 @@
 	config {
 		u-boot,mmc-env-offset = <0x5000>;      /* @  20KB */
 		u-boot,efi-partition-entries-offset = <0x200000>; /* 2MB */
-		u-boot,boot-led = "module_led";
 	};
 
 	chosen {

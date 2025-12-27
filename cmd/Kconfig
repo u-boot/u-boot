@@ -264,6 +264,21 @@ config CMD_SBI
 	help
 	  Display information about the SBI implementation.
 
+config CMD_SM3SUM
+	bool "sm3sum"
+	select SM3
+	select HASH
+	help
+	  Compute SM3 checksum.
+	  add SM3 hash functionality
+
+config SM3SUM_VERIFY
+	bool "sm3sum -v"
+	depends on CMD_SM3SUM
+	help
+	  Add for the sm3sum command the -v option
+	  to verify data against an SM3 checksum.
+
 config CMD_SMBIOS
 	bool "smbios"
 	depends on SMBIOS

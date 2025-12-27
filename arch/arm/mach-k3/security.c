@@ -119,6 +119,8 @@ void ti_secure_image_post_process(void **p_image, size_t *p_size)
 	 */
 	*p_size = image_size;
 
+	*p_image = (void *)(uintptr_t)image_addr;
+
 	/*
 	 * Output notification of successful authentication to re-assure the
 	 * user that the secure code is being processed as expected. However

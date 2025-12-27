@@ -7,7 +7,7 @@ config SYS_VENDOR
 	default "microchip"
 
 config SYS_CPU
-	default "generic"
+	default "mpfs"
 
 config SYS_CONFIG_NAME
 	default "microchip_mpfs_generic"
@@ -18,15 +18,10 @@ config TEXT_BASE
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	select GENERIC_RISCV
+	select MICROCHIP_MPFS
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	imply SMP
-	imply CLK_CCF
-	imply CLK_MPFS
-	imply REGMAP
-	imply SYSCON
-	imply SYS_NS16550
 	imply CMD_DHCP
 	imply CMD_EXT2
 	imply CMD_EXT4
@@ -39,23 +34,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply EFI_PARTITION
 	imply IP_DYN
 	imply ISO_PARTITION
-	imply MACB
-	imply MII
 	imply PHY_LIB
 	imply PHY_VITESSE
-	imply MMC
-	imply MMC_WRITE
-	imply MMC_SDHCI
-	imply MMC_SDHCI_CADENCE
-	imply MMC_SDHCI_ADMA
-	imply MMC_HS200_SUPPORT
-	imply CMD_I2C
-	imply DM_I2C
-	imply SYS_I2C_MICROCHIP
-	imply MTD
-	imply SPI
-	imply DM_SPI
-	imply MICROCHIP_COREQSPI
 	imply MTD_SPI_NAND
 	imply CMD_MTD
 	imply CMD_MTDPARTS

@@ -823,6 +823,7 @@
 			#gpio-cells = <1>;
 			gpio-bank-name = "a";
 			sandbox,gpio-count = <25>;
+			gpio-line-names = "", "eth1-reset", "rtc-irq";
 			hog_input_active_low {
 				gpio-hog;
 				input;
@@ -851,6 +852,7 @@
 			#gpio-cells = <5>;
 			gpio-bank-name = "b";
 			sandbox,gpio-count = <10>;
+			gpio-line-names = "factory-reset";
 		};
 
 		gpio_c: pinmux-gpios {
@@ -860,6 +862,42 @@
 			gpio-bank-name = "c";
 			sandbox,gpio-count = <10>;
 		};
+	};
+
+	icc0: interconnect-0 {
+		compatible = "sandbox,interconnect0";
+		#interconnect-cells = <1>;
+	};
+
+	icc1: interconnect-1 {
+		compatible = "sandbox,interconnect1";
+		#interconnect-cells = <1>;
+	};
+
+	icc2: interconnect-2 {
+		compatible = "sandbox,interconnect2";
+		#interconnect-cells = <1>;
+	};
+
+	icc3: interconnect-3 {
+		compatible = "sandbox,interconnect3";
+		#interconnect-cells = <1>;
+	};
+
+	icc4: interconnect-4 {
+		compatible = "sandbox,interconnect4";
+		#interconnect-cells = <1>;
+	};
+
+	interconnect-test-0 {
+		compatible = "sandbox,interconnect-test";
+		interconnects = <&icc0 0 &icc3 0>;
+	};
+
+	interconnect-test-1 {
+		compatible = "sandbox,interconnect-test";
+		interconnects = <&icc1 0 &icc4 0>;
+		interconnect-names = "icc-path";
 	};
 
 	i2c@0 {
@@ -909,8 +947,8 @@
 			sandbox,emul = <&emul1>;
 		};
 
-		i2c_emul: emul {
-			reg = <0xff>;
+		i2c_emul: emul@7f {
+			reg = <0x7f>;
 			compatible = "sandbox,i2c-emul-parent";
 			emul_eeprom: emul-eeprom {
 				compatible = "sandbox,i2c-eeprom";
@@ -925,7 +963,7 @@
 			};
 		};
 
-		sandbox_pmic: sandbox_pmic {
+		sandbox_pmic: sandbox_pmic@40 {
 			reg = <0x40>;
 			sandbox,emul = <&emul_pmic0>;
 		};
@@ -1804,7 +1842,7 @@
 		pinctrl-0 = <&pinctrl_gpios>, <&pinctrl_i2s>;
 		pinctrl-1 = <&pinctrl_spi>, <&pinctrl_i2c>;
 
-		pinctrl_gpios: gpios {
+		pinctrl_gpios: pins-gpios {
 			gpio0 {
 				pins = "P5";
 				function = "GPIO";
@@ -1828,7 +1866,7 @@
 			};
 		};
 
-		pinctrl_i2c: i2c {
+		pinctrl_i2c: pins-i2c {
 			groups {
 				groups = "I2C_UART";
 				function = "I2C";
@@ -1840,12 +1878,12 @@
 			};
 		};
 
-		pinctrl_i2s: i2s {
+		pinctrl_i2s: pins-i2s {
 			groups = "SPI_I2S";
 			function = "I2S";
 		};
 
-		pinctrl_spi: spi {
+		pinctrl_spi: pins-spi {
 			groups = "SPI_I2S";
 			function = "SPI";
 

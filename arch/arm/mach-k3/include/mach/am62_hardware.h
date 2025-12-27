@@ -113,15 +113,6 @@ static inline int k3_get_core_nr(void)
 	return (full_devid & JTAG_DEV_CORE_NR_MASK) >> JTAG_DEV_CORE_NR_SHIFT;
 }
 
-static inline char k3_get_speed_grade(void)
-{
-	u32 full_devid = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
-	u32 speed_grade = (full_devid & JTAG_DEV_SPEED_MASK) >>
-			   JTAG_DEV_SPEED_SHIFT;
-
-	return 'A' - 1 + speed_grade;
-}
-
 static inline int k3_get_temp_grade(void)
 {
 	u32 full_devid = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
@@ -139,21 +130,6 @@ static inline int k3_get_max_temp(void)
 	case JTAG_DEV_TEMP_COMMERCIAL:
 	default:
 		return 95;
-	}
-}
-
-static inline int k3_get_a53_max_frequency(void)
-{
-	switch (k3_get_speed_grade()) {
-	case 'K':
-		return 800000000;
-	case 'S':
-		return 1000000000;
-	case 'T':
-		return 1250000000;
-	case 'G':
-	default:
-		return 300000000;
 	}
 }
 

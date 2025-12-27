@@ -9,14 +9,15 @@
 
 #include <command.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <image.h>
+#include <malloc.h>
+#include <mapmem.h>
+#include <asm/global_data.h>
+#include <asm/io.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
-#include <asm/global_data.h>
 #include <linux/libfdt.h>
-#include <fdt_support.h>
-#include <mapmem.h>
-#include <asm/io.h>
 
 #define MAX_LEVEL	32		/* how deeply nested we will go */
 #define SCRATCHPAD	1024		/* bytes of scratchpad memory */
@@ -91,18 +92,21 @@ static int fdt_value_env_set(const void *nodep, int len,
 
 		sprintf(buf, "0x%08X", fdt32_to_cpu(*(nodec + index)));
 		env_set(var, buf);
-	} else if (len % 4 == 0 && len <= 20) {
+	} else {
 		/* Needed to print things like sha1 hashes. */
-		char buf[41];
+		char *buf;
+		const unsigned int *nodec = (const unsigned int *)nodep;
 		int i;
 
-		for (i = 0; i < len; i += sizeof(unsigned int))
+		buf = malloc(2 * len + 7);
+		if (!buf)
+			return CMD_RET_FAILURE;
+		for (i = 0; i < len; i += 4)
 			sprintf(buf + (i * 2), "%08x",
-				*(unsigned int *)(nodep + i));
+				fdt32_to_cpu(*nodec++));
+		buf[2 * len] = 0;
 		env_set(var, buf);
-	} else {
-		printf("error: unprintable value\n");
-		return 1;
+		free(buf);
 	}
 	return 0;
 }

@@ -1,0 +1,7 @@
+Kontron OSM-S/BL i.MX8M Plus Boards
+M:	Frieder Schrempf <frieder.schrempf@kontron.de>
+S:	Maintained
+F:	board/kontron/osm-s-mx8mp
+F:	configs/kontron-osm-s-mx8mp_defconfig
+F:	doc/board/kontron/osm-s-mx8mp.rst
+F:	include/configs/kontron-osm-s-mx8mp.h

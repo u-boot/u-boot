@@ -114,9 +114,9 @@ static int hi6220_dwmmc_probe(struct udevice *dev)
 		}
 
 		host->bus_hz = clk_get_rate(priv->clks[HI6220_DWMMC_CLK_CIU]);
-		if (host->bus_hz <= 0) {
-			dev_err(dev, "Failed to get ciu clock rate(ret = %d).\n", ret);
-			return log_msg_ret("clk", ret);
+		if (!host->bus_hz || IS_ERR_VALUE(host->bus_hz)) {
+			dev_err(dev, "Failed to get ciu clock rate(ret = %d).\n", host->bus_hz);
+			return log_msg_ret("clk", host->bus_hz);
 		}
 	}
 	dev_dbg(dev, "bus clock rate: %d.\n", host->bus_hz);

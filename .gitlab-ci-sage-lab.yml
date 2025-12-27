@@ -1,0 +1,210 @@
+# Definition for the lab connected to the "sage" host and managed with labgrid
+
+.sage_lab_template: &sage_lab_dfn
+  stage: sage-lab
+  rules:
+    - if: $SAGE_LAB == "1"
+      when: always
+    - if: $SAGE_LAB != "1"
+      when: manual
+      allow_failure: true
+  # USB can be unreliable.
+  retry: 2
+  dependencies: []
+  needs: [ "sandbox test.py" ]
+  tags: [ 'konsulko-sage-labgrid' ]
+  before_script:
+    # Clone uboot-test-hooks
+    - git config --global --add safe.directory "${CI_PROJECT_DIR}"
+    - git clone --depth=1 https://source.denx.de/u-boot/u-boot-test-hooks /tmp/uboot-test-hooks
+    - ln -s sage /tmp/uboot-test-hooks/bin/`hostname`
+    - ln -s sage /tmp/uboot-test-hooks/py/`hostname`
+    - export LG_ENV="/tmp/uboot-test-hooks/bin/sage/labgrid-sage-env.yaml";
+      export LG_COORDINATOR=172.17.0.1:20408
+    # Prepare python environment
+    - python3 -m venv /tmp/venv;
+      . /tmp/venv/bin/activate;
+      pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
+        -r tools/buildman/requirements.txt -r tools/u_boot_pylib/requirements.txt
+        labgrid setuptools
+    # Acquire and turn on the exporter.
+    - labgrid-client reserve --wait board=${LABGRID_EXPORTER} &&
+      labgrid-client -p ${LABGRID_EXPORTER} acquire &&
+      labgrid-client -p ${LABGRID_EXPORTER} power on
+    # Prepare ssh
+    - mkdir --mode=0700 ~/.ssh;
+      printf 'Host sage-exporter-*\n\tUser labgrid\n' > ~/.ssh/config
+    # If we have TF-A binaries, we need to use them.
+    - if [[ -d /opt/tf-a/${TEST_PY_BD}${TEST_PY_ID//--id /_} ]]; then
+        cp /opt/tf-a/${TEST_PY_BD}${TEST_PY_ID//--id /_}/* /tmp/;
+      elif [[ -d /opt/tf-a/${TEST_PY_BD} ]]; then
+        cp /opt/tf-a/${TEST_PY_BD}/* /tmp/;
+      fi;
+      export BINMAN_INDIRS=/tmp;
+  script:
+    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD}
+    # Don't stop on non-zero exit codes now, to provide as much chance as
+    # possible to ensure we don't leave lab resources acquired.
+    - set +e;
+    # Sage is 16 threads and has 4 devices attached, so 4 builder threads.
+    - tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e
+        --board ${TEST_PY_BD} ${OVERRIDE} -T 4;
+      RC=`echo $?`;
+    # Wait for the exporter to have the device ready
+    - while test `labgrid-client resources |
+        grep -q ${LABGRID_EXPORTER}/${LG_PLACE}/; echo $?` -ne 0; do sleep 1;
+      done
+    # Fingerprint the exporter
+    - ssh-keyscan ${LABGRID_EXPORTER} > ~/.ssh/known_hosts 2>/dev/null
+    # If we built, run the tests and save the results.
+    - export PATH=/tmp/uboot-test-hooks/bin:${PATH};
+      export PYTHONPATH=/tmp/uboot-test-hooks/py/sage;
+      test $RC -eq 0 && labgrid-client reserve --wait board=${LG_PLACE} &&
+      labgrid-client -p ${LG_PLACE} acquire &&
+      ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID}
+        ${TEST_PY_EXTRA:-"--capture=tee-sys"}
+        ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
+        --build-dir "$UBOOT_TRAVIS_BUILD_DIR"
+        --junitxml=/tmp/${TEST_PY_BD}/results.xml;
+      RC=`echo $?`;
+      cp -v /tmp/${TEST_PY_BD}/*.{html,css,xml} .;
+    # Release and power off everything.
+    - labgrid-client -p ${LG_PLACE} power off
+    - labgrid-client -p ${LG_PLACE} release
+    - labgrid-client -p ${LABGRID_EXPORTER} ssh sudo poweroff && sleep 15 &&
+      labgrid-client -p ${LABGRID_EXPORTER} power off
+    - labgrid-client -p ${LABGRID_EXPORTER} release
+    - exit $RC
+  artifacts:
+    when: always
+    paths:
+      - "*.html"
+      - "*.css"
+      - results.xml
+    reports:
+      junit: results.xml
+    expire_in: 1 week
+
+Pine64+:
+  <<: *sage_lab_dfn
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-pine64-1"
+    LG_PLACE: "pine64-1"
+    TEST_PY_BD: "pine64_plus"
+    OVERRIDE: "-a CMD_BOOTMENU -a CMD_LOG"
+
+Pine64+ (lwIP):
+  <<: *sage_lab_dfn
+  needs: [ "Pine64+" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-pine64-1"
+    LG_PLACE: "pine64-1"
+    TEST_PY_BD: "pine64_plus"
+    # Leads to crash on lwIP, needs investigation.
+    TEST_PY_TEST_SPEC: "not test_net_pxe_boot_config"
+    OVERRIDE: "-a CMD_BOOTMENU -a CMD_LOG -a NET_LWIP"
+
+SolidRun Hummingboard 2:
+  <<: *sage_lab_dfn
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-hb-1"
+    LG_PLACE: "hb-1"
+    TEST_PY_BD: "mx6cuboxi"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG"
+
+SolidRun Hummingboard 2 (lwIP):
+  <<: *sage_lab_dfn
+  needs: [ "SolidRun Hummingboard 2" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-hb-1"
+    LG_PLACE: "hb-1"
+    TEST_PY_BD: "mx6cuboxi"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a NET_LWIP"
+
+Raspberry Pi 4:
+  <<: *sage_lab_dfn
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi4-1"
+    LG_PLACE: "rpi4-1"
+    TEST_PY_BD: "rpi_4"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a ~CMD_BOOTEFI_SELFTEST -a CMD_TFTPPUT -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000"
+
+Raspberry Pi 4 (rpi_arm64):
+  <<: *sage_lab_dfn
+  needs: [ "Raspberry Pi 4" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi4-1"
+    LG_PLACE: "rpi4-1"
+    TEST_PY_BD: "rpi_arm64"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a ~CMD_BOOTEFI_SELFTEST -a CMD_TFTPPUT -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000"
+
+Raspberry Pi 4 (rpi_arm64, lwIP):
+  <<: *sage_lab_dfn
+  needs: [ "Raspberry Pi 4 (rpi_arm64)" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi4-1"
+    LG_PLACE: "rpi4-1"
+    TEST_PY_BD: "rpi_arm64"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a ~CMD_BOOTEFI_SELFTEST -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000 -a NET_LWIP"
+
+Raspberry Pi 4 (rpi_4_32b):
+  <<: *sage_lab_dfn
+  needs: [ "Raspberry Pi 4 (rpi_arm64, lwIP)" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi4-1"
+    LG_PLACE: "rpi4-1"
+    TEST_PY_BD: "rpi_4_32b"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a CMD_BOOTEFI_SELFTEST -a CMD_TFTPPUT -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000"
+
+Raspberry Pi 4 (rpi_4_32b, lwIP):
+  <<: *sage_lab_dfn
+  needs: [ "Raspberry Pi 4 (rpi_4_32b)" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi4-1"
+    LG_PLACE: "rpi4-1"
+    TEST_PY_BD: "rpi_4_32b"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a CMD_BOOTEFI_SELFTEST -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000 -a NET_LWIP"
+
+Raspberry Pi 3:
+  <<: *sage_lab_dfn
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi3-1"
+    LG_PLACE: "rpi3-1"
+    TEST_PY_BD: "rpi_3"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a CMD_BOOTEFI_SELFTEST -a CMD_TFTPPUT -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000"
+
+Raspberry Pi 3 (rpi_arm64):
+  <<: *sage_lab_dfn
+  needs: [ "Raspberry Pi 3" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi3-1"
+    LG_PLACE: "rpi3-1"
+    TEST_PY_BD: "rpi_arm64"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a ~CMD_BOOTEFI_SELFTEST -a CMD_TFTPPUT -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000"
+
+Raspberry Pi 3 (rpi_arm64, lwIP):
+  <<: *sage_lab_dfn
+  needs: [ "Raspberry Pi 3 (rpi_arm64)" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi3-1"
+    LG_PLACE: "rpi3-1"
+    TEST_PY_BD: "rpi_arm64"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a ~CMD_BOOTEFI_SELFTEST -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000 -a NET_LWIP"
+
+Raspberry Pi 3 (rpi_3_32b):
+  <<: *sage_lab_dfn
+  needs: [ "Raspberry Pi 3 (rpi_arm64, lwIP)" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi3-1"
+    LG_PLACE: "rpi3-1"
+    TEST_PY_BD: "rpi_3_32b"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a CMD_BOOTEFI_SELFTEST -a CMD_TFTPPUT -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000"
+
+Raspberry Pi 3 (rpi_3_32b, lwIP):
+  <<: *sage_lab_dfn
+  needs: [ "Raspberry Pi 3 (rpi_3_32b)" ]
+  variables:
+    LABGRID_EXPORTER: "sage-exporter-rpi3-1"
+    LG_PLACE: "rpi3-1"
+    TEST_PY_BD: "rpi_3_32b"
+    OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a CMD_BOOTEFI_SELFTEST -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000 -a NET_LWIP"

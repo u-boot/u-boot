@@ -1,0 +1,124 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright (C) 2022 Kontron Electronics GmbH
+ */
+
+#include "imx8mp-u-boot.dtsi"
+
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		bootph-pre-ram;
+	};
+};
+
+&gpio1 {
+	bootph-pre-ram;
+};
+
+&gpio2 {
+	bootph-pre-ram;
+};
+
+&gpio3 {
+	bootph-pre-ram;
+};
+
+&gpio4 {
+	bootph-pre-ram;
+};
+
+&gpio5 {
+	bootph-pre-ram;
+};
+
+/* Enable I2C1 to probe for a touch controller on LVDS connector */
+&i2c1 {
+	status = "okay";
+};
+
+&i2c5 {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c5 {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c5_gpio {
+	bootph-pre-ram;
+};
+
+&pinctrl_pmic {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart3 {
+	bootph-pre-ram;
+};
+
+&pinctrl_wdog {
+	bootph-pre-ram;
+};
+
+&pca9450 {
+	bootph-pre-ram;
+};
+
+&reg_vdd_soc {
+	bootph-pre-ram;
+};
+
+&reg_vdd_arm {
+	bootph-pre-ram;
+};
+
+&reg_vdd_3v3 {
+	bootph-pre-ram;
+};
+
+&reg_vdd_1v8 {
+	bootph-pre-ram;
+};
+
+&reg_nvcc_dram {
+	bootph-pre-ram;
+};
+
+&reg_nvcc_snvs {
+	bootph-pre-ram;
+};
+
+&reg_vdda {
+	bootph-pre-ram;
+};
+
+&reg_nvcc_sd {
+	bootph-pre-ram;
+};
+
+&uart3 {
+	bootph-pre-ram;
+};
+
+&usb_dwc3_0 {
+	/*
+	 * OTG role switching is currently not supported in U-Boot, use peripheral
+	 * as default.
+	 */
+	dr_mode = "peripheral";
+};
+
+&usb3_phy0 {
+	/*
+	 * Workaround to fix USB in U-Boot until the following commit from
+	 * linux-next-20251111 has landed and been synced to dts/upstream:
+	 * 6504297872c7 ("arm64: dts: imx8mp-kontron: Fix USB OTG role switching")
+	 */
+	/delete-property/ vbus-supply;
+};
+
+&wdog1 {
+	bootph-pre-ram;
+};

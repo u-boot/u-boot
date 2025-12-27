@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:jammy-20251013
+FROM ubuntu:noble-20251013
 LABEL org.opencontainers.image.authors="Tom Rini <trini@konsulko.com>"
 LABEL org.opencontainers.image.description=" This image is for building U-Boot inside a container"
 
@@ -27,12 +27,10 @@ ENV TCVER=14.2.0
 
 RUN echo "Building on $BUILDPLATFORM, for target $TARGETPLATFORM"
 
-# Add LLVM repository
+# Add tools to fetch archives with
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y gnupg2 wget xz-utils
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main | tee /etc/apt/sources.list.d/llvm.list
+    apt-get update && apt-get install -y wget xz-utils
 
 # Create a list of URLs to process, then pass them into a 'while read' loop
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then HOSTARCH=x86_64; else HOSTARCH=arm64; fi; ( \
@@ -54,6 +52,10 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 		wget -O - https://github.com/foss-xtensa/toolchain/releases/download/2020.07/x86_64-2020.07-xtensa-dc233c-elf.tar.gz | tar -C /opt -xz; \
 	fi
 
+# Add LLVM repository
+RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
+RUN echo deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main | tee /etc/apt/sources.list.d/llvm.list
+
 # Update and install things from apt now
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -66,7 +68,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	build-essential \
 	byacc \
 	cgpt \
-	clang-18 \
+	clang-20 \
 	coreutils \
 	cpio \
 	curl \
@@ -93,6 +95,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	inetutils-telnet \
 	iputils-ping \
 	libconfuse-dev \
+	libengine-pkcs11-openssl \
 	libgit2-dev \
 	libjson-glib-dev \
 	libgnutls28-dev \
@@ -130,7 +133,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	python3-tomli \
 	python3-venv \
 	rpm2cpio \
+	rsync \
 	sbsigntool \
+	snmp \
 	socat \
 	softhsm2 \
 	sparse \
@@ -138,6 +143,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	sudo \
 	swig \
 	texinfo \
+	trace-cmd \
 	util-linux \
 	uuid-dev \
 	vboot-kernel-utils \
@@ -147,12 +153,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	zip
 
 # Build GRUB UEFI targets for ARM & RISC-V, 32-bit and 64-bit
-RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
+RUN git clone https://https.git.savannah.gnu.org/git/grub.git /tmp/grub && \
 	cd /tmp/grub && \
 	git checkout grub-2.12 && \
 	git config --global user.name "GitLab CI Runner" && \
 	git config --global user.email trini@konsulko.com && \
-	./bootstrap && \
+	GNULIB_URL=https://https.git.savannah.gnu.org/git/gnulib.git ./bootstrap && \
 	mkdir -p /opt/grub && \
 	./configure --target=aarch64 --with-platform=efi \
 	CC=gcc \
@@ -221,7 +227,7 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 
 RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	cd /tmp/qemu && \
-	git checkout v10.0.6 && \
+	git checkout v10.1.2 && \
 	# config user.name and user.email to make 'git am' happy
 	git config user.name u-boot && \
 	git config user.email u-boot@denx.de && \
@@ -275,6 +281,10 @@ RUN git clone --depth=1 https://git.trustedfirmware.org/TF-A/trusted-firmware-a.
 	mkdir -p /opt/tf-a/qemu_arm64_fw_handoff_tfa_optee && \
 	cp build/qemu/release/fip.bin build/qemu/release/bl1.bin \
 		/opt/tf-a/qemu_arm64_fw_handoff_tfa_optee/ && \
+	make CROSS_COMPILE=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux- \
+		PLAT=sun50i_a64 -j$(nproc) all && \
+	mkdir -p /opt/tf-a/pine64_plus && \
+	cp build/sun50i_a64/release/bl31.bin /opt/tf-a/pine64_plus/ && \
 	rm -rf /tmp/optee_os && \
 	rm -rf /tmp/mbedtls && \
 	rm -rf /tmp/tf-a
@@ -309,28 +319,10 @@ RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm && \
 	make install && \
 	rm -rf /tmp/swtpm
 
-# Build trace-cmd
-RUN mkdir /tmp/trace && \
-    git clone --depth=1 https://git.kernel.org/pub/scm/libs/libtrace/libtraceevent.git /tmp/trace/libtraceevent \
-	-b libtraceevent-1.8.6 && \
-    cd /tmp/trace/libtraceevent && \
-    make && \
-    sudo make install && \
-    git clone --depth=1 https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git /tmp/trace/libtracefs \
-	-b libtracefs-1.8.2 && \
-    cd /tmp/trace/libtracefs && \
-    make && \
-    sudo make install && \
-    git clone https://github.com/rostedt/trace-cmd.git /tmp/trace/trace-cmd && \
-    cd /tmp/trace/trace-cmd && \
-    make && \
-    sudo make install && \
-    rm -rf /tmp/trace
-
 # Build coreboot
 RUN wget -O - https://coreboot.org/releases/coreboot-25.03.tar.xz | tar -C /tmp -xJ && \
     cd /tmp/coreboot-25.03 && \
-    make crossgcc-i386 CPUS=$(nproc) && \
+    make BUILDGCC_OPTIONS="--mirror" crossgcc-i386 CPUS=$(nproc) && \
     make -C payloads/coreinfo olddefconfig && \
     make -C payloads/coreinfo && \
     make olddefconfig && \
@@ -362,7 +354,8 @@ RUN python3 -m venv /tmp/venv && \
 		-r /tmp/binman-requirements.txt \
 		-r /tmp/buildman-requirements.txt \
 		-r /tmp/patman-requirements.txt \
-		-r /tmp/u_boot_pylib-requirements.txt && \
+		-r /tmp/u_boot_pylib-requirements.txt \
+		setuptools pytest-azurepipelines && \
 	deactivate && \
 	rm -rf /tmp/venv /tmp/*-requirements.txt
 
@@ -380,4 +373,3 @@ RUN /bin/echo -e "\nx86 = i386" >> ~/.buildman;
 
 # Add mkbootimg tool
 RUN git clone https://android.googlesource.com/platform/system/tools/mkbootimg /home/uboot/mkbootimg
-ENV PYTHONPATH="${PYTHONPATH}:/home/uboot/mkbootimg"

@@ -1,10 +1,12 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  *
- * Copyright (C) 2013, 2014 TQ-Systems (ported SabreSD to TQMa6x)
- * Author: Markus Niebel <markus.niebel@tq-group.com>
+ * ported SabreSD to TQMa6x
+ * Copyright (c) 2013-2014 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+ * D-82229 Seefeld, Germany.
+ * Author: Markus Niebel
  *
  * Copyright (C) 2015 Stefan Roese <sr@denx.de>
  */
@@ -252,11 +254,6 @@ static void gpio_init(void)
 	ret = gpio_request(GPIO_UART3_PWRON, "uart3-pwr");
 	if (!ret)
 		gpio_direction_output(GPIO_UART3_PWRON, 0);
-}
-
-void tqma6_iomuxc_spi(void)
-{
-	/* No SPI on this baseboard */
 }
 
 int tqma6_bb_board_early_init_f(void)

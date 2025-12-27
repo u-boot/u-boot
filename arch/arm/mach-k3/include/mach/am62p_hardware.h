@@ -120,23 +120,6 @@ static inline int k3_get_max_temp(void)
 		return JTAG_DEV_TEMP_EXTENDED_VALUE;
 }
 
-static inline char k3_get_speed_grade(void)
-{
-	u32 dev_id = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
-	u32 speed_grade = (dev_id & JTAG_DEV_SPEED_MASK) >>
-			   JTAG_DEV_SPEED_SHIFT;
-
-	return 'A' - 1 + speed_grade;
-}
-
-static inline int k3_get_a53_max_frequency(void)
-{
-	if (k3_get_speed_grade() == 'O')
-		return 1000000000;
-	else
-		return 1250000000;
-}
-
 #if defined(CONFIG_SYS_K3_SPL_ATF) && !defined(__ASSEMBLY__)
 
 static const u32 put_device_ids[] = {};

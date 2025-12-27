@@ -29,7 +29,6 @@
 	"panel=NULL\0" \
 	"console=ttyLP0\0" \
 	"fdt_addr=0x83000000\0"			\
-	"fdt_high=0xffffffffffffffff\0"		\
 	"boot_fdt=try\0" \
 	"fdt_file=undefined\0" \
 	"initrd_addr=0x83800000\0"		\

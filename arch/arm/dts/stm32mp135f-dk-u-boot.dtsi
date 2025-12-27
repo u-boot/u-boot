@@ -11,8 +11,6 @@
 	};
 
 	config {
-		u-boot,boot-led = "led-blue";
-		u-boot,error-led = "led-red";
 		u-boot,mmc-env-partition = "u-boot-env";
 		st,adc_usb_pd = <&adc1 6>, <&adc1 12>;
 	};
@@ -33,10 +31,6 @@
 	leds {
 		led-blue {
 			/delete-property/default-state;
-		};
-
-		led-red {
-			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
 		};
 	};
 };

@@ -11,15 +11,13 @@
 
 #define EFI_INVALID_ATTR BIT(30)
 
-int efi_st_query_variable_common(struct efi_runtime_services *runtime,
-				 u32 attributes)
+int efi_st_query_variable_common(u32 attributes)
 {
 	efi_status_t ret;
 	u64 max_storage, rem_storage, max_size;
 
-	ret = runtime->query_variable_info(attributes,
-					   &max_storage, &rem_storage,
-					   &max_size);
+	ret = st_runtime->query_variable_info(attributes, &max_storage,
+					      &rem_storage, &max_size);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
@@ -28,58 +26,54 @@ int efi_st_query_variable_common(struct efi_runtime_services *runtime,
 		return EFI_ST_FAILURE;
 	}
 
-	ret = runtime->query_variable_info(EFI_VARIABLE_RUNTIME_ACCESS,
-					   &max_storage, &rem_storage,
-					   &max_size);
+	ret = st_runtime->query_variable_info(EFI_VARIABLE_RUNTIME_ACCESS,
+					      &max_storage, &rem_storage,
+					      &max_size);
 	if (ret != EFI_INVALID_PARAMETER) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
 	}
 
-	ret = runtime->query_variable_info(attributes,
-					   NULL, &rem_storage,
-					   &max_size);
+	ret = st_runtime->query_variable_info(attributes, NULL, &rem_storage,
+					      &max_size);
 	if (ret != EFI_INVALID_PARAMETER) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
 	}
 
-	ret = runtime->query_variable_info(attributes,
-					   &max_storage, NULL,
-					   &max_size);
+	ret = st_runtime->query_variable_info(attributes, &max_storage, NULL,
+					      &max_size);
 	if (ret != EFI_INVALID_PARAMETER) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
 	}
 
-	ret = runtime->query_variable_info(attributes,
-					   &max_storage, &rem_storage,
-					   NULL);
+	ret = st_runtime->query_variable_info(attributes, &max_storage,
+					      &rem_storage, NULL);
 	if (ret != EFI_INVALID_PARAMETER) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
 	}
 
-	ret = runtime->query_variable_info(0, &max_storage, &rem_storage,
-					   &max_size);
+	ret = st_runtime->query_variable_info(0, &max_storage, &rem_storage,
+					      &max_size);
 	if (ret != EFI_INVALID_PARAMETER) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
 	}
 
-	ret = runtime->query_variable_info(attributes |
-					   EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS |
-					   EFI_VARIABLE_NON_VOLATILE,
-					   &max_storage, &rem_storage,
-					   &max_size);
+	ret = st_runtime->query_variable_info(
+		attributes | EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS |
+			EFI_VARIABLE_NON_VOLATILE,
+		&max_storage, &rem_storage, &max_size);
 	if (ret != EFI_UNSUPPORTED) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
 	}
 
-	ret = runtime->query_variable_info(EFI_VARIABLE_NON_VOLATILE,
-					   &max_storage, &rem_storage,
-					   &max_size);
+	ret = st_runtime->query_variable_info(EFI_VARIABLE_NON_VOLATILE,
+					      &max_storage, &rem_storage,
+					      &max_size);
 	if (ret != EFI_INVALID_PARAMETER) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
@@ -89,10 +83,9 @@ int efi_st_query_variable_common(struct efi_runtime_services *runtime,
 	 * Use a mix existing/non-existing attribute bits from the
 	 * UEFI spec
 	 */
-	ret = runtime->query_variable_info(attributes | EFI_INVALID_ATTR |
-					   EFI_VARIABLE_NON_VOLATILE,
-					   &max_storage, &rem_storage,
-					   &max_size);
+	ret = st_runtime->query_variable_info(
+		attributes | EFI_INVALID_ATTR | EFI_VARIABLE_NON_VOLATILE,
+		&max_storage, &rem_storage, &max_size);
 	if (ret != EFI_INVALID_PARAMETER) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;

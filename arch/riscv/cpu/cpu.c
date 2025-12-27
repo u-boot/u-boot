@@ -463,7 +463,7 @@ static void riscv_parse_isa_string(const char *isa)
 		switch (*ext) {
 		case 'x':
 		case 'X':
-			log_warning("Vendor extensions are ignored in riscv,isa. Use riscv,isa-extensions instead.");
+			log_warning("Vendor extensions are ignored in riscv,isa. Use riscv,isa-extensions instead.\n");
 			/*
 			 * To skip an extension, we find its end.
 			 * As multi-letter extensions must be split from other multi-letter

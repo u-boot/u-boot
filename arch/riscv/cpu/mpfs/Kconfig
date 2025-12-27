@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: GPL-2.0+
+
+config MICROCHIP_MPFS
+	bool
+	select ARCH_EARLY_INIT_R
+	imply CPU
+	imply CPU_RISCV
+	imply RISCV_TIMER if (RISCV_SMODE || SPL_RISCV_SMODE)
+	imply SIFIVE_CLINT if RISCV_MMODE
+	imply SPL_SIFIVE_CLINT if SPL_RISCV_MMODE
+	imply CMD_CPU
+	imply SPL_CPU
+	imply SPL_OPENSBI
+	imply SPL_LOAD_FIT
+	imply REGMAP
+	imply SYSCON
+	imply CLK_CCF
+	imply CLK_MPFS
+	imply SYS_NS16550
+	imply MACB
+	imply MII
+	imply CMD_I2C
+	imply DM_I2C
+	imply SYS_I2C_MICROCHIP
+	imply MMC
+	imply MMC_WRITE
+	imply MMC_SDHCI
+	imply MMC_SDHCI_CADENCE
+	imply MMC_SDHCI_ADMA
+	imply MMC_HS200_SUPPORT
+	imply SPI
+	imply DM_SPI
+	imply MICROCHIP_QSPI
