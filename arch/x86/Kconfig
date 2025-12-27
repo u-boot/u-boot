@@ -133,9 +133,6 @@ source "arch/x86/cpu/tangier/Kconfig"
 config AHCI
 	default y
 
-config SYS_MALLOC_F_LEN
-	default 0x800
-
 config RAMBASE
 	hex
 	default 0x100000
