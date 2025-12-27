@@ -91,6 +91,7 @@ config MMC_SPI_CRC_ON
 	bool "Support CRC for SPI-based MMC controller"
 	depends on MMC_SPI
 	default y
+	select CRC16
 	help
 	  This enables CRC for SPI-based MMC controllers.
 
