@@ -51,6 +51,7 @@ config DM_NAND_ATMEL
 	bool "Support Atmel NAND controller with DM support"
 	depends on ARCH_AT91
 	select ATMEL_EBI
+	select DEVRES
 	select SYS_NAND_SELF_INIT
 	imply SYS_NAND_USE_FLASH_BBT
 	help
@@ -74,6 +75,7 @@ config ATMEL_NAND_HWECC
 config ATMEL_NAND_HW_PMECC
 	bool "Atmel Programmable Multibit ECC (PMECC)"
 	select ATMEL_NAND_HWECC
+	select DEVRES
 	help
 	  The Programmable Multibit ECC (PMECC) controller is a programmable
 	  binary BCH(Bose, Chaudhuri and Hocquenghem) encoder and decoder.
@@ -118,6 +120,7 @@ config NAND_BRCMNAND
 	bool "Support Broadcom NAND controller"
 	depends on OF_CONTROL && DM && DM_MTD
 	depends on ARCH_BCMBCA || ARCH_BMIPS || TARGET_BCMNS || TARGET_BCMNS3
+	select DEVRES
 	select SYS_NAND_SELF_INIT
 	help
 	  Enable the driver for NAND flash on platforms using a Broadcom NAND
@@ -197,6 +200,7 @@ config SPL_NAND_LOAD
 config NAND_CADENCE
 	bool "Support Cadence NAND controller as a DT device"
 	depends on OF_CONTROL && DM_MTD && ARCH_SOCFPGA
+	select DEVRES
 	select SYS_NAND_SELF_INIT
 	select SPL_SYS_NAND_SELF_INIT
 	select SPL_NAND_BASE
@@ -211,6 +215,7 @@ config NAND_CADENCE
 
 config NAND_DENALI
 	bool
+	select DEVRES
 	select SYS_NAND_SELF_INIT
 	select SYS_NAND_ONFI_DETECTION if TARGET_SOCFPGA_SOC64
 	imply CMD_NAND

@@ -5,6 +5,7 @@ if ARCH_K3
 config TI_K3_NAVSS_UDMA
         bool "Texas Instruments UDMA"
         depends on ARCH_K3
+        select DEVRES
         select DMA
         select TI_K3_NAVSS_RINGACC
         select TI_K3_NAVSS_PSILCFG

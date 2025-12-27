@@ -1,6 +1,7 @@
 menuconfig MTD_SPI_NAND
 	bool "SPI NAND device Support"
 	depends on DM_MTD && DM_SPI
+	select DEVRES
 	select MTD_NAND_CORE
 	select SPI_MEM
 	help

@@ -294,6 +294,7 @@ config PINCTRL_SANDBOX
 config PINCTRL_SINGLE
 	bool "Single register pin-control and pin-multiplex driver"
 	depends on DM
+	select DEVRES
 	help
 	  This enables pinctrl driver for systems using a single register for
 	  pin configuration and multiplexing. TI's AM335X SoCs are examples of

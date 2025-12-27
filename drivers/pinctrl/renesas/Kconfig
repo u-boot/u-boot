@@ -166,6 +166,7 @@ config PINCTRL_RZG2L
 	depends on PINCTRL
 	depends on PINCTRL_GENERIC
 	depends on PINCONF
+	select DEVRES
 	help
 	  Support the pinctrl functionality of the pin function controller (PFC)
 	  on the Renesas RZ/G2L SoC family.

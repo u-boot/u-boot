@@ -31,6 +31,7 @@ config IMX_MU_MBOX
 config MPFS_MBOX
 	bool "Enable MPFS system controller support"
 	depends on DM_MAILBOX && ARCH_RV64I
+	select DEVRES
 	help
 	  Enable support for the mailboxes that provide a communication
 	  channel with the system controller integrated on PolarFire SoC.

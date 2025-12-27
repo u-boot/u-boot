@@ -9,6 +9,7 @@ config PINCTRL_ARMADA_38X
 
 config PINCTRL_ARMADA_37XX
 	depends on ARMADA_3700 && PINCTRL_FULL
+	select DEVRES
 	bool "Armada 37xx pin control driver"
 	help
 	   Support pin multiplexing and pin configuration control on

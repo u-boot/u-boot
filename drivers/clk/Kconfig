@@ -3,6 +3,7 @@ menu "Clock"
 config CLK
 	bool "Enable clock driver support"
 	depends on DM
+	select DEVRES
 	help
 	  This allows drivers to be provided for clock generators, including
 	  oscillators and PLLs. Devices can use a common clock API to request

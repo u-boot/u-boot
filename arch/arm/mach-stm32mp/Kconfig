@@ -170,6 +170,7 @@ config STM32_ECDSA_VERIFY
 
 config STM32MP_TAMP_NVMEM
 	bool "STM32 TAMP backup registers via NVMEM API"
+	select DEVRES
 	select NVMEM
 	default y
 	help
