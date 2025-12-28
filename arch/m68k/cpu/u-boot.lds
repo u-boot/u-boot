@@ -69,27 +69,28 @@ SECTIONS
 	__ex_table : { *(__ex_table) }
 	__stop___ex_table = .;
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 	__init_begin = .;
 	.text.init : { *(.text.init) }
 	.data.init : { *(.data.init) }
-	. = ALIGN(4);
+	. = ALIGN(8);
 	__init_end = .;
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 	__rel_dyn_start = .;
 	.rela.dyn : {
 		*(.rela.dyn)
 	}
 	__rel_dyn_end = .;
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 	__dyn_sym_start = .;
 	.dynsym : {
 		*(.dynsym)
 	}
 	__dyn_sym_end = .;
 
+	. = ALIGN(8);
 	_end = .;
 
 	__bss_start = .;
@@ -99,7 +100,7 @@ SECTIONS
 		*(.bss*)
 		*(.sbss*)
 		*(COMMON)
-		. = ALIGN(4);
+		. = ALIGN(8);
 		_ebss = .;
 	}
 	__bss_end = . ;
