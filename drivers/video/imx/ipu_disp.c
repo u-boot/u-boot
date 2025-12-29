@@ -399,13 +399,12 @@ static void ipu_dp_csc_setup(int dp, struct dp_csc_param_t dp_csc_param,
 	}
 }
 
-int ipu_dp_init(ipu_channel_t channel, uint32_t in_pixel_fmt,
-		uint32_t out_pixel_fmt)
+int ipu_dp_init(ipu_channel_t channel, u32 in_pixel_fmt, u32 out_pixel_fmt)
 {
 	int in_fmt, out_fmt;
 	int dp;
 	int partial = 0;
-	uint32_t reg;
+	u32 reg;
 
 	if (channel == MEM_FG_SYNC) {
 		dp = DP_SYNC;
@@ -454,8 +453,7 @@ int ipu_dp_init(ipu_channel_t channel, uint32_t in_pixel_fmt,
 	     ((fg_csc_type == YUV2RGB) && (bg_csc_type == YUV2RGB)))) {
 		int red, green, blue;
 		int y, u, v;
-		uint32_t color_key = __raw_readl(DP_GRAPH_WIND_CTRL()) &
-				     0xFFFFFFL;
+		u32 color_key = __raw_readl(DP_GRAPH_WIND_CTRL()) & 0xFFFFFFL;
 
 		debug("_ipu_dp_init color key 0x%x need change to yuv fmt!\n",
 		      color_key);
@@ -584,8 +582,8 @@ void ipu_dc_uninit(int dc_chan)
 void ipu_dp_dc_enable(ipu_channel_t channel)
 {
 	int di;
-	uint32_t reg;
-	uint32_t dc_chan;
+	u32 reg;
+	u32 dc_chan;
 
 	if (channel == MEM_DC_SYNC)
 		dc_chan = 1;
@@ -625,9 +623,9 @@ static unsigned char dc_swap;
 
 void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap)
 {
-	uint32_t reg;
-	uint32_t csc;
-	uint32_t dc_chan = 0;
+	u32 reg;
+	u32 csc;
+	u32 dc_chan = 0;
 	int timeout = 50;
 	int irq = 0;
 
@@ -745,7 +743,7 @@ void ipu_init_dc_mappings(void)
 	ipu_dc_map_config(4, 2, 21, 0xFC);
 }
 
-static int ipu_pixfmt_to_map(uint32_t fmt)
+static int ipu_pixfmt_to_map(u32 fmt)
 {
 	switch (fmt) {
 	case IPU_PIX_FMT_GENERIC:
@@ -801,17 +799,16 @@ static int ipu_pixfmt_to_map(uint32_t fmt)
  *		fail.
  */
 
-int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk, uint16_t width,
-			    uint16_t height, uint32_t pixel_fmt,
-			    uint16_t h_start_width, uint16_t h_sync_width,
-			    uint16_t h_end_width, uint16_t v_start_width,
-			    uint16_t v_sync_width, uint16_t v_end_width,
-			    uint32_t v_to_h_sync, ipu_di_signal_cfg_t sig)
+int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
+			    u32 pixel_fmt, u16 h_start_width, u16 h_sync_width,
+			    u16 h_end_width, u16 v_start_width,
+			    u16 v_sync_width, u16 v_end_width, u32 v_to_h_sync,
+			    ipu_di_signal_cfg_t sig)
 {
-	uint32_t reg;
-	uint32_t di_gen, vsync_cnt;
-	uint32_t div, rounded_pixel_clk;
-	uint32_t h_total, v_total;
+	u32 reg;
+	u32 di_gen, vsync_cnt;
+	u32 div, rounded_pixel_clk;
+	u32 h_total, v_total;
 	int map;
 	struct clk *di_parent;
 
@@ -1135,9 +1132,9 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk, uint16_t width,
  * Return:	Returns 0 on success or negative error code on fail
  */
 int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
-				  uint8_t alpha)
+				  u8 alpha)
 {
-	uint32_t reg;
+	u32 reg;
 
 	unsigned char bg_chan;
 
@@ -1162,8 +1159,7 @@ int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
 
 	if (enable) {
 		reg = __raw_readl(DP_GRAPH_WIND_CTRL()) & 0x00FFFFFFL;
-		__raw_writel(reg | ((uint32_t)alpha << 24),
-			     DP_GRAPH_WIND_CTRL());
+		__raw_writel(reg | ((u32)alpha << 24), DP_GRAPH_WIND_CTRL());
 
 		reg = __raw_readl(DP_COM_CONF());
 		__raw_writel(reg | DP_COM_CONF_GWAM, DP_COM_CONF());
@@ -1190,9 +1186,9 @@ int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
  * Return:	Returns 0 on success or negative error code on fail
  */
 int32_t ipu_disp_set_color_key(ipu_channel_t channel, unsigned char enable,
-			       uint32_t color_key)
+			       u32 color_key)
 {
-	uint32_t reg;
+	u32 reg;
 	int y, u, v;
 	int red, green, blue;
 

@@ -37,8 +37,8 @@ static int mxcfb_map_video_memory(struct fb_info *fbi);
 static int mxcfb_unmap_video_memory(struct fb_info *fbi);
 
 static struct fb_videomode const *gmode;
-static uint8_t gdisp;
-static uint32_t gpixfmt;
+static u8 gdisp;
+static u32 gpixfmt;
 
 static void fb_videomode_to_var(struct fb_var_screeninfo *var,
 				const struct fb_videomode *mode)
@@ -75,9 +75,9 @@ struct mxcfb_info {
 	dma_addr_t alpha_phy_addr1;
 	void *alpha_virt_addr0;
 	void *alpha_virt_addr1;
-	uint32_t alpha_mem_len;
-	uint32_t cur_ipu_buf;
-	uint32_t cur_ipu_alpha_buf;
+	u32 alpha_mem_len;
+	u32 cur_ipu_buf;
+	u32 cur_ipu_alpha_buf;
 
 	u32 pseudo_palette[16];
 };
@@ -89,9 +89,9 @@ static unsigned char g_dp_in_use;
 static struct fb_info *mxcfb_info[3];
 static int ext_clk_used;
 
-static uint32_t bpp_to_pixfmt(struct fb_info *fbi)
+static u32 bpp_to_pixfmt(struct fb_info *fbi)
 {
-	uint32_t pixfmt = 0;
+	u32 pixfmt = 0;
 
 	debug("bpp_to_pixfmt: %d\n", fbi->var.bits_per_pixel);
 
@@ -180,7 +180,7 @@ static int mxcfb_set_par(struct fb_info *fbi)
 	u32 mem_len;
 	ipu_di_signal_cfg_t sig_cfg;
 	struct mxcfb_info *mxc_fbi = (struct mxcfb_info *)fbi->par;
-	uint32_t out_pixel_fmt;
+	u32 out_pixel_fmt;
 
 	ipu_disable_channel(mxc_fbi->ipu_ch);
 	ipu_uninit_channel(mxc_fbi->ipu_ch);
@@ -378,7 +378,7 @@ static int mxcfb_map_video_memory(struct fb_info *fbi)
 	}
 
 	debug("allocated fb @ paddr=0x%08X, size=%d.\n",
-	      (uint32_t)fbi->fix.smem_start, fbi->fix.smem_len);
+	      (u32)fbi->fix.smem_start, fbi->fix.smem_len);
 
 	fbi->screen_size = fbi->fix.smem_len;
 
@@ -451,7 +451,7 @@ extern struct clk *g_ipu_clk;
  *
  * Return:	Appropriate error code to the kernel common code
  */
-static int mxcfb_probe(struct udevice *dev, u32 interface_pix_fmt, uint8_t disp,
+static int mxcfb_probe(struct udevice *dev, u32 interface_pix_fmt, u8 disp,
 		       struct fb_videomode const *mode)
 {
 	struct fb_info *fbi;
@@ -536,8 +536,7 @@ void ipuv3_fb_shutdown(void)
 	}
 }
 
-int ipuv3_fb_init(struct fb_videomode const *mode, uint8_t disp,
-		  uint32_t pixfmt)
+int ipuv3_fb_init(struct fb_videomode const *mode, u8 disp, u32 pixfmt)
 {
 	gmode = mode;
 	gdisp = disp;

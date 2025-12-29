@@ -83,10 +83,10 @@ typedef enum {
 #define _MAKE_ALT_CHAN(ch) (ch | (IPU_MAX_CH << 24))
 #define IPU_CHAN_ID(ch) (ch >> 24)
 #define IPU_CHAN_ALT(ch) (ch & 0x02000000)
-#define IPU_CHAN_ALPHA_IN_DMA(ch) ((uint32_t)(ch >> 6) & 0x3F)
-#define IPU_CHAN_GRAPH_IN_DMA(ch) ((uint32_t)(ch >> 12) & 0x3F)
-#define IPU_CHAN_VIDEO_IN_DMA(ch) ((uint32_t)(ch >> 18) & 0x3F)
-#define IPU_CHAN_OUT_DMA(ch) ((uint32_t)(ch & 0x3F))
+#define IPU_CHAN_ALPHA_IN_DMA(ch) ((u32)(ch >> 6) & 0x3F)
+#define IPU_CHAN_GRAPH_IN_DMA(ch) ((u32)(ch >> 12) & 0x3F)
+#define IPU_CHAN_VIDEO_IN_DMA(ch) ((u32)(ch >> 18) & 0x3F)
+#define IPU_CHAN_OUT_DMA(ch) ((u32)(ch & 0x3F))
 #define NO_DMA 0x3F
 #define ALT 1
 
@@ -148,27 +148,27 @@ enum ipu_dmfc_type {
  */
 typedef union {
 	struct {
-		uint32_t di;
+		u32 di;
 		unsigned char interlaced;
 	} mem_dc_sync;
 	struct {
-		uint32_t temp;
+		u32 temp;
 	} mem_sdc_fg;
 	struct {
-		uint32_t di;
+		u32 di;
 		unsigned char interlaced;
-		uint32_t in_pixel_fmt;
-		uint32_t out_pixel_fmt;
+		u32 in_pixel_fmt;
+		u32 out_pixel_fmt;
 		unsigned char alpha_chan_en;
 	} mem_dp_bg_sync;
 	struct {
-		uint32_t temp;
+		u32 temp;
 	} mem_sdc_bg;
 	struct {
-		uint32_t di;
+		u32 di;
 		unsigned char interlaced;
-		uint32_t in_pixel_fmt;
-		uint32_t out_pixel_fmt;
+		u32 in_pixel_fmt;
+		u32 out_pixel_fmt;
 		unsigned char alpha_chan_en;
 	} mem_dp_fg_sync;
 } ipu_channel_params_t;
@@ -205,29 +205,28 @@ int32_t ipu_init_channel(ipu_channel_t channel, ipu_channel_params_t *params);
 void ipu_uninit_channel(ipu_channel_t channel);
 
 int32_t ipu_init_channel_buffer(ipu_channel_t channel, ipu_buffer_t type,
-				uint32_t pixel_fmt, uint16_t width,
-				uint16_t height, uint32_t stride,
-				dma_addr_t phyaddr_0, dma_addr_t phyaddr_1,
-				uint32_t u_offset, uint32_t v_offset);
+				u32 pixel_fmt, u16 width, u16 height,
+				u32 stride, dma_addr_t phyaddr_0,
+				dma_addr_t phyaddr_1, u32 u_offset,
+				u32 v_offset);
 
 void ipu_clear_buffer_ready(ipu_channel_t channel, ipu_buffer_t type,
-			    uint32_t bufNum);
+			    u32 bufNum);
 int32_t ipu_enable_channel(ipu_channel_t channel);
 int32_t ipu_disable_channel(ipu_channel_t channel);
 
-int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk, uint16_t width,
-			    uint16_t height, uint32_t pixel_fmt,
-			    uint16_t h_start_width, uint16_t h_sync_width,
-			    uint16_t h_end_width, uint16_t v_start_width,
-			    uint16_t v_sync_width, uint16_t v_end_width,
-			    uint32_t v_to_h_sync, ipu_di_signal_cfg_t sig);
+int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
+			    u32 pixel_fmt, u16 h_start_width, u16 h_sync_width,
+			    u16 h_end_width, u16 v_start_width,
+			    u16 v_sync_width, u16 v_end_width, u32 v_to_h_sync,
+			    ipu_di_signal_cfg_t sig);
 
 int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
-				  uint8_t alpha);
+				  u8 alpha);
 int32_t ipu_disp_set_color_key(ipu_channel_t channel, unsigned char enable,
-			       uint32_t colorKey);
+			       u32 colorKey);
 
-uint32_t bytes_per_pixel(uint32_t fmt);
+u32 bytes_per_pixel(u32 fmt);
 
 void clk_enable(struct clk *clk);
 void clk_disable(struct clk *clk);
@@ -248,9 +247,8 @@ void ipu_dmfc_set_wait4eot(int dma_chan, int width);
 void ipu_dc_init(int dc_chan, int di, unsigned char interlaced);
 void ipu_dc_uninit(int dc_chan);
 void ipu_dp_dc_enable(ipu_channel_t channel);
-int ipu_dp_init(ipu_channel_t channel, uint32_t in_pixel_fmt,
-		uint32_t out_pixel_fmt);
+int ipu_dp_init(ipu_channel_t channel, u32 in_pixel_fmt, u32 out_pixel_fmt);
 void ipu_dp_uninit(ipu_channel_t channel);
 void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap);
-ipu_color_space_t format_to_colorspace(uint32_t fmt);
+ipu_color_space_t format_to_colorspace(u32 fmt);
 #endif

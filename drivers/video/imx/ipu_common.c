@@ -29,8 +29,8 @@ extern struct mxc_ccm_reg *mxc_ccm;
 extern u32 *ipu_cpmem_base;
 
 struct ipu_ch_param_word {
-	uint32_t data[5];
-	uint32_t res[3];
+	u32 data[5];
+	u32 res[3];
 };
 
 struct ipu_ch_param {
@@ -239,8 +239,8 @@ unsigned char g_ipu_clk_enabled;
 struct clk *g_di_clk[2];
 struct clk *g_pixel_clk[2];
 unsigned char g_dc_di_assignment[10];
-uint32_t g_channel_init_mask;
-uint32_t g_channel_enable_mask;
+u32 g_channel_init_mask;
+u32 g_channel_enable_mask;
 
 static int ipu_dc_use_count;
 static int ipu_dp_use_count;
@@ -252,28 +252,28 @@ u32 *ipu_dc_tmpl_reg;
 
 /* Static functions */
 
-static inline void ipu_ch_param_set_high_priority(uint32_t ch)
+static inline void ipu_ch_param_set_high_priority(u32 ch)
 {
 	ipu_ch_param_mod_field(ipu_ch_param_addr(ch), 1, 93, 2, 1);
 };
 
-static inline uint32_t channel_2_dma(ipu_channel_t ch, ipu_buffer_t type)
+static inline u32 channel_2_dma(ipu_channel_t ch, ipu_buffer_t type)
 {
-	return ((uint32_t)ch >> (6 * type)) & 0x3F;
+	return ((u32)ch >> (6 * type)) & 0x3F;
 };
 
 /* Either DP BG or DP FG can be graphic window */
-static inline int ipu_is_dp_graphic_chan(uint32_t dma_chan)
+static inline int ipu_is_dp_graphic_chan(u32 dma_chan)
 {
 	return (dma_chan == 23 || dma_chan == 27);
 }
 
-static inline int ipu_is_dmfc_chan(uint32_t dma_chan)
+static inline int ipu_is_dmfc_chan(u32 dma_chan)
 {
 	return ((dma_chan >= 23) && (dma_chan <= 29));
 }
 
-static inline void ipu_ch_param_set_buffer(uint32_t ch, int bufNum,
+static inline void ipu_ch_param_set_buffer(u32 ch, int bufNum,
 					   dma_addr_t phyaddr)
 {
 	ipu_ch_param_mod_field(ipu_ch_param_addr(ch), 1, 29 * bufNum, 29,
@@ -565,7 +565,7 @@ void ipu_dump_registers(void)
 int32_t ipu_init_channel(ipu_channel_t channel, ipu_channel_params_t *params)
 {
 	int ret = 0;
-	uint32_t ipu_conf;
+	u32 ipu_conf;
 
 	debug("init channel = %d\n", IPU_CHAN_ID(channel));
 
@@ -650,9 +650,9 @@ err:
  */
 void ipu_uninit_channel(ipu_channel_t channel)
 {
-	uint32_t reg;
-	uint32_t in_dma, out_dma = 0;
-	uint32_t ipu_conf;
+	u32 reg;
+	u32 in_dma, out_dma = 0;
+	u32 ipu_conf;
 
 	if ((g_channel_init_mask & (1L << IPU_CHAN_ID(channel))) == 0) {
 		debug("Channel already uninitialized %d\n",
@@ -791,13 +791,12 @@ static inline void ipu_ch_params_set_packing(struct ipu_ch_param *p,
 	ipu_ch_param_set_field(p, 1, 143, 5, alpha_offset);
 }
 
-static void ipu_ch_param_init(int ch, uint32_t pixel_fmt, uint32_t width,
-			      uint32_t height, uint32_t stride, uint32_t u,
-			      uint32_t v, uint32_t uv_stride, dma_addr_t addr0,
-			      dma_addr_t addr1)
+static void ipu_ch_param_init(int ch, u32 pixel_fmt, u32 width, u32 height,
+			      u32 stride, u32 u, u32 v, u32 uv_stride,
+			      dma_addr_t addr0, dma_addr_t addr1)
 {
-	uint32_t u_offset = 0;
-	uint32_t v_offset = 0;
+	u32 u_offset = 0;
+	u32 v_offset = 0;
 	struct ipu_ch_param params;
 
 	memset(&params, 0, sizeof(params));
@@ -985,13 +984,12 @@ static void ipu_ch_param_init(int ch, uint32_t pixel_fmt, uint32_t width,
  * Return:	Returns 0 on success or negative error code on fail
  */
 int32_t ipu_init_channel_buffer(ipu_channel_t channel, ipu_buffer_t type,
-				uint32_t pixel_fmt, uint16_t width,
-				uint16_t height, uint32_t stride,
-				dma_addr_t phyaddr_0, dma_addr_t phyaddr_1,
-				uint32_t u, uint32_t v)
+				u32 pixel_fmt, u16 width, u16 height,
+				u32 stride, dma_addr_t phyaddr_0,
+				dma_addr_t phyaddr_1, u32 u, u32 v)
 {
-	uint32_t reg;
-	uint32_t dma_chan;
+	u32 reg;
+	u32 dma_chan;
 
 	dma_chan = channel_2_dma(channel, type);
 	if (!idma_is_valid(dma_chan))
@@ -1039,9 +1037,9 @@ int32_t ipu_init_channel_buffer(ipu_channel_t channel, ipu_buffer_t type,
  */
 int32_t ipu_enable_channel(ipu_channel_t channel)
 {
-	uint32_t reg;
-	uint32_t in_dma;
-	uint32_t out_dma;
+	u32 reg;
+	u32 in_dma;
+	u32 out_dma;
 
 	if (g_channel_enable_mask & (1L << IPU_CHAN_ID(channel))) {
 		printf("Warning: channel already enabled %d\n",
@@ -1082,9 +1080,9 @@ int32_t ipu_enable_channel(ipu_channel_t channel)
  *
  */
 void ipu_clear_buffer_ready(ipu_channel_t channel, ipu_buffer_t type,
-			    uint32_t bufNum)
+			    u32 bufNum)
 {
-	uint32_t dma_ch = channel_2_dma(channel, type);
+	u32 dma_ch = channel_2_dma(channel, type);
 
 	if (!idma_is_valid(dma_ch))
 		return;
@@ -1114,9 +1112,9 @@ void ipu_clear_buffer_ready(ipu_channel_t channel, ipu_buffer_t type,
  */
 int32_t ipu_disable_channel(ipu_channel_t channel)
 {
-	uint32_t reg;
-	uint32_t in_dma;
-	uint32_t out_dma;
+	u32 reg;
+	u32 in_dma;
+	u32 out_dma;
 
 	if ((g_channel_enable_mask & (1L << IPU_CHAN_ID(channel))) == 0) {
 		debug("Channel already disabled %d\n", IPU_CHAN_ID(channel));
@@ -1163,7 +1161,7 @@ int32_t ipu_disable_channel(ipu_channel_t channel)
 	return 0;
 }
 
-uint32_t bytes_per_pixel(uint32_t fmt)
+u32 bytes_per_pixel(u32 fmt)
 {
 	switch (fmt) {
 	case IPU_PIX_FMT_GENERIC: /*generic data */
@@ -1196,7 +1194,7 @@ uint32_t bytes_per_pixel(uint32_t fmt)
 	return 0;
 }
 
-ipu_color_space_t format_to_colorspace(uint32_t fmt)
+ipu_color_space_t format_to_colorspace(u32 fmt)
 {
 	switch (fmt) {
 	case IPU_PIX_FMT_RGB666:
