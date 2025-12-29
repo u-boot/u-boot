@@ -1,5 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Code fixes:
+ *
+ * (C) Copyright 2025
+ * Brian Ruley, GE HealthCare, brian.ruley@gehealthcare.com
+ *
  * Porting to u-boot:
  *
  * (C) Copyright 2010
@@ -9,8 +14,6 @@
  *
  * (C) Copyright 2005-2010 Freescale Semiconductor, Inc.
  */
-
-/* #define DEBUG */
 
 #include "ipu.h"
 #include "ipu_regs.h"
@@ -39,14 +42,6 @@ struct dp_csc_param_t {
 int dmfc_type_setup;
 static int dmfc_size_28, dmfc_size_29, dmfc_size_24, dmfc_size_27, dmfc_size_23;
 int g_di1_tvout;
-
-extern struct clk *g_ipu_clk;
-extern struct clk *g_ldb_clk;
-extern struct clk *g_di_clk[2];
-extern struct clk *g_pixel_clk[2];
-
-extern unsigned char g_ipu_clk_enabled;
-extern unsigned char g_dc_di_assignment[];
 
 void ipu_dmfc_init(int dmfc_type, int first)
 {
@@ -579,7 +574,7 @@ void ipu_dc_uninit(int dc_chan)
 	}
 }
 
-void ipu_dp_dc_enable(ipu_channel_t channel)
+void ipu_dp_dc_enable(struct ipu_ctx *ctx, ipu_channel_t channel)
 {
 	int di;
 	u32 reg;
@@ -602,7 +597,7 @@ void ipu_dp_dc_enable(ipu_channel_t channel)
 		return;
 	}
 
-	di = g_dc_di_assignment[dc_chan];
+	di = ctx->dc_di_assignment[dc_chan];
 
 	/* Make sure other DC sync channel is not assigned same DI */
 	reg = __raw_readl(DC_WR_CH_CONF(6 - dc_chan));
@@ -616,12 +611,13 @@ void ipu_dp_dc_enable(ipu_channel_t channel)
 	reg |= 4 << DC_WR_CH_CONF_PROG_TYPE_OFFSET;
 	__raw_writel(reg, DC_WR_CH_CONF(dc_chan));
 
-	clk_enable(g_pixel_clk[di]);
+	clk_enable(ctx->pixel_clk[di]);
 }
 
 static unsigned char dc_swap;
 
-void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap)
+void ipu_dp_dc_disable(struct ipu_ctx *ctx, ipu_channel_t channel,
+		       unsigned char swap)
 {
 	u32 reg;
 	u32 csc;
@@ -658,7 +654,7 @@ void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap)
 		 * Wait for DC triple buffer to empty,
 		 * this check is useful for tv overlay.
 		 */
-		if (g_dc_di_assignment[dc_chan] == 0)
+		if (ctx->dc_di_assignment[dc_chan] == 0)
 			while ((__raw_readl(DC_STAT) & 0x00000002) !=
 			       0x00000002) {
 				udelay(2000);
@@ -666,7 +662,7 @@ void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap)
 				if (timeout <= 0)
 					break;
 			}
-		else if (g_dc_di_assignment[dc_chan] == 1)
+		else if (ctx->dc_di_assignment[dc_chan] == 1)
 			while ((__raw_readl(DC_STAT) & 0x00000020) !=
 			       0x00000020) {
 				udelay(2000);
@@ -698,7 +694,7 @@ void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap)
 		__raw_writel(reg, DC_WR_CH_CONF(dc_chan));
 
 		reg = __raw_readl(IPU_DISP_GEN);
-		if (g_dc_di_assignment[dc_chan])
+		if (ctx->dc_di_assignment[dc_chan])
 			reg &= ~DI1_COUNTER_RELEASE;
 		else
 			reg &= ~DI0_COUNTER_RELEASE;
@@ -706,7 +702,7 @@ void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap)
 
 		/* Clock is already off because it must be done quickly, but
 		   we need to fix the ref count */
-		clk_disable(g_pixel_clk[g_dc_di_assignment[dc_chan]]);
+		clk_disable(ctx->pixel_clk[ctx->dc_di_assignment[dc_chan]]);
 	}
 }
 
@@ -765,46 +761,18 @@ static int ipu_pixfmt_to_map(u32 fmt)
 /*
  * This function is called to initialize a synchronous LCD panel.
  *
- * @param	disp		The DI the panel is attached to.
+ * @param	di	Pointer to display data.
  *
- * @param	pixel_clk	Desired pixel clock frequency in Hz.
- *
- * @param	pixel_fmt	Input parameter for pixel format of buffer.
- *				Pixel format is a FOURCC ASCII code.
- *
- * @param	width		The width of panel in pixels.
- *
- * @param	height		The height of panel in pixels.
- *
- * @param	hStartWidth	The number of pixel clocks between the HSYNC
- *				signal pulse and the start of valid data.
- *
- * @param	hSyncWidth	The width of the HSYNC signal in units of pixel
- *				clocks.
- *
- * @param	hEndWidth	The number of pixel clocks between the end of
- *				valid data and the HSYNC signal for next line.
- *
- * @param	vStartWidth	The number of lines between the VSYNC
- *				signal pulse and the start of valid data.
- *
- * @param	vSyncWidth	The width of the VSYNC signal in units of lines
- *
- * @param	vEndWidth	The number of lines between the end of valid
- *				data and the VSYNC signal for next frame.
- *
- * @param	sig		Bitfield of signal polarities for LCD interface.
+ * @param	sig	Bitfield of signal polarities for LCD interface.
  *
  * Return:	This function returns 0 on success or negative error code on
  *		fail.
  */
 
-int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
-			    u32 pixel_fmt, u16 h_start_width, u16 h_sync_width,
-			    u16 h_end_width, u16 v_start_width,
-			    u16 v_sync_width, u16 v_end_width, u32 v_to_h_sync,
-			    ipu_di_signal_cfg_t sig)
+int32_t ipu_init_sync_panel(struct ipu_di_config *di, ipu_di_signal_cfg_t sig)
 {
+	struct ipu_ctx *ctx = di->ctx;
+	int disp = di->disp;
 	u32 reg;
 	u32 di_gen, vsync_cnt;
 	u32 div, rounded_pixel_clk;
@@ -812,22 +780,24 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 	int map;
 	struct clk *di_parent;
 
-	debug("panel size = %d x %d\n", width, height);
+	debug("panel size = %d x %d\n", di->width, di->height);
 
-	if ((v_sync_width == 0) || (h_sync_width == 0))
+	if ((di->v_sync_width == 0) || (di->h_sync_width == 0))
 		return -EINVAL;
 
 	/* adapt panel to ipu restricitions */
-	if (v_end_width < 2) {
-		v_end_width = 2;
+	if (di->v_end_width < 2) {
+		di->v_end_width = 2;
 		puts("WARNING: v_end_width (lower_margin) must be >= 2, adjusted\n");
 	}
 
-	h_total = width + h_sync_width + h_start_width + h_end_width;
-	v_total = height + v_sync_width + v_start_width + v_end_width;
+	h_total = di->width + di->h_sync_width + di->h_start_width +
+		  di->h_end_width;
+	v_total = di->height + di->v_sync_width + di->v_start_width +
+		  di->v_end_width;
 
 	/* Init clocking */
-	debug("pixel clk = %dHz\n", pixel_clk);
+	debug("pixel clk = %dHz\n", di->pixel_clk_rate);
 
 	if (sig.ext_clk) {
 		if (!(g_di1_tvout && (disp == 1))) { /*not round div for tvout*/
@@ -835,11 +805,12 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 			 * Set the  PLL to be an even multiple
 			 * of the pixel clock.
 			 */
-			if ((clk_get_usecount(g_pixel_clk[0]) == 0) &&
-			    (clk_get_usecount(g_pixel_clk[1]) == 0)) {
-				di_parent = clk_get_parent(g_di_clk[disp]);
-				rounded_pixel_clk = clk_round_rate(
-					g_pixel_clk[disp], pixel_clk);
+			if ((clk_get_usecount(ctx->pixel_clk[0]) == 0) &&
+			    (clk_get_usecount(ctx->pixel_clk[1]) == 0)) {
+				di_parent = clk_get_parent(ctx->di_clk[disp]);
+				rounded_pixel_clk =
+					clk_round_rate(ctx->pixel_clk[disp],
+						       di->pixel_clk_rate);
 				div = clk_get_rate(di_parent) /
 				      rounded_pixel_clk;
 				if (div % 2)
@@ -849,27 +820,28 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 					clk_set_rate(di_parent,
 						     div * rounded_pixel_clk);
 				udelay(10000);
-				clk_set_rate(g_di_clk[disp],
+				clk_set_rate(ctx->di_clk[disp],
 					     2 * rounded_pixel_clk);
 				udelay(10000);
 			}
 		}
-		clk_set_parent(g_pixel_clk[disp], g_ldb_clk);
+		clk_set_parent(ctx->pixel_clk[disp], ctx->ldb_clk);
 	} else {
-		if (clk_get_usecount(g_pixel_clk[disp]) != 0)
-			clk_set_parent(g_pixel_clk[disp], g_ipu_clk);
+		if (clk_get_usecount(ctx->pixel_clk[disp]) != 0)
+			clk_set_parent(ctx->pixel_clk[disp], ctx->ipu_clk);
 	}
-	rounded_pixel_clk = clk_round_rate(g_pixel_clk[disp], pixel_clk);
-	clk_set_rate(g_pixel_clk[disp], rounded_pixel_clk);
+	rounded_pixel_clk =
+		clk_round_rate(ctx->pixel_clk[disp], di->pixel_clk_rate);
+	clk_set_rate(ctx->pixel_clk[disp], rounded_pixel_clk);
 	udelay(5000);
 	/* Get integer portion of divider */
-	div = clk_get_rate(clk_get_parent(g_pixel_clk[disp])) /
+	div = clk_get_rate(clk_get_parent(ctx->pixel_clk[disp])) /
 	      rounded_pixel_clk;
 
 	ipu_di_data_wave_config(disp, SYNC_WAVE, div - 1, div - 1);
 	ipu_di_data_pin_config(disp, SYNC_WAVE, DI_PIN15, 3, 0, div * 2);
 
-	map = ipu_pixfmt_to_map(pixel_fmt);
+	map = ipu_pixfmt_to_map(di->pixel_fmt);
 	if (map < 0) {
 		debug("IPU_DISP: No MAP\n");
 		return -EINVAL;
@@ -931,7 +903,7 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 				   4, /* counter */
 				   v_total / 2 - 1, /* run count */
 				   DI_SYNC_HSYNC, /* run_resolution */
-				   v_start_width, /*  offset */
+				   di->v_start_width, /*  offset */
 				   DI_SYNC_HSYNC, /* offset resolution */
 				   2, /* repeat count */
 				   DI_SYNC_VSYNC, /* CNT_CLR_SEL */
@@ -949,7 +921,7 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 				   DI_SYNC_HSYNC, /* run_resolution */
 				   0, /*  offset */
 				   DI_SYNC_NONE, /* offset resolution */
-				   height / 2, /* repeat count */
+				   di->height / 2, /* repeat count */
 				   4, /* CNT_CLR_SEL */
 				   0, /* CNT_POLARITY_GEN_EN */
 				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
@@ -996,9 +968,9 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 				   8, /* counter */
 				   0, /* run count  */
 				   DI_SYNC_CLK, /* run_resolution */
-				   h_start_width, /* offset  */
+				   di->h_start_width, /* offset  */
 				   DI_SYNC_CLK, /* offset resolution */
-				   width, /* repeat count  */
+				   di->width, /* repeat count  */
 				   5, /* CNT_CLR_SEL  */
 				   0, /* CNT_POLARITY_GEN_EN  */
 				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
@@ -1042,26 +1014,27 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 
 		/* Setup external (delayed) HSYNC waveform */
 		ipu_di_sync_config(disp, DI_SYNC_HSYNC, h_total - 1,
-				   DI_SYNC_CLK, div * v_to_h_sync, DI_SYNC_CLK,
-				   0, DI_SYNC_NONE, 1, DI_SYNC_NONE,
-				   DI_SYNC_CLK, 0, h_sync_width * 2);
+				   DI_SYNC_CLK, div * di->v_to_h_sync,
+				   DI_SYNC_CLK, 0, DI_SYNC_NONE, 1,
+				   DI_SYNC_NONE, DI_SYNC_CLK, 0,
+				   di->h_sync_width * 2);
 		/* Setup VSYNC waveform */
 		vsync_cnt = DI_SYNC_VSYNC;
 		ipu_di_sync_config(disp, DI_SYNC_VSYNC, v_total - 1,
 				   DI_SYNC_INT_HSYNC, 0, DI_SYNC_NONE, 0,
 				   DI_SYNC_NONE, 1, DI_SYNC_NONE,
-				   DI_SYNC_INT_HSYNC, 0, v_sync_width * 2);
+				   DI_SYNC_INT_HSYNC, 0, di->v_sync_width * 2);
 		__raw_writel(v_total - 1, DI_SCR_CONF(disp));
 
 		/* Setup active data waveform to sync with DC */
 		ipu_di_sync_config(disp, 4, 0, DI_SYNC_HSYNC,
-				   v_sync_width + v_start_width, DI_SYNC_HSYNC,
-				   height, DI_SYNC_VSYNC, 0, DI_SYNC_NONE,
-				   DI_SYNC_NONE, 0, 0);
+				   di->v_sync_width + di->v_start_width,
+				   DI_SYNC_HSYNC, di->height, DI_SYNC_VSYNC, 0,
+				   DI_SYNC_NONE, DI_SYNC_NONE, 0, 0);
 		ipu_di_sync_config(disp, 5, 0, DI_SYNC_CLK,
-				   h_sync_width + h_start_width, DI_SYNC_CLK,
-				   width, 4, 0, DI_SYNC_NONE, DI_SYNC_NONE, 0,
-				   0);
+				   di->h_sync_width + di->h_start_width,
+				   DI_SYNC_CLK, di->width, 4, 0, DI_SYNC_NONE,
+				   DI_SYNC_NONE, 0, 0);
 
 		/* reset all unused counters */
 		__raw_writel(0, DI_SW_GEN0(disp, 6));
@@ -1112,7 +1085,7 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 		reg |= DI_POL_DRDY_DATA_POLARITY;
 	__raw_writel(reg, DI_POL(disp));
 
-	__raw_writel(width, DC_DISP_CONF2(DC_DISP_ID_SYNC(disp)));
+	__raw_writel(di->width, DC_DISP_CONF2(DC_DISP_ID_SYNC(disp)));
 
 	return 0;
 }

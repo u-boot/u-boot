@@ -1,5 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Code fixes:
+ *
+ * (C) Copyright 2025
+ * Brian Ruley, GE HealthCare, brian.ruley@gehealthcare.com
+ *
  * Porting to u-boot:
  *
  * (C) Copyright 2010
@@ -10,7 +15,6 @@
  * (C) Copyright 2005-2010 Freescale Semiconductor, Inc.
  */
 
-/* #define DEBUG */
 #include "ipu.h"
 #include "ipu_regs.h"
 #include <asm/arch/crm_regs.h>
@@ -19,6 +23,8 @@
 #include <asm/io.h>
 #include <config.h>
 #include <div64.h>
+#include <dm.h>
+#include <dm/devres.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/errno.h>
@@ -206,46 +212,76 @@ static void clk_ipu_disable(struct clk *clk)
 #endif
 }
 
-static struct clk ipu_clk = {
-	.name = "ipu_clk",
+/*
+ * Function to initialize the ipu clock
+ *
+ * @param   ctx	    The ipu context for which the function is called
+ *
+ * Return:  Returns 0 on success or negative error code on error
+ */
+static int ipu_clk_init(struct ipu_ctx *ctx)
+{
+	struct clk *ipu_clk;
+
+	ipu_clk = devm_kzalloc(ctx->dev, sizeof(*ipu_clk), GFP_KERNEL);
+	if (!ipu_clk)
+		return -ENOMEM;
+
+	ipu_clk->name = "ipu_clk";
+	ipu_clk->ctx = ctx;
 #if CONFIG_IS_ENABLED(MX51) || CONFIG_IS_ENABLED(MX53)
-	.enable_reg =
-		(u32 *)(CCM_BASE_ADDR + offsetof(struct mxc_ccm_reg, CCGR5)),
-	.enable_shift = MXC_CCM_CCGR5_IPU_OFFSET,
+	ipu_clk->enable_reg =
+		(u32 *)(CCM_BASE_ADDR + offsetof(struct mxc_ccm_reg, CCGR5));
+	ipu_clk->enable_shift = MXC_CCM_CCGR5_IPU_OFFSET;
 #else
-	.enable_reg =
-		(u32 *)(CCM_BASE_ADDR + offsetof(struct mxc_ccm_reg, CCGR3)),
-	.enable_shift = MXC_CCM_CCGR3_IPU1_IPU_DI0_OFFSET,
+	ipu_clk->enable_reg =
+		(u32 *)(CCM_BASE_ADDR + offsetof(struct mxc_ccm_reg, CCGR3));
+	ipu_clk->enable_shift = MXC_CCM_CCGR3_IPU1_IPU_DI0_OFFSET;
 #endif
-	.enable = clk_ipu_enable,
-	.disable = clk_ipu_disable,
-	.usecount = 0,
+
+	ipu_clk->enable = clk_ipu_enable;
+	ipu_clk->disable = clk_ipu_disable;
+	ipu_clk->usecount = 0;
+
+#if CONFIG_IS_ENABLED(MX51)
+	ipu_clk->rate = IPUV3_CLK_MX51;
+#elif CONFIG_IS_ENABLED(MX53)
+	ipu_clk->rate = IPUV3_CLK_MX53;
+#else
+	ipu_clk->rate = is_mx6sdl() ? IPUV3_CLK_MX6DL : IPUV3_CLK_MX6Q;
+#endif
+
+	ctx->ipu_clk = ipu_clk;
+	return 0;
 };
 
 #if !defined CFG_SYS_LDB_CLOCK
 #define CFG_SYS_LDB_CLOCK 65000000
 #endif
 
-static struct clk ldb_clk = {
-	.name = "ldb_clk",
-	.rate = CFG_SYS_LDB_CLOCK,
-	.usecount = 0,
+/*
+ * Function to initialize the ldb dummy clock
+ *
+ * @param   ctx	    The ipu context for which the function is called
+ *
+ * Return:  Returns 0 on success or negative error code on error
+ */
+static int ipu_ldb_clk_init(struct ipu_ctx *ctx)
+{
+	struct clk *ldb_clk;
+
+	ldb_clk = devm_kzalloc(ctx->dev, sizeof(*ldb_clk), GFP_KERNEL);
+	if (!ldb_clk)
+		return -ENOMEM;
+
+	ldb_clk->name = "ldb_clk";
+	ldb_clk->ctx = ctx;
+	ldb_clk->rate = CFG_SYS_LDB_CLOCK;
+	ldb_clk->usecount = 0;
+
+	ctx->ldb_clk = ldb_clk;
+	return 0;
 };
-
-/* Globals */
-struct clk *g_ipu_clk;
-struct clk *g_ldb_clk;
-unsigned char g_ipu_clk_enabled;
-struct clk *g_di_clk[2];
-struct clk *g_pixel_clk[2];
-unsigned char g_dc_di_assignment[10];
-u32 g_channel_init_mask;
-u32 g_channel_enable_mask;
-
-static int ipu_dc_use_count;
-static int ipu_dp_use_count;
-static int ipu_dmfc_use_count;
-static int ipu_di_use_count[2];
 
 u32 *ipu_cpmem_base;
 u32 *ipu_dc_tmpl_reg;
@@ -388,10 +424,11 @@ static void ipu_pixel_clk_disable(struct clk *clk)
 static int ipu_pixel_clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	u32 di_gen = __raw_readl(DI_GENERAL(clk->id));
+	struct ipu_ctx *ctx = clk->ctx;
 
-	if (parent == g_ipu_clk)
+	if (parent == ctx->ipu_clk)
 		di_gen &= ~DI_GEN_DI_CLK_EXT;
-	else if (!IS_ERR(g_di_clk[clk->id]) && parent == g_ldb_clk)
+	else if (!IS_ERR(ctx->di_clk[clk->id]) && parent == ctx->ldb_clk)
 		di_gen |= DI_GEN_DI_CLK_EXT;
 	else
 		return -EINVAL;
@@ -401,29 +438,34 @@ static int ipu_pixel_clk_set_parent(struct clk *clk, struct clk *parent)
 	return 0;
 }
 
-static struct clk pixel_clk[] = {
-	{
-		.name = "pixel_clk",
-		.id = 0,
-		.recalc = ipu_pixel_clk_recalc,
-		.set_rate = ipu_pixel_clk_set_rate,
-		.round_rate = ipu_pixel_clk_round_rate,
-		.set_parent = ipu_pixel_clk_set_parent,
-		.enable = ipu_pixel_clk_enable,
-		.disable = ipu_pixel_clk_disable,
-		.usecount = 0,
-	},
-	{
-		.name = "pixel_clk",
-		.id = 1,
-		.recalc = ipu_pixel_clk_recalc,
-		.set_rate = ipu_pixel_clk_set_rate,
-		.round_rate = ipu_pixel_clk_round_rate,
-		.set_parent = ipu_pixel_clk_set_parent,
-		.enable = ipu_pixel_clk_enable,
-		.disable = ipu_pixel_clk_disable,
-		.usecount = 0,
-	},
+/*
+ * Function to initialize the pixel clock
+ *
+ * @param   ctx	    The ipu context for which the function is called
+ *
+ * Return:  Returns 0 on success or negative error code on error
+ */
+static int ipu_pixel_clk_init(struct ipu_ctx *ctx, int id)
+{
+	struct clk *pixel_clk;
+
+	pixel_clk = devm_kzalloc(ctx->dev, sizeof(*pixel_clk), GFP_KERNEL);
+	if (!pixel_clk)
+		return -ENOMEM;
+
+	pixel_clk->name = "pixel_clk";
+	pixel_clk->id = id;
+	pixel_clk->ctx = ctx;
+	pixel_clk->recalc = ipu_pixel_clk_recalc;
+	pixel_clk->set_rate = ipu_pixel_clk_set_rate;
+	pixel_clk->round_rate = ipu_pixel_clk_round_rate;
+	pixel_clk->set_parent = ipu_pixel_clk_set_parent;
+	pixel_clk->enable = ipu_pixel_clk_enable;
+	pixel_clk->disable = ipu_pixel_clk_disable;
+	pixel_clk->usecount = 0;
+
+	ctx->pixel_clk[id] = pixel_clk;
+	return 0;
 };
 
 /*
@@ -456,11 +498,24 @@ static void ipu_reset(void)
  * @param	dev	The device structure for the IPU passed in by the
  *			driver framework.
  *
- * Return:	Returns 0 on success or negative error code on error
+ * Return:	Returns pointer to IPU context on success or pointer error code
+ *		on error
  */
-int ipu_probe(void)
+struct ipu_ctx *ipu_probe(struct udevice *dev)
 {
 	unsigned long ipu_base;
+	struct ipu_ctx *ctx;
+	int ret = 0;
+
+	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
+	if (!ctx) {
+		ret = -ENOMEM;
+		goto err;
+	}
+
+	ctx->dev = dev;
+	ctx->dev_id = dev_seq(dev);
+
 #if defined CONFIG_MX51
 	u32 temp;
 
@@ -481,29 +536,33 @@ int ipu_probe(void)
 	ipu_cpmem_base = (u32 *)(ipu_base + IPU_CPMEM_REG_BASE);
 	ipu_dc_tmpl_reg = (u32 *)(ipu_base + IPU_DC_TMPL_REG_BASE);
 
-	g_pixel_clk[0] = &pixel_clk[0];
-	g_pixel_clk[1] = &pixel_clk[1];
+	ret = ipu_pixel_clk_init(ctx, 0);
+	if (ret)
+		goto err;
 
-	g_ipu_clk = &ipu_clk;
-#if CONFIG_IS_ENABLED(MX51)
-	g_ipu_clk->rate = IPUV3_CLK_MX51;
-#elif CONFIG_IS_ENABLED(MX53)
-	g_ipu_clk->rate = IPUV3_CLK_MX53;
-#else
-	g_ipu_clk->rate = is_mx6sdl() ? IPUV3_CLK_MX6DL : IPUV3_CLK_MX6Q;
-#endif
+	ret = ipu_pixel_clk_init(ctx, 1);
+	if (ret)
+		goto err;
 
-	debug("ipu_clk = %u\n", clk_get_rate(g_ipu_clk));
-	g_ldb_clk = &ldb_clk;
-	debug("ldb_clk = %u\n", clk_get_rate(g_ldb_clk));
+	ret = ipu_clk_init(ctx);
+	if (ret)
+		goto err;
+
+	debug("ipu_clk = %u\n", clk_get_rate(ctx->ipu_clk));
+
+	ret = ipu_ldb_clk_init(ctx);
+	if (ret)
+		goto err;
+
+	debug("ldb_clk = %u\n", clk_get_rate(ctx->ldb_clk));
 	ipu_reset();
 
-	clk_set_parent(g_pixel_clk[0], g_ipu_clk);
-	clk_set_parent(g_pixel_clk[1], g_ipu_clk);
-	clk_enable(g_ipu_clk);
+	clk_set_parent(ctx->pixel_clk[0], ctx->ipu_clk);
+	clk_set_parent(ctx->pixel_clk[1], ctx->ipu_clk);
+	clk_enable(ctx->ipu_clk);
 
-	g_di_clk[0] = NULL;
-	g_di_clk[1] = NULL;
+	ctx->di_clk[0] = NULL;
+	ctx->di_clk[1] = NULL;
 
 	__raw_writel(0x807FFFFF, IPU_MEM_RST);
 	while (__raw_readl(IPU_MEM_RST) & 0x80000000)
@@ -525,9 +584,11 @@ int ipu_probe(void)
 	/* Set MCU_T to divide MCU access window into 2 */
 	__raw_writel(0x00400000L | (IPU_MCU_T_DEFAULT << 18), IPU_DISP_GEN);
 
-	clk_disable(g_ipu_clk);
+	clk_disable(ctx->ipu_clk);
 
-	return 0;
+	return ctx;
+err:
+	return ERR_PTR(ret);
 }
 
 void ipu_dump_registers(void)
@@ -556,26 +617,32 @@ void ipu_dump_registers(void)
 /*
  * This function is called to initialize a logical IPU channel.
  *
- * @param	channel Input parameter for the logical channel ID to init.
+ * @param   ctx		The ipu context for which the function is called
  *
- * @param	params	Input parameter containing union of channel
+ * @param   channel	Input parameter for the logical channel ID to init.
+ *
+ * @param   params	Input parameter containing union of channel
  *			initialization parameters.
  *
- * Return:	Returns 0 on success or negative error code on fail
+ * Return:  Returns 0 on success or negative error code on fail
  */
-int32_t ipu_init_channel(ipu_channel_t channel, ipu_channel_params_t *params)
+int32_t ipu_init_channel(struct ipu_ctx *ctx, ipu_channel_t channel,
+			 ipu_channel_params_t *params)
 {
+	struct clk *ipu_clk = ctx->ipu_clk;
+	u8 *dc_di_assignment = ctx->dc_di_assignment;
+	u32 *channel_init_mask = &ctx->channel_init_mask;
 	int ret = 0;
 	u32 ipu_conf;
 
 	debug("init channel = %d\n", IPU_CHAN_ID(channel));
 
-	if (g_ipu_clk_enabled == 0) {
-		g_ipu_clk_enabled = 1;
-		clk_enable(g_ipu_clk);
+	if (ctx->ipu_clk_enabled == 0) {
+		ctx->ipu_clk_enabled = 1;
+		clk_enable(ipu_clk);
 	}
 
-	if (g_channel_init_mask & (1L << IPU_CHAN_ID(channel))) {
+	if (*channel_init_mask & (1L << IPU_CHAN_ID(channel))) {
 		printf("Warning: channel already initialized %d\n",
 		       IPU_CHAN_ID(channel));
 	}
@@ -589,12 +656,12 @@ int32_t ipu_init_channel(ipu_channel_t channel, ipu_channel_params_t *params)
 			goto err;
 		}
 
-		g_dc_di_assignment[1] = params->mem_dc_sync.di;
+		dc_di_assignment[1] = params->mem_dc_sync.di;
 		ipu_dc_init(1, params->mem_dc_sync.di,
 			    params->mem_dc_sync.interlaced);
-		ipu_di_use_count[params->mem_dc_sync.di]++;
-		ipu_dc_use_count++;
-		ipu_dmfc_use_count++;
+		ctx->ipu_di_use_count[params->mem_dc_sync.di]++;
+		ctx->ipu_dc_use_count++;
+		ctx->ipu_dmfc_use_count++;
 		break;
 	case MEM_BG_SYNC:
 		if (params->mem_dp_bg_sync.di > 1) {
@@ -602,23 +669,23 @@ int32_t ipu_init_channel(ipu_channel_t channel, ipu_channel_params_t *params)
 			goto err;
 		}
 
-		g_dc_di_assignment[5] = params->mem_dp_bg_sync.di;
+		dc_di_assignment[5] = params->mem_dp_bg_sync.di;
 		ipu_dp_init(channel, params->mem_dp_bg_sync.in_pixel_fmt,
 			    params->mem_dp_bg_sync.out_pixel_fmt);
 		ipu_dc_init(5, params->mem_dp_bg_sync.di,
 			    params->mem_dp_bg_sync.interlaced);
-		ipu_di_use_count[params->mem_dp_bg_sync.di]++;
-		ipu_dc_use_count++;
-		ipu_dp_use_count++;
-		ipu_dmfc_use_count++;
+		ctx->ipu_di_use_count[params->mem_dp_bg_sync.di]++;
+		ctx->ipu_dc_use_count++;
+		ctx->ipu_dp_use_count++;
+		ctx->ipu_dmfc_use_count++;
 		break;
 	case MEM_FG_SYNC:
 		ipu_dp_init(channel, params->mem_dp_fg_sync.in_pixel_fmt,
 			    params->mem_dp_fg_sync.out_pixel_fmt);
 
-		ipu_dc_use_count++;
-		ipu_dp_use_count++;
-		ipu_dmfc_use_count++;
+		ctx->ipu_dc_use_count++;
+		ctx->ipu_dp_use_count++;
+		ctx->ipu_dmfc_use_count++;
 		break;
 	default:
 		printf("Missing channel initialization\n");
@@ -626,16 +693,16 @@ int32_t ipu_init_channel(ipu_channel_t channel, ipu_channel_params_t *params)
 	}
 
 	/* Enable IPU sub module */
-	g_channel_init_mask |= 1L << IPU_CHAN_ID(channel);
-	if (ipu_dc_use_count == 1)
+	*channel_init_mask |= 1L << IPU_CHAN_ID(channel);
+	if (ctx->ipu_dc_use_count == 1)
 		ipu_conf |= IPU_CONF_DC_EN;
-	if (ipu_dp_use_count == 1)
+	if (ctx->ipu_dp_use_count == 1)
 		ipu_conf |= IPU_CONF_DP_EN;
-	if (ipu_dmfc_use_count == 1)
+	if (ctx->ipu_dmfc_use_count == 1)
 		ipu_conf |= IPU_CONF_DMFC_EN;
-	if (ipu_di_use_count[0] == 1)
+	if (ctx->ipu_di_use_count[0] == 1)
 		ipu_conf |= IPU_CONF_DI0_EN;
-	if (ipu_di_use_count[1] == 1)
+	if (ctx->ipu_di_use_count[1] == 1)
 		ipu_conf |= IPU_CONF_DI1_EN;
 
 	__raw_writel(ipu_conf, IPU_CONF);
@@ -647,15 +714,19 @@ err:
 /*
  * This function is called to uninitialize a logical IPU channel.
  *
+ * @param   ctx		The ipu context for which the function is called
+ *
  * @param	channel Input parameter for the logical channel ID to uninit.
  */
-void ipu_uninit_channel(ipu_channel_t channel)
+void ipu_uninit_channel(struct ipu_ctx *ctx, ipu_channel_t channel)
 {
+	u8 *dc_di_assignment = ctx->dc_di_assignment;
+	u32 *channel_init_mask = &ctx->channel_init_mask;
 	u32 reg;
 	u32 in_dma, out_dma = 0;
 	u32 ipu_conf;
 
-	if ((g_channel_init_mask & (1L << IPU_CHAN_ID(channel))) == 0) {
+	if ((*channel_init_mask & (1L << IPU_CHAN_ID(channel))) == 0) {
 		debug("Channel already uninitialized %d\n",
 		      IPU_CHAN_ID(channel));
 		return;
@@ -686,46 +757,46 @@ void ipu_uninit_channel(ipu_channel_t channel)
 	switch (channel) {
 	case MEM_DC_SYNC:
 		ipu_dc_uninit(1);
-		ipu_di_use_count[g_dc_di_assignment[1]]--;
-		ipu_dc_use_count--;
-		ipu_dmfc_use_count--;
+		ctx->ipu_di_use_count[dc_di_assignment[1]]--;
+		ctx->ipu_dc_use_count--;
+		ctx->ipu_dmfc_use_count--;
 		break;
 	case MEM_BG_SYNC:
 		ipu_dp_uninit(channel);
 		ipu_dc_uninit(5);
-		ipu_di_use_count[g_dc_di_assignment[5]]--;
-		ipu_dc_use_count--;
-		ipu_dp_use_count--;
-		ipu_dmfc_use_count--;
+		ctx->ipu_di_use_count[dc_di_assignment[5]]--;
+		ctx->ipu_dc_use_count--;
+		ctx->ipu_dp_use_count--;
+		ctx->ipu_dmfc_use_count--;
 		break;
 	case MEM_FG_SYNC:
 		ipu_dp_uninit(channel);
-		ipu_dc_use_count--;
-		ipu_dp_use_count--;
-		ipu_dmfc_use_count--;
+		ctx->ipu_dc_use_count--;
+		ctx->ipu_dp_use_count--;
+		ctx->ipu_dmfc_use_count--;
 		break;
 	default:
 		break;
 	}
 
-	g_channel_init_mask &= ~(1L << IPU_CHAN_ID(channel));
+	*channel_init_mask &= ~(1L << IPU_CHAN_ID(channel));
 
-	if (ipu_dc_use_count == 0)
+	if (ctx->ipu_dc_use_count == 0)
 		ipu_conf &= ~IPU_CONF_DC_EN;
-	if (ipu_dp_use_count == 0)
+	if (ctx->ipu_dp_use_count == 0)
 		ipu_conf &= ~IPU_CONF_DP_EN;
-	if (ipu_dmfc_use_count == 0)
+	if (ctx->ipu_dmfc_use_count == 0)
 		ipu_conf &= ~IPU_CONF_DMFC_EN;
-	if (ipu_di_use_count[0] == 0)
+	if (ctx->ipu_di_use_count[0] == 0)
 		ipu_conf &= ~IPU_CONF_DI0_EN;
-	if (ipu_di_use_count[1] == 0)
+	if (ctx->ipu_di_use_count[1] == 0)
 		ipu_conf &= ~IPU_CONF_DI1_EN;
 
 	__raw_writel(ipu_conf, IPU_CONF);
 
 	if (ipu_conf == 0) {
-		clk_disable(g_ipu_clk);
-		g_ipu_clk_enabled = 0;
+		clk_disable(ctx->ipu_clk);
+		ctx->ipu_clk_enabled = 0;
 	}
 }
 
@@ -1031,18 +1102,21 @@ int32_t ipu_init_channel_buffer(ipu_channel_t channel, ipu_buffer_t type,
 /*
  * This function enables a logical channel.
  *
- * @param	channel		Input parameter for the logical channel ID.
+ * @param   ctx		The ipu context for which the function is called
  *
- * Return:	This function returns 0 on success or negative error code on
- *		fail.
+ * @param   channel	Input parameter for the logical channel ID.
+ *
+ * Return:  This function returns 0 on success or negative error code on
+ *	    fail.
  */
-int32_t ipu_enable_channel(ipu_channel_t channel)
+int32_t ipu_enable_channel(struct ipu_ctx *ctx, ipu_channel_t channel)
 {
+	u32 *channel_enable_mask = &ctx->channel_enable_mask;
 	u32 reg;
 	u32 in_dma;
 	u32 out_dma;
 
-	if (g_channel_enable_mask & (1L << IPU_CHAN_ID(channel))) {
+	if (*channel_enable_mask & (1L << IPU_CHAN_ID(channel))) {
 		printf("Warning: channel already enabled %d\n",
 		       IPU_CHAN_ID(channel));
 	}
@@ -1062,9 +1136,9 @@ int32_t ipu_enable_channel(ipu_channel_t channel)
 
 	if ((channel == MEM_DC_SYNC) || (channel == MEM_BG_SYNC) ||
 	    (channel == MEM_FG_SYNC))
-		ipu_dp_dc_enable(channel);
+		ipu_dp_dc_enable(ctx, channel);
 
-	g_channel_enable_mask |= 1L << IPU_CHAN_ID(channel);
+	*channel_enable_mask |= 1L << IPU_CHAN_ID(channel);
 
 	return 0;
 }
@@ -1103,21 +1177,24 @@ void ipu_clear_buffer_ready(ipu_channel_t channel, ipu_buffer_t type,
 /*
  * This function disables a logical channel.
  *
- * @param	channel		Input parameter for the logical channel ID.
+ * @param   ctx		    The ipu context for which the function is called
  *
- * @param	wait_for_stop	Flag to set whether to wait for channel end
- *				of frame or return immediately.
+ * @param   channel	    Input parameter for the logical channel ID.
  *
- * Return:	This function returns 0 on success or negative error code on
- *		fail.
+ * @param   wait_for_stop   Flag to set whether to wait for channel end
+ *			    of frame or return immediately.
+ *
+ * Return:  This function returns 0 on success or negative error code on
+ *	    fail.
  */
-int32_t ipu_disable_channel(ipu_channel_t channel)
+int32_t ipu_disable_channel(struct ipu_ctx *ctx, ipu_channel_t channel)
 {
+	u32 *channel_enable_mask = &ctx->channel_enable_mask;
 	u32 reg;
 	u32 in_dma;
 	u32 out_dma;
 
-	if ((g_channel_enable_mask & (1L << IPU_CHAN_ID(channel))) == 0) {
+	if ((*channel_enable_mask & (1L << IPU_CHAN_ID(channel))) == 0) {
 		debug("Channel already disabled %d\n", IPU_CHAN_ID(channel));
 		return 0;
 	}
@@ -1132,7 +1209,7 @@ int32_t ipu_disable_channel(ipu_channel_t channel)
 
 	if ((channel == MEM_BG_SYNC) || (channel == MEM_FG_SYNC) ||
 	    (channel == MEM_DC_SYNC)) {
-		ipu_dp_dc_disable(channel, 0);
+		ipu_dp_dc_disable(ctx, channel, 0);
 	}
 
 	/* Disable DMA channel(s) */
@@ -1147,7 +1224,7 @@ int32_t ipu_disable_channel(ipu_channel_t channel)
 		__raw_writel(idma_mask(out_dma), IPU_CHA_CUR_BUF(out_dma));
 	}
 
-	g_channel_enable_mask &= ~(1L << IPU_CHAN_ID(channel));
+	*channel_enable_mask &= ~(1L << IPU_CHAN_ID(channel));
 
 	/* Set channel buffers NOT to be ready */
 	if (idma_is_valid(in_dma)) {
@@ -1219,7 +1296,7 @@ ipu_color_space_t format_to_colorspace(u32 fmt)
 	return RGB;
 }
 
-bool ipu_clk_enabled(void)
+bool ipu_clk_enabled(struct ipu_ctx *ctx)
 {
-	return g_ipu_clk_enabled;
+	return ctx->ipu_clk_enabled;
 }
