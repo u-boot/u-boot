@@ -1090,9 +1090,9 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 			ipu_dc_write_tmpl(7, WROD(0), 0, map, SYNC_WAVE, 0, 5);
 		}
 
-		if (sig.Hsync_pol)
+		if (sig.hsync_pol)
 			di_gen |= DI_GEN_POLARITY_2;
-		if (sig.Vsync_pol)
+		if (sig.vsync_pol)
 			di_gen |= DI_GEN_POLARITY_3;
 
 		if (!sig.clk_pol)
@@ -1181,7 +1181,7 @@ int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
  *
  * @param	enable		Boolean to enable or disable color key
  *
- * @param	colorKey	24-bit RGB color for transparent color key.
+ * @param	color_key	 24-bit RGB color for transparent color key.
  *
  * Return:	Returns 0 on success or negative error code on fail
  */

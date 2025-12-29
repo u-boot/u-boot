@@ -211,9 +211,9 @@ static int mxcfb_set_par(struct fb_info *fbi)
 	if ((fbi->var.sync & FB_SYNC_EXT) || ext_clk_used)
 		sig_cfg.ext_clk = 1;
 	if (fbi->var.sync & FB_SYNC_HOR_HIGH_ACT)
-		sig_cfg.Hsync_pol = 1;
+		sig_cfg.hsync_pol = 1;
 	if (fbi->var.sync & FB_SYNC_VERT_HIGH_ACT)
-		sig_cfg.Vsync_pol = 1;
+		sig_cfg.vsync_pol = 1;
 	if (!(fbi->var.sync & FB_SYNC_CLK_LAT_FALL))
 		sig_cfg.clk_pol = 1;
 	if (fbi->var.sync & FB_SYNC_DATA_INVERT)

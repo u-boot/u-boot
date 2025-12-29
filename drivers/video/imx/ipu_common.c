@@ -273,10 +273,10 @@ static inline int ipu_is_dmfc_chan(u32 dma_chan)
 	return ((dma_chan >= 23) && (dma_chan <= 29));
 }
 
-static inline void ipu_ch_param_set_buffer(u32 ch, int bufNum,
+static inline void ipu_ch_param_set_buffer(u32 ch, int buf_num,
 					   dma_addr_t phyaddr)
 {
-	ipu_ch_param_mod_field(ipu_ch_param_addr(ch), 1, 29 * bufNum, 29,
+	ipu_ch_param_mod_field(ipu_ch_param_addr(ch), 1, 29 * buf_num, 29,
 			       phyaddr / 8);
 };
 
@@ -1075,12 +1075,12 @@ int32_t ipu_enable_channel(ipu_channel_t channel)
  *
  * @param	type		Input parameter which buffer to clear.
  *
- * @param	bufNum		Input parameter for which buffer number clear
+ * @param	buf_num		 Input parameter for which buffer number clear
  *				ready state.
  *
  */
 void ipu_clear_buffer_ready(ipu_channel_t channel, ipu_buffer_t type,
-			    u32 bufNum)
+			    u32 buf_num)
 {
 	u32 dma_ch = channel_2_dma(channel, type);
 
@@ -1088,7 +1088,7 @@ void ipu_clear_buffer_ready(ipu_channel_t channel, ipu_buffer_t type,
 		return;
 
 	__raw_writel(0xF0000000, IPU_GPR); /* write one to clear */
-	if (bufNum == 0) {
+	if (buf_num == 0) {
 		if (idma_is_set(IPU_CHA_BUF0_RDY, dma_ch)) {
 			__raw_writel(idma_mask(dma_ch),
 				     IPU_CHA_BUF0_RDY(dma_ch));
@@ -1212,7 +1212,7 @@ ipu_color_space_t format_to_colorspace(u32 fmt)
 		break;
 
 	default:
-		return YCbCr;
+		return YCBCR;
 		break;
 	}
 	return RGB;

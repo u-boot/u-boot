@@ -194,11 +194,11 @@ typedef struct {
 	unsigned data_pol : 1; /* true = inverted */
 	unsigned clk_pol : 1; /* true = rising edge */
 	unsigned enable_pol : 1;
-	unsigned Hsync_pol : 1; /* true = active high */
-	unsigned Vsync_pol : 1;
+	unsigned hsync_pol : 1; /* true = active high */
+	unsigned vsync_pol : 1;
 } ipu_di_signal_cfg_t;
 
-typedef enum { RGB, YCbCr, YUV } ipu_color_space_t;
+typedef enum { RGB, YCBCR, YUV } ipu_color_space_t;
 
 /* Common IPU API */
 int32_t ipu_init_channel(ipu_channel_t channel, ipu_channel_params_t *params);
@@ -211,7 +211,7 @@ int32_t ipu_init_channel_buffer(ipu_channel_t channel, ipu_buffer_t type,
 				u32 v_offset);
 
 void ipu_clear_buffer_ready(ipu_channel_t channel, ipu_buffer_t type,
-			    u32 bufNum);
+			    u32 buf_num);
 int32_t ipu_enable_channel(ipu_channel_t channel);
 int32_t ipu_disable_channel(ipu_channel_t channel);
 
@@ -224,7 +224,7 @@ int32_t ipu_init_sync_panel(int disp, u32 pixel_clk, u16 width, u16 height,
 int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
 				  u8 alpha);
 int32_t ipu_disp_set_color_key(ipu_channel_t channel, unsigned char enable,
-			       u32 colorKey);
+			       u32 color_key);
 
 u32 bytes_per_pixel(u32 fmt);
 
