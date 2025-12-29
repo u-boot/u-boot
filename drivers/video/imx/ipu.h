@@ -39,30 +39,30 @@ struct clk {
 	 * Function ptr to recalculate the clock's rate based on parent
 	 * clock's rate
 	 */
-	void (*recalc)(struct clk *);
+	void (*recalc)(struct clk *clk);
 	/*
 	 * Function ptr to set the clock to a new rate. The rate must match a
 	 * supported rate returned from round_rate. Leave blank if clock is not
 	* programmable
 	 */
-	int (*set_rate)(struct clk *, unsigned long);
+	int (*set_rate)(struct clk *clk, unsigned long rate);
 	/*
 	 * Function ptr to round the requested clock rate to the nearest
 	 * supported rate that is less than or equal to the requested rate.
 	 */
-	unsigned long (*round_rate)(struct clk *, unsigned long);
+	unsigned long (*round_rate)(struct clk *clk, unsigned long rate);
 	/*
 	 * Function ptr to enable the clock. Leave blank if clock can not
 	 * be gated.
 	 */
-	int (*enable)(struct clk *);
+	int (*enable)(struct clk *clk);
 	/*
 	 * Function ptr to disable the clock. Leave blank if clock can not
 	 * be gated.
 	 */
-	void (*disable)(struct clk *);
+	void (*disable)(struct clk *clk);
 	/* Function ptr to set the parent clock of the clock. */
-	int (*set_parent)(struct clk *, struct clk *);
+	int (*set_parent)(struct clk *clk, struct clk *parent);
 };
 
 /*
