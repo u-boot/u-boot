@@ -215,10 +215,6 @@ int32_t ipu_init_channel_buffer(ipu_channel_t channel, ipu_buffer_t type,
 				dma_addr_t phyaddr_0, dma_addr_t phyaddr_1,
 				uint32_t u_offset, uint32_t v_offset);
 
-int32_t ipu_update_channel_buffer(ipu_channel_t channel, ipu_buffer_t type,
-				  uint32_t bufNum, dma_addr_t phyaddr);
-
-int32_t ipu_is_channel_busy(ipu_channel_t channel);
 void ipu_clear_buffer_ready(ipu_channel_t channel, ipu_buffer_t type,
 		uint32_t bufNum);
 int32_t ipu_enable_channel(ipu_channel_t channel);
