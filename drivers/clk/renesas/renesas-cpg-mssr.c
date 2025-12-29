@@ -127,7 +127,8 @@ int renesas_clk_remove(void __iomem *base, struct cpg_mssr_info *info)
 				info->mstp_table[i].sdis,
 				info->mstp_table[i].sen);
 
-		if (info->reg_layout == CLK_REG_LAYOUT_RCAR_GEN4)
+		if (info->reg_layout == CLK_REG_LAYOUT_RCAR_GEN4 ||
+		    renesas_get_cpu_type() == RENESAS_CPU_TYPE_R8A77995)
 			continue;
 
 		clrsetbits_le32(base + RMSTPCR(i),
