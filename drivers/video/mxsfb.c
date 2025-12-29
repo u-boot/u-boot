@@ -159,7 +159,7 @@ static void mxs_lcd_init(struct udevice *dev, u32 fb_addr,
 		vdctrl0 |= LCDIF_VDCTRL0_HSYNC_POL;
 	if(flags & DISPLAY_FLAGS_VSYNC_HIGH)
 		vdctrl0 |= LCDIF_VDCTRL0_VSYNC_POL;
-	if(flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE)
+	if (flags & DISPLAY_FLAGS_PIXDATA_POSEDGE)
 		vdctrl0 |= LCDIF_VDCTRL0_DOTCLK_POL;
 	if(flags & DISPLAY_FLAGS_DE_HIGH)
 		vdctrl0 |= LCDIF_VDCTRL0_ENABLE_POL;

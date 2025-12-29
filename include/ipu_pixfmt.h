@@ -11,6 +11,7 @@
 #ifndef __IPU_PIXFMT_H__
 #define __IPU_PIXFMT_H__
 
+#include <dm/device.h>
 #include <linux/list.h>
 #include <linux/fb.h>
 
@@ -62,6 +63,6 @@
 int ipuv3_fb_init(struct fb_videomode const *mode,
 		  uint8_t disp,
 		  uint32_t pixfmt);
-void ipuv3_fb_shutdown(void);
+void ipuv3_fb_shutdown(struct udevice *dev);
 
 #endif
