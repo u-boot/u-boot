@@ -168,7 +168,7 @@ static int clk_ipu_enable(struct clk *clk)
 	reg |= MXC_CCM_CCGR_CG_MASK << clk->enable_shift;
 	__raw_writel(reg, clk->enable_reg);
 
-#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
+#if CONFIG_IS_ENABLED(MX51) || CONFIG_IS_ENABLED(MX53)
 	/* Handshake with IPU when certain clock rates are changed. */
 	reg = __raw_readl(&mxc_ccm->ccdr);
 	reg &= ~MXC_CCM_CCDR_IPU_HS_MASK;
@@ -190,7 +190,7 @@ static void clk_ipu_disable(struct clk *clk)
 	reg &= ~(MXC_CCM_CCGR_CG_MASK << clk->enable_shift);
 	__raw_writel(reg, clk->enable_reg);
 
-#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
+#if CONFIG_IS_ENABLED(MX51) || CONFIG_IS_ENABLED(MX53)
 	/*
 	 * No handshake with IPU whe dividers are changed
 	 * as its not enabled.
@@ -208,7 +208,7 @@ static void clk_ipu_disable(struct clk *clk)
 
 static struct clk ipu_clk = {
 	.name = "ipu_clk",
-#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
+#if CONFIG_IS_ENABLED(MX51) || CONFIG_IS_ENABLED(MX53)
 	.enable_reg =
 		(u32 *)(CCM_BASE_ADDR + offsetof(struct mxc_ccm_reg, CCGR5)),
 	.enable_shift = MXC_CCM_CCGR5_IPU_OFFSET,
@@ -485,13 +485,14 @@ int ipu_probe(void)
 	g_pixel_clk[1] = &pixel_clk[1];
 
 	g_ipu_clk = &ipu_clk;
-#if defined(CONFIG_MX51)
+#if CONFIG_IS_ENABLED(MX51)
 	g_ipu_clk->rate = IPUV3_CLK_MX51;
-#elif defined(CONFIG_MX53)
+#elif CONFIG_IS_ENABLED(MX53)
 	g_ipu_clk->rate = IPUV3_CLK_MX53;
 #else
 	g_ipu_clk->rate = is_mx6sdl() ? IPUV3_CLK_MX6DL : IPUV3_CLK_MX6Q;
 #endif
+
 	debug("ipu_clk = %u\n", clk_get_rate(g_ipu_clk));
 	g_ldb_clk = &ldb_clk;
 	debug("ldb_clk = %u\n", clk_get_rate(g_ldb_clk));
