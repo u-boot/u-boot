@@ -12,24 +12,17 @@
 
 /* #define DEBUG */
 
-#include <log.h>
-#include <linux/delay.h>
-#include <linux/types.h>
-#include <linux/errno.h>
-#include <asm/io.h>
-#include <asm/arch/imx-regs.h>
-#include <asm/arch/sys_proto.h>
 #include "ipu.h"
 #include "ipu_regs.h"
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/io.h>
+#include <linux/delay.h>
+#include <linux/errno.h>
+#include <linux/types.h>
+#include <log.h>
 
-enum csc_type_t {
-	RGB2YUV = 0,
-	YUV2RGB,
-	RGB2RGB,
-	YUV2YUV,
-	CSC_NONE,
-	CSC_NUM
-};
+enum csc_type_t { RGB2YUV = 0, YUV2RGB, RGB2RGB, YUV2YUV, CSC_NONE, CSC_NUM };
 
 struct dp_csc_param_t {
 	int mode;
@@ -39,9 +32,9 @@ struct dp_csc_param_t {
 #define SYNC_WAVE 0
 
 /* DC display ID assignments */
-#define DC_DISP_ID_SYNC(di)	(di)
-#define DC_DISP_ID_SERIAL	2
-#define DC_DISP_ID_ASYNC	3
+#define DC_DISP_ID_SYNC(di) (di)
+#define DC_DISP_ID_SERIAL 2
+#define DC_DISP_ID_ASYNC 3
 
 int dmfc_type_setup;
 static int dmfc_size_28, dmfc_size_29, dmfc_size_24, dmfc_size_27, dmfc_size_23;
@@ -177,18 +170,17 @@ void ipu_dmfc_set_wait4eot(int dma_chan, int width)
 	__raw_writel(dmfc_gen1, DMFC_GENERAL1);
 }
 
-static void ipu_di_data_wave_config(int di,
-				     int wave_gen,
-				     int access_size, int component_size)
+static void ipu_di_data_wave_config(int di, int wave_gen, int access_size,
+				    int component_size)
 {
 	u32 reg;
 	reg = (access_size << DI_DW_GEN_ACCESS_SIZE_OFFSET) |
-	    (component_size << DI_DW_GEN_COMPONENT_SIZE_OFFSET);
+	      (component_size << DI_DW_GEN_COMPONENT_SIZE_OFFSET);
 	__raw_writel(reg, DI_DW_GEN(di, wave_gen));
 }
 
 static void ipu_di_data_pin_config(int di, int wave_gen, int di_pin, int set,
-				    int up, int down)
+				   int up, int down)
 {
 	u32 reg;
 
@@ -200,29 +192,29 @@ static void ipu_di_data_pin_config(int di, int wave_gen, int di_pin, int set,
 	__raw_writel((down << 16) | up, DI_DW_SET(di, wave_gen, set));
 }
 
-static void ipu_di_sync_config(int di, int wave_gen,
-				int run_count, int run_src,
-				int offset_count, int offset_src,
-				int repeat_count, int cnt_clr_src,
-				int cnt_polarity_gen_en,
-				int cnt_polarity_clr_src,
-				int cnt_polarity_trigger_src,
-				int cnt_up, int cnt_down)
+static void ipu_di_sync_config(int di, int wave_gen, int run_count, int run_src,
+			       int offset_count, int offset_src,
+			       int repeat_count, int cnt_clr_src,
+			       int cnt_polarity_gen_en,
+			       int cnt_polarity_clr_src,
+			       int cnt_polarity_trigger_src, int cnt_up,
+			       int cnt_down)
 {
 	u32 reg;
 
 	if ((run_count >= 0x1000) || (offset_count >= 0x1000) ||
-		(repeat_count >= 0x1000) ||
-		(cnt_up >= 0x400) || (cnt_down >= 0x400)) {
+	    (repeat_count >= 0x1000) || (cnt_up >= 0x400) ||
+	    (cnt_down >= 0x400)) {
 		printf("DI%d counters out of range.\n", di);
 		return;
 	}
 
-	reg = (run_count << 19) | (++run_src << 16) |
-	    (offset_count << 3) | ++offset_src;
+	reg = (run_count << 19) | (++run_src << 16) | (offset_count << 3) |
+	      ++offset_src;
 	__raw_writel(reg, DI_SW_GEN0(di, wave_gen));
 	reg = (cnt_polarity_gen_en << 29) | (++cnt_clr_src << 25) |
-	    (++cnt_polarity_trigger_src << 12) | (++cnt_polarity_clr_src << 9);
+	      (++cnt_polarity_trigger_src << 12) |
+	      (++cnt_polarity_clr_src << 9);
 	reg |= (cnt_down << 16) | cnt_up;
 	if (repeat_count == 0) {
 		/* Enable auto reload */
@@ -259,7 +251,7 @@ static void ipu_dc_map_clear(int map)
 }
 
 static void ipu_dc_write_tmpl(int word, u32 opcode, u32 operand, int map,
-			       int wave, int glue, int sync)
+			      int wave, int glue, int sync)
 {
 	u32 reg;
 	int stop = 1;
@@ -292,11 +284,9 @@ static void ipu_dc_link_event(int chan, int event, int addr, int priority)
  * V = R *  2.000 + G * -1.672 + B * -.328 + 512.250.;
  */
 static const int rgb2ycbcr_coeff[5][3] = {
-	{0x4D, 0x96, 0x1D},
-	{0x3D5, 0x3AB, 0x80},
-	{0x80, 0x395, 0x3EB},
-	{0x0000, 0x0200, 0x0200},	/* B0, B1, B2 */
-	{0x2, 0x2, 0x2},	/* S0, S1, S2 */
+	{ 0x4D, 0x96, 0x1D },	{ 0x3D5, 0x3AB, 0x80 },
+	{ 0x80, 0x395, 0x3EB }, { 0x0000, 0x0200, 0x0200 }, /* B0, B1, B2 */
+	{ 0x2, 0x2, 0x2 }, /* S0, S1, S2 */
 };
 
 /* R = (1.164 * (Y - 16)) + (1.596 * (Cr - 128));
@@ -304,11 +294,9 @@ static const int rgb2ycbcr_coeff[5][3] = {
  * B = (1.164 * (Y - 16)) + (2.017 * (Cb - 128);
  */
 static const int ycbcr2rgb_coeff[5][3] = {
-	{0x095, 0x000, 0x0CC},
-	{0x095, 0x3CE, 0x398},
-	{0x095, 0x0FF, 0x000},
-	{0x3E42, 0x010A, 0x3DD6},	/*B0,B1,B2 */
-	{0x1, 0x1, 0x1},	/*S0,S1,S2 */
+	{ 0x095, 0x000, 0x0CC }, { 0x095, 0x3CE, 0x398 },
+	{ 0x095, 0x0FF, 0x000 }, { 0x3E42, 0x010A, 0x3DD6 }, /*B0,B1,B2 */
+	{ 0x1, 0x1, 0x1 }, /*S0,S1,S2 */
 };
 
 #define mask_a(a) ((u32)(a) & 0x3FF)
@@ -337,48 +325,38 @@ static int rgb_to_yuv(int n, int red, int green, int blue)
  * Column is for FG:	RGB2YUV YUV2RGB RGB2RGB YUV2YUV CSC_NONE
  */
 static struct dp_csc_param_t dp_csc_array[CSC_NUM][CSC_NUM] = {
-	{
-		{DP_COM_CONF_CSC_DEF_BOTH, &rgb2ycbcr_coeff},
-		{0, 0},
-		{0, 0},
-		{DP_COM_CONF_CSC_DEF_BG, &rgb2ycbcr_coeff},
-		{DP_COM_CONF_CSC_DEF_BG, &rgb2ycbcr_coeff}
-	},
-	{
-		{0, 0},
-		{DP_COM_CONF_CSC_DEF_BOTH, &ycbcr2rgb_coeff},
-		{DP_COM_CONF_CSC_DEF_BG, &ycbcr2rgb_coeff},
-		{0, 0},
-		{DP_COM_CONF_CSC_DEF_BG, &ycbcr2rgb_coeff}
-	},
-	{
-		{0, 0},
-		{DP_COM_CONF_CSC_DEF_FG, &ycbcr2rgb_coeff},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	},
-	{
-		{DP_COM_CONF_CSC_DEF_FG, &rgb2ycbcr_coeff},
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	},
-	{
-		{DP_COM_CONF_CSC_DEF_FG, &rgb2ycbcr_coeff},
-		{DP_COM_CONF_CSC_DEF_FG, &ycbcr2rgb_coeff},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	}
+	{ { DP_COM_CONF_CSC_DEF_BOTH, &rgb2ycbcr_coeff },
+	  { 0, 0 },
+	  { 0, 0 },
+	  { DP_COM_CONF_CSC_DEF_BG, &rgb2ycbcr_coeff },
+	  { DP_COM_CONF_CSC_DEF_BG, &rgb2ycbcr_coeff } },
+	{ { 0, 0 },
+	  { DP_COM_CONF_CSC_DEF_BOTH, &ycbcr2rgb_coeff },
+	  { DP_COM_CONF_CSC_DEF_BG, &ycbcr2rgb_coeff },
+	  { 0, 0 },
+	  { DP_COM_CONF_CSC_DEF_BG, &ycbcr2rgb_coeff } },
+	{ { 0, 0 },
+	  { DP_COM_CONF_CSC_DEF_FG, &ycbcr2rgb_coeff },
+	  { 0, 0 },
+	  { 0, 0 },
+	  { 0, 0 } },
+	{ { DP_COM_CONF_CSC_DEF_FG, &rgb2ycbcr_coeff },
+	  { 0, 0 },
+	  { 0, 0 },
+	  { 0, 0 },
+	  { 0, 0 } },
+	{ { DP_COM_CONF_CSC_DEF_FG, &rgb2ycbcr_coeff },
+	  { DP_COM_CONF_CSC_DEF_FG, &ycbcr2rgb_coeff },
+	  { 0, 0 },
+	  { 0, 0 },
+	  { 0, 0 } }
 };
 
 static enum csc_type_t fg_csc_type = CSC_NONE, bg_csc_type = CSC_NONE;
 static int color_key_4rgb = 1;
 
 static void ipu_dp_csc_setup(int dp, struct dp_csc_param_t dp_csc_param,
-			unsigned char srm_mode_update)
+			     unsigned char srm_mode_update)
 {
 	u32 reg;
 	const int (*coeff)[5][3];
@@ -394,19 +372,25 @@ static void ipu_dp_csc_setup(int dp, struct dp_csc_param_t dp_csc_param,
 
 	if (coeff) {
 		__raw_writel(mask_a((*coeff)[0][0]) |
-				(mask_a((*coeff)[0][1]) << 16), DP_CSC_A_0());
+				     (mask_a((*coeff)[0][1]) << 16),
+			     DP_CSC_A_0());
 		__raw_writel(mask_a((*coeff)[0][2]) |
-				(mask_a((*coeff)[1][0]) << 16), DP_CSC_A_1());
+				     (mask_a((*coeff)[1][0]) << 16),
+			     DP_CSC_A_1());
 		__raw_writel(mask_a((*coeff)[1][1]) |
-				(mask_a((*coeff)[1][2]) << 16), DP_CSC_A_2());
+				     (mask_a((*coeff)[1][2]) << 16),
+			     DP_CSC_A_2());
 		__raw_writel(mask_a((*coeff)[2][0]) |
-				(mask_a((*coeff)[2][1]) << 16), DP_CSC_A_3());
+				     (mask_a((*coeff)[2][1]) << 16),
+			     DP_CSC_A_3());
 		__raw_writel(mask_a((*coeff)[2][2]) |
-				(mask_b((*coeff)[3][0]) << 16) |
-				((*coeff)[4][0] << 30), DP_CSC_0());
+				     (mask_b((*coeff)[3][0]) << 16) |
+				     ((*coeff)[4][0] << 30),
+			     DP_CSC_0());
 		__raw_writel(mask_b((*coeff)[3][1]) | ((*coeff)[4][1] << 14) |
-				(mask_b((*coeff)[3][2]) << 16) |
-				((*coeff)[4][2] << 30), DP_CSC_1());
+				     (mask_b((*coeff)[3][2]) << 16) |
+				     ((*coeff)[4][2] << 30),
+			     DP_CSC_1());
 	}
 
 	if (srm_mode_update) {
@@ -416,7 +400,7 @@ static void ipu_dp_csc_setup(int dp, struct dp_csc_param_t dp_csc_param,
 }
 
 int ipu_dp_init(ipu_channel_t channel, uint32_t in_pixel_fmt,
-		 uint32_t out_pixel_fmt)
+		uint32_t out_pixel_fmt)
 {
 	int in_fmt, out_fmt;
 	int dp;
@@ -440,45 +424,41 @@ int ipu_dp_init(ipu_channel_t channel, uint32_t in_pixel_fmt,
 	out_fmt = format_to_colorspace(out_pixel_fmt);
 
 	if (partial) {
-		if (in_fmt == RGB) {
+		if (in_fmt == RGB)
 			if (out_fmt == RGB)
 				fg_csc_type = RGB2RGB;
 			else
 				fg_csc_type = RGB2YUV;
-		} else {
-			if (out_fmt == RGB)
-				fg_csc_type = YUV2RGB;
-			else
-				fg_csc_type = YUV2YUV;
-		}
+		else if (out_fmt == RGB)
+			fg_csc_type = YUV2RGB;
+		else
+			fg_csc_type = YUV2YUV;
 	} else {
-		if (in_fmt == RGB) {
+		if (in_fmt == RGB)
 			if (out_fmt == RGB)
 				bg_csc_type = RGB2RGB;
 			else
 				bg_csc_type = RGB2YUV;
-		} else {
-			if (out_fmt == RGB)
-				bg_csc_type = YUV2RGB;
-			else
-				bg_csc_type = YUV2YUV;
-		}
+		else if (out_fmt == RGB)
+			bg_csc_type = YUV2RGB;
+		else
+			bg_csc_type = YUV2YUV;
 	}
 
 	/* Transform color key from rgb to yuv if CSC is enabled */
 	reg = __raw_readl(DP_COM_CONF());
 	if (color_key_4rgb && (reg & DP_COM_CONF_GWCKE) &&
-		(((fg_csc_type == RGB2YUV) && (bg_csc_type == YUV2YUV)) ||
-		((fg_csc_type == YUV2YUV) && (bg_csc_type == RGB2YUV)) ||
-		((fg_csc_type == YUV2YUV) && (bg_csc_type == YUV2YUV)) ||
-		((fg_csc_type == YUV2RGB) && (bg_csc_type == YUV2RGB)))) {
+	    (((fg_csc_type == RGB2YUV) && (bg_csc_type == YUV2YUV)) ||
+	     ((fg_csc_type == YUV2YUV) && (bg_csc_type == RGB2YUV)) ||
+	     ((fg_csc_type == YUV2YUV) && (bg_csc_type == YUV2YUV)) ||
+	     ((fg_csc_type == YUV2RGB) && (bg_csc_type == YUV2RGB)))) {
 		int red, green, blue;
 		int y, u, v;
 		uint32_t color_key = __raw_readl(DP_GRAPH_WIND_CTRL()) &
-			0xFFFFFFL;
+				     0xFFFFFFL;
 
 		debug("_ipu_dp_init color key 0x%x need change to yuv fmt!\n",
-			color_key);
+		      color_key);
 
 		red = (color_key >> 16) & 0xFF;
 		green = (color_key >> 8) & 0xFF;
@@ -494,7 +474,7 @@ int ipu_dp_init(ipu_channel_t channel, uint32_t in_pixel_fmt,
 		color_key_4rgb = 0;
 
 		debug("_ipu_dp_init color key change to yuv fmt 0x%x!\n",
-			color_key);
+		      color_key);
 	}
 
 	ipu_dp_csc_setup(dp, dp_csc_array[bg_csc_type][fg_csc_type], 1);
@@ -537,18 +517,14 @@ void ipu_dc_init(int dc_chan, int di, unsigned char interlaced)
 			ipu_dc_link_event(dc_chan, DC_EVT_NL, 0, 3);
 			ipu_dc_link_event(dc_chan, DC_EVT_EOL, 0, 2);
 			ipu_dc_link_event(dc_chan, DC_EVT_NEW_DATA, 0, 1);
+		} else if (di) {
+			ipu_dc_link_event(dc_chan, DC_EVT_NL, 2, 3);
+			ipu_dc_link_event(dc_chan, DC_EVT_EOL, 3, 2);
+			ipu_dc_link_event(dc_chan, DC_EVT_NEW_DATA, 4, 1);
 		} else {
-			if (di) {
-				ipu_dc_link_event(dc_chan, DC_EVT_NL, 2, 3);
-				ipu_dc_link_event(dc_chan, DC_EVT_EOL, 3, 2);
-				ipu_dc_link_event(dc_chan, DC_EVT_NEW_DATA,
-					4, 1);
-			} else {
-				ipu_dc_link_event(dc_chan, DC_EVT_NL, 5, 3);
-				ipu_dc_link_event(dc_chan, DC_EVT_EOL, 6, 2);
-				ipu_dc_link_event(dc_chan, DC_EVT_NEW_DATA,
-					7, 1);
-			}
+			ipu_dc_link_event(dc_chan, DC_EVT_NL, 5, 3);
+			ipu_dc_link_event(dc_chan, DC_EVT_EOL, 6, 2);
+			ipu_dc_link_event(dc_chan, DC_EVT_NEW_DATA, 7, 1);
 		}
 		ipu_dc_link_event(dc_chan, DC_EVT_NF, 0, 0);
 		ipu_dc_link_event(dc_chan, DC_EVT_NFIELD, 0, 0);
@@ -685,16 +661,16 @@ void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap)
 		 * this check is useful for tv overlay.
 		 */
 		if (g_dc_di_assignment[dc_chan] == 0)
-			while ((__raw_readl(DC_STAT) & 0x00000002)
-			       != 0x00000002) {
+			while ((__raw_readl(DC_STAT) & 0x00000002) !=
+			       0x00000002) {
 				udelay(2000);
 				timeout -= 2;
 				if (timeout <= 0)
 					break;
 			}
 		else if (g_dc_di_assignment[dc_chan] == 1)
-			while ((__raw_readl(DC_STAT) & 0x00000020)
-			       != 0x00000020) {
+			while ((__raw_readl(DC_STAT) & 0x00000020) !=
+			       0x00000020) {
 				udelay(2000);
 				timeout -= 2;
 				if (timeout <= 0)
@@ -791,43 +767,42 @@ static int ipu_pixfmt_to_map(uint32_t fmt)
 /*
  * This function is called to initialize a synchronous LCD panel.
  *
- * @param       disp            The DI the panel is attached to.
+ * @param	disp		The DI the panel is attached to.
  *
- * @param       pixel_clk       Desired pixel clock frequency in Hz.
+ * @param	pixel_clk	Desired pixel clock frequency in Hz.
  *
- * @param       pixel_fmt       Input parameter for pixel format of buffer.
- *                              Pixel format is a FOURCC ASCII code.
+ * @param	pixel_fmt	Input parameter for pixel format of buffer.
+ *				Pixel format is a FOURCC ASCII code.
  *
- * @param       width           The width of panel in pixels.
+ * @param	width		The width of panel in pixels.
  *
- * @param       height          The height of panel in pixels.
+ * @param	height		The height of panel in pixels.
  *
- * @param       hStartWidth     The number of pixel clocks between the HSYNC
- *                              signal pulse and the start of valid data.
+ * @param	hStartWidth	The number of pixel clocks between the HSYNC
+ *				signal pulse and the start of valid data.
  *
- * @param       hSyncWidth      The width of the HSYNC signal in units of pixel
- *                              clocks.
+ * @param	hSyncWidth	The width of the HSYNC signal in units of pixel
+ *				clocks.
  *
- * @param       hEndWidth       The number of pixel clocks between the end of
- *                              valid data and the HSYNC signal for next line.
+ * @param	hEndWidth	The number of pixel clocks between the end of
+ *				valid data and the HSYNC signal for next line.
  *
- * @param       vStartWidth     The number of lines between the VSYNC
- *                              signal pulse and the start of valid data.
+ * @param	vStartWidth	The number of lines between the VSYNC
+ *				signal pulse and the start of valid data.
  *
- * @param       vSyncWidth      The width of the VSYNC signal in units of lines
+ * @param	vSyncWidth	The width of the VSYNC signal in units of lines
  *
- * @param       vEndWidth       The number of lines between the end of valid
- *                              data and the VSYNC signal for next frame.
+ * @param	vEndWidth	The number of lines between the end of valid
+ *				data and the VSYNC signal for next frame.
  *
- * @param       sig             Bitfield of signal polarities for LCD interface.
+ * @param	sig		Bitfield of signal polarities for LCD interface.
  *
- * Return:      This function returns 0 on success or negative error code on
- *              fail.
+ * Return:	This function returns 0 on success or negative error code on
+ *		fail.
  */
 
-int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
-			    uint16_t width, uint16_t height,
-			    uint32_t pixel_fmt,
+int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk, uint16_t width,
+			    uint16_t height, uint32_t pixel_fmt,
 			    uint16_t h_start_width, uint16_t h_sync_width,
 			    uint16_t h_end_width, uint16_t v_start_width,
 			    uint16_t v_sync_width, uint16_t v_end_width,
@@ -864,22 +839,21 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 			 * of the pixel clock.
 			 */
 			if ((clk_get_usecount(g_pixel_clk[0]) == 0) &&
-				(clk_get_usecount(g_pixel_clk[1]) == 0)) {
+			    (clk_get_usecount(g_pixel_clk[1]) == 0)) {
 				di_parent = clk_get_parent(g_di_clk[disp]);
-				rounded_pixel_clk =
-					clk_round_rate(g_pixel_clk[disp],
-						pixel_clk);
-				div  = clk_get_rate(di_parent) /
-					rounded_pixel_clk;
+				rounded_pixel_clk = clk_round_rate(
+					g_pixel_clk[disp], pixel_clk);
+				div = clk_get_rate(di_parent) /
+				      rounded_pixel_clk;
 				if (div % 2)
 					div++;
-				if (clk_get_rate(di_parent) != div *
-					rounded_pixel_clk)
+				if (clk_get_rate(di_parent) !=
+				    div * rounded_pixel_clk)
 					clk_set_rate(di_parent,
-						div * rounded_pixel_clk);
+						     div * rounded_pixel_clk);
 				udelay(10000);
 				clk_set_rate(g_di_clk[disp],
-					2 * rounded_pixel_clk);
+					     2 * rounded_pixel_clk);
 				udelay(10000);
 			}
 		}
@@ -893,7 +867,7 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 	udelay(5000);
 	/* Get integer portion of divider */
 	div = clk_get_rate(clk_get_parent(g_pixel_clk[disp])) /
-		rounded_pixel_clk;
+	      rounded_pixel_clk;
 
 	ipu_di_data_wave_config(disp, SYNC_WAVE, div - 1, div - 1);
 	ipu_di_data_pin_config(disp, SYNC_WAVE, DI_PIN15, 3, 0, div * 2);
@@ -908,162 +882,153 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 
 	if (sig.interlaced) {
 		/* Setup internal HSYNC waveform */
-		ipu_di_sync_config(
-				disp,		/* display */
-				1,		/* counter */
-				h_total / 2 - 1,/* run count */
-				DI_SYNC_CLK,	/* run_resolution */
-				0,		/* offset */
-				DI_SYNC_NONE,	/* offset resolution */
-				0,		/* repeat count */
-				DI_SYNC_NONE,	/* CNT_CLR_SEL */
-				0,		/* CNT_POLARITY_GEN_EN */
-				DI_SYNC_NONE,	/* CNT_POLARITY_CLR_SEL */
-				DI_SYNC_NONE,	/* CNT_POLARITY_TRIGGER_SEL */
-				0,		/* COUNT UP */
-				0		/* COUNT DOWN */
-				);
+		ipu_di_sync_config(disp, /* display */
+				   1, /* counter */
+				   h_total / 2 - 1, /* run count */
+				   DI_SYNC_CLK, /* run_resolution */
+				   0, /* offset */
+				   DI_SYNC_NONE, /* offset resolution */
+				   0, /* repeat count */
+				   DI_SYNC_NONE, /* CNT_CLR_SEL */
+				   0, /* CNT_POLARITY_GEN_EN */
+				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
+				   DI_SYNC_NONE, /* CNT_POLARITY_TRIGGER_SEL */
+				   0, /* COUNT UP */
+				   0 /* COUNT DOWN */
+		);
 
 		/* Field 1 VSYNC waveform */
-		ipu_di_sync_config(
-				disp,		/* display */
-				2,		/* counter */
-				h_total - 1,	/* run count */
-				DI_SYNC_CLK,	/* run_resolution */
-				0,		/* offset */
-				DI_SYNC_NONE,	/* offset resolution */
-				0,		/* repeat count */
-				DI_SYNC_NONE,	/* CNT_CLR_SEL */
-				0,		/* CNT_POLARITY_GEN_EN */
-				DI_SYNC_NONE,	/* CNT_POLARITY_CLR_SEL */
-				DI_SYNC_NONE,	/* CNT_POLARITY_TRIGGER_SEL */
-				0,		/* COUNT UP */
-				4		/* COUNT DOWN */
-				);
+		ipu_di_sync_config(disp, /* display */
+				   2, /* counter */
+				   h_total - 1, /* run count */
+				   DI_SYNC_CLK, /* run_resolution */
+				   0, /* offset */
+				   DI_SYNC_NONE, /* offset resolution */
+				   0, /* repeat count */
+				   DI_SYNC_NONE, /* CNT_CLR_SEL */
+				   0, /* CNT_POLARITY_GEN_EN */
+				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
+				   DI_SYNC_NONE, /* CNT_POLARITY_TRIGGER_SEL */
+				   0, /* COUNT UP */
+				   4 /* COUNT DOWN */
+		);
 
 		/* Setup internal HSYNC waveform */
-		ipu_di_sync_config(
-				disp,		/* display */
-				3,		/* counter */
-				v_total * 2 - 1,/* run count */
-				DI_SYNC_INT_HSYNC,	/* run_resolution */
-				1,		/* offset */
-				DI_SYNC_INT_HSYNC,	/* offset resolution */
-				0,		/* repeat count */
-				DI_SYNC_NONE,	/* CNT_CLR_SEL */
-				0,		/* CNT_POLARITY_GEN_EN */
-				DI_SYNC_NONE,	/* CNT_POLARITY_CLR_SEL */
-				DI_SYNC_NONE,	/* CNT_POLARITY_TRIGGER_SEL */
-				0,		/* COUNT UP */
-				4		/* COUNT DOWN */
-				);
+		ipu_di_sync_config(disp, /* display */
+				   3, /* counter */
+				   v_total * 2 - 1, /* run count */
+				   DI_SYNC_INT_HSYNC, /* run_resolution */
+				   1, /* offset */
+				   DI_SYNC_INT_HSYNC, /* offset resolution */
+				   0, /* repeat count */
+				   DI_SYNC_NONE, /* CNT_CLR_SEL */
+				   0, /* CNT_POLARITY_GEN_EN */
+				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
+				   DI_SYNC_NONE, /* CNT_POLARITY_TRIGGER_SEL */
+				   0, /* COUNT UP */
+				   4 /* COUNT DOWN */
+		);
 
 		/* Active Field ? */
-		ipu_di_sync_config(
-				disp,		/* display */
-				4,		/* counter */
-				v_total / 2 - 1,/* run count */
-				DI_SYNC_HSYNC,	/* run_resolution */
-				v_start_width,	/*  offset */
-				DI_SYNC_HSYNC,	/* offset resolution */
-				2,		/* repeat count */
-				DI_SYNC_VSYNC,	/* CNT_CLR_SEL */
-				0,		/* CNT_POLARITY_GEN_EN */
-				DI_SYNC_NONE,	/* CNT_POLARITY_CLR_SEL */
-				DI_SYNC_NONE,	/* CNT_POLARITY_TRIGGER_SEL */
-				0,		/* COUNT UP */
-				0		/* COUNT DOWN */
-				);
+		ipu_di_sync_config(disp, /* display */
+				   4, /* counter */
+				   v_total / 2 - 1, /* run count */
+				   DI_SYNC_HSYNC, /* run_resolution */
+				   v_start_width, /*  offset */
+				   DI_SYNC_HSYNC, /* offset resolution */
+				   2, /* repeat count */
+				   DI_SYNC_VSYNC, /* CNT_CLR_SEL */
+				   0, /* CNT_POLARITY_GEN_EN */
+				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
+				   DI_SYNC_NONE, /* CNT_POLARITY_TRIGGER_SEL */
+				   0, /* COUNT UP */
+				   0 /* COUNT DOWN */
+		);
 
 		/* Active Line */
-		ipu_di_sync_config(
-				disp,		/* display */
-				5,		/* counter */
-				0,		/* run count */
-				DI_SYNC_HSYNC,	/* run_resolution */
-				0,		/*  offset */
-				DI_SYNC_NONE,	/* offset resolution */
-				height / 2,	/* repeat count */
-				4,		/* CNT_CLR_SEL */
-				0,		/* CNT_POLARITY_GEN_EN */
-				DI_SYNC_NONE,	/* CNT_POLARITY_CLR_SEL */
-				DI_SYNC_NONE,	/* CNT_POLARITY_TRIGGER_SEL */
-				0,		/* COUNT UP */
-				0		/* COUNT DOWN */
-				);
+		ipu_di_sync_config(disp, /* display */
+				   5, /* counter */
+				   0, /* run count */
+				   DI_SYNC_HSYNC, /* run_resolution */
+				   0, /*  offset */
+				   DI_SYNC_NONE, /* offset resolution */
+				   height / 2, /* repeat count */
+				   4, /* CNT_CLR_SEL */
+				   0, /* CNT_POLARITY_GEN_EN */
+				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
+				   DI_SYNC_NONE, /* CNT_POLARITY_TRIGGER_SEL */
+				   0, /* COUNT UP */
+				   0 /* COUNT DOWN */
+		);
 
 		/* Field 0 VSYNC waveform */
-		ipu_di_sync_config(
-				disp,		/* display */
-				6,		/* counter */
-				v_total - 1,	/* run count */
-				DI_SYNC_HSYNC,	/* run_resolution */
-				0,		/* offset */
-				DI_SYNC_NONE,	/* offset resolution */
-				0,		/* repeat count */
-				DI_SYNC_NONE,	/* CNT_CLR_SEL  */
-				0,		/* CNT_POLARITY_GEN_EN */
-				DI_SYNC_NONE,	/* CNT_POLARITY_CLR_SEL */
-				DI_SYNC_NONE,	/* CNT_POLARITY_TRIGGER_SEL */
-				0,		/* COUNT UP */
-				0		/* COUNT DOWN */
-				);
+		ipu_di_sync_config(disp, /* display */
+				   6, /* counter */
+				   v_total - 1, /* run count */
+				   DI_SYNC_HSYNC, /* run_resolution */
+				   0, /* offset */
+				   DI_SYNC_NONE, /* offset resolution */
+				   0, /* repeat count */
+				   DI_SYNC_NONE, /* CNT_CLR_SEL  */
+				   0, /* CNT_POLARITY_GEN_EN */
+				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
+				   DI_SYNC_NONE, /* CNT_POLARITY_TRIGGER_SEL */
+				   0, /* COUNT UP */
+				   0 /* COUNT DOWN */
+		);
 
 		/* DC VSYNC waveform */
 		vsync_cnt = 7;
-		ipu_di_sync_config(
-				disp,		/* display */
-				7,		/* counter */
-				v_total / 2 - 1,/* run count */
-				DI_SYNC_HSYNC,	/* run_resolution  */
-				9,		/* offset  */
-				DI_SYNC_HSYNC,	/* offset resolution */
-				2,		/* repeat count */
-				DI_SYNC_VSYNC,	/* CNT_CLR_SEL */
-				0,		/* CNT_POLARITY_GEN_EN */
-				DI_SYNC_NONE,	/* CNT_POLARITY_CLR_SEL */
-				DI_SYNC_NONE,	/* CNT_POLARITY_TRIGGER_SEL */
-				0,		/* COUNT UP */
-				0		/* COUNT DOWN */
-				);
+		ipu_di_sync_config(disp, /* display */
+				   7, /* counter */
+				   v_total / 2 - 1, /* run count */
+				   DI_SYNC_HSYNC, /* run_resolution  */
+				   9, /* offset  */
+				   DI_SYNC_HSYNC, /* offset resolution */
+				   2, /* repeat count */
+				   DI_SYNC_VSYNC, /* CNT_CLR_SEL */
+				   0, /* CNT_POLARITY_GEN_EN */
+				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
+				   DI_SYNC_NONE, /* CNT_POLARITY_TRIGGER_SEL */
+				   0, /* COUNT UP */
+				   0 /* COUNT DOWN */
+		);
 
 		/* active pixel waveform */
-		ipu_di_sync_config(
-				disp,		/* display */
-				8,		/* counter */
-				0,		/* run count  */
-				DI_SYNC_CLK,	/* run_resolution */
-				h_start_width,	/* offset  */
-				DI_SYNC_CLK,	/* offset resolution */
-				width,		/* repeat count  */
-				5,		/* CNT_CLR_SEL  */
-				0,		/* CNT_POLARITY_GEN_EN  */
-				DI_SYNC_NONE,	/* CNT_POLARITY_CLR_SEL */
-				DI_SYNC_NONE,	/* CNT_POLARITY_TRIGGER_SEL  */
-				0,		/* COUNT UP  */
-				0		/* COUNT DOWN */
-				);
+		ipu_di_sync_config(disp, /* display */
+				   8, /* counter */
+				   0, /* run count  */
+				   DI_SYNC_CLK, /* run_resolution */
+				   h_start_width, /* offset  */
+				   DI_SYNC_CLK, /* offset resolution */
+				   width, /* repeat count  */
+				   5, /* CNT_CLR_SEL  */
+				   0, /* CNT_POLARITY_GEN_EN  */
+				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL */
+				   DI_SYNC_NONE, /* CNT_POLARITY_TRIGGER_SEL  */
+				   0, /* COUNT UP  */
+				   0 /* COUNT DOWN */
+		);
 
-		ipu_di_sync_config(
-				disp,		/* display */
-				9,		/* counter */
-				v_total - 1,	/* run count */
-				DI_SYNC_INT_HSYNC,/* run_resolution */
-				v_total / 2,	/* offset  */
-				DI_SYNC_INT_HSYNC,/* offset resolution  */
-				0,		/* repeat count */
-				DI_SYNC_HSYNC,	/* CNT_CLR_SEL */
-				0,		/* CNT_POLARITY_GEN_EN  */
-				DI_SYNC_NONE,	/* CNT_POLARITY_CLR_SEL  */
-				DI_SYNC_NONE,	/* CNT_POLARITY_TRIGGER_SEL */
-				0,		/* COUNT UP */
-				4		/* COUNT DOWN */
-				);
+		ipu_di_sync_config(disp, /* display */
+				   9, /* counter */
+				   v_total - 1, /* run count */
+				   DI_SYNC_INT_HSYNC, /* run_resolution */
+				   v_total / 2, /* offset  */
+				   DI_SYNC_INT_HSYNC, /* offset resolution  */
+				   0, /* repeat count */
+				   DI_SYNC_HSYNC, /* CNT_CLR_SEL */
+				   0, /* CNT_POLARITY_GEN_EN  */
+				   DI_SYNC_NONE, /* CNT_POLARITY_CLR_SEL  */
+				   DI_SYNC_NONE, /* CNT_POLARITY_TRIGGER_SEL */
+				   0, /* COUNT UP */
+				   4 /* COUNT DOWN */
+		);
 
 		/* set gentime select and tag sel */
 		reg = __raw_readl(DI_SW_GEN1(disp, 9));
 		reg &= 0x1FFFFFFF;
-		reg |= (3 - 1)<<29 | 0x00008000;
+		reg |= (3 - 1) << 29 | 0x00008000;
 		__raw_writel(reg, DI_SW_GEN1(disp, 9));
 
 		__raw_writel(v_total / 2 - 1, DI_SCR_CONF(disp));
@@ -1074,34 +1039,32 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 		di_gen |= DI_GEN_POLARITY_8;
 	} else {
 		/* Setup internal HSYNC waveform */
-		ipu_di_sync_config(disp, 1, h_total - 1, DI_SYNC_CLK,
-				0, DI_SYNC_NONE, 0, DI_SYNC_NONE,
-				0, DI_SYNC_NONE,
-				DI_SYNC_NONE, 0, 0);
+		ipu_di_sync_config(disp, 1, h_total - 1, DI_SYNC_CLK, 0,
+				   DI_SYNC_NONE, 0, DI_SYNC_NONE, 0,
+				   DI_SYNC_NONE, DI_SYNC_NONE, 0, 0);
 
 		/* Setup external (delayed) HSYNC waveform */
 		ipu_di_sync_config(disp, DI_SYNC_HSYNC, h_total - 1,
-				DI_SYNC_CLK, div * v_to_h_sync, DI_SYNC_CLK,
-				0, DI_SYNC_NONE, 1, DI_SYNC_NONE,
-				DI_SYNC_CLK, 0, h_sync_width * 2);
+				   DI_SYNC_CLK, div * v_to_h_sync, DI_SYNC_CLK,
+				   0, DI_SYNC_NONE, 1, DI_SYNC_NONE,
+				   DI_SYNC_CLK, 0, h_sync_width * 2);
 		/* Setup VSYNC waveform */
 		vsync_cnt = DI_SYNC_VSYNC;
 		ipu_di_sync_config(disp, DI_SYNC_VSYNC, v_total - 1,
-				DI_SYNC_INT_HSYNC, 0, DI_SYNC_NONE, 0,
-				DI_SYNC_NONE, 1, DI_SYNC_NONE,
-				DI_SYNC_INT_HSYNC, 0, v_sync_width * 2);
+				   DI_SYNC_INT_HSYNC, 0, DI_SYNC_NONE, 0,
+				   DI_SYNC_NONE, 1, DI_SYNC_NONE,
+				   DI_SYNC_INT_HSYNC, 0, v_sync_width * 2);
 		__raw_writel(v_total - 1, DI_SCR_CONF(disp));
 
 		/* Setup active data waveform to sync with DC */
 		ipu_di_sync_config(disp, 4, 0, DI_SYNC_HSYNC,
-				v_sync_width + v_start_width, DI_SYNC_HSYNC,
-				height,
-				DI_SYNC_VSYNC, 0, DI_SYNC_NONE,
-				DI_SYNC_NONE, 0, 0);
+				   v_sync_width + v_start_width, DI_SYNC_HSYNC,
+				   height, DI_SYNC_VSYNC, 0, DI_SYNC_NONE,
+				   DI_SYNC_NONE, 0, 0);
 		ipu_di_sync_config(disp, 5, 0, DI_SYNC_CLK,
-				h_sync_width + h_start_width, DI_SYNC_CLK,
-				width, 4, 0, DI_SYNC_NONE, DI_SYNC_NONE, 0,
-				0);
+				   h_sync_width + h_start_width, DI_SYNC_CLK,
+				   width, 4, 0, DI_SYNC_NONE, DI_SYNC_NONE, 0,
+				   0);
 
 		/* reset all unused counters */
 		__raw_writel(0, DI_SW_GEN0(disp, 6));
@@ -1121,13 +1084,13 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 
 		/* Init template microcode */
 		if (disp) {
-		   ipu_dc_write_tmpl(2, WROD(0), 0, map, SYNC_WAVE, 8, 5);
-		   ipu_dc_write_tmpl(3, WROD(0), 0, map, SYNC_WAVE, 4, 5);
-		   ipu_dc_write_tmpl(4, WROD(0), 0, map, SYNC_WAVE, 0, 5);
+			ipu_dc_write_tmpl(2, WROD(0), 0, map, SYNC_WAVE, 8, 5);
+			ipu_dc_write_tmpl(3, WROD(0), 0, map, SYNC_WAVE, 4, 5);
+			ipu_dc_write_tmpl(4, WROD(0), 0, map, SYNC_WAVE, 0, 5);
 		} else {
-		   ipu_dc_write_tmpl(5, WROD(0), 0, map, SYNC_WAVE, 8, 5);
-		   ipu_dc_write_tmpl(6, WROD(0), 0, map, SYNC_WAVE, 4, 5);
-		   ipu_dc_write_tmpl(7, WROD(0), 0, map, SYNC_WAVE, 0, 5);
+			ipu_dc_write_tmpl(5, WROD(0), 0, map, SYNC_WAVE, 8, 5);
+			ipu_dc_write_tmpl(6, WROD(0), 0, map, SYNC_WAVE, 4, 5);
+			ipu_dc_write_tmpl(7, WROD(0), 0, map, SYNC_WAVE, 0, 5);
 		}
 
 		if (sig.Hsync_pol)
@@ -1137,13 +1100,12 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 
 		if (!sig.clk_pol)
 			di_gen |= DI_GEN_POL_CLK;
-
 	}
 
 	__raw_writel(di_gen, DI_GENERAL(disp));
 
-	__raw_writel((--vsync_cnt << DI_VSYNC_SEL_OFFSET) |
-			0x00000002, DI_SYNC_AS_GEN(disp));
+	__raw_writel((--vsync_cnt << DI_VSYNC_SEL_OFFSET) | 0x00000002,
+		     DI_SYNC_AS_GEN(disp));
 
 	reg = __raw_readl(DI_POL(disp));
 	reg &= ~(DI_POL_DRDY_DATA_POLARITY | DI_POL_DRDY_POLARITY_15);
@@ -1165,12 +1127,12 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
  *
  * @param	channel		IPUv3 DP channel
  *
- * @param       enable          Boolean to enable or disable global alpha
- *                              blending. If disabled, local blending is used.
+ * @param	enable		Boolean to enable or disable global alpha
+ *				blending. If disabled, local blending is used.
  *
- * @param       alpha           Global alpha value.
+ * @param	alpha		Global alpha value.
  *
- * Return:      Returns 0 on success or negative error code on fail
+ * Return:	Returns 0 on success or negative error code on fail
  */
 int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
 				  uint8_t alpha)
@@ -1180,8 +1142,8 @@ int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
 	unsigned char bg_chan;
 
 	if (!((channel == MEM_BG_SYNC || channel == MEM_FG_SYNC) ||
-		(channel == MEM_BG_ASYNC0 || channel == MEM_FG_ASYNC0) ||
-		(channel == MEM_BG_ASYNC1 || channel == MEM_FG_ASYNC1)))
+	      (channel == MEM_BG_ASYNC0 || channel == MEM_FG_ASYNC0) ||
+	      (channel == MEM_BG_ASYNC1 || channel == MEM_FG_ASYNC1)))
 		return -EINVAL;
 
 	if (channel == MEM_BG_SYNC || channel == MEM_BG_ASYNC0 ||
@@ -1200,7 +1162,7 @@ int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
 
 	if (enable) {
 		reg = __raw_readl(DP_GRAPH_WIND_CTRL()) & 0x00FFFFFFL;
-		__raw_writel(reg | ((uint32_t) alpha << 24),
+		__raw_writel(reg | ((uint32_t)alpha << 24),
 			     DP_GRAPH_WIND_CTRL());
 
 		reg = __raw_readl(DP_COM_CONF());
@@ -1219,13 +1181,13 @@ int32_t ipu_disp_set_global_alpha(ipu_channel_t channel, unsigned char enable,
 /*
  * This function sets the transparent color key for SDC graphic plane.
  *
- * @param       channel         Input parameter for the logical channel ID.
+ * @param	channel		Input parameter for the logical channel ID.
  *
- * @param       enable          Boolean to enable or disable color key
+ * @param	enable		Boolean to enable or disable color key
  *
- * @param       colorKey        24-bit RGB color for transparent color key.
+ * @param	colorKey	24-bit RGB color for transparent color key.
  *
- * Return:      Returns 0 on success or negative error code on fail
+ * Return:	Returns 0 on success or negative error code on fail
  */
 int32_t ipu_disp_set_color_key(ipu_channel_t channel, unsigned char enable,
 			       uint32_t color_key)
@@ -1235,17 +1197,16 @@ int32_t ipu_disp_set_color_key(ipu_channel_t channel, unsigned char enable,
 	int red, green, blue;
 
 	if (!((channel == MEM_BG_SYNC || channel == MEM_FG_SYNC) ||
-		(channel == MEM_BG_ASYNC0 || channel == MEM_FG_ASYNC0) ||
-		(channel == MEM_BG_ASYNC1 || channel == MEM_FG_ASYNC1)))
+	      (channel == MEM_BG_ASYNC0 || channel == MEM_FG_ASYNC0) ||
+	      (channel == MEM_BG_ASYNC1 || channel == MEM_FG_ASYNC1)))
 		return -EINVAL;
 
 	color_key_4rgb = 1;
 	/* Transform color key from rgb to yuv if CSC is enabled */
 	if (((fg_csc_type == RGB2YUV) && (bg_csc_type == YUV2YUV)) ||
-		((fg_csc_type == YUV2YUV) && (bg_csc_type == RGB2YUV)) ||
-		((fg_csc_type == YUV2YUV) && (bg_csc_type == YUV2YUV)) ||
-		((fg_csc_type == YUV2RGB) && (bg_csc_type == YUV2RGB))) {
-
+	    ((fg_csc_type == YUV2YUV) && (bg_csc_type == RGB2YUV)) ||
+	    ((fg_csc_type == YUV2YUV) && (bg_csc_type == YUV2YUV)) ||
+	    ((fg_csc_type == YUV2RGB) && (bg_csc_type == YUV2RGB))) {
 		debug("color key 0x%x need change to yuv fmt\n", color_key);
 
 		red = (color_key >> 16) & 0xFF;

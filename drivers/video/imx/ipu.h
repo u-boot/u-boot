@@ -13,11 +13,11 @@
 #ifndef __ASM_ARCH_IPU_H__
 #define __ASM_ARCH_IPU_H__
 
-#include <linux/types.h>
 #include <ipu_pixfmt.h>
+#include <linux/types.h>
 
-#define IDMA_CHAN_INVALID	0xFF
-#define HIGH_RESOLUTION_WIDTH	1024
+#define IDMA_CHAN_INVALID 0xFF
+#define HIGH_RESOLUTION_WIDTH 1024
 
 struct clk {
 	const char *name;
@@ -39,30 +39,30 @@ struct clk {
 	 * Function ptr to recalculate the clock's rate based on parent
 	 * clock's rate
 	 */
-	void (*recalc) (struct clk *);
+	void (*recalc)(struct clk *);
 	/*
 	 * Function ptr to set the clock to a new rate. The rate must match a
 	 * supported rate returned from round_rate. Leave blank if clock is not
 	* programmable
 	 */
-	int (*set_rate) (struct clk *, unsigned long);
+	int (*set_rate)(struct clk *, unsigned long);
 	/*
 	 * Function ptr to round the requested clock rate to the nearest
 	 * supported rate that is less than or equal to the requested rate.
 	 */
-	unsigned long (*round_rate) (struct clk *, unsigned long);
+	unsigned long (*round_rate)(struct clk *, unsigned long);
 	/*
 	 * Function ptr to enable the clock. Leave blank if clock can not
 	 * be gated.
 	 */
-	int (*enable) (struct clk *);
+	int (*enable)(struct clk *);
 	/*
 	 * Function ptr to disable the clock. Leave blank if clock can not
 	 * be gated.
 	 */
-	void (*disable) (struct clk *);
+	void (*disable)(struct clk *);
 	/* Function ptr to set the parent clock of the clock. */
-	int (*set_parent) (struct clk *, struct clk *);
+	int (*set_parent)(struct clk *, struct clk *);
 };
 
 /*
@@ -77,18 +77,18 @@ typedef enum {
  * IPU Driver channels definitions.
  * Note these are different from IDMA channels
  */
-#define IPU_MAX_CH	32
+#define IPU_MAX_CH 32
 #define _MAKE_CHAN(num, v_in, g_in, a_in, out) \
 	((num << 24) | (v_in << 18) | (g_in << 12) | (a_in << 6) | out)
-#define _MAKE_ALT_CHAN(ch)		(ch | (IPU_MAX_CH << 24))
-#define IPU_CHAN_ID(ch)			(ch >> 24)
-#define IPU_CHAN_ALT(ch)		(ch & 0x02000000)
-#define IPU_CHAN_ALPHA_IN_DMA(ch)	((uint32_t) (ch >> 6) & 0x3F)
-#define IPU_CHAN_GRAPH_IN_DMA(ch)	((uint32_t) (ch >> 12) & 0x3F)
-#define IPU_CHAN_VIDEO_IN_DMA(ch)	((uint32_t) (ch >> 18) & 0x3F)
-#define IPU_CHAN_OUT_DMA(ch)		((uint32_t) (ch & 0x3F))
+#define _MAKE_ALT_CHAN(ch) (ch | (IPU_MAX_CH << 24))
+#define IPU_CHAN_ID(ch) (ch >> 24)
+#define IPU_CHAN_ALT(ch) (ch & 0x02000000)
+#define IPU_CHAN_ALPHA_IN_DMA(ch) ((uint32_t)(ch >> 6) & 0x3F)
+#define IPU_CHAN_GRAPH_IN_DMA(ch) ((uint32_t)(ch >> 12) & 0x3F)
+#define IPU_CHAN_VIDEO_IN_DMA(ch) ((uint32_t)(ch >> 18) & 0x3F)
+#define IPU_CHAN_OUT_DMA(ch) ((uint32_t)(ch & 0x3F))
 #define NO_DMA 0x3F
-#define ALT	1
+#define ALT 1
 
 /*
  * Enumeration of IPU logical channels. An IPU logical channel is defined as a
@@ -118,16 +118,16 @@ typedef enum {
  * Enumeration of types of buffers for a logical channel.
  */
 typedef enum {
-	IPU_OUTPUT_BUFFER = 0,	/*< Buffer for output from IPU */
-	IPU_ALPHA_IN_BUFFER = 1,	/*< Buffer for input to IPU */
-	IPU_GRAPH_IN_BUFFER = 2,	/*< Buffer for input to IPU */
-	IPU_VIDEO_IN_BUFFER = 3,	/*< Buffer for input to IPU */
+	IPU_OUTPUT_BUFFER = 0, /*< Buffer for output from IPU */
+	IPU_ALPHA_IN_BUFFER = 1, /*< Buffer for input to IPU */
+	IPU_GRAPH_IN_BUFFER = 2, /*< Buffer for input to IPU */
+	IPU_VIDEO_IN_BUFFER = 3, /*< Buffer for input to IPU */
 	IPU_INPUT_BUFFER = IPU_VIDEO_IN_BUFFER,
 	IPU_SEC_INPUT_BUFFER = IPU_GRAPH_IN_BUFFER,
 } ipu_buffer_t;
 
-#define IPU_PANEL_SERIAL		1
-#define IPU_PANEL_PARALLEL		2
+#define IPU_PANEL_SERIAL 1
+#define IPU_PANEL_PARALLEL 2
 
 struct ipu_channel {
 	u8 video_in_dma;
@@ -185,45 +185,38 @@ enum ipu_irq_line {
  * Bitfield of Display Interface signal polarities.
  */
 typedef struct {
-	unsigned datamask_en:1;
-	unsigned ext_clk:1;
-	unsigned interlaced:1;
-	unsigned odd_field_first:1;
-	unsigned clksel_en:1;
-	unsigned clkidle_en:1;
-	unsigned data_pol:1;	/* true = inverted */
-	unsigned clk_pol:1;	/* true = rising edge */
-	unsigned enable_pol:1;
-	unsigned Hsync_pol:1;	/* true = active high */
-	unsigned Vsync_pol:1;
+	unsigned datamask_en : 1;
+	unsigned ext_clk : 1;
+	unsigned interlaced : 1;
+	unsigned odd_field_first : 1;
+	unsigned clksel_en : 1;
+	unsigned clkidle_en : 1;
+	unsigned data_pol : 1; /* true = inverted */
+	unsigned clk_pol : 1; /* true = rising edge */
+	unsigned enable_pol : 1;
+	unsigned Hsync_pol : 1; /* true = active high */
+	unsigned Vsync_pol : 1;
 } ipu_di_signal_cfg_t;
 
-typedef enum {
-	RGB,
-	YCbCr,
-	YUV
-} ipu_color_space_t;
+typedef enum { RGB, YCbCr, YUV } ipu_color_space_t;
 
 /* Common IPU API */
 int32_t ipu_init_channel(ipu_channel_t channel, ipu_channel_params_t *params);
 void ipu_uninit_channel(ipu_channel_t channel);
 
 int32_t ipu_init_channel_buffer(ipu_channel_t channel, ipu_buffer_t type,
-				uint32_t pixel_fmt,
-				uint16_t width, uint16_t height,
-				uint32_t stride,
+				uint32_t pixel_fmt, uint16_t width,
+				uint16_t height, uint32_t stride,
 				dma_addr_t phyaddr_0, dma_addr_t phyaddr_1,
 				uint32_t u_offset, uint32_t v_offset);
 
 void ipu_clear_buffer_ready(ipu_channel_t channel, ipu_buffer_t type,
-		uint32_t bufNum);
+			    uint32_t bufNum);
 int32_t ipu_enable_channel(ipu_channel_t channel);
 int32_t ipu_disable_channel(ipu_channel_t channel);
 
-int32_t ipu_init_sync_panel(int disp,
-			    uint32_t pixel_clk,
-			    uint16_t width, uint16_t height,
-			    uint32_t pixel_fmt,
+int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk, uint16_t width,
+			    uint16_t height, uint32_t pixel_fmt,
 			    uint16_t h_start_width, uint16_t h_sync_width,
 			    uint16_t h_end_width, uint16_t v_start_width,
 			    uint16_t v_sync_width, uint16_t v_end_width,
@@ -256,7 +249,7 @@ void ipu_dc_init(int dc_chan, int di, unsigned char interlaced);
 void ipu_dc_uninit(int dc_chan);
 void ipu_dp_dc_enable(ipu_channel_t channel);
 int ipu_dp_init(ipu_channel_t channel, uint32_t in_pixel_fmt,
-		 uint32_t out_pixel_fmt);
+		uint32_t out_pixel_fmt);
 void ipu_dp_uninit(ipu_channel_t channel);
 void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap);
 ipu_color_space_t format_to_colorspace(uint32_t fmt);
