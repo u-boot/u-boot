@@ -97,6 +97,22 @@ config SPL_DM_GPIO_LOOKUP_LABEL
 	  different gpios on different hardware versions
 	  for the same functionality in board code.
 
+config DM_GPIO_LOOKUP_LINE_NAME
+	def_bool y
+	depends on OF_CONTROL && OF_LIBFDT
+	help
+	  This option enables specifying a GPIO by referring to its
+	  name as defined by the "gpio-line-names" property in the
+	  gpio controller's devicetree node.
+
+config SPL_DM_GPIO_LOOKUP_LINE_NAME
+	def_bool y
+	depends on SPL_OF_CONTROL && SPL_OF_LIBFDT
+	help
+	  This option enables specifying a GPIO by referring to its
+	  name as defined by the "gpio-line-names" property in the
+	  gpio controller's devicetree node.
+
 config ADI_GPIO
 	bool "ADI GPIO driver"
 	depends on DM_GPIO && ARCH_SC5XX
