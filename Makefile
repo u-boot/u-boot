@@ -37,7 +37,6 @@ else ifeq ("riscv32", $(MK_ARCH))
 else ifeq ("riscv64", $(MK_ARCH))
   export HOST_ARCH=$(HOST_ARCH_RISCV64)
 endif
-undefine MK_ARCH
 
 # We are using a recursive build, so we need to do a little thinking
 # to get the ordering right.
@@ -1079,8 +1078,27 @@ PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
 else
 ifndef CONFIG_CC_IS_CLANG
 PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`) -lgcc
+else
+# mbedtls bignum needs '__udivti3' - a 128-bit division function that's provided by clang-rt.
+ifeq ($(CONFIG_RSA_PUBLIC_KEY_PARSER_MBEDTLS),y)
+CLANG_RES_DIR := $(shell $(CC) --print-resource-dir)
+# Find all matching libclang_rt.builtins*.a files
+CLANG_RT_LIB_FULL := $(shell find $(CLANG_RES_DIR)/lib -name "libclang_rt.builtins*.a" 2>/dev/null | grep "$(MK_ARCH)" | head -n 1)
+CLANG_RT_DIR := $(shell dirname $(CLANG_RT_LIB_FULL))
+ifeq ($(CLANG_RT_LIB_FULL),)
+$(info libclang_rt.builtins.a not found for target $(MK_ARCH))
+else ifneq ($(findstring /linux/, $(CLANG_RT_LIB_FULL)),)
+# Legacy(pre-LLVM15) layout (<INSTALLED_DIR>/lib/clang/<REV>/lib/linux/libclang_rt.builtins-<ARCH>.a)
+PLATFORM_LIBGCC := -L$(CLANG_RT_DIR) -lclang_rt.builtins-$(shell echo $(MK_ARCH) | tr -d '"')
+else
+# New(post-LLVM15) layout (<INSTALLED_DIR>/lib/clang/<REV_MAJOR>/lib/<CROSSTOOL_NAME>/libclang_rt.builtins.a)
+PLATFORM_LIBGCC := -L$(CLANG_RT_DIR) -lclang_rt.builtins
 endif
-endif
+endif # CONFIG_RSA_PUBLIC_KEY_PARSER_MBEDTLS
+endif # CONFIG_CC_IS_CLANG
+endif # CONFIG_USE_PRIVATE_LIBGCC
+
+undefine MK_ARCH
 PLATFORM_LIBS += $(PLATFORM_LIBGCC)
 
 ifdef CONFIG_CC_COVERAGE
