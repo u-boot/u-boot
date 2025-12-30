@@ -61,7 +61,7 @@ config ADI_SPI3
 
 config AIROHA_SNFI_SPI
 	bool "Airoha SPI memory controller driver"
-	depends on SPI_MEM
+	depends on SPI_MEM && ARCH_AIROHA
 	help
 	  Enable the Airoha SPI memory controller driver. This driver is
 	  originally based on the Airoha SNFI IP core. It can only be
