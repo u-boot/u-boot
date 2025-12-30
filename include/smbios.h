@@ -264,6 +264,51 @@ struct __packed smbios_type7 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
+#define SMBIOS_TYPE9_PGROUP_SIZE 5
+
+struct pci_attr_lookup_table {
+	const char *str;
+	u8 slot_type;
+	u8 data_bus_width;
+	u8 slot_length;
+	u8 chara1;
+	u8 chara2;
+};
+
+union dev_func_num {
+	struct {
+		u8 dev_num:5;
+		u8 func_num:3;
+	} fields;
+	u8 data;
+};
+
+struct __packed smbios_type9 {
+	struct smbios_header hdr;
+	u8 socket_design;
+	u8 slot_type;
+	u8 slot_data_bus_width;
+	u8 current_usage;
+	u8 slot_length;
+	u16 slot_id;
+	u8 slot_characteristics_1;
+	u8 slot_characteristics_2;
+	u16 segment_group_number;
+	u8 bus_number;
+	union dev_func_num device_function_number;
+	u8 electrical_bus_width;
+	u8 peer_grouping_count;
+	/*
+	 * Dynamic bytes will be inserted here to store peer_groups.
+	 * length is equal to 'peer_grouping_count' * 5
+	 */
+	u8 slot_information;
+	u8 slot_physical_width;
+	u16 slot_pitch;
+	u8 slot_height;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
+
 struct __packed smbios_type32 {
 	u8 type;
 	u8 length;
