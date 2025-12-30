@@ -1069,6 +1069,14 @@ config ASPEED_MDIO
 	  This driver supports the MDIO bus of Aspeed AST2600 SOC.  The driver
 	  currently supports Clause 22.
 
+config MDIO_MSCC_MIIM
+	bool "Microsemi MIIM interface support"
+	depends on DM_MDIO
+	select REGMAP
+	help
+		This driver supports MDIO interface found in Microsemi and Microchip
+		network switches.
+
 config MDIO_MUX_MMIOREG
 	bool "MDIO MUX accessed as a MMIO register access"
 	depends on DM_MDIO_MUX
