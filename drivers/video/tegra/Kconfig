@@ -1,10 +1,12 @@
 config HOST1X_TEGRA
-	bool "NVIDIA Tegra host1x BUS support"
-	depends on SIMPLE_BUS
+	bool
+	select SIMPLE_BUS
+	help
+	  NVIDIA Tegra host1x BUS support
 
 config VIDEO_TEGRA
 	bool "Enable Display Controller support on Tegra devices"
-	depends on OF_CONTROL
+	depends on OF_CONTROL && ARCH_TEGRA
 	select HOST1X_TEGRA
 	help
 	   Enable support for Display Controller found in Tegra SoC. The
@@ -17,7 +19,7 @@ config VIDEO_TEGRA
 
 config VIDEO_DSI_TEGRA
 	bool "Enable DSI controller support on Tegra devices"
-	depends on VIDEO_BRIDGE && PANEL && DM_GPIO
+	depends on VIDEO_BRIDGE && PANEL && DM_GPIO && ARCH_TEGRA
 	select VIDEO_TEGRA
 	select VIDEO_MIPI_DSI
 	help
@@ -27,7 +29,7 @@ config VIDEO_DSI_TEGRA
 
 config VIDEO_HDMI_TEGRA
 	bool "Enable HDMI support on Tegra devices"
-	depends on VIDEO_BRIDGE && DM_I2C
+	depends on VIDEO_BRIDGE && DM_I2C && ARCH_TEGRA
 	select I2C_EDID
 	select VIDEO_TEGRA
 	help
@@ -36,16 +38,14 @@ config VIDEO_HDMI_TEGRA
 
 config TEGRA_BACKLIGHT_PWM
 	bool "Enable Tegra DC PWM backlight support"
-	depends on BACKLIGHT
-	select VIDEO_TEGRA
+	depends on BACKLIGHT && VIDEO_TEGRA
 	help
 	   Enable support for the Display Controller dependent PWM backlight
 	   found in the Tegra SoC and usually used with DSI panels.
 
 config TEGRA_8BIT_CPU_BRIDGE
 	bool "Enable 8 bit panel communication protocol for Tegra 20/30"
-	depends on VIDEO_BRIDGE && DM_GPIO
-	select VIDEO_TEGRA
+	depends on VIDEO_BRIDGE && DM_GPIO && VIDEO_TEGRA
 	select VIDEO_MIPI_DSI
 	help
 	   Tegra 20 and Tegra 30 feature 8 bit CPU driver panel control
@@ -54,6 +54,7 @@ config TEGRA_8BIT_CPU_BRIDGE
 
 config VIDEO_TEGRA124
 	bool "Enable video support on Tegra124"
+	depends on ARCH_TEGRA
 	imply VIDEO_DAMAGE
 	help
 	   Tegra124 supports many video output options including eDP and

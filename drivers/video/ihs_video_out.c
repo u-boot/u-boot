@@ -15,6 +15,7 @@
 #include <regmap.h>
 #include <video_osd.h>
 #include <asm/gpio.h>
+#include <asm/io.h>
 
 static const uint MAX_X_CHARS = 53;
 static const uint MAX_Y_CHARS = 26;

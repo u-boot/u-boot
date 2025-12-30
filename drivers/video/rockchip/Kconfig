@@ -10,7 +10,7 @@
 
 menuconfig VIDEO_ROCKCHIP
 	bool "Enable Rockchip Video Support"
-	depends on VIDEO
+	depends on VIDEO && ARCH_ROCKCHIP
 	imply VIDEO_DAMAGE
 	help
 	  Rockchip SoCs provide video output capabilities for High-Definition

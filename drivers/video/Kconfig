@@ -523,6 +523,7 @@ config ATMEL_LCD_BGR555
 
 config VIDEO_BCM2835
 	bool "Display support for BCM2835"
+	depends on ARCH_BCM283X
 	imply VIDEO_DAMAGE
 	help
 	  The graphics processor already sets up the display so this driver
@@ -755,6 +756,7 @@ source "drivers/video/meson/Kconfig"
 
 config VIDEO_MVEBU
 	bool "Armada XP LCD controller"
+	depends on ARCH_MVEBU
 	imply VIDEO_DAMAGE
 	---help---
 	Support for the LCD controller integrated in the Marvell
@@ -796,6 +798,7 @@ config NXP_TDA19988
 
 config ATMEL_HLCD
 	bool "Enable ATMEL video support using HLCDC"
+	depends on ARCH_AT91
 	imply VIDEO_DAMAGE
 	help
 	   HLCDC supports video output to an attached LCD panel.
@@ -886,14 +889,6 @@ config VIDEO_IVYBRIDGE_IGD
 
 source "drivers/video/rockchip/Kconfig"
 
-config VIDEO_ARM_MALIDP
-	bool "Enable Arm Mali Display Processor support"
-	depends on OF_CONTROL
-	select VEXPRESS_CLK
-	help
-	  This enables support for Arm Ltd Mali Display Processors from
-	  the DP500, DP550 and DP650 family.
-
 config VIDEO_SANDBOX_SDL
 	bool "Enable sandbox video console using SDL"
 	depends on SANDBOX_SDL
@@ -915,6 +910,7 @@ source "drivers/video/imx/Kconfig"
 
 config VIDEO_MXS
 	bool "Enable video support on i.MX28/i.MX6UL/i.MX7 SoCs"
+	depends on MACH_IMX
 	imply VIDEO_DAMAGE
 	help
 	  Enable framebuffer driver for i.MX28/i.MX6UL/i.MX7 processors

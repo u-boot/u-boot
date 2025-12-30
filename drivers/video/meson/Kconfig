@@ -6,7 +6,7 @@
 
 config VIDEO_MESON
 	bool "Enable Amlogic Meson video support"
-	depends on VIDEO
+	depends on VIDEO && ARCH_MESON
 	select DISPLAY
 	imply VIDEO_DAMAGE
 	help
