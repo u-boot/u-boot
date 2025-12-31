@@ -128,8 +128,8 @@ stages:
       - script: |
           ./tools/buildman/buildman --maintainer-check
 
-  - job: tools_only
-    displayName: 'Ensure host tools and env tools build'
+  - job: allyesconfig_and_tools
+    displayName: 'Ensure allyesconfig, tools-only and envtools build'
     pool:
       vmImage: $(ubuntu_vm)
     container:
@@ -137,6 +137,10 @@ stages:
       options: $(container_option)
     steps:
       - script: |
+          # Allow pipefail because of how we use 'yes' here.
+          set +o pipefail;
+          yes 0 | make allyesconfig oldconfig all -j$(nproc)
+          make mrproper
           make tools-only_config tools-only -j$(nproc)
           make mrproper
           make tools-only_config envtools -j$(nproc)

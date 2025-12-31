@@ -32,7 +32,7 @@ stages:
 .buildman_and_testpy_template: &buildman_and_testpy_dfn
   stage: test.py
   retry: 2 # QEMU may be too slow, etc.
-  needs: [ "Run binman, buildman, dtoc, Kconfig and patman testsuites" ]
+  needs: [ "Build allyesconfig, tools-only and envtools" ]
   before_script:
     # Clone uboot-test-hooks
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
@@ -195,10 +195,14 @@ Check for configs without MAINTAINERS entry:
     - ./tools/buildman/buildman --maintainer-check
 
 # Ensure host tools build
-Build tools-only and envtools:
+Build allyesconfig, tools-only and envtools:
   extends: .testsuites
   script:
-    - make tools-only_config tools-only -j$(nproc);
+    # Allow pipefail because of how we use 'yes' here.
+    - set +o pipefail;
+      yes 0 | make allyesconfig oldconfig all -j$(nproc);
+      make mrproper;
+      make tools-only_config tools-only -j$(nproc);
       make mrproper;
       make tools-only_config envtools -j$(nproc)
 
