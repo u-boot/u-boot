@@ -66,7 +66,7 @@ struct bootflow;
  *
  *   static __efi_runtime compute_my_table(void);
  */
-#define __efi_runtime __section(".text.efi_runtime")
+#define __efi_runtime __section(".text.efi_runtime") notrace
 
 /*
  * Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
