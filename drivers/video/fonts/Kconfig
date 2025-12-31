@@ -6,7 +6,6 @@ menu "TrueType Fonts"
 
 config CONSOLE_TRUETYPE_NIMBUS
 	bool "Nimbus Sans Regular"
-	depends on CONSOLE_TRUETYPE
 	default y
 	help
 	  Nimbus Sans L is a version of Nimbus Sans using Adobe font sources.
@@ -20,7 +19,6 @@ config CONSOLE_TRUETYPE_NIMBUS
 
 config CONSOLE_TRUETYPE_ANKACODER
 	bool "Anka Coder Narrow"
-	depends on CONSOLE_TRUETYPE
 	help
 	  The Anka/Coder family is a monospaced, courier-width font for source
 	  code and terminals, in two styles and weights. Anka/Coder Narrow was
@@ -32,7 +30,6 @@ config CONSOLE_TRUETYPE_ANKACODER
 
 config CONSOLE_TRUETYPE_RUFSCRIPT
 	bool "Ruf Script"
-	depends on CONSOLE_TRUETYPE
 	help
 	  A laid-back handwritten font.
 	  Font: https://fontlibrary.org/en/font/rufscript
@@ -41,7 +38,6 @@ config CONSOLE_TRUETYPE_RUFSCRIPT
 
 config CONSOLE_TRUETYPE_CANTORAONE
 	bool "Cantoraone"
-	depends on CONSOLE_TRUETYPE
 	help
 	  Cantora is a friendly semi formal, semi condensed, semi sans-serif
 	  with a hint of handwriting. Perfect for headlines.

@@ -211,9 +211,10 @@ config CONSOLE_TRUETYPE
 	  With this option you can adjust the text size and use a variety of
 	  fonts. Note that this is noticeably slower than with normal console.
 
+if CONSOLE_TRUETYPE
+
 config CONSOLE_TRUETYPE_SIZE
 	int "TrueType font size"
-	depends on CONSOLE_TRUETYPE
 	default 18
 	help
 	  This sets the font size for the console. The size is measured in
@@ -226,7 +227,6 @@ config CONSOLE_TRUETYPE_SIZE
 
 config CONSOLE_TRUETYPE_MAX_METRICS
 	int "TrueType maximum number of font / size combinations"
-	depends on CONSOLE_TRUETYPE
 	default 10 if EXPO
 	default 1
 	help
@@ -238,6 +238,10 @@ config CONSOLE_TRUETYPE_MAX_METRICS
 	  font itself is the same. This is because the entry caches various
 	  font metrics which are expensive to regenerate each time the font
 	  size changes.
+
+source "drivers/video/fonts/Kconfig"
+
+endif
 
 config SYS_WHITE_ON_BLACK
 	bool "Display console as white on a black background"
@@ -308,8 +312,6 @@ config PANEL_HX8238D
 	  integrates the power circuit.
 	  It can drive a maximum 960x240 dot graphics on a-TFT panel
 	  displays in 16M colors with dithering.
-
-source "drivers/video/fonts/Kconfig"
 
 config VIDEO_BOCHS
 	bool "Enable Bochs video emulation for QEMU"
