@@ -734,7 +734,7 @@ static int video_post_probe(struct udevice *dev)
 		uint ms = CONFIG_IF_ENABLED_INT(CYCLIC, VIDEO_SYNC_CYCLIC_MS);
 
 		cyclic_register(&uc_priv->cyc, video_idle, ms * 1000,
-				"video_init");
+				"video_idle");
 		uc_priv->cyc_active = true;
 	}
 
