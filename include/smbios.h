@@ -110,9 +110,41 @@ struct __packed smbios_type0 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
+#define SMBIOS_TYPE0_LENGTH_V24		0x18
+#define SMBIOS_TYPE0_LENGTH_V31		0x1a
+
 #define SMBIOS_TYPE1_LENGTH_V20		0x08
 #define SMBIOS_TYPE1_LENGTH_V21		0x19
 #define SMBIOS_TYPE1_LENGTH_V24		0x1b
+
+#define SMBIOS_TYPE4_LENGTH_V20		0x1a
+#define SMBIOS_TYPE4_LENGTH_V23		0x23
+#define SMBIOS_TYPE4_LENGTH_V25		0x28
+#define SMBIOS_TYPE4_LENGTH_V26		0x2a
+#define SMBIOS_TYPE4_LENGTH_V30		0x30
+#define SMBIOS_TYPE4_LENGTH_V36		0x32
+
+#define SMBIOS_TYPE7_LENGTH_V20		0x0f
+#define SMBIOS_TYPE7_LENGTH_V21		0x13
+#define SMBIOS_TYPE7_LENGTH_V31		0x1b
+
+#define SMBIOS_TYPE9_LENGTH_V20		0x0c
+#define SMBIOS_TYPE9_LENGTH_V21		0x0d
+#define SMBIOS_TYPE9_LENGTH_V26		0x11
+
+#define SMBIOS_TYPE16_LENGTH_V21	0x0f
+#define SMBIOS_TYPE16_LENGTH_V27	0x17
+
+#define SMBIOS_TYPE17_LENGTH_V21	0x15
+#define SMBIOS_TYPE17_LENGTH_V23	0x1b
+#define SMBIOS_TYPE17_LENGTH_V26	0x1c
+#define SMBIOS_TYPE17_LENGTH_V27	0x22
+#define SMBIOS_TYPE17_LENGTH_V28	0x28
+#define SMBIOS_TYPE17_LENGTH_V32	0x54
+#define SMBIOS_TYPE17_LENGTH_V33	0x5c
+
+#define SMBIOS_TYPE19_LENGTH_V21	0x0f
+#define SMBIOS_TYPE19_LENGTH_V27	0x1f
 
 struct __packed smbios_type1 {
 	struct smbios_header hdr;
@@ -261,6 +293,125 @@ struct __packed smbios_type7 {
 	u8 associativity;
 	union cache_size_dword max_size2;
 	union cache_size_dword inst_size2;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
+
+#define SMBIOS_TYPE9_PGROUP_SIZE 5
+
+struct pci_attr_lookup_table {
+	const char *str;
+	u8 slot_type;
+	u8 data_bus_width;
+	u8 slot_length;
+	u8 chara1;
+	u8 chara2;
+};
+
+union dev_func_num {
+	struct {
+		u8 dev_num:5;
+		u8 func_num:3;
+	} fields;
+	u8 data;
+};
+
+struct __packed smbios_type9 {
+	struct smbios_header hdr;
+	u8 socket_design;
+	u8 slot_type;
+	u8 slot_data_bus_width;
+	u8 current_usage;
+	u8 slot_length;
+	u16 slot_id;
+	u8 slot_characteristics_1;
+	u8 slot_characteristics_2;
+	u16 segment_group_number;
+	u8 bus_number;
+	union dev_func_num device_function_number;
+	u8 electrical_bus_width;
+	u8 peer_grouping_count;
+	/*
+	 * Dynamic bytes will be inserted here to store peer_groups.
+	 * length is equal to 'peer_grouping_count' * 5
+	 */
+	u8 slot_information;
+	u8 slot_physical_width;
+	u16 slot_pitch;
+	u8 slot_height;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
+
+enum {
+	SMBIOS_MEM_NONE = 0,
+	SMBIOS_MEM_CUSTOM = 1,
+	SMBIOS_MEM_FDT_MEM_NODE = 2,
+	SMBIOS_MEM_FDT_MEMCON_NODE = 3
+};
+
+struct __packed smbios_type16 {
+	struct smbios_header hdr;
+	u8 location;
+	u8 use;
+	u8 mem_err_corr;
+	u32 max_cap;
+	u16 mem_err_info_hdl;
+	u16 num_of_mem_dev;
+	u64 ext_max_cap;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
+
+struct __packed smbios_type17 {
+	struct smbios_header hdr;
+	u16 phy_mem_array_hdl;
+	u16 mem_err_info_hdl;
+	u32 total_width;
+	u32 data_width;
+	u16 size;
+	u8 form_factor;
+	u8 dev_set;
+	u8 dev_locator;
+	u8 bank_locator;
+	u8 mem_type;
+	u16 type_detail;
+	u16 speed;
+	u8 manufacturer;
+	u8 serial_number;
+	u8 asset_tag;
+	u8 part_number;
+	u8 attributes;
+	u32 ext_size;
+	u16 config_mem_speed;
+	u16 min_voltage;
+	u16 max_voltage;
+	u16 config_voltage;
+	u8 mem_tech;
+	u16 mem_op_mode_cap;
+	u8 fw_ver;
+	u16 module_man_id;
+	u16 module_prod_id;
+	u16 mem_subsys_con_man_id;
+	u16 mem_subsys_con_prod_id;
+	u64 nonvolatile_size;
+	u64 volatile_size;
+	u64 cache_size;
+	u64 logical_size;
+	u32 ext_speed;
+	u32 ext_config_mem_speed;
+	u16 pmic0_man_id;
+	u16 pmic0_rev_num;
+	u16 rcd_man_id;
+	u16 rcd_rev_num;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
+
+struct __packed smbios_type19 {
+	struct smbios_header hdr;
+	u32 start_addr;
+	u32 end_addr;
+	u16 mem_array_hdl;
+	u8 partition_wid;
+	u64 ext_start_addr;
+	u64 ext_end_addr;
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
