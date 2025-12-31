@@ -27,26 +27,11 @@ struct npcm_wdt_priv {
 static int npcm_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	struct npcm_wdt_priv *priv = dev_get_priv(dev);
-	u32 time_out, val;
+	u32 val;
 
-	time_out = (u32)(timeout_ms) / 1000;
-	if (time_out < 2)
-		val = 0x800;
-	else if (time_out < 3)
-		val = 0x420;
-	else if (time_out < 6)
-		val = 0x810;
-	else if (time_out < 11)
-		val = 0x430;
-	else if (time_out < 22)
-		val = 0x820;
-	else if (time_out < 44)
-		val = 0xc00;
-	else if (time_out < 87)
-		val = 0x830;
-	else if (time_out < 173)
-		val = 0xc10;
-	else if (time_out < 688)
+	if (timeout_ms < 343552)
+		val = ((timeout_ms / 1342) << 16) + 0x800;
+	else if (timeout_ms < 688000)
 		val = 0xc20;
 	else
 		val = 0xc30;
