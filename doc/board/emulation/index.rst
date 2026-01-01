@@ -9,6 +9,7 @@ Emulation
    acpi
    blkdev
    network
+   video
    qemu-arm
    qemu-mips
    qemu-ppce500
