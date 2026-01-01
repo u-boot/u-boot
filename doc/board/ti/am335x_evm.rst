@@ -274,7 +274,7 @@ into memory, then written to NAND.
 Falcon Mode
 -----------
 
-The default build includes "Falcon Mode" (see doc/README.falcon) via NAND,
+The default build includes :ref:`falcon-mode` via NAND,
 eMMC (or raw SD cards) and FAT SD cards.  Our default behavior currently is
 to read a 'c' on the console while in SPL at any point prior to loading the
 OS payload (so as soon as possible) to opt to booting full U-Boot.  Also
