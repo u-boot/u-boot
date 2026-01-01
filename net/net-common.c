@@ -6,6 +6,27 @@
 #include <linux/time.h>
 #include <rtc.h>
 
+/* Network loop state */
+enum net_loop_state net_state;
+/* Our IP addr (0 = unknown) */
+struct in_addr	net_ip;
+/* Server IP addr (0 = unknown) */
+struct in_addr	net_server_ip;
+/* Our subnet mask (0=unknown) */
+struct in_addr net_netmask;
+/* Our gateways IP address */
+struct in_addr net_gateway;
+/* Boot File name */
+char net_boot_file_name[1024];
+/* Indicates whether the file name was specified on the command line */
+bool net_boot_file_name_explicit;
+/* The actual transferred size of the bootfile (in bytes) */
+u32 net_boot_file_size;
+/* Boot file size in blocks as reported by the DHCP server */
+u32 net_boot_file_expected_size_in_blocks;
+uchar *net_rx_packets[PKTBUFSRX];
+uchar *net_rx_packet;
+
 void copy_filename(char *dst, const char *src, int size)
 {
 	if (src && *src && (*src == '"')) {
