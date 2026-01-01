@@ -342,8 +342,7 @@ static int mv2110_select_mactype(struct phy_device *phydev)
 {
 	if (phydev->interface == PHY_INTERFACE_MODE_USXGMII)
 		return MV_PMA_21X0_PORT_CTRL_MACTYPE_USXGMII;
-	else if (phydev->interface == PHY_INTERFACE_MODE_SGMII &&
-		 !(phydev->interface == PHY_INTERFACE_MODE_10GBASER))
+	else if (phydev->interface == PHY_INTERFACE_MODE_SGMII)
 		return MV_PMA_21X0_PORT_CTRL_MACTYPE_5GBASER;
 	else if (phydev->interface == PHY_INTERFACE_MODE_10GBASER)
 		return MV_PMA_21X0_PORT_CTRL_MACTYPE_10GBASER_RATE_MATCH;
@@ -381,15 +380,6 @@ static int mv3310_select_mactype(struct phy_device *phydev)
 {
 	if (phydev->interface == PHY_INTERFACE_MODE_USXGMII)
 		return MV_V2_33X0_PORT_CTRL_MACTYPE_USXGMII;
-	else if (phydev->interface == PHY_INTERFACE_MODE_SGMII &&
-		 phydev->interface == PHY_INTERFACE_MODE_10GBASER)
-		return MV_V2_33X0_PORT_CTRL_MACTYPE_10GBASER;
-	else if (phydev->interface == PHY_INTERFACE_MODE_SGMII &&
-		 phydev->interface == PHY_INTERFACE_MODE_RXAUI)
-		return MV_V2_33X0_PORT_CTRL_MACTYPE_RXAUI;
-	else if (phydev->interface == PHY_INTERFACE_MODE_SGMII &&
-		 phydev->interface == PHY_INTERFACE_MODE_XAUI)
-		return MV_V2_3310_PORT_CTRL_MACTYPE_XAUI;
 	else if (phydev->interface == PHY_INTERFACE_MODE_10GBASER)
 		return MV_V2_33X0_PORT_CTRL_MACTYPE_10GBASER_RATE_MATCH;
 	else if (phydev->interface == PHY_INTERFACE_MODE_RXAUI)
@@ -542,7 +532,7 @@ static bool mv3310_has_downshift(struct phy_device *phydev)
 }
 
 #define mv_test_bit(iface, phydev)	\
-	({ if ((phydev)->interface & (iface)) return 0; })
+	({ if ((phydev)->interface == (iface)) return 0; })
 
 static int mv3310_mv3340_test_supported_interfaces(struct phy_device *phydev)
 {
