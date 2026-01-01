@@ -15,6 +15,7 @@
 
 #include <asm/types.h>
 #include <linux/compiler.h>
+#include <linux/build_bug.h>
 
 typedef struct fsl_i2c_base {
 
@@ -67,6 +68,7 @@ typedef struct fsl_i2c_base {
 	/* Fill out the reserved block */
 	u8 res6[0xE8];
 } fsl_i2c_t;
+static_assert(sizeof(fsl_i2c_t) == 0x100);
 
 #if CONFIG_IS_ENABLED(DM_I2C)
 struct fsl_i2c_dev {

@@ -526,6 +526,7 @@ typedef struct fsl_lbc {
 	u8      res9[0xF28];
 #endif
 } fsl_lbc_t;
+static_assert(sizeof(fsl_lbc_t) == 0x1000);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __ASM_PPC_FSL_LBC_H */

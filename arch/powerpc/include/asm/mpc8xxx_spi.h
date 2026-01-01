@@ -26,6 +26,7 @@ typedef struct spi8xxx {
 	u32 rx;		/* receive register */
 	u8 res1[0xFC8];	/* fill up to 0x1000 */
 } spi8xxx_t;
+static_assert(sizeof(spi8xxx_t) == 0x1000);
 
 #endif
 
