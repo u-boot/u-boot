@@ -322,6 +322,7 @@ F:	doc/imx/
 F:	drivers/mailbox/imx-mailbox.c
 F:	drivers/remoteproc/imx*
 F:	drivers/serial/serial_mxc.c
+F:	drivers/spi/nxp_xspi.c
 F:	include/imx_container.h
 
 ARM HISILICON
