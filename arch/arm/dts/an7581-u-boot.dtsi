@@ -84,6 +84,7 @@
 			reg = <0x0 0x1fa0e000 0x0 0x1000>,
 				<0x0 0x1fa0c000 0x0 0x60>;
 			interrupts = <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>;
+			r_smpl = <1>;
 			clocks = <&scuclk EN7581_CLK_EMMC>, <&clk25m>;
 			clock-names = "source", "hclk";
 			bus-width = <4>;
