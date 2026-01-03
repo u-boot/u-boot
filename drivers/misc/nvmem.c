@@ -102,6 +102,7 @@ int nvmem_cell_get_by_index(struct udevice *dev, int index,
 	fdt_size_t size = FDT_SIZE_T_NONE;
 	int ret;
 	struct ofnode_phandle_args args;
+	ofnode par;
 
 	dev_dbg(dev, "%s: index=%d\n", __func__, index);
 
@@ -110,7 +111,11 @@ int nvmem_cell_get_by_index(struct udevice *dev, int index,
 	if (ret)
 		return ret;
 
-	ret = nvmem_get_device(ofnode_get_parent(args.node), cell);
+	par = ofnode_get_parent(args.node);
+	if (ofnode_device_is_compatible(par, "fixed-layout"))
+		par = ofnode_get_parent(par);
+
+	ret = nvmem_get_device(par, cell);
 	if (ret)
 		return ret;
 
