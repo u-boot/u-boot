@@ -1,6 +1,5 @@
 menuconfig CRYPT_PW
 	bool "Add crypt support for password-based unlock"
-	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
 	help
 	  Enable support for crypt-style hashed passphrases.
 	  This will then be used as the mechanism of choice to
