@@ -865,7 +865,6 @@ config ARCH_MESON
 config ARCH_MEDIATEK
 	bool "MediaTek SoCs"
 	select DM
-	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select SPL_DM if SPL
 	select SPL_LIBCOMMON_SUPPORT if SPL
