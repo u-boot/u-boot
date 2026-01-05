@@ -29,7 +29,7 @@ struct panel_ops {
 	 * get_timings() - Get display timings from panel.
 	 *
 	 * @dev:	Panel device containing the display timings
-	 * @tim:	Place to put timings
+	 * @timing:	Pointer to the timing for storing
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*get_display_timing)(struct udevice *dev,
@@ -60,6 +60,7 @@ int panel_set_backlight(struct udevice *dev, int percent);
  * panel_get_display_timing() - Get display timings from panel.
  *
  * @dev:	Panel device containing the display timings
+ * @timing:	Pointer to the timing for storing
  * Return: 0 if OK, -ve on error
  */
 int panel_get_display_timing(struct udevice *dev,
