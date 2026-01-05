@@ -90,6 +90,10 @@ environment.  This can be done via the following commands:
     $ . ./venv/bin/activate
     $ pip install -r test/py/requirements.txt
 
+In order to use the ``--build`` option of ``test.py`` there may be additional
+python packages required depending on the configuration being built. These can
+be found with ``find . -name "*.requirements*.txt"``.
+
 Testing sandbox
 ---------------
 
