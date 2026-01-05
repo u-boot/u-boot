@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 BayLibre, SAS.
+ * Author: Neil Armstrong <narmstrong@baylibre.com>
+ */
+
+#include "meson-gx-u-boot.dtsi"
+
+#if defined(CONFIG_BINMAN)
+/* GXBB-specific binman configuration */
+&binman {
+	u-boot-amlogic {
+		mkimage {
+			args = "-n", "gxbb", "-T", "amlimage";
+		};
+
+		fit: fit {
+			images {
+				atf {
+					load = <0x10100000>;
+					entry = <0x10100000>;
+				};
+			};
+		};
+	};
+};
+#endif

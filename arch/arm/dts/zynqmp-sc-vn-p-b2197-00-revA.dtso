@@ -13,9 +13,6 @@
 /plugin/;
 
 &{/} {
-	#address-cells = <2>;
-	#size-cells = <2>;
-
 	compatible = "xlnx,zynqmp-sc-vn-p-b2197-revA",
 		     "xlnx,zynqmp-sc-vn-p-b2197", "xlnx,zynqmp";
 

@@ -1,0 +1,7 @@
+Kontron OSM-S/BL i.MX93 Boards
+M:	Frieder Schrempf <frieder.schrempf@kontron.de>
+S:	Maintained
+F:	board/kontron/osm-s-mx93
+F:	configs/kontron-osm-s-mx93_defconfig
+F:	doc/board/kontron/osm-s-mx93.rst
+F:	include/configs/kontron-osm-s-mx93.h

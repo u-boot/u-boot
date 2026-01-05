@@ -219,7 +219,7 @@ config NAND_DENALI_DT
 	bool "Support Denali NAND controller as a DT device"
 	select NAND_DENALI
 	select SPL_SYS_NAND_SELF_INIT
-	depends on OF_CONTROL && DM_MTD
+	depends on OF_CONTROL && DM_MTD && (ARCH_SOCFPGA || ARCH_UNIPHIER)
 	help
 	  Enable the driver for NAND flash on platforms using a Denali NAND
 	  controller as a DT device.
@@ -401,6 +401,7 @@ endif
 
 config NAND_VF610_NFC
 	bool "Support for Freescale NFC for VF610"
+	depends on ARCH_VF610
 	select SYS_NAND_SELF_INIT
 	select SYS_NAND_DRIVER_ECC_LAYOUT
 	imply CMD_NAND

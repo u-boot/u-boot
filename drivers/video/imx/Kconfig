@@ -23,3 +23,4 @@ config IMX_LDB
 
 config IMX_LCDIF
 	bool "i.MX LCDIFv3 LCD controller"
+	depends on MACH_IMX

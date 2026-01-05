@@ -4,9 +4,7 @@
 # the kernel for the build process.
 # ---------------------------------------------------------------------------
 
-hostprogs-$(CONFIG_BUILD_BIN2C)		+= bin2c
-
-always		:= $(hostprogs-y)
+hostprogs-always-$(CONFIG_BUILD_BIN2C)		+= bin2c
 
 # Let clean descend into subdirs
 subdir-	+= basic kconfig dtc

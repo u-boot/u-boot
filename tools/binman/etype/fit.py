@@ -104,9 +104,10 @@ class Entry_fit(Entry_section):
 
         fit,sign
             Enable signing FIT images via mkimage as described in
-            verified-boot.rst. If the property is found, the private keys path
-            is detected among binman include directories and passed to mkimage
-            via  -k flag. All the keys required for signing FIT must be
+            verified-boot.rst.
+            If the property is found and fit,engine is not set, the private
+            keys path is detected among binman include directories and passed to
+            mkimage via -k flag. All the keys required for signing FIT must be
             available at time of signing and must be located in single include
             directory.
 
@@ -116,6 +117,53 @@ class Entry_fit(Entry_section):
             directories and passed to mkimage via  -k flag. All the keys
             required for encrypting the FIT must be available at the time of
             encrypting and must be located in a single include directory.
+
+            Incompatible with fit,engine.
+
+        fit,engine
+            Indicates the OpenSSL engine to use for signing the FIT image. This
+            is passed to mkimage via the `-N` flag. Example::
+
+                fit,engine = "my-engine";
+
+            A `-k` argument for mkimage may be passed via `fit,engine-keydir`.
+
+            When `fit,engine` is set to `pkcs11`, the following applies:
+
+            - If `fit,engine-keydir` is absent, the value of `key-name-hint` is
+              prefixed with `pkcs11:object=` before being passed to the OpenSSL
+              engine API::
+
+                  pkcs11:object=<key-name-hint>
+
+            - If `fit,engine-keydir` contains either `object=` or `id=`, its
+              value is passed verbatim to the OpenSSL engine API,
+
+            - Otherwise, the value of `fit,engine-keydir` is followed by
+              `;object=` and the value of `key-name-hint` before being passed to
+              the OpenSSL engine API::
+
+                  <fit,engine-keydir>;object=<key-name-hint>
+
+            If `fit,engine` is set to something different than `pkcs11`, the
+            value of `key-name-hint` (prefixed with the value of
+            `fit,engine-keydir` if present) and passed verbatim to the OpenSSL
+            engine API.
+
+            Depends on fit,sign.
+
+            Incompatible with fit,encrypt.
+
+        fit,engine-keydir
+            Indicates the `-k` argument to pass to mkimage if an OpenSSL engine
+            is to be used for signing the FIT image. Example::
+
+                fit,engine-keydir = "pkcs11:model=xxx;manufacturer=xxx";
+
+            Read `fit,engine` documentation for more info on special cases when
+            using `pkcs11` as engine.
+
+            Depends on fit,engine.
 
     Substitutions
     ~~~~~~~~~~~~~
@@ -588,6 +636,29 @@ class Entry_fit(Entry_section):
 
         return paths[0] if len(paths) else None
 
+    def _get_fit_engine(self):
+        """Detect whether an OpenSSL engine is to be used for the FIT
+
+        Returns:
+            Tuple(str, str): Name of the engine to use, as first element of the
+                             Tuple. None if no engine to use.
+                             keydir arguments to pass with the engine to the
+                             OpenSSL API, as second element of the Tuple. None
+                             if no keydir to pass.
+        """
+        engine = None
+        engine_keydir = None
+
+        prop = self._fit_props.get('fit,engine')
+        if prop is not None:
+            engine = prop.value
+
+            prop = self._fit_props.get('fit,engine-keydir')
+            if prop is not None:
+                engine_keydir = prop.value
+
+        return engine, engine_keydir
+
     def BuildSectionData(self, required):
         """Build FIT entry contents
 
@@ -620,7 +691,21 @@ class Entry_fit(Entry_section):
             args.update({'align': fdt_util.fdt32_to_cpu(align.value)})
         if (self._fit_props.get('fit,sign') is not None or
             self._fit_props.get('fit,encrypt') is not None):
-            args.update({'keys_dir': self._get_keys_dir(data)})
+            engine = None
+            keydir = None
+
+            # Engine only supported for signing for now
+            if self._fit_props.get('fit,sign') is not None:
+                engine, keydir = self._get_fit_engine()
+
+            args.update({'engine': engine})
+            # If no engine, keys must exist locally, find them
+            if engine is None:
+                keydir = self._get_keys_dir(data)
+            elif self._fit_props.get('fit,encrypt') is not None:
+                self.Raise('fit,engine currently does not support encryption')
+
+            args.update({'keys_dir': keydir})
         if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
                             **args) is None:
             if not self.GetAllowMissing():

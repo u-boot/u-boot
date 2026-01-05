@@ -12,4 +12,4 @@ obj-y += $(hw-platform-y)/board.o
 obj-$(CONFIG_SPL_BUILD) += $(hw-platform-y)/ps7_init_gpl.o
 
 # Suppress "warning: function declaration isn't a prototype"
-CFLAGS_REMOVE_ps7_init_gpl.o := -Wstrict-prototypes
+CFLAGS_REMOVE_$(hw-platform-y)/ps7_init_gpl.o := -Wstrict-prototypes

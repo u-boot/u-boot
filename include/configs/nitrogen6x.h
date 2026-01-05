@@ -60,7 +60,6 @@
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc1\0" \
-	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_addr_r=0x18000000\0" \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \

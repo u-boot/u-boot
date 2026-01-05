@@ -701,10 +701,52 @@ int i2c_deblock(struct udevice *bus)
 	return ops->deblock(bus);
 }
 
-#if CONFIG_IS_ENABLED(OF_REAL)
-int i2c_chip_of_to_plat(struct udevice *dev, struct dm_i2c_chip *chip)
+static int i2c_pre_probe(struct udevice *dev)
 {
+	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
+	unsigned int max = 0;
+	ofnode node;
+	int ret;
+
+	if (!dev_has_ofnode(dev))
+		return 0;
+
+	i2c->max_transaction_bytes = 0;
+	dev_for_each_subnode(node, dev) {
+		ret = ofnode_read_u32(node,
+				      "u-boot,i2c-transaction-bytes",
+				      &max);
+		if (!ret && max > i2c->max_transaction_bytes)
+			i2c->max_transaction_bytes = max;
+	}
+
+	debug("%s: I2C bus: %s max transaction bytes: %d\n", __func__,
+	      dev->name, i2c->max_transaction_bytes);
+
+	return 0;
+}
+
+static int i2c_post_probe(struct udevice *dev)
+{
+	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
+
+	if (dev_has_ofnode(dev)) {
+		i2c->speed_hz = dev_read_u32_default(dev, "clock-frequency",
+						     I2C_SPEED_STANDARD_RATE);
+	} else {
+		i2c->speed_hz = I2C_SPEED_STANDARD_RATE;
+	}
+
+	return dm_i2c_set_bus_speed(dev, i2c->speed_hz);
+}
+
+static int i2c_child_post_bind(struct udevice *dev)
+{
+	struct dm_i2c_chip *chip = dev_get_parent_plat(dev);
 	int addr;
+
+	if (!dev_has_ofnode(dev))
+		return 0;
 
 	chip->offset_len = dev_read_u32_default(dev, "u-boot,i2c-offset-len",
 						1);
@@ -718,57 +760,6 @@ int i2c_chip_of_to_plat(struct udevice *dev, struct dm_i2c_chip *chip)
 	chip->chip_addr = addr;
 
 	return 0;
-}
-#endif
-
-static int i2c_pre_probe(struct udevice *dev)
-{
-#if CONFIG_IS_ENABLED(OF_REAL)
-	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
-	unsigned int max = 0;
-	ofnode node;
-	int ret;
-
-	i2c->max_transaction_bytes = 0;
-	dev_for_each_subnode(node, dev) {
-		ret = ofnode_read_u32(node,
-				      "u-boot,i2c-transaction-bytes",
-				      &max);
-		if (!ret && max > i2c->max_transaction_bytes)
-			i2c->max_transaction_bytes = max;
-	}
-
-	debug("%s: I2C bus: %s max transaction bytes: %d\n", __func__,
-	      dev->name, i2c->max_transaction_bytes);
-#endif
-	return 0;
-}
-
-static int i2c_post_probe(struct udevice *dev)
-{
-#if CONFIG_IS_ENABLED(OF_REAL)
-	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
-
-	i2c->speed_hz = dev_read_u32_default(dev, "clock-frequency",
-					     I2C_SPEED_STANDARD_RATE);
-
-	return dm_i2c_set_bus_speed(dev, i2c->speed_hz);
-#else
-	return 0;
-#endif
-}
-
-static int i2c_child_post_bind(struct udevice *dev)
-{
-#if CONFIG_IS_ENABLED(OF_REAL)
-	struct dm_i2c_chip *plat = dev_get_parent_plat(dev);
-
-	if (!dev_has_ofnode(dev))
-		return 0;
-	return i2c_chip_of_to_plat(dev, plat);
-#else
-	return 0;
-#endif
 }
 
 static int i2c_post_bind(struct udevice *dev)

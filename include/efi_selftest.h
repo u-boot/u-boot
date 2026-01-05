@@ -19,6 +19,7 @@
 
 extern const struct efi_system_table *st_systable;
 extern const struct efi_boot_services *st_boottime;
+extern const struct efi_runtime_services *st_runtime;
 
 /**
  * efi_st_printf() - print a message
@@ -150,13 +151,11 @@ u16 efi_st_get_key(void);
 /**
  * efi_st_query_variable_common - Common variable tests for boottime/runtime
  *
- * @runtime:	Pointer to services table
  * @attributes: Attributes used
  *
  * Return:	EFI_ST_SUCCESS/FAILURE
  */
-int efi_st_query_variable_common(struct efi_runtime_services *runtime,
-				 u32 attributes);
+int efi_st_query_variable_common(u32 attributes);
 
 /**
  * struct efi_unit_test - EFI unit test

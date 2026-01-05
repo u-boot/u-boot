@@ -205,7 +205,7 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 		di_buffer = zalloc(fs->blksz);
 		if (!di_buffer) {
 			printf("No memory\n");
-			return;
+			goto fail;
 		}
 		dib_start_addr = di_buffer;
 		blknr = le32_to_cpu(inode->b.blocks.double_indir_block);
@@ -304,7 +304,7 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 		tigp_buffer = zalloc(fs->blksz);
 		if (!tigp_buffer) {
 			printf("No memory\n");
-			return;
+			goto fail;
 		}
 		tib_start_addr = tigp_buffer;
 		blknr = le32_to_cpu(inode->b.blocks.triple_indir_block);

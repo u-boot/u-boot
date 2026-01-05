@@ -39,17 +39,6 @@ static void fdt_fixup_canfd_nodes_am62p(void *blob, bool has_canfd)
 	}
 }
 
-static void fdt_fixup_cpu_freq_nodes_am62p(void *blob, int max_freq)
-{
-	if (max_freq >= 1250000000)
-		return;
-
-	if (max_freq <= 1000000000) {
-		fdt_del_node_path(blob, "/opp-table/opp-1250000000");
-		fdt_del_node_path(blob, "/opp-table/opp-1400000000");
-	}
-}
-
 static void fdt_fixup_thermal_cooling_device_cpus_am62p(void *blob, int core_nr)
 {
 	static const char * const thermal_path[] = {
@@ -92,9 +81,6 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	fdt_fixup_canfd_nodes_am62p(blob, k3_has_canfd());
 	fdt_fixup_thermal_critical_trips_k3(blob, k3_get_max_temp());
 	fdt_fixup_thermal_cooling_device_cpus_am62p(blob, k3_get_core_nr());
-	fdt_fixup_cpu_freq_nodes_am62p(blob, k3_get_a53_max_frequency());
-	fdt_fixup_reserved(blob, "tfa", CONFIG_K3_ATF_LOAD_ADDR, 0x80000);
-	fdt_fixup_reserved(blob, "optee", CONFIG_K3_OPTEE_LOAD_ADDR, 0x1800000);
 
-	return 0;
+	return fdt_fixup_reserved(blob);
 }

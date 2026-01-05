@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2019 BayLibre, SAS.
  * Author: Maxime Jourdan <mjourdan@baylibre.com>
+ * Copyright (c) 2023 Ferass El Hafidi <funderscore@postmarketos.org>
  */
 
 / {
@@ -15,6 +16,12 @@
 	soc {
 		bootph-all;
 	};
+
+#if defined(CONFIG_BINMAN)
+	binman: binman {
+		multiple-images;
+	};
+#endif
 };
 
 &vpu {
@@ -30,3 +37,121 @@
 	      <0x0 0xc883c000 0x0 0x1000>;
 	reg-names = "hdmitx", "hhi";
 };
+
+#if defined(CONFIG_BINMAN)
+/* binman configuration on GXBB and GXL */
+
+&binman {
+	u-boot-amlogic {
+		filename = "u-boot-meson-with-spl.bin";
+		pad-byte = <0xff>;
+
+		mkimage {
+			filename = "spl/u-boot-spl-signed.bin";
+			/* args are per-SoC, and defined in meson-(gxbb/gxl)-u-boot.dtsi */
+
+			u-boot-spl {
+			};
+		};
+
+		fit: fit {
+			description = "ATF and U-Boot images";
+			#address-cells = <1>;
+			fit,fdt-list = "of-list";
+			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+			fit,align = <512>;
+			offset = <CONFIG_SPL_PAD_TO>;
+
+			images {
+				u-boot {
+					description = "U-Boot";
+					type = "standalone";
+					os = "u-boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					entry = <CONFIG_TEXT_BASE>;
+
+					u-boot-nodtb {
+					};
+
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE) && CONFIG_IS_ENABLED(SHA256)
+					hash {
+						algo = "sha256";
+					};
+#endif
+				};
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					os = "arm-trusted-firmware";
+					arch = "arm64";
+					compression = "none";
+					/*
+					 * load and entry are SoC-specific, and thus
+					 * defined in meson-(gxbb/gxl)-u-boot.dtsi
+					 */
+
+					atf-bl31 {
+						filename = "bl31.bin";
+					};
+
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE) && CONFIG_IS_ENABLED(SHA256)
+					hash {
+						algo = "sha256";
+					};
+#endif
+				};
+
+				scp {
+					description = "SCP BL30 Firmware";
+					type = "scp";
+					arch = "arm"; /* The Cortex-M core is used as SCP */
+					compression = "none";
+					/*
+					 * On GXBB the base address of the SCP firmware doesn't matter as SPL will
+					 * send the firmware to the SCP anyway, and can get the base address from the
+					 * FIT. On GXL it matters, as BL31 is supposed to send the firmware, so set the
+					 * base address to what GXL BL2 would load the binary to.
+					 */
+					load = <0x13c0000>;
+
+					scp {
+						filename = "scp.bin";
+					};
+					hash {
+						/*
+						 * The hash is used by the SCP and passed to it
+						 * by U-Boot SPL.
+						 */
+						algo = "sha256";
+					};
+				};
+
+				@fdt-SEQ {
+					description = "NAME";
+					type = "flat_dt";
+					compression = "none";
+
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE) && CONFIG_IS_ENABLED(SHA256)
+					hash {
+						algo = "sha256";
+					};
+#endif
+				};
+
+			};
+			configurations {
+				default = "@config-DEFAULT-SEQ";
+				@config-SEQ {
+					description = "NAME.dtb";
+					fdt = "fdt-SEQ";
+					firmware = "atf";
+					loadables = "scp", "u-boot";
+				};
+			};
+		};
+	};
+};
+#endif

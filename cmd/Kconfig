@@ -264,6 +264,21 @@ config CMD_SBI
 	help
 	  Display information about the SBI implementation.
 
+config CMD_SM3SUM
+	bool "sm3sum"
+	select SM3
+	select HASH
+	help
+	  Compute SM3 checksum.
+	  add SM3 hash functionality
+
+config SM3SUM_VERIFY
+	bool "sm3sum -v"
+	depends on CMD_SM3SUM
+	help
+	  Add for the sm3sum command the -v option
+	  to verify data against an SM3 checksum.
+
 config CMD_SMBIOS
 	bool "smbios"
 	depends on SMBIOS
@@ -1677,6 +1692,12 @@ config CMD_READ
 	help
 	  Provides low-level access to the data in a partition.
 
+config CMD_READ_EDID
+	bool "read_edid - Read display EDID"
+	depends on DISPLAY
+	help
+	  Read and parse edid from connected display device.
+
 config CMD_REMOTEPROC
 	bool "remoteproc"
 	depends on REMOTEPROC
@@ -2912,6 +2933,7 @@ config CMD_FS_UUID
 
 config CMD_JFFS2
 	bool "jffs2 command"
+	depends on !64BIT
 	select FS_JFFS2
 	help
 	  Enables commands to support the JFFS2 (Journalling Flash File System

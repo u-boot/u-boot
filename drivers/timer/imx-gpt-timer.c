@@ -127,7 +127,7 @@ static int imx_gpt_timer_probe(struct udevice *dev)
 
 	/* Get timer clock rate */
 	clk_rate = clk_get_rate(&clk);
-	if (clk_rate <= 0) {
+	if (!clk_rate || IS_ERR_VALUE(clk_rate)) {
 		dev_err(dev, "Could not get clock rate...\n");
 		return -EINVAL;
 	}

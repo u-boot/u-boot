@@ -226,6 +226,9 @@ ifeq ($(CONFIG_ARCH_IMX9)$(CONFIG_ARCH_IMX8ULP), y)
 ifneq ($(and $(CONFIG_BINMAN),$(or $(CONFIG_IMX95),$(CONFIG_IMX94))),)
 SPL: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
+
+flash.bin: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
 else
 quiet_cmd_cpp_cfg_imx9_check = CHECK    $@
 cmd_cpp_cfg_imx9_check = $(CPP) $(cpp_flags) -D__ASSEMBLY__ -x c -o $@ $< && $(srctree)/tools/imx9_image.sh $@

@@ -10,5 +10,5 @@ quiet_cmd_sed = SED     $@
 
 SEDFLAGS_kwbimage.cfg =-e "s|^BINARY.*|BINARY $(srctree)/$(@D)/binary.0 0000005b 00000068|"
 $(obj)/kwbimage.cfg: $(src)/kwbimage.cfg.in include/autoconf.mk \
-		include/config/auto.conf
+		include/config/auto.conf FORCE
 	  $(call if_changed,sed)

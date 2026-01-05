@@ -26,7 +26,7 @@ int fdt_remove_unused_strings(const void *old, void *new)
 		new_prop = (struct fdt_property *)(unsigned long)
 			fdt_get_property_by_offset(new, offset, NULL);
 		str = fdt_string(old, fdt32_to_cpu(old_prop->nameoff));
-		ret = fdt_find_add_string_(new, str, &allocated);
+		ret = fdt_find_add_string_(new, str, strlen(str), &allocated);
 		if (ret < 0)
 			return ret;
 		new_prop->nameoff = cpu_to_fdt32(ret);

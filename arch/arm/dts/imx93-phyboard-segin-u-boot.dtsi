@@ -30,6 +30,22 @@
 		ethernet1 = &eqos;
 	};
 
+	bootstd {
+		bootph-verify;
+		compatible = "u-boot,boot-std";
+
+		filename-prefixes = "/", "/boot/";
+		bootdev-order = "mmc0", "mmc1", "ethernet";
+
+		rauc {
+			compatible = "u-boot,distro-rauc";
+		};
+
+		script {
+			compatible = "u-boot,script";
+		};
+	};
+
 	firmware {
 		optee {
 			compatible = "linaro,optee-tz";

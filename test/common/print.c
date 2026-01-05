@@ -4,6 +4,7 @@
  */
 
 #include <command.h>
+#include <compiler.h>
 #include <efi_api.h>
 #include <display_options.h>
 #include <log.h>
@@ -201,21 +202,38 @@ static int print_display_buffer(struct unit_test_state *uts)
 
 	/* 16-bit */
 	print_buffer(0, buf, 2, 9, 0);
+#ifdef __BIG_ENDIAN
+	ut_assert_nextline("00000000: 0011 2233 4455 6677 8899 aabb ccdd eeff  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 1000                                     ..");
+#else
 	ut_assert_nextline("00000000: 1100 3322 5544 7766 9988 bbaa ddcc ffee  ..\"3DUfw........");
 	ut_assert_nextline("00000010: 0010                                     ..");
+#endif
 	ut_assert_console_end();
 
 	/* 32-bit */
 	print_buffer(0, buf, 4, 5, 0);
+#ifdef __BIG_ENDIAN
+	ut_assert_nextline("00000000: 00112233 44556677 8899aabb ccddeeff  ..\"3DUfw........");
+	ut_assert_nextline("00000010: 10000000                             ....");
+#else
 	ut_assert_nextline("00000000: 33221100 77665544 bbaa9988 ffeeddcc  ..\"3DUfw........");
 	ut_assert_nextline("00000010: 00000010                             ....");
+#endif
 	ut_assert_console_end();
 
 	/* 64-bit */
-	print_buffer(0, buf, 8, 3, 0);
-	ut_assert_nextline("00000000: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........");
-	ut_assert_nextline("00000010: 0000000000000010                   ........");
-	ut_assert_console_end();
+	if (MEM_SUPPORT_64BIT_DATA) {
+		print_buffer(0, buf, 8, 3, 0);
+#ifdef __BIG_ENDIAN
+		ut_assert_nextline("00000000: 0011223344556677 8899aabbccddeeff  ..\"3DUfw........");
+		ut_assert_nextline("00000010: 1000000000000000                   ........");
+#else
+		ut_assert_nextline("00000000: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........");
+		ut_assert_nextline("00000010: 0000000000000010                   ........");
+#endif
+		ut_assert_console_end();
+	}
 
 	/* ASCII */
 	buf[1] = 31;
@@ -268,6 +286,9 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	int i;
 	ulong addr;
 
+	if (!CONFIG_IS_ENABLED(HEXDUMP))
+		return -EAGAIN;
+
 	buf = calloc(1, BUF_SIZE);
 	ut_assertnonnull(buf);
 	addr = map_to_sysmem(buf);
@@ -307,29 +328,53 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 
 	/* 16-bit */
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 2, buf, 0x12, true);
+#ifdef __BIG_ENDIAN
+	ut_assert_nextline("%0*lx: 0011 2233 4455 6677 8899 aabb ccdd eeff  ..\"3DUfw........",
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
+	ut_assert_nextline("%0*lx: 1000                                     ..",
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
+			   addr + 0x10UL);
+#else
 	ut_assert_nextline("%0*lx: 1100 3322 5544 7766 9988 bbaa ddcc ffee  ..\"3DUfw........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_nextline("%0*lx: 0010                                     ..",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
 			   addr + 0x10UL);
+#endif
 	ut_assert_console_end();
 
 	/* 32-bit */
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 4, buf, 0x14, true);
+#ifdef __BIG_ENDIAN
+	ut_assert_nextline("%0*lx: 00112233 44556677 8899aabb ccddeeff  ..\"3DUfw........",
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
+	ut_assert_nextline("%0*lx: 10000000                             ....",
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
+			   addr + 0x10UL);
+#else
 	ut_assert_nextline("%0*lx: 33221100 77665544 bbaa9988 ffeeddcc  ..\"3DUfw........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_nextline("%0*lx: 00000010                             ....",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
 			   addr + 0x10UL);
+#endif
 	ut_assert_console_end();
 
 	/* 64-bit */
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 8, buf, 0x18, true);
+#ifdef __BIG_ENDIAN
+	ut_assert_nextline("%0*lx: 0011223344556677 8899aabbccddeeff  ..\"3DUfw........",
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
+	ut_assert_nextline("%0*lx: 1000000000000000                   ........",
+			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
+			   addr + 0x10UL);
+#else
 	ut_assert_nextline("%0*lx: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, addr);
 	ut_assert_nextline("%0*lx: 0000000000000010                   ........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8,
 			   addr + 0x10UL);
+#endif
 	ut_assert_console_end();
 
 	/* ASCII */

@@ -91,23 +91,22 @@ menuconfig PHY_AQUANTIA
 config PHY_AQUANTIA_UPLOAD_FW
 	bool "Aquantia firmware loading support"
 	depends on PHY_AQUANTIA
+	select FW_LOADER
 	help
-		Aquantia PHYs use firmware which can be either loaded automatically
-		from storage directly attached to the phy or loaded by the boot loader
-		via MDIO commands.  The firmware is loaded from a file, specified by
-		the PHY_AQUANTIA_FW_PART and PHY_AQUANTIA_FW_NAME options.
+	  Aquantia PHYs use firmware which can be either loaded automatically
+	  from storage directly attached to the phy or loaded by the boot loader
+	  via MDIO commands.
 
-config PHY_AQUANTIA_FW_PART
-	string "Aquantia firmware partition"
-	depends on PHY_AQUANTIA_UPLOAD_FW
-	help
-		Partition containing the firmware file.
+	  This option enables loading the firmware using the generic
+	  firmware loader framework.
 
-config PHY_AQUANTIA_FW_NAME
-	string "Aquantia firmware filename"
+config PHY_AQUANTIA_FW_MAX_SIZE
+	hex "Max firmware size"
 	depends on PHY_AQUANTIA_UPLOAD_FW
+	default 0x80000
 	help
-		Firmware filename.
+	  The maximum size of the Aquantia PHY firmware. This is used to
+	  allocate a buffer to load the firmware into.
 
 config PHY_ATHEROS
 	bool "Atheros Ethernet PHYs support"
@@ -188,6 +187,8 @@ config PHY_MARVELL_10G
 
 source "drivers/net/phy/mediatek/Kconfig"
 
+source "drivers/net/phy/airoha/Kconfig"
+
 config PHY_MESON_GXL
 	bool "Amlogic Meson GXL Internal PHY support"
 
@@ -236,6 +237,7 @@ config PHY_MOTORCOMM
 	  Currently supports the YT8511 and YT8531 Gigabit Ethernet PHYs.
 
 config PHY_MSCC
+	depends on !COMPILE_TEST
 	bool "Microsemi Corp Ethernet PHYs support"
 
 config PHY_NATSEMI
@@ -340,6 +342,7 @@ config PHY_TI_GENERIC
 
 config PHY_VITESSE
 	bool "Vitesse Ethernet PHYs support"
+	depends on !COMPILE_TEST
 
 config PHY_XILINX
 	bool "Xilinx Ethernet PHYs support"

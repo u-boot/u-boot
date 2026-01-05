@@ -41,10 +41,10 @@ endif
 endif
 
 # Suppress "warning: function declaration isn't a prototype"
-CFLAGS_REMOVE_psu_init_gpl.o := -Wstrict-prototypes
+CFLAGS_REMOVE_$(hw-platform-y)/psu_init_gpl.o := -Wstrict-prototypes
 
 # To include xil_io.h
-CFLAGS_psu_init_gpl.o := -I$(srctree)/$(src)
+CFLAGS_$(hw-platform-y)/psu_init_gpl.o := -I$(srctree)/$(src)
 
 # To suppress "warning: cast to pointer from integer of different size"
-CFLAGS_psu_init_gpl.o += -Wno-int-to-pointer-cast
+CFLAGS_$(hw-platform-y)/psu_init_gpl.o += -Wno-int-to-pointer-cast

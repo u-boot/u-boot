@@ -34,11 +34,9 @@ endif
 #
 HOST_EXTRACFLAGS := -I$(BFD_ROOT_DIR)/include -pedantic
 
-hostprogs-y := gdbsend gdbcont
+hostprogs-always-y += gdbsend gdbcont
 
 gdbsend-objs := gdbsend.o error.o remote.o serial.o
 gdbcont-objs := gdbcont.o error.o remote.o serial.o
-
-always := $(hostprogs-y)
 
 endif	# cygwin

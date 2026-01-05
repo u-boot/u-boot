@@ -134,13 +134,6 @@ config FIT_SIGNATURE_MAX_SIZE
 	  device memory. Assure this size does not extend past expected storage
 	  space.
 
-config FIT_RSASSA_PSS
-	bool "Support rsassa-pss signature scheme of FIT image contents"
-	depends on FIT_SIGNATURE
-	help
-	  Enable this to support the pss padding algorithm as described
-	  in the rfc8017 (https://tools.ietf.org/html/rfc8017).
-
 config FIT_CIPHER
 	bool "Enable ciphering data in a FIT uImages"
 	depends on DM
@@ -192,18 +185,6 @@ config SPL_FIT
 	select SPL_HASH
 	select SPL_OF_LIBFDT
 
-config VPL_FIT
-	bool "Support Flattened Image Tree within VPL"
-	depends on VPL
-	select VPL_HASH
-	select VPL_OF_LIBFDT
-
-config TPL_FIT
-	bool "Support Flattened Image Tree within TPL"
-	depends on TPL
-	select TPL_HASH
-	select TPL_OF_LIBFDT
-
 config SPL_FIT_PRINT
 	bool "Support FIT printing within SPL"
 	depends on SPL_FIT
@@ -242,13 +223,6 @@ config SPL_FIT_SIGNATURE_MAX_SIZE
 	  device memory. Assure this size does not extend past expected storage
 	  space.
 
-config SPL_FIT_RSASSA_PSS
-	bool "Support rsassa-pss signature scheme of FIT image contents in SPL"
-	depends on SPL_FIT_SIGNATURE
-	help
-	  Enable this to support the pss padding algorithm as described
-	  in the rfc8017 (https://tools.ietf.org/html/rfc8017) in SPL.
-
 config SPL_LOAD_FIT
 	bool "Enable SPL loading U-Boot as a FIT (basic fitImage features)"
 	depends on SPL
@@ -272,8 +246,10 @@ config SPL_LOAD_FIT
 	     "linux" images are also supported with Falcon boot mode.
 
 config SPL_LOAD_FIT_ADDRESS
-	hex "load address of fit image"
+	hex "load address of fit image in SPL"
 	depends on SPL_LOAD_FIT
+	default 0x81000000 if ARCH_K3 && ARM64
+	default 0x80080000 if ARCH_K3 && CPU_V7R
 	default 0x44000000 if ARCH_IMX8M
 	default 0x60080000 if ARCH_ROCKCHIP && SPL_TEXT_BASE = 0x60000000
 	default 0x40200000 if ARCH_ROCKCHIP && SPL_TEXT_BASE = 0x40000000
@@ -295,7 +271,7 @@ config SPL_LOAD_FIT_APPLY_OVERLAY
 config SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ
 	depends on SPL_LOAD_FIT_APPLY_OVERLAY
 	default 0x10000
-	hex "size of temporary buffer used to load the overlays"
+	hex "size of temporary buffer used to load the overlays within SPL"
 	help
 	  The size of the area where the overlays will be loaded and
 	  uncompress. Must be at least as large as biggest overlay
@@ -311,6 +287,27 @@ config SPL_LOAD_FIT_FULL
 	  of a FIT (Flat Image Tree) which provides more flexibility. In
 	  particular it can handle selecting from multiple device tree
 	  and passing the correct one to U-Boot.
+
+config SPL_FIT_IMAGE_POST_PROCESS
+	bool "Enable post-processing of FIT artifacts after loading by the SPL"
+	depends on SPL_LOAD_FIT
+	default y if TI_SECURE_DEVICE
+	help
+	  Allows doing any sort of manipulation to blobs after they got extracted
+	  from the U-Boot FIT image like stripping off headers or modifying the
+	  size of the blob, verification, authentication, decryption etc. in a
+	  platform or board specific way. In order to use this feature a platform
+	  or board-specific implementation of board_fit_image_post_process() must
+	  be provided. Also, anything done during this post-processing step would
+	  need to be comprehended in how the images were prepared before being
+	  injected into the FIT creation (i.e. the blobs would have been pre-
+	  processed before being added to the FIT image).
+
+config TPL_FIT
+	bool "Support Flattened Image Tree within TPL"
+	depends on TPL
+	select TPL_HASH
+	select TPL_OF_LIBFDT
 
 config TPL_LOAD_FIT
 	bool "Enable TPL loading U-Boot as a FIT (basic fitImage features)"
@@ -334,21 +331,6 @@ config TPL_LOAD_FIT
 	  3. FDTs are only loaded for images with an "os" property of "u-boot".
 	     "linux" images are also supported with Falcon boot mode.
 
-config SPL_FIT_IMAGE_POST_PROCESS
-	bool "Enable post-processing of FIT artifacts after loading by the SPL"
-	depends on SPL_LOAD_FIT
-	default y if TI_SECURE_DEVICE
-	help
-	  Allows doing any sort of manipulation to blobs after they got extracted
-	  from the U-Boot FIT image like stripping off headers or modifying the
-	  size of the blob, verification, authentication, decryption etc. in a
-	  platform or board specific way. In order to use this feature a platform
-	  or board-specific implementation of board_fit_image_post_process() must
-	  be provided. Also, anything done during this post-processing step would
-	  need to be comprehended in how the images were prepared before being
-	  injected into the FIT creation (i.e. the blobs would have been pre-
-	  processed before being added to the FIT image).
-
 if VPL
 
 config VPL_FIT
@@ -364,7 +346,7 @@ config VPL_LOAD_FIT
 	default y
 
 config VPL_LOAD_FIT_FULL
-	bool "Enable SPL loading U-Boot as a FIT (full fitImage features)"
+	bool "Enable VPL loading U-Boot as a FIT (full fitImage features)"
 	select VPL_FIT
 	help
 	  Normally with the SPL framework a legacy image is generated as part
@@ -382,13 +364,13 @@ config VPL_FIT_PRINT
 	  Support printing the content of the fitImage in a verbose manner in VPL.
 
 config VPL_FIT_FULL_CHECK
-	bool "Do a full check of the FIT before using it"
+	bool "Do a full check of the FIT within VPL before using it"
 	default y
 	help
-	  Enable this do a full check of the FIT to make sure it is valid. This
-	  helps to protect against carefully crafted FITs which take advantage
-	  of bugs or omissions in the code. This includes a bad structure,
-	  multiple root nodes and the like.
+	  Enable this do a full check of the FIT within VPL to make sure it is
+	  valid. This helps to protect against carefully crafted FITs which take
+	  advantage of bugs or omissions in the code. This includes a bad
+	  structure, multiple root nodes and the like.
 
 config VPL_FIT_SIGNATURE
 	bool "Enable signature verification of FIT firmware within VPL"
@@ -1045,6 +1027,7 @@ config MEASURED_BOOT
 	select SHA256
 	select SHA384
 	select SHA512
+	select SM3
 	help
 	  This option enables measurement of the boot process when booting
 	  without UEFI . Measurement involves creating cryptographic hashes

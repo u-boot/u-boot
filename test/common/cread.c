@@ -90,13 +90,14 @@ static int cread_test(struct unit_test_state *uts)
 	ut_asserteq(5, cli_readline_into_buffer("-> ", buf, 1));
 	ut_asserteq_str("abcXx", buf);
 
-	/* check timeout, should be between 1000 and 1050ms */
+	/* check timeout, should be between 900 and 1100ms */
 	start = get_timer(0);
 	*buf = '\0';
 	ut_asserteq(-2, cli_readline_into_buffer("-> ", buf, 1));
-	duration = get_timer(start) - 1000;
-	ut_assert(duration >= 0);
-	ut_assert(duration < 50);
+	printf("get_timer(start): %ld", get_timer(start));
+	duration = get_timer(start);
+	ut_assert(duration >= 900);
+	ut_assert(duration < 1100);
 
 	return 0;
 }

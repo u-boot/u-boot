@@ -42,34 +42,34 @@ ENVCRC-$(CONFIG_ENV_IS_IN_NVRAM) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_SPI_FLASH) = y
 BUILD_ENVCRC ?= $(ENVCRC-y)
 
-hostprogs-$(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER) += atmel_pmecc_params
+hostprogs-always-$(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER) += atmel_pmecc_params
 
-hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo
+hostprogs-always-$(CONFIG_VIDEO_LOGO) += bmp_logo
 HOSTCFLAGS_bmp_logo.o := -pedantic
 
-hostprogs-$(BUILD_ENVCRC) += envcrc
+hostprogs-always-$(BUILD_ENVCRC) += envcrc
 envcrc-objs := envcrc.o generated/lib/crc32.o generated/env/embedded.o generated/lib/sha1.o
 
-hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr
+hostprogs-always-$(CONFIG_CMD_NET) += gen_eth_addr
 HOSTCFLAGS_gen_eth_addr.o := -pedantic
 
-hostprogs-$(CONFIG_CMD_NET) += gen_ethaddr_crc
+hostprogs-always-$(CONFIG_CMD_NET) += gen_ethaddr_crc
 gen_ethaddr_crc-objs := gen_ethaddr_crc.o generated/lib/crc8.o
 HOSTCFLAGS_gen_ethaddr_crc.o := -pedantic
 
-hostprogs-$(CONFIG_CMD_LOADS) += img2srec
+hostprogs-always-$(CONFIG_CMD_LOADS) += img2srec
 HOSTCFLAGS_img2srec.o := -pedantic
 
-hostprogs-y += mkenvimage
+hostprogs-always-y += mkenvimage
 mkenvimage-objs := mkenvimage.o os_support.o generated/lib/crc32.o
 
-hostprogs-y += dumpimage mkimage fit_info
-hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_check_sign
-hostprogs-$(CONFIG_TOOLS_LIBCRYPTO) += fdt_add_pubkey
-hostprogs-$(CONFIG_TOOLS_LIBCRYPTO) += preload_check_sign
+hostprogs-always-y += dumpimage mkimage fit_info
+hostprogs-always-$(CONFIG_FIT_SIGNATURE) += fit_check_sign
+hostprogs-always-$(CONFIG_TOOLS_LIBCRYPTO) += fdt_add_pubkey
+hostprogs-always-$(CONFIG_TOOLS_LIBCRYPTO) += preload_check_sign
 
 ifneq ($(CONFIG_CMD_BOOTEFI_SELFTEST)$(CONFIG_FWU_MDATA_GPT_BLK),)
-hostprogs-y += file2include
+hostprogs-always-y += file2include
 endif
 
 FIT_OBJS-y := fit_common.o fit_image.o image-host.o generated/boot/image-fit.o
@@ -87,11 +87,11 @@ LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
 RSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/rsa/, \
 					rsa-sign.o rsa-verify.o \
 					rsa-mod-exp.o)
-HOSTCFLAGS_rsa-sign.o += \
+HOSTCFLAGS_generated/lib/rsa/rsa-sign.o += \
 	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
 
 ECDSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/ecdsa/, ecdsa-libcrypto.o)
-HOSTCFLAGS_ecdsa-libcrypto.o += \
+HOSTCFLAGS_generated/lib/ecdsa/ecdsa-libcrypto.o += \
 	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
 
 AES_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/aes/, \
@@ -110,6 +110,7 @@ ROCKCHIP_OBS = generated/lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
+			amlimage.o \
 			atmelimage.o \
 			$(FIT_OBJS-y) \
 			$(FIT_SIG_OBJS-y) \
@@ -198,7 +199,7 @@ HOSTLDLIBS_mkimage += \
 ifeq ($(HOSTOS),darwin)
 HOSTCFLAGS_mxsimage.o += -Wno-deprecated-declarations
 HOSTCFLAGS_image-sig.o += -Wno-deprecated-declarations
-HOSTCFLAGS_rsa-sign.o += -Wno-deprecated-declarations
+HOSTCFLAGS_generated/lib/rsa/rsa-sign.o += -Wno-deprecated-declarations
 endif
 endif
 
@@ -212,8 +213,8 @@ HOSTLDLIBS_preload_check_sign := $(HOSTLDLIBS_mkimage)
 HOSTLDLIBS_preload_check_sign += \
 	$(shell pkg-config --libs libssl libcrypto 2> /dev/null || echo "-lssl -lcrypto")
 
-hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl
-hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
+hostprogs-always-$(CONFIG_EXYNOS5250) += mkexynosspl
+hostprogs-always-$(CONFIG_EXYNOS5420) += mkexynosspl
 HOSTCFLAGS_mkexynosspl.o := -pedantic
 
 HOSTCFLAGS_kwboot.o += -pthread
@@ -222,43 +223,43 @@ HOSTLDLIBS_kwboot += \
 	$(shell pkg-config --libs tinfo 2> /dev/null || echo "-ltinfo")
 
 ifdtool-objs := $(LIBFDT_OBJS) ifdtool.o
-hostprogs-$(CONFIG_X86) += ifdtool
+hostprogs-always-$(CONFIG_X86) += ifdtool
 
 ifwitool-objs := ifwitool.o
-hostprogs-$(CONFIG_X86)$(CONFIG_SANDBOX) += ifwitool
+hostprogs-always-$(CONFIG_X86)$(CONFIG_SANDBOX) += ifwitool
 
-hostprogs-$(CONFIG_MX23) += mxsboot
-hostprogs-$(CONFIG_MX28) += mxsboot
+hostprogs-always-$(CONFIG_MX23) += mxsboot
+hostprogs-always-$(CONFIG_MX28) += mxsboot
 HOSTCFLAGS_mxsboot.o := -pedantic
 
-hostprogs-$(CONFIG_ARCH_SUNXI) += mksunxiboot
-hostprogs-$(CONFIG_ARCH_SUNXI) += sunxi-spl-image-builder
+hostprogs-always-$(CONFIG_ARCH_SUNXI) += mksunxiboot
+hostprogs-always-$(CONFIG_ARCH_SUNXI) += sunxi-spl-image-builder
 sunxi-spl-image-builder-objs := sunxi-spl-image-builder.o generated/lib/bch.o
 
-hostprogs-$(CONFIG_NETCONSOLE) += ncb
+hostprogs-always-$(CONFIG_NETCONSOLE) += ncb
 
-hostprogs-$(CONFIG_ARCH_KIRKWOOD) += kwboot
-hostprogs-$(CONFIG_ARCH_MVEBU) += kwboot
+hostprogs-always-$(CONFIG_ARCH_KIRKWOOD) += kwboot
+hostprogs-always-$(CONFIG_ARCH_MVEBU) += kwboot
 
-hostprogs-y += proftool
+hostprogs-always-y += proftool
 proftool-objs = proftool.o generated/lib/abuf.o
 
-hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
-hostprogs-$(CONFIG_RISCV) += prelink-riscv
+hostprogs-always-$(CONFIG_STATIC_RELA) += relocate-rela
+hostprogs-always-$(CONFIG_RISCV) += prelink-riscv
 
-hostprogs-$(CONFIG_ARCH_OCTEON) += update_octeon_header
+hostprogs-always-$(CONFIG_ARCH_OCTEON) += update_octeon_header
 update_octeon_header-objs := update_octeon_header.o generated/lib/crc32.o
 
-hostprogs-y += fdtgrep
+hostprogs-always-y += fdtgrep
 fdtgrep-objs += $(LIBFDT_OBJS) generated/boot/fdt_region.o fdtgrep.o
 
 ifneq ($(TOOLS_ONLY),y)
-hostprogs-y += spl_size_limit
+hostprogs-always-y += spl_size_limit
 endif
 
-hostprogs-$(CONFIG_MIPS) += mips-relocs
+hostprogs-always-$(CONFIG_MIPS) += mips-relocs
 
-hostprogs-$(CONFIG_ASN1_COMPILER)	+= asn1_compiler
+hostprogs-always-$(CONFIG_ASN1_COMPILER)	+= asn1_compiler
 HOSTCFLAGS_asn1_compiler.o = -idirafter $(srctree)/include
 
 HOSTCFLAGS_mkeficapsule.o += \
@@ -269,21 +270,21 @@ mkeficapsule-objs := generated/lib/uuid.o \
 	generated/lib/sha1.o \
 	$(LIBFDT_OBJS) \
 	mkeficapsule.o
-hostprogs-$(CONFIG_TOOLS_MKEFICAPSULE) += mkeficapsule
+hostprogs-always-$(CONFIG_TOOLS_MKEFICAPSULE) += mkeficapsule
 
 mkfwumdata-objs := mkfwumdata.o generated/lib/crc32.o
 HOSTLDLIBS_mkfwumdata += -luuid
-hostprogs-$(CONFIG_TOOLS_MKFWUMDATA) += mkfwumdata
+hostprogs-always-$(CONFIG_TOOLS_MKFWUMDATA) += mkfwumdata
 
 # We build some files with extra pedantic flags to try to minimize things
 # that won't build on some weird host compiler -- though there are lots of
 # exceptions for files that aren't complaint.
-HOSTCFLAGS_crc32.o := -pedantic
-HOSTCFLAGS_crc8.o := -pedantic
-HOSTCFLAGS_md5.o := -pedantic
-HOSTCFLAGS_sha1.o := -pedantic
-HOSTCFLAGS_sha256.o := -pedantic
-HOSTCFLAGS_sha512.o := -pedantic -DCONFIG_SHA512 -DCONFIG_SHA384
+HOSTCFLAGS_generated/lib/crc32.o := -pedantic
+HOSTCFLAGS_generated/lib/crc8.o := -pedantic
+HOSTCFLAGS_generated/lib/md5.o := -pedantic
+HOSTCFLAGS_generated/lib/sha1.o := -pedantic
+HOSTCFLAGS_generated/lib/sha256.o := -pedantic
+HOSTCFLAGS_generated/lib/sha512.o := -pedantic -DCONFIG_SHA512 -DCONFIG_SHA384
 
 quiet_cmd_wrap = WRAP    $@
 cmd_wrap = echo "\#include <../$(patsubst $(obj)/generated/%,%,$@)>" >$@
@@ -291,13 +292,11 @@ cmd_wrap = echo "\#include <../$(patsubst $(obj)/generated/%,%,$@)>" >$@
 $(obj)/generated/%.c:
 	$(call cmd,wrap)
 
-clean-dirs := generated
-
-always := $(hostprogs-y)
+clean-files := generated
 
 # Host tool to dump the currently configured default environment,
 # build it on demand, i.e. not add it to 'always'.
-hostprogs-y += printinitialenv
+hostprogs += printinitialenv
 
 # Generated LCD/video logo
 LOGO_H = $(objtree)/include/bmp_logo.h
@@ -357,9 +356,9 @@ override HOSTCFLAGS = $(CFLAGS)
 
 quiet_cmd_crosstools_strip = STRIP   $^
       cmd_crosstools_strip = $(STRIP) $^; touch $@
-$(obj)/.strip: $(call objectify,$(filter $(always),$(hostprogs-y)))
+$(obj)/.strip: $(call objectify,$(filter $(hostprogs-always-y)))
 	$(call cmd,crosstools_strip)
 
-always += .strip
+always-y += .strip
 endif
 clean-files += .strip

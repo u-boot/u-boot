@@ -38,7 +38,7 @@ def test_extension(ubman):
     assert('overlay1.dtbo' in output)
 
     ubman.run_command_list([
-        'setenv extension_overlay_addr %s' % (overlay_addr),
+        'setenv extension_overlay_addr %x' % (overlay_addr),
         'setenv extension_overlay_cmd \'host load hostfs - ${extension_overlay_addr} %s${extension_overlay_name}\'' % (os.path.join(ubman.config.build_dir, OVERLAY_DIR))])
 
     output = ubman.run_command('extension apply 0')

@@ -67,6 +67,20 @@ config SPL_RSA_VERIFY_WITH_PKEY
 	  key properties will be calculated on the fly in verification code
 	  in the SPL.
 
+config RSASSA_PSS
+	bool "Support rsassa-pss signature scheme"
+	depends on RSA_VERIFY
+	help
+	  Enable this to support the pss padding algorithm as described
+	  in the rfc8017 (https://tools.ietf.org/html/rfc8017).
+
+config SPL_RSASSA_PSS
+	bool "Support rsassa-pss signature scheme within SPL"
+	depends on SPL_RSA_VERIFY
+	help
+	  Enable this to support the pss padding algorithm as described
+	  in the rfc8017 (https://tools.ietf.org/html/rfc8017) within SPL.
+
 config RSA_SOFTWARE_EXP
 	bool "Enable driver for RSA Modular Exponentiation in software"
 	depends on DM

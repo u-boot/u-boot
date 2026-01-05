@@ -12,32 +12,12 @@ NAME =
 # Comments in this file are targeted only to the developer, do not
 # expect to learn how to build the kernel reading this file.
 
-# That's our default target when none is given on the command line
-PHONY := _all
-_all:
+$(if $(filter __%, $(MAKECMDGOALS)), \
+	$(error targets prefixed with '__' are only for internal use))
 
-# Determine target architecture for the sandbox
-include include/host_arch.h
-ifeq ("", "$(CROSS_COMPILE)")
-  MK_ARCH="${shell uname -m}"
-else
-  MK_ARCH="${shell echo $(CROSS_COMPILE) | sed -n 's/^\(.*ccache\)\{0,1\}[[:space:]]*\([^\/]*\/\)*\([^-]*\)-[^[:space:]]*/\3/p'}"
-endif
-unexport HOST_ARCH
-ifeq ("x86_64", $(MK_ARCH))
-  export HOST_ARCH=$(HOST_ARCH_X86_64)
-else ifneq (,$(findstring $(MK_ARCH), "i386" "i486" "i586" "i686"))
-  export HOST_ARCH=$(HOST_ARCH_X86)
-else ifneq (,$(findstring $(MK_ARCH), "aarch64" "armv8l"))
-  export HOST_ARCH=$(HOST_ARCH_AARCH64)
-else ifneq (,$(findstring $(MK_ARCH), "arm" "armv5tel" "armv6l" "armv7" "armv7a" "armv7l"))
-  export HOST_ARCH=$(HOST_ARCH_ARM)
-else ifeq ("riscv32", $(MK_ARCH))
-  export HOST_ARCH=$(HOST_ARCH_RISCV32)
-else ifeq ("riscv64", $(MK_ARCH))
-  export HOST_ARCH=$(HOST_ARCH_RISCV64)
-endif
-undefine MK_ARCH
+# That's our default target when none is given on the command line
+PHONY := __all
+__all:
 
 # We are using a recursive build, so we need to do a little thinking
 # to get the ordering right.
@@ -125,79 +105,88 @@ endif
 
 export quiet Q KBUILD_VERBOSE
 
-# kbuild supports saving output files in a separate directory.
-# To locate output files in a separate directory two syntaxes are supported.
-# In both cases the working directory must be the root of the kernel src.
+# Kbuild will save output files in the current working directory.
+# This does not need to match to the root of the kernel source tree.
+#
+# For example, you can do this:
+#
+#  cd /dir/to/store/output/files; make -f /dir/to/kernel/source/Makefile
+#
+# If you want to save output files in a different location, there are
+# two syntaxes to specify it.
+#
 # 1) O=
 # Use "make O=dir/to/store/output/files/"
 #
 # 2) Set KBUILD_OUTPUT
-# Set the environment variable KBUILD_OUTPUT to point to the directory
-# where the output files shall be placed.
-# export KBUILD_OUTPUT=dir/to/store/output/files/
-# make
+# Set the environment variable KBUILD_OUTPUT to point to the output directory.
+# export KBUILD_OUTPUT=dir/to/store/output/files/; make
 #
 # The O= assignment takes precedence over the KBUILD_OUTPUT environment
 # variable.
 
-# KBUILD_SRC is not intended to be used by the regular user (for now),
-# it is set on invocation of make with KBUILD_OUTPUT or O= specified.
-
-# OK, Make called in directory where kernel src resides
-# Do we want to locate output files in a separate directory?
+# Do we want to change the working directory?
 ifeq ("$(origin O)", "command line")
   KBUILD_OUTPUT := $(O)
 endif
 
-ifneq ($(words $(subst :, ,$(CURDIR))), 1)
-  $(error main directory cannot contain spaces nor colons)
-endif
 
 ifneq ($(KBUILD_OUTPUT),)
-# check that the output directory actually exists
-saved-output := $(KBUILD_OUTPUT)
-KBUILD_OUTPUT := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) \
-								&& pwd)
-$(if $(KBUILD_OUTPUT),, \
-     $(error failed to create output directory "$(saved-output)"))
+# Make's built-in functions such as $(abspath ...), $(realpath ...) cannot
+# expand a shell special character '~'. We use a somewhat tedious way here.
+abs_objtree := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) && pwd)
+$(if $(abs_objtree),, \
+     $(error failed to create output directory "$(KBUILD_OUTPUT)"))
 
+# $(realpath ...) resolves symlinks
+abs_objtree := $(realpath $(abs_objtree))
+else
+abs_objtree := $(CURDIR)
+endif # ifneq ($(KBUILD_OUTPUT),)
+
+ifeq ($(abs_objtree),$(CURDIR))
+# Suppress "Entering directory ..." unless we are changing the work directory.
+MAKEFLAGS += --no-print-directory
+else
+need-sub-make := 1
+endif
+
+this-makefile := $(lastword $(MAKEFILE_LIST))
+abs_srctree := $(realpath $(dir $(this-makefile)))
+
+ifneq ($(words $(subst :, ,$(abs_srctree))), 1)
+$(error source directory cannot contain spaces or colons)
+endif
+
+ifneq ($(abs_srctree),$(abs_objtree))
 # Look for make include files relative to root of kernel src
 #
-# This does not become effective immediately because MAKEFLAGS is re-parsed
-# once after the Makefile is read.  It is OK since we are going to invoke
-# 'sub-make' below.
-MAKEFLAGS += --include-dir=$(CURDIR)
-
-need-sub-make := 1
-else
-
-# Do not print "Entering directory ..." at all for in-tree build.
-MAKEFLAGS += --no-print-directory
-
-endif # ifneq ($(KBUILD_OUTPUT),)
+# --included-dir is added for backward compatibility, but you should not rely on
+# it. Please add $(srctree)/ prefix to include Makefiles in the source tree.
+MAKEFLAGS += --include-dir=$(abs_srctree)
+endif
 
 ifneq ($(filter 3.%,$(MAKE_VERSION)),)
 # 'MAKEFLAGS += -rR' does not immediately become effective for GNU Make 3.x
 # We need to invoke sub-make to avoid implicit rules in the top Makefile.
 need-sub-make := 1
 # Cancel implicit rules for this Makefile.
-$(lastword $(MAKEFILE_LIST)): ;
+$(this-makefile): ;
 endif
 
+export abs_srctree abs_objtree
 export sub_make_done := 1
 
 ifeq ($(need-sub-make),1)
 
-PHONY += $(MAKECMDGOALS) sub-make
+PHONY += $(MAKECMDGOALS) __sub-make
 
-$(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
+$(filter-out $(this-makefile), $(MAKECMDGOALS)) __all: __sub-make
 	@:
 
 # Invoke a second make in the output directory, passing relevant variables
-sub-make:
-	$(Q)$(MAKE) \
-	$(if $(KBUILD_OUTPUT),-C $(KBUILD_OUTPUT) KBUILD_SRC=$(CURDIR)) \
-	-f $(CURDIR)/Makefile $(filter-out _all sub-make,$(MAKECMDGOALS))
+__sub-make:
+	$(Q)$(MAKE) -C $(abs_objtree) -f $(abs_srctree)/Makefile $(MAKECMDGOALS)
 
 endif # need-sub-make
 endif # sub_make_done
@@ -209,6 +198,53 @@ ifeq ($(need-sub-make),)
 # but we want to display it when entering to the output directory
 # so that IDEs/editors are able to understand relative filenames.
 MAKEFLAGS += --no-print-directory
+
+ifeq ($(abs_srctree),$(abs_objtree))
+        # building in the source tree
+        srctree := .
+	building_out_of_srctree :=
+else
+        ifeq ($(abs_srctree)/,$(dir $(abs_objtree)))
+                # building in a subdirectory of the source tree
+                srctree := ..
+        else
+                srctree := $(abs_srctree)
+        endif
+	building_out_of_srctree := 1
+endif
+
+ifneq ($(KBUILD_ABS_SRCTREE),)
+srctree := $(abs_srctree)
+endif
+
+objtree		:= .
+obj		:= $(objtree)
+VPATH		:= $(srctree)
+
+export building_out_of_srctree srctree objtree VPATH
+
+# Determine target architecture for the sandbox
+include $(srctree)/include/host_arch.h
+ifeq ("", "$(CROSS_COMPILE)")
+  MK_ARCH="${shell uname -m}"
+else
+  MK_ARCH="${shell echo $(CROSS_COMPILE) | sed -n 's/^\(.*ccache\)\{0,1\}[[:space:]]*\([^\/]*\/\)*\([^-]*\)-[^[:space:]]*/\3/p'}"
+endif
+unexport HOST_ARCH
+ifeq ("x86_64", $(MK_ARCH))
+  export HOST_ARCH=$(HOST_ARCH_X86_64)
+else ifneq (,$(findstring $(MK_ARCH), "i386" "i486" "i586" "i686"))
+  export HOST_ARCH=$(HOST_ARCH_X86)
+else ifneq (,$(findstring $(MK_ARCH), "aarch64" "armv8l"))
+  export HOST_ARCH=$(HOST_ARCH_AARCH64)
+else ifneq (,$(findstring $(MK_ARCH), "arm" "armv5tel" "armv6l" "armv7" "armv7a" "armv7l"))
+  export HOST_ARCH=$(HOST_ARCH_ARM)
+else ifeq ("riscv32", $(MK_ARCH))
+  export HOST_ARCH=$(HOST_ARCH_RISCV32)
+else ifeq ("riscv64", $(MK_ARCH))
+  export HOST_ARCH=$(HOST_ARCH_RISCV64)
+endif
+undefine MK_ARCH
 
 # Call a source code checker (by default, "sparse") as part of the
 # C compilation.
@@ -242,27 +278,7 @@ ifeq ("$(origin M)", "command line")
   KBUILD_EXTMOD := $(M)
 endif
 
-ifeq ($(KBUILD_SRC),)
-        # building in the source tree
-        srctree := .
-else
-        ifeq ($(KBUILD_SRC)/,$(dir $(CURDIR)))
-                # building in a subdirectory of the source tree
-                srctree := ..
-        else
-                srctree := $(KBUILD_SRC)
-        endif
-endif
-
-export KBUILD_CHECKSRC KBUILD_EXTMOD KBUILD_SRC
-
-objtree		:= .
-src		:= $(srctree)
-obj		:= $(objtree)
-
-VPATH		:= $(srctree)
-
-export srctree objtree VPATH
+export KBUILD_CHECKSRC KBUILD_EXTMOD
 
 # To make sure we do not include .config for any of the *config targets
 # catch them early, and hand them over to scripts/kconfig/Makefile
@@ -291,6 +307,7 @@ config-targets  := 0
 mixed-targets   := 0
 dot-config      := 1
 may-sync-config := 1
+single-build	:= 0
 
 ifneq ($(filter $(no-dot-config-targets), $(MAKECMDGOALS)),)
 	ifeq ($(filter-out $(no-dot-config-targets), $(MAKECMDGOALS)),)
@@ -349,7 +366,9 @@ __build_one_by_one:
 
 else
 
-include scripts/Kbuild.include
+include $(srctree)/scripts/Kbuild.uboot
+
+include $(srctree)/scripts/Makefile.compiler
 
 # Read UBOOTRELEASE from include/config/uboot.release (if it exists)
 UBOOTRELEASE = $(shell cat include/config/uboot.release 2> /dev/null)
@@ -357,7 +376,7 @@ UBOOTVERSION = $(VERSION)$(if $(PATCHLEVEL),.$(PATCHLEVEL)$(if $(SUBLEVEL),.$(SU
 export VERSION PATCHLEVEL SUBLEVEL UBOOTRELEASE UBOOTVERSION
 
 # Modified for U-Boot
--include scripts/subarch.include
+-include $(srctree)/scripts/subarch.include
 
 # Cross compiling and selecting different set of gcc/bin-utils
 # ---------------------------------------------------------------------------
@@ -408,9 +427,7 @@ KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 
 # SHELL used by kbuild
-CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
-	  else if [ -x /bin/bash ]; then echo /bin/bash; \
-	  else echo sh; fi ; fi)
+CONFIG_SHELL := sh
 
 HOST_LFS_CFLAGS := $(shell getconf LFS_CFLAGS 2>/dev/null)
 HOST_LFS_LDFLAGS := $(shell getconf LFS_LDFLAGS 2>/dev/null)
@@ -443,7 +460,7 @@ endef
 export size_check
 
 export KBUILD_MODULES KBUILD_BUILTIN
-export KBUILD_CHECKSRC KBUILD_SRC KBUILD_EXTMOD
+export KBUILD_CHECKSRC KBUILD_EXTMOD
 
 # Make variables (CC, etc...)
 AS		= $(CROSS_COMPILE)as
@@ -460,12 +477,20 @@ READELF		= $(CROSS_COMPILE)readelf
 LEX		= flex
 YACC		= bison
 AWK		= awk
+BASH		= bash
 INSTALLKERNEL  := installkernel
 DEPMOD		= /sbin/depmod
+KBZIP2		= bzip2
+KGZIP		= gzip
+KLZOP		= lzop
+LZMA		= lzma
+LZ4		= lz4c
 PERL		= perl
 PYTHON		= python
 PYTHON2		= python2
 PYTHON3		= python3
+XZ		= xz
+ZSTD		= zstd
 
 # The devicetree compiler and pylibfdt are automatically built unless DTC is
 # provided. If DTC is provided, it is assumed the pylibfdt is available too.
@@ -497,7 +522,7 @@ USERINCLUDE    := \
 # Needed to be compatible with the O= option
 UBOOTINCLUDE    := \
 	-Iinclude \
-	$(if $(KBUILD_SRC), -I$(srctree)/include) \
+	$(if $(building_out_of_srctree), -I$(srctree)/include) \
 	$(if $(CONFIG_$(XPL_)MBEDTLS_LIB), \
 		"-DMBEDTLS_CONFIG_FILE=\"mbedtls_def_config.h\"" \
 		-I$(srctree)/lib/mbedtls \
@@ -533,9 +558,10 @@ KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
 KBUILD_LDFLAGS :=
 GCC_PLUGINS_CFLAGS :=
 
-export ARCH SRCARCH CONFIG_SHELL HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
+export ARCH SRCARCH CONFIG_SHELL BASH HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM STRIP OBJCOPY OBJDUMP KBUILD_HOSTLDFLAGS KBUILD_HOSTLDLIBS
 export MAKE LEX YACC AWK INSTALLKERNEL PERL PYTHON PYTHON2 PYTHON3 UTS_MACHINE
+export KGZIP KBZIP2 KLZOP LZMA LZ4 XZ ZSTD
 export HOSTCXX KBUILD_HOSTCXXFLAGS LDFLAGS_MODULE CHECK CHECKFLAGS
 
 export KBUILD_CPPFLAGS NOSTDINC_FLAGS LINUXINCLUDE OBJCOPYFLAGS KBUILD_LDFLAGS
@@ -573,6 +599,14 @@ ifeq ($(NO_PYTHON),)
 PYTHON_ENABLE=y
 endif
 
+# Files to ignore in find ... statements
+
+export RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o    \
+			  -name CVS -o -name .pc -o -name .hg -o -name .git \) \
+			  -prune -o
+export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn \
+			 --exclude CVS --exclude .pc --exclude .hg --exclude .git
+
 # ===========================================================================
 # Rules shared between *config targets and build targets
 
@@ -580,18 +614,34 @@ endif
 PHONY += scripts_basic
 scripts_basic:
 	$(Q)$(MAKE) $(build)=scripts/basic
-	$(Q)rm -f .tmp_quiet_recordmcount
 
 PHONY += outputmakefile
+ifdef building_out_of_srctree
+# Before starting out-of-tree build, make sure the source tree is clean.
 # outputmakefile generates a Makefile in the output directory, if using a
 # separate output directory. This allows convenient use of make in the
 # output directory.
 # At the same time when output Makefile generated, generate .gitignore to
 # ignore whole output directory
+
+quiet_cmd_makefile = GEN     Makefile
+      cmd_makefile = { \
+	echo "\# Automatically generated by $(srctree)/Makefile: don't edit"; \
+	echo "include $(srctree)/Makefile"; \
+	} > Makefile
+
 outputmakefile:
-ifneq ($(KBUILD_SRC),)
+	$(Q)if [ -f $(srctree)/.config -o \
+		 -d $(srctree)/include/config -o \
+		 -d $(srctree)/arch/$(SRCARCH)/include/generated ]; then \
+		echo >&2 "***"; \
+		echo >&2 "*** The source tree is not clean, please run 'make$(if $(findstring command line, $(origin ARCH)), ARCH=$(ARCH)) mrproper'"; \
+		echo >&2 "*** in $(abs_srctree)";\
+		echo >&2 "***"; \
+		false; \
+	fi
 	$(Q)ln -fsn $(srctree) source
-	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile $(srctree)
+	$(call cmd,makefile)
 	$(Q)test -e .gitignore || \
 	{ echo "# this is build directory, ignore it"; echo "*"; } > .gitignore
 endif
@@ -656,9 +706,9 @@ else
 # but instead _all depend on modules
 PHONY += all
 ifeq ($(KBUILD_EXTMOD),)
-_all: all
+__all: all
 else
-_all: modules
+__all: modules
 endif
 
 # Decide whether to build built-in, modular, or both.
@@ -778,8 +828,8 @@ ifneq ($(wildcard include/config/auto.conf),)
 autoconf_is_old := $(shell find . -path ./$(KCONFIG_CONFIG) -newer \
 						include/config/auto.conf)
 ifeq ($(autoconf_is_old),)
-include config.mk
-include arch/$(ARCH)/Makefile
+include $(srctree)/config.mk
+include $(srctree)/arch/$(ARCH)/Makefile
 endif
 endif
 endif
@@ -869,6 +919,11 @@ endif
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
+else ifdef CONFIG_CC_OPTIMIZE_FOR_DEBUG
+-KBUILD_CFLAGS  += -Og
+# Avoid false positives -Wmaybe-uninitialized
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78394
+KBUILD_CFLAGS  += -Wno-maybe-uninitialized
 else
 KBUILD_CFLAGS   += -O2
 endif
@@ -880,8 +935,8 @@ endif
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
 
-include scripts/Makefile.kcov
-include scripts/Makefile.gcc-plugins
+include $(srctree)/scripts/Makefile.kcov
+include $(srctree)/scripts/Makefile.gcc-plugins
 LTO_CFLAGS :=
 LTO_FINAL_LDFLAGS :=
 export LTO_CFLAGS LTO_FINAL_LDFLAGS
@@ -969,7 +1024,7 @@ KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
 # Prohibit date/time macros, which would make the build non-deterministic
 KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
 
-include scripts/Makefile.extrawarn
+include $(srctree)/scripts/Makefile.extrawarn
 
 # Add user supplied CPPFLAGS, AFLAGS and CFLAGS as the last assignments
 KBUILD_CPPFLAGS += $(KCPPFLAGS)
@@ -986,7 +1041,7 @@ KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
 # Needed to be compatible with the O= option
 UBOOTINCLUDE    := \
 	-Iinclude \
-	$(if $(KBUILD_SRC), -I$(srctree)/include) \
+	$(if $(building_out_of_srctree), -I$(srctree)/include) \
 	$(if $(CONFIG_$(XPL_)MBEDTLS_LIB), \
 		"-DMBEDTLS_CONFIG_FILE=\"mbedtls_def_config.h\"" \
 		-I$(srctree)/lib/mbedtls \
@@ -1187,12 +1242,8 @@ endif
 endif
 
 ifdef CONFIG_FUNCTION_TRACER
-ifdef CONFIG_FTRACE_MCOUNT_RECORD
-  # gcc 5 supports generating the mcount tables directly
-  ifeq ($(call cc-option-yn,-mrecord-mcount),y)
-    CC_FLAGS_FTRACE	+= -mrecord-mcount
-    export CC_USING_RECORD_MCOUNT := 1
-  endif
+ifdef CONFIG_FTRACE_MCOUNT_USE_CC
+  CC_FLAGS_FTRACE	+= -mrecord-mcount
   ifdef CONFIG_HAVE_NOP_MCOUNT
     ifeq ($(call cc-option-yn, -mnop-mcount),y)
       CC_FLAGS_FTRACE	+= -mnop-mcount
@@ -1200,7 +1251,17 @@ ifdef CONFIG_FTRACE_MCOUNT_RECORD
     endif
   endif
 endif
+ifdef CONFIG_FTRACE_MCOUNT_USE_OBJTOOL
+  CC_FLAGS_USING	+= -DCC_USING_NOP_MCOUNT
+endif
+ifdef CONFIG_FTRACE_MCOUNT_USE_RECORDMCOUNT
+  ifdef CONFIG_HAVE_C_RECORDMCOUNT
+    BUILD_C_RECORDMCOUNT := y
+    export BUILD_C_RECORDMCOUNT
+  endif
+endif
 ifdef CONFIG_HAVE_FENTRY
+  # s390-linux-gnu-gcc did not support -mfentry until gcc-9.
   ifeq ($(call cc-option-yn, -mfentry),y)
     CC_FLAGS_FTRACE	+= -mfentry
     CC_FLAGS_USING	+= -DCC_USING_FENTRY
@@ -1209,12 +1270,6 @@ endif
 export CC_FLAGS_FTRACE
 KBUILD_CFLAGS	+= $(CC_FLAGS_FTRACE) $(CC_FLAGS_USING)
 KBUILD_AFLAGS	+= $(CC_FLAGS_USING)
-ifdef CONFIG_DYNAMIC_FTRACE
-	ifdef CONFIG_HAVE_C_RECORDMCOUNT
-		BUILD_C_RECORDMCOUNT := y
-		export BUILD_C_RECORDMCOUNT
-	endif
-endif
 endif
 
 # Add optional build target if defined in board/cpu/soc headers
@@ -1430,10 +1485,10 @@ MKIMAGEFLAGS_fit-dtb.blob = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 MKIMAGEFLAGS_fit-dtb.blob += -B 0x8
 
 ifneq ($(EXT_DTB),)
-u-boot-fit-dtb.bin: u-boot-nodtb.bin $(EXT_DTB)
+u-boot-fit-dtb.bin: u-boot-nodtb.bin $(EXT_DTB) FORCE
 		$(call if_changed,cat)
 else
-u-boot-fit-dtb.bin: u-boot-nodtb.bin $(FINAL_DTB_CONTAINER)
+u-boot-fit-dtb.bin: u-boot-nodtb.bin $(FINAL_DTB_CONTAINER) FORCE
 	$(call if_changed,cat)
 endif
 
@@ -1778,13 +1833,17 @@ tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin FORCE
 SPL: spl/u-boot-spl.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
-#ifeq ($(CONFIG_ARCH_IMX8M)$(CONFIG_ARCH_IMX8), y)
-ifeq ($(CONFIG_SPL_LOAD_IMX_CONTAINER), y)
+ifeq ($(CONFIG_SPL_LOAD_IMX_CONTAINER),y)
+ifeq ($(CONFIG_ARCH_IMX8M)$(CONFIG_ARCH_IMX8),y)
 u-boot.cnt: u-boot.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
 flash.bin: spl/u-boot-spl.bin u-boot.cnt FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+else
+flash.bin: spl/u-boot-spl.bin FORCE
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+endif
 else
 ifeq ($(CONFIG_BINMAN),y)
 flash.bin: spl/u-boot-spl.bin $(INPUTS-y) FORCE
@@ -1794,7 +1853,6 @@ flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 endif
 endif
-#endif
 
 u-boot.uim: u-boot.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
@@ -1939,7 +1997,7 @@ quiet_cmd_u-boot-elf ?= LD      $@
 	$(if $(CONFIG_SYS_BIG_ENDIAN),-EB,-EL) \
 	-T u-boot-elf.lds --defsym=$(CONFIG_PLATFORM_ELFENTRY)=$(CONFIG_TEXT_BASE) \
 	-Ttext=$(CONFIG_TEXT_BASE)
-u-boot.elf: u-boot.bin u-boot-elf.lds
+u-boot.elf: u-boot.bin u-boot-elf.lds FORCE
 	$(Q)$(OBJCOPY) -I binary $(PLATFORM_ELFFLAGS) $< u-boot-elf.o
 	$(call if_changed,u-boot-elf)
 
@@ -1956,7 +2014,7 @@ PHONY += prepare0
 ifeq ($(CONFIG_SPL),y)
 spl/u-boot-spl-mtk.bin: spl/u-boot-spl
 
-u-boot-mtk.bin: u-boot-with-spl.bin
+u-boot-mtk.bin: u-boot-with-spl.bin FORCE
 	$(call if_changed,copy)
 else
 MKIMAGEFLAGS_u-boot-mtk.bin = -T mtk_image \
@@ -1989,9 +2047,9 @@ quiet_cmd_keep_syms_lto_cc = KSLCC   $@
       cmd_keep_syms_lto_cc = \
 	$(CC) $(filter-out $(LTO_CFLAGS),$(c_flags)) -c -o $@ $<
 
-$(u-boot-keep-syms-lto_c): $(u-boot-main)
+$(u-boot-keep-syms-lto_c): $(u-boot-main) FORCE
 	$(call if_changed,keep_syms_lto)
-$(u-boot-keep-syms-lto): $(u-boot-keep-syms-lto_c)
+$(u-boot-keep-syms-lto): $(u-boot-keep-syms-lto_c) FORCE
 	$(call if_changed,keep_syms_lto_cc)
 else
 u-boot-keep-syms-lto :=
@@ -2173,7 +2231,7 @@ PHONY += prepare archprepare prepare1 prepare3
 # and if so do:
 # 1) Check that make has not been executed in the kernel src $(srctree)
 prepare3: include/config/uboot.release
-ifneq ($(KBUILD_SRC),)
+ifdef building_out_of_srctree
 	@$(kecho) '  Using $(srctree) as source for U-Boot'
 	$(Q)if [ -f $(srctree)/.config -o -d $(srctree)/include/config ]; then \
 		echo >&2 "  $(srctree) is not clean, please run 'make mrproper'"; \
@@ -2267,10 +2325,10 @@ define filechk_timestamp.h
 endef
 
 define filechk_defaultenv.h
-	( { grep -v '^#' | grep -v '^$$' || true ; echo '' ; } | \
+	( ( { grep -v '^#' | grep -v '^$$' || true ; echo '' ; } | \
 	 tr '\n' '\0' | \
 	 sed -e 's/\\\x0\s*//g' | \
-	 xxd -i ; )
+	 xxd -i ; ) < $<; )
 endef
 
 define filechk_dt.h
@@ -2313,7 +2371,7 @@ dtbs_check: export CHECK_DTBS=1
 dtbs_check: dt_binding_check
 
 dtbs_install:
-	$(Q)$(MAKE) $(dtbinst)=$(dtstree)
+	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.dtbinst obj=$(dtstree)
 
 ifdef CONFIG_OF_EARLY_FLATTREE
 all: dtbs
@@ -2431,7 +2489,7 @@ checkarmreloc: u-boot
 		false; \
 	fi
 
-tools/version.h: include/version.h
+tools/version.h: include/version.h FORCE
 	$(Q)mkdir -p $(dir $@)
 	$(call if_changed,copy)
 
@@ -2463,7 +2521,7 @@ CHANGELOG:
 # make distclean Remove editor backup files, patch leftover files and the like
 
 # Directories & files removed with 'make clean'
-CLEAN_DIRS  += $(MODVERDIR) \
+CLEAN_FILES  += $(MODVERDIR) \
 	       $(foreach d, spl tpl vpl, $(patsubst %,$d/%, \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
@@ -2482,7 +2540,7 @@ CLEAN_FILES += include/autoconf.mk* include/bmp_logo.h include/bmp_logo_data.h \
 	       imx9image* m33-oei-ddrfw* tifalcon.bin
 
 # Directories & files removed with 'make mrproper'
-MRPROPER_DIRS  += include/config include/generated spl tpl vpl \
+MRPROPER_FILES  += include/config include/generated spl tpl vpl \
 		  .tmp_objdiff doc/output include/asm
 
 # Remove include/asm symlink created by U-Boot before v2014.01
@@ -2492,37 +2550,14 @@ MRPROPER_FILES += .config .config.old include/autoconf.mk* include/config.h \
 
 # clean - Delete most, but leave enough to build external modules
 #
-clean: rm-dirs  := $(CLEAN_DIRS)
 clean: rm-files := $(CLEAN_FILES)
-clean-dirs	:= $(foreach f,$(u-boot-alldirs),$(if $(wildcard $(srctree)/$f/Makefile),$f))
-clean-dirs      := $(addprefix _clean_, $(clean-dirs))
 
-PHONY += $(clean-dirs) clean archclean
-$(clean-dirs):
-	$(Q)$(MAKE) $(clean)=$(patsubst _clean_%,%,$@)
+PHONY += archclean
 
-clean: $(clean-dirs)
-	$(call cmd,rmdirs)
-	$(call cmd,rmfiles)
-	@find $(if $(KBUILD_EXTMOD), $(KBUILD_EXTMOD), .) $(RCS_FIND_IGNORE) \
-		\( -name '*.[oas]' -o -name '*.ko' -o -name '.*.cmd' \
-		-o -name '*.ko.*' -o -name '*.su' -o -name '*.pyc' \
-		-o -name '*.dtb' -o -name '*.dtbo' \
-		-o -name '*.dtb.S' -o -name '*.dtbo.S' \
-		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \
-		-o -name '*.lex.c' -o -name '*.tab.[ch]' \
-		-o -name '*.asn1.[ch]' \
-		-o -name '*.symtypes' -o -name 'modules.order' \
-		-o -name modules.builtin -o -name '.tmp_*.o.*' \
-		-o -name 'dsdt_generated.aml' -o -name 'dsdt_generated.asl.tmp' \
-		-o -name 'dsdt_generated.c' \
-		-o -name 'generated_defconfig' \
-		-o -name '*.efi' -o -name '*.gcno' -o -name '*.so' \) \
-		-type f -print | xargs rm -f
+clean: archclean
 
 # mrproper - Delete all generated files, including .config
 #
-mrproper: rm-dirs  := $(wildcard $(MRPROPER_DIRS))
 mrproper: rm-files := $(wildcard $(MRPROPER_FILES))
 mrproper-dirs      := $(addprefix _mrproper_,scripts)
 
@@ -2531,22 +2566,49 @@ $(mrproper-dirs):
 	$(Q)$(MAKE) $(clean)=$(patsubst _mrproper_%,%,$@)
 
 mrproper: clean $(mrproper-dirs)
-	$(call cmd,rmdirs)
 	$(call cmd,rmfiles)
-	@rm -f arch/*/include/asm/arch
 
 # distclean
 #
 PHONY += distclean
 
 distclean: mrproper
-	@find $(srctree) $(RCS_FIND_IGNORE) \
+	@find . $(RCS_FIND_IGNORE) \
 		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
-		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
-		-o -name '.*.rej' -o -name '*%' -o -name 'core' \
-		-o -name '*.pyc' \) \
+		-o -name '*.bak' -o -name '#*#' -o -name '*%' \
+		-o -name 'core' -o -name tags -o -name TAGS -o -name 'cscope*' \
+		-o -name GPATH -o -name GRTAGS -o -name GSYMS -o -name GTAGS \) \
 		-type f -print | xargs rm -f
-	@rm -f boards.cfg CHANGELOG .binman_stamp
+
+# Modified for U-Boot, the kernel figures this out through it's own variable
+clean-dirs	:= $(foreach f,$(u-boot-alldirs),$(if $(wildcard $(srctree)/$f/Makefile),$f))
+clean-dirs := $(addprefix _clean_, $(clean-dirs))
+PHONY += $(clean-dirs) clean
+$(clean-dirs):
+	$(Q)$(MAKE) $(clean)=$(patsubst _clean_%,%,$@)
+
+clean: $(clean-dirs)
+	$(call cmd,rmfiles)
+	@find $(or $(KBUILD_EXTMOD), .) $(RCS_FIND_IGNORE) \
+		\( -name '*.[aios]' -o -name '*.ko' -o -name '.*.cmd' \
+		-o -name '*.ko.*' -o -name '*.su' -o -name '*.pyc' \
+		-o -name '*.dtb' -o -name '*.dtbo' -o -name '*.dtb.S' -o -name '*.dt.yaml' \
+		-o -name '*.dwo' -o -name '*.lst' \
+		-o -name '*.su' -o -name '*.mod' -o -name '*.usyms' \
+		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \
+		-o -name '*.lex.c' -o -name '*.tab.[ch]' \
+		-o -name '*.asn1.[ch]' \
+		-o -name '*.symtypes' -o -name 'modules.order' \
+		-o -name '.tmp_*' \
+		-o -name '*.c.[012]*.*' \
+		-o -name '*.ll' \
+		-o -name 'dsdt_generated.aml' -o -name 'dsdt_generated.asl.tmp' \
+		-o -name 'dsdt_generated.c' \
+		-o -name 'generated_defconfig' \
+		-o -name '*.gcno' \
+		-o -name '*.efi' -o -name '*.gcno' -o -name '*.so' \
+		-o -name '*.*.symversions' \) -type f -print | xargs rm -f
+
 
 # See doc/develop/python_cq.rst
 PHONY += pylint pylint_err
@@ -2779,16 +2841,13 @@ u-boot-initial-env: scripts_basic $(version_h) $(env_h) include/config.h FORCE
 PHONY += coccicheck
 
 coccicheck:
-	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/$@
+	$(Q)$(BASH) $(srctree)/scripts/$@
 
 # FIXME Should go into a make.lib or something
 # ===========================================================================
 
-quiet_cmd_rmdirs = $(if $(wildcard $(rm-dirs)),CLEAN   $(wildcard $(rm-dirs)))
-      cmd_rmdirs = rm -rf $(rm-dirs)
-
 quiet_cmd_rmfiles = $(if $(wildcard $(rm-files)),CLEAN   $(wildcard $(rm-files)))
-      cmd_rmfiles = rm -f $(rm-files)
+      cmd_rmfiles = rm -rf $(rm-files)
 
 # Run depmod only if we have System.map and depmod is executable
 quiet_cmd_depmod = DEPMOD  $(KERNELRELEASE)

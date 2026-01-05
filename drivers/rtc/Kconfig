@@ -161,8 +161,16 @@ config RTC_MAX313XX
 	  - Temperature sensor
 	  - CLKOUT generation
 
+config RTC_PCF85063
+	bool "Enable PCF85063 driver"
+	depends on DM_I2C
+	depends on DM_RTC
+	help
+	  If you say yes here you get support for the NXP PCF85063 RTC
+	  and compatible chips.
+
 config RTC_PCF8563
-	tristate "Philips PCF8563"
+	bool "Philips PCF8563"
 	help
 	  If you say yes here you get support for the Philips PCF8563 RTC
 	  and compatible chips.
@@ -185,6 +193,13 @@ config RTC_RV3029
 
 	  This driver supports reading and writing the RTC/calendar and the
 	  battery-baced SRAM section.
+
+config RTC_RV3032
+	bool "Enable RV3032 driver"
+	depends on DM_RTC
+	help
+	  If you say yes here you get support for the Micro Crystal RV3032
+	  RTC.
 
 config RTC_RV8803
 	bool "Enable RV8803 driver"

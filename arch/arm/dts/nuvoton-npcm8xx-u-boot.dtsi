@@ -395,6 +395,36 @@
 				gpio-bank-name = "gpio7";
 			};
 
+			gpio8: sgpio1@101000 {
+				compatible = "nuvoton,npcm845-sgpio";
+				reg = <0x101000 0x200>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&iox1_pins>;
+				syscon-rst = <&rstc>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio8";
+				nuvoton,input-ngpios = <0>;
+				nuvoton,output-ngpios = <0>;
+			};
+
+			gpio9: sgpio2@102000 {
+				compatible = "nuvoton,npcm845-sgpio";
+				reg = <0x102000 0x200>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&iox2_pins>;
+				syscon-rst = <&rstc>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio9";
+				nuvoton,input-ngpios = <8>;
+				nuvoton,output-ngpios = <8>;
+			};
+
 			rng: rng@b000 {
 				compatible = "nuvoton,npcm845-rng";
 				reg = <0xb000 0x8>;
@@ -543,14 +573,6 @@
 		spi0cs1_pins: spi0cs1-pins {
 			groups = "spi0cs1";
 			function = "spi0cs1";
-		};
-		spi0cs2_pins: spi0cs2-pins {
-			groups = "spi0cs2";
-			function = "spi0cs2";
-		};
-		spi0cs3_pins: spi0cs3-pins {
-			groups = "spi0cs3";
-			function = "spi0cs3";
 		};
 		smb3c_pins: smb3c-pins {
 			groups = "smb3c";
@@ -1059,6 +1081,14 @@
 		vcdhs_pins: vcdhs-pins {
 			groups = "vcdhs";
 			function = "vcdhs";
+		};
+		smb11ddcm_pins: smb11ddcm-pins {
+			groups = "smb11ddcm";
+			function = "smb11ddcm";
+		};
+		smb11ddcs_pins: smb11ddcs-pins {
+			groups = "smb11ddcs";
+			function = "smb11ddcs";
 		};
 	};
 };

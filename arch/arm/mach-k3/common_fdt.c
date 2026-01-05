@@ -114,8 +114,9 @@ int fdt_del_node_path(void *blob, const char *path)
 	return ret;
 }
 
-int fdt_fixup_reserved(void *blob, const char *name,
-		       unsigned int new_address, unsigned int new_size)
+static int fdt_fixup_reserved_memory(void *blob, const char *name,
+				     unsigned int new_address,
+				     unsigned int new_size)
 {
 	int nodeoffset, subnode;
 	int ret;
@@ -165,6 +166,19 @@ add_carveout:
 		return ret;
 
 	return 0;
+}
+
+int fdt_fixup_reserved(void *blob)
+{
+	int ret;
+
+	ret = fdt_fixup_reserved_memory(blob, "tfa", CONFIG_K3_ATF_LOAD_ADDR,
+					0x80000);
+	if (ret)
+		return ret;
+
+	return fdt_fixup_reserved_memory(blob, "optee",
+					 CONFIG_K3_OPTEE_LOAD_ADDR, 0x1800000);
 }
 
 static int fdt_fixup_critical_trips(void *blob, int zoneoffset, int maxc)

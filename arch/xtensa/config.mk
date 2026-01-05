@@ -9,7 +9,7 @@ PLATFORM_CPPFLAGS += -D__XTENSA__ -mlongcalls -mforce-no-pic \
 LDFLAGS_FINAL += --gc-sections
 
 ifeq ($(CONFIG_SYS_BIG_ENDIAN),y)
-PLATFORM_CPPFLAGS += -B xtensa -O elf32-xtensa-be
+PLATFORM_ELFFLAGS += -B xtensa -O elf32-xtensa-be
 else
 PLATFORM_ELFFLAGS += -B xtensa -O elf32-xtensa-le
 endif

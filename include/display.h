@@ -26,6 +26,16 @@ struct display_plat {
 };
 
 /**
+ * display_read_edid() - Read edid from display
+ *
+ * @dev:	Device to read from
+ * @buf:	Buffer to read into (should be EDID_SIZE bytes)
+ * @buf_size:	Buffer size (should be EDID_SIZE)
+ * Return number of bytes read, <= 0 for error
+ */
+int display_read_edid(struct udevice *dev, u8 *buf, int buf_size);
+
+/**
  * display_read_timing() - Read timing information
  *
  * @dev:	Device to read from

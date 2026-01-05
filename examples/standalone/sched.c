@@ -261,9 +261,8 @@ static void thread_launcher (void)
 static int thread_start (int id)
 {
 	PDEBUG ("thread_start: id=%d", id);
-	if (id <= MASTER_THREAD || id > MAX_THREADS) {
+	if (id <= MASTER_THREAD || id >= MAX_THREADS)
 		return RC_FAILURE;
-	}
 
 	if (lthreads[id].state != STATE_STOPPED)
 		return RC_FAILURE;

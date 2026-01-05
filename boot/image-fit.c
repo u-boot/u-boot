@@ -16,6 +16,9 @@
 #include <linux/libfdt.h>
 #include <u-boot/crc.h>
 #include <linux/kconfig.h>
+
+/* C11 standard function for aligned allocations */
+extern void *aligned_alloc(size_t alignment, size_t size);
 #else
 #include <linux/compiler.h>
 #include <linux/sizes.h>
@@ -30,6 +33,8 @@
 #include <dm.h>
 #include <u-boot/hash.h>
 #endif
+#define aligned_alloc(a, s)	memalign((a), (s))
+
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
@@ -318,6 +323,17 @@ static void fit_conf_print(const void *fit, int noffset, const char *p)
 	     fdt_index++) {
 		if (fdt_index == 0)
 			printf("%s  FDT:          ", p);
+		else
+			printf("%s                ", p);
+		printf("%s\n", uname);
+	}
+
+	for (fdt_index = 0;
+	     uname = fdt_stringlist_get(fit, noffset, FIT_COMPAT_PROP,
+					fdt_index, NULL), uname;
+	     fdt_index++) {
+		if (fdt_index == 0)
+			printf("%s  Compatible:   ", p);
 		else
 			printf("%s                ", p);
 		printf("%s\n", uname);
@@ -1756,11 +1772,11 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 			continue;
 
 		/* If there's a compat property in the config node, use that. */
-		if (fdt_getprop(fit, noffset, "compatible", NULL)) {
+		if (fdt_getprop(fit, noffset, FIT_COMPAT_PROP, NULL)) {
 			fdt = fit;		  /* search in FIT image */
 			compat_noffset = noffset; /* search under config node */
 		} else {	/* Otherwise extract it from the kernel FDT. */
-			kfdt_name = fdt_getprop(fit, noffset, "fdt", &len);
+			kfdt_name = fdt_getprop(fit, noffset, FIT_FDT_PROP, &len);
 			if (!kfdt_name) {
 				debug("No fdt property found.\n");
 				continue;
@@ -2137,13 +2153,15 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 		noffset = fit_conf_get_prop_node(fit, cfg_noffset, prop_name,
 						 image_ph_phase(ph_type));
-		fit_uname = fit_get_name(fit, noffset, NULL);
 	}
 	if (noffset < 0) {
 		printf("Could not find subimage node type '%s'\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_SUBNODE);
 		return -ENOENT;
 	}
+
+	if (!fit_uname)
+		fit_uname = fit_get_name(fit, noffset, NULL);
 
 	printf("   Trying '%s' %s subimage\n", fit_uname, prop_name);
 
@@ -2279,7 +2297,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 		log_debug("decompressing image\n");
 		if (load == data) {
-			loadbuf = malloc(max_decomp_len);
+			loadbuf = aligned_alloc(8, max_decomp_len);
 			load = map_to_sysmem(loadbuf);
 		} else {
 			loadbuf = map_sysmem(load, max_decomp_len);
@@ -2291,6 +2309,11 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 			return -ENOEXEC;
 		}
 		len = load_end - load;
+	} else if (load_op != FIT_LOAD_IGNORED && image_type == IH_TYPE_FLATDT &&
+		   ((uintptr_t)buf & 7)) {
+		loadbuf = aligned_alloc(8, len);
+		load = map_to_sysmem(loadbuf);
+		memcpy(loadbuf, buf, len);
 	} else if (load != data) {
 		log_debug("copying\n");
 		loadbuf = map_sysmem(load, len);

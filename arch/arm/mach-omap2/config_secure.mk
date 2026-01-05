@@ -84,7 +84,7 @@ u-boot-spl_HS_SPI_X-LOADER: $(obj)/u-boot-spl.bin FORCE
 # file, not an SPL. This will work for all boot devices, other than SPI
 # flash. On Keystone devices when booting from an SD card FAT partition this
 # file must be called "MLO"
-u-boot_HS_MLO: $(obj)/u-boot.bin
+u-boot_HS_MLO: $(obj)/u-boot.bin FORCE
 	$(call if_changed,mkomapsecimg)
 	@if [ -f $@ ]; then \
 		cp -f $@ MLO; \

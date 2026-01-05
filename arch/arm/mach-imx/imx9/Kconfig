@@ -61,6 +61,14 @@ config TARGET_IMX91_11X11_EVK
 	imply BOOTSTD_FULL
 	imply BOOTSTD_BOOTCOMMAND
 
+config TARGET_IMX91_11X11_FRDM
+	bool "imx91_11x11_frdm"
+	select OF_BOARD_FIXUP
+	select IMX91
+	select IMX9_LPDDR4X
+	imply BOOTSTD_FULL
+	imply BOOTSTD_BOOTCOMMAND
+
 config TARGET_IMX93_9X9_QSB
 	bool "imx93_qsb"
 	select OF_BOARD_FIXUP
@@ -103,6 +111,15 @@ config TARGET_IMX93_VAR_SOM
 	select IMX93
 	select IMX9_LPDDR4X
 
+config TARGET_KONTRON_MX93
+	bool "Kontron OSM-S/BL i.MX93"
+	select BINMAN
+	select IMX93
+	select IMX9_LPDDR4X
+	help
+	  Kontron Electronics BL i.MX93 using SoM module conformant to OSM
+	  standard 1.1 size S.
+
 config TARGET_PHYCORE_IMX93
 	bool "phycore_imx93"
 	select IMX93
@@ -139,9 +156,11 @@ config TARGET_TORADEX_SMARC_IMX95
 endchoice
 
 source "board/freescale/imx91_evk/Kconfig"
+source "board/freescale/imx91_frdm/Kconfig"
 source "board/freescale/imx93_evk/Kconfig"
 source "board/freescale/imx93_frdm/Kconfig"
 source "board/freescale/imx93_qsb/Kconfig"
+source "board/kontron/osm-s-mx93/Kconfig"
 source "board/phytec/phycore_imx93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
 source "board/freescale/imx94_evk/Kconfig"
@@ -149,4 +168,3 @@ source "board/freescale/imx95_evk/Kconfig"
 source "board/toradex/smarc-imx95/Kconfig"
 
 endif
-

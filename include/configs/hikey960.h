@@ -34,7 +34,6 @@
 				"fdt_addr_r=0x10000000\0" \
 				"kernel_addr_r=0x11000000\0" \
 				"scriptaddr=0x00020000\0" \
-				"fdt_high=0xffffffffffffffff\0" \
 				"initrd_high=0xffffffffffffffff\0" \
 				BOOTENV
 

@@ -53,17 +53,6 @@ config NET_MAXDEFRAG
 	  used for reassembly, and thus an upper bound for the size of
 	  IP datagrams that can be received.
 
-config SYS_FAULT_ECHO_LINK_DOWN
-	bool "Echo the inverted Ethernet link state to the fault LED"
-	help
-	  Echo the inverted Ethernet link state to the fault LED.  Note, if
-	  this option is active, then CONFIG_SYS_FAULT_MII_ADDR also needs to
-	  be configured.
-
-config SYS_FAULT_MII_ADDR
-	hex "MII address of the PHY to check for the Ethernet link state"
-	depends on SYS_FAULT_ECHO_LINK_DOWN && LED_STATUS_RED_ENABLE
-
 config TFTP_WINDOWSIZE
 	int "TFTP window size"
 	default 1

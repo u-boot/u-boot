@@ -18,10 +18,12 @@
 #define PHYTEC_GET_OPTION(option) \
 	(((option) > '9') ? (option) - 'A' + 10 : (option) - '0')
 
-#define PHYTEC_PRODUCT_NAME_STD_LEN	7	// PCx-000
+#define PHYTEC_PRODUCT_NAME_PCX_LEN	7	// PCx-000
+#define PHYTEC_PRODUCT_NAME_PFL_LEN	8	// PFL-x-00
 #define PHYTEC_PRODUCT_NAME_KSP_LEN	8	// KSP-0000
 #define PHYTEC_PRODUCT_NAME_MAX_LEN	PHYTEC_PRODUCT_NAME_KSP_LEN
-#define PHYTEC_PART_NUMBER_STD_LEN	11	// PCx-000-\w{1,17}.Ax
+#define PHYTEC_PART_NUMBER_PCX_LEN	11	// PCx-000-\w{1,17}.Ax
+#define PHYTEC_PART_NUMBER_PFL_LEN	17	// PFL-x-00-xx000.Ax
 #define PHYTEC_PART_NUMBER_KSP_LEN	11	// KSP-0000.Ax
 #define PHYTEC_PART_NUMBER_STD_KSP_LEN	16	// PCx-000-KSx00.Ax
 #define PHYTEC_PART_NUMBER_MAX_LEN	PHYTEC_PRODUCT_NAME_MAX_LEN + 21
@@ -38,6 +40,7 @@ enum phytec_som_type_str {
 	SOM_TYPE_PCL,
 	SOM_TYPE_KSM,
 	SOM_TYPE_KSP,
+	SOM_TYPE_PFL_G,
 };
 
 static const char * const phytec_som_type_str[] = {
@@ -45,6 +48,7 @@ static const char * const phytec_som_type_str[] = {
 	"PCL",
 	"KSM",
 	"KSP",
+	"PFL-G",
 };
 
 struct phytec_api0_data {

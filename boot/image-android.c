@@ -721,17 +721,19 @@ bool android_image_get_dtb_by_index(ulong hdr_addr, ulong vendor_boot_img,
 	dtb_addr = dtb_img_addr;
 	while (dtb_addr < dtb_img_addr + dtb_img_size) {
 		const struct fdt_header *fdt;
+		struct fdt_header fdth __aligned(8);
 		u32 dtb_size;
 
 		fdt = map_sysmem(dtb_addr, sizeof(*fdt));
-		if (fdt_check_header(fdt) != 0) {
-			unmap_sysmem(fdt);
+		memcpy(&fdth, fdt, sizeof(*fdt));
+		unmap_sysmem(fdt);
+
+		if (fdt_check_header(&fdth) != 0) {
 			printf("Error: Invalid FDT header for index %u\n", i);
 			return false;
 		}
 
-		dtb_size = fdt_totalsize(fdt);
-		unmap_sysmem(fdt);
+		dtb_size = fdt_totalsize(&fdth);
 
 		if (i == index) {
 			if (size)
@@ -885,23 +887,41 @@ bool android_image_print_dtb_contents(ulong hdr_addr)
 	dtb_addr = dtb_img_addr;
 	while (dtb_addr < dtb_img_addr + dtb_img_size) {
 		const struct fdt_header *fdt;
+		struct fdt_header *fulldt;
+		struct fdt_header fdth __aligned(8);
 		u32 dtb_size;
 
 		fdt = map_sysmem(dtb_addr, sizeof(*fdt));
-		if (fdt_check_header(fdt) != 0) {
-			unmap_sysmem(fdt);
+		memcpy(&fdth, fdt, sizeof(*fdt));
+		unmap_sysmem(fdt);
+
+		if (fdt_check_header(&fdth) != 0) {
 			printf("Error: Invalid FDT header for index %u\n", i);
 			return false;
 		}
 
-		res = android_image_print_dtb_info(fdt, i);
-		if (!res) {
+		dtb_size = fdt_totalsize(&fdth);
+
+		/* The device tree must be at an 8-byte aligned address */
+		if (!IS_ALIGNED((uintptr_t)fdt, 8)) {
+			fulldt = memalign(8, dtb_size);
+			if (!fulldt)
+				return false;
+
+			fdt = map_sysmem(dtb_addr, dtb_size);
+			memcpy(fulldt, fdt, dtb_size);
 			unmap_sysmem(fdt);
-			return false;
+			res = android_image_print_dtb_info(fulldt, i);
+			free(fulldt);
+		} else {
+			fulldt = map_sysmem(dtb_addr, dtb_size);
+			res = android_image_print_dtb_info(fulldt, i);
+			unmap_sysmem(fulldt);
 		}
 
-		dtb_size = fdt_totalsize(fdt);
-		unmap_sysmem(fdt);
+		if (!res)
+			return false;
+
 		dtb_addr += dtb_size;
 		++i;
 	}

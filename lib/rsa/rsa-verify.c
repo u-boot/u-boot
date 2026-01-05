@@ -89,7 +89,7 @@ U_BOOT_PADDING_ALGO(pkcs_15) = {
 };
 #endif
 
-#if CONFIG_IS_ENABLED(FIT_RSASSA_PSS)
+#if CONFIG_IS_ENABLED(RSASSA_PSS)
 static void u32_i2osp(uint32_t val, uint8_t *buf)
 {
 	buf[0] = (uint8_t)((val >> 24) & 0xff);
@@ -310,7 +310,7 @@ U_BOOT_PADDING_ALGO(pss) = {
 /**
  * rsa_verify_key() - Verify a signature against some data using RSA Key
  *
- * Verify a RSA PKCS1.5 signature against an expected hash using
+ * Verify a RSA PKCS1.5/PSS signature against an expected hash using
  * the RSA Key properties in prop structure.
  *
  * @info:	Specifies key and FIT information
@@ -388,7 +388,7 @@ static int rsa_verify_key(struct image_sign_info *info,
  * @sig_len:	Number of bytes in signature
  *
  * Parse a RSA public key blob in DER format pointed to in @info and fill
- * a key_prop structure with properties of the key. Then verify a RSA PKCS1.5
+ * a key_prop structure with properties of the key. Then verify a RSA PKCS1.5/PSS
  * signature against an expected hash using the calculated properties.
  *
  * Return	0 if verified, -ve on error
@@ -423,7 +423,7 @@ int rsa_verify_with_pkey(struct image_sign_info *info,
  * information in node with prperties of RSA Key like modulus, exponent etc.
  *
  * Parse sign-node and fill a key_prop structure with properties of the
- * key.  Verify a RSA PKCS1.5 signature against an expected hash using
+ * key.  Verify a RSA PKCS1.5/PSS signature against an expected hash using
  * the properties parsed
  *
  * @info:	Specifies key and FIT information
@@ -448,7 +448,7 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 		return -EBADF;
 	}
 
-	algo = fdt_getprop(blob, node, "algo", NULL);
+	algo = fdt_getprop(blob, node, FIT_ALGO_PROP, NULL);
 	if (!algo) {
 		debug("%s: Missing 'algo' property\n", __func__);
 		return -EFAULT;

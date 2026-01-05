@@ -15,7 +15,6 @@
 #include <zynqmp_firmware.h>
 #include <asm/arch/hardware.h>
 #include "cadence_qspi.h"
-#include <dt-bindings/power/xlnx-versal-power.h>
 
 int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 			      const struct spi_mem_op *op)
@@ -178,15 +177,15 @@ int cadence_qspi_flash_reset(struct udevice *dev)
 
 	/* Disable Tri-state */
 	writel((readl(BANK0_TRI) & ~BIT(FLASH_RESET_GPIO)), BANK0_TRI);
-	udelay(1);
+	udelay(5);
 
 	/* Set value 0 to pin */
 	writel((readl(BANK0_OUTPUT) & ~BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
-	udelay(10);
+	udelay(150);
 
 	/* Set value 1 to pin */
 	writel((readl(BANK0_OUTPUT) | BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
-	udelay(10);
+	udelay(1200);
 
 	return 0;
 }

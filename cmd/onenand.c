@@ -236,6 +236,7 @@ static int onenand_block_test(u32 start, u32 size)
 
 	verify_buf = malloc(blocksize);
 	if (!verify_buf) {
+		free(buf);
 		printf("Not enough malloc space available!\n");
 		return -1;
 	}

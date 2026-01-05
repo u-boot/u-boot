@@ -48,7 +48,6 @@ enum ddr_size_t {
 	DDR_SIZE_2G,
 	DDR_SIZE_4G,
 	DDR_SIZE_8G,
-	DDR_SIZE_16G,
 };
 
 void ddr_phy_train(u32 *phyreg);

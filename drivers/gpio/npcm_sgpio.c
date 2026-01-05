@@ -301,7 +301,7 @@ static bool is_gpio_persist(struct udevice *dev)
 	status = npcm_get_reset_status();
 
 	if (status & PORST)
-		return false;
+		return true;
 	if (status & CORST)
 		regmap_read(priv->rst_regmap, CORSTC, &val);
 	else if (status & WD0RST)
@@ -320,9 +320,9 @@ static bool is_gpio_persist(struct udevice *dev)
 		regmap_read(priv->rst_regmap, TIPRSTC, &val);
 
 	if (priv->siox_num == 1)
-		return (val && BIT(NPCM_SIOX2));
+		return !!(val & BIT(NPCM_SIOX2));
 	else
-		return (val && BIT(NPCM_SIOX1));
+		return !!(val & BIT(NPCM_SIOX1));
 }
 
 static const struct dm_gpio_ops npcm_sgpio_ops = {
@@ -363,7 +363,7 @@ static int npcm_sgpio_probe(struct udevice *dev)
 	uc_priv->gpio_count = priv->nin_sgpio + priv->nout_sgpio;
 	uc_priv->bank_name = dev->name;
 
-	if (is_gpio_persist(dev)) {
+	if (!is_gpio_persist(dev)) {
 		ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 			if (ofnode_read_bool(node, "persist-enable")) {
 				rc = ofnode_read_u32_array(node, "gpios", val, 2);

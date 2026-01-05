@@ -1,6 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright (C) 2013, 2014, 2017 Markus Niebel <Markus.Niebel@tq-group.com>
+ * Copyright (c) 2013-2014, 2017 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+ * D-82229 Seefeld, Germany.
+ * Author: Markus Niebel
  *
  * Configuration settings for the TQ-Systems TQMa6<Q,D,DL,S> module.
  */
@@ -203,7 +205,6 @@
 	"fdt_addr="__stringify(TQMA6_FDT_ADDRESS)"\0"                          \
 	"console=" CONSOLE_DEV "\0"                                            \
 	"cma_size="__stringify(TQMA6_CMA_SIZE)"\0"                             \
-	"fdt_high=0xffffffff\0"                                                \
 	"initrd_high=0xffffffff\0"                                             \
 	"rootfsmode=ro\0"                                                      \
 	"addcma=setenv bootargs ${bootargs} cma=${cma_size}\0"                 \

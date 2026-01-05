@@ -3,9 +3,24 @@
 # Copyright (C) 2020 Dario Binacchi <dariobin@libero.it>
 #
 
+config CLK_TI_OMAP2PLUS
+	bool
+	depends on CLK
+	select REGMAP
+	help
+	  Common clock functions used in some TI clock drivers.
+
+config CLK_TI_OMAP4_CM
+	bool "TI OMAP4 clock manager driver"
+	depends on CLK && ARCH_OMAP2PLUS
+	default y
+	help
+	  This enables the OMAP4 clock manager (CM) stub driver.
+
 config CLK_TI_AM3_DPLL
 	bool "TI AM33XX Digital Phase-Locked Loop (DPLL) clock drivers"
 	depends on CLK && OF_CONTROL && ARCH_OMAP2PLUS
+	select CLK_TI_OMAP2PLUS
 	help
 	  This enables the DPLL clock drivers support on AM33XX SoCs. The DPLL
 	  provides all interface clocks and functional clocks to the processor.
@@ -18,19 +33,22 @@ config CLK_TI_CTRL
 
 config CLK_TI_DIVIDER
 	bool "TI divider clock driver"
-	depends on CLK && OF_CONTROL && CLK_CCF
+	depends on CLK && OF_CONTROL && CLK_CCF && ARCH_OMAP2PLUS
+	select CLK_TI_OMAP2PLUS
 	help
 	  This enables the divider clock driver support on TI's SoCs.
 
 config CLK_TI_GATE
 	bool "TI gate clock driver"
-	depends on CLK && OF_CONTROL
+	depends on CLK && OF_CONTROL && ARCH_OMAP2PLUS
+	select CLK_TI_OMAP2PLUS
 	help
 	  This enables the gate clock driver support on TI's SoCs.
 
 config CLK_TI_MUX
 	bool "TI mux clock driver"
-	depends on CLK && OF_CONTROL && CLK_CCF
+	depends on CLK && OF_CONTROL && CLK_CCF && ARCH_OMAP2PLUS
+	select CLK_TI_OMAP2PLUS
 	help
 	  This enables the mux clock driver support on TI's SoCs.
 

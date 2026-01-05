@@ -9,6 +9,23 @@ choice
 	prompt "K3 J784S4 board"
 	optional
 
+config TARGET_AQUILA_AM69_A72
+	bool "Toradex Aquila AM69 running on A72"
+	select ARM64
+	select SYS_DISABLE_DCACHE_OPS
+	select BINMAN
+
+config TARGET_AQUILA_AM69_R5
+	bool "Toradex Aquila AM69 running on R5"
+	select CPU_V7R
+	select SYS_THUMB_BUILD
+	select K3_LOAD_SYSFW
+	select RAM
+	select SPL_RAM
+	select K3_DDRSS
+	select BINMAN
+	imply SYS_K3_SPL_ATF
+
 config TARGET_J784S4_A72_EVM
 	bool "TI K3 based J784S4 EVM running on A72"
 	select ARM64
@@ -48,5 +65,6 @@ config TARGET_J742S2_R5_EVM
 endchoice
 
 source "board/ti/j784s4/Kconfig"
+source "board/toradex/aquila-am69/Kconfig"
 
 endif

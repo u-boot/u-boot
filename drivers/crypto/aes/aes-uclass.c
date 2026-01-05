@@ -156,13 +156,17 @@ int dm_aes_cmac(struct udevice *dev, u8 *src, u8 *dst, u32 num_aes_blocks)
 	/* Process all blocks except last by calling engine several times per dma buffer size */
 	if (num_aes_blocks > 1) {
 		tmp_buffer = malloc(AES_BLOCK_LENGTH * min(num_aes_blocks - 1, TMP_BUFFER_LEN));
+		if (!tmp_buffer)
+			return -1;
 		while (num_aes_blocks > 1) {
 			u32 blocks = min(num_aes_blocks - 1, TMP_BUFFER_LEN);
 
 			/* Encrypt the current remaining set of blocks that fits in tmp buffer */
 			ret = dm_aes_cbc_encrypt(dev, tmp_block, src, tmp_buffer, blocks);
-			if (ret)
+			if (ret) {
+				free(tmp_buffer);
 				return -1;
+			}
 
 			num_aes_blocks -= blocks;
 			src += blocks * AES_BLOCK_LENGTH;

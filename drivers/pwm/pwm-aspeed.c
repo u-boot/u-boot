@@ -211,8 +211,7 @@ static int aspeed_pwm_probe(struct udevice *dev)
 	}
 	ret = reset_deassert(&priv->reset);
 	if (ret) {
-		dev_err(dev, "cannot deassert reset control: %pe\n",
-			ERR_PTR(ret));
+		dev_err(dev, "cannot deassert reset control: %d\n", ret);
 		return ret;
 	}
 

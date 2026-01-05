@@ -159,6 +159,7 @@ config PPC
 config RISCV
 	bool "RISC-V architecture"
 	select CREATE_ARCH_SYMLINK
+	select HAVE_PRIVATE_LIBGCC if 64BIT
 	select HAVE_SETJMP
 	select HAVE_INITJMP
 	select SUPPORT_ACPI

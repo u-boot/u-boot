@@ -41,6 +41,7 @@ config SPL_SIZE_LIMIT
 	default 0x11000 if ARCH_MX6 && !MX6_OCRAM_256KB
 	default 0x31000 if ARCH_MX6 && MX6_OCRAM_256KB
 	default 0x30000 if ARCH_MVEBU && ARMADA_32BIT
+	default 0xb000 if ARCH_MESON && MESON_GX
 	default 0x0
 	help
 	  Specifies the maximum length of the U-Boot SPL image.
@@ -308,7 +309,7 @@ config SPL_LOAD_BLOCK
 	  to struct spl_load_info.
 
 config SPL_BOOTROM_SUPPORT
-	bool "Support returning to the BOOTROM"
+	bool "Support returning to the BOOTROM (from SPL)"
 	select SPL_LOAD_BLOCK if MACH_IMX
 	help
 	  Some platforms (e.g. the Rockchip RK3368) provide support in their
@@ -465,8 +466,7 @@ config SPL_STACK_R_ADDR
 config SPL_STACK_R_MALLOC_SIMPLE_LEN
 	depends on SPL_STACK_R && SPL_SYS_MALLOC_SIMPLE
 	hex "Size of malloc_simple heap after switching to DRAM SPL stack"
-	default 0x400000 if ARCH_K3 && ARM64
-	default 0x200000 if ARCH_K3 && CPU_V7R
+	default 0x400000 if ARCH_K3
 	default 0x100000
 	help
 	  Specify the amount of the stack to use as memory pool for
@@ -490,15 +490,18 @@ config SPL_SYS_MALLOC
 config SPL_HAS_CUSTOM_MALLOC_START
 	bool "For the SPL malloc pool, define a custom starting address"
 	depends on SPL_SYS_MALLOC
+	default y if ARCH_K3 && CPU_V7R
 
 config SPL_CUSTOM_SYS_MALLOC_ADDR
 	hex "SPL malloc addr"
 	depends on SPL_HAS_CUSTOM_MALLOC_START
+	default 0x84000000 if ARCH_K3 && CPU_V7R
 
 config SPL_SYS_MALLOC_SIZE
 	hex "Size of the SPL malloc pool"
 	depends on SPL_SYS_MALLOC
 	default 0x800000 if RISCV
+	default 0x1000000 if ARCH_K3 && CPU_V7R
 	default 0x100000
 
 config SPL_READ_ONLY
@@ -573,6 +576,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 	bool "MMC raw mode: by partition type"
+	select SPL_LOAD_BLOCK
 	depends on DOS_PARTITION
 	help
 	  Use partition type for specifying U-Boot partition on MMC/SD in
@@ -787,6 +791,7 @@ config SPL_FS_LOAD_PAYLOAD_NAME
 	string "File to load for U-Boot from the filesystem"
 	depends on SPL_FS_EXT4 || SPL_FS_FAT || SPL_FS_SQUASHFS || SPL_SEMIHOSTING
 	default "tispl.bin" if SYS_K3_SPL_ATF
+	default "linux.itb" if SPL_LOAD_FIT_OPENSBI_OS_BOOT
 	default "u-boot.itb" if SPL_LOAD_FIT
 	default "linux.itb" if SPL_LOAD_FIT_OPENSBI_OS_BOOT
 	default "u-boot.img"

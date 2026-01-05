@@ -11,6 +11,7 @@ import collections
 import gzip
 import os
 import os.path
+import re
 import pytest
 
 import utils
@@ -589,3 +590,9 @@ def test_ut(ubman, ut_subtest):
     else:
         output = ubman.run_command('ut ' + ut_subtest)
     assert output.endswith('failures: 0')
+    lastline = output.splitlines()[-1]
+    if "skipped: 0," not in lastline:
+        match = re.search(r'skipped:\s*(\d+),', lastline)
+        if match:
+            count = match.group(1)
+            pytest.skip(f'Test {ut_subtest} has {count} skipped sub-test(s).')

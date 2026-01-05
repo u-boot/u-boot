@@ -131,7 +131,7 @@ int mpfs_clk_register_cfgs(struct clk *parent, struct regmap *regmap)
 		name = mpfs_cfg_clks[i].cfg.name;
 		ret = clk_register(hw, MPFS_CFG_CLOCK, name, parent->dev->name);
 		if (ret)
-			ERR_PTR(ret);
+			return ret;
 		id = mpfs_cfg_clks[i].cfg.id;
 		clk_dm(id, hw);
 	}

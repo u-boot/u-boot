@@ -9,7 +9,6 @@
 #include <dm.h>
 #include <irq_func.h>
 #include <log.h>
-#include <status_led.h>
 #include <sysinfo.h>
 #include <time.h>
 #include <timer.h>
@@ -178,10 +177,6 @@ void timer_interrupt(struct pt_regs *regs)
 	if (CFG_SYS_WATCHDOG_FREQ && (priv->timestamp % (CFG_SYS_WATCHDOG_FREQ)) == 0)
 		schedule();
 #endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
-
-#ifdef CONFIG_LED_STATUS
-	status_led_tick(priv->timestamp);
-#endif /* CONFIG_LED_STATUS */
 }
 
 void wait_ticks(ulong ticks)

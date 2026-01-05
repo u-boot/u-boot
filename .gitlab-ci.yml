@@ -5,6 +5,7 @@ variables:
   DEFAULT_AMD64_TAG: "amd64"
   DEFAULT_FAST_TAG: "fast"
   MIRROR_DOCKER: docker.io
+  SAGE_LAB: ""
   SJG_LAB: ""
   PLATFORM: linux/amd64,linux/arm64
 
@@ -18,12 +19,13 @@ workflow:
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20251013-26Nov2025
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:noble-20251013-30Nov2025
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
   - testsuites
   - test.py
+  - sage-lab
   - sjg-lab
   - world build
 
@@ -59,6 +61,7 @@ stages:
       . /tmp/venv/bin/activate;
       pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt -r tools/u_boot_pylib/requirements.txt
+        setuptools
 
   after_script:
     - cp -v /tmp/${TEST_PY_BD}/*.{html,css,xml} .
@@ -151,6 +154,7 @@ build all platforms in a single job:
       . /tmp/venv/bin/activate;
       pip install -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt
+        setuptools
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
       ./tools/buildman/buildman -o /tmp -PEWM -x xtensa || ret=$?;
@@ -267,6 +271,8 @@ sandbox test.py:
   variables:
     TEST_PY_BD: "sandbox"
     TEST_PY_EXTRA: "--timing"
+    # addr2line in Ubuntu 'Noble' and later are broken.
+    TEST_PY_TEST_SPEC: "not event_dump"
   <<: *buildman_and_testpy_dfn
 
 sandbox with clang test.py:
@@ -278,7 +284,9 @@ sandbox with clang test.py:
     - ${HOST}
   variables:
     TEST_PY_BD: "sandbox"
-    OVERRIDE: "-O clang-18"
+    OVERRIDE: "-O clang-20"
+    # addr2line in Ubuntu 'Noble' and later are broken.
+    TEST_PY_TEST_SPEC: "not event_dump"
   <<: *buildman_and_testpy_dfn
 
 sandbox64 test.py:
@@ -301,7 +309,7 @@ sandbox64 with clang test.py:
     - ${HOST}
   variables:
     TEST_PY_BD: "sandbox64"
-    OVERRIDE: "-O clang-18"
+    OVERRIDE: "-O clang-20"
   <<: *buildman_and_testpy_dfn
 
 sandbox64_lwip test.py:
@@ -379,6 +387,7 @@ qemu_arm64 test.py:
   variables:
     TEST_PY_BD: "qemu_arm64"
     TEST_PY_TEST_SPEC: "not sleep"
+    OVERRIDE: "-a CONFIG_SEMIHOSTING=y"
   <<: *buildman_and_testpy_dfn
 
 qemu_arm64_lwip test.py:
@@ -599,6 +608,9 @@ coreboot test.py:
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
+
+# Add sage-lab stage
+include: .gitlab-ci-sage-lab.yml
 
 .sjg_lab_template: &sjg_lab_dfn
   stage: sjg-lab

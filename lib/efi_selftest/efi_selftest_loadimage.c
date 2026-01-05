@@ -125,6 +125,44 @@ static struct {
 	}
 };
 
+/* Incorrect file device path */
+static struct {
+	struct efi_device_path_vendor vendor;
+	struct efi_device_path_controller ctrl;
+	struct efi_device_path path;
+	u16 file[sizeof(FILE_NAME)];
+	struct efi_device_path end;
+} __packed dp_file2 = {
+	.vendor = {
+		.dp = {
+			.type =	DEVICE_PATH_TYPE_HARDWARE_DEVICE,
+			.sub_type = DEVICE_PATH_SUB_TYPE_VENDOR,
+			.length = sizeof(struct efi_device_path_vendor),
+		},
+		.guid = EFI_GUID(0x4f9a0ebf, 0xa179, 0x88a6, 0x25, 0x68,
+				 0x10, 0x72, 0xb1, 0x93, 0x51, 0x71),
+	},
+	.ctrl = {
+		.dp = {
+			.type =	DEVICE_PATH_TYPE_HARDWARE_DEVICE,
+			.sub_type = DEVICE_PATH_SUB_TYPE_CONTROLLER,
+			.length = sizeof(struct efi_device_path_controller),
+		},
+		.controller_number = 1,
+	},
+	.path = {
+		.type = DEVICE_PATH_TYPE_MEDIA_DEVICE,
+		.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH,
+		.length = sizeof(struct efi_device_path) + sizeof(dp_file.file),
+	},
+	.file = FILE_NAME,
+	.end = {
+		.type = DEVICE_PATH_TYPE_END,
+		.sub_type = DEVICE_PATH_SUB_TYPE_END,
+		.length = sizeof(struct efi_device_path),
+	}
+};
+
 /* File system info */
 static struct file_system_info priv_file_system_info = {
 	{
@@ -514,6 +552,13 @@ static int execute(void)
 	if (priv.volume_open_count) {
 		efi_st_error("Volume open count = %d, expected 0\n",
 			     priv.volume_open_count);
+		return EFI_ST_FAILURE;
+	}
+
+	ret = boottime->load_image(false, handle_image, &dp_file2.vendor.dp,
+				   NULL, 0, &handle);
+	if (ret == EFI_SUCCESS) {
+		efi_st_error("Invalid file path accepted\n");
 		return EFI_ST_FAILURE;
 	}
 

@@ -25,13 +25,13 @@
 
 #include <asm/io.h>
 #include <asm/cache.h>
-#include <asm/utils.h>
 #include <asm/bitops.h>
 
 #include <dm/devres.h>
 #include <dm/of_access.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
+#include <dm/ofnode_graph.h>
 
 #include <linux/bug.h>
 #include <linux/err.h>
@@ -40,6 +40,7 @@
 
 #include "tidss_drv.h"
 #include "tidss_regs.h"
+#include "tidss_oldi.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -77,6 +78,18 @@ static const u16 tidss_am62x_common_regs[DSS_COMMON_REG_TABLE_LEN] = {
 	[DSS_DBG_STATUS_OFF] =		0xa4,
 	[DSS_CLKGATING_DISABLE_OFF] =		0xa8,
 	[DSS_SECURE_DISABLE_OFF] =		0xac,
+};
+
+static struct dss_bus_format dss_bus_formats[] = {
+	{ MEDIA_BUS_FMT_RGB444_1X12,		12, false, 0 },
+	{ MEDIA_BUS_FMT_RGB565_1X16,		16, false, 0 },
+	{ MEDIA_BUS_FMT_RGB666_1X18,		18, false, 0 },
+	{ MEDIA_BUS_FMT_RGB888_1X24,		24, false, 0 },
+	{ MEDIA_BUS_FMT_RGB101010_1X30,		30, false, 0 },
+	{ MEDIA_BUS_FMT_RGB121212_1X36,		36, false, 0 },
+	{ MEDIA_BUS_FMT_RGB666_1X7X3_SPWG,	18, true, SPWG_18 },
+	{ MEDIA_BUS_FMT_RGB888_1X7X4_SPWG,	24, true, SPWG_24 },
+	{ MEDIA_BUS_FMT_RGB888_1X7X4_JEIDA,	24, true, JEIDA_24 },
 };
 
 /* TIDSS AM62x Features */
@@ -249,37 +262,6 @@ static void OVR_REG_FLD_MOD(struct tidss_drv_priv *priv, u32 ovr, u32 idx,
 					      val, start, end));
 }
 
-static void dss_oldi_tx_power(struct tidss_drv_priv *priv, bool power)
-{
-	u32 val;
-
-	if (WARN_ON(!priv->oldi_io_ctrl))
-		return;
-
-	if (priv->feat->subrev == DSS_AM625) {
-		if (power) {
-			switch (priv->oldi_mode) {
-			case OLDI_SINGLE_LINK_SINGLE_MODE:
-				/* Power down OLDI TX 1 */
-				val = OLDI1_PWRDN_TX;
-				break;
-			case OLDI_DUAL_LINK:
-				/* No Power down */
-				val = 0;
-			break;
-			default:
-				/* Power down both the OLDI TXes */
-				val = OLDI_BANDGAP_PWR | OLDI0_PWRDN_TX | OLDI1_PWRDN_TX;
-				break;
-			}
-		} else {
-			val = OLDI_BANDGAP_PWR | OLDI0_PWRDN_TX | OLDI1_PWRDN_TX;
-		}
-		regmap_update_bits(priv->oldi_io_ctrl, OLDI_PD_CTRL,
-				   OLDI_BANDGAP_PWR | OLDI0_PWRDN_TX | OLDI1_PWRDN_TX, val);
-	}
-}
-
 static void dss_set_num_datalines(struct tidss_drv_priv *priv,
 				  u32 hw_videoport)
 {
@@ -333,19 +315,19 @@ static void dss_enable_oldi(struct tidss_drv_priv *priv, u32 hw_videoport)
 	oldi_cfg |= BIT(0); /* ENABLE */
 
 	switch (priv->oldi_mode) {
-	case OLDI_MODE_OFF:
+	case OLDI_MODE_UNSUPPORTED:
 		oldi_cfg &= ~BIT(0); /* DISABLE */
 		break;
 
-	case OLDI_SINGLE_LINK_SINGLE_MODE:
+	case OLDI_MODE_SINGLE_LINK:
 		/* All configuration is done for this mode.  */
 		break;
 
-	case OLDI_SINGLE_LINK_DUPLICATE_MODE:
+	case OLDI_MODE_CLONE_SINGLE_LINK:
 		oldi_cfg |= BIT(5); /* DUPLICATE MODE */
 		break;
 
-	case OLDI_DUAL_LINK:
+	case OLDI_MODE_DUAL_LINK:
 		oldi_cfg |= BIT(11); /* DUALMODESYNC */
 		oldi_cfg |= BIT(3); /* data-mapping field also indicates dual-link mode */
 		break;
@@ -562,7 +544,7 @@ int dss_vp_enable_clk(struct tidss_drv_priv *priv, u32 hw_videoport)
 void dss_vp_prepare(struct tidss_drv_priv *priv, u32 hw_videoport)
 {
 	dss_vp_set_gamma(priv, hw_videoport, NULL, 0);
-	dss_vp_set_default_color(priv, 0, 0);
+	dss_vp_set_default_color(priv, hw_videoport, 0);
 
 	if (priv->feat->vp_bus_type[hw_videoport] == DSS_VP_OLDI) {
 		dss_oldi_tx_power(priv, true);
@@ -734,27 +716,111 @@ static void dss_vp_init(struct tidss_drv_priv *priv)
 		VP_REG_FLD_MOD(priv, i, DSS_VP_CONFIG, 1, 2, 2);
 }
 
-static int dss_init_am65x_oldi_io_ctrl(struct udevice *dev,
-				       struct tidss_drv_priv *priv)
+bool is_pipeline_components_enabled(ofnode endpoint, ofnode prev)
 {
-	struct udevice *syscon;
-	struct regmap *regmap;
-	int ret = 0;
+	ofnode ports_parent = ofnode_graph_get_port_parent(endpoint);
+	ofnode ports = ofnode_find_subnode(ports_parent, "ports");
+	ofnode port, local_endpoint, remote_endpoint;
 
-	ret = uclass_get_device_by_phandle(UCLASS_SYSCON, dev, "ti,am65x-oldi-io-ctrl",
-					   &syscon);
-	if (ret) {
-		debug("unable to find ti,am65x-oldi-io-ctrl syscon device (%d)\n", ret);
-		return ret;
-	}
+	if (!ofnode_valid(ports) || !ofnode_valid(ports_parent))
+		return false;
 
-	/* get grf-reg base address */
-	regmap = syscon_get_regmap(syscon);
-	if (!regmap) {
-		debug("unable to find rockchip grf regmap\n");
-		return -ENODEV;
+	if (strstr(ofnode_get_name(ports_parent), "dss"))
+		/*
+		 * If we reach dss again, return true. In the case of a dual-link OLDI,
+		 * we have 2 ports. While traversing oldi@0, this API also traverses oldi@1
+		 * and hence it will reach dss_ports again. If it reaches dss_ports,
+		 * that means every element in the pipeline is enabled already, and hence
+		 * if dss is reached, return true.
+		 */
+		return true;
+
+	/*
+	 *Traverse all endpoints of the ports node.
+	 */
+	ofnode_for_each_subnode(port, ports) {
+		if (strncmp(ofnode_get_name(port), "port", 4))
+			continue;
+		ofnode_for_each_subnode(local_endpoint, port) {
+			if (strncmp(ofnode_get_name(local_endpoint), "endpoint", 8))
+				continue;
+			remote_endpoint = ofnode_graph_get_remote_endpoint(local_endpoint);
+			if (prev.np == remote_endpoint.np)
+				continue;
+			return ofnode_is_enabled(remote_endpoint) &&
+			       is_pipeline_components_enabled(remote_endpoint, local_endpoint);
+		}
 	}
-	priv->oldi_io_ctrl = regmap;
+	return true;
+}
+
+static bool is_bridge_and_panel_enabled(ofnode endpoint)
+{
+	ofnode remote_endpoint = ofnode_graph_get_remote_endpoint(endpoint);
+	ofnode prev_endpoint = endpoint;
+
+	return is_pipeline_components_enabled(remote_endpoint, prev_endpoint);
+}
+
+static int tidss_enable_pipeline_components(struct tidss_drv_priv *priv)
+{
+	/*
+	 * Check if any bridge is present in the pipeline and initialize it.
+	 * Pipeline here refer to DSS=>bridges=>panel. If we find all elements
+	 * of a pipeline enabled in DT then only pipeline is enabled.
+	 * This function returns active panels count with all bridges with sink
+	 * are enabled in DT.
+	 */
+	ofnode dss_node = dev_ofnode(priv->dev);
+	ofnode dss_ports = ofnode_find_subnode(dss_node, "ports");
+	ofnode port, remote_port, local_endpoint;
+	int hw_videoport;
+	int active_pipelines = 0;
+	int ret;
+
+	ofnode_for_each_subnode(port, dss_ports) {
+		if (strncmp(ofnode_get_name(port), "port", 4))
+			continue;
+
+		ofnode_for_each_subnode(local_endpoint, port) {
+			if (strncmp(ofnode_get_name(local_endpoint), "endpoint", 8))
+				continue;
+
+			if (!is_bridge_and_panel_enabled(local_endpoint))
+				continue;
+
+			/* Get videoport id*/
+			ret = ofnode_read_u32(port, "reg", &hw_videoport);
+			if (ret) {
+				dev_warn(priv->dev,
+					 "Failed to read videoport id, reg property not found for node: %s\n",
+					 ofnode_get_name(local_endpoint));
+				/* Check for other video ports */
+				continue;
+			}
+
+			remote_port = ofnode_graph_get_remote_port_parent(local_endpoint);
+			if (strstr(ofnode_get_name(remote_port), "oldi")) {
+				/* Initialize oldi */
+				ret = tidss_oldi_init(priv->dev);
+				if (ret) {
+					if (ret != -ENODEV)
+						dev_warn(priv->dev, "oldi panel error %d\n", ret);
+					break;
+				}
+
+				priv->active_hw_vps[active_pipelines++] = hw_videoport;
+				/*
+				 * Only one dual-link oldi panel supported at a time so
+				 * initialize it only and then check for other videoports
+				 */
+				break;
+			}
+		}
+	}
+	priv->active_pipelines = active_pipelines;
+	if (active_pipelines == 0)
+		return -1;
 	return 0;
 }
 
@@ -772,7 +838,6 @@ static int tidss_drv_probe(struct udevice *dev)
 	priv->dev = dev;
 
 	priv->feat = &dss_am625_feats;
-
     /*
      * set your plane format based on your bmp image
      * Supported 24bpp and 32bpp bmpimages
@@ -781,6 +846,18 @@ static int tidss_drv_probe(struct udevice *dev)
 	priv->pixel_format = DSS_FORMAT_XRGB8888;
 
 	dss_common_regmap = priv->feat->common_regs;
+
+	/*
+	 * Check for all components present in the pipeline. Pipeline here refers
+	 * to: DSS_HW_VP*=>bridge[0]=>....=>bridge[n]=>panel. Enable all
+	 * components in the pipeline.
+	 */
+	ret = tidss_enable_pipeline_components(priv);
+	if (ret) {
+		if (ret == -1)
+			dev_warn(priv->dev, "NO active panels detected, check status of panel nodes\n");
+		return ret;
+	}
 
 	ret = uclass_first_device_err(UCLASS_PANEL, &panel);
 	if (ret) {
@@ -829,10 +906,12 @@ static int tidss_drv_probe(struct udevice *dev)
 	dss_vid_write(priv, 0, DSS_VID_BA_1, uc_plat->base & 0xffffffff);
 	dss_vid_write(priv, 0, DSS_VID_BA_EXT_1, (u64)uc_plat->base >> 32);
 
-	ret = dss_plane_setup(priv, 0, 0);
-	if (ret) {
-		dss_plane_enable(priv, 0, false);
-			return ret;
+	for (i = 0; i < priv->active_pipelines; i++) {
+		ret = dss_plane_setup(priv, 0, priv->active_hw_vps[i]);
+		if (ret) {
+			dss_plane_enable(priv, 0, false);
+				return ret;
+		}
 	}
 
 	dss_plane_enable(priv, 0, true);
@@ -844,34 +923,31 @@ static int tidss_drv_probe(struct udevice *dev)
 		priv->base_vp[i] = dev_remap_addr_name(dev, priv->feat->vp_name[i]);
 	}
 
-	ret = clk_get_by_name(dev, "vp1", &priv->vp_clk[0]);
-	if (ret) {
-		dev_err(dev, "video port %d clock enable error %d\n", i, ret);
-		return ret;
-	}
-
-	dss_ovr_set_plane(priv, 1, 0, 0, 0, 0);
-	dss_ovr_enable_layer(priv, 0, 0, true);
-
-	/* Video Port cloks */
-	dss_vp_enable_clk(priv, 0);
-
-	dss_vp_set_clk_rate(priv, 0, timings.pixelclock.typ * 1000);
-
-	priv->oldi_mode = OLDI_MODE_OFF;
 	uc_priv->xsize = timings.hactive.typ;
 	uc_priv->ysize = timings.vactive.typ;
-	if (priv->feat->subrev == DSS_AM65X || priv->feat->subrev == DSS_AM625) {
-		priv->oldi_mode = OLDI_DUAL_LINK;
-		if (priv->oldi_mode) {
-			ret = dss_init_am65x_oldi_io_ctrl(dev, priv);
-			if (ret)
-				return ret;
+
+	for (i = 0; i < priv->active_pipelines; i++) {
+
+		ret = clk_get_by_name(dev,
+				      dss_am625_feats.vpclk_name[priv->active_hw_vps[i]],
+				      &priv->vp_clk[priv->active_hw_vps[i]]);
+		if (ret) {
+			dev_err(dev, "video port %d clock enable error %d\n", i, ret);
+			return ret;
 		}
+
+		dss_ovr_set_plane(priv, 1, priv->active_hw_vps[i], 0, 0, 0);
+		dss_ovr_enable_layer(priv, priv->active_hw_vps[i], 0, true);
+
+		/* Video Port cloks */
+		dss_vp_enable_clk(priv, priv->active_hw_vps[i]);
+
+		dss_vp_set_clk_rate(priv, priv->active_hw_vps[i], timings.pixelclock.typ * 1000);
+
+		dss_vp_prepare(priv, priv->active_hw_vps[i]);
+		dss_vp_enable(priv, priv->active_hw_vps[i], &timings);
 	}
 
-	dss_vp_prepare(priv, 0);
-	dss_vp_enable(priv, 0, &timings);
 	dss_vp_init(priv);
 
 	ret = clk_get_by_name(dev, "fck", &priv->fclk);

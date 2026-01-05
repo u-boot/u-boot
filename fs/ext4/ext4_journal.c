@@ -256,8 +256,10 @@ void ext4fs_push_revoke_blk(char *buffer)
 	}
 
 	node->content = zalloc(fs->blksz);
-	if (node->content == NULL)
+	if (!node->content) {
+		free(node);
 		return;
+	}
 	memcpy(node->content, buffer, fs->blksz);
 
 	if (first_node == true) {

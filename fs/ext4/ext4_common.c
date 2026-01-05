@@ -727,8 +727,12 @@ static int parse_path(char **arr, char *dirname)
 	/* add each path entry after root */
 	while (token != NULL) {
 		arr[i] = zalloc(strlen(token) + 1);
-		if (!arr[i])
+		if (!arr[i]) {
+			while (i--)
+				free(arr[i]);
+
 			return -ENOMEM;
+		}
 		memcpy(arr[i++], token, strlen(token));
 		token = strtok(NULL, "/");
 	}

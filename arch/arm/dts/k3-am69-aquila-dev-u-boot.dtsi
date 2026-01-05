@@ -1,0 +1,157 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright (C) 2025 Toradex - https://www.toradex.com/
+ */
+
+#define SPL_BOARD_DTB "spl/dts/k3-am69-aquila-dev.dtb"
+#define BOARD_DESCRIPTION "k3-am69-aquila"
+#define UBOOT_BOARD_DESCRIPTION "U-Boot for AM69 Aquila board"
+
+#include "k3-j784s4-binman.dtsi"
+
+#if defined(CONFIG_CPU_V7R)
+
+&binman {
+	tiboot3-am69-hs {
+		insert-template = <&tiboot3_j784s4_hs>;
+		filename = "tiboot3-am69-hs-aquila.bin";
+	};
+
+	tiboot3-am69-hs-fs {
+		insert-template = <&tiboot3_j784s4_hs_fs>;
+		filename = "tiboot3-am69-hs-fs-aquila.bin";
+		symlink = "tiboot3.bin";
+	};
+};
+
+&ti_fs_enc {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-enc.bin";
+};
+
+&sysfw_inner_cert {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-cert.bin";
+};
+
+&ti_fs_enc_fs {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-fs-enc.bin";
+};
+
+&sysfw_inner_cert_fs {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-fs-cert.bin";
+};
+
+#else // CONFIG_ARM64
+
+&binman {
+	tispl {
+		insert-template = <&ti_spl>;
+
+		fit {
+			images {
+				dm {
+					ti-dm {
+						filename = "ti-dm/j784s4/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+					};
+				};
+			};
+		};
+	};
+
+	u-boot {
+		insert-template = <&u_boot>;
+	};
+
+	tispl-unsigned {
+		insert-template = <&ti_spl_unsigned>;
+
+		fit {
+			images {
+				dm {
+					ti-dm {
+						filename = "ti-dm/j784s4/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+					};
+				};
+			};
+		};
+	};
+
+	u-boot-unsigned {
+		insert-template = <&u_boot_unsigned>;
+	};
+};
+
+#endif
+
+/ {
+	memory@80000000 {
+		bootph-all;
+	};
+
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+};
+
+&main_pmx0 {
+	bootph-pre-ram;
+};
+
+&main_sdhci0 {
+	bootph-pre-ram;
+};
+
+&main_uart8 {
+	bootph-pre-ram;
+};
+
+&mcu_udmap {
+	reg =   <0x0 0x285c0000 0x0 0x100>,
+		<0x0 0x284c0000 0x0 0x4000>,
+		<0x0 0x2a800000 0x0 0x40000>,
+		<0x0 0x284a0000 0x0 0x4000>,
+		<0x0 0x2aa00000 0x0 0x40000>,
+		<0x0 0x28400000 0x0 0x2000>;
+	reg-names = "gcfg", "rchan", "rchanrt", "tchan",
+		    "tchanrt", "rflow";
+	bootph-pre-ram;
+};
+
+&pinctrl_main_uart8 {
+	bootph-pre-ram;
+};
+
+&pinctrl_wkup_i2c0 {
+	bootph-pre-ram;
+};
+
+&pmic_tps6594 {
+	bootph-pre-ram;
+	regulators {
+		bootph-pre-ram;
+	};
+};
+
+&tps62873a {
+	bootph-pre-ram;
+};
+
+&usb0 {
+	/delete-property/ phys;
+	/delete-property/ phy-names;
+	dr_mode = "peripheral";
+	maximum-speed = "high-speed";
+	bootph-pre-ram;
+};
+
+&usbss0 {
+	ti,usb2-only;
+	bootph-pre-ram;
+};
+
+&wkup_gpio0 {
+	bootph-pre-ram;
+};
+
+&wkup_i2c0 {
+	bootph-pre-ram;
+};

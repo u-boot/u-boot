@@ -44,7 +44,7 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ut_asserteq(CLK_SET_RATE_PARENT, clk->flags);
 
 	rate = clk_get_parent_rate(clk);
-	ut_asserteq(rate, 20000000);
+	ut_asserteq_64(20000000, rate);
 
 	/* test the gate of CCF */
 	ret = clk_get_by_id(CLK_ID(dev, SANDBOX_CLK_ECSPI0), &clk);
@@ -53,7 +53,7 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ut_asserteq(CLK_SET_RATE_PARENT, clk->flags);
 
 	rate = clk_get_parent_rate(clk);
-	ut_asserteq(rate, 20000000);
+	ut_asserteq_64(20000000, rate);
 
 	/* Test the mux of CCF */
 	ret = clk_get_by_id(CLK_ID(dev, SANDBOX_CLK_USDHC1_SEL), &clk);
@@ -62,13 +62,13 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ut_asserteq(CLK_SET_RATE_NO_REPARENT, clk->flags);
 
 	rate = clk_get_parent_rate(clk);
-	ut_asserteq(rate, 60000000);
+	ut_asserteq_64(60000000, rate);
 
 	rate = clk_set_rate(clk, 60000000);
-	ut_asserteq(rate, -ENOSYS);
+	ut_asserteq_64((u64)-ENOSYS, rate);
 
 	rate = clk_get_rate(clk);
-	ut_asserteq(rate, 60000000);
+	ut_asserteq_64(60000000, rate);
 
 	ret = clk_get_by_id(CLK_ID(dev, SANDBOX_CLK_PLL3_80M), &pclk);
 	ut_assertok(ret);
@@ -77,7 +77,7 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ut_assertok(ret);
 
 	rate = clk_get_rate(clk);
-	ut_asserteq(rate, 80000000);
+	ut_asserteq_64(80000000, rate);
 
 	ret = clk_get_by_id(CLK_ID(dev, SANDBOX_CLK_USDHC2_SEL), &clk);
 	ut_assertok(ret);
@@ -85,17 +85,17 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ut_asserteq(CLK_SET_RATE_NO_REPARENT, clk->flags);
 
 	rate = clk_get_parent_rate(clk);
-	ut_asserteq(rate, 80000000);
+	ut_asserteq_64(80000000, rate);
 
 	pclk = clk_get_parent(clk);
 	ut_asserteq_str("pll3_80m", pclk->dev->name);
 	ut_asserteq(CLK_SET_RATE_PARENT, pclk->flags);
 
 	rate = clk_set_rate(clk, 80000000);
-	ut_asserteq(rate, -ENOSYS);
+	ut_asserteq_64((u64)-ENOSYS, rate);
 
 	rate = clk_get_rate(clk);
-	ut_asserteq(rate, 80000000);
+	ut_asserteq_64(80000000, rate);
 
 	ret = clk_get_by_id(CLK_ID(dev, SANDBOX_CLK_PLL3_60M), &pclk);
 	ut_assertok(ret);
@@ -104,7 +104,7 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ut_assertok(ret);
 
 	rate = clk_get_rate(clk);
-	ut_asserteq(rate, 60000000);
+	ut_asserteq_64(60000000, rate);
 
 	/* Test the composite of CCF */
 	ret = clk_get_by_id(CLK_ID(dev, SANDBOX_CLK_I2C), &clk);
@@ -113,10 +113,10 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ut_asserteq(CLK_SET_RATE_UNGATE, clk->flags);
 
 	rate = clk_get_rate(clk);
-	ut_asserteq(rate, 60000000);
+	ut_asserteq_64(60000000, rate);
 
 	rate = clk_set_rate(clk, 60000000);
-	ut_asserteq(rate, 60000000);
+	ut_asserteq_64(60000000, rate);
 
 #if CONFIG_IS_ENABLED(CLK_CCF)
 	/* Test clk tree enable/disable */
@@ -124,33 +124,33 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ret = clk_get_by_index(test_dev, SANDBOX_CLK_TEST_ID_I2C_ROOT, &clk_ccf);
 	ut_assertok(ret);
 	ut_asserteq_str("clk-ccf", clk_ccf.dev->name);
-	ut_asserteq(clk_ccf.id, CLK_ID(clk_ccf.dev, SANDBOX_CLK_I2C_ROOT));
+	ut_asserteq(CLK_ID(clk_ccf.dev, SANDBOX_CLK_I2C_ROOT), clk_ccf.id);
 
 	ret = clk_get_by_id(CLK_ID(dev, SANDBOX_CLK_I2C_ROOT), &clk);
 	ut_assertok(ret);
 	ut_asserteq_str("i2c_root", clk->dev->name);
-	ut_asserteq(clk_get_id(clk), SANDBOX_CLK_I2C_ROOT);
+	ut_asserteq(SANDBOX_CLK_I2C_ROOT, clk_get_id(clk));
 
 	ret = clk_enable(&clk_ccf);
 	ut_assertok(ret);
 
 	ret = sandbox_clk_enable_count(clk);
-	ut_asserteq(ret, 1);
+	ut_asserteq(1, ret);
 
 	ret = clk_get_by_id(CLK_ID(dev, SANDBOX_CLK_I2C), &pclk);
 	ut_assertok(ret);
 
 	ret = sandbox_clk_enable_count(pclk);
-	ut_asserteq(ret, 1);
+	ut_asserteq(1, ret);
 
 	ret = clk_disable(clk);
 	ut_assertok(ret);
 
 	ret = sandbox_clk_enable_count(clk);
-	ut_asserteq(ret, 0);
+	ut_asserteq(0, ret);
 
 	ret = sandbox_clk_enable_count(pclk);
-	ut_asserteq(ret, 0);
+	ut_asserteq(0, ret);
 
 	/* Test clock re-parenting. */
 	ret = clk_get_by_id(CLK_ID(dev, SANDBOX_CLK_USDHC1_SEL), &clk);
@@ -188,7 +188,7 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	}
 
 	ret = sandbox_clk_enable_count(clk);
-	ut_asserteq(ret, 0);
+	ut_asserteq(0, ret);
 
 	clk->flags = CLK_IS_CRITICAL;
 	ret = clk_enable(clk);
@@ -197,13 +197,13 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ret = clk_disable(clk);
 	ut_assertok(ret);
 	ret = sandbox_clk_enable_count(clk);
-	ut_asserteq(ret, 1);
+	ut_asserteq(1, ret);
 	clk->flags &= ~CLK_IS_CRITICAL;
 
 	ret = clk_disable(clk);
 	ut_assertok(ret);
 	ret = sandbox_clk_enable_count(clk);
-	ut_asserteq(ret, 0);
+	ut_asserteq(0, ret);
 #endif
 
 	return 1;

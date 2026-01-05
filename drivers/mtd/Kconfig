@@ -186,7 +186,7 @@ config FLASH_VERIFY
 
 config ALTERA_QSPI
 	bool "Altera Generic Quad SPI Controller"
-	depends on DM_MTD
+	depends on DM_MTD && !FLASH_CFI_DRIVER
 	select USE_SYS_MAX_FLASH_BANKS
 	help
 	  This enables access to Altera EPCQ/EPCS flash chips using the
