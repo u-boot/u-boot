@@ -835,8 +835,16 @@ config LZMA
 	help
 	  This enables support for LZMA (Lempel-Ziv-Markov chain algorithm),
 	  a dictionary compression algorithm that provides a high compression
-	  ratio and fairly fast decompression speed. See also
-	  CONFIG_CMD_LZMADEC which provides a decode command.
+	  ratio and fairly fast decompression speed. Our implementation comes
+	  from the LZMA SDK. See also CONFIG_CMD_LZMADEC which provides a
+	  decode command.
+
+config LZMA_SIZE_OPTIMIZATION
+	bool "Optimize the LZMA algorithm for smaller binary size"
+	help
+	  This enables building the LZMA library optimized for size, rather
+	  than performance. This can be a loss of 15-20% in decompression
+	  speed, but a savings of close to two kilobytes in many cases.
 
 config LZO
 	bool "Enable LZO decompression support"
@@ -931,6 +939,13 @@ config SPL_LZMA
 	depends on SPL
 	help
 	  This enables support for LZMA compression algorithm for SPL boot.
+
+config SPL_LZMA_SIZE_OPTIMIZATION
+	bool "Optimize the LZMA algorithm for smaller binary size in SPL"
+	help
+	  This enables building the LZMA library optimized for size, rather
+	  than performance. This can be a loss of 15-20% in decompression
+	  speed, but a savings of close to two kilobytes in many cases.
 
 config TPL_LZMA
 	bool "Enable LZMA decompression support for TPL build"
