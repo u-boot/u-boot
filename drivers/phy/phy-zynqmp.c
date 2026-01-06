@@ -454,15 +454,32 @@ static int xpsgtr_init(struct phy *x)
 static int xpsgtr_wait_pll_lock(struct phy *phy)
 {
 	struct xpsgtr_dev *gtr_dev = dev_get_priv(phy->dev);
-	struct xpsgtr_phy *gtr_phy;
-	u32 phy_lane = phy->id;
-	int ret = 0;
+	struct xpsgtr_phy *gtr_phy = &gtr_dev->phys[phy->id];
 	unsigned int timeout = TIMEOUT_US;
-
-	gtr_phy = &gtr_dev->phys[phy_lane];
+	u8 protocol = gtr_phy->protocol;
+	int ret = 0;
 
 	dev_dbg(gtr_dev->dev, "Waiting for PLL lock\n");
 
+	/*
+	 * For DP and PCIe, only the instance 0 PLL is used. Switch to that phy
+	 * so we wait on the right PLL.
+	 */
+	if ((protocol == ICM_PROTOCOL_DP || protocol == ICM_PROTOCOL_PCIE) &&
+	    gtr_phy->instance) {
+		int i;
+
+		for (i = 0; i < NUM_LANES; i++) {
+			gtr_phy = &gtr_dev->phys[i];
+
+			if (gtr_phy->protocol == protocol && !gtr_phy->instance)
+				goto got_phy;
+		}
+
+		return -EBUSY;
+	}
+
+got_phy:
 	while (1) {
 		u32 reg = xpsgtr_read_phy(gtr_phy, L0_PLL_STATUS_READ_1);
 
@@ -489,22 +506,7 @@ static int xpsgtr_wait_pll_lock(struct phy *phy)
 
 static int xpsgtr_power_on(struct phy *phy)
 {
-	struct xpsgtr_dev *gtr_dev = dev_get_priv(phy->dev);
-	struct xpsgtr_phy *gtr_phy;
-	u32 phy_lane = phy->id;
-	int ret = 0;
-
-	gtr_phy = &gtr_dev->phys[phy_lane];
-
-	/*
-	 * Wait for the PLL to lock. For DP, only wait on DP0 to avoid
-	 * cumulating waits for both lanes. The user is expected to initialize
-	 * lane 0 last.
-	 */
-	if (gtr_phy->protocol != ICM_PROTOCOL_DP || !gtr_phy->instance)
-		ret = xpsgtr_wait_pll_lock(phy);
-
-	return ret;
+	return xpsgtr_wait_pll_lock(phy);
 }
 
 /*
