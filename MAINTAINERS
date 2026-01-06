@@ -416,6 +416,7 @@ M:	Chunfeng Yun <chunfeng.yun@mediatek.com>
 M:	Igor Belwon <igor.belwon@mentallysanemainliners.org>
 R:	GSS_MTK_Uboot_upstream <GSS_MTK_Uboot_upstream@mediatek.com>
 S:	Maintained
+F:	arch/arm/dts/mt*
 F:	arch/arm/mach-mediatek/
 F:	arch/arm/include/asm/arch-mediatek/
 F:	board/mediatek/
