@@ -211,6 +211,33 @@ int arch_cpu_init(void)
 }
 #endif
 
+/*
+ * RK3588 has two known memory gaps when using 16+ GiB DRAM,
+ * [0x3fc000000, 0x3fc500000) and [0x3fff00000, 0x400000000).
+ *
+ * Remove the [0x3fc000000, 0x400000000) range to ensure OS does not
+ * use memory from these gaps when a DDR_MEM tag cannot be found.
+ */
+
+#define DRAM_GAP_START		0x3FC000000
+#define DRAM_GAP_END		0x400000000
+
+int rockchip_dram_init_banksize_fixup(struct bd_info *bd)
+{
+	size_t ram_top = bd->bi_dram[1].start + bd->bi_dram[1].size;
+
+	if (ram_top > DRAM_GAP_START) {
+		bd->bi_dram[1].size = DRAM_GAP_START - bd->bi_dram[1].start;
+
+		if (ram_top > DRAM_GAP_END && CONFIG_NR_DRAM_BANKS > 2) {
+			bd->bi_dram[2].start = DRAM_GAP_END;
+			bd->bi_dram[2].size = ram_top - bd->bi_dram[2].start;
+		}
+	}
+
+	return 0;
+}
+
 #define RK3588_OTP_CPU_CODE_OFFSET		0x02
 #define RK3588_OTP_SPECIFICATION_OFFSET		0x06
 
