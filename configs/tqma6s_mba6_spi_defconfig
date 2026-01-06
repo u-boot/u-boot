@@ -3,3 +3,5 @@
 
 CONFIG_MX6S=y
 CONFIG_DEFAULT_DEVICE_TREE="nxp/imx/imx6dl-mba6b"
+CONFIG_OF_LIST="nxp/imx/imx6dl-mba6a nxp/imx/imx6dl-mba6b"
+CONFIG_MULTI_DTB_FIT=y

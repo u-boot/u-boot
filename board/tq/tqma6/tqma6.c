@@ -9,27 +9,17 @@
  * Author: Markus Niebel
  */
 
-#include <init.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/mx6-pins.h>
-#include <asm/arch/imx-regs.h>
-#include <asm/arch/iomux.h>
-#include <asm/arch/sys_proto.h>
 #include <env.h>
 #include <fdt_support.h>
-#include <asm/global_data.h>
-#include <linux/errno.h>
-#include <asm/gpio.h>
-#include <asm/io.h>
-#include <linux/libfdt.h>
 #include <mmc.h>
 #include <power/pfuze100_pmic.h>
 #include <power/pmic.h>
 
+#include <asm/arch/mx6-pins.h>
+#include <asm/arch/sys_proto.h>
+
 #include "tqma6_emmc.h"
 #include "../common/tq_bb.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Rev. 0200 and newer optionally implements GIGE errata fix.
@@ -43,13 +33,6 @@ int tqma6_has_enet_workaround(void)
 	return has_enet_workaround;
 }
 
-int dram_init(void)
-{
-	gd->ram_size = imx_ddr_size();
-
-	return 0;
-}
-
 #define GPIO_REVDET_PAD_CTRL  (PAD_CTL_PUS_100K_DOWN | PAD_CTL_SPEED_LOW | \
 			       PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
@@ -57,32 +40,83 @@ static const iomux_v3_cfg_t tqma6_revdet_pads[] = {
 	MX6_PAD_GPIO_6__GPIO1_IO06 | MUX_PAD_CTRL(GPIO_REVDET_PAD_CTRL),
 };
 
+#define TQMA6_REVDET_GPIO IMX_GPIO_NR(1, 6)
+
 void tqma6_detect_enet_workaround(void)
 {
 	int ret;
-	struct gpio_desc desc;
 
 	imx_iomux_v3_setup_multiple_pads(tqma6_revdet_pads,
 					 ARRAY_SIZE(tqma6_revdet_pads));
 
-	ret = dm_gpio_lookup_name("GPIO1_6", &desc);
-	if (ret) {
-		pr_err("error: gpio lookup for enet workaround %d\n", ret);
-		return;
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		ret = gpio_request(TQMA6_REVDET_GPIO, "tqma6-revdet");
+		if (ret) {
+			pr_err("error: gpio request for enet workaround %d\n", ret);
+			return;
+		}
+
+		if (gpio_get_value(TQMA6_REVDET_GPIO) == 0)
+			has_enet_workaround = 1;
+		else if (gpio_get_value(TQMA6_REVDET_GPIO) > 0)
+			has_enet_workaround = 0;
+
+		gpio_free(TQMA6_REVDET_GPIO);
+	} else {
+		struct gpio_desc desc;
+
+		ret = dm_gpio_lookup_name("GPIO1_6", &desc);
+		if (ret) {
+			pr_err("error: gpio lookup for enet workaround %d\n", ret);
+			return;
+		}
+
+		ret = dm_gpio_request(&desc, "tqma6-revdet");
+		if (ret) {
+			if (ret == -EBUSY)
+				has_enet_workaround = 0;
+			else
+				pr_err("error: gpio request for enet workaround %d\n", ret);
+
+			return;
+		}
+
+		ret = dm_gpio_get_value(&desc);
+		if (ret == 0)
+			has_enet_workaround = 1;
+		else if (ret > 0)
+			has_enet_workaround = 0;
+
+		dm_gpio_free(NULL, &desc);
 	}
+}
 
-	ret = dm_gpio_get_value(&desc);
-	if (ret == 0)
-		has_enet_workaround = 1;
-	else if (ret > 0)
-		has_enet_workaround = 0;
+const char *tqma6_get_fdt_configuration(void)
+{
+	tqma6_detect_enet_workaround();
 
-	dm_gpio_free(NULL, &desc);
+	if (is_mx6dq())
+		return !tqma6_has_enet_workaround() ? "imx6q-mba6b" : "imx6q-mba6a";
+	if (is_mx6sdl())
+		return !tqma6_has_enet_workaround() ? "imx6dl-mba6b" : "imx6dl-mba6a";
+
+	return NULL;
 }
 
 int board_early_init_f(void)
 {
-	return tq_bb_board_early_init_f();
+	tq_bb_board_early_init_f();
+
+	return 0;
+}
+
+#if !IS_ENABLED(CONFIG_SPL_BUILD)
+
+int dram_init(void)
+{
+	gd->ram_size = imx_ddr_size();
+
+	return 0;
 }
 
 int board_init(void)
@@ -117,16 +151,6 @@ static const char *tqma6_get_boardname(void)
 	};
 }
 
-const char *tqma6_get_fdt_configuration(void)
-{
-	if (is_mx6dq())
-		return !tqma6_has_enet_workaround() ? "imx6q-mba6b" : "imx6q-mba6a";
-	if (is_mx6sdl())
-		return !tqma6_has_enet_workaround() ? "imx6dl-mba6b" : "imx6dl-mba6a";
-
-	return NULL;
-}
-
 #if CONFIG_IS_ENABLED(DM_PMIC)
 /* setup board specific PMIC */
 int power_init_board(void)
@@ -146,7 +170,6 @@ int power_init_board(void)
 	return 0;
 }
 #endif
-
 #define FDTFILE_STRLEN 32u
 int board_late_init(void)
 {
@@ -154,8 +177,6 @@ int board_late_init(void)
 	const char *config = tqma6_get_fdt_configuration();
 
 	env_set("board_name", tqma6_get_boardname());
-
-	tqma6_detect_enet_workaround();
 
 	if (!env_get("fdtfile")) {
 		if (config) {
@@ -191,7 +212,7 @@ int board_late_init(void)
 /*
  * Device Tree Support
  */
-#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+#if IS_ENABLED(CONFIG_OF_BOARD_SETUP) && IS_ENABLED(CONFIG_OF_LIBFDT)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	struct mmc *mmc = find_mmc_device(0);
@@ -211,4 +232,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
-#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
+#endif /* IS_ENABLED(CONFIG_OF_BOARD_SETUP) && IS_ENABLED(CONFIG_OF_LIBFDT) */
+
+#endif /* !IS_ENABLED(CONFIG_SPL_BUILD) */

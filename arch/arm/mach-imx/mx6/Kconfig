@@ -606,10 +606,16 @@ config TARGET_KP_IMX6Q_TPC
 
 config TARGET_TQMA6
 	bool "TQ-Systems TQMa6 board"
+	select TQ_COMMON_SOM
+	select TQ_COMMON_SYSINFO
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
+	select I2C_EEPROM
+	select MISC
 	select MXC_SPI
 	select SPI
+	select SUPPORT_SPL
+	select SPL_SEPARATE_BSS if SPL
 	imply DM
 	imply DM_GPIO
 	imply DM_MMC
