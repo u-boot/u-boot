@@ -809,8 +809,46 @@ int mtk_pinctrl_common_probe(struct udevice *dev,
 	fdt_addr_t addr;
 	u32 base_calc = soc->base_calc;
 	u32 nbase_names = soc->nbase_names;
+	int num_regmaps;
 
 	priv->soc = soc;
+
+	/*
+	 * Some controllers have 1 or 2 syscon nodes where the actual pinctl
+	 * registers reside. In this case, dev is an interrupt controller which
+	 * isn't supported at this time. The optional 2nd syscon node is also
+	 * for the interrupt controller, so we only use the 1st one currently.
+	 */
+	num_regmaps = dev_count_phandle_with_args(dev, "mediatek,pctl-regmap", NULL, 0);
+	if (num_regmaps > ARRAY_SIZE(priv->base))
+		return -EINVAL;
+
+	if (num_regmaps > 0) {
+		for (i = 0; i < num_regmaps; i++) {
+			struct ofnode_phandle_args args;
+			struct udevice *syscon_dev;
+			int ret;
+
+			ret = dev_read_phandle_with_args(dev, "mediatek,pctl-regmap",
+							 NULL, 0, i, &args);
+			if (ret)
+				return ret;
+
+			ret = uclass_get_device_by_ofnode(UCLASS_SYSCON,
+							  args.node,
+							  &syscon_dev);
+			if (ret)
+				return ret;
+
+			addr = dev_read_addr_index(syscon_dev, 0);
+			if (addr == FDT_ADDR_T_NONE)
+				return -EINVAL;
+
+			priv->base[i] = (void __iomem *)addr;
+		}
+
+		return 0;
+	}
 
 	if (!base_calc)
 		nbase_names = 1;
