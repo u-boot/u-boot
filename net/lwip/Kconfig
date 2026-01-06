@@ -72,4 +72,16 @@ config LWIP_TCP_WND
 	  but QEMU with "-net user" needs no more than a few KB or the
 	  transfer will stall and eventually time out.
 
+config USE_TFTPSERVERIP
+	bool "Set a default 'tftpserverip' value in the environment"
+	depends on CMD_TFTPBOOT
+	help
+	  Defines a default value for the IP address of a TFTP server to
+	  contact when using the "tftpboot" command.  (Environment variable
+	  "tftpserverip")
+
+config TFTPSERVERIP
+	string "Value of the default 'tftpserverip' value in the environment"
+	depends on USE_TFTPSERVERIP
+
 endif # NET_LWIP
