@@ -193,6 +193,108 @@ static int mtk_clk_mux_set_parent(void __iomem *base, u32 parent,
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(CMD_CLK)
+static void mtk_clk_print_dev_parent(struct udevice *parent)
+{
+	printf("Parent device: %s %s\n", parent->driver->name, parent->name);
+}
+
+static void mtk_clk_print_mapped_id(int unmapped_id, int mapped_id, bool has_map)
+{
+	/*
+	 * If there is a ID map, then having unmapped and mapped IDs differ is
+	 * expected. On the other hand, if there is no map, then they should be
+	 * the same, and it is a programming error if they differ.
+	 */
+	if (has_map)
+		printf(", (mapped ID: %u)", mapped_id);
+	else if (unmapped_id != mapped_id)
+		printf(", (error! should be %u)", mapped_id);
+}
+
+static void mtk_clk_print_rate(struct udevice *dev, int mapped_id)
+{
+	struct clk clk = {
+		.dev = dev,
+		.id = mapped_id,
+	};
+	long rate = clk_get_rate(&clk);
+
+	if (rate < 0)
+		printf(", error! clk_get_rate() failed: %ld", rate);
+	else
+		printf(", Rate: %lu Hz", rate);
+}
+
+static void mtk_clk_print_parent(const char *prefix, int parent, u32 flags)
+{
+	const char *parent_type_str;
+
+	switch (flags & CLK_PARENT_MASK) {
+	case CLK_PARENT_APMIXED:
+		parent_type_str = "apmixedsys";
+		break;
+	case CLK_PARENT_TOPCKGEN:
+		parent_type_str = "topckgen";
+		break;
+	case CLK_PARENT_INFRASYS:
+		parent_type_str = "infrasys";
+		break;
+	case CLK_PARENT_XTAL:
+		parent_type_str = "xtal";
+		break;
+	case CLK_PARENT_MIXED:
+		parent_type_str = "mixed";
+		break;
+	default:
+		parent_type_str = "default";
+		break;
+	}
+
+	printf("%s%s-%u", prefix, parent_type_str, parent);
+}
+
+static void mtk_clk_print_single_parent(int parent, u32 flags)
+{
+	mtk_clk_print_parent(", Parent: ", parent, flags);
+}
+
+static void mtk_clk_print_mux_parents(struct mtk_clk_priv *priv,
+				      const struct mtk_composite *mux)
+{
+	const char *prefix = "";
+	u32 selected;
+	int i;
+
+	printf(", Parents: ");
+
+	selected = readl(priv->base + mux->mux_reg);
+	selected &= mux->mux_mask << mux->mux_shift;
+	selected >>= mux->mux_shift;
+
+	/* Print parents separated by "/" and selected parent enclosed in "*"s */
+	for (i = 0; i < mux->num_parents; i++) {
+		if (i == selected) {
+			printf("%s", prefix);
+			prefix = "*";
+		}
+
+		if (mux->flags & CLK_PARENT_MIXED) {
+			const struct mtk_parent *parent = &mux->parent_flags[i];
+
+			mtk_clk_print_parent(prefix, parent->id, parent->flags);
+		} else {
+			mtk_clk_print_parent(prefix, mux->parent[i], mux->flags);
+		}
+
+		prefix = "/";
+
+		if (i == selected)
+			printf("*");
+	}
+}
+#endif
+
 /* apmixedsys functions */
 
 static const int mtk_apmixedsys_of_xlate(struct clk *clk,
@@ -437,6 +539,36 @@ static int mtk_apmixedsys_disable(struct clk *clk)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(CMD_CLK)
+static void mtk_apmixedsys_dump(struct udevice *dev)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+	u32 i;
+
+	mtk_clk_print_dev_parent(priv->parent);
+
+	for (i = 0; i < tree->num_plls; i++) {
+		const struct mtk_pll_data *pll = &tree->plls[i];
+
+		printf("[PLL%u] DT: %u", i, pll->id);
+		mtk_clk_print_mapped_id(pll->id, i, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i);
+		printf("\n");
+	}
+
+	for (i = 0; i < tree->num_gates; i++) {
+		const struct mtk_gate *gate = &tree->gates[i];
+
+		printf("[GATE%u] DT: %u", i, gate->id);
+		mtk_clk_print_mapped_id(gate->id, i + tree->gates_offs, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i + tree->gates_offs);
+		mtk_clk_print_single_parent(gate->parent, gate->flags);
+		printf("\n");
+	}
+}
+#endif
+
 /* topckgen functions */
 
 static const int mtk_topckgen_of_xlate(struct clk *clk,
@@ -651,6 +783,48 @@ static int mtk_common_clk_set_parent(struct clk *clk, struct clk *parent)
 			&priv->tree->muxes[clk->id - priv->tree->muxes_offs]);
 }
 
+#if CONFIG_IS_ENABLED(CMD_CLK)
+static void mtk_topckgen_dump(struct udevice *dev)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+	u32 i;
+
+	mtk_clk_print_dev_parent(priv->parent);
+
+	for (i = 0; i < tree->num_fclks; i++) {
+		const struct mtk_fixed_clk *fclk = &tree->fclks[i];
+
+		printf("[FCLK%u] DT: %u", i, fclk->id);
+		mtk_clk_print_mapped_id(fclk->id, i, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i);
+		/* FIXME: fclk needs flags to fully determine parent. */
+		mtk_clk_print_single_parent(fclk->parent, 0);
+		printf("\n");
+	}
+
+	for (i = 0; i < tree->num_fdivs; i++) {
+		const struct mtk_fixed_factor *fdiv = &tree->fdivs[i];
+
+		printf("[FDIV%u] DT: %u", i, fdiv->id);
+		mtk_clk_print_mapped_id(fdiv->id, i + tree->fdivs_offs, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i + tree->fdivs_offs);
+		mtk_clk_print_single_parent(fdiv->parent, fdiv->flags);
+		printf(", Mult: %u, Div: %u\n", fdiv->mult, fdiv->div);
+	}
+
+	for (i = 0; i < tree->num_muxes; i++) {
+		const struct mtk_composite *mux = &tree->muxes[i];
+
+		printf("[MUX%u] DT: %u", i, mux->id);
+		mtk_clk_print_mapped_id(mux->id, i + tree->muxes_offs, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i + tree->muxes_offs);
+		mtk_clk_print_mux_parents(priv, mux);
+		printf("\n");
+	}
+}
+#endif
+
 /* infrasys functions */
 
 static const int mtk_infrasys_of_xlate(struct clk *clk,
@@ -793,6 +967,44 @@ static ulong mtk_infrasys_get_rate(struct clk *clk)
 	return rate;
 }
 
+#if CONFIG_IS_ENABLED(CMD_CLK)
+static void mtk_infrasys_dump(struct udevice *dev)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+	u32 i;
+
+	mtk_clk_print_dev_parent(priv->parent);
+
+	for (i = 0; i < tree->num_fdivs; i++) {
+		const struct mtk_fixed_factor *fdiv = &tree->fdivs[i];
+
+		printf("[FDIV%u] DT: %u", i, fdiv->id);
+		mtk_clk_print_mapped_id(fdiv->id, i + tree->fdivs_offs, tree->id_offs_map);
+		mtk_clk_print_single_parent(fdiv->parent, fdiv->flags);
+		printf(", Mult: %u, Div: %u\n", fdiv->mult, fdiv->div);
+	}
+
+	for (i = 0; i < tree->num_muxes; i++) {
+		const struct mtk_composite *mux = &tree->muxes[i];
+
+		printf("[MUX%u] DT: %u", i, mux->id);
+		mtk_clk_print_mapped_id(mux->id, i + tree->muxes_offs, tree->id_offs_map);
+		mtk_clk_print_mux_parents(priv, mux);
+		printf("\n");
+	}
+
+	for (i = 0; i < tree->num_gates; i++) {
+		const struct mtk_gate *gate = &tree->gates[i];
+
+		printf("[GATE%u] DT: %u", i, gate->id);
+		mtk_clk_print_mapped_id(gate->id, i + tree->gates_offs, tree->id_offs_map);
+		mtk_clk_print_single_parent(gate->parent, gate->flags);
+		printf("\n");
+	}
+}
+#endif
+
 /* CG functions */
 
 static const int mtk_clk_gate_of_xlate(struct clk *clk,
@@ -869,12 +1081,36 @@ static ulong mtk_clk_gate_get_rate(struct clk *clk)
 	return mtk_clk_find_parent_rate(clk, gate->parent, parent);
 }
 
+#if CONFIG_IS_ENABLED(CMD_CLK)
+static void mtk_clk_gate_dump(struct udevice *dev)
+{
+	struct mtk_cg_priv *priv = dev_get_priv(dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+	u32 i;
+
+	mtk_clk_print_dev_parent(priv->parent);
+
+	for (i = 0; i < priv->num_gates; i++) {
+		const struct mtk_gate *gate = &priv->gates[i];
+
+		printf("[GATE%u] DT: %u", i, gate->id);
+		mtk_clk_print_mapped_id(gate->id, i + tree->gates_offs, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i + tree->gates_offs);
+		mtk_clk_print_single_parent(gate->parent, gate->flags);
+		printf("\n");
+	}
+}
+#endif
+
 const struct clk_ops mtk_clk_apmixedsys_ops = {
 	.of_xlate = mtk_apmixedsys_of_xlate,
 	.enable = mtk_apmixedsys_enable,
 	.disable = mtk_apmixedsys_disable,
 	.set_rate = mtk_apmixedsys_set_rate,
 	.get_rate = mtk_apmixedsys_get_rate,
+#if CONFIG_IS_ENABLED(CMD_CLK)
+	.dump = mtk_apmixedsys_dump,
+#endif
 };
 
 const struct clk_ops mtk_clk_fixed_pll_ops = {
@@ -882,6 +1118,9 @@ const struct clk_ops mtk_clk_fixed_pll_ops = {
 	.enable = mtk_dummy_enable,
 	.disable = mtk_dummy_enable,
 	.get_rate = mtk_topckgen_get_rate,
+#if CONFIG_IS_ENABLED(CMD_CLK)
+	.dump = mtk_topckgen_dump,
+#endif
 };
 
 const struct clk_ops mtk_clk_topckgen_ops = {
@@ -890,6 +1129,9 @@ const struct clk_ops mtk_clk_topckgen_ops = {
 	.disable = mtk_clk_mux_disable,
 	.get_rate = mtk_topckgen_get_rate,
 	.set_parent = mtk_common_clk_set_parent,
+#if CONFIG_IS_ENABLED(CMD_CLK)
+	.dump = mtk_topckgen_dump,
+#endif
 };
 
 const struct clk_ops mtk_clk_infrasys_ops = {
@@ -898,6 +1140,9 @@ const struct clk_ops mtk_clk_infrasys_ops = {
 	.disable = mtk_clk_infrasys_disable,
 	.get_rate = mtk_infrasys_get_rate,
 	.set_parent = mtk_common_clk_set_parent,
+#if CONFIG_IS_ENABLED(CMD_CLK)
+	.dump = mtk_infrasys_dump,
+#endif
 };
 
 const struct clk_ops mtk_clk_gate_ops = {
@@ -905,6 +1150,9 @@ const struct clk_ops mtk_clk_gate_ops = {
 	.enable = mtk_clk_gate_enable,
 	.disable = mtk_clk_gate_disable,
 	.get_rate = mtk_clk_gate_get_rate,
+#if CONFIG_IS_ENABLED(CMD_CLK)
+	.dump = mtk_clk_gate_dump,
+#endif
 };
 
 static int mtk_common_clk_init_drv(struct udevice *dev,
