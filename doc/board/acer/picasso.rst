@@ -44,13 +44,18 @@ pre-loading just built U-Boot into RAM.
 Processing for the NV3P protocol
 ********************************
 
+You will need to provide the SBK (Secure Burn Key) to the tool, get the SBK for your device 
+using `fastboot oem sbk` which will display the keys on the screen of your device. 
+
 .. code-block:: bash
 
     $ git clone https://gitlab.com/grate-driver/re-crypt.git
     $ cd re-crypt # place your u-boot-dtb-tegra.bin here
-    $ ./re-crypt.py --dev a500
+    # extract your device SBK, don't copy the ones below 
+    $ ./re-crypt.py --dev a500 --sbk 0x123456789 0xfb456789 0xba456789 0x987654321
 
 The script will produce a ``repart-block.bin`` ready to flash.
+
 
 Processing for pre-loaded U-Boot
 ********************************
