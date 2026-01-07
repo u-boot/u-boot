@@ -26,6 +26,7 @@
 
 /* apmixedsys */
 static const int pll_id_offs_map[] = {
+	[0 ... CLK_APMIXED_NR - 1]		= -1,
 	[CLK_APMIXED_ARMPLL]			= 0,
 	[CLK_APMIXED_MAINPLL]			= 1,
 	[CLK_APMIXED_UNIVPLL]			= 2,
@@ -92,6 +93,7 @@ static const struct mtk_pll_data apmixed_plls[] = {
 #define CLK_TOP_HDMITX_CLKDIG_CTS		CLK_TOP_NR
 
 static const int top_id_offs_map[CLK_TOP_NR + 1] = {
+	[0 ... CLK_TOP_NR]			= -1,
 	/* Fixed CLK */
 	[CLK_TOP_DPI]				= 0,
 	[CLK_TOP_DMPLL]				= 1,
@@ -808,6 +810,7 @@ static const struct mtk_gate infra_cgs[] = {
 
 /* pericfg */
 static const int peri_id_offs_map[] = {
+	[0 ... CLK_PERI_NR - 1]			= -1,
 	/* MUX CLK */
 	[CLK_PERI_UART0_SEL]			= 1,
 	[CLK_PERI_UART1_SEL]			= 2,
