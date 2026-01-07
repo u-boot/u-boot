@@ -298,6 +298,14 @@ config SYSRESET_QCOM_PSHOLD
 	help
 	  Add support for the system reboot on Qualcomm SoCs via PSHOLD.
 
+config SYSRESET_QEMU_VIRT_CTRL
+	bool "QEMU Virtual System Controller support"
+	depends on SYSRESET
+	help
+	  Enable support for the QEMU Virtual System Controller.
+	  This device is used in QEMU machines (e.g. m68k virt) to trigger
+	  system reset and poweroff events.
+
 endif
 
 endmenu
