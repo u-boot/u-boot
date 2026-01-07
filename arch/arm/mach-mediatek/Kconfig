@@ -158,7 +158,6 @@ config SYS_CONFIG_NAME
 	default "mt7987" if TARGET_MT7987
 	default "mt7988" if TARGET_MT7988
 	default "mt8183" if TARGET_MT8183
-	default "mt8365" if TARGET_MT8365
 	default "mt8512" if TARGET_MT8512
 	default "mt8516" if TARGET_MT8516
 	default "mt8518" if TARGET_MT8518
