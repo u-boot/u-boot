@@ -500,18 +500,6 @@ static const struct mtk_composite top_muxes[] = {
 	MUX_GATE(CLK_TOP_APU_IF_SEL, apu_parents, 0x0e0, 24, 3, 31),
 };
 
-static const struct mtk_clk_tree mt8365_topckgen_tree = {
-	.xtal_rate = 26 * MHZ,
-	.fdivs_offs = CLK_TOP_MFGPLL,
-	.muxes_offs = CLK_TOP_AXI_SEL,
-	.fclks = top_fixed_clks,
-	.fdivs = top_divs,
-	.muxes = top_muxes,
-	.num_fclks = ARRAY_SIZE(top_fixed_clks),
-	.num_fdivs = ARRAY_SIZE(top_divs),
-	.num_muxes = ARRAY_SIZE(top_muxes),
-};
-
 /* topckgen cg */
 static const struct mtk_gate_regs top0_cg_regs = {
 	.set_ofs = 0,
@@ -575,6 +563,21 @@ static const struct mtk_gate top_clk_gates[] = {
 	GATE_TOP0(CLK_TOP_CONN_26M, CLK_TOP_CLK26M, 11),
 	GATE_TOP0(CLK_TOP_DSP_32K, CLK_TOP_CLK32K, 16),
 	GATE_TOP0(CLK_TOP_DSP_26M, CLK_TOP_CLK26M, 17),
+};
+
+static const struct mtk_clk_tree mt8365_topckgen_tree = {
+	.xtal_rate = 26 * MHZ,
+	.fdivs_offs = CLK_TOP_MFGPLL,
+	.muxes_offs = CLK_TOP_AXI_SEL,
+	.gates_offs = CLK_TOP_AUD_I2S0_M,
+	.fclks = top_fixed_clks,
+	.fdivs = top_divs,
+	.muxes = top_muxes,
+	.gates = top_clk_gates,
+	.num_fclks = ARRAY_SIZE(top_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(top_divs),
+	.num_muxes = ARRAY_SIZE(top_muxes),
+	.num_gates = ARRAY_SIZE(top_clk_gates),
 };
 
 /* infracfg */
@@ -725,13 +728,6 @@ static int mt8365_topckgen_probe(struct udevice *dev)
 	return mtk_common_clk_init(dev, &mt8365_topckgen_tree);
 }
 
-static int mt8365_topckgen_cg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt8365_topckgen_tree, top_clk_gates,
-					ARRAY_SIZE(top_clk_gates),
-					CLK_TOP_AUD_I2S0_M);
-}
-
 static int mt8365_infracfg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8365_infracfg_tree, ifr_clks,
@@ -745,11 +741,6 @@ static const struct udevice_id mt8365_apmixed_compat[] = {
 
 static const struct udevice_id mt8365_topckgen_compat[] = {
 	{ .compatible = "mediatek,mt8365-topckgen", },
-	{ }
-};
-
-static const struct udevice_id mt8365_topckgen_cg_compat[] = {
-	{ .compatible = "mediatek,mt8365-topckgen-cg", },
 	{ }
 };
 
@@ -775,16 +766,6 @@ U_BOOT_DRIVER(mtk_clk_topckgen) = {
 	.probe = mt8365_topckgen_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mtk_clk_topckgen_cg) = {
-	.name = "mt8365-topckgen-cg",
-	.id = UCLASS_CLK,
-	.of_match = mt8365_topckgen_cg_compat,
-	.probe = mt8365_topckgen_cg_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
