@@ -1266,6 +1266,12 @@ S:	Maintained
 F:	drivers/serial/serial_goldfish.c
 F:	include/goldfish_tty.h
 
+GOLDFISH TIMER DRIVER
+M:	Kuan-Wei Chiu <visitorckw@gmail.com>
+S:	Maintained
+F:	drivers/timer/goldfish_timer.c
+F:	include/goldfish_timer.h
+
 INTERCONNECT:
 M:	Neil Armstrong <neil.armstrong@linaro.org>
 S:	Maintained

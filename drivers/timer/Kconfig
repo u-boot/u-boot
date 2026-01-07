@@ -340,4 +340,12 @@ config STARFIVE_TIMER
 	  Select this to enable support for the timer found on
 	  Starfive SoC.
 
+config GOLDFISH_TIMER
+	bool "Goldfish Timer support"
+	depends on TIMER
+	help
+	  Select this to enable support for the Goldfish Timer.
+	  It uses the Goldfish RTC hardware to provide a nanosecond-resolution
+	  timer, commonly found in QEMU virt machines.
+
 endmenu
