@@ -156,7 +156,7 @@
 		};
 		partition@3 {	/* for testing purpose */
 			label = "nand-rootfs";
-			reg = <0x0 0x1C00000 0x1400000>;
+			reg = <0x0 0x1c00000 0x1400000>;
 		};
 		partition@4 {	/* for testing purpose */
 			label = "nand-bitstream";
@@ -164,7 +164,7 @@
 		};
 		partition@5 {	/* for testing purpose */
 			label = "nand-misc";
-			reg = <0x0 0x3400000 0xFCC00000>;
+			reg = <0x0 0x3400000 0xfcc00000>;
 		};
 	};
 	nand@1 {
@@ -192,7 +192,7 @@
 		};
 		partition@3 {	/* for testing purpose */
 			label = "nand1-rootfs";
-			reg = <0x0 0x1C00000 0x1400000>;
+			reg = <0x0 0x1c00000 0x1400000>;
 		};
 		partition@4 {	/* for testing purpose */
 			label = "nand1-bitstream";
@@ -200,7 +200,7 @@
 		};
 		partition@5 {	/* for testing purpose */
 			label = "nand1-misc";
-			reg = <0x0 0x3400000 0xFCC00000>;
+			reg = <0x0 0x3400000 0xfcc00000>;
 		};
 	};
 };

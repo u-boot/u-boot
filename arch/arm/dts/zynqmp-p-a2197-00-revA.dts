@@ -558,12 +558,12 @@
 };
 
 &dwc3_1 {
-	/delete-property/ phy-names ;
-	/delete-property/ phys ;
+	/delete-property/ phy-names;
+	/delete-property/ phys;
 	dr_mode = "host";
 	maximum-speed = "high-speed";
-	snps,dis_u2_susphy_quirk ;
-	snps,dis_u3_susphy_quirk ;
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
 	status = "okay";
 };
 

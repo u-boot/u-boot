@@ -375,7 +375,6 @@
 				clock-frequency = <100000000>;
 				clock-output-names = "fmc_si570";
 			};
-
 		};
 		/* 7 unused */
 	};
