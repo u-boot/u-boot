@@ -692,7 +692,8 @@ static int mt7622_pericfg_probe(struct udevice *dev)
 
 static int mt7622_pciesys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, pcie_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, pcie_cgs,
+					ARRAY_SIZE(pcie_cgs));
 }
 
 static int mt7622_pciesys_bind(struct udevice *dev)
@@ -710,7 +711,8 @@ static int mt7622_pciesys_bind(struct udevice *dev)
 
 static int mt7622_ethsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, eth_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, eth_cgs,
+					ARRAY_SIZE(eth_cgs));
 }
 
 static int mt7622_ethsys_bind(struct udevice *dev)
@@ -728,12 +730,14 @@ static int mt7622_ethsys_bind(struct udevice *dev)
 
 static int mt7622_sgmiisys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, sgmii_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, sgmii_cgs,
+					ARRAY_SIZE(sgmii_cgs));
 }
 
 static int mt7622_ssusbsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, ssusb_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, ssusb_cgs,
+					ARRAY_SIZE(ssusb_cgs));
 }
 
 static const struct udevice_id mt7622_apmixed_compat[] = {

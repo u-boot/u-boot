@@ -757,7 +757,8 @@ static int mt8516_topckgen_probe(struct udevice *dev)
 
 static int mt8516_topckgen_cg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8516_clk_tree, top_clks);
+	return mtk_common_clk_gate_init(dev, &mt8516_clk_tree, top_clks,
+					ARRAY_SIZE(top_clks));
 }
 
 static const struct udevice_id mt8516_apmixed_compat[] = {

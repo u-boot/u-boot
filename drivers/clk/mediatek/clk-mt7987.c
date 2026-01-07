@@ -818,8 +818,8 @@ static const struct mtk_gate eth_cgs[] = {
 
 static int mt7987_ethsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7987_topckgen_clk_tree,
-					eth_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7987_topckgen_clk_tree, eth_cgs,
+					ARRAY_SIZE(eth_cgs));
 }
 
 static int mt7987_ethsys_bind(struct udevice *dev)

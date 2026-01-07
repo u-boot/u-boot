@@ -824,7 +824,7 @@ int mtk_common_clk_infrasys_init(struct udevice *dev,
 
 int mtk_common_clk_gate_init(struct udevice *dev,
 			     const struct mtk_clk_tree *tree,
-			     const struct mtk_gate *gates)
+			     const struct mtk_gate *gates, int num_gates)
 {
 	struct mtk_cg_priv *priv = dev_get_priv(dev);
 	struct udevice *parent;
@@ -845,6 +845,7 @@ int mtk_common_clk_gate_init(struct udevice *dev,
 	priv->parent = parent;
 	priv->tree = tree;
 	priv->gates = gates;
+	priv->num_gates = num_gates;
 
 	return 0;
 }

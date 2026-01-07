@@ -777,7 +777,8 @@ static int mt8183_topckgen_probe(struct udevice *dev)
 
 static int mt8183_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8183_clk_tree, infra_clks);
+	return mtk_common_clk_gate_init(dev, &mt8183_clk_tree, infra_clks,
+					ARRAY_SIZE(infra_clks));
 }
 
 static const struct udevice_id mt8183_apmixed_compat[] = {

@@ -808,12 +808,14 @@ static int mt8512_topckgen_probe(struct udevice *dev)
 
 static int mt8512_topckgen_cg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8512_clk_tree, top_clks);
+	return mtk_common_clk_gate_init(dev, &mt8512_clk_tree, top_clks,
+					ARRAY_SIZE(top_clks));
 }
 
 static int mt8512_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8512_clk_tree, infra_clks);
+	return mtk_common_clk_gate_init(dev, &mt8512_clk_tree, infra_clks,
+					ARRAY_SIZE(infra_clks));
 }
 
 static const struct udevice_id mt8512_apmixed_compat[] = {
