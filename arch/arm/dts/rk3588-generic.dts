@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Minimal generic DT for RK3588S/RK3588 with eMMC, SD-card and USB OTG enabled
+ * Minimal generic DT for RK3582/RK3588S/RK3588 with eMMC, SD-card and USB OTG enabled
  */
 
 /dts-v1/;
 #include "rk3588s.dtsi"
 
 / {
-	model = "Generic RK3588S/RK3588";
+	model = "Generic RK3582/RK3588S/RK3588";
 	compatible = "rockchip,rk3588";
 
 	aliases {
