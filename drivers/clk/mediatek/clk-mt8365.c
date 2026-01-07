@@ -67,6 +67,13 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	    0x03A4, 0, 0, 0),
 };
 
+static const struct mtk_clk_tree mt8365_apmixed_tree = {
+	.xtal_rate = 26 * MHZ,
+	.xtal2_rate = 26 * MHZ,
+	.plls = apmixed_plls,
+	.num_plls = ARRAY_SIZE(apmixed_plls),
+};
+
 /* topckgen */
 #define FIXED_CLK0(_id, _rate)						\
 	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
@@ -493,16 +500,13 @@ static const struct mtk_composite top_muxes[] = {
 	MUX_GATE(CLK_TOP_APU_IF_SEL, apu_parents, 0x0e0, 24, 3, 31),
 };
 
-static const struct mtk_clk_tree mt8365_clk_tree = {
+static const struct mtk_clk_tree mt8365_topckgen_tree = {
 	.xtal_rate = 26 * MHZ,
-	.xtal2_rate = 26 * MHZ,
 	.fdivs_offs = CLK_TOP_MFGPLL,
 	.muxes_offs = CLK_TOP_AXI_SEL,
-	.plls = apmixed_plls,
 	.fclks = top_fixed_clks,
 	.fdivs = top_divs,
 	.muxes = top_muxes,
-	.num_plls = ARRAY_SIZE(apmixed_plls),
 	.num_fclks = ARRAY_SIZE(top_fixed_clks),
 	.num_fdivs = ARRAY_SIZE(top_divs),
 	.num_muxes = ARRAY_SIZE(top_muxes),
@@ -707,26 +711,30 @@ static const struct mtk_gate ifr_clks[] = {
 	GATE_IFR6(CLK_IFR_SSUSB_XHCI, CLK_TOP_SSUSB_XHCI_SEL, 11),
 };
 
+static const struct mtk_clk_tree mt8365_infracfg_tree = {
+	.xtal_rate = 26 * MHZ,
+};
+
 static int mt8365_apmixedsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_init(dev, &mt8365_clk_tree);
+	return mtk_common_clk_init(dev, &mt8365_apmixed_tree);
 }
 
 static int mt8365_topckgen_probe(struct udevice *dev)
 {
-	return mtk_common_clk_init(dev, &mt8365_clk_tree);
+	return mtk_common_clk_init(dev, &mt8365_topckgen_tree);
 }
 
 static int mt8365_topckgen_cg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, top_clk_gates,
+	return mtk_common_clk_gate_init(dev, &mt8365_topckgen_tree, top_clk_gates,
 					ARRAY_SIZE(top_clk_gates),
 					CLK_TOP_AUD_I2S0_M);
 }
 
 static int mt8365_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, ifr_clks,
+	return mtk_common_clk_gate_init(dev, &mt8365_infracfg_tree, ifr_clks,
 					ARRAY_SIZE(ifr_clks), 0);
 }
 
