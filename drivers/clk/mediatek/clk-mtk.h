@@ -260,6 +260,11 @@ struct mtk_clk_tree {
 	const struct mtk_fixed_factor *fdivs;
 	const struct mtk_composite *muxes;
 	const struct mtk_gate *gates;
+	const int num_plls;
+	const int num_fclks;
+	const int num_fdivs;
+	const int num_muxes;
+	const int num_gates;
 	u32 flags;
 };
 

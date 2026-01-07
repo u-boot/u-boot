@@ -599,6 +599,10 @@ static const struct mtk_clk_tree mt8183_clk_tree = {
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
+	.num_plls = ARRAY_SIZE(apmixed_plls),
+	.num_fclks = ARRAY_SIZE(top_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(top_fixed_divs),
+	.num_muxes = ARRAY_SIZE(top_muxes),
 };
 
 static const struct mtk_gate_regs infra0_cg_regs = {

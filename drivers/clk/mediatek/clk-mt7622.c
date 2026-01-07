@@ -604,6 +604,8 @@ static const struct mtk_clk_tree mt7622_apmixed_clk_tree = {
 	.plls = apmixed_plls,
 	.gates_offs = CLK_APMIXED_MAIN_CORE_EN,
 	.gates = apmixed_cgs,
+	.num_plls = ARRAY_SIZE(apmixed_plls),
+	.num_gates = ARRAY_SIZE(apmixed_cgs),
 };
 
 static const struct mtk_clk_tree mt7622_infra_clk_tree = {
@@ -612,6 +614,8 @@ static const struct mtk_clk_tree mt7622_infra_clk_tree = {
 	.gates_offs = CLK_INFRA_DBGCLK_PD,
 	.muxes = infra_muxes,
 	.gates = infra_cgs,
+	.num_muxes = ARRAY_SIZE(infra_muxes),
+	.num_gates = ARRAY_SIZE(infra_cgs),
 };
 
 static const struct mtk_clk_tree mt7622_peri_clk_tree = {
@@ -620,6 +624,8 @@ static const struct mtk_clk_tree mt7622_peri_clk_tree = {
 	.gates_offs = CLK_PERI_THERM_PD,
 	.muxes = peri_muxes,
 	.gates = peri_cgs,
+	.num_muxes = ARRAY_SIZE(peri_muxes),
+	.num_gates = ARRAY_SIZE(peri_cgs),
 };
 
 static const struct mtk_clk_tree mt7622_clk_tree = {
@@ -629,6 +635,9 @@ static const struct mtk_clk_tree mt7622_clk_tree = {
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
+	.num_fclks = ARRAY_SIZE(top_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(top_fixed_divs),
+	.num_muxes = ARRAY_SIZE(top_muxes),
 };
 
 static int mt7622_mcucfg_probe(struct udevice *dev)

@@ -85,6 +85,7 @@ static const struct mtk_clk_tree mt8188_apmixedsys_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
 	.plls = apmixed_plls,
+	.num_plls = ARRAY_SIZE(apmixed_plls),
 };
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
@@ -1364,6 +1365,9 @@ static const struct mtk_clk_tree mt8188_topckgen_clk_tree = {
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
+	.num_fclks = ARRAY_SIZE(top_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(top_fixed_divs),
+	.num_muxes = ARRAY_SIZE(top_muxes),
 };
 
 static const struct mtk_gate_regs infra_ao0_cg_regs = {
