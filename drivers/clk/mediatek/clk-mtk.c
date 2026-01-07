@@ -798,8 +798,7 @@ static void mtk_topckgen_dump(struct udevice *dev)
 		printf("[FCLK%u] DT: %u", i, fclk->id);
 		mtk_clk_print_mapped_id(fclk->id, i, tree->id_offs_map);
 		mtk_clk_print_rate(dev, i);
-		/* FIXME: fclk needs flags to fully determine parent. */
-		mtk_clk_print_single_parent(fclk->parent, 0);
+		mtk_clk_print_single_parent(fclk->parent, fclk->flags);
 		printf("\n");
 	}
 

@@ -67,10 +67,16 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	    0, 0, 32, 8, 0x02B4, 1, 0x02B8, 0),
 };
 
+#define FIXED_CLK0(_id, _rate)						\
+	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+
+#define FIXED_CLK1(_id, _rate)						\
+	FIXED_CLK(_id, CLK_TOP_UNIVPLL, CLK_PARENT_TOPCKGEN, _rate)
+
 static const struct mtk_fixed_clk top_fixed_clks[] = {
-	FIXED_CLK(CLK_TOP_CLK26M, CLK_XTAL, 26000000),
-	FIXED_CLK(CLK_TOP_ULPOSC, CLK_XTAL, 250000),
-	FIXED_CLK(CLK_TOP_UNIVP_192M, CLK_TOP_UNIVPLL, 192000000),
+	FIXED_CLK0(CLK_TOP_CLK26M, 26000000),
+	FIXED_CLK0(CLK_TOP_ULPOSC, 250000),
+	FIXED_CLK1(CLK_TOP_UNIVP_192M, 192000000),
 };
 
 static const struct mtk_fixed_factor top_fixed_divs[] = {

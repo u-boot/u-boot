@@ -73,12 +73,14 @@ struct mtk_pll_data {
 struct mtk_fixed_clk {
 	const int id;
 	const int parent;
+	const int flags;
 	unsigned long rate;
 };
 
-#define FIXED_CLK(_id, _parent, _rate) {		\
+#define FIXED_CLK(_id, _parent, _flags, _rate) {	\
 		.id = _id,				\
 		.parent = _parent,			\
+		.flags = _flags,			\
 		.rate = _rate,				\
 	}
 
