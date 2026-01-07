@@ -457,6 +457,42 @@ def mk_env_ext4(state_test_env):
     utils.run_and_log(c, ['cp',  '-f', persistent, fs_img])
     return fs_img
 
+def mk_env_spi_flash(state_test_env):
+
+    """Create an empty SPI NOR image."""
+    c = state_test_env.ubman
+    filename = 'spi.bin'
+    persistent = c.config.persistent_data_dir + '/' + filename
+    spi_flash_img = c.config.source_dir  + '/' + filename
+
+    if os.path.exists(persistent):
+        c.log.action('SPI NOR image file ' + persistent + ' already exists')
+    else:
+        try:
+            utils.run_and_log(c, 'dd if=/dev/zero of=%s bs=1M count=2' % persistent)
+        except CalledProcessError:
+            call('rm -f %s' % persistent, shell=True)
+            raise
+
+    utils.run_and_log(c, ['cp',  '-f', persistent, spi_flash_img])
+    return spi_flash_img
+
+def mk_env_spi_flash_single(state_test_env):
+
+    """Create an single-copy SPI NOR image with foo=bar entry."""
+    c = state_test_env.ubman
+    filename = 'spi.bin'
+    spi_flash_img = c.config.source_dir  + '/' + filename
+
+    try:
+        mkenvimage = os.path.join(c.config.build_dir, 'tools/mkenvimage')
+        call('( echo foo=bar | %s -s 8192 -p 0x00 - ; dd if=/dev/zero bs=2088960 count=1 2>/dev/null ) > %s' % ( mkenvimage , spi_flash_img ), shell=True)
+    except CalledProcessError:
+        call('rm -f %s' % spi_flash_img, shell=True)
+        raise
+
+    return spi_flash_img
+
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_echo')
 @pytest.mark.buildconfigspec('cmd_nvedit_info')
@@ -543,6 +579,143 @@ def test_env_ext4(state_test_env):
     finally:
         if fs_img:
             call('rm -f %s' % fs_img, shell=True)
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_echo')
+@pytest.mark.buildconfigspec('cmd_nvedit_info')
+@pytest.mark.buildconfigspec('cmd_nvedit_load')
+@pytest.mark.buildconfigspec('cmd_nvedit_select')
+@pytest.mark.buildconfigspec('env_is_in_spi_flash')
+def test_env_spi_flash(state_test_env):
+
+    """Test ENV in SPI NOR on sandbox."""
+    c = state_test_env.ubman
+    spi_flash_img = ''
+    try:
+        spi_flash_img = mk_env_spi_flash_single(state_test_env)
+
+        response = c.run_command('sf probe')
+        assert 'SF: Detected m25p16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB' in response
+
+        # force env location: SF
+        response = c.run_command('env select SPIFlash')
+        assert 'Select Environment on SPIFlash: OK' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from SPIFlash... OK' in response
+
+        response = c.run_command('env print foo')
+        assert 'foo=bar' in response
+
+        response = c.run_command('env save')
+        assert 'Saving Environment to SPIFlash' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from SPIFlash... OK' in response
+
+        response = c.run_command('env print foo')
+        assert 'foo=bar' in response
+
+        response = c.run_command('env save')
+        assert 'Saving Environment to SPIFlash' in response
+
+        response = c.run_command('env save')
+        assert 'Saving Environment to SPIFlash' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from SPIFlash... OK' in response
+
+        response = c.run_command('env print foo')
+        assert 'foo=bar' in response
+
+        # restore env location: NOWHERE (prio 0 in sandbox)
+        response = c.run_command('env select nowhere')
+        assert 'Select Environment on nowhere: OK' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from nowhere... OK' in response
+
+        response = c.run_command('env info')
+        assert 'env_valid = invalid' in response
+        assert 'env_ready = true' in response
+        assert 'env_use_default = true' in response
+
+        response = c.run_command('env info -p -d')
+        assert 'Default environment is used' in response
+        assert 'Environment cannot be persisted' in response
+
+    finally:
+        if spi_flash_img:
+            call('rm -f %s' % spi_flash_img, shell=True)
+
+    spi_flash_img = ''
+    try:
+        spi_flash_img = mk_env_spi_flash(state_test_env)
+
+        # force env location: SF
+        response = c.run_command('env select SPIFlash')
+        assert 'Select Environment on SPIFlash: OK' in response
+
+        response = c.run_command('env save')
+        assert 'Saving Environment to SPIFlash' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from SPIFlash... OK' in response
+
+        response = c.run_command('env info')
+        assert 'env_valid = valid' in response
+        assert 'env_ready = true' in response
+        assert 'env_use_default = false' in response
+
+        response = c.run_command('env info -p -d')
+        assert 'Environment was loaded from persistent storage' in response
+        assert 'Environment can be persisted' in response
+
+        response = c.run_command('env info -d -q')
+        assert response == ""
+        response = c.run_command('echo $?')
+        assert response == "1"
+
+        response = c.run_command('env info -p -q')
+        assert response == ""
+        response = c.run_command('echo $?')
+        assert response == "0"
+
+        response = c.run_command('env erase')
+        assert 'OK' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from SPIFlash... ' in response
+        assert 'bad CRC, using default environment' in response
+
+        response = c.run_command('env info')
+        assert 'env_valid = invalid' in response
+        assert 'env_ready = true' in response
+        assert 'env_use_default = true' in response
+
+        response = c.run_command('env info -p -d')
+        assert 'Default environment is used' in response
+        assert 'Environment can be persisted' in response
+
+        # restore env location: NOWHERE (prio 0 in sandbox)
+        response = c.run_command('env select nowhere')
+        assert 'Select Environment on nowhere: OK' in response
+
+        response = c.run_command('env load')
+        assert 'Loading Environment from nowhere... OK' in response
+
+        response = c.run_command('env info')
+        assert 'env_valid = invalid' in response
+        assert 'env_ready = true' in response
+        assert 'env_use_default = true' in response
+
+        response = c.run_command('env info -p -d')
+        assert 'Default environment is used' in response
+        assert 'Environment cannot be persisted' in response
+
+    finally:
+        if spi_flash_img:
+            call('rm -f %s' % spi_flash_img, shell=True)
 
 def test_env_text(ubman):
     """Test the script that converts the environment to a text file"""

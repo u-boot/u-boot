@@ -89,6 +89,7 @@ static enum env_location env_locations[] = {
 	ENVL_NOWHERE,
 	ENVL_EXT4,
 	ENVL_FAT,
+	ENVL_SPI_FLASH,
 };
 
 enum env_location env_get_location(enum env_operation op, int prio)
