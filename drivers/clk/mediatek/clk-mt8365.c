@@ -708,13 +708,14 @@ static int mt8365_topckgen_probe(struct udevice *dev)
 static int mt8365_topckgen_cg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, top_clk_gates,
-					ARRAY_SIZE(top_clk_gates));
+					ARRAY_SIZE(top_clk_gates),
+					CLK_TOP_AUD_I2S0_M);
 }
 
 static int mt8365_infracfg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, ifr_clks,
-					ARRAY_SIZE(ifr_clks));
+					ARRAY_SIZE(ifr_clks), 0);
 }
 
 static const struct udevice_id mt8365_apmixed_compat[] = {

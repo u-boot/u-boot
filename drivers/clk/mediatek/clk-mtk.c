@@ -1018,8 +1018,8 @@ static const int mtk_clk_gate_of_xlate(struct clk *clk,
 	if (ret)
 		return ret;
 
-	if (clk->id >= tree->gates_offs &&
-	    clk->id < tree->gates_offs + priv->num_gates)
+	if (clk->id >= priv->gates_offs &&
+	    clk->id < priv->gates_offs + priv->num_gates)
 		return 0;
 
 	return -ENOENT;
@@ -1030,10 +1030,10 @@ static int mtk_clk_gate_enable(struct clk *clk)
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_gate *gate;
 
-	if (clk->id < priv->tree->gates_offs)
+	if (clk->id < priv->gates_offs)
 		return -EINVAL;
 
-	gate = &priv->gates[clk->id - priv->tree->gates_offs];
+	gate = &priv->gates[clk->id - priv->gates_offs];
 	return mtk_gate_enable(priv->base, gate);
 }
 
@@ -1042,10 +1042,10 @@ static int mtk_clk_gate_disable(struct clk *clk)
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_gate *gate;
 
-	if (clk->id < priv->tree->gates_offs)
+	if (clk->id < priv->gates_offs)
 		return -EINVAL;
 
-	gate = &priv->gates[clk->id - priv->tree->gates_offs];
+	gate = &priv->gates[clk->id - priv->gates_offs];
 	return mtk_gate_disable(priv->base, gate);
 }
 
@@ -1055,10 +1055,10 @@ static ulong mtk_clk_gate_get_rate(struct clk *clk)
 	struct udevice *parent = priv->parent;
 	const struct mtk_gate *gate;
 
-	if (clk->id < priv->tree->gates_offs)
+	if (clk->id < priv->gates_offs)
 		return -EINVAL;
 
-	gate = &priv->gates[clk->id - priv->tree->gates_offs];
+	gate = &priv->gates[clk->id - priv->gates_offs];
 	/*
 	 * With requesting a TOPCKGEN parent, make sure the dev parent
 	 * is actually topckgen. This might not be the case for an
@@ -1094,8 +1094,8 @@ static void mtk_clk_gate_dump(struct udevice *dev)
 		const struct mtk_gate *gate = &priv->gates[i];
 
 		printf("[GATE%u] DT: %u", i, gate->id);
-		mtk_clk_print_mapped_id(gate->id, i + tree->gates_offs, tree->id_offs_map);
-		mtk_clk_print_rate(dev, i + tree->gates_offs);
+		mtk_clk_print_mapped_id(gate->id, i + priv->gates_offs, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i + priv->gates_offs);
 		mtk_clk_print_single_parent(gate->parent, gate->flags);
 		printf("\n");
 	}
@@ -1196,7 +1196,8 @@ int mtk_common_clk_infrasys_init(struct udevice *dev,
 
 int mtk_common_clk_gate_init(struct udevice *dev,
 			     const struct mtk_clk_tree *tree,
-			     const struct mtk_gate *gates, int num_gates)
+			     const struct mtk_gate *gates, int num_gates,
+			     int gates_offs)
 {
 	struct mtk_cg_priv *priv = dev_get_priv(dev);
 	struct udevice *parent;
@@ -1218,6 +1219,7 @@ int mtk_common_clk_gate_init(struct udevice *dev,
 	priv->tree = tree;
 	priv->gates = gates;
 	priv->num_gates = num_gates;
+	priv->gates_offs = gates_offs;
 
 	return 0;
 }

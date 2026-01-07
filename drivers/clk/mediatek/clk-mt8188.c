@@ -1535,7 +1535,6 @@ static const struct mtk_gate infracfg_ao_clks[] = {
 static const struct mtk_clk_tree mt8188_infracfg_ao_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
-	.gates_offs = 0, /* CLK_INFRA_AO_PMIC_TMR */
 };
 
 static const struct mtk_gate_regs peri_ao_cg_regs = {
@@ -1570,7 +1569,6 @@ static const struct mtk_gate pericfg_ao_clks[] = {
 static const struct mtk_clk_tree mt8188_pericfg_ao_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
-	.gates_offs = 0, /* CLK_PERI_AO_ETHERNET */
 };
 
 static const struct mtk_gate_regs top0_cg_regs = {
@@ -1629,7 +1627,6 @@ static const struct mtk_gate topckgen_cg_clks[] = {
 static const struct mtk_clk_tree mt8188_topckgen_cg_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
-	.gates_offs = 185, /* CLK_TOP_CFGREG_CLOCK_EN_VPP0 */
 };
 
 static const struct mtk_gate_regs imp_iic_wrap_cg_regs = {
@@ -1665,22 +1662,16 @@ static const struct mtk_gate imp_iic_wrap_en_clks[] = {
 const struct mtk_clk_tree mt8188_imp_iic_wrap_c_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
-	/* CLK_IMP_IIC_WRAP_C_AP_CLOCK_I2C0 */
-	.gates_offs = 0,
 };
 
 const struct mtk_clk_tree mt8188_imp_iic_wrap_w_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
-	/* CLK_IMP_IIC_WRAP_C_AP_CLOCK_I2C1 */
-	.gates_offs = 0,
 };
 
 const struct mtk_clk_tree mt8188_imp_iic_wrap_en_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
-	/* imp_iic_wrap_en: CLK_IMP_IIC_WRAP_EN_AP_CLOCK_I2C5 */
-	.gates_offs = 0,
 };
 
 static int mt8188_apmixedsys_probe(struct udevice *dev)
@@ -1697,42 +1688,43 @@ static int mt8188_topckgen_cg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8188_topckgen_cg_clk_tree,
 					topckgen_cg_clks,
-					ARRAY_SIZE(topckgen_cg_clks));
+					ARRAY_SIZE(topckgen_cg_clks),
+					CLK_TOP_CFGREG_CLOCK_EN_VPP0);
 }
 
 static int mt8188_infracfg_ao_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8188_infracfg_ao_clk_tree,
 					infracfg_ao_clks,
-					ARRAY_SIZE(infracfg_ao_clks));
+					ARRAY_SIZE(infracfg_ao_clks), 0);
 }
 
 static int mt8188_pericfg_ao_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8188_pericfg_ao_clk_tree,
 					pericfg_ao_clks,
-					ARRAY_SIZE(pericfg_ao_clks));
+					ARRAY_SIZE(pericfg_ao_clks), 0);
 }
 
 static int mt8188_imp_iic_wrap_c_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_c_clk_tree,
 					imp_iic_wrap_c_clks,
-					ARRAY_SIZE(imp_iic_wrap_c_clks));
+					ARRAY_SIZE(imp_iic_wrap_c_clks), 0);
 }
 
 static int mt8188_imp_iic_wrap_w_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_w_clk_tree,
 					imp_iic_wrap_w_clks,
-					ARRAY_SIZE(imp_iic_wrap_w_clks));
+					ARRAY_SIZE(imp_iic_wrap_w_clks), 0);
 }
 
 static int mt8188_imp_iic_wrap_en_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_en_clk_tree,
 					imp_iic_wrap_en_clks,
-					ARRAY_SIZE(imp_iic_wrap_en_clks));
+					ARRAY_SIZE(imp_iic_wrap_en_clks), 0);
 }
 
 static const struct udevice_id mt8188_apmixed_compat[] = {

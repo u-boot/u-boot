@@ -1055,15 +1055,13 @@ static int mt7623_topckgen_probe(struct udevice *dev)
 }
 
 static const struct mtk_clk_tree mt7623_clk_gate_tree = {
-	/* Each CLK ID for gates clock starts at index 1 */
-	.gates_offs = 1,
 	.xtal_rate = 26 * MHZ,
 };
 
 static int mt7623_infracfg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, infra_cgs,
-					ARRAY_SIZE(infra_cgs));
+					ARRAY_SIZE(infra_cgs), 1);
 }
 
 static const struct mtk_clk_tree mt7623_clk_peri_tree = {
@@ -1086,13 +1084,13 @@ static int mt7623_pericfg_probe(struct udevice *dev)
 static int mt7623_hifsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, hif_cgs,
-					ARRAY_SIZE(hif_cgs));
+					ARRAY_SIZE(hif_cgs), 1);
 }
 
 static int mt7623_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs));
+					ARRAY_SIZE(eth_cgs), 1);
 }
 
 static int mt7623_ethsys_hifsys_bind(struct udevice *dev)

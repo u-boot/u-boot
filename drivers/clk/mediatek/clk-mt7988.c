@@ -893,7 +893,7 @@ static int mt7988_ethdma_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
 					ethdma_mtk_gate,
-					ARRAY_SIZE(ethdma_mtk_gate));
+					ARRAY_SIZE(ethdma_mtk_gate), 0);
 }
 
 static int mt7988_ethdma_bind(struct udevice *dev)
@@ -952,7 +952,7 @@ static int mt7988_sgmiisys_0_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
 					sgmiisys_0_mtk_gate,
-					ARRAY_SIZE(sgmiisys_0_mtk_gate));
+					ARRAY_SIZE(sgmiisys_0_mtk_gate), 0);
 }
 
 static const struct udevice_id mt7988_sgmiisys_0_compat[] = {
@@ -997,7 +997,7 @@ static int mt7988_sgmiisys_1_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
 					sgmiisys_1_mtk_gate,
-					ARRAY_SIZE(sgmiisys_1_mtk_gate));
+					ARRAY_SIZE(sgmiisys_1_mtk_gate), 0);
 }
 
 static const struct udevice_id mt7988_sgmiisys_1_compat[] = {
@@ -1044,7 +1044,7 @@ static int mt7988_ethwarp_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
 					ethwarp_mtk_gate,
-					ARRAY_SIZE(ethwarp_mtk_gate));
+					ARRAY_SIZE(ethwarp_mtk_gate), 0);
 }
 
 static int mt7988_ethwarp_bind(struct udevice *dev)

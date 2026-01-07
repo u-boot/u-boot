@@ -631,7 +631,7 @@ static const struct mtk_gate sgmii0_cgs[] = {
 static int mt7981_sgmii0sys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7981_topckgen_clk_tree,
-					sgmii0_cgs, ARRAY_SIZE(sgmii0_cgs));
+					sgmii0_cgs, ARRAY_SIZE(sgmii0_cgs), 0);
 }
 
 static const struct udevice_id mt7981_sgmii0sys_compat[] = {
@@ -658,7 +658,7 @@ static const struct mtk_gate sgmii1_cgs[] = {
 static int mt7981_sgmii1sys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7981_topckgen_clk_tree,
-					sgmii1_cgs, ARRAY_SIZE(sgmii1_cgs));
+					sgmii1_cgs, ARRAY_SIZE(sgmii1_cgs), 0);
 }
 
 static const struct udevice_id mt7981_sgmii1sys_compat[] = {
@@ -699,7 +699,7 @@ static const struct mtk_gate eth_cgs[] = {
 static int mt7981_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7981_topckgen_clk_tree,
-					eth_cgs, ARRAY_SIZE(eth_cgs));
+					eth_cgs, ARRAY_SIZE(eth_cgs), 0);
 }
 
 static int mt7981_ethsys_bind(struct udevice *dev)

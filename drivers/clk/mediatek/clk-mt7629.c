@@ -581,7 +581,6 @@ static const struct mtk_clk_tree mt7629_clk_tree = {
 static const struct mtk_clk_tree mt7629_peri_clk_tree = {
 	.xtal_rate = 40 * MHZ,
 	.xtal2_rate = 20 * MHZ,
-	.gates_offs = CLK_PERI_PWM1_PD,
 	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
 	.muxes_offs = CLK_TOP_AXI_SEL,
 	.plls = apmixed_plls,
@@ -635,19 +634,19 @@ static int mt7629_topckgen_probe(struct udevice *dev)
 static int mt7629_infracfg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, infra_cgs,
-					ARRAY_SIZE(infra_cgs));
+					ARRAY_SIZE(infra_cgs), 0);
 }
 
 static int mt7629_pericfg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_peri_clk_tree, peri_cgs,
-					ARRAY_SIZE(peri_cgs));
+					ARRAY_SIZE(peri_cgs), CLK_PERI_PWM1_PD);
 }
 
 static int mt7629_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs));
+					ARRAY_SIZE(eth_cgs), 0);
 }
 
 static int mt7629_ethsys_bind(struct udevice *dev)
@@ -666,13 +665,13 @@ static int mt7629_ethsys_bind(struct udevice *dev)
 static int mt7629_sgmiisys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, sgmii_cgs,
-					ARRAY_SIZE(sgmii_cgs));
+					ARRAY_SIZE(sgmii_cgs), 0);
 }
 
 static int mt7629_ssusbsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, ssusb_cgs,
-					ARRAY_SIZE(ssusb_cgs));
+					ARRAY_SIZE(ssusb_cgs), 0);
 }
 
 static const struct udevice_id mt7629_apmixed_compat[] = {
