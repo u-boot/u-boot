@@ -274,10 +274,25 @@ static void msm_spmi_channel_map_v5(struct msm_spmi_priv *priv, unsigned int i,
 		priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
 		if (owner != priv->owner)
 			priv->channel_map[slave_id][pid] |= SPMI_CHANNEL_READ_ONLY;
-	} else if ((owner == priv->owner) && prev_read_only) {
-		/* Read only and we found one we own, switch */
+
+	} else if (owner == priv->owner) {
+		/*
+		 * Found a channel owned by our EE - ALWAYS switch to it!
+		 * even if we already have a mapping, we must prefer the one
+		 * owned by our EE to avoid hardware access violations.
+		 */
 		priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
+		/* Clear READ_ONLY flag since we own this channel */
+
+	} else if (prev_read_only) {
+		/*
+		 * Previous mapping was read-only and this one is also not ours.
+		 * Update to this channel.
+		 */
+		priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID | SPMI_CHANNEL_READ_ONLY;
+
 	}
+	/* else: Previous was writable and owned by us, this one isn't - keep previous */
 }
 
 static int msm_spmi_probe(struct udevice *dev)
