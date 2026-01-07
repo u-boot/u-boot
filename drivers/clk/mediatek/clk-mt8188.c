@@ -1360,6 +1360,7 @@ static const struct mtk_clk_tree mt8188_topckgen_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
 	.id_offs_map = mt8188_id_offs_map,
+	.id_offs_map_size = ARRAY_SIZE(mt8188_id_offs_map),
 	.fdivs_offs = 8, /* CLK_TOP_MAINPLL_D3 */
 	.muxes_offs = 87, /* CLK_TOP_AXI */
 	.fclks = top_fixed_clks,

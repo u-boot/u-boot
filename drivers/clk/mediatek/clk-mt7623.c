@@ -996,6 +996,7 @@ static const struct mtk_gate hif_cgs[] = {
 static const struct mtk_clk_tree mt7623_apmixedsys_clk_tree = {
 	.xtal2_rate = 26 * MHZ,
 	.id_offs_map = pll_id_offs_map,
+	.id_offs_map_size = ARRAY_SIZE(pll_id_offs_map),
 	.plls = apmixed_plls,
 	.num_plls = ARRAY_SIZE(apmixed_plls),
 };
@@ -1003,6 +1004,7 @@ static const struct mtk_clk_tree mt7623_apmixedsys_clk_tree = {
 static const struct mtk_clk_tree mt7623_topckgen_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.id_offs_map = top_id_offs_map,
+	.id_offs_map_size = ARRAY_SIZE(top_id_offs_map),
 	.fdivs_offs = top_id_offs_map[CLK_TOP_SYSPLL],
 	.muxes_offs = top_id_offs_map[CLK_TOP_AXI_SEL],
 	.fclks = top_fixed_clks,
@@ -1063,6 +1065,7 @@ static int mt7623_infracfg_probe(struct udevice *dev)
 
 static const struct mtk_clk_tree mt7623_clk_peri_tree = {
 	.id_offs_map = peri_id_offs_map,
+	.id_offs_map_size = ARRAY_SIZE(peri_id_offs_map),
 	.muxes_offs = peri_id_offs_map[CLK_PERI_UART0_SEL],
 	.gates_offs = peri_id_offs_map[CLK_PERI_NFI],
 	.muxes = peri_muxes,

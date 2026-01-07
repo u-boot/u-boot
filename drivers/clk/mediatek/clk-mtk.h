@@ -252,6 +252,7 @@ struct mtk_clk_tree {
 	 * ID for factor, mux and gates.
 	 */
 	const int *id_offs_map; /* optional, table clk.h to driver ID */
+	const int id_offs_map_size;
 	const int fdivs_offs;
 	const int muxes_offs;
 	const int gates_offs;
