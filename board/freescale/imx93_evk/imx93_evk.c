@@ -7,8 +7,6 @@
 #include <efi_loader.h>
 #include <init.h>
 #include <asm/arch/sys_proto.h>
-#include <dm/device.h>
-#include <dm/uclass.h>
 
 #if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
 #define IMX_BOOT_IMAGE_GUID \
