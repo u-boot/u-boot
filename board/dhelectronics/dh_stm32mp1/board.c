@@ -314,7 +314,7 @@ int board_stm32mp1_ddr_config_name_match(struct udevice *dev,
 			return 0;
 	}
 
-	if (IS_ENABLED(CONFIG_TARGET_DH_STM32MP15X)) {
+	if (IS_ENABLED(CONFIG_STM32MP15X)) {
 		if (ddr3code == 1 &&
 		    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x1gb-533mhz"))
 			return 0;
