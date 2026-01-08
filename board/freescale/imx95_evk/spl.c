@@ -6,6 +6,7 @@
 #include <hang.h>
 #include <init.h>
 #include <spl.h>
+#include <asm/global_data.h>
 #include <asm/sections.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mu.h>
