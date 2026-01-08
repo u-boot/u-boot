@@ -22,6 +22,7 @@
 			.state = s,			\
 			.cmds = name.cmd,		\
 			.num_cmds = 0,			\
+			.wait_for_compl = true		\
 		},					\
 		.cmd = { { 0 } },			\
 		.dev = device,				\

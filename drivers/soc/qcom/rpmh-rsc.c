@@ -284,29 +284,35 @@ static void __tcs_buffer_write(struct rsc_drv *drv, int tcs_id, int cmd_id,
 	u32 msgid;
 	u32 cmd_msgid = CMD_MSGID_LEN | CMD_MSGID_WRITE;
 	u32 cmd_enable = 0;
+	u32 cmd_complete = 0;
 	struct tcs_cmd *cmd;
 	int i, j;
+
+	if (msg->wait_for_compl)
+		cmd_msgid |= CMD_MSGID_RESP_REQ;
+
+	cmd_complete = read_tcs_reg(drv, drv->regs[RSC_DRV_CMD_WAIT_FOR_CMPL], tcs_id);
 
 	for (i = 0, j = cmd_id; i < msg->num_cmds; i++, j++) {
 		cmd = &msg->cmds[i];
 		cmd_enable |= BIT(j);
+		/* U-Boot: always wait for completion */
+		cmd_complete |= (!!msg->wait_for_compl) << j;
 		msgid = cmd_msgid;
-		/*
-		 * Additionally, if the cmd->wait is set, make the command
-		 * response reqd even if the overall request was fire-n-forget.
-		 */
-		msgid |= cmd->wait ? CMD_MSGID_RESP_REQ : 0;
 
 		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_MSGID], tcs_id, j, msgid);
 		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_ADDR], tcs_id, j, cmd->addr);
 		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_DATA], tcs_id, j, cmd->data);
-		debug("tcs(m): %d [%s] cmd(n): %d msgid: %#x addr: %#x data: %#x complete: %d\n",
+		debug("tcs(%d): [%s] cmd_id: %d: msgid: %#x addr: %#x data: %#x complete: %#x\n",
 		      tcs_id, msg->state == RPMH_ACTIVE_ONLY_STATE ? "active" : "?", j, msgid,
-		      cmd->addr, cmd->data, cmd->wait);
+		      cmd->addr, cmd->data, cmd_complete);
 	}
 
 	cmd_enable |= read_tcs_reg(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id);
 	write_tcs_reg(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id, cmd_enable);
+	/* U-Boot: Tell the DRV to wait for completion (?) so we can poll on DRV_STATUS */
+	/* This register applies to the entire TCS group not per command */
+	write_tcs_reg(drv, drv->regs[RSC_DRV_CMD_WAIT_FOR_CMPL], tcs_id, cmd_complete);
 }
 
 /**
@@ -376,26 +382,22 @@ static void __tcs_set_trigger(struct rsc_drv *drv, int tcs_id, bool trigger)
 int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 {
 	struct tcs_group *tcs;
-	int tcs_id, i;
-	u32 addr;
+	int tcs_id, i = 0;
+	u32 val;
 
 	tcs = get_tcs_for_msg(drv, msg);
 	if (IS_ERR(tcs))
 		return PTR_ERR(tcs);
 
-	/* u-boot is single-threaded, always use the first TCS as we'll never conflict */
+	/* U-Boot is single-threaded, always use the first TCS as we'll never conflict */
 	tcs_id = tcs->offset;
+	if (!read_tcs_reg(drv, drv->regs[RSC_DRV_STATUS], tcs_id)) {
+		pr_err("%s: TCS %d is busy!\n", __func__, tcs_id);
+		return -EBUSY;
+	}
 
 	tcs->req[tcs_id - tcs->offset] = msg;
 	generic_set_bit(tcs_id, drv->tcs_in_use);
-	if (msg->state == RPMH_ACTIVE_ONLY_STATE && tcs->type != ACTIVE_TCS) {
-		/*
-		 * Clear previously programmed WAKE commands in selected
-		 * repurposed TCS to avoid triggering them. tcs->slots will be
-		 * cleaned from rpmh_flush() by invoking rpmh_rsc_invalidate()
-		 */
-		write_tcs_reg_sync(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id, 0);
-	}
 
 	/*
 	 * These two can be done after the lock is released because:
@@ -408,10 +410,10 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 	__tcs_buffer_write(drv, tcs_id, 0, msg);
 	__tcs_set_trigger(drv, tcs_id, true);
 
-	/* U-Boot: Now wait for the TCS to be cleared, indicating that we're done */
+	/* U-Boot: Now wait for the TCS to be cleared, indicating that we're done. */
 	for (i = 0; i < USEC_PER_SEC; i++) {
-		addr = read_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_ADDR], i, 0);
-		if (addr != msg->cmds[0].addr)
+		val = read_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_STATUS], tcs_id, 0);
+		if (val & CMD_STATUS_COMPL)
 			break;
 		udelay(1);
 	}
