@@ -118,13 +118,11 @@
 &sdhci {
 	bootph-pre-ram;
 	bootph-some-ram;
-	u-boot,spl-fifo-mode;
 };
 
 &sdmmc {
 	bootph-pre-ram;
 	bootph-some-ram;
-	u-boot,spl-fifo-mode;
 };
 
 &sdmmc0_bus4 {
@@ -154,12 +152,10 @@
 
 &sfc0 {
 	bootph-some-ram;
-	u-boot,spl-sfc-no-dma;
 };
 
 &sfc1 {
 	bootph-some-ram;
-	u-boot,spl-sfc-no-dma;
 };
 
 &sys_grf {
