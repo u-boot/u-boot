@@ -37,8 +37,11 @@ enum rpmh_regulator_mode {
 };
 
 #define RPMH_REGULATOR_REG_VRM_VOLTAGE		0x0
+#define RPMH_REGULATOR_VOLTAGE_MASK		0x1FFF
 #define RPMH_REGULATOR_REG_ENABLE		0x4
+#define RPMH_REGULATOR_ENABLE_MASK		0x1
 #define RPMH_REGULATOR_REG_VRM_MODE		0x8
+#define RPMH_REGULATOR_MODE_MASK		0x7
 
 #define PMIC4_LDO_MODE_RETENTION		4
 #define PMIC4_LDO_MODE_LPM			5
@@ -205,6 +208,38 @@ static int rpmh_regulator_send_request(struct rpmh_vreg *vreg,
 	return ret;
 }
 
+static int rpmh_regulator_read_data(struct rpmh_vreg *vreg, struct tcs_cmd *cmd)
+{
+	return rpmh_read(vreg->dev->parent, RPMH_ACTIVE_ONLY_STATE, cmd);
+}
+
+static int rpmh_regulator_vrm_get_voltage(struct udevice *rdev, int *uV)
+{
+	struct rpmh_vreg *vreg = dev_get_priv(rdev);
+	struct tcs_cmd cmd = {
+		.addr = vreg->addr + RPMH_REGULATOR_REG_VRM_VOLTAGE,
+	};
+	const struct linear_range *uv_range = &vreg->hw_data->voltage_range;
+	int min_uV = uv_range->min;
+	int max_uV = uv_range->min + uv_range->max_sel * uv_range->step;
+
+	int ret, _uV = 0;
+
+	ret = rpmh_regulator_read_data(vreg, &cmd);
+	if (!ret)
+		_uV = (cmd.data & RPMH_REGULATOR_VOLTAGE_MASK) * 1000;
+	else
+		dev_err(vreg->dev, "failed to read VOLTAGE ret = %d\n", ret);
+
+	if (!_uV || (_uV >= min_uV && _uV <= max_uV))
+		*uV = _uV;
+	else
+		dev_info(vreg->dev, "read voltage %d is out-of-range[%d:%d]\n",
+			 _uV, min_uV, max_uV);
+
+	return ret;
+}
+
 static int _rpmh_regulator_vrm_set_value(struct udevice *rdev,
 					 int uv, bool wait_for_ack)
 {
@@ -249,8 +284,13 @@ static int rpmh_regulator_vrm_set_value(struct udevice *rdev,
 static int rpmh_regulator_vrm_get_value(struct udevice *rdev)
 {
 	struct rpmh_vreg *vreg = dev_get_priv(rdev);
+	int ret, uV;
 
-	debug("%s: get_value %d\n", rdev->name, vreg->uv);
+	if (vreg->uv < 0) {
+		ret = rpmh_regulator_vrm_get_voltage(rdev, &uV);
+		if (!ret && uV != 0)
+			vreg->uv = uV;
+	}
 
 	return vreg->uv;
 }
@@ -258,8 +298,22 @@ static int rpmh_regulator_vrm_get_value(struct udevice *rdev)
 static int rpmh_regulator_is_enabled(struct udevice *rdev)
 {
 	struct rpmh_vreg *vreg = dev_get_priv(rdev);
+	int ret;
 
 	debug("%s: is_enabled %d\n", rdev->name, vreg->enabled);
+
+	if (vreg->enabled < 0) {
+		struct tcs_cmd cmd = {
+			.addr = vreg->addr + RPMH_REGULATOR_REG_ENABLE,
+		};
+		ret = rpmh_regulator_read_data(vreg, &cmd);
+		/*
+		 * Don't override if disabled since we will also vote the right voltage
+		 * while enabling
+		 */
+		if (!ret && cmd.data)
+			vreg->enabled = cmd.data & RPMH_REGULATOR_ENABLE_MASK;
+	}
 
 	return vreg->enabled > 0;
 }
@@ -340,11 +394,31 @@ static int rpmh_regulator_vrm_set_mode(struct udevice *rdev,
 	return ret;
 }
 
+static int rpmh_regulator_vrm_get_pmic_mode(struct rpmh_vreg *vreg, int *pmic_mode)
+{
+	struct tcs_cmd cmd = {
+		.addr = vreg->addr + RPMH_REGULATOR_REG_VRM_MODE,
+	};
+	int ret;
+
+	ret = rpmh_regulator_read_data(vreg, &cmd);
+	if (!ret)
+		*pmic_mode = cmd.data & RPMH_REGULATOR_MODE_MASK;
+	else
+		return -EINVAL;
+
+	return 0;
+}
+
 static int rpmh_regulator_vrm_get_mode(struct udevice *rdev)
 {
 	struct rpmh_vreg *vreg = dev_get_priv(rdev);
+	int mode;
 
 	debug("%s: get_mode %d\n", rdev->name, vreg->mode);
+
+	if (!rpmh_regulator_vrm_get_pmic_mode(vreg, &mode))
+		vreg->mode = mode;
 
 	return vreg->mode;
 }
