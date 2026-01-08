@@ -36,15 +36,31 @@
 enum {
 	RSC_DRV_TCS_OFFSET,
 	RSC_DRV_CMD_OFFSET,
+/* DRV HW Solver Configuration Information Register */
 	DRV_SOLVER_CONFIG,
+/* DRV TCS Configuration Information Register */
 	DRV_PRNT_CHLD_CONFIG,
+/* Offsets for common TCS Registers, one bit per TCS */
 	RSC_DRV_IRQ_ENABLE,
 	RSC_DRV_IRQ_STATUS,
-	RSC_DRV_IRQ_CLEAR,
-	RSC_DRV_CMD_WAIT_FOR_CMPL,
+	RSC_DRV_IRQ_CLEAR,	/* w/o; write 1 to clear */
+/*
+ * Offsets for per TCS Registers.
+ *
+ * TCSes start at 0x10 from tcs_base and are stored one after another.
+ * Multiply tcs_id by RSC_DRV_TCS_OFFSET to find a given TCS and add one
+ * of the below to find a register.
+ */
+	RSC_DRV_CMD_WAIT_FOR_CMPL,	/* 1 bit per command */
 	RSC_DRV_CONTROL,
-	RSC_DRV_STATUS,
-	RSC_DRV_CMD_ENABLE,
+	RSC_DRV_STATUS,	/* zero if tcs is busy */
+	RSC_DRV_CMD_ENABLE,	/* 1 bit per command */
+/*
+ * Offsets for per command in a TCS.
+ *
+ * Commands (up to 16) start at 0x30 in a TCS; multiply command index
+ * by RSC_DRV_CMD_OFFSET and add one of the below to find a register.
+ */
 	RSC_DRV_CMD_MSGID,
 	RSC_DRV_CMD_ADDR,
 	RSC_DRV_CMD_DATA,
