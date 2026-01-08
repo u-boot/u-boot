@@ -9,9 +9,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/global_data.h>
-#include <asm/arch-imx9/ccm_regs.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/clock.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 
@@ -37,23 +35,10 @@ struct efi_capsule_update_info update_info = {
 };
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
-static int setup_fec(void)
-{
-	return set_clk_enet(ENET_125MHZ);
-}
-
 int board_phy_config(struct phy_device *phydev)
 {
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
-
-	return 0;
-}
-
-int board_init(void)
-{
-	if (IS_ENABLED(CONFIG_FEC_MXC))
-		setup_fec();
 
 	return 0;
 }
