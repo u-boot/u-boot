@@ -63,6 +63,11 @@ static ulong sc7280_set_rate(struct clk *clk, ulong rate)
 		debug("%s: %s, requested rate=%ld\n", __func__, priv->data->clks[clk->id].name, rate);
 
 	switch (clk->id) {
+	case GCC_QUPV3_WRAP0_S2_CLK: /* UART2 */
+		freq = qcom_find_freq(ftbl_gcc_qupv3_wrap0_s2_clk_src, rate);
+		clk_rcg_set_rate_mnd(priv->base, 0x17270,
+				     freq->pre_div, freq->m, freq->n, freq->src, 16);
+		return freq->freq;
 	case GCC_QUPV3_WRAP0_S5_CLK: /* UART5 */
 		freq = qcom_find_freq(ftbl_gcc_qupv3_wrap0_s2_clk_src, rate);
 		clk_rcg_set_rate_mnd(priv->base, 0x17600,
@@ -132,9 +137,13 @@ static const struct gate_clk sc7280_clks[] = {
 	GATE_CLK(GCC_AGGRE_NOC_PCIE_CENTER_SF_AXI_CLK, 0x52008, BIT(28)),
 	GATE_CLK(GCC_QUPV3_WRAP0_S0_CLK, 0x52008, BIT(10)),
 	GATE_CLK(GCC_QUPV3_WRAP0_S1_CLK, 0x52008, BIT(11)),
+	GATE_CLK(GCC_QUPV3_WRAP0_S2_CLK, 0x52008, BIT(12)),
 	GATE_CLK(GCC_QUPV3_WRAP0_S3_CLK, 0x52008, BIT(13)),
+	GATE_CLK(GCC_QUPV3_WRAP0_S4_CLK, 0x52008, BIT(14)),
 	GATE_CLK(GCC_QUPV3_WRAP0_S5_CLK, 0x52008, BIT(15)),
+	GATE_CLK(GCC_QUPV3_WRAP0_S6_CLK, 0x52008, BIT(16)),
 	GATE_CLK(GCC_QUPV3_WRAP0_S7_CLK, 0x52008, BIT(17)),
+	GATE_CLK(GCC_QUPV3_WRAP1_S1_CLK, 0x52008, BIT(23)),
 	GATE_CLK(GCC_UFS_PHY_AXI_CLK, 0x77010, BIT(0)),
 	GATE_CLK(GCC_AGGRE_UFS_PHY_AXI_CLK, 0x770cc, BIT(0)),
 	GATE_CLK(GCC_UFS_PHY_AHB_CLK, 0x77018, BIT(0)),
@@ -189,6 +198,9 @@ static int sc7280_enable(struct clk *clk)
 		break;
 	case GCC_QUPV3_WRAP0_S3_CLK:
 		clk_rcg_set_rate_mnd(priv->base, 0x173a0, 1, 0, 0, CFG_CLK_SRC_CXO, 16);
+		break;
+	case GCC_QUPV3_WRAP1_S1_CLK:
+		clk_rcg_set_rate_mnd(priv->base, 0x18140, 1, 0, 0, CFG_CLK_SRC_CXO, 16);
 		break;
 	}
 
