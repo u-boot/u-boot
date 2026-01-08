@@ -58,7 +58,7 @@ def test_usb_start(ubman):
     assert 'USB init failed' not in output
     assert 'starting USB...' in output
 
-    if 'Starting the controller' in output:
+    if ubman.config.buildconfig.get('config_usb_xhci_hcd'):
         assert 'USB XHCI' in output
 
     output = ubman.run_command('echo $?')
@@ -104,7 +104,7 @@ def test_usb_reset(ubman):
     assert 'USB init failed' not in output
     assert 'resetting USB...' in output
 
-    if 'Starting the controller' in output:
+    if ubman.config.buildconfig.get('config_usb_xhci_hcd'):
         assert 'USB XHCI' in output
 
     output = ubman.run_command('echo $?')
