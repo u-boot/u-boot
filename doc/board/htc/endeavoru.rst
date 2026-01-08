@@ -3,9 +3,9 @@
 U-Boot for the HTC One X (endeavoru)
 ====================================
 
-``DISCLAMER!`` Moving your HTC ONe X to use U-Boot assumes replacement of the
+``DISCLAMER!`` Moving your HTC One X to use U-Boot assumes replacement of the
 vendor hboot. Vendor android firmwares will no longer be able to run on the
-device. This replacement IS reversible.
+device. This replacement IS reversible if you have backups.
 
 Quick Start
 -----------
@@ -35,61 +35,42 @@ Process U-Boot
 in re-crypt repo issues. NOT HERE!
 
 re-crypt is a tool that processes the ``u-boot-dtb-tegra.bin`` binary into form
-usable by device. This process is required only on the first installation or
-to recover the device in case of a failed update.
-
-Permanent installation can be performed either by using the nv3p protocol or by
-pre-loading just built U-Boot into RAM.
-
-Processing for the NV3P protocol
-********************************
+usable by device. This process is required only on the first installation or to
+recover the device in case of a failed update.
 
 .. code-block:: bash
 
     $ git clone https://gitlab.com/grate-driver/re-crypt.git
     $ cd re-crypt # place your u-boot-dtb-tegra.bin here
-    $ ./re-crypt.py --dev endeavoru
+    $ ./re-crypt.py --dev endeavoru --split
 
-The script will produce a ``repart-block.bin`` ready to flash.
-
-Processing for pre-loaded U-Boot
-********************************
-
-The procedure is the same, but the ``--split`` argument is used with the
-``re-crypt.py``. The script will produce ``bct.img`` and ``ebt.img`` ready
-to flash.
+The script will produce ``bct.img`` and ``ebt.img`` ready to flash.
 
 Flashing U-Boot into the eMMC
 -----------------------------
 
-``DISCLAMER!`` All questions related to NvFlash should be asked in the proper
+``DISCLAMER!`` All questions related to fusee-tools should be asked in the proper
 place. NOT HERE! Flashing U-Boot will erase all eMMC, so make a backup before!
 
-Permanent installation can be performed either by using the nv3p protocol or by
-pre-loading just built U-Boot into RAM.
+Permanent installation can be performed by pre-loading just built U-Boot into RAM.
+Bct and bootloader will end up in boot0 and boot1 partitions of eMMC.
 
-Flashing with the NV3P protocol
-*******************************
+You have to clone and prepare fusee-tools from here: https://gitlab.com/grate-driver/fusee-tools
+according to fusee-tools README to continue.
 
-Nv3p is a custom Nvidia protocol used to recover bricked devices. Devices can
-enter it by pre-loading vendor bootloader with the Fusée Gelée.
-
-With nv3p, ``repart-block.bin`` is used. It contains BCT and a bootloader in
-encrypted state in form, which can just be written RAW at the start of eMMC.
-
-.. code-block:: bash
-
-    $ ./run_bootloader.sh -s T30 -t ./bct/endeavoru.bct -b android_bootloader.bin
-    $ ./utiils/nvflash_v1.13.87205 --resume --rawdevicewrite 0 1024 repart-block.bin
-
-When flashing is done, reboot the device.
-
-Flashing with a pre-loaded U-Boot
-*********************************
+Bootloader preloading is performed to device in APX/RCM mode connected to host
+PC. For HTC One X (endeavoru) this mode can be entered using ``fastboot oem rcm``
+command from modified S-OFF bootloader or using testpad on motherboard. Host PC
+should detect APX USB device in ``lsusb``.
 
 U-Boot pre-loaded into RAM acts the same as when it was booted "cold". Currently
 U-Boot supports bootmenu entry fastboot, which allows to write a processed copy
-of U-Boot permanently into eMMC.
+of U-Boot permanently into eMMC. This is how U-Boot can be preloaded using
+fusee-tools:
+
+.. code-block:: bash
+
+    $ ./run_bootloader.sh -s T30 -t ./bct/endeavoru.bct --b u-boot-dtb-tegra.bin
 
 While pre-loading U-Boot, hold the ``volume down`` button which will trigger
 the bootmenu. There, select ``fastboot`` using the volume and power buttons.
@@ -112,8 +93,8 @@ bootmenu. Bootmenu contains entries to mount eMMC as mass storage, fastboot,
 reboot, reboot RCM, poweroff, enter U-Boot console and update bootloader (check
 the next chapter).
 
-Flashing ``repart-block.bin`` eliminates vendor restrictions on eMMC and allows
-the user to use/partition it in any way the user desires.
+Flashing ``bct.img`` and ``ebt.img`` eliminates vendor restrictions on eMMC and
+allows the user to use/partition it in any way the user desires.
 
 Self Upgrading
 --------------
