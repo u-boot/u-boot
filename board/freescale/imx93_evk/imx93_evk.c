@@ -6,8 +6,6 @@
 #include <env.h>
 #include <efi_loader.h>
 #include <init.h>
-#include <miiphy.h>
-#include <netdev.h>
 #include <asm/global_data.h>
 #include <asm/arch/sys_proto.h>
 #include <dm/device.h>
@@ -34,14 +32,6 @@ struct efi_capsule_update_info update_info = {
 	.images = fw_images,
 };
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
-
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
 
 int board_late_init(void)
 {
