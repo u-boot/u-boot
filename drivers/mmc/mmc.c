@@ -2933,11 +2933,18 @@ static int mmc_power_cycle(struct mmc *mmc)
 		return ret;
 
 	/*
-	 * SD spec recommends at least 1ms of delay. Let's wait for 2ms
-	 * to be on the safer side.
+	 * SD spec recommends at least 1ms of 'power on' delay.
+	 * Let's wait for 2ms to be on the safer side.
 	 */
 	udelay(2000);
-	return mmc_power_on(mmc);
+	ret = mmc_power_on(mmc);
+
+	/*
+	 * SD spec recommends at least 1ms of 'stable supply voltage' delay.
+	 * Let's wait for 2ms to be on the safer side.
+	 */
+	udelay(2000);
+	return ret;
 }
 
 int mmc_get_op_cond(struct mmc *mmc, bool quiet)

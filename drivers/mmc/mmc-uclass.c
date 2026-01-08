@@ -243,13 +243,8 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 		return -EINVAL;
 	}
 
-	/*
-	 * Maximum frequency is obtained from the optional "max-frequency" property.
-	 * If not specified in device tree, defaults to 0 and sdhci_setup_cfg()
-	 * will set the MMC configuration maximum frequency to the host controller's
-	 * maximum base clock frequency from capabilities register.
-	 */
-	cfg->f_max = dev_read_u32_default(dev, "max-frequency", 0);
+	/* f_max is obtained from the optional "max-frequency" property */
+	dev_read_u32(dev, "max-frequency", &cfg->f_max);
 
 	if (dev_read_bool(dev, "cap-sd-highspeed"))
 		cfg->host_caps |= MMC_CAP(SD_HS);
