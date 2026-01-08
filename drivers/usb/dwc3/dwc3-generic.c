@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <reset.h>
 #include <asm/gpio.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <linux/delay.h>
 #include <linux/usb/gadget.h>
@@ -173,8 +174,8 @@ static int dwc3_generic_of_to_plat(struct udevice *dev)
 		node = dev_ofnode(dev->parent);
 		plat->dr_mode = usb_get_dr_mode(node);
 		if (plat->dr_mode == USB_DR_MODE_UNKNOWN) {
-			pr_err("Invalid usb mode setup\n");
-			return -ENODEV;
+			dev_info(dev, "No USB mode specified. Using 'otg'\n");
+			plat->dr_mode = USB_DR_MODE_OTG;
 		}
 	}
 
@@ -515,6 +516,10 @@ static int dwc3_glue_bind_common(struct udevice *parent, ofnode node)
 	dr_mode = usb_get_dr_mode(dev_ofnode(parent));
 	if (!dr_mode)
 		dr_mode = usb_get_dr_mode(node);
+
+	/* usb mode must fallback to peripheral if not known */
+	if (dr_mode == USB_DR_MODE_UNKNOWN)
+		dr_mode = USB_DR_MODE_OTG;
 
 	if (CONFIG_IS_ENABLED(DM_USB_GADGET) &&
 	    (dr_mode == USB_DR_MODE_PERIPHERAL || dr_mode == USB_DR_MODE_OTG)) {
