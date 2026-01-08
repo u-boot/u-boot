@@ -282,11 +282,14 @@ static void __tcs_buffer_write(struct rsc_drv *drv, int tcs_id, int cmd_id,
 			       const struct tcs_request *msg)
 {
 	u32 msgid;
-	u32 cmd_msgid = CMD_MSGID_LEN | CMD_MSGID_WRITE;
+	u32 cmd_msgid = CMD_MSGID_LEN;
 	u32 cmd_enable = 0;
 	u32 cmd_complete = 0;
 	struct tcs_cmd *cmd;
 	int i, j;
+
+	if (!msg->is_read)
+		cmd_msgid |= CMD_MSGID_WRITE;
 
 	if (msg->wait_for_compl)
 		cmd_msgid |= CMD_MSGID_RESP_REQ;
@@ -302,7 +305,8 @@ static void __tcs_buffer_write(struct rsc_drv *drv, int tcs_id, int cmd_id,
 
 		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_MSGID], tcs_id, j, msgid);
 		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_ADDR], tcs_id, j, cmd->addr);
-		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_DATA], tcs_id, j, cmd->data);
+		if (!msg->is_read)
+			write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_DATA], tcs_id, j, cmd->data);
 		debug("tcs(%d): [%s] cmd_id: %d: msgid: %#x addr: %#x data: %#x complete: %#x\n",
 		      tcs_id, msg->state == RPMH_ACTIVE_ONLY_STATE ? "active" : "?", j, msgid,
 		      cmd->addr, cmd->data, cmd_complete);
@@ -416,6 +420,12 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 		if (val & CMD_STATUS_COMPL)
 			break;
 		udelay(1);
+	}
+
+	/* U-Boot: read the response now we know it's available */
+	if (msg->is_read) {
+		msg->cmds[0].data = read_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_RESP_DATA], tcs_id, 0);
+		log_debug("data response: %#x\n", msg->cmds[0].data);
 	}
 
 	__tcs_set_trigger(drv, tcs_id, false);
