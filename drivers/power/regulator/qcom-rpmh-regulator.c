@@ -369,9 +369,11 @@ static int rpmh_regulator_vrm_set_mode_bypass(struct rpmh_vreg *vreg,
 	}
 
 	if (bypassed)
-		cmd.data = PMIC4_BOB_MODE_PASS;
+		// XXX: should have a version check for PMIC4 but we don't have any yet
+		// and we don't use bypass mode
+		cmd.data = PMIC5_BOB_MODE_PASS;
 	else
-		cmd.data = pmic_mode->id;
+		cmd.data = pmic_mode->register_value;
 
 	return rpmh_regulator_send_request(vreg, &cmd, true);
 }
@@ -399,15 +401,23 @@ static int rpmh_regulator_vrm_get_pmic_mode(struct rpmh_vreg *vreg, int *pmic_mo
 	struct tcs_cmd cmd = {
 		.addr = vreg->addr + RPMH_REGULATOR_REG_VRM_MODE,
 	};
-	int ret;
+	struct dm_regulator_mode *pmic_mode_map = vreg->hw_data->pmic_mode_map;
+	int ret, register_value;
 
 	ret = rpmh_regulator_read_data(vreg, &cmd);
 	if (!ret)
-		*pmic_mode = cmd.data & RPMH_REGULATOR_MODE_MASK;
+		register_value = cmd.data & RPMH_REGULATOR_MODE_MASK;
 	else
 		return -EINVAL;
 
-	return 0;
+	for (int i = 0; i < vreg->hw_data->n_modes; i++) {
+		if (pmic_mode_map[i].register_value == register_value) {
+			*pmic_mode = pmic_mode_map[i].id;
+			return 0;
+		}
+	}
+
+	return -EINVAL;
 }
 
 static int rpmh_regulator_vrm_get_mode(struct udevice *rdev)
