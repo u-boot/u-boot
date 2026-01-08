@@ -49,6 +49,24 @@
 	status = "okay";
 };
 
+&pcie0_clkref {
+	clock-frequency = <100000000>;
+	status = "okay";
+};
+
+&pciec0 {
+	clocks = <&cpg CPG_MOD 624>, <&pcie0_clkref>;
+};
+
+&pcie1_clkref {
+	clock-frequency = <100000000>;
+	status = "okay";
+};
+
+&pciec1 {
+	clocks = <&cpg CPG_MOD 625>, <&pcie1_clkref>;
+};
+
 &rpc {
 	flash@0 {
 		/*
