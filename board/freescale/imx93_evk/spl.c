@@ -133,8 +133,6 @@ void board_init_f(ulong dummy)
 
 	arch_cpu_init();
 
-	board_early_init_f();
-
 	spl_early_init();
 
 	preloader_console_init();
