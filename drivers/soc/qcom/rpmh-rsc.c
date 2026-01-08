@@ -400,6 +400,13 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 		udelay(1);
 	}
 
+	__tcs_set_trigger(drv, tcs_id, false);
+
+	/* Reclaim the TCS */
+	write_tcs_reg(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id, 0);
+	writel_relaxed(BIT(tcs_id), drv->tcs_base + drv->regs[RSC_DRV_IRQ_CLEAR]);
+	generic_clear_bit(tcs_id, drv->tcs_in_use);
+
 	if (i == USEC_PER_SEC) {
 		log_err("%s: error writing %#x to %d:%#x\n", drv->name,
 			msg->cmds[0].addr, tcs_id, drv->regs[RSC_DRV_CMD_ADDR]);
