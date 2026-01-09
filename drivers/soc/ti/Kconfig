@@ -8,6 +8,7 @@ if SOC_TI
 config TI_K3_NAVSS_RINGACC
 	bool "K3 Ring accelerator Sub System"
 	depends on ARCH_K3
+	select DEVRES
 	select MISC
 	help
 	  Say y here to support the K3 AM65x Ring accelerator module.

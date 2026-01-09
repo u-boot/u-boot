@@ -1,6 +1,7 @@
 menuconfig I3C
 	tristate "I3C support"
 	select I2C
+	select DEVRES
 	help
 	  I3C is a serial protocol standardized by the MIPI alliance.
 

@@ -197,6 +197,7 @@ config DM_DMA
 config REGMAP
 	bool "Support register maps"
 	depends on DM
+	select DEVRES
 	help
 	  Hardware peripherals tend to have one or more sets of registers
 	  which can be accessed to control the hardware. A register map
@@ -271,16 +272,17 @@ config VPL_SYSCON
 	  assigning a unique number to each.
 
 config DEVRES
-	bool "Managed device resources"
+	bool
 	depends on DM
 	help
 	  This option enables the Managed device resources core support.
 	  Device resources managed by the devres framework are automatically
 	  released whether initialization fails half-way or the device gets
-	  detached.
+	  detached. This is most often used via devm_kmalloc and family and
+	  is expected to work in a manner analogous to the Linux Kernel.
 
-	  If this option is disabled, devres functions fall back to
-	  non-managed variants.  For example, devres_alloc() to kzalloc(),
+	  This option is disabled in xPL phases and devres functions fall back
+	  to non-managed variants. For example, devres_alloc() to kzalloc(),
 	  devm_kmalloc() to kmalloc(), etc.
 
 config DEBUG_DEVRES

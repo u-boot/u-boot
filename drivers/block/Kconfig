@@ -265,6 +265,7 @@ config SYS_64BIT_LBA
 
 config RKMTD
 	bool "Rockchip rkmtd virtual block device"
+	select DEVRES
 	select RANDOM_UUID
 	help
 	  Enable "rkmtd" class and driver to create a virtual block device

@@ -4,6 +4,7 @@ menu "PHY Subsystem"
 config PHY
 	bool "PHY Core"
 	depends on DM
+	select DEVRES
 	help
 	  PHY support.
 

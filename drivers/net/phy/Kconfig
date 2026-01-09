@@ -182,6 +182,7 @@ config PHY_MARVELL
 
 config PHY_MARVELL_10G
 	bool "Marvell Alaska 10Gbit PHYs"
+	select DEVRES
 	help
 	  Support for the Marvell Alaska MV88X3310 and compatible PHYs.
 
@@ -245,6 +246,7 @@ config PHY_NATSEMI
 
 config PHY_NXP_C45_TJA11XX
 	tristate "NXP C45 TJA11XX PHYs"
+	select DEVRES
 	help
 	  Enable support for NXP C45 TJA11XX PHYs.
 	  Currently supports only the TJA1103 PHY.

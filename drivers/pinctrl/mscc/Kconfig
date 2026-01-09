@@ -2,6 +2,7 @@
 
 config PINCTRL_MSCC
 	bool
+	select DEVRES
 
 config PINCTRL_MSCC_OCELOT
 	depends on SOC_OCELOT && PINCTRL_FULL && OF_CONTROL

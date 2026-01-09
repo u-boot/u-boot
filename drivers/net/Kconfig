@@ -125,6 +125,7 @@ config AIROHA_ETH
 	bool "Airoha Ethernet QDMA Driver"
 	depends on ARCH_AIROHA
 	select PHYLIB
+	select DEVRES
 	select DM_RESET
 	select MDIO_MT7531
 	help
@@ -359,6 +360,7 @@ config ETH_SANDBOX_RAW
 
 config ETH_DESIGNWARE
 	bool "Synopsys Designware Ethernet MAC"
+	select DEVRES
 	select PHYLIB
 	imply ETH_DESIGNWARE_SOCFPGA if ARCH_SOCFPGA
 	help
@@ -555,6 +557,7 @@ config MVNETA
 config MVPP2
 	bool "Marvell Armada 375/7K/8K network interface support"
 	depends on ARMADA_375 || ARMADA_8K
+	select DEVRES
 	select PHYLIB
 	select MVMDIO
 	select DM_MDIO

@@ -9,6 +9,7 @@ menu "Reboot Mode Support"
 config DM_REBOOT_MODE
 	bool "Enable reboot mode using Driver Model"
 	depends on DM
+	select DEVRES
 	help
 		Enable support for reboot mode control. This will allow users to
 		adjust the boot process based on reboot mode parameter

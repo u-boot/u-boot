@@ -834,6 +834,7 @@ config BACKLIGHT_LM3533
 config BACKLIGHT_LP855x
 	bool "Backlight Driver for LP855x"
 	depends on BACKLIGHT
+	select DEVRES
 	select DM_I2C
 	help
 	  Say Y to enable the backlight driver for National Semiconductor / TI

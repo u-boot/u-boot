@@ -367,6 +367,7 @@ config USB_OHCI_GENERIC
 config USB_OHCI_DA8XX
 	bool "Support for da850 OHCI USB controller"
 	depends on ARCH_DAVINCI
+	select DEVRES
 	help
 	  Enable support for the da850 USB controller.
 

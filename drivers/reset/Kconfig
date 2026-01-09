@@ -3,6 +3,7 @@ menu "Reset Controller Support"
 config DM_RESET
 	bool "Enable reset controllers using Driver Model"
 	depends on DM && OF_CONTROL
+	select DEVRES
 	help
 	  Enable support for the reset controller driver class. Many hardware
 	  modules are equipped with a reset signal, typically driven by some
