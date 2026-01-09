@@ -1617,6 +1617,7 @@ zfs_nvlist_lookup_nvlist(char *nvlist, char *name)
 	char *ret;
 	size_t size;
 	int found;
+	size_t alloc;
 
 	found = nvlist_find_value(nvlist, name, DATA_TYPE_NVLIST, &nvpair,
 							  &size, 0);
@@ -1627,7 +1628,10 @@ zfs_nvlist_lookup_nvlist(char *nvlist, char *name)
 	 * nvlist to hold the encoding method, and two zero uint32's after the
 	 * nvlist as the NULL terminator.
 	 */
-	ret = calloc(1, size + 3 * sizeof(uint32_t));
+	if (__builtin_add_overflow(size, 3 * sizeof(uint32_t), &alloc))
+		return 0;
+
+	ret = calloc(1, alloc);
 	if (!ret)
 		return 0;
 	memcpy(ret, nvlist, sizeof(uint32_t));
