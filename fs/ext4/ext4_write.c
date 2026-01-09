@@ -108,7 +108,13 @@ int ext4fs_get_bgdtable(void)
 {
 	int status;
 	struct ext_filesystem *fs = get_fs();
-	int gdsize_total = ROUND(fs->no_blkgrp * fs->gdsize, fs->blksz);
+	size_t alloc;
+	size_t gdsize_total;
+
+	if (__builtin_mul_overflow(fs->no_blkgrp, fs->gdsize, &alloc))
+		return -1;
+
+	gdsize_total = ROUND(alloc, fs->blksz);
 	fs->no_blk_pergdt = gdsize_total / fs->blksz;
 
 	/* allocate memory for gdtable */
