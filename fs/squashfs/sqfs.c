@@ -255,10 +255,14 @@ static char *sqfs_concat_tokens(char **token_list, int token_count)
 {
 	char *result;
 	int i, length = 0, offset = 0;
+	size_t alloc;
 
 	length = sqfs_get_tokens_length(token_list, token_count);
 
-	result = malloc(length + 1);
+	if (__builtin_add_overflow(length, 1, &alloc))
+		return 0;
+
+	result = malloc(alloc);
 	if (!result)
 		return NULL;
 
