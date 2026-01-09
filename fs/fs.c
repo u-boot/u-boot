@@ -1059,15 +1059,25 @@ int do_mv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	 */
 	if (dirs) {
 		char *src_name = strrchr(src, '/');
-		int dst_len;
 
 		if (src_name)
 			src_name += 1;
 		else
 			src_name = src;
 
-		dst_len = strlen(dst);
-		new_dst = calloc(1, dst_len + strlen(src_name) + 2);
+		size_t dst_len = strlen(dst);
+		size_t src_len = strlen(src_name);
+		size_t total;
+
+		if (__builtin_add_overflow(dst_len, src_len, &total) ||
+		    __builtin_add_overflow(total, 2, &total)) {
+			return 0;
+		}
+
+		new_dst = calloc(1, total);
+		if (!new_dst)
+			return 0;
+
 		strcpy(new_dst, dst);
 
 		/* If there is already a trailing slash, don't add another */
