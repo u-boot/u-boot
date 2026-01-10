@@ -520,3 +520,18 @@ config DM_REGULATOR_CPCAP
 	REGULATOR CPCAP. The driver supports both DC-to-DC Step-Down Switching
 	(SW) Regulators and Low-Dropout Linear (LDO) Regulators	found in CPCAP
 	PMIC and implements get/set api for voltage and state.
+
+config DM_REGULATOR_SPACEMIT_P1
+	bool "Enable driver for Spacemit P1 PMIC regulators"
+	depends on DM_REGULATOR && PMIC_SPACEMIT_P1
+	help
+	  Enable implementation of driver-model regulator uclass features
+	  for regulator P1. The driver supports BUCKs, LDOs and SWITCHes.
+
+config SPL_DM_REGULATOR_SPACEMIT_P1
+	bool "Enable driver for Spacemit P1 PMIC regulators in SPL"
+	depends on SPL_DM_REGULATOR && SPL_PMIC_SPACEMIT_P1
+	help
+	  Enable implementation of driver-model regulator uclass features
+	  for regulator P1 in SPL. The driver supports BUCKs, LDOs and
+	  SWITCHes.
