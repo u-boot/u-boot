@@ -155,7 +155,8 @@ enum {
 };
 
 #define P1_BUCK_DRIVER			"p1_buck"
-#define P1_LDO_DRIVER			"p1_ldo"
+#define P1_ALDO_DRIVER			"p1_aldo"
+#define P1_DLDO_DRIVER			"p1_dldo"
 #define P1_SWITCH_DRIVER		"p1_switch"
 #define P1_WDT_DRIVER			"p1_wdt"
 

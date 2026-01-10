@@ -38,8 +38,8 @@ static int pmic_p1_read(struct udevice *dev, uint reg, u8 *buffer,
 
 static const struct pmic_child_info p1_children_info[] = {
 	{ .prefix = "buck",		.driver = P1_BUCK_DRIVER },
-	{ .prefix = "aldo",		.driver = P1_LDO_DRIVER },
-	{ .prefix = "dldo",		.driver = P1_LDO_DRIVER },
+	{ .prefix = "aldo",		.driver = P1_ALDO_DRIVER },
+	{ .prefix = "dldo",		.driver = P1_DLDO_DRIVER },
 	{ },
 };
 
@@ -91,5 +91,4 @@ U_BOOT_DRIVER(pmic_p1) = {
 	.bind		= pmic_p1_bind,
 	.probe		= pmic_p1_probe,
 	.ops		= &pmic_p1_ops,
-	//.priv_auto	= sizeof(struct p1_pdata),
 };
