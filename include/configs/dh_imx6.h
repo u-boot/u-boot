@@ -54,6 +54,7 @@
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
+	func(USB, usb, 0) \
 	func(USB, usb, 1) \
 	func(SATA, sata, 0) \
 	func(DHCP, dhcp, na)
