@@ -20,8 +20,10 @@
 #if CONFIG_IS_ENABLED(DM_SERIAL)
 #include <dm/platform_data/atmel_serial.h>
 #endif
+#if IS_ENABLED(CONFIG_ARCH_AT91)
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
+#endif
 
 #include "atmel_usart.h"
 
