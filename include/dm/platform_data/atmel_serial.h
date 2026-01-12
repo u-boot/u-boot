@@ -8,7 +8,7 @@
 
 /* Information about a serial port */
 struct atmel_serial_plat {
-	uint32_t base_addr;
+	uintptr_t base_addr;
 };
 
 #endif
