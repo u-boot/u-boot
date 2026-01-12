@@ -35,9 +35,13 @@ SECTIONS
 	. = ALIGN(4);
 	__u_boot_list : {
 		KEEP(*(SORT(__u_boot_list*)));
+		/*
+		 * Ensure 8-byte alignment at the end of the last section before
+		 * DTB is appended, to satisfy DT spec alignment requirements
+		 */
+		. = ALIGN(8);
 	} >.sram
 
-	. = ALIGN(4);
 	__image_copy_end = .;
 	_end = .;
 	_image_binary_end = .;
