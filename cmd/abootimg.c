@@ -92,26 +92,18 @@ static int abootimg_get_recovery_dtbo(int argc, char *const argv[])
 
 static int abootimg_get_dtb_load_addr(int argc, char *const argv[])
 {
+	struct andr_image_data img_data = {0};
+	const void *vendor_boot_hdr = NULL;
+
 	if (argc > 1)
 		return CMD_RET_USAGE;
-	struct andr_image_data img_data = {0};
-	const struct andr_boot_img_hdr_v0 *hdr;
-	const struct andr_vnd_boot_img_hdr *vhdr = NULL;
 
-	hdr = map_sysmem(abootimg_addr(), sizeof(*hdr));
 	if (get_avendor_bootimg_addr() != -1)
-		vhdr = map_sysmem(get_avendor_bootimg_addr(), sizeof(*vhdr));
+		vendor_boot_hdr = (const void *)get_avendor_bootimg_addr();
 
-	if (!android_image_get_data(hdr, vhdr, &img_data)) {
-		if (get_avendor_bootimg_addr() != -1)
-			unmap_sysmem(vhdr);
-		unmap_sysmem(hdr);
+	if (!android_image_get_data((const void *)abootimg_addr(),
+				    vendor_boot_hdr, &img_data))
 		return CMD_RET_FAILURE;
-	}
-
-	if (get_avendor_bootimg_addr() != -1)
-		unmap_sysmem(vhdr);
-	unmap_sysmem(hdr);
 
 	if (img_data.header_version < 2) {
 		printf("Error: header_version must be >= 2 for this\n");
