@@ -46,6 +46,7 @@ static const struct mtk_fixed_clk apmixedsys_mtk_plls[] = {
 static const struct mtk_clk_tree mt7987_fixed_pll_clk_tree = {
 	.fdivs_offs = ARRAY_SIZE(apmixedsys_mtk_plls),
 	.fclks = apmixedsys_mtk_plls,
+	.num_fclks = ARRAY_SIZE(apmixedsys_mtk_plls),
 	.flags = CLK_PARENT_APMIXED,
 	.xtal_rate = 40 * MHZ,
 };
@@ -442,6 +443,8 @@ static const struct mtk_clk_tree mt7987_topckgen_clk_tree = {
 	.muxes_offs = CLK_TOP_NETSYS_SEL,
 	.fdivs = topckgen_mtk_fixed_factors,
 	.muxes = topckgen_mtk_muxes,
+	.num_fdivs = ARRAY_SIZE(topckgen_mtk_fixed_factors),
+	.num_muxes = ARRAY_SIZE(topckgen_mtk_muxes),
 	.flags = CLK_BYPASS_XTAL | CLK_PARENT_TOPCKGEN,
 	.xtal_rate = MT7987_XTAL_RATE,
 };
@@ -765,6 +768,8 @@ static const struct mtk_clk_tree mt7987_infracfg_clk_tree = {
 	.gates_offs = CLK_INFRA_66M_GPT_BCK,
 	.muxes = infracfg_mtk_mux,
 	.gates = infracfg_mtk_gates,
+	.num_muxes = ARRAY_SIZE(infracfg_mtk_mux),
+	.num_gates = ARRAY_SIZE(infracfg_mtk_gates),
 	.flags = CLK_BYPASS_XTAL,
 	.xtal_rate = MT7987_XTAL_RATE,
 };
@@ -813,8 +818,8 @@ static const struct mtk_gate eth_cgs[] = {
 
 static int mt7987_ethsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7987_topckgen_clk_tree,
-					eth_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7987_topckgen_clk_tree, eth_cgs,
+					ARRAY_SIZE(eth_cgs));
 }
 
 static int mt7987_ethsys_bind(struct udevice *dev)

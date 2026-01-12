@@ -85,6 +85,7 @@ static const struct mtk_clk_tree mt8188_apmixedsys_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
 	.plls = apmixed_plls,
+	.num_plls = ARRAY_SIZE(apmixed_plls),
 };
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
@@ -1359,11 +1360,15 @@ static const struct mtk_clk_tree mt8188_topckgen_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.xtal2_rate = 26 * MHZ,
 	.id_offs_map = mt8188_id_offs_map,
+	.id_offs_map_size = ARRAY_SIZE(mt8188_id_offs_map),
 	.fdivs_offs = 8, /* CLK_TOP_MAINPLL_D3 */
 	.muxes_offs = 87, /* CLK_TOP_AXI */
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
+	.num_fclks = ARRAY_SIZE(top_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(top_fixed_divs),
+	.num_muxes = ARRAY_SIZE(top_muxes),
 };
 
 static const struct mtk_gate_regs infra_ao0_cg_regs = {
@@ -1690,33 +1695,44 @@ static int mt8188_topckgen_probe(struct udevice *dev)
 
 static int mt8188_topckgen_cg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8188_topckgen_cg_clk_tree, topckgen_cg_clks);
+	return mtk_common_clk_gate_init(dev, &mt8188_topckgen_cg_clk_tree,
+					topckgen_cg_clks,
+					ARRAY_SIZE(topckgen_cg_clks));
 }
 
 static int mt8188_infracfg_ao_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8188_infracfg_ao_clk_tree, infracfg_ao_clks);
+	return mtk_common_clk_gate_init(dev, &mt8188_infracfg_ao_clk_tree,
+					infracfg_ao_clks,
+					ARRAY_SIZE(infracfg_ao_clks));
 }
 
 static int mt8188_pericfg_ao_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8188_pericfg_ao_clk_tree, pericfg_ao_clks);
+	return mtk_common_clk_gate_init(dev, &mt8188_pericfg_ao_clk_tree,
+					pericfg_ao_clks,
+					ARRAY_SIZE(pericfg_ao_clks));
 }
 
 static int mt8188_imp_iic_wrap_c_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_c_clk_tree, imp_iic_wrap_c_clks);
+	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_c_clk_tree,
+					imp_iic_wrap_c_clks,
+					ARRAY_SIZE(imp_iic_wrap_c_clks));
 }
 
 static int mt8188_imp_iic_wrap_w_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_w_clk_tree, imp_iic_wrap_w_clks);
+	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_w_clk_tree,
+					imp_iic_wrap_w_clks,
+					ARRAY_SIZE(imp_iic_wrap_w_clks));
 }
 
 static int mt8188_imp_iic_wrap_en_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_en_clk_tree,
-					imp_iic_wrap_en_clks);
+					imp_iic_wrap_en_clks,
+					ARRAY_SIZE(imp_iic_wrap_en_clks));
 }
 
 static const struct udevice_id mt8188_apmixed_compat[] = {

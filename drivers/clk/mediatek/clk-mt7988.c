@@ -773,6 +773,7 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 static const struct mtk_clk_tree mt7988_fixed_pll_clk_tree = {
 	.fdivs_offs = ARRAY_SIZE(apmixedsys_mtk_plls),
 	.fclks = apmixedsys_mtk_plls,
+	.num_fclks = ARRAY_SIZE(apmixedsys_mtk_plls),
 	.flags = CLK_PARENT_APMIXED,
 	.xtal_rate = 40 * MHZ,
 };
@@ -783,6 +784,9 @@ static const struct mtk_clk_tree mt7988_topckgen_clk_tree = {
 	.fclks = topckgen_mtk_fixed_clks,
 	.fdivs = topckgen_mtk_fixed_factors,
 	.muxes = topckgen_mtk_muxes,
+	.num_fclks = ARRAY_SIZE(topckgen_mtk_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(topckgen_mtk_fixed_factors),
+	.num_muxes = ARRAY_SIZE(topckgen_mtk_muxes),
 	.flags = CLK_BYPASS_XTAL | CLK_PARENT_TOPCKGEN,
 	.xtal_rate = 40 * MHZ,
 };
@@ -792,6 +796,8 @@ static const struct mtk_clk_tree mt7988_infracfg_clk_tree = {
 	.gates_offs = CLK_INFRA_PCIE_PERI_26M_CK_P0,
 	.muxes = infracfg_mtk_mux,
 	.gates = infracfg_mtk_gates,
+	.num_muxes = ARRAY_SIZE(infracfg_mtk_mux),
+	.num_gates = ARRAY_SIZE(infracfg_mtk_gates),
 	.flags = CLK_BYPASS_XTAL,
 	.xtal_rate = 40 * MHZ,
 };
@@ -886,7 +892,8 @@ static const struct mtk_gate ethdma_mtk_gate[] = {
 static int mt7988_ethdma_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
-					ethdma_mtk_gate);
+					ethdma_mtk_gate,
+					ARRAY_SIZE(ethdma_mtk_gate));
 }
 
 static int mt7988_ethdma_bind(struct udevice *dev)
@@ -944,7 +951,8 @@ static const struct mtk_gate sgmiisys_0_mtk_gate[] = {
 static int mt7988_sgmiisys_0_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
-					sgmiisys_0_mtk_gate);
+					sgmiisys_0_mtk_gate,
+					ARRAY_SIZE(sgmiisys_0_mtk_gate));
 }
 
 static const struct udevice_id mt7988_sgmiisys_0_compat[] = {
@@ -988,7 +996,8 @@ static const struct mtk_gate sgmiisys_1_mtk_gate[] = {
 static int mt7988_sgmiisys_1_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
-					sgmiisys_1_mtk_gate);
+					sgmiisys_1_mtk_gate,
+					ARRAY_SIZE(sgmiisys_1_mtk_gate));
 }
 
 static const struct udevice_id mt7988_sgmiisys_1_compat[] = {
@@ -1034,7 +1043,8 @@ static const struct mtk_gate ethwarp_mtk_gate[] = {
 static int mt7988_ethwarp_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
-					ethwarp_mtk_gate);
+					ethwarp_mtk_gate,
+					ARRAY_SIZE(ethwarp_mtk_gate));
 }
 
 static int mt7988_ethwarp_bind(struct udevice *dev)

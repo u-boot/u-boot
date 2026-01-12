@@ -490,6 +490,10 @@ static const struct mtk_clk_tree mt8365_clk_tree = {
 	.fclks = top_fixed_clks,
 	.fdivs = top_divs,
 	.muxes = top_muxes,
+	.num_plls = ARRAY_SIZE(apmixed_plls),
+	.num_fclks = ARRAY_SIZE(top_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(top_divs),
+	.num_muxes = ARRAY_SIZE(top_muxes),
 };
 
 /* topckgen cg */
@@ -701,12 +705,14 @@ static int mt8365_topckgen_probe(struct udevice *dev)
 
 static int mt8365_topckgen_cg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, top_clk_gates);
+	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, top_clk_gates,
+					ARRAY_SIZE(top_clk_gates));
 }
 
 static int mt8365_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, ifr_clks);
+	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, ifr_clks,
+					ARRAY_SIZE(ifr_clks));
 }
 
 static const struct udevice_id mt8365_apmixed_compat[] = {

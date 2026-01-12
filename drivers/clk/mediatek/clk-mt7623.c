@@ -26,6 +26,7 @@
 
 /* apmixedsys */
 static const int pll_id_offs_map[] = {
+	[0 ... CLK_APMIXED_NR - 1]		= -1,
 	[CLK_APMIXED_ARMPLL]			= 0,
 	[CLK_APMIXED_MAINPLL]			= 1,
 	[CLK_APMIXED_UNIVPLL]			= 2,
@@ -92,6 +93,7 @@ static const struct mtk_pll_data apmixed_plls[] = {
 #define CLK_TOP_HDMITX_CLKDIG_CTS		CLK_TOP_NR
 
 static const int top_id_offs_map[CLK_TOP_NR + 1] = {
+	[0 ... CLK_TOP_NR]			= -1,
 	/* Fixed CLK */
 	[CLK_TOP_DPI]				= 0,
 	[CLK_TOP_DMPLL]				= 1,
@@ -808,6 +810,7 @@ static const struct mtk_gate infra_cgs[] = {
 
 /* pericfg */
 static const int peri_id_offs_map[] = {
+	[0 ... CLK_PERI_NR - 1]			= -1,
 	/* MUX CLK */
 	[CLK_PERI_UART0_SEL]			= 1,
 	[CLK_PERI_UART1_SEL]			= 2,
@@ -996,17 +999,23 @@ static const struct mtk_gate hif_cgs[] = {
 static const struct mtk_clk_tree mt7623_apmixedsys_clk_tree = {
 	.xtal2_rate = 26 * MHZ,
 	.id_offs_map = pll_id_offs_map,
+	.id_offs_map_size = ARRAY_SIZE(pll_id_offs_map),
 	.plls = apmixed_plls,
+	.num_plls = ARRAY_SIZE(apmixed_plls),
 };
 
 static const struct mtk_clk_tree mt7623_topckgen_clk_tree = {
 	.xtal_rate = 26 * MHZ,
 	.id_offs_map = top_id_offs_map,
+	.id_offs_map_size = ARRAY_SIZE(top_id_offs_map),
 	.fdivs_offs = top_id_offs_map[CLK_TOP_SYSPLL],
 	.muxes_offs = top_id_offs_map[CLK_TOP_AXI_SEL],
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
+	.num_fclks = ARRAY_SIZE(top_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(top_fixed_divs),
+	.num_muxes = ARRAY_SIZE(top_muxes),
 };
 
 static int mt7623_mcucfg_probe(struct udevice *dev)
@@ -1053,16 +1062,19 @@ static const struct mtk_clk_tree mt7623_clk_gate_tree = {
 
 static int mt7623_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
-					infra_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, infra_cgs,
+					ARRAY_SIZE(infra_cgs));
 }
 
 static const struct mtk_clk_tree mt7623_clk_peri_tree = {
 	.id_offs_map = peri_id_offs_map,
+	.id_offs_map_size = ARRAY_SIZE(peri_id_offs_map),
 	.muxes_offs = peri_id_offs_map[CLK_PERI_UART0_SEL],
 	.gates_offs = peri_id_offs_map[CLK_PERI_NFI],
 	.muxes = peri_muxes,
 	.gates = peri_cgs,
+	.num_muxes = ARRAY_SIZE(peri_muxes),
+	.num_gates = ARRAY_SIZE(peri_cgs),
 	.xtal_rate = 26 * MHZ,
 };
 
@@ -1073,14 +1085,14 @@ static int mt7623_pericfg_probe(struct udevice *dev)
 
 static int mt7623_hifsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
-					hif_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, hif_cgs,
+					ARRAY_SIZE(hif_cgs));
 }
 
 static int mt7623_ethsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
-					eth_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, eth_cgs,
+					ARRAY_SIZE(eth_cgs));
 }
 
 static int mt7623_ethsys_hifsys_bind(struct udevice *dev)
