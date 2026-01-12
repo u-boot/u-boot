@@ -19,7 +19,74 @@
 #include <spl_load.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <dm/ofnode.h>
+#include <dm/uclass.h>
+#include <mtd.h>
+
+#if IS_ENABLED(CONFIG_MTD_SPI_NAND)
+static struct mtd_info *spl_spi_nand_get_mtd(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	for (ret = uclass_first_device_err(UCLASS_MTD, &dev);
+	     dev;
+	     ret = uclass_next_device_err(&dev)) {
+		if (ret)
+			continue;
+		if (device_is_compatible(dev, "spi-nand"))
+			return dev_get_uclass_priv(dev);
+	}
+
+	return NULL;
+}
+
+static ulong spl_spinand_fit_read(struct spl_load_info *load, ulong offs,
+				  ulong size, void *buf)
+{
+	struct mtd_info *mtd = load->priv;
+	size_t retlen = 0;
+	int ret;
+
+	ret = mtd_read(mtd, offs, size, &retlen, buf);
+	if (ret && ret != -EUCLEAN) {
+		printf("SPI NAND read failed offs=0x%lx size=0x%lx ret=%d\n",
+		       offs, size, ret);
+		return 0;
+	}
+	if (retlen != size)
+		return 0;
+
+	return retlen;
+}
+
+static int spl_spinand_load_image(struct spl_image_info *spl_image,
+				  struct spl_boot_device *bootdev)
+{
+	unsigned int payload_offs;
+	struct spl_load_info load;
+	struct mtd_info *mtd;
+	int ret;
+
+	mtd = spl_spi_nand_get_mtd();
+	if (!mtd) {
+		puts("SPI NAND probe failed.\n");
+		return -ENODEV;
+	}
+
+	spl_load_init(&load, spl_spinand_fit_read, mtd, 1);
+
+	payload_offs = CONFIG_SYS_SPI_U_BOOT_OFFS;
+	if (CONFIG_IS_ENABLED(OF_REAL)) {
+		payload_offs = ofnode_conf_read_int("u-boot,spl-payload-offset",
+						    payload_offs);
+	}
+
+	ret = spl_load(spl_image, bootdev, &load, 0, payload_offs);
+	return ret;
+}
+#endif
 
 static ulong spl_spi_fit_read(struct spl_load_info *load, ulong sector,
 			      ulong count, void *buf)
@@ -93,6 +160,11 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	 * In DM mode: defaults speed and mode will be
 	 * taken from DT when available
 	 */
+#if IS_ENABLED(CONFIG_MTD_SPI_NAND)
+	err = spl_spinand_load_image(spl_image, bootdev);
+	if (!err)
+		return 0;
+#endif
 	flash = spi_flash_probe(sf_bus, sf_cs,
 				CONFIG_SF_DEFAULT_SPEED,
 				CONFIG_SF_DEFAULT_MODE);
