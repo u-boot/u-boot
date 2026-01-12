@@ -259,6 +259,9 @@ static const int top_id_offs_map[CLK_TOP_NR + 1] = {
 	[CLK_TOP_AUD_I2S6_MCLK]			= 158,
 };
 
+#define FIXED_CLK0(_id, _rate)					\
+	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+
 #define FACTOR0(_id, _parent, _mult, _div)			\
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
 
@@ -269,21 +272,21 @@ static const int top_id_offs_map[CLK_TOP_NR + 1] = {
 	FACTOR(_id, _parent, _mult, _div, 0)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
-	FIXED_CLK(CLK_TOP_DPI, CLK_XTAL, 108 * MHZ),
-	FIXED_CLK(CLK_TOP_DMPLL, CLK_XTAL, 400 * MHZ),
-	FIXED_CLK(CLK_TOP_VENCPLL, CLK_XTAL, 295.75 * MHZ),
-	FIXED_CLK(CLK_TOP_HDMI_0_PIX340M, CLK_XTAL, 340 * MHZ),
-	FIXED_CLK(CLK_TOP_HDMI_0_DEEP340M, CLK_XTAL, 340 * MHZ),
-	FIXED_CLK(CLK_TOP_HDMI_0_PLL340M, CLK_XTAL, 340 * MHZ),
-	FIXED_CLK(CLK_TOP_HADDS2_FB, CLK_XTAL, 27 * MHZ),
-	FIXED_CLK(CLK_TOP_WBG_DIG_416M, CLK_XTAL, 416 * MHZ),
-	FIXED_CLK(CLK_TOP_DSI0_LNTC_DSI, CLK_XTAL, 143 * MHZ),
-	FIXED_CLK(CLK_TOP_HDMI_SCL_RX, CLK_XTAL, 27 * MHZ),
-	FIXED_CLK(CLK_TOP_32K_EXTERNAL, CLK_XTAL, 32000),
-	FIXED_CLK(CLK_TOP_HDMITX_CLKDIG_CTS, CLK_XTAL, 300 * MHZ),
-	FIXED_CLK(CLK_TOP_AUD_EXT1, CLK_XTAL, 0),
-	FIXED_CLK(CLK_TOP_AUD_EXT2, CLK_XTAL, 0),
-	FIXED_CLK(CLK_TOP_NFI1X_PAD, CLK_XTAL, 0),
+	FIXED_CLK0(CLK_TOP_DPI, 108 * MHZ),
+	FIXED_CLK0(CLK_TOP_DMPLL, 400 * MHZ),
+	FIXED_CLK0(CLK_TOP_VENCPLL, 295.75 * MHZ),
+	FIXED_CLK0(CLK_TOP_HDMI_0_PIX340M, 340 * MHZ),
+	FIXED_CLK0(CLK_TOP_HDMI_0_DEEP340M, 340 * MHZ),
+	FIXED_CLK0(CLK_TOP_HDMI_0_PLL340M, 340 * MHZ),
+	FIXED_CLK0(CLK_TOP_HADDS2_FB, 27 * MHZ),
+	FIXED_CLK0(CLK_TOP_WBG_DIG_416M, 416 * MHZ),
+	FIXED_CLK0(CLK_TOP_DSI0_LNTC_DSI, 143 * MHZ),
+	FIXED_CLK0(CLK_TOP_HDMI_SCL_RX, 27 * MHZ),
+	FIXED_CLK0(CLK_TOP_32K_EXTERNAL, 32000),
+	FIXED_CLK0(CLK_TOP_HDMITX_CLKDIG_CTS, 300 * MHZ),
+	FIXED_CLK0(CLK_TOP_AUD_EXT1, 0),
+	FIXED_CLK0(CLK_TOP_AUD_EXT2, 0),
+	FIXED_CLK0(CLK_TOP_NFI1X_PAD, 0),
 };
 
 static const struct mtk_fixed_factor top_fixed_divs[] = {
@@ -1055,15 +1058,13 @@ static int mt7623_topckgen_probe(struct udevice *dev)
 }
 
 static const struct mtk_clk_tree mt7623_clk_gate_tree = {
-	/* Each CLK ID for gates clock starts at index 1 */
-	.gates_offs = 1,
 	.xtal_rate = 26 * MHZ,
 };
 
 static int mt7623_infracfg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, infra_cgs,
-					ARRAY_SIZE(infra_cgs));
+					ARRAY_SIZE(infra_cgs), 1);
 }
 
 static const struct mtk_clk_tree mt7623_clk_peri_tree = {
@@ -1086,13 +1087,13 @@ static int mt7623_pericfg_probe(struct udevice *dev)
 static int mt7623_hifsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, hif_cgs,
-					ARRAY_SIZE(hif_cgs));
+					ARRAY_SIZE(hif_cgs), 1);
 }
 
 static int mt7623_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs));
+					ARRAY_SIZE(eth_cgs), 1);
 }
 
 static int mt7623_ethsys_hifsys_bind(struct udevice *dev)

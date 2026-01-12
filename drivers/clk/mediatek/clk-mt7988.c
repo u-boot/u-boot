@@ -21,6 +21,9 @@
 #define MT7988_ETHDMA_RST_CTRL_OFS	0x34
 #define MT7988_ETHWARP_RST_CTRL_OFS	0x8
 
+#define FIXED_CLK0(_id, _rate)                                                 \
+	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+
 #define XTAL_FACTOR(_id, _name, _parent, _mult, _div)                          \
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
 
@@ -35,23 +38,23 @@
 
 /* FIXED PLLS */
 static const struct mtk_fixed_clk apmixedsys_mtk_plls[] = {
-	FIXED_CLK(CLK_APMIXED_NETSYSPLL, CLK_XTAL, 850000000),
-	FIXED_CLK(CLK_APMIXED_MPLL, CLK_XTAL, 416000000),
-	FIXED_CLK(CLK_APMIXED_MMPLL, CLK_XTAL, 720000000),
-	FIXED_CLK(CLK_APMIXED_APLL2, CLK_XTAL, 196608000),
-	FIXED_CLK(CLK_APMIXED_NET1PLL, CLK_XTAL, 2500000000),
-	FIXED_CLK(CLK_APMIXED_NET2PLL, CLK_XTAL, 800000000),
-	FIXED_CLK(CLK_APMIXED_WEDMCUPLL, CLK_XTAL, 208000000),
-	FIXED_CLK(CLK_APMIXED_SGMPLL, CLK_XTAL, 325000000),
-	FIXED_CLK(CLK_APMIXED_ARM_B, CLK_XTAL, 1500000000),
-	FIXED_CLK(CLK_APMIXED_CCIPLL2_B, CLK_XTAL, 960000000),
-	FIXED_CLK(CLK_APMIXED_USXGMIIPLL, CLK_XTAL, 644533000),
-	FIXED_CLK(CLK_APMIXED_MSDCPLL, CLK_XTAL, 400000000),
+	FIXED_CLK0(CLK_APMIXED_NETSYSPLL, 850000000),
+	FIXED_CLK0(CLK_APMIXED_MPLL, 416000000),
+	FIXED_CLK0(CLK_APMIXED_MMPLL, 720000000),
+	FIXED_CLK0(CLK_APMIXED_APLL2, 196608000),
+	FIXED_CLK0(CLK_APMIXED_NET1PLL, 2500000000),
+	FIXED_CLK0(CLK_APMIXED_NET2PLL, 800000000),
+	FIXED_CLK0(CLK_APMIXED_WEDMCUPLL, 208000000),
+	FIXED_CLK0(CLK_APMIXED_SGMPLL, 325000000),
+	FIXED_CLK0(CLK_APMIXED_ARM_B, 1500000000),
+	FIXED_CLK0(CLK_APMIXED_CCIPLL2_B, 960000000),
+	FIXED_CLK0(CLK_APMIXED_USXGMIIPLL, 644533000),
+	FIXED_CLK0(CLK_APMIXED_MSDCPLL, 400000000),
 };
 
 /* TOPCKGEN FIXED CLK */
 static const struct mtk_fixed_clk topckgen_mtk_fixed_clks[] = {
-	FIXED_CLK(CLK_TOP_XTAL, CLK_XTAL, 40000000),
+	FIXED_CLK0(CLK_TOP_XTAL, 40000000),
 };
 
 /* TOPCKGEN FIXED DIV */
@@ -893,7 +896,7 @@ static int mt7988_ethdma_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
 					ethdma_mtk_gate,
-					ARRAY_SIZE(ethdma_mtk_gate));
+					ARRAY_SIZE(ethdma_mtk_gate), 0);
 }
 
 static int mt7988_ethdma_bind(struct udevice *dev)
@@ -952,7 +955,7 @@ static int mt7988_sgmiisys_0_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
 					sgmiisys_0_mtk_gate,
-					ARRAY_SIZE(sgmiisys_0_mtk_gate));
+					ARRAY_SIZE(sgmiisys_0_mtk_gate), 0);
 }
 
 static const struct udevice_id mt7988_sgmiisys_0_compat[] = {
@@ -997,7 +1000,7 @@ static int mt7988_sgmiisys_1_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
 					sgmiisys_1_mtk_gate,
-					ARRAY_SIZE(sgmiisys_1_mtk_gate));
+					ARRAY_SIZE(sgmiisys_1_mtk_gate), 0);
 }
 
 static const struct udevice_id mt7988_sgmiisys_1_compat[] = {
@@ -1044,7 +1047,7 @@ static int mt7988_ethwarp_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
 					ethwarp_mtk_gate,
-					ARRAY_SIZE(ethwarp_mtk_gate));
+					ARRAY_SIZE(ethwarp_mtk_gate), 0);
 }
 
 static int mt7988_ethwarp_bind(struct udevice *dev)

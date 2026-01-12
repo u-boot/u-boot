@@ -582,7 +582,7 @@ static const int mtk_topckgen_of_xlate(struct clk *clk,
 	if (ret)
 		return ret;
 
-	/* topckgen only uses fclks, fdivs and muxes. */
+	/* topckgen only uses fclks, fdivs, muxes and gates. */
 
 	if (tree->fclks && clk->id < tree->num_fclks)
 		return 0;
@@ -593,6 +593,10 @@ static const int mtk_topckgen_of_xlate(struct clk *clk,
 
 	if (tree->muxes && clk->id >= tree->muxes_offs &&
 	    clk->id < tree->muxes_offs + tree->num_muxes)
+		return 0;
+
+	if (tree->gates && clk->id >= tree->gates_offs &&
+	    clk->id < tree->gates_offs + tree->num_gates)
 		return 0;
 
 	return -ENOENT;
@@ -696,6 +700,14 @@ static ulong mtk_find_parent_rate(struct mtk_clk_priv *priv, struct clk *clk,
 static ulong mtk_topckgen_get_rate(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+
+	if (tree->gates && clk->id >= tree->gates_offs &&
+	    clk->id < tree->gates_offs + tree->num_gates) {
+		const struct mtk_gate *gate = &tree->gates[clk->id - tree->gates_offs];
+
+		return mtk_clk_find_parent_rate(clk, gate->parent, NULL);
+	}
 
 	if (clk->id < priv->tree->fdivs_offs)
 		return priv->tree->fclks[clk->id].rate;
@@ -740,6 +752,21 @@ static int mtk_clk_mux_enable(struct clk *clk)
 	return 0;
 }
 
+static int mtk_topckgen_enable(struct clk *clk)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+
+	if (tree->gates && clk->id >= tree->gates_offs &&
+	    clk->id < tree->gates_offs + tree->num_gates) {
+		const struct mtk_gate *gate = &tree->gates[clk->id - tree->gates_offs];
+
+		return mtk_gate_enable(priv->base, gate);
+	}
+
+	return mtk_clk_mux_enable(clk);
+}
+
 static int mtk_clk_mux_disable(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
@@ -766,13 +793,29 @@ static int mtk_clk_mux_disable(struct clk *clk)
 	return 0;
 }
 
+static int mtk_topckgen_disable(struct clk *clk)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+
+	if (tree->gates && clk->id >= tree->gates_offs &&
+	    clk->id < tree->gates_offs + tree->num_gates) {
+		const struct mtk_gate *gate = &tree->gates[clk->id - tree->gates_offs];
+
+		return mtk_gate_disable(priv->base, gate);
+	}
+
+	return mtk_clk_mux_disable(clk);
+}
+
 static int mtk_common_clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	struct mtk_clk_priv *parent_priv = dev_get_priv(parent->dev);
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	u32 parent_type;
 
-	if (clk->id < priv->tree->muxes_offs)
+	if (!priv->tree->muxes || clk->id < priv->tree->muxes_offs ||
+	    clk->id >= priv->tree->muxes_offs + priv->tree->num_muxes)
 		return 0;
 
 	if (!parent_priv)
@@ -798,8 +841,7 @@ static void mtk_topckgen_dump(struct udevice *dev)
 		printf("[FCLK%u] DT: %u", i, fclk->id);
 		mtk_clk_print_mapped_id(fclk->id, i, tree->id_offs_map);
 		mtk_clk_print_rate(dev, i);
-		/* FIXME: fclk needs flags to fully determine parent. */
-		mtk_clk_print_single_parent(fclk->parent, 0);
+		mtk_clk_print_single_parent(fclk->parent, fclk->flags);
 		printf("\n");
 	}
 
@@ -820,6 +862,16 @@ static void mtk_topckgen_dump(struct udevice *dev)
 		mtk_clk_print_mapped_id(mux->id, i + tree->muxes_offs, tree->id_offs_map);
 		mtk_clk_print_rate(dev, i + tree->muxes_offs);
 		mtk_clk_print_mux_parents(priv, mux);
+		printf("\n");
+	}
+
+	for (i = 0; i < tree->num_gates; i++) {
+		const struct mtk_gate *gate = &tree->gates[i];
+
+		printf("[GATE%u] DT: %u", i, gate->id);
+		mtk_clk_print_mapped_id(gate->id, i + tree->gates_offs, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i + tree->gates_offs);
+		mtk_clk_print_single_parent(gate->parent, gate->flags);
 		printf("\n");
 	}
 }
@@ -1018,8 +1070,8 @@ static const int mtk_clk_gate_of_xlate(struct clk *clk,
 	if (ret)
 		return ret;
 
-	if (clk->id >= tree->gates_offs &&
-	    clk->id < tree->gates_offs + priv->num_gates)
+	if (clk->id >= priv->gates_offs &&
+	    clk->id < priv->gates_offs + priv->num_gates)
 		return 0;
 
 	return -ENOENT;
@@ -1030,10 +1082,10 @@ static int mtk_clk_gate_enable(struct clk *clk)
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_gate *gate;
 
-	if (clk->id < priv->tree->gates_offs)
+	if (clk->id < priv->gates_offs)
 		return -EINVAL;
 
-	gate = &priv->gates[clk->id - priv->tree->gates_offs];
+	gate = &priv->gates[clk->id - priv->gates_offs];
 	return mtk_gate_enable(priv->base, gate);
 }
 
@@ -1042,10 +1094,10 @@ static int mtk_clk_gate_disable(struct clk *clk)
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_gate *gate;
 
-	if (clk->id < priv->tree->gates_offs)
+	if (clk->id < priv->gates_offs)
 		return -EINVAL;
 
-	gate = &priv->gates[clk->id - priv->tree->gates_offs];
+	gate = &priv->gates[clk->id - priv->gates_offs];
 	return mtk_gate_disable(priv->base, gate);
 }
 
@@ -1055,10 +1107,10 @@ static ulong mtk_clk_gate_get_rate(struct clk *clk)
 	struct udevice *parent = priv->parent;
 	const struct mtk_gate *gate;
 
-	if (clk->id < priv->tree->gates_offs)
+	if (clk->id < priv->gates_offs)
 		return -EINVAL;
 
-	gate = &priv->gates[clk->id - priv->tree->gates_offs];
+	gate = &priv->gates[clk->id - priv->gates_offs];
 	/*
 	 * With requesting a TOPCKGEN parent, make sure the dev parent
 	 * is actually topckgen. This might not be the case for an
@@ -1094,8 +1146,8 @@ static void mtk_clk_gate_dump(struct udevice *dev)
 		const struct mtk_gate *gate = &priv->gates[i];
 
 		printf("[GATE%u] DT: %u", i, gate->id);
-		mtk_clk_print_mapped_id(gate->id, i + tree->gates_offs, tree->id_offs_map);
-		mtk_clk_print_rate(dev, i + tree->gates_offs);
+		mtk_clk_print_mapped_id(gate->id, i + priv->gates_offs, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i + priv->gates_offs);
 		mtk_clk_print_single_parent(gate->parent, gate->flags);
 		printf("\n");
 	}
@@ -1125,8 +1177,8 @@ const struct clk_ops mtk_clk_fixed_pll_ops = {
 
 const struct clk_ops mtk_clk_topckgen_ops = {
 	.of_xlate = mtk_topckgen_of_xlate,
-	.enable = mtk_clk_mux_enable,
-	.disable = mtk_clk_mux_disable,
+	.enable = mtk_topckgen_enable,
+	.disable = mtk_topckgen_disable,
 	.get_rate = mtk_topckgen_get_rate,
 	.set_parent = mtk_common_clk_set_parent,
 #if CONFIG_IS_ENABLED(CMD_CLK)
@@ -1196,7 +1248,8 @@ int mtk_common_clk_infrasys_init(struct udevice *dev,
 
 int mtk_common_clk_gate_init(struct udevice *dev,
 			     const struct mtk_clk_tree *tree,
-			     const struct mtk_gate *gates, int num_gates)
+			     const struct mtk_gate *gates, int num_gates,
+			     int gates_offs)
 {
 	struct mtk_cg_priv *priv = dev_get_priv(dev);
 	struct udevice *parent;
@@ -1218,6 +1271,7 @@ int mtk_common_clk_gate_init(struct udevice *dev,
 	priv->tree = tree;
 	priv->gates = gates;
 	priv->num_gates = num_gates;
+	priv->gates_offs = gates_offs;
 
 	return 0;
 }

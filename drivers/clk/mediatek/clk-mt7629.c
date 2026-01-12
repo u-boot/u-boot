@@ -61,6 +61,9 @@ static const struct mtk_pll_data apmixed_plls[] = {
 };
 
 /* topckgen */
+#define FIXED_CLK0(_id, _rate)					\
+	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+
 #define FACTOR0(_id, _parent, _mult, _div)			\
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
 
@@ -71,16 +74,16 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	FACTOR(_id, _parent, _mult, _div, 0)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
-	FIXED_CLK(CLK_TOP_TO_U2_PHY, CLK_XTAL, 31250000),
-	FIXED_CLK(CLK_TOP_TO_U2_PHY_1P, CLK_XTAL, 31250000),
-	FIXED_CLK(CLK_TOP_PCIE0_PIPE_EN, CLK_XTAL, 125000000),
-	FIXED_CLK(CLK_TOP_PCIE1_PIPE_EN, CLK_XTAL, 125000000),
-	FIXED_CLK(CLK_TOP_SSUSB_TX250M, CLK_XTAL, 250000000),
-	FIXED_CLK(CLK_TOP_SSUSB_EQ_RX250M, CLK_XTAL, 250000000),
-	FIXED_CLK(CLK_TOP_SSUSB_CDR_REF, CLK_XTAL, 33333333),
-	FIXED_CLK(CLK_TOP_SSUSB_CDR_FB, CLK_XTAL, 50000000),
-	FIXED_CLK(CLK_TOP_SATA_ASIC, CLK_XTAL, 50000000),
-	FIXED_CLK(CLK_TOP_SATA_RBC, CLK_XTAL, 50000000),
+	FIXED_CLK0(CLK_TOP_TO_U2_PHY, 31250000),
+	FIXED_CLK0(CLK_TOP_TO_U2_PHY_1P, 31250000),
+	FIXED_CLK0(CLK_TOP_PCIE0_PIPE_EN, 125000000),
+	FIXED_CLK0(CLK_TOP_PCIE1_PIPE_EN, 125000000),
+	FIXED_CLK0(CLK_TOP_SSUSB_TX250M, 250000000),
+	FIXED_CLK0(CLK_TOP_SSUSB_EQ_RX250M, 250000000),
+	FIXED_CLK0(CLK_TOP_SSUSB_CDR_REF, 33333333),
+	FIXED_CLK0(CLK_TOP_SSUSB_CDR_FB, 50000000),
+	FIXED_CLK0(CLK_TOP_SATA_ASIC, 50000000),
+	FIXED_CLK0(CLK_TOP_SATA_RBC, 50000000),
 };
 
 static const struct mtk_fixed_factor top_fixed_divs[] = {
@@ -581,7 +584,6 @@ static const struct mtk_clk_tree mt7629_clk_tree = {
 static const struct mtk_clk_tree mt7629_peri_clk_tree = {
 	.xtal_rate = 40 * MHZ,
 	.xtal2_rate = 20 * MHZ,
-	.gates_offs = CLK_PERI_PWM1_PD,
 	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
 	.muxes_offs = CLK_TOP_AXI_SEL,
 	.plls = apmixed_plls,
@@ -635,19 +637,19 @@ static int mt7629_topckgen_probe(struct udevice *dev)
 static int mt7629_infracfg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, infra_cgs,
-					ARRAY_SIZE(infra_cgs));
+					ARRAY_SIZE(infra_cgs), 0);
 }
 
 static int mt7629_pericfg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_peri_clk_tree, peri_cgs,
-					ARRAY_SIZE(peri_cgs));
+					ARRAY_SIZE(peri_cgs), CLK_PERI_PWM1_PD);
 }
 
 static int mt7629_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs));
+					ARRAY_SIZE(eth_cgs), 0);
 }
 
 static int mt7629_ethsys_bind(struct udevice *dev)
@@ -666,13 +668,13 @@ static int mt7629_ethsys_bind(struct udevice *dev)
 static int mt7629_sgmiisys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, sgmii_cgs,
-					ARRAY_SIZE(sgmii_cgs));
+					ARRAY_SIZE(sgmii_cgs), 0);
 }
 
 static int mt7629_ssusbsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, ssusb_cgs,
-					ARRAY_SIZE(ssusb_cgs));
+					ARRAY_SIZE(ssusb_cgs), 0);
 }
 
 static const struct udevice_id mt7629_apmixed_compat[] = {

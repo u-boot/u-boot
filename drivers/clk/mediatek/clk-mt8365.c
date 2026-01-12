@@ -67,20 +67,180 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	    0x03A4, 0, 0, 0),
 };
 
+static const struct mtk_clk_tree mt8365_apmixed_tree = {
+	.xtal_rate = 26 * MHZ,
+	.xtal2_rate = 26 * MHZ,
+	.plls = apmixed_plls,
+	.num_plls = ARRAY_SIZE(apmixed_plls),
+};
+
 /* topckgen */
+
+/*
+ * The devicetree bindings missed a few clocks and can't be changed, so we need
+ * to provide a mapping to fix the omissions.
+ */
+static const int mt8365_topckgen_id_map[] = {
+	[0 ... CLK_TOP_NR_CLK - 1]	= -1,
+	/* FIXED */
+	/* Fixed 32K oscillator is not available in devicetree definitions */
+	[CLK_TOP_CLK32K]		= 0,
+	[CLK_TOP_CLK_NULL]		= 1,
+	[CLK_TOP_I2S0_BCK]		= 2,
+	[CLK_TOP_DSI0_LNTC_DSICK]	= 3,
+	[CLK_TOP_VPLL_DPIX]		= 4,
+	[CLK_TOP_LVDSTX_CLKDIG_CTS]	= 5,
+	/* FACTOR */
+	[CLK_TOP_MFGPLL]		= 6,
+	[CLK_TOP_SYSPLL_D2]		= 7,
+	[CLK_TOP_SYSPLL1_D2]		= 8,
+	[CLK_TOP_SYSPLL1_D4]		= 9,
+	[CLK_TOP_SYSPLL1_D8]		= 10,
+	[CLK_TOP_SYSPLL1_D16]		= 11,
+	[CLK_TOP_SYSPLL_D3]		= 12,
+	[CLK_TOP_SYSPLL2_D2]		= 13,
+	[CLK_TOP_SYSPLL2_D4]		= 14,
+	[CLK_TOP_SYSPLL2_D8]		= 15,
+	[CLK_TOP_SYSPLL_D5]		= 16,
+	[CLK_TOP_SYSPLL3_D2]		= 17,
+	[CLK_TOP_SYSPLL3_D4]		= 18,
+	[CLK_TOP_SYSPLL_D7]		= 19,
+	[CLK_TOP_SYSPLL4_D2]		= 20,
+	[CLK_TOP_SYSPLL4_D4]		= 21,
+	/* Skipping CLK_TOP_UNIVPLL since isn't a real clock. */
+	[CLK_TOP_UNIVPLL_D2]		= 22,
+	[CLK_TOP_UNIVPLL1_D2]		= 23,
+	[CLK_TOP_UNIVPLL1_D4]		= 24,
+	[CLK_TOP_UNIVPLL_D3]		= 25,
+	[CLK_TOP_UNIVPLL2_D2]		= 26,
+	[CLK_TOP_UNIVPLL2_D4]		= 27,
+	[CLK_TOP_UNIVPLL2_D8]		= 28,
+	[CLK_TOP_UNIVPLL2_D32]		= 29,
+	[CLK_TOP_UNIVPLL_D5]		= 30,
+	[CLK_TOP_UNIVPLL3_D2]		= 31,
+	[CLK_TOP_UNIVPLL3_D4]		= 32,
+	[CLK_TOP_MMPLL]			= 33,
+	[CLK_TOP_MMPLL_D2]		= 34,
+	[CLK_TOP_LVDSPLL_D2]		= 35,
+	[CLK_TOP_LVDSPLL_D4]		= 36,
+	[CLK_TOP_LVDSPLL_D8]		= 37,
+	[CLK_TOP_LVDSPLL_D16]		= 38,
+	[CLK_TOP_USB20_192M]		= 39,
+	[CLK_TOP_USB20_192M_D4]		= 40,
+	[CLK_TOP_USB20_192M_D8]		= 41,
+	[CLK_TOP_USB20_192M_D16]	= 42,
+	[CLK_TOP_USB20_192M_D32]	= 43,
+	[CLK_TOP_APLL1]			= 44,
+	[CLK_TOP_APLL1_D2]		= 45,
+	[CLK_TOP_APLL1_D4]		= 46,
+	[CLK_TOP_APLL1_D8]		= 47,
+	[CLK_TOP_APLL2]			= 48,
+	[CLK_TOP_APLL2_D2]		= 49,
+	[CLK_TOP_APLL2_D4]		= 50,
+	[CLK_TOP_APLL2_D8]		= 51,
+	/* Fixed 26M oscillator is not available in devicetree definitions */
+	[CLK_TOP_CLK26M]		= 52,
+	[CLK_TOP_SYS_26M_D2]		= 53,
+	[CLK_TOP_MSDCPLL]		= 54,
+	[CLK_TOP_MSDCPLL_D2]		= 55,
+	[CLK_TOP_DSPPLL]		= 56,
+	[CLK_TOP_DSPPLL_D2]		= 57,
+	[CLK_TOP_DSPPLL_D4]		= 58,
+	[CLK_TOP_DSPPLL_D8]		= 59,
+	[CLK_TOP_APUPLL]		= 60,
+	[CLK_TOP_CLK26M_D52]		= 61,
+	/* MUX */
+	[CLK_TOP_AXI_SEL]		= 62,
+	[CLK_TOP_MEM_SEL]		= 63,
+	[CLK_TOP_MM_SEL]		= 64,
+	[CLK_TOP_SCP_SEL]		= 65,
+	[CLK_TOP_MFG_SEL]		= 66,
+	[CLK_TOP_ATB_SEL]		= 67,
+	[CLK_TOP_CAMTG_SEL]		= 68,
+	[CLK_TOP_CAMTG1_SEL]		= 69,
+	[CLK_TOP_UART_SEL]		= 70,
+	[CLK_TOP_SPI_SEL]		= 71,
+	[CLK_TOP_MSDC50_0_HC_SEL]	= 72,
+	[CLK_TOP_MSDC2_2_HC_SEL]	= 73,
+	[CLK_TOP_MSDC50_0_SEL]		= 74,
+	[CLK_TOP_MSDC50_2_SEL]		= 75,
+	[CLK_TOP_MSDC30_1_SEL]		= 76,
+	[CLK_TOP_AUDIO_SEL]		= 77,
+	[CLK_TOP_AUD_INTBUS_SEL]	= 78,
+	[CLK_TOP_AUD_1_SEL]		= 79,
+	[CLK_TOP_AUD_2_SEL]		= 80,
+	[CLK_TOP_AUD_ENGEN1_SEL]	= 81,
+	[CLK_TOP_AUD_ENGEN2_SEL]	= 82,
+	[CLK_TOP_AUD_SPDIF_SEL]		= 83,
+	[CLK_TOP_DISP_PWM_SEL]		= 84,
+	[CLK_TOP_DXCC_SEL]		= 85,
+	[CLK_TOP_SSUSB_SYS_SEL]		= 86,
+	[CLK_TOP_SSUSB_XHCI_SEL]	= 87,
+	[CLK_TOP_SPM_SEL]		= 88,
+	[CLK_TOP_I2C_SEL]		= 89,
+	[CLK_TOP_PWM_SEL]		= 90,
+	[CLK_TOP_SENIF_SEL]		= 91,
+	[CLK_TOP_AES_FDE_SEL]		= 92,
+	[CLK_TOP_CAMTM_SEL]		= 93,
+	[CLK_TOP_DPI0_SEL]		= 94,
+	[CLK_TOP_DPI1_SEL]		= 95,
+	[CLK_TOP_DSP_SEL]		= 96,
+	[CLK_TOP_NFI2X_SEL]		= 97,
+	[CLK_TOP_NFIECC_SEL]		= 98,
+	[CLK_TOP_ECC_SEL]		= 99,
+	[CLK_TOP_ETH_SEL]		= 100,
+	[CLK_TOP_GCPU_SEL]		= 101,
+	[CLK_TOP_GCPU_CPM_SEL]		= 102,
+	[CLK_TOP_APU_SEL]		= 103,
+	[CLK_TOP_APU_IF_SEL]		= 104,
+	/* GATE */
+	[CLK_TOP_AUD_I2S0_M]		= 105,
+	[CLK_TOP_AUD_I2S1_M]		= 106,
+	[CLK_TOP_AUD_I2S2_M]		= 107,
+	[CLK_TOP_AUD_I2S3_M]		= 108,
+	[CLK_TOP_AUD_TDMOUT_M]		= 109,
+	[CLK_TOP_AUD_TDMOUT_B]		= 110,
+	[CLK_TOP_AUD_TDMIN_M]		= 111,
+	[CLK_TOP_AUD_TDMIN_B]		= 112,
+	[CLK_TOP_AUD_SPDIF_M]		= 113,
+	[CLK_TOP_USB20_48M_EN]		= 114,
+	[CLK_TOP_UNIVPLL_48M_EN]	= 115,
+	[CLK_TOP_LVDSTX_CLKDIG_EN]	= 116,
+	[CLK_TOP_VPLL_DPIX_EN]		= 117,
+	[CLK_TOP_SSUSB_TOP_CK_EN]	= 118,
+	[CLK_TOP_SSUSB_PHY_CK_EN]	= 119,
+	[CLK_TOP_CONN_32K]		= 120,
+	[CLK_TOP_CONN_26M]		= 121,
+	[CLK_TOP_DSP_32K]		= 122,
+	[CLK_TOP_DSP_26M]		= 123,
+};
+
+#define FIXED_CLK0(_id, _rate)						\
+	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+
+#define FIXED_CLK1(_id, _rate)						\
+	FIXED_CLK(_id, CLK_TOP_CLK_NULL, CLK_PARENT_TOPCKGEN, _rate)
+
 static const struct mtk_fixed_clk top_fixed_clks[] = {
-	FIXED_CLK(CLK_TOP_CLK_NULL, CLK_XTAL, 0),
-	FIXED_CLK(CLK_TOP_I2S0_BCK, CLK_XTAL, 26000000),
-	FIXED_CLK(CLK_TOP_DSI0_LNTC_DSICK, CLK_TOP_CLK26M, 75000000),
-	FIXED_CLK(CLK_TOP_VPLL_DPIX, CLK_TOP_CLK26M, 75000000),
-	FIXED_CLK(CLK_TOP_LVDSTX_CLKDIG_CTS, CLK_TOP_CLK26M, 52500000),
+	FIXED_CLK0(CLK_TOP_CLK32K, 32000),
+	FIXED_CLK0(CLK_TOP_CLK_NULL, 0),
+	FIXED_CLK1(CLK_TOP_I2S0_BCK, 26000000),
+	FIXED_CLK0(CLK_TOP_DSI0_LNTC_DSICK, 75000000),
+	FIXED_CLK0(CLK_TOP_VPLL_DPIX, 75000000),
+	FIXED_CLK0(CLK_TOP_LVDSTX_CLKDIG_CTS, 52500000),
 };
 
 #define PLL_FACTOR(_id, _name, _parent, _mult, _div)			\
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
 
+#define PLL_FACTOR1(_id, _name, _parent, _mult, _div)			\
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_TOPCKGEN)
+
+#define PLL_FACTOR2(_id, _name, _parent, _mult, _div)			\
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
+
 static const struct mtk_fixed_factor top_divs[] = {
-	PLL_FACTOR(CLK_TOP_SYS_26M_D2, "sys_26m_d2", CLK_XTAL, 1, 2),
+	PLL_FACTOR(CLK_TOP_MFGPLL, "mfgpll_ck", CLK_APMIXED_MFGPLL, 1, 1),
 	PLL_FACTOR(CLK_TOP_SYSPLL_D2, "syspll_d2", CLK_APMIXED_MAINPLL, 1, 2),
 	PLL_FACTOR(CLK_TOP_SYSPLL1_D2, "syspll1_d2", CLK_APMIXED_MAINPLL, 1, 4),
 	PLL_FACTOR(CLK_TOP_SYSPLL1_D4, "syspll1_d4", CLK_APMIXED_MAINPLL, 1, 8),
@@ -96,7 +256,6 @@ static const struct mtk_fixed_factor top_divs[] = {
 	PLL_FACTOR(CLK_TOP_SYSPLL_D7, "syspll_d7", CLK_APMIXED_MAINPLL, 1, 7),
 	PLL_FACTOR(CLK_TOP_SYSPLL4_D2, "syspll4_d2", CLK_APMIXED_MAINPLL, 1, 14),
 	PLL_FACTOR(CLK_TOP_SYSPLL4_D4, "syspll4_d4", CLK_APMIXED_MAINPLL, 1, 28),
-	PLL_FACTOR(CLK_TOP_UNIVPLL, "univpll", CLK_APMIXED_UNIV_EN, 1, 2),
 	PLL_FACTOR(CLK_TOP_UNIVPLL_D2, "univpll_d2", CLK_APMIXED_UNIVPLL, 1, 2),
 	PLL_FACTOR(CLK_TOP_UNIVPLL1_D2, "univpll1_d2", CLK_APMIXED_UNIVPLL, 1, 4),
 	PLL_FACTOR(CLK_TOP_UNIVPLL1_D4, "univpll1_d4", CLK_APMIXED_UNIVPLL, 1, 8),
@@ -110,24 +269,25 @@ static const struct mtk_fixed_factor top_divs[] = {
 	PLL_FACTOR(CLK_TOP_UNIVPLL3_D4, "univpll3_d4", CLK_APMIXED_UNIVPLL, 1, 20),
 	PLL_FACTOR(CLK_TOP_MMPLL, "mmpll_ck", CLK_APMIXED_MMPLL, 1, 1),
 	PLL_FACTOR(CLK_TOP_MMPLL_D2, "mmpll_d2", CLK_APMIXED_MMPLL, 1, 2),
-	PLL_FACTOR(CLK_TOP_MFGPLL, "mfgpll_ck", CLK_APMIXED_MFGPLL, 1, 1),
 	PLL_FACTOR(CLK_TOP_LVDSPLL_D2, "lvdspll_d2", CLK_APMIXED_LVDSPLL, 1, 2),
 	PLL_FACTOR(CLK_TOP_LVDSPLL_D4, "lvdspll_d4", CLK_APMIXED_LVDSPLL, 1, 4),
 	PLL_FACTOR(CLK_TOP_LVDSPLL_D8, "lvdspll_d8", CLK_APMIXED_LVDSPLL, 1, 8),
 	PLL_FACTOR(CLK_TOP_LVDSPLL_D16, "lvdspll_d16", CLK_APMIXED_LVDSPLL, 1, 16),
-	PLL_FACTOR(CLK_TOP_USB20_192M, "usb20_192m_ck", CLK_APMIXED_USB20_EN, 1, 13),
-	PLL_FACTOR(CLK_TOP_USB20_192M_D4, "usb20_192m_d4", CLK_TOP_USB20_192M, 1, 4),
-	PLL_FACTOR(CLK_TOP_USB20_192M_D8, "usb20_192m_d8", CLK_TOP_USB20_192M, 1, 8),
-	PLL_FACTOR(CLK_TOP_USB20_192M_D16, "usb20_192m_d16", CLK_TOP_USB20_192M, 1, 16),
-	PLL_FACTOR(CLK_TOP_USB20_192M_D32, "usb20_192m_d32", CLK_TOP_USB20_192M, 1, 32),
+	PLL_FACTOR(CLK_TOP_USB20_192M, "usb20_192m_ck", CLK_APMIXED_UNIVPLL, 1, 13),
+	PLL_FACTOR1(CLK_TOP_USB20_192M_D4, "usb20_192m_d4", CLK_TOP_USB20_192M, 1, 4),
+	PLL_FACTOR1(CLK_TOP_USB20_192M_D8, "usb20_192m_d8", CLK_TOP_USB20_192M, 1, 8),
+	PLL_FACTOR1(CLK_TOP_USB20_192M_D16, "usb20_192m_d16", CLK_TOP_USB20_192M, 1, 16),
+	PLL_FACTOR1(CLK_TOP_USB20_192M_D32, "usb20_192m_d32", CLK_TOP_USB20_192M, 1, 32),
 	PLL_FACTOR(CLK_TOP_APLL1, "apll1_ck", CLK_APMIXED_APLL1, 1, 1),
-	PLL_FACTOR(CLK_TOP_APLL1_D2, "apll1_d2", CLK_APMIXED_APLL1, 1, 2),
-	PLL_FACTOR(CLK_TOP_APLL1_D4, "apll1_d4", CLK_APMIXED_APLL1, 1, 4),
-	PLL_FACTOR(CLK_TOP_APLL1_D8, "apll1_d8", CLK_APMIXED_APLL1, 1, 8),
+	PLL_FACTOR1(CLK_TOP_APLL1_D2, "apll1_d2", CLK_TOP_APLL1, 1, 2),
+	PLL_FACTOR1(CLK_TOP_APLL1_D4, "apll1_d4", CLK_TOP_APLL1, 1, 4),
+	PLL_FACTOR1(CLK_TOP_APLL1_D8, "apll1_d8", CLK_TOP_APLL1, 1, 8),
 	PLL_FACTOR(CLK_TOP_APLL2, "apll2_ck", CLK_APMIXED_APLL2, 1, 1),
-	PLL_FACTOR(CLK_TOP_APLL2_D2, "apll2_d2", CLK_APMIXED_APLL2, 1, 2),
-	PLL_FACTOR(CLK_TOP_APLL2_D4, "apll2_d4", CLK_APMIXED_APLL2, 1, 4),
-	PLL_FACTOR(CLK_TOP_APLL2_D8, "apll2_d8", CLK_APMIXED_APLL2, 1, 8),
+	PLL_FACTOR1(CLK_TOP_APLL2_D2, "apll2_d2", CLK_TOP_APLL2, 1, 2),
+	PLL_FACTOR1(CLK_TOP_APLL2_D4, "apll2_d4", CLK_TOP_APLL2, 1, 4),
+	PLL_FACTOR1(CLK_TOP_APLL2_D8, "apll2_d8", CLK_TOP_APLL2, 1, 8),
+	PLL_FACTOR2(CLK_TOP_CLK26M, "clk26m_ck", CLK_XTAL, 1, 1),
+	PLL_FACTOR2(CLK_TOP_SYS_26M_D2, "sys_26m_d2", CLK_XTAL, 1, 2),
 	PLL_FACTOR(CLK_TOP_MSDCPLL, "msdcpll_ck", CLK_APMIXED_MSDCPLL, 1, 1),
 	PLL_FACTOR(CLK_TOP_MSDCPLL_D2, "msdcpll_d2", CLK_APMIXED_MSDCPLL, 1, 2),
 	PLL_FACTOR(CLK_TOP_DSPPLL, "dsppll_ck", CLK_APMIXED_DSPPLL, 1, 1),
@@ -135,7 +295,7 @@ static const struct mtk_fixed_factor top_divs[] = {
 	PLL_FACTOR(CLK_TOP_DSPPLL_D4, "dsppll_d4", CLK_APMIXED_DSPPLL, 1, 4),
 	PLL_FACTOR(CLK_TOP_DSPPLL_D8, "dsppll_d8", CLK_APMIXED_DSPPLL, 1, 8),
 	PLL_FACTOR(CLK_TOP_APUPLL, "apupll_ck", CLK_APMIXED_APUPLL, 1, 1),
-	PLL_FACTOR(CLK_TOP_CLK26M_D52, "clk26m_d52", CLK_XTAL, 1, 52),
+	PLL_FACTOR2(CLK_TOP_CLK26M_D52, "clk26m_d52", CLK_XTAL, 1, 52),
 };
 
 static const int axi_parents[] = {
@@ -416,7 +576,7 @@ static const int gcpu_cpm_parents[] = {
 static const int apu_parents[] = {
 	CLK_TOP_CLK26M,
 	CLK_TOP_UNIVPLL_D2,
-	CLK_APMIXED_APUPLL,
+	CLK_TOP_APUPLL,
 	CLK_TOP_MMPLL,
 	CLK_TOP_SYSPLL_D3,
 	CLK_TOP_UNIVPLL1_D2,
@@ -481,21 +641,6 @@ static const struct mtk_composite top_muxes[] = {
 	MUX_GATE(CLK_TOP_APU_IF_SEL, apu_parents, 0x0e0, 24, 3, 31),
 };
 
-static const struct mtk_clk_tree mt8365_clk_tree = {
-	.xtal_rate = 26 * MHZ,
-	.xtal2_rate = 26 * MHZ,
-	.fdivs_offs = CLK_TOP_SYSPLL_D2,
-	.muxes_offs = CLK_TOP_AXI_SEL,
-	.plls = apmixed_plls,
-	.fclks = top_fixed_clks,
-	.fdivs = top_divs,
-	.muxes = top_muxes,
-	.num_plls = ARRAY_SIZE(apmixed_plls),
-	.num_fclks = ARRAY_SIZE(top_fixed_clks),
-	.num_fdivs = ARRAY_SIZE(top_divs),
-	.num_muxes = ARRAY_SIZE(top_muxes),
-};
-
 /* topckgen cg */
 static const struct mtk_gate_regs top0_cg_regs = {
 	.set_ofs = 0,
@@ -540,16 +685,6 @@ static const struct mtk_gate_regs top2_cg_regs = {
 	}
 
 static const struct mtk_gate top_clk_gates[] = {
-	GATE_TOP0(CLK_TOP_CONN_32K, CLK_TOP_CLK32K, 10),
-	GATE_TOP0(CLK_TOP_CONN_26M, CLK_TOP_CLK26M, 11),
-	GATE_TOP0(CLK_TOP_DSP_32K, CLK_TOP_CLK32K, 16),
-	GATE_TOP0(CLK_TOP_DSP_26M, CLK_TOP_CLK26M, 17),
-	GATE_TOP1(CLK_TOP_USB20_48M_EN, CLK_TOP_USB20_192M_D4, 8),
-	GATE_TOP1(CLK_TOP_UNIVPLL_48M_EN, CLK_TOP_USB20_192M_D4, 9),
-	GATE_TOP1(CLK_TOP_LVDSTX_CLKDIG_EN, CLK_TOP_LVDSTX_CLKDIG_CTS, 20),
-	GATE_TOP1(CLK_TOP_VPLL_DPIX_EN, CLK_TOP_VPLL_DPIX, 21),
-	GATE_TOP1(CLK_TOP_SSUSB_TOP_CK_EN, CLK_TOP_CLK_NULL, 22),
-	GATE_TOP1(CLK_TOP_SSUSB_PHY_CK_EN, CLK_TOP_CLK_NULL, 23),
 	GATE_TOP2(CLK_TOP_AUD_I2S0_M, CLK_TOP_APLL12_CK_DIV0, 0),
 	GATE_TOP2(CLK_TOP_AUD_I2S1_M, CLK_TOP_APLL12_CK_DIV1, 1),
 	GATE_TOP2(CLK_TOP_AUD_I2S2_M, CLK_TOP_APLL12_CK_DIV2, 2),
@@ -559,6 +694,33 @@ static const struct mtk_gate top_clk_gates[] = {
 	GATE_TOP2(CLK_TOP_AUD_TDMIN_M, CLK_TOP_APLL12_CK_DIV5, 6),
 	GATE_TOP2(CLK_TOP_AUD_TDMIN_B, CLK_TOP_APLL12_CK_DIV5B, 7),
 	GATE_TOP2(CLK_TOP_AUD_SPDIF_M, CLK_TOP_APLL12_CK_DIV6, 8),
+	GATE_TOP1(CLK_TOP_USB20_48M_EN, CLK_TOP_USB20_192M_D4, 8),
+	GATE_TOP1(CLK_TOP_UNIVPLL_48M_EN, CLK_TOP_USB20_192M_D4, 9),
+	GATE_TOP1(CLK_TOP_LVDSTX_CLKDIG_EN, CLK_TOP_LVDSTX_CLKDIG_CTS, 20),
+	GATE_TOP1(CLK_TOP_VPLL_DPIX_EN, CLK_TOP_VPLL_DPIX, 21),
+	GATE_TOP1(CLK_TOP_SSUSB_TOP_CK_EN, CLK_TOP_CLK_NULL, 22),
+	GATE_TOP1(CLK_TOP_SSUSB_PHY_CK_EN, CLK_TOP_CLK_NULL, 23),
+	GATE_TOP0(CLK_TOP_CONN_32K, CLK_TOP_CLK32K, 10),
+	GATE_TOP0(CLK_TOP_CONN_26M, CLK_TOP_CLK26M, 11),
+	GATE_TOP0(CLK_TOP_DSP_32K, CLK_TOP_CLK32K, 16),
+	GATE_TOP0(CLK_TOP_DSP_26M, CLK_TOP_CLK26M, 17),
+};
+
+static const struct mtk_clk_tree mt8365_topckgen_tree = {
+	.xtal_rate = 26 * MHZ,
+	.id_offs_map = mt8365_topckgen_id_map,
+	.id_offs_map_size = ARRAY_SIZE(mt8365_topckgen_id_map),
+	.fdivs_offs = mt8365_topckgen_id_map[CLK_TOP_MFGPLL],
+	.muxes_offs = mt8365_topckgen_id_map[CLK_TOP_AXI_SEL],
+	.gates_offs = mt8365_topckgen_id_map[CLK_TOP_AUD_I2S0_M],
+	.fclks = top_fixed_clks,
+	.fdivs = top_divs,
+	.muxes = top_muxes,
+	.gates = top_clk_gates,
+	.num_fclks = ARRAY_SIZE(top_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(top_divs),
+	.num_muxes = ARRAY_SIZE(top_muxes),
+	.num_gates = ARRAY_SIZE(top_clk_gates),
 };
 
 /* infracfg */
@@ -641,13 +803,14 @@ static const struct mtk_gate ifr_clks[] = {
 	GATE_IFR2(CLK_IFR_BTIF, CLK_TOP_AXI_SEL, 31),
 	/* IFR3 */
 	GATE_IFR3(CLK_IFR_SPI0, CLK_TOP_SPI_SEL, 1),
-	GATE_IFR3(CLK_IFR_MSDC0_HCLK, CLK_TOP_MSDC50_0_HC_SEL, 2),
-	GATE_IFR3(CLK_IFR_MSDC2_HCLK, CLK_TOP_MSDC2_2_HC_SEL, 3),
+	GATE_IFR3(CLK_IFR_MSDC0_HCLK, CLK_TOP_AXI_SEL, 2),
+	GATE_IFR3(CLK_IFR_MSDC2_HCLK, CLK_TOP_AXI_SEL, 3),
 	GATE_IFR3(CLK_IFR_MSDC1_HCLK, CLK_TOP_AXI_SEL, 4),
 	GATE_IFR3(CLK_IFR_DVFSRC, CLK_TOP_CLK26M, 7),
 	GATE_IFR3(CLK_IFR_GCPU, CLK_TOP_AXI_SEL, 8),
 	GATE_IFR3(CLK_IFR_TRNG, CLK_TOP_AXI_SEL, 9),
 	GATE_IFR3(CLK_IFR_AUXADC, CLK_TOP_CLK26M, 10),
+	GATE_IFR3(CLK_IFR_CPUM, CLK_TOP_AXI_SEL, 11),
 	GATE_IFR3(CLK_IFR_AUXADC_MD, CLK_TOP_CLK26M, 14),
 	GATE_IFR3(CLK_IFR_AP_DMA, CLK_TOP_AXI_SEL, 18),
 	GATE_IFR3(CLK_IFR_DEBUGSYS, CLK_TOP_AXI_SEL, 24),
@@ -669,6 +832,7 @@ static const struct mtk_gate ifr_clks[] = {
 	GATE_IFR5(CLK_IFR_PWRAP_TMR, CLK_TOP_CLK26M, 12),
 	GATE_IFR5(CLK_IFR_PWRAP_SPI, CLK_TOP_CLK26M, 13),
 	GATE_IFR5(CLK_IFR_PWRAP_SYS, CLK_TOP_CLK26M, 14),
+	GATE_IFR5(CLK_IFR_MCU_PM_BK, CLK_TOP_AXI_SEL, 16),
 	GATE_IFR5(CLK_IFR_IRRX_26M, CLK_TOP_CLK26M, 22),
 	GATE_IFR5(CLK_IFR_IRRX_32K, CLK_TOP_CLK32K, 23),
 	GATE_IFR5(CLK_IFR_I2C0_AXI, CLK_TOP_I2C_SEL, 24),
@@ -680,8 +844,8 @@ static const struct mtk_gate ifr_clks[] = {
 	GATE_IFR5(CLK_IFR_APU_AXI, CLK_TOP_AXI_SEL, 30),
 	/* IFR6 */
 	GATE_IFR6(CLK_IFR_NFIECC, CLK_TOP_NFIECC_SEL, 0),
-	GATE_IFR6(CLK_IFR_NFI1X_BK, CLK_TOP_NFI2X_SEL, 1),
-	GATE_IFR6(CLK_IFR_NFIECC_BK, CLK_TOP_NFI2X_SEL, 2),
+	GATE_IFR6(CLK_IFR_NFIECC_BK, CLK_TOP_NFI2X_SEL, 1),
+	GATE_IFR6(CLK_IFR_NFI1X_BK, CLK_TOP_NFI2X_SEL, 2),
 	GATE_IFR6(CLK_IFR_NFI_BK, CLK_TOP_AXI_SEL, 3),
 	GATE_IFR6(CLK_IFR_MSDC2_AP_BK, CLK_TOP_AXI_SEL, 4),
 	GATE_IFR6(CLK_IFR_MSDC2_MD_BK, CLK_TOP_AXI_SEL, 5),
@@ -693,26 +857,24 @@ static const struct mtk_gate ifr_clks[] = {
 	GATE_IFR6(CLK_IFR_SSUSB_XHCI, CLK_TOP_SSUSB_XHCI_SEL, 11),
 };
 
+static const struct mtk_clk_tree mt8365_infracfg_tree = {
+	.xtal_rate = 26 * MHZ,
+};
+
 static int mt8365_apmixedsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_init(dev, &mt8365_clk_tree);
+	return mtk_common_clk_init(dev, &mt8365_apmixed_tree);
 }
 
 static int mt8365_topckgen_probe(struct udevice *dev)
 {
-	return mtk_common_clk_init(dev, &mt8365_clk_tree);
-}
-
-static int mt8365_topckgen_cg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, top_clk_gates,
-					ARRAY_SIZE(top_clk_gates));
+	return mtk_common_clk_init(dev, &mt8365_topckgen_tree);
 }
 
 static int mt8365_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8365_clk_tree, ifr_clks,
-					ARRAY_SIZE(ifr_clks));
+	return mtk_common_clk_gate_init(dev, &mt8365_infracfg_tree, ifr_clks,
+					ARRAY_SIZE(ifr_clks), 0);
 }
 
 static const struct udevice_id mt8365_apmixed_compat[] = {
@@ -722,11 +884,6 @@ static const struct udevice_id mt8365_apmixed_compat[] = {
 
 static const struct udevice_id mt8365_topckgen_compat[] = {
 	{ .compatible = "mediatek,mt8365-topckgen", },
-	{ }
-};
-
-static const struct udevice_id mt8365_topckgen_cg_compat[] = {
-	{ .compatible = "mediatek,mt8365-topckgen-cg", },
 	{ }
 };
 
@@ -752,16 +909,6 @@ U_BOOT_DRIVER(mtk_clk_topckgen) = {
 	.probe = mt8365_topckgen_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mtk_clk_topckgen_cg) = {
-	.name = "mt8365-topckgen-cg",
-	.id = UCLASS_CLK,
-	.of_match = mt8365_topckgen_cg_compat,
-	.probe = mt8365_topckgen_cg_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 

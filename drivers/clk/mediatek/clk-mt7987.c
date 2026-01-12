@@ -19,6 +19,9 @@
 #define MT7987_CLK_PDN		0x250
 #define MT7987_CLK_PDN_EN_WRITE	BIT(31)
 
+#define FIXED_CLK0(_id, _rate)                                                 \
+	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+
 #define XTAL_FACTOR(_id, _name, _parent, _mult, _div)                          \
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
 
@@ -33,14 +36,14 @@
 
 /* FIXED PLLS */
 static const struct mtk_fixed_clk apmixedsys_mtk_plls[] = {
-	FIXED_CLK(CLK_APMIXED_MPLL, CLK_XTAL, 416000000),
-	FIXED_CLK(CLK_APMIXED_APLL2, CLK_XTAL, 196608000),
-	FIXED_CLK(CLK_APMIXED_NET1PLL, CLK_XTAL, 2500000000),
-	FIXED_CLK(CLK_APMIXED_NET2PLL, CLK_XTAL, 800000000),
-	FIXED_CLK(CLK_APMIXED_WEDMCUPLL, CLK_XTAL, 208000000),
-	FIXED_CLK(CLK_APMIXED_SGMPLL, CLK_XTAL, 325000000),
-	FIXED_CLK(CLK_APMIXED_ARM_LL, CLK_XTAL, 2000000000),
-	FIXED_CLK(CLK_APMIXED_MSDCPLL, CLK_XTAL, 384000000),
+	FIXED_CLK0(CLK_APMIXED_MPLL, 416000000),
+	FIXED_CLK0(CLK_APMIXED_APLL2, 196608000),
+	FIXED_CLK0(CLK_APMIXED_NET1PLL, 2500000000),
+	FIXED_CLK0(CLK_APMIXED_NET2PLL, 800000000),
+	FIXED_CLK0(CLK_APMIXED_WEDMCUPLL, 208000000),
+	FIXED_CLK0(CLK_APMIXED_SGMPLL, 325000000),
+	FIXED_CLK0(CLK_APMIXED_ARM_LL, 2000000000),
+	FIXED_CLK0(CLK_APMIXED_MSDCPLL, 384000000),
 };
 
 static const struct mtk_clk_tree mt7987_fixed_pll_clk_tree = {
@@ -819,7 +822,7 @@ static const struct mtk_gate eth_cgs[] = {
 static int mt7987_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7987_topckgen_clk_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs));
+					ARRAY_SIZE(eth_cgs), 0);
 }
 
 static int mt7987_ethsys_bind(struct udevice *dev)

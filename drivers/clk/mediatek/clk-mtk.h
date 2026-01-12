@@ -73,12 +73,14 @@ struct mtk_pll_data {
 struct mtk_fixed_clk {
 	const int id;
 	const int parent;
+	const int flags;
 	unsigned long rate;
 };
 
-#define FIXED_CLK(_id, _parent, _rate) {		\
+#define FIXED_CLK(_id, _parent, _flags, _rate) {	\
 		.id = _id,				\
 		.parent = _parent,			\
+		.flags = _flags,			\
 		.rate = _rate,				\
 	}
 
@@ -285,6 +287,7 @@ struct mtk_cg_priv {
 	const struct mtk_clk_tree *tree;
 	const struct mtk_gate *gates;
 	int num_gates;
+	int gates_offs;
 };
 
 extern const struct clk_ops mtk_clk_apmixedsys_ops;
@@ -299,6 +302,7 @@ int mtk_common_clk_infrasys_init(struct udevice *dev,
 				 const struct mtk_clk_tree *tree);
 int mtk_common_clk_gate_init(struct udevice *dev,
 			     const struct mtk_clk_tree *tree,
-			     const struct mtk_gate *gates, int num_gates);
+			     const struct mtk_gate *gates, int num_gates,
+			     int gates_offs);
 
 #endif /* __DRV_CLK_MTK_H */

@@ -51,6 +51,12 @@ static const struct mtk_pll_data apmixed_plls[] = {
 };
 
 /* topckgen */
+#define FIXED_CLK0(_id, _rate)			\
+	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+
+#define FIXED_CLK1(_id, _rate)			\
+	FIXED_CLK(_id, CLK_TOP_CLK_NULL, CLK_PARENT_TOPCKGEN, _rate)
+
 #define FACTOR0(_id, _parent, _mult, _div)	\
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
 
@@ -61,10 +67,10 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	FACTOR(_id, _parent, _mult, _div, 0)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
-	FIXED_CLK(CLK_TOP_CLK_NULL, CLK_XTAL, 26000000),
-	FIXED_CLK(CLK_TOP_FQ_TRNG_OUT0, CLK_TOP_CLK_NULL, 500000000),
-	FIXED_CLK(CLK_TOP_FQ_TRNG_OUT1, CLK_TOP_CLK_NULL, 500000000),
-	FIXED_CLK(CLK_TOP_CLK32K, CLK_XTAL, 32000),
+	FIXED_CLK0(CLK_TOP_CLK_NULL, 26000000),
+	FIXED_CLK1(CLK_TOP_FQ_TRNG_OUT0, 500000000),
+	FIXED_CLK1(CLK_TOP_FQ_TRNG_OUT1, 500000000),
+	FIXED_CLK0(CLK_TOP_CLK32K, 32000),
 };
 
 static const struct mtk_fixed_factor top_fixed_divs[] = {
@@ -1514,7 +1520,7 @@ static int mt8518_topckgen_probe(struct udevice *dev)
 static int mt8518_topckgen_cg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt8518_clk_tree, top_clks,
-					ARRAY_SIZE(top_clks));
+					ARRAY_SIZE(top_clks), 0);
 }
 
 static const struct udevice_id mt8518_apmixed_compat[] = {

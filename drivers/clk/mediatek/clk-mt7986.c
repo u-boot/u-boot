@@ -23,6 +23,9 @@
 #define TOP_PARENT(_id) PARENT(_id, CLK_PARENT_TOPCKGEN)
 #define VOID_PARENT PARENT(-1, 0)
 
+#define FIXED_CLK0(_id, _rate)					\
+	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+
 #define PLL_FACTOR(_id, _name, _parent, _mult, _div)                           \
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
 
@@ -34,19 +37,19 @@
 
 /* FIXED PLLS */
 static const struct mtk_fixed_clk fixed_pll_clks[] = {
-	FIXED_CLK(CLK_APMIXED_ARMPLL, CLK_XTAL, 2000000000),
-	FIXED_CLK(CLK_APMIXED_NET2PLL, CLK_XTAL, 800000000),
-	FIXED_CLK(CLK_APMIXED_MMPLL, CLK_XTAL, 1440000000),
-	FIXED_CLK(CLK_APMIXED_SGMPLL, CLK_XTAL, 325000000),
-	FIXED_CLK(CLK_APMIXED_WEDMCUPLL, CLK_XTAL, 760000000),
-	FIXED_CLK(CLK_APMIXED_NET1PLL, CLK_XTAL, 2500000000),
-	FIXED_CLK(CLK_APMIXED_MPLL, CLK_XTAL, 416000000),
-	FIXED_CLK(CLK_APMIXED_APLL2, CLK_XTAL, 196608000),
+	FIXED_CLK0(CLK_APMIXED_ARMPLL, 2000000000),
+	FIXED_CLK0(CLK_APMIXED_NET2PLL, 800000000),
+	FIXED_CLK0(CLK_APMIXED_MMPLL, 1440000000),
+	FIXED_CLK0(CLK_APMIXED_SGMPLL, 325000000),
+	FIXED_CLK0(CLK_APMIXED_WEDMCUPLL, 760000000),
+	FIXED_CLK0(CLK_APMIXED_NET1PLL, 2500000000),
+	FIXED_CLK0(CLK_APMIXED_MPLL, 416000000),
+	FIXED_CLK0(CLK_APMIXED_APLL2, 196608000),
 };
 
 /* TOPCKGEN FIXED CLK */
 static const struct mtk_fixed_clk top_fixed_clks[] = {
-	FIXED_CLK(CLK_TOP_XTAL, CLK_XTAL, 40000000),
+	FIXED_CLK0(CLK_TOP_XTAL, 40000000),
 };
 
 /* TOPCKGEN FIXED DIV */
@@ -637,7 +640,7 @@ static const struct mtk_gate eth_cgs[] = {
 static int mt7986_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7986_topckgen_clk_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs));
+					ARRAY_SIZE(eth_cgs), 0);
 }
 
 static int mt7986_ethsys_bind(struct udevice *dev)
