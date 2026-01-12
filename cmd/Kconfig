@@ -399,11 +399,11 @@ config BOOTM_LINUX
 	  or booti or bootz.
 
 config BOOTM_NETBSD
-	bool "Support booting NetBSD (non-EFI) loader images"
+	bool "Support booting NetBSD (legacy, non-EFI) loader images"
 	depends on CMD_BOOTM
-	default y
 	help
-	  Support booting NetBSD via the bootm command.
+	  Support booting NetBSD via the bootm command. This is for NetBSD
+	  images that are neither EFI nor using a device tree.
 
 config BOOTM_OPENRTOS
 	bool "Support booting OPENRTOS / FreeRTOS images"
