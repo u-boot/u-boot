@@ -815,7 +815,7 @@ static int get_container_image_start_pos(image_t *image_stack, uint32_t align, u
 
 	p = calloc(1, size);
 	if (!p) {
-		fprintf(stderr, "Fail to alloc %lx memory\n", size);
+		fprintf(stderr, "Fail to alloc %zx memory\n", size);
 		exit(EXIT_FAILURE);
 	}
 
