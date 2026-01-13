@@ -189,6 +189,55 @@ static const struct axp_regulator_plat axp313_regulators[] = {
 	{ }
 };
 
+ /*
+  * Only two level step tuning is implemented for DCDC6, 8, 9
+  * so the voltage below is not support in this driver
+  * DCDC6:   20  (v1.8 - 2.4v), 40 (2.44v - 2.76v)
+  * DCDC8,9: 100 (1.9v - 3.4v)
+  */
+static const struct axp_regulator_plat axp318_regulators[] = {
+	{  "dcdc1", 0x10, BIT(0), 0x12, 0x1f, 1000, 3400, 100, NA },
+	{  "dcdc2", 0x10, BIT(1), 0x13, 0x7f,  500, 1540,  10, 70 },
+	{  "dcdc3", 0x10, BIT(2), 0x14, 0x7f,  500, 1540,  10, 70 },
+	{  "dcdc4", 0x10, BIT(3), 0x15, 0x7f,  500, 1540,  10, 70 },
+	{  "dcdc5", 0x10, BIT(4), 0x16, 0x7f,  500, 1540,  10, 70 },
+	{  "dcdc6", 0x10, BIT(5), 0x17, 0x7f,  500, 1540,  10, 70 },
+	{  "dcdc7", 0x10, BIT(6), 0x18, 0x7f,  500, 1840,  10, 70 },
+	{  "dcdc8", 0x10, BIT(7), 0x19, 0x7f,  500, 1840,  10, 70 },
+	{  "dcdc9", 0x11, BIT(0), 0x1a, 0x7f,  500, 1840,  10, 70 },
+	{  "aldo1", 0x20, BIT(0), 0x24, 0x1f,  500, 3400, 100, NA },
+	{  "aldo2", 0x20, BIT(1), 0x25, 0x1f,  500, 3400, 100, NA },
+	{  "aldo3", 0x20, BIT(2), 0x26, 0x1f,  500, 3400, 100, NA },
+	{  "aldo4", 0x20, BIT(3), 0x27, 0x1f,  500, 3400, 100, NA },
+	{  "aldo5", 0x20, BIT(4), 0x28, 0x1f,  500, 3400, 100, NA },
+	{  "aldo6", 0x20, BIT(5), 0x29, 0x1f,  500, 3400, 100, NA },
+	{  "bldo1", 0x20, BIT(6), 0x2a, 0x1f,  500, 3400, 100, NA },
+	{  "bldo2", 0x20, BIT(7), 0x2b, 0x1f,  500, 3400, 100, NA },
+	{  "bldo3", 0x21, BIT(0), 0x2c, 0x1f,  500, 3400, 100, NA },
+	{  "bldo4", 0x21, BIT(1), 0x2d, 0x1f,  500, 3400, 100, NA },
+	{  "bldo5", 0x21, BIT(2), 0x2e, 0x1f,  500, 3400, 100, NA },
+	{  "cldo1", 0x21, BIT(3), 0x2f, 0x1f,  500, 3400, 100, NA },
+	{  "cldo2", 0x21, BIT(4), 0x30, 0x1f,  500, 3400, 100, NA },
+	{  "cldo3", 0x21, BIT(5), 0x31, 0x1f,  500, 3400, 100, NA },
+	{  "cldo4", 0x21, BIT(6), 0x32, 0x1f,  500, 3400, 100, NA },
+	{  "cldo5", 0x21, BIT(7), 0x33, 0x1f,  500, 3400, 100, NA },
+	{  "dldo1", 0x22, BIT(0), 0x34, 0x1f,  500, 3400, 100, NA },
+	{  "dldo2", 0x22, BIT(1), 0x35, 0x1f,  500, 3400, 100, NA },
+	{  "dldo3", 0x22, BIT(2), 0x36, 0x1f,  500, 3400, 100, NA },
+	{  "dldo4", 0x22, BIT(3), 0x37, 0x1f,  500, 3400, 100, NA },
+	{  "dldo5", 0x22, BIT(4), 0x38, 0x1f,  500, 3400, 100, NA },
+	{  "dldo6", 0x22, BIT(5), 0x39, 0x1f,  500, 3400, 100, NA },
+	{  "eldo1", 0x22, BIT(6), 0x3a, 0x1f,  500, 1500,  25, NA },
+	{  "eldo2", 0x22, BIT(7), 0x3b, 0x1f,  500, 1500,  25, NA },
+	{  "eldo3", 0x23, BIT(0), 0x3c, 0x1f,  500, 1500,  25, NA },
+	{  "eldo4", 0x23, BIT(1), 0x3d, 0x1f,  500, 1500,  25, NA },
+	{  "eldo5", 0x23, BIT(2), 0x3e, 0x1f,  500, 1500,  25, NA },
+	{  "eldo6", 0x23, BIT(3), 0x3f, 0x1f,  500, 1500,  25, NA },
+	{ "swout1", 0x11, BIT(3),   NA,   NA,   NA,   NA,  NA, NA },
+	{ "swout2", 0x11, BIT(4),   NA,   NA,   NA,   NA,  NA, NA },
+	{ }
+};
+
 /*
  * The "dcdc2" regulator has another range, beyond 1.54V up to 3.4V, in
  * steps of 100mV. We cannot model this easily, but also don't need that,
@@ -318,6 +367,7 @@ static const struct axp_regulator_plat *const axp_regulators[] = {
 	[AXP221_ID]	= axp22x_regulators,
 	[AXP223_ID]	= axp22x_regulators,
 	[AXP313_ID]	= axp313_regulators,
+	[AXP318_ID]	= axp318_regulators,
 	[AXP323_ID]	= axp313_regulators,
 	[AXP717_ID]	= axp717_regulators,
 	[AXP803_ID]	= axp803_regulators,
