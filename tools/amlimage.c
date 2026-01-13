@@ -2,6 +2,7 @@
 // Copyright Contributors to the U-Boot project.
 
 #include "imagetool.h"
+#include <inttypes.h>
 #include <u-boot/sha256.h>
 
 /*
