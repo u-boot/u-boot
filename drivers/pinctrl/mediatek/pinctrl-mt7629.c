@@ -80,7 +80,7 @@ static const struct mtk_pin_field_calc mt7629_pin_drv_range[] = {
 	PIN_FIELD(70, 78, 0x7600, 0x10, 0, 4),
 };
 
-static const struct mtk_pin_reg_calc mt7629_reg_cals[] = {
+static const struct mtk_pin_reg_calc mt7629_reg_cals[PINCTRL_PIN_REG_MAX] = {
 	[PINCTRL_PIN_REG_MODE] = MTK_RANGE(mt7629_pin_mode_range),
 	[PINCTRL_PIN_REG_DIR] = MTK_RANGE(mt7629_pin_dir_range),
 	[PINCTRL_PIN_REG_DI] = MTK_RANGE(mt7629_pin_di_range),

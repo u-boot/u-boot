@@ -415,7 +415,7 @@ static const struct mtk_pin_field_calc mt7986_pin_r1_range[] = {
 	PIN_FIELD_BASE(66, 68, IOCFG_LB_BASE, 0x60, 0x10, 2, 1),
 };
 
-static const struct mtk_pin_reg_calc mt7986_reg_cals[] = {
+static const struct mtk_pin_reg_calc mt7986_reg_cals[PINCTRL_PIN_REG_MAX] = {
 	[PINCTRL_PIN_REG_MODE] = MTK_RANGE(mt7986_pin_mode_range),
 	[PINCTRL_PIN_REG_DIR] = MTK_RANGE(mt7986_pin_dir_range),
 	[PINCTRL_PIN_REG_DI] = MTK_RANGE(mt7986_pin_di_range),

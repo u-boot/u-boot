@@ -178,7 +178,7 @@ static const struct mtk_pin_field_calc mt8512_pin_drv_range[] = {
 	PIN_FIELDS(112, 115, 0x760, 0x10, 16, 4),
 };
 
-static const struct mtk_pin_reg_calc mt8512_reg_cals[] = {
+static const struct mtk_pin_reg_calc mt8512_reg_cals[PINCTRL_PIN_REG_MAX] = {
 	[PINCTRL_PIN_REG_MODE] = MTK_RANGE(mt8512_pin_mode_range),
 	[PINCTRL_PIN_REG_DIR] = MTK_RANGE(mt8512_pin_dir_range),
 	[PINCTRL_PIN_REG_DI] = MTK_RANGE(mt8512_pin_di_range),
