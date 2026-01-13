@@ -319,13 +319,7 @@
 		pmic: max8907@3c {
 			compatible = "maxim,max8907";
 			reg = <0x3c>;
-
 			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
-			#interrupt-cells = <2>;
-			interrupt-controller;
-
-			#gpio-cells = <2>;
-			gpio-controller;
 
 			maxim,system-power-controller;
 
