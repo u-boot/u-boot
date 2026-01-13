@@ -151,7 +151,7 @@
 		};
 	};
 
-	sdhci@c8000400 {
+	mmc@c8000400 {
 		/* battery blocks the sdcard slot and the device lacks CD pin */
 		non-removable;
 	};

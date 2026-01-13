@@ -437,7 +437,7 @@
 		status = "okay";
 	};
 
-	sdmmc3: sdhci@c8000400 {
+	sdmmc3: mmc@c8000400 {
 		status = "okay";
 		bus-width = <4>;
 
@@ -449,7 +449,7 @@
 		vqmmc-supply = <&vdd_3v3_sys>;
 	};
 
-	sdmmc4: sdhci@c8000600 {
+	sdmmc4: mmc@c8000600 {
 		status = "okay";
 		bus-width = <8>;
 		non-removable;
