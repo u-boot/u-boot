@@ -9,6 +9,38 @@ The DeepComputing Framework motherboard (FLM13V01) can be combined with a
 U-Boot for the board uses the same binaries as the VisionFive 2 board.
 Currently only serial console output is supported by mainline U-Boot.
 
+Building
+--------
+
+Setup the cross compilation environment variable:
+
+.. code-block:: bash
+
+   export CROSS_COMPILE=riscv64-linux-gnu-
+
+The M-mode software OpenSBI provides the supervisor binary interface (SBI) and
+is responsible for the switch to S-Mode. It is a prerequisite for building
+U-Boot. Support for the JH7110 was introduced in OpenSBI 1.2. It is recommended
+to use a current release.
+
+.. code-block:: bash
+
+    git clone https://github.com/riscv/opensbi.git
+    cd opensbi
+    make PLATFORM=generic FW_TEXT_START=0x40000000 FW_OPTIONS=0
+    export OPENSBI="$(pwd)/build/platform/generic/firmware/fw_dynamic.bin"
+
+Now build U-Boot SPL and main U-Boot.
+
+.. code-block:: bash
+
+    cd <U-Boot-dir>
+    make starfive_visionfive2_defconfig
+    make
+
+This will generate the U-Boot SPL image (spl/u-boot-spl.bin.normal.out) as well
+as the FIT image (u-boot.itb) with OpenSBI, U-Boot, and device-trees.
+
 Device-tree selection
 ---------------------
 
