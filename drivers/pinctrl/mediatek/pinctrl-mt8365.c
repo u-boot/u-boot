@@ -23,6 +23,9 @@
 #define PIN_FIELD_DRV(_s_pin, _e_pin, _s_addr, _s_bit) \
 	PIN_FIELD_CALC(_s_pin, _e_pin, _s_addr, 0x10, _s_bit, 4, 32, true)
 
+#define PIN_FIELD_PUPD(_s_pin, _s_addr, _s_bit) \
+	PIN_FIELD(_s_pin, _s_pin, _s_addr, 0x10, _s_bit, 1)
+
 static const struct mtk_pin_field_calc mt8365_pin_mode_range[] = {
 	PIN_FIELD_MODE(0,   9,   0x1e0),
 	PIN_FIELD_MODE(10,  19,  0x1f0),
@@ -223,6 +226,132 @@ static const struct mtk_pin_field_calc mt8365_pin_drv_range[] = {
 	PIN_FIELD_DRV(136, 144, 0x770, 24),
 };
 
+static const struct mtk_pin_field_calc mt8365_pin_pupd_range[] = {
+	/* KeyPad */
+	PIN_FIELD_PUPD(22, 0x70, 2),
+	PIN_FIELD_PUPD(23, 0x70, 5),
+	PIN_FIELD_PUPD(24, 0x70, 8),
+	PIN_FIELD_PUPD(25, 0x70, 11),
+	/* MSDC2 */
+	PIN_FIELD_PUPD(80, 0x70, 14),
+	PIN_FIELD_PUPD(81, 0x70, 17),
+	PIN_FIELD_PUPD(82, 0x70, 20),
+	PIN_FIELD_PUPD(83, 0x70, 23),
+	PIN_FIELD_PUPD(84, 0x70, 26),
+	PIN_FIELD_PUPD(85, 0x70, 29),
+	PIN_FIELD_PUPD(86, 0x80, 2),
+	/* MSDC1 */
+	PIN_FIELD_PUPD(87, 0x80, 5),
+	PIN_FIELD_PUPD(88, 0x80, 8),
+	PIN_FIELD_PUPD(89, 0x80, 11),
+	PIN_FIELD_PUPD(90, 0x80, 14),
+	PIN_FIELD_PUPD(91, 0x80, 17),
+	PIN_FIELD_PUPD(92, 0x80, 20),
+	/* MSDC0 */
+	PIN_FIELD_PUPD(93, 0x80, 23),
+	PIN_FIELD_PUPD(94, 0x80, 26),
+	PIN_FIELD_PUPD(95, 0x80, 29),
+	PIN_FIELD_PUPD(96, 0x90, 2),
+	PIN_FIELD_PUPD(97, 0x90, 5),
+	PIN_FIELD_PUPD(98, 0x90, 8),
+	PIN_FIELD_PUPD(99, 0x90, 11),
+	PIN_FIELD_PUPD(100, 0x90, 14),
+	PIN_FIELD_PUPD(101, 0x90, 17),
+	PIN_FIELD_PUPD(102, 0x90, 20),
+	PIN_FIELD_PUPD(103, 0x90, 23),
+	PIN_FIELD_PUPD(104, 0x90, 26),
+	/* NFI */
+	PIN_FIELD_PUPD(105, 0x90, 29),
+	PIN_FIELD_PUPD(106, 0xf0, 2),
+	PIN_FIELD_PUPD(107, 0xf0, 5),
+	PIN_FIELD_PUPD(108, 0xf0, 8),
+	PIN_FIELD_PUPD(109, 0xf0, 11),
+};
+
+static const struct mtk_pin_field_calc mt8365_pin_r1_range[] = {
+	/* KeyPad */
+	PIN_FIELD_PUPD(22, 0x70, 1),
+	PIN_FIELD_PUPD(23, 0x70, 4),
+	PIN_FIELD_PUPD(24, 0x70, 7),
+	PIN_FIELD_PUPD(25, 0x70, 10),
+	/* MSDC2 */
+	PIN_FIELD_PUPD(80, 0x70, 13),
+	PIN_FIELD_PUPD(81, 0x70, 16),
+	PIN_FIELD_PUPD(82, 0x70, 19),
+	PIN_FIELD_PUPD(83, 0x70, 22),
+	PIN_FIELD_PUPD(84, 0x70, 25),
+	PIN_FIELD_PUPD(85, 0x70, 28),
+	PIN_FIELD_PUPD(86, 0x80, 1),
+	/* MSDC1 */
+	PIN_FIELD_PUPD(87, 0x80, 4),
+	PIN_FIELD_PUPD(88, 0x80, 7),
+	PIN_FIELD_PUPD(89, 0x80, 10),
+	PIN_FIELD_PUPD(90, 0x80, 13),
+	PIN_FIELD_PUPD(91, 0x80, 16),
+	PIN_FIELD_PUPD(92, 0x80, 19),
+	/* MSDC0 */
+	PIN_FIELD_PUPD(93, 0x80, 22),
+	PIN_FIELD_PUPD(94, 0x80, 25),
+	PIN_FIELD_PUPD(95, 0x80, 28),
+	PIN_FIELD_PUPD(96, 0x90, 1),
+	PIN_FIELD_PUPD(97, 0x90, 4),
+	PIN_FIELD_PUPD(98, 0x90, 7),
+	PIN_FIELD_PUPD(99, 0x90, 10),
+	PIN_FIELD_PUPD(100, 0x90, 13),
+	PIN_FIELD_PUPD(101, 0x90, 16),
+	PIN_FIELD_PUPD(102, 0x90, 19),
+	PIN_FIELD_PUPD(103, 0x90, 22),
+	PIN_FIELD_PUPD(104, 0x90, 25),
+	/* N */
+	PIN_FIELD_PUPD(105, 0x90, 28),
+	PIN_FIELD_PUPD(106, 0xf0, 1),
+	PIN_FIELD_PUPD(107, 0xf0, 4),
+	PIN_FIELD_PUPD(108, 0xf0, 7),
+	PIN_FIELD_PUPD(109, 0xf0, 10),
+};
+
+static const struct mtk_pin_field_calc mt8365_pin_r0_range[] = {
+	/* KeyPad */
+	PIN_FIELD_PUPD(22, 0x70, 0),
+	PIN_FIELD_PUPD(23, 0x70, 3),
+	PIN_FIELD_PUPD(24, 0x70, 6),
+	PIN_FIELD_PUPD(25, 0x70, 9),
+	/* MSDC2 */
+	PIN_FIELD_PUPD(80, 0x70, 12),
+	PIN_FIELD_PUPD(81, 0x70, 15),
+	PIN_FIELD_PUPD(82, 0x70, 18),
+	PIN_FIELD_PUPD(83, 0x70, 21),
+	PIN_FIELD_PUPD(84, 0x70, 24),
+	PIN_FIELD_PUPD(85, 0x70, 27),
+	PIN_FIELD_PUPD(86, 0x80, 0),
+	/* MSDC1 */
+	PIN_FIELD_PUPD(87, 0x80, 3),
+	PIN_FIELD_PUPD(88, 0x80, 6),
+	PIN_FIELD_PUPD(89, 0x80, 9),
+	PIN_FIELD_PUPD(90, 0x80, 12),
+	PIN_FIELD_PUPD(91, 0x80, 15),
+	PIN_FIELD_PUPD(92, 0x80, 18),
+	/* MSDC0 */
+	PIN_FIELD_PUPD(93, 0x80, 21),
+	PIN_FIELD_PUPD(94, 0x80, 24),
+	PIN_FIELD_PUPD(95, 0x80, 27),
+	PIN_FIELD_PUPD(96, 0x90, 0),
+	PIN_FIELD_PUPD(97, 0x90, 3),
+	PIN_FIELD_PUPD(98, 0x90, 6),
+	PIN_FIELD_PUPD(99, 0x90, 9),
+	PIN_FIELD_PUPD(100, 0x90, 12),
+	PIN_FIELD_PUPD(101, 0x90, 15),
+	PIN_FIELD_PUPD(102, 0x90, 18),
+	PIN_FIELD_PUPD(103, 0x90, 21),
+	PIN_FIELD_PUPD(104, 0x90, 24),
+	/* NFI */
+	PIN_FIELD_PUPD(105, 0x90, 27),
+	PIN_FIELD_PUPD(106, 0xf0, 0),
+	PIN_FIELD_PUPD(107, 0xf0, 3),
+	PIN_FIELD_PUPD(108, 0xf0, 6),
+	PIN_FIELD_PUPD(109, 0xf0, 9),
+};
+
 static const struct mtk_pin_reg_calc mt8365_reg_cals[PINCTRL_PIN_REG_MAX] = {
 	[PINCTRL_PIN_REG_MODE]    = MTK_RANGE(mt8365_pin_mode_range),
 	[PINCTRL_PIN_REG_DIR]     = MTK_RANGE(mt8365_pin_dir_range),
@@ -233,6 +362,9 @@ static const struct mtk_pin_reg_calc mt8365_reg_cals[PINCTRL_PIN_REG_MAX] = {
 	[PINCTRL_PIN_REG_PULLSEL] = MTK_RANGE(mt8365_pin_pullsel_range),
 	[PINCTRL_PIN_REG_PULLEN]  = MTK_RANGE(mt8365_pin_pullen_range),
 	[PINCTRL_PIN_REG_DRV]     = MTK_RANGE(mt8365_pin_drv_range),
+	[PINCTRL_PIN_REG_PUPD]    = MTK_RANGE(mt8365_pin_pupd_range),
+	[PINCTRL_PIN_REG_R1]      = MTK_RANGE(mt8365_pin_r1_range),
+	[PINCTRL_PIN_REG_R0]      = MTK_RANGE(mt8365_pin_r0_range),
 };
 
 static const struct mtk_pin_desc mt8365_pins[] = {
