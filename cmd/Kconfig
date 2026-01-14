@@ -1679,7 +1679,7 @@ config CMD_PINMUX
 	default y if PINCTRL
 	help
 	  Parse all available pin-controllers and show pins muxing. This
-	  is useful for debug purpoer to check the pin muxing and to know if
+	  is useful for debugging purposes to check the pin muxing and to know if
 	  a pin is configured as a GPIO or as an alternate function.
 
 config CMD_POWEROFF
