@@ -66,6 +66,24 @@ static const int mtk_common_clk_of_xlate(struct clk *clk,
 	return 0;
 }
 
+static int mtk_common_clk_get_unmapped_id(struct clk *clk)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+	int i;
+
+	if (!tree->id_offs_map)
+		return clk->id;
+
+	/* Perform reverse lookup of unmapped ID. */
+	for (i = 0; i < tree->id_offs_map_size; i++) {
+		if (tree->id_offs_map[i] == clk->id)
+			return i;
+	}
+
+	return -ENOENT;
+}
+
 static int mtk_dummy_enable(struct clk *clk)
 {
 	return 0;
@@ -812,6 +830,7 @@ static int mtk_common_clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	struct mtk_clk_priv *parent_priv = dev_get_priv(parent->dev);
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	int parent_unmapped_id;
 	u32 parent_type;
 
 	if (!priv->tree->muxes || clk->id < priv->tree->muxes_offs ||
@@ -821,8 +840,12 @@ static int mtk_common_clk_set_parent(struct clk *clk, struct clk *parent)
 	if (!parent_priv)
 		return 0;
 
+	parent_unmapped_id = mtk_common_clk_get_unmapped_id(parent);
+	if (parent_unmapped_id < 0)
+		return parent_unmapped_id;
+
 	parent_type = parent_priv->tree->flags & CLK_PARENT_MASK;
-	return mtk_clk_mux_set_parent(priv->base, parent->id, parent_type,
+	return mtk_clk_mux_set_parent(priv->base, parent_unmapped_id, parent_type,
 			&priv->tree->muxes[clk->id - priv->tree->muxes_offs]);
 }
 
