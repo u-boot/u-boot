@@ -364,11 +364,13 @@ int mtk_pinconf_bias_set_v1(struct udevice *dev, u32 pin, bool disable,
 	/* set pupd_r1_r0 if pullen_pullsel succeeded */
 	err = mtk_pinconf_bias_set_pullen_pullsel(dev, pin, disable, pullup,
 						  val);
-	if (!err)
-		return mtk_pinconf_bias_set_pupd_r1_r0(dev, pin, disable,
-						       pullup, val);
+	if (err)
+		return err;
 
-	return err;
+	/* Not all pins have PUPD/R1/R0 registers, so ignore any error here. */
+	mtk_pinconf_bias_set_pupd_r1_r0(dev, pin, disable, pullup, val);
+
+	return 0;
 }
 
 int mtk_pinconf_bias_set_pu_pd(struct udevice *dev, u32 pin, bool disable,
