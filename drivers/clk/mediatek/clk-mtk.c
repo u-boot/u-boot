@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/err.h>
 
 #include "clk-mtk.h"
 
@@ -236,10 +237,10 @@ static void mtk_clk_print_rate(struct udevice *dev, int mapped_id)
 		.dev = dev,
 		.id = mapped_id,
 	};
-	long rate = clk_get_rate(&clk);
+	ulong rate = clk_get_rate(&clk);
 
-	if (rate < 0)
-		printf(", error! clk_get_rate() failed: %ld", rate);
+	if (IS_ERR_VALUE(rate))
+		printf(", error! clk_get_rate() failed: %d", (int)rate);
 	else
 		printf(", Rate: %lu Hz", rate);
 }
@@ -650,7 +651,7 @@ static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 		rate = priv->tree->xtal_rate;
 	}
 
-	if (((long)rate) < 0)
+	if (IS_ERR_VALUE(rate))
 		return rate;
 
 	return mtk_factor_recalc_rate(fdiv, rate);
@@ -974,7 +975,7 @@ static ulong mtk_infrasys_get_factor_rate(struct clk *clk, u32 off)
 		rate = mtk_clk_find_parent_rate(clk, fdiv->parent, NULL);
 	}
 
-	if (((long)rate) < 0)
+	if (IS_ERR_VALUE(rate))
 		return rate;
 
 	return mtk_factor_recalc_rate(fdiv, rate);
