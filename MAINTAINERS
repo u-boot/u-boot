@@ -1464,7 +1464,7 @@ N:	mmc
 NETWORK
 M:	Joe Hershberger <joe.hershberger@ni.com>
 M:	Ramon Fried <rfried.dev@gmail.com>
-M:	Jerome Forissier <jerome@forissier.org>
+M:	Jerome Forissier <jerome.forissier@arm.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-net.git
 F:	drivers/net/
@@ -1472,7 +1472,7 @@ F:	include/net.h
 F:	net/
 
 NETWORK (LWIP)
-M:	Jerome Forissier <jerome@forissier.org>
+M:	Jerome Forissier <jerome.forissier@arm.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-net.git
 F:	cmd/lwip/
@@ -1930,7 +1930,7 @@ F:	drivers/usb/host/xhci*
 F:	include/usb/xhci.h
 
 UTHREAD
-M:	Jerome Forissier <jerome@forissier.org>
+M:	Jerome Forissier <jerome.forissier@arm.com>
 S:	Maintained
 F:	cmd/spawn.c
 F:	include/uthread.h
