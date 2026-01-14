@@ -1,6 +1,7 @@
 phyCORE-AM62ax
 M:	Garrett Giordano <ggiordano@phytec.com>
 M:	Wadim Egorov <w.egorov@phytec.de>
+L:	upstream@lists.phytec.de
 W:	https://www.phytec.com/product/phycore-am62a
 S:	Maintained
 F:	arch/arm/dts/k3-am62a-phycore-som-binman.dtsi

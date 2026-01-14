@@ -1,5 +1,6 @@
 phyCORE-AM64x
 M:	Wadim Egorov <w.egorov@phytec.de>
+L:	upstream@lists.phytec.de
 W:	https://www.phytec.com/product/phycore-am64x
 S:	Maintained
 F:	arch/arm/dts/k3-am64-phycore-som-ddr4-2gb.dtsi

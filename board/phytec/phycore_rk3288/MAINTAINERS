@@ -1,5 +1,6 @@
 phyCORE-RK3288
 M:	Wadim Egorov <w.egorov@phytec.de>
+L:	upstream@lists.phytec.de
 S:	Maintained
 F:	arch/arm/dts/rk3288-phycore-rdk-u-boot.dtsi
 F:	board/phytec/phycore_rk3288

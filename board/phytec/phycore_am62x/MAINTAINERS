@@ -1,5 +1,6 @@
 phyCORE-AM62x
 M:	Wadim Egorov <w.egorov@phytec.de>
+L:	upstream@lists.phytec.de
 W:	https://www.phytec.com/product/phycore-am62x
 S:	Maintained
 F:	arch/arm/dts/k3-am62-phycore-som-ddr4-2gb.dtsi

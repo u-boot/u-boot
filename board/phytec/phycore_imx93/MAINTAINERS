@@ -1,6 +1,7 @@
 phyCORE-i.MX93
 M:      Mathieu Othacehe <m.othacehe@gmail.com>
 R:      Christoph Stoidner <c.stoidner@phytec.de>
+L:      upstream@lists.phytec.de
 W:      https://www.phytec.eu/en/produkte/system-on-modules/phycore-imx-91-93/
 S:      Maintained
 F:      arch/arm/dts/imx93-phyboard-segin-u-boot.dtsi
