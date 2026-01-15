@@ -69,28 +69,27 @@ SECTIONS
 	__ex_table : { *(__ex_table) }
 	__stop___ex_table = .;
 
-	. = ALIGN(8);
+	. = ALIGN(4);
 	__init_begin = .;
 	.text.init : { *(.text.init) }
 	.data.init : { *(.data.init) }
-	. = ALIGN(8);
+	. = ALIGN(4);
 	__init_end = .;
 
-	. = ALIGN(8);
+	. = ALIGN(4);
 	__rel_dyn_start = .;
 	.rela.dyn : {
 		*(.rela.dyn)
 	}
 	__rel_dyn_end = .;
 
-	. = ALIGN(8);
-	__dyn_sym_start = .;
-	.dynsym : {
+	.dynsym ALIGN(4) : {
+		__dyn_sym_start = .;
 		*(.dynsym)
+		__dyn_sym_end = .;
+		. = ALIGN(8);
 	}
-	__dyn_sym_end = .;
 
-	. = ALIGN(8);
 	_end = .;
 
 	__bss_start = .;
@@ -100,9 +99,11 @@ SECTIONS
 		*(.bss*)
 		*(.sbss*)
 		*(COMMON)
-		. = ALIGN(8);
+		. = ALIGN(4);
 		_ebss = .;
 	}
 	__bss_end = . ;
 	PROVIDE (end = .);
 }
+
+ASSERT(_end % 8 == 0, "_end must be 8-byte aligned for device tree");
