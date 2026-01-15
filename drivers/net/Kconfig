@@ -539,7 +539,7 @@ config MV88E6XXX
 
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
-	depends on ARCH_KIRKWOOD || ARCH_ORION5X
+	depends on ARCH_KIRKWOOD
 	select PHYLIB
 	help
 	  This driver supports the network interface units in the

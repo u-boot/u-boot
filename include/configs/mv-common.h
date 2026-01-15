@@ -10,7 +10,6 @@
  * This file should be included in board config header file.
  *
  * It supports common definations for Kirkwood platform
- * TBD: support for Orion5X platforms
  */
 
 #ifndef _MV_COMMON_H

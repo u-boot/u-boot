@@ -187,7 +187,7 @@ config USB_EHCI_EXYNOS
 
 config USB_EHCI_MARVELL
 	bool "Support for Marvell on-chip EHCI USB controller"
-	depends on ARCH_MVEBU || ARCH_KIRKWOOD || ARCH_ORION5X
+	depends on ARCH_MVEBU || ARCH_KIRKWOOD
 	default y
 	select USB_EHCI_IS_TDI if !ARM64
 	select USB_EHCI_IS_TDI if ALLEYCAT_5
