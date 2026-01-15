@@ -98,7 +98,6 @@ int regulator_common_set_enable(const struct udevice *dev,
 
 	if (enable && plat->startup_delay_us)
 		udelay(plat->startup_delay_us);
-	debug("%s: done\n", __func__);
 
 	if (!enable && plat->off_on_delay_us)
 		udelay(plat->off_on_delay_us);
