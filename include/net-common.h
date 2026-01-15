@@ -13,6 +13,7 @@
 #include <time.h>
 
 #define DEBUG_NET_PKT_TRACE 0	/* Trace all packet data */
+#define DEBUG_INT_STATE 0	/* Internal network state changes */
 
 /*
  *	The number of receive packet buffers, and the required packet buffer
@@ -114,13 +115,37 @@ struct ip_udp_hdr {
 #define RINGSZ		4
 #define RINGSZ_LOG2	2
 
+/* Network loop state */
+enum net_loop_state {
+	NETLOOP_CONTINUE,
+	NETLOOP_RESTART,
+	NETLOOP_SUCCESS,
+	NETLOOP_FAIL
+};
+
+extern enum net_loop_state net_state;
+
+static inline void net_set_state(enum net_loop_state state)
+{
+	debug_cond(DEBUG_INT_STATE, "--- NetState set to %d\n", state);
+	net_state = state;
+}
+
 extern int		net_restart_wrap;	/* Tried all network devices */
-extern uchar               *net_rx_packets[PKTBUFSRX]; /* Receive packets */
+extern uchar		*net_rx_packets[PKTBUFSRX]; /* Receive packets */
 extern const u8		net_bcast_ethaddr[ARP_HLEN];	/* Ethernet broadcast address */
-extern char	net_boot_file_name[1024];/* Boot File name */
 extern struct in_addr	net_ip;		/* Our    IP addr (0 = unknown) */
 /* Indicates whether the pxe path prefix / config file was specified in dhcp option */
 extern char *pxelinux_configfile;
+
+/* Our IP addr (0 = unknown) */
+extern struct in_addr	net_ip;
+/* Boot File name */
+extern char	net_boot_file_name[1024];
+/* The actual transferred size of the bootfile (in bytes) */
+extern u32	net_boot_file_size;
+/* Boot file size in blocks as reported by the DHCP server */
+extern u32	net_boot_file_expected_size_in_blocks;
 
 /**
  * compute_ip_checksum() - Compute IP checksum

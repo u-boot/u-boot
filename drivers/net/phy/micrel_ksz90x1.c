@@ -189,7 +189,10 @@ static int ksz9031_of_config(struct phy_device *phydev)
 		{ MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW, 2, ksz90x1_txd_grp, 4 },
 		{ MII_KSZ9031_EXT_RGMII_CLOCK_SKEW, 2, ksz9031_clk_grp, 2 },
 	};
+	const unsigned int master = CTRL1000_CONFIG_MASTER | CTRL1000_MANUAL_CONFIG;
+	struct udevice *dev = phydev->dev;
 	int i, ret = 0;
+	ofnode node;
 
 	for (i = 0; i < ARRAY_SIZE(ofcfg); i++) {
 		ret = ksz90x1_of_config_group(phydev, &ofcfg[i],
@@ -198,7 +201,39 @@ static int ksz9031_of_config(struct phy_device *phydev)
 			return ret;
 	}
 
-	return 0;
+	node = phydev->node;
+
+	/* Look for a PHY node under the Ethernet node */
+	if (!ofnode_valid(node))
+		node = dev_read_subnode(dev, "ethernet-phy");
+
+	/* No node found, look in the Ethernet node */
+	if (!ofnode_valid(node))
+		node = dev_ofnode(dev);
+
+	/* Silicon Errata Sheet (DS80000691D or DS80000692D):
+	 * When the device links in the 1000BASE-T slave mode only,
+	 * the optional 125MHz reference output clock (CLK125_NDO)
+	 * has wide duty cycle variation.
+	 *
+	 * The optional CLK125_NDO clock does not meet the RGMII
+	 * 45/55 percent (min/max) duty cycle requirement and therefore
+	 * cannot be used directly by the MAC side for clocking
+	 * applications that have setup/hold time requirements on
+	 * rising and falling clock edges.
+	 *
+	 * Workaround:
+	 * Force the phy to be the master to receive a stable clock
+	 * which meets the duty cycle requirement.
+	 */
+	if (ofnode_read_bool(node, "micrel,force-master")) {
+		ret = phy_modify(phydev, MDIO_DEVAD_NONE, MII_CTRL1000,
+				 master | CTRL1000_PREFER_MASTER, master);
+		if (ret < 0)
+			pr_err("KSZ9031: error applying 'micrel,force-master'\n");
+	}
+
+	return ret;
 }
 
 static int ksz9031_center_flp_timing(struct phy_device *phydev)
@@ -215,6 +250,31 @@ static int ksz9031_center_flp_timing(struct phy_device *phydev)
 
 	ret = drv->writeext(phydev, 0, 0, MII_KSZ9031_FLP_BURST_TX_HI, 0x6);
 	return ret;
+}
+
+static void ksz90x1_workaround_asymmetric_pause(struct phy_device *phydev)
+{
+	u32 features = phydev->drv->features;
+
+	/* Silicon Errata Sheet (DS80000691D or DS80000692D):
+	 * Whenever the device's Asymmetric Pause capability is set to 1,
+	 * link-up may fail after a link-up to link-down transition.
+	 *
+	 * The Errata Sheet is for ksz9031, but ksz9021 has the same issue
+	 *
+	 * Workaround:
+	 * Do not enable the Asymmetric Pause capability bit.
+	 */
+	features &= ~ADVERTISE_PAUSE_ASYM;
+
+	/* We force setting the Pause capability as the core will force the
+	 * Asymmetric Pause capability to 1 otherwise.
+	 */
+	features |= ADVERTISE_PAUSE_CAP;
+
+	/* update feature support and forward to advertised features */
+	phydev->supported = features;
+	phydev->advertising = phydev->supported;
 }
 
 /*
@@ -259,6 +319,8 @@ static int ksz9021_config(struct phy_device *phydev)
 	ret = ksz9021_of_config(phydev);
 	if (ret)
 		return ret;
+
+	ksz90x1_workaround_asymmetric_pause(phydev);
 
 	if (env_get("disable_giga"))
 		features &= ~(SUPPORTED_1000baseT_Half |
@@ -344,6 +406,8 @@ static int ksz9031_config(struct phy_device *phydev)
 	ret = ksz9031_center_flp_timing(phydev);
 	if (ret)
 		return ret;
+
+	ksz90x1_workaround_asymmetric_pause(phydev);
 
 	/* add an option to disable the gigabit feature of this PHY */
 	if (env_get("disable_giga")) {
