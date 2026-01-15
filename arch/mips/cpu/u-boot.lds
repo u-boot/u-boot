@@ -54,9 +54,9 @@ SECTIONS
 		LONG(0xFFFFFFFF);
 		FILL(0);
 		. += CONFIG_MIPS_RELOCATION_TABLE_SIZE - 4;
+		. = ALIGN(8);
 	}
 
-	. = ALIGN(8);
 	_end = .;
 
 	.bss __rel_start (OVERLAY) : {
@@ -140,3 +140,5 @@ SECTIONS
 		*(.eh_frame)
 	}
 }
+
+ASSERT(_end % 8 == 0, "_end must be 8-byte aligned for device tree");
