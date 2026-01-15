@@ -1,2 +1,2 @@
-filelock==3.20.1
+filelock==3.20.3
 importlib_resources==6.5.2

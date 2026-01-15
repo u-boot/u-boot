@@ -1,4 +1,4 @@
-filelock==3.20.1
+filelock==3.20.3
 pycryptodomex==3.21.0
 pytest==8.4.2
 pytest-xdist==2.5.0
