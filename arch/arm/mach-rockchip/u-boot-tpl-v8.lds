@@ -42,9 +42,9 @@ SECTIONS
 	__u_boot_list : {
 		. = ALIGN(8);
 		KEEP(*(SORT(__u_boot_list*)));
+		. = ALIGN(8);
 	}
 
-	. = ALIGN(8);
 	__image_copy_end = .;
 	_end = .;
 	_image_binary_end = .;
@@ -68,6 +68,9 @@ SECTIONS
 ASSERT(__image_copy_end - __image_copy_start < (CONFIG_TPL_MAX_SIZE), \
 	"TPL image too big");
 #endif
+
+ASSERT(_image_binary_end % 8 == 0, \
+       "_image_binary_end must be 8-byte aligned for device tree");
 
 #if defined(CONFIG_TPL_BSS_MAX_SIZE)
 ASSERT(__bss_end - __bss_start < (CONFIG_TPL_BSS_MAX_SIZE), \
