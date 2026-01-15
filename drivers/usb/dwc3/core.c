@@ -580,6 +580,26 @@ static void dwc3_set_incr_burst_type(struct dwc3 *dwc)
 	dwc3_writel(dwc->regs, DWC3_GSBUSCFG0, cfg);
 }
 
+static bool dwc3_core_is_valid(struct dwc3 *dwc)
+{
+	u32 reg;
+
+	reg = dwc3_readl(dwc->regs, DWC3_GSNPSID);
+	dwc->ip = DWC3_GSNPS_ID(reg);
+
+	/* This should read as U3 followed by revision number */
+	if (DWC3_IP_IS(DWC3)) {
+		dwc->revision = reg;
+	} else if (DWC3_IP_IS(DWC31) || DWC3_IP_IS(DWC32)) {
+		dwc->revision = dwc3_readl(dwc->regs, DWC3_VER_NUMBER);
+		dwc->version_type = dwc3_readl(dwc->regs, DWC3_VER_TYPE);
+	} else {
+		return false;
+	}
+
+	return true;
+}
+
 /**
  * dwc3_core_init - Low-level initialization of DWC3 Core
  * @dwc: Pointer to our controller context structure
@@ -592,15 +612,11 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	u32			reg;
 	int			ret;
 
-	reg = dwc3_readl(dwc->regs, DWC3_GSNPSID);
-	/* This should read as U3 followed by revision number */
-	if ((reg & DWC3_GSNPSID_MASK) != 0x55330000 &&
-	    (reg & DWC3_GSNPSID_MASK) != 0x33310000) {
+	if (!dwc3_core_is_valid(dwc)) {
 		dev_err(dwc->dev, "this is not a DesignWare USB3 DRD Core\n");
 		ret = -ENODEV;
 		goto err0;
 	}
-	dwc->revision = reg;
 
 	/* Handle USB2.0-only core configuration */
 	if (DWC3_GHWPARAMS3_SSPHY_IFC(dwc->hwparams.hwparams3) ==
