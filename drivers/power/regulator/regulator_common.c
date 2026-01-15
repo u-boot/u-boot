@@ -51,7 +51,7 @@ int regulator_common_get_enable(const struct udevice *dev,
 	struct regulator_common_plat *plat)
 {
 	/* Enable GPIO is optional */
-	if (!plat->gpio.dev)
+	if (!dm_gpio_is_valid(&plat->gpio))
 		return true;
 
 	return dm_gpio_get_value(&plat->gpio);
