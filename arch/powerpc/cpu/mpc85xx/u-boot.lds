@@ -78,7 +78,7 @@ SECTIONS
   __init_begin = .;
   .text.init : { *(.text.init) }
   .data.init : { *(.data.init) }
-  . = ALIGN(4);
+  . = ALIGN(8);
   __init_end = .;
   _end = .;
 
@@ -119,3 +119,5 @@ SECTIONS
   __bss_end = . ;
   PROVIDE (end = .);
 }
+
+ASSERT(_end % 8 == 0, "_end must be 8-byte aligned for device tree");
