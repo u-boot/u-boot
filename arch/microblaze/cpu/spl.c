@@ -14,9 +14,16 @@
 
 void board_boot_order(u32 *spl_boot_list)
 {
-	spl_boot_list[0] = BOOT_DEVICE_NOR;
-	spl_boot_list[1] = BOOT_DEVICE_RAM;
-	spl_boot_list[2] = BOOT_DEVICE_SPI;
+	u32 i = 0;
+
+	if (CONFIG_IS_ENABLED(NOR_SUPPORT))
+		spl_boot_list[i++] = BOOT_DEVICE_NOR;
+
+	if (CONFIG_IS_ENABLED(SPI_FLASH_SUPPORT))
+		spl_boot_list[i++] = BOOT_DEVICE_SPI;
+
+	if (CONFIG_IS_ENABLED(RAM_SUPPORT))
+		spl_boot_list[i++] = BOOT_DEVICE_RAM;
 }
 
 /* Board initialization after bss clearance */
