@@ -11,7 +11,9 @@ config SYS_CONFIG_NAME
 
 choice
 	prompt "TQMa6 SoC variant"
-	default TQMA6Q
+	default TQMA6DL if MX6DL
+	default TQMA6Q if MX6Q
+	default TQMA6S if MX6S
 	help
 	  select the TQMa6 module variant. The variants only differ in the used
 	  i.MX6 CPU type and DRAM
