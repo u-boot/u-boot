@@ -2125,7 +2125,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		if (ret < 0 && ret != -EINVAL)
 			ret = fit_conf_get_node(fit, fit_uname_config);
 		if (ret < 0) {
-			puts("Could not find configuration node\n");
+			printf("Could not find configuration node '%s'\n",
+			       fit_uname_config ? fit_uname_config : "(null)");
 			bootstage_error(bootstage_id +
 					BOOTSTAGE_SUB_NO_UNIT_NAME);
 			return -ENOENT;
