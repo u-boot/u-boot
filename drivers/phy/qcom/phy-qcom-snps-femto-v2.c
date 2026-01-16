@@ -174,7 +174,7 @@ static int qcom_snps_hsphy_phy_probe(struct udevice *dev)
 		return ret;
 	}
 
-	reset_deassert_bulk(&priv->resets);
+	reset_assert_bulk(&priv->resets);
 
 	return 0;
 }

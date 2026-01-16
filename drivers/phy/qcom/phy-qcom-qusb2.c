@@ -224,6 +224,18 @@ static const unsigned int qusb2_v2_regs_layout[] = {
 	[QUSB2PHY_INTR_CTRL] = 0x230,
 };
 
+static const struct qusb2_phy_cfg msm8996_phy_cfg = {
+	.tbl = msm8996_init_tbl,
+	.tbl_num = ARRAY_SIZE(msm8996_init_tbl),
+	.regs = sm6115_regs_layout,
+
+	.has_pll_test = true,
+	.se_clk_scheme_default = true,
+	.disable_ctrl = (CLAMP_N_EN | FREEZIO_N | POWER_DOWN),
+	.mask_core_ready = PLL_LOCKED,
+	.autoresume_en = BIT(3),
+};
+
 static const struct qusb2_phy_cfg sm6115_phy_cfg = {
 	.tbl = sm6115_init_tbl,
 	.tbl_num = ARRAY_SIZE(sm6115_init_tbl),
@@ -450,6 +462,8 @@ static struct phy_ops qusb2phy_ops = {
 };
 
 static const struct udevice_id qusb2phy_ids[] = {
+	{ .compatible = "qcom,msm8996-qusb2-phy",
+	  .data = (ulong)&msm8996_phy_cfg },
 	{ .compatible = "qcom,qusb2-phy" },
 	{ .compatible = "qcom,qcm2290-qusb2-phy",
 	  .data = (ulong)&sm6115_phy_cfg },

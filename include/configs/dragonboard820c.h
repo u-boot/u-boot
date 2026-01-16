@@ -27,7 +27,6 @@
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x95000000\0" \
-	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"linux_image=uImage\0" \
 	"kernel_addr_r=0x95000000\0"\

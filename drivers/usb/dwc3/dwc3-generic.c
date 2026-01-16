@@ -461,8 +461,12 @@ static void dwc3_qcom_select_utmi_clk(void __iomem *qscratch_base)
 	setbits_le32(qscratch_base + QSCRATCH_GENERAL_CFG,
 			  PIPE_UTMI_CLK_DIS);
 
+	udelay(100);
+
 	setbits_le32(qscratch_base + QSCRATCH_GENERAL_CFG,
 			  PIPE_UTMI_CLK_SEL | PIPE3_PHYSTATUS_SW);
+
+	udelay(100);
 
 	clrbits_le32(qscratch_base + QSCRATCH_GENERAL_CFG,
 			  PIPE_UTMI_CLK_DIS);
@@ -472,7 +476,14 @@ static void dwc3_qcom_glue_configure(struct udevice *dev, int index,
 				     enum usb_dr_mode mode)
 {
 	struct dwc3_glue_data *glue = dev_get_plat(dev);
-	void __iomem *qscratch_base = map_physmem(glue->regs, 0x400, MAP_NOCACHE);
+	fdt_addr_t regs = glue->regs;
+	void __iomem *qscratch_base;
+
+	/* Offset for qscratch base when using flat DT */
+	if (device_is_compatible(dev, "qcom,snps-dwc3"))
+		regs += SDM845_QSCRATCH_BASE_OFFSET;
+
+	qscratch_base = map_physmem(regs, 0x400, MAP_NOCACHE);
 	if (IS_ERR_OR_NULL(qscratch_base)) {
 		log_err("%s: Invalid qscratch base address\n", dev->name);
 		return;
@@ -485,11 +496,8 @@ static void dwc3_qcom_glue_configure(struct udevice *dev, int index,
 		dwc3_qcom_vbus_override_enable(qscratch_base, true);
 }
 
-struct dwc3_glue_ops qcom_ops = {
-	.glue_configure = dwc3_qcom_glue_configure,
-};
-
-static int dwc3_rk_glue_get_ctrl_dev(struct udevice *dev, ofnode *node)
+/* In cases where there is no dwc3 node and it's flattened into the glue node */
+static int dwc3_flat_dt_get_ctrl_dev(struct udevice *dev, ofnode *node)
 {
 	*node = dev_ofnode(dev);
 	if (!ofnode_valid(*node))
@@ -498,8 +506,17 @@ static int dwc3_rk_glue_get_ctrl_dev(struct udevice *dev, ofnode *node)
 	return 0;
 }
 
+struct dwc3_glue_ops qcom_ops = {
+	.glue_configure = dwc3_qcom_glue_configure,
+};
+
+struct dwc3_glue_ops qcom_flat_dt_ops = {
+	.glue_configure = dwc3_qcom_glue_configure,
+	.glue_get_ctrl_dev = dwc3_flat_dt_get_ctrl_dev,
+};
+
 struct dwc3_glue_ops rk_ops = {
-	.glue_get_ctrl_dev = dwc3_rk_glue_get_ctrl_dev,
+	.glue_get_ctrl_dev = dwc3_flat_dt_get_ctrl_dev,
 };
 
 static int dwc3_glue_bind_common(struct udevice *parent, ofnode node)
@@ -708,6 +725,7 @@ static const struct udevice_id dwc3_glue_ids[] = {
 	{ .compatible = "rockchip,rk3576-dwc3", .data = (ulong)&rk_ops },
 	{ .compatible = "rockchip,rk3588-dwc3", .data = (ulong)&rk_ops },
 	{ .compatible = "qcom,dwc3", .data = (ulong)&qcom_ops },
+	{ .compatible = "qcom,snps-dwc3", .data = (ulong)&qcom_flat_dt_ops },
 	{ .compatible = "fsl,imx8mp-dwc3", .data = (ulong)&imx8mp_ops },
 	{ .compatible = "fsl,imx8mq-dwc3" },
 	{ .compatible = "intel,tangier-dwc3" },

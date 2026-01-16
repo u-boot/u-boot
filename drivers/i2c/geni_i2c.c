@@ -494,7 +494,9 @@ static int geni_i2c_probe(struct udevice *dev)
 		return ret;
 	}
 
-	geni_i2c_enable_clocks(dev, geni);
+	ret = geni_i2c_enable_clocks(dev, geni);
+	if (ret)
+		return ret;
 
 	proto = readl(geni->base + GENI_FW_REVISION_RO);
 	proto &= FW_REV_PROTOCOL_MSK;

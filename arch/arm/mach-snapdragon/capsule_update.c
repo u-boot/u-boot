@@ -13,6 +13,7 @@
 #include <efi.h>
 #include <efi_loader.h>
 #include <malloc.h>
+#include <mmc.h>
 #include <scsi.h>
 #include <part.h>
 #include <linux/err.h>
@@ -80,6 +81,23 @@ static enum ab_slot get_part_slot(const char *partname)
 	return SLOT_NONE;
 }
 
+/* Shamelessly copied from lib/efi_loader/efi_device_path.c @ 33 */
+/*
+ * Determine if an MMC device is an SD card.
+ *
+ * @desc	block device descriptor
+ * Return:	true if the device is an SD card
+ */
+static bool is_sd(struct blk_desc *desc)
+{
+	struct mmc *mmc = find_mmc_device(desc->devnum);
+
+	if (!mmc)
+		return false;
+
+	return IS_SD(mmc) != 0U;
+}
+
 /*
  * Determine which partition U-Boot is flashed to based on the boot source (ABL/XBL),
  * the slot status, and prioritizing the uefi partition over xbl if found.
@@ -109,19 +127,21 @@ static int find_target_partition(int *devnum, enum uclass_id *uclass,
 		if (device_get_uclass_id(dev) != UCLASS_BLK)
 			continue;
 
+		desc = dev_get_uclass_plat(dev);
+
 		/* If we have a UFS then don't look at any other block devices */
 		if (have_ufs) {
 			if (device_get_uclass_id(dev->parent->parent) != UCLASS_UFS)
 				continue;
+		}
 		/*
-		 * If we don't have UFS, then U-Boot must be on the eMMC which is always the first
-		 * MMC device.
+		 * If we don't have UFS, then U-Boot must be on the eMMC
 		 */
-		} else if (dev->parent->seq_ > 0) {
+		else if (IS_ENABLED(CONFIG_MMC) && is_sd(desc)) {
+			log_debug("skipped SD-Card (devnum %d)\n", desc->devnum);
 			continue;
 		}
 
-		desc = dev_get_uclass_plat(dev);
 		if (!desc || desc->part_type == PART_TYPE_UNKNOWN)
 			continue;
 		for (partnum = 1;; partnum++) {

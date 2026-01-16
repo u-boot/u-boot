@@ -32,7 +32,7 @@
  * DT here. This improves compatibility with upstream DT and simplifies the
  * porting process for new devices.
  */
-static int fixup_qcom_dwc3(struct device_node *root, struct device_node *glue_np)
+static int fixup_qcom_dwc3(struct device_node *root, struct device_node *glue_np, bool flat)
 {
 	struct device_node *dwc3;
 	int ret, len, hsphy_idx = 1;
@@ -41,18 +41,24 @@ static int fixup_qcom_dwc3(struct device_node *root, struct device_node *glue_np
 
 	debug("Fixing up %s\n", glue_np->name);
 
+	/* New DT flattens the glue and controller into a single node. */
+	if (flat) {
+		dwc3 = glue_np;
+		debug("%s uses flat DT\n", glue_np->name);
+	} else {
+		/* Find the DWC3 node itself */
+		dwc3 = of_find_compatible_node(glue_np, NULL, "snps,dwc3");
+		if (!dwc3) {
+			log_err("Failed to find dwc3 node\n");
+			return -ENOENT;
+		}
+	}
+
 	/* Tell the glue driver to configure the wrapper for high-speed only operation */
 	ret = of_write_prop(glue_np, "qcom,select-utmi-as-pipe-clk", 0, NULL);
 	if (ret) {
 		log_err("Failed to add property 'qcom,select-utmi-as-pipe-clk': %d\n", ret);
 		return ret;
-	}
-
-	/* Find the DWC3 node itself */
-	dwc3 = of_find_compatible_node(glue_np, NULL, "snps,dwc3");
-	if (!dwc3) {
-		log_err("Failed to find dwc3 node\n");
-		return -ENOENT;
 	}
 
 	phandles = of_get_property(dwc3, "phys", &len);
@@ -104,13 +110,25 @@ static int fixup_qcom_dwc3(struct device_node *root, struct device_node *glue_np
 
 static void fixup_usb_nodes(struct device_node *root)
 {
-	struct device_node *glue_np = root;
+	struct device_node *glue_np = root, *tmp;
 	int ret;
+	bool flat;
 
-	while ((glue_np = of_find_compatible_node(glue_np, NULL, "qcom,dwc3"))) {
+	while (true) {
+		flat = false;
+		/* First check for the old DT format with glue node then the new flattened format */
+		tmp = of_find_compatible_node(glue_np, NULL, "qcom,dwc3");
+		if (!tmp) {
+			tmp = of_find_compatible_node(glue_np, NULL, "qcom,snps-dwc3");
+			flat = !!tmp;
+		}
+		if (!tmp)
+			break;
+		glue_np = tmp;
+
 		if (!of_device_is_available(glue_np))
 			continue;
-		ret = fixup_qcom_dwc3(root, glue_np);
+		ret = fixup_qcom_dwc3(root, glue_np, flat);
 		if (ret)
 			log_warning("Failed to fixup node %s: %d\n", glue_np->name, ret);
 	}
