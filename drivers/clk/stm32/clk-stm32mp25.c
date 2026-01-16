@@ -43,48 +43,143 @@
 #define SEC_RIFRCC(_id)		(STM32MP25_RIFRCC_##_id##_ID)
 #define SEC_RIFSC(_id)		((_id) | SEC_RIFSC_FLAG)
 
-static const char * const adc12_src[] = {
-	"ck_flexgen_46", "ck_icn_ls_mcu"
+/* must match scmi clock order found in DT */
+enum {
+	IDX_HSE,
+	IDX_HSI,
+	IDX_MSI,
+	IDX_LSE,
+	IDX_LSI,
+	IDX_HSE_DIV2,
+	IDX_ICN_HS_MCU,
+	IDX_ICN_LS_MCU,
+	IDX_ICN_SDMMC,
+	IDX_ICN_DDR,
+	IDX_ICN_DISPLAY,
+	IDX_ICN_HSL,
+	IDX_ICN_NIC,
+	IDX_ICN_VID,
+	IDX_FLEXGEN_07,
+	IDX_FLEXGEN_08,
+	IDX_FLEXGEN_09,
+	IDX_FLEXGEN_10,
+	IDX_FLEXGEN_11,
+	IDX_FLEXGEN_12,
+	IDX_FLEXGEN_13,
+	IDX_FLEXGEN_14,
+	IDX_FLEXGEN_15,
+	IDX_FLEXGEN_16,
+	IDX_FLEXGEN_17,
+	IDX_FLEXGEN_18,
+	IDX_FLEXGEN_19,
+	IDX_FLEXGEN_20,
+	IDX_FLEXGEN_21,
+	IDX_FLEXGEN_22,
+	IDX_FLEXGEN_23,
+	IDX_FLEXGEN_24,
+	IDX_FLEXGEN_25,
+	IDX_FLEXGEN_26,
+	IDX_FLEXGEN_27,
+	IDX_FLEXGEN_28,
+	IDX_FLEXGEN_29,
+	IDX_FLEXGEN_30,
+	IDX_FLEXGEN_31,
+	IDX_FLEXGEN_32,
+	IDX_FLEXGEN_33,
+	IDX_FLEXGEN_34,
+	IDX_FLEXGEN_35,
+	IDX_FLEXGEN_36,
+	IDX_FLEXGEN_37,
+	IDX_FLEXGEN_38,
+	IDX_FLEXGEN_39,
+	IDX_FLEXGEN_40,
+	IDX_FLEXGEN_41,
+	IDX_FLEXGEN_42,
+	IDX_FLEXGEN_43,
+	IDX_FLEXGEN_44,
+	IDX_FLEXGEN_45,
+	IDX_FLEXGEN_46,
+	IDX_FLEXGEN_47,
+	IDX_FLEXGEN_48,
+	IDX_FLEXGEN_49,
+	IDX_FLEXGEN_50,
+	IDX_FLEXGEN_51,
+	IDX_FLEXGEN_52,
+	IDX_FLEXGEN_53,
+	IDX_FLEXGEN_54,
+	IDX_FLEXGEN_55,
+	IDX_FLEXGEN_56,
+	IDX_FLEXGEN_57,
+	IDX_FLEXGEN_58,
+	IDX_FLEXGEN_59,
+	IDX_FLEXGEN_60,
+	IDX_FLEXGEN_61,
+	IDX_FLEXGEN_62,
+	IDX_FLEXGEN_63,
+	IDX_ICN_APB1,
+	IDX_ICN_APB2,
+	IDX_ICN_APB3,
+	IDX_ICN_APB4,
+	IDX_ICN_APBDBG,
+	IDX_TIMG1,
+	IDX_TIMG2,
+	IDX_PLL3,
+	DSI_TXBYTE,
 };
 
-static const char * const adc3_src[] = {
-	"ck_flexgen_47", "ck_icn_ls_mcu", "ck_flexgen_46"
+static const struct clk_parent_data adc12_src[] = {
+	{ .index = IDX_FLEXGEN_46 },
+	{ .index = IDX_ICN_LS_MCU },
 };
 
-static const char * const usb2phy1_src[] = {
-	"ck_flexgen_57", "hse_div2_ck"
+static const struct clk_parent_data adc3_src[] = {
+	{ .index = IDX_FLEXGEN_47 },
+	{ .index = IDX_ICN_LS_MCU },
+	{ .index = IDX_FLEXGEN_46 },
 };
 
-static const char * const usb2phy2_src[] = {
-	"ck_flexgen_58", "hse_div2_ck"
+static const struct clk_parent_data usb2phy1_src[] = {
+	{ .index = IDX_FLEXGEN_57 },
+	{ .index = IDX_HSE_DIV2 },
 };
 
-static const char * const usb3pciphy_src[] = {
-	"ck_flexgen_34", "hse_div2_ck"
+static const struct clk_parent_data usb2phy2_src[] = {
+	{ .index = IDX_FLEXGEN_58 },
+	{ .index = IDX_HSE_DIV2 },
 };
 
-static const char * const dsiblane_src[] = {
-	"txbyteclk", "ck_ker_ltdc"
+static const struct clk_parent_data usb3pciphy_src[] = {
+	{ .index = IDX_FLEXGEN_34 },
+	{ .index = IDX_HSE_DIV2 },
 };
 
-static const char * const dsiphy_src[] = {
-	"ck_flexgen_28", "hse_ck"
+static const struct clk_parent_data dsiblane_src[] = {
+	{ .index = DSI_TXBYTE },
+	{ .name = "ck_ker_ltdc" },
 };
 
-static const char * const lvdsphy_src[] = {
-	"ck_flexgen_32", "hse_ck"
+static const struct clk_parent_data dsiphy_src[] = {
+	{ .index = IDX_FLEXGEN_28 },
+	{ .index = IDX_HSE },
 };
 
-static const char * const dts_src[] = {
-	"hsi_ck", "hse_ck", "msi_ck"
+static const struct clk_parent_data lvdsphy_src[] = {
+	{ .index = IDX_FLEXGEN_32 },
+	{ .index = IDX_HSE },
 };
 
-static const char * const mco1_src[] = {
-	"ck_flexgen_61", "ck_obs0"
+static const struct clk_parent_data dts_src[] = {
+	{ .index = IDX_HSI },
+	{ .index = IDX_HSE },
+	{ .index = IDX_MSI },
 };
 
-static const char * const mco2_src[] = {
-	"ck_flexgen_62", "ck_obs1"
+static const struct clk_parent_data mco1_src[] = {
+	{ .index = IDX_FLEXGEN_61 },
+};
+
+static const struct clk_parent_data mco2_src[] = {
+	{ .index = IDX_FLEXGEN_62 },
 };
 
 enum enum_mux_cfg {
@@ -104,7 +199,7 @@ enum enum_mux_cfg {
 
 #define MUX_CFG(id, src, _offset, _shift, _witdh)[id] = {\
 		.num_parents	= ARRAY_SIZE(src),\
-		.parent_names	= src,\
+		.parent_data	= src,\
 		.reg_off	= (_offset),\
 		.shift		= (_shift),\
 		.width		= (_witdh),\
@@ -443,42 +538,42 @@ static int stm32mp25_check_security(struct udevice *dev, void __iomem *base,
 
 static const struct clock_config stm32mp25_clock_cfg[] = {
 	/* ADC */
-	STM32_GATE(CK_BUS_ADC12, "ck_icn_p_adc12", "ck_icn_ls_mcu", 0, GATE_ADC12,
+	STM32_GATE(CK_BUS_ADC12, "ck_icn_p_adc12", IDX_ICN_LS_MCU, 0, GATE_ADC12,
 		   SEC_RIFSC(58)),
 	STM32_COMPOSITE_NODIV(CK_KER_ADC12, "ck_ker_adc12", 0, SEC_RIFSC(58),
 			      GATE_ADC12, MUX_ADC12),
-	STM32_GATE(CK_BUS_ADC3, "ck_icn_p_adc3", "ck_icn_ls_mcu", 0, GATE_ADC3, SEC_RIFSC(59)),
+	STM32_GATE(CK_BUS_ADC3, "ck_icn_p_adc3", IDX_ICN_LS_MCU, 0, GATE_ADC3, SEC_RIFSC(59)),
 	STM32_COMPOSITE_NODIV(CK_KER_ADC3, "ck_ker_adc3", 0, SEC_RIFSC(59), GATE_ADC3, MUX_ADC3),
 
 	/* ADF */
-	STM32_GATE(CK_BUS_ADF1, "ck_icn_p_adf1", "ck_icn_ls_mcu", 0, GATE_ADF1, SEC_RIFSC(55)),
-	STM32_GATE(CK_KER_ADF1, "ck_ker_adf1", "ck_flexgen_42", 0, GATE_ADF1, SEC_RIFSC(55)),
+	STM32_GATE(CK_BUS_ADF1, "ck_icn_p_adf1", IDX_ICN_LS_MCU, 0, GATE_ADF1, SEC_RIFSC(55)),
+	STM32_GATE(CK_KER_ADF1, "ck_ker_adf1", IDX_FLEXGEN_42, 0, GATE_ADF1, SEC_RIFSC(55)),
 
 	/* Camera */
 	/* DCMI */
-	STM32_GATE(CK_BUS_CCI, "ck_icn_p_cci", "ck_icn_ls_mcu", 0, GATE_CCI, SEC_RIFSC(88)),
+	STM32_GATE(CK_BUS_CCI, "ck_icn_p_cci", IDX_ICN_LS_MCU, 0, GATE_CCI, SEC_RIFSC(88)),
 
 	/* CSI-HOST */
-	STM32_GATE(CK_BUS_CSI, "ck_icn_p_csi", "ck_icn_apb4", 0, GATE_CSI, SEC_RIFSC(86)),
-	STM32_GATE(CK_KER_CSI, "ck_ker_csi", "ck_flexgen_29", 0, GATE_CSI, SEC_RIFSC(86)),
-	STM32_GATE(CK_KER_CSITXESC, "ck_ker_csitxesc", "ck_flexgen_30", 0, GATE_CSI,
+	STM32_GATE(CK_BUS_CSI, "ck_icn_p_csi", IDX_ICN_APB4, 0, GATE_CSI, SEC_RIFSC(86)),
+	STM32_GATE(CK_KER_CSI, "ck_ker_csi", IDX_FLEXGEN_29, 0, GATE_CSI, SEC_RIFSC(86)),
+	STM32_GATE(CK_KER_CSITXESC, "ck_ker_csitxesc", IDX_FLEXGEN_30, 0, GATE_CSI,
 		   SEC_RIFSC(86)),
 
 	/* CSI-PHY */
-	STM32_GATE(CK_KER_CSIPHY, "ck_ker_csiphy", "ck_flexgen_31", 0, GATE_CSI,
+	STM32_GATE(CK_KER_CSIPHY, "ck_ker_csiphy", IDX_FLEXGEN_31, 0, GATE_CSI,
 		   SEC_RIFSC(86)),
 
 	/* DCMIPP */
-	STM32_GATE(CK_BUS_DCMIPP, "ck_icn_p_dcmipp", "ck_icn_apb4", 0, GATE_DCMIPP,
+	STM32_GATE(CK_BUS_DCMIPP, "ck_icn_p_dcmipp", IDX_ICN_APB4, 0, GATE_DCMIPP,
 		   SEC_RIFSC(87)),
 
 	/* CRC */
-	STM32_GATE(CK_BUS_CRC, "ck_icn_p_crc", "ck_icn_ls_mcu", 0, GATE_CRC, SEC_RIFSC(109)),
+	STM32_GATE(CK_BUS_CRC, "ck_icn_p_crc", IDX_ICN_LS_MCU, 0, GATE_CRC, SEC_RIFSC(109)),
 
 	/* CRYP */
-	STM32_GATE(CK_BUS_CRYP1, "ck_icn_p_cryp1", "ck_icn_ls_mcu", 0, GATE_CRYP1,
+	STM32_GATE(CK_BUS_CRYP1, "ck_icn_p_cryp1", IDX_ICN_LS_MCU, 0, GATE_CRYP1,
 		   SEC_RIFSC(96)),
-	STM32_GATE(CK_BUS_CRYP2, "ck_icn_p_cryp2", "ck_icn_ls_mcu", 0, GATE_CRYP2,
+	STM32_GATE(CK_BUS_CRYP2, "ck_icn_p_cryp2", IDX_ICN_LS_MCU, 0, GATE_CRYP2,
 		   SEC_RIFSC(97)),
 
 	/* DBG & TRACE*/
@@ -486,17 +581,17 @@ static const struct clock_config stm32mp25_clock_cfg[] = {
 
 	/* Display subsystem */
 	/* LTDC */
-	STM32_GATE(CK_BUS_LTDC, "ck_icn_p_ltdc", "ck_icn_apb4", 0, GATE_LTDC, SEC_RIFSC(80)),
-	STM32_GATE(CK_KER_LTDC, "ck_ker_ltdc", "ck_flexgen_27", CLK_SET_RATE_PARENT, GATE_LTDC,
+	STM32_GATE(CK_BUS_LTDC, "ck_icn_p_ltdc", IDX_ICN_APB4, 0, GATE_LTDC, SEC_RIFSC(80)),
+	STM32_GATE(CK_KER_LTDC, "ck_ker_ltdc", IDX_FLEXGEN_27, CLK_SET_RATE_PARENT, GATE_LTDC,
 		   SEC_RIFSC(80)),
 
 	/* DSI */
-	STM32_GATE(CK_BUS_DSI, "ck_icn_p_dsi", "ck_icn_apb4", 0, GATE_DSI, SEC_RIFSC(81)),
+	STM32_GATE(CK_BUS_DSI, "ck_icn_p_dsi", IDX_ICN_APB4, 0, GATE_DSI, SEC_RIFSC(81)),
 	STM32_COMPOSITE_NODIV(CK_KER_DSIBLANE, "clk_lanebyte", 0, SEC_RIFSC(81),
 			      GATE_DSI, MUX_DSIBLANE),
 
 	/* LVDS */
-	STM32_GATE(CK_BUS_LVDS, "ck_icn_p_lvds", "ck_icn_apb4", 0, GATE_LVDS, SEC_RIFSC(84)),
+	STM32_GATE(CK_BUS_LVDS, "ck_icn_p_lvds", IDX_ICN_APB4, 0, GATE_LVDS, SEC_RIFSC(84)),
 
 	/* DSI PHY */
 	STM32_COMPOSITE_NODIV(CK_KER_DSIPHY, "ck_ker_dsiphy", 0, SEC_RIFSC(81),
@@ -510,88 +605,88 @@ static const struct clock_config stm32mp25_clock_cfg[] = {
 	STM32_COMPOSITE_NODIV(CK_KER_DTS, "ck_ker_dts", 0, SEC_RIFSC(107), GATE_DTS, MUX_DTS),
 
 	/* ETHERNET */
-	STM32_GATE(CK_BUS_ETH1, "ck_icn_p_eth1", "ck_icn_ls_mcu", 0, GATE_ETH1, SEC_RIFSC(60)),
-	STM32_GATE(CK_ETH1_STP, "ck_ker_eth1stp", "ck_icn_ls_mcu", 0, GATE_ETH1STP,
+	STM32_GATE(CK_BUS_ETH1, "ck_icn_p_eth1", IDX_ICN_LS_MCU, 0, GATE_ETH1, SEC_RIFSC(60)),
+	STM32_GATE(CK_ETH1_STP, "ck_ker_eth1stp", IDX_ICN_LS_MCU, 0, GATE_ETH1STP,
 		   SEC_RIFSC(60)),
-	STM32_GATE(CK_KER_ETH1, "ck_ker_eth1", "ck_flexgen_54", 0, GATE_ETH1, SEC_RIFSC(60)),
-	STM32_GATE(CK_KER_ETH1, "ck_ker_eth1ptp", "ck_flexgen_56", 0, GATE_ETH1, SEC_RIFSC(60)),
-	STM32_GATE(CK_ETH1_MAC, "ck_ker_eth1mac", "ck_icn_ls_mcu", 0, GATE_ETH1MAC,
+	STM32_GATE(CK_KER_ETH1, "ck_ker_eth1", IDX_FLEXGEN_54, 0, GATE_ETH1, SEC_RIFSC(60)),
+	STM32_GATE(CK_KER_ETH1, "ck_ker_eth1ptp", IDX_FLEXGEN_56, 0, GATE_ETH1, SEC_RIFSC(60)),
+	STM32_GATE(CK_ETH1_MAC, "ck_ker_eth1mac", IDX_ICN_LS_MCU, 0, GATE_ETH1MAC,
 		   SEC_RIFSC(60)),
-	STM32_GATE(CK_ETH1_TX, "ck_ker_eth1tx", "ck_icn_ls_mcu", 0, GATE_ETH1TX, SEC_RIFSC(60)),
-	STM32_GATE(CK_ETH1_RX, "ck_ker_eth1rx", "ck_icn_ls_mcu", 0, GATE_ETH1RX, SEC_RIFSC(60)),
+	STM32_GATE(CK_ETH1_TX, "ck_ker_eth1tx", IDX_ICN_LS_MCU, 0, GATE_ETH1TX, SEC_RIFSC(60)),
+	STM32_GATE(CK_ETH1_RX, "ck_ker_eth1rx", IDX_ICN_LS_MCU, 0, GATE_ETH1RX, SEC_RIFSC(60)),
 
-	STM32_GATE(CK_BUS_ETH2, "ck_icn_p_eth2", "ck_icn_ls_mcu", 0, GATE_ETH2, SEC_RIFSC(61)),
-	STM32_GATE(CK_ETH2_STP, "ck_ker_eth2stp", "ck_icn_ls_mcu", 0, GATE_ETH2STP,
+	STM32_GATE(CK_BUS_ETH2, "ck_icn_p_eth2", IDX_ICN_LS_MCU, 0, GATE_ETH2, SEC_RIFSC(61)),
+	STM32_GATE(CK_ETH2_STP, "ck_ker_eth2stp", IDX_ICN_LS_MCU, 0, GATE_ETH2STP,
 		   SEC_RIFSC(61)),
-	STM32_GATE(CK_KER_ETH2, "ck_ker_eth2", "ck_flexgen_54", 0, GATE_ETH2, SEC_RIFSC(61)),
-	STM32_GATE(CK_KER_ETH2, "ck_ker_eth2ptp", "ck_flexgen_56", 0, GATE_ETH2, SEC_RIFSC(61)),
-	STM32_GATE(CK_ETH2_MAC, "ck_ker_eth2mac", "ck_icn_ls_mcu", 0, GATE_ETH2MAC,
+	STM32_GATE(CK_KER_ETH2, "ck_ker_eth2", IDX_FLEXGEN_54, 0, GATE_ETH2, SEC_RIFSC(61)),
+	STM32_GATE(CK_KER_ETH2, "ck_ker_eth2ptp", IDX_FLEXGEN_56, 0, GATE_ETH2, SEC_RIFSC(61)),
+	STM32_GATE(CK_ETH2_MAC, "ck_ker_eth2mac", IDX_ICN_LS_MCU, 0, GATE_ETH2MAC,
 		   SEC_RIFSC(61)),
-	STM32_GATE(CK_ETH2_TX, "ck_ker_eth2tx", "ck_icn_ls_mcu", 0, GATE_ETH2TX, SEC_RIFSC(61)),
-	STM32_GATE(CK_ETH2_RX, "ck_ker_eth2rx", "ck_icn_ls_mcu", 0, GATE_ETH2RX, SEC_RIFSC(61)),
+	STM32_GATE(CK_ETH2_TX, "ck_ker_eth2tx", IDX_ICN_LS_MCU, 0, GATE_ETH2TX, SEC_RIFSC(61)),
+	STM32_GATE(CK_ETH2_RX, "ck_ker_eth2rx", IDX_ICN_LS_MCU, 0, GATE_ETH2RX, SEC_RIFSC(61)),
 
-	STM32_GATE(CK_BUS_ETHSW, "ck_icn_p_ethsw", "ck_icn_ls_mcu", 0, GATE_ETHSWMAC,
+	STM32_GATE(CK_BUS_ETHSW, "ck_icn_p_ethsw", IDX_ICN_LS_MCU, 0, GATE_ETHSWMAC,
 		   SEC_RIFSC(70)),
-	STM32_GATE(CK_KER_ETHSW, "ck_ker_ethsw", "ck_flexgen_54", 0, GATE_ETHSW,
+	STM32_GATE(CK_KER_ETHSW, "ck_ker_ethsw", IDX_FLEXGEN_54, 0, GATE_ETHSW,
 		   SEC_RIFSC(70)),
-	STM32_GATE(CK_KER_ETHSWREF, "ck_ker_ethswref", "ck_flexgen_60", 0, GATE_ETHSWREF,
+	STM32_GATE(CK_KER_ETHSWREF, "ck_ker_ethswref", IDX_FLEXGEN_60, 0, GATE_ETHSWREF,
 		   SEC_RIFSC(70)),
 
 	/* FDCAN */
-	STM32_GATE(CK_BUS_FDCAN, "ck_icn_p_fdcan", "ck_icn_apb2", 0, GATE_FDCAN, SEC_RIFSC(56)),
-	STM32_GATE(CK_KER_FDCAN, "ck_ker_fdcan", "ck_flexgen_26", 0, GATE_FDCAN, SEC_RIFSC(56)),
+	STM32_GATE(CK_BUS_FDCAN, "ck_icn_p_fdcan", IDX_ICN_APB2, 0, GATE_FDCAN, SEC_RIFSC(56)),
+	STM32_GATE(CK_KER_FDCAN, "ck_ker_fdcan", IDX_FLEXGEN_26, 0, GATE_FDCAN, SEC_RIFSC(56)),
 
 	/* GPU */
-	STM32_GATE(CK_BUS_GPU, "ck_icn_m_gpu", "ck_flexgen_59", 0, GATE_GPU, SEC_RIFSC(79)),
-	STM32_GATE(CK_KER_GPU, "ck_ker_gpu", "ck_pll3", 0, GATE_GPU, SEC_RIFSC(79)),
+	STM32_GATE(CK_BUS_GPU, "ck_icn_m_gpu", IDX_FLEXGEN_59, 0, GATE_GPU, SEC_RIFSC(79)),
+	STM32_GATE(CK_KER_GPU, "ck_ker_gpu", IDX_PLL3, 0, GATE_GPU, SEC_RIFSC(79)),
 
 	/* HASH */
-	STM32_GATE(CK_BUS_HASH, "ck_icn_p_hash", "ck_icn_ls_mcu", 0, GATE_HASH, SEC_RIFSC(95)),
+	STM32_GATE(CK_BUS_HASH, "ck_icn_p_hash", IDX_ICN_LS_MCU, 0, GATE_HASH, SEC_RIFSC(95)),
 
 	/* HDP */
-	STM32_GATE(CK_BUS_HDP, "ck_icn_p_hdp", "ck_icn_apb3", 0, GATE_HDP, SEC_RIFSC(57)),
+	STM32_GATE(CK_BUS_HDP, "ck_icn_p_hdp", IDX_ICN_APB3, 0, GATE_HDP, SEC_RIFSC(57)),
 
 	/* I2C */
-	STM32_GATE(CK_KER_I2C1, "ck_ker_i2c1", "ck_flexgen_12", 0, GATE_I2C1, SEC_RIFSC(41)),
-	STM32_GATE(CK_KER_I2C2, "ck_ker_i2c2", "ck_flexgen_12", 0, GATE_I2C2, SEC_RIFSC(42)),
-	STM32_GATE(CK_KER_I2C3, "ck_ker_i2c3", "ck_flexgen_13", 0, GATE_I2C3, SEC_RIFSC(43)),
-	STM32_GATE(CK_KER_I2C5, "ck_ker_i2c5", "ck_flexgen_13", 0, GATE_I2C5, SEC_RIFSC(45)),
-	STM32_GATE(CK_KER_I2C4, "ck_ker_i2c4", "ck_flexgen_14", 0, GATE_I2C4, SEC_RIFSC(44)),
-	STM32_GATE(CK_KER_I2C6, "ck_ker_i2c6", "ck_flexgen_14", 0, GATE_I2C6, SEC_RIFSC(46)),
-	STM32_GATE(CK_KER_I2C7, "ck_ker_i2c7", "ck_flexgen_15", 0, GATE_I2C7, SEC_RIFSC(47)),
-	STM32_GATE(CK_KER_I2C8, "ck_ker_i2c8", "ck_flexgen_38", 0, GATE_I2C8, SEC_RIFSC(48)),
+	STM32_GATE(CK_KER_I2C1, "ck_ker_i2c1", IDX_FLEXGEN_12, 0, GATE_I2C1, SEC_RIFSC(41)),
+	STM32_GATE(CK_KER_I2C2, "ck_ker_i2c2", IDX_FLEXGEN_12, 0, GATE_I2C2, SEC_RIFSC(42)),
+	STM32_GATE(CK_KER_I2C3, "ck_ker_i2c3", IDX_FLEXGEN_13, 0, GATE_I2C3, SEC_RIFSC(43)),
+	STM32_GATE(CK_KER_I2C5, "ck_ker_i2c5", IDX_FLEXGEN_13, 0, GATE_I2C5, SEC_RIFSC(45)),
+	STM32_GATE(CK_KER_I2C4, "ck_ker_i2c4", IDX_FLEXGEN_14, 0, GATE_I2C4, SEC_RIFSC(44)),
+	STM32_GATE(CK_KER_I2C6, "ck_ker_i2c6", IDX_FLEXGEN_14, 0, GATE_I2C6, SEC_RIFSC(46)),
+	STM32_GATE(CK_KER_I2C7, "ck_ker_i2c7", IDX_FLEXGEN_15, 0, GATE_I2C7, SEC_RIFSC(47)),
+	STM32_GATE(CK_KER_I2C8, "ck_ker_i2c8", IDX_FLEXGEN_38, 0, GATE_I2C8, SEC_RIFSC(48)),
 
 	/* I3C */
-	STM32_GATE(CK_KER_I3C1, "ck_ker_i3c1", "ck_flexgen_12", 0, GATE_I3C1, SEC_RIFSC(114)),
-	STM32_GATE(CK_KER_I3C2, "ck_ker_i3c2", "ck_flexgen_12", 0, GATE_I3C2, SEC_RIFSC(115)),
-	STM32_GATE(CK_KER_I3C3, "ck_ker_i3c3", "ck_flexgen_13", 0, GATE_I3C3, SEC_RIFSC(116)),
-	STM32_GATE(CK_KER_I3C4, "ck_ker_i3c4", "ck_flexgen_36", 0, GATE_I3C4, SEC_RIFSC(117)),
+	STM32_GATE(CK_KER_I3C1, "ck_ker_i3c1", IDX_FLEXGEN_12, 0, GATE_I3C1, SEC_RIFSC(114)),
+	STM32_GATE(CK_KER_I3C2, "ck_ker_i3c2", IDX_FLEXGEN_12, 0, GATE_I3C2, SEC_RIFSC(115)),
+	STM32_GATE(CK_KER_I3C3, "ck_ker_i3c3", IDX_FLEXGEN_13, 0, GATE_I3C3, SEC_RIFSC(116)),
+	STM32_GATE(CK_KER_I3C4, "ck_ker_i3c4", IDX_FLEXGEN_36, 0, GATE_I3C4, SEC_RIFSC(117)),
 
 	/* I2S */
-	STM32_GATE(CK_BUS_IS2M, "ck_icn_p_is2m", "ck_icn_apb3", 0, GATE_IS2M, SEC_RIFRCC(IS2M)),
+	STM32_GATE(CK_BUS_IS2M, "ck_icn_p_is2m", IDX_ICN_APB3, 0, GATE_IS2M, SEC_RIFRCC(IS2M)),
 
 	/* IWDG */
-	STM32_GATE(CK_BUS_IWDG1, "ck_icn_p_iwdg1", "ck_icn_apb3", 0, GATE_IWDG1, SEC_RIFSC(98)),
-	STM32_GATE(CK_BUS_IWDG2, "ck_icn_p_iwdg2", "ck_icn_apb3", 0, GATE_IWDG2, SEC_RIFSC(99)),
-	STM32_GATE(CK_BUS_IWDG3, "ck_icn_p_iwdg3", "ck_icn_apb3", 0, GATE_IWDG3, SEC_RIFSC(100)),
-	STM32_GATE(CK_BUS_IWDG4, "ck_icn_p_iwdg4", "ck_icn_apb3", 0, GATE_IWDG4, SEC_RIFSC(101)),
-	STM32_GATE(CK_BUS_IWDG5, "ck_icn_p_iwdg5", "ck_icn_ls_mcu", 0, GATE_IWDG5,
+	STM32_GATE(CK_BUS_IWDG1, "ck_icn_p_iwdg1", IDX_ICN_APB3, 0, GATE_IWDG1, SEC_RIFSC(98)),
+	STM32_GATE(CK_BUS_IWDG2, "ck_icn_p_iwdg2", IDX_ICN_APB3, 0, GATE_IWDG2, SEC_RIFSC(99)),
+	STM32_GATE(CK_BUS_IWDG3, "ck_icn_p_iwdg3", IDX_ICN_APB3, 0, GATE_IWDG3, SEC_RIFSC(100)),
+	STM32_GATE(CK_BUS_IWDG4, "ck_icn_p_iwdg4", IDX_ICN_APB3, 0, GATE_IWDG4, SEC_RIFSC(101)),
+	STM32_GATE(CK_BUS_IWDG5, "ck_icn_p_iwdg5", IDX_ICN_LS_MCU, 0, GATE_IWDG5,
 		   SEC_RIFSC(102)),
 
 	/* LPTIM */
-	STM32_GATE(CK_KER_LPTIM1, "ck_ker_lptim1", "ck_flexgen_07", 0, GATE_LPTIM1,
+	STM32_GATE(CK_KER_LPTIM1, "ck_ker_lptim1", IDX_FLEXGEN_07, 0, GATE_LPTIM1,
 		   SEC_RIFSC(17)),
-	STM32_GATE(CK_KER_LPTIM2, "ck_ker_lptim2", "ck_flexgen_07", 0, GATE_LPTIM2,
+	STM32_GATE(CK_KER_LPTIM2, "ck_ker_lptim2", IDX_FLEXGEN_07, 0, GATE_LPTIM2,
 		   SEC_RIFSC(18)),
-	STM32_GATE(CK_KER_LPTIM3, "ck_ker_lptim3", "ck_flexgen_40", 0, GATE_LPTIM3,
+	STM32_GATE(CK_KER_LPTIM3, "ck_ker_lptim3", IDX_FLEXGEN_40, 0, GATE_LPTIM3,
 		   SEC_RIFSC(19)),
-	STM32_GATE(CK_KER_LPTIM4, "ck_ker_lptim4", "ck_flexgen_41", 0, GATE_LPTIM4,
+	STM32_GATE(CK_KER_LPTIM4, "ck_ker_lptim4", IDX_FLEXGEN_41, 0, GATE_LPTIM4,
 		   SEC_RIFSC(20)),
-	STM32_GATE(CK_KER_LPTIM5, "ck_ker_lptim5", "ck_flexgen_41", 0, GATE_LPTIM5,
+	STM32_GATE(CK_KER_LPTIM5, "ck_ker_lptim5", IDX_FLEXGEN_41, 0, GATE_LPTIM5,
 		   SEC_RIFSC(21)),
 
 	/* LPUART */
-	STM32_GATE(CK_KER_LPUART1, "ck_ker_lpuart1", "ck_flexgen_39", 0, GATE_LPUART1,
+	STM32_GATE(CK_KER_LPUART1, "ck_ker_lpuart1", IDX_FLEXGEN_39, 0, GATE_LPUART1,
 		   SEC_RIFSC(40)),
 
 	/* MCO1 & MCO2 */
@@ -599,102 +694,102 @@ static const struct clock_config stm32mp25_clock_cfg[] = {
 	STM32_COMPOSITE_NODIV(CK_MCO2, "ck_mco2", 0, SEC_RIFRCC(MCO2), GATE_MCO2, MUX_MCO2),
 
 	/* MDF */
-	STM32_GATE(CK_KER_MDF1, "ck_ker_mdf1", "ck_flexgen_23", 0, GATE_MDF1, SEC_RIFSC(54)),
+	STM32_GATE(CK_KER_MDF1, "ck_ker_mdf1", IDX_FLEXGEN_23, 0, GATE_MDF1, SEC_RIFSC(54)),
 
 	/* OCTOSPI */
-	STM32_GATE(CK_BUS_OSPIIOM, "ck_icn_p_ospiiom", "ck_icn_ls_mcu", 0, GATE_OSPIIOM,
+	STM32_GATE(CK_BUS_OSPIIOM, "ck_icn_p_ospiiom", IDX_ICN_LS_MCU, 0, GATE_OSPIIOM,
 		   SEC_RIFSC(111)),
 
 	/* PCIE */
-	STM32_GATE(CK_BUS_PCIE, "ck_icn_p_pcie", "ck_icn_ls_mcu", 0, GATE_PCIE, SEC_RIFSC(68)),
+	STM32_GATE(CK_BUS_PCIE, "ck_icn_p_pcie", IDX_ICN_LS_MCU, 0, GATE_PCIE, SEC_RIFSC(68)),
 
 	/* PKA */
-	STM32_GATE(CK_BUS_PKA, "ck_icn_p_pka", "ck_icn_ls_mcu", 0, GATE_PKA, SEC_RIFSC(93)),
+	STM32_GATE(CK_BUS_PKA, "ck_icn_p_pka", IDX_ICN_LS_MCU, 0, GATE_PKA, SEC_RIFSC(93)),
 
 	/* RNG */
-	STM32_GATE(CK_BUS_RNG, "ck_icn_p_rng", "ck_icn_ls_mcu", CLK_IGNORE_UNUSED, GATE_RNG,
+	STM32_GATE(CK_BUS_RNG, "ck_icn_p_rng", IDX_ICN_LS_MCU, CLK_IGNORE_UNUSED, GATE_RNG,
 		   SEC_RIFSC(92)),
 
 	/* SAES */
-	STM32_GATE(CK_BUS_SAES, "ck_icn_p_saes", "ck_icn_ls_mcu", 0, GATE_SAES, SEC_RIFSC(94)),
+	STM32_GATE(CK_BUS_SAES, "ck_icn_p_saes", IDX_ICN_LS_MCU, 0, GATE_SAES, SEC_RIFSC(94)),
 
 	/* SAI [1..4] */
-	STM32_GATE(CK_BUS_SAI1, "ck_icn_p_sai1", "ck_icn_apb2", 0, GATE_SAI1, SEC_RIFSC(49)),
-	STM32_GATE(CK_BUS_SAI2, "ck_icn_p_sai2", "ck_icn_apb2", 0, GATE_SAI2, SEC_RIFSC(50)),
-	STM32_GATE(CK_BUS_SAI3, "ck_icn_p_sai3", "ck_icn_apb2", 0, GATE_SAI3, SEC_RIFSC(51)),
-	STM32_GATE(CK_BUS_SAI4, "ck_icn_p_sai4", "ck_icn_apb2", 0, GATE_SAI4, SEC_RIFSC(52)),
-	STM32_GATE(CK_KER_SAI1, "ck_ker_sai1", "ck_flexgen_23", 0, GATE_SAI1, SEC_RIFSC(49)),
-	STM32_GATE(CK_KER_SAI2, "ck_ker_sai2", "ck_flexgen_24", 0, GATE_SAI2, SEC_RIFSC(50)),
-	STM32_GATE(CK_KER_SAI3, "ck_ker_sai3", "ck_flexgen_25", 0, GATE_SAI3, SEC_RIFSC(51)),
-	STM32_GATE(CK_KER_SAI4, "ck_ker_sai4", "ck_flexgen_25", 0, GATE_SAI4, SEC_RIFSC(52)),
+	STM32_GATE(CK_BUS_SAI1, "ck_icn_p_sai1", IDX_ICN_APB2, 0, GATE_SAI1, SEC_RIFSC(49)),
+	STM32_GATE(CK_BUS_SAI2, "ck_icn_p_sai2", IDX_ICN_APB2, 0, GATE_SAI2, SEC_RIFSC(50)),
+	STM32_GATE(CK_BUS_SAI3, "ck_icn_p_sai3", IDX_ICN_APB2, 0, GATE_SAI3, SEC_RIFSC(51)),
+	STM32_GATE(CK_BUS_SAI4, "ck_icn_p_sai4", IDX_ICN_APB2, 0, GATE_SAI4, SEC_RIFSC(52)),
+	STM32_GATE(CK_KER_SAI1, "ck_ker_sai1", IDX_FLEXGEN_23, 0, GATE_SAI1, SEC_RIFSC(49)),
+	STM32_GATE(CK_KER_SAI2, "ck_ker_sai2", IDX_FLEXGEN_24, 0, GATE_SAI2, SEC_RIFSC(50)),
+	STM32_GATE(CK_KER_SAI3, "ck_ker_sai3", IDX_FLEXGEN_25, 0, GATE_SAI3, SEC_RIFSC(51)),
+	STM32_GATE(CK_KER_SAI4, "ck_ker_sai4", IDX_FLEXGEN_25, 0, GATE_SAI4, SEC_RIFSC(52)),
 
 	/* SDMMC */
-	STM32_GATE(CK_KER_SDMMC1, "ck_ker_sdmmc1", "ck_flexgen_51", 0, GATE_SDMMC1,
+	STM32_GATE(CK_KER_SDMMC1, "ck_ker_sdmmc1", IDX_FLEXGEN_51, 0, GATE_SDMMC1,
 		   SEC_RIFSC(76)),
-	STM32_GATE(CK_KER_SDMMC2, "ck_ker_sdmmc2", "ck_flexgen_52", 0, GATE_SDMMC2,
+	STM32_GATE(CK_KER_SDMMC2, "ck_ker_sdmmc2", IDX_FLEXGEN_52, 0, GATE_SDMMC2,
 		   SEC_RIFSC(77)),
-	STM32_GATE(CK_KER_SDMMC3, "ck_ker_sdmmc3", "ck_flexgen_53", 0, GATE_SDMMC3,
+	STM32_GATE(CK_KER_SDMMC3, "ck_ker_sdmmc3", IDX_FLEXGEN_53, 0, GATE_SDMMC3,
 		   SEC_RIFSC(78)),
 
 	/* SERC */
-	STM32_GATE(CK_BUS_SERC, "ck_icn_p_serc", "ck_icn_apb3", 0, GATE_SERC, SEC_RIFSC(110)),
+	STM32_GATE(CK_BUS_SERC, "ck_icn_p_serc", IDX_ICN_APB3, 0, GATE_SERC, SEC_RIFSC(110)),
 
 	/* SPDIF */
-	STM32_GATE(CK_KER_SPDIFRX, "ck_ker_spdifrx", "ck_flexgen_11", 0, GATE_SPDIFRX,
+	STM32_GATE(CK_KER_SPDIFRX, "ck_ker_spdifrx", IDX_FLEXGEN_11, 0, GATE_SPDIFRX,
 		   SEC_RIFSC(30)),
 
 	/* SPI */
-	STM32_GATE(CK_KER_SPI1, "ck_ker_spi1", "ck_flexgen_16", 0, GATE_SPI1, SEC_RIFSC(22)),
-	STM32_GATE(CK_KER_SPI2, "ck_ker_spi2", "ck_flexgen_10", 0, GATE_SPI2, SEC_RIFSC(23)),
-	STM32_GATE(CK_KER_SPI3, "ck_ker_spi3", "ck_flexgen_10", 0, GATE_SPI3, SEC_RIFSC(24)),
-	STM32_GATE(CK_KER_SPI4, "ck_ker_spi4", "ck_flexgen_17", 0, GATE_SPI4, SEC_RIFSC(25)),
-	STM32_GATE(CK_KER_SPI5, "ck_ker_spi5", "ck_flexgen_17", 0, GATE_SPI5, SEC_RIFSC(26)),
-	STM32_GATE(CK_KER_SPI6, "ck_ker_spi6", "ck_flexgen_18", 0, GATE_SPI6, SEC_RIFSC(27)),
-	STM32_GATE(CK_KER_SPI7, "ck_ker_spi7", "ck_flexgen_18", 0, GATE_SPI7, SEC_RIFSC(28)),
-	STM32_GATE(CK_KER_SPI8, "ck_ker_spi8", "ck_flexgen_37", 0, GATE_SPI8, SEC_RIFSC(29)),
+	STM32_GATE(CK_KER_SPI1, "ck_ker_spi1", IDX_FLEXGEN_16, 0, GATE_SPI1, SEC_RIFSC(22)),
+	STM32_GATE(CK_KER_SPI2, "ck_ker_spi2", IDX_FLEXGEN_10, 0, GATE_SPI2, SEC_RIFSC(23)),
+	STM32_GATE(CK_KER_SPI3, "ck_ker_spi3", IDX_FLEXGEN_10, 0, GATE_SPI3, SEC_RIFSC(24)),
+	STM32_GATE(CK_KER_SPI4, "ck_ker_spi4", IDX_FLEXGEN_17, 0, GATE_SPI4, SEC_RIFSC(25)),
+	STM32_GATE(CK_KER_SPI5, "ck_ker_spi5", IDX_FLEXGEN_17, 0, GATE_SPI5, SEC_RIFSC(26)),
+	STM32_GATE(CK_KER_SPI6, "ck_ker_spi6", IDX_FLEXGEN_18, 0, GATE_SPI6, SEC_RIFSC(27)),
+	STM32_GATE(CK_KER_SPI7, "ck_ker_spi7", IDX_FLEXGEN_18, 0, GATE_SPI7, SEC_RIFSC(28)),
+	STM32_GATE(CK_KER_SPI8, "ck_ker_spi8", IDX_FLEXGEN_37, 0, GATE_SPI8, SEC_RIFSC(29)),
 
 	/* STGEN */
-	STM32_GATE(CK_KER_STGEN, "ck_ker_stgen", "ck_flexgen_33", CLK_IGNORE_UNUSED, GATE_STGEN,
+	STM32_GATE(CK_KER_STGEN, "ck_ker_stgen", IDX_FLEXGEN_33, CLK_IGNORE_UNUSED, GATE_STGEN,
 		   SEC_RIFSC(73)),
 
 	/* Timers */
-	STM32_GATE(CK_KER_TIM2, "ck_ker_tim2", "timg1_ck", 0, GATE_TIM2, SEC_RIFSC(1)),
-	STM32_GATE(CK_KER_TIM3, "ck_ker_tim3", "timg1_ck", 0, GATE_TIM3, SEC_RIFSC(2)),
-	STM32_GATE(CK_KER_TIM4, "ck_ker_tim4", "timg1_ck", 0, GATE_TIM4, SEC_RIFSC(3)),
-	STM32_GATE(CK_KER_TIM5, "ck_ker_tim5", "timg1_ck", 0, GATE_TIM5, SEC_RIFSC(4)),
-	STM32_GATE(CK_KER_TIM6, "ck_ker_tim6", "timg1_ck", 0, GATE_TIM6, SEC_RIFSC(5)),
-	STM32_GATE(CK_KER_TIM7, "ck_ker_tim7", "timg1_ck", 0, GATE_TIM7, SEC_RIFSC(6)),
-	STM32_GATE(CK_KER_TIM10, "ck_ker_tim10", "timg1_ck", 0, GATE_TIM10, SEC_RIFSC(8)),
-	STM32_GATE(CK_KER_TIM11, "ck_ker_tim11", "timg1_ck", 0, GATE_TIM11, SEC_RIFSC(9)),
-	STM32_GATE(CK_KER_TIM12, "ck_ker_tim12", "timg1_ck", 0, GATE_TIM12, SEC_RIFSC(10)),
-	STM32_GATE(CK_KER_TIM13, "ck_ker_tim13", "timg1_ck", 0, GATE_TIM13, SEC_RIFSC(11)),
-	STM32_GATE(CK_KER_TIM14, "ck_ker_tim14", "timg1_ck", 0, GATE_TIM14, SEC_RIFSC(12)),
+	STM32_GATE(CK_KER_TIM2, "ck_ker_tim2", IDX_TIMG1, 0, GATE_TIM2, SEC_RIFSC(1)),
+	STM32_GATE(CK_KER_TIM3, "ck_ker_tim3", IDX_TIMG1, 0, GATE_TIM3, SEC_RIFSC(2)),
+	STM32_GATE(CK_KER_TIM4, "ck_ker_tim4", IDX_TIMG1, 0, GATE_TIM4, SEC_RIFSC(3)),
+	STM32_GATE(CK_KER_TIM5, "ck_ker_tim5", IDX_TIMG1, 0, GATE_TIM5, SEC_RIFSC(4)),
+	STM32_GATE(CK_KER_TIM6, "ck_ker_tim6", IDX_TIMG1, 0, GATE_TIM6, SEC_RIFSC(5)),
+	STM32_GATE(CK_KER_TIM7, "ck_ker_tim7", IDX_TIMG1, 0, GATE_TIM7, SEC_RIFSC(6)),
+	STM32_GATE(CK_KER_TIM10, "ck_ker_tim10", IDX_TIMG1, 0, GATE_TIM10, SEC_RIFSC(8)),
+	STM32_GATE(CK_KER_TIM11, "ck_ker_tim11", IDX_TIMG1, 0, GATE_TIM11, SEC_RIFSC(9)),
+	STM32_GATE(CK_KER_TIM12, "ck_ker_tim12", IDX_TIMG1, 0, GATE_TIM12, SEC_RIFSC(10)),
+	STM32_GATE(CK_KER_TIM13, "ck_ker_tim13", IDX_TIMG1, 0, GATE_TIM13, SEC_RIFSC(11)),
+	STM32_GATE(CK_KER_TIM14, "ck_ker_tim14", IDX_TIMG1, 0, GATE_TIM14, SEC_RIFSC(12)),
 
-	STM32_GATE(CK_KER_TIM1, "ck_ker_tim1", "timg2_ck", 0, GATE_TIM1, SEC_RIFSC(0)),
-	STM32_GATE(CK_KER_TIM8, "ck_ker_tim8", "timg2_ck", 0, GATE_TIM8, SEC_RIFSC(7)),
-	STM32_GATE(CK_KER_TIM15, "ck_ker_tim15", "timg2_ck", 0, GATE_TIM15, SEC_RIFSC(13)),
-	STM32_GATE(CK_KER_TIM16, "ck_ker_tim16", "timg2_ck", 0, GATE_TIM16, SEC_RIFSC(14)),
-	STM32_GATE(CK_KER_TIM17, "ck_ker_tim17", "timg2_ck", 0, GATE_TIM17, SEC_RIFSC(15)),
-	STM32_GATE(CK_KER_TIM20, "ck_ker_tim20", "timg2_ck", 0, GATE_TIM20, SEC_RIFSC(20)),
+	STM32_GATE(CK_KER_TIM1, "ck_ker_tim1", IDX_TIMG2, 0, GATE_TIM1, SEC_RIFSC(0)),
+	STM32_GATE(CK_KER_TIM8, "ck_ker_tim8", IDX_TIMG2, 0, GATE_TIM8, SEC_RIFSC(7)),
+	STM32_GATE(CK_KER_TIM15, "ck_ker_tim15", IDX_TIMG2, 0, GATE_TIM15, SEC_RIFSC(13)),
+	STM32_GATE(CK_KER_TIM16, "ck_ker_tim16", IDX_TIMG2, 0, GATE_TIM16, SEC_RIFSC(14)),
+	STM32_GATE(CK_KER_TIM17, "ck_ker_tim17", IDX_TIMG2, 0, GATE_TIM17, SEC_RIFSC(15)),
+	STM32_GATE(CK_KER_TIM20, "ck_ker_tim20", IDX_TIMG2, 0, GATE_TIM20, SEC_RIFSC(20)),
 
 	/* UART/USART */
-	STM32_GATE(CK_KER_USART2, "ck_ker_usart2", "ck_flexgen_08", 0, GATE_USART2,
+	STM32_GATE(CK_KER_USART2, "ck_ker_usart2", IDX_FLEXGEN_08, 0, GATE_USART2,
 		   SEC_RIFSC(32)),
-	STM32_GATE(CK_KER_UART4, "ck_ker_uart4", "ck_flexgen_08", 0, GATE_UART4,
+	STM32_GATE(CK_KER_UART4, "ck_ker_uart4", IDX_FLEXGEN_08, 0, GATE_UART4,
 		   SEC_RIFSC(34)),
-	STM32_GATE(CK_KER_USART3, "ck_ker_usart3", "ck_flexgen_09", 0, GATE_USART3,
+	STM32_GATE(CK_KER_USART3, "ck_ker_usart3", IDX_FLEXGEN_09, 0, GATE_USART3,
 		   SEC_RIFSC(33)),
-	STM32_GATE(CK_KER_UART5, "ck_ker_uart5", "ck_flexgen_09", 0, GATE_UART5,
+	STM32_GATE(CK_KER_UART5, "ck_ker_uart5", IDX_FLEXGEN_09, 0, GATE_UART5,
 		   SEC_RIFSC(35)),
-	STM32_GATE(CK_KER_USART1, "ck_ker_usart1", "ck_flexgen_19", 0, GATE_USART1,
+	STM32_GATE(CK_KER_USART1, "ck_ker_usart1", IDX_FLEXGEN_19, 0, GATE_USART1,
 		   SEC_RIFSC(31)),
-	STM32_GATE(CK_KER_USART6, "ck_ker_usart6", "ck_flexgen_20", 0, GATE_USART6,
+	STM32_GATE(CK_KER_USART6, "ck_ker_usart6", IDX_FLEXGEN_20, 0, GATE_USART6,
 		   SEC_RIFSC(36)),
-	STM32_GATE(CK_KER_UART7, "ck_ker_uart7", "ck_flexgen_21", 0, GATE_UART7,
+	STM32_GATE(CK_KER_UART7, "ck_ker_uart7", IDX_FLEXGEN_21, 0, GATE_UART7,
 		   SEC_RIFSC(37)),
-	STM32_GATE(CK_KER_UART8, "ck_ker_uart8", "ck_flexgen_21", 0, GATE_UART8,
+	STM32_GATE(CK_KER_UART8, "ck_ker_uart8", IDX_FLEXGEN_21, 0, GATE_UART8,
 		   SEC_RIFSC(38)),
-	STM32_GATE(CK_KER_UART9, "ck_ker_uart9", "ck_flexgen_22", 0, GATE_UART9,
+	STM32_GATE(CK_KER_UART9, "ck_ker_uart9", IDX_FLEXGEN_22, 0, GATE_UART9,
 		   SEC_RIFSC(39)),
 
 	/* USB2PHY1 */
@@ -702,9 +797,9 @@ static const struct clock_config stm32mp25_clock_cfg[] = {
 			      GATE_USB2PHY1, MUX_USB2PHY1),
 
 	/* USBH */
-	STM32_GATE(CK_BUS_USB2OHCI, "ck_icn_m_usb2ohci", "ck_icn_hsl", 0, GATE_USBH,
+	STM32_GATE(CK_BUS_USB2OHCI, "ck_icn_m_usb2ohci", IDX_ICN_HSL, 0, GATE_USBH,
 		   SEC_RIFSC(63)),
-	STM32_GATE(CK_BUS_USB2EHCI, "ck_icn_m_usb2ehci", "ck_icn_hsl", 0, GATE_USBH,
+	STM32_GATE(CK_BUS_USB2EHCI, "ck_icn_m_usb2ehci", IDX_ICN_HSL, 0, GATE_USBH,
 		   SEC_RIFSC(63)),
 
 	/* USB2PHY2 */
@@ -712,36 +807,36 @@ static const struct clock_config stm32mp25_clock_cfg[] = {
 			      GATE_USB2PHY2, MUX_USB2PHY2),
 
 	/* USB3 PCIe COMBOPHY */
-	STM32_GATE(CK_BUS_USB3PCIEPHY, "ck_icn_p_usb3pciephy", "ck_icn_apb4", 0, GATE_USB3PCIEPHY,
-		   SEC_RIFSC(67)),
+	STM32_GATE(CK_BUS_USB3PCIEPHY, "ck_icn_p_usb3pciephy", IDX_ICN_APB4, 0,
+		   GATE_USB3PCIEPHY, SEC_RIFSC(67)),
 
 	STM32_COMPOSITE_NODIV(CK_KER_USB3PCIEPHY, "ck_ker_usb3pciephy", 0, SEC_RIFSC(67),
 			      GATE_USB3PCIEPHY, MUX_USB3PCIEPHY),
 
 	/* USB3 DRD */
-	STM32_GATE(CK_BUS_USB3DR, "ck_icn_m_usb3dr", "ck_icn_hsl", 0, GATE_USB3DR,
+	STM32_GATE(CK_BUS_USB3DR, "ck_icn_m_usb3dr", IDX_ICN_HSL, 0, GATE_USB3DR,
 		   SEC_RIFSC(66)),
-	STM32_GATE(CK_KER_USB2PHY2, "ck_ker_usb2phy2", "ck_flexgen_58", 0, GATE_USB3DR,
+	STM32_GATE(CK_KER_USB2PHY2, "ck_ker_usb2phy2", IDX_FLEXGEN_58, 0, GATE_USB3DR,
 		   SEC_RIFSC(66)),
 
 	/* UCPD */
-	STM32_GATE(CK_BUS_USBTC, "ck_icn_p_usbtc", "ck_flexgen_35", 0, GATE_USBTC,
+	STM32_GATE(CK_BUS_USBTC, "ck_icn_p_usbtc", IDX_FLEXGEN_35, 0, GATE_USBTC,
 		   SEC_RIFSC(69)),
-	STM32_GATE(CK_KER_USBTC, "ck_ker_usbtc", "ck_flexgen_35", 0, GATE_USBTC,
+	STM32_GATE(CK_KER_USBTC, "ck_ker_usbtc", IDX_FLEXGEN_35, 0, GATE_USBTC,
 		   SEC_RIFSC(69)),
 
 	/* VDEC / VENC */
-	STM32_GATE(CK_BUS_VDEC, "ck_icn_p_vdec", "ck_icn_apb4", 0, GATE_VDEC, SEC_RIFSC(89)),
-	STM32_GATE(CK_BUS_VENC, "ck_icn_p_venc", "ck_icn_apb4", 0, GATE_VENC, SEC_RIFSC(90)),
+	STM32_GATE(CK_BUS_VDEC, "ck_icn_p_vdec", IDX_ICN_APB4, 0, GATE_VDEC, SEC_RIFSC(89)),
+	STM32_GATE(CK_BUS_VENC, "ck_icn_p_venc", IDX_ICN_APB4, 0, GATE_VENC, SEC_RIFSC(90)),
 
 	/* VREF */
-	STM32_GATE(CK_BUS_VREF, "ck_icn_p_vref", "ck_icn_apb3", 0, RCC_VREFCFGR,
+	STM32_GATE(CK_BUS_VREF, "ck_icn_p_vref", IDX_ICN_APB3, 0, RCC_VREFCFGR,
 		   SEC_RIFSC(106)),
 
 	/* WWDG */
-	STM32_GATE(CK_BUS_WWDG1, "ck_icn_p_wwdg1", "ck_icn_apb3", 0, GATE_WWDG1,
+	STM32_GATE(CK_BUS_WWDG1, "ck_icn_p_wwdg1", IDX_ICN_APB3, 0, GATE_WWDG1,
 		   SEC_RIFSC(103)),
-	STM32_GATE(CK_BUS_WWDG2, "ck_icn_p_wwdg2", "ck_icn_ls_mcu", 0, GATE_WWDG2,
+	STM32_GATE(CK_BUS_WWDG2, "ck_icn_p_wwdg2", IDX_ICN_LS_MCU, 0, GATE_WWDG2,
 		   SEC_RIFSC(104)),
 };
 

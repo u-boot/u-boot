@@ -11,6 +11,8 @@
 #include <log.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <dm/uclass-internal.h>
 #include <linux/clk-provider.h>
 #include "clk-stm32-core.h"
 
@@ -34,8 +36,8 @@ int stm32_rcc_init(struct udevice *dev,
 		return -ENOMEM;
 
 	priv->gate_cpt = cpt;
-
-	priv->data = clock_data;
+	priv->clock_data = clock_data;
+	priv->match_data = data;
 
 	for (i = 0; i < data->num_clocks; i++) {
 		const struct clock_config *cfg = &data->tab_clocks[i];
@@ -57,9 +59,58 @@ int stm32_rcc_init(struct udevice *dev,
 	return 0;
 }
 
-ulong clk_stm32_get_rate_by_name(const char *name)
+static int clk_stm32_resolve_clk_name(struct udevice *dev, int idx, const char **name)
 {
-	struct udevice *dev;
+#ifdef CONFIG_TFABOOT
+	struct ofnode_phandle_args args;
+	struct udevice *clk_udevice;
+	struct udevice *child;
+	int ret;
+
+	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0, idx, &args);
+	if (ret) {
+		dev_err(dev, "%s: dev_read_phandle_with_args failed: err=%d\n",
+			__func__, ret);
+		return ret;
+	}
+
+	ret = uclass_find_device_by_ofnode(UCLASS_CLK, args.node, &clk_udevice);
+	if (ret)
+		return ret;
+
+	if (args.args_count) {
+		device_foreach_child(child, clk_udevice) {
+			struct clk *clkp;
+
+			clkp = dev_get_clk_ptr(child);
+			if (clk_get_id(clkp) == args.args[0])
+				break;
+
+			clk_udevice = child;
+		}
+		*name = child->name;
+	} else {
+		*name = clk_udevice->name;
+	}
+#else
+	struct stm32mp_rcc_priv *priv = dev_get_priv(dev);
+	*name = priv->match_data->get_clock_name(idx);
+
+	if (!*name)
+		return -ENOENT;
+#endif
+
+	return 0;
+}
+
+ulong clk_stm32_get_rate_by_index(struct udevice *dev, int index)
+{
+	const char *name;
+	int ret;
+
+	ret = clk_stm32_resolve_clk_name(dev, index, &name);
+	if (ret)
+		return ret;
 
 	if (!uclass_get_device_by_name(UCLASS_CLK, name, &dev)) {
 		struct clk *clk = dev_get_clk_ptr(dev);
@@ -171,7 +222,7 @@ static int clk_stm32_gate_enable(struct clk *clk)
 	struct clk_stm32_gate *stm32_gate = to_clk_stm32_gate(clk);
 	struct stm32mp_rcc_priv *priv = stm32_gate->priv;
 
-	clk_stm32_gate_set_state(priv->base, priv->data, priv->gate_cpt,
+	clk_stm32_gate_set_state(priv->base, priv->clock_data, priv->gate_cpt,
 				 stm32_gate->gate_id, 1);
 
 	return 0;
@@ -182,7 +233,7 @@ static int clk_stm32_gate_disable(struct clk *clk)
 	struct clk_stm32_gate *stm32_gate = to_clk_stm32_gate(clk);
 	struct stm32mp_rcc_priv *priv = stm32_gate->priv;
 
-	clk_stm32_gate_set_state(priv->base, priv->data, priv->gate_cpt,
+	clk_stm32_gate_set_state(priv->base, priv->clock_data, priv->gate_cpt,
 				 stm32_gate->gate_id, 0);
 
 	return 0;
@@ -209,6 +260,7 @@ struct clk *clk_stm32_gate_register(struct udevice *dev,
 	struct stm32_clk_gate_cfg *clk_cfg = cfg->clock_cfg;
 	struct clk_stm32_gate *stm32_gate;
 	struct clk *clk;
+	const char *parent_name;
 	int ret;
 
 	stm32_gate = kzalloc(sizeof(*stm32_gate), GFP_KERNEL);
@@ -221,8 +273,17 @@ struct clk *clk_stm32_gate_register(struct udevice *dev,
 	clk = &stm32_gate->clk;
 	clk->flags = cfg->flags;
 
+	if (cfg->parent_data->name) {
+		parent_name = cfg->parent_data->name;
+	} else {
+		ret = clk_stm32_resolve_clk_name(dev, cfg->parent_data->index,
+						 &parent_name);
+		if (ret)
+			return ERR_PTR(ret);
+	}
+
 	ret = clk_register(clk, UBOOT_DM_CLK_STM32_GATE,
-			   cfg->name, cfg->parent_name);
+			   cfg->name, parent_name);
 	if (ret) {
 		kfree(stm32_gate);
 		return ERR_PTR(ret);
@@ -236,7 +297,7 @@ clk_stm32_register_composite(struct udevice *dev,
 			     const struct clock_config *cfg)
 {
 	struct stm32_clk_composite_cfg *composite = cfg->clock_cfg;
-	const char *const *parent_names;
+	const char **parent_names = NULL;
 	int num_parents;
 	struct clk *clk = ERR_PTR(-ENOMEM);
 	struct clk_mux *mux = NULL;
@@ -249,7 +310,8 @@ clk_stm32_register_composite(struct udevice *dev,
 	struct clk *div_clk = NULL;
 	const struct clk_ops *div_ops = NULL;
 	struct stm32mp_rcc_priv *priv = dev_get_priv(dev);
-	const struct clk_stm32_clock_data *data = priv->data;
+	const struct clk_stm32_clock_data *data = priv->clock_data;
+	int i, ret;
 
 	if  (composite->mux_id != NO_STM32_MUX) {
 		const struct stm32_mux_cfg *mux_cfg;
@@ -260,27 +322,50 @@ clk_stm32_register_composite(struct udevice *dev,
 
 		mux_cfg = &data->muxes[composite->mux_id];
 
+		parent_names = devm_kcalloc(dev, mux_cfg->num_parents,
+					    sizeof(char *), GFP_KERNEL);
+		if (!parent_names)
+			goto fail;
+
 		mux->reg = priv->base + mux_cfg->reg_off;
 		mux->shift = mux_cfg->shift;
 		mux->mask = BIT(mux_cfg->width) - 1;
 		mux->num_parents = mux_cfg->num_parents;
 		mux->flags = 0;
-		mux->parent_names = mux_cfg->parent_names;
 
+		for (i = 0; i < mux_cfg->num_parents; i++) {
+			if (mux_cfg->parent_data[i].name) {
+				parent_names[i] = mux_cfg->parent_data[i].name;
+			} else {
+				ret = clk_stm32_resolve_clk_name(dev,
+								 mux_cfg->parent_data[i].index,
+								 &parent_names[i]);
+				if (ret)
+					return ERR_CAST(clk);
+			}
+		}
+
+		mux->parent_names = (const char * const*)parent_names;
 		mux_clk = &mux->clk;
 		mux_ops = &clk_mux_ops;
-
-		parent_names = mux_cfg->parent_names;
 		num_parents = mux_cfg->num_parents;
 	} else {
-		parent_names = &cfg->parent_name;
+		parent_names = devm_kzalloc(dev, sizeof(char *), GFP_KERNEL);
+		if (!parent_names)
+			goto fail;
+
+		ret = clk_stm32_resolve_clk_name(dev, cfg->parent_data->index,
+						 parent_names);
+		if (ret)
+			return ERR_CAST(clk);
+
 		num_parents = 1;
 	}
 
 	if  (composite->div_id != NO_STM32_DIV) {
 		const struct stm32_div_cfg *div_cfg;
 
-		div = kzalloc(sizeof(*div), GFP_KERNEL);
+		div = devm_kzalloc(dev, sizeof(*div), GFP_KERNEL);
 		if (!div)
 			goto fail;
 
@@ -310,7 +395,7 @@ clk_stm32_register_composite(struct udevice *dev,
 	}
 
 	clk = clk_register_composite(dev, cfg->name,
-				     parent_names, num_parents,
+				     (const char * const *)parent_names, num_parents,
 				     mux_clk, mux_ops,
 				     div_clk, div_ops,
 				     gate_clk, gate_ops,
@@ -321,6 +406,7 @@ clk_stm32_register_composite(struct udevice *dev,
 	return clk;
 
 fail:
+	kfree(parent_names);
 	kfree(gate);
 	kfree(div);
 	kfree(mux);
