@@ -6,27 +6,25 @@
 #define LOG_CATEGORY UCLASS_CLK
 
 #include <clk-uclass.h>
-#include <dm.h>
-#include <log.h>
-#include <asm/io.h>
-#include <dt-bindings/clock/stm32mp13-clks.h>
-#include <linux/clk-provider.h>
-#include <dt-bindings/clock/stm32mp13-clksrc.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
-#include <clk-uclass.h>
 #include <div64.h>
-#include <dm/device_compat.h>
+#include <dm.h>
 #include <init.h>
-#include <linux/bitops.h>
-#include <linux/io.h>
-#include <linux/iopoll.h>
+#include <log.h>
 #include <regmap.h>
 #include <spl.h>
 #include <syscon.h>
 #include <time.h>
 #include <vsprintf.h>
+#include <asm/io.h>
+#include <asm/global_data.h>
 #include <asm/arch/sys_proto.h>
+#include <dm/device_compat.h>
+#include <dt-bindings/clock/stm32mp13-clks.h>
+#include <dt-bindings/clock/stm32mp13-clksrc.h>
+#include <linux/bitops.h>
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+#include <linux/iopoll.h>
 
 #include "clk-stm32-core.h"
 #include "stm32mp13_rcc.h"
