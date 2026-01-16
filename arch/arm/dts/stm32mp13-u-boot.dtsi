@@ -186,6 +186,33 @@
 };
 
 &rcc {
+	clocks = <&scmi_clk CK_SCMI_HSE>,
+		 <&scmi_clk CK_SCMI_HSI>,
+		 <&scmi_clk CK_SCMI_CSI>,
+		 <&scmi_clk CK_SCMI_LSE>,
+		 <&scmi_clk CK_SCMI_LSI>,
+		 <&scmi_clk CK_SCMI_HSE_DIV2>,
+		 <&scmi_clk CK_SCMI_PLL2_Q>,
+		 <&scmi_clk CK_SCMI_PLL2_R>,
+		 <&scmi_clk CK_SCMI_PLL3_P>,
+		 <&scmi_clk CK_SCMI_PLL3_Q>,
+		 <&scmi_clk CK_SCMI_PLL3_R>,
+		 <&scmi_clk CK_SCMI_PLL4_P>,
+		 <&scmi_clk CK_SCMI_PLL4_Q>,
+		 <&scmi_clk CK_SCMI_PLL4_R>,
+		 <&scmi_clk CK_SCMI_MPU>,
+		 <&scmi_clk CK_SCMI_AXI>,
+		 <&scmi_clk CK_SCMI_MLAHB>,
+		 <&scmi_clk CK_SCMI_CKPER>,
+		 <&scmi_clk CK_SCMI_PCLK1>,
+		 <&scmi_clk CK_SCMI_PCLK2>,
+		 <&scmi_clk CK_SCMI_PCLK3>,
+		 <&scmi_clk CK_SCMI_PCLK4>,
+		 <&scmi_clk CK_SCMI_PCLK5>,
+		 <&scmi_clk CK_SCMI_PCLK6>,
+		 <&scmi_clk CK_SCMI_CKTIMG1>,
+		 <&scmi_clk CK_SCMI_CKTIMG2>,
+		 <&scmi_clk CK_SCMI_CKTIMG3>;
 	bootph-all;
 };
 
