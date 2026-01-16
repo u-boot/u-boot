@@ -1,0 +1,7 @@
+BeagleBoard MPFS BeagleV-Fire
+M:	Cyril Jean <cyril.jean@microchip.com>
+M:	Jamie Gibbons <jamie.gibbons@microchip.com>
+S:	Maintained
+F:	board/beagle/beaglev_fire/
+F:	include/configs/beaglev_fire.h
+F:	configs/beaglev_fire_defconfig

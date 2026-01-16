@@ -17,6 +17,9 @@ config TARGET_ANDES_VOYAGER
 config TARGET_BANANAPI_F3
 	bool "Support BananaPi F3 Board"
 
+config TARGET_BEAGLEBOARD_BEAGLEVFIRE
+	bool "Support BeagleBoard BeagleV-Fire Board (based on Microchip MPFS)"
+
 config TARGET_K230_CANMV
 	bool "Support K230 CanMV Board"
 
@@ -106,6 +109,7 @@ config SPL_ZERO_MEM_BEFORE_USE
 source "board/andestech/ae350/Kconfig"
 source "board/andestech/voyager/Kconfig"
 source "board/aspeed/ibex_ast2700/Kconfig"
+source "board/beagle/beaglev_fire/Kconfig"
 source "board/canaan/k230_canmv/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_generic/Kconfig"
