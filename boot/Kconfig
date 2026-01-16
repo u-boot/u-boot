@@ -550,6 +550,7 @@ config BOOTMETH_ANDROID
 	depends on X86 || ARM || SANDBOX
 	depends on CMDLINE
 	select ANDROID_BOOT_IMAGE
+	select CMD_ABOOTIMG
 	select CMD_BCB
 	imply CMD_FASTBOOT
 	imply FASTBOOT if !NET_LWIP

@@ -273,8 +273,10 @@ ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 	if (ci_ep->desc)
 		num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 
-	if (num == 0 && controller.ep0_req)
+	if (num == 0 && controller.ep0_req) {
+		DBG("%s: already got controller.ep0_req = %p\n", __func__, controller.ep0_req);
 		return &controller.ep0_req->req;
+	}
 
 	ci_req = calloc(1, sizeof(*ci_req));
 	if (!ci_req)
@@ -296,6 +298,8 @@ static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *req)
 
 	if (ci_ep->desc)
 		num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	else
+		DBG("%s: no endpoint %p descriptor\n", __func__, ci_ep);
 
 	if (num == 0) {
 		if (!controller.ep0_req)
@@ -306,6 +310,27 @@ static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *req)
 	if (ci_req->b_buf)
 		free(ci_req->b_buf);
 	free(ci_req);
+}
+
+static void request_complete(struct usb_ep *ep, struct ci_req *req, int status)
+{
+	if (req->req.status == -EINPROGRESS)
+		req->req.status = status;
+
+	DBG("%s: req %p complete: status %d, actual %u\n",
+	    ep->name, req, req->req.status, req->req.actual);
+
+	req->req.complete(ep, &req->req);
+}
+
+static void request_complete_list(struct usb_ep *ep, struct list_head *list, int status)
+{
+	struct ci_req *req, *tmp_req;
+
+	list_for_each_entry_safe(req, tmp_req, list, queue) {
+		list_del_init(&req->queue);
+		request_complete(ep, req, status);
+	}
 }
 
 static void ep_enable(int num, int in, int maxpacket)
@@ -335,6 +360,12 @@ static int ci_ep_enable(struct usb_ep *ep,
 	int num, in;
 	num = desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (desc->bEndpointAddress & USB_DIR_IN) != 0;
+
+	if (ci_ep->desc) {
+		DBG("%s: endpoint num %d in %d already enabled\n", __func__, num, in);
+		return -EBUSY;
+	}
+
 	ci_ep->desc = desc;
 	ep->desc = desc;
 
@@ -385,19 +416,32 @@ static int ep_disable(int num, int in)
 static int ci_ep_disable(struct usb_ep *ep)
 {
 	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
+	LIST_HEAD(req_list);
 	int num, in, err;
+
+	if (!ci_ep->desc) {
+		DBG("%s: attempt to disable a not enabled yet endpoint\n", __func__);
+		err = -EBUSY;
+		goto nodesc;
+	}
 
 	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (ci_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
+
+	list_splice_init(&ci_ep->queue, &req_list);
+	request_complete_list(ep, &req_list, -ESHUTDOWN);
 
 	err = ep_disable(num, in);
 	if (err)
 		return err;
 
 	ci_ep->desc = NULL;
+	err = 0;
+
+nodesc:
 	ep->desc = NULL;
 	ci_ep->req_primed = false;
-	return 0;
+	return err;
 }
 
 static int ci_bounce(struct ci_req *ci_req, int in)
@@ -584,8 +628,10 @@ static int ci_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 			break;
 	}
 
-	if (&ci_req->req != _req)
+	if (&ci_req->req != _req) {
+		DBG("%s: ci_req not found in the queue\n", __func__);
 		return -EINVAL;
+	}
 
 	list_del_init(&ci_req->queue);
 
@@ -605,6 +651,11 @@ static int ci_ep_queue(struct usb_ep *ep,
 	struct ci_req *ci_req = container_of(req, struct ci_req, req);
 	int in, ret;
 	int __maybe_unused num;
+
+	if (!ci_ep->desc) {
+		DBG("%s: ci_ep->desc == NULL, nothing to do!\n", __func__);
+		return -EINVAL;
+	}
 
 	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (ci_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;

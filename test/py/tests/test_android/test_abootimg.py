@@ -62,22 +62,24 @@ b7762ffff07d345446c1281805e8a0868d81e117a45e111c0d8dc101b253
 d4a9820881a70f3873f35352731892f3730b124b32937252a96bb9119ae5
 463a5546f82c1f05a360148c8251300a462e000085bf67f200200000"""
 
-# boot img v4 hex dump
-boot_img_hex = """1f8b080827b0cd630203626f6f742e696d6700edd8bd0d82601885d1d7c4
-58d8c808b88195bd098d8d246e40e42b083f1aa0717be99d003d277916b8
-e5bddc8a7b792d8e8788c896ce9b88d32ebe6c971e7ddd3543cae734cd01
-c0ffc84c0000b0766d1a87d4e5afeadd3dab7a6f10000000f84163d5d7cd
-d43a000000000000000060c53e7544995700400000"""
+# bootable boot image v4 hex dump (with DTBs)
+boot_img_hex = """1f8b0808e2dd60690203626f6f745f6e65772e696d6700edd8ab0d836018
+40d14f900a0c8c5036e80a24180c24dde04f4034d04740b13d02d90920e7
+8c70e5adbbe6d9b74d5544441987c72dfe64010000009cd5342e9f71beff
+d2367fd3900b0200000017b4a4f7f05a2703000000002e6c0765d9bd6000
+300000"""
 
-# vendor boot image v4 hex dump
-vboot_img_hex = """1f8b0808baaecd63020376626f6f742e696d6700edd8310b824018c6f1b3
-222a08f41b3436b4280dcdd19c11d16ee9109d18d59042d047ec8b04cd0d
-d19d5a4345534bf6ffc173ef29272f38e93b1d0ec67dd79d548462aa1cd2
-d5d20b0000f8438678f90c18d584b8a4bbb3a557991ecb2a0000f80d6b2f
-f4179b656be5c532f2fc066f040000000080e23936af2755f62a3d918df1
-db2a7ab67f9ffdeb7df7cda3465ecb79c4ce7e5c577562bb9364b74449a5
-1e467e20c53c0a57de763193c1779b3b4fcd9d4ee27c6a0e00000000c0ff
-309ffea7010000000040f1dc004129855400400000"""
+# bootable vendor boot image v4 hex dump (with DTBs + bootconfig)
+vboot_img_hex = """1f8b0808e2dd6069020376656e646f725f626f6f745f6e65772e696d6700
+eddb316bc24014c0f14b2dd20a425c3b393a48c1d0c1a54be9aca588fbc5
+0b3434e9c979d04628f811fd22426787d2bbc43a68e9d4a5f1ff83f7de25
+5c787053f220d3d1fde3dd783c39174ee86255e68e4f0000e00405e2e835
+e0e142886db9fae8f89c95dbaa7ac5890100f02f1899ab74f1dc9dcb22d3
+52b538110000000000ea67ddfedcb8f2ee6228aa317ecf859fed7fcffefd
+fae68747835d6dec42bc0df6d74d1fc5a0bfac6e89331797b9564926663a
+9f4b9bc659f2b7cda383e6517f19fdd61c0000000080d3111e7c4f030000
+000080fa912fcae854c55adbeb2769d4ab34c9ad4d16963f010000000000
+a88d2fb468951800500000"""
 
 # Expected response for "abootimg dtb_dump" command
 dtb_dump_resp="""## DTB area contents (concat format):
@@ -282,3 +284,58 @@ def test_abootimgv4(abootimgv4_disk_image_vboot, abootimgv4_disk_image_boot, ubm
     ubman.run_command('fdt get value v / model')
     response = ubman.run_command('env print v')
     assert response == 'v=x2'
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('android_boot_image')
+@pytest.mark.buildconfigspec('cmd_abootimg')
+@pytest.mark.requiredtool('xxd')
+@pytest.mark.requiredtool('gunzip')
+def test_abootimg_bootconfig(abootimgv4_disk_image_vboot,
+                              abootimgv4_disk_image_boot,
+                              ubman):
+    """Test bootconfig handling with boot image v4.
+
+    Verifies that androidboot.* parameters from bootargs are appended to the
+    bootconfig section in vendor_boot image in memory, and that non-androidboot
+    parameters remain in bootargs.
+    """
+
+    # Setup addresses
+    ram_base = utils.find_ram_base(ubman)
+    ramdisk_addr_r = ram_base + 0x4000000
+    ubman.run_command('setenv ramdisk_addr_r 0x%x' % ramdisk_addr_r)
+    ubman.run_command('setenv loadaddr 0x%x' % loadaddr)
+    ubman.run_command('setenv vloadaddr 0x%x' % vloadaddr)
+
+    # Set bootargs with androidboot.* parameters
+    ubman.run_command('setenv bootargs "androidboot.serialno=ABC123 androidboot.mode=recovery console=ttyS0"')
+
+    # Load images
+    ubman.run_command('host load hostfs - 0x%x %s' % (vloadaddr,
+        abootimgv4_disk_image_vboot.path))
+    ubman.run_command('host load hostfs - 0x%x %s' % (loadaddr,
+        abootimgv4_disk_image_boot.path))
+    ubman.run_command('abootimg addr 0x%x 0x%x' % (loadaddr, vloadaddr))
+
+    # Extract ramdisk (triggers bootconfig append)
+    ubman.run_command('abootimg get ramdisk ramdisk_addr ramdisk_size')
+
+    # Get ramdisk address
+    response = ubman.run_command('env print ramdisk_addr')
+    ramdisk_start = int(response.split('=')[1], 16)
+
+    # Verify androidboot.* parameters were removed from bootargs
+    response = ubman.run_command('env print bootargs')
+    assert 'androidboot.' not in response
+    assert 'console=ttyS0' in response
+
+    # Get ramdisk size and verify BOOTCONFIG magic at the end
+    response = ubman.run_command('env print ramdisk_size')
+    ramdisk_size = int(response.split('=')[1], 16)
+
+    # Dump the end of the ramdisk where BOOTCONFIG trailer should be
+    # The trailer is at the end, so dump the last 48 bytes
+    response = ubman.run_command('md.b 0x%x 48' % (ramdisk_start + ramdisk_size - 48))
+
+    # Verify BOOTCONFIG magic is present
+    assert 'BOOTCONFIG' in response

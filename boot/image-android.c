@@ -57,6 +57,46 @@ static ulong add_trailer(ulong bootconfig_start_addr, ulong bootconfig_size)
 	return BOOTCONFIG_TRAILER_SIZE;
 }
 
+/*
+ * Add a string of boot config parameters to memory appended by the trailer.
+ * NOTE: This function expects bootconfig_start_addr to be already mapped.
+ *       It works directly with the mapped pointer, not a physical address.
+ */
+static long add_bootconfig_parameters(char *params, long params_len,
+				      ulong bootconfig_start_addr, u32 bootconfig_size)
+{
+	long applied_bytes = 0;
+	long new_size = 0;
+	ulong end;
+
+	if (!params || !bootconfig_start_addr)
+		return -EINVAL;
+
+	if (params_len == 0)
+		return 0;
+
+	end = bootconfig_start_addr + bootconfig_size;
+
+	if (is_trailer_present(end)) {
+		end -= BOOTCONFIG_TRAILER_SIZE;
+		applied_bytes -= BOOTCONFIG_TRAILER_SIZE;
+		memcpy(&new_size, (void *)end, BOOTCONFIG_SIZE_SIZE);
+	} else {
+		/*
+		 * When no trailer is present, the bootconfig_size includes the actual content.
+		 * We should write new parameters right after the existing content.
+		 */
+		end = bootconfig_start_addr + bootconfig_size;
+		new_size = bootconfig_size;
+	}
+
+	memcpy((void *)end, params, params_len);
+	applied_bytes += params_len;
+	applied_bytes += add_trailer(bootconfig_start_addr,
+				     bootconfig_size + applied_bytes);
+	return applied_bytes;
+}
+
 __weak ulong get_avendor_bootimg_addr(void)
 {
 	return -1;
@@ -74,7 +114,7 @@ static void android_boot_image_v3_v4_parse_hdr(const struct andr_boot_img_hdr_v3
 	 * The header takes a full page, the remaining components are aligned
 	 * on page boundary.
 	 */
-	end = (ulong)hdr;
+	end = map_to_sysmem(hdr);
 	end += ANDR_GKI_PAGE_SIZE;
 	data->kernel_ptr = end;
 	data->kernel_size = hdr->kernel_size;
@@ -87,7 +127,7 @@ static void android_boot_image_v3_v4_parse_hdr(const struct andr_boot_img_hdr_v3
 	if (hdr->header_version > 3)
 		end += ALIGN(hdr->signature_size, ANDR_GKI_PAGE_SIZE);
 
-	data->boot_img_total_size = end - (ulong)hdr;
+	data->boot_img_total_size = end - map_to_sysmem(hdr);
 }
 
 static void android_vendor_boot_image_v3_v4_parse_hdr(const struct andr_vnd_boot_img_hdr
@@ -106,7 +146,7 @@ static void android_vendor_boot_image_v3_v4_parse_hdr(const struct andr_vnd_boot
 	data->ramdisk_addr = hdr->ramdisk_addr;
 	data->dtb_load_addr = hdr->dtb_addr;
 	data->bootconfig_size = hdr->bootconfig_size;
-	end = (ulong)hdr;
+	end = map_to_sysmem(hdr);
 
 	if (hdr->header_version > 3)
 		end += ALIGN(ANDR_VENDOR_BOOT_V4_SIZE, hdr->page_size);
@@ -127,12 +167,16 @@ static void android_vendor_boot_image_v3_v4_parse_hdr(const struct andr_vnd_boot
 	end += ALIGN(hdr->vendor_ramdisk_table_size, hdr->page_size);
 	data->bootconfig_addr = end;
 	if (hdr->bootconfig_size) {
-		data->bootconfig_size += add_trailer(data->bootconfig_addr,
+		void *bootconfig_ptr = map_sysmem(data->bootconfig_addr,
+						  data->bootconfig_size +
+						  BOOTCONFIG_TRAILER_SIZE);
+		data->bootconfig_size += add_trailer((ulong)bootconfig_ptr,
 						     data->bootconfig_size);
+		unmap_sysmem(bootconfig_ptr);
 		data->ramdisk_size += data->bootconfig_size;
 	}
 	end += ALIGN(data->bootconfig_size, hdr->page_size);
-	data->vendor_boot_img_total_size = end - (ulong)hdr;
+	data->vendor_boot_img_total_size = end - map_to_sysmem(hdr);
 }
 
 static void android_boot_image_v0_v1_v2_parse_hdr(const struct andr_boot_img_hdr_v0 *hdr,
@@ -147,7 +191,7 @@ static void android_boot_image_v0_v1_v2_parse_hdr(const struct andr_boot_img_hdr
 	data->header_version = hdr->header_version;
 	data->dtb_load_addr = hdr->dtb_addr;
 
-	end = (ulong)hdr;
+	end = map_to_sysmem(hdr);
 
 	/*
 	 * The header takes a full page, the remaining components are aligned
@@ -180,7 +224,7 @@ static void android_boot_image_v0_v1_v2_parse_hdr(const struct andr_boot_img_hdr
 		end += ALIGN(hdr->dtb_size, hdr->page_size);
 	}
 
-	data->boot_img_total_size = end - (ulong)hdr;
+	data->boot_img_total_size = end - map_to_sysmem(hdr);
 }
 
 bool android_image_get_bootimg_size(const void *hdr, u32 *boot_img_size)
@@ -231,31 +275,42 @@ bool android_image_get_vendor_bootimg_size(const void *hdr, u32 *vendor_boot_img
 bool android_image_get_data(const void *boot_hdr, const void *vendor_boot_hdr,
 			    struct andr_image_data *data)
 {
+	const struct andr_boot_img_hdr_v0 *bhdr;
+	const struct andr_vnd_boot_img_hdr *vhdr;
+
 	if (!boot_hdr || !data) {
 		printf("boot_hdr or data params can't be NULL\n");
 		return false;
 	}
 
-	if (!is_android_boot_image_header(boot_hdr)) {
+	bhdr = map_sysmem((ulong)boot_hdr, sizeof(*bhdr));
+	if (!is_android_boot_image_header(bhdr)) {
 		printf("Incorrect boot image header\n");
+		unmap_sysmem(bhdr);
 		return false;
 	}
 
-	if (((struct andr_boot_img_hdr_v0 *)boot_hdr)->header_version > 2) {
+	if (bhdr->header_version > 2) {
 		if (!vendor_boot_hdr) {
 			printf("For boot header v3+ vendor boot image has to be provided\n");
+			unmap_sysmem(bhdr);
 			return false;
 		}
-		if (!is_android_vendor_boot_image_header(vendor_boot_hdr)) {
+		vhdr = map_sysmem((ulong)vendor_boot_hdr, sizeof(*vhdr));
+		if (!is_android_vendor_boot_image_header(vhdr)) {
 			printf("Incorrect vendor boot image header\n");
+			unmap_sysmem(vhdr);
+			unmap_sysmem(bhdr);
 			return false;
 		}
-		android_boot_image_v3_v4_parse_hdr(boot_hdr, data);
-		android_vendor_boot_image_v3_v4_parse_hdr(vendor_boot_hdr, data);
+		android_boot_image_v3_v4_parse_hdr((const struct andr_boot_img_hdr_v3 *)bhdr, data);
+		android_vendor_boot_image_v3_v4_parse_hdr(vhdr, data);
+		unmap_sysmem(vhdr);
 	} else {
-		android_boot_image_v0_v1_v2_parse_hdr(boot_hdr, data);
+		android_boot_image_v0_v1_v2_parse_hdr(bhdr, data);
 	}
 
+	unmap_sysmem(bhdr);
 	return true;
 }
 
@@ -450,6 +505,166 @@ ulong android_image_get_kcomp(const void *hdr,
 		return image_decomp_type(p, sizeof(u32));
 }
 
+/**
+ * android_boot_append_bootconfig() - Append bootconfig parameters to ramdisk
+ * @img_data: Pointer to Android image data
+ * @params: Pointer to boot config parameters to append
+ * @params_len: Length of boot config parameters
+ * @ramdisk_dest: Destination address for the merged ramdisk
+ *
+ * This function copies the vendor ramdisk, boot ramdisk, and bootconfig to
+ * the destination. It then appends the provided bootconfig parameters.
+ *
+ * Return: Bytes added to the bootconfig on success, negative on error.
+ */
+static long android_boot_append_bootconfig(const struct andr_image_data *img_data,
+					   char *params, long params_len,
+					   void *ramdisk_dest)
+{
+	void *vendor_ramdisk_src;
+	void *boot_ramdisk_src;
+	void *bootconfig_src;
+	long bytes_added = 0;
+
+	/* Map sources */
+	vendor_ramdisk_src = map_sysmem(img_data->vendor_ramdisk_ptr,
+					img_data->vendor_ramdisk_size);
+	boot_ramdisk_src = map_sysmem(img_data->ramdisk_ptr,
+				      img_data->boot_ramdisk_size);
+
+	/* Copy Vendor Ramdisk */
+	memcpy(ramdisk_dest, vendor_ramdisk_src, img_data->vendor_ramdisk_size);
+
+	/* Copy Boot Ramdisk */
+	memcpy((char *)ramdisk_dest + img_data->vendor_ramdisk_size,
+	       boot_ramdisk_src, img_data->boot_ramdisk_size);
+
+	/* Copy Bootconfig and Append Params */
+	if (img_data->bootconfig_size) {
+		bootconfig_src = map_sysmem(img_data->bootconfig_addr,
+					    img_data->bootconfig_size);
+		memcpy((char *)ramdisk_dest + img_data->vendor_ramdisk_size +
+		       img_data->boot_ramdisk_size,
+		       bootconfig_src, img_data->bootconfig_size);
+		unmap_sysmem(bootconfig_src);
+
+		if (params && params_len > 1) {
+			void *bootconfig_ptr = (char *)ramdisk_dest +
+					       img_data->vendor_ramdisk_size +
+					       img_data->boot_ramdisk_size;
+			bytes_added = add_bootconfig_parameters(params, params_len,
+								(ulong)bootconfig_ptr,
+								img_data->bootconfig_size);
+		}
+	}
+
+	unmap_sysmem(boot_ramdisk_src);
+	unmap_sysmem(vendor_ramdisk_src);
+
+	if (bytes_added < 0)
+		return bytes_added;
+
+	return bytes_added;
+}
+
+/**
+ * android_image_set_bootconfig() - Extract androidboot.* args and append to bootconfig
+ * @hdr: Pointer to boot image header
+ * @vendor_boot_img: Pointer to vendor boot image header
+ * @ramdisk_addr: Destination address for the merged ramdisk
+ *
+ * Return: Size of the bootconfig section (including new params) on success, negative on error.
+ */
+static long android_image_set_bootconfig(const void *hdr,
+					 const void *vendor_boot_img,
+					 ulong ramdisk_addr)
+{
+	const char *bootargs = env_get("bootargs");
+	char *params = NULL;
+	char *new_bootargs = NULL;
+	long params_len = 0;
+	struct andr_image_data img_data;
+	long ret;
+	size_t len;
+	const char *src;
+	char *bc_dst;
+	char *args_dst;
+	ulong total_size;
+	void *ramdisk_dest;
+
+	if (!android_image_get_data(hdr, vendor_boot_img, &img_data))
+		return -EINVAL;
+
+	/* Extract androidboot.* parameters from bootargs */
+	if (bootargs && img_data.bootconfig_size) {
+		len = strlen(bootargs);
+		src = bootargs;
+
+		params = malloc(len + 1);
+		new_bootargs = malloc(len + 1);
+		if (!params || !new_bootargs) {
+			free(params);
+			free(new_bootargs);
+			printf("Error: malloc failed\n");
+			return -ENOMEM;
+		}
+
+		bc_dst = params;
+		args_dst = new_bootargs;
+
+		/* Extract androidboot.* and build new bootargs in one pass */
+		while (*src) {
+			/* Skip leading spaces */
+			while (*src == ' ')
+				src++;
+			if (!*src)
+				break;
+
+			/* Check if this param starts with androidboot. */
+			if (strncmp(src, "androidboot.", 12) == 0) {
+				/* Copy to bootconfig (add newline if not first) */
+				if (bc_dst != params)
+					*bc_dst++ = '\n';
+				while (*src && *src != ' ')
+					*bc_dst++ = *src++;
+			} else {
+				/* Copy to new bootargs (add space if not first) */
+				if (args_dst != new_bootargs)
+					*args_dst++ = ' ';
+				while (*src && *src != ' ')
+					*args_dst++ = *src++;
+			}
+		}
+
+		*bc_dst++ = '\n'; /* Final newline for bootconfig */
+		*bc_dst = '\0';
+		*args_dst = '\0';
+		params_len = bc_dst - params;
+
+		/* Update bootargs if we extracted any androidboot params */
+		if (params_len > 1)
+			env_set("bootargs", new_bootargs);
+	}
+
+	/* Calculate total size for mapping */
+	total_size = img_data.ramdisk_size + img_data.bootconfig_size;
+	if (params_len > 1)
+		total_size += params_len + BOOTCONFIG_TRAILER_SIZE;
+
+	/* Map Dest */
+	ramdisk_dest = map_sysmem(ramdisk_addr, total_size);
+
+	/* Copy data */
+	ret = android_boot_append_bootconfig(&img_data, params, params_len,
+					     ramdisk_dest);
+
+	unmap_sysmem(ramdisk_dest);
+	free(params);
+	free(new_bootargs);
+
+	return ret;
+}
+
 int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 			      ulong *rd_data, ulong *rd_len)
 {
@@ -481,17 +696,9 @@ int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 			ramdisk_ptr = img_data.ramdisk_addr;
 		}
 		*rd_data = ramdisk_ptr;
-		memcpy((void *)(ramdisk_ptr), (void *)img_data.vendor_ramdisk_ptr,
-		       img_data.vendor_ramdisk_size);
-		ramdisk_ptr += img_data.vendor_ramdisk_size;
-		memcpy((void *)(ramdisk_ptr), (void *)img_data.ramdisk_ptr,
-		       img_data.boot_ramdisk_size);
-		ramdisk_ptr += img_data.boot_ramdisk_size;
-		if (img_data.bootconfig_size) {
-			memcpy((void *)
-			       (ramdisk_ptr), (void *)img_data.bootconfig_addr,
-			       img_data.bootconfig_size);
-		}
+		if (img_data.header_version > 3)
+			img_data.ramdisk_size +=
+				android_image_set_bootconfig(hdr, vendor_boot_img, ramdisk_ptr);
 	} else {
 		/* Ramdisk can be used in-place, use current ptr */
 		if (img_data.ramdisk_addr == 0 ||
@@ -684,21 +891,14 @@ bool android_image_get_dtb_by_index(ulong hdr_addr, ulong vendor_boot_img,
 				    u32 index, ulong *addr, u32 *size)
 {
 	struct andr_image_data img_data;
-	const struct andr_boot_img_hdr_v0 *hdr;
-	const struct andr_vnd_boot_img_hdr *vhdr = NULL;
+	const void *vendor_boot_hdr = NULL;
 
-	hdr = map_sysmem(hdr_addr, sizeof(*hdr));
 	if (vendor_boot_img != -1)
-		vhdr = map_sysmem(vendor_boot_img, sizeof(*vhdr));
-	if (!android_image_get_data(hdr, vhdr, &img_data)) {
-		if (vendor_boot_img != -1)
-			unmap_sysmem(vhdr);
-		unmap_sysmem(hdr);
+		vendor_boot_hdr = (const void *)vendor_boot_img;
+
+	if (!android_image_get_data((const void *)hdr_addr, vendor_boot_hdr,
+				    &img_data))
 		return false;
-	}
-	if (vendor_boot_img != -1)
-		unmap_sysmem(vhdr);
-	unmap_sysmem(hdr);
 
 	ulong dtb_img_addr;	/* address of DTB part in boot image */
 	u32 dtb_img_size;	/* size of DTB payload in boot image */

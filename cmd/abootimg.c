@@ -92,26 +92,18 @@ static int abootimg_get_recovery_dtbo(int argc, char *const argv[])
 
 static int abootimg_get_dtb_load_addr(int argc, char *const argv[])
 {
+	struct andr_image_data img_data = {0};
+	const void *vendor_boot_hdr = NULL;
+
 	if (argc > 1)
 		return CMD_RET_USAGE;
-	struct andr_image_data img_data = {0};
-	const struct andr_boot_img_hdr_v0 *hdr;
-	const struct andr_vnd_boot_img_hdr *vhdr = NULL;
 
-	hdr = map_sysmem(abootimg_addr(), sizeof(*hdr));
 	if (get_avendor_bootimg_addr() != -1)
-		vhdr = map_sysmem(get_avendor_bootimg_addr(), sizeof(*vhdr));
+		vendor_boot_hdr = (const void *)get_avendor_bootimg_addr();
 
-	if (!android_image_get_data(hdr, vhdr, &img_data)) {
-		if (get_avendor_bootimg_addr() != -1)
-			unmap_sysmem(vhdr);
-		unmap_sysmem(hdr);
+	if (!android_image_get_data((const void *)abootimg_addr(),
+				    vendor_boot_hdr, &img_data))
 		return CMD_RET_FAILURE;
-	}
-
-	if (get_avendor_bootimg_addr() != -1)
-		unmap_sysmem(vhdr);
-	unmap_sysmem(hdr);
 
 	if (img_data.header_version < 2) {
 		printf("Error: header_version must be >= 2 for this\n");
@@ -230,6 +222,33 @@ static int do_abootimg_addr(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
+static int abootimg_get_ramdisk(int argc, char *const argv[])
+{
+	ulong rd_data, rd_len;
+
+	if (argc > 2)
+		return CMD_RET_USAGE;
+
+	/*
+	 * Call android_image_get_ramdisk with UNMAPPED addresses
+	 * The function will do its own mapping internally as needed
+	 */
+	if (android_image_get_ramdisk((void *)abootimg_addr(),
+				      (void *)get_avendor_bootimg_addr(),
+				      &rd_data, &rd_len))
+		return CMD_RET_FAILURE;
+
+	if (argc == 0) {
+		printf("%lx\n", rd_data);
+	} else {
+		env_set_hex(argv[0], rd_data);
+		if (argc == 2)
+			env_set_hex(argv[1], rd_len);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static int do_abootimg_get(struct cmd_tbl *cmdtp, int flag, int argc,
 			   char *const argv[])
 {
@@ -249,6 +268,8 @@ static int do_abootimg_get(struct cmd_tbl *cmdtp, int flag, int argc,
 		return abootimg_get_dtb_load_addr(argc, argv);
 	else if (!strcmp(param, "dtb"))
 		return abootimg_get_dtb(argc, argv);
+	else if (!strcmp(param, "ramdisk"))
+		return abootimg_get_ramdisk(argc, argv);
 
 	return CMD_RET_USAGE;
 }
@@ -315,5 +336,9 @@ U_BOOT_CMD(
 	"    - get address and size (hex) of DT blob in the image by index\n"
 	"      <num>: index number of desired DT blob in DTB area\n"
 	"      [addr_var]: variable name to contain DT blob address\n"
-	"      [size_var]: variable name to contain DT blob size"
+	"      [size_var]: variable name to contain DT blob size\n"
+	"abootimg get ramdisk [addr_var [size_var]]\n"
+	"    - get address and size (hex) of ramdisk in the image\n"
+	"      [addr_var]: variable name to contain ramdisk address\n"
+	"      [size_var]: variable name to contain ramdisk size"
 );

@@ -252,8 +252,10 @@ static int android_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		priv->boot_mode = ANDROID_BOOT_MODE_NORMAL;
 		bflow->os_name = strdup("Android");
 	}
-	if (!bflow->os_name)
+	if (!bflow->os_name) {
+		free(priv);
 		return log_msg_ret("os", -ENOMEM);
+	}
 
 	if (priv->boot_mode == ANDROID_BOOT_MODE_BOOTLOADER) {
 		/* Clear BCB */
