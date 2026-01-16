@@ -237,6 +237,7 @@ static int xhci_dwc3_remove(struct udevice *dev)
 }
 
 static const struct udevice_id xhci_dwc3_ids[] = {
+	{ .compatible = "apple,t8103-dwc3" },
 	{ .compatible = "snps,dwc3" },
 	{ }
 };
