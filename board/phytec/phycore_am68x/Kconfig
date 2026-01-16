@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: GPL-2.0-only OR MIT
+#
+# Copyright (C) 2025 PHYTEC Messtechnik GmbH
+# Author: Dominik Haller <d.haller@phytec.de>
+
+if TARGET_PHYCORE_AM68X_A72
+
+config SYS_BOARD
+       default "phycore_am68x"
+
+config SYS_VENDOR
+       default "phytec"
+
+config SYS_CONFIG_NAME
+       default "phycore_am68x"
+
+config ENV_SOURCE_FILE
+       default "phycore_am68x"
+
+source "board/phytec/common/Kconfig"
+
+endif
+
+if TARGET_PHYCORE_AM68X_R5
+
+config SYS_BOARD
+       default "phycore_am68x"
+
+config SYS_VENDOR
+       default "phytec"
+
+config SYS_CONFIG_NAME
+       default "phycore_am68x"
+
+config ENV_SOURCE_FILE
+       default "phycore_am68x"
+
+source "board/phytec/common/Kconfig"
+source "board/phytec/common/k3/Kconfig"
+
+endif
