@@ -40,15 +40,17 @@ List of mainline supported Rockchip boards:
 * rk3229
      - Rockchip Evb-RK3229 (evb-rk3229)
 * rk3288
-     - Rockchip Evb-RK3288 (evb-rk3288)
+     - Rockchip Evb-RK3288-rk808 (evb-rk3288-rk808)
      - Firefly-RK3288 (firefly-rk3288)
      - MQmaker MiQi (miqi-rk3288)
      - Phytec RK3288 PCM-947 (phycore-rk3288)
      - PopMetal-RK3288 (popmetal-rk3288)
      - Radxa Rock 2 Square (rock2)
+     - Radxa Rock Pi N8 (rock-pi-n8-rk3288)
      - Tinker-RK3288 (tinker-rk3288)
+     - Tinker-S-RK3288 (tinker-s-rk3288)
      - Google Jerry (chromebook_jerry)
-     - Google Mickey (chromebook_mickey)
+     - Google Mickey (chromebit_mickey)
      - Google Minnie (chromebook_minnie)
      - Google Speedy (chromebook_speedy)
      - Amarula Vyasa-RK3288 (vyasa-rk3288)
@@ -245,7 +247,7 @@ To build rk3288 boards:
 
 .. code-block:: bash
 
-        make evb-rk3288_defconfig
+        make evb-rk3288-mk808_defconfig
         make CROSS_COMPILE=arm-linux-gnueabihf-
 
 To build rk3308 boards:
