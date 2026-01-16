@@ -63,10 +63,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3288) += \
 	rk3288-popmetal.dtb \
 	rk3288-rock2-square.dtb \
 	rk3288-rock-pi-n8.dtb \
-	rk3288-veyron-jerry.dtb \
-	rk3288-veyron-mickey.dtb \
-	rk3288-veyron-minnie.dtb \
-	rk3288-veyron-speedy.dtb \
 	rk3288-vyasa.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK3368) += \
