@@ -3,6 +3,7 @@
 
 #include <console.h>
 #include <display_options.h>
+#include <dm/device.h>
 #include <env.h>
 #include <image.h>
 #include <linux/kconfig.h>
@@ -116,7 +117,7 @@ static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
 	nfs_filename = nfs_basename(fname);
 	nfs_path     = nfs_dirname(fname);
 
-	printf("Using %s device\n", eth_get_name());
+	printf("Using %s device\n", udev->name);
 
 	printf("File transfer via NFS from server %s; our IP address is %s\n",
 	       ip4addr_ntoa(&srvip), env_get("ipaddr"));
