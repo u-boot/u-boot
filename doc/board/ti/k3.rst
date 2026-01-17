@@ -31,6 +31,7 @@ K3 Based SoCs
    :maxdepth: 1
 
    am62ax_sk
+   am62dx_evm
    am62x_sk
    am62px_sk
    am6254atl_sk
