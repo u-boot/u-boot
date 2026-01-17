@@ -180,7 +180,7 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 
 	printf("Using %s device\n", udev->name);
 	printf("TFTP from server %s; our IP address is %s\n",
-	       ip4addr_ntoa(&srvip), env_get("ipaddr"));
+	       ipaddr_ntoa(&srvip), env_get("ipaddr"));
 	printf("Filename '%s'.\n", fname);
 	printf("Load address: 0x%lx\n", ctx.daddr);
 	printf("Loading: ");

@@ -28,13 +28,10 @@ static void dns_cb(const char *name, const ip_addr_t *ipaddr, void *arg)
 
 	dns_cb_arg->done = true;
 
-	if (!ipaddr) {
+	if (!ipaddr)
 		printf("DNS: host not found\n");
-		dns_cb_arg->host_ipaddr.addr = 0;
-		return;
-	}
 
-	dns_cb_arg->host_ipaddr.addr = ipaddr->addr;
+	ip_addr_set(&dns_cb_arg->host_ipaddr, ipaddr);
 }
 
 static int dns_loop(struct udevice *udev, const char *name, const char *var)
@@ -78,7 +75,7 @@ static int dns_loop(struct udevice *udev, const char *name, const char *var)
 
 	net_lwip_remove_netif(netif);
 
-	if (dns_cb_arg.done && dns_cb_arg.host_ipaddr.addr != 0) {
+	if (dns_cb_arg.done && !ip_addr_isany(&dns_cb_arg.host_ipaddr)) {
 		ipstr = ipaddr_ntoa(&dns_cb_arg.host_ipaddr);
 		if (var)
 			env_set(var, ipstr);

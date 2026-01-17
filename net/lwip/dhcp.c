@@ -93,13 +93,13 @@ static int dhcp_loop(struct udevice *udev)
 		sprintf(maskstr, "netmask%d", idx);
 		sprintf(gwstr, "gatewayip%d", idx);
 	} else {
-		net_ip.s_addr = dhcp->offered_ip_addr.addr;
+		net_ip.s_addr = ip_addr_get_ip4_u32(&dhcp->offered_ip_addr);
 	}
 
 	env_set(ipstr, ip4addr_ntoa(&dhcp->offered_ip_addr));
 	env_set(maskstr, ip4addr_ntoa(&dhcp->offered_sn_mask));
 	env_set("serverip", ip4addr_ntoa(&dhcp->server_ip_addr));
-	if (dhcp->offered_gw_addr.addr != 0)
+	if (!ip4_addr_isany(&dhcp->offered_gw_addr))
 		env_set(gwstr, ip4addr_ntoa(&dhcp->offered_gw_addr));
 
 #ifdef CONFIG_PROT_DNS_LWIP

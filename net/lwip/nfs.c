@@ -59,7 +59,7 @@ static void nfs_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p,
 	int plen;
 	struct rpc_t rpc_pkt;
 
-	if (addr->addr != ctx->nfs_server.addr)
+	if (!ip_addr_eq(addr, &ctx->nfs_server))
 		goto exitfree;
 
 	if (p->tot_len > sizeof(struct rpc_t))
@@ -120,7 +120,7 @@ static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
 	printf("Using %s device\n", udev->name);
 
 	printf("File transfer via NFS from server %s; our IP address is %s\n",
-	       ip4addr_ntoa(&srvip), env_get("ipaddr"));
+	       ipaddr_ntoa(&srvip), env_get("ipaddr"));
 
 	printf("\nFilename '%s/%s'.", nfs_path, nfs_filename);
 
@@ -144,7 +144,7 @@ static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
 
 	net_set_state(NETLOOP_CONTINUE);
 
-	sess_ctx.nfs_server.addr = srvip.addr;
+	ip_addr_set(&sess_ctx.nfs_server, &srvip);
 
 	nfs_send();
 
