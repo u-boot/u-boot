@@ -248,9 +248,11 @@ int do_nfs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	if (!server_ip)
+		server_ip = env_get("nfsserverip");
+	if (!server_ip)
 		server_ip = env_get("serverip");
 	if (!server_ip) {
-		log_err("*** ERROR: 'serverip' not set\n");
+		log_err("error: nfsserverip/serverip not set\n");
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
