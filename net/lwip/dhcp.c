@@ -101,6 +101,9 @@ static int dhcp_loop(struct udevice *udev)
 	env_set("serverip", ip4addr_ntoa(&dhcp->server_ip_addr));
 	if (!ip4_addr_isany(&dhcp->offered_gw_addr))
 		env_set(gwstr, ip4addr_ntoa(&dhcp->offered_gw_addr));
+	if (!ip4_addr_isany(&dhcp->offered_si_addr) &&
+	    !ip4_addr_eq(&dhcp->offered_si_addr, &dhcp->server_ip_addr))
+		env_set("tftpserverip", ip4addr_ntoa(&dhcp->offered_si_addr));
 
 #ifdef CONFIG_PROT_DNS_LWIP
 	env_set("dnsip", ip4addr_ntoa(dns_getserver(0)));
