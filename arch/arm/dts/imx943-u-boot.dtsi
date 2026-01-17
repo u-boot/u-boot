@@ -141,6 +141,22 @@
 
 &aips3 {
 	bootph-all;
+
+	xspi1: spi@42b90000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "nxp,imx94-xspi";
+		reg = <0x42b90000 0x50000>, <0x28000000 0x08000000>;
+		reg-names = "xspi_base", "xspi_mmap";
+		interrupts = <GIC_SPI 390 IRQ_TYPE_LEVEL_HIGH>,       // EENV0
+			     <GIC_SPI 391 IRQ_TYPE_LEVEL_HIGH>,	      // EENV1
+			     <GIC_SPI 392 IRQ_TYPE_LEVEL_HIGH>,       // EENV2
+			     <GIC_SPI 393 IRQ_TYPE_LEVEL_HIGH>,       // EENV3
+			     <GIC_SPI 394 IRQ_TYPE_LEVEL_HIGH>;       // EENV4
+		clocks = <&scmi_clk IMX94_CLK_XSPI1>;
+		clock-names = "xspi";
+		status = "disabled";
+	};
 };
 
 &clk_ext1 {
