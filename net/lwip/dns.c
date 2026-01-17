@@ -86,7 +86,7 @@ static int dns_loop(struct udevice *udev, const char *name, const char *var)
 
 	if (dns_cb_arg.done && dns_cb_arg.host_ipaddr.addr != 0) {
 		if (!var)
-			printf("%s\n", ipaddr_ntoa(&ipaddr));
+			printf("%s\n", ipaddr_ntoa(&dns_cb_arg.host_ipaddr));
 		return CMD_RET_SUCCESS;
 	}
 
