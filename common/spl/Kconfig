@@ -1375,6 +1375,7 @@ config SPL_POWER_DOMAIN
 
 config SPL_RAM_SUPPORT
 	bool
+	select SPL_HAS_LOAD_FIT_ADDRESS if SPL_LOAD_FIT
 
 config SPL_RAM_DEVICE
 	bool "Support booting from preloaded image in RAM"

@@ -593,9 +593,10 @@ static int spl_fit_image_get_os(const void *fit, int noffset, uint8_t *os)
  * The purpose of the FIT load buffer is to provide a memory location that is
  * independent of the load address of any FIT component.
  */
-static void *spl_get_fit_load_buffer(size_t size)
+__weak void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
 {
 	void *buf;
+	size_t size = sectors * bl_len;
 
 	buf = malloc_cache_aligned(size);
 	if (!buf) {
@@ -609,11 +610,6 @@ static void *spl_get_fit_load_buffer(size_t size)
 		buf = spl_get_load_buffer(0, size);
 	}
 	return buf;
-}
-
-__weak void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
-{
-	return spl_get_fit_load_buffer(sectors * bl_len);
 }
 
 /*
