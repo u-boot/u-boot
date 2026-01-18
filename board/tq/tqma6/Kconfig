@@ -11,7 +11,9 @@ config SYS_CONFIG_NAME
 
 choice
 	prompt "TQMa6 SoC variant"
-	default TQMA6Q
+	default TQMA6DL if MX6DL
+	default TQMA6Q if MX6Q
+	default TQMA6S if MX6S
 	help
 	  select the TQMa6 module variant. The variants only differ in the used
 	  i.MX6 CPU type and DRAM
@@ -79,6 +81,10 @@ config MBA6
 	select PHY_MICREL_KSZ90X1
 	select MXC_UART
 	imply OF_UPSTREAM
+	imply DM_I2C
+	imply DM_MMC
+	imply DM_SPI
+	imply DM_GPIO
 	help
 	  Select the MBa6 starterkit. This features a GigE Phy, USB, SD-Card
 	  etc.

@@ -6,25 +6,7 @@
 #include <env.h>
 #include <efi_loader.h>
 #include <init.h>
-#include <miiphy.h>
-#include <netdev.h>
-#include <asm/global_data.h>
-#include <asm/arch-imx9/ccm_regs.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch-imx9/imx93_pins.h>
-#include <asm/arch/clock.h>
-#include <dm/device.h>
-#include <dm/uclass.h>
-
-DECLARE_GLOBAL_DATA_PTR;
-
-#define UART_PAD_CTRL	(PAD_CTL_DSE(6) | PAD_CTL_FSEL2)
-#define WDOG_PAD_CTRL	(PAD_CTL_DSE(6) | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
-
-static iomux_v3_cfg_t const uart_pads[] = {
-	MX93_PAD_UART1_RXD__LPUART1_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX93_PAD_UART1_TXD__LPUART1_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
 
 #if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
 #define IMX_BOOT_IMAGE_GUID \
@@ -45,34 +27,6 @@ struct efi_capsule_update_info update_info = {
 	.images = fw_images,
 };
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
-
-int board_early_init_f(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
-
-	return 0;
-}
-
-static int setup_fec(void)
-{
-	return set_clk_enet(ENET_125MHZ);
-}
-
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
-
-int board_init(void)
-{
-	if (IS_ENABLED(CONFIG_FEC_MXC))
-		setup_fec();
-
-	return 0;
-}
 
 int board_late_init(void)
 {

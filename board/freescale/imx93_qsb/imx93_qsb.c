@@ -5,8 +5,6 @@
 
 #include <env.h>
 #include <init.h>
-#include <miiphy.h>
-#include <netdev.h>
 #include <asm/arch/sys_proto.h>
 
 int board_late_init(void)

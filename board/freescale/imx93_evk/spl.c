@@ -3,36 +3,19 @@
  * Copyright 2022 NXP
  */
 
-#include <command.h>
-#include <cpu_func.h>
-#include <hang.h>
-#include <image.h>
 #include <init.h>
-#include <log.h>
-#include <spl.h>
-#include <asm/global_data.h>
-#include <asm/io.h>
-#include <asm/arch/imx93_pins.h>
-#include <asm/arch/mu.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/mxc_i2c.h>
-#include <asm/arch-mx7ulp/gpio.h>
-#include <asm/mach-imx/ele_api.h>
-#include <asm/mach-imx/syscounter.h>
-#include <asm/sections.h>
-#include <dm/uclass.h>
-#include <dm/device.h>
-#include <dm/uclass-internal.h>
-#include <dm/device-internal.h>
-#include <linux/delay.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/ccm_regs.h>
-#include <asm/arch/ddr.h>
 #include <power/pmic.h>
 #include <power/pca9450.h>
+#include <spl.h>
+#include <asm/global_data.h>
+#include <asm/sections.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/ddr.h>
+#include <asm/arch/mu.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/arch/trdc.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/ele_api.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -102,6 +85,8 @@ int power_init_board(void)
 		printf("PMIC: Over Drive Voltage Mode\n");
 	}
 
+	ele_volt_change_start_req();
+
 	if (val & PCA9450_REG_PWRCTRL_TOFF_DEB) {
 		pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS0, buck_val);
 		pmic_reg_write(dev, PCA9450_BUCK3OUT_DVS0, buck_val);
@@ -109,6 +94,8 @@ int power_init_board(void)
 		pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS0, buck_val + 0x4);
 		pmic_reg_write(dev, PCA9450_BUCK3OUT_DVS0, buck_val + 0x4);
 	}
+
+	ele_volt_change_finish_req();
 
 	/* set standby voltage to 0.65v */
 	if (val & PCA9450_REG_PWRCTRL_TOFF_DEB)
@@ -132,8 +119,6 @@ void board_init_f(ulong dummy)
 	timer_init();
 
 	arch_cpu_init();
-
-	board_early_init_f();
 
 	spl_early_init();
 

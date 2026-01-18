@@ -3,16 +3,17 @@
  * Copyright 2025 NXP
  */
 
-#include <asm/arch/clock.h>
-#include <asm/arch/mu.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/gpio.h>
-#include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/ele_api.h>
-#include <asm/sections.h>
 #include <hang.h>
 #include <init.h>
 #include <spl.h>
+#include <asm/gpio.h>
+#include <asm/global_data.h>
+#include <asm/sections.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/mu.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/ele_api.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

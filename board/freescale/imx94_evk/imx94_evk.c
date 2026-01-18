@@ -3,11 +3,11 @@
  * Copyright 2025 NXP
  */
 
-#include <asm/arch/clock.h>
-#include <asm/gpio.h>
-#include <asm/mach-imx/sys_proto.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <asm/gpio.h>
+#include <asm/arch/clock.h>
+#include <asm/mach-imx/sys_proto.h>
 
 int board_early_init_f(void)
 {
