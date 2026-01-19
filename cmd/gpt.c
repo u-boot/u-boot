@@ -723,7 +723,7 @@ static int gpt_enumerate(struct blk_desc *desc)
 		if (part_drv->test(desc))
 			continue;
 
-		for (i = 1; i < part_drv->max_entries; i++) {
+		for (i = 1; i <= part_drv->max_entries; i++) {
 			ret = part_driver_get_info(part_drv, desc, i, &pinfo);
 			if (ret)
 				continue;
@@ -819,7 +819,7 @@ static int gpt_setenv(struct blk_desc *desc, const char *name)
 		struct disk_partition pinfo;
 		int i;
 
-		for (i = 1; i < part_drv->max_entries; i++) {
+		for (i = 1; i <= part_drv->max_entries; i++) {
 			ret = part_driver_get_info(part_drv, desc, i, &pinfo);
 			if (ret)
 				continue;
