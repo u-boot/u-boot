@@ -61,7 +61,8 @@
 	};
 	ina226-vdd1-1v8-lp4 {
 		compatible = "iio-hwmon";
-		io-channels = <&vdd1_1v8_lp4 0>, <&vdd1_1v8_lp4 1>, <&vdd1_1v8_lp4 2>, <&vdd1_1v8_lp4 3>;
+		io-channels = <&vdd1_1v8_lp4 0>, <&vdd1_1v8_lp4 1>, <&vdd1_1v8_lp4 2>,
+			      <&vdd1_1v8_lp4 3>;
 	};
 	ina226-vcc0v6-lp4 {
 		compatible = "iio-hwmon";
@@ -120,7 +121,7 @@
 		reset-gpios = <&gpio 142 GPIO_ACTIVE_LOW>;
 		phy0: ethernet-phy@0 { /* marwell m88e1512 - SGMII */
 			reg = <0>;
-/*		xlnx,phy-type = <PHY_TYPE_SGMII>; */
+			/* xlnx,phy-type = <PHY_TYPE_SGMII>; */
 		};
 	};
 };
@@ -483,10 +484,10 @@
 };
 
 &dwc3_1 {
-	/delete-property/ phy-names ;
-	/delete-property/ phys ;
+	/delete-property/ phy-names;
+	/delete-property/ phys;
 	maximum-speed = "high-speed";
-	snps,dis_u2_susphy_quirk ;
-	snps,dis_u3_susphy_quirk ;
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
 	status = "disabled";
 };

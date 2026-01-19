@@ -89,7 +89,7 @@
 		phy0: ethernet-phy@0 { /* marwell m88e1512 */
 			reg = <0>;
 			reset-gpios = <&gpio 42 GPIO_ACTIVE_LOW>;
-/*		xlnx,phy-type = <PHY_TYPE_SGMII>; */
+			/* xlnx,phy-type = <PHY_TYPE_SGMII>; */
 		};
 	};
 };

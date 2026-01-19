@@ -222,35 +222,35 @@
 		};
 		partition@140000 {
 			label = "Open_1";
-			reg = <0x140000 0xC0000>; /* 768KB */
+			reg = <0x140000 0xc0000>; /* 768KB */
 		};
 		partition@200000 {
 			label = "Image A (FSBL, PMU, ATF, U-Boot)";
-			reg = <0x200000 0xD00000>; /* 13MB */
+			reg = <0x200000 0xd00000>; /* 13MB */
 		};
 		partition@f00000 {
 			label = "ImgSel Image A Catch";
-			reg = <0xF00000 0x80000>; /* 512KB */
+			reg = <0xf00000 0x80000>; /* 512KB */
 			read-only;
 			lock;
 		};
 		partition@f80000 {
 			label = "Image B (FSBL, PMU, ATF, U-Boot)";
-			reg = <0xF80000 0xD00000>; /* 13MB */
+			reg = <0xf80000 0xd00000>; /* 13MB */
 		};
 		partition@1c80000 {
 			label = "ImgSel Image B Catch";
-			reg = <0x1C80000 0x80000>; /* 512KB */
+			reg = <0x1c80000 0x80000>; /* 512KB */
 			read-only;
 			lock;
 		};
 		partition@1d00000 {
 			label = "Open_2";
-			reg = <0x1D00000 0x100000>; /* 1MB */
+			reg = <0x1d00000 0x100000>; /* 1MB */
 		};
 		partition@1e00000 {
 			label = "Recovery Image";
-			reg = <0x1E00000 0x200000>; /* 2MB */
+			reg = <0x1e00000 0x200000>; /* 2MB */
 			read-only;
 			lock;
 		};
@@ -278,9 +278,9 @@
 			label = "Secure OS Storage";
 			reg = <0x2280000 0x20000>; /* 128KB */
 		};
-		partition@22A0000 {
+		partition@22a0000 {
 			label = "User";
-			reg = <0x22A0000 0x1d60000>; /* 29.375 MB */
+			reg = <0x22a0000 0x1d60000>; /* 29.375 MB */
 		};
 	};
 };
@@ -409,7 +409,7 @@
 
 		conf-tx {
 			pins = "MIO38", "MIO39", "MIO40",
-				"MIO41", "MIO42", "MIO43";
+			       "MIO41", "MIO42", "MIO43";
 			bias-disable;
 			low-power-enable;
 		};

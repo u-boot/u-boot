@@ -135,12 +135,22 @@ struct nwl_pcie {
 	u32 ecam_value;
 };
 
+static bool nwl_pcie_link_up(struct nwl_pcie *pcie)
+{
+	if (readl(pcie->pcireg_base + PS_LINKUP_OFFSET) & PCIE_PHY_LINKUP_BIT)
+		return true;
+	return false;
+}
+
 static int nwl_pcie_config_address(const struct udevice *bus,
 				   pci_dev_t bdf, uint offset,
 				   void **paddress)
 {
 	struct nwl_pcie *pcie = dev_get_priv(bus);
 	void *addr;
+
+	if (PCI_BUS(bdf) != dev_seq(bus) && !nwl_pcie_link_up(pcie))
+		return -EIO;
 
 	addr = pcie->ecam_base;
 	addr += PCIE_ECAM_OFFSET(PCI_BUS(bdf) - dev_seq(bus),
@@ -179,13 +189,6 @@ static inline u32 nwl_bridge_readl(struct nwl_pcie *pcie, u32 off)
 static inline void nwl_bridge_writel(struct nwl_pcie *pcie, u32 val, u32 off)
 {
 	writel(val, pcie->breg_base + off);
-}
-
-static bool nwl_pcie_link_up(struct nwl_pcie *pcie)
-{
-	if (readl(pcie->pcireg_base + PS_LINKUP_OFFSET) & PCIE_PHY_LINKUP_BIT)
-		return true;
-	return false;
 }
 
 static bool nwl_phy_link_up(struct nwl_pcie *pcie)
