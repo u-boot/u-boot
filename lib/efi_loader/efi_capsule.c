@@ -465,7 +465,7 @@ static __maybe_unused efi_status_t fwu_empty_capsule_process(
 			log_err("Unable to set the Accept bit for the image %pUs\n",
 				image_guid);
 
-		status = fwu_state_machine_updates(0, active_idx);
+		status = fwu_state_machine_updates(FWU_BANK_ACCEPTED, active_idx);
 		if (status < 0)
 			ret = EFI_DEVICE_ERROR;
 
@@ -510,7 +510,8 @@ static __maybe_unused efi_status_t fwu_post_update_process(bool fw_accept_os)
 		log_err("Failed to update FWU metadata index values\n");
 	} else {
 		log_debug("Successfully updated the active_index\n");
-		status = fwu_state_machine_updates(fw_accept_os ? 1 : 0,
+		status = fwu_state_machine_updates(fw_accept_os ?
+						   FWU_BANK_VALID : FWU_BANK_ACCEPTED,
 						   update_index);
 		if (status < 0)
 			ret = EFI_DEVICE_ERROR;
