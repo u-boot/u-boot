@@ -733,6 +733,7 @@ static void strlist_free(struct strlist *list)
 static int strlist_add(struct strlist *list, const char *str)
 {
 	char *dup;
+	char  **tmp = NULL;
 
 	if (!list || !str)
 		return -1;
@@ -741,13 +742,13 @@ static int strlist_add(struct strlist *list, const char *str)
 	if(!dup)
 		return -1;
 
-	list->strings = realloc(list->strings,
-				(list->count + 1) * sizeof(char *));
-	if (!list->strings) {
+	tmp = realloc(list->strings, (list->count + 1) * sizeof(char *));
+	if (!tmp) {
 		free(dup);
 		return -1;
 	}
 
+	list->strings = tmp;
 	list->strings[list->count++] = dup;
 
 	return 0;
