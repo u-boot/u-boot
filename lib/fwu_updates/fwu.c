@@ -766,6 +766,12 @@ static int fwu_boottime_checks(void)
 	if (boot_idx != active_idx) {
 		log_info("Boot idx %u is not matching active idx %u, changing active_idx\n",
 			 boot_idx, active_idx);
+
+		ret = fwu_state_machine_updates(FWU_BANK_INVALID, active_idx);
+		if (ret)
+			log_err("Unable to set bank %u state as invalid",
+				active_idx);
+
 		ret = fwu_set_active_index(boot_idx);
 		if (!ret)
 			boottime_check = 1;
