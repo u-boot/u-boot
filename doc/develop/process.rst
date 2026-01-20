@@ -232,6 +232,35 @@ feedback to the submitter of a patch about what is going on:
     work on an individual submitting a patch when something does not
     apply cleanly.
 
+Tooling
+^^^^^^^
+
+There are a number of tools available to help custodians and
+contributors alike with their contributions. As a project we make use of
+the Patchwork project hosted at `OzLabs <http://patchwork.ozlabs.org/>`__
+and more discussion on how it is used from both a contributor as well as
+custodian point of view can be found :ref:`here <patchwork>`.
+
+Another useful tool is `b4 <https://b4.docs.kernel.org/en/latest/>`__
+and is documented from a contributor point of view :ref:`here
+<b4_contrib>`. It also has a number of useful features from a custodian
+point of view:
+
+* `Integration with patchwork
+  <https://b4.docs.kernel.org/en/latest/config.html#patchwork-integration-settings>`__
+  which allows for automatic state tracking.
+
+* `"am" and "shazam"
+  <https://b4.docs.kernel.org/en/latest/maintainer/am-shazam.html>`__
+  for applying a patch or series of patches. Of note is that with
+  ``shazam`` review tags can be applied automatically and cover letters
+  can be integrated as part of merging a series.
+
+* `"ty" <https://b4.docs.kernel.org/en/latest/maintainer/ty.html>`__ for
+  automatically sending emails once patches have been applied. It is
+  strongly encouraged to keep the default ``${summary}`` in the template
+  as that shows what the git commit hash is for a particular patch.
+
 Work flow of a Custodian
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

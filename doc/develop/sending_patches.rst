@@ -322,6 +322,8 @@ Notes
    the memory footprint of the code. Remember: Small is beautiful! When adding
    new features follow the guidelines laid out in :doc:`system_configuration`.
 
+.. _patchwork:
+
 Patch Tracking
 --------------
 
