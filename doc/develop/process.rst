@@ -233,7 +233,7 @@ feedback to the submitter of a patch about what is going on:
     apply cleanly.
 
 Work flow of a Custodian
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 The normal flow of work in the U-Boot development process will look
 like this:
