@@ -132,27 +132,28 @@ It is their responsibility to pick up patches from the mailing list
 that fall into their responsibility, and to process these.
 
 A very important responsibility of each custodian is to provide
-feedback to the submitter of a patch about what is going on: if the
-patch was accepted, or if it was rejected (which exact list of
-reasons), if it needs to be reworked (with respective review
-comments). Even a "I have no time now, will look into it later"
-message is better than nothing. Also, if there are remarks to a
-patch, these should leave no doubt if they were just comments and the
-patch will be accepted anyway, or if the patch should be
-reworked/resubmitted, or if it was rejected. However, if a submitter
-feels it has been too long since posting their patch and not received
-any feedback, it is OK to follow-up and ask.
+feedback to the submitter of a patch about what is going on:
 
-Another form of feedback is about applying the patch itself to the
-source tree.  The custodian is expected to put in a "best effort" if a
-patch does not apply cleanly, but can be made to apply still. It is up
-to the custodian to decide how recent of a commit the patch must be
-against. It is acceptable to request patches against the last officially
-released version of U-Boot or newer. Of course a custodian can also
-accept patches against older code. It can be difficult to find the
-correct balance between putting too much work on the custodian or too
-much work on an individual submitting a patch when something does not
-apply cleanly.
+  * If the patch was accepted, or if it was rejected (with exact list
+    of reasons), if it needs to be reworked (with respective review
+    comments). Even a "I have no time now, will look into it later"
+    message is better than nothing. Also, if there are remarks to a
+    patch, these should leave no doubt if they were just comments and
+    the patch will be accepted anyway, or if the patch should be
+    reworked/resubmitted, or if it was rejected. However, if a submitter
+    feels it has been too long since posting their patch and not
+    received any feedback, it is OK to follow-up and ask.
+
+  * If the patch itself can still be applied to the tree. The custodian
+    is expected to put in a "best effort" if a patch does not apply
+    cleanly, but can be made to apply still. It is up to the custodian
+    to decide how recent of a commit the patch must be against. It is
+    acceptable to request patches against the last officially released
+    version of U-Boot or newer. Of course a custodian can also accept
+    patches against older code. It can be difficult to find the correct
+    balance between putting too much work on the custodian or too much
+    work on an individual submitting a patch when something does not
+    apply cleanly.
 
 Review Process, Git Tags
 ------------------------
