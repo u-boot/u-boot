@@ -143,6 +143,17 @@ reworked/resubmitted, or if it was rejected. However, if a submitter
 feels it has been too long since posting their patch and not received
 any feedback, it is OK to follow-up and ask.
 
+Another form of feedback is about applying the patch itself to the
+source tree.  The custodian is expected to put in a "best effort" if a
+patch does not apply cleanly, but can be made to apply still. It is up
+to the custodian to decide how recent of a commit the patch must be
+against. It is acceptable to request patches against the last officially
+released version of U-Boot or newer. Of course a custodian can also
+accept patches against older code. It can be difficult to find the
+correct balance between putting too much work on the custodian or too
+much work on an individual submitting a patch when something does not
+apply cleanly.
+
 Review Process, Git Tags
 ------------------------
 
@@ -236,15 +247,8 @@ like this:
 
    #. U-Boot Philosophy, as documented in :doc:`designprinciples`.
 
-   #. Applies cleanly to the source tree.  The custodian is expected to put in
-      a "best effort" if a patch does not apply cleanly, but can be made to apply
-      still.  It is up to the custodian to decide how recent of a commit the
-      patch must be against.  It is acceptable to request patches against the
-      last officially released version of U-Boot or newer.  Of course a
-      custodian can also accept patches against older code.  It can be
-      difficult to find the correct balance between putting too much work on
-      the custodian or too much work on an individual submitting a patch when
-      something does not apply cleanly.
+   #. Can be applied easily to the source tree, as documented in the
+      :ref:`custodians` section.
 
    #. Passes :doc:`ci_testing` as this checks for new warnings and other issues.
 
