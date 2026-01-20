@@ -144,6 +144,12 @@ feedback to the submitter of a patch about what is going on:
     feels it has been too long since posting their patch and not
     received any feedback, it is OK to follow-up and ask.
 
+    * A custodian may make changes suggested by :doc:`checkpatch.pl
+      <checkpatch>`. They must also in turn amend the commit message noting
+      their change, for example ``[trini: Fix typos]``, and add their own
+      :ref:`Signed-off-by <dco>` tag. All other changes must be handled by
+      another iteration of the patch, or follow-up patch.
+
   * If the patch itself can still be applied to the tree. The custodian
     is expected to put in a "best effort" if a patch does not apply
     cleanly, but can be made to apply still. It is up to the custodian
