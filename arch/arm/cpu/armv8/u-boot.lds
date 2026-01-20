@@ -146,6 +146,7 @@ SECTIONS
 		__rel_dyn_start = .;
 		*(.rela*)
 		__rel_dyn_end = .;
+		. = ALIGN(8);
 	}
 
 	_end = .;
@@ -175,3 +176,5 @@ SECTIONS
 #include "linux-kernel-image-header-vars.h"
 #endif
 }
+
+ASSERT(_end % 8 == 0, "_end must be 8-byte aligned for device tree");

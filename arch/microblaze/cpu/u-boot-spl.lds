@@ -50,7 +50,7 @@ SECTIONS
 		*(.bss)
 		*(.bss.*)
 		*(COMMON)
-		. = ALIGN(4);
+		. = ALIGN(8);
 		__bss_end = .;
 	}
 	_end = . ;
@@ -61,3 +61,6 @@ SECTIONS
 ASSERT(_end - _start <= (CONFIG_SPL_MAX_FOOTPRINT), \
         "SPL image plus BSS too big");
 #endif
+
+ASSERT(_image_binary_end % 8 == 0, \
+       "_image_binary_end must be 8-byte aligned for device tree");

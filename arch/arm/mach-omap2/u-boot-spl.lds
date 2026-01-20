@@ -55,3 +55,6 @@ SECTIONS
 		__bss_end = .;
 	} >.sdram
 }
+
+ASSERT(_image_binary_end % 8 == 0, \
+       "_image_binary_end must be 8-byte aligned for device tree");

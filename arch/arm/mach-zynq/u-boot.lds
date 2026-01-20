@@ -66,6 +66,7 @@ SECTIONS
 		__rel_dyn_start = .;
 		*(.rel*)
 		__rel_dyn_end = .;
+		. = ALIGN(8);
 	}
 
 	_end = .;
@@ -98,3 +99,5 @@ SECTIONS
 	/DISCARD/ : { *(.ARM.exidx*) }
 	/DISCARD/ : { *(.gnu.linkonce.armexidx.*) }
 }
+
+ASSERT(_end % 8 == 0, "_end must be 8-byte aligned for device tree");

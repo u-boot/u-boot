@@ -39,9 +39,8 @@ SECTIONS
 	. = ALIGN(4);
 	__u_boot_list : {
 		KEEP(*(SORT(__u_boot_list*)));
+		. = ALIGN(8);
 	} > .sram
-
-	. = ALIGN(4);
 
 	_image_binary_end = .;
 
@@ -62,3 +61,6 @@ SECTIONS
 	/DISCARD/ : { *(.interp*) }
 	/DISCARD/ : { *(.gnu*) }
 }
+
+ASSERT(_image_binary_end % 8 == 0, \
+       "_image_binary_end must be 8-byte aligned for device tree");

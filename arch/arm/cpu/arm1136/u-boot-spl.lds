@@ -30,8 +30,10 @@ SECTIONS
 	.rodata : { *(SORT_BY_ALIGNMENT(.rodata*)) } >.sram
 
 	. = ALIGN(4);
-	.data : { *(SORT_BY_ALIGNMENT(.data*)) } >.sram
-	. = ALIGN(4);
+	.data : {
+		*(SORT_BY_ALIGNMENT(.data*))
+		. = ALIGN(8);
+	} >.sram
 	__image_copy_end = .;
 	_end = .;
 
@@ -44,3 +46,5 @@ SECTIONS
 		__bss_end = .;
 	} >.sdram
 }
+
+ASSERT(_end % 8 == 0, "_end must be 8-byte aligned for device tree");

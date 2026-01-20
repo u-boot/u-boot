@@ -25,9 +25,13 @@ SECTIONS
 		*(_u_boot_sandbox_getopt_start)
 		KEEP(*(_u_boot_sandbox_getopt))
 		*(_u_boot_sandbox_getopt_end)
+		. = ALIGN(8);
 	}
 
 	_image_binary_end = .;
 }
 
 INSERT AFTER .data;
+
+ASSERT(_image_binary_end % 8 == 0, \
+       "_image_binary_end must be 8-byte aligned for device tree");

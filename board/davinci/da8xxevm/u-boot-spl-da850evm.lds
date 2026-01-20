@@ -43,6 +43,7 @@ SECTIONS
 		__rel_dyn_start = .;
 		*(.rel*)
 		__rel_dyn_end = .;
+		. = ALIGN(8);
 	} >.sram
 
 	__image_copy_end = .;
@@ -58,3 +59,6 @@ SECTIONS
 		__bss_end = .;
 	} >.sdram
 }
+
+ASSERT(_image_binary_end % 8 == 0, \
+       "_image_binary_end must be 8-byte aligned for device tree");

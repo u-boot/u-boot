@@ -43,6 +43,7 @@ SECTIONS
 		__binman_sym_start = .;
 		KEEP(*(SORT(.binman_sym*)));
 		__binman_sym_end = .;
+		. = ALIGN(8);
 	} > .spl_mem
 
 	_end = .;
@@ -56,3 +57,6 @@ SECTIONS
 		__bss_end = .;
 	} > .bss_mem
 }
+
+ASSERT(_image_binary_end % 8 == 0, \
+       "_image_binary_end must be 8-byte aligned for device tree");

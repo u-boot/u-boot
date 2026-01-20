@@ -48,7 +48,10 @@ SECTIONS
 		. = ALIGN(4);
 		__bss_start = .;
 		*(.bss*)
-		. = ALIGN(4);
+		. = ALIGN(8);
 		__bss_end = .;
 	} >.sram
 }
+
+ASSERT(__bss_end % 8 == 0, \
+       "__bss_end must be 8-byte aligned for device tree");
