@@ -76,6 +76,10 @@ config UFS_RENESAS_GEN5
 config UFS_ROCKCHIP
 	bool "Rockchip specific hooks to UFS controller platform driver"
 	depends on UFS
+	depends on DM_GPIO
+	depends on RESET_ROCKCHIP
+	depends on SPL_DM_GPIO || !SPL_UFS_SUPPORT
+	depends on SPL_RESET_ROCKCHIP || !SPL_UFS_SUPPORT
 	help
 	  This selects the Rockchip specific additions to UFSHCD platform driver.
 

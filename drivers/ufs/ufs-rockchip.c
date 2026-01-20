@@ -5,6 +5,7 @@
  * Copyright (C) 2025 Rockchip Electronics Co.Ltd.
  */
 
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>
@@ -150,7 +151,27 @@ static int ufs_rockchip_common_init(struct ufs_hba *hba)
 		return err;
 	}
 
+	err = gpio_request_by_name(dev, "reset-gpios", 0, &host->device_reset,
+				   GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);
+	if (err) {
+		dev_err(dev, "Cannot get reset GPIO\n");
+		return err;
+	}
+
 	host->hba = hba;
+
+	return 0;
+}
+
+static int ufs_rockchip_device_reset(struct ufs_hba *hba)
+{
+	struct ufs_rockchip_host *host = dev_get_priv(hba->dev);
+
+	dm_gpio_set_value(&host->device_reset, true);
+	udelay(20);
+
+	dm_gpio_set_value(&host->device_reset, false);
+	udelay(20);
 
 	return 0;
 }
@@ -172,6 +193,7 @@ static struct ufs_hba_ops ufs_hba_rk3576_vops = {
 	.init = ufs_rockchip_rk3576_init,
 	.phy_initialization = ufs_rockchip_rk3576_phy_init,
 	.hce_enable_notify = ufs_rockchip_hce_enable_notify,
+	.device_reset = ufs_rockchip_device_reset,
 };
 
 static const struct udevice_id ufs_rockchip_of_match[] = {
