@@ -15,24 +15,34 @@ static int cmd_test_meminfo(struct unit_test_state *uts)
 {
 	ut_assertok(run_command("meminfo", 0));
 	ut_assert_nextlinen("DRAM:  ");
+
+	if (!IS_ENABLED(CMD_MEMINFO_MAP))
+		return 0;
+
 	ut_assert_nextline_empty();
 
-	ut_assert_nextline("Region           Base     Size      End      Gap");
+	ut_assert_nextline("Region                Base          Size           End           Gap");
 	ut_assert_nextlinen("-");
 
 	/* For now we don't worry about checking the values */
-	ut_assert_nextlinen("video");
+	if (IS_ENABLED(CONFIG_VIDEO))
+		ut_assert_nextlinen("video");
+	if (IS_ENABLED(CONFIG_TRACE))
+		ut_assert_nextlinen("trace");
 	ut_assert_nextlinen("code");
 	ut_assert_nextlinen("malloc");
 	ut_assert_nextlinen("board_info");
 	ut_assert_nextlinen("global_data");
 	ut_assert_nextlinen("devicetree");
-	ut_assert_nextlinen("bootstage");
-	ut_assert_nextlinen("bloblist");
+	if (IS_ENABLED(CONFIG_BOOTSTAGE))
+		ut_assert_nextlinen("bootstage");
+	if (IS_ENABLED(CONFIG_BLOBLIST))
+		ut_assert_nextlinen("bloblist");
 	ut_assert_nextlinen("stack");
 
 	/* we expect at least one lmb line, but don't know how many */
-	ut_assert_nextlinen("lmb");
+	if (IS_ENABLED(CONFIG_LMB))
+		ut_assert_nextlinen("lmb");
 	ut_assert_skip_to_linen("free");
 
 	ut_assert_console_end();

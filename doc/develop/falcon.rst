@@ -1,4 +1,5 @@
 .. SPDX-License-Identifier: GPL-2.0-or-later
+.. _falcon-mode:
 
 Falcon Mode
 ===========
