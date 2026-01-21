@@ -24,6 +24,7 @@
 
 #include "../common/board_detect.h"
 #include "../common/fdt_ops.h"
+#include "../common/k3_32k_lfosc.h"
 
 #define board_is_am62x_skevm()  (board_ti_k3_is("AM62-SKEVM") || \
 				 board_ti_k3_is("AM62B-SKEVM"))
@@ -139,6 +140,9 @@ int board_late_init(void)
 #if defined(CONFIG_XPL_BUILD)
 void spl_board_init(void)
 {
+	if (IS_ENABLED(CONFIG_TI_K3_BOARD_LFOSC))
+		enable_32k_lfosc();
+
 	enable_caches();
 	if (IS_ENABLED(CONFIG_SPL_SPLASH_SCREEN) && IS_ENABLED(CONFIG_SPL_BMP))
 		splash_display();
