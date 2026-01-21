@@ -657,7 +657,7 @@ static int msdc_pio_read(struct msdc_host *host, u8 *ptr, u32 size)
 
 			break;
 		}
-}
+	}
 
 	return ret;
 }
