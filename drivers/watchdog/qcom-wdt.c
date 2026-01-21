@@ -129,7 +129,7 @@ static int qcom_wdt_probe(struct udevice *dev)
 
 	wdt->clk_rate = (ulong)rate;
 
-	return 0;
+	return qcom_wdt_stop(dev);
 }
 
 static const struct wdt_ops qcom_wdt_ops = {
