@@ -22,6 +22,11 @@ config CAPE_EEPROM_BUS_NUM
 	default 2
 	depends on SUPPORT_EXTENSION_SCAN
 
+config TI_K3_BOARD_LFOSC
+	bool "Initialize 32k LFOSC"
+	help
+	  Enable the 32k LFOSC on the device
+
 config TI_COMMON_CMD_OPTIONS
 	bool "Enable cmd options on TI platforms"
 	imply CMD_ASKENV
