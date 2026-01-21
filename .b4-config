@@ -4,3 +4,8 @@
 [b4]
     send-auto-to-cmd = scripts/get_maintainer.pl --nogit --nogit-fallback --nogit-chief-penguins --norolestats --nom
     send-auto-cc-cmd = scripts/get_maintainer.pl --nogit-fallback --nogit-chief-penguins --norolestats --nol
+    # Patchwork integration. You still need to set pw-key to your API key
+    pw-url = https://patchwork.ozlabs.org/
+    pw-project = uboot
+    pw-review-state = under-review
+    pw-accept-state = accepted
