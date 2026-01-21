@@ -16,6 +16,7 @@ config WATCHDOG_AUTOSTART
 	depends on WDT
 	default n if ARCH_SUNXI
 	default n if ARCH_STM32MP
+	default n if ARCH_SNAPDRAGON
 	default y
 	help
 	  Automatically start watchdog timer and start servicing it during
