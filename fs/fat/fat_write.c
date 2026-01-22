@@ -192,25 +192,6 @@ out:
 }
 
 static int total_sector;
-static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
-{
-	ulong ret;
-
-	if (!cur_dev)
-		return -1;
-
-	if (cur_part_info.start + block + nr_blocks >
-		cur_part_info.start + total_sector) {
-		printf("error: overflow occurs\n");
-		return -1;
-	}
-
-	ret = blk_dwrite(cur_dev, cur_part_info.start + block, nr_blocks, buf);
-	if (nr_blocks && ret == 0)
-		return -1;
-
-	return ret;
-}
 
 /*
  * Write fat buffer into block device
