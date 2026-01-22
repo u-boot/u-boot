@@ -9,7 +9,6 @@
 #include <image.h>
 #include <init.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/io.h>
@@ -29,8 +28,6 @@
 #include <power/pfuze100_pmic.h>
 #include <spl.h>
 #include "../common/pfuze.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 extern struct dram_timing_info dram_timing_b0;
 
