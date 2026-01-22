@@ -15,6 +15,7 @@
 #include <log.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <dt-bindings/pinctrl/mt65xx.h>
 
 #include "pinctrl-mtk-common.h"
 
@@ -657,6 +658,16 @@ static int mtk_pinconf_group_set(struct udevice *dev,
 }
 #endif
 
+static int mtk_pinctrl_pinmux_property_set(struct udevice *dev, u32 pinmux_group)
+{
+	u32 pin = MTK_GET_PIN_NO(pinmux_group);
+	u32 func = MTK_GET_PIN_FUNC(pinmux_group);
+	int ret;
+
+	ret = mtk_hw_set_value(dev, pin, PINCTRL_PIN_REG_MODE, func);
+	return ret ? ret : pin;
+}
+
 const struct pinctrl_ops mtk_pinctrl_ops = {
 	.get_pins_count = mtk_get_pins_count,
 	.get_pin_name = mtk_get_pin_name,
@@ -674,6 +685,7 @@ const struct pinctrl_ops mtk_pinctrl_ops = {
 	.pinconf_group_set = mtk_pinconf_group_set,
 #endif
 	.set_state = pinctrl_generic_set_state,
+	.pinmux_property_set = mtk_pinctrl_pinmux_property_set,
 };
 
 #if CONFIG_IS_ENABLED(DM_GPIO) || \
