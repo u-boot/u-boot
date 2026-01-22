@@ -5,4 +5,6 @@
  * Author: Max Merchel
  */
 
+#include "imx6ull-u-boot.dtsi"
 #include "imx6ul-tqma6ul-common-u-boot.dtsi"
+#include "mba6ulx-u-boot.dtsi"
