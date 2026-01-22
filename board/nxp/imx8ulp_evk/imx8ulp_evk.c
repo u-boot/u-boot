@@ -4,14 +4,10 @@
  */
 
 #include <env.h>
-#include <miiphy.h>
-#include <netdev.h>
 #include <asm/arch/imx8ulp-pins.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pcc.h>
 #include <asm/arch/sys_proto.h>
-#include <miiphy.h>
-#include <netdev.h>
 #include <asm/gpio.h>
 
 #if IS_ENABLED(CONFIG_FEC_MXC)
@@ -36,13 +32,6 @@ static int setup_fec(void)
 	pcc_clock_enable(4, ENET_PCC4_SLOT, true);
 	pcc_reset_peripheral(4, ENET_PCC4_SLOT, false);
 
-	return 0;
-}
-
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
 	return 0;
 }
 #endif
