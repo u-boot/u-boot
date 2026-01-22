@@ -29,6 +29,26 @@
 #define SW_POR_MCU                             BIT(24)
 #define SW_POR_MAIN                            BIT(25)
 
+const struct k3_speed_grade_map am64_map[] = {
+	{'S', 1000000000},
+	{'K', 800000000},
+	{/* List Terminator */ },
+};
+
+char k3_get_speed_grade(void)
+{
+	u32 efuse_val = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
+	u32 efuse_speed = (efuse_val & JTAG_DEV_SPEED_MASK) >>
+			  JTAG_DEV_SPEED_SHIFT;
+
+	return ('A' - 1) + efuse_speed;
+}
+
+const struct k3_speed_grade_map *k3_get_speed_grade_map(void)
+{
+	return am64_map;
+}
+
 static void ctrl_mmr_unlock(void)
 {
 	/* Unlock all PADCFG_MMR1 module registers */
@@ -263,6 +283,8 @@ void board_init_f(ulong dummy)
 	if (ret)
 		panic("DRAM init failed: %d\n", ret);
 #endif
+
+	k3_fix_rproc_clock("/a53@0");
 }
 
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
