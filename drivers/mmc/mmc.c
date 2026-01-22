@@ -1382,6 +1382,7 @@ static int sd_get_capabilities(struct mmc *mmc)
 	ALLOC_CACHE_ALIGN_BUFFER(__be32, switch_status, 16);
 	struct mmc_data data;
 	int timeout;
+	uint retries = 3;
 
 	mmc->card_caps = MMC_MODE_1BIT | MMC_CAP(MMC_LEGACY);
 
@@ -1389,25 +1390,26 @@ static int sd_get_capabilities(struct mmc *mmc)
 		return 0;
 
 	/* Read the SCR to find out if this card supports higher speeds */
-	cmd.cmdidx = MMC_CMD_APP_CMD;
-	cmd.resp_type = MMC_RSP_R1;
-	cmd.cmdarg = mmc->rca << 16;
+	do {
+		cmd.cmdidx = MMC_CMD_APP_CMD;
+		cmd.resp_type = MMC_RSP_R1;
+		cmd.cmdarg = mmc->rca << 16;
 
-	err = mmc_send_cmd(mmc, &cmd, NULL);
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+		if (err)
+			continue;
 
-	if (err)
-		return err;
+		cmd.cmdidx = SD_CMD_APP_SEND_SCR;
+		cmd.resp_type = MMC_RSP_R1;
+		cmd.cmdarg = 0;
 
-	cmd.cmdidx = SD_CMD_APP_SEND_SCR;
-	cmd.resp_type = MMC_RSP_R1;
-	cmd.cmdarg = 0;
+		data.dest = (char *)scr;
+		data.blocksize = 8;
+		data.blocks = 1;
+		data.flags = MMC_DATA_READ;
 
-	data.dest = (char *)scr;
-	data.blocksize = 8;
-	data.blocks = 1;
-	data.flags = MMC_DATA_READ;
-
-	err = mmc_send_cmd_retry(mmc, &cmd, &data, 3);
+		err = mmc_send_cmd(mmc, &cmd, &data);
+	} while (err && retries--);
 
 	if (err)
 		return err;
