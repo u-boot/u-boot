@@ -4,11 +4,11 @@
  */
 
 #include <env.h>
-#include <asm/arch/imx8ulp-pins.h>
+#include <asm/gpio.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/imx8ulp-pins.h>
 #include <asm/arch/pcc.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/gpio.h>
 
 #if IS_ENABLED(CONFIG_FEC_MXC)
 #define ENET_CLK_PAD_CTRL	(PAD_CTL_PUS_UP | PAD_CTL_DSE | PAD_CTL_IBE_ENABLE)
