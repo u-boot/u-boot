@@ -44,6 +44,40 @@
 #define CFG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 
+/* CPLD */
+
+#define CFG_SYS_CPLD_BASE              0x7fb00000
+#define CPLD_BASE_PHYS                 CFG_SYS_CPLD_BASE
+
+#define CFG_SYS_FPGA_CSPR_EXT          (0x0)
+#define CFG_SYS_FPGA_CSPR              (CSPR_PHYS_ADDR(CPLD_BASE_PHYS) | \
+                                        CSPR_PORT_SIZE_8 | \
+                                        CSPR_MSEL_GPCM | \
+                                        CSPR_V)
+#define CFG_SYS_FPGA_AMASK             IFC_AMASK(64 * 1024)
+#define CFG_SYS_FPGA_CSOR              (CSOR_NOR_ADM_SHIFT(4) | \
+                                        CSOR_NOR_NOR_MODE_AVD_NOR | \
+                                        CSOR_NOR_TRHZ_80)
+
+/* CPLD Timing parameters for IFC GPCM */
+#define CFG_SYS_FPGA_FTIM0             (FTIM0_GPCM_TACSE(0xf) | \
+                                        FTIM0_GPCM_TEADC(0xf) | \
+                                        FTIM0_GPCM_TEAHC(0xf))
+#define CFG_SYS_FPGA_FTIM1             (FTIM1_GPCM_TACO(0xff) | \
+                                        FTIM1_GPCM_TRAD(0x3f))
+#define CFG_SYS_FPGA_FTIM2             (FTIM2_GPCM_TCS(0xf) | \
+                                        FTIM2_GPCM_TCH(0xf) | \
+                                        FTIM2_GPCM_TWP(0xff))
+#define CFG_SYS_FPGA_FTIM3             0x0
+#define CFG_SYS_CSPR0_EXT              CFG_SYS_FPGA_CSPR_EXT
+#define CFG_SYS_CSPR0                  CFG_SYS_FPGA_CSPR
+#define CFG_SYS_AMASK0                 CFG_SYS_FPGA_AMASK
+#define CFG_SYS_CSOR0                  CFG_SYS_FPGA_CSOR
+#define CFG_SYS_CS0_FTIM0              CFG_SYS_FPGA_FTIM0
+#define CFG_SYS_CS0_FTIM1              CFG_SYS_FPGA_FTIM1
+#define CFG_SYS_CS0_FTIM2              CFG_SYS_FPGA_FTIM2
+#define CFG_SYS_CS0_FTIM3              CFG_SYS_FPGA_FTIM3
+
 /*
  * Serial Port
  */
