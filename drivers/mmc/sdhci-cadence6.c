@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-or-platform_driver
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2023 Starfive.
  *   Author: Kuan Lim Lee <kuanlim.lee@starfivetech.com>

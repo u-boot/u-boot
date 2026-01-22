@@ -27,12 +27,14 @@ int regulator_common_of_to_plat(struct udevice *dev,
 
 	/* Get optional enable GPIO desc */
 	gpio = &plat->gpio;
-	ret = gpio_request_by_name(dev, enable_gpio_name, 0, gpio, flags);
-	if (ret) {
-		debug("Regulator '%s' optional enable GPIO - not found! Error: %d\n",
-		      dev->name, ret);
-		if (ret != -ENOENT)
-			return ret;
+	if (CONFIG_IS_ENABLED(DM_GPIO)) {
+		ret = gpio_request_by_name(dev, enable_gpio_name, 0, gpio, flags);
+		if (ret) {
+			debug("Regulator '%s' optional enable GPIO - not found! Error: %d\n",
+			      dev->name, ret);
+			if (ret != -ENOENT)
+				return ret;
+		}
 	}
 
 	/* Get optional ramp up delay */
@@ -51,10 +53,10 @@ int regulator_common_get_enable(const struct udevice *dev,
 	struct regulator_common_plat *plat)
 {
 	/* Enable GPIO is optional */
-	if (!plat->gpio.dev)
-		return true;
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&plat->gpio))
+		return dm_gpio_get_value(&plat->gpio);
 
-	return dm_gpio_get_value(&plat->gpio);
+	return true;
 }
 
 int regulator_common_set_enable(const struct udevice *dev,
@@ -65,48 +67,47 @@ int regulator_common_set_enable(const struct udevice *dev,
 	debug("%s: dev='%s', enable=%d, delay=%d, has_gpio=%d\n", __func__,
 	      dev->name, enable, plat->startup_delay_us,
 	      dm_gpio_is_valid(&plat->gpio));
+
 	/* Enable GPIO is optional */
-	if (!dm_gpio_is_valid(&plat->gpio)) {
-		if (!enable)
-			return -ENOSYS;
-		return 0;
-	}
-
-	/* If previously enabled, increase count */
-	if (enable && plat->enable_count > 0) {
-		plat->enable_count++;
-		return -EALREADY;
-	}
-
-	if (!enable) {
-		if (plat->enable_count > 1) {
-			/* If enabled multiple times, decrease count */
-			plat->enable_count--;
-			return -EBUSY;
-		} else if (!plat->enable_count) {
-			/* If already disabled, do nothing */
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&plat->gpio)) {
+		/* If previously enabled, increase count */
+		if (enable && plat->enable_count > 0) {
+			plat->enable_count++;
 			return -EALREADY;
 		}
+
+		if (!enable) {
+			if (plat->enable_count > 1) {
+				/* If enabled multiple times, decrease count */
+				plat->enable_count--;
+				return -EBUSY;
+			} else if (!plat->enable_count) {
+				/* If already disabled, do nothing */
+				return -EALREADY;
+			}
+		}
+
+		ret = dm_gpio_set_value(&plat->gpio, enable);
+		if (ret) {
+			pr_err("Can't set regulator : %s gpio to: %d\n", dev->name,
+			       enable);
+			return ret;
+		}
+
+		if (enable && plat->startup_delay_us)
+			udelay(plat->startup_delay_us);
+
+		if (!enable && plat->off_on_delay_us)
+			udelay(plat->off_on_delay_us);
+
+		if (enable)
+			plat->enable_count++;
+		else
+			plat->enable_count--;
+
+	} else {
+		ret = enable ? 0 : -ENOSYS;
 	}
 
-	ret = dm_gpio_set_value(&plat->gpio, enable);
-	if (ret) {
-		pr_err("Can't set regulator : %s gpio to: %d\n", dev->name,
-		      enable);
-		return ret;
-	}
-
-	if (enable && plat->startup_delay_us)
-		udelay(plat->startup_delay_us);
-	debug("%s: done\n", __func__);
-
-	if (!enable && plat->off_on_delay_us)
-		udelay(plat->off_on_delay_us);
-
-	if (enable)
-		plat->enable_count++;
-	else
-		plat->enable_count--;
-
-	return 0;
+	return ret;
 }
