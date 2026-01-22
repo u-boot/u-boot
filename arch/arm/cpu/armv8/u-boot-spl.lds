@@ -55,6 +55,14 @@ SECTIONS
 		. = ALIGN(8);
 	} >.sram
 
+	.binman_sym_table : {
+		. = ALIGN(8);
+		__binman_sym_start = .;
+		KEEP(*(SORT(.binman_sym*)));
+		__binman_sym_end = .;
+		. = ALIGN(8);
+	} > .sram
+
 	__image_copy_end = .;
 	_end = .;
 	_image_binary_end = .;
