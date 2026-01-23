@@ -13,50 +13,7 @@
 #include <linux/delay.h>
 #include <linux/mtd/rawnand.h>
 
-/* registers */
-#define NFC_REG_CTL                0x00000000
-#define NFC_REG_ST                 0x00000004
-#define NFC_REG_ADDR_LOW           0x00000014
-#define NFC_REG_ADDR_HIGH          0x00000018
-#define NFC_REG_CNT                0x00000020
-#define NFC_REG_CMD                0x00000024
-#define NFC_REG_RCMD_SET           0x00000028
-#define NFC_REG_ECC_CTL            0x00000034
-#define NFC_REG_ECC_ST             0x00000038
-#define NFC_REG_SPARE_AREA         0x000000A0
-#define NFC_RAM0_BASE              0x00000400
-#define NFC_RAM1_BASE              0x00000800
-
-#define NFC_EN                     (1 << 0)
-#define NFC_RESET                  (1 << 1)
-#define NFC_PAGE_SHIFT_MSK         (0xf << 8)
-#define NFC_PAGE_SIZE(a)           ((fls(a) - 11) << 8)
-
-#define NFC_ECC_EN                 (1 << 0)
-#define NFC_ECC_EXCEPTION          (1 << 4)
-#define NFC_ECC_BLOCK_512          (1 << 5)
-#define NFC_RANDOM_EN              (1 << 9)
-#define NFC_RANDOM_DIRECTION       (1 << 10)
-
-#define NFC_ADR_NUM_OFFSET         16
-#define NFC_SEND_ADR               (1 << 19)
-#define NFC_ACCESS_DIR             (1 << 20)
-#define NFC_DATA_TRANS             (1 << 21)
-#define NFC_SEND_CMD1              (1 << 22)
-#define NFC_WAIT_FLAG              (1 << 23)
-#define NFC_SEND_CMD2              (1 << 24)
-#define NFC_SEQ                    (1 << 25)
-#define NFC_DATA_SWAP_METHOD       (1 << 26)
-#define NFC_ROW_AUTO_INC           (1 << 27)
-#define NFC_SEND_CMD3              (1 << 28)
-#define NFC_SEND_CMD4              (1 << 29)
-#define NFC_NORMAL_OP              (0 << 30)
-#define NFC_ECC_OP                 (1 << 30)
-#define NFC_PAGE_OP                (2 << 30)
-
-#define NFC_CMD_INT_FLAG           (1 << 1)
-#define NFC_DMA_INT_FLAG           (1 << 2)
-#define NFC_CMD_FIFO_STATUS        (1 << 3)
+#include "sunxi_nand.h"
 
 #define NFC_READ_CMD_OFFSET         0
 #define NFC_RND_READ_CMD0_OFFSET    8
