@@ -659,10 +659,11 @@ static void sunxi_nfc_hw_ecc_enable(struct mtd_info *mtd)
 	u32 ecc_ctl;
 
 	ecc_ctl = readl(nfc->regs + NFC_REG_ECC_CTL);
-	ecc_ctl &= ~(NFC_ECC_MODE_MSK | NFC_ECC_PIPELINE);
+	ecc_ctl &= ~(NFC_ECC_MODE_MSK(nfc) | NFC_ECC_PIPELINE);
 	if (nfc->caps->has_ecc_block_512)
 		ecc_ctl &= ~NFC_ECC_BLOCK_512;
-	ecc_ctl |= NFC_ECC_EN | NFC_ECC_MODE(data->mode) | NFC_ECC_EXCEPTION;
+	ecc_ctl |= NFC_ECC_EN | NFC_ECC_MODE(nfc, data->mode)
+		| NFC_ECC_EXCEPTION;
 
 	if (nand->ecc.size == 512 && nfc->caps->has_ecc_block_512)
 		ecc_ctl |= NFC_ECC_BLOCK_512;
@@ -1727,6 +1728,7 @@ static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.reg_user_data = NFC_REG_A10_USER_DATA,
 	.reg_pat_found = NFC_REG_ECC_ST,
 	.pat_found_mask = GENMASK(31, 16),
+	.ecc_mode_mask = GENMASK(15, 12),
 };
 
 static const struct udevice_id sunxi_nand_ids[] = {
