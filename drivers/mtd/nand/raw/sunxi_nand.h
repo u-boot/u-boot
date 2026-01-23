@@ -41,7 +41,8 @@
 #define NFC_REG_ECC_CTL		0x0034
 #define NFC_REG_ECC_ST		0x0038
 #define NFC_REG_DEBUG		0x003C
-#define NFC_REG_ECC_ERR_CNT(x)	((0x0040 + (x)) & ~0x3)
+#define NFC_REG_A10_ECC_ERR_CNT	0x0040
+#define NFC_REG_ECC_ERR_CNT(nfc, x)	(((nfc)->caps->reg_ecc_err_cnt + (x)) & ~0x3)
 #define NFC_REG_USER_DATA(x)	(0x0050 + ((x) * 4))
 #define NFC_REG_SPARE_AREA	0x00A0
 #define NFC_REG_PAT_ID		0x00A4
@@ -158,9 +159,11 @@
  * for distinction between compatible strings.
  *
  * @nstrengths:		Number of element of ECC strengths array
+ * @reg_ecc_err_cnt:	ECC error counter register
  */
 struct sunxi_nfc_caps {
 	unsigned int nstrengths;
+	unsigned int reg_ecc_err_cnt;
 };
 
 #endif

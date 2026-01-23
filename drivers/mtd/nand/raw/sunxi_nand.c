@@ -736,7 +736,7 @@ static int sunxi_nfc_hw_ecc_read_chunk(struct mtd_info *mtd,
 		return 1;
 	}
 
-	ret = NFC_ECC_ERR_CNT(0, readl(nfc->regs + NFC_REG_ECC_ERR_CNT(0)));
+	ret = NFC_ECC_ERR_CNT(0, readl(nfc->regs + NFC_REG_ECC_ERR_CNT(nfc, 0)));
 
 	memcpy_fromio(data, nfc->regs + NFC_RAM0_BASE, ecc->size);
 
@@ -1712,6 +1712,7 @@ static int sunxi_nand_probe(struct udevice *dev)
 
 static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.nstrengths = 9,
+	.reg_ecc_err_cnt = NFC_REG_A10_ECC_ERR_CNT,
 };
 
 static const struct udevice_id sunxi_nand_ids[] = {
