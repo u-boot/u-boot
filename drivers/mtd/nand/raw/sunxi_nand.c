@@ -289,8 +289,7 @@ static inline struct sunxi_nfc *to_sunxi_nfc(struct nand_hw_control *ctrl)
 
 static void sunxi_nfc_set_clk_rate(unsigned long hz)
 {
-	struct sunxi_ccm_reg *const ccm =
-	(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	void * const ccm = (void *)SUNXI_CCM_BASE;
 	int div_m, div_n;
 
 	div_m = (clock_get_pll6() + hz - 1) / hz;
@@ -305,14 +304,14 @@ static void sunxi_nfc_set_clk_rate(unsigned long hz)
 	/* config mod clock */
 	writel(CCM_NAND_CTRL_ENABLE | CCM_NAND_CTRL_PLL6 |
 	       CCM_NAND_CTRL_N(div_n) | CCM_NAND_CTRL_M(div_m),
-	       &ccm->nand0_clk_cfg);
+	       ccm + CCU_NAND0_CLK_CFG);
 
 	/* gate on nand clock */
-	setbits_le32(&ccm->ahb_gate0, (1 << AHB_GATE_OFFSET_NAND0));
+	setbits_le32(ccm + CCU_AHB_GATE0, (1 << AHB_GATE_OFFSET_NAND0));
 #ifdef CONFIG_MACH_SUN9I
-	setbits_le32(&ccm->ahb_gate1, (1 << AHB_GATE_OFFSET_DMA));
+	setbits_le32(ccm + CCU_AHB_GATE1, (1 << AHB_GATE_OFFSET_DMA));
 #else
-	setbits_le32(&ccm->ahb_gate0, (1 << AHB_GATE_OFFSET_DMA));
+	setbits_le32(ccm + CCU_AHB_GATE0, (1 << AHB_GATE_OFFSET_DMA));
 #endif
 }
 

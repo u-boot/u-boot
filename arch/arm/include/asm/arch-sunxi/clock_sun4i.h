@@ -11,6 +11,7 @@
 #define _SUNXI_CLOCK_SUN4I_H
 
 #define CCU_AHB_GATE0		0x60
+#define CCU_NAND0_CLK_CFG	0x80
 #define CCU_MMC0_CLK_CFG	0x88
 #define CCU_MMC1_CLK_CFG	0x8c
 #define CCU_MMC2_CLK_CFG	0x90
