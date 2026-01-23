@@ -270,8 +270,6 @@ static inline struct sunxi_nand_chip *to_sunxi_nand(struct nand_chip *nand)
  * @clk_rate:		NAND controller current clock rate
  * @chips:		a list containing all the NAND chips attached to
  *			this NAND controller
- * @complete:		a completion object used to wait for NAND
- *			controller events
  */
 struct sunxi_nfc {
 	struct nand_hw_control controller;
