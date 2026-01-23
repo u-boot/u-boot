@@ -57,6 +57,7 @@ __maybe_unused static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.reg_spare_area = NFC_REG_A10_SPARE_AREA,
 	.reg_pat_found = NFC_REG_ECC_ST,
 	.pat_found_mask = GENMASK(31, 16),
+	.ecc_mode_mask = GENMASK(15, 12),
 	.ecc_err_mask = GENMASK(15, 0),
 	.random_en_mask = BIT(9),
 };
@@ -237,7 +238,9 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 
 		/* Clear ECC status and restart ECC engine */
 		writel(0, SUNXI_NFC_BASE + NFC_REG_ECC_ST);
-		writel((rand_seed << 16) | (conf->ecc_strength << 12) |
+
+		writel(NFC_RANDOM_SEED(rand_seed) |
+		       NFC_ECC_MODE(conf, conf->ecc_strength) |
 		       (conf->randomize ? NFC_RANDOM_EN(conf) : 0) |
 		       ecc512_bit |
 		       NFC_ECC_EN | NFC_ECC_EXCEPTION,
