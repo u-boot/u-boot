@@ -153,4 +153,14 @@
 
 #define NFC_MAX_CS		7
 
+/*
+ * NAND Controller capabilities structure: stores NAND controller capabilities
+ * for distinction between compatible strings.
+ *
+ * @nstrengths:		Number of element of ECC strengths array
+ */
+struct sunxi_nfc_caps {
+	unsigned int nstrengths;
+};
+
 #endif
