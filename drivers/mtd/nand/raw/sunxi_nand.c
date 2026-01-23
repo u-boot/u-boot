@@ -328,7 +328,7 @@ static void sunxi_nfc_select_chip(struct mtd_info *mtd, int chip)
 				ctl |= NFC_RB_SEL(sel->rb.info.nativeid);
 		}
 
-		writel(mtd->writesize, nfc->regs + NFC_REG_SPARE_AREA);
+		writel(mtd->writesize, nfc->regs + NFC_REG_SPARE_AREA(nfc));
 
 		if (nfc->clk_rate != sunxi_nand->clk_rate) {
 			sunxi_nfc_set_clk_rate(sunxi_nand->clk_rate);
@@ -1727,6 +1727,7 @@ static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.reg_ecc_err_cnt = NFC_REG_A10_ECC_ERR_CNT,
 	.reg_user_data = NFC_REG_A10_USER_DATA,
 	.reg_pat_found = NFC_REG_ECC_ST,
+	.reg_spare_area = NFC_REG_A10_SPARE_AREA,
 	.reg_pat_id = NFC_REG_A10_PAT_ID,
 	.pat_found_mask = GENMASK(31, 16),
 	.ecc_mode_mask = GENMASK(15, 12),
