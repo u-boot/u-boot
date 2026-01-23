@@ -27,6 +27,7 @@ struct nfc_config {
 	int nseeds;
 	bool randomize;
 	bool valid;
+	const struct sunxi_nfc_caps *caps;
 };
 
 /* minimal "boot0" style NAND support for Allwinner A20 */
@@ -49,6 +50,10 @@ const uint16_t random_seed[128] = {
 	0x4e3d, 0x1338, 0x50db, 0x454d, 0x764d, 0x40a3, 0x42e6, 0x262b,
 	0x2d2e, 0x1aea, 0x2e17, 0x173d, 0x3a6e, 0x71bf, 0x25f9, 0x0a5d,
 	0x7c57, 0x0fbe, 0x46ce, 0x4939, 0x6b17, 0x37bb, 0x3e91, 0x76db,
+};
+
+__maybe_unused static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
+	.has_ecc_block_512 = true,
 };
 
 #define DEFAULT_TIMEOUT_US	100000
@@ -220,12 +225,16 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 		int data_off = i * conf->ecc_size;
 		int oob_off = conf->page_size + (i * oob_chunk_sz);
 		u8 *data = dest + data_off;
+		u32 ecc512_bit = 0;
+
+		if (conf->caps->has_ecc_block_512 && conf->ecc_size == 512)
+			ecc512_bit = NFC_ECC_BLOCK_512;
 
 		/* Clear ECC status and restart ECC engine */
 		writel(0, SUNXI_NFC_BASE + NFC_REG_ECC_ST);
 		writel((rand_seed << 16) | (conf->ecc_strength << 12) |
 		       (conf->randomize ? NFC_RANDOM_EN : 0) |
-		       (conf->ecc_size == 512 ? NFC_ECC_BLOCK_512 : 0) |
+		       ecc512_bit |
 		       NFC_ECC_EN | NFC_ECC_EXCEPTION,
 		       SUNXI_NFC_BASE + NFC_REG_ECC_CTL);
 
@@ -388,6 +397,8 @@ static int nand_detect_config(struct nfc_config *conf, u32 offs, void *dest)
 {
 	if (conf->valid)
 		return 0;
+
+	conf->caps = &sunxi_nfc_a10_caps;
 
 	/*
 	 * Modern NANDs are more likely than legacy ones, so we start testing
