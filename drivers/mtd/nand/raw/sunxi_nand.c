@@ -659,11 +659,12 @@ static void sunxi_nfc_hw_ecc_enable(struct mtd_info *mtd)
 	u32 ecc_ctl;
 
 	ecc_ctl = readl(nfc->regs + NFC_REG_ECC_CTL);
-	ecc_ctl &= ~(NFC_ECC_MODE_MSK | NFC_ECC_PIPELINE |
-		     NFC_ECC_BLOCK_SIZE_MSK);
+	ecc_ctl &= ~(NFC_ECC_MODE_MSK | NFC_ECC_PIPELINE);
+	if (nfc->caps->has_ecc_block_512)
+		ecc_ctl &= ~NFC_ECC_BLOCK_512;
 	ecc_ctl |= NFC_ECC_EN | NFC_ECC_MODE(data->mode) | NFC_ECC_EXCEPTION;
 
-	if (nand->ecc.size == 512)
+	if (nand->ecc.size == 512 && nfc->caps->has_ecc_block_512)
 		ecc_ctl |= NFC_ECC_BLOCK_512;
 
 	writel(ecc_ctl, nfc->regs + NFC_REG_ECC_CTL);
@@ -1453,6 +1454,8 @@ static void sunxi_nand_ecc_cleanup(struct nand_ecc_ctrl *ecc)
 static int sunxi_nand_ecc_init(struct mtd_info *mtd, struct nand_ecc_ctrl *ecc)
 {
 	struct nand_chip *nand = mtd_to_nand(mtd);
+	struct sunxi_nand_chip *sunxi_nand = to_sunxi_nand(nand);
+	struct sunxi_nfc *nfc = to_sunxi_nfc(sunxi_nand->nand.controller);
 	int ret;
 
 	if (!ecc->size) {
@@ -1462,6 +1465,10 @@ static int sunxi_nand_ecc_init(struct mtd_info *mtd, struct nand_ecc_ctrl *ecc)
 
 	if (!ecc->size || !ecc->strength)
 		return -EINVAL;
+
+	/* If 512B ECC is not supported, switch to 1024 */
+	if (ecc->size == 512 && !nfc->caps->has_ecc_block_512)
+		ecc->size = 1024;
 
 	switch (ecc->mode) {
 	case NAND_ECC_SOFT_BCH:
@@ -1714,6 +1721,7 @@ static int sunxi_nand_probe(struct udevice *dev)
 }
 
 static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
+	.has_ecc_block_512 = true,
 	.nstrengths = 9,
 	.reg_ecc_err_cnt = NFC_REG_A10_ECC_ERR_CNT,
 	.reg_user_data = NFC_REG_A10_USER_DATA,
