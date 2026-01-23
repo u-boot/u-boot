@@ -117,20 +117,85 @@ endchoice
 
 endif
 
+config SC5XX_UBOOT_SPL_OFFSET
+	hex "SPL offset"
+	default 0x0
+	help
+	  The default offset where the SPL is located.
+
+config SC5XX_UBOOT_OFFSET
+	hex "U-Boot offset"
+	default 0x40000
+	help
+	  The default offset where u-boot is located.
+
+config SC5XX_FITIMAGE_OFFSET
+	hex "FitImage offset"
+	default 0x1a0000
+	help
+	  The default offset where the fitImage is located.
+
+config SC5XX_ROOTFS_OFFSET
+	hex "RootFS offset"
+	default 0x102000
+	help
+	  The default offset where the rootfs is located.
+
+config SC5XX_LOADADDR
+	hex "Load address"
+	default 0x90000000
+	help
+	  The default load address for u-boot.
+
+menu "Binman configuration"
+config SC5XX_USE_BINMAN
+	bool "Use binman for final image"
+	select BINMAN
+	help
+	  If you wish to use binman to assemble an image, say 'Y' here.
+	  This will enable binman-specific sections in the device tree.
+
+config SC5XX_BINMAN_FILENAME
+	string "Image name"
+	default "sc5xx-image.img"
+	depends on SC5XX_USE_BINMAN
+	help
+	  The name of the image that will be created by binman.
+	  This is used to create the final image.
+
+config SC5XX_FITIMAGE_NAME
+	string "FitImage name"
+	default "fitImage"
+	depends on SC5XX_USE_BINMAN
+	help
+	  The name of the fitImage to be packed by binman.
+	  This is used to create the final image.
+
+config SC5XX_ROOTFS_NAME
+	string "RootFS name"
+	default "rootfs"
+	depends on SC5XX_USE_BINMAN
+	help
+	  The name of the rootfs to be packed by binman.
+	  This is used to create the final image.
+endmenu
+
 config ADI_IMAGE
 	string "ADI fitImage type"
 	help
 	  The image built by the ADI ADSP Linux build system.
 	  Is one of tiny, minimal, full.
 
-config SC_BOOT_MODE
-	int "SC5XX boot mode select"
+config SC_BCODE
+	int "SC5XX SPI BCODE select"
 	default 1
-	range 0 7
+	range 0 15
 	help
-	  Mode 0: do nothing, just idle
-	  Mode 1: boot ldr out of serial flash
-	  Mode 7: boot ldr over uart
+	  This sets the BCODE option for the generated LDR file. The BCODE
+	  is only used in SPI boots (QSPI/OSPI) but is set with no impact
+	  in other boot modes so that one LDR file may be reused from any
+	  boot media. The interpretation of this value is SoC and boot mode
+	  specific, so you must refer to the HRM to interpret it.
 
 config SC_BOOT_SPI_BUS
 	int "sc5xx spi boot bus"
@@ -209,21 +274,27 @@ config ADI_BUG_EZKHW21
 	  This workaround affects the SC584 EZKIT and addresses bug EZKHW21.
 	  It disables gigabit ethernet mode and limits the board to 100 Mbps
 
+choice
+	prompt "Analog Devices SOM Carrier Board Variant"
+	depends on (SC59X || SC59X_64)
+	default ADI_CARRIER_SOMCRR_EZKIT
+	help
+	  Select the specific EV-SOMCRR carrier board that you are using.
+	  Using a SOM without a carrier board is not supported.
+
 config ADI_CARRIER_SOMCRR_EZKIT
 	bool "Support the EV-SOMCRR-EZKIT"
-	depends on (SC59X || SC59X_64)
 	help
 	  Say y to include support for the EV-SOMCRR-EZKIT carrier board,
-	  which is compatible with the SC594 and SC598 SOMs. The EZKIT is
-	  mutually incompatible with the EZLITE.
+	  which is compatible with the SC594 and SC598 SOMs.
 
 config ADI_CARRIER_SOMCRR_EZLITE
 	bool "Support the EV-SOMCRR-EZLITE"
-	depends on (SC59X || SC59X_64)
 	help
 	  Say y to include support for the EV-SOMCRR-EZLITE carrier board,
-	  which is compatible with the SC594 and SC598 SOMs. The EZLITE is
-	  mutually incompatible with the EZKIT.
+	  which is compatible with the SC594 and SC598 SOMs.
+
+endchoice
 
 config ADI_SPL_FORCE_BMODE
 	int "Force the SPL to use this BMODE device during next boot stage"

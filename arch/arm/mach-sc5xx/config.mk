@@ -14,5 +14,5 @@ endif
 
 INPUTS-y += u-boot.ldr
 
-LDR_FLAGS += --bcode=$(CONFIG_SC_BOOT_MODE)
+LDR_FLAGS += --bcode=$(CONFIG_SC_BCODE)
 LDR_FLAGS += --use-vmas

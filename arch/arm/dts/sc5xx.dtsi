@@ -3,26 +3,89 @@
  * (C) Copyright 2024 - Analog Devices, Inc.
  */
 
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/pinctrl/adi-adsp.h>
 #include <dt-bindings/clock/adi-sc5xx-clock.h>
 
 / {
+	interrupt-parent = <&gic>;
 	#address-cells = <1>;
 	#size-cells = <1>;
 
+	chosen {
+		stdout-path = "serial0:115200";
+		bootph-pre-ram;
+	};
+
+	aliases {
+		spi2 = "/spi2";
+		serial0 = &uart0;
+		bootph-pre-ram;
+	};
+
+#ifdef CONFIG_SC5XX_USE_BINMAN
+	binman {
+		filename = CONFIG_SC5XX_BINMAN_FILENAME;
+		stage1-boot {
+			offset = <CONFIG_SC5XX_UBOOT_SPL_OFFSET>;
+			type = "blob-ext";
+			filename = "spl/u-boot-spl.ldr";
+		};
+
+		/* since falcon mode can jump from SPL to OS directly
+		 * full u-boot is optional
+		 *
+		 * @todo: review if we can say this given support has
+		 * not yet been upstreamed. Otherwise we might have to
+		 * invoke binman only for full u-boot.
+		 */
+		stage2-boot {
+			offset = <CONFIG_SC5XX_UBOOT_OFFSET>;
+			type = "blob-ext";
+			filename = "u-boot.ldr";
+			optional;
+		};
+
+#ifdef CONFIG_SC5XX_FITIMAGE_NAME
+		fitImage {
+			offset = <CONFIG_SC5XX_FITIMAGE_OFFSET>;
+			type = "blob-ext";
+			filename = CONFIG_SC5XX_FITIMAGE_NAME;
+		};
+#endif
+
+#ifdef CONFIG_SC5XX_ROOTFS_NAME
+		rfs {
+			offset = <CONFIG_SC5XX_ROOTFS_OFFSET>;
+			type = "blob-ext";
+			filename = CONFIG_SC5XX_ROOTFS_NAME;
+		};
+#endif
+	};
+#endif
+
 	clocks {
+		dummy: dummy {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <0>;
+			bootph-pre-ram;
+		};
+
 		sys_clkin0: sys_clkin0 {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <25000000>;
-			bootph-all;
+			bootph-pre-ram;
 		};
 
 		sys_clkin1: sys_clkin1 {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <25000000>;
-			bootph-all;
+			bootph-pre-ram;
 		};
 	};
 
@@ -32,23 +95,127 @@
 		compatible = "simple-bus";
 		device_type = "soc";
 		ranges;
-		bootph-all;
+		bootph-pre-ram;
 
-		timer0: timer@31018000 {
+		timer0: timer@0x31018000 {
 			compatible = "adi,sc5xx-gptimer";
 			reg = <0x31018004 0x100>,
-			      <0x31018060 0x100>;
+					<0x31018060 0x100>;
 			status = "okay";
-			bootph-all;
+			bootph-pre-ram;
 		};
 
-		clk: clocks@3108d000 {
-			reg = <0x3108d000 0x1000>;
-			#clock-cells = <1>;
-			clocks = <&sys_clkin0>, <&sys_clkin1>;
-			clock-names = "sys_clkin0", "sys_clkin1";
+		pinctrl0: pinctrl@0x31004000 {
+			compatible = "adi,adsp-pinctrl";
+			reg = <0x31004000 0x500>;
 			status = "okay";
-			bootph-all;
+			bootph-pre-ram;
+		};
+
+		gpio0: gpio@0x31004000 {
+			compatible = "adi,adsp-gpio";
+			reg = <0x31004000 0x500>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			status = "okay";
+			bootph-pre-ram;
+		};
+
+		clk: clocks@0x3108d000 {
+			reg = <0x3108d000 0x1000>,
+				<0x3108e000 0x1000>,
+				<0x3108f000 0x1000>;
+			reg-names = "cgu0", "cgu1", "cdu";
+			#clock-cells = <1>;
+			clocks = <&dummy>, <&sys_clkin0>, <&sys_clkin1>;
+			clock-names = "dummy", "sys_clkin0", "sys_clkin1";
+			status = "okay";
+			bootph-pre-ram;
+		};
+
+		uart0: serial@0x31003000 {
+			compatible = "adi,uart4";
+			reg = <0x31003000 0x1000>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart0_default>;
+			clock-names = "sclk0";
+			status = "okay";
+			bootph-pre-ram;
+		};
+
+		spi2: spi2 {
+			compatible = "adi,spi3";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi2_default>;
+			bus-num = <2>;
+			spi-max-frequency = <10000000>;
+			clock-names = "spi";
+			status = "okay";
+			bootph-pre-ram;
+
+			flash1: is25lp512@1 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "jedec,spi-nor", "is25lp512";
+				reg = <1>;
+				spi-tx-bus-width = <4>;
+				spi-rx-bus-width = <4>;
+				spi-max-frequency = <10000000>;
+				bootph-pre-ram;
+			};
+		};
+
+		wdog: watchdog@31008000 {
+			compatible = "adi,wdt";
+			reg = <0x3108c000 0x1000>,
+					<0x31089000 0x1000>,
+					<0x31008000 0x1000>;
+			reg-names = "rcu", "sec", "wdt";
+			clock-names = "sclk0";
+			status = "disabled";
+			bootph-pre-ram;
+		};
+
+		eth0: eth0 {
+			compatible = "snps,arc-dwmac-3.70a";
+			phy-mode = "rgmii";
+			pinctrl-names = "default";
+			pinctrl-0 = <&eth0_default>;
+			snps,reset-active-low;
+			snps,reset-delays-us = <1000 1000 1000>;
+			status = "okay";
+		};
+
+		i2c0: i2c0@31001400 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "adi-i2c";
+			reg = <0x31001400 0x1000>;
+			clock-names = "i2c";
+			status = "okay";
+			bootph-pre-ram;
+		};
+
+		i2c1: i2c1@31001500 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "adi-i2c";
+			reg = <0x31001500 0x1000>;
+			clock-names = "i2c";
+			status = "okay";
+			bootph-pre-ram;
+		};
+
+		i2c2: i2c2@31001600 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "adi-i2c";
+			reg = <0x31001600 0x1000>;
+			clock-names = "i2c";
+			status = "okay";
+			bootph-pre-ram;
 		};
 	};
 };

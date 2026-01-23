@@ -6,14 +6,201 @@
 /dts-v1/;
 
 #include "sc5xx.dtsi"
+#include "sc59x.dtsi"
+
+/{
+	gic: interrupt-controller@310B2000 {
+		compatible = "arm,cortex-a5-gic", "arm,cortex-a9-gic";
+		#interrupt-cells = <3>;
+		#address-cells = <0>;
+		interrupt-controller;
+		reg = <0x310B2000 0x1000>,
+		      <0x310B4000 0x100>;
+	};
+};
 
 &timer0 {
 	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
 };
 
+&pinctrl0 {
+	soc_defaults: soc_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('A', 14) ADI_ADSP_PINFUNC_ALT0>, /* i2c */
+		       <ADI_ADSP_PIN('A', 15) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 2) ADI_ADSP_PINFUNC_ALT0>, /* emmc */
+		       <ADI_ADSP_PIN('F', 3) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 4) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 5) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 6) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 7) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 8) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 9) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 10) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 11) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('F', 12) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	ospi_default: ospi_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('C', 8) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('C', 9) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('C', 10) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('C', 11) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('C', 12) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('C', 13) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('C', 14) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('C', 15) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('D', 0) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('D', 1) ADI_ADSP_PINFUNC_ALT0>,
+		       <ADI_ADSP_PIN('D', 4) ADI_ADSP_PINFUNC_ALT2>;
+	};
+};
+
 &clk {
 	compatible = "adi,sc594-clocks";
-	reg = <0x3108d000 0x1000>,
-	      <0x3108e000 0x1000>,
-	      <0x3108f000 0x1000>;
+};
+
+&uart0 {
+	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
+};
+
+&wdog {
+	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
+};
+
+&i2c0 {
+	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
+};
+
+&i2c1 {
+	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
+};
+
+&i2c2 {
+	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
+
+	som_gpio_expander: mcp23017@21 {
+		compatible = "microchip,mcp23017";
+		reg = <0x21>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		bootph-pre-ram;
+
+		led1 {
+			gpio-hog;
+			gpios = <0 GPIO_ACTIVE_HIGH>;
+			output-high;
+			line-name = "led1-en";
+			bootph-pre-ram;
+		};
+
+		led2 {
+			gpio-hog;
+			gpios = <1 GPIO_ACTIVE_HIGH>;
+			output-high;
+			line-name = "led2-en";
+			bootph-pre-ram;
+		};
+
+		led3 {
+			gpio-hog;
+			gpios = <2 GPIO_ACTIVE_HIGH>;
+			output-high;
+			line-name = "led3-en";
+			bootph-pre-ram;
+		};
+
+		spi2flash-cs {
+			gpio-hog;
+			gpios = <3 GPIO_ACTIVE_LOW>;
+			output-high;
+			line-name = "spi2flash-cs";
+			bootph-pre-ram;
+		};
+
+		spi2d2-d3 {
+			gpio-hog;
+			gpios = <4 GPIO_ACTIVE_LOW>;
+			output-high;
+			line-name = "spi2d2-d3-en";
+			bootph-pre-ram;
+		};
+
+		uart0 {
+			gpio-hog;
+			gpios = <5 GPIO_ACTIVE_LOW>;
+			output-high;
+			line-name = "uart0-en";
+			bootph-pre-ram;
+		};
+
+		uart0-flow-en {
+			gpio-hog;
+			gpios = <6 GPIO_ACTIVE_LOW>;
+			output-low;
+			line-name = "uart0-flow-en";
+			bootph-pre-ram;
+		};
+
+		ospiflash-cs {
+			gpio-hog;
+			gpios = <7 GPIO_ACTIVE_LOW>;
+			output-high;
+			line-name = "ospiflash-cs";
+			bootph-pre-ram;
+		};
+	};
+};
+
+&ospi {
+	status = "okay";
+
+	clocks = <&clk ADSP_SC594_CLK_OSPI>;
+
+	flash0: is25lx256@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor", "is25lx256";
+		reg = <0>;
+
+		spi-max-frequency = <100000000>;
+		cdns,spi-calib-frequency = <10000000>;
+
+		spi-tx-bus-width = <8>;
+		spi-rx-bus-width = <8>;
+
+		tshsl-ns = <50>;
+		tsd2d-ns = <50>;
+		tchsh-ns = <4>;
+		tslch-ns = <4>;
+		bootph-pre-ram;
+
+		cdns,phy;
+	};
+};
+
+&spi2 {
+	clocks = <&clk ADSP_SC594_CLK_SPI>;
+
+	flash1: is25lp512@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor", "is25lp512";
+		reg = <1>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <10000000>;
+		bootph-pre-ram;
+	};
+};
+
+&usb0_phy {
+	status = "okay";
+	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
+	clock-names = "sclk0";
+};
+
+&usb0 {
+	status = "okay";
 };

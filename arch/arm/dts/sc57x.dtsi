@@ -3,19 +3,134 @@
  * (C) Copyright 2024 - Analog Devices, Inc.
  */
 
-#include "sc5xx.dtsi"
-
 / {
-	gic: interrupt-controller@310b2000 {
-		compatible = "arm,cortex-a5-gic";
+	gic: interrupt-controller@310B2000 {
+		compatible = "arm,cortex-a5-gic", "arm,cortex-a9-gic";
 		#interrupt-cells = <3>;
 		#address-cells = <0>;
 		interrupt-controller;
 		reg = <0x310B2000 0x1000>,
 		      <0x310B4000 0x100>;
 	};
+
+	soc {
+		mmc: mmc0@31010000 {
+			compatible = "snps,dw-mshc";
+			reg = <0x31010000 0x400>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc_default>;
+			bus-width = <4>;
+			fifo-depth = <128>;
+			clock-names = "biu", "ciu";
+			max-frequency = <52000000>;
+			status = "disabled";
+		};
+
+		usb0: musb@310c1000 {
+			compatible = "adi,sc5xx-musb";
+			reg = <0x310c1000 0x390>;
+			interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>,
+						 <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "mc", "dma";
+			status = "okay";
+		};
+
+	};
 };
 
 &timer0 {
+	clocks = <&clk ADSP_SC57X_CLK_CGU0_SCLK0>;
+};
+
+&pinctrl0 {
+	mmc_default: mmc_pins {
+		adi,pins = <ADI_ADSP_PIN('E', 12) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('E', 13) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('E', 14) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('E', 15) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 0) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 1) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 2) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 3) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 4) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 7) ADI_ADSP_PINFUNC_ALT2>,
+					<ADI_ADSP_PIN('C', 12) ADI_ADSP_PINFUNC_ALT1>;
+	};
+
+	eth0_default: eth0_pins {
+		adi,pins = <ADI_ADSP_PIN('B', 7) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 8) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 6) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 5) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 13) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 12) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 14) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 15) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 9) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 4) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 0) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 2) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 10) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('A', 11) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	uart0_default: uart0_pins {
+		bootph-pre-ram;
+		adi,pins = <ADI_ADSP_PIN('F', 8) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('F', 9) ADI_ADSP_PINFUNC_ALT0>;
+	};
+
+	spi2_default: spi2_pins {
+		adi,pins = <ADI_ADSP_PIN('B', 14) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 10) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 11) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 12) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 13) ADI_ADSP_PINFUNC_ALT0>,
+					<ADI_ADSP_PIN('B', 15) ADI_ADSP_PINFUNC_ALT0>;
+	};
+};
+
+&pinctrl0 {
+	adi,npins = <92>;
+};
+
+&gpio0 {
+	adi,ngpios = <92>;
+};
+
+&clk {
+	compatible = "adi,sc57x-clocks";
+};
+
+&uart0 {
+	clocks = <&clk ADSP_SC57X_CLK_CGU0_SCLK0>;
+};
+
+&spi2 {
+	clocks = <&clk ADSP_SC57X_CLK_CGU0_SCLK1>;
+	reg = <0x31044000 0x1000>;
+};
+
+&wdog {
+	clocks = <&clk ADSP_SC57X_CLK_CGU0_SCLK0>;
+};
+
+&eth0 {
+	reg = <0x3100C000 0x1000>;
+};
+
+&mmc {
+	clocks = <&dummy>, <&clk ADSP_SC57X_CLK_CGU0_SCLK0>;
+};
+
+&i2c0 {
+	clocks = <&clk ADSP_SC57X_CLK_CGU0_SCLK0>;
+};
+
+&i2c1 {
+	clocks = <&clk ADSP_SC57X_CLK_CGU0_SCLK0>;
+};
+
+&i2c2 {
 	clocks = <&clk ADSP_SC57X_CLK_CGU0_SCLK0>;
 };

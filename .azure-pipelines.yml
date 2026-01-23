@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2022
   ubuntu_vm: ubuntu-24.04
   macos_vm: macOS-14
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:noble-20251013-30Nov2025
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:noble-20251013-23Jan2026
   # Ensure we do a shallow clone
   Agent.Source.Git.ShallowFetchDepth: 1
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission

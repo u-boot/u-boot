@@ -639,6 +639,7 @@ F:	arch/arm/dts/sc5*
 F:	arch/arm/include/asm/arch-adi/
 F:	arch/arm/mach-sc5xx/
 F:	board/adi/
+F:	configs/sc5*
 F:	doc/device-tree-bindings/arm/adi/adi,sc5xx.yaml
 F:	doc/device-tree-bindings/clock/adi,sc5xx-clocks.yaml
 F:	doc/device-tree-bindings/pinctrl/adi,adsp-pinctrl.yaml
@@ -658,6 +659,7 @@ F:	drivers/timer/adi_sc5xx_timer.c
 F:	drivers/usb/musb-new/sc5xx.c
 F:	drivers/watchdog/adi_wdt.c
 F:	include/configs/sc5*
+F:	include/dt-bindings/clock/adi-sc5xx-clock.h
 F:	include/dt-bindings/pinctrl/adi-adsp.h
 F:	include/env/adi/
 

@@ -334,6 +334,22 @@ RUN wget -O - https://coreboot.org/releases/coreboot-25.03.tar.xz | tar -C /tmp 
     sudo cp build/coreboot.rom build/cbfstool /opt/coreboot/ && \
     rm -rf /tmp/coreboot-25.03
 
+# Build ldr tool for Analog Devices boards and create prefixed symlinks to match
+# $(CROSS_COMPILE) as used by different supported platforms
+RUN git clone --depth=1 -b v1.0.2 https://github.com/analogdevicesinc/adsp-ldr.git /opt/adi-adsp-ldr && \
+	cd /opt/adi-adsp-ldr && \
+	python3 -m venv venv && \
+	. venv/bin/activate && \
+	pip install meson && \
+	meson setup build && \
+	cd build && \
+	meson compile && \
+	cd .. && \
+	ln -s build/ldr arm-linux-gnueabi-ldr && \
+	ln -s build/ldr aarch64-linux-ldr && \
+	deactivate
+ENV PATH="${PATH}:/opt/adi-adsp-ldr"
+
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
 RUN useradd -m -U uboot
