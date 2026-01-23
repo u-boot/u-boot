@@ -766,7 +766,7 @@ static int sunxi_nfc_hw_ecc_read_chunk(struct mtd_info *mtd,
 		 * Retrieve the corrected OOB bytes.
 		 */
 		sunxi_nfc_user_data_to_buf(readl(nfc->regs +
-						 NFC_REG_USER_DATA(0)),
+						 NFC_REG_USER_DATA(nfc, 0)),
 					   oob);
 
 		/* De-randomize the Bad Block Marker. */
@@ -837,10 +837,10 @@ static int sunxi_nfc_hw_ecc_write_chunk(struct mtd_info *mtd,
 		memcpy(user_data, oob, 4);
 		sunxi_nfc_randomize_bbm(mtd, page, user_data);
 		writel(sunxi_nfc_buf_to_user_data(user_data),
-		       nfc->regs + NFC_REG_USER_DATA(0));
+		       nfc->regs + NFC_REG_USER_DATA(nfc, 0));
 	} else {
 		writel(sunxi_nfc_buf_to_user_data(oob),
-		       nfc->regs + NFC_REG_USER_DATA(0));
+		       nfc->regs + NFC_REG_USER_DATA(nfc, 0));
 	}
 
 	if (data_off + ecc->size != oob_off)
@@ -1713,6 +1713,7 @@ static int sunxi_nand_probe(struct udevice *dev)
 static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.nstrengths = 9,
 	.reg_ecc_err_cnt = NFC_REG_A10_ECC_ERR_CNT,
+	.reg_user_data = NFC_REG_A10_USER_DATA,
 };
 
 static const struct udevice_id sunxi_nand_ids[] = {
