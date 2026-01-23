@@ -62,10 +62,6 @@
 #define NFC_RND_READ_CMD0_OFFSET    8
 #define NFC_RND_READ_CMD1_OFFSET    16
 
-#define NFC_CMD_RNDOUTSTART        0xE0
-#define NFC_CMD_RNDOUT             0x05
-#define NFC_CMD_READSTART          0x30
-
 struct nfc_config {
 	int page_size;
 	int ecc_strength;
@@ -199,9 +195,9 @@ static int nand_load_page(const struct nfc_config *conf, u32 offs)
 {
 	int page = offs / conf->page_size;
 
-	writel((NFC_CMD_RNDOUTSTART << NFC_RND_READ_CMD1_OFFSET) |
-	       (NFC_CMD_RNDOUT << NFC_RND_READ_CMD0_OFFSET) |
-	       (NFC_CMD_READSTART << NFC_READ_CMD_OFFSET),
+	writel((NAND_CMD_RNDOUTSTART << NFC_RND_READ_CMD1_OFFSET) |
+	       (NAND_CMD_RNDOUT << NFC_RND_READ_CMD0_OFFSET) |
+	       (NAND_CMD_READSTART << NFC_READ_CMD_OFFSET),
 	       SUNXI_NFC_BASE + NFC_REG_RCMD_SET);
 	writel(((page & 0xFFFF) << 16), SUNXI_NFC_BASE + NFC_REG_ADDR_LOW);
 	writel((page >> 16) & 0xFF, SUNXI_NFC_BASE + NFC_REG_ADDR_HIGH);
@@ -215,15 +211,15 @@ static int nand_change_column(u16 column)
 {
 	int ret;
 
-	writel((NFC_CMD_RNDOUTSTART << NFC_RND_READ_CMD1_OFFSET) |
-	       (NFC_CMD_RNDOUT << NFC_RND_READ_CMD0_OFFSET) |
-	       (NFC_CMD_RNDOUTSTART << NFC_READ_CMD_OFFSET),
+	writel((NAND_CMD_RNDOUTSTART << NFC_RND_READ_CMD1_OFFSET) |
+	       (NAND_CMD_RNDOUT << NFC_RND_READ_CMD0_OFFSET) |
+	       (NAND_CMD_RNDOUTSTART << NFC_READ_CMD_OFFSET),
 	       SUNXI_NFC_BASE + NFC_REG_RCMD_SET);
 	writel(column, SUNXI_NFC_BASE + NFC_REG_ADDR_LOW);
 
 	ret = nand_exec_cmd(NFC_SEND_CMD1 | NFC_SEND_CMD2 | NFC_NORMAL_OP |
 			    (1 << NFC_ADR_NUM_OFFSET) | NFC_SEND_ADR |
-			    NFC_CMD_RNDOUT);
+			    NAND_CMD_RNDOUT);
 	if (ret)
 		return ret;
 
