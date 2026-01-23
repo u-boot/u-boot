@@ -303,7 +303,7 @@ static int nand_max_ecc_strength(struct nfc_config *conf)
 	 */
 	switch (conf->page_size) {
 	case 2048:
-		max_oobsize = 64;
+		max_oobsize = 128;
 		break;
 	case 4096:
 		max_oobsize = 256;
