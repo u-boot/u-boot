@@ -10,7 +10,7 @@ Freescale i.MX6Q SabreLite boards.
 The configuration in this directory supports both the
 Nitrogen6X and Freescale SabreLite board, but in a
 different fashion from Freescale's implementation in
-board/freescale/mx6qsabrelite.
+board/nxp/mx6qsabrelite.
 
 In particular, this image supports booting from SPI NOR
 and saving the environment to SPI NOR.

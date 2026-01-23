@@ -1,0 +1,15 @@
+if TARGET_MX6SLLEVK
+
+config SYS_BOARD
+	default "mx6sllevk"
+
+config SYS_VENDOR
+	default "nxp"
+
+config SYS_CONFIG_NAME
+	default "mx6sllevk"
+
+config IMX_CONFIG
+	default "board/nxp/mx6sllevk/imximage.cfg"
+
+endif

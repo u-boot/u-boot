@@ -207,7 +207,7 @@ config FSL_SERDES
 config NEVER_ASSERT_ODT_TO_CPU
 	bool "Never assert ODT to internal IOs"
 
-source "board/freescale/mpc837xerdb/Kconfig"
+source "board/nxp/mpc837xerdb/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
 source "board/cssi/cmpcpro/Kconfig"
 

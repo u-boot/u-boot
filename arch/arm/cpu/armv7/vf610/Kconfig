@@ -30,7 +30,7 @@ endchoice
 config SYS_SOC
 	default "vf610"
 
-source "board/freescale/vf610twr/Kconfig"
+source "board/nxp/vf610twr/Kconfig"
 source "board/phytec/pcm052/Kconfig"
 source "board/toradex/colibri_vf/Kconfig"
 
