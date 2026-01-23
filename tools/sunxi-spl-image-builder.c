@@ -11,6 +11,7 @@
 #include <linux/bch.h>
 
 #include <getopt.h>
+#include <string.h>
 #include <version.h>
 
 #define BCH_PRIMITIVE_POLY	0x5803
@@ -27,6 +28,7 @@ struct image_info {
 	int eraseblock_size;
 	int scramble;
 	int boot0;
+	int h6;
 	off_t offset;
 	const char *source;
 	const char *dest;
@@ -84,18 +86,29 @@ static void scramble(const struct image_info *info,
 	uint16_t state;
 	int i;
 
-	/* Boot0 is always scrambled no matter the command line option. */
-	if (info->boot0) {
+	/*
+	 * Bail out earlier if the user didn't ask for scrambling.
+	 * But Boot0 is always scrambled no matter the command line option.
+	 */
+	if (!info->boot0 && !info->scramble)
+		return;
+
+	/*
+	 * On H6, the BROM scrambler seed is no different than the default one
+	 */
+	if (info->boot0 && !info->h6) {
 		state = brom_scrambler_seeds[0];
 	} else {
-		unsigned seedmod = info->eraseblock_size / info->page_size;
+		unsigned int seedmod;
 
-		/* Bail out earlier if the user didn't ask for scrambling. */
-		if (!info->scramble)
-			return;
-
-		if (seedmod > ARRAY_SIZE(default_scrambler_seeds))
+		if (info->h6) {
+			/* H6 boot0 uses all 128 seeds */
 			seedmod = ARRAY_SIZE(default_scrambler_seeds);
+		} else {
+			seedmod = info->eraseblock_size / info->page_size;
+			if (seedmod > ARRAY_SIZE(default_scrambler_seeds))
+				seedmod = ARRAY_SIZE(default_scrambler_seeds);
+		}
 
 		state = default_scrambler_seeds[page % seedmod];
 	}
@@ -137,14 +150,19 @@ static int write_page(const struct image_info *info, uint8_t *buffer,
 
 	fwrite(buffer, info->page_size + info->oob_size, 1, dst);
 
-	for (i = 0; i < info->usable_page_size; i++) {
-		if (buffer[i] !=  0xff)
-			break;
-	}
+	/*
+	 * H6 BROM doesn't support empty pages
+	 */
+	if (!info->h6) {
+		for (i = 0; i < info->usable_page_size; i++) {
+			if (buffer[i] !=  0xff)
+				break;
+		}
 
-	/* We leave empty pages at 0xff. */
-	if (i == info->usable_page_size)
-		return 0;
+		/* We leave empty pages at 0xff. */
+		if (i == info->usable_page_size)
+			return 0;
+	}
 
 	/* Restore the source pointer to read it again. */
 	fseek(src, -cnt, SEEK_CUR);
@@ -212,6 +230,14 @@ static int write_page(const struct image_info *info, uint8_t *buffer,
 		}
 
 		memset(ecc, 0, eccbytes);
+
+		if (info->h6) {
+			/* BBM taken from vendor code: FF 00 03 01 */
+			buffer[info->ecc_step_size + 1] = 0;
+			buffer[info->ecc_step_size + 2] = 3; // NAND_VERSION_0
+			buffer[info->ecc_step_size + 3] = 1; // NAND_VERSION_1
+		}
+
 		swap_bits(buffer, info->ecc_step_size + 4);
 		encode_bch(bch, buffer, info->ecc_step_size + 4, ecc);
 		swap_bits(buffer, info->ecc_step_size + 4);
@@ -303,6 +329,8 @@ static void display_help(int status)
 		"-e <size>        --eraseblock=<size>  Erase block size\n"
 		"-b               --boot0              Build a boot0 image.\n"
 		"-s               --scramble           Scramble data\n"
+		"-t               --soc=<soc>          Build an image compatible with SoC type <soc>\n"
+		"                                      (possible values: a10, h6. Default: a10)\n"
 		"-a <offset>      --address=<offset>   Where the image will be programmed.\n"
 		"\n"
 		"Notes:\n"
@@ -312,6 +340,9 @@ static void display_help(int status)
 		"The NAND controller only supports the following ECC configs\n"
 		"  Valid ECC strengths: 16, 24, 28, 32, 40, 48, 56, 60 and 64\n"
 		"  Valid ECC step size: 512 and 1024\n"
+		"\n"
+		"On H6/H616, the only ECC step size supported is 1024, but more ECC\n"
+		"strengths are supported: 44, 52, 68, 72, 76, 80\n"
 		"\n"
 		"If you are building a boot0 image, you'll have specify extra options.\n"
 		"These options should be chosen based on the layouts described here:\n"
@@ -342,7 +373,12 @@ static void display_help(int status)
 
 static int check_image_info(struct image_info *info)
 {
-	static int valid_ecc_strengths[] = { 16, 24, 28, 32, 40, 48, 56, 60, 64 };
+	static int ecc_strengths_a10[] = { 16, 24, 28, 32, 40, 48, 56, 60, 64 };
+	static int ecc_strengths_h6[] = {
+		16, 24, 28, 32, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80
+	};
+	int *valid_ecc_strengths;
+	size_t nstrengths;
 	int eccbytes, eccsteps;
 	unsigned i;
 
@@ -367,12 +403,25 @@ static int check_image_info(struct image_info *info)
 		return -EINVAL;
 	}
 
-	for (i = 0; i < ARRAY_SIZE(valid_ecc_strengths); i++) {
+	if (info->h6) {
+		if (info->ecc_step_size != 1024) {
+			fprintf(stderr,
+				"H6 SoCs supports only 1024 bytes ECC step\n");
+			return -EINVAL;
+		}
+		valid_ecc_strengths = ecc_strengths_h6;
+		nstrengths = ARRAY_SIZE(ecc_strengths_h6);
+	} else {
+		valid_ecc_strengths = ecc_strengths_a10;
+		nstrengths = ARRAY_SIZE(ecc_strengths_a10);
+	}
+
+	for (i = 0; i < nstrengths; i++) {
 		if (valid_ecc_strengths[i] == info->ecc_strength)
 			break;
 	}
 
-	if (i == ARRAY_SIZE(valid_ecc_strengths)) {
+	if (i == nstrengths) {
 		fprintf(stderr, "Invalid ECC strength argument: %d\n",
 			info->ecc_strength);
 		return -EINVAL;
@@ -416,10 +465,11 @@ int main(int argc, char **argv)
 			{"boot0", no_argument, 0, 'b'},
 			{"scramble", no_argument, 0, 's'},
 			{"address", required_argument, 0, 'a'},
+			{"soc", required_argument, 0, 't'},
 			{0, 0, 0, 0},
 		};
 
-		int c = getopt_long(argc, argv, "c:p:o:u:e:ba:sh",
+		int c = getopt_long(argc, argv, "c:p:o:u:e:ba:sht:",
 				long_options, &option_index);
 		if (c == EOF)
 			break;
@@ -453,6 +503,10 @@ int main(int argc, char **argv)
 			break;
 		case 'a':
 			info.offset = strtoull(optarg, NULL, 0);
+			break;
+		case 't':
+			if (strcmp("h6", optarg) == 0)
+				info.h6 = 1;
 			break;
 		case '?':
 			display_help(-1);

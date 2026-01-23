@@ -489,6 +489,7 @@ if NAND_SUNXI
 
 config NAND_SUNXI_SPL_ECC_STRENGTH
 	int "Allwinner NAND SPL ECC Strength"
+	default 80 if SUN50I_GEN_H6
 	default 64
 
 config NAND_SUNXI_SPL_ECC_SIZE

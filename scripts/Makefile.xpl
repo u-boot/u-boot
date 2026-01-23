@@ -457,6 +457,7 @@ $(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin FORCE
 
 quiet_cmd_sunxi_spl_image_builder = SUNXI_SPL_IMAGE_BUILDER $@
 cmd_sunxi_spl_image_builder = $(objtree)/tools/sunxi-spl-image-builder \
+				$(if $(CONFIG_SUN50I_GEN_H6),--soc=h6) \
 				-c $(CONFIG_NAND_SUNXI_SPL_ECC_STRENGTH)/$(CONFIG_NAND_SUNXI_SPL_ECC_SIZE) \
 				-p $(CONFIG_SYS_NAND_PAGE_SIZE) \
 				-o $(CONFIG_SYS_NAND_OOBSIZE) \
