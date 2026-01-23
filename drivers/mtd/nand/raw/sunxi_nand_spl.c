@@ -54,6 +54,7 @@ const uint16_t random_seed[128] = {
 
 __maybe_unused static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.has_ecc_block_512 = true,
+	.random_en_mask = BIT(9),
 };
 
 #define DEFAULT_TIMEOUT_US	100000
@@ -233,7 +234,7 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 		/* Clear ECC status and restart ECC engine */
 		writel(0, SUNXI_NFC_BASE + NFC_REG_ECC_ST);
 		writel((rand_seed << 16) | (conf->ecc_strength << 12) |
-		       (conf->randomize ? NFC_RANDOM_EN : 0) |
+		       (conf->randomize ? NFC_RANDOM_EN(conf) : 0) |
 		       ecc512_bit |
 		       NFC_ECC_EN | NFC_ECC_EXCEPTION,
 		       SUNXI_NFC_BASE + NFC_REG_ECC_CTL);

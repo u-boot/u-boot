@@ -608,7 +608,7 @@ static void sunxi_nfc_randomizer_enable(struct mtd_info *mtd)
 	if (!(nand->options & NAND_NEED_SCRAMBLING))
 		return;
 
-	writel(readl(nfc->regs + NFC_REG_ECC_CTL) | NFC_RANDOM_EN,
+	writel(readl(nfc->regs + NFC_REG_ECC_CTL) | NFC_RANDOM_EN(nfc),
 	       nfc->regs + NFC_REG_ECC_CTL);
 }
 
@@ -620,7 +620,7 @@ static void sunxi_nfc_randomizer_disable(struct mtd_info *mtd)
 	if (!(nand->options & NAND_NEED_SCRAMBLING))
 		return;
 
-	writel(readl(nfc->regs + NFC_REG_ECC_CTL) & ~NFC_RANDOM_EN,
+	writel(readl(nfc->regs + NFC_REG_ECC_CTL) & ~NFC_RANDOM_EN(nfc),
 	       nfc->regs + NFC_REG_ECC_CTL);
 }
 
@@ -1730,6 +1730,7 @@ static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.reg_pat_id = NFC_REG_A10_PAT_ID,
 	.pat_found_mask = GENMASK(31, 16),
 	.ecc_mode_mask = GENMASK(15, 12),
+	.random_en_mask = BIT(9),
 };
 
 static const struct udevice_id sunxi_nand_ids[] = {
