@@ -187,12 +187,21 @@ static void sunxi_nfc_set_clk_rate(unsigned long hz)
 	       CCM_NAND_CTRL_N(div_n) | CCM_NAND_CTRL_M(div_m),
 	       ccm + CCU_NAND0_CLK_CFG);
 
+#if defined(CONFIG_MACH_SUN50I_H616) || defined(CONFIG_MACH_SUN50I_H6)
+	setbits_le32(ccm + CCU_H6_NAND_GATE_RESET,
+		     (1 << GATE_SHIFT) | (1 << RESET_SHIFT));
+	setbits_le32(ccm + CCU_H6_MBUS_GATE, (1 << MBUS_GATE_OFFSET_NAND));
+	writel(CCM_NAND_CTRL_ENABLE | CCM_NAND_CTRL_PLL6 |
+	       CCM_NAND_CTRL_N(div_n) | CCM_NAND_CTRL_M(div_m),
+	       ccm + CCU_NAND1_CLK_CFG);
+#else
 	/* gate on nand clock */
 	setbits_le32(ccm + CCU_AHB_GATE0, (1 << AHB_GATE_OFFSET_NAND0));
 #ifdef CONFIG_MACH_SUN9I
 	setbits_le32(ccm + CCU_AHB_GATE1, (1 << AHB_GATE_OFFSET_DMA));
 #else
 	setbits_le32(ccm + CCU_AHB_GATE0, (1 << AHB_GATE_OFFSET_DMA));
+#endif
 #endif
 }
 
@@ -688,6 +697,53 @@ static inline void sunxi_nfc_user_data_to_buf(u32 user_data, u8 *buf)
 	buf[3] = user_data >> 24;
 }
 
+/*
+ * On H6/H616 the user_data length has to be set in specific registers
+ * before writing.
+ */
+static void sunxi_nfc_reset_user_data_len(struct sunxi_nfc *nfc)
+{
+	int loop_step = NFC_REG_USER_DATA_LEN_CAPACITY;
+
+	/* not all SoCs have this register */
+	if (!nfc->caps->reg_user_data_len)
+		return;
+
+	for (int i = 0; i < nfc->caps->max_ecc_steps; i += loop_step)
+		writel(0, nfc->regs + NFC_REG_USER_DATA_LEN(nfc, i));
+}
+
+static void sunxi_nfc_set_user_data_len(struct sunxi_nfc *nfc,
+					int len, int step)
+{
+	bool found = false;
+	u32 val;
+	int i;
+
+	/* not all SoCs have this register */
+	if (!nfc->caps->reg_user_data_len)
+		return;
+
+	for (i = 0; i < nfc->caps->nuser_data_tab; i++) {
+		if (len == nfc->caps->user_data_len_tab[i]) {
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		dev_warn(nfc->dev,
+			 "Unsupported length for user data reg: %d\n", len);
+		return;
+	}
+
+	val = readl(nfc->regs + NFC_REG_USER_DATA_LEN(nfc, step));
+
+	val &= ~NFC_USER_DATA_LEN_MSK(step);
+	val |= field_prep(NFC_USER_DATA_LEN_MSK(step), i);
+	writel(val, nfc->regs + NFC_REG_USER_DATA_LEN(nfc, step));
+}
+
 static int sunxi_nfc_hw_ecc_read_chunk(struct mtd_info *mtd,
 				       u8 *data, int data_off,
 				       u8 *oob, int oob_off,
@@ -714,6 +770,9 @@ static int sunxi_nfc_hw_ecc_read_chunk(struct mtd_info *mtd,
 	ret = sunxi_nfc_wait_cmd_fifo_empty(nfc);
 	if (ret)
 		return ret;
+
+	sunxi_nfc_reset_user_data_len(nfc);
+	sunxi_nfc_set_user_data_len(nfc, 4, 0);
 
 	sunxi_nfc_randomizer_enable(mtd);
 	writel(NFC_DATA_TRANS | NFC_DATA_SWAP_METHOD | NFC_ECC_OP,
@@ -854,6 +913,9 @@ static int sunxi_nfc_hw_ecc_write_chunk(struct mtd_info *mtd,
 	ret = sunxi_nfc_wait_cmd_fifo_empty(nfc);
 	if (ret)
 		return ret;
+
+	sunxi_nfc_reset_user_data_len(nfc);
+	sunxi_nfc_set_user_data_len(nfc, 4, 0);
 
 	sunxi_nfc_randomizer_enable(mtd);
 	writel(NFC_DATA_TRANS | NFC_DATA_SWAP_METHOD |
@@ -1275,7 +1337,6 @@ static int sunxi_nand_chip_init_timings(struct sunxi_nfc *nfc,
 static int sunxi_nand_hw_common_ecc_ctrl_init(struct mtd_info *mtd,
 					      struct nand_ecc_ctrl *ecc)
 {
-	static const u8 strengths[] = { 16, 24, 28, 32, 40, 48, 56, 60, 64 };
 	struct nand_chip *nand = mtd_to_nand(mtd);
 	struct sunxi_nand_chip *sunxi_nand = to_sunxi_nand(nand);
 	struct sunxi_nfc *nfc = to_sunxi_nfc(sunxi_nand->nand.controller);
@@ -1302,12 +1363,12 @@ static int sunxi_nand_hw_common_ecc_ctrl_init(struct mtd_info *mtd,
 
 	/* Add ECC info retrieval from DT */
 	for (i = 0; i < nfc->caps->nstrengths; i++) {
-		if (ecc->strength <= strengths[i]) {
+		if (ecc->strength <= nfc->caps->ecc_strengths[i]) {
 			/*
 			 * Update ecc->strength value with the actual strength
 			 * that will be used by the ECC engine.
 			 */
-			ecc->strength = strengths[i];
+			ecc->strength = nfc->caps->ecc_strengths[i];
 			break;
 		}
 	}
@@ -1721,9 +1782,22 @@ static int sunxi_nand_probe(struct udevice *dev)
 	return 0;
 }
 
+static const u8 sunxi_ecc_strengths_a10[] = {
+	16, 24, 28, 32, 40, 48, 56, 60, 64
+};
+
+static const u8 sunxi_ecc_strengths_h6[] = {
+	16, 24, 28, 32, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80
+};
+
+static const u8 sunxi_user_data_len_h6[] = {
+	0, 4, 8, 12, 16, 20, 24, 28, 32
+};
+
 static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.has_ecc_block_512 = true,
-	.nstrengths = 9,
+	.nstrengths = ARRAY_SIZE(sunxi_ecc_strengths_a10),
+	.ecc_strengths = sunxi_ecc_strengths_a10,
 	.reg_ecc_err_cnt = NFC_REG_A10_ECC_ERR_CNT,
 	.reg_user_data = NFC_REG_A10_USER_DATA,
 	.reg_pat_found = NFC_REG_ECC_ST,
@@ -1732,12 +1806,34 @@ static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.pat_found_mask = GENMASK(31, 16),
 	.ecc_mode_mask = GENMASK(15, 12),
 	.random_en_mask = BIT(9),
+	.max_ecc_steps = 16,
+};
+
+static const struct sunxi_nfc_caps sunxi_nfc_h616_caps = {
+	.nstrengths = ARRAY_SIZE(sunxi_ecc_strengths_h6),
+	.ecc_strengths = sunxi_ecc_strengths_h6,
+	.reg_ecc_err_cnt = NFC_REG_H6_ECC_ERR_CNT,
+	.reg_user_data = NFC_REG_H6_USER_DATA,
+	.reg_user_data_len = NFC_REG_H6_USER_DATA_LEN,
+	.reg_pat_found = NFC_REG_H6_PAT_FOUND,
+	.reg_spare_area = NFC_REG_H6_SPARE_AREA,
+	.reg_pat_id = NFC_REG_H6_PAT_ID,
+	.pat_found_mask = GENMASK(31, 0),
+	.ecc_mode_mask = GENMASK(15, 8),
+	.random_en_mask = BIT(5),
+	.user_data_len_tab = sunxi_user_data_len_h6,
+	.nuser_data_tab = ARRAY_SIZE(sunxi_user_data_len_h6),
+	.max_ecc_steps = 32,
 };
 
 static const struct udevice_id sunxi_nand_ids[] = {
 	{
 		.compatible = "allwinner,sun4i-a10-nand",
 		.data = (unsigned long)&sunxi_nfc_a10_caps,
+	},
+	{
+		.compatible = "allwinner,sun50i-h616-nand-controller",
+		.data = (unsigned long)&sunxi_nfc_h616_caps,
 	},
 	{ }
 };
