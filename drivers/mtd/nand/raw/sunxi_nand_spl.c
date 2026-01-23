@@ -52,6 +52,10 @@ const uint16_t random_seed[128] = {
 	0x7c57, 0x0fbe, 0x46ce, 0x4939, 0x6b17, 0x37bb, 0x3e91, 0x76db,
 };
 
+static const u8 sunxi_user_data_len_h6[] = {
+	0, 4, 8, 12, 16, 20, 24, 28, 32
+};
+
 __maybe_unused static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.has_ecc_block_512 = true,
 	.reg_spare_area = NFC_REG_A10_SPARE_AREA,
@@ -60,6 +64,18 @@ __maybe_unused static const struct sunxi_nfc_caps sunxi_nfc_a10_caps = {
 	.ecc_mode_mask = GENMASK(15, 12),
 	.ecc_err_mask = GENMASK(15, 0),
 	.random_en_mask = BIT(9),
+};
+
+__maybe_unused static const struct sunxi_nfc_caps sunxi_nfc_h616_caps = {
+	.reg_user_data_len = NFC_REG_H6_USER_DATA_LEN,
+	.reg_spare_area = NFC_REG_H6_SPARE_AREA,
+	.reg_pat_found = NFC_REG_H6_PAT_FOUND,
+	.pat_found_mask = GENMASK(31, 0),
+	.ecc_mode_mask = GENMASK(15, 8),
+	.ecc_err_mask = GENMASK(31, 0),
+	.user_data_len_tab = sunxi_user_data_len_h6,
+	.nuser_data_tab = ARRAY_SIZE(sunxi_user_data_len_h6),
+	.random_en_mask = BIT(5),
 };
 
 #define DEFAULT_TIMEOUT_US	100000
@@ -197,7 +213,61 @@ static int nand_change_column(u16 column)
 	return 0;
 }
 
-static const int ecc_bytes[] = {32, 46, 54, 60, 74, 88, 102, 110, 116};
+/*
+ * On H6/H616 the user_data length has to be set in specific registers
+ * before writing.
+ */
+static void sunxi_nfc_reset_user_data_len(const struct nfc_config *nfc)
+{
+	int loop_step = NFC_REG_USER_DATA_LEN_CAPACITY;
+
+	/* not all SoCs have this register */
+	if (!NFC_REG_USER_DATA_LEN(nfc, 0))
+		return;
+
+	for (int i = 0; i < nfc->caps->max_ecc_steps; i += loop_step)
+		writel(0, SUNXI_NFC_BASE + NFC_REG_USER_DATA_LEN(nfc, i));
+}
+
+static void sunxi_nfc_set_user_data_len(const struct nfc_config *nfc,
+					int len, int step)
+{
+	bool found = false;
+	u32 val;
+	int i;
+
+	/* not all SoCs have this register */
+	if (!nfc->caps->reg_user_data_len)
+		return;
+
+	for (i = 0; i < nfc->caps->nuser_data_tab; i++) {
+		if (len == nfc->caps->user_data_len_tab[i]) {
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		printf("Unsupported length for user data reg: %d\n", len);
+		return;
+	}
+
+	val = readl(SUNXI_NFC_BASE + NFC_REG_USER_DATA_LEN(nfc, step));
+
+	val &= ~NFC_USER_DATA_LEN_MSK(step);
+	val |= field_prep(NFC_USER_DATA_LEN_MSK(step), i);
+	writel(val, SUNXI_NFC_BASE + NFC_REG_USER_DATA_LEN(nfc, step));
+}
+
+#if defined(CONFIG_MACH_SUN50I_H616) || defined(CONFIG_MACH_SUN50I_H6)
+static const int ecc_bytes[] = {
+	32, 46, 54, 60, 74, 82, 88, 96, 102, 110, 116, 124, 130, 138, 144
+};
+#else
+static const int ecc_bytes[] = {
+	32, 46, 54, 60, 74, 88, 102, 110, 116
+};
+#endif
 
 static void nand_readlcpy(u32 *dest, u32 * __iomem src, size_t len)
 {
@@ -256,8 +326,11 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 		 * the data.
 		 */
 		nand_change_column(oob_off);
-		nand_exec_cmd(NFC_DATA_TRANS | NFC_ECC_OP);
 
+		sunxi_nfc_reset_user_data_len(conf);
+		sunxi_nfc_set_user_data_len(conf, 4, 0);
+
+		nand_exec_cmd(NFC_DATA_TRANS | NFC_ECC_OP);
 		/* Get the ECC status */
 		ecc_st = readl(SUNXI_NFC_BASE + NFC_REG_ECC_ST);
 
@@ -412,7 +485,10 @@ static int nand_detect_config(struct nfc_config *conf, u32 offs, void *dest)
 	if (conf->valid)
 		return 0;
 
-	conf->caps = &sunxi_nfc_a10_caps;
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616) || IS_ENABLED(CONFIG_MACH_SUN50I_H6))
+		conf->caps = &sunxi_nfc_h616_caps;
+	else
+		conf->caps = &sunxi_nfc_a10_caps;
 
 	/*
 	 * Modern NANDs are more likely than legacy ones, so we start testing
@@ -515,12 +591,19 @@ void nand_deselect(void)
 {
 	void * const ccm = (void *)SUNXI_CCM_BASE;
 
+#if defined(CONFIG_MACH_SUN50I_H616) || defined(CONFIG_MACH_SUN50I_H6)
+	clrbits_le32(ccm + CCU_H6_NAND_GATE_RESET,
+		     (1 << GATE_SHIFT) | (1 << RESET_SHIFT));
+	clrbits_le32(ccm + CCU_H6_MBUS_GATE, (1 << MBUS_GATE_OFFSET_NAND));
+	clrbits_le32(ccm + CCU_NAND1_CLK_CFG, CCM_NAND_CTRL_ENABLE);
+#else
 	clrbits_le32(ccm + CCU_AHB_GATE0,
 		     (CLK_GATE_OPEN << AHB_GATE_OFFSET_NAND0));
 #ifdef CONFIG_MACH_SUN9I
 	clrbits_le32(ccm + CCU_AHB_GATE1, (1 << AHB_GATE_OFFSET_DMA));
 #else
 	clrbits_le32(ccm + CCU_AHB_GATE0, (1 << AHB_GATE_OFFSET_DMA));
+#endif
 #endif
 	clrbits_le32(ccm + CCU_NAND0_CLK_CFG, CCM_NAND_CTRL_ENABLE |
 		     CCM_NAND_CTRL_N(0) | CCM_NAND_CTRL_M(1));
