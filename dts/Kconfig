@@ -124,6 +124,8 @@ config OF_UPSTREAM_VENDOR
 	default "marvell" if ARCH_MVEBU || ARCH_KIRKWOOD
 	default "xilinx" if ARCH_VERSAL || ARCH_ZYNQ
 	default "nvidia" if ARCH_TEGRA
+	default "samsung" if ARCH_EXYNOS && 32BIT
+	default "exynos" if ARCH_EXYNOS && ARM64
 	help
 	  Select the vendor to build all devicetree files for.
 
