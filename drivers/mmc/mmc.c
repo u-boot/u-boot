@@ -889,7 +889,7 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 		return ret;
 
 	/*
-	 * In cases when neiter allowed to poll by using CMD13 nor we are
+	 * In cases when neither allowed to poll by using CMD13 nor we are
 	 * capable of polling by using mmc_wait_dat0, then rely on waiting the
 	 * stated timeout to be sufficient.
 	 */
@@ -1663,7 +1663,7 @@ static inline int bus_width(uint cap)
 		return 4;
 	if (cap == MMC_MODE_1BIT)
 		return 1;
-	pr_warn("invalid bus witdh capability 0x%x\n", cap);
+	pr_warn("invalid bus width capability 0x%x\n", cap);
 	return 0;
 }
 
@@ -2200,7 +2200,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 		return 0;
 
 	if (!mmc->ext_csd) {
-		pr_debug("No ext_csd found!\n"); /* this should enver happen */
+		pr_debug("No ext_csd found!\n"); /* this should never happen */
 		return -ENOTSUPP;
 	}
 
