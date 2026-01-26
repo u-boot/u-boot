@@ -45,5 +45,6 @@ unsigned long sunxi_dram_init(void);
 void mctl_await_completion(u32 *reg, u32 mask, u32 val);
 bool mctl_mem_matches(u32 offset);
 bool mctl_mem_matches_base(u32 offset, ulong base);
+bool mctl_check_memory(phys_addr_t addr);
 
 #endif /* _SUNXI_DRAM_H */

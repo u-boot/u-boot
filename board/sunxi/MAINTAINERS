@@ -611,6 +611,11 @@ M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
 F:	configs/x96_mate_defconfig
 
+X96Q TV BOX
+M:	J. Neuschäfer <j.ne@posteo.net>
+S:	Maintained
+F:	configs/x96q_defconfig
+
 X96Q PRO+ TV BOX
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained

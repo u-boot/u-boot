@@ -834,8 +834,11 @@ int misc_init_r(void)
 	/* Set fdtfile to match the FIT configuration chosen in SPL. */
 	spl_dt_name = get_spl_dt_name();
 	if (spl_dt_name) {
-		char *prefix = IS_ENABLED(CONFIG_ARM64) ? "allwinner/" : "";
+		const char *prefix = "";
 		char str[64];
+
+		if (IS_ENABLED(CONFIG_ARM64) && !IS_ENABLED(CONFIG_OF_UPSTREAM))
+			prefix = "allwinner/";
 
 		snprintf(str, sizeof(str), "%s%s.dtb", prefix, spl_dt_name);
 		env_set("fdtfile", str);
