@@ -47,11 +47,7 @@ SECTIONS
 
 	__image_copy_end = .;
 
-	/*
-	 * if CONFIG_SPL_USE_ARCH_MEMSET is not selected __bss_end - __bss_start
-	 * needs to be a multiple of 8 and we overlay .bss with .rel.dyn
-	 */
-	.rel.dyn ALIGN(8) : {
+	.rel.dyn : {
 		__rel_dyn_start = .;
 		*(.rel*)
 		__rel_dyn_end = .;
