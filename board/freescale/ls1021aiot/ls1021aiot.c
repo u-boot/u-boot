@@ -21,6 +21,7 @@
 #include <asm/sections.h>
 #include <fsl_csu.h>
 #include <fsl_immap.h>
+#include <fsl_ifc.h>
 #include <netdev.h>
 #include <fsl_mdio.h>
 #include <tsec.h>
@@ -118,6 +119,10 @@ int board_early_init_f(void)
 	clrbits_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
 	out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE2_CLK125);
 
+#endif
+
+#ifdef CONFIG_FSL_IFC
+	init_early_memctl_regs();
 #endif
 
 	arch_soc_init();

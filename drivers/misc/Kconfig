@@ -694,7 +694,12 @@ config ESM_PMIC
 	  typically to reboot the board in error condition.
 
 config FSL_IFC
-	bool
+	bool "Freescale Integrated Flash Controller"
+	depends on ARM
+	help
+	  This driver is for the Integrated Flash Controller(IFC) module
+	  available in Freescale SoCs. This controller allows to handle
+	  devices such as NOR, NAND, FPGA and ASIC etc.
 
 config SL28CPLD
 	bool "Enable Kontron sl28cpld multi-function driver"
