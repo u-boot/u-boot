@@ -266,7 +266,7 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 							   id ? id->data : 0, node,
 							   &dev);
 			if (!drv && ret == -ENODEV) {
-				log_debug("Driver '%s' refuses to bind\n", entry->name);
+				log_debug("   - Driver '%s' refuses to bind\n", entry->name);
 				continue;
 			}
 			if (ret) {
