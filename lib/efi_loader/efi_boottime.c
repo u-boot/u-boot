@@ -3494,12 +3494,6 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 		if (ret != EFI_SUCCESS)
 			EFI_PRINT("%s: out of memory\n", __func__);
 	}
-	/* efi_delete_image() frees image_obj. Copy before the call. */
-	exit_jmp = image_obj->exit_jmp;
-	*image_obj->exit_status = exit_status;
-	if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION ||
-	    exit_status != EFI_SUCCESS)
-		efi_delete_image(image_obj, loaded_image_protocol);
 
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
 		if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION) {
@@ -3509,6 +3503,13 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 					  ret);
 		}
 	}
+
+	/* efi_delete_image() frees image_obj. Copy before the call. */
+	exit_jmp = image_obj->exit_jmp;
+	*image_obj->exit_status = exit_status;
+	if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION ||
+	    exit_status != EFI_SUCCESS)
+		efi_delete_image(image_obj, loaded_image_protocol);
 
 	/* Make sure entry/exit counts for EFI world cross-overs match */
 	EFI_EXIT(exit_status);
