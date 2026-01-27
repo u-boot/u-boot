@@ -343,17 +343,8 @@ $(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN)-nodtb.bin FORCE
 endif
 
 # Create a file that pads from the end of u-boot-spl-nodtb.bin to bss_end
-$(obj)/$(SPL_BIN)-pad.bin: $(obj)/$(SPL_BIN)-nodtb.bin
-	bss_size_str=$(shell cat $(obj)/$(SPL_BIN).map | \
-		awk ' \
-			/__rel_dyn_start/ { start = $$1 } \
-			/__rel_dyn_end/ { end = $$1 } \
-			/__bss_size/ { size = $$1 } \
-			END { \
-				if (start != "" && end != "" && size != "") \
-					print end " " start " " size; \
-			}' \
-		| sh -c 'read end start size && echo $$(( size - (end - start) ))'); \
+$(obj)/$(SPL_BIN)-pad.bin: $(obj)/$(SPL_BIN)
+	@bss_size_str=$(shell $(NM) $< | awk 'BEGIN {size = 0} /__bss_size/ {size = $$1} END {print "ibase=16; " toupper(size)}' | bc); \
 	dd if=/dev/zero of=$@ bs=1 count=$${bss_size_str} 2>/dev/null;
 
 $(obj)/$(SPL_BIN).dtb: $(obj)/dts/dt-$(SPL_NAME).dtb FORCE
