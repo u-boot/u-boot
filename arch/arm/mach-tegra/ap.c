@@ -77,6 +77,8 @@ int tegra_get_chip_sku(void)
 		case SKU_ID_AP25E:
 		case SKU_ID_T25E:
 			return TEGRA_SOC_T25;
+		default:
+			return TEGRA_SOC_T20;
 		}
 		break;
 	case CHIPID_TEGRA30:
