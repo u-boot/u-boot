@@ -22,8 +22,6 @@
 #include "ddrs_patch.h"
 
 #define CTRL_MMR_CFG0_MCU_ADC1_CTRL	0x40F040B4
-#define CTRL_MMR_CFG0_MCU_CLKOUT0_CTRL	0x40F08010
-#define MCU_CLKOUT0_CTRL_CLK_EN		BIT(4)
 
 #define HW_CFG_MEM_SZ_32GB		0x00
 #define HW_CFG_MEM_SZ_16GB		0x01
@@ -200,9 +198,4 @@ void spl_board_init(void)
 		if (ret)
 			printf("ESM PMIC init failed: %d\n", ret);
 	}
-
-	if (IS_ENABLED(CONFIG_TARGET_AQUILA_AM69_R5))
-		writel(readl(CTRL_MMR_CFG0_MCU_CLKOUT0_CTRL) |
-		       MCU_CLKOUT0_CTRL_CLK_EN,
-		       CTRL_MMR_CFG0_MCU_CLKOUT0_CTRL);
 }
