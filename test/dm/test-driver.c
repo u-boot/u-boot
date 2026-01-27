@@ -197,3 +197,29 @@ U_BOOT_DRIVER(test_act_dma_vital_clk_drv) = {
 	.unbind	= test_manual_unbind,
 	.flags	= DM_FLAG_VITAL | DM_FLAG_ACTIVE_DMA,
 };
+
+static int test_multimatch_first_bind(struct udevice *dev)
+{
+	dm_testdrv_op_count[DM_TEST_OP_BIND]++;
+
+	return -ENODEV;
+}
+
+static const struct udevice_id test_multimatch_ids[] = {
+	{ .compatible = "sandbox,multimatch-test" },
+	{ }
+};
+
+U_BOOT_DRIVER(test_multimatch_first) = {
+	.name	= "test_multimatch_first",
+	.id	= UCLASS_TEST,
+	.of_match = test_multimatch_ids,
+	.bind	= test_multimatch_first_bind,
+};
+
+U_BOOT_DRIVER(test_multimatch_second) = {
+	.name	= "test_multimatch_second",
+	.id	= UCLASS_TEST,
+	.of_match = test_multimatch_ids,
+	.bind	= test_manual_bind,
+};
