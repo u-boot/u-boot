@@ -476,8 +476,8 @@
 		permissions = <((FWPRIVID_ARMV8 << FWPRIVID_SHIFT) |
 						FWPERM_SECURE_PRIV_RWCD |
 						FWPERM_SECURE_USER_RWCD)>;
-		start_address = <0x0 0x70000000>;
-		end_address = <0x0 0x7001ffff>;
+		start_address = <0x0 CONFIG_K3_ATF_LOAD_ADDR>;
+		end_address = <0x0 (CONFIG_K3_ATF_LOAD_ADDR + 0x1ffff)>;
 	};
 	firewall_armv8_optee_fg: template-8 {
 		control = <(FWCTRL_EN | FWCTRL_LOCK |
@@ -485,8 +485,8 @@
 		permissions = <((FWPRIVID_ARMV8 << FWPRIVID_SHIFT) |
 						FWPERM_SECURE_PRIV_RWCD |
 						FWPERM_SECURE_USER_RWCD)>;
-		start_address = <0x0 0x9e800000>;
-		end_address = <0x0 0x9fffffff>;
+		start_address = <0x0 CONFIG_K3_OPTEE_LOAD_ADDR>;
+		end_address = <0x0 (CONFIG_K3_OPTEE_LOAD_ADDR + 0x17fffff)>;
 	};
 
 	ti_falcon_template: template-9 {
