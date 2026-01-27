@@ -235,50 +235,51 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 		log_debug("   - attempt to match compatible string '%s'\n",
 			  compat);
 
-		id = NULL;
 		for (entry = driver; entry != driver + n_ents; entry++) {
+			/* Search for drivers with matching drv or existing of_match */
 			if (drv) {
 				if (drv != entry)
 					continue;
-				if (!entry->of_match)
-					break;
+			} else if (!entry->of_match) {
+				continue;
 			}
-			ret = driver_check_compatible(entry->of_match, &id,
-						      compat);
-			if (!ret)
-				break;
-		}
-		if (entry == driver + n_ents)
-			continue;
 
-		if (pre_reloc_only) {
-			if (!ofnode_pre_reloc(node) &&
-			    !(entry->flags & DM_FLAG_PRE_RELOC)) {
-				log_debug("Skipping device pre-relocation\n");
-				return 0;
+			id = NULL;
+			if (entry->of_match) {
+				ret = driver_check_compatible(entry->of_match, &id,
+							      compat);
+				if (ret)
+					continue;
+				log_debug("   - found match at driver '%s' for '%s'\n",
+					  entry->name, id->compatible);
 			}
-		}
 
-		if (entry->of_match)
-			log_debug("   - found match at driver '%s' for '%s'\n",
-				  entry->name, id->compatible);
-		ret = device_bind_with_driver_data(parent, entry, name,
-						   id ? id->data : 0, node,
-						   &dev);
-		if (ret == -ENODEV) {
-			log_debug("Driver '%s' refuses to bind\n", entry->name);
-			continue;
-		}
-		if (ret) {
-			dm_warn("Error binding driver '%s': %d\n", entry->name,
-				ret);
-			return log_msg_ret("bind", ret);
-		} else {
+			if (pre_reloc_only) {
+				if (!ofnode_pre_reloc(node) &&
+				    !(entry->flags & DM_FLAG_PRE_RELOC)) {
+					log_debug("Skipping device pre-relocation\n");
+					return 0;
+				}
+			}
+
+			ret = device_bind_with_driver_data(parent, entry, name,
+							   id ? id->data : 0, node,
+							   &dev);
+			if (!drv && ret == -ENODEV) {
+				log_debug("Driver '%s' refuses to bind\n", entry->name);
+				continue;
+			}
+			if (ret) {
+				dm_warn("Error binding driver '%s': %d\n", entry->name,
+					ret);
+				return log_msg_ret("bind", ret);
+			}
+
 			if (devp)
 				*devp = dev;
+
 			return 0;
 		}
-		break;
 	}
 
 	if (ret != -ENODEV)
