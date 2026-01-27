@@ -78,6 +78,7 @@ int tegra_get_chip_sku(void)
 		case SKU_ID_T25E:
 			return TEGRA_SOC_T25;
 		default:
+			debug("%s: UNKNOWN Tegra20 SKU ID (0x%02x)\n", __func__, sku_id);
 			return TEGRA_SOC_T20;
 		}
 		break;
@@ -86,7 +87,9 @@ int tegra_get_chip_sku(void)
 		case SKU_ID_T33:
 		case SKU_ID_T30:
 		case SKU_ID_TM30MQS_P_A3:
+			return TEGRA_SOC_T30;
 		default:
+			debug("%s: UNKNOWN Tegra30 SKU ID (0x%02x)\n", __func__, sku_id);
 			return TEGRA_SOC_T30;
 		}
 		break;
@@ -94,21 +97,27 @@ int tegra_get_chip_sku(void)
 		switch (sku_id) {
 		case SKU_ID_T114_ENG:
 		case SKU_ID_T114_1:
+			return TEGRA_SOC_T114;
 		default:
+			debug("%s: UNKNOWN Tegra114 SKU ID (0x%02x)\n", __func__, sku_id);
 			return TEGRA_SOC_T114;
 		}
 		break;
 	case CHIPID_TEGRA124:
 		switch (sku_id) {
 		case SKU_ID_T124_ENG:
+			return TEGRA_SOC_T124;
 		default:
+			debug("%s: UNKNOWN Tegra124 SKU ID (0x%02x)\n", __func__, sku_id);
 			return TEGRA_SOC_T124;
 		}
 		break;
 	case CHIPID_TEGRA210:
 		switch (sku_id) {
 		case SKU_ID_T210_ENG:
+			return TEGRA_SOC_T210;
 		default:
+			debug("%s: UNKNOWN Tegra210 SKU ID (0x%02x)\n", __func__, sku_id);
 			return TEGRA_SOC_T210;
 		}
 		break;
