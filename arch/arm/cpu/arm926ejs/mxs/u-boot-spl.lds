@@ -33,14 +33,6 @@ SECTIONS
 		*(.data*)
 	}
 
-	. = ALIGN(4);
-
-	.rel.dyn : {
-		__rel_dyn_start = .;
-		*(.rel*)
-		__rel_dyn_end = .;
-	}
-
 	.bss : {
 		. = ALIGN(4);
 		__bss_start = .;

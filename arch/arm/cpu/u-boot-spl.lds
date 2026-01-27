@@ -41,23 +41,14 @@ SECTIONS
 		__binman_sym_start = .;
 		KEEP(*(SORT(.binman_sym*)));
 		__binman_sym_end = .;
-	}
-
-	. = ALIGN(4);
-
-	__image_copy_end = .;
-
-	.rel.dyn : {
-		__rel_dyn_start = .;
-		*(.rel*)
-		__rel_dyn_end = .;
 		. = ALIGN(8);
 	}
 
+	__image_copy_end = .;
 	_image_binary_end = .;
 	_end = .;
 
-	.bss __rel_dyn_start (OVERLAY) : {
+	.bss : {
 		__bss_start = .;
 		*(.bss*)
 		 . = ALIGN(8);
