@@ -207,7 +207,6 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 	bool found = false;
 	const char *name, *compat_list, *compat;
 	int compat_length, i;
-	int result = 0;
 	int ret = 0;
 
 	if (devp)
@@ -283,9 +282,9 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 		break;
 	}
 
-	if (!found && !result && ret != -ENODEV)
+	if (!found && ret != -ENODEV)
 		log_debug("No match for node '%s'\n", name);
 
-	return result;
+	return 0;
 }
 #endif
