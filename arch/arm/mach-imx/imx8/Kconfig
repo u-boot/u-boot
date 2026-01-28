@@ -104,8 +104,8 @@ config TARGET_IMX8QXP_MEK
 
 endchoice
 
-source "board/freescale/imx8qm_mek/Kconfig"
-source "board/freescale/imx8qxp_mek/Kconfig"
+source "board/nxp/imx8qm_mek/Kconfig"
+source "board/nxp/imx8qxp_mek/Kconfig"
 source "board/congatec/cgtqmx8/Kconfig"
 source "board/advantech/imx8qm_dmsse20_a1/Kconfig"
 source "board/advantech/imx8qm_rom7720_a1/Kconfig"

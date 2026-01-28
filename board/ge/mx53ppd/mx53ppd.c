@@ -2,7 +2,7 @@
 /*
  * Copyright 2017 General Electric Company
  *
- * Based on board/freescale/mx53loco/mx53loco.c:
+ * Based on board/nxp/mx53loco/mx53loco.c:
  *
  * Copyright (C) 2011 Freescale Semiconductor, Inc.
  * Jason Liu <r64343@freescale.com>

@@ -1,0 +1,6 @@
+MX51EVK BOARD
+M:	Fabio Estevam <festevam@gmail.com>
+S:	Maintained
+F:	board/nxp/mx51evk/
+F:	include/configs/mx51evk.h
+F:	configs/mx51evk_defconfig
