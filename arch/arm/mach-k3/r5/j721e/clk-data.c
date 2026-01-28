@@ -539,7 +539,7 @@ static const struct clk_data clk_list[] = {
 	CLK_PLL("pllfrac2_ssmod_16fft_main_2_foutvcop_clk", "main_pll_hfosc_sel_out2", 0x682000, 0),
 	CLK_PLL("pllfrac2_ssmod_16fft_main_23_foutvcop_clk", "main_pll_hfosc_sel_out23", 0x697000, 0),
 	CLK_PLL("pllfrac2_ssmod_16fft_main_25_foutvcop_clk", "main_pll25_hfosc_sel_out0", 0x699000, 0),
-	CLK_PLL("pllfrac2_ssmod_16fft_main_3_foutvcop_clk", "main_pll_hfosc_sel_out3", 0x683000, 0),
+	CLK_PLL_DEFFREQ("pllfrac2_ssmod_16fft_main_3_foutvcop_clk", "main_pll_hfosc_sel_out3", 0x683000, 0, 2000000000),
 	CLK_PLL("pllfrac2_ssmod_16fft_main_5_foutvcop_clk", "main_pll_hfosc_sel_out5", 0x685000, 0),
 	CLK_PLL("pllfrac2_ssmod_16fft_main_6_foutvcop_clk", "main_pll_hfosc_sel_out6", 0x686000, 0),
 	CLK_PLL("pllfrac2_ssmod_16fft_main_7_foutvcop_clk", "main_pll_hfosc_sel_out7", 0x687000, 0),
