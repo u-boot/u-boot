@@ -118,6 +118,13 @@ config DRAM_SUNXI_MR14
 	help
 	  MR14 value from vendor DRAM settings.
 
+config DRAM_SUNXI_MR22
+	hex "DRAM MR22 parameter"
+	depends on DRAM_SUN50I_A133
+	default 0x0
+	help
+	  MR22 value from vendor DRAM settings.
+
 config DRAM_SUNXI_TPR0
 	hex "DRAM TPR0 parameter"
 	default 0x0

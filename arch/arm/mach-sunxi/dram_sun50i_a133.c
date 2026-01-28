@@ -426,8 +426,8 @@ static void mctl_drive_odt_config(const struct dram_para *para)
 
 		writel_relaxed(val, base);
 		if (para->type == SUNXI_DRAM_TYPE_LPDDR4) {
-			if (para->tpr3 & 0x1f1f1f1f)
-				val = (para->tpr3 >> (i * 8)) & 0x1f;
+			if (para->tpr1 & 0x1f1f1f1f)
+				val = (para->tpr1 >> (i * 8)) & 0x1f;
 			else
 				val = 4;
 		}
@@ -468,7 +468,7 @@ static void mctl_phy_ca_bit_delay_compensation(const struct dram_para *para)
 	u32 *ptr;
 
 	if (para->tpr10 & BIT(31)) {
-		val = para->tpr2;
+		val = para->tpr0;
 	} else {
 		val = ((para->tpr10 << 1) & 0x1e) |
 		      ((para->tpr10 << 5) & 0x1e00) |
@@ -781,7 +781,7 @@ static void mctl_dfi_init(const struct dram_para *para)
 		mctl_mr_write_lpddr4(12, para->mr12);
 		mctl_mr_write_lpddr4(13, para->mr13);
 		mctl_mr_write_lpddr4(14, para->mr14);
-		mctl_mr_write_lpddr4(22, para->tpr1);
+		mctl_mr_write_lpddr4(22, para->mr22);
 		break;
 	}
 
@@ -1182,7 +1182,6 @@ static const struct dram_para para = {
 #elif defined(CONFIG_SUNXI_DRAM_LPDDR4)
 	.type = SUNXI_DRAM_TYPE_LPDDR4,
 #endif
-	/* TODO: Populate from config */
 	.dx_odt = CONFIG_DRAM_SUNXI_DX_ODT,
 	.dx_dri = CONFIG_DRAM_SUNXI_DX_DRI,
 	.ca_dri = CONFIG_DRAM_SUNXI_CA_DRI,
@@ -1191,9 +1190,10 @@ static const struct dram_para para = {
 	.mr12 = CONFIG_DRAM_SUNXI_MR12,
 	.mr13 = CONFIG_DRAM_SUNXI_MR13,
 	.mr14 = CONFIG_DRAM_SUNXI_MR14,
+	.mr22 = CONFIG_DRAM_SUNXI_MR22,
+	.tpr0 = CONFIG_DRAM_SUNXI_TPR0,
 	.tpr1 = CONFIG_DRAM_SUNXI_TPR1,
 	.tpr2 = CONFIG_DRAM_SUNXI_TPR2,
-	.tpr3 = CONFIG_DRAM_SUNXI_TPR3,
 	.tpr6 = CONFIG_DRAM_SUNXI_TPR6,
 	.tpr10 = CONFIG_DRAM_SUNXI_TPR10,
 	.tpr11 = CONFIG_DRAM_SUNXI_TPR11,
