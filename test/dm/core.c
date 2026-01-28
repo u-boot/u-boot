@@ -1410,3 +1410,18 @@ static int dm_test_try_first_device(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_try_first_device, 0);
+
+/* Test that all drivers are iterated when bind returns -ENODEV */
+static int dm_test_multimatch(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_find_device_by_name(UCLASS_TEST, "multimatch-test",
+					       &dev));
+	ut_assertnonnull(dev);
+	ut_asserteq_str("test_multimatch_second", dev->driver->name);
+	ut_asserteq(2, dm_testdrv_op_count[DM_TEST_OP_BIND]);
+
+	return 0;
+}
+DM_TEST(dm_test_multimatch, UTF_SCAN_FDT);

@@ -457,6 +457,10 @@
 		mux-control-names = "mux0";
 	};
 
+	multimatch-test {
+		compatible = "sandbox,multimatch-test";
+	};
+
 	phy_provider0: gen_phy@0 {
 		compatible = "sandbox,phy";
 		#phy-cells = <1>;
