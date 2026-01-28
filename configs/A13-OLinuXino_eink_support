@@ -1,0 +1,47 @@
+CONFIG_ARM=y
+CONFIG_ARCH_SUNXI=y
+CONFIG_DEFAULT_DEVICE_TREE="sun5i-a13-olinuxino"
+
+# Configurações de DRAM
+CONFIG_SPL=y
+CONFIG_DRAM_CLK=408
+CONFIG_DRAM_EMR1=0
+
+# Configurações USB e I2C
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_OHCI_HCD=y
+CONFIG_USB_MUSB_GADGET=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_MVTWSI=y
+CONFIG_SYS_I2C_SLAVE=0x7f
+CONFIG_SYS_I2C_SPEED=400000
+
+# Configurações do LCD
+CONFIG_VIDEO_LCD=y
+CONFIG_VIDEO_LCD_POWER="AXP0-0"  # Pino para controlar a energia da tela
+CONFIG_VIDEO_LCD_BL_PWM="PB2"     # Pino para controle de brilho
+CONFIG_VIDEO_VGA_VIA_LCD=y
+CONFIG_VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH=y
+
+# Configuração do Framebuffer
+CONFIG_FB=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_EINK=y  # Habilitar suporte específico para tela e-ink, se disponível
+CONFIG_FB_EINK_VIRTUAL=y  # Suporte para framebuffer virtual
+
+# Habilitar drivers específicos para o controlador da tela EPD
+CONFIG_EPD_DRIVER=y  # Habilitar driver para controlador EPD
+CONFIG_EPD_NAME="tps65185"  # Nome do driver (ajuste conforme necessário)
+
+# Outras configurações de console
+CONFIG_CONS_INDEX=2
+CONFIG_CMD_USB_MASS_STORAGE=y
+CONFIG_CMD_DFU=y
+CONFIG_DFU_RAM=y
+CONFIG_FASTBOOT_CMD_OEM_FORMAT=y
+
+# Habilitar suporte para interface gráfica simples (se aplicável)
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_VT_DMA=y
