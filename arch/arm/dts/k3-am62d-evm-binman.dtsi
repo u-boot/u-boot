@@ -3,7 +3,6 @@
  * Copyright (C) 2024-2025 Texas Instruments Incorporated - https://www.ti.com/
  */
 
-#include "k3-binman.dtsi"
 #include "k3-am62a-sk-binman.dtsi"
 
 #ifdef CONFIG_TARGET_AM62D2_R5_EVM
@@ -72,7 +71,7 @@
 	description = "k3-am62d2-evm";
 
 	ti-secure {
-		content = <&spl_am62a7_sk_dtb>;
+		content = <&spl_am62d2_evm_dtb>;
 		keyfile = "custMpk.pem";
 	};
 
