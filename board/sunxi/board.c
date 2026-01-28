@@ -50,7 +50,6 @@
 #include <spl.h>
 #include <sy8106a.h>
 #include <asm/setup.h>
-#include <status_led.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -561,14 +560,23 @@ static void sunxi_spl_store_dram_size(phys_addr_t dram_size)
 	spl->dram_size = dram_size >> 20;
 }
 
+static void status_led_init(void)
+{
+#if CONFIG_IS_ENABLED(SUNXI_LED_STATUS)
+	unsigned int state = CONFIG_SPL_SUNXI_LED_STATUS_STATE;
+	unsigned int gpio = CONFIG_SPL_SUNXI_LED_STATUS_BIT;
+
+	gpio_request(gpio, "gpio_led");
+	gpio_direction_output(gpio, state);
+#endif
+}
+
 void sunxi_board_init(void)
 {
 	int power_failed = 0;
 
-#ifdef CONFIG_LED_STATUS
-	if (IS_ENABLED(CONFIG_SPL_DRIVERS_MISC))
+	if (CONFIG_IS_ENABLED(SUNXI_LED_STATUS))
 		status_led_init();
-#endif
 
 #ifdef CONFIG_SY8106A_POWER
 	power_failed = sy8106a_set_vout1(CONFIG_SY8106A_VOUT1_VOLT);
