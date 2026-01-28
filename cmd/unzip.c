@@ -53,8 +53,8 @@ static int do_gzwrite(struct cmd_tbl *cmdtp, int flag,
 	unsigned char *addr;
 	unsigned long length;
 	unsigned long writebuf = 1<<20;
-	u64 startoffs = 0;
-	u64 szexpected = 0;
+	off_t startoffs = 0;
+	size_t szexpected = 0;
 
 	if (argc < 5)
 		return CMD_RET_USAGE;
