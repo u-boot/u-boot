@@ -16,6 +16,8 @@ static int do_unzip(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	unsigned long src, dst;
 	unsigned long src_len = ~0UL, dst_len = ~0UL;
+	void *srcp, *dstp;
+	int ret;
 
 	switch (argc) {
 		case 4:
@@ -29,14 +31,21 @@ static int do_unzip(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_USAGE;
 	}
 
-	if (gunzip(map_sysmem(dst, dst_len), dst_len, map_sysmem(src, 0),
-		   &src_len) != 0)
-		return 1;
+	srcp = map_sysmem(dst, dst_len);
+	dstp = map_sysmem(src, 0);
+
+	ret = gunzip(srcp, dst_len, dstp, &src_len);
+
+	unmap_sysmem(dstp);
+	unmap_sysmem(srcp);
+
+	if (ret)
+		return CMD_RET_FAILURE;
 
 	printf("Uncompressed size: %lu = 0x%lX\n", src_len, src_len);
 	env_set_hex("filesize", src_len);
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
