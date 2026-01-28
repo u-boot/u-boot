@@ -22,6 +22,14 @@ config BOARD_MT7620_MT7530_RFB
 	  intergrated DDR2 KGD, 16 MiB SPI-NOR flash, an external 5-port giga
 	  switch MT7530 and 1 UART.
 
+config BOARD_EDUP_EP2913
+	bool "EDUP EP-2913"
+	help
+	  A Wifi range extender with one 100Mbps port (Internal FE).
+	  The stock board has 32 MiB DDR1 RAM and 4 MiB SPI flash.
+	  This profile has been tested to support 64 MiB of DDR1 RAM.
+	  The RAM installed is NP25D3216512K-5.
+
 endchoice
 
 choice
@@ -67,10 +75,10 @@ config CPU_FREQ_MULTI
 	default 7 if CPU_FREQ_620MHZ
 
 config SYS_CONFIG_NAME
-	default "mt7620" if  BOARD_MT7620_RFB || BOARD_MT7620_MT7530_RFB
+	default "mt7620" if  BOARD_MT7620_RFB || BOARD_MT7620_MT7530_RFB || BOARD_EDUP_EP2913
 
 config SYS_BOARD
 	string "Board name"
-	default "mt7620" if  BOARD_MT7620_RFB || BOARD_MT7620_MT7530_RFB
+	default "mt7620" if  BOARD_MT7620_RFB || BOARD_MT7620_MT7530_RFB || BOARD_EDUP_EP2913
 
 endif
