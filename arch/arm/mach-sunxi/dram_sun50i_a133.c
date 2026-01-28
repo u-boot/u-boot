@@ -871,7 +871,24 @@ static inline void mctl_phy_dx_delay1_inner(u32 *base, u32 val1, u32 val2)
 	writel_relaxed(val2, ptr + 48);
 }
 
-static inline void mctl_phy_dx_delay0_inner(u32 *base1, u32 *base2, u32 val1,
+static inline void mctl_phy_dx_delay0_inner0(u32 *base1, u32 *base2, u32 val1,
+					    u32 val2)
+{
+	u32 *ptr = base1;
+
+	for (int i = 0; i < 9; i++) {
+		writel_relaxed(val1, ptr);
+		writel_relaxed(val1, ptr + 0x30);
+		ptr += 2;
+	}
+
+	writel_relaxed(val2, base2);
+	writel_relaxed(val2, base2 + 48);
+	writel_relaxed(val2, ptr);
+	writel_relaxed(val2, base2 + 24);
+}
+
+static inline void mctl_phy_dx_delay0_inner1(u32 *base1, u32 *base2, u32 val1,
 					    u32 val2)
 {
 	u32 *ptr = base1;
@@ -915,6 +932,8 @@ static void mctl_phy_dx_delay_compensation(const struct dram_para *para)
 					 (para->tpr11 >> 24) & 0x3f,
 					 (para->para0 >> 24) & 0x3f);
 
+		dmb();
+
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x60, 1);
 	}
 
@@ -922,25 +941,27 @@ static void mctl_phy_dx_delay_compensation(const struct dram_para *para)
 		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x54, BIT(7));
 		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, BIT(2));
 
-		mctl_phy_dx_delay0_inner((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x480),
-					 (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x528),
-					 para->tpr12 & 0x3f,
-					 para->tpr14 & 0x3f);
+		mctl_phy_dx_delay0_inner0((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x480),
+					  (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x528),
+					  para->tpr12 & 0x3f,
+					  para->tpr14 & 0x3f);
 
-		mctl_phy_dx_delay0_inner((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x4d4),
-					 (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x52c),
-					 (para->tpr12 >> 8) & 0x3f,
-					 (para->tpr14 >> 8) & 0x3f);
+		mctl_phy_dx_delay0_inner1((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x4d4),
+					  (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x52c),
+					  (para->tpr12 >> 8) & 0x3f,
+					  (para->tpr14 >> 8) & 0x3f);
 
-		mctl_phy_dx_delay0_inner((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x600),
-					 (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x6a8),
-					 (para->tpr12 >> 16) & 0x3f,
-					 (para->tpr14 >> 16) & 0x3f);
+		mctl_phy_dx_delay0_inner0((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x600),
+					  (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x6a8),
+					  (para->tpr12 >> 16) & 0x3f,
+					  (para->tpr14 >> 16) & 0x3f);
 
-		mctl_phy_dx_delay0_inner((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x6ac),
-					 (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x528),
-					 (para->tpr12 >> 24) & 0x3f,
-					 (para->tpr14 >> 24) & 0x3f);
+		mctl_phy_dx_delay0_inner1((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x654),
+					  (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x6ac),
+					  (para->tpr12 >> 24) & 0x3f,
+					  (para->tpr14 >> 24) & 0x3f);
+
+		dmb();
 
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x54, BIT(7));
 	}
