@@ -10,7 +10,7 @@ config SYS_CONFIG_NAME
 	default "imx8mp_beacon"
 
 config IMX_CONFIG
-	default "board/freescale/imx8mp_evk/imximage-8mp-lpddr4.cfg"
+	default "board/nxp/imx8mp_evk/imximage-8mp-lpddr4.cfg"
 
 
 endif

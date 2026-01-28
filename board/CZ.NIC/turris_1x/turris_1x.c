@@ -315,7 +315,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-/* This comes from ../../freescale/p1_p2_rdb_pc/p1_p2_rdb_pc.c */
+/* This comes from ../../nxp/p1_p2_rdb_pc/p1_p2_rdb_pc.c */
 extern int checkboard_p1_p2(void);
 
 int checkboard(void)

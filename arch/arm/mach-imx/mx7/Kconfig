@@ -97,7 +97,7 @@ config SYS_SOC
 
 source "board/compulab/cl-som-imx7/Kconfig"
 source "board/ronetix/imx7-cm/Kconfig"
-source "board/freescale/mx7dsabresd/Kconfig"
+source "board/nxp/mx7dsabresd/Kconfig"
 source "board/novtech/meerkat96/Kconfig"
 source "board/storopack/smegw01/Kconfig"
 source "board/technexion/pico-imx7d/Kconfig"

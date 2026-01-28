@@ -46,6 +46,6 @@ config TARGET_MX7ULP_EVK
 endchoice
 
 source "board/ea/mx7ulp_com/Kconfig"
-source "board/freescale/mx7ulp_evk/Kconfig"
+source "board/nxp/mx7ulp_evk/Kconfig"
 
 endif

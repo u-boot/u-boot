@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2020 SiFive, Inc.
  *
- * Based on board/freescale/common/sys_eeprom.c:
+ * Based on board/nxp/common/sys_eeprom.c:
  * Copyright 2006, 2008-2009, 2011 Freescale Semiconductor
  * York Sun (yorksun@freescale.com)
  * Haiying Wang (haiying.wang@freescale.com)

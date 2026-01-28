@@ -3,7 +3,7 @@
  * Copyright (C) 2015  Beckhoff Automation GmbH & Co. KG
  * Patrick Bruenn <p.bruenn@beckhoff.com>
  *
- * Based on <u-boot>/board/freescale/mx53loco/mx53loco.c
+ * Based on <u-boot>/board/nxp/mx53loco/mx53loco.c
  * Copyright (C) 2011 Freescale Semiconductor, Inc.
  */
 
