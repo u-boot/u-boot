@@ -16,6 +16,7 @@
 #include <spl.h>
 #include <asm/arch/k3-ddr.h>
 #include "../common/fdt_ops.h"
+#include "../common/k3_32k_lfosc.h"
 
 struct efi_fw_image fw_images[] = {
 	{
@@ -45,6 +46,9 @@ struct efi_capsule_update_info update_info = {
 #if IS_ENABLED(CONFIG_SPL_BUILD)
 void spl_board_init(void)
 {
+	if (IS_ENABLED(CONFIG_TI_K3_BOARD_LFOSC))
+		enable_32k_lfosc();
+
 	enable_caches();
 }
 #endif
