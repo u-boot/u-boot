@@ -695,7 +695,7 @@ config ESM_PMIC
 
 config FSL_IFC
 	bool "Freescale Integrated Flash Controller"
-	depends on ARM
+	depends on ARM || PPC
 	help
 	  This driver is for the Integrated Flash Controller(IFC) module
 	  available in Freescale SoCs. This controller allows to handle
