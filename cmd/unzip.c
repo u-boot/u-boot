@@ -50,11 +50,12 @@ static int do_gzwrite(struct cmd_tbl *cmdtp, int flag,
 {
 	struct blk_desc *bdev;
 	int ret;
-	unsigned char *addr;
+	unsigned long addr;
 	unsigned long length;
 	unsigned long writebuf = 1<<20;
 	off_t startoffs = 0;
 	size_t szexpected = 0;
+	void *addrp;
 
 	if (argc < 5)
 		return CMD_RET_USAGE;
@@ -62,7 +63,7 @@ static int do_gzwrite(struct cmd_tbl *cmdtp, int flag,
 	if (ret < 0)
 		return CMD_RET_FAILURE;
 
-	addr = (unsigned char *)hextoul(argv[3], NULL);
+	addr = hextoul(argv[3], NULL);
 	length = hextoul(argv[4], NULL);
 
 	if (5 < argc) {
@@ -75,7 +76,11 @@ static int do_gzwrite(struct cmd_tbl *cmdtp, int flag,
 		}
 	}
 
-	ret = gzwrite(addr, length, bdev, writebuf, startoffs, szexpected);
+	addrp = map_sysmem(addr, length);
+
+	ret = gzwrite(addrp, length, bdev, writebuf, startoffs, szexpected);
+
+	unmap_sysmem(addrp);
 
 	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }
