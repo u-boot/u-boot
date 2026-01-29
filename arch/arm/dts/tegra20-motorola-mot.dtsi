@@ -330,7 +330,7 @@
 			backlight_led: led@0 {
 				reg = <0>;
 
-				led-sources = <2>;
+				led-sources = <0>;
 				led-max-microamp = <26600>;
 
 				ti,led-mode = <0>;
