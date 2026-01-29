@@ -35,8 +35,8 @@ static int do_blkmap_map_linear(struct map_ctx *ctx, int argc,
 	if (argc < 4)
 		return CMD_RET_USAGE;
 
-	ldevnum = dectoul(argv[2], NULL);
-	lblknr = dectoul(argv[3], NULL);
+	ldevnum = simple_strtoul(argv[2], NULL, 0);
+	lblknr = simple_strtoul(argv[3], NULL, 0);
 
 	lbd = blk_get_devnum_by_uclass_idname(argv[1], ldevnum);
 	if (!lbd) {
