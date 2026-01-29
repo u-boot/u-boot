@@ -890,11 +890,11 @@ static int eqos_start(struct udevice *dev)
 			EQOS_MAC_RXQ_CTRL0_RXQ0EN_SHIFT);
 
 	/* Multicast and Broadcast Queue Enable */
-	setbits_le32(&eqos->mac_regs->unused_0a4,
-		     0x00100000);
-	/* enable promise mode */
-	setbits_le32(&eqos->mac_regs->unused_004[1],
-		     0x1);
+	setbits_le32(&eqos->mac_regs->rxq_ctrl1,
+		     EQOS_MAC_RXQ_CTRL1_MCBCQEN);
+	/* Promiscuous Mode Enable */
+	setbits_le32(&eqos->mac_regs->packet_filter,
+		     EQOS_MAC_PACKET_FILTER_PR);
 
 	/* Set TX flow control parameters */
 	/* Set Pause Time */
