@@ -7,15 +7,12 @@
 #include <efi_loader.h>
 #include <i2c.h>
 #include <init.h>
-#include <asm/global_data.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx9/imx93_pins.h>
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 #define IMX_BOOT_IMAGE_GUID \
