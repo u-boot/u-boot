@@ -185,6 +185,11 @@ enum pm_query_id {
 	PM_QID_CLOCK_GET_MAX_DIVISOR = 13,
 };
 
+#define NUM_GROUPS_PER_RESP			6
+#define NA_GROUP				-1
+#define RESERVED_GROUP				-2
+#define MAX_FUNC_NAME_LEN			16
+
 enum pm_pinctrl_config_param {
 	PM_PINCTRL_CONFIG_SLEW_RATE = 0,
 	PM_PINCTRL_CONFIG_BIAS_STATUS = 1,

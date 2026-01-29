@@ -386,6 +386,14 @@ config PINCTRL_ZYNQMP
 	  Generic Pinctrl framework and is compatible with the Linux driver,
 	  i.e. it uses the same device tree configuration.
 
+config SPL_PINCTRL_ZYNQMP
+	bool "Xilinx ZynqMP pin control driver in SPL"
+	depends on SPL_DM && SPL_PINCTRL_GENERIC && ARCH_ZYNQMP
+	default PINCTRL_ZYNQMP
+	help
+	  Support pin multiplexing control in SPL on Xilinx ZynqMP. Only "pins"
+	  can be muxed; "groups" are not supported.
+
 endif
 
 source "drivers/pinctrl/broadcom/Kconfig"
