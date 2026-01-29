@@ -481,3 +481,83 @@ bind with it:
   misc          0  [ + ]   ti-musb-wrapper       |   |-- usb@47400000
   usb           0  [   ]   ti-musb-peripheral    |   |   |-- usb@47401000
   usb           0  [   ]   ti-musb-host          |   |   `-- usb@47401800
+
+Failsafe bootloader update
+--------------------------
+
+As indicated above, the ROM code on the AM335x supports loading SPL
+from one of several different locations. It looks at offsets 0,
+128KiB, 256KiB and 384KiB (sectors 0, 0x100, 0x200, 0x300) for a
+sector containing a valid "TOC structure" (see the reference manual
+for details).
+
+This can be used to implement a scheme for updating SPL which is
+robust against power failure or other interruptions: Suppose we store
+copies of SPL (wrapped in the "MLO" image, which is what includes that
+TOC structure) at offsets 128KiB and 256KiB, and let us refer to those
+two locations as slot 1 and slot 2.
+
+The whole procedure maintains the invariant that at any time, at
+least one of the slots contains a complete and valid MLO image. In
+order to update SPL:
+
+(1) Determine a slot X containing a valid image (by having a proper
+    TOC structure in the first sector). Designate the other
+    slot Y. Since the TOC is always the same 512 bytes (see section
+    26.1.11 in the reference manual), checking for a valid image can
+    be done using something like
+
+.. code-block:: bash
+
+   if cmp -s -n 512 MLO /path/to/SPL-1 ; then
+     X=1
+     Y=2
+   elif cmp -s -n 512 MLO /path/to/SPL-2 ; then
+     X=2
+     Y=1
+   else
+     # invariant broken, fatal error, refuse update...
+   fi
+
+(2) Ensure Y will be deemed invalid by the ROM code by writing all
+    zeroes to the first sector of Y, for example using
+
+.. code-block:: bash
+
+   dd if=/dev/zero of=/path/to/SPL-Y bs=512 count=1 conv=fsync
+
+(3) Write everything but the first sector of the MLO image to slot Y:
+
+.. code-block:: bash
+
+   dd if=MLO of=/path/to/SPL-Y bs=512 skip=1 seek=1 conv=fsync
+
+(4) Write the TOC structure to slot Y:
+
+.. code-block:: bash
+
+   dd if=MLO of=/path/to/SPL-Y bs=512 count=1 conv=fsync
+
+(5) Repeat steps (2)--(4) for slot X.
+
+Now, this procedure only accounts for safely updating SPL. If U-Boot
+proper is only stored in a single location, there is no way to update
+that which is safe against powercut during the update. However, by
+selecting the configuration option CONFIG_SPL_AM33XX_MMCSD_MULTIPLE,
+you can tell SPL to load U-Boot proper from a location which depends on
+where SPL itself was loaded from. Hence, one can for example put
+copies of u-boot.img at offsets 512KiB and 1536KiB, and set
+
+::
+
+  CONFIG_SPL_AM33XX_MMCSD_MULTIPLE=y
+  CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR_128K=0x400
+  CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR_256K=0xc00
+
+and amend the step (3) above by
+
+   Write U-Boot proper to the location corresponding to slot Y:
+
+.. code-block:: bash
+
+    dd if=u-boot.img of=/path/to/U-BOOT-Y bs=512 conv=fsync
