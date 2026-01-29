@@ -1011,12 +1011,17 @@ static int eqos_start(struct udevice *dev)
 	setbits_le32(&eqos->mac_regs->configuration,
 		     EQOS_MAC_CONFIGURATION_TE | EQOS_MAC_CONFIGURATION_RE);
 
-	/* TX tail pointer not written until we need to TX a packet */
 	/*
-	 * Point RX tail pointer at last descriptor. Ideally, we'd point at the
-	 * first descriptor, implying all descriptors were available. However,
-	 * that's not distinguishable from none of the descriptors being
-	 * available.
+	 * Point TX tail pointer at the first descriptor, implying no descriptor
+	 * are owned by the DMA. We advance the tail pointer when we need to TX
+	 * a packet in eqos_send().
+	 */
+	addr64 = (ulong)eqos_get_desc(eqos, 0, false);
+	writel(lower_32_bits(addr64), &eqos->dma_regs->ch0_txdesc_tail_pointer);
+
+	/*
+	 * Point RX tail pointer at the last descriptor, implying all
+	 * descriptors are owned by the DMA.
 	 */
 	addr64 = (ulong)eqos_get_desc(eqos, EQOS_DESCRIPTORS_RX - 1, true);
 	writel(lower_32_bits(addr64), &eqos->dma_regs->ch0_rxdesc_tail_pointer);
