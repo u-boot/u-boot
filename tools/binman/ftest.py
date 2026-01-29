@@ -4073,7 +4073,7 @@ class TestFunctional(unittest.TestCase):
         external_data_size = len(U_BOOT_DATA) + 2
         expected_size = (len(U_BOOT_DATA) + 0x400 +
                          tools.align(external_data_size, 4) +
-                         len(U_BOOT_NODTB_DATA))
+                         len(U_BOOT_NODTB_DATA) + 8)
 
         # The data should be outside the FIT
         dtb = fdt.Fdt.FromData(fit_data)
@@ -4089,8 +4089,8 @@ class TestFunctional(unittest.TestCase):
 
         self.assertEqual(expected_size, len(data))
         actual_pos = len(U_BOOT_DATA) + fit_pos
-        self.assertEqual(U_BOOT_DATA + b'aa',
-                         data[actual_pos:actual_pos + external_data_size])
+        self.assertEqual(U_BOOT_DATA + b'\x00\x00\x00\x00aa',
+                         data[actual_pos:actual_pos + 4 + external_data_size])
 
     def testFitExternalImagePos(self):
         """Test that we have correct image-pos for external FIT subentries"""
@@ -4103,13 +4103,13 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
-            'size': 1082,
+            'size': 1090,
 
             'u-boot:image-pos': 0,
             'u-boot:offset': 0,
             'u-boot:size': 4,
 
-            'fit:size': 1032,
+            'fit:size': 1040,
             'fit:offset': 4,
             'fit:image-pos': 4,
 
@@ -4122,15 +4122,15 @@ class TestFunctional(unittest.TestCase):
             'fit/images/kernel/u-boot:image-pos': 1028,
 
             'fit/images/fdt-1:size': 2,
-            'fit/images/fdt-1:offset': 1028,
-            'fit/images/fdt-1:image-pos': 1032,
+            'fit/images/fdt-1:offset': 1032,
+            'fit/images/fdt-1:image-pos': 1036,
 
             'fit/images/fdt-1/_testing:size': 2,
             'fit/images/fdt-1/_testing:offset': 0,
-            'fit/images/fdt-1/_testing:image-pos': 1032,
+            'fit/images/fdt-1/_testing:image-pos': 1036,
 
-            'u-boot-nodtb:image-pos': 1036,
-            'u-boot-nodtb:offset': 1036,
+            'u-boot-nodtb:image-pos': 1044,
+            'u-boot-nodtb:offset': 1044,
             'u-boot-nodtb:size': 46,
          }, props)
 

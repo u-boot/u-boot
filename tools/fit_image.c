@@ -651,10 +651,9 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	int ret;
 	int images;
 	int node;
-	int image_number;
-	int align_size;
+	int align_size = 0;
+	int len = 0;
 
-	align_size = params->bl_len ? params->bl_len : 4;
 	fd = mmap_fdt(params->cmdname, fname, 0, &fdt, &sbuf, false, false);
 	if (fd < 0)
 		return -EIO;
@@ -666,24 +665,58 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		ret = -EINVAL;
 		goto err_munmap;
 	}
-	image_number = fdtdec_get_child_count(fdt, images);
+
+	/* Add up all the alignments, we no longer need to count images. */
+	fdt_for_each_subnode(node, fdt, images) {
+		const char *type;
+		int len;
+
+		if (params->bl_len) {
+			align_size += params->bl_len;
+			continue;
+		}
+
+		type = fdt_getprop(fdt, node, FIT_TYPE_PROP, &len);
+		if (type && len == sizeof("flat_dt") && !memcmp(type, "flat_dt", len)) {
+			align_size += 8;
+			continue;
+		}
+
+		/* Default alignment to 4 Bytes */
+		align_size += 4;
+	}
 
 	/*
 	 * Allocate space to hold the image data we will extract,
 	 * extral space allocate for image alignment to prevent overflow.
 	 */
-	buf = calloc(1, fit_size + (align_size * image_number));
+	buf = calloc(1, fit_size + align_size);
 	if (!buf) {
 		ret = -ENOMEM;
 		goto err_munmap;
 	}
 	buf_ptr = 0;
 
-	for (node = fdt_first_subnode(fdt, images);
-	     node >= 0;
-	     node = fdt_next_subnode(fdt, node)) {
-		const char *data;
-		int len;
+	fdt_for_each_subnode(node, fdt, images) {
+		const char *data, *type;
+		int pl;
+
+		if (params->bl_len) {
+			align_size = params->bl_len;
+		} else {
+			type = fdt_getprop(fdt, node, FIT_TYPE_PROP, &pl);
+			if (type && pl == sizeof("flat_dt") && !memcmp(type, "flat_dt", pl))
+				align_size = 8;
+			else	/* Default alignment to 4 Bytes */
+				align_size = 4;
+		}
+
+		/*
+		 * The 'len' is 0 in the first round, so 'buf_ptr' is
+		 * not incremented. Otherwise, 'len' is passed over
+		 * from the previous round.
+		 */
+		buf_ptr += ALIGN(len, align_size);
 
 		data = fdt_getprop(fdt, node, FIT_DATA_PROP, &len);
 		if (!data)
@@ -716,9 +749,10 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 			ret = -EINVAL;
 			goto err_munmap;
 		}
-
-		buf_ptr += ALIGN(len, align_size);
 	}
+
+	/* Increment 'buf_ptr' for the trailing image. */
+	buf_ptr += ALIGN(len, align_size);
 
 	/* Pack the FDT and place the data after it */
 	fdt_pack(fdt);
