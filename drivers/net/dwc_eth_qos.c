@@ -1003,14 +1003,6 @@ static int eqos_start(struct udevice *dev)
 	writel(EQOS_DESCRIPTORS_RX - 1,
 	       &eqos->dma_regs->ch0_rxdesc_ring_length);
 
-	/* Enable everything */
-	setbits_le32(&eqos->dma_regs->ch0_tx_control,
-		     EQOS_DMA_CH0_TX_CONTROL_ST);
-	setbits_le32(&eqos->dma_regs->ch0_rx_control,
-		     EQOS_DMA_CH0_RX_CONTROL_SR);
-	setbits_le32(&eqos->mac_regs->configuration,
-		     EQOS_MAC_CONFIGURATION_TE | EQOS_MAC_CONFIGURATION_RE);
-
 	/*
 	 * Point TX tail pointer at the first descriptor, implying no descriptor
 	 * are owned by the DMA. We advance the tail pointer when we need to TX
@@ -1025,6 +1017,14 @@ static int eqos_start(struct udevice *dev)
 	 */
 	addr64 = (ulong)eqos_get_desc(eqos, EQOS_DESCRIPTORS_RX - 1, true);
 	writel(lower_32_bits(addr64), &eqos->dma_regs->ch0_rxdesc_tail_pointer);
+
+	/* Enable everything */
+	setbits_le32(&eqos->dma_regs->ch0_tx_control,
+		     EQOS_DMA_CH0_TX_CONTROL_ST);
+	setbits_le32(&eqos->dma_regs->ch0_rx_control,
+		     EQOS_DMA_CH0_RX_CONTROL_SR);
+	setbits_le32(&eqos->mac_regs->configuration,
+		     EQOS_MAC_CONFIGURATION_TE | EQOS_MAC_CONFIGURATION_RE);
 
 	eqos->started = true;
 
