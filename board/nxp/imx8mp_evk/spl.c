@@ -7,15 +7,13 @@
 #include <hang.h>
 #include <init.h>
 #include <log.h>
-#include <spl.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/boot_mode.h>
-#include <asm/arch/ddr.h>
 #include <power/pmic.h>
 #include <power/pca9450.h>
-#include <dm/uclass.h>
-#include <dm/device.h>
+#include <spl.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/ddr.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/boot_mode.h>
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
