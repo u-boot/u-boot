@@ -21,8 +21,6 @@
 #include <asm/mach-imx/ele_api.h>
 #include <asm/sections.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void spl_dram_init(void)
 {
 	/* Reboot in dual boot setting no need to init ddr again */
