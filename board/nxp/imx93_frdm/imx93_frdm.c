@@ -7,7 +7,6 @@
 #include <efi_loader.h>
 #include <i2c.h>
 #include <init.h>
-#include <asm/global_data.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx9/imx93_pins.h>
 #include <asm/arch/clock.h>
@@ -15,12 +14,10 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 #define IMX_BOOT_IMAGE_GUID \
-	EFI_GUID(0xbc550d86, 0xda26, 0x4b70, 0xac, 0x05, \
-		 0x2a, 0x44, 0x8e, 0xda, 0x6f, 0x21)
+	EFI_GUID(0x6f86db61, 0xcda9, 0x489a, 0xbd, 0x36, \
+		 0x2f, 0x7c, 0x65, 0x1c, 0xa6, 0x5d)
 
 struct efi_fw_image fw_images[] = {
 	{

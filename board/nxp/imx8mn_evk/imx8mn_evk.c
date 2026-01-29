@@ -3,12 +3,12 @@
  * Copyright 2019 NXP
  */
 
-#include <asm/arch/sys_proto.h>
-#include <asm/io.h>
 #include <config.h>
 #include <efi_loader.h>
 #include <env.h>
 #include <init.h>
+#include <asm/io.h>
+#include <asm/arch/sys_proto.h>
 
 #if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
 #define IMX_BOOT_IMAGE_GUID \
