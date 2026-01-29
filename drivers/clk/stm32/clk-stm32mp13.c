@@ -6,150 +6,273 @@
 #define LOG_CATEGORY UCLASS_CLK
 
 #include <clk-uclass.h>
-#include <dm.h>
-#include <log.h>
-#include <asm/io.h>
-#include <dt-bindings/clock/stm32mp13-clks.h>
-#include <linux/clk-provider.h>
-#include <dt-bindings/clock/stm32mp13-clksrc.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
-#include <clk-uclass.h>
 #include <div64.h>
-#include <dm/device_compat.h>
+#include <dm.h>
 #include <init.h>
-#include <linux/bitops.h>
-#include <linux/io.h>
-#include <linux/iopoll.h>
+#include <log.h>
 #include <regmap.h>
 #include <spl.h>
 #include <syscon.h>
 #include <time.h>
 #include <vsprintf.h>
+#include <asm/io.h>
+#include <asm/global_data.h>
 #include <asm/arch/sys_proto.h>
+#include <dm/device_compat.h>
+#include <dt-bindings/clock/stm32mp13-clks.h>
+#include <dt-bindings/clock/stm32mp13-clksrc.h>
+#include <linux/bitops.h>
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+#include <linux/iopoll.h>
 
 #include "clk-stm32-core.h"
 #include "stm32mp13_rcc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const char * const adc12_src[] = {
-	"pll4_r", "ck_per", "pll3_q"
+ /* must match scmi clock order found in DT */
+enum {
+	IDX_HSE,
+	IDX_HSI,
+	IDX_CSI,
+	IDX_LSE,
+	IDX_LSI,
+	IDX_HSE_DIV2,
+	IDX_PLL2_Q,
+	IDX_PLL2_R,
+	IDX_PLL3_P,
+	IDX_PLL3_Q,
+	IDX_PLL3_R,
+	IDX_PLL4_P,
+	IDX_PLL4_Q,
+	IDX_PLL4_R,
+	IDX_MPU,
+	IDX_AXI,
+	IDX_MLAHB,
+	IDX_CKPER,
+	IDX_PCLK1,
+	IDX_PCLK2,
+	IDX_PCLK3,
+	IDX_PCLK4,
+	IDX_PCLK5,
+	IDX_PCLK6,
+	IDX_CKTIMG1,
+	IDX_CKTIMG2,
+	IDX_CKTIMG3,
+	IDX_PARENT_NB,
 };
 
-static const char * const dcmipp_src[] = {
-	"ck_axi", "pll2_q", "pll4_p", "ck_per",
+static const struct clk_parent_data adc12_src[] = {
+	{ .index = IDX_PLL4_R },
+	{ .index = IDX_CKPER },
+	{ .index = IDX_PLL3_Q },
 };
 
-static const char * const eth12_src[] = {
-	"pll4_p", "pll3_q"
+static const struct clk_parent_data dcmipp_src[] = {
+	{ .index = IDX_AXI },
+	{ .index = IDX_PLL2_Q },
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_CKPER },
 };
 
-static const char * const fdcan_src[] = {
-	"ck_hse", "pll3_q", "pll4_q", "pll4_r"
+static const struct clk_parent_data eth12_src[] = {
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_PLL3_Q },
 };
 
-static const char * const fmc_src[] = {
-	"ck_axi", "pll3_r", "pll4_p", "ck_per"
+static const struct clk_parent_data fdcan_src[] = {
+	{ .index = IDX_HSE },
+	{ .index = IDX_PLL3_Q },
+	{ .index = IDX_PLL4_Q },
+	{ .index = IDX_PLL4_R },
 };
 
-static const char * const i2c12_src[] = {
-	"pclk1", "pll4_r", "ck_hsi", "ck_csi"
+static const struct clk_parent_data fmc_src[] = {
+	{ .index = IDX_AXI },
+	{ .index = IDX_PLL3_R },
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_CKPER },
 };
 
-static const char * const i2c345_src[] = {
-	"pclk6", "pll4_r", "ck_hsi", "ck_csi"
+static const struct clk_parent_data i2c12_src[] = {
+	{ .index = IDX_PCLK1 },
+	{ .index = IDX_PLL4_R },
+	{ .index = IDX_HSI },
+	{ .index = IDX_CSI },
 };
 
-static const char * const lptim1_src[] = {
-	"pclk1", "pll4_p", "pll3_q", "ck_lse", "ck_lsi", "ck_per"
+static const struct clk_parent_data i2c345_src[] = {
+	{ .index = IDX_PCLK6 },
+	{ .index = IDX_PLL4_R },
+	{ .index = IDX_HSI },
+	{ .index = IDX_CSI },
 };
 
-static const char * const lptim23_src[] = {
-	"pclk3", "pll4_q", "ck_per", "ck_lse", "ck_lsi"
+static const struct clk_parent_data lptim1_src[] = {
+	{ .index = IDX_PCLK1 },
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_PLL3_Q },
+	{ .index = IDX_LSE },
+	{ .index = IDX_LSI },
+	{ .index = IDX_CKPER },
 };
 
-static const char * const lptim45_src[] = {
-	"pclk3", "pll4_p", "pll3_q", "ck_lse", "ck_lsi", "ck_per"
+static const struct clk_parent_data lptim23_src[] = {
+	{ .index = IDX_PCLK3 },
+	{ .index = IDX_PLL4_Q },
+	{ .index = IDX_CKPER },
+	{ .index = IDX_LSE },
+	{ .index = IDX_LSI },
 };
 
-static const char * const mco1_src[] = {
-	"ck_hsi", "ck_hse", "ck_csi", "ck_lsi", "ck_lse"
+static const struct clk_parent_data lptim45_src[] = {
+	{ .index = IDX_PCLK3 },
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_PLL3_Q },
+	{ .index = IDX_LSE },
+	{ .index = IDX_LSI },
+	{ .index = IDX_CKPER },
 };
 
-static const char * const mco2_src[] = {
-	"ck_mpu", "ck_axi", "ck_mlahb", "pll4_p", "ck_hse", "ck_hsi"
+static const struct clk_parent_data mco1_src[] = {
+	{ .index = IDX_HSI },
+	{ .index = IDX_HSE },
+	{ .index = IDX_CSI },
+	{ .index = IDX_LSI },
+	{ .index = IDX_LSE },
 };
 
-static const char * const qspi_src[] = {
-	"ck_axi", "pll3_r", "pll4_p", "ck_per"
+static const struct clk_parent_data mco2_src[] = {
+	{ .index = IDX_MPU },
+	{ .index = IDX_AXI },
+	{ .index = IDX_MLAHB },
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_HSE },
+	{ .index = IDX_HSI },
 };
 
-static const char * const rng1_src[] = {
-	"ck_csi", "pll4_r", "reserved", "ck_lsi"
+static const struct clk_parent_data qspi_src[] = {
+	{ .index = IDX_AXI },
+	{ .index = IDX_PLL3_R },
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_CKPER },
 };
 
-static const char * const saes_src[] = {
-	"ck_axi", "ck_per", "pll4_r", "ck_lsi"
+static const struct clk_parent_data rng1_src[] = {
+	{ .index = IDX_CSI },
+	{ .index = IDX_PLL4_R },
+	{ .name = "reserved" },
+	{ .index = IDX_LSI },
 };
 
-static const char * const sai1_src[] = {
-	"pll4_q", "pll3_q", "i2s_ckin", "ck_per", "pll3_r"
+static const struct clk_parent_data saes_src[] = {
+	{ .index = IDX_AXI },
+	{ .index = IDX_CKPER },
+	{ .index = IDX_PLL4_R },
+	{ .index = IDX_LSI },
 };
 
-static const char * const sai2_src[] = {
-	"pll4_q", "pll3_q", "i2s_ckin", "ck_per", "spdif_ck_symb", "pll3_r"
+static const struct clk_parent_data sai1_src[] = {
+	{ .index = IDX_PLL4_Q },
+	{ .index = IDX_PLL3_Q },
+	{ .name = "i2s_ckin" },
+	{ .index = IDX_CKPER },
+	{ .index = IDX_PLL3_R },
 };
 
-static const char * const sdmmc12_src[] = {
-	"ck_axi", "pll3_r", "pll4_p", "ck_hsi"
+static const struct clk_parent_data sai2_src[] = {
+	{ .index = IDX_PLL4_Q },
+	{ .index = IDX_PLL3_Q },
+	{ .name = "i2s_ckin" },
+	{ .index = IDX_CKPER },
+	{ .name = "spdif_ck_symb" },
+	{ .index = IDX_PLL3_R },
 };
 
-static const char * const spdif_src[] = {
-	"pll4_p", "pll3_q", "ck_hsi"
+static const struct clk_parent_data sdmmc12_src[] = {
+	{ .index = IDX_AXI },
+	{ .index = IDX_PLL3_R },
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_HSI },
 };
 
-static const char * const spi123_src[] = {
-	"pll4_p", "pll3_q", "i2s_ckin", "ck_per", "pll3_r"
+static const struct clk_parent_data spdif_src[] = {
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_PLL3_Q },
+	{ .index = IDX_HSI },
 };
 
-static const char * const spi4_src[] = {
-	"pclk6", "pll4_q", "ck_hsi", "ck_csi", "ck_hse", "i2s_ckin"
+static const struct clk_parent_data spi123_src[] = {
+	{ .index = IDX_PLL4_P },
+	{ .index = IDX_PLL3_Q },
+	{ .name = "i2s_ckin" },
+	{ .index = IDX_CKPER },
+	{ .index = IDX_PLL3_R },
 };
 
-static const char * const spi5_src[] = {
-	"pclk6", "pll4_q", "ck_hsi", "ck_csi", "ck_hse"
+static const struct clk_parent_data spi4_src[] = {
+	{ .index = IDX_PCLK6 },
+	{ .index = IDX_PLL4_Q },
+	{ .index = IDX_HSI },
+	{ .index = IDX_CSI },
+	{ .index = IDX_HSE },
+	{ .name = "i2s_ckin" },
 };
 
-static const char * const stgen_src[] = {
-	"ck_hsi", "ck_hse"
+static const struct clk_parent_data spi5_src[] = {
+	{ .index = IDX_PCLK6 },
+	{ .index = IDX_PLL4_Q },
+	{ .index = IDX_HSI },
+	{ .index = IDX_CSI },
+	{ .index = IDX_HSE },
 };
 
-static const char * const usart12_src[] = {
-	"pclk6", "pll3_q", "ck_hsi", "ck_csi", "pll4_q", "ck_hse"
+static const struct clk_parent_data stgen_src[] = {
+	{ .index = IDX_HSI },
+	{ .index = IDX_HSE },
 };
 
-static const char * const usart34578_src[] = {
-	"pclk1", "pll4_q", "ck_hsi", "ck_csi", "ck_hse"
+static const struct clk_parent_data usart12_src[] = {
+	{ .index = IDX_PCLK6 },
+	{ .index = IDX_PLL3_Q },
+	{ .index = IDX_HSI },
+	{ .index = IDX_CSI },
+	{ .index = IDX_PLL4_Q },
+	{ .index = IDX_HSE },
 };
 
-static const char * const usart6_src[] = {
-	"pclk2", "pll4_q", "ck_hsi", "ck_csi", "ck_hse"
+static const struct clk_parent_data usart34578_src[] = {
+	{ .index = IDX_PCLK1 },
+	{ .index = IDX_PLL4_Q },
+	{ .index = IDX_HSI },
+	{ .index = IDX_CSI },
+	{ .index = IDX_HSE },
 };
 
-static const char * const usbo_src[] = {
-	"pll4_r", "ck_usbo_48m"
+static const struct clk_parent_data usart6_src[] = {
+	{ .index = IDX_PCLK2 },
+	{ .index = IDX_PLL4_Q },
+	{ .index = IDX_HSI },
+	{ .index = IDX_CSI },
+	{ .index = IDX_HSE },
 };
 
-static const char * const usbphy_src[] = {
-	"ck_hse", "pll4_r", "clk-hse-div2"
+static const struct clk_parent_data usbo_src[] = {
+	{ .index = IDX_PLL4_R },
+	{ .name = "ck_usbo_48m" },
 };
 
+static const struct clk_parent_data usbphy_src[] = {
+	{ .index = IDX_HSE },
+	{ .index = IDX_PLL4_R },
+	{ .index = IDX_HSE_DIV2 },
+};
 
 #define MUX_CFG(id, src, _offset, _shift, _witdh) \
 	[id] = { \
 		.num_parents	= ARRAY_SIZE(src), \
-		.parent_names	= (src), \
+		.parent_data	= (src), \
 		.reg_off	= (_offset), \
 		.shift		= (_shift), \
 		.width		= (_witdh), \
@@ -604,73 +727,73 @@ static const struct clk_stm32_security stm32mp13_security[] = {
 
 static const struct clock_config stm32mp13_clock_cfg[] = {
 #ifndef CONFIG_XPL_BUILD
-	TIMER(TIM2_K, "tim2_k", "timg1_ck", 0, GATE_TIM2, SECF_NONE),
-	TIMER(TIM3_K, "tim3_k", "timg1_ck", 0, GATE_TIM3, SECF_NONE),
-	TIMER(TIM4_K, "tim4_k", "timg1_ck", 0, GATE_TIM4, SECF_NONE),
-	TIMER(TIM5_K, "tim5_k", "timg1_ck", 0, GATE_TIM5, SECF_NONE),
-	TIMER(TIM6_K, "tim6_k", "timg1_ck", 0, GATE_TIM6, SECF_NONE),
-	TIMER(TIM7_K, "tim7_k", "timg1_ck", 0, GATE_TIM7, SECF_NONE),
-	TIMER(TIM1_K, "tim1_k", "timg2_ck", 0, GATE_TIM1, SECF_NONE),
-	TIMER(TIM8_K, "tim8_k", "timg2_ck", 0, GATE_TIM8, SECF_NONE),
-	TIMER(TIM12_K, "tim12_k", "timg3_ck", 0, GATE_TIM12, SECF_TIM12),
-	TIMER(TIM13_K, "tim13_k", "timg3_ck", 0, GATE_TIM13, SECF_TIM13),
-	TIMER(TIM14_K, "tim14_k", "timg3_ck", 0, GATE_TIM14, SECF_TIM14),
-	TIMER(TIM15_K, "tim15_k", "timg3_ck", 0, GATE_TIM15, SECF_TIM15),
-	TIMER(TIM16_K, "tim16_k", "timg3_ck", 0, GATE_TIM16, SECF_TIM16),
-	TIMER(TIM17_K, "tim17_k", "timg3_ck", 0, GATE_TIM17, SECF_TIM17),
+	TIMER(TIM2_K, "tim2_k", IDX_CKTIMG1, 0, GATE_TIM2, SECF_NONE),
+	TIMER(TIM3_K, "tim3_k", IDX_CKTIMG1, 0, GATE_TIM3, SECF_NONE),
+	TIMER(TIM4_K, "tim4_k", IDX_CKTIMG1, 0, GATE_TIM4, SECF_NONE),
+	TIMER(TIM5_K, "tim5_k", IDX_CKTIMG1, 0, GATE_TIM5, SECF_NONE),
+	TIMER(TIM6_K, "tim6_k", IDX_CKTIMG1, 0, GATE_TIM6, SECF_NONE),
+	TIMER(TIM7_K, "tim7_k", IDX_CKTIMG1, 0, GATE_TIM7, SECF_NONE),
+	TIMER(TIM1_K, "tim1_k", IDX_CKTIMG2, 0, GATE_TIM1, SECF_NONE),
+	TIMER(TIM8_K, "tim8_k", IDX_CKTIMG2, 0, GATE_TIM8, SECF_NONE),
+	TIMER(TIM12_K, "tim12_k", IDX_CKTIMG3, 0, GATE_TIM12, SECF_TIM12),
+	TIMER(TIM13_K, "tim13_k", IDX_CKTIMG3, 0, GATE_TIM13, SECF_TIM13),
+	TIMER(TIM14_K, "tim14_k", IDX_CKTIMG3, 0, GATE_TIM14, SECF_TIM14),
+	TIMER(TIM15_K, "tim15_k", IDX_CKTIMG3, 0, GATE_TIM15, SECF_TIM15),
+	TIMER(TIM16_K, "tim16_k", IDX_CKTIMG3, 0, GATE_TIM16, SECF_TIM16),
+	TIMER(TIM17_K, "tim17_k", IDX_CKTIMG3, 0, GATE_TIM17, SECF_TIM17),
 #endif
 
 	/* Peripheral clocks */
-	PCLK(SYSCFG, "syscfg", "pclk3", 0, GATE_SYSCFG, SECF_NONE),
-	PCLK(VREF, "vref", "pclk3", 0, GATE_VREF, SECF_VREF),
+	PCLK(SYSCFG, "syscfg", IDX_PCLK3, 0, GATE_SYSCFG, SECF_NONE),
+	PCLK(VREF, "vref", IDX_PCLK3, 0, GATE_VREF, SECF_VREF),
 #ifndef CONFIG_XPL_BUILD
-	PCLK(PMBCTRL, "pmbctrl", "pclk3", 0, GATE_PMBCTRL, SECF_NONE),
-	PCLK(HDP, "hdp", "pclk3", 0, GATE_HDP, SECF_NONE),
+	PCLK(PMBCTRL, "pmbctrl", IDX_PCLK3, 0, GATE_PMBCTRL, SECF_NONE),
+	PCLK(HDP, "hdp", IDX_PCLK3, 0, GATE_HDP, SECF_NONE),
 #endif
-	PCLK(IWDG2, "iwdg2", "pclk4", 0, GATE_IWDG2APB, SECF_NONE),
-	PCLK(STGENRO, "stgenro", "pclk4", 0, GATE_STGENRO, SECF_STGENRO),
-	PCLK(TZPC, "tzpc", "pclk5", 0, GATE_TZC, SECF_TZC),
-	PCLK(IWDG1, "iwdg1", "pclk5", 0, GATE_IWDG1APB, SECF_IWDG1),
-	PCLK(BSEC, "bsec", "pclk5", 0, GATE_BSEC, SECF_BSEC),
+	PCLK(IWDG2, "iwdg2", IDX_PCLK4, 0, GATE_IWDG2APB, SECF_NONE),
+	PCLK(STGENRO, "stgenro", IDX_PCLK4, 0, GATE_STGENRO, SECF_STGENRO),
+	PCLK(TZPC, "tzpc", IDX_PCLK5, 0, GATE_TZC, SECF_TZC),
+	PCLK(IWDG1, "iwdg1", IDX_PCLK5, 0, GATE_IWDG1APB, SECF_IWDG1),
+	PCLK(BSEC, "bsec", IDX_PCLK5, 0, GATE_BSEC, SECF_BSEC),
 #ifndef CONFIG_XPL_BUILD
-	PCLK(DMA1, "dma1", "ck_mlahb", 0, GATE_DMA1, SECF_NONE),
-	PCLK(DMA2, "dma2", "ck_mlahb",  0, GATE_DMA2, SECF_NONE),
-	PCLK(DMAMUX1, "dmamux1", "ck_mlahb", 0, GATE_DMAMUX1, SECF_NONE),
-	PCLK(DMAMUX2, "dmamux2", "ck_mlahb", 0, GATE_DMAMUX2, SECF_DMAMUX2),
-	PCLK(ADC1, "adc1", "ck_mlahb", 0, GATE_ADC1, SECF_ADC1),
-	PCLK(ADC2, "adc2", "ck_mlahb", 0, GATE_ADC2, SECF_ADC2),
+	PCLK(DMA1, "dma1", IDX_MLAHB, 0, GATE_DMA1, SECF_NONE),
+	PCLK(DMA2, "dma2", IDX_MLAHB,  0, GATE_DMA2, SECF_NONE),
+	PCLK(DMAMUX1, "dmamux1", IDX_MLAHB, 0, GATE_DMAMUX1, SECF_NONE),
+	PCLK(DMAMUX2, "dmamux2", IDX_MLAHB, 0, GATE_DMAMUX2, SECF_DMAMUX2),
+	PCLK(ADC1, "adc1", IDX_MLAHB, 0, GATE_ADC1, SECF_ADC1),
+	PCLK(ADC2, "adc2", IDX_MLAHB, 0, GATE_ADC2, SECF_ADC2),
 #endif
-	PCLK(GPIOA, "gpioa", "pclk4", 0, GATE_GPIOA, SECF_NONE),
-	PCLK(GPIOB, "gpiob", "pclk4", 0, GATE_GPIOB, SECF_NONE),
-	PCLK(GPIOC, "gpioc", "pclk4", 0, GATE_GPIOC, SECF_NONE),
-	PCLK(GPIOD, "gpiod", "pclk4", 0, GATE_GPIOD, SECF_NONE),
-	PCLK(GPIOE, "gpioe", "pclk4", 0, GATE_GPIOE, SECF_NONE),
-	PCLK(GPIOF, "gpiof", "pclk4", 0, GATE_GPIOF, SECF_NONE),
-	PCLK(GPIOG, "gpiog", "pclk4", 0, GATE_GPIOG, SECF_NONE),
-	PCLK(GPIOH, "gpioh", "pclk4", 0, GATE_GPIOH, SECF_NONE),
-	PCLK(GPIOI, "gpioi", "pclk4", 0, GATE_GPIOI, SECF_NONE),
-	PCLK(TSC, "tsc", "pclk4", 0, GATE_TSC, SECF_TZC),
-	PCLK(PKA, "pka", "ck_axi", 0, GATE_PKA, SECF_PKA),
-	PCLK(CRYP1, "cryp1", "ck_axi", 0, GATE_CRYP1, SECF_CRYP1),
-	PCLK(HASH1, "hash1", "ck_axi", 0, GATE_HASH1, SECF_HASH1),
-	PCLK(BKPSRAM, "bkpsram", "ck_axi", 0, GATE_BKPSRAM, SECF_BKPSRAM),
-	PCLK(MDMA, "mdma", "ck_axi", 0, GATE_MDMA, SECF_NONE),
+	PCLK(GPIOA, "gpioa", IDX_PCLK4, 0, GATE_GPIOA, SECF_NONE),
+	PCLK(GPIOB, "gpiob", IDX_PCLK4, 0, GATE_GPIOB, SECF_NONE),
+	PCLK(GPIOC, "gpioc", IDX_PCLK4, 0, GATE_GPIOC, SECF_NONE),
+	PCLK(GPIOD, "gpiod", IDX_PCLK4, 0, GATE_GPIOD, SECF_NONE),
+	PCLK(GPIOE, "gpioe", IDX_PCLK4, 0, GATE_GPIOE, SECF_NONE),
+	PCLK(GPIOF, "gpiof", IDX_PCLK4, 0, GATE_GPIOF, SECF_NONE),
+	PCLK(GPIOG, "gpiog", IDX_PCLK4, 0, GATE_GPIOG, SECF_NONE),
+	PCLK(GPIOH, "gpioh", IDX_PCLK4, 0, GATE_GPIOH, SECF_NONE),
+	PCLK(GPIOI, "gpioi", IDX_PCLK4, 0, GATE_GPIOI, SECF_NONE),
+	PCLK(TSC, "tsc", IDX_PCLK4, 0, GATE_TSC, SECF_TZC),
+	PCLK(PKA, "pka", IDX_AXI, 0, GATE_PKA, SECF_PKA),
+	PCLK(CRYP1, "cryp1", IDX_AXI, 0, GATE_CRYP1, SECF_CRYP1),
+	PCLK(HASH1, "hash1", IDX_AXI, 0, GATE_HASH1, SECF_HASH1),
+	PCLK(BKPSRAM, "bkpsram", IDX_AXI, 0, GATE_BKPSRAM, SECF_BKPSRAM),
+	PCLK(MDMA, "mdma", IDX_AXI, 0, GATE_MDMA, SECF_NONE),
 #ifndef CONFIG_XPL_BUILD
-	PCLK(ETH1TX, "eth1tx", "ck_axi", 0, GATE_ETH1TX, SECF_ETH1TX),
-	PCLK(ETH1RX, "eth1rx", "ck_axi", 0, GATE_ETH1RX, SECF_ETH1RX),
-	PCLK(ETH1MAC, "eth1mac", "ck_axi", 0, GATE_ETH1MAC, SECF_ETH1MAC),
-	PCLK(ETH2TX, "eth2tx", "ck_axi", 0, GATE_ETH2TX, SECF_ETH2TX),
-	PCLK(ETH2RX, "eth2rx", "ck_axi", 0, GATE_ETH2RX, SECF_ETH2RX),
-	PCLK(ETH2MAC, "eth2mac", "ck_axi", 0, GATE_ETH2MAC, SECF_ETH2MAC),
+	PCLK(ETH1TX, "eth1tx", IDX_AXI, 0, GATE_ETH1TX, SECF_ETH1TX),
+	PCLK(ETH1RX, "eth1rx", IDX_AXI, 0, GATE_ETH1RX, SECF_ETH1RX),
+	PCLK(ETH1MAC, "eth1mac", IDX_AXI, 0, GATE_ETH1MAC, SECF_ETH1MAC),
+	PCLK(ETH2TX, "eth2tx", IDX_AXI, 0, GATE_ETH2TX, SECF_ETH2TX),
+	PCLK(ETH2RX, "eth2rx", IDX_AXI, 0, GATE_ETH2RX, SECF_ETH2RX),
+	PCLK(ETH2MAC, "eth2mac", IDX_AXI, 0, GATE_ETH2MAC, SECF_ETH2MAC),
 #endif
-	PCLK(CRC1, "crc1", "ck_axi", 0, GATE_CRC1, SECF_NONE),
+	PCLK(CRC1, "crc1", IDX_AXI, 0, GATE_CRC1, SECF_NONE),
 #ifndef CONFIG_XPL_BUILD
-	PCLK(USBH, "usbh", "ck_axi", 0, GATE_USBH, SECF_NONE),
+	PCLK(USBH, "usbh", IDX_AXI, 0, GATE_USBH, SECF_NONE),
 #endif
-	PCLK(DDRPERFM, "ddrperfm", "pclk4", 0, GATE_DDRPERFM, SECF_NONE),
+	PCLK(DDRPERFM, "ddrperfm", IDX_PCLK4, 0, GATE_DDRPERFM, SECF_NONE),
 #ifndef CONFIG_XPL_BUILD
-	PCLK(ETH1STP, "eth1stp", "ck_axi", 0, GATE_ETH1STP, SECF_ETH1STP),
-	PCLK(ETH2STP, "eth2stp", "ck_axi", 0, GATE_ETH2STP, SECF_ETH2STP),
+	PCLK(ETH1STP, "eth1stp", IDX_AXI, 0, GATE_ETH1STP, SECF_ETH1STP),
+	PCLK(ETH2STP, "eth2stp", IDX_AXI, 0, GATE_ETH2STP, SECF_ETH2STP),
 #endif
 
 	/* Kernel clocks */
@@ -730,11 +853,11 @@ static const struct clock_config stm32mp13_clock_cfg[] = {
 	KCLK(ETH2CK_K, "eth2ck_k", 0, GATE_ETH2CK, MUX_ETH2, SECF_ETH2CK),
 	KCLK(SAES_K, "saes_k", 0, GATE_SAES, MUX_SAES, SECF_SAES),
 
-	STM32_GATE(DFSDM_K, "dfsdm_k", "ck_mlahb", 0, GATE_DFSDM, SECF_NONE),
-	STM32_GATE(LTDC_PX, "ltdc_px", "pll4_q", CLK_SET_RATE_PARENT,
+	STM32_GATE(DFSDM_K, "dfsdm_k", IDX_MLAHB, 0, GATE_DFSDM, SECF_NONE),
+	STM32_GATE(LTDC_PX, "ltdc_px", IDX_PLL4_Q, CLK_SET_RATE_PARENT,
 		   GATE_LTDC, SECF_NONE),
 
-	STM32_GATE(DTS_K, "dts_k", "ck_lse", 0, GATE_DTS, SECF_NONE),
+	STM32_GATE(DTS_K, "dts_k", IDX_LSE, 0, GATE_DTS, SECF_NONE),
 #endif
 
 	STM32_COMPOSITE(ETH1PTP_K, "eth1ptp_k", CLK_OPS_PARENT_ENABLE |
@@ -755,23 +878,23 @@ static const struct clock_config stm32mp13_clock_cfg[] = {
 			GATE_MCO2, MUX_MCO2, DIV_MCO2),
 
 	/* Debug clocks */
-	STM32_GATE(CK_DBG, "ck_sys_dbg", "ck_axi", CLK_IGNORE_UNUSED,
+	STM32_GATE(CK_DBG, "ck_sys_dbg", IDX_AXI, CLK_IGNORE_UNUSED,
 		   GATE_DBGCK, SECF_NONE),
 
-	STM32_COMPOSITE_NOMUX(CK_TRACE, "ck_trace", "ck_axi",
+	STM32_COMPOSITE_NOMUX(CK_TRACE, "ck_trace", IDX_AXI,
 			      CLK_OPS_PARENT_ENABLE, SECF_NONE,
 			      GATE_TRACECK, DIV_TRACE),
 
 #ifdef CONFIG_XPL_BUILD
-	STM32_GATE(AXIDCG, "axidcg", "ck_axi", CLK_IGNORE_UNUSED,
+	STM32_GATE(AXIDCG, "axidcg", IDX_AXI, CLK_IGNORE_UNUSED,
 		   GATE_AXIDCG, SECF_NONE),
-	STM32_GATE(DDRC1, "ddrc1", "ck_axi", CLK_IGNORE_UNUSED,
+	STM32_GATE(DDRC1, "ddrc1", IDX_AXI, CLK_IGNORE_UNUSED,
 		   GATE_DDRC1, SECF_NONE),
-	STM32_GATE(DDRPHYC, "ddrphyc", "pll2_r", CLK_IGNORE_UNUSED,
+	STM32_GATE(DDRPHYC, "ddrphyc", IDX_PLL2_R, CLK_IGNORE_UNUSED,
 		   GATE_DDRPHYC, SECF_NONE),
-	STM32_GATE(DDRCAPB, "ddrcapb", "pclk4", CLK_IGNORE_UNUSED,
+	STM32_GATE(DDRCAPB, "ddrcapb", IDX_PCLK4, CLK_IGNORE_UNUSED,
 		   GATE_DDRCAPB, SECF_NONE),
-	STM32_GATE(DDRPHYCAPB, "ddrphycapb", "pclk4", CLK_IGNORE_UNUSED,
+	STM32_GATE(DDRPHYCAPB, "ddrphycapb", IDX_PCLK4, CLK_IGNORE_UNUSED,
 		   GATE_DDRPHYCAPB, SECF_NONE),
 #endif
 };
@@ -792,6 +915,44 @@ static int stm32mp13_check_security(struct udevice *dev, void __iomem *base,
 
 	return secured;
 }
+#else
+static char * const stm32mp13_clk_parent_name[IDX_PARENT_NB] = {
+	[IDX_HSE] = "ck_hse",
+	[IDX_HSI] = "ck_hsi",
+	[IDX_CSI] = "ck_csi",
+	[IDX_LSE] = "ck_lse",
+	[IDX_LSI] = "ck_lsi",
+	[IDX_HSE_DIV2] = "clk-hse-div2",
+	[IDX_PLL2_Q] = "pll2_q",
+	[IDX_PLL2_R] = "pll2_r",
+	[IDX_PLL3_P] = "pll3_p",
+	[IDX_PLL3_Q] = "pll3_q",
+	[IDX_PLL3_R] = "pll3_r",
+	[IDX_PLL4_P] = "pll4_p",
+	[IDX_PLL4_Q] = "pll4_q",
+	[IDX_PLL4_R] = "pll4_r",
+	[IDX_MPU] = "ck_mpu",
+	[IDX_AXI] = "ck_axi",
+	[IDX_MLAHB] = "ck_mlahb",
+	[IDX_CKPER] = "ck_per",
+	[IDX_PCLK1] = "pclk1",
+	[IDX_PCLK2] = "pclk2",
+	[IDX_PCLK3] = "pclk3",
+	[IDX_PCLK4] = "pclk4",
+	[IDX_PCLK5] = "pclk5",
+	[IDX_PCLK6] = "pclk6",
+	[IDX_CKTIMG1] = "tim1_k",
+	[IDX_CKTIMG2] = "tim2_k",
+	[IDX_CKTIMG3] = "tim3_k",
+};
+
+static const char *stm32mp13_get_clock_name(u8 index)
+{
+	if (index >= IDX_PARENT_NB)
+		return NULL;
+
+	return stm32mp13_clk_parent_name[index];
+}
 #endif
 
 static const struct stm32_clock_match_data stm32mp13_data = {
@@ -805,6 +966,8 @@ static const struct stm32_clock_match_data stm32mp13_data = {
 	},
 #ifdef CONFIG_TFABOOT
 	.check_security = stm32mp13_check_security,
+#else
+	.get_clock_name = stm32mp13_get_clock_name,
 #endif
 };
 
@@ -2006,11 +2169,11 @@ static int stm32mp1_clk_probe(struct udevice *dev)
 	if (err)
 		return err;
 
-	gd->cpu_clk = clk_stm32_get_rate_by_name("ck_mpu");
-	gd->bus_clk = clk_stm32_get_rate_by_name("ck_axi");
+	gd->cpu_clk = clk_stm32_get_rate_by_index(dev, IDX_MPU);
+	gd->bus_clk = clk_stm32_get_rate_by_index(dev, IDX_AXI);
 
 	/* DDRPHYC father */
-	gd->mem_clk = clk_stm32_get_rate_by_name("pll2_r");
+	gd->mem_clk = clk_stm32_get_rate_by_index(dev, IDX_PLL2_R);
 
 #ifndef CONFIG_XPL_BUILD
 	if (IS_ENABLED(CONFIG_DISPLAY_CPUINFO)) {
@@ -2021,7 +2184,7 @@ static int stm32mp1_clk_probe(struct udevice *dev)
 			log_info("- MPU : %s MHz\n", strmhz(buf, gd->cpu_clk));
 			log_info("- AXI : %s MHz\n", strmhz(buf, gd->bus_clk));
 			log_info("- PER : %s MHz\n",
-				 strmhz(buf, clk_stm32_get_rate_by_name("ck_per")));
+				 strmhz(buf, clk_stm32_get_rate_by_index(dev, IDX_CKPER)));
 			log_info("- DDR : %s MHz\n", strmhz(buf, gd->mem_clk));
 		}
 	}

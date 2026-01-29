@@ -251,6 +251,7 @@ static const struct udevice_id simple_panel_ids[] = {
 	  .data = (ulong)&panasonic_vvx10f004b00_data },
 	{ .compatible = "tfc,s9700rtwv43tr-01b",
 	  .data = (ulong)&tfc_s9700rtwv43tr_01b_data },
+	{ .compatible = "rocktech,rk043fn48h" },
 	{ }
 };
 

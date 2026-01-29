@@ -50,6 +50,7 @@ struct stm32_qspi_regs {
 #define STM32_QSPI_CR_SSHIFT		BIT(4)
 #define STM32_QSPI_CR_DFM		BIT(6)
 #define STM32_QSPI_CR_FSEL		BIT(7)
+#define STM32_QSPI_CR_FTHRES_MASK	GENMASK(4, 0)
 #define STM32_QSPI_CR_FTHRES_SHIFT	8
 #define STM32_QSPI_CR_TEIE		BIT(16)
 #define STM32_QSPI_CR_TCIE		BIT(17)
@@ -162,24 +163,42 @@ static int _stm32_qspi_wait_cmd(struct stm32_qspi_priv *priv,
 	return ret;
 }
 
-static void _stm32_qspi_read_fifo(u8 *val, void __iomem *addr)
+static void _stm32_qspi_read_fifo(void *val, void __iomem *addr, u8 len)
 {
-	*val = readb(addr);
-	schedule();
+	switch (len) {
+	case sizeof(u32):
+		*((u32 *)val) = readl_relaxed(addr);
+		break;
+	case sizeof(u16):
+		*((u16 *)val) = readw_relaxed(addr);
+		break;
+	case sizeof(u8):
+		*((u8 *)val) = readb_relaxed(addr);
+	};
 }
 
-static void _stm32_qspi_write_fifo(u8 *val, void __iomem *addr)
+static void _stm32_qspi_write_fifo(void *val, void __iomem *addr, u8 len)
 {
-	writeb(*val, addr);
+	switch (len) {
+	case sizeof(u32):
+		writel_relaxed(*((u32 *)val), addr);
+		break;
+	case sizeof(u16):
+		writew_relaxed(*((u16 *)val), addr);
+		break;
+	case sizeof(u8):
+		writeb_relaxed(*((u8 *)val), addr);
+	};
 }
 
 static int _stm32_qspi_poll(struct stm32_qspi_priv *priv,
 			    const struct spi_mem_op *op)
 {
-	void (*fifo)(u8 *val, void __iomem *addr);
+	void (*fifo)(void *val, void __iomem *addr, u8 len);
 	u32 len = op->data.nbytes, sr;
-	u8 *buf;
+	void *buf;
 	int ret;
+	u8 step = 0;
 
 	if (op->data.dir == SPI_MEM_DATA_IN) {
 		fifo = _stm32_qspi_read_fifo;
@@ -187,10 +206,10 @@ static int _stm32_qspi_poll(struct stm32_qspi_priv *priv,
 
 	} else {
 		fifo = _stm32_qspi_write_fifo;
-		buf = (u8 *)op->data.buf.out;
+		buf = (void *)op->data.buf.out;
 	}
 
-	while (len--) {
+	while (len) {
 		ret = readl_poll_timeout(&priv->regs->sr, sr,
 					 sr & STM32_QSPI_SR_FTF,
 					 STM32_QSPI_FIFO_TIMEOUT_US);
@@ -199,7 +218,26 @@ static int _stm32_qspi_poll(struct stm32_qspi_priv *priv,
 			return ret;
 		}
 
-		fifo(buf++, &priv->regs->dr);
+		if (!IS_ALIGNED((uintptr_t)buf, sizeof(u32))) {
+			if (!IS_ALIGNED((uintptr_t)buf, sizeof(u16)))
+				step = sizeof(u8);
+			else
+				step = min((u32)len, (u32)sizeof(u16));
+		}
+		/* Buf is aligned */
+		else if (len >= sizeof(u32))
+			step = sizeof(u32);
+		else if (len >= sizeof(u16))
+			step = sizeof(u16);
+		else if (len)
+			step = sizeof(u8);
+
+		fifo(buf, &priv->regs->dr, step);
+		len -= step;
+		buf += step;
+
+		if (!(len % SZ_1M))
+			schedule();
 	}
 
 	return 0;
@@ -380,6 +418,11 @@ static int stm32_qspi_probe(struct udevice *bus)
 	}
 
 	priv->cs_used = -1;
+
+	clrsetbits_le32(&priv->regs->cr,
+			STM32_QSPI_CR_FTHRES_MASK <<
+			STM32_QSPI_CR_FTHRES_SHIFT,
+			3 << STM32_QSPI_CR_FTHRES_SHIFT);
 
 	setbits_le32(&priv->regs->cr, STM32_QSPI_CR_SSHIFT);
 

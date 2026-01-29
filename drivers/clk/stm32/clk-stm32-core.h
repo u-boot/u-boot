@@ -7,9 +7,19 @@
 struct stm32_clock_match_data;
 
 /**
+ * struct clk_parent_data - clk parent information
+ * @name: globally unique parent name
+ * @index: parent index local to provider registering clk
+ */
+struct clk_parent_data {
+	const char	*name;
+	int		index;
+};
+
+/**
  * struct stm32_mux_cfg - multiplexer configuration
  *
- * @parent_names:	array of string names for all possible parents
+ * @parent_data:	array of parent information for all possible parent
  * @num_parents:	number of possible parents
  * @reg_off:		register controlling multiplexer
  * @shift:		shift to multiplexer bit field
@@ -19,7 +29,7 @@ struct stm32_clock_match_data;
  *			index
  */
 struct stm32_mux_cfg {
-	const char * const *parent_names;
+	const struct clk_parent_data *parent_data;
 	u8 num_parents;
 	u32 reg_off;
 	u8 shift;
@@ -81,7 +91,7 @@ struct stm32_composite_cfg {
  *
  * @id:			binding id of the clock
  * @name:		clock name
- * @parent_name:	name of the clock parent
+ * @parent_data:	parent information
  * @flags:		framework-specific flags
  * @sec_id:		secure id (use to known if the clock is secured or not)
  * @clock_cfg:		specific clock data configuration
@@ -91,7 +101,7 @@ struct stm32_composite_cfg {
 struct clock_config {
 	unsigned long id;
 	const char *name;
-	const char *parent_name;
+	const struct clk_parent_data *parent_data;
 	unsigned long flags;
 	int sec_id;
 	void *clock_cfg;
@@ -129,6 +139,7 @@ struct stm32_clock_match_data {
 	const struct clk_stm32_clock_data *clock_data;
 	int (*check_security)(struct udevice *dev, void __iomem *base,
 			      const struct clock_config *cfg);
+	const char *(*get_clock_name)(u8 index);
 };
 
 /**
@@ -143,7 +154,8 @@ struct stm32_clock_match_data {
 struct stm32mp_rcc_priv {
 	void __iomem *base;
 	u8 *gate_cpt;
-	const struct clk_stm32_clock_data *data;
+	const struct clk_stm32_clock_data *clock_data;
+	const struct stm32_clock_match_data *match_data;
 	struct clk osc_clk[6];
 };
 
@@ -224,12 +236,14 @@ struct stm32_clk_gate_cfg {
 
 #define STM32_GATE(_id, _name, _parent, _flags, _gate_id, _sec_id) \
 { \
-	.id		= _id, \
-	.sec_id		= _sec_id, \
-	.name		= _name, \
-	.parent_name	= _parent, \
-	.flags		= _flags, \
-	.clock_cfg	= &(struct stm32_clk_gate_cfg) { \
+	.id			= _id, \
+	.sec_id			= _sec_id, \
+	.name			= _name, \
+	.parent_data		= &(struct clk_parent_data) { \
+		.index		= _parent, \
+	}, \
+	.flags			= _flags, \
+	.clock_cfg		= &(struct stm32_clk_gate_cfg) { \
 		.gate_id	= _gate_id, \
 	}, \
 	.setup		= clk_stm32_gate_register, \
@@ -261,7 +275,9 @@ struct stm32_clk_composite_cfg {
 { \
 	.id		= _id, \
 	.name		= _name, \
-	.parent_name	= _parent, \
+	.parent_data		= &(struct clk_parent_data) { \
+		.index		= _parent, \
+	}, \
 	.sec_id		= _sec_id, \
 	.flags		= _flags, \
 	.clock_cfg	= &(struct stm32_clk_composite_cfg) { \
@@ -274,4 +290,4 @@ struct stm32_clk_composite_cfg {
 
 extern const struct clk_ops stm32_clk_ops;
 
-ulong clk_stm32_get_rate_by_name(const char *name);
+ulong clk_stm32_get_rate_by_index(struct udevice *dev, int index);
