@@ -354,8 +354,8 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 			  char *const argv[])
 {
 	char *s;
-	int   rcode = 0;
-	int   size;
+	int rcode;
+	u32 size;
 
 	net_boot_file_name_explicit = false;
 	*net_boot_file_name = '\0';
@@ -396,8 +396,9 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 		}
 	}
 
-	size = net_loop(proto);
-	if (size < 0) {
+	rcode = net_loop(proto);
+	size = net_boot_file_size;
+	if (rcode < 0) {
 		bootstage_error(BOOTSTAGE_ID_NET_NETLOOP_OK);
 		return CMD_RET_FAILURE;
 	}

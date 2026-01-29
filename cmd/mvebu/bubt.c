@@ -661,7 +661,7 @@ static size_t tftp_read_file(const char *file_name)
 	 */
 	image_load_addr = get_load_addr();
 	ret = net_loop(TFTPGET);
-	return ret > 0 ? ret : 0;
+	return ret > 0 ? net_boot_file_size : 0;
 }
 
 static int is_tftp_active(void)
