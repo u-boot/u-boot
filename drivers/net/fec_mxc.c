@@ -594,7 +594,7 @@ static int fecmxc_init(struct udevice *dev)
 
 	/* Do not access reserved register */
 	if (!is_mx6ul() && !is_mx6ull() && !is_imx8() && !is_imx8m() && !is_imx8ulp() &&
-	    !is_imx93()) {
+	    !is_imx91() && !is_imx93()) {
 		/* clear MIB RAM */
 		for (i = mib_ptr; i <= mib_ptr + 0xfc; i += 4)
 			writel(0, i);
@@ -1236,7 +1236,7 @@ static int fecmxc_set_ref_clk(struct clk *clk_ref, phy_interface_t interface)
 		 interface == PHY_INTERFACE_MODE_RGMII_RXID ||
 		 interface == PHY_INTERFACE_MODE_RGMII_TXID) {
 		freq = 125000000;
-		if (is_imx93())
+		if (is_imx91() || is_imx93())
 			freq = freq << 1;
 	} else {
 		return -EINVAL;
