@@ -1083,13 +1083,18 @@ int fdtdec_setup_mem_size_base(void)
 	return 0;
 }
 
-ofnode get_next_memory_node(ofnode mem)
+static ofnode get_next_memory_node(ofnode mem)
 {
 	do {
 		mem = ofnode_by_prop_value(mem, "device_type", "memory", 7);
 	} while (!ofnode_is_enabled(mem));
 
 	return mem;
+}
+
+ofnode fdtdec_get_next_memory_node(ofnode mem)
+{
+	return get_next_memory_node(mem);
 }
 
 int fdtdec_setup_memory_banksize(void)
