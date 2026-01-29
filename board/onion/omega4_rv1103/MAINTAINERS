@@ -1,0 +1,6 @@
+OMEGA4 RV1103
+M:      Fabio Estevam <festevam@nabladev.com>
+S:      Maintained
+F:      board/onion/omega4_rv1103
+F:      include/configs/omega4_rv1103.h
+F:      configs/omega4-rv1103_defconfig

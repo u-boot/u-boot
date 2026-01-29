@@ -1,0 +1,12 @@
+if TARGET_OMEGA4_RV1103
+
+config SYS_BOARD
+	default "omega4_rv1103"
+
+config SYS_VENDOR
+	default "onion"
+
+config SYS_CONFIG_NAME
+	default "omega4_rv1103"
+
+endif
