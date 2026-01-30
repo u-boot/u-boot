@@ -16,6 +16,7 @@
 #include <sparse_format.h>
 #include <image-sparse.h>
 #include <vsprintf.h>
+#include <linux/compiler_attributes.h>
 #include <linux/ctype.h>
 
 static int curr_device = -1;
@@ -556,37 +557,30 @@ static int do_mmc_part(struct cmd_tbl *cmdtp, int flag,
 static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 		      int argc, char *const argv[])
 {
-	int dev, part = 0, ret;
+	enum bus_mode speed_mode = MMC_MODES_END;
+	int dev = curr_device, part = 0, ret;
 	struct mmc *mmc;
 
-	if (argc == 1) {
-		dev = curr_device;
-		mmc = init_mmc_device(dev, true);
-	} else if (argc == 2) {
-		dev = (int)dectoul(argv[1], NULL);
-		mmc = init_mmc_device(dev, true);
-	} else if (argc == 3) {
-		dev = (int)dectoul(argv[1], NULL);
-		part = (int)dectoul(argv[2], NULL);
-		if (part > PART_ACCESS_MASK) {
-			printf("#part_num shouldn't be larger than %d\n",
-			       PART_ACCESS_MASK);
-			return CMD_RET_FAILURE;
-		}
-		mmc = init_mmc_device(dev, true);
-	} else if (argc == 4) {
-		enum bus_mode speed_mode;
-
-		dev = (int)dectoul(argv[1], NULL);
-		part = (int)dectoul(argv[2], NULL);
-		if (part > PART_ACCESS_MASK) {
-			printf("#part_num shouldn't be larger than %d\n",
-			       PART_ACCESS_MASK);
-			return CMD_RET_FAILURE;
-		}
+	switch (argc) {
+	case 4:
 		speed_mode = (int)dectoul(argv[3], NULL);
+		fallthrough;
+	case 3:
+		part = (int)dectoul(argv[2], NULL);
+		if (part > PART_ACCESS_MASK) {
+			printf("#part_num shouldn't be larger than %d\n",
+			       PART_ACCESS_MASK);
+			return CMD_RET_FAILURE;
+		}
+
+		fallthrough;
+	case 2:
+		dev = (int)dectoul(argv[1], NULL);
+		fallthrough;
+	case 1:
 		mmc = __init_mmc_device(dev, true, speed_mode);
-	} else {
+		break;
+	default:
 		return CMD_RET_USAGE;
 	}
 
