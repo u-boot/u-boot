@@ -1,0 +1,40 @@
+// SPDX-License-Identifier:     GPL-2.0+
+// (C) Copyright 2024 Rockchip Electronics Co., Ltd
+
+/dts-v1/;
+#include "rv1103.dtsi"
+
+/ {
+	model = "Onion RV1103 Omega4 board";
+	compatible = "onion,rv1103-omega4", "rockchip,rv1103";
+
+	chosen {
+		stdout-path = &uart0;
+	};
+};
+
+&sfc {
+	bootph-all;
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+	spi_nand: flash@0 {
+		compatible = "spi-nand";
+		reg = <0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <24000000>;
+		bootph-all;
+	};
+};
+
+&uart0 {
+	bootph-pre-ram;
+	status = "okay";
+};
+
+&wdt {
+	bootph-pre-ram;
+	status = "okay";
+};

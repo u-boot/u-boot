@@ -1,0 +1,4 @@
+// SPDX-License-Identifier:     GPL-2.0+
+// (C) Copyright 2024 Rockchip Electronics Co., Ltd
+
+#include "rockchip-u-boot.dtsi"
