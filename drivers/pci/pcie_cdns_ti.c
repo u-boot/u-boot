@@ -742,6 +742,20 @@ static int pcie_cdns_ti_probe(struct udevice *dev)
 	}
 	generic_phy_reset(&serdes);
 	generic_phy_init(&serdes);
+
+	clk = devm_clk_get_optional(dev, "pcie_refclk");
+	if (IS_ERR(clk)) {
+		ret = PTR_ERR(clk);
+		dev_err(dev, "failed to get pcie_refclk\n");
+		return ret;
+	}
+
+	ret = clk_prepare_enable(clk);
+	if (ret) {
+		dev_err(dev, "failed to enable pcie_refclk\n");
+		return ret;
+	}
+
 	generic_phy_power_on(&serdes);
 
 	ret = pcie_cdns_ti_ctrl_init(pcie);
