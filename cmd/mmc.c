@@ -606,7 +606,7 @@ static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 	printf("switch to partitions #%d, %s\n",
 	       part, (!ret) ? "OK" : "ERROR");
 	if (ret)
-		return 1;
+		return CMD_RET_FAILURE;
 
 	curr_device = dev;
 	if (mmc->part_config == MMCPART_NOAVAILABLE)
