@@ -728,6 +728,8 @@ static int bitmask_from_clk_id(struct clk *clk)
 		plat->pllgrp = CLKMGR_PERPLL_EN;
 		plat->bitmask = CLKMGR_PERPLLGRP_EN_NANDCLK_MASK;
 		break;
+	case AGILEX_L4_SYS_FREE_CLK:
+		return -EOPNOTSUPP;
 	default:
 		return -ENXIO;
 	}
@@ -742,6 +744,9 @@ static int socfpga_clk_enable(struct clk *clk)
 	int ret;
 
 	ret = bitmask_from_clk_id(clk);
+	if (ret == -EOPNOTSUPP)
+		return 0;
+
 	if (ret)
 		return ret;
 
@@ -757,6 +762,9 @@ static int socfpga_clk_disable(struct clk *clk)
 	int ret;
 
 	ret = bitmask_from_clk_id(clk);
+	if (ret == -EOPNOTSUPP)
+		return 0;
+
 	if (ret)
 		return ret;
 
