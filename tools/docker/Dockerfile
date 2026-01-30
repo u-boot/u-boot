@@ -60,6 +60,7 @@ RUN echo deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main | tee /etc/
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y \
+	autoconf-archive \
 	automake \
 	autopoint \
 	bc \
@@ -155,7 +156,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Build GRUB UEFI targets for ARM & RISC-V, 32-bit and 64-bit
 RUN git clone https://https.git.savannah.gnu.org/git/grub.git /tmp/grub && \
 	cd /tmp/grub && \
-	git checkout grub-2.12 && \
+	git checkout grub-2.14 && \
 	git config --global user.name "GitLab CI Runner" && \
 	git config --global user.email trini@konsulko.com && \
 	GNULIB_URL=https://https.git.savannah.gnu.org/git/gnulib.git ./bootstrap && \
