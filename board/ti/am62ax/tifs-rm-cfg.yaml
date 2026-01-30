@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
-# Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
+# Copyright (C) 2022-2026 Texas Instruments Incorporated - https://www.ti.com/
 #
-# Resource management configuration for AM62AX
+# Resource management configuration for AM62A
 #
 
 ---
@@ -24,26 +24,26 @@ tifs-rm-cfg:
                     allowed_priority: 0xAAAA
                     allowed_sched_priority: 0xAA
                 -  # 2
-                    host_id: 30
+                    host_id: 20
                     allowed_atype: 0x2A
                     allowed_qos: 0xAAAA
                     allowed_orderid: 0xAAAAAAAA
                     allowed_priority: 0xAAAA
                     allowed_sched_priority: 0xAA
                 -  # 3
-                    host_id: 36
+                    host_id: 30
                     allowed_atype: 0x2A
                     allowed_qos: 0xAAAA
                     allowed_orderid: 0xAAAAAAAA
                     allowed_priority: 0xAAAA
                     allowed_sched_priority: 0xAA
                 -  # 4
-                    host_id: 0
-                    allowed_atype: 0
-                    allowed_qos: 0
-                    allowed_orderid: 0
-                    allowed_priority: 0
-                    allowed_sched_priority: 0
+                    host_id: 36
+                    allowed_atype: 0x2A
+                    allowed_qos: 0xAAAA
+                    allowed_orderid: 0xAAAAAAAA
+                    allowed_priority: 0xAAAA
+                    allowed_sched_priority: 0xAA
                 -  # 5
                     host_id: 0
                     allowed_atype: 0
@@ -244,7 +244,7 @@ tifs-rm-cfg:
             subhdr:
                 magic: 0x7B25
                 size: 8
-            resasg_entries_size: 872
+            resasg_entries_size: 880
             reserved: 0
     resasg_entries:
         -
@@ -257,7 +257,7 @@ tifs-rm-cfg:
             start_resource: 18
             num_resource: 6
             type: 1677
-            host_id: 35
+            host_id: 20
             reserved: 0
         -
             start_resource: 18
@@ -287,7 +287,7 @@ tifs-rm-cfg:
             start_resource: 72
             num_resource: 6
             type: 1678
-            host_id: 35
+            host_id: 20
             reserved: 0
         -
             start_resource: 72
@@ -317,7 +317,7 @@ tifs-rm-cfg:
             start_resource: 44
             num_resource: 6
             type: 1679
-            host_id: 35
+            host_id: 20
             reserved: 0
         -
             start_resource: 44
@@ -347,7 +347,7 @@ tifs-rm-cfg:
             start_resource: 18
             num_resource: 6
             type: 1696
-            host_id: 35
+            host_id: 20
             reserved: 0
         -
             start_resource: 18
@@ -377,7 +377,7 @@ tifs-rm-cfg:
             start_resource: 18
             num_resource: 6
             type: 1697
-            host_id: 35
+            host_id: 20
             reserved: 0
         -
             start_resource: 18
@@ -407,7 +407,7 @@ tifs-rm-cfg:
             start_resource: 12
             num_resource: 6
             type: 1698
-            host_id: 35
+            host_id: 20
             reserved: 0
         -
             start_resource: 12
@@ -429,19 +429,25 @@ tifs-rm-cfg:
             reserved: 0
         -
             start_resource: 6
-            num_resource: 34
+            num_resource: 26
             type: 1802
             host_id: 12
             reserved: 0
         -
+            start_resource: 32
+            num_resource: 8
+            type: 1802
+            host_id: 20
+            reserved: 0
+        -
             start_resource: 44
-            num_resource: 36
+            num_resource: 35
             type: 1802
             host_id: 35
             reserved: 0
         -
             start_resource: 44
-            num_resource: 36
+            num_resource: 35
             type: 1802
             host_id: 36
             reserved: 0
