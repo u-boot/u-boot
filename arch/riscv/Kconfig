@@ -26,6 +26,9 @@ config TARGET_LICHEERV_NANO
 config TARGET_MICROCHIP_GENERIC
 	bool "Support Microchip PolarFire-SoC Boards"
 
+config TARGET_NEORV32
+	bool "Support NEORV32 SoC"
+
 config TARGET_MILKV_DUO
 	bool "Support Milk-v Duo Board"
 
@@ -110,6 +113,7 @@ source "board/canaan/k230_canmv/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_generic/Kconfig"
 source "board/openpiton/riscv64/Kconfig"
+source "board/neorv32/neorv32/Kconfig"
 source "board/sifive/unleashed/Kconfig"
 source "board/sifive/unmatched/Kconfig"
 source "board/sipeed/maix/Kconfig"
@@ -238,6 +242,7 @@ config RISCV_ISA_C
 config RISCV_ISA_F
 	bool "Standard extension for Single-Precision Floating Point"
 	default y
+	default n if TARGET_NEORV32
 	help
 	  Adds "F" to the ISA string passed to the compiler.
 
@@ -245,6 +250,7 @@ config RISCV_ISA_D
 	bool "Standard extension for Double-Precision Floating Point"
 	depends on RISCV_ISA_F
 	default y
+	default n if TARGET_NEORV32
 	help
 	  Adds "D" to the ISA string passed to the compiler and changes the
 	  riscv32 ABI from ilp32 to ilp32d and the riscv64 ABI from lp64 to

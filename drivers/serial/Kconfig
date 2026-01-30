@@ -1073,6 +1073,12 @@ config SIFIVE_SERIAL
 	help
 	  This driver supports the SiFive UART. If unsure say N.
 
+config NEORV32_SERIAL
+	bool "NEORV32 UART support"
+	depends on DM_SERIAL && RISCV
+	help
+	  This driver supports the NEORV32 UART. If unsure say N.
+
 config STI_ASC_SERIAL
 	bool "STMicroelectronics on-chip UART"
 	depends on DM_SERIAL && ARCH_STI

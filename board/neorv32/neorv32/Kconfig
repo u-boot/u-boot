@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: GPL-2.0+
+
+if TARGET_NEORV32
+
+config SYS_BOARD
+	default "neorv32"
+
+config SYS_VENDOR
+	default "neorv32"
+
+config SYS_CPU
+	default "generic"
+
+config SYS_CONFIG_NAME
+	default "neorv32"
+
+config TEXT_BASE
+	default 0x80000000
+
+config BOARD_SPECIFIC_OPTIONS
+	def_bool y
+	select GENERIC_RISCV
+
+endif

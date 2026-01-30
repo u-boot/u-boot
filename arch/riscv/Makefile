@@ -39,9 +39,34 @@ ifeq ($(CONFIG_CMODEL_MEDANY),y)
 	CMODEL = medany
 endif
 
+# ------------------------------------------------------------
+# NEORV32 bring-up: force soft-float RV32I + ILP32.
+# This toolchain is riscv32-unknown-elf configured for rv32i/ilp32,
+# and cannot link with hard/double-float ABI (ilp32d).
+# ------------------------------------------------------------
+ifeq ($(CONFIG_TARGET_NEORV32),y)
+	ARCH_BASE := rv32im  # <- include M
+	ABI_BASE  := ilp32   # <- include A
+	ARCH_A    := a
+	ARCH_F    :=
+	ARCH_D    :=
+	ABI_D     :=
+	ARCH_C    :=
+	ARCH_ZBB  :=
+endif
+
+ARCH_BASE := $(strip $(ARCH_BASE))
+ARCH_A    := $(strip $(ARCH_A))
+ARCH_F    := $(strip $(ARCH_F))
+ARCH_D    := $(strip $(ARCH_D))
+ARCH_C    := $(strip $(ARCH_C))
+ARCH_ZBB  := $(strip $(ARCH_ZBB))
+ABI_BASE  := $(strip $(ABI_BASE))
+ABI_D     := $(strip $(ABI_D))
 
 RISCV_MARCH = $(ARCH_BASE)$(ARCH_A)$(ARCH_F)$(ARCH_D)$(ARCH_C)$(ARCH_ZBB)
 ABI = $(ABI_BASE)$(ABI_D)
+
 
 # Newer binutils versions default to ISA spec version 20191213 which moves some
 # instructions from the I extension to the Zicsr and Zifencei extensions.

@@ -1,0 +1,43 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * NEORV32 UART definitions (subset)
+ */
+
+#ifndef __NEORV32_UART_H
+#define __NEORV32_UART_H
+
+#include <linux/types.h>
+
+#define NEORV32_UART_CTRL 0x00
+#define NEORV32_UART_DATA 0x04
+
+enum NEORV32_UART_CTRL_enum {
+	UART_CTRL_EN            =  0,
+	UART_CTRL_SIM_MODE      =  1,
+	UART_CTRL_HWFC_EN       =  2,
+	UART_CTRL_PRSC_LSB      =  3,
+	UART_CTRL_PRSC_MSB      =  5,
+	UART_CTRL_BAUD_LSB      =  6,
+	UART_CTRL_BAUD_MSB      = 15,
+	UART_CTRL_RX_NEMPTY     = 16,
+	UART_CTRL_RX_FULL       = 17,
+	UART_CTRL_TX_EMPTY      = 18,
+	UART_CTRL_TX_NFULL      = 19,
+	UART_CTRL_IRQ_RX_NEMPTY = 20,
+	UART_CTRL_IRQ_RX_FULL   = 21,
+	UART_CTRL_IRQ_TX_EMPTY  = 22,
+	UART_CTRL_IRQ_TX_NFULL  = 23,
+	UART_CTRL_RX_OVER       = 30,
+	UART_CTRL_TX_BUSY       = 31,
+};
+
+enum NEORV32_UART_DATA_enum {
+	UART_DATA_RTX_LSB          =  0,
+	UART_DATA_RTX_MSB          =  7,
+	UART_DATA_RX_FIFO_SIZE_LSB =  8,
+	UART_DATA_RX_FIFO_SIZE_MSB = 11,
+	UART_DATA_TX_FIFO_SIZE_LSB = 12,
+	UART_DATA_TX_FIFO_SIZE_MSB = 15,
+};
+
+#endif /* __NEORV32_UART_H */

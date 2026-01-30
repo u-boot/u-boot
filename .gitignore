@@ -5,6 +5,8 @@
 #
 # Normal rules (sorted alphabetically)
 #
+neorv32_sw_only
+
 .*
 !.checkpatch.conf
 *.a

@@ -1,0 +1,78 @@
+/dts-v1/;
+
+/ {
+	compatible = "neorv32";
+	model = "NEORV32";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	chosen {
+		stdout-path = "serial0:19200n8";
+	};
+
+	aliases {
+		serial0 = &uart0;
+		spi0 = &spi0;
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <100000000>;
+
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "riscv,cpu-intc";
+			reg = <0>;
+			riscv,isa = "rv32imc";
+			mmu-type = "riscv,none";
+			clock-frequency = <100000000>;
+
+			interrupt-controller;
+			#interrupt-cells = <1>;
+
+			status = "okay";            
+		};
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x00008000>;
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		clint@fff40000 {
+			compatible = "riscv,clint0";
+			reg = <0xFFF40000 0x00010000>;
+			interrupts-extended = <&cpu0 3 &cpu0 7>;
+		};
+
+		uart0: serial@fff50000 {
+			compatible = "neorv32,uart";
+			reg = <0xFFF50000 0x00000008>;
+			clock-frequency = <100000000>;
+			status = "okay";
+		};
+
+		spi0: spi@fff80000 {
+			compatible = "neorv32,spi";
+			reg = <0xFFF80000 0x00000008>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clock-frequency = <100000000>;
+			spi-max-frequency = <1000000>;
+			status = "okay";
+
+			flash@0 {
+				compatible = "jedec,spi-nor";
+				reg = <0>;
+				spi-max-frequency = <1000000>;
+			};
+		};
+	};
+};

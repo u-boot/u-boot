@@ -524,6 +524,12 @@ config SPI_SIFIVE
 
 	  The SiFive SPI controller driver is found on various SiFive SoCs.
 
+config NEORV32_SPI
+	bool "NEORV32 SPI driver"
+	depends on DM_SPI && RISCV
+	help
+	  This driver supports the NEORV32 SPI controller. If unsure say N.
+
 config SOFT_SPI
 	bool "Soft SPI driver"
 	help
