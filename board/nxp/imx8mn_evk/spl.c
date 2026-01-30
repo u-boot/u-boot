@@ -4,35 +4,21 @@
  *
  */
 
-#include <command.h>
-#include <cpu_func.h>
 #include <hang.h>
 #include <image.h>
 #include <init.h>
 #include <log.h>
 #include <spl.h>
-#include <asm/global_data.h>
-#include <asm/io.h>
-#include <asm/mach-imx/iomux-v3.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/imx8mn_pins.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/boot_mode.h>
-#include <asm/arch/ddr.h>
-#include <asm/sections.h>
-
 #include <dm/uclass.h>
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
 #include <power/pmic.h>
 #include <power/pca9450.h>
-#include <asm/mach-imx/gpio.h>
-#include <asm/mach-imx/mxc_i2c.h>
-#include <fsl_esdhc_imx.h>
-#include <mmc.h>
-
-DECLARE_GLOBAL_DATA_PTR;
+#include <asm/sections.h>
+#include <asm/arch/ddr.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/boot_mode.h>
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
