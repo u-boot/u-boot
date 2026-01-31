@@ -50,6 +50,80 @@ struct rockchip_platform_data {
 	(((tx) ? soc##_GMAC_TXCLK_DLY_ENABLE : soc##_GMAC_TXCLK_DLY_DISABLE) | \
 	 ((rx) ? soc##_GMAC_RXCLK_DLY_ENABLE : soc##_GMAC_RXCLK_DLY_DISABLE))
 
+#define RK3506_GRF_SOC_CON8		0x0020
+#define RK3506_GRF_SOC_CON11		0x002c
+
+#define RK3506_GMAC_RMII_MODE		GRF_BIT(1)
+
+#define RK3506_GMAC_CLK_RMII_DIV2	GRF_BIT(3)
+#define RK3506_GMAC_CLK_RMII_DIV20	GRF_CLR_BIT(3)
+
+#define RK3506_GMAC_CLK_SELECT_CRU	GRF_CLR_BIT(5)
+#define RK3506_GMAC_CLK_SELECT_IO	GRF_BIT(5)
+
+#define RK3506_GMAC_CLK_RMII_GATE	GRF_BIT(2)
+#define RK3506_GMAC_CLK_RMII_NOGATE	GRF_CLR_BIT(2)
+
+static int rk3506_set_to_rgmii(struct udevice *dev,
+			       int tx_delay, int rx_delay)
+{
+	return -EINVAL;
+}
+
+static int rk3506_set_to_rmii(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct rockchip_platform_data *data = pdata->priv_pdata;
+	u32 reg;
+
+	reg = data->id == 1 ? RK3506_GRF_SOC_CON11 :
+			      RK3506_GRF_SOC_CON8;
+	regmap_write(data->grf, reg, RK3506_GMAC_RMII_MODE);
+
+	return 0;
+}
+
+static int rk3506_set_gmac_speed(struct udevice *dev)
+{
+	struct eqos_priv *eqos = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct rockchip_platform_data *data = pdata->priv_pdata;
+	u32 val, reg;
+
+	switch (eqos->phy->speed) {
+	case SPEED_10:
+		val = RK3506_GMAC_CLK_RMII_DIV20;
+		break;
+	case SPEED_100:
+		val = RK3506_GMAC_CLK_RMII_DIV2;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	reg = data->id == 1 ? RK3506_GRF_SOC_CON11 :
+			      RK3506_GRF_SOC_CON8;
+	regmap_write(data->grf, reg, val);
+
+	return 0;
+}
+
+static void rk3506_set_clock_selection(struct udevice *dev, bool enable)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct rockchip_platform_data *data = pdata->priv_pdata;
+	u32 val, reg;
+
+	val = data->clock_input ? RK3506_GMAC_CLK_SELECT_IO :
+				  RK3506_GMAC_CLK_SELECT_CRU;
+	val |= enable ? RK3506_GMAC_CLK_RMII_NOGATE :
+			RK3506_GMAC_CLK_RMII_GATE;
+
+	reg = data->id == 1 ? RK3506_GRF_SOC_CON11 :
+			      RK3506_GRF_SOC_CON8;
+	regmap_write(data->grf, reg, val);
+}
+
 #define RK3528_VO_GRF_GMAC_CON		0x0018
 #define RK3528_VPU_GRF_GMAC_CON5	0x0018
 #define RK3528_VPU_GRF_GMAC_CON6	0x001c
@@ -534,6 +608,18 @@ static void rk3588_set_clock_selection(struct udevice *dev, bool enable)
 }
 
 static const struct rk_gmac_ops rk_gmac_ops[] = {
+	{
+		.compatible = "rockchip,rk3506-gmac",
+		.set_to_rgmii = rk3506_set_to_rgmii,
+		.set_to_rmii = rk3506_set_to_rmii,
+		.set_gmac_speed = rk3506_set_gmac_speed,
+		.set_clock_selection = rk3506_set_clock_selection,
+		.regs = {
+			0xff4c8000, /* gmac0 */
+			0xff4d0000, /* gmac1 */
+			0x0, /* sentinel */
+		},
+	},
 	{
 		.compatible = "rockchip,rk3528-gmac",
 		.set_to_rgmii = rk3528_set_to_rgmii,
