@@ -1070,6 +1070,7 @@ static const struct mtk_pinctrl_soc mt7981_data = {
 	.gpio_mode = 0,
 	.base_names = mt7981_pinctrl_register_base_names,
 	.nbase_names = ARRAY_SIZE(mt7981_pinctrl_register_base_names),
+	.rev = MTK_PINCTRL_V1,
 	.base_calc = 1,
 };
 
