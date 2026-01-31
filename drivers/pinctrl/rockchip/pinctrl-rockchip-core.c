@@ -659,6 +659,15 @@ int rockchip_pinctrl_probe(struct udevice *dev)
 		}
 	}
 
+	if (dev_read_bool(dev, "rockchip,ioc1")) {
+		priv->regmap_ioc1 =
+			syscon_regmap_lookup_by_phandle(dev, "rockchip,ioc1");
+		if (IS_ERR(priv->regmap_ioc1)) {
+			debug("unable to find rockchip,ioc1 regmap\n");
+			return PTR_ERR(priv->regmap_ioc1);
+		}
+	}
+
 	ctrl = rockchip_pinctrl_get_soc_data(dev);
 	if (!ctrl) {
 		debug("driver data not available\n");
