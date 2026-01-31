@@ -1,0 +1,15 @@
+if ROCKCHIP_RK3506
+
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xff910200
+
+config ROCKCHIP_STIMER_BASE
+	default 0xff980000
+
+config SYS_SOC
+	default "rk3506"
+
+config SYS_CONFIG_NAME
+	default "rk3506_common"
+
+endif
