@@ -215,8 +215,8 @@ int read_i2c_vpd(struct vpd_cache *cache,
 
 	size = i2c_eeprom_size(dev);
 	if (size < 0) {
-		printf("Unable to get size of eeprom: %d\n", ret);
-		return ret;
+		printf("Unable to get size of eeprom: %d\n", size);
+		return size;
 	}
 
 	data = malloc(size);
