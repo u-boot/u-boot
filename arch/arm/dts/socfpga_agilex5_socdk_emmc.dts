@@ -25,11 +25,14 @@
 	disable-wp;
 	non-removable;
 	cap-mmc-highspeed;
-
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
 	bus-width = <8>;
 	vmmc-supply = <&sd_emmc_power>;
 	vqmmc-supply = <&emmc_io_1v8_reg>;
 	max-frequency = <200000000>;
+	sdhci-caps = <0x00000000 0x0004c800>;	/* SDHCI_CAN_DO_8BIT */
+	sdhci-caps-mask = <0x00000000 0x0000ff00>;
 
 	/* eMMC legacy mode timing configuration */
 	cdns,phy-dqs-timing-delay-sd-ds = <0x00780000>;
@@ -46,4 +49,26 @@
 	cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-sdr = <0x30000>;
 	cdns,ctrl-hrs16-slave-ctrl-emmc-sdr = <0x101>;
 	cdns,ctrl-hrs07-timing-delay-emmc-sdr = <0xA0001>;
+
+	/* eMMC HS200 mode timing configuration */
+	cdns,phy-dqs-timing-delay-emmc-hs200 = <0x780004>;
+	cdns,phy-gate-lpbk-ctrl-delay-emmc-hs200 = <0x81a40040>;
+	cdns,phy-dll-slave-ctrl-emmc-hs200 = <0x4d4d00>;
+	cdns,phy-dq-timing-delay-emmc-hs200 = <0x10000001>;
+	cdns,phy-dll-master-ctrl-emmc-hs200 = <0x4>;
+	cdns,ctrl-hrs09-timing-delay-emmc-hs200 = <0xf1c18000>;
+	cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-hs200 = <0x90000>;
+	cdns,ctrl-hrs16-slave-ctrl-emmc-hs200 = <0x101>;
+	cdns,ctrl-hrs07-timing-delay-emmc-hs200 = <0xa0001>;
+
+	/* eMMC HS400 mode timing configuration */
+	cdns,phy-dqs-timing-delay-emmc-hs400 = <0x680004>;
+	cdns,phy-gate-lpbk-ctrl-delay-emmc-hs400 = <0x81a40040>;
+	cdns,phy-dll-slave-ctrl-emmc-hs400 = <0x4d4b40>;
+	cdns,phy-dq-timing-delay-emmc-hs400 = <0x10000001>;
+	cdns,phy-dll-master-ctrl-emmc-hs400 = <0x4>;
+	cdns,ctrl-hrs09-timing-delay-emmc-hs400 = <0xf1c18000>;
+	cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-hs400 = <0x80000>;
+	cdns,ctrl-hrs16-slave-ctrl-emmc-hs400 = <0x11000001>;
+	cdns,ctrl-hrs07-timing-delay-emmc-hs400 = <0x90001>;
 };
