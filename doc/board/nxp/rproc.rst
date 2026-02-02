@@ -67,3 +67,16 @@ corresponding board.
     rproc load 0 0x90000000 ${filesize}
 
     rproc start 0
+
+i.MX95-EVK
+-------------------
+
+Steps to start the Cortex-M7 core, need to choose the correct file for
+corresponding board. The example is for i.MX95 15x15 EVK, use imx95-19x19-evk
+if your board is i.MX95 19x19 EVK.
+
+    load mmc 1:2 ${loadaddr} /lib/firmware/imx95-15x15-evk_m7_TCM_rpmsg_lite_str_echo_rtos.elf
+
+    rproc load 0 ${loadaddr} ${filesize}
+
+    rproc start 0
