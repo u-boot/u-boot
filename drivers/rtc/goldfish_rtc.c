@@ -9,6 +9,7 @@
 
 #include <div64.h>
 #include <dm.h>
+#include <goldfish_rtc.h>
 #include <mapmem.h>
 #include <rtc.h>
 #include <linux/io.h>
@@ -74,15 +75,27 @@ static int goldfish_rtc_set(struct udevice *dev, const struct rtc_time *time)
 	return 0;
 }
 
-static int goldfish_rtc_probe(struct udevice *dev)
+static int goldfish_rtc_of_to_plat(struct udevice *dev)
 {
-	struct goldfish_rtc *priv = dev_get_priv(dev);
+	struct goldfish_rtc_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
+	if (addr != FDT_ADDR_T_NONE)
+		plat->reg = addr;
+
+	return 0;
+}
+
+static int goldfish_rtc_probe(struct udevice *dev)
+{
+	struct goldfish_rtc_plat *plat = dev_get_plat(dev);
+	struct goldfish_rtc *priv = dev_get_priv(dev);
+
+	if (!plat->reg)
 		return -EINVAL;
-	priv->base = map_sysmem(addr, 0x20);
+
+	priv->base = map_sysmem(plat->reg, 0x20);
 
 	return 0;
 }
@@ -103,5 +116,7 @@ U_BOOT_DRIVER(rtc_goldfish) = {
 	.ops		= &goldfish_rtc_ops,
 	.probe		= goldfish_rtc_probe,
 	.of_match	= goldfish_rtc_of_match,
+	.of_to_plat = goldfish_rtc_of_to_plat,
+	.plat_auto  = sizeof(struct goldfish_rtc_plat),
 	.priv_auto	= sizeof(struct goldfish_rtc),
 };

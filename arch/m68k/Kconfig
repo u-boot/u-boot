@@ -12,49 +12,63 @@ config MCF520x
 	select OF_CONTROL
 	select DM
         select DM_SERIAL
+	select ARCH_COLDFIRE
 	bool
 
 config MCF52x2
 	select OF_CONTROL
 	select DM
         select DM_SERIAL
+	select ARCH_COLDFIRE
 	bool
 
 config MCF523x
 	select OF_CONTROL
 	select DM
         select DM_SERIAL
+	select ARCH_COLDFIRE
 	bool
 
 config MCF530x
 	select OF_CONTROL
 	select DM
         select DM_SERIAL
+	select ARCH_COLDFIRE
 	bool
 
 config MCF5301x
 	select OF_CONTROL
 	select DM
         select DM_SERIAL
+	select ARCH_COLDFIRE
 	bool
 
 config MCF532x
 	select OF_CONTROL
 	select DM
         select DM_SERIAL
+	select ARCH_COLDFIRE
 	bool
 
 config MCF537x
 	select OF_CONTROL
 	select DM
         select DM_SERIAL
+	select ARCH_COLDFIRE
 	bool
 
 config MCF5441x
 	select OF_CONTROL
 	select DM
         select DM_SERIAL
+	select ARCH_COLDFIRE
 	bool
+
+config M680x0
+	bool
+	help
+	  This enables support for the classic Motorola 68000 family of
+	  processors.
 
 # processor type
 config M5208
@@ -109,6 +123,10 @@ config M5373
 config M54418
 	bool
 	select MCF5441x
+
+config M68040
+	bool
+	select M680x0
 
 # peripherals
 config CF_DSPI
@@ -176,7 +194,27 @@ config TARGET_STMARK2
         select CF_DSPI
         select M54418
 
+config TARGET_QEMU_M68K
+    bool "Support QEMU m68k virt"
+    select M68040
+    imply CMD_DM
+    help
+      This target supports the QEMU m68k virtual machine (-M virt).
+      It simulates a Motorola 68040 CPU with Goldfish peripherals.
+
 endchoice
+
+config SYS_CPU
+	string
+	default "mcf52x2" if MCF52x2
+	default "mcf523x" if MCF523x
+	default "mcf530x" if MCF530x
+	default "mcf532x" if MCF532x
+	default "mcf5445x" if MCF5445x
+	default "m680x0" if M680x0
+
+config ARCH_COLDFIRE
+	bool
 
 source "board/BuS/eb_cpu5282/Kconfig"
 source "board/cobra5272/Kconfig"
@@ -192,6 +230,7 @@ source "board/nxp/m5329evb/Kconfig"
 source "board/nxp/m5373evb/Kconfig"
 source "board/sysam/amcore/Kconfig"
 source "board/sysam/stmark2/Kconfig"
+source "board/emulation/qemu-m68k/Kconfig"
 
 config M68K_QEMU
 	bool "Build with workarounds for incomplete QEMU emulation"
