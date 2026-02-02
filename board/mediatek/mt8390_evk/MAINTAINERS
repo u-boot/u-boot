@@ -1,0 +1,6 @@
+MT8390 EVK
+M:	Julien Masson <jmasson@baylibre.com>
+M:	Macpaul Lin <Macpaul.Lin@mediatek.com>
+S:	Maintained
+F:	board/mediatek/mt8390_evk/
+F:	configs/mt8390_evk_defconfig
