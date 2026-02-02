@@ -29,8 +29,28 @@ config TARGET_J721S2_R5_EVM
 	imply SYS_K3_SPL_ATF
 	imply TI_I2C_BOARD_DETECT
 
+config TARGET_PHYCORE_AM68X_A72
+	bool "PHYTEC phyCORE-AM68x running on A72"
+	select ARM64
+	select BOARD_LATE_INIT
+	select SYS_DISABLE_DCACHE_OPS
+	select BINMAN
+	imply OF_UPSTREAM
+
+config TARGET_PHYCORE_AM68X_R5
+	bool "PHYTEC phyCORE-AM68x running on R5"
+	select CPU_V7R
+	select SYS_THUMB_BUILD
+	select K3_LOAD_SYSFW
+	select RAM
+	select SPL_RAM
+	select K3_DDRSS
+	select BINMAN
+	imply SYS_K3_SPL_ATF
+
 endchoice
 
 source "board/ti/j721s2/Kconfig"
+source "board/phytec/phycore_am68x/Kconfig"
 
 endif

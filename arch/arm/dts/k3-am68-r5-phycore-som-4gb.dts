@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * Copyright (C) 2025 PHYTEC Messtechnik GmbH
+ * Author: Dominik Haller <d.haller@phytec.de>
+ *
+ * https://www.phytec.eu/en/produkte/development-kits/phyboard-izar/
+ */
+
+/dts-v1/;
+
+#include "k3-am68-phyboard-izar.dts"
+#include "k3-am68-ddr-phycore-som-lp4-4266-4gb.dtsi"
+#include "k3-j721s2-ddr.dtsi"
+#include "k3-am68-phyboard-izar-u-boot.dtsi"
+#include "k3-j721s2-r5.dtsi"
+
+&wkup_vtm0 {
+	bootph-pre-ram;
+	vdd-supply-2 = <&vdd_cpu_avs>;
+};

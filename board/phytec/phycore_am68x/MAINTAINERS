@@ -1,0 +1,14 @@
+phyCORE-AM68x
+M:	Dominik Haller <d.haller@phytec.de>
+L:	upstream@lists.phytec.de
+W:	https://www.phytec.eu/en/produkte/system-on-modules/phycore-am68x-tda4x/
+S:	Maintained
+F:	arch/arm/dts/k3-am68-phycore-som-ddr4-4gb.dtsi
+F:	arch/arm/dts/k3-am68-phyboard-izar-u-boot.dtsi
+F:	arch/arm/dts/k3-am68-phycore-som-binman.dtsi
+F:	arch/arm/dts/k3-am68-r5-phycore-som-4gb.dts
+F:	board/phytec/phycore_am68x/
+F:	configs/phycore_am68x_a72_defconfig
+F:	configs/phycore_am68x_r5_defconfig
+F:	doc/board/phytec/phycore-am68x.rst
+F:	include/configs/phycore_am68x.h
