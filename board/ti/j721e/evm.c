@@ -403,6 +403,19 @@ static void setup_serial(void)
 	env_set("serial#", serial_string);
 }
 
+static void qsgmii_daughtercard_env_update(void)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(ext_cards); i++) {
+		if (!strcmp(ext_cards[i].card_name, "J7X-VSC8514-ETH") &&
+		    daughter_card_detect_flags[i]) {
+			env_set("do_main_cpsw0_qsgmii_phyinit", "1");
+			return;
+		}
+	}
+}
+
 int board_late_init(void)
 {
 	if (IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT)) {
@@ -412,6 +425,9 @@ int board_late_init(void)
 		/* Check for and probe any plugged-in daughtercards */
 		if (board_is_j721e_som() || board_is_j7200_som())
 			probe_daughtercards();
+
+		/* Update env for power-on-reset of the QSGMII Daughtercard */
+		qsgmii_daughtercard_env_update();
 	}
 
 	return 0;
