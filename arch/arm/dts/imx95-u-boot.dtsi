@@ -96,6 +96,10 @@
 			};
 		};
 	};
+
+	imx95-cm7 {
+		compatible = "fsl,imx95-cm7";
+	};
 };
 
 &A55_0 {
