@@ -46,6 +46,7 @@ struct imx_rproc {
 /* M4 own area. Can be mapped at probe */
 #define ATT_OWN         BIT(31)
 #define ATT_IOMEM       BIT(30)
+#define ATT_ECC         BIT(29)
 
 static int imx_rproc_arm_smc_start(struct udevice *dev)
 {
@@ -202,6 +203,26 @@ static void *imx_rproc_device_to_virt(struct udevice *dev, ulong da, ulong size,
 
 static int imx_rproc_load(struct udevice *dev, ulong addr, ulong size)
 {
+	struct imx_rproc *priv = dev_get_priv(dev);
+	const struct imx_rproc_dcfg *dcfg = priv->dcfg;
+	int i;
+
+	/*
+	 * Before loading elf, need do ECC initialization by clearing the memory
+	 * region, if ATT_ECC is set.
+	 */
+	for (i = 0; i < dcfg->att_size; i++) {
+		const struct imx_rproc_att *att = &dcfg->att[i];
+
+		if (!(att->flags & ATT_ECC))
+			continue;
+
+		if (att->flags & ATT_IOMEM)
+			memset_io((void __iomem *)(long)att->sa, 0, att->size);
+		else
+			memset((void *)(long)att->sa, 0, att->size);
+	}
+
 	return rproc_elf_load_image(dev, addr, size);
 }
 
