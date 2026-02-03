@@ -55,6 +55,38 @@
 			line-name = "spi2flash-cs";
 			bootph-pre-ram;
 		};
+
+		uart0 {
+			gpio-hog;
+			gpios = <5 GPIO_ACTIVE_LOW>;
+			output-high;
+			line-name = "uart0-en";
+			bootph-pre-ram;
+		};
+
+		uart0-flow-en {
+			gpio-hog;
+			gpios = <6 GPIO_ACTIVE_LOW>;
+			output-low;
+			line-name = "uart0-flow-en";
+			bootph-pre-ram;
+		};
+
+		som-emmc {
+			gpio-hog;
+			gpios = <8 GPIO_ACTIVE_LOW>;
+			output-high;
+			line-name = "som-emmc-en";
+			bootph-pre-ram;
+		};
+
+		crr-sdcard {
+			gpio-hog;
+			gpios = <9 GPIO_ACTIVE_LOW>;
+			output-low;
+			line-name = "crr-sdcard-en";
+			bootph-pre-ram;
+		};
 	};
 };
 

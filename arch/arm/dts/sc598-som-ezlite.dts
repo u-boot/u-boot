@@ -5,7 +5,7 @@
 
 /dts-v1/;
 
-#include "sc598-som-revD.dtsi"
+#include "sc598-som-revE.dtsi"
 
 / {
 	model = "ADI SC598-SOM-EZLITE";
@@ -13,7 +13,7 @@
 };
 
 &i2c2 {
-	gpio_expander: adp5588@30 {
+	crr_gpio_expander: adp5588@30 {
 		compatible = "adi,adp5588";
 		reg = <0x30>;
 		gpio-controller;
