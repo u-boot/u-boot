@@ -111,7 +111,7 @@ efi_status_t efi_core_new_debug_image_info_entry(u32 image_info_type,
 
 	/* Allocate data for new entry. */
 	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA,
-				sizeof(union efi_debug_image_info),
+				sizeof(struct efi_debug_image_info_normal),
 				(void **)(&(*table)[index].normal_image));
 	if (ret == EFI_SUCCESS && (*table)[index].normal_image) {
 		/* Update the entry. */
