@@ -103,7 +103,7 @@ static struct ti_fdt_map ti_j721s2_evm_fdt_map[] = {
 
 static void setup_board_eeprom_env(void)
 {
-	char *name = "j721s2";
+	char *name = NULL;
 
 	if (do_board_detect())
 		goto invalid_eeprom;
