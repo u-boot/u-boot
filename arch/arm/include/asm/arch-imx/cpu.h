@@ -79,6 +79,7 @@
 #define MXC_CPU_IMX95		0x1C1 /* dummy ID */
 
 #define MXC_CPU_IMX94		0x1C2 /* dummy ID */
+#define MXC_CPU_IMX952		0x1C3 /* dummy ID */
 
 #define MXC_SOC_MX6		0x60
 #define MXC_SOC_MX7		0x70
