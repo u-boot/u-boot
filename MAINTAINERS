@@ -1241,7 +1241,7 @@ F:	drivers/watchdog/sp805_wdt.c
 F:	drivers/watchdog/sbsa_gwdt.c
 
 FWU Multi Bank Update
-M:	Sughosh Ganu <sughosh.ganu@linaro.org>
+M:	Sughosh Ganu <sughosh.ganu@arm.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
 F:	lib/fwu_updates/*
@@ -1653,7 +1653,7 @@ F:	drivers/pinctrl/pinctrl-th1520.c
 F:	drivers/ram/thead/th1520_ddr.c
 
 RNG
-M:	Sughosh Ganu <sughosh.ganu@linaro.org>
+M:	Sughosh Ganu <sughosh.ganu@arm.com>
 R:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 S:	Maintained
 F:	cmd/rng.c
