@@ -7,7 +7,6 @@
 
 #include <clk.h>
 #include <dm.h>
-#include <ufs.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/iopoll.h>
