@@ -29,8 +29,6 @@
 #include <linux/usb/gadget.h>
 #include "librem5.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void spl_dram_init(void)
 {
 	/* ddr init */

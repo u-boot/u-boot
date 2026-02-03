@@ -7,7 +7,6 @@
 #include <env.h>
 #include <errno.h>
 #include <init.h>
-#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fsl_esdhc_imx.h>
@@ -20,8 +19,6 @@
 #include <asm/arch/snvs_security_sc.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define GPIO_PAD_CTRL	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
 			 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \

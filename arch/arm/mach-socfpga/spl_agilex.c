@@ -7,7 +7,6 @@
 
 #include <init.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/utils.h>
 #include <hang.h>
@@ -21,8 +20,6 @@
 #include <asm/arch/system_manager.h>
 #include <wdt.h>
 #include <dm/uclass.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 u32 reset_flag(u32 flag)
 {

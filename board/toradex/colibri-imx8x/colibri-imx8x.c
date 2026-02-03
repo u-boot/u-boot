@@ -5,7 +5,6 @@
 
 #include <cpu_func.h>
 #include <init.h>
-#include <asm/global_data.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8-pins.h>
@@ -20,8 +19,6 @@
 #include <linux/libfdt.h>
 
 #include "../common/tdx-cfg-block.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL	((SC_PAD_CONFIG_OUT_IN << PADRING_CONFIG_SHIFT) | \
 			 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \

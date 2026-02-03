@@ -18,8 +18,6 @@
 #include <linux/sizes.h>
 #include <asm/gpio.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /*
  * QSPI Control register mask defines
  */

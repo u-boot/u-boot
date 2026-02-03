@@ -14,15 +14,12 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <linux/delay.h>
-#include <asm/global_data.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/gpio.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static void setup_fec(void)
 {

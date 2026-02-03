@@ -12,9 +12,6 @@
 #include <env.h>
 #include <malloc.h>
 #include <net.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int reply_arp;
 static struct in_addr arp_ip;

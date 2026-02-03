@@ -13,10 +13,7 @@
 #include <env.h>
 #include <image.h>
 #include <asm/byteorder.h>
-#include <asm/global_data.h>
 #include <asm/zimage.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SH_SDRAM_OFFSET
 #define GET_INITRD_START(initrd, linux) (initrd - linux + CONFIG_SH_SDRAM_OFFSET)

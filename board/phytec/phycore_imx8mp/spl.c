@@ -8,7 +8,6 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
@@ -22,8 +21,6 @@
 
 #include "lpddr4_timing.h"
 #include "../common/imx8m_som_detection.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define EEPROM_ADDR		0x51
 #define EEPROM_ADDR_FALLBACK	0x59

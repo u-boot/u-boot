@@ -7,13 +7,10 @@
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <linux/printk.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/bd71837.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const struct pmic_child_info pmic_children_info[] = {
 	/* buck */

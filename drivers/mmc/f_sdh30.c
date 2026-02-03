@@ -29,8 +29,6 @@ struct f_sdh30_plat {
 	const struct f_sdh30_data *data;
 };
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static void f_sdh30_e51_init(struct udevice *dev)
 {
 	struct f_sdh30_plat *plat = dev_get_plat(dev);

@@ -14,12 +14,9 @@
 #include <os.h>
 #include <serial.h>
 #include <video.h>
-#include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/serial.h>
 #include <asm/state.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static size_t _sandbox_serial_written = 1;
 static bool sandbox_serial_enabled = true;

@@ -10,7 +10,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <syscon.h>
-#include <asm/global_data.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3308.h>
 #include <asm/arch-rockchip/hardware.h>
@@ -18,8 +17,6 @@
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3308-cru.h>
 #include <linux/bitops.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 enum {
 	VCO_MAX_HZ	= 3200U * 1000000,

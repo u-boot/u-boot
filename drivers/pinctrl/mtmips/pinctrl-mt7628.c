@@ -6,14 +6,11 @@
  */
 
 #include <dm.h>
-#include <asm/global_data.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 
 #include "pinctrl-mtmips-common.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define AGPIO_OFS			0
 #define GPIOMODE1_OFS			0x24

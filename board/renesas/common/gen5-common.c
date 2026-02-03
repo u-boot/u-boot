@@ -5,15 +5,12 @@
 
 #include <asm/arch/renesas.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
 #include <asm/processor.h>
 #include <asm/system.h>
 #include <asm-generic/u-boot.h>
 #include <linux/errno.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static void init_generic_timer(void)
 {

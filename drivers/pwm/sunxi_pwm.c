@@ -9,12 +9,9 @@
 #include <pwm.h>
 #include <regmap.h>
 #include <syscon.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/pwm.h>
 #include <power/regulator.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define OSC_24MHZ 24000000
 

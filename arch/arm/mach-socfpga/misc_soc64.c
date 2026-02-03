@@ -17,10 +17,7 @@
 #include <asm/arch/system_manager.h>
 #include <asm/io.h>
 #include <asm/system.h>
-#include <asm/global_data.h>
 #include <mach/clock_manager.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Agilex5 Sub Device Jtag ID List */
 #define A3690_JTAG_ID	0x036090DD

@@ -10,9 +10,6 @@
 #include <image.h>
 #include <irq_func.h>
 #include <log.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define NIOS_MAGIC 0x534f494e /* enable command line and initrd passing */
 

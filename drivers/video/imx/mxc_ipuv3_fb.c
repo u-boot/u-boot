@@ -21,7 +21,6 @@
 #include "ipu_regs.h"
 #include "mxcfb.h"
 #include <asm/cache.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-imx/video.h>
 #include <linux/err.h>
@@ -36,8 +35,6 @@
 #include <dm.h>
 #include <dm/devres.h>
 #include <video.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int mxcfb_map_video_memory(struct fb_info *fbi);
 static int mxcfb_unmap_video_memory(struct fb_info *fbi);

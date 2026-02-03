@@ -9,9 +9,6 @@
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/mp5416.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const struct pmic_child_info pmic_children_info[] = {
 	/* buck */

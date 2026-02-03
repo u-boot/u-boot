@@ -6,7 +6,6 @@
 #include <hang.h>
 #include <init.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/utils.h>
 #include <image.h>
@@ -24,8 +23,6 @@
 #include <watchdog.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 u32 spl_boot_device(void)
 {

@@ -7,12 +7,9 @@
 
 #include <command.h>
 #include <display_options.h>
-#include <asm/global_data.h>
 #include <test/lib.h>
 #include <test/test.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int test_print_freq(struct unit_test_state *uts,
 			   uint64_t freq, char *expected)

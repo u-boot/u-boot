@@ -17,10 +17,7 @@
 #include <mapmem.h>
 #include <vsprintf.h>
 #include <asm-generic/sections.h>
-#include <asm/global_data.h>
 #include <linux/string.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static struct efi_device_path *test_image_path;
 static struct efi_device_path *test_device_path;

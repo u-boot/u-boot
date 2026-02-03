@@ -10,7 +10,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/eth.h>
-#include <asm/global_data.h>
 #include <asm/test.h>
 #include <asm/types.h>
 
@@ -83,8 +82,6 @@ struct icmphdr {
 #define ICMP_ECHO_REQUEST	8
 #define ICMP_ECHO_REPLY		0
 #define IPPROTO_ICMP		1
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const u8 null_ethaddr[6];
 static bool skip_timeout;

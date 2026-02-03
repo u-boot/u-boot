@@ -32,8 +32,6 @@
 #define board_is_am62x_lp_skevm()  board_ti_k3_is("AM62-LP-SKEVM")
 #define board_is_am62x_sip_skevm()  board_ti_k3_is("AM62SIP-SKEVM")
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if CONFIG_IS_ENABLED(SPLASH_SCREEN)
 static struct splash_location default_splash_locations[] = {
 	{

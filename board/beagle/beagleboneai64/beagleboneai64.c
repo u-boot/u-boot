@@ -13,8 +13,6 @@
 #include <fdt_support.h>
 #include <spl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct efi_fw_image fw_images[] = {
 	{
 		.image_type_id = BEAGLEBONEAI64_TIBOOT3_IMAGE_GUID,

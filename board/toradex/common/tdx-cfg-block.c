@@ -4,7 +4,6 @@
  */
 
 #include <config.h>
-#include <asm/global_data.h>
 #include "tdx-cfg-block.h"
 #include "tdx-eeprom.h"
 
@@ -21,8 +20,6 @@
 #include <mmc.h>
 #include <nand.h>
 #include <asm/mach-types.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define TAG_VALID	0xcf01
 #define TAG_MAC		0x0000

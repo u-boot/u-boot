@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <time.h>
 #include <vsprintf.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/system.h>
 #include <dm/lists.h>
@@ -25,8 +24,6 @@
 #include <dt-bindings/clock/agilex5-clock.h>
 #include <wait_bit.h>
 #include <clk-uclass.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define CLKMGR_CTRL_SWCTRLBTCLKEN_MASK		BIT(8)
 #define CLKMGR_CTRL_SWCTRLBTCLKSEL_MASK		BIT(9)

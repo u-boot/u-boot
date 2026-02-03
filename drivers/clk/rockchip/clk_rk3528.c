@@ -17,8 +17,6 @@
 #include <dt-bindings/clock/rockchip,rk3528-cru.h>
 #include <linux/delay.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DIV_TO_RATE(input_rate, div)	((input_rate) / ((div) + 1))
 
 /*

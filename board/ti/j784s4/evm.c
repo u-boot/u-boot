@@ -14,8 +14,6 @@
 #include <asm/arch/k3-ddr.h>
 #include "../common/fdt_ops.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct efi_fw_image fw_images[] = {
 	{
 		.image_type_id = AM69_SK_TIBOOT3_IMAGE_GUID,

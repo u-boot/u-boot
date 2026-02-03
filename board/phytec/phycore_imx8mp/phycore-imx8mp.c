@@ -5,7 +5,6 @@
  */
 
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <env.h>
@@ -16,8 +15,6 @@
 #include <mtd_node.h>
 
 #include "../common/imx8m_som_detection.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define EEPROM_ADDR		0x51
 #define EEPROM_ADDR_FALLBACK	0x59

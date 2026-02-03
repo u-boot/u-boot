@@ -19,8 +19,6 @@
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if IS_ENABLED(CONFIG_FEC_MXC)
 
 #define FEC_RST_PAD IMX_GPIO_NR(3, 7)

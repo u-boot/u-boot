@@ -20,12 +20,9 @@
 #include <spi.h>
 #include <time.h>
 #include <malloc.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <omap3_spi.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct omap2_mcspi_platform_config {
 	unsigned int regs_offset;

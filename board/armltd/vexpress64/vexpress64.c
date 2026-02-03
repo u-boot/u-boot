@@ -12,7 +12,6 @@
 #include <errno.h>
 #include <net.h>
 #include <netdev.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <linux/sizes.h>
@@ -23,8 +22,6 @@
 #include <virtio_types.h>
 #include <virtio.h>
 #endif
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const struct pl01x_serial_plat serial_plat = {
 	.base = V2M_UART0,

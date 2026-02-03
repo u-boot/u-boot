@@ -9,14 +9,11 @@
 
 #include <dm.h>
 #include <errno.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
 #include "pinctrl-nexell.h"
 #include "pinctrl-s5pxx18.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static void nx_gpio_set_bit(u32 *value, u32 bit, int enable)
 {

@@ -8,12 +8,9 @@
 #include <arm_ffa.h>
 #include <dm.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/sandbox_arm_ffa_priv.h>
 #include <dm/device-internal.h>
 #include <linux/errno.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * sandbox_ffa_discover() - perform sandbox FF-A discovery

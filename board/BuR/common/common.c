@@ -13,11 +13,8 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <i2c.h>
-#include <asm/global_data.h>
 #include <linux/delay.h>
 #include "bur_common.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* --------------------------------------------------------------------------*/
 

@@ -10,9 +10,6 @@
 #include <efi_rng.h>
 #include <log.h>
 #include <rng.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 const efi_guid_t efi_guid_rng_protocol = EFI_RNG_PROTOCOL_GUID;
 
