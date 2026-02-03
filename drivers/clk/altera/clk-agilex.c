@@ -657,6 +657,7 @@ static int bitmask_from_clk_id(struct clk *clk)
 		plat->bitmask = CLKMGR_MAINPLLGRP_EN_L4MAINCLK_MASK;
 		break;
 	case AGILEX_L4_MP_CLK:
+	case AGILEX_NAND_X_CLK:
 		plat->pllgrp = CLKMGR_MAINPLL_EN;
 		plat->bitmask = CLKMGR_MAINPLLGRP_EN_L4MPCLK_MASK;
 		break;
