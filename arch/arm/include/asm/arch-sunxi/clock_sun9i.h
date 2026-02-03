@@ -12,11 +12,13 @@
 #include <linux/bitops.h>
 #endif
 
+#define CCU_NAND0_CLK_CFG	0x400
 #define CCU_MMC0_CLK_CFG	0x410
 #define CCU_MMC1_CLK_CFG	0x414
 #define CCU_MMC2_CLK_CFG	0x418
 #define CCU_MMC3_CLK_CFG	0x41c
 #define CCU_AHB_GATE0		0x580
+#define CCU_AHB_GATE1		0x584
 #define CCU_AHB_RESET0_CFG	0x5a0
 
 struct sunxi_ccm_reg {

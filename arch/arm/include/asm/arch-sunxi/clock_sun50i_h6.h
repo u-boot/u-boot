@@ -24,7 +24,11 @@
 #define CCU_H6_APB2_CFG			0x524
 #define CCU_H6_MBUS_CFG			0x540
 #define CCU_H6_DRAM_CLK_CFG		0x800
+#define CCU_H6_MBUS_GATE		0x804
 #define CCU_H6_DRAM_GATE_RESET		0x80c
+#define CCU_NAND0_CLK_CFG		0x810
+#define CCU_NAND1_CLK_CFG		0x814
+#define CCU_H6_NAND_GATE_RESET		0x82c
 #define CCU_MMC0_CLK_CFG		0x830
 #define CCU_MMC1_CLK_CFG		0x834
 #define CCU_MMC2_CLK_CFG		0x838
@@ -146,6 +150,16 @@
 #define RESET_SHIFT			(16)
 #define GATE_SHIFT			(0)
 
+/* MBUS gate offsets */
+#define MBUS_GATE_OFFSET_DI		11
+#define MBUS_GATE_OFFSET_G2D		10
+#define MBUS_GATE_OFFSET_CSI		8
+#define MBUS_GATE_OFFSET_NAND		5
+#define MBUS_GATE_OFFSET_TS0		3
+#define MBUS_GATE_OFFSET_VE		2
+#define MBUS_GATE_OFFSET_CE		1
+#define MBUS_GATE_OFFSET_DMA		0
+
 /* DRAM clock bit field */
 #define DRAM_CLK_ENABLE			BIT(31)
 #define DRAM_MOD_RESET			BIT(30)
@@ -154,6 +168,16 @@
 #define DRAM_CLK_SRC_PLL5		(0 << 24)
 #define DRAM_CLK_M_MASK			(0x1f)
 #define DRAM_CLK_M(m)			(((m)-1) << 0)
+
+/* NAND clock bit field */
+#define CCM_NAND_CTRL_M(x)		((x) - 1)
+#define CCM_NAND_CTRL_N(x)		((x) << 8)
+#define CCM_NAND_CTRL_OSCM24		(0x0 << 24)
+#define CCM_NAND_CTRL_PLL6		(0x1 << 24)
+#define CCM_NAND_CTRL_PLL_PERIPH2	(0x2 << 24)
+#define CCM_NAND_CTRL_PLL6X2		(0x3 << 24)
+#define CCM_NAND_CTRL_PLL_PERIPH2X2	(0x4 << 24)
+#define CCM_NAND_CTRL_ENABLE		(0x1 << 31)
 
 /* MMC clock bit field */
 #define CCM_MMC_CTRL_M(x)		((x) - 1)
