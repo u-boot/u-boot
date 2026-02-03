@@ -1,0 +1,58 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2026 NXP
+ */
+
+#include "imx952-u-boot.dtsi"
+
+&i2c3_pcal6408 {
+	compatible = "ti,tca6408";
+	label = "i2c3_io";
+};
+
+&i2c4_pcal6408 {
+	compatible = "ti,tca6408";
+	label = "i2c4_io";
+};
+
+&pcal6416 {
+	compatible = "ti,tca6416";
+	label = "i2c6_io";
+};
+
+&pcal6524 {
+	label = "i2c7_io";
+};
+
+&usb1 {
+	compatible = "fsl,imx8mm-usb", "fsl,imx7d-usb";
+	/delete-property/power-domains;
+	bootph-pre-ram;
+	extcon = <&ptn5110>;
+};
+
+&usb2 {
+	compatible = "fsl,imx8mm-usb", "fsl,imx7d-usb";
+	/delete-property/power-domains;
+	bootph-pre-ram;
+};
+
+&usbmisc1 {
+	bootph-pre-ram;
+};
+
+&usbmisc2 {
+	bootph-pre-ram;
+};
+
+&usbphynop1 {
+	bootph-pre-ram;
+};
+
+&usbphynop2 {
+	bootph-pre-ram;
+};
+
+&wdog3 {
+	status = "disabled";
+};
