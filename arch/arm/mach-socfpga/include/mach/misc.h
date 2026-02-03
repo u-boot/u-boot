@@ -26,6 +26,7 @@ static inline void socfpga_fpga_add(void *fpga_desc) {}
 
 #ifdef CONFIG_TARGET_SOCFPGA_GEN5
 void socfpga_sdram_remap_zero(void);
+void socfpga_sdram_apply_static_cfg(void);
 static inline bool socfpga_is_booting_from_fpga(void)
 {
 	if ((__image_copy_start >= (char *)SOCFPGA_FPGA_SLAVES_ADDRESS) &&
