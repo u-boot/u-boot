@@ -88,6 +88,24 @@ static struct mm_region rk3588_mem_map[] = {
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},  {
+		.virt = 0x100000000UL,
+		.phys = 0x100000000UL,
+		.size = 0x2fc000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x3fc500000UL,
+		.phys = 0x3fc500000UL,
+		.size = 0x3a00000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x400000000UL,
+		.phys = 0x400000000UL,
+		.size = 0x400000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
 		.virt = 0x900000000,
 		.phys = 0x900000000,
 		.size = 0x150000000,
