@@ -142,6 +142,13 @@ config TARGET_IMX95_15X15_EVK
 	imply BOOTSTD_FULL
 	imply OF_UPSTREAM
 
+config TARGET_IMX95_15X15_FRDM
+	bool "imx95_frdm"
+	select IMX95
+	imply BOOTSTD_FULL
+	imply BOOTSTD_BOOTCOMMAND
+	imply OF_UPSTREAM
+
 config TARGET_IMX943_EVK
 	bool "imx943_evk"
 	select IMX94
@@ -165,6 +172,7 @@ source "board/phytec/phycore_imx93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
 source "board/nxp/imx94_evk/Kconfig"
 source "board/nxp/imx95_evk/Kconfig"
+source "board/nxp/imx95_frdm/Kconfig"
 source "board/toradex/smarc-imx95/Kconfig"
 
 endif
