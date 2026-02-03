@@ -1,20 +1,21 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * This file was generated with the
- * AM623/AM625 SysConfig DDR Configuration Tool for AM64x, AM625, AM623, AM62Ax, AM62Px v0.10.02
- * Tue Sep 17 2024 13:07:19 GMT+0530 (India Standard Time)
+ * AM623/AM625 SysConfig DDR Configuration Tool for AM64x, AM625, AM623, AM62Ax, AM62Px, AM62Dx, AM62Lx v0.10.32
+ * Fri Jan 30 2026 13:45:31 GMT+0530 (India Standard Time)
  * DDR Type: LPDDR4
  * F0 = 50MHz    F1 = NA     F2 = 800MHz
  * Density (per channel): 16Gb
  * Write DBI: Enable
  * Number of Ranks: 1
- */
+*/
 
 #define DDRSS_PLL_FHS_CNT 3
 #define DDRSS_PLL_FREQUENCY_1 400000000
 #define DDRSS_PLL_FREQUENCY_2 400000000
 #define DDRSS_SDRAM_IDX 15
-#define DDRSS_REGION_IDX 16
+#define DDRSS_REGION_IDX 15
+#define DDRSS_TOOL_VERSION "0.10.32"
 
 #define DDRSS_CTL_0_DATA 0x00000B00
 #define DDRSS_CTL_1_DATA 0x00000000
@@ -646,8 +647,8 @@
 #define DDRSS_PI_204_DATA 0x00C90100
 #define DDRSS_PI_205_DATA 0x010000C9
 #define DDRSS_PI_206_DATA 0x00C900C9
-#define DDRSS_PI_207_DATA 0x32103200
-#define DDRSS_PI_208_DATA 0x01013210
+#define DDRSS_PI_207_DATA 0x321E3200
+#define DDRSS_PI_208_DATA 0x0101321E
 #define DDRSS_PI_209_DATA 0x0A070601
 #define DDRSS_PI_210_DATA 0x0D09070D
 #define DDRSS_PI_211_DATA 0x0D09070D
