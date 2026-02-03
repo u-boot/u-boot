@@ -139,8 +139,7 @@ document.
   message by which the signer certifies that they were involved in the development
   of the patch and that they accept the `Developer Certificate of Origin
   <https://developercertificate.org/>`_. Following this and adding a
-  ``Signed-off-by:`` line that contains the developer's name and email address
-  is required.
+  ``Signed-off-by:`` line using a known identity and email address is required.
 
    * Please note that in U-Boot, we do not add a ``Signed-off-by`` tag if we
      just pass on a patch without any changes.
