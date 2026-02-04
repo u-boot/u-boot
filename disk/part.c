@@ -674,7 +674,7 @@ int part_get_info_by_name(struct blk_desc *desc, const char *name,
 	if (!part_drv)
 		return -1;
 
-	for (i = 1; i < part_drv->max_entries; i++) {
+	for (i = 1; i <= part_drv->max_entries; i++) {
 		ret = part_driver_get_info(part_drv, desc, i, info);
 		if (ret != 0) {
 			/* -ENOSYS means no ->get_info method. */
@@ -709,7 +709,7 @@ int part_get_info_by_uuid(struct blk_desc *desc, const char *uuid,
 	if (!part_drv)
 		return -1;
 
-	for (i = 1; i < part_drv->max_entries; i++) {
+	for (i = 1; i <= part_drv->max_entries; i++) {
 		ret = part_driver_get_info(part_drv, desc, i, info);
 		if (ret != 0) {
 			/* -ENOSYS means no ->get_info method. */

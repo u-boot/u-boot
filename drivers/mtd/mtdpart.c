@@ -1061,13 +1061,13 @@ EXPORT_SYMBOL_GPL(mtd_get_device_size);
 static struct mtd_info *mtd_get_partition_by_index(struct mtd_info *mtd, int index)
 {
 	struct mtd_info *part;
-	int i = 0;
+	int i = 1;
 
+	/* partition indexes starts from 1 */
 	list_for_each_entry(part, &mtd->partitions, node)
 		if (i++ == index)
 			return part;
 
-	debug("Partition with idx=%d not found on MTD device %s\n", index, mtd->name);
 	return NULL;
 }
 
@@ -1084,7 +1084,8 @@ static int __maybe_unused part_get_info_mtd(struct blk_desc *dev_desc, int part_
 
 	part = mtd_get_partition_by_index(master, part_idx);
 	if (!part) {
-		debug("Failed to find partition with idx=%d\n", part_idx);
+		debug("Failed to find partition with idx=%d on MTD device %s\n",
+		      part_idx, master->name);
 		return -EINVAL;
 	}
 
