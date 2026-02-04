@@ -742,6 +742,20 @@ static int pcie_cdns_ti_probe(struct udevice *dev)
 	}
 	generic_phy_reset(&serdes);
 	generic_phy_init(&serdes);
+
+	clk = devm_clk_get_optional(dev, "pcie_refclk");
+	if (IS_ERR(clk)) {
+		ret = PTR_ERR(clk);
+		dev_err(dev, "failed to get pcie_refclk\n");
+		return ret;
+	}
+
+	ret = clk_prepare_enable(clk);
+	if (ret) {
+		dev_err(dev, "failed to enable pcie_refclk\n");
+		return ret;
+	}
+
 	generic_phy_power_on(&serdes);
 
 	ret = pcie_cdns_ti_ctrl_init(pcie);
@@ -841,6 +855,11 @@ static const struct pcie_cdns_ti_data am64_pcie_rc_data = {
 	.max_lanes = 1,
 };
 
+static const struct pcie_cdns_ti_data j722s_pcie_rc_data = {
+	.mode = PCIE_MODE_RC,
+	.max_lanes = 1,
+};
+
 static const struct udevice_id pcie_cdns_ti_ids[] = {
 	{
 		.compatible = "ti,j7200-pcie-host",
@@ -849,6 +868,10 @@ static const struct udevice_id pcie_cdns_ti_ids[] = {
 	{
 		.compatible = "ti,am64-pcie-host",
 		.data = (ulong)&am64_pcie_rc_data,
+	},
+	{
+		.compatible = "ti,j722s-pcie-host",
+		.data = (ulong)&j722s_pcie_rc_data,
 	},
 	{},
 };
