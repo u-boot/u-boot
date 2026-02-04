@@ -942,6 +942,7 @@ config CMD_MEMINFO_MAP
 
 config CMD_MEMSIZE
 	bool "memsize"
+	default y if SANDBOX
 	depends on CMD_MEMINFO
 	help
 	  Get RAM via command for use in scripts. Print or assign decimal value
