@@ -3,6 +3,7 @@
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
 
+#include <binman_sym.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <dm.h>
@@ -10,6 +11,7 @@
 #include <image.h>
 #include <init.h>
 #include <log.h>
+#include <mapmem.h>
 #include <ram.h>
 #include <spl.h>
 #include <asm/arch-rockchip/bootrom.h>
@@ -150,3 +152,52 @@ void spl_board_prepare_for_boot(void)
 
 	cleanup_before_linux();
 }
+
+#if CONFIG_IS_ENABLED(RAM_DEVICE) && IS_ENABLED(CONFIG_SPL_LOAD_FIT)
+binman_sym_declare_optional(ulong, payload, image_pos);
+binman_sym_declare_optional(ulong, payload, size);
+
+static ulong ramboot_load_read(struct spl_load_info *load, ulong sector,
+			       ulong count, void *buf)
+{
+	ulong addr = IF_ENABLED_INT(CONFIG_SPL_LOAD_FIT,
+				    CONFIG_SPL_LOAD_FIT_ADDRESS);
+
+	memcpy(buf, map_sysmem(addr + sector, 0), count);
+	return count;
+}
+
+static int ramboot_load_image(struct spl_image_info *spl_image,
+			      struct spl_boot_device *bootdev)
+{
+	struct legacy_img_hdr *header;
+	ulong addr = IF_ENABLED_INT(CONFIG_SPL_LOAD_FIT,
+				    CONFIG_SPL_LOAD_FIT_ADDRESS);
+	ulong image_pos = binman_sym(ulong, payload, image_pos);
+	ulong size = binman_sym(ulong, payload, size);
+
+	if (addr == CFG_SYS_SDRAM_BASE || addr == CONFIG_SPL_TEXT_BASE)
+		return -ENODEV;
+
+	if (image_pos != BINMAN_SYM_MISSING && size != BINMAN_SYM_MISSING) {
+		header = map_sysmem(image_pos, 0);
+		if (image_get_magic(header) == FDT_MAGIC) {
+			memmove(map_sysmem(addr, 0), header, size);
+			memset(header, 0, sizeof(*header));
+		}
+	}
+
+	header = map_sysmem(addr, 0);
+	if (image_get_magic(header) == FDT_MAGIC) {
+		struct spl_load_info load;
+
+		spl_load_init(&load, ramboot_load_read, NULL, 1);
+		return spl_load_simple_fit(spl_image, &load, 0, header);
+	}
+
+	return -ENODEV;
+}
+
+/* Use priority and method name that sort before default spl_ram_load_image */
+SPL_LOAD_IMAGE_METHOD("RAM", 0, BOOT_DEVICE_RAM, ramboot_load_image);
+#endif
