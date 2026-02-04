@@ -1732,6 +1732,15 @@ F:	cmd/sm3sum.c
 F:	include/u-boot/sm3.h
 F:	lib/sm3.c
 
+SMBIOS
+M:	Raymond Mao <raymondmaoca@gmail.com>
+S:	Maintained
+F:	arch/arm/dts/smbios_generic.dtsi
+F:	cmd/smbios.c
+F:	drivers/sysinfo/smbios.c
+F:	include/smbios*
+F:	lib/smbios.c
+
 SMCCC TRNG
 M:	Etienne Carriere <etienne.carriere@linaro.org>
 S:	Maintained
