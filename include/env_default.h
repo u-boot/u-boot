@@ -58,6 +58,9 @@ const char default_environment[] = {
 #ifdef	CONFIG_USE_SERVERIP
 	"serverip="	CONFIG_SERVERIP			"\0"
 #endif
+#ifdef	CONFIG_USE_TFTPSERVERIP
+	"tftpserverip="	CONFIG_TFTPSERVERIP		"\0"
+#endif
 #ifdef	CONFIG_SYS_DISABLE_AUTOLOAD
 	"autoload=0\0"
 #endif

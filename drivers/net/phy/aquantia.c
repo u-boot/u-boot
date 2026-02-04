@@ -714,3 +714,17 @@ U_BOOT_PHY_DRIVER(aqr412) = {
 	.shutdown = &gen10g_shutdown,
 	.data = AQUANTIA_GEN3,
 };
+
+U_BOOT_PHY_DRIVER(cux3410) = {
+	.name = "Marvell CUX3410",
+	.uid = 0x31c31dd3,
+	.mask = 0xfffffff0,
+	.features = PHY_10G_FEATURES,
+	.mmds = (MDIO_MMD_PMAPMD | MDIO_MMD_PCS |
+		 MDIO_MMD_PHYXS | MDIO_MMD_AN |
+		 MDIO_MMD_VEND1),
+	.config = &aquantia_config,
+	.startup = &aquantia_startup,
+	.shutdown = &gen10g_shutdown,
+	.data = AQUANTIA_GEN3,
+};

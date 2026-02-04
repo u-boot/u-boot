@@ -35,7 +35,7 @@ static u8_t ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p,
 	struct ping_ctx *ctx = arg;
 	struct icmp_echo_hdr *iecho = ctx->iecho;
 
-	if (addr->addr != ctx->target.addr)
+	if (!ip_addr_eq(addr, &ctx->target))
 		return 0;
 
 	if ((p->tot_len >= (IP_HLEN + sizeof(struct icmp_echo_hdr))) &&

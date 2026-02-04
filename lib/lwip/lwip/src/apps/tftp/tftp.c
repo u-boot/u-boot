@@ -191,7 +191,7 @@ send_request(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname,
   MEMCPY(payload+2,              fname, fname_length);
   MEMCPY(payload+2+fname_length, mode,  mode_length);
   if (tftp_state.blksize)
-    sprintf(payload+2+fname_length+mode_length, "blksize%c%d%c", 0, tftp_state.blksize, 0);
+    sprintf(payload+2+fname_length+mode_length, "blksize%c%d", 0, tftp_state.blksize);
 
   tftp_state.wait_oack = true;
   ret = udp_sendto(tftp_state.upcb, p, addr, port);

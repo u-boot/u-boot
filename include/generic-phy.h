@@ -52,7 +52,7 @@ struct phy {
 };
 
 /*
- * struct udevice_ops - set of function pointers for phy operations
+ * struct phy_ops - set of function pointers for phy operations
  * @init: operation to be performed for initializing phy (optional)
  * @exit: operation to be performed while exiting (optional)
  * @reset: reset the phy (optional).
