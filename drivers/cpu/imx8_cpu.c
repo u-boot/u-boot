@@ -115,6 +115,8 @@ static const char *get_imx_type_str(u32 imxtype)
 		return "95";
 	case MXC_CPU_IMX94:
 		return "94";
+	case MXC_CPU_IMX952:
+		return "952";
 	default:
 		return "??";
 	}
