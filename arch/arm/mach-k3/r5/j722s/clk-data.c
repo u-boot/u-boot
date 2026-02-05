@@ -5,7 +5,7 @@
  * This file is auto generated. Please do not hand edit and report any issues
  * to Bryan Brattlof <bb@ti.com>.
  *
- * Copyright (C) 2020-2025 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2020-2026 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <linux/clk-provider.h>
@@ -159,6 +159,7 @@ static const struct clk_data clk_list[] = {
 	CLK_FIXED_RATE("board_0_rmii1_ref_clk_out", 0, 0),
 	CLK_FIXED_RATE("board_0_rmii2_ref_clk_out", 0, 0),
 	CLK_FIXED_RATE("board_0_tck_out", 0, 0),
+	CLK_FIXED_RATE("board_0_wkup_i2c0_scl_out", 0, 0),
 	CLK_FIXED_RATE("cpsw_3guss_am67_main_0_cpts_genf0", 0, 0),
 	CLK_FIXED_RATE("cpsw_3guss_am67_main_0_cpts_genf1", 0, 0),
 	CLK_FIXED_RATE("cpsw_3guss_am67_main_0_mdio_mdclk_o", 0, 0),
@@ -223,6 +224,8 @@ static const struct clk_data clk_list[] = {
 	CLK_MUX("wkup_clkout_sel_io_out0", wkup_clkout_sel_io_out0_parents, 2, 0x43008020, 24, 1, 0),
 	CLK_MUX("wkup_clksel_out0", wkup_clksel_out0_parents, 2, 0x43008010, 0, 1, 0),
 	CLK_MUX("main_usart0_fclk_sel_out0", main_usart0_fclk_sel_out0_parents, 2, 0x108280, 0, 1, 0),
+	CLK_DIV("hsdiv4_16fft_mcu_0_hsdivout1_clk", "pllfracf2_ssmod_16fft_mcu_0_foutvcop_clk", 0x4040084, 0, 7, 0, 0),
+	CLK_FIXED_RATE("mshsi2c_wkup_0_porscl", 0, 0),
 	CLK_DIV("sam62_pll_ctrl_wrap_main_0_chip_div24_clk_clk", "sam62_pll_ctrl_wrap_main_0_sysclkout_clk", 0x41011c, 0, 5, 0, 0),
 	CLK_DIV("sam62_pll_ctrl_wrap_mcu_0_chip_div24_clk_clk", "sam62_pll_ctrl_wrap_mcu_0_sysclkout_clk", 0x402011c, 0, 5, 0, 0),
 };
@@ -307,6 +310,11 @@ static const struct dev_clk soc_dev_clk_data[] = {
 	DEV_CLK(102, 0, "sam62_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
 	DEV_CLK(102, 1, "board_0_i2c0_scl_out"),
 	DEV_CLK(102, 2, "hsdiv4_16fft_main_1_hsdivout0_clk"),
+	DEV_CLK(107, 0, "wkup_clksel_out0"),
+	DEV_CLK(107, 1, "hsdiv3_16fft_main_15_hsdivout0_clk"),
+	DEV_CLK(107, 2, "hsdiv4_16fft_mcu_0_hsdivout0_clk"),
+	DEV_CLK(107, 3, "board_0_wkup_i2c0_scl_out"),
+	DEV_CLK(107, 4, "hsdiv4_16fft_mcu_0_hsdivout1_clk"),
 	DEV_CLK(135, 0, "hsdiv0_16fft_main_8_hsdivout0_clk"),
 	DEV_CLK(146, 0, "main_usart0_fclk_sel_out0"),
 	DEV_CLK(146, 1, "usart_programmable_clock_divider_out0"),
