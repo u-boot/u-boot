@@ -32,15 +32,15 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-	__u_boot_list : {
-		KEEP(*(SORT(__u_boot_list*)));
-	}
-
-	. = ALIGN(4);
 	.binman_sym_table : {
 		__binman_sym_start = .;
 		KEEP(*(SORT(.binman_sym*)));
 		__binman_sym_end = .;
+	}
+
+	. = ALIGN(4);
+	__u_boot_list : {
+		KEEP(*(SORT(__u_boot_list*)));
 		. = ALIGN(8);
 	}
 
@@ -48,7 +48,7 @@ SECTIONS
 	_image_binary_end = .;
 	_end = .;
 
-	.bss : {
+	.bss _image_binary_end (OVERLAY) : {
 		__bss_start = .;
 		*(.bss*)
 		 . = ALIGN(8);
