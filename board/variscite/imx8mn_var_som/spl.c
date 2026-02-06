@@ -41,13 +41,6 @@ void spl_board_init(void)
 		puts("Failed to find clock node. Check device tree\n");
 }
 
-int board_early_init_f(void)
-{
-	init_uart_clk(3);
-
-	return 0;
-}
-
 void board_init_f(ulong dummy)
 {
 	int ret;
@@ -56,8 +49,6 @@ void board_init_f(ulong dummy)
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
 	arch_cpu_init();
-
-	board_early_init_f();
 
 	timer_init();
 
