@@ -55,7 +55,7 @@
 
 #define CPCAP_REG(_reg, _assignment_reg, _assignment_mask, _mode_mask,		\
 		  _volt_mask, _volt_shft, _mode_val, _off_mode_val, _val_tbl,	\
-		  _mode_cntr, _volt_trans_time, _turn_on_time, _bit_offset) {	\
+		  _mode_cntr, _volt_trans_time, _turn_on_time) {		\
 	.reg = CPCAP_REG_##_reg,						\
 	.assignment_reg = CPCAP_REG_##_assignment_reg,				\
 	.assignment_mask = CPCAP_BIT_##_assignment_mask,			\
@@ -69,60 +69,59 @@
 	.mode_cntr = _mode_cntr,						\
 	.volt_trans_time = _volt_trans_time,					\
 	.turn_on_time = _turn_on_time,						\
-	.bit_offset_from_cpcap_lowest_voltage = _bit_offset,			\
 }
 
 static const struct cpcap_regulator_data tegra20_regulators[CPCAP_REGULATORS_COUNT] = {
 	/* BUCK */
 	[CPCAP_SW1]      = CPCAP_REG(S1C1, ASSIGN2, SW1_SEL, 0x6f00, 0x007f,
-				     0, 0x6800, 0, sw1_val_tbl, 0, 0, 1500, 0x0c),
+				     0, 0x6800, 0, sw_val_tbl, 0, 0, 1500),
 	[CPCAP_SW2]      = CPCAP_REG(S2C1, ASSIGN2, SW2_SEL, 0x6f00, 0x007f,
-				     0, 0x4804, 0, sw2_sw4_val_tbl, 0, 0, 1500, 0x18),
+				     0, 0x4804, 0, sw_val_tbl, 0, 0, 1500),
 	[CPCAP_SW3]      = CPCAP_REG(S3C, ASSIGN2, SW3_SEL, 0x0578, 0x0003,
-				     0, 0x043c, 0, sw3_val_tbl, 0, 0, 0, 0),
+				     0, 0x043c, 0, sw3_val_tbl, 0, 0, 0),
 	[CPCAP_SW4]      = CPCAP_REG(S4C1, ASSIGN2, SW4_SEL, 0x6f00, 0x007f,
-				     0, 0x4909, 0, sw2_sw4_val_tbl, 0, 0, 1500, 0x18),
+				     0, 0x4909, 0, sw_val_tbl, 0, 0, 1500),
 	[CPCAP_SW5]      = CPCAP_REG(S5C, ASSIGN2, SW5_SEL, 0x0028, 0x0000,
-				     0, 0x0020, 0, sw5_val_tbl, 0, 0, 1500, 0),
+				     0, 0x0020, 0, sw5_val_tbl, 0, 0, 1500),
 	[CPCAP_SW6]      = CPCAP_REG(S6C, ASSIGN2, SW6_SEL, 0x0000, 0x0000,
-				     0, 0, 0, unknown_val_tbl, 0, 0, 0, 0),
+				     0, 0, 0, unknown_val_tbl, 0, 0, 0),
 	/* LDO */
 	[CPCAP_VCAM]     = CPCAP_REG(VCAMC, ASSIGN2, VCAM_SEL, 0x0087, 0x0030,
-				     4, 0x7, 0, vcam_val_tbl, 0, 420, 1000, 0),
+				     4, 0x7, 0, vcam_val_tbl, 0, 420, 1000),
 	[CPCAP_VCSI]     = CPCAP_REG(VCSIC, ASSIGN3, VCSI_SEL, 0x0047, 0x0010,
-				     4, 0x7, 0, vcsi_val_tbl, 0, 350, 1000, 0),
+				     4, 0x7, 0, vcsi_val_tbl, 0, 350, 1000),
 	[CPCAP_VDAC]     = CPCAP_REG(VDACC, ASSIGN3, VDAC_SEL, 0x0087, 0x0030,
-				     4, 0x0, 0, vdac_val_tbl, 0, 420, 1000, 0),
+				     4, 0x0, 0, vdac_val_tbl, 0, 420, 1000),
 	[CPCAP_VDIG]     = CPCAP_REG(VDIGC, ASSIGN2, VDIG_SEL, 0x0087, 0x0030,
-				     4, 0x0, 0, vdig_val_tbl, 0, 420, 1000, 0),
+				     4, 0x0, 0, vdig_val_tbl, 0, 420, 1000),
 	[CPCAP_VFUSE]    = CPCAP_REG(VFUSEC, ASSIGN3, VFUSE_SEL, 0x00a0, 0x000f,
-				     0, 0x0, 0, vfuse_val_tbl, 0, 420, 1000, 0),
+				     0, 0x0, 0, vfuse_val_tbl, 0, 420, 1000),
 	[CPCAP_VHVIO]    = CPCAP_REG(VHVIOC, ASSIGN3, VHVIO_SEL, 0x0017, 0x0000,
-				     0, 0x2, 0, vhvio_val_tbl, 0, 0, 1000, 0),
+				     0, 0x2, 0, vhvio_val_tbl, 0, 0, 1000),
 	[CPCAP_VSDIO]    = CPCAP_REG(VSDIOC, ASSIGN2, VSDIO_SEL, 0x0087, 0x0038,
-				     3, 0x2, 0, vsdio_val_tbl, 0, 420, 1000, 0),
+				     3, 0x2, 0, vsdio_val_tbl, 0, 420, 1000),
 	[CPCAP_VPLL]     = CPCAP_REG(VPLLC, ASSIGN3, VPLL_SEL, 0x0047, 0x0018,
-				     3, 0x1, 0, vpll_val_tbl, 0, 420, 100, 0),
+				     3, 0x1, 0, vpll_val_tbl, 0, 420, 100),
 	[CPCAP_VRF1]     = CPCAP_REG(VRF1C, ASSIGN3, VRF1_SEL, 0x00ac, 0x0002,
-				     1, 0x0, 0, vrf1_val_tbl, 0, 10, 1000, 0),
+				     1, 0x0, 0, vrf1_val_tbl, 0, 10, 1000),
 	[CPCAP_VRF2]     = CPCAP_REG(VRF2C, ASSIGN3, VRF2_SEL, 0x0023, 0x0008,
-				     3, 0x0, 0, vrf2_val_tbl, 0, 10, 1000, 0),
+				     3, 0x0, 0, vrf2_val_tbl, 0, 10, 1000),
 	[CPCAP_VRFREF]   = CPCAP_REG(VRFREFC, ASSIGN3, VRFREF_SEL, 0x0023, 0x0008,
-				     3, 0x0, 0, vrfref_val_tbl, 0, 420, 100, 0),
+				     3, 0x0, 0, vrfref_val_tbl, 0, 420, 100),
 	[CPCAP_VWLAN1]   = CPCAP_REG(VWLAN1C, ASSIGN3, VWLAN1_SEL, 0x0047, 0x0010,
-				     4, 0x0, 0, vwlan1_val_tbl, 0, 420, 1000, 0),
+				     4, 0x0, 0, vwlan1_val_tbl, 0, 420, 1000),
 	[CPCAP_VWLAN2]   = CPCAP_REG(VWLAN2C, ASSIGN3, VWLAN2_SEL, 0x020c, 0x00c0,
-				     6, 0xd, 0, vwlan2_val_tbl, 0, 420, 1000, 0),
+				     6, 0xd, 0, vwlan2_val_tbl, 0, 420, 1000),
 	[CPCAP_VSIM]     = CPCAP_REG(VSIMC, ASSIGN3, NONE, 0x0023, 0x0008,
-				     3, 0x0, 0, vsim_val_tbl, 0, 420, 1000, 0),
+				     3, 0x0, 0, vsim_val_tbl, 0, 420, 1000),
 	[CPCAP_VSIMCARD] = CPCAP_REG(VSIMC, ASSIGN3, NONE, 0x1e80, 0x0008,
-				     3, 0x1E00, 0, vsimcard_val_tbl, 0, 420, 1000, 0),
+				     3, 0x1E00, 0, vsimcard_val_tbl, 0, 420, 1000),
 	[CPCAP_VVIB]     = CPCAP_REG(VVIBC, ASSIGN3, VVIB_SEL, 0x0001, 0x000c,
-				     2, 0x1, 0, vvib_val_tbl, 0, 500, 500, 0),
+				     2, 0x1, 0, vvib_val_tbl, 0, 500, 500),
 	[CPCAP_VUSB]     = CPCAP_REG(VUSBC, ASSIGN3, VUSB_SEL, 0x011c, 0x0040,
-				     6, 0xc, 0, vusb_val_tbl, 0, 0, 1000, 0),
+				     6, 0xc, 0, vusb_val_tbl, 0, 0, 1000),
 	[CPCAP_VAUDIO]   = CPCAP_REG(VAUDIOC, ASSIGN4, VAUDIO_SEL, 0x0016, 0x0001,
-				     0, 0x5, 0, vaudio_val_tbl, 0, 0, 1000, 0),
+				     0, 0x5, 0, vaudio_val_tbl, 0, 0, 1000),
 };
 
 static int cpcap_regulator_get_value(struct udevice *dev)
@@ -139,7 +138,6 @@ static int cpcap_regulator_get_value(struct udevice *dev)
 		return 0;
 
 	value &= regulator->volt_mask;
-	value -= regulator->bit_offset_from_cpcap_lowest_voltage;
 
 	return regulator->val_tbl[value >> volt_shift];
 }
@@ -164,7 +162,6 @@ static int cpcap_regulator_set_value(struct udevice *dev, int uV)
 			value = regulator->val_tbl_sz;
 
 		value <<= volt_shift;
-		value += regulator->bit_offset_from_cpcap_lowest_voltage;
 	}
 
 	ret = pmic_clrsetbits(dev->parent, regulator->reg, regulator->volt_mask,
