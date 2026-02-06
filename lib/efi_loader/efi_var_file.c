@@ -173,7 +173,7 @@ efi_status_t efi_var_from_file(void)
 	r = fs_read(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE,
 		    &len);
 	if (r || len < sizeof(struct efi_var_file)) {
-		log_err("Failed to load EFI variables\n");
+		log_info("No EFI variables loaded\n");
 		goto error;
 	}
 	if (buf->length != len || efi_var_restore(buf, false) != EFI_SUCCESS)
