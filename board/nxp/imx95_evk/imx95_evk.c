@@ -7,14 +7,6 @@
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/sys_proto.h>
 
-int board_early_init_f(void)
-{
-	/* UART1: A55, UART2: M33, UART3: M7 */
-	init_uart_clk(0);
-
-	return 0;
-}
-
 int board_late_init(void)
 {
 	if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC))
