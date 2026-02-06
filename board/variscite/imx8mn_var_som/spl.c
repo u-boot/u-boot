@@ -9,12 +9,9 @@
 #include <spl.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/ddr.h>
-#include <asm/arch/imx8mn_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/gpio.h>
 #include <asm/sections.h>
-#include <dm/device.h>
 #include <dm/uclass.h>
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
