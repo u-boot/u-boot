@@ -5,6 +5,12 @@
 
 #include "imx8mn-u-boot.dtsi"
 
+/ {
+	aliases {
+		eeprom-som = &eeprom_som;
+	};
+};
+
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@4b} {
 	bootph-pre-ram;
 };
