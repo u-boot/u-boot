@@ -87,9 +87,7 @@ static int cpcap_pwrbutton_of_to_plat(struct udevice *dev)
 	priv->bank = irq_desc / 16;
 	priv->id = irq_desc % 16;
 
-	ret = dev_read_u32(dev, "linux,code", &priv->keycode);
-	if (ret)
-		return ret;
+	priv->keycode = dev_read_u32_default(dev, "linux,code", KEY_POWER);
 
 	priv->old_state = false;
 	priv->skip = false;
