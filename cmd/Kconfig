@@ -940,6 +940,14 @@ config CMD_MEMINFO_MAP
 
 	  See doc/usage/cmd/meminfo.rst for more information.
 
+config CMD_MEMSIZE
+	bool "memsize"
+	default y if SANDBOX
+	depends on CMD_MEMINFO
+	help
+	  Get RAM via command for use in scripts. Print or assign decimal value
+	  in MiB to environment variable.
+
 config CMD_MEMORY
 	bool "md, mm, nm, mw, cp, cmp, base, loop"
 	default y

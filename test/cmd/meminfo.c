@@ -7,6 +7,7 @@
  */
 
 #include <dm/test.h>
+#include <env.h>
 #include <test/cmd.h>
 #include <test/ut.h>
 
@@ -49,4 +50,23 @@ static int cmd_test_meminfo(struct unit_test_state *uts)
 
 	return 0;
 }
+
 CMD_TEST(cmd_test_meminfo, UTF_CONSOLE);
+
+/* Test 'memsize' command */
+#ifdef CONFIG_CMD_MEMSIZE
+static int cmd_test_memsize(struct unit_test_state *uts)
+{
+	ut_assertok(run_command("memsize", 0));
+	ut_assert_nextline("256 MiB");
+	ut_assert_console_end();
+
+	ut_assertok(run_command("memsize memsz", 0));
+	ut_asserteq_str("256", env_get("memsz"));
+	ut_assert_console_end();
+
+	return 0;
+}
+
+CMD_TEST(cmd_test_memsize, UTF_CONSOLE);
+#endif
