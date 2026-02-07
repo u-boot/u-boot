@@ -76,7 +76,7 @@ static int cpcap_pwrbutton_of_to_plat(struct udevice *dev)
 
 	/* Check interrupt parent, driver supports only CPCAP as parent */
 	irq_parent = ofnode_parse_phandle(dev_ofnode(dev), "interrupt-parent", 0);
-	if (!ofnode_device_is_compatible(irq_parent, "motorola,cpcap"))
+	if (!strstr(ofnode_get_name(irq_parent), "cpcap"))
 		return -EINVAL;
 
 	ret = dev_read_u32(dev, "interrupts", &irq_desc);
