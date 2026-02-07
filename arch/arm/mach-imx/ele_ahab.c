@@ -10,6 +10,7 @@
 #include <asm/mach-imx/ele_api.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <console.h>
 #include <cpu_func.h>

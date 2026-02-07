@@ -9,12 +9,6 @@
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/sys_proto.h>
 
-int board_early_init_f(void)
-{
-	init_uart_clk(0);
-	return 0;
-}
-
 int board_init(void)
 {
 	return 0;

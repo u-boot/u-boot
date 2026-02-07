@@ -8,14 +8,6 @@
 
 #include "../common/tdx-cfg-block.h"
 
-int board_early_init_f(void)
-{
-	/* UART1: A55 */
-	init_uart_clk(0);
-
-	return 0;
-}
-
 int board_phys_sdram_size(phys_size_t *size)
 {
 	*size = PHYS_SDRAM_SIZE + PHYS_SDRAM_2_SIZE;

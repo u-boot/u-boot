@@ -5,23 +5,13 @@
 
 #include <init.h>
 #include <spl.h>
-#include <asm/io.h>
-#include <errno.h>
+#include <asm/sections.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/imx8ulp-pins.h>
-#include <dm/uclass.h>
-#include <dm/device.h>
-#include <dm/uclass-internal.h>
-#include <dm/device-internal.h>
-#include <dm/lists.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/rdc.h>
 #include <asm/arch/upower.h>
 #include <asm/mach-imx/ele_api.h>
-#include <asm/sections.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 void spl_dram_init(void)
 {

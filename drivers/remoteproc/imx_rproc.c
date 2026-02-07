@@ -11,6 +11,7 @@
 #include <linux/types.h>
 #include <regmap.h>
 #include <remoteproc.h>
+#include <scmi_nxp_protocols.h>
 #include <syscon.h>
 
 #include "imx_rproc.h"
@@ -37,15 +38,32 @@
 #define IMX_SIP_RPROC_STARTED		0x01
 #define IMX_SIP_RPROC_STOP		0x02
 
+/* Must align with System Manager Firmware */
+#define IMX95_M7_CPUID			1
+#define IMX95_M7_LMID			1
+
+/* Logical Machine API Operation */
+#define IMX_RPROC_FLAGS_SM_LMM_OP	BIT(0)
+/* CPU API Operation */
+#define IMX_RPROC_FLAGS_SM_CPU_OP	BIT(1)
+/* Linux has permission to handle the Logical Machine of remote cores */
+#define IMX_RPROC_FLAGS_SM_LMM_AVAIL	BIT(2)
+
 struct imx_rproc {
 	const struct imx_rproc_dcfg	*dcfg;
 	struct regmap *regmap;
+	u32				flags;
+	/* For System Manager based system */
+	struct udevice			*lmm_dev;
+	struct udevice			*cpu_dev;
+	ulong				reset_vector;
 };
 
 /* att flags: lower 16 bits specifying core, higher 16 bits for flags  */
 /* M4 own area. Can be mapped at probe */
 #define ATT_OWN         BIT(31)
 #define ATT_IOMEM       BIT(30)
+#define ATT_ECC         BIT(29)
 
 static int imx_rproc_arm_smc_start(struct udevice *dev)
 {
@@ -62,6 +80,41 @@ static int imx_rproc_mmio_start(struct udevice *dev)
 	const struct imx_rproc_dcfg *dcfg = priv->dcfg;
 
 	return regmap_update_bits(priv->regmap, dcfg->src_reg, dcfg->src_mask, dcfg->src_start);
+}
+
+static int imx_rproc_sm_start(struct udevice *dev)
+{
+	struct imx_rproc *priv = dev_get_priv(dev);
+	const struct imx_rproc_dcfg *dcfg = priv->dcfg;
+	int ret;
+
+	if (priv->flags & IMX_RPROC_FLAGS_SM_CPU_OP) {
+		ret = scmi_imx_cpu_reset_vector_set(priv->cpu_dev, dcfg->cpuid, 0,
+						    priv->reset_vector, true, false, false);
+		if (ret) {
+			dev_err(dev, "Failed to set reset vector cpuid(%u): %d\n",
+				dcfg->cpuid, ret);
+			return ret;
+		}
+
+		return scmi_imx_cpu_start(priv->cpu_dev, dcfg->cpuid, true);
+	}
+
+	ret = scmi_imx_lmm_reset_vector_set(priv->lmm_dev, dcfg->lmid, dcfg->cpuid, 0,
+					    priv->reset_vector);
+	if (ret) {
+		dev_err(dev, "Failed to set reset vector lmid(%u), cpuid(%u): %d\n",
+			dcfg->lmid, dcfg->cpuid, ret);
+		return ret;
+	}
+
+	ret = scmi_imx_lmm_power_boot(priv->lmm_dev, dcfg->lmid, true);
+	if (ret) {
+		dev_err(dev, "Failed to boot lmm(%d): %d\n", ret, dcfg->lmid);
+		return ret;
+	}
+
+	return 0;
 }
 
 static int imx_rproc_start(struct udevice *dev)
@@ -97,6 +150,17 @@ static int imx_rproc_mmio_stop(struct udevice *dev)
 	const struct imx_rproc_dcfg *dcfg = priv->dcfg;
 
 	return regmap_update_bits(priv->regmap, dcfg->src_reg, dcfg->src_mask, dcfg->src_stop);
+}
+
+static int imx_rproc_sm_stop(struct udevice *dev)
+{
+	struct imx_rproc *priv = dev_get_priv(dev);
+	const struct imx_rproc_dcfg *dcfg = priv->dcfg;
+
+	if (priv->flags & IMX_RPROC_FLAGS_SM_CPU_OP)
+		return scmi_imx_cpu_start(priv->cpu_dev, dcfg->cpuid, false);
+
+	return scmi_imx_lmm_shutdown(priv->lmm_dev, dcfg->lmid, 0);
 }
 
 static int imx_rproc_stop(struct udevice *dev)
@@ -143,6 +207,20 @@ static int imx_rproc_mmio_is_running(struct udevice *dev)
 		return 0;
 
 	return 1;
+}
+
+static int imx_rproc_sm_is_running(struct udevice *dev)
+{
+	struct imx_rproc *priv = dev_get_priv(dev);
+	const struct imx_rproc_dcfg *dcfg = priv->dcfg;
+	int ret;
+	bool started = false;
+
+	ret = scmi_imx_cpu_started(priv->cpu_dev, dcfg->cpuid, &started);
+	if (ret || !started)
+		return 1;
+
+	return 0;
 }
 
 static int imx_rproc_is_running(struct udevice *dev)
@@ -202,6 +280,34 @@ static void *imx_rproc_device_to_virt(struct udevice *dev, ulong da, ulong size,
 
 static int imx_rproc_load(struct udevice *dev, ulong addr, ulong size)
 {
+	struct imx_rproc *priv = dev_get_priv(dev);
+	const struct imx_rproc_dcfg *dcfg = priv->dcfg;
+	int i;
+
+	if (IS_ENABLED(CONFIG_IMX_SM_LMM)) {
+		if (!(priv->flags & (IMX_RPROC_FLAGS_SM_LMM_AVAIL | IMX_RPROC_FLAGS_SM_CPU_OP)))
+			return -EACCES;
+	}
+
+	/* Only used for SM based System */
+	priv->reset_vector = rproc_elf_get_boot_addr(dev, addr) & GENMASK(31, 16);
+
+	/*
+	 * Before loading elf, need do ECC initialization by clearing the memory
+	 * region, if ATT_ECC is set.
+	 */
+	for (i = 0; i < dcfg->att_size; i++) {
+		const struct imx_rproc_att *att = &dcfg->att[i];
+
+		if (!(att->flags & ATT_ECC))
+			continue;
+
+		if (att->flags & ATT_IOMEM)
+			memset_io((void __iomem *)(long)att->sa, 0, att->size);
+		else
+			memset((void *)(long)att->sa, 0, att->size);
+	}
+
 	return rproc_elf_load_image(dev, addr, size);
 }
 
@@ -218,19 +324,65 @@ static int imx_rproc_probe(struct udevice *dev)
 {
 	struct imx_rproc *priv = dev_get_priv(dev);
 	struct imx_rproc_dcfg *dcfg = (struct imx_rproc_dcfg *)dev_get_driver_data(dev);
+	struct scmi_imx_lmm_info info;
 	ofnode node;
+	int ret;
 
 	node = dev_ofnode(dev);
 
 	priv->dcfg = dcfg;
 
-	if (dcfg->method != IMX_RPROC_MMIO)
+	if (dcfg->method == IMX_RPROC_MMIO) {
+		priv->regmap = syscon_regmap_lookup_by_phandle(dev, "syscon");
+		if (IS_ERR(priv->regmap)) {
+			dev_err(dev, "No syscon: %ld\n", PTR_ERR(priv->regmap));
+			return PTR_ERR(priv->regmap);
+		}
 		return 0;
+	} else {
+		if (IS_ENABLED(CONFIG_IMX_SM_LMM)) {
+			struct udevice *lmm_dev;
 
-	priv->regmap = syscon_regmap_lookup_by_phandle(dev, "syscon");
-	if (IS_ERR(priv->regmap)) {
-		dev_err(dev, "No syscon: %ld\n", PTR_ERR(priv->regmap));
-		return PTR_ERR(priv->regmap);
+			ret = uclass_get_device_by_name(UCLASS_SCMI_BASE, "protocol@80", &lmm_dev);
+			if (ret) {
+				dev_err(dev, "Failed to get SM LMM protocol dev\n");
+				return ret;
+			}
+
+			priv->lmm_dev = lmm_dev;
+
+			ret = scmi_imx_lmm_info(lmm_dev, LMM_ID_DISCOVER, &info);
+			if (ret) {
+				dev_err(dev, "Failed to get lmm info\n");
+				return ret;
+			}
+
+			if (dcfg->lmid != info.lmid) {
+				ret = scmi_imx_lmm_power_boot(lmm_dev, dcfg->lmid, false);
+				if (ret == -EACCES) {
+					dev_err(dev, "Remoteproc not under U-boot control: only support detect running\n");
+				} else if (ret) {
+					dev_err(dev, "power on lmm fail:%d\n", ret);
+					return ret;
+				} else {
+					priv->flags |= IMX_RPROC_FLAGS_SM_LMM_AVAIL;
+				}
+			} else {
+				priv->flags |= IMX_RPROC_FLAGS_SM_CPU_OP;
+			}
+		}
+
+		if (IS_ENABLED(CONFIG_IMX_SM_CPU)) {
+			struct udevice *cpu_dev;
+
+			ret = uclass_get_device_by_name(UCLASS_SCMI_BASE, "protocol@82", &cpu_dev);
+			if (ret) {
+				dev_err(dev, "Failed to get SM LMM protocol dev\n");
+				return ret;
+			}
+
+			priv->cpu_dev = cpu_dev;
+		}
 	}
 
 	return 0;
@@ -351,12 +503,39 @@ static const struct imx_rproc_dcfg imx_rproc_cfg_imx93 = {
 	.ops		= &imx_rproc_ops_arm_smc,
 };
 
+static const struct imx_rproc_att imx_rproc_att_imx95_m7[] = {
+	/* dev addr , sys addr  , size	    , flags */
+	/* TCM CODE NON-SECURE */
+	{ 0x00000000, 0x203C0000, 0x00040000, ATT_OWN | ATT_IOMEM | ATT_ECC },
+
+	/* TCM SYS NON-SECURE*/
+	{ 0x20000000, 0x20400000, 0x00040000, ATT_OWN | ATT_IOMEM | ATT_ECC },
+
+	/* DDR */
+	{ 0x80000000, 0x80000000, 0x50000000, 0 },
+};
+
+static const struct imx_rproc_plat_ops imx_rproc_ops_sm = {
+	.start		= imx_rproc_sm_start,
+	.stop		= imx_rproc_sm_stop,
+	.is_running	= imx_rproc_sm_is_running,
+};
+
+static const struct imx_rproc_dcfg imx_rproc_cfg_imx95_m7 = {
+	.att		= imx_rproc_att_imx95_m7,
+	.att_size	= ARRAY_SIZE(imx_rproc_att_imx95_m7),
+	.ops		= &imx_rproc_ops_sm,
+	.cpuid		= IMX95_M7_CPUID,
+	.lmid		= IMX95_M7_LMID,
+};
+
 static const struct udevice_id imx_rproc_ids[] = {
 	{ .compatible = "fsl,imx8mm-cm4", .data = (ulong)&imx_rproc_cfg_imx8mq },
 	{ .compatible = "fsl,imx8mn-cm7", .data = (ulong)&imx_rproc_cfg_imx8mn, },
 	{ .compatible = "fsl,imx8mp-cm7", .data = (ulong)&imx_rproc_cfg_imx8mn, },
 	{ .compatible = "fsl,imx8mq-cm4", .data = (ulong)&imx_rproc_cfg_imx8mq },
 	{ .compatible = "fsl,imx93-cm33", .data = (ulong)&imx_rproc_cfg_imx93 },
+	{ .compatible = "fsl,imx95-cm7", .data = (ulong)&imx_rproc_cfg_imx95_m7 },
 	{}
 };
 

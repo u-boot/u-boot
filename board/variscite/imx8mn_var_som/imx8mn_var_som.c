@@ -49,8 +49,6 @@ int board_mmc_get_env_dev(int devno)
 	return devno;
 }
 
-#if !defined(CONFIG_XPL_BUILD)
-
 #if defined(CONFIG_DISPLAY_BOARDINFO)
 
 static void display_som_infos(struct var_imx8_eeprom_info *info)
@@ -221,5 +219,3 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return configure_phy_reset_gpios(blob);
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
-
-#endif /* CONFIG_XPL_BUILD */

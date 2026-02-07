@@ -7,22 +7,13 @@
 #include <hang.h>
 #include <init.h>
 #include <log.h>
-#include <spl.h>
-#include <asm/global_data.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/imx8mp_pins.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/gpio.h>
-#include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
-#include <asm/arch/ddr.h>
 #include <power/pmic.h>
 #include <power/pca9450.h>
-#include <dm/uclass.h>
-#include <dm/device.h>
-
-DECLARE_GLOBAL_DATA_PTR;
+#include <spl.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/ddr.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/boot_mode.h>
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
@@ -50,21 +41,6 @@ void spl_board_init(void)
 
 	puts("Normal Boot\n");
 }
-
-#define I2C_PAD_CTRL (PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PE)
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX8MP_PAD_I2C1_SCL__I2C1_SCL | PC,
-		.gpio_mode = MX8MP_PAD_I2C1_SCL__GPIO5_IO14 | PC,
-		.gp = IMX_GPIO_NR(5, 14),
-	},
-	.sda = {
-		.i2c_mode = MX8MP_PAD_I2C1_SDA__I2C1_SDA | PC,
-		.gpio_mode = MX8MP_PAD_I2C1_SDA__GPIO5_IO15 | PC,
-		.gp = IMX_GPIO_NR(5, 15),
-	},
-};
 
 #if CONFIG_IS_ENABLED(DM_PMIC_PCA9450)
 int power_init_board(void)
