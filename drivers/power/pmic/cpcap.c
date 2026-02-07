@@ -112,6 +112,8 @@ static struct dm_pmic_ops cpcap_ops = {
 static const struct udevice_id cpcap_ids[] = {
 	{ .compatible = "motorola,cpcap" },
 	{ .compatible = "st,6556002" },
+	{ .compatible = "motorola,mapphone-cpcap" },
+	{ .compatible = "motorola,mot-cpcap" },
 	{ }
 };
 
