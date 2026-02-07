@@ -229,7 +229,7 @@ static int cpcap_regulator_probe(struct udevice *dev)
 
 	for (id = 0; id < CPCAP_REGULATORS_COUNT; id++)
 		if (cpcap_regulator_to_name[id])
-			if (!strcmp(dev->name, cpcap_regulator_to_name[id]))
+			if (!strcasecmp(dev->name, cpcap_regulator_to_name[id]))
 				break;
 
 	switch (id) {

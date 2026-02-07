@@ -14,7 +14,9 @@
 
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "sw", .driver = CPCAP_SW_DRIVER },
+	{ .prefix = "SW", .driver = CPCAP_SW_DRIVER },
 	{ .prefix = "v", .driver = CPCAP_LDO_DRIVER },
+	{ .prefix = "V", .driver = CPCAP_LDO_DRIVER },
 	{ },
 };
 
