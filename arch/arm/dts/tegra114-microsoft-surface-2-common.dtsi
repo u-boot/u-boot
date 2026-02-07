@@ -35,7 +35,7 @@
 				compatible = "samsung,ltl106hl02-001";
 				reg = <0>;
 
-				vdd-supply = <&tps65090_fet4>;
+				power-supply = <&tps65090_fet4>;
 
 				backlight = <&backlight>;
 			};
