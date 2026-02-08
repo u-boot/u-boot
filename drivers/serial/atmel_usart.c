@@ -18,10 +18,12 @@
 
 #include <asm/io.h>
 #if CONFIG_IS_ENABLED(DM_SERIAL)
-#include <asm/arch/atmel_serial.h>
+#include <dm/platform_data/atmel_serial.h>
 #endif
+#if IS_ENABLED(CONFIG_ARCH_AT91)
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
+#endif
 
 #include "atmel_usart.h"
 
@@ -315,6 +317,9 @@ U_BOOT_DRIVER(serial_atmel) = {
 static inline void _debug_uart_init(void)
 {
 	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_VAL(DEBUG_UART_BASE);
+
+	if (IS_ENABLED(CONFIG_DEBUG_UART_SKIP_INIT))
+		return;
 
 	_atmel_serial_init(usart, CONFIG_DEBUG_UART_CLOCK, CONFIG_BAUDRATE);
 }

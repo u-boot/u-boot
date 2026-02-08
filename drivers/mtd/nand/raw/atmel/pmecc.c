@@ -833,9 +833,9 @@ atmel_pmecc_create(struct udevice *dev,
 	pmecc->dev = dev;
 	mutex_init(&pmecc->lock);
 
-	ofnode_read_resource(dev->node_, 0, &res);
+	ofnode_read_resource(dev_ofnode(dev), 0, &res);
 	pmecc->regs.base = (void *)res.start;
-	ofnode_read_resource(dev->node_, 1, &res);
+	ofnode_read_resource(dev_ofnode(dev), 1, &res);
 	pmecc->regs.errloc = (void *)res.start;
 
 	/* pmecc data setup time */
@@ -913,7 +913,7 @@ struct atmel_pmecc *devm_atmel_pmecc_get(struct udevice *userdev)
 	if (!userdev)
 		return ERR_PTR(-EINVAL);
 
-	ret = ofnode_parse_phandle_with_args(userdev->node_,
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(userdev),
 					     "ecc-engine",
 					     NULL, 0, 0, &args);
 	/* Probe pmecc driver */

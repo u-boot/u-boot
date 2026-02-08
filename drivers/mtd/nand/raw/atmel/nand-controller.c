@@ -1010,10 +1010,10 @@ static int atmel_nand_pmecc_init(struct nand_chip *chip)
 	if (nc->caps->legacy_of_bindings) {
 		u32 val;
 
-		if (!ofnode_read_u32(nc->dev->node_, "atmel,pmecc-cap", &val))
+		if (!ofnode_read_u32(dev_ofnode(nc->dev), "atmel,pmecc-cap", &val))
 			chip->ecc.strength = val;
 
-		if (!ofnode_read_u32(nc->dev->node_,
+		if (!ofnode_read_u32(dev_ofnode(nc->dev),
 				     "atmel,pmecc-sector-size",
 				     &val))
 			chip->ecc.size = val;
@@ -1671,7 +1671,7 @@ static int atmel_nand_controller_add_nands(struct atmel_nand_controller *nc)
 	 * Add support for legacy nands
 	 */
 
-	np = nc->dev->node_;
+	np = dev_ofnode(nc->dev);
 
 	ret = ofnode_read_u32(np, "#address-cells", &val);
 	if (ret) {
@@ -1791,7 +1791,7 @@ static int atmel_nand_attach_chip(struct nand_chip *chip)
 	if (ret)
 		return ret;
 
-	if (nc->caps->legacy_of_bindings || !ofnode_valid(nc->dev->node_)) {
+	if (nc->caps->legacy_of_bindings || !ofnode_valid(dev_ofnode(nc->dev))) {
 		/*
 		 * We keep the MTD name unchanged to avoid breaking platforms
 		 * where the MTD cmdline parser is used and the bootloader
@@ -1855,7 +1855,7 @@ atmel_nand_controller_init(struct atmel_nand_controller *nc,
 		return PTR_ERR(nc->mck);
 	}
 
-	ret = ofnode_parse_phandle_with_args(dev->parent->node_,
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev->parent),
 					     "atmel,smc", NULL, 0, 0, &args);
 	if (ret) {
 		dev_err(dev, "Missing or invalid atmel,smc property\n");
@@ -1887,7 +1887,7 @@ atmel_smc_nand_controller_init(struct atmel_smc_nand_controller *nc)
 	if (nc->base.caps->legacy_of_bindings)
 		return 0;
 
-	ret = ofnode_parse_phandle_with_args(dev->parent->node_,
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev->parent),
 					     nc->base.caps->ebi_csa_regmap_name,
 					     NULL, 0, 0, &args);
 	if (ret) {
@@ -1933,7 +1933,7 @@ static int atmel_hsmc_nand_controller_init(struct atmel_hsmc_nand_controller *nc
 	int ret;
 	u32 addr;
 
-	ret = ofnode_parse_phandle_with_args(dev->parent->node_,
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev->parent),
 					     "atmel,smc", NULL, 0, 0, &args);
 	if (ret) {
 		dev_err(dev, "Missing or invalid atmel,smc property\n");
@@ -1957,7 +1957,7 @@ static int atmel_hsmc_nand_controller_init(struct atmel_hsmc_nand_controller *nc
 	if (ret)
 		return ret;
 
-	ret = ofnode_parse_phandle_with_args(dev->node_,
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev),
 					     "atmel,nfc-io", NULL, 0, 0, &args);
 	if (ret) {
 		dev_err(dev, "Missing or invalid atmel,nfc-io property\n");
@@ -1971,7 +1971,7 @@ static int atmel_hsmc_nand_controller_init(struct atmel_hsmc_nand_controller *nc
 		return ret;
 	}
 
-	ret = ofnode_parse_phandle_with_args(dev->node_,
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev),
 					     "atmel,nfc-sram", NULL, 0, 0, &args);
 	if (ret) {
 		dev_err(dev, "Missing or invalid atmel,nfc-sram property\n");

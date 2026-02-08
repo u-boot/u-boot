@@ -29,7 +29,7 @@
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_rtc.h>
 #include <asm/arch/at91_sck.h>
-#include <asm/arch/atmel_serial.h>
+#include <dm/platform_data/atmel_serial.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <dm/uclass-internal.h>
