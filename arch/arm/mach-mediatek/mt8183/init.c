@@ -42,11 +42,6 @@ int mtk_pll_early_init(void)
 	return 0;
 }
 
-int mtk_soc_early_init(void)
-{
-	return 0;
-}
-
 void reset_cpu(void)
 {
 	psci_system_reset();

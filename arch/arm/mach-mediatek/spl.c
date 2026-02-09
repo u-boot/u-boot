@@ -9,7 +9,10 @@
 #include <init.h>
 #include <spl.h>
 
-#include "init.h"
+__weak int mtk_soc_early_init(void)
+{
+	return 0;
+}
 
 void board_init_f(ulong dummy)
 {
