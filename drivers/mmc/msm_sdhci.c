@@ -13,7 +13,6 @@
 #include <reset.h>
 #include <sdhci.h>
 #include <wait_bit.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <power/regulator.h>
@@ -60,8 +59,6 @@ struct msm_sdhc_variant_info {
 	u32 core_vendor_spec;
 	u32 core_vendor_spec_capabilities0;
 };
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int msm_sdc_clk_init(struct udevice *dev)
 {

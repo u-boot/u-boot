@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <time.h>
 #include <vsprintf.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
@@ -22,8 +21,6 @@
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/system_manager.h>
 #include <dt-bindings/clock/agilex5-clock.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static ulong cm_get_rate_dm(u32 id)
 {

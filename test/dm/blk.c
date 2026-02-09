@@ -8,13 +8,10 @@
 #include <part.h>
 #include <sandbox_host.h>
 #include <usb.h>
-#include <asm/global_data.h>
 #include <asm/state.h>
 #include <dm/test.h>
 #include <test/test.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Test that block devices can be created */
 static int dm_test_blk_base(struct unit_test_state *uts)

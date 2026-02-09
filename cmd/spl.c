@@ -9,10 +9,7 @@
 #include <env.h>
 #include <image.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <linux/libfdt.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const char **subcmd_list[] = {
 

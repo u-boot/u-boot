@@ -18,7 +18,6 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/cache.h>
-#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <power/regulator.h>
 
@@ -35,8 +34,6 @@
 
 #include "fec_mxc.h"
 #include <eth_phy.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Timeout the transfer after 5 mS. This is usually a bit more, since

@@ -7,13 +7,10 @@
 
 #include <dm.h>
 #include <wdt.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <dm/device_compat.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct a37xx_wdt {
 	void __iomem *sel_reg;

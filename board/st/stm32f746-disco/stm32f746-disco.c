@@ -15,15 +15,12 @@
 #include <spl.h>
 #include <splash.h>
 #include <video.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/armv7m.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/syscfg.h>
 #include <asm/gpio.h>
 #include <linux/delay.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {

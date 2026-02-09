@@ -8,13 +8,10 @@
 
 #include <dm.h>
 #include <fdt_support.h>
-#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <video.h>
 #include <spl.h>
 #include <bloblist.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int fdt_simplefb_configure_node(void *blob, int off)
 {

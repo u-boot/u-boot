@@ -10,8 +10,6 @@
 #include <reboot-mode/reboot-mode-gpio.h>
 #include <reboot-mode/reboot-mode.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static int reboot_mode_get(struct udevice *dev, u32 *buf)
 {
 	int ret;

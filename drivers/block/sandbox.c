@@ -10,12 +10,9 @@
 #include <os.h>
 #include <malloc.h>
 #include <sandbox_host.h>
-#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <linux/errno.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static unsigned long host_block_read(struct udevice *dev,
 				     lbaint_t start, lbaint_t blkcnt,

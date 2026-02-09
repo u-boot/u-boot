@@ -5,10 +5,7 @@
 
 #include <fdtdec.h>
 #include <init.h>
-#include <asm/global_data.h>
 #include <linux/sizes.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {

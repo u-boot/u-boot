@@ -16,7 +16,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <memalign.h>
-#include <asm/global_data.h>
 #include "ubifs.h"
 #include <part.h>
 #include <dm/devres.h>
@@ -30,8 +29,6 @@
 #include <linux/zstd.h>
 #include <abuf.h>
 #endif
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* compress.c */
 

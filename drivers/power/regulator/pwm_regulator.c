@@ -11,11 +11,8 @@
 #include <errno.h>
 #include <log.h>
 #include <pwm.h>
-#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <power/regulator.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct pwm_regulator_info {
 	/* pwm id corresponding to the PWM driver */

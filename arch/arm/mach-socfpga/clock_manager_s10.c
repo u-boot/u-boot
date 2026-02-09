@@ -7,13 +7,10 @@
 #include <compiler.h>
 #include <dm/device.h>
 #include <linux/errno.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/handoff_soc64.h>
 #include <asm/arch/system_manager.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * function to write the bypass register which requires a poll of the

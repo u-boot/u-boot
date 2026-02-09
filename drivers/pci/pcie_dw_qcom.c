@@ -10,7 +10,6 @@
 #include <syscon.h>
 #include <malloc.h>
 #include <power/regulator.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device_compat.h>
@@ -20,8 +19,6 @@
 #include <linux/bitfield.h>
 
 #include "pcie_dw_common.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct qcom_pcie;
 

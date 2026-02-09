@@ -8,10 +8,7 @@
 #include <init.h>
 #include <log.h>
 #include <spl.h>
-#include <asm/global_data.h>
 #include <asm/system.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(RAM_SUPPORT)
 struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)

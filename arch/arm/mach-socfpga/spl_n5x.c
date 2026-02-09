@@ -10,7 +10,6 @@
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/utils.h>
 #include <dm/uclass.h>
@@ -19,8 +18,6 @@
 #include <init.h>
 #include <spl.h>
 #include <watchdog.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 void board_init_f(ulong dummy)
 {

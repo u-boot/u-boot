@@ -5,12 +5,9 @@
  */
 
 #include <init.h>
-#include <asm/global_data.h>
 #include <linux/errno.h>
 #include <asm/mtrr.h>
 #include <asm/u-boot-x86.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int init_cache_f_r(void)
 {

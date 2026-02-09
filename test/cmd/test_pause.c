@@ -5,11 +5,8 @@
  * Copyright 2022, Samuel Dionne-Riel <samuel@dionne-riel.com>
  */
 
-#include <asm/global_data.h>
 #include <test/lib.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int lib_test_hush_pause(struct unit_test_state *uts)
 {

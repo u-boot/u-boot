@@ -5,7 +5,6 @@
  */
 
 #include <config.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
@@ -18,8 +17,6 @@
 #include <linux/delay.h>
 #include <malloc.h>
 #include <thermal.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define SITES_MAX	16
 #define FLAGS_VER2	0x1

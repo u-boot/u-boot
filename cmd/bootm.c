@@ -15,13 +15,10 @@
 #include <malloc.h>
 #include <nand.h>
 #include <asm/byteorder.h>
-#include <asm/global_data.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
 #include <u-boot/zlib.h>
 #include <mapmem.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_CMD_IMI)
 static int image_info(unsigned long addr);

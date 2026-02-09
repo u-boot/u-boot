@@ -6,15 +6,12 @@
 #include <dm.h>
 #include <malloc.h>
 #include <sdhci.h>
-#include <asm/global_data.h>
 #include <linux/mbus.h>
 
 #define MVSDH_NAME "mv_sdh"
 
 #define SDHCI_WINDOW_CTRL(win)		(0x4080 + ((win) << 4))
 #define SDHCI_WINDOW_BASE(win)		(0x4084 + ((win) << 4))
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct mv_sdhci_plat {
 	struct mmc_config cfg;

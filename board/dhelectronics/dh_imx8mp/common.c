@@ -8,8 +8,6 @@
 
 #include "lpddr4_timing.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 u8 dh_get_memcfg(void)
 {
 	struct gpio_desc gpio[4];

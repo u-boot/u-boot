@@ -7,7 +7,6 @@
 
 #include <dm.h>
 #include <fdtdec.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>
@@ -17,8 +16,6 @@
 #include "comphy_core.h"
 
 #define COMPHY_MAX_CHIP 4
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const char *get_speed_string(u32 speed)
 {

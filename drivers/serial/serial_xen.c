@@ -7,7 +7,6 @@
 #include <dm.h>
 #include <serial.h>
 #include <watchdog.h>
-#include <asm/global_data.h>
 
 #include <linux/bug.h>
 
@@ -19,8 +18,6 @@
 #include <xen/interface/hvm/params.h>
 #include <xen/interface/io/console.h>
 #include <xen/interface/io/ring.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 u32 console_evtchn;
 

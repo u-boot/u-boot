@@ -6,13 +6,10 @@
  */
 
 #include <command.h>
-#include <asm/global_data.h>
 #include <display_options.h>
 #include <test/lib.h>
 #include <test/test.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct test_data {
 	char *cmd;

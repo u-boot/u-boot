@@ -9,10 +9,7 @@
 #include <errno.h>
 #include <fsl_pmic.h>
 #include <i2c.h>
-#include <asm/global_data.h>
 #include <power/pmic.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int mc34708_reg_count(struct udevice *dev)
 {

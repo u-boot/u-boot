@@ -52,8 +52,6 @@
 #include <mach/cvmx-helper-pki.h>
 #include <mach/cvmx-helper-pko.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define CVMX_PKO_NQ_PER_PORT_MAX 32
 
 static cvmx_pko_return_value_t cvmx_pko2_config_port(short ipd_port,

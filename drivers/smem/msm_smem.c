@@ -7,7 +7,6 @@
 
 #include <errno.h>
 #include <dm.h>
-#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <dm/of_access.h>
@@ -19,8 +18,6 @@
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include <smem.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * The Qualcomm shared memory system is an allocate-only heap structure that

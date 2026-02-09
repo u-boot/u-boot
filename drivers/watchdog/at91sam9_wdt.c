@@ -15,15 +15,12 @@
  */
 
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/at91_wdt.h>
 #include <div64.h>
 #include <dm.h>
 #include <errno.h>
 #include <wdt.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * AT91SAM9 watchdog runs a 12bit counter @ 256Hz,

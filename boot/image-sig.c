@@ -5,8 +5,6 @@
 
 #include <log.h>
 #include <malloc.h>
-#include <asm/global_data.h>
-DECLARE_GLOBAL_DATA_PTR;
 #include <image.h>
 #include <relocate.h>
 #include <u-boot/ecdsa.h>

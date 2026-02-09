@@ -13,7 +13,6 @@
 #include <reset.h>
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device_compat.h>
@@ -23,8 +22,6 @@
 #include <power/regulator.h>
 
 #include "pcie_dw_common.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * struct rk_pcie - RK DW PCIe controller state

@@ -17,7 +17,6 @@
 #include <dm.h>
 #include <pwm.h>
 #include <regmap.h>
-#include <asm/global_data.h>
 #include <linux/io.h>
 #include <linux/log2.h>
 #include <linux/bitfield.h>
@@ -39,8 +38,6 @@
 
 #define PWM_SIFIVE_CHANNEL_ENABLE_VAL   0
 #define PWM_SIFIVE_CHANNEL_DISABLE_VAL  0xffff
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct pwm_sifive_regs {
 	unsigned long cfg;

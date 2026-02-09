@@ -15,12 +15,9 @@
 #include <net.h>
 #include <usb.h>
 #include <asm/cache.h>
-#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <fdt_support.h>
 #include <linux/delay.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static u32 msm_board_serial(void)
 {

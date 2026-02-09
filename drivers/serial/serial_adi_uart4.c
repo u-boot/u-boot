@@ -80,8 +80,6 @@
 #define ERXS			BIT(8)
 #define ETXS			BIT(9)
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct uart4_reg {
 	u32 revid;
 	u32 control;

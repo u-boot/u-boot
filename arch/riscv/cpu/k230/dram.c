@@ -3,12 +3,9 @@
  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <asm/global_data.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <linux/sizes.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
