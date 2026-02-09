@@ -83,17 +83,17 @@ static int ti_musb_of_to_plat(struct udevice *dev)
 	struct ti_musb_plat *plat = dev_get_plat(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
-	int phys;
-	int ctrl_mod;
+	ofnode phys_node;
+	ofnode ctrl_mod_node;
 	int usb_index;
 	int ret;
 	struct musb_hdrc_config *musb_config;
 
 	plat->base = devfdt_get_addr_index_ptr(dev, 1);
 
-	phys = fdtdec_lookup_phandle(fdt, node, "phys");
-	ctrl_mod = fdtdec_lookup_phandle(fdt, phys, "ti,ctrl_mod");
-	plat->ctrl_mod_base = (void *)fdtdec_get_addr(fdt, ctrl_mod, "reg");
+	phys_node = ofnode_get_by_phandle(dev_read_u32_default(dev, "phys", 0));
+	ctrl_mod_node = ofnode_get_by_phandle(ofnode_read_u32_default(phys_node, "ti,ctrl_mod", 0));
+	plat->ctrl_mod_base = (void *)ofnode_get_addr(ctrl_mod_node);
 	usb_index = ti_musb_get_usb_index(node);
 	switch (usb_index) {
 	case 1:
