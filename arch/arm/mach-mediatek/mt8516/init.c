@@ -40,7 +40,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-int mtk_pll_early_init(void)
+static int mtk_pll_early_init(void)
 {
 	unsigned long pll_rates[] = {
 		[CLK_APMIXED_ARMPLL] =   1300000000,
