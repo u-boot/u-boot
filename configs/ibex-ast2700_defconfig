@@ -50,7 +50,6 @@ CONFIG_SPL_RAM_DEVICE=y
 # CONFIG_CMD_BOOTD is not set
 # CONFIG_CMD_BOOTI is not set
 # CONFIG_BOOTM_LINUX is not set
-# CONFIG_BOOTM_NETBSD is not set
 # CONFIG_BOOTM_PLAN9 is not set
 # CONFIG_BOOTM_RTEMS is not set
 # CONFIG_BOOTM_VXWORKS is not set

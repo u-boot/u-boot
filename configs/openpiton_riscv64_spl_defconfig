@@ -44,7 +44,6 @@ CONFIG_SPL_RTC=y
 CONFIG_SYS_PROMPT="openpiton$ "
 # CONFIG_CMD_CPU is not set
 CONFIG_CMD_BOOTZ=y
-# CONFIG_BOOTM_NETBSD is not set
 # CONFIG_BOOTM_PLAN9 is not set
 # CONFIG_BOOTM_RTEMS is not set
 # CONFIG_BOOTM_VXWORKS is not set
