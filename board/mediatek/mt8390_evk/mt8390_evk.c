@@ -7,11 +7,6 @@
 #include <linux/types.h>
 #include <asm/armv8/mmu.h>
 
-int board_init(void)
-{
-	return 0;
-}
-
 static struct mm_region mt8390_evk_mem_map[] = {
 	{
 		/* DDR */
