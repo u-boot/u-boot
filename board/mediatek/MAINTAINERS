@@ -1,3 +1,9 @@
+MT8365 EVK
+M:	Julien Masson <jmasson@baylibre.com>
+S:	Maintained
+F:	board/mediatek/mt8365_evk/
+F:	configs/mt8365_evk_defconfig
+
 MT8390 EVK
 M:	Julien Masson <jmasson@baylibre.com>
 M:	Macpaul Lin <Macpaul.Lin@mediatek.com>
