@@ -98,6 +98,7 @@ struct tftp_state {
   int last_pkt;
   u16_t blknum;
   u16_t blksize;
+  u32_t tsize;
   u8_t retries;
   u8_t mode_write;
   u8_t tftp_mode;
@@ -167,6 +168,7 @@ send_request(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname,
 {
   size_t fname_length = strlen(fname)+1;
   size_t mode_length = strlen(mode)+1;
+  size_t tsize_length = strlen("tsize")+3; /* "tsize\0\0\0" */
   size_t blksize_length = 0;
   int blksize = tftp_state.blksize;
   struct pbuf* p;
@@ -182,7 +184,7 @@ send_request(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname,
     }
   }
 
-  p = init_packet(opcode, 0, fname_length + mode_length + blksize_length - 2);
+  p = init_packet(opcode, 0, fname_length + mode_length + blksize_length + tsize_length - 2);
   if (p == NULL) {
     return ERR_MEM;
   }
@@ -190,8 +192,9 @@ send_request(const ip_addr_t *addr, u16_t port, u16_t opcode, const char* fname,
   payload = (char*) p->payload;
   MEMCPY(payload+2,              fname, fname_length);
   MEMCPY(payload+2+fname_length, mode,  mode_length);
+  sprintf(payload+2+fname_length+mode_length, "tsize%c%u%c", 0, 0, 0);
   if (tftp_state.blksize)
-    sprintf(payload+2+fname_length+mode_length, "blksize%c%d", 0, tftp_state.blksize);
+    sprintf(payload+2+fname_length+mode_length+tsize_length, "blksize%c%d", 0, tftp_state.blksize);
 
   tftp_state.wait_oack = true;
   ret = udp_sendto(tftp_state.upcb, p, addr, port);
@@ -450,14 +453,24 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
       }
 
       blknum = lwip_ntohs(sbuf[1]);
-      if (tftp_state.blksize && tftp_state.wait_oack) {
+      if (tftp_state.wait_oack) {
         /*
-         * Data received while we are expecting an OACK for our blksize option.
+         * Data received while we are expecting an OACK for our tsize option.
          * This means the server doesn't support it, let's switch back to the
          * default block size.
          */
-       tftp_state.blksize = 0;
-       tftp_state.wait_oack = false;
+        tftp_state.tsize = 0;
+        tftp_state.wait_oack = false;
+
+        if (tftp_state.blksize) {
+          /*
+           * Data received while we are expecting an OACK for our blksize option.
+           * This means the server doesn't support it, let's switch back to the
+           * default block size.
+           */
+          tftp_state.blksize = 0;
+          tftp_state.wait_oack = false;
+        }
       }
       if (blknum == tftp_state.blknum) {
         pbuf_remove_header(p, TFTP_HEADER_LENGTH);
@@ -527,20 +540,30 @@ tftp_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr
       }
       break;
     case PP_HTONS(TFTP_OACK): {
-      const char *optval = find_option(p, "blksize");
+      const char *blksizeoptval = find_option(p, "blksize");
+      const char *tsizeoptval = find_option(p, "tsize");
       u16_t srv_blksize = 0;
+      u32_t srv_tsize = 0;
       tftp_state.wait_oack = false;
-      if (optval) {
+      if (blksizeoptval) {
 	if (!tftp_state.blksize) {
 	  /* We did not request this option */
           send_error(addr, port, TFTP_ERROR_ILLEGAL_OPERATION, "blksize unexpected");
 	}
-	srv_blksize = atoi(optval);
+	srv_blksize = atoi(blksizeoptval);
 	if (srv_blksize <= 0 || srv_blksize > tftp_state.blksize) {
 	  send_error(addr, port, TFTP_ERROR_ILLEGAL_OPERATION, "Invalid blksize");
 	}
 	LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: accepting blksize=%d\n", srv_blksize));
 	tftp_state.blksize = srv_blksize;
+      }
+      if (tsizeoptval) {
+	srv_tsize = atoi(tsizeoptval);
+	if (srv_tsize <= 0) {
+	  srv_tsize = 0; /* tsize is optional */
+	}
+	LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp: accepting tsize=%d\n", srv_tsize));
+	tftp_state.tsize = srv_tsize;
       }
       send_ack(addr, port, 0);
       break;
@@ -653,6 +676,16 @@ err_t
 tftp_init_client(const struct tftp_context *ctx)
 {
   return tftp_init_common(LWIP_TFTP_MODE_CLIENT, ctx);
+}
+
+/** @ingroup tftp
+ * Get the transfer size used by the TFTP client. The server may
+ * report zero in case this is unsupported.
+ */
+u32_t
+tftp_client_get_tsize(void)
+{
+  return tftp_state.tsize;
 }
 
 /** @ingroup tftp

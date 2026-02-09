@@ -94,7 +94,7 @@ static int	tftp_state;
 static ulong	tftp_load_addr;
 #ifdef CONFIG_TFTP_TSIZE
 /* The file size reported by the server */
-static int	tftp_tsize;
+static unsigned int tftp_tsize;
 /* The number of hashes we printed */
 static short	tftp_tsize_num_hash;
 #endif
@@ -573,7 +573,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			if (strcasecmp((char *)pkt + i, "tsize") == 0) {
 				tftp_tsize = dectoul((char *)pkt + i + 6,
 						     NULL);
-				debug("size = %s, %d\n",
+				debug("size = %s, %u\n",
 				      (char *)pkt + i + 6, tftp_tsize);
 			}
 #endif

@@ -151,8 +151,13 @@ static const struct mdio_ops mt7531_mdio_ops = {
 static int mt7531_mdio_probe(struct udevice *dev)
 {
 	struct mt7531_mdio_priv *priv = dev_get_priv(dev);
+	ofnode switch_node;
 
-	priv->switch_regs = dev_read_addr(dev);
+	switch_node = ofnode_get_parent(dev_ofnode(dev));
+	if (!ofnode_valid(switch_node))
+		return -EINVAL;
+
+	priv->switch_regs = ofnode_get_addr(switch_node);
 	if (priv->switch_regs == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

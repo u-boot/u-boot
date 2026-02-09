@@ -32,7 +32,7 @@ static uchar *saved_prot_info;
 #endif
 static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 {
-	int size, rv;
+	int rv;
 	ulong saved_timeout_msecs;
 	int saved_timeout_count;
 	char *saved_netretry, *saved_bootfile;
@@ -54,12 +54,12 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	/* download the update file */
 	image_load_addr = addr;
 	copy_filename(net_boot_file_name, filename, sizeof(net_boot_file_name));
-	size = net_loop(TFTPGET);
+	rv = net_loop(TFTPGET);
 
-	if (size < 0)
+	if (rv < 0)
 		rv = 1;
-	else if (size > 0)
-		flush_cache(addr, size);
+	else
+		flush_cache(addr, net_boot_file_size);
 
 	/* restore changed globals and env variable */
 	tftp_timeout_ms = saved_timeout_msecs;

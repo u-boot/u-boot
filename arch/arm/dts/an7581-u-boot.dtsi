@@ -57,6 +57,11 @@
 		switch: switch@1fb58000 {
 			compatible = "airoha,en7581-switch";
 			reg = <0 0x1fb58000 0 0x8000>;
+
+			mdio: mdio {
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
 		};
 
 		snfi: spi@1fa10000 {

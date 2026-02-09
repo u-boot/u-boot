@@ -14,23 +14,31 @@
 #define EQOS_MAC_REGS_BASE 0x000
 struct eqos_mac_regs {
 	u32 configuration;				/* 0x000 */
-	u32 unused_004[(0x070 - 0x004) / 4];	/* 0x004 */
+	u32 ext_configuration;				/* 0x004 */
+	u32 packet_filter;				/* 0x008 */
+	u32 watchdog_timeout;				/* 0x00c */
+	u32 unused_010[(0x070 - 0x010) / 4];	/* 0x010 */
 	u32 q0_tx_flow_ctrl;			/* 0x070 */
-	u32 unused_070[(0x090 - 0x074) / 4];	/* 0x074 */
+	u32 unused_074[(0x090 - 0x074) / 4];	/* 0x074 */
 	u32 rx_flow_ctrl;				/* 0x090 */
-	u32 unused_094;				/* 0x094 */
+	u32 rxq_ctrl4;				/* 0x094 */
 	u32 txq_prty_map0;				/* 0x098 */
-	u32 unused_09c;				/* 0x09c */
+	u32 txq_prty_map1;				/* 0x09c */
 	u32 rxq_ctrl0;				/* 0x0a0 */
-	u32 unused_0a4;				/* 0x0a4 */
+	u32 rxq_ctrl1;				/* 0x0a4 */
 	u32 rxq_ctrl2;				/* 0x0a8 */
-	u32 unused_0ac[(0x0dc - 0x0ac) / 4];	/* 0x0ac */
+	u32 rxq_ctrl3;				/* 0x0ac */
+	u32 unused_0b0[(0x0dc - 0x0b0) / 4];	/* 0x0b0 */
 	u32 us_tic_counter;			/* 0x0dc */
-	u32 unused_0e0[(0x11c - 0x0e0) / 4];	/* 0x0e0 */
+	u32 unused_0e0[(0x110 - 0x0e0) / 4];	/* 0x0e0 */
+	u32 version;					/* 0x110 */
+	u32 debug;					/* 0x114 */
+	u32 unused_118;					/* 0x118 */
 	u32 hw_feature0;				/* 0x11c */
 	u32 hw_feature1;				/* 0x120 */
 	u32 hw_feature2;				/* 0x124 */
-	u32 unused_128[(0x200 - 0x128) / 4];	/* 0x128 */
+	u32 hw_feature3;				/* 0x128 */
+	u32 unused_12c[(0x200 - 0x12c) / 4];	/* 0x12c */
 	u32 mdio_address;				/* 0x200 */
 	u32 mdio_data;				/* 0x204 */
 	u32 unused_208[(0x300 - 0x208) / 4];	/* 0x208 */
@@ -51,6 +59,8 @@ struct eqos_mac_regs {
 #define EQOS_MAC_CONFIGURATION_TE			BIT(1)
 #define EQOS_MAC_CONFIGURATION_RE			BIT(0)
 
+#define EQOS_MAC_PACKET_FILTER_PR			BIT(0)
+
 #define EQOS_MAC_Q0_TX_FLOW_CTRL_PT_SHIFT		16
 #define EQOS_MAC_Q0_TX_FLOW_CTRL_PT_MASK		0xffff
 #define EQOS_MAC_Q0_TX_FLOW_CTRL_TFE			BIT(1)
@@ -65,6 +75,8 @@ struct eqos_mac_regs {
 #define EQOS_MAC_RXQ_CTRL0_RXQ0EN_NOT_ENABLED		0
 #define EQOS_MAC_RXQ_CTRL0_RXQ0EN_ENABLED_DCB		2
 #define EQOS_MAC_RXQ_CTRL0_RXQ0EN_ENABLED_AV		1
+
+#define EQOS_MAC_RXQ_CTRL1_MCBCQEN			BIT(20)
 
 #define EQOS_MAC_RXQ_CTRL2_PSRQ0_SHIFT			0
 #define EQOS_MAC_RXQ_CTRL2_PSRQ0_MASK			0xff
