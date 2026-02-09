@@ -608,6 +608,9 @@ void  update_fdt_from_fw(void *fdt, void *fw_fdt)
 	/* warnings from the firmware (if any) */
 	copy_property(fdt, fw_fdt, "/chosen", "user-warnings");
 
+	/* firmware logs - used by the vclog utility */
+	copy_property(fdt, fw_fdt, "/chosen", "log");
+
 	/* address of the PHY device as provided by the firmware  */
 	copy_property(fdt, fw_fdt, "ethernet0/mdio@e14/ethernet-phy@1", "reg");
 
