@@ -132,6 +132,12 @@ endchoice
 
 if ARM64
 
+config MTK_MEM_MAP_DDR_BASE_PHY
+	hex "DDR physical base address"
+	default 0x40000000
+	help
+		Target-specific DDR physical base address.
+
 config MTK_MEM_MAP_DDR_SIZE
 	hex "DDR .size in mem_map"
 	default 0x200000000 if TARGET_MT7987 || TARGET_MT7988 || TARGET_MT8188

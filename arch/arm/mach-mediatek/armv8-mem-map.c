@@ -5,8 +5,8 @@
 static struct mm_region mediatek_mem_map[] = {
 	{
 		/* DDR */
-		.virt = 0x40000000UL,
-		.phys = 0x40000000UL,
+		.virt = CONFIG_MTK_MEM_MAP_DDR_BASE_PHY,
+		.phys = CONFIG_MTK_MEM_MAP_DDR_BASE_PHY,
 		.size = CONFIG_MTK_MEM_MAP_DDR_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_OUTER_SHARE,
 	}, {
