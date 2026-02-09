@@ -4,6 +4,8 @@
  *
  */
 
+#include <compiler.h>
+#include <dm/device.h>
 #include <linux/errno.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
