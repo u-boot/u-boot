@@ -59,24 +59,3 @@ int print_cpuinfo(void)
 	debug("CPU:   MediaTek MT8512\n");
 	return 0;
 }
-
-static struct mm_region mt8512_mem_map[] = {
-	{
-		/* DDR */
-		.virt = 0x40000000UL,
-		.phys = 0x40000000UL,
-		.size = 0x40000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_OUTER_SHARE,
-	}, {
-		.virt = 0x00000000UL,
-		.phys = 0x00000000UL,
-		.size = 0x40000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		0,
-	}
-};
-
-struct mm_region *mem_map = mt8512_mem_map;

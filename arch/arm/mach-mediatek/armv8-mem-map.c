@@ -1,28 +1,24 @@
-// SPDX-License-Identifier: GPL-2.0
-/*
- * Copyright (C) 2023 BayLibre SAS
- * Author: Julien Masson <jmasson@baylibre.com>
- */
+// SPDX-License-Identifier: GPL-2.0-only
 
 #include <asm/armv8/mmu.h>
 
-static struct mm_region mt8365_evk_mem_map[] = {
+static struct mm_region mediatek_mem_map[] = {
 	{
 		/* DDR */
 		.virt = 0x40000000UL,
 		.phys = 0x40000000UL,
-		.size = 0xc0000000UL,
+		.size = CONFIG_MTK_MEM_MAP_DDR_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_OUTER_SHARE,
 	}, {
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
-		.size = 0x20000000UL,
+		.size = CONFIG_MTK_MEM_MAP_MMIO_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		0,
+		/* List terminator */
 	}
 };
 
-struct mm_region *mem_map = mt8365_evk_mem_map;
+struct mm_region *mem_map = mediatek_mem_map;
