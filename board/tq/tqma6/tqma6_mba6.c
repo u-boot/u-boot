@@ -10,6 +10,7 @@
  */
 
 #include <env.h>
+#include <env_internal.h>
 #include <spl.h>
 
 #include <asm/arch/mx6-pins.h>
@@ -103,6 +104,44 @@ int tq_bb_board_late_init(void)
 {
 	board_late_mmc_env_init();
 	return 0;
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bmode = imx6_src_get_boot_mode();
+	u8 imx6_bmode = (bmode & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT;
+
+	switch (imx6_bmode) {
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
+		if (prio == 0)
+			return ENVL_MMC;
+		break;
+	case IMX6_BMODE_SERIAL_ROM:
+		switch ((imx6_bmode & IMX6_BMODE_SERIAL_ROM_MASK) >>
+			IMX6_BMODE_SERIAL_ROM_SHIFT) {
+		case IMX6_BMODE_ECSPI1:
+		case IMX6_BMODE_ECSPI2:
+		case IMX6_BMODE_ECSPI3:
+		case IMX6_BMODE_ECSPI4:
+		case IMX6_BMODE_ECSPI5:
+			if (prio == 0)
+				return ENVL_SPI_FLASH;
+			break;
+		default:
+			if (prio == 0)
+				return ENVL_NOWHERE;
+			break;
+		}
+	default:
+		if (prio == 0)
+			return ENVL_NOWHERE;
+		break;
+	}
+
+	return ENVL_UNKNOWN;
 }
 
 #endif /* !IS_ENABLED(CONFIG_SPL_BUILD) */

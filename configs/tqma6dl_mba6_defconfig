@@ -1,5 +1,4 @@
 #include <configs/tqma6_mba6_common.config>
-#include <configs/tqma6_mba6_spi.config>
 
 CONFIG_MX6DL=y
 CONFIG_DEFAULT_DEVICE_TREE="nxp/imx/imx6dl-mba6b"

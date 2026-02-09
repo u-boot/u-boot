@@ -6,3 +6,10 @@
  */
 
 #include "imx6qdl-tqma6-u-boot.dtsi"
+/ {
+	config {
+		u-boot,mmc-env-offset = <0x100000>;
+		u-boot,mmc-env-offset-redundant = <0x110000>;
+	};
+};
+
