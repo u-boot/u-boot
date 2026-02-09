@@ -9,7 +9,7 @@
 #define MTK_PINCTRL_V0 0x0
 #define MTK_PINCTRL_V1 0x1
 #define BASE_CALC_NONE 0
-#define MAX_BASE_CALC 10
+#define MAX_BASE_CALC 15
 
 #define MTK_RANGE(_a)		{ .range = (_a), .nranges = ARRAY_SIZE(_a), }
 
