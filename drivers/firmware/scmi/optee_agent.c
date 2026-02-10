@@ -331,7 +331,8 @@ static int scmi_optee_get_channel(struct udevice *dev,
 	u32 channel_id;
 	int ret;
 
-	if (dev_read_u32(protocol, "linaro,optee-channel-id", &channel_id)) {
+	if (!dev_has_ofnode(protocol) ||
+	    dev_read_u32(protocol, "linaro,optee-channel-id", &channel_id)) {
 		/* Uses agent base channel */
 		*channel = container_of(base_chan, struct scmi_channel, ref);
 
