@@ -156,6 +156,43 @@ config SYS_DEFAULT_LPDDR2_TIMINGS
 
 endchoice
 
+config SPL_AM33XX_MMCSD_MULTIPLE
+	bool "Support multiple locations of next boot phase"
+	depends on AM33XX
+	depends on SPL_SYS_MMCSD_RAW_MODE
+	depends on SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+	help
+	  The boot ROM on the am33xx looks for the first stage
+	  bootloader at several hard-coded offsets in the mmc device
+	  (0, 128K, 256K, 384K) and uses the first location which has
+	  a valid header. This can be used to implement failsafe
+	  update of that first stage (SPL). But in order for the
+	  update of the whole bootloader to be failsafe, SPL must load
+	  U-Boot proper from a location dependent on where SPL itself
+	  was loaded from. This option allows you to specify four
+	  different offsets corresponding to the different places
+	  where SPL could have been loaded from.
+
+if SPL_AM33XX_MMCSD_MULTIPLE
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR_0K
+	hex "Address on the MMC to load U-Boot from when SPL was loaded from offset 0K"
+	default SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR_128K
+	hex "Address on the MMC to load U-Boot from when SPL was loaded from offset 128K"
+	default SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR_256K
+	hex "Address on the MMC to load U-Boot from when SPL was loaded from offset 256K"
+	default SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR_384K
+	hex "Address on the MMC to load U-Boot from when SPL was loaded from offset 384K"
+	default SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+
+endif
+
 source "arch/arm/mach-omap2/omap3/Kconfig"
 
 source "arch/arm/mach-omap2/omap5/Kconfig"
