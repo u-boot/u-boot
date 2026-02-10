@@ -2138,6 +2138,7 @@ quiet_cmd_gen_envp = ENVP    $@
 			-D__ASSEMBLY__ \
 			-D__UBOOT_CONFIG__ \
 			-DDEFAULT_DEVICE_TREE=$(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE)) \
+			-DDEFAULT_FDT_FILE=$(subst ",,$(CONFIG_DEFAULT_FDT_FILE)) \
 			-I . -I include -I $(srctree)/include \
 			-include linux/kconfig.h -include include/config.h \
 			-I$(srctree)/arch/$(ARCH)/include \
