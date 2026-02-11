@@ -433,22 +433,18 @@ static int airoha_get_fe_port(struct airoha_gdm_port *port)
 	}
 }
 
-static void airoha_fe_maccr_init(struct airoha_eth *eth)
+static void airoha_fe_maccr_init(struct airoha_gdm_port *port)
 {
-	int p;
-
-	for (p = 1; p <= AIROHA_MAX_NUM_GDM_PORTS; p++) {
-		/*
-		 * Disable any kind of CRC drop or offload.
-		 * Enable padding of short TX packets to 60 bytes.
-		 */
-		airoha_fe_wr(eth, REG_GDM_FWD_CFG(p), GDM_PAD_EN);
-	}
+	/*
+	 * Disable any kind of CRC drop or offload.
+	 * Enable padding of short TX packets to 60 bytes.
+	 */
+	airoha_fe_wr(port->qdma->eth, REG_GDM_FWD_CFG(port->id), GDM_PAD_EN);
 }
 
-static int airoha_fe_init(struct airoha_eth *eth)
+static int airoha_fe_init(struct airoha_gdm_port *port)
 {
-	airoha_fe_maccr_init(eth);
+	airoha_fe_maccr_init(port);
 
 	return 0;
 }
@@ -720,10 +716,6 @@ static int airoha_hw_init(struct udevice *dev,
 
 	mdelay(20);
 
-	ret = airoha_fe_init(eth);
-	if (ret)
-		return ret;
-
 	for (i = 0; i < ARRAY_SIZE(eth->qdma); i++) {
 		ret = airoha_qdma_init(dev, eth, &eth->qdma[i]);
 		if (ret)
@@ -890,6 +882,10 @@ static int airoha_eth_port_probe(struct udevice *dev)
 	struct airoha_gdm_port *port = dev_get_priv(dev);
 
 	port->qdma = &eth->qdma[0];
+
+	ret = airoha_fe_init(port);
+	if (ret)
+		return ret;
 
 	return 0;
 }
