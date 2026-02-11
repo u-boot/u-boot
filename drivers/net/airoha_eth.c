@@ -704,6 +704,7 @@ static int airoha_qdma_init(struct udevice *dev,
 	return airoha_qdma_hw_init(qdma);
 }
 
+#if defined(CONFIG_PCS_AIROHA)
 static int airoha_pcs_init(struct udevice *dev)
 {
 	struct airoha_gdm_port *port = dev_get_priv(dev);
@@ -731,6 +732,7 @@ static int airoha_pcs_init(struct udevice *dev)
 	return airoha_pcs_config(pcs_dev, port->neg_mode,
 				 port->mode, NULL, true);
 }
+#endif
 
 static int airoha_hw_init(struct udevice *dev,
 			  struct airoha_eth *eth)
@@ -829,6 +831,11 @@ static int airoha_alloc_gdm_port(struct udevice *dev, ofnode node)
 	if (id > AIROHA_MAX_NUM_GDM_PORTS)
 		return -EINVAL;
 
+#if !defined(CONFIG_PCS_AIROHA)
+	if (id != 1)
+		return -ENOTSUPP;
+#endif
+
 	str = eth->gdm_port_str[id];
 	snprintf(str, AIROHA_GDM_PORT_STRING_LEN,
 		 "airoha-gdm%d", id);
@@ -908,7 +915,7 @@ static int airoha_eth_probe(struct udevice *dev)
 			continue;
 
 		ret = airoha_alloc_gdm_port(dev, node);
-		if (ret)
+		if (ret && ret != -ENOTSUPP)
 			return ret;
 	}
 
@@ -935,11 +942,15 @@ static int airoha_eth_port_probe(struct udevice *dev)
 		return ret;
 
 	if (port->id > 1) {
+#if defined(CONFIG_PCS_AIROHA)
 		ret = airoha_pcs_init(dev);
 		if (ret)
 			return ret;
 
 		port->phydev = dm_eth_phy_connect(dev);
+#else
+		return -EINVAL;
+#endif
 	}
 
 	return 0;
@@ -961,6 +972,7 @@ static int airoha_eth_init(struct udevice *dev)
 			GLOBAL_CFG_TX_DMA_EN_MASK |
 			GLOBAL_CFG_RX_DMA_EN_MASK);
 
+#if defined(CONFIG_PCS_AIROHA)
 	if (port->id > 1) {
 		struct phy_device *phydev = port->phydev;
 		int speed, duplex;
@@ -1001,6 +1013,7 @@ static int airoha_eth_init(struct udevice *dev)
 		airoha_pcs_link_up(port->pcs_dev, port->neg_mode, port->mode,
 				   speed, duplex);
 	}
+#endif
 
 	return 0;
 }
@@ -1010,12 +1023,14 @@ static void airoha_eth_stop(struct udevice *dev)
 	struct airoha_gdm_port *port = dev_get_priv(dev);
 	struct airoha_qdma *qdma = port->qdma;
 
+#if defined(CONFIG_PCS_AIROHA)
 	if (port->id > 1) {
 		if (port->phydev)
 			phy_shutdown(port->phydev);
 
 		airoha_pcs_link_down(port->pcs_dev);
 	}
+#endif
 
 	airoha_qdma_clear(qdma, REG_QDMA_GLOBAL_CFG,
 			  GLOBAL_CFG_TX_DMA_EN_MASK |
