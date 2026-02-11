@@ -112,7 +112,8 @@ menu "UEFI Variables"
 
 choice
 	prompt "Store for non-volatile UEFI variables"
-	default EFI_VARIABLE_FILE_STORE
+	default EFI_VARIABLE_FILE_STORE if FAT_WRITE
+	default EFI_VARIABLE_NO_STORE
 	help
 	  Select where non-volatile UEFI variables shall be stored.
 
