@@ -854,6 +854,10 @@ static int airoha_eth_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	ret = airoha_switch_init(dev, eth);
+	if (ret)
+		return ret;
+
 	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		if (!ofnode_device_is_compatible(node, "airoha,eth-mac"))
 			continue;
@@ -866,7 +870,7 @@ static int airoha_eth_probe(struct udevice *dev)
 			return ret;
 	}
 
-	return airoha_switch_init(dev, eth);
+	return 0;
 }
 
 static int airoha_eth_port_of_to_plat(struct udevice *dev)
