@@ -12,6 +12,7 @@
 #include <dm/device-internal.h>
 #include <dm/devres.h>
 #include <dm/lists.h>
+#include <eth_phy.h>
 #include <mapmem.h>
 #include <miiphy.h>
 #include <net.h>
@@ -334,6 +335,7 @@ struct airoha_gdm_port {
 struct airoha_eth {
 	void __iomem *fe_regs;
 	void __iomem *switch_regs;
+	struct udevice *switch_mdio_dev;
 
 	struct reset_ctl_bulk rsts;
 	struct reset_ctl_bulk xsi_rsts;
@@ -933,6 +935,8 @@ static int airoha_eth_port_probe(struct udevice *dev)
 {
 	struct airoha_eth *eth = (void *)dev_get_driver_data(dev);
 	struct airoha_gdm_port *port = dev_get_priv(dev);
+	struct mdio_perdev_priv *pdata;
+	struct mii_dev *mdio_bus;
 	int ret;
 
 	port->qdma = &eth->qdma[0];
@@ -941,6 +945,7 @@ static int airoha_eth_port_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	mdio_bus = NULL;
 	if (port->id > 1) {
 #if defined(CONFIG_PCS_AIROHA)
 		ret = airoha_pcs_init(dev);
@@ -948,10 +953,23 @@ static int airoha_eth_port_probe(struct udevice *dev)
 			return ret;
 
 		port->phydev = dm_eth_phy_connect(dev);
+		if (port->phydev)
+			mdio_bus = port->phydev->bus;
 #else
 		return -EINVAL;
 #endif
+	} else {
+		if (eth->switch_mdio_dev &&
+		    !device_probe(eth->switch_mdio_dev)) {
+			pdata = dev_get_uclass_priv(eth->switch_mdio_dev);
+			mdio_bus = pdata->mii_bus;
+		}
 	}
+
+#ifdef CONFIG_DM_ETH_PHY
+	if (!IS_ERR_OR_NULL(mdio_bus))
+		eth_phy_set_mdio_bus(dev, mdio_bus);
+#endif
 
 	return 0;
 }
@@ -1197,9 +1215,9 @@ static int arht_eth_write_hwaddr(struct udevice *dev)
 static int airoha_eth_bind(struct udevice *dev)
 {
 	struct airoha_eth_soc_data *data = (void *)dev_get_driver_data(dev);
+	struct airoha_eth *eth = dev_get_priv(dev);
 	ofnode switch_node, mdio_node;
-	struct udevice *mdio_dev;
-	int ret = 0;
+	int ret;
 
 	/*
 	 * Force Probe as we set the Main ETH driver as misc
@@ -1223,8 +1241,8 @@ static int airoha_eth_bind(struct udevice *dev)
 		return 0;
 	}
 
-	ret = device_bind_driver_to_node(dev, "mt7531-mdio-mmio", "mdio",
-					 mdio_node, &mdio_dev);
+	ret = device_bind_driver_to_node(dev, "mt7531-mdio-mmio", "mt7531-mdio",
+					 mdio_node, &eth->switch_mdio_dev);
 	if (ret)
 		debug("Warning: failed to bind mdio controller\n");
 
