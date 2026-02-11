@@ -80,9 +80,11 @@ struct fwu_mdata_ops {
 
 #define FWU_IMAGE_ACCEPTED	0x1
 
-#define FWU_BANK_INVALID	(uint8_t)0xFF
-#define FWU_BANK_VALID		(uint8_t)0xFE
-#define FWU_BANK_ACCEPTED	(uint8_t)0xFC
+enum fwu_bank_states {
+	FWU_BANK_INVALID = 0xFF,
+	FWU_BANK_VALID = 0xFE,
+	FWU_BANK_ACCEPTED = 0xFC,
+};
 
 enum {
 	PRIMARY_PART = 1,
@@ -396,24 +398,24 @@ int fwu_get_mdata_size(uint32_t *mdata_size);
 
 /**
  * fwu_state_machine_updates() - Update FWU state of the platform
- * @trial_state: Is platform transitioning into Trial State
+ * @state: FWU bank state
  * @update_index: Bank number to which images have been updated
  *
- * On successful completion of updates, transition the platform to
- * either Trial State or Regular State.
+ * FWU_BANK_VALID transition the platform to Trial state
+ * FWU_BANK_ACCEPTED accept the FWU bank state
+ * FWU_BANK_INVALID invalid the FWU bank state
  *
  * To transition the platform to Trial State, start the
  * TrialStateCtr counter, followed by setting the value of bank_state
  * field of the metadata to Valid state(applicable only in version 2
  * of metadata).
  *
- * In case, the platform is to transition directly to Regular State,
- * update the bank_state field of the metadata to Accepted
- * state(applicable only in version 2 of metadata).
+ * Saving the bank_state field of the metadata is only applicable in
+ * version 2 of metadata.
  *
  * Return: 0 if OK, -ve on error
  */
-int fwu_state_machine_updates(bool trial_state, uint32_t update_index);
+int fwu_state_machine_updates(enum fwu_bank_states state, uint32_t update_index);
 
 /**
  * fwu_init() - FWU specific initialisations

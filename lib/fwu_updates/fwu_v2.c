@@ -80,40 +80,25 @@ static int fwu_mdata_sanity_checks(void)
 	return 0;
 }
 
-static int fwu_bank_state_update(bool trial_state, uint32_t bank)
+static int fwu_bank_state_update(enum fwu_bank_states state, uint32_t bank)
 {
 	int ret;
 	struct fwu_data *data = fwu_get_data();
 	struct fwu_mdata *mdata = data->fwu_mdata;
 
-	if (!trial_state && !fwu_bank_accepted(data, bank))
+	if (state == FWU_BANK_ACCEPTED && !fwu_bank_accepted(data, bank))
 		return 0;
 
-	mdata->bank_state[bank] = data->bank_state[bank] = trial_state ?
-		FWU_BANK_VALID : FWU_BANK_ACCEPTED;
+	mdata->bank_state[bank] = (uint8_t)state;
+	data->bank_state[bank] = (uint8_t)state;
 
 	ret = fwu_sync_mdata(mdata, BOTH_PARTS);
 	if (ret)
 		log_err("Unable to set bank_state for bank %u\n", bank);
 	else
-		data->trial_state = trial_state;
+		data->trial_state = state == FWU_BANK_VALID ? 1 : 0;
 
 	return ret;
-}
-
-static int fwu_trial_state_start(uint update_index)
-{
-	int ret;
-
-	ret = fwu_trial_state_ctr_start();
-	if (ret)
-		return ret;
-
-	ret = fwu_bank_state_update(1, update_index);
-	if (ret)
-		return ret;
-
-	return 0;
 }
 
 static bool fwu_get_mdata_mandatory(uint part)
@@ -171,27 +156,34 @@ void fwu_populate_mdata_image_info(struct fwu_data *data)
 
 /**
  * fwu_state_machine_updates() - Update FWU state of the platform
- * @trial_state: Is platform transitioning into Trial State
+ * @state: FWU bank state
  * @update_index: Bank number to which images have been updated
  *
- * On successful completion of updates, transition the platform to
- * either Trial State or Regular State.
+ * FWU_BANK_VALID transition the platform to Trial state
+ * FWU_BANK_ACCEPTED accept the FWU bank state
+ * FWU_BANK_INVALID invalid the FWU bank state
  *
  * To transition the platform to Trial State, start the
  * TrialStateCtr counter, followed by setting the value of bank_state
  * field of the metadata to Valid state(applicable only in version 2
  * of metadata).
  *
- * In case, the platform is to transition directly to Regular State,
- * update the bank_state field of the metadata to Accepted
- * state(applicable only in version 2 of metadata).
+ * Saving the bank_state field of the metadata is only applicable in
+ * version 2 of metadata.
  *
  * Return: 0 if OK, -ve on error
  */
-int fwu_state_machine_updates(bool trial_state, uint32_t update_index)
+int fwu_state_machine_updates(enum fwu_bank_states state, uint32_t update_index)
 {
-	return trial_state ? fwu_trial_state_start(update_index) :
-		fwu_bank_state_update(0, update_index);
+	int ret;
+
+	if (state == FWU_BANK_VALID) {
+		ret = fwu_trial_state_ctr_start();
+		if (ret)
+			return ret;
+	}
+
+	return fwu_bank_state_update(state, update_index);
 }
 
 /**

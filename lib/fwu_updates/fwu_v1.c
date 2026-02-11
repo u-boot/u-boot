@@ -98,27 +98,27 @@ void fwu_populate_mdata_image_info(struct fwu_data *data)
 
 /**
  * fwu_state_machine_updates() - Update FWU state of the platform
- * @trial_state: Is platform transitioning into Trial State
+ * @state: FWU bank state
  * @update_index: Bank number to which images have been updated
  *
- * On successful completion of updates, transition the platform to
- * either Trial State or Regular State.
+ * FWU_BANK_VALID transition the platform to Trial state
+ * FWU_BANK_ACCEPTED accept the FWU bank state
+ * FWU_BANK_INVALID invalid the FWU bank state
  *
  * To transition the platform to Trial State, start the
  * TrialStateCtr counter, followed by setting the value of bank_state
  * field of the metadata to Valid state(applicable only in version 2
  * of metadata).
  *
- * In case, the platform is to transition directly to Regular State,
- * update the bank_state field of the metadata to Accepted
- * state(applicable only in version 2 of metadata).
+ * Saving the bank_state field of the metadata is only applicable in
+ * version 2 of metadata.
  *
  * Return: 0 if OK, -ve on error
  */
-int fwu_state_machine_updates(bool trial_state,
+int fwu_state_machine_updates(enum fwu_bank_states state,
 			      uint32_t update_index)
 {
-	return fwu_trial_state_update(trial_state, update_index);
+	return fwu_trial_state_update(state == FWU_BANK_VALID, update_index);
 }
 
 /**
