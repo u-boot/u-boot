@@ -397,8 +397,6 @@ static u32 airoha_rmw(void __iomem *base, u32 offset, u32 mask, u32 val)
 #define airoha_switch_wr(eth, offset, val)			\
 	airoha_wr((eth)->switch_regs, (offset), (val))
 
-static struct driver airoha_eth_port;
-
 static inline dma_addr_t dma_map_unaligned(void *vaddr, size_t len,
 					   enum dma_data_direction dir)
 {
@@ -781,9 +779,14 @@ static int airoha_alloc_gdm_port(struct udevice *dev, ofnode node)
 {
 	struct airoha_eth *eth = dev_get_priv(dev);
 	struct udevice *gdm_dev;
+	struct driver *gdm_drv;
 	char *str;
 	int ret;
 	u32 id;
+
+	gdm_drv = lists_driver_lookup_name("airoha-eth-port");
+	if (!gdm_drv)
+		return -ENOENT;
 
 	ret = ofnode_read_u32(node, "reg", &id);
 	if (ret)
@@ -796,7 +799,7 @@ static int airoha_alloc_gdm_port(struct udevice *dev, ofnode node)
 	snprintf(str, AIROHA_GDM_PORT_STRING_LEN,
 		 "airoha-gdm%d", id);
 
-	return device_bind_with_driver_data(dev, &airoha_eth_port, str,
+	return device_bind_with_driver_data(dev, gdm_drv, str,
 					    (ulong)eth, node, &gdm_dev);
 }
 
@@ -1147,7 +1150,7 @@ static const struct eth_ops airoha_eth_ops = {
 	.write_hwaddr = arht_eth_write_hwaddr,
 };
 
-static struct driver airoha_eth_port = {
+U_BOOT_DRIVER(airoha_eth_port) = {
 	.name = "airoha-eth-port",
 	.id = UCLASS_ETH,
 	.of_to_plat = airoha_eth_port_of_to_plat,
