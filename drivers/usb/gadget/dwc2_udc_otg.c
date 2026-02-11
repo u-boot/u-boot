@@ -975,12 +975,6 @@ static int dwc2_udc_otg_of_to_plat(struct udevice *dev)
 	void (*set_params)(struct dwc2_plat_otg_data *data);
 	int ret;
 
-	if (usb_get_dr_mode(dev_ofnode(dev)) != USB_DR_MODE_PERIPHERAL &&
-	    usb_get_dr_mode(dev_ofnode(dev)) != USB_DR_MODE_OTG) {
-		dev_dbg(dev, "Invalid mode\n");
-		return -ENODEV;
-	}
-
 	plat->regs_otg = dev_read_addr(dev);
 
 	plat->rx_fifo_sz = dev_read_u32_default(dev, "g-rx-fifo-size", 0);
@@ -1163,6 +1157,18 @@ static int dwc2_udc_otg_remove(struct udevice *dev)
 	return dm_scan_fdt_dev(dev);
 }
 
+static int dwc2_udc_otg_bind(struct udevice *dev)
+{
+	enum usb_dr_mode dr_mode = usb_get_dr_mode(dev_ofnode(dev));
+
+	if (dr_mode != USB_DR_MODE_PERIPHERAL && dr_mode != USB_DR_MODE_OTG) {
+		dev_dbg(dev, "Invalid dr_mode %d\n", dr_mode);
+		return -ENODEV;
+	}
+
+	return 0;
+}
+
 static int dwc2_gadget_handle_interrupts(struct udevice *dev)
 {
 	return dwc2_udc_handle_interrupt();
@@ -1186,6 +1192,7 @@ U_BOOT_DRIVER(dwc2_udc_otg) = {
 	.of_match = dwc2_udc_otg_ids,
 	.ops	= &dwc2_gadget_ops,
 	.of_to_plat = dwc2_udc_otg_of_to_plat,
+	.bind = dwc2_udc_otg_bind,
 	.probe = dwc2_udc_otg_probe,
 	.remove = dwc2_udc_otg_remove,
 	.plat_auto	= sizeof(struct dwc2_plat_otg_data),
