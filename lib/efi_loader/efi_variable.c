@@ -404,7 +404,7 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		if (IS_ENABLED(CONFIG_EFI_VARIABLE_NO_STORE))
 			return EFI_SUCCESS;
 
-		efi_var_to_file();
+		efi_var_to_storage();
 	}
 
 	return EFI_SUCCESS;
@@ -599,7 +599,7 @@ efi_status_t efi_init_variables(void)
 		return ret;
 
 	if (!IS_ENABLED(CONFIG_EFI_VARIABLE_NO_STORE)) {
-		ret = efi_var_from_file();
+		ret = efi_var_from_storage();
 		if (ret != EFI_SUCCESS)
 			return ret;
 	}
