@@ -775,6 +775,22 @@ static int airoha_pcs_probe(struct udevice *dev)
 
 	priv->xfi_rst = devm_reset_control_get_optional(dev, "xfi");
 
+	/* For Ethernet PCS, read the AN7581 SoC revision to check if
+	 * manual rx calibration is needed. This is only limited to
+	 * any SoC revision before E2.
+	 */
+	if (device_is_compatible(dev, "airoha,an7581-pcs-eth") &&
+	    priv->data->port_type == AIROHA_PCS_ETH) {
+		u32 val;
+
+		ret = regmap_read(priv->scu, AIROHA_SCU_PDIDR, &val);
+		if (ret)
+			return ret;
+
+		if (FIELD_GET(AIROHA_SCU_PRODUCT_ID, val) < 0x2)
+			priv->manual_rx_calib = true;
+	}
+
 	return 0;
 }
 

@@ -1261,7 +1261,7 @@ static int an7581_pcs_phya_bringup(struct airoha_pcs_priv *priv,
 	udelay(100);
 
 retry_calibration:
-	an7581_pcs_cdr_reset(priv, interface, true);
+	an7581_pcs_cdr_reset(priv, interface, priv->manual_rx_calib);
 
 	/* Global reset clear */
 	regmap_update_bits(priv->xfi_pma, AIROHA_PCS_PMA_SW_RST_SET,
@@ -1299,6 +1299,12 @@ retry_calibration:
 	udelay(5000);
 
 	an7581_pcs_cdr_reset(priv, interface, false);
+
+	/* Manual RX calibration is required only for SoC before E2
+	 * revision. E2+ SoC autocalibrate RX and only CDR reset is needed.
+	 */
+	if (!priv->manual_rx_calib)
+		return 0;
 
 	/* It was discovered that after a global reset and auto mode gets
 	 * actually enabled, the fl_out from calibration might change and

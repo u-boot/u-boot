@@ -9,6 +9,8 @@
 #include <reset.h>
 
 /* SCU*/
+#define AIROHA_SCU_PDIDR			0x5c
+#define   AIROHA_SCU_PRODUCT_ID			GENMASK(15, 0)
 #define AIROHA_SCU_WAN_CONF			0x70
 #define   AIROHA_SCU_ETH_MAC_SEL		BIT(24)
 #define   AIROHA_SCU_ETH_MAC_SEL_XFI		FIELD_PREP_CONST(AIROHA_SCU_ETH_MAC_SEL, 0x0)
@@ -1173,6 +1175,8 @@ struct airoha_pcs_priv {
 
 	struct reset_ctl *xfi_rst;
 	struct reset_ctl_bulk rsts;
+
+	bool manual_rx_calib;
 };
 
 struct airoha_pcs_match_data {
