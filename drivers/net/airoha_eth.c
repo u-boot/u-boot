@@ -13,6 +13,7 @@
 #include <dm/devres.h>
 #include <dm/lists.h>
 #include <mapmem.h>
+#include <miiphy.h>
 #include <net.h>
 #include <regmap.h>
 #include <reset.h>
@@ -20,10 +21,13 @@
 #include <linux/bitfield.h>
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
+#include <linux/ethtool.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/time.h>
 #include <asm/arch/scu-regmap.h>
+
+#include "airoha/pcs-airoha.h"
 
 #define AIROHA_MAX_NUM_GDM_PORTS	4
 #define AIROHA_MAX_NUM_QDMA		1
@@ -319,6 +323,12 @@ struct airoha_qdma {
 struct airoha_gdm_port {
 	struct airoha_qdma *qdma;
 	int id;
+
+	struct udevice *pcs_dev;
+	phy_interface_t mode;
+	bool neg_mode;
+
+	struct phy_device *phydev;
 };
 
 struct airoha_eth {
@@ -694,6 +704,34 @@ static int airoha_qdma_init(struct udevice *dev,
 	return airoha_qdma_hw_init(qdma);
 }
 
+static int airoha_pcs_init(struct udevice *dev)
+{
+	struct airoha_gdm_port *port = dev_get_priv(dev);
+	struct udevice *pcs_dev;
+	const char *managed;
+	int ret;
+
+	ret = uclass_get_device_by_phandle(UCLASS_MISC, dev, "pcs",
+					   &pcs_dev);
+	if (ret || !pcs_dev)
+		return ret;
+
+	port->pcs_dev = pcs_dev;
+	port->mode = dev_read_phy_mode(dev);
+	managed = dev_read_string(dev, "managed");
+	port->neg_mode = !strncmp(managed, "in-band-status",
+				  sizeof("in-band-status"));
+
+	airoha_pcs_pre_config(pcs_dev, port->mode);
+
+	ret = airoha_pcs_post_config(pcs_dev, port->mode);
+	if (ret)
+		return ret;
+
+	return airoha_pcs_config(pcs_dev, port->neg_mode,
+				 port->mode, NULL, true);
+}
+
 static int airoha_hw_init(struct udevice *dev,
 			  struct airoha_eth *eth)
 {
@@ -711,6 +749,10 @@ static int airoha_hw_init(struct udevice *dev,
 	mdelay(20);
 
 	ret = reset_deassert_bulk(&eth->rsts);
+	if (ret)
+		return ret;
+
+	ret = reset_deassert_bulk(&eth->xsi_rsts);
 	if (ret)
 		return ret;
 
@@ -884,12 +926,21 @@ static int airoha_eth_port_probe(struct udevice *dev)
 {
 	struct airoha_eth *eth = (void *)dev_get_driver_data(dev);
 	struct airoha_gdm_port *port = dev_get_priv(dev);
+	int ret;
 
 	port->qdma = &eth->qdma[0];
 
 	ret = airoha_fe_init(port);
 	if (ret)
 		return ret;
+
+	if (port->id > 1) {
+		ret = airoha_pcs_init(dev);
+		if (ret)
+			return ret;
+
+		port->phydev = dm_eth_phy_connect(dev);
+	}
 
 	return 0;
 }
@@ -910,6 +961,47 @@ static int airoha_eth_init(struct udevice *dev)
 			GLOBAL_CFG_TX_DMA_EN_MASK |
 			GLOBAL_CFG_RX_DMA_EN_MASK);
 
+	if (port->id > 1) {
+		struct phy_device *phydev = port->phydev;
+		int speed, duplex;
+		int ret;
+
+		if (phydev) {
+			ret = phy_config(phydev);
+			if (ret)
+				return ret;
+
+			ret = phy_startup(phydev);
+			if (ret)
+				return ret;
+
+			speed = phydev->speed;
+			duplex = phydev->duplex;
+		} else {
+			duplex = DUPLEX_FULL;
+
+			/* Hardcode speed for linkup */
+			switch (port->mode) {
+			case PHY_INTERFACE_MODE_USXGMII:
+			case PHY_INTERFACE_MODE_10GBASER:
+				speed = SPEED_10000;
+				break;
+			case PHY_INTERFACE_MODE_2500BASEX:
+				speed = SPEED_2500;
+				break;
+			case PHY_INTERFACE_MODE_SGMII:
+			case PHY_INTERFACE_MODE_1000BASEX:
+				speed = SPEED_1000;
+				break;
+			default:
+				return -EINVAL;
+			}
+		}
+
+		airoha_pcs_link_up(port->pcs_dev, port->neg_mode, port->mode,
+				   speed, duplex);
+	}
+
 	return 0;
 }
 
@@ -917,6 +1009,13 @@ static void airoha_eth_stop(struct udevice *dev)
 {
 	struct airoha_gdm_port *port = dev_get_priv(dev);
 	struct airoha_qdma *qdma = port->qdma;
+
+	if (port->id > 1) {
+		if (port->phydev)
+			phy_shutdown(port->phydev);
+
+		airoha_pcs_link_down(port->pcs_dev);
+	}
 
 	airoha_qdma_clear(qdma, REG_QDMA_GLOBAL_CFG,
 			  GLOBAL_CFG_TX_DMA_EN_MASK |
