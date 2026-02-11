@@ -249,7 +249,7 @@ void sm3_final(struct sm3_context *sctx, uint8_t output[SM3_DIGEST_SIZE])
 
 	sctx->buffer[partial++] = 0x80;
 	if (partial > bit_offset) {
-		memset(sctx->buffer + partial, 0, SM3_BLOCK_SIZE - partial);
+		memset(sctx->buffer + partial, 0, SM3_BLOCK_SIZE - partial - 1);
 		partial = 0;
 
 		sm3_block(sctx, sctx->buffer, 1, W);
