@@ -331,7 +331,7 @@ struct airoha_eth {
 	struct airoha_eth_soc_data *soc;
 
 	struct airoha_qdma qdma[AIROHA_MAX_NUM_QDMA];
-	char gdm_port_str[AIROHA_MAX_NUM_GDM_PORTS][AIROHA_GDM_PORT_STRING_LEN];
+	char gdm_port_str[AIROHA_MAX_NUM_GDM_PORTS + 1][AIROHA_GDM_PORT_STRING_LEN];
 };
 
 struct airoha_eth_soc_data {
