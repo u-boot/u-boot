@@ -24,14 +24,14 @@ config TQMA6Q
 	depends on MX6Q
 	help
 	  select TQMa6Q / TQMa6D variant with i.MX6Q resp. i.MX6D
-	  with 1GiB DRAM
+	  with 1GiB or 2GiB DRAM
 
 config TQMA6DL
 	bool "TQMa6DL"
 	depends on MX6DL
 	help
 	  select TQMa6DL variant with i.MX6DL
-	  with 1GiB DRAM
+	  with 1GiB or 2GiB DRAM
 
 config TQMA6S
 	bool "TQMa6S"
