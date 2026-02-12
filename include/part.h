@@ -704,6 +704,20 @@ int write_mbr_partitions(struct blk_desc *dev,
 int layout_mbr_partitions(struct disk_partition *p, int count,
 			  lbaint_t total_sectors);
 
+/**
+ * part_get_mbr() - get the MBR partition record of a partition
+ *
+ * This function reads the MBR partition record for a given block
+ * device and partition number.
+ *
+ * @desc:	block device descriptor
+ * @part:	partition number for which to return the partition record
+ * @mbr:	MBR partition record
+ *
+ * Return:	0 on success, otherwise error
+ */
+int part_get_mbr(struct blk_desc *desc, int part, dos_partition_t *mbr);
+
 #endif
 
 #if CONFIG_IS_ENABLED(PARTITIONS)
