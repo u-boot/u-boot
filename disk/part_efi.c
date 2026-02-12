@@ -51,7 +51,7 @@ static inline u32 efi_crc32(const void *buf, u32 len)
  * Private function prototypes
  */
 
-static int pmbr_part_valid(struct partition *part);
+static int pmbr_part_valid(dos_partition_t *part);
 static int is_pmbr_valid(legacy_mbr * mbr);
 static int is_gpt_valid(struct blk_desc *desc, u64 lba, gpt_header *pgpt_head,
 			gpt_entry **pgpt_pte);
@@ -990,7 +990,7 @@ int write_mbr_and_gpt_partitions(struct blk_desc *desc, void *buf)
  *
  * Returns: 1 if EFI GPT partition type is found.
  */
-static int pmbr_part_valid(struct partition *part)
+static int pmbr_part_valid(dos_partition_t *part)
 {
 	if (part->sys_ind == EFI_PMBR_OSTYPE_EFI_GPT &&
 		get_unaligned_le32(&part->start_sect) == 1UL) {
