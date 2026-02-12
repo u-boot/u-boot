@@ -19,7 +19,7 @@
 #include <vsprintf.h>
 #include <asm/unaligned.h>
 #include <linux/compiler.h>
-#include "part_dos.h"
+#include <part_dos.h>
 #include <part.h>
 
 #define DOS_PART_DEFAULT_SECTOR 512
