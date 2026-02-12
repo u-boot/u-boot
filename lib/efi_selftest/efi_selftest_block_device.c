@@ -19,6 +19,7 @@
 #include "efi_selftest_disk_image.h"
 #include <asm/cache.h>
 #include <part_efi.h>
+#include <part.h>
 
 /* Block size of compressed disk image */
 #define COMPRESSED_DISK_IMAGE_BLOCK_SIZE 8
@@ -319,6 +320,25 @@ static int execute(void)
 	u64 pos;
 	char block_io_aligned[1 << LB_BLOCK_SIZE] __aligned(1 << LB_BLOCK_SIZE);
 
+	/*
+	 * The test disk image is defined in efi_selftest_disk_image.h,
+	 * it contains a single FAT12 partition of 127 sectors size.
+	 */
+	static const dos_partition_t mbr_expected = {
+		.boot_ind = 0x00,
+		.head = 0x00,
+		.sector = 0x02,
+		.cyl = 0x00,
+		.sys_ind = 0x01, /* FAT12 */
+		.end_head = 0x02,
+		.end_sector = 0x02,
+		.end_cyl = 0x00,
+		/* LBA 1 */
+		.start_sect = cpu_to_le32(1),
+		/* Size 127 sectors (0x7f) */
+		.nr_sects = cpu_to_le32(127),
+	};
+
 	/* Connect controller to virtual disk */
 	ret = boottime->connect_controller(disk_handle, NULL, NULL, 1);
 	if (ret != EFI_SUCCESS) {
@@ -402,6 +422,12 @@ static int execute(void)
 	if (part_info->system != 0) {
 		efi_st_error("Partition info system %x, expected 0\n",
 			     part_info->system);
+		return EFI_ST_FAILURE;
+	}
+
+	/* Compare the obtained MBR with the expected one for the test partition */
+	if (memcmp(&part_info->info.mbr, &mbr_expected, sizeof(mbr_expected))) {
+		efi_st_error("MBR partition record mismatch\n");
 		return EFI_ST_FAILURE;
 	}
 
