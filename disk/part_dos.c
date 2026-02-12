@@ -49,8 +49,8 @@ static int get_bootable(dos_partition_t *p)
 static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
 			   int part_num, unsigned int disksig)
 {
-	lbaint_t lba_start = ext_part_sector + get_unaligned_le32(p->start4);
-	lbaint_t lba_size  = get_unaligned_le32(p->size4);
+	lbaint_t lba_start = ext_part_sector + get_unaligned_le32(&p->start_sect);
+	lbaint_t lba_size  = get_unaligned_le32(&p->nr_sects);
 
 	printf("%3d\t%-10" LBAFlength "u\t%-10" LBAFlength
 		"u\t%08x-%02x\t%02x%s%s\n",
@@ -185,7 +185,7 @@ static void print_partition_extended(struct blk_desc *desc,
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
 			lbaint_t lba_start
-				= get_unaligned_le32 (pt->start4) + relative;
+				= get_unaligned_le32 (&pt->start_sect) + relative;
 
 			print_partition_extended(desc, lba_start,
 						 !ext_part_sector ? lba_start :
@@ -252,8 +252,8 @@ static int part_get_info_extended(struct blk_desc *desc,
 			else
 				info->blksz = DOS_PART_DEFAULT_SECTOR;
 			info->start = (lbaint_t)(ext_part_sector +
-					get_unaligned_le32(pt->start4));
-			info->size  = (lbaint_t)get_unaligned_le32(pt->size4);
+					get_unaligned_le32(&pt->start_sect));
+			info->size  = (lbaint_t)get_unaligned_le32(&pt->nr_sects);
 			part_set_generic_name(desc, part_num,
 					      (char *)info->name);
 			/* sprintf(info->type, "%d, pt->sys_ind); */
@@ -281,7 +281,7 @@ static int part_get_info_extended(struct blk_desc *desc,
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
 			lbaint_t lba_start
-				= get_unaligned_le32 (pt->start4) + relative;
+				= get_unaligned_le32 (&pt->start_sect) + relative;
 
 			return part_get_info_extended(desc, lba_start,
 				 ext_part_sector == 0 ? lba_start : relative,
@@ -356,8 +356,8 @@ static void mbr_fill_pt_entry(dos_partition_t *pt, lbaint_t start,
 	pt->sys_ind = sys_ind;
 	lba_to_chs(start, &pt->cyl, &pt->head, &pt->sector);
 	lba_to_chs(start + size - 1, &pt->end_cyl, &pt->end_head, &pt->end_sector);
-	put_unaligned_le32(relative, &pt->start4);
-	put_unaligned_le32(size, &pt->size4);
+	put_unaligned_le32(relative, &pt->start_sect);
+	put_unaligned_le32(size, &pt->nr_sects);
 }
 
 int write_mbr_partitions(struct blk_desc *dev,

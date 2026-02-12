@@ -30,8 +30,8 @@ typedef struct dos_partition {
 	unsigned char end_head;		/* end head				*/
 	unsigned char end_sector;	/* end sector				*/
 	unsigned char end_cyl;		/* end cylinder				*/
-	unsigned char start4[4];	/* starting sector counting from 0	*/
-	unsigned char size4[4];		/* nr of sectors in partition		*/
-} dos_partition_t;
+	__le32 start_sect;		/* starting sector counting from 0	*/
+	__le32 nr_sects;		/* nr of sectors in partition		*/
+} __packed dos_partition_t;
 
 #endif	/* _DISK_PART_DOS_H */
