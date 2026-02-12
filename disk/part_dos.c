@@ -196,7 +196,18 @@ static void print_partition_extended(struct blk_desc *desc,
 	return;
 }
 
-/*  Print a partition that is relative to its Extended partition table
+/**
+ * part_get_info_extended() - get partition info for a DOS partition
+ *
+ * @desc:		Block device descriptor
+ * @ext_part_sector:	Partition table sector
+ * @relative:		Relative offset for the partition
+ * @part_num:		Current partition number
+ * @which_part:		Target partition number
+ * @info:		Returns a pointer to the partition info
+ * @disksig:		Disk signature
+ *
+ * Return:		0 on success, negative on error
  */
 static int part_get_info_extended(struct blk_desc *desc,
 				  lbaint_t ext_part_sector, lbaint_t relative,
