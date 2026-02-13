@@ -612,6 +612,11 @@ void ipu_dp_dc_enable(struct ipu_ctx *ctx, ipu_channel_t channel)
 	__raw_writel(reg, DC_WR_CH_CONF(dc_chan));
 
 	clk_enable(ctx->pixel_clk[di]);
+#if !CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
+	reg = __raw_readl(IPU_DISP_GEN);
+	reg |= di ? DI1_COUNTER_RELEASE : DI0_COUNTER_RELEASE;
+	__raw_writel(reg, IPU_DISP_GEN);
+#endif
 }
 
 static unsigned char dc_swap;
@@ -702,6 +707,12 @@ void ipu_dp_dc_disable(struct ipu_ctx *ctx, ipu_channel_t channel,
 
 		/* Clock is already off because it must be done quickly, but
 		   we need to fix the ref count */
+#if !CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
+		reg = __raw_readl(IPU_DISP_GEN);
+		reg &= ctx->dc_di_assignment[dc_chan] ? ~DI1_COUNTER_RELEASE :
+							~DI0_COUNTER_RELEASE;
+		__raw_writel(reg, IPU_DISP_GEN);
+#endif
 		clk_disable(ctx->pixel_clk[ctx->dc_di_assignment[dc_chan]]);
 	}
 }
@@ -765,39 +776,20 @@ static int ipu_pixfmt_to_map(u32 fmt)
  *
  * @param	sig	Bitfield of signal polarities for LCD interface.
  *
- * Return:	This function returns 0 on success or negative error code on
- *		fail.
+ * Return:	The integer portion of the divider set for the pixel clock.
  */
-
-int32_t ipu_init_sync_panel(struct ipu_di_config *di, ipu_di_signal_cfg_t sig)
+static u32 ipu_di_clk_config(struct ipu_di_config *di, ipu_di_signal_cfg_t sig)
 {
 	struct ipu_ctx *ctx = di->ctx;
 	int disp = di->disp;
-	u32 reg;
-	u32 di_gen, vsync_cnt;
-	u32 div, rounded_pixel_clk;
-	u32 h_total, v_total;
-	int map;
-	struct clk *di_parent;
-
-	debug("panel size = %d x %d\n", di->width, di->height);
-
-	if ((di->v_sync_width == 0) || (di->h_sync_width == 0))
-		return -EINVAL;
-
-	/* adapt panel to ipu restricitions */
-	if (di->v_end_width < 2) {
-		di->v_end_width = 2;
-		puts("WARNING: v_end_width (lower_margin) must be >= 2, adjusted\n");
-	}
-
-	h_total = di->width + di->h_sync_width + di->h_start_width +
-		  di->h_end_width;
-	v_total = di->height + di->v_sync_width + di->v_start_width +
-		  di->v_end_width;
+	u32 div;
 
 	/* Init clocking */
 	debug("pixel clk = %dHz\n", di->pixel_clk_rate);
+
+#if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
+	u32 rounded_pixel_clk;
+	struct clk *di_parent;
 
 	if (sig.ext_clk) {
 		if (!(g_di1_tvout && (disp == 1))) { /*not round div for tvout*/
@@ -830,13 +822,109 @@ int32_t ipu_init_sync_panel(struct ipu_di_config *di, ipu_di_signal_cfg_t sig)
 		if (clk_get_usecount(ctx->pixel_clk[disp]) != 0)
 			clk_set_parent(ctx->pixel_clk[disp], ctx->ipu_clk);
 	}
+
 	rounded_pixel_clk =
 		clk_round_rate(ctx->pixel_clk[disp], di->pixel_clk_rate);
 	clk_set_rate(ctx->pixel_clk[disp], rounded_pixel_clk);
-	udelay(5000);
+
 	/* Get integer portion of divider */
 	div = clk_get_rate(clk_get_parent(ctx->pixel_clk[disp])) /
 	      rounded_pixel_clk;
+#else
+	struct clk *clk;
+	u32 clkgen0, di_gen;
+	ulong id;
+
+	if (sig.ext_clk) {
+		/*
+		 * Bypass the divider, assuming synchronous mode
+		 */
+		clk = ctx->di_clk[disp];
+		div = 1;
+	} else {
+
+		ulong clk_rate = clk_get_rate(ctx->ipu_clk);
+		u32 error;
+
+		div = DIV_ROUND_CLOSEST(clk_rate, di->pixel_clk_rate);
+		div = clamp(div, 1U, 255U);
+
+		error = (clk_rate / div) / (di->pixel_clk_rate / 1000);
+
+		/*
+                 * Select IPU if the rate is within 1% of requested pixel
+                 * clock, otherwise, use the DI clock
+                 */
+		if (990 <= error && error < 1010) {
+			clk = ctx->ipu_clk;
+		} else {
+			clk = ctx->di_clk[disp];
+
+			clk_set_rate(clk, di->pixel_clk_rate);
+			div = DIV_ROUND_CLOSEST(clk_get_rate(clk),
+						di->pixel_clk_rate);
+			div = clamp(div, 1U, 255U);
+		}
+	}
+
+	clkgen0 = div << 4;
+
+	ctx->pixel_clk[disp] = clk;
+	debug("new pixel rate: %lu Hz\n", clk_get_rate(clk));
+
+	id = clk_get_id(clk);
+	__raw_writel(clkgen0, DI_BS_CLKGEN0(id));
+	__raw_writel((clkgen0 & 0xFFF0) << 12, DI_BS_CLKGEN1(id));
+
+	di_gen = __raw_readl(DI_GENERAL(id)) & ~DI_GEN_DI_CLK_EXT;
+	if (clk == ctx->di_clk[disp])
+		di_gen |= DI_GEN_DI_CLK_EXT;
+
+	__raw_writel(di_gen, DI_GENERAL(id));
+#endif
+
+	udelay(5000);
+	return div;
+}
+
+/*
+ * This function is called to initialize a synchronous LCD panel.
+ *
+ * @param	di	Pointer to display data.
+ *
+ * @param	sig	Bitfield of signal polarities for LCD interface.
+ *
+ * Return:	This function returns 0 on success or negative error code on
+ *		fail.
+ */
+int32_t ipu_init_sync_panel(struct ipu_di_config *di, ipu_di_signal_cfg_t sig)
+{
+	int disp = di->disp;
+	u32 reg;
+	u32 di_gen, vsync_cnt;
+	u32 div;
+	u32 h_total, v_total;
+	int map;
+
+	debug("panel size = %d x %d\n", di->width, di->height);
+
+	if ((di->v_sync_width == 0) || (di->h_sync_width == 0))
+		return -EINVAL;
+
+	/* adapt panel to ipu restricitions */
+	if (di->v_end_width < 2) {
+		di->v_end_width = 2;
+		puts("WARNING: v_end_width (lower_margin) must be >= 2, adjusted\n");
+	}
+
+	h_total = di->width + di->h_sync_width + di->h_start_width +
+		  di->h_end_width;
+	v_total = di->height + di->v_sync_width + di->v_start_width +
+		  di->v_end_width;
+
+	div = ipu_di_clk_config(di, sig);
+	if (div < 0)
+		return div;
 
 	ipu_di_data_wave_config(disp, SYNC_WAVE, div - 1, div - 1);
 	ipu_di_data_pin_config(disp, SYNC_WAVE, DI_PIN15, 3, 0, div * 2);

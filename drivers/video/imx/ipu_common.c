@@ -101,7 +101,18 @@ struct ipu_ch_param {
  */
 static int ipu_clk_init(struct ipu_ctx *ctx)
 {
+#if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
 	return ipu_clk_init_legacy(ctx);
+#else
+	struct clk *clk;
+
+	clk = devm_clk_get(ctx->dev, "bus");
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
+
+	ctx->ipu_clk = clk;
+	return 0;
+#endif
 }
 
 /*
@@ -113,7 +124,13 @@ static int ipu_clk_init(struct ipu_ctx *ctx)
  */
 static int ipu_ldb_clk_init(struct ipu_ctx *ctx)
 {
+#if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
 	return ipu_ldb_clk_init_legacy(ctx);
+#else
+	/* Set this in the FB driver where we know the display id */
+	ctx->ldb_clk = NULL;
+	return 0;
+#endif
 }
 
 /* Static functions */
@@ -151,6 +168,29 @@ static inline void ipu_ch_param_set_buffer(u32 ch, int buf_num,
 #define idma_is_set(reg, dma) (__raw_readl(reg(dma)) & idma_mask(dma))
 
 /*
+ * Function to initialize the display clocks
+ *
+ * @param   ctx	    The ipu context for which the function is called
+ *
+ * Return:  Returns 0 on success or negative error code on error
+ */
+static int ipu_di_clk_init(struct ipu_ctx *ctx, int id)
+{
+#if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
+	ctx->di_clk[id] = NULL;
+	return 0;
+#else
+	struct clk *clk;
+
+	clk = devm_clk_get(ctx->dev, id ? "di1" : "di0");
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
+
+	ctx->di_clk[id] = clk;
+	return 0;
+#endif
+}
+/*
  * Function to initialize the pixel clock
  *
  * @param   ctx	    The ipu context for which the function is called
@@ -159,7 +199,12 @@ static inline void ipu_ch_param_set_buffer(u32 ch, int buf_num,
  */
 static int ipu_pixel_clk_init(struct ipu_ctx *ctx, int id)
 {
+#if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
 	return ipu_pixel_clk_init_legacy(ctx, id);
+#else
+	ctx->pixel_clk[id] = ctx->ipu_clk;
+	return 0;
+#endif
 }
 
 /*
@@ -230,33 +275,39 @@ struct ipu_ctx *ipu_probe(struct udevice *dev)
 	ipu_cpmem_base = (u32 *)(ipu_base + IPU_CPMEM_REG_BASE);
 	ipu_dc_tmpl_reg = (u32 *)(ipu_base + IPU_DC_TMPL_REG_BASE);
 
-	ret = ipu_pixel_clk_init(ctx, 0);
-	if (ret)
-		goto err;
-
-	ret = ipu_pixel_clk_init(ctx, 1);
-	if (ret)
-		goto err;
+	for (int i = 0; i <= 1; i++) {
+		ret = ipu_pixel_clk_init(ctx, i);
+		if (ret)
+			goto err;
+	}
 
 	ret = ipu_clk_init(ctx);
 	if (ret)
 		goto err;
 
-	debug("ipu_clk = %u\n", clk_get_rate(ctx->ipu_clk));
+	debug("ipu_clk = %lu\n", (ulong)clk_get_rate(ctx->ipu_clk));
 
 	ret = ipu_ldb_clk_init(ctx);
 	if (ret)
 		goto err;
 
-	debug("ldb_clk = %u\n", clk_get_rate(ctx->ldb_clk));
+	if (ctx->ldb_clk)
+		debug("ldb_clk = %lu\n", (ulong)clk_get_rate(ctx->ldb_clk));
+
 	ipu_reset();
 
+#if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
 	clk_set_parent(ctx->pixel_clk[0], ctx->ipu_clk);
 	clk_set_parent(ctx->pixel_clk[1], ctx->ipu_clk);
-	clk_enable(ctx->ipu_clk);
 
-	ctx->di_clk[0] = NULL;
-	ctx->di_clk[1] = NULL;
+	clk_enable(ctx->ipu_clk);
+#endif
+
+	for (int i = 0; i <= 1; i++) {
+		ret = ipu_di_clk_init(ctx, i);
+		if (ret)
+			goto err;
+	}
 
 	__raw_writel(0x807FFFFF, IPU_MEM_RST);
 	while (__raw_readl(IPU_MEM_RST) & 0x80000000)
@@ -278,7 +329,9 @@ struct ipu_ctx *ipu_probe(struct udevice *dev)
 	/* Set MCU_T to divide MCU access window into 2 */
 	__raw_writel(0x00400000L | (IPU_MCU_T_DEFAULT << 18), IPU_DISP_GEN);
 
+#if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
 	clk_disable(ctx->ipu_clk);
+#endif
 
 	return ctx;
 err:
