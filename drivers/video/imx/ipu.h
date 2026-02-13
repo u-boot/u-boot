@@ -18,14 +18,23 @@
 #ifndef __ASM_ARCH_IPU_H__
 #define __ASM_ARCH_IPU_H__
 
+#if !CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
+#include <clk.h>
+#endif
 #include <ipu_pixfmt.h>
 #include <linux/types.h>
+
+#define IPUV3_CLK_MX51 133000000
+#define IPUV3_CLK_MX53 200000000
+#define IPUV3_CLK_MX6Q 264000000
+#define IPUV3_CLK_MX6DL 198000000
 
 #define IDMA_CHAN_INVALID 0xFF
 #define HIGH_RESOLUTION_WIDTH 1024
 
 struct ipu_ctx;
-struct ipu_di_config;
+
+#if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
 
 struct clk {
 	const char *name;
@@ -74,6 +83,46 @@ struct clk {
 	/* Function ptr to set the parent clock of the clock. */
 	int (*set_parent)(struct clk *clk, struct clk *parent);
 };
+
+/* Legacy clock API functions */
+void clk_enable(struct clk *clk);
+void clk_disable(struct clk *clk);
+int clk_get_usecount(struct clk *clk);
+u32 clk_get_rate(struct clk *clk);
+struct clk *clk_get_parent(struct clk *clk);
+int clk_set_rate(struct clk *clk, unsigned long rate);
+long clk_round_rate(struct clk *clk, unsigned long rate);
+int clk_set_parent(struct clk *clk, struct clk *parent);
+
+/* IPU clock initialization */
+int ipu_clk_init_legacy(struct ipu_ctx *ctx);
+int ipu_ldb_clk_init_legacy(struct ipu_ctx *ctx);
+int ipu_pixel_clk_init_legacy(struct ipu_ctx *ctx, int id);
+
+#else
+
+static inline int clk_get_usecount(struct clk *clk)
+{
+        return clk->enable_count;
+}
+
+/* Stub functions for non-legacy builds */
+static inline int ipu_clk_init_legacy(struct ipu_ctx *ctx)
+{
+	return -ENOSYS;
+}
+
+static inline int ipu_ldb_clk_init_legacy(struct ipu_ctx *ctx)
+{
+	return -ENOSYS;
+}
+
+static inline int ipu_pixel_clk_init_legacy(struct ipu_ctx *ctx, int id)
+{
+	return -ENOSYS;
+}
+
+#endif /* CONFIG_IS_ENABLED(IPU_CLK_LEGACY) */
 
 struct udevice;
 
@@ -297,15 +346,6 @@ int32_t ipu_disp_set_color_key(ipu_channel_t channel, unsigned char enable,
 			       u32 color_key);
 
 u32 bytes_per_pixel(u32 fmt);
-
-void clk_enable(struct clk *clk);
-void clk_disable(struct clk *clk);
-u32 clk_get_rate(struct clk *clk);
-int clk_set_rate(struct clk *clk, unsigned long rate);
-long clk_round_rate(struct clk *clk, unsigned long rate);
-int clk_set_parent(struct clk *clk, struct clk *parent);
-int clk_get_usecount(struct clk *clk);
-struct clk *clk_get_parent(struct clk *clk);
 
 void ipu_dump_registers(void);
 struct ipu_ctx *ipu_probe(struct udevice *dev);
