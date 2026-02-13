@@ -228,7 +228,7 @@ config CLK_VERSAL
 	depends on (ARCH_VERSAL || ARCH_VERSAL_NET || ARCH_VERSAL2)
 	depends on ZYNQMP_FIRMWARE
 	help
-	  This clock driver adds support for clock realted settings for
+	  This clock driver adds support for clock related settings for
 	  Versal platform.
 
 config CLK_VEXPRESS_OSC
@@ -262,7 +262,7 @@ config CLK_ZYNQMP
 	depends on ARCH_ZYNQMP
 	imply ZYNQMP_FIRMWARE
 	help
-	  This clock driver adds support for clock realted settings for
+	  This clock driver adds support for clock related settings for
 	  ZynqMP platform.
 
 source "drivers/clk/adi/Kconfig"

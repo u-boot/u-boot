@@ -24,6 +24,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
+	if (!IS_ENABLED(CONFIG_TARGET_VERDIN_AM62_R5) || !IS_ENABLED(CONFIG_SPL_BUILD))
+		return fdtdec_setup_mem_size_base();
+
 	gd->ram_size = get_ram_size((long *)CFG_SYS_SDRAM_BASE, CFG_SYS_SDRAM_SIZE);
 
 	if (gd->ram_size < SZ_512M)
@@ -102,6 +105,13 @@ int board_late_init(void)
 
 	return 0;
 }
+
+#if IS_ENABLED(CONFIG_XPL_BUILD)
+void spl_perform_board_fixups(struct spl_image_info *spl_image)
+{
+	fixup_memory_node(spl_image);
+}
+#endif
 
 #define CTRLMMR_USB0_PHY_CTRL		0x43004008
 #define CTRLMMR_USB1_PHY_CTRL		0x43004018

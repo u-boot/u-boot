@@ -150,6 +150,7 @@ enum zynqmp_clk {
 	clk_max,
 };
 
+#if IS_ENABLED(CONFIG_CMD_CLK)
 static const char * const clk_names[clk_max] = {
 	"iopll", "rpll", "apll", "dpll",
 	"vpll", "iopll_to_fpd", "rpll_to_fpd",
@@ -177,6 +178,7 @@ static const char * const clk_names[clk_max] = {
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, NULL, NULL, "gem0_ref", "gem1_ref", "gem2_ref", "gem3_ref",
 };
+#endif
 
 static const u32 pll_src[][4] = {
 	{apll, 0xff, dpll, vpll},		/* acpu */
