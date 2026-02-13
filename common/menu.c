@@ -556,11 +556,6 @@ enum bootmenu_key bootmenu_conv_key(int ichar)
 	case ' ':
 		key = BKEY_SPACE;
 		break;
-	case 'A' ... 'Z':
-	case 'a' ... 'z':
-	case '0' ... '9':
-		key = BKEY_SHORTCUT;
-		break;
 	default:
 		key = BKEY_NONE;
 		break;
@@ -591,8 +586,10 @@ enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
 
 	key = bootmenu_conv_key(c);
 
-	if (key == BKEY_SHORTCUT)
+	if (key == BKEY_NONE && isalnum(c)) {
+		key = BKEY_SHORTCUT;
 		cch->shortcut_key = bootmenu_conv_shortcut_key(menu, c);
+	}
 
 	return key;
 }
