@@ -327,6 +327,51 @@ struct __packed smbios_type16 {
 	u64 ext_max_cap;
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
+
+struct __packed smbios_type17 {
+	struct smbios_header hdr;
+	u16 phy_mem_array_hdl;
+	u16 mem_err_info_hdl;
+	u16 total_width;
+	u16 data_width;
+	u16 size;
+	u8 form_factor;
+	u8 dev_set;
+	u8 dev_locator;
+	u8 bank_locator;
+	u8 mem_type;
+	u16 type_detail;
+	u16 speed;
+	u8 manufacturer;
+	u8 serial_number;
+	u8 asset_tag;
+	u8 part_number;
+	u8 attributes;
+	u32 ext_size;
+	u16 config_mem_speed;
+	u16 min_voltage;
+	u16 max_voltage;
+	u16 config_voltage;
+	u8 mem_tech;
+	u16 mem_op_mode_cap;
+	u8 fw_ver;
+	u16 module_man_id;
+	u16 module_prod_id;
+	u16 mem_subsys_con_man_id;
+	u16 mem_subsys_con_prod_id;
+	u64 nonvolatile_size;
+	u64 volatile_size;
+	u64 cache_size;
+	u64 logical_size;
+	u32 ext_speed;
+	u32 ext_config_mem_speed;
+	u16 pmic0_man_id;
+	u16 pmic0_rev_num;
+	u16 rcd_man_id;
+	u16 rcd_rev_num;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
+
 struct __packed smbios_type32 {
 	u8 type;
 	u8 length;
