@@ -192,6 +192,7 @@ out:
 }
 
 static int total_sector;
+#if IS_ENABLED(CONFIG_SPL_FS_FAT)
 static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 {
 	ulong ret;
@@ -211,6 +212,7 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 
 	return ret;
 }
+#endif /* CONFIG_SPL_FS_FAT */
 
 /*
  * Write fat buffer into block device
