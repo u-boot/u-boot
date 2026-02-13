@@ -186,6 +186,7 @@ const struct toradex_som toradex_modules[] = {
 	{ OSM_IMX93D_2GB_IT,                     "OSM iMX93 Dual 2GB IT",                TARGET_IS_ENABLED(TORADEX_OSM_IMX93)    },
 	{ OSM_IMX91S_2GB_IT,                     "OSM iMX91 Solo 2GB IT",                TARGET_IS_ENABLED(TORADEX_OSM_IMX91)    },
 	{ VERDIN_AM62D_1G_ET_GPU_NODSI,          "Verdin AM62 Dual 1GB ET",              TARGET_IS_ENABLED(VERDIN_AM62_A53)      },
+	{ AQUILA_TDA4O_16GB_IT,                  "Aquila TDA4 Octa 16GB IT",             TARGET_IS_ENABLED(AQUILA_AM69_A72)      },
 };
 
 struct pid4list {
