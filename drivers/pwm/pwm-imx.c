@@ -232,17 +232,19 @@ static int imx_pwm_of_to_plat(struct udevice *dev)
 
 	priv->regs = dev_read_addr_ptr(dev);
 
-	ret = clk_get_by_name(dev, "per", &priv->per_clk);
-	if (ret) {
-		printf("Failed to get per_clk\n");
-		return ret;
-	}
+        if (CONFIG_IS_ENABLED(CLK)) {
+                ret = clk_get_by_name(dev, "per", &priv->per_clk);
+                if (ret) {
+                        printf("Failed to get per_clk\n");
+                        return ret;
+                }
 
-	ret = clk_get_by_name(dev, "ipg", &priv->ipg_clk);
-	if (ret) {
-		printf("Failed to get ipg_clk\n");
-		return ret;
-	}
+                ret = clk_get_by_name(dev, "ipg", &priv->ipg_clk);
+                if (ret) {
+                        printf("Failed to get ipg_clk\n");
+                        return ret;
+                }
+        }
 
 	return 0;
 }
@@ -252,17 +254,19 @@ static int imx_pwm_probe(struct udevice *dev)
 	int ret;
 	struct imx_pwm_priv *priv = dev_get_priv(dev);
 
-	ret = clk_enable(&priv->per_clk);
-	if (ret) {
-		printf("Failed to enable per_clk\n");
-		return ret;
-	}
+        if (CONFIG_IS_ENABLED(CLK)) {
+                ret = clk_enable(&priv->per_clk);
+                if (ret) {
+                        printf("Failed to enable per_clk\n");
+                        return ret;
+                }
 
-	ret = clk_enable(&priv->ipg_clk);
-	if (ret) {
-		printf("Failed to enable ipg_clk\n");
-		return ret;
-	}
+                ret = clk_enable(&priv->ipg_clk);
+                if (ret) {
+                        printf("Failed to enable ipg_clk\n");
+                        return ret;
+                }
+        }
 
 	return 0;
 }
