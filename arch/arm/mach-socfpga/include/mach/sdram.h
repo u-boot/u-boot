@@ -7,9 +7,9 @@
 
 #ifndef __ASSEMBLY__
 
-#if defined(CONFIG_TARGET_SOCFPGA_GEN5)
+#if defined(CONFIG_ARCH_SOCFPGA_GEN5)
 #include <asm/arch/sdram_gen5.h>
-#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
+#elif defined(CONFIG_ARCH_SOCFPGA_ARRIA10)
 #include <asm/arch/sdram_arria10.h>
 #endif
 

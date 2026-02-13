@@ -94,7 +94,7 @@ void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
 int print_cpuinfo(void)
 {
 	printf("CPU: Altera FPGA SoCFPGA Platform (ARMv8 64bit Cortex-%s)\n",
-	       IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5) ? "A55/A76" : "A53");
+	       IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5) ? "A55/A76" : "A53");
 
 	return 0;
 }

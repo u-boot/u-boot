@@ -138,7 +138,7 @@ struct socfpga_firwall_l4_sys {
 #define MPUREGION0_ENABLE				BIT(0)
 #define NONMPUREGION0_ENABLE				BIT(8)
 
-#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 #define FW_MPU_DDR_SCR_WRITEL(data, reg)		\
 	writel(data, SOCFPGA_FW_DDR_CCU_DMI0_ADDRESS + (reg)); \
 	writel(data, SOCFPGA_FW_DDR_CCU_DMI1_ADDRESS + (reg))

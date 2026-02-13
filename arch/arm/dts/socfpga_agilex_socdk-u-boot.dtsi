@@ -8,7 +8,7 @@
 
 #include "socfpga_agilex-u-boot.dtsi"
 
-#ifdef CONFIG_TARGET_SOCFPGA_AGILEX
+#ifdef CONFIG_ARCH_SOCFPGA_AGILEX
 /{
 	chosen {
 		stdout-path = "serial0:115200n8";
@@ -27,7 +27,7 @@
 };
 #endif
 
-#ifdef CONFIG_TARGET_SOCFPGA_AGILEX7M
+#ifdef CONFIG_ARCH_SOCFPGA_AGILEX7M
 /{
 	model = "SoCFPGA Agilex7-M SoCDK";
 	chosen {

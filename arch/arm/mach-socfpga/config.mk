@@ -2,9 +2,9 @@
 #
 # Brian Sune <briansune@gmail.com>
 
-ifeq ($(CONFIG_TARGET_SOCFPGA_CYCLONE5),y)
+ifeq ($(CONFIG_ARCH_SOCFPGA_CYCLONE5),y)
 archprepare: socfpga_g5_handoff_prepare
-else ifeq ($(CONFIG_TARGET_SOCFPGA_ARRIA5),y)
+else ifeq ($(CONFIG_ARCH_SOCFPGA_ARRIA5),y)
 archprepare: socfpga_g5_handoff_prepare
 endif
 

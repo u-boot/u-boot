@@ -196,14 +196,14 @@ config SYSRESET_SBI
 
 config SYSRESET_SOCFPGA
 	bool "Enable support for Intel SOCFPGA family"
-	depends on ARCH_SOCFPGA && (TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10)
+	depends on ARCH_SOCFPGA && (ARCH_SOCFPGA_GEN5 || ARCH_SOCFPGA_ARRIA10)
 	help
 	  This enables the system reset driver support for Intel SOCFPGA SoCs
 	  (Cyclone 5, Arria 5 and Arria 10).
 
 config SYSRESET_SOCFPGA_SOC64
 	bool "Enable support for Intel SOCFPGA SoC64 family (Stratix10/Agilex)"
-	depends on ARCH_SOCFPGA && TARGET_SOCFPGA_SOC64
+	depends on ARCH_SOCFPGA && ARCH_SOCFPGA_SOC64
 	help
 	  This enables the system reset driver support for Intel SOCFPGA
 	  SoC64 SoCs.

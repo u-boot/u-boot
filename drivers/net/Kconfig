@@ -194,7 +194,7 @@ config DWC_ETH_XGMAC_SOCFPGA
 	select SYSCON
 	select DWC_ETH_XGMAC
 	depends on ARCH_SOCFPGA
-	default y if TARGET_SOCFPGA_AGILEX5
+	default y if ARCH_SOCFPGA_AGILEX5
 	help
 	  The Synopsys Designware Ethernet XGMAC IP block with specific
 	  configuration used in Intel SoC FPGA chip.

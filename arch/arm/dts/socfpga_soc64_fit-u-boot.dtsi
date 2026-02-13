@@ -28,7 +28,7 @@
 					os = "U-Boot";
 					arch = "arm64";
 					compression = "none";
-				#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+				#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 					load = <0x80200000>;
 				#else
 					load = <0x00200000>;
@@ -47,7 +47,7 @@
 					os = "arm-trusted-firmware";
 					arch = "arm64";
 					compression = "none";
-				#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+				#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 					load = <0x80000000>;
 					entry = <0x80000000>;
 				#else
@@ -106,7 +106,7 @@
 					arch = "arm64";
 					os = "linux";
 					compression = "none";
-				#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+				#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 					load = <0x86000000>;
 					entry = <0x86000000>;
 				#else

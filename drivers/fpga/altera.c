@@ -12,8 +12,8 @@
 /*
  *  Altera FPGA support
  */
-#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) || \
-	IS_ENABLED(CONFIG_TARGET_SOCFPGA_STRATIX10)
+#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) || \
+	IS_ENABLED(CONFIG_ARCH_SOCFPGA_STRATIX10)
 #include <asm/arch/misc.h>
 #endif
 #include <errno.h>
@@ -48,8 +48,8 @@ static const struct altera_fpga {
 #endif
 };
 
-#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) || \
-	IS_ENABLED(CONFIG_TARGET_SOCFPGA_STRATIX10)
+#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) || \
+	IS_ENABLED(CONFIG_ARCH_SOCFPGA_STRATIX10)
 int fpga_is_partial_data(int devnum, size_t img_len)
 {
 	/*

@@ -8,7 +8,7 @@
 
 phys_addr_t socfpga_get_sysmgr_addr(void);
 
-#if defined(CONFIG_TARGET_SOCFPGA_SOC64)
+#if defined(CONFIG_ARCH_SOCFPGA_SOC64)
 #include <asm/arch/system_manager_soc64.h>
 #else
 #define SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGPINMUX	BIT(0)
@@ -85,9 +85,9 @@ phys_addr_t socfpga_get_sysmgr_addr(void);
 #define ALT_SYSMGR_ECC_INTSTAT_SERR_OCRAM_SET_MSK	BIT(1)
 #define ALT_SYSMGR_ECC_INTSTAT_DERR_OCRAM_SET_MSK	BIT(1)
 
-#if defined(CONFIG_TARGET_SOCFPGA_GEN5)
+#if defined(CONFIG_ARCH_SOCFPGA_GEN5)
 #include <asm/arch/system_manager_gen5.h>
-#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
+#elif defined(CONFIG_ARCH_SOCFPGA_ARRIA10)
 #include <asm/arch/system_manager_arria10.h>
 #endif
 

@@ -268,11 +268,11 @@ ifneq ($(CONFIG_ARCH_EXYNOS)$(CONFIG_ARCH_S5PC1XX),)
 INPUTS-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
-ifneq ($(CONFIG_TARGET_SOCFPGA_GEN5)$(CONFIG_TARGET_SOCFPGA_ARRIA10),)
+ifneq ($(CONFIG_ARCH_SOCFPGA_GEN5)$(CONFIG_ARCH_SOCFPGA_ARRIA10),)
 INPUTS-y	+= $(obj)/$(SPL_BIN).sfp
 endif
 
-INPUTS-$(CONFIG_TARGET_SOCFPGA_SOC64) += $(obj)/u-boot-spl-dtb.hex
+INPUTS-$(CONFIG_ARCH_SOCFPGA_SOC64) += $(obj)/u-boot-spl-dtb.hex
 
 ifdef CONFIG_ARCH_SUNXI
 INPUTS-y	+= $(obj)/sunxi-spl.bin
@@ -432,7 +432,7 @@ ifneq ($(CONFIG_$(PHASE_)TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_$(PHASE_)TEXT_BASE)
 endif
 
-ifdef CONFIG_TARGET_SOCFPGA_ARRIA10
+ifdef CONFIG_ARCH_SOCFPGA_ARRIA10
 MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage_v1
 else
 MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage

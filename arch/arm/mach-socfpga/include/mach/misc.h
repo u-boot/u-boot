@@ -24,7 +24,7 @@ void socfpga_fpga_add(void *fpga_desc);
 static inline void socfpga_fpga_add(void *fpga_desc) {}
 #endif
 
-#ifdef CONFIG_TARGET_SOCFPGA_GEN5
+#ifdef CONFIG_ARCH_SOCFPGA_GEN5
 void socfpga_sdram_remap_zero(void);
 static inline bool socfpga_is_booting_from_fpga(void)
 {
@@ -35,14 +35,14 @@ static inline bool socfpga_is_booting_from_fpga(void)
 }
 #endif
 
-#ifdef CONFIG_TARGET_SOCFPGA_ARRIA10
+#ifdef CONFIG_ARCH_SOCFPGA_ARRIA10
 void socfpga_init_security_policies(void);
 void socfpga_sdram_remap_zero(void);
 #endif
 
-#if defined(CONFIG_TARGET_SOCFPGA_STRATIX10) || \
-	defined(CONFIG_TARGET_SOCFPGA_AGILEX) || \
-	defined(CONFIG_TARGET_SOCFPGA_AGILEX7M)
+#if defined(CONFIG_ARCH_SOCFPGA_STRATIX10) || \
+	defined(CONFIG_ARCH_SOCFPGA_AGILEX) || \
+	defined(CONFIG_ARCH_SOCFPGA_AGILEX7M)
 int is_fpga_config_ready(void);
 #endif
 
