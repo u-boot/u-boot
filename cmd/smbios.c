@@ -168,6 +168,32 @@ static const struct str_lookup_table slot_length_strings[] = {
 	{ SMBIOS_SYSSLOT_LENG_3_5INDRV,	"3.5 inch drive form factor" },
 };
 
+static const struct str_lookup_table ma_location_strings[] = {
+	{ SMBIOS_MA_LOCATION_OTHER,		"Other" },
+	{ SMBIOS_MA_LOCATION_UNKNOWN,		"Unknown" },
+	{ SMBIOS_MA_LOCATION_MOTHERBOARD,	"System board or motherboard" },
+};
+
+static const struct str_lookup_table ma_use_strings[] = {
+	{ SMBIOS_MA_USE_OTHER,		"Other" },
+	{ SMBIOS_MA_USE_UNKNOWN,	"Unknown" },
+	{ SMBIOS_MA_USE_SYSTEM,		"System memory" },
+	{ SMBIOS_MA_USE_VIDEO,		"Video memory" },
+	{ SMBIOS_MA_USE_FLASH,		"Flash memory" },
+	{ SMBIOS_MA_USE_NVRAM,		"Non-volatile RAM" },
+	{ SMBIOS_MA_USE_CACHE,		"Cache memory" },
+};
+
+static const struct str_lookup_table ma_err_corr_strings[] = {
+	{ SMBIOS_MA_ERRCORR_OTHER,	"Other" },
+	{ SMBIOS_MA_ERRCORR_UNKNOWN,	"Unknown" },
+	{ SMBIOS_MA_ERRCORR_NONE,	"None" },
+	{ SMBIOS_MA_ERRCORR_PARITY,	"Parity" },
+	{ SMBIOS_MA_ERRCORR_SBITECC,	"Single-bit ECC" },
+	{ SMBIOS_MA_ERRCORR_MBITECC,	"Multi-bit ECC" },
+	{ SMBIOS_MA_ERRCORR_CRC,	"CRC" },
+};
+
 /**
  * smbios_get_string() - get SMBIOS string from table
  *
@@ -514,6 +540,23 @@ static void smbios_print_type9(struct smbios_type9 *table)
 	printf("\tSlot Height: 0x%04x\n", *addr);
 }
 
+static void smbios_print_type16(struct smbios_type16 *table)
+{
+	printf("Physical Memory Array:\n");
+	smbios_print_lookup_str(ma_location_strings, table->location,
+				ARRAY_SIZE(ma_location_strings), "Location");
+	smbios_print_lookup_str(ma_use_strings, table->use,
+				ARRAY_SIZE(ma_use_strings), "Use");
+	smbios_print_lookup_str(ma_err_corr_strings, table->mem_err_corr,
+				ARRAY_SIZE(ma_err_corr_strings),
+				"Memory Error Correction");
+	printf("\tMaximum Capacity: 0x%08x\n", table->max_cap);
+	printf("\tMemory Error Information Handle: 0x%04x\n",
+	       table->mem_err_info_hdl);
+	printf("\tNumber of Memory Devices: 0x%04x\n", table->num_of_mem_dev);
+	printf("\tExtended Maximum Capacity: 0x%016llx\n", table->ext_max_cap);
+}
+
 static void smbios_print_type127(struct smbios_type127 *table)
 {
 	printf("End Of Table\n");
@@ -595,6 +638,9 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 			break;
 		case SMBIOS_SYSTEM_SLOTS:
 			smbios_print_type9((struct smbios_type9 *)pos);
+			break;
+		case SMBIOS_PHYS_MEMORY_ARRAY:
+			smbios_print_type16((struct smbios_type16 *)pos);
 			break;
 		case SMBIOS_END_OF_TABLE:
 			smbios_print_type127((struct smbios_type127 *)pos);

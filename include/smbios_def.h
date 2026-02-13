@@ -280,4 +280,33 @@
 /* Slot segment group number */
 #define SMBIOS_SYSSLOT_SGGNUM_UND	0
 
+/* Physical Memory Array */
+
+/* Location */
+#define SMBIOS_MA_LOCATION_OTHER	1
+#define SMBIOS_MA_LOCATION_UNKNOWN	2
+#define SMBIOS_MA_LOCATION_MOTHERBOARD	3
+
+/* Use */
+#define SMBIOS_MA_USE_OTHER		1
+#define SMBIOS_MA_USE_UNKNOWN		2
+#define SMBIOS_MA_USE_SYSTEM		3
+#define SMBIOS_MA_USE_VIDEO		4
+#define SMBIOS_MA_USE_FLASH		5
+#define SMBIOS_MA_USE_NVRAM		6
+#define SMBIOS_MA_USE_CACHE		7
+
+/* Error Correction Type */
+#define SMBIOS_MA_ERRCORR_OTHER		1
+#define SMBIOS_MA_ERRCORR_UNKNOWN	2
+#define SMBIOS_MA_ERRCORR_NONE		3
+#define SMBIOS_MA_ERRCORR_PARITY	4
+#define SMBIOS_MA_ERRCORR_SBITECC	5
+#define SMBIOS_MA_ERRCORR_MBITECC	6
+#define SMBIOS_MA_ERRCORR_CRC		7
+
+/* Error Information Handle */
+#define SMBIOS_MA_ERRINFO_NONE		0xFFFE
+#define SMBIOS_MA_ERRINFO_NOERR		0xFFFF
+
 #endif /* _SMBIOS_DEF_H_ */

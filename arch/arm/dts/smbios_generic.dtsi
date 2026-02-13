@@ -80,6 +80,9 @@
 
 			system-slot {
 			};
+
+			memory-array {
+			};
 		};
 	};
 };

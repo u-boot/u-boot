@@ -309,6 +309,24 @@ struct __packed smbios_type9 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
+enum {
+	SMBIOS_MEM_NONE = 0,
+	SMBIOS_MEM_CUSTOM = 1,
+	SMBIOS_MEM_FDT_MEM_NODE = 2,
+	SMBIOS_MEM_FDT_MEMCON_NODE = 3
+};
+
+struct __packed smbios_type16 {
+	struct smbios_header hdr;
+	u8 location;
+	u8 use;
+	u8 mem_err_corr;
+	u32 max_cap;
+	u16 mem_err_info_hdl;
+	u16 num_of_mem_dev;
+	u64 ext_max_cap;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
 struct __packed smbios_type32 {
 	u8 type;
 	u8 length;
