@@ -1807,6 +1807,155 @@ static int smbios_write_type17(ulong *current, int *handle,
 				     smbios_write_type17_from_memctrl_node);
 }
 
+static void smbios_pop_type19_general_si(struct smbios_ctx *ctx,
+					 struct smbios_type19 *t)
+{
+	t->partition_wid =
+		smbios_get_val_si(ctx, "partition-width ",
+				  SYSID_NONE, SMBIOS_MAMA_PW_DEF);
+}
+
+static void smbios_pop_type19_addr_si(struct smbios_ctx *ctx,
+				      struct smbios_type19 *t)
+{
+	t->start_addr = smbios_get_val_si(ctx, "starting-address", SYSID_NONE,
+					  0);
+	t->end_addr = smbios_get_val_si(ctx, "ending-address", SYSID_NONE, 0);
+	t->ext_start_addr = smbios_get_u64_si(ctx, "extended-starting-address",
+					      SYSID_NONE, 0);
+	t->ext_end_addr = smbios_get_u64_si(ctx, "extended-ending-address",
+					    SYSID_NONE, 0);
+}
+
+static void
+smbios_pop_type19_addr_from_memory_node(ofnode node, struct smbios_type19 *t)
+{
+	const fdt32_t *reg;
+	int len;
+	u64 sz;
+	u64 addr;
+
+	/* Read property 'reg' from the node */
+	reg = ofnode_read_prop(node, "reg", &len);
+	if (!reg || len < sizeof(fdt32_t) * 4 || len % sizeof(fdt32_t))
+		return;
+
+	/* Combine hi/lo for size and address (typically 64-bit) */
+	sz = ((u64)fdt32_to_cpu(reg[2]) << 32) | fdt32_to_cpu(reg[3]);
+	addr = ((u64)fdt32_to_cpu(reg[0]) << 32) | fdt32_to_cpu(reg[1]);
+
+	t->ext_start_addr = cpu_to_le64(addr);
+	t->ext_end_addr = cpu_to_le64(addr + sz - 1);
+
+	/* If address range fits in 32-bit, populate legacy fields */
+	if ((addr + sz - 1) <= 0xFFFFFFFFULL) {
+		t->start_addr = cpu_to_le32((u32)addr);
+		t->end_addr   = cpu_to_le32((u32)(addr + sz - 1));
+	} else {
+		t->start_addr = cpu_to_le32(0xFFFFFFFF);
+		t->end_addr   = cpu_to_le32(0xFFFFFFFF);
+	}
+}
+
+static int
+smbios_write_type19_from_memctrl_node(ulong *current, int handle,
+				      struct smbios_ctx *ctx, int idx,
+				      u64 base, u64 sz)
+{
+	struct smbios_type19 *t;
+	int len;
+	u8 *eos_addr;
+	void *hdl;
+	size_t hdl_size;
+
+	len = sizeof(*t);
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_MEMORY_ARRAY_MAPPED_ADDRESS, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	/* Read the memory array handles */
+	if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+			      &hdl_size) &&
+	    hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+		t->mem_array_hdl = *((u16 *)hdl + idx);
+
+	t->ext_start_addr = cpu_to_le64(base);
+	t->ext_end_addr = cpu_to_le64(base + sz - 1);
+
+	if ((base + sz - 1) <= 0xFFFFFFFFULL) {
+		t->start_addr = cpu_to_le32((u32)base);
+		t->end_addr   = cpu_to_le32((u32)(base + sz - 1));
+	} else {
+		t->start_addr = cpu_to_le32(0xFFFFFFFF);
+		t->end_addr   = cpu_to_le32(0xFFFFFFFF);
+	}
+
+	/* Write other general fields */
+	smbios_pop_type19_general_si(ctx, t);
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type19_mem(ulong *current, int handle,
+				   struct smbios_ctx *ctx, int idx,
+				   int type)
+{
+	struct smbios_type19 *t;
+	int len;
+	u8 *eos_addr;
+	void *hdl;
+	size_t hdl_size;
+
+	len = sizeof(*t);
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_MEMORY_ARRAY_MAPPED_ADDRESS, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	if (type == SMBIOS_MEM_CUSTOM) {
+		smbios_pop_type19_addr_si(ctx, t);
+		t->mem_array_hdl = smbios_get_val_si(ctx, "memory-array-handle",
+						     SYSID_NONE, 0);
+	} else if (type == SMBIOS_MEM_FDT_MEM_NODE) {
+		smbios_pop_type19_addr_from_memory_node(ctx->node, t);
+		/* Read the memory array handles */
+		if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+				      &hdl_size) &&
+		    hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+			t->mem_array_hdl = *((u16 *)hdl + idx);
+	}
+
+	/* Write other general fields */
+	smbios_pop_type19_general_si(ctx, t);
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type19(ulong *current, int *handle,
+			       struct smbios_ctx *ctx)
+{
+	return smbios_write_type1719(current, handle, ctx,
+				     smbios_write_type19_mem,
+				     smbios_write_type19_from_memctrl_node);
+}
+
 #endif /* #if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE) */
 
 static int smbios_write_type32(ulong *current, int *handle,
@@ -1857,6 +2006,7 @@ static struct smbios_write_method smbios_write_funcs[] = {
 	{ smbios_write_type9, "system-slot"},
 	{ smbios_write_type16, "memory-array"},
 	{ smbios_write_type17, "memory-device"},
+	{ smbios_write_type19, "memory-array-mapped-address"},
 #endif
 	{ smbios_write_type32, },
 	{ smbios_write_type127 },

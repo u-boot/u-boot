@@ -372,6 +372,17 @@ struct __packed smbios_type17 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
+struct __packed smbios_type19 {
+	struct smbios_header hdr;
+	u32 start_addr;
+	u32 end_addr;
+	u16 mem_array_hdl;
+	u8 partition_wid;
+	u64 ext_start_addr;
+	u64 ext_end_addr;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
+
 struct __packed smbios_type32 {
 	u8 type;
 	u8 length;

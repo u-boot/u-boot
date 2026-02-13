@@ -86,6 +86,9 @@
 
 			memory-device {
 			};
+
+			memory-array-mapped-address {
+			};
 		};
 	};
 };

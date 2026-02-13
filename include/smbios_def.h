@@ -436,4 +436,9 @@
 #define SMBIOS_MD_ERRINFO_NONE		0xFFFE
 #define SMBIOS_MD_ERRINFO_NOERR		0xFFFF
 
+/* Memory Array Mapped Address */
+
+/* Partition Width */
+#define SMBIOS_MAMA_PW_DEF	1 /* not partitioned */
+
 #endif /* _SMBIOS_DEF_H_ */
