@@ -11,10 +11,10 @@
  * Memory configurations
  */
 #define PHYS_SDRAM_1			0x0
-#if defined(CONFIG_TARGET_SOCFPGA_GEN5)
+#if defined(CONFIG_ARCH_SOCFPGA_GEN5)
 #define CFG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CFG_SYS_INIT_RAM_SIZE	SOCFPGA_PHYS_OCRAM_SIZE
-#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
+#elif defined(CONFIG_ARCH_SOCFPGA_ARRIA10)
 #define CFG_SYS_INIT_RAM_ADDR	0xFFE00000
 /* SPL memory allocation configuration, this is for FAT implementation */
 #define CFG_SYS_INIT_RAM_SIZE	(SOCFPGA_PHYS_OCRAM_SIZE - \

@@ -9,7 +9,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 static struct mm_region socfpga_agilex5_mem_map[] = {
 	{
 		/* OCRAM 512KB */

@@ -3,9 +3,9 @@
 # Copyright (C) 2018-2021 Marek Vasut <marex@denx.de>
 #
 
-obj-$(CONFIG_TARGET_SOCFPGA_AGILEX) += clk-agilex.o
-obj-$(CONFIG_TARGET_SOCFPGA_AGILEX7M) += clk-agilex.o
-obj-$(CONFIG_TARGET_SOCFPGA_ARRIA10) += clk-arria10.o
-obj-$(CONFIG_TARGET_SOCFPGA_N5X) += clk-n5x.o
-obj-$(CONFIG_TARGET_SOCFPGA_N5X) += clk-mem-n5x.o
-obj-$(CONFIG_TARGET_SOCFPGA_AGILEX5) += clk-agilex5.o
+obj-$(CONFIG_ARCH_SOCFPGA_AGILEX) += clk-agilex.o
+obj-$(CONFIG_ARCH_SOCFPGA_AGILEX7M) += clk-agilex.o
+obj-$(CONFIG_ARCH_SOCFPGA_ARRIA10) += clk-arria10.o
+obj-$(CONFIG_ARCH_SOCFPGA_N5X) += clk-n5x.o
+obj-$(CONFIG_ARCH_SOCFPGA_N5X) += clk-mem-n5x.o
+obj-$(CONFIG_ARCH_SOCFPGA_AGILEX5) += clk-agilex5.o

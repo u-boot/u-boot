@@ -12,7 +12,7 @@ void sysmgr_pinmux_init(void);
 void populate_sysmgr_fpgaintf_module(void);
 void populate_sysmgr_pinmux(void);
 
-#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 #define SYSMGR_SOC64_SILICONID_1		0x00
 #define SYSMGR_SOC64_SILICONID_2		0x04
 #define SYSMGR_SOC64_MPU_STATUS			0x10
@@ -62,7 +62,7 @@ void populate_sysmgr_pinmux(void);
 #else
 #define SYSMGR_SOC64_NAND_AXUSER		0x5c
 #define SYSMGR_SOC64_DMA_L3MASTER		0x74
-#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
+#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_N5X)
 #define SYSMGR_SOC64_DDR_MODE			0xb8
 #else
 #define SYSMGR_SOC64_HMC_CLK			0xb4
@@ -73,7 +73,7 @@ void populate_sysmgr_pinmux(void);
 #define SYSMGR_SOC64_GPI			0xe8
 #define SYSMGR_SOC64_MPU			0xf0
 #define SYSMGR_SCRATCH_REG_0_QSPI_REFCLK_MASK	GENMASK(27, 0)
-#endif /*CONFIG_TARGET_SOCFPGA_AGILEX5*/
+#endif /*CONFIG_ARCH_SOCFPGA_AGILEX5*/
 
 #define SYSMGR_SOC64_DMA			0x20
 #define SYSMGR_SOC64_DMA_PERIPH			0x24
@@ -218,7 +218,7 @@ void populate_sysmgr_pinmux(void);
 
 #define SYSMGR_WDDBG_PAUSE_ALL_CPU	0xFF0F0F0F
 
-#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
+#if IS_ENABLED(CONFIG_ARCH_SOCFPGA_N5X)
 #define	SYSMGR_SOC64_DDR_MODE_MSK	BIT(0)
 #endif
 

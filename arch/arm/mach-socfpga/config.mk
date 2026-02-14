@@ -2,9 +2,9 @@
 #
 # Brian Sune <briansune@gmail.com>
 
-ifeq ($(CONFIG_TARGET_SOCFPGA_CYCLONE5),y)
+ifeq ($(CONFIG_ARCH_SOCFPGA_CYCLONE5),y)
 archprepare: socfpga_g5_handoff_prepare
-else ifeq ($(CONFIG_TARGET_SOCFPGA_ARRIA5),y)
+else ifeq ($(CONFIG_ARCH_SOCFPGA_ARRIA5),y)
 archprepare: socfpga_g5_handoff_prepare
 endif
 
@@ -23,7 +23,7 @@ socfpga_g5_handoff_prepare:
 		if [ -z "$$VENDOR" ] || [ -z "$$BOARD" ]; then \
 			exit 0; \
 		fi; \
-		BOARD_DIR=$(src)/board/$$VENDOR/$$BOARD; \
+		BOARD_DIR=$(srctree)/board/$$VENDOR/$$BOARD; \
 		if [ "$$HANDOFF_PATH" ]; then \
 			echo "[INFO] Using manually specified handoff folder: $$HANDOFF_PATH"; \
 		else \
@@ -44,5 +44,5 @@ socfpga_g5_handoff_prepare:
 		fi; \
 		echo "[INFO] Found hiof file: $$HIOF_FILE"; \
 		echo "[INFO] Running BSP generator..."; \
-		python3 $(src)/tools/cv_bsp_generator/cv_bsp_generator.py -i "$$HANDOFF_PATH" -o "$$BOARD_DIR/qts" || echo "[WARN] BSP generator failed, continuing..."; \
+		python3 $(srctree)/tools/cv_bsp_generator/cv_bsp_generator.py -i "$$HANDOFF_PATH" -o "$$BOARD_DIR/qts" || echo "[WARN] BSP generator failed, continuing..."; \
 		echo "[DONE] SoCFPGA QTS handoff conversion complete."

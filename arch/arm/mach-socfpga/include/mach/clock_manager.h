@@ -17,22 +17,22 @@ void cm_print_clock_quick_summary(void);
 unsigned long cm_get_mpu_clk_hz(void);
 unsigned int cm_get_qspi_controller_clk_hz(void);
 
-#if defined(CONFIG_TARGET_SOCFPGA_SOC64)
+#if defined(CONFIG_ARCH_SOCFPGA_SOC64)
 int cm_set_qspi_controller_clk_hz(u32 clk_hz);
 #endif
 #endif
 
-#if defined(CONFIG_TARGET_SOCFPGA_GEN5)
+#if defined(CONFIG_ARCH_SOCFPGA_GEN5)
 #include <asm/arch/clock_manager_gen5.h>
-#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
+#elif defined(CONFIG_ARCH_SOCFPGA_ARRIA10)
 #include <asm/arch/clock_manager_arria10.h>
-#elif defined(CONFIG_TARGET_SOCFPGA_STRATIX10)
+#elif defined(CONFIG_ARCH_SOCFPGA_STRATIX10)
 #include <asm/arch/clock_manager_s10.h>
-#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) || IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M)
+#elif IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) || IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M)
 #include <asm/arch/clock_manager_agilex.h>
-#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#elif IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 #include <asm/arch/clock_manager_agilex5.h>
-#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
+#elif IS_ENABLED(CONFIG_ARCH_SOCFPGA_N5X)
 #include <asm/arch/clock_manager_n5x.h>
 #endif
 

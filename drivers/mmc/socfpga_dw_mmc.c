@@ -58,8 +58,8 @@ static int socfpga_dwmci_clksel(struct dwmci_host *host)
 	u32 sdmmc_mask = ((priv->smplsel & 0x7) << SYSMGR_SDMMC_SMPLSEL_SHIFT) |
 			 ((priv->drvsel & 0x7) << SYSMGR_SDMMC_DRVSEL_SHIFT);
 
-	if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
-	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M)) {
+	if (!IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) &&
+	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M)) {
 		/* Disable SDMMC clock. */
 		clrbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
 			     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
@@ -95,8 +95,8 @@ static int socfpga_dwmci_clksel(struct dwmci_host *host)
 		readl(socfpga_get_sysmgr_addr() + SYSMGR_SDMMC));
 #endif
 
-	if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
-	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M)) {
+	if (!IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) &&
+	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M)) {
 		/* Enable SDMMC clock */
 		setbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
 			     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);

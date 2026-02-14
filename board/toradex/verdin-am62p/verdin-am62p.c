@@ -18,6 +18,7 @@
 #include <k3-ddrss.h>
 #include <spl.h>
 #include <linux/sizes.h>
+#include <mach/k3-ddr.h>
 
 #include "../common/tdx-cfg-block.h"
 
@@ -57,6 +58,9 @@ static void read_hw_cfg(void)
 
 int dram_init(void)
 {
+	if (!IS_ENABLED(CONFIG_TARGET_VERDIN_AM62P_R5) || !IS_ENABLED(CONFIG_SPL_BUILD))
+		return fdtdec_setup_mem_size_base();
+
 	gd->ram_size = get_ram_size((long *)CFG_SYS_SDRAM_BASE, CFG_SYS_SDRAM_SIZE);
 
 	if (gd->ram_size < SZ_1G)
@@ -131,6 +135,13 @@ int board_late_init(void)
 
 	return 0;
 }
+
+#if IS_ENABLED(CONFIG_XPL_BUILD)
+void spl_perform_board_fixups(struct spl_image_info *spl_image)
+{
+	fixup_memory_node(spl_image);
+}
+#endif
 
 #define MCU_CTRL_LFXOSC_32K_BYPASS_VAL	BIT(4)
 

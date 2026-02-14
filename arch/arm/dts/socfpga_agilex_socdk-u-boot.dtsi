@@ -8,7 +8,7 @@
 
 #include "socfpga_agilex-u-boot.dtsi"
 
-#ifdef CONFIG_TARGET_SOCFPGA_AGILEX
+#ifdef CONFIG_ARCH_SOCFPGA_AGILEX
 /{
 	chosen {
 		stdout-path = "serial0:115200n8";
@@ -27,7 +27,7 @@
 };
 #endif
 
-#ifdef CONFIG_TARGET_SOCFPGA_AGILEX7M
+#ifdef CONFIG_ARCH_SOCFPGA_AGILEX7M
 /{
 	model = "SoCFPGA Agilex7-M SoCDK";
 	chosen {
@@ -181,3 +181,41 @@
 		};
 	};
 };
+
+#if !defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
+&fdt_0_blob {
+	filename = "dts/upstream/src/arm64/intel/socfpga_agilex_socdk.dtb";
+};
+
+&images {
+	fdt-1 {
+		description = "socfpga_socdk_nand";
+		type = "flat_dt";
+		compression = "none";
+		fdt_1_blob: blob-ext {
+			filename = "dts/upstream/src/arm64/intel/socfpga_agilex_socdk_nand.dtb";
+		};
+		hash {
+			algo = "crc32";
+		};
+	};
+};
+
+&board_config {
+	board-1 {
+		description = "board_1";
+		firmware = "atf";
+		loadables = "uboot";
+		fdt = "fdt-1";
+		signature {
+			algo = "crc32";
+			key-name-hint = "dev";
+			sign-images = "atf", "uboot", "fdt-1";
+		};
+	};
+};
+
+&binman {
+	/delete-node/ kernel;
+};
+#endif

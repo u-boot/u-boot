@@ -54,7 +54,7 @@ struct bsel bsel_str[] = {
 
 int dram_init(void)
 {
-#if CONFIG_IS_ENABLED(HANDOFF) && IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#if CONFIG_IS_ENABLED(HANDOFF) && IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 	struct spl_handoff *ho;
 
 	ho = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF, sizeof(*ho));
@@ -65,7 +65,7 @@ int dram_init(void)
 #else
 	if (fdtdec_setup_mem_size_base() != 0)
 		return -EINVAL;
-#endif /* HANDOFF && CONFIG_TARGET_SOCFPGA_AGILEX5 */
+#endif /* HANDOFF && CONFIG_ARCH_SOCFPGA_AGILEX5 */
 
 	return 0;
 }
@@ -261,21 +261,21 @@ void socfpga_get_managers_addr(void)
 	if (ret)
 		hang();
 
-	if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
-	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M) &&
-	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)) {
+	if (!IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) &&
+	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M) &&
+	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)) {
 		ret = socfpga_get_base_addr("altr,sys-mgr",
 					    &socfpga_sysmgr_base);
 		if (ret)
 			hang();
 	}
 
-	if (IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X))
+	if (IS_ENABLED(CONFIG_ARCH_SOCFPGA_N5X))
 		ret = socfpga_get_base_addr("intel,n5x-clkmgr",
 					    &socfpga_clkmgr_base);
-	else if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
-		 !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M) &&
-		 !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5))
+	else if (!IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) &&
+		 !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M) &&
+		 !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5))
 		ret = socfpga_get_base_addr("altr,clk-mgr",
 					    &socfpga_clkmgr_base);
 

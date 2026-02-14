@@ -61,7 +61,7 @@ int board_init(void)
 
 int dram_init_banksize(void)
 {
-#if CONFIG_IS_ENABLED(HANDOFF) && IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#if CONFIG_IS_ENABLED(HANDOFF) && IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 #ifndef CONFIG_SPL_BUILD
 	struct spl_handoff *ho;
 
@@ -72,7 +72,7 @@ int dram_init_banksize(void)
 #endif
 #else
 	fdtdec_setup_memory_banksize();
-#endif /* HANDOFF && CONFIG_TARGET_SOCFPGA_AGILEX5 */
+#endif /* HANDOFF && CONFIG_ARCH_SOCFPGA_AGILEX5 */
 
 	return 0;
 }
@@ -145,7 +145,7 @@ u8 socfpga_get_board_id(void)
 	return board_id;
 }
 
-#if IS_ENABLED(CONFIG_XPL_BUILD) && IS_ENABLED(CONFIG_TARGET_SOCFPGA_SOC64)
+#if IS_ENABLED(CONFIG_XPL_BUILD) && IS_ENABLED(CONFIG_ARCH_SOCFPGA_SOC64)
 int board_fit_config_name_match(const char *name)
 {
 	char board_name[10];

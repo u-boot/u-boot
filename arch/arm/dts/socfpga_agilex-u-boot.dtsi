@@ -264,7 +264,7 @@
 };
 #endif
 
-#ifdef CONFIG_TARGET_SOCFPGA_AGILEX7M
+#ifdef CONFIG_ARCH_SOCFPGA_AGILEX7M
 &sdr {
 	compatible = "intel,sdr-ctl-agilex7m";
 	reg = <0xf8020000 0x100>;

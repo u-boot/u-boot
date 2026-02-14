@@ -1,0 +1,6 @@
+SOCFPGA BOARD
+M:	Brian Sune <briansune@gmail.com>
+S:	Maintained
+F:	board/corecourse/ac501soc/
+F:	include/configs/socfpga_ac501soc.h
+F:	configs/socfpga_ac501soc_defconfig

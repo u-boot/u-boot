@@ -55,7 +55,7 @@ config CONSOLE_RECORD_IN_SIZE
 config SYS_CBSIZE
 	int "Console input buffer size"
 	default 2048 if ARCH_TEGRA || ARCH_VERSAL || ARCH_ZYNQ || ARCH_ZYNQMP || \
-		RCAR_GEN3 || TARGET_SOCFPGA_SOC64
+		RCAR_GEN3 || ARCH_SOCFPGA_SOC64
 	default 512 if ARCH_MX5 || ARCH_MX6 || ARCH_MX7 || FSL_LSCH2 || \
 		FSL_LSCH3 || X86
 	default 256 if M68K || PPC

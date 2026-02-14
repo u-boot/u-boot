@@ -1,0 +1,118 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2025, Brian Sune
+ *
+ * based on socfpga_cyclone5_socdk.dts
+ */
+
+#include "socfpga_cyclone5.dtsi"
+
+/ {
+	model = "CoreCourse AC550SoC,AC802-CVA6";
+	compatible = "altr,socfpga-cyclone5", "altr,socfpga";
+
+	chosen {
+		bootargs = "earlyprintk";
+		stdout-path = "serial0:115200n8";
+	};
+
+	aliases {
+		ethernet0 = &gmac1;
+		udc0 = &usb1;
+	};
+
+	memory@0 {
+		name = "memory";
+		device_type = "memory";
+		reg = <0x0 0x40000000>; /* 1GB */
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		hps0 {
+			label = "hps_led0";
+			gpios = <&portb 6 1>;
+		};
+
+		hps1 {
+			label = "hps_led1";
+			gpios = <&porta 9 1>;
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		hps0 {
+			label = "HPS GPIO0";
+			gpios = <&porta 0 0>;
+		};
+	};
+
+	regulator_3_3v: 3-3-v-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "3.3V";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&i2c3 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	i2c-sda-falling-time-ns = <5000>;
+	i2c-scl-falling-time-ns = <5000>;
+
+	eeprom@50 {
+		compatible = "atmel,24c64";
+		reg = <0x50>;
+		pagesize = <32>;
+	};
+
+	rtc@51 {
+		compatible = "nxp,pcf8563";
+		reg = <0x51>;
+		#clock-cells = <0>;
+	};
+};
+
+&gmac1 {
+	status = "okay";
+	phy-mode = "rgmii";
+
+	rxd0-skew-ps = <420>;
+	rxd1-skew-ps = <420>;
+	rxd2-skew-ps = <420>;
+	rxd3-skew-ps = <420>;
+	txen-skew-ps = <0>;
+	txc-skew-ps = <1860>;
+	rxdv-skew-ps = <420>;
+	rxc-skew-ps = <1680>;
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+&mmc0 {
+	vmmc-supply = <&regulator_3_3v>;
+	vqmmc-supply = <&regulator_3_3v>;
+	status = "okay";
+};
+
+&usb1 {
+	status = "okay";
+};
