@@ -18,6 +18,7 @@
 #define _DISK_PART_EFI_H
 
 #include <efi.h>
+#include <part_dos.h>
 
 #define MSDOS_MBR_SIGNATURE 0xAA55
 #define MSDOS_MBR_BOOT_CODE_SIZE 440
@@ -77,20 +78,6 @@
 /* linux/include/efi.h */
 typedef u16 efi_char16_t;
 
-/* based on linux/include/genhd.h */
-struct partition {
-	u8 boot_ind;		/* 0x80 - active */
-	u8 head;		/* starting head */
-	u8 sector;		/* starting sector */
-	u8 cyl;			/* starting cylinder */
-	u8 sys_ind;		/* What partition type */
-	u8 end_head;		/* end head */
-	u8 end_sector;		/* end sector */
-	u8 end_cyl;		/* end cylinder */
-	__le32 start_sect;	/* starting sector counting from 0 */
-	__le32 nr_sects;	/* nr of sectors in partition */
-} __packed;
-
 /* based on linux/fs/partitions/efi.h */
 typedef struct _gpt_header {
 	__le64 signature;
@@ -134,7 +121,7 @@ typedef struct _legacy_mbr {
 	u8 boot_code[MSDOS_MBR_BOOT_CODE_SIZE];
 	__le32 unique_mbr_signature;
 	__le16 unknown;
-	struct partition partition_record[4];
+	dos_partition_t partition_record[4];
 	__le16 signature;
 } __packed legacy_mbr;
 
@@ -153,7 +140,7 @@ struct efi_partition_info {
 	u8 system;
 	u8 reserved[7];
 	union {
-		struct partition mbr;
+		dos_partition_t mbr;
 		gpt_entry gpt;
 	} info;
 } __packed;

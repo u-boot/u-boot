@@ -19,7 +19,7 @@
 #include <vsprintf.h>
 #include <asm/unaligned.h>
 #include <linux/compiler.h>
-#include "part_dos.h"
+#include <part_dos.h>
 #include <part.h>
 
 #define DOS_PART_DEFAULT_SECTOR 512
@@ -49,8 +49,8 @@ static int get_bootable(dos_partition_t *p)
 static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
 			   int part_num, unsigned int disksig)
 {
-	lbaint_t lba_start = ext_part_sector + get_unaligned_le32(p->start4);
-	lbaint_t lba_size  = get_unaligned_le32(p->size4);
+	lbaint_t lba_start = ext_part_sector + get_unaligned_le32(&p->start_sect);
+	lbaint_t lba_size  = get_unaligned_le32(&p->nr_sects);
 
 	printf("%3d\t%-10" LBAFlength "u\t%-10" LBAFlength
 		"u\t%08x-%02x\t%02x%s%s\n",
@@ -185,7 +185,7 @@ static void print_partition_extended(struct blk_desc *desc,
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
 			lbaint_t lba_start
-				= get_unaligned_le32 (pt->start4) + relative;
+				= get_unaligned_le32 (&pt->start_sect) + relative;
 
 			print_partition_extended(desc, lba_start,
 						 !ext_part_sector ? lba_start :
@@ -196,12 +196,26 @@ static void print_partition_extended(struct blk_desc *desc,
 	return;
 }
 
-/*  Print a partition that is relative to its Extended partition table
+/**
+ * part_get_info_extended() - get partition info for a DOS partition
+ *
+ * @desc:		Block device descriptor
+ * @ext_part_sector:	Partition table sector
+ * @relative:		Relative offset for the partition
+ * @part_num:		Current partition number
+ * @which_part:		Target partition number
+ * @info:		Returns partition information (optional)
+ * @mbr:		Returns MBR partition entry (optional)
+ * @disksig:		Disk signature
+ *
+ * Return:		0 on success, negative on error
  */
 static int part_get_info_extended(struct blk_desc *desc,
 				  lbaint_t ext_part_sector, lbaint_t relative,
 				  int part_num, int which_part,
-				  struct disk_partition *info, uint disksig)
+				  struct disk_partition *info,
+				  dos_partition_t *mbr,
+				  uint disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, desc->blksz);
 	struct disk_partition wdinfo = { 0 };
@@ -232,9 +246,11 @@ static int part_get_info_extended(struct blk_desc *desc,
 	if (CONFIG_IS_ENABLED(PARTITION_UUIDS) && !ext_part_sector)
 		disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
 
-	ret = part_get_info_whole_disk(desc, &wdinfo);
-	if (ret)
-		return ret;
+	if (info) {
+		ret = part_get_info_whole_disk(desc, &wdinfo);
+		if (ret)
+			return ret;
+	}
 
 	/* Print all primary/logical partitions */
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
@@ -247,25 +263,29 @@ static int part_get_info_extended(struct blk_desc *desc,
 		    (pt->sys_ind != 0) &&
 		    (part_num == which_part) &&
 		    (ext_part_sector == 0 || is_extended(pt->sys_ind) == 0)) {
-			if (wdinfo.blksz > DOS_PART_DEFAULT_SECTOR)
-				info->blksz = wdinfo.blksz;
-			else
-				info->blksz = DOS_PART_DEFAULT_SECTOR;
-			info->start = (lbaint_t)(ext_part_sector +
-					get_unaligned_le32(pt->start4));
-			info->size  = (lbaint_t)get_unaligned_le32(pt->size4);
-			part_set_generic_name(desc, part_num,
-					      (char *)info->name);
-			/* sprintf(info->type, "%d, pt->sys_ind); */
-			strcpy((char *)info->type, "U-Boot");
-			info->bootable = get_bootable(pt);
-			if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
-				char str[12];
+			if (info) {
+				if (wdinfo.blksz > DOS_PART_DEFAULT_SECTOR)
+					info->blksz = wdinfo.blksz;
+				else
+					info->blksz = DOS_PART_DEFAULT_SECTOR;
+				info->start = (lbaint_t)(ext_part_sector +
+							 get_unaligned_le32(&pt->start_sect));
+				info->size  = (lbaint_t)get_unaligned_le32(&pt->nr_sects);
+				part_set_generic_name(desc, part_num,
+						      (char *)info->name);
+				/* sprintf(info->type, "%d, pt->sys_ind); */
+				strcpy((char *)info->type, "U-Boot");
+				info->bootable = get_bootable(pt);
+				if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
+					char str[12];
 
-				sprintf(str, "%08x-%02x", disksig, part_num);
-				disk_partition_set_uuid(info, str);
+					sprintf(str, "%08x-%02x", disksig, part_num);
+					disk_partition_set_uuid(info, str);
+				}
+				info->sys_ind = pt->sys_ind;
 			}
-			info->sys_ind = pt->sys_ind;
+			if (mbr)
+				memcpy(mbr, pt, sizeof(*mbr));
 			return 0;
 		}
 
@@ -281,11 +301,12 @@ static int part_get_info_extended(struct blk_desc *desc,
 	for (i = 0; i < 4; i++, pt++) {
 		if (is_extended (pt->sys_ind)) {
 			lbaint_t lba_start
-				= get_unaligned_le32 (pt->start4) + relative;
+				= get_unaligned_le32 (&pt->start_sect) + relative;
 
 			return part_get_info_extended(desc, lba_start,
 				 ext_part_sector == 0 ? lba_start : relative,
-				 part_num, which_part, info, disksig);
+						      part_num, which_part, info,
+						      mbr, disksig);
 		}
 	}
 
@@ -317,7 +338,13 @@ static void __maybe_unused part_print_dos(struct blk_desc *desc)
 static int __maybe_unused part_get_info_dos(struct blk_desc *desc, int part,
 					    struct disk_partition *info)
 {
-	return part_get_info_extended(desc, 0, 0, 1, part, info, 0);
+	return part_get_info_extended(desc, 0, 0, 1, part, info, NULL, 0);
+}
+
+int __maybe_unused part_get_mbr(struct blk_desc *desc, int part,
+				dos_partition_t *mbr)
+{
+	return part_get_info_extended(desc, 0, 0, 1, part, NULL, mbr, 0);
 }
 
 int is_valid_dos_buf(void *buf)
@@ -356,8 +383,8 @@ static void mbr_fill_pt_entry(dos_partition_t *pt, lbaint_t start,
 	pt->sys_ind = sys_ind;
 	lba_to_chs(start, &pt->cyl, &pt->head, &pt->sector);
 	lba_to_chs(start + size - 1, &pt->end_cyl, &pt->end_head, &pt->end_sector);
-	put_unaligned_le32(relative, &pt->start4);
-	put_unaligned_le32(size, &pt->size4);
+	put_unaligned_le32(relative, &pt->start_sect);
+	put_unaligned_le32(size, &pt->nr_sects);
 }
 
 int write_mbr_partitions(struct blk_desc *dev,

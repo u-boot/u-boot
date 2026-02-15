@@ -475,9 +475,12 @@ static efi_status_t efi_disk_add_dev(
 #if CONFIG_IS_ENABLED(DOS_PARTITION)
 		case PART_TYPE_DOS:
 			info->type = PARTITION_TYPE_MBR;
-
-			/* TODO: implement support for MBR partition types */
-			log_debug("EFI_PARTITION_INFO_PROTOCOL doesn't support MBR\n");
+			ret = part_get_mbr(desc, part, &info->info.mbr);
+			if (ret) {
+				log_debug("get MBR for part %d failed %ld\n",
+					  part, ret);
+				goto error;
+			}
 			break;
 #endif
 		default:
