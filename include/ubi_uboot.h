@@ -51,6 +51,17 @@ extern int ubi_part(char *part_name, const char *vid_header_offset);
 extern int ubi_volume_write(char *volume, void *buf, loff_t offset, size_t size);
 extern int ubi_volume_read(char *volume, char *buf, loff_t offset, size_t size);
 
+/**
+ * ubi_find_volume() - look up a UBI volume by name
+ * @volume: NUL-terminated volume name to search for
+ *
+ * Scans the volume table of the first attached UBI device for a volume
+ * whose name matches @volume.
+ *
+ * Return: pointer to the ubi_volume if found, or NULL
+ */
+struct ubi_volume *ubi_find_volume(const char *volume);
+
 extern struct ubi_device *ubi_devices[];
 int cmd_ubifs_mount(char *vol_name);
 int cmd_ubifs_umount(void);

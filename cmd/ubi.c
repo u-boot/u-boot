@@ -247,13 +247,17 @@ static int ubi_create_vol(char *volume, int64_t size, int dynamic, int vol_id,
 	return ubi_create_volume(ubi, &req);
 }
 
-static struct ubi_volume *ubi_find_volume(char *volume)
+struct ubi_volume *ubi_find_volume(const char *volume)
 {
+	struct ubi_device *dev = ubi_devices[0];
 	struct ubi_volume *vol;
 	int i;
 
-	for (i = 0; i < ubi->vtbl_slots; i++) {
-		vol = ubi->volumes[i];
+	if (!dev)
+		return NULL;
+
+	for (i = 0; i < dev->vtbl_slots; i++) {
+		vol = dev->volumes[i];
 		if (vol && !strcmp(vol->name, volume))
 			return vol;
 	}
