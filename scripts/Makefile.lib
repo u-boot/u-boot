@@ -437,6 +437,8 @@ cmd_dtc_diff = \
 	$(DTC) -s -O dts -o $@.full.dts -b 0 \
 		-i $(dir $<) -i $(u_boot_dtsi_loc) $(DTC_FLAGS) $(dtc-tmp) || \
 		(echo "Check $(shell pwd)/$(pre-tmp) for errors" && false); \
+	sed -i '/\<phandle\> = <0x[0-9a-f]\+>;/ d' $@.clean.dts; \
+	sed -i '/\<phandle\> = <0x[0-9a-f]\+>;/ d' $@.full.dts; \
 	(diff -Naru $@.clean.dts $@.full.dts > $@.diff || true)
 
 dtn-tmp = $(subst $(comma),_,$(dot-target).dtn.tmp)
