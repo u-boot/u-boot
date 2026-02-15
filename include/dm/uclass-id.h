@@ -75,6 +75,7 @@ enum uclass_id {
 	UCLASS_HASH,		/* Hash device */
 	UCLASS_HWSPINLOCK,	/* Hardware semaphores */
 	UCLASS_HOST,		/* Sandbox host device */
+	UCLASS_IMAGEMAP,	/* On-demand image loading from storage */
 	UCLASS_I2C,		/* I2C bus */
 	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */

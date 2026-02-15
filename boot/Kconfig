@@ -1187,6 +1187,20 @@ config SYS_BOOT_RAMDISK_HIGH
 
 endmenu		# Boot images
 
+config IMAGEMAP
+	bool "On-demand image loading from storage"
+	depends on DM && LMB
+	help
+	  Provides a UCLASS_IMAGEMAP driver subsystem for reading image
+	  data from storage on demand. A translation table maps
+	  already-loaded regions to their RAM addresses, avoiding
+	  redundant reads. Scratch allocations are managed through the
+	  LMB allocator.
+
+	  Each storage backend (block, MTD, UBI) is implemented as a
+	  separate driver. Used by bootm when a storage device is
+	  specified instead of a RAM address.
+
 config DISTRO_DEFAULTS
 	bool "(deprecated) Script-based booting of Linux distributions"
 	select CMDLINE
