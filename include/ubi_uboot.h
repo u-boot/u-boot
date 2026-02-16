@@ -76,6 +76,22 @@ int ubi_detach(void);
 int ubi_part(const char *part_name, const char *vid_header_offset);
 
 /**
+ * ubi_part_from_mtd() - attach UBI to an MTD device
+ * @mtd: MTD device to attach
+ *
+ * This function attaches UBI directly to @mtd, without going through the
+ * name-based lookup that ubi_part() uses. It is useful for callers that
+ * already hold a reference to the MTD device, e.g. after finding it via its
+ * device-tree node.
+ *
+ * If the same MTD device is already attached, the function returns
+ * immediately.
+ *
+ * Return: 0 on success, or -ve on error.
+ */
+int ubi_part_from_mtd(struct mtd_info *mtd);
+
+/**
  * ubi_volume_write() - write data to UBI volume
  * @volume: name of the volume to write to
  * @buf: data buffer to be written
