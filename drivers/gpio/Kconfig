@@ -1,3 +1,11 @@
+config GPIO_DELAY
+	bool "GPIO delay driver"
+	depends on DM_GPIO
+	help
+	  Enable the GPIO delay driver.
+	  This driver allows wrapping another GPIO controller and inserting
+	  ramp-up/ramp-down delays on output changes, as described in the
+	  Linux gpio-delay binding.
 #
 # GPIO infrastructure and drivers
 #

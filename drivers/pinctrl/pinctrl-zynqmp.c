@@ -19,15 +19,11 @@
 #include <linux/compat.h>
 #include <dt-bindings/pinctrl/pinctrl-zynqmp.h>
 
-#define PINCTRL_GET_FUNC_GROUPS_RESP_LEN	12
-#define PINCTRL_GET_PIN_GROUPS_RESP_LEN		12
-#define NUM_GROUPS_PER_RESP			6
-#define NA_GROUP				-1
-#define RESERVED_GROUP				-2
+#define PINCTRL_GET_FUNC_GROUPS_RESP_LEN	(sizeof(s16) * NUM_GROUPS_PER_RESP)
+#define PINCTRL_GET_PIN_GROUPS_RESP_LEN		(sizeof(s16) * NUM_GROUPS_PER_RESP)
 #define MAX_GROUP_PIN				50
 #define MAX_PIN_GROUPS				50
 #define MAX_GROUP_NAME_LEN			32
-#define MAX_FUNC_NAME_LEN			16
 
 #define DRIVE_STRENGTH_2MA	2
 #define DRIVE_STRENGTH_4MA	4

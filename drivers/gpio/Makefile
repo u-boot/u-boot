@@ -21,6 +21,7 @@ obj-$(CONFIG_ATMEL_PIO4)	+= atmel_pio4.o
 obj-$(CONFIG_BCM6345_GPIO)	+= bcm6345_gpio.o
 obj-$(CONFIG_CORTINA_GPIO)      += cortina_gpio.o
 obj-$(CONFIG_FXL6408_GPIO)	+= gpio-fxl6408.o
+obj-$(CONFIG_GPIO_DELAY)	+= gpio-delay.o
 obj-$(CONFIG_INTEL_GPIO)	+= intel_gpio.o
 obj-$(CONFIG_INTEL_ICH6_GPIO)	+= intel_ich6_gpio.o
 obj-$(CONFIG_INTEL_BROADWELL_GPIO)	+= intel_broadwell_gpio.o

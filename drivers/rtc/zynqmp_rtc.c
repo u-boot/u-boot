@@ -5,26 +5,30 @@
 
 #define LOG_CATEGORY UCLASS_RTC
 
+#include <clk.h>
 #include <dm.h>
 #include <rtc.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 
 /* RTC Registers */
 #define RTC_SET_TM_WR		0x00
 #define RTC_SET_TM_RD		0x04
 #define RTC_CALIB_WR		0x08
+#define RTC_CALIB_RD		0x0C
 #define RTC_CUR_TM		0x10
 #define RTC_INT_STS		0x20
 #define RTC_CTRL		0x40
 
 #define RTC_INT_SEC		BIT(0)
 #define RTC_BATT_EN		BIT(31)
-#define RTC_CALIB_DEF		0x198233
+#define RTC_CALIB_DEF		0x7FFF
+#define RTC_FREQ_MAX		0x10000
 #define RTC_CALIB_MASK		0x1FFFFF
 
 struct zynqmp_rtc_priv {
 	fdt_addr_t	base;
-	unsigned int	calibval;
+	unsigned long	calibval;
 };
 
 static int zynqmp_rtc_get(struct udevice *dev, struct rtc_time *tm)
@@ -70,13 +74,6 @@ static int zynqmp_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 		 */
 		new_time = rtc_mktime(tm) + 1;
 
-	/*
-	 * Writing into calibration register will clear the Tick Counter and
-	 * force the next second to be signaled exactly in 1 second period
-	 */
-	priv->calibval &= RTC_CALIB_MASK;
-	writel(priv->calibval, (priv->base + RTC_CALIB_WR));
-
 	writel(new_time, priv->base + RTC_SET_TM_WR);
 
 	/*
@@ -107,15 +104,6 @@ static int zynqmp_rtc_init(struct udevice *dev)
 	rtc_ctrl |= RTC_BATT_EN;
 	writel(rtc_ctrl, priv->base + RTC_CTRL);
 
-	/*
-	 * Based on crystal freq of 33.330 KHz
-	 * set the seconds counter and enable, set fractions counter
-	 * to default value suggested as per design spec
-	 * to correct RTC delay in frequency over period of time.
-	 */
-	priv->calibval &= RTC_CALIB_MASK;
-	writel(priv->calibval, (priv->base + RTC_CALIB_WR));
-
 	return 0;
 }
 
@@ -128,8 +116,44 @@ static int zynqmp_rtc_probe(struct udevice *dev)
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->calibval = dev_read_u32_default(dev, "calibration",
-					      RTC_CALIB_DEF);
+	ret = readl(priv->base + RTC_CALIB_RD);
+	if (!ret) {
+		struct clk rtc_clk;
+		unsigned long clk_rate;
+
+		/* Get the RTC clock rate */
+		ret = clk_get_by_name_optional(dev, "rtc", &rtc_clk);
+		if (!ret) {
+			clk_rate = clk_get_rate(&rtc_clk);
+			/* Use clock frequency if valid, fallback to calibration value */
+			if (clk_rate > 0 && clk_rate <= RTC_FREQ_MAX) {
+				/* Valid clock frequency */
+				priv->calibval = clk_rate - 1;
+			} else if (clk_rate == 0) {
+				priv->calibval = dev_read_u32_default(dev, "calibration",
+								      RTC_CALIB_DEF);
+			} else {
+				dev_err(dev, "Invalid clock frequency 0x%lx\n",
+					clk_rate);
+				return -EINVAL;
+			}
+		} else {
+			/* Clock framework unavailable, use DT calibration */
+			priv->calibval = dev_read_u32_default(dev, "calibration",
+							      RTC_CALIB_DEF);
+		}
+
+		/* Validate final calibration value */
+		if (priv->calibval > RTC_FREQ_MAX) {
+			dev_err(dev, "Invalid calibration 0x%lx\n",
+				priv->calibval);
+			return -EINVAL;
+		}
+
+		writel(priv->calibval, (priv->base + RTC_CALIB_WR));
+	} else {
+		priv->calibval = ret & RTC_CALIB_MASK;
+	}
 
 	ret = zynqmp_rtc_init(dev);
 
