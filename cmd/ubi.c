@@ -662,6 +662,27 @@ static int ubi_detach(void)
 	return 0;
 }
 
+int ubi_part_from_mtd(struct mtd_info *mtd)
+{
+	int err;
+
+	if (ubi && ubi->mtd == mtd)
+		return 0;
+
+	ubi_detach();
+
+	err = ubi_dev_scan(mtd, NULL);
+	if (err) {
+		printf("UBI init error %d\n", err);
+		printf("Please check, if the correct MTD partition is used (size big enough?)\n");
+		return err;
+	}
+
+	ubi = ubi_devices[0];
+
+	return 0;
+}
+
 int ubi_part(char *part_name, const char *vid_header_offset)
 {
 	struct mtd_info *mtd;
