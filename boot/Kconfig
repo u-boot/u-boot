@@ -510,6 +510,15 @@ config VPL_BOOTSTD
 	  boot. It is enabled by default since the main purpose of VPL is to
 	  handle the firmware part of VBE.
 
+config BOOTDEV_MTD
+	bool "MTD bootdev support"
+	depends on DM_MTD
+	depends on BOOTSTD
+	help
+	  Enable a boot device for MTD (Memory Technology Devices).
+	  This scans MTD partitions for uImage.FIT firmware images,
+	  enabling raw-flash boot via the OpenWrt boot method.
+
 config BOOTSTD_FULL
 	bool "Enhanced features for standard boot"
 	default y if SANDBOX
