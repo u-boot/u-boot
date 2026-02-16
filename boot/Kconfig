@@ -519,6 +519,15 @@ config BOOTDEV_MTD
 	  This scans MTD partitions for uImage.FIT firmware images,
 	  enabling raw-flash boot via the OpenWrt boot method.
 
+config BOOTDEV_UBI
+	bool "UBI bootdev support"
+	depends on CMD_UBI
+	depends on BOOTSTD
+	help
+	  Enable a boot device for UBI (Unsorted Block Images).
+	  This scans UBI volumes for uImage.FIT firmware images,
+	  enabling raw-flash boot via the OpenWrt boot method.
+
 config BOOTSTD_FULL
 	bool "Enhanced features for standard boot"
 	default y if SANDBOX
