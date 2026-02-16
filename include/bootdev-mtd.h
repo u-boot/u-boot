@@ -22,6 +22,15 @@ struct mtd_info;
 struct mtd_info *mtd_bootdev_get_mtd(struct udevice *dev);
 
 /**
+ * ubi_bootdev_get_ubi_mtd() - get the MTD partition hosting UBI
+ *
+ * @dev: ubi_bootdev udevice
+ *
+ * Return: pointer to the MTD partition's struct mtd_info, or NULL
+ */
+struct mtd_info *ubi_bootdev_get_ubi_mtd(struct udevice *dev);
+
+/**
  * bootdev_get_mtd() - get the backing MTD device for any MTD-based bootdev
  *
  * Dispatches to the appropriate backend accessor depending on the bootdev
@@ -39,6 +48,8 @@ static inline struct mtd_info *bootdev_get_mtd(struct udevice *dev)
 
 	if (IS_ENABLED(CONFIG_BOOTDEV_MTD) && !strcmp(name, "mtd_bootdev"))
 		return mtd_bootdev_get_mtd(dev);
+	if (IS_ENABLED(CONFIG_BOOTDEV_UBI) && !strcmp(name, "ubi_bootdev"))
+		return ubi_bootdev_get_ubi_mtd(dev);
 
 	return NULL;
 }
