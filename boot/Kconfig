@@ -605,6 +605,19 @@ config BOOTMETH_CROS
 
 	  Note that only x86 devices are supported at present.
 
+config BOOTMETH_OPENWRT
+	bool "Bootdev support for OpenWrt"
+	depends on FIT
+	depends on BOOTSTD
+	depends on IMAGEMAP
+	help
+	  Enables support for booting OpenWrt-style uImage.FIT firmware
+	  images stored directly on raw storage (block device partitions,
+	  MTD partitions, or UBI volumes). The boot method loads the FIT
+	  metadata, selectively reads only the kernel and FDT sub-images
+	  from storage, and skips filesystem sub-images that Linux maps
+	  directly from flash.
+
 config BOOTMETH_EXTLINUX
 	bool "Bootdev support for extlinux boot"
 	select PXE_UTILS
