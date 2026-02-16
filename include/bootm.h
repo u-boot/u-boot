@@ -40,6 +40,7 @@ struct cmd_tbl;
  *	boot_get_fdt() for processing, or NULL for none
  * @boot_progress: true to show boot progress
  * @images: images information
+ * @imagemap: imagemap device for storage-backed boot (NULL for in-memory)
  * @cmd_name: command which invoked this operation, e.g. "bootm"
  * @argc: Number of arguments to the command (excluding the actual command).
  *	This is 0 if there are no arguments
@@ -51,6 +52,7 @@ struct bootm_info {
 	const char *conf_fdt;
 	bool boot_progress;
 	struct bootm_headers *images;
+	struct udevice *imagemap;
 	const char *cmd_name;
 	int argc;
 	char *const *argv;

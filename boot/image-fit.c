@@ -26,6 +26,7 @@ extern void *aligned_alloc(size_t alignment, size_t size);
 #include <env.h>
 #include <log.h>
 #include <hexdump.h>
+#include <imagemap.h>
 #include <mapmem.h>
 #include <asm/io.h>
 #include <malloc.h>
@@ -1124,6 +1125,16 @@ int fit_image_get_data(const void *fit, int noffset, const void **data,
 		ret = fit_image_get_data_size(fit, noffset, &len);
 		if (!ret) {
 			*data = fit + offset;
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
+			if (images.imagemap) {
+				void *mapped;
+
+				mapped = imagemap_lookup(images.imagemap,
+							    offset, len);
+				if (mapped)
+					*data = mapped;
+			}
+#endif
 			*size = len;
 		}
 	} else {
@@ -2203,6 +2214,77 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 	printf("   Trying '%s' %s subimage\n", fit_uname, prop_name);
 
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
+	/*
+	 * Filesystem sub-images with a dm-verity subnode are integrity-
+	 * protected by the kernel at block level -- no need to load the
+	 * (potentially very large) payload into RAM for U-Boot hash
+	 * verification.  Skip before the pre-load / verification path.
+	 */
+	if (images->imagemap) {
+		u8 img_type;
+
+		if (CONFIG_IS_ENABLED(FIT_VERITY) &&
+		    !fit_image_get_type(fit, noffset, &img_type) &&
+		    img_type == IH_TYPE_FILESYSTEM &&
+		    fdt_subnode_offset(fit, noffset, "dm-verity") >= 0) {
+			fit_image_print(fit, noffset, "   ");
+			*datap = 0;
+			*lenp = 0;
+			return noffset;
+		}
+	}
+
+	/*
+	 * Pre-load: read external-data payloads from storage into RAM
+	 * before fit_image_select() runs verification.  This populates
+	 * the loader's translation table so fit_image_get_data() (called
+	 * from fit_image_verify() and fit_image_print()) returns a
+	 * pointer to RAM.  fit_image_get_data() itself only does a
+	 * lookup and never triggers a storage read.
+	 *
+	 * Uncompressed sub-images with a known load address are read
+	 * directly to the final destination (zero-copy).  Everything
+	 * else goes to scratch RAM for verification, then the normal
+	 * copy/decompress path moves it.
+	 */
+	if (images->imagemap) {
+		int data_off = 0, data_sz = 0;
+		bool external = false;
+		ulong img_load;
+		u8 img_comp = IH_COMP_NONE;
+
+		if (!fit_image_get_data_position(fit, noffset, &data_off)) {
+			external = true;
+		} else if (!fit_image_get_data_offset(fit, noffset, &data_off)) {
+			external = true;
+			data_off += ALIGN(fdt_totalsize(fit), 4);
+		}
+
+		if (external &&
+		    !fit_image_get_data_size(fit, noffset, &data_sz)) {
+			void *mapped;
+
+			fit_image_get_comp(fit, noffset, &img_comp);
+
+			if (img_comp == IH_COMP_NONE &&
+			    load_op != FIT_LOAD_IGNORED &&
+			    !fit_image_get_load(fit, noffset, &img_load)) {
+				void *dst = map_sysmem(img_load, data_sz);
+
+				mapped = imagemap_map_to(images->imagemap,
+							 data_off, data_sz,
+							 dst);
+			} else {
+				mapped = imagemap_map(images->imagemap,
+						      data_off, data_sz);
+			}
+			if (IS_ERR(mapped))
+				return PTR_ERR(mapped);
+		}
+	}
+#endif
+
 	ret = fit_image_select(fit, noffset, images->verify);
 	if (ret) {
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_HASH);
@@ -2316,8 +2398,9 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 			return -EXDEV;
 		}
 
-		printf("   Loading %s from 0x%08lx to 0x%08lx\n",
-		       prop_name, data, load);
+		if (!CONFIG_IS_ENABLED(IMAGEMAP) || data != load)
+			printf("   Loading %s from 0x%08lx to 0x%08lx\n",
+			       prop_name, data, load);
 	} else {
 		load = data;	/* No load address specified */
 	}
