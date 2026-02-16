@@ -15,7 +15,9 @@
 #include <dm.h>
 #include <imagemap.h>
 #include <malloc.h>
-#include <mapmem.h>
+#include <part.h>
+#include <linux/libfdt.h>
+#include <linux/sizes.h>
 
 static int openwrt_check(struct udevice *dev, struct bootflow_iter *iter)
 {
@@ -25,9 +27,55 @@ static int openwrt_check(struct udevice *dev, struct bootflow_iter *iter)
 	return 0;
 }
 
+static int openwrt_partition_name_as_filename(struct bootflow *bflow)
+{
+		struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
+		struct disk_partition info;
+		int ret;
+
+		ret = part_get_info(desc, bflow->part, &info);
+		if (ret)
+			return log_msg_ret("part", ret);
+
+		bflow->fname = strdup(info.name);
+		if (!bflow->fname)
+			return log_msg_ret("fn", -ENOMEM);
+
+		return 0;
+}
+
 static int openwrt_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
-	return log_msg_ret("nyi", -ENOENT);
+	const struct imagemap_ops *ops;
+	struct udevice *imdev = NULL;
+	char hdr[40];
+	int ret;
+
+	/* For block devices, resolve the GPT partition label */
+	if (bflow->blk) {
+		ret = openwrt_partition_name_as_filename(bflow);
+		if (ret)
+			return ret;
+	}
+
+	/* Probe for a valid FDT/FIT header via imagemap */
+	ret = imagemap_create(bflow->blk ? bflow->blk :
+			      dev_get_parent(bflow->dev),
+			      bflow->fname, bflow->part, &imdev);
+	if (ret)
+		return log_msg_ret("im", ret);
+
+	ops = imagemap_get_ops(imdev);
+	ret = ops->read(imdev, 0, sizeof(hdr), hdr);
+	imagemap_cleanup(imdev);
+
+	if (ret)
+		return log_msg_ret("rd", -EIO);
+
+	if (fdt_check_header(hdr))
+		return -ENOENT;
+
+	return 0;
 }
 
 static int openwrt_boot(struct udevice *dev, struct bootflow *bflow)
