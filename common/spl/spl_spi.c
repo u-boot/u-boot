@@ -124,8 +124,16 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	}
 
 	err = spl_load(spl_image, bootdev, &load, 0, payload_offs);
-	if (IS_ENABLED(CONFIG_SPI_FLASH_SOFT_RESET))
-		err = spi_nor_remove(flash);
+	if (IS_ENABLED(CONFIG_SPI_FLASH_SOFT_RESET)) {
+		int ret = spi_nor_remove(flash);
+
+		if (ret) {
+			printf("%s: Failed to remove SPI NOR flash: %d\n",
+			       __func__, ret);
+			if (!err)
+				err = ret;
+		}
+	}
 	return err;
 }
 /* Use priorty 1 so that boards can override this */
