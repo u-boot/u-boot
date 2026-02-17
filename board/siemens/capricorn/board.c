@@ -357,16 +357,6 @@ int board_mmc_get_env_dev(int devno)
 	return devno;
 }
 
-static int check_mmc_autodetect(void)
-{
-	char *autodetect_str = env_get("mmcautodetect");
-
-	if (autodetect_str && (strcmp(autodetect_str, "yes") == 0))
-		return 1;
-
-	return 0;
-}
-
 /* This should be defined for each board */
 __weak int mmc_map_to_kernel_blk(int dev_no)
 {
@@ -376,9 +366,6 @@ __weak int mmc_map_to_kernel_blk(int dev_no)
 void board_late_mmc_env_init(void)
 {
 	u32 dev_no = mmc_get_env_dev();
-
-	if (!check_mmc_autodetect())
-		return;
 
 	env_set_ulong("mmcdev", dev_no);
 }
