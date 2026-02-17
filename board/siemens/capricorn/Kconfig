@@ -1,5 +1,7 @@
 if TARGET_CAPRICORN
 
+config HUSH_INIT_VAR
+	def_bool y
 
 config SYS_BOARD
 	default "capricorn"

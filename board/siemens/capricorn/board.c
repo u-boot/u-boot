@@ -5,6 +5,7 @@
  * Copyright 2019 Siemens AG
  *
  */
+#include <cli_hush.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>
@@ -29,6 +30,7 @@
 #include "../common/board.h"
 #include "../common/eeprom.h"
 #include "../common/factoryset.h"
+#include <firmware/imx/sci/sci.h>
 
 #define GPIO_PAD_CTRL \
 		((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
@@ -373,23 +375,48 @@ __weak int mmc_map_to_kernel_blk(int dev_no)
 
 void board_late_mmc_env_init(void)
 {
-	char cmd[32];
-	char mmcblk[32];
 	u32 dev_no = mmc_get_env_dev();
 
 	if (!check_mmc_autodetect())
 		return;
 
 	env_set_ulong("mmcdev", dev_no);
-
-	/* Set mmcblk env */
-	sprintf(mmcblk, "/dev/mmcblk%dp2 rootwait rw",
-		mmc_map_to_kernel_blk(dev_no));
-	env_set("mmcroot", mmcblk);
-
-	sprintf(cmd, "mmc dev %d", dev_no);
-	run_command(cmd, 0);
 }
+
+#if defined(CONFIG_HUSH_INIT_VAR)
+int hush_init_var(void)
+{
+	sc_misc_bt_t boot_type;
+
+	if (sc_misc_get_boot_type(-1, &boot_type) != 0) {
+		puts("boottype cannot be retrieved\n");
+		return 0;
+	}
+
+	/*
+	 * Set here explicitly a hush shell variable, so if a saveenv
+	 * happens, this variable is *not* saved in U-Boot environment.
+	 *
+	 * This is for devices which are already in the field essential,
+	 * as if such a device breaks, the cutsomer gets a new device
+	 * with a new U-Boot version (and so a new U-Boot environment).
+	 *
+	 * But the customer makes a downgrade to an older U-Boot version,
+	 * which does not have this code in, and runs now with a new
+	 * U-Boot Environment (yes, protected Environment is not enabled
+	 * there) and the old U-Boot must still work with the new U-Boot
+	 * Environment. So we cannot store this variable in U-Boot
+	 * Environment as a stored value will in this case never be over-
+	 * written.
+	 */
+	if (boot_type == 1) {
+		printf("boot-container fallback ocured\n");
+		set_local_var("fallback=1", 0);
+	}
+
+	return 0;
+}
+#endif
 
 #ifndef CONFIG_XPL_BUILD
 static int load_parameters_from_factoryset(void)
