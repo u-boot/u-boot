@@ -125,6 +125,7 @@
 &usdhc1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usdhc1>;
+	max-frequency = <52000000>;
 	clock-frequency=<52000000>;
 	no-1-8-v;
 	bus-width = <8>;
