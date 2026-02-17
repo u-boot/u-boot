@@ -6,7 +6,6 @@
 
 #include <dwmmc.h>
 #include <fdtdec.h>
-#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <errno.h>
@@ -25,8 +24,6 @@
 #define IO_DRV_SD_DS_MASK   (0xff << IO_DRV_SD_DS_OFFSET)
 
 #define MIN_FREQ (400000)
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct ca_mmc_plat {
 	struct mmc_config cfg;

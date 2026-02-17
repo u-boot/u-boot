@@ -18,14 +18,11 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <acpi/acpi_device.h>
-#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <dm/device_compat.h>
 #include <linux/bug.h>
 #include <linux/ctype.h>
 #include <linux/delay.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define GPIO_ALLOC_BITS	32
 

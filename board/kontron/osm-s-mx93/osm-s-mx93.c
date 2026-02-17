@@ -6,7 +6,6 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <dm/uclass.h>
@@ -22,8 +21,6 @@
 #include <asm/arch/ccm_regs.h>
 
 #include "../common/hw-uid.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f(void)
 {

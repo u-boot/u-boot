@@ -12,13 +12,10 @@
 #include <spi.h>
 #include <spi-mem.h>
 #include <dm/device_compat.h>
-#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/lists.h>
 #include <dm/util.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define SPI_DEFAULT_SPEED_HZ 100000
 

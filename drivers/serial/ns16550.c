@@ -14,12 +14,9 @@
 #include <reset.h>
 #include <spl.h>
 #include <watchdog.h>
-#include <asm/global_data.h>
 #include <linux/err.h>
 #include <linux/types.h>
 #include <asm/io.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_LCRVAL UART_LCR_8N1		/* 8 data, 1 stop, no parity */
 #define UART_MCRVAL (UART_MCR_DTR | \

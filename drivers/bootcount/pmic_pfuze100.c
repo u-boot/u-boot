@@ -13,8 +13,6 @@
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define PFUZE_BC_MAGIC 0xdead
 
 struct bootcount_pmic_priv {

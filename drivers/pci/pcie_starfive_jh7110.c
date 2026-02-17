@@ -15,7 +15,6 @@
 #include <regmap.h>
 #include <reset.h>
 #include <syscon.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device_compat.h>
@@ -38,8 +37,6 @@
 #define STG_SYSCON_CKREF_SRC_MASK              GENMASK(19, 18)
 #define STG_SYSCON_RP_NEP_OFFSET               0xe8
 #define STG_SYSCON_K_RP_NEP_MASK               BIT(8)
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct starfive_pcie {
 	struct pcie_plda plda;

@@ -8,14 +8,11 @@
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/smc_api.h>
 #include <asm/arch/system_manager.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/secure.h>
 #include <asm/system.h>
 #include <hang.h>
 #include <wait_bit.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define MBOX_READL(reg)			\
 	 readl(SOCFPGA_MAILBOX_ADDRESS + (reg))

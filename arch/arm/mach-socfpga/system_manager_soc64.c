@@ -6,13 +6,11 @@
 
 #include <asm/arch/handoff_soc64.h>
 #include <asm/arch/system_manager.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
+
 /*
  * Setting RESET_PULSE_OVERRIDE bit for successful reset staggering pulse
  * generation and setting PORT_OVERCURRENT bit so that until we turn on the

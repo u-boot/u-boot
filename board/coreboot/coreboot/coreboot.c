@@ -7,9 +7,6 @@
 #include <init.h>
 #include <smbios.h>
 #include <asm/cb_sysinfo.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_r(void)
 {

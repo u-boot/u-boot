@@ -11,9 +11,6 @@
 #include <nvmxip.h>
 #include <linux/errno.h>
 
-#include <asm/global_data.h>
-DECLARE_GLOBAL_DATA_PTR;
-
 #define NVMXIP_QSPI_DRV_NAME "nvmxip_qspi"
 
 /**

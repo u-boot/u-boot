@@ -7,7 +7,6 @@
 #include <asm/arch/reset.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/nx_gpio.h>
-#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #define I2C_WRITE       0
@@ -44,8 +43,6 @@
 #define MAX_I2C_NUM 3
 
 #define DEFAULT_SPEED   100000  /* default I2C speed [Hz] */
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct nx_i2c_regs {
 	uint     iiccon;

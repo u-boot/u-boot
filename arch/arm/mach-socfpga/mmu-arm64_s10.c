@@ -5,9 +5,6 @@
  */
 
 #include <asm/armv8/mmu.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)
 static struct mm_region socfpga_agilex5_mem_map[] = {

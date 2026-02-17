@@ -8,7 +8,6 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/sections.h>
 #include <dm/device.h>
@@ -19,8 +18,6 @@
 #include <power/pca9450.h>
 #include <power/pmic.h>
 #include <spl.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {

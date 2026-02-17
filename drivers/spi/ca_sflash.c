@@ -21,9 +21,6 @@
 #include <spi.h>
 #include <spi-mem.h>
 #include <reset.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct ca_sflash_regs {
 	u32 idr;		/* 0x00:Flash word ID Register */

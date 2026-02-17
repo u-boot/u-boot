@@ -17,8 +17,6 @@
 #include <dm/lists.h>
 #include <dt-bindings/clock/rockchip,rk3588-cru.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DIV_TO_RATE(input_rate, div)	((input_rate) / ((div) + 1))
 
 static struct rockchip_pll_rate_table rk3588_pll_rates[] = {

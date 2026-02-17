@@ -9,13 +9,10 @@
 #include <asm/io.h>
 #include <firmware/imx/sci/sci.h>
 #include <misc.h>
-#include <asm/global_data.h>
 #include <dm/device.h>
 #include <dm/pinctrl.h>
 
 #include "pinctrl-imx.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define PADRING_IFMUX_EN_SHIFT		31
 #define PADRING_IFMUX_EN_MASK		BIT(31)

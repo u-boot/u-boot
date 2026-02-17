@@ -17,12 +17,9 @@
 #include <sysinfo.h>
 #include <tpm-v1.h>
 #include <video_osd.h>
-#include <asm/global_data.h>
 
 #include "../common/ihs_mdio.h"
 #include "../../../drivers/sysinfo/gazerbeam.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct ihs_mdio_info ihs_mdio_info[] = {
 	{ .fpga = NULL, .name = "ihs0", .base = 0x58 },

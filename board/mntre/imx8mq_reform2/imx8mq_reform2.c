@@ -8,7 +8,6 @@
 #include <init.h>
 #include <malloc.h>
 #include <errno.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -25,8 +24,6 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <power/pmic.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE)
 

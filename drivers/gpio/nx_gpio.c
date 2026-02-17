@@ -7,11 +7,8 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct nx_gpio_regs {
 	u32	data;		/* Data register */

@@ -9,7 +9,6 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <i2c.h>
@@ -35,8 +34,6 @@
 #include <samsung/exynos5-dt-types.h>
 #include <samsung/misc.h>
 #include <tmu.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int exynos_set_regulator(const char *name, uint uv)
 {

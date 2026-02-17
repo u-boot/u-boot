@@ -16,11 +16,8 @@
 #include <mapmem.h>
 #include <net.h>
 #include <net6.h>
-#include <asm/global_data.h>
 #include <net/tftp.h>
 #include "bootp.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * We cannot use the 'tftpput' command in xPL phases. Given how the

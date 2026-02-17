@@ -14,14 +14,11 @@
 #include <log.h>
 #include <net.h>
 #include <nvmem.h>
-#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <net/pcap.h>
 #include "eth_internal.h"
 #include <eth_phy.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * struct eth_device_priv - private structure for each Ethernet device

@@ -17,11 +17,8 @@
 #include <image.h>
 #include <log.h>
 #include <asm/cache.h>
-#include <asm/global_data.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static void boot_jump_linux(struct bootm_headers *images, int flag)
 {

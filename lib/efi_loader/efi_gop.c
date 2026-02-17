@@ -13,9 +13,6 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <video.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
 

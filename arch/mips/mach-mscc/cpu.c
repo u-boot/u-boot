@@ -4,7 +4,6 @@
  */
 
 #include <init.h>
-#include <asm/global_data.h>
 #include <linux/bitops.h>
 
 #include <asm/io.h>
@@ -13,8 +12,6 @@
 
 #include <mach/tlb.h>
 #include <mach/ddr.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if CFG_SYS_SDRAM_SIZE <= SZ_64M
 #define MSCC_RAM_TLB_SIZE   SZ_64M

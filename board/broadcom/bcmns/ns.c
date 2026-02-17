@@ -9,11 +9,8 @@
 #include <log.h>
 #include <ram.h>
 #include <serial.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/armv7m.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {

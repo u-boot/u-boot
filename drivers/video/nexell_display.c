@@ -16,13 +16,10 @@
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <video.h>		/* For struct video_uc_plat */
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/display.h>
 #include <asm/arch/display_dev.h>
 #include "videomodes.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_DM) && !defined(CONFIG_OF_CONTROL)
 static struct nx_display_dev *dp_dev;

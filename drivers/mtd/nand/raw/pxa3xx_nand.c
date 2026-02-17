@@ -9,7 +9,6 @@
 #include <malloc.h>
 #include <fdtdec.h>
 #include <nand.h>
-#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>
@@ -29,8 +28,6 @@
 #include <dm/read.h>
 
 #include "pxa3xx_nand.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define TIMEOUT_DRAIN_FIFO	5	/* in ms */
 #define	CHIP_DELAY_TIMEOUT	200

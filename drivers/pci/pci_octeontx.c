@@ -11,13 +11,10 @@
 #include <log.h>
 #include <malloc.h>
 #include <pci.h>
-#include <asm/global_data.h>
 
 #include <asm/io.h>
 
 #include <linux/ioport.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * This driver supports multiple types of operations / host bridges / busses:

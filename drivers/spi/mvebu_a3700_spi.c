@@ -11,13 +11,10 @@
 #include <spi.h>
 #include <clk.h>
 #include <wait_bit.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <asm/gpio.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define MVEBU_SPI_A3700_XFER_RDY		BIT(1)
 #define MVEBU_SPI_A3700_FIFO_FLUSH		BIT(9)

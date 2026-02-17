@@ -17,8 +17,6 @@
 
 #include "../common/common.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 static void dmo_setup_second_mac_address(void)
 {
 	u8 enetaddr[6];

@@ -10,14 +10,11 @@
 #include <pci.h>
 #include <pci_ids.h>
 #include <phy.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/ctype.h>
 #include <linux/delay.h>
 
 #define PCI_DEVICE_ID_OCTEONTX_SMI 0xA02B
-
-DECLARE_GLOBAL_DATA_PTR;
 
 enum octeontx_smi_mode {
 	CLAUSE22 = 0,

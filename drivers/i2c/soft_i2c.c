@@ -25,7 +25,6 @@
 #endif
 #endif
 #include <i2c.h>
-#include <asm/global_data.h>
 #include <linux/delay.h>
 
 #if defined(CONFIG_SOFT_I2C_GPIO_SCL)
@@ -81,8 +80,6 @@
 #endif
 
 /* #define	DEBUG_I2C	*/
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef	I2C_SOFT_DECLARATIONS
 #  define I2C_SOFT_DECLARATIONS

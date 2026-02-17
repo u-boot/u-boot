@@ -4,7 +4,6 @@
  * Copyright Duncan Hare <dh@synoia.com> 2017
  */
 
-#include <asm/global_data.h>
 #include <command.h>
 #include <display_options.h>
 #include <env.h>
@@ -16,8 +15,6 @@
 #include <net/tcp.h>
 #include <net/wget.h>
 #include <stdlib.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* The default, change with environment variable 'httpdstp' */
 #define SERVER_PORT		80

@@ -6,7 +6,6 @@
 #include <config.h>
 #include <cpu_func.h>
 #include <init.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <env.h>
 #include <errno.h>
@@ -27,8 +26,6 @@
 #include <asm/pl310.h>
 
 #include <dt-bindings/reset/altr,rst-mgr.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CFG_SYS_PL310_BASE;

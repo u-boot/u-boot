@@ -12,13 +12,11 @@
 #include <fdt_support.h>
 #include <hang.h>
 #include <init.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch/renesas.h>
+#include <asm-generic/u-boot.h>
 #include <linux/libfdt.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* If the firmware passed a device tree use it for e.g. U-Boot DRAM setup. */
 extern u64 rcar_atf_boot_args[];

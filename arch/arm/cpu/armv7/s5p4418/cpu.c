@@ -7,15 +7,12 @@
 #include <command.h>
 #include <asm/system.h>
 #include <asm/cache.h>
-#include <asm/global_data.h>
 #include <asm/sections.h>
 #include <asm/io.h>
 #include <asm/arch/nexell.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/tieoff.h>
 #include <cpu_func.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef	CONFIG_ARCH_CPU_INIT
 #error must be define the macro "CONFIG_ARCH_CPU_INIT"

@@ -10,8 +10,6 @@
 #include <log.h>
 #include <init.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define TH1520_SUBSYS_CLK		(void __iomem *)(0xffff011000 + 0x220)
 #define  TH1520_SUBSYS_CLK_VO_EN	BIT(2)
 #define  TH1520_SUBSYS_CLK_VI_EN	BIT(1)

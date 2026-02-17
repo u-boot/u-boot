@@ -16,8 +16,6 @@
 #include <asm/arch/sys_proto.h>
 /* #include <power-domain.h> */
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define UART_PAD_CTRL	((SC_PAD_CONFIG_OUT_IN << PADRING_CONFIG_SHIFT) | \
 			(SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
 			(SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \

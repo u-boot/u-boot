@@ -11,12 +11,9 @@
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
-#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <test/test.h>
 #include "sf_internal.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int spi_flash_read_dm(struct udevice *dev, u32 offset, size_t len, void *buf)
 {

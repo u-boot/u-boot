@@ -10,11 +10,8 @@
 #include <dm.h>
 #include <regmap.h>
 #include <syscon.h>
-#include <asm/global_data.h>
 #include <linux/err.h>
 #include <linux/io.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct mtk_cpu_plat {
 	struct regmap *hwver;

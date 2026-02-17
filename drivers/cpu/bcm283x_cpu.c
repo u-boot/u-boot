@@ -11,15 +11,12 @@
 #include <asm/armv8/cpu.h>
 #include <asm/cache.h>
 #include <asm/io.h>
-#include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm-generic/sections.h>
 #include <linux/bitops.h>
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
 #include "armv8_cpu.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct bcm_plat {
 	u64 release_addr;
