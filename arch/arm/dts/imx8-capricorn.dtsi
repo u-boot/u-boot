@@ -65,26 +65,6 @@
 				SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B	0x00000021
 			>;
 		};
-
-		pinctrl_fec2: fec2grp {
-			fsl,pins = <
-				SC_P_COMP_CTL_GPIO_1V8_3V3_ENET_ENETB0_PAD	0x000014a0
-				SC_P_COMP_CTL_GPIO_1V8_3V3_ENET_ENETB1_PAD	0x000014a0
-				SC_P_COMP_CTL_GPIO_1V8_3V3_GPIORHB_PAD		0x000514a0
-
-				SC_P_ENET0_MDC_CONN_ENET1_MDC                   0x00000060
-				SC_P_ENET0_MDIO_CONN_ENET1_MDIO                 0x00000060
-
-				SC_P_ESAI0_FSR_CONN_ENET1_RCLK50M_IN            0x00000060
-				SC_P_SPDIF0_RX_CONN_ENET1_RGMII_RXD0            0x00000060
-				SC_P_ESAI0_TX3_RX2_CONN_ENET1_RGMII_RXD1        0x00000060
-				SC_P_ESAI0_TX2_RX3_CONN_ENET1_RMII_RX_ER        0x00000060
-				SC_P_SPDIF0_TX_CONN_ENET1_RGMII_RX_CTL          0x00000060
-				SC_P_ESAI0_TX4_RX1_CONN_ENET1_RGMII_TXD0        0x00000060
-				SC_P_ESAI0_TX5_RX0_CONN_ENET1_RGMII_TXD1        0x00000060
-				SC_P_ESAI0_SCKR_CONN_ENET1_RGMII_TX_CTL         0x00000060	/* ERST: Reset pin */
-			>;
-		};
 	};
 };
 
@@ -145,28 +125,4 @@
 
 &fec1 {
 	status ="disabled";
-};
-
-&fec2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_fec2>;
-	phy-mode = "rmii";
-
-	phy-handle = <&ethphy1>;
-	fsl,magic-packet;
-	status = "okay";
-
-	mdio {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		ethphy0: ethernet-phy@0 {
-			compatible = "ethernet-phy-ieee802.3-c22";
-			reg = <0>;
-		};
-		ethphy1: ethernet-phy@1 {
-			compatible = "ethernet-phy-ieee802.3-c22";
-			reg = <1>;
-		};
-	};
 };
