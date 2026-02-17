@@ -752,10 +752,11 @@ static int esdhc_set_voltage(struct mmc *mmc)
 	int ret;
 
 	priv->signal_voltage = mmc->signal_voltage;
+	if (priv->vs18_enable)
+		return -ENOTSUPP;
+
 	switch (mmc->signal_voltage) {
 	case MMC_SIGNAL_VOLTAGE_330:
-		if (priv->vs18_enable)
-			return -ENOTSUPP;
 		if (CONFIG_IS_ENABLED(DM_REGULATOR) &&
 		    !IS_ERR_OR_NULL(priv->vqmmc_dev)) {
 			ret = regulator_set_value(priv->vqmmc_dev,
