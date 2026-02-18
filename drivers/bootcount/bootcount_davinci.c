@@ -24,7 +24,7 @@ void bootcount_store(ulong a)
 	writel(RTC_KICK0R_WE, &reg->kick0r);
 	writel(RTC_KICK1R_WE, &reg->kick1r);
 	raw_bootcount_store(&reg->scratch2,
-		(CONFIG_SYS_BOOTCOUNT_MAGIC & 0xffff0000) | (a & 0x0000ffff));
+		(CONFIG_SYS_BOOTCOUNT_MAGIC & BOOTCOUNT_MAGIC_MASK) | (a & BOOTCOUNT_COUNT_MASK));
 }
 
 ulong bootcount_load(void)
@@ -34,8 +34,8 @@ ulong bootcount_load(void)
 		(struct davinci_rtc *)CONFIG_SYS_BOOTCOUNT_ADDR;
 
 	val = raw_bootcount_load(&reg->scratch2);
-	if ((val & 0xffff0000) != (CONFIG_SYS_BOOTCOUNT_MAGIC & 0xffff0000))
+	if ((val & BOOTCOUNT_MAGIC_MASK) != (CONFIG_SYS_BOOTCOUNT_MAGIC & BOOTCOUNT_MAGIC_MASK))
 		return 0;
 	else
-		return val & 0x0000ffff;
+		return val & BOOTCOUNT_COUNT_MASK;
 }

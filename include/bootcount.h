@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/byteorder.h>
 #include <env.h>
+#include <linux/bitops.h>
 
 #ifdef CONFIG_DM_BOOTCOUNT
 
@@ -58,6 +59,10 @@ int dm_bootcount_get(struct udevice *dev, u32 *bootcount);
 int dm_bootcount_set(struct udevice *dev, u32 bootcount);
 
 #endif
+
+/* Bit masks for magic and count parts in single word scheme */
+#define BOOTCOUNT_MAGIC_MASK	GENMASK(31, 16)
+#define BOOTCOUNT_COUNT_MASK	GENMASK(15, 0)
 
 /** bootcount_store() - store the current bootcount */
 void bootcount_store(ulong);

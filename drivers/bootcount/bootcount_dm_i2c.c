@@ -15,6 +15,7 @@
 struct bootcount_i2c_priv {
 	struct udevice *bcdev;
 	unsigned int offset;
+	unsigned int size;
 };
 
 static int bootcount_i2c_set(struct udevice *dev, const u32 val)
@@ -22,13 +23,22 @@ static int bootcount_i2c_set(struct udevice *dev, const u32 val)
 	int ret;
 	struct bootcount_i2c_priv *priv = dev_get_priv(dev);
 
-	ret = dm_i2c_reg_write(priv->bcdev, priv->offset, BC_MAGIC);
-	if (ret < 0)
-		goto err_exit;
+	if (priv->size == 4) {
+		u32 bc = (CONFIG_SYS_BOOTCOUNT_MAGIC & BOOTCOUNT_MAGIC_MASK)
+			| (val & BOOTCOUNT_COUNT_MASK);
 
-	ret = dm_i2c_reg_write(priv->bcdev, priv->offset + 1, val & 0xff);
-	if (ret < 0)
-		goto err_exit;
+		ret = dm_i2c_write(priv->bcdev, priv->offset, (uint8_t *)&bc, sizeof(bc));
+		if (ret < 0)
+			goto err_exit;
+	} else {
+		ret = dm_i2c_reg_write(priv->bcdev, priv->offset, BC_MAGIC);
+		if (ret < 0)
+			goto err_exit;
+
+		ret = dm_i2c_reg_write(priv->bcdev, priv->offset + 1, val & 0xff);
+		if (ret < 0)
+			goto err_exit;
+	}
 
 	return 0;
 
@@ -42,21 +52,39 @@ static int bootcount_i2c_get(struct udevice *dev, u32 *val)
 	int ret;
 	struct bootcount_i2c_priv *priv = dev_get_priv(dev);
 
-	ret = dm_i2c_reg_read(priv->bcdev, priv->offset);
-	if (ret < 0)
-		goto err_exit;
+	if (priv->size == 4) {
+		u32 bc;
 
-	if ((ret & 0xff) != BC_MAGIC) {
-		log_debug("%s: Invalid Magic, reset bootcounter.\n", __func__);
-		*val = 0;
-		return bootcount_i2c_set(dev, 0);
+		ret = dm_i2c_read(priv->bcdev, priv->offset, (uint8_t *)&bc, sizeof(bc));
+		if (ret < 0)
+			goto err_exit;
+
+		if ((bc & BOOTCOUNT_MAGIC_MASK) !=
+		    (CONFIG_SYS_BOOTCOUNT_MAGIC & BOOTCOUNT_MAGIC_MASK)) {
+			log_debug("%s: Invalid Magic, reset bootcounter.\n", __func__);
+			*val = 0;
+			return bootcount_i2c_set(dev, 0);
+		}
+
+		*val = (bc & BOOTCOUNT_COUNT_MASK);
+	} else {
+		ret = dm_i2c_reg_read(priv->bcdev, priv->offset);
+		if (ret < 0)
+			goto err_exit;
+
+		if ((ret & 0xff) != BC_MAGIC) {
+			log_debug("%s: Invalid Magic, reset bootcounter.\n", __func__);
+			*val = 0;
+			return bootcount_i2c_set(dev, 0);
+		}
+
+		ret = dm_i2c_reg_read(priv->bcdev, priv->offset + 1);
+		if (ret < 0)
+			goto err_exit;
+
+		*val = ret;
 	}
 
-	ret = dm_i2c_reg_read(priv->bcdev, priv->offset + 1);
-	if (ret < 0)
-		goto err_exit;
-
-	*val = ret;
 	return 0;
 
 err_exit:
@@ -72,6 +100,12 @@ static int bootcount_i2c_probe(struct udevice *dev)
 	ret = dev_read_u32(dev, "offset", &priv->offset);
 	if (ret)
 		goto exit;
+
+	priv->size = dev_read_u32_default(dev, "size", 2);
+	if (priv->size != 2 && priv->size != 4) {
+		ret = -EINVAL;
+		goto exit;
+	}
 
 	ret = i2c_get_chip_by_phandle(dev, "i2cbcdev", &priv->bcdev);
 
