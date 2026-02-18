@@ -37,7 +37,7 @@
 		};
 	};
 
-	snfi: snfi@1100d000 {
+	snfi: spi@1100d000 {
 		compatible = "mediatek,mtk-snfi-spi";
 		reg = <0x1100d000 0x2000>;
 		clocks = <&pericfg CLK_PERI_NFI_PD>,
@@ -53,7 +53,7 @@
 		#size-cells = <0>;
 	};
 
-	snor: snor@11014000 {
+	snor: spi@11014000 {
 		compatible = "mediatek,mtk-snor";
 		reg = <0x11014000 0x1000>;
 		clocks = <&pericfg CLK_PERI_FLASH_PD>,
@@ -86,7 +86,7 @@
 		clock-names = "system-clk";
 	};
 
-	infracfg: infracfg@10000000 {
+	infracfg: clock-controller@10000000 {
 		compatible = "mediatek,mt7622-infracfg",
 			     "syscon";
 		reg = <0x10000000 0x1000>;
@@ -94,13 +94,13 @@
 		#reset-cells = <1>;
 	};
 
-	pericfg: pericfg@10002000 {
+	pericfg: clock-controller@10002000 {
 		compatible = "mediatek,mt7622-pericfg", "syscon";
 		reg = <0x10002000 0x1000>;
 		#clock-cells = <1>;
 	};
 
-	scpsys: scpsys@10006000 {
+	scpsys: power-controller@10006000 {
 		compatible = "mediatek,mt7622-scpsys",
 			     "syscon";
 		#power-domain-cells = <1>;
@@ -122,13 +122,13 @@
 		interrupt-parent = <&gic>;
 	};
 
-	apmixedsys: apmixedsys@10209000 {
+	apmixedsys: clock-controller@10209000 {
 		compatible = "mediatek,mt7622-apmixedsys";
 		reg = <0x10209000 0x1000>;
 		#clock-cells = <1>;
 	};
 
-	topckgen: topckgen@10210000 {
+	topckgen: clock-controller@10210000 {
 		compatible = "mediatek,mt7622-topckgen";
 		reg = <0x10210000 0x1000>;
 		#clock-cells = <1>;
@@ -198,7 +198,7 @@
 		status = "disabled";
 	};
 
-	ssusbsys: ssusbsys@1a000000 {
+	ssusbsys: clock-controller@1a000000 {
 		compatible = "mediatek,mt7622-ssusbsys",
 			     "syscon";
 		reg = <0x1a000000 0x1000>;
@@ -206,7 +206,7 @@
 		#reset-cells = <1>;
 	};
 
-	pciesys: pciesys@1a100800 {
+	pciesys: clock-controller@1a100800 {
 		compatible = "mediatek,mt7622-pciesys", "syscon";
 		reg = <0x1a100800 0x1000>;
 		#clock-cells = <1>;
@@ -364,7 +364,7 @@
 		};
 	};
 
-	ethsys: syscon@1b000000 {
+	ethsys: clock-controller@1b000000 {
 		compatible = "mediatek,mt7622-ethsys", "syscon";
 		reg = <0x1b000000 0x1000>;
 		#clock-cells = <1>;
@@ -399,7 +399,7 @@
 		status = "disabled";
 	};
 
-	sgmiisys: sgmiisys@1b128000 {
+	sgmiisys: syscon@1b128000 {
 		compatible = "mediatek,mt7622-sgmiisys", "syscon";
 		reg = <0x1b128000 0x3000>;
 		#clock-cells = <1>;
@@ -424,7 +424,7 @@
 		status = "disabled";
 	};
 
-	soft_i2c: soft_i2c@0 {
+	soft_i2c: i2c@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "i2c-gpio";
