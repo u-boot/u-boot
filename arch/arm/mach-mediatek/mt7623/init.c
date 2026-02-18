@@ -16,11 +16,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct boot_argument *preloader_param;
 
-int mtk_soc_early_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	u32 i;
