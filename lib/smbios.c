@@ -66,10 +66,46 @@ struct map_sysinfo {
 
 static const struct map_sysinfo sysinfo_to_dt[] = {
 	{ .si_node = "system", .si_str = "product", .dt_str = "model", 2 },
-	{ .si_node = "system", .si_str = "manufacturer", .dt_str = "compatible", 1 },
-	{ .si_node = "baseboard", .si_str = "product", .dt_str = "model", 2 },
-	{ .si_node = "baseboard", .si_str = "manufacturer", .dt_str = "compatible", 1 },
+	{ .si_node = "system", .si_str = "manufacturer",
+	  .dt_str = "compatible", 1 },
+	{ .si_node = "baseboard", .si_str = "product",
+	  .dt_str = "model", 2 },
+	{ .si_node = "baseboard", .si_str = "manufacturer",
+	  .dt_str = "compatible", 1 },
+	{ .si_node = "system-slot", .si_str = "slot-type",
+	  .dt_str = "device_type", 0},
+	{ .si_node = "system-slot", .si_str = "segment-group-number",
+	  .dt_str = "linux,pci-domain", 0},
 };
+
+#if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE)
+static const struct pci_attr_lookup_table pci_attr[] = {
+	{ "pci-host-ecam-generic", SMBIOS_SYSSLOT_TYPE_PCIE,
+	  SMBIOS_SYSSLOT_WIDTH_8X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V, SMBIOS_SYSSLOT_CHAR_PCIPME },
+	{ "pci-host-cam-generic", SMBIOS_SYSSLOT_TYPE_PCI,
+	  SMBIOS_SYSSLOT_WIDTH_32BIT, SMBIOS_SYSSLOT_LENG_SHORT,
+	  SMBIOS_SYSSLOT_CHAR_5V | SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME },
+	{ "pci-host-thunder-ecam", SMBIOS_SYSSLOT_TYPE_PCIEGEN3,
+	  SMBIOS_SYSSLOT_WIDTH_8X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME | SMBIOS_SYSSLOT_CHAR_HOTPLUG },
+	{ "pci-host-octeontx-ecam", SMBIOS_SYSSLOT_TYPE_PCIEGEN3X16,
+	  SMBIOS_SYSSLOT_WIDTH_16X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME | SMBIOS_SYSSLOT_CHAR_HOTPLUG },
+	{ "pci-host-thunder-pem", SMBIOS_SYSSLOT_TYPE_PCIEGEN4X8,
+	  SMBIOS_SYSSLOT_WIDTH_8X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME | SMBIOS_SYSSLOT_CHAR_HOTPLUG },
+	{ "pci-host-octeontx2-pem", SMBIOS_SYSSLOT_TYPE_PCIEGEN4X16,
+	  SMBIOS_SYSSLOT_WIDTH_16X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME | SMBIOS_SYSSLOT_CHAR_HOTPLUG |
+	  SMBIOS_SYSSLOT_CHAR_PCIBIF },
+};
+#endif
 
 /**
  * struct smbios_ctx - context for writing SMBIOS tables
@@ -95,6 +131,18 @@ struct smbios_ctx {
 	char *last_str;
 };
 
+typedef int (*smbios_write_subnode)(ulong *current, int handle,
+				   struct smbios_ctx *ctx, int idx,
+				   int type);
+
+typedef int (*smbios_write_memnode)(ulong *current, int handle,
+				    struct smbios_ctx *ctx, int idx,
+				    int type);
+
+typedef int (*smbios_write_memctrlnode)(ulong *current, int handle,
+				      struct smbios_ctx *ctx, int idx,
+				      u64 base, u64 sz);
+
 /**
  * Function prototype to write a specific type of SMBIOS structure
  *
@@ -103,7 +151,7 @@ struct smbios_ctx {
  * @ctx:	context for writing the tables
  * Return:	size of the structure
  */
-typedef int (*smbios_write_type)(ulong *addr, int handle,
+typedef int (*smbios_write_type)(ulong *addr, int *handle,
 				 struct smbios_ctx *ctx);
 
 /**
@@ -222,6 +270,7 @@ static int smbios_get_val_si(struct smbios_ctx * __maybe_unused ctx,
 {
 #if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE)
 	int val;
+	const struct map_sysinfo *nprop;
 
 	if (!ctx->dev)
 		return val_def;
@@ -240,9 +289,57 @@ static int smbios_get_val_si(struct smbios_ctx * __maybe_unused ctx,
 	 */
 	if (!ofnode_read_u32(ofnode_root(), prop, &val))
 		return val;
+
+	/* If the node is still missing, try with the mapping values */
+	nprop = convert_sysinfo_to_dt(ctx->subnode_name, prop);
+	if (!ofnode_read_u32(ofnode_root(), nprop->dt_str, &val))
+		return val;
 #endif
 	return val_def;
 }
+
+#if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE)
+static u64 smbios_get_u64_si(struct smbios_ctx * __maybe_unused ctx,
+			     const char * __maybe_unused prop,
+			     int __maybe_unused sysinfo_id, u64 val_def)
+{
+	size_t len;
+	void *data;
+	const fdt32_t *prop_val;
+	int prop_len;
+	u64 val = 0;
+
+	if (!ctx->dev)
+		return val_def;
+
+	if (!sysinfo_get_data(ctx->dev, sysinfo_id, &data, &len))
+		return *((u64 *)data);
+
+	if (!IS_ENABLED(CONFIG_OF_CONTROL) || !prop || !ofnode_valid(ctx->node))
+		return val_def;
+
+	prop_val = ofnode_read_prop(ctx->node, prop, &prop_len);
+	if (!prop_val || prop_len < sizeof(fdt32_t) ||
+	    prop_len % sizeof(fdt32_t)) {
+		/*
+		 * If the node or property is not valid fallback and try the root
+		 */
+		prop_val = ofnode_read_prop(ofnode_root(), prop, &prop_len);
+		if (!prop_val || prop_len < sizeof(fdt32_t) ||
+		    prop_len % sizeof(fdt32_t))
+			return val_def;
+	}
+
+	/* 64-bit: <hi lo> or 32-bit */
+	if (prop_len >= sizeof(fdt32_t) * 2) {
+		val = ((u64)fdt32_to_cpu(prop_val[0]) << 32) |
+		     fdt32_to_cpu(prop_val[1]);
+	} else {
+		val = fdt32_to_cpu(prop_val[0]);
+	}
+	return val;
+}
+#endif
 
 /**
  * smbios_add_prop_si() - Add a property from the devicetree or sysinfo
@@ -364,7 +461,7 @@ static int smbios_string_table_len(const struct smbios_ctx *ctx)
 	return (ctx->next_ptr + 1) - ctx->eos;
 }
 
-static int smbios_write_type0(ulong *current, int handle,
+static int smbios_write_type0(ulong *current, int *handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type0 *t;
@@ -372,7 +469,7 @@ static int smbios_write_type0(ulong *current, int handle,
 
 	t = map_sysmem(*current, len);
 	memset(t, 0, len);
-	fill_smbios_header(t, SMBIOS_BIOS_INFORMATION, len, handle);
+	fill_smbios_header(t, SMBIOS_BIOS_INFORMATION, len, *handle);
 	smbios_set_eos(ctx, t->eos);
 	t->vendor = smbios_add_prop_si(ctx, NULL, SYSID_SM_BIOS_VENDOR,
 				       "U-Boot");
@@ -423,7 +520,7 @@ static int smbios_write_type0(ulong *current, int handle,
 	return len;
 }
 
-static int smbios_write_type1(ulong *current, int handle,
+static int smbios_write_type1(ulong *current, int *handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type1 *t;
@@ -434,7 +531,7 @@ static int smbios_write_type1(ulong *current, int handle,
 
 	t = map_sysmem(*current, len);
 	memset(t, 0, len);
-	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
+	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, *handle);
 	smbios_set_eos(ctx, t->eos);
 
 	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer",
@@ -471,7 +568,7 @@ static int smbios_write_type1(ulong *current, int handle,
 	return len;
 }
 
-static int smbios_write_type2(ulong *current, int handle,
+static int smbios_write_type2(ulong *current, int *handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type2 *t;
@@ -485,7 +582,7 @@ static int smbios_write_type2(ulong *current, int handle,
 	 */
 	t = map_sysmem(*current, len);
 	memset(t, 0, len);
-	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, handle);
+	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, *handle);
 
 	/* eos is at the end of the structure */
 	eos_addr = (u8 *)t + len - sizeof(t->eos);
@@ -519,7 +616,7 @@ static int smbios_write_type2(ulong *current, int handle,
 	 * t->number_contained_objects = <obj_handle_num>;
 	 */
 
-	t->chassis_handle = handle + 1;
+	t->chassis_handle = *handle + 1;
 
 	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
@@ -528,7 +625,7 @@ static int smbios_write_type2(ulong *current, int handle,
 	return len;
 }
 
-static int smbios_write_type3(ulong *current, int handle,
+static int smbios_write_type3(ulong *current, int *handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type3 *t;
@@ -548,7 +645,7 @@ static int smbios_write_type3(ulong *current, int handle,
 
 	t = map_sysmem(*current, len);
 	memset(t, 0, len);
-	fill_smbios_header(t, SMBIOS_SYSTEM_ENCLOSURE, len, handle);
+	fill_smbios_header(t, SMBIOS_SYSTEM_ENCLOSURE, len, *handle);
 #if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE)
 	elem_addr = (u8 *)t + offsetof(struct smbios_type3, sku_number);
 	sku_num_addr = elem_addr + elem_size;
@@ -669,7 +766,7 @@ static void smbios_write_type4_dm(struct smbios_type4 *t,
 #endif
 }
 
-static int smbios_write_type4(ulong *current, int handle,
+static int smbios_write_type4(ulong *current, int *handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type4 *t;
@@ -679,7 +776,7 @@ static int smbios_write_type4(ulong *current, int handle,
 
 	t = map_sysmem(*current, len);
 	memset(t, 0, len);
-	fill_smbios_header(t, SMBIOS_PROCESSOR_INFORMATION, len, handle);
+	fill_smbios_header(t, SMBIOS_PROCESSOR_INFORMATION, len, *handle);
 	smbios_set_eos(ctx, t->eos);
 	t->socket_design = smbios_add_prop_si(ctx, "socket-design",
 					      SYSID_SM_PROCESSOR_SOCKET, NULL);
@@ -828,13 +925,14 @@ static int smbios_write_type7_1level(ulong *current, int handle,
 	return len;
 }
 
-static int smbios_write_type7(ulong *current, int handle,
+static int smbios_write_type7(ulong *current, int *handle,
 			      struct smbios_ctx *ctx)
 {
 	int len = 0;
 	int i, level;
 	ofnode parent = ctx->node;
 	struct smbios_ctx ctx_bak;
+	int hdl_base = *handle;
 
 	memcpy(&ctx_bak, ctx, sizeof(ctx_bak));
 
@@ -850,15 +948,1017 @@ static int smbios_write_type7(ulong *current, int handle,
 			return 0;
 		ctx->subnode_name = buf;
 		ctx->node = ofnode_find_subnode(parent, ctx->subnode_name);
-		len += smbios_write_type7_1level(current, handle++, ctx, i);
+		*handle = hdl_base + i;
+		len += smbios_write_type7_1level(current, *handle, ctx, i);
 		memcpy(ctx, &ctx_bak, sizeof(*ctx));
+	}
+
+	return len;
+}
+
+static int smbios_scan_subnodes(ulong *current, struct smbios_ctx *ctx,
+				int *handle, smbios_write_subnode cb, int type)
+{
+	ofnode child;
+	int i;
+	int hdl_base = *handle;
+	int len = 0;
+	struct smbios_ctx ctx_bak;
+
+	memcpy(&ctx_bak, ctx, sizeof(ctx_bak));
+
+	for (i = 0, child = ofnode_first_subnode(ctx->node);
+	     ofnode_valid(child); child = ofnode_next_subnode(child), i++) {
+		ctx->node = child;
+		*handle = hdl_base + i;
+		len += cb(current, *handle, ctx, i, type);
+		memcpy(ctx, &ctx_bak, sizeof(*ctx));
+	}
+
+	return len;
+}
+
+static void smbios_lookup_pci_attr(struct smbios_ctx *ctx,
+				   struct smbios_type9 *t)
+{
+	const char *compatible;
+	u32 addr_cells, size_cells, total_cells;
+	const fdt32_t *reg;
+	int reglen;
+	int i;
+
+	/* default attributes */
+	t->slot_type = SMBIOS_SYSSLOT_TYPE_PCI;
+	t->slot_data_bus_width = SMBIOS_SYSSLOT_WIDTH_UNKNOWN;
+	t->slot_characteristics_1 = SMBIOS_SYSSLOT_CHAR_UND;
+	t->current_usage = SMBIOS_SYSSLOT_USAGE_UNKNOWN;
+	t->slot_length = SMBIOS_SYSSLOT_LENG_UNKNOWN;
+	t->segment_group_number = smbios_get_val_si(ctx, "segment-group-number",
+						    SYSID_NONE,
+						    SMBIOS_SYSSLOT_SGGNUM_UND);
+
+	/*
+	 * Get #address-cells and #size-cells dynamically
+	 * Default 3 for #address-cells and 2 for #size-cells
+	 */
+	addr_cells = ofnode_read_u32_default(ctx->node, "#address-cells", 3);
+	size_cells = ofnode_read_u32_default(ctx->node, "#size-cells", 2);
+	total_cells = addr_cells + size_cells;
+
+	/* Read property 'reg' from the node */
+	reg = ofnode_read_prop(ctx->node, "reg", &reglen);
+	if (reg && reglen > addr_cells * sizeof(*reg)) {
+		/* First address-cell: Bus Number */
+		if (addr_cells >= 1)
+			t->bus_number = fdt32_to_cpu(reg[0]);
+		/* Second address-cell: Device/Function */
+		if (addr_cells >= 2)
+			t->device_function_number.data = fdt32_to_cpu(reg[1]);
+		/*
+		 * Third address-cell 'Register Offset' and the following
+		 * size-cell bytes are not useful for SMBIOS type 9, just
+		 * ignore them.
+		 */
+		/*
+		 * As neither PCI IRQ Routing Table ($PIRQ) nor FDT
+		 * property to represent a Slot ID, try to derive a
+		 * Slot ID programmatically.
+		 */
+		t->slot_id = t->device_function_number.fields.dev_num |
+			     (t->bus_number << 5);
+	}
+
+	/* Read 'compatible' property */
+	compatible = ofnode_read_string(ctx->node, "compatible");
+	if (!compatible)
+		return;
+
+	for (i = 0; i < ARRAY_SIZE(pci_attr); i++) {
+		if (strstr(compatible, pci_attr[i].str)) {
+			t->slot_type = pci_attr[i].slot_type;
+			t->slot_data_bus_width = pci_attr[i].data_bus_width;
+			t->slot_length = pci_attr[i].slot_length;
+			t->slot_characteristics_1 = pci_attr[i].chara1;
+			t->slot_characteristics_2 = pci_attr[i].chara2;
+			/* mark it as in-use arbitrarily */
+			t->current_usage = SMBIOS_SYSSLOT_USAGE_INUSE;
+			return;
+		}
+	}
+}
+
+static void smbios_write_type9_fields(struct smbios_ctx *ctx,
+				      struct smbios_type9 *t)
+{
+	t->slot_type = smbios_get_val_si(ctx, "slot-type", SYSID_NONE,
+					 SMBIOS_SYSSLOT_TYPE_UNKNOWN);
+	t->slot_data_bus_width =
+		smbios_get_val_si(ctx, "data-bus-width",
+				  SYSID_NONE, SMBIOS_SYSSLOT_WIDTH_UNKNOWN);
+	t->current_usage = smbios_get_val_si(ctx, "current-usage", SYSID_NONE,
+					     SMBIOS_SYSSLOT_USAGE_UNKNOWN);
+	t->slot_length = smbios_get_val_si(ctx, "slot-length", SYSID_NONE,
+					   SMBIOS_SYSSLOT_LENG_UNKNOWN);
+	t->slot_id = smbios_get_val_si(ctx, "slot-id", SYSID_NONE, 0);
+	t->slot_characteristics_1 =
+		smbios_get_val_si(ctx, "slot-characteristics-1", SYSID_NONE,
+				  SMBIOS_SYSSLOT_CHAR_UND);
+	t->slot_characteristics_2 = smbios_get_val_si(ctx,
+						      "slot-characteristics-2",
+						      SYSID_NONE, 0);
+	t->segment_group_number = smbios_get_val_si(ctx, "segment-group-number",
+						    SYSID_NONE, 0);
+	t->bus_number = smbios_get_val_si(ctx, "bus-number", SYSID_NONE, 0);
+	t->device_function_number.data =
+		smbios_get_val_si(ctx, "device-function-number", SYSID_NONE, 0);
+}
+
+static int smbios_write_type9_1slot(ulong *current, int handle,
+				    struct smbios_ctx *ctx,
+				    int __maybe_unused idx, int devtype)
+{
+	struct smbios_type9 *t;
+	int len = sizeof(*t);
+	u8 pgroups_cnt;
+	u8 *eos_addr;
+	size_t pgroups_size;
+	void *wp;
+
+	pgroups_cnt = smbios_get_val_si(ctx, "peer-grouping-count",
+					SYSID_NONE, 0);
+	pgroups_size = pgroups_cnt * SMBIOS_TYPE9_PGROUP_SIZE;
+
+	/*
+	 * reserve the space for the dynamic bytes of peer_groups.
+	 * TODO:
+	 * peer_groups = <peer_grouping_count> * SMBIOS_TYPE9_PGROUP_SIZE
+	 */
+	len += pgroups_size;
+
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_SYSTEM_SLOTS, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	/* Write the general fields */
+	t->peer_grouping_count = pgroups_cnt;
+	t->socket_design = smbios_add_prop_si(ctx, "socket-design", SYSID_NONE,
+					      NULL);
+	t->electrical_bus_width = smbios_get_val_si(ctx, "data-bus-width",
+						    SYSID_NONE, 0);
+
+	/* skip the reserved peer groups and write the following fields from eos */
+	/* t->slot_height */
+	wp = eos_addr - sizeof(t->slot_height);
+	*((u8 *)wp) = smbios_get_val_si(ctx, "slot-height", SYSID_NONE, 0);
+	/* t->slot_pitch */
+	wp -= sizeof(t->slot_pitch);
+	*((u16 *)wp) = smbios_get_val_si(ctx, "slot-pitch", SYSID_NONE, 0);
+	/* t->slot_physical_width */
+	wp -= sizeof(t->slot_physical_width);
+	*((u8 *)wp) = smbios_get_val_si(ctx, "slot-physical-width", SYSID_NONE, 0);
+	/* t->slot_information */
+	wp -= sizeof(t->slot_information);
+	*((u8 *)wp) = smbios_get_val_si(ctx, "slot-information", SYSID_NONE, 0);
+
+	/* For PCI, some fields can be extracted from FDT node */
+	if (devtype == SMBIOS_SYSSLOT_TYPE_PCI)
+		/* Populate PCI attributes from existing PCI properties */
+		smbios_lookup_pci_attr(ctx, t);
+	else if (devtype == SMBIOS_SYSSLOT_TYPE_UNKNOWN) {
+		/* Properties that expected in smbios subnode 'system-slot' */
+		smbios_write_type9_fields(ctx, t);
+	}
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_scan_slot_type(ulong *current, int *handle,
+				 struct smbios_ctx *ctx)
+{
+	int i = 0;
+	struct smbios_ctx ctx_bak;
+	ofnode child;
+	const struct map_sysinfo *prop;
+	int hdl_base = *handle;
+	int len = 0;
+
+	memcpy(&ctx_bak, ctx, sizeof(ctx_bak));
+	prop = convert_sysinfo_to_dt(ctx->subnode_name, "slot-type");
+	for (child = ofnode_first_subnode(ofnode_root()); ofnode_valid(child);
+	     child = ofnode_next_subnode(child)) {
+		const char *dev_type_str;
+		u8 dev_type = SMBIOS_SYSSLOT_TYPE_UNKNOWN;
+
+		dev_type_str = ofnode_read_string(child, prop->dt_str);
+		if (!dev_type_str)
+			continue;
+
+		if (!strcmp(dev_type_str, "pci"))
+			dev_type = SMBIOS_SYSSLOT_TYPE_PCI;
+		else if (!strcmp(dev_type_str, "isa"))
+			dev_type = SMBIOS_SYSSLOT_TYPE_ISA;
+		else if (!strcmp(dev_type_str, "pcmcia"))
+			dev_type = SMBIOS_SYSSLOT_TYPE_PCMCIA;
+		else
+			continue;
+
+		*handle = hdl_base + i;
+		ctx->node = child;
+		len += smbios_write_type9_1slot(current, *handle, ctx, 0,
+						dev_type);
+		memcpy(ctx, &ctx_bak, sizeof(*ctx));
+		i++;
+	}
+
+	return len;
+}
+
+static int smbios_write_type9(ulong *current, int *handle,
+			      struct smbios_ctx *ctx)
+{
+	int len;
+
+	/* TODO: Get system slot information via pci subsystem */
+	if (!IS_ENABLED(CONFIG_OF_CONTROL))
+		return 0;	/* Error, return 0-length */
+
+	len = smbios_scan_subnodes(current, ctx, handle,
+				   smbios_write_type9_1slot,
+				   SMBIOS_SYSSLOT_TYPE_UNKNOWN);
+	if (len)
+		return len;
+
+	/* if no subnode under 'system-slot', try scan the entire FDT */
+	len = smbios_scan_slot_type(current, handle, ctx);
+
+	return len;
+}
+
+static u64 smbios_pop_size_from_memory_node(ofnode node)
+{
+	const fdt32_t *reg;
+	int len;
+	u64 size_bytes;
+
+	/* Read property 'reg' from the node */
+	reg = ofnode_read_prop(node, "reg", &len);
+	if (!reg || len < sizeof(fdt32_t) * 4 || len % sizeof(fdt32_t))
+		return 0;
+
+	/* Combine hi/lo for size (typically 64-bit) */
+	size_bytes = ((u64)fdt32_to_cpu(reg[2]) << 32) | fdt32_to_cpu(reg[3]);
+
+	return size_bytes;
+}
+
+static int
+smbios_write_type16_sum_memory_nodes(ulong *current, int handle,
+				     struct smbios_ctx *ctx, u16 cnt, u64 size)
+{
+	struct smbios_type16 *t;
+	int len = sizeof(*t);
+	u8 *eos_addr;
+	void *hdl;
+	size_t hdl_size;
+
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_PHYS_MEMORY_ARRAY, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	/* default attributes */
+	t->location = SMBIOS_MA_LOCATION_MOTHERBOARD;
+	t->use = SMBIOS_MA_USE_SYSTEM;
+	t->mem_err_corr = SMBIOS_MA_ERRCORR_UNKNOWN;
+	t->mem_err_info_hdl = SMBIOS_MA_ERRINFO_NONE;
+	t->num_of_mem_dev = cnt;
+
+	/* Use extended field */
+	t->max_cap = cpu_to_le32(0x80000000);
+	t->ext_max_cap = cpu_to_le64(size >> 10); /* In KB */
+
+	/* Save the memory array handles */
+	if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+			      &hdl_size) &&
+	    hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+		*((u16 *)hdl) = handle;
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static void
+smbios_pop_type16_from_memcontroller_node(ofnode node, struct smbios_type16 *t)
+{
+	ofnode child;
+	int count = 0;
+	u64 total = 0;
+
+	/* default attributes */
+	t->location = SMBIOS_MA_LOCATION_MOTHERBOARD;
+	t->use = SMBIOS_MA_USE_SYSTEM;
+	t->mem_err_info_hdl = SMBIOS_MA_ERRINFO_NONE;
+
+	/* Check custom property 'ecc-enabled' */
+	if (ofnode_read_bool(node, "ecc-enabled"))
+		t->mem_err_corr = SMBIOS_MA_ERRCORR_SBITECC;
+	else
+		t->mem_err_corr = SMBIOS_MA_ERRCORR_UNKNOWN;
+
+	/* Read subnodes with 'size' property */
+	for (child = ofnode_first_subnode(node); ofnode_valid(child);
+	     child = ofnode_next_subnode(child)) {
+		u64 sz = 0;
+		const fdt32_t *size;
+		int len;
+
+		size = ofnode_read_prop(child, "size", &len);
+		if (!size || len < sizeof(fdt32_t) || len % sizeof(fdt32_t))
+			continue;
+
+		/* 64-bit size: <hi lo> or 32-bit size */
+		if (len >= sizeof(fdt32_t) * 2)
+			sz = ((u64)fdt32_to_cpu(size[0]) << 32) |
+			     fdt32_to_cpu(size[1]);
+		else
+			sz = fdt32_to_cpu(size[0]);
+
+		count++;
+		total += sz;
+	}
+
+	/*
+	 * Number of memory devices associated with this array
+	 * (i.e., how many Type17 entries link to this Type16 array)
+	 */
+	t->num_of_mem_dev = count;
+
+	/* Use extended field */
+	t->max_cap = cpu_to_le32(0x80000000);
+	t->ext_max_cap = cpu_to_le64(total >> 10); /* In KB */
+}
+
+static void smbios_pop_type16_si(struct smbios_ctx *ctx,
+				 struct smbios_type16 *t)
+{
+	t->location = smbios_get_val_si(ctx, "location", SYSID_NONE,
+					SMBIOS_MA_LOCATION_UNKNOWN);
+	t->use = smbios_get_val_si(ctx, "use", SYSID_NONE,
+				   SMBIOS_MA_USE_UNKNOWN);
+	t->mem_err_corr = smbios_get_val_si(ctx, "memory-error-correction", SYSID_NONE,
+					    SMBIOS_MA_ERRCORR_UNKNOWN);
+	t->max_cap = smbios_get_val_si(ctx, "maximum-capacity", SYSID_NONE, 0);
+	t->mem_err_info_hdl = smbios_get_val_si(ctx, "memory-error-information-handle",
+						SYSID_NONE, SMBIOS_MA_ERRINFO_NONE);
+	t->num_of_mem_dev = smbios_get_val_si(ctx, "number-of-memory-devices", SYSID_NONE, 1);
+	t->ext_max_cap = smbios_get_u64_si(ctx, "extended-maximum-capacity", SYSID_NONE, 0);
+}
+
+static int smbios_write_type16_1array(ulong *current, int handle,
+				      struct smbios_ctx *ctx, int idx,
+				      int type)
+{
+	struct smbios_type16 *t;
+	int len = sizeof(*t);
+	u8 *eos_addr;
+	void *hdl;
+	size_t hdl_size;
+
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_PHYS_MEMORY_ARRAY, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	if (type == SMBIOS_MEM_CUSTOM)
+		smbios_pop_type16_si(ctx, t);
+	else if (type == SMBIOS_MEM_FDT_MEMCON_NODE)
+		smbios_pop_type16_from_memcontroller_node(ctx->node, t);
+
+	/* Save the memory array handles */
+	if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+			      &hdl_size) &&
+	    hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+		*((u16 *)hdl + idx) = handle;
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type16(ulong *current, int *handle,
+			       struct smbios_ctx *ctx)
+{
+	int len;
+	struct smbios_ctx ctx_bak;
+	ofnode child;
+	int idx;
+	u64 total = 0;
+	int count = 0;
+	int hdl_base = *handle;
+
+	if (!IS_ENABLED(CONFIG_OF_CONTROL))
+		return 0;	/* Error, return 0-length */
+
+	/* Step 1: Scan any subnode exists under 'memory-array' */
+	len = smbios_scan_subnodes(current, ctx, handle,
+				   smbios_write_type16_1array,
+				   SMBIOS_MEM_CUSTOM);
+	if (len)
+		return len;
+
+	/* Step 2: Scan 'memory' node from the entire FDT */
+	for (child = ofnode_first_subnode(ofnode_root());
+	     ofnode_valid(child); child = ofnode_next_subnode(child)) {
+		const char *str;
+
+		/* Look up for 'device_type = "memory"' */
+		str = ofnode_read_string(child, "device_type");
+		if (str && !strcmp(str, "memory")) {
+			count++;
+			total += smbios_pop_size_from_memory_node(child);
+		}
+	}
+	/*
+	 * Generate one type16 instance for all 'memory' nodes,
+	 * use idx=0 implicitly
+	 */
+	if (count)
+		len += smbios_write_type16_sum_memory_nodes(current, *handle,
+							    ctx, count, total);
+
+	/* Step 3: Scan 'memory-controller' node from the entire FDT */
+	/* idx starts from 1 */
+	memcpy(&ctx_bak, ctx, sizeof(ctx_bak));
+	for (idx = 1, child = ofnode_first_subnode(ofnode_root());
+	     ofnode_valid(child); child = ofnode_next_subnode(child)) {
+		const char *compat;
+		const char *name;
+
+		/*
+		 * Look up for node with name or property 'compatible'
+		 * containing 'memory-controller'.
+		 */
+		name = ofnode_get_name(child);
+		compat = ofnode_read_string(child, "compatible");
+		if ((!compat || !strstr(compat, "memory-controller")) &&
+		    (!name || !strstr(name, "memory-controller")))
+			continue;
+
+		*handle = hdl_base + idx;
+		ctx->node = child;
+		/*
+		 * Generate one type16 instance for each 'memory-controller'
+		 * node, sum the 'size' of all subnodes.
+		 */
+		len += smbios_write_type16_1array(current, *handle, ctx, idx,
+						  SMBIOS_MEM_FDT_MEMCON_NODE);
+		idx++;
+		memcpy(ctx, &ctx_bak, sizeof(*ctx));
+	}
+
+	return len;
+}
+
+static void smbios_pop_type17_general_si(struct smbios_ctx *ctx,
+					 struct smbios_type17 *t)
+{
+	t->mem_err_info_hdl =
+		smbios_get_val_si(ctx, "memory-error-information-handle",
+				  SYSID_NONE, SMBIOS_MD_ERRINFO_NONE);
+	t->total_width = smbios_get_val_si(ctx, "total-width", SYSID_NONE, 0);
+	t->data_width = smbios_get_val_si(ctx, "data-width", SYSID_NONE, 0);
+	t->form_factor = smbios_get_val_si(ctx, "form-factor",
+					   SYSID_NONE, SMBIOS_MD_FF_UNKNOWN);
+	t->dev_set = smbios_get_val_si(ctx, "device-set", SYSID_NONE,
+				       SMBIOS_MD_DEVSET_UNKNOWN);
+	t->dev_locator = smbios_add_prop_si(ctx, "device-locator", SYSID_NONE,
+					    NULL);
+	t->bank_locator = smbios_add_prop_si(ctx, "bank-locator", SYSID_NONE,
+					     NULL);
+	t->mem_type = smbios_get_val_si(ctx, "memory-type",
+					SYSID_NONE, SMBIOS_MD_TYPE_UNKNOWN);
+	t->type_detail = smbios_get_val_si(ctx, "type-detail",
+					   SYSID_NONE, SMBIOS_MD_TD_UNKNOWN);
+	t->speed = smbios_get_val_si(ctx, "speed", SYSID_NONE,
+				     SMBIOS_MD_SPEED_UNKNOWN);
+	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer", SYSID_NONE,
+					     NULL);
+	t->serial_number = smbios_add_prop_si(ctx, "serial-number", SYSID_NONE,
+					      NULL);
+	t->asset_tag = smbios_add_prop_si(ctx, "asset-tag", SYSID_NONE, NULL);
+	t->part_number = smbios_add_prop_si(ctx, "part-number", SYSID_NONE,
+					    NULL);
+	t->attributes = smbios_get_val_si(ctx, "attributes", SYSID_NONE,
+					  SMBIOS_MD_ATTR_RANK_UNKNOWN);
+	t->config_mem_speed = smbios_get_val_si(ctx, "configured-memory-speed",
+						SYSID_NONE,
+						SMBIOS_MD_CONFSPEED_UNKNOWN);
+	t->min_voltage = smbios_get_val_si(ctx, "minimum-voltage", SYSID_NONE,
+					   SMBIOS_MD_VOLTAGE_UNKNOWN);
+	t->max_voltage = smbios_get_val_si(ctx, "maximum-voltage", SYSID_NONE,
+					   SMBIOS_MD_VOLTAGE_UNKNOWN);
+	t->config_voltage = smbios_get_val_si(ctx, "configured-voltage",
+					      SYSID_NONE,
+					      SMBIOS_MD_VOLTAGE_UNKNOWN);
+	t->mem_tech = smbios_get_val_si(ctx, "memory-technology",
+					SYSID_NONE, SMBIOS_MD_TECH_UNKNOWN);
+	t->mem_op_mode_cap =
+		smbios_get_val_si(ctx, "memory-operating-mode-capability",
+				  SYSID_NONE, SMBIOS_MD_OPMC_UNKNOWN);
+	t->fw_ver = smbios_add_prop_si(ctx, "firmware-version", SYSID_NONE,
+				       NULL);
+	t->module_man_id = smbios_get_val_si(ctx, "module-manufacturer-id",
+					     SYSID_NONE, 0);
+	t->module_prod_id = smbios_get_val_si(ctx, "module-product-id",
+					      SYSID_NONE, 0);
+	t->mem_subsys_con_man_id =
+		smbios_get_val_si(ctx,
+				  "memory-subsystem-controller-manufacturer-id",
+				  SYSID_NONE, 0);
+	t->mem_subsys_con_prod_id =
+		smbios_get_val_si(ctx,
+				  "memory-subsystem-controller-product-id",
+				  SYSID_NONE, 0);
+	t->nonvolatile_size = smbios_get_u64_si(ctx, "non-volatile-size",
+						SYSID_NONE,
+						SMBIOS_MS_PORT_SIZE_UNKNOWN);
+	t->volatile_size = smbios_get_u64_si(ctx, "volatile-size",
+					     SYSID_NONE,
+					     SMBIOS_MS_PORT_SIZE_UNKNOWN);
+	t->cache_size = smbios_get_u64_si(ctx, "cache-size",
+					  SYSID_NONE,
+					  SMBIOS_MS_PORT_SIZE_UNKNOWN);
+	t->logical_size = smbios_get_u64_si(ctx, "logical-size",
+					    SYSID_NONE,
+					    SMBIOS_MS_PORT_SIZE_UNKNOWN);
+	t->ext_speed = smbios_get_val_si(ctx, "extended-speed", SYSID_NONE, 0);
+	t->ext_config_mem_speed =
+		smbios_get_val_si(ctx, "extended-configured-memory-speed",
+				  SYSID_NONE, 0);
+	t->pmic0_man_id = smbios_get_val_si(ctx, "pmic0-manufacturer-id",
+					    SYSID_NONE, 0);
+	t->pmic0_rev_num = smbios_get_val_si(ctx, "pmic0-revision-number",
+					     SYSID_NONE, 0);
+	t->rcd_man_id = smbios_get_val_si(ctx, "rcd-manufacturer-id",
+					  SYSID_NONE, 0);
+	t->rcd_rev_num = smbios_get_val_si(ctx, "rcd-revision-number",
+					   SYSID_NONE, 0);
+}
+
+static void
+smbios_pop_type17_size_from_memory_node(ofnode node, struct smbios_type17 *t)
+{
+	const fdt32_t *reg;
+	int len;
+	u64 sz;
+	u32 size_mb;
+
+	/* Read property 'reg' from the node */
+	reg = ofnode_read_prop(node, "reg", &len);
+	if (!reg || len < sizeof(fdt32_t) * 4 || len % sizeof(fdt32_t))
+		return;
+
+	/* Combine hi/lo for size (typically 64-bit) */
+	sz = ((u64)fdt32_to_cpu(reg[2]) << 32) | fdt32_to_cpu(reg[3]);
+
+	/* Convert size to MB */
+	size_mb = (u32)(sz >> 20); /* 1 MB = 2^20 */
+	if (size_mb < SMBIOS_MD_SIZE_EXT) {
+		t->size = cpu_to_le16(size_mb);
+		t->ext_size = 0;
+		return;
+	}
+
+	t->size = cpu_to_le16(SMBIOS_MD_SIZE_EXT); /* Signal extended used */
+	t->ext_size = cpu_to_le32((u32)(sz >> 10)); /* In KB */
+}
+
+static void smbios_pop_type17_size_si(struct smbios_ctx *ctx,
+				      struct smbios_type17 *t)
+{
+	t->size = smbios_get_val_si(ctx, "size", SYSID_NONE,
+				    SMBIOS_MD_SIZE_UNKNOWN);
+	t->ext_size = smbios_get_val_si(ctx, "extended-size", SYSID_NONE, 0);
+}
+
+static int
+smbios_scan_memctrl_subnode(ulong *current, int *handle, struct smbios_ctx *ctx,
+			    int idx, smbios_write_memctrlnode cb)
+{
+	int total_len = 0;
+	ofnode child;
+	int i = 0;
+	int hdl_base = *handle;
+	u64 base = 0;
+
+	/*
+	 * Enumerate all subnodes of 'memory-controller' that contain 'size'
+	 * property and generate one instance for each.
+	 */
+	for (child = ofnode_first_subnode(ctx->node); ofnode_valid(child);
+	     child = ofnode_next_subnode(child)) {
+		u64 sz = 0;
+		const fdt32_t *size;
+		int proplen;
+
+		size = ofnode_read_prop(child, "size", &proplen);
+		if (!size || proplen < sizeof(fdt32_t) ||
+		    proplen % sizeof(fdt32_t))
+			continue;
+
+		/* 64-bit size: <hi lo> or 32-bit size */
+		if (proplen >= sizeof(fdt32_t) * 2)
+			sz = ((u64)fdt32_to_cpu(size[0]) << 32) |
+			     fdt32_to_cpu(size[1]);
+		else
+			sz = fdt32_to_cpu(size[0]);
+
+		*handle = hdl_base + i;
+		total_len += cb(current, *handle, ctx, idx, base, sz);
+		base += sz;
+		i++;
+	}
+
+	return total_len;
+}
+
+static int
+smbios_write_type17_from_memctrl_node(ulong *current, int handle,
+				      struct smbios_ctx *ctx, int idx,
+				      u64 __maybe_unused base, u64 sz)
+{
+	struct smbios_type17 *t;
+	int len;
+	u8 *eos_addr;
+	u32 size_mb;
+	void *hdl;
+	size_t hdl_size;
+
+	len = sizeof(*t);
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_MEMORY_DEVICE, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	/* Read the memory array handles */
+	if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+			      &hdl_size) &&
+		hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+		t->phy_mem_array_hdl = *((u16 *)hdl + idx);
+
+	/* Convert to MB */
+	size_mb = (u32)(sz >> 20);
+	if (size_mb < SMBIOS_MD_SIZE_EXT) {
+		/* Use 16-bit size field */
+		t->size = cpu_to_le16(size_mb);  /* In MB */
+		t->ext_size = cpu_to_le32(0);
+	} else {
+		/* Signal use of extended size field */
+		t->size = cpu_to_le16(SMBIOS_MD_SIZE_EXT);
+		t->ext_size = cpu_to_le32((u32)(sz >> 10)); /* In KB */
+	}
+
+	/* Write other general fields */
+	smbios_pop_type17_general_si(ctx, t);
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type17_mem(ulong *current, int handle,
+				   struct smbios_ctx *ctx, int idx,
+				   int type)
+{
+	struct smbios_type17 *t;
+	int len;
+	u8 *eos_addr;
+	void *hdl;
+	size_t hdl_size;
+
+	len = sizeof(*t);
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_MEMORY_DEVICE, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	if (type == SMBIOS_MEM_CUSTOM) {
+		smbios_pop_type17_size_si(ctx, t);
+
+		t->phy_mem_array_hdl =
+			smbios_get_val_si(ctx, "physical-memory-array-handle",
+					  SYSID_NONE, 0);
+	} else if (type == SMBIOS_MEM_FDT_MEM_NODE) {
+		smbios_pop_type17_size_from_memory_node(ctx->node, t);
+
+		/* Read the memory array handles */
+		if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+				      &hdl_size) &&
+		    hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+			t->phy_mem_array_hdl = *((u16 *)hdl + idx);
+	}
+
+	/* Write other general fields */
+	smbios_pop_type17_general_si(ctx, t);
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_scan_mem_nodes(ulong *current, int *handle,
+				 struct smbios_ctx *ctx,
+				 smbios_write_memnode mem_cb,
+				 int *idx)
+{
+	int len = 0;
+	struct smbios_ctx ctx_bak;
+	ofnode child;
+	int hdl_base = *handle;
+
+	memcpy(&ctx_bak, ctx, sizeof(ctx_bak));
+
+	for (child = ofnode_first_subnode(ofnode_root());
+	     ofnode_valid(child); child = ofnode_next_subnode(child)) {
+		const char *str;
+
+		/* Look up for 'device_type = "memory"' */
+		str = ofnode_read_string(child, "device_type");
+		if (!str || strcmp(str, "memory"))
+			continue;
+
+		ctx->node = child;
+		*handle = hdl_base + *idx;
+		/* Generate one instance for each 'memory' node */
+		len += mem_cb(current, *handle, ctx, *idx,
+			      SMBIOS_MEM_FDT_MEM_NODE);
+		memcpy(ctx, &ctx_bak, sizeof(*ctx));
+		(*idx)++;
+	}
+
+	return len;
+}
+
+static int smbios_scan_mctrl_subnodes(ulong *current, int *handle,
+				      struct smbios_ctx *ctx,
+				      smbios_write_memctrlnode mctrl_wcb,
+				      int *idx)
+{
+	int len = 0;
+	struct smbios_ctx ctx_bak;
+	ofnode child;
+
+	memcpy(&ctx_bak, ctx, sizeof(ctx_bak));
+
+	for (child = ofnode_first_subnode(ofnode_root());
+	     ofnode_valid(child); child = ofnode_next_subnode(child)) {
+		const char *compat;
+		const char *name;
+
+		/*
+		 * Look up for node with name or property 'compatible'
+		 * containing 'memory-controller'.
+		 */
+		name = ofnode_get_name(child);
+		compat = ofnode_read_string(child, "compatible");
+		if ((!compat || !strstr(compat, "memory-controller")) &&
+		    (!name || !strstr(name, "memory-controller")))
+			continue;
+
+		(*handle)++;
+		ctx->node = child;
+		/*
+		 * Generate one instance for each subnode of
+		 * 'memory-controller' which contains property 'size'.
+		 */
+		len += smbios_scan_memctrl_subnode(current, handle, ctx,
+						   *idx, mctrl_wcb);
+		memcpy(ctx, &ctx_bak, sizeof(*ctx));
+		(*idx)++;
 	}
 	return len;
 }
 
+static int smbios_write_type1719(ulong *current, int *handle,
+				 struct smbios_ctx *ctx,
+				 smbios_write_memnode mem_cb,
+				 smbios_write_memctrlnode mctrl_wcb)
+{
+	int len = 0;
+	int idx;
+
+	if (!IS_ENABLED(CONFIG_OF_CONTROL))
+		return 0;	/* Error, return 0-length */
+
+	/* Step 1: Scan any subnode exists */
+	len = smbios_scan_subnodes(current, ctx, handle, mem_cb,
+				   SMBIOS_MEM_CUSTOM);
+	if (len)
+		return len;
+
+	/* Step 2: Scan 'memory' node from the entire FDT */
+	idx = 0;
+	len += smbios_scan_mem_nodes(current, handle, ctx, mem_cb, &idx);
+
+	/* Step 3: Scan 'memory-controller' node from the entire FDT */
+	len += smbios_scan_mctrl_subnodes(current, handle, ctx, mctrl_wcb, &idx);
+
+	return len;
+}
+
+static int smbios_write_type17(ulong *current, int *handle,
+			       struct smbios_ctx *ctx)
+{
+	return smbios_write_type1719(current, handle, ctx,
+				     smbios_write_type17_mem,
+				     smbios_write_type17_from_memctrl_node);
+}
+
+static void smbios_pop_type19_general_si(struct smbios_ctx *ctx,
+					 struct smbios_type19 *t)
+{
+	t->partition_wid =
+		smbios_get_val_si(ctx, "partition-width ",
+				  SYSID_NONE, SMBIOS_MAMA_PW_DEF);
+}
+
+static void smbios_pop_type19_addr_si(struct smbios_ctx *ctx,
+				      struct smbios_type19 *t)
+{
+	t->start_addr = smbios_get_val_si(ctx, "starting-address", SYSID_NONE,
+					  0);
+	t->end_addr = smbios_get_val_si(ctx, "ending-address", SYSID_NONE, 0);
+	t->ext_start_addr = smbios_get_u64_si(ctx, "extended-starting-address",
+					      SYSID_NONE, 0);
+	t->ext_end_addr = smbios_get_u64_si(ctx, "extended-ending-address",
+					    SYSID_NONE, 0);
+}
+
+static void
+smbios_pop_type19_addr_from_memory_node(ofnode node, struct smbios_type19 *t)
+{
+	const fdt32_t *reg;
+	int len;
+	u64 sz;
+	u64 addr;
+
+	/* Read property 'reg' from the node */
+	reg = ofnode_read_prop(node, "reg", &len);
+	if (!reg || len < sizeof(fdt32_t) * 4 || len % sizeof(fdt32_t))
+		return;
+
+	/* Combine hi/lo for size and address (typically 64-bit) */
+	sz = ((u64)fdt32_to_cpu(reg[2]) << 32) | fdt32_to_cpu(reg[3]);
+	addr = ((u64)fdt32_to_cpu(reg[0]) << 32) | fdt32_to_cpu(reg[1]);
+
+	t->ext_start_addr = cpu_to_le64(addr);
+	t->ext_end_addr = cpu_to_le64(addr + sz - 1);
+
+	/* If address range fits in 32-bit, populate legacy fields */
+	if ((addr + sz - 1) <= 0xFFFFFFFFULL) {
+		t->start_addr = cpu_to_le32((u32)addr);
+		t->end_addr   = cpu_to_le32((u32)(addr + sz - 1));
+	} else {
+		t->start_addr = cpu_to_le32(0xFFFFFFFF);
+		t->end_addr   = cpu_to_le32(0xFFFFFFFF);
+	}
+}
+
+static int
+smbios_write_type19_from_memctrl_node(ulong *current, int handle,
+				      struct smbios_ctx *ctx, int idx,
+				      u64 base, u64 sz)
+{
+	struct smbios_type19 *t;
+	int len;
+	u8 *eos_addr;
+	void *hdl;
+	size_t hdl_size;
+
+	len = sizeof(*t);
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_MEMORY_ARRAY_MAPPED_ADDRESS, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	/* Read the memory array handles */
+	if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+			      &hdl_size) &&
+	    hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+		t->mem_array_hdl = *((u16 *)hdl + idx);
+
+	t->ext_start_addr = cpu_to_le64(base);
+	t->ext_end_addr = cpu_to_le64(base + sz - 1);
+
+	if ((base + sz - 1) <= 0xFFFFFFFFULL) {
+		t->start_addr = cpu_to_le32((u32)base);
+		t->end_addr   = cpu_to_le32((u32)(base + sz - 1));
+	} else {
+		t->start_addr = cpu_to_le32(0xFFFFFFFF);
+		t->end_addr   = cpu_to_le32(0xFFFFFFFF);
+	}
+
+	/* Write other general fields */
+	smbios_pop_type19_general_si(ctx, t);
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type19_mem(ulong *current, int handle,
+				   struct smbios_ctx *ctx, int idx,
+				   int type)
+{
+	struct smbios_type19 *t;
+	int len;
+	u8 *eos_addr;
+	void *hdl;
+	size_t hdl_size;
+
+	len = sizeof(*t);
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_MEMORY_ARRAY_MAPPED_ADDRESS, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	if (type == SMBIOS_MEM_CUSTOM) {
+		smbios_pop_type19_addr_si(ctx, t);
+		t->mem_array_hdl = smbios_get_val_si(ctx, "memory-array-handle",
+						     SYSID_NONE, 0);
+	} else if (type == SMBIOS_MEM_FDT_MEM_NODE) {
+		smbios_pop_type19_addr_from_memory_node(ctx->node, t);
+		/* Read the memory array handles */
+		if (!sysinfo_get_data(ctx->dev, SYSID_SM_MEMARRAY_HANDLE, &hdl,
+				      &hdl_size) &&
+		    hdl_size == SYSINFO_MEM_HANDLE_MAX * sizeof(u16))
+			t->mem_array_hdl = *((u16 *)hdl + idx);
+	}
+
+	/* Write other general fields */
+	smbios_pop_type19_general_si(ctx, t);
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type19(ulong *current, int *handle,
+			       struct smbios_ctx *ctx)
+{
+	return smbios_write_type1719(current, handle, ctx,
+				     smbios_write_type19_mem,
+				     smbios_write_type19_from_memctrl_node);
+}
+
 #endif /* #if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE) */
 
-static int smbios_write_type32(ulong *current, int handle,
+static int smbios_write_type32(ulong *current, int *handle,
 			       struct smbios_ctx *ctx)
 {
 	struct smbios_type32 *t;
@@ -866,7 +1966,7 @@ static int smbios_write_type32(ulong *current, int handle,
 
 	t = map_sysmem(*current, len);
 	memset(t, 0, len);
-	fill_smbios_header(t, SMBIOS_SYSTEM_BOOT_INFORMATION, len, handle);
+	fill_smbios_header(t, SMBIOS_SYSTEM_BOOT_INFORMATION, len, *handle);
 	smbios_set_eos(ctx, t->eos);
 
 	*current += len;
@@ -875,7 +1975,7 @@ static int smbios_write_type32(ulong *current, int handle,
 	return len;
 }
 
-static int smbios_write_type127(ulong *current, int handle,
+static int smbios_write_type127(ulong *current, int *handle,
 				struct smbios_ctx *ctx)
 {
 	struct smbios_type127 *t;
@@ -883,7 +1983,7 @@ static int smbios_write_type127(ulong *current, int handle,
 
 	t = map_sysmem(*current, len);
 	memset(t, 0, len);
-	fill_smbios_header(t, SMBIOS_END_OF_TABLE, len, handle);
+	fill_smbios_header(t, SMBIOS_END_OF_TABLE, len, *handle);
 
 	*current += len;
 	unmap_sysmem(t);
@@ -902,6 +2002,12 @@ static struct smbios_write_method smbios_write_funcs[] = {
 	{ smbios_write_type7, "cache", },
 #endif
 	{ smbios_write_type4, "processor"},
+#if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE)
+	{ smbios_write_type9, "system-slot"},
+	{ smbios_write_type16, "memory-array"},
+	{ smbios_write_type17, "memory-device"},
+	{ smbios_write_type19, "memory-array-mapped-address"},
+#endif
 	{ smbios_write_type32, },
 	{ smbios_write_type127 },
 };
@@ -954,7 +2060,8 @@ ulong write_smbios_table(ulong addr)
 				ctx.node = ofnode_find_subnode(parent_node,
 							       method->subnode_name);
 		}
-		len += method->write((ulong *)&addr, handle++, &ctx);
+		len += method->write((ulong *)&addr, &handle, &ctx);
+		handle++;
 	}
 
 	/*
