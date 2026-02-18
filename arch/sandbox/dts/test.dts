@@ -46,6 +46,8 @@
 		mmc6 = "/mmc6";
 		mmc7 = "/mmc7";
 		mmc8 = "/mmc8";
+		mmc9 = "/mmc9";
+		mmc10 = "/mmc10";
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
@@ -1277,6 +1279,13 @@
 		status = "disabled";
 		compatible = "sandbox,mmc";
 		filename = "mmc9.img";
+	};
+
+	/* This is used for RAUC boot tests */
+	mmc10 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc10.img";
 	};
 
 	pch {
