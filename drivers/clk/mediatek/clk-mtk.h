@@ -243,6 +243,14 @@ struct mtk_gate {
 	u32 flags;
 };
 
+#define GATE_FLAGS(_id, _parent, _regs, _shift, _flags) {	\
+		.id = _id,					\
+		.parent = _parent,				\
+		.regs = _regs,					\
+		.shift = _shift,				\
+		.flags = _flags,				\
+	}
+
 /* struct mtk_clk_tree - clock tree */
 struct mtk_clk_tree {
 	unsigned long xtal_rate;
