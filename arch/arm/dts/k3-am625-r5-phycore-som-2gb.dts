@@ -21,11 +21,6 @@
 	};
 };
 
-&a53_0 {
-	clock-names = "gtc";
-	clocks = <&k3_clks 61 0>;
-};
-
 &main_pktdma {
 	ti,sci = <&dm_tifs>;
 };

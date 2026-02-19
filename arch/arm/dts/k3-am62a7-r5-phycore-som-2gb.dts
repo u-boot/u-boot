@@ -22,11 +22,6 @@
 	};
 };
 
-&a53_0 {
-	clocks = <&k3_clks 61 0>;
-	clock-names = "gtc";
-};
-
 &cbass_main {
 	bootph-pre-ram;
 	sa3_secproxy: secproxy@44880000 {

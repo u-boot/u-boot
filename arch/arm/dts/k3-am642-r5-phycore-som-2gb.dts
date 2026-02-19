@@ -21,8 +21,3 @@
 		ethernet0 = &cpsw3g;
 	};
 };
-
-&a53_0 {
-	clock-names = "gtc";
-	clocks = <&k3_clks 61 0>;
-};

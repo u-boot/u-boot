@@ -24,7 +24,6 @@
 };
 
 &a53_0 {
-	clocks = <&k3_clks 61 0>;
 	/*
 	 * FIXME: Currently only the SPL running on the R5 has a clock
 	 * driver. As a workaround therefore move the assigned-clock
