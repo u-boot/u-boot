@@ -810,6 +810,8 @@ int boot_get_loadable(struct bootm_headers *images)
 
 			fit_loadable_process(img_type, img_data, img_len);
 		}
+
+		fit_verity_build_cmdline(buf, conf_noffset, images);
 		break;
 	default:
 		printf("The given image format is not supported (corrupt?)\n");

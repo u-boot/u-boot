@@ -142,6 +142,26 @@ config FIT_CIPHER
 	  Enable the feature of data ciphering/unciphering in the tool mkimage
 	  and in the u-boot support of the FIT image.
 
+config FIT_VERITY
+	bool "dm-verity boot parameter generation from FIT metadata"
+	depends on FIT && OF_LIBFDT
+	help
+	  When a FIT configuration contains loadable sub-images of type
+	  IH_TYPE_FILESYSTEM with a dm-verity subnode, this option enables
+	  building the dm-mod.create= and dm-mod.waitfor= kernel
+	  command-line parameters from the verity metadata
+	  (data-block-size, hash-block-size, num-data-blocks,
+	  hash-start-block, algorithm, digest, salt) stored in the FIT.
+
+	  The generated parameters reference /dev/fitN block devices that
+	  Linux's uImage.FIT block driver assigns to loadable sub-images.
+
+	  During FIT parsing (BOOTM_STATE_FINDOTHER), verity cmdline
+	  fragments are stored in struct bootm_headers and automatically
+	  appended to the bootargs environment variable during
+	  BOOTM_STATE_OS_PREP.  This works from both the bootm command
+	  and BOOTSTD bootmeths.
+
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"
 	help

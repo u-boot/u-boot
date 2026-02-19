@@ -396,6 +396,16 @@ struct bootm_headers {
 	ulong		cmdline_start;
 	ulong		cmdline_end;
 	struct bd_info		*kbd;
+
+	/*
+	 * dm-verity kernel command-line fragments, populated during FIT
+	 * parsing by fit_verity_build_cmdline() when CONFIG_FIT_VERITY
+	 * is enabled.  Bootmeths can check fit_verity_active() between
+	 * bootm states, and fit_verity_apply_bootargs() appends these
+	 * to the "bootargs" env var during BOOTM_STATE_OS_PREP.
+	 */
+	char *dm_mod_create;
+	char *dm_mod_waitfor;
 #endif
 
 	int		verify;		/* env_get("verify")[0] != 'n' */
@@ -755,6 +765,72 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
 		   int arch, int image_ph_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp);
+
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(FIT_VERITY)
+/**
+ * fit_verity_build_cmdline() - build dm-verity cmdline from FIT metadata
+ * @fit:		pointer to the FIT blob
+ * @conf_noffset:	configuration node offset in @fit
+ * @images:		bootm headers; dm_mod_create / dm_mod_waitfor are
+ *			populated on success
+ *
+ * Called automatically from boot_get_loadable() during FIT parsing.
+ * For each IH_TYPE_FILESYSTEM loadable with a dm-verity subnode,
+ * builds the corresponding dm target specification.
+ *
+ * Return: number of verity targets found (>=0), or -ve errno
+ */
+int fit_verity_build_cmdline(const void *fit, int conf_noffset,
+			    struct bootm_headers *images);
+
+/**
+ * fit_verity_apply_bootargs() - append dm-verity params to bootargs env
+ * @images:	bootm headers with dm-verity cmdline fragments
+ *
+ * Called from BOOTM_STATE_OS_PREP before bootm_process_cmdline_env().
+ *
+ * Return: 0 on success, -ve errno on error
+ */
+int fit_verity_apply_bootargs(const struct bootm_headers *images);
+
+/**
+ * fit_verity_active() - check whether dm-verity targets were found
+ * @images:	bootm headers
+ *
+ * Return: true if at least one dm-verity target was built
+ */
+static inline bool fit_verity_active(const struct bootm_headers *images)
+{
+	return images->dm_mod_create != NULL;
+}
+
+/**
+ * fit_verity_free() - free dm-verity cmdline allocations
+ * @images:	bootm headers
+ */
+void fit_verity_free(struct bootm_headers *images);
+
+#else /* !FIT_VERITY */
+
+static inline int fit_verity_build_cmdline(const void *fit, int conf_noffset,
+					  struct bootm_headers *images)
+{
+	return 0;
+}
+
+static inline int fit_verity_apply_bootargs(const struct bootm_headers *images)
+{
+	return 0;
+}
+
+static inline bool fit_verity_active(const struct bootm_headers *images)
+{
+	return false;
+}
+
+static inline void fit_verity_free(struct bootm_headers *images) {}
+
+#endif /* FIT_VERITY */
 
 /**
  * image_locate_script() - Locate the raw script in an image

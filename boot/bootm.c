@@ -1070,6 +1070,12 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 		/* For Linux OS do all substitutions at console processing */
 		if (images->os.os == IH_OS_LINUX)
 			flags = BOOTM_CL_ALL;
+		ret = fit_verity_apply_bootargs(images);
+		if (ret) {
+			printf("dm-verity bootargs failed (err=%d)\n", ret);
+			ret = CMD_RET_FAILURE;
+			goto err;
+		}
 		ret = bootm_process_cmdline_env(flags);
 		if (ret) {
 			printf("Cmdline setup failed (err=%d)\n", ret);
