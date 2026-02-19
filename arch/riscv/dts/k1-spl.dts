@@ -1,0 +1,239 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright (C) 2023-2026 Spacemit, Inc
+ * Copyright (C) 2025-2026 RISCStar Ltd.
+ */
+
+/dts-v1/;
+
+#include "k1.dtsi"
+
+/ {
+	model = "spacemit k1 spl";
+
+	aliases {
+		console = &uart0;
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+		bootph-all;
+	};
+
+	binman {
+		section {
+			filename = "u-boot-spl-ddr.bin";
+			pad-byte = <0xff>;
+			align-size = <4>;
+			align = <4>;
+
+			spl_section: section {
+				type = "section";
+				size = <CONFIG_SPL_DDR_FIRMWARE_OFFSET>;
+
+				u-boot-spl-nodtb {
+					type = "blob";
+					filename = "spl/u-boot-spl.bin";
+					align-end = <4>;
+				};
+
+				u-boot-spl-dtb {
+					type = "blob";
+					filename = "spl/u-boot-spl.dtb";
+					align-end = <4>;
+				};
+			};
+
+			ddr_fw: ddr-firmware {
+				type = "blob";
+				offset = <CONFIG_SPL_DDR_FIRMWARE_OFFSET>;
+				filename = "lib/vendor/spacemit/ddr_fw.bin";
+				align-end = <4>;
+			};
+		};
+	};
+};
+
+&vctcxo_1m {
+	status = "okay";
+	bootph-pre-ram;
+};
+
+&vctcxo_24m {
+	status = "okay";
+	bootph-pre-ram;
+};
+
+&vctcxo_3m {
+	status = "okay";
+	bootph-pre-ram;
+};
+
+&osc_32k {
+	status = "okay";
+	bootph-pre-ram;
+};
+
+&soc {
+	bootph-all;
+	system-controller@d4050000 {
+		status = "okay";
+		bootph-pre-ram;
+	};
+	clock-controller@d4090000 {
+		status = "okay";
+		bootph-pre-ram;
+	};
+	system-controller@d4282800 {
+		status = "okay";
+		bootph-pre-ram;
+	};
+	system-controller@d4015000 {
+		clocks = <&osc_32k>, <&vctcxo_1m>, <&vctcxo_3m>,
+			 <&vctcxo_24m>, <&syscon_mpmu CLK_PLL1_31P5>,
+			 <&pll CLK_PLL1_D4>;
+		clock-names = "osc", "vctcxo_1m", "vctcxo_3m",
+			      "vctcxo_24m", "pll1_d78_31p5", "pll1_d4";
+		status = "okay";
+		bootph-pre-ram;
+	};
+
+	i2c@d4012000 {		/* i2c2 */
+		status = "okay";
+		bootph-pre-ram;
+		eeprom: eeprom {
+			compatible = "atmel,24c02";
+			reg = <0x50>;
+			status = "okay";
+			bootph-pre-ram;
+		};
+	};
+
+	reset-controller@d4050000 {
+		status = "okay";
+		bootph-pre-ram;
+	};
+};
+
+&uart0 {
+	status = "okay";
+	bootph-pre-ram;
+};
+
+&i2c8 {
+	status = "okay";
+	bootph-pre-ram;
+	pmic@41 {
+		compatible = "spacemit,p1";
+		reg = <0x41>;
+		status = "okay";
+		bootph-pre-ram;
+
+		regulators {
+			buck1 {
+				regulator-name = "vdd_core";
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3450000>;
+				regulator-ramp-delay = <5000>;
+				regulator-always-on;
+				bootph-pre-ram;
+			};
+
+			buck2 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3450000>;
+				regulator-ramp-delay = <5000>;
+				regulator-always-on;
+			};
+
+			buck3_1v8: buck3 {
+				regulator-name = "vdd_1v8";
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-ramp-delay = <5000>;
+				regulator-always-on;
+				bootph-pre-ram;
+			};
+
+			buck4 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-ramp-delay = <5000>;
+				regulator-always-on;
+			};
+
+			buck5 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3450000>;
+				regulator-ramp-delay = <5000>;
+				regulator-always-on;
+			};
+
+			buck6 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3450000>;
+				regulator-ramp-delay = <5000>;
+				regulator-always-on;
+			};
+
+			aldo1 {
+				regulator-name = "vdd_1v8_mmc";
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+				regulator-boot-on;
+				bootph-pre-ram;
+			};
+
+			aldo2 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			aldo3 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			aldo4 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			dldo1 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			dldo2 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			dldo3 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			dldo4 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			dldo5 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			dldo6 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			dldo7 {
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
+			};
+		};
+	};
+};
