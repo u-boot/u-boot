@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/fpga_manager.h>
+#include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 
@@ -204,6 +205,7 @@ int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 	/* Disable all signals from FPGA to HPS SDRAM */
 #define SDR_CTRLGRP_FPGAPORTRST_ADDRESS	0x5080
 	writel(0, SOCFPGA_SDR_ADDRESS + SDR_CTRLGRP_FPGAPORTRST_ADDRESS);
+	socfpga_sdram_apply_static_cfg();
 
 	/* Disable all axi bridge (hps2fpga, lwhps2fpga & fpga2hps) */
 	socfpga_bridges_reset(1);
