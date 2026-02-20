@@ -16,7 +16,7 @@
 		bootargs = "console=ttyS0,115200";
 	};
 
-	memory {
+	memory@0 {
 		name = "memory";
 		device_type = "memory";
 		reg = <0x0 0x20000000>; /* 512MB */
