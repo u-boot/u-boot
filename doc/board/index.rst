@@ -45,6 +45,7 @@ Board-specific doc
    motorola/index
    nvidia/index
    nxp/index
+   onion/index
    openpiton/index
    ouya/index
    pegatron/index
