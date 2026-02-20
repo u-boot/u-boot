@@ -38,7 +38,8 @@ class Bintoolmkeficapsule(bintool.Bintool):
 
     def generate_capsule(self, image_index, image_guid, hardware_instance,
                          payload, output_fname, priv_key, pub_key,
-                         monotonic_count=0, version=0, oemflags=0):
+                         monotonic_count=0, version=0, oemflags=0,
+                         dump_sig=False):
         """Generate a capsule through commandline-provided parameters
 
         Args:
@@ -53,6 +54,7 @@ class Bintoolmkeficapsule(bintool.Bintool):
             monotonic_count (int): Count used when signing an image
             version (int): Image version (Optional)
             oemflags (int): Optional 16 bit OEM flags
+            dump_sig (bool): Dump signature to a file (Optional). Default no.
 
         Returns:
             str: Tool output
@@ -73,6 +75,8 @@ class Bintoolmkeficapsule(bintool.Bintool):
                 f'--private-key={priv_key}',
                 f'--certificate={pub_key}'
             ]
+        if dump_sig:
+            args += [f'--dump-sig']
 
         args += [
             payload,
