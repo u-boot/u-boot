@@ -99,6 +99,7 @@ struct bd_info;
 
 #define is_imx94() (is_cpu_type(MXC_CPU_IMX94))
 #define is_imx95() (is_cpu_type(MXC_CPU_IMX95))
+#define is_imx952() (is_cpu_type(MXC_CPU_IMX952))
 
 #define is_imx9121() (is_cpu_type(MXC_CPU_IMX9121))
 #define is_imx9111() (is_cpu_type(MXC_CPU_IMX9111))
@@ -252,6 +253,16 @@ struct scmi_rom_passover_get_out {
 	u32 status;
 	u32 numPassover;
 	u32 passover[(sizeof(rom_passover_t) + 8) / 4];
+};
+
+struct scmi_ddr_info_out {
+	s32 status;
+	u32 attributes;
+	u32 mts;
+	u32 startlow;
+	u32 starthigh;
+	u32 endlow;
+	u32 endhigh;
 };
 
 #endif

@@ -14,10 +14,3 @@ int board_late_init(void)
 
 	return 0;
 }
-
-int board_phys_sdram_size(phys_size_t *size)
-{
-	*size = PHYS_SDRAM_SIZE + PHYS_SDRAM_2_SIZE;
-
-	return 0;
-}

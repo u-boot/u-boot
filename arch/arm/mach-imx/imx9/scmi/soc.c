@@ -58,6 +58,35 @@ uint32_t scmi_get_rom_data(rom_passover_t *rom_data)
 	return 0;
 }
 
+int scmi_misc_ddrinfo(u32 ddrc_id, struct scmi_ddr_info_out *out)
+{
+	u32 in = ddrc_id;
+	struct scmi_msg msg = {
+		.protocol_id = SCMI_PROTOCOL_ID_IMX_MISC,
+		.message_id = SCMI_MISC_DDR_INFO_GET,
+		.in_msg = (u8 *)&in,
+		.in_msg_sz = sizeof(in),
+		.out_msg = (u8 *)out,
+		.out_msg_sz = sizeof(*out),
+	};
+	int ret;
+	struct udevice *dev;
+
+	memset(out, 0, sizeof(*out));
+	ret = uclass_get_device_by_name(UCLASS_CLK, "protocol@14", &dev);
+	if (ret)
+		return ret;
+
+	ret = devm_scmi_process_msg(dev, &msg);
+	if (ret != 0 || out->status != 0) {
+		printf("Failed to get ddr cfg, scmi_err = %d\n",
+		       out->status);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 #if IS_ENABLED(CONFIG_ENV_IS_IN_MMC)
 __weak int board_mmc_get_env_dev(int devno)
 {
@@ -125,6 +154,8 @@ u32 get_cpu_speed_grade_hz(void)
 
 	if (is_imx95())
 		max_speed = 2000000000;
+	if (is_imx952())
+		max_speed = 1700000000;
 
 	/* In case the fuse of speed grade not programmed */
 	if (speed > max_speed)
@@ -335,25 +366,44 @@ void enable_caches(void)
 
 __weak int board_phys_sdram_size(phys_size_t *size)
 {
+	struct scmi_ddr_info_out ddr_info;
+	int ret;
+	u32 ddrc_id = 0, ddrc_num = 1;
 	phys_size_t start, end;
-	phys_size_t val;
 
 	if (!size)
 		return -EINVAL;
 
-	val = readl(REG_DDR_CS0_BNDS);
-	start = (val >> 16) << 24;
-	end   = (val & 0xFFFF);
-	end   = end ? end + 1 : 0;
-	end   = end << 24;
-	*size = end - start;
+	*size = 0;
+	do {
+		ret = scmi_misc_ddrinfo(ddrc_id++, &ddr_info);
+		if (ret) {
+			/* if get DDR info failed, fall to default config */
+			*size = PHYS_SDRAM_SIZE;
+#ifdef PHYS_SDRAM_2_SIZE
+			*size += PHYS_SDRAM_2_SIZE;
+#endif
+			return 0;
+		} else {
+			ddrc_num = ((ddr_info.attributes >> 16) & 0x3);
+			start = ddr_info.starthigh;
+			start <<= 32;
+			start += ddr_info.startlow;
 
-	val = readl(REG_DDR_CS1_BNDS);
-	start = (val >> 16) << 24;
-	end   = (val & 0xFFFF);
-	end   = end ? end + 1 : 0;
-	end   = end << 24;
-	*size += end - start;
+			end = ddr_info.endhigh;
+			end <<= 32;
+			end += ddr_info.endlow;
+
+			*size += end + 1 - start;
+
+			debug("ddr info attr 0x%x, start 0x%x 0x%x, end 0x%x 0x%x, mts %u\n",
+			      ddr_info.attributes, ddr_info.starthigh, ddr_info.startlow,
+			      ddr_info.endhigh, ddr_info.endlow, ddr_info.mts);
+		}
+	} while (ddrc_id < ddrc_num);
+
+	/* SM reports total DDR size, need remove secure memory */
+	*size -= PHYS_SDRAM - 0x80000000;
 
 	return 0;
 }
