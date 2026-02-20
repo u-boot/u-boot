@@ -16,8 +16,6 @@
 #include <panel.h>
 #include <spi.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Register Address */
 #define HX8238D_OUTPUT_CTRL_ADDR        0x01
 #define HX8238D_LCD_AC_CTRL_ADDR        0x02

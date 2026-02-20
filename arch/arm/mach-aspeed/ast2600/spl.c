@@ -9,9 +9,6 @@
 #include <linux/err.h>
 #include <asm/io.h>
 #include <asm/arch/scu_ast2600.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 void board_init_f(ulong dummy)
 {

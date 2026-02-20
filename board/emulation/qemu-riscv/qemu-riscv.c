@@ -15,8 +15,6 @@
 #include <virtio_types.h>
 #include <virtio.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #if IS_ENABLED(CONFIG_MTD_NOR_FLASH)
 int is_flash_available(void)
 {

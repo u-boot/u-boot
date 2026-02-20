@@ -7,7 +7,6 @@
 
 #include <errno.h>
 #include <hang.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/secure.h>
 #include <asm/arch/reset_manager.h>
@@ -19,8 +18,6 @@
 #include <linux/iopoll.h>
 #include <linux/intel-smc.h>
 #include <wait_bit.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define TIMEOUT_300MS     300
 

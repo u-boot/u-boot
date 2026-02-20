@@ -5,14 +5,11 @@
 
 #include <hang.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 
 #include "../gadget/dwc2_udc_otg_priv.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define BIT_WRITEABLE_SHIFT	16
 

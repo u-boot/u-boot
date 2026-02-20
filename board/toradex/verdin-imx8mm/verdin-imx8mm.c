@@ -7,7 +7,6 @@
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <hang.h>
 #include <i2c.h>
@@ -16,8 +15,6 @@
 #include <netdev.h>
 
 #include "../common/tdx-cfg-block.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define I2C_PMIC	0
 

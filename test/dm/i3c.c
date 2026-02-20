@@ -8,8 +8,6 @@
 #include <dm/test.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Basic test of the i3c uclass */
 static int dm_test_i3c_base(struct unit_test_state *uts)
 {

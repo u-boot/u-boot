@@ -5,14 +5,11 @@
 
 #include <log.h>
 #include <part.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <u-boot/md5.h>
 #include <zynq_bootimg.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define ZYNQ_IMAGE_PHDR_OFFSET		0x09C
 #define ZYNQ_IMAGE_FSBL_LEN_OFFSET	0x040

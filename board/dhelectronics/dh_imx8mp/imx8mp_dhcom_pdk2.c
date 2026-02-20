@@ -20,8 +20,6 @@
 #include "../common/dh_common.h"
 #include "../common/dh_imx.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int mach_cpu_init(void)
 {
 	icache_enable();

@@ -13,11 +13,8 @@
 
 #include <dm.h>
 #include <errno.h>
-#include <asm/global_data.h>
 #include <linux/log2.h>
 #include <pci_ep.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int pci_ep_write_header(struct udevice *dev, uint fn, struct pci_ep_header *hdr)
 {

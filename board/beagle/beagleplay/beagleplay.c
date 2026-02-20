@@ -14,8 +14,6 @@
 
 #include <asm/arch/hardware.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct efi_fw_image fw_images[] = {
 	{
 		.image_type_id = BEAGLEPLAY_TIBOOT3_IMAGE_GUID,

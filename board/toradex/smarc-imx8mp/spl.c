@@ -8,15 +8,12 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <dm/device.h>
 #include <power/pmic.h>
 #include <power/pca9450.h>
 
 #include "lpddr4_timing.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {

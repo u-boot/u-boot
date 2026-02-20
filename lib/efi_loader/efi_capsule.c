@@ -21,15 +21,12 @@
 #include <mapmem.h>
 #include <sort.h>
 #include <sysreset.h>
-#include <asm/global_data.h>
 #include <u-boot/uuid.h>
 
 #include <asm/sections.h>
 #include <crypto/pkcs7.h>
 #include <crypto/pkcs7_parser.h>
 #include <linux/err.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 const efi_guid_t efi_guid_capsule_report = EFI_CAPSULE_REPORT_GUID;
 static const efi_guid_t efi_guid_firmware_management_capsule_id =

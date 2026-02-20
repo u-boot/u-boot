@@ -22,8 +22,6 @@
 #include <linux/compat.h>
 #include <linux/printk.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct resource_table {
 	u32 ver;
 	u32 num;

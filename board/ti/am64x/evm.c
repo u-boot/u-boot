@@ -27,8 +27,6 @@
 #define board_is_am64x_skevm() (board_ti_k3_is("AM64-SKEVM") || \
 				board_ti_k3_is("AM64B-SKEVM"))
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct efi_fw_image fw_images[] = {
 	{
 		.image_type_id = AM64X_SK_TIBOOT3_IMAGE_GUID,

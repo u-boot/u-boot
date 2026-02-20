@@ -6,11 +6,8 @@
 
 #include <asm/arch/handoff_soc64.h>
 #include <asm/arch/system_manager.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
 /*

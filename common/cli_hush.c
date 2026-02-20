@@ -83,7 +83,7 @@
 #include <cli.h>
 #include <cli_hush.h>
 #include <command.h>        /* find_cmd */
-#include <asm/global_data.h>
+#include <vsprintf.h>
 #endif
 #ifndef __U_BOOT__
 #include <ctype.h>     /* isalpha, isdigit */
@@ -124,8 +124,6 @@
 #endif
 
 #ifdef __U_BOOT__
-DECLARE_GLOBAL_DATA_PTR;
-
 #define EXIT_SUCCESS 0
 #define EOF -1
 #define syntax() syntax_err()

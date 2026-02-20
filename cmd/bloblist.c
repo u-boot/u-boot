@@ -8,9 +8,6 @@
 
 #include <bloblist.h>
 #include <command.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int do_bloblist_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			    char *const argv[])

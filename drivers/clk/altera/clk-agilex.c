@@ -6,7 +6,6 @@
 
 #include <log.h>
 #include <wait_bit.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/system.h>
 #include <clk-uclass.h>
@@ -18,8 +17,6 @@
 #include <linux/bitops.h>
 
 #include <asm/arch/clock_manager.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct socfpga_clk_plat {
 	void __iomem *regs;

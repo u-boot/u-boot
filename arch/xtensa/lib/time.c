@@ -5,11 +5,8 @@
 
 #include <clock_legacy.h>
 #include <time.h>
-#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/stringify.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if XCHAL_HAVE_CCOUNT
 static ulong get_ccount(void)

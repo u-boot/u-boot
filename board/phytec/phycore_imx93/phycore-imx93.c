@@ -7,14 +7,11 @@
  */
 
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <env.h>
 #include <fdt_support.h>
 
 #include "../common/imx93_som_detection.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define EEPROM_ADDR            0x50
 

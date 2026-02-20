@@ -26,7 +26,6 @@
 #include <fdt_support.h>
 #include <reset.h>
 #include <wait_bit.h>
-#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 
@@ -34,8 +33,6 @@
 #include <asm/io.h>
 
 #include <linux/iopoll.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* sun4i spi registers */
 #define SUN4I_RXDATA_REG		0x00

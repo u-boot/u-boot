@@ -10,7 +10,6 @@
 #include <log.h>
 #include <rand.h>
 #include <watchdog.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/log2.h>
 #include "stm32mp1_tests.h"
@@ -18,8 +17,6 @@
 #define ADDR_INVALID	0xFFFFFFFF
 
 #define PATTERN_DEFAULT	"-"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int get_bufsize(char *string, int argc, char *argv[], int arg_nb,
 		       size_t *bufsize, size_t default_size, size_t min_size)

@@ -7,7 +7,6 @@
 
 #include <clock_legacy.h>
 #include <malloc.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <clk.h>
@@ -21,8 +20,6 @@
 #define OSTM_TT		0x18
 #define OSTM_CTL	0x20
 #define OSTM_CTL_D	BIT(1)
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct ostm_priv {
 	fdt_addr_t	regs;

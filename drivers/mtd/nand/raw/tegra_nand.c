@@ -7,7 +7,6 @@
  */
 
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <memalign.h>
 #include <nand.h>
@@ -25,8 +24,6 @@
 #include <dm.h>
 #include <linux/printk.h>
 #include "tegra_nand.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define NAND_CMD_TIMEOUT_MS		10
 

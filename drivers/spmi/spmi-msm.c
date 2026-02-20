@@ -10,12 +10,9 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <spmi/spmi.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* PMIC Arbiter configuration registers */
 #define PMIC_ARB_VERSION 0x0000

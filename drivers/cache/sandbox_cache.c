@@ -6,9 +6,6 @@
 #include <cache.h>
 #include <dm.h>
 #include <errno.h>
-#include <asm/global_data.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int sandbox_get_info(struct udevice *dev, struct cache_info *info)
 {

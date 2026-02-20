@@ -12,14 +12,11 @@
 #include <malloc.h>
 #include <string.h>
 #include <u-boot/uuid.h>
-#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/devres.h>
 #include <dm/root.h>
 #include <linux/errno.h>
 #include <linux/sizes.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Error mapping declarations */
 

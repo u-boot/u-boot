@@ -7,12 +7,9 @@
 
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
-#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <mach/mc.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define COARSE_MIN_START	6
 #define FINE_MIN_START		15

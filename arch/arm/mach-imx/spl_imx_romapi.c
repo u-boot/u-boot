@@ -7,12 +7,9 @@
 #include <image.h>
 #include <imx_container.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <spl.h>
 #include <asm/arch/sys_proto.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Caller need ensure the offset and size to align with page size */
 ulong spl_romapi_raw_seekable_read(u32 offset, u32 size, void *buf)

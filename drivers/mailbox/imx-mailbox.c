@@ -15,8 +15,6 @@
 /* This driver only exposes the status bits to keep with the
  * polling methodology of u-boot.
  */
-DECLARE_GLOBAL_DATA_PTR;
-
 #define IMX_MU_CHANS		24
 
 #define IMX_MU_V2_PAR_OFF	0x4

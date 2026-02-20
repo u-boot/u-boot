@@ -7,7 +7,6 @@
  */
 #include <command.h>
 #include <console.h>
-#include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
 
@@ -25,8 +24,6 @@
 #include <asm/arch/psc_defs.h>
 
 #include "cpsw_mdio.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef KEYSTONE2_EMAC_GIG_ENABLE
 #define emac_gigabit_enable(x)	keystone2_eth_gigabit_enable(x)

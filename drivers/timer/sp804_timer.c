@@ -8,14 +8,11 @@
 #include <dm.h>
 #include <init.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <dm/ofnode.h>
 #include <mapmem.h>
 #include <dt-structs.h>
 #include <timer.h>
 #include <asm/io.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define SP804_TIMERX_LOAD		0x00
 #define SP804_TIMERX_VALUE		0x04

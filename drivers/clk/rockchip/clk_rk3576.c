@@ -17,8 +17,6 @@
 #include <dt-bindings/clock/rockchip,rk3576-cru.h>
 #include <linux/delay.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define DIV_TO_RATE(input_rate, div)	((input_rate) / ((div) + 1))
 
 static struct rockchip_pll_rate_table rk3576_24m_pll_rates[] = {

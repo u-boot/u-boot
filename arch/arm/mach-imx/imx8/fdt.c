@@ -6,15 +6,12 @@
 #include <log.h>
 #include <firmware/imx/sci/sci.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <dm/ofnode.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
 #include <linux/printk.h>
 #include <cpu.h>
 #include <dm.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static bool check_owned_resource(sc_rsrc_t rsrc_id)
 {

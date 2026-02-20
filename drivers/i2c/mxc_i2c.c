@@ -18,7 +18,6 @@
 #include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
@@ -29,8 +28,6 @@
 #include <watchdog.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define I2C_QUIRK_FLAG		(1 << 0)
 

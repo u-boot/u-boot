@@ -7,7 +7,6 @@
 #include <hang.h>
 #include <init.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/utils.h>
 #include <debug_uart.h>
@@ -21,8 +20,6 @@
 #include <asm/arch/system_manager.h>
 #include <watchdog.h>
 #include <dm/uclass.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 void board_init_f(ulong dummy)
 {

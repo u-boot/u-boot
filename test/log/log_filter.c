@@ -5,11 +5,9 @@
 
 #include <console.h>
 #include <log.h>
-#include <asm/global_data.h>
+#include <vsprintf.h>
 #include <test/log.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Test invalid options */
 static int log_test_filter_invalid(struct unit_test_state *uts)
