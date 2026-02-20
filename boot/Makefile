@@ -76,6 +76,7 @@ obj-$(CONFIG_$(PHASE_)BOOTMETH_ANDROID) += bootmeth_android.o
 obj-$(CONFIG_IMAGEMAP) += imagemap.o
 obj-$(CONFIG_IMAGEMAP_BLK) += imagemap-blk.o
 obj-$(CONFIG_IMAGEMAP_MTD) += imagemap-mtd.o
+obj-$(CONFIG_IMAGEMAP_UBI) += imagemap-ubi.o
 
 obj-$(CONFIG_$(PHASE_)BOOTMETH_VBE_ABREC) += vbe_abrec.o vbe_common.o
 obj-$(CONFIG_$(PHASE_)BOOTMETH_VBE_ABREC_FW) += vbe_abrec_fw.o

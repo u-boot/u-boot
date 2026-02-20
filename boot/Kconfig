@@ -1217,6 +1217,14 @@ config IMAGEMAP_MTD
 	  parallel NAND, etc.) using the imagemap framework.
 	  NAND bad blocks are skipped transparently.
 
+config IMAGEMAP_UBI
+	bool "UBI volume backend for imagemap"
+	depends on IMAGEMAP && CMD_UBI
+	help
+	  Allows loading images from UBI volumes using the imagemap
+	  framework. Auto-attaches the UBI device from the device tree
+	  if not already attached.
+
 config DISTRO_DEFAULTS
 	bool "(deprecated) Script-based booting of Linux distributions"
 	select CMDLINE
