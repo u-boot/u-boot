@@ -66,6 +66,7 @@
 
 	aliases {
 		ethernet1 = &rtl8189etv;
+		spi0 = &spi0;
 	};
 };
 
@@ -73,6 +74,7 @@
 	status = "okay";
 
 	flash@0 {
+		u-boot,dm-pre-reloc;
 		compatible = "mxicy,mx25l12805d", "jedec,spi-nor";
 	};
 };
