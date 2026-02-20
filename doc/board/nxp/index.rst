@@ -19,6 +19,7 @@ NXP Semiconductors
    imx93_frdm
    imx943_evk
    imx95_evk
+   imx95_frdm
    imxrt1020-evk
    imxrt1050-evk
    imxrt1170-evk
