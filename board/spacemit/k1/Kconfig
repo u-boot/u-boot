@@ -1,7 +1,7 @@
-if TARGET_BANANAPI_F3
+if ARCH_K1
 
 config SYS_BOARD
-	default "bananapi-f3"
+	default "k1"
 
 config SYS_VENDOR
 	default "spacemit"
@@ -10,7 +10,7 @@ config SYS_CPU
 	default "k1"
 
 config SYS_CONFIG_NAME
-	default "bananapi-f3"
+	default "k1"
 
 config TEXT_BASE
 	default 0x00200000
@@ -21,5 +21,10 @@ config SPL_OPENSBI_LOAD_ADDR
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
 	select SPACEMIT_K1
+
+config TARGET_BANANAPI_F3
+	bool "Support BananaPi F3 Board"
+	help
+	  BananaPi F3 board contains Spacemit K1 SoC.
 
 endif
