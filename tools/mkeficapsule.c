@@ -56,6 +56,7 @@ static struct option options[] = {
 	{"fw-revert", no_argument, NULL, 'R'},
 	{"capoemflag", required_argument, NULL, 'o'},
 	{"dump-capsule", no_argument, NULL, 'D'},
+	{"dump-sig", no_argument, NULL, 'd'},
 	{"help", no_argument, NULL, 'h'},
 	{NULL, 0, NULL, 0},
 };
@@ -83,7 +84,7 @@ static void print_usage_mkeficapsule(void)
 		"\t-p, --private-key <privkey file>  private key file\n"
 		"\t-c, --certificate <cert file>     signer's certificate file\n"
 		"\t-m, --monotonic-count <count>     monotonic count\n"
-		"\t-d, --dump_sig              dump signature (*.p7)\n"
+		"\t-d, --dump-sig              dump signature to <output file>.p7\n"
 		"\t-A, --fw-accept  firmware accept capsule, requires GUID, no image blob\n"
 		"\t-R, --fw-revert  firmware revert capsule, takes no GUID, no image blob\n"
 		"\t-o, --capoemflag Capsule OEM Flag, an integer between 0x0000 and 0xffff\n"

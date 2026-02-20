@@ -16,7 +16,7 @@ Options:
 	-p, --private-key <privkey file>  private key file
 	-c, --certificate <cert file>     signer's certificate file
 	-m, --monotonic-count <count>     monotonic count
-	-d, --dump_sig              dump signature (*.p7)
+	-d, --dump-sig              dump signature to <output file>.p7
 	-A, --fw-accept  firmware accept capsule, requires GUID, no image blob
 	-R, --fw-revert  firmware revert capsule, takes no GUID, no image blob
 	-o, --capoemflag Capsule OEM Flag, an integer between 0x0000 and 0xffff
