@@ -1201,6 +1201,14 @@ config IMAGEMAP
 	  separate driver. Used by bootm when a storage device is
 	  specified instead of a RAM address.
 
+config IMAGEMAP_BLK
+	bool "Block device backend for imagemap"
+	depends on IMAGEMAP && BLK && PARTITIONS
+	help
+	  Allows loading images from block device partitions (MMC, SATA,
+	  USB, etc.) using the imagemap framework. Partitions can
+	  be identified by number or name.
+
 config DISTRO_DEFAULTS
 	bool "(deprecated) Script-based booting of Linux distributions"
 	select CMDLINE
