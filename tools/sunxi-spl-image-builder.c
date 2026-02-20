@@ -286,18 +286,24 @@ static int create_image(const struct image_info *info)
 	if (!src) {
 		fprintf(stderr, "Failed to open source file (%s)\n",
 			info->source);
+		free(buffer);
 		return -1;
 	}
 
 	dst = fopen(info->dest, "w");
 	if (!dst) {
 		fprintf(stderr, "Failed to open dest file (%s)\n", info->dest);
+		fclose(src);
+		free(buffer);
 		return -1;
 	}
 
 	rnd = fopen("/dev/urandom", "r");
 	if (!rnd) {
 		fprintf(stderr, "Failed to open /dev/urandom\n");
+		fclose(dst);
+		fclose(src);
+		free(buffer);
 		return -1;
 	}
 
@@ -305,10 +311,19 @@ static int create_image(const struct image_info *info)
 		int ret;
 
 		ret = write_page(info, buffer, src, rnd, dst, bch, page++);
-		if (ret)
+		if (ret) {
+			fclose(rnd);
+			fclose(dst);
+			fclose(src);
+			free(buffer);
 			return ret;
+		}
 	}
 
+	fclose(rnd);
+	fclose(dst);
+	fclose(src);
+	free(buffer);
 	return 0;
 }
 
