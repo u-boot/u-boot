@@ -2,9 +2,11 @@
 /*
  * Copyright Altera Corporation (C) 2014-2015
  */
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <div64.h>
+#include <hang.h>
 #include <init.h>
 #include <log.h>
 #include <ram.h>
@@ -17,8 +19,12 @@
 #include <asm/bitops.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/sizes.h>
 
 #include "sequencer.h"
+#include "sdram_soc32.h"
+
+#define PGTABLE_OFF	0x4000
 
 #ifdef CONFIG_XPL_BUILD
 
@@ -562,6 +568,12 @@ static unsigned long sdram_calculate_size(struct socfpga_sdr_ctrl *sdr_ctrl)
 	return temp;
 }
 
+static int sdram_is_ecc_enabled(struct socfpga_sdr_ctrl *sdr_ctrl)
+{
+	return !!(readl(&sdr_ctrl->ctrl_cfg) &
+		  SDR_CTRLGRP_CTRLCFG_ECCEN_MASK);
+}
+
 static int altera_gen5_sdram_of_to_plat(struct udevice *dev)
 {
 	struct altera_gen5_sdram_plat *plat = dev_get_plat(dev);
@@ -604,8 +616,32 @@ static int altera_gen5_sdram_probe(struct udevice *dev)
 	sdram_size = sdram_calculate_size(sdr_ctrl);
 	debug("SDRAM: %ld MiB\n", sdram_size >> 20);
 
+	/* setup the dram info within bd */
+	dram_init_banksize();
+
+	if (sdram_size != gd->bd->bi_dram[0].size) {
+		printf("DDR: Warning: DRAM size from device tree (%d MiB)\n",
+		       (u32)(gd->bd->bi_dram[0].size >> 20));
+		printf(" mismatch with hardware (%d MiB).\n",
+		       (u32)(sdram_size >> 20));
+	}
+
+	if (gd->bd->bi_dram[0].size > sdram_size) {
+		printf("DDR: Error: DRAM size from device tree is greater\n");
+		printf(" than hardware size.\n");
+		hang();
+	}
+
+	if (sdram_is_ecc_enabled(sdr_ctrl)) {
+		/* Must set USEECCASDATA to 0 if ECC is enabled */
+		clrbits_le32(&sdr_ctrl->static_cfg,
+			     SDR_CTRLGRP_STATICCFG_USEECCASDATA_MASK);
+		sdram_init_ecc_bits();
+	}
+
 	/* Sanity check ensure correct SDRAM size specified */
-	if (get_ram_size(0, sdram_size) != sdram_size) {
+	if (get_ram_size(0, gd->bd->bi_dram[0].size) !=
+			 gd->bd->bi_dram[0].size) {
 		puts("SDRAM size check failed!\n");
 		goto failed;
 	}
