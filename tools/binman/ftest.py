@@ -7,6 +7,7 @@
 #    python -m unittest func_test.TestFunctional.testHelp
 
 import collections
+import configparser
 import glob
 import gzip
 import hashlib
@@ -7531,6 +7532,78 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFile('capsule/signed.dts')
 
         self._CheckCapsule(data, signed_capsule=True)
+
+    def testPkcs11SignedCapsuleGen(self):
+        """Test generation of EFI capsule (with PKCS11)"""
+        data = tools.read_file(self.TestFile("security/key.key"))
+        private_key = self._MakeInputFile("key.key", data)
+        data = tools.read_file(self.TestFile("security/key.pem"))
+        cert_file = self._MakeInputFile("key.crt", data)
+
+        softhsm2_util = bintool.Bintool.create('softhsm2_util')
+        self._CheckBintool(softhsm2_util)
+
+        pkcs11_tool = bintool.Bintool.create('pkcs11-tool')
+        self._CheckBintool(pkcs11_tool)
+
+        prefix = "testPkcs11SignedCapsuleGen."
+        # Configure SoftHSMv2
+        data = tools.read_file(self.TestFile('fit/softhsm2.conf'))
+        softhsm2_conf = self._MakeInputFile(f'{prefix}softhsm2.conf', data)
+        softhsm2_tokens_dir = self._MakeInputDir(f'{prefix}softhsm2.tokens')
+
+        with open(softhsm2_conf, 'a') as f:
+            f.write(f'directories.tokendir = {softhsm2_tokens_dir}\n')
+
+        # Find the path to softhsm2 library
+        p11_kit = bintool.Bintool.create('p11-kit')
+        self._CheckBintool(p11_kit)
+
+        p11_kit_config = configparser.ConfigParser()
+        out = tools.run('p11-kit', 'print-config')
+        p11_kit_config.read_string(out)
+        softhsm2_lib = p11_kit_config.get('softhsm2', 'module',
+                                           fallback=None)
+        self.assertIsNotNone(softhsm2_lib)
+
+        with unittest.mock.patch.dict('os.environ',
+                                      {'SOFTHSM2_CONF': softhsm2_conf,
+                                       'PKCS11_MODULE_PATH': softhsm2_lib}):
+                tools.run('softhsm2-util', '--init-token', '--free', '--label',
+                          'U-Boot token', '--pin', '1111', '--so-pin',
+                          '222222')
+                tools.run('pkcs11-tool', '--module', softhsm2_lib,
+                          '--write-object', cert_file, '--pin', '1111',
+                          '--type', 'cert', '--id', '999999', '--label',
+                          'test_cert', '--login')
+                tools.run('softhsm2-util', '--import', private_key, '--token',
+                          'U-Boot token', '--label', 'test_key', '--id', '999999',
+                          '--pin', '1111')
+                data = self._DoReadFile('capsule/signed_pkcs11.dts')
+
+        self._CheckCapsule(data, signed_capsule=True)
+
+        hdr = self._GetCapsuleHeaders(data)
+        monotonic_count = hdr['EFI_FIRMWARE_IMAGE_AUTH.MONOTONIC_COUNT']
+
+        # UEFI standard requires that signature is checked over payload followed
+        # by a monotonic count as little endian 64-bit integer.
+        sig_input = self._MakeInputFile("sig_input", EFI_CAPSULE_DATA)
+        with open(sig_input, 'ab') as f:
+            f.write(struct.pack('<Q', int(monotonic_count, 16)))
+
+        # Verify dumped capsule signature dumped by meficapsule during
+        # generation
+        openssl = bintool.Bintool.create('openssl')
+        self._CheckBintool(openssl)
+        openssl_args = ['smime', '-verify', '-inform', 'DER',
+                        '-in', tools.get_output_filename('capsule.efi-capsule.p7'),
+                        '-content', sig_input, '-CAfile', cert_file,
+                        '-no_check_time',
+                        '-out', tools.get_output_filename('decoded-capsule.bin')]
+        result = openssl.run_cmd_result(*openssl_args)
+        self.assertIsNotNone(result.stdout)
+        self.assertIn('Verification successful', result.stderr)
 
     def testCapsuleGenVersionSupport(self):
         """Test generation of EFI capsule with version support"""
