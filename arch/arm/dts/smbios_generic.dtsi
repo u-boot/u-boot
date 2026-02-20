@@ -77,6 +77,18 @@
 						   SMBIOS_CACHE_OP_WB)>;
 				};
 			};
+
+			system-slot {
+			};
+
+			memory-array {
+			};
+
+			memory-device {
+			};
+
+			memory-array-mapped-address {
+			};
 		};
 	};
 };
