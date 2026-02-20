@@ -1209,6 +1209,14 @@ config IMAGEMAP_BLK
 	  USB, etc.) using the imagemap framework. Partitions can
 	  be identified by number or name.
 
+config IMAGEMAP_MTD
+	bool "MTD backend for imagemap"
+	depends on IMAGEMAP && DM_MTD
+	help
+	  Allows loading images from MTD partitions (SPI-NOR, SPI-NAND,
+	  parallel NAND, etc.) using the imagemap framework.
+	  NAND bad blocks are skipped transparently.
+
 config DISTRO_DEFAULTS
 	bool "(deprecated) Script-based booting of Linux distributions"
 	select CMDLINE
