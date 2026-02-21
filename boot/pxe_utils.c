@@ -1083,7 +1083,7 @@ static void eol_or_eof(char **c)
  */
 
 /*
- * Parse a string literal and store a pointer it at *dst. String literals
+ * Parse a string literal and store a pointer to it at *dst. String literals
  * terminate at the end of the line.
  */
 static int parse_sliteral(char **c, char **dst)

@@ -1272,6 +1272,13 @@
 		filename = "mmc8.img";
 	};
 
+	/* This is used for zip/unzip/gzwrite tests. */
+	mmc9 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc9.img";
+	};
+
 	pch {
 		compatible = "sandbox,pch";
 	};

@@ -45,3 +45,6 @@ endif
 obj-$(CONFIG_ARM_FFA_TRANSPORT) += armffa.o
 endif
 obj-$(CONFIG_CMD_SPAWN) += spawn.o
+ifdef CONFIG_CMD_ZIP
+obj-$(CONFIG_CMD_UNZIP) += unzip.o
+endif

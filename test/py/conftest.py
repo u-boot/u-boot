@@ -102,7 +102,7 @@ def run_build(config, source_dir, build_dir, board_type, log):
 
     Args:
         config: The pytest configuration.
-        soruce_dir (str): Directory containing source code
+        source_dir (str): Directory containing source code
         build_dir (str): Directory to build in
         board_type (str): board_type parameter (e.g. 'sandbox')
         log (Logfile): Log file to use

@@ -97,6 +97,7 @@ static int distro_rauc_scan_parts(struct bootflow *bflow)
 {
 	struct blk_desc *desc;
 	struct distro_rauc_priv *priv;
+	struct disk_partition fs_info;
 	char *boot_order;
 	const char **boot_order_list;
 	bool slot_found = false;
@@ -123,7 +124,7 @@ static int distro_rauc_scan_parts(struct bootflow *bflow)
 			if (ret)
 				continue;
 			fs_close();
-			ret = part_get_info(desc, slot->root_part, NULL);
+			ret = part_get_info(desc, slot->root_part, &fs_info);
 			if (ret)
 				continue;
 			slot_found = true;

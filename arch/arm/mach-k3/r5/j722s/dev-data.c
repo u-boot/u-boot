@@ -5,7 +5,7 @@
  * This file is auto generated. Please do not hand edit and report any issues
  * to Bryan Brattlof <bb@ti.com>.
  *
- * Copyright (C) 2020-2025 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2020-2026 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include "k3-dev.h"
@@ -42,6 +42,7 @@ static struct ti_dev soc_dev_list[] = {
 	PSC_DEV(16, &soc_lpsc_list[0]),
 	PSC_DEV(77, &soc_lpsc_list[0]),
 	PSC_DEV(61, &soc_lpsc_list[0]),
+	PSC_DEV(107, &soc_lpsc_list[0]),
 	PSC_DEV(178, &soc_lpsc_list[1]),
 	PSC_DEV(179, &soc_lpsc_list[2]),
 	PSC_DEV(57, &soc_lpsc_list[3]),
