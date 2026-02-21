@@ -1037,11 +1037,11 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 	 * block back again.
 	 */
 	if (write_total > count) {
-		data = malloc(erase_len);
+		data = malloc(write_total);
 		if (!data) {
 			fprintf(stderr,
 				"Cannot malloc %zu bytes: %s\n",
-				erase_len, strerror(errno));
+				write_total, strerror(errno));
 			return -1;
 		}
 
