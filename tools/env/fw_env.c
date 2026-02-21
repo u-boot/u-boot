@@ -50,6 +50,7 @@ struct env_opts default_opts = {
 };
 
 #define DIV_ROUND_UP(n, d)	(((n) + (d) - 1) / (d))
+#define ROUND_UP(x, y)		(DIV_ROUND_UP(x, y) * (y))
 
 #define min(x, y) ({				\
 	typeof(x) _min1 = (x);			\
@@ -1027,8 +1028,7 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 		 * to the start of the data, then count bytes of data, and
 		 * to the end of the block
 		 */
-		write_total = ((block_seek + count + blocklen - 1) /
-			       blocklen) * blocklen;
+		write_total = ROUND_UP(block_seek + count, blocklen);
 	}
 
 	/*
