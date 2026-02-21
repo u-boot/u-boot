@@ -1007,7 +1007,6 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 	if (DEVTYPE(dev) == MTD_ABSENT) {
 		blocklen = count;
 		erase_len = blocklen;
-		blockstart = DEVOFFSET(dev);
 		block_seek = 0;
 		write_total = blocklen;
 	} else {
@@ -1017,8 +1016,6 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 
 		/* Maximum area we may use */
 		erase_len = environment_end(dev) - erase_offset;
-
-		blockstart = erase_offset;
 
 		/* Offset inside a block */
 		block_seek = DEVOFFSET(dev) - erase_offset;
@@ -1085,6 +1082,7 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 	erase.length = erasesize;
 
 	/* This only runs once on NOR flash and SPI-dataflash */
+	blockstart = DEVOFFSET(dev);
 	while (processed < write_total) {
 		rc = flash_bad_block(fd, DEVTYPE(dev), blockstart);
 		if (rc < 0)	/* block test failed */
