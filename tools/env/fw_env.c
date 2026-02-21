@@ -1007,6 +1007,7 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 	if (DEVTYPE(dev) == MTD_ABSENT) {
 		blocklen = count;
 		erase_len = blocklen;
+		erasesize = erase_len;
 		block_seek = 0;
 		write_total = blocklen;
 	} else {
@@ -1016,6 +1017,15 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 
 		/* Maximum area we may use */
 		erase_len = environment_end(dev) - erase_offset;
+		if (DEVTYPE(dev) == MTD_NANDFLASH) {
+			/*
+			 * NAND: calculate which blocks we are writing. We have
+			 * to write one block at a time to skip bad blocks.
+			 */
+			erasesize = blocklen;
+		} else {
+			erasesize = erase_len;
+		}
 
 		/* Offset inside a block */
 		block_seek = DEVOFFSET(dev) - erase_offset;
@@ -1067,16 +1077,6 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 		 * multiple of blocklen - see write_total calculation above
 		 */
 		data = buf;
-	}
-
-	if (DEVTYPE(dev) == MTD_NANDFLASH) {
-		/*
-		 * NAND: calculate which blocks we are writing. We have
-		 * to write one block at a time to skip bad blocks.
-		 */
-		erasesize = blocklen;
-	} else {
-		erasesize = erase_len;
 	}
 
 	erase.length = erasesize;
