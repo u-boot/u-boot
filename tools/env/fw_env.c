@@ -1096,7 +1096,7 @@ static int flash_write_buf(int dev, int fd, void *buf, size_t count)
 		}
 
 		if (rc) {	/* block is bad */
-			blockstart += blocklen;
+			blockstart += erasesize;
 			continue;
 		}
 
