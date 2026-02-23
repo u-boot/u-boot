@@ -6,3 +6,14 @@ config TOOLS_MKFWUMDATA
 	  metadata for initial installation of the FWU multi bank
 	  update on the board. The installation method depends on
 	  the platform.
+
+config TOOLS_FWUMDATA
+	bool "Build fwumdata command"
+	default y if FWU_MULTI_BANK_UPDATE
+	help
+	  This command allows users to read, display, and modify FWU
+	  (Firmware Update) metadata from Linux userspace. It provides
+	  functionality similar to fw_printenv/fw_setenv but for FWU
+	  metadata. Users can view metadata, change active/previous
+	  bank indices, modify bank states, and set image acceptance
+	  flags. Configuration is done via fwumdata.config file.

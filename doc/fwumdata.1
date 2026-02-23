@@ -1,0 +1,222 @@
+.\" SPDX-License-Identifier: GPL-2.0-or-later
+.\" Copyright (C) 2025 Kory Maincent <kory.maincent@bootlin.com>
+.TH FWUMDATA 1 2025 U-Boot
+.SH NAME
+fwumdata \- read, display, and modify FWU metadata
+.
+.SH SYNOPSIS
+.SY fwumdata
+.OP \-c config
+.OP \-l
+.OP \-u
+.OP \-a bankid
+.OP \-p bankid
+.RB [ \-s
+.IR bankid " " state ]
+.OP \-i imageid
+.OP \-b bankid
+.OP \-A
+.OP \-C
+.OP \-B num_banks
+.OP \-I num_images
+.YS
+.SY fwumdata
+.B \-h
+.YS
+.
+.SH DESCRIPTION
+.B fwumdata
+reads, displays, and modifies FWU (Firmware Update) metadata from Linux
+userspace.
+.PP
+The tool operates on FWU metadata stored on block or MTD devices, allowing
+userspace manipulation of firmware update state including active bank
+selection, image acceptance, and bank state management.
+.
+.SH OPTIONS
+.TP
+.BR \-c ", " \-\-config " \fIfile\fR"
+Use custom configuration file. By default, the tool searches for
+.I ./fwumdata.config
+then
+.IR /etc/fwumdata.config .
+.
+.TP
+.BR \-l ", " \-\-list
+Display detailed metadata information including all GUIDs, image entries,
+and bank information. Without this option, only a summary is shown.
+.
+.TP
+.BR \-u ", " \-\-update
+Update metadata if CRC validation fails. Useful for recovering from corrupted
+metadata.
+.
+.TP
+.BR \-a ", " \-\-active " \fIbankid\fR"
+Set the active bank index to
+.IR bank .
+.
+.TP
+.BR \-p ", " \-\-previous " \fIbankid\fR"
+Set the previous active bank index to
+.IR bank .
+.
+.TP
+.BR \-s ", " \-\-state " \fIbankid state\fR"
+Set bank index
+.I bankid
+to the specified
+.IR state .
+Valid states are:
+.BR accepted ,
+.BR valid ,
+or
+.BR invalid .
+Supported only with version 2 metadata. When setting a bank to accepted state,
+all firmware images in that bank are automatically marked as accepted.
+.
+.TP
+.BR \-i ", " \-\-image " \fIimageid\fR"
+Specify image number (used with
+.B \-A
+or
+.BR \-C ).
+.
+.TP
+.BR \-b ", " \-\-bank " \fIbankid\fR"
+Specify bank number (used with
+.B \-A
+or
+.BR \-C ).
+.
+.TP
+.BR \-A ", " \-\-accept
+Accept the image specified by
+.B \-i
+in the bank specified by
+.BR \-b .
+Sets the FWU_IMAGE_ACCEPTED flag for the image.
+.
+.TP
+.BR \-C ", " \-\-clear
+Clear the acceptance flag for the image specified by
+.B \-i
+in the bank specified by
+.BR \-b .
+According to the FWU specification, the bank state is automatically set to
+invalid before clearing the acceptance flag.
+.
+.TP
+.BR \-B ", " \-\-nbanks " \fInum_banks\fR"
+Specify total number of banks (required for V1 metadata).
+.
+.TP
+.BR \-I ", " \-\-nimages " \fInum_images\fR"
+Specify total number of images (required for V1 metadata).
+.
+.TP
+.BR \-h ", " \-\-help
+Print usage information and exit.
+.
+.SH CONFIGURATION FILE
+The configuration file specifies the location of FWU metadata on storage
+devices. The format is:
+.PP
+.EX
+.in +4
+# Device Name      Device Offset    Metadata Size    Erase Size
+/dev/mtd0          0x0              0x78             0x1000
+/dev/mtd1          0x0              0x78             0x1000
+.in
+.EE
+.PP
+Lines starting with
+.B #
+are comments.
+.I Erase Size
+is optional and only applies to MTD devices; if omitted, it defaults to the
+metadata size.
+.PP
+Specifying two devices enables redundant metadata support.
+.
+.SH BUGS
+Please report bugs to the
+.UR https://\:source\:.denx\:.de/\:u-boot/\:u-boot/\:issues
+U-Boot bug tracker
+.UE .
+.
+.SH EXAMPLES
+Display FWU metadata summary:
+.PP
+.EX
+.in +4
+$ \c
+.B fwumdata
+.in
+.EE
+.PP
+Display detailed metadata with all GUIDs:
+.PP
+.EX
+.in +4
+$ \c
+.B fwumdata \-l
+.in
+.EE
+.PP
+Set active bank to 1:
+.PP
+.EX
+.in +4
+$ \c
+.B fwumdata \-a 1
+.in
+.EE
+.PP
+Set bank 1 to accepted state (automatically accepts all images in that bank):
+.PP
+.EX
+.in +4
+$ \c
+.B fwumdata \-s 1 accepted
+.in
+.EE
+.PP
+Accept image 0 in bank 0:
+.PP
+.EX
+.in +4
+$ \c
+.B fwumdata \-i 0 \-b 0 \-A \-l
+.in
+.EE
+.PP
+Clear acceptance for image 0 in bank 1:
+.PP
+.EX
+.in +4
+$ \c
+.B fwumdata \-i 0 \-b 1 \-C \-l
+.in
+.EE
+.PP
+Clear acceptance for image 1 in bank 1 with metadata V1:
+.PP
+.EX
+.in +4
+$ \c
+.B fwumdata \-B 2 \-I 2 \-i 1 \-b 1 \-C \-l
+.in
+.EE
+.PP
+Use custom configuration file:
+.PP
+.EX
+.in +4
+$ \c
+.B fwumdata \-c /path/to/custom.config
+.in
+.EE
+.
+.SH SEE ALSO
+.BR mkfwumdata (1)
