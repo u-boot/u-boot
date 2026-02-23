@@ -1422,7 +1422,6 @@ endif
 
 PHONY += dtbs dtbs_check
 dtbs: dts/dt.dtb
-	@:
 dts/dt.dtb: dtbs_prepare u-boot
 	$(Q)$(MAKE) $(build)=dts dtbs
 
