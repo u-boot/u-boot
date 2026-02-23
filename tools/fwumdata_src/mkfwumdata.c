@@ -473,7 +473,9 @@ int main(int argc, char *argv[])
 
 	/* This command takes UUIDs * images and output file. */
 	if (optind + images + 1 != argc) {
-		fprintf(stderr, "Error: UUID list or output file is not specified or too much.\n");
+		fprintf(stderr,
+			"Error: Expected %ld UUID string(s) and 1 output file, got %d argument(s).\n",
+			images, argc - optind);
 		print_usage();
 		return -ERANGE;
 	}
