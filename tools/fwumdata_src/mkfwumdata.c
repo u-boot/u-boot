@@ -471,6 +471,12 @@ int main(int argc, char *argv[])
 		return -EINVAL;
 	}
 
+	if (version == 2 && banks > MAX_BANKS_V2) {
+		fprintf(stderr, "Error: Version 2 supports maximum %d banks, %ld requested.\n",
+			MAX_BANKS_V2, banks);
+		return -EINVAL;
+	}
+
 	/* This command takes UUIDs * images and output file. */
 	if (optind + images + 1 != argc) {
 		fprintf(stderr,
