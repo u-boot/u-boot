@@ -407,6 +407,9 @@ static int ksz9031_config(struct phy_device *phydev)
 	if (ret)
 		return ret;
 
+	/* soft reset */
+	phy_reset(phydev);
+
 	ksz90x1_workaround_asymmetric_pause(phydev);
 
 	/* add an option to disable the gigabit feature of this PHY */
