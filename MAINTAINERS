@@ -1246,9 +1246,10 @@ FWU Multi Bank Update
 M:	Sughosh Ganu <sughosh.ganu@arm.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
+F:	doc/mkfwumdata.1
 F:	lib/fwu_updates/*
 F:	drivers/fwu-mdata/*
-F:	tools/mkfwumdata.c
+F:	tools/fwumdata_src/mkfwumdata.c
 
 GATEWORKS_SC
 M:	Tim Harvey <tharvey@gateworks.com>
