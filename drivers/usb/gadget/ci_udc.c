@@ -990,7 +990,7 @@ int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 	return value;
 }
 
-void udc_disconnect(void)
+static void udc_disconnect(void)
 {
 	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	/* disable pullup */

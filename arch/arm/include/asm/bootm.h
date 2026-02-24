@@ -8,8 +8,6 @@
 #ifndef ARM_BOOTM_H
 #define ARM_BOOTM_H
 
-extern void udc_disconnect(void);
-
 #ifdef CONFIG_SUPPORT_PASSING_ATAGS
 # define BOOTM_ENABLE_TAGS		1
 #else
