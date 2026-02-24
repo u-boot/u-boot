@@ -602,7 +602,7 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size,
 #ifndef USE_HOSTCC
 static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 {
-	struct image_info os = images->os;
+	const struct image_info os = images->os;
 	ulong load = os.load;
 	ulong load_end;
 	ulong blob_start = os.start;
@@ -631,7 +631,7 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 			return 1;
 
 		load = (ulong)addr;
-		os.load = (ulong)addr;
+		images->os.load = (ulong)addr;
 		images->ep = (ulong)addr;
 		debug("Allocated %lx bytes at %lx for kernel (size %lx) decompression\n",
 		      req_size, load, image_len);
