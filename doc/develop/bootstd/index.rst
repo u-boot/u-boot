@@ -12,6 +12,7 @@ Standard Boot
    qfw
    android
    cros
+   openwrt
    rauc
    script
    sandbox
