@@ -29,3 +29,11 @@ config FS_FAT_MAX_CLUSTSIZE
 	  is the smallest amount of disk space that can be used to hold a
 	  file. Unless you have an extremely tight memory memory constraints,
 	  leave the default.
+
+config FS_FAT_HANDLE_SECTOR_SIZE_MISMATCH
+	bool "Handle FAT sector size mismatch"
+	default n
+	depends on FS_FAT
+	help
+	  Handle filesystems on media where the hardware block size and
+          the sector size in the FAT metadata do not match.
