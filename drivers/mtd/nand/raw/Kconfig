@@ -662,8 +662,9 @@ config SYS_NAND_BLOCK_SIZE
 	hex "NAND chip eraseblock size"
 	depends on ARCH_SUNXI || SPL_NAND_SUPPORT || TPL_NAND_SUPPORT || \
 		MVEBU_SPL_BOOT_DEVICE_NAND
-	depends on !NAND_MXS && !NAND_DENALI_DT && !NAND_LPC32XX_MLC && \
+	depends on !NAND_MXS && !NAND_LPC32XX_MLC && \
 		!NAND_FSL_IFC && !NAND_MT7621
+	depends on !NAND_DENALI_DT || SPL_NAND_CADENCE
 	help
 	  Number of data bytes in one eraseblock for the NAND chip on the
 	  board. This is the multiple of NAND_PAGE_SIZE and the number of
