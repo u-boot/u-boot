@@ -17,8 +17,12 @@ static struct imx_pinctrl_soc_info imx9_pinctrl_soc_info __section(".data") = {
 };
 
 static const struct udevice_id imx9_pinctrl_match[] = {
+#if IS_ENABLED(CONFIG_IMX93)
 	{ .compatible = "fsl,imx93-iomuxc", .data = (ulong)&imx9_pinctrl_soc_info },
+#endif
+#if IS_ENABLED(CONFIG_IMX91)
 	{ .compatible = "fsl,imx91-iomuxc", .data = (ulong)&imx9_pinctrl_soc_info },
+#endif
 	{ /* sentinel */ }
 };
 
