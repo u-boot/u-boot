@@ -44,7 +44,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply DOS_PARTITION
 	imply EFI_PARTITION
 	imply MII
-	imply IP_DYN
 	imply ISO_PARTITION
 	imply PARTITION_TYPE_GUID
 	imply PHY_LIB

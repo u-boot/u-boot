@@ -32,7 +32,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply CMD_MMC
 	imply DOS_PARTITION
 	imply EFI_PARTITION
-	imply IP_DYN
 	imply ISO_PARTITION
 	imply PHY_LIB
 	imply PHY_VITESSE
