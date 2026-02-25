@@ -60,9 +60,9 @@ config TEGRA_PARTITION
 	  If unsure, say N.
 
 config DOS_PARTITION
-	bool "Enable MS Dos partition table"
+	bool "Enable Master Boot Record (MBR) partition table"
 	default y if BOOT_DEFAULTS
-	default y if x86 || CMD_FAT || USB_STORAGE
+	default y if X86 || CMD_FAT || USB_STORAGE
 	select PARTITIONS
 	help
 	  traditional on the Intel architecture, USB sticks, etc.
