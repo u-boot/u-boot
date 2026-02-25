@@ -834,6 +834,9 @@ config ARCH_K3
 	imply DM_RNG if ARM64
 	imply TEE if ARM64
 	imply OPTEE if ARM64
+	imply TPM if ARM64 && MMC
+	imply TPM2_FTPM_TEE if ARM64 && MMC
+	imply SUPPORT_EMMC_RPMB if ARM64 && MMC
 
 config ARCH_OMAP2PLUS
 	bool "TI OMAP2+"

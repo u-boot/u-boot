@@ -61,4 +61,6 @@ config TI_COMMON_CMD_OPTIONS
 	imply CMD_SPL
 	imply CMD_TIME
 	imply CMD_USB if USB
+	imply CMD_TPM if TPM
+	imply CMD_OPTEE_RPMB if OPTEE && SUPPORT_EMMC_RPMB
 
