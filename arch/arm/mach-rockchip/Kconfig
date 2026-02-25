@@ -8,7 +8,6 @@ config ROCKCHIP_PX30
 	select SUPPORT_TPL
 	select SPL
 	select TPL
-	select TPL_TINY_FRAMEWORK if TPL
 	select TPL_HAVE_INIT_STACK if TPL
 	imply SPL_SEPARATE_BSS
 	imply SPL_SERIAL
