@@ -1024,7 +1024,7 @@ config OCTEON_SERIAL_BOOTCMD
 	bool "MIPS Octeon PCI remote bootcmd input"
 	depends on ARCH_OCTEON
 	depends on DM_SERIAL
-	select SYS_IS_IN_ENV
+	select SYS_CONSOLE_IS_IN_ENV
 	select CONSOLE_MUX
 	help
 	 This driver supports remote input over the PCIe bus from a host
