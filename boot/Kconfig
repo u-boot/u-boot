@@ -386,7 +386,6 @@ config VPL_FIT_SIGNATURE
 	default y
 	select FIT_SIGNATURE
 	select VPL_FIT
-	select VPL_CRYPTO
 	select VPL_HASH
 	imply VPL_RSA
 	imply VPL_RSA_VERIFY
