@@ -13,6 +13,7 @@
 	aliases {
 		spi0 = &qspi;
 		i2c0 = &i2c1;
+		sysmgr = &sysmgr;
 		freeze_br0 = &freeze_controller;
 	};
 
@@ -283,6 +284,11 @@
 			<0x0000018 0x00000000 0x00000007>;
 		bootph-all;
 	};
+};
+
+&sysmgr {
+	compatible = "altr,sys-mgr", "syscon";
+	bootph-all;
 };
 
 &uart0 {
