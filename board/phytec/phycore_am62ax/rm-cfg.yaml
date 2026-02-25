@@ -567,7 +567,7 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 1038
-            num_resource: 497
+            num_resource: 496
             type: 1805
             host_id: 128
             reserved: 0
