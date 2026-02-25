@@ -983,7 +983,7 @@ source "drivers/net/mtk_eth/Kconfig"
 
 config HIFEMAC_ETH
 	bool "HiSilicon Fast Ethernet Controller"
-	select DM_CLK
+	select CLK
 	select DM_RESET
 	select PHYLIB
 	help
@@ -993,7 +993,7 @@ config HIFEMAC_ETH
 config HIFEMAC_MDIO
 	bool "HiSilicon Fast Ethernet Controller MDIO interface"
 	depends on DM_MDIO
-	select DM_CLK
+	select CLK
 	help
 	  This driver supports the internal MDIO interface of HIFEMAC
 	  Ethernet controller.
