@@ -26,6 +26,8 @@ static const struct udevice_id imx8m_pinctrl_match[] = {
 
 #if IS_ENABLED(CONFIG_IMX8MP)
 #include "pinctrl-imx8mp.c"
+#elif IS_ENABLED(CONFIG_IMX8MN)
+#include "pinctrl-imx8mn.c"
 #endif
 
 static int imx8m_get_pins_count(struct udevice *dev)
