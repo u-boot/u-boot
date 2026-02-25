@@ -41,7 +41,6 @@ config SC59X_64
 	select COMMON_CLK_ADI_SC598
 	select GICV3
 	select GICV3_SUPPORT_GIC600
-	select GIC_600_CLEAR_RDPD
 	select MMC_SDHCI_ADMA_FORCE_32BIT
 	select NOP_PHY if PHY
 
