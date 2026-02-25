@@ -4,7 +4,11 @@
  */
 
 #include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
+#include <linux/types.h>
+#include <asm/io.h>
 
 #include "pinctrl-imx.h"
 
@@ -18,7 +22,51 @@ static const struct udevice_id imx8m_pinctrl_match[] = {
 	{ /* sentinel */ }
 };
 
+#if CONFIG_IS_ENABLED(CMD_PINMUX)
+
+#if IS_ENABLED(CONFIG_IMX8MP)
+#include "pinctrl-imx8mp.c"
+#endif
+
+static int imx8m_get_pins_count(struct udevice *dev)
+{
+	return ARRAY_SIZE(imx8m_pinctrl_pads);
+}
+
+static const char *imx8m_get_pin_name(struct udevice *dev,
+				      unsigned int selector)
+{
+	/* sanity checking */
+	if (selector != imx8m_pinctrl_pads[selector].number) {
+		dev_err(dev,
+			"selector(%u) not match with imx8m_pinctrl_pads[selector].number(%u)\n",
+			selector, imx8m_pinctrl_pads[selector].number);
+		return NULL;
+	}
+
+	return imx8m_pinctrl_pads[selector].name;
+}
+
+static int imx8m_get_pin_muxing(struct udevice *dev, unsigned int selector,
+				char *buf, int size)
+{
+	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
+	struct imx_pinctrl_soc_info *info = priv->info;
+	u32 mux_reg = selector << 2;
+	u32 mux_mode = readl(info->base + mux_reg);
+
+	snprintf(buf, size, "Function(%d) at: 0x%p", mux_mode & 0x7, info->base + mux_reg);
+
+	return 0;
+}
+#endif
+
 static const struct pinctrl_ops imx8m_pinctrl_ops = {
+#if CONFIG_IS_ENABLED(CMD_PINMUX)
+	.get_pin_name = imx8m_get_pin_name,
+	.get_pins_count = imx8m_get_pins_count,
+	.get_pin_muxing = imx8m_get_pin_muxing,
+#endif
 	.set_state = imx_pinctrl_set_state_mmio,
 };
 
