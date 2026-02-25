@@ -15,10 +15,18 @@
 static struct imx_pinctrl_soc_info imx8mq_pinctrl_soc_info __section(".data");
 
 static const struct udevice_id imx8m_pinctrl_match[] = {
+#if IS_ENABLED(CONFIG_IMX8MQ)
 	{ .compatible = "fsl,imx8mq-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
+#endif
+#if IS_ENABLED(CONFIG_IMX8MM)
 	{ .compatible = "fsl,imx8mm-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
+#endif
+#if IS_ENABLED(CONFIG_IMX8MN)
 	{ .compatible = "fsl,imx8mn-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
+#endif
+#if IS_ENABLED(CONFIG_IMX8MP)
 	{ .compatible = "fsl,imx8mp-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
+#endif
 	{ /* sentinel */ }
 };
 
