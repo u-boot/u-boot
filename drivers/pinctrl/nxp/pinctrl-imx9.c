@@ -26,6 +26,8 @@ static const struct udevice_id imx9_pinctrl_match[] = {
 
 #if IS_ENABLED(CONFIG_IMX93)
 #include "pinctrl-imx93.c"
+#elif IS_ENABLED(CONFIG_IMX91)
+#include "pinctrl-imx91.c"
 #endif
 
 static int imx9_get_pins_count(struct udevice *dev)
