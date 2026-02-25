@@ -2154,7 +2154,6 @@ config TARGET_POMELO
 	select SCSI_AHCI
 	select AHCI_PCI
 	select PCI
-	select DM_PCI
 	select SCSI
 	select DM_SERIAL
 	imply CMD_PCI
