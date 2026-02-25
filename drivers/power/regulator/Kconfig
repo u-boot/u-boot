@@ -191,6 +191,14 @@ config DM_REGULATOR_FAN53555
 	  or switching the mode is not supported by this driver (at
 	  this time).
 
+config SPL_DM_REGULATOR_FAN53555
+	bool "Enable Driver Model for REGULATOR FAN53555 in SPL"
+	depends on SPL_DM_PMIC_FAN53555
+	help
+	  This configuration setting enables the implementation of the
+	  driver-model regulator uclass features for the FAN53555
+	  regulator in SPL.
+
 config DM_REGULATOR_COMMON
 	bool
 	depends on DM_REGULATOR
