@@ -678,6 +678,72 @@ filesystem and then imported
   fatload mmc ${mmcdev} ${loadaddr} ${bootenvfile}
   env import -t ${loadaddr} ${filesize}
 
+Built-in Self-Test (BIST)
+--------------------------
+
+Built-in Self-test (BIST) is a feature that allows self testing of the memory
+areas and logic circuitry in an Integrated Circuit (IC) without any external
+test equipment. In an embedded system, these tests are typically used during
+boot time or shutdown of the system to check the health of an SoC. PBIST is used
+to test the memory regions in the SoC and provides detection for permanent
+faults. The primary use case for PBIST is when it is invoked at start-up
+providing valuable information on any stuck-at bits in the memory. LBIST is used
+to test the logic circuitry in an SoC associated with the CPU cores. There are
+multiple LBIST instances in the SoC, and each has a different processor core
+associated with it. There are LBIST tests that can be software-initiated.
+
+Current implementation triggers the BIST tests on the MAIN_R5_2_x cores and is
+supported only on J784S4-EVM.
+
+LBIST/PBIST checks of the WKUP_DMSC0 and MCU_R5FSS0 cores and memories are run
+in the WKUP/MCU domain; this check is part of HW POST. HW POST runs in hardware,
+before the ROM code starts and can be selected by MCU_BOOTMODE[09:08] pins.
+
+Enable BIST in (:ref:`A72 SPL build <k3_rst_include_start_build_steps_uboot>`)
+by including its config fragment.
+
+.. prompt:: bash $
+
+  make $UBOOT_CFG_CORTEXA k3_bist.config
+
+K3 DDR Subsystem (DDRSS) with Inline ECC
+----------------------------------------
+
+For SDRAM data integrity, the DDRSS bridge supports inline ECC on the data
+written to or read from the SDRAM. ECC is stored together with the data so that
+a dedicated SDRAM device for ECC is not required. The 8-bit single error
+correction double error detection (SECDED) ECC data is calculated over 64-bit
+data quanta. For every 256-byte data block 32 bytes of ECC is stored inline.
+Thus, 1/9th of the total SDRAM space is used for ECC storage and the remaining
+8/9th of the SDRAM data space are seen as consecutive byte addresses. Even if
+there are non-ECC protected regions the previously described 1/9th-8/9th rule
+still applies and consecutive byte addresses are seen from system point of view.
+
+ECC is calculated for all accesses that are within the address ranges protected
+by it. 1-bit error is correctable by ECC, but multi-bit and multiple 1-bit
+errors are not correctable and will be treated as an uncorrectable error. Any
+uncorrectable error will cause a bus abort.
+
+Enable inline ECC in (:ref:`R5 SPL build <k3_rst_include_start_build_steps_spl_r5>`)
+by including its config fragment:
+
+.. prompt:: bash $
+
+  make $UBOOT_CFG_CORTEXR k3_inline_ecc.config
+
+This enables inline ECC for the entire region. Instead of defaulting for the
+entire DDR region, a partial range can also be selected. In this case, the DDRSS
+driver expects such a node within the memory node, in the absence of which it
+resorts to enabling for the entire DDR region:
+
+.. code-block:: dts
+
+  inline_ecc: protected@9e780000 {
+    device_type = "ecc";
+    reg = <0x9e780000 0x0080000>;
+    bootph-all;
+  };
+
 .. _k3_rst_refer_openocd:
 
 Common Debugging environment - OpenOCD
