@@ -495,7 +495,7 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 252
-            num_resource: 4
+            num_resource: 2
             type: 13386
             host_id: 128
             reserved: 0
@@ -567,7 +567,7 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 3686
-            num_resource: 922
+            num_resource: 920
             type: 13389
             host_id: 128
             reserved: 0
@@ -1635,18 +1635,18 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 10
-            num_resource: 100
+            num_resource: 98
             type: 13632
             host_id: 12
             reserved: 0
         -
-            start_resource: 110
+            start_resource: 108
             num_resource: 32
             type: 13632
             host_id: 13
             reserved: 0
         -
-            start_resource: 142
+            start_resource: 140
             num_resource: 46
             type: 13632
             host_id: 21

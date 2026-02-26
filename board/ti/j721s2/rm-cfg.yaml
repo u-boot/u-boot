@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0+
-# Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
+# Copyright (C) 2022-2025 Texas Instruments Incorporated - https://www.ti.com/
 #
 # Resource management configuration for J721S2
 #
@@ -429,24 +429,24 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 10
-            num_resource: 100
+            num_resource: 98
             type: 14528
             host_id: 12
             reserved: 0
         -
-            start_resource: 110
+            start_resource: 108
             num_resource: 32
             type: 14528
             host_id: 13
             reserved: 0
         -
-            start_resource: 142
+            start_resource: 140
             num_resource: 21
             type: 14528
             host_id: 21
             reserved: 0
         -
-            start_resource: 163
+            start_resource: 161
             num_resource: 21
             type: 14528
             host_id: 23
@@ -1431,7 +1431,7 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 236
-            num_resource: 20
+            num_resource: 18
             type: 16970
             host_id: 128
             reserved: 0
@@ -1497,7 +1497,7 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 3426
-            num_resource: 1182
+            num_resource: 1180
             type: 16973
             host_id: 128
             reserved: 0

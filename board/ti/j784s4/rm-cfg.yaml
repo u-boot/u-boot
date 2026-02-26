@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# Copyright (C) 2023-2024 Texas Instruments Incorporated - https://www.ti.com/
+# Copyright (C) 2023-2025 Texas Instruments Incorporated - https://www.ti.com/
 #
 # Resource management configuration for J784S4
 #
@@ -454,36 +454,36 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 16
-            num_resource: 80
+            num_resource: 78
             type: 18112
             host_id: 12
             reserved: 0
         -
-            start_resource: 96
+            start_resource: 94
             num_resource: 14
             type: 18112
             host_id: 13
             reserved: 0
         -
-            start_resource: 110
+            start_resource: 108
             num_resource: 21
             type: 18112
             host_id: 21
             reserved: 0
         -
-            start_resource: 131
+            start_resource: 129
             num_resource: 21
             type: 18112
             host_id: 23
             reserved: 0
         -
-            start_resource: 152
+            start_resource: 150
             num_resource: 12
             type: 18112
             host_id: 25
             reserved: 0
         -
-            start_resource: 164
+            start_resource: 162
             num_resource: 12
             type: 18112
             host_id: 27
@@ -1720,72 +1720,72 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 56
-            num_resource: 56
+            num_resource: 54
             type: 20554
             host_id: 12
             reserved: 0
         -
-            start_resource: 112
+            start_resource: 110
             num_resource: 24
             type: 20554
             host_id: 13
             reserved: 0
         -
-            start_resource: 136
+            start_resource: 134
             num_resource: 12
             type: 20554
             host_id: 21
             reserved: 0
         -
-            start_resource: 148
+            start_resource: 146
             num_resource: 12
             type: 20554
             host_id: 23
             reserved: 0
         -
-            start_resource: 160
+            start_resource: 158
             num_resource: 10
             type: 20554
             host_id: 25
             reserved: 0
         -
-            start_resource: 170
+            start_resource: 168
             num_resource: 10
             type: 20554
             host_id: 27
             reserved: 0
         -
-            start_resource: 180
+            start_resource: 178
             num_resource: 28
             type: 20554
             host_id: 35
             reserved: 0
         -
-            start_resource: 208
+            start_resource: 206
             num_resource: 8
             type: 20554
             host_id: 37
             reserved: 0
         -
-            start_resource: 216
+            start_resource: 214
             num_resource: 12
             type: 20554
             host_id: 40
             reserved: 0
         -
-            start_resource: 228
+            start_resource: 226
             num_resource: 8
             type: 20554
             host_id: 42
             reserved: 0
         -
-            start_resource: 236
+            start_resource: 234
             num_resource: 10
             type: 20554
             host_id: 45
             reserved: 0
         -
-            start_resource: 246
+            start_resource: 244
             num_resource: 10
             type: 20554
             host_id: 47
@@ -1876,7 +1876,7 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 4472
-            num_resource: 136
+            num_resource: 134
             type: 20557
             host_id: 128
             reserved: 0
