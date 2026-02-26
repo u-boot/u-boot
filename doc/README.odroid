@@ -152,7 +152,7 @@ Two for both, kernel with device tree support and also without it:
 If proper fdt file exists then it will be automatically loaded,
 so for old kernel types, please remove fdt file from boot partition.
 
-The third boot option for multi image support (more info: doc/uImage.FIT/)
+The third boot option for multi image support (more info: doc/usage/fit/)
 - boot_fit - for binary file: "Image.itb"
 
 Default boot command: "autoboot"

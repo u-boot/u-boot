@@ -650,7 +650,7 @@ int fit_image_cipher_data(const char *keydir, void *keydest,
  *     |- algo = "sha1"
  *     |- value = sha1(data)
  *
- * For signature details, please see doc/uImage.FIT/signature.txt
+ * For signature details, please see doc/usage/fit/signature.rst
  *
  * @keydir	Directory containing *.key and *.crt files (or NULL)
  * @keydest	FDT Blob to write public keys into (NULL if none)
