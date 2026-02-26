@@ -137,9 +137,9 @@ static int serial_in_dynamic(struct ns16550_plat *plat, u8 *addr)
 		}
 	} else if (plat->flags & NS16550_FLAG_BE) {
 		return readb(addr + (1 << plat->reg_shift) - 1);
-	} else {
-		return readb(addr);
 	}
+
+	return readb(addr);
 }
 #else
 static inline void serial_out_dynamic(struct ns16550_plat *plat, u8 *addr,
