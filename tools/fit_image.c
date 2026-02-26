@@ -40,10 +40,10 @@ static int fit_estimate_hash_sig_size(struct image_tool_params *params, const ch
 		return -EIO;
 
 	/*
-	 * Walk the FIT image, looking for nodes named hash* and
-	 * signature*. Since the interesting nodes are subnodes of an
-	 * image or configuration node, we are only interested in
-	 * those at depth exactly 3.
+	 * Walk the FIT image, looking for nodes named hash*,
+	 * signature*, and dm-verity.  Since the interesting nodes are
+	 * subnodes of an image or configuration node, we are only
+	 * interested in those at depth exactly 3.
 	 *
 	 * The estimate for a hash node is based on a sha512 digest
 	 * being 64 bytes, with another 64 bytes added to account for
@@ -54,6 +54,10 @@ static int fit_estimate_hash_sig_size(struct image_tool_params *params, const ch
 	 * signature being 512 bytes, with another 512 bytes to
 	 * account for fdt overhead and the various other properties
 	 * (hashed-nodes etc.) that will also be filled in.
+	 *
+	 * For a dm-verity node the small metadata properties (digest,
+	 * salt, two u32s and a temp-file path) are written into the
+	 * FDT by fit_image_process_verity().
 	 *
 	 * One could try to be more precise in the estimates by
 	 * looking at the "algo" property and, in the case of
@@ -76,6 +80,18 @@ static int fit_estimate_hash_sig_size(struct image_tool_params *params, const ch
 
 		if (signing && !strncmp(name, FIT_SIG_NODENAME, strlen(FIT_SIG_NODENAME)))
 			estimate += 1024;
+
+		if (!strcmp(name, FIT_VERITY_NODENAME)) {
+			if (!params->external_data) {
+				fprintf(stderr,
+					"%s: dm-verity requires external data (-E)\n",
+					params->cmdname);
+				munmap(fdt, sbuf.st_size);
+				close(fd);
+				return -EINVAL;
+			}
+			estimate += 256;
+		}
 	}
 
 	munmap(fdt, sbuf.st_size);
@@ -653,6 +669,8 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	int node;
 	int align_size = 0;
 	int len = 0;
+	int verity_extra = 0;
+	int vn;
 
 	fd = mmap_fdt(params->cmdname, fname, 0, &fdt, &sbuf, false, false);
 	if (fd < 0)
@@ -687,10 +705,32 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	}
 
 	/*
+	 * When dm-verity is active the external data for an image is
+	 * larger than the embedded data property (original + hash tree).
+	 * Walk images once more to account for the difference.
+	 */
+
+	fdt_for_each_subnode(node, fdt, images) {
+		vn = fdt_subnode_offset(fdt, node, FIT_VERITY_NODENAME);
+		const char *vf;
+		struct stat vst;
+		int orig_len = 0;
+
+		if (vn < 0)
+			continue;
+		vf = fdt_getprop(fdt, vn, "verity-data-file", NULL);
+		if (!vf)
+			continue;
+		fdt_getprop(fdt, node, FIT_DATA_PROP, &orig_len);
+		if (!stat(vf, &vst) && vst.st_size > orig_len)
+			verity_extra += vst.st_size - orig_len;
+	}
+
+	/*
 	 * Allocate space to hold the image data we will extract,
 	 * extral space allocate for image alignment to prevent overflow.
 	 */
-	buf = calloc(1, fit_size + align_size);
+	buf = calloc(1, fit_size + align_size + verity_extra);
 	if (!buf) {
 		ret = -ENOMEM;
 		goto err_munmap;
@@ -721,7 +761,58 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		data = fdt_getprop(fdt, node, FIT_DATA_PROP, &len);
 		if (!data)
 			continue;
-		memcpy(buf + buf_ptr, data, len);
+
+		/*
+		 * When dm-verity is active, fit_image_process_verity()
+		 * left a temp-file path in the dm-verity subnode.
+		 * Read the expanded image (data + hash tree) from that
+		 * file instead of copying the embedded data property.
+		 */
+		{
+			int vn = fdt_subnode_offset(fdt, node,
+						    FIT_VERITY_NODENAME);
+			const char *vfile = NULL;
+			char vfile_buf[256];
+
+			if (vn >= 0)
+				vfile = fdt_getprop(fdt, vn,
+						    "verity-data-file",
+						    NULL);
+			if (vfile) {
+				struct stat vst;
+				int vfd;
+
+				/* Copy path — FDT shifts after delprop */
+				snprintf(vfile_buf, sizeof(vfile_buf),
+					 "%s", vfile);
+				fdt_delprop(fdt, vn, "verity-data-file");
+
+				if (stat(vfile_buf, &vst)) {
+					fprintf(stderr,
+						"Can't stat verity data: %s\n",
+						strerror(errno));
+					ret = -EIO;
+					goto err_munmap;
+				}
+				vfd = open(vfile_buf, O_RDONLY);
+				if (vfd < 0 ||
+				    read(vfd, buf + buf_ptr, vst.st_size) !=
+						vst.st_size) {
+					fprintf(stderr,
+						"Can't read verity data: %s\n",
+						strerror(errno));
+					if (vfd >= 0)
+						close(vfd);
+					ret = -EIO;
+					goto err_munmap;
+				}
+				close(vfd);
+				len = vst.st_size;
+				unlink(vfile_buf);
+			} else {
+				memcpy(buf + buf_ptr, data, len);
+			}
+		}
 		debug("Extracting data size %x\n", len);
 
 		ret = fdt_delprop(fdt, node, FIT_DATA_PROP);
