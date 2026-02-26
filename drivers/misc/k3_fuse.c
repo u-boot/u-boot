@@ -52,8 +52,15 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 	arm_smccc_smc(K3_SIP_OTP_WRITE, word,
 		      val, mask, 0, 0, 0, 0, &res);
 
-	if (res.a0 != 0)
+	if (res.a0 != 0) {
 		printf("SMC call failed: Error code %ld\n", res.a0);
+		return res.a0;
+	}
+
+	if (res.a1 != val) {
+		printf("Readback failed, written 0x%x readback 0x%lx\n", val, res.a1);
+		return -EINVAL;
+	}
 
 	return res.a0;
 }
