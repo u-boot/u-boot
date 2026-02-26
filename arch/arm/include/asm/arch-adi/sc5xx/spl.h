@@ -2,10 +2,8 @@
 /*
  * (C) Copyright 2022 - Analog Devices, Inc.
  *
- * Written and/or maintained by Timesys Corporation
+ * Written by Timesys Corporation
  *
- * Contact: Nathan Barrett-Morrison <nathan.morrison@timesys.com>
- * Contact: Greg Malysa <greg.malysa@timesys.com>
  */
 #ifndef ARCH_ADI_SC5XX_SPL_H
 #define ARCH_ADI_SC5XX_SPL_H
