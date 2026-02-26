@@ -1079,6 +1079,24 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 #define FIT_CIPHER_NODENAME	"cipher"
 #define FIT_ALGO_PROP		"algo"
 
+/* dm-verity node */
+#define FIT_VERITY_NODENAME	"dm-verity"
+#define FIT_VERITY_ALGO_PROP	"algo"
+#define FIT_VERITY_DBS_PROP	"data-block-size"
+#define FIT_VERITY_HBS_PROP	"hash-block-size"
+#define FIT_VERITY_NBLK_PROP	"num-data-blocks"
+#define FIT_VERITY_HBLK_PROP	"hash-start-block"
+#define FIT_VERITY_DIGEST_PROP	"digest"
+#define FIT_VERITY_SALT_PROP	"salt"
+
+/* dm-verity error-handling modes (optional property values) */
+#define FIT_VERITY_OPT_IGNORE	"ignore-corruption"
+#define FIT_VERITY_OPT_RESTART	"restart-on-corruption"
+#define FIT_VERITY_OPT_PANIC	"panic-on-corruption"
+#define FIT_VERITY_OPT_RERR	"restart-on-error"
+#define FIT_VERITY_OPT_PERR	"panic-on-error"
+#define FIT_VERITY_OPT_ONCE	"check-at-most-once"
+
 /* image node */
 #define FIT_DATA_PROP		"data"
 #define FIT_DATA_POSITION_PROP	"data-position"
