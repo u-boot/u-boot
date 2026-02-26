@@ -35,7 +35,7 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 
 int fuse_sense(u32 bank, u32 word, u32 *val)
 {
-	return -EPERM;
+	return fuse_read(bank, word, val);
 }
 
 int fuse_prog(u32 bank, u32 word, u32 val)
