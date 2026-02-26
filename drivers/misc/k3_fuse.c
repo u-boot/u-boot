@@ -28,7 +28,7 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 
 	*val = res.a1;
 	if (res.a0 != 0)
-		printf("SMC call failed: Error code %lu\n", res.a0);
+		printf("SMC call failed: Error code %ld\n", res.a0);
 
 	return res.a0;
 }
@@ -53,7 +53,7 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 		      val, mask, 0, 0, 0, 0, &res);
 
 	if (res.a0 != 0)
-		printf("SMC call failed: Error code %lu\n", res.a0);
+		printf("SMC call failed: Error code %ld\n", res.a0);
 
 	return res.a0;
 }
@@ -72,7 +72,7 @@ int fuse_writebuff(ulong addr)
 		      0, 0, 0, 0, 0, 0, &res);
 
 	if (res.a0 != 0)
-		printf("SMC call failed: Error code %lu\n", res.a0);
+		printf("SMC call failed: Error code %ld\n", res.a0);
 
 	return res.a0;
 }
