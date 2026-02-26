@@ -707,6 +707,13 @@ config SPL_DRIVERS_MISC
 	  option to build the drivers in drivers/misc as part of an SPL
 	  build, for those that support building in SPL (not all drivers do).
 
+config SPL_REMAKE_ELF
+	bool "Recreate an ELF image from raw SPL binary"
+	help
+	  Enable this to recreate an ELF image (spl/u-boot-spl.elf) from the raw
+	  SPL binary (spl/u-boot-spl.bin), which may already have been statically
+	  relocated and may already have a device-tree appended to it.
+
 config SPL_ENV_SUPPORT
 	bool "Support an environment"
 	help
