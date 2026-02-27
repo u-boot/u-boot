@@ -55,7 +55,7 @@ static const char * const configs[] = {
 static int atmel_find_pmecc_parameter_in_token(const char *token)
 {
 	size_t pos;
-	char *param;
+	const char *param;
 
 	debug("token: '%s'\n", token);
 
