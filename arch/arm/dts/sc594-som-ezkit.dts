@@ -22,7 +22,7 @@
 
 		eeprom {
 			gpio-hog;
-			gpios = <0 GPIO_ACTIVE_HIGH>;
+			gpios = <0 GPIO_ACTIVE_LOW>;
 			output-low;
 			line-name = "eeprom-en";
 			bootph-pre-ram;
@@ -30,7 +30,7 @@
 
 		pushbutton {
 			gpio-hog;
-			gpios = <1 GPIO_ACTIVE_HIGH>;
+			gpios = <1 GPIO_ACTIVE_LOW>;
 			output-low;
 			line-name = "pushbutton-en";
 			bootph-pre-ram;
@@ -70,7 +70,7 @@
 
 		octal {
 			gpio-hog;
-			gpios = <8 GPIO_ACTIVE_HIGH>;
+			gpios = <8 GPIO_ACTIVE_LOW>;
 			output-low;
 			line-name = "octal-spi-cs-en";
 			bootph-pre-ram;
