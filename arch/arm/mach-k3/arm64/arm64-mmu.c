@@ -29,6 +29,22 @@ struct mm_region k3_mem_map[K3_MEM_MAP_LEN] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, { /*
+	      * PCIe 4 GB Address Window for AM64 and J722S SoCs starts
+	      * from 0x6_0000_0000 and has a size of 0x1_0000_0000.
+	      * Since this is already enabled by the 'Flash Peripherals'
+	      * region above, we don't need to add it again.
+	      *
+	      * The PCIe 4 GB Address Windows for AM68, AM69, J7200, J721E,
+	      * J721S2, J742S2 and J784S4 SoCs are enabled by the following
+	      * region.
+	      */
+		.virt = 0x4000000000UL,
+		.phys = 0x4000000000UL,
+		.size = 0x400000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, [K3_MEM_MAP_FIRST_BANK_IDX] = { /* First DRAM Bank of size 2G */
 		.virt = CFG_SYS_SDRAM_BASE,
 		.phys = CFG_SYS_SDRAM_BASE,
