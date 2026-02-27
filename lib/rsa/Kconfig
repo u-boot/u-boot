@@ -6,7 +6,7 @@ config RSA
 	help
 	  RSA support. This enables the RSA algorithm used for FIT image
 	  verification in U-Boot.
-	  See doc/uImage.FIT/signature.txt for more details.
+	  See doc/usage/fit/signature.rst for more details.
 	  The Modular Exponentiation algorithm in RSA is implemented using
 	  driver model. So CONFIG_DM needs to be enabled by default for this
 	  library to function.
@@ -88,7 +88,7 @@ config RSA_SOFTWARE_EXP
 	  Enables driver for modular exponentiation in software. This is a RSA
 	  algorithm used in FIT image verification. It required RSA Key as
 	  input.
-	  See doc/uImage.FIT/signature.txt for more details.
+	  See doc/usage/fit/signature.rst for more details.
 
 config RSA_FREESCALE_EXP
 	bool "Enable RSA Modular Exponentiation with FSL crypto accelerator"

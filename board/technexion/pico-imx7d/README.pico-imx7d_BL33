@@ -41,4 +41,4 @@ fiptool_images. Run below command in ATF folder to generate FIP image.
 - Test
     Just boot up your board and wait for u-boot start up after ATF's log.
     For booting Linux in FIT image, please reference the FIT files in
-    u-boot doc/uImage.FIT/ folder.
+    u-boot doc/usage/fit/ folder.
