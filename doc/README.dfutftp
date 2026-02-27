@@ -94,7 +94,7 @@ FIT image format for download
 To create FIT image for download one should follow the update tftp README file
 (./doc/README.update) with one notable difference:
 
-The original snippet of ./doc/uImage.FIT/update_uboot.its
+The original snippet of ./doc/usage/fit/update_uboot.rst
 
 	images {
 		update@1 {

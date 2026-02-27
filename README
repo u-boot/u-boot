@@ -1662,7 +1662,7 @@ New uImage format (FIT)
 Flexible and powerful format based on Flattened Image Tree -- FIT (similar
 to Flattened Device Tree). It allows the use of images with multiple
 components (several kernels, ramdisks, etc.), with contents protected by
-SHA1, MD5 or CRC32. More details are found in the doc/uImage.FIT directory.
+SHA1, MD5 or CRC32. More details are found in the doc/usage/fit directory.
 
 
 Old uImage format
