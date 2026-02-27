@@ -860,6 +860,12 @@ static const struct pcie_cdns_ti_data j722s_pcie_rc_data = {
 	.max_lanes = 1,
 };
 
+static const struct pcie_cdns_ti_data j784s4_pcie_rc_data = {
+	.mode = PCIE_MODE_RC,
+	.quirk_detect_quiet_flag = true,
+	.max_lanes = 4,
+};
+
 static const struct udevice_id pcie_cdns_ti_ids[] = {
 	{
 		.compatible = "ti,j7200-pcie-host",
@@ -872,6 +878,10 @@ static const struct udevice_id pcie_cdns_ti_ids[] = {
 	{
 		.compatible = "ti,j722s-pcie-host",
 		.data = (ulong)&j722s_pcie_rc_data,
+	},
+	{
+		.compatible = "ti,j784s4-pcie-host",
+		.data = (ulong)&j784s4_pcie_rc_data,
 	},
 	{},
 };
