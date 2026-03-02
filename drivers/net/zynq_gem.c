@@ -693,6 +693,7 @@ static int zynq_gem_send(struct udevice *dev, void *ptr, int len)
 {
 	dma_addr_t addr;
 	u32 size;
+	int ret;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs = priv->iobase;
 	struct emac_bd *current_bd = &priv->tx_bd[1];
@@ -734,8 +735,13 @@ static int zynq_gem_send(struct udevice *dev, void *ptr, int len)
 	if (priv->tx_bd->status & ZYNQ_GEM_TXBUF_EXHAUSTED)
 		printf("TX buffers exhausted in mid frame\n");
 
-	return wait_for_bit_le32(&regs->txsr, ZYNQ_GEM_TSR_DONE,
-				 true, 20000, true);
+	ret = wait_for_bit_le32(&regs->txsr, ZYNQ_GEM_TSR_DONE,
+				true, 20000, true);
+
+	/* Clear the transfer complete */
+	setbits_le32(&regs->txsr, ZYNQ_GEM_TSR_DONE);
+
+	return ret;
 }
 
 /* Do not check frame_recd flag in rx_status register 0x20 - just poll BD */
