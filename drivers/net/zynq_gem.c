@@ -258,6 +258,7 @@ struct zynq_gem_priv {
 	struct clk pclk;
 	u32 max_speed;
 	bool dma_64bit;
+	bool cache_on;
 	u32 clk_en_info;
 	struct reset_ctl_bulk resets;
 };
@@ -725,7 +726,8 @@ static int zynq_gem_send(struct udevice *dev, void *ptr, int len)
 	addr = (ulong) ptr;
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 	size = roundup(len, ARCH_DMA_MINALIGN);
-	flush_dcache_range(addr, addr + size);
+	if (priv->cache_on)
+		flush_dcache_range(addr, addr + size);
 	barrier();
 
 	/* Start transmit */
@@ -777,7 +779,8 @@ static int zynq_gem_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	*packetp = (uchar *)(uintptr_t)addr;
 
-	invalidate_dcache_range(addr, addr + roundup(PKTSIZE_ALIGN, ARCH_DMA_MINALIGN));
+	if (priv->cache_on)
+		invalidate_dcache_range(addr, addr + roundup(PKTSIZE_ALIGN, ARCH_DMA_MINALIGN));
 	barrier();
 
 	return frame_len;
@@ -810,8 +813,8 @@ static int zynq_gem_free_pkt(struct udevice *dev, uchar *packet, int length)
 #else
 	addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
 #endif
-	flush_dcache_range(addr, addr + roundup(PKTSIZE_ALIGN,
-						ARCH_DMA_MINALIGN));
+	if (priv->cache_on)
+		flush_dcache_range(addr, addr + roundup(PKTSIZE_ALIGN, ARCH_DMA_MINALIGN));
 	barrier();
 
 	if ((++priv->rxbd_current) >= RX_BUF)
@@ -934,7 +937,8 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
 	ulong addr = (ulong)priv->rxbuffers;
-	flush_dcache_range(addr, addr + roundup(RX_BUF * PKTSIZE_ALIGN, ARCH_DMA_MINALIGN));
+	if (priv->cache_on)
+		flush_dcache_range(addr, addr + roundup(RX_BUF * PKTSIZE_ALIGN, ARCH_DMA_MINALIGN));
 	barrier();
 
 	/* Align bd_space to MMU_SECTION_SHIFT */
@@ -944,8 +948,9 @@ static int zynq_gem_probe(struct udevice *dev)
 		goto err1;
 	}
 
-	mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
-					BD_SPACE, DCACHE_OFF);
+	if (priv->cache_on)
+		mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
+						BD_SPACE, DCACHE_OFF);
 
 	/* Initialize the bd spaces for tx and rx bd's */
 	priv->tx_bd = (struct emac_bd *)bd_space;
@@ -1057,6 +1062,9 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 	priv->mdiobase = priv->iobase;
 	/* Hardcode for now */
 	priv->phyaddr = -1;
+
+	if (!dev_read_bool(dev, "dma-coherent"))
+		priv->cache_on = true;
 
 	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 					&phandle_args)) {
