@@ -369,6 +369,7 @@ struct bootm_headers {
 	void		*fit_hdr_os;	/* os FIT image header */
 	const char	*fit_uname_os;	/* os subimage node unit name */
 	int		fit_noffset_os;	/* os subimage node offset */
+	uint8_t		fit_install_uuid[16]; /* install-uuid from FIT root */
 
 	void		*fit_hdr_rd;	/* init ramdisk FIT image header */
 	const char	*fit_uname_rd;	/* init ramdisk subimage node unit name */
