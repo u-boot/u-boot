@@ -786,8 +786,10 @@ static void gpio_reset(ulong gpio_base)
 int arch_cpu_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
-		disable_wdog((void __iomem *)WDG3_BASE_ADDR);
-		disable_wdog((void __iomem *)WDG4_BASE_ADDR);
+		if (!IS_ENABLED(CONFIG_IMX952)) {
+			disable_wdog((void __iomem *)WDG3_BASE_ADDR);
+			disable_wdog((void __iomem *)WDG4_BASE_ADDR);
+		}
 
 		gpio_reset(GPIO2_BASE_ADDR);
 		gpio_reset(GPIO3_BASE_ADDR);
