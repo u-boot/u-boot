@@ -21,6 +21,16 @@
 
 #define IMX95_PD_M70 IMX95_PD_M7
 #endif
+#ifdef CONFIG_IMX952
+#define IMX_PLAT 952
+#include <imx952-clock.h>
+#include <imx952-power.h>
+
+#define IMX952_CLK_SEL_A55C0 IMX952_CLK_GPR_SEL_A55C0
+#define IMX952_PD_M70 IMX952_PD_M7
+#define IMX952_CLK_FLEXSPI1 IMX952_CLK_XSPI1
+#define IMX952_CLK_24M IMX952_CLK_OSC24M
+#endif
 
 #define IMX_PLAT_STR__(plat) # plat
 #define IMX_PLAT_STR_(IMX_PLAT) IMX_PLAT_STR__(IMX_PLAT)
