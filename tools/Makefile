@@ -356,7 +356,7 @@ override HOSTCFLAGS = $(CFLAGS)
 
 quiet_cmd_crosstools_strip = STRIP   $^
       cmd_crosstools_strip = $(STRIP) $^; touch $@
-$(obj)/.strip: $(call objectify,$(filter $(hostprogs-always-y)))
+$(obj)/.strip: $(call objectify,$(hostprogs-always-y))
 	$(call cmd,crosstools_strip)
 
 always-y += .strip
