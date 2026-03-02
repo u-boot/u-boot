@@ -95,6 +95,15 @@ static inline struct clk *imx_clk_gate2(struct udevice *dev, const char *name,
 			shift, 0x3, 0, NULL);
 }
 
+static inline struct clk *
+imx_clk_gate2_flags(struct udevice *dev, const char *name, const char *parent,
+		    void __iomem *reg, u8 shift, unsigned long flags)
+{
+	return clk_register_gate2(dev, name, parent,
+				  flags | CLK_SET_RATE_PARENT, reg, shift, 0x3,
+				  0, NULL);
+}
+
 static inline struct clk *imx_clk_gate2_shared(struct udevice *dev, const char *name,
 					       const char *parent,
 					       void __iomem *reg, u8 shift,

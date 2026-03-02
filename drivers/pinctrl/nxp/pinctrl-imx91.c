@@ -5,7 +5,7 @@
 
 #include "pinctrl-imx.h"
 
-enum imx93_pads {
+enum imx91_pads {
 	DAP_TDI = 0,
 	DAP_TMS_SWDIO = 1,
 	DAP_TCLK_SWCLK = 2,
@@ -113,7 +113,7 @@ enum imx93_pads {
 	SAI1_TXC = 104,
 	SAI1_TXD0 = 105,
 	SAI1_RXD0 = 106,
-	WDOG_ANY  = 107,
+	WDOG_ANY = 107,
 };
 
 static const struct imx_pinctrl_pin_desc imx9_pinctrl_pads[] = {

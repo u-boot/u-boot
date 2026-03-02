@@ -310,7 +310,8 @@ void arch_preboot_os(void)
 	/* disable video before launching O/S */
 	rc = uclass_find_first_device(UCLASS_VIDEO, &dev);
 	while (!rc && dev) {
-		ipuv3_fb_shutdown(dev);
+		if (device_active(dev))
+			ipuv3_fb_shutdown(dev);
 		uclass_find_next_device(&dev);
 	}
 #endif

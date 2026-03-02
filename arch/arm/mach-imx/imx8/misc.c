@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
+#include <command.h>
+#include <env.h>
 #include <log.h>
 #include <firmware/imx/sci/sci.h>
 #include <asm/mach-imx/sys_proto.h>
@@ -62,3 +64,34 @@ void build_info(void)
 	printf("Build: SCFW %08x, SECO-FW %08x, ATF %s\n",
 	       sc_commit, seco_commit, (char *)&atf_commit);
 }
+
+int do_boottype(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
+{
+	sc_misc_bt_t boot_type;
+
+	if (argc > 2)
+		return CMD_RET_USAGE;
+
+	if (sc_misc_get_boot_type(-1, &boot_type) != 0) {
+		puts("boottype cannot be retrieved\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (argc > 1)
+		printf("Boottype: %d\n", boot_type);
+
+	env_set_ulong("boottype", boot_type);
+
+	return CMD_RET_SUCCESS;
+}
+
+U_BOOT_CMD(boottype, CONFIG_SYS_MAXARGS, 2, do_boottype,
+	   "save current boot-container in env variable 'boottype'",
+	   "possible values for boottype:\n"
+	   "0: SC_MISC_BT_PRIMARY\n"
+	   "1: SC_MISC_BT_SECONDARY\n"
+	   "2: SC_MISC_BT_RECOVERY\n"
+	   "3: SC_MISC_BT_MANUFACTURE\n"
+	   "4: SC_MISC_BT_SERIAL\n"
+	   "[print] - print current boottype"
+);

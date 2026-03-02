@@ -28,6 +28,13 @@ struct efi_capsule_update_info update_info = {
 };
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
+#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC)
+int board_mmc_get_env_dev(int devno)
+{
+	return devno;
+}
+#endif
+
 int board_late_init(void)
 {
 #if CONFIG_IS_ENABLED(ENV_IS_IN_MMC)

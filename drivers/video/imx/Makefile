@@ -4,5 +4,6 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 obj-$(CONFIG_VIDEO_IPUV3) += mxc_ipuv3_fb.o ipu_common.o ipu_disp.o
+obj-$(CONFIG_IPU_CLK_LEGACY) += ipu_clk_legacy.o
 obj-$(CONFIG_IMX_LDB) += ldb.o
 obj-$(CONFIG_IMX_LCDIF) += lcdif.o

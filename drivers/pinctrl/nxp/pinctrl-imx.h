@@ -6,6 +6,14 @@
 #ifndef __DRIVERS_PINCTRL_IMX_H
 #define __DRIVERS_PINCTRL_IMX_H
 
+#define PINCTRL_PIN(a, b)	{ .number = a, .name = b }
+#define IMX_PINCTRL_PIN(pin)	PINCTRL_PIN(pin, #pin)
+
+struct imx_pinctrl_pin_desc {
+	unsigned int number;
+	const char *name;
+};
+
 /**
  * @base: the address to the controller in virtual memory
  * @input_sel_base: the address of the select input in virtual memory.

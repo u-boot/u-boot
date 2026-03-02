@@ -15,6 +15,13 @@ config IMX_HDMI
 	bool "Enable HDMI support in IPUv3"
 	depends on VIDEO_IPUV3
 
+config IPU_CLK_LEGACY
+	bool "Use legacy clock management for IPU"
+	depends on VIDEO_IPUV3 && !CLK
+	default y
+	help
+	 Use legacy clock management instead of Common Clock Framework.
+
 config IMX_LDB
 	bool "Freescale i.MX8MP LDB bridge"
 	depends on VIDEO_BRIDGE
