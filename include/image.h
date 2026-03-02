@@ -1065,6 +1065,8 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 
 #define FIT_IMAGES_PATH		"/images"
 #define FIT_CONFS_PATH		"/configurations"
+#define FIT_INSTALL_UUID_PROP	"install-uuid"
+#define FIT_INSTALL_UUID_LEN	16
 
 /* hash/signature/key node */
 #define FIT_HASH_NODENAME	"hash"
