@@ -254,6 +254,43 @@ struct scmi_rom_passover_get_out {
 	u32 passover[(sizeof(rom_passover_t) + 8) / 4];
 };
 
+/**
+ * struct scmi_ddr_info_out - Get DDR memory region info
+ * @status: Error code
+ * @attributes: Region attributes:
+ *              Bit[31] ECC enable.
+ *              Set to 1 if ECC enabled.
+ *              Set to 0 if ECC disabled or not configured.
+ *              Bits[30:18] Reserved, must be zero.
+ *              Bits[17:16] Number of DDR memory regions.
+ *              Bits[15:11] Reserved, must be zero.
+ *              Bits[10:8] Width.
+ *              Bus width is 16 << this field.
+ *              So 0=16, 1=32, 2=64, etc.
+ *              Bits[7:5] Reserved, must be zero.
+ *              Bits[4:0] DDR type.
+ *              Set to 0 if LPDDR5.
+ *              Set to 1 if LPDDR5X.
+ *              Set to 2 if LPDDR4.
+ *              Set to 3 if LPDDR4X
+ * @mts: DDR speed in megatransfers per second
+ * @startlow: The lower 32 bits of the physical start address of the region
+ * @starthigh: The upper 32 bits of the physical start address of the region
+ * @endlow: The lower 32 bits of the physical end address of the region. This
+ *          excludes any DDR used to store ECC data
+ * @endhigh: The upper 32 bits of the physical end address of the region. This
+ *           excludes any DDR used to store ECC data
+ */
+struct scmi_ddr_info_out {
+	s32 status;
+	u32 attributes;
+	u32 mts;
+	u32 startlow;
+	u32 starthigh;
+	u32 endlow;
+	u32 endhigh;
+};
+
 #endif
 
 /* For i.MX ULP */
