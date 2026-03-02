@@ -1525,6 +1525,7 @@ OPENWRT BOOT EXTENSIONS
 M:	Daniel Golle <daniel@makrotopia.org>
 L:	openwrt-devel@lists.openwrt.org
 S:	Maintained
+F:	cmd/fit.c
 F:	tools/fit_set_uuid.c
 
 OUT4-IMX6ULL-NANO BOARD
