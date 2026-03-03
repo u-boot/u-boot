@@ -27,6 +27,8 @@
 #include <watchdog.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/fpga_manager.h>
+#include <exports.h>
+#include <log.h>
 #include <mmc.h>
 #include <memalign.h>
 #include <linux/delay.h>
@@ -284,3 +286,13 @@ void spl_board_prepare_for_boot(void)
 	writel(FSBL_IMAGE_IS_VALID, socfpga_get_sysmgr_addr() +
 	       SYSMGR_A10_ROMCODE_INITSWSTATE);
 }
+
+#if CONFIG_IS_ENABLED(SPL_LOAD_FIT) && CONFIG_IS_ENABLED(SPL_SPI_LOAD)
+struct legacy_img_hdr  *spl_get_load_buffer(int offset, size_t size)
+{
+	if (gd->ram_size)
+		return (struct legacy_img_hdr *)(gd->ram_size / 2);
+	else
+		return NULL;
+}
+#endif
