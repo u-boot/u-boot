@@ -295,4 +295,12 @@ struct legacy_img_hdr  *spl_get_load_buffer(int offset, size_t size)
 	else
 		return NULL;
 }
+
+int board_fit_config_name_match(const char *name)
+{
+	/* Just empty function now - can't decide what to choose */
+	debug("%s: %s\n", __func__, name);
+
+	return 0;
+}
 #endif
