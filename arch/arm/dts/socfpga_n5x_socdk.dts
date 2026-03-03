@@ -24,7 +24,7 @@
 		reg = <0 0 0 0>;
 	};
 
-	soc {
+	soc@0 {
 		clocks {
 			osc1 {
 				clock-frequency = <25000000>;
