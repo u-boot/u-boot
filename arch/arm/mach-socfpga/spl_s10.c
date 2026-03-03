@@ -37,7 +37,6 @@ u32 reset_flag(void)
 
 void board_init_f(ulong dummy)
 {
-	const struct cm_config *cm_default_cfg = cm_get_default_config();
 	int ret;
 	struct udevice *dev;
 
@@ -75,7 +74,11 @@ void board_init_f(ulong dummy)
 	sysmgr_pinmux_init();
 
 	/* configuring the HPS clocks */
-	cm_basic_init(cm_default_cfg);
+	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
+	if (ret) {
+		debug("Clock init failed: %d\n", ret);
+		hang();
+	}
 
 #ifdef CONFIG_DEBUG_UART
 	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);

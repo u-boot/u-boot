@@ -159,6 +159,7 @@ F:	arch/arm/mach-socfpga/
 F:	board/altera/stratix10-socdk/
 F:	board/intel/agilex-socdk/
 F:	configs/socfpga_*
+F:	drivers/clk/altera/
 F:	drivers/ddr/altera/
 F:	drivers/power/domain/altr-pmgr-agilex5.c
 F:	drivers/sysreset/sysreset_socfpga*
