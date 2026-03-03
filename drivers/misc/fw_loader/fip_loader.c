@@ -495,6 +495,34 @@ static int fw_get_fip_firmware(struct udevice *dev)
 	return ret;
 }
 
+/**
+ * fw_get_fip_firmware_size - get firmware size.
+ * @dev: An instance of a driver.
+ *
+ * Return: Size of firmware, negative value when error.
+ */
+static int fw_get_fip_firmware_size(struct udevice *dev)
+{
+	struct fip_toc_entry ent;
+	struct fip_storage_info info = { };
+	int ret;
+
+	ret = fw_parse_storage_info(dev, &info);
+	if (ret)
+		return ret;
+
+	struct firmware *firmwarep = dev_get_priv(dev);
+
+	if (!firmwarep)
+		return -EINVAL;
+
+	ret = parse_fip_firmware(firmwarep, &info, &ent);
+	if (ret)
+		return ret;
+
+	return ent.size;
+}
+
 static int fip_loader_probe(struct udevice *dev)
 {
 	struct device_plat *plat = dev_get_plat(dev);
@@ -505,6 +533,7 @@ static int fip_loader_probe(struct udevice *dev)
 		return ret;
 
 	plat->get_firmware = fw_get_fip_firmware;
+	plat->get_size = fw_get_fip_firmware_size;
 
 	return 0;
 };

@@ -40,6 +40,15 @@ int request_firmware_into_buf(struct udevice *dev,
 			      void *buf, size_t size, u32 offset);
 
 /**
+ * request_firmware_size - Get firmware size.
+ * @dev: An instance of a driver.
+ * @name: Name of firmware file.
+ *
+ * Return: Size of firmware, negative value when error.
+ */
+int request_firmware_size(struct udevice *dev, const char *name);
+
+/**
  * request_firmware_into_buf_via_script() -
  * Load firmware using a U-Boot script and copy to buffer
  * @buf: Pointer to a pointer where the firmware buffer will be stored.
