@@ -899,3 +899,24 @@ bool m4_parts_booted(void)
 
 	return false;
 }
+
+#ifdef CONFIG_IMX8QXP
+#include <blk.h>
+
+/*
+ * On B0 revision SoCs the bootloader is on 32k offset
+ * and at offset 0x0 is the U-Boot Environment stored
+ *
+ * So we cannot flash bootloader images to offset 0x0
+ *
+ * On C0 revisions of the SoC bootloader image starts
+ * at offset 0x0 ...
+ */
+lbaint_t fb_mmc_get_boot_offset(void)
+{
+	if ((get_cpu_rev() & 0xF) < CHIP_REV_C)
+		return 0x40;
+
+	return 0;
+}
+#endif

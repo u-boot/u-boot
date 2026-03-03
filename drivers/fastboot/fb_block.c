@@ -28,6 +28,11 @@
  */
 #define FASTBOOT_MAX_BLOCKS_WRITE 65536
 
+__weak lbaint_t fb_mmc_get_boot_offset(void)
+{
+	return 0;
+}
+
 struct fb_block_sparse {
 	struct blk_desc	*dev_desc;
 };
@@ -160,7 +165,8 @@ void fastboot_block_raw_erase_disk(struct blk_desc *dev_desc, const char *disk_n
 
 	debug("Start Erasing %s...\n", disk_name);
 
-	written = fb_block_write(dev_desc, 0, dev_desc->lba, NULL);
+	written = fb_block_write(dev_desc, fb_mmc_get_boot_offset(),
+				 dev_desc->lba, NULL);
 	if (written != dev_desc->lba) {
 		pr_err("Failed to erase %s\n", disk_name);
 		fastboot_response("FAIL", response, "Failed to erase %s", disk_name);
@@ -211,7 +217,8 @@ void fastboot_block_erase(const char *part_name, char *response)
 	if (fastboot_block_get_part_info(part_name, &dev_desc, &part_info, response) < 0)
 		return;
 
-	fastboot_block_raw_erase(dev_desc, &part_info, part_name, 0, response);
+	fastboot_block_raw_erase(dev_desc, &part_info, part_name,
+				 fb_mmc_get_boot_offset(), response);
 }
 
 void fastboot_block_write_raw_disk(struct blk_desc *dev_desc, const char *disk_name,
@@ -224,7 +231,7 @@ void fastboot_block_write_raw_disk(struct blk_desc *dev_desc, const char *disk_n
 	blkcnt = ((download_bytes + (dev_desc->blksz - 1)) & ~(dev_desc->blksz - 1));
 	blkcnt = lldiv(blkcnt, dev_desc->blksz);
 
-	if (blkcnt > dev_desc->lba) {
+	if ((blkcnt + fb_mmc_get_boot_offset()) > dev_desc->lba) {
 		pr_err("too large for disk: '%s'\n", disk_name);
 		fastboot_fail("too large for disk", response);
 		return;
@@ -232,7 +239,7 @@ void fastboot_block_write_raw_disk(struct blk_desc *dev_desc, const char *disk_n
 
 	printf("Flashing Raw Image\n");
 
-	blks = fb_block_write(dev_desc, 0, blkcnt, buffer);
+	blks = fb_block_write(dev_desc, fb_mmc_get_boot_offset(), blkcnt, buffer);
 
 	if (blks != blkcnt) {
 		pr_err("failed writing to %s\n", disk_name);
