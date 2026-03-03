@@ -287,7 +287,8 @@ void spl_board_prepare_for_boot(void)
 	       SYSMGR_A10_ROMCODE_INITSWSTATE);
 }
 
-#if CONFIG_IS_ENABLED(SPL_LOAD_FIT) && CONFIG_IS_ENABLED(SPL_SPI_LOAD)
+#if CONFIG_IS_ENABLED(SPL_LOAD_FIT) && (CONFIG_IS_ENABLED(SPL_SPI_LOAD) || \
+	CONFIG_IS_ENABLED(SPL_NAND_SUPPORT))
 struct legacy_img_hdr  *spl_get_load_buffer(int offset, size_t size)
 {
 	if (gd->ram_size)
