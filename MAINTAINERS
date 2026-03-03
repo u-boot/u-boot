@@ -1597,8 +1597,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
 
 PWM LED
-M:	Ivan Vozvakhov <i.vozvakhov@vk.team>
-S:	Supported
+S:	Orphan
 F:	doc/device-tree-bindings/leds/leds-pwm.txt
 F:	drivers/led/led_pwm.c
 
