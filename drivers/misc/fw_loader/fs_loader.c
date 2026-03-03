@@ -89,18 +89,10 @@ static int select_fs_dev(struct device_plat *plat)
 	return ret;
 }
 
-/**
- * fw_get_filesystem_firmware - load firmware into an allocated buffer.
- * @dev: An instance of a driver.
- *
- * Return: Size of total read, negative value when error.
- */
-static int fw_get_filesystem_firmware(struct udevice *dev)
+static int fw_get_filesystem_prepare(struct udevice *dev)
 {
 	char *storage_interface, *dev_part, *ubi_mtdpart, *ubi_volume;
-	struct firmware *upriv = dev_get_uclass_priv(dev);
 	struct device_plat *plat = dev_get_uclass_plat(dev);
-	loff_t actread = 0;
 	int ret;
 
 	storage_interface = env_get("storage_interface");
@@ -124,6 +116,29 @@ static int fw_get_filesystem_firmware(struct udevice *dev)
 		ret = select_fs_dev(plat);
 	}
 
+	return ret;
+}
+
+static void fw_get_filesystem_release(struct udevice *dev)
+{
+#ifdef CONFIG_CMD_UBIFS
+	umount_ubifs();
+#endif
+}
+
+/**
+ * fw_get_filesystem_firmware - load firmware into an allocated buffer.
+ * @dev: An instance of a driver.
+ *
+ * Return: Size of total read, negative value when error.
+ */
+static int fw_get_filesystem_firmware(struct udevice *dev)
+{
+	struct firmware *upriv = dev_get_uclass_priv(dev);
+	loff_t actread = 0;
+	int ret;
+
+	ret = fw_get_filesystem_prepare(dev);
 	if (ret)
 		goto out;
 
@@ -138,14 +153,43 @@ static int fw_get_filesystem_firmware(struct udevice *dev)
 	}
 
 out:
-#ifdef CONFIG_CMD_UBIFS
-	umount_ubifs();
-#endif
+	fw_get_filesystem_release(dev);
+	return ret;
+}
+
+/**
+ * fw_get_filesystem_firmware_size - get firmware size.
+ * @dev: An instance of a driver.
+ *
+ * Return: Size of firmware, negative value when error.
+ */
+static int fw_get_filesystem_firmware_size(struct udevice *dev)
+{
+	struct firmware *upriv = dev_get_uclass_priv(dev);
+	loff_t size = 0;
+	int ret;
+
+	ret = fw_get_filesystem_prepare(dev);
+	if (ret)
+		goto out;
+
+	ret = fs_size(upriv->name, &size);
+	if (ret) {
+		debug("Error: %d Failed to get size for %s.\n",
+		      ret, upriv->name);
+		goto out;
+	}
+
+	ret = size;
+
+out:
+	fw_get_filesystem_release(dev);
 	return ret;
 }
 
 static const struct fw_loader_ops fs_loader_ops = {
 	.get_firmware = fw_get_filesystem_firmware,
+	.get_size = fw_get_filesystem_firmware_size,
 };
 
 static const struct udevice_id fs_loader_ids[] = {
