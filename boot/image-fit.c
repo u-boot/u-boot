@@ -881,7 +881,7 @@ static int fit_image_get_address(const void *fit, int noffset, char *name,
  * fit_image_get_load() - get load addr property for given component image node
  * @fit: pointer to the FIT format image header
  * @noffset: component image node offset
- * @load: pointer to the uint32_t, will hold load address
+ * @load: pointer to the ulong, will hold load address
  *
  * fit_image_get_load() finds load address property in a given component
  * image node. If the property is found, its value is returned to the caller.
@@ -899,7 +899,7 @@ int fit_image_get_load(const void *fit, int noffset, ulong *load)
  * fit_image_get_entry() - get entry point address property
  * @fit: pointer to the FIT format image header
  * @noffset: component image node offset
- * @entry: pointer to the uint32_t, will hold entry point address
+ * @entry: pointer to the ulong, will hold entry point address
  *
  * This gets the entry point address property for a given component image
  * node.
