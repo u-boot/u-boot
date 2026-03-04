@@ -90,8 +90,10 @@ config ARCH_SOCFPGA_ARRIA10
 	select SPL_ALTERA_SDRAM
 	select SPL_BOARD_INIT if SPL
 	select SPL_CACHE if SPL
+	select SPL_WDT if SPL
 	select CLK
 	select SPL_CLK if SPL
+	select DESIGNWARE_WATCHDOG
 	select DM_I2C
 	select DM_RESET
 	select SPL_DM_RESET if SPL
@@ -100,6 +102,7 @@ config ARCH_SOCFPGA_ARRIA10
 	select SYSCON
 	select SPL_SYSCON if SPL
 	select ETH_DESIGNWARE_SOCFPGA
+	select WDT
 	imply FPGA_SOCFPGA
 	imply SPL_USE_TINY_PRINTF
 
@@ -117,6 +120,7 @@ config ARCH_SOCFPGA_CYCLONE5
 
 config ARCH_SOCFPGA_GEN5
 	bool
+	select DESIGNWARE_WATCHDOG
 	select SPL_ALTERA_SDRAM
 	imply FPGA_SOCFPGA
 	imply SPL_SIZE_LIMIT_SUBTRACT_GD
