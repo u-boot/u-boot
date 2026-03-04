@@ -2747,21 +2747,19 @@ help:
 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
 	@echo  'For further info see the ./README file'
 
-ifneq ($(filter tests pcheck qcheck tcheck,$(MAKECMDGOALS)),)
-export sub_make_done := 0
-endif
+run_tests = $(Q)env -u sub_make_done $(srctree)/test/run
 
 tests check:
-	$(srctree)/test/run
+	$(run_tests)
 
 pcheck:
-	$(srctree)/test/run parallel
+	$(run_tests) parallel
 
 qcheck:
-	$(srctree)/test/run quick
+	$(run_tests) quick
 
 tcheck:
-	$(srctree)/test/run tools
+	$(run_tests) tools
 
 # Documentation targets
 # ---------------------------------------------------------------------------
