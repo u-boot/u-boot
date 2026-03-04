@@ -917,11 +917,13 @@ static int ufshcd_send_command(struct ufs_hba *hba, unsigned int task_tag)
 		enabled_intr_status = intr_status & hba->intr_mask;
 		ufshcd_writel(hba, intr_status, REG_INTERRUPT_STATUS);
 
-		if (get_timer(start) > QUERY_REQ_TIMEOUT) {
-			dev_err(hba->dev,
-				"Timedout waiting for UTP response\n");
-
-			return -ETIMEDOUT;
+		if (hba->max_pwr_info.info.pwr_rx != SLOWAUTO_MODE &&
+		    hba->max_pwr_info.info.pwr_tx != SLOWAUTO_MODE) {
+			if (get_timer(start) > QUERY_REQ_TIMEOUT) {
+				dev_err(hba->dev,
+					"Timedout waiting for UTP response\n");
+				return -ETIMEDOUT;
+			}
 		}
 
 		if (enabled_intr_status & UFSHCD_ERROR_MASK) {
