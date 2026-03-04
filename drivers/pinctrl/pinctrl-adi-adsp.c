@@ -2,10 +2,9 @@
 /*
  * (C) Copyright 2022 - Analog Devices, Inc.
  *
- * Written and/or maintained by Timesys Corporation
+ * Written by Timesys Corporation
  *
  * Author: Greg Malysa <greg.malysa@timesys.com>
- * Additional Contact: Nathan Barrett-Morrison <nathan.morrison@timesys.com>
  *
  * dm pinctrl implementation for ADI ADSP SoCs
  *
