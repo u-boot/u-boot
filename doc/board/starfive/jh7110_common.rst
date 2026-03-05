@@ -172,8 +172,7 @@ Build U-Boot
 
        git clone https://source.denx.de/u-boot/u-boot.git u-boot.git
        make -C u-boot.git O=u-boot starfive_visionfive2_defconfig
-       export OPENSBI=opensbi/build/platform/generic/firmware/fw_dynamic.bin
-       make -C u-boot.git O=u-boot
+       make -C u-boot.git O=u-boot OPENSBI=opensbi/platform/generic/firmware/fw_dynamic.bin
 
     This will generate the U-Boot SPL image object post-processed with StarFive
     SPL headers (u-boot/spl/u-boot-spl.bin.normal.out) as well as the FIT image
