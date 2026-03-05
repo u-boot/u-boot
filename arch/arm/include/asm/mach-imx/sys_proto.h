@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/mach-imx/regs-common.h>
 #include <asm/mach-imx/module_fuse.h>
+#include <fdtdec.h>
 #include <linux/bitops.h>
 #include "../arch-imx/cpu.h"
 
@@ -327,4 +328,5 @@ enum boot_device get_boot_device(void);
 int disable_cpu_nodes(void *blob, const char * const *nodes_path,
 		      u32 num_disabled_cores, u32 max_cores);
 int fixup_thermal_trips(void *blob, const char *name);
+fdt_addr_t imx_wdog_alias_to_addr(char *name, bool check_status);
 #endif

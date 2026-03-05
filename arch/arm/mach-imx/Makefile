@@ -21,10 +21,8 @@ obj-$(CONFIG_IMX_HAB) += hab.o
 obj-y += cpu.o
 endif
 
-ifeq ($(SOC),$(filter $(SOC),imx8m imx9))
-ifneq ($(CONFIG_XPL_BUILD),y)
+ifeq ($(SOC),$(filter $(SOC),mx7ulp imx8m imx8ulp imx9))
 obj-y += fdt.o
-endif
 endif
 
 ifeq ($(SOC),$(filter $(SOC),mx5 mx6))
