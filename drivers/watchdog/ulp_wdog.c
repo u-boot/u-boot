@@ -6,6 +6,7 @@
 #include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 #include <dm.h>
 #include <wdt.h>
 
@@ -51,11 +52,22 @@ struct ulp_wdt_priv {
 #define CLK_RATE_1KHZ			1000
 #define CLK_RATE_32KHZ			125
 
-void hw_watchdog_set_timeout(u16 val)
+static struct wdog_regs *ulp_watchdog_get_wdog_regs(void)
+{
+	fdt_addr_t addr;
+
+	addr = imx_wdog_alias_to_addr(NULL, true);
+	if (addr == FDT_ADDR_T_NONE) {
+		printf("Error: Failed to get watchdog base address from DT\n");
+		return NULL;
+	}
+
+	return (struct wdog_regs *)addr;
+}
+
+void hw_watchdog_set_timeout(struct wdog_regs *wdog, u16 val)
 {
 	/* setting timeout value */
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
-
 	writel(val, &wdog->toval);
 }
 
@@ -89,7 +101,7 @@ void ulp_watchdog_init(struct wdog_regs *wdog, u16 timeout)
 	while (!(readl(&wdog->cs) & WDGCS_ULK))
 		;
 
-	hw_watchdog_set_timeout(timeout);
+	hw_watchdog_set_timeout(wdog, timeout);
 	writel(0, &wdog->win);
 
 	/* setting 1-kHz clock source, enable counter running, and clear interrupt */
@@ -107,16 +119,17 @@ void ulp_watchdog_init(struct wdog_regs *wdog, u16 timeout)
 	ulp_watchdog_reset(wdog);
 }
 
-void hw_watchdog_reset(void)
+void hw_watchdog_reset(struct wdog_regs *wdog)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
-
 	ulp_watchdog_reset(wdog);
 }
 
 void hw_watchdog_init(void)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
+	struct wdog_regs *wdog = ulp_watchdog_get_wdog_regs();
+
+	if (!wdog)
+		return;
 
 	ulp_watchdog_init(wdog, CONFIG_WATCHDOG_TIMEOUT_MSECS);
 }
@@ -124,8 +137,11 @@ void hw_watchdog_init(void)
 #if !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(void)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
+	struct wdog_regs *wdog = ulp_watchdog_get_wdog_regs();
 	u32 cmd32 = 0;
+
+	if (!wdog)
+		return;
 
 	if (readl(&wdog->cs) & WDGCS_CMD32EN) {
 		writel(UNLOCK_WORD, &wdog->cnt);
@@ -141,7 +157,7 @@ void reset_cpu(void)
 	while (!(readl(&wdog->cs) & WDGCS_ULK))
 		;
 
-	hw_watchdog_set_timeout(5); /* 5ms timeout for general; 40ms timeout for imx93 */
+	hw_watchdog_set_timeout(wdog, 5); /* 5ms timeout for general; 40ms timeout for imx93 */
 	writel(0, &wdog->win);
 
 	/* enable counter running */
@@ -155,7 +171,7 @@ void reset_cpu(void)
 	while (!(readl(&wdog->cs) & WDGCS_RCS))
 		;
 
-	hw_watchdog_reset();
+	hw_watchdog_reset(wdog);
 
 	while (1);
 }
