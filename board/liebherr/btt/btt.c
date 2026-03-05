@@ -393,9 +393,9 @@ int board_fdt_blob_setup(void **fdtp)
 int board_fit_config_name_match(const char *name)
 {
 	u8 rev_id = get_som_rev();
-	char board[12];
+	char board[15];
 
-	sprintf(board, "imx28-btt3-%d", rev_id);
+	sprintf(board, "imx28-btt3-%u", rev_id);
 
 	if (!strncmp(name, board, sizeof(board)))
 		return 0;
