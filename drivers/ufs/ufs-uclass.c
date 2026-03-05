@@ -127,11 +127,6 @@ static void ufshcd_print_pwr_info(struct ufs_hba *hba)
 		hba->pwr_info.hs_rate);
 }
 
-static void ufshcd_device_reset(struct ufs_hba *hba)
-{
-	ufshcd_vops_device_reset(hba);
-}
-
 /**
  * ufshcd_ready_for_uic_cmd - Check if controller is ready
  *                            to accept UIC commands
@@ -512,7 +507,9 @@ static int ufshcd_link_startup(struct ufs_hba *hba)
 	int retries = DME_LINKSTARTUP_RETRIES;
 
 	do {
-		ufshcd_ops_link_startup_notify(hba, PRE_CHANGE);
+		ret = ufshcd_ops_link_startup_notify(hba, PRE_CHANGE);
+		if (ret)
+			goto out;
 
 		ret = ufshcd_dme_link_startup(hba);
 
@@ -598,12 +595,18 @@ static inline void ufshcd_hba_start(struct ufs_hba *hba)
 static int ufshcd_hba_enable(struct ufs_hba *hba)
 {
 	int retry;
+	int ret;
 
 	if (!ufshcd_is_hba_active(hba))
 		/* change controller state to "reset state" */
 		ufshcd_hba_stop(hba);
 
-	ufshcd_ops_hce_enable_notify(hba, PRE_CHANGE);
+	ret = ufshcd_ops_hce_enable_notify(hba, PRE_CHANGE);
+	if (ret) {
+		dev_err(hba->dev, "Controller enable notify PRE_CHANGE failed: %i\n",
+			ret);
+		return ret;
+	}
 
 	/* start controller initialization sequence */
 	ufshcd_hba_start(hba);
@@ -635,7 +638,12 @@ static int ufshcd_hba_enable(struct ufs_hba *hba)
 	/* enable UIC related interrupts */
 	ufshcd_enable_intr(hba, UFSHCD_UIC_MASK);
 
-	ufshcd_ops_hce_enable_notify(hba, POST_CHANGE);
+	ret = ufshcd_ops_hce_enable_notify(hba, POST_CHANGE);
+	if (ret) {
+		dev_err(hba->dev, "Controller enable notify POST_CHANGE failed: %i\n",
+			ret);
+		return ret;
+	}
 
 	return 0;
 }
@@ -2182,7 +2190,11 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 	/* Set descriptor lengths to specification defaults */
 	ufshcd_def_desc_sizes(hba);
 
-	ufshcd_ops_init(hba);
+	err = ufshcd_ops_init(hba);
+	if (err) {
+		dev_err(hba->dev, "Host controller init failed: %i\n", err);
+		return err;
+	}
 
 	/* Read capabilities registers */
 	hba->capabilities = ufshcd_readl(hba, REG_CONTROLLER_CAPABILITIES);
@@ -2226,7 +2238,11 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 	mb(); /* flush previous writes */
 
 	/* Reset the attached device */
-	ufshcd_device_reset(hba);
+	err = ufshcd_vops_device_reset(hba);
+	if (err) {
+		dev_err(hba->dev, "Failed to reset attached device: %i\n", err);
+		return err;
+	}
 
 	err = ufshcd_hba_enable(hba);
 	if (err) {
