@@ -1684,6 +1684,54 @@ int mtd_block_markbad(struct mtd_info *mtd, loff_t ofs)
 }
 EXPORT_SYMBOL_GPL(mtd_block_markbad);
 
+int mtd_read_skip_bad(struct mtd_info *mtd, loff_t from, size_t len,
+		      size_t *retlen, u_char *buf)
+{
+	size_t remaining = len;
+	u_char *p = buf;
+	int ret;
+
+	*retlen = 0;
+
+	if (!mtd_can_have_bb(mtd)) {
+		ret = mtd_read(mtd, from, len, retlen, buf);
+		if (ret == -EUCLEAN)
+			ret = 0;
+		return ret;
+	}
+
+	while (remaining) {
+		loff_t block_start = from & ~(loff_t)(mtd->erasesize - 1);
+		size_t block_off = from - block_start;
+		size_t chunk, rdlen;
+
+		if (from >= mtd->size)
+			return -EINVAL;
+
+		if (mtd_block_isbad(mtd, block_start)) {
+			/* Skip to start of next erase block */
+			from = block_start + mtd->erasesize;
+			continue;
+		}
+
+		chunk = min(remaining, (size_t)mtd->erasesize - block_off);
+
+		ret = mtd_read(mtd, from, chunk, &rdlen, p);
+		if (ret && ret != -EUCLEAN)
+			return ret;
+
+		if (!rdlen)
+			return -EIO;
+
+		p += rdlen;
+		from += rdlen;
+		remaining -= rdlen;
+		*retlen += rdlen;
+	}
+
+	return 0;
+}
+
 #ifndef __UBOOT__
 /*
  * default_mtd_writev - the default writev method

@@ -112,7 +112,7 @@ Verified Boot
 
 U-Boot supports an image verification method called "Verified Boot".
 This is a brief tutorial to utilize this feature for the UniPhier platform.
-You will find details documents in the doc/uImage.FIT directory.
+You will find details documents in the doc/usage/fit directory.
 
 Here, we take LD20 reference board for example, but it should work for any
 other boards including 32 bit SoCs.

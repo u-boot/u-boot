@@ -142,6 +142,26 @@ config FIT_CIPHER
 	  Enable the feature of data ciphering/unciphering in the tool mkimage
 	  and in the u-boot support of the FIT image.
 
+config FIT_VERITY
+	bool "dm-verity boot parameter generation from FIT metadata"
+	depends on FIT && OF_LIBFDT
+	help
+	  When a FIT configuration contains loadable sub-images of type
+	  IH_TYPE_FILESYSTEM with a dm-verity subnode, this option enables
+	  building the dm-mod.create= and dm-mod.waitfor= kernel
+	  command-line parameters from the verity metadata
+	  (data-block-size, hash-block-size, num-data-blocks,
+	  hash-start-block, algorithm, digest, salt) stored in the FIT.
+
+	  The generated parameters reference /dev/fitN block devices that
+	  Linux's uImage.FIT block driver assigns to loadable sub-images.
+
+	  During FIT parsing (BOOTM_STATE_FINDOTHER), verity cmdline
+	  fragments are stored in struct bootm_headers and automatically
+	  appended to the bootargs environment variable during
+	  BOOTM_STATE_OS_PREP.  This works from both the bootm command
+	  and BOOTSTD bootmeths.
+
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"
 	help
@@ -335,7 +355,7 @@ config TPL_LOAD_FIT
 	     property will not be loaded. This limitation also applies to FPGA
 	     images with the correct "compatible" string.
 	  2. For FPGA images, the supported "compatible" list is in the
-	     doc/uImage.FIT/source_file_format.txt.
+	     doc/usage/fit/source_file_format.rst.
 	  3. FDTs are only loaded for images with an "os" property of "u-boot".
 	     "linux" images are also supported with Falcon boot mode.
 
@@ -490,6 +510,24 @@ config VPL_BOOTSTD
 	  boot. It is enabled by default since the main purpose of VPL is to
 	  handle the firmware part of VBE.
 
+config BOOTDEV_MTD
+	bool "MTD bootdev support"
+	depends on DM_MTD
+	depends on BOOTSTD
+	help
+	  Enable a boot device for MTD (Memory Technology Devices).
+	  This scans MTD partitions for uImage.FIT firmware images,
+	  enabling raw-flash boot via the OpenWrt boot method.
+
+config BOOTDEV_UBI
+	bool "UBI bootdev support"
+	depends on CMD_UBI
+	depends on BOOTSTD
+	help
+	  Enable a boot device for UBI (Unsorted Block Images).
+	  This scans UBI volumes for uImage.FIT firmware images,
+	  enabling raw-flash boot via the OpenWrt boot method.
+
 config BOOTSTD_FULL
 	bool "Enhanced features for standard boot"
 	default y if SANDBOX
@@ -584,6 +622,19 @@ config BOOTMETH_CROS
 	  provided there.
 
 	  Note that only x86 devices are supported at present.
+
+config BOOTMETH_OPENWRT
+	bool "Bootdev support for OpenWrt"
+	depends on FIT
+	depends on BOOTSTD
+	depends on IMAGEMAP
+	help
+	  Enables support for booting OpenWrt-style uImage.FIT firmware
+	  images stored directly on raw storage (block device partitions,
+	  MTD partitions, or UBI volumes). The boot method loads the FIT
+	  metadata, selectively reads only the kernel and FDT sub-images
+	  from storage, and skips filesystem sub-images that Linux maps
+	  directly from flash.
 
 config BOOTMETH_EXTLINUX
 	bool "Bootdev support for extlinux boot"
@@ -1166,6 +1217,44 @@ config SYS_BOOT_RAMDISK_HIGH
 	  feature is enabled and the boot* ramdisk subcommand is enabled.
 
 endmenu		# Boot images
+
+config IMAGEMAP
+	bool "On-demand image loading from storage"
+	depends on DM && LMB
+	help
+	  Provides a UCLASS_IMAGEMAP driver subsystem for reading image
+	  data from storage on demand. A translation table maps
+	  already-loaded regions to their RAM addresses, avoiding
+	  redundant reads. Scratch allocations are managed through the
+	  LMB allocator.
+
+	  Each storage backend (block, MTD, UBI) is implemented as a
+	  separate driver. Used by bootm when a storage device is
+	  specified instead of a RAM address.
+
+config IMAGEMAP_BLK
+	bool "Block device backend for imagemap"
+	depends on IMAGEMAP && BLK && PARTITIONS
+	help
+	  Allows loading images from block device partitions (MMC, SATA,
+	  USB, etc.) using the imagemap framework. Partitions can
+	  be identified by number or name.
+
+config IMAGEMAP_MTD
+	bool "MTD backend for imagemap"
+	depends on IMAGEMAP && DM_MTD
+	help
+	  Allows loading images from MTD partitions (SPI-NOR, SPI-NAND,
+	  parallel NAND, etc.) using the imagemap framework.
+	  NAND bad blocks are skipped transparently.
+
+config IMAGEMAP_UBI
+	bool "UBI volume backend for imagemap"
+	depends on IMAGEMAP && CMD_UBI
+	help
+	  Allows loading images from UBI volumes using the imagemap
+	  framework. Auto-attaches the UBI device from the device tree
+	  if not already attached.
 
 config DISTRO_DEFAULTS
 	bool "(deprecated) Script-based booting of Linux distributions"

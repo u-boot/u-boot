@@ -23,7 +23,10 @@ extern void *aligned_alloc(size_t alignment, size_t size);
 #include <linux/compiler.h>
 #include <linux/sizes.h>
 #include <errno.h>
+#include <env.h>
 #include <log.h>
+#include <hexdump.h>
+#include <imagemap.h>
 #include <mapmem.h>
 #include <asm/io.h>
 #include <malloc.h>
@@ -243,6 +246,38 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 	}
 }
 
+static void fit_image_print_dm_verity(const void *fit, int noffset,
+				      const char *p)
+{
+#if defined(USE_HOSTCC) || CONFIG_IS_ENABLED(FIT_VERITY)
+	const char *algo;
+	const uint8_t *bin;
+	int len, i;
+
+	algo = fdt_getprop(fit, noffset, FIT_VERITY_ALGO_PROP, NULL);
+	if (algo)
+		printf("%s  Verity algo:  %s\n", p, algo);
+
+	bin = fdt_getprop(fit, noffset, FIT_VERITY_DIGEST_PROP,
+			  &len);
+	if (bin && len > 0) {
+		printf("%s  Verity hash:  ", p);
+		for (i = 0; i < len; i++)
+			printf("%02x", bin[i]);
+		printf("\n");
+	}
+
+	bin = fdt_getprop(fit, noffset, FIT_VERITY_SALT_PROP,
+			  &len);
+	if (bin && len > 0) {
+		printf("%s  Verity salt:  ", p);
+		for (i = 0; i < len; i++)
+			printf("%02x", bin[i]);
+		printf("\n");
+	}
+#endif
+}
+
 /**
  * fit_image_print_verification_data() - prints out the hash/signature details
  * @fit: pointer to the FIT format image header
@@ -260,7 +295,8 @@ static void fit_image_print_verification_data(const void *fit, int noffset,
 	const char *name;
 
 	/*
-	 * Check subnode name, must be equal to "hash" or "signature".
+	 * Check subnode name, must be equal to "hash", "signature"
+	 * or "dm-verity".
 	 * Multiple hash/signature nodes require unique unit node
 	 * names, e.g. hash-1, hash-2, signature-1, signature-2, etc.
 	 */
@@ -270,6 +306,8 @@ static void fit_image_print_verification_data(const void *fit, int noffset,
 	} else if (!strncmp(name, FIT_SIG_NODENAME,
 				strlen(FIT_SIG_NODENAME))) {
 		fit_image_print_data(fit, noffset, p, "Sign");
+	} else if (!strcmp(name, FIT_VERITY_NODENAME)) {
+		fit_image_print_dm_verity(fit, noffset, p);
 	}
 }
 
@@ -1087,6 +1125,16 @@ int fit_image_get_data(const void *fit, int noffset, const void **data,
 		ret = fit_image_get_data_size(fit, noffset, &len);
 		if (!ret) {
 			*data = fit + offset;
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
+			if (images.imagemap) {
+				void *mapped;
+
+				mapped = imagemap_lookup(images.imagemap,
+							    offset, len);
+				if (mapped)
+					*data = mapped;
+			}
+#endif
 			*size = len;
 		}
 	} else {
@@ -2166,6 +2214,77 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 	printf("   Trying '%s' %s subimage\n", fit_uname, prop_name);
 
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
+	/*
+	 * Filesystem sub-images with a dm-verity subnode are integrity-
+	 * protected by the kernel at block level -- no need to load the
+	 * (potentially very large) payload into RAM for U-Boot hash
+	 * verification.  Skip before the pre-load / verification path.
+	 */
+	if (images->imagemap) {
+		u8 img_type;
+
+		if (CONFIG_IS_ENABLED(FIT_VERITY) &&
+		    !fit_image_get_type(fit, noffset, &img_type) &&
+		    img_type == IH_TYPE_FILESYSTEM &&
+		    fdt_subnode_offset(fit, noffset, "dm-verity") >= 0) {
+			fit_image_print(fit, noffset, "   ");
+			*datap = 0;
+			*lenp = 0;
+			return noffset;
+		}
+	}
+
+	/*
+	 * Pre-load: read external-data payloads from storage into RAM
+	 * before fit_image_select() runs verification.  This populates
+	 * the loader's translation table so fit_image_get_data() (called
+	 * from fit_image_verify() and fit_image_print()) returns a
+	 * pointer to RAM.  fit_image_get_data() itself only does a
+	 * lookup and never triggers a storage read.
+	 *
+	 * Uncompressed sub-images with a known load address are read
+	 * directly to the final destination (zero-copy).  Everything
+	 * else goes to scratch RAM for verification, then the normal
+	 * copy/decompress path moves it.
+	 */
+	if (images->imagemap) {
+		int data_off = 0, data_sz = 0;
+		bool external = false;
+		ulong img_load;
+		u8 img_comp = IH_COMP_NONE;
+
+		if (!fit_image_get_data_position(fit, noffset, &data_off)) {
+			external = true;
+		} else if (!fit_image_get_data_offset(fit, noffset, &data_off)) {
+			external = true;
+			data_off += ALIGN(fdt_totalsize(fit), 4);
+		}
+
+		if (external &&
+		    !fit_image_get_data_size(fit, noffset, &data_sz)) {
+			void *mapped;
+
+			fit_image_get_comp(fit, noffset, &img_comp);
+
+			if (img_comp == IH_COMP_NONE &&
+			    load_op != FIT_LOAD_IGNORED &&
+			    !fit_image_get_load(fit, noffset, &img_load)) {
+				void *dst = map_sysmem(img_load, data_sz);
+
+				mapped = imagemap_map_to(images->imagemap,
+							 data_off, data_sz,
+							 dst);
+			} else {
+				mapped = imagemap_map(images->imagemap,
+						      data_off, data_sz);
+			}
+			if (IS_ERR(mapped))
+				return PTR_ERR(mapped);
+		}
+	}
+#endif
+
 	ret = fit_image_select(fit, noffset, images->verify);
 	if (ret) {
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_HASH);
@@ -2279,8 +2398,9 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 			return -EXDEV;
 		}
 
-		printf("   Loading %s from 0x%08lx to 0x%08lx\n",
-		       prop_name, data, load);
+		if (!CONFIG_IS_ENABLED(IMAGEMAP) || data != load)
+			printf("   Loading %s from 0x%08lx to 0x%08lx\n",
+			       prop_name, data, load);
 	} else {
 		load = data;	/* No load address specified */
 	}
@@ -2642,3 +2762,303 @@ out:
 	return fdt_noffset;
 }
 #endif
+
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(FIT_VERITY)
+
+static const char *const verity_opt_props[] = {
+	FIT_VERITY_OPT_IGNORE,
+	FIT_VERITY_OPT_RESTART,
+	FIT_VERITY_OPT_PANIC,
+	FIT_VERITY_OPT_RERR,
+	FIT_VERITY_OPT_PERR,
+	FIT_VERITY_OPT_ONCE,
+};
+
+/**
+ * fit_verity_build_target() - build one dm-verity target specification
+ * @fit:	pointer to the FIT blob
+ * @img_noffset:	image node offset containing the dm-verity subnode
+ * @loadable_idx:	index of this loadable (for /dev/fitN)
+ * @uname:	unit name of the image
+ * @separator:	true if a ";" prefix is needed (not the first target)
+ * @buf:	output buffer, or NULL to measure only
+ * @bufsize:	size of @buf (ignored when @buf is NULL)
+ *
+ * Parses all dm-verity properties from the image's ``dm-verity`` child
+ * node and writes (or measures) a dm target specification string of the
+ * form used by the ``dm-mod.create`` kernel parameter.
+ *
+ * Return: number of characters that would be written (excluding '\0'),
+ *	   or -ve errno on error (e.g. missing mandatory property)
+ */
+static int fit_verity_build_target(const void *fit, int img_noffset,
+				   int loadable_idx, const char *uname,
+				   bool separator, char *buf, int bufsize)
+{
+	const char *algorithm;
+	const u8 *digest_raw, *salt_raw;
+	const fdt32_t *val;
+	char *digest_hex = NULL, *salt_hex = NULL, *opt_buf = NULL;
+	int verity_node;
+	int data_block_size, hash_block_size;
+	int num_data_blocks, hash_start_block;
+	unsigned long data_sectors;
+	int digest_len, salt_len;
+	int opt_count, opt_off, opt_buf_size;
+	int len;
+	int i;
+
+	verity_node = fdt_subnode_offset(fit, img_noffset, FIT_VERITY_NODENAME);
+	if (verity_node < 0)
+		return -ENOENT;
+
+	/* Mandatory u32 properties */
+	val = fdt_getprop(fit, verity_node, FIT_VERITY_DBS_PROP, NULL);
+	if (!val)
+		return -EINVAL;
+	data_block_size = fdt32_to_cpu(*val);
+
+	val = fdt_getprop(fit, verity_node, FIT_VERITY_HBS_PROP, NULL);
+	if (!val)
+		return -EINVAL;
+	hash_block_size = fdt32_to_cpu(*val);
+
+	val = fdt_getprop(fit, verity_node, FIT_VERITY_NBLK_PROP, NULL);
+	if (!val)
+		return -EINVAL;
+	num_data_blocks = fdt32_to_cpu(*val);
+
+	val = fdt_getprop(fit, verity_node, FIT_VERITY_HBLK_PROP, NULL);
+	if (!val)
+		return -EINVAL;
+	hash_start_block = fdt32_to_cpu(*val);
+
+	if (!data_block_size || data_block_size < 512 ||
+	    !hash_block_size || hash_block_size < 512 ||
+	    !num_data_blocks)
+		return -EINVAL;
+
+	/* Mandatory string */
+	algorithm = fdt_getprop(fit, verity_node, FIT_VERITY_ALGO_PROP, NULL);
+	if (!algorithm)
+		return -EINVAL;
+
+	/* Mandatory byte arrays */
+	digest_raw = fdt_getprop(fit, verity_node, FIT_VERITY_DIGEST_PROP,
+				 &digest_len);
+	if (!digest_raw || digest_len <= 0)
+		return -EINVAL;
+
+	salt_raw = fdt_getprop(fit, verity_node, FIT_VERITY_SALT_PROP,
+			       &salt_len);
+	if (!salt_raw || salt_len <= 0)
+		return -EINVAL;
+
+	/* Hex-encode digest and salt into dynamically sized buffers */
+	digest_hex = malloc(digest_len * 2 + 1);
+	salt_hex = malloc(salt_len * 2 + 1);
+	if (!digest_hex || !salt_hex) {
+		len = -ENOMEM;
+		goto out;
+	}
+	*bin2hex(digest_hex, digest_raw, digest_len) = '\0';
+	*bin2hex(salt_hex, salt_raw, salt_len) = '\0';
+
+	data_sectors = (unsigned long)num_data_blocks *
+		       ((unsigned long)data_block_size / 512);
+
+	/* Compute space needed for optional boolean properties */
+	opt_buf_size = 1; /* NUL terminator */
+	for (i = 0; i < ARRAY_SIZE(verity_opt_props); i++)
+		opt_buf_size += strlen(verity_opt_props[i]) + 1;
+	opt_buf = malloc(opt_buf_size);
+	if (!opt_buf) {
+		len = -ENOMEM;
+		goto out;
+	}
+
+	/* Collect optional boolean properties */
+	opt_count = 0;
+	opt_off = 0;
+	opt_buf[0] = '\0';
+	for (i = 0; i < ARRAY_SIZE(verity_opt_props); i++) {
+		if (fdt_getprop(fit, verity_node,
+				verity_opt_props[i], NULL)) {
+			const char *s = verity_opt_props[i];
+			int slen = strlen(s);
+
+			if (opt_off)
+				opt_buf[opt_off++] = ' ';
+			/* Copy with hyphen-to-underscore conversion */
+			while (slen-- > 0) {
+				opt_buf[opt_off++] =
+					(*s == '-') ? '_' : *s;
+				s++;
+			}
+			opt_buf[opt_off] = '\0';
+			opt_count++;
+		}
+	}
+
+	/* Emit (or measure) the target spec */
+	len = snprintf(buf, buf ? bufsize : 0,
+		       "%s%s,,, ro,0 %lu verity 1 "
+		       "/dev/fit%d /dev/fit%d "
+		       "%d %d %d %d %s %s %s",
+		       separator ? ";" : "", uname,
+		       data_sectors, loadable_idx, loadable_idx,
+		       data_block_size, hash_block_size,
+		       num_data_blocks, hash_start_block,
+		       algorithm, digest_hex, salt_hex);
+	if (opt_count) {
+		int extra = snprintf(buf ? buf + len : NULL,
+				     buf ? bufsize - len : 0,
+				     " %d %s", opt_count, opt_buf);
+		len += extra;
+	}
+
+out:
+	free(digest_hex);
+	free(salt_hex);
+	free(opt_buf);
+	return len;
+}
+
+int fit_verity_build_cmdline(const void *fit, int conf_noffset,
+			     struct bootm_headers *images)
+{
+	int images_noffset;
+	int dm_create_len = 0, dm_waitfor_len = 0;
+	char *dm_create = NULL, *dm_waitfor = NULL;
+	const char *uname;
+	int loadable_idx;
+	int found = 0;
+	int ret = 0;
+
+	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
+	if (images_noffset < 0)
+		return 0;
+
+	for (loadable_idx = 0;
+	     (uname = fdt_stringlist_get(fit, conf_noffset,
+					 FIT_LOADABLE_PROP,
+					 loadable_idx, NULL));
+	     loadable_idx++) {
+		int img_noffset, need;
+		u8 img_type;
+		char *tmp;
+
+		img_noffset = fdt_subnode_offset(fit, images_noffset, uname);
+		if (img_noffset < 0)
+			continue;
+
+		if (fit_image_get_type(fit, img_noffset, &img_type) ||
+		    img_type != IH_TYPE_FILESYSTEM)
+			continue;
+
+		/* Measure first, then allocate and write */
+		need = fit_verity_build_target(fit, img_noffset,
+					       loadable_idx, uname,
+					       found > 0, NULL, 0);
+		if (need == -ENOENT)
+			continue;	/* no dm-verity subnode — fine */
+		if (need < 0) {
+			printf("FIT: broken dm-verity metadata in '%s'\n",
+			       uname);
+			ret = need;
+			goto err;
+		}
+
+		tmp = realloc(dm_create, dm_create_len + need + 1);
+		if (!tmp) {
+			ret = -ENOMEM;
+			goto err;
+		}
+		dm_create = tmp;
+		fit_verity_build_target(fit, img_noffset, loadable_idx,
+					uname, found > 0,
+					dm_create + dm_create_len,
+					need + 1);
+		dm_create_len += need;
+
+		/* Grow dm_waitfor buffer */
+		need = snprintf(NULL, 0, "%s/dev/fit%d",
+				dm_waitfor_len ? "," : "",
+				loadable_idx);
+		tmp = realloc(dm_waitfor, dm_waitfor_len + need + 1);
+		if (!tmp) {
+			ret = -ENOMEM;
+			goto err;
+		}
+		dm_waitfor = tmp;
+		sprintf(dm_waitfor + dm_waitfor_len, "%s/dev/fit%d",
+			dm_waitfor_len ? "," : "",
+			loadable_idx);
+		dm_waitfor_len += need;
+
+		found++;
+	}
+
+	if (found) {
+		/* Transfer ownership to the bootm_headers */
+		images->dm_mod_create = dm_create;
+		images->dm_mod_waitfor = dm_waitfor;
+	} else {
+		free(dm_create);
+		free(dm_waitfor);
+	}
+
+	return found;
+
+err:
+	free(dm_create);
+	free(dm_waitfor);
+	return ret;
+}
+
+/**
+ * fmt used by both the measurement and the actual write of bootargs.
+ * Shared to guarantee they stay in sync.
+ */
+#define VERITY_BOOTARGS_FMT	"%s dm-mod.create=\"%s\" dm-mod.waitfor=\"%s\""
+
+int fit_verity_apply_bootargs(const struct bootm_headers *images)
+{
+	const char *existing;
+	char *newargs;
+	int len;
+
+	if (!images->dm_mod_create)
+		return 0;
+
+	existing = env_get("bootargs");
+	if (!existing)
+		existing = "";
+
+	/* Measure */
+	len = snprintf(NULL, 0, VERITY_BOOTARGS_FMT,
+		       existing, images->dm_mod_create,
+		       images->dm_mod_waitfor);
+
+	newargs = malloc(len + 1);
+	if (!newargs)
+		return -ENOMEM;
+
+	snprintf(newargs, len + 1, VERITY_BOOTARGS_FMT,
+		 existing, images->dm_mod_create,
+		 images->dm_mod_waitfor);
+
+	env_set("bootargs", newargs);
+	free(newargs);
+
+	return 0;
+}
+
+void fit_verity_free(struct bootm_headers *images)
+{
+	free(images->dm_mod_create);
+	free(images->dm_mod_waitfor);
+	images->dm_mod_create = NULL;
+	images->dm_mod_waitfor = NULL;
+}
+#endif /* FIT_VERITY */
