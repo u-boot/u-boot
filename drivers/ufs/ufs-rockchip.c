@@ -30,12 +30,9 @@ static int ufs_rockchip_hce_enable_notify(struct ufs_hba *hba,
 	ufshcd_dme_reset(hba);
 	ufshcd_dme_enable(hba);
 
-	if (hba->ops->phy_initialization) {
-		err = hba->ops->phy_initialization(hba);
-		if (err)
-			dev_err(hba->dev,
-				"Phy init failed (%d)\n", err);
-	}
+	err = ufshcd_ops_phy_initialization(hba);
+	if (err)
+		dev_err(hba->dev, "Phy init failed (%d)\n", err);
 
 	return err;
 }

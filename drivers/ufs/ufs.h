@@ -756,6 +756,14 @@ static inline int ufshcd_ops_link_startup_notify(struct ufs_hba *hba,
 	return 0;
 }
 
+static inline int ufshcd_ops_phy_initialization(struct ufs_hba *hba)
+{
+	if (hba->ops && hba->ops->phy_initialization)
+		return hba->ops->phy_initialization(hba);
+
+	return 0;
+}
+
 static inline int ufshcd_vops_device_reset(struct ufs_hba *hba)
 {
 	if (hba->ops && hba->ops->device_reset)
