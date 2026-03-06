@@ -457,7 +457,7 @@ can, which contains the new etype. Put it in a numbered file in
 ``tool/binman/test`` so that it comes last. All the numbers are unique and there
 are no gaps.
 
-Example from ``tools/binman/test/339_nxp_imx8.dts``:
+Example from ``tools/binman/test/vendor/nxp_imx8.dts``:
 
 .. code-block:: devicetree
 
@@ -493,7 +493,7 @@ Then create your test by adding a new function at the end of ``ftest.py``:
 
     def testNxpImx8Image(self):
         """Test that binman can produce an iMX8 image"""
-        self._DoTestFile('339_nxp_imx8.dts')
+        self._DoTestFile('vendor/nxp_imx8.dts')
 
 This uses the test file that you created. It doesn't check anything, it just
 runs the image description through binman.
@@ -517,7 +517,7 @@ The next step is to update it to actually check the output:
 
     def testNxpImx8Image(self):
         """Test that binman can produce an iMX8 image"""
-        data = self._DoReadFile('339_nxp_imx8.dts')
+        data = self._DoReadFile('vendor/nxp_imx8.dts')
         print('data', len(data))
 
 The ``_DoReadFile()`` function is documented in the code. It returns the image
@@ -573,7 +573,7 @@ In the above example, here are some possible steps:
        def testNxpImx8ImageMkimageMissing(self):
            """Test that binman can produce an iMX8 image"""
            with terminal.capture() as (_, stderr):
-               self._DoTestFile('339_nxp_imx8.dts',
+               self._DoTestFile('vendor/nxp_imx8.dts',
                                 force_missing_bintools='mkimage')
            err = stderr.getvalue()
            self.assertRegex(err, "Image 'image'.*missing bintools.*: mkimage")
@@ -610,7 +610,7 @@ In the above example, here are some possible steps:
 
         Entry_section.SetImagePos(self, image_pos)
 
-   The solution is to add an entry, e.g. in ``340_nxp_imx8_non_empty.dts``:
+   The solution is to add an entry, e.g. in ``vendor/nxp_imx8_non_empty.dts``:
 
    .. code-block:: devicetree
 
@@ -641,7 +641,7 @@ In the above example, here are some possible steps:
 
        def testNxpImx8ImageNonEmpty(self):
            """Test that binman can produce an iMX8 image with something in it"""
-            data = self._DoReadFile('340_nxp_imx8_non_empty.dts')
+            data = self._DoReadFile('vendor/nxp_imx8_non_empty.dts')
             # check data here
 
    With that, the second red bit goes away, because the for() loop is now used.

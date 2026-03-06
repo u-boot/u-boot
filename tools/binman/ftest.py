@@ -1255,7 +1255,7 @@ class TestFunctional(unittest.TestCase):
     def testPackPowerpcMpc85xxBootpgResetvec(self):
         """Test that an image with powerpc-mpc85xx-bootpg-resetvec can be
         created"""
-        data = self._DoReadFile('150_powerpc_mpc85xx_bootpg_resetvec.dts')
+        data = self._DoReadFile('vendor/powerpc_mpc85xx_bootpg_resetvec.dts')
         self.assertEqual(PPC_MPC85XX_BR_DATA, data[:len(PPC_MPC85XX_BR_DATA)])
 
     def _RunMicrocodeTest(self, dts_fname, nodtb_data, ucode_second=False):
@@ -2130,7 +2130,7 @@ class TestFunctional(unittest.TestCase):
 
             # Unfortunately, compiling a source file always results in a file
             # called source.dtb (see fdt_util.EnsureCompiled()). The test
-            # source file (e.g. test/075_fdt_update_all.dts) thus does not enter
+            # source file (e.g. test/fdt/fdt_update_all.dts) thus does not enter
             # binman as a file called u-boot.dtb. To fix this, copy the file
             # over to the expected place.
             start = 0
@@ -5578,7 +5578,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPackTiDm(self):
         """Test that an image with a TI DM binary can be created"""
-        data = self._DoReadFile('225_ti_dm.dts')
+        data = self._DoReadFile('vendor/ti_dm.dts')
         self.assertEqual(TI_DM_DATA, data[:len(TI_DM_DATA)])
 
     def testPackBl1(self):
@@ -5588,12 +5588,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testRenesasRCarGen4SA0Image(self):
         """Test that binman can produce an Renesas R-Car Gen4 SA0 image"""
-        self._DoTestFile('348_renesas_rcar4_sa0.dts')
+        self._DoTestFile('vendor/renesas_rcar4_sa0.dts')
 
     def testRenesasRCarGen4SA0ImageSize(self):
         """Test that binman can not produce large Renesas R-Car Gen4 SA0 image"""
         with self.assertRaises(ValueError) as exc:
-            self._DoTestFile('349_renesas_rcar4_sa0_size.dts')
+            self._DoTestFile('vendor/renesas_rcar4_sa0_size.dts')
         self.assertIn("Node '/binman/renesas-rcar4-sa0': SRAM data longer than 966656 Bytes",
                       str(exc.exception))
 
@@ -6885,7 +6885,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPackRockchipTpl(self):
         """Test that an image with a Rockchip TPL binary can be created"""
-        data = self._DoReadFile('291_rockchip_tpl.dts')
+        data = self._DoReadFile('vendor/rockchip_tpl.dts')
         self.assertEqual(ROCKCHIP_TPL_DATA, data[:len(ROCKCHIP_TPL_DATA)])
 
     def testMkimageMissingBlobMultiple(self):
@@ -7175,25 +7175,25 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testTIBoardConfig(self):
         """Test that a schema validated board config file can be generated"""
-        data = self._DoReadFile('293_ti_board_cfg.dts')
+        data = self._DoReadFile('vendor/ti_board_cfg.dts')
         self.assertEqual(TI_BOARD_CONFIG_DATA, data)
 
     def testTIBoardConfigLint(self):
         """Test that an incorrectly linted config file would generate error"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('323_ti_board_cfg_phony.dts')
+            data = self._DoReadFile('vendor/ti_board_cfg_phony.dts')
         self.assertIn("Yamllint error", str(e.exception))
 
     def testTIBoardConfigCombined(self):
         """Test that a schema validated combined board config file can be generated"""
-        data = self._DoReadFile('294_ti_board_cfg_combined.dts')
+        data = self._DoReadFile('vendor/ti_board_cfg_combined.dts')
         configlen_noheader = TI_BOARD_CONFIG_DATA * 4
         self.assertGreater(data, configlen_noheader)
 
     def testTIBoardConfigNoDataType(self):
         """Test that error is thrown when data type is not supported"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('295_ti_board_cfg_no_type.dts')
+            data = self._DoReadFile('vendor/ti_board_cfg_no_type.dts')
         self.assertIn("Schema validation error", str(e.exception))
 
     def testPackTiSecure(self):
@@ -7202,7 +7202,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('296_ti_secure.dts',
+        data = self._DoReadFileDtb('vendor/ti_secure.dts',
                                    entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
 
@@ -7212,9 +7212,9 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data_no_firewall = self._DoReadFileDtb('296_ti_secure.dts',
+        data_no_firewall = self._DoReadFileDtb('vendor/ti_secure.dts',
                                    entry_args=entry_args)[0]
-        data_firewall = self._DoReadFileDtb('324_ti_secure_firewall.dts',
+        data_firewall = self._DoReadFileDtb('vendor/ti_secure_firewall.dts',
                                    entry_args=entry_args)[0]
         self.assertGreater(len(data_firewall),len(data_no_firewall))
 
@@ -7225,7 +7225,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'keyfile': keyfile,
         }
         with self.assertRaises(ValueError) as e:
-            data_firewall = self._DoReadFileDtb('325_ti_secure_firewall_missing_property.dts',
+            data_firewall = self._DoReadFileDtb('vendor/ti_secure_firewall_missing_property.dts',
                                        entry_args=entry_args)[0]
         self.assertRegex(str(e.exception), "Node '/binman/ti-secure': Subnode 'firewall-0-2' is missing properties: id,region")
 
@@ -7237,7 +7237,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'keyfile': keyfile,
         }
         with terminal.capture() as (_, stderr):
-            self._DoTestFile('296_ti_secure.dts',
+            self._DoTestFile('vendor/ti_secure.dts',
                              force_missing_bintools='openssl',
                              entry_args=entry_args)
         err = stderr.getvalue()
@@ -7249,11 +7249,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('297_ti_secure_rom.dts',
+        data = self._DoReadFileDtb('vendor/ti_secure_rom.dts',
                                 entry_args=entry_args)[0]
-        data_a = self._DoReadFileDtb('299_ti_secure_rom_a.dts',
+        data_a = self._DoReadFileDtb('vendor/ti_secure_rom_a.dts',
                                 entry_args=entry_args)[0]
-        data_b = self._DoReadFileDtb('300_ti_secure_rom_b.dts',
+        data_b = self._DoReadFileDtb('vendor/ti_secure_rom_b.dts',
                                 entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
         self.assertGreater(len(data_a), len(TI_UNSECURE_DATA))
@@ -7265,7 +7265,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('298_ti_secure_rom_combined.dts',
+        data = self._DoReadFileDtb('vendor/ti_secure_rom_combined.dts',
                                 entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
 
@@ -7897,11 +7897,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testNxpImx8Image(self):
         """Test that binman can produce an iMX8 image"""
-        self._DoTestFile('339_nxp_imx8.dts')
+        self._DoTestFile('vendor/nxp_imx8.dts')
 
     def testNxpHeaderDdrfw(self):
         """Test that binman can add a header to DDR PHY firmware images"""
-        data = self._DoReadFile('346_nxp_ddrfw_imx95.dts')
+        data = self._DoReadFile('vendor/nxp_ddrfw_imx95.dts')
         self.assertEqual(len(IMX_LPDDR_IMEM_DATA).to_bytes(4, 'little') +
                          len(IMX_LPDDR_DMEM_DATA).to_bytes(4, 'little') +
                          IMX_LPDDR_IMEM_DATA + IMX_LPDDR_DMEM_DATA, data)
@@ -7916,7 +7916,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         with open(container_path, 'w') as f:
             f.write(bytes([0x87]).decode('latin1') * 32768)
         with terminal.capture():
-            self._DoTestFile('350_nxp_imx95.dts', output_dir=testdir)
+            self._DoTestFile('vendor/nxp_imx95.dts', output_dir=testdir)
 
     def testFitSignSimple(self):
         """Test that image with FIT and signature nodes can be signed"""
