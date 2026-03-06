@@ -1211,7 +1211,7 @@ class TestFunctional(unittest.TestCase):
     def testPackX86Rom(self):
         """Test that a basic x86 ROM can be created"""
         self._SetupSplElf()
-        data = self._DoReadFile('029_x86_rom.dts')
+        data = self._DoReadFile('x86/rom.dts')
         self.assertEqual(U_BOOT_DATA + tools.get_bytes(0, 3) + U_BOOT_SPL_DATA +
                          tools.get_bytes(0, 2), data)
 
@@ -1220,7 +1220,7 @@ class TestFunctional(unittest.TestCase):
         try:
             TestFunctional._MakeInputFile('descriptor-empty.bin', b'')
             with self.assertRaises(ValueError) as e:
-                self._DoTestFile('163_x86_rom_me_empty.dts')
+                self._DoTestFile('x86/rom_me_empty.dts')
             self.assertIn("Node '/binman/intel-descriptor': Cannot find Intel Flash Descriptor (FD) signature",
                           str(e.exception))
         finally:
@@ -1229,14 +1229,14 @@ class TestFunctional(unittest.TestCase):
     def testPackX86RomBadDesc(self):
         """Test that the Intel requires a descriptor entry"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('030_x86_rom_me_no_desc.dts')
+            self._DoTestFile('x86/rom_me_no_desc.dts')
         self.assertIn("Node '/binman/intel-me': No offset set with "
                       "offset-unset: should another entry provide this correct "
                       "offset?", str(e.exception))
 
     def testPackX86RomMe(self):
         """Test that an x86 ROM with an ME region can be created"""
-        data = self._DoReadFile('031_x86_rom_me.dts')
+        data = self._DoReadFile('x86/rom_me.dts')
         expected_desc = tools.read_file(self.TestFile('descriptor.bin'))
         if data[:0x1000] != expected_desc:
             self.fail('Expected descriptor binary at start of image')
@@ -1244,12 +1244,12 @@ class TestFunctional(unittest.TestCase):
 
     def testPackVga(self):
         """Test that an image with a VGA binary can be created"""
-        data = self._DoReadFile('032_intel_vga.dts')
+        data = self._DoReadFile('x86/intel_vga.dts')
         self.assertEqual(VGA_DATA, data[:len(VGA_DATA)])
 
     def testPackStart16(self):
         """Test that an image with an x86 start16 region can be created"""
-        data = self._DoReadFile('033_x86_start16.dts')
+        data = self._DoReadFile('x86/start16.dts')
         self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
 
     def testPackPowerpcMpc85xxBootpgResetvec(self):
@@ -1318,7 +1318,7 @@ class TestFunctional(unittest.TestCase):
             u-boot.dtb with the microcode removed
             the microcode
         """
-        first, pos_and_size = self._RunMicrocodeTest('034_x86_ucode.dts',
+        first, pos_and_size = self._RunMicrocodeTest('x86/ucode.dts',
                                                      U_BOOT_NODTB_DATA)
         self.assertEqual(b'nodtb with microcode' + pos_and_size +
                          b' somewhere in here', first)
@@ -1335,7 +1335,7 @@ class TestFunctional(unittest.TestCase):
         # We need the libfdt library to run this test since only that allows
         # finding the offset of a property. This is required by
         # Entry_u_boot_dtb_with_ucode.ObtainContents().
-        data = self._DoReadFile('035_x86_single_ucode.dts', True)
+        data = self._DoReadFile('x86/single_ucode.dts', True)
 
         second = data[len(U_BOOT_NODTB_DATA):]
 
@@ -1368,21 +1368,21 @@ class TestFunctional(unittest.TestCase):
     def testNoMicrocode(self):
         """Test that a missing microcode region is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('037_x86_no_ucode.dts', True)
+            self._DoReadFile('x86/no_ucode.dts', True)
         self.assertIn("Node '/binman/u-boot-dtb-with-ucode': No /microcode "
                       "node found in ", str(e.exception))
 
     def testMicrocodeWithoutNode(self):
         """Test that a missing u-boot-dtb-with-ucode node is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('038_x86_ucode_missing_node.dts', True)
+            self._DoReadFile('x86/ucode_missing_node.dts', True)
         self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Cannot find "
                 "microcode region u-boot-dtb-with-ucode", str(e.exception))
 
     def testMicrocodeWithoutNode2(self):
         """Test that a missing u-boot-ucode node is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('039_x86_ucode_missing_node2.dts', True)
+            self._DoReadFile('x86/ucode_missing_node2.dts', True)
         self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Cannot find "
             "microcode region u-boot-ucode", str(e.exception))
 
@@ -1406,7 +1406,7 @@ class TestFunctional(unittest.TestCase):
     def testMicrocodeNotInImage(self):
         """Test that microcode must be placed within the image"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('040_x86_ucode_not_in_image.dts', True)
+            self._DoReadFile('x86/ucode_not_in_image.dts', True)
         self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Microcode "
                 "pointer _dt_ucode_base_size at fffffe14 is outside the "
                 "section ranging from 00000000 to 0000002e", str(e.exception))
@@ -1415,7 +1415,7 @@ class TestFunctional(unittest.TestCase):
         """Test that we can cope with an image without microcode (e.g. qemu)"""
         TestFunctional._MakeInputFile('u-boot',
             tools.read_file(self.ElfTestFile('u_boot_no_ucode_ptr')))
-        data, dtb, _, _ = self._DoReadFileDtb('044_x86_optional_ucode.dts', True)
+        data, dtb, _, _ = self._DoReadFileDtb('x86/optional_ucode.dts', True)
 
         # Now check the device tree has no microcode
         self.assertEqual(U_BOOT_NODTB_DATA, data[:len(U_BOOT_NODTB_DATA)])
@@ -1437,17 +1437,17 @@ class TestFunctional(unittest.TestCase):
 
     def testPackFsp(self):
         """Test that an image with a FSP binary can be created"""
-        data = self._DoReadFile('042_intel_fsp.dts')
+        data = self._DoReadFile('x86/intel_fsp.dts')
         self.assertEqual(FSP_DATA, data[:len(FSP_DATA)])
 
     def testPackCmc(self):
         """Test that an image with a CMC binary can be created"""
-        data = self._DoReadFile('043_intel_cmc.dts')
+        data = self._DoReadFile('x86/intel_cmc.dts')
         self.assertEqual(CMC_DATA, data[:len(CMC_DATA)])
 
     def testPackVbt(self):
         """Test that an image with a VBT binary can be created"""
-        data = self._DoReadFile('046_intel_vbt.dts')
+        data = self._DoReadFile('x86/intel_vbt.dts')
         self.assertEqual(VBT_DATA, data[:len(VBT_DATA)])
 
     def testSplBssPad(self):
@@ -1468,7 +1468,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackStart16Spl(self):
         """Test that an image with an x86 start16 SPL region can be created"""
-        data = self._DoReadFile('048_x86_start16_spl.dts')
+        data = self._DoReadFile('x86/start16_spl.dts')
         self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
 
     def _PackUbootSplMicrocode(self, dts, ucode_second=False):
@@ -1494,7 +1494,7 @@ class TestFunctional(unittest.TestCase):
     def testPackUbootSplMicrocode(self):
         """Test that x86 microcode can be handled correctly in SPL"""
         self._SetupSplElf()
-        self._PackUbootSplMicrocode('049_x86_ucode_spl.dts')
+        self._PackUbootSplMicrocode('x86/ucode_spl.dts')
 
     def testPackUbootSplMicrocodeReorder(self):
         """Test that order doesn't matter for microcode entries
@@ -1503,12 +1503,12 @@ class TestFunctional(unittest.TestCase):
         u-boot-ucode entry we have not yet seen the u-boot-dtb-with-ucode
         entry, so we reply on binman to try later.
         """
-        self._PackUbootSplMicrocode('058_x86_ucode_spl_needs_retry.dts',
+        self._PackUbootSplMicrocode('x86/ucode_spl_needs_retry.dts',
                                     ucode_second=True)
 
     def testPackMrc(self):
         """Test that an image with an MRC binary can be created"""
-        data = self._DoReadFile('050_intel_mrc.dts')
+        data = self._DoReadFile('x86/intel_mrc.dts')
         self.assertEqual(MRC_DATA, data[:len(MRC_DATA)])
 
     def testSplDtb(self):
@@ -2055,7 +2055,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackStart16Tpl(self):
         """Test that an image with an x86 start16 TPL region can be created"""
-        data = self._DoReadFile('081_x86_start16_tpl.dts')
+        data = self._DoReadFile('x86/start16_tpl.dts')
         self.assertEqual(X86_START16_TPL_DATA, data[:len(X86_START16_TPL_DATA)])
 
     def testSelectImage(self):
@@ -2304,14 +2304,14 @@ class TestFunctional(unittest.TestCase):
             the microcode
         """
         self._SetupTplElf('u_boot_ucode_ptr')
-        first, pos_and_size = self._RunMicrocodeTest('093_x86_tpl_ucode.dts',
+        first, pos_and_size = self._RunMicrocodeTest('x86/tpl_ucode.dts',
                                                      U_BOOT_TPL_NODTB_DATA)
         self.assertEqual(b'tplnodtb with microc' + pos_and_size +
                          b'ter somewhere in here', first)
 
     def testFmapX86(self):
         """Basic test of generation of a flashrom fmap"""
-        data = self._DoReadFile('094_fmap_x86.dts')
+        data = self._DoReadFile('x86/fmap.dts')
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
         expected = U_BOOT_DATA + MRC_DATA + tools.get_bytes(ord('a'), 32 - 7)
         self.assertEqual(expected, data[:32])
@@ -2335,7 +2335,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFmapX86Section(self):
         """Basic test of generation of a flashrom fmap"""
-        data = self._DoReadFile('095_fmap_x86_section.dts')
+        data = self._DoReadFile('x86/fmap_section.dts')
         expected = U_BOOT_DATA + MRC_DATA + tools.get_bytes(ord('b'), 32 - 7)
         self.assertEqual(expected, data[:32])
         fhdr, fentries = fmap_util.DecodeFmap(data[36:])
@@ -2401,7 +2401,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackRefCode(self):
         """Test that an image with an Intel Reference code binary works"""
-        data = self._DoReadFile('100_intel_refcode.dts')
+        data = self._DoReadFile('x86/intel_refcode.dts')
         self.assertEqual(REFCODE_DATA, data[:len(REFCODE_DATA)])
 
     def testSectionOffset(self):
@@ -2556,20 +2556,20 @@ class TestFunctional(unittest.TestCase):
     def testPackX86RomIfwi(self):
         """Test that an x86 ROM with Integrated Firmware Image can be created"""
         self._SetupIfwi('fitimage.bin')
-        data = self._DoReadFile('111_x86_rom_ifwi.dts')
+        data = self._DoReadFile('x86/rom_ifwi.dts')
         self._CheckIfwi(data)
 
     def testPackX86RomIfwiNoDesc(self):
         """Test that an x86 ROM with IFWI can be created from an ifwi.bin file"""
         self._SetupIfwi('ifwi.bin')
-        data = self._DoReadFile('112_x86_rom_ifwi_nodesc.dts')
+        data = self._DoReadFile('x86/rom_ifwi_nodesc.dts')
         self._CheckIfwi(data)
 
     def testPackX86RomIfwiNoData(self):
         """Test that an x86 ROM with IFWI handles missing data"""
         self._SetupIfwi('ifwi.bin')
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('113_x86_rom_ifwi_nodata.dts')
+            data = self._DoReadFile('x86/rom_ifwi_nodata.dts')
         self.assertIn('Could not complete processing of contents',
                       str(e.exception))
 
@@ -2577,7 +2577,7 @@ class TestFunctional(unittest.TestCase):
         """Test that binman still produces an image if ifwitool is missing"""
         self._SetupIfwi('fitimage.bin')
         with terminal.capture() as (_, stderr):
-            self._DoTestFile('111_x86_rom_ifwi.dts',
+            self._DoTestFile('x86/rom_ifwi.dts',
                              force_missing_bintools='ifwitool')
         err = stderr.getvalue()
         self.assertRegex(err,
@@ -3554,7 +3554,7 @@ class TestFunctional(unittest.TestCase):
 
     def testDescriptorOffset(self):
         """Test that the Intel descriptor is always placed at at the start"""
-        data = self._DoReadFileDtb('141_descriptor_offset.dts')
+        data = self._DoReadFileDtb('x86/descriptor_offset.dts')
         image = control.images['image']
         entries = image.GetEntries()
         desc = entries['intel-descriptor']
@@ -3778,22 +3778,22 @@ class TestFunctional(unittest.TestCase):
 
     def testPackReset16(self):
         """Test that an image with an x86 reset16 region can be created"""
-        data = self._DoReadFile('144_x86_reset16.dts')
+        data = self._DoReadFile('x86/reset16.dts')
         self.assertEqual(X86_RESET16_DATA, data[:len(X86_RESET16_DATA)])
 
     def testPackReset16Spl(self):
         """Test that an image with an x86 reset16-spl region can be created"""
-        data = self._DoReadFile('145_x86_reset16_spl.dts')
+        data = self._DoReadFile('x86/reset16_spl.dts')
         self.assertEqual(X86_RESET16_SPL_DATA, data[:len(X86_RESET16_SPL_DATA)])
 
     def testPackReset16Tpl(self):
         """Test that an image with an x86 reset16-tpl region can be created"""
-        data = self._DoReadFile('146_x86_reset16_tpl.dts')
+        data = self._DoReadFile('x86/reset16_tpl.dts')
         self.assertEqual(X86_RESET16_TPL_DATA, data[:len(X86_RESET16_TPL_DATA)])
 
     def testPackIntelFit(self):
         """Test that an image with an Intel FIT and pointer can be created"""
-        data = self._DoReadFile('147_intel_fit.dts')
+        data = self._DoReadFile('x86/intel_fit.dts')
         self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
         fit = data[16:32];
         self.assertEqual(b'_FIT_   \x01\x00\x00\x00\x00\x01\x80}' , fit)
@@ -3807,7 +3807,7 @@ class TestFunctional(unittest.TestCase):
     def testPackIntelFitMissing(self):
         """Test detection of a FIT pointer with not FIT region"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('148_intel_fit_missing.dts')
+            self._DoReadFile('x86/intel_fit_missing.dts')
         self.assertIn("'intel-fit-ptr' section must have an 'intel-fit' sibling",
                       str(e.exception))
 
@@ -3840,29 +3840,29 @@ class TestFunctional(unittest.TestCase):
         """Test binman can assign symbols in a section with end-at-4gb"""
         self._SetupSplElf('u_boot_binman_syms_x86')
         self._SetupTplElf('u_boot_binman_syms_x86')
-        self._CheckSymbolsTplSection('155_symbols_tpl_x86.dts',
+        self._CheckSymbolsTplSection('x86/symbols_tpl.dts',
                                      [0xffffff04, 0xffffff20, 0xffffff3c,
                                       0x04])
 
     def testPackX86RomIfwiSectiom(self):
         """Test that a section can be placed in an IFWI region"""
         self._SetupIfwi('fitimage.bin')
-        data = self._DoReadFile('151_x86_rom_ifwi_section.dts')
+        data = self._DoReadFile('x86/rom_ifwi_section.dts')
         self._CheckIfwi(data)
 
     def testPackFspM(self):
         """Test that an image with a FSP memory-init binary can be created"""
-        data = self._DoReadFile('152_intel_fsp_m.dts')
+        data = self._DoReadFile('x86/intel_fsp_m.dts')
         self.assertEqual(FSP_M_DATA, data[:len(FSP_M_DATA)])
 
     def testPackFspS(self):
         """Test that an image with a FSP silicon-init binary can be created"""
-        data = self._DoReadFile('153_intel_fsp_s.dts')
+        data = self._DoReadFile('x86/intel_fsp_s.dts')
         self.assertEqual(FSP_S_DATA, data[:len(FSP_S_DATA)])
 
     def testPackFspT(self):
         """Test that an image with a FSP temp-ram-init binary can be created"""
-        data = self._DoReadFile('154_intel_fsp_t.dts')
+        data = self._DoReadFile('x86/intel_fsp_t.dts')
         self.assertEqual(FSP_T_DATA, data[:len(FSP_T_DATA)])
 
     def testMkimage(self):
@@ -3927,7 +3927,7 @@ class TestFunctional(unittest.TestCase):
     def testPackX86RomMeMissingDesc(self):
         """Test that an missing Intel descriptor entry is allowed"""
         with terminal.capture() as (stdout, stderr):
-            self._DoTestFile('164_x86_rom_me_missing.dts', allow_missing=True)
+            self._DoTestFile('x86/rom_me_missing.dts', allow_missing=True)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing.*: intel-descriptor")
 
@@ -3937,7 +3937,7 @@ class TestFunctional(unittest.TestCase):
         pathname = os.path.join(self._indir, 'fitimage.bin')
         os.remove(pathname)
         with terminal.capture() as (stdout, stderr):
-            self._DoTestFile('111_x86_rom_ifwi.dts', allow_missing=True)
+            self._DoTestFile('x86/rom_ifwi.dts', allow_missing=True)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing.*: intel-ifwi")
 
