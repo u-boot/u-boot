@@ -453,31 +453,15 @@ help with this, but your code will be different.
 
 Generally you are adding a test because you are adding a new entry type
 ('etype'). So start by creating the shortest and simplest image-description you
-can, which contains the new etype. Put it in a numbered file in
-``tool/binman/test`` so that it comes last. All the numbers are unique and there
-are no gaps.
+can, which contains the new etype. Put it under ``tools/binman/test`` in the
+appropriate subdirectory (e.g. ``fit/`` for FIT image tests, ``vendor/`` for
+vendor-specific tests, ``entry/`` for general entry types) with a descriptive
+filename.
 
 Example from ``tools/binman/test/vendor/nxp_imx8.dts``:
 
-.. code-block:: devicetree
-
-    // SPDX-License-Identifier: GPL-2.0+
-
-    /dts-v1/;
-
-    / {
-        #address-cells = <1>;
-        #size-cells = <1>;
-
-        binman {
-            nxp-imx8mimage {
-                args;    /* TODO: Needed by mkimage etype superclass */
-                nxp,boot-from = "sd";
-                nxp,rom-version = <1>;
-                nxp,loader-address = <0x10>;
-            };
-        };
-    };
+.. literalinclude:: ../../tools/binman/test/vendor/nxp_imx8.dts
+   :language: devicetree
 
 Note that you should use tabs in the file, not spaces. You can see that this has
 been cut down to the bare minimum, just enough to include the etype and the
