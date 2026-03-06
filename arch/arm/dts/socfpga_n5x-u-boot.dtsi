@@ -26,7 +26,37 @@
 		};
 
 		clocks {
-			dram_eosc_clk: dram-eosc-clk {
+			/* Local clock for U-Boot to see top-level clocks */
+			cb_intosc_hs_div2_clk_local: cb-intosc-hs-div2-clk {
+				#clock-cells = <0>;
+				compatible = "fixed-clock";
+				clock-frequency = <200000000>;
+			};
+
+			cb_intosc_ls_clk_local: cb-intosc-ls-clk {
+				#clock-cells = <0>;
+				compatible = "fixed-clock";
+				clock-frequency = <400000000>;
+			};
+
+			f2s_free_clk_local: f2s-free-clk {
+				#clock-cells = <0>;
+				compatible = "fixed-clock";
+				clock-frequency = <100000000>;
+			};
+
+			osc1_local: osc1 {
+				#clock-cells = <0>;
+				compatible = "fixed-clock";
+			};
+
+			qspi_clk_local: qspi-clk {
+				#clock-cells = <0>;
+				compatible = "fixed-clock";
+				clock-frequency = <200000000>;
+			};
+
+			dram_eosc_clk_local: dram-eosc-clk {
 				#clock-cells = <0>;
 				compatible = "fixed-clock";
 			};
@@ -36,7 +66,7 @@
 			compatible = "intel,n5x-mem-clkmgr";
 			reg = <0xf8040000 0x1000>;
 			#clock-cells = <0>;
-			clocks = <&dram_eosc_clk>, <&f2s_free_clk>;
+			clocks = <&dram_eosc_clk_local>, <&f2s_free_clk_local>;
 		};
 	};
 };
@@ -120,6 +150,7 @@
 };
 
 &qspi {
+	clocks = <&qspi_clk_local>;
 	bootph-all;
 };
 
