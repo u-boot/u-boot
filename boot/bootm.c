@@ -1205,6 +1205,7 @@ void bootm_final(int flag)
 
 	if (IS_ENABLED(CONFIG_BOOTSTAGE_FDT) && IS_ENABLED(CONFIG_CMD_FDT))
 		bootstage_fdt_add_report();
+	bootstage_stash_default();
 	if (IS_ENABLED(CONFIG_BOOTSTAGE_REPORT))
 		bootstage_report();
 
