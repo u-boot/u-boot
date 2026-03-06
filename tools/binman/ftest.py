@@ -2432,7 +2432,7 @@ class TestFunctional(unittest.TestCase):
         cbfs_util_test.py. The tests here merely check that the files added to
         the CBFS can be found in the final image.
         """
-        data = self._DoReadFile('102_cbfs_raw.dts')
+        data = self._DoReadFile('cbfs/raw.dts')
         size = 0xb0
 
         cbfs = cbfs_util.CbfsReader(data)
@@ -2444,7 +2444,7 @@ class TestFunctional(unittest.TestCase):
 
     def testCbfsArch(self):
         """Test on non-x86 architecture"""
-        data = self._DoReadFile('103_cbfs_raw_ppc.dts')
+        data = self._DoReadFile('cbfs/raw_ppc.dts')
         size = 0x100
 
         cbfs = cbfs_util.CbfsReader(data)
@@ -2462,7 +2462,7 @@ class TestFunctional(unittest.TestCase):
         elf.MakeElf(elf_fname, U_BOOT_DATA, U_BOOT_DTB_DATA)
         size = 0xb0
 
-        data = self._DoReadFile('104_cbfs_stage.dts')
+        data = self._DoReadFile('cbfs/stage.dts')
         cbfs = cbfs_util.CbfsReader(data)
         self.assertEqual(size, cbfs.rom_size)
 
@@ -2473,7 +2473,7 @@ class TestFunctional(unittest.TestCase):
     def testCbfsRawCompress(self):
         """Test handling of compressing raw files"""
         self._CheckLz4()
-        data = self._DoReadFile('105_cbfs_raw_compress.dts')
+        data = self._DoReadFile('cbfs/raw_compress.dts')
         size = 0x140
 
         cbfs = cbfs_util.CbfsReader(data)
@@ -2484,32 +2484,32 @@ class TestFunctional(unittest.TestCase):
     def testCbfsBadArch(self):
         """Test handling of a bad architecture"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('106_cbfs_bad_arch.dts')
+            self._DoReadFile('cbfs/bad_arch.dts')
         self.assertIn("Invalid architecture 'bad-arch'", str(e.exception))
 
     def testCbfsNoSize(self):
         """Test handling of a missing size property"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('107_cbfs_no_size.dts')
+            self._DoReadFile('cbfs/no_size.dts')
         self.assertIn('entry must have a size property', str(e.exception))
 
     def testCbfsNoContents(self):
         """Test handling of a CBFS entry which does not provide contentsy"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('108_cbfs_no_contents.dts')
+            self._DoReadFile('cbfs/no_contents.dts')
         self.assertIn('Could not complete processing of contents',
                       str(e.exception))
 
     def testCbfsBadCompress(self):
         """Test handling of a bad architecture"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('109_cbfs_bad_compress.dts')
+            self._DoReadFile('cbfs/bad_compress.dts')
         self.assertIn("Invalid compression in 'u-boot': 'invalid-algo'",
                       str(e.exception))
 
     def testCbfsNamedEntries(self):
         """Test handling of named entries"""
-        data = self._DoReadFile('110_cbfs_name.dts')
+        data = self._DoReadFile('cbfs/name.dts')
 
         cbfs = cbfs_util.CbfsReader(data)
         self.assertIn('FRED', cbfs.files)
@@ -2589,7 +2589,7 @@ class TestFunctional(unittest.TestCase):
         Like all CFBS tests, this is just checking the logic that calls
         cbfs_util. See cbfs_util_test for fully tests (e.g. test_cbfs_offset()).
         """
-        data = self._DoReadFile('114_cbfs_offset.dts')
+        data = self._DoReadFile('cbfs/offset.dts')
         size = 0x200
 
         cbfs = cbfs_util.CbfsReader(data)
@@ -2731,7 +2731,7 @@ class TestFunctional(unittest.TestCase):
     def testCbfsUpdateFdt(self):
         """Test that we can update the device tree with CBFS offset/size info"""
         self._CheckLz4()
-        data, _, _, out_dtb_fname = self._DoReadFileDtb('125_cbfs_update.dts',
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('cbfs/update.dts',
                                                         update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -2755,7 +2755,7 @@ class TestFunctional(unittest.TestCase):
     def testCbfsBadType(self):
         """Test an image header with a no specified location is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('126_cbfs_bad_type.dts')
+            self._DoReadFile('cbfs/bad_type.dts')
         self.assertIn("Unknown cbfs-type 'badtype'", str(e.exception))
 
     def testList(self):
@@ -3565,7 +3565,7 @@ class TestFunctional(unittest.TestCase):
         """Test replacing a single file in CBFS without changing the size"""
         self._CheckLz4()
         expected = b'x' * len(U_BOOT_DATA)
-        data = self._DoReadFileRealDtb('142_replace_cbfs.dts')
+        data = self._DoReadFileRealDtb('cbfs/replace.dts')
         updated_fname = tools.get_output_filename('image-updated.bin')
         tools.write_file(updated_fname, data)
         entry_name = 'section/cbfs/u-boot'
@@ -3578,7 +3578,7 @@ class TestFunctional(unittest.TestCase):
         """Test replacing a single file in CBFS with one of a different size"""
         self._CheckLz4()
         expected = U_BOOT_DATA + b'x'
-        data = self._DoReadFileRealDtb('142_replace_cbfs.dts')
+        data = self._DoReadFileRealDtb('cbfs/replace.dts')
         updated_fname = tools.get_output_filename('image-updated.bin')
         tools.write_file(updated_fname, data)
         entry_name = 'section/cbfs/u-boot'
