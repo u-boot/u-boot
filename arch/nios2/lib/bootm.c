@@ -41,6 +41,8 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
+	bootm_final(0);
+
 	/* flushes data and instruction caches before calling the kernel */
 	disable_interrupts();
 	flush_dcache_all();
