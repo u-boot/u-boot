@@ -598,7 +598,7 @@ static int mtk_apmixedsys_enable(struct clk *clk)
 
 	udelay(20);
 
-	if (pll->flags & HAVE_RST_BAR) {
+	if (pll->flags & CLK_PLL_HAVE_RST_BAR) {
 		r = readl(priv->base + pll->reg + REG_CON0);
 		r |= pll->rst_bar_mask;
 		writel(r, priv->base + pll->reg + REG_CON0);
@@ -622,7 +622,7 @@ static int mtk_apmixedsys_disable(struct clk *clk)
 
 	pll = &priv->tree->plls[clk->id];
 
-	if (pll->flags & HAVE_RST_BAR) {
+	if (pll->flags & CLK_PLL_HAVE_RST_BAR) {
 		r = readl(priv->base + pll->reg + REG_CON0);
 		r &= ~pll->rst_bar_mask;
 		writel(r, priv->base + pll->reg + REG_CON0);

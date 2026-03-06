@@ -20,7 +20,8 @@
  */
 #define CLK_BYPASS_XTAL			BIT(0)
 
-#define HAVE_RST_BAR			BIT(0)
+#define CLK_PLL_HAVE_RST_BAR		BIT(0)
+
 #define CLK_DOMAIN_SCPSYS		BIT(0)
 #define CLK_MUX_SETCLR_UPD		BIT(1)
 
