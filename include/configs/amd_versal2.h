@@ -108,7 +108,8 @@
 #define BOOT_TARGET_DEVICES_UFS(func)	func(UFS, ufs, 0)
 
 #define BOOTENV_DEV_UFS(devtypeu, devtypel, instance) \
-	"bootcmd_" #devtypel "=" #devtypel " init " #instance "; scsi scan;\0"
+	"bootcmd_" #devtypel "=devnum=" #instance "; " \
+	#devtypel " init $devnum; run scsi_boot\0"
 
 #define BOOTENV_DEV_NAME_UFS(devtypeu, devtypel, instance) \
 	"ufs "
