@@ -27,7 +27,6 @@ depends on HUSH_PARSER
 
 config HUSH_OLD_PARSER
 	bool "Use hush old parser"
-	default y
 	help
 	  This option enables the old flavor of hush based on hush Busybox from
 	  2005.
@@ -36,6 +35,7 @@ config HUSH_OLD_PARSER
 
 config HUSH_MODERN_PARSER
 	bool "Use hush modern parser"
+	default y
 	help
 	  This option enables the new flavor of hush based on hush upstream
 	  Busybox.
