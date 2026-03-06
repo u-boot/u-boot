@@ -2261,7 +2261,7 @@ class TestFunctional(unittest.TestCase):
 
     def testHash(self):
         """Test hashing of the contents of an entry"""
-        _, _, _, out_dtb_fname = self._DoReadFileDtb('090_hash.dts',
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('security/hash.dts',
                 use_real_dtb=True, update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -2272,19 +2272,19 @@ class TestFunctional(unittest.TestCase):
 
     def testHashNoAlgo(self):
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('091_hash_no_algo.dts', update_dtb=True)
+            self._DoReadFileDtb('security/hash_no_algo.dts', update_dtb=True)
         self.assertIn("Node \'/binman/u-boot\': Missing \'algo\' property for "
                       'hash node', str(e.exception))
 
     def testHashBadAlgo(self):
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('092_hash_bad_algo.dts', update_dtb=True)
+            self._DoReadFileDtb('security/hash_bad_algo.dts', update_dtb=True)
         self.assertIn("Node '/binman/u-boot': Unknown hash algorithm 'invalid'",
                       str(e.exception))
 
     def testHashSection(self):
         """Test hashing of the contents of an entry"""
-        _, _, _, out_dtb_fname = self._DoReadFileDtb('099_hash_section.dts',
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('security/hash_section.dts',
                 use_real_dtb=True, update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -4166,7 +4166,7 @@ class TestFunctional(unittest.TestCase):
 
     def testSectionIgnoreHashSignature(self):
         """Test that sections ignore hash, signature nodes for its data"""
-        data = self._DoReadFile('165_section_ignore_hash_signature.dts')
+        data = self._DoReadFile('security/section_ignore_hash_signature.dts')
         expected = (U_BOOT_DATA + U_BOOT_DATA)
         self.assertEqual(expected, data)
 
@@ -5822,7 +5822,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
         }
         data = self._DoReadFileDtb(
-            '230_pre_load.dts', entry_args=entry_args,
+            'security/pre_load.dts', entry_args=entry_args,
             extra_indirs=[os.path.join(self._binman_dir, 'test')])[0]
 
         image_fname = tools.get_output_filename('image.bin')
@@ -5836,7 +5836,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testPreLoadNoKey(self):
         """Test an image with a pre-load heade0r with missing key"""
         with self.assertRaises(FileNotFoundError) as exc:
-            self._DoReadFile('230_pre_load.dts')
+            self._DoReadFile('security/pre_load.dts')
         self.assertIn("No such file or directory: 'dev.key'",
                       str(exc.exception))
 
@@ -5845,7 +5845,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
         }
-        data = self._DoReadFileDtb('231_pre_load_pkcs.dts',
+        data = self._DoReadFileDtb('security/pre_load_pkcs.dts',
                                    entry_args=entry_args)[0]
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
@@ -5856,7 +5856,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
         }
-        data = self._DoReadFileDtb('232_pre_load_pss.dts',
+        data = self._DoReadFileDtb('security/pre_load_pss.dts',
                                    entry_args=entry_args)[0]
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
@@ -5868,7 +5868,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
         }
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('233_pre_load_invalid_padding.dts',
+            self._DoReadFileDtb('security/pre_load_invalid_padding.dts',
                                 entry_args=entry_args)
 
     def testPreLoadInvalidSha(self):
@@ -5877,13 +5877,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
         }
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('234_pre_load_invalid_sha.dts',
+            self._DoReadFileDtb('security/pre_load_invalid_sha.dts',
                                 entry_args=entry_args)
 
     def testPreLoadInvalidAlgo(self):
         """Test an image with a pre-load header with an invalid algo"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('235_pre_load_invalid_algo.dts')
+            data = self._DoReadFile('security/pre_load_invalid_algo.dts')
 
     def testPreLoadInvalidKey(self):
         """Test an image with a pre-load header with an invalid key"""
@@ -5891,7 +5891,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
         }
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFileDtb('236_pre_load_invalid_key.dts',
+            data = self._DoReadFileDtb('security/pre_load_invalid_key.dts',
                                        entry_args=entry_args)
 
     def _CheckSafeUniqueNames(self, *images):
@@ -6863,7 +6863,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('279_x509_cert.dts',
+        data = self._DoReadFileDtb('security/x509_cert.dts',
                                    entry_args=entry_args)[0]
         cert = data[:-4]
         self.assertEqual(U_BOOT_DATA, data[-4:])
@@ -6877,7 +6877,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'keyfile': 'keyfile',
         }
         with terminal.capture() as (_, stderr):
-            self._DoTestFile('279_x509_cert.dts',
+            self._DoTestFile('security/x509_cert.dts',
                              force_missing_bintools='openssl',
                              entry_args=entry_args)
         err = stderr.getvalue()
@@ -6963,7 +6963,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test a non-FIT entry cannot be signed"""
         is_signed = False
         fit, fname, private_key, _ = self._PrepareSignEnv(
-            '281_sign_non_fit.dts')
+            'security/sign_non_fit.dts')
 
         # do sign with private key
         with self.assertRaises(ValueError) as e:
@@ -7272,7 +7272,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testEncryptedNoAlgo(self):
         """Test encrypted node with missing required properties"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('301_encrypted_no_algo.dts')
+            self._DoReadFileDtb('security/encrypted_no_algo.dts')
         self.assertIn(
             "Node '/binman/fit/images/u-boot/encrypted': 'encrypted' entry is missing properties: algo iv-filename",
             str(e.exception))
@@ -7280,21 +7280,21 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testEncryptedInvalidIvfile(self):
         """Test encrypted node with invalid iv file"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('302_encrypted_invalid_iv_file.dts')
+            self._DoReadFileDtb('security/encrypted_invalid_iv_file.dts')
         self.assertIn("Filename 'invalid-iv-file' not found in input path",
                       str(e.exception))
 
     def testEncryptedMissingKey(self):
         """Test encrypted node with missing key properties"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('303_encrypted_missing_key.dts')
+            self._DoReadFileDtb('security/encrypted_missing_key.dts')
         self.assertIn(
             "Node '/binman/fit/images/u-boot/encrypted': Provide either 'key-filename' or 'key-source'",
             str(e.exception))
 
     def testEncryptedKeySource(self):
         """Test encrypted node with key-source property"""
-        data = self._DoReadFileDtb('304_encrypted_key_source.dts')[0]
+        data = self._DoReadFileDtb('security/encrypted_key_source.dts')[0]
 
         dtb = fdt.Fdt.FromData(data)
         dtb.Scan()
@@ -7308,7 +7308,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testEncryptedKeyFile(self):
         """Test encrypted node with key-filename property"""
-        data = self._DoReadFileDtb('305_encrypted_key_file.dts')[0]
+        data = self._DoReadFileDtb('security/encrypted_key_file.dts')[0]
 
         dtb = fdt.Fdt.FromData(data)
         dtb.Scan()
@@ -7324,7 +7324,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testKeyNameHintIsPathSplPubkeyDtb(self):
         """Test that binman errors out on key-name-hint being a path"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('348_key_name_hint_dir_spl_pubkey_dtb.dts')
+            self._DoReadFile('security/key_name_hint_dir_spl_pubkey_dtb.dts')
         self.assertIn(
             'Node \'/binman/u-boot-spl-pubkey-dtb\': \'keys/key\' is a path not a filename',
             str(e.exception))
@@ -7333,7 +7333,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test u_boot_spl_pubkey_dtb etype"""
         data = tools.read_file(self.TestFile("key.pem"))
         self._MakeInputFile("key.crt", data)
-        self._DoReadFileRealDtb('306_spl_pubkey_dtb.dts')
+        self._DoReadFileRealDtb('security/spl_pubkey_dtb.dts')
         image = control.images['image']
         entries = image.GetEntries()
         dtb_entry = entries['u-boot-spl-pubkey-dtb']
@@ -7358,7 +7358,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self._MakeInputFile("ssk.pem", data)
         self._SetupPmuFwlElf()
         self._SetupSplElf()
-        self._DoReadFileRealDtb('307_xilinx_bootgen_sign.dts')
+        self._DoReadFileRealDtb('security/xilinx_bootgen_sign.dts')
         image_fname = tools.get_output_filename('image.bin')
 
         # Read partition header table and check if authentication is enabled
@@ -7387,7 +7387,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self._MakeInputFile("ssk.pem", data)
         self._SetupPmuFwlElf()
         self._SetupSplElf()
-        self._DoReadFileRealDtb('308_xilinx_bootgen_sign_enc.dts')
+        self._DoReadFileRealDtb('security/xilinx_bootgen_sign_enc.dts')
         image_fname = tools.get_output_filename('image.bin')
 
         # Read boot header in order to verify encryption source and
@@ -7420,7 +7420,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self._SetupPmuFwlElf()
         self._SetupSplElf()
         with terminal.capture() as (_, stderr):
-            self._DoTestFile('307_xilinx_bootgen_sign.dts',
+            self._DoTestFile('security/xilinx_bootgen_sign.dts',
                              force_missing_bintools='bootgen')
         err = stderr.getvalue()
         self.assertRegex(err,
