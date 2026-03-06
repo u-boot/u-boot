@@ -1157,7 +1157,7 @@ class TestFunctional(unittest.TestCase):
 
     def testBlobFilename(self):
         """Test that generic blobs can be provided by filename"""
-        data = self._DoReadFile('023_blob.dts')
+        data = self._DoReadFile('blob/blob.dts')
         self.assertEqual(BLOB_DATA, data)
 
     def testPackSorted(self):
@@ -1866,7 +1866,7 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'cros-ec-rw-path': 'ecrw.bin',
         }
-        self._DoReadFileDtb('068_blob_named_by_arg.dts', entry_args=entry_args)
+        self._DoReadFileDtb('blob/named_by_arg.dts', entry_args=entry_args)
 
     def testFill(self):
         """Test for an fill entry type"""
@@ -3884,20 +3884,20 @@ class TestFunctional(unittest.TestCase):
 
     def testExtblob(self):
         """Test an image with an external blob"""
-        data = self._DoReadFile('157_blob_ext.dts')
+        data = self._DoReadFile('blob/ext.dts')
         self.assertEqual(REFCODE_DATA, data)
 
     def testExtblobMissing(self):
         """Test an image with a missing external blob"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('158_blob_ext_missing.dts')
+            self._DoReadFile('blob/ext_missing.dts')
         self.assertIn("Filename 'missing-file' not found in input path",
                       str(e.exception))
 
     def testExtblobMissingOk(self):
         """Test an image with an missing external blob that is allowed"""
         with terminal.capture() as (stdout, stderr):
-            ret = self._DoTestFile('158_blob_ext_missing.dts',
+            ret = self._DoTestFile('blob/ext_missing.dts',
                                    allow_missing=True)
         self.assertEqual(103, ret)
         err = stderr.getvalue()
@@ -3908,7 +3908,7 @@ class TestFunctional(unittest.TestCase):
     def testExtblobMissingOkFlag(self):
         """Test an image with an missing external blob allowed with -W"""
         with terminal.capture() as (stdout, stderr):
-            ret = self._DoTestFile('158_blob_ext_missing.dts',
+            ret = self._DoTestFile('blob/ext_missing.dts',
                                    allow_missing=True, ignore_missing=True)
         self.assertEqual(0, ret)
         err = stderr.getvalue()
@@ -3919,7 +3919,7 @@ class TestFunctional(unittest.TestCase):
     def testExtblobMissingOkSect(self):
         """Test an image with an missing external blob that is allowed"""
         with terminal.capture() as (stdout, stderr):
-            self._DoTestFile('159_blob_ext_missing_sect.dts',
+            self._DoTestFile('blob/ext_missing_sect.dts',
                              allow_missing=True)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing.*: blob-ext blob-ext2")
@@ -4241,7 +4241,7 @@ class TestFunctional(unittest.TestCase):
     def testBlobNamedByArgMissing(self):
         """Test handling of a missing entry arg"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('068_blob_named_by_arg.dts')
+            self._DoReadFile('blob/named_by_arg.dts')
         self.assertIn("Missing required properties/entry args: cros-ec-rw-path",
                       str(e.exception))
 
@@ -4415,7 +4415,7 @@ class TestFunctional(unittest.TestCase):
     def testMissingBlob(self):
         """Test handling of a blob containing a missing file"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('173_missing_blob.dts', allow_missing=True)
+            self._DoTestFile('blob/missing.dts', allow_missing=True)
         self.assertIn("Filename 'missing' not found in input path",
                       str(e.exception))
 
@@ -5212,14 +5212,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testExtblobList(self):
         """Test an image with an external blob list"""
-        data = self._DoReadFileDtb('215_blob_ext_list.dts',
+        data = self._DoReadFileDtb('blob/ext_list.dts',
                                    allow_fake_blobs=False)
         self.assertEqual(REFCODE_DATA + FSP_M_DATA, data[0])
 
     def testExtblobListMissing(self):
         """Test an image with a missing external blob"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('216_blob_ext_list_missing.dts',
+            self._DoReadFileDtb('blob/ext_list_missing.dts',
                                 allow_fake_blobs=False)
         self.assertIn("Filename 'missing-file' not found in input path",
                       str(e.exception))
@@ -5227,7 +5227,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testExtblobListMissingOk(self):
         """Test an image with an missing external blob that is allowed"""
         with terminal.capture() as (stdout, stderr):
-            self._DoTestFile('216_blob_ext_list_missing.dts',
+            self._DoTestFile('blob/ext_list_missing.dts',
                              allow_missing=True, allow_fake_blobs=False)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing.*: blob-ext")
@@ -5441,7 +5441,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testFakeBlob(self):
         """Test handling of faking an external blob"""
         with terminal.capture() as (stdout, stderr):
-            self._DoTestFile('217_fake_blob.dts', allow_missing=True,
+            self._DoTestFile('blob/fake.dts', allow_missing=True,
                              allow_fake_blobs=True)
         err = stderr.getvalue()
         self.assertRegex(
@@ -5451,7 +5451,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testExtblobListFaked(self):
         """Test an extblob with missing external blob that are faked"""
         with terminal.capture() as (stdout, stderr):
-            self._DoTestFile('216_blob_ext_list_missing.dts',
+            self._DoTestFile('blob/ext_list_missing.dts',
                              allow_fake_blobs=True)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*faked.*: blob-ext-list")
@@ -6560,7 +6560,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testExtblobMissingOptional(self):
         """Test an image with an external blob that is optional"""
         with terminal.capture() as (stdout, stderr):
-            data = self._DoReadFileDtb('266_blob_ext_opt.dts',
+            data = self._DoReadFileDtb('blob/ext_opt.dts',
                                        allow_fake_blobs=False)[0]
         self.assertEqual(REFCODE_DATA, data)
         self.assertNotIn(MISSING_DATA, data)
@@ -6568,7 +6568,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testExtblobFakedOptional(self):
         """Test an image with an external blob that is optional"""
         with terminal.capture() as (stdout, stderr):
-            data = self._DoReadFile('266_blob_ext_opt.dts')
+            data = self._DoReadFile('blob/ext_opt.dts')
         self.assertEqual(REFCODE_DATA, data)
         err = stderr.getvalue()
         self.assertRegex(
@@ -6659,7 +6659,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         TestFunctional._MakeInputFile('blob_syms.bin',
             tools.read_file(self.ElfTestFile('blob_syms.bin')))
 
-        data = self._DoReadFile('273_blob_symbol.dts')
+        data = self._DoReadFile('blob/symbol.dts')
 
         syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
         addr = elf.GetSymbolAddress(elf_fname, '__my_start_sym')
