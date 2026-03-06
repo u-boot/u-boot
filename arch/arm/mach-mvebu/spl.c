@@ -32,51 +32,6 @@
 #endif
 
 /*
- * When loading U-Boot via SPL from eMMC, the kwbimage main header is stored at
- * sector 0 and either on HW boot partition or on data partition. Choice of HW
- * partition depends on what is configured in eMMC EXT_CSC register.
- * When loading U-Boot via SPL from SD card, the kwbimage main header is stored
- * at sector 1.
- * Therefore MBR/GPT partition booting, fixed sector number and fixed eMMC HW
- * partition number are unsupported due to limitation of Marvell BootROM.
- * Correct sector number must be determined as runtime in mvebu SPL code based
- * on the detected boot source. Otherwise U-Boot SPL would not be able to load
- * U-Boot proper.
- * Runtime mvebu SPL sector calculation code expects:
- * - CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET=0
- * - CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0
- */
-#ifdef CONFIG_SPL_MMC
-#ifdef CONFIG_SYS_MMCSD_FS_BOOT
-#error CONFIG_SYS_MMCSD_FS_BOOT is unsupported
-#endif
-#ifdef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
-#error CONFIG_SYS_MMCSD_FS_BOOT_PARTITION is unsupported
-#endif
-#ifdef CONFIG_SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
-#error CONFIG_SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG is unsupported
-#endif
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
-#error CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION is unsupported
-#endif
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
-#error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION is unsupported
-#endif
-#ifndef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
-#error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR must be enabled for SD/eMMC boot support
-#endif
-#if !defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR) || \
-    CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR != 0
-#error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR must be set to 0
-#endif
-#if !defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET) || \
-    (CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET != 0 && \
-     CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET != 4096)
-#error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET must be set to either 0 or 4096
-#endif
-#endif
-
-/*
  * When loading U-Boot via SPL from SATA disk, the kwbimage main header is
  * stored at sector 1. Therefore CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR must be
  * set to 1. Otherwise U-Boot SPL would not be able to load U-Boot proper.
@@ -119,7 +74,7 @@ struct kwbimage_main_hdr_v1 {
 } __packed;
 
 #ifdef CONFIG_SPL_MMC
-u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
+u32 arch_spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
 	return IS_SD(mmc) ? MMCSD_MODE_RAW : MMCSD_MODE_EMMCBOOT;
 }
@@ -129,33 +84,6 @@ unsigned long arch_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 	return IS_SD(mmc) ? 1 : 0;
 }
 #endif
-
-static u32 checksum32(void *start, u32 len)
-{
-	u32 csum = 0;
-	u32 *p = start;
-
-	while (len > 0) {
-		csum += *p++;
-		len -= sizeof(u32);
-	};
-
-	return csum;
-}
-
-int spl_check_board_image(struct spl_image_info *spl_image,
-			  const struct spl_boot_device *bootdev)
-{
-	u32 csum = *(u32 *)(spl_image->load_addr + spl_image->size - 4);
-
-	if (checksum32((void *)spl_image->load_addr,
-		       spl_image->size - 4) != csum) {
-		printf("ERROR: Invalid data checksum in kwbimage\n");
-		return -EINVAL;
-	}
-
-	return 0;
-}
 
 int spl_parse_board_header(struct spl_image_info *spl_image,
 			   const struct spl_boot_device *bootdev,
