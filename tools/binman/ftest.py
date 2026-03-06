@@ -6859,7 +6859,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testX509Cert(self):
         """Test creating an X509 certificate"""
-        keyfile = self.TestFile('key.key')
+        keyfile = self.TestFile('security/key.key')
         entry_args = {
             'keyfile': keyfile,
         }
@@ -6872,7 +6872,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testX509CertMissing(self):
         """Test that binman still produces an image if openssl is missing"""
-        keyfile = self.TestFile('key.key')
+        keyfile = self.TestFile('security/key.key')
         entry_args = {
             'keyfile': 'keyfile',
         }
@@ -7198,7 +7198,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPackTiSecure(self):
         """Test that an image with a TI secured binary can be created"""
-        keyfile = self.TestFile('key.key')
+        keyfile = self.TestFile('security/key.key')
         entry_args = {
             'keyfile': keyfile,
         }
@@ -7208,7 +7208,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPackTiSecureFirewall(self):
         """Test that an image with a TI secured binary can be created"""
-        keyfile = self.TestFile('key.key')
+        keyfile = self.TestFile('security/key.key')
         entry_args = {
             'keyfile': keyfile,
         }
@@ -7220,7 +7220,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPackTiSecureFirewallMissingProperty(self):
         """Test that an image with a TI secured binary can be created"""
-        keyfile = self.TestFile('key.key')
+        keyfile = self.TestFile('security/key.key')
         entry_args = {
             'keyfile': keyfile,
         }
@@ -7232,7 +7232,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testPackTiSecureMissingTool(self):
         """Test that an image with a TI secured binary (non-functional) can be created
         when openssl is missing"""
-        keyfile = self.TestFile('key.key')
+        keyfile = self.TestFile('security/key.key')
         entry_args = {
             'keyfile': keyfile,
         }
@@ -7245,7 +7245,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPackTiSecureROM(self):
         """Test that a ROM image with a TI secured binary can be created"""
-        keyfile = self.TestFile('key.key')
+        keyfile = self.TestFile('security/key.key')
         entry_args = {
             'keyfile': keyfile,
         }
@@ -7261,7 +7261,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPackTiSecureROMCombined(self):
         """Test that a ROM image with a TI secured binary can be created"""
-        keyfile = self.TestFile('key.key')
+        keyfile = self.TestFile('security/key.key')
         entry_args = {
             'keyfile': keyfile,
         }
@@ -7331,7 +7331,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testSplPubkeyDtb(self):
         """Test u_boot_spl_pubkey_dtb etype"""
-        data = tools.read_file(self.TestFile("key.pem"))
+        data = tools.read_file(self.TestFile("security/key.pem"))
         self._MakeInputFile("key.crt", data)
         self._DoReadFileRealDtb('security/spl_pubkey_dtb.dts')
         image = control.images['image']
@@ -7353,7 +7353,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test xilinx-bootgen etype"""
         bootgen = bintool.Bintool.create('bootgen')
         self._CheckBintool(bootgen)
-        data = tools.read_file(self.TestFile("key.key"))
+        data = tools.read_file(self.TestFile("security/key.key"))
         self._MakeInputFile("psk.pem", data)
         self._MakeInputFile("ssk.pem", data)
         self._SetupPmuFwlElf()
@@ -7382,7 +7382,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test xilinx-bootgen etype"""
         bootgen = bintool.Bintool.create('bootgen')
         self._CheckBintool(bootgen)
-        data = tools.read_file(self.TestFile("key.key"))
+        data = tools.read_file(self.TestFile("security/key.key"))
         self._MakeInputFile("psk.pem", data)
         self._MakeInputFile("ssk.pem", data)
         self._SetupPmuFwlElf()
@@ -7414,7 +7414,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testXilinxBootgenMissing(self):
         """Test that binman still produces an image if bootgen is missing"""
-        data = tools.read_file(self.TestFile("key.key"))
+        data = tools.read_file(self.TestFile("security/key.key"))
         self._MakeInputFile("psk.pem", data)
         self._MakeInputFile("ssk.pem", data)
         self._SetupPmuFwlElf()
@@ -7523,9 +7523,9 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testSignedCapsuleGen(self):
         """Test generation of EFI capsule"""
-        data = tools.read_file(self.TestFile("key.key"))
+        data = tools.read_file(self.TestFile("security/key.key"))
         self._MakeInputFile("key.key", data)
-        data = tools.read_file(self.TestFile("key.pem"))
+        data = tools.read_file(self.TestFile("security/key.pem"))
         self._MakeInputFile("key.crt", data)
 
         data = self._DoReadFile('capsule/signed.dts')
@@ -7540,9 +7540,9 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testCapsuleGenSignedVer(self):
         """Test generation of signed EFI capsule with version information"""
-        data = tools.read_file(self.TestFile("key.key"))
+        data = tools.read_file(self.TestFile("security/key.key"))
         self._MakeInputFile("key.key", data)
-        data = tools.read_file(self.TestFile("key.pem"))
+        data = tools.read_file(self.TestFile("security/key.pem"))
         self._MakeInputFile("key.crt", data)
 
         data = self._DoReadFile('capsule/signed_ver.dts')
