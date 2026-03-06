@@ -198,7 +198,7 @@ static int flags_remove(uint flags, uint drv_flags)
 int device_remove(struct udevice *dev, uint flags)
 {
 	const struct driver *drv;
-	int ret;
+	int ret, cret;
 
 	if (!dev)
 		return -EINVAL;
@@ -211,6 +211,14 @@ int device_remove(struct udevice *dev, uint flags)
 		return ret;
 
 	/*
+	 * Remove the device if called with the "normal" remove flag set,
+	 * or if the remove flag matches any of the drivers remove flags
+	 */
+	drv = dev->driver;
+	assert(drv);
+	cret = flags_remove(flags, drv->flags);
+
+	/*
 	 * If the child returns EKEYREJECTED, continue. It just means that it
 	 * didn't match the flags.
 	 */
@@ -218,17 +226,10 @@ int device_remove(struct udevice *dev, uint flags)
 	if (ret && ret != -EKEYREJECTED)
 		return ret;
 
-	/*
-	 * Remove the device if called with the "normal" remove flag set,
-	 * or if the remove flag matches any of the drivers remove flags
-	 */
-	drv = dev->driver;
-	assert(drv);
-	ret = flags_remove(flags, drv->flags);
-	if (ret) {
+	if (cret) {
 		log_debug("%s: When removing: flags=%x, drv->flags=%x, err=%d\n",
-			  dev->name, flags, drv->flags, ret);
-		return ret;
+			  dev->name, flags, drv->flags, cret);
+		return cret;
 	}
 
 	ret = uclass_pre_remove_device(dev);
