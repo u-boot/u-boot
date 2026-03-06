@@ -279,11 +279,22 @@ static void disable_wdog(void __iomem *wdog_base)
 		;
 }
 
+static char *wdog_list[] = {"wdog3", "wdog4", "wdog5"};
+
 void init_wdog(void)
 {
-	disable_wdog((void __iomem *)WDG3_BASE_ADDR);
-	disable_wdog((void __iomem *)WDG4_BASE_ADDR);
-	disable_wdog((void __iomem *)WDG5_BASE_ADDR);
+	fdt_addr_t addr;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(wdog_list); i++) {
+		addr = imx_wdog_alias_to_addr(wdog_list[i], false);
+		if (addr == FDT_ADDR_T_NONE) {
+			debug("watchdog alias %s not found\n", wdog_list[i]);
+			continue;
+		}
+
+		disable_wdog((void __iomem *)addr);
+	}
 }
 
 static struct mm_region imx93_mem_map[] = {
