@@ -331,7 +331,7 @@ Here is a simple test:
 
     def testSimple(self):
         """Test a simple binman with a single file"""
-        data = self._DoReadFile('005_simple.dts')
+        data = self._DoReadFile('pack/simple.dts')
         self.assertEqual(U_BOOT_DATA, data)
 
 This test tells Binman to build an image using the description. Then it checks
