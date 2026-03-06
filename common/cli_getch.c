@@ -110,6 +110,9 @@ static int cli_ch_esc(struct cli_ch_state *cch, int ichar,
 				break;	/* pass to ^E handler */
 			}
 			break;
+		case ';':
+			act = ESC_SAVE;
+			break;  /* Ctrl+arrows (after 0x5b 0x31) */
 		case '0':
 			if (cch->esc_save[2] == '2')
 				act = ESC_SAVE;
@@ -122,12 +125,23 @@ static int cli_ch_esc(struct cli_ch_state *cch, int ichar,
 		case '1':
 			act = ESC_SAVE;
 			break;		/* bracketed paste */
+		case '5':
+			act = ESC_SAVE;
+			break;		/* Ctrl+arrows (after 0x5b 0x31 0x3b) */
 		}
 		break;
 	case 5:
-		if (ichar == '~') {	/* bracketed paste */
-			ichar = 0;
-			act = ESC_CONVERTED;
+		switch (ichar) {
+			case '~': /* bracketed paste */
+				ichar = 0;
+				act = ESC_CONVERTED;
+				break;
+			case 'A': /* Crtl + Arrow Up */
+			case 'B': /* Crtl + Arrow Down */
+			case 'C': /* Crtl + Arrow Right */
+			case 'D': /* Crtl + Arrow Left */
+				act = ESC_SAVE; // then catch it from loop
+				break;
 		}
 	}
 
