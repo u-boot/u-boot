@@ -7517,7 +7517,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testCapsuleGen(self):
         """Test generation of EFI capsule"""
-        data = self._DoReadFile('311_capsule.dts')
+        data = self._DoReadFile('capsule/capsule.dts')
 
         self._CheckCapsule(data)
 
@@ -7528,13 +7528,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = tools.read_file(self.TestFile("key.pem"))
         self._MakeInputFile("key.crt", data)
 
-        data = self._DoReadFile('312_capsule_signed.dts')
+        data = self._DoReadFile('capsule/signed.dts')
 
         self._CheckCapsule(data, signed_capsule=True)
 
     def testCapsuleGenVersionSupport(self):
         """Test generation of EFI capsule with version support"""
-        data = self._DoReadFile('313_capsule_version.dts')
+        data = self._DoReadFile('capsule/version.dts')
 
         self._CheckCapsule(data, version_check=True)
 
@@ -7545,20 +7545,20 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = tools.read_file(self.TestFile("key.pem"))
         self._MakeInputFile("key.crt", data)
 
-        data = self._DoReadFile('314_capsule_signed_ver.dts')
+        data = self._DoReadFile('capsule/signed_ver.dts')
 
         self._CheckCapsule(data, signed_capsule=True, version_check=True)
 
     def testCapsuleGenCapOemFlags(self):
         """Test generation of EFI capsule with OEM Flags set"""
-        data = self._DoReadFile('315_capsule_oemflags.dts')
+        data = self._DoReadFile('capsule/oemflags.dts')
 
         self._CheckCapsule(data, capoemflags=True)
 
     def testCapsuleGenKeyMissing(self):
         """Test that binman errors out on missing key"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('316_capsule_missing_key.dts')
+            self._DoReadFile('capsule/missing_key.dts')
 
         self.assertIn("Both private key and public key certificate need to be provided",
                       str(e.exception))
@@ -7566,7 +7566,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testCapsuleGenIndexMissing(self):
         """Test that binman errors out on missing image index"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('317_capsule_missing_index.dts')
+            self._DoReadFile('capsule/missing_index.dts')
 
         self.assertIn("entry is missing properties: image-index",
                       str(e.exception))
@@ -7574,27 +7574,27 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testCapsuleGenGuidMissing(self):
         """Test that binman errors out on missing image GUID"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('318_capsule_missing_guid.dts')
+            self._DoReadFile('capsule/missing_guid.dts')
 
         self.assertIn("entry is missing properties: image-guid",
                       str(e.exception))
 
     def testCapsuleGenAcceptCapsule(self):
         """Test generationg of accept EFI capsule"""
-        data = self._DoReadFile('319_capsule_accept.dts')
+        data = self._DoReadFile('capsule/accept.dts')
 
         self._CheckEmptyCapsule(data, accept_capsule=True)
 
     def testCapsuleGenRevertCapsule(self):
         """Test generationg of revert EFI capsule"""
-        data = self._DoReadFile('320_capsule_revert.dts')
+        data = self._DoReadFile('capsule/revert.dts')
 
         self._CheckEmptyCapsule(data)
 
     def testCapsuleGenAcceptGuidMissing(self):
         """Test that binman errors out on missing image GUID for accept capsule"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('321_capsule_accept_missing_guid.dts')
+            self._DoReadFile('capsule/accept_missing_guid.dts')
 
         self.assertIn("Image GUID needed for generating accept capsule",
                       str(e.exception))
@@ -7602,7 +7602,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testCapsuleGenEmptyCapsuleTypeMissing(self):
         """Test that capsule-type is specified"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('322_empty_capsule_type_missing.dts')
+            self._DoReadFile('capsule/empty_type_missing.dts')
 
         self.assertIn("entry is missing properties: capsule-type",
                       str(e.exception))
@@ -7610,7 +7610,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testCapsuleGenAcceptOrRevertMissing(self):
         """Test that both accept and revert capsule are not specified"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('323_capsule_accept_revert_missing.dts')
+            self._DoReadFile('capsule/accept_revert_missing.dts')
 
     def test_assume_size(self):
         """Test handling of the assume-size property for external blob"""
@@ -7857,7 +7857,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testMkeficapsuleMissing(self):
         """Test that binman complains if mkeficapsule is missing"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('311_capsule.dts',
+            self._DoTestFile('capsule/capsule.dts',
                              force_missing_bintools='mkeficapsule')
         self.assertIn("Node '/binman/efi-capsule': Missing tool: 'mkeficapsule'",
                       str(e.exception))
@@ -7865,7 +7865,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testMkeficapsuleMissingOk(self):
         """Test that binman deals with mkeficapsule being missing"""
         with terminal.capture() as (stdout, stderr):
-            ret = self._DoTestFile('311_capsule.dts',
+            ret = self._DoTestFile('capsule/capsule.dts',
                                    force_missing_bintools='mkeficapsule',
                                    allow_missing=True)
         self.assertEqual(103, ret)
