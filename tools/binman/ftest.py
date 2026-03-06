@@ -1677,7 +1677,7 @@ class TestFunctional(unittest.TestCase):
 
     def testUpdateFdt(self):
         """Test that we can update the device tree with offset/size info"""
-        _, _, _, out_dtb_fname = self._DoReadFileDtb('060_fdt_update.dts',
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('fdt/update.dts',
                                                      update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -1707,7 +1707,7 @@ class TestFunctional(unittest.TestCase):
     def testUpdateFdtBad(self):
         """Test that we detect when ProcessFdt never completes"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('061_fdt_update_bad.dts', update_dtb=True)
+            self._DoReadFileDtb('fdt/update_bad.dts', update_dtb=True)
         self.assertIn('Could not complete processing of Fdt: remaining '
                       '[<binman.etype._testing.Entry__testing',
                         str(e.exception))
@@ -2082,7 +2082,7 @@ class TestFunctional(unittest.TestCase):
         """Test that all device trees are updated with offset/size info"""
         self._SetupSplElf()
         self._SetupTplElf()
-        data = self._DoReadFileRealDtb('082_fdt_update_all.dts')
+        data = self._DoReadFileRealDtb('fdt/update_all.dts')
 
         base_expected = {
             'offset': 0,
@@ -2125,7 +2125,7 @@ class TestFunctional(unittest.TestCase):
     def testUpdateFdtOutput(self):
         """Test that output DTB files are updated"""
         try:
-            data, dtb_data, _, _ = self._DoReadFileDtb('082_fdt_update_all.dts',
+            data, dtb_data, _, _ = self._DoReadFileDtb('fdt/update_all.dts',
                     use_real_dtb=True, update_dtb=True, reset_dtbs=False)
 
             # Unfortunately, compiling a source file always results in a file
@@ -2607,7 +2607,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFdtmap(self):
         """Test an FDT map can be inserted in the image"""
-        data = self.data = self._DoReadFileRealDtb('115_fdtmap.dts')
+        data = self.data = self._DoReadFileRealDtb('fdt/fdtmap.dts')
         fdtmap_data = data[len(U_BOOT_DATA):]
         magic = fdtmap_data[:8]
         self.assertEqual(b'_FDTMAP_', magic)
@@ -2631,7 +2631,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFdtmapNoMatch(self):
         """Check handling of an FDT map when the section cannot be found"""
-        self.data = self._DoReadFileRealDtb('115_fdtmap.dts')
+        self.data = self._DoReadFileRealDtb('fdt/fdtmap.dts')
 
         # Mangle the section name, which should cause a mismatch between the
         # correct FDT path and the one expected by the section
@@ -2646,7 +2646,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFdtmapHeader(self):
         """Test an FDT map and image header can be inserted in the image"""
-        data = self.data = self._DoReadFileRealDtb('116_fdtmap_hdr.dts')
+        data = self.data = self._DoReadFileRealDtb('fdt/fdtmap_hdr.dts')
         fdtmap_pos = len(U_BOOT_DATA)
         fdtmap_data = data[fdtmap_pos:]
         fdt_data = fdtmap_data[16:]
@@ -2659,7 +2659,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFdtmapHeaderStart(self):
         """Test an image header can be inserted at the image start"""
-        data = self.data = self._DoReadFileRealDtb('117_fdtmap_hdr_start.dts')
+        data = self.data = self._DoReadFileRealDtb('fdt/fdtmap_hdr_start.dts')
         fdtmap_pos = 0x100 + len(U_BOOT_DATA)
         hdr_data = data[:8]
         self.assertEqual(b'BinM', hdr_data[:4])
@@ -2668,7 +2668,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFdtmapHeaderPos(self):
         """Test an image header can be inserted at a chosen position"""
-        data = self.data = self._DoReadFileRealDtb('118_fdtmap_hdr_pos.dts')
+        data = self.data = self._DoReadFileRealDtb('fdt/fdtmap_hdr_pos.dts')
         fdtmap_pos = 0x100 + len(U_BOOT_DATA)
         hdr_data = data[0x80:0x88]
         self.assertEqual(b'BinM', hdr_data[:4])
@@ -2678,14 +2678,14 @@ class TestFunctional(unittest.TestCase):
     def testHeaderMissingFdtmap(self):
         """Test an image header requires an fdtmap"""
         with self.assertRaises(ValueError) as e:
-            self.data = self._DoReadFileRealDtb('119_fdtmap_hdr_missing.dts')
+            self.data = self._DoReadFileRealDtb('fdt/fdtmap_hdr_missing.dts')
         self.assertIn("'image_header' section must have an 'fdtmap' sibling",
                       str(e.exception))
 
     def testHeaderNoLocation(self):
         """Test an image header with a no specified location is detected"""
         with self.assertRaises(ValueError) as e:
-            self.data = self._DoReadFileRealDtb('120_hdr_no_location.dts')
+            self.data = self._DoReadFileRealDtb('fdt/hdr_no_location.dts')
         self.assertIn("Invalid location 'None', expected 'start' or 'end'",
                       str(e.exception))
 
@@ -2713,7 +2713,7 @@ class TestFunctional(unittest.TestCase):
     def testCompressDtb(self):
         """Test that compress of device-tree files is supported"""
         self._CheckLz4()
-        data = self.data = self._DoReadFileRealDtb('124_compress_dtb.dts')
+        data = self.data = self._DoReadFileRealDtb('fdt/compress_dtb.dts')
         self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
         comp_data = data[len(U_BOOT_DATA):]
         orig = self._decompress(comp_data)
@@ -2837,7 +2837,7 @@ class TestFunctional(unittest.TestCase):
     def testFindFdtmap(self):
         """Test locating an FDT map in an image"""
         self._CheckLz4()
-        data = self.data = self._DoReadFileRealDtb('128_decode_image.dts')
+        data = self.data = self._DoReadFileRealDtb('fdt/decode_image.dts')
         image = control.images['image']
         entries = image.GetEntries()
         entry = entries['fdtmap']
@@ -2851,7 +2851,7 @@ class TestFunctional(unittest.TestCase):
     def testFindImageHeader(self):
         """Test locating a image header"""
         self._CheckLz4()
-        data = self.data = self._DoReadFileRealDtb('128_decode_image.dts')
+        data = self.data = self._DoReadFileRealDtb('fdt/decode_image.dts')
         image = control.images['image']
         entries = image.GetEntries()
         entry = entries['fdtmap']
@@ -2860,7 +2860,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFindImageHeaderStart(self):
         """Test locating a image header located at the start of an image"""
-        data = self.data = self._DoReadFileRealDtb('117_fdtmap_hdr_start.dts')
+        data = self.data = self._DoReadFileRealDtb('fdt/fdtmap_hdr_start.dts')
         image = control.images['image']
         entries = image.GetEntries()
         entry = entries['fdtmap']
@@ -2875,7 +2875,7 @@ class TestFunctional(unittest.TestCase):
     def testReadImage(self):
         """Test reading an image and accessing its FDT map"""
         self._CheckLz4()
-        data = self.data = self._DoReadFileRealDtb('128_decode_image.dts')
+        data = self.data = self._DoReadFileRealDtb('fdt/decode_image.dts')
         image_fname = tools.get_output_filename('image.bin')
         orig_image = control.images['image']
         image = Image.FromFile(image_fname)
@@ -2891,7 +2891,7 @@ class TestFunctional(unittest.TestCase):
     def testReadImageNoHeader(self):
         """Test accessing an image's FDT map without an image header"""
         self._CheckLz4()
-        data = self._DoReadFileRealDtb('129_decode_image_nohdr.dts')
+        data = self._DoReadFileRealDtb('fdt/decode_image_nohdr.dts')
         image_fname = tools.get_output_filename('image.bin')
         image = Image.FromFile(image_fname)
         self.assertTrue(isinstance(image, Image))
@@ -2908,7 +2908,7 @@ class TestFunctional(unittest.TestCase):
     def testListCmd(self):
         """Test listing the files in an image using an Fdtmap"""
         self._CheckLz4()
-        data = self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        data = self._DoReadFileRealDtb('fdt/list_fdtmap.dts')
 
         # lz4 compression size differs depending on the version
         image = control.images['image']
@@ -2963,7 +2963,7 @@ class TestFunctional(unittest.TestCase):
             expected: Expected list of filenames to be returned, in order
         """
         self._CheckLz4()
-        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        self._DoReadFileRealDtb('fdt/list_fdtmap.dts')
         image_fname = tools.get_output_filename('image.bin')
         image = Image.FromFile(image_fname)
         lines = image.GetListEntries(paths)[1]
@@ -3009,7 +3009,7 @@ class TestFunctional(unittest.TestCase):
             data from entry
         """
         self._CheckLz4()
-        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        self._DoReadFileRealDtb('fdt/list_fdtmap.dts')
         image_fname = tools.get_output_filename('image.bin')
         return control.ReadEntry(image_fname, entry_name, decomp)
 
@@ -3079,7 +3079,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractCmd(self):
         """Test extracting a file fron an image on the command line"""
         self._CheckLz4()
-        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        self._DoReadFileRealDtb('fdt/list_fdtmap.dts')
         fname = os.path.join(self._indir, 'output.extact')
         tmpdir = None
         try:
@@ -3096,7 +3096,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractOneEntry(self):
         """Test extracting a single entry fron an image """
         self._CheckLz4()
-        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        self._DoReadFileRealDtb('fdt/list_fdtmap.dts')
         image_fname = tools.get_output_filename('image.bin')
         fname = os.path.join(self._indir, 'output.extact')
         control.ExtractEntries(image_fname, fname, None, ['u-boot'])
@@ -3141,7 +3141,7 @@ class TestFunctional(unittest.TestCase):
             path = os.path.join(outdir, name)
             os.rmdir(path)
 
-        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        self._DoReadFileRealDtb('fdt/list_fdtmap.dts')
         image_fname = tools.get_output_filename('image.bin')
         outdir = os.path.join(self._indir, 'extract')
         einfos = control.ExtractEntries(image_fname, None, outdir, [], decomp)
@@ -3202,7 +3202,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractSelectedEntries(self):
         """Test extracting some entries"""
         self._CheckLz4()
-        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        self._DoReadFileRealDtb('fdt/list_fdtmap.dts')
         image_fname = tools.get_output_filename('image.bin')
         outdir = os.path.join(self._indir, 'extract')
         einfos = control.ExtractEntries(image_fname, None, outdir,
@@ -3217,7 +3217,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractNoEntryPaths(self):
         """Test extracting some entries"""
         self._CheckLz4()
-        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        self._DoReadFileRealDtb('fdt/list_fdtmap.dts')
         image_fname = tools.get_output_filename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ExtractEntries(image_fname, 'fname', None, [])
@@ -3227,7 +3227,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractTooManyEntryPaths(self):
         """Test extracting some entries"""
         self._CheckLz4()
-        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        self._DoReadFileRealDtb('fdt/list_fdtmap.dts')
         image_fname = tools.get_output_filename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ExtractEntries(image_fname, 'fname', None, ['a', 'b'])
@@ -3414,7 +3414,7 @@ class TestFunctional(unittest.TestCase):
         """Test that all device trees are updated with offset/size info"""
         self._SetupSplElf()
         self._SetupTplElf()
-        data = self._DoReadFileRealDtb('134_fdt_update_all_repack.dts')
+        data = self._DoReadFileRealDtb('fdt/update_all_repack.dts')
         SECTION_SIZE = 0x300
         DTB_SIZE = 602
         FDTMAP_SIZE = 608
@@ -3476,27 +3476,27 @@ class TestFunctional(unittest.TestCase):
     def testFdtmapHeaderMiddle(self):
         """Test an FDT map in the middle of an image when it should be at end"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileRealDtb('135_fdtmap_hdr_middle.dts')
+            self._DoReadFileRealDtb('fdt/fdtmap_hdr_middle.dts')
         self.assertIn("Invalid sibling order 'middle' for image-header: Must be at 'end' to match location",
                       str(e.exception))
 
     def testFdtmapHeaderStartBad(self):
         """Test an FDT map in middle of an image when it should be at start"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileRealDtb('136_fdtmap_hdr_startbad.dts')
+            self._DoReadFileRealDtb('fdt/fdtmap_hdr_startbad.dts')
         self.assertIn("Invalid sibling order 'end' for image-header: Must be at 'start' to match location",
                       str(e.exception))
 
     def testFdtmapHeaderEndBad(self):
         """Test an FDT map at the start of an image when it should be at end"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileRealDtb('137_fdtmap_hdr_endbad.dts')
+            self._DoReadFileRealDtb('fdt/fdtmap_hdr_endbad.dts')
         self.assertIn("Invalid sibling order 'start' for image-header: Must be at 'end' to match location",
                       str(e.exception))
 
     def testFdtmapHeaderNoSize(self):
         """Test an image header at the end of an image with undefined size"""
-        self._DoReadFileRealDtb('138_fdtmap_hdr_nosize.dts')
+        self._DoReadFileRealDtb('fdt/fdtmap_hdr_nosize.dts')
 
     def testReplaceResize(self):
         """Test replacing a single file in an entry with a larger file"""
@@ -4867,7 +4867,7 @@ class TestFunctional(unittest.TestCase):
             'spl-bss-pad': 'y',
             'tpl-dtb': '',
         }
-        self._DoReadFileDtb('194_fdt_incl.dts', use_expanded=True,
+        self._DoReadFileDtb('fdt/incl.dts', use_expanded=True,
                             entry_args=entry_args)
         image = control.images['image']
         entries = image.GetEntries()
@@ -4907,7 +4907,7 @@ class TestFunctional(unittest.TestCase):
             'tpl-bss-pad': 'y',
             'tpl-dtb': 'y',
         }
-        self._DoReadFileDtb('195_fdt_incl_tpl.dts', use_expanded=True,
+        self._DoReadFileDtb('fdt/incl_tpl.dts', use_expanded=True,
                             entry_args=entry_args)
         image = control.images['image']
         entries = image.GetEntries()
@@ -4934,7 +4934,7 @@ class TestFunctional(unittest.TestCase):
             'spl-bss-pad': 'n',
             'tpl-dtb': '',
         }
-        self._DoReadFileDtb('194_fdt_incl.dts', use_expanded=True,
+        self._DoReadFileDtb('fdt/incl.dts', use_expanded=True,
                             entry_args=entry_args)
         image = control.images['image']
         entries = image.GetEntries()
@@ -4956,7 +4956,7 @@ class TestFunctional(unittest.TestCase):
             'tpl-bss-pad': '',
             'tpl-dtb': 'y',
         }
-        self._DoReadFileDtb('195_fdt_incl_tpl.dts', use_expanded=True,
+        self._DoReadFileDtb('fdt/incl_tpl.dts', use_expanded=True,
                             entry_args=entry_args)
         image = control.images['image']
         entries = image.GetEntries()
@@ -4986,7 +4986,7 @@ class TestFunctional(unittest.TestCase):
         # Build the image. It includes two separate devicetree binaries, each
         # with their own contents, but all contain the binman definition.
         data = self._DoReadFileDtb(
-            '194_fdt_incl.dts', use_real_dtb=True, use_expanded=True,
+            'fdt/incl.dts', use_real_dtb=True, use_expanded=True,
             update_dtb=True, entry_args=entry_args)[0]
         pad_len = 10
 
@@ -5081,7 +5081,7 @@ class TestFunctional(unittest.TestCase):
         begin_sym = 'dtb_embed_begin'
         end_sym = 'dtb_embed_end'
         retcode = self._DoTestFile(
-            '060_fdt_update.dts', update_dtb=True,
+            'fdt/update.dts', update_dtb=True,
             update_fdt_in_elf=','.join([infile,outfile,begin_sym,end_sym]))
         self.assertEqual(0, retcode)
 
@@ -5121,7 +5121,7 @@ class TestFunctional(unittest.TestCase):
     def testUpdateFdtInElfInvalid(self):
         """Test that invalid args are detected with --update-fdt-in-elf"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('060_fdt_update.dts', update_fdt_in_elf='fred')
+            self._DoTestFile('fdt/update.dts', update_fdt_in_elf='fred')
         self.assertIn("Invalid args ['fred'] to --update-fdt-in-elf",
                       str(e.exception))
 
@@ -5135,7 +5135,7 @@ class TestFunctional(unittest.TestCase):
         end_sym = 'wrong_end'
         with self.assertRaises(ValueError) as e:
             self._DoTestFile(
-                '060_fdt_update.dts',
+                'fdt/update.dts',
                 update_fdt_in_elf=','.join([infile,outfile,begin_sym,end_sym]))
         self.assertIn("Expected two symbols 'wrong_begin' and 'wrong_end': got 0:",
                       str(e.exception))
@@ -5150,7 +5150,7 @@ class TestFunctional(unittest.TestCase):
         end_sym = 'dtb_embed_end'
         with self.assertRaises(ValueError) as e:
             self._DoTestFile(
-                '060_fdt_update.dts', update_dtb=True,
+                'fdt/update.dts', update_dtb=True,
                 update_fdt_in_elf=','.join([infile,outfile,begin_sym,end_sym]))
         self.assertRegex(
             str(e.exception),
@@ -5178,7 +5178,7 @@ class TestFunctional(unittest.TestCase):
 
     def testAltFormat(self):
         """Test that alternative formats can be used to extract"""
-        self._DoReadFileRealDtb('213_fdtmap_alt_format.dts')
+        self._DoReadFileRealDtb('fdt/fdtmap_alt_format.dts')
 
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
@@ -6188,13 +6188,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testCompressDtbPrependInvalid(self):
         """Test that invalid header is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('248_compress_dtb_prepend_invalid.dts')
+            self._DoReadFileDtb('fdt/compress_dtb_prepend_invalid.dts')
         self.assertIn("Node '/binman/u-boot-dtb': Invalid prepend in "
                       "'u-boot-dtb': 'invalid'", str(e.exception))
 
     def testCompressDtbPrependLength(self):
         """Test that compress with length header works as expected"""
-        data = self._DoReadFileRealDtb('249_compress_dtb_prepend_length.dts')
+        data = self._DoReadFileRealDtb('fdt/compress_dtb_prepend_length.dts')
         image = control.images['image']
         entries = image.GetEntries()
         self.assertIn('u-boot-dtb', entries)
@@ -6227,7 +6227,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testInvalidCompress(self):
         """Test that invalid compress algorithm is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('250_compress_dtb_invalid.dts')
+            self._DoTestFile('fdt/compress_dtb_invalid.dts')
         self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
 
     def testCompUtilCompressions(self):
@@ -6261,7 +6261,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testCompressDtbZstd(self):
         """Test that zstd compress of device-tree files failed"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('251_compress_dtb_zstd.dts')
+            self._DoTestFile('fdt/compress_dtb_zstd.dts')
         self.assertIn("Node '/binman/u-boot-dtb': The zstd compression "
                       "requires a length header", str(e.exception))
 
@@ -6354,7 +6354,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'vpl-bss-pad': 'y',
             'vpl-dtb': 'y',
         }
-        self._DoReadFileDtb('257_fdt_incl_vpl.dts', use_expanded=True,
+        self._DoReadFileDtb('fdt/incl_vpl.dts', use_expanded=True,
                             entry_args=entry_args)
         image = control.images['image']
         entries = image.GetEntries()
@@ -7724,7 +7724,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testAlternatesFdt(self):
         """Test handling of alternates-fdt etype"""
         self._SetupTplElf()
-        dtbs = self.CheckAlternates('328_alternates_fdt.dts', 'tpl',
+        dtbs = self.CheckAlternates('fdt/alternates_fdt.dts', 'tpl',
                                     U_BOOT_TPL_NODTB_DATA)
         for dtb in dtbs.values():
             # Check for the node with the tag
@@ -7738,7 +7738,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testAlternatesFdtgrep(self):
         """Test handling of alternates-fdt etype using fdtgrep"""
         self._SetupTplElf()
-        dtbs = self.CheckAlternates('329_alternates_fdtgrep.dts', 'tpl',
+        dtbs = self.CheckAlternates('fdt/alternates_fdtgrep.dts', 'tpl',
                                     U_BOOT_TPL_NODTB_DATA)
         for dtb in dtbs.values():
             # Check for the node with the tag
@@ -7753,20 +7753,20 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testAlternatesFdtgrepVpl(self):
         """Test handling of alternates-fdt etype using fdtgrep with vpl"""
         self._SetupVplElf()
-        dtbs = self.CheckAlternates('330_alternates_vpl.dts', 'vpl',
+        dtbs = self.CheckAlternates('fdt/alternates_vpl.dts', 'vpl',
                                     U_BOOT_VPL_NODTB_DATA)
 
     def testAlternatesFdtgrepSpl(self):
         """Test handling of alternates-fdt etype using fdtgrep with spl"""
         self._SetupSplElf()
-        dtbs = self.CheckAlternates('331_alternates_spl.dts', 'spl',
+        dtbs = self.CheckAlternates('fdt/alternates_spl.dts', 'spl',
                                     U_BOOT_SPL_NODTB_DATA)
 
     def testAlternatesFdtgrepInval(self):
         """Test alternates-fdt etype using fdtgrep with invalid phase"""
         self._SetupSplElf()
         with self.assertRaises(ValueError) as e:
-            dtbs = self.CheckAlternates('332_alternates_inval.dts', 'spl',
+            dtbs = self.CheckAlternates('fdt/alternates_inval.dts', 'spl',
                                         U_BOOT_SPL_NODTB_DATA)
         self.assertIn("Invalid U-Boot phase 'bad-phase': Use tpl/vpl/spl",
                       str(e.exception))
@@ -8317,7 +8317,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testBootphPropagation(self):
         """Test that bootph-* properties are propagated correctly to supernodes"""
         _, _, _, out_dtb_fname = self._DoReadFileDtb(
-                '347_bootph_prop.dts', use_real_dtb=True, update_dtb=True)
+                'fdt/bootph_prop.dts', use_real_dtb=True, update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
         root = dtb.GetRoot()
