@@ -95,15 +95,10 @@ def RunTestCoverage(toolpath, build_dir, args):
         for path in toolpath:
             extra_args += ' --toolpath %s' % path
 
-    # Some files unfortunately don't thave the required test coverage. This will
-    # eventually be fixed, but exclude them for now
     test_util.run_test_coverage('tools/binman/binman', None,
             ['*test*', '*main.py', 'tools/patman/*', 'tools/dtoc/*',
              'tools/u_boot_pylib/*'],
-            build_dir, all_set, extra_args or None, args=args,
-            allow_failures=['tools/binman/btool/cst.py',
-                            'tools/binman/etype/nxp_imx8mcst.py',
-                            'tools/binman/etype/nxp_imx8mimage.py'])
+            build_dir, all_set, extra_args or None, args=args)
 
 def RunBinman(args):
     """Main entry point to binman once arguments are parsed
