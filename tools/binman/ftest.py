@@ -7915,7 +7915,8 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         container_path = os.path.join(testdir, 'mx95b0-ahab-container.img')
         with open(container_path, 'w') as f:
             f.write(bytes([0x87]).decode('latin1') * 32768)
-        self._DoTestFile('350_nxp_imx95.dts', output_dir=testdir)
+        with terminal.capture():
+            self._DoTestFile('350_nxp_imx95.dts', output_dir=testdir)
 
     def testFitSignSimple(self):
         """Test that image with FIT and signature nodes can be signed"""
@@ -8307,8 +8308,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test whether template is removed"""
         TestFunctional._MakeInputFile('my-blob.bin', b'blob')
         TestFunctional._MakeInputFile('my-blob2.bin', b'other')
-        self._DoTestFile('346_remove_template.dts',
-                         force_missing_bintools='openssl',)
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('346_remove_template.dts',
+                             force_missing_bintools='openssl',)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'file2'.*missing bintools.*: openssl")
 
     def testBootphPropagation(self):
         """Test that bootph-* properties are propagated correctly to supernodes"""
