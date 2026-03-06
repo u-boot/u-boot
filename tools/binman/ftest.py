@@ -7899,6 +7899,112 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test that binman can produce an iMX8 image"""
         self._DoTestFile('vendor/nxp_imx8.dts')
 
+    def testNxpImx8ImageMissing(self):
+        """Test that binman produces an iMX8 image if mkimage is missing"""
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('vendor/nxp_imx8.dts',
+                             force_missing_bintools='mkimage')
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: mkimage")
+
+    def testNxpImx8ImagePos(self):
+        """Test SetImagePos for iMX8 image"""
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('vendor/nxp_imx8.dts', update_dtb=True,
+                             force_missing_bintools='mkimage')
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: mkimage")
+
+    def testNxpImx8mCSTNormal(self):
+        """Test CST signing with IVT-format input (normal auth, no unlock)"""
+        # Create fake IVT blob: magic(4) + padding(20) + signsize_addr(4)
+        # + padding(36) = 64 bytes
+        ivt_data = struct.pack('<I', 0x412000d1)
+        ivt_data += b'\x00' * 20
+        ivt_data += struct.pack('<I', 0)
+        ivt_data += b'\x00' * 36
+        self._MakeInputFile('imx8m-ivt.bin', ivt_data)
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('vendor/nxp_imx8_csf.dts',
+                             force_missing_bintools='cst')
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: cst")
+
+    def testNxpImx8mCSTFastAuth(self):
+        """Test CST signing with fast-auth mode, unlock, and FIT format"""
+        # FIT magic covers the FIT-signing path; fast-auth/unlock cover the
+        # ReadNode() and config-generation branches
+        fit_data = struct.pack('<I', 0xedfe0dd0)
+        fit_data += b'\x00' * 60
+        self._MakeInputFile('imx8m-fit.bin', fit_data)
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('vendor/nxp_imx8_csf_fast_auth.dts',
+                             force_missing_bintools='cst')
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: cst")
+
+    def testNxpImx8mCSTUnknownMagic(self):
+        """Test CST with unknown input magic passes data through"""
+        # Trigger the pass-through path use data with neither IVT nor FIT magic
+        data = b'\x00' * 64
+        self._MakeInputFile('imx8m-ivt.bin', data)
+        self._DoTestFile('vendor/nxp_imx8_csf.dts', force_missing_bintools='cst')
+
+    def testNxpImx8ImageSizeNone(self):
+        """Test SetImagePos() early return when an entry has no size"""
+        # The imagename entry is in GetEntries() but not packed, so has
+        # size=None, which triggers the early-return guard in SetImagePos()
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('vendor/nxp_imx8_imagename.dts',
+                             force_missing_bintools='mkimage')
+
+    def testNxpImx8mCSTSigned(self):
+        """Test CST-signing-success path with mocked cst invocation"""
+        ivt_data = struct.pack('<I', 0x412000d1)
+        ivt_data += b'\x00' * 20
+        ivt_data += struct.pack('<I', 0)
+        ivt_data += b'\x00' * 36
+        self._MakeInputFile('imx8m-ivt.bin', ivt_data)
+
+        # Mock run_cmd() so that when cst is invoked, it creates a fake output
+        # blob and returns success, thus covering the signing path
+        original = bintool.Bintool.run_cmd
+
+        def fake_cst_run_cmd(self_tool, *args, binary=False):
+            if self_tool.name == 'cst':
+                arg_list = list(args)
+                if '-o' in arg_list:
+                    idx = arg_list.index('-o')
+                    tools.write_file(arg_list[idx + 1], b'\x00' * 32)
+                return 'fake cst output'
+            return original(self_tool, *args, binary=binary)
+
+        with unittest.mock.patch.object(bintool.Bintool, 'run_cmd',
+                                        new=fake_cst_run_cmd):
+            self._DoTestFile('vendor/nxp_imx8_csf.dts')
+
+    def testNxpImx8mCSTBintool(self):
+        """Test the cst bintool run() and fetch() methods"""
+        cst = bintool.Bintool.create('cst')
+        self.assertEqual('cst', cst.name)
+
+        # Mark cst as missing so run() exercises the code without needing the
+        # real tool (which fails without valid signing keys)
+        old_missing = bintool.Bintool.missing_list
+        bintool.Bintool.set_missing_list(['cst'])
+        try:
+            self.assertIsNone(cst.run('test.bin'))
+        finally:
+            bintool.Bintool.set_missing_list(old_missing)
+        # fetch() only supports FETCH_BUILD; other methods return None
+        self.assertIsNone(cst.fetch(bintool.FETCH_BIN))
+
+        # fetch(FETCH_BUILD) calls build_from_git() so mock it
+        with unittest.mock.patch.object(
+                bintool.Bintool, 'build_from_git', return_value=('cst', None)):
+            result = cst.fetch(bintool.FETCH_BUILD)
+            self.assertEqual(('cst', None), result)
+
     def testNxpHeaderDdrfw(self):
         """Test that binman can add a header to DDR PHY firmware images"""
         data = self._DoReadFile('vendor/nxp_ddrfw_imx95.dts')

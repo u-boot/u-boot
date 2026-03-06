@@ -15,6 +15,13 @@
 
 			u-boot {
 			};
+
+			imagename {
+				type = "section";
+
+				u-boot {
+				};
+			};
 		};
 	};
 };
