@@ -4,6 +4,11 @@
  */
 
 / {
+	aliases {
+		wdog3 = &wdog3;
+		wdog4 = &wdog4;
+	};
+
 	binman {
 		multiple-images;
 
@@ -141,6 +146,18 @@
 
 &aips3 {
 	bootph-all;
+};
+
+&aips4 {
+	bootph-all;
+
+	wdog4: watchdog@49230000 {
+		bootph-all;
+
+		compatible = "fsl,imx94-wdt", "fsl,imx93-wdt";
+		reg = <0x49230000 0x10000>;
+		status = "disabled";
+	};
 };
 
 &clk_ext1 {
@@ -442,5 +459,9 @@
 };
 
 &sram0 {
+	bootph-all;
+};
+
+&wdog3 {
 	bootph-all;
 };
