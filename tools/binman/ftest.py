@@ -4247,12 +4247,12 @@ class TestFunctional(unittest.TestCase):
 
     def testPackBl31(self):
         """Test that an image with an ATF BL31 binary can be created"""
-        data = self._DoReadFile('169_atf_bl31.dts')
+        data = self._DoReadFile('fip/atf_bl31.dts')
         self.assertEqual(ATF_BL31_DATA, data[:len(ATF_BL31_DATA)])
 
     def testPackScp(self):
         """Test that an image with an SCP binary can be created"""
-        data = self._DoReadFile('172_scp.dts')
+        data = self._DoReadFile('fip/scp.dts')
         self.assertEqual(SCP_DATA, data[:len(SCP_DATA)])
 
     def CheckFitFdt(self, dts='fit/fdt.dts', use_fdt_list=True,
@@ -5046,7 +5046,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackOpenSBI(self):
         """Test that an image with an OpenSBI binary can be created"""
-        data = self._DoReadFile('201_opensbi.dts')
+        data = self._DoReadFile('fip/opensbi.dts')
         self.assertEqual(OPENSBI_DATA, data[:len(OPENSBI_DATA)])
 
     def testSectionsSingleThread(self):
@@ -5234,7 +5234,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFip(self):
         """Basic test of generation of an ARM Firmware Image Package (FIP)"""
-        data = self._DoReadFile('203_fip.dts')
+        data = self._DoReadFile('fip/fip.dts')
         hdr, fents = fip_util.decode_fip(data)
         self.assertEqual(fip_util.HEADER_MAGIC, hdr.name)
         self.assertEqual(fip_util.HEADER_SERIAL, hdr.serial)
@@ -5266,7 +5266,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFipOther(self):
         """Basic FIP with something that isn't a external blob"""
-        data = self._DoReadFile('204_fip_other.dts')
+        data = self._DoReadFile('fip/other.dts')
         hdr, fents = fip_util.decode_fip(data)
 
         self.assertEqual(2, len(fents))
@@ -5277,13 +5277,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testFipNoType(self):
         """FIP with an entry of an unknown type"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('205_fip_no_type.dts')
+            self._DoReadFile('fip/no_type.dts')
         self.assertIn("Must provide a fip-type (node name 'u-boot' is not a known FIP type)",
                       str(e.exception))
 
     def testFipUuid(self):
         """Basic FIP with a manual uuid"""
-        data = self._DoReadFile('206_fip_uuid.dts')
+        data = self._DoReadFile('fip/uuid.dts')
         hdr, fents = fip_util.decode_fip(data)
 
         self.assertEqual(2, len(fents))
@@ -5297,7 +5297,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFipLs(self):
         """Test listing a FIP"""
-        data = self._DoReadFileRealDtb('207_fip_ls.dts')
+        data = self._DoReadFileRealDtb('fip/ls.dts')
         hdr, fents = fip_util.decode_fip(data)
 
         tmpdir = None
@@ -5353,7 +5353,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFipExtractOneEntry(self):
         """Test extracting a single entry fron an FIP"""
-        self._DoReadFileRealDtb('207_fip_ls.dts')
+        self._DoReadFileRealDtb('fip/ls.dts')
         image_fname = tools.get_output_filename('image.bin')
         fname = os.path.join(self._indir, 'output.extact')
         control.ExtractEntries(image_fname, fname, None, ['atf-fip/u-boot'])
@@ -5363,7 +5363,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testFipReplace(self):
         """Test replacing a single file in a FIP"""
         expected = U_BOOT_DATA + tools.get_bytes(0x78, 50)
-        data = self._DoReadFileRealDtb('208_fip_replace.dts')
+        data = self._DoReadFileRealDtb('fip/replace.dts')
         updated_fname = tools.get_output_filename('image-updated.bin')
         tools.write_file(updated_fname, data)
         entry_name = 'atf-fip/u-boot'
@@ -5387,13 +5387,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFipMissing(self):
         with terminal.capture() as (stdout, stderr):
-            self._DoTestFile('209_fip_missing.dts', allow_missing=True)
+            self._DoTestFile('fip/missing.dts', allow_missing=True)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing.*: rmm-fw")
 
     def testFipSize(self):
         """Test a FIP with a size property"""
-        data = self._DoReadFile('210_fip_size.dts')
+        data = self._DoReadFile('fip/size.dts')
         self.assertEqual(0x100 + len(U_BOOT_DATA), len(data))
         hdr, fents = fip_util.decode_fip(data)
         self.assertEqual(fip_util.HEADER_MAGIC, hdr.name)
@@ -5414,14 +5414,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testFipBadAlign(self):
         """Test that an invalid alignment value in a FIP is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('211_fip_bad_align.dts')
+            self._DoTestFile('fip/bad_align.dts')
         self.assertIn(
             "Node \'/binman/atf-fip\': FIP alignment 31 must be a power of two",
             str(e.exception))
 
     def testFipCollection(self):
         """Test using a FIP in a collection"""
-        data = self._DoReadFile('212_fip_collection.dts')
+        data = self._DoReadFile('fip/collection.dts')
         entry1 = control.images['image'].GetEntries()['collection']
         data1 = data[:entry1.size]
         hdr1, fents2 = fip_util.decode_fip(data1)
@@ -5583,7 +5583,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPackBl1(self):
         """test if an image with a bl1 binary can be created"""
-        data = self._DoReadFile('347_bl1.dts')
+        data = self._DoReadFile('fip/bl1.dts')
         self.assertEqual(ATF_BL1_DATA, data[:len(ATF_BL1_DATA)])
 
     def testRenesasRCarGen4SA0Image(self):
