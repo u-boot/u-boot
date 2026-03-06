@@ -436,7 +436,7 @@ correct. You can to this with ``terminal.capture()``, for example:
 .. code-block:: python
 
     with terminal.capture() as (_, stderr):
-        self._DoTestFile('071_gbb.dts', force_missing_bintools='futility',
+        self._DoTestFile('cros/gbb.dts', force_missing_bintools='futility',
                          entry_args=entry_args)
     err = stderr.getvalue()
     self.assertRegex(err, "Image 'image'.*missing bintools.*: futility")

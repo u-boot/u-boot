@@ -1816,7 +1816,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFmap(self):
         """Basic test of generation of a flashrom fmap"""
-        data = self._DoReadFile('067_fmap.dts')
+        data = self._DoReadFile('cros/fmap.dts')
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
         expected = (U_BOOT_DATA + tools.get_bytes(ord('!'), 12) +
                     U_BOOT_DATA + tools.get_bytes(ord('a'), 12))
@@ -1898,7 +1898,7 @@ class TestFunctional(unittest.TestCase):
             'keydir': 'devkeys',
             'bmpblk': 'bmpblk.bin',
         }
-        data, _, _, _ = self._DoReadFileDtb('071_gbb.dts', entry_args=entry_args)
+        data, _, _, _ = self._DoReadFileDtb('cros/gbb.dts', entry_args=entry_args)
 
         # Since futility
         expected = (GBB_DATA + GBB_DATA + tools.get_bytes(0, 8) +
@@ -1908,14 +1908,14 @@ class TestFunctional(unittest.TestCase):
     def testGbbTooSmall(self):
         """Test for the Chromium OS Google Binary Block being large enough"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('072_gbb_too_small.dts')
+            self._DoReadFileDtb('cros/gbb_too_small.dts')
         self.assertIn("Node '/binman/gbb': GBB is too small",
                       str(e.exception))
 
     def testGbbNoSize(self):
         """Test for the Chromium OS Google Binary Block having a size"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('073_gbb_no_size.dts')
+            self._DoReadFileDtb('cros/gbb_no_size.dts')
         self.assertIn("Node '/binman/gbb': GBB must have a fixed size",
                       str(e.exception))
 
@@ -1925,7 +1925,7 @@ class TestFunctional(unittest.TestCase):
             'keydir': 'devkeys',
         }
         with terminal.capture() as (_, stderr):
-            self._DoTestFile('071_gbb.dts', force_missing_bintools='futility',
+            self._DoTestFile('cros/gbb.dts', force_missing_bintools='futility',
                              entry_args=entry_args)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing bintools.*: futility")
@@ -1966,7 +1966,7 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'keydir': 'devkeys',
         }
-        data, _, _, _ = self._DoReadFileDtb('074_vblock.dts',
+        data, _, _, _ = self._DoReadFileDtb('cros/vblock.dts',
                                             entry_args=entry_args)
         expected = U_BOOT_DATA + VBLOCK_DATA + U_BOOT_DTB_DATA
         self.assertEqual(expected, data)
@@ -1974,21 +1974,21 @@ class TestFunctional(unittest.TestCase):
     def testVblockNoContent(self):
         """Test we detect a vblock which has no content to sign"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('075_vblock_no_content.dts')
+            self._DoReadFile('cros/vblock_no_content.dts')
         self.assertIn("Node '/binman/vblock': Collection must have a 'content' "
                       'property', str(e.exception))
 
     def testVblockBadPhandle(self):
         """Test that we detect a vblock with an invalid phandle in contents"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('076_vblock_bad_phandle.dts')
+            self._DoReadFile('cros/vblock_bad_phandle.dts')
         self.assertIn("Node '/binman/vblock': Cannot find node for phandle "
                       '1000', str(e.exception))
 
     def testVblockBadEntry(self):
         """Test that we detect an entry that points to a non-entry"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('077_vblock_bad_entry.dts')
+            self._DoReadFile('cros/vblock_bad_entry.dts')
         self.assertIn("Node '/binman/vblock': Cannot find entry for node "
                       "'other'", str(e.exception))
 
@@ -2000,7 +2000,7 @@ class TestFunctional(unittest.TestCase):
             'keydir': 'devkeys',
         }
         data = self._DoReadFileDtb(
-            '189_vblock_content.dts', use_real_dtb=True, update_dtb=True,
+            'cros/vblock_content.dts', use_real_dtb=True, update_dtb=True,
             entry_args=entry_args)[0]
         hashlen = 32  # SHA256 hash is 32 bytes
         self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
@@ -2021,7 +2021,7 @@ class TestFunctional(unittest.TestCase):
             'keydir': 'devkeys',
         }
         with terminal.capture() as (_, stderr):
-            self._DoTestFile('074_vblock.dts',
+            self._DoTestFile('cros/vblock.dts',
                              force_missing_bintools='futility',
                              entry_args=entry_args)
         err = stderr.getvalue()
