@@ -275,8 +275,6 @@ static void mx23_mem_init(void)
 	 */
 	mxs_reset_block((struct mxs_register_32 *)MXS_EMI_BASE);
 
-	mx23_mem_setup_vddmem();
-
 	/*
 	 * Configure the DRAM registers
 	 */
@@ -343,6 +341,12 @@ static void mx28_mem_init(void)
 void mxs_mem_init(void)
 {
 	early_delay(11000);
+
+#if defined(CONFIG_MX23)
+	//disable memory current limiter (before accessing memory, see datasheet page 1307 - ENABLE_ILIMIT)
+	//otherwise the VDDM will drop to 2V and can cause reboot loops
+	mx23_mem_setup_vddmem();
+#endif
 
 	mxs_mem_init_clock();
 
