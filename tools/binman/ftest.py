@@ -1611,11 +1611,11 @@ class TestFunctional(unittest.TestCase):
 
     def testSymbols(self):
         """Test binman can assign symbols embedded in U-Boot"""
-        self.checkSymbols('053_symbols.dts', U_BOOT_SPL_DATA, 0x1c)
+        self.checkSymbols('symbols/symbols.dts', U_BOOT_SPL_DATA, 0x1c)
 
     def testSymbolsNoDtb(self):
         """Test binman can assign symbols embedded in U-Boot SPL"""
-        self.checkSymbols('196_symbols_nodtb.dts',
+        self.checkSymbols('symbols/nodtb.dts',
                           U_BOOT_SPL_NODTB_DATA + U_BOOT_SPL_DTB_DATA,
                           0x38)
 
@@ -3833,7 +3833,7 @@ class TestFunctional(unittest.TestCase):
         """Test binman can assign symbols embedded in U-Boot TPL in a section"""
         self._SetupSplElf('u_boot_binman_syms')
         self._SetupTplElf('u_boot_binman_syms')
-        self._CheckSymbolsTplSection('149_symbols_tpl.dts',
+        self._CheckSymbolsTplSection('symbols/tpl.dts',
                                      [0x04, 0x20, 0x10 + 0x3c, 0x04])
 
     def testSymbolsTplSectionX86(self):
@@ -4756,7 +4756,7 @@ class TestFunctional(unittest.TestCase):
 
     def testSymbolsSubsection(self):
         """Test binman can assign symbols from a subsection"""
-        self.checkSymbols('187_symbols_sub.dts', U_BOOT_SPL_DATA, 0x1c)
+        self.checkSymbols('symbols/sub.dts', U_BOOT_SPL_DATA, 0x1c)
 
     def testReadImageEntryArg(self):
         """Test reading an image that would need an entry arg to generate"""
@@ -5007,7 +5007,7 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'spl-dtb': '1',
         }
-        self.checkSymbols('197_symbols_expand.dts', U_BOOT_SPL_NODTB_DATA +
+        self.checkSymbols('symbols/expand.dts', U_BOOT_SPL_NODTB_DATA +
                           U_BOOT_SPL_DTB_DATA, 0x38,
                           entry_args=entry_args, use_expanded=True)
 
@@ -6406,7 +6406,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self._SetupTplElf('u_boot_binman_syms')
         self._SetupVplElf('u_boot_binman_syms')
         self._SetupSplElf('u_boot_binman_syms')
-        data = self._DoReadFileDtb('260_symbols_elf.dts')[0]
+        data = self._DoReadFileDtb('symbols/elf.dts')[0]
         image_fname = tools.get_output_filename('image.bin')
 
         image = control.images['image']
@@ -6449,7 +6449,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         try:
             elf.ELF_TOOLS = False
             with self.assertRaises(ValueError) as exc:
-                self._DoReadFileDtb('260_symbols_elf.dts')
+                self._DoReadFileDtb('symbols/elf.dts')
         finally:
             elf.ELF_TOOLS = True
         self.assertIn(
@@ -6987,7 +6987,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testSymbolNoWrite(self):
         """Test disabling of symbol writing"""
         self._SetupSplElf()
-        self.checkSymbols('282_symbols_disable.dts', U_BOOT_SPL_DATA, 0x1c,
+        self.checkSymbols('symbols/disable.dts', U_BOOT_SPL_DATA, 0x1c,
                           no_write_symbols=True)
 
     def testSymbolNoWriteExpanded(self):
@@ -6995,7 +6995,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'spl-dtb': '1',
         }
-        self.checkSymbols('282_symbols_disable.dts', U_BOOT_SPL_NODTB_DATA +
+        self.checkSymbols('symbols/disable.dts', U_BOOT_SPL_NODTB_DATA +
                           U_BOOT_SPL_DTB_DATA, 0x38,
                           entry_args=entry_args, use_expanded=True,
                           no_write_symbols=True)
@@ -7874,7 +7874,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testSymbolsBase(self):
         """Test handling of symbols-base"""
-        self.checkSymbols('336_symbols_base.dts', U_BOOT_SPL_DATA, 0x1c,
+        self.checkSymbols('symbols/base.dts', U_BOOT_SPL_DATA, 0x1c,
                           symbols_base=0)
 
     def testSymbolsBaseExpanded(self):
@@ -7882,7 +7882,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'spl-dtb': '1',
         }
-        self.checkSymbols('337_symbols_base_expand.dts', U_BOOT_SPL_NODTB_DATA +
+        self.checkSymbols('symbols/base_expand.dts', U_BOOT_SPL_NODTB_DATA +
                           U_BOOT_SPL_DTB_DATA, 0x38,
                           entry_args=entry_args, use_expanded=True,
                           symbols_base=0)
@@ -7890,7 +7890,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testSymbolsCompressed(self):
         """Test binman complains about symbols from a compressed section"""
         with terminal.capture() as (stdout, stderr):
-            self.checkSymbols('338_symbols_comp.dts', U_BOOT_SPL_DATA, None)
+            self.checkSymbols('symbols/comp.dts', U_BOOT_SPL_DATA, None)
         out = stdout.getvalue()
         self.assertIn('Symbol-writing: no value for /binman/section/u-boot',
                       out)
