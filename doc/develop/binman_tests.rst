@@ -402,7 +402,7 @@ Another type of test is one which checks error-handling, for example:
     def testFillNoSize(self):
         """Test for an fill entry type with no size"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('070_fill_no_size.dts')
+            self._DoReadFile('entry/fill_no_size.dts')
         self.assertIn("'fill' entry is missing properties: size",
                       str(e.exception))
 

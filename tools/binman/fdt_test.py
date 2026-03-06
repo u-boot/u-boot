@@ -41,7 +41,7 @@ class TestFdt(unittest.TestCase):
         self._DeleteProp(dt)
 
     def testFdtNormalProp(self):
-        fname = self.GetCompiled('045_prop_test.dts')
+        fname = self.GetCompiled('entry/prop_test.dts')
         dt = FdtScan(fname)
         node = dt.GetNode('/binman/intel-me')
         self.assertEqual('intel-me', node.name)
