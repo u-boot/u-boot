@@ -146,7 +146,7 @@ the '&' operator to limit the selection:
 - 'freescale & arm sandbox' - all Freescale boards with ARM architecture, plus
   sandbox
 
-You can also use -x to specifically exclude some boards. For example:
+You can also use -x to specifically exclude some boards. For example::
 
   buildman arm -x nvidia,freescale,.*ball$
 
@@ -970,10 +970,12 @@ a set of (tag, value) pairs.
     settings file. They can also be useful when building U-Boot against other
     open source software.
 
-    [make-flags]
-    at91-boards=ENABLE_AT91_TEST=1
-    snapper9260=${at91-boards} BUILD_TAG=442
-    snapper9g45=${at91-boards} BUILD_TAG=443
+    ::
+
+        [make-flags]
+        at91-boards=ENABLE_AT91_TEST=1
+        snapper9260=${at91-boards} BUILD_TAG=442
+        snapper9g45=${at91-boards} BUILD_TAG=443
 
     This will use 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9260
     and 'make ENABLE_AT91_TEST=1 BUILD_TAG=443' for snapper9g45. A special
@@ -986,7 +988,7 @@ a set of (tag, value) pairs.
     config.mk file and documented in the README.
 
     Note that you can pass ad-hoc options to the build using environment
-    variables, for example:
+    variables, for example::
 
        SOME_OPTION=1234 ./tools/buildman/buildman my_board
 
@@ -1357,7 +1359,7 @@ directory.
 Build summary
 -------------
 
-When Buildman finishes, it displays a summary, similar to the following:
+When Buildman finishes, it displays a summary, similar to the following::
 
     Completed: 5 total built, duration 0:00:21, rate 0.24
 
