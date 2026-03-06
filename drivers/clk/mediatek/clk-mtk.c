@@ -788,7 +788,7 @@ static int mtk_clk_mux_enable(struct clk *clk)
 		writel(val, priv->base + mux->gate_reg);
 	}
 
-	if (mux->flags & CLK_DOMAIN_SCPSYS) {
+	if (mux->flags & CLK_MUX_DOMAIN_SCPSYS) {
 		/* enable scpsys clock off control */
 		writel(SCP_ARMCK_OFF_EN, priv->base + CLK_SCP_CFG0);
 		writel(SCP_AXICK_DCM_DIS_EN | SCP_AXICK_26M_SEL_EN,
