@@ -42,42 +42,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct tag *params;
 
-__weak void board_quiesce_devices(void)
-{
-}
-
-/**
- * announce_and_cleanup() - Print message and prepare for kernel boot
- *
- * @fake: non-zero to do everything except actually boot
- */
-static void announce_and_cleanup(int fake)
-{
-	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
-#ifdef CONFIG_BOOTSTAGE_FDT
-	bootstage_fdt_add_report();
-#endif
-	bootstage_stash_default();
-#ifdef CONFIG_BOOTSTAGE_REPORT
-	bootstage_report();
-#endif
-
-	board_quiesce_devices();
-
-	printf("\nStarting kernel ...%s\n\n", fake ?
-		"(fake run for tracing)" : "");
-	/*
-	 * Call remove function of all devices with a removal flag set.
-	 * This may be useful for last-stage operations, like cancelling
-	 * of DMA operation or releasing device internal buffers.
-	 * dm_remove_devices_active() ensures that vital devices are removed in
-	 * a second round.
-	 */
-	dm_remove_devices_active();
-
-	cleanup_before_linux();
-}
-
 static void setup_start_tag (struct bd_info *bd)
 {
 	params = (struct tag *)bd->bi_boot_params;
@@ -294,8 +258,6 @@ static void boot_jump_linux(struct bootm_headers *images, int flag)
 {
 	void (*kernel_entry)(void *fdt_addr, void *res0, void *res1,
 			void *res2);
-	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
-
 	kernel_entry = (void (*)(void *fdt_addr, void *res0, void *res1,
 				void *res2))images->ep;
 
@@ -303,9 +265,10 @@ static void boot_jump_linux(struct bootm_headers *images, int flag)
 		(ulong) kernel_entry);
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
-	announce_and_cleanup(fake);
+	bootm_final(flag);
+	cleanup_before_linux();
 
-	if (!fake) {
+	if (!(flag & BOOTM_STATE_OS_FAKE_GO)) {
 #ifdef CONFIG_ARMV8_PSCI
 		armv8_setup_psci();
 #endif
@@ -340,8 +303,6 @@ static void boot_jump_linux(struct bootm_headers *images, int flag)
 	char *s;
 	void (*kernel_entry)(int zero, int arch, uint params);
 	unsigned long r2;
-	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
-
 	kernel_entry = (void (*)(int, int, uint))images->ep;
 #ifdef CONFIG_CPU_V7M
 	ulong addr = (ulong)kernel_entry | 1;
@@ -366,14 +327,15 @@ static void boot_jump_linux(struct bootm_headers *images, int flag)
 	debug("## Transferring control to Linux (at address %08lx)" \
 		"...\n", (ulong) kernel_entry);
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
-	announce_and_cleanup(fake);
+	bootm_final(flag);
+	cleanup_before_linux();
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len)
 		r2 = (unsigned long)images->ft_addr;
 	else
 		r2 = gd->bd->bi_boot_params;
 
-	if (fake)
+	if (flag & BOOTM_STATE_OS_FAKE_GO)
 		return;
 
 #ifdef CONFIG_ARMV7_NONSEC
