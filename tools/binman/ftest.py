@@ -3991,7 +3991,7 @@ class TestFunctional(unittest.TestCase):
     def testSimpleFit(self):
         """Test an image with a FIT inside"""
         self._SetupSplElf()
-        data = self._DoReadFile('161_fit.dts')
+        data = self._DoReadFile('fit/fit.dts')
         self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
         self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
         fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
@@ -4000,7 +4000,7 @@ class TestFunctional(unittest.TestCase):
 
     def testSimpleFitExpandsSubentries(self):
         """Test that FIT images expand their subentries"""
-        data = self._DoReadFileDtb('161_fit.dts', use_expanded=True)[0]
+        data = self._DoReadFileDtb('fit/fit.dts', use_expanded=True)[0]
         self.assertEqual(U_BOOT_EXP_DATA, data[:len(U_BOOT_EXP_DATA)])
         self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
         fit_data = data[len(U_BOOT_EXP_DATA):-len(U_BOOT_NODTB_DATA)]
@@ -4009,7 +4009,7 @@ class TestFunctional(unittest.TestCase):
 
     def testSimpleFitImagePos(self):
         """Test that we have correct image-pos for FIT subentries"""
-        data, _, _, out_dtb_fname = self._DoReadFileDtb('161_fit.dts',
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('fit/fit.dts',
                                                         update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -4066,7 +4066,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFitExternal(self):
         """Test an image with an FIT with external images"""
-        data = self._DoReadFile('162_fit_external.dts')
+        data = self._DoReadFile('fit/external.dts')
         fit_data = data[len(U_BOOT_DATA):-2]  # _testing is 2 bytes
 
         # Size of the external-data region as set up by mkimage
@@ -4094,7 +4094,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFitExternalImagePos(self):
         """Test that we have correct image-pos for external FIT subentries"""
-        data, _, _, out_dtb_fname = self._DoReadFileDtb('162_fit_external.dts',
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('fit/external.dts',
                                                         update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -4151,7 +4151,7 @@ class TestFunctional(unittest.TestCase):
     def testFitMissing(self):
         """Test that binman complains if mkimage is missing"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('162_fit_external.dts',
+            self._DoTestFile('fit/external.dts',
                              force_missing_bintools='mkimage')
         self.assertIn("Node '/binman/fit': Missing tool: 'mkimage'",
                       str(e.exception))
@@ -4159,7 +4159,7 @@ class TestFunctional(unittest.TestCase):
     def testFitMissingOK(self):
         """Test that binman still produces a FIT image if mkimage is missing"""
         with terminal.capture() as (_, stderr):
-            self._DoTestFile('162_fit_external.dts', allow_missing=True,
+            self._DoTestFile('fit/external.dts', allow_missing=True,
                              force_missing_bintools='mkimage')
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing bintools.*: mkimage")
@@ -4211,7 +4211,7 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'test-id': TEXT_DATA,
         }
-        data, _, _, _ = self._DoReadFileDtb('167_fit_image_subentry_alignment.dts',
+        data, _, _, _ = self._DoReadFileDtb('fit/image_subentry_alignment.dts',
                                             entry_args=entry_args)
         dtb = fdt.Fdt.FromData(data)
         dtb.Scan()
@@ -4233,7 +4233,7 @@ class TestFunctional(unittest.TestCase):
     def testFitExtblobMissingOk(self):
         """Test a FIT with a missing external blob that is allowed"""
         with terminal.capture() as (stdout, stderr):
-            self._DoTestFile('168_fit_missing_blob.dts',
+            self._DoTestFile('fit/missing_blob.dts',
                              allow_missing=True)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing.*: atf-bl31")
@@ -4255,7 +4255,7 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('172_scp.dts')
         self.assertEqual(SCP_DATA, data[:len(SCP_DATA)])
 
-    def CheckFitFdt(self, dts='170_fit_fdt.dts', use_fdt_list=True,
+    def CheckFitFdt(self, dts='fit/fdt.dts', use_fdt_list=True,
                     default_dt=None, use_seq_num=True):
         """Check an image with an FIT with multiple FDT images"""
         def _CheckFdt(val, expected_data):
@@ -4351,7 +4351,7 @@ class TestFunctional(unittest.TestCase):
     def testFitFdtMissingList(self):
         """Test handling of a missing 'of-list' entry arg"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('170_fit_fdt.dts')
+            self._DoReadFile('fit/fdt.dts')
         self.assertIn("Generator node requires 'of-list' entry argument",
                       str(e.exception))
 
@@ -4360,12 +4360,12 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'of-list': '',
         }
-        data = self._DoReadFileDtb('170_fit_fdt.dts', entry_args=entry_args)[0]
+        data = self._DoReadFileDtb('fit/fdt.dts', entry_args=entry_args)[0]
 
     def testFitFdtMissingProp(self):
         """Test handling of a missing 'fit,fdt-list' property"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('171_fit_fdt_missing_prop.dts')
+            self._DoReadFile('fit/fdt_missing_prop.dts')
         self.assertIn("Generator node requires 'fit,fdt-list' property",
                       str(e.exception))
 
@@ -4376,7 +4376,7 @@ class TestFunctional(unittest.TestCase):
         }
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb(
-                '170_fit_fdt.dts',
+                'fit/fdt.dts',
                 entry_args=entry_args,
                 extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
         self.assertIn("Generated 'default' node requires default-dt entry argument",
@@ -4390,7 +4390,7 @@ class TestFunctional(unittest.TestCase):
         }
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb(
-                '170_fit_fdt.dts',
+                'fit/fdt.dts',
                 entry_args=entry_args,
                 extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
         self.assertIn("default-dt entry argument 'test-fdt3' not found in fdt list: test-fdt1, test-fdt2",
@@ -4402,7 +4402,7 @@ class TestFunctional(unittest.TestCase):
         control.missing_blob_help['wibble'] = 'Wibble test'
         control.missing_blob_help['another'] = 'Another test'
         with terminal.capture() as (stdout, stderr):
-            self._DoTestFile('168_fit_missing_blob.dts',
+            self._DoTestFile('fit/missing_blob.dts',
                              allow_missing=True)
         err = stderr.getvalue()
 
@@ -5507,7 +5507,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'of-list': 'test-fdt1 test-fdt2',
         }
         data = self._DoReadFileDtb(
-            '219_fit_gennode.dts',
+            'fit/gennode.dts',
             entry_args=entry_args,
             use_real_dtb=True,
             extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])
@@ -5528,7 +5528,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'keydir': 'devkeys',
             'bmpblk': 'bmpblk.bin',
         }
-        data, _, _, _ = self._DoReadFileDtb('220_fit_subentry_bintool.dts',
+        data, _, _, _ = self._DoReadFileDtb('fit/subentry_bintool.dts',
                 entry_args=entry_args)
 
         expected = (GBB_DATA + GBB_DATA + tools.get_bytes(0, 8) +
@@ -5541,7 +5541,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'keydir': 'devkeys',
         }
         with terminal.capture() as (_, stderr):
-            self._DoTestFile('220_fit_subentry_bintool.dts',
+            self._DoTestFile('fit/subentry_bintool.dts',
                     force_missing_bintools='futility', entry_args=entry_args)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing bintools.*: futility")
@@ -5550,7 +5550,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test an image with a FIT inside"""
         self._SetupSplElf()
         data, _, _, out_dtb_name = self._DoReadFileDtb(
-            '221_fit_subentry_hash.dts', use_real_dtb=True, update_dtb=True)
+            'fit/subentry_hash.dts', use_real_dtb=True, update_dtb=True)
 
         mkimage_dtb = fdt.Fdt.FromData(data)
         mkimage_dtb.Scan()
@@ -5604,14 +5604,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'default-dt': 'test-fdt2',
         }
         self._DoReadFileDtb(
-            '223_fit_fdt_oper.dts',
+            'fit/fdt_oper.dts',
             entry_args=entry_args,
             extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
 
     def testFitFdtBadOper(self):
         """Check handling of an FDT map when the section cannot be found"""
         with self.assertRaises(ValueError) as exc:
-            self._DoReadFileDtb('224_fit_bad_oper.dts')
+            self._DoReadFileDtb('fit/bad_oper.dts')
         self.assertIn("Node '/binman/fit': subnode 'images/@fdt-SEQ': Unknown operation 'unknown'",
                       str(exc.exception))
 
@@ -5635,7 +5635,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         }
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
         data = self._DoReadFileDtb(
-            '226_fit_split_elf.dts',
+            'fit/split_elf.dts',
             entry_args=entry_args,
             extra_indirs=[test_subdir])[0]
 
@@ -5728,7 +5728,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
         with self.assertRaises(ValueError) as exc:
             self._DoReadFileDtb(
-                '226_fit_split_elf.dts',
+                'fit/split_elf.dts',
                 entry_args=entry_args,
                 extra_indirs=[test_subdir])[0]
         self.assertIn(
@@ -5755,7 +5755,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
         with terminal.capture() as (stdout, stderr):
             self._DoTestFile(
-                '226_fit_split_elf.dts', entry_args=entry_args,
+                'fit/split_elf.dts', entry_args=entry_args,
                 extra_indirs=[test_subdir], verbosity=3, **kwargs)
             out = stdout.getvalue()
             err = stderr.getvalue()
@@ -5765,7 +5765,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test a FIT split-elf invalid fit,xxx directive in an image node"""
         if not elf.ELF_TOOLS:
             self.skipTest('Python elftools not available')
-        err = self._check_bad_fit('227_fit_bad_dir.dts')
+        err = self._check_bad_fit('fit/bad_dir.dts')
         self.assertIn(
             "Node '/binman/fit': subnode 'images/@atf-SEQ': Unknown directive 'fit,something'",
             err)
@@ -5774,7 +5774,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test a FIT split-elf with invalid fit,xxx directive in config"""
         if not elf.ELF_TOOLS:
             self.skipTest('Python elftools not available')
-        err = self._check_bad_fit('228_fit_bad_dir_config.dts')
+        err = self._check_bad_fit('fit/bad_dir_config.dts')
         self.assertEqual(
             "Node '/binman/fit': subnode 'configurations/@config-SEQ': Unknown directive 'fit,config'",
             err)
@@ -5986,7 +5986,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testExtractFit(self):
         """Test extracting a FIT section"""
-        self._DoReadFileRealDtb('240_fit_extract_replace.dts')
+        self._DoReadFileRealDtb('fit/extract_replace.dts')
         image_fname = tools.get_output_filename('image.bin')
 
         fit_data = control.ReadEntry(image_fname, 'fit')
@@ -6005,7 +6005,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testExtractFitSubentries(self):
         """Test extracting FIT section subentries"""
-        self._DoReadFileRealDtb('240_fit_extract_replace.dts')
+        self._DoReadFileRealDtb('fit/extract_replace.dts')
         image_fname = tools.get_output_filename('image.bin')
 
         for entry_path, expected in [
@@ -6024,7 +6024,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         new_data = b'x' * len(U_BOOT_DATA)
         data, expected_fdtmap, _ = self._RunReplaceCmd(
             'fit/kernel/u-boot', new_data,
-            dts='240_fit_extract_replace.dts')
+            dts='fit/extract_replace.dts')
         self.assertEqual(new_data, data)
 
         path, fdtmap = state.GetFdtContents('fdtmap')
@@ -6036,7 +6036,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         new_data = b'ub' * len(U_BOOT_NODTB_DATA)
         data, expected_fdtmap, _ = self._RunReplaceCmd(
             'fit/fdt-1/u-boot-nodtb', new_data,
-            dts='240_fit_extract_replace.dts')
+            dts='fit/extract_replace.dts')
         self.assertEqual(new_data, data)
 
         # Will be repacked, so fdtmap must change
@@ -6050,7 +6050,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         expected = new_data.ljust(len(U_BOOT_NODTB_DATA), b'\0')
         data, expected_fdtmap, _ = self._RunReplaceCmd(
             'fit/fdt-1/u-boot-nodtb', new_data,
-            dts='240_fit_extract_replace.dts')
+            dts='fit/extract_replace.dts')
         self.assertEqual(expected, data)
 
         path, fdtmap = state.GetFdtContents('fdtmap')
@@ -6510,7 +6510,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitTeeOsOptionalFit(self):
         """Test an image with a FIT with an optional OP-TEE binary"""
-        data = self.checkFitTee('264_tee_os_opt_fit.dts', 'tee.bin')
+        data = self.checkFitTee('fit/tee_os_opt.dts', 'tee.bin')
 
         # There should be only one node, holding the data set up in SetUpClass()
         # for tee.bin
@@ -6524,7 +6524,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(U_BOOT_DATA, node.props['data'].bytes)
 
         with terminal.capture() as (stdout, stderr):
-            self.checkFitTee('264_tee_os_opt_fit.dts', '')
+            self.checkFitTee('fit/tee_os_opt.dts', '')
         err = stderr.getvalue()
         self.assertRegex(
             err,
@@ -6536,7 +6536,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testFitTeeOsOptionalFitBad(self):
         """Test an image with a FIT with an optional OP-TEE binary"""
         with self.assertRaises(ValueError) as exc:
-            self.checkFitTee('265_tee_os_opt_fit_bad.dts', 'tee.bin')
+            self.checkFitTee('fit/tee_os_opt_bad.dts', 'tee.bin')
         self.assertIn(
             "Node '/binman/fit': subnode 'images/@tee-SEQ': Failed to read ELF file: Magic number does not match",
             str(exc.exception))
@@ -6545,14 +6545,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test an OP-TEE binary with wrong formats"""
         self.make_tee_bin('tee.bad1', 123)
         with self.assertRaises(ValueError) as exc:
-            self.checkFitTee('264_tee_os_opt_fit.dts', 'tee.bad1')
+            self.checkFitTee('fit/tee_os_opt.dts', 'tee.bad1')
         self.assertIn(
             "Node '/binman/fit/images/@tee-SEQ/tee-os': OP-TEE paged mode not supported",
             str(exc.exception))
 
         self.make_tee_bin('tee.bad2', 0, b'extra data')
         with self.assertRaises(ValueError) as exc:
-            self.checkFitTee('264_tee_os_opt_fit.dts', 'tee.bad2')
+            self.checkFitTee('fit/tee_os_opt.dts', 'tee.bad2')
         self.assertIn(
             "Node '/binman/fit/images/@tee-SEQ/tee-os': Invalid OP-TEE file: size mismatch (expected 0x4, have 0xe)",
             str(exc.exception))
@@ -6701,7 +6701,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitAlign(self):
         """Test an image with an FIT with aligned external data"""
-        data = self._DoReadFile('275_fit_align.dts')
+        data = self._DoReadFile('fit/align.dts')
         self.assertEqual(4096, len(data))
 
         dtb = fdt.Fdt.FromData(data)
@@ -6728,7 +6728,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
         with terminal.capture() as (stdout, stderr):
             data = self._DoReadFileDtb(
-                '276_fit_firmware_loadables.dts',
+                'fit/firmware_loadables.dts',
                 entry_args=entry_args,
                 extra_indirs=[test_subdir])[0]
 
@@ -6838,7 +6838,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test an image with a FIT inside where we replace its sibling"""
         self._SetupSplElf()
         fname = TestFunctional._MakeInputFile('once', b'available once')
-        self._DoReadFileRealDtb('277_replace_fit_sibling.dts')
+        self._DoReadFileRealDtb('fit/replace_sibling.dts')
         os.remove(fname)
 
         try:
@@ -6899,7 +6899,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self._DoTestFile('292_mkimage_missing_multiple.dts', allow_missing=False)
         self.assertIn("not found in input path", str(e.exception))
 
-    def _PrepareSignEnv(self, dts='280_fit_sign.dts'):
+    def _PrepareSignEnv(self, dts='fit/sign.dts'):
         """Prepare sign environment
 
         Create private and public keys, add pubkey into dtb.
@@ -7013,7 +7013,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'default-dt': 'test-fdt2',
         }
         data = self._DoReadFileDtb(
-            '284_fit_fdt_list.dts',
+            'fit/fdt_list.dts',
             entry_args=entry_args,
             extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
         self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
@@ -7069,7 +7069,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testTemplateFit(self):
         """Test using a template in a FIT"""
-        fit_data = self._DoReadFile('288_template_fit.dts')
+        fit_data = self._DoReadFile('fit/template.dts')
         fname = os.path.join(self._indir, 'fit_data.fit')
         tools.write_file(fname, fit_data)
         out = tools.run('dumpimage', '-l', fname)
@@ -7776,7 +7776,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         old_dir = os.getcwd()
         try:
             os.chdir(self._indir)
-            self.CheckFitFdt('333_fit_fdt_dir.dts', False)
+            self.CheckFitFdt('fit/fdt_dir.dts', False)
         finally:
             os.chdir(old_dir)
 
@@ -7785,7 +7785,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         old_dir = os.getcwd()
         try:
             os.chdir(self._indir)
-            self.CheckFitFdt('333_fit_fdt_dir.dts', False,
+            self.CheckFitFdt('fit/fdt_dir.dts', False,
                              default_dt='rockchip/test-fdt2')
         finally:
             os.chdir(old_dir)
@@ -7798,7 +7798,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             }
         testdir, dtb_list = self.SetupAlternateDts()
         data = self._DoReadFileDtb(
-            '334_fit_fdt_compat.dts', use_real_dtb=True, update_dtb=True,
+            'fit/fdt_compat.dts', use_real_dtb=True, update_dtb=True,
             entry_args=entry_args, extra_indirs=[testdir])[0]
 
         fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
@@ -7831,7 +7831,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             }
         testdir, dtb_list = self.SetupAlternateDts()
         data = self._DoReadFileDtb(
-            '335_fit_fdt_phase.dts', use_real_dtb=True, update_dtb=True,
+            'fit/fdt_phase.dts', use_real_dtb=True, update_dtb=True,
             entry_args=entry_args, extra_indirs=[testdir])[0]
         fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
         fit = fdt.Fdt.FromData(fit_data)
@@ -7933,7 +7933,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
         keys_subdir = os.path.join(self._indir, "keys")
         data = self._DoReadFileDtb(
-            '340_fit_signature.dts',
+            'fit/signature.dts',
             entry_args=entry_args,
             extra_indirs=[test_subdir, keys_subdir])[0]
 
@@ -7974,7 +7974,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         with unittest.mock.patch.dict('os.environ',
                                       {'OPENSSL_ENGINES': ossl_engines_path}):
             data = self._DoReadFileDtb(
-                '340_fit_signature_engine.dts',
+                'fit/signature_engine.dts',
                 entry_args=entry_args,
                 extra_indirs=[test_subdir])[0]
 
@@ -8015,7 +8015,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb(
-                    '340_fit_signature_engine_encrypt.dts',
+                    'fit/signature_engine_encrypt.dts',
                     entry_args=entry_args,
                     extra_indirs=[test_subdir])
 
@@ -8075,7 +8075,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                                       {'OPENSSL_CONF': ossl_conf,
                                        'SOFTHSM2_CONF': softhsm2_conf}):
             data = self._DoReadFileDtb(
-                '340_fit_signature_engine_pkcs11.dts',
+                'fit/signature_engine_pkcs11.dts',
                 entry_args=entry_args,
                 extra_indirs=[test_subdir])[0]
 
@@ -8153,7 +8153,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                                        'SOFTHSM2_CONF': softhsm2_conf,
                                        'MKIMAGE_SIGN_PIN': '1234'}):
             data = self._DoReadFileDtb(
-                '340_fit_signature_engine_pkcs11_object.dts',
+                'fit/signature_engine_pkcs11_object.dts',
                 entry_args=entry_args,
                 extra_indirs=[test_subdir])[0]
 
@@ -8188,7 +8188,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb(
-                '340_fit_signature.dts',
+                'fit/signature.dts',
                 entry_args=entry_args,
                 extra_indirs=[test_subdir])[0]
         self.assertIn(
@@ -8214,7 +8214,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         keys_subdir2 = os.path.join(self._indir, "keys2")
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb(
-                '341_fit_signature.dts',
+                'fit/signature_multi_key.dts',
                 entry_args=entry_args,
                 extra_indirs=[test_subdir, keys_subdir1, keys_subdir2])[0]
         self.assertIn(
@@ -8232,7 +8232,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         }
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
         self._DoReadFileDtb(
-            '342_fit_signature.dts',
+            'fit/signature_no_nodes.dts',
             entry_args=entry_args,
             extra_indirs=[test_subdir])[0]
 
@@ -8248,7 +8248,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb(
-                    '347_key_name_hint_dir_fit_signature.dts',
+                    'fit/key_name_hint_dir_signature.dts',
                     entry_args=entry_args,
                     extra_indirs=[test_subdir])
         self.assertIn(
@@ -8262,7 +8262,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         keys_subdir = os.path.join(self._indir, "keys")
         data = self._DoReadFileDtb(
-            '343_fit_encrypt_data.dts',
+            'fit/encrypt_data.dts',
             extra_indirs=[keys_subdir])[0]
 
         fit = fdt.Fdt.FromData(data)
@@ -8296,13 +8296,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testSimpleFitEncryptedDataMissingKey(self):
         """Test an image with a FIT containing data to be encrypted but with a missing key"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('344_fit_encrypt_data_no_key.dts')
+            self._DoReadFile('fit/encrypt_data_no_key.dts')
 
         self.assertIn("Filename 'aes256.bin' not found in input path", str(e.exception))
 
     def testFitFdtName(self):
         """Test an image with an FIT with multiple FDT images using NAME"""
-        self.CheckFitFdt('345_fit_fdt_name.dts', use_seq_num=False)
+        self.CheckFitFdt('fit/fdt_name.dts', use_seq_num=False)
 
     def testRemoveTemplate(self):
         """Test whether template is removed"""
