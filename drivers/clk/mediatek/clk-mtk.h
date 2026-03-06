@@ -178,6 +178,22 @@ struct mtk_composite {
 #define MUX_GATE(_id, _parents, _reg, _shift, _width, _gate)		\
 	MUX_GATE_FLAGS(_id, _parents, _reg, _shift, _width, _gate, 0)
 
+#define MUX_GATE_MIXED_FLAGS(_id, _parents, _reg, _shift, _width, _gate,\
+			     _flags) {					\
+		.id = _id,						\
+		.mux_reg = _reg,					\
+		.mux_shift = _shift,					\
+		.mux_mask = BIT(_width) - 1,				\
+		.gate_reg = _reg,					\
+		.gate_shift = _gate,					\
+		.parent_flags = _parents,				\
+		.num_parents = ARRAY_SIZE(_parents),			\
+		.flags = (_flags) | CLK_PARENT_MIXED,			\
+	}
+
+#define MUX_GATE_MIXED(_id, _parents, _reg, _shift, _width, _gate)	\
+	MUX_GATE_MIXED_FLAGS(_id, _parents, _reg, _shift, _width, _gate, 0)
+
 #define MUX_MIXED_FLAGS(_id, _parents, _reg, _shift, _width, _flags) {	\
 		.id = _id,						\
 		.mux_reg = _reg,					\
