@@ -7927,7 +7927,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'default-dt': 'test-fdt1',
             'atf-bl31-path': 'bl31.elf',
         }
-        data = tools.read_file(self.TestFile("340_rsa2048.key"))
+        data = tools.read_file(self.TestFile("fit/rsa2048.key"))
         self._MakeInputFile("keys/rsa2048.key", data)
 
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
@@ -7964,7 +7964,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'atf-bl31-path': 'bl31.elf',
         }
 
-        x509_pubkey = '340_dummy-rsa4096.crt'
+        x509_pubkey = 'fit/dummy-rsa4096.crt'
         data = tools.read_file(self.TestFile(x509_pubkey))
         self._MakeInputFile('dev.crt', data)
 
@@ -8039,7 +8039,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         prefix = "testFitSignPKCS11Simple."
         # Configure SoftHSMv2
-        data = tools.read_file(self.TestFile('340_softhsm2.conf'))
+        data = tools.read_file(self.TestFile('fit/softhsm2.conf'))
         softhsm2_conf = self._MakeInputFile(f'{prefix}softhsm2.conf', data)
         softhsm2_tokens_dir = self._MakeInputDir(f'{prefix}softhsm2.tokens')
 
@@ -8070,7 +8070,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
 
         # Make OpenSSL use softhsm2 engine
-        ossl_conf = self.TestFile('340_openssl.conf')
+        ossl_conf = self.TestFile('fit/openssl.conf')
         with unittest.mock.patch.dict('os.environ',
                                       {'OPENSSL_CONF': ossl_conf,
                                        'SOFTHSM2_CONF': softhsm2_conf}):
@@ -8114,7 +8114,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         prefix = "testFitSignPKCS11Object."
         # Configure SoftHSMv2
-        data = tools.read_file(self.TestFile('340_softhsm2.conf'))
+        data = tools.read_file(self.TestFile('fit/softhsm2.conf'))
         softhsm2_conf = self._MakeInputFile(f'{prefix}softhsm2.conf', data)
         softhsm2_tokens_dir = self._MakeInputDir(f'{prefix}softhsm2.tokens')
 
@@ -8147,7 +8147,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         # Make OpenSSL use softhsm2 engine and configure PIN for token
         # The PIN is incorrect on purpose, the correct one will be passed by
         # MKIMAGE_SIGN_PIN
-        ossl_conf = self.TestFile('340_openssl.conf')
+        ossl_conf = self.TestFile('fit/openssl.conf')
         with unittest.mock.patch.dict('os.environ',
                                       {'OPENSSL_CONF': ossl_conf,
                                        'SOFTHSM2_CONF': softhsm2_conf,
@@ -8204,9 +8204,9 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'default-dt': 'test-fdt1',
             'atf-bl31-path': 'bl31.elf',
         }
-        data = tools.read_file(self.TestFile("340_rsa2048.key"))
+        data = tools.read_file(self.TestFile("fit/rsa2048.key"))
         self._MakeInputFile("keys1/rsa2048.key", data)
-        data = tools.read_file(self.TestFile("340_rsa2048.key"))
+        data = tools.read_file(self.TestFile("fit/rsa2048.key"))
         self._MakeInputFile("keys2/conf-rsa2048.key", data)
 
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
@@ -8257,7 +8257,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testSimpleFitEncryptedData(self):
         """Test an image with a FIT containing data to be encrypted"""
-        data = tools.read_file(self.TestFile("aes256.bin"))
+        data = tools.read_file(self.TestFile("fit/aes256.bin"))
         self._MakeInputFile("keys/aes256.bin", data)
 
         keys_subdir = os.path.join(self._indir, "keys")
@@ -8277,7 +8277,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         # Retrieve the key name from the FIT removing any null byte
         key_name = fit.GetProps(subnode)['key-name-hint'].bytes.replace(b'\x00', b'')
-        with open(self.TestFile(key_name.decode('ascii') + '.bin'), 'rb') as file:
+        with open(self.TestFile('fit/' + key_name.decode('ascii') + '.bin'), 'rb') as file:
             key = file.read()
         iv = fit.GetProps(subnode)['iv'].bytes.hex()
         enc_data = fit.GetProps(node)['data'].bytes
