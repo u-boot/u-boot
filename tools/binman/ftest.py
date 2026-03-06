@@ -696,7 +696,7 @@ class TestFunctional(unittest.TestCase):
 
     @classmethod
     def _SetupDescriptor(cls):
-        with open(cls.TestFile('descriptor.bin'), 'rb') as fd:
+        with open(cls.TestFile('x86/descriptor.bin'), 'rb') as fd:
             TestFunctional._MakeInputFile('descriptor.bin', fd.read())
 
     @classmethod
@@ -1237,7 +1237,7 @@ class TestFunctional(unittest.TestCase):
     def testPackX86RomMe(self):
         """Test that an x86 ROM with an ME region can be created"""
         data = self._DoReadFile('x86/rom_me.dts')
-        expected_desc = tools.read_file(self.TestFile('descriptor.bin'))
+        expected_desc = tools.read_file(self.TestFile('x86/descriptor.bin'))
         if data[:0x1000] != expected_desc:
             self.fail('Expected descriptor binary at start of image')
         self.assertEqual(ME_DATA, data[0x1000:0x1000 + len(ME_DATA)])
@@ -2530,7 +2530,7 @@ class TestFunctional(unittest.TestCase):
         self._SetupTplElf()
 
         # Intel Integrated Firmware Image (IFWI) file
-        with gzip.open(self.TestFile('%s.gz' % fname), 'rb') as fd:
+        with gzip.open(self.TestFile('x86/%s.gz' % fname), 'rb') as fd:
             data = fd.read()
         TestFunctional._MakeInputFile(fname,data)
 
@@ -2540,7 +2540,7 @@ class TestFunctional(unittest.TestCase):
         Args:
             data: Conents of output file
         """
-        expected_desc = tools.read_file(self.TestFile('descriptor.bin'))
+        expected_desc = tools.read_file(self.TestFile('x86/descriptor.bin'))
         if data[:0x1000] != expected_desc:
             self.fail('Expected descriptor binary at start of image')
 
