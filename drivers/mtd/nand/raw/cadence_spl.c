@@ -2,12 +2,11 @@
 /*
  * Copyright (C) 2024 Intel Corporation <www.intel.com>
  */
-
-#include <cadence-nand.h>
 #include <dm.h>
 #include <hang.h>
 #include <nand.h>
 #include <system-constants.h>
+#include <linux/mtd/rawnand.h>
 
 /* Unselect after operation */
 void nand_deselect(void)
