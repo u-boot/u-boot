@@ -1178,7 +1178,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackUbootDtb(self):
         """Test that a device tree can be added to U-Boot"""
-        data = self._DoReadFile('026_pack_u_boot_dtb.dts')
+        data = self._DoReadFile('xpl/pack_dtb.dts')
         self.assertEqual(U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA, data)
 
     def testPackX86RomNoSize(self):
@@ -1362,7 +1362,7 @@ class TestFunctional(unittest.TestCase):
 
     def testUBootImg(self):
         """Test that u-boot.img can be put in a file"""
-        data = self._DoReadFile('036_u_boot_img.dts')
+        data = self._DoReadFile('xpl/u-boot-img.dts')
         self.assertEqual(U_BOOT_IMG_DATA, data)
 
     def testNoMicrocode(self):
@@ -1454,7 +1454,7 @@ class TestFunctional(unittest.TestCase):
         """Test that we can pad SPL's BSS with zeros"""
         # ELF file with a '__bss_size' symbol
         self._SetupSplElf()
-        data = self._DoReadFile('047_spl_bss_pad.dts')
+        data = self._DoReadFile('xpl/spl_bss_pad.dts')
         self.assertEqual(U_BOOT_SPL_DATA + tools.get_bytes(0, 10) + U_BOOT_DATA,
                          data)
 
@@ -1462,7 +1462,7 @@ class TestFunctional(unittest.TestCase):
         """Test that a missing symbol is detected"""
         self._SetupSplElf('u_boot_ucode_ptr')
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('047_spl_bss_pad.dts')
+            self._DoReadFile('xpl/spl_bss_pad.dts')
         self.assertIn('Expected __bss_size symbol in spl/u-boot-spl',
                       str(e.exception))
 
@@ -1514,13 +1514,13 @@ class TestFunctional(unittest.TestCase):
     def testSplDtb(self):
         """Test that an image with spl/u-boot-spl.dtb can be created"""
         self._SetupSplElf()
-        data = self._DoReadFile('051_u_boot_spl_dtb.dts')
+        data = self._DoReadFile('xpl/u-boot-spl-dtb.dts')
         self.assertEqual(U_BOOT_SPL_DTB_DATA, data[:len(U_BOOT_SPL_DTB_DATA)])
 
     def testSplNoDtb(self):
         """Test that an image with spl/u-boot-spl-nodtb.bin can be created"""
         self._SetupSplElf()
-        data = self._DoReadFile('052_u_boot_spl_nodtb.dts')
+        data = self._DoReadFile('xpl/u-boot-spl-nodtb.dts')
         self.assertEqual(U_BOOT_SPL_NODTB_DATA, data[:len(U_BOOT_SPL_NODTB_DATA)])
 
     def checkSymbols(self, dts, base_data, u_boot_offset, entry_args=None,
@@ -2031,7 +2031,7 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with TPL and its device tree can be created"""
         # ELF file with a '__bss_size' symbol
         self._SetupTplElf()
-        data = self._DoReadFile('078_u_boot_tpl.dts')
+        data = self._DoReadFile('xpl/tpl.dts')
         self.assertEqual(U_BOOT_TPL_DATA + U_BOOT_TPL_DTB_DATA, data)
 
     def testUsesPos(self):
@@ -4807,7 +4807,7 @@ class TestFunctional(unittest.TestCase):
     def testTplNoDtb(self):
         """Test that an image with tpl/u-boot-tpl-nodtb.bin can be created"""
         self._SetupTplElf()
-        data = self._DoReadFile('192_u_boot_tpl_nodtb.dts')
+        data = self._DoReadFile('xpl/u-boot-tpl-nodtb.dts')
         self.assertEqual(U_BOOT_TPL_NODTB_DATA,
                          data[:len(U_BOOT_TPL_NODTB_DATA)])
 
@@ -4815,7 +4815,7 @@ class TestFunctional(unittest.TestCase):
         """Test that we can pad TPL's BSS with zeros"""
         # ELF file with a '__bss_size' symbol
         self._SetupTplElf()
-        data = self._DoReadFile('193_tpl_bss_pad.dts')
+        data = self._DoReadFile('xpl/tpl_bss_pad.dts')
         self.assertEqual(U_BOOT_TPL_DATA + tools.get_bytes(0, 10) + U_BOOT_DATA,
                          data)
 
@@ -4823,7 +4823,7 @@ class TestFunctional(unittest.TestCase):
         """Test that a missing symbol is detected"""
         self._SetupTplElf('u_boot_ucode_ptr')
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('193_tpl_bss_pad.dts')
+            self._DoReadFile('xpl/tpl_bss_pad.dts')
         self.assertIn('Expected __bss_size symbol in tpl/u-boot-tpl',
                       str(e.exception))
 
@@ -6336,13 +6336,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test that an image with VPL and its device tree can be created"""
         # ELF file with a '__bss_size' symbol
         self._SetupVplElf()
-        data = self._DoReadFile('255_u_boot_vpl.dts')
+        data = self._DoReadFile('xpl/vpl.dts')
         self.assertEqual(U_BOOT_VPL_DATA + U_BOOT_VPL_DTB_DATA, data)
 
     def testVplNoDtb(self):
         """Test that an image with vpl/u-boot-vpl-nodtb.bin can be created"""
         self._SetupVplElf()
-        data = self._DoReadFile('256_u_boot_vpl_nodtb.dts')
+        data = self._DoReadFile('xpl/u-boot-vpl-nodtb.dts')
         self.assertEqual(U_BOOT_VPL_NODTB_DATA,
                          data[:len(U_BOOT_VPL_NODTB_DATA)])
 
@@ -6374,7 +6374,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test that a missing symbol is detected"""
         self._SetupVplElf('u_boot_ucode_ptr')
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('258_vpl_bss_pad.dts')
+            self._DoReadFile('xpl/vpl_bss_pad.dts')
         self.assertIn('Expected __bss_size symbol in vpl/u-boot-vpl',
                       str(e.exception))
 
@@ -7028,7 +7028,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'spl-bss-pad': 'y',
             'spl-dtb': 'y',
         }
-        data = self._DoReadFileDtb('285_spl_expand.dts',
+        data = self._DoReadFileDtb('xpl/u-boot-spl.dts',
                                    use_expanded=True, entry_args=entry_args)[0]
 
     def testTemplate(self):
