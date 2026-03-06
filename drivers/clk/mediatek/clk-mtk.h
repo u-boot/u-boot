@@ -129,6 +129,13 @@ struct mtk_parent {
 		.flags = _flags,			\
 	}
 
+#define APMIXED_PARENT(id)	PARENT(id, CLK_PARENT_APMIXED)
+#define TOP_PARENT(id)		PARENT(id, CLK_PARENT_TOPCKGEN)
+#define INFRA_PARENT(id)	PARENT(id, CLK_PARENT_INFRASYS)
+#define XTAL_PARENT(id)		PARENT(id, CLK_PARENT_XTAL)
+#define EXT_PARENT(id)		PARENT(id, CLK_PARENT_EXT)
+#define VOID_PARENT		PARENT(-1, 0)
+
 /**
  * struct mtk_composite - aggregate clock of mux, divider and gate clocks
  *

@@ -427,10 +427,6 @@ static const struct mtk_fixed_factor top_fixed_divs[] = {
 	FACTOR1(CLK_TOP_OSC_D20, CLK_PAD_ULPOSC, 1, 20),
 };
 
-#define EXT_PARENT(id) PARENT(id, CLK_PARENT_EXT)
-#define APMIXED_PARENT(id) PARENT(id, CLK_PARENT_APMIXED)
-#define TOP_PARENT(id) PARENT(id, CLK_PARENT_TOPCKGEN)
-
 static const struct mtk_parent axi_parents[] = {
 	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_MAINPLL_D4_D4),

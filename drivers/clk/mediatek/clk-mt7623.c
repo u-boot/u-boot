@@ -866,9 +866,6 @@ static const int peri_id_offs_map[] = {
 	[CLK_PERI_FCI]				= 48,
 };
 
-#define TOP_PARENT(_id) PARENT(_id, CLK_PARENT_TOPCKGEN)
-#define XTAL_PARENT(_id) PARENT(_id, CLK_PARENT_XTAL)
-
 static const struct mtk_parent uart_ck_sel_parents[] = {
 	XTAL_PARENT(CLK_XTAL),
 	TOP_PARENT(CLK_TOP_UART_SEL),

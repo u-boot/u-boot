@@ -111,8 +111,6 @@ static const struct mtk_fixed_factor topckgen_mtk_fixed_factors[] = {
 };
 
 /* TOPCKGEN MUX PARENTS */
-#define APMIXED_PARENT(_id) PARENT(_id, CLK_PARENT_APMIXED)
-#define TOP_PARENT(_id) PARENT(_id, CLK_PARENT_TOPCKGEN)
 
 /* CLK_TOP_NETSYS_SEL (netsys_sel) in topckgen */
 static const struct mtk_parent netsys_parents[] = {

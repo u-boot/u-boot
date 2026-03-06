@@ -387,8 +387,6 @@ static const struct mtk_composite top_muxes[] = {
 };
 
 /* infracfg */
-#define APMIXED_PARENT(_id) PARENT(_id, CLK_PARENT_APMIXED)
-#define XTAL_PARENT(_id) PARENT(_id, CLK_PARENT_XTAL)
 
 static const struct mtk_parent infra_mux1_parents[] = {
 	XTAL_PARENT(CLK_XTAL),
