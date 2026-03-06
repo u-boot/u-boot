@@ -435,6 +435,14 @@ static inline uint32_t bootstage_accum(enum bootstage_id id)
 	return 0;
 }
 
+static inline void bootstage_report(void)
+{
+}
+
+static inline void bootstage_fdt_add_report(void)
+{
+}
+
 static inline int bootstage_stash(void *base, int size)
 {
 	return 0;	/* Pretend to succeed */
