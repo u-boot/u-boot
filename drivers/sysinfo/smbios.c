@@ -24,6 +24,7 @@ struct sysinfo_plat_priv {
 	struct smbios_type7 t7[SYSINFO_CACHE_LVL_MAX];
 	u16 cache_handles[SYSINFO_CACHE_LVL_MAX];
 	u8 cache_level;
+	u16 marray_handles[SYSINFO_MEM_HANDLE_MAX];
 };
 
 static void smbios_cache_info_dump(struct smbios_type7 *cache_info)
@@ -164,6 +165,10 @@ static int sysinfo_plat_get_data(struct udevice *dev, int id, void **buf,
 	case SYSID_SM_CACHE_HANDLE:
 		*buf = &priv->cache_handles[0];
 		*size = sizeof(priv->cache_handles);
+		break;
+	case SYSID_SM_MEMARRAY_HANDLE:
+		*buf = &priv->marray_handles[0];
+		*size = sizeof(priv->marray_handles);
 		break;
 	default:
 		return -EOPNOTSUPP;
