@@ -1,0 +1,6 @@
+i.MX95 FRDM BOARD
+M:	Joseph Guo <qijian.guo@nxp.com>
+S:	Maintained
+F:	board/nxp/imx95_frdm/
+F:	include/configs/imx95_frdm.h
+F:	configs/imx95_15x15_frdm_defconfig
