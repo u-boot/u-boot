@@ -4,6 +4,7 @@
  */
 
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <fdt_support.h>
 #include <log.h>
 #include <mmc.h>
@@ -74,6 +75,8 @@ static int spl_node_to_boot_device(int node)
 	 * soon.
 	 */
 	if (!uclass_find_device_by_of_offset(UCLASS_SPI_FLASH, node, &parent))
+		return BOOT_DEVICE_SPI;
+	if (fdt_node_check_compatible(gd->fdt_blob, node, "spi-nand") == 0)
 		return BOOT_DEVICE_SPI;
 
 	return -1;
@@ -221,8 +224,12 @@ int spl_decode_boot_device(u32 boot_device, char *buf, size_t buflen)
 
 			ret = uclass_find_device_by_of_offset(UCLASS_SPI_FLASH, node, &dev);
 			if (ret) {
-				debug("%s: could not find udevice for %s\n", __func__, conf);
-				continue;
+				ret = uclass_find_device_by_of_offset(UCLASS_MTD, node, &dev);
+				if (ret || !device_is_compatible(dev, "spi-nand")) {
+					debug("%s: could not find udevice for %s\n",
+					      __func__, conf);
+					continue;
+				}
 			}
 
 			return ofnode_get_path(dev_ofnode(dev), buf, buflen);

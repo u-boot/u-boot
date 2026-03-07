@@ -254,6 +254,16 @@ config PINCTRL_QE
 	  This option is to enable the QE pinctrl driver for QE based io
 	  controller.
 
+config PINCTRL_ROCKCHIP_RV1103
+	bool "Rockchip rv1103 pin control driver"
+	depends on DM
+	help
+	  Support pin multiplexing control on Rockchip rv1103 SoC.
+
+	  The driver is controlled by a device tree node which contains
+	  both the GPIO definitions and pin control functions for each
+	  available multiplex function.
+
 config PINCTRL_ROCKCHIP_RV1108
 	bool "Rockchip rv1108 pin control driver"
 	depends on DM
