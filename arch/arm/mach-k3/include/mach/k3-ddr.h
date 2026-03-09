@@ -8,11 +8,14 @@
 
 #include <spl.h>
 
-/* We need 3 extra entries for:
- *   SoC peripherals, flash and the sentinel value.
+/* We need 4 extra entries for:
+ * 1. SoC peripherals
+ * 2. Flash
+ * 3. PCIe 4GB Windows for AM68, AM69, J7200, J721E, J721S2, J742S2 and J784S4 SoCs
+ * 4. Sentinel value
  */
-#define K3_MEM_MAP_LEN			((CONFIG_NR_DRAM_BANKS) + 3)
-#define K3_MEM_MAP_FIRST_BANK_IDX	2
+#define K3_MEM_MAP_LEN			((CONFIG_NR_DRAM_BANKS) + 4)
+#define K3_MEM_MAP_FIRST_BANK_IDX	3
 
 int dram_init(void);
 int dram_init_banksize(void);
