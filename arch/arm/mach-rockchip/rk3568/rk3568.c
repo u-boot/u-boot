@@ -72,9 +72,15 @@ static struct mm_region rk3568_mem_map[] = {
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		.virt = 0x300000000,
-		.phys = 0x300000000,
-		.size = 0x0c0c00000,
+		.virt = 0x100000000UL,
+		.phys = 0x100000000UL,
+		.size = 0x100000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x300000000UL,
+		.phys = 0x300000000UL,
+		.size = 0x0c0c00000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
