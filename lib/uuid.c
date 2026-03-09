@@ -254,6 +254,12 @@ static const struct {
 		NULL, "EFI Conformance Profiles Table",
 		EFI_CONFORMANCE_PROFILES_TABLE_GUID,
 	},
+#if CONFIG_IS_ENABLED(EFI_ECPT)
+	{
+		NULL, "EFI EBBR 2.1 Conformance Profile",
+		EFI_CONFORMANCE_PROFILE_EBBR_2_1_GUID,
+	},
+#endif
 #ifdef CONFIG_EFI_RISCV_BOOT_PROTOCOL
 	{
 		NULL, "RISC-V Boot",
