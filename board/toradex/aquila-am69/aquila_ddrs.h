@@ -10,5 +10,6 @@
 
 extern struct ddrss_patch *aquila_am69_ddrss_patch_8GB[4];
 extern struct ddrss_patch *aquila_am69_ddrss_patch_16GB[4];
+extern struct ddrss_patch *aquila_am69_ddrss_patch_16GB_rank_2[4];
 
 #endif // __AQUILA_DDRS_H
