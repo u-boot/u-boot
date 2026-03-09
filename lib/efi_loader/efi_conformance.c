@@ -12,7 +12,7 @@
 #include <efi_api.h>
 #include <malloc.h>
 
-static const efi_guid_t efi_ecpt_guid = EFI_CONFORMANCE_PROFILES_TABLE_GUID;
+const efi_guid_t efi_ecpt_guid = EFI_CONFORMANCE_PROFILES_TABLE_GUID;
 
 /**
  * efi_ecpt_register() - Install the ECPT system table.

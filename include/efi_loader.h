@@ -387,6 +387,10 @@ extern const efi_guid_t efi_guid_capsule_report;
 extern const efi_guid_t efi_guid_firmware_management_protocol;
 /* GUID for the ESRT */
 extern const efi_guid_t efi_esrt_guid;
+/* GUID for the ECPT */
+#if CONFIG_IS_ENABLED(EFI_ECPT)
+extern const efi_guid_t efi_ecpt_guid;
+#endif
 /* GUID of the SMBIOS table */
 extern const efi_guid_t smbios_guid;
 extern const efi_guid_t smbios3_guid;
