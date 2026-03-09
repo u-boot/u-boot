@@ -31,6 +31,8 @@
 		serial2 = &lpuart6;
 		serial3 = &lpuart7;
 		usbphy0 = &usbphy1;
+		wdog1 = &wdog1;
+		wdog2 = &wdog2;
 	};
 
 	cpus {
@@ -293,6 +295,11 @@
 			clocks = <&scg1 IMX7ULP_CLK_CORE_DIV>,
 				 <&scg1 IMX7ULP_CLK_HSRUN_CORE_DIV>;
 			clock-names = "divcore", "hsrun_divcore";
+		};
+
+		wdog2: watchdog@40430000 {
+			compatible = "fsl,imx7ulp-wdt";
+			reg = <0x40430000 0x10000>;
 		};
 
 		pcc3: clock-controller@40b30000 {
