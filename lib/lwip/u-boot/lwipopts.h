@@ -121,9 +121,13 @@
 #define LWIP_UDP                        0
 #endif
 
+/*
+ * PBUF_POOL_BUFSIZE is derived from TCP_MSS even when
+ * CONFIG_PROT_TCP_LWIP is not defined
+ */
+#define TCP_MSS                         1460
 #if defined(CONFIG_PROT_TCP_LWIP)
 #define LWIP_TCP                        1
-#define TCP_MSS                         1460
 #define TCP_WND                         CONFIG_LWIP_TCP_WND
 #define LWIP_WND_SCALE                  1
 #define TCP_RCV_SCALE                   0x7
