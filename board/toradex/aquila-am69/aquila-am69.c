@@ -17,8 +17,7 @@
 #include <spl.h>
 
 #include "../common/tdx-common.h"
-#include "aquila_ddrs_16GB.h"
-#include "aquila_ddrs_8GB.h"
+#include "aquila_ddrs.h"
 #include "ddrs_patch.h"
 
 #define CTRL_MMR_CFG0_MCU_ADC1_CTRL	0x40F040B4
@@ -27,14 +26,19 @@
 #define HW_CFG_MEM_SZ_16GB		0x01
 #define HW_CFG_MEM_SZ_8GB		0x02
 
-#define HW_CFG_MEM_SZ_MASK		0x03
+#define HW_CFG_MEM_CFG_MASK		0x03
 
 DECLARE_GLOBAL_DATA_PTR;
 static u8 hw_cfg;
 
+static u8 aquila_am69_memory_cfg(void)
+{
+	return hw_cfg & HW_CFG_MEM_CFG_MASK;
+}
+
 static u64 aquila_am69_memory_size(void)
 {
-	switch (hw_cfg & HW_CFG_MEM_SZ_MASK) {
+	switch (aquila_am69_memory_cfg()) {
 	case HW_CFG_MEM_SZ_32GB:
 		return SZ_32G;
 	case HW_CFG_MEM_SZ_16GB:
@@ -79,12 +83,12 @@ static void update_ddr_timings(void)
 	int ret = 0;
 	void *fdt = (void *)gd->fdt_blob;
 
-	switch (aquila_am69_memory_size()) {
-	case SZ_8G:
+	switch (aquila_am69_memory_cfg()) {
+	case HW_CFG_MEM_SZ_8GB:
 		ret = aquila_am69_fdt_apply_ddr_patch(fdt, aquila_am69_ddrss_patch_8GB,
 						      MULTI_DDR_CFG_INTRLV_SIZE_8GB);
 		break;
-	case SZ_16G:
+	case HW_CFG_MEM_SZ_16GB:
 		ret = aquila_am69_fdt_apply_ddr_patch(fdt, aquila_am69_ddrss_patch_16GB,
 						      MULTI_DDR_CFG_INTRLV_SIZE_16GB);
 		break;
