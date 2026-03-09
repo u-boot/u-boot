@@ -34,6 +34,8 @@ if os.environ.get("READTHEDOCS", "") == "True":
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('sphinx'))
+sys.path.append(os.path.abspath('../test/py/tests'))
+sys.path.append(os.path.abspath('../test/py'))
 from load_config import loadConfig
 
 # -- General configuration ------------------------------------------------

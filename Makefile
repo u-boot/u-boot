@@ -2759,8 +2759,7 @@ DOC_TARGETS := xmldocs latexdocs pdfdocs htmldocs epubdocs cleandocs \
 	       linkcheckdocs dochelp refcheckdocs texinfodocs infodocs
 PHONY += $(DOC_TARGETS)
 $(DOC_TARGETS): scripts_basic FORCE
-	$(Q)PYTHONPATH=$(srctree)/test/py/tests:$(srctree)/test/py \
-	$(MAKE) $(build)=doc $@
+	$(Q)$(MAKE) $(build)=doc $@
 
 PHONY += checkstack ubootrelease ubootversion
 
