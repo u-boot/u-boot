@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause
+/*
+ * Copyright (C) STMicroelectronics 2026 - All Rights Reserved
+ */
+
+/ {
+	config {
+		u-boot,boot-led = "led-blue";
+		u-boot,mmc-env-partition = "u-boot-env";
+	};
+};
+
+&syscfg {
+	bootph-all;
+};
+
+&usart2 {
+	bootph-all;
+};

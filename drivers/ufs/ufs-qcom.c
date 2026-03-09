@@ -14,7 +14,6 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <generic-phy.h>
-#include <ufs.h>
 #include <asm/gpio.h>
 #include <interconnect.h>
 

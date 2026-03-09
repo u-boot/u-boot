@@ -187,11 +187,3 @@ U_BOOT_CMD(stm32prog, 5, 0, do_stm32prog,
 	   "  <addr> = address of flashlayout\n"
 	   "  <size> = size of flashlayout (optional for image with STM32 header)\n"
 );
-
-bool stm32prog_get_fsbl_nor(void)
-{
-	if (stm32prog_data)
-		return stm32prog_data->fsbl_nor_detected;
-
-	return false;
-}

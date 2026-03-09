@@ -4,7 +4,7 @@
  *
  * ADI SC5XX MUSB "glue layer"
  *
- * Written and/or maintained by Timesys Corporation
+ * Written by Timesys Corporation
  *
  * Loosely ported from Linux driver:
  * Author: Nathan Barrett-Morrison <nathan.morrison@timesys.com>

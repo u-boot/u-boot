@@ -164,15 +164,20 @@ void *ofnode_lookup_fdt(ofnode node)
 
 void *ofnode_to_fdt(ofnode node)
 {
+	void *fdt;
+
 #ifdef OF_CHECKS
 	if (of_live_active())
-		return NULL;
+		panic("%s called with live tree in use!\n", __func__);
 #endif
 	if (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) && ofnode_valid(node))
-		return ofnode_lookup_fdt(node);
+		fdt = ofnode_lookup_fdt(node);
+	else
+		fdt = (void *)gd->fdt_blob;
 
-	/* Use the control FDT by default */
-	return (void *)gd->fdt_blob;
+	assert(fdt);
+
+	return fdt;
 }
 
 /**

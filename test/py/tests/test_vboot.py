@@ -362,10 +362,14 @@ def test_vboot(ubman, name, sha_algo, padding, sign_options, required,
             shutil.copyfile(fit, efit)
             vboot_evil.add_evil_node(fit, efit, evil_kernel, 'kernel@')
 
-            msg = 'Signature checking prevents use of unit addresses (@) in nodes'
+            # fit_check_sign catches this via signature mismatch (the @
+            # node is hashed instead of the real one)
             utils.run_and_log_expect_exception(
                 ubman, [fit_check_sign, '-f', efit, '-k', dtb],
-                1, msg)
+                1, 'Failed to verify required signature')
+
+            # bootm catches it earlier, at fit_check_format() time
+            msg = 'Signature checking prevents use of unit addresses (@) in nodes'
             run_bootm(sha_algo, 'evil kernel@', msg, False, efit)
 
         # Create a new properly signed fit and replace header bytes

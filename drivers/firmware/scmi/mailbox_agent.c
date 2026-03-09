@@ -101,7 +101,7 @@ static int scmi_mbox_get_channel(struct udevice *dev,
 	struct scmi_mbox_channel *chan;
 	int ret;
 
-	if (!dev_read_prop(protocol, "shmem", NULL)) {
+	if (!dev_has_ofnode(protocol) || !dev_read_prop(protocol, "shmem", NULL)) {
 		/* Uses agent base channel */
 		*channel = container_of(base_chan, struct scmi_channel, ref);
 

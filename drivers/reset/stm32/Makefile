@@ -6,4 +6,5 @@ obj-y += stm32-reset-core.o
 
 obj-$(CONFIG_RESET_STM32) += stm32-reset.o
 obj-$(CONFIG_RESET_STM32MP1) += stm32-reset-mp1.o
+obj-$(CONFIG_RESET_STM32MP21) += stm32-reset-mp21.o
 obj-$(CONFIG_RESET_STM32MP25) += stm32-reset-mp25.o

@@ -353,20 +353,27 @@ meantime.
 Details
 -------
 The signature node contains a property ('hashed-nodes') which lists all the
-nodes that the signature was made over.  The image is walked in order and each
-tag processed as follows:
+nodes that the signature was made over.  The signer (mkimage) writes this
+property as a record of what was included in the hash.  During verification,
+however, U-Boot does not read 'hashed-nodes'. Instead it rebuilds the node
+list from the configuration's own image references (kernel, fdt, ramdisk,
+etc.), since 'hashed-nodes' is not itself covered by the signature. The
+rebuilt list always includes the root node, the configuration node, each
+referenced image node and its hash/cipher subnodes.
+
+The image is walked in order and each tag processed as follows:
 
 DTB_BEGIN_NODE
     The tag and the following name are included in the signature
-    if the node or its parent are present in 'hashed-nodes'
+    if the node or its parent are present in the node list
 
 DTB_END_NODE
     The tag is included in the signature if the node or its parent
-    are present in 'hashed-nodes'
+    are present in the node list
 
 DTB_PROPERTY
     The tag, the length word, the offset in the string table, and
-    the data are all included if the current node is present in 'hashed-nodes'
+    the data are all included if the current node is present in the node list
     and the property name is not 'data'.
 
 DTB_END
@@ -374,7 +381,7 @@ DTB_END
 
 DTB_NOP
     The tag is included in the signature if the current node is present
-    in 'hashed-nodes'
+    in the node list
 
 In addition, the signature contains a property 'hashed-strings' which contains
 the offset and length in the string table of the strings that are to be

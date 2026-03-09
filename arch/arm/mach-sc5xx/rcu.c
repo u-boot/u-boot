@@ -2,9 +2,8 @@
 /*
  * (C) Copyright 2024 - Analog Devices, Inc.
  *
- * Written and/or maintained by Timesys Corporation
+ * Written by Timesys Corporation
  *
- * Contact: Ian Roberts <ian.roberts@timesys.com>
  */
 
 #include <dm.h>

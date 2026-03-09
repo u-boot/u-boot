@@ -51,6 +51,8 @@ enum stm32_gpio_af {
 	STM32_GPIO_AF15
 };
 
+#define STM32_GPIO_FLAG_SEC_CTRL	BIT(0)
+
 struct stm32_gpio_dsc {
 	u8	port;
 	u8	pin;
@@ -74,6 +76,9 @@ struct stm32_gpio_regs {
 	u32 bsrr;	/* GPIO port bit set/reset */
 	u32 lckr;	/* GPIO port configuration lock */
 	u32 afr[2];	/* GPIO alternate function */
+	u32 brr;	/* GPIO port bit reset */
+	u32 rfu;	/* Reserved */
+	u32 seccfgr;	/* GPIO secure configuration */
 };
 
 struct stm32_gpio_priv {

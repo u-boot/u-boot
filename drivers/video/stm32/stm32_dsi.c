@@ -84,42 +84,48 @@ enum dsi_color {
 /* Timeout for regulator on/off, pll lock/unlock & fifo empty */
 #define TIMEOUT_US	200000
 
-struct stm32_dsi_priv {
+struct stm32_dsi_plat {
 	struct mipi_dsi_device device;
 	void __iomem *base;
 	struct udevice *panel;
+	struct udevice *vdd_reg;
+	struct udevice *dsi_host;
+	struct reset_ctl rst;
+	struct clk pclk;
+	struct clk refclk;
+};
+
+struct stm32_dsi_priv {
 	u32 pllref_clk;
 	u32 hw_version;
 	int lane_min_kbps;
 	int lane_max_kbps;
-	struct udevice *vdd_reg;
-	struct udevice *dsi_host;
 };
 
-static inline void dsi_write(struct stm32_dsi_priv *dsi, u32 reg, u32 val)
+static inline void dsi_write(void __iomem *base, u32 reg, u32 val)
 {
-	writel(val, dsi->base + reg);
+	writel(val, base + reg);
 }
 
-static inline u32 dsi_read(struct stm32_dsi_priv *dsi, u32 reg)
+static inline u32 dsi_read(void __iomem *base, u32 reg)
 {
-	return readl(dsi->base + reg);
+	return readl(base + reg);
 }
 
-static inline void dsi_set(struct stm32_dsi_priv *dsi, u32 reg, u32 mask)
+static inline void dsi_set(void __iomem *base, u32 reg, u32 mask)
 {
-	dsi_write(dsi, reg, dsi_read(dsi, reg) | mask);
+	dsi_write(base, reg, dsi_read(base, reg) | mask);
 }
 
-static inline void dsi_clear(struct stm32_dsi_priv *dsi, u32 reg, u32 mask)
+static inline void dsi_clear(void __iomem *base, u32 reg, u32 mask)
 {
-	dsi_write(dsi, reg, dsi_read(dsi, reg) & ~mask);
+	dsi_write(base, reg, dsi_read(base, reg) & ~mask);
 }
 
-static inline void dsi_update_bits(struct stm32_dsi_priv *dsi, u32 reg,
+static inline void dsi_update_bits(void __iomem *base, u32 reg,
 				   u32 mask, u32 val)
 {
-	dsi_write(dsi, reg, (dsi_read(dsi, reg) & ~mask) | val);
+	dsi_write(base, reg, (dsi_read(base, reg) & ~mask) | val);
 }
 
 static enum dsi_color dsi_color_from_mipi(u32 fmt)
@@ -210,14 +216,14 @@ static int dsi_phy_init(void *priv_data)
 {
 	struct mipi_dsi_device *device = priv_data;
 	struct udevice *dev = device->dev;
-	struct stm32_dsi_priv *dsi = dev_get_priv(dev);
+	struct stm32_dsi_plat *dsi = dev_get_plat(dev);
 	u32 val;
 	int ret;
 
 	dev_dbg(dev, "Initialize DSI physical layer\n");
 
 	/* Enable the regulator */
-	dsi_set(dsi, DSI_WRPCR, WRPCR_REGEN | WRPCR_BGREN);
+	dsi_set(dsi->base, DSI_WRPCR, WRPCR_REGEN | WRPCR_BGREN);
 	ret = readl_poll_timeout(dsi->base + DSI_WISR, val, val & WISR_RRS,
 				 TIMEOUT_US);
 	if (ret) {
@@ -226,7 +232,7 @@ static int dsi_phy_init(void *priv_data)
 	}
 
 	/* Enable the DSI PLL & wait for its lock */
-	dsi_set(dsi, DSI_WRPCR, WRPCR_PLLEN);
+	dsi_set(dsi->base, DSI_WRPCR, WRPCR_PLLEN);
 	ret = readl_poll_timeout(dsi->base + DSI_WISR, val, val & WISR_PLLLS,
 				 TIMEOUT_US);
 	if (ret) {
@@ -241,7 +247,7 @@ static void dsi_phy_post_set_mode(void *priv_data, unsigned long mode_flags)
 {
 	struct mipi_dsi_device *device = priv_data;
 	struct udevice *dev = device->dev;
-	struct stm32_dsi_priv *dsi = dev_get_priv(dev);
+	struct stm32_dsi_plat *dsi = dev_get_plat(dev);
 
 	dev_dbg(dev, "Set mode %p enable %ld\n", dsi,
 		mode_flags & MIPI_DSI_MODE_VIDEO);
@@ -256,9 +262,9 @@ static void dsi_phy_post_set_mode(void *priv_data, unsigned long mode_flags)
 	 */
 
 	if (mode_flags & MIPI_DSI_MODE_VIDEO)
-		dsi_set(dsi, DSI_WCR, WCR_DSIEN);
+		dsi_set(dsi->base, DSI_WCR, WCR_DSIEN);
 	else
-		dsi_clear(dsi, DSI_WCR, WCR_DSIEN);
+		dsi_clear(dsi->base, DSI_WCR, WCR_DSIEN);
 }
 
 static int dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
@@ -266,32 +272,33 @@ static int dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 {
 	struct mipi_dsi_device *device = priv_data;
 	struct udevice *dev = device->dev;
-	struct stm32_dsi_priv *dsi = dev_get_priv(dev);
+	struct stm32_dsi_plat *plat = dev_get_plat(dev);
+	struct stm32_dsi_priv *priv = dev_get_priv(dev);
 	int idf, ndiv, odf, pll_in_khz, pll_out_khz;
 	int ret, bpp;
 	u32 val;
 
 	/* Update lane capabilities according to hw version */
-	dsi->lane_min_kbps = LANE_MIN_KBPS;
-	dsi->lane_max_kbps = LANE_MAX_KBPS;
-	if (dsi->hw_version == HWVER_131) {
-		dsi->lane_min_kbps *= 2;
-		dsi->lane_max_kbps *= 2;
+	priv->lane_min_kbps = LANE_MIN_KBPS;
+	priv->lane_max_kbps = LANE_MAX_KBPS;
+	if (priv->hw_version == HWVER_131) {
+		priv->lane_min_kbps *= 2;
+		priv->lane_max_kbps *= 2;
 	}
 
-	pll_in_khz = dsi->pllref_clk / 1000;
+	pll_in_khz = priv->pllref_clk / 1000;
 
 	/* Compute requested pll out */
 	bpp = mipi_dsi_pixel_format_to_bpp(format);
 	pll_out_khz = (timings->pixelclock.typ / 1000) * bpp / lanes;
 	/* Add 20% to pll out to be higher than pixel bw (burst mode only) */
 	pll_out_khz = (pll_out_khz * 12) / 10;
-	if (pll_out_khz > dsi->lane_max_kbps) {
-		pll_out_khz = dsi->lane_max_kbps;
+	if (pll_out_khz > priv->lane_max_kbps) {
+		pll_out_khz = priv->lane_max_kbps;
 		dev_warn(dev, "Warning max phy mbps is used\n");
 	}
-	if (pll_out_khz < dsi->lane_min_kbps) {
-		pll_out_khz = dsi->lane_min_kbps;
+	if (pll_out_khz < priv->lane_min_kbps) {
+		pll_out_khz = priv->lane_min_kbps;
 		dev_warn(dev, "Warning min phy mbps is used\n");
 	}
 
@@ -299,7 +306,7 @@ static int dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 	idf = 0;
 	ndiv = 0;
 	odf = 0;
-	ret = dsi_pll_get_params(dsi, pll_in_khz, pll_out_khz,
+	ret = dsi_pll_get_params(priv, pll_in_khz, pll_out_khz,
 				 &idf, &ndiv, &odf);
 	if (ret) {
 		dev_err(dev, "Warning dsi_pll_get_params(): bad params\n");
@@ -310,18 +317,18 @@ static int dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 	pll_out_khz = dsi_pll_get_clkout_khz(pll_in_khz, idf, ndiv, odf);
 
 	/* Set the PLL division factors */
-	dsi_update_bits(dsi, DSI_WRPCR,	WRPCR_NDIV | WRPCR_IDF | WRPCR_ODF,
+	dsi_update_bits(plat->base, DSI_WRPCR, WRPCR_NDIV | WRPCR_IDF | WRPCR_ODF,
 			(ndiv << 2) | (idf << 11) | ((ffs(odf) - 1) << 16));
 
 	/* Compute uix4 & set the bit period in high-speed mode */
 	val = 4000000 / pll_out_khz;
-	dsi_update_bits(dsi, DSI_WPCR0, WPCR0_UIX4, val);
+	dsi_update_bits(plat->base, DSI_WPCR0, WPCR0_UIX4, val);
 
 	/* Select video mode by resetting DSIM bit */
-	dsi_clear(dsi, DSI_WCFGR, WCFGR_DSIM);
+	dsi_clear(plat->base, DSI_WCFGR, WCFGR_DSIM);
 
 	/* Select the color coding */
-	dsi_update_bits(dsi, DSI_WCFGR, WCFGR_COLMUX,
+	dsi_update_bits(plat->base, DSI_WCFGR, WCFGR_COLMUX,
 			dsi_color_from_mipi(format) << 1);
 
 	*lane_mbps = pll_out_khz / 1000;
@@ -340,27 +347,27 @@ static const struct mipi_dsi_phy_ops dsi_stm_phy_ops = {
 
 static int stm32_dsi_attach(struct udevice *dev)
 {
-	struct stm32_dsi_priv *priv = dev_get_priv(dev);
-	struct mipi_dsi_device *device = &priv->device;
+	struct stm32_dsi_plat *plat = dev_get_plat(dev);
+	struct mipi_dsi_device *device = &plat->device;
 	struct mipi_dsi_panel_plat *mplat;
 	struct display_timing timings;
 	int ret;
 
-	ret = uclass_first_device_err(UCLASS_PANEL, &priv->panel);
+	ret = uclass_first_device_err(UCLASS_PANEL, &plat->panel);
 	if (ret) {
 		dev_err(dev, "panel device error %d\n", ret);
 		return ret;
 	}
 
-	mplat = dev_get_plat(priv->panel);
-	mplat->device = &priv->device;
+	mplat = dev_get_plat(plat->panel);
+	mplat->device = &plat->device;
 	device->lanes = mplat->lanes;
 	device->format = mplat->format;
 	device->mode_flags = mplat->mode_flags;
 
-	ret = panel_get_display_timing(priv->panel, &timings);
+	ret = panel_get_display_timing(plat->panel, &timings);
 	if (ret) {
-		ret = ofnode_decode_display_timing(dev_ofnode(priv->panel),
+		ret = ofnode_decode_display_timing(dev_ofnode(plat->panel),
 						   0, &timings);
 		if (ret) {
 			dev_err(dev, "decode display timing error %d\n", ret);
@@ -368,13 +375,13 @@ static int stm32_dsi_attach(struct udevice *dev)
 		}
 	}
 
-	ret = uclass_get_device(UCLASS_DSI_HOST, 0, &priv->dsi_host);
+	ret = uclass_get_device(UCLASS_DSI_HOST, 0, &plat->dsi_host);
 	if (ret) {
 		dev_err(dev, "No video dsi host detected %d\n", ret);
 		return ret;
 	}
 
-	ret = dsi_host_init(priv->dsi_host, device, &timings, 2,
+	ret = dsi_host_init(plat->dsi_host, device, &timings, 2,
 			    &dsi_stm_phy_ops);
 	if (ret) {
 		dev_err(dev, "failed to initialize mipi dsi host\n");
@@ -386,17 +393,17 @@ static int stm32_dsi_attach(struct udevice *dev)
 
 static int stm32_dsi_set_backlight(struct udevice *dev, int percent)
 {
-	struct stm32_dsi_priv *priv = dev_get_priv(dev);
+	struct stm32_dsi_plat *plat = dev_get_plat(dev);
 	int ret;
 
-	ret = panel_enable_backlight(priv->panel);
+	ret = panel_enable_backlight(plat->panel);
 	if (ret) {
 		dev_err(dev, "panel %s enable backlight error %d\n",
-			priv->panel->name, ret);
+			plat->panel->name, ret);
 		return ret;
 	}
 
-	ret = dsi_host_enable(priv->dsi_host);
+	ret = dsi_host_enable(plat->dsi_host);
 	if (ret) {
 		dev_err(dev, "failed to enable mipi dsi host\n");
 		return ret;
@@ -417,66 +424,71 @@ static int stm32_dsi_bind(struct udevice *dev)
 	return dm_scan_fdt_dev(dev);
 }
 
-static int stm32_dsi_probe(struct udevice *dev)
+static int stm32_dsi_of_to_plat(struct udevice *dev)
 {
-	struct stm32_dsi_priv *priv = dev_get_priv(dev);
-	struct mipi_dsi_device *device = &priv->device;
-	struct reset_ctl rst;
-	struct clk clk;
+	struct stm32_dsi_plat *plat = dev_get_plat(dev);
+	struct mipi_dsi_device *device = &plat->device;
 	int ret;
 
 	device->dev = dev;
 
-	priv->base = dev_read_addr_ptr(dev);
-	if (!priv->base) {
+	plat->base = dev_read_addr_ptr(dev);
+	if (!plat->base) {
 		dev_err(dev, "dsi dt register address error\n");
 		return -EINVAL;
 	}
 
 	ret =  device_get_supply_regulator(dev, "phy-dsi-supply",
-					   &priv->vdd_reg);
+					   &plat->vdd_reg);
 	if (ret && ret != -ENOENT) {
 		dev_err(dev, "Warning: cannot get phy dsi supply\n");
 		return -ENODEV;
 	}
 
 	if (ret != -ENOENT) {
-		ret = regulator_set_enable(priv->vdd_reg, true);
+		ret = regulator_set_enable(plat->vdd_reg, true);
 		if (ret)
 			return ret;
 	}
 
-	ret = clk_get_by_name(device->dev, "pclk", &clk);
+	ret = clk_get_by_name(device->dev, "pclk", &plat->pclk);
 	if (ret) {
 		dev_err(dev, "peripheral clock get error %d\n", ret);
-		goto err_reg;
+		return ret;
 	}
 
-	ret = clk_enable(&clk);
+	ret = clk_get_by_name(dev, "ref", &plat->refclk);
+	if (ret) {
+		dev_err(dev, "pll reference clock get error %d\n", ret);
+		return ret;
+	}
+
+	ret = reset_get_by_index(device->dev, 0, &plat->rst);
+	if (ret)
+		dev_err(dev, "missing dsi hardware reset\n");
+
+	return ret;
+}
+
+static int stm32_dsi_probe(struct udevice *dev)
+{
+	struct stm32_dsi_plat *plat = dev_get_plat(dev);
+	struct stm32_dsi_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = clk_enable(&plat->pclk);
 	if (ret) {
 		dev_err(dev, "peripheral clock enable error %d\n", ret);
 		goto err_reg;
 	}
 
-	ret = clk_get_by_name(dev, "ref", &clk);
-	if (ret) {
-		dev_err(dev, "pll reference clock get error %d\n", ret);
-		goto err_clk;
-	}
-
-	priv->pllref_clk = (unsigned int)clk_get_rate(&clk);
-
-	ret = reset_get_by_index(device->dev, 0, &rst);
-	if (ret) {
-		dev_err(dev, "missing dsi hardware reset\n");
-		goto err_clk;
-	}
+	priv->pllref_clk = (unsigned int)clk_get_rate(&plat->refclk);
 
 	/* Reset */
-	reset_deassert(&rst);
+	reset_deassert(&plat->rst);
 
 	/* check hardware version */
-	priv->hw_version = dsi_read(priv, DSI_VERSION) & VERSION;
+	priv->hw_version = dsi_read(plat->base, DSI_VERSION) & VERSION;
 	if (priv->hw_version != HWVER_130 &&
 	    priv->hw_version != HWVER_131) {
 		dev_err(dev, "DSI version 0x%x not supported\n", priv->hw_version);
@@ -489,9 +501,9 @@ static int stm32_dsi_probe(struct udevice *dev)
 
 	return 0;
 err_clk:
-	clk_disable(&clk);
+	clk_disable(&plat->pclk);
 err_reg:
-	regulator_set_enable(priv->vdd_reg, false);
+	regulator_set_enable(plat->vdd_reg, false);
 
 	return ret;
 }
@@ -512,6 +524,8 @@ U_BOOT_DRIVER(stm32_dsi) = {
 	.of_match			= stm32_dsi_ids,
 	.bind				= stm32_dsi_bind,
 	.probe				= stm32_dsi_probe,
+	.of_to_plat			= stm32_dsi_of_to_plat,
 	.ops				= &stm32_dsi_ops,
+	.plat_auto		= sizeof(struct stm32_dsi_plat),
 	.priv_auto		= sizeof(struct stm32_dsi_priv),
 };

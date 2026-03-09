@@ -795,5 +795,5 @@ vf2:
 qemu-x86_64:
   variables:
     ROLE: qemu-x86_64
-    TEST_PY_TEST_SPEC: "and not sleep"
+    TEST_PY_TEST_SPEC: "not sleep"
   <<: *sjg_lab_dfn

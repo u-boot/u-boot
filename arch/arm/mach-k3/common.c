@@ -407,6 +407,11 @@ void k3_fix_rproc_clock(const char *path)
 		       path, a_core_frequency / 1000000, speed_grade);
 }
 
+__weak phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
+{
+	return gd->ram_top;
+}
+
 void spl_enable_cache(void)
 {
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
@@ -420,6 +425,7 @@ void spl_enable_cache(void)
 	gd->arch.tlb_size = PGTABLE_SIZE;
 
 	gd->ram_top += get_effective_memsize();
+	gd->ram_top = board_get_usable_ram_top(0);
 	gd->relocaddr = gd->ram_top;
 
 	ret = spl_reserve_video_from_ram_top();

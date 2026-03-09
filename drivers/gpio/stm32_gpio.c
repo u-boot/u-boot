@@ -32,6 +32,9 @@
 #define OTYPE_BITS(gpio_pin)		(gpio_pin)
 #define OTYPE_MSK			1
 
+#define SECCFG_BITS(gpio_pin)		(gpio_pin)
+#define SECCFG_MSK			1
+
 static void stm32_gpio_set_moder(struct stm32_gpio_regs *regs,
 				 int idx,
 				 int mode)
@@ -87,6 +90,27 @@ static bool stm32_gpio_is_mapped(struct udevice *dev, int offset)
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 
 	return !!(priv->gpio_range & BIT(offset));
+}
+
+static int stm32_gpio_request(struct udevice *dev, unsigned int offset, const char *label)
+{
+	struct stm32_gpio_priv *priv = dev_get_priv(dev);
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct stm32_gpio_regs *regs = priv->regs;
+	ulong drv_data = dev_get_driver_data(dev);
+
+	if (!stm32_gpio_is_mapped(dev, offset))
+		return -ENXIO;
+
+	/* Deny request access if IO is secured */
+	if ((drv_data & STM32_GPIO_FLAG_SEC_CTRL) &&
+	    ((readl(&regs->seccfgr) >> SECCFG_BITS(offset)) & SECCFG_MSK)) {
+		dev_err(dev, "Failed to get secure IO %s %d @ %p\n",
+			uc_priv->bank_name, offset, regs);
+		return -EACCES;
+	}
+
+	return 0;
 }
 
 static int stm32_gpio_direction_input(struct udevice *dev, unsigned offset)
@@ -238,6 +262,7 @@ static int stm32_gpio_get_flags(struct udevice *dev, unsigned int offset,
 }
 
 static const struct dm_gpio_ops gpio_stm32_ops = {
+	.request		= stm32_gpio_request,
 	.direction_input	= stm32_gpio_direction_input,
 	.direction_output	= stm32_gpio_direction_output,
 	.get_value		= stm32_gpio_get_value,

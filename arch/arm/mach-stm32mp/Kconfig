@@ -84,6 +84,32 @@ config STM32MP15X
 		STMicroelectronics MPU with core ARMv7
 		dual core A7 for STM32MP157/3, monocore for STM32MP151
 
+config STM32MP21X
+	bool "Support STMicroelectronics STM32MP21x Soc"
+	select ARM64
+	select CLK_STM32MP21
+	select OF_BOARD
+	select PINCTRL_STM32
+	select STM32_RCC
+	select STM32_RESET
+	select STM32_SERIAL
+	select STM32MP_TAMP_NVMEM
+	select SYS_ARCH_TIMER
+	select TFABOOT
+	imply CLK_SCMI
+	imply CMD_NVEDIT_INFO
+	imply DM_REGULATOR
+	imply DM_REGULATOR_SCMI
+	imply OF_UPSTREAM
+	imply OPTEE
+	imply RESET_SCMI
+	imply SYSRESET_PSCI
+	imply TEE
+	imply VERSION_VARIABLE
+	help
+		Support of STMicroelectronics SOC STM32MP21X family
+		STMicroelectronics MPU with 1 A35 core and 1 M33 core
+
 config STM32MP23X
 	bool "Support STMicroelectronics STM32MP23x Soc"
 	select ARM64
@@ -195,6 +221,7 @@ config MFD_STM32_TIMERS
 
 source "arch/arm/mach-stm32mp/Kconfig.13x"
 source "arch/arm/mach-stm32mp/Kconfig.15x"
+source "arch/arm/mach-stm32mp/Kconfig.21x"
 source "arch/arm/mach-stm32mp/Kconfig.23x"
 source "arch/arm/mach-stm32mp/Kconfig.25x"
 source "arch/arm/mach-stm32mp/cmd_stm32prog/Kconfig"

@@ -629,15 +629,12 @@ S:	Supported
 F:	arch/arm/dts/am335x-sancloud*
 
 ARM SC5XX
-M:	Nathan Barrett-Morrison <nathan.morrison@timesys.com>
 M:	Greg Malysa <malysagreg@gmail.com>
-M:	Ian Roberts <ian.roberts@timesys.com>
 M:	Vasileios Bimpikas <vasileios.bimpikas@analog.com>
-M:	Utsav Agarwal <utsav.agarwal@analog.com>
 M:	Arturs Artamonovs <arturs.artamonovs@analog.com>
-L:	adsp-linux@analog.com
+L:	linux@analog.com
 S:	Supported
-T:	git https://github.com/analogdevicesinc/lnxdsp-u-boot
+T:	git https://github.com/analogdevicesinc/u-boot
 F:	arch/arm/dts/sc5*
 F:	arch/arm/include/asm/arch-adi/
 F:	arch/arm/mach-sc5xx/
@@ -1760,7 +1757,7 @@ F:	drivers/mtd/nand/spi/
 
 SPI-NOR
 M:	Vignesh R <vigneshr@ti.com>
-R:	Tudor Ambarus <tudor.ambarus@linaro.org>
+R:	Takahiro Kuwano <takahiro.kuwano@infineon.com>
 S:	Maintained
 F:	drivers/mtd/spi/
 F:	include/spi_flash.h

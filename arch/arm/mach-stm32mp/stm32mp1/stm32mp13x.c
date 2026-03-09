@@ -17,6 +17,7 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <linux/bitfield.h>
+#include <linux/err.h>
 #include <malloc.h>
 
 /* RCC register */
@@ -230,6 +231,12 @@ void stm32mp_cpu_init(void)
 static u32 read_idc(void)
 {
 	void *syscfg = syscon_get_first_range(STM32MP_SYSCON_SYSCFG);
+
+	if (IS_ERR(syscfg)) {
+		pr_err("Error, can't get SYSCON range (%ld)\n", PTR_ERR(syscfg));
+
+		return PTR_ERR(syscfg);
+	}
 
 	return readl(syscfg + SYSCFG_IDC_OFFSET);
 }

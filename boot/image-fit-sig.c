@@ -18,6 +18,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <u-boot/hash-checksum.h>
 
 #define IMAGE_MAX_HASHED_NODES		100
+#define FIT_MAX_HASH_PATH_BUF		4096
 
 /**
  * fit_region_make_list() - Make a list of image regions
@@ -230,6 +231,179 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
 }
 
 /**
+ * fit_config_add_hash() - Add hash nodes for one image to the node list
+ *
+ * Adds the image path, all its hash-* subnode paths, and its cipher
+ * subnode path (if present) to the packed buffer.
+ *
+ * @fit:		FIT blob
+ * @image_noffset:	Image node offset (e.g. /images/kernel-1)
+ * @node_inc:		Array of path pointers to fill
+ * @count:		Pointer to current count (updated on return)
+ * @max_nodes:		Maximum entries in @node_inc
+ * @buf:		Buffer for packed path strings
+ * @buf_used:		Pointer to bytes used in @buf (updated on return)
+ * @buf_len:		Total size of @buf
+ * Return: 0 on success, -ve on error
+ */
+static int fit_config_add_hash(const void *fit, int image_noffset,
+			       char **node_inc, int *count, int max_nodes,
+			       char *buf, int *buf_used, int buf_len)
+{
+	int noffset, hash_count, ret, len;
+
+	if (*count >= max_nodes)
+		return -ENOSPC;
+
+	ret = fdt_get_path(fit, image_noffset, buf + *buf_used,
+			   buf_len - *buf_used);
+	if (ret < 0)
+		return -ENOENT;
+	len = strlen(buf + *buf_used) + 1;
+	node_inc[(*count)++] = buf + *buf_used;
+	*buf_used += len;
+
+	/* Add all this image's hash subnodes */
+	hash_count = 0;
+	for (noffset = fdt_first_subnode(fit, image_noffset);
+	     noffset >= 0;
+	     noffset = fdt_next_subnode(fit, noffset)) {
+		const char *name = fit_get_name(fit, noffset, NULL);
+
+		if (strncmp(name, FIT_HASH_NODENAME,
+			    strlen(FIT_HASH_NODENAME)))
+			continue;
+		if (*count >= max_nodes)
+			return -ENOSPC;
+		ret = fdt_get_path(fit, noffset, buf + *buf_used,
+				   buf_len - *buf_used);
+		if (ret < 0)
+			return -ENOENT;
+		len = strlen(buf + *buf_used) + 1;
+		node_inc[(*count)++] = buf + *buf_used;
+		*buf_used += len;
+		hash_count++;
+	}
+
+	if (!hash_count) {
+		printf("No hash nodes in image '%s'\n",
+		       fdt_get_name(fit, image_noffset, NULL));
+		return -ENOMSG;
+	}
+
+	/* Add this image's cipher node if present */
+	noffset = fdt_subnode_offset(fit, image_noffset, FIT_CIPHER_NODENAME);
+	if (noffset != -FDT_ERR_NOTFOUND) {
+		if (noffset < 0)
+			return -EIO;
+		if (*count >= max_nodes)
+			return -ENOSPC;
+		ret = fdt_get_path(fit, noffset, buf + *buf_used,
+				   buf_len - *buf_used);
+		if (ret < 0)
+			return -ENOENT;
+		len = strlen(buf + *buf_used) + 1;
+		node_inc[(*count)++] = buf + *buf_used;
+		*buf_used += len;
+	}
+
+	return 0;
+}
+
+/**
+ * fit_config_get_hash_list() - Build the list of nodes to hash
+ *
+ * Works through every image referenced by the configuration and collects the
+ * node paths: root + config + all referenced images with their hash and
+ * cipher subnodes.
+ *
+ * Properties known not to be image references (description, compatible,
+ * default, load-only) are skipped, so any new image type is covered by default.
+ *
+ * @fit:	FIT blob
+ * @conf_noffset: Configuration node offset
+ * @node_inc:	Array to fill with path string pointers
+ * @max_nodes:	Size of @node_inc array
+ * @buf:	Buffer for packed null-terminated path strings
+ * @buf_len:	Size of @buf
+ * Return: number of entries in @node_inc, or -ve on error
+ */
+static int fit_config_get_hash_list(const void *fit, int conf_noffset,
+				    char **node_inc, int max_nodes,
+				    char *buf, int buf_len)
+{
+	const char *conf_name;
+	int image_count;
+	int prop_offset;
+	int used = 0;
+	int count = 0;
+	int ret, len;
+
+	conf_name = fit_get_name(fit, conf_noffset, NULL);
+
+	/* Always include the root node and the configuration node */
+	if (max_nodes < 2)
+		return -ENOSPC;
+
+	len = 2;  /* "/" + nul */
+	if (len > buf_len)
+		return -ENOSPC;
+	strcpy(buf, "/");
+	node_inc[count++] = buf;
+	used += len;
+
+	len = snprintf(buf + used, buf_len - used, "%s/%s", FIT_CONFS_PATH,
+		       conf_name) + 1;
+	if (used + len > buf_len)
+		return -ENOSPC;
+	node_inc[count++] = buf + used;
+	used += len;
+
+	/* Process each image referenced by the config */
+	image_count = 0;
+	fdt_for_each_property_offset(prop_offset, fit, conf_noffset) {
+		const char *prop_name;
+		int img_count, i;
+
+		fdt_getprop_by_offset(fit, prop_offset, &prop_name, NULL);
+		if (!prop_name)
+			continue;
+
+		/* Skip properties that are not image references */
+		if (!strcmp(prop_name, FIT_DESC_PROP) ||
+		    !strcmp(prop_name, FIT_COMPAT_PROP) ||
+		    !strcmp(prop_name, FIT_DEFAULT_PROP))
+			continue;
+
+		img_count = fdt_stringlist_count(fit, conf_noffset, prop_name);
+		for (i = 0; i < img_count; i++) {
+			int noffset;
+
+			noffset = fit_conf_get_prop_node_index(fit,
+							       conf_noffset,
+							       prop_name, i);
+			if (noffset < 0)
+				continue;
+
+			ret = fit_config_add_hash(fit, noffset, node_inc,
+						  &count, max_nodes, buf, &used,
+						  buf_len);
+			if (ret < 0)
+				return ret;
+
+			image_count++;
+		}
+	}
+
+	if (!image_count) {
+		printf("No images in config '%s'\n", conf_name);
+		return -ENOMSG;
+	}
+
+	return count;
+}
+
+/**
  * fit_config_check_sig() - Check the signature of a config
  *
  * Here we are looking at a particular signature that needs verification (here
@@ -269,20 +443,16 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
 		FIT_DATA_POSITION_PROP,
 		FIT_DATA_OFFSET_PROP,
 	};
-
-	const char *prop, *end, *name;
+	char *node_inc[IMAGE_MAX_HASHED_NODES];
+	char hash_buf[FIT_MAX_HASH_PATH_BUF];
 	struct image_sign_info info;
 	const uint32_t *strings;
-	const char *config_name;
 	uint8_t *fit_value;
 	int fit_value_len;
-	bool found_config;
 	int max_regions;
-	int i, prop_len;
 	char path[200];
 	int count;
 
-	config_name = fit_get_name(fit, conf_noffset, NULL);
 	debug("%s: fdt=%p, conf='%s', sig='%s'\n", __func__, key_blob,
 	      fit_get_name(fit, noffset, NULL),
 	      fit_get_name(key_blob, required_keynode, NULL));
@@ -297,45 +467,12 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
 		return -1;
 	}
 
-	/* Count the number of strings in the property */
-	prop = fdt_getprop(fit, noffset, "hashed-nodes", &prop_len);
-	end = prop ? prop + prop_len : prop;
-	for (name = prop, count = 0; name < end; name++)
-		if (!*name)
-			count++;
-	if (!count) {
-		*err_msgp = "Can't get hashed-nodes property";
-		return -1;
-	}
-
-	if (prop && prop_len > 0 && prop[prop_len - 1] != '\0') {
-		*err_msgp = "hashed-nodes property must be null-terminated";
-		return -1;
-	}
-
-	/* Add a sanity check here since we are using the stack */
-	if (count > IMAGE_MAX_HASHED_NODES) {
-		*err_msgp = "Number of hashed nodes exceeds maximum";
-		return -1;
-	}
-
-	/* Create a list of node names from those strings */
-	char *node_inc[count];
-
-	debug("Hash nodes (%d):\n", count);
-	found_config = false;
-	for (name = prop, i = 0; name < end; name += strlen(name) + 1, i++) {
-		debug("   '%s'\n", name);
-		node_inc[i] = (char *)name;
-		if (!strncmp(FIT_CONFS_PATH, name, strlen(FIT_CONFS_PATH)) &&
-		    name[sizeof(FIT_CONFS_PATH) - 1] == '/' &&
-		    !strcmp(name + sizeof(FIT_CONFS_PATH), config_name)) {
-			debug("      (found config node %s)", config_name);
-			found_config = true;
-		}
-	}
-	if (!found_config) {
-		*err_msgp = "Selected config not in hashed nodes";
+	/* Build the node list from the config, ignoring hashed-nodes */
+	count = fit_config_get_hash_list(fit, conf_noffset,
+					 node_inc, IMAGE_MAX_HASHED_NODES,
+					 hash_buf, sizeof(hash_buf));
+	if (count < 0) {
+		*err_msgp = "Failed to build hash node list";
 		return -1;
 	}
 

@@ -1641,8 +1641,6 @@ void nx_mlc_set_layer_alpha256(u32 module_index, u32 layer, u32 alpha)
 	u32 register_data;
 	register struct nx_mlc_register_set *pregister;
 
-	if (alpha < 0)
-		alpha = 0;
 	if (alpha > 255)
 		alpha = 255;
 

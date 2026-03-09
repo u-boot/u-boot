@@ -2,12 +2,10 @@
 /*
  * (C) Copyright 2022 - Analog Devices, Inc.
  *
- * Written and/or maintained by Timesys Corporation
+ * Written by Timesys Corporation
  *
  * Converted to driver model by Nathan Barrett-Morrison
  *
- * Contact: Nathan Barrett-Morrison <nathan.morrison@timesys.com>
- * Contact: Greg Malysa <greg.malysa@timesys.com>
  *
  * adi_wtd.c - driver for ADI on-chip watchdog
  *

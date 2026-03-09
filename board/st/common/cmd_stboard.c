@@ -51,6 +51,7 @@ static bool check_stboard(u16 board)
 		0x1605, /* stm32mp25xx-dk */
 		0x1635,
 		0x1936, /* stm32mp25xx-ev1 */
+		0x2059, /* stm32mp21xx-dk */
 	};
 
 	for (i = 0; i < ARRAY_SIZE(st_board_id); i++)
@@ -90,6 +91,11 @@ static int do_stboard(struct cmd_tbl *cmdtp, int flag, int argc,
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_DRIVER_GET(stm32mp_bsec),
 					  &dev);
+
+	if (ret) {
+		puts("Can't get BSEC device\n");
+		return CMD_RET_FAILURE;
+	}
 
 	ret = misc_read(dev, STM32_BSEC_OTP(BSEC_OTP_BOARD),
 			&otp, sizeof(otp));

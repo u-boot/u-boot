@@ -25,12 +25,13 @@ If a cross-compiler is required, install it and set it up like so:
 
 	export CROSS_COMPILE=aarch64-linux-gnu-
 
-Then, run the following commands to build U-Boot:
+Then, run the following commands to build U-Boot (replace ``<dtb>`` with the
+upstream DTB path for the target device):
 
 .. prompt:: bash $
 
 	make O=.output exynos-mobile_defconfig
-	make O=.output -j$(nproc)
+	make DEVICE_TREE=<dtb> O=.output -j$(nproc)
 
 If successful, the U-Boot binary will be present in ``.output/u-boot.bin``.
 

@@ -562,6 +562,13 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
+	ret = boottime->load_image(false, handle_image, NULL, NULL, 0,
+				   &handle);
+	if (ret != EFI_NOT_FOUND) {
+		efi_st_error("Unexpected load_image return value\n");
+		return EFI_ST_FAILURE;
+	}
+
 	return EFI_ST_SUCCESS;
 }
 

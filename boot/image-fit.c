@@ -2390,6 +2390,14 @@ static int boot_get_fdt_fit_into_buffer(const void *src, ulong srclen,
 		fdtsrcbuf = tmp;
 	}
 
+	/*
+	 * Source data comes from FIT payload. Validate the blob against
+	 * payload length before fdt_open_into() trusts header offsets/sizes.
+	 */
+	err = fdt_check_full(fdtsrcbuf, srclen);
+	if (err < 0)
+		goto out;
+
 	newdstlen = ALIGN(fdt_totalsize(fdtsrcbuf) + extra, SZ_4K);
 	min_dstlen = ALIGN(min_dstlen, SZ_4K);
 	if (newdstlen < min_dstlen)

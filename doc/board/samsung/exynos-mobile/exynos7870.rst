@@ -6,54 +6,20 @@ Samsung Exynos 7870 Boards
 
 Preparation
 -----------
-Create the following device tree (named ``stub.dts``)
 
-.. code-block:: devicetree
-
-	/dts-v1/;
-
-	/ {
-		compatible = "samsung,exynos7870";
-		#address-cells = <2>;
-		#size-cells = <1>;
-
-		model_info-chip = <7870>;
-		model_info-hw_rev = <0>;
-		model_info-hw_rev_end = <255>;
-
-		chosen {
-		};
-
-		memory@80000000 {
-			device_type = "memory";
-			reg = <0x0 0x80000000 0x0>;
-		};
-
-		memory@100000000 {
-			device_type = "memory";
-			reg = <0x1 0x00000000 0x0>;
-		};
-	};
-
-The chosen node and memory ranges are populated by S-BOOT. A certain device
-model may have multiple variants, with differing amounts of RAM and storage. The
-RAM capacity information is graciously provided by S-BOOT's device tree
-overlays.
-
-Compile it to a device tree blob, then pack it in the QCDT format [1]_ using
-``dtbTool-exynos`` [2]_ by issuing the following commands:
+Pack the device tree blob in the QCDT format [1]_ using ``dtbTool-exynos`` [2]_
+by issuing the following commands:
 
 .. prompt:: bash $
 
-	dtc -I dts -O dtb -o stub.dtb stub.dts
-	dtbTool-exynos -o stub-dt.img stub.dtb
+	dtbTool-exynos -o stub-dt.img .output/u-boot.dtb
 
 Finally, use ``mkbootimg`` by osm0sis [3]_ to generate the boot image:
 
 .. prompt:: bash $
 
 	mkbootimg -o u-boot.img \
-		--kernel	.output/u-boot.bin \
+		--kernel	.output/u-boot-nodtb.bin \
 		--dt		stub-dt.img
 
 Offsets are not provided to ``mkbootimg`` as S-BOOT ignores them.

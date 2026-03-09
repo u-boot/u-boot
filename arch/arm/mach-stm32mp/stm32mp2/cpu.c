@@ -15,6 +15,7 @@
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/armv8/mmu.h>
 #include <asm/system.h>
 #include <dm/device.h>
 #include <dm/lists.h>
@@ -70,8 +71,21 @@ int mach_cpu_init(void)
 
 void enable_caches(void)
 {
+	struct mm_region *mem = mem_map;
+
 	/* deactivate the data cache, early enabled in arch_cpu_init() */
 	dcache_disable();
+
+	/* Parse mem_map and find DDR entry */
+	while (mem->size) {
+		if (mem->phys == CONFIG_TEXT_BASE) {
+			/* update DDR entry with real DDR size */
+			mem->size = gd->ram_size;
+			break;
+		}
+		mem++;
+	}
+
 	/*
 	 * Force the call of setup_all_pgtables() in mmu_setup() by clearing tlb_fillptr
 	 * to update the TLB location udpated in board_f.c::reserve_mmu
@@ -128,8 +142,10 @@ static void setup_boot_mode(void)
 		STM32_UART5_BASE,
 		STM32_USART6_BASE,
 		STM32_UART7_BASE,
+#ifdef CONFIG_STM32MP25X
 		STM32_UART8_BASE,
 		STM32_UART9_BASE
+#endif
 	};
 	const u32 sdmmc_addr[] = {
 		STM32_SDMMC1_BASE,
@@ -148,7 +164,7 @@ static void setup_boot_mode(void)
 		  __func__, boot_ctx, boot_mode, instance, forced_mode);
 	switch (boot_mode & TAMP_BOOT_DEVICE_MASK) {
 	case BOOT_SERIAL_UART:
-		if (instance > ARRAY_SIZE(serial_addr))
+		if (instance >= ARRAY_SIZE(serial_addr))
 			break;
 		/* serial : search associated node in devicetree */
 		sprintf(cmd, "serial@%x", serial_addr[instance]);
@@ -178,7 +194,7 @@ static void setup_boot_mode(void)
 		break;
 	case BOOT_FLASH_SD:
 	case BOOT_FLASH_EMMC:
-		if (instance > ARRAY_SIZE(sdmmc_addr))
+		if (instance >= ARRAY_SIZE(sdmmc_addr))
 			break;
 		/* search associated sdmmc node in devicetree */
 		sprintf(cmd, "mmc@%x", sdmmc_addr[instance]);

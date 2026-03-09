@@ -2,12 +2,11 @@
 /*
  * (C) Copyright 2022 - Analog Devices, Inc.
  *
- * Written and/or maintained by Timesys Corporation
+ * Written by Timesys Corporation
  *
  * Converted to driver model by Nathan Barrett-Morrison
  *
  * Author: Greg Malysa <greg.malysa@timesys.com>
- * Additional Contact: Nathan Barrett-Morrison <nathan.morrison@timesys.com>
  *
  * dm timer implementation for ADI ADSP-SC5xx SoCs
  *

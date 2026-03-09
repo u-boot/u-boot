@@ -7,7 +7,6 @@
 #include <dm.h>
 #include <errno.h>
 #include <pci.h>
-#include <ufs.h>
 #include <dm/device_compat.h>
 #include "ufs.h"
 

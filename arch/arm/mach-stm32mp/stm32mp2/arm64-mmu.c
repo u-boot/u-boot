@@ -16,6 +16,7 @@
 
 struct mm_region stm32mp2_mem_map[MP2_MEM_MAP_MAX] = {
 	{
+#if defined(CONFIG_STM32MP25X)
 		/* PCIe */
 		.virt = 0x10000000UL,
 		.phys = 0x10000000UL,
@@ -24,6 +25,7 @@ struct mm_region stm32mp2_mem_map[MP2_MEM_MAP_MAX] = {
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
+#endif
 		/* LPSRAMs, VDERAM, RETRAM, SRAMs, SYSRAM: alias1 */
 		.virt = 0x20000000UL,
 		.phys = 0x20000000UL,

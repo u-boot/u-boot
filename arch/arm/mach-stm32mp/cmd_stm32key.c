@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
- * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2019-2024, STMicroelectronics - All Rights Reserved
  */
 
 #include <command.h>
@@ -16,21 +16,21 @@
  * Closed device: OTP0
  * STM32MP15x: bit 6 of OTP0
  * STM32MP13x: 0b111111 = 0x3F for OTP_SECURED closed device
- * STM32MP25x: bit 0 of OTP18
+ * STM32MP2xx: bit 0 of OTP18
  */
 #define STM32MP1_OTP_CLOSE_ID				0
 #define STM32_OTP_STM32MP13X_CLOSE_MASK		GENMASK(5, 0)
 #define STM32_OTP_STM32MP15X_CLOSE_MASK		BIT(6)
-#define STM32MP25_OTP_WORD8				8
-#define STM32_OTP_STM32MP25X_BOOTROM_CLOSE_MASK	GENMASK(7, 0)
-#define STM32MP25_OTP_CLOSE_ID			18
-#define STM32_OTP_STM32MP25X_CLOSE_MASK		GENMASK(3, 0)
-#define STM32_OTP_STM32MP25X_PROVISIONING_DONE_MASK	GENMASK(7, 4)
-#define STM32MP25_OTP_HWCONFIG			124
-#define STM32_OTP_STM32MP25X_DISABLE_SCAN_MASK	BIT(20)
+#define STM32MP2X_OTP_WORD8				8
+#define STM32_OTP_STM32MP2X_BOOTROM_CLOSE_MASK	GENMASK(7, 0)
+#define STM32MP2X_OTP_CLOSE_ID			18
+#define STM32_OTP_STM32MP2X_CLOSE_MASK		GENMASK(3, 0)
+#define STM32_OTP_STM32MP2X_PROVISIONING_DONE_MASK	GENMASK(7, 4)
+#define STM32MP2X_OTP_HWCONFIG			124
+#define STM32_OTP_STM32MP2X_DISABLE_SCAN_MASK	BIT(20)
 
-#define STM32MP25_OTP_BOOTROM_CONF8	17
-#define STM32_OTP_STM32MP25X_OEM_KEY2_EN	BIT(8)
+#define STM32MP2X_OTP_BOOTROM_CONF8	17
+#define STM32_OTP_STM32MP2X_OEM_KEY2_EN	BIT(8)
 
 /* PKH is the first element of the key list */
 #define STM32KEY_PKH 0
@@ -40,7 +40,8 @@ struct stm32key {
 	char *desc;
 	u16 start;
 	u8 size;
-	int (*post_process)(struct udevice *dev);
+	int (*post_process)(struct udevice *dev, const struct stm32key *key);
+	u32 (*key_format)(u32 value);
 };
 
 const struct stm32key stm32mp13_list[] = {
@@ -67,9 +68,81 @@ const struct stm32key stm32mp15_list[] = {
 	}
 };
 
-static int post_process_oem_key2(struct udevice *dev);
+static int post_process_oem_key2(struct udevice *dev, const struct stm32key *key);
+static int post_process_edmk_128b(struct udevice *dev, const struct stm32key *key);
+static u32 format1(u32 value);
+static u32 format2(u32 value);
 
-const struct stm32key stm32mp25_list[] = {
+const struct stm32key stm32mp21_list[] = {
+	[STM32KEY_PKH] = {
+		.name = "OEM-KEY1",
+		.desc = "Hash of the 8 ECC Public Keys Hashes Table (ECDSA is the authentication algorithm) for FSBLA or M",
+		.start = 152,
+		.size = 8,
+	},
+	{
+		.name = "OEM-KEY2",
+		.desc = "Hash of the 8 ECC Public Keys Hashes Table (ECDSA is the authentication algorithm) for FSBLM",
+		.start = 160,
+		.size = 8,
+		.post_process = post_process_oem_key2,
+	},
+	{
+		.name = "RPROC-FW-PKH",
+		.desc = "Hash of the Public Key for remote processor firmware",
+		.start = 180,
+		.size = 8,
+		.key_format = format2,
+	},
+	{
+		.name = "ADAC-ROTPKH",
+		.desc = "Authenticated Debug Access Control Root Of Trust Public Key Hash",
+		.start = 238,
+		.size = 8,
+		.key_format = format2,
+	},
+	{
+		.name = "FIP-EDMK",
+		.desc = "Encryption/Decryption Master Key for FIP",
+		.start = 260,
+		.size = 8,
+	},
+	{
+		.name = "RPROC-FW-ENC-KEY",
+		.desc = "Encryption/Decryption Key for remote processor firmware",
+		.start = 332,
+		.size = 8,
+		.key_format = format2,
+	},
+	{
+		.name = "EDMK1-128b",
+		.desc = "Encryption/Decryption Master 128b Key for FSBLA or M",
+		.start = 356,
+		.size = 4,
+		.post_process = post_process_edmk_128b,
+	},
+	{
+		.name = "EDMK1-256b",
+		.desc = "Encryption/Decryption Master 256b Key for FSBLA or M",
+		.start = 356,
+		.size = 8,
+	},
+	{
+		.name = "EDMK2-128b",
+		.desc = "Encryption/Decryption Master 128b Key for FSBLM",
+		.start = 348,
+		.size = 4,
+		.post_process = post_process_edmk_128b,
+	},
+	{
+		.name = "EDMK2-256b",
+		.desc = "Encryption/Decryption Master 256b Key for FSBLM",
+		.start = 348,
+		.size = 8,
+	},
+};
+
+const struct stm32key stm32mp2x_list[] = {
 	[STM32KEY_PKH] = {
 		.name = "OEM-KEY1",
 		.desc = "Hash of the 8 ECC Public Keys Hashes Table (ECDSA is the authentication algorithm) for FSBLA or M",
@@ -84,10 +157,24 @@ const struct stm32key stm32mp25_list[] = {
 		.post_process = post_process_oem_key2,
 	},
 	{
+		.name = "RPROC-FW-PKH",
+		.desc = "Hash of the Public Key for remote processor firmware",
+		.start = 176,
+		.size = 8,
+		.key_format = format2,
+	},
+	{
 		.name = "FIP-EDMK",
 		.desc = "Encryption/Decryption Master Key for FIP",
 		.start = 260,
 		.size = 8,
+	},
+	{
+		.name = "RPROC-FW-ENC-KEY",
+		.desc = "Encryption/Decryption Key for remote processor firmware",
+		.start = 336,
+		.size = 8,
+		.key_format = format2,
 	},
 	{
 		.name = "EDMK1",
@@ -138,23 +225,23 @@ const struct otp_close stm32mp15_close_state_otp[] = {
 	}
 };
 
-const struct otp_close stm32mp25_close_state_otp[] = {
+const struct otp_close stm32mp2x_close_state_otp[] = {
 	{
-		.word = STM32MP25_OTP_WORD8,
-		.mask_wr = STM32_OTP_STM32MP25X_BOOTROM_CLOSE_MASK,
+		.word = STM32MP2X_OTP_WORD8,
+		.mask_wr = STM32_OTP_STM32MP2X_BOOTROM_CLOSE_MASK,
 		.mask_rd = 0,
 		.close_status_ops = NULL
 	},
 	{
-		.word = STM32MP25_OTP_CLOSE_ID,
-		.mask_wr = STM32_OTP_STM32MP25X_CLOSE_MASK |
-			   STM32_OTP_STM32MP25X_PROVISIONING_DONE_MASK,
-		.mask_rd = STM32_OTP_STM32MP25X_CLOSE_MASK,
+		.word = STM32MP2X_OTP_CLOSE_ID,
+		.mask_wr = STM32_OTP_STM32MP2X_CLOSE_MASK |
+			   STM32_OTP_STM32MP2X_PROVISIONING_DONE_MASK,
+		.mask_rd = STM32_OTP_STM32MP2X_CLOSE_MASK,
 		.close_status_ops = compare_any_bits
 	},
 	{
-		.word = STM32MP25_OTP_HWCONFIG,
-		.mask_wr = STM32_OTP_STM32MP25X_DISABLE_SCAN_MASK,
+		.word = STM32MP2X_OTP_HWCONFIG,
+		.mask_wr = STM32_OTP_STM32MP2X_DISABLE_SCAN_MASK,
 		.mask_rd = 0,
 		.close_status_ops = NULL
 	},
@@ -171,8 +258,11 @@ static u8 get_key_nb(void)
 	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return ARRAY_SIZE(stm32mp15_list);
 
+	if (IS_ENABLED(CONFIG_STM32MP21X))
+		return ARRAY_SIZE(stm32mp21_list);
+
 	if (IS_ENABLED(CONFIG_STM32MP23X) || IS_ENABLED(CONFIG_STM32MP25X))
-		return ARRAY_SIZE(stm32mp25_list);
+		return ARRAY_SIZE(stm32mp2x_list);
 }
 
 static const struct stm32key *get_key(u8 index)
@@ -183,8 +273,11 @@ static const struct stm32key *get_key(u8 index)
 	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return &stm32mp15_list[index];
 
+	if (IS_ENABLED(CONFIG_STM32MP21X))
+		return &stm32mp21_list[index];
+
 	if (IS_ENABLED(CONFIG_STM32MP23X) || IS_ENABLED(CONFIG_STM32MP25X))
-		return &stm32mp25_list[index];
+		return &stm32mp2x_list[index];
 }
 
 static u8 get_otp_close_state_nb(void)
@@ -195,8 +288,9 @@ static u8 get_otp_close_state_nb(void)
 	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return ARRAY_SIZE(stm32mp15_close_state_otp);
 
-	if (IS_ENABLED(CONFIG_STM32MP23X) || IS_ENABLED(CONFIG_STM32MP25X))
-		return ARRAY_SIZE(stm32mp25_close_state_otp);
+	if (IS_ENABLED(CONFIG_STM32MP21X) || IS_ENABLED(CONFIG_STM32MP23X) ||
+	    IS_ENABLED(CONFIG_STM32MP25X))
+		return ARRAY_SIZE(stm32mp2x_close_state_otp);
 }
 
 static const struct otp_close *get_otp_close_state(u8 index)
@@ -207,8 +301,27 @@ static const struct otp_close *get_otp_close_state(u8 index)
 	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return &stm32mp15_close_state_otp[index];
 
-	if (IS_ENABLED(CONFIG_STM32MP23X) || IS_ENABLED(CONFIG_STM32MP25X))
-		return &stm32mp25_close_state_otp[index];
+	if (IS_ENABLED(CONFIG_STM32MP21X) || IS_ENABLED(CONFIG_STM32MP23X) ||
+	    IS_ENABLED(CONFIG_STM32MP25X))
+		return &stm32mp2x_close_state_otp[index];
+}
+
+/*
+ * Define format wrappers based on reference manual formats
+ * ex for key from NIST vector AES_ECB_256b_test0:
+ * key (bytes)     : f9 e8 38 9f ... ef 94 4b e0
+ * format 1 (le32) : 0xf9e8389f  ... 0xef944be0
+ * format 2 (le32) : 0x9f38e8f9  ... 0xe04b94ef
+ */
+
+static u32 format1(u32 value)
+{
+	return __be32_to_cpu(value);
+}
+
+static u32 format2(u32 value)
+{
+	return __le32_to_cpu(value);
 }
 
 static int get_misc_dev(struct udevice **dev)
@@ -225,15 +338,21 @@ static int get_misc_dev(struct udevice **dev)
 static void read_key_value(const struct stm32key *key, unsigned long addr)
 {
 	int i;
+	u32 (*format)(u32) = format1;
+
+	/* Use key_format function pointer if defined */
+	if (key->key_format)
+		format = key->key_format;
 
 	for (i = 0; i < key->size; i++) {
 		printf("%s OTP %i: [%08x] %08x\n", key->name, key->start + i,
-		       (u32)addr, __be32_to_cpu(*(u32 *)addr));
+		       (u32)addr, format(*(u32 *)addr));
 		addr += 4;
 	}
 }
 
-static int read_key_otp(struct udevice *dev, const struct stm32key *key, bool print, bool *locked)
+static int read_key_otp(struct udevice *dev, const struct stm32key *key,
+			bool print, bool *locked)
 {
 	int i, word, ret;
 	int nb_invalid = 0, nb_zero = 0, nb_lock = 0, nb_lock_err = 0;
@@ -347,22 +466,47 @@ static int write_close_status(struct udevice *dev)
 	return 0;
 }
 
-static int post_process_oem_key2(struct udevice *dev)
+static int post_process_oem_key2(struct udevice *dev, const struct stm32key *key)
 {
 	int ret;
 	u32 val;
 
-	ret = misc_read(dev, STM32_BSEC_OTP(STM32MP25_OTP_BOOTROM_CONF8), &val, 4);
+	ret = misc_read(dev, STM32_BSEC_OTP(STM32MP2X_OTP_BOOTROM_CONF8), &val, 4);
 	if (ret != 4) {
-		log_err("Error %d failed to read STM32MP25_OTP_BOOTROM_CONF8\n", ret);
+		log_err("Error %d failed to read STM32MP2X_OTP_BOOTROM_CONF8\n", ret);
 		return -EIO;
 	}
 
-	val |= STM32_OTP_STM32MP25X_OEM_KEY2_EN;
-	ret = misc_write(dev, STM32_BSEC_OTP(STM32MP25_OTP_BOOTROM_CONF8), &val, 4);
+	val |= STM32_OTP_STM32MP2X_OEM_KEY2_EN;
+	ret = misc_write(dev, STM32_BSEC_OTP(STM32MP2X_OTP_BOOTROM_CONF8), &val, 4);
 	if (ret != 4) {
 		log_err("Error %d failed to write OEM_KEY2_ENABLE\n", ret);
 		return -EIO;
+	}
+
+	return 0;
+}
+
+static int post_process_edmk_128b(struct udevice *dev, const struct stm32key *key)
+{
+	int ret, word, start_otp;
+	u32 val;
+
+	start_otp = key->start + key->size;
+
+	/* On MP21, when using a 128bit key, program 0xffffffff and lock the unused OTPs. */
+	for (word = start_otp; word < (start_otp + 4); word++) {
+		val = GENMASK(31, 0);
+		ret = misc_write(dev, STM32_BSEC_OTP(word), &val, 4);
+		if (ret != 4)
+			log_warning("Fuse %s OTP padding %i failed, continue\n", key->name, word);
+
+		val = BSEC_LOCK_PERM;
+		ret = misc_write(dev, STM32_BSEC_LOCK(word), &val, 4);
+		if (ret != 4) {
+			log_err("Failed to lock unused OTP : %d\n", word);
+			return ret;
+		}
 	}
 
 	return 0;
@@ -373,9 +517,14 @@ static int fuse_key_value(struct udevice *dev, const struct stm32key *key, unsig
 {
 	u32 word, val;
 	int i, ret;
+	u32 (*format)(u32) = format1;
+
+	/* Use key_format function pointer if defined */
+	if (key->key_format)
+		format = key->key_format;
 
 	for (i = 0, word = key->start; i < key->size; i++, word++, addr += 4) {
-		val = __be32_to_cpu(*(u32 *)addr);
+		val = format(*(u32 *)addr);
 		if (print)
 			printf("Fuse %s OTP %i : %08x\n", key->name, word, val);
 
@@ -546,7 +695,7 @@ static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 		return CMD_RET_FAILURE;
 
 	if (key->post_process) {
-		if (key->post_process(dev)) {
+		if (key->post_process(dev, key)) {
 			printf("Error: %s for post process\n", key->name);
 			return CMD_RET_FAILURE;
 		}

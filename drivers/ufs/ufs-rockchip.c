@@ -13,7 +13,6 @@
 #include <linux/err.h>
 #include <linux/ioport.h>
 #include <reset.h>
-#include <ufs.h>
 
 #include "ufs.h"
 #include "unipro.h"

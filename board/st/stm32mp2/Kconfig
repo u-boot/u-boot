@@ -1,3 +1,17 @@
+if TARGET_ST_STM32MP21X
+
+config SYS_BOARD
+	default "stm32mp2"
+
+config SYS_VENDOR
+	default "st"
+
+config SYS_CONFIG_NAME
+	default "stm32mp21_st_common"
+
+source "board/st/common/Kconfig"
+endif
+
 if TARGET_ST_STM32MP23X
 
 config SYS_BOARD

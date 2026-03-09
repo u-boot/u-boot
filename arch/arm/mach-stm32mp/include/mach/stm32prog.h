@@ -10,5 +10,3 @@ int stm32prog_write_medium_virt(struct dfu_entity *dfu, u64 offset,
 int stm32prog_read_medium_virt(struct dfu_entity *dfu, u64 offset,
 			       void *buf, long *len);
 int stm32prog_get_medium_size_virt(struct dfu_entity *dfu, u64 *size);
-
-bool stm32prog_get_fsbl_nor(void);
