@@ -85,7 +85,7 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000,
 
 def setup_image(ubman, devnum, part_type, img_size=20, second_part=False,
                 basename='mmc'):
-    """Create a disk image with a single partition
+    """Create a disk image with one or two partitions
 
     Args:
         ubman (ConsoleBase): Console to use
