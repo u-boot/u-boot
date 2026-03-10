@@ -40,15 +40,17 @@ List of mainline supported Rockchip boards:
 * rk3229
      - Rockchip Evb-RK3229 (evb-rk3229)
 * rk3288
-     - Rockchip Evb-RK3288 (evb-rk3288)
+     - Rockchip Evb-RK3288-rk808 (evb-rk3288-rk808)
      - Firefly-RK3288 (firefly-rk3288)
      - MQmaker MiQi (miqi-rk3288)
      - Phytec RK3288 PCM-947 (phycore-rk3288)
      - PopMetal-RK3288 (popmetal-rk3288)
      - Radxa Rock 2 Square (rock2)
+     - Radxa Rock Pi N8 (rock-pi-n8-rk3288)
      - Tinker-RK3288 (tinker-rk3288)
+     - Tinker-S-RK3288 (tinker-s-rk3288)
      - Google Jerry (chromebook_jerry)
-     - Google Mickey (chromebook_mickey)
+     - Google Mickey (chromebit_mickey)
      - Google Minnie (chromebook_minnie)
      - Google Speedy (chromebook_speedy)
      - Amarula Vyasa-RK3288 (vyasa-rk3288)
@@ -101,6 +103,7 @@ List of mainline supported Rockchip boards:
 
 * rk3528
      - ArmSoM Sige1 (sige1-rk3528)
+     - FriendlyElec NanoPi Zero2 (nanopi-zero2-rk3528)
      - Generic RK3528 (generic-rk3528)
      - Radxa E20C (radxa-e20c-rk3528)
      - Radxa ROCK 2A/2F (rock-2-rk3528)
@@ -154,7 +157,7 @@ List of mainline supported Rockchip boards:
      - FriendlyElec NanoPi R6C (nanopi-r6c-rk3588s)
      - FriendlyElec NanoPi R6S (nanopi-r6s-rk3588s)
      - GameForce Ace (gameforce-ace-rk3588s)
-     - Generic RK3588S/RK3588 (generic-rk3588)
+     - Generic RK3582/RK3588S/RK3588 (generic-rk3588)
      - Hardkernel ODROID-M2 (odroid-m2-rk3588s)
      - Indiedroid Nova (nova-rk3588s)
      - Khadas Edge2 (khadas-edge2-rk3588s)
@@ -163,7 +166,7 @@ List of mainline supported Rockchip boards:
      - Radxa ROCK 5 ITX (rock-5-itx-rk3588)
      - Radxa ROCK 5A (rock5a-rk3588s)
      - Radxa ROCK 5B/5B+/5T (rock5b-rk3588)
-     - Radxa ROCK 5C (rock-5c-rk3588s)
+     - Radxa ROCK 5C/5C Lite (rock-5c-rk3588s)
      - Rockchip Toybrick TB-RK3588X (toybrick-rk3588)
      - Theobroma Systems RK3588-SBC Jaguar (jaguar-rk3588)
      - Theobroma Systems SOM-RK3588-Q7 - Tiger (tiger-rk3588)
@@ -244,7 +247,7 @@ To build rk3288 boards:
 
 .. code-block:: bash
 
-        make evb-rk3288_defconfig
+        make evb-rk3288-mk808_defconfig
         make CROSS_COMPILE=arm-linux-gnueabihf-
 
 To build rk3308 boards:

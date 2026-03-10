@@ -286,14 +286,15 @@ config TARGET_ROCK_5_ITX_RK3588
 	  Powered by either 12V, ATX power-supply or PoE
 
 config TARGET_ROCK_5C_RK3588S
-	bool "Radxa ROCK 5C RK3588S2 board"
+	bool "Radxa ROCK 5C/5C Lite"
 	help
-	  Radxa ROCK 5C is a Rockchip RK3588S2 based single board computer.
+	  Radxa ROCK 5C/5C Lite is a Rockchip RK3588S2/RK3582 based SBC (Single
+	  Board Computer) by Radxa.
 
 	  Specification:
 
-	  Quad A76 and Quad A55 CPU
-	  6 TOPS NPU
+	  Quad/Dual A76 and Quad A55 CPU
+	  6/5 TOPS NPU
 	  up to 32GB LPDDR4x RAM
 	  eMMC / SPI flash connector
 	  Micro SD Card slot

@@ -391,6 +391,10 @@ static const struct udevice_id rockchip_otp_ids[] = {
 		.data = (ulong)&px30_data,
 	},
 	{
+		.compatible = "rockchip,rk3506-otp",
+		.data = (ulong)&rk3568_data,
+	},
+	{
 		.compatible = "rockchip,rk3528-otp",
 		.data = (ulong)&rk3568_data,
 	},

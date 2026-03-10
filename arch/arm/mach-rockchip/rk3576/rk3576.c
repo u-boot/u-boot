@@ -26,6 +26,9 @@
 #define SYS_SGRF_SOC_CON15	0x005C
 #define SYS_SGRF_SOC_CON20	0x0070
 
+#define FW_PMU1SGRF_BASE	0x26003000
+#define PMU1SGRF_SLV_LOOKUP0	0x80
+
 #define FW_SYS_SGRF_BASE	0x26005000
 #define SGRF_DOMAIN_CON1	0x4
 #define SGRF_DOMAIN_CON2	0x8
@@ -139,6 +142,9 @@ int arch_cpu_init(void)
 
 	if (!IS_ENABLED(CONFIG_SPL_BUILD))
 		return 0;
+
+	/* Allow pmu sram access for non-secure masters */
+	writel(0xffff3fff, FW_PMU1SGRF_BASE + PMU1SGRF_SLV_LOOKUP0);
 
 	/* Set the emmc to access ddr memory */
 	val = readl(FW_SYS_SGRF_BASE + SGRF_DOMAIN_CON2);
