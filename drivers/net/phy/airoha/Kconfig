@@ -5,6 +5,7 @@ menuconfig PHY_AIROHA
 config PHY_AIROHA_EN8811
 	bool "Airoha Ethernet EN8811H support"
 	depends on PHY_AIROHA
+	depends on SUPPORTS_FW_LOADER
 	select FW_LOADER
 	help
 	  AIROHA EN8811H supported.

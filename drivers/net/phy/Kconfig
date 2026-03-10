@@ -91,6 +91,7 @@ menuconfig PHY_AQUANTIA
 config PHY_AQUANTIA_UPLOAD_FW
 	bool "Aquantia firmware loading support"
 	depends on PHY_AQUANTIA
+	depends on SUPPORTS_FW_LOADER
 	select FW_LOADER
 	help
 	  Aquantia PHYs use firmware which can be either loaded automatically
