@@ -832,7 +832,7 @@ static int get_fs_info(fsdata *mydata)
 	}
 
 	mydata->fatbufnum = -1;
-	mydata->fat_dirty = 0;
+	fat_mark_clean(mydata);
 	mydata->fatbuf = malloc_cache_aligned(FATBUFSIZE);
 	if (mydata->fatbuf == NULL) {
 		debug("Error: allocating memory\n");
