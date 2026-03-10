@@ -241,8 +241,6 @@ static ulong mtk_find_parent_rate(struct mtk_clk_priv *priv, struct clk *clk,
 
 		parent_dev = clk->dev;
 		break;
-	case CLK_PARENT_XTAL:
-		return priv->tree->xtal_rate;
 	case CLK_PARENT_EXT:
 		return mtk_ext_clock_get_rate(priv->tree, parent);
 	default:
@@ -351,9 +349,6 @@ static void mtk_clk_print_parent(const char *prefix, int parent, u32 flags)
 		break;
 	case CLK_PARENT_INFRASYS:
 		parent_type_str = "infrasys";
-		break;
-	case CLK_PARENT_XTAL:
-		parent_type_str = "xtal";
 		break;
 	case CLK_PARENT_EXT:
 		parent_type_str = "ext";
@@ -1104,12 +1099,6 @@ static ulong mtk_clk_gate_get_rate(struct clk *clk)
 	    parent->driver != DM_DRIVER_GET(mtk_clk_topckgen)) {
 		priv = dev_get_priv(parent);
 		parent = priv->parent;
-	/*
-	 * Assume xtal_rate to be declared if some gates have
-	 * XTAL as parent
-	 */
-	} else if (gate->flags & CLK_PARENT_XTAL) {
-		return priv->tree->xtal_rate;
 	} else if (gate->flags & CLK_PARENT_EXT) {
 		return mtk_ext_clock_get_rate(priv->tree, gate->parent);
 	}

@@ -8,7 +8,7 @@
 #define __DRV_CLK_MTK_H
 
 #include <linux/bitops.h>
-#define CLK_XTAL			0
+
 #define MHZ				(1000 * 1000)
 
 /* flags in struct mtk_clk_tree */
@@ -27,9 +27,8 @@
 #define CLK_PARENT_APMIXED		BIT(4)
 #define CLK_PARENT_TOPCKGEN		BIT(5)
 #define CLK_PARENT_INFRASYS		BIT(6)
-#define CLK_PARENT_XTAL			BIT(7)
-#define CLK_PARENT_EXT			BIT(8)
-#define CLK_PARENT_MASK			GENMASK(8, 4)
+#define CLK_PARENT_EXT			BIT(7)
+#define CLK_PARENT_MASK			GENMASK(7, 4)
 
 #define ETHSYS_HIFSYS_RST_CTRL_OFS	0x34
 
@@ -120,7 +119,6 @@ struct mtk_parent {
 #define APMIXED_PARENT(id)	PARENT(id, CLK_PARENT_APMIXED)
 #define TOP_PARENT(id)		PARENT(id, CLK_PARENT_TOPCKGEN)
 #define INFRA_PARENT(id)	PARENT(id, CLK_PARENT_INFRASYS)
-#define XTAL_PARENT(id)		PARENT(id, CLK_PARENT_XTAL)
 #define EXT_PARENT(id)		PARENT(id, CLK_PARENT_EXT)
 #define VOID_PARENT		PARENT(-1, 0)
 
@@ -233,7 +231,6 @@ struct mtk_gate {
 
 /* struct mtk_clk_tree - clock tree */
 struct mtk_clk_tree {
-	unsigned long xtal_rate;
 	const struct mtk_parent pll_parent;
 	/* External fixed clocks - excluded from mapping. */
 	const ulong *ext_clk_rates;
