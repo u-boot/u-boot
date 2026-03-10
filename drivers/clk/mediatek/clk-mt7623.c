@@ -268,7 +268,7 @@ static const int top_id_offs_map[CLK_TOP_NR + 1] = {
 };
 
 #define FIXED_CLK0(_id, _rate)					\
-	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+	FIXED_CLK(_id, CLK_PAD_CLK26M, CLK_PARENT_EXT, _rate)
 
 #define FACTOR0(_id, _parent, _mult, _div)			\
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
@@ -277,7 +277,7 @@ static const int top_id_offs_map[CLK_TOP_NR + 1] = {
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_TOPCKGEN)
 
 #define FACTOR2(_id, _parent, _mult, _div)			\
-	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_EXT)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
 	FIXED_CLK0(CLK_TOP_DPI, 108 * MHZ),
@@ -377,14 +377,14 @@ static const struct mtk_fixed_factor top_fixed_divs[] = {
 	FACTOR0(CLK_TOP_HADDS2PLL_98M, CLK_APMIXED_HADDS2PLL, 1, 3),
 	FACTOR0(CLK_TOP_HADDS2PLL_294M, CLK_APMIXED_HADDS2PLL, 1, 1),
 	FACTOR0(CLK_TOP_ETHPLL_500M, CLK_APMIXED_ETHPLL, 1, 1),
-	FACTOR2(CLK_TOP_CLK26M_D8, CLK_XTAL, 1, 8),
-	FACTOR2(CLK_TOP_32K_INTERNAL, CLK_XTAL, 1, 793),
+	FACTOR2(CLK_TOP_CLK26M_D8, CLK_PAD_CLK26M, 1, 8),
+	FACTOR2(CLK_TOP_32K_INTERNAL, CLK_PAD_CLK26M, 1, 793),
 	FACTOR1(CLK_TOP_AXISEL_D4, CLK_TOP_AXI_SEL, 1, 4),
 	FACTOR1(CLK_TOP_8BDAC, CLK_TOP_UNIVPLL_D2, 1, 1),
 };
 
 static const struct mtk_parent axi_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL_D5),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D4),
@@ -395,17 +395,17 @@ static const struct mtk_parent axi_parents[] = {
 };
 
 static const struct mtk_parent mem_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_DMPLL),
 };
 
 static const struct mtk_parent ddrphycfg_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D8),
 };
 
 static const struct mtk_parent mm_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_VENCPLL),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D4),
@@ -416,14 +416,14 @@ static const struct mtk_parent mm_parents[] = {
 };
 
 static const struct mtk_parent pwm_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UNIVPLL2_D4),
 	TOP_PARENT(CLK_TOP_UNIVPLL3_D2),
 	TOP_PARENT(CLK_TOP_UNIVPLL1_D4),
 };
 
 static const struct mtk_parent vdec_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_VDECPLL),
 	TOP_PARENT(CLK_TOP_SYSPLL_D5),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D4),
@@ -435,18 +435,18 @@ static const struct mtk_parent vdec_parents[] = {
 };
 
 static const struct mtk_parent mfg_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_MMPLL),
 	TOP_PARENT(CLK_TOP_DMPLL_X2),
 	TOP_PARENT(CLK_TOP_MSDCPLL),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL_D3),
 	TOP_PARENT(CLK_TOP_UNIVPLL_D3),
 	TOP_PARENT(CLK_TOP_UNIVPLL1_D2),
 };
 
 static const struct mtk_parent camtg_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UNIVPLL_D26),
 	TOP_PARENT(CLK_TOP_UNIVPLL2_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL3_D2),
@@ -456,12 +456,12 @@ static const struct mtk_parent camtg_parents[] = {
 };
 
 static const struct mtk_parent uart_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UNIVPLL2_D8),
 };
 
 static const struct mtk_parent spi_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL3_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL4_D2),
 	TOP_PARENT(CLK_TOP_UNIVPLL2_D4),
@@ -469,13 +469,13 @@ static const struct mtk_parent spi_parents[] = {
 };
 
 static const struct mtk_parent usb20_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UNIVPLL1_D8),
 	TOP_PARENT(CLK_TOP_UNIVPLL3_D4),
 };
 
 static const struct mtk_parent msdc30_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_MSDCPLL_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL2_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D4),
@@ -484,7 +484,7 @@ static const struct mtk_parent msdc30_parents[] = {
 };
 
 static const struct mtk_parent aud_intbus_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D4),
 	TOP_PARENT(CLK_TOP_SYSPLL3_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL4_D2),
@@ -493,7 +493,7 @@ static const struct mtk_parent aud_intbus_parents[] = {
 };
 
 static const struct mtk_parent pmicspi_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D8),
 	TOP_PARENT(CLK_TOP_SYSPLL2_D4),
 	TOP_PARENT(CLK_TOP_SYSPLL4_D2),
@@ -507,68 +507,68 @@ static const struct mtk_parent pmicspi_parents[] = {
 };
 
 static const struct mtk_parent scp_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D8),
 	TOP_PARENT(CLK_TOP_DMPLL_D2),
 	TOP_PARENT(CLK_TOP_DMPLL_D4),
 };
 
 static const struct mtk_parent dpi0_tve_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_MIPIPLL),
 	TOP_PARENT(CLK_TOP_MIPIPLL_D2),
 	TOP_PARENT(CLK_TOP_MIPIPLL_D4),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_TVDPLL),
 	TOP_PARENT(CLK_TOP_TVDPLL_D2),
 	TOP_PARENT(CLK_TOP_TVDPLL_D4),
 };
 
 static const struct mtk_parent dpi1_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_TVDPLL),
 	TOP_PARENT(CLK_TOP_TVDPLL_D2),
 	TOP_PARENT(CLK_TOP_TVDPLL_D4),
 };
 
 static const struct mtk_parent hdmi_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_HDMIPLL),
 	TOP_PARENT(CLK_TOP_HDMIPLL_D2),
 	TOP_PARENT(CLK_TOP_HDMIPLL_D3),
 };
 
 static const struct mtk_parent apll_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_AUDPLL),
 	TOP_PARENT(CLK_TOP_AUDPLL_D4),
 	TOP_PARENT(CLK_TOP_AUDPLL_D8),
 	TOP_PARENT(CLK_TOP_AUDPLL_D16),
 	TOP_PARENT(CLK_TOP_AUDPLL_D24),
-	XTAL_PARENT(CLK_XTAL),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
+	EXT_PARENT(CLK_PAD_CLK26M),
 };
 
 static const struct mtk_parent rtc_parents[] = {
 	TOP_PARENT(CLK_TOP_32K_INTERNAL),
 	TOP_PARENT(CLK_TOP_32K_EXTERNAL),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UNIVPLL3_D8),
 };
 
 static const struct mtk_parent nfi2x_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL2_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL_D7),
 	TOP_PARENT(CLK_TOP_UNIVPLL3_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL2_D4),
 	TOP_PARENT(CLK_TOP_UNIVPLL3_D4),
 	TOP_PARENT(CLK_TOP_SYSPLL4_D4),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 };
 
 static const struct mtk_parent emmc_hclk_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D4),
 	TOP_PARENT(CLK_TOP_SYSPLL2_D2),
@@ -576,7 +576,7 @@ static const struct mtk_parent emmc_hclk_parents[] = {
 
 static const struct mtk_parent flash_parents[] = {
 	TOP_PARENT(CLK_TOP_CLK26M_D8),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL2_D8),
 	TOP_PARENT(CLK_TOP_SYSPLL3_D4),
 	TOP_PARENT(CLK_TOP_UNIVPLL3_D4),
@@ -586,14 +586,14 @@ static const struct mtk_parent flash_parents[] = {
 };
 
 static const struct mtk_parent di_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_TVD2PLL),
 	TOP_PARENT(CLK_TOP_TVD2PLL_D2),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 };
 
 static const struct mtk_parent nr_osd_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_VENCPLL),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D4),
@@ -604,38 +604,38 @@ static const struct mtk_parent nr_osd_parents[] = {
 };
 
 static const struct mtk_parent hdmirx_bist_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL_D3),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D16),
 	TOP_PARENT(CLK_TOP_SYSPLL4_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D4),
 	TOP_PARENT(CLK_TOP_VENCPLL),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 };
 
 static const struct mtk_parent intdir_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_MMPLL),
 	TOP_PARENT(CLK_TOP_SYSPLL_D2),
 	TOP_PARENT(CLK_TOP_UNIVPLL_D2),
 };
 
 static const struct mtk_parent asm_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UNIVPLL2_D4),
 	TOP_PARENT(CLK_TOP_UNIVPLL2_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL_D5),
 };
 
 static const struct mtk_parent ms_card_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UNIVPLL3_D8),
 	TOP_PARENT(CLK_TOP_SYSPLL4_D4),
 };
 
 static const struct mtk_parent ethif_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL_D5),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D4),
@@ -646,12 +646,12 @@ static const struct mtk_parent ethif_parents[] = {
 };
 
 static const struct mtk_parent hdmirx_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UNIVPLL_D52),
 };
 
 static const struct mtk_parent cmsys_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D2),
 	TOP_PARENT(CLK_TOP_UNIVPLL1_D2),
 	TOP_PARENT(CLK_TOP_UNIVPLL_D5),
@@ -661,18 +661,18 @@ static const struct mtk_parent cmsys_parents[] = {
 	TOP_PARENT(CLK_TOP_SYSPLL3_D2),
 	TOP_PARENT(CLK_TOP_SYSPLL2_D4),
 	TOP_PARENT(CLK_TOP_SYSPLL1_D8),
-	XTAL_PARENT(CLK_XTAL),
-	XTAL_PARENT(CLK_XTAL),
-	XTAL_PARENT(CLK_XTAL),
-	XTAL_PARENT(CLK_XTAL),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
+	EXT_PARENT(CLK_PAD_CLK26M),
+	EXT_PARENT(CLK_PAD_CLK26M),
+	EXT_PARENT(CLK_PAD_CLK26M),
+	EXT_PARENT(CLK_PAD_CLK26M),
 };
 
 static const struct mtk_parent clk_8bdac_parents[] = {
 	TOP_PARENT(CLK_TOP_32K_INTERNAL),
 	TOP_PARENT(CLK_TOP_8BDAC),
-	XTAL_PARENT(CLK_XTAL),
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
+	EXT_PARENT(CLK_PAD_CLK26M),
 };
 
 static const struct mtk_parent aud2dvd_parents[] = {
@@ -681,7 +681,7 @@ static const struct mtk_parent aud2dvd_parents[] = {
 };
 
 static const struct mtk_parent padmclk_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UNIVPLL_D26),
 	TOP_PARENT(CLK_TOP_UNIVPLL_D52),
 	TOP_PARENT(CLK_TOP_UNIVPLL_D108),
@@ -691,7 +691,7 @@ static const struct mtk_parent padmclk_parents[] = {
 };
 
 static const struct mtk_parent aud_mux_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_AUD1PLL_98M),
 	TOP_PARENT(CLK_TOP_AUD2PLL_90M),
 	TOP_PARENT(CLK_TOP_HADDS2PLL_98M),
@@ -791,8 +791,8 @@ static const struct mtk_gate_regs infra_cg_regs = {
 	}
 #define GATE_INFRA(_id, _parent, _shift) \
 	GATE_INFRA_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
-#define GATE_INFRA_XTAL(_id, _parent, _shift) \
-	GATE_INFRA_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_XTAL)
+#define GATE_INFRA_EXT(_id, _parent, _shift) \
+	GATE_INFRA_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_EXT)
 
 
 static const struct mtk_gate infra_cgs[] = {
@@ -800,8 +800,8 @@ static const struct mtk_gate infra_cgs[] = {
 	GATE_INFRA(CLK_INFRA_SMI, CLK_TOP_MM_SEL, 1),
 	GATE_INFRA(CLK_INFRA_QAXI_CM4, CLK_TOP_AXI_SEL, 2),
 	GATE_INFRA(CLK_INFRA_AUD_SPLIN_B, CLK_TOP_HADDS2PLL_294M, 4),
-	GATE_INFRA_XTAL(CLK_INFRA_AUDIO, CLK_XTAL, 5),
-	GATE_INFRA_XTAL(CLK_INFRA_EFUSE, CLK_XTAL, 6),
+	GATE_INFRA_EXT(CLK_INFRA_AUDIO, CLK_PAD_CLK26M, 5),
+	GATE_INFRA_EXT(CLK_INFRA_EFUSE, CLK_PAD_CLK26M, 6),
 	GATE_INFRA(CLK_INFRA_L2C_SRAM, CLK_TOP_MM_SEL, 7),
 	GATE_INFRA(CLK_INFRA_M4U, CLK_TOP_MEM_SEL, 8),
 	GATE_INFRA(CLK_INFRA_CONNMCU, CLK_TOP_WBG_DIG_416M, 12),
@@ -872,7 +872,7 @@ static const int peri_id_offs_map[] = {
 };
 
 static const struct mtk_parent uart_ck_sel_parents[] = {
-	XTAL_PARENT(CLK_XTAL),
+	EXT_PARENT(CLK_PAD_CLK26M),
 	TOP_PARENT(CLK_TOP_UART_SEL),
 };
 
@@ -904,8 +904,8 @@ static const struct mtk_gate_regs peri1_cg_regs = {
 	}
 #define GATE_PERI0(_id, _parent, _shift) \
 	GATE_PERI0_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
-#define GATE_PERI0_XTAL(_id, _parent, _shift) \
-	GATE_PERI0_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_XTAL)
+#define GATE_PERI0_EXT(_id, _parent, _shift) \
+	GATE_PERI0_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_EXT)
 
 #define GATE_PERI1(_id, _parent, _shift) {			\
 		.id = _id,					\
@@ -943,10 +943,10 @@ static const struct mtk_gate peri_cgs[] = {
 	GATE_PERI0(CLK_PERI_I2C0, CLK_TOP_AXI_SEL, 24),
 	GATE_PERI0(CLK_PERI_I2C1, CLK_TOP_AXI_SEL, 25),
 	GATE_PERI0(CLK_PERI_I2C2, CLK_TOP_AXI_SEL, 26),
-	GATE_PERI0_XTAL(CLK_PERI_I2C3, CLK_XTAL, 27),
-	GATE_PERI0_XTAL(CLK_PERI_AUXADC, CLK_XTAL, 28),
+	GATE_PERI0_EXT(CLK_PERI_I2C3, CLK_PAD_CLK26M, 27),
+	GATE_PERI0_EXT(CLK_PERI_AUXADC, CLK_PAD_CLK26M, 28),
 	GATE_PERI0(CLK_PERI_SPI0, CLK_TOP_SPI0_SEL, 29),
-	GATE_PERI0_XTAL(CLK_PERI_ETH, CLK_XTAL, 30),
+	GATE_PERI0_EXT(CLK_PERI_ETH, CLK_PAD_CLK26M, 30),
 	GATE_PERI0(CLK_PERI_USB0_MCU, CLK_TOP_AXI_SEL, 31),
 
 	GATE_PERI1(CLK_PERI_USB1_MCU, CLK_TOP_AXI_SEL, 0),
@@ -1012,7 +1012,8 @@ static const struct mtk_clk_tree mt7623_apmixedsys_clk_tree = {
 };
 
 static const struct mtk_clk_tree mt7623_topckgen_clk_tree = {
-	.xtal_rate = 26 * MHZ,
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.id_offs_map = top_id_offs_map,
 	.id_offs_map_size = ARRAY_SIZE(top_id_offs_map),
 	.fdivs_offs = top_id_offs_map[CLK_TOP_SYSPLL],
@@ -1062,7 +1063,8 @@ static int mt7623_topckgen_probe(struct udevice *dev)
 }
 
 static const struct mtk_clk_tree mt7623_clk_gate_tree = {
-	.xtal_rate = 26 * MHZ,
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 };
 
 static int mt7623_infracfg_probe(struct udevice *dev)
@@ -1072,6 +1074,8 @@ static int mt7623_infracfg_probe(struct udevice *dev)
 }
 
 static const struct mtk_clk_tree mt7623_clk_peri_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.id_offs_map = peri_id_offs_map,
 	.id_offs_map_size = ARRAY_SIZE(peri_id_offs_map),
 	.muxes_offs = peri_id_offs_map[CLK_PERI_UART0_SEL],
@@ -1080,7 +1084,6 @@ static const struct mtk_clk_tree mt7623_clk_peri_tree = {
 	.gates = peri_cgs,
 	.num_muxes = ARRAY_SIZE(peri_muxes),
 	.num_gates = ARRAY_SIZE(peri_cgs),
-	.xtal_rate = 26 * MHZ,
 };
 
 static int mt7623_pericfg_probe(struct udevice *dev)
