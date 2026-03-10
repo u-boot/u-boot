@@ -84,7 +84,6 @@ static const struct mtk_pll_data apmixed_plls[] = {
 };
 
 static const struct mtk_clk_tree mt8188_apmixedsys_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
@@ -93,7 +92,7 @@ static const struct mtk_clk_tree mt8188_apmixedsys_clk_tree = {
 };
 
 #define FIXED_CLK0(_id, _rate)			\
-	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+	FIXED_CLK(_id, CLK_PAD_CLK26M, CLK_PARENT_EXT, _rate)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
 	FIXED_CLK0(CLK_TOP_ULPOSC1, 260000000),
@@ -1408,7 +1407,6 @@ static const struct mtk_gate topckgen_cg_clks[] = {
 };
 
 static const struct mtk_clk_tree mt8188_topckgen_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.id_offs_map = mt8188_id_top_offs_map,
@@ -1620,7 +1618,6 @@ static const struct mtk_gate infracfg_ao_clks[] = {
 };
 
 static const struct mtk_clk_tree mt8188_infracfg_ao_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 };
@@ -1663,7 +1660,6 @@ static const struct mtk_gate pericfg_ao_clks[] = {
 };
 
 static const struct mtk_clk_tree mt8188_pericfg_ao_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 };
@@ -1699,19 +1695,16 @@ static const struct mtk_gate imp_iic_wrap_en_clks[] = {
 };
 
 const struct mtk_clk_tree mt8188_imp_iic_wrap_c_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 };
 
 const struct mtk_clk_tree mt8188_imp_iic_wrap_w_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 };
 
 const struct mtk_clk_tree mt8188_imp_iic_wrap_en_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 };
