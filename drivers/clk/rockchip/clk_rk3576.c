@@ -1987,6 +1987,8 @@ static ulong rk3576_clk_get_rate(struct clk *clk)
 	case HCLK_SDIO:
 		rate = rk3576_mmc_get_clk(priv, clk->id);
 		break;
+	case CLK_REF_USB3OTG0:
+	case CLK_REF_USB3OTG1:
 	case TCLK_EMMC:
 	case TCLK_WDT0:
 		rate = OSC_HZ;
@@ -2151,6 +2153,8 @@ static ulong rk3576_clk_set_rate(struct clk *clk, ulong rate)
 	case HCLK_SDIO:
 		ret = rk3576_mmc_set_clk(priv, clk->id, rate);
 		break;
+	case CLK_REF_USB3OTG0:
+	case CLK_REF_USB3OTG1:
 	case TCLK_EMMC:
 	case TCLK_WDT0:
 		ret = OSC_HZ;
