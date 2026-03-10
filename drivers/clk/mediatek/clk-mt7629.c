@@ -28,6 +28,14 @@
 #define MCU_BUS_MSK			GENMASK(10, 9)
 #define MCU_BUS_SEL(x)			((x) << 9)
 
+enum {
+	CLK_PAD_CLK20M,
+};
+
+static const ulong ext_clock_rates[] = {
+	[CLK_PAD_CLK20M] = 20 * MHZ,
+};
+
 /* apmixedsys */
 #define PLL(_id, _reg, _pwr_reg, _en_mask, _flags, _pcwbits, _pd_reg,	\
 	    _pd_shift, _pcw_reg, _pcw_shift) {				\
@@ -567,7 +575,9 @@ static const struct mtk_gate ssusb_cgs[] = {
 
 static const struct mtk_clk_tree mt7629_clk_tree = {
 	.xtal_rate = 40 * MHZ,
-	.xtal2_rate = 20 * MHZ,
+	.pll_parent = EXT_PARENT(CLK_PAD_CLK20M),
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
 	.muxes_offs = CLK_TOP_AXI_SEL,
 	.plls = apmixed_plls,
@@ -582,7 +592,9 @@ static const struct mtk_clk_tree mt7629_clk_tree = {
 
 static const struct mtk_clk_tree mt7629_peri_clk_tree = {
 	.xtal_rate = 40 * MHZ,
-	.xtal2_rate = 20 * MHZ,
+	.pll_parent = EXT_PARENT(CLK_PAD_CLK20M),
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
 	.muxes_offs = CLK_TOP_AXI_SEL,
 	.plls = apmixed_plls,

@@ -28,6 +28,14 @@
 #define MCU_BUS_MSK			GENMASK(10, 9)
 #define MCU_BUS_SEL(x)			((x) << 9)
 
+enum {
+	CLK_PAD_CLK25M,
+};
+
+static const ulong ext_clock_rates[] = {
+	[CLK_PAD_CLK25M] = 25 * MHZ,
+};
+
 /* apmixedsys */
 #define PLL(_id, _reg, _pwr_reg, _en_mask, _flags, _pcwbits, _pd_reg,	\
 	    _pd_shift, _pcw_reg, _pcw_shift) {				\
@@ -597,7 +605,9 @@ static const struct mtk_gate ssusb_cgs[] = {
 };
 
 static const struct mtk_clk_tree mt7622_apmixed_clk_tree = {
-	.xtal2_rate = 25 * MHZ,
+	.pll_parent = EXT_PARENT(CLK_PAD_CLK25M),
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.plls = apmixed_plls,
 	.gates_offs = CLK_APMIXED_MAIN_CORE_EN,
 	.gates = apmixed_cgs,

@@ -1638,8 +1638,7 @@ static const struct mtk_gate mminfra_config_clks[] = {
 };
 
 static const struct mtk_clk_tree mt8189_apmixedsys_clk_tree = {
-	.xtal_rate = 26 * MHZ,
-	.xtal2_rate = 26 * MHZ,
+	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.plls = apmixed_plls,
@@ -1647,7 +1646,6 @@ static const struct mtk_clk_tree mt8189_apmixedsys_clk_tree = {
 };
 
 static const struct mtk_clk_tree mt8189_topckgen_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_TOP_MAINPLL_D3,

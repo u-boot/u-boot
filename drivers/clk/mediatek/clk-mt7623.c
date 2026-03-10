@@ -24,6 +24,14 @@
 #define AXI_DIV_MSK			GENMASK(4, 0)
 #define AXI_DIV_SEL(x)			(x)
 
+enum {
+	CLK_PAD_CLK26M,
+};
+
+static const ulong ext_clock_rates[] = {
+	[CLK_PAD_CLK26M] = 26 * MHZ,
+};
+
 /* apmixedsys */
 static const int pll_id_offs_map[] = {
 	[0 ... CLK_APMIXED_NR - 1]		= -1,
@@ -994,7 +1002,9 @@ static const struct mtk_gate hif_cgs[] = {
 };
 
 static const struct mtk_clk_tree mt7623_apmixedsys_clk_tree = {
-	.xtal2_rate = 26 * MHZ,
+	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.id_offs_map = pll_id_offs_map,
 	.id_offs_map_size = ARRAY_SIZE(pll_id_offs_map),
 	.plls = apmixed_plls,

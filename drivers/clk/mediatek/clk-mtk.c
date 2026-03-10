@@ -499,16 +499,21 @@ static void mtk_pll_set_rate_regs(struct mtk_clk_priv *priv, u32 id,
  * @postdiv:	The post divider (output)
  * @freq:	The desired target frequency
  */
-static void mtk_pll_calc_values(struct mtk_clk_priv *priv, u32 id,
-				u32 *pcw, u32 *postdiv, u32 freq)
+static int mtk_pll_calc_values(struct mtk_clk_priv *priv, struct clk *clk,
+			       u32 *pcw, u32 *postdiv, u32 freq)
 {
 	const struct mtk_pll_data *pll;
-	unsigned long fmin;
+	const struct mtk_parent *parent = &priv->tree->pll_parent;
+	unsigned long xtal_rate, fmin;
 	u64 _pcw;
 	int ibits;
 	u32 val;
 
-	pll = &priv->tree->plls[id];
+	xtal_rate = mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
+	if (IS_ERR_VALUE(xtal_rate))
+		return xtal_rate;
+
+	pll = &priv->tree->plls[clk->id];
 	fmin = pll->fmin ? pll->fmin : 1000 * MHZ;
 
 	if (freq > pll->fmax)
@@ -523,9 +528,11 @@ static void mtk_pll_calc_values(struct mtk_clk_priv *priv, u32 id,
 	/* _pcw = freq * postdiv / xtal_rate * 2^pcwfbits */
 	ibits = pll->pcwibits ? pll->pcwibits : INTEGER_BITS;
 	_pcw = ((u64)freq << val) << (pll->pcwbits - ibits);
-	do_div(_pcw, priv->tree->xtal2_rate);
+	do_div(_pcw, xtal_rate);
 
 	*pcw = (u32)_pcw;
+
+	return 0;
 }
 
 static ulong mtk_apmixedsys_set_rate(struct clk *clk, ulong rate)
@@ -533,11 +540,15 @@ static ulong mtk_apmixedsys_set_rate(struct clk *clk, ulong rate)
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	u32 pcw = 0;
 	u32 postdiv;
+	int ret;
 
 	if (!mtk_clk_id_is_pll(priv->tree, clk->id))
 		return -EINVAL;
 
-	mtk_pll_calc_values(priv, clk->id, &pcw, &postdiv, rate);
+	ret = mtk_pll_calc_values(priv, clk, &pcw, &postdiv, rate);
+	if (ret)
+		return ret;
+
 	mtk_pll_set_rate_regs(priv, clk->id, pcw, postdiv);
 
 	return 0;
@@ -546,8 +557,10 @@ static ulong mtk_apmixedsys_set_rate(struct clk *clk, ulong rate)
 static ulong mtk_apmixedsys_get_rate(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_parent *parent;
 	const struct mtk_pll_data *pll;
 	const struct mtk_gate *gate;
+	unsigned long xtal_rate;
 	u32 postdiv;
 	u32 pcw;
 
@@ -556,6 +569,11 @@ static ulong mtk_apmixedsys_get_rate(struct clk *clk)
 		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
 		return mtk_find_parent_rate(priv, clk, gate->parent, gate->flags);
 	}
+
+	parent = &priv->tree->pll_parent;
+	xtal_rate = mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
+	if (IS_ERR_VALUE(xtal_rate))
+		return xtal_rate;
 
 	pll = &priv->tree->plls[clk->id];
 
@@ -566,8 +584,7 @@ static ulong mtk_apmixedsys_get_rate(struct clk *clk)
 	pcw = readl(priv->base + pll->pcw_reg) >> pll->pcw_shift;
 	pcw &= GENMASK(pll->pcwbits - 1, 0);
 
-	return __mtk_pll_recalc_rate(pll, priv->tree->xtal2_rate,
-				     pcw, postdiv);
+	return __mtk_pll_recalc_rate(pll, xtal_rate, pcw, postdiv);
 }
 
 static int mtk_apmixedsys_enable(struct clk *clk)

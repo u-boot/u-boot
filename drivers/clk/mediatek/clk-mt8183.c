@@ -17,6 +17,14 @@
 #define MT8183_PLL_FMAX		(3800UL * MHZ)
 #define MT8183_PLL_FMIN		(1500UL * MHZ)
 
+enum {
+	CLK_PAD_CLK26M,
+};
+
+static const ulong ext_clock_rates[] = {
+	[CLK_PAD_CLK26M] = 26 * MHZ,
+};
+
 /* apmixedsys */
 #define PLL(_id, _reg, _pwr_reg, _en_mask, _flags, _rst_bar_mask, _pcwbits, \
 	    _pcwibits, _pd_reg, _pd_shift, _pcw_reg, _pcw_shift) {	\
@@ -598,7 +606,9 @@ static const struct mtk_composite top_muxes[] = {
 
 static const struct mtk_clk_tree mt8183_clk_tree = {
 	.xtal_rate = 26 * MHZ,
-	.xtal2_rate = 26 * MHZ,
+	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_TOP_CLK13M,
 	.muxes_offs = CLK_TOP_MUX_AXI,
 	.plls = apmixed_plls,

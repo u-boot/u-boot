@@ -234,7 +234,7 @@ struct mtk_gate {
 /* struct mtk_clk_tree - clock tree */
 struct mtk_clk_tree {
 	unsigned long xtal_rate;
-	unsigned long xtal2_rate;
+	const struct mtk_parent pll_parent;
 	/* External fixed clocks - excluded from mapping. */
 	const ulong *ext_clk_rates;
 	const int num_ext_clks;
