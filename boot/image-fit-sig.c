@@ -476,6 +476,10 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
 		return -1;
 	}
 
+	debug("Hash nodes (%d):\n", count);
+	for (int i = 0; i < count; ++i)
+		debug("   '%s'\n", node_inc[i]);
+
 	/*
 	 * Each node can generate one region for each sub-node. Allow for
 	 * 7 sub-nodes (hash-1, signature-1, etc.) and some extra.
