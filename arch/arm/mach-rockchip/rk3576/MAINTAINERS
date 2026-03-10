@@ -10,6 +10,12 @@ S:	Maintained
 F:	arch/arm/dts/rk3576-nanopi-m5*
 F:	configs/nanopi-m5-rk3576_defconfig
 
+NANOPI-R76S-RK3576
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	arch/arm/dts/rk3576-nanopi-r76s*
+F:	configs/nanopi-r76s-rk3576_defconfig
+
 OMNI3576-RK3576
 M:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
