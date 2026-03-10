@@ -192,6 +192,7 @@ out:
 }
 
 static int total_sector;
+#if !IS_ENABLED(CONFIG_FS_FAT_HANDLE_SECTOR_SIZE_MISMATCH)
 static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 {
 	ulong ret;
@@ -211,6 +212,7 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
 
 	return ret;
 }
+#endif /* CONFIG_FS_FAT_HANDLE_SECTOR_SIZE_MISMATCH */
 
 /*
  * Write fat buffer into block device

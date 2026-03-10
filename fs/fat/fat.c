@@ -45,11 +45,146 @@ static void downcase(char *str, size_t len)
 
 static struct blk_desc *cur_dev;
 static struct disk_partition cur_part_info;
+static int fat_sect_size;
 
 #define DOS_BOOT_MAGIC_OFFSET	0x1fe
 #define DOS_FS_TYPE_OFFSET	0x36
 #define DOS_FS32_TYPE_OFFSET	0x52
 
+#if IS_ENABLED(CONFIG_FS_FAT_HANDLE_SECTOR_SIZE_MISMATCH)
+static inline __u32 sect_to_block(__u32 sect, __u32 *off)
+{
+	const ulong blksz = cur_part_info.blksz;
+
+	*off = 0;
+	if (fat_sect_size && fat_sect_size < blksz) {
+		int div = blksz / fat_sect_size;
+
+		*off = sect % div;
+		return sect / div;
+	} else if (fat_sect_size && (fat_sect_size > blksz)) {
+		return sect * (fat_sect_size / blksz);
+	}
+
+	return sect;
+}
+
+static int disk_rw(__u32 sect, __u32 nr_sect, void *buf, bool read)
+{
+	int ret;
+	__u8 *block = NULL;
+	__u32 rem, size, s, n;
+	const ulong blksz = cur_part_info.blksz;
+	const lbaint_t start = cur_part_info.start;
+
+	rem = nr_sect * fat_sect_size;
+	/*
+	 *           block N       block N + 1      block N + 2
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 * | | | | |s|e|c|t|o|r| | |s|e|c|t|o|r| | |s|e|c|t|o|r| | | | |
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 * . . . |               |               |               | . . .
+	 * ------+---------------+---------------+---------------+------
+	 *            |<--- FAT reads in sectors          --->|
+	 *
+	 *            |  part 1  |   part 2      |  part 3    |
+	 *
+	 */
+
+	/* Do part 1 */
+	if (fat_sect_size) {
+		__u32 offset;
+
+		/* Read one block and overwrite the leading sectors */
+		block = malloc_cache_aligned(cur_dev->blksz);
+		if (!block) {
+			printf("Error: allocating block: %lu\n", cur_dev->blksz);
+			return -1;
+		}
+
+		s = sect_to_block(sect, &offset);
+		offset = offset * fat_sect_size;
+
+		ret = blk_dread(cur_dev, start + s, 1, block);
+		if (ret != 1) {
+			ret = -1;
+			goto exit;
+		}
+
+		if (rem > (blksz - offset))
+			size = blksz - offset;
+		else
+			size = rem;
+
+		if (read) {
+			memcpy(buf, block + offset, size);
+		} else {
+			memcpy(block + offset, buf, size);
+			ret = blk_dwrite(cur_dev, start + s, 1, block);
+			if (ret != 1) {
+				ret = -1;
+				goto exit;
+			}
+		}
+
+		rem -= size;
+		buf += size;
+		s++;
+	}
+
+	/* Do part 2, read/write directly to/from the given buffer */
+	if (rem > blksz) {
+		n = rem / blksz;
+
+		if (read)
+			ret = blk_dread(cur_dev, start + s, n, buf);
+		else
+			ret = blk_dwrite(cur_dev, start + s, n, buf);
+
+		if (ret != n) {
+			ret = -1;
+			goto exit;
+		}
+		buf += n * blksz;
+		rem = rem % blksz;
+		s += n;
+	}
+
+	/* Do part 3, read a block and copy the trailing sectors */
+	if (rem) {
+		ret = blk_dread(cur_dev, start + s, 1, block);
+		if (ret != 1) {
+			ret = -1;
+			goto exit;
+		}
+		if (read) {
+			memcpy(buf, block, rem);
+		} else {
+			memcpy(block, buf, rem);
+			ret = blk_dwrite(cur_dev, start + s, 1, block);
+			if (ret != 1) {
+				ret = -1;
+				goto exit;
+			}
+		}
+	}
+exit:
+	if (block)
+		free(block);
+
+	return (ret == -1) ? -1 : nr_sect;
+}
+
+static int disk_read(__u32 sect, __u32 nr_sect, void *buf)
+{
+	return disk_rw(sect, nr_sect, buf, true);
+}
+
+int disk_write(__u32 sect, __u32 nr_sect, void *buf)
+{
+	return disk_rw(sect, nr_sect, buf, false);
+}
+#else
 static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 {
 	ulong ret;
@@ -64,6 +199,7 @@ static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 
 	return ret;
 }
+#endif /* CONFIG_FS_FAT_HANDLE_SECTOR_SIZE_MISMATCH */
 
 int fat_set_blk_dev(struct blk_desc *dev_desc, struct disk_partition *info)
 {
@@ -73,7 +209,7 @@ int fat_set_blk_dev(struct blk_desc *dev_desc, struct disk_partition *info)
 	cur_part_info = *info;
 
 	/* Make sure it has a valid FAT header */
-	if (disk_read(0, 1, buffer) != 1) {
+	if (blk_dread(cur_dev, cur_part_info.start, 1, buffer) != 1) {
 		cur_dev = NULL;
 		return -1;
 	}
@@ -581,7 +717,8 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 		return -1;
 	}
 
-	if (disk_read(0, 1, block) < 0) {
+	fat_sect_size = 0;
+	if (blk_dread(cur_dev, cur_part_info.start, 1, block) != 1) {
 		debug("Error: reading block\n");
 		ret = -1;
 		goto out_free;
@@ -651,11 +788,16 @@ static int get_fs_info(fsdata *mydata)
 	mydata->rootdir_sect = mydata->fat_sect + mydata->fatlength * bs.fats;
 
 	mydata->sect_size = get_unaligned_le16(bs.sector_size);
+	fat_sect_size = mydata->sect_size;
 	mydata->clust_size = bs.cluster_size;
 	if (mydata->sect_size != cur_part_info.blksz) {
-		log_err("FAT sector size mismatch (fs=%u, dev=%lu)\n",
-			mydata->sect_size, cur_part_info.blksz);
-		return -1;
+		if (!IS_ENABLED(CONFIG_FS_FAT_HANDLE_SECTOR_SIZE_MISMATCH)) {
+			log_err("FAT sector size mismatch (fs=%u, dev=%lu)\n",
+				mydata->sect_size, cur_part_info.blksz);
+			return -1;
+		}
+		log_info("FAT sector size mismatch (fs=%u, dev=%lu)\n",
+			 mydata->sect_size, cur_part_info.blksz);
 	}
 	if (mydata->clust_size == 0) {
 		log_err("FAT cluster size not set\n");
