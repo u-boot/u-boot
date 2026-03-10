@@ -74,7 +74,6 @@ static const struct mtk_pll_data apmixed_plls[] = {
 };
 
 static const struct mtk_clk_tree mt8365_apmixed_tree = {
-	.xtal_rate = 26 * MHZ,
 	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
@@ -85,7 +84,7 @@ static const struct mtk_clk_tree mt8365_apmixed_tree = {
 /* topckgen */
 
 #define FIXED_CLK0(_id, _rate)						\
-	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+	FIXED_CLK(_id, CLK_PAD_CLK26M, CLK_PARENT_EXT, _rate)
 
 #define FIXED_CLK1(_id, _rate)						\
 	FIXED_CLK(_id, CLK_TOP_CLK_NULL, CLK_PARENT_TOPCKGEN, _rate)
@@ -105,7 +104,7 @@ static const struct mtk_fixed_clk top_fixed_clks[] = {
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_TOPCKGEN)
 
 #define PLL_FACTOR2(_id, _name, _parent, _mult, _div)			\
-	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_EXT)
 
 static const struct mtk_fixed_factor top_divs[] = {
 	PLL_FACTOR(CLK_TOP_MFGPLL, "mfgpll_ck", CLK_APMIXED_MFGPLL, 1, 1),
@@ -155,7 +154,7 @@ static const struct mtk_fixed_factor top_divs[] = {
 	PLL_FACTOR1(CLK_TOP_APLL2_D2, "apll2_d2", CLK_TOP_APLL2, 1, 2),
 	PLL_FACTOR1(CLK_TOP_APLL2_D4, "apll2_d4", CLK_TOP_APLL2, 1, 4),
 	PLL_FACTOR1(CLK_TOP_APLL2_D8, "apll2_d8", CLK_TOP_APLL2, 1, 8),
-	PLL_FACTOR2(CLK_TOP_SYS_26M_D2, "sys_26m_d2", CLK_XTAL, 1, 2),
+	PLL_FACTOR2(CLK_TOP_SYS_26M_D2, "sys_26m_d2", CLK_PAD_CLK26M, 1, 2),
 	PLL_FACTOR(CLK_TOP_MSDCPLL, "msdcpll_ck", CLK_APMIXED_MSDCPLL, 1, 1),
 	PLL_FACTOR(CLK_TOP_MSDCPLL_D2, "msdcpll_d2", CLK_APMIXED_MSDCPLL, 1, 2),
 	PLL_FACTOR(CLK_TOP_DSPPLL, "dsppll_ck", CLK_APMIXED_DSPPLL, 1, 1),
@@ -163,7 +162,7 @@ static const struct mtk_fixed_factor top_divs[] = {
 	PLL_FACTOR(CLK_TOP_DSPPLL_D4, "dsppll_d4", CLK_APMIXED_DSPPLL, 1, 4),
 	PLL_FACTOR(CLK_TOP_DSPPLL_D8, "dsppll_d8", CLK_APMIXED_DSPPLL, 1, 8),
 	PLL_FACTOR(CLK_TOP_APUPLL, "apupll_ck", CLK_APMIXED_APUPLL, 1, 1),
-	PLL_FACTOR2(CLK_TOP_CLK26M_D52, "clk26m_d52", CLK_XTAL, 1, 52),
+	PLL_FACTOR2(CLK_TOP_CLK26M_D52, "clk26m_d52", CLK_PAD_CLK26M, 1, 52),
 };
 
 static const struct mtk_parent axi_parents[] = {
@@ -583,7 +582,6 @@ static const struct mtk_gate top_clk_gates[] = {
 };
 
 static const struct mtk_clk_tree mt8365_topckgen_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_TOP_MFGPLL,
@@ -755,7 +753,6 @@ static const struct mtk_gate ifr_clks[] = {
 };
 
 static const struct mtk_clk_tree mt8365_infracfg_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 };
