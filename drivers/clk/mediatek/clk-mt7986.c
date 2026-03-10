@@ -18,8 +18,16 @@
 #define MT7986_CLK_PDN 0x250
 #define MT7986_CLK_PDN_EN_WRITE BIT(31)
 
+enum {
+	CLK_PAD_CLK40M,
+};
+
+static const ulong ext_clock_rates[] = {
+	[CLK_PAD_CLK40M] = 40 * MHZ,
+};
+
 #define FIXED_CLK0(_id, _rate)					\
-	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+	FIXED_CLK(_id, CLK_PAD_CLK40M, CLK_PARENT_EXT, _rate)
 
 #define PLL_FACTOR(_id, _name, _parent, _mult, _div)                           \
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
@@ -516,14 +524,17 @@ static const struct mtk_gate infracfg_gates[] = {
 };
 
 static const struct mtk_clk_tree mt7986_fixed_pll_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_APMIXED_NR_CLK,
-	.xtal_rate = 40 * MHZ,
 	.fclks = fixed_pll_clks,
 	.num_fclks = ARRAY_SIZE(fixed_pll_clks),
 	.flags = CLK_PARENT_APMIXED,
 };
 
 static const struct mtk_clk_tree mt7986_topckgen_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_TOP_XTAL_D2,
 	.muxes_offs = CLK_TOP_NFI1X_SEL,
 	.fclks = top_fixed_clks,
@@ -536,6 +547,8 @@ static const struct mtk_clk_tree mt7986_topckgen_clk_tree = {
 };
 
 static const struct mtk_clk_tree mt7986_infracfg_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_INFRA_SYSAXI_D2,
 	.muxes_offs = CLK_INFRA_UART0_SEL,
 	.gates_offs = CLK_INFRA_GPT_STA,
