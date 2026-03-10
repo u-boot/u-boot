@@ -60,7 +60,7 @@ static const struct mtk_pll_data apmixed_plls[] = {
 
 /* topckgen */
 #define FIXED_CLK0(_id, _rate)			\
-	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+	FIXED_CLK(_id, CLK_PAD_CLK26M, CLK_PARENT_EXT, _rate)
 
 #define FIXED_CLK1(_id, _rate)			\
 	FIXED_CLK(_id, CLK_TOP_CLK_NULL, CLK_PARENT_TOPCKGEN, _rate)
@@ -72,7 +72,7 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_TOPCKGEN)
 
 #define FACTOR2(_id, _parent, _mult, _div)	\
-	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_EXT)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
 	FIXED_CLK0(CLK_TOP_CLK_NULL, 26000000),
@@ -82,7 +82,7 @@ static const struct mtk_fixed_clk top_fixed_clks[] = {
 };
 
 static const struct mtk_fixed_factor top_fixed_divs[] = {
-	FACTOR2(CLK_TOP_DMPLL, CLK_XTAL, 1, 1),
+	FACTOR2(CLK_TOP_DMPLL, CLK_PAD_CLK26M, 1, 1),
 	FACTOR0(CLK_TOP_MAINPLL_D4, CLK_APMIXED_MAINPLL, 1, 4),
 	FACTOR0(CLK_TOP_MAINPLL_D8, CLK_APMIXED_MAINPLL, 1, 8),
 	FACTOR0(CLK_TOP_MAINPLL_D16, CLK_APMIXED_MAINPLL, 1, 16),
@@ -117,11 +117,11 @@ static const struct mtk_fixed_factor top_fixed_divs[] = {
 	FACTOR1(CLK_TOP_APLL2_D3, CLK_TOP_APLL2, 1, 3),
 	FACTOR1(CLK_TOP_APLL2_D4, CLK_TOP_APLL2, 1, 4),
 	FACTOR1(CLK_TOP_APLL2_D8, CLK_TOP_APLL2, 1, 8),
-	FACTOR2(CLK_TOP_CLK26M, CLK_XTAL, 1, 1),
-	FACTOR2(CLK_TOP_CLK26M_D2, CLK_XTAL, 1, 2),
-	FACTOR2(CLK_TOP_CLK26M_D4, CLK_XTAL, 1, 4),
-	FACTOR2(CLK_TOP_CLK26M_D8, CLK_XTAL, 1, 8),
-	FACTOR2(CLK_TOP_CLK26M_D793, CLK_XTAL, 1, 793),
+	FACTOR2(CLK_TOP_CLK26M, CLK_PAD_CLK26M, 1, 1),
+	FACTOR2(CLK_TOP_CLK26M_D2, CLK_PAD_CLK26M, 1, 2),
+	FACTOR2(CLK_TOP_CLK26M_D4, CLK_PAD_CLK26M, 1, 4),
+	FACTOR2(CLK_TOP_CLK26M_D8, CLK_PAD_CLK26M, 1, 8),
+	FACTOR2(CLK_TOP_CLK26M_D793, CLK_PAD_CLK26M, 1, 793),
 	FACTOR0(CLK_TOP_TVDPLL, CLK_APMIXED_TVDPLL, 1, 1),
 	FACTOR1(CLK_TOP_TVDPLL_D2, CLK_TOP_TVDPLL, 1, 2),
 	FACTOR1(CLK_TOP_TVDPLL_D4, CLK_TOP_TVDPLL, 1, 4),
@@ -1501,7 +1501,6 @@ static const struct mtk_gate top_clks[] = {
 };
 
 static const struct mtk_clk_tree mt8518_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
