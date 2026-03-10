@@ -3,6 +3,165 @@
  * U-Boot additions
  *
  * Copyright (C) 2020 Intel Corporation <www.intel.com>
+ * Copyright (C) 2026 Altera Corporation <www.altera.com>
  */
 
 #include "socfpga_soc64_fit-u-boot.dtsi"
+
+/{
+	aliases {
+		spi0 = &qspi;
+		i2c0 = &i2c1;
+		freeze_br0 = &freeze_controller;
+	};
+
+	memory@0 {
+		device_type = "memory";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		bootph-all;
+	};
+
+	pmu {
+		compatible = "arm,armv8-pmuv3";
+	};
+
+	soc@0 {
+		bootph-all;
+
+		freeze_controller: freeze_controller@f9000450 {
+			compatible = "altr,freeze-bridge-controller";
+			reg = <0xf9000450 0x00000010>;
+			status = "disabled";
+		};
+	};
+};
+
+&clkmgr {
+	bootph-all;
+};
+
+&gmac0 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	clocks = <&clkmgr STRATIX10_EMAC0_CLK>;
+	clock-names = "stmmaceth";
+	phy-mode = "rgmii-id";
+	max-frame-size = <3800>;
+	status = "okay";
+
+	mdio0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "snps,dwmac-mdio";
+	};
+};
+
+&gmac1 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
+	clocks = <&clkmgr STRATIX10_EMAC1_CLK>;
+	clock-names = "stmmaceth";
+	status = "disabled";
+	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
+};
+
+&gmac2 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
+	reset-names = "stmmaceth", "stmmaceth-ocp";
+	altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
+	clocks = <&clkmgr STRATIX10_EMAC2_CLK>;
+	clock-names = "stmmaceth";
+	status = "disabled";
+	altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
+};
+
+&i2c0 {
+	reset-names = "i2c";
+};
+
+&i2c1 {
+	reset-names = "i2c";
+	status = "okay";
+};
+
+&i2c2 {
+	reset-names = "i2c";
+};
+
+&i2c3 {
+	reset-names = "i2c";
+};
+
+&mmc {
+	resets = <&rst SDMMC_RESET>, <&rst SDMMC_OCP_RESET>;
+	fifo-mode;
+};
+
+&porta {
+	bank-name = "porta";
+};
+
+&portb {
+	bank-name = "portb";
+};
+
+&qspi {
+	bootph-all;
+	compatible = "cdns,qspi-nor";
+	flash0: flash@0 {
+	};
+};
+
+&flash0 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	compatible = "jedec,spi-nor";
+};
+
+&rst {
+	compatible = "altr,rst-mgr";
+	altr,modrst-offset = <0x20>;
+	bootph-all;
+};
+
+&sdr {
+	compatible = "altr,sdr-ctl-s10";
+	reg = <0xf8000400 0x80>,
+	      <0xf8010000 0x190>,
+	      <0xf8011000 0x500>;
+	resets = <&rst DDRSCH_RESET>;
+	bootph-all;
+};
+
+&uart0 {
+	bootph-all;
+	clock-frequency = <100000000>;
+};
+
+&watchdog0 {
+	bootph-all;
+};
+
+&usb0 {
+	compatible = "snps,dwc2";
+};
+
+&usb1 {
+	compatible = "snps,dwc2";
+};
+
+&spi0 {
+	compatible = "intel,stratix10-spi",
+		     "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
+};
+
+&spi1 {
+	compatible = "intel,stratix10-spi",
+		     "snps,dw-apb-ssi-4.00a", "snps,dw-apb-ssi";
+};
+
+&binman {
+	/delete-node/ kernel;
+};
