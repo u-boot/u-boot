@@ -58,7 +58,7 @@ static const struct mtk_pll_data apmixed_plls[] = {
 
 /* topckgen */
 #define FIXED_CLK0(_id, _rate)			\
-	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+	FIXED_CLK(_id, CLK_PAD_CLK26M, CLK_PARENT_EXT, _rate)
 
 #define FIXED_CLK1(_id, _parent, _rate)		\
 	FIXED_CLK(_id, _parent, CLK_PARENT_TOPCKGEN, _rate)
@@ -70,7 +70,7 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_TOPCKGEN)
 
 #define FACTOR2(_id, _parent, _mult, _div)	\
-	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_EXT)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
 	FIXED_CLK0(CLK_TOP_CLK_NULL, 26000000),
@@ -117,8 +117,8 @@ static const struct mtk_fixed_factor top_fixed_divs[] = {
 	FACTOR1(CLK_TOP_APLL2_D2, CLK_TOP_APLL2, 1, 2),
 	FACTOR1(CLK_TOP_APLL2_D4, CLK_TOP_RG_APLL2_D2_EN, 1, 2),
 	FACTOR1(CLK_TOP_APLL2_D8, CLK_TOP_RG_APLL2_D4_EN, 1, 2),
-	FACTOR2(CLK_TOP_CLK26M, CLK_XTAL, 1, 1),
-	FACTOR2(CLK_TOP_CLK26M_D2, CLK_XTAL, 1, 2),
+	FACTOR2(CLK_TOP_CLK26M, CLK_PAD_CLK26M, 1, 1),
+	FACTOR2(CLK_TOP_CLK26M_D2, CLK_PAD_CLK26M, 1, 2),
 	FACTOR1(CLK_TOP_AHB_INFRA_D2, CLK_TOP_AHB_INFRA_SEL, 1, 2),
 	FACTOR1(CLK_TOP_NFI1X, CLK_TOP_NFI2X_PAD_SEL, 1, 2),
 	FACTOR1(CLK_TOP_ETH_D2, CLK_TOP_ETH_SEL, 1, 2),
@@ -745,7 +745,6 @@ static const struct mtk_gate top_clks[] = {
 };
 
 static const struct mtk_clk_tree mt8516_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
