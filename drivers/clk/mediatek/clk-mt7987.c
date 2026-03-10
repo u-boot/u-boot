@@ -15,15 +15,22 @@
 
 #include "clk-mtk.h"
 
-#define MT7987_XTAL_RATE	(40 * MHZ)
 #define MT7987_CLK_PDN		0x250
 #define MT7987_CLK_PDN_EN_WRITE	BIT(31)
 
-#define FIXED_CLK0(_id, _rate)                                                 \
-	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+enum {
+	CLK_PAD_CLK40M,
+};
 
-#define XTAL_FACTOR(_id, _name, _parent, _mult, _div)                          \
-	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
+static const ulong ext_clock_rates[] = {
+	[CLK_PAD_CLK40M] = 40 * MHZ,
+};
+
+#define FIXED_CLK0(_id, _rate)                                                 \
+	FIXED_CLK(_id, CLK_PAD_CLK40M, CLK_PARENT_EXT, _rate)
+
+#define EXT_FACTOR(_id, _name, _parent, _mult, _div)                           \
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_EXT)
 
 #define PLL_FACTOR(_id, _name, _parent, _mult, _div)                           \
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
@@ -47,11 +54,12 @@ static const struct mtk_fixed_clk apmixedsys_mtk_plls[] = {
 };
 
 static const struct mtk_clk_tree mt7987_fixed_pll_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = ARRAY_SIZE(apmixedsys_mtk_plls),
 	.fclks = apmixedsys_mtk_plls,
 	.num_fclks = ARRAY_SIZE(apmixedsys_mtk_plls),
 	.flags = CLK_PARENT_APMIXED,
-	.xtal_rate = 40 * MHZ,
 };
 
 static const struct udevice_id mt7987_fixed_pll_compat[] = {
@@ -104,7 +112,7 @@ static const struct mtk_fixed_factor topckgen_mtk_fixed_factors[] = {
 	PLL_FACTOR(CLK_TOP_NET2_D7_D2, "net2_d7_d2", CLK_APMIXED_NET2PLL, 1, 14),
 	PLL_FACTOR(CLK_TOP_CB_NET2_D8, "cb_net2_d8", CLK_APMIXED_NET2PLL, 1, 8),
 	PLL_FACTOR(CLK_TOP_MSDC_D2, "msdc_d2", CLK_APMIXED_MSDCPLL, 1, 2),
-	XTAL_FACTOR(CLK_TOP_CB_CKSQ_40M, "cb_cksq_40m", CLK_XTAL, 1, 1),
+	EXT_FACTOR(CLK_TOP_CB_CKSQ_40M, "cb_cksq_40m", CLK_PAD_CLK40M, 1, 1),
 	TOP_FACTOR(CLK_TOP_CKSQ_40M_D2, "cksq_40m_d2", CLK_TOP_CB_CKSQ_40M, 1, 2),
 	TOP_FACTOR(CLK_TOP_CB_RTC_32K, "cb_rtc_32k", CLK_TOP_CB_CKSQ_40M, 1, 1250),
 	TOP_FACTOR(CLK_TOP_CB_RTC_32P7K, "cb_rtc_32p7k", CLK_TOP_CB_CKSQ_40M, 1, 1221),
@@ -441,13 +449,14 @@ static const struct mtk_composite topckgen_mtk_muxes[] = {
 };
 
 static const struct mtk_clk_tree mt7987_topckgen_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.muxes_offs = CLK_TOP_NETSYS_SEL,
 	.fdivs = topckgen_mtk_fixed_factors,
 	.muxes = topckgen_mtk_muxes,
 	.num_fdivs = ARRAY_SIZE(topckgen_mtk_fixed_factors),
 	.num_muxes = ARRAY_SIZE(topckgen_mtk_muxes),
 	.flags = CLK_PARENT_TOPCKGEN,
-	.xtal_rate = MT7987_XTAL_RATE,
 };
 
 static const struct udevice_id mt7987_topckgen_compat[] = {
@@ -639,8 +648,8 @@ static const struct mtk_gate_regs infra_3_cg_regs = {
 	GATE_INFRA3(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_INFRASYS)
 #define GATE_INFRA3_TOP(_id, _name, _parent, _shift) \
 	GATE_INFRA3(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
-#define GATE_INFRA3_XTAL(_id, _name, _parent, _shift) \
-	GATE_INFRA3(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_XTAL)
+#define GATE_INFRA3_EXT(_id, _name, _parent, _shift) \
+	GATE_INFRA3(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_EXT)
 
 /* INFRA GATE */
 static const struct mtk_gate infracfg_mtk_gates[] = {
@@ -741,20 +750,20 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 			CLK_TOP_CB_CKSQ_40M, 7),
 	GATE_INFRA3_TOP(CLK_INFRA_USB_FRMCNT_CK_P1,
 			"infra_usb_frmcnt_ck_p1", CLK_TOP_CKSQ_40M_D2, 9),
-	GATE_INFRA3_XTAL(CLK_INFRA_USB_PIPE_CK_P1,
-			 "infra_usb_pipe_ck_p1", CLK_XTAL, 11),
-	GATE_INFRA3_XTAL(CLK_INFRA_USB_UTMI_CK_P1,
-			 "infra_usb_utmi_ck_p1", CLK_XTAL, 13),
+	GATE_INFRA3_EXT(CLK_INFRA_USB_PIPE_CK_P1,
+			"infra_usb_pipe_ck_p1", CLK_PAD_CLK40M, 11),
+	GATE_INFRA3_EXT(CLK_INFRA_USB_UTMI_CK_P1,
+			"infra_usb_utmi_ck_p1", CLK_PAD_CLK40M, 13),
 	GATE_INFRA3_TOP(CLK_INFRA_USB_XHCI_CK_P1,
 			"infra_usb_xhci_ck_p1", CLK_TOP_USB_XHCI_P1_SEL, 15),
 	GATE_INFRA3_INFRA(CLK_INFRA_PCIE_GFMUX_TL_P0,
 			  "infra_pcie_gfmux_tl_ck_p0", CLK_INFRA_PCIE_GFMUX_TL_O_P0_SEL, 20),
 	GATE_INFRA3_INFRA(CLK_INFRA_PCIE_GFMUX_TL_P1,
 			  "infra_pcie_gfmux_tl_ck_p1", CLK_INFRA_PCIE_GFMUX_TL_O_P1_SEL, 21),
-	GATE_INFRA3_XTAL(CLK_INFRA_PCIE_PIPE_P0,
-			 "infra_pcie_pipe_ck_p0", CLK_XTAL, 24),
-	GATE_INFRA3_XTAL(CLK_INFRA_PCIE_PIPE_P1,
-			 "infra_pcie_pipe_ck_p1", CLK_XTAL, 25),
+	GATE_INFRA3_EXT(CLK_INFRA_PCIE_PIPE_P0,
+			"infra_pcie_pipe_ck_p0", CLK_PAD_CLK40M, 24),
+	GATE_INFRA3_EXT(CLK_INFRA_PCIE_PIPE_P1,
+			"infra_pcie_pipe_ck_p1", CLK_PAD_CLK40M, 25),
 	GATE_INFRA3_TOP(CLK_INFRA_133M_PCIE_CK_P0,
 			"infra_133m_pcie_ck_p0", CLK_TOP_SYSAXI_SEL, 28),
 	GATE_INFRA3_TOP(CLK_INFRA_133M_PCIE_CK_P1,
@@ -766,13 +775,14 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 };
 
 static const struct mtk_clk_tree mt7987_infracfg_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.muxes_offs = CLK_INFRA_MUX_UART0_SEL,
 	.gates_offs = CLK_INFRA_66M_GPT_BCK,
 	.muxes = infracfg_mtk_mux,
 	.gates = infracfg_mtk_gates,
 	.num_muxes = ARRAY_SIZE(infracfg_mtk_mux),
 	.num_gates = ARRAY_SIZE(infracfg_mtk_gates),
-	.xtal_rate = MT7987_XTAL_RATE,
 };
 
 static const struct udevice_id mt7987_infracfg_compat[] = {
