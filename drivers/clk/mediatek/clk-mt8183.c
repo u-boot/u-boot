@@ -76,7 +76,7 @@ static const struct mtk_pll_data apmixed_plls[] = {
 };
 
 #define FIXED_CLK0(_id, _rate)						\
-	FIXED_CLK(_id, CLK_XTAL, CLK_PARENT_XTAL, _rate)
+	FIXED_CLK(_id, CLK_PAD_CLK26M, CLK_PARENT_EXT, _rate)
 
 #define FIXED_CLK1(_id, _rate)						\
 	FIXED_CLK(_id, CLK_TOP_UNIVPLL, CLK_PARENT_TOPCKGEN, _rate)
@@ -605,7 +605,6 @@ static const struct mtk_composite top_muxes[] = {
 };
 
 static const struct mtk_clk_tree mt8183_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
