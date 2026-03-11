@@ -1108,14 +1108,14 @@ struct scmi_pin_config {
  * struct scmi_pinctrl_config_set_in - Message payload for PAD_CONFIG_SET command
  * @identifier:		Identifier for the pin or group.
  * @function_id:	Identifier for the function selected to be enabled
- * 			for the selected pin or group. This field is set to
- * 			0xFFFFFFFF if no function should be enabled by the
- * 			pin or group.
+ *			for the selected pin or group. This field is set to
+ *			0xFFFFFFFF if no function should be enabled by the
+ *			pin or group.
  * @attributes:		Bits[31:11] Reserved, must be zero.
- * 			Bit[10] Function valid.
- * 			Bits[9:2] Number of configurations to set.
- * 			Bits[1:0] Selector: Whether the identifier field
- * 				  refers to a pin or a group.
+ *			Bit[10] Function valid.
+ *			Bits[9:2] Number of configurations to set.
+ *			Bits[1:0] Selector: Whether the identifier field
+ *				  refers to a pin or a group.
  * @configs:	Array of configurations.
  */
 struct scmi_pinctrl_config_set_in {
