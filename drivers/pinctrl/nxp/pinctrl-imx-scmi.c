@@ -70,7 +70,7 @@ static int imx_pinconf_scmi_set(struct udevice *dev, u32 mux_ofs, u32 mux, u32 c
 	in.attributes = num_cfgs << PINCTRL_NUM_CFGS_SHIFT;
 
 	msg = SCMI_MSG_IN(SCMI_PROTOCOL_ID_PINCTRL,
-			  SCMI_MSG_PINCTRL_CONFIG_SET, in, out);
+			  SCMI_PINCTRL_SETTINGS_CONFIGURE, in, out);
 
 	ret = devm_scmi_process_msg(dev, &msg);
 	if (ret || out.status) {
