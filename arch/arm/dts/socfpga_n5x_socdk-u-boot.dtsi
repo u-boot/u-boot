@@ -65,3 +65,7 @@
 &watchdog0 {
 	bootph-all;
 };
+
+&binman {
+	/delete-node/ kernel;
+};
