@@ -1147,4 +1147,360 @@ struct scmi_perf_in {
 struct scmi_perf_out {
 	s32 status;
 };
+
+#define SCMI_PIN_NAME_LEN 16
+
+struct pin_info {
+	char name[SCMI_PIN_NAME_LEN];
+};
+
+struct group_info {
+	char name[SCMI_PIN_NAME_LEN];
+	u16 *pins;
+	u32 num_pins;
+};
+
+struct function_info {
+	char name[SCMI_PIN_NAME_LEN];
+	u16 *groups;
+	u32 num_groups;
+};
+
+/* This is used by both the SCMI pinctrl and gpio drivers */
+struct pinctrl_scmi_priv {
+	int num_pins;
+	struct pin_info *pin_info;
+	int num_groups;
+	struct group_info *group_info;
+	int num_functions;
+	struct function_info *function_info;
+};
+
+/* SCMI Pinctrl selector type */
+enum select_type {
+	SCMI_PIN,
+	SCMI_GROUP,
+	SCMI_FUNCTION,
+};
+
+/**
+ * struct scmi_pinctrl_protocol_attrs_out - Response to SCMI_PROTOCOL_ATTRIBUTES
+ *					command.
+ * @status:	SCMI command status
+ * @attr_low:	Number of pins and groups
+ * @attr_high:	Number of functions
+ */
+struct scmi_pinctrl_protocol_attrs_out {
+	s32 status;
+	u32 attr_low;
+	u32 attr_high;
+};
+
+/**
+ * struct scmi_pinctrl_attrs_in - Parameters for SCMI_PINCTRL_ATTRIBUTES command
+ * @id:			Identifier for pin, group or function
+ * @select_type:	Pin, group or function
+ */
+struct scmi_pinctrl_attrs_in {
+	u32 id;
+	u32 select_type;
+};
+
+/**
+ * struct scmi_pinctrl_attrs_out - Response to SCMI_PINCTRL_ATTRIBUTES command
+ * @status:	SCMI command status
+ * @attr:	GPIO, number of pins or groups
+ * @name:	Name of pin, group or function
+ */
+struct scmi_pinctrl_attrs_out {
+	s32 status;
+	u32 attr;
+	u8 name[SCMI_PIN_NAME_LEN];
+};
+
+/**
+ * struct scmi_pinctrl_list_associations_in - Parameters for
+ *					SCMI_PINCTRL_LIST_ASSOCIATIONS command
+ * @id:			Identifier for group or function
+ * @select_type:	Group or function
+ * @index:		Index within the group or function
+ */
+struct scmi_pinctrl_list_associations_in {
+	u32 id;
+	u32 select_type;
+	u32 index;
+};
+
+/**
+ * struct scmi_pinctrl_list_associations_out - Response to
+ *					SCMI_PINCTRL_LIST_ASSOCIATIONS command
+ * @status:	SCMI command status
+ * @flags:	Number of items returned and number still remaining
+ * @array:	List of groups or pins
+ */
+struct scmi_pinctrl_list_associations_out {
+	s32 status;
+	u32 flags;
+	u16 array[];
+};
+
+/**
+ * struct scmi_pinctrl_settings_get_in - Parameters for
+ *					SCMI_PINCTRL_SETTINGS_GET command
+ * @id:		Identifier for pin or group
+ * @attr:	Config flag: one setting, function or all settings
+ *		Selector: Pin or Group
+ *		Skip: Number of config types to skip
+ *		Config type: Type of config to read
+ */
+struct scmi_pinctrl_settings_get_in {
+	u32 id;
+	u32 attr;
+};
+
+#define SCMI_PINCTRL_CONFIG_SETTINGS_ALL -2u  /* This is an internal magic number */
+#define SCMI_PINCTRL_FUNCTION_NONE 0xFFFFFFFF
+
+/**
+ * struct scmi_pinctrl_settings_get_out - Response to SCMI_PINCTRL_SETTINGS_GET
+ *					command
+ * @status:		SCMI command status
+ * @function_selected:	The function enabled by the pin or group
+ * @num_configs:	The number of settings returned and number still remaining
+ * @configs:		The list of config data
+ */
+struct scmi_pinctrl_settings_get_out {
+	s32 status;
+	u32 function_selected;
+	u32 num_configs;
+	u32 configs[];
+};
+
+/**
+ * struct scmi_pinctrl_settings_configure_in - Parameters for
+ *					SCMI_PINCTRL_SETTINGS_CONFIGURE command
+ * @id:			Identifier for pin or group
+ * @function_id:	The function to enable for this pin or group (optional)
+ * @attr:		Function id: Set the function or not
+ *			Number of configs to set
+ *			Selector: pin or group
+ * @configs:		List of config type value pairs
+ */
+struct scmi_pinctrl_settings_configure_in {
+	u32 id;
+	u32 function_id;
+	u32 attr;
+	u32 configs[];
+};
+
+/**
+ * struct scmi_pinctrl_settings_configure_out - Response to
+ *					SCMI_PINCTRL_SETTINGS_CONFIGURE command
+ * @status:	SCMI command status
+ */
+struct scmi_pinctrl_settings_configure_out {
+	s32 status;
+};
+
+/**
+ * struct scmi_pinctrl_request_in - Parameters for SCMI_PINCTRL_REQUEST command
+ * @id:		Identifier for pin or group
+ * @flags:	Pin, group or function
+ */
+struct scmi_pinctrl_request_in {
+	u32 id;
+	u32 flags;
+};
+
+/**
+ * struct scmi_pinctrl_request_out - Response to SCMI_PINCTRL_REQUEST command
+ * @status:	SCMI command status
+ */
+struct scmi_pinctrl_request_out {
+	s32 status;
+};
+
+/**
+ * struct scmi_pinctrl_release_in - Parameters for SCMI_PINCTRL_RELEASE command
+ * @id:		Identifier for pin or group
+ * @flags:	Pin, group or function
+ */
+struct scmi_pinctrl_release_in {
+	u32 id;
+	u32 flags;
+};
+
+/**
+ * struct scmi_pinctrl_release_out - Response to SCMI_PINCTRL_RELEASE command
+ * @status:	SCMI command status
+ */
+struct scmi_pinctrl_release_out {
+	s32 status;
+};
+
+/* SCMI Pinctrl Config Types */
+enum scmi_config_type {
+	SCMI_PIN_DEFUALT = 0,
+	SCMI_PIN_BIAS_BUS_HOLD = 1,
+	SCMI_PIN_BIAS_DISABLE = 2,
+	SCMI_PIN_BIAS_HIGH_IMPEDANCE = 3,
+	SCMI_PIN_BIAS_PULL_UP = 4,
+	SCMI_PIN_BIAS_PULL_DEFAULT = 5,
+	SCMI_PIN_BIAS_PULL_DOWN = 6,
+	SCMI_PIN_DRIVE_OPEN_DRAIN = 7,
+	SCMI_PIN_DRIVE_OPEN_SOURCE = 8,
+	SCMI_PIN_DRIVE_PUSH_PULL = 9,
+	SCMI_PIN_DRIVE_STRENGTH = 10,
+	SCMI_PIN_INPUT_DEBOUNCE = 11,
+	SCMI_PIN_INPUT_MODE = 12,
+	SCMI_PIN_PULL_MODE = 13,
+	SCMI_PIN_INPUT_VALUE = 14,
+	SCMI_PIN_INPUT_SCHMITT = 15,
+	SCMI_PIN_LOW_POWER_MODE = 16,
+	SCMI_PIN_OUTPUT_MODE = 17,
+	SCMI_PIN_OUTPUT_VALUE = 18,
+	SCMI_PIN_POWER_SOURCE = 19,
+	SCMI_PIN_SLEW_RATE = 20,
+};
+
+/**
+ * scmi_pinctrl_protocol_attrs - get pinctrl information
+ * @dev: SCMI protocol device
+ * @num_pins: Number of pins
+ * @num_groups: Number of groups
+ * @num_functions: Number of functions
+ *
+ * Obtain the number of pins, groups and functions.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pinctrl_protocol_attrs(struct udevice *dev, int *num_pins,
+				int *num_groups, int *num_functions);
+
+/**
+ * scmi_pinctrl_attrs - get information for a specific pin, group or function
+ * @dev: SCMI protocol device
+ * @select_type: pin, group or function
+ * @selector: id of pin, group or function
+ * @gpio: set to true if the pin or group supports gpio
+ * @count: number of groups in function or pins in group
+ * @name: name of pin, group or function
+ *
+ * Obtain information about a specific pin, group or function.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pinctrl_attrs(struct udevice *dev, enum select_type select_type,
+		       unsigned int selector, bool *gpio, unsigned int *count,
+		       char *name);
+
+/**
+ * scmi_pinctrl_request - claim a pin or group
+ * @dev: SCMI protocol device
+ * @select_type: pin or group
+ * @selector: id of pin or group
+ *
+ * Claim ownership of a pin or group.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pinctrl_request(struct udevice *dev, enum select_type select_type,
+			 unsigned int selector);
+/**
+ * scmi_pinctrl_release - release a claimed pin or group
+ * @dev: SCMI protocol device
+ * @select_type: pin or group
+ * @selector: id of pin or group
+ *
+ * Release a pin or group that you previously claimed.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pinctrl_release(struct udevice *dev, enum select_type select_type,
+			 unsigned int selector);
+
+/**
+ * scmi_pinctrl_list_associations - get list of pins in group or groups in function
+ * @dev: SCMI protocol device
+ * @select_type: group or function
+ * @selector: id of group or function
+ * @output: list of groups in function or pins in group
+ * @num_out: How many groups are in the function or pins in the group
+ *
+ * Obtain the list of groups or pins in the function or group respectively.
+ * We know how many items will be in the list from calling scmi_pinctrl_attrs().
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pinctrl_list_associations(struct udevice *dev,
+				   enum select_type select_type,
+				   unsigned int selector,
+				   unsigned short *output,
+				   unsigned short num_out);
+
+/**
+ * scmi_pinctrl_settings_get_one - get a configuration setting
+ * @dev: SCMI protocol device
+ * @select_type: pin or group
+ * @selector: id of pin or group
+ * @config_type: Which configuration type to read
+ * @value: returned configuration value
+ *
+ * This reads a single config setting.  Most importantly the
+ * SCMI_PIN_INPUT_VALUE setting is used to read from a pin.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pinctrl_settings_get_one(struct udevice *dev, enum select_type select_type,
+				  unsigned int selector,
+				  u32 config_type, u32 *value);
+
+/**
+ * scmi_pinctrl_settings_configure - set multiple configuration settings
+ * @dev: SCMI protocol device
+ * @select_type: pin or group
+ * @selector: id of pin or group
+ * @num_configs: number of settings to set
+ * @configs: Config type and value pairs
+ *
+ * Configure multiple settings at once to reduce overhead.  The
+ * SCMI_PIN_OUTPUT_VALUE setting is used to write to a pin.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pinctrl_settings_configure(struct udevice *dev, enum select_type select_type,
+				    unsigned int selector, u16 num_configs,
+				    u32 *configs);
+
+/**
+ * scmi_pinctrl_settings_configure_one - set a configuration setting
+ * @dev: SCMI protocol device
+ * @select_type: pin or group
+ * @selector: id of pin or group
+ * @param: The setting type to configure
+ * @argument: The value of the configuration
+ *
+ * Configure a single setting.  The SCMI_PIN_OUTPUT_VALUE setting is used to
+ * write to a pin.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pinctrl_settings_configure_one(struct udevice *dev, enum select_type select_type,
+					unsigned int selector,
+					u32 param, u32 argument);
+
+/**
+ * scmi_pinctrl_set_function - set the function for a group or pin
+ * @dev: SCMI protocol device
+ * @select_type: pin or group
+ * @selector: id of pin or group
+ * @function_id: id of the function
+ *
+ * Set the function for a group or pin.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pinctrl_set_function(struct udevice *dev, enum select_type select_type,
+			      unsigned int selector, u32 function_id);
+
 #endif /* _SCMI_PROTOCOLS_H */

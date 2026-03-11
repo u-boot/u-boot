@@ -291,6 +291,15 @@ config PINCTRL_SANDBOX
 	  Currently, this driver actually does nothing but print debug
 	  messages when pinctrl operations are invoked.
 
+config PINCTRL_SCMI
+	bool "Support SCMI pin controllers"
+	depends on PINCTRL_FULL && SCMI_FIRMWARE
+	help
+	  This is for pinctrl over the SCMI protocol.  This allows the
+	  initial pin configuration to be set up from the device tree.  The
+	  gpio_scmi driver is built on top of this driver if GPIO is
+	  required.
+
 config PINCTRL_SINGLE
 	bool "Single register pin-control and pin-multiplex driver"
 	depends on DM
