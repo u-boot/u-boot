@@ -71,9 +71,16 @@ static int do_test(struct cmd_tbl *cmdtp, int flag, int argc,
 		argc--;
 	}
 
-	/* args? */
-	if (argc < 3)
+	/*
+	 * Per POSIX, 'test' with 0 arguments should return 1, while
+	 * 'test <arg>' should be equivalent to 'test -n <arg>',
+	 * i.e. true if and only if <arg> is not empty.
+	 */
+	if (argc < 2)
 		return 1;
+
+	if (argc == 2)
+		return !strcmp(argv[1], "");
 
 #ifdef DEBUG
 	{

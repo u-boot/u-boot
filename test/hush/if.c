@@ -32,6 +32,15 @@ static int hush_test_if_base(struct unit_test_state *uts)
 	sprintf(if_formatted, if_format, "false");
 	ut_asserteq(1, run_command(if_formatted, 0));
 
+	sprintf(if_formatted, if_format, "test");
+	ut_asserteq(1, run_command(if_formatted, 0));
+
+	sprintf(if_formatted, if_format, "test ''");
+	ut_asserteq(1, run_command(if_formatted, 0));
+
+	sprintf(if_formatted, if_format, "test 'abc'");
+	ut_assertok(run_command(if_formatted, 0));
+
 	return 0;
 }
 HUSH_TEST(hush_test_if_base, 0);
@@ -354,6 +363,27 @@ static int hush_test_lbracket_alias(struct unit_test_state *uts)
 
 	sprintf(if_formatted, if_format, "[ ! aaa != aaa -o ! bbb = bbb ]");
 	ut_assertok(run_command(if_formatted, 0));
+
+	sprintf(if_formatted, if_format, "[ ]");
+	ut_asserteq(1, run_command(if_formatted, 0));
+
+	sprintf(if_formatted, if_format, "[");
+	ut_asserteq(1, run_command(if_formatted, 0));
+	ut_assert_nextline(missing_rbracket_error);
+
+	sprintf(if_formatted, if_format, "[ '' ]");
+	ut_asserteq(1, run_command(if_formatted, 0));
+
+	sprintf(if_formatted, if_format, "[ ''");
+	ut_asserteq(1, run_command(if_formatted, 0));
+	ut_assert_nextline(missing_rbracket_error);
+
+	sprintf(if_formatted, if_format, "[ 'abc' ]");
+	ut_assertok(run_command(if_formatted, 0));
+
+	sprintf(if_formatted, if_format, "[ 'abc'");
+	ut_asserteq(1, run_command(if_formatted, 0));
+	ut_assert_nextline(missing_rbracket_error);
 
 	return 0;
 }
