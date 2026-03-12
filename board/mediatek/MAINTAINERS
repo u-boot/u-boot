@@ -13,3 +13,8 @@ M:	Julien Masson <jmasson@baylibre.com>
 M:	Macpaul Lin <Macpaul.Lin@mediatek.com>
 S:	Maintained
 F:	configs/mt8390_evk_defconfig
+
+MT8395 EVK
+M:	Macpaul Lin <Macpaul.Lin@mediatek.com>
+S:	Maintained
+F:	configs/mt8395_evk_defconfig

@@ -856,6 +856,9 @@ int mtk_pinctrl_common_probe(struct udevice *dev,
 	if (!base_calc)
 		nbase_names = 1;
 
+	if (nbase_names > MAX_BASE_CALC)
+		return -ENOSPC;
+
 	for (i = 0; i < nbase_names; i++) {
 		if (soc->base_names)
 			addr = dev_read_addr_name(dev, soc->base_names[i]);
