@@ -134,7 +134,11 @@ def test_gpio_set_generic(ubman):
     if not f:
         pytest.skip("gpio not configured")
 
-    gpio_pin_adr = f['gpio_op_pin']
+    gpio_pin_adr = f.get('gpio_op_pin')
+
+    if gpio_pin_adr is None:
+        pytest.skip("gpio_op_pin is not configured")
+
     gpio_set_value = f['gpio_set_value']
 
 
@@ -158,7 +162,11 @@ def test_gpio_clear_generic(ubman):
     if not f:
         pytest.skip("gpio not configured")
 
-    gpio_pin_adr = f['gpio_op_pin']
+    gpio_pin_adr = f.get('gpio_op_pin')
+
+    if gpio_pin_adr is None:
+        pytest.skip("gpio_op_pin is not configured")
+
     gpio_clear_value = f['gpio_clear_value']
 
 
@@ -182,7 +190,11 @@ def test_gpio_toggle_generic(ubman):
     if not f:
         pytest.skip("gpio not configured")
 
-    gpio_pin_adr = f['gpio_op_pin']
+    gpio_pin_adr = f.get('gpio_op_pin')
+
+    if gpio_pin_adr is None:
+        pytest.skip("gpio_op_pin is not configured")
+
     gpio_set_value = f['gpio_set_value']
     gpio_clear_value = f['gpio_clear_value']
 
