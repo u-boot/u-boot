@@ -30,6 +30,11 @@ struct bcm283x_pinctrl_priv {
 
 #define MAX_PINS_PER_BANK 16
 
+/* pull states for BCM2711 */
+#define BCM2711_PULL_NONE 0
+#define BCM2711_PULL_UP   1
+#define BCM2711_PULL_DOWN 2
+
 static void bcm2835_gpio_set_func_id(struct udevice *dev, unsigned int gpio,
 				     int func)
 {
@@ -92,6 +97,17 @@ static void bcm2711_gpio_set_pull(struct udevice *dev, unsigned int gpio, int pu
 	u32 reg_offset;
 	u32 bit_shift;
 	u32 pull_bits;
+
+	if (!device_is_compatible(dev, "brcm,bcm2711-gpio"))
+		return;
+
+	/* BCM2711's pull values differ from BCM2835 */
+	if (pull == BCM2835_PUD_UP)
+		pull = BCM2711_PULL_UP;
+	else if (pull == BCM2835_PUD_DOWN)
+		pull = BCM2711_PULL_DOWN;
+	else
+		pull = BCM2711_PULL_NONE;
 
 	/* Findout which GPIO_PUP_PDN_CNTRL register to use */
 	reg_offset = BCM2711_GPPUD_CNTRL_REG0 + BCM2711_PUD_REG_OFFSET(gpio);
