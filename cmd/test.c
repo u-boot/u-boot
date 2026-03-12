@@ -63,6 +63,14 @@ static int do_test(struct cmd_tbl *cmdtp, int flag, int argc,
 	char * const *ap;
 	int i, op, left, adv, expr, last_expr, last_unop, last_binop;
 
+	if (!strcmp(argv[0], "[")) {
+		if (strcmp(argv[argc - 1], "]")) {
+			printf("[: missing terminating ]\n");
+			return 1;
+		}
+		argc--;
+	}
+
 	/* args? */
 	if (argc < 3)
 		return 1;
@@ -211,6 +219,17 @@ U_BOOT_CMD(
 	"minimal test like /bin/sh",
 	"[args..]"
 );
+
+/*
+ * This does not use the U_BOOT_CMD macro as [ can't be used in symbol names
+ */
+ll_entry_declare(struct cmd_tbl, lbracket, cmd) = {
+	"[",	CONFIG_SYS_MAXARGS, cmd_always_repeatable, do_test,
+	"alias for 'test'",
+#ifdef CONFIG_SYS_LONGHELP
+	" <test expression> ]"
+#endif /* CONFIG_SYS_LONGHELP */
+};
 
 static int do_false(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[])
