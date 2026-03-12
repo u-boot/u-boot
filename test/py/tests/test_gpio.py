@@ -4,8 +4,6 @@
 # Copyright (c) 2020 Alex Kiernan <alex.kiernan@gmail.com>
 
 import pytest
-import time
-import utils
 
 """
 	test_gpio_input is intended to test the fix 4dbc107f4683.
