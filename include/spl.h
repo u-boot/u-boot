@@ -882,6 +882,12 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev,
 		       enum uclass_id uclass_id, int devnum, int partnum);
 
+/* SPL SQUASHFS image functions */
+int spl_load_image_sqfs(struct spl_image_info *spl_image,
+			struct spl_boot_device *bootdev,
+			struct blk_desc *block_dev, int partition,
+			const char *filename);
+
 /**
  * spl_early_init() - Set up device tree and driver model in SPL if enabled
  *

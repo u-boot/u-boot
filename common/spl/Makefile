@@ -29,6 +29,7 @@ obj-$(CONFIG_$(PHASE_)OPENSBI) += spl_opensbi.o
 obj-$(CONFIG_$(PHASE_)USB_STORAGE) += spl_usb.o
 obj-$(CONFIG_$(PHASE_)FS_FAT) += spl_fat.o
 obj-$(CONFIG_$(PHASE_)FS_EXT4) += spl_ext.o
+obj-$(CONFIG_$(PHASE_)FS_SQUASHFS) += spl_squashfs.o
 obj-$(CONFIG_$(PHASE_)LOAD_IMX_CONTAINER) += spl_imx_container.o
 obj-$(CONFIG_$(PHASE_)SATA) += spl_sata.o
 obj-$(CONFIG_$(PHASE_)NVME) += spl_nvme.o
