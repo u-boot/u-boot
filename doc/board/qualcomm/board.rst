@@ -27,7 +27,7 @@ We will build ``u-boot-nodtb.bin`` from the u-boot source tree.
 
 Generate FIT image (optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-See doc/uImage.FIT for more details
+See doc/usage/fit for more details
 
 Pack android boot image
 ^^^^^^^^^^^^^^^^^^^^^^^
