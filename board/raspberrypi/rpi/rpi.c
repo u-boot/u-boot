@@ -199,7 +199,7 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		"5 Model B",
 		FDTFILES(
 			[0] = DTB_DIR "bcm2712-rpi-5-b.dtb",
-			[1] = DTB_DIR "bcm2712d0-rpi-5-b.dtb"
+			[1] = DTB_DIR "bcm2712-d-rpi-5-b.dtb"
 		),
 		true,
 	},
