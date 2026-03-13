@@ -5,6 +5,7 @@
 
 
 obj-$(CONFIG_AG7XXX) += ag7xxx.o
+obj-y += airoha/
 obj-$(CONFIG_AIROHA_ETH) += airoha_eth.o
 obj-$(CONFIG_ALTERA_TSE) += altera_tse.o
 obj-$(CONFIG_ASPEED_MDIO) += aspeed_mdio.o

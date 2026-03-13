@@ -1,7 +1,3 @@
-source "drivers/net/phy/Kconfig"
-source "drivers/net/pfe_eth/Kconfig"
-source "drivers/net/fsl-mc/Kconfig"
-
 config ETH
 	def_bool y
 
@@ -121,11 +117,15 @@ config AG7XXX
 	  This driver supports the Atheros AG7xxx Ethernet MAC. This MAC is
 	  present in the Atheros AR7xxx, AR9xxx and QCA9xxx MIPS chips.
 
+source "drivers/net/airoha/Kconfig"
+
 config AIROHA_ETH
 	bool "Airoha Ethernet QDMA Driver"
 	depends on ARCH_AIROHA
+	select MISC
 	select PHYLIB
 	select DEVRES
+	select DM_ETH_PHY
 	select DM_RESET
 	select MDIO_MT7531_MMIO
 	help
@@ -979,7 +979,7 @@ source "drivers/net/mtk_eth/Kconfig"
 
 config HIFEMAC_ETH
 	bool "HiSilicon Fast Ethernet Controller"
-	select DM_CLK
+	select CLK
 	select DM_RESET
 	select PHYLIB
 	help
@@ -989,7 +989,7 @@ config HIFEMAC_ETH
 config HIFEMAC_MDIO
 	bool "HiSilicon Fast Ethernet Controller MDIO interface"
 	depends on DM_MDIO
-	select DM_CLK
+	select CLK
 	help
 	  This driver supports the internal MDIO interface of HIFEMAC
 	  Ethernet controller.
@@ -1097,5 +1097,9 @@ config MDIO_MUX_MESON_GXL
 	help
 	  This driver is used for the MDIO mux found on the Amlogic GXL & compatible
 	  SoCs.
+
+source "drivers/net/phy/Kconfig"
+source "drivers/net/pfe_eth/Kconfig"
+source "drivers/net/fsl-mc/Kconfig"
 
 endif # NETDEVICES

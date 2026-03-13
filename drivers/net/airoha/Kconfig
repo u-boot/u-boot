@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config PCS_AIROHA
+	bool
+	select MISC
+
+config PCS_AIROHA_AN7581
+	bool "Airoha AN7581 PCS driver"
+	select PCS_AIROHA
+	help
+	  This module provides helper to phylink for managing the Airoha
+	  AN7581 PCS for SoC Ethernet and PON SERDES.

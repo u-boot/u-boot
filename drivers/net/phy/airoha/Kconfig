@@ -8,4 +8,4 @@ config PHY_AIROHA_EN8811
 	select FW_LOADER
 	help
 	  AIROHA EN8811H supported.
-
+	  AIROHA AN8811HB supported.

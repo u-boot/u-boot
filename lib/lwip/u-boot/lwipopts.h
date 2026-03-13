@@ -65,7 +65,21 @@
 #define MEM_ALIGNMENT                   8
 
 #define MEMP_NUM_TCP_SEG                16
+
+/* IP fragmentation parameters for TFTP reassembly */
+#define IP_FRAG_MTU_USABLE              1480
+#define PBUF_POOL_HEADROOM              6
+#define PBUF_POOL_RESERVE               4
+#define TFTP_BLOCKSIZE_THRESHOLD        4096
+
+#if defined(CONFIG_TFTP_BLOCKSIZE) && (CONFIG_TFTP_BLOCKSIZE > TFTP_BLOCKSIZE_THRESHOLD)
+#define PBUF_POOL_SIZE			(((CONFIG_TFTP_BLOCKSIZE + (IP_FRAG_MTU_USABLE - 1)) / \
+					  IP_FRAG_MTU_USABLE) + PBUF_POOL_HEADROOM)
+#define IP_REASS_MAX_PBUFS		(PBUF_POOL_SIZE - PBUF_POOL_RESERVE)
+#else
 #define PBUF_POOL_SIZE                  8
+#define IP_REASS_MAX_PBUFS              4
+#endif
 
 #define LWIP_ARP                        1
 #define ARP_TABLE_SIZE                  4
@@ -76,7 +90,7 @@
 #define IP_REASSEMBLY                   1
 #define IP_FRAG                         1
 #define IP_REASS_MAXAGE                 3
-#define IP_REASS_MAX_PBUFS              4
+
 #define IP_FRAG_USES_STATIC_BUF         0
 
 #define IP_DEFAULT_TTL                  255
@@ -121,9 +135,13 @@
 #define LWIP_UDP                        0
 #endif
 
+/*
+ * PBUF_POOL_BUFSIZE is derived from TCP_MSS even when
+ * CONFIG_PROT_TCP_LWIP is not defined
+ */
+#define TCP_MSS                         1460
 #if defined(CONFIG_PROT_TCP_LWIP)
 #define LWIP_TCP                        1
-#define TCP_MSS                         1460
 #define TCP_WND                         CONFIG_LWIP_TCP_WND
 #define LWIP_WND_SCALE                  1
 #define TCP_RCV_SCALE                   0x7
