@@ -10,19 +10,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if IS_ENABLED(CONFIG_LZO)
+#if CONFIG_IS_ENABLED(LZO)
 #include <linux/lzo.h>
 #endif
 
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 #include <u-boot/zlib.h>
 #endif
 
-#if IS_ENABLED(CONFIG_LZ4)
+#if CONFIG_IS_ENABLED(LZ4)
 #include <u-boot/lz4.h>
 #endif
 
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 #include <linux/zstd.h>
 #endif
 
@@ -34,19 +34,19 @@ int sqfs_decompressor_init(struct squashfs_ctxt *ctxt)
 	u16 comp_type = get_unaligned_le16(&ctxt->sblk->compression);
 
 	switch (comp_type) {
-#if IS_ENABLED(CONFIG_LZO)
+#if CONFIG_IS_ENABLED(LZO)
 	case SQFS_COMP_LZO:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 	case SQFS_COMP_ZLIB:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_LZ4)
+#if CONFIG_IS_ENABLED(LZ4)
 	case SQFS_COMP_LZ4:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 	case SQFS_COMP_ZSTD:
 		ctxt->zstd_workspace = malloc(zstd_dctx_workspace_bound());
 		if (!ctxt->zstd_workspace)
@@ -66,19 +66,19 @@ void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt)
 	u16 comp_type = get_unaligned_le16(&ctxt->sblk->compression);
 
 	switch (comp_type) {
-#if IS_ENABLED(CONFIG_LZO)
+#if CONFIG_IS_ENABLED(LZO)
 	case SQFS_COMP_LZO:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 	case SQFS_COMP_ZLIB:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_LZ4)
+#if CONFIG_IS_ENABLED(LZ4)
 	case SQFS_COMP_LZ4:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 	case SQFS_COMP_ZSTD:
 		free(ctxt->zstd_workspace);
 		break;
@@ -86,7 +86,7 @@ void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt)
 	}
 }
 
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 static void zlib_decompression_status(int ret)
 {
 	switch (ret) {
@@ -103,7 +103,7 @@ static void zlib_decompression_status(int ret)
 }
 #endif
 
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 static int sqfs_zstd_decompress(struct squashfs_ctxt *ctxt, void *dest,
 				unsigned long dest_len, void *source, u32 src_len)
 {
@@ -129,7 +129,7 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 	int ret = 0;
 
 	switch (comp_type) {
-#if IS_ENABLED(CONFIG_LZO)
+#if CONFIG_IS_ENABLED(LZO)
 	case SQFS_COMP_LZO: {
 		size_t lzo_dest_len = *dest_len;
 		ret = lzo1x_decompress_safe(source, src_len, dest, &lzo_dest_len);
@@ -141,7 +141,7 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 		break;
 	}
 #endif
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 	case SQFS_COMP_ZLIB:
 		ret = uncompress(dest, dest_len, source, src_len);
 		if (ret) {
@@ -151,7 +151,7 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 
 		break;
 #endif
-#if IS_ENABLED(CONFIG_LZ4)
+#if CONFIG_IS_ENABLED(LZ4)
 	case SQFS_COMP_LZ4:
 		ret = LZ4_decompress_safe(source, dest, src_len, *dest_len);
 		if (ret < 0) {
@@ -162,7 +162,7 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 		ret = 0;
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 	case SQFS_COMP_ZSTD:
 		ret = sqfs_zstd_decompress(ctxt, dest, *dest_len, source, src_len);
 		if (ret) {
