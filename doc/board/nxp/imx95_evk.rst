@@ -152,7 +152,7 @@ i.MX95 B0 silicon version on 15x15 LPDDR4X EVK
    $ make imx95_15x15_evk_defconfig
    $ make
 
-Copy imx-boot-imx95.bin to the MicroSD card:
+Copy flash.bin to the MicroSD card:
 
 .. code-block:: bash
 
