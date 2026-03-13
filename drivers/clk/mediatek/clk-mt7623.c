@@ -1194,7 +1194,7 @@ U_BOOT_DRIVER(mtk_clk_pericfg) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7623_pericfg_compat,
 	.probe = mt7623_pericfg_probe,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
+	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
