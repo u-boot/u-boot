@@ -33,57 +33,32 @@ int sqfs_decompressor_init(struct squashfs_ctxt *ctxt)
 {
 	u16 comp_type = get_unaligned_le16(&ctxt->sblk->compression);
 
-	switch (comp_type) {
-#if CONFIG_IS_ENABLED(LZO)
-	case SQFS_COMP_LZO:
-		break;
-#endif
-#if CONFIG_IS_ENABLED(ZLIB)
-	case SQFS_COMP_ZLIB:
-		break;
-#endif
-#if CONFIG_IS_ENABLED(LZ4)
-	case SQFS_COMP_LZ4:
-		break;
-#endif
+	if (((CONFIG_IS_ENABLED(LZO) && comp_type == SQFS_COMP_LZO)) ||
+	    ((CONFIG_IS_ENABLED(ZLIB) && comp_type == SQFS_COMP_ZLIB)) ||
+	    ((CONFIG_IS_ENABLED(LZ4) && comp_type == SQFS_COMP_LZ4)))
+		return 0;
+
 #if CONFIG_IS_ENABLED(ZSTD)
-	case SQFS_COMP_ZSTD:
+	if (comp_type == SQFS_COMP_ZSTD) {
 		ctxt->zstd_workspace = malloc(zstd_dctx_workspace_bound());
 		if (!ctxt->zstd_workspace)
 			return -ENOMEM;
-		break;
-#endif
-	default:
-		printf("Error: unknown compression type.\n");
-		return -EINVAL;
+		return 0;
 	}
+#endif
 
-	return 0;
+	printf("Error: unknown compression type.\n");
+	return -EINVAL;
 }
 
 void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt)
 {
+#if CONFIG_IS_ENABLED(ZSTD)
 	u16 comp_type = get_unaligned_le16(&ctxt->sblk->compression);
 
-	switch (comp_type) {
-#if CONFIG_IS_ENABLED(LZO)
-	case SQFS_COMP_LZO:
-		break;
-#endif
-#if CONFIG_IS_ENABLED(ZLIB)
-	case SQFS_COMP_ZLIB:
-		break;
-#endif
-#if CONFIG_IS_ENABLED(LZ4)
-	case SQFS_COMP_LZ4:
-		break;
-#endif
-#if CONFIG_IS_ENABLED(ZSTD)
-	case SQFS_COMP_ZSTD:
+	if (comp_type == SQFS_COMP_ZSTD)
 		free(ctxt->zstd_workspace);
-		break;
 #endif
-	}
 }
 
 #if CONFIG_IS_ENABLED(ZLIB)
