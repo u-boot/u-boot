@@ -526,7 +526,7 @@ efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe)
 			continue;
 		ret = efi_var_mem_ins(var->name, &var->guid, var->attr,
 				      var->length, data, 0, NULL,
-				      var->time);
+				      var->time, NULL);
 		if (ret != EFI_SUCCESS)
 			log_err("Failed to set EFI variable %ls\n", var->name);
 	}

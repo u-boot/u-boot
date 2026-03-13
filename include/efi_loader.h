@@ -1148,6 +1148,9 @@ struct pkcs7_message *efi_parse_pkcs7_header(const void *buf,
 /* runtime implementation of memcpy() */
 void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 
+/* runtime implementation of memcmp() */
+int efi_memcmp_runtime(const void *s1, const void *s2, size_t n);
+
 /* commonly used helper functions */
 u16 *efi_create_indexed_name(u16 *buffer, size_t buffer_size, const char *name,
 			     unsigned int index);

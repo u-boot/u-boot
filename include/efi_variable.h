@@ -216,6 +216,11 @@ void efi_var_mem_del(struct efi_var_entry *var);
  * The variable is appended without checking if a variable of the same name
  * already exists. The two data buffers are concatenated.
  *
+ * When @changep is non-NULL and @size2 is 0, the function compares the new
+ * value against an existing variable with the same name and vendor. If
+ * attributes and data are identical the insertion is skipped and *@changep
+ * is set to false, avoiding superfluous writes.
+ *
  * @variable_name:	variable name
  * @vendor:		GUID
  * @attributes:		variable attributes
@@ -224,13 +229,14 @@ void efi_var_mem_del(struct efi_var_entry *var);
  * @size2:		size of the second data field
  * @data2:		second data buffer
  * @time:		time of authentication (as seconds since start of epoch)
+ * @changep:		pointer to change flag (may be NULL)
  * Result:		status code
  */
 efi_status_t efi_var_mem_ins(const u16 *variable_name,
 			     const efi_guid_t *vendor, u32 attributes,
 			     const efi_uintn_t size1, const void *data1,
 			     const efi_uintn_t size2, const void *data2,
-			     const u64 time);
+			     const u64 time, bool *changep);
 
 /**
  * efi_var_mem_free() - determine free memory for variables

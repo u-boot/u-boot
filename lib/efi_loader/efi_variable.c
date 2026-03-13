@@ -277,6 +277,7 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	struct efi_var_entry *var;
 	efi_uintn_t ret;
 	bool append, delete;
+	bool changed = false;
 	u64 time = 0;
 	enum efi_auth_var_type var_type;
 
@@ -366,6 +367,7 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	if (delete) {
 		/* EFI_NOT_FOUND has been handled before */
 		attributes = var->attr;
+		changed = true;
 		ret = EFI_SUCCESS;
 	} else if (append && var) {
 		/*
@@ -380,14 +382,18 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		ret = efi_var_mem_ins(variable_name, vendor,
 				      attributes & ~EFI_VARIABLE_APPEND_WRITE,
 				      var->length, old_data, data_size, data,
-				      time);
+				      time, &changed);
 	} else {
 		ret = efi_var_mem_ins(variable_name, vendor, attributes,
-				      data_size, data, 0, NULL, time);
+				      data_size, data, 0, NULL, time,
+				      &changed);
 	}
 
 	if (ret != EFI_SUCCESS)
 		return ret;
+
+	if (!changed)
+		return EFI_SUCCESS;
 
 	efi_var_mem_del(var);
 
@@ -396,10 +402,7 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	else
 		ret = EFI_SUCCESS;
 
-	/*
-	 * Write non-volatile EFI variables
-	 * TODO: check if a value change has occured to avoid superfluous writes
-	 */
+	/* Write non-volatile EFI variables to storage */
 	if (attributes & EFI_VARIABLE_NON_VOLATILE) {
 		if (IS_ENABLED(CONFIG_EFI_VARIABLE_NO_STORE))
 			return EFI_SUCCESS;
@@ -498,6 +501,7 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
 	struct efi_var_entry *var;
 	efi_uintn_t ret;
 	bool append, delete;
+	bool changed = false;
 	u64 time = 0;
 
 	if (!IS_ENABLED(CONFIG_EFI_RT_VOLATILE_STORE))
@@ -549,6 +553,7 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
 	if (delete) {
 		/* EFI_NOT_FOUND has been handled before */
 		attributes = var->attr;
+		changed = true;
 		ret = EFI_SUCCESS;
 	} else if (append && var) {
 		u16 *old_data = (void *)((uintptr_t)var->name +
@@ -556,15 +561,19 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
 
 		ret = efi_var_mem_ins(variable_name, vendor, attributes,
 				      var->length, old_data, data_size, data,
-				      time);
+				      time, &changed);
 	} else {
 		ret = efi_var_mem_ins(variable_name, vendor, attributes,
-				      data_size, data, 0, NULL, time);
+				      data_size, data, 0, NULL, time,
+				      &changed);
 	}
 
 	if (ret != EFI_SUCCESS)
 		return ret;
-	/* We are always inserting new variables, get rid of the old copy */
+
+	if (!changed)
+		return EFI_SUCCESS;
+
 	efi_var_mem_del(var);
 
 	return EFI_SUCCESS;
