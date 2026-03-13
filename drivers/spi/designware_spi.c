@@ -359,6 +359,7 @@ static int dw_spi_probe(struct udevice *bus)
 	dw_spi_init_t init = (dw_spi_init_t)dev_get_driver_data(bus);
 	struct dw_spi_plat *plat = dev_get_plat(bus);
 	struct dw_spi_priv *priv = dev_get_priv(bus);
+	u32 bits_per_word = 8;
 	int ret;
 	u32 version;
 
@@ -384,8 +385,19 @@ static int dw_spi_probe(struct udevice *bus)
 		version >> 24, version >> 16, version >> 8, version,
 		priv->max_xfer);
 
-	/* Currently only bits_per_word == 8 supported */
-	priv->bits_per_word = 8;
+	ret = ofnode_read_u32(dev_ofnode(bus), "bits-per-word", &bits_per_word);
+	if (ret) {
+		debug("%s no bits-per-word not found\n", __func__);
+	} else {
+		if (bits_per_word >= 4 && bits_per_word <= priv->max_xfer) {
+			debug("%s %d bits-per-word found\n", __func__, bits_per_word);
+		} else {
+			printf("ignoring invalid bits-per-word %d\n", bits_per_word);
+			bits_per_word = 8;
+		}
+	}
+
+	priv->bits_per_word = bits_per_word;
 
 	priv->tmode = 0; /* Tx & Rx */
 
