@@ -226,6 +226,11 @@ static int __maybe_unused spl_mmc_fs_load(struct spl_image_info *spl_image,
 		if (!err)
 			return 0;
 	}
+	if (CONFIG_IS_ENABLED(FS_SQUASHFS)) {
+		err = spl_load_image_sqfs(spl_image, bootdev, blk_dev, part, file);
+		if (!err)
+			return 0;
+	}
 
 	return err;
 }
@@ -284,13 +289,15 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image,
 
 u32 __weak spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
-#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
-	return MMCSD_MODE_FS;
-#elif defined(CONFIG_SUPPORT_EMMC_BOOT)
-	return MMCSD_MODE_EMMCBOOT;
-#else
+	if (CONFIG_IS_ENABLED(FS_FAT) ||
+	    CONFIG_IS_ENABLED(FS_EXT4) ||
+	    CONFIG_IS_ENABLED(FS_SQUASHFS))
+		return MMCSD_MODE_FS;
+
+	if (IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT))
+		return MMCSD_MODE_EMMCBOOT;
+
 	return MMCSD_MODE_RAW;
-#endif
 }
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
