@@ -509,7 +509,7 @@ struct ufs_query {
 };
 
 /**
- * struct ufs_dev_cmd - all assosiated fields with device management commands
+ * struct ufs_dev_cmd - all associated fields with device management commands
  * @type: device management command type - Query, NOP OUT
  * @tag_wq: wait queue until free command slot is available
  */
@@ -752,6 +752,14 @@ static inline int ufshcd_ops_link_startup_notify(struct ufs_hba *hba,
 {
 	if (hba->ops && hba->ops->link_startup_notify)
 		return hba->ops->link_startup_notify(hba, status);
+
+	return 0;
+}
+
+static inline int ufshcd_ops_phy_initialization(struct ufs_hba *hba)
+{
+	if (hba->ops && hba->ops->phy_initialization)
+		return hba->ops->phy_initialization(hba);
 
 	return 0;
 }

@@ -1613,6 +1613,36 @@ config SPL_THERMAL
 	  automatic power-off when the temperature gets too high or low. Other
 	  devices may be discrete but connected on a suitable bus.
 
+config SPL_UFS_SUPPORT
+	bool "Support loading from UFS"
+	depends on UFS
+	select SPL_LOAD_BLOCK
+	help
+	  Enable support for UFS in SPL. This allows
+	  use of UFS devices such as hard drives and flash drivers for
+	  loading U-Boot.
+
+config SPL_UFS_RAW_U_BOOT_DEVNUM
+	int "SCSI device number of the UFS device to load U-Boot from"
+	depends on SPL_UFS_SUPPORT
+	default 0
+	help
+	  UFS devices are usually configured with multiple LUNs, which present
+	  themselves as sequentially numbered SCSI devices. Usually one would
+	  get a default LUN 0 taking up most of the space on the device, with
+	  a number of smaller LUNs following it. This option controls which of
+	  them the SPL will attempt to load U-Boot from. Note that this is the
+	  SCSI device number, which might differ from the UFS LUN if you have
+	  multiple SCSI devices attached and recognized by the SPL.
+
+config SPL_UFS_RAW_U_BOOT_SECTOR
+	hex "Address on the UFS to load U-Boot from"
+	depends on SPL_UFS_SUPPORT
+	default 0x800 if ARCH_ROCKCHIP
+	help
+	  Address on the block device to load U-Boot from.
+	  Units: UFS sectors (1 sector = 4096 bytes).
+
 config SPL_WATCHDOG
 	bool "Support watchdog drivers"
 	imply SPL_WDT if !HW_WATCHDOG
