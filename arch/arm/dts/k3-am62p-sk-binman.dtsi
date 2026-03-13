@@ -7,6 +7,10 @@
 
 #if IS_ENABLED(CONFIG_TARGET_AM62P5_R5_EVM)
 
+&rcfg_yaml_tifs {
+	config = "tifs-rm-cfg.yaml";
+};
+
 &binman {
 	tiboot3-am62px-hs-fs-evm.bin {
 		filename = "tiboot3-am62px-hs-fs-evm.bin";

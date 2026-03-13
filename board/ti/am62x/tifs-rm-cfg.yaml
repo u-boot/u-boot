@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (C) 2022-2026 Texas Instruments Incorporated - https://www.ti.com/
 #
-# Resource management configuration for AM62P
+# Resource management configuration for AM62X
 #
 
 ---
 
-rm-cfg:
+tifs-rm-cfg:
     rm_boardcfg:
         rev:
             boardcfg_abi_maj: 0x0
@@ -244,140 +244,68 @@ rm-cfg:
             subhdr:
                 magic: 0x7B25
                 size: 8
-            resasg_entries_size: 1112
+            resasg_entries_size: 824
             reserved: 0
     resasg_entries:
         -
             start_resource: 0
-            num_resource: 16
-            type: 192
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 34
-            num_resource: 2
-            type: 192
-            host_id: 30
-            reserved: 0
-        -
-            start_resource: 0
-            num_resource: 2
-            type: 320
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 2
-            num_resource: 2
-            type: 320
-            host_id: 35
-            reserved: 0
-        -
-            start_resource: 2
-            num_resource: 2
-            type: 320
-            host_id: 36
-            reserved: 0
-        -
-            start_resource: 4
-            num_resource: 4
-            type: 320
-            host_id: 30
-            reserved: 0
-        -
-            start_resource: 0
-            num_resource: 26
-            type: 384
-            host_id: 128
-            reserved: 0
-        -
-            start_resource: 50176
-            num_resource: 164
-            type: 1666
-            host_id: 128
-            reserved: 0
-        -
-            start_resource: 0
-            num_resource: 1
-            type: 1667
-            host_id: 128
-            reserved: 0
-        -
-            start_resource: 0
-            num_resource: 2
-            type: 1676
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 2
-            num_resource: 1
-            type: 1676
-            host_id: 35
-            reserved: 0
-        -
-            start_resource: 2
-            num_resource: 1
-            type: 1676
-            host_id: 36
-            reserved: 0
-        -
-            start_resource: 3
-            num_resource: 1
-            type: 1676
-            host_id: 30
-            reserved: 0
-        -
-            start_resource: 4
             num_resource: 18
             type: 1677
             host_id: 12
             reserved: 0
         -
-            start_resource: 22
+            start_resource: 18
             num_resource: 6
             type: 1677
             host_id: 35
             reserved: 0
         -
-            start_resource: 22
+            start_resource: 18
             num_resource: 6
             type: 1677
             host_id: 36
             reserved: 0
         -
-            start_resource: 28
+            start_resource: 24
             num_resource: 2
             type: 1677
             host_id: 30
             reserved: 0
         -
-            start_resource: 30
-            num_resource: 2
+            start_resource: 26
+            num_resource: 6
             type: 1677
             host_id: 128
             reserved: 0
         -
-            start_resource: 57
+            start_resource: 54
             num_resource: 18
             type: 1678
             host_id: 12
             reserved: 0
         -
-            start_resource: 75
-            num_resource: 5
+            start_resource: 72
+            num_resource: 6
             type: 1678
             host_id: 35
             reserved: 0
         -
-            start_resource: 75
-            num_resource: 5
+            start_resource: 72
+            num_resource: 6
             type: 1678
             host_id: 36
+            reserved: 0
+        -
+            start_resource: 78
+            num_resource: 2
+            type: 1678
+            host_id: 30
             reserved: 0
         -
             start_resource: 80
             num_resource: 2
             type: 1678
-            host_id: 30
+            host_id: 128
             reserved: 0
         -
             start_resource: 32
@@ -405,61 +333,37 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 52
-            num_resource: 5
+            num_resource: 2
             type: 1679
             host_id: 128
             reserved: 0
         -
             start_resource: 0
-            num_resource: 2
-            type: 1695
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 2
-            num_resource: 1
-            type: 1695
-            host_id: 35
-            reserved: 0
-        -
-            start_resource: 2
-            num_resource: 1
-            type: 1695
-            host_id: 36
-            reserved: 0
-        -
-            start_resource: 3
-            num_resource: 1
-            type: 1695
-            host_id: 30
-            reserved: 0
-        -
-            start_resource: 4
             num_resource: 18
             type: 1696
             host_id: 12
             reserved: 0
         -
-            start_resource: 22
+            start_resource: 18
             num_resource: 6
             type: 1696
             host_id: 35
             reserved: 0
         -
-            start_resource: 22
+            start_resource: 18
             num_resource: 6
             type: 1696
             host_id: 36
             reserved: 0
         -
-            start_resource: 28
+            start_resource: 24
             num_resource: 2
             type: 1696
             host_id: 30
             reserved: 0
         -
-            start_resource: 30
-            num_resource: 2
+            start_resource: 26
+            num_resource: 6
             type: 1696
             host_id: 128
             reserved: 0
@@ -471,21 +375,27 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 18
-            num_resource: 5
+            num_resource: 6
             type: 1697
             host_id: 35
             reserved: 0
         -
             start_resource: 18
-            num_resource: 5
+            num_resource: 6
             type: 1697
             host_id: 36
             reserved: 0
         -
-            start_resource: 23
+            start_resource: 24
             num_resource: 2
             type: 1697
             host_id: 30
+            reserved: 0
+        -
+            start_resource: 26
+            num_resource: 2
+            type: 1697
+            host_id: 128
             reserved: 0
         -
             start_resource: 0
@@ -513,7 +423,7 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 20
-            num_resource: 5
+            num_resource: 2
             type: 1698
             host_id: 128
             reserved: 0
@@ -537,128 +447,104 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 168
-            num_resource: 8
+            num_resource: 7
             type: 1802
             host_id: 30
             reserved: 0
         -
-            start_resource: 13
-            num_resource: 512
-            type: 1805
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 525
-            num_resource: 256
-            type: 1805
-            host_id: 35
-            reserved: 0
-        -
-            start_resource: 525
-            num_resource: 256
-            type: 1805
-            host_id: 36
-            reserved: 0
-        -
-            start_resource: 781
-            num_resource: 128
-            type: 1805
-            host_id: 30
-            reserved: 0
-        -
-            start_resource: 909
-            num_resource: 625
-            type: 1805
+            start_resource: 0
+            num_resource: 1024
+            type: 1807
             host_id: 128
             reserved: 0
         -
             start_resource: 4096
             num_resource: 29
-            type: 1807
+            type: 1808
             host_id: 128
             reserved: 0
         -
             start_resource: 4608
             num_resource: 99
-            type: 1808
+            type: 1809
             host_id: 128
             reserved: 0
         -
             start_resource: 5120
             num_resource: 24
-            type: 1809
+            type: 1810
             host_id: 128
             reserved: 0
         -
             start_resource: 5632
             num_resource: 51
-            type: 1810
+            type: 1811
             host_id: 128
             reserved: 0
         -
             start_resource: 6144
             num_resource: 51
-            type: 1811
+            type: 1812
+            host_id: 128
+            reserved: 0
+        -
+            start_resource: 6656
+            num_resource: 51
+            type: 1813
             host_id: 128
             reserved: 0
         -
             start_resource: 8192
             num_resource: 32
-            type: 1812
+            type: 1814
             host_id: 128
             reserved: 0
         -
             start_resource: 8704
             num_resource: 32
-            type: 1813
+            type: 1815
             host_id: 128
             reserved: 0
         -
             start_resource: 9216
             num_resource: 32
-            type: 1814
-            host_id: 128
-            reserved: 0
-        -
-            start_resource: 9728
-            num_resource: 25
-            type: 1815
-            host_id: 128
-            reserved: 0
-        -
-            start_resource: 10240
-            num_resource: 25
             type: 1816
             host_id: 128
             reserved: 0
         -
-            start_resource: 10752
-            num_resource: 25
+            start_resource: 9728
+            num_resource: 22
             type: 1817
             host_id: 128
             reserved: 0
         -
-            start_resource: 11264
-            num_resource: 25
+            start_resource: 10240
+            num_resource: 22
             type: 1818
             host_id: 128
             reserved: 0
         -
-            start_resource: 11776
-            num_resource: 25
+            start_resource: 10752
+            num_resource: 22
             type: 1819
             host_id: 128
             reserved: 0
         -
-            start_resource: 12288
-            num_resource: 25
+            start_resource: 11264
+            num_resource: 28
             type: 1820
             host_id: 128
             reserved: 0
         -
-            start_resource: 0
-            num_resource: 1
-            type: 1923
+            start_resource: 11776
+            num_resource: 28
+            type: 1821
+            host_id: 128
+            reserved: 0
+        -
+            start_resource: 12288
+            num_resource: 28
+            type: 1822
             host_id: 128
             reserved: 0
         -
@@ -693,27 +579,15 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 19
-            num_resource: 32
+            num_resource: 64
             type: 1937
             host_id: 12
             reserved: 0
         -
             start_resource: 19
-            num_resource: 32
+            num_resource: 64
             type: 1937
             host_id: 36
-            reserved: 0
-        -
-            start_resource: 51
-            num_resource: 32
-            type: 1937
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 51
-            num_resource: 32
-            type: 1937
-            host_id: 30
             reserved: 0
         -
             start_resource: 83
@@ -759,27 +633,15 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 118
-            num_resource: 6
+            num_resource: 16
             type: 1943
             host_id: 12
             reserved: 0
         -
             start_resource: 118
-            num_resource: 6
+            num_resource: 16
             type: 1943
             host_id: 36
-            reserved: 0
-        -
-            start_resource: 124
-            num_resource: 10
-            type: 1943
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 124
-            num_resource: 10
-            type: 1943
-            host_id: 30
             reserved: 0
         -
             start_resource: 134
@@ -837,27 +699,15 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 19
-            num_resource: 4
+            num_resource: 8
             type: 1956
             host_id: 12
             reserved: 0
         -
             start_resource: 19
-            num_resource: 4
+            num_resource: 8
             type: 1956
             host_id: 36
-            reserved: 0
-        -
-            start_resource: 23
-            num_resource: 4
-            type: 1956
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 23
-            num_resource: 4
-            type: 1956
-            host_id: 30
             reserved: 0
         -
             start_resource: 27
@@ -945,27 +795,15 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 19
-            num_resource: 6
+            num_resource: 16
             type: 1964
             host_id: 12
             reserved: 0
         -
             start_resource: 19
-            num_resource: 6
+            num_resource: 16
             type: 1964
             host_id: 36
-            reserved: 0
-        -
-            start_resource: 25
-            num_resource: 10
-            type: 1964
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 25
-            num_resource: 10
-            type: 1964
-            host_id: 30
             reserved: 0
         -
             start_resource: 20
@@ -1026,58 +864,4 @@ rm-cfg:
             num_resource: 2
             type: 2122
             host_id: 12
-            reserved: 0
-        -
-            start_resource: 51200
-            num_resource: 12
-            type: 12738
-            host_id: 128
-            reserved: 0
-        -
-            start_resource: 0
-            num_resource: 1
-            type: 12739
-            host_id: 128
-            reserved: 0
-        -
-            start_resource: 0
-            num_resource: 6
-            type: 12750
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 0
-            num_resource: 6
-            type: 12769
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 0
-            num_resource: 8
-            type: 12810
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 12288
-            num_resource: 128
-            type: 12813
-            host_id: 12
-            reserved: 0
-        -
-            start_resource: 3072
-            num_resource: 6
-            type: 12826
-            host_id: 128
-            reserved: 0
-        -
-            start_resource: 3584
-            num_resource: 6
-            type: 12827
-            host_id: 128
-            reserved: 0
-        -
-            start_resource: 4096
-            num_resource: 6
-            type: 12828
-            host_id: 128
             reserved: 0
