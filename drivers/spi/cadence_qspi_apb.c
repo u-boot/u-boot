@@ -157,6 +157,7 @@ static unsigned int cadence_qspi_wait_idle(void *reg_base)
 
 	start = get_timer(0);
 	for ( ; get_timer(start) < timeout ; ) {
+		udelay(1);
 		if (CQSPI_REG_IS_IDLE(reg_base))
 			count++;
 		else
@@ -728,6 +729,7 @@ cadence_qspi_apb_indirect_read_execute(struct cadence_spi_priv *priv,
 			rxbuf += bytes_to_read;
 			remaining -= bytes_to_read;
 			bytes_to_read = cadence_qspi_get_rd_sram_level(priv);
+			udelay(1);
 		}
 	}
 
@@ -898,6 +900,7 @@ cadence_qspi_apb_indirect_write_execute(struct cadence_spi_priv *priv,
 
 		bb_txbuf += write_bytes;
 		remaining -= write_bytes;
+		udelay(1);
 	}
 
 	/* Check indirect done status */
