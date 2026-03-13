@@ -497,20 +497,6 @@ static int xgmac_start(struct udevice *dev)
 
 	xgmac->reg_access_ok = true;
 
-	ret = wait_for_bit_le32(&xgmac->dma_regs->mode,
-				XGMAC_DMA_MODE_SWR, false,
-				xgmac->config->swr_wait, false);
-	if (ret) {
-		pr_err("%s XGMAC_DMA_MODE_SWR stuck: %d\n", dev->name, ret);
-		goto err_stop_resets;
-	}
-
-	ret = xgmac->config->ops->xgmac_calibrate_pads(dev);
-	if (ret < 0) {
-		pr_err("%s xgmac_calibrate_pads() failed: %d\n", dev->name, ret);
-		goto err_stop_resets;
-	}
-
 	/*
 	 * if PHY was already connected and configured,
 	 * don't need to reconnect/reconfigure again
@@ -557,6 +543,20 @@ static int xgmac_start(struct udevice *dev)
 	if (ret < 0) {
 		pr_err("%s xgmac_adjust_link() failed: %d\n", dev->name, ret);
 		goto err_shutdown_phy;
+	}
+
+	ret = wait_for_bit_le32(&xgmac->dma_regs->mode,
+				XGMAC_DMA_MODE_SWR, false,
+				xgmac->config->swr_wait, false);
+	if (ret) {
+		pr_err("%s XGMAC_DMA_MODE_SWR stuck: %d\n", dev->name, ret);
+		goto err_stop_resets;
+	}
+
+	ret = xgmac->config->ops->xgmac_calibrate_pads(dev);
+	if (ret < 0) {
+		pr_err("%s xgmac_calibrate_pads() failed: %d\n", dev->name, ret);
+		goto err_stop_resets;
 	}
 
 	/* Configure MTL */
