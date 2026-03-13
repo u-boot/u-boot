@@ -61,3 +61,13 @@
 	};
 };
 #endif
+
+/{
+	aliases {
+		wdog3 = &wdog3;
+	};
+};
+
+&wdog3 {
+	bootph-all;
+};

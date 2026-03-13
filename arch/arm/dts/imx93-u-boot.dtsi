@@ -4,6 +4,12 @@
  */
 
 / {
+	aliases {
+		wdog3 = &wdog3;
+		wdog4 = &wdog4;
+		wdog5 = &wdog5;
+	};
+
 	binman: binman {
 		multiple-images;
 
@@ -95,4 +101,16 @@
 			       0x00000195 0x800001a7
 			       0x000001b2 0x800001b6>;
 	#thermal-sensor-cells = <1>;
+};
+
+&wdog3 {
+	bootph-all;
+};
+
+&wdog4 {
+	bootph-all;
+};
+
+&wdog5 {
+	bootph-all;
 };

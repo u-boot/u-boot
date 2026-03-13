@@ -4,6 +4,11 @@
  */
 
 / {
+	aliases {
+		wdog3 = &wdog3;
+		wdog4 = &wdog4;
+	};
+
 	binman {
 		multiple-images;
 
@@ -138,6 +143,16 @@
 
 &aips2 {
 	bootph-all;
+
+	wdog4: watchdog@424a0000 {
+		bootph-all;
+
+		compatible = "fsl,imx93-wdt";
+		reg = <0x424a0000 0x10000>;
+		clocks = <&scmi_clk IMX95_CLK_BUSWAKEUP>;
+		timeout-sec = <40>;
+		status = "disabled";
+	};
 };
 
 &aips3 {
@@ -236,5 +251,9 @@
 };
 
 &scmi_buf1 {
+	bootph-all;
+};
+
+&wdog3 {
 	bootph-all;
 };

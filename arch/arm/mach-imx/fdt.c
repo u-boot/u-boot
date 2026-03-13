@@ -6,7 +6,10 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
+#include <asm/global_data.h>
 #include <asm/arch/sys_proto.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static void disable_thermal_cpu_nodes(void *blob, u32 num_disabled_cores, u32 max_cores)
 {
@@ -126,4 +129,52 @@ int fixup_thermal_trips(void *blob, const char *name)
 	}
 
 	return 0;
+}
+
+fdt_addr_t imx_wdog_alias_to_addr(char *name, bool check_status)
+{
+	const void *fdt = gd->fdt_blob;
+	int aliases_off, prop_off;
+	char *wdog_name_to_match;
+	fdt_addr_t addr;
+
+	if (!fdt || fdt_check_header(fdt))
+		return FDT_ADDR_T_NONE;
+
+	aliases_off = fdt_path_offset(fdt, "/aliases");
+	if (aliases_off < 0)
+		return FDT_ADDR_T_NONE;
+
+	wdog_name_to_match = name ? name : "wdog";
+
+	fdt_for_each_property_offset(prop_off, fdt, aliases_off) {
+		const char *alias_name;
+		const char *path;
+		int len;
+		int node_off;
+
+		path = fdt_getprop_by_offset(fdt, prop_off, &alias_name, &len);
+		if (!path || !alias_name)
+			continue;
+
+		if (strncmp(alias_name, wdog_name_to_match, strlen(wdog_name_to_match)) != 0)
+			continue;
+
+		node_off = fdt_path_offset(fdt, path);
+		if (node_off < 0)
+			continue;
+
+		if (check_status) {
+			if (!fdtdec_get_is_enabled(fdt, node_off))
+				continue;
+		}
+
+		addr = fdtdec_get_addr_size_auto_noparent(fdt, node_off, "reg", 0, NULL, true);
+		if (addr == FDT_ADDR_T_NONE)
+			continue;
+
+		return addr;
+	}
+
+	return FDT_ADDR_T_NONE;
 }

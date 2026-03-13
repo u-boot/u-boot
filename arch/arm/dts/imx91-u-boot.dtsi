@@ -4,6 +4,12 @@
  */
 
 / {
+	aliases {
+		wdog3 = &wdog3;
+		wdog4 = &wdog4;
+		wdog5 = &wdog5;
+	};
+
 	binman: binman {
 		multiple-images;
 	};
@@ -89,4 +95,16 @@
 			filename = "u-boot-container.bin";
 		};
 	};
+};
+
+&wdog3 {
+	bootph-all;
+};
+
+&wdog4 {
+	bootph-all;
+};
+
+&wdog5 {
+	bootph-all;
 };
