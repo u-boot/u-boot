@@ -565,6 +565,16 @@ config CMD_FDT
 	help
 	  Do FDT related setup before booting into the Operating System.
 
+config CMD_FIT
+	bool "fit - FIT image utilities"
+	depends on FIT
+	select RANDOM_UUID
+	help
+	  Provides the "fit" command for manipulating FIT images stored
+	  in memory.  Currently supports:
+
+	    fit setuuid <addr> - stamp a random install-uuid into a FIT
+
 config CMD_EXTENSION
 	bool "Extension board management command"
 	select CMD_FDT
