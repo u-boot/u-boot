@@ -14,6 +14,15 @@
 #include "k3-am68-phyboard-izar-u-boot.dtsi"
 #include "k3-j721s2-r5.dtsi"
 
+&pmic {
+	bootph-pre-ram;
+
+	esm: esm {
+		compatible = "ti,tps659413-esm";
+		bootph-pre-ram;
+	};
+};
+
 &wkup_vtm0 {
 	bootph-pre-ram;
 	vdd-supply-2 = <&vdd_cpu_avs>;
