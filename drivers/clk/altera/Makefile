@@ -9,3 +9,4 @@ obj-$(CONFIG_TARGET_SOCFPGA_ARRIA10) += clk-arria10.o
 obj-$(CONFIG_TARGET_SOCFPGA_N5X) += clk-n5x.o
 obj-$(CONFIG_TARGET_SOCFPGA_N5X) += clk-mem-n5x.o
 obj-$(CONFIG_TARGET_SOCFPGA_AGILEX5) += clk-agilex5.o
+obj-$(CONFIG_TARGET_SOCFPGA_STRATIX10) += clk-s10.o

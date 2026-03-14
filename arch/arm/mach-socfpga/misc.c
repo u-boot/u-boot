@@ -263,7 +263,8 @@ void socfpga_get_managers_addr(void)
 
 	if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
 	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M) &&
-	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)) {
+	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5) &&
+	    !IS_ENABLED(CONFIG_TARGET_SOCFPGA_STRATIX10)) {
 		ret = socfpga_get_base_addr("altr,sys-mgr",
 					    &socfpga_sysmgr_base);
 		if (ret)
@@ -275,7 +276,8 @@ void socfpga_get_managers_addr(void)
 					    &socfpga_clkmgr_base);
 	else if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX) &&
 		 !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX7M) &&
-		 !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5))
+		 !IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5) &&
+		 !IS_ENABLED(CONFIG_TARGET_SOCFPGA_STRATIX10))
 		ret = socfpga_get_base_addr("altr,clk-mgr",
 					    &socfpga_clkmgr_base);
 
