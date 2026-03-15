@@ -1663,6 +1663,15 @@ config CMD_PART
 	  Read and display information about the partition table on
 	  various media.
 
+config CMD_PART_DUPCHECK
+	bool "part dupcheck"
+	depends on CMD_PART && BLK
+	help
+	  Adds the 'part dupcheck' subcommand, which scans all block devices
+	  and reports any duplicate partition UUIDs (PARTUUIDs) or partition
+	  labels (PARTLABELs). Returns failure if any duplicates are found,
+	  making it suitable for use in boot scripts.
+
 config CMD_PCI
 	bool "pci - Access PCI devices"
 	help

@@ -15,10 +15,15 @@
  * Pavel Bartusek <pba@sysgo.com>
  */
 
-#include <config.h>
+#include <alist.h>
+#include <blk.h>
 #include <command.h>
+#include <config.h>
+#include <dm.h>
 #include <env.h>
+#include <stddef.h>
 #include <part.h>
+#include <sort.h>
 #include <stdio.h>
 #include <vsprintf.h>
 
@@ -246,6 +251,205 @@ static int do_part_type(int argc, char *const argv[])
 }
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_PART_DUPCHECK)
+struct part_seen {
+	char uuid[UUID_STR_LEN + 1];
+	char name[PART_NAME_LEN + 1];
+	struct udevice *dev;
+	int part;
+};
+
+static int compare_uuid(const void *a, const void *b)
+{
+	const struct part_seen *pa = a;
+	const struct part_seen *pb = b;
+
+	/* Sort empty UUIDs to the end */
+	if (!pa->uuid[0] && !pb->uuid[0])
+		return 0;
+	if (!pa->uuid[0])
+		return 1;
+	if (!pb->uuid[0])
+		return -1;
+
+	return strcmp(pa->uuid, pb->uuid);
+}
+
+static int compare_name(const void *a, const void *b)
+{
+	const struct part_seen *pa = a;
+	const struct part_seen *pb = b;
+
+	/* Sort empty names to the end */
+	if (!pa->name[0] && !pb->name[0])
+		return 0;
+	if (!pa->name[0])
+		return 1;
+	if (!pb->name[0])
+		return -1;
+
+	return strcmp(pa->name, pb->name);
+}
+
+/**
+ * detect_duplicates() - Sort and detect duplicate fields in the partition list
+ *
+ * Sorts the seen list using the given comparator, then performs a single
+ * linear pass to find and report consecutive duplicate entries.
+ *
+ * @seen:       The list of collected partition entries
+ * @cmp:        Comparator function for qsort (must sort empties to the end)
+ * @field_label: Human-readable label for reporting (e.g. "PARTUUID", "PARTLABEL")
+ * @field_off:  Offset of the string field within struct part_seen
+ * @dup_groups: Output: number of distinct duplicate values found
+ * @total:      Total number of partitions that have this field set
+ */
+static void detect_duplicates(struct alist *seen,
+			      int (*cmp)(const void *, const void *),
+			      const char *field_label, size_t field_off,
+			      int *dup_groups, int total)
+{
+	const struct part_seen *pi;
+	const struct part_seen *pj;
+	const char *field_i;
+	const char *field_j;
+	int occurrences;
+	int count = seen->count;
+	int dup_parts = 0;
+
+	*dup_groups = 0;
+
+	qsort(seen->data, count, sizeof(struct part_seen), cmp);
+
+	for (int i = 0; i < count; i++) {
+		pi = alist_get(seen, i, struct part_seen);
+		field_i = (const char *)pi + field_off;
+		occurrences = 1;
+
+		if (!field_i[0])
+			break;  /* Reached empty fields at the end */
+
+		/* Count consecutive duplicates */
+		while (i + occurrences < count) {
+			pj = alist_get(seen, i + occurrences, struct part_seen);
+			field_j = (const char *)pj + field_off;
+
+			if (strcmp(field_i, field_j) != 0)
+				break;
+			occurrences++;
+		}
+
+		if (occurrences > 1) {
+			printf("Warning: duplicate %s %s (%d copies)\n",
+			       field_label, field_i, occurrences);
+			for (int j = 0; j < occurrences; j++) {
+				pj = alist_get(seen, i + j, struct part_seen);
+				printf("  found on %s:%d\n",
+				       pj->dev->name,
+				       pj->part);
+			}
+
+			(*dup_groups)++;
+			dup_parts += occurrences;
+			i += occurrences - 1;
+		}
+	}
+
+	if (*dup_groups)
+		printf("Found %d duplicate %s(s) (%d total copies) among %d partitions\n",
+		       *dup_groups, field_label, dup_parts, total);
+}
+
+static int do_part_dupcheck(int argc, char *const argv[])
+{
+	struct alist seen;
+	int uuid_count = 0;
+	int label_count = 0;
+	int duplicate_uuids = 0;
+	int duplicate_labels = 0;
+	struct udevice *dev;
+
+	if (argc)
+		return CMD_RET_USAGE;
+
+	if (!blk_count_devices(BLKF_BOTH)) {
+		printf("No block devices found\n");
+		return CMD_RET_SUCCESS;
+	}
+
+	alist_init_struct(&seen, struct part_seen);
+
+	/* First pass: collect all partitions with UUIDs or labels */
+	blk_foreach_probe(BLKF_BOTH, dev) {
+		struct blk_desc *desc = dev_get_uclass_plat(dev);
+
+		for (int part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
+			struct disk_partition info;
+			struct part_seen entry;
+			bool has_uuid;
+			bool has_label;
+
+			if (part_get_info(desc, part, &info))
+				continue;
+			has_uuid = disk_partition_uuid(&info)[0] != '\0';
+			has_label = info.name[0] != '\0';
+			if (!has_uuid && !has_label)
+				continue;
+
+			memset(&entry, 0, sizeof(entry));
+			if (has_uuid)
+				strlcpy(entry.uuid, disk_partition_uuid(&info),
+					sizeof(entry.uuid));
+			if (has_label)
+				strlcpy(entry.name, (const char *)info.name,
+					sizeof(entry.name));
+			entry.dev = dev;
+			entry.part = part;
+
+			if (has_uuid)
+				uuid_count++;
+			if (has_label)
+				label_count++;
+
+			if (!alist_add(&seen, entry)) {
+				printf("Unable to grow dupcheck list\n");
+				alist_uninit(&seen);
+				return CMD_RET_FAILURE;
+			}
+		}
+	}
+
+	if (!seen.count) {
+		printf("No partitions with UUID or label found\n");
+		alist_uninit(&seen);
+		return CMD_RET_SUCCESS;
+	}
+
+	/* Detect duplicate UUIDs */
+	detect_duplicates(&seen, compare_uuid, "PARTUUID",
+			  offsetof(struct part_seen, uuid),
+			  &duplicate_uuids, uuid_count);
+
+	/* Detect duplicate partition labels */
+	detect_duplicates(&seen, compare_name, "PARTLABEL",
+			  offsetof(struct part_seen, name),
+			  &duplicate_labels, label_count);
+
+	if (!duplicate_uuids && !duplicate_labels)
+		printf("No duplicate PARTUUIDs or PARTLABELs found (%d UUIDs, %d labels)\n",
+		       uuid_count, label_count);
+	else if (!duplicate_uuids)
+		printf("No duplicate PARTUUIDs found (%d UUIDs)\n", uuid_count);
+	else if (!duplicate_labels)
+		printf("No duplicate PARTLABELs found (%d labels)\n", label_count);
+
+	alist_uninit(&seen);
+
+	return (duplicate_uuids || duplicate_labels) ?
+		CMD_RET_FAILURE : CMD_RET_SUCCESS;
+}
+#endif
+
 static int do_part_types(int argc, char * const argv[])
 {
 	struct part_driver *drv = ll_entry_start(struct part_driver,
@@ -292,6 +496,10 @@ static int do_part(struct cmd_tbl *cmdtp, int flag, int argc,
 	else if (!strcmp(argv[1], "type"))
 		return do_part_type(argc - 2, argv + 2);
 #endif
+#if CONFIG_IS_ENABLED(CMD_PART_DUPCHECK)
+	else if (!strcmp(argv[1], "dupcheck"))
+		return do_part_dupcheck(argc - 2, argv + 2);
+#endif
 	return CMD_RET_USAGE;
 }
 
@@ -329,4 +537,9 @@ U_BOOT_CMD(
 	"    - set partition type for a device\n"
 	"part types\n"
 	"    - list supported partition table types"
+#if CONFIG_IS_ENABLED(CMD_PART_DUPCHECK)
+	"\n"
+	"part dupcheck\n"
+	"    - scan all block devices for duplicate partition UUIDs and labels"
+#endif
 );
