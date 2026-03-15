@@ -157,7 +157,11 @@ ENTRY(_main)
 	orr	lr, #1				/* As required by Thumb-only */
 #endif
 	ldr	r0, [r9, #GD_RELOCADDR]		/* r0 = gd->relocaddr */
+#if defined(CONFIG_SKIP_RELOCATE_CODE)
+	bl	relocate_code
+#else
 	b	relocate_code
+#endif
 here:
 /*
  * now relocate vectors

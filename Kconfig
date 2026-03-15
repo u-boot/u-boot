@@ -474,6 +474,23 @@ config SKIP_RELOCATE
 	  Skips relocation of U-Boot allowing for systems that have extremely
 	  limited RAM to run U-Boot.
 
+config SKIP_RELOCATE_CODE
+	bool "Skips relocation of U-Boot code to end of RAM"
+	help
+	  Skips relocation of U-Boot code to the end of RAM, but still does
+	  relocate data to the end of RAM. This is mainly meant to relocate
+	  data to read-write portion of the RAM, while the code remains in
+	  read-only portion of the RAM from which it is allowed to execute.
+	  This split configuration is present on various secure cores.
+
+config SKIP_RELOCATE_CODE_DATA_OFFSET
+	hex "Offset of read-write data memory from read-only text memory"
+	default 0x0
+	depends on SKIP_RELOCATE_CODE
+	help
+	  Offset of the read-write memory which contains data, from read-only
+	  memory which contains executable text.
+
 endif # EXPERT
 
 config PHYS_64BIT

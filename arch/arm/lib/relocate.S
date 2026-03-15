@@ -79,6 +79,15 @@ ENDPROC(relocate_vectors)
 ENTRY(relocate_code)
 relocate_base:
 	adr	r3, relocate_base
+
+#ifdef CONFIG_SKIP_RELOCATE_CODE
+	mov r4,	#CONFIG_SKIP_RELOCATE_CODE_DATA_OFFSET
+
+	ldr	r1, _data_start_ofs
+	add	r5, r1, r3		/* r5 <- Run &__data_start */
+	ldr	r1, _data_end_ofs
+	add	r6, r1, r3		/* r6 <- Run &__data_end */
+#else
 	ldr	r1, _image_copy_start_ofs
 	add	r1, r3			/* r1 <- Run &__image_copy_start */
 	subs	r4, r0, r1		/* r4 <- Run to copy offset      */
@@ -90,6 +99,7 @@ copy_loop:
 	stmia	r0!, {r10-r11}		/* copy to   target address [r0] */
 	cmp	r1, r2			/* until source end address [r2] */
 	blo	copy_loop
+#endif
 
 	/*
 	 * fix .rel.dyn relocations
@@ -107,6 +117,15 @@ fixloop:
 	/* relative fix: increase location by offset */
 	add	r0, r0, r4
 	ldr	r1, [r0]
+
+#ifdef CONFIG_SKIP_RELOCATE_CODE
+	/* Test whether this is data, if not, do not relocate. */
+	cmp	r1, r5
+	blt	fixnext
+	cmp	r1, r6
+	bgt	fixnext
+#endif
+
 	add	r1, r1, r4
 	str	r1, [r0]
 fixnext:
@@ -126,3 +145,9 @@ _rel_dyn_start_ofs:
 	.word	__rel_dyn_start - relocate_code
 _rel_dyn_end_ofs:
 	.word	__rel_dyn_end - relocate_code
+#ifdef CONFIG_SKIP_RELOCATE_CODE
+_data_start_ofs:
+	.word	__data_start - relocate_code
+_data_end_ofs:
+	.word	__data_end - relocate_code
+#endif
