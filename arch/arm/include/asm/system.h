@@ -171,6 +171,12 @@ static inline unsigned int current_el(void)
 	return 3 & (el >> 2);
 }
 
+static inline unsigned int current_pl(void)
+{
+	/* Aarch32 compatibility */
+	return current_el();
+};
+
 static inline unsigned long get_sctlr(void)
 {
 	unsigned int el;
@@ -465,6 +471,39 @@ static inline int is_hyp(void)
 	return 0;
 #endif
 }
+
+static inline int is_usr(void)
+{
+	return (get_cpsr() & 0x1f) == 0x10;
+}
+
+static inline unsigned int current_pl(void)
+{
+	/*
+	 * ARM DDI 0406C.d ID040418 , page 140 chapter A3.6.1 "Processor
+	 * privilege levels, execution privilege, and access privilege",
+	 * clarifies the PLx levels as follows (abbreviated):
+	 * The characteristics of the privilege levels are:
+	 * - PL0 - The privilege level of application software, that
+	 *         executes in User mode.
+	 * - PL1 - Software execution in all modes other than User mode
+	 *         and Hyp mode is at PL1.
+	 * - PL2 - Software executing in Hyp mode executes at PL2.
+	 */
+	if (is_hyp())	/* HYP */
+		return 2;
+
+	if (is_usr())	/* USR */
+		return 0;
+
+	return 1;	/* The rest */
+}
+
+static inline unsigned int current_el(void)
+{
+	/* Aarch64 compatibility */
+	return current_pl();
+};
 
 static inline unsigned int get_cr(void)
 {
