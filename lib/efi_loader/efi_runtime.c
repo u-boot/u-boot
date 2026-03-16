@@ -210,6 +210,30 @@ void __efi_runtime efi_memcpy_runtime(void *dest, const void *src, size_t n)
 }
 
 /**
+ * efi_memcmp_runtime() - compare memory areas
+ *
+ * At runtime memcmp() is not available.
+ *
+ * @s1:		first memory area
+ * @s2:		second memory area
+ * @n:		number of bytes to compare
+ * Return:	0 if equal, negative if s1 < s2, positive if s1 > s2
+ */
+int __efi_runtime efi_memcmp_runtime(const void *s1, const void *s2, size_t n)
+{
+	const u8 *pos1 = s1;
+	const u8 *pos2 = s2;
+
+	for (; n; --n) {
+		if (*pos1 != *pos2)
+			return *pos1 - *pos2;
+		++pos1;
+		++pos2;
+	}
+	return 0;
+}
+
+/**
  * efi_update_table_header_crc32() - Update crc32 in table header
  *
  * @table:	EFI table

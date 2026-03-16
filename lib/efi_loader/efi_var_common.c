@@ -497,6 +497,8 @@ efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe)
 	efi_status_t ret;
 
 	if (buf->reserved || buf->magic != EFI_VAR_FILE_MAGIC ||
+	    buf->length > EFI_VAR_BUF_SIZE ||
+	    buf->length < sizeof(struct efi_var_file) ||
 	    buf->crc32 != crc32(0, (u8 *)buf->var,
 				buf->length - sizeof(struct efi_var_file))) {
 		log_err("Invalid EFI variables file\n");
@@ -524,7 +526,7 @@ efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe)
 			continue;
 		ret = efi_var_mem_ins(var->name, &var->guid, var->attr,
 				      var->length, data, 0, NULL,
-				      var->time);
+				      var->time, NULL);
 		if (ret != EFI_SUCCESS)
 			log_err("Failed to set EFI variable %ls\n", var->name);
 	}

@@ -159,11 +159,38 @@ efi_status_t __efi_runtime efi_var_mem_ins(
 				const efi_guid_t *vendor, u32 attributes,
 				const efi_uintn_t size1, const void *data1,
 				const efi_uintn_t size2, const void *data2,
-				const u64 time)
+				const u64 time, bool *changep)
 {
 	u16 *data;
 	struct efi_var_entry *var;
 	u32 var_name_len;
+
+	if (changep)
+		*changep = true;
+
+	/*
+	 * If this is not an append (size2 == 0), check whether the variable
+	 * already exists with identical attributes and data. When nothing
+	 * changed we can skip the write and avoid superfluous erases.
+	 */
+	if (!size2 && changep) {
+		struct efi_var_entry *old;
+
+		old = efi_var_mem_find(vendor, variable_name, NULL);
+		if (old && old->attr == attributes &&
+		    old->length == size1 && old->time == time) {
+			u16 *old_data;
+
+			for (old_data = old->name; *old_data; ++old_data)
+				;
+			++old_data;
+
+			if (!efi_memcmp_runtime(old_data, data1, size1)) {
+				*changep = false;
+				return EFI_SUCCESS;
+			}
+		}
+	}
 
 	var = (struct efi_var_entry *)
 	      ((uintptr_t)efi_var_buf + efi_var_buf->length);

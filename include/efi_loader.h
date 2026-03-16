@@ -387,6 +387,10 @@ extern const efi_guid_t efi_guid_capsule_report;
 extern const efi_guid_t efi_guid_firmware_management_protocol;
 /* GUID for the ESRT */
 extern const efi_guid_t efi_esrt_guid;
+/* GUID for the ECPT */
+#if CONFIG_IS_ENABLED(EFI_ECPT)
+extern const efi_guid_t efi_ecpt_guid;
+#endif
 /* GUID of the SMBIOS table */
 extern const efi_guid_t smbios_guid;
 extern const efi_guid_t smbios3_guid;
@@ -1143,6 +1147,9 @@ struct pkcs7_message *efi_parse_pkcs7_header(const void *buf,
 
 /* runtime implementation of memcpy() */
 void efi_memcpy_runtime(void *dest, const void *src, size_t n);
+
+/* runtime implementation of memcmp() */
+int efi_memcmp_runtime(const void *s1, const void *s2, size_t n);
 
 /* commonly used helper functions */
 u16 *efi_create_indexed_name(u16 *buffer, size_t buffer_size, const char *name,

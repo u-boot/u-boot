@@ -533,6 +533,47 @@ static int do_efi_show_defaults(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+#if CONFIG_IS_ENABLED(EFI_ECPT)
+/**
+ * do_efi_show_ecpt() - show UEFI conformance profiles in ECPT
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success,
+ *		CMD_RET_USAGE or CMD_RET_FAILURE on failure
+ *
+ * Implement efidebug "ecpt" sub-command.
+ * Show all the UEFI Conformance Profiles listed in the EFI Conformance Profiles
+ * Table (ECPT).
+ */
+static int do_efi_show_ecpt(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char *const argv[])
+{
+	const struct efi_conformance_profiles_table *ecpt;
+	u16 n;
+
+	if (argc != 1)
+		return CMD_RET_USAGE;
+
+	ecpt = efi_get_configuration_table(&efi_ecpt_guid);
+	if (!ecpt) {
+		log_err("ECPT table missing\n");
+		return CMD_RET_FAILURE;
+	}
+
+	for (n = 0; n < ecpt->number_of_profiles; n++) {
+		const efi_guid_t *guid = &ecpt->conformance_profiles[n];
+
+		printf("%pUl  %s\n", guid->b,
+		       uuid_guid_get_str(guid->b) ?: "(unknown)");
+	}
+
+	return CMD_RET_SUCCESS;
+}
+#endif /* CONFIG_IS_ENABLED(EFI_ECPT) */
+
 static const char * const efi_mem_type_string[] = {
 	[EFI_RESERVED_MEMORY_TYPE] = "RESERVED",
 	[EFI_LOADER_CODE] = "LOADER CODE",
@@ -1586,6 +1627,10 @@ static struct cmd_tbl cmd_efidebug_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(defaults, CONFIG_SYS_MAXARGS, 1, do_efi_show_defaults,
 			 "", ""),
+#if CONFIG_IS_ENABLED(EFI_ECPT)
+	U_BOOT_CMD_MKENT(ecpt, CONFIG_SYS_MAXARGS, 1, do_efi_show_ecpt,
+			 "", ""),
+#endif
 	U_BOOT_CMD_MKENT(images, CONFIG_SYS_MAXARGS, 1, do_efi_show_images,
 			 "", ""),
 	U_BOOT_CMD_MKENT(memmap, CONFIG_SYS_MAXARGS, 1, do_efi_show_memmap,
@@ -1680,6 +1725,10 @@ U_BOOT_LONGHELP(efidebug,
 	"  - show UEFI handles\n"
 	"efidebug defaults\n"
 	"  - show default EFI filename and PXE architecture\n"
+#if CONFIG_IS_ENABLED(EFI_ECPT)
+	"efidebug ecpt\n"
+	"  - show conformance profiles in the ECPT\n"
+#endif
 	"efidebug images\n"
 	"  - show loaded images\n"
 	"efidebug memmap\n"
