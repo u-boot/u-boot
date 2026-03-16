@@ -209,15 +209,6 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue);
 #define USB_UHCI_DEV_ID		0x7112
 
 /*
- * PXA25x can only act as USB device. There are drivers
- * which works with USB CDC gadgets implementations.
- * Some of them have common routines which can be used
- * in boards init functions e.g. udc_disconnect() used for
- * forced device disconnection from host.
- */
-extern void udc_disconnect(void);
-
-/*
  * board-specific hardware initialization, called by
  * usb drivers and u-boot commands
  *
