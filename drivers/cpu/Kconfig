@@ -35,9 +35,8 @@ config CPU_ARMV8
 
 config CPU_MICROBLAZE
 	bool "Enable Microblaze CPU driver"
-	depends on CPU && MICROBLAZE
+	depends on CPU && MICROBLAZE && XILINX_MICROBLAZE0_PVR
 	select DM_EVENT
-	select XILINX_MICROBLAZE0_PVR
 	help
 	  Support CPU cores for Microblaze architecture.
 
