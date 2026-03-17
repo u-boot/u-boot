@@ -7,3 +7,5 @@
 #
 
 obj-y += pocketbeagle2.o
+obj-${CONFIG_K3_DDRSS} += ../../phytec/common/k3/k3_ddrss_patch.o
+obj-${CONFIG_TI_I2C_BOARD_DETECT} += ../../ti/common/board_detect.o
