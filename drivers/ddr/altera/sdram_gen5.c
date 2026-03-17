@@ -6,6 +6,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <div64.h>
+#include <hang.h>
 #include <init.h>
 #include <log.h>
 #include <ram.h>
@@ -617,6 +618,24 @@ static int altera_gen5_sdram_probe(struct udevice *dev)
 	sdram_size = sdram_calculate_size(sdr_ctrl);
 	debug("SDRAM: %ld MiB\n", sdram_size >> 20);
 
+#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
+	/* setup the dram info within bd */
+	dram_init_banksize();
+
+	if (sdram_size != gd->bd->bi_dram[0].size) {
+		printf("DDR: Warning: DRAM size from device tree (%d MiB)\n",
+		       (u32)(gd->bd->bi_dram[0].size >> 20));
+		printf(" mismatch with hardware (%d MiB).\n",
+		       (u32)(sdram_size >> 20));
+	}
+
+	if (gd->bd->bi_dram[0].size > sdram_size) {
+		printf("DDR: Error: DRAM size from device tree is greater\n");
+		printf(" than hardware size.\n");
+		hang();
+	}
+#endif
+
 #if IS_ENABLED(CONFIG_SOCFPGA_ECC_SCRUB_SUPPORT)
 	if (sdram_is_ecc_enabled(sdr_ctrl)) {
 		/* Must set USEECCASDATA to 0 if ECC is enabled */
@@ -627,7 +646,8 @@ static int altera_gen5_sdram_probe(struct udevice *dev)
 #endif
 
 	/* Sanity check ensure correct SDRAM size specified */
-	if (get_ram_size(0, sdram_size) != sdram_size) {
+	if (get_ram_size(0, gd->bd->bi_dram[0].size) !=
+			 gd->bd->bi_dram[0].size) {
 		puts("SDRAM size check failed!\n");
 		goto failed;
 	}
