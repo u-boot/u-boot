@@ -812,7 +812,7 @@ static const struct mtk_clk_tree mt7988_topckgen_clk_tree = {
 	.num_fclks = ARRAY_SIZE(topckgen_mtk_fixed_clks),
 	.num_fdivs = ARRAY_SIZE(topckgen_mtk_fixed_factors),
 	.num_muxes = ARRAY_SIZE(topckgen_mtk_muxes),
-	.flags = CLK_BYPASS_XTAL | CLK_PARENT_TOPCKGEN,
+	.flags = CLK_PARENT_TOPCKGEN,
 	.xtal_rate = 40 * MHZ,
 };
 
@@ -823,7 +823,6 @@ static const struct mtk_clk_tree mt7988_infracfg_clk_tree = {
 	.gates = infracfg_mtk_gates,
 	.num_muxes = ARRAY_SIZE(infracfg_mtk_mux),
 	.num_gates = ARRAY_SIZE(infracfg_mtk_gates),
-	.flags = CLK_BYPASS_XTAL,
 	.xtal_rate = 40 * MHZ,
 };
 

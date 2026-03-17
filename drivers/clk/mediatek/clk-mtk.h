@@ -13,13 +13,6 @@
 
 /* flags in struct mtk_clk_tree */
 
-/* clk id == 0 doesn't mean it's xtal clk
- * This doesn't apply when CLK_PARENT_MIXED is defined.
- * With CLK_PARENT_MIXED declare CLK_PARENT_XTAL for the
- * relevant parent.
- */
-#define CLK_BYPASS_XTAL			BIT(0)
-
 #define CLK_PLL_HAVE_RST_BAR		BIT(0)
 
 #define CLK_MUX_DOMAIN_SCPSYS		BIT(0)

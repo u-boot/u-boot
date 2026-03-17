@@ -735,10 +735,6 @@ static ulong mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
 		return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
 	}
 
-	if (mux->parent[index] == CLK_XTAL &&
-	    !(priv->tree->flags & CLK_BYPASS_XTAL))
-		return priv->tree->xtal_rate;
-
 	return mtk_find_parent_rate(priv, clk, mux->parent[index], mux->flags);
 }
 
@@ -1004,10 +1000,6 @@ static ulong mtk_infrasys_get_mux_rate(struct clk *clk, u32 off)
 
 		return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
 	}
-
-	if (mux->parent[index] == CLK_XTAL &&
-	    !(priv->tree->flags & CLK_BYPASS_XTAL))
-		return priv->tree->xtal_rate;
 
 	return mtk_find_parent_rate(priv, clk, mux->parent[index], mux->flags);
 }
