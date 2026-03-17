@@ -480,63 +480,63 @@ U_BOOT_DRIVER(mtk_clk_topckgen) = {
 /* INFRASYS MUX PARENTS */
 
 /* CLK_INFRA_MUX_UART0_SEL (infra_mux_uart0_sel) in infracfg */
-static const int infra_mux_uart0_parents[] = {
-	CLK_TOP_INFRA_F26M_SEL,
-	CLK_TOP_UART_SEL
+static const struct mtk_parent infra_mux_uart0_parents[] = {
+	TOP_PARENT(CLK_TOP_INFRA_F26M_SEL),
+	TOP_PARENT(CLK_TOP_UART_SEL),
 };
 
 /* CLK_INFRA_MUX_UART1_SEL (infra_mux_uart1_sel) in infracfg */
-static const int infra_mux_uart1_parents[] = {
-	CLK_TOP_INFRA_F26M_SEL,
-	CLK_TOP_UART_SEL
+static const struct mtk_parent infra_mux_uart1_parents[] = {
+	TOP_PARENT(CLK_TOP_INFRA_F26M_SEL),
+	TOP_PARENT(CLK_TOP_UART_SEL),
 };
 
 /* CLK_INFRA_MUX_UART2_SEL (infra_mux_uart2_sel) in infracfg */
-static const int infra_mux_uart2_parents[] = {
-	CLK_TOP_INFRA_F26M_SEL,
-	CLK_TOP_UART_SEL
+static const struct mtk_parent infra_mux_uart2_parents[] = {
+	TOP_PARENT(CLK_TOP_INFRA_F26M_SEL),
+	TOP_PARENT(CLK_TOP_UART_SEL),
 };
 
 /* CLK_INFRA_MUX_SPI0_SEL (infra_mux_spi0_sel) in infracfg */
-static const int infra_mux_spi0_parents[] = {
-	CLK_TOP_I2C_SEL,
-	CLK_TOP_SPI_SEL
+static const struct mtk_parent infra_mux_spi0_parents[] = {
+	TOP_PARENT(CLK_TOP_I2C_SEL),
+	TOP_PARENT(CLK_TOP_SPI_SEL),
 };
 
 /* CLK_INFRA_MUX_SPI1_SEL (infra_mux_spi1_sel) in infracfg */
-static const int infra_mux_spi1_parents[] = {
-	CLK_TOP_I2C_SEL,
-	CLK_TOP_SPIM_MST_SEL
+static const struct mtk_parent infra_mux_spi1_parents[] = {
+	TOP_PARENT(CLK_TOP_I2C_SEL),
+	TOP_PARENT(CLK_TOP_SPIM_MST_SEL),
 };
 
 /* CLK_INFRA_MUX_SPI2_BCK_SEL (infra_mux_spi2_bck_sel) in infracfg */
-static const int infra_mux_spi2_bck_parents[] = {
-	CLK_TOP_I2C_SEL,
-	CLK_TOP_SPI_SEL
+static const struct mtk_parent infra_mux_spi2_bck_parents[] = {
+	TOP_PARENT(CLK_TOP_I2C_SEL),
+	TOP_PARENT(CLK_TOP_SPI_SEL),
 };
 
 /* CLK_INFRA_PWM_BCK_SEL (infra_pwm_bck_sel) in infracfg */
-static const int infra_pwm_bck_parents[] = {
-	CLK_TOP_CB_RTC_32P7K,
-	CLK_TOP_INFRA_F26M_SEL,
-	CLK_TOP_SYSAXI_SEL,
-	CLK_TOP_PWM_SEL
+static const struct mtk_parent infra_pwm_bck_parents[] = {
+	TOP_PARENT(CLK_TOP_CB_RTC_32P7K),
+	TOP_PARENT(CLK_TOP_INFRA_F26M_SEL),
+	TOP_PARENT(CLK_TOP_SYSAXI_SEL),
+	TOP_PARENT(CLK_TOP_PWM_SEL),
 };
 
 /* CLK_INFRA_PCIE_GFMUX_TL_O_P0_SEL (infra_pcie_gfmux_tl_ck_o_p0_sel) in infracfg */
-static const int infra_pcie_gfmux_tl_ck_o_p0_parents[] = {
-	CLK_TOP_CB_RTC_32P7K,
-	CLK_TOP_INFRA_F26M_SEL,
-	CLK_TOP_INFRA_F26M_SEL,
-	CLK_TOP_PEXTP_TL_SEL
+static const struct mtk_parent infra_pcie_gfmux_tl_ck_o_p0_parents[] = {
+	TOP_PARENT(CLK_TOP_CB_RTC_32P7K),
+	TOP_PARENT(CLK_TOP_INFRA_F26M_SEL),
+	TOP_PARENT(CLK_TOP_INFRA_F26M_SEL),
+	TOP_PARENT(CLK_TOP_PEXTP_TL_SEL),
 };
 
 /* CLK_INFRA_PCIE_GFMUX_TL_O_P1_SEL (infra_pcie_gfmux_tl_ck_o_p1_sel) in infracfg */
-static const int infra_pcie_gfmux_tl_ck_o_p1_parents[] = {
-	CLK_TOP_CB_RTC_32P7K,
-	CLK_TOP_INFRA_F26M_SEL,
-	CLK_TOP_INFRA_F26M_SEL,
-	CLK_TOP_PEXTP_TL_P1_SEL
+static const struct mtk_parent infra_pcie_gfmux_tl_ck_o_p1_parents[] = {
+	TOP_PARENT(CLK_TOP_CB_RTC_32P7K),
+	TOP_PARENT(CLK_TOP_INFRA_F26M_SEL),
+	TOP_PARENT(CLK_TOP_INFRA_F26M_SEL),
+	TOP_PARENT(CLK_TOP_PEXTP_TL_P1_SEL),
 };
 
 #define INFRA_MUX(_id, _name, _parents, _reg, _shift, _width)                  \
@@ -545,8 +545,9 @@ static const int infra_pcie_gfmux_tl_ck_o_p1_parents[] = {
 		.mux_clr_reg = (_reg) + 0x4, .mux_set_reg = (_reg) + 0x0,      \
 		.mux_shift = (_shift), .mux_mask = BIT(_width) - 1,            \
 		.gate_shift = -1, .upd_shift = -1,                             \
-		.parent = (_parents), .num_parents = ARRAY_SIZE(_parents),     \
-		.flags = CLK_MUX_SETCLR_UPD | CLK_PARENT_TOPCKGEN,             \
+		.parent_flags = (_parents),				       \
+		.num_parents = ARRAY_SIZE(_parents),			       \
+		.flags = CLK_MUX_SETCLR_UPD | CLK_PARENT_MIXED,		       \
 	}
 
 /* INFRA MUX */
