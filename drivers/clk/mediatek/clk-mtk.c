@@ -253,6 +253,21 @@ static ulong mtk_find_parent_rate(struct mtk_clk_priv *priv, struct clk *clk,
 	return mtk_clk_find_parent_rate(clk, parent, parent_dev);
 }
 
+static ulong mtk_clk_mux_get_rate(struct clk *clk, u32 off)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_composite *mux = &priv->tree->muxes[off];
+	const struct mtk_parent *parent;
+	u32 index;
+
+	index = readl(priv->base + mux->mux_reg);
+	index &= mux->mux_mask << mux->mux_shift;
+	index = index >> mux->mux_shift;
+	parent = &mux->parent[index];
+
+	return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
+}
+
 static int mtk_clk_mux_set_parent(void __iomem *base, u32 parent,
 				  u32 parent_type,
 				  const struct mtk_composite *mux)
@@ -701,21 +716,6 @@ static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 	return mtk_factor_recalc_rate(fdiv, rate);
 }
 
-static ulong mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_composite *mux = &priv->tree->muxes[off];
-	const struct mtk_parent *parent;
-	u32 index;
-
-	index = readl(priv->base + mux->mux_reg);
-	index &= mux->mux_mask << mux->mux_shift;
-	index = index >> mux->mux_shift;
-	parent = &mux->parent[index];
-
-	return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
-}
-
 static ulong mtk_topckgen_get_rate(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
@@ -728,7 +728,7 @@ static ulong mtk_topckgen_get_rate(struct clk *clk)
 		return mtk_topckgen_get_factor_rate(clk, clk->id - tree->fdivs_offs);
 
 	if (mtk_clk_id_is_mux(tree, clk->id))
-		return mtk_topckgen_get_mux_rate(clk, clk->id - tree->muxes_offs);
+		return mtk_clk_mux_get_rate(clk, clk->id - tree->muxes_offs);
 
 	if (mtk_clk_id_is_gate(tree, clk->id)) {
 		const struct mtk_gate *gate = &tree->gates[clk->id - tree->gates_offs];
@@ -959,21 +959,6 @@ static ulong mtk_infrasys_get_factor_rate(struct clk *clk, u32 off)
 	return mtk_factor_recalc_rate(fdiv, rate);
 }
 
-static ulong mtk_infrasys_get_mux_rate(struct clk *clk, u32 off)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_composite *mux = &priv->tree->muxes[off];
-	const struct mtk_parent *parent;
-	u32 index;
-
-	index = readl(priv->base + mux->mux_reg);
-	index &= mux->mux_mask << mux->mux_shift;
-	index = index >> mux->mux_shift;
-	parent = &mux->parent[index];
-
-	return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
-}
-
 static ulong mtk_infrasys_get_rate(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
@@ -986,8 +971,7 @@ static ulong mtk_infrasys_get_rate(struct clk *clk)
 						    priv->tree->fdivs_offs);
 	/* No gates defined or ID is a MUX */
 	} else if (!mtk_clk_id_is_gate(priv->tree, clk->id)) {
-		rate = mtk_infrasys_get_mux_rate(clk, clk->id -
-						 priv->tree->muxes_offs);
+		rate = mtk_clk_mux_get_rate(clk, clk->id - priv->tree->muxes_offs);
 	/* Only valid with muxes + gates implementation */
 	} else {
 		const struct mtk_gate *gate;
