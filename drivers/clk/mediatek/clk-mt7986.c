@@ -229,9 +229,10 @@ static const struct mtk_parent da_u2_refsel_parents[] = {
 		.mux_clr_reg = _mux_clr_ofs, .upd_reg = _upd_ofs,              \
 		.upd_shift = _upd, .mux_shift = _shift,                        \
 		.mux_mask = BIT(_width) - 1, .gate_reg = _mux_ofs,             \
-		.gate_shift = _gate, .parent_flags = _parents,                 \
+		.gate_shift = _gate,                                           \
+		.parent = _parents,                                            \
 		.num_parents = ARRAY_SIZE(_parents),                           \
-		.flags = CLK_MUX_SETCLR_UPD | CLK_PARENT_MIXED,                \
+		.flags = CLK_MUX_SETCLR_UPD,                                   \
 	}
 
 /* TOPCKGEN MUX_GATE */
@@ -365,8 +366,9 @@ static const struct mtk_parent infra_pcie_parents[] = {
 		.mux_set_reg = (_reg) + 0x0, .mux_clr_reg = (_reg) + 0x4,      \
 		.mux_shift = _shift, .mux_mask = BIT(_width) - 1,              \
 		.gate_shift = -1, .upd_shift = -1,			       \
-		.parent_flags = _parents, .num_parents = ARRAY_SIZE(_parents), \
-		.flags = CLK_MUX_SETCLR_UPD | CLK_PARENT_MIXED,                \
+		.parent = _parents,					       \
+		.num_parents = ARRAY_SIZE(_parents),			       \
+		.flags = CLK_MUX_SETCLR_UPD,				       \
 	}
 
 /* INFRA MUX */

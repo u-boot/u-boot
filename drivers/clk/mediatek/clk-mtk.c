@@ -259,22 +259,15 @@ static int mtk_clk_mux_set_parent(void __iomem *base, u32 parent,
 {
 	u32 val, index = 0;
 
-	if (mux->flags & CLK_PARENT_MIXED) {
-		/*
-		 * Assume parent_type in clk_tree to be always set with
-		 * CLK_PARENT_MIXED implementation. If it's not, assume
-		 * not parent clk ID clash is possible.
-		 */
-		while (mux->parent_flags[index].id != parent ||
-		       (parent_type && (mux->parent_flags[index].flags & CLK_PARENT_MASK) !=
-			parent_type))
-			if (++index == mux->num_parents)
-				return -EINVAL;
-	} else {
-		while (mux->parent[index] != parent)
-			if (++index == mux->num_parents)
-				return -EINVAL;
-	}
+	/*
+	 * Assume parent_type in clk_tree to be always set. If it's not, assume
+	 * parent clk ID clash is not possible.
+	 */
+	while (mux->parent[index].id != parent ||
+	       (parent_type && (mux->parent[index].flags & CLK_PARENT_MASK) !=
+		parent_type))
+		if (++index == mux->num_parents)
+			return -EINVAL;
 
 	if (mux->flags & CLK_MUX_SETCLR_UPD) {
 		val = (mux->mux_mask << mux->mux_shift);
@@ -350,9 +343,6 @@ static void mtk_clk_print_parent(const char *prefix, int parent, u32 flags)
 	case CLK_PARENT_EXT:
 		parent_type_str = "ext";
 		break;
-	case CLK_PARENT_MIXED:
-		parent_type_str = "mixed";
-		break;
 	default:
 		parent_type_str = "default";
 		break;
@@ -381,18 +371,14 @@ static void mtk_clk_print_mux_parents(struct mtk_clk_priv *priv,
 
 	/* Print parents separated by "/" and selected parent enclosed in "*"s */
 	for (i = 0; i < mux->num_parents; i++) {
+		const struct mtk_parent *parent = &mux->parent[i];
+
 		if (i == selected) {
 			printf("%s", prefix);
 			prefix = "*";
 		}
 
-		if (mux->flags & CLK_PARENT_MIXED) {
-			const struct mtk_parent *parent = &mux->parent_flags[i];
-
-			mtk_clk_print_parent(prefix, parent->id, parent->flags);
-		} else {
-			mtk_clk_print_parent(prefix, mux->parent[i], mux->flags);
-		}
+		mtk_clk_print_parent(prefix, parent->id, parent->flags);
 
 		prefix = "/";
 
@@ -719,23 +705,15 @@ static ulong mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_composite *mux = &priv->tree->muxes[off];
+	const struct mtk_parent *parent;
 	u32 index;
 
 	index = readl(priv->base + mux->mux_reg);
 	index &= mux->mux_mask << mux->mux_shift;
 	index = index >> mux->mux_shift;
+	parent = &mux->parent[index];
 
-	/*
-	 * Parents can be either from APMIXED or TOPCKGEN,
-	 * inspect the mtk_parent struct to check the source
-	 */
-	if (mux->flags & CLK_PARENT_MIXED) {
-		const struct mtk_parent *parent = &mux->parent_flags[index];
-
-		return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
-	}
-
-	return mtk_find_parent_rate(priv, clk, mux->parent[index], mux->flags);
+	return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
 }
 
 static ulong mtk_topckgen_get_rate(struct clk *clk)
@@ -985,23 +963,15 @@ static ulong mtk_infrasys_get_mux_rate(struct clk *clk, u32 off)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_composite *mux = &priv->tree->muxes[off];
+	const struct mtk_parent *parent;
 	u32 index;
 
 	index = readl(priv->base + mux->mux_reg);
 	index &= mux->mux_mask << mux->mux_shift;
 	index = index >> mux->mux_shift;
+	parent = &mux->parent[index];
 
-	/*
-	 * Parents can be either from TOPCKGEN or INFRACFG,
-	 * inspect the mtk_parent struct to check the source
-	 */
-	if (mux->flags & CLK_PARENT_MIXED) {
-		const struct mtk_parent *parent = &mux->parent_flags[index];
-
-		return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
-	}
-
-	return mtk_find_parent_rate(priv, clk, mux->parent[index], mux->flags);
+	return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
 }
 
 static ulong mtk_infrasys_get_rate(struct clk *clk)
