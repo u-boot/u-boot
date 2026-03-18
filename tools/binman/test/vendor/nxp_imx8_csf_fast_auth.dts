@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		nxp-imx8mcst {
+			args;
+			nxp,loader-address = <0x10>;
+			nxp,fast-auth;
+			nxp,unlock;
+
+			blob {
+				filename = "imx8m-fit.bin";
+			};
+		};
+	};
+};

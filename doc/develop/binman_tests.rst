@@ -331,7 +331,7 @@ Here is a simple test:
 
     def testSimple(self):
         """Test a simple binman with a single file"""
-        data = self._DoReadFile('005_simple.dts')
+        data = self._DoReadFile('pack/simple.dts')
         self.assertEqual(U_BOOT_DATA, data)
 
 This test tells Binman to build an image using the description. Then it checks
@@ -402,7 +402,7 @@ Another type of test is one which checks error-handling, for example:
     def testFillNoSize(self):
         """Test for an fill entry type with no size"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('070_fill_no_size.dts')
+            self._DoReadFile('entry/fill_no_size.dts')
         self.assertIn("'fill' entry is missing properties: size",
                       str(e.exception))
 
@@ -436,7 +436,7 @@ correct. You can to this with ``terminal.capture()``, for example:
 .. code-block:: python
 
     with terminal.capture() as (_, stderr):
-        self._DoTestFile('071_gbb.dts', force_missing_bintools='futility',
+        self._DoTestFile('cros/gbb.dts', force_missing_bintools='futility',
                          entry_args=entry_args)
     err = stderr.getvalue()
     self.assertRegex(err, "Image 'image'.*missing bintools.*: futility")
@@ -453,31 +453,15 @@ help with this, but your code will be different.
 
 Generally you are adding a test because you are adding a new entry type
 ('etype'). So start by creating the shortest and simplest image-description you
-can, which contains the new etype. Put it in a numbered file in
-``tool/binman/test`` so that it comes last. All the numbers are unique and there
-are no gaps.
+can, which contains the new etype. Put it under ``tools/binman/test`` in the
+appropriate subdirectory (e.g. ``fit/`` for FIT image tests, ``vendor/`` for
+vendor-specific tests, ``entry/`` for general entry types) with a descriptive
+filename.
 
-Example from ``tools/binman/test/339_nxp_imx8.dts``:
+Example from ``tools/binman/test/vendor/nxp_imx8.dts``:
 
-.. code-block:: devicetree
-
-    // SPDX-License-Identifier: GPL-2.0+
-
-    /dts-v1/;
-
-    / {
-        #address-cells = <1>;
-        #size-cells = <1>;
-
-        binman {
-            nxp-imx8mimage {
-                args;    /* TODO: Needed by mkimage etype superclass */
-                nxp,boot-from = "sd";
-                nxp,rom-version = <1>;
-                nxp,loader-address = <0x10>;
-            };
-        };
-    };
+.. literalinclude:: ../../tools/binman/test/vendor/nxp_imx8.dts
+   :language: devicetree
 
 Note that you should use tabs in the file, not spaces. You can see that this has
 been cut down to the bare minimum, just enough to include the etype and the
@@ -493,7 +477,7 @@ Then create your test by adding a new function at the end of ``ftest.py``:
 
     def testNxpImx8Image(self):
         """Test that binman can produce an iMX8 image"""
-        self._DoTestFile('339_nxp_imx8.dts')
+        self._DoTestFile('vendor/nxp_imx8.dts')
 
 This uses the test file that you created. It doesn't check anything, it just
 runs the image description through binman.
@@ -517,7 +501,7 @@ The next step is to update it to actually check the output:
 
     def testNxpImx8Image(self):
         """Test that binman can produce an iMX8 image"""
-        data = self._DoReadFile('339_nxp_imx8.dts')
+        data = self._DoReadFile('vendor/nxp_imx8.dts')
         print('data', len(data))
 
 The ``_DoReadFile()`` function is documented in the code. It returns the image
@@ -573,7 +557,7 @@ In the above example, here are some possible steps:
        def testNxpImx8ImageMkimageMissing(self):
            """Test that binman can produce an iMX8 image"""
            with terminal.capture() as (_, stderr):
-               self._DoTestFile('339_nxp_imx8.dts',
+               self._DoTestFile('vendor/nxp_imx8.dts',
                                 force_missing_bintools='mkimage')
            err = stderr.getvalue()
            self.assertRegex(err, "Image 'image'.*missing bintools.*: mkimage")
@@ -610,7 +594,7 @@ In the above example, here are some possible steps:
 
         Entry_section.SetImagePos(self, image_pos)
 
-   The solution is to add an entry, e.g. in ``340_nxp_imx8_non_empty.dts``:
+   The solution is to add an entry, e.g. in ``vendor/nxp_imx8_non_empty.dts``:
 
    .. code-block:: devicetree
 
@@ -641,7 +625,7 @@ In the above example, here are some possible steps:
 
        def testNxpImx8ImageNonEmpty(self):
            """Test that binman can produce an iMX8 image with something in it"""
-            data = self._DoReadFile('340_nxp_imx8_non_empty.dts')
+            data = self._DoReadFile('vendor/nxp_imx8_non_empty.dts')
             # check data here
 
    With that, the second red bit goes away, because the for() loop is now used.

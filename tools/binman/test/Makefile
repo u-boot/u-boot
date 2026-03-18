@@ -85,7 +85,7 @@ blob_syms: blob_syms.c
 elf_sections: CFLAGS += $(LDS_EFL_SECTIONS)
 elf_sections: elf_sections.c
 
-dummy-rsa-engine.so: dummy-rsa-engine.c
+dummy-rsa-engine.so: $(SRC)fit/dummy-rsa-engine.c
 	$(CC) -fPIC -shared -lcrypto -lssl -o $@ $<
 
 clean:

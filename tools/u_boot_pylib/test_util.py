@@ -24,7 +24,7 @@ except:
 
 def run_test_coverage(prog, filter_fname, exclude_list, build_dir,
                       required=None, extra_args=None, single_thread='-P1',
-                      args=None, allow_failures=None):
+                      args=None):
     """Run tests and check that we get 100% coverage
 
     Args:
@@ -95,19 +95,6 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir,
         print('Coverage error: %s, but should be 100%%' % coverage)
         ok = False
     if not ok:
-        if allow_failures:
-            # for line in lines:
-                # print('.', line, re.match(r'^(tools/.*py) *\d+ *(\d+) *(\d+)%$', line))
-            lines = [re.match(r'^(tools/.*py) *\d+ *(\d+) *\d+%$', line)
-                     for line in stdout.splitlines()]
-            bad = []
-            for mat in lines:
-                if mat and mat.group(2) != '0':
-                    fname = mat.group(1)
-                    if fname not in allow_failures:
-                        bad.append(fname)
-            if not bad:
-                return
         raise ValueError('Test coverage failure')
 
 

@@ -552,6 +552,10 @@ Properties / Entry arguments:
     - public-key-cert: Path to PEM formatted .crt public key certificate
       file. Mandatory property for generating signed capsules.
     - oem-flags - OEM flags to be passed through capsule header.
+    - dump-signature: Optional boolean (default: false). Instruct
+      mkeficapsule to write signature data to a separate file. The
+      filename will be <capsule file>.p7. It might be used to verify
+      capsule authentication with external tools.
 
 Since this is a subclass of Entry_section, all properties of the parent
 class also apply here. Except for the properties stated as mandatory, the

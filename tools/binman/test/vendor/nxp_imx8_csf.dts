@@ -7,11 +7,20 @@
 	#size-cells = <1>;
 
 	binman {
-		nxp-imx8mimage {
-			args;	/* TODO: Needed by mkimage etype superclass */
-			nxp,boot-from = "sd";
-			nxp,rom-version = <1>;
+		nxp-imx8mcst {
+			args;
 			nxp,loader-address = <0x10>;
+
+			blob {
+				filename = "imx8m-ivt.bin";
+			};
+
+			imagename {
+				type = "section";
+
+				u-boot {
+				};
+			};
 		};
 	};
 };

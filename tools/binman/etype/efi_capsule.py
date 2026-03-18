@@ -53,6 +53,10 @@ class Entry_efi_capsule(Entry_section):
         - public-key-cert: Path to PEM formatted .crt public key certificate
           file. Mandatory property for generating signed capsules.
         - oem-flags - OEM flags to be passed through capsule header.
+        - dump-signature: Optional boolean (default: false). Instruct
+          mkeficapsule to write signature data to a separate file. The
+          filename will be <capsule file>.p7. It might be used to verify
+          capsule authentication with external tools.
 
     Since this is a subclass of Entry_section, all properties of the parent
     class also apply here. Except for the properties stated as mandatory, the
@@ -101,6 +105,7 @@ class Entry_efi_capsule(Entry_section):
         self.private_key = ''
         self.public_key_cert = ''
         self.auth = 0
+        self.dump_signature = False
 
     def ReadNode(self):
         super().ReadNode()
@@ -111,6 +116,7 @@ class Entry_efi_capsule(Entry_section):
         self.hardware_instance = fdt_util.GetInt(self._node, 'hardware-instance')
         self.monotonic_count = fdt_util.GetInt(self._node, 'monotonic-count')
         self.oem_flags = fdt_util.GetInt(self._node, 'oem-flags')
+        self.dump_signature = fdt_util.GetBool(self._node, 'dump-signature')
 
         self.private_key = fdt_util.GetString(self._node, 'private-key')
         self.public_key_cert = fdt_util.GetString(self._node, 'public-key-cert')
@@ -125,10 +131,14 @@ class Entry_efi_capsule(Entry_section):
         private_key = ''
         public_key_cert = ''
         if self.auth:
-            if not os.path.isabs(self.private_key):
+            if not os.path.isabs(self.private_key) and not 'pkcs11:' in self.private_key:
                 private_key =  tools.get_input_filename(self.private_key)
-            if not os.path.isabs(self.public_key_cert):
+            if not os.path.isabs(self.public_key_cert) and not 'pkcs11:' in self.public_key_cert:
                 public_key_cert = tools.get_input_filename(self.public_key_cert)
+            if 'pkcs11:' in self.private_key:
+                private_key = self.private_key
+            if 'pkcs11:' in self.public_key_cert:
+                public_key_cert = self.public_key_cert
         data, payload, uniq = self.collect_contents_to_file(
             self._entries.values(), 'capsule_in')
         outfile = self._filename if self._filename else 'capsule.%s' % uniq
@@ -146,7 +156,8 @@ class Entry_efi_capsule(Entry_section):
                                                  public_key_cert,
                                                  self.monotonic_count,
                                                  self.fw_version,
-                                                 self.oem_flags)
+                                                 self.oem_flags,
+                                                 self.dump_signature)
         if ret is not None:
             return tools.read_file(capsule_fname)
         else:
