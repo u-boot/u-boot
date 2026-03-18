@@ -205,6 +205,8 @@ struct dram_para {
 	uint32_t mr12;
 	uint32_t mr13;
 	uint32_t mr14;
+	uint32_t mr22;
+	uint32_t tpr0;
 	uint32_t tpr1;
 	uint32_t tpr2;
 	uint32_t tpr3;

@@ -118,6 +118,13 @@ config DRAM_SUNXI_MR14
 	help
 	  MR14 value from vendor DRAM settings.
 
+config DRAM_SUNXI_MR22
+	hex "DRAM MR22 parameter"
+	depends on DRAM_SUN50I_A133
+	default 0x0
+	help
+	  MR22 value from vendor DRAM settings.
+
 config DRAM_SUNXI_TPR0
 	hex "DRAM TPR0 parameter"
 	default 0x0
@@ -1231,6 +1238,24 @@ config CHIP_DIP_SCAN
 	select W1_EEPROM
 	select W1_EEPROM_DS24XXX
 	select CMD_EXTENSION
+
+config SPL_SUNXI_LED_STATUS
+	bool "Control GPIO status LED within SPL"
+	depends on SPL_GPIO && SUNXI_GPIO
+
+if SPL_SUNXI_LED_STATUS
+
+config SPL_SUNXI_LED_STATUS_BIT
+	int "GPIO number for GPIO status LED"
+	help
+	  GPIO number for the GPIO controlling the GPIO status LED in SPL.
+
+config SPL_SUNXI_LED_STATUS_STATE
+	bool "GPIO status LED initial state is on"
+	help
+	  Whether the initial state of the status LED in SPL must be on or off.
+
+endif # SPL_SUNXI_LED_STATUS
 
 source "board/sunxi/Kconfig"
 

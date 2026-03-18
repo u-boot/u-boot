@@ -426,8 +426,8 @@ static void mctl_drive_odt_config(const struct dram_para *para)
 
 		writel_relaxed(val, base);
 		if (para->type == SUNXI_DRAM_TYPE_LPDDR4) {
-			if (para->tpr3 & 0x1f1f1f1f)
-				val = (para->tpr3 >> (i * 8)) & 0x1f;
+			if (para->tpr1 & 0x1f1f1f1f)
+				val = (para->tpr1 >> (i * 8)) & 0x1f;
 			else
 				val = 4;
 		}
@@ -468,7 +468,7 @@ static void mctl_phy_ca_bit_delay_compensation(const struct dram_para *para)
 	u32 *ptr;
 
 	if (para->tpr10 & BIT(31)) {
-		val = para->tpr2;
+		val = para->tpr0;
 	} else {
 		val = ((para->tpr10 << 1) & 0x1e) |
 		      ((para->tpr10 << 5) & 0x1e00) |
@@ -781,7 +781,7 @@ static void mctl_dfi_init(const struct dram_para *para)
 		mctl_mr_write_lpddr4(12, para->mr12);
 		mctl_mr_write_lpddr4(13, para->mr13);
 		mctl_mr_write_lpddr4(14, para->mr14);
-		mctl_mr_write_lpddr4(22, para->tpr1);
+		mctl_mr_write_lpddr4(22, para->mr22);
 		break;
 	}
 
@@ -871,7 +871,24 @@ static inline void mctl_phy_dx_delay1_inner(u32 *base, u32 val1, u32 val2)
 	writel_relaxed(val2, ptr + 48);
 }
 
-static inline void mctl_phy_dx_delay0_inner(u32 *base1, u32 *base2, u32 val1,
+static inline void mctl_phy_dx_delay0_inner0(u32 *base1, u32 *base2, u32 val1,
+					    u32 val2)
+{
+	u32 *ptr = base1;
+
+	for (int i = 0; i < 9; i++) {
+		writel_relaxed(val1, ptr);
+		writel_relaxed(val1, ptr + 0x30);
+		ptr += 2;
+	}
+
+	writel_relaxed(val2, base2);
+	writel_relaxed(val2, base2 + 48);
+	writel_relaxed(val2, ptr);
+	writel_relaxed(val2, base2 + 24);
+}
+
+static inline void mctl_phy_dx_delay0_inner1(u32 *base1, u32 *base2, u32 val1,
 					    u32 val2)
 {
 	u32 *ptr = base1;
@@ -915,6 +932,8 @@ static void mctl_phy_dx_delay_compensation(const struct dram_para *para)
 					 (para->tpr11 >> 24) & 0x3f,
 					 (para->para0 >> 24) & 0x3f);
 
+		dmb();
+
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x60, 1);
 	}
 
@@ -922,25 +941,27 @@ static void mctl_phy_dx_delay_compensation(const struct dram_para *para)
 		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x54, BIT(7));
 		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, BIT(2));
 
-		mctl_phy_dx_delay0_inner((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x480),
-					 (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x528),
-					 para->tpr12 & 0x3f,
-					 para->tpr14 & 0x3f);
+		mctl_phy_dx_delay0_inner0((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x480),
+					  (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x528),
+					  para->tpr12 & 0x3f,
+					  para->tpr14 & 0x3f);
 
-		mctl_phy_dx_delay0_inner((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x4d4),
-					 (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x52c),
-					 (para->tpr12 >> 8) & 0x3f,
-					 (para->tpr14 >> 8) & 0x3f);
+		mctl_phy_dx_delay0_inner1((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x4d4),
+					  (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x52c),
+					  (para->tpr12 >> 8) & 0x3f,
+					  (para->tpr14 >> 8) & 0x3f);
 
-		mctl_phy_dx_delay0_inner((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x600),
-					 (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x6a8),
-					 (para->tpr12 >> 16) & 0x3f,
-					 (para->tpr14 >> 16) & 0x3f);
+		mctl_phy_dx_delay0_inner0((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x600),
+					  (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x6a8),
+					  (para->tpr12 >> 16) & 0x3f,
+					  (para->tpr14 >> 16) & 0x3f);
 
-		mctl_phy_dx_delay0_inner((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x6ac),
-					 (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x528),
-					 (para->tpr12 >> 24) & 0x3f,
-					 (para->tpr14 >> 24) & 0x3f);
+		mctl_phy_dx_delay0_inner1((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x654),
+					  (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x6ac),
+					  (para->tpr12 >> 24) & 0x3f,
+					  (para->tpr14 >> 24) & 0x3f);
+
+		dmb();
 
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x54, BIT(7));
 	}
@@ -1161,7 +1182,6 @@ static const struct dram_para para = {
 #elif defined(CONFIG_SUNXI_DRAM_LPDDR4)
 	.type = SUNXI_DRAM_TYPE_LPDDR4,
 #endif
-	/* TODO: Populate from config */
 	.dx_odt = CONFIG_DRAM_SUNXI_DX_ODT,
 	.dx_dri = CONFIG_DRAM_SUNXI_DX_DRI,
 	.ca_dri = CONFIG_DRAM_SUNXI_CA_DRI,
@@ -1170,9 +1190,10 @@ static const struct dram_para para = {
 	.mr12 = CONFIG_DRAM_SUNXI_MR12,
 	.mr13 = CONFIG_DRAM_SUNXI_MR13,
 	.mr14 = CONFIG_DRAM_SUNXI_MR14,
+	.mr22 = CONFIG_DRAM_SUNXI_MR22,
+	.tpr0 = CONFIG_DRAM_SUNXI_TPR0,
 	.tpr1 = CONFIG_DRAM_SUNXI_TPR1,
 	.tpr2 = CONFIG_DRAM_SUNXI_TPR2,
-	.tpr3 = CONFIG_DRAM_SUNXI_TPR3,
 	.tpr6 = CONFIG_DRAM_SUNXI_TPR6,
 	.tpr10 = CONFIG_DRAM_SUNXI_TPR10,
 	.tpr11 = CONFIG_DRAM_SUNXI_TPR11,
