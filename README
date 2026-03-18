@@ -597,32 +597,6 @@ The following options need to be configured:
 
 		A byte containing the id of the VLAN.
 
-- Status LED:	CONFIG_LED_STATUS
-
-		Several configurations allow to display the current
-		status using a LED. For instance, the LED will blink
-		fast while running U-Boot code, stop blinking as
-		soon as a reply to a BOOTP request was received, and
-		start blinking slow once the Linux kernel is running
-		(supported by a status LED driver in the Linux
-		kernel). Defining CONFIG_LED_STATUS enables this
-		feature in U-Boot.
-
-		Additional options:
-
-		CONFIG_LED_STATUS_GPIO
-		The status LED can be connected to a GPIO pin.
-		In such cases, the gpio_led driver can be used as a
-		status LED backend implementation. Define CONFIG_LED_STATUS_GPIO
-		to include the gpio_led driver in the U-Boot binary.
-
-		CFG_GPIO_LED_INVERTED_TABLE
-		Some GPIO connected LEDs may have inverted polarity in which
-		case the GPIO high value corresponds to LED off state and
-		GPIO low value corresponds to LED on state.
-		In such cases CFG_GPIO_LED_INVERTED_TABLE may be defined
-		with a list of GPIO LEDs that have inverted polarity.
-
 - I2C Support:
 		CFG_SYS_NUM_I2C_BUSES
 		Hold the number of i2c buses you want to use.
