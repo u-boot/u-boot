@@ -372,6 +372,16 @@ def test_vboot(ubman, name, sha_algo, padding, sign_options, required,
             msg = 'Signature checking prevents use of unit addresses (@) in nodes'
             run_bootm(sha_algo, 'evil kernel@', msg, False, efit)
 
+            # Try doing a clone of the images
+            efit = '%stest.evilclone.fit' % tmpdir
+            shutil.copyfile(fit, efit)
+            vboot_evil.add_evil_node(fit, efit, evil_kernel, 'clone')
+
+            utils.run_and_log_expect_exception(
+                ubman, [fit_check_sign, '-f', efit, '-k', dtb],
+                1, 'Failed to verify required signature')
+            run_bootm(sha_algo, 'evil clone', 'Bad Data Hash', False, efit)
+
         # Create a new properly signed fit and replace header bytes
         make_fit('sign-configs-%s%s.its' % (sha_algo, padding), ubman, mkimage, dtc_args, datadir, fit)
         sign_fit(sha_algo, sign_options)
