@@ -60,8 +60,8 @@ branch: master
 .. code-block:: bash
 
    $ sudo apt -y install make gcc g++-multilib srecord
-   $ wget https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
-   $ tar xvf arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
+   $ wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+   $ tar xvf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
    $ export TOOLS=$PWD
    $ git clone -b master https://github.com/nxp-imx/imx-oei.git
    $ cd imx-oei
@@ -100,8 +100,8 @@ branch: master
 .. code-block:: bash
 
    $ sudo apt -y install make gcc g++-multilib srecord
-   $ wget https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
-   $ tar xvf arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
+   $ wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+   $ tar xvf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
    $ export TOOLS=$PWD
    $ git clone -b master https://github.com/nxp-imx/imx-sm.git
    $ cd imx-sm
@@ -152,7 +152,7 @@ i.MX95 B0 silicon version on 15x15 LPDDR4X EVK
    $ make imx95_15x15_evk_defconfig
    $ make
 
-Copy imx-boot-imx95.bin to the MicroSD card:
+Copy flash.bin to the MicroSD card:
 
 .. code-block:: bash
 

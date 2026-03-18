@@ -1,19 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
-#include <hang.h>
-#include <init.h>
-#include <spl.h>
-#include <asm/gpio.h>
-#include <asm/global_data.h>
-#include <asm/sections.h>
-#include <asm/arch/clock.h>
 #include <asm/arch/mu.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/ele_api.h>
+#include <asm/sections.h>
+#include <hang.h>
+#include <init.h>
+#include <linux/delay.h>
+#include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -27,6 +26,7 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 	case MMC2_BOOT:
 		return BOOT_DEVICE_MMC2;
 	case USB_BOOT:
+	case USB2_BOOT:
 		return BOOT_DEVICE_BOARD;
 	case QSPI_BOOT:
 		return BOOT_DEVICE_SPI;
@@ -49,14 +49,26 @@ void spl_board_init(void)
 static void xspi_nor_reset(void)
 {
 	int ret;
-	u32 resp = 0;
+	struct gpio_desc desc;
 
-	ret = ele_set_gmid(&resp);
-	if (ret)
-		printf("Fail to set GMID: %d, resp 0x%x\n", ret, resp);
+	ret = dm_gpio_lookup_name("GPIO5_11", &desc);
+	if (ret) {
+		printf("%s lookup GPIO5_11 failed ret = %d\n", __func__, ret);
+		return;
+	}
+
+	ret = dm_gpio_request(&desc, "XSPI_RST_B");
+	if (ret) {
+		printf("%s request XSPI_RST_B failed ret = %d\n", __func__, ret);
+		return;
+	}
+
+	/* assert the XSPI_RST_B */
+	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE | GPIOD_ACTIVE_LOW);
+	udelay(200); /* 50 ns at least, so use 200ns */
+	dm_gpio_set_value(&desc, 0); /* deassert the XSPI_RST_B */
 }
 
-/* SCMI support by default */
 void board_init_f(ulong dummy)
 {
 	int ret;
@@ -64,12 +76,14 @@ void board_init_f(ulong dummy)
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
-	if (IS_ENABLED(CONFIG_SPL_RECOVER_DATA_SECTION) &&
-	    IS_ENABLED(CONFIG_SPL_BUILD))
+#ifdef CONFIG_SPL_RECOVER_DATA_SECTION
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
 		spl_save_restore_data();
+#endif
 
 	timer_init();
 
+	/* Need dm_init() to run before any SCMI calls can be made. */
 	spl_early_init();
 
 	/* Need enable SCMI drivers and ELE driver before enabling console */
@@ -90,3 +104,10 @@ void board_init_f(ulong dummy)
 
 	board_init_r(NULL, 0);
 }
+
+#ifdef CONFIG_ANDROID_SUPPORT
+int board_get_emmc_id(void)
+{
+	return 0;
+}
+#endif

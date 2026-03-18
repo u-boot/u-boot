@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2026 NXP
+ */
+
+#include "imx952-u-boot.dtsi"
+
+&wdog3 {
+	status = "disabled";
+};

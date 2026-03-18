@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <env.h>
-#include <fdt_support.h>
-#include <asm/gpio.h>
-#include <asm/arch/clock.h>
-#include <asm/mach-imx/sys_proto.h>
+#include <init.h>
+#include <asm/arch/sys_proto.h>
 
 int board_init(void)
 {
@@ -20,9 +18,9 @@ int board_late_init(void)
 		board_late_mmc_env_init();
 
 	env_set("sec_boot", "no");
-
-	if (IS_ENABLED(CONFIG_AHAB_BOOT))
-		env_set("sec_boot", "yes");
+#ifdef CONFIG_AHAB_BOOT
+	env_set("sec_boot", "yes");
+#endif
 
 	return 0;
 }
