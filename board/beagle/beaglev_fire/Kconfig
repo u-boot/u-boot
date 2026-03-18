@@ -1,0 +1,43 @@
+if TARGET_BEAGLEBOARD_BEAGLEVFIRE
+
+config SYS_BOARD
+	default "beaglev_fire"
+
+config SYS_VENDOR
+	default "beagle"
+
+config SYS_CPU
+	default "mpfs"
+
+config SYS_CONFIG_NAME
+	default "beaglev_fire"
+
+config TEXT_BASE
+	default 0x80000000 if !RISCV_SMODE
+	default 0x80200000 if RISCV_SMODE
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select MICROCHIP_MPFS
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	imply SMP
+	imply CMD_DHCP
+	imply CMD_EXT2
+	imply CMD_EXT4
+	imply CMD_FAT
+	imply CMD_FS_GENERIC
+	imply CMD_NET
+	imply CMD_PING
+	imply CMD_MMC
+	imply DOS_PARTITION
+	imply EFI_PARTITION
+	imply IP_DYN
+	imply ISO_PARTITION
+	imply PHY_LIB
+	imply PHY_VITESSE
+	imply DM_MAILBOX
+	imply MPFS_MBOX
+	imply MISC
+	imply MPFS_SYSCONTROLLER
+endif

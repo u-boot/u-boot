@@ -9,8 +9,19 @@
 
 #include <linux/types.h>
 
+/**
+ * get_pcb_revision_from_eeprom() - get the PCB revision
+ *
+ * @return: the PCB revision or 0 on error.
+ */
 u8 get_pcb_revision_from_eeprom(void);
-u32 get_ddr_size_from_eeprom(void);
+
+/**
+ * get_ddr_size_from_eeprom() - read DDR size from EEPROM
+ *
+ * @return: size in GiB or 0 on error.
+ */
+u8 get_ddr_size_from_eeprom(void);
 
 /**
  * get_mmc_size_from_eeprom() - read eMMC size from EEPROM

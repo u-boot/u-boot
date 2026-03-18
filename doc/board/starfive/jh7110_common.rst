@@ -162,8 +162,8 @@ Build U-Boot
        git -C opensbi.git checkout v1.7
        # always clean build directory when building OpenSBI due to incomplete
        # dependency tracking
-       make -C opensbi.git -O opensbi clean
-       make -C opensbi.git -O opensbi PLATFORM=generic
+       make -C opensbi.git O=opensbi clean
+       make -C opensbi.git O=opensbi PLATFORM=generic
 
 4.  Now build the First Stage BootLoader (U-Boot Secondary Program Loader) and
     Second Boot Loader (OpenSBI + U-Boot Main):
@@ -171,9 +171,8 @@ Build U-Boot
     .. code-block:: console
 
        git clone https://source.denx.de/u-boot/u-boot.git u-boot.git
-       make -C u-boot.git -O u-boot starfive_visionfive2_defconfig
-       export OPENSBI=opensbi/build/platform/generic/firmware/fw_dynamic.bin
-       make -C u-boot.git -O u-boot
+       make -C u-boot.git O=u-boot starfive_visionfive2_defconfig
+       make -C u-boot.git O=u-boot OPENSBI=opensbi/platform/generic/firmware/fw_dynamic.bin
 
     This will generate the U-Boot SPL image object post-processed with StarFive
     SPL headers (u-boot/spl/u-boot-spl.bin.normal.out) as well as the FIT image
@@ -191,7 +190,7 @@ Build U-Boot
          --set-val SPL_DEBUG_UART_BASE 0x10000000 \
          --set-val DEBUG_UART_SHIFT 2
 
-        make -C u-boot.git -O u-boot olddefconfig
+        make -C u-boot.git O=u-boot olddefconfig
 
 Boot description
 ----------------
