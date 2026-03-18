@@ -48,9 +48,9 @@
 static const struct mtk_pll_data apmixed_plls[] = {
 	PLL(CLK_APMIXED_ARMPLL, 0x200, 0x20c, 0x1, 0,
 	    21, 0x204, 24, 0x204, 0),
-	PLL(CLK_APMIXED_MAINPLL, 0x210, 0x21c, 0x1, HAVE_RST_BAR,
+	PLL(CLK_APMIXED_MAINPLL, 0x210, 0x21c, 0x1, CLK_PLL_HAVE_RST_BAR,
 	    21, 0x214, 24, 0x214, 0),
-	PLL(CLK_APMIXED_UNIV2PLL, 0x220, 0x22c, 0x1, HAVE_RST_BAR,
+	PLL(CLK_APMIXED_UNIV2PLL, 0x220, 0x22c, 0x1, CLK_PLL_HAVE_RST_BAR,
 	    7, 0x224, 24, 0x224, 14),
 	PLL(CLK_APMIXED_ETH1PLL, 0x300, 0x310, 0x1, 0,
 	    21, 0x300, 1, 0x304, 0),
@@ -71,7 +71,7 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_TOPCKGEN)
 
 #define FACTOR2(_id, _parent, _mult, _div)			\
-	FACTOR(_id, _parent, _mult, _div, 0)
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
 	FIXED_CLK0(CLK_TOP_TO_U2_PHY, 31250000),
@@ -397,7 +397,7 @@ static const struct mtk_composite top_muxes[] = {
 	/* CLK_CFG_5 */
 	MUX_GATE(CLK_TOP_ATB_SEL, atb_parents, 0x90, 0, 2, 7),
 	MUX_GATE_FLAGS(CLK_TOP_HIF_SEL, hif_parents, 0x90, 8, 3, 15,
-		       CLK_DOMAIN_SCPSYS),
+		       CLK_MUX_DOMAIN_SCPSYS),
 	MUX_GATE(CLK_TOP_SATA_SEL, sata_parents, 0x90, 16, 1, 23),
 	MUX_GATE(CLK_TOP_U2_SEL, usb20_parents, 0x90, 24, 2, 31),
 

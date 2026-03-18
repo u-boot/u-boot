@@ -319,9 +319,6 @@ static const struct mtk_fixed_factor infra_fixed_divs[] = {
 };
 
 /* INFRASYS MUX PARENTS */
-#define INFRA_PARENT(_id) PARENT(_id, CLK_PARENT_INFRASYS)
-#define TOP_PARENT(_id) PARENT(_id, CLK_PARENT_TOPCKGEN)
-#define VOID_PARENT PARENT(-1, 0)
 
 static const struct mtk_parent infra_uart0_parents[] = {
 	TOP_PARENT(CLK_TOP_F26M_SEL),

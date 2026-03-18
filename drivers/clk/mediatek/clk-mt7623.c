@@ -61,9 +61,9 @@ static const int pll_id_offs_map[] = {
 static const struct mtk_pll_data apmixed_plls[] = {
 	PLL(CLK_APMIXED_ARMPLL, 0x200, 0x20c, 0x80000001, 0,
 	    21, 0x204, 24, 0x204, 0),
-	PLL(CLK_APMIXED_MAINPLL, 0x210, 0x21c, 0xf0000001, HAVE_RST_BAR,
+	PLL(CLK_APMIXED_MAINPLL, 0x210, 0x21c, 0xf0000001, CLK_PLL_HAVE_RST_BAR,
 	    21, 0x210, 4, 0x214, 0),
-	PLL(CLK_APMIXED_UNIVPLL, 0x220, 0x22c, 0xf3000001, HAVE_RST_BAR,
+	PLL(CLK_APMIXED_UNIVPLL, 0x220, 0x22c, 0xf3000001, CLK_PLL_HAVE_RST_BAR,
 	    7, 0x220, 4, 0x224, 14),
 	PLL(CLK_APMIXED_MMPLL, 0x230, 0x23c, 0x00000001, 0,
 	    21, 0x230, 4, 0x234, 0),
@@ -269,7 +269,7 @@ static const int top_id_offs_map[CLK_TOP_NR + 1] = {
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_TOPCKGEN)
 
 #define FACTOR2(_id, _parent, _mult, _div)			\
-	FACTOR(_id, _parent, _mult, _div, 0)
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
 	FIXED_CLK0(CLK_TOP_DPI, 108 * MHZ),
@@ -701,12 +701,12 @@ static const struct mtk_composite top_muxes[] = {
 	MUX_GATE(CLK_TOP_MEM_SEL, mem_parents, 0x40, 8, 1, 15),
 	MUX_GATE(CLK_TOP_DDRPHYCFG_SEL, ddrphycfg_parents, 0x40, 16, 1, 23),
 	MUX_GATE_FLAGS(CLK_TOP_MM_SEL, mm_parents, 0x40, 24, 3, 31,
-		       CLK_DOMAIN_SCPSYS),
+		       CLK_MUX_DOMAIN_SCPSYS),
 
 	MUX_GATE(CLK_TOP_PWM_SEL, pwm_parents, 0x50, 0, 2, 7),
 	MUX_GATE(CLK_TOP_VDEC_SEL, vdec_parents, 0x50, 8, 4, 15),
 	MUX_GATE_FLAGS(CLK_TOP_MFG_SEL, mfg_parents, 0x50, 16, 3, 23,
-		       CLK_DOMAIN_SCPSYS),
+		       CLK_MUX_DOMAIN_SCPSYS),
 	MUX_GATE(CLK_TOP_CAMTG_SEL, camtg_parents, 0x50, 24, 3, 31),
 
 	MUX_GATE(CLK_TOP_UART_SEL, uart_parents, 0x60, 0, 1, 7),
@@ -745,7 +745,7 @@ static const struct mtk_composite top_muxes[] = {
 	MUX_GATE(CLK_TOP_ASM_H_SEL, asm_parents, 0xD0, 0, 2, 7),
 	MUX_GATE(CLK_TOP_MS_CARD_SEL, ms_card_parents, 0xD0, 16, 2, 23),
 	MUX_GATE_FLAGS(CLK_TOP_ETHIF_SEL, ethif_parents, 0xD0, 24, 3, 31,
-		       CLK_DOMAIN_SCPSYS),
+		       CLK_MUX_DOMAIN_SCPSYS),
 
 	MUX_GATE(CLK_TOP_HDMIRX26_24_SEL, hdmirx_parents, 0xE0, 0, 1, 7),
 	MUX_GATE(CLK_TOP_MSDC30_3_SEL, msdc30_parents, 0xE0, 8, 3, 15),
@@ -865,9 +865,6 @@ static const int peri_id_offs_map[] = {
 	[CLK_PERI_SPI2]				= 47,
 	[CLK_PERI_FCI]				= 48,
 };
-
-#define TOP_PARENT(_id) PARENT(_id, CLK_PARENT_TOPCKGEN)
-#define XTAL_PARENT(_id) PARENT(_id, CLK_PARENT_XTAL)
 
 static const struct mtk_parent uart_ck_sel_parents[] = {
 	XTAL_PARENT(CLK_XTAL),

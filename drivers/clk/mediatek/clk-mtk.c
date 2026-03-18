@@ -85,6 +85,34 @@ static int mtk_common_clk_get_unmapped_id(struct clk *clk)
 	return -ENOENT;
 }
 
+static bool mtk_clk_id_is_pll(const struct mtk_clk_tree *tree, int mapped_id)
+{
+	return tree->plls && mapped_id < tree->num_plls;
+}
+
+static bool mtk_clk_id_is_fclk(const struct mtk_clk_tree *tree, int mapped_id)
+{
+	return tree->fclks && mapped_id < tree->num_fclks;
+}
+
+static bool mtk_clk_id_is_fdiv(const struct mtk_clk_tree *tree, int mapped_id)
+{
+	return tree->fdivs && mapped_id >= tree->fdivs_offs &&
+	       mapped_id < tree->fdivs_offs + tree->num_fdivs;
+}
+
+static bool mtk_clk_id_is_mux(const struct mtk_clk_tree *tree, int mapped_id)
+{
+	return tree->muxes && mapped_id >= tree->muxes_offs &&
+	       mapped_id < tree->muxes_offs + tree->num_muxes;
+}
+
+static bool mtk_clk_id_is_gate(const struct mtk_clk_tree *tree, int mapped_id)
+{
+	return tree->gates && mapped_id >= tree->gates_offs &&
+	       mapped_id < tree->gates_offs + tree->num_gates;
+}
+
 static int mtk_dummy_enable(struct clk *clk)
 {
 	return 0;
@@ -140,6 +168,14 @@ static int mtk_gate_disable(void __iomem *base, const struct mtk_gate *gate)
 	return 0;
 }
 
+static ulong mtk_ext_clock_get_rate(const struct mtk_clk_tree *tree, int id)
+{
+	if (!tree->ext_clk_rates || id >= tree->num_ext_clks)
+		return -ENOENT;
+
+	return tree->ext_clk_rates[id];
+}
+
 /*
  * In case the rate change propagation to parent clocks is undesirable,
  * this function is recursively called to find the parent to calculate
@@ -166,6 +202,55 @@ static ulong mtk_clk_find_parent_rate(struct clk *clk, int id,
 		return ret;
 
 	return clk_get_rate(&parent);
+}
+
+const struct clk_ops mtk_clk_apmixedsys_ops;
+const struct clk_ops mtk_clk_topckgen_ops;
+const struct clk_ops mtk_clk_infrasys_ops;
+
+static ulong mtk_find_parent_rate(struct mtk_clk_priv *priv, struct clk *clk,
+				  const int parent, u16 flags)
+{
+	struct udevice *parent_dev;
+
+	switch (flags & CLK_PARENT_MASK) {
+	case CLK_PARENT_APMIXED:
+		/* APMIXEDSYS can be parent or grandparent. */
+		if (dev_get_driver_ops(clk->dev) == &mtk_clk_apmixedsys_ops)
+			parent_dev = clk->dev;
+		else if (dev_get_driver_ops(priv->parent) == &mtk_clk_apmixedsys_ops)
+			parent_dev = priv->parent;
+		else if (dev_get_driver_ops(dev_get_parent(priv->parent)) == &mtk_clk_apmixedsys_ops)
+			parent_dev = dev_get_parent(priv->parent);
+		else
+			return -EINVAL;
+
+		break;
+	case CLK_PARENT_TOPCKGEN:
+		if (dev_get_driver_ops(clk->dev) == &mtk_clk_topckgen_ops)
+			parent_dev = clk->dev;
+		else if (dev_get_driver_ops(priv->parent) == &mtk_clk_topckgen_ops)
+			parent_dev = priv->parent;
+		else
+			return -EINVAL;
+
+		break;
+	case CLK_PARENT_INFRASYS:
+		if (dev_get_driver_ops(clk->dev) != &mtk_clk_infrasys_ops)
+			return -EINVAL;
+
+		parent_dev = clk->dev;
+		break;
+	case CLK_PARENT_XTAL:
+		return priv->tree->xtal_rate;
+	case CLK_PARENT_EXT:
+		return mtk_ext_clock_get_rate(priv->tree, parent);
+	default:
+		parent_dev = NULL;
+		break;
+	}
+
+	return mtk_clk_find_parent_rate(clk, parent, parent_dev);
 }
 
 static int mtk_clk_mux_set_parent(void __iomem *base, u32 parent,
@@ -262,6 +347,9 @@ static void mtk_clk_print_parent(const char *prefix, int parent, u32 flags)
 	case CLK_PARENT_XTAL:
 		parent_type_str = "xtal";
 		break;
+	case CLK_PARENT_EXT:
+		parent_type_str = "ext";
+		break;
 	case CLK_PARENT_MIXED:
 		parent_type_str = "mixed";
 		break;
@@ -328,15 +416,10 @@ static const int mtk_apmixedsys_of_xlate(struct clk *clk,
 		return ret;
 
 	/* apmixedsys only uses plls and gates. */
+	if (!mtk_clk_id_is_pll(tree, clk->id) && !mtk_clk_id_is_gate(tree, clk->id))
+		return -ENOENT;
 
-	if (tree->plls && clk->id < tree->num_plls)
-		return 0;
-
-	if (tree->gates && clk->id >= tree->gates_offs &&
-	    clk->id < tree->gates_offs + tree->num_gates)
-		return 0;
-
-	return -ENOENT;
+	return 0;
 }
 
 static unsigned long __mtk_pll_recalc_rate(const struct mtk_pll_data *pll,
@@ -450,7 +533,7 @@ static ulong mtk_apmixedsys_set_rate(struct clk *clk, ulong rate)
 	u32 pcw = 0;
 	u32 postdiv;
 
-	if (priv->tree->gates && clk->id >= priv->tree->gates_offs)
+	if (!mtk_clk_id_is_pll(priv->tree, clk->id))
 		return -EINVAL;
 
 	mtk_pll_calc_values(priv, clk->id, &pcw, &postdiv, rate);
@@ -468,9 +551,9 @@ static ulong mtk_apmixedsys_get_rate(struct clk *clk)
 	u32 pcw;
 
 	/* GATE handling */
-	if (priv->tree->gates && clk->id >= priv->tree->gates_offs) {
+	if (mtk_clk_id_is_gate(priv->tree, clk->id)) {
 		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-		return mtk_clk_find_parent_rate(clk, gate->parent, NULL);
+		return mtk_find_parent_rate(priv, clk, gate->parent, gate->flags);
 	}
 
 	pll = &priv->tree->plls[clk->id];
@@ -494,7 +577,7 @@ static int mtk_apmixedsys_enable(struct clk *clk)
 	u32 r;
 
 	/* GATE handling */
-	if (priv->tree->gates && clk->id >= priv->tree->gates_offs) {
+	if (mtk_clk_id_is_gate(priv->tree, clk->id)) {
 		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
 		return mtk_gate_enable(priv->base, gate);
 	}
@@ -515,7 +598,7 @@ static int mtk_apmixedsys_enable(struct clk *clk)
 
 	udelay(20);
 
-	if (pll->flags & HAVE_RST_BAR) {
+	if (pll->flags & CLK_PLL_HAVE_RST_BAR) {
 		r = readl(priv->base + pll->reg + REG_CON0);
 		r |= pll->rst_bar_mask;
 		writel(r, priv->base + pll->reg + REG_CON0);
@@ -532,14 +615,14 @@ static int mtk_apmixedsys_disable(struct clk *clk)
 	u32 r;
 
 	/* GATE handling */
-	if (priv->tree->gates && clk->id >= priv->tree->gates_offs) {
+	if (mtk_clk_id_is_gate(priv->tree, clk->id)) {
 		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
 		return mtk_gate_disable(priv->base, gate);
 	}
 
 	pll = &priv->tree->plls[clk->id];
 
-	if (pll->flags & HAVE_RST_BAR) {
+	if (pll->flags & CLK_PLL_HAVE_RST_BAR) {
 		r = readl(priv->base + pll->reg + REG_CON0);
 		r &= ~pll->rst_bar_mask;
 		writel(r, priv->base + pll->reg + REG_CON0);
@@ -602,23 +685,11 @@ static const int mtk_topckgen_of_xlate(struct clk *clk,
 		return ret;
 
 	/* topckgen only uses fclks, fdivs, muxes and gates. */
+	if (!mtk_clk_id_is_fclk(tree, clk->id) && !mtk_clk_id_is_fdiv(tree, clk->id) &&
+	    !mtk_clk_id_is_mux(tree, clk->id) && !mtk_clk_id_is_gate(tree, clk->id))
+		return -ENOENT;
 
-	if (tree->fclks && clk->id < tree->num_fclks)
-		return 0;
-
-	if (tree->fdivs && clk->id >= tree->fdivs_offs &&
-	    clk->id < tree->fdivs_offs + tree->num_fdivs)
-		return 0;
-
-	if (tree->muxes && clk->id >= tree->muxes_offs &&
-	    clk->id < tree->muxes_offs + tree->num_muxes)
-		return 0;
-
-	if (tree->gates && clk->id >= tree->gates_offs &&
-	    clk->id < tree->gates_offs + tree->num_gates)
-		return 0;
-
-	return -ENOENT;
+	return 0;
 }
 
 static ulong mtk_factor_recalc_rate(const struct mtk_fixed_factor *fdiv,
@@ -637,37 +708,11 @@ static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 	const struct mtk_fixed_factor *fdiv = &priv->tree->fdivs[off];
 	ulong rate;
 
-	switch (fdiv->flags & CLK_PARENT_MASK) {
-	case CLK_PARENT_APMIXED:
-		rate = mtk_clk_find_parent_rate(clk, fdiv->parent,
-						priv->parent);
-		break;
-	case CLK_PARENT_TOPCKGEN:
-		rate = mtk_clk_find_parent_rate(clk, fdiv->parent, NULL);
-		break;
-
-	case CLK_PARENT_XTAL:
-	default:
-		rate = priv->tree->xtal_rate;
-	}
-
+	rate = mtk_find_parent_rate(priv, clk, fdiv->parent, fdiv->flags);
 	if (IS_ERR_VALUE(rate))
 		return rate;
 
 	return mtk_factor_recalc_rate(fdiv, rate);
-}
-
-static ulong mtk_topckgen_find_parent_rate(struct mtk_clk_priv *priv, struct clk *clk,
-					   const int parent, u16 flags)
-{
-	switch (flags & CLK_PARENT_MASK) {
-	case CLK_PARENT_XTAL:
-		return priv->tree->xtal_rate;
-	case CLK_PARENT_APMIXED:
-		return mtk_clk_find_parent_rate(clk, parent, priv->parent);
-	default:
-		return mtk_clk_find_parent_rate(clk, parent, NULL);
-	}
 }
 
 static ulong mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
@@ -687,33 +732,14 @@ static ulong mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
 	if (mux->flags & CLK_PARENT_MIXED) {
 		const struct mtk_parent *parent = &mux->parent_flags[index];
 
-		return mtk_topckgen_find_parent_rate(priv, clk, parent->id,
-						     parent->flags);
+		return mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
 	}
 
 	if (mux->parent[index] == CLK_XTAL &&
 	    !(priv->tree->flags & CLK_BYPASS_XTAL))
 		return priv->tree->xtal_rate;
 
-	return mtk_topckgen_find_parent_rate(priv, clk, mux->parent[index],
-					     mux->flags);
-}
-
-static ulong mtk_find_parent_rate(struct mtk_clk_priv *priv, struct clk *clk,
-				  const int parent, u16 flags)
-{
-	switch (flags & CLK_PARENT_MASK) {
-	case CLK_PARENT_XTAL:
-		return priv->tree->xtal_rate;
-	/* Assume the second level parent is always APMIXED */
-	case CLK_PARENT_APMIXED:
-		priv = dev_get_priv(priv->parent);
-		fallthrough;
-	case CLK_PARENT_TOPCKGEN:
-		return mtk_clk_find_parent_rate(clk, parent, priv->parent);
-	default:
-		return mtk_clk_find_parent_rate(clk, parent, NULL);
-	}
+	return mtk_find_parent_rate(priv, clk, mux->parent[index], mux->flags);
 }
 
 static ulong mtk_topckgen_get_rate(struct clk *clk)
@@ -721,21 +747,22 @@ static ulong mtk_topckgen_get_rate(struct clk *clk)
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_clk_tree *tree = priv->tree;
 
-	if (tree->gates && clk->id >= tree->gates_offs &&
-	    clk->id < tree->gates_offs + tree->num_gates) {
+	if (mtk_clk_id_is_fclk(tree, clk->id))
+		return tree->fclks[clk->id].rate;
+
+	if (mtk_clk_id_is_fdiv(tree, clk->id))
+		return mtk_topckgen_get_factor_rate(clk, clk->id - tree->fdivs_offs);
+
+	if (mtk_clk_id_is_mux(tree, clk->id))
+		return mtk_topckgen_get_mux_rate(clk, clk->id - tree->muxes_offs);
+
+	if (mtk_clk_id_is_gate(tree, clk->id)) {
 		const struct mtk_gate *gate = &tree->gates[clk->id - tree->gates_offs];
 
-		return mtk_clk_find_parent_rate(clk, gate->parent, NULL);
+		return mtk_find_parent_rate(priv, clk, gate->parent, gate->flags);
 	}
 
-	if (clk->id < priv->tree->fdivs_offs)
-		return priv->tree->fclks[clk->id].rate;
-	else if (clk->id < priv->tree->muxes_offs)
-		return mtk_topckgen_get_factor_rate(clk, clk->id -
-						    priv->tree->fdivs_offs);
-	else
-		return mtk_topckgen_get_mux_rate(clk, clk->id -
-						 priv->tree->muxes_offs);
+	return -ENOENT;
 }
 
 static int mtk_clk_mux_enable(struct clk *clk)
@@ -744,7 +771,7 @@ static int mtk_clk_mux_enable(struct clk *clk)
 	const struct mtk_composite *mux;
 	u32 val;
 
-	if (clk->id < priv->tree->muxes_offs)
+	if (!mtk_clk_id_is_mux(priv->tree, clk->id))
 		return 0;
 
 	mux = &priv->tree->muxes[clk->id - priv->tree->muxes_offs];
@@ -761,7 +788,7 @@ static int mtk_clk_mux_enable(struct clk *clk)
 		writel(val, priv->base + mux->gate_reg);
 	}
 
-	if (mux->flags & CLK_DOMAIN_SCPSYS) {
+	if (mux->flags & CLK_MUX_DOMAIN_SCPSYS) {
 		/* enable scpsys clock off control */
 		writel(SCP_ARMCK_OFF_EN, priv->base + CLK_SCP_CFG0);
 		writel(SCP_AXICK_DCM_DIS_EN | SCP_AXICK_26M_SEL_EN,
@@ -776,8 +803,7 @@ static int mtk_topckgen_enable(struct clk *clk)
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_clk_tree *tree = priv->tree;
 
-	if (tree->gates && clk->id >= tree->gates_offs &&
-	    clk->id < tree->gates_offs + tree->num_gates) {
+	if (mtk_clk_id_is_gate(tree, clk->id)) {
 		const struct mtk_gate *gate = &tree->gates[clk->id - tree->gates_offs];
 
 		return mtk_gate_enable(priv->base, gate);
@@ -792,7 +818,7 @@ static int mtk_clk_mux_disable(struct clk *clk)
 	const struct mtk_composite *mux;
 	u32 val;
 
-	if (clk->id < priv->tree->muxes_offs)
+	if (!mtk_clk_id_is_mux(priv->tree, clk->id))
 		return 0;
 
 	mux = &priv->tree->muxes[clk->id - priv->tree->muxes_offs];
@@ -817,8 +843,7 @@ static int mtk_topckgen_disable(struct clk *clk)
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_clk_tree *tree = priv->tree;
 
-	if (tree->gates && clk->id >= tree->gates_offs &&
-	    clk->id < tree->gates_offs + tree->num_gates) {
+	if (mtk_clk_id_is_gate(tree, clk->id)) {
 		const struct mtk_gate *gate = &tree->gates[clk->id - tree->gates_offs];
 
 		return mtk_gate_disable(priv->base, gate);
@@ -834,8 +859,7 @@ static int mtk_common_clk_set_parent(struct clk *clk, struct clk *parent)
 	int parent_unmapped_id;
 	u32 parent_type;
 
-	if (!priv->tree->muxes || clk->id < priv->tree->muxes_offs ||
-	    clk->id >= priv->tree->muxes_offs + priv->tree->num_muxes)
+	if (!mtk_clk_id_is_mux(priv->tree, clk->id))
 		return 0;
 
 	if (!parent_priv)
@@ -915,29 +939,20 @@ static const int mtk_infrasys_of_xlate(struct clk *clk,
 		return ret;
 
 	/* ifrasys only uses fdivs, muxes and gates. */
+	if (!mtk_clk_id_is_fdiv(tree, clk->id) && !mtk_clk_id_is_mux(tree, clk->id) &&
+	    !mtk_clk_id_is_gate(tree, clk->id))
+		return -ENOENT;
 
-	if (tree->fdivs && clk->id >= tree->fdivs_offs &&
-	    clk->id < tree->fdivs_offs + tree->num_fdivs)
-		return 0;
-
-	if (tree->muxes && clk->id >= tree->muxes_offs &&
-	    clk->id < tree->muxes_offs + tree->num_muxes)
-		return 0;
-
-	if (tree->gates && clk->id >= tree->gates_offs &&
-	    clk->id < tree->gates_offs + tree->num_gates)
-		return 0;
-
-	return -ENOENT;
+	return 0;
 }
 
 static int mtk_clk_infrasys_enable(struct clk *clk)
 {
-	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_gate *gate;
 
 	/* MUX handling */
-	if (!priv->tree->gates || clk->id < priv->tree->gates_offs)
+	if (!mtk_clk_id_is_gate(priv->tree, clk->id))
 		return mtk_clk_mux_enable(clk);
 
 	gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
@@ -946,11 +961,11 @@ static int mtk_clk_infrasys_enable(struct clk *clk)
 
 static int mtk_clk_infrasys_disable(struct clk *clk)
 {
-	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_gate *gate;
 
 	/* MUX handling */
-	if (!priv->tree->gates || clk->id < priv->tree->gates_offs)
+	if (!mtk_clk_id_is_gate(priv->tree, clk->id))
 		return mtk_clk_mux_disable(clk);
 
 	gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
@@ -963,18 +978,7 @@ static ulong mtk_infrasys_get_factor_rate(struct clk *clk, u32 off)
 	const struct mtk_fixed_factor *fdiv = &priv->tree->fdivs[off];
 	ulong rate;
 
-	switch (fdiv->flags & CLK_PARENT_MASK) {
-	case CLK_PARENT_TOPCKGEN:
-		rate = mtk_clk_find_parent_rate(clk, fdiv->parent,
-						priv->parent);
-		break;
-	case CLK_PARENT_XTAL:
-		rate = priv->tree->xtal_rate;
-		break;
-	default:
-		rate = mtk_clk_find_parent_rate(clk, fdiv->parent, NULL);
-	}
-
+	rate = mtk_find_parent_rate(priv, clk, fdiv->parent, fdiv->flags);
 	if (IS_ERR_VALUE(rate))
 		return rate;
 
@@ -1013,31 +1017,22 @@ static ulong mtk_infrasys_get_rate(struct clk *clk)
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	ulong rate;
 
-	if (clk->id < priv->tree->fdivs_offs) {
+	if (mtk_clk_id_is_fclk(priv->tree, clk->id)) {
 		rate = priv->tree->fclks[clk->id].rate;
-	} else if (clk->id < priv->tree->muxes_offs) {
+	} else if (mtk_clk_id_is_fdiv(priv->tree, clk->id)) {
 		rate = mtk_infrasys_get_factor_rate(clk, clk->id -
 						    priv->tree->fdivs_offs);
 	/* No gates defined or ID is a MUX */
-	} else if (!priv->tree->gates || clk->id < priv->tree->gates_offs) {
+	} else if (!mtk_clk_id_is_gate(priv->tree, clk->id)) {
 		rate = mtk_infrasys_get_mux_rate(clk, clk->id -
 						 priv->tree->muxes_offs);
 	/* Only valid with muxes + gates implementation */
 	} else {
-		struct udevice *parent = NULL;
 		const struct mtk_gate *gate;
 
 		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-		if (gate->flags & CLK_PARENT_TOPCKGEN)
-			parent = priv->parent;
-		/*
-		 * Assume xtal_rate to be declared if some gates have
-		 * XTAL as parent
-		 */
-		else if (gate->flags & CLK_PARENT_XTAL)
-			return priv->tree->xtal_rate;
 
-		rate = mtk_clk_find_parent_rate(clk, gate->parent, parent);
+		rate = mtk_find_parent_rate(priv, clk, gate->parent, gate->flags);
 	}
 
 	return rate;
@@ -1152,6 +1147,8 @@ static ulong mtk_clk_gate_get_rate(struct clk *clk)
 	 */
 	} else if (gate->flags & CLK_PARENT_XTAL) {
 		return priv->tree->xtal_rate;
+	} else if (gate->flags & CLK_PARENT_EXT) {
+		return mtk_ext_clock_get_rate(priv->tree, gate->parent);
 	}
 
 	return mtk_clk_find_parent_rate(clk, gate->parent, parent);

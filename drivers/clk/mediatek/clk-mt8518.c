@@ -37,9 +37,9 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	PLL(CLK_APMIXED_ARMPLL, 0x0100, 0x0110, 0x00000001,
 	    0, 21, 0x0104, 24, 0x0104, 0),
 	PLL(CLK_APMIXED_MAINPLL, 0x0120, 0x0130, 0x00000001,
-	    HAVE_RST_BAR, 21, 0x0124, 24, 0x0124, 0),
+	    CLK_PLL_HAVE_RST_BAR, 21, 0x0124, 24, 0x0124, 0),
 	PLL(CLK_APMIXED_UNIVPLL, 0x0140, 0x0150, 0x30000001,
-	    HAVE_RST_BAR, 7, 0x0144, 24, 0x0144, 0),
+	    CLK_PLL_HAVE_RST_BAR, 7, 0x0144, 24, 0x0144, 0),
 	PLL(CLK_APMIXED_MMPLL, 0x0160, 0x0170, 0x00000001,
 	    0, 21, 0x0164, 24, 0x0164, 0),
 	PLL(CLK_APMIXED_APLL1, 0x0180, 0x0190, 0x00000001,
@@ -64,7 +64,7 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_TOPCKGEN)
 
 #define FACTOR2(_id, _parent, _mult, _div)	\
-	FACTOR(_id, _parent, _mult, _div, 0)
+	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_XTAL)
 
 static const struct mtk_fixed_clk top_fixed_clks[] = {
 	FIXED_CLK0(CLK_TOP_CLK_NULL, 26000000),
