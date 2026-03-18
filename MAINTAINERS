@@ -1295,12 +1295,6 @@ F:	doc/README.kwbimage
 F:	doc/kwboot.1
 F:	tools/kwb*
 
-LED
-M:	Ivan Vozvakhov <i.vozvakhov@vk.team>
-S:	Supported
-F:	doc/device-tree-bindings/leds/leds-pwm.txt
-F:	drivers/led/led_pwm.c
-
 LOGGING
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
@@ -1598,6 +1592,11 @@ M:	Marek Behún <kabel@kernel.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
+
+PWM LED
+S:	Orphan
+F:	doc/device-tree-bindings/leds/leds-pwm.txt
+F:	drivers/led/led_pwm.c
 
 QEMU VIRTUAL SYSTEM CONTROLLER
 M:	Kuan-Wei Chiu <visitorckw@gmail.com>
