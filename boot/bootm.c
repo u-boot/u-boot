@@ -7,6 +7,7 @@
 #ifndef USE_HOSTCC
 #include <bootm.h>
 #include <bootstage.h>
+#include <dm/root.h>
 #include <cli.h>
 #include <command.h>
 #include <cpu_func.h>
@@ -1192,6 +1193,30 @@ void bootm_init(struct bootm_info *bmi)
  */
 void __weak switch_to_non_secure_mode(void)
 {
+}
+
+void bootm_final(int flag)
+{
+	printf("\nStarting kernel ...%s\n\n",
+	       (flag & BOOTM_STATE_OS_FAKE_GO) ?
+	       " (fake run for tracing)" : "");
+
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
+
+	if (IS_ENABLED(CONFIG_BOOTSTAGE_FDT) && IS_ENABLED(CONFIG_CMD_FDT))
+		bootstage_fdt_add_report();
+	bootstage_stash_default();
+	if (IS_ENABLED(CONFIG_BOOTSTAGE_REPORT))
+		bootstage_report();
+
+	board_quiesce_devices();
+
+	/*
+	 * Call remove function of all devices with a removal flag set.
+	 * This may be useful for last-stage operations, like cancelling
+	 * of DMA operation or releasing device internal buffers.
+	 */
+	dm_remove_devices_active();
 }
 
 #else /* USE_HOSTCC */

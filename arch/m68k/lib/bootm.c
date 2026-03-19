@@ -62,6 +62,8 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
+	bootm_final(0);
+
 	/*
 	 * Linux Kernel Parameters (passing board info data):
 	 *   sp+00: Ignore, side effect of using jsr to jump to kernel

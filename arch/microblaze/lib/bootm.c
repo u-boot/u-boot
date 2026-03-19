@@ -26,8 +26,6 @@ static void boot_jump_linux(struct bootm_headers *images, int flag)
 	ulong dt = (ulong)images->ft_addr;
 	ulong rd_start = images->initrd_start;
 	ulong cmdline = images->cmdline_start;
-	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
-
 	thekernel = (void (*)(char *, ulong, ulong))images->ep;
 
 	debug("## Transferring control to Linux (at address 0x%08lx) ",
@@ -36,13 +34,11 @@ static void boot_jump_linux(struct bootm_headers *images, int flag)
 	      cmdline, rd_start, dt);
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
-	printf("\nStarting kernel ...%s\n\n", fake ?
-	       "(fake run for tracing)" : "");
-	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
+	bootm_final(flag);
 
 	flush_cache_all();
 
-	if (!fake) {
+	if (!(flag & BOOTM_STATE_OS_FAKE_GO)) {
 		/*
 		 * Linux Kernel Parameters (passing device tree):
 		 * r5: pointer to command line
