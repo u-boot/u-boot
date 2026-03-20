@@ -865,7 +865,7 @@ source "drivers/video/exynos/Kconfig"
 
 config LOGICORE_DP_TX
 	bool "Enable Logicore DP TX driver"
-	depends on DISPLAY
+	depends on DISPLAY && AXI
 	help
 	  Enable the driver for the transmitter part of the Xilinx LogiCORE
 	  DisplayPort, a IP core for Xilinx FPGAs that implements a DisplayPort
