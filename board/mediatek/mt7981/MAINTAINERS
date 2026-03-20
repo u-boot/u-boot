@@ -8,3 +8,10 @@ F:	configs/mt7981_rfb_defconfig
 F:	configs/mt7981_sd_rfb_defconfig
 F:	configs/mt7981_spim_nand_rfb_defconfig
 F:	configs/mt7981_spim_nor_rfb_defconfig
+
+OPENWRT ONE
+M:	Daniel Golle <daniel@makrotopia.org>
+S:	Maintained
+F:	arch/arm/dts/mt7981-openwrt-one.dts
+F:	configs/mt7981_openwrt_one_nand_defconfig
+F:	configs/mt7981_openwrt_one_nor_defconfig

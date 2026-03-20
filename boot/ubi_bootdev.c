@@ -1,0 +1,186 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * UBI boot device
+ *
+ * Copyright (C) 2026 Daniel Golle <daniel@makrotopia.org>
+ */
+
+#define LOG_CATEGORY UCLASS_BOOTSTD
+
+#include <bootdev.h>
+#include <bootflow.h>
+#include <bootmeth.h>
+#include <dm.h>
+#include <dm/ofnode.h>
+#include <malloc.h>
+#include <mtd.h>
+#include <ubi_uboot.h>
+
+/**
+ * struct ubi_bootdev_plat - per-instance bootdev platform data
+ *
+ * Set by the hunt callback when binding a bootdev for each UBI
+ * partition discovered in the device tree.
+ *
+ * @ubi_mtd:	MTD partition hosting UBI
+ */
+struct ubi_bootdev_plat {
+	struct mtd_info *ubi_mtd;
+};
+
+static int ubi_bootdev_get_bootflow(struct udevice *dev,
+				    struct bootflow_iter *iter,
+				    struct bootflow *bflow)
+{
+	struct ubi_bootdev_plat *plat = dev_get_plat(dev);
+	struct ubi_device *ubi;
+	struct ubi_volume *vol;
+	char dname[80];
+	int n = 0;
+	int i, ret;
+
+	ret = bootmeth_check(bflow->method, iter);
+	if (ret)
+		return log_msg_ret("chk", ret);
+
+	/* Attach UBI on our partition (no-op if already attached) */
+	ret = ubi_part_from_mtd(plat->ubi_mtd);
+	if (ret)
+		return log_msg_ret("att", ret);
+
+	ubi = ubi_devices[0];
+	if (!ubi)
+		return log_msg_ret("ubi", -ENODEV);
+
+	/* Count volumes so the scanning framework knows the bound */
+	for (i = 0; i < ubi->vtbl_slots; i++) {
+		if (ubi->volumes[i])
+			n++;
+	}
+	if (n)
+		iter->max_part = n - 1;
+
+	n = 0;
+
+	/* Walk to the iter->part'th UBI volume */
+	for (i = 0; i < ubi->vtbl_slots; i++) {
+		vol = ubi->volumes[i];
+		if (!vol)
+			continue;
+		if (n == iter->part)
+			goto found;
+		n++;
+	}
+	return -ESHUTDOWN;
+
+found:
+	snprintf(dname, sizeof(dname), "%s.vol_%d", dev->name,
+		 vol->vol_id);
+	bflow->name = strdup(dname);
+	if (!bflow->name)
+		return log_msg_ret("nam", -ENOMEM);
+
+	bflow->part = vol->vol_id;
+	bflow->fname = strdup(vol->name);
+	if (!bflow->fname)
+		return log_msg_ret("fna", -ENOMEM);
+
+	bflow->state = BOOTFLOWST_MEDIA;
+
+	return bootmeth_read_bootflow(bflow->method, bflow);
+}
+
+static int ubi_bootdev_bind(struct udevice *dev)
+{
+	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
+
+	ucp->prio = BOOTDEVP_4_SCAN_FAST;
+
+	return 0;
+}
+
+/**
+ * ubi_bootdev_hunt() - discover UBI partitions and bind a bootdev for each
+ *
+ * Walk every "linux,ubi" node in the device tree, find its backing MTD
+ * partition and bind a ubi_bootdev as a child of the top-level MTD DM device.
+ * Each bootdev instance stores a pointer to its MTD partition so that
+ * get_bootflow() can attach UBI on the correct partition on demand.
+ */
+static int ubi_bootdev_hunt(struct bootdev_hunter *info, bool show)
+{
+	struct mtd_info *mtd;
+	ofnode node;
+	int bound = 0;
+
+	mtd_probe_devices();
+
+	ofnode_for_each_compatible_node(node, "linux,ubi") {
+		struct ubi_bootdev_plat *plat;
+		struct mtd_info *top, *part;
+		struct udevice *bdev;
+		char name[40];
+		int ret;
+
+		/* Find the MTD partition matching this DT node */
+		mtd = NULL;
+		mtd_for_each_device(part) {
+			if (ofnode_equal(part->flash_node, node)) {
+				mtd = part;
+				break;
+			}
+		}
+		if (!mtd)
+			continue;
+
+		/* Walk up to the top-level flash device for DM parent */
+		top = mtd;
+		while (top->parent)
+			top = top->parent;
+
+		if (!top->dev)
+			continue;
+
+		/*
+		 * Bind directly — bootdev_setup_for_dev() cannot be
+		 * used here because the MTD bootdev may already occupy
+		 * the single bootdev child slot.
+		 */
+		snprintf(name, sizeof(name), "ubibootdev.part_%d",
+			 mtd->index - top->index);
+		ret = bootdev_bind(top->dev, "ubi_bootdev", name, &bdev);
+		if (ret)
+			continue;
+
+		plat = dev_get_plat(bdev);
+		plat->ubi_mtd = mtd;
+		bound++;
+	}
+
+	return bound ? 0 : -ENOENT;
+}
+
+struct bootdev_ops ubi_bootdev_ops = {
+	.get_bootflow	= ubi_bootdev_get_bootflow,
+};
+
+static const struct udevice_id ubi_bootdev_ids[] = {
+	{ .compatible = "u-boot,bootdev-ubi" },
+	{ }
+};
+
+U_BOOT_DRIVER(ubi_bootdev) = {
+	.name		= "ubi_bootdev",
+	.id		= UCLASS_BOOTDEV,
+	.ops		= &ubi_bootdev_ops,
+	.bind		= ubi_bootdev_bind,
+	.of_match	= ubi_bootdev_ids,
+	.plat_auto	= sizeof(struct ubi_bootdev_plat),
+};
+
+BOOTDEV_HUNTER(ubi_bootdev_hunter) = {
+	.prio		= BOOTDEVP_4_SCAN_FAST,
+	.uclass		= UCLASS_MTD,
+	.drv		= DM_DRIVER_REF(ubi_bootdev),
+	.hunt		= ubi_bootdev_hunt,
+};

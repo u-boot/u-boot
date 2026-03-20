@@ -13,6 +13,7 @@
 #include <env.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <imagemap.h>
 #include <irq_func.h>
 #include <lmb.h>
 #include <log.h>
@@ -146,7 +147,22 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 
 	/* check image type, for FIT images get FIT kernel node */
 	*os_data = *os_len = 0;
-	buf = map_sysmem(img_addr, 0);
+	if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+		/*
+		 * Storage path: read enough bytes to detect the image
+		 * format. genimg_get_kernel_addr_fit() above still
+		 * parsed any #config / :subimage suffix so the FIT
+		 * selection variables are populated.
+		 */
+		buf = imagemap_map(images->imagemap, 0, 64);
+		if (IS_ERR(buf)) {
+			puts("Cannot read image header from storage\n");
+			return PTR_ERR(buf);
+		}
+		img_addr = map_to_sysmem(buf);
+	} else {
+		buf = map_sysmem(img_addr, 0);
+	}
 	switch (genimg_get_format(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
@@ -192,6 +208,20 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 #endif
 #if CONFIG_IS_ENABLED(FIT)
 	case IMAGE_FORMAT_FIT:
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+			/*
+			 * Extend the mapping to cover the full FIT
+			 * FDT structure so all metadata is accessible.
+			 */
+			size_t fdt_sz = fdt_totalsize(buf);
+
+			buf = imagemap_map(images->imagemap, 0, fdt_sz);
+			if (IS_ERR(buf)) {
+				puts("Cannot read FIT header from storage\n");
+				return PTR_ERR(buf);
+			}
+			img_addr = map_to_sysmem(buf);
+		}
 		os_noffset = fit_image_load(images, img_addr,
 				&fit_uname_kernel, &fit_uname_config,
 				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
@@ -991,11 +1021,21 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	 * Work through the states and see how far we get. We stop on
 	 * any error.
 	 */
-	if (states & BOOTM_STATE_START)
+	if (states & BOOTM_STATE_START) {
 		ret = bootm_start();
+		/*
+		 * bootm_start() zeroes the global images struct. Restore
+		 * the loader pointer so the storage-backed path works.
+		 */
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && bmi->imagemap)
+			images->imagemap = bmi->imagemap;
+	}
 
-	if (!ret && (states & BOOTM_STATE_PRE_LOAD))
-		ret = bootm_pre_load(bmi->addr_img);
+	if (!ret && (states & BOOTM_STATE_PRE_LOAD)) {
+		/* Pre-load verification is not applicable to storage boot */
+		if (!IS_ENABLED(CONFIG_IMAGEMAP) || !images->imagemap)
+			ret = bootm_pre_load(bmi->addr_img);
+	}
 
 	if (!ret && (states & BOOTM_STATE_FINDOS))
 		ret = bootm_find_os(bmi->cmd_name, bmi->addr_img);
@@ -1003,8 +1043,11 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	if (!ret && (states & BOOTM_STATE_FINDOTHER)) {
 		ulong img_addr;
 
-		img_addr = bmi->addr_img ? hextoul(bmi->addr_img, NULL)
-			: image_load_addr;
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap)
+			img_addr = images->os.start;
+		else
+			img_addr = bmi->addr_img ? hextoul(bmi->addr_img, NULL)
+				: image_load_addr;
 		ret = bootm_find_other(img_addr, bmi->conf_ramdisk,
 				       bmi->conf_fdt);
 	}
@@ -1070,6 +1113,12 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 		/* For Linux OS do all substitutions at console processing */
 		if (images->os.os == IH_OS_LINUX)
 			flags = BOOTM_CL_ALL;
+		ret = fit_verity_apply_bootargs(images);
+		if (ret) {
+			printf("dm-verity bootargs failed (err=%d)\n", ret);
+			ret = CMD_RET_FAILURE;
+			goto err;
+		}
 		ret = bootm_process_cmdline_env(flags);
 		if (ret) {
 			printf("Cmdline setup failed (err=%d)\n", ret);
@@ -1097,11 +1146,24 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	}
 
 	/* Now run the OS! We hope this doesn't return */
-	if (!ret && (states & BOOTM_STATE_OS_GO))
+	if (!ret && (states & BOOTM_STATE_OS_GO)) {
+		/* Release storage backend before jumping — no return expected */
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+			imagemap_cleanup(images->imagemap);
+			images->imagemap = NULL;
+		}
+
 		ret = boot_selected_os(BOOTM_STATE_OS_GO, bmi, boot_fn);
+	}
 
 	/* Deal with any fallout */
 err:
+	/* Clean up imagemap on error (not reached on successful boot) */
+	if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+		imagemap_cleanup(images->imagemap);
+		images->imagemap = NULL;
+	}
+
 	if (iflag)
 		enable_interrupts();
 

@@ -940,6 +940,8 @@ int add_mtd_partitions_of(struct mtd_info *master)
 		if (IS_ERR(slave))
 			return PTR_ERR(slave);
 
+		slave->flash_node = child;
+
 		mutex_lock(&mtd_partitions_mutex);
 		list_add_tail(&slave->node, &master->partitions);
 		mutex_unlock(&mtd_partitions_mutex);
