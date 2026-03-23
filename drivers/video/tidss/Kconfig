@@ -10,7 +10,7 @@
 
 menuconfig VIDEO_TIDSS
 	bool "Enable TIDSS video support"
-	depends on VIDEO
+	depends on VIDEO && PANEL
 	imply VIDEO_DAMAGE
 	help
 	  TIDSS supports  video output options LVDS and
@@ -19,7 +19,7 @@ menuconfig VIDEO_TIDSS
 
 config SPL_VIDEO_TIDSS
 	bool "Enable TIDSS video support in SPL Stage"
-	depends on SPL_VIDEO
+	depends on SPL_VIDEO && SPL_PANEL
 	help
 	  This options enables tidss driver in SPL stage. If
 	  you need to use tidss at SPL stage use this config.
