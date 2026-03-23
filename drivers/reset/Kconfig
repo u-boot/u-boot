@@ -208,7 +208,7 @@ config RESET_RASPBERRYPI
 
 config RESET_SCMI
 	bool "Enable SCMI reset domain driver"
-	select SCMI_FIRMWARE
+	depends on SCMI_FIRMWARE
 	help
 	  Enable this option if you want to support reset controller
 	  devices exposed by a SCMI agent based on SCMI reset domain
