@@ -163,5 +163,13 @@
 			clock-frequency = <100000>;
 			status = "disabled";
 		};
+
+		esdhc: mmc@0xfc0cc000 {
+			compatible = "fsl,esdhc";
+			reg = <0xfc0cc000 0x8000>;
+			non-removable;
+			bus-width = <4>;
+			status = "disabled";
+		};
 	};
 };
