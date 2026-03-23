@@ -602,6 +602,7 @@ config VIDEO_LCD_LG_LH400WV3
 
 config VIDEO_LCD_RAYDIUM_RM68200
 	bool "RM68200 DSI LCD panel support"
+	depends on BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
 	Say Y here if you want to enable support for Raydium RM68200
