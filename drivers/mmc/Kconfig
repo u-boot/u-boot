@@ -924,7 +924,7 @@ config ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
 
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
-	depends on MACH_IMX
+	depends on MACH_IMX || M68K
 	help
 	  This selects support for the i.MX eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
