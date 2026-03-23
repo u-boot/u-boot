@@ -119,6 +119,7 @@ config USB_GADGET_DWC2_OTG
 
 config USB_RENESAS_USBHS
 	bool "Renesas R-Car USB2.0 HS controller (gadget mode)"
+	depends on DM_USB_GADGET
 	select USB_GADGET_DUALSPEED
 	help
 	  The Renesas R-Car USB 2.0 high-speed gadget controller
