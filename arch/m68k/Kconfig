@@ -62,6 +62,7 @@ config MCF5441x
 	select DM
         select DM_SERIAL
 	select ARCH_COLDFIRE
+	select CREATE_ARCH_SYMLINK
 	bool
 
 config M680x0
