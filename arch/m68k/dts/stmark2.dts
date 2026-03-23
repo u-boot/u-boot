@@ -45,3 +45,7 @@
 &i2c0 {
 	status = "okay";
 };
+
+&esdhc {
+	status = "okay";
+};
