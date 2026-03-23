@@ -6,4 +6,5 @@
 obj-y	+= aquila-am69.o
 obj-y	+= ddrs_patch.o
 obj-y	+= aquila_ddrs_16GB.o
+obj-y	+= aquila_ddrs_16GB_rank_2.o
 obj-y	+= aquila_ddrs_8GB.o
