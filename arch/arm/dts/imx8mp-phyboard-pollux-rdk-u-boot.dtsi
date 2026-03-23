@@ -34,6 +34,18 @@
 	};
 };
 
+&pinctrl_i2c1 {
+	bootph-all;
+};
+
+&pinctrl_pmic {
+	bootph-all;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@25/regulators} {
+	bootph-all;
+};
+
 &reg_usdhc2_vmmc {
 	bootph-pre-ram;
 };
@@ -83,11 +95,11 @@
 };
 
 &i2c1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pmic {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usb_dwc3_0 {
