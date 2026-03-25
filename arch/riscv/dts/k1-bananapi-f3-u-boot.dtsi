@@ -28,3 +28,7 @@
 	clock-names = "osc", "vctcxo_1m", "vctcxo_3m", "vctcxo_24m",
 		      "pll1_d4", "pll1_d78_31p5", "pmua_aclk";
 };
+
+&uart0 {
+	bootph-pre-ram;
+};
