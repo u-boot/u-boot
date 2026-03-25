@@ -93,9 +93,9 @@ static int samsung_ltl106hl02_of_to_plat(struct udevice *dev)
 	}
 
 	ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
-					   "vdd-supply", &priv->vdd);
+					   "power-supply", &priv->vdd);
 	if (ret)
-		log_debug("%s: cannot get vdd-supply: error %d\n",
+		log_debug("%s: cannot get power-supply: error %d\n",
 			  __func__, ret);
 
 	ret = gpio_request_by_name(dev, "reset-gpios", 0,

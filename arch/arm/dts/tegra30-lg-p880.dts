@@ -126,7 +126,7 @@
 		};
 	};
 
-	sdmmc3: sdhci@78000400  {
+	sdmmc3: mmc@78000400  {
 		status = "okay";
 		bus-width = <4>;
 

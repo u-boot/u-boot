@@ -14,8 +14,8 @@
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";
 		i2c2 = "/i2c@7000c700";
-		mmc0 = "/sdhci@78000600";
-		mmc1 = "/sdhci@78000200";
+		mmc0 = "/mmc@78000600";
+		mmc1 = "/mmc@78000200";
 		spi0 = "/spi@7000d400";
 		usb0 = "/usb@7d000000";
 		usb1 = "/usb@7d004000"; /* on module only, for ASIX */
@@ -61,13 +61,13 @@
 		spi-max-frequency = <25000000>;
 	};
 
-	sdhci@78000200 {
+	mmc@78000200 {
 		status = "okay";
 		bus-width = <4>;
 		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>; /* MMCD */
 	};
 
-	sdhci@78000600 {
+	mmc@78000600 {
 		status = "okay";
 		bus-width = <8>;
 		non-removable;

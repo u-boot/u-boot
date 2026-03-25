@@ -60,11 +60,15 @@ installation or to recover the device in case of a failed update.
 
 The script will produce ``bct.img`` and ``ebt.img`` ready to flash.
 
-Permanent installation can be performed by pre-loading just built U-Boot
-into RAM via tegrarcm. While pre-loading U-Boot, hold the ``volume down``
-button which will trigger the bootmenu. There, select ``fastboot`` using
-the volume and power buttons.
+Permanent installation can be performed by pre-loading just built U-Boot into RAM.
+Bct and bootloader will end up in boot0 and boot1 partitions of eMMC.
 
+Bootloader preloading is performed to device in APX/RCM mode connected to host
+PC. This mode can be entered via testad on motherboard on turned off device
+connected to the host PC. Host PC should detect APX USB device in ``lsusb``.
+
+While pre-loading U-Boot, hold the ``volume down`` button which will trigger
+the bootmenu. There, select ``fastboot`` using the volume and power buttons.
 After, on host PC, do:
 
 .. code-block:: bash

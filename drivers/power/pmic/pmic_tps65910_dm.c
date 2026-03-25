@@ -61,7 +61,9 @@ static int pmic_tps65910_bind(struct udevice *dev)
 	ofnode regulators_node;
 	int children, ret;
 
-	if (IS_ENABLED(CONFIG_SYSRESET_TPS65910)) {
+	if (IS_ENABLED(CONFIG_SYSRESET_TPS65910) &&
+	    (dev_read_bool(dev, "ti,system-power-controller") ||
+	     dev_read_bool(dev, "system-power-controller"))) {
 		ret = device_bind_driver(dev, TPS65910_RST_DRIVER,
 					 "sysreset", NULL);
 		if (ret) {

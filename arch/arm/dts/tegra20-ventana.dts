@@ -18,8 +18,8 @@
 		usb0 = "/usb@c5000000";
 		usb1 = "/usb@c5004000";
 		usb2 = "/usb@c5008000";
-		mmc0 = "/sdhci@c8000600";
-		mmc1 = "/sdhci@c8000400";
+		mmc0 = "/mmc@c8000600";
+		mmc1 = "/mmc@c8000400";
 	};
 
 	memory {
@@ -576,14 +576,14 @@
 		status = "okay";
 	};
 
-	sdhci@c8000000 {
+	mmc@c8000000 {
 		status = "okay";
 		power-gpios = <&gpio TEGRA_GPIO(K, 6) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
 		keep-power-in-suspend;
 	};
 
-	sdhci@c8000400 {
+	mmc@c8000400 {
 		status = "okay";
 		cd-gpios = <&gpio TEGRA_GPIO(I, 5) GPIO_ACTIVE_LOW>;
 		wp-gpios = <&gpio TEGRA_GPIO(H, 1) GPIO_ACTIVE_HIGH>;
@@ -591,7 +591,7 @@
 		bus-width = <4>;
 	};
 
-	sdhci@c8000600 {
+	mmc@c8000600 {
 		status = "okay";
 		bus-width = <8>;
 		non-removable;
