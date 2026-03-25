@@ -29,7 +29,7 @@ built for SpacemiT K1 SoC as below:
 .. code-block:: console
 
    cd <U-Boot-dir>
-   make bananapi-f3_defconfig
+   make spacemit_k1_defconfig
    make OPENSBI=<OpenSBI-dir>/build/platform/generic/firmware/fw_dynamic.bin
 
 This will generate u-boot.itb
