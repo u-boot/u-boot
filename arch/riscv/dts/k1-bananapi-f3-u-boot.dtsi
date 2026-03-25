@@ -74,6 +74,38 @@
 	};
 };
 
+/*
+ * The kernel pmic@41 nodes use the standard regulator-* properties only;
+ * U-Boot's regulator framework looks up suppliers by `regulator-name`.
+ * Carry the U-Boot-specific names (vdd_core / vdd_1v8 / vdd_1v8_mmc) here
+ * so SPL can program the bucks that DDR training depends on.
+ */
+&i2c8 {
+	bootph-pre-ram;
+	resets = <&syscon_apbc RESET_TWSI8>;
+
+	pmic@41 {
+		bootph-pre-ram;
+
+		regulators {
+			buck1 {
+				regulator-name = "vdd_core";
+				bootph-pre-ram;
+			};
+
+			buck3 {
+				regulator-name = "vdd_1v8";
+				bootph-pre-ram;
+			};
+
+			aldo1 {
+				regulator-name = "vdd_1v8_mmc";
+				bootph-pre-ram;
+			};
+		};
+	};
+};
+
 &binman {
 	u-boot-spl-ddr {
 		type = "section";
