@@ -51,11 +51,6 @@ void board_debug_uart_init(void)
 }
 #endif
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 #define MAC24AA_MAC_OFFSET     0xfa
 
 #ifdef CONFIG_MISC_INIT_R
