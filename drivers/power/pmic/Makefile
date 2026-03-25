@@ -32,6 +32,7 @@ obj-$(CONFIG_$(PHASE_)DM_PMIC_TPS80031) += tps80031.o
 obj-$(CONFIG_$(PHASE_)PMIC_PALMAS) += palmas.o
 obj-$(CONFIG_$(PHASE_)PMIC_LP873X) += lp873x.o
 obj-$(CONFIG_$(PHASE_)PMIC_LP87565) += lp87565.o
+obj-$(CONFIG_PMIC_SPACEMIT_P1) += pmic_spacemit_p1.o
 obj-$(CONFIG_PMIC_STPMIC1) += stpmic1.o
 obj-$(CONFIG_PMIC_TPS65217) += pmic_tps65217.o
 obj-$(CONFIG_PMIC_TPS65219) += tps65219.o
