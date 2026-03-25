@@ -1109,16 +1109,16 @@ static const struct mtk_parent ecc_parents[] = {
 
 #define MUX_CLR_SET_UPD(_id, _parents, _mux_ofs, _mux_set_ofs, _mux_clr_ofs,	\
 			_shift, _width,	_upd_ofs, _upd)				\
-	MUX_MIXED_CLR_SET_UPD_FLAGS(_id, _parents, _mux_ofs, _mux_set_ofs,	\
-				    _mux_clr_ofs, _shift, _width, -1, _upd_ofs,	\
-				    _upd, CLK_MUX_SETCLR_UPD)
+	MUX_CLR_SET_UPD_FLAGS(_id, _parents, _mux_ofs, _mux_set_ofs,		\
+			     _mux_clr_ofs, _shift, _width, -1, _upd_ofs,	\
+			     _upd, CLK_MUX_SETCLR_UPD)
 
 #define MUX_GATE_CLR_SET_UPD(_id, _parents, _mux_ofs, _mux_set_ofs,		\
 			      _mux_clr_ofs, _shift, _width, _gate, _upd_ofs,	\
 			      _upd)						\
-	MUX_MIXED_CLR_SET_UPD_FLAGS(_id, _parents, _mux_ofs, _mux_set_ofs,	\
-				   _mux_clr_ofs, _shift, _width, _gate,		\
-				   _upd_ofs, _upd, CLK_MUX_SETCLR_UPD)
+	MUX_CLR_SET_UPD_FLAGS(_id, _parents, _mux_ofs, _mux_set_ofs,		\
+			      _mux_clr_ofs, _shift, _width, _gate,		\
+			      _upd_ofs, _upd, CLK_MUX_SETCLR_UPD)
 
 const struct mtk_composite top_muxes[] = {
 	/* CLK_CFG_0 */
@@ -1638,8 +1638,7 @@ static const struct mtk_gate mminfra_config_clks[] = {
 };
 
 static const struct mtk_clk_tree mt8189_apmixedsys_clk_tree = {
-	.xtal_rate = 26 * MHZ,
-	.xtal2_rate = 26 * MHZ,
+	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.plls = apmixed_plls,
@@ -1647,7 +1646,6 @@ static const struct mtk_clk_tree mt8189_apmixedsys_clk_tree = {
 };
 
 static const struct mtk_clk_tree mt8189_topckgen_clk_tree = {
-	.xtal_rate = 26 * MHZ,
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_TOP_MAINPLL_D3,

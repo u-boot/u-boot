@@ -1074,6 +1074,7 @@ U_BOOT_DRIVER(mt8195_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = mt8195_pctrl_match,
 	.ops = &mtk_pinctrl_ops,
+	.bind = mtk_pinctrl_common_bind,
 	.probe = mtk_pinctrl_mt8195_probe,
 	.priv_auto = sizeof(struct mtk_pinctrl_priv),
 };
