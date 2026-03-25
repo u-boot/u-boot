@@ -13,9 +13,9 @@ struct sysinfo_priv {
 	bool detected;
 };
 
-int sysinfo_get(struct udevice **devp)
+int sysinfo_get_by_seq(struct udevice **devp, int seq)
 {
-	int ret = uclass_first_device_err(UCLASS_SYSINFO, devp);
+	int ret = uclass_get_device_by_seq(UCLASS_SYSINFO, seq, devp);
 
 	/*
 	 * There is some very dodgy error handling in gazerbeam,
@@ -42,9 +42,9 @@ int sysinfo_detect(struct udevice *dev)
 	return ret;
 }
 
-int sysinfo_get_and_detect(struct udevice **devp)
+int sysinfo_get_by_seq_and_detect(struct udevice **devp, int seq)
 {
-	int ret = sysinfo_get(devp);
+	int ret = sysinfo_get_by_seq(devp, seq);
 
 	if (!ret)
 		ret = sysinfo_detect(*devp);
@@ -161,6 +161,7 @@ int sysinfo_get_data_by_index(struct udevice *dev, int id, int index,
 UCLASS_DRIVER(sysinfo) = {
 	.id		= UCLASS_SYSINFO,
 	.name		= "sysinfo",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= dm_scan_fdt_dev,
 	.per_device_auto	= sizeof(struct sysinfo_priv),
 };
