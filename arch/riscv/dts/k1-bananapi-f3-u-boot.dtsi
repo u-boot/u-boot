@@ -64,3 +64,12 @@
 &syscon_apbc {
 	bootph-pre-ram;
 };
+
+&i2c2 {
+	bootph-pre-ram;
+	resets = <&syscon_apbc RESET_TWSI2>;
+
+	eeprom@50 {
+		bootph-pre-ram;
+	};
+};
