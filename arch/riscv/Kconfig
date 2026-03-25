@@ -14,9 +14,6 @@ config TARGET_ANDES_AE350
 config TARGET_ANDES_VOYAGER
 	bool "Support Andes Voyager Board"
 
-config TARGET_BANANAPI_F3
-	bool "Support BananaPi F3 Board"
-
 config TARGET_BEAGLEBOARD_BEAGLEVFIRE
 	bool "Support BeagleBoard BeagleV-Fire Board (based on Microchip MPFS)"
 
@@ -49,6 +46,9 @@ config TARGET_SIFIVE_UNMATCHED
 config TARGET_SIPEED_MAIX
 	bool "Support Sipeed Maix Board"
 	select SYS_CACHE_SHIFT_6
+
+config TARGET_SPACEMIT_K1
+	bool "Support Spacemit K1 SoC"
 
 config TARGET_STARFIVE_VISIONFIVE2
 	bool "Support StarFive VisionFive2 Board"
@@ -119,7 +119,7 @@ source "board/sifive/unmatched/Kconfig"
 source "board/sipeed/maix/Kconfig"
 source "board/sophgo/milkv_duo/Kconfig"
 source "board/sophgo/licheerv_nano/Kconfig"
-source "board/spacemit/bananapi-f3/Kconfig"
+source "board/spacemit/k1/Kconfig"
 source "board/starfive/visionfive2/Kconfig"
 source "board/thead/th1520_lpi4a/Kconfig"
 source "board/xilinx/mbv/Kconfig"
