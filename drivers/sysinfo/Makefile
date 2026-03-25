@@ -9,3 +9,4 @@ obj-$(CONFIG_SYSINFO_IOT2050) += iot2050.o
 obj-$(CONFIG_SYSINFO_RCAR3) += rcar3.o
 obj-$(CONFIG_SYSINFO_SANDBOX) += sandbox.o
 obj-$(CONFIG_SYSINFO_SMBIOS) += smbios.o
+obj-$(CONFIG_SYSINFO_TQ_EEPROM) += tq_eeprom.o
