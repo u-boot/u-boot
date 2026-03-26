@@ -1783,13 +1783,15 @@ F:	drivers/spmi/
 F:	include/spmi/
 
 SQUASHFS
-M:	Joao Marcos Costa <jmcosta944@gmail.com>
+M:	Joao Marcos Costa <joaomarcos.costa@bootlin.com>
+M:	Richard Genoud <richard.genoud@bootlin.com>
 R:	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 R:	Miquel Raynal <miquel.raynal@bootlin.com>
 S:	Maintained
+F:	cmd/sqfs.c
+F:	common/spl/spl_squashfs.c
 F:	fs/squashfs/
 F:	include/sqfs.h
-F:	cmd/sqfs.c
 F:	test/py/tests/test_fs/test_squashfs/
 
 STACKPROTECTOR
