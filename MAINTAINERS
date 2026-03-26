@@ -1244,11 +1244,16 @@ F:	drivers/watchdog/sbsa_gwdt.c
 
 FWU Multi Bank Update
 M:	Sughosh Ganu <sughosh.ganu@arm.com>
+M:	Kory Maincent <kory.maincent@bootlin.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
+F:	doc/fwumdata.1
+F:	doc/mkfwumdata.1
 F:	lib/fwu_updates/*
 F:	drivers/fwu-mdata/*
-F:	tools/mkfwumdata.c
+F:	tools/fwumdata_src/fwumdata.c
+F:	tools/fwumdata_src/fwumdata.h
+F:	tools/fwumdata_src/mkfwumdata.c
 
 GATEWORKS_SC
 M:	Tim Harvey <tharvey@gateworks.com>

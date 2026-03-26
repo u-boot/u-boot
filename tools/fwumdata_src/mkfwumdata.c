@@ -17,26 +17,7 @@
 #include <u-boot/crc.h>
 #include <uuid/uuid.h>
 
-typedef uint8_t u8;
-typedef int16_t s16;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
-#undef CONFIG_FWU_NUM_BANKS
-#undef CONFIG_FWU_NUM_IMAGES_PER_BANK
-
-/* This will dynamically allocate the fwu_mdata */
-#define CONFIG_FWU_NUM_BANKS		0
-#define CONFIG_FWU_NUM_IMAGES_PER_BANK	0
-
-/* version 2 supports maximum of 4 banks */
-#define MAX_BANKS_V2			4
-
-#define BANK_INVALID			(u8)0xFF
-#define BANK_ACCEPTED			(u8)0xFC
-
-#include <fwu_mdata.h>
+#include "fwumdata.h"
 
 static const char *opts_short = "b:i:a:p:v:V:gh";
 
@@ -116,6 +97,7 @@ static struct fwu_mdata_object *fwu_alloc_mdata(size_t images, size_t banks,
 			 sizeof(struct fwu_image_bank_info) * banks) * images;
 	} else {
 		mobj->size = sizeof(struct fwu_mdata) +
+			sizeof(struct fwu_mdata_ext) +
 			sizeof(struct fwu_fw_store_desc) +
 			(sizeof(struct fwu_image_entry) +
 			 sizeof(struct fwu_image_bank_info) * banks) * images;
@@ -144,50 +126,6 @@ alloc_err:
 	free(mobj->mdata);
 	free(mobj);
 	return NULL;
-}
-
-static struct fwu_image_entry *
-fwu_get_image(struct fwu_mdata_object *mobj, size_t idx)
-{
-	size_t offset;
-
-	if (mobj->version == 1) {
-		offset = sizeof(struct fwu_mdata) +
-			(sizeof(struct fwu_image_entry) +
-			 sizeof(struct fwu_image_bank_info) * mobj->banks) *
-			idx;
-	} else {
-		offset = sizeof(struct fwu_mdata) +
-			sizeof(struct fwu_fw_store_desc) +
-			(sizeof(struct fwu_image_entry) +
-			 sizeof(struct fwu_image_bank_info) * mobj->banks) *
-			idx;
-	}
-
-	return (struct fwu_image_entry *)((char *)mobj->mdata + offset);
-}
-
-static struct fwu_image_bank_info *
-fwu_get_bank(struct fwu_mdata_object *mobj, size_t img_idx, size_t bnk_idx)
-{
-	size_t offset;
-
-	if (mobj->version == 1) {
-		offset = sizeof(struct fwu_mdata) +
-			(sizeof(struct fwu_image_entry) +
-			 sizeof(struct fwu_image_bank_info) * mobj->banks) *
-			img_idx + sizeof(struct fwu_image_entry) +
-			sizeof(struct fwu_image_bank_info) * bnk_idx;
-	} else {
-		offset = sizeof(struct fwu_mdata) +
-			sizeof(struct fwu_fw_store_desc) +
-			(sizeof(struct fwu_image_entry) +
-			 sizeof(struct fwu_image_bank_info) * mobj->banks) *
-			img_idx + sizeof(struct fwu_image_entry) +
-			sizeof(struct fwu_image_bank_info) * bnk_idx;
-	}
-
-	return (struct fwu_image_bank_info *)((char *)mobj->mdata + offset);
 }
 
 /**
@@ -239,11 +177,13 @@ static int
 fwu_parse_fill_image_uuid(struct fwu_mdata_object *mobj,
 			  size_t idx, char *uuids)
 {
-	struct fwu_image_entry *image = fwu_get_image(mobj, idx);
 	struct fwu_image_bank_info *bank;
+	struct fwu_image_entry *image;
 	char *p = uuids, *uuid;
 	int i;
 
+	image = fwu_get_image_entry(mobj->mdata, mobj->version,
+				    mobj->banks, idx);
 	if (!image)
 		return -ENOENT;
 
@@ -266,7 +206,8 @@ fwu_parse_fill_image_uuid(struct fwu_mdata_object *mobj,
 
 	/* Fill bank image-UUID */
 	for (i = 0; i < mobj->banks; i++) {
-		bank = fwu_get_bank(mobj, idx, i);
+		bank = fwu_get_bank_info(mobj->mdata, mobj->version,
+					 mobj->banks, idx, i);
 		if (!bank)
 			return -ENOENT;
 		bank->accepted = 1;
@@ -281,25 +222,22 @@ fwu_parse_fill_image_uuid(struct fwu_mdata_object *mobj,
 	return 0;
 }
 
-#if defined(CONFIG_FWU_MDATA_V1)
-static void fwu_fill_version_specific_mdata(struct fwu_mdata_object *mobj)
-{
-}
-#else
 static void fwu_fill_version_specific_mdata(struct fwu_mdata_object *mobj)
 {
 	int i;
 	struct fwu_fw_store_desc *fw_desc;
-	struct fwu_mdata *mdata = mobj->mdata;
+	struct fwu_mdata_ext *mdata_ext;
 
-	mdata->metadata_size = mobj->size;
-	mdata->desc_offset = sizeof(struct fwu_mdata);
+	mdata_ext = fwu_get_fw_mdata_ext(mobj->mdata);
+	mdata_ext->metadata_size = mobj->size;
+	mdata_ext->desc_offset = sizeof(struct fwu_mdata) +
+				 sizeof(struct fwu_mdata_ext);
 
 	for (i = 0; i < MAX_BANKS_V2; i++)
-		mdata->bank_state[i] = i < mobj->banks ?
-			BANK_ACCEPTED : BANK_INVALID;
+		mdata_ext->bank_state[i] = i < mobj->banks ?
+			FWU_BANK_ACCEPTED : FWU_BANK_INVALID;
 
-	fw_desc = (struct fwu_fw_store_desc *)((u8 *)mdata + sizeof(*mdata));
+	fw_desc = fwu_get_fw_desc(mobj->mdata);
 	fw_desc->num_banks = mobj->banks;
 	fw_desc->num_images = mobj->images;
 	fw_desc->img_entry_size = sizeof(struct fwu_image_entry) +
@@ -307,7 +245,6 @@ static void fwu_fill_version_specific_mdata(struct fwu_mdata_object *mobj)
 	fw_desc->bank_info_entry_size =
 		sizeof(struct fwu_image_bank_info);
 }
-#endif /* CONFIG_FWU_MDATA_V1 */
 
 /* Caller must ensure that @uuids[] has @mobj->images entries. */
 static int fwu_parse_fill_uuids(struct fwu_mdata_object *mobj, char *uuids[])
@@ -320,7 +257,8 @@ static int fwu_parse_fill_uuids(struct fwu_mdata_object *mobj, char *uuids[])
 	mdata->active_index = active_bank;
 	mdata->previous_active_index = previous_bank;
 
-	fwu_fill_version_specific_mdata(mobj);
+	if (mdata->version == 2)
+		fwu_fill_version_specific_mdata(mobj);
 
 	for (i = 0; i < mobj->images; i++) {
 		ret = fwu_parse_fill_image_uuid(mobj, i, uuids[i]);
@@ -471,9 +409,17 @@ int main(int argc, char *argv[])
 		return -EINVAL;
 	}
 
+	if (version == 2 && banks > MAX_BANKS_V2) {
+		fprintf(stderr, "Error: Version 2 supports maximum %d banks, %ld requested.\n",
+			MAX_BANKS_V2, banks);
+		return -EINVAL;
+	}
+
 	/* This command takes UUIDs * images and output file. */
 	if (optind + images + 1 != argc) {
-		fprintf(stderr, "Error: UUID list or output file is not specified or too much.\n");
+		fprintf(stderr,
+			"Error: Expected %ld UUID string(s) and 1 output file, got %d argument(s).\n",
+			images, argc - optind);
 		print_usage();
 		return -ERANGE;
 	}
