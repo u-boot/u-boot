@@ -236,7 +236,7 @@ https://www.ti.com/lit/pdf/spruiv7 under the `Boot Mode Pins` section.
 
    * - Switch Label
      - SW2: 12345678
-     - SW3: 12345678
+     - SW1: 12345678
 
    * - SD
      - 01000000
