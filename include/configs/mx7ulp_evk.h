@@ -11,9 +11,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 
-/* Using ULP WDOG for reset */
-#define WDOG_BASE_ADDR			WDG1_RBASE
-
 #define CFG_SYS_HZ_CLOCK		1000000 /* Fixed at 1Mhz from TSTMR */
 
 /* UART */

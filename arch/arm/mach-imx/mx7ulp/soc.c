@@ -146,6 +146,8 @@ static void disable_wdog(u32 wdog_base)
 	while (!(readl(wdog_base + 0x00) & 0x400));
 }
 
+static char *wdog_list[] = {"wdog1", "wdog2"};
+
 void init_wdog(void)
 {
 	/*
@@ -161,8 +163,18 @@ void init_wdog(void)
 	 * In this function, we will disable both WDOG1 and WDOG2,
 	 * and set update bit for both. So that kernel can reconfigure them.
 	 */
-	disable_wdog(WDG1_RBASE);
-	disable_wdog(WDG2_RBASE);
+	 fdt_addr_t addr;
+	 int i;
+
+	 for (i = 0; i < ARRAY_SIZE(wdog_list); i++) {
+		 addr = imx_wdog_alias_to_addr(wdog_list[i], false);
+		 if (addr == FDT_ADDR_T_NONE) {
+			 debug("watchdog alias %s not found\n", wdog_list[i]);
+			 continue;
+		 }
+
+		 disable_wdog((u32)addr);
+	 }
 }
 
 static bool ldo_mode_is_enabled(void)

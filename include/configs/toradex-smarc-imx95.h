@@ -19,6 +19,4 @@
 #define PHYS_SDRAM_SIZE		(SZ_2G - SZ_256M)
 #define PHYS_SDRAM_2_SIZE	SZ_6G
 
-#define WDOG_BASE_ADDR	WDG3_BASE_ADDR
-
 #endif
