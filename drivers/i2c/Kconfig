@@ -817,6 +817,13 @@ config SYS_I2C_IHS
         help
           Support for gdsys IHS I2C driver on FPGA bus.
 
+config SYS_I2C_SPACEMIT_K1
+	bool "Spacemit K1 I2C driver"
+	depends on DM_I2C
+	help
+	  Support for Spacemit I2C controller. It's based on
+	  Driver Model.
+
 source "drivers/i2c/muxes/Kconfig"
 
 endif
