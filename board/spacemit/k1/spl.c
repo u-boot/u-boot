@@ -196,6 +196,9 @@ static void set_vdd_mmc(void)
 	ret = regulator_get_by_platname("vdd_1v8_mmc", &dev);
 	if (ret)
 		panic("Fail to detect vdd_1v8_mmc (%d)\n", ret);
+	ret = regulator_set_value(dev, 1800000);
+	if (ret)
+		log_warning("Fail to set vdd_1v8_mmc as 1800000 (%d)\n", ret);
 	ret = regulator_set_enable(dev, true);
 	if (ret)
 		log_warning("Fail to enable vdd_1v8_mmc (%d)\n", ret);
