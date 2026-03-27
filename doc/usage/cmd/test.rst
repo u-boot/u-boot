@@ -20,11 +20,14 @@ Synopsis
     test -e <interface> <dev[:part]> <path>
     test <s> =~ <re>
 
+    [ <test expression> ]
+
 Description
 -----------
 
 The ``test`` command is similar to the ordinary shell built-in by the
-same name. Unlike in ordinary shells, it cannot be spelled ``[``.
+same name. Like in ordinary shells, it can also be spelled ``[``,
+provided the test expression is followed by a separate ``]`` argument.
 
 Strings
 ~~~~~~~
