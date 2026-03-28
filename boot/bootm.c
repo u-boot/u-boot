@@ -130,6 +130,8 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 	const char *fit_uname_config = NULL, *fit_uname_kernel = NULL;
 #if CONFIG_IS_ENABLED(FIT)
 	int		os_noffset;
+	int		uuid_len;
+	const		void *uuid;
 #endif
 
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
@@ -204,6 +206,14 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 		images->fit_uname_os = fit_uname_kernel;
 		images->fit_uname_cfg = fit_uname_config;
 		images->fit_noffset_os = os_noffset;
+
+		/* Save install-uuid now while FIT is readable */
+		uuid = fdt_getprop(images->fit_hdr_os, 0,
+				   FIT_INSTALL_UUID_PROP,
+				   &uuid_len);
+		if (uuid && uuid_len == FIT_INSTALL_UUID_LEN)
+			memcpy(images->fit_install_uuid, uuid,
+			       FIT_INSTALL_UUID_LEN);
 		break;
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
