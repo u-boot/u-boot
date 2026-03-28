@@ -6,6 +6,7 @@
 #include <hang.h>
 #include <init.h>
 #include <log.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/utils.h>
 #include <image.h>
@@ -23,6 +24,10 @@
 #include <watchdog.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
+static struct bd_info bdata __attribute__ ((section(".data")));
 
 u32 spl_boot_device(void)
 {
@@ -142,6 +147,8 @@ void board_init_f(ulong dummy)
 
 	/* enable console uart printing */
 	preloader_console_init();
+
+	gd->bd = &bdata;
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {

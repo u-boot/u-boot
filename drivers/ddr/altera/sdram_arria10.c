@@ -22,8 +22,13 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
+
+#include "sdram_soc32.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define PGTABLE_OFF	0x4000
 
 static void sdram_mmr_init(void);
 static u64 sdram_size_calc(void);
@@ -191,24 +196,6 @@ static int sdram_is_ecc_enabled(void)
 {
 	return !!(readl(&socfpga_ecc_hmc_base->eccctrl) &
 		  ALT_ECC_HMC_OCP_ECCCTL_ECC_EN_SET_MSK);
-}
-
-/* Initialize SDRAM ECC bits to avoid false DBE */
-static void sdram_init_ecc_bits(u32 size)
-{
-	icache_enable();
-
-	memset(0, 0, 0x8000);
-	gd->arch.tlb_addr = 0x4000;
-	gd->arch.tlb_size = PGTABLE_SIZE;
-
-	dcache_enable();
-
-	printf("DDRCAL: Scrubbing ECC RAM (%i MiB).\n", size >> 20);
-	memset((void *)0x8000, 0, size - 0x8000);
-	flush_dcache_all();
-	printf("DDRCAL: Scrubbing ECC RAM done.\n");
-	dcache_disable();
 }
 
 /* Function to startup the SDRAM*/
@@ -735,8 +722,10 @@ int ddr_calibration_sequence(void)
 	if (of_sdram_firewall_setup(gd->fdt_blob))
 		puts("FW: Error Configuring Firewall\n");
 
+#if IS_ENABLED(CONFIG_SOCFPGA_ECC_SCRUB_SUPPORT)
 	if (sdram_is_ecc_enabled())
-		sdram_init_ecc_bits(gd->ram_size);
+		sdram_init_ecc_bits();
+#endif
 
 	sdram_size_check();
 

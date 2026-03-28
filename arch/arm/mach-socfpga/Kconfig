@@ -6,6 +6,25 @@ config ERR_PTR_OFFSET
 config NR_DRAM_BANKS
 	default 1
 
+config SOCFPGA_ECC_SCRUB_SUPPORT
+	bool "Enable ECC scrubbing for DRAM"
+	help
+	 Adds CPU-based ECC scrubbing support for DRAM at boot. This will
+	 initialize all DRAM ECC metadata to zero, preventing false ECC
+	 errors and improving reliability.
+
+config SOCFPGA_DRAM_MMU_SETUP_OPTIMIZED
+	bool "Enable optimized dram_bank_mmu_setup()"
+	help
+	 Use the consolidated and optimized dram_bank_mmu_setup()
+	 implementation.
+
+config SOCFPGA_DRAM_SIZE_CHECK
+	bool "Enable DRAM size checking for safety"
+	help
+	 Compares device tree DRAM size with actual hardware. Hangs on
+	 oversized claim.
+
 config SOCFPGA_SECURE_VAB_AUTH
 	bool "Enable boot image authentication with Secure Device Manager"
 	depends on ARCH_SOCFPGA_AGILEX || ARCH_SOCFPGA_N5X || \
@@ -102,6 +121,8 @@ config ARCH_SOCFPGA_ARRIA10
 	select ETH_DESIGNWARE_SOCFPGA
 	imply FPGA_SOCFPGA
 	imply SPL_USE_TINY_PRINTF
+	select SOCFPGA_ECC_SCRUB_SUPPORT
+	select SOCFPGA_DRAM_MMU_SETUP_OPTIMIZED
 
 config SOCFPGA_ARRIA10_ALWAYS_REPROGRAM
 	bool "Always reprogram Arria 10 FPGA"
@@ -114,10 +135,14 @@ config SOCFPGA_ARRIA10_ALWAYS_REPROGRAM
 config ARCH_SOCFPGA_CYCLONE5
 	bool
 	select ARCH_SOCFPGA_GEN5
+	select SOCFPGA_ECC_SCRUB_SUPPORT
+	select SOCFPGA_DRAM_MMU_SETUP_OPTIMIZED
+	select SOCFPGA_DRAM_SIZE_CHECK
 
 config ARCH_SOCFPGA_GEN5
 	bool
 	select SPL_ALTERA_SDRAM
+	select SPL_CACHE if SPL
 	imply FPGA_SOCFPGA
 	imply SPL_SIZE_LIMIT_SUBTRACT_GD
 	imply SPL_SIZE_LIMIT_SUBTRACT_MALLOC
