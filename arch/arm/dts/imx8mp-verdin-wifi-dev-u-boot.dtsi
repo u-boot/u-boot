@@ -70,7 +70,7 @@
 };
 
 &i2c1 {
-	bootph-pre-ram;
+	bootph-all;
 
 	eeprom_module: eeprom@50 {
 		compatible = "i2c-eeprom";
@@ -104,7 +104,7 @@
 };
 
 &pca9450 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pinctrl_ctrl_sleep_moci {
@@ -112,7 +112,11 @@
 };
 
 &pinctrl_i2c1 {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&pinctrl_pmic {
+	bootph-all;
 };
 
 &pinctrl_usdhc2_pwr_en {
@@ -172,4 +176,8 @@
 
 &wdog1 {
 	bootph-pre-ram;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@25/regulators} {
+	bootph-all;
 };
