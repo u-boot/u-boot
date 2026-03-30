@@ -5,7 +5,7 @@
 
 #include "k1.dtsi"
 #include "binman.dtsi"
-#include "k1-pinctrl.dtsi"
+#include "k1_pinctrl.dtsi"
 
 / {
 	model = "Banana Pi BPI-F3";

@@ -374,7 +374,7 @@ int board_fit_config_name_match(const char *name)
 
 	memset(fdt_name, 0, I2C_BUF_SIZE);
 	if (!strncmp(product_name, "k1-x_", 5)) {
-		snprintf(fdt_name, I2C_BUF_SIZE, "%s-%s", "k1",
+		snprintf(fdt_name, I2C_BUF_SIZE, "%s_%s", "k1",
 			 &product_name[5]);
 	}
 	for (i = 0; i < I2C_BUF_SIZE; i++) {
