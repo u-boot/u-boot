@@ -304,7 +304,6 @@ static int __maybe_unused part_get_info_efi(struct blk_desc *desc, int part,
 
 	snprintf((char *)info->name, sizeof(info->name), "%s",
 		 print_efiname(&gpt_pte));
-	strcpy((char *)info->type, "U-Boot");
 	info->bootable = get_bootable(&gpt_pte);
 	info->type_flags = gpt_pte.attributes.fields.type_guid_specific;
 	if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
@@ -316,6 +315,10 @@ static int __maybe_unused part_get_info_efi(struct blk_desc *desc, int part,
 		uuid_bin_to_str(gpt_pte.partition_type_guid.b,
 				(char *)disk_partition_type_guid(info),
 				UUID_STR_FORMAT_GUID);
+		snprintf((char *)info->type, sizeof(info->type), "%pUs",
+			 gpt_pte.partition_type_guid.b);
+	} else {
+		strcpy((char *)info->type, PART_TYPE_NAME_EFI);
 	}
 
 	log_debug("start 0x" LBAF ", size 0x" LBAF ", name %s\n", info->start,
