@@ -381,7 +381,7 @@ int part_get_info_whole_disk(struct blk_desc *desc,
 	info->size = desc->lba;
 	info->blksz = desc->blksz;
 	info->bootable = 0;
-	strcpy((char *)info->type, BOOT_PART_TYPE);
+	strcpy((char *)info->type, PART_TYPE_NAME_UNKNOWN);
 	strcpy((char *)info->name, "Whole Disk");
 	disk_partition_clr_uuid(info);
 	disk_partition_clr_type_guid(info);
@@ -473,7 +473,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	 * host's own filesystem.
 	 */
 	if (!strcmp(ifname, "hostfs")) {
-		strcpy((char *)info->type, BOOT_PART_TYPE);
+		strcpy((char *)info->type, PART_TYPE_NAME_HOSTFS);
 		strcpy((char *)info->name, "Host filesystem");
 
 		return 0;
@@ -491,7 +491,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 			return -EINVAL;
 		}
 
-		strcpy((char *)info->type, BOOT_PART_TYPE);
+		strcpy((char *)info->type, PART_TYPE_NAME_UBI);
 		strcpy((char *)info->name, "UBI");
 		return 0;
 	}
@@ -642,13 +642,6 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 			printf("** No valid partitions found **\n");
 			goto cleanup;
 		}
-	}
-	if (strncmp((char *)info->type, BOOT_PART_TYPE, sizeof(info->type)) != 0) {
-		printf("** Invalid partition type \"%.32s\""
-			" (expect \"" BOOT_PART_TYPE "\")\n",
-			info->type);
-		ret  = -EINVAL;
-		goto cleanup;
 	}
 
 	(*desc)->log2blksz = LOG2((*desc)->blksz);
