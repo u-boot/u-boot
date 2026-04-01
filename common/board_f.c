@@ -328,6 +328,11 @@ __weak int arch_setup_dest_addr(void)
 	return 0;
 }
 
+__weak int board_setup_dest_addr(void)
+{
+	return 0;
+}
+
 static int setup_dest_addr(void)
 {
 	int ret;
@@ -359,6 +364,10 @@ static int setup_dest_addr(void)
 	debug("Ram top: %08llX\n", (unsigned long long)gd->ram_top);
 
 	ret = arch_setup_dest_addr();
+	if (ret)
+		return ret;
+
+	ret = board_setup_dest_addr();
 	if (ret)
 		return ret;
 
