@@ -14,6 +14,8 @@
 };
 
 &i2c0 {
+	status = "okay";
+
 	gpio_expander0: mcp23017@21 {
 		compatible = "microchip,mcp23017";
 		reg = <0x21>;

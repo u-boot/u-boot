@@ -140,9 +140,9 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "adi-i2c";
-			reg = <0x31001400 0x1000>;
+			reg = <0x31001400 0x100>;
 			clock-names = "i2c";
-			status = "okay";
+			status = "disabled";
 			bootph-pre-ram;
 		};
 
@@ -150,9 +150,9 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "adi-i2c";
-			reg = <0x31001500 0x1000>;
+			reg = <0x31001500 0x100>;
 			clock-names = "i2c";
-			status = "okay";
+			status = "disabled";
 			bootph-pre-ram;
 		};
 
@@ -160,9 +160,9 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "adi-i2c";
-			reg = <0x31001600 0x1000>;
+			reg = <0x31001600 0x100>;
 			clock-names = "i2c";
-			status = "okay";
+			status = "disabled";
 			bootph-pre-ram;
 		};
 	};
