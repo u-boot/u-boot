@@ -25,8 +25,8 @@ Depending on the build targets further packages maybe needed
 
     sudo apt-get install bc bison build-essential coccinelle \
       device-tree-compiler dfu-util efitools flex gdisk graphviz imagemagick \
-      libgnutls28-dev libguestfs-tools libncurses-dev \
-      libpython3-dev libsdl2-dev libssl-dev lz4 lzma lzma-alone openssl \
+      libgnutls28-dev libguestfs-tools libncurses-dev libpython3-dev \
+      libsdl2-dev libssl-dev lz4 lzma lzma-alone openssl pkcs11-provider \
       pkg-config python3 python3-asteval python3-coverage python3-filelock \
       python3-pkg-resources python3-pycryptodome python3-pyelftools \
       python3-pytest python3-pytest-xdist python3-sphinxcontrib.apidoc \
