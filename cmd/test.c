@@ -63,9 +63,24 @@ static int do_test(struct cmd_tbl *cmdtp, int flag, int argc,
 	char * const *ap;
 	int i, op, left, adv, expr, last_expr, last_unop, last_binop;
 
-	/* args? */
-	if (argc < 3)
+	if (!strcmp(argv[0], "[")) {
+		if (strcmp(argv[argc - 1], "]")) {
+			printf("[: missing terminating ]\n");
+			return 1;
+		}
+		argc--;
+	}
+
+	/*
+	 * Per POSIX, 'test' with 0 arguments should return 1, while
+	 * 'test <arg>' should be equivalent to 'test -n <arg>',
+	 * i.e. true if and only if <arg> is not empty.
+	 */
+	if (argc < 2)
 		return 1;
+
+	if (argc == 2)
+		return !strcmp(argv[1], "");
 
 #ifdef DEBUG
 	{
@@ -211,6 +226,17 @@ U_BOOT_CMD(
 	"minimal test like /bin/sh",
 	"[args..]"
 );
+
+/*
+ * This does not use the U_BOOT_CMD macro as [ can't be used in symbol names
+ */
+ll_entry_declare(struct cmd_tbl, lbracket, cmd) = {
+	"[",	CONFIG_SYS_MAXARGS, cmd_always_repeatable, do_test,
+	"alias for 'test'",
+#ifdef CONFIG_SYS_LONGHELP
+	" <test expression> ]"
+#endif /* CONFIG_SYS_LONGHELP */
+};
 
 static int do_false(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[])
