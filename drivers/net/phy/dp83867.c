@@ -203,32 +203,24 @@ static int dp83867_of_init(struct phy_device *phydev)
 				"Should be 'rgmii-id' to use internal delays\n");
 	}
 
-	/* RX delay *must* be specified if internal delay of RX is used. */
+	dp83867->rx_id_delay = DP83867_RGMIIDCTL_2_00_NS;
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) {
 		ret = ofnode_read_u32(node, "ti,rx-internal-delay",
 				      &dp83867->rx_id_delay);
-		if (ret) {
-			pr_debug("ti,rx-internal-delay must be specified\n");
-			return ret;
-		}
-		if (dp83867->rx_id_delay > DP83867_RGMII_RX_CLK_DELAY_MAX) {
+		if (!ret && dp83867->rx_id_delay > DP83867_RGMII_RX_CLK_DELAY_MAX) {
 			pr_debug("ti,rx-internal-delay value of %u out of range\n",
 				 dp83867->rx_id_delay);
 			return -EINVAL;
 		}
 	}
 
-	/* TX delay *must* be specified if internal delay of RX is used. */
+	dp83867->tx_id_delay = DP83867_RGMIIDCTL_2_00_NS;
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
 		ret = ofnode_read_u32(node, "ti,tx-internal-delay",
 				      &dp83867->tx_id_delay);
-		if (ret) {
-			debug("ti,tx-internal-delay must be specified\n");
-			return ret;
-		}
-		if (dp83867->tx_id_delay > DP83867_RGMII_TX_CLK_DELAY_MAX) {
+		if (!ret && dp83867->tx_id_delay > DP83867_RGMII_TX_CLK_DELAY_MAX) {
 			pr_debug("ti,tx-internal-delay value of %u out of range\n",
 				 dp83867->tx_id_delay);
 			return -EINVAL;
