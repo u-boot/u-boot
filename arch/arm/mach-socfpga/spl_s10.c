@@ -18,30 +18,41 @@
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
-#include <watchdog.h>
+#include <wdt.h>
 #include <dm/uclass.h>
+
+u32 reset_flag(void)
+{
+	/* Check rstmgr.stat for warm reset status */
+	u32 status = readl(SOCFPGA_RSTMGR_ADDRESS);
+
+	/* Check whether any L4 watchdogs or SDM had triggered warm reset */
+	u32 warm_reset_mask = RSTMGR_L4WD_MPU_WARMRESET_MASK;
+
+	if (status & warm_reset_mask)
+		return 0;
+
+	return 1;
+}
 
 void board_init_f(ulong dummy)
 {
-	const struct cm_config *cm_default_cfg = cm_get_default_config();
 	int ret;
+	struct udevice *dev;
+
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
+		spl_save_restore_data();
 
 	ret = spl_early_init();
 	if (ret)
 		hang();
 
+	socfpga_get_sys_mgr_addr();
 	socfpga_get_managers_addr();
 
 	/* Ensure watchdog is paused when debugging is happening */
 	writel(SYSMGR_WDDBG_PAUSE_ALL_CPU,
 	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_WDDBG);
-
-#ifdef CONFIG_HW_WATCHDOG
-	/* Enable watchdog before initializing the HW */
-	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 1);
-	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 0);
-	hw_watchdog_init();
-#endif
 
 	/* ensure all processors are not released prior Linux boot */
 	writeq(0, CPU_RELEASE_ADDR);
@@ -56,7 +67,18 @@ void board_init_f(ulong dummy)
 	sysmgr_pinmux_init();
 
 	/* configuring the HPS clocks */
-	cm_basic_init(cm_default_cfg);
+	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
+	if (ret) {
+		debug("Clock init failed: %d\n", ret);
+		hang();
+	}
+
+	/*
+	 * Enable watchdog as early as possible before initializing other
+	 * component.
+	 */
+	if (CONFIG_IS_ENABLED(WDT))
+		initr_watchdog();
 
 #ifdef CONFIG_DEBUG_UART
 	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
@@ -67,17 +89,19 @@ void board_init_f(ulong dummy)
 	print_reset_info();
 	cm_print_clock_quick_summary();
 
-	firewall_setup();
+	ret = uclass_get_device_by_name(UCLASS_NOP, "socfpga-system-mgr-firewall", &dev);
+	if (ret) {
+		printf("System manager firewall configuration failed: %d\n", ret);
+		hang();
+	}
 
-	/* disable ocram security at CCU for non secure access */
-	clrbits_le32(CCU_REG_ADDR(CCU_CPU0_MPRT_ADMASK_MEM_RAM0),
-		     CCU_ADMASK_P_MASK | CCU_ADMASK_NS_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_IOM_MPRT_ADMASK_MEM_RAM0),
-		     CCU_ADMASK_P_MASK | CCU_ADMASK_NS_MASK);
+	ret = uclass_get_device_by_name(UCLASS_NOP, "socfpga-l3interconnect-firewall", &dev);
+	if (ret) {
+		printf("L3 interconnect firewall configuration failed: %d\n", ret);
+		hang();
+	}
 
 #if CONFIG_IS_ENABLED(ALTERA_SDRAM)
-		struct udevice *dev;
-
 		ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 		if (ret) {
 			debug("DRAM init failed: %d\n", ret);
