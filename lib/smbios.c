@@ -1093,6 +1093,9 @@ static int smbios_write_type9_1slot(ulong *current, int handle,
 	 * TODO:
 	 * peer_groups = <peer_grouping_count> * SMBIOS_TYPE9_PGROUP_SIZE
 	 */
+	if (len + pgroups_size > U8_MAX)
+		return -EINVAL;
+
 	len += pgroups_size;
 
 	t = map_sysmem(*current, len);
