@@ -25,6 +25,9 @@
 #include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/typecheck.h>
+
+#define VIRTIO_VENDOR_QEMU	0x554d4551
+
 #define VIRTIO_ID_NET		1 /* virtio net */
 #define VIRTIO_ID_BLOCK		2 /* virtio block */
 #define VIRTIO_ID_RNG		4 /* virtio rng */
