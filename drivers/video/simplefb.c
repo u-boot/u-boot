@@ -9,6 +9,8 @@
 #include <log.h>
 #include <video.h>
 #include <asm/global_data.h>
+#include <asm/system.h>
+#include <linux/sizes.h>
 
 static int simple_video_probe(struct udevice *dev)
 {
@@ -36,6 +38,13 @@ static int simple_video_probe(struct udevice *dev)
 	 */
 	plat->base = base;
 	plat->size = size;
+
+#ifdef CONFIG_ARM64
+	/* The framebuffer buffer might not be mapped on some devices */
+	if (plat->base % SZ_4K)
+		log_warning("Framebuffer base %lx is not 4k aligned!\n", plat->base);
+	mmu_map_region((phys_addr_t)plat->base, (phys_addr_t)ALIGN(plat->size, SZ_4K), false);
+#endif
 
 	video_set_flush_dcache(dev, true);
 
