@@ -360,38 +360,12 @@ void *memdup_nul(const void *src, size_t len)
 
 char * strdup(const char *s)
 {
-	char *new;
-
-	if ((s == NULL)	||
-	    ((new = malloc (strlen(s) + 1)) == NULL) ) {
-		return NULL;
-	}
-
-	strcpy (new, s);
-	return new;
+	return s ? memdup_nul(s, strlen(s)) : NULL;
 }
 
 char * strndup(const char *s, size_t n)
 {
-	size_t len;
-	char *new;
-
-	if (s == NULL)
-		return NULL;
-
-	len = strlen(s);
-
-	if (n < len)
-		len = n;
-
-	new = malloc(len + 1);
-	if (new == NULL)
-		return NULL;
-
-	strncpy(new, s, len);
-	new[len] = '\0';
-
-	return new;
+	return s ? memdup_nul(s, strnlen(s, n)) : NULL;
 }
 
 #ifndef __HAVE_ARCH_STRSPN
