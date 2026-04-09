@@ -343,7 +343,6 @@ size_t strcspn(const char *s, const char *reject)
 }
 #endif
 
-#ifndef __HAVE_ARCH_STRDUP
 char * strdup(const char *s)
 {
 	char *new;
@@ -379,7 +378,6 @@ char * strndup(const char *s, size_t n)
 
 	return new;
 }
-#endif
 
 #ifndef __HAVE_ARCH_STRSPN
 /**
