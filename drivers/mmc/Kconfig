@@ -114,6 +114,13 @@ config MMC_QUIRKS
 	  are enabled by default, other may require additional flags or are
 	  enabled by the host driver.
 
+config MMC_SDHCI_AXIADO
+	bool "Axiado eMMC sdhci driver support"
+	depends on MMC
+	help
+	  Enable this to support the Axiado eMMC sdhci found in the Ax3000 SoC.
+	  This sdhci provides functionality for interface with sdhci driver.
+
 config SYS_MMC_MAX_BLK_COUNT
 	int "Block count limit"
 	default 65535
