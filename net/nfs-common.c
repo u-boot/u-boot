@@ -674,11 +674,15 @@ static int nfs_readlink_reply(uchar *pkt, unsigned int len)
 
 		strcat(nfs_path, "/");
 		pathlen = strlen(nfs_path);
+		if (pathlen + rlen >= sizeof(nfs_path_buff))
+			return -NFS_RPC_DROP;
 		memcpy(nfs_path + pathlen,
 		       (uchar *)&rpc_pkt.u.reply.data[2 + nfsv3_data_offset],
 		       rlen);
 		nfs_path[pathlen + rlen] = 0;
 	} else {
+		if (rlen >= sizeof(nfs_path_buff))
+			return -NFS_RPC_DROP;
 		memcpy(nfs_path,
 		       (uchar *)&rpc_pkt.u.reply.data[2 + nfsv3_data_offset],
 		       rlen);
