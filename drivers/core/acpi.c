@@ -154,10 +154,9 @@ static int add_item(struct acpi_ctx *ctx, struct udevice *dev,
 	if (!item->size)
 		return 0;
 	if (type != TYPE_OTHER) {
-		item->buf = malloc(item->size);
+		item->buf = memdup(start, item->size);
 		if (!item->buf)
 			return log_msg_ret("mem", -ENOMEM);
-		memcpy(item->buf, start, item->size);
 	}
 	item_count++;
 	log_debug("* %s: Added type %d, %p, size %x\n",
