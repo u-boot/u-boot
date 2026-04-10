@@ -1064,9 +1064,10 @@ static void cpsw_gmii_sel_dra7xx(struct cpsw_priv *priv,
 	writel(reg, priv->data->gmii_sel);
 }
 
-static void cpsw_phy_sel(struct cpsw_priv *priv, const char *compat,
-			 phy_interface_t phy_mode)
+static void cpsw_phy_sel(struct cpsw_priv *priv, phy_interface_t phy_mode)
 {
+	const char *compat = priv->data->phy_sel_compat;
+
 	if (!strcmp(compat, "ti,am3352-cpsw-phy-sel"))
 		cpsw_gmii_sel_am3352(priv, phy_mode);
 	if (!strcmp(compat, "ti,am43xx-cpsw-phy-sel"))
@@ -1084,8 +1085,7 @@ static int cpsw_eth_probe(struct udevice *dev)
 	priv->data = pdata->priv_pdata;
 	ti_cm_get_macid(dev, priv->data, pdata->enetaddr);
 	/* Select phy interface in control module */
-	cpsw_phy_sel(priv, priv->data->phy_sel_compat,
-		     pdata->phy_interface);
+	cpsw_phy_sel(priv, pdata->phy_interface);
 
 	return _cpsw_register(priv);
 }
