@@ -216,6 +216,10 @@ struct cpsw_priv {
 	u32				phy_mask;
 };
 
+struct cpsw_driver_data {
+	void (*gmii_sel)(struct cpsw_priv *priv, phy_interface_t phy_mode);
+};
+
 static inline int cpsw_ale_get_field(u32 *ale_entry, u32 start, u32 bits)
 {
 	int idx;
@@ -1067,6 +1071,13 @@ static void cpsw_gmii_sel_dra7xx(struct cpsw_priv *priv,
 static void cpsw_phy_sel(struct cpsw_priv *priv, phy_interface_t phy_mode)
 {
 	const char *compat = priv->data->phy_sel_compat;
+	const struct cpsw_driver_data *drv_data =
+		(const struct cpsw_driver_data *)dev_get_driver_data(priv->dev);
+
+	if (drv_data && drv_data->gmii_sel) {
+		drv_data->gmii_sel(priv, phy_mode);
+		return;
+	}
 
 	if (!strcmp(compat, "ti,am3352-cpsw-phy-sel"))
 		cpsw_gmii_sel_am3352(priv, phy_mode);
@@ -1222,13 +1233,6 @@ static int cpsw_eth_of_to_plat(struct udevice *dev)
 
 			if (ofnode_read_bool(subnode, "rmii-clock-ext"))
 				data->rmii_clock_external = true;
-
-			data->phy_sel_compat = ofnode_read_string(subnode,
-								  "compatible");
-			if (!data->phy_sel_compat) {
-				pr_err("Not able to get gmii_sel compatible\n");
-				return -ENOENT;
-			}
 		}
 	}
 
@@ -1253,9 +1257,19 @@ static int cpsw_eth_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static const struct cpsw_driver_data cpsw_data_am3352 = {
+	.gmii_sel = cpsw_gmii_sel_am3352,
+};
+
+static const struct cpsw_driver_data cpsw_data_dra7xx = {
+	.gmii_sel = cpsw_gmii_sel_dra7xx,
+};
+
 static const struct udevice_id cpsw_eth_ids[] = {
-	{ .compatible = "ti,cpsw" },
-	{ .compatible = "ti,am335x-cpsw" },
+	{ .compatible = "ti,cpsw",			.data = (ulong)&cpsw_data_am3352 },
+	{ .compatible = "ti,am335x-cpsw",		.data = (ulong)&cpsw_data_am3352 },
+	{ .compatible = "ti,am4372-cpsw",		.data = (ulong)&cpsw_data_am3352 },
+	{ .compatible = "ti,dra7-cpsw",			.data = (ulong)&cpsw_data_dra7xx },
 	{ }
 };
 #endif
