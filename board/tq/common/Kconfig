@@ -11,3 +11,6 @@ config TQ_COMMON_BB
 
 config TQ_COMMON_SDMMC
 	bool
+
+config TQ_COMMON_SOM
+	bool
