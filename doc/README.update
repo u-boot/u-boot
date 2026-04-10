@@ -48,14 +48,14 @@ The auto-update feature uses the following configuration knobs:
 Since the update file is in FIT format, it is created from an *.its file using
 the mkimage tool. dtc tool with support for binary includes, e.g. in version
 1.2.0 or later, must also be available on the system where the update file is
-to be prepared. Refer to the doc/uImage.FIT/ directory for more details on FIT
+to be prepared. Refer to the doc/usage/fit/ directory for more details on FIT
 images.
 
 
 Example .its files
 ------------------
 
-- doc/uImage.FIT/update_uboot.its
+- doc/usage/fit/update_uboot.rst
 
   A simple example that can be used to create an update file for automatically
   replacing U-Boot image on a system.
@@ -83,7 +83,7 @@ Example .its files
   where the update will be placed is correct. Making mistake here and
   attempting the auto-update can render the system unusable.
 
-- doc/uImage.FIT/update3.its
+- doc/usage/fit/update3.rst
 
   An example containing three updates. It can be used to update Linux kernel,
   ramdisk and FDT blob stored in Flash. The procedure for preparing the update

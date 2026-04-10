@@ -141,25 +141,21 @@ explosion problem::
                 data = /incbin/("./reva.dtbo");
                 type = "flat_dt";
                 arch = "arm";
-                load = <0x87fc0000>;
             };
             fdt-3 {
                 data = /incbin/("./revb.dtbo");
                 type = "flat_dt";
                 arch = "arm";
-                load = <0x87fc0000>;
             };
             fdt-4 {
                 data = /incbin/("./bar.dtbo");
                 type = "flat_dt";
                 arch = "arm";
-                load = <0x87fc0000>;
             };
             fdt-5 {
                 data = /incbin/("./baz.dtbo");
                 type = "flat_dt";
                 arch = "arm";
-                load = <0x87fc0000>;
             };
         };
 
@@ -202,9 +198,7 @@ Booting this image is exactly the same as the non-overlay example.
 u-boot will retrieve the base blob and apply the overlays in sequence as
 they are declared in the configuration.
 
-Note the minimum amount of different DT blobs, as well as the requirement for
-the DT blobs to have a load address; the overlay application requires the blobs
-to be writeable.
+Note the minimum amount of different DT blobs.
 
 Configuration using overlays and feature selection
 --------------------------------------------------

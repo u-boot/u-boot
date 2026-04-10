@@ -261,8 +261,8 @@ static struct tcs_group *get_tcs_for_msg(struct rsc_drv *drv,
 	 * just always used the first active TCS.
 	 */
 	if (msg->state != RPMH_ACTIVE_ONLY_STATE) {
-		log_err("WARN: only ACTIVE_ONLY state supported\n");
-		return ERR_PTR(-EINVAL);
+		log_debug("WARN: only ACTIVE_ONLY state supported\n");
+		return NULL;
 	}
 
 	return &drv->tcs[ACTIVE_TCS];
@@ -390,8 +390,8 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 	u32 val;
 
 	tcs = get_tcs_for_msg(drv, msg);
-	if (IS_ERR(tcs))
-		return PTR_ERR(tcs);
+	if (IS_ERR_OR_NULL(tcs))
+		return 0;
 
 	/* U-Boot is single-threaded, always use the first TCS as we'll never conflict */
 	tcs_id = tcs->offset;

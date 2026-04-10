@@ -157,7 +157,7 @@ development host is to be booted old-style (non-FDT) by U-Boot on an embedded
 target. Assume that the outcome of the build is vmlinux.bin.gz, a file which
 contains a gzip-compressed PPC Linux kernel (the only data file in this case).
 The uImage can be produced using the image source file
-doc/uImage.FIT/kernel.its (note that kernel.its assumes that vmlinux.bin.gz is
+doc/usage/fit/kernel.rst (note that kernel.its assumes that vmlinux.bin.gz is
 in the current working directory; if desired, an alternative path can be
 specified in the kernel.its file). Here's how to create the image and inspect
 its contents:
@@ -269,7 +269,7 @@ Example 2 -- new-style (FDT) kernel booting
 Consider another simple scenario, where a PPC Linux kernel is to be booted
 new-style, i.e., with a FDT blob. In this case there are two prerequisite data
 files: vmlinux.bin.gz (Linux kernel) and target.dtb (FDT blob). The uImage can
-be produced using image source file doc/uImage.FIT/kernel_fdt.its like this
+be produced using image source file doc/usage/fit/kernel_fdt.rst like this
 (note again, that both prerequisite data files are assumed to be present in
 the current working directory -- image source file kernel_fdt.its can be
 modified to take the files from some other location if needed):

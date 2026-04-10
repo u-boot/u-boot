@@ -80,8 +80,8 @@ For test purpose, you can generate a kernel crash by setting reboot timeout to
 Retrieve logs in U-Boot
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-First of all, unless PStore parameters as been set during U-Boot configuration
-and match kernel ramoops parameters, it needs to be set using 'pstore set', e.g.::
+First of all, unless PStore parameters have been set during U-Boot configuration
+and match kernel ramoops parameters, they need to be set using 'pstore set', e.g.::
 
     => pstore set 0x30000000 0x100000 0x2000 0x2000
 

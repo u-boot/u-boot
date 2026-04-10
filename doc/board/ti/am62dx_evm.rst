@@ -173,8 +173,8 @@ https://www.ti.com/lit/pdf/sprujd4 under the `Boot Mode Pins` section.
    :header-rows: 1
 
    * - Switch Label
+     - SW1: 12345678
      - SW2: 12345678
-     - SW3: 12345678
 
    * - SD
      - 01000000
