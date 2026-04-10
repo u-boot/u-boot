@@ -7,7 +7,7 @@
  * Author: Steffen Doster
  */
 
-#include "imx7s-u-boot.dtsi"
+#include "imx7s-tqma7-u-boot.dtsi"
 
 / {
 	config {
@@ -21,7 +21,28 @@
 	};
 };
 
+&gpio4 {
+	/* Deassert BOOT_EN after boot to separate BOOT_CFG circuits from LCD signals */
+	boot-en-hog {
+		gpio-hog;
+		gpios = <3 GPIO_ACTIVE_LOW>;
+		output-low;
+	};
+};
+
 &wdog1 {
 	u-boot,noautostart;
 	timeout-sec = <60>;
+};
+
+&iomuxc {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart6 {
+	bootph-pre-ram;
+};
+
+&uart6 {
+	bootph-pre-ram;
 };
