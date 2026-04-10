@@ -539,7 +539,7 @@ config BUILD_TARGET
 	default "u-boot-elf.srec" if RCAR_64
 	default "u-boot-with-spl.bin" if ARCH_AT91 && SPL_NAND_SUPPORT
 	default "u-boot-with-spl.bin" if MPC85xx && !E500MC && !E5500 && !E6500 && SPL
-	default "u-boot-with-spl.imx" if ARCH_MX6 && SPL
+	default "u-boot-with-spl.imx" if (ARCH_MX6 || ARCH_MX7) && SPL
 	default "u-boot-with-spl.kwb" if ARMADA_32BIT && SPL
 	default "u-boot-with-spl.sfp" if ARCH_SOCFPGA_ARRIA10
 	default "u-boot-with-spl.sfp" if ARCH_SOCFPGA_GEN5
