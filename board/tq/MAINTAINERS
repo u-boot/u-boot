@@ -6,3 +6,12 @@ W:	https://www.tq-group.com/en/products/tq-embedded/
 F:	arch/arm/dts/*mba6*.dts*
 F:	arch/arm/dts/*tqma6*.dts*
 F:	configs/tqma6*config
+
+TQMA7
+M:	Alexander Feilke <Alexander.Feilke@ew.tq-group.com>
+L:	u-boot@ew.tq-group.com
+S:	Maintained
+W:	https://www.tq-group.com/en/products/tq-embedded/
+F:	arch/arm/dts/*mba7*.dts*
+F:	arch/arm/dts/*tqma7*.dts*
+F:	configs/tqma7*config

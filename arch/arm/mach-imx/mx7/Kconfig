@@ -90,6 +90,21 @@ config TARGET_COLIBRI_IMX7
 	select MX7D
 	imply CMD_DM
 
+config TARGET_TQMA7
+	bool "TQ-Systems TQMa7x SoM"
+	select BOARD_LATE_INIT
+	select SUPPORT_SPL
+	select SPL_SEPARATE_BSS if SPL
+	select DM
+	select DM_SERIAL
+	select MX7
+	imply MX7D
+	imply CMD_DM
+	imply DM_THERMAL
+	help
+	  TQMa7x is a TQ SoM with i.MX7 CPU
+	  The SoM can be used on various baseboards.
+
 endchoice
 
 config SYS_SOC
@@ -102,6 +117,7 @@ source "board/novtech/meerkat96/Kconfig"
 source "board/storopack/smegw01/Kconfig"
 source "board/technexion/pico-imx7d/Kconfig"
 source "board/toradex/colibri_imx7/Kconfig"
+source "board/tq/tqma7/Kconfig"
 source "board/warp7/Kconfig"
 
 endif

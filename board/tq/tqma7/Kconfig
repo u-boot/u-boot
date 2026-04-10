@@ -1,0 +1,103 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Copyright (c) 2016-2026 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+# D-82229 Seefeld, Germany.
+# Author: Markus Niebel, Steffen Doster
+#
+
+if TARGET_TQMA7
+
+config SYS_BOARD
+	default "tqma7"
+
+config SYS_VENDOR
+	default "tq"
+
+config SYS_CONFIG_NAME
+	default "tqma7"
+
+choice
+	prompt "TQMa7x RAM configuration"
+	default TQMA7_RAM_MULTI
+	help
+	  Select RAM configuration. Normally use default here but for
+	  specific setup it is possible to use a single RAM size.
+
+config TQMA7_RAM_MULTI
+	bool "TQMa7x with 512/1024/2048 MB RAM - Single image"
+	select TQMA7_RAM_2G
+	select TQMA7_RAM_1G
+	select TQMA7_RAM_512M
+	help
+	  Build a single U-Boot solely for variants
+	  with 512/1024/2048 MB RAM.
+
+config TQMA7_RAM_SINGLE_2G
+	bool "TQMa7x with 2 GB RAM"
+	select TQMA7_RAM_2G
+	help
+	  Build U-Boot solely for variants
+	  with 2 GB RAM.
+
+config TQMA7_RAM_SINGLE_1G
+	bool "TQMa7x with 1 GB RAM"
+	select TQMA7_RAM_1G
+	help
+	  Build U-Boot solely for variants
+	  with 1 GB RAM.
+
+config TQMA7_RAM_SINGLE_512M
+	bool "TQMa7x with 512 MB RAM"
+	select TQMA7_RAM_512M
+	help
+	  Build U-Boot solely for variants
+	  with 512 MB RAM.
+
+endchoice
+
+config TQMA7_RAM_2G
+	bool
+
+config TQMA7_RAM_1G
+	bool
+
+config TQMA7_RAM_512M
+	bool
+
+choice
+	prompt "TQMa7x base board variant"
+	default MBA7
+	help
+	  Select base board
+	  for TQMa7x
+
+config MBA7
+	bool "TQMa7x on MBa7x Starterkit"
+	select TQ_COMMON_BB
+	select TQ_COMMON_SOM
+	select TQ_COMMON_SYSINFO
+	select I2C_EEPROM
+	select MISC
+	imply USB
+	imply CMD_USB
+	imply USB_STORAGE
+	imply PHYLIB
+	imply CONFIG_PHY_TI_DP83867
+	select MXC_UART
+	select DM_MMC
+	select DM_SPI
+	select DM_I2C
+	select DM_GPIO
+	imply DM_ETH
+	help
+	  Select the MBa7x
+	  starterkit.
+
+endchoice
+
+config IMX_CONFIG
+	default "board/tq/tqma7/tqma7.cfg"
+
+source "board/tq/common/Kconfig"
+
+endif
