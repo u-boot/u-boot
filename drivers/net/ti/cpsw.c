@@ -33,6 +33,7 @@
 #define PKT_MAX			(1500 + 14 + 4 + 4)
 #define CLEAR_BIT		1
 #define GIGABITEN		BIT(7)
+#define GMII_EN			BIT(5)
 #define FULLDUPLEXEN		BIT(0)
 #define MIIEN			BIT(15)
 #define CTL_EXT_EN		BIT(18)
@@ -1133,32 +1134,12 @@ static void cpsw_eth_of_parse_slave(struct cpsw_platform_data *data,
 							"max-speed", 0);
 }
 
-static int cpsw_eth_of_to_plat(struct udevice *dev)
+static int cpsw_eth_of_to_plat_legacy(struct udevice *dev,
+				      struct cpsw_platform_data *data)
 {
-	struct eth_pdata *pdata = dev_get_plat(dev);
-	struct cpsw_platform_data *data;
-	struct gpio_desc *mode_gpios;
 	int slave_index = 0;
-	int num_mode_gpios;
 	ofnode subnode;
 	int ret;
-
-	data = calloc(1, sizeof(struct cpsw_platform_data));
-	if (!data)
-		return -ENOMEM;
-
-	pdata->priv_pdata = data;
-	pdata->iobase = dev_read_addr(dev);
-	data->version = CPSW_CTRL_VERSION_2;
-	data->bd_ram_ofs = CPSW_BD_OFFSET;
-	data->ale_reg_ofs = CPSW_ALE_OFFSET;
-	data->cpdma_reg_ofs = CPSW_CPDMA_OFFSET;
-	data->mdio_div = CPSW_MDIO_DIV;
-	data->host_port_reg_ofs = CPSW_HOST_PORT_OFFSET,
-
-	pdata->phy_interface = -1;
-
-	data->cpsw_base = pdata->iobase;
 
 	ret = dev_read_s32(dev, "cpdma_channels", &data->channels);
 	if (ret) {
@@ -1192,17 +1173,6 @@ static int cpsw_eth_of_to_plat(struct udevice *dev)
 		return ret;
 	}
 
-	num_mode_gpios = gpio_get_list_count(dev, "mode-gpios");
-	if (num_mode_gpios > 0) {
-		mode_gpios = malloc(sizeof(struct gpio_desc) *
-				    num_mode_gpios);
-		gpio_request_list_by_name(dev, "mode-gpios", mode_gpios,
-					  num_mode_gpios, GPIOD_IS_OUT);
-		free(mode_gpios);
-	}
-
-	data->active_slave = dev_read_u32_default(dev, "active_slave", 0);
-
 	ofnode_for_each_subnode(subnode, dev_ofnode(dev)) {
 		const char *name;
 
@@ -1235,6 +1205,115 @@ static int cpsw_eth_of_to_plat(struct udevice *dev)
 				data->rmii_clock_external = true;
 		}
 	}
+
+	return 0;
+}
+
+static int cpsw_eth_of_to_plat_switch(struct udevice *dev,
+				      struct cpsw_platform_data *data)
+{
+	ofnode eth_ports_node, subnode;
+	int ret;
+
+	data->channels = 8;
+	data->ale_entries = 1024;
+	data->mac_control = GMII_EN;
+
+	eth_ports_node = ofnode_find_subnode(dev_ofnode(dev), "ethernet-ports");
+	data->slaves = ofnode_get_child_count(eth_ports_node);
+	if (!data->slaves) {
+		pr_err("cpsw: No ethernet-ports defined\n");
+		return -EINVAL;
+	}
+
+	data->slave_data = malloc(sizeof(struct cpsw_slave_data) * data->slaves);
+	if (!data->slave_data)
+		return -ENOMEM;
+
+	ofnode_for_each_subnode(subnode, eth_ports_node) {
+		struct ofnode_phandle_args args;
+		u32 port_id;
+
+		ret = ofnode_read_u32(subnode, "reg", &port_id);
+		if (ret || !port_id || port_id > data->slaves) {
+			pr_err("cpsw: invalid or missing reg in port node\n");
+			return -EINVAL;
+		}
+
+		cpsw_eth_of_parse_slave(data, port_id - 1, subnode);
+
+		if (!data->gmii_sel) {
+			ret = ofnode_parse_phandle_with_args(subnode, "phys", "#phy-cells",
+							     0, 0, &args);
+			if (!ret)
+				data->gmii_sel = ofnode_get_addr(args.node);
+		}
+	}
+
+	if (!data->gmii_sel) {
+		pr_err("No port specified phys correctly\n");
+		return -ENOENT;
+	}
+
+	ofnode_for_each_subnode(subnode, dev_ofnode(dev)) {
+		const char *name = ofnode_get_name(subnode);
+
+		if (strncmp(name, "mdio", 4))
+			continue;
+
+		data->mdio_base = ofnode_get_addr(subnode);
+		if (data->mdio_base == FDT_ADDR_T_NONE) {
+			pr_err("Not able to get MDIO address space\n");
+			return -ENOENT;
+		}
+	}
+
+	return 0;
+}
+
+static int cpsw_eth_of_to_plat(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct cpsw_platform_data *data;
+	struct gpio_desc *mode_gpios;
+	int num_mode_gpios;
+	int ret;
+	bool switch_dt_bindings =
+		ofnode_valid(ofnode_find_subnode(dev_ofnode(dev), "ethernet-ports"));
+
+	data = calloc(1, sizeof(struct cpsw_platform_data));
+	if (!data)
+		return -ENOMEM;
+
+	pdata->priv_pdata = data;
+	pdata->iobase = dev_read_addr(dev);
+	data->version = CPSW_CTRL_VERSION_2;
+	data->bd_ram_ofs = CPSW_BD_OFFSET;
+	data->ale_reg_ofs = CPSW_ALE_OFFSET;
+	data->cpdma_reg_ofs = CPSW_CPDMA_OFFSET;
+	data->mdio_div = CPSW_MDIO_DIV;
+	data->host_port_reg_ofs = CPSW_HOST_PORT_OFFSET;
+
+	pdata->phy_interface = -1;
+
+	data->cpsw_base = pdata->iobase;
+
+	num_mode_gpios = gpio_get_list_count(dev, "mode-gpios");
+	if (num_mode_gpios > 0) {
+		mode_gpios = malloc(sizeof(struct gpio_desc) * num_mode_gpios);
+		gpio_request_list_by_name(dev, "mode-gpios", mode_gpios,
+					  num_mode_gpios, GPIOD_IS_OUT);
+		free(mode_gpios);
+	}
+
+	data->active_slave = dev_read_u32_default(dev, "active_slave", 0);
+
+	if (switch_dt_bindings)
+		ret = cpsw_eth_of_to_plat_switch(dev, data);
+	else
+		ret = cpsw_eth_of_to_plat_legacy(dev, data);
+	if (ret)
+		return ret;
 
 	data->slave_data[0].slave_reg_ofs = CPSW_SLAVE0_OFFSET;
 	data->slave_data[0].sliver_reg_ofs = CPSW_SLIVER0_OFFSET;
@@ -1270,6 +1349,9 @@ static const struct udevice_id cpsw_eth_ids[] = {
 	{ .compatible = "ti,am335x-cpsw",		.data = (ulong)&cpsw_data_am3352 },
 	{ .compatible = "ti,am4372-cpsw",		.data = (ulong)&cpsw_data_am3352 },
 	{ .compatible = "ti,dra7-cpsw",			.data = (ulong)&cpsw_data_dra7xx },
+	{ .compatible = "ti,am335x-cpsw-switch",	.data = (ulong)&cpsw_data_am3352 },
+	{ .compatible = "ti,am4372-cpsw-switch",	.data = (ulong)&cpsw_data_am3352 },
+	{ .compatible = "ti,dra7-cpsw-switch",		.data = (ulong)&cpsw_data_dra7xx },
 	{ }
 };
 #endif
