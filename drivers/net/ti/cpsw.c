@@ -1177,7 +1177,7 @@ static int cpsw_eth_of_to_plat(struct udevice *dev)
 
 	ret = dev_read_u32(dev, "mac_control", &data->mac_control);
 	if (ret) {
-		printf("error: ale_entries not found in dt\n");
+		printf("error: mac_control not found in dt\n");
 		return ret;
 	}
 
