@@ -63,6 +63,12 @@ config BOOT0_MSM8916_PSCI_WORKAROUND
 	help
 	  Select this if you are building U-Boot proper for an msm8916 board that
 	  uses the buggy PSCI implementation.
+
+config BOOT0_SDM845_WORKAROUND
+	bool "boot0.h workaround for SPL on the sdm845 SoC"
+	depends on SPL
+	help
+	  Select this if you are building U-Boot SPL for sdm845.
 endchoice
 
 endif
