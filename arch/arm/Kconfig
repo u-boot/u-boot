@@ -1941,6 +1941,13 @@ config ARCH_SC5XX
 	select SUPPORT_SPL
 	select TIMER
 
+config TARGET_SCM3005
+	bool "Support Axiado AX3005 SCM3005"
+	select ARCH_AX3005
+	help
+	  Support for the Axiado AX3005 SCM3005 board.
+	  Based on the Axiado AX3005 quad-core ARMv8 Cortex-A53 SoC.
+
 config TARGET_SL28
 	bool "Support sl28"
 	select ARCH_LS1028A
@@ -2203,6 +2210,15 @@ config ARCH_GXP
 
 endchoice
 
+config ARCH_AX3005
+	bool
+	select ARM64
+	select ARMV8_SWITCH_TO_EL1
+	select DM
+	select DM_SERIAL
+	select GICV3
+	select ZYNQ_SERIAL
+
 config SUPPORT_PASSING_ATAGS
 	bool "Support pre-devicetree ATAG-based booting"
 	depends on !ARM64
@@ -2421,6 +2437,7 @@ source "board/Marvell/octeontx/Kconfig"
 source "board/Marvell/octeontx2/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
+source "board/axiado/scm3005/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
 source "board/broadcom/bcmns/Kconfig"
 source "board/broadcom/bcmns3/Kconfig"
