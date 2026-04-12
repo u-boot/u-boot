@@ -47,13 +47,13 @@
 
 &binman {
 	u-boot-spl-ddr {
-		align = <4>;
-		align-size = <4>;
+		align = <8>;
+		align-size = <8>;
 		filename = "u-boot-spl-ddr.bin";
 		pad-byte = <0xff>;
 
 		u-boot-spl {
-			align-end = <4>;
+			align-end = <8>;
 			filename = "u-boot-spl.bin";
 		};
 
@@ -90,7 +90,7 @@
 
 #ifndef CONFIG_MT7621_BOOT_FROM_NAND
 		u-boot-tpl {
-			align-end = <4>;
+			align-end = <8>;
 			filename = "u-boot-tpl.bin";
 		};
 #endif
