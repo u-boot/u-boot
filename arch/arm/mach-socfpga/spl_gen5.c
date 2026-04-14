@@ -27,7 +27,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if IS_ENABLED(CONFIG_SOCFPGA_ECC_SCRUB_SUPPORT) || \
+	IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
 static struct bd_info bdata __attribute__ ((section(".data")));
+#endif
 
 u32 spl_boot_device(void)
 {
@@ -148,7 +151,10 @@ void board_init_f(ulong dummy)
 	/* enable console uart printing */
 	preloader_console_init();
 
+#if IS_ENABLED(CONFIG_SOCFPGA_ECC_SCRUB_SUPPORT) || \
+	IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
 	gd->bd = &bdata;
+#endif
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {

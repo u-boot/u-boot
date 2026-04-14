@@ -23,10 +23,13 @@
 
 #include "sequencer.h"
 #include "sdram_soc32.h"
+#include <asm/global_data.h>
 
 #define PGTABLE_OFF	0x4000
 
 #ifdef CONFIG_XPL_BUILD
+
+DECLARE_GLOBAL_DATA_PTR;
 
 struct altera_gen5_sdram_priv {
 	struct ram_info info;
@@ -618,10 +621,11 @@ static int altera_gen5_sdram_probe(struct udevice *dev)
 	sdram_size = sdram_calculate_size(sdr_ctrl);
 	debug("SDRAM: %ld MiB\n", sdram_size >> 20);
 
-#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
-	/* setup the dram info within bd */
+#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK) || IS_ENABLED(CONFIG_SOCFPGA_ECC_SCRUB_SUPPORT)
 	dram_init_banksize();
+#endif
 
+#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK)
 	if (sdram_size != gd->bd->bi_dram[0].size) {
 		printf("DDR: Warning: DRAM size from device tree (%d MiB)\n",
 		       (u32)(gd->bd->bi_dram[0].size >> 20));
@@ -646,8 +650,12 @@ static int altera_gen5_sdram_probe(struct udevice *dev)
 #endif
 
 	/* Sanity check ensure correct SDRAM size specified */
+#if IS_ENABLED(CONFIG_SOCFPGA_DRAM_SIZE_CHECK) || IS_ENABLED(CONFIG_SOCFPGA_ECC_SCRUB_SUPPORT)
 	if (get_ram_size(0, gd->bd->bi_dram[0].size) !=
-			 gd->bd->bi_dram[0].size) {
+	    gd->bd->bi_dram[0].size) {
+#else
+	if (get_ram_size(0, sdram_size) != sdram_size) {
+#endif
 		puts("SDRAM size check failed!\n");
 		goto failed;
 	}
