@@ -93,6 +93,7 @@
 		};
 	};
 
+#if IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
 	kernel {
 		filename = "kernel.itb";
 		fit {
@@ -150,6 +151,7 @@
 			};
 		};
 	};
+#endif
 };
 
 #if defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
