@@ -18,11 +18,3 @@
 		ethernet9 = &dpmac1;
 	};
 };
-
-&i2c0 {
-	uc: board-controller@7e {
-		compatible = "traverse,ten64-controller";
-		reg = <0x7e>;
-	};
-};
-
