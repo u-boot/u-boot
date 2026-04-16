@@ -1549,7 +1549,8 @@ void lmb_arch_add_memory(void)
 		    gd->arch.resv_ram < ram_start + ram_size)
 			ram_size = gd->arch.resv_ram - ram_start;
 #endif
-		lmb_add(ram_start, ram_size);
+		if (ram_size > 0)
+			lmb_add(ram_start, ram_size);
 	}
 }
 #endif
