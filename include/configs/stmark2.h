@@ -18,7 +18,6 @@
 		"load mmc 0:1 ${loadaddr_ramfs} uRamfs\0"	\
 	"kern_size=0x700000\0"					\
 	"loadaddr=0x42000000\0"					\
-		"-(rootfs)\0"					\
 	"loadaddr_ramfs=0x43000000\0"				\
 	"update_uboot=loady ${loadaddr}; "			\
 		"sf probe 0:1 50000000; "			\
