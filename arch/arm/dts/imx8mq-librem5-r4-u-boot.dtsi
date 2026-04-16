@@ -10,7 +10,7 @@
 	bootph-pre-ram;
 };
 
-&binman_imx_spl {
+&binman {
 	section {
 		signed-hdmi-imx8m {
 			filename = "signed_dp_imx8m.bin";

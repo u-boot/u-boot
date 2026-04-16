@@ -41,6 +41,33 @@
 	filename = "flash.bin";
 	section {
 		pad-byte = <0x00>;
+		/*
+		 * signed_hdmi_imx8m.bin contains a 1KB zero-filled padding at
+		 * its beginning. This padding has no functional purpose, but
+		 * the firmware is provided and signed by NXP, so the head
+		 * must be preserved and should not be removed.
+		 *
+		 * When the signed HDMI firmware is placed at the beginning of
+		 * flash.bin, the IVT header of u-boot-spl must still reside at
+		 * a 4KB-aligned address. Since flash.bin starts with the HDMI
+		 * firmware (including its 1KB padding), there is already a 1KB
+		 * empty region at the head of flash.bin.
+		 *
+		 * The required 4KB alignment is therefore calculated relative
+		 * to the location after this 1KB padding. To achieve this, we
+		 * explicitly set align and align-size to 0x1000, and add an
+		 * additional 0x400 (1KB) fill to account for the padding.
+		 */
+		signed-hdmi-imx8m {
+			filename = "signed_hdmi_imx8m.bin";
+			type = "blob-ext";
+			align = <0x1000>;
+			align-size = <0x1000>;
+		};
+
+		fill {
+			size = <0x400>;
+		};
 
 #ifdef CONFIG_IMX_HAB
 		nxp-imx8mcst@0 {
@@ -51,145 +78,142 @@
 #endif
 
 			binman_imx_spl: nxp-imx8mimage {
-				filename = "u-boot-spl-mkimage.bin";
-				nxp,boot-from = "sd";
-				nxp,rom-version = <1>;
-				nxp,loader-address = <CONFIG_SPL_TEXT_BASE>;
-				args;	/* Needed by mkimage etype superclass */
-
-				section {
-					align = <4>;
-					align-size = <4>;
-					filename = "u-boot-spl-ddr.bin";
-					pad-byte = <0xff>;
-
-					u-boot-spl {
-						align-end = <4>;
-						filename = "u-boot-spl.bin";
-					};
-
-					ddr-1d-imem-fw {
-						filename = "lpddr4_pmu_train_1d_imem.bin";
-						align-end = <4>;
-						type = "blob-ext";
-					};
-
-					ddr-1d-dmem-fw {
-						filename = "lpddr4_pmu_train_1d_dmem.bin";
-						align-end = <4>;
-						type = "blob-ext";
-					};
-
-					ddr-2d-imem-fw {
-						filename = "lpddr4_pmu_train_2d_imem.bin";
-						align-end = <4>;
-						type = "blob-ext";
-					};
-
-					ddr-2d-dmem-fw {
-						filename = "lpddr4_pmu_train_2d_dmem.bin";
-						align-end = <4>;
-						type = "blob-ext";
-					};
-
-					signed-hdmi-imx8m {
-						filename = "signed_hdmi_imx8m.bin";
-						type = "blob-ext";
-					};
-				};
-			};
-#ifdef CONFIG_IMX_HAB
-		};
-
-		nxp-imx8mcst@1 {
-			filename = "u-boot-fit.signed.bin";
-			nxp,loader-address = <CONFIG_SPL_LOAD_FIT_ADDRESS>;
-			offset = <0x58000>;
+			filename = "u-boot-spl-mkimage.bin";
+			nxp,boot-from = "sd";
+			nxp,rom-version = <1>;
+			nxp,loader-address = <CONFIG_SPL_TEXT_BASE>;
 			args;	/* Needed by mkimage etype superclass */
-#endif
 
-			binman_imx_fit: fit {
-				description = "Configuration to load ATF before U-Boot";
-				filename = "u-boot.itb";
-#ifndef CONFIG_IMX_HAB
-				fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
-#endif
-				#address-cells = <1>;
+			section {
+				align = <4>;
+				align-size = <4>;
+				filename = "u-boot-spl-ddr.bin";
+				pad-byte = <0xff>;
 
-				offset = <0x57c00>;
-
-				images {
-					uboot {
-						arch = "arm64";
-						compression = "none";
-						description = "U-Boot (64-bit)";
-						load = <CONFIG_TEXT_BASE>;
-						type = "standalone";
-
-						uboot-blob {
-							filename = "u-boot-nodtb.bin";
-							type = "blob-ext";
-						};
-					};
-
-#ifndef CONFIG_ARMV8_PSCI
-					atf {
-						arch = "arm64";
-						compression = "none";
-						description = "ARM Trusted Firmware";
-						entry = <0x910000>;
-						load = <0x910000>;
-						type = "firmware";
-
-						atf-blob {
-							filename = "bl31.bin";
-							type = "blob-ext";
-						};
-					};
-#endif
-
-					tee: tee {
-						description = "OP-TEE";
-						type = "tee";
-						arch = "arm64";
-						compression = "none";
-						os = "tee";
-						load = <CONFIG_IMX8M_OPTEE_LOAD_ADDR>;
-						entry = <CONFIG_IMX8M_OPTEE_LOAD_ADDR>;
-
-						tee-os {
-							filename = "tee.bin";
-							optional;
-						};
-					};
-
-					fdt {
-						compression = "none";
-						description = "NAME";
-						type = "flat_dt";
-
-						uboot-fdt-blob {
-							filename = "u-boot.dtb";
-							type = "blob-ext";
-						};
-					};
+				u-boot-spl {
+					align-end = <4>;
+					filename = "u-boot-spl.bin";
 				};
 
-				configurations {
-					default = "conf";
+				ddr-1d-imem-fw {
+					filename = "lpddr4_pmu_train_1d_imem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
 
-					conf {
-						description = "NAME";
-						fdt = "fdt";
-						firmware = "uboot";
-#ifndef CONFIG_ARMV8_PSCI
-						loadables = "atf", "tee";
-#endif
-					};
+				ddr-1d-dmem-fw {
+					filename = "lpddr4_pmu_train_1d_dmem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
+
+				ddr-2d-imem-fw {
+					filename = "lpddr4_pmu_train_2d_imem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
+
+				ddr-2d-dmem-fw {
+					filename = "lpddr4_pmu_train_2d_dmem.bin";
+					align-end = <4>;
+					type = "blob-ext";
 				};
 			};
+		};
 #ifdef CONFIG_IMX_HAB
 		};
 #endif
 	};
+
+#ifdef CONFIG_IMX_HAB
+	nxp-imx8mcst@1 {
+		filename = "u-boot-fit.signed.bin";
+		nxp,loader-address = <CONFIG_SPL_LOAD_FIT_ADDRESS>;
+		offset = <0x58400>;
+		args;	/* Needed by mkimage etype superclass */
+#endif
+
+		binman_imx_fit: fit {
+			description = "Configuration to load ATF before U-Boot";
+			filename = "u-boot.itb";
+#ifndef CONFIG_IMX_HAB
+			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+#endif
+			#address-cells = <1>;
+
+			offset = <0x58000>;
+
+			images {
+				uboot {
+					arch = "arm64";
+					compression = "none";
+					description = "U-Boot (64-bit)";
+					load = <CONFIG_TEXT_BASE>;
+					type = "standalone";
+
+					uboot-blob {
+						filename = "u-boot-nodtb.bin";
+						type = "blob-ext";
+					};
+				};
+
+#ifndef CONFIG_ARMV8_PSCI
+				atf {
+					arch = "arm64";
+					compression = "none";
+					description = "ARM Trusted Firmware";
+					entry = <0x910000>;
+					load = <0x910000>;
+					type = "firmware";
+
+					atf-blob {
+						filename = "bl31.bin";
+						type = "blob-ext";
+					};
+				};
+#endif
+
+				tee: tee {
+					description = "OP-TEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <CONFIG_IMX8M_OPTEE_LOAD_ADDR>;
+					entry = <CONFIG_IMX8M_OPTEE_LOAD_ADDR>;
+
+					tee-os {
+						filename = "tee.bin";
+						optional;
+					};
+				};
+
+				fdt {
+					compression = "none";
+					description = "NAME";
+					type = "flat_dt";
+
+					uboot-fdt-blob {
+						filename = "u-boot.dtb";
+						type = "blob-ext";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf";
+
+				conf {
+					description = "NAME";
+					fdt = "fdt";
+					firmware = "uboot";
+#ifndef CONFIG_ARMV8_PSCI
+					loadables = "atf", "tee";
+#endif
+				};
+			};
+		};
+#ifdef CONFIG_IMX_HAB
+	};
+#endif
 };

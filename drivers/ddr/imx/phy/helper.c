@@ -38,6 +38,8 @@ binman_sym_declare(ulong, ddr_2d_dmem_fw, image_pos);
 binman_sym_declare(ulong, ddr_2d_dmem_fw, size);
 #endif
 
+binman_sym_declare(ulong, u_boot_spl, image_pos);
+
 /* We need PHY iMEM PHY is 32KB padded */
 void ddr_load_train_firmware(enum fw_type type)
 {
@@ -49,6 +51,7 @@ void ddr_load_train_firmware(enum fw_type type)
 	unsigned long dmem_start;
 	unsigned long imem_len = IMEM_LEN, dmem_len = DMEM_LEN;
 	static enum fw_type last_type = -1;
+	unsigned long spl_start = 0;
 
 	/* If FW doesn't change, we can save the loading. */
 	if (last_type == type)
@@ -67,6 +70,9 @@ void ddr_load_train_firmware(enum fw_type type)
 	dmem_start = imem_start + imem_len;
 
 	if (BINMAN_SYMS_OK) {
+		if (IS_ENABLED(CONFIG_IMX8MQ))
+			spl_start = binman_sym(ulong, u_boot_spl, image_pos);
+
 		switch (type) {
 		case FW_1D_IMAGE:
 			imem_start = binman_sym(ulong, ddr_1d_imem_fw, image_pos);
@@ -82,6 +88,13 @@ void ddr_load_train_firmware(enum fw_type type)
 			dmem_len = binman_sym(ulong, ddr_2d_dmem_fw, size);
 #endif
 			break;
+		}
+
+		if (IS_ENABLED(CONFIG_IMX8MQ)) {
+			imem_start -= spl_start;
+			imem_start += CONFIG_SPL_TEXT_BASE;
+			dmem_start -= spl_start;
+			dmem_start += CONFIG_SPL_TEXT_BASE;
 		}
 	}
 

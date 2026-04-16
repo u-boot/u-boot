@@ -45,11 +45,11 @@ Build U-Boot
    $ make imx8mq_evk_defconfig
    $ make
 
-Burn the flash.bin to MicroSD card offset 33KB:
+Burn the flash.bin to MicroSD card offset 32KB:
 
 .. code-block:: bash
 
-   $sudo dd if=flash.bin of=/dev/sd[x] bs=1024 seek=33 conv=notrunc
+   $sudo dd if=flash.bin of=/dev/sd[x] bs=1024 seek=32 conv=notrunc
 
 Boot
 ----
