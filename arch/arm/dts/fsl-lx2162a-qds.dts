@@ -44,7 +44,7 @@
 	dflash0: n25q128a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -53,7 +53,7 @@
 	dflash1: sst25wf040b@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -62,7 +62,7 @@
 	dflash2: en25s64@2 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -77,7 +77,7 @@
 	dflash3: n25q128a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -86,7 +86,7 @@
 	dflash4: sst25wf040b@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -95,7 +95,7 @@
 	dflash5: en25s64@2 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -110,7 +110,7 @@
 	dflash6: n25q128a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -119,7 +119,7 @@
 	dflash7: sst25wf040b@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -128,7 +128,7 @@
 	dflash8: en25s64@2 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
