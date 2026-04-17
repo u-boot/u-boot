@@ -21,7 +21,7 @@
 	bus-num = <0>;
 	status = "okay";
 
-	dflash0: n25q128a {
+	dflash0: n25q128a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
@@ -31,7 +31,7 @@
 		reg = <0>;
 	};
 
-	dflash1: sst25wf040b {
+	dflash1: sst25wf040b@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
@@ -41,7 +41,7 @@
 		reg = <1>;
 	};
 
-	dflash2: en25s64 {
+	dflash2: en25s64@2 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
