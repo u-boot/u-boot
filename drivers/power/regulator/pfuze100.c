@@ -19,6 +19,7 @@
  * @name: Identify name for the regulator.
  * @type: Indicates the regulator type.
  * @uV_step: Voltage increase for each selector.
+ * @min_uV: Indicates the minimal voltage supported.
  * @vsel_reg: Register for adjust regulator voltage for normal.
  * @vsel_mask: Mask bit for setting regulator voltage for normal.
  * @stby_reg: Register for adjust regulator voltage for standby.
@@ -30,6 +31,7 @@ struct pfuze100_regulator_desc {
 	char *name;
 	enum regulator_type type;
 	unsigned int uV_step;
+	unsigned int min_uV;
 	unsigned int vsel_reg;
 	unsigned int vsel_mask;
 	unsigned int stby_reg;
@@ -54,11 +56,12 @@ struct pfuze100_regulator_plat {
 		.voltage	=	(vol),				\
 	}
 
-#define PFUZE100_SW_REG(_name, base, step)				\
+#define PFUZE100_SW_REG(_name, base, step, min)				\
 	{								\
 		.name		=	#_name,				\
 		.type		=	REGULATOR_TYPE_BUCK,		\
 		.uV_step	=	(step),				\
+		.min_uV		=	(min),				\
 		.vsel_reg	=	(base) + PFUZE100_VOL_OFFSET,	\
 		.vsel_mask	=	0x3F,				\
 		.stby_reg	=	(base) + PFUZE100_STBY_OFFSET,	\
@@ -84,32 +87,35 @@ struct pfuze100_regulator_plat {
 		.volt_table	=	(voltages),			\
 	}
 
-#define PFUZE100_VGEN_REG(_name, base, step)				\
+#define PFUZE100_VGEN_REG(_name, base, step, min)			\
 	{								\
 		.name		=	#_name,				\
 		.type		=	REGULATOR_TYPE_LDO,		\
 		.uV_step	=	(step),				\
+		.min_uV		=	(min),				\
 		.vsel_reg	=	(base),				\
 		.vsel_mask	=	0xF,				\
 		.stby_reg	=	(base),				\
 		.stby_mask	=	0x20,				\
 	}
 
-#define PFUZE3000_VCC_REG(_name, base, step)				\
+#define PFUZE3000_VCC_REG(_name, base, step, min)			\
 	{								\
 		.name		=	#_name,				\
 		.type		=	REGULATOR_TYPE_LDO,		\
 		.uV_step	=	(step),				\
+		.min_uV		=	(min),				\
 		.vsel_reg	=	(base),				\
 		.vsel_mask	=	0x3,				\
 		.stby_reg	=	(base),				\
 		.stby_mask	=	0x20,				\
 }
 
-#define PFUZE3000_SW1_REG(_name, base, step)				\
+#define PFUZE3000_SW1_REG(_name, base, step, min)			\
 	{								\
 		.name		=	#_name,				\
 		.type		=	REGULATOR_TYPE_BUCK,		\
+		.min_uV		=	(min),				\
 		.uV_step	=	(step),				\
 		.vsel_reg	=	(base) + PFUZE100_VOL_OFFSET,	\
 		.vsel_mask	=	0x1F,				\
@@ -128,11 +134,12 @@ struct pfuze100_regulator_plat {
 		.stby_mask	=	0x7,				\
 	}
 
-#define PFUZE3000_SW3_REG(_name, base, step)				\
+#define PFUZE3000_SW3_REG(_name, base, step, min)			\
 	{								\
 		.name		=	#_name,				\
 		.type		=	REGULATOR_TYPE_BUCK,		\
 		.uV_step	=	(step),				\
+		.min_uV		=	(min),				\
 		.vsel_reg	=	(base) + PFUZE100_VOL_OFFSET,	\
 		.vsel_mask	=	0xF,				\
 		.stby_reg	=	(base) + PFUZE100_STBY_OFFSET,	\
@@ -157,55 +164,55 @@ static unsigned int pfuze3000_sw2lo[] = {
 
 /* PFUZE100 */
 static struct pfuze100_regulator_desc pfuze100_regulators[] = {
-	PFUZE100_SW_REG(sw1ab, PFUZE100_SW1ABVOL, 25000),
-	PFUZE100_SW_REG(sw1c, PFUZE100_SW1CVOL, 25000),
-	PFUZE100_SW_REG(sw2, PFUZE100_SW2VOL, 25000),
-	PFUZE100_SW_REG(sw3a, PFUZE100_SW3AVOL, 25000),
-	PFUZE100_SW_REG(sw3b, PFUZE100_SW3BVOL, 25000),
-	PFUZE100_SW_REG(sw4, PFUZE100_SW4VOL, 25000),
+	PFUZE100_SW_REG(sw1ab, PFUZE100_SW1ABVOL, 25000, 300000),
+	PFUZE100_SW_REG(sw1c, PFUZE100_SW1CVOL, 25000, 300000),
+	PFUZE100_SW_REG(sw2, PFUZE100_SW2VOL, 25000, 400000),
+	PFUZE100_SW_REG(sw3a, PFUZE100_SW3AVOL, 25000, 400000),
+	PFUZE100_SW_REG(sw3b, PFUZE100_SW3BVOL, 25000, 400000),
+	PFUZE100_SW_REG(sw4, PFUZE100_SW4VOL, 25000, 400000),
 	PFUZE100_SWB_REG(swbst, PFUZE100_SWBSTCON1, 0x3, 50000, pfuze100_swbst),
 	PFUZE100_SNVS_REG(vsnvs, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
 	PFUZE100_FIXED_REG(vrefddr, PFUZE100_VREFDDRCON, 750000),
-	PFUZE100_VGEN_REG(vgen1, PFUZE100_VGEN1VOL, 50000),
-	PFUZE100_VGEN_REG(vgen2, PFUZE100_VGEN2VOL, 50000),
-	PFUZE100_VGEN_REG(vgen3, PFUZE100_VGEN3VOL, 100000),
-	PFUZE100_VGEN_REG(vgen4, PFUZE100_VGEN4VOL, 100000),
-	PFUZE100_VGEN_REG(vgen5, PFUZE100_VGEN5VOL, 100000),
-	PFUZE100_VGEN_REG(vgen6, PFUZE100_VGEN6VOL, 100000),
+	PFUZE100_VGEN_REG(vgen1, PFUZE100_VGEN1VOL, 50000, 800000),
+	PFUZE100_VGEN_REG(vgen2, PFUZE100_VGEN2VOL, 50000, 1800000),
+	PFUZE100_VGEN_REG(vgen3, PFUZE100_VGEN3VOL, 100000, 1800000),
+	PFUZE100_VGEN_REG(vgen4, PFUZE100_VGEN4VOL, 100000, 1800000),
+	PFUZE100_VGEN_REG(vgen5, PFUZE100_VGEN5VOL, 100000, 1800000),
+	PFUZE100_VGEN_REG(vgen6, PFUZE100_VGEN6VOL, 100000, 1800000),
 };
 
 /* PFUZE200 */
 static struct pfuze100_regulator_desc pfuze200_regulators[] = {
-	PFUZE100_SW_REG(sw1ab, PFUZE100_SW1ABVOL, 25000),
-	PFUZE100_SW_REG(sw2, PFUZE100_SW2VOL, 25000),
-	PFUZE100_SW_REG(sw3a, PFUZE100_SW3AVOL, 25000),
-	PFUZE100_SW_REG(sw3b, PFUZE100_SW3BVOL, 25000),
+	PFUZE100_SW_REG(sw1ab, PFUZE100_SW1ABVOL, 25000, 300000),
+	PFUZE100_SW_REG(sw2, PFUZE100_SW2VOL, 25000, 400000),
+	PFUZE100_SW_REG(sw3a, PFUZE100_SW3AVOL, 25000, 400000),
+	PFUZE100_SW_REG(sw3b, PFUZE100_SW3BVOL, 25000, 400000),
 	PFUZE100_SWB_REG(swbst, PFUZE100_SWBSTCON1, 0x3, 50000, pfuze100_swbst),
 	PFUZE100_SNVS_REG(vsnvs, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
 	PFUZE100_FIXED_REG(vrefddr, PFUZE100_VREFDDRCON, 750000),
-	PFUZE100_VGEN_REG(vgen1, PFUZE100_VGEN1VOL, 50000),
-	PFUZE100_VGEN_REG(vgen2, PFUZE100_VGEN2VOL, 50000),
-	PFUZE100_VGEN_REG(vgen3, PFUZE100_VGEN3VOL, 100000),
-	PFUZE100_VGEN_REG(vgen4, PFUZE100_VGEN4VOL, 100000),
-	PFUZE100_VGEN_REG(vgen5, PFUZE100_VGEN5VOL, 100000),
-	PFUZE100_VGEN_REG(vgen6, PFUZE100_VGEN6VOL, 100000),
+	PFUZE100_VGEN_REG(vgen1, PFUZE100_VGEN1VOL, 50000, 800000),
+	PFUZE100_VGEN_REG(vgen2, PFUZE100_VGEN2VOL, 50000, 800000),
+	PFUZE100_VGEN_REG(vgen3, PFUZE100_VGEN3VOL, 100000, 1800000),
+	PFUZE100_VGEN_REG(vgen4, PFUZE100_VGEN4VOL, 100000, 1800000),
+	PFUZE100_VGEN_REG(vgen5, PFUZE100_VGEN5VOL, 100000, 1800000),
+	PFUZE100_VGEN_REG(vgen6, PFUZE100_VGEN6VOL, 100000, 1800000),
 };
 
 /* PFUZE3000 */
 static struct pfuze100_regulator_desc pfuze3000_regulators[] = {
-	PFUZE3000_SW1_REG(sw1a, PFUZE100_SW1ABVOL, 25000),
-	PFUZE3000_SW1_REG(sw1b, PFUZE100_SW1CVOL, 25000),
+	PFUZE3000_SW1_REG(sw1a, PFUZE100_SW1ABVOL, 25000, 700000),
+	PFUZE3000_SW1_REG(sw1b, PFUZE100_SW1CVOL, 25000, 700000),
 	PFUZE100_SWB_REG(sw2, PFUZE100_SW2VOL, 0x7, 50000, pfuze3000_sw2lo),
-	PFUZE3000_SW3_REG(sw3, PFUZE100_SW3AVOL, 50000),
+	PFUZE3000_SW3_REG(sw3, PFUZE100_SW3AVOL, 50000, 900000),
 	PFUZE100_SWB_REG(swbst, PFUZE100_SWBSTCON1, 0x3, 50000, pfuze100_swbst),
 	PFUZE100_SNVS_REG(vsnvs, PFUZE100_VSNVSVOL, 0x7, pfuze3000_vsnvs),
 	PFUZE100_FIXED_REG(vrefddr, PFUZE100_VREFDDRCON, 750000),
-	PFUZE100_VGEN_REG(vldo1, PFUZE100_VGEN1VOL, 100000),
-	PFUZE100_VGEN_REG(vldo2, PFUZE100_VGEN2VOL, 50000),
-	PFUZE3000_VCC_REG(vccsd, PFUZE100_VGEN3VOL, 150000),
-	PFUZE3000_VCC_REG(v33, PFUZE100_VGEN4VOL, 150000),
-	PFUZE100_VGEN_REG(vldo3, PFUZE100_VGEN5VOL, 100000),
-	PFUZE100_VGEN_REG(vldo4, PFUZE100_VGEN6VOL, 100000),
+	PFUZE100_VGEN_REG(vldo1, PFUZE100_VGEN1VOL, 100000, 1800000),
+	PFUZE100_VGEN_REG(vldo2, PFUZE100_VGEN2VOL, 50000, 800000),
+	PFUZE3000_VCC_REG(vccsd, PFUZE100_VGEN3VOL, 150000, 2850000),
+	PFUZE3000_VCC_REG(v33, PFUZE100_VGEN4VOL, 150000, 2850000),
+	PFUZE100_VGEN_REG(vldo3, PFUZE100_VGEN5VOL, 100000, 1800000),
+	PFUZE100_VGEN_REG(vldo4, PFUZE100_VGEN6VOL, 100000, 1800000),
 };
 
 #define MODE(_id, _val, _name) { \
@@ -436,7 +443,7 @@ static int pfuze100_regulator_enable(struct udevice *dev, int op, bool *enable)
 static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 {
 	int i;
-	int val;
+	int val, min_uV;
 	struct pfuze100_regulator_plat *plat = dev_get_plat(dev);
 	struct pfuze100_regulator_desc *desc = plat->desc;
 	struct dm_regulator_uclass_plat *uc_pdata =
@@ -461,7 +468,8 @@ static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 			if (val < 0)
 				return val;
 			val &= desc->vsel_mask;
-			*uV = uc_pdata->min_uV + (int)val * desc->uV_step;
+			min_uV = desc->min_uV ?: uc_pdata->min_uV;
+			*uV = min_uV + (int)val * desc->uV_step;
 		}
 
 		return 0;
@@ -487,9 +495,10 @@ static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 			debug("Need to provide min_uV in dts.\n");
 			return -EINVAL;
 		}
+		min_uV = desc->min_uV ?: uc_pdata->min_uV;
 		return pmic_clrsetbits(dev->parent, desc->vsel_reg,
 				       desc->vsel_mask,
-				       (*uV - uc_pdata->min_uV) / desc->uV_step);
+				       (*uV - min_uV) / desc->uV_step);
 	}
 
 	return 0;
