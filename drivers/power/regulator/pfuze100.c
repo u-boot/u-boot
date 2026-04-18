@@ -13,6 +13,11 @@
 #include <power/regulator.h>
 #include <power/pfuze100_pmic.h>
 
+struct pfuze100_high_volt_desc {
+	unsigned int uV_step;
+	unsigned int min_uV;
+};
+
 /**
  * struct pfuze100_regulator_desc - regulator descriptor
  *
@@ -26,6 +31,8 @@
  * @stby_mask: Mask bit for setting regulator voltage for standby.
  * @volt_table: Voltage mapping table (if table based mapping).
  * @voltage: Current voltage for REGULATOR_TYPE_FIXED type regulator.
+ * @high_volt_mask: Low or High Output voltage mode mask
+ * @high_volt_desc: High Output voltage description
  */
 struct pfuze100_regulator_desc {
 	char *name;
@@ -38,6 +45,8 @@ struct pfuze100_regulator_desc {
 	unsigned int stby_mask;
 	unsigned int *volt_table;
 	unsigned int voltage;
+	unsigned int high_volt_mask;
+	struct pfuze100_high_volt_desc *high_volt_desc;
 };
 
 /**
@@ -56,7 +65,7 @@ struct pfuze100_regulator_plat {
 		.voltage	=	(vol),				\
 	}
 
-#define PFUZE100_SW_REG(_name, base, step, min)				\
+#define PFUZE100_SW_REG(_name, base, step, min, desc, mask)		\
 	{								\
 		.name		=	#_name,				\
 		.type		=	REGULATOR_TYPE_BUCK,		\
@@ -66,6 +75,8 @@ struct pfuze100_regulator_plat {
 		.vsel_mask	=	0x3F,				\
 		.stby_reg	=	(base) + PFUZE100_STBY_OFFSET,	\
 		.stby_mask	=	0x3F,				\
+		.high_volt_desc	=	(desc),				\
+		.high_volt_mask	=	(mask),				\
 	}
 
 #define PFUZE100_SWB_REG(_name, base, mask, step, voltages)		\
@@ -162,14 +173,19 @@ static unsigned int pfuze3000_sw2lo[] = {
 	1500000, 1550000, 1600000, 1650000, 1700000, 1750000, 1800000, 1850000
 };
 
+static struct pfuze100_high_volt_desc high_desc = {
+	.min_uV = 800000,
+	.uV_step = 50000,
+};
+
 /* PFUZE100 */
 static struct pfuze100_regulator_desc pfuze100_regulators[] = {
-	PFUZE100_SW_REG(sw1ab, PFUZE100_SW1ABVOL, 25000, 300000),
-	PFUZE100_SW_REG(sw1c, PFUZE100_SW1CVOL, 25000, 300000),
-	PFUZE100_SW_REG(sw2, PFUZE100_SW2VOL, 25000, 400000),
-	PFUZE100_SW_REG(sw3a, PFUZE100_SW3AVOL, 25000, 400000),
-	PFUZE100_SW_REG(sw3b, PFUZE100_SW3BVOL, 25000, 400000),
-	PFUZE100_SW_REG(sw4, PFUZE100_SW4VOL, 25000, 400000),
+	PFUZE100_SW_REG(sw1ab, PFUZE100_SW1ABVOL, 25000, 300000, NULL, 0),
+	PFUZE100_SW_REG(sw1c, PFUZE100_SW1CVOL, 25000, 300000, NULL, 0),
+	PFUZE100_SW_REG(sw2, PFUZE100_SW2VOL, 25000, 400000, &high_desc, BIT(6)),
+	PFUZE100_SW_REG(sw3a, PFUZE100_SW3AVOL, 25000, 400000, &high_desc, BIT(6)),
+	PFUZE100_SW_REG(sw3b, PFUZE100_SW3BVOL, 25000, 400000, &high_desc, BIT(6)),
+	PFUZE100_SW_REG(sw4, PFUZE100_SW4VOL, 25000, 400000, &high_desc, BIT(6)),
 	PFUZE100_SWB_REG(swbst, PFUZE100_SWBSTCON1, 0x3, 50000, pfuze100_swbst),
 	PFUZE100_SNVS_REG(vsnvs, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
 	PFUZE100_FIXED_REG(vrefddr, PFUZE100_VREFDDRCON, 750000),
@@ -183,10 +199,10 @@ static struct pfuze100_regulator_desc pfuze100_regulators[] = {
 
 /* PFUZE200 */
 static struct pfuze100_regulator_desc pfuze200_regulators[] = {
-	PFUZE100_SW_REG(sw1ab, PFUZE100_SW1ABVOL, 25000, 300000),
-	PFUZE100_SW_REG(sw2, PFUZE100_SW2VOL, 25000, 400000),
-	PFUZE100_SW_REG(sw3a, PFUZE100_SW3AVOL, 25000, 400000),
-	PFUZE100_SW_REG(sw3b, PFUZE100_SW3BVOL, 25000, 400000),
+	PFUZE100_SW_REG(sw1ab, PFUZE100_SW1ABVOL, 25000, 300000, NULL, 0),
+	PFUZE100_SW_REG(sw2, PFUZE100_SW2VOL, 25000, 400000, &high_desc, BIT(6)),
+	PFUZE100_SW_REG(sw3a, PFUZE100_SW3AVOL, 25000, 400000, &high_desc, BIT(6)),
+	PFUZE100_SW_REG(sw3b, PFUZE100_SW3BVOL, 25000, 400000, &high_desc, BIT(6)),
 	PFUZE100_SWB_REG(swbst, PFUZE100_SWBSTCON1, 0x3, 50000, pfuze100_swbst),
 	PFUZE100_SNVS_REG(vsnvs, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
 	PFUZE100_FIXED_REG(vrefddr, PFUZE100_VREFDDRCON, 750000),
@@ -443,7 +459,7 @@ static int pfuze100_regulator_enable(struct udevice *dev, int op, bool *enable)
 static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 {
 	int i;
-	int val, min_uV;
+	int val, min_uV, uV_step;
 	struct pfuze100_regulator_plat *plat = dev_get_plat(dev);
 	struct pfuze100_regulator_desc *desc = plat->desc;
 	struct dm_regulator_uclass_plat *uc_pdata =
@@ -467,9 +483,15 @@ static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 			val = pmic_reg_read(dev->parent, desc->vsel_reg);
 			if (val < 0)
 				return val;
+			if (desc->high_volt_mask && (val & desc->high_volt_mask)) {
+				min_uV = desc->high_volt_desc->min_uV;
+				uV_step = desc->high_volt_desc->uV_step;
+			} else {
+				min_uV = desc->min_uV ?: uc_pdata->min_uV;
+				uV_step = desc->uV_step;
+			}
 			val &= desc->vsel_mask;
-			min_uV = desc->min_uV ?: uc_pdata->min_uV;
-			*uV = min_uV + (int)val * desc->uV_step;
+			*uV = min_uV + (int)val * uV_step;
 		}
 
 		return 0;
@@ -495,10 +517,18 @@ static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 			debug("Need to provide min_uV in dts.\n");
 			return -EINVAL;
 		}
-		min_uV = desc->min_uV ?: uc_pdata->min_uV;
+		val = pmic_reg_read(dev->parent, desc->vsel_reg);
+		if (desc->high_volt_mask && (val & desc->high_volt_mask)) {
+			min_uV = desc->high_volt_desc->min_uV;
+			uV_step = desc->high_volt_desc->uV_step;
+		} else {
+			min_uV = desc->min_uV ?: uc_pdata->min_uV;
+			uV_step = desc->uV_step;
+		}
+
 		return pmic_clrsetbits(dev->parent, desc->vsel_reg,
 				       desc->vsel_mask,
-				       (*uV - min_uV) / desc->uV_step);
+				       (*uV - min_uV) / uV_step);
 	}
 
 	return 0;
