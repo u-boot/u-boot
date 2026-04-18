@@ -2,26 +2,90 @@
 
 #include "imx8mq-u-boot.dtsi"
 
+&aips1 {
+	bootph-all;
+};
+
+&gpio2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c1 {
+	bootph-all;
+};
+
+&i2c1 {
+	bootph-all;
+};
+
+&soc {
+	bootph-all;
+	bootph-pre-ram;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@8} {
+	bootph-all;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@8/regulators} {
+	bootph-all;
+};
+
+&pinctrl_uart1 {
+	bootph-pre-ram;
+};
+
+&uart1 {
+	bootph-pre-ram;
+};
+
 &usdhc1 {
+	bootph-pre-ram;
 	mmc-hs400-1_8v;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc1>;
+};
+
+&pinctrl_usdhc1 {
+	bootph-pre-ram;
 };
 
 &usdhc2 {
+	bootph-pre-ram;
 	sd-uhs-sdr104;
 	sd-uhs-ddr50;
 };
 
+&pinctrl_usdhc2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_gpio {
+	bootph-pre-ram;
+};
+
+&pinctrl_reg_usdhc2 {
+	bootph-pre-ram;
+};
+
+&reg_usdhc2_vmmc {
+	bootph-pre-ram;
+};
+
 &uart1 {
+	bootph-pre-ram;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
 };
 
 &uart2 {
+	bootph-pre-ram;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
 };
 
 &uart3 {
+	bootph-pre-ram;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
 };
