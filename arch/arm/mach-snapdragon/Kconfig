@@ -14,6 +14,9 @@ config SYS_VENDOR
 config SYS_MALLOC_F_LEN
 	default 0x2000
 
+config SPL_SYS_MALLOC_F
+	default y
+
 config SPL_SYS_MALLOC_F_LEN
 	default 0x2000
 
@@ -38,6 +41,13 @@ config SYS_CONFIG_NAME
 	  This option contains information about board configuration name.
 	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
 	  will be used for board configuration.
+
+config SPL_SHARES_INIT_SP_ADDR
+	# override the default from common/spl/Kconfig
+	default n
+
+config SPL_HAVE_INIT_STACK
+	default y
 
 choice
 	prompt "Qualcomm boot0.h workaround"
