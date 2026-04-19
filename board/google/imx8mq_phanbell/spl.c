@@ -6,7 +6,6 @@
 
 #include <config.h>
 #include <hang.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <init.h>
@@ -24,8 +23,6 @@
 #include <fsl_esdhc_imx.h>
 #include <mmc.h>
 #include <spl.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static void spl_dram_init(void)
 {
@@ -152,9 +149,6 @@ int board_fit_config_name_match(const char *name)
 void board_init_f(ulong dummy)
 {
 	int ret;
-
-	/* Clear global data */
-	memset((void *)gd, 0, sizeof(gd_t));
 
 	arch_cpu_init();
 
