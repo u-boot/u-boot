@@ -2,7 +2,12 @@
 
 #include "imx8mq-u-boot.dtsi"
 
+&gpio2 {
+	bootph-pre-ram;
+};
+
 &reg_usdhc2_vmmc {
+	bootph-pre-ram;
 	u-boot,off-on-delay-us = <20000>;
 };
 
@@ -11,5 +16,41 @@
 };
 
 &pinctrl_uart1 {
+	bootph-pre-ram;
+};
+
+&usdhc1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc1_100mhz {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc1_200mhz {
+	bootph-pre-ram;
+};
+
+&usdhc2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_100mhz {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_200mhz {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_gpio {
 	bootph-pre-ram;
 };
