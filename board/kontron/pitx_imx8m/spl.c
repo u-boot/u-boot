@@ -11,7 +11,6 @@
 #include <asm/arch/imx8mq_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/gpio.h>
@@ -25,8 +24,6 @@
 
 extern struct dram_timing_info dram_timing_2gb;
 extern struct dram_timing_info dram_timing_4gb;
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static void spl_dram_init(void)
 {
@@ -260,9 +257,6 @@ int power_init_board(void)
 void board_init_f(ulong dummy)
 {
 	int ret;
-
-	/* Clear global data */
-	memset((void *)gd, 0, sizeof(gd_t));
 
 	arch_cpu_init();
 
