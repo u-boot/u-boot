@@ -13,25 +13,6 @@
 	};
 };
 
-&avb {
-	pinctrl-0 = <&avb0_pins>;
-	pinctrl-names = "default";
-
-};
-
-&phy0 {
-	reset-gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
-};
-
-&pfc {
-	avb0_pins: avb {
-		mux {
-			groups = "avb0_link", "avb0_mdio", "avb0_rgmii", "avb0_txcrefclk";
-			function = "avb0";
-		};
-	};
-};
-
 &rpc {
 	status = "okay";
 	#address-cells = <1>;
