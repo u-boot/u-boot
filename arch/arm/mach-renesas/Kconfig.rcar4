@@ -46,7 +46,7 @@ config TARGET_FALCON
 	bool "Falcon board"
 	imply R8A779A0
 	help
-          Support for Renesas R-Car Gen3 Falcon platform
+	  Support for Renesas R-Car Gen3 Falcon platform
 
 config TARGET_SPIDER
 	bool "Spider board"
