@@ -465,6 +465,7 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 }
 #endif
 
+#ifndef CONFIG_XPL_BUILD
 int power_init_board(void)
 {
 	struct udevice *dev;
@@ -488,6 +489,7 @@ int power_init_board(void)
 
 	return pfuze_mode_init(dev, APS_PFM);
 }
+#endif
 
 #ifdef CONFIG_CMD_BMODE
 static const struct boot_mode board_boot_modes[] = {
