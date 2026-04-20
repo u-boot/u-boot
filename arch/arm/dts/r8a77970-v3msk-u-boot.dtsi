@@ -5,7 +5,6 @@
  * Copyright (C) 2019 Cogent Embedded, Inc.
  */
 
-#include "r8a77970-u-boot.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 
 / {
@@ -45,9 +44,7 @@
 };
 
 &rpc {
-	num-cs = <1>;
 	status = "okay";
-	spi-max-frequency = <50000000>;
 	#address-cells = <1>;
 	#size-cells = <0>;
 

@@ -14,7 +14,6 @@
 };
 
 &rpc {
-	num-cs = <1>;
 	status = "okay";
 	spi-max-frequency = <50000000>;
 	#address-cells = <1>;

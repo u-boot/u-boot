@@ -93,11 +93,6 @@
 	bootph-all;
 };
 
-&rpc {
-	bank-width = <2>;
-	num-cs = <1>;
-};
-
 &soc {
 	apmu@e6170000 {	/* Remoteproc */
 		compatible = "renesas,r8a779g0-cr52";
