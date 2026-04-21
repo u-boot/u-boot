@@ -101,10 +101,9 @@ size_t strcspn(const char *s, const char *reject);
 # define strndup		sandbox_strndup
 #endif
 
-#ifndef __HAVE_ARCH_STRDUP
 extern char * strdup(const char *);
 extern char * strndup(const char *, size_t);
-#endif
+
 #ifndef __HAVE_ARCH_STRSWAB
 extern char * strswab(const char *);
 #endif
