@@ -343,6 +343,21 @@ size_t strcspn(const char *s, const char *reject)
 }
 #endif
 
+void *memdup_nul(const void *src, size_t len)
+{
+	char *dst;
+
+	if (len + 1 < len)
+		return NULL;
+
+	dst = malloc(len + 1);
+	if (!dst)
+		return NULL;
+
+	dst[len] = '\0';
+	return memcpy(dst, src, len);
+}
+
 char * strdup(const char *s)
 {
 	char *new;
