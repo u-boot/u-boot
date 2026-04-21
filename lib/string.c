@@ -667,17 +667,15 @@ void * memscan(void * addr, int c, size_t size)
 }
 #endif
 
-char *memdup(const void *src, size_t len)
+void *memdup(const void *src, size_t len)
 {
-	char *p;
+	void *p;
 
 	p = malloc(len);
 	if (!p)
 		return NULL;
 
-	memcpy(p, src, len);
-
-	return p;
+	return memcpy(p, src, len);
 }
 
 #ifndef __HAVE_ARCH_STRNSTR
