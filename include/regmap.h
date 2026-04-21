@@ -389,6 +389,15 @@ static inline int regmap_clear_bits(struct regmap *map, uint offset, uint bits)
 	return regmap_update_bits(map, offset, bits, 0);
 }
 
+static inline int regmap_assign_bits(struct regmap *map, unsigned int reg,
+				     unsigned int bits, bool value)
+{
+	if (value)
+		return regmap_set_bits(map, reg, bits);
+	else
+		return regmap_clear_bits(map, reg, bits);
+}
+
 /**
  * regmap_init_mem() - Set up a new register map that uses memory access
  *

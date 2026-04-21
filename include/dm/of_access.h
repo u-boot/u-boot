@@ -386,6 +386,23 @@ int of_read_u32_array(const struct device_node *np, const char *propname,
 		      u32 *out_values, size_t sz);
 
 /**
+ * of_read_u64_array() - Find and read an array of 64 bit integers
+ *
+ * Search for a property in a device node and read 64-bit value(s) from
+ * it.
+ *
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ * @out_values:	pointer to return value, modified only if return value is 0.
+ * @sz:		number of array elements to read
+ * Return:
+ *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if
+ *   longer than sz.
+ */
+int of_read_u64_array(const struct device_node *np, const char *propname,
+		      u64 *out_values, size_t sz);
+
+/**
  * of_property_match_string() - Find string in a list and return index
  *
  * This function searches a string list property and returns the index
@@ -615,6 +632,9 @@ int of_parse_phandle_with_args(const struct device_node *np,
 int of_count_phandle_with_args(const struct device_node *np,
 			       const char *list_name, const char *cells_name,
 			       int cells_count);
+
+int of_property_count_elems_of_size(const struct device_node *np,
+				const char *propname, int elem_size);
 
 /**
  * of_alias_scan() - Scan all properties of the 'aliases' node

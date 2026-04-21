@@ -104,6 +104,8 @@ size_t strcspn(const char *s, const char *reject);
 #ifndef __HAVE_ARCH_STRDUP
 extern char * strdup(const char *);
 extern char * strndup(const char *, size_t);
+extern const char *strdup_const(const char *s);
+extern void kfree_const(const void *x);
 #endif
 #ifndef __HAVE_ARCH_STRSWAB
 extern char * strswab(const char *);

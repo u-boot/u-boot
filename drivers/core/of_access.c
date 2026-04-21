@@ -598,6 +598,25 @@ int of_read_u64(const struct device_node *np, const char *propname, u64 *outp)
 	return of_read_u64_index(np, propname, 0, outp);
 }
 
+int of_read_u64_array(const struct device_node *np, const char *propname,
+		      u64 *out_values, size_t sz)
+{
+	const __be64 *val;
+
+	log_debug("%s: %s: ", __func__, propname);
+	val = of_find_property_value_of_size(np, propname,
+					     sz * sizeof(*out_values));
+
+	if (IS_ERR(val))
+		return PTR_ERR(val);
+
+	log_debug("size %zd\n", sz);
+	while (sz--)
+		*out_values++ = be64_to_cpup(val++);
+
+	return 0;
+}
+
 int of_property_match_string(const struct device_node *np, const char *propname,
 			     const char *string)
 {
@@ -843,6 +862,39 @@ int of_count_phandle_with_args(const struct device_node *np,
 {
 	return of_root_count_phandle_with_args(NULL, np, list_name, cells_name,
 					       cell_count);
+}
+
+/**
+ * of_property_count_elems_of_size - Count the number of elements in a property
+ *
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ * @elem_size:	size of the individual element
+ *
+ * Search for a property in a device node and count the number of elements of
+ * size elem_size in it.
+ *
+ * Return: The number of elements on sucess, -EINVAL if the property does not
+ * exist or its length does not match a multiple of elem_size and -ENODATA if
+ * the property does not have a value.
+ */
+int of_property_count_elems_of_size(const struct device_node *np,
+				const char *propname, int elem_size)
+{
+	const struct property *prop = of_find_property(np, propname, NULL);
+
+	if (!prop)
+		return -EINVAL;
+	if (!prop->value)
+		return -ENODATA;
+
+	if (prop->length % elem_size != 0) {
+		pr_err("size of %s in node %pOF is not a multiple of %d\n",
+		       propname, np, elem_size);
+		return -EINVAL;
+	}
+
+	return prop->length / elem_size;
 }
 
 static void of_alias_add(struct alias_prop *ap, struct device_node *np,

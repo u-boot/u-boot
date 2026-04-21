@@ -9,6 +9,7 @@
 #define _ASM_GENERIC_SECTIONS_H_
 
 #include <linux/types.h>
+#include <stdbool.h>
 
 /* References to section boundaries */
 
@@ -61,6 +62,24 @@ static inline int arch_is_kernel_data(unsigned long addr)
 	return 0;
 }
 #endif
+
+/**
+ * is_kernel_rodata - checks if the pointer address is located in the
+ *                    .rodata section
+ *
+ * @addr: address to check
+ *
+ * Returns: true if the address is located in .rodata, false otherwise.
+ */
+static inline bool is_kernel_rodata(unsigned long addr)
+{
+#ifdef CONFIG_ARM64
+	return addr >= (unsigned long)__start_rodata &&
+	       addr < (unsigned long)__end_rodata;
+#else
+	return false;
+#endif
+}
 
 /* U-Boot-specific things begin here */
 

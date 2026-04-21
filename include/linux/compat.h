@@ -67,6 +67,19 @@ static inline void vfree(const void *addr)
 	free((void *)addr);
 }
 
+/**
+ * kstrdup_const - conditionally duplicate an existing const string
+ * @s: the string to duplicate
+ * @gfp: the GFP mask used in the kmalloc() call when allocating memory
+ *
+ * Note: Strings allocated by kstrdup_const should be freed by kfree_const and
+ * must not be passed to krealloc().
+ *
+ * Return: source string if it is in .rodata section otherwise
+ * fallback to kstrdup.
+ */
+#define kstrdup_const(s, gfp) strdup_const(s)
+
 struct kmem_cache { int sz; };
 
 struct kmem_cache *get_mem(int element_sz);
