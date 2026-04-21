@@ -24,9 +24,13 @@ EFI_IS_32BIT :=
 endif
 
 ifeq ($(IS_32BIT),y)
-PLATFORM_CPPFLAGS += -march=i386 -m32
+PLATFORM_CPPFLAGS	+= -march=i386 -m32
+PLATFORM_ELFFLAGS	+= -O elf32-i386 -B i386
+PLATFORM_ELFLDFLAGS	+= -m elf_i386
 else
-PLATFORM_CPPFLAGS += $(if $(CONFIG_XPL_BUILD),,-fpic) -fno-common -march=core2 -m64
+PLATFORM_CPPFLAGS	+= $(if $(CONFIG_XPL_BUILD),,-fpic) -fno-common -march=core2 -m64
+PLATFORM_ELFFLAGS	+= -O elf64-x86-64 -B i386:x86-64
+PLATFORM_ELFLDFLAGS	+= -m elf_x86_64
 
 ifndef CONFIG_X86_HARDFP
 PLATFORM_CPPFLAGS += -mno-mmx -mno-sse
