@@ -2003,6 +2003,7 @@ u-boot-with-spl-pbl.bin: spl/u-boot-spl.pbl $(UBOOT_BINLOAD) FORCE
 quiet_cmd_u-boot-elf ?= LD      $@
 	cmd_u-boot-elf ?= $(LD) u-boot-elf.o -o $@ \
 	$(if $(CONFIG_SYS_BIG_ENDIAN),-EB,-EL) \
+	$(PLATFORM_ELFLDFLAGS) \
 	-T u-boot-elf.lds --defsym=$(CONFIG_PLATFORM_ELFENTRY)=$(CONFIG_TEXT_BASE) \
 	-Ttext=$(CONFIG_TEXT_BASE)
 u-boot.elf: u-boot.bin u-boot-elf.lds FORCE
@@ -2012,6 +2013,7 @@ u-boot.elf: u-boot.bin u-boot-elf.lds FORCE
 quiet_cmd_u-boot-spl-elf ?= LD      $@
 	cmd_u-boot-spl-elf ?= $(LD) spl/u-boot-spl-elf.o -o $@ \
 	$(if $(CONFIG_SYS_BIG_ENDIAN),-EB,-EL) \
+	$(PLATFORM_ELFLDFLAGS) \
 	-T u-boot-elf.lds --defsym=$(CONFIG_PLATFORM_ELFENTRY)=$(CONFIG_SPL_TEXT_BASE) \
 	-Ttext=$(CONFIG_SPL_TEXT_BASE)
 spl/u-boot-spl.elf: spl/u-boot-spl.bin u-boot-elf.lds
