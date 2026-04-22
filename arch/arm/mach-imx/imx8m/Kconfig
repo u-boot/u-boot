@@ -429,6 +429,7 @@ config TARGET_LIBREM5
 	select IMX8MQ
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 endchoice
 
