@@ -132,6 +132,7 @@ config TARGET_IMX8MM_MX8MENLO
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MM_PHG
 	bool "i.MX8MM PHG board"
