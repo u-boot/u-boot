@@ -115,6 +115,7 @@ config TARGET_IMX8MM_ICORE_MX8MM
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 	help
 	  i.Core MX8M Mini is an EDIMM SOM based on NXP i.MX8MM.
 
