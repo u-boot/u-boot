@@ -92,6 +92,7 @@ config TARGET_IMX8MM_DATA_MODUL_EDM_SBC
 	select IMX8MM
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MM_EVK
 	bool "imx8mm LPDDR4 EVK board"
