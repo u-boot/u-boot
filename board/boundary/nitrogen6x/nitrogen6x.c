@@ -909,8 +909,10 @@ static const struct boot_mode board_boot_modes[] = {
 
 int misc_init_r(void)
 {
+#if defined(CONFIG_VIDEO_IPUV3)
 	gpio_request(RGB_BACKLIGHT_GP, "lvds backlight");
 	gpio_request(LVDS_BACKLIGHT_GP, "lvds backlight");
+#endif
 	gpio_request(GP_USB_OTG_PWR, "usbotg power");
 	gpio_request(IMX_GPIO_NR(7, 12), "usbh1 hub reset");
 	gpio_request(IMX_GPIO_NR(2, 2), "back");
