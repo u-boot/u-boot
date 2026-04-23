@@ -237,6 +237,7 @@ config TARGET_IMX8MP_DATA_MODUL_EDM_SBC
 	select IMX8MP
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MP_BEACON
 	bool "imx8mm Beacon Embedded devkit"
