@@ -267,6 +267,7 @@ config TARGET_IMX8MP_ICORE_MX8MP
 	select IMX8MP
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 	help
 	  i.Core MX8M Plus is an EDIMM SOM based on NXP i.MX8MP.
 
