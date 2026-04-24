@@ -11,6 +11,7 @@
 #include <image-sparse.h>
 #include <malloc.h>
 #include <part.h>
+#include <vsprintf.h>
 
 /**
  * FASTBOOT_MAX_BLOCKS_ERASE - maximum blocks to erase per derase call
@@ -124,6 +125,44 @@ static lbaint_t fb_block_sparse_reserve(struct sparse_storage *info,
 	return blkcnt;
 }
 
+/**
+ * parse_device_partition() - Parse and validate device:partition format
+ * @part_name: Input string in format "N:partition" or "partition"
+ * @device: Output device number
+ * @partition_name: Output partition name pointer (can be NULL)
+ *
+ * Parses the input string to extract device number and partition name.
+ * If no device is specified, uses the default from config.
+ * Returns: 0 on success, -EINVAL if format is invalid
+ */
+static int parse_device_partition(const char *part_name, int *device,
+				  const char **partition_name)
+{
+	const char *colon_pos;
+
+	*device = config_opt_enabled(CONFIG_FASTBOOT_FLASH_BLOCK,
+				     CONFIG_FASTBOOT_FLASH_BLOCK_DEVICE_ID, -1);
+
+	/* Check for colon in partition name */
+	colon_pos = strchr(part_name, ':');
+
+	/* Reject invalid format like ":partition" */
+	if (colon_pos && colon_pos == part_name)
+		return -EINVAL;
+
+	/* Override if device:partition format detected */
+	if (colon_pos && colon_pos > part_name) {
+		*device = simple_strtoul(part_name, NULL, 10);
+		if (partition_name)
+			*partition_name = colon_pos + 1;
+	} else {
+		if (partition_name)
+			*partition_name = part_name;
+	}
+
+	return 0;
+}
+
 int fastboot_block_get_part_info(const char *part_name,
 				 struct blk_desc **dev_desc,
 				 struct disk_partition *part_info,
@@ -133,25 +172,31 @@ int fastboot_block_get_part_info(const char *part_name,
 	const char *interface = config_opt_enabled(CONFIG_FASTBOOT_FLASH_BLOCK,
 						   CONFIG_FASTBOOT_FLASH_BLOCK_INTERFACE_NAME,
 						   NULL);
-	const int device = config_opt_enabled(CONFIG_FASTBOOT_FLASH_BLOCK,
-					      CONFIG_FASTBOOT_FLASH_BLOCK_DEVICE_ID, -1);
+	int device;
+	const char *partition_name;
 
 	if (!part_name || !strcmp(part_name, "")) {
 		fastboot_fail("partition not given", response);
 		return -ENOENT;
 	}
+
 	if (!interface || !strcmp(interface, "")) {
 		fastboot_fail("block interface isn't provided", response);
 		return -EINVAL;
 	}
 
+	if (parse_device_partition(part_name, &device, &partition_name) < 0) {
+		fastboot_fail("invalid partition name format", response);
+		return -EINVAL;
+	}
+
 	*dev_desc = blk_get_dev(interface, device);
-	if (!dev_desc) {
+	if (!*dev_desc) {
 		fastboot_fail("no such device", response);
 		return -ENODEV;
 	}
 
-	ret = part_get_info_by_name(*dev_desc, part_name, part_info);
+	ret = part_get_info_by_name(*dev_desc, partition_name, part_info);
 	if (ret < 0)
 		fastboot_fail("failed to get partition info", response);
 
