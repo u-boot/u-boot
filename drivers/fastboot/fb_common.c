@@ -245,3 +245,97 @@ void fastboot_init(void *buf_addr, u32 buf_size)
 	fastboot_set_progress_callback(NULL);
 
 }
+
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
+/**
+ * fastboot_flash_gpt_partition_table() - Flash GPT partition table
+ * @interface: Block interface name (e.g., "mmc", "scsi")
+ * @device: Device number
+ * @download_buffer: Buffer containing GPT data
+ * @response: Fastboot response buffer
+ */
+void fastboot_flash_gpt_partition_table(const char *interface,
+					int device,
+					void *download_buffer,
+					char *response)
+{
+	struct blk_desc *dev_desc;
+
+	if (!interface || !strcmp(interface, "")) {
+		fastboot_fail("block interface isn't provided", response);
+		return;
+	}
+
+	dev_desc = blk_get_dev(interface, device);
+	if (!dev_desc) {
+		fastboot_fail("no such device", response);
+		return;
+	}
+
+	printf("%s: updating MBR, Primary and Backup GPT(s) on %s device %d\n",
+	       __func__, interface, dev_desc->devnum);
+
+	if (is_valid_gpt_buf(dev_desc, download_buffer)) {
+		printf("%s: invalid GPT - refusing to write to flash\n", __func__);
+		fastboot_fail("invalid GPT partition", response);
+		return;
+	}
+
+	if (write_mbr_and_gpt_partitions(dev_desc, download_buffer)) {
+		printf("%s: writing GPT partitions failed\n", __func__);
+		fastboot_fail("writing GPT partitions failed", response);
+		return;
+	}
+
+	part_init(dev_desc);
+	printf("........ success\n");
+	fastboot_okay(NULL, response);
+}
+#endif
+
+#if CONFIG_IS_ENABLED(DOS_PARTITION)
+/**
+ * fastboot_flash_mbr_partition_table() - Flash MBR partition table
+ * @interface: Block interface name (e.g., "mmc", "scsi")
+ * @device: Device number
+ * @download_buffer: Buffer containing MBR data
+ * @response: Fastboot response buffer
+ */
+void fastboot_flash_mbr_partition_table(const char *interface,
+					int device,
+					void *download_buffer,
+					char *response)
+{
+	struct blk_desc *dev_desc;
+
+	if (!interface || !strcmp(interface, "")) {
+		fastboot_fail("block interface isn't provided", response);
+		return;
+	}
+
+	dev_desc = blk_get_dev(interface, device);
+	if (!dev_desc) {
+		fastboot_fail("no such device", response);
+		return;
+	}
+
+	printf("%s: updating MBR on %s device %d\n", __func__, interface,
+	       dev_desc->devnum);
+
+	if (is_valid_dos_buf(download_buffer)) {
+		printf("%s: invalid MBR - refusing to write to flash\n", __func__);
+		fastboot_fail("invalid MBR partition", response);
+		return;
+	}
+
+	if (write_mbr_sector(dev_desc, download_buffer)) {
+		printf("%s: writing MBR partition failed\n", __func__);
+		fastboot_fail("writing MBR partition failed", response);
+		return;
+	}
+
+	part_init(dev_desc);
+	printf("........ success\n");
+	fastboot_okay(NULL, response);
+}
+#endif
