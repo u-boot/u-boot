@@ -13,6 +13,8 @@
 
 struct socfpga_clk_plat {
 	void __iomem *regs;
+	int pllgrp;
+	int bitmask;
 };
 
 /*
@@ -437,8 +439,134 @@ static ulong socfpga_clk_get_rate(struct clk *clk)
 	}
 }
 
+static int bitmask_from_clk_id(struct clk *clk)
+{
+	struct socfpga_clk_plat *plat = dev_get_plat(clk->dev);
+
+	switch (clk->id) {
+	case N5X_MPU_CLK:
+		plat->pllgrp = CLKMGR_MAINPLL_EN;
+		plat->bitmask = CLKMGR_MAINPLLGRP_EN_MPUCLK_MASK;
+		break;
+	case N5X_L4_MAIN_CLK:
+		plat->pllgrp = CLKMGR_MAINPLL_EN;
+		plat->bitmask = CLKMGR_MAINPLLGRP_EN_L4MAINCLK_MASK;
+		break;
+	case N5X_L4_MP_CLK:
+	case N5X_NAND_X_CLK:
+		plat->pllgrp = CLKMGR_MAINPLL_EN;
+		plat->bitmask = CLKMGR_MAINPLLGRP_EN_L4MPCLK_MASK;
+		break;
+	case N5X_L4_SP_CLK:
+		plat->pllgrp = CLKMGR_MAINPLL_EN;
+		plat->bitmask = CLKMGR_MAINPLLGRP_EN_L4SPCLK_MASK;
+		break;
+	case N5X_CS_AT_CLK:
+		plat->pllgrp = CLKMGR_MAINPLL_EN;
+		plat->bitmask = CLKMGR_MAINPLLGRP_EN_CSCLK_MASK;
+		break;
+	case N5X_CS_TRACE_CLK:
+		plat->pllgrp = CLKMGR_MAINPLL_EN;
+		plat->bitmask = CLKMGR_MAINPLLGRP_EN_CSCLK_MASK;
+		break;
+	case N5X_CS_PDBG_CLK:
+		plat->pllgrp = CLKMGR_MAINPLL_EN;
+		plat->bitmask = CLKMGR_MAINPLLGRP_EN_CSCLK_MASK;
+		break;
+	case N5X_CS_TIMER_CLK:
+		plat->pllgrp = CLKMGR_MAINPLL_EN;
+		plat->bitmask = CLKMGR_MAINPLLGRP_EN_CSTIMERCLK_MASK;
+		break;
+	case N5X_S2F_USER0_CLK:
+		plat->pllgrp = CLKMGR_MAINPLL_EN;
+		plat->bitmask = CLKMGR_MAINPLLGRP_EN_S2FUSER0CLK_MASK;
+		break;
+	case N5X_EMAC0_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_EMAC0CLK_MASK;
+		break;
+	case N5X_EMAC1_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_EMAC1CLK_MASK;
+		break;
+	case N5X_EMAC2_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_EMAC2CLK_MASK;
+		break;
+	case N5X_EMAC_PTP_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_EMACPTPCLK_MASK;
+		break;
+	case N5X_GPIO_DB_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_GPIODBCLK_MASK;
+		break;
+	case N5X_SDMMC_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK;
+		break;
+	case N5X_S2F_USER1_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_S2FUSER1CLK_MASK;
+		break;
+	case N5X_PSI_REF_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_PSIREFCLK_MASK;
+		break;
+	case N5X_USB_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_USBCLK_MASK;
+		break;
+	case N5X_SPI_M_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_SPIMCLK_MASK;
+		break;
+	case N5X_NAND_CLK:
+		plat->pllgrp = CLKMGR_PERPLL_EN;
+		plat->bitmask = CLKMGR_PERPLLGRP_EN_NANDCLK_MASK;
+		break;
+	case N5X_L4_SYS_FREE_CLK:
+		return -EOPNOTSUPP;
+	default:
+		return -ENXIO;
+	}
+
+	return 0;
+}
+
 static int socfpga_clk_enable(struct clk *clk)
 {
+	struct socfpga_clk_plat *plat = dev_get_plat(clk->dev);
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+	int ret;
+
+	ret = bitmask_from_clk_id(clk);
+	if (ret == -EOPNOTSUPP)
+		return 0;
+
+	if (ret)
+		return ret;
+
+	setbits_le32(base_addr + plat->pllgrp, plat->bitmask);
+
+	return 0;
+}
+
+static int socfpga_clk_disable(struct clk *clk)
+{
+	struct socfpga_clk_plat *plat = dev_get_plat(clk->dev);
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+	int ret;
+
+	ret = bitmask_from_clk_id(clk);
+	if (ret == -EOPNOTSUPP)
+		return 0;
+
+	if (ret)
+		return ret;
+
+	clrbits_le32(base_addr + plat->pllgrp, plat->bitmask);
+
 	return 0;
 }
 
@@ -466,6 +594,7 @@ static int socfpga_clk_of_to_plat(struct udevice *dev)
 
 static struct clk_ops socfpga_clk_ops = {
 	.enable		= socfpga_clk_enable,
+	.disable	= socfpga_clk_disable,
 	.get_rate	= socfpga_clk_get_rate,
 };
 
