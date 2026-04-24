@@ -2218,6 +2218,8 @@ config ARCH_AX3005
 	select DM_SERIAL
 	select GICV3
 	select ZYNQ_SERIAL
+	select MMC_SDHCI_AXIADO
+	select PHY_AXIADO_EMMC
 
 config SUPPORT_PASSING_ATAGS
 	bool "Support pre-devicetree ATAG-based booting"

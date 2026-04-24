@@ -81,6 +81,15 @@ config APPLE_ATCPHY
 	 This is a dummy driver since the PHY is initialized
 	 sufficiently by previous stage firmware.
 
+config PHY_AXIADO_EMMC
+	bool "Axiado eMMC PHY driver support"
+	depends on PHY
+	imply REGMAP
+	help
+	  Enable this to support the Axiado eMMC PHY found in the Ax3000 SoC.
+	  This PHY provides signal conditioning and DLL functionality for
+	  high-speed eMMC operations with data rates beyond 52MHz.
+
 config BCM6318_USBH_PHY
 	bool "BCM6318 USBH PHY support"
 	depends on PHY && ARCH_BMIPS
