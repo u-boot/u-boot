@@ -163,6 +163,27 @@ static int parse_device_partition(const char *part_name, int *device,
 	return 0;
 }
 
+/**
+ * is_partition_table_name() - Check if name matches partition table target
+ * @part_name: Partition name to check
+ * @table_name: Config name for partition table (e.g., "gpt", "mbr")
+ *
+ * Returns: true if part_name matches table_name (with or without device prefix)
+ */
+static bool is_partition_table_name(const char *part_name, const char *table_name)
+{
+	const char *colon_pos;
+
+	if (strcmp(part_name, table_name) == 0)
+		return true;
+
+	colon_pos = strchr(part_name, ':');
+	if (colon_pos && colon_pos > part_name && strcmp(colon_pos + 1, table_name) == 0)
+		return true;
+
+	return false;
+}
+
 int fastboot_block_get_part_info(const char *part_name,
 				 struct blk_desc **dev_desc,
 				 struct disk_partition *part_info,
@@ -360,6 +381,34 @@ void fastboot_block_flash_write(const char *part_name, void *download_buffer,
 {
 	struct blk_desc *dev_desc;
 	struct disk_partition part_info;
+
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
+	if (is_partition_table_name(part_name, CONFIG_FASTBOOT_GPT_NAME)) {
+		int device;
+		const char *interface = config_opt_enabled(CONFIG_FASTBOOT_FLASH_BLOCK,
+							   CONFIG_FASTBOOT_FLASH_BLOCK_INTERFACE_NAME,
+							   NULL);
+
+		parse_device_partition(part_name, &device, NULL);
+		fastboot_flash_gpt_partition_table(interface, device,
+						   download_buffer, response);
+		return;
+	}
+#endif
+
+#if CONFIG_IS_ENABLED(DOS_PARTITION)
+	if (is_partition_table_name(part_name, CONFIG_FASTBOOT_MBR_NAME)) {
+		int device;
+		const char *interface = config_opt_enabled(CONFIG_FASTBOOT_FLASH_BLOCK,
+							   CONFIG_FASTBOOT_FLASH_BLOCK_INTERFACE_NAME,
+							   NULL);
+
+		parse_device_partition(part_name, &device, NULL);
+		fastboot_flash_mbr_partition_table(interface, device,
+						   download_buffer, response);
+		return;
+	}
+#endif
 
 	if (fastboot_block_get_part_info(part_name, &dev_desc, &part_info, response) < 0)
 		return;
