@@ -58,7 +58,10 @@ static void clk_mem_basic_init(struct udevice *dev,
 	/* Put PLLs in bypass */
 	clk_mem_write_bypass_mempll(plat, MEMCLKMGR_BYPASS_MEMPLL_ALL);
 
-	/* Put PLLs in Reset */
+	/*
+	 * Put PLL in bypass which powers down the PLL
+	 * and bypasses it such that PLLOUT tracks REF.
+	 */
 	CM_REG_SETBITS(plat, MEMCLKMGR_MEMPLL_PLLCTRL,
 		       MEMCLKMGR_PLLCTRL_BYPASS_MASK);
 
@@ -68,7 +71,7 @@ static void clk_mem_basic_init(struct udevice *dev,
 	CM_REG_WRITEL(plat, cfg->mem_plldiv, MEMCLKMGR_MEMPLL_PLLDIV);
 	CM_REG_WRITEL(plat, cfg->mem_plloutdiv, MEMCLKMGR_MEMPLL_PLLOUTDIV);
 
-	/* Take PLL out of reset and power up */
+	/* Take PLL out of bypass */
 	CM_REG_CLRBITS(plat, MEMCLKMGR_MEMPLL_PLLCTRL,
 		       MEMCLKMGR_PLLCTRL_BYPASS_MASK);
 }
