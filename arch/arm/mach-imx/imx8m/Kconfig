@@ -84,6 +84,7 @@ config TARGET_IMX8MQ_REFORM2
 	bool "imx8mq_reform2"
 	select IMX8MQ
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MM_DATA_MODUL_EDM_SBC
 	bool "Data Modul eDM SBC i.MX8M Mini"
