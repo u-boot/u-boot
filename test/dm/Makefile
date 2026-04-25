@@ -88,6 +88,7 @@ obj-$(CONFIG_P2SB) += p2sb.o
 obj-$(CONFIG_PCI_ENDPOINT) += pci_ep.o
 obj-$(CONFIG_PCH) += pch.o
 obj-$(CONFIG_PHY) += phy.o
+obj-$(CONFIG_PHY_COMMON_PROPS) += phy_common_props.o
 ifneq ($(CONFIG_PINMUX),)
 obj-$(CONFIG_PINCONF) += pinmux.o
 endif
