@@ -452,10 +452,6 @@ static int spacemit_reset_update(struct reset_ctl *rst, bool assert)
 	if (rst->id < RESET_UART1 || rst->id >= RESET_NUMBER)
 		return 0;
 
-	/* can not write to twsi8 */
-	if (rst->id == RESET_TWSI8)
-		return 0;
-
 	spacemit_reset_set(rst, rst->id, assert);
 	return 0;
 }

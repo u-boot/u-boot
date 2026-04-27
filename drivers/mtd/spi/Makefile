@@ -8,11 +8,10 @@ spi-nor-y := sf_probe.o spi-nor-ids.o
 
 ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SPL_SPI_BOOT)	+= fsl_espi_spl.o
+endif
+
 ifeq ($(CONFIG_$(PHASE_)SPI_FLASH_TINY),y)
 spi-nor-y += spi-nor-tiny.o
-else
-spi-nor-y += spi-nor-core.o
-endif
 else
 spi-nor-y += spi-nor-core.o
 endif
