@@ -745,6 +745,19 @@ void build_info(void)
 	puts("\n");
 }
 
+#if IS_ENABLED(CONFIG_IMX95)
+u8 imx95_detect_secondary_image_boot(void)
+{
+	rom_passover_t rdata = { 0 };
+	int ret = scmi_get_rom_data(&rdata);
+
+	if (!ret)
+		return rdata.img_set_sel;
+
+	return 0;
+}
+#endif
+
 int arch_misc_init(void)
 {
 	build_info();

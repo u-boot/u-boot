@@ -225,9 +225,15 @@ static bool check_secondary_cnt_set(unsigned long *set_off)
 			}
 		}
 	}
-#endif
+#elif IS_ENABLED(CONFIG_IMX95)
+	u8 img_set_sel = imx95_detect_secondary_image_boot();
 
+	*set_off = img_set_sel ? 0x400000 : 0;
+
+	return !!img_set_sel;
+#else
 	return false;
+#endif
 }
 
 static unsigned long get_boot_device_offset(void *dev, int dev_type)

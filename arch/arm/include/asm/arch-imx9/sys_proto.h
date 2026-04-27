@@ -23,6 +23,8 @@ int low_drive_freq_update(void *blob);
 enum imx9_soc_voltage_mode soc_target_voltage_mode(void);
 int get_reset_reason(bool sys, bool lm);
 
+u8 imx95_detect_secondary_image_boot(void);
+
 #define is_voltage_mode(mode) (soc_target_voltage_mode() == (mode))
 
 #endif
