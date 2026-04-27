@@ -420,11 +420,14 @@ below examples::
 
 Enabling FIT Verification
 -------------------------
-In addition to the options to enable FIT itself, the following CONFIGs must
-be enabled:
+In addition to the options to enable FIT itself, the following
+settings configure signature verification support:
 
 CONFIG_FIT_SIGNATURE
-    enable signing and verification in FITs
+    required to enable signing and verification in FITs
+
+CONFIG_FIT_REQUIRE_CONFIG_SIGS
+    make signature verification mandatory
 
 CONFIG_RSA
     enable RSA algorithm for signing
@@ -435,6 +438,10 @@ CONFIG_ECDSA
 WARNING: When relying on signed FIT images with required signature check
 the legacy image format is default disabled by not defining
 CONFIG_LEGACY_IMAGE_FORMAT
+
+WARNING: CONFIG_FIT_REQUIRE_CONFIG_SIGS is not set by default for
+backwards compatibility. It is recommended to be turned on whenever
+configuration signatures are used to avoid fail-open behavior
 
 
 Testing
