@@ -605,7 +605,6 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 		 priv->hw_ver.step);
 
 	ufs_qcom_advertise_quirks(hba);
-	ufs_qcom_setup_clocks(hba, true, POST_CHANGE);
 
 	return 0;
 }
