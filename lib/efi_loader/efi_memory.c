@@ -495,7 +495,9 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 		/* Map would overlap, bail out */
 		lmb_free(addr, (u64)pages << EFI_PAGE_SHIFT, flags);
 		unmap_sysmem((void *)(uintptr_t)efi_addr);
-		return  EFI_OUT_OF_RESOURCES;
+		if (type == EFI_ALLOCATE_ADDRESS)
+			return EFI_NOT_FOUND;
+		return EFI_OUT_OF_RESOURCES;
 	}
 
 	*memory = efi_addr;
