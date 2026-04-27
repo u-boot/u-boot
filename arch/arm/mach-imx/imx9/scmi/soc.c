@@ -756,6 +756,11 @@ u8 imx95_detect_secondary_image_boot(void)
 
 	return 0;
 }
+
+int boot_mode_getprisec(void)
+{
+	return !!imx95_detect_secondary_image_boot();
+}
 #endif
 
 int arch_misc_init(void)
