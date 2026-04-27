@@ -213,7 +213,8 @@ config OF_HAS_PRIOR_STAGE
 	  disabled in the board's defconfig file.
 
 config OF_OMIT_DTB
-	def_bool y if OF_HAS_PRIOR_STAGE && !BINMAN
+	def_bool y if OF_HAS_PRIOR_STAGE && !BINMAN && !ARCH_QEMU
+	def_bool n if ARCH_QEMU
 	help
 	  As a special case, avoid writing a device tree file u-boot.dtb when
 	  building. Also don't include that file in u-boot.bin
