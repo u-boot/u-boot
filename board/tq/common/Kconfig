@@ -19,3 +19,21 @@ config TQ_COMMON_SYSINFO
 	bool
 	select SYSINFO
 	imply SYSINFO_TQ_EEPROM
+
+if TQ_COMMON_SYSINFO
+
+config TQ_COMMON_SYSINFO_MACADDR_OFFSET
+	int "TQ EEPROM MAC address offset"
+	default 0
+	help
+	  Set ethXaddr variables based on EEPROM contents
+	  starting with this offset
+
+config TQ_COMMON_SYSINFO_MACADDR_NUM
+	int "TQ EEPROM MAC address number"
+	default 1
+	help
+	  Number of ethXaddr variables to set
+	  based on EEPROM contents
+
+endif
