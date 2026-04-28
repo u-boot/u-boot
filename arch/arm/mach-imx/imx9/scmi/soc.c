@@ -745,8 +745,31 @@ void build_info(void)
 	puts("\n");
 }
 
-#if IS_ENABLED(CONFIG_IMX95)
-u8 imx95_detect_secondary_image_boot(void)
+int scmi_get_boot_device_offset(unsigned long *img_off)
+{
+	int ret;
+	rom_passover_t rom_data = {0};
+
+	ret = scmi_get_rom_data(&rom_data);
+	if (!ret)
+		*img_off = rom_data.img_ofs;
+
+	return 0;
+}
+
+int scmi_get_boot_stage(u8 *stage)
+{
+	int ret;
+	rom_passover_t rom_data = {0};
+
+	ret = scmi_get_rom_data(&rom_data);
+	if (!ret)
+		*stage = rom_data.boot_stage;
+
+	return ret;
+}
+
+u8 scmi_get_imgset_sel(void)
 {
 	rom_passover_t rdata = { 0 };
 	int ret = scmi_get_rom_data(&rdata);
@@ -759,9 +782,8 @@ u8 imx95_detect_secondary_image_boot(void)
 
 int boot_mode_getprisec(void)
 {
-	return !!imx95_detect_secondary_image_boot();
+	return !!scmi_get_imgset_sel();
 }
-#endif
 
 int arch_misc_init(void)
 {
