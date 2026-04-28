@@ -772,18 +772,40 @@ static int macb_phy_init(struct udevice *dev, const char *name)
 			lpa);
 	} else {
 		/* if macb port is a fixed link */
-		/* TODO : manage gigabit capable processors */
+		const char *human_readable_speed;
+
 		speed = macb->speed;
 		duplex = macb->duplex;
+		switch (speed) {
+		case 2:
+			human_readable_speed = "1000";
+			break;
+		case 1:
+			human_readable_speed = "100";
+			break;
+		case 0:
+			human_readable_speed = "10";
+			break;
+		default:
+			printf("%s: speed %d not supported\n", name, speed);
+			return -EINVAL;
+		}
 		printf("%s: link up, %sMbps %s-duplex\n",
 			name,
-			speed ? "100" : "10",
+			human_readable_speed,
 			duplex ? "full" : "half");
 	}
 
 	ncfgr = macb_readl(macb, NCFGR);
 	ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD) | GEM_BIT(GBE));
-	if (speed) {
+	if (speed == 2) {
+		if (!gem_is_gigabit_capable(macb)) {
+			printf("%s: is not gigabit Ethernet capable\n", name);
+			return -EINVAL;
+		}
+		ncfgr |= GEM_BIT(GBE);
+		ret = macb_linkspd_cb(dev, _1000BASET);
+	} else if (speed == 1) {
 		ncfgr |= MACB_BIT(SPD);
 		ret = macb_linkspd_cb(dev, _100BASET);
 	} else {
@@ -1329,7 +1351,9 @@ static int macb_eth_of_to_plat(struct udevice *dev)
 		macb->phy_addr = PHY_MAX_ADDR + 1;
 		macb->duplex = fdtdec_get_bool(blob, fl_node, "full-duplex");
 		speed_fdt = fdtdec_get_int(blob, fl_node, "speed", 0);
-		if (speed_fdt == 100) {
+		if (speed_fdt == 1000) {
+			macb->speed = 2;
+		} else if (speed_fdt == 100) {
 			macb->speed = 1;
 		} else if (speed_fdt == 10) {
 			macb->speed = 0;
