@@ -20,7 +20,6 @@
 #define SERVER_NAME_SIZE 254
 #define HTTP_PORT_DEFAULT 80
 #define HTTPS_PORT_DEFAULT 443
-#define PROGRESS_PRINT_STEP_BYTES (100 * 1024)
 
 enum done_state {
 	NOT_DONE = 0,
@@ -251,9 +250,7 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 	if (!elapsed)
 		elapsed = 1;
 	if (!wget_info->silent) {
-		if (rx_content_len > PROGRESS_PRINT_STEP_BYTES)
-			printf("\n");
-		printf("%u bytes transferred in %lu ms (", rx_content_len,
+		printf("\n%u bytes transferred in %lu ms (", rx_content_len,
 		       elapsed);
 		print_size(rx_content_len / elapsed * 1000, "/s)\n");
 		printf("Bytes transferred = %lu (%lx hex)\n", ctx->size,
