@@ -10,6 +10,7 @@
 #include <linux/bitops.h>
 #include <linux/bitfield.h>
 
+#define PHY_ID_ADIN1200				0x0283bc20
 #define PHY_ID_ADIN1300				0x0283bc30
 #define ADIN1300_EXT_REG_PTR			0x10
 #define ADIN1300_EXT_REG_DATA			0x11
@@ -262,6 +263,18 @@ static int adin1300_config(struct phy_device *phydev)
 
 	return genphy_config(phydev);
 }
+
+U_BOOT_PHY_DRIVER(ADIN1200) = {
+	.name = "ADIN1200",
+	.uid = PHY_ID_ADIN1200,
+	.mask = 0xffffffff,
+	.features = PHY_BASIC_FEATURES,
+	.config = adin1300_config,
+	.startup = genphy_startup,
+	.shutdown = genphy_shutdown,
+	.readext = adin_extread,
+	.writeext = adin_extwrite,
+};
 
 U_BOOT_PHY_DRIVER(ADIN1300) = {
 	.name = "ADIN1300",
