@@ -38,8 +38,12 @@
 #include <linux/mii.h>
 #include <asm/io.h>
 #include <linux/dma-mapping.h>
-#include <asm/arch/clk.h>
 #include <linux/errno.h>
+
+/* Without CLK, we rely on the arch definition */
+#if !defined(CONFIG_CLK)
+#include <asm/arch/clk.h>
+#endif
 
 #include "macb.h"
 
