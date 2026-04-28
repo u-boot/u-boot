@@ -1007,9 +1007,14 @@ static int _macb_write_hwaddr(struct macb_device *macb, unsigned char *enetaddr)
 	/* set hardware address */
 	hwaddr_bottom = enetaddr[0] | enetaddr[1] << 8 |
 			enetaddr[2] << 16 | enetaddr[3] << 24;
-	macb_writel(macb, SA1B, hwaddr_bottom);
 	hwaddr_top = enetaddr[4] | enetaddr[5] << 8;
-	macb_writel(macb, SA1T, hwaddr_top);
+	if (macb_is_gem(macb)) {
+		gem_writel(macb, SA1B, hwaddr_bottom);
+		gem_writel(macb, SA1T, hwaddr_top);
+	} else {
+		macb_writel(macb, SA1B, hwaddr_bottom);
+		macb_writel(macb, SA1T, hwaddr_top);
+	}
 	return 0;
 }
 
