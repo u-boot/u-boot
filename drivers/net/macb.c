@@ -927,26 +927,39 @@ static int _macb_init(struct udevice *dev, const char *name)
 		/* Check the multi queue and initialize the queue for tx */
 		gmac_init_multi_queues(macb);
 
-		/*
-		 * When the GMAC IP with GE feature, this bit is used to
-		 * select interface between RGMII and GMII.
-		 * When the GMAC IP without GE feature, this bit is used
-		 * to select interface between RMII and MII.
+		/* This driver uses the user I/O to select the PHY features,
+		 * but some GEM instances come with a fixed configuration and
+		 * no USERIO.
 		 */
-		if (macb->phy_interface == PHY_INTERFACE_MODE_RGMII ||
-		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_ID ||
-		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_RXID ||
-		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_TXID)
-			val = macb->config->usrio->rgmii;
-		else if (macb->phy_interface == PHY_INTERFACE_MODE_RMII)
-			val = macb->config->usrio->rmii;
-		else if (macb->phy_interface == PHY_INTERFACE_MODE_MII)
-			val = macb->config->usrio->mii;
+		if (gem_readl(macb, DCFG1) & GEM_BIT(USERIO)) {
+			/*
+			 * When the GMAC IP with GE feature, this bit is used to
+			 * select interface between RGMII and GMII.
+			 * When he GMAC IP without GE feature, this bit is used
+			 * to select interface between RMII and MII.
+			 */
+			switch (macb->phy_interface) {
+			case PHY_INTERFACE_MODE_RGMII:
+			case PHY_INTERFACE_MODE_RGMII_ID:
+			case PHY_INTERFACE_MODE_RGMII_RXID:
+			case PHY_INTERFACE_MODE_RGMII_TXID:
+				val = macb->config->usrio->rgmii;
+				break;
+			case PHY_INTERFACE_MODE_RMII:
+				val = macb->config->usrio->rmii;
+				break;
+			case PHY_INTERFACE_MODE_MII:
+				val = macb->config->usrio->mii;
+				break;
+			default:
+				break;
+			}
 
-		if (macb->config->caps & MACB_CAPS_USRIO_HAS_CLKEN)
-			val |= macb->config->usrio->clken;
+			if (macb->config->caps & MACB_CAPS_USRIO_HAS_CLKEN)
+				val |= macb->config->usrio->clken;
 
-		gem_writel(macb, USRIO, val);
+			gem_writel(macb, USRIO, val);
+		}
 
 		if (macb->phy_interface == PHY_INTERFACE_MODE_SGMII) {
 			unsigned int ncfgr = macb_readl(macb, NCFGR);
