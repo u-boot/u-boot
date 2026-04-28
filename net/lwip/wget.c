@@ -243,8 +243,6 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 		putc('#');
 		ctx->hash_count++;
 	}
-	puts("  ");
-	print_size(ctx->content_len, "");
 
 	elapsed = get_timer(ctx->start_time);
 	if (!elapsed)
