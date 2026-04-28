@@ -177,6 +177,9 @@ static int store_block(struct wget_ctx *ctx, void *src, u16_t len)
 	ctx->daddr += len;
 	ctx->size += len;
 
+	if (wget_info->silent)
+		return 0;
+
 	pos = clamp(ctx->size, 0UL, ctx->content_len);
 
 	while (ctx->hash_count < pos * 50 / ctx->content_len) {
@@ -239,9 +242,11 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 	}
 
 	/* Print hash marks for the last packet received */
-	while (ctx->hash_count < 49) {
-		putc('#');
-		ctx->hash_count++;
+	if (!wget_info->silent) {
+		while (ctx->hash_count < 49) {
+			putc('#');
+			ctx->hash_count++;
+		}
 	}
 
 	elapsed = get_timer(ctx->start_time);
