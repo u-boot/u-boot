@@ -1781,8 +1781,11 @@ static int fdtdec_apply_bloblist_dtos(void)
 	if (ret)
 		return ret;
 
-	/* Shink the blob to the actual FDT size */
-	fdt_pack(live_fdt);
+	/* Shrink the blob to the actual FDT size */
+	ret = fdt_pack(live_fdt);
+	if (ret)
+		return ret;
+
 	return bloblist_resize(BLOBLISTT_CONTROL_FDT, fdt_totalsize(live_fdt));
 }
 
