@@ -71,7 +71,7 @@ static inline __u32 sect_to_block(__u32 sect, __u32 *off)
 
 static int disk_rw(__u32 sect, __u32 nr_sect, void *buf, bool read)
 {
-	int ret;
+	int ret = 0;
 	__u8 *block = NULL;
 	__u32 rem, size, s, n;
 	const ulong blksz = cur_part_info.blksz;
