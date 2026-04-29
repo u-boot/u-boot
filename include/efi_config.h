@@ -24,7 +24,7 @@ typedef efi_status_t (*eficonfig_entry_func)(void *data);
  *
  * @num:	menu entry index
  * @title:	title of entry
- * @key:	unique key
+ * @key:	unique key, takes a number up to EFICONFIG_ENTRY_NUM_MAX - 1
  * @efi_menu:	pointer to the menu structure
  * @func:	callback function to be called when this entry is selected
  * @data:	data to be passed to the callback function, caller must free() this pointer
@@ -33,7 +33,7 @@ typedef efi_status_t (*eficonfig_entry_func)(void *data);
 struct eficonfig_entry {
 	u32 num;
 	char *title;
-	char key[3];
+	char key[11];
 	struct efimenu *efi_menu;
 	eficonfig_entry_func func;
 	void *data;
