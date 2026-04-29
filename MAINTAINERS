@@ -58,6 +58,11 @@ F:	cmd/acpi.c
 F:	include/acpi/
 F:	lib/acpi/
 
+AIROHA PHY
+M:	Tommy Shih <tommy.shih@airoha.com>
+S:	Maintained
+F:	drivers/net/phy/airoha/air_en8811.c
+
 ALIST
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
