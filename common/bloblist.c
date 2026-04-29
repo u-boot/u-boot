@@ -300,7 +300,7 @@ int bloblist_apply_blobs(uint tag, int (*func)(void **data, int size))
 			}
 
 			rec = rec_from_blob(blob - dat_off);
-			if (rec <= 0) {
+			if (!rec) {
 				log_err("Blob corrupted\n");
 				return -ENOENT;
 			}
