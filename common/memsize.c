@@ -145,6 +145,7 @@ long get_ram_size(long *base, long maxsize)
 long probe_ram_size_by_alias(const struct ram_alias_check *checks)
 {
 	long save[2];
+	long pat;
 	int dcache_en = 0;
 	long ret = 0;
 
@@ -161,12 +162,27 @@ long probe_ram_size_by_alias(const struct ram_alias_check *checks)
 		if (dcache_en)
 			dcache_flush_invalidate(s);
 
-		*d = ~save[0];
+		pat = ~save[0];
+		*d = pat;
 		sync();
 		if (dcache_en)
 			dcache_flush_invalidate(d);
 
-		if (*s != ~save[0])
+		/*
+		 * Make sure the test pattern is observable at the probe
+		 * address before checking whether it is also visible through
+		 * the alias address.
+		 */
+		if (*d != pat) {
+			*d = save[1];
+			sync();
+			if (dcache_en)
+				dcache_flush_invalidate(d);
+			checks++;
+			continue;
+		}
+
+		if (*s != pat)
 			ret = checks->size;
 
 		/* Restore content */
