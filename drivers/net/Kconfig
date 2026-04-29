@@ -246,6 +246,13 @@ config DWC_ETH_QOS_INTEL
 	  The Synopsys Designware Ethernet QOS IP block with the specific
 	  configuration used in the Intel Elkhart-Lake soc.
 
+config DWC_ETH_QOS_QCOM
+	bool "Synopsys DWC Ethernet QOS device support for Qcom SoCs"
+	depends on DWC_ETH_QOS
+	help
+	  The Synopsys Designware Ethernet QOS IP block with specific
+	  configuration used in Qcom QCS404 SoC.
+
 config DWC_ETH_QOS_ROCKCHIP
 	bool "Synopsys DWC Ethernet QOS device support for Rockchip SoCs"
 	depends on DWC_ETH_QOS && ARCH_ROCKCHIP
@@ -253,6 +260,13 @@ config DWC_ETH_QOS_ROCKCHIP
 	help
 	  The Synopsys Designware Ethernet QOS IP block with specific
 	  configuration used in Rockchip SoCs.
+
+config DWC_ETH_QOS_STARFIVE
+	bool "Synopsys DWC Ethernet QOS device support for STARFIVE"
+	depends on DWC_ETH_QOS
+	help
+	  The Synopsys Designware Ethernet QOS IP block with specific
+	  configuration used in STARFIVE  JH7110 soc.
 
 config DWC_ETH_QOS_STM32
 	bool "Synopsys DWC Ethernet QOS device support for STM32"
@@ -270,20 +284,6 @@ config DWC_ETH_QOS_TEGRA186
 	help
 	  The Synopsys Designware Ethernet QOS IP block with specific
 	  configuration used in NVIDIA's Tegra186 chip.
-
-config DWC_ETH_QOS_QCOM
-	bool "Synopsys DWC Ethernet QOS device support for Qcom SoCs"
-	depends on DWC_ETH_QOS
-	help
-	  The Synopsys Designware Ethernet QOS IP block with specific
-	  configuration used in Qcom QCS404 SoC.
-
-config DWC_ETH_QOS_STARFIVE
-	bool "Synopsys DWC Ethernet QOS device support for STARFIVE"
-	depends on DWC_ETH_QOS
-	help
-	  The Synopsys Designware Ethernet QOS IP block with specific
-	  configuration used in STARFIVE  JH7110 soc.
 
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
