@@ -246,6 +246,13 @@ config DWC_ETH_QOS_INTEL
 	  The Synopsys Designware Ethernet QOS IP block with the specific
 	  configuration used in the Intel Elkhart-Lake soc.
 
+config DWC_ETH_QOS_MTK
+	bool "Synopsys DWC Ethernet QOS device support for MediaTek SoCs"
+	depends on DWC_ETH_QOS && ARCH_MEDIATEK
+	help
+	  The Synopsys Designware Ethernet QOS IP block with the specific
+	  configuration used in MediaTek SoCs.
+
 config DWC_ETH_QOS_QCOM
 	bool "Synopsys DWC Ethernet QOS device support for Qcom SoCs"
 	depends on DWC_ETH_QOS

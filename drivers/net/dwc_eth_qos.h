@@ -97,6 +97,7 @@ struct eqos_mac_regs {
 #define EQOS_MAC_MDIO_ADDRESS_PA_MASK			GENMASK(25, 21)
 #define EQOS_MAC_MDIO_ADDRESS_RDA_MASK			GENMASK(20, 16)
 #define EQOS_MAC_MDIO_ADDRESS_CR_MASK			GENMASK(11, 8)
+#define EQOS_MAC_MDIO_ADDRESS_CR_60_100			0
 #define EQOS_MAC_MDIO_ADDRESS_CR_100_150		1
 #define EQOS_MAC_MDIO_ADDRESS_CR_20_35			2
 #define EQOS_MAC_MDIO_ADDRESS_CR_150_250		4
@@ -316,3 +317,4 @@ extern struct eqos_config eqos_stm32mp15_config;
 extern struct eqos_config eqos_stm32mp25_config;
 extern struct eqos_config eqos_jh7110_config;
 extern struct eqos_config eqos_adi_config;
+extern struct eqos_config eqos_mtk_config;

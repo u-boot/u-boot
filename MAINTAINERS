@@ -436,6 +436,7 @@ F:	drivers/clk/mediatek/
 F:	drivers/cpu/mtk_cpu.c
 F:	drivers/i2c/mtk_i2c.c
 F:	drivers/mmc/mtk-sd.c
+F:	drivers/net/dwc_eth_qos_mtk.c
 F:	drivers/net/mtk_eth/
 F:	drivers/net/phy/mediatek/
 F:	drivers/phy/phy-mtk-*
