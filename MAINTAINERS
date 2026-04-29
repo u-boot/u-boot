@@ -61,7 +61,7 @@ F:	lib/acpi/
 AIROHA PHY
 M:	Tommy Shih <tommy.shih@airoha.com>
 S:	Maintained
-F:	drivers/net/phy/airoha/air_en8811.c
+F:	drivers/net/phy/airoha/
 
 ALIST
 M:	Simon Glass <sjg@chromium.org>
