@@ -60,6 +60,7 @@ F:	lib/acpi/
 
 AIROHA PHY
 M:	Tommy Shih <tommy.shih@airoha.com>
+M:	Kevin-KW Huang <kevin-kw.huang@airoha.com>
 S:	Maintained
 F:	drivers/net/phy/airoha/
 
