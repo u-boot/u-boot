@@ -541,10 +541,6 @@ int board_late_init(void)
 {
 	int ret, multiboot;
 
-#if defined(CONFIG_USB_ETHER) && !defined(CONFIG_USB_GADGET_DOWNLOAD)
-	usb_ether_init();
-#endif
-
 	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
 		configure_capsule_updates();
 
