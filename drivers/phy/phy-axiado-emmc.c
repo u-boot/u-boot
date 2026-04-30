@@ -1,6 +1,12 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * Copyright (c) 2021-26 Axiado Corporation (or its affiliates).
+ * Axiado eMMC PHY driver
+ *
+ * Copyright (C) 2017 Arasan Chip Systems Inc.
+ * Copyright (C) 2022-2026 Axiado Corporation (or its affiliates).
+ *
+ * Based on Arasan Driver (sdhci-pci-arasan.c)
+ * sdhci-pci-arasan.c - Driver for Arasan PCI Controller with integrated phy.
  */
 
 #include <dm.h>
@@ -24,34 +30,11 @@
 #define PDB_ENBL			BIT(23)
 #define RETB_ENBL			BIT(1)
 
-/* Receiver Enable bits */
 #define REN_STRB			BIT(27)
-#define REN_CMD				BIT(12)
-#define REN_DAT0			BIT(13)
-#define REN_DAT1			BIT(14)
-#define REN_DAT2			BIT(15)
-#define REN_DAT3			BIT(16)
-#define REN_DAT4			BIT(17)
-#define REN_DAT5			BIT(18)
-#define REN_DAT6			BIT(19)
-#define REN_DAT7			BIT(20)
-#define REN_CMD_EN	(REN_CMD | REN_DAT0 | REN_DAT1 | REN_DAT2 | \
-			 REN_DAT3 | REN_DAT4 | REN_DAT5 | \
-			 REN_DAT6 | REN_DAT7)
+#define REN_CMD_EN			GENMASK(20, 12)
 
-/* Pull-Up Enable bits */
-#define PU_CMD				BIT(3)
-#define PU_DAT0				BIT(4)
-#define PU_DAT1				BIT(5)
-#define PU_DAT2				BIT(6)
-#define PU_DAT3				BIT(7)
-#define PU_DAT4				BIT(8)
-#define PU_DAT5				BIT(9)
-#define PU_DAT6				BIT(10)
-#define PU_DAT7				BIT(11)
-#define PU_CMD_EN	(PU_CMD | PU_DAT0 | PU_DAT1 | PU_DAT2 | \
-			 PU_DAT3 | PU_DAT4 | PU_DAT5 | \
-			 PU_DAT6 | PU_DAT7)
+/* Pull-UP Enable on CMD Line */
+#define PU_CMD_EN			GENMASK(11, 3)
 
 /* PHY Control 2 Register bits */
 #define OTAPDLY_EN			BIT(11)
