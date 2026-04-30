@@ -133,6 +133,7 @@ F:	drivers/mmc/snps_dw_mmc.c
 
 APPLE M1 SOC SUPPORT
 M:	Mark Kettenis <kettenis@openbsd.org>
+R:	Janne Grunau <j@jannau.net>
 S:	Maintained
 F:	arch/arm/include/asm/arch-apple/
 F:	arch/arm/mach-apple/
