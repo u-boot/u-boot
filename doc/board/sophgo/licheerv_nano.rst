@@ -43,9 +43,9 @@ To run u-boot.bin on top of FSBL, follow these steps:
    FSBL, OpenSBI, and U-Boot.
    Note that you will have to use the file cv181x.bin as the FSBL.
 
-2. Place the generated fip.bin file into the FAT partition of the SD card.
+4. Place the generated fip.bin file into the FAT partition of the SD card.
 
-3. Insert the SD card into the board and power it on.
+5. Insert the SD card into the board and power it on.
 
 The board will automatically execute the FSBL from the fip.bin file.
 Subsequently, it will transition to OpenSBI, and finally, OpenSBI will invoke
