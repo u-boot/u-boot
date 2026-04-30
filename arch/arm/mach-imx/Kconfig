@@ -80,6 +80,17 @@ config IMX_QB
 	  memory to non-volatile storage. OEI uses the saved data to
 	  run Quickboot flow and skip re-training the DDR PHY.
 
+config CMD_IMX_QB
+	bool "Support the 'qb' command"
+	default y
+	depends on IMX_QB
+	help
+	  Enable qb command to write/erase DDR quick boot training
+	  data to/from a chosen boot device. Using 'qb save/erase'
+	  without arguments implies using the current boot device's
+	  first bootable partition (e.g. boot0 for eMMC). For use in
+	  uuu scripts, the boot device must be specified explicitly.
+
 config CMD_BMODE
 	bool "Support the 'bmode' command"
 	default y
