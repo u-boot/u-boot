@@ -80,6 +80,14 @@ config IMX_QB
 	  memory to non-volatile storage. OEI uses the saved data to
 	  run Quickboot flow and skip re-training the DDR PHY.
 
+config SPL_IMX_QB
+	bool "Run qb save during SPL"
+	depends on SPL && IMX_QB
+	help
+	  Automatically save DDR training data (Quickboot data)
+	  to current boot device when needed (when OEI runs Training
+	  flow and saves qb data to volatile memory).
+
 config CMD_IMX_QB
 	bool "Support the 'qb' command"
 	default y
