@@ -287,6 +287,7 @@ static const struct nvme_ops apple_nvme_ops = {
 };
 
 static const struct udevice_id apple_nvme_ids[] = {
+	{ .compatible = "apple,t8103-nvme-ans2" },
 	{ .compatible = "apple,nvme-ans2" },
 	{ /* sentinel */ }
 };
