@@ -6,6 +6,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <iommu.h>
+#include <linux/sizes.h>
 #include <lmb.h>
 #include <memalign.h>
 #include <asm/io.h>

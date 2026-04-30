@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <asm/arch/rtkit.h>
 #include <linux/iopoll.h>
+#include <linux/sizes.h>
 
 /* ASC registers */
 #define REG_CPU_CTRL		0x0044

@@ -137,6 +137,7 @@ R:	Janne Grunau <j@jannau.net>
 S:	Maintained
 F:	arch/arm/include/asm/arch-apple/
 F:	arch/arm/mach-apple/
+F:	board/apple/
 F:	configs/apple_m1_defconfig
 F:	doc/board/apple/
 F:	drivers/input/apple_spi_kbd.c
