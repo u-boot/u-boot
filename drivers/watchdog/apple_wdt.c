@@ -78,6 +78,7 @@ static const struct wdt_ops apple_wdt_ops = {
 };
 
 static const struct udevice_id apple_wdt_ids[] = {
+	{ .compatible = "apple,t8103-wdt" },
 	{ .compatible = "apple,wdt" },
 	{ /* sentinel */ }
 };
