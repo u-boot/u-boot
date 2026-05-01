@@ -99,6 +99,7 @@ struct blk_desc {
 	unsigned long	(*block_erase)(struct blk_desc *block_dev,
 				       lbaint_t start,
 				       lbaint_t blkcnt);
+	unsigned long	(*block_flush)(struct blk_desc *block_dev);
 	void		*priv;		/* driver private struct pointer */
 #endif
 };
@@ -240,6 +241,14 @@ struct blk_ops {
 			       lbaint_t blkcnt);
 
 	/**
+	 * flush() - commit all dirty data to storage
+	 *
+	 * @dev:	Device to flush
+	 * @return 0 if OK, -ve on error
+	 */
+	unsigned long (*flush)(struct udevice *dev);
+
+	/**
 	 * select_hwpart() - select a particular hardware partition
 	 *
 	 * Some devices (e.g. MMC) can support partitioning at the hardware
@@ -291,6 +300,7 @@ unsigned long blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt, const void *buffer);
 unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt);
+unsigned long blk_dflush(struct blk_desc *block_dev);
 
 #endif /* BLK */
 
@@ -330,6 +340,14 @@ long blk_write(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
  * or -ve on error. This never returns 0 unless @blkcnt is 0
  */
 long blk_erase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt);
+
+/**
+ * blk_flush() - Commit data to a block device
+ *
+ * @dev: Device to flush
+ * @return 0 if operation succeeded, or -ve on error.
+ */
+long blk_flush(struct udevice *dev);
 
 /**
  * blk_find_device() - Find a block device
@@ -557,6 +575,14 @@ static inline ulong blk_derase(struct blk_desc *block_dev, lbaint_t start,
 {
 	blkcache_invalidate(block_dev->uclass_id, block_dev->devnum);
 	return block_dev->block_erase(block_dev, start, blkcnt);
+}
+
+static inline ulong blk_dflush(struct blk_desc *block_dev)
+{
+	if (block_dev->block_flush)
+		return block_dev->block_flush(block_dev);
+
+	return -ENOSYS;
 }
 
 /**
