@@ -257,7 +257,7 @@ MKIMAGEFLAGS_boot.bin = -T zynqmpimage -R $(srctree)/$(CONFIG_BOOT_INIT_FILE) \
 endif
 
 $(obj)/$(SPL_BIN)-align.bin: $(obj)/$(SPL_BIN).bin
-	@dd if=$< of=$@ conv=block,sync bs=4 2>/dev/null;
+	@dd if=$< of=$@ conv=sync bs=4 2>/dev/null;
 
 spl/boot.bin: $(obj)/$(SPL_BIN)-align.bin FORCE
 	$(call if_changed,mkimage)
