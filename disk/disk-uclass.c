@@ -122,6 +122,11 @@ unsigned long disk_blk_erase(struct udevice *dev, lbaint_t start,
 			 blkcnt);
 }
 
+unsigned long disk_blk_flush(struct udevice *dev)
+{
+	return blk_flush(dev_get_parent(dev));
+}
+
 UCLASS_DRIVER(partition) = {
 	.id		= UCLASS_PARTITION,
 	.per_device_plat_auto	= sizeof(struct disk_part),
@@ -132,6 +137,7 @@ static const struct blk_ops blk_part_ops = {
 	.read	= disk_blk_read,
 	.write	= disk_blk_write,
 	.erase	= disk_blk_erase,
+	.flush	= disk_blk_flush,
 };
 
 U_BOOT_DRIVER(blk_partition) = {

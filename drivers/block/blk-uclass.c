@@ -514,6 +514,16 @@ long blk_erase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
 	return ops->erase(dev, start, blkcnt);
 }
 
+long blk_flush(struct udevice *dev)
+{
+	const struct blk_ops *ops = blk_get_ops(dev);
+
+	if (ops->flush)
+		return ops->flush(dev);
+
+	return -ENOSYS;
+}
+
 ulong blk_dread(struct blk_desc *desc, lbaint_t start, lbaint_t blkcnt,
 		void *buffer)
 {
@@ -529,6 +539,11 @@ ulong blk_dwrite(struct blk_desc *desc, lbaint_t start, lbaint_t blkcnt,
 ulong blk_derase(struct blk_desc *desc, lbaint_t start, lbaint_t blkcnt)
 {
 	return blk_erase(desc->bdev, start, blkcnt);
+}
+
+ulong blk_dflush(struct blk_desc *desc)
+{
+	return blk_flush(desc->bdev);
 }
 
 int blk_find_from_parent(struct udevice *parent, struct udevice **devp)
