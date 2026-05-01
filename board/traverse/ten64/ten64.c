@@ -311,6 +311,19 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 
+/* board_fix_fdt: fixup function for internal (U-Boot) FDT */
+int board_fix_fdt(void *fdt)
+{
+	u32 board_rev = ten64_get_board_rev();
+
+	/* Delete USB Hub references in U-Boot's FDT on
+	 * boards without one.
+	 */
+	if (board_rev == TEN64_BOARD_REV_D)
+		fdt_fixup_usb_hub(fdt);
+	return 0;
+}
+
 #define MACADDRBITS(a, b) (u8)(((a) >> (b)) & 0xFF)
 
 /** Probe and return a udevice for the Ten64 board microcontroller.
