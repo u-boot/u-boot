@@ -140,18 +140,6 @@ class TestFitImage:
       - run code coverage to make sure we are testing all the code
     """
 
-    def make_fname(self, ubman, leaf):
-        """Make a temporary filename
-
-        Args:
-            ubman (ConsoleBase): U-Boot fixture
-            leaf (str): Leaf name of file to create (within temporary directory)
-
-        Return:
-            str: Temporary filename
-        """
-        return os.path.join(ubman.config.build_dir, leaf)
-
     def filesize(self, fname):
         """Get the size of a file
 
@@ -181,7 +169,7 @@ class TestFitImage:
         Returns:
             str: Filename of ramdisk created
         """
-        fname = self.make_fname(ubman, filename)
+        fname = fit_util.make_fname(ubman, filename)
         data = ''
         for i in range(100):
             data += f'{text} {i} was seldom used in the middle ages\n'
@@ -278,33 +266,33 @@ class TestFitImage:
             'fit_addr' : 0x1000,
 
             'kernel' : kernel,
-            'kernel_out' : self.make_fname(ubman, 'kernel-out.bin'),
+            'kernel_out' : fit_util.make_fname(ubman, 'kernel-out.bin'),
             'kernel_addr' : 0x40000,
             'kernel_size' : self.filesize(kernel),
             'kernel_config' : 'kernel = "kernel-1";',
 
             'fdt_data' : fdt_data,
-            'fdt' : self.make_fname(ubman, 'u-boot.dtb'),
-            'fdt_out' : self.make_fname(ubman, 'fdt-out.dtb'),
+            'fdt' : fit_util.make_fname(ubman, 'u-boot.dtb'),
+            'fdt_out' : fit_util.make_fname(ubman, 'fdt-out.dtb'),
             'fdt_addr' : 0x80000,
             'fdt_size' : self.filesize(fdt_data),
             'fdt_load' : '',
 
             'ramdisk' : ramdisk,
-            'ramdisk_out' : self.make_fname(ubman, 'ramdisk-out.bin'),
+            'ramdisk_out' : fit_util.make_fname(ubman, 'ramdisk-out.bin'),
             'ramdisk_addr' : 0xc0000,
             'ramdisk_size' : self.filesize(ramdisk),
             'ramdisk_load' : '',
             'ramdisk_config' : '',
 
             'loadables1' : loadables1,
-            'loadables1_out' : self.make_fname(ubman, 'loadables1-out.bin'),
+            'loadables1_out' : fit_util.make_fname(ubman, 'loadables1-out.bin'),
             'loadables1_addr' : 0x100000,
             'loadables1_size' : self.filesize(loadables1),
             'loadables1_load' : '',
 
             'loadables2' : loadables2,
-            'loadables2_out' : self.make_fname(ubman, 'loadables2-out.bin'),
+            'loadables2_out' : fit_util.make_fname(ubman, 'loadables2-out.bin'),
             'loadables2_addr' : 0x140000,
             'loadables2_size' : self.filesize(loadables2),
             'loadables2_load' : '',
