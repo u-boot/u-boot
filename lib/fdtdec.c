@@ -1729,19 +1729,38 @@ static int fdtdec_match_dto_compatible(const void *base, const void *dto)
 	return 0;
 }
 
+static inline int fdtdec_ret_to_errno(int ret)
+{
+	switch (ret) {
+	case -FDT_ERR_NOTFOUND:
+		return -ENOENT;
+	case -FDT_ERR_EXISTS:
+		return -EEXIST;
+	case -FDT_ERR_NOSPACE:
+	case -FDT_ERR_NOPHANDLES:
+		return -ENOSPC;
+	default:
+		return -EINVAL;
+	}
+}
+
 static int fdtdec_apply_dto_blob(void **blob, __maybe_unused int size)
 {
 	int ret;
 
 	ret = fdt_check_header(*blob);
 	if (ret)
-		return ret;
+		return fdtdec_ret_to_errno(ret);
 
 	ret = fdtdec_match_dto_compatible(gd->fdt_blob, *blob);
 	if (ret)
 		return ret;
 
-	return fdt_overlay_apply_verbose((void *)gd->fdt_blob, *blob);
+	ret = fdt_overlay_apply_verbose((void *)gd->fdt_blob, *blob);
+	if (ret)
+		return fdtdec_ret_to_errno(ret);
+
+	return 0;
 }
 
 static int fdtdec_apply_bloblist_dtos(void)
@@ -1760,6 +1779,10 @@ static int fdtdec_apply_bloblist_dtos(void)
 	if (live_fdt != gd->fdt_blob)
 		return -ENOENT;
 
+	ret = fdt_check_full(live_fdt, blob_size);
+	if (ret)
+		return fdtdec_ret_to_errno(ret);
+
 	/* Calculate the allowed padded size */
 	padded_size = fdt_totalsize(live_fdt) + CONFIG_SYS_FDT_PAD;
 	max_size = bloblist_get_total_size() - bloblist_get_size() + blob_size;
@@ -1772,20 +1795,25 @@ static int fdtdec_apply_bloblist_dtos(void)
 		if (ret)
 			return ret;
 
+		blob_size = padded_size;
 		ret = fdt_open_into(live_fdt, live_fdt, padded_size);
 		if (ret)
-			return ret;
+			return fdtdec_ret_to_errno(ret);
 	}
 
 	ret = bloblist_apply_blobs(BLOBLISTT_FDT_OVERLAY, fdtdec_apply_dto_blob);
 	if (ret)
 		return ret;
 
-	/* Shrink the blob to the actual FDT size */
+	ret = fdt_check_full(live_fdt, blob_size);
+	if (ret)
+		return fdtdec_ret_to_errno(ret);
+
 	ret = fdt_pack(live_fdt);
 	if (ret)
-		return ret;
+		return fdtdec_ret_to_errno(ret);
 
+	/* Shrink the blob to the actual FDT size */
 	return bloblist_resize(BLOBLISTT_CONTROL_FDT, fdt_totalsize(live_fdt));
 }
 
