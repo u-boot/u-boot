@@ -30,7 +30,7 @@
 
 #define BOOTENV_DESIGN_OVERLAYS \
 	"design_overlays=" \
-	"if test -n ${no_of_overlays}; then " \
+	"if test -n \"${no_of_overlays}\"; then " \
 		"setenv inc 1; " \
 		"setenv idx 0; " \
 		"fdt resize ${dtbo_size}; " \
