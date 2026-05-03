@@ -22,8 +22,14 @@ static int simple_video_probe(struct udevice *dev)
 	fdt_addr_t base;
 	fdt_size_t size;
 	u32 width, height, stride, rot;
+	struct ofnode_phandle_args args;
 
-	base = dev_read_addr_size(dev, &size);
+	ret = dev_read_phandle_with_args(dev, "memory-region", NULL, 0, 0, &args);
+	if (ret)
+		base = dev_read_addr_size(dev, &size);
+	else
+		base = ofnode_get_addr_size(args.node, "reg", &size);
+
 	if (base == FDT_ADDR_T_NONE) {
 		debug("%s: Failed to decode memory region\n", __func__);
 		return -EINVAL;
