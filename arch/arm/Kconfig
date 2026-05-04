@@ -1142,6 +1142,7 @@ config ARCH_SNAPDRAGON
 	select POWER_DOMAIN
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
+	select QCOM_SMEM
 	select SPMI
 	select BOARD_LATE_INIT
 	select OF_BOARD
