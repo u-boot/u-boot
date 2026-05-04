@@ -15,6 +15,8 @@
 #include <linux/ioport.h>
 #include <linux/sizes.h>
 #include <soc/qcom/smem.h>
+#include <soc/qcom/socinfo.h>
+#include <env.h>
 
 /*
  * The Qualcomm shared memory system is a allocate only heap structure that
@@ -988,6 +990,29 @@ static int qcom_smem_map_global(struct qcom_smem *smem, u32 size)
 
 	if (!smem->regions[0].virt_base)
 		return -ENOMEM;
+
+	return 0;
+}
+
+int qcom_socinfo_init(void)
+{
+	struct socinfo *info;
+	size_t item_size;
+	char buf[32] = { 0 };
+
+	info = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_HW_SW_BUILD_ID,
+			     &item_size);
+	if (IS_ERR(info)) {
+		log_err("Couldn't find socinfo: %ld\n", PTR_ERR(info));
+		return PTR_ERR(info);
+	}
+
+	if (offsetof(struct socinfo, serial_num) + sizeof(info->serial_num) <= item_size) {
+		snprintf(buf, sizeof(buf), "%u", le32_to_cpu(info->serial_num));
+		env_set("serial#", buf);
+	} else {
+		return -ENOENT;
+	}
 
 	return 0;
 }
