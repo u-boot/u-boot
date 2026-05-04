@@ -39,6 +39,9 @@ static const struct sdhci_cdns_phy_cfg sdhci_cdns_phy_cfgs[] = {
 	{ "cdns,phy-dll-delay-strobe", SDHCI_CDNS_PHY_DLY_STROBE, },
 };
 
+static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
+						    unsigned int opcode);
+
 static int sdhci_cdns_write_phy_reg(struct sdhci_cdns_plat *plat,
 				    u8 addr, u8 data)
 {
@@ -155,8 +158,93 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 		sdhci_cdns6_phy_adj(mmc->dev, plat, mmc->selected_mode);
 }
 
+static __maybe_unused bool sdhci_cdns_sd_needs_tuning(struct mmc *mmc)
+{
+	struct sdhci_cdns_plat *plat = dev_get_plat(mmc->dev);
+
+	if (!IS_SD(mmc))
+		return false;
+
+	if (!dev_read_bool(mmc->dev, "cdns,sd-hs-tuning"))
+		return false;
+
+	/* Already tuned for this mode */
+	if (plat->tuned_mode == mmc->selected_mode)
+		return false;
+
+	switch (mmc->selected_mode) {
+	case SD_HS:
+		return mmc->bus_width == 4;
+	/* Add future modes here, e.g.:
+	 * case UHS_SDR50:
+	 *	return true;
+	 */
+	default:
+		return false;
+	}
+}
+
+static int sdhci_cdns_set_ios_post(struct sdhci_host *host)
+{
+	struct mmc *mmc = host->mmc;
+	struct sdhci_cdns_plat *plat = dev_get_plat(mmc->dev);
+	int ret __maybe_unused;
+	/*
+	 * The SD6HC soft PHY requires runtime DLL delay calibration
+	 * for SD High Speed mode. The default PHY_DLL_SLAVE_CTRL_REG
+	 * values (READ_DQS_CMD_DELAY and READ_DQS_DELAY = 0) do not
+	 * provide sufficient timing margin due to PVT and board trace
+	 * variations.
+	 *
+	 * Tuning is performed once per entry into SD_HS mode
+	 * (tracked by plat->tuned_mode state). The calibrated PHY delay
+	 * values remain valid while the card stays in SD_HS mode, and
+	 * leaving that tuned mode clears the state so re-entering SD_HS
+	 * triggers tuning again.
+	 *
+	 * This must be done in set_ios_post (not set_control_reg)
+	 * because the SDHCI controller must already be operating at
+	 * the target bus width, clock, and speed mode before CMD19
+	 * tuning commands can succeed.
+	 */
+
+	if (IS_ENABLED(CONFIG_MMC_SUPPORTS_TUNING)) {
+		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_420 &&
+		    sdhci_cdns_sd_needs_tuning(mmc)) {
+			ret = sdhci_cdns_execute_tuning(mmc->dev,
+							MMC_CMD_SEND_TUNING_BLOCK);
+			if (ret) {
+				dev_err(mmc->dev,
+					"SD_HS tuning failed (ret=%d), using default PHY\n",
+					ret);
+				/* Restore default PHY settings and avoid retrying in this mode */
+				sdhci_cdns6_phy_adj(mmc->dev, plat,
+						    mmc->selected_mode);
+				plat->tuned_mode = mmc->selected_mode;
+				plat->tuned_dll_slave_ctrl = sdhci_cdns6_phy_get_dll_slave(plat);
+				return 0;
+			}
+			/*
+			 * Tuning succeeded. The tuned_mode is already set by
+			 * execute_tuning(), so the tuned value will be preserved
+			 * across subsequent PHY reconfigurations.
+			 */
+			dev_dbg(mmc->dev, "SD_HS tuning successful\n");
+		}
+
+		/* Reset when mode changes away from a tuned mode */
+		if (mmc->selected_mode != plat->tuned_mode) {
+			plat->tuned_mode = MMC_MODES_END;
+			plat->tuned_dll_slave_ctrl = 0;
+		}
+	}
+
+	return 0;
+}
+
 static const struct sdhci_ops sdhci_cdns_ops = {
 	.set_control_reg = sdhci_cdns_set_control_reg,
+	.set_ios_post = sdhci_cdns_set_ios_post,
 };
 
 static int sdhci_cdns_set_tune_val(struct sdhci_cdns_plat *plat,
@@ -204,6 +292,7 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 	int cur_streak = 0;
 	int max_streak = 0;
 	int end_of_streak = 0;
+	int ret;
 	int i;
 
 	/*
@@ -229,7 +318,24 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 		return -EIO;
 	}
 
-	return sdhci_cdns_set_tune_val(plat, end_of_streak - max_streak / 2);
+	ret = sdhci_cdns_set_tune_val(plat, end_of_streak - max_streak / 2);
+	if (ret)
+		return ret;
+
+	/*
+	 * Mark this mode as tuned. This is critical for both driver tuning
+	 * (SD_HS via set_ios_post) and framework tuning (UHS_SDR104, MMC_HS_200,
+	 * MMC_HS_400) so that subsequent PHY reconfigurations restore the
+	 * calibrated DLL value instead of overwriting with DT defaults.
+	 *
+	 * For HS400, tuning is performed while the controller is in HS200 mode
+	 * (mmc->selected_mode == MMC_HS_200 and mmc->hs400_tuning == true).
+	 * Record the tuned mode as MMC_HS_400 so the calibrated DLL value is
+	 * preserved across the HS200→HS400 transition.
+	 */
+	plat->tuned_mode = mmc->hs400_tuning ? MMC_HS_400 : mmc->selected_mode;
+
+	return 0;
 }
 
 static struct dm_mmc_ops sdhci_cdns_mmc_ops;
