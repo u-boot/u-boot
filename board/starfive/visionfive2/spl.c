@@ -144,7 +144,12 @@ int board_fit_config_name_match(const char *name)
 		    !strncmp(get_product_id_from_eeprom(), "VF7110B", 7)) {
 		return 0;
 	} else if (!strcmp(name, "starfive/jh7110-starfive-visionfive-2-lite") &&
-		    !strncmp(get_product_id_from_eeprom(), "VF7110SL", 8)) {
+		    !strncmp(get_product_id_from_eeprom(), "VF7110SL", 8) &&
+		    !get_mmc_size_from_eeprom()) {
+		return 0;
+	} else if (!strcmp(name, "starfive/jh7110-starfive-visionfive-2-lite-emmc") &&
+		    !strncmp(get_product_id_from_eeprom(), "VF7110SL", 8) &&
+		    get_mmc_size_from_eeprom()) {
 		return 0;
 	}
 
