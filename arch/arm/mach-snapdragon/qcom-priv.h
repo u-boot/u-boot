@@ -23,4 +23,6 @@ void qcom_configure_capsule_updates(void);
 void qcom_configure_capsule_updates(void) {}
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
+int qcom_parse_memory(const void *fdt);
+
 #endif /* __QCOM_PRIV_H__ */
