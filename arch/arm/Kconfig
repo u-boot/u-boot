@@ -1141,7 +1141,6 @@ config ARCH_SNAPDRAGON
 	select DM_RESET
 	select POWER_DOMAIN
 	select GPIO_EXTRA_HEADER
-	select MSM_SMEM
 	select OF_CONTROL
 	select SPMI
 	select BOARD_LATE_INIT
