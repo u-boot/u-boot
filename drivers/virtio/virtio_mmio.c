@@ -372,7 +372,7 @@ static int virtio_mmio_probe(struct udevice *udev)
 		 * virtio-mmio device with an ID 0 is a (dummy) placeholder
 		 * with no function. End probing now with no error reported.
 		 */
-		return -ENODEV;
+		return -ENOENT;
 	}
 	uc_priv->vendor = readl(priv->base + VIRTIO_MMIO_VENDOR_ID);
 
