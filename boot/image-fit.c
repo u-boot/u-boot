@@ -2311,7 +2311,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		}
 		len = load_end - load;
 	} else if (load_op != FIT_LOAD_IGNORED && image_type == IH_TYPE_FLATDT &&
-		   ((uintptr_t)buf & 7)) {
+		   (load & 7)) {
 		loadbuf = aligned_alloc(8, len);
 		load = map_to_sysmem(loadbuf);
 		memcpy(loadbuf, buf, len);
