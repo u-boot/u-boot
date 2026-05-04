@@ -1142,6 +1142,7 @@ config ARCH_SNAPDRAGON
 	select POWER_DOMAIN
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
+	select QCOM_SMEM
 	select SPMI
 	select BOARD_LATE_INIT
 	select OF_BOARD
@@ -1154,6 +1155,7 @@ config ARCH_SNAPDRAGON
 	imply OF_UPSTREAM
 	imply CMD_DM
 	imply DM_USB_GADGET
+	imply SOC_QCOM
 
 config ARCH_SOCFPGA
 	bool "Altera SOCFPGA family"

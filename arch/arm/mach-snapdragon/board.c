@@ -30,6 +30,7 @@
 #include <malloc.h>
 #include <fdt_support.h>
 #include <usb.h>
+#include <soc/qcom/smem.h>
 #include <sort.h>
 #include <time.h>
 
@@ -38,6 +39,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 enum qcom_boot_source qcom_boot_source __section(".data") = 0;
+enum qcom_memmap_source qcom_memmap_source __section(".data") = 0;
 
 static struct mm_region rbx_mem_map[CONFIG_NR_DRAM_BANKS + 2] = { { 0 } };
 
@@ -110,7 +112,7 @@ int board_fdt_blob_setup(void **fdtp)
 
 	/* Prefer memory information from internal DT if it's present */
 	if (internal_valid)
-		ret = qcom_parse_memory(internal_fdt);
+		ret = qcom_parse_memory(internal_fdt, true);
 
 	if (ret < 0 && external_valid) {
 		/* No internal FDT or it lacks a proper /memory node.
@@ -119,7 +121,7 @@ int board_fdt_blob_setup(void **fdtp)
 		if (internal_valid)
 			debug("No memory info in internal FDT, falling back to external\n");
 
-		ret = qcom_parse_memory(external_fdt);
+		ret = qcom_parse_memory(external_fdt, false);
 	}
 
 	if (ret < 0)
@@ -374,21 +376,37 @@ static void configure_env(void)
 	qcom_set_serialno();
 }
 
-void qcom_show_boot_source(void)
+static void qcom_show_boot_context(void)
 {
-	const char *name = "UNKNOWN";
+	const char *boot_source = "UNKNOWN";
+	const char *memmap_source = "UNKNOWN";
 
 	switch (qcom_boot_source) {
 	case QCOM_BOOT_SOURCE_ANDROID:
-		name = "ABL";
+		boot_source = "ABL";
 		break;
 	case QCOM_BOOT_SOURCE_XBL:
-		name = "XBL";
+		boot_source = "XBL";
 		break;
 	}
 
-	log_info("U-Boot loaded from %s\n", name);
-	env_set("boot_source", name);
+	log_info("U-Boot loaded from %s\n", boot_source);
+	env_set("boot_source", boot_source);
+
+	switch (qcom_memmap_source) {
+	case QCOM_MEMMAP_SOURCE_INTERNAL_FDT:
+		memmap_source = "INTERNAL_FDT";
+		break;
+	case QCOM_MEMMAP_SOURCE_EXTERNAL_FDT:
+		memmap_source = "EXTERNAL_FDT";
+		break;
+	case QCOM_MEMMAP_SOURCE_SMEM:
+		memmap_source = "SMEM";
+		break;
+	}
+
+	log_info("Memory map loaded from %s\n", memmap_source);
+	env_set("memmap_source", memmap_source);
 }
 
 void __weak qcom_late_init(void)
@@ -459,7 +477,7 @@ int board_late_init(void)
 	configure_env();
 	qcom_late_init();
 
-	qcom_show_boot_source();
+	qcom_show_boot_context();
 	/* Configure the dfu_string for capsule updates */
 	qcom_configure_capsule_updates();
 
@@ -649,9 +667,12 @@ void enable_caches(void)
 	gd->arch.tlb_addr = tlb_addr;
 	gd->arch.tlb_size = tlb_size;
 
-	/* On some boards speculative access may trigger a NOC or XPU violation so explicitly mark reserved
-	 * regions as inacessible (PTE_TYPE_FAULT) */
-	if (fdt_node_check_compatible(gd->fdt_blob, 0, "qcom,qcs404") == 0) {
+	/*
+	 * On some boards speculative access may trigger a NOC or XPU violation so explicitly mark
+	 * reserved regions as inacessible (PTE_TYPE_FAULT)
+	 */
+	if (qcom_memmap_source == QCOM_MEMMAP_SOURCE_SMEM ||
+	    fdt_node_check_compatible(gd->fdt_blob, 0, "qcom,qcs404") == 0) {
 		carveout_start = get_timer(0);
 		/* Takes ~20-50ms on SDM845 */
 		configure_reserved_memory();
