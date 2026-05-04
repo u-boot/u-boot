@@ -1,0 +1,11 @@
+if AXIADO_AX3005
+
+config TARGET_SCM3005
+	bool "Support Axiado AX3005 SCM3005"
+	help
+	  Support for the Axiado AX3005 SCM3005 board.
+	  Based on the Axiado AX3005 quad-core ARMv8 Cortex-A53 SoC.
+
+source "board/axiado/scm3005/Kconfig"
+
+endif
