@@ -119,7 +119,6 @@ obj-y += reset/
 obj-y += input/
 obj-y += iommu/
 # SOC specific infrastructure drivers.
-obj-y += smem/
 obj-y += thermal/
 obj-$(CONFIG_TEE) += tee/
 obj-$(CONFIG_ARM_FFA_TRANSPORT) += firmware/arm-ffa/

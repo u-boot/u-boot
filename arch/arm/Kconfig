@@ -1143,7 +1143,6 @@ config ARCH_SNAPDRAGON
 	select GPIO_EXTRA_HEADER
 	select MSM_SMEM
 	select OF_CONTROL
-	select SMEM
 	select SPMI
 	select BOARD_LATE_INIT
 	select OF_BOARD

@@ -134,7 +134,6 @@ enum uclass_id {
 	UCLASS_SCSI,		/* SCSI device */
 	UCLASS_SERIAL,		/* Serial UART */
 	UCLASS_SIMPLE_BUS,	/* Bus with child devices */
-	UCLASS_SMEM,		/* Shared memory interface */
 	UCLASS_SOC,		/* SOC Device */
 	UCLASS_SOUND,		/* Playing simple sounds */
 	UCLASS_SPI,		/* SPI bus */
