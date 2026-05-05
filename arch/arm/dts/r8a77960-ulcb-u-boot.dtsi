@@ -32,11 +32,6 @@
 	};
 };
 
-&rpc {
-	reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0x04000000>;
-	status = "disabled";
-};
-
 &sdhi0 {
 	sd-uhs-sdr12;
 	sd-uhs-sdr25;

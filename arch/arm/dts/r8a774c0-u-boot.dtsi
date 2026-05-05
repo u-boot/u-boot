@@ -6,18 +6,6 @@
  *
  */
 
-/ {
-	soc {
-		rpc: spi@ee200000 {
-			compatible = "renesas,r8a774c0-rpc-if", "renesas,rcar-gen3-rpc-if";
-			reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0x04000000>;
-			clocks = <&cpg CPG_MOD 917>;
-			bank-width = <2>;
-			status = "disabled";
-		};
-	};
-};
-
 /delete-node/ &can0;
 /delete-node/ &can1;
 /delete-node/ &canfd;

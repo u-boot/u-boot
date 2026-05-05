@@ -96,35 +96,35 @@ config TARGET_CONDOR
 	bool "Condor board"
 	imply R8A77980
 	help
-          Support for Renesas R-Car Gen3 Condor platform
+	  Support for Renesas R-Car Gen3 Condor platform
 
 config TARGET_V3HSK
 	bool "V3HSK board"
 	help
-          Support for Renesas R-Car Gen3 V3HSK platform
+	  Support for Renesas R-Car Gen3 V3HSK platform
 
 config TARGET_DRAAK
 	bool "Draak board"
 	imply R8A77995
 	help
-          Support for Renesas R-Car Gen3 Draak platform
+	  Support for Renesas R-Car Gen3 Draak platform
 
 config TARGET_EAGLE
 	bool "Eagle board"
 	imply R8A77970
 	help
-          Support for Renesas R-Car Gen3 Eagle platform
+	  Support for Renesas R-Car Gen3 Eagle platform
 
 config TARGET_V3MSK
 	bool "V3MSK board"
 	help
-          Support for Renesas R-Car Gen3 V3MSK platform
+	  Support for Renesas R-Car Gen3 V3MSK platform
 
 config TARGET_EBISU
 	bool "Ebisu board"
 	imply R8A77990
 	help
-          Support for Renesas R-Car Gen3 Ebisu platform
+	  Support for Renesas R-Car Gen3 Ebisu platform
 
 config TARGET_HIHOPE_RZG2
 	bool "HiHope RZ/G2 board"
@@ -135,14 +135,14 @@ config TARGET_HIHOPE_RZG2
 	imply RZ_G2
 	imply SYS_MALLOC_F
 	help
-          Support for RZG2 HiHope platform
+	  Support for RZG2 HiHope platform
 
 config TARGET_SILINUX_EK874
 	bool "Silicon Linux EK874 board"
 	imply R8A774C0
 	imply RZ_G2
 	help
-          Support for Silicon Linux EK874 platform
+	  Support for Silicon Linux EK874 platform
 
 config TARGET_SALVATOR_X
 	bool "Salvator-X board"
@@ -152,7 +152,7 @@ config TARGET_SALVATOR_X
 	imply R8A77965
 	imply SYS_MALLOC_F
 	help
-          Support for Renesas R-Car Gen3 platform
+	  Support for Renesas R-Car Gen3 platform
 
 config TARGET_ULCB
 	bool "ULCB board"
@@ -162,7 +162,7 @@ config TARGET_ULCB
 	imply R8A77965
 	imply SYS_MALLOC_F
 	help
-          Support for Renesas R-Car Gen3 ULCB platform
+	  Support for Renesas R-Car Gen3 ULCB platform
 
 endchoice
 

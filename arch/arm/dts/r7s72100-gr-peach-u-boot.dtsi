@@ -49,7 +49,6 @@
 		compatible = "renesas,r7s72100-rpc-if";
 		reg = <0x3fefa000 0x100>, <0x18000000 0x08000000>;
 		bank-width = <2>;
-		num-cs = <1>;
 		status = "okay";
 		spi-max-frequency = <50000000>;
 		#address-cells = <1>;

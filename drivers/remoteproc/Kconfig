@@ -48,6 +48,15 @@ config REMOTEPROC_RENESAS_APMU
 	  Say 'y' here to add support for Renesas R-Car Gen4 Cortex-R52
 	  processor via the remoteproc framework.
 
+config REMOTEPROC_RENESAS_RSIP
+	bool "Support for Renesas R-Car Gen5 RSIP start of SCP/CR52/CA720 processors"
+	select REMOTEPROC
+	depends on ARCH_RENESAS && RCAR_GEN5 && DM && OF_CONTROL
+	help
+	  Say 'y' here to add support for Renesas R-Car Gen5 RSIP
+	  start of SCP, Cortex-R52 and Cortex-A720 processors via
+	  the remoteproc framework.
+
 config REMOTEPROC_SANDBOX
 	bool "Support for Test processor for Sandbox"
 	select REMOTEPROC
