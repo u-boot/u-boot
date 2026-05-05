@@ -157,26 +157,37 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 				printf(" (%d baud)", gd->baudrate);
 			putc('\n');
 			break;
-		case FEATURES:
+		case FEATURES: {
+			const char *sep = "";
+
 			printf("Features:" RESET " ");
-			if (IS_ENABLED(CONFIG_NET))
-				printf("Net");
-			if (IS_ENABLED(CONFIG_EFI_LOADER))
-				printf(", EFI");
-			if (IS_ENABLED(CONFIG_CMD_CAT))
-				printf(", cat :3");
+			if (IS_ENABLED(CONFIG_NET)) {
+				printf("%sNet", sep);
+				sep = ", ";
+			}
+			if (IS_ENABLED(CONFIG_EFI_LOADER)) {
+				printf("%sEFI", sep);
+				sep = ", ";
+			}
+			if (IS_ENABLED(CONFIG_CMD_CAT)) {
+				printf("%scat :3", sep);
+				sep = ", ";
+			}
 #ifdef CONFIG_ARM64
 			switch (current_el()) {
 			case 2:
-				printf(", VMs");
+				printf("%sVMs", sep);
+				sep = ", ";
 				break;
 			case 3:
-				printf(", full control!");
+				printf("%sfull control!", sep);
+				sep = ", ";
 				break;
 			}
 #endif
 			printf("\n");
 			break;
+		}
 		case RELOCATION:
 			if (gd->flags & GD_FLG_SKIP_RELOC)
 				printf("Relocated:" RESET " no\n");
