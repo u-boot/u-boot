@@ -116,9 +116,9 @@ static int ds1307_rtc_get(struct udevice *dev, struct rtc_time *tm)
 	if (ret < 0)
 		return ret;
 
-	if (type == ds_1337 || type == ds_1340) {
-		uint reg = (type == ds_1337) ? DS1337_STAT_REG_ADDR :
-					       DS1340_STAT_REG_ADDR;
+	if (type == ds_1337 || type == ds_1339 || type == ds_1340) {
+		uint reg = (type == ds_1340) ? DS1340_STAT_REG_ADDR :
+					       DS1337_STAT_REG_ADDR;
 		int status = dm_i2c_reg_read(dev, reg);
 
 		if (status >= 0 && (status & RTC_STAT_BIT_OSF)) {
