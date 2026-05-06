@@ -29,8 +29,10 @@ config ARMV7_BOOT_SEC_DEFAULT
 
 config HAS_ARMV7_SECURE_BASE
 	bool "Enable support for a hardware secure memory area"
-	default y if ARCH_LS1021A || ARCH_MX7 || ARCH_MX7ULP || ARCH_STM32MP \
-			|| MACH_SUN6I || MACH_SUN7I || MACH_SUN8I || TEGRA124
+	default y if ARCH_LS1021A || ARCH_MX7 || ARCH_MX7ULP || \
+		     ARCH_STM32MP || TEGRA124
+	default y if MACH_SUN6I || MACH_SUN7I || \
+		     (MACH_SUN8I && !MACH_SUN8I_R40 && !MACH_SUN8I_V3S)
 
 config ARMV7_SECURE_BASE
 	hex "Base address for secure mode memory"
@@ -53,10 +55,10 @@ config ARMV7_SECURE_RESERVE_SIZE
 
 config ARMV7_SECURE_MAX_SIZE
 	hex
-	depends on ARMV7_SECURE_BASE && ARCH_STM32MP || MACH_SUN6I \
-			|| MACH_SUN7I || MACH_SUN8I
-	default 0xbc00 if MACH_SUN8I && !MACH_SUN8I_H3
-	default 0x3c00 if MACH_SUN8I && MACH_SUN8I_H3
+	depends on HAS_ARMV7_SECURE_BASE && \
+		   (ARCH_STM32MP || MACH_SUN6I || MACH_SUN7I || MACH_SUN8I)
+	default 0x3c00 if MACH_SUN8I_H3
+	default 0xbc00 if MACH_SUN8I
 	default 0x10000
 
 config ARM_GIC_BASE_ADDRESS
