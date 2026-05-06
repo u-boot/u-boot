@@ -43,20 +43,16 @@ Boot from SDCard
 	make P2041RDB_SDCARD_config
 	make all
 
-2. Generate PBL imge
-   Use PE tool to produce a image used to be programed to
-   SDCard which contains RCW and U-Boot image.
-
-3. Program the PBL image to SDCard
-	=> tftp 1000000 pbl_sd.bin
-	=> mmcinfo
+2. Program the PBL image to SDCard
+	=> tftp 1000000 u-boot.pbl
+	=> mmc info
 	=> mmc write 1000000 8 672
 
-4. Program FMAN Firmware ucode
+3. Program FMAN Firmware ucode
 	=> tftp 1000000 ucode.bin
 	=> mmc write 1000000 690 10
 
-5. Change DIP-switch
+4. Change DIP-switch
 	SW1[1-5] = 01100
 	Note: 1 stands for 'on', 0 stands for 'off'
 
@@ -66,22 +62,16 @@ Boot from SPI flash
 	make P2041RDB_SPIFLASH_config
 	make all
 
-2. Generate PBL imge
-   Use PE tool to produce a image used to be programed to
-   SPI flash which contains RCW and U-Boot image.
+2. Program the PBL image to SPI flash
+	=> tftp 1000000 u-boot.pbl
+	=> sf probe 0
+	=> sf update $fileaddr 0 $filesize
 
-3. Program the PBL image to SPI flash
-	=> tftp 1000000 pbl_spi.bin
-	=> spi probe 0
-	=> sf erase 0 100000
-	=> sf write 1000000 0 $filesize
-
-4. Program FMAN Firmware ucode
+3. Program FMAN Firmware ucode
 	=> tftp 1000000 ucode.bin
-	=> sf erase 110000 10000
-	=> sf write 1000000 110000 $filesize
+	=> sf update $fileaddr 110000 $filesize
 
-5. Change DIP-switch
+4. Change DIP-switch
 	SW1[1-5] = 10100
 	Note: 1 stands for 'on', 0 stands for 'off'
 
