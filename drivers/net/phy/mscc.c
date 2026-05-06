@@ -23,6 +23,7 @@
 #define PHY_ID_VSC8502			0x00070630
 #define PHY_ID_VSC8540                  0x00070760
 #define PHY_ID_VSC8541                  0x00070770
+#define PHY_ID_VSC8572			0x000704d0
 #define PHY_ID_VSC8574			0x000704a0
 #define PHY_ID_VSC8584                  0x000707c0
 
@@ -1608,6 +1609,16 @@ U_BOOT_PHY_DRIVER(vsc8541) = {
 	.mask = 0x000ffff0,
 	.features = PHY_GBIT_FEATURES,
 	.config = &vsc8541_config,
+	.startup = &mscc_startup,
+	.shutdown = &genphy_shutdown,
+};
+
+U_BOOT_PHY_DRIVER(vsc8572) = {
+	.name = "Microsemi VSC8572",
+	.uid = PHY_ID_VSC8572,
+	.mask = 0x000ffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &vsc8574_config,
 	.startup = &mscc_startup,
 	.shutdown = &genphy_shutdown,
 };

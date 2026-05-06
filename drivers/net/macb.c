@@ -38,8 +38,12 @@
 #include <linux/mii.h>
 #include <asm/io.h>
 #include <linux/dma-mapping.h>
-#include <asm/arch/clk.h>
 #include <linux/errno.h>
+
+/* Without CLK, we rely on the arch definition */
+#if !defined(CONFIG_CLK)
+#include <asm/arch/clk.h>
+#endif
 
 #include "macb.h"
 
@@ -768,18 +772,40 @@ static int macb_phy_init(struct udevice *dev, const char *name)
 			lpa);
 	} else {
 		/* if macb port is a fixed link */
-		/* TODO : manage gigabit capable processors */
+		const char *human_readable_speed;
+
 		speed = macb->speed;
 		duplex = macb->duplex;
+		switch (speed) {
+		case 2:
+			human_readable_speed = "1000";
+			break;
+		case 1:
+			human_readable_speed = "100";
+			break;
+		case 0:
+			human_readable_speed = "10";
+			break;
+		default:
+			printf("%s: speed %d not supported\n", name, speed);
+			return -EINVAL;
+		}
 		printf("%s: link up, %sMbps %s-duplex\n",
 			name,
-			speed ? "100" : "10",
+			human_readable_speed,
 			duplex ? "full" : "half");
 	}
 
 	ncfgr = macb_readl(macb, NCFGR);
 	ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD) | GEM_BIT(GBE));
-	if (speed) {
+	if (speed == 2) {
+		if (!gem_is_gigabit_capable(macb)) {
+			printf("%s: is not gigabit Ethernet capable\n", name);
+			return -EINVAL;
+		}
+		ncfgr |= GEM_BIT(GBE);
+		ret = macb_linkspd_cb(dev, _1000BASET);
+	} else if (speed == 1) {
 		ncfgr |= MACB_BIT(SPD);
 		ret = macb_linkspd_cb(dev, _100BASET);
 	} else {
@@ -923,26 +949,39 @@ static int _macb_init(struct udevice *dev, const char *name)
 		/* Check the multi queue and initialize the queue for tx */
 		gmac_init_multi_queues(macb);
 
-		/*
-		 * When the GMAC IP with GE feature, this bit is used to
-		 * select interface between RGMII and GMII.
-		 * When the GMAC IP without GE feature, this bit is used
-		 * to select interface between RMII and MII.
+		/* This driver uses the user I/O to select the PHY features,
+		 * but some GEM instances come with a fixed configuration and
+		 * no USERIO.
 		 */
-		if (macb->phy_interface == PHY_INTERFACE_MODE_RGMII ||
-		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_ID ||
-		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_RXID ||
-		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_TXID)
-			val = macb->config->usrio->rgmii;
-		else if (macb->phy_interface == PHY_INTERFACE_MODE_RMII)
-			val = macb->config->usrio->rmii;
-		else if (macb->phy_interface == PHY_INTERFACE_MODE_MII)
-			val = macb->config->usrio->mii;
+		if (gem_readl(macb, DCFG1) & GEM_BIT(USERIO)) {
+			/*
+			 * When the GMAC IP with GE feature, this bit is used to
+			 * select interface between RGMII and GMII.
+			 * When he GMAC IP without GE feature, this bit is used
+			 * to select interface between RMII and MII.
+			 */
+			switch (macb->phy_interface) {
+			case PHY_INTERFACE_MODE_RGMII:
+			case PHY_INTERFACE_MODE_RGMII_ID:
+			case PHY_INTERFACE_MODE_RGMII_RXID:
+			case PHY_INTERFACE_MODE_RGMII_TXID:
+				val = macb->config->usrio->rgmii;
+				break;
+			case PHY_INTERFACE_MODE_RMII:
+				val = macb->config->usrio->rmii;
+				break;
+			case PHY_INTERFACE_MODE_MII:
+				val = macb->config->usrio->mii;
+				break;
+			default:
+				break;
+			}
 
-		if (macb->config->caps & MACB_CAPS_USRIO_HAS_CLKEN)
-			val |= macb->config->usrio->clken;
+			if (macb->config->caps & MACB_CAPS_USRIO_HAS_CLKEN)
+				val |= macb->config->usrio->clken;
 
-		gem_writel(macb, USRIO, val);
+			gem_writel(macb, USRIO, val);
+		}
 
 		if (macb->phy_interface == PHY_INTERFACE_MODE_SGMII) {
 			unsigned int ncfgr = macb_readl(macb, NCFGR);
@@ -1003,9 +1042,14 @@ static int _macb_write_hwaddr(struct macb_device *macb, unsigned char *enetaddr)
 	/* set hardware address */
 	hwaddr_bottom = enetaddr[0] | enetaddr[1] << 8 |
 			enetaddr[2] << 16 | enetaddr[3] << 24;
-	macb_writel(macb, SA1B, hwaddr_bottom);
 	hwaddr_top = enetaddr[4] | enetaddr[5] << 8;
-	macb_writel(macb, SA1T, hwaddr_top);
+	if (macb_is_gem(macb)) {
+		gem_writel(macb, SA1B, hwaddr_bottom);
+		gem_writel(macb, SA1T, hwaddr_top);
+	} else {
+		macb_writel(macb, SA1B, hwaddr_bottom);
+		macb_writel(macb, SA1T, hwaddr_top);
+	}
 	return 0;
 }
 
@@ -1307,7 +1351,9 @@ static int macb_eth_of_to_plat(struct udevice *dev)
 		macb->phy_addr = PHY_MAX_ADDR + 1;
 		macb->duplex = fdtdec_get_bool(blob, fl_node, "full-duplex");
 		speed_fdt = fdtdec_get_int(blob, fl_node, "speed", 0);
-		if (speed_fdt == 100) {
+		if (speed_fdt == 1000) {
+			macb->speed = 2;
+		} else if (speed_fdt == 100) {
 			macb->speed = 1;
 		} else if (speed_fdt == 10) {
 			macb->speed = 0;
