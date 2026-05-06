@@ -56,76 +56,6 @@ static void initialize_lane_to_slot(void)
 	lane_to_slot[13] = (mux & SERDES_MUX_LANE_D_MASK) ? 0 : 2;
 }
 
-/*
- * Given the following ...
- *
- * 1) A pointer to an Fman Ethernet node (as identified by the 'compat'
- * compatible string and 'addr' physical address)
- *
- * 2) An Fman port
- *
- * ... update the phy-handle property of the Ethernet node to point to the
- * right PHY.  This assumes that we already know the PHY for each port.
- *
- * The offset of the Fman Ethernet node is also passed in for convenience, but
- * it is not used, and we recalculate the offset anyway.
- *
- * Note that what we call "Fman ports" (enum fm_port) is really an Fman MAC.
- * Inside the Fman, "ports" are things that connect to MACs.  We only call them
- * ports in U-Boot because on previous Ethernet devices (e.g. Gianfar), MACs
- * and ports are the same thing.
- *
- */
-void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
-			      enum fm_port port, int offset)
-{
-	phy_interface_t intf = fm_info_get_enet_if(port);
-	char phy[16];
-	int lane;
-	u8 slot;
-
-	switch (intf) {
-	/* The RGMII PHY is identified by the MAC connected to it */
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-		sprintf(phy, "phy_rgmii_%u", port == FM1_DTSEC5 ? 0 : 1);
-		fdt_set_phy_handle(fdt, compat, addr, phy);
-		break;
-	/* The SGMII PHY is identified by the MAC connected to it */
-	case PHY_INTERFACE_MODE_SGMII:
-		lane = serdes_get_first_lane(SGMII_FM1_DTSEC1 + port);
-		if (lane < 0)
-			return;
-		slot = lane_to_slot[lane];
-		if (slot) {
-			sprintf(phy, "phy_sgmii_%x",
-					CFG_SYS_FM1_DTSEC1_RISER_PHY_ADDR
-					+ (port - FM1_DTSEC1));
-			fdt_set_phy_handle(fdt, compat, addr, phy);
-		} else {
-			sprintf(phy, "phy_sgmii_%x",
-					CFG_SYS_FM1_DTSEC1_PHY_ADDR
-					+ (port - FM1_DTSEC1));
-			fdt_set_phy_handle(fdt, compat, addr, phy);
-		}
-		break;
-	case PHY_INTERFACE_MODE_XGMII:
-		/* XAUI */
-		lane = serdes_get_first_lane(XAUI_FM1);
-		if (lane >= 0) {
-			/* The XAUI PHY is identified by the slot */
-			sprintf(phy, "phy_xgmii_%u", lane_to_slot[lane]);
-			fdt_set_phy_handle(fdt, compat, addr, phy);
-		}
-		break;
-	default:
-		break;
-	}
-}
-#endif /* #ifdef CONFIG_FMAN_ENET */
-
 int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FMAN_ENET
@@ -208,3 +138,4 @@ int board_eth_init(struct bd_info *bis)
 
 	return pci_eth_init(bis);
 }
+#endif /* #ifdef CONFIG_FMAN_ENET */

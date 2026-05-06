@@ -129,21 +129,6 @@ int board_eth_init(struct bd_info *bis)
 	return pci_eth_init(bis);
 }
 
-void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
-			      enum fm_port port, int offset)
-{
-#if defined(CONFIG_TARGET_T1024RDB)
-	if (((fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_2500BASEX) ||
-	     (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII)) &&
-			(port == FM1_DTSEC3)) {
-		fdt_set_phy_handle(fdt, compat, addr, "sg_2500_aqr105_phy4");
-		fdt_setprop_string(fdt, offset, "phy-connection-type",
-				   "2500base-x");
-		fdt_status_disabled_by_alias(fdt, "xg_aqr105_phy3");
-	}
-#endif
-}
-
 void fdt_fixup_board_enet(void *fdt)
 {
 }
