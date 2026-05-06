@@ -128,44 +128,29 @@ static uint64_t desc_get_end(struct efi_mem_desc *desc)
  */
 static void efi_mem_sort(void)
 {
-	struct efi_mem_list *lmem;
-	struct efi_mem_list *prevmem = NULL;
-	bool merge_again = true;
+	struct efi_mem_list *curmem, *nextmem = NULL;
 
 	list_sort(NULL, &efi_mem, efi_mem_cmp);
 
 	/* Now merge entries that can be merged */
-	while (merge_again) {
-		merge_again = false;
-		list_for_each_entry(lmem, &efi_mem, link) {
-			struct efi_mem_desc *prev;
-			struct efi_mem_desc *cur;
-			uint64_t pages;
+	list_for_each_entry_safe(curmem, nextmem, &efi_mem, link) {
+		struct efi_mem_desc *cur;
+		struct efi_mem_desc *next;
 
-			if (!prevmem) {
-				prevmem = lmem;
-				continue;
-			}
+		/* Exit when we've got nothing to compare with */
+		if (&nextmem->link == &efi_mem)
+			break;
 
-			cur = &lmem->desc;
-			prev = &prevmem->desc;
+		cur = &curmem->desc;
+		next = &nextmem->desc;
 
-			if ((desc_get_end(cur) == prev->physical_start) &&
-			    (prev->type == cur->type) &&
-			    (prev->attribute == cur->attribute)) {
-				/* There is an existing map before, reuse it */
-				pages = cur->num_pages;
-				prev->num_pages += pages;
-				prev->physical_start -= pages << EFI_PAGE_SHIFT;
-				prev->virtual_start -= pages << EFI_PAGE_SHIFT;
-				list_del(&lmem->link);
-				free(lmem);
-
-				merge_again = true;
-				break;
-			}
-
-			prevmem = lmem;
+		if ((cur->physical_start == desc_get_end(next)) &&
+		    (cur->type == next->type) &&
+		    (cur->attribute == next->attribute)) {
+			/* There is another similar map coming up, reuse it */
+			next->num_pages += cur->num_pages;
+			list_del(&curmem->link);
+			free(curmem);
 		}
 	}
 }

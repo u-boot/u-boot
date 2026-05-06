@@ -19,16 +19,36 @@
 #define LMB_ALIST_INITIAL_SIZE	4
 
 /**
- * DOC: Memory region attribute flags.
+ * define LMB_NONE - no special request
  *
- * %LMB_NONE: No special request
- * %LMB_NOMAP: Don't add to MMU configuration
- * %LMB_NOOVERWRITE: The memory region cannot be overwritten/re-reserved
- * %LMB_NONOTIFY: Do not notify other modules of changes to this memory region
+ * LMB Memory region attribute flag to indicate that there are no special
+ * requests for this region. Normally used as a placeholder value.
  */
 #define LMB_NONE 0
+
+/**
+ * define LMB_NOMAP - do not add to MMU configuration
+ *
+ * LMB Memory region attribute flag to indicate that the region will not be
+ * mapped by LMB. Normally used for reserved regions.
+ */
 #define LMB_NOMAP BIT(1)
+
+/**
+ * define LMB_NOOVERWRITE - do not overwrite/re-reserve
+ *
+ * LMB Memory region attribute flag to indicate that the region will not be
+ * overwritten or re-reserved. Normally used for reserved regions.
+ */
 #define LMB_NOOVERWRITE BIT(2)
+
+/**
+ * define LMB_NONOTIFY - do not notify other modules of changes
+ *
+ * LMB Memory region attribute flag to indicate that the region will not notify
+ * downstream allocators (currently just the EFI allocator) of changes to this
+ * region through lmb_map_update_notify().
+ */
 #define LMB_NONOTIFY BIT(3)
 
 /**
