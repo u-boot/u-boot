@@ -186,6 +186,58 @@ void fdt_fixup_board_enet(void *fdt)
 		fdt_status_fail(fdt, offset);
 }
 
+/* The onboard USB hub driver (microchip,usb5744)
+ * can cause a disconnect-reconnect loop if the operating system
+ * attempts to re-initialise the hub after U-Boot has already done it.
+ * (This process only needs to be done once per system RESET cycle)
+ *
+ * To avoid this condition, make the hub topology invisible
+ * to the operating system.
+ * It is also required to remove the hub on boards
+ * without it (RevD).
+ *
+ * The USB hub fixup may fail for legitimate reasons:
+ * 1. FDT has already been fixed. For example, the control
+ *    FDT previously modified by board_fix_fdt is
+ *    re-used for bootflow.
+ * 2. The FDT blob is based on an older version
+ *    without the hub topology, such as older OpenWrt
+ *    FIT images with their own device tree.
+ */
+int fdt_fixup_usb_hub(void *fdt)
+{
+	int usb1_hub2744_offset, usb1_hub5744_offset;
+	int i2c_usb5744_offset;
+	int err;
+
+	usb1_hub2744_offset = fdt_path_offset(fdt, "/soc/usb@3110000/hub@1");
+
+	if (usb1_hub2744_offset < 0)
+		return usb1_hub2744_offset;
+
+	err = fdt_del_node(fdt, usb1_hub2744_offset);
+	if (err)
+		return err;
+
+	usb1_hub5744_offset = fdt_path_offset(fdt, "/soc/usb@3110000/hub@2");
+	if (usb1_hub5744_offset < 0)
+		return usb1_hub5744_offset;
+
+	err = fdt_del_node(fdt, usb1_hub5744_offset);
+	if (err)
+		return err;
+
+	i2c_usb5744_offset = fdt_path_offset(fdt, "/soc/i2c@2000000/usb-hub@2d");
+	if (i2c_usb5744_offset < 0)
+		return i2c_usb5744_offset;
+
+	err = fdt_setprop_string(fdt, i2c_usb5744_offset, "status", "disabled");
+	if (err)
+		return err;
+
+	return 0;
+}
+
 /* Called after SoC board_late_init in fsl-layerscape/soc.c */
 int fsl_board_late_init(void)
 {
@@ -251,6 +303,24 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	fdt_fixup_icid(blob);
 
+	/* This fixup may fail for legitimate
+	 * reasons (see comments for fdt_fixup_usb_hub).
+	 * Hence, errors with it are silently ignored.
+	 */
+	fdt_fixup_usb_hub(blob);
+	return 0;
+}
+
+/* board_fix_fdt: fixup function for internal (U-Boot) FDT */
+int board_fix_fdt(void *fdt)
+{
+	u32 board_rev = ten64_get_board_rev();
+
+	/* Delete USB Hub references in U-Boot's FDT on
+	 * boards without one.
+	 */
+	if (board_rev == TEN64_BOARD_REV_D)
+		fdt_fixup_usb_hub(fdt);
 	return 0;
 }
 

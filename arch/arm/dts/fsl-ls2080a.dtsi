@@ -118,7 +118,7 @@
 		interrupts = <0 35 0x4>; /* Level high type */
 	};
 
-	dspi: dspi@2100000 {
+	dspi: spi@2100000 {
 		compatible = "fsl,vf610-dspi";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -127,7 +127,7 @@
 		spi-num-chipselects = <6>;
 	};
 
-	qspi: quadspi@1550000 {
+	qspi: spi@1550000 {
 		compatible = "fsl,ls2080a-qspi";
 		#address-cells = <1>;
 		#size-cells = <0>;

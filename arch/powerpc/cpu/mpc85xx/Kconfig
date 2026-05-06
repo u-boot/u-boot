@@ -1375,7 +1375,7 @@ config SYS_L3_SIZE
 	int
 	default 262144 if SYS_L3_SIZE_256KB
 	default 524288 if SYS_L3_SIZE_512KB
-	default 1048576 if SYS_L3_SIZE_512KB
+	default 1048576 if SYS_L3_SIZE_1024KB
 
 config SYS_PPC64
 	bool
