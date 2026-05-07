@@ -10,6 +10,7 @@
 
 /* Console */
 #define CFG_SYS_BAUDRATE_TABLE		{ 38400, 115200, 921600, 1843200, 3250000 }
+#define CFG_HSCIF
 
 /* Memory */
 #define DRAM_RSV_SIZE			0x20600000
