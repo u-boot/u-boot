@@ -15,6 +15,7 @@ config R8A78000
 	select GICV3
 	imply CLK_R8A78000
 	imply PINCTRL_PFC_R8A78000
+	imply RENESAS_R8A78000_POWER_DOMAIN
 
 endmenu
 
