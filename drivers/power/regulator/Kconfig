@@ -126,6 +126,16 @@ config SPL_DM_REGULATOR_DA9063
 config DM_REGULATOR_PFUZE100
 	bool "Enable Driver Model for REGULATOR PFUZE100"
 	depends on DM_REGULATOR && DM_PMIC_PFUZE100
+	default DM_PMIC_PFUZE100
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for REGULATOR PFUZE100. The driver implements get/set api for:
+	value, enable and mode.
+
+config SPL_DM_REGULATOR_PFUZE100
+	bool "Enable Driver Model for REGULATOR PFUZE100 in SPL"
+	depends on SPL_DM_REGULATOR && SPL_DM_PMIC_PFUZE100
+	default SPL_DM_PMIC_PFUZE100
 	---help---
 	This config enables implementation of driver-model regulator uclass
 	features for REGULATOR PFUZE100. The driver implements get/set api for:
