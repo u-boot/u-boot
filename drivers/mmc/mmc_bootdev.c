@@ -19,7 +19,7 @@ static int mmc_bootdev_bind(struct udevice *dev)
 	return 0;
 }
 
-struct bootdev_ops mmc_bootdev_ops = {
+static const struct bootdev_ops mmc_bootdev_ops = {
 };
 
 static const struct udevice_id mmc_bootdev_ids[] = {
