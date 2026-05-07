@@ -63,6 +63,13 @@ static const char *const speed_names[] = {
 	[USB_SPEED_SUPER_PLUS] = "super-speed-plus",
 };
 
+static const char *const ssp_rate[] = {
+	[USB_SSP_GEN_UNKNOWN] = "UNKNOWN",
+	[USB_SSP_GEN_2x1] = "super-speed-plus-gen2x1",
+	[USB_SSP_GEN_1x2] = "super-speed-plus-gen1x2",
+	[USB_SSP_GEN_2x2] = "super-speed-plus-gen2x2",
+};
+
 const char *usb_speed_string(enum usb_device_speed speed)
 {
 	if (speed < 0 || speed >= ARRAY_SIZE(speed_names))
@@ -86,6 +93,22 @@ enum usb_device_speed usb_get_maximum_speed(ofnode node)
 			return i;
 
 	return USB_SPEED_UNKNOWN;
+}
+
+enum usb_ssp_rate usb_get_maximum_ssp_rate(ofnode node)
+{
+	const char *maximum_speed;
+	int i;
+
+	maximum_speed = ofnode_read_string(node, "maximum-speed");
+	if (!maximum_speed)
+		return USB_SSP_GEN_UNKNOWN;
+
+	for (i = 0; i < ARRAY_SIZE(ssp_rate); i++)
+		if (!strcmp(maximum_speed, ssp_rate[i]))
+			return i;
+
+	return USB_SSP_GEN_UNKNOWN;
 }
 
 #if CONFIG_IS_ENABLED(DM_USB)

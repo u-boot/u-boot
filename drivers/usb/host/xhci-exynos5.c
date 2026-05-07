@@ -91,7 +91,7 @@ static int xhci_usb_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
-static void exynos5_usb3_phy_init(struct exynos_usb3_phy *phy)
+void exynos5_usb3_phy_init(struct exynos_usb3_phy *phy)
 {
 	u32 reg;
 
