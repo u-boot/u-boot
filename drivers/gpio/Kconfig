@@ -309,9 +309,9 @@ config MAX77663_GPIO
 
 config MCP230XX_GPIO
 	bool "MCP230XX GPIO driver"
-	depends on DM
+	depends on DM && DM_I2C && DM_SPI
 	help
-	  Support for Microchip's MCP230XX I2C connected GPIO devices.
+	  Support for Microchip's MCP230XX I2C and SPI connected GPIO devices.
 	  The following chips are supported:
 	   - MCP23008
 	   - MCP23017
