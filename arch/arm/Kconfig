@@ -1082,6 +1082,7 @@ config ARCH_APPLE
 	imply CMD_GPT
 	imply BOOTSTD_FULL
 	imply OF_HAS_PRIOR_STAGE
+	imply OF_UPSTREAM
 
 config ARCH_OWL
 	bool "Actions Semi OWL SoCs"
