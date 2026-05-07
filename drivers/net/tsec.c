@@ -37,6 +37,23 @@
 		)
 #endif /* CFG_TSEC_TBICR_SETTINGS */
 
+struct tsec_private {
+	struct txbd8 __iomem txbd[TX_BUF_CNT];
+	struct rxbd8 __iomem rxbd[PKTBUFSRX];
+	struct tsec __iomem *regs;
+	struct tsec_mii_mng __iomem *phyregs_sgmii;
+	struct phy_device *phydev;
+	phy_interface_t interface;
+	struct mii_dev *bus;
+	uint phyaddr;
+	uint tbiaddr;
+	char mii_devname[16];
+	u32 flags;
+	uint rx_idx;	/* index of the current RX buffer */
+	uint tx_idx;	/* index of the current TX buffer */
+	struct udevice *dev;
+};
+
 /* Configure the TBI for SGMII operation */
 static void tsec_configure_serdes(struct tsec_private *priv)
 {
