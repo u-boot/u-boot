@@ -1341,7 +1341,7 @@ static const struct udevice_id sandbox_scmi_test_ids[] = {
 	{ }
 };
 
-struct scmi_agent_ops sandbox_scmi_test_ops = {
+static const struct scmi_agent_ops sandbox_scmi_test_ops = {
 	.of_get_channel = sandbox_scmi_of_get_channel,
 	.process_msg = sandbox_scmi_test_process_msg,
 };
