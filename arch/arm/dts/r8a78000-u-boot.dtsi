@@ -65,7 +65,7 @@
 		compatible = "renesas,compound-clock";
 		#clock-cells = <0>;
 		clocks = <&scmi_clk SCP_CLOCK_ID_MDLC_SDHI0>,
-			 <&scmi_clk 1691>;
+			 <&scmi_clk SCP_CLOCK_ID_CLK_S0D6_PERE_MAIN>;
 		clock-names = "mdlc", "per";
 	};
 };
