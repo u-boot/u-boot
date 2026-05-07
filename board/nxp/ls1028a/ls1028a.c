@@ -26,7 +26,9 @@
 #include <fdtdec.h>
 #include <miiphy.h>
 #include "../common/qixis.h"
+#ifdef CONFIG_FSL_ENETC
 #include "../drivers/net/fsl_enetc.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
