@@ -279,8 +279,6 @@ config TFTP_BLOCKSIZE
 	  almost-MTU block sizes.
 	  You can also activate CONFIG_IP_DEFRAG to set a larger block.
 
-endif   # if NET
-
 config SYS_RX_ETH_BUFFER
         int "Number of receive packet buffers"
         default 4
@@ -289,3 +287,5 @@ config SYS_RX_ETH_BUFFER
           controllers it is recommended to set this value to 8 or even higher,
           since all buffers can be full shortly after enabling the interface on
           high Ethernet traffic.
+
+endif   # if NET

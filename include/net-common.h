@@ -20,7 +20,9 @@
  *	alignment in memory.
  *
  */
+#if CONFIG_IS_ENABLED(NET)
 #define PKTBUFSRX	CONFIG_SYS_RX_ETH_BUFFER
+#endif
 #define PKTALIGN	ARCH_DMA_MINALIGN
 
 /* IPv4 addresses are always 32 bits in size */
@@ -132,7 +134,9 @@ static inline void net_set_state(enum net_loop_state state)
 }
 
 extern int		net_restart_wrap;	/* Tried all network devices */
+#if CONFIG_IS_ENABLED(NET)
 extern uchar		*net_rx_packets[PKTBUFSRX]; /* Receive packets */
+#endif
 extern const u8		net_bcast_ethaddr[ARP_HLEN];	/* Ethernet broadcast address */
 extern struct in_addr	net_ip;		/* Our    IP addr (0 = unknown) */
 /* Indicates whether the pxe path prefix / config file was specified in dhcp option */
