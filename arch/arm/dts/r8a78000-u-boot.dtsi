@@ -11,7 +11,7 @@
 
 / {
 	firmware {
-		scmi {
+		scmi: scmi {
 			compatible = "arm,scmi";
 			arm,poll-transport;
 			mbox-names = "tx", "rx";
@@ -20,17 +20,17 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 
-			scmi_devpd: protocol@11 {
+			protocol@11 {
 				reg = <0x11>;
 				#power-domain-cells = <1>;
 			};
 
-			scmi_clk: protocol@14 {
+			protocol@14 {
 				reg = <0x14>;
 				#clock-cells = <1>;
 			};
 
-			scmi_reset: protocol@16 {
+			protocol@16 {
 				reg = <0x16>;
 				#reset-cells = <1>;
 			};
@@ -64,8 +64,8 @@
 	clk_stub_mmc: clk-stub-mmc {
 		compatible = "renesas,compound-clock";
 		#clock-cells = <0>;
-		clocks = <&scmi_clk SCP_CLOCK_ID_MDLC_SDHI0>,
-			 <&scmi_clk SCP_CLOCK_ID_CLK_S0D6_PERE_MAIN>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_SDHI0>,
+			 <&cpg SCP_CLOCK_ID_CLK_S0D6_PERE_MAIN>;
 		clock-names = "mdlc", "per";
 	};
 };
@@ -111,14 +111,22 @@
 		status = "disabled";
 	};
 
+	mdlc_pere: system-controller@c08f0000 {
+		compatible = "renesas,r8a78000-mdlc";
+		reg = <0 0xc08f0000 0 0x1000>;
+		#power-domain-cells = <1>;
+		#reset-cells = <1>;
+		bootph-all;
+	};
+
 	ufs0: ufs@c0a80000 {
 		compatible = "renesas,r8a78000-ufs";
 		reg = <0 0xc0a80000 0 0x1100>, <0 0xc0a00000 0 0x40000>;
 		reg-names = "hcr", "phy";
 		interrupts = <GIC_SPI 4284 IRQ_TYPE_LEVEL_HIGH>;
-		power-domains = <&scmi_devpd X5H_POWER_DOMAIN_ID_UFS0>;
-		clocks = <&scmi_clk SCP_CLOCK_ID_MDLC_UFS0>;
-		resets = <&scmi_reset SCP_RESET_DOMAIN_ID_UFS0>;
+		power-domains = <&mdlc_pere X5H_POWER_DOMAIN_ID_UFS0>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_UFS0>;
+		resets = <&mdlc_pere SCP_RESET_DOMAIN_ID_UFS0>;
 		freq-table-hz = <38400000 38400000>;
 		status = "disabled";
 	};
@@ -128,9 +136,9 @@
 		reg = <0 0xc0a90000 0 0x1100>, <0 0xc0a40000 0 0x40000>;
 		reg-names = "hcr", "phy";
 		interrupts = <GIC_SPI 4285 IRQ_TYPE_LEVEL_HIGH>;
-		power-domains = <&scmi_devpd X5H_POWER_DOMAIN_ID_UFS1>;
-		clocks = <&scmi_clk SCP_CLOCK_ID_MDLC_UFS1>;
-		resets = <&scmi_reset SCP_RESET_DOMAIN_ID_UFS1>;
+		power-domains = <&mdlc_pere X5H_POWER_DOMAIN_ID_UFS1>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_UFS1>;
+		resets = <&mdlc_pere SCP_RESET_DOMAIN_ID_UFS1>;
 		freq-table-hz = <38400000 38400000>;
 		status = "disabled";
 	};
@@ -153,14 +161,12 @@
 		};
 	};
 
-	cpg: clock-controller@c64f0000 {
-		compatible = "renesas,r8a78000-cpg-mssr";
-		reg = <0 0xc64f0000 0 0x4000>;
+	cpg: clock-controller@c1320000 {
+		compatible = "renesas,r8a78000-cpg";
+		reg = <0 0xc1320000 0 0x10000>;
 		clocks = <&extal_clk>, <&extalr_clk>;
 		clock-names = "extal", "extalr";
-		#clock-cells = <2>;
-		#power-domain-cells = <0>;
-		#reset-cells = <1>;
+		#clock-cells = <1>;
 		bootph-all;
 	};
 
@@ -301,22 +307,22 @@
 		compatible = "renesas,r8a78000-multi-protocol-phy";
 		reg = <0 0xc9a00000 0 0x100000>;
 		#phy-cells = <2>;
-		clocks = <&scmi_clk SCP_CLOCK_ID_MDLC_MPPHY01>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_MPPHY11>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_MPPHY21>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_MPPHY31>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_MPPHY02>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_MPPHY01>,
+			 <&cpg SCP_CLOCK_ID_MDLC_MPPHY11>,
+			 <&cpg SCP_CLOCK_ID_MDLC_MPPHY21>,
+			 <&cpg SCP_CLOCK_ID_MDLC_MPPHY31>,
+			 <&cpg SCP_CLOCK_ID_MDLC_MPPHY02>;
 		clock-names = "mpphy01", "mpphy11", "mpphy21",
 			      "mpphy31", "mpphy02";
-		power-domains = <&scmi_devpd X5H_POWER_DOMAIN_ID_MPP0>,
-				<&scmi_devpd X5H_POWER_DOMAIN_ID_MPP1>,
-				<&scmi_devpd X5H_POWER_DOMAIN_ID_MPP2>,
-				<&scmi_devpd X5H_POWER_DOMAIN_ID_MPP3>;
-		resets = <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY01>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY11>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY21>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY31>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY02>;
+		power-domains = <&mdlc_hscn X5H_POWER_DOMAIN_ID_MPP0>,
+				<&mdlc_hscn X5H_POWER_DOMAIN_ID_MPP1>,
+				<&mdlc_hscn X5H_POWER_DOMAIN_ID_MPP2>,
+				<&mdlc_hscn X5H_POWER_DOMAIN_ID_MPP3>;
+		resets = <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY01>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY11>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY21>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY31>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY02>;
 		status = "disabled";
 	};
 
@@ -325,19 +331,19 @@
 				"renesas,etherswitch";
 		reg = <0 0xc9bc0000 0 0x40000>, <0 0xc9b80000 0 0x240000>;
 		reg-names = "base", "secure_base";
-		power-domains = <&scmi_devpd X5H_POWER_DOMAIN_ID_RSW>;
-		clocks = <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3TSN>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3AES>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3TSNTES0>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3TSNTES1>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3TSNTES2>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3TSNTES3>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3TSNTES4>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3TSNTES5>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3TSNTES6>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3TSNTES7>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_RSW3MFWD>;
+		power-domains = <&mdlc_hscn X5H_POWER_DOMAIN_ID_RSW>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_RSW3>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSN>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3AES>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES0>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES1>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES2>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES3>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES4>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES5>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES6>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES7>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3MFWD>;
 		clock-names = "rsw3", "rsw3tsn", "rsw3aes",
 			      "rsw3tsntes0", "rsw3tsntes1", "rsw3tsntes2",
 			      "rsw3tsntes3", "rsw3tsntes4", "rsw3tsntes5",
@@ -349,26 +355,34 @@
 		compatible = "renesas,r8a78000-ether-pcs";
 		reg = <0 0xc9c50000 0 0x4000>;
 		#phy-cells = <1>;
-		clocks = <&scmi_clk SCP_CLOCK_ID_MDLC_XPCS0>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_XPCS1>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_XPCS2>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_XPCS3>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_XPCS4>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_XPCS5>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_XPCS6>,
-			 <&scmi_clk SCP_CLOCK_ID_MDLC_XPCS7>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_XPCS0>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS1>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS2>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS3>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS4>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS5>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS6>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS7>;
 		clock-names = "xpcs0", "xpcs1", "xpcs2", "xpcs3",
 			      "xpcs4", "xpcs5", "xpcs6", "xpcs7";
-		resets = <&scmi_reset SCP_RESET_DOMAIN_ID_XPCS0>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_XPCS1>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_XPCS2>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_XPCS3>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_XPCS4>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_XPCS5>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_XPCS6>,
-			 <&scmi_reset SCP_RESET_DOMAIN_ID_XPCS7>;
+		resets = <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS0>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS1>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS2>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS3>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS4>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS5>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS6>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS7>;
 		reset-names = "xpcs0", "xpcs1", "xpcs2", "xpcs3",
 			      "xpcs4", "xpcs5", "xpcs6", "xpcs7";
 		status = "disabled";
+	};
+
+	mdlc_hscn: system-controller@c9c90000 {
+		compatible = "renesas,r8a78000-mdlc";
+		reg = <0 0xc9c90000 0 0x1000>;
+		#power-domain-cells = <1>;
+		#reset-cells = <1>;
+		bootph-all;
 	};
 };

@@ -34,6 +34,10 @@
 	};
 };
 
+&cpg {
+	firmware = <&scmi>;
+};
+
 &eth_pcs {
 	phys = <&mp_phy 2 1>;
 	status = "okay";
@@ -62,6 +66,14 @@
 	pinctrl-names = "default";
 	clock-frequency = <400000>;
 	status = "okay";
+};
+
+&mdlc_hscn {
+	firmware = <&scmi>;
+};
+
+&mdlc_pere {
+	firmware = <&scmi>;
 };
 
 &mmc0 {
