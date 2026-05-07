@@ -8,14 +8,18 @@ developed by the Asahi Linux project.  At this point the machines with
 the following SoCs work:
 
  - Apple M1 SoC (t8103)
+ - Apple M2 SoC (t8112)
  - Apple M1 Pro SoC (t6000)
  - Apple M1 Max SoC (t6001)
  - Apple M1 Ultra SoC (t6002)
+ - Apple M2 Pro SoC (t6020)
+ - Apple M2 Max SoC (t6021)
+ - Apple M2 Ultra SoC (t6022)
 
 On these SoCs the following hardware is supported:
 
  - S5L serial port
- - SPI keyboard (on laptops)
+ - SPI keyboard (on M1 laptops)
  - Framebuffer
  - NVMe storage
  - USB 3.1 Type-C ports
@@ -77,7 +81,7 @@ supported SoCs.
 
    * - SoC
      - Base Address
-   * - M1 (t8103)
+   * - M1 (t8103) and M2 (t8112)
      - 0x235200000
-   * - M1 Pro/Max/Ultra (t6000/t6001/t6002)
+   * - M1 Pro/Max/Ultra (t6000/t6001/t6002) and M2 Pro/Max/Ultra (t6020/t6021/t6022)
      - 0x39b200000
