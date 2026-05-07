@@ -778,7 +778,7 @@ static int sata_imx_remove(struct udevice *dev)
 	return 0;
 }
 
-struct ahci_ops sata_imx_ops = {
+static const struct ahci_ops sata_imx_ops = {
 	.port_status = dwc_ahsata_port_status,
 	.reset	= dwc_ahsata_bus_reset,
 	.scan	= dwc_ahsata_scan,
