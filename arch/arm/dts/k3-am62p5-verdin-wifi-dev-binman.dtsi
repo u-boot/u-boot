@@ -7,6 +7,10 @@
 
 #if IS_ENABLED(CONFIG_TARGET_VERDIN_AM62P_R5)
 
+&rcfg_yaml_tifs {
+	config = "tifs-rm-cfg.yaml";
+};
+
 &binman {
 	tiboot3-am62px-hs-fs-verdin.bin {
 		filename = "tiboot3-am62px-hs-fs-verdin.bin";
