@@ -156,18 +156,10 @@ static void fit_get_debug(const void *fit, int noffset,
 int fit_get_subimage_count(const void *fit, int images_noffset)
 {
 	int noffset;
-	int ndepth;
 	int count = 0;
 
-	/* Process its subnodes, print out component images details */
-	for (ndepth = 0, count = 0,
-		noffset = fdt_next_node(fit, images_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			count++;
-		}
-	}
+	fdt_for_each_subnode(noffset, fit, images_noffset)
+		count++;
 
 	return count;
 }
@@ -291,7 +283,7 @@ static void fit_conf_print(const void *fit, int noffset, const char *p)
 	const char *uname;
 	int ret;
 	int fdt_index, loadables_index;
-	int ndepth;
+	int sub_noffset;
 
 	/* Mandatory properties */
 	ret = fit_get_desc(fit, noffset, &desc);
@@ -357,14 +349,8 @@ static void fit_conf_print(const void *fit, int noffset, const char *p)
 	}
 
 	/* Process all hash subnodes of the component configuration node */
-	for (ndepth = 0, noffset = fdt_next_node(fit, noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/* Direct child node of the component configuration node */
-			fit_image_print_verification_data(fit, noffset, p);
-		}
-	}
+	fdt_for_each_subnode(sub_noffset, fit, noffset)
+		fit_image_print_verification_data(fit, sub_noffset, p);
 }
 
 /**
@@ -386,8 +372,7 @@ void fit_print_contents(const void *fit)
 	int images_noffset;
 	int confs_noffset;
 	int noffset;
-	int ndepth;
-	int count = 0;
+	int count;
 	int ret;
 	const char *p;
 	time_t timestamp;
@@ -424,20 +409,12 @@ void fit_print_contents(const void *fit)
 	}
 
 	/* Process its subnodes, print out component images details */
-	for (ndepth = 0, count = 0,
-		noffset = fdt_next_node(fit, images_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/*
-			 * Direct child node of the images parent node,
-			 * i.e. component image node.
-			 */
-			printf("%s Image %u (%s)\n", p, count++,
-			       fit_get_name(fit, noffset, NULL));
+	count = 0;
+	fdt_for_each_subnode(noffset, fit, images_noffset) {
+		printf("%s Image %u (%s)\n", p, count++,
+		       fit_get_name(fit, noffset, NULL));
 
-			fit_image_print(fit, noffset, p);
-		}
+		fit_image_print(fit, noffset, p);
 	}
 
 	/* Find configurations parent node offset */
@@ -454,20 +431,12 @@ void fit_print_contents(const void *fit)
 		printf("%s Default Configuration: '%s'\n", p, uname);
 
 	/* Process its subnodes, print out configurations details */
-	for (ndepth = 0, count = 0,
-		noffset = fdt_next_node(fit, confs_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/*
-			 * Direct child node of the configurations parent node,
-			 * i.e. configuration node.
-			 */
-			printf("%s Configuration %u (%s)\n", p, count++,
-			       fit_get_name(fit, noffset, NULL));
+	count = 0;
+	fdt_for_each_subnode(noffset, fit, confs_noffset) {
+		printf("%s Configuration %u (%s)\n", p, count++,
+		       fit_get_name(fit, noffset, NULL));
 
-			fit_conf_print(fit, noffset, p);
-		}
+		fit_conf_print(fit, noffset, p);
 	}
 }
 
@@ -494,7 +463,6 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	ulong load, entry;
 	const void *data;
 	int noffset;
-	int ndepth;
 	int ret;
 
 	if (!CONFIG_IS_ENABLED(FIT_PRINT))
@@ -584,14 +552,8 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	}
 
 	/* Process all hash subnodes of the component image node */
-	for (ndepth = 0, noffset = fdt_next_node(fit, image_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/* Direct child node of the component image node */
-			fit_image_print_verification_data(fit, noffset, p);
-		}
-	}
+	fdt_for_each_subnode(noffset, fit, image_noffset)
+		fit_image_print_verification_data(fit, noffset, p);
 }
 
 /**
@@ -1477,7 +1439,6 @@ int fit_all_image_verify(const void *fit)
 {
 	int images_noffset;
 	int noffset;
-	int ndepth;
 	int count;
 
 	/* Find images parent node offset */
@@ -1491,23 +1452,15 @@ int fit_all_image_verify(const void *fit)
 	/* Process all image subnodes, check hashes for each */
 	printf("## Checking hash(es) for FIT Image at %08lx ...\n",
 	       (ulong)fit);
-	for (ndepth = 0, count = 0,
-	     noffset = fdt_next_node(fit, images_noffset, &ndepth);
-			(noffset >= 0) && (ndepth > 0);
-			noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/*
-			 * Direct child node of the images parent node,
-			 * i.e. component image node.
-			 */
-			printf("   Hash(es) for Image %u (%s): ", count,
-			       fit_get_name(fit, noffset, NULL));
-			count++;
+	count = 0;
+	fdt_for_each_subnode(noffset, fit, images_noffset) {
+		printf("   Hash(es) for Image %u (%s): ", count,
+		       fit_get_name(fit, noffset, NULL));
+		count++;
 
-			if (!fit_image_verify(fit, noffset))
-				return 0;
-			printf("\n");
-		}
+		if (!fit_image_verify(fit, noffset))
+			return 0;
+		printf("\n");
 	}
 	return 1;
 }
@@ -1734,7 +1687,6 @@ int fit_check_format(const void *fit, ulong size)
 
 int fit_conf_find_compat(const void *fit, const void *fdt)
 {
-	int ndepth = 0;
 	int noffset, confs_noffset, images_noffset;
 	const void *fdt_compat;
 	int fdt_compat_len;
@@ -1757,9 +1709,7 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 	/*
 	 * Loop over the configurations in the FIT image.
 	 */
-	for (noffset = fdt_next_node(fit, confs_noffset, &ndepth);
-			(noffset >= 0) && (ndepth > 0);
-			noffset = fdt_next_node(fit, noffset, &ndepth)) {
+	fdt_for_each_subnode(noffset, fit, confs_noffset) {
 		const void *fdt;
 		const char *kfdt_name;
 		int kfdt_noffset, compat_noffset;
@@ -1767,9 +1717,6 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 		int len;
 		size_t sz;
 		int i;
-
-		if (ndepth > 1)
-			continue;
 
 		/* If there's a compat property in the config node, use that. */
 		if (fdt_getprop(fit, noffset, FIT_COMPAT_PROP, NULL)) {
