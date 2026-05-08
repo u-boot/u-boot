@@ -62,4 +62,33 @@ config NBX_MMC_PART_BANK1_SIZE
 
 endif
 
+config CMD_NBX_FBXSERIAL
+	bool "fbxserial command"
+	depends on MMC_SDHCI_XENON
+	help
+	  Enable the fbxserial command to read and display device
+	  serial information from eMMC. This includes:
+	  - Device serial number (type, version, manufacturer, date, number)
+	  - MAC address (used to set ethaddr environment variables)
+	  - Bundle information (if present)
+
+	  The serial info is stored at a fixed offset in the eMMC user area.
+
+	  Subcommands:
+	  - fbxserial show: display serial info (default)
+	  - fbxserial init: initialize ethaddr from serial info
+
+	  Use CONFIG_PREBOOT="fbxserial init" to auto-initialize at boot.
+
+if CMD_NBX_FBXSERIAL
+
+config NBX_MMC_PART_SERIAL_OFFSET
+	hex "Serial info offset in eMMC"
+	default 0x800000
+	help
+	  Byte offset in eMMC where the serial info structure is stored.
+	  Default: 0x800000 (8MB)
+
+endif
+
 endif
