@@ -100,7 +100,7 @@ struct ec_state {
 	struct fdt_cros_ec ec_config;
 	uint8_t *flash_data;
 	int flash_data_len;
-	enum ec_current_image current_image;
+	enum ec_image current_image;
 	int matrix_count;
 	struct ec_keymatrix_entry *matrix;	/* the key matrix info */
 	uint8_t keyscan[KEYBOARD_COLS];

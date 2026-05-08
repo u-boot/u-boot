@@ -487,7 +487,7 @@ int cros_ec_read_build_info(struct udevice *dev, char **strp)
 }
 
 int cros_ec_read_current_image(struct udevice *dev,
-			       enum ec_current_image *image)
+			       enum ec_image *image)
 {
 	struct ec_response_get_version *r;
 
