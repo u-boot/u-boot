@@ -179,7 +179,7 @@ static int scmi_power_domain_probe(struct udevice *dev)
 	return 0;
 }
 
-struct power_domain_ops scmi_power_domain_ops = {
+static const struct power_domain_ops scmi_power_domain_ops = {
 	.on = scmi_power_domain_on,
 	.off = scmi_power_domain_off,
 };
