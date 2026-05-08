@@ -168,7 +168,7 @@ static int dw_i2c_acpi_fill_ssdt(const struct udevice *dev,
 	return 0;
 }
 
-struct acpi_ops dw_i2c_acpi_ops = {
+static struct acpi_ops dw_i2c_acpi_ops = {
 	.fill_ssdt	= dw_i2c_acpi_fill_ssdt,
 };
 
