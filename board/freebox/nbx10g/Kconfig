@@ -1,0 +1,12 @@
+if TARGET_NBX10G
+
+config SYS_BOARD
+	default "nbx10g"
+
+config SYS_VENDOR
+	default "freebox"
+
+config SYS_CONFIG_NAME
+	default "nbx10g"
+
+endif

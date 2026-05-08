@@ -166,6 +166,14 @@ config TARGET_MVEBU_ARMADA_8K
 	select BOARD_LATE_INIT
 	imply SCSI
 
+config TARGET_NBX10G
+	bool "Support Freebox Nodebox 10G"
+	select ARMADA_8K
+	select BOARD_LATE_INIT
+	help
+	  Enable support for the Freebox Nodebox 10G board based on the
+	  Marvell Armada 8040 SoC with dual CP110 companion chips.
+
 config TARGET_MVEBU_ALLEYCAT5
 	bool "Support AlleyCat 5 platforms"
 	select ALLEYCAT_5
@@ -515,5 +523,6 @@ config ARMADA_32BIT_SYSCON_SYSRESET
 
 source "board/solidrun/clearfog/Kconfig"
 source "board/kobol/helios4/Kconfig"
+source "board/freebox/nbx10g/Kconfig"
 
 endif
