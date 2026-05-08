@@ -15,6 +15,8 @@
 #include <asm/armv8/mmu.h>
 #include <mach/fw_info.h>
 
+#include "soc_info.h"
+
 /* Armada 7k/8k */
 #define MVEBU_RFU_BASE			(MVEBU_REGISTER(0x6f0000))
 #define RFU_GLOBAL_SW_RST		(MVEBU_RFU_BASE + 0x84)
@@ -110,4 +112,14 @@ int mmc_get_env_dev(void)
 	}
 
 	return CONFIG_ENV_MMC_DEVICE_INDEX;
+}
+
+int print_cpuinfo(void)
+{
+	if (!IS_ENABLED(CONFIG_DISPLAY_CPUINFO))
+		return 0;
+
+	soc_print_clock_info();
+	soc_print_soc_info();
+	return 0;
 }
