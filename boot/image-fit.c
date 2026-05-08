@@ -449,7 +449,7 @@ void fit_print_contents(const void *fit)
 	}
 
 	/* get default configuration unit name from default property */
-	uname = (char *)fdt_getprop(fit, noffset, FIT_DEFAULT_PROP, NULL);
+	uname = (char *)fdt_getprop(fit, confs_noffset, FIT_DEFAULT_PROP, NULL);
 	if (uname)
 		printf("%s Default Configuration: '%s'\n", p, uname);
 
