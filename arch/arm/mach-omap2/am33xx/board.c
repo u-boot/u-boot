@@ -266,9 +266,15 @@ int arch_misc_init(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = uclass_first_device_err(UCLASS_MISC, &dev);
-	if (ret)
-		return ret;
+	/*
+	 * The MUSB wrapper driver is bound as a MISC device, so probe here
+	 * to register the musb device early.
+	 */
+	if (IS_ENABLED(CONFIG_USB_MUSB_TI)) {
+		ret = uclass_first_device_err(UCLASS_MISC, &dev);
+		if (ret)
+			return ret;
+	}
 
 #if defined(CONFIG_DM_ETH) && defined(CONFIG_USB_ETHER)
 	usb_ether_init();
