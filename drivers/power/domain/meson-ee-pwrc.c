@@ -386,7 +386,7 @@ static int meson_ee_pwrc_of_xlate(struct power_domain *power_domain,
 	return 0;
 }
 
-struct power_domain_ops meson_ee_pwrc_ops = {
+static const struct power_domain_ops meson_ee_pwrc_ops = {
 	.off = meson_ee_pwrc_off,
 	.on = meson_ee_pwrc_on,
 	.of_xlate = meson_ee_pwrc_of_xlate,
