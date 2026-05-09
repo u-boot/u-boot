@@ -548,13 +548,11 @@ static int acm_add(struct usb_configuration *c)
 
 	status = udc_device_get_by_index(0, &f_acm->udc);
 	if (status)
-		return status;
+		goto err;
 
 	status = usb_add_function(c, &f_acm->usb_function);
-	if (status) {
-		free(f_acm);
-		return status;
-	}
+	if (status)
+		goto err;
 
 	buf_init(&f_acm->rx_buf, 2048);
 	buf_init(&f_acm->tx_buf, 2048);
@@ -562,6 +560,10 @@ static int acm_add(struct usb_configuration *c)
 	if (!default_acm_function)
 		default_acm_function = f_acm;
 
+	return 0;
+
+err:
+	free(f_acm);
 	return status;
 }
 
