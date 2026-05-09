@@ -99,13 +99,6 @@ void board_debug_uart_init(void)
 }
 #endif
 
-#ifdef CONFIG_BOARD_EARLY_INIT_F
-int board_early_init_f(void)
-{
-	return 0;
-}
-#endif
-
 #define AT24MAC_MAC_OFFSET	0x9a
 
 #ifdef CONFIG_MISC_INIT_R

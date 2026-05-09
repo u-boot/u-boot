@@ -132,7 +132,8 @@ void board_init_f(ulong dummy)
 
 	timer_init();
 
-	board_early_init_f();
+	if (IS_ENABLED(CONFIG_BOARD_EARLY_INIT_F))
+		board_early_init_f();
 
 	at91_mem_init();
 
