@@ -43,7 +43,7 @@ static int tegra186_reset_deassert(struct reset_ctl *reset_ctl)
 	return tegra186_reset_common(reset_ctl, CMD_RESET_DEASSERT);
 }
 
-struct reset_ops tegra186_reset_ops = {
+static const struct reset_ops tegra186_reset_ops = {
 	.rst_assert = tegra186_reset_assert,
 	.rst_deassert = tegra186_reset_deassert,
 };
