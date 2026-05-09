@@ -292,7 +292,7 @@ static int smbios_get_val_si(struct smbios_ctx * __maybe_unused ctx,
 
 	/* If the node is still missing, try with the mapping values */
 	nprop = convert_sysinfo_to_dt(ctx->subnode_name, prop);
-	if (!ofnode_read_u32(ofnode_root(), nprop->dt_str, &val))
+	if (nprop && !ofnode_read_u32(ofnode_root(), nprop->dt_str, &val))
 		return val;
 #endif
 	return val_def;
