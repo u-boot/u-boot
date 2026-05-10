@@ -330,7 +330,7 @@ void dwc3_imx8mp_glue_configure(struct udevice *dev, int index,
 	unmap_physmem(base, MAP_NOCACHE);
 }
 
-struct dwc3_glue_ops imx8mp_ops = {
+static const struct dwc3_glue_ops imx8mp_ops = {
 	.glue_configure = dwc3_imx8mp_glue_configure,
 };
 
@@ -414,7 +414,7 @@ enum dwc3_omap_utmi_mode {
 	unmap_physmem(base, MAP_NOCACHE);
 }
 
-struct dwc3_glue_ops ti_ops = {
+static const struct dwc3_glue_ops ti_ops = {
 	.glue_configure = dwc3_ti_glue_configure,
 };
 
@@ -506,16 +506,16 @@ static int dwc3_flat_dt_get_ctrl_dev(struct udevice *dev, ofnode *node)
 	return 0;
 }
 
-struct dwc3_glue_ops qcom_ops = {
+static const struct dwc3_glue_ops qcom_ops = {
 	.glue_configure = dwc3_qcom_glue_configure,
 };
 
-struct dwc3_glue_ops qcom_flat_dt_ops = {
+static const struct dwc3_glue_ops qcom_flat_dt_ops = {
 	.glue_configure = dwc3_qcom_glue_configure,
 	.glue_get_ctrl_dev = dwc3_flat_dt_get_ctrl_dev,
 };
 
-struct dwc3_glue_ops rk_ops = {
+static const struct dwc3_glue_ops rk_ops = {
 	.glue_get_ctrl_dev = dwc3_flat_dt_get_ctrl_dev,
 };
 
