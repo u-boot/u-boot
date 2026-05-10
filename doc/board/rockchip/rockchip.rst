@@ -127,6 +127,7 @@ List of mainline supported Rockchip boards:
 
 * rk3568
      - 9Tripod X3568 v4 (9tripod-x3568-v4-rk3568)
+     - Anbernic RG-DS (anbernic-rg-ds-rk3568)
      - Rockchip Evb-RK3568 (evb-rk3568)
      - Banana Pi BPI-R2 Pro (bpi-r2-pro-rk3568)
      - EmbedFire LubanCat 2 (lubancat-2-rk3568)
