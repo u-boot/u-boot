@@ -877,8 +877,19 @@ static int get_function(struct udevice *dev, int offset, bool skip_unused,
 		return -ENODEV;
 	if (offset < 0 || offset >= uc_priv->gpio_count)
 		return -EINVAL;
-	if (namep)
+	if (namep) {
 		*namep = uc_priv->name[offset];
+		/* Fall back to DT "gpio-line-names" for unrequested pins. */
+		if (CONFIG_IS_ENABLED(DM_GPIO_LOOKUP_LINE_NAME) &&
+		    (!*namep || !**namep)) {
+			const char *dt_name = NULL;
+
+			if (!dev_read_string_index(dev, "gpio-line-names",
+						   offset, &dt_name) &&
+			    dt_name && *dt_name)
+				*namep = dt_name;
+		}
+	}
 	if (skip_unused && !gpio_is_claimed(uc_priv, offset))
 		return GPIOF_UNUSED;
 	if (ops->get_function) {
