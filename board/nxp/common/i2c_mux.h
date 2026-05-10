@@ -10,6 +10,11 @@
 
 #ifdef CONFIG_FSL_USE_PCA9547_MUX
 int select_i2c_ch_pca9547(u8 ch, int bus);
+#else
+static inline int select_i2c_ch_pca9547(u8 ch, int bus)
+{
+	return -EOPNOTSUPP;
+}
 #endif
 
 #endif
