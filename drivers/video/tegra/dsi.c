@@ -337,7 +337,7 @@ static ssize_t tegra_dsi_host_transfer(struct mipi_dsi_host *host,
 	return count;
 }
 
-struct mipi_dsi_host_ops tegra_dsi_bridge_host_ops = {
+static const struct mipi_dsi_host_ops tegra_dsi_bridge_host_ops = {
 	.transfer	= tegra_dsi_host_transfer,
 };
 
