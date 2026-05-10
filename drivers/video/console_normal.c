@@ -133,7 +133,7 @@ static int console_set_cursor_visible(struct udevice *dev, bool visible,
 	return 0;
 }
 
-struct vidconsole_ops console_ops = {
+static const struct vidconsole_ops console_ops = {
 	.putc_xy	= console_putc_xy,
 	.move_rows	= console_move_rows,
 	.set_row	= console_set_row,
