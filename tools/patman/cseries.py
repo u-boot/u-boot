@@ -119,7 +119,7 @@ class Cseries(cser_helper.CseriesHelper):
 
         new_max = max_vers - 1
 
-        repo = pygit2.init_repository(self.gitdir)
+        repo = pygit2.Repository(self.gitdir)
         if not dry_run:
             name = self._get_branch_name(ser.name, new_max)
             branch = repo.lookup_branch(name)
@@ -859,7 +859,7 @@ class Cseries(cser_helper.CseriesHelper):
             tag_info[svi.version] = [svi.idnum, name, f'{name}-{now_str}']
 
         # Create the tags
-        repo = pygit2.init_repository(self.gitdir)
+        repo = pygit2.Repository(self.gitdir)
         for _, (idnum, name, tag_name) in tag_info.items():
             commit = repo.revparse_single(name)
             repo.create_tag(tag_name, commit.hex,
@@ -896,7 +896,7 @@ class Cseries(cser_helper.CseriesHelper):
         svlist = self.db.ser_ver_get_for_series(ser.idnum)
 
         # Collect the tags
-        repo = pygit2.init_repository(self.gitdir)
+        repo = pygit2.Repository(self.gitdir)
         tag_info = {}
         for svi in svlist:
             name = self._get_branch_name(ser.name, svi.version)
