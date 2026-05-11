@@ -15,8 +15,8 @@ from dataclasses import dataclass
 from io import BytesIO
 from struct import Struct
 
-from . import cert
-from . import elf
+import cert
+import elf
 
 # A typical Qualcomm firmware might have the following program headers:
 #     LOAD off    0x00000800 vaddr 0x86400000 paddr 0x86400000 align 2**11

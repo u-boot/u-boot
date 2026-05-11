@@ -45,6 +45,22 @@ class Ehdr:
 	CLASS32 = 1
 	CLASS64 = 2
 
+	# Init a qcom XBL style ELF header
+	def __init__(self):
+		self.ei_magic = b"\x7fELF"
+		self.ei_class = 2
+		self.ei_data = 1
+		self.ei_version = 1
+		self.ei_os_abi = 0
+		self.ei_abi_version = 0
+		self.e_type = 2
+		self.e_machine = 183
+		self.e_version = 1
+
+		self.e_ehsize = 64
+		self.e_phoff = 64
+		self.e_phentsize = 56
+
 	@staticmethod
 	def parse(b: bytes) -> Ehdr:
 		hdr_unpack = Ehdr.START_FORMAT.unpack_from(b)
@@ -110,8 +126,24 @@ class Phdr:
 
 		return Phdr(*unpack)
 
+	@staticmethod
+	def from_bin(b: bytes, loadaddr: int) -> Phdr:
+		# p_offset is fixed later
+		phdr = Phdr(
+			p_type=1,
+			p_offset=0xFFFFFFFF,
+			p_vaddr=loadaddr,
+			p_paddr=loadaddr,
+			p_filesz=len(b),
+			p_memsz=len(b),
+			p_flags=7,
+			p_align=0x1000,
+		)
+		phdr.data = memoryview(b)
+		return phdr
+
 	def save(self, f: BinaryIO, ei_class: int) -> int:
-		unpack = dataclasses.astuple(self)
+		unpack: tuple|list = dataclasses.astuple(self)
 
 		if ei_class == Ehdr.CLASS32:
 			return f.write(Phdr.FORMAT32.pack(*unpack))
@@ -142,6 +174,10 @@ def align(i: int, alignment: int) -> int:
 class Elf:
 	ehdr: Ehdr
 	phdrs: List[Phdr]
+
+	def __init__(self, ehdr: Ehdr = Ehdr(), phdrs: List[Phdr] = []):
+		self.ehdr = ehdr
+		self.phdrs = phdrs
 
 	def total_header_size(self):
 		return self.ehdr.e_phoff + len(self.phdrs) * self.ehdr.e_phentsize
