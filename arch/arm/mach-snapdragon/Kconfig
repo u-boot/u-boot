@@ -42,4 +42,14 @@ config SYS_CONFIG_NAME
 	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
 	  will be used for board configuration.
 
+config QCOM_GENERATE_MBN
+	bool "Generate an MBN-compatible ELF binary"
+	help
+	  Enable this if you intend to flash U-Boot as a first-stage bootloader.
+	  The build system will generate a board-specific ELF file with the appropriate
+	  MBN hash segments and test keys.
+
+	  New platforms can be added to tools/qcom/mkmbn/mkmbn.py if they aren't already
+	  supported.
+
 endif
