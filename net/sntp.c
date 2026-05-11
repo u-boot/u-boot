@@ -64,6 +64,9 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	if (dest != sntp_our_port)
 		return;
 
+	if (len < SNTP_PACKET_LEN)
+		return;
+
 	/*
 	 * As the RTC's used in U-Boot support second resolution only
 	 * we simply ignore the sub-second field.
