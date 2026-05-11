@@ -42,9 +42,6 @@ CONFIG_SPL_SYS_MALLOC_SIZE=0x1000000
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_HELP is not set
-# CONFIG_CMD_BOOTD is not set
-# CONFIG_CMD_BOOTM is not set
-# CONFIG_CMD_BOOTI is not set
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_FDT is not set
 # CONFIG_CMD_GO is not set
@@ -59,7 +56,6 @@ CONFIG_SPL_SYS_MALLOC_SIZE=0x1000000
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_DM is not set
 # CONFIG_CMD_LOADB is not set
-# CONFIG_CMD_LOADS is not set
 CONFIG_CMD_MMC=y
 # CONFIG_CMD_ECHO is not set
 # CONFIG_CMD_ITEST is not set
