@@ -5,6 +5,7 @@
 import os
 import shutil
 import subprocess
+import utils
 
 """ standard test images table: Each table item is a key:value pair
 representing the output image name and its respective mksquashfs options.
@@ -66,19 +67,6 @@ def init_standard_table():
     for key, value in zip(STANDARD_TABLE.keys(), opts_list):
         STANDARD_TABLE[key] = value
 
-def generate_file(file_name, file_size):
-    """ Generates a file filled with 'x'.
-
-    Args:
-        file_name: the file's name.
-        file_size: the content's length and therefore the file size.
-    """
-    content = 'x' * file_size
-
-    file = open(file_name, 'w')
-    file.write(content)
-    file.close()
-
 def generate_sqfs_src_dir(build_dir):
     """ Generates the source directory used to make the SquashFS images.
 
@@ -107,20 +95,20 @@ def generate_sqfs_src_dir(build_dir):
 
     # 4096: minimum block size
     file_name = 'f4096'
-    generate_file(os.path.join(root, file_name), 4096)
+    utils.generate_file(os.path.join(root, file_name), 4096)
 
     # 5096: minimum block size + 1000 chars (fragment)
     file_name = 'f5096'
-    generate_file(os.path.join(root, file_name), 5096)
+    utils.generate_file(os.path.join(root, file_name), 5096)
 
     # 1000: less than minimum block size (fragment only)
     file_name = 'f1000'
-    generate_file(os.path.join(root, file_name), 1000)
+    utils.generate_file(os.path.join(root, file_name), 1000)
 
     # sub-directory with a single file inside
     subdir_path = os.path.join(root, 'subdir')
     os.makedirs(subdir_path)
-    generate_file(os.path.join(subdir_path, 'subdir-file'), 100)
+    utils.generate_file(os.path.join(subdir_path, 'subdir-file'), 100)
 
     # symlink (target: sub-directory)
     os.symlink('subdir', os.path.join(root, 'sym'))

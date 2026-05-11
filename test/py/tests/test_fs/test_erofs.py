@@ -6,18 +6,10 @@ import os
 import pytest
 import shutil
 import subprocess
+import utils
 
 EROFS_SRC_DIR = 'erofs_src_dir'
 EROFS_IMAGE_NAME = 'erofs.img'
-
-def generate_file(name, size):
-    """
-    Generates a file filled with 'x'.
-    """
-    content = 'x' * size
-    file = open(name, 'w')
-    file.write(content)
-    file.close()
 
 def make_erofs_image(build_dir):
     """
@@ -36,15 +28,15 @@ def make_erofs_image(build_dir):
     os.makedirs(root)
 
     # 4096: uncompressed file
-    generate_file(os.path.join(root, 'f4096'), 4096)
+    utils.generate_file(os.path.join(root, 'f4096'), 4096)
 
     # 7812: Compressed file
-    generate_file(os.path.join(root, 'f7812'), 7812)
+    utils.generate_file(os.path.join(root, 'f7812'), 7812)
 
     # sub-directory with a single file inside
     subdir_path = os.path.join(root, 'subdir')
     os.makedirs(subdir_path)
-    generate_file(os.path.join(subdir_path, 'subdir-file'), 100)
+    utils.generate_file(os.path.join(subdir_path, 'subdir-file'), 100)
 
     # symlink
     os.symlink('subdir', os.path.join(root, 'symdir'))
