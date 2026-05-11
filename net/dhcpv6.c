@@ -377,6 +377,11 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 			break;
 		case DHCP6_OPTION_OPT_BOOTFILE_URL:
 			debug("DHCP6_OPTION_OPT_BOOTFILE_URL FOUND\n");
+			if (option_len >= sizeof(net_boot_file_name)) {
+				debug("Option length for BOOTFILE_URL is greater or equal than %zu. Skipping\n",
+				      sizeof(net_boot_file_name));
+				break;
+			}
 			copy_filename(net_boot_file_name, option_ptr, option_len + 1);
 			debug("net_boot_file_name: %s\n", net_boot_file_name);
 
