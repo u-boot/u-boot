@@ -47,7 +47,7 @@ ifdef	SOC
 sinclude $(srctree)/$(CPUDIR)/$(SOC)/config.mk	# include  SoC	specific rules
 endif
 ifneq ($(BOARD),)
-ifdef	VENDOR
+ifneq ($(VENDOR),)
 BOARDDIR = $(VENDOR)/$(BOARD)
 ENVDIR=${vendor}/env
 else
@@ -55,7 +55,11 @@ BOARDDIR = $(BOARD)
 ENVDIR=${board}/env
 endif
 endif
-ifdef	BOARD
+
+ifneq ($(VENDOR),)
+sinclude $(srctree)/board/$(VENDOR)/config.mk	# include vendor specific rules
+endif
+ifdef	BOARDDIR
 sinclude $(srctree)/board/$(BOARDDIR)/config.mk	# include board specific rules
 endif
 
