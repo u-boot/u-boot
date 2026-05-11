@@ -126,4 +126,14 @@ struct rom_extended_boot_data {
 
 u32 get_boot_device(void);
 const char *get_reset_reason(void);
+
+#define writel_verify(val, addr) \
+do { \
+	u32 readback; \
+	writel(val, addr); \
+	readback = readl(addr); \
+	if (readback != val) \
+		printf("writel_verify failed: addr=0x%p, expected=0x%x, got=0x%x\n", \
+		       (void *)(addr), (val), readback); \
+} while (0)
 #endif /* _ASM_ARCH_HARDWARE_H_ */
