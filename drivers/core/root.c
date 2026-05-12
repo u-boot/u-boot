@@ -81,10 +81,9 @@ static int dm_setup_inst(void)
 		/* Now allocate space for the priv/plat data, and copy it in */
 		size = __priv_data_end - __priv_data_start;
 
-		base = calloc(1, size);
+		base = memdup(__priv_data_start, size);
 		if (!base)
 			return log_msg_ret("priv", -ENOMEM);
-		memcpy(base, __priv_data_start, size);
 		gd_set_dm_priv_base(base);
 	}
 
