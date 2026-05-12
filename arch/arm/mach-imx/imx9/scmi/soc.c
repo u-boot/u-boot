@@ -786,9 +786,16 @@ static void gpio_reset(ulong gpio_base)
 int arch_cpu_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
-		if (!IS_ENABLED(CONFIG_IMX952)) {
-			disable_wdog((void __iomem *)WDG3_BASE_ADDR);
-			disable_wdog((void __iomem *)WDG4_BASE_ADDR);
+		ofnode node;
+
+		ofnode_for_each_compatible_node(node, "fsl,imx93-wdt") {
+			phys_addr_t base;
+
+			base = ofnode_get_addr(node);
+			if (base == FDT_ADDR_T_NONE)
+				continue;
+
+			disable_wdog((void __iomem *)base);
 		}
 
 		gpio_reset(GPIO2_BASE_ADDR);

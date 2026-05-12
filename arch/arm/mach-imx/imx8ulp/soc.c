@@ -343,7 +343,17 @@ static void disable_wdog(void __iomem *wdog_base)
 
 void init_wdog(void)
 {
-	disable_wdog((void __iomem *)WDG3_RBASE);
+	ofnode node;
+
+	ofnode_for_each_compatible_node(node, "fsl,imx8ulp-wdt") {
+		phys_addr_t base;
+
+		base = ofnode_get_addr(node);
+		if (base == FDT_ADDR_T_NONE)
+			continue;
+
+		disable_wdog((void __iomem *)base);
+	}
 }
 
 static struct mm_region imx8ulp_arm64_mem_map[] = {
