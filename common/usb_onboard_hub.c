@@ -262,6 +262,12 @@ static int usb_onboard_hub_remove(struct udevice *dev)
 	return ret;
 }
 
+static const struct onboard_hub_data corechips_sl6341_data = {
+	.reset_us = 10000,
+	.num_supplies = 2,
+	.supply_names = { "vdd1v1-supply", "vdd3v3-supply" },
+};
+
 static const struct onboard_hub_data usb2514_data = {
 	.power_on_delay_us = 500,
 	.reset_us = 1,
@@ -285,7 +291,13 @@ static const struct onboard_hub_data usbhx3_data = {
 
 static const struct udevice_id usb_onboard_hub_ids[] = {
 	/* Use generic usbVID,PID dt-bindings (usb-device.yaml) */
-	{	.compatible = "usb424,2514",	/* USB2514B USB 2.0 */
+	{	.compatible = "usb3431,6241",	/* Corechips SL6341 USB 2.0 */
+		.data = (ulong)&corechips_sl6341_data,
+	}, {
+		.compatible = "usb3431,6341",	/* Corechips SL6341 USB 3.0 */
+		.data = (ulong)&corechips_sl6341_data,
+	}, {
+		.compatible = "usb424,2514",	/* USB2514B USB 2.0 */
 		.data = (ulong)&usb2514_data,
 	}, {
 		.compatible = "usb424,2744",	/* USB2744 USB 2.0 */
