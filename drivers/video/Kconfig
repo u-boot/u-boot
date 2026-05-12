@@ -29,6 +29,13 @@ config VIDEO_FONT_4X6
 	  Provides character bitmap data in header file.
 	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
 
+config VIDEO_FONT_6X8
+	bool "6 x 8 font size"
+	help
+	  Font for video console driver, 6 x 8 pixels.
+	  Provides character bitmap data in header file.
+	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
+
 config VIDEO_FONT_8X16
 	bool "8 x 16 font size"
 	default y
