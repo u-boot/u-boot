@@ -534,7 +534,7 @@ config VIDEO_BCM2835
 	  that U-Boot can access it with full colour depth.
 
 config VIDEO_LCD_ENDEAVORU
-	tristate "Endeavoru 720x1280 DSI video mode panel"
+	bool "Endeavoru 720x1280 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -561,7 +561,7 @@ config VIDEO_LCD_ILITEK_ILI9806E
 	  is implemented.
 
 config VIDEO_LCD_MOT
-	tristate "Atrix 4G and Droid X2 540x960 DSI video mode panel"
+	bool "Atrix 4G and Droid X2 540x960 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -609,7 +609,7 @@ config VIDEO_LCD_RAYDIUM_RM68200
 	720x1280 DSI video mode panel.
 
 config VIDEO_LCD_RENESAS_R61307
-	tristate "Renesas R61307 DSI video mode panel"
+	bool "Renesas R61307 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -618,7 +618,7 @@ config VIDEO_LCD_RENESAS_R61307
 	  resolution and uses 24 bit RGB per pixel.
 
 config VIDEO_LCD_RENESAS_R69328
-	tristate "Renesas R69328 720x1280 DSI video mode panel"
+	bool "Renesas R69328 720x1280 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -627,7 +627,7 @@ config VIDEO_LCD_RENESAS_R69328
 	  resolution and uses 24 bit RGB per pixel.
 
 config VIDEO_LCD_SAMSUNG_LTL106HL02
-	tristate "Samsung LTL106HL02 1920x1080 DSI video mode panel"
+	bool "Samsung LTL106HL02 1920x1080 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -636,7 +636,7 @@ config VIDEO_LCD_SAMSUNG_LTL106HL02
 	  resolution (1920x1080).
 
 config VIDEO_LCD_SHARP_LQ079L1SX01
-	tristate "Sharp LQ079L1SX01 1536x2048 DSI video mode panel"
+	bool "Sharp LQ079L1SX01 1536x2048 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -645,7 +645,7 @@ config VIDEO_LCD_SHARP_LQ079L1SX01
 	  resolution (1536x2048).
 
 config VIDEO_LCD_SHARP_LQ101R1SX01
-	tristate "Sharp LQ101R1SX01 2560x1600 DSI video mode panel"
+	bool "Sharp LQ101R1SX01 2560x1600 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -689,7 +689,7 @@ config VIDEO_LCD_TDO_TL070WSH30
 	1024x600 DSI video mode panel.
 
 config VIDEO_LCD_HITACHI_TX10D07VM0BAA
-	tristate "Hitachi TX10D07VM0BAA 480x800 MIPI DSI video mode panel"
+	bool "Hitachi TX10D07VM0BAA 480x800 MIPI DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -704,7 +704,7 @@ config VIDEO_LCD_HITACHI_TX18D42VM
 	done they work like a regular LVDS panel.
 
 config VIDEO_LCD_SONY_L4F00430T01
-	tristate "Sony L4F00430T01 480x800 LCD panel support"
+	bool "Sony L4F00430T01 480x800 LCD panel support"
 	depends on PANEL
 	help
 	  Say Y here if you want to enable support for Sony L4F00430T01
@@ -713,7 +713,7 @@ config VIDEO_LCD_SONY_L4F00430T01
 	  data comes from RGB.
 
 config VIDEO_LCD_SAMSUNG_S6E63M0
-	tristate "Samsung S6E63M0 controller based panel support"
+	bool "Samsung S6E63M0 controller based panel support"
 	depends on PANEL && BACKLIGHT
 	help
 	  Say Y here if you want to enable support for Samsung S6E63M0
