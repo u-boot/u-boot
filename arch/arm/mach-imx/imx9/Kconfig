@@ -115,6 +115,7 @@ config TARGET_IMX93_FRDM
 	select REMOTEPROC_IMX
 	select REGMAP
 	select SYSCON
+	imply OF_UPSTREAM
 
 config TARGET_IMX93_VAR_SOM
 	bool "imx93_var_som"
