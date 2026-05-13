@@ -397,6 +397,17 @@ void fwu_populate_mdata_image_info(struct fwu_data *data);
 int fwu_get_mdata_size(uint32_t *mdata_size);
 
 /**
+ * fwu_mdata_get_image_guid() - Get image GUID for a type and bank
+ * @image_guid: Pointer to be filled with the found image GUID
+ * @image_type_guid: Pointer to the image type GUID to search for
+ * @bank_index: Index of the bank
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_mdata_get_image_guid(efi_guid_t *image_guid,
+			     const efi_guid_t *image_type_guid, u32 bank_index);
+
+/**
  * fwu_state_machine_updates() - Update FWU state of the platform
  * @state: FWU bank state
  * @update_index: Bank number to which images have been updated
