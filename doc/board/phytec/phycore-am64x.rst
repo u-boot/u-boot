@@ -175,6 +175,24 @@ Boot switches should be changed with power off.
      - 11011100
      - 00000000
 
+DDR RAM Size
+------------
+
+By default, the R5 SPL detects the populated DDR size by reading the SoM
+EEPROM and configures the DDR controller and the U-Boot device-tree memory
+node accordingly. The phyCORE-AM64x is available with 1 GB or 2 GB of DDR.
+If the EEPROM cannot be read or is invalid, the SPL falls back to a 2 GB
+configuration.
+
+EEPROM-based detection can be bypassed by enabling
+`CONFIG_PHYCORE_AM64X_RAM_SIZE_FIX` in the R5 defconfig and selecting one of:
+
+* `CONFIG_PHYCORE_AM64X_RAM_SIZE_1GB`
+* `CONFIG_PHYCORE_AM64X_RAM_SIZE_2GB`
+
+This is mainly useful if no detection is needed or for boards without a
+populated SoM EEPROM.
+
 .. include:: k3-common.rst
 
 Further Information
