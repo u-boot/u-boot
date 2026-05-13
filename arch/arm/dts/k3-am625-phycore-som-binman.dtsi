@@ -9,6 +9,11 @@
 #include "k3-binman.dtsi"
 
 #ifdef CONFIG_TARGET_PHYCORE_AM62X_R5
+
+&rcfg_yaml_tifs {
+	config = "tifs-rm-cfg.yaml";
+};
+
 &binman {
 	tiboot3-am62x-hs-phycore-som.bin {
 		filename = "tiboot3-am62x-hs-phycore-som.bin";
