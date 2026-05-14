@@ -211,7 +211,7 @@
 		"${pubkey}\0" \
 	"rescueboot=echo Booting rescue system ...; " \
 		"run addmtd addmisc;" \
-		"if test -n ${rescue_reason}; then run rescue_reason;fi;" \
+		"if test -n \"${rescue_reason}\"; then run rescue_reason;fi;" \
 		"run boot_board_type;" \
 		"if bootm ${fit_addr_r}; then ; " \
 		"else " \
