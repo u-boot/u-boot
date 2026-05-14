@@ -3,7 +3,7 @@
  * Xilinx Zynq MPSoC Firmware driver
  *
  * Copyright (C) 2018-2019 Xilinx, Inc.
- * Copyright (C) 2022 - 2025, Advanced Micro Devices, Inc.
+ * Copyright (C) 2022 - 2026, Advanced Micro Devices, Inc.
  */
 
 #include <asm/arch/hardware.h>
@@ -196,6 +196,58 @@ int zynqmp_pm_ufs_cal_reg(u32 *value)
 {
 	*value = readl(PMXC_EFUSE_CACHE_BASE_ADDRESS + PMXC_UFS_CAL_1_OFFSET);
 	return 0;
+}
+#endif /* CONFIG_ARCH_VERSAL2 */
+
+#if defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL2)
+u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr)
+{
+	int ret;
+	u32 value = 0;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	if (reg_addr == PMC_GLOBAL_PGGS3_REG) {
+		value = 0;
+	} else if (reg_addr == PMC_GLOBAL_PGGS4_REG) {
+		value = 1;
+	} else {
+		printf("%s: not supported pggs register 0x%x\n",
+		       __func__, reg_addr);
+		return 0;
+	}
+
+	ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_READ_PGGS);
+	if (ret) {
+		ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_READ_REG);
+		if (ret) {
+			printf("%s: IOCTL_READ_REG is not supported : %d\n"
+				, __func__, ret);
+			return 0;
+		}
+
+		/* find node ID from the pggs3 offset */
+		value = PM_REG_PGGS3 + value;
+
+		ret = xilinx_pm_request(PM_IOCTL, value,
+					IOCTL_READ_REG, 0, 0, 0, 0,
+					ret_payload);
+		if (ret) {
+			printf("%s: node 0x%x get pggs register failed\n",
+			       __func__, value);
+			return 0;
+		}
+	} else {
+		ret = xilinx_pm_request(PM_IOCTL, PMC_GLOBAL_PGGS3_REG_NODE,
+					IOCTL_READ_PGGS, value, 0, 0, 0,
+					ret_payload);
+		if (ret) {
+			printf("%s: node 0x%x get pggs register failed\n",
+			       __func__, PMC_GLOBAL_PGGS3_REG_NODE);
+			return 0;
+		}
+	}
+
+	return ret_payload[1];
 }
 #endif
 
