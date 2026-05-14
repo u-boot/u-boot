@@ -12,6 +12,11 @@
 #if defined(CONFIG_CPU_V7R)
 
 &binman {
+	tiboot3_am69_gp {
+		insert-template = <&tiboot3_j784s4_gp>;
+		filename = "tiboot3-am69-gp-aquila.bin";
+	};
+
 	tiboot3-am69-hs {
 		insert-template = <&tiboot3_j784s4_hs>;
 		filename = "tiboot3-am69-hs-aquila.bin";
@@ -26,6 +31,10 @@
 
 &ti_fs_enc {
 	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-enc.bin";
+};
+
+&ti_fs_gp {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-gp.bin";
 };
 
 &sysfw_inner_cert {
