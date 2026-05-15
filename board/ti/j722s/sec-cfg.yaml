@@ -16,9 +16,9 @@ sec-cfg:
             size: 164
         proc_acl_entries:
             -
-                processor_id: 0
-                proc_access_master: 0
-                proc_access_secondary: [0, 0, 0]
+                processor_id: 0x1
+                proc_access_master: 0x23
+                proc_access_secondary: [0xC, 0, 0]
             -
                 processor_id: 0
                 proc_access_master: 0
