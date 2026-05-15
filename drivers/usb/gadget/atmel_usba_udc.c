@@ -289,10 +289,6 @@ static int usba_ep_disable(struct usb_ep *_ep)
 
 	if (!ep->desc) {
 		spin_unlock_irqrestore(&udc->lock, flags);
-		/* REVISIT because this driver disables endpoints in
-		 * reset_all_endpoints() before calling disconnect(),
-		 * most gadget drivers would trigger this non-error ...
-		 */
 		if (udc->gadget.speed != USB_SPEED_UNKNOWN)
 			DBG(DBG_ERR, "ep_disable: %s not enabled\n",
 			    ep->ep.name);
@@ -570,20 +566,6 @@ static void reset_all_endpoints(struct usba_udc *udc)
 	list_for_each_entry_safe(req, tmp_req, &ep->queue, queue) {
 		list_del_init(&req->queue);
 		request_complete(ep, req, -ECONNRESET);
-	}
-
-	/* NOTE:  normally, the next call to the gadget driver is in
-	 * charge of disabling endpoints... usually disconnect().
-	 * The exception would be entering a high speed test mode.
-	 *
-	 * FIXME remove this code ... and retest thoroughly.
-	 */
-	list_for_each_entry(ep, &udc->gadget.ep_list, ep.ep_list) {
-		if (ep->desc) {
-			spin_unlock(&udc->lock);
-			usba_ep_disable(&ep->ep);
-			spin_lock(&udc->lock);
-		}
 	}
 }
 
