@@ -1685,7 +1685,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		build -u -d $(binman_dtb) -O . -m \
 		--allow-missing --fake-ext-blobs \
 		$(if $(BINMAN_ALLOW_MISSING),--ignore-missing) \
-		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
+		-I . -I $(srctree)/board/$(BOARDDIR) -I $(srctree) \
 		$(foreach f,$(of_list_dirs),-I $(f)) -a of-list=$(of_list) \
 		$(foreach f,$(BINMAN_INDIRS),-I $(f)) \
 		-a atf-bl1-path=${BL1} \
