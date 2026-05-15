@@ -1427,6 +1427,24 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
 			      const char *cmdname, const char *algo_name,
 			      struct image_summary *summary);
 
+#ifdef USE_HOSTCC
+/**
+ * fit_verity_get_expanded() - look up the cached dm-verity expanded buffer
+ *
+ * After mkimage has run veritysetup on a FILESYSTEM image, the original
+ * data concatenated with the Merkle hash tree is cached in memory keyed
+ * by image name. fit_extract_data() retrieves it to write the external
+ * data section without having to re-read a temporary file from disk.
+ *
+ * @name:	image unit name (FDT node name under /images)
+ * @data:	output -- pointer to cached buffer (do NOT free; lifetime
+ *		ends when mkimage exits)
+ * @size:	output -- size of @data in bytes
+ * Return: 0 if a cache entry exists for @name, -ENOENT otherwise
+ */
+int fit_verity_get_expanded(const char *name, const void **data, size_t *size);
+#endif /* USE_HOSTCC */
+
 /**
  * fit_image_verify_with_data() - Verify an image with given data
  *
