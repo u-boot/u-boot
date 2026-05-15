@@ -311,6 +311,13 @@ static struct mm_region imx9_mem_map[] = {
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
+		/* QB data */
+		.virt = CONFIG_QB_SAVED_STATE_BASE,
+		.phys = CONFIG_QB_SAVED_STATE_BASE,
+		.size = 0x200000UL,	/* 2M */
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_OUTER_SHARE
+	}, {
 		/* empty entry to split table entry 5 if needed when TEEs are used */
 		0,
 	}, {
@@ -743,6 +750,46 @@ void build_info(void)
 		printf("  - ELE firmware not included\n");
 	}
 	puts("\n");
+}
+
+int scmi_get_boot_device_offset(unsigned long *img_off)
+{
+	int ret;
+	rom_passover_t rom_data = {0};
+
+	ret = scmi_get_rom_data(&rom_data);
+	if (!ret)
+		*img_off = rom_data.img_ofs;
+
+	return 0;
+}
+
+int scmi_get_boot_stage(u8 *stage)
+{
+	int ret;
+	rom_passover_t rom_data = {0};
+
+	ret = scmi_get_rom_data(&rom_data);
+	if (!ret)
+		*stage = rom_data.boot_stage;
+
+	return ret;
+}
+
+u8 scmi_get_imgset_sel(void)
+{
+	rom_passover_t rdata = { 0 };
+	int ret = scmi_get_rom_data(&rdata);
+
+	if (!ret)
+		return rdata.img_set_sel;
+
+	return 0;
+}
+
+int boot_mode_getprisec(void)
+{
+	return !!scmi_get_imgset_sel();
 }
 
 int arch_misc_init(void)

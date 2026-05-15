@@ -478,6 +478,7 @@ u32 get_clk_src_rate(enum ccm_clk_src source)
 	switch (source) {
 	case ARM_PLL_CLK:
 		ctrl = readl(&ana_regs->arm_pll.ctrl.reg);
+		break;
 	case AUDIO_PLL_CLK:
 		ctrl = readl(&ana_regs->audio_pll.ctrl.reg);
 		break;

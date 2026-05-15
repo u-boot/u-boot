@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #ifndef __ASM_ARCH_IMX8M_DDR_H
@@ -99,6 +99,52 @@ struct dram_timing_info {
 };
 
 extern struct dram_timing_info dram_timing;
+
+/* Quick Boot related */
+#define DDRPHY_QB_CSR_SIZE	5168
+#define DDRPHY_QB_ACSM_SIZE	(4 * 1024)
+#define DDRPHY_QB_MSB_SIZE	0x200
+#define DDRPHY_QB_PSTATES	0
+#define DDRPHY_QB_PST_SIZE	(DDRPHY_QB_PSTATES * 4 * 1024)
+
+/**
+ * This structure needs to be aligned with the one in OEI.
+ */
+struct ddrphy_qb_state {
+	u32 crc;		  /* Used for ensuring integrity in DRAM */
+#define MAC_LENGTH		8 /* 256 bits, 32-bit aligned */
+	u32 mac[MAC_LENGTH];	  /* For 95A0/1 use mac[0] to keep CRC32 value */
+	u8 trained_vrefca_a0;
+	u8 trained_vrefca_a1;
+	u8 trained_vrefca_b0;
+	u8 trained_vrefca_b1;
+	u8 trained_vrefdq_a0;
+	u8 trained_vrefdq_a1;
+	u8 trained_vrefdq_b0;
+	u8 trained_vrefdq_b1;
+	u8 trained_vrefdqu_a0;
+	u8 trained_vrefdqu_a1;
+	u8 trained_vrefdqu_b0;
+	u8 trained_vrefdqu_b1;
+	u8 trained_dramdfe_a0;
+	u8 trained_dramdfe_a1;
+	u8 trained_dramdfe_b0;
+	u8 trained_dramdfe_b1;
+	u8 trained_dramdca_a0;
+	u8 trained_dramdca_a1;
+	u8 trained_dramdca_b0;
+	u8 trained_dramdca_b1;
+	u16 qb_pll_upll_prog0;
+	u16 qb_pll_upll_prog1;
+	u16 qb_pll_upll_prog2;
+	u16 qb_pll_upll_prog3;
+	u16 qb_pll_ctrl1;
+	u16 qb_pll_ctrl4;
+	u16 qb_pll_ctrl5;
+	u16 csr[DDRPHY_QB_CSR_SIZE];
+	u16 acsm[DDRPHY_QB_ACSM_SIZE];
+	u16 pst[DDRPHY_QB_PST_SIZE];
+};
 
 void ddr_load_train_firmware(enum fw_type type);
 int ddr_init(struct dram_timing_info *timing_info);
