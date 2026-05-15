@@ -838,6 +838,7 @@ F:	arch/arm/dts/omap4*
 F:	arch/arm/include/asm/arch-omap4/
 F:	arch/arm/mach-omap2/omap4/
 F:	include/configs/ti_omap4_common.h
+N:	omap4_var_som
 
 ARM U8500
 M:	Stephan Gerhold <stephan@gerhold.net>
