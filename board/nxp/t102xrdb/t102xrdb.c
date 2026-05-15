@@ -207,7 +207,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #ifndef CONFIG_DM_ETH
 	fdt_fixup_fman_ethernet(blob);
 #endif
-	fdt_fixup_board_enet(blob);
 #endif
 
 #ifdef CONFIG_TARGET_T1023RDB

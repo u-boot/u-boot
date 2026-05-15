@@ -149,6 +149,8 @@
  * shorted - index 1
  */
 
+#define CFG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
+
 #define CFG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 

@@ -239,11 +239,6 @@ int dram_init(void)
 	return 0;
 }
 
-int board_eth_init(struct bd_info *bis)
-{
-	return pci_eth_init(bis);
-}
-
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 static void convert_serdes_mux(int type, int need_reset)
 {

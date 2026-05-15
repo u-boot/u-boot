@@ -9,7 +9,6 @@ obj-y	+= spl.o
 else
 obj-$(CONFIG_TARGET_T4240RDB)	+= t4240rdb.o
 obj-y			+= cpld.o
-obj-y			+= eth.o
 endif
 
 obj-y	+= ddr.o
