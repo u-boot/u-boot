@@ -215,7 +215,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	u32 mask, flags, mode = 0;
 	unsigned int time = 0;
 	int mmc_dev = mmc_get_blk_desc(mmc)->devnum;
-	ulong start = get_timer(0);
+	ulong start;
 
 	host->start_addr = 0;
 	/* Timeout unit - ms */

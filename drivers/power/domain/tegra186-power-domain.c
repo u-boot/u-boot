@@ -55,7 +55,7 @@ static int tegra186_power_domain_off(struct power_domain *power_domain)
 	return tegra186_power_domain_common(power_domain, false);
 }
 
-struct power_domain_ops tegra186_power_domain_ops = {
+static const struct power_domain_ops tegra186_power_domain_ops = {
 	.on = tegra186_power_domain_on,
 	.off = tegra186_power_domain_off,
 };

@@ -146,7 +146,7 @@ static int sandbox_i2c_pmic_probe(struct udevice *emul)
 	return 0;
 }
 
-struct dm_i2c_ops sandbox_i2c_pmic_emul_ops = {
+static const struct dm_i2c_ops sandbox_i2c_pmic_emul_ops = {
 	.xfer = sandbox_i2c_pmic_xfer,
 };
 

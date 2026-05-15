@@ -262,7 +262,7 @@ static int meson_pwrc_vpu_of_xlate(struct power_domain *power_domain,
 	return 0;
 }
 
-struct power_domain_ops meson_gx_pwrc_vpu_ops = {
+static const struct power_domain_ops meson_gx_pwrc_vpu_ops = {
 	.off = meson_pwrc_vpu_off,
 	.on = meson_pwrc_vpu_on,
 	.of_xlate = meson_pwrc_vpu_of_xlate,
