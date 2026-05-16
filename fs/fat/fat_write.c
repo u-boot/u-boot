@@ -1175,9 +1175,9 @@ static void dentry_set_time(dir_entry *dentptr)
 		date = (tm.tm_mday & 0x1f) |
 		       ((tm.tm_mon & 0xf) << 5) |
 		       ((tm.tm_year - 1980) << 9);
-		time = (tm.tm_sec > 1) |
+		time = (tm.tm_sec >> 1) |
 		       ((tm.tm_min & 0x3f) << 5) |
-		(tm.tm_hour << 11);
+		       (tm.tm_hour << 11);
 		dentptr->date = date;
 		dentptr->time = time;
 		return;
