@@ -16,6 +16,7 @@
 #include <linux/delay.h>
 #include <log.h>
 #include <power/regulator.h>
+#include <spi_flash.h>
 #include <spl.h>
 #include <tlv_eeprom.h>
 #include "tlv_codes.h"
@@ -306,6 +307,26 @@ void ddr_early_init(void)
 		log_info("DDR is not ready\n");
 }
 
+void nor_early_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_SPI, 0, &dev);
+	if (ret)
+		panic("Fail to detect spi controller.\n");
+	udelay(10);
+	ret = uclass_get_device(UCLASS_SPI_FLASH, 0, &dev);
+	if (ret)
+		log_info("Fail to detect spi nor flash.\n");
+	udelay(10);
+}
+
+void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
+{
+	return (void *)CONFIG_SPL_LOAD_FIT_ADDRESS;
+}
+
 void board_init_f(ulong dummy)
 {
 	u8 i2c_buf[I2C_BUF_SIZE] = { 0 };
@@ -331,11 +352,12 @@ void board_init_f(ulong dummy)
 	pmic_init();
 
 	ddr_early_init();
+	nor_early_init();
 }
 
 u32 spl_boot_device(void)
 {
-	return BOOT_DEVICE_NOR;
+	return BOOT_DEVICE_SPI;
 }
 
 void spl_board_init(void)
