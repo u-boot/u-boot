@@ -35,7 +35,7 @@ extern enum qcom_memmap_source qcom_memmap_source;
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 void qcom_configure_capsule_updates(void);
 #else
-void qcom_configure_capsule_updates(void) {}
+static inline void qcom_configure_capsule_updates(void) {}
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 int qcom_parse_memory(const void *fdt, bool fdt_is_internal);
