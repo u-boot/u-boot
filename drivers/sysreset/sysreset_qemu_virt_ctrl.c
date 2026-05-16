@@ -40,7 +40,7 @@ static int qemu_virt_ctrl_request(struct udevice *dev, enum sysreset_t type)
 		return -EPROTONOSUPPORT;
 	}
 
-	writel(val, reg);
+	__raw_writel(val, reg);
 
 	return -EINPROGRESS;
 }
