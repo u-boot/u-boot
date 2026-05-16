@@ -40,8 +40,8 @@ static int goldfish_rtc_get(struct udevice *dev, struct rtc_time *time)
 	u64 time_low;
 	u64 now;
 
-	time_low = ioread32(base + GOLDFISH_TIME_LOW);
-	time_high = ioread32(base + GOLDFISH_TIME_HIGH);
+	time_low = __raw_readl(base + GOLDFISH_TIME_LOW);
+	time_high = __raw_readl(base + GOLDFISH_TIME_HIGH);
 	now = (time_high << 32) | time_low;
 
 	do_div(now, 1000000000U);
@@ -62,8 +62,8 @@ static int goldfish_rtc_set(struct udevice *dev, const struct rtc_time *time)
 		return -EINVAL;
 
 	now = rtc_mktime(time) * 1000000000ULL;
-	iowrite32(now >> 32, base + GOLDFISH_TIME_HIGH);
-	iowrite32(now, base + GOLDFISH_TIME_LOW);
+	__raw_writel(now >> 32, base + GOLDFISH_TIME_HIGH);
+	__raw_writel(now, base + GOLDFISH_TIME_LOW);
 
 	if (time->tm_isdst > 0)
 		priv->isdst = 1;
