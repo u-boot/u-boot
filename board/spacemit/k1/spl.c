@@ -55,6 +55,8 @@ struct ddr_cfg {
 binman_sym_declare(ulong, ddr_fw, image_pos);
 binman_sym_declare(ulong, ddr_fw, size);
 
+char product_name[I2C_BUF_SIZE] = "k1";
+
 static void i2c_early_init(void)
 {
 	struct udevice *bus;
@@ -102,6 +104,37 @@ int read_product_name(char *name, int size)
 		tlv_entry = (struct tlvinfo_tlv *)p;
 	}
 	return -ENOENT;
+}
+
+static const struct {
+	const char *eeprom_name;
+	const char *fit_name;
+} k1_board_map[] = {
+	{ "k1-x_MUSE-Pi-Pro",   "spacemit/k1-musepi-pro"    },
+	{ "k1-x_deb1",          "spacemit/k1-bananapi-f3"   },
+	{ "k1-x_milkv-jupiter", "spacemit/k1-milkv-jupiter" },
+};
+
+static void fixup_product_name(void)
+{
+	char fdt_name[I2C_BUF_SIZE];
+	int i;
+
+	memset(fdt_name, 0, I2C_BUF_SIZE);
+	for (i = 0; i < ARRAY_SIZE(k1_board_map); i++) {
+		if (!strncmp(product_name, k1_board_map[i].eeprom_name,
+			     strlen(k1_board_map[i].eeprom_name))) {
+			snprintf(fdt_name, I2C_BUF_SIZE, "%s",
+				 k1_board_map[i].fit_name);
+			break;
+		}
+	}
+	if (fdt_name[0] == '\0') {
+		/* set default board name */
+		sprintf(fdt_name, CONFIG_DEFAULT_DEVICE_TREE);
+	}
+	memset(product_name, 0, I2C_BUF_SIZE);
+	memcpy(product_name, fdt_name, I2C_BUF_SIZE);
 }
 
 static void clk_early_init(void)
@@ -322,14 +355,8 @@ void nor_early_init(void)
 	udelay(10);
 }
 
-void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
-{
-	return (void *)CONFIG_SPL_LOAD_FIT_ADDRESS;
-}
-
 void board_init_f(ulong dummy)
 {
-	u8 i2c_buf[I2C_BUF_SIZE] = { 0 };
 	int ret;
 
 	ret = spl_early_init();
@@ -344,11 +371,6 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 
 	i2c_early_init();
-	ret = read_product_name(i2c_buf, I2C_BUF_SIZE);
-	if (ret)
-		log_info("Fail to detect board:%d\n", ret);
-	else
-		log_info("Get board name:%s\n", (char *)i2c_buf);
 	pmic_init();
 
 	ddr_early_init();
@@ -362,4 +384,24 @@ u32 spl_boot_device(void)
 
 void spl_board_init(void)
 {
+	int ret;
+
+	ret = read_product_name(product_name, I2C_BUF_SIZE);
+	if (ret)
+		log_info("Fail to detect board:%d\n", ret);
+	else
+		log_info("Get board name:%s\n", product_name);
+	fixup_product_name();
+}
+
+int board_fit_config_name_match(const char *name)
+{
+	if (!strcmp(name, product_name))
+		return 0;
+	return -ENOENT;
+}
+
+void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
+{
+	return (void *)CONFIG_SPL_LOAD_FIT_ADDRESS;
 }
