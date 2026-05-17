@@ -13,6 +13,7 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <i2c.h>
+#include <linux/ctype.h>
 #include <linux/delay.h>
 #include <log.h>
 #include <power/regulator.h>
@@ -54,6 +55,8 @@ struct ddr_cfg {
 
 binman_sym_declare(ulong, ddr_fw, image_pos);
 binman_sym_declare(ulong, ddr_fw, size);
+
+char product_name[I2C_BUF_SIZE] = "k1";
 
 static void i2c_early_init(void)
 {
@@ -322,14 +325,8 @@ void nor_early_init(void)
 	udelay(10);
 }
 
-void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
-{
-	return (void *)CONFIG_SPL_LOAD_FIT_ADDRESS;
-}
-
 void board_init_f(ulong dummy)
 {
-	u8 i2c_buf[I2C_BUF_SIZE] = { 0 };
 	int ret;
 
 	ret = spl_early_init();
@@ -344,11 +341,11 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 
 	i2c_early_init();
-	ret = read_product_name(i2c_buf, I2C_BUF_SIZE);
+	ret = read_product_name(product_name, I2C_BUF_SIZE);
 	if (ret)
 		log_info("Fail to detect board:%d\n", ret);
 	else
-		log_info("Get board name:%s\n", (char *)i2c_buf);
+		log_info("Get board name:%s\n", product_name);
 	pmic_init();
 
 	ddr_early_init();
@@ -362,4 +359,33 @@ u32 spl_boot_device(void)
 
 void spl_board_init(void)
 {
+}
+
+int board_fit_config_name_match(const char *name)
+{
+	char fdt_name[I2C_BUF_SIZE];
+	int i;
+
+	memset(fdt_name, 0, I2C_BUF_SIZE);
+	if (!strncmp(product_name, "k1-x_", 5)) {
+		snprintf(fdt_name, I2C_BUF_SIZE, "%s-%s", "k1",
+			 &product_name[5]);
+	}
+	if (fdt_name[0] == '\0') {
+		/* set default board name */
+		sprintf(fdt_name, "k1-musepi-pro");
+	}
+	for (i = 0; i < I2C_BUF_SIZE; i++) {
+		if (fdt_name[i] == '\0')
+			break;
+		fdt_name[i] = tolower(fdt_name[i]);
+	}
+	if (!strcmp(name, fdt_name))
+		return 0;
+	return -ENOENT;
+}
+
+void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
+{
+	return (void *)CONFIG_SPL_LOAD_FIT_ADDRESS;
 }
