@@ -145,7 +145,7 @@ static int mpfs_mbox_probe(struct udevice *dev)
 		return ret;
 	};
 
-	mbox->ctrl_base = devm_ioremap(dev, regs.start, regs.start - regs.end);
+	mbox->ctrl_base = devm_ioremap(dev, res.start, resource_size(&res));
 
 	ret = ofnode_read_resource(node, 2, &regs);
 	if (ret) {
@@ -153,7 +153,7 @@ static int mpfs_mbox_probe(struct udevice *dev)
 		return ret;
 	};
 
-	mbox->mbox_base = devm_ioremap(dev, regs.start, regs.start - regs.end);
+	mbox->mbox_base = devm_ioremap(dev, res.start, resource_size(&res));
 
 	mbox->dev = dev;
 	dev_set_priv(dev, mbox);
