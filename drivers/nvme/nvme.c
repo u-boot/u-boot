@@ -112,7 +112,10 @@ static __le16 nvme_get_cmd_id(void)
 {
 	static unsigned short cmdid;
 
-	return cpu_to_le16((cmdid < USHRT_MAX) ? cmdid++ : 0);
+	if (cmdid >= USHRT_MAX)
+		cmdid = 0;
+
+	return cpu_to_le16(cmdid++);
 }
 
 static u16 nvme_read_completion_status(struct nvme_queue *nvmeq, u16 index)
