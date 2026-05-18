@@ -920,7 +920,7 @@ endif
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
 else ifdef CONFIG_CC_OPTIMIZE_FOR_DEBUG
--KBUILD_CFLAGS  += -Og
+KBUILD_CFLAGS  += -Og
 # Avoid false positives -Wmaybe-uninitialized
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78394
 KBUILD_CFLAGS  += -Wno-maybe-uninitialized
