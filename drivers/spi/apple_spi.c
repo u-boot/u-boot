@@ -228,7 +228,7 @@ static int apple_spi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
-struct dm_spi_ops apple_spi_ops = {
+static const struct dm_spi_ops apple_spi_ops = {
 	.xfer = apple_spi_xfer,
 	.set_speed = apple_spi_set_speed,
 	.set_mode = apple_spi_set_mode,

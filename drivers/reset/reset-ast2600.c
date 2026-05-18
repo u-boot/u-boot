@@ -90,7 +90,7 @@ static const struct udevice_id ast2600_reset_ids[] = {
 	{ }
 };
 
-struct reset_ops ast2600_reset_ops = {
+static const struct reset_ops ast2600_reset_ops = {
 	.rst_assert = ast2600_reset_assert,
 	.rst_deassert = ast2600_reset_deassert,
 	.rst_status = ast2600_reset_status,

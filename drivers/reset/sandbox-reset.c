@@ -85,7 +85,7 @@ static const struct udevice_id sandbox_reset_ids[] = {
 	{ }
 };
 
-struct reset_ops sandbox_reset_reset_ops = {
+static const struct reset_ops sandbox_reset_reset_ops = {
 	.request = sandbox_reset_request,
 	.rfree = sandbox_reset_free,
 	.rst_assert = sandbox_reset_assert,

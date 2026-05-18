@@ -126,7 +126,7 @@ static const struct udevice_id npcm_reset_ids[] = {
 	{ }
 };
 
-struct reset_ops npcm_reset_ops = {
+static const struct reset_ops npcm_reset_ops = {
 	.request = npcm_reset_request,
 	.rfree = npcm_reset_free,
 	.rst_assert = npcm_reset_assert,

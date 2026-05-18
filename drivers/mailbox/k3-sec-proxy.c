@@ -293,7 +293,7 @@ static int k3_sec_proxy_recv(struct mbox_chan *chan, void *data)
 	return 0;
 }
 
-struct mbox_ops k3_sec_proxy_mbox_ops = {
+static const struct mbox_ops k3_sec_proxy_mbox_ops = {
 	.of_xlate = k3_sec_proxy_of_xlate,
 	.request = k3_sec_proxy_request,
 	.rfree = k3_sec_proxy_free,

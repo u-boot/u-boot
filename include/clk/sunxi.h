@@ -85,6 +85,4 @@ struct ccu_plat {
 	const struct ccu_desc *desc;
 };
 
-extern struct clk_ops sunxi_clk_ops;
-
 #endif /* _CLK_SUNXI_H */

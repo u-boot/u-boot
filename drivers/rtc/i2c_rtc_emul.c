@@ -191,7 +191,7 @@ static int sandbox_i2c_rtc_xfer(struct udevice *emul, struct i2c_msg *msg,
 	return 0;
 }
 
-struct dm_i2c_ops sandbox_i2c_rtc_emul_ops = {
+static const struct dm_i2c_ops sandbox_i2c_rtc_emul_ops = {
 	.xfer = sandbox_i2c_rtc_xfer,
 };
 

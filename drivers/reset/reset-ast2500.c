@@ -91,7 +91,7 @@ static const struct udevice_id ast2500_reset_ids[] = {
 	{ }
 };
 
-struct reset_ops ast2500_reset_ops = {
+static const struct reset_ops ast2500_reset_ops = {
 	.rst_assert = ast2500_reset_assert,
 	.rst_deassert = ast2500_reset_deassert,
 	.rst_status = ast2500_reset_status,

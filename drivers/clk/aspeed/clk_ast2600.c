@@ -1161,7 +1161,7 @@ static void ast2600_clk_dump(struct udevice *dev)
 }
 #endif
 
-struct clk_ops ast2600_clk_ops = {
+static const struct clk_ops ast2600_clk_ops = {
 	.get_rate = ast2600_clk_get_rate,
 	.set_rate = ast2600_clk_set_rate,
 	.enable = ast2600_clk_enable,

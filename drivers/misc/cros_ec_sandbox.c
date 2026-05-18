@@ -726,7 +726,7 @@ int cros_ec_probe(struct udevice *dev)
 	return cros_ec_register(dev);
 }
 
-struct dm_cros_ec_ops cros_ec_ops = {
+static const struct dm_cros_ec_ops cros_ec_ops = {
 	.packet = cros_ec_sandbox_packet,
 	.get_switches = cros_ec_sandbox_get_switches,
 };
