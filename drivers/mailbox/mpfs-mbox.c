@@ -37,13 +37,12 @@ struct mpfs_mbox {
 	struct udevice *dev;
 	void __iomem *ctrl_base;
 	void __iomem *mbox_base;
-	struct mbox_chan *chan;
 };
 
 static bool mpfs_mbox_busy(struct mbox_chan *chan)
 {
 	struct mpfs_mbox *mbox = dev_get_priv(chan->dev);
-	uint16_t status;
+	u32 status;
 
 	status = readl(mbox->ctrl_base + SERVICES_SR_OFFSET);
 
@@ -152,7 +151,6 @@ static int mpfs_mbox_probe(struct udevice *dev)
 	mbox->mbox_base = devm_ioremap(dev, res.start, resource_size(&res));
 
 	mbox->dev = dev;
-	mbox->chan->con_priv = mbox;
 
 	return 0;
 }
