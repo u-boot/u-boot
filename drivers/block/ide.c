@@ -969,9 +969,6 @@ static int ide_bootdev_hunt(struct bootdev_hunter *info, bool show)
 	return 0;
 }
 
-struct bootdev_ops ide_bootdev_ops = {
-};
-
 static const struct udevice_id ide_bootdev_ids[] = {
 	{ .compatible = "u-boot,bootdev-ide" },
 	{ }
@@ -980,7 +977,6 @@ static const struct udevice_id ide_bootdev_ids[] = {
 U_BOOT_DRIVER(ide_bootdev) = {
 	.name		= "ide_bootdev",
 	.id		= UCLASS_BOOTDEV,
-	.ops		= &ide_bootdev_ops,
 	.bind		= ide_bootdev_bind,
 	.of_match	= ide_bootdev_ids,
 };
