@@ -13,19 +13,21 @@
 #include <dm/device-internal.h>
 #include <dm/device.h>
 #include <dm/device_compat.h>
-#include <dm/devres.h>
 #include <dm/ofnode.h>
 #include <linux/bitops.h>
 #include <linux/compat.h>
-#include <linux/io.h>
-#include <linux/ioport.h>
+#include <linux/err.h>
+#include <linux/errno.h>
 #include <log.h>
 #include <mailbox-uclass.h>
-#include <malloc.h>
 #include <mpfs-mailbox.h>
+#include <regmap.h>
+#include <syscon.h>
 
 #define SERVICES_CR_OFFSET 0x50u
 #define SERVICES_SR_OFFSET 0x54u
+#define MESSAGE_INT_OFFSET 0x18cu
+#define MAILBOX_REG_OFFSET 0x800u
 
 #define SERVICE_CR_REQ_MASK 0x1u
 #define SERVICE_SR_BUSY_MASK 0x2u
@@ -35,8 +37,10 @@
 
 struct mpfs_mbox {
 	struct udevice *dev;
-	void __iomem *ctrl_base;
 	void __iomem *mbox_base;
+	void __iomem *int_reg;
+	struct regmap *control_scb;
+	struct regmap *sysreg_scb;
 };
 
 static bool mpfs_mbox_busy(struct mbox_chan *chan)
@@ -44,7 +48,7 @@ static bool mpfs_mbox_busy(struct mbox_chan *chan)
 	struct mpfs_mbox *mbox = dev_get_priv(chan->dev);
 	u32 status;
 
-	status = readl(mbox->ctrl_base + SERVICES_SR_OFFSET);
+	regmap_read(mbox->control_scb, SERVICES_SR_OFFSET, &status);
 
 	return status & SERVICE_SR_BUSY_MASK;
 }
@@ -79,14 +83,15 @@ static int mpfs_mbox_send(struct mbox_chan *chan, const void *data)
 
 	cmd_shifted = msg->cmd_opcode << SERVICE_CR_COMMAND_SHIFT;
 	cmd_shifted |= SERVICE_CR_REQ_MASK;
-	writel(cmd_shifted, mbox->ctrl_base + SERVICES_CR_OFFSET);
+
+	regmap_write(mbox->control_scb, SERVICES_CR_OFFSET, cmd_shifted);
 
 	do {
-		value = readl(mbox->ctrl_base + SERVICES_CR_OFFSET);
+		regmap_read(mbox->control_scb, SERVICES_CR_OFFSET, &value);
 	} while (SERVICE_CR_REQ_MASK == (value & SERVICE_CR_REQ_MASK));
 
 	do {
-		value = readl(mbox->ctrl_base + SERVICES_SR_OFFSET);
+		regmap_read(mbox->control_scb, SERVICES_SR_OFFSET, &value);
 	} while (SERVICE_SR_BUSY_MASK == (value & SERVICE_SR_BUSY_MASK));
 
 	msg->response->resp_status = (value >> SERVICE_SR_STATUS_SHIFT);
@@ -117,6 +122,11 @@ static int mpfs_mbox_recv(struct mbox_chan *chan, void *data)
 	for (idx = 0; idx < response->resp_size; idx++)
 		*((u8 *)(response->resp_msg) + idx) = readb(mbox->mbox_base + msg->resp_offset  + idx);
 
+	if (mbox->sysreg_scb)
+		regmap_write(mbox->sysreg_scb, MESSAGE_INT_OFFSET, 0);
+	else
+		writel_relaxed(0, mbox->int_reg);
+
 	return 0;
 }
 
@@ -125,34 +135,69 @@ static const struct mbox_ops mpfs_mbox_ops = {
 	.recv = mpfs_mbox_recv,
 };
 
-static int mpfs_mbox_probe(struct udevice *dev)
+/*
+ * Use global compatible lookup instead of phandles, as U-Boot may run
+ * with a reduced or firmware-provided device tree where mailbox syscon
+ * phandle properties are not guaranteed to be present.
+ */
+static int mpfs_mbox_syscon_probe(struct udevice *dev, struct mpfs_mbox *mbox)
 {
-	struct mpfs_mbox *mbox;
-	struct resource regs;
 	ofnode node;
+
+	node = ofnode_by_compatible(ofnode_null(), "microchip,mpfs-control-scb");
+	if (!ofnode_valid(node))
+		return -ENODEV;
+
+	mbox->control_scb = syscon_node_to_regmap(node);
+	if (IS_ERR(mbox->control_scb))
+		return PTR_ERR(mbox->control_scb);
+
+	node = ofnode_by_compatible(ofnode_null(), "microchip,mpfs-sysreg-scb");
+	if (!ofnode_valid(node))
+		return -ENODEV;
+
+	mbox->sysreg_scb = syscon_node_to_regmap(node);
+	if (IS_ERR(mbox->sysreg_scb))
+		return PTR_ERR(mbox->sysreg_scb);
+
+	mbox->mbox_base = dev_read_addr_ptr(dev);
+	if (!mbox->mbox_base)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int mpfs_mbox_legacy_probe(struct udevice *dev, struct mpfs_mbox *mbox)
+{
 	int ret;
 
-	node = dev_ofnode(dev);
-
-	ret = ofnode_read_resource(node, 0, &regs);
-	if (ret) {
-		dev_err(dev, "No reg property for controller base\n");
+	ret = regmap_init_mem_index(dev_ofnode(dev), &mbox->control_scb, 0);
+	if (ret)
 		return ret;
-	};
 
-	mbox->ctrl_base = devm_ioremap(dev, res.start, resource_size(&res));
+	mbox->mbox_base = dev_read_addr_index_ptr(dev, 2);
+	if (!mbox->mbox_base)
+		mbox->mbox_base = dev_read_addr_index_ptr(dev, 0) + MAILBOX_REG_OFFSET;
 
-	ret = ofnode_read_resource(node, 2, &regs);
-	if (ret) {
-		dev_err(dev, "No reg property for mailbox base\n");
-		return ret;
-	};
+	mbox->int_reg = dev_read_addr_index_ptr(dev, 1);
+	if (!mbox->int_reg)
+		return -EINVAL;
 
-	mbox->mbox_base = devm_ioremap(dev, res.start, resource_size(&res));
+	return 0;
+}
+
+static int mpfs_mbox_probe(struct udevice *dev)
+{
+	struct mpfs_mbox *mbox = dev_get_priv(dev);
+	int ret;
 
 	mbox->dev = dev;
 
-	return 0;
+	ret = mpfs_mbox_syscon_probe(dev, mbox);
+	if (!ret)
+		return 0;
+
+	return mpfs_mbox_legacy_probe(dev, mbox);
 }
 
 static const struct udevice_id mpfs_mbox_ids[] = {
