@@ -427,6 +427,7 @@ config TARGET_MSC_SM2S_IMX8MP
 	select IMX8MP
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_LIBREM5
 	bool "Purism Librem5 Phone"
