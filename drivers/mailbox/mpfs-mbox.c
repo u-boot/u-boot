@@ -135,10 +135,6 @@ static int mpfs_mbox_probe(struct udevice *dev)
 
 	node = dev_ofnode(dev);
 
-	mbox = devm_kzalloc(dev, sizeof(*mbox), GFP_KERNEL);
-	if (!mbox)
-		return -ENOMEM;
-
 	ret = ofnode_read_resource(node, 0, &regs);
 	if (ret) {
 		dev_err(dev, "No reg property for controller base\n");
@@ -156,7 +152,6 @@ static int mpfs_mbox_probe(struct udevice *dev)
 	mbox->mbox_base = devm_ioremap(dev, res.start, resource_size(&res));
 
 	mbox->dev = dev;
-	dev_set_priv(dev, mbox);
 	mbox->chan->con_priv = mbox;
 
 	return 0;
