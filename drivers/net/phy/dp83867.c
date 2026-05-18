@@ -203,32 +203,24 @@ static int dp83867_of_init(struct phy_device *phydev)
 				"Should be 'rgmii-id' to use internal delays\n");
 	}
 
-	/* RX delay *must* be specified if internal delay of RX is used. */
+	dp83867->rx_id_delay = DP83867_RGMIIDCTL_2_00_NS;
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) {
 		ret = ofnode_read_u32(node, "ti,rx-internal-delay",
 				      &dp83867->rx_id_delay);
-		if (ret) {
-			pr_debug("ti,rx-internal-delay must be specified\n");
-			return ret;
-		}
-		if (dp83867->rx_id_delay > DP83867_RGMII_RX_CLK_DELAY_MAX) {
+		if (!ret && dp83867->rx_id_delay > DP83867_RGMII_RX_CLK_DELAY_MAX) {
 			pr_debug("ti,rx-internal-delay value of %u out of range\n",
 				 dp83867->rx_id_delay);
 			return -EINVAL;
 		}
 	}
 
-	/* TX delay *must* be specified if internal delay of RX is used. */
+	dp83867->tx_id_delay = DP83867_RGMIIDCTL_2_00_NS;
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
 		ret = ofnode_read_u32(node, "ti,tx-internal-delay",
 				      &dp83867->tx_id_delay);
-		if (ret) {
-			debug("ti,tx-internal-delay must be specified\n");
-			return ret;
-		}
-		if (dp83867->tx_id_delay > DP83867_RGMII_TX_CLK_DELAY_MAX) {
+		if (!ret && dp83867->tx_id_delay > DP83867_RGMII_TX_CLK_DELAY_MAX) {
 			pr_debug("ti,tx-internal-delay value of %u out of range\n",
 				 dp83867->tx_id_delay);
 			return -EINVAL;
@@ -257,14 +249,14 @@ static int dp83867_config(struct phy_device *phydev)
 
 	dp83867 = (struct dp83867_private *)phydev->priv;
 
-	ret = dp83867_of_init(phydev);
+	/* Reset PHY to clear any stale state after warm reboot */
+	ret = phy_reset(phydev);
 	if (ret)
 		return ret;
 
-	/* Restart the PHY.  */
-	val = phy_read(phydev, MDIO_DEVAD_NONE, DP83867_CTRL);
-	phy_write(phydev, MDIO_DEVAD_NONE, DP83867_CTRL,
-		  val | DP83867_SW_RESTART);
+	ret = dp83867_of_init(phydev);
+	if (ret)
+		return ret;
 
 	/* Mode 1 or 2 workaround */
 	if (dp83867->rxctrl_strap_quirk) {

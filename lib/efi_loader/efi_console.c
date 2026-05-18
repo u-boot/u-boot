@@ -9,6 +9,7 @@
 
 #include <ansi.h>
 #include <charset.h>
+#include <console.h>
 #include <efi_device_path.h>
 #include <malloc.h>
 #include <time.h>
@@ -299,8 +300,7 @@ static int query_console_serial(int *rows, int *cols)
 	int n[2];
 
 	/* Empty input buffer */
-	while (tstc())
-		getchar();
+	console_flush_stdin();
 
 	/*
 	 * Not all terminals understand CSI [18t for querying the console size.
@@ -364,6 +364,9 @@ void efi_setup_console_size(void)
 {
 	int rows = 25, cols = 80;
 	int ret = -ENODEV;
+
+	if (IS_ENABLED(CONFIG_EFI_CONSOLE_DISABLE_ANSI))
+		efi_console_set_ansi(false);
 
 	if (IS_ENABLED(CONFIG_VIDEO))
 		ret = query_vidconsole(&rows, &cols);
@@ -957,8 +960,7 @@ static void efi_cin_check(void)
  */
 static void efi_cin_empty_buffer(void)
 {
-	while (tstc())
-		getchar();
+	console_flush_stdin();
 	key_available = false;
 }
 

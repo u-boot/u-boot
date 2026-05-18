@@ -101,7 +101,7 @@ void set_board_info(void)
 	if (!bdtype)
 		bdtype = "";
 
-	sprintf(info, "%s%s", bdname, bdtype);
+	snprintf(info, sizeof(info), "%s%s", bdname, bdtype);
 	env_set("board_name", info);
 #endif
 	snprintf(info, ARRAY_SIZE(info),  "%s%x-%s%s.dtb",

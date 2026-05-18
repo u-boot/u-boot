@@ -58,8 +58,8 @@ static int efi_mgr_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	}
 
 	ret = efi_init_obj_list();
-	if (ret)
-		return log_msg_ret("init", ret);
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	/* Enable this method if the "BootOrder" UEFI exists. */
 	bootorder = efi_get_var(u"BootOrder", &efi_global_variable_guid,

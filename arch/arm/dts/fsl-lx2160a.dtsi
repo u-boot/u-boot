@@ -134,7 +134,7 @@
 			     <1 10 0x8>; /* Hypervisor PPI, active-low */
 	};
 
-	fspi: flexspi@20c0000 {
+	fspi: spi@20c0000 {
 		compatible = "nxp,lx2160a-fspi";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -221,7 +221,7 @@
 		status = "disabled";
 	};
 
-	dspi0: dspi@2100000 {
+	dspi0: spi@2100000 {
 		compatible = "fsl,vf610-dspi";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -230,7 +230,7 @@
 		spi-num-chipselects = <6>;
 	};
 
-	dspi1: dspi@2110000 {
+	dspi1: spi@2110000 {
 		compatible = "fsl,vf610-dspi";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -239,7 +239,7 @@
 		spi-num-chipselects = <6>;
 	};
 
-	dspi2: dspi@2120000 {
+	dspi2: spi@2120000 {
 		compatible = "fsl,vf610-dspi";
 		#address-cells = <1>;
 		#size-cells = <0>;

@@ -382,6 +382,7 @@ menu "Layerscape architecture"
 config FSL_LAYERSCAPE
 	bool
 	select ARM_SMCCC
+	select LMB_ARCH_MEM_MAP
 
 config HAS_FEATURE_GIC64K_ALIGN
 	bool

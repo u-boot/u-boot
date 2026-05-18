@@ -181,6 +181,9 @@
 
 #define NFC_MAX_CS		7
 
+/* On A10, the user data length register is 4 bytes */
+#define USER_DATA_SZ 4
+
 /*
  * NAND Controller capabilities structure: stores NAND controller capabilities
  * for distinction between compatible strings.

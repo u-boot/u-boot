@@ -503,7 +503,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #endif
 
 	if (mc_memory_base != 0) {
-		for (i = 0; i <= total_memory_banks; i++) {
+		for (i = 0; i < total_memory_banks; i++) {
 			if (base[i] == 0 && size[i] == 0) {
 				base[i] = mc_memory_base;
 				size[i] = mc_memory_size;

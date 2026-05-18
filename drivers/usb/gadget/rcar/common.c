@@ -15,6 +15,7 @@
 #include <linux/err.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
+#include <reset.h>
 #include <usb.h>
 
 #include "common.h"
@@ -90,6 +91,12 @@ void usbhs_sys_function_ctrl(struct usbhs_priv *priv, int enable)
 {
 	u16 mask = DCFM | DRPD | DPRPU | HSE | USBE;
 	u16 val  = HSE | USBE;
+
+	/* CNEN bit is required for function operation */
+	if (usbhs_get_dparam(priv, has_cnen)) {
+		mask |= CNEN;
+		val  |= CNEN;
+	}
 
 	/*
 	 * if enable
@@ -290,6 +297,9 @@ struct usbhs_priv_otg_data {
 	void __iomem		*base;
 	void __iomem		*phybase;
 
+	struct clk_bulk clk_bulk;
+	struct reset_ctl_bulk reset_bulk;
+
 	struct platform_device	usbhs_dev;
 	struct usbhs_priv	usbhs_priv;
 
@@ -355,14 +365,24 @@ static int usbhs_udc_otg_gadget_handle_interrupts(struct udevice *dev)
 	return 0;
 }
 
-static int usbhs_probe(struct usbhs_priv *priv)
+static int usbhs_probe(struct udevice *dev)
 {
+	struct usbhs_priv_otg_data *otg_priv = dev_get_priv(dev);
+	struct usbhs_priv *priv = &otg_priv->usbhs_priv;
+	struct renesas_usbhs_driver_param *plat_param;
 	int ret;
+
+	plat_param = (struct renesas_usbhs_driver_param *)dev_get_driver_data(dev);
 
 	priv->dparam.type = USBHS_TYPE_RCAR_GEN3;
 	priv->dparam.pio_dma_border = 64;
 	priv->dparam.pipe_configs = usbhsc_new_pipe;
 	priv->dparam.pipe_size = ARRAY_SIZE(usbhsc_new_pipe);
+
+	if (plat_param) {
+		priv->dparam.has_cnen		= plat_param->has_cnen;
+		priv->dparam.cfifo_byte_addr	= plat_param->cfifo_byte_addr;
+	}
 
 	/* call pipe and module init */
 	ret = usbhs_pipe_probe(priv);
@@ -396,34 +416,41 @@ static int usbhs_udc_otg_probe(struct udevice *dev)
 {
 	struct usbhs_priv_otg_data *priv = dev_get_priv(dev);
 	struct usb_gadget *gadget;
-	struct clk_bulk clk_bulk;
 	int ret = -EINVAL;
 
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
 		return -EINVAL;
 
-	ret = clk_get_bulk(dev, &clk_bulk);
+	ret = clk_get_bulk(dev, &priv->clk_bulk);
 	if (ret)
 		return ret;
 
-	ret = clk_enable_bulk(&clk_bulk);
+	ret = clk_enable_bulk(&priv->clk_bulk);
 	if (ret)
-		return ret;
+		goto err_clk_enable;
+
+	ret = reset_get_bulk(dev, &priv->reset_bulk);
+	if (ret)
+		goto err_clk;
+
+	ret = reset_deassert_bulk(&priv->reset_bulk);
+	if (ret)
+		goto err_reset_deassert;
 
 	clrsetbits_le32(priv->base + UGCTRL2, UGCTRL2_USB0SEL_MASK, UGCTRL2_USB0SEL_EHCI);
 	clrsetbits_le16(priv->base + LPSTS, LPSTS_SUSPM, LPSTS_SUSPM);
 
 	ret = generic_setup_phy(dev, &priv->phy, 0, PHY_MODE_USB_OTG, 1);
 	if (ret)
-		goto err_clk;
+		goto err_reset;
 
 	priv->phybase = dev_read_addr_ptr(priv->phy.dev);
 
 	priv->usbhs_priv.pdev = &priv->usbhs_dev;
 	priv->usbhs_priv.base = priv->base;
 	priv->usbhs_dev.dev.driver_data = &priv->usbhs_priv;
-	ret = usbhs_probe(&priv->usbhs_priv);
+	ret = usbhs_probe(dev);
 	if (ret < 0)
 		goto err_phy;
 
@@ -439,27 +466,49 @@ static int usbhs_udc_otg_probe(struct udevice *dev)
 
 err_phy:
 	generic_shutdown_phy(&priv->phy);
+err_reset:
+	reset_assert_bulk(&priv->reset_bulk);
+err_reset_deassert:
+	reset_release_bulk(&priv->reset_bulk);
 err_clk:
-	clk_disable_bulk(&clk_bulk);
+	clk_disable_bulk(&priv->clk_bulk);
+err_clk_enable:
+	clk_release_bulk(&priv->clk_bulk);
+
 	return ret;
 }
 
 static int usbhs_udc_otg_remove(struct udevice *dev)
 {
 	struct usbhs_priv_otg_data *priv = dev_get_priv(dev);
+	struct usb_gadget *gadget;
 
 	usbhs_rcar3_power_ctrl(&priv->usbhs_priv, false);
+	gadget = usbhsg_get_gadget(&priv->usbhs_priv);
+	usb_del_gadget_udc(gadget);
 	usbhs_mod_remove(&priv->usbhs_priv);
 	usbhs_fifo_remove(&priv->usbhs_priv);
 	usbhs_pipe_remove(&priv->usbhs_priv);
 
 	generic_shutdown_phy(&priv->phy);
 
+	reset_assert_bulk(&priv->reset_bulk);
+	reset_release_bulk(&priv->reset_bulk);
+
+	clk_disable_bulk(&priv->clk_bulk);
+	clk_release_bulk(&priv->clk_bulk);
+
 	return dm_scan_fdt_dev(dev);
 }
 
+static struct renesas_usbhs_driver_param rzg2l_param = {
+	.has_cnen = 1,
+	.cfifo_byte_addr = 1,
+};
+
 static const struct udevice_id usbhs_udc_otg_ids[] = {
 	{ .compatible = "renesas,rcar-gen3-usbhs" },
+	{ .compatible = "renesas,rzg2l-usbhs", .data = (unsigned long)&rzg2l_param },
 	{},
 };
 

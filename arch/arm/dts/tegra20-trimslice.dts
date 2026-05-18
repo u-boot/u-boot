@@ -12,8 +12,8 @@
 
 	aliases {
 		usb0 = "/usb@c5000000";
-		mmc0 = "/sdhci@c8000600";
-		mmc1 = "/sdhci@c8000000";
+		mmc0 = "/mmc@c8000600";
+		mmc1 = "/mmc@c8000000";
 		spi0 = "/spi@7000c380";
 	};
 
@@ -55,12 +55,12 @@
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_HIGH>;
 	};
 
-	sdhci@c8000000 {
+	mmc@c8000000 {
 		status = "okay";
 		bus-width = <4>;
 	};
 
-	sdhci@c8000600 {
+	mmc@c8000600 {
 		status = "okay";
 		cd-gpios = <&gpio TEGRA_GPIO(P, 1) GPIO_ACTIVE_LOW>;
 		wp-gpios = <&gpio TEGRA_GPIO(P, 2) GPIO_ACTIVE_HIGH>;

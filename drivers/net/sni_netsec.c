@@ -1138,7 +1138,7 @@ static const struct udevice_id netsec_ids[] = {
 	{}
 };
 
-U_BOOT_DRIVER(ave) = {
+U_BOOT_DRIVER(synquacer_netsec) = {
 	.name     = "synquacer_netsec",
 	.id       = UCLASS_ETH,
 	.of_match = netsec_ids,

@@ -178,6 +178,8 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 	printf("Transferring Control to Linux @0x%08lx ...\n\n",
 	       (ulong)images->ep);
 
+	bootm_final(flag);
+
 	flush_dcache_range((unsigned long)params_start, (unsigned long)params);
 
 	if (flag & BOOTM_STATE_OS_FAKE_GO)

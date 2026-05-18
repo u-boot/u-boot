@@ -60,11 +60,6 @@ static struct mm_region hikey_mem_map[] = {
 
 struct mm_region *mem_map = hikey_mem_map;
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int misc_init_r(void)
 {
 	return 0;

@@ -421,7 +421,7 @@ static const struct udevice_id imx28_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(fsl_imx28_clkctrl) = {
+U_BOOT_DRIVER(btt_dummy_fsl_imx28_clkctrl) = {
 	.name           = "fsl_imx28_clkctrl",
 	.id             = UCLASS_CLK,
 	.of_match       = imx28_clk_ids,

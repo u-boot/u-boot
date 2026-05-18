@@ -927,7 +927,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 		if (PCI_FUNC(bdf) && !found_multi)
 			continue;
 
-		if (only_one_child(bus) && (PCI_MASK_BUS(bdf) > 0))
+		if (only_one_child(bus) && (PCI_DEV(bdf) > 0))
 			continue;
 
 		/* Check only the first access, we don't expect problems */

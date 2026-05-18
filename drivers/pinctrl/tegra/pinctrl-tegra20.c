@@ -182,8 +182,8 @@ static const struct udevice_id tegra_pinctrl_ids[] = {
 	{ },
 };
 
-U_BOOT_DRIVER(tegra_pinctrl) = {
-	.name		= "tegra_pinctrl",
+U_BOOT_DRIVER(tegra20_pinctrl) = {
+	.name		= "tegra20_pinctrl",
 	.id		= UCLASS_PINCTRL,
 	.of_match	= tegra_pinctrl_ids,
 	.bind		= tegra_pinctrl_bind,

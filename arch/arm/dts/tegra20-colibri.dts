@@ -14,7 +14,7 @@
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";
 		i2c2 = "/i2c@7000c400";
-		mmc0 = "/sdhci@c8000600";
+		mmc0 = "/mmc@c8000600";
 		usb0 = "/usb@c5000000";
 		usb1 = "/usb@c5004000"; /* On-module only, for ASIX */
 		usb2 = "/usb@c5008000";
@@ -106,7 +106,7 @@
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(W, 2) GPIO_ACTIVE_LOW>;
 	};
 
-	sdhci@c8000600 {
+	mmc@c8000600 {
 		status = "okay";
 		bus-width = <4>;
 		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;

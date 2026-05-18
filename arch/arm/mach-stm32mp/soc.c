@@ -64,7 +64,7 @@ __weak int setup_mac_address(void)
 	struct udevice *dev;
 	int nb_eth, nb_otp, index;
 
-	if (!IS_ENABLED(CONFIG_NET))
+	if (!IS_ENABLED(CONFIG_NET_LEGACY))
 		return 0;
 
 	nb_eth = get_eth_nb();

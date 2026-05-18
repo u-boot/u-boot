@@ -212,7 +212,7 @@ static int msm_serial_setbrg(struct udevice *dev, int baud)
 	ret = clk_set_rate(priv->se, clk_rate);
 	if (ret < 0) {
 		pr_err("%s: Couldn't set clock rate: %d\n", __func__, ret);
-		return ret;
+		return 0;
 	}
 	geni_serial_baud(priv->base, clk_div, baud);
 
@@ -517,13 +517,14 @@ static int msm_serial_probe(struct udevice *dev)
 	u32 proto;
 	struct clk *clk;
 
-	clk = devm_clk_get(dev, NULL);
+	clk = devm_clk_get_optional(dev, NULL);
 	if (IS_ERR(clk))
-		return PTR_ERR(clk);
-	priv->se = clk;
+		dev_dbg(dev, "Couldn't find UART clock: %ld", PTR_ERR(clk));
+	else
+		priv->se = clk;
 
 	/* Try enable clock */
-	ret = clk_enable(clk);
+	clk_enable(clk);
 
 	/* Check if firmware loading is needed (BT UART) */
 	proto = readl(priv->base + GENI_FW_REVISION_RO);
@@ -546,10 +547,6 @@ static int msm_serial_probe(struct udevice *dev)
 	/* Don't actually probe non-debug UARTs */
 	if (ofnode_device_is_compatible(dev_ofnode(dev), "qcom,geni-uart"))
 		return -ENOENT;
-
-	/* Now handle clock enable return value */
-	if (ret)
-		return ret;
 
 	ret = geni_set_oversampling(dev);
 	if (ret < 0)

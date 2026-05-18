@@ -54,6 +54,9 @@
 	"board=ls1028ardb\0"			\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"fdtfile=fsl-ls1028a-rdb.dtb\0"         \
+	"image=Image\0"					\
+	"extra_bootargs=iommu.passthrough=1 arm-smmu.disable_bypass=0\0"	\
+	"othbootargs=video=1920x1080-32@60 cma=640M\0"    \
 	"ramdisk_addr=0x800000\0"		\
 	"ramdisk_size=0x2000000\0"		\
 	"bootm_size=0x10000000\0"		\
@@ -76,6 +79,7 @@
 	"kernelhdr_addr_sd=0x3000\0"		\
 	"kernelhdr_size_sd=0x20\0"		\
 	"console=ttyS0,115200\0"                \
+	"console_dbg=earlycon=uart8250,mmio,0x21c0500\0"		\
 	BOOTENV					\
 	"boot_scripts=ls1028ardb_boot.scr\0"    \
 	"boot_script_hdr=hdr_ls1028ardb_bs.out\0"	\

@@ -24,7 +24,7 @@ the server's IP address to be given on the command line or via the
 `ntpserverip` environment variable.
 
 The address of the NTP server does not need to be given if the DHCP server
-provides one. The legacy network stack (`CONFIG_NET=y`) can only use the
+provides one. The legacy network stack (`CONFIG_NET_LEGACY=y`) can only use the
 first NTP server provided in the `ntp-servers` DHCP option.
 
 When the network stack is lwIP (`CONFIG_NET_LWIP=y`) and DNS resolution

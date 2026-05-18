@@ -7,12 +7,8 @@ config SYS_ARCH
 config STATIC_RELA
 	def_bool y
 
-choice
-	prompt "Target select"
-	optional
-
 config TARGET_MICROBLAZE_GENERIC
-	bool "Support microblaze-generic"
+	def_bool y
 	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
@@ -26,8 +22,8 @@ config TARGET_MICROBLAZE_GENERIC
 	select MTD
 	select SPI
 	imply CMD_DM
-
-endchoice
+	help
+	  Support microblaze-generic
 
 source "board/xilinx/Kconfig"
 source "board/xilinx/microblaze-generic/Kconfig"

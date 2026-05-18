@@ -8,7 +8,7 @@ This is enabled by CONFIG_BOOTCOUNT_LIMIT.
 This allows to detect multiple failed attempts to boot Linux.
 
 After a power-on reset, the ``bootcount`` variable will be initialized to 1, and
-each reboot will increment the value by 1.
+when ``upgrade_available`` is non-zero, each reboot will increment the value by 1.
 
 If, after a reboot, the new value of ``bootcount`` exceeds the value of
 ``bootlimit``, then instead of the standard boot action (executing the contents

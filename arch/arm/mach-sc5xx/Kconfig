@@ -13,6 +13,9 @@ if ARCH_SC5XX
 config SYS_VENDOR
 	default "adi"
 
+config SYS_SOC
+	default "sc5xx"
+
 choice
 	prompt "SC5xx SoC Select"
 	help

@@ -955,8 +955,8 @@ struct efi_device_path *efi_dp_from_http(const char *server, struct udevice *dev
 	efi_uintn_t uridp_len;
 	char *pos;
 	char tmp[128];
-	struct efi_ipv4_address ip;
-	struct efi_ipv4_address mask;
+	struct efi_ipv4_address ip = { .ip_addr = { 0, 0, 0, 0 } };
+	struct efi_ipv4_address mask = { .ip_addr = { 0, 0, 0, 0 } };
 
 	if ((server && strlen("http://") + strlen(server) + 1  > sizeof(tmp)) ||
 	    (!server && IS_ENABLED(CONFIG_NET_LWIP)))

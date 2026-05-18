@@ -49,7 +49,7 @@ config CLK_STM32MP21
 config CLK_STM32MP25
 	bool "Enable RCC clock driver for STM32MP25"
 	depends on ARCH_STM32MP && CLK
-	default y if STM32MP25X
+	default y if STM32MP23X || STM32MP25X
 	select CLK_STM32_CORE
 	help
 	  Enable the STM32 clock (RCC) driver. Enable support for

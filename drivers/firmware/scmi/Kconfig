@@ -3,6 +3,7 @@ config SCMI_FIRMWARE
 	select FIRMWARE
 	select OF_TRANSLATE
 	depends on SANDBOX || DM_MAILBOX || ARM_SMCCC || OPTEE
+	depends on OF_CONTROL
 	help
 	  System Control and Management Interface (SCMI) is a communication
 	  protocol that defines standard interfaces for power, performance

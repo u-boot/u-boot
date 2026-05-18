@@ -270,6 +270,7 @@ static int apple_spi_probe(struct udevice *dev)
 }
 
 static const struct udevice_id apple_spi_of_match[] = {
+	{ .compatible = "apple,t8103-spi" },
 	{ .compatible = "apple,spi" },
 	{ /* sentinel */ }
 };

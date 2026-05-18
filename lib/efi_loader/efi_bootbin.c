@@ -224,11 +224,8 @@ static efi_status_t efi_binary_run_dp(void *image, size_t size, void *fdt,
 
 	/* Initialize EFI drivers */
 	ret = efi_init_obj_list();
-	if (ret != EFI_SUCCESS) {
-		log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-			ret & ~EFI_ERROR_MASK);
-		return -1;
-	}
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	ret = efi_install_fdt(fdt);
 	if (ret != EFI_SUCCESS)

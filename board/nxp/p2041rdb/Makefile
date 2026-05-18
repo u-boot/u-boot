@@ -7,4 +7,3 @@
 obj-y	+= p2041rdb.o
 obj-y	+= cpld.o
 obj-y	+= ddr.o
-obj-y	+= eth.o

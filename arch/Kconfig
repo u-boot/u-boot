@@ -190,6 +190,7 @@ config SANDBOX
 	select HAVE_SETJMP
 	select HAVE_INITJMP
 	select ARCH_SUPPORTS_LTO
+	select AXI
 	select BOARD_LATE_INIT
 	select BZIP2
 	select CMD_POWEROFF if CMDLINE
@@ -199,24 +200,37 @@ config SANDBOX
 	select DM_GPIO
 	select DM_I2C
 	select DM_KEYBOARD
+	select DM_MAILBOX
+	select DM_RESET
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
+	select GPIO
 	select GZIP_COMPRESSED
+	select I2C
 	select LZO
 	select MMC
 	select MTD
 	select OF_BOARD_SETUP
+	select OF_CONTROL
 	select PCI_ENDPOINT
+	select SANDBOX_RESET
 	select SPI
+	select SERIAL
 	select SUPPORT_OF_CONTROL
 	select SUPPORT_BIG_ENDIAN
 	select SUPPORT_LITTLE_ENDIAN
-	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
+	select SYSRESET
+	select SYSRESET_CMD_RESET
+	select SYSRESET_CMD_POWEROFF if SYSRESET && CMD_POWEROFF
 	select SYS_CACHE_SHIFT_4
 	select IRQ
 	select SUPPORT_EXTENSION_SCAN if CMDLINE
 	select SUPPORT_ACPI
+	select TIMER
+	select SPL_TIMER if SPL
+	select TPL_TIMER if TPL
+	select VPL_TIMER if VPL
 	imply BITREVERSE
 	select BLOBLIST
 	imply LTO
@@ -240,7 +254,7 @@ config SANDBOX
 	imply AVB_VERIFY
 	imply LIBAVB
 	imply CMD_AVB
-	imply PARTITION_TYPE_GUID
+	imply PARTITION_TYPE_GUID if EFI_PARTITION
 	imply SCP03
 	imply CMD_SCP03
 	imply UDP_FUNCTION_FASTBOOT
@@ -283,6 +297,7 @@ config SH
 
 config X86
 	bool "x86 architecture"
+	select AHCI
 	select HAVE_SETJMP
 	select SUPPORT_SPL
 	select SUPPORT_TPL
@@ -291,6 +306,7 @@ config X86
 	select DM
 	select HAVE_ARCH_IOMAP
 	select HAVE_PRIVATE_LIBGCC
+	select LMB_ARCH_MEM_MAP
 	select OF_CONTROL
 	select PCI
 	select SUPPORT_ACPI

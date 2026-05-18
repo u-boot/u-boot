@@ -457,6 +457,83 @@ static __maybe_unused void k3_dma_remove(void)
 		pr_warn("DMA Device not found (err=%d)\n", rc);
 }
 
+static int k3_falcon_fdt_add_bootargs(void *fdt)
+{
+	struct disk_partition info;
+	struct blk_desc *dev_desc;
+	char bootmedia[32];
+	char bootpart[32];
+	char str[256];
+	int ret;
+
+	strlcpy(bootmedia, env_get("boot"), sizeof(bootmedia));
+	strlcpy(bootpart, env_get("bootpart"), sizeof(bootpart));
+	ret = blk_get_device_part_str(bootmedia, bootpart, &dev_desc, &info, 0);
+	if (ret < 0) {
+		printf("%s: Failed to get part details for %s %s [%d]\n",
+		       __func__, bootmedia, bootpart, ret);
+		return ret;
+	}
+
+	if (!CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
+		printf("ERROR: Failed to find rootfs PARTUUID\n");
+		printf("%s: CONFIG_SPL_PARTITION_UUIDS not enabled\n",
+		       __func__);
+		return -EOPNOTSUPP;
+	}
+
+	snprintf(str, sizeof(str), "console=%s root=PARTUUID=%s rootwait",
+		 env_get("console"), disk_partition_uuid(&info));
+
+	ret = fdt_find_and_setprop(fdt, "/chosen", "bootargs", str,
+				   strlen(str) + 1, 1);
+	if (ret) {
+		printf("%s: Could not set bootargs: %s\n", __func__,
+		       fdt_strerror(ret));
+		return ret;
+	}
+
+	debug("%s: Set bootargs to: %s\n", __func__, str);
+	return 0;
+}
+
+int k3_falcon_fdt_fixup(void *fdt)
+{
+	int ret;
+
+	if (!fdt)
+		return -EINVAL;
+
+	fdt_set_totalsize(fdt, fdt_totalsize(fdt) + CONFIG_SYS_FDT_PAD);
+
+	if (fdt_path_offset(fdt, "/chosen/bootargs") < 0) {
+		ret = k3_falcon_fdt_add_bootargs(fdt);
+
+		if (ret)
+			return ret;
+	}
+
+	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP)) {
+		ret = ft_board_setup(fdt, gd->bd);
+		if (ret) {
+			printf("%s: Failed in board setup: %s\n", __func__,
+			       fdt_strerror(ret));
+			return ret;
+		}
+	}
+
+	if (IS_ENABLED(CONFIG_OF_SYSTEM_SETUP)) {
+		ret = ft_system_setup(fdt, gd->bd);
+		if (ret) {
+			printf("%s: Failed in system setup: %s\n", __func__,
+			       fdt_strerror(ret));
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
 void spl_perform_arch_fixups(struct spl_image_info *spl_image)
 {
 	void *fdt = spl_image_fdt_addr(spl_image);
@@ -465,6 +542,9 @@ void spl_perform_arch_fixups(struct spl_image_info *spl_image)
 		return;
 
 	fdt_fixup_reserved(fdt);
+
+	if (IS_ENABLED(CONFIG_SPL_OS_BOOT))
+		k3_falcon_fdt_fixup(fdt);
 }
 
 void spl_board_prepare_for_boot(void)

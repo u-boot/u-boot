@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2017-2018, 2020-2021 NXP
+ * Copyright 2017-2018, 2020-2021, 2025 NXP
  */
 #include <config.h>
 #include <command.h>
@@ -72,6 +72,7 @@ static u64 mc_lazy_dpl_addr;
 static u32 dpsparser_obj_id;
 static u16 dpsparser_handle;
 static char *mc_err_msg_apply_spb[] = MC_ERROR_MSG_APPLY_SPB;
+static bool wait_for_dpl;
 
 #ifdef DEBUG
 void dump_ram_words(const char *title, void *addr)
@@ -653,7 +654,7 @@ static int load_mc_aiop_img(u64 aiop_fw_addr)
 }
 #endif
 
-static int wait_for_mc(bool booting_mc, u32 *final_reg_gsr)
+static int wait_for_mc(u32 *final_reg_gsr)
 {
 	u32 reg_gsr;
 	u32 mc_fw_boot_status;
@@ -792,7 +793,7 @@ int mc_init(u64 mc_fw_addr, u64 mc_dpc_addr)
 	 * Deassert reset and release MC core 0 to run
 	 */
 	out_le32(&mc_ccsr_regs->reg_gcr1, GCR1_P1_DE_RST | GCR1_M_ALL_DE_RST);
-	error = wait_for_mc(true, &reg_gsr);
+	error = wait_for_mc(&reg_gsr);
 	if (error != 0)
 		goto out;
 
@@ -855,13 +856,20 @@ int mc_apply_dpl(u64 mc_dpl_addr)
 	 * Tell the MC to deploy the DPL:
 	 */
 	out_le32(&mc_ccsr_regs->reg_gsr, 0x0);
-	printf("fsl-mc: Deploying data path layout ... ");
-	error = wait_for_mc(false, &reg_gsr);
 
-	if (!error)
-		mc_dpl_applied = 0;
+	/* Wait for the MC firmware to finish processing the DPL */
+	if (wait_for_dpl) {
+		printf("fsl-mc: Deploying data path layout ... ");
+		error = wait_for_mc(&reg_gsr);
+		if (error)
+			return error;
+	} else {
+		printf("fsl-mc: Started the DPL deploy process\n");
+	}
 
-	return error;
+	mc_dpl_applied = 0;
+
+	return 0;
 }
 
 int get_mc_boot_status(void)
@@ -1995,6 +2003,11 @@ static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 		 * later from announce_and_cleanup().
 		 */
 		mc_lazy_dpl_addr = mc_dpl_addr;
+
+		wait_for_dpl = true;
+		if (argc >= 5 && strcmp(argv[4], "nowait") == 0)
+			wait_for_dpl = false;
+
 		break;
 		}
 
@@ -2022,6 +2035,10 @@ static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 			}
 
 			mc_apply_addr = simple_strtoull(argv[3], NULL, 16);
+
+			wait_for_dpl = true;
+			if (argc >= 5 && strcmp(argv[4], "nowait") == 0)
+				wait_for_dpl = false;
 
 			/* The user wants DPL applied now */
 			if (!fsl_mc_ldpaa_exit(NULL))
@@ -2070,12 +2087,12 @@ static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 U_BOOT_CMD(
 	fsl_mc,  CONFIG_SYS_MAXARGS,  1,   do_fsl_mc,
 	"DPAA2 command to manage Management Complex (MC)",
-	"start mc [FW_addr] [DPC_addr] - Start Management Complex\n"
-	"fsl_mc apply DPL [DPL_addr] - Apply DPL file\n"
-	"fsl_mc lazyapply DPL [DPL_addr] - Apply DPL file on exit\n"
-	"fsl_mc apply spb [spb_addr] - Apply SPB Soft Parser Blob\n"
-	"fsl_mc start aiop [FW_addr] - Start AIOP\n"
-	"fsl_mc dump_log - Dump MC Log\n"
+	"fsl_mc start mc <fw_addr> <DPC_addr> - Start the Management Complex firmware\n"
+	"fsl_mc apply dpl <dpl_addr> [nowait] - Apply the DPL (Data Path Layout) file\n"
+	"fsl_mc lazyapply dpl <DPL_addr> [nowait] - Apply the DPL (Data Path Layout) file on exit\n"
+	"fsl_mc apply spb <spb_addr> - Apply the SPB Soft Parser Blob\n"
+	"fsl_mc start aiop <fw_addr> - Start AIOP\n"
+	"fsl_mc dump_log - Dump the MC Log\n"
 );
 
 void mc_env_boot(void)

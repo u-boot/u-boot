@@ -28,7 +28,7 @@
 	bus-num = <0>;
 	status = "okay";
 
-	dspiflash: n25q12a {
+	dspiflash: n25q12a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";

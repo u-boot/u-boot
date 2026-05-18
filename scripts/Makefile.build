@@ -65,6 +65,7 @@ ccflags-y  += $(PLATFORM_CPPFLAGS)
 cppflags-y += $(PLATFORM_CPPFLAGS)
 
 include $(srctree)/scripts/Makefile.lib
+include $(srctree)/scripts/Makefile.lib-u-boot
 
 # Do not include hostprogs rules unless needed.
 # $(sort ...) is used here to remove duplicated words and excessive spaces.
@@ -438,6 +439,10 @@ targets += $(call intermediate_targets, .asn1.o, .asn1.c .asn1.h) \
 	   $(call intermediate_targets, .dtb.o, .dtb.S .dtb) \
 	   $(call intermediate_targets, .lex.o, .lex.c) \
 	   $(call intermediate_targets, .tab.o, .tab.c .tab.h)
+
+# Added for U-Boot
+targets += $(call intermediate_targets, .ttf.o, .ttf.S) \
+	   $(call intermediate_targets, .bmp.o, .bmp.S)
 
 # Build
 # ---------------------------------------------------------------------------

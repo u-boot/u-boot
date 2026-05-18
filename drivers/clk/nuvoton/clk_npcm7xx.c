@@ -84,7 +84,7 @@ static const struct udevice_id npcm7xx_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(clk_npcm) = {
+U_BOOT_DRIVER(clk_npcm750) = {
 	.name           = "clk_npcm",
 	.id             = UCLASS_CLK,
 	.of_match       = npcm7xx_clk_ids,

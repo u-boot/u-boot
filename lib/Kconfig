@@ -71,10 +71,14 @@ config DYNAMIC_CRC_TABLE
 	  Enable this option to calculate entries for CRC tables at runtime.
 	  This can be helpful when reducing the size of the build image
 
-config FW_LOADER
-	bool "Enable firmware loader using environment script"
+config SUPPORTS_FW_LOADER
+	def_bool y
 	depends on CMDLINE
 	depends on ENV_SUPPORT
+
+config FW_LOADER
+	bool "Enable firmware loader using environment script"
+	depends on SUPPORTS_FW_LOADER
 	help
 	  Enable this option to make firmware loading using user-provided
 	  U-Boot environment script functionality accessible to U-Boot code.
@@ -281,7 +285,7 @@ config PANIC_HANG
 
 config REGEX
 	bool "Enable regular expression support"
-	default y if NET
+	default y if NET_LEGACY
 	help
 	  If this variable is defined, U-Boot is linked against the
 	  SLRE (Super Light Regular Expression) library, which adds
@@ -334,6 +338,7 @@ config SPL_ACPI
 config GENERATE_ACPI_TABLE
 	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
 	depends on ACPI
+	select ACPIGEN if !QFW_ACPI
 	select BLOBLIST
 	select QFW if QEMU
 	help
@@ -1272,9 +1277,8 @@ config SPL_LMB
 	  the data structures needed for maintaining the LMB memory map.
 
 config LMB_ARCH_MEM_MAP
-	bool "Add an architecture specific memory map"
+	bool
 	depends on LMB
-	depends on !COMPILE_TEST
 	default y if FSL_LAYERSCAPE || X86
 	help
 	  Some architectures have special or unique aspects which need

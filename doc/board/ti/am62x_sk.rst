@@ -87,8 +87,8 @@ Set the variables corresponding to this platform:
   export TFA_BOARD=lite
   # we dont use any extra TFA parameters
   unset TFA_EXTRA_ARGS
-  export OPTEE_PLATFORM=k3-am62x
-  export OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
+  # we dont use any extra OPTEE parameters
+  unset OPTEE_EXTRA_ARGS
 
 .. am62x_evm_rst_include_start_build_steps
 
@@ -283,7 +283,7 @@ https://www.ti.com/lit/pdf/spruiv7 under the `Boot Mode Pins` section.
 
    * - Switch Label
      - SW2: 12345678
-     - SW3: 12345678
+     - SW1: 12345678
 
    * - SD
      - 01000000

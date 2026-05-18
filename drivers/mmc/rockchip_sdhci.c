@@ -745,7 +745,7 @@ static const struct udevice_id sdhci_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(arasan_sdhci_drv) = {
+U_BOOT_DRIVER(rockchip_sdhci_5_1_drv) = {
 	.name		= "rockchip_sdhci_5_1",
 	.id		= UCLASS_MMC,
 	.of_match	= sdhci_ids,

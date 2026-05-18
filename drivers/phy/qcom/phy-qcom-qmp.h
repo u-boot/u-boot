@@ -12,11 +12,16 @@
 #include "phy-qcom-qmp-qserdes-com-v3.h"
 #include "phy-qcom-qmp-qserdes-txrx-v3.h"
 
+#include "phy-qcom-qmp-qserdes-com-v4.h"
+#include "phy-qcom-qmp-qserdes-txrx-v4.h"
+
 #include "phy-qcom-qmp-qserdes-pll.h"
 
 #include "phy-qcom-qmp-pcs-v2.h"
 
 #include "phy-qcom-qmp-pcs-v3.h"
+
+#include "phy-qcom-qmp-pcs-v4.h"
 
 /* Only for QMP V3 & V4 PHY - DP COM registers */
 #define QPHY_V3_DP_COM_PHY_MODE_CTRL			0x00
@@ -111,5 +116,17 @@
 /* Only for QMP V6 PHY - DP PHY registers */
 #define QSERDES_V6_DP_PHY_AUX_INTERRUPT_STATUS		0x0e0
 #define QSERDES_V6_DP_PHY_STATUS			0x0e4
+
+/* QPHY_SW_RESET bit */
+#define SW_RESET                                BIT(0)
+/* QPHY_POWER_DOWN_CONTROL */
+#define SW_PWRDN                                BIT(0)
+
+/* QPHY_START_CONTROL bits */
+#define SERDES_START                            BIT(0)
+#define PCS_START                               BIT(1)
+
+/* QPHY_PCS_STATUS bit */
+#define PHYSTATUS                               BIT(6)
 
 #endif

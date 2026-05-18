@@ -10,7 +10,6 @@ config STM32F4
 	select PINCTRL_STM32
 	select RAM
 	select STM32_RCC
-	select STM32_RESET
 	select STM32_SDRAM
 	select STM32_SERIAL
 	select STM32_TIMER
@@ -27,7 +26,6 @@ config STM32F7
 	select PINCTRL_STM32
 	select RAM
 	select STM32_RCC
-	select STM32_RESET
 	select STM32_SDRAM
 	select STM32_SERIAL
 	select STM32_TIMER
@@ -47,7 +45,6 @@ config STM32H7
 	select RAM
 	select REGMAP
 	select STM32_RCC
-	select STM32_RESET
 	select STM32_SDRAM
 	select STM32_SERIAL
 	select STM32_TIMER

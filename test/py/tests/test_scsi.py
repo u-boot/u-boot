@@ -39,16 +39,6 @@ def scsi_setup(ubman):
     return dev_num, dev_type, dev_size
 
 @pytest.mark.buildconfigspec('cmd_scsi')
-def test_scsi_reset(ubman):
-    dev_num, dev_type, dev_size = scsi_setup(ubman)
-    output = ubman.run_command('scsi reset')
-    assert f'Device {dev_num}:' in output
-    assert f'Type: {dev_type}' in output
-    assert f'Capacity: {dev_size}' in output
-    output = ubman.run_command('echo $?')
-    assert output.endswith('0')
-
-@pytest.mark.buildconfigspec('cmd_scsi')
 def test_scsi_info(ubman):
     dev_num, dev_type, dev_size = scsi_setup(ubman)
     output = ubman.run_command('scsi info')

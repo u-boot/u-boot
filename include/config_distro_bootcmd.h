@@ -543,8 +543,12 @@
 		"\0"                                                      \
 	\
 	"scan_dev_for_boot_part="                                         \
-		SCAN_DEV_FOR_BOOT_PARTS                                   \
-		"env exists devplist || setenv devplist 1; "              \
+		"if env exists distro_bootpart; then "                    \
+			"setenv devplist ${distro_bootpart}; "            \
+		"else "                                                   \
+			SCAN_DEV_FOR_BOOT_PARTS                           \
+			"env exists devplist || setenv devplist 1; "      \
+		"fi; "                                                    \
 		"for distro_bootpart in ${devplist}; do "                 \
 			"if fstype ${devtype} "                           \
 					"${devnum}:${distro_bootpart} "   \

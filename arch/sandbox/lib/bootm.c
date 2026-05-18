@@ -73,6 +73,7 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 
 	if (flag & (BOOTM_STATE_OS_GO | BOOTM_STATE_OS_FAKE_GO)) {
 		bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+		bootm_final(flag);
 		printf("## Transferring control to Linux (at address %08lx)...\n",
 		       images->ep);
 		printf("sandbox: continuing, as we cannot run Linux\n");

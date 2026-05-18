@@ -13,7 +13,7 @@ ENTRY(smh_trap)
 
 #if defined(CONFIG_ARM64)
 	hlt	#0xf000
-#elif defined(CONFIG_CPU_V7M)
+#elif defined(CONFIG_CPU_V7M_V8M)
 	bkpt	#0xab
 #elif defined(CONFIG_SYS_THUMB_BUILD)
 	svc	#0xab

@@ -269,16 +269,21 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 		return log_msg_ret("fi0", -ENOMEM);
 
 	/* read the DT file also */
+	ret = efi_get_distro_fdt_name(fname, sizeof(fname), 0);
+	if (ret == -EALREADY) {
+		/* Prior-stage FDT is used, no download needed */
+		bflow->flags |= BOOTFLOWF_USE_PRIOR_FDT;
+		bflow->state = BOOTFLOWST_READY;
+		return 0;
+	} else if (ret) {
+		return log_msg_ret("nam", ret);
+	}
+
 	fdt_addr_str = env_get("fdt_addr_r");
 	if (!fdt_addr_str)
 		return log_msg_ret("fdt", -EINVAL);
 	fdt_addr = hextoul(fdt_addr_str, NULL);
 	sprintf(file_addr, "%lx", fdt_addr);
-
-	/* We only allow the first prefix with PXE */
-	ret = efi_get_distro_fdt_name(fname, sizeof(fname), 0);
-	if (ret)
-		return log_msg_ret("nam", ret);
 
 	bflow->fdt_fname = strdup(fname);
 	if (!bflow->fdt_fname)

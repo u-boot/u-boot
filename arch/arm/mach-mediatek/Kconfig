@@ -93,6 +93,15 @@ config TARGET_MT8188
           USB3.0 dual role, SD and MMC cards, UFS, PWM, I2C, I2S, S/PDIF, and
           several LPDDR3 and LPDDR4 options.
 
+config TARGET_MT8189
+	bool "MediaTek MT8189 SoC"
+	select ARM64
+	help
+	  The MediaTek MT8189 is a ARM64-based SoC with a dual-core Cortex-A78 and
+	  a six-core Cortex-A55. It is including UART, SPI, USB3.0 dual role,
+	  SD and MMC cards, UFS, PWM, I2C, I2S, S/PDIF, and several LPDDR4x
+	  and LPDDR5x options.
+
 config TARGET_MT8195
 	bool "MediaTek MT8195 SoC"
 	select ARM64
@@ -186,7 +195,6 @@ config SYS_BOARD
 	  be used.
 
 config SYS_CONFIG_NAME
-	default "mt7622" if TARGET_MT7622
 	default "mt7623" if TARGET_MT7623
 	default "mt7629" if TARGET_MT7629
 	default "mt7981" if TARGET_MT7981
@@ -201,7 +209,7 @@ config SYS_CONFIG_NAME
 config MTK_BROM_HEADER_INFO
 	string
 	default "media=nor" if TARGET_MT8518 || TARGET_MT8512 || TARGET_MT7629
-	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8183 || TARGET_MT8188 || TARGET_MT8195
+	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8183 || TARGET_MT8188 || TARGET_MT8189 || TARGET_MT8195
 	default "lk=1" if TARGET_MT7623
 
 config MTK_TZ_MOVABLE

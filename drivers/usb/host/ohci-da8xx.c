@@ -165,7 +165,7 @@ static const struct udevice_id da8xx_ohci_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(ohci_generic) = {
+U_BOOT_DRIVER(ohci_da8xx) = {
 	.name	= "ohci-da8xx",
 	.id	= UCLASS_USB,
 	.of_match = da8xx_ohci_ids,

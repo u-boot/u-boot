@@ -16,3 +16,4 @@ Toradex
    verdin-am62p
    verdin-imx8mm
    verdin-imx8mp
+   verdin-imx95

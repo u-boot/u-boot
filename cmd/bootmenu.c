@@ -505,12 +505,8 @@ static void handle_uefi_bootnext(void)
 
 	/* Initialize EFI drivers */
 	ret = efi_init_obj_list();
-	if (ret != EFI_SUCCESS) {
-		log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-			ret & ~EFI_ERROR_MASK);
-
+	if (ret != EFI_SUCCESS)
 		return;
-	}
 
 	/* If UEFI BootNext variable is set, boot the BootNext load option */
 	size = sizeof(u16);

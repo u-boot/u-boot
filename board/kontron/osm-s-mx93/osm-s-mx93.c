@@ -22,11 +22,6 @@
 
 #include "../common/hw-uid.h"
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 #if IS_ENABLED(CONFIG_KONTRON_HW_UID)
 struct uid_otp_loc uid_otp_locations[] = {
 	{

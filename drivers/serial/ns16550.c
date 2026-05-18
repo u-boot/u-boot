@@ -586,6 +586,7 @@ const struct dm_serial_ops ns16550_serial_ops = {
 	.getinfo = ns16550_serial_getinfo,
 };
 
+#if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 #if CONFIG_IS_ENABLED(OF_REAL)
 /*
  * Please consider existing compatible strings before adding a new
@@ -602,8 +603,6 @@ static const struct udevice_id ns16550_serial_ids[] = {
 	{}
 };
 #endif /* OF_REAL */
-
-#if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 
 /* TODO(sjg@chromium.org): Integrate this into a macro like CONFIG_IS_ENABLED */
 #if !defined(CONFIG_TPL_BUILD) || defined(CONFIG_TPL_DM_SERIAL)

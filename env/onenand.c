@@ -107,5 +107,5 @@ U_BOOT_ENV_LOCATION(onenand) = {
 	.location	= ENVL_ONENAND,
 	ENV_NAME("OneNAND")
 	.load		= env_onenand_load,
-	.save		= env_save_ptr(env_onenand_save),
+	.save		= ENV_SAVE_PTR(env_onenand_save),
 };

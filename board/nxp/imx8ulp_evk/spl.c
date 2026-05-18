@@ -74,8 +74,6 @@ void spl_board_init(void)
 	if (ret)
 		return;
 
-	board_early_init_f();
-
 	preloader_console_init();
 
 	puts("Normal Boot\n");

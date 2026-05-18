@@ -10,6 +10,7 @@ config TARGET_EN7523
 	bool "Airoha EN7523 SoC"
 	select CPU_V7A
 	select ARMV7_SET_CORTEX_SMPEN
+	select REGMAP
 	help
 	  The Airoha EN7523 family (en7523/en7529/en7562) is an ARM-based
 	  SoCs with a dual-core CPU. It comes with Wi-Fi 5/6 support and

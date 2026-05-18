@@ -1,0 +1,4 @@
+#include <configs/mt8189-ufs.config>
+
+CONFIG_DEFAULT_DEVICE_TREE="mt8371-genio-520-evk-ufs"
+CONFIG_DEFAULT_FDT_FILE="mt8371-genio-520-evk-ufs"

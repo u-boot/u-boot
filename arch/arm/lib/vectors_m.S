@@ -52,6 +52,10 @@ ENTRY(_start)
 	.long	__invalid_entry			@ 13 - Reserved
 	.long	__invalid_entry			@ 14 - PendSV
 	.long	__invalid_entry			@ 15 - SysTick
-	.rept	255 - 16
+#ifdef CONFIG_CPU_V7M
+	.rept	256 - 16
+#else /* V8M / V8R */
+	.rept	512 - 16
+#endif
 	.long	__invalid_entry			@ 16..255 - External Interrupts
 	.endr

@@ -292,6 +292,9 @@ static int virtio_uclass_child_pre_probe(struct udevice *vdev)
 	if (ret)
 		goto err;
 
+	/* After a reset we always need to start the init sequence again */
+	virtio_add_status(vdev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+
 	/* We have a driver! */
 	virtio_add_status(vdev, VIRTIO_CONFIG_S_DRIVER);
 

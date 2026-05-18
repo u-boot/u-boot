@@ -44,7 +44,7 @@ static void acpi_write_rsdt(struct acpi_rsdt *rsdt)
 
 	/* Fill out header fields */
 	acpi_fill_header(header, "RSDT");
-	header->length = sizeof(struct acpi_rsdt);
+	header->length = sizeof(struct acpi_table_header);
 	header->revision = 1;
 
 	/* Entries are filled in later, we come with an empty set */
@@ -59,7 +59,7 @@ static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
 
 	/* Fill out header fields */
 	acpi_fill_header(header, "XSDT");
-	header->length = sizeof(struct acpi_xsdt);
+	header->length = sizeof(struct acpi_table_header);
 	header->revision = 1;
 
 	/* Entries are filled in later, we come with an empty set */

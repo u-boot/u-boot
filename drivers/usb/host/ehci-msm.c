@@ -117,7 +117,7 @@ void ci_init_after_reset(struct ehci_ctrl *ctrl)
 }
 #endif
 
-U_BOOT_DRIVER(usb_ehci) = {
+U_BOOT_DRIVER(ehci_msm) = {
 	.name	= "ehci_msm",
 	.id	= UCLASS_USB,
 	.of_to_plat = ehci_usb_of_to_plat,

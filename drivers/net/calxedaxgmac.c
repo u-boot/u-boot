@@ -597,7 +597,7 @@ static const struct udevice_id xgmac_eth_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(eth_xgmac) = {
+U_BOOT_DRIVER(calxeda_hb_xgmac) = {
 	.name		= "eth_xgmac",
 	.id		= UCLASS_ETH,
 	.of_match	= xgmac_eth_ids,

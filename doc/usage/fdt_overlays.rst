@@ -104,11 +104,11 @@ Manually Loading and Applying Overlays
 
     => fdt addr $fdtaddr
 
-4. Grow it enough so it can encompass all applied overlays
+4. Grow it enough so it can encompass all applied overlays (the argument in hex)
 
 ::
 
-    => fdt resize 8192
+    => fdt resize 2000
 
 5. You are now ready to apply the overlay.
 

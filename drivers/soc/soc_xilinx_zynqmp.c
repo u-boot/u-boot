@@ -71,6 +71,11 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.variants = ZYNQMP_VARIANT_EG_LR,
 	},
 	{
+		.id = 0x0468A093,
+		.device = 1,
+		.variants = ZYNQMP_VARIANT_EG_LR,
+	},
+	{
 		.id = 0x04711093,
 		.device = 2,
 		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
@@ -209,6 +214,16 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
+		.id = 0x047F9093,
+		.device = 58,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x047FC093,
+		.device = 59,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
 		.id = 0x046d0093,
 		.device = 67,
 		.variants = ZYNQMP_VARIANT_DR,
@@ -217,6 +232,36 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.id = 0x046d7093,
 		.device = 67,
 		.variants = ZYNQMP_VARIANT_DR_SE,
+	},
+	{
+		.id = 0x046D1093,
+		.device = 65,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x046D2093,
+		.device = 55,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x046D3093,
+		.device = 57,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x046D4093,
+		.device = 42,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x046D5093,
+		.device = 63,
+		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x046D6093,
+		.device = 64,
+		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
 		.id = 0x04712093,

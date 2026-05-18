@@ -20,7 +20,7 @@
 #include <asm/arch/soc.h>
 #include <linux/delay.h>
 #include <linux/mbus.h>
-#ifdef CONFIG_NET
+#ifdef CONFIG_NET_LEGACY
 #include <netdev.h>
 #endif
 #include <u-boot/crc.h>
@@ -244,7 +244,7 @@ int checkboard(void)
 	return 0;
 }
 
-#ifdef CONFIG_NET
+#ifdef CONFIG_NET_LEGACY
 int board_eth_init(struct bd_info *bis)
 {
 	cpu_eth_init(bis); /* Built in controller(s) come first */

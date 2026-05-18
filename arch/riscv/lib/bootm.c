@@ -25,39 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-__weak void board_quiesce_devices(void)
-{
-}
-
-/**
- * announce_and_cleanup() - Print message and prepare for kernel boot
- *
- * @fake: non-zero to do everything except actually boot
- */
-static void announce_and_cleanup(int fake)
-{
-	printf("\nStarting kernel ...%s\n\n", fake ?
-		"(fake run for tracing)" : "");
-	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
-#ifdef CONFIG_BOOTSTAGE_FDT
-	bootstage_fdt_add_report();
-#endif
-#if CONFIG_IS_ENABLED(BOOTSTAGE_REPORT)
-	bootstage_report();
-#endif
-
-	board_quiesce_devices();
-
-	/*
-	 * Call remove function of all devices with a removal flag set.
-	 * This may be useful for last-stage operations, like cancelling
-	 * of DMA operation or releasing device internal buffers.
-	 */
-	dm_remove_devices_active();
-
-	cleanup_before_linux();
-}
-
 static void boot_prep_linux(struct bootm_headers *images)
 {
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && IS_ENABLED(CONFIG_LMB) && images->ft_len) {
@@ -75,7 +42,6 @@ static void boot_prep_linux(struct bootm_headers *images)
 static void boot_jump_linux(struct bootm_headers *images, int flag)
 {
 	void (*kernel)(ulong hart, void *dtb);
-	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
 #ifdef CONFIG_SMP
 	int ret;
 #endif
@@ -87,9 +53,10 @@ static void boot_jump_linux(struct bootm_headers *images, int flag)
 	debug("## Transferring control to kernel (at address %08lx) ...\n",
 	      (ulong)kernel);
 
-	announce_and_cleanup(fake);
+	bootm_final(flag);
+	cleanup_before_linux();
 
-	if (!fake) {
+	if (!(flag & BOOTM_STATE_OS_FAKE_GO)) {
 		if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
 #ifdef CONFIG_SMP
 			ret = smp_call_function(images->ep,

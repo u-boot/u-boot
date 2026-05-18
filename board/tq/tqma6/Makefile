@@ -6,6 +6,7 @@
 #
 
 obj-y  := tqma6.o
+obj-y  += tqma6_emmc.o
 
 obj-$(CONFIG_MBA6) += tqma6_mba6.o
 obj-$(CONFIG_WRU4) += tqma6_wru4.o

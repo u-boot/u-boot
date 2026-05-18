@@ -3,6 +3,7 @@ if ARM || PPC
 config FSL_CAAM
 	bool "Freescale Crypto Driver Support"
 	select SHA_HW_ACCEL
+	select ARCH_MISC_INIT
 	# hw_sha1() under drivers/crypto, and needed with SHA_HW_ACCEL
 	select MISC if DM
 	imply SPL_CRYPTO if (ARM && SPL)

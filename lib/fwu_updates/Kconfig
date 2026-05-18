@@ -1,6 +1,7 @@
 menuconfig FWU_MULTI_BANK_UPDATE
 	bool "Enable FWU Multi Bank Update Feature"
 	depends on EFI_CAPSULE_ON_DISK
+	select EFI_PARTITION
 	select PARTITION_TYPE_GUID
 	select FWU_MDATA
 	imply EFI_CAPSULE_ON_DISK_EARLY

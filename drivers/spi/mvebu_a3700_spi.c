@@ -307,8 +307,8 @@ static const struct udevice_id mvebu_spi_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(mvebu_spi) = {
-	.name = "mvebu_spi",
+U_BOOT_DRIVER(mvebu_a3700_spi) = {
+	.name = "mvebu_a3700_spi",
 	.id = UCLASS_SPI,
 	.of_match = mvebu_spi_ids,
 	.ops = &mvebu_spi_ops,

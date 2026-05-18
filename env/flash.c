@@ -108,6 +108,14 @@ static int env_flash_init(void)
 	} else if (flag2 == 0xFF) {
 		gd->env_addr	= addr2;
 		gd->env_valid	= ENV_REDUND;
+	} else {
+		/*
+		 * Unrecognized flag pair (e.g. bit-flip on NOR flash).
+		 * Default to primary copy to prevent unintended pointer
+		 * swap in env_flash_load().
+		 */
+		gd->env_addr	= addr1;
+		gd->env_valid	= ENV_REDUND;
 	}
 
 	return 0;

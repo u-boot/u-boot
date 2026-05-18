@@ -136,7 +136,7 @@
 		status = "disabled";
 	};
 
-	sdhci@3400000 {
+	mmc@3400000 {
 		compatible = "nvidia,tegra186-sdhci";
 		reg = <0x0 0x03400000 0x0 0x200>;
 		resets = <&bpmp TEGRA186_RESET_SDMMC1>;
@@ -146,7 +146,7 @@
 		status = "disabled";
 	};
 
-	sdhci@3460000 {
+	mmc@3460000 {
 		compatible = "nvidia,tegra186-sdhci";
 		reg = <0x0 0x03460000 0x0 0x200>;
 		resets = <&bpmp TEGRA186_RESET_SDMMC4>;

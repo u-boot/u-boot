@@ -398,7 +398,7 @@ config DEBUG_UART_PL010
 
 config DEBUG_UART_PL011
 	bool "pl011"
-	depends on PL01X_SERIAL || PL011_SERIAL
+	depends on PL01X_SERIAL
 	help
 	  Select this to enable a debug UART using the pl01x driver with the
 	  PL011 UART type. You will need to provide parameters to make this
@@ -506,6 +506,14 @@ config DEBUG_UART_XTENSA_SEMIHOSTING
 	depends on XTENSA_SEMIHOSTING_SERIAL
 	help
 	  Select this to enable the debug UART using the Xtensa semihosting driver.
+	  This provides basic serial output from the console without needing to
+	  start up driver model. The driver will be available until the real
+	  driver model serial is running.
+
+config DEBUG_UART_GOLDFISH
+	bool "Goldfish TTY"
+	help
+	  Select this to enable the debug UART using the Goldfish TTY driver.
 	  This provides basic serial output from the console without needing to
 	  start up driver model. The driver will be available until the real
 	  driver model serial is running.
@@ -861,12 +869,6 @@ config INTEL_MID_SERIAL
 	help
 	  Select this to enable a UART for Intel MID platforms.
 	  This uses the ns16550 driver as a library.
-
-config PL011_SERIAL
-	bool "ARM PL011 driver"
-	depends on !DM_SERIAL
-	help
-	  Select this to enable a UART for platforms using PL011.
 
 config PL01X_SERIAL
 	bool "ARM PL010 and PL011 driver"

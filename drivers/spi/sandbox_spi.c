@@ -61,6 +61,22 @@ uint sandbox_spi_get_mode(struct udevice *dev)
 	return priv->mode;
 }
 
+uint sandbox_spi_get_wordlen(struct udevice *dev)
+{
+	struct spi_slave *slave = dev_get_parent_priv(dev);
+
+	return slave->wordlen;
+}
+
+static int sandbox_spi_set_wordlen(struct udevice *dev, unsigned int wordlen)
+{
+	struct spi_slave *slave = dev_get_parent_priv(dev);
+
+	slave->wordlen = wordlen;
+
+	return 0;
+}
+
 static int sandbox_spi_xfer(struct udevice *slave, unsigned int bitlen,
 			    const void *dout, void *din, unsigned long flags)
 {
@@ -158,6 +174,7 @@ static const struct dm_spi_ops sandbox_spi_ops = {
 	.set_mode	= sandbox_spi_set_mode,
 	.cs_info	= sandbox_cs_info,
 	.get_mmap	= sandbox_spi_get_mmap,
+	.set_wordlen	= sandbox_spi_set_wordlen,
 };
 
 static const struct udevice_id sandbox_spi_ids[] = {

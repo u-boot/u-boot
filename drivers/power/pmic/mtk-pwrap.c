@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * MT6357 regulator driver
+ * MediaTek PMIC Wrapper driver
  *
  * Copyright (c) 2026 BayLibre, SAS.
  * Author: Julien Masson <jmasson@baylibre.com>
@@ -59,9 +59,11 @@ static const struct pmic_child_info mt6359_pmic_children_info[] = {
 #define HAS_CAP(_c, _x_val)		(((_c) & (_x_val)) == (_x_val))
 
 /* Group of bits used for shown pwrap capability */
-#define PWRAP_CAP_INT1_EN		BIT(3)
-#define PWRAP_CAP_WDT_SRC1		BIT(4)
-#define PWRAP_CAP_ARB			BIT(5)
+#define PWRAP_CAP_WDT_SRC		BIT(4)
+#define PWRAP_CAP_WDT_SRC1		BIT(5)
+#define PWRAP_CAP_ARB			BIT(6)
+/* To implement this capability, the registers used in pwrap_init() must be defined. */
+#define PWRAP_CAP_INIT			BIT(7)
 
 /* defines for slave device wrapper registers */
 enum dew_regs {
@@ -249,26 +251,43 @@ enum pwrap_regs {
 };
 
 static int mt8188_regs[] = {
-	[PWRAP_INIT_DONE2] =            0x0,
-	[PWRAP_STAUPD_CTRL] =           0x4C,
-	[PWRAP_TIMER_EN] =              0x3E4,
-	[PWRAP_INT_EN] =                0x420,
-	[PWRAP_INT_FLG] =               0x428,
-	[PWRAP_INT_CLR] =               0x42C,
-	[PWRAP_INT1_EN] =               0x450,
-	[PWRAP_INT1_FLG] =              0x458,
-	[PWRAP_INT1_CLR] =              0x45C,
-	[PWRAP_WACS2_CMD] =             0x880,
-	[PWRAP_SWINF_2_WDATA_31_0] =    0x884,
-	[PWRAP_SWINF_2_RDATA_31_0] =    0x894,
-	[PWRAP_WACS2_VLDCLR] =          0x8A4,
-	[PWRAP_WACS2_RDATA] =           0x8A8,
+	[PWRAP_INIT_DONE2] =		0x0,
+	[PWRAP_STAUPD_CTRL] =		0x4C,
+	[PWRAP_TIMER_EN] =		0x3E4,
+	[PWRAP_INT_EN] =		0x420,
+	[PWRAP_INT_FLG] =		0x428,
+	[PWRAP_INT_CLR] =		0x42C,
+	[PWRAP_INT1_EN] =		0x450,
+	[PWRAP_INT1_FLG] =		0x458,
+	[PWRAP_INT1_CLR] =		0x45C,
+	[PWRAP_WACS2_CMD] =		0x880,
+	[PWRAP_SWINF_2_WDATA_31_0] =	0x884,
+	[PWRAP_SWINF_2_RDATA_31_0] =	0x894,
+	[PWRAP_WACS2_VLDCLR] =		0x8A4,
+	[PWRAP_WACS2_RDATA] =		0x8A8,
 };
 
 static int mt8189_regs[] = {
 	[PWRAP_INIT_DONE2] =		0x0,
 	[PWRAP_TIMER_EN] =		0x3E4,
 	[PWRAP_INT_EN] =		0x450,
+	[PWRAP_WACS2_CMD] =		0x880,
+	[PWRAP_SWINF_2_WDATA_31_0] =	0x884,
+	[PWRAP_SWINF_2_RDATA_31_0] =	0x894,
+	[PWRAP_WACS2_VLDCLR] =		0x8A4,
+	[PWRAP_WACS2_RDATA] =		0x8A8,
+};
+
+static int mt8195_regs[] = {
+	[PWRAP_INIT_DONE2] =		0x0,
+	[PWRAP_STAUPD_CTRL] =		0x4C,
+	[PWRAP_TIMER_EN] =		0x3E4,
+	[PWRAP_INT_EN] =		0x420,
+	[PWRAP_INT_FLG] =		0x428,
+	[PWRAP_INT_CLR] =		0x42C,
+	[PWRAP_INT1_EN] =		0x450,
+	[PWRAP_INT1_FLG] =		0x458,
+	[PWRAP_INT1_CLR] =		0x45C,
 	[PWRAP_WACS2_CMD] =		0x880,
 	[PWRAP_SWINF_2_WDATA_31_0] =	0x884,
 	[PWRAP_SWINF_2_RDATA_31_0] =	0x894,
@@ -338,12 +357,6 @@ static int mt8365_regs[] = {
 	[PWRAP_WDT_SRC_EN_1] =		0xf8,
 };
 
-enum pwrap_type {
-	PWRAP_MT8188,
-	PWRAP_MT8189,
-	PWRAP_MT8365,
-};
-
 struct pwrap_slv_type {
 	const u32 *dew_regs;
 	u32 caps;
@@ -362,10 +375,7 @@ struct pmic_wrapper {
 
 struct pmic_wrapper_type {
 	int *regs;
-	enum pwrap_type type;
 	u32 arb_en_all;
-	u32 int_en_all;
-	u32 int1_en_all;
 	u32 spi_w;
 	u32 wdt_src;
 	/* Flags indicating the capability for the target pwrap */
@@ -644,7 +654,7 @@ static const struct pwrap_slv_type pmic_mt6357 = {
 
 static const struct pwrap_slv_type pmic_mt6359 = {
 	.dew_regs = mt6359_regs,
-	.caps = PWRAP_SLV_CAP_DUALIO,
+	.caps = 0,
 };
 
 static const struct udevice_id mtk_pmic_ids[] = {
@@ -734,6 +744,11 @@ static int mtk_pwrap_probe(struct udevice *dev)
 	 * Skip initialization here in this case.
 	 */
 	if (!pwrap_readl(wrp, PWRAP_INIT_DONE2)) {
+		if (!HAS_CAP(wrp->master->caps, PWRAP_CAP_INIT)) {
+			dev_err(dev, "initialization is required but not supported\n");
+			return -EOPNOTSUPP;
+		}
+
 		ret = pwrap_init(wrp);
 		if (ret) {
 			dev_err(dev, "init failed with %d\n", ret);
@@ -755,7 +770,8 @@ static int mtk_pwrap_probe(struct udevice *dev)
 	 * Since STAUPD was not used on mt8173 platform,
 	 * so STAUPD of WDT_SRC which should be turned off
 	 */
-	pwrap_writel(wrp, wrp->master->wdt_src, PWRAP_WDT_SRC_EN);
+	if (HAS_CAP(wrp->master->caps, PWRAP_CAP_WDT_SRC))
+		pwrap_writel(wrp, wrp->master->wdt_src, PWRAP_WDT_SRC_EN);
 
 	if (HAS_CAP(wrp->master->caps, PWRAP_CAP_WDT_SRC1))
 		pwrap_writel(wrp, wrp->master->wdt_src, PWRAP_WDT_SRC_EN_1);
@@ -765,15 +781,6 @@ static int mtk_pwrap_probe(struct udevice *dev)
 	else
 		pwrap_writel(wrp, 0x1, PWRAP_TIMER_EN);
 
-	pwrap_writel(wrp, wrp->master->int_en_all, PWRAP_INT_EN);
-
-	/*
-	 * We add INT1 interrupt to handle starvation and request exception
-	 * If we support it, we should enable it here.
-	 */
-	if (HAS_CAP(wrp->master->caps, PWRAP_CAP_INT1_EN))
-		pwrap_writel(wrp, wrp->master->int1_en_all, PWRAP_INT1_EN);
-
 	return 0;
 }
 
@@ -782,7 +789,6 @@ static int mtk_pwrap_bind(struct udevice *dev)
 	ofnode pmic_node, regulators_node;
 	int children;
 	const struct pmic_child_info *pmic_children_info;
-	struct pmic_wrapper_type *pw_type = (void *)dev_get_driver_data(dev);
 
 	pmic_node = dev_read_first_subnode(dev);
 	if (!ofnode_valid(pmic_node)) {
@@ -790,16 +796,13 @@ static int mtk_pwrap_bind(struct udevice *dev)
 		return -ENXIO;
 	}
 
-	switch (pw_type->type) {
-	case PWRAP_MT8365:
+	if (ofnode_device_is_compatible(pmic_node, "mediatek,mt6357")) {
 		pmic_children_info = mt6357_pmic_children_info;
-		break;
-	case PWRAP_MT8188:
-	case PWRAP_MT8189:
+	} else if (ofnode_device_is_compatible(pmic_node, "mediatek,mt6359")) {
 		pmic_children_info = mt6359_pmic_children_info;
-		break;
-	default:
-		dev_err(dev, "pwrap type %d not supported\n", pw_type->type);
+	} else {
+		dev_err(dev, "pmic type %s not supported\n",
+			ofnode_read_string(pmic_node, "compatible"));
 		return -ENXIO;
 	}
 
@@ -848,20 +851,23 @@ static struct dm_pmic_ops mtk_pwrap_ops = {
 
 static struct pmic_wrapper_type pwrap_mt8188 = {
 	.regs = mt8188_regs,
-	.type = PWRAP_MT8188,
 	.arb_en_all = 0x777f,
-	.int_en_all = 0x180000,
-	.int1_en_all = 0x0,
 	.spi_w = PWRAP_MAN_CMD_SPI_WRITE,
 	.wdt_src = PWRAP_WDT_SRC_MASK_ALL,
-	.caps = PWRAP_CAP_INT1_EN | PWRAP_CAP_ARB,
+	.caps = PWRAP_CAP_ARB,
 };
 
 static struct pmic_wrapper_type pwrap_mt8189 = {
 	.regs = mt8189_regs,
-	.type = PWRAP_MT8189,
 	.arb_en_all = 0x777f,
-	.int_en_all = 0x180000,
+	.spi_w = PWRAP_MAN_CMD_SPI_WRITE,
+	.wdt_src = PWRAP_WDT_SRC_MASK_ALL,
+	.caps = PWRAP_CAP_ARB,
+};
+
+static const struct pmic_wrapper_type pwrap_mt8195 = {
+	.regs = mt8195_regs,
+	.arb_en_all = 0x777f, /* NEED CONFIRM */
 	.spi_w = PWRAP_MAN_CMD_SPI_WRITE,
 	.wdt_src = PWRAP_WDT_SRC_MASK_ALL,
 	.caps = PWRAP_CAP_ARB,
@@ -869,18 +875,16 @@ static struct pmic_wrapper_type pwrap_mt8189 = {
 
 static const struct pmic_wrapper_type pwrap_mt8365 = {
 	.regs = mt8365_regs,
-	.type = PWRAP_MT8365,
 	.arb_en_all = 0x3ffff,
-	.int_en_all = 0x7f1fffff,
-	.int1_en_all = 0x0,
 	.spi_w = PWRAP_MAN_CMD_SPI_WRITE,
 	.wdt_src = PWRAP_WDT_SRC_MASK_ALL,
-	.caps = PWRAP_CAP_INT1_EN | PWRAP_CAP_WDT_SRC1,
+	.caps = PWRAP_CAP_WDT_SRC1 | PWRAP_CAP_INIT,
 };
 
 static const struct udevice_id mtk_pwrap_ids[] = {
 	{ .compatible = "mediatek,mt8188-pwrap", .data = (ulong)&pwrap_mt8188 },
 	{ .compatible = "mediatek,mt8189-pwrap", .data = (ulong)&pwrap_mt8189 },
+	{ .compatible = "mediatek,mt8195-pwrap", .data = (ulong)&pwrap_mt8195 },
 	{ .compatible = "mediatek,mt8365-pwrap", .data = (ulong)&pwrap_mt8365 },
 	{ }
 };

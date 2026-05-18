@@ -309,7 +309,7 @@ class CseriesHelper:
         self._copy_db_fields_to(series, ser)
         msg = None
         if end:
-            repo = pygit2.init_repository(self.gitdir)
+            repo = pygit2.Repository(self.gitdir)
             target = repo.revparse_single(end)
             first_line = target.message.splitlines()[0]
             msg = f'Ending before {oid(target.id)} {first_line}'
@@ -725,7 +725,7 @@ class CseriesHelper:
             raise ValueError(
                 f"Modified files exist: use 'git status' to check: "
                 f'{dirty[:5]}')
-        repo = pygit2.init_repository(self.gitdir)
+        repo = pygit2.Repository(self.gitdir)
 
         commit = None
         upstream_name = None

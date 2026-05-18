@@ -321,4 +321,14 @@ void zimage_dump(struct boot_params *base_ptr, bool show_cmdline);
  */
 int bootm_boot_start(ulong addr, const char *cmdline);
 
+/**
+ * bootm_final() - Announce and do cleanup before boot
+ *
+ * This performs the common pre-boot steps: printing the "Starting kernel"
+ * message, recording bootstage data, and removing active devices.
+ *
+ * @flag: Boot state flags (BOOTM_STATE_OS_FAKE_GO prints a fake-run message)
+ */
+void bootm_final(int flag);
+
 #endif

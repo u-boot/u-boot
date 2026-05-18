@@ -443,6 +443,8 @@
 #define MACB_REV_SIZE				16
 
 /* Bitfields in DCFG1. */
+#define GEM_USERIO_OFFSET			9
+#define GEM_USERIO_SIZE				1
 #define GEM_IRQCOR_OFFSET			23
 #define GEM_IRQCOR_SIZE				1
 #define GEM_DBWDEF_OFFSET			25

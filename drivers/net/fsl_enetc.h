@@ -205,6 +205,7 @@ struct enetc_data {
 
 /* PCS / internal SoC PHY ID, it defaults to 0 on all interfaces */
 #define ENETC_PCS_PHY_ADDR	0
+#define ENETC_NON_PCS_PHY_ADDR      16
 
 /* PCS registers */
 #define ENETC_PCS_CR			0x00

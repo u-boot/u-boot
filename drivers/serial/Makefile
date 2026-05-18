@@ -10,7 +10,6 @@ obj-y += serial.o
 endif
 
 obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
-obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_$(PHASE_)SYS_NS16550_SERIAL) += serial_ns16550.o
 
 obj-$(CONFIG_ALTERA_UART) += altera_uart.o

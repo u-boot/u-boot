@@ -22,6 +22,8 @@ DDR and peripherals, on some boards also resets external PMIC.
 -w
     Do warm WARM, reset CPU but keep peripheral/DDR/PMIC active.
 
+-edl
+    Boot to Emergency DownLoad mode on supported Qualcomm platforms.
 
 Return value
 ------------

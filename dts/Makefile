@@ -11,10 +11,14 @@ DEVICE_TREE := unset
 endif
 
 ifeq ($(CONFIG_OF_UPSTREAM),y)
+ifeq ($(CONFIG_CPU_V8M),y)
+dt_dir := dts/upstream/src/arm64
+else
 ifeq ($(CONFIG_ARM64),y)
 dt_dir := dts/upstream/src/arm64
 else
 dt_dir := dts/upstream/src/$(ARCH)
+endif
 endif
 else
 dt_dir := arch/$(ARCH)/dts

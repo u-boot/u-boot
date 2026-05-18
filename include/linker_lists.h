@@ -145,6 +145,20 @@
  * Since this macro defines an array end symbol, its leftmost index
  * must be 2 and its rightmost index must be 3.
  *
+ * The end symbol uses __aligned(1) to ensure it is placed immediately after
+ * the last entry without any padding. This is critical for ll_entry_count()
+ * to work correctly.
+ *
+ * If the end marker had a higher alignment (e.g., 4 or 32 bytes), the linker
+ * might insert padding between the last entry and the end marker to satisfy
+ * alignment requirements of the following section. This would cause pointer
+ * subtraction (end - start) to produce incorrect results because the compiler
+ * optimizes pointer division using magic-number multiplication, which only
+ * works correctly when the byte span is an exact multiple of the struct size.
+ *
+ * With __aligned(1), the end marker is placed at exactly (start + n * sizeof)
+ * where n is the number of entries, ensuring correct pointer arithmetic.
+ *
  * Example:
  *
  * ::
@@ -153,7 +167,7 @@
  */
 #define ll_entry_end(_type, _list)					\
 ({									\
-	static char end[0] __aligned(4) __attribute__((unused))		\
+	static char end[0] __aligned(1) __attribute__((unused))		\
 		__section("__u_boot_list_2_"#_list"_3");			\
 	_type * tmp = (_type *)&end;					\
 	asm("":"+r"(tmp));						\
@@ -239,8 +253,12 @@
 	static _type _sym[0] __aligned(CONFIG_LINKER_LIST_ALIGN)	\
 		__maybe_unused __section("__u_boot_list_2_" #_list "_1")
 
+/*
+ * ll_end_decl uses __aligned(1) to avoid padding before the end marker.
+ * See the comment for ll_entry_end() for a full explanation.
+ */
 #define ll_end_decl(_sym, _type, _list)					\
-	static _type _sym[0] __aligned(CONFIG_LINKER_LIST_ALIGN)	\
+	static _type _sym[0] __aligned(1)				\
 		__maybe_unused __section("__u_boot_list_2_" #_list "_3")
 
 /**
@@ -266,7 +284,8 @@
  */
 #define ll_entry_get(_type, _name, _list)				\
 	({								\
-		extern _type _u_boot_list_2_##_list##_2_##_name;	\
+		extern _type _u_boot_list_2_##_list##_2_##_name		\
+			__aligned(4);					\
 		_type *_ll_result =					\
 			&_u_boot_list_2_##_list##_2_##_name;		\
 		_ll_result;						\
@@ -287,56 +306,6 @@
  */
 #define ll_entry_ref(_type, _name, _list)				\
 	((_type *)&_u_boot_list_2_##_list##_2_##_name)
-
-/**
- * ll_start() - Point to first entry of first linker-generated array
- * @_type:	Data type of the entry
- *
- * This function returns ``(_type *)`` pointer to the very first entry of
- * the very first linker-generated array.
- *
- * Since this macro defines the start of the linker-generated arrays,
- * its leftmost index must be 1.
- *
- * Example:
- *
- * ::
- *
- *   struct my_sub_cmd *msc = ll_start(struct my_sub_cmd);
- */
-#define ll_start(_type)							\
-({									\
-	static char start[0] __aligned(4) __attribute__((unused))	\
-		__section("__u_boot_list_1");				\
-	_type * tmp = (_type *)&start;					\
-	asm("":"+r"(tmp));						\
-	tmp;								\
-})
-
-/**
- * ll_end() - Point after last entry of last linker-generated array
- * @_type:	Data type of the entry
- *
- * This function returns ``(_type *)`` pointer after the very last entry of
- * the very last linker-generated array.
- *
- * Since this macro defines the end of the linker-generated arrays,
- * its leftmost index must be 3.
- *
- * Example:
- *
- * ::
- *
- *   struct my_sub_cmd *msc = ll_end(struct my_sub_cmd);
- */
-#define ll_end(_type)							\
-({									\
-	static char end[0] __aligned(4) __attribute__((unused))		\
-		__section("__u_boot_list_3");				\
-	_type * tmp = (_type *)&end;					\
-	asm("":"+r"(tmp));						\
-	tmp;								\
-})
 
 #endif /* __ASSEMBLY__ */
 

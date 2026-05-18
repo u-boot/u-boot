@@ -795,6 +795,11 @@ static optee_invoke_fn *get_invoke_func(struct udevice *dev)
 	return ERR_PTR(-EINVAL);
 }
 
+bool is_optee_smc_api(void)
+{
+	return is_optee_api(optee_smccc_smc);
+}
+
 static int optee_of_to_plat(struct udevice *dev)
 {
 	struct optee_pdata *pdata = dev_get_plat(dev);

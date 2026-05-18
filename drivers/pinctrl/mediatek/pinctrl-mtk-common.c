@@ -237,7 +237,37 @@ static int mtk_get_pin_io_type(struct udevice *dev, int pin,
 	io_type->bias_set = priv->soc->io_type[io_n].bias_set;
 	io_type->drive_set = priv->soc->io_type[io_n].drive_set;
 	io_type->input_enable = priv->soc->io_type[io_n].input_enable;
+	io_type->get_pinconf = priv->soc->io_type[io_n].get_pinconf;
 
+	return 0;
+}
+
+static int mtk_pinconf_get(struct udevice *dev, u32 pin, char *buf, size_t size)
+{
+	struct mtk_io_type_desc io_type;
+	int err, pos;
+
+	/* If we fail to get the type, then we just don't add any more info. */
+	if (mtk_get_pin_io_type(dev, pin, &io_type))
+		return 0;
+
+	pos = snprintf(buf, size, " (%s)", io_type.name);
+	if (pos >= size)
+		return pos;
+
+	if (io_type.get_pinconf) {
+		err = io_type.get_pinconf(dev, pin, buf + pos, size - pos);
+		if (err < 0)
+			return err;
+
+		pos += err;
+	}
+
+	return pos;
+}
+#else
+static int mtk_pinconf_get(struct udevice *dev, u32 pin, char *buf, size_t size)
+{
 	return 0;
 }
 #endif
@@ -270,12 +300,20 @@ static int mtk_get_pins_count(struct udevice *dev)
 static int mtk_get_pin_muxing(struct udevice *dev, unsigned int selector,
 			      char *buf, int size)
 {
-	int val, err;
+	int val, err, pos;
+
 	err = mtk_hw_get_value(dev, selector, PINCTRL_PIN_REG_MODE, &val);
 	if (err)
 		return err;
 
-	snprintf(buf, size, "Aux Func.%d", val);
+	pos = snprintf(buf, size, "Aux Func.%d", val);
+	if (pos >= size)
+		return 0;
+
+	err = mtk_pinconf_get(dev, selector, buf + pos, size - pos);
+	if (err < 0)
+		return err;
+
 	return 0;
 }
 
@@ -448,6 +486,20 @@ int mtk_pinconf_bias_set_pupd_r1_r0(struct udevice *dev, u32 pin, bool disable,
 	mtk_hw_set_value(dev, pin, PINCTRL_PIN_REG_R1, r1);
 
 	return 0;
+}
+
+int mtk_pinconf_bias_set_pu_pd_rsel(struct udevice *dev, u32 pin, bool disable,
+				    bool pullup, u32 val)
+{
+	int err;
+
+	/* val is expected to be one of MTK_PULL_SET_RSEL_XXX */
+
+	err = mtk_pinconf_bias_set_pu_pd(dev, pin, disable, pullup, val);
+	if (err)
+		return err;
+
+	return mtk_hw_set_value(dev, pin, PINCTRL_PIN_REG_RSEL, val & 0x7);
 }
 
 int mtk_pinconf_bias_set(struct udevice *dev, u32 pin, u32 arg, u32 val)
@@ -655,6 +707,55 @@ static int mtk_pinconf_group_set(struct udevice *dev,
 	}
 
 	return 0;
+}
+
+int mtk_pinconf_get_pu_pd(struct udevice *dev, u32 pin, char *buf, size_t size)
+{
+	int err, pu, pd;
+
+	err = mtk_hw_get_value(dev, pin, PINCTRL_PIN_REG_PU, &pu);
+	if (err)
+		return err;
+
+	err = mtk_hw_get_value(dev, pin, PINCTRL_PIN_REG_PD, &pd);
+	if (err)
+		return err;
+
+	return snprintf(buf, size, " PU:%d PD:%d", pu, pd);
+}
+
+int mtk_pinconf_get_pupd_r1_r0(struct udevice *dev, u32 pin, char *buf, size_t size)
+{
+	int err, r0, r1, pupd;
+
+	err = mtk_hw_get_value(dev, pin, PINCTRL_PIN_REG_PUPD, &pupd);
+	if (err)
+		return err;
+
+	err = mtk_hw_get_value(dev, pin, PINCTRL_PIN_REG_R1, &r1);
+	if (err)
+		return err;
+
+	err = mtk_hw_get_value(dev, pin, PINCTRL_PIN_REG_R0, &r0);
+	if (err)
+		return err;
+
+	return snprintf(buf, size, " PUPD:%d R1:%d R0:%d", pupd, r1, r0);
+}
+
+int mtk_pinconf_get_pu_pd_rsel(struct udevice *dev, u32 pin, char *buf, size_t size)
+{
+	int pos, err, rsel;
+
+	pos = mtk_pinconf_get_pu_pd(dev, pin, buf, size);
+	if (pos < 0 || pos >= size)
+		return pos;
+
+	err = mtk_hw_get_value(dev, pin, PINCTRL_PIN_REG_RSEL, &rsel);
+	if (err)
+		return err;
+
+	return pos + snprintf(buf + pos, size - pos, " RSEL:%d", rsel);
 }
 #endif
 

@@ -20,7 +20,6 @@
 #define SERVER_NAME_SIZE 254
 #define HTTP_PORT_DEFAULT 80
 #define HTTPS_PORT_DEFAULT 443
-#define PROGRESS_PRINT_STEP_BYTES (100 * 1024)
 
 enum done_state {
 	NOT_DONE = 0,
@@ -178,6 +177,9 @@ static int store_block(struct wget_ctx *ctx, void *src, u16_t len)
 	ctx->daddr += len;
 	ctx->size += len;
 
+	if (wget_info->silent)
+		return 0;
+
 	pos = clamp(ctx->size, 0UL, ctx->content_len);
 
 	while (ctx->hash_count < pos * 50 / ctx->content_len) {
@@ -240,20 +242,18 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 	}
 
 	/* Print hash marks for the last packet received */
-	while (ctx->hash_count < 49) {
-		putc('#');
-		ctx->hash_count++;
+	if (!wget_info->silent) {
+		while (ctx->hash_count < 49) {
+			putc('#');
+			ctx->hash_count++;
+		}
 	}
-	puts("  ");
-	print_size(ctx->content_len, "");
 
 	elapsed = get_timer(ctx->start_time);
 	if (!elapsed)
 		elapsed = 1;
 	if (!wget_info->silent) {
-		if (rx_content_len > PROGRESS_PRINT_STEP_BYTES)
-			printf("\n");
-		printf("%u bytes transferred in %lu ms (", rx_content_len,
+		printf("\n%u bytes transferred in %lu ms (", rx_content_len,
 		       elapsed);
 		print_size(rx_content_len / elapsed * 1000, "/s)\n");
 		printf("Bytes transferred = %lu (%lx hex)\n", ctx->size,

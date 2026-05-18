@@ -31,11 +31,6 @@
 #include <usb/xhci.h>
 #include "librem5.h"
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 #if IS_ENABLED(CONFIG_LOAD_ENV_FROM_MMC_BOOT_PARTITION)
 uint board_mmc_get_env_part(struct mmc *mmc)
 {

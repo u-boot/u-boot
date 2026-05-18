@@ -22,6 +22,7 @@ struct ums {
 	unsigned int num_sectors;
 	const char *name;
 	struct blk_desc block_dev;
+	int hwpart;
 };
 
 int fsg_init(struct ums *ums_devs, int count, struct udevice *udc);

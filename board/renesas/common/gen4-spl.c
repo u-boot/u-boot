@@ -82,7 +82,7 @@ struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 #define RTGRP3_BIT			BIT(19)
 #define APMU_ACC_ENB_FOR_ARM_CPU	(CL0GRP3_BIT | CL1GRP3_BIT | RTGRP3_BIT)
 
-void s_init(void)
+int mach_cpu_init(void)
 {
 	/* Unlock CPG access */
 	writel(0x5A5AFFFF, CPGWPR);
@@ -95,6 +95,8 @@ void s_init(void)
 	writel(0x00ff00ff, APMU_BASE + 0x18);
 	writel(0x00ff00ff, APMU_BASE + 0x1c);
 	clrbits_le32(APMU_BASE + 0x68, BIT(29));
+
+	return 0;
 }
 
 void reset_cpu(void)

@@ -441,6 +441,7 @@ static const struct udevice_id cdns_xspi_of_match[] = {
 U_BOOT_DRIVER(cadence_xspi) = {
 	.name = CDNS_XSPI_NAME,
 	.id = UCLASS_SPI,
+	.plat_auto = sizeof(struct cdns_xspi_plat),
 	.of_match = cdns_xspi_of_match,
 	.ops = &cdns_xspi_ops,
 	.probe = cdns_xspi_probe,

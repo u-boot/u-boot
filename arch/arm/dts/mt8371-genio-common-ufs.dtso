@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2026 MediaTek Inc.
+ *
+ * Adjusts for when boot DIP switches/jumpers on EVK are set for UFS boot
+ * instead of eMMC.
+ */
+
+/dts-v1/;
+/plugin/;
+
+&ufshci {
+	status = "okay";
+};
+
+&mmc0 {
+	status = "disabled";
+};

@@ -49,6 +49,14 @@ config SYSRESET_CMD_RESET
 	help
 	  Enable sysreset implementation of the reset command.
 
+config SYSRESET_CMD_RESET_ARGS
+	bool "Enable reset command to take arguments"
+	help
+	  Pass on the arguments received by the 'reset' command to the
+	  sysreset driver(s). The sysreset driver(s) may make use of the
+	  additional arguments for implementing arch/board specific
+	  functionality.
+
 if CMD_POWEROFF
 
 config SYSRESET_CMD_POWEROFF
@@ -292,6 +300,13 @@ config SYSRESET_RAA215300
 	depends on PMIC_RAA215300
 	help
 	  Add support for the system reboot via the Renesas RAA215300 PMIC.
+
+config SYSRESET_QCOM_PSCI
+	bool "Support reset to EDL for Qualcomm SoCs via PSCI"
+	depends on ARM_SMCCC
+	help
+	  Add support for the reset to EDL (Emergency Download) on Qualcomm
+	  SoCs via PSCI.
 
 config SYSRESET_QCOM_PSHOLD
 	bool "Support sysreset for Qualcomm SoCs via PSHOLD"

@@ -326,6 +326,7 @@ static int __versal_clock_get_parents(struct clock_parent *parents, u32 *data,
 		parent = &parents[i];
 		parent->id = data[i] & CLK_PARENTS_ID_MASK;
 		if (data[i] == DUMMY_PARENT) {
+			parent->id = 0;
 			strcpy(parent->name, "dummy_name");
 			parent->flag = 0;
 		} else {

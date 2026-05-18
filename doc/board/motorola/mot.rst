@@ -67,9 +67,26 @@ Flashing U-Boot into the eMMC
 ``DISCLAMER!`` All questions related to fusee-tools should be asked in the proper
 place. NOT HERE! Flashing U-Boot will erase all eMMC, so make a backup before!
 
+Permanent installation can be performed by pre-loading just built U-Boot into RAM.
+Bct and bootloader will end up in boot0 and boot1 partitions of eMMC.
+
+You have to clone and prepare fusee-tools from here: https://gitlab.com/grate-driver/fusee-tools
+according to fusee-tools README to continue.
+
+Bootloader preloading is performed to device in APX/RCM mode connected to host
+PC. For Motorola Atrix 4G (MB860) and Droid X2 (MB870) this mode can be entered
+from vendor bootloader menu and with special cable from prerequisites chapter.
+Host PC should detect APX USB device in ``lsusb``.
+
 U-Boot pre-loaded into RAM acts the same as when it was booted "cold". Currently
 U-Boot supports bootmenu entry fastboot, which allows to write a processed copy
-of U-Boot permanently into eMMC.
+of U-Boot permanently into eMMC. This is how U-Boot can be preloaded using
+fusee-tools:
+
+.. code-block:: bash
+
+    $ ./utils/nvflash_t20 --setbct --bct ./bct/olympus.bct --configfile ./utils/flash.cfg
+      --bl u-boot-dtb-tegra.bin --sbk <your sbk> --sync
 
 While pre-loading U-Boot, hold the ``volume down`` button which will trigger
 the bootmenu. There, select ``fastboot`` using the volume and power buttons.
@@ -92,8 +109,8 @@ device will enter bootmenu. Bootmenu contains entries to mount MicroSD and eMMC
 as mass storage, fastboot, reboot, reboot RCM, poweroff, enter U-Boot console
 and update bootloader (check the next chapter).
 
-Flashing ``repart-block.bin`` eliminates vendor restrictions on eMMC and allows
-the user to use/partition it in any way the user desires.
+Flashing ``bct.img`` and ``ebt.img`` eliminates vendor restrictions on eMMC and
+allows the user to use/partition it in any way the user desires.
 
 Self Upgrading
 --------------

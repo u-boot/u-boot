@@ -66,7 +66,9 @@ FWU Metadata
 U-Boot supports both versions(1 and 2) of the FWU metadata defined in
 the two revisions of the specification. Support can be enabled for
 either of the two versions through a config flag. The mkfwumdata tool
-can generate metadata for both the supported versions.
+can generate metadata for both the supported versions. On the target side,
+the fwumdata tool can read and update FWU metadata located in memory,
+similarly to how fw_printenv/fw_setenv works.
 
 Setting up the device for GPT partitioned storage
 -------------------------------------------------

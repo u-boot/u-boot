@@ -17,6 +17,12 @@
 #define CFG_SYS_SDRAM_SIZE		(0x80000000u - DRAM_RSV_SIZE)
 #define CFG_MAX_MEM_MAPPED		(0x80000000u - DRAM_RSV_SIZE)
 
+/* Timer */
+#if defined(CONFIG_RCAR_64_RSIP)
+#define CFG_SYS_TIMER_COUNTER		(TMU_BASE + 0xc)	/* TCNT0 */
+#define CFG_SYS_TIMER_RATE		(133333333 / 4)
+#endif
+
 /* Environment setting */
 #define CFG_EXTRA_ENV_SETTINGS		\
 	"bootm_size=0x10000000\0"

@@ -7,8 +7,8 @@
  */
 
 #include <asm/io.h>
-#include <asm/arch-adi/sc5xx/sc5xx.h>
-#include <asm/arch-adi/sc5xx/spl.h>
+#include <asm/arch/sc5xx.h>
+#include <asm/arch/spl.h>
 
 #define REG_SPU0_SECUREC0 0x3108C980
 #define REG_PADS0_PCFG0 0x31004404

@@ -316,15 +316,6 @@ static int passwd_abort_key(uint64_t etime)
 }
 
 /**
- * flush_stdin() - drops all pending characters from stdin
- */
-static void flush_stdin(void)
-{
-	while (tstc())
-		(void)getchar();
-}
-
-/**
  * fallback_to_sha256() - check whether we should fall back to sha256
  *                        password checking
  *
@@ -354,7 +345,7 @@ static int abortboot_key_sequence(int bootdelay)
 	uint64_t etime = endtick(bootdelay);
 
 	if (IS_ENABLED(CONFIG_AUTOBOOT_FLUSH_STDIN))
-		flush_stdin();
+		console_flush_stdin();
 #  ifdef CONFIG_AUTOBOOT_PROMPT
 	/*
 	 * CONFIG_AUTOBOOT_PROMPT includes the %d for all boards.

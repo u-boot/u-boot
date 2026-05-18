@@ -188,7 +188,7 @@ static const struct udevice_id sc5xx_musb_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(usb_musb) = {
+U_BOOT_DRIVER(musb_sc5xx) = {
 	.name		= "sc5xx-musb",
 	.id		= UCLASS_USB,
 	.of_match	= sc5xx_musb_ids,

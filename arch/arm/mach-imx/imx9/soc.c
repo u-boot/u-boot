@@ -664,7 +664,8 @@ int low_drive_freq_update(void *blob)
 	return 0;
 }
 
-#if defined(CONFIG_OF_BOARD_FIXUP) && !defined(CONFIG_TARGET_PHYCORE_IMX93)
+#if defined(CONFIG_OF_BOARD_FIXUP) && !defined(CONFIG_TARGET_PHYCORE_IMX93) && \
+	!defined(CONFIG_TARGET_PHYCORE_IMX91)
 #ifndef CONFIG_XPL_BUILD
 int board_fix_fdt(void *fdt)
 {

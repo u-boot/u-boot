@@ -6,7 +6,7 @@
 #ifndef __PFUZE_BOARD_HELPER__
 #define __PFUZE_BOARD_HELPER__
 
-#ifdef CONFIG_DM_PMIC_PFUZE100
+#if CONFIG_IS_ENABLED(DM_PMIC_PFUZE100)
 struct udevice *pfuze_common_init(void);
 int pfuze_mode_init(struct udevice *dev, u32 mode);
 #else

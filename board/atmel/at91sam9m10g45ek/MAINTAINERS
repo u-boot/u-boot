@@ -1,5 +1,5 @@
 AT91SAM9M10G45EK BOARD
-M:	Eugen Hristev <eugen.hristev@microchip.com>
+M:	Eugen Hristev <ehristev@kernel.org>
 S:	Maintained
 F:	board/atmel/at91sam9m10g45ek/
 F:	include/configs/at91sam9m10g45ek.h

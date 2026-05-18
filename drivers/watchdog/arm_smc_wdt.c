@@ -130,7 +130,7 @@ static const struct udevice_id smcwd_dt_ids[] = {
 	{}
 };
 
-U_BOOT_DRIVER(wdt_sandbox) = {
+U_BOOT_DRIVER(arm_smc_wdt) = {
 	.name = "smcwd",
 	.id = UCLASS_WDT,
 	.of_match = smcwd_dt_ids,

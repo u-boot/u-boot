@@ -129,3 +129,18 @@ void __noreturn psci_system_off(void)
 	while (1)
 		;
 }
+
+int psci_features(u32 psci_func_id)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = ARM_PSCI_1_0_FN_PSCI_FEATURES;
+	regs.regs[1] = psci_func_id;
+
+	if (use_smc_for_psci)
+		smc_call(&regs);
+	else
+		hvc_call(&regs);
+
+	return regs.regs[0];
+}

@@ -10,7 +10,7 @@
 #include <net.h>
 #include <regmap.h>
 #include <reset.h>
-#include <syscon.h>
+#include <asm/arch/scu-regmap.h>
 
 #include "pcs-airoha.h"
 
@@ -755,7 +755,7 @@ static int airoha_pcs_probe(struct udevice *dev)
 		return PTR_ERR(priv->xfi_ana);
 
 	/* SCU is used to toggle XFI or HSGMII in global SoC registers */
-	priv->scu = syscon_regmap_lookup_by_phandle(dev, "airoha,scu");
+	priv->scu = airoha_get_scu_regmap();
 	if (IS_ERR(priv->scu))
 		return PTR_ERR(priv->scu);
 

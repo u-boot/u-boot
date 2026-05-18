@@ -2,6 +2,7 @@ config USB_EMUL
 	bool "Support for USB device emulation"
 	depends on SANDBOX
 	select DM_USB
+	select SCSI
 	select USB_HOST
 	help
 	  Since sandbox does not have access to a real USB bus, it is possible

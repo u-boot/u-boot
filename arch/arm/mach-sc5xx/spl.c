@@ -7,8 +7,8 @@
  */
 
 #include <spl.h>
-#include <asm/arch-adi/sc5xx/sc5xx.h>
-#include <asm/arch-adi/sc5xx/spl.h>
+#include <asm/arch/sc5xx.h>
+#include <asm/arch/spl.h>
 #include "init/clkinit.h"
 #include "init/dmcinit.h"
 

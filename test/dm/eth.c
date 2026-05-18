@@ -449,7 +449,7 @@ static int dm_test_net_retry(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_net_retry, UTF_SCAN_FDT);
 
-#if CONFIG_IS_ENABLED(NET)
+#if CONFIG_IS_ENABLED(NET_LEGACY)
 static int sb_check_arp_reply(struct udevice *dev, void *packet,
 			      unsigned int len)
 {
@@ -517,7 +517,7 @@ static int sb_with_async_arp_handler(struct udevice *dev, void *packet,
 }
 #endif
 
-#if CONFIG_IS_ENABLED(NET)
+#if CONFIG_IS_ENABLED(NET_LEGACY)
 static int dm_test_eth_async_arp_reply(struct unit_test_state *uts)
 {
 	net_ping_ip = string_to_ip("1.1.2.2");
@@ -537,7 +537,7 @@ static int dm_test_eth_async_arp_reply(struct unit_test_state *uts)
 DM_TEST(dm_test_eth_async_arp_reply, UTF_SCAN_FDT);
 #endif
 
-#if CONFIG_IS_ENABLED(NET)
+#if CONFIG_IS_ENABLED(NET_LEGACY)
 static int sb_check_ping_reply(struct udevice *dev, void *packet,
 			       unsigned int len)
 {

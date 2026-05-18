@@ -2193,7 +2193,7 @@ static int stm32mp1_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-U_BOOT_DRIVER(stm32mp1_clock) = {
+U_BOOT_DRIVER(stm32mp13_clock) = {
 	.name = "stm32mp13_clk",
 	.id = UCLASS_CLK,
 	.ops = &stm32_clk_ops,

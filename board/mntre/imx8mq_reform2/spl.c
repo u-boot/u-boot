@@ -10,7 +10,6 @@
 #include <image.h>
 #include <init.h>
 #include <log.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/io.h>
@@ -27,8 +26,6 @@
 #include <linux/delay.h>
 #include <power/pmic.h>
 #include <spl.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 extern struct dram_timing_info dram_timing_ch2;
 
@@ -225,9 +222,6 @@ int board_fit_config_name_match(const char *name)
 void board_init_f(ulong dummy)
 {
 	int ret;
-
-	/* Clear global data */
-	memset((void *)gd, 0, sizeof(gd_t));
 
 	arch_cpu_init();
 

@@ -493,8 +493,11 @@ static int stm32_dsi_probe(struct udevice *dev)
 	    priv->hw_version != HWVER_131) {
 		dev_err(dev, "DSI version 0x%x not supported\n", priv->hw_version);
 		dev_dbg(dev, "remove and unbind all DSI child\n");
-		device_chld_remove(dev, NULL, DM_REMOVE_NORMAL);
-		device_chld_unbind(dev, NULL);
+		ret = device_chld_remove(dev, NULL, DM_REMOVE_NORMAL);
+		if (!ret)
+			ret = device_chld_unbind(dev, NULL);
+		if (ret)
+			dev_err(dev, "Unbinding from %s failed %d\n", dev->name, ret);
 		ret = -ENODEV;
 		goto err_clk;
 	}

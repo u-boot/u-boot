@@ -31,13 +31,6 @@ static int do_scsi(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	if (argc == 2) {
-		if (strncmp(argv[1], "res", 3) == 0) {
-			printf("\nReset SCSI\n");
-			ret = scsi_scan(true);
-			if (ret)
-				return CMD_RET_FAILURE;
-			return ret;
-		}
 		if (strncmp(argv[1], "scan", 4) == 0) {
 			ret = scsi_scan(true);
 			if (ret)
@@ -52,7 +45,6 @@ static int do_scsi(struct cmd_tbl *cmdtp, int flag, int argc,
 U_BOOT_CMD(
 	scsi, 5, 1, do_scsi,
 	"SCSI sub-system",
-	"reset - reset SCSI controller\n"
 	"scsi info  - show available SCSI devices\n"
 	"scsi scan  - (re-)scan SCSI bus\n"
 	"scsi device [dev] - show or set current device\n"

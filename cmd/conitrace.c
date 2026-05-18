@@ -6,6 +6,7 @@
  * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 #include <command.h>
+#include <console.h>
 #include <linux/delay.h>
 
 static int do_conitrace(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -17,8 +18,7 @@ static int do_conitrace(struct cmd_tbl *cmdtp, int flag, int argc,
 	printf("To terminate type 'x'\n");
 
 	/* Empty input buffer */
-	while (tstc())
-		getchar();
+	console_flush_stdin();
 
 	for (;;) {
 		int c = getchar();

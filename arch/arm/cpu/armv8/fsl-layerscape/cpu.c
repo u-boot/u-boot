@@ -1143,7 +1143,7 @@ int arch_early_init_r(void)
 #ifdef CONFIG_SYS_HAS_SERDES
 	fsl_serdes_init();
 #endif
-#ifdef CONFIG_SYS_FSL_HAS_RGMII
+#if defined(CONFIG_SYS_FSL_HAS_RGMII) && defined(CONFIG_FSL_MC_ENET)
 	/* some dpmacs in armv8a based freescale layerscape SOCs can be
 	 * configured via both serdes(sgmii, 10gbase-r, xlaui etc) bits and via
 	 * EC*_PMUX(rgmii) bits in RCW.
@@ -1158,6 +1158,10 @@ int arch_early_init_r(void)
 	 * function of SOC, the dpmac will be enabled as RGMII even if it was
 	 * also enabled before as SGMII. If ECx_PMUX is not configured for
 	 * RGMII, DPMAC will remain configured as SGMII from fsl_serdes_init().
+	 *
+	 * fsl_rgmii_init() itself is only built under CONFIG_FSL_MC_ENET
+	 * (drivers/net/ldpaa_eth/); gate the call the same way so builds
+	 * without MC-ENET still link.
 	 */
 	fsl_rgmii_init();
 #endif
@@ -1549,7 +1553,8 @@ void lmb_arch_add_memory(void)
 		    gd->arch.resv_ram < ram_start + ram_size)
 			ram_size = gd->arch.resv_ram - ram_start;
 #endif
-		lmb_add(ram_start, ram_size);
+		if (ram_size > 0)
+			lmb_add(ram_start, ram_size);
 	}
 }
 #endif

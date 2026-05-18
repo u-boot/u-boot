@@ -68,6 +68,7 @@ struct timerus {
 
 /* These are the available SKUs (product types) for Tegra */
 enum {
+	SKU_ID_T20_A04		= 0x4, /* Sony Tablet P value */
 	SKU_ID_AP20		= 0x7,
 	SKU_ID_T20		= 0x8,
 	SKU_ID_AP20H		= 0xf,

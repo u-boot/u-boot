@@ -1,20 +1,34 @@
+MT8189/MT8371/MT8391 EVK
+M:	Macpaul Lin <macpaul.lin@mediatek.com>
+S:	Maintained
+F:	arch/arm/dts/mt8371-genio-520-evk-u-boot.dtsi
+F:	arch/arm/dts/mt8371-genio-common-u-boot.dtsi
+F:	arch/arm/dts/mt8371-genio-common-ufs.dtso
+F:	arch/arm/dts/mt8391-genio-720-evk-u-boot.dtsi
+F:	configs/mt8189-ufs.config
+F:	configs/mt8189.config
+F:	configs/mt8371_genio_520_evk_defconfig
+F:	configs/mt8371_genio_520_evk_ufs_defconfig
+F:	configs/mt8391_genio_720_evk_defconfig
+F:	configs/mt8391_genio_720_evk_ufs_defconfig
+
 MT8365 EVK
 M:	Julien Masson <jmasson@baylibre.com>
 S:	Maintained
 F:	configs/mt8365_evk_defconfig
 
-MT8370 EVK
+MT8188/MT8370/MT8390
 M:	Macpaul Lin <Macpaul.Lin@mediatek.com>
+M:	Julien Stephan <jstephan@baylibre.com>
 S:	Maintained
-F:	configs/mt8370_evk_defconfig
+F:	configs/mt8188.config
+F:	configs/mt8370_genio_510_evk_defconfig
+F:	configs/mt8390_genio_700_evk_defconfig
 
-MT8390 EVK
-M:	Julien Masson <jmasson@baylibre.com>
+MT8195/MT8395
 M:	Macpaul Lin <Macpaul.Lin@mediatek.com>
+M:	Julien Stephan <jstephan@baylibre.com>
 S:	Maintained
-F:	configs/mt8390_evk_defconfig
-
-MT8395 EVK
-M:	Macpaul Lin <Macpaul.Lin@mediatek.com>
-S:	Maintained
-F:	configs/mt8395_evk_defconfig
+F:	configs/mt8195.config
+F:	configs/mt8395_genio_1200_evk_defconfig
+F:	configs/mt8395_genio_1200_evk_ufs_defconfig

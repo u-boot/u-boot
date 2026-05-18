@@ -124,12 +124,12 @@ Build
 current eth
     name of the active network device
 
-    Only shown if CONFIG_NET=y or CONFIG_NET_LWIP=y.
+    Only shown if CONFIG_NET=y.
 
 IP addr
     network address, value of the environment variable *ipaddr*
 
-    Only shown if CONFIG_NET=y or CONFIG_NET_LWIP=y.
+    Only shown if CONFIG_NET=y.
 
 fdt_blob
     address of U-Boot's own device tree, NULL if none
@@ -173,5 +173,4 @@ The bdinfo command is available if CONFIG_CMD_BDI=y.
 
 The options to bdinfo are only available if CONFIG_GETOPT=y.
 
-The ``-e`` option is additionally only available if CONFIG_NET=y or
-CONFIG_NET_LWIP=y.
+The ``-e`` option is additionally only available if CONFIG_NET=y.

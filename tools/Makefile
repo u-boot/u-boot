@@ -272,9 +272,7 @@ mkeficapsule-objs := generated/lib/uuid.o \
 	mkeficapsule.o
 hostprogs-always-$(CONFIG_TOOLS_MKEFICAPSULE) += mkeficapsule
 
-mkfwumdata-objs := mkfwumdata.o generated/lib/crc32.o
-HOSTLDLIBS_mkfwumdata += -luuid
-hostprogs-always-$(CONFIG_TOOLS_MKFWUMDATA) += mkfwumdata
+include tools/fwumdata_src/fwumdata.mk
 
 # We build some files with extra pedantic flags to try to minimize things
 # that won't build on some weird host compiler -- though there are lots of
@@ -356,7 +354,7 @@ override HOSTCFLAGS = $(CFLAGS)
 
 quiet_cmd_crosstools_strip = STRIP   $^
       cmd_crosstools_strip = $(STRIP) $^; touch $@
-$(obj)/.strip: $(call objectify,$(filter $(hostprogs-always-y)))
+$(obj)/.strip: $(call objectify,$(hostprogs-always-y))
 	$(call cmd,crosstools_strip)
 
 always-y += .strip

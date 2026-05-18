@@ -159,7 +159,7 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 			break;
 		case FEATURES:
 			printf("Features:" RESET " ");
-			if (IS_ENABLED(CONFIG_NET))
+			if (IS_ENABLED(CONFIG_NET_LEGACY))
 				printf("Net");
 			if (IS_ENABLED(CONFIG_EFI_LOADER))
 				printf(", EFI");

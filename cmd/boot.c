@@ -60,6 +60,9 @@ U_BOOT_CMD(
 	reset, 2, 0,	do_reset,
 	"Perform RESET of the CPU",
 	"- cold boot without level specifier\n"
+#ifdef CONFIG_SYSRESET_QCOM_PSCI
+	"reset -edl - Boot to Emergency DownLoad mode\n"
+#endif
 	"reset -w - warm reset if implemented"
 );
 

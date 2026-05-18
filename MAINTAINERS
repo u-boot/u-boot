@@ -65,6 +65,11 @@ F:	include/alist.h
 F:	lib/alist.c
 F:	test/lib/alist.c
 
+AMD VERSAL2 PCIE DRIVER
+M:	Pranav Sanwal <pranav.sanwal@amd.com>
+S:	Maintained
+F:	drivers/pci/pcie_dw_amd.c
+
 ANDROID AB
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
 R:	Igor Opaniuk <igor.opaniuk@gmail.com>
@@ -128,15 +133,22 @@ F:	drivers/mmc/snps_dw_mmc.c
 
 APPLE M1 SOC SUPPORT
 M:	Mark Kettenis <kettenis@openbsd.org>
+R:	Janne Grunau <j@jannau.net>
 S:	Maintained
 F:	arch/arm/include/asm/arch-apple/
 F:	arch/arm/mach-apple/
+F:	board/apple/
 F:	configs/apple_m1_defconfig
+F:	doc/board/apple/
+F:	drivers/input/apple_spi_kbd.c
 F:	drivers/iommu/apple_dart.c
+F:	drivers/mailbox/apple-mbox.c
 F:	drivers/nvme/nvme_apple.c
 F:	drivers/pci/pcie_apple.c
 F:	drivers/phy/phy-apple-atc.c
 F:	drivers/pinctrl/pinctrl-apple.c
+F:	drivers/power/domain/apple-pmgr.c
+F:	drivers/spi/apple_spi.c
 F:	drivers/watchdog/apple_wdt.c
 F:	include/configs/apple.h
 
@@ -361,7 +373,7 @@ F:	drivers/rng/msm_rng.c
 F:	drivers/pinctrl/qcom/pinctrl-ipq4019.c
 
 ARM LAYERSCAPE SFP
-M:	Sean Anderson <sean.anderson@seco.com>
+M:	Sean Anderson <sean.anderson@linux.dev>
 S:	Maintained
 F:	drivers/misc/ls2_sfp.c
 
@@ -415,7 +427,10 @@ M:	Ryder Lee <ryder.lee@mediatek.com>
 M:	Weijie Gao <weijie.gao@mediatek.com>
 M:	Chunfeng Yun <chunfeng.yun@mediatek.com>
 M:	Igor Belwon <igor.belwon@mentallysanemainliners.org>
+M:	David Lechner <dlechner@baylibre.com>
+M:	Julien Stephan <jstephan@baylibre.com>
 R:	GSS_MTK_Uboot_upstream <GSS_MTK_Uboot_upstream@mediatek.com>
+T:	git https://source.denx.de/u-boot/custodians/u-boot-mediatek.git
 S:	Maintained
 F:	arch/arm/dts/mt*
 F:	arch/arm/mach-mediatek/
@@ -467,7 +482,7 @@ F:	configs/eDPU_defconfig
 F:	configs/uDPU_defconfig
 
 ARM MICROCHIP/ATMEL AT91
-M:	Eugen Hristev <eugen.hristev@microchip.com>
+M:	Eugen Hristev <ehristev@kernel.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-at91.git
 F:	arch/arm/dts/at91*
@@ -637,7 +652,7 @@ L:	linux@analog.com
 S:	Supported
 T:	git https://github.com/analogdevicesinc/u-boot
 F:	arch/arm/dts/sc5*
-F:	arch/arm/include/asm/arch-adi/
+F:	arch/arm/include/asm/arch-sc5xx/
 F:	arch/arm/mach-sc5xx/
 F:	board/adi/
 F:	configs/sc5*
@@ -677,6 +692,7 @@ F:	drivers/*/*/pm8???-*
 F:	drivers/gpio/msm_gpio.c
 F:	drivers/mmc/msm_sdhci.c
 F:	drivers/phy/msm8916-usbh-phy.c
+F:	drivers/phy/qcom/
 F:	drivers/serial/serial_msm.c
 F:	drivers/serial/serial_msm_geni.c
 F:	drivers/smem/msm_smem.c
@@ -1241,11 +1257,16 @@ F:	drivers/watchdog/sbsa_gwdt.c
 
 FWU Multi Bank Update
 M:	Sughosh Ganu <sughosh.ganu@arm.com>
+M:	Kory Maincent <kory.maincent@bootlin.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
+F:	doc/fwumdata.1
+F:	doc/mkfwumdata.1
 F:	lib/fwu_updates/*
 F:	drivers/fwu-mdata/*
-F:	tools/mkfwumdata.c
+F:	tools/fwumdata_src/fwumdata.c
+F:	tools/fwumdata_src/fwumdata.h
+F:	tools/fwumdata_src/mkfwumdata.c
 
 GATEWORKS_SC
 M:	Tim Harvey <tharvey@gateworks.com>
@@ -1298,12 +1319,6 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	doc/README.kwbimage
 F:	doc/kwboot.1
 F:	tools/kwb*
-
-LED
-M:	Ivan Vozvakhov <i.vozvakhov@vk.team>
-S:	Supported
-F:	doc/device-tree-bindings/leds/leds-pwm.txt
-F:	drivers/led/led_pwm.c
 
 LOGGING
 M:	Simon Glass <sjg@chromium.org>
@@ -1391,7 +1406,10 @@ F:	drivers/net/phy/ca_phy.c
 
 MIPS MEDIATEK
 M:	Weijie Gao <weijie.gao@mediatek.com>
+M:	David Lechner <dlechner@baylibre.com>
+M:	Julien Stephan <jstephan@baylibre.com>
 R:	GSS_MTK_Uboot_upstream <GSS_MTK_Uboot_upstream@mediatek.com>
+T:	git https://source.denx.de/u-boot/custodians/u-boot-mediatek.git
 S:	Maintained
 F:	arch/mips/mach-mtmips/
 F:	arch/mips/dts/mt7620.dtsi
@@ -1603,6 +1621,11 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
 
+PWM LED
+S:	Orphan
+F:	doc/device-tree-bindings/leds/leds-pwm.txt
+F:	drivers/led/led_pwm.c
+
 QEMU VIRTUAL SYSTEM CONTROLLER
 M:	Kuan-Wei Chiu <visitorckw@gmail.com>
 S:	Maintained
@@ -1690,7 +1713,7 @@ F:	doc/usage/cmd/seama.rst
 F:	test/cmd/seama.c
 
 SEMIHOSTING
-R:	Sean Anderson <sean.anderson@seco.com>
+R:	Sean Anderson <sean.anderson@linux.dev>
 S:	Orphaned
 N:	semihosting
 
@@ -1772,13 +1795,15 @@ F:	drivers/spmi/
 F:	include/spmi/
 
 SQUASHFS
-M:	Joao Marcos Costa <jmcosta944@gmail.com>
+M:	Joao Marcos Costa <joaomarcos.costa@bootlin.com>
+M:	Richard Genoud <richard.genoud@bootlin.com>
 R:	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 R:	Miquel Raynal <miquel.raynal@bootlin.com>
 S:	Maintained
+F:	cmd/sqfs.c
+F:	common/spl/spl_squashfs.c
 F:	fs/squashfs/
 F:	include/sqfs.h
-F:	cmd/sqfs.c
 F:	test/py/tests/test_fs/test_squashfs/
 
 STACKPROTECTOR
@@ -1846,10 +1871,14 @@ F:	drivers/tpm/
 F:	include/tpm*
 F:	lib/tpm*
 
-TQ GROUP
-#M:	Martin Krause <martin.krause@tq-systems.de>
-S:	Orphaned (Since 2016-02)
-T:	git git://git.denx.de/u-boot-tq-group.git
+TQ-SYSTEMS
+L:	u-boot@ew.tq-group.com
+S:	Maintained
+W:	https://www.tq-group.com/en/products/tq-embedded/
+F:	board/tq/*
+F:	doc/board/tq/*
+F:	include/configs/tq*.h
+F:	include/env/tq/*
 
 TEE
 M:	Jens Wiklander <jens.wiklander@linaro.org>

@@ -28,12 +28,11 @@ int mach_cpu_init(void)
 
 int board_phys_sdram_size(phys_size_t *size)
 {
-	const u16 memsz[] = { 512, 1024, 1536, 2048, 3072, 4096, 6144, 8192 };
 	const u8 ecc = readl(DDRC_ECCCFG0(0)) & DDRC_ECCCFG0_ECC_MODE_MASK;
 	u8 memcfg = dh_get_memcfg();
 
 	/* 896 kiB, i.e. 1 MiB without 12.5% reserved for in-band ECC */
-	*size = (u64)memsz[memcfg] * (SZ_1M - (ecc ? (SZ_1M / 8) : 0));
+	*size = (u64)dh_imx8mp_dhcom_dram_size[memcfg] * (SZ_1M - (ecc ? (SZ_1M / 8) : 0));
 
 	return 0;
 }
@@ -48,7 +47,7 @@ static int dh_imx8_setup_ethaddr(struct eeprom_id_page *eip)
 	if (dh_get_mac_is_enabled("ethernet0"))
 		return 0;
 
-	if (!dh_imx_get_mac_from_fuse(enetaddr))
+	if (!dh_imx_get_mac_from_fuse(enetaddr, 0))
 		goto out;
 
 	if (!dh_get_value_from_eeprom_buffer(DH_MAC0, enetaddr, sizeof(enetaddr), eip))
@@ -73,8 +72,8 @@ static int dh_imx8_setup_eth1addr(struct eeprom_id_page *eip)
 	if (dh_get_mac_is_enabled("ethernet1"))
 		return 0;
 
-	if (!dh_imx_get_mac_from_fuse(enetaddr))
-		goto increment_out;
+	if (!dh_imx_get_mac_from_fuse(enetaddr, 1))
+		goto out;
 
 	if (!dh_get_value_from_eeprom_buffer(DH_MAC1, enetaddr, sizeof(enetaddr), eip))
 		goto out;

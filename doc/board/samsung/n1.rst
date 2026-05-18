@@ -5,7 +5,8 @@ U-Boot for the Samsung N1 device family
 
 ``DISCLAMER!`` Moving your Samsung Galaxy R (GT-I9103) or Samsung Captivate Glide
 (SGH-i927) to use U-Boot assumes replacement of the sboot. Vendor android firmwares
-will no longer be able to run on the device. This replacement IS reversible.
+will no longer be able to run on the device. This replacement IS reversible if you
+have backups.
 
 Quick Start
 -----------

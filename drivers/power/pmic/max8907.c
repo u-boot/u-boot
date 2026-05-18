@@ -48,7 +48,8 @@ static int max8907_bind(struct udevice *dev)
 	int children, ret;
 
 	if (IS_ENABLED(CONFIG_SYSRESET_MAX8907) &&
-	    dev_read_bool(dev, "maxim,system-power-controller")) {
+	    (dev_read_bool(dev, "maxim,system-power-controller") ||
+	     dev_read_bool(dev, "system-power-controller"))) {
 		ret = device_bind_driver_to_node(dev, MAX8907_RST_DRIVER,
 						 "sysreset", dev_ofnode(dev),
 						 NULL);

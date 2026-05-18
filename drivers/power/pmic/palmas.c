@@ -48,7 +48,9 @@ static int palmas_bind(struct udevice *dev)
 	ofnode subnode, gpio_node;
 	int children, ret;
 
-	if (IS_ENABLED(CONFIG_SYSRESET_PALMAS)) {
+	if (IS_ENABLED(CONFIG_SYSRESET_PALMAS) &&
+	    (dev_read_bool(dev, "ti,system-power-controller") ||
+	     dev_read_bool(dev, "system-power-controller"))) {
 		ret = device_bind_driver_to_node(dev, PALMAS_RST_DRIVER,
 						 "sysreset", dev_ofnode(dev),
 						 NULL);

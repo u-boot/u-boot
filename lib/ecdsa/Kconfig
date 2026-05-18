@@ -5,7 +5,7 @@ config ECDSA
 	  This enables the ECDSA (elliptic curve signature) algorithm for FIT
 	  image verification in U-Boot. The ECDSA algorithm is implemented
 	  using the driver model, so CONFIG_DM is required by this library.
-	  See doc/uImage.FIT/signature.txt for more details.
+	  See doc/usage/fit/signature.rst for more details.
 	  ECDSA is enabled for mkimage regardless of this option.
 
 if ECDSA

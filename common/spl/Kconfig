@@ -27,15 +27,6 @@ config SPL_FRAMEWORK
 	  supports MMC, NAND and YMODEM and other methods loading of U-Boot
 	  and the Linux Kernel.  If unsure, say Y.
 
-config SPL_FRAMEWORK_BOARD_INIT_F
-	bool "Define a generic function board_init_f"
-	depends on SPL_FRAMEWORK
-	help
-	  Define a generic function board_init_f that:
-	  - initialize the spl (spl_early_init)
-	  - initialize the serial (preloader_console_init)
-	  Unless you want to provide your own board_init_f, you should say Y.
-
 config SPL_SIZE_LIMIT
 	hex "Maximum size of SPL image"
 	default 0x11000 if ARCH_MX6 && !MX6_OCRAM_256KB
@@ -729,7 +720,7 @@ config SPL_ENV_SUPPORT
 config SPL_SAVEENV
 	bool "Support save environment"
 	depends on SPL_ENV_SUPPORT
-	select SPL_MMC_WRITE if ENV_IS_IN_MMC
+	select SPL_MMC_WRITE if SPL_ENV_IS_IN_MMC
 	help
 	  Enable save environment support in SPL after setenv. By default
 	  the saveenv option is not provided in SPL, but some boards need
@@ -1160,7 +1151,7 @@ config SPL_DM_SPI_FLASH
 
 config SPL_NET
 	bool "Support networking"
-	depends on NET
+	depends on NET_LEGACY
 	select SPL_USE_TINY_PRINTF_POINTER_SUPPORT if SPL_USE_TINY_PRINTF
 	help
 	  Enable support for network devices (such as Ethernet) in SPL.
@@ -1168,6 +1159,9 @@ config SPL_NET
 	  from an on-board peripheral. Environment support is required since
 	  the network stack uses a number of environment variables. See also
 	  SPL_ETH.
+
+config SPL_NET_LEGACY
+	def_bool y if SPL_NET
 
 config SPL_NET_VCI_STRING
 	string "BOOTP Vendor Class Identifier string sent by SPL"
@@ -1497,7 +1491,6 @@ config SPL_SATA_RAW_U_BOOT_SECTOR
 config SPL_NVME
 	bool "NVM Express device support"
 	depends on SPL_BLK
-	select FS_LOADER
 	select SPL_BLK_FS
 	help
 	  This option enables support for NVM Express devices.

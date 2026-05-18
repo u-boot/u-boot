@@ -19,6 +19,7 @@
 #include <net.h>
 #include <version_string.h>
 #include <efi_loader.h>
+#include <event.h>
 
 static void run_preboot_environment_command(void)
 {
@@ -52,6 +53,9 @@ void main_loop(void)
 
 	if (IS_ENABLED(CONFIG_USE_PREBOOT))
 		run_preboot_environment_command();
+
+	if (event_notify_null(EVT_POST_PREBOOT))
+		return;
 
 	if (IS_ENABLED(CONFIG_UPDATE_TFTP))
 		update_tftp(0UL, NULL, NULL);

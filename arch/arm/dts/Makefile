@@ -32,13 +32,6 @@ dtb-$(CONFIG_TARGET_A5Y17LTE) += exynos78x0-axy17lte.dtb
 dtb-$(CONFIG_TARGET_A3Y17LTE) += exynos78x0-axy17lte.dtb
 dtb-$(CONFIG_TARGET_A7Y17LTE) += exynos78x0-axy17lte.dtb
 
-dtb-$(CONFIG_ARCH_APPLE) += \
-	t8103-j274.dtb \
-	t8103-j293.dtb \
-	t8103-j313.dtb \
-	t8103-j456.dtb \
-	t8103-j457.dtb
-
 dtb-$(CONFIG_ARCH_DAVINCI) += \
 	da850-lcdk.dtb \
 	da850-lego-ev3.dtb
@@ -1079,8 +1072,7 @@ dtb-$(CONFIG_SOC_K3_J7200) += k3-j7200-r5-common-proc-board.dtb
 dtb-$(CONFIG_SOC_K3_J721S2) += k3-am68-sk-r5-base-board.dtb\
 			       k3-j721s2-r5-common-proc-board.dtb
 
-dtb-$(CONFIG_SOC_K3_J784S4) += k3-am69-aquila-dev.dtb \
-			       k3-am69-r5-aquila-dev.dtb \
+dtb-$(CONFIG_SOC_K3_J784S4) += k3-am69-r5-aquila-dev.dtb \
 			       k3-am69-r5-sk.dtb \
 			       k3-j784s4-r5-evm.dtb
 
@@ -1105,6 +1097,9 @@ dtb-$(CONFIG_SOC_K3_AM62D2) += k3-am62d2-r5-evm.dtb
 dtb-$(CONFIG_SOC_K3_AM62P5) += k3-am62p5-r5-sk.dtb \
 			       k3-am62p5-verdin-r5.dtb
 
+mt8371-genio-520-evk-ufs-dtbs := mt8371-genio-520-evk.dtb mt8371-genio-common-ufs.dtbo
+mt8391-genio-720-evk-ufs-dtbs := mt8391-genio-720-evk.dtb mt8371-genio-common-ufs.dtbo
+
 dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7622-rfb.dtb \
 	mt7623a-unielec-u7623-02-emmc.dtb \
@@ -1124,6 +1119,10 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7988-rfb.dtb \
 	mt7988-sd-rfb.dtb \
 	mt8183-pumpkin.dtb \
+	mt8371-genio-520-evk.dtb \
+	mt8371-genio-520-evk-ufs.dtb \
+	mt8391-genio-720-evk.dtb \
+	mt8391-genio-720-evk-ufs.dtb \
 	mt8512-bm1-emmc.dtb \
 	mt8516-pumpkin.dtb \
 	mt8518-ap1-emmc.dtb

@@ -26,7 +26,7 @@ In order to use HTTPS you will need to compile wget with lwIP support.
 Legacy syntax
 ~~~~~~~~~~~~~
 
-The legacy syntax is supported by the legacy network stack (CONFIG_NET=y)
+The legacy syntax is supported by the legacy network stack (CONFIG_NET_LEGACY=y)
 as well as by the lwIP base network stack (CONFIG_NET_LWIP=y). It supports HTTP
 only.
 

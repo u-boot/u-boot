@@ -120,7 +120,7 @@ config TARGET_APALIS_IMX6
 	select DM_THERMAL
 	select SUPPORT_SPL
 	imply CMD_DM
-	imply CMD_SATA
+	imply SATA
 
 config TARGET_ARISTAINETOS2C
 	bool "Support aristainetos2-revC"
@@ -130,7 +130,7 @@ config TARGET_ARISTAINETOS2C
 	select MXC_UART
 	select FEC_MXC
 	select DM
-	imply CMD_SATA
+	imply SATA
 	imply CMD_DM
 
 config TARGET_ARISTAINETOS2CCSLB
@@ -141,7 +141,7 @@ config TARGET_ARISTAINETOS2CCSLB
 	select MXC_UART
 	select FEC_MXC
 	select DM
-	imply CMD_SATA
+	imply SATA
 	imply CMD_DM
 
 config TARGET_CM_FX6
@@ -230,7 +230,7 @@ config TARGET_GW_VENTANA
 	select SUPPORT_SPL
 	select GATEWORKS_SC
 	select MISC
-	imply CMD_SATA
+	imply SATA
 	imply CMD_SPL
 
 config TARGET_KONTRON_MX6UL
@@ -419,7 +419,6 @@ config TARGET_MX6SXSABRESD
 config TARGET_MX6SXSABREAUTO
 	bool "mx6sxsabreauto"
 	depends on MX6SX
-	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL

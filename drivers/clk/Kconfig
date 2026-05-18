@@ -185,6 +185,7 @@ config SANDBOX_CLK_CCF
 	bool "Sandbox Common Clock Framework [CCF] support"
 	depends on SANDBOX
 	select CLK_CCF
+	select CLK_COMPOSITE_CCF
 	help
 	  Enable this option if you want to test the Linux kernel's Common
 	  Clock Framework [CCF] code in U-Boot's Sandbox clock driver.

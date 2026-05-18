@@ -130,7 +130,6 @@ static int rv3028_rtc_get(struct udevice *dev, struct rtc_time *tm)
 static int rv3028_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 {
 	u8 regs[RTC_RV3028_LEN];
-	u8 status;
 	int ret;
 
 	debug("%s: %4d-%02d-%02d (wday=%d( %2d:%02d:%02d\n",
@@ -157,13 +156,7 @@ static int rv3028_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 		return ret;
 	}
 
-	ret = dm_i2c_read(dev, RV3028_STATUS, &status, 1);
-	if (ret < 0) {
-		printf("%s: error reading RTC status: %x\n", __func__, ret);
-		return -EIO;
-	}
-	status |= RV3028_STATUS_PORF;
-	return dm_i2c_write(dev, RV3028_STATUS, &status, 1);
+	return dm_i2c_reg_clrset(dev, RV3028_STATUS, RV3028_STATUS_PORF, 0);
 }
 
 static int rv3028_rtc_reset(struct udevice *dev)

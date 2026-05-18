@@ -137,7 +137,7 @@
 	"kernelhdr_addr_sd=0x3000\0"            \
 	"kernel_size_sd=0x14000\0"              \
 	"kernelhdr_size_sd=0x20\0"              \
-	"console=ttyAMA0,38400n8\0"		\
+	"console=ttyAMA0,115200\0"		\
 	BOOTENV					\
 	"mcmemsize=0x70000000\0"		\
 	XSPI_MC_INIT_CMD				\
@@ -197,10 +197,10 @@
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
-#ifdef CONFIG_MMC
+#ifdef CONFIG_CMD_MMC
 #define BOOT_TARGET_DEVICES_MMC(func, instance) func(MMC, mmc, instance)
 #else
-#define BOOT_TARGET_DEVICES_MMC(func)
+#define BOOT_TARGET_DEVICES_MMC(func, instance)
 #endif
 
 #ifdef CONFIG_SCSI

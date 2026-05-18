@@ -14,6 +14,7 @@ config TARGET_AQUILA_AM69_A72
 	select ARM64
 	select SYS_DISABLE_DCACHE_OPS
 	select BINMAN
+	imply OF_UPSTREAM
 
 config TARGET_AQUILA_AM69_R5
 	bool "Toradex Aquila AM69 running on R5"

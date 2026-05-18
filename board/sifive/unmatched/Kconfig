@@ -36,7 +36,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply CMD_FAT
 	imply CMD_FS_GENERIC
 	imply CMD_GPT
-	imply PARTITION_TYPE_GUID
+	imply PARTITION_TYPE_GUID if EFI_PARTITION
 	imply CMD_NET
 	imply CMD_PING
 	imply CMD_SF

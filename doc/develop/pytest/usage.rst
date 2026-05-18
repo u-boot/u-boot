@@ -546,11 +546,11 @@ following annotation for a test requires ``CONFIG_EFI_LOADER=y``:
 Sometimes multiple configuration option supply the same functionality. If
 multiple arguments are passed to ``buildconfigspec()``, only one of the
 configuration options needs to be set. The following annotation requires that
-either of ``CONFIG_NET`` or ``CONFIG_NET_LWIP`` is set:
+either of ``CONFIG_NET_LEGACY`` or ``CONFIG_NET_LWIP`` is set:
 
 .. code-block:: python
 
-    @pytest.mark.buildconfigspec('net', 'net_lwip')
+    @pytest.mark.buildconfigspec('net_legacy', 'net_lwip')
 
 The ``notbuildconfigspec()`` annotation can be used to require a configuration
 option not to be set. The following annotation requires ``CONFIG_RISCV=n``:

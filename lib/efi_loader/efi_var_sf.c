@@ -98,11 +98,8 @@ efi_status_t efi_var_from_storage(void)
 		goto error;
 	}
 
-	if (efi_var_restore(buf, false) != EFI_SUCCESS) {
+	if (efi_var_restore(buf, false) != EFI_SUCCESS)
 		log_err("No valid EFI variables in SPI Flash\n");
-		ret = EFI_DEVICE_ERROR;
-		goto error;
-	}
 
 	ret = EFI_SUCCESS;
 error:

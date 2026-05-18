@@ -1283,7 +1283,7 @@ static const struct udevice_id meson_g12a_pinctrl_match[] = {
 	{ },
 };
 
-U_BOOT_DRIVER(meson_axg_pinctrl) = {
+U_BOOT_DRIVER(meson_g12a_pinctrl) = {
 	.name = "meson-g12a-pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(meson_g12a_pinctrl_match),

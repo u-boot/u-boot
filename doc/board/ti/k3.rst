@@ -1258,3 +1258,86 @@ Currently, OpenOCD does not support tracing for K3 platforms. Tracing
 function could be beneficial if the bug in code occurs deep within
 nested function and can optionally save developers major trouble of
 stepping through a large quantity of code.
+
+Firmware TPM (fTPM) Support
+---------------------------
+
+K3 family of devices with **eMMC** are capable of supporting firmware TPM
+(fTPM) functionality through OP-TEE, providing TPM 2.0 capabilities
+without requiring discrete TPM hardware.
+The fTPM Trusted Application runs in OP-TEE secure world and uses
+eMMC Replay Protected Memory Block (RPMB) for secure persistent
+storage.
+
+The fTPM implementation consists of:
+
+* **fTPM TA**: Microsoft's fTPM Trusted Application (TA) running in OP-TEE
+* **RPMB Storage**: eMMC RPMB partition for persistent TPM NV storage
+* **U-Boot Support**: TPM commands and RPMB access via OP-TEE
+
+fTPM can be used to enable security features such as:
+
+* Measured boot
+* Secure key storage
+* Platform attestation
+
+Enabling fTPM in U-Boot
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The following are the steps to enable fTPM in uboot:
+
+1. Programming Keys into eMMC RPMB
+""""""""""""""""""""""""""""""""""
+
+Since fTPM uses RPMB for persistent storage, the eMMC RPMB must be
+provisioned with an authentication key on first boot. This requires
+building optee_os with the ``CFG_RPMB_WRITE_KEY=y`` flag
+
+.. prompt:: bash $
+
+  # inside optee_os source
+  make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFG_ARM64_core=y \
+      PLATFORM=$OPTEE_PLATFORM CFG_RPMB_WRITE_KEY=y
+
+.. warning::
+
+  Programming the RPMB key is a **one-time, irreversible operation**.
+  The key is derived from the Hardware Unique Key (HUK) and cannot
+  be changed once programmed. For further details, refer
+  `Secure Storage <https://optee.readthedocs.io/en/latest/architecture/secure_storage.html>`_
+
+On first boot with this configuration, OP-TEE will automatically program
+the RPMB authentication key. Subsequent boots should use OP-TEE built
+without this flag.
+
+2. Generate fTPM TA binary
+""""""""""""""""""""""""""
+
+To generate fTPM TA binary, follow the
+`Building the TA <https://github.com/OP-TEE/optee_ftpm#building-the-ta>`_
+steps mentioned in the OP-TEE fTPM Github repository
+
+3. Build OP-TEE with TA:
+""""""""""""""""""""""""
+
+With the TA generated from last step, build optee-os with RPMB and early
+TA enabled:
+
+.. prompt:: bash $
+
+  # inside optee_os source
+  make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFG_ARM64_core=y \
+      PLATFORM=$OPTEE_PLATFORM CFG_RPMB_FS=y CFG_REE_FS=n \
+      CFG_EARLY_TA=y CFG_RPMB_ANNOUNCE_PROBE_CAP=n \
+      EARLY_TA_PATHS=/path/to/ftpm_ta.stripped.elf
+
+Expected Outcome
+^^^^^^^^^^^^^^^^
+
+To verify fTPM support is working, run tpm2 commands in u-boot prompt:
+
+.. code-block:: console
+
+  => tpm2 info
+  Microsoft OP-TEE fTPM
+  => tpm2 init

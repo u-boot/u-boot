@@ -900,6 +900,11 @@ static ulong meson_clk_set_rate_by_id(struct clk *clk, unsigned long id,
 	case CLKID_HDMI:
 		return meson_clk_set_rate_by_id(clk, CLKID_HDMI_DIV,
 						rate, current_rate);
+	case CLKID_SD_EMMC_A_CLK0:
+	case CLKID_SD_EMMC_B_CLK0:
+	case CLKID_SD_EMMC_C_CLK0:
+		/* TOFIX: implement rate set for MMC clocks */
+		return 0;
 	default:
 		return -ENOENT;
 	}
@@ -962,7 +967,7 @@ static const struct udevice_id meson_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(meson_clk) = {
+U_BOOT_DRIVER(meson_clk_gxbb) = {
 	.name		= "meson_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,

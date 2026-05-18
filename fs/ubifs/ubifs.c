@@ -505,26 +505,32 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 {
 	int ret;
 	char *next;
-	char fpath[128];
-	char symlinkpath[128];
-	char *name = fpath;
+	char *buf;
+	char *name;
 	unsigned long root_inum = 1;
 	unsigned long inum;
 	int symlink_count = 0; /* Don't allow symlink recursion */
-	char link_name[64];
-
-	strcpy(fpath, filename);
+	size_t filenamelen;
 
 	/* Remove all leading slashes */
-	while (*name == '/')
-		name++;
+	while (*filename == '/')
+		filename++;
+
+	filenamelen = strlen(filename);
+	buf = kmalloc(filenamelen + 1, GFP_NOFS);
+	if (!buf)
+		return -ENOMEM;
+	memcpy(buf, filename, filenamelen + 1);
+	name = buf;
 
 	/*
 	 * Handle root-direcoty ('/')
 	 */
 	inum = root_inum;
-	if (!name || *name == '\0')
+	if (!name || *name == '\0') {
+		kfree(buf);
 		return inum;
+	}
 
 	for (;;) {
 		struct inode *inode;
@@ -537,41 +543,53 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 			while (*next == '/')
 				*(next++) = '\0';
 		}
-
 		ret = ubifs_finddir(sb, name, root_inum, &inum);
-		if (!ret)
+		if (!ret) {
+			kfree(buf);
 			return 0;
+		}
 		inode = ubifs_iget(sb, inum);
 
-		if (!inode)
+		if (!inode) {
+			kfree(buf);
 			return 0;
+		}
 		ui = ubifs_inode(inode);
 
 		if ((inode->i_mode & S_IFMT) == S_IFLNK) {
-			char buf[128];
+			size_t newbufsize;
+			char *newbuf;
+			char *linkdata = ui->data;
+			size_t linklen = ui->data_len;
 
 			/* We have some sort of symlink recursion, bail out */
 			if (symlink_count++ > 8) {
 				ubifs_iput(inode);
 				printf("Symlink recursion, aborting\n");
+				kfree(buf);
 				return 0;
 			}
-			memcpy(link_name, ui->data, ui->data_len);
-			link_name[ui->data_len] = '\0';
 
-			if (link_name[0] == '/') {
-				/* Absolute path, redo everything without
-				 * the leading slash */
-				next = name = link_name + 1;
+			while (linklen && *linkdata == '/') {
+				/* Absolute path, i.e. relative to root. */
 				root_inum = 1;
-				ubifs_iput(inode);
-				continue;
+				linkdata++;
+				linklen--;
 			}
-			/* Relative to cur dir */
-			sprintf(buf, "%s/%s",
-					link_name, next == NULL ? "" : next);
-			memcpy(symlinkpath, buf, sizeof(buf));
-			next = name = symlinkpath;
+			newbufsize =
+				linklen + 1 + (next ? strlen(next) : 0) + 1;
+			newbuf = kmalloc(newbufsize, GFP_NOFS);
+			if (!newbuf) {
+				kfree(buf);
+				ubifs_iput(inode);
+				return -ENOMEM;
+			}
+
+			memcpy(newbuf, linkdata, linklen);
+			sprintf(newbuf + linklen, "/%s", next ?: "");
+			kfree(buf);
+			buf = newbuf;
+			name = newbuf;
 			ubifs_iput(inode);
 			continue;
 		}
@@ -583,6 +601,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 		/* Found the node!  */
 		if (!next || *next == '\0') {
 			ubifs_iput(inode);
+			kfree(buf);
 			return inum;
 		}
 
@@ -590,6 +609,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 		name = next;
 	}
 
+	kfree(buf);
 	return 0;
 }
 

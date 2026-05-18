@@ -11,10 +11,6 @@
 	config = "board/ti/am62ax/board-cfg.yaml";
 };
 
-&rcfg_yaml {
-	config = "board/ti/am62ax/rm-cfg.yaml";
-};
-
 &scfg_yaml {
 	config = "board/ti/am62ax/sec-cfg.yaml";
 };
@@ -35,16 +31,8 @@
 	config = "board/ti/am62ax/pm-cfg.yaml";
 };
 
-&rcfg_yaml_tifs {
-	config = "board/ti/am62ax/tifs-rm-cfg.yaml";
-};
-
 &pcfg_yaml_dm {
 	config = "board/ti/am62ax/pm-cfg.yaml";
-};
-
-&rcfg_yaml_dm {
-	config = "board/ti/am62ax/rm-cfg.yaml";
 };
 
 &bcfg_yaml_sysfw {
@@ -57,10 +45,6 @@
 
 &pcfg_yaml_sysfw {
 	config = "board/ti/am62ax/pm-cfg.yaml";
-};
-
-&rcfg_yaml_sysfw {
-	config = "board/ti/am62ax/rm-cfg.yaml";
 };
 
 #endif

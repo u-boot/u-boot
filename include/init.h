@@ -14,6 +14,12 @@
 
 #include <linux/types.h>
 
+struct ram_alias_check {
+	void *probe_addr;
+	void *alias_addr;
+	long size;
+};
+
 /*
  * In case of the EFI app the UEFI firmware provides the low-level
  * initialisation.
@@ -88,6 +94,7 @@ int dram_init(void);
 int dram_init_banksize(void);
 
 long get_ram_size(long *base, long size);
+long probe_ram_size_by_alias(const struct ram_alias_check *checks);
 phys_size_t get_effective_memsize(void);
 
 int testdram(void);

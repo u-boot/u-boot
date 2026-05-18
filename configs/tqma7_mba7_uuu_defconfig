@@ -1,0 +1,2 @@
+#include <configs/tqma7_common.config>
+#include <configs/tqma7_uuu.config>

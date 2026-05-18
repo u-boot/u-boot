@@ -7,7 +7,8 @@ config SYS_VENDOR
 	default "tq"
 
 config SYS_CONFIG_NAME
-	default "tqma6"
+	default "tqma6_mba6" if MBA6
+	default "tqma6_wru4" if WRU4
 
 choice
 	prompt "TQMa6 SoC variant"
@@ -71,6 +72,8 @@ choice
 
 config MBA6
 	bool "TQMa6 on MBa6 Starterkit"
+	select TQ_COMMON_BB
+	select TQ_COMMON_SDMMC
 	select USB
 	select CMD_USB
 	select USB_STORAGE
@@ -91,6 +94,7 @@ config MBA6
 
 config WRU4
 	bool "OHB WRU-IV"
+	select TQ_COMMON_BB
 	help
 	  Select the
 	  OHB Systems AG WRU-IV baseboard.
@@ -105,5 +109,7 @@ config IMX_CONFIG
 	default "board/tq/tqma6/tqma6q.cfg" if TQMA6Q
 	default "board/tq/tqma6/tqma6dl.cfg" if TQMA6DL
 	default "board/tq/tqma6/tqma6s.cfg" if TQMA6S
+
+source "board/tq/common/Kconfig"
 
 endif

@@ -88,6 +88,20 @@ void dm_spi_release_bus(struct udevice *dev)
 		ops->release_bus(dev);
 }
 
+int dm_spi_set_wordlen(struct udevice *dev, unsigned int wordlen)
+{
+	struct udevice *bus = dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
+
+	if (bus->uclass->uc_drv->id != UCLASS_SPI)
+		return -EOPNOTSUPP;
+
+	if (!ops->set_wordlen)
+		return -ENOSYS;
+
+	return ops->set_wordlen(dev, wordlen);
+}
+
 int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
@@ -139,6 +153,11 @@ int spi_set_speed(struct spi_slave *slave, uint hz)
 	if (ret)
 		dev_err(slave->dev, "Cannot set speed (err=%d)\n", ret);
 	return ret;
+}
+
+int spi_set_wordlen(struct spi_slave *slave, unsigned int wordlen)
+{
+	return dm_spi_set_wordlen(slave->dev, wordlen);
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
@@ -245,6 +264,7 @@ static int spi_child_post_bind(struct udevice *dev)
 	}
 
 	plat->mode = mode;
+	plat->wordlen = SPI_DEFAULT_WORDLEN;
 
 	return 0;
 }
@@ -277,7 +297,7 @@ static int spi_child_pre_probe(struct udevice *dev)
 
 	slave->max_hz = plat->max_hz;
 	slave->mode = plat->mode;
-	slave->wordlen = SPI_DEFAULT_WORDLEN;
+	slave->wordlen = plat->wordlen;
 
 	return 0;
 }

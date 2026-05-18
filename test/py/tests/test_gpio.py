@@ -4,8 +4,6 @@
 # Copyright (c) 2020 Alex Kiernan <alex.kiernan@gmail.com>
 
 import pytest
-import time
-import utils
 
 """
 	test_gpio_input is intended to test the fix 4dbc107f4683.
@@ -136,8 +134,12 @@ def test_gpio_set_generic(ubman):
     if not f:
         pytest.skip("gpio not configured")
 
-    gpio_pin_adr = f['gpio_op_pin'];
-    gpio_set_value = f['gpio_set_value'];
+    gpio_pin_adr = f.get('gpio_op_pin')
+
+    if gpio_pin_adr is None:
+        pytest.skip("gpio_op_pin is not configured")
+
+    gpio_set_value = f['gpio_set_value']
 
 
     cmd = 'gpio set ' + gpio_pin_adr
@@ -160,8 +162,12 @@ def test_gpio_clear_generic(ubman):
     if not f:
         pytest.skip("gpio not configured")
 
-    gpio_pin_adr = f['gpio_op_pin'];
-    gpio_clear_value = f['gpio_clear_value'];
+    gpio_pin_adr = f.get('gpio_op_pin')
+
+    if gpio_pin_adr is None:
+        pytest.skip("gpio_op_pin is not configured")
+
+    gpio_clear_value = f['gpio_clear_value']
 
 
     cmd = 'gpio clear ' + gpio_pin_adr
@@ -184,9 +190,13 @@ def test_gpio_toggle_generic(ubman):
     if not f:
         pytest.skip("gpio not configured")
 
-    gpio_pin_adr = f['gpio_op_pin'];
-    gpio_set_value = f['gpio_set_value'];
-    gpio_clear_value = f['gpio_clear_value'];
+    gpio_pin_adr = f.get('gpio_op_pin')
+
+    if gpio_pin_adr is None:
+        pytest.skip("gpio_op_pin is not configured")
+
+    gpio_set_value = f['gpio_set_value']
+    gpio_clear_value = f['gpio_clear_value']
 
     cmd = 'gpio set ' + gpio_pin_adr
     response = ubman.run_command(cmd)
@@ -212,8 +222,8 @@ def test_gpio_input_generic(ubman):
     if not f:
         pytest.skip("gpio not configured")
 
-    gpio_pin_adr = f['gpio_ip_pin_clear'];
-    gpio_clear_value = f['gpio_clear_value'];
+    gpio_pin_adr = f['gpio_ip_pin_clear']
+    gpio_clear_value = f['gpio_clear_value']
 
 
     cmd = 'gpio input ' + gpio_pin_adr
@@ -222,8 +232,8 @@ def test_gpio_input_generic(ubman):
     assert good_response in response
 
 
-    gpio_pin_adr = f['gpio_ip_pin_set'];
-    gpio_set_value = f['gpio_set_value'];
+    gpio_pin_adr = f['gpio_ip_pin_set']
+    gpio_set_value = f['gpio_set_value']
 
 
     cmd = 'gpio input ' + gpio_pin_adr

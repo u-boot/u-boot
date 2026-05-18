@@ -220,7 +220,9 @@ static int rk8xx_bind(struct udevice *dev)
 
 	debug("%s: '%s' - found regulators subnode\n", __func__, dev->name);
 
-	if (CONFIG_IS_ENABLED(SYSRESET)) {
+	if (CONFIG_IS_ENABLED(SYSRESET) &&
+	    (dev_read_bool(dev, "rockchip,system-power-controller") ||
+	     dev_read_bool(dev, "system-power-controller"))) {
 		ret = device_bind_driver_to_node(dev, "rk8xx_sysreset",
 						 "rk8xx_sysreset",
 						 dev_ofnode(dev), NULL);

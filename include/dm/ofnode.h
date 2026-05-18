@@ -375,6 +375,13 @@ static inline oftree oftree_from_np(struct device_node *root)
 	return tree;
 }
 
+/* Dummy put for Linux compat */
+static inline void ofnode_put(ofnode node)
+{
+	if (ofnode_is_np(node))
+		of_node_put(node.np);
+}
+
 /**
  * oftree_dispose() - Dispose of an oftree
  *
@@ -589,6 +596,25 @@ int ofnode_read_u32_array(ofnode node, const char *propname,
 			  u32 *out_values, size_t sz);
 
 /**
+ * ofnode_read_u64_array() - Find and read an array of 64 bit integers
+ *
+ * @node:	valid node reference to read property from
+ * @propname:	name of the property to read
+ * @out_values:	pointer to return value, modified only if return value is 0
+ * @sz:		number of array elements to read
+ * Return: 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough
+ *
+ * Search for a property in a device node and read 64-bit value(s) from
+ * it.
+ *
+ * The out_values is modified only if a valid u64 value can be decoded.
+ */
+int ofnode_read_u64_array(ofnode node, const char *propname,
+			  u64 *out_values, size_t sz);
+
+/**
  * ofnode_read_bool() - read a boolean value from a property
  *
  * @node:	valid node reference to read property from
@@ -652,6 +678,30 @@ static inline ofnode ofnode_next_subnode(ofnode node)
 		fdt_next_subnode(gd->fdt_blob, ofnode_to_offset(node)));
 }
 #else
+
+/**
+ * ofnode_count_elems_of_size() - count the number of elements of size @elem_size
+ * in the property @propname.
+ *
+ * @node: ofnode to check
+ * @propname: the name of the property to count
+ * @elem_size: the size of each element
+ *
+ * Returns: the number of elements or -EINVAL if the property size is not a
+ * multiple of elem_size.
+ */
+int ofnode_count_elems_of_size(ofnode node, const char *propname, int elem_size);
+
+static inline int ofnode_count_u32_elems(ofnode node, const char *propname)
+{
+	return ofnode_count_elems_of_size(node, propname, 4);
+}
+
+static inline int ofnode_count_u64_elems(ofnode node, const char *propname)
+{
+	return ofnode_count_elems_of_size(node, propname, 8);
+}
+
 /**
  * ofnode_is_enabled() - Checks whether a node is enabled.
  * This looks for a 'status' property. If this exists, then returns true if

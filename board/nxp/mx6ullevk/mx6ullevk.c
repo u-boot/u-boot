@@ -41,11 +41,6 @@ int mmc_map_to_kernel_blk(int devno)
 	return devno;
 }
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 #ifdef CONFIG_FEC_MXC
 static int setup_fec(int fec_id)
 {

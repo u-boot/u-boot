@@ -476,6 +476,10 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
 		return -1;
 	}
 
+	debug("Hash nodes (%d):\n", count);
+	for (int i = 0; i < count; ++i)
+		debug("   '%s'\n", node_inc[i]);
+
 	/*
 	 * Each node can generate one region for each sub-node. Allow for
 	 * 7 sub-nodes (hash-1, signature-1, etc.) and some extra.
@@ -589,9 +593,8 @@ static int fit_config_verify_key(const void *fit, int conf_noffset,
 		return 0;
 
 error:
-	printf(" error!\n%s for '%s' hash node in '%s' config node\n",
-	       err_msg, fit_get_name(fit, noffset, NULL),
-	       fit_get_name(fit, conf_noffset, NULL));
+	printf(" error!\n%s for '%s' config node\n",
+	       err_msg, fit_get_name(fit, conf_noffset, NULL));
 	return -EPERM;
 }
 

@@ -41,10 +41,12 @@ static void init_gic_v3(void)
 	writel(0xffffffff, GICR_SGI_BASE + GICR_IGROUPR0);
 }
 
-void s_init(void)
+int mach_cpu_init(void)
 {
 	if (current_el() == 3)
 		init_generic_timer();
+
+	return 0;
 }
 
 int board_early_init_f(void)

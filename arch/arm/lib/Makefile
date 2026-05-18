@@ -11,7 +11,7 @@ obj-$(CONFIG_$(PHASE_)LIB_BOOTI) += image.o
 obj-$(CONFIG_$(PHASE_)LIB_BOOTZ) += zimage.o
 obj-$(CONFIG_$(PHASE_)LIB_BOOTM) += bootm.o
 
-ifdef CONFIG_CPU_V7M
+ifdef CONFIG_CPU_V7M_V8M
 obj-y	+= vectors_m.o crt0.o
 else ifdef CONFIG_ARM64
 obj-y	+= crt0_64.o
@@ -32,7 +32,7 @@ else
 obj-y	+= relocate.o
 endif
 
-obj-$(CONFIG_CPU_V7M) += cmd_boot.o
+obj-$(CONFIG_CPU_V7M_V8M) += cmd_boot.o
 obj-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 else
@@ -62,7 +62,7 @@ obj-y	+= sections.o
 CFLAGS_REMOVE_sections.o := $(LTO_CFLAGS)
 
 obj-y	+= stack.o
-ifdef CONFIG_CPU_V7M
+ifdef CONFIG_CPU_V7M_V8M
 obj-y	+= interrupts_m.o
 else ifdef CONFIG_ARM64
 obj-$(CONFIG_FSL_LAYERSCAPE) += ccn504.o

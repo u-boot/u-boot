@@ -46,7 +46,7 @@ static int stm32_reset_probe(struct udevice *dev)
 	return stm32_reset_core_probe(dev, &stm32mp1_reset_data);
 }
 
-U_BOOT_DRIVER(stm32mp25_rcc_reset) = {
+U_BOOT_DRIVER(stm32mp1_rcc_reset) = {
 	.name		= "stm32mp1_reset",
 	.id		= UCLASS_RESET,
 	.probe		= stm32_reset_probe,

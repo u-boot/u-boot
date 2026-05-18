@@ -131,4 +131,14 @@
 
 #include <asm/fsl_secure_boot.h>
 
+#ifndef SPL_NO_MISC
+/* Initial environment variables */
+#define CFG_EXTRA_ENV_SETTINGS      \
+	EXTRA_ENV_SETTINGS				\
+	"board=ls1046ardb\0"            \
+	"fdtfile=fsl-ls1046a-rdb-sdk.dtb\0"     \
+	"image=Image\0"					\
+	"console_dbg=earlycon=uart8250,mmio,0x21c0500\0"
+#endif
+
 #endif /* __LS1046ARDB_H__ */

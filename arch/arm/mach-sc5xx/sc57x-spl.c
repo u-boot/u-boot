@@ -3,7 +3,7 @@
  * (C) Copyright 2024 - Analog Devices, Inc.
  */
 
-#include <asm/arch-adi/sc5xx/spl.h>
+#include <asm/arch/spl.h>
 
 // Table 45-16 in SC573 HRM
 const struct adi_boot_args adi_rom_boot_args[] = {

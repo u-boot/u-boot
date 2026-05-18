@@ -35,7 +35,7 @@
 				compatible = "samsung,ltl106hl02-001";
 				reg = <0>;
 
-				vdd-supply = <&tps65090_fet4>;
+				power-supply = <&tps65090_fet4>;
 
 				backlight = <&backlight>;
 			};
@@ -814,7 +814,7 @@
 		};
 	};
 
-	sdmmc3: sdhci@78000400 {
+	sdmmc3: mmc@78000400 {
 		status = "okay";
 		bus-width = <4>;
 
@@ -827,7 +827,7 @@
 		vqmmc-supply = <&vddio_usd>;
 	};
 
-	sdmmc4: sdhci@78000600 {
+	sdmmc4: mmc@78000600 {
 		status = "okay";
 		bus-width = <8>;
 		non-removable;

@@ -33,7 +33,7 @@ directory with
 
 .. code-block:: bash
 
-    $ ./run_bootloader.sh -s T30 -t ./bct/surface-2.bct
+    $ ./run_bootloader.sh -s T114 -t ./bct/surface-2.bct
 
 To boot Linux, U-Boot will look for an ``extlinux.conf`` on MicroSD and then on
 eMMC. Additionally, if the Volume Down button is pressed while loading, the

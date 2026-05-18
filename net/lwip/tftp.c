@@ -368,6 +368,8 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	if (tftp_loop(eth_get_dev(), laddr, fname, srvip, port) < 0)
 		ret = CMD_RET_FAILURE;
+	else
+		image_load_addr = laddr;
 out:
 	if (arg != net_boot_file_name)
 		free(arg);

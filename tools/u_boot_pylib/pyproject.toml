@@ -21,5 +21,11 @@ classifiers = [
 "Homepage" = "https://docs.u-boot.org"
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
 
+[tool.setuptools]
+packages = ["u_boot_pylib"]
+
+[tool.setuptools.package-dir]
+u_boot_pylib = ""
+
 [tool.setuptools.package-data]
 u_boot_pylib = ["*.rst"]

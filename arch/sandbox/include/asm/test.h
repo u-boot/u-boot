@@ -244,6 +244,14 @@ uint sandbox_spi_get_speed(struct udevice *dev);
 uint sandbox_spi_get_mode(struct udevice *dev);
 
 /**
+ * sandbox_spi_get_wordlen() - Get current wordlen setting of a sandbox spi slave
+ *
+ * @dev: Device to check
+ * Return: current wordlen
+ */
+uint sandbox_spi_get_wordlen(struct udevice *dev);
+
+/**
  * sandbox_get_pch_spi_protect() - Get the PCI SPI protection status
  *
  * @dev: Device to check

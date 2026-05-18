@@ -9,7 +9,13 @@
 /*
  * R-Car (R8A78000) I/O Addresses
  */
+#if defined(CONFIG_RCAR_64_RSIP)
+/* Cortex-M33 address */
+#define TMU_BASE		0xC0680000
+#else
+/* Cortex-A720AE address */
 #define TMU_BASE		0x1C030000
+#endif
 
 /* Arm Generic Timer */
 #define CNTCR_BASE		0x1C000FFF /* Region 0 */

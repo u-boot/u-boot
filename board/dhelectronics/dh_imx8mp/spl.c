@@ -104,34 +104,36 @@ static int dh_imx8mp_board_power_init(void)
 	return 0;
 }
 
-static struct dram_timing_info *dram_timing_info[8] = {
-	NULL,					/* 512 MiB */
-	NULL,					/* 1024 MiB */
-	NULL,					/* 1536 MiB */
-	&dh_imx8mp_dhcom_dram_timing_16g_x32,	/* 2048 MiB */
-	NULL,					/* 3072 MiB */
-	&dh_imx8mp_dhcom_dram_timing_32g_x32,	/* 4096 MiB */
-	NULL,					/* 6144 MiB */
-	NULL,					/* 8192 MiB */
+typedef void (*patch_func_t)(void);
+
+static const patch_func_t dram_patch_fn[8] = {
+	dh_imx8mp_dhcom_dram_patch_16g_x32_to_32g_x32_1r,	/* 4096 MiB 1-rank */
+	NULL,							/* 1024 MiB */
+	NULL,							/* 1536 MiB */
+	dh_imx8mp_dhcom_dram_patch_16g_x32_to_16g_x32,		/* 2048 MiB */
+	NULL,							/* 3072 MiB */
+	dh_imx8mp_dhcom_dram_patch_16g_x32_to_32g_x32_2r,	/* 4096 MiB 2-rank */
+	NULL,							/* 6144 MiB */
+	NULL,							/* 8192 MiB */
 };
 
 static void spl_dram_init(void)
 {
-	const u16 size[] = { 512, 1024, 1536, 2048, 3072, 4096, 6144, 8192 };
 	u8 memcfg = dh_get_memcfg();
 	int i;
 
-	printf("DDR:   %d MiB [0x%x]\n", size[memcfg], memcfg);
+	printf("DDR:   %d MiB [0x%x]\n", dh_imx8mp_dhcom_dram_size[memcfg], memcfg);
 
-	if (!dram_timing_info[memcfg]) {
+	if (!dram_patch_fn[memcfg]) {
 		printf("Unsupported DRAM strapping, trying lowest supported. MEMCFG=0x%x\n",
 		       memcfg);
-		for (i = 0; i < ARRAY_SIZE(dram_timing_info); i++)
-			if (dram_timing_info[i])	/* Configuration found */
+		for (i = 0; i < ARRAY_SIZE(dram_patch_fn); i++)
+			if (dram_patch_fn[i])	/* Configuration found */
 				break;
 	}
 
-	ddr_init(dram_timing_info[memcfg]);
+	dram_patch_fn[memcfg]();
+	ddr_init(dh_imx8mp_dhcom_dram_timing);
 
 	printf("DDR:   Inline ECC %sabled\n",
 	       (readl(DDRC_ECCCFG0(0)) & DDRC_ECCCFG0_ECC_MODE_MASK) ?
@@ -139,13 +141,39 @@ static void spl_dram_init(void)
 }
 
 #if IS_ENABLED(CONFIG_IMX8M_DRAM_INLINE_ECC)
+static void dh_imx8mp_dhcom_dram_scrub_16g_x32(void)
+{
+	ddrc_inline_ecc_scrub(0x0,0x3ffffff);
+	ddrc_inline_ecc_scrub(0x4000000,0x7ffffff);
+	ddrc_inline_ecc_scrub(0x8000000,0xbffffff);
+	ddrc_inline_ecc_scrub(0xc000000,0xfffffff);
+	ddrc_inline_ecc_scrub(0x10000000,0x13ffffff);
+	ddrc_inline_ecc_scrub(0x14000000,0x17ffffff);
+	ddrc_inline_ecc_scrub(0x18000000,0x1bffffff);
+	ddrc_inline_ecc_scrub_end(0x0,0x1fffffff);
+}
+
+static void dh_imx8mp_dhcom_dram_scrub_32g_x32(void)
+{
+	ddrc_inline_ecc_scrub(0x0,0x7ffffff);
+	ddrc_inline_ecc_scrub(0x8000000,0xfffffff);
+	ddrc_inline_ecc_scrub(0x10000000,0x17ffffff);
+	ddrc_inline_ecc_scrub(0x18000000,0x1fffffff);
+	ddrc_inline_ecc_scrub(0x20000000,0x27ffffff);
+	ddrc_inline_ecc_scrub(0x28000000,0x2fffffff);
+	ddrc_inline_ecc_scrub(0x30000000,0x37ffffff);
+	ddrc_inline_ecc_scrub_end(0x0,0x3fffffff);
+}
+
+typedef void (*scrub_func_t)(void);
+
 static const scrub_func_t dram_scrub_fn[8] = {
-	NULL,					/* 512 MiB */
+	dh_imx8mp_dhcom_dram_scrub_32g_x32,	/* 4096 MiB 1-rank */
 	NULL,					/* 1024 MiB */
 	NULL,					/* 1536 MiB */
 	dh_imx8mp_dhcom_dram_scrub_16g_x32,	/* 2048 MiB */
 	NULL,					/* 3072 MiB */
-	dh_imx8mp_dhcom_dram_scrub_32g_x32,	/* 4096 MiB */
+	dh_imx8mp_dhcom_dram_scrub_32g_x32,	/* 4096 MiB 2-rank */
 	NULL,					/* 6144 MiB */
 	NULL,					/* 8192 MiB */
 };

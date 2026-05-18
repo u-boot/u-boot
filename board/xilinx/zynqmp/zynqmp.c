@@ -183,6 +183,23 @@ int board_init(void)
 			zynqmppl.name = strdup(name);
 			fpga_init();
 			fpga_add(fpga_xilinx, &zynqmppl);
+
+			/*
+			 * zu63dr_SE and zu67dr_SE share ID 0x046D7093.
+			 * Register zu63dr_SE as alternate device.
+			 */
+			if (!strcmp(name, "zu67dr_SE")) {
+				xilinx_desc *alt;
+
+				alt = calloc(1, sizeof(*alt));
+				if (!alt) {
+					log_err("Failed to allocate alt FPGA descriptor\n");
+				} else {
+					*alt = zynqmppl;
+					alt->name = "zu63dr_SE";
+					fpga_add(fpga_xilinx, alt);
+				}
+			}
 		}
 	}
 #endif

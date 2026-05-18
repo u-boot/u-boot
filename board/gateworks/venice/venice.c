@@ -47,7 +47,7 @@ int board_fit_config_name_match(const char *path)
 	return -1;
 }
 
-#if (IS_ENABLED(CONFIG_NET))
+#if (IS_ENABLED(CONFIG_NET_LEGACY))
 int board_phy_config(struct phy_device *phydev)
 {
 	unsigned short val;
@@ -71,7 +71,7 @@ int board_phy_config(struct phy_device *phydev)
 
 	return 0;
 }
-#endif // IS_ENABLED(CONFIG_NET)
+#endif // IS_ENABLED(CONFIG_NET_LEGACY)
 
 int board_init(void)
 {

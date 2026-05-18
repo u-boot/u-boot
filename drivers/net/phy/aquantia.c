@@ -400,7 +400,7 @@ int aquantia_config(struct phy_device *phydev)
 	int interface = phydev->interface;
 	u32 val, id, rstatus, fault;
 	u32 reg_val1 = 0;
-	int num_retries = 5;
+	int num_retries = 200;
 	int usx_an = 0;
 
 	/*

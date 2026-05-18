@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0+
 
 VERSION = 2026
-PATCHLEVEL = 04
+PATCHLEVEL = 07
 SUBLEVEL =
-EXTRAVERSION = -rc4
+EXTRAVERSION = -rc2
 NAME =
 
 # *DOCUMENTATION*
@@ -531,7 +531,7 @@ UBOOTINCLUDE    := \
 		-I$(srctree)/lib/mbedtls/external/mbedtls/include) \
 	$(if $(CONFIG_$(PHASE_)SYS_THUMB_BUILD), \
 		$(if $(CONFIG_HAS_THUMB2), \
-			$(if $(CONFIG_CPU_V7M), \
+			$(if $(CONFIG_CPU_V7M_V8M), \
 				-I$(srctree)/arch/arm/thumb1/include), \
 			-I$(srctree)/arch/arm/thumb1/include)) \
 	-I$(srctree)/arch/$(ARCH)/include \
@@ -1050,7 +1050,7 @@ UBOOTINCLUDE    := \
 		-I$(srctree)/lib/mbedtls/external/mbedtls/include) \
 	$(if $(CONFIG_$(PHASE_)SYS_THUMB_BUILD), \
 		$(if $(CONFIG_HAS_THUMB2), \
-			$(if $(CONFIG_CPU_V7M), \
+			$(if $(CONFIG_CPU_V7M_V8M), \
 				-I$(srctree)/arch/arm/thumb1/include), \
 			-I$(srctree)/arch/arm/thumb1/include)) \
 	-I$(srctree)/arch/$(ARCH)/include \
@@ -1081,7 +1081,7 @@ libs-$(CONFIG_OF_EMBED) += dts/
 libs-y += env/
 libs-y += lib/
 libs-y += fs/
-libs-$(filter y,$(CONFIG_NET) $(CONFIG_NET_LWIP)) += net/
+libs-$(CONFIG_NET) += net/
 libs-y += disk/
 libs-y += drivers/
 libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
@@ -1373,7 +1373,7 @@ expect = $(foreach cfg,$(1),y)
 # 1: List of options to migrate to (e.g. "CONFIG_DM_MMC CONFIG_BLK")
 # 2: Name of component (e.g . "Ethernet drivers")
 # 3: Release deadline (e.g. "v202.07")
-# 4: Condition to require before checking (e.g. "$(CONFIG_NET)")
+# 4: Condition to require before checking (e.g. "$(CONFIG_NET_LEGACY)")
 # Note: Script avoids bash construct, hence the strange double 'if'
 # (patches welcome!)
 define deprecated
@@ -1446,10 +1446,14 @@ quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
 ifeq ($(CONFIG_OF_UPSTREAM),y)
+ifeq ($(CONFIG_CPU_V8M),y)
+dt_dir := dts/upstream/src/arm64
+else
 ifeq ($(CONFIG_ARM64),y)
 dt_dir := dts/upstream/src/arm64
 else
 dt_dir := dts/upstream/src/$(ARCH)
+endif
 endif
 else
 dt_dir := arch/$(ARCH)/dts
@@ -2143,7 +2147,8 @@ ENV_FILE := $(if $(ENV_SOURCE_FILE),$(ENV_FILE_CFG),$(wildcard $(ENV_FILE_BOARD)
 quiet_cmd_gen_envp = ENVP    $@
       cmd_gen_envp = \
 	if [ -s "$(ENV_FILE)" ]; then \
-		$(CPP) -P $(cpp_flags) -x assembler-with-cpp -undef \
+		$(CPP) -P $(KBUILD_CPPFLAGS) $(UBOOTINCLUDE) \
+			-x assembler-with-cpp -undef \
 			-D__ASSEMBLY__ \
 			-D__UBOOT_CONFIG__ \
 			-DDEFAULT_DEVICE_TREE=$(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE)) \
@@ -2767,8 +2772,7 @@ DOC_TARGETS := xmldocs latexdocs pdfdocs htmldocs epubdocs cleandocs \
 	       linkcheckdocs dochelp refcheckdocs texinfodocs infodocs
 PHONY += $(DOC_TARGETS)
 $(DOC_TARGETS): scripts_basic FORCE
-	$(Q)PYTHONPATH=$(srctree)/test/py/tests:$(srctree)/test/py \
-	$(MAKE) $(build)=doc $@
+	$(Q)$(MAKE) $(build)=doc $@
 
 PHONY += checkstack ubootrelease ubootversion
 

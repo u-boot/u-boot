@@ -42,6 +42,11 @@ ENTRY(_start)
 	/* Setup initial stack pointer */
 	move.l	#CFG_SYS_INIT_SP_ADDR, %sp
 
+	/* Setup the debug uart if enabled */
+#ifdef CONFIG_DEBUG_UART
+	bsr.l	debug_uart_init
+#endif
+
 	/*
 	 * Allocate Global Data (GD)
 	 * board_init_f_alloc_reserve(top) returns the new top of stack in %d0

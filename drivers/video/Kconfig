@@ -552,6 +552,14 @@ config VIDEO_LCD_HIMAX_HX8394
 	Say Y here if you want to enable support for Himax HX8394
 	dsi 4dl panel.
 
+config VIDEO_LCD_ILITEK_ILI9806E
+	bool "Ilitek ILI9806E-based panels"
+	depends on PANEL && BACKLIGHT
+	help
+	  Say Y here if you want to enable support for panels base on
+	  the Ilitek ILI9806E controller. Currently only the DBI panel
+	  is implemented.
+
 config VIDEO_LCD_MOT
 	tristate "Atrix 4G and Droid X2 540x960 DSI video mode panel"
 	depends on PANEL && BACKLIGHT

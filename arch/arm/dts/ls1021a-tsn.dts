@@ -22,6 +22,10 @@
 		ethernet5 = &swp4;
 		ethernet6 = &swp5;
 	};
+
+	chosen {
+		stdout-path = &uart0;
+	};
 };
 
 &dspi0 {
@@ -169,7 +173,7 @@
 	status = "okay";
 
 	flash@0 {
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <20000000>;
 		reg = <0>;
 	};

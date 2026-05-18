@@ -142,6 +142,11 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
+	/* Initialize EFI drivers */
+	ret = efi_init_obj_list();
+	if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
 	if (argc > 2) {
 		ulong rd_addr = 0;
 		char *end = strchr(argv[2], ':');
@@ -179,14 +184,6 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_SELFTEST) &&
 	    !strcmp(argv[1], "selftest")) {
-		/* Initialize EFI drivers */
-		ret = efi_init_obj_list();
-		if (ret != EFI_SUCCESS) {
-			log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-				ret & ~EFI_ERROR_MASK);
-			return CMD_RET_FAILURE;
-		}
-
 		ret = efi_install_fdt(fdt);
 		if (ret != EFI_SUCCESS)
 			return CMD_RET_FAILURE;

@@ -1,5 +1,5 @@
 SAMA5D2 PTC EK BOARD
-M:	Eugen Hristev <eugen.hristev@microchip.com>
+M:	Eugen Hristev <ehristev@kernel.org>
 M:	Ludovic Desroches <ludovic.desroches@microchip.com>
 S:	Maintained
 F:	board/atmel/sama5d2_ptc_ek/

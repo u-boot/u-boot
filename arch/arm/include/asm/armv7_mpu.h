@@ -11,7 +11,7 @@
 #include <linux/bitops.h>
 #endif
 
-#ifdef CONFIG_CPU_V7M
+#ifdef CONFIG_CPU_V7M_V8M
 #define AP_SHIFT			24
 #define XN_SHIFT			28
 #define TEX_SHIFT			19

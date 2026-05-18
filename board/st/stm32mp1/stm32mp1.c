@@ -326,8 +326,8 @@ static int adc_measurement(ofnode node, int adc_count, int *min_uV, int *max_uV)
 static int board_check_usb_power(void)
 {
 	ofnode node;
-	int max_uV = 0;
-	int min_uV = USB_START_HIGH_THRESHOLD_UV;
+	int max_uV;
+	int min_uV;
 	int adc_count, ret;
 	u32 nb_blink;
 	u8 i;
@@ -358,6 +358,9 @@ static int board_check_usb_power(void)
 
 	/* perform maximum of 2 ADC measurements to detect power supply current */
 	for (i = 0; i < 2; i++) {
+		max_uV = 0;
+		min_uV = USB_START_HIGH_THRESHOLD_UV;
+
 		ret = adc_measurement(node, adc_count, &min_uV, &max_uV);
 		if (ret)
 			return ret;

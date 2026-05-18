@@ -533,7 +533,7 @@ static const struct udevice_id dwc3_meson_g12a_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(dwc3_generic_wrapper) = {
+U_BOOT_DRIVER(dwc3_meson_g12a) = {
 	.name	= "dwc3-meson-g12a",
 	.id	= UCLASS_SIMPLE_BUS,
 	.of_match = dwc3_meson_g12a_ids,

@@ -392,5 +392,7 @@ efi_status_t efi_init_obj_list(void)
 	ret = efi_start_obj_list();
 out:
 	efi_obj_list_initialized = ret;
+	if (ret != EFI_SUCCESS)
+		log_err("Cannot initialize UEFI sub-system\n");
 	return ret;
 }

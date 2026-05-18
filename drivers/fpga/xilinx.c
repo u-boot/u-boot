@@ -11,6 +11,7 @@
  *  Xilinx FPGA support
  */
 
+#include <env.h>
 #include <fpga.h>
 #include <log.h>
 #include <virtex2.h>
@@ -92,7 +93,11 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 			       __func__);
 			printf("%s: Bitstream ID %s, current device ID %d/%s\n",
 			       __func__, dataptr, devnum, xdesc->name);
-			return FPGA_FAIL;
+			if (!CONFIG_IS_ENABLED(ENV_SUPPORT) ||
+			    env_get_yesno("fpga_skip_idcheck") != 1)
+				return FPGA_FAIL;
+
+			printf("%s: Skipping ID check\n", __func__);
 		}
 	} else {
 		printf("%s: Please fill correct device ID to xilinx_desc\n",

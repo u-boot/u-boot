@@ -127,6 +127,81 @@ long get_ram_size(long *base, long maxsize)
 	return (maxsize);
 }
 
+/**
+ * probe_ram_size_by_alias() - Detect RAM size using known alias addresses
+ * @checks: Array of RAM alias probe descriptors, terminated by a NULL
+ *	    @probe_addr entry
+ *
+ * Probe RAM size by writing a test pattern to each @probe_addr and checking
+ * whether the same pattern does not appear at the corresponding @alias_addr.
+ * This is useful on systems where address wrap-around does not alias to the
+ * base of memory in a linear way, so get_ram_size() cannot be used directly.
+ * It is also useful on systems where the base of the physical memory cannot
+ * be safely accessed, so get_ram_size() cannot be used at all.
+ *
+ * Return: The size associated with the first matching entry, or 0 if no match
+ * is found.
+ */
+long probe_ram_size_by_alias(const struct ram_alias_check *checks)
+{
+	long save[2];
+	long pat;
+	int dcache_en = 0;
+	long ret = 0;
+
+	if (!CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		dcache_en = dcache_status();
+
+	while (checks->probe_addr && !ret) {
+		volatile long *d = checks->probe_addr;
+		volatile long *s = checks->alias_addr;
+
+		save[0] = *s;
+		save[1] = *d;
+		/* Ensure s is written and not cached */
+		if (dcache_en)
+			dcache_flush_invalidate(s);
+
+		pat = ~save[0];
+		*d = pat;
+		sync();
+		if (dcache_en)
+			dcache_flush_invalidate(d);
+
+		/*
+		 * Make sure the test pattern is observable at the probe
+		 * address before checking whether it is also visible through
+		 * the alias address.
+		 */
+		if (*d != pat) {
+			*d = save[1];
+			sync();
+			if (dcache_en)
+				dcache_flush_invalidate(d);
+			checks++;
+			continue;
+		}
+
+		if (*s != pat)
+			ret = checks->size;
+
+		/* Restore content */
+		*d = save[1];
+		sync();
+		if (dcache_en)
+			dcache_flush_invalidate(d);
+
+		*s = save[0];
+		sync();
+		if (dcache_en)
+			dcache_flush_invalidate(s);
+
+		checks++;
+	}
+
+	return ret;
+}
+
 phys_size_t __weak get_effective_memsize(void)
 {
 	phys_size_t ram_size = gd->ram_size;

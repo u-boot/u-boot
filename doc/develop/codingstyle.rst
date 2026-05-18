@@ -80,8 +80,10 @@ Code Formatting with clang-format
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 U-Boot provides a `.clang-format` configuration file that was copied directly
-from the Linux kernel without any modifications, ensuring complete compatibility
-with kernel coding standards. Here are common ways to use clang-format:
+from the Linux kernel, ensuring complete compatibility with kernel coding
+standards.
+
+Here are common ways to use clang-format:
 
 **Basic usage for single files:**
 

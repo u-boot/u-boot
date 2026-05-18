@@ -8,8 +8,10 @@
 #include <command.h>
 #include <console.h>
 #include <div64.h>
+#include <env.h>
 #include <gzip.h>
 #include <image.h>
+#include <linux/sizes.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <u-boot/crc.h>
@@ -119,7 +121,7 @@ void gzwrite_progress_finish(int returnval,
 int gzwrite(unsigned char *src, size_t len, struct blk_desc *dev,
 	    size_t szwritebuf, off_t startoffs, size_t szexpected)
 {
-	int i, flags;
+	int flags;
 	z_stream s;
 	int r = 0;
 	unsigned char *writebuf;
@@ -127,13 +129,23 @@ int gzwrite(unsigned char *src, size_t len, struct blk_desc *dev,
 	ulong totalfilled = 0;
 	lbaint_t blksperbuf, outblock;
 	u32 expected_crc;
-	size_t payload_size;
+	size_t i, payload_size;
+	unsigned long blocks_written;
+	lbaint_t writeblocks;
+	int numfilled = 0;
 	int iteration = 0;
-
-	if (len > 0xffffffff) {
-		log_err("Input size over 4 GiB in size not supported\n");
-		return -1;
-	}
+	/*
+	 * Allow runtime configuration of decompression chunk on
+	 * sandbox to better cover the chunked decompression
+	 * functionality without having to use > 4 GiB files.
+	 */
+	const ulong minchunk = 0x400;
+	const ulong maxchunk = SZ_4G - minchunk;
+	const ulong chunk =
+		CONFIG_IS_ENABLED(SANDBOX,
+				  (clamp(env_get_ulong("gzwrite_chunk", 10, maxchunk),
+					 minchunk, maxchunk)),
+				  (maxchunk));
 
 	if (!szwritebuf ||
 	    (szwritebuf % dev->blksz) ||
@@ -175,7 +187,7 @@ int gzwrite(unsigned char *src, size_t len, struct blk_desc *dev,
 		return -1;
 	}
 
-	payload_size = len - i - 8;
+	payload_size = len - i;
 
 	memcpy(&expected_crc, src + len - 8, sizeof(expected_crc));
 	expected_crc = le32_to_cpu(expected_crc);
@@ -205,35 +217,44 @@ int gzwrite(unsigned char *src, size_t len, struct blk_desc *dev,
 		return -1;
 	}
 
-	s.next_in = src + i;
-	s.avail_in = payload_size+8;
+	src += i;
+	s.avail_in = 0;
 	writebuf = (unsigned char *)malloc_cache_aligned(szwritebuf);
 
 	/* decompress until deflate stream ends or end of file */
 	do {
 		if (s.avail_in == 0) {
-			printf("%s: weird termination with result %d\n",
-			       __func__, r);
-			break;
+			if (payload_size == 0) {
+				printf("%s: weird termination with result %d\n",
+				       __func__, r);
+				break;
+			}
+
+			s.next_in = src;
+			s.avail_in = (payload_size > chunk) ? chunk : payload_size;
+			src += s.avail_in;
+			payload_size -= s.avail_in;
 		}
 
 		/* run inflate() on input until output buffer not full */
 		do {
-			unsigned long blocks_written;
-			int numfilled;
-			lbaint_t writeblocks;
-
-			s.avail_out = szwritebuf;
-			s.next_out = writebuf;
+			if (numfilled) {
+				s.avail_out = szwritebuf - numfilled;
+				s.next_out = writebuf + numfilled;
+			} else {
+				s.avail_out = szwritebuf;
+				s.next_out = writebuf;
+			}
 			r = inflate(&s, Z_SYNC_FLUSH);
 			if ((r != Z_OK) &&
 			    (r != Z_STREAM_END)) {
 				printf("Error: inflate() returned %d\n", r);
 				goto out;
 			}
+			crc = crc32(crc, writebuf + numfilled,
+				    szwritebuf - s.avail_out - numfilled);
+			totalfilled += szwritebuf - s.avail_out - numfilled;
 			numfilled = szwritebuf - s.avail_out;
-			crc = crc32(crc, writebuf, numfilled);
-			totalfilled += numfilled;
 			if (numfilled < szwritebuf) {
 				writeblocks = (numfilled+dev->blksz-1)
 						/ dev->blksz;
@@ -241,14 +262,17 @@ int gzwrite(unsigned char *src, size_t len, struct blk_desc *dev,
 				       dev->blksz-(numfilled%dev->blksz));
 			} else {
 				writeblocks = blksperbuf;
+				numfilled = 0;
 			}
 
 			gzwrite_progress(iteration++,
 					 totalfilled,
 					 szexpected);
-			blocks_written = blk_dwrite(dev, outblock,
+			if (!numfilled) {
+				blocks_written = blk_dwrite(dev, outblock,
 						    writeblocks, writebuf);
-			outblock += blocks_written;
+				outblock += blocks_written;
+			}
 			if (ctrlc()) {
 				puts("abort\n");
 				goto out;
@@ -257,6 +281,12 @@ int gzwrite(unsigned char *src, size_t len, struct blk_desc *dev,
 		} while (s.avail_out == 0);
 		/* done when inflate() says it's done */
 	} while (r != Z_STREAM_END);
+
+	if (numfilled) {
+		blocks_written = blk_dwrite(dev, outblock,
+				    writeblocks, writebuf);
+		outblock += blocks_written;
+	}
 
 	if ((szexpected != totalfilled) ||
 	    (crc != expected_crc))

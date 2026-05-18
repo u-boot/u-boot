@@ -19,13 +19,22 @@
 #include "unipro.h"
 #include "ufs-rockchip.h"
 
+static void ufs_rockchip_controller_reset(struct ufs_rockchip_host *host)
+{
+	reset_assert_bulk(&host->rsts);
+	udelay(1);
+	reset_deassert_bulk(&host->rsts);
+}
+
 static int ufs_rockchip_hce_enable_notify(struct ufs_hba *hba,
 					  enum ufs_notify_change_status status)
 {
 	int err = 0;
 
-	if (status != POST_CHANGE)
+	if (status != POST_CHANGE) {
+		ufs_rockchip_controller_reset(dev_get_priv(hba->dev));
 		return 0;
+	}
 
 	ufshcd_dme_reset(hba);
 	ufshcd_dme_enable(hba);
@@ -149,6 +158,8 @@ static int ufs_rockchip_common_init(struct ufs_hba *hba)
 		dev_err(dev, "Can't get reset: %d\n", err);
 		return err;
 	}
+
+	ufs_rockchip_controller_reset(host);
 
 	err = gpio_request_by_name(dev, "reset-gpios", 0, &host->device_reset,
 				   GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);

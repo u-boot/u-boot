@@ -63,9 +63,37 @@ static int do_test(struct cmd_tbl *cmdtp, int flag, int argc,
 	char * const *ap;
 	int i, op, left, adv, expr, last_expr, last_unop, last_binop;
 
-	/* args? */
-	if (argc < 3)
+	if (!strcmp(argv[0], "[")) {
+		if (strcmp(argv[argc - 1], "]")) {
+			printf("[: missing terminating ]\n");
+			return 1;
+		}
+		argc--;
+	}
+
+	/*
+	 * Per POSIX, 'test' with 0 arguments should return 1, while
+	 * 'test <arg>' should be equivalent to 'test -n <arg>',
+	 * i.e. true if and only if <arg> is not empty.
+	 *
+	 * However, due to previous versions of U-Boot unconditionally
+	 * returning false when 'test' was given less than two
+	 * arguments, there are existing scripts that do
+	 *
+	 *   test -n $somevar
+	 *
+	 * (i.e. without properly quoting $somevar) and expecting that
+	 * to return false when $somevar expands to nothing. It is
+	 * quite unlikely that anyone would use the single-argument
+	 * form to test a string for being empty and a possible
+	 * non-empty value for that string to be exactly "-n". So we
+	 * interpret 'test -n' as if it was 'test -n ""'.
+	 */
+	if (argc < 2)
 		return 1;
+
+	if (argc == 2)
+		return !strcmp(argv[1], "") || !strcmp(argv[1], "-n");
 
 #ifdef DEBUG
 	{
@@ -211,6 +239,17 @@ U_BOOT_CMD(
 	"minimal test like /bin/sh",
 	"[args..]"
 );
+
+/*
+ * This does not use the U_BOOT_CMD macro as [ can't be used in symbol names
+ */
+ll_entry_declare(struct cmd_tbl, lbracket, cmd) = {
+	"[",	CONFIG_SYS_MAXARGS, cmd_always_repeatable, do_test,
+	"alias for 'test'",
+#ifdef CONFIG_SYS_LONGHELP
+	" <test expression> ]"
+#endif /* CONFIG_SYS_LONGHELP */
+};
 
 static int do_false(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[])

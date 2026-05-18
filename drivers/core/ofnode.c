@@ -664,6 +664,54 @@ int ofnode_read_u32_array(ofnode node, const char *propname,
 	}
 }
 
+int ofnode_read_u64_array(ofnode node, const char *propname,
+			  u64 *out_values, size_t sz)
+{
+	assert(ofnode_valid(node));
+	log_debug("%s: %s: ", __func__, propname);
+
+	if (ofnode_is_np(node)) {
+		return of_read_u64_array(ofnode_to_np(node), propname,
+					 out_values, sz);
+	} else {
+		int ret;
+
+		ret = fdtdec_get_long_array(ofnode_to_fdt(node),
+					   ofnode_to_offset(node), propname,
+					   out_values, sz);
+
+		/* get the error right, but space is more important in SPL */
+		if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
+			if (ret == -FDT_ERR_NOTFOUND)
+				return -EINVAL;
+			else if (ret == -FDT_ERR_BADLAYOUT)
+				return -EOVERFLOW;
+		}
+		return ret;
+	}
+}
+
+int ofnode_count_elems_of_size(ofnode node, const char *propname, int elem_size)
+{
+	const char *prop;
+	int len;
+	assert(ofnode_valid(node));
+
+	if (ofnode_is_np(node)) {
+		return of_property_count_elems_of_size(node.np, propname, elem_size);
+	} else {
+		prop = fdt_getprop(ofnode_to_fdt(node), ofnode_to_offset(node), propname, &len);
+		if (!prop)
+			return -ENOENT;
+		if (len % elem_size != 0) {
+			log_debug("size of %s in node %pOF is not a multiple of %d\n",
+			       propname, &node, elem_size);
+			return -EINVAL;
+		}
+		return len / elem_size;
+	}
+}
+
 #if !CONFIG_IS_ENABLED(DM_INLINE_OFNODE)
 bool ofnode_is_enabled(ofnode node)
 {

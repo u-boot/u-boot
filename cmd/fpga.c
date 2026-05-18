@@ -417,7 +417,7 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga_wrapper,
 	 "info   [dev]                  List known device information\n"
 	 "fpga dump   <dev> <address> <size> Load device to memory buffer\n"
 	 "fpga load   <dev> <address> <size> Load device from memory buffer\n"
-#if defined(CONFIG_CMD_FPGA_LOADP)
+#if defined(CONFIG_CMD_FPGA_LOADB)
 	 "fpga loadb  <dev> <address> <size> Load device from bitstream buffer\n"
 #endif
 #if defined(CONFIG_CMD_FPGA_LOADP)

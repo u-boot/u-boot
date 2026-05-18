@@ -29,7 +29,7 @@
 #ifdef CONFIG_DISTRO_DEFAULTS
 /*****************************************************************************/
 
-#ifdef CONFIG_NET
+#ifdef CONFIG_NET_LEGACY
 #define BOOT_TARGET_PXE(func)	func(PXE, pxe, na)
 #else
 #define BOOT_TARGET_PXE(func)

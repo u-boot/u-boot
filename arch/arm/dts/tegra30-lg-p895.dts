@@ -120,7 +120,7 @@
 				reset-gpios = <&gpio TEGRA_GPIO(W, 0) GPIO_ACTIVE_LOW>;
 
 				renesas,gamma = <3>;
-				renesas,inversion;
+				renesas,column-inversion;
 				renesas,contrast;
 
 				vcc-supply = <&vcc_3v0_lcd>;

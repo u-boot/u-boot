@@ -5,8 +5,8 @@
 
 #include <phy.h>
 #include <asm/u-boot.h>
-#include <asm/arch-adi/sc5xx/sc5xx.h>
-#include <asm/arch-adi/sc5xx/soc.h>
+#include <asm/arch/sc5xx.h>
+#include <asm/arch/soc.h>
 
 int board_phy_config(struct phy_device *phydev)
 {

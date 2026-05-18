@@ -253,7 +253,7 @@ Ethernet
     a TFTP server and binary name. The binary is downloaded via the TFTP
     protocol. Required configuration settings include:
 
-    * CONFIG_SPL_NET=y or CONFIG_TPL_NET=y
+    * CONFIG_SPL_NET=y
 
     * CONFIG_SPL_ETH_DEVICE=y or CONFIG_DM_USB_GADGET=y
 

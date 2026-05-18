@@ -14,9 +14,11 @@
 	board/sysam/stmark2/sbf_dram_init.o (.text*)
 
 #define CFG_EXTRA_ENV_SETTINGS				\
+	"boot_sd=load mmc 0:1 ${loadaddr} uImage; "		\
+		"load mmc 0:1 ${loadaddr_ramfs} uRamfs\0"	\
 	"kern_size=0x700000\0"					\
-	"loadaddr=0x40001000\0"					\
-		"-(rootfs)\0"					\
+	"loadaddr=0x42000000\0"					\
+	"loadaddr_ramfs=0x43000000\0"				\
 	"update_uboot=loady ${loadaddr}; "			\
 		"sf probe 0:1 50000000; "			\
 		"sf erase 0 0x80000; "				\

@@ -10,16 +10,12 @@
 
 #include <errno.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <malloc.h>
-#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <spi.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * struct gen_74x164_chip - Data for 74Hx164
@@ -127,11 +123,9 @@ static int gen_74x164_probe(struct udevice *dev)
 {
 	struct gen_74x164_priv *priv = dev_get_priv(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	const u8 *defaults;
 	char *str, name[32];
 	int ret;
-	const void *fdt = gd->fdt_blob;
-	int node = dev_of_offset(dev);
-
 	snprintf(name, sizeof(name), "%s_", dev->name);
 	str = strdup(name);
 	if (!str)
@@ -141,16 +135,17 @@ static int gen_74x164_probe(struct udevice *dev)
 	 * See Linux kernel:
 	 * Documentation/devicetree/bindings/gpio/gpio-74x164.txt
 	 */
-	priv->nregs = fdtdec_get_int(fdt, node, "registers-number", 1);
+	priv->nregs = dev_read_u32_default(dev, "registers-number", 1);
 	priv->buffer = calloc(priv->nregs, sizeof(u8));
 	if (!priv->buffer) {
 		ret = -ENOMEM;
 		goto free_str;
 	}
 
-	ret = fdtdec_get_byte_array(fdt, node, "registers-default",
-				    priv->buffer, priv->nregs);
-	if (ret)
+	defaults = dev_read_u8_array_ptr(dev, "registers-default", priv->nregs);
+	if (defaults)
+		memcpy(priv->buffer, defaults, priv->nregs);
+	else
 		dev_dbg(dev, "No registers-default property\n");
 
 	ret = gpio_request_by_name(dev, "oe-gpios", 0, &priv->oe,

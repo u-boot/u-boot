@@ -11,7 +11,7 @@ config TIMER
 
 config SPL_TIMER
 	bool "Enable driver model for timer drivers in SPL"
-	depends on TIMER && SPL
+	depends on TIMER && SPL && SPL_DM
 	help
 	  Enable support for timer drivers in SPL. These can be used to get
 	  a timer value when in SPL, or perhaps for implementing a delay
@@ -328,7 +328,7 @@ config XILINX_TIMER
 	bool "Xilinx timer support"
 	depends on TIMER
 	select REGMAP
-	select SPL_REGMAP if SPL
+	select SPL_REGMAP if SPL_TIMER
 	help
 	  Select this to enable support for the timer found on
 	  any Xilinx boards (axi timer).

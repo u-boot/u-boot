@@ -40,6 +40,7 @@ config OPTEE_TZDRAM_SIZE
 
 config BOOTM_OPTEE
 	bool "Support OPTEE bootm command"
+	depends on LIB_BOOTI || LIB_BOOTM || LIB_BOOTZ
 	select BOOTM_LINUX
 	select OPTEE_IMAGE
 	help

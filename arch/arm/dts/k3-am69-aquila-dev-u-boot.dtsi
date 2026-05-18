@@ -3,7 +3,7 @@
  * Copyright (C) 2025 Toradex - https://www.toradex.com/
  */
 
-#define SPL_BOARD_DTB "spl/dts/k3-am69-aquila-dev.dtb"
+#define SPL_BOARD_DTB "spl/dts/ti/k3-am69-aquila-dev.dtb"
 #define BOARD_DESCRIPTION "k3-am69-aquila"
 #define UBOOT_BOARD_DESCRIPTION "U-Boot for AM69 Aquila board"
 
@@ -12,6 +12,11 @@
 #if defined(CONFIG_CPU_V7R)
 
 &binman {
+	tiboot3_am69_gp {
+		insert-template = <&tiboot3_j784s4_gp>;
+		filename = "tiboot3-am69-gp-aquila.bin";
+	};
+
 	tiboot3-am69-hs {
 		insert-template = <&tiboot3_j784s4_hs>;
 		filename = "tiboot3-am69-hs-aquila.bin";
@@ -26,6 +31,10 @@
 
 &ti_fs_enc {
 	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-enc.bin";
+};
+
+&ti_fs_gp {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-gp.bin";
 };
 
 &sysfw_inner_cert {
@@ -77,6 +86,72 @@
 
 	u-boot-unsigned {
 		insert-template = <&u_boot_unsigned>;
+	};
+
+	firmware-aquila-am69-gp.bin {
+		filename = "firmware-aquila-am69-gp.bin";
+
+		blob-ext@1 {
+			filename = "tiboot3-am69-gp-aquila.bin";
+		};
+
+		blob-ext@2 {
+			filename = "tispl.bin_unsigned";
+			/*
+			 * This value matches CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+			 * from R5 SPL config.
+			 */
+			offset = <0x80000>;
+		};
+
+		blob-ext@3 {
+			filename = "u-boot.img_unsigned";
+			offset = <(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)>;
+		};
+	};
+
+	firmware-aquila-am69-hs.bin {
+		filename = "firmware-aquila-am69-hs.bin";
+
+		blob-ext@1 {
+			filename = "tiboot3-am69-hs-aquila.bin";
+		};
+
+		blob-ext@2 {
+			filename = "tispl.bin";
+			/*
+			 * This value matches CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+			 * from R5 SPL config.
+			 */
+			offset = <0x80000>;
+		};
+
+		blob-ext@3 {
+			filename = "u-boot.img";
+			offset = <(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)>;
+		};
+	};
+
+	firmware-aquila-am69-hs-fs.bin {
+		filename = "firmware-aquila-am69-hs-fs.bin";
+
+		blob-ext@1 {
+			filename = "tiboot3-am69-hs-fs-aquila.bin";
+		};
+
+		blob-ext@2 {
+			filename = "tispl.bin";
+			/*
+			 * This value matches CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+			 * from R5 SPL config.
+			 */
+			offset = <0x80000>;
+		};
+
+		blob-ext@3 {
+			filename = "u-boot.img";
+			offset = <(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)>;
+		};
 	};
 };
 

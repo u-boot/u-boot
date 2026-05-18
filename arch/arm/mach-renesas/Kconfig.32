@@ -134,17 +134,17 @@ choice
 config QOS_PRI_NORMAL
 	bool "Non primary"
 	help
-	   Select normal mode for QoS setting.
+	  Select normal mode for QoS setting.
 
 config QOS_PRI_MEDIA
 	bool "Media primary"
 	help
-	   Select multimedia primary mode for QoS setting.
+	  Select multimedia primary mode for QoS setting.
 
 config QOS_PRI_GFX
 	bool "GFX primary"
 	help
-	   Select GFX(graphics) primary mode for QoS setting.
+	  Select GFX(graphics) primary mode for QoS setting.
 
 endchoice
 

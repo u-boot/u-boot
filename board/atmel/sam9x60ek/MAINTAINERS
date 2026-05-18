@@ -1,6 +1,6 @@
 SAM9X60EK BOARD
 M:	Sandeep Sheriker M <sandeep.sheriker@microchip.com>
-M:	Eugen Hristev <eugen.hristev@microchip.com>
+M:	Eugen Hristev <ehristev@kernel.org>
 S:	Maintained
 F:	board/atmel/sam9x60ek/
 F:	include/configs/sam9x60ek.h

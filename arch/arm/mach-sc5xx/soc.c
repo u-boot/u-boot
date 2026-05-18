@@ -6,8 +6,8 @@
  *
  */
 
-#include <asm/arch-adi/sc5xx/sc5xx.h>
-#include <asm/arch-adi/sc5xx/soc.h>
+#include <asm/arch/sc5xx.h>
+#include <asm/arch/soc.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <cpu_func.h>

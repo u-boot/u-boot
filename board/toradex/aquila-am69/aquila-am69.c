@@ -15,28 +15,58 @@
 #include <i2c.h>
 #include <linux/sizes.h>
 #include <spl.h>
+#include <asm/arch/k3-ddr.h>
 
 #include "../common/tdx-common.h"
-#include "aquila_ddrs_16GB.h"
-#include "aquila_ddrs_8GB.h"
+#include "aquila_ddrs.h"
 #include "ddrs_patch.h"
 
 #define CTRL_MMR_CFG0_MCU_ADC1_CTRL	0x40F040B4
 
 #define HW_CFG_MEM_SZ_32GB		0x00
-#define HW_CFG_MEM_SZ_16GB		0x01
+#define HW_CFG_MEM_SZ_16GB_RANK_2	0x01
 #define HW_CFG_MEM_SZ_8GB		0x02
+#define HW_CFG_MEM_SZ_16GB		0x03
 
-#define HW_CFG_MEM_SZ_MASK		0x03
+#define HW_CFG_MEM_CFG_MASK		0x03
 
 DECLARE_GLOBAL_DATA_PTR;
-static u8 hw_cfg;
+
+static u8 get_hw_cfg(void)
+{
+	struct gpio_desc gpio_hw_cfg;
+	char gpio_name[20];
+	u8 hw_cfg = 0;
+	int i;
+
+	for (i = 0; i < 5; i++) {
+		sprintf(gpio_name, "gpio@42110000_%d", 82 + i);
+		if (dm_gpio_lookup_name(gpio_name, &gpio_hw_cfg) < 0) {
+			printf("Lookup named gpio error\n");
+			return 0;
+		}
+
+		if (dm_gpio_request(&gpio_hw_cfg, "hw_cfg")) {
+			printf("gpio request error\n");
+			return 0;
+		}
+
+		if (dm_gpio_get_value(&gpio_hw_cfg) == 1)
+			hw_cfg |= BIT(i);
+
+		dm_gpio_free(NULL, &gpio_hw_cfg);
+	}
+	return hw_cfg;
+}
 
 static u64 aquila_am69_memory_size(void)
 {
-	switch (hw_cfg & HW_CFG_MEM_SZ_MASK) {
+	u8 hw_cfg = get_hw_cfg();
+
+	switch (hw_cfg & HW_CFG_MEM_CFG_MASK) {
 	case HW_CFG_MEM_SZ_32GB:
 		return SZ_32G;
+	case HW_CFG_MEM_SZ_16GB_RANK_2:
 	case HW_CFG_MEM_SZ_16GB:
 		return SZ_16G;
 	case HW_CFG_MEM_SZ_8GB:
@@ -47,44 +77,22 @@ static u64 aquila_am69_memory_size(void)
 	}
 }
 
-static void read_hw_cfg(void)
-{
-	struct gpio_desc gpio_hw_cfg;
-	char gpio_name[20];
-	int i;
-
-	printf("HW CFG: ");
-	for (i = 0; i < 5; i++) {
-		sprintf(gpio_name, "gpio@42110000_%d", 82 + i);
-		if (dm_gpio_lookup_name(gpio_name, &gpio_hw_cfg) < 0) {
-			printf("Lookup named gpio error\n");
-			return;
-		}
-
-		if (dm_gpio_request(&gpio_hw_cfg, "hw_cfg")) {
-			printf("gpio request error\n");
-			return;
-		}
-
-		if (dm_gpio_get_value(&gpio_hw_cfg) == 1)
-			hw_cfg |= BIT(i);
-
-		dm_gpio_free(NULL, &gpio_hw_cfg);
-	}
-	printf("0x%02x\n", hw_cfg);
-}
-
-static void update_ddr_timings(void)
+#if defined(CONFIG_TARGET_AQUILA_AM69_R5)
+static void update_ddr_timings(u8 hw_cfg)
 {
 	int ret = 0;
 	void *fdt = (void *)gd->fdt_blob;
 
-	switch (aquila_am69_memory_size()) {
-	case SZ_8G:
+	switch (hw_cfg & HW_CFG_MEM_CFG_MASK) {
+	case HW_CFG_MEM_SZ_8GB:
 		ret = aquila_am69_fdt_apply_ddr_patch(fdt, aquila_am69_ddrss_patch_8GB,
 						      MULTI_DDR_CFG_INTRLV_SIZE_8GB);
 		break;
-	case SZ_16G:
+	case HW_CFG_MEM_SZ_16GB_RANK_2:
+		ret = aquila_am69_fdt_apply_ddr_patch(fdt, aquila_am69_ddrss_patch_16GB_rank_2,
+						      MULTI_DDR_CFG_INTRLV_SIZE_16GB);
+		break;
+	case HW_CFG_MEM_SZ_16GB:
 		ret = aquila_am69_fdt_apply_ddr_patch(fdt, aquila_am69_ddrss_patch_16GB,
 						      MULTI_DDR_CFG_INTRLV_SIZE_16GB);
 		break;
@@ -93,6 +101,7 @@ static void update_ddr_timings(void)
 	if (ret)
 		printf("Applying DDR patch error: %d\n", ret);
 }
+#endif
 
 static int aquila_am69_fdt_fixup_memory_size(u64 total_sz)
 {
@@ -111,21 +120,33 @@ static int aquila_am69_fdt_fixup_memory_size(u64 total_sz)
 	return fdt_fixup_memory_banks(blob, s, e, CONFIG_NR_DRAM_BANKS);
 }
 
+#if defined(CONFIG_TARGET_AQUILA_AM69_R5)
 void do_board_detect(void)
 {
+	u8 hw_cfg;
+
 	/* MCU_ADC1 pins used as General Purpose Inputs */
 	writel(readl(CTRL_MMR_CFG0_MCU_ADC1_CTRL) | BIT(16),
 	       CTRL_MMR_CFG0_MCU_ADC1_CTRL);
 
-	read_hw_cfg();
+	hw_cfg = get_hw_cfg();
+	printf("HW CFG: 0x%02x\n", hw_cfg);
 
 	if (IS_ENABLED(CONFIG_K3_DDRSS))
-		update_ddr_timings();
+		update_ddr_timings(hw_cfg);
 }
+#endif
+
+#if defined(CONFIG_XPL_BUILD)
+void spl_perform_board_fixups(struct spl_image_info *spl_image)
+{
+	fixup_memory_node(spl_image);
+}
+#endif
 
 int dram_init(void)
 {
-	s32 ret;
+	int ret;
 
 	ret = fdtdec_setup_mem_size_base_lowest();
 	if (ret)
@@ -136,11 +157,18 @@ int dram_init(void)
 
 int dram_init_banksize(void)
 {
-	s32 ret;
+	int ret;
 
-	ret = aquila_am69_fdt_fixup_memory_size(aquila_am69_memory_size());
-	if (ret)
-		printf("Error setting memory size. %d\n", ret);
+	if (IS_ENABLED(CONFIG_SPL_BUILD) &&
+	    IS_ENABLED(CONFIG_TARGET_AQUILA_AM69_A72)) {
+		u64 mem_sz = aquila_am69_memory_size();
+
+		ret = aquila_am69_fdt_fixup_memory_size(mem_sz);
+		if (ret)
+			printf("Error setting memory size. %d\n", ret);
+	} else {
+		fdtdec_setup_mem_size_base();
+	}
 
 	ret = fdtdec_setup_memory_banksize();
 	if (ret)

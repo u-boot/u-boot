@@ -93,7 +93,7 @@ config TARGET_P3041DS
 	select ARCH_P3041
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select FSL_NGPIXIS
-	imply CMD_SATA
+	imply SATA
 	imply PANIC_HANG
 
 config TARGET_P4080DS
@@ -102,7 +102,7 @@ config TARGET_P4080DS
 	select ARCH_P4080
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select FSL_NGPIXIS
-	imply CMD_SATA
+	imply SATA
 	imply PANIC_HANG
 
 config TARGET_P5040DS
@@ -112,7 +112,7 @@ config TARGET_P5040DS
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select FSL_NGPIXIS
 	select SYS_FSL_RAID_ENGINE
-	imply CMD_SATA
+	imply SATA
 	imply PANIC_HANG
 
 config TARGET_MPC8548CDS
@@ -129,7 +129,7 @@ config TARGET_P1010RDB_PA
 	select SUPPORT_TPL
 	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
-	imply CMD_SATA
+	imply SATA
 	imply PANIC_HANG
 
 config TARGET_P1010RDB_PB
@@ -140,7 +140,7 @@ config TARGET_P1010RDB_PB
 	select SUPPORT_TPL
 	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
-	imply CMD_SATA
+	imply SATA
 	imply PANIC_HANG
 
 config TARGET_P1020RDB_PC
@@ -150,7 +150,7 @@ config TARGET_P1020RDB_PC
 	select ARCH_P1020
 	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
-	imply CMD_SATA
+	imply SATA
 	imply PANIC_HANG
 
 config TARGET_P1020RDB_PD
@@ -160,7 +160,7 @@ config TARGET_P1020RDB_PD
 	select ARCH_P1020
 	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
-	imply CMD_SATA
+	imply SATA
 	imply PANIC_HANG
 
 config TARGET_P2020RDB
@@ -170,7 +170,7 @@ config TARGET_P2020RDB
 	select ARCH_P2020
 	select SYS_L2_SIZE_512KB
 	imply CMD_EEPROM
-	imply CMD_SATA
+	imply SATA
 	imply SATA_SIL
 
 config TARGET_TURRIS_1X
@@ -190,7 +190,7 @@ config TARGET_P2041RDB
 	select FSL_CORENET
 	select PHYS_64BIT
 	select SYS_L3_SIZE_1024KB
-	imply CMD_SATA
+	imply SATA
 	imply FSL_SATA
 
 config TARGET_QEMU_PPCE500
@@ -229,7 +229,7 @@ config TARGET_T2080QDS
 	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	select FSL_DDR_INTERACTIVE
 	select SYS_L3_SIZE_512KB
-	imply CMD_SATA
+	imply SATA
 
 config TARGET_T2080RDB
 	bool "Support T2080RDB"
@@ -238,7 +238,7 @@ config TARGET_T2080RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	select SYS_L3_SIZE_512KB
-	imply CMD_SATA
+	imply SATA
 	imply PANIC_HANG
 
 config TARGET_T4240RDB
@@ -248,7 +248,7 @@ config TARGET_T4240RDB
 	select PHYS_64BIT
 	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	select SYS_L3_SIZE_512KB
-	imply CMD_SATA
+	imply SATA
 	imply PANIC_HANG
 
 config TARGET_KMP204X
@@ -405,7 +405,7 @@ config ARCH_MPC8536
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
 	imply CMD_NAND
-	imply CMD_SATA
+	imply SATA
 	imply CMD_REGINFO
 
 config ARCH_MPC8540
@@ -482,7 +482,7 @@ config ARCH_P1010
 	imply CMD_EEPROM
 	imply CMD_MTDPARTS
 	imply CMD_NAND
-	imply CMD_SATA
+	imply SATA
 	imply CMD_PCI
 	imply CMD_REGINFO
 	imply FSL_SATA
@@ -521,7 +521,7 @@ config ARCH_P1020
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
 	imply CMD_NAND
-	imply CMD_SATA
+	imply SATA
 	imply CMD_PCI
 	imply CMD_REGINFO
 	imply SATA_SIL
@@ -543,7 +543,7 @@ config ARCH_P1021
 	select FSL_ELBC
 	imply CMD_REGINFO
 	imply CMD_NAND
-	imply CMD_SATA
+	imply SATA
 	imply CMD_REGINFO
 	imply SATA_SIL
 
@@ -579,7 +579,7 @@ config ARCH_P1024
 	select FSL_ELBC
 	imply CMD_EEPROM
 	imply CMD_NAND
-	imply CMD_SATA
+	imply SATA
 	imply CMD_PCI
 	imply CMD_REGINFO
 	imply SATA_SIL
@@ -599,7 +599,7 @@ config ARCH_P1025
 	select SYS_FSL_SEC_COMPAT_2
 	select SYS_PPC_E500_USE_DEBUG_TLB
 	select FSL_ELBC
-	imply CMD_SATA
+	imply SATA
 	imply CMD_REGINFO
 
 config ARCH_P2020
@@ -687,7 +687,7 @@ config ARCH_P3041
 	select SYS_FSL_USB2_PHY_ENABLE
 	select FSL_ELBC
 	imply CMD_NAND
-	imply CMD_SATA
+	imply SATA
 	imply CMD_REGINFO
 	imply FSL_SATA
 
@@ -730,7 +730,7 @@ config ARCH_P4080
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select FSL_ELBC
-	imply CMD_SATA
+	imply SATA
 	imply CMD_REGINFO
 	imply SATA_SIL
 
@@ -761,7 +761,7 @@ config ARCH_P5040
 	select SYS_FSL_USB2_PHY_ENABLE
 	select SYS_PPC64
 	select FSL_ELBC
-	imply CMD_SATA
+	imply SATA
 	imply CMD_REGINFO
 	imply FSL_SATA
 
@@ -903,7 +903,7 @@ config ARCH_T2080
 	select SYS_PMAN if !NOBQFMAN
 	select SYS_PPC64
 	select FSL_IFC
-	imply CMD_SATA
+	imply SATA
 	imply CMD_NAND
 	imply CMD_REGINFO
 	imply FSL_SATA
@@ -946,7 +946,7 @@ config ARCH_T4240
 	select SYS_PMAN if !NOBQFMAN
 	select SYS_PPC64
 	select FSL_IFC
-	imply CMD_SATA
+	imply SATA
 	imply CMD_NAND
 	imply CMD_REGINFO
 	imply FSL_SATA
@@ -1375,7 +1375,7 @@ config SYS_L3_SIZE
 	int
 	default 262144 if SYS_L3_SIZE_256KB
 	default 524288 if SYS_L3_SIZE_512KB
-	default 1048576 if SYS_L3_SIZE_512KB
+	default 1048576 if SYS_L3_SIZE_1024KB
 
 config SYS_PPC64
 	bool

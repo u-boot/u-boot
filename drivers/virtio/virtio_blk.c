@@ -13,7 +13,9 @@
 #include <virtio.h>
 #include <virtio_ring.h>
 #include <linux/log2.h>
+#include <linux/err.h>
 #include "virtio_blk.h"
+#include <malloc.h>
 
 /**
  * struct virtio_blk_priv - private data for virtio block device
@@ -23,10 +25,16 @@ struct virtio_blk_priv {
 	struct virtqueue *vq;
 	/** @blksz_shift - log2 of block size divided by 512 */
 	u32 blksz_shift;
+	/** @size_max - maximum segment size */
+	u32 size_max;
+	/** @seg_max - maximum segment count */
+	u32 seg_max;
 };
 
 static const u32 feature[] = {
 	VIRTIO_BLK_F_BLK_SIZE,
+	VIRTIO_BLK_F_SIZE_MAX,
+	VIRTIO_BLK_F_SEG_MAX,
 	VIRTIO_BLK_F_WRITE_ZEROES
 };
 
@@ -67,50 +75,77 @@ static void virtio_blk_init_data_sg(void *buffer, lbaint_t blkcnt, struct virtio
 	sg->length = blkcnt * 512;
 }
 
-static ulong virtio_blk_do_req(struct udevice *dev, u64 sector,
-			       lbaint_t blkcnt, void *buffer, u32 type)
+/*
+ * Create, execute and wait for one single virtio request. On success the
+ * transferred block count is returned and in the error case -EIO.
+ */
+static ulong virtio_blk_do_single_req(struct udevice *dev, u64 sector,
+				      lbaint_t blkcnt, char *buffer, u32 type)
 {
 	struct virtio_blk_priv *priv = dev_get_priv(dev);
+	/*
+	* The virtio device may have constrains on the maximum segment size.
+	* Calculate how many segments we need.
+	*/
+	u32 seg_cnt = (blkcnt * 512) / priv->size_max + 1;
+	lbaint_t seg_sec_cnt = priv->size_max / 512;
 	struct virtio_blk_outhdr out_hdr;
 	struct virtio_blk_discard_write_zeroes wz_hdr;
 	unsigned int num_out = 0, num_in = 0;
-	struct virtio_sg hdr_sg, wz_sg, data_sg, status_sg;
-	struct virtio_sg *sgs[3];
-	u8 status;
+	struct virtio_sg **sgs;
+	u8 status = VIRTIO_BLK_S_IOERR;
 	int ret;
+	u32 i;
 
-	sector <<= priv->blksz_shift;
-	blkcnt <<= priv->blksz_shift;
-	virtio_blk_init_header_sg(dev, sector, type, &out_hdr, &hdr_sg);
-	sgs[num_out++] = &hdr_sg;
+	/*
+	* +2 is header and status descriptor; seg_cnt is the number of data segments
+	* required. Needs to be dynamically allocated.
+	*/
+	sgs = calloc(seg_cnt + 2, sizeof(struct virtio_sg *));
+	if (!sgs)
+		return -ENOMEM;
+
+	for (i = 0; i < seg_cnt + 2; ++i) {
+		sgs[i] = malloc(sizeof(struct virtio_sg));
+		if (!sgs[i])
+			goto err_free;
+	}
+
+	virtio_blk_init_header_sg(dev, sector, type, &out_hdr, sgs[num_out++]);
 
 	switch (type) {
 	case VIRTIO_BLK_T_IN:
-	case VIRTIO_BLK_T_OUT:
-		virtio_blk_init_data_sg(buffer, blkcnt, &data_sg);
-		if (type & VIRTIO_BLK_T_OUT)
-			sgs[num_out++] = &data_sg;
-		else
-			sgs[num_out + num_in++] = &data_sg;
-		break;
+	case VIRTIO_BLK_T_OUT: {
+		i = 0;
+		while (i < blkcnt) {
+			u32 blk_per_seg = min(blkcnt - i, seg_sec_cnt);
 
+			if (type & VIRTIO_BLK_T_OUT)
+				virtio_blk_init_data_sg(buffer + i * 512, blk_per_seg,
+							sgs[num_out++]);
+			else
+				virtio_blk_init_data_sg(buffer + i * 512, blk_per_seg,
+							sgs[num_out + num_in++]);
+			i += blk_per_seg;
+		}
+		break;
+	}
 	case VIRTIO_BLK_T_WRITE_ZEROES:
-		virtio_blk_init_write_zeroes_sg(dev, sector, blkcnt, &wz_hdr, &wz_sg);
-		sgs[num_out++] = &wz_sg;
+		virtio_blk_init_write_zeroes_sg(dev, sector, blkcnt, &wz_hdr,
+						sgs[num_out++]);
 		break;
 
 	default:
-		return -EINVAL;
+		goto err_free;
 	}
 
-	virtio_blk_init_status_sg(&status, &status_sg);
-	sgs[num_out + num_in++] = &status_sg;
+	virtio_blk_init_status_sg(&status, sgs[num_out + num_in++]);
 	log_debug("dev=%s, active=%d, priv=%p, priv->vq=%p\n", dev->name,
 		  device_active(dev), priv, priv->vq);
 
 	ret = virtqueue_add(priv->vq, sgs, num_out, num_in);
 	if (ret)
-		return ret;
+		goto err_free;
 
 	virtqueue_kick(priv->vq);
 
@@ -119,7 +154,40 @@ static ulong virtio_blk_do_req(struct udevice *dev, u64 sector,
 		;
 	log_debug("done\n");
 
-	return status == VIRTIO_BLK_S_OK ? blkcnt >> priv->blksz_shift : -EIO;
+err_free:
+	for (i = 0; i < seg_cnt + 2; ++i)
+		free(sgs[i]);
+	free(sgs);
+
+	return status == VIRTIO_BLK_S_OK ? blkcnt : -EIO;
+}
+
+static ulong virtio_blk_do_req(struct udevice *dev, u64 sector,
+			       lbaint_t blkcnt, char *buffer, u32 type)
+{
+	struct virtio_blk_priv *priv = dev_get_priv(dev);
+	lbaint_t seg_sec_cnt = priv->size_max / 512;
+	u32 i = 0;
+	ulong ret;
+
+	sector <<= priv->blksz_shift;
+	blkcnt <<= priv->blksz_shift;
+
+	/*
+	* The virtio device may have constrains on the maximum segment count. So
+	* send multiple virtio requests one after each other, if so.
+	*/
+	while (i < blkcnt) {
+		u32 blk_per_sg = min(blkcnt - i, seg_sec_cnt * priv->seg_max);
+
+		ret = virtio_blk_do_single_req(dev, sector + i, blk_per_sg,
+					       buffer + i * 512, type);
+		if (IS_ERR_VALUE(ret))
+			return ret;
+		i += blk_per_sg;
+	}
+
+	return blkcnt >> priv->blksz_shift;
 }
 
 static ulong virtio_blk_read(struct udevice *dev, lbaint_t start,
@@ -206,6 +274,15 @@ static int virtio_blk_probe(struct udevice *dev)
 	desc->log2blksz = LOG2(desc->blksz);
 	priv->blksz_shift = desc->log2blksz - 9;
 	desc->lba >>= priv->blksz_shift;
+
+	if (virtio_has_feature(dev, VIRTIO_BLK_F_SIZE_MAX))
+		virtio_cread(dev, struct virtio_blk_config, size_max, &priv->size_max);
+	else
+		priv->size_max = -1U;
+	if (virtio_has_feature(dev, VIRTIO_BLK_F_SEG_MAX))
+		virtio_cread(dev, struct virtio_blk_config, seg_max, &priv->seg_max);
+	else
+		priv->seg_max = -1U;
 
 	return 0;
 }

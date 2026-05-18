@@ -40,6 +40,7 @@ static int dm_test_virtio_base(struct unit_test_state *uts)
 	ut_assertok(virtio_get_status(dev, &status));
 	ut_asserteq(VIRTIO_CONFIG_S_DRIVER |
 		    VIRTIO_CONFIG_S_DRIVER_OK |
+		    VIRTIO_CONFIG_S_ACKNOWLEDGE |
 		    VIRTIO_CONFIG_S_FEATURES_OK, status);
 
 	return 0;

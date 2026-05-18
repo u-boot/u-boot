@@ -1,0 +1,16 @@
+phyCORE-i.MX91/93
+M:      Mathieu Othacehe <m.othacehe@gmail.com>
+R:      Christoph Stoidner <c.stoidner@phytec.de>
+L:      upstream@lists.phytec.de
+W:      https://www.phytec.eu/en/produkte/system-on-modules/phycore-imx-91-93/
+S:      Maintained
+F:      arch/arm/dts/imx91-93-phyboard-segin-common-u-boot.dtsi
+F:      arch/arm/dts/imx91-phyboard-segin-u-boot.dtsi
+F:      arch/arm/dts/imx93-phyboard-segin-u-boot.dtsi
+F:      board/phytec/phycore_imx91_93/
+F:      board/phytec/common/imx91_93_som_detection.c
+F:      board/phytec/common/imx91_93_som_detection.h
+F:      configs/imx91-phycore_defconfig
+F:      configs/imx93-phycore_defconfig
+F:      include/configs/phycore_imx91_93.h
+F:      doc/board/phytec/imx91-93-phycore.rst

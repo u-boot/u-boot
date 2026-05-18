@@ -65,6 +65,6 @@ U_BOOT_ENV_LOCATION(nvram) = {
 	.location	= ENVL_NVRAM,
 	ENV_NAME("NVRAM")
 	.load		= env_nvram_load,
-	.save		= env_save_ptr(env_nvram_save),
+	.save		= ENV_SAVE_PTR(env_nvram_save),
 	.init		= env_nvram_init,
 };

@@ -41,7 +41,8 @@ config TARGET_VEXPRESS64_BASER_FVP
 config TARGET_VEXPRESS64_JUNO
 	bool "Support Versatile Express Juno Development Platform"
 	select PCIE_ECAM_GENERIC if PCI
-	select SATA_SIL
+	select SATA if PCI
+	select SATA_SIL if PCI
 	select SMC911X if DM_ETH
 	select SMC911X_32_BIT if SMC911X
 	select CMD_USB if USB

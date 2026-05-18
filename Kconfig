@@ -468,11 +468,40 @@ config TOOLS_DEBUG
 	  it is possible to set breakpoints on particular lines, single-step
 	  debug through the source code, etc.
 
+config SKIP_EARLY_DM
+	bool "Skips initialising device model pre-relocation"
+	help
+	  Enable this option to skip scanning and probing devices prior to
+	  U-Boot relocation (during board_f). Unless console support is disabled
+	  a serial port is still required, however this can be found through
+	  /chosen/stdout-path in FDT. If the serial port relies on other devices
+	  like clocks these will also be bound and probed on demand.
+
+	  This can speed up time to interactive console by about 50%, particularly
+	  when combined with OF_LIVE.
+
 config SKIP_RELOCATE
 	bool "Skips relocation of U-Boot to end of RAM"
 	help
 	  Skips relocation of U-Boot allowing for systems that have extremely
 	  limited RAM to run U-Boot.
+
+config SKIP_RELOCATE_CODE
+	bool
+	help
+	  Skips relocation of U-Boot code to the end of RAM, but still does
+	  relocate data to the end of RAM. This is mainly meant to relocate
+	  data to read-write portion of the RAM, while the code remains in
+	  read-only portion of the RAM from which it is allowed to execute.
+	  This split configuration is present on various secure cores.
+
+config SKIP_RELOCATE_CODE_DATA_OFFSET
+	hex
+	default 0x0
+	depends on SKIP_RELOCATE_CODE
+	help
+	  Offset of the read-write memory which contains data, from read-only
+	  memory which contains executable text.
 
 endif # EXPERT
 
@@ -522,7 +551,7 @@ config BUILD_TARGET
 	default "u-boot-elf.srec" if RCAR_64
 	default "u-boot-with-spl.bin" if ARCH_AT91 && SPL_NAND_SUPPORT
 	default "u-boot-with-spl.bin" if MPC85xx && !E500MC && !E5500 && !E6500 && SPL
-	default "u-boot-with-spl.imx" if ARCH_MX6 && SPL
+	default "u-boot-with-spl.imx" if (ARCH_MX6 || ARCH_MX7) && SPL
 	default "u-boot-with-spl.kwb" if ARMADA_32BIT && SPL
 	default "u-boot-with-spl.sfp" if ARCH_SOCFPGA_ARRIA10
 	default "u-boot-with-spl.sfp" if ARCH_SOCFPGA_GEN5
@@ -774,41 +803,7 @@ source "dts/Kconfig"
 
 source "env/Kconfig"
 
-menu "Networking"
-
-choice
-	prompt "Networking stack"
-	default NET
-
-config NO_NET
-	bool "No networking support"
-	help
-	  Do not include networking support
-
-config NET
-	bool "Legacy U-Boot networking stack"
-	imply NETDEVICES
-	help
-	  Include networking support with U-Boot's internal implementation of
-	  the TCP/IP protocol stack.
-
-config NET_LWIP
-	bool "Use lwIP for networking stack"
-	imply NETDEVICES
-	help
-	  Include networking support based on the lwIP (lightweight IP)
-	  TCP/IP stack (https://nongnu.org/lwip). This is a replacement for
-	  the default U-Boot network stack and applications located in net/
-	  and enabled via CONFIG_NET as well as other pieces of code that
-	  depend on CONFIG_NET (such as cmd/net.c enabled via CONFIG_CMD_NET).
-	  Therefore the two symbols CONFIG_NET and CONFIG_NET_LWIP are mutually
-	  exclusive.
-
-endchoice
-
 source "net/Kconfig"
-
-endmenu
 
 source "drivers/Kconfig"
 

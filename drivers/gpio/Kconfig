@@ -383,6 +383,7 @@ config OMAP_GPIO
 
 config CMD_PCA953X
 	bool "Enable the pca953x command"
+	depends on PCA953X
 	help
 	  Deprecated: This should be converted to driver model.
 
@@ -730,6 +731,12 @@ config SLG7XL45106_I2C_GPO
 	   Support for slg7xl45106 i2c gpo expander. It is an i2c based
 	   8-bit gpo expander, all gpo lines are controlled by writing
 	   value into data register.
+
+config GPIO_SCMI
+	bool "SCMI GPIO pinctrl driver"
+	depends on DM_GPIO && PINCTRL_SCMI
+	help
+	   Support pinctrl GPIO over the SCMI interface.
 
 config ADP5585_GPIO
 	bool "ADP5585 GPIO driver"

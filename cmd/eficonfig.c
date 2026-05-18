@@ -6,8 +6,9 @@
  */
 
 #include <ansi.h>
-#include <cli.h>
 #include <charset.h>
+#include <cli.h>
+#include <console.h>
 #include <efi_device_path.h>
 #include <efi_loader.h>
 #include <efi_load_initrd.h>
@@ -167,8 +168,7 @@ static void eficonfig_menu_adjust(struct efimenu *efi_menu, bool add)
 void eficonfig_print_msg(char *msg)
 {
 	/* Flush input */
-	while (tstc())
-		getchar();
+	console_flush_stdin();
 
 	printf(ANSI_CURSOR_HIDE
 	       ANSI_CLEAR_CONSOLE
@@ -2466,12 +2466,8 @@ static int do_eficonfig(struct cmd_tbl *cmdtp, int flag, int argc, char *const a
 		return CMD_RET_USAGE;
 
 	ret = efi_init_obj_list();
-	if (ret != EFI_SUCCESS) {
-		log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-			ret & ~EFI_ERROR_MASK);
-
+	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
-	}
 
 	ret = eficonfig_init();
 	if (ret != EFI_SUCCESS)

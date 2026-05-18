@@ -232,7 +232,7 @@ void set_board_info_env(void)
 		env_set("seboot_version", buf);
 	env_set("fw_version", PLAIN_VERSION);
 
-	if (IS_ENABLED(CONFIG_NET)) {
+	if (IS_ENABLED(CONFIG_NET_LEGACY)) {
 		int mac_cnt;
 
 		mac_cnt = sysinfo_get_item_count(sysinfo, SYSID_BOARD_MAC_ADDR);

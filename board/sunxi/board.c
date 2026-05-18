@@ -563,8 +563,8 @@ static void sunxi_spl_store_dram_size(phys_addr_t dram_size)
 static void status_led_init(void)
 {
 #if CONFIG_IS_ENABLED(SUNXI_LED_STATUS)
-	unsigned int state = CONFIG_SPL_SUNXI_LED_STATUS_STATE;
-	unsigned int gpio = CONFIG_SPL_SUNXI_LED_STATUS_BIT;
+	unsigned int state = IS_ENABLED(CONFIG_SPL_SUNXI_LED_STATUS_ACTIVE_HIGH);
+	unsigned int gpio = CONFIG_SPL_SUNXI_LED_STATUS_GPIO;
 
 	gpio_request(gpio, "gpio_led");
 	gpio_direction_output(gpio, state);

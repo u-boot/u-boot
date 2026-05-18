@@ -1686,7 +1686,7 @@ static int fsl_esdhc_bind(struct udevice *dev)
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
-U_BOOT_DRIVER(fsl_esdhc) = {
+U_BOOT_DRIVER(fsl_esdhc_imx) = {
 	.name	= "fsl_esdhc",
 	.id	= UCLASS_MMC,
 	.of_match = fsl_esdhc_ids,

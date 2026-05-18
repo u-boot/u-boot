@@ -11,7 +11,7 @@ config DFU_OVER_USB
 
 config DFU_OVER_TFTP
 	bool
-	depends on NET
+	depends on NET_LEGACY
 
 config DFU_WRITE_ALT
 	bool

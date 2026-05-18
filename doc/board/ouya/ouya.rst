@@ -5,7 +5,7 @@ U-Boot for the Ouya Game Console (ouya)
 
 ``DISCLAMER!`` Moving your Ouya to use U-Boot assumes replacement of the
 vendor bootloader. Vendor android firmwares will no longer be able to run on the
-device. This replacement IS reversible.
+device. This replacement IS reversible if you have backups.
 
 Quick Start
 -----------
@@ -35,62 +35,44 @@ Process U-Boot
 in re-crypt repo issues. NOT HERE!
 
 re-crypt is a tool that processes the ``u-boot-dtb-tegra.bin`` binary into form
-usable by device. This process is required only on the first installation or
-to recover the device in case of a failed update.
-
-Permanent installation can be performed either by using the nv3p protocol or by
-pre-loading just built U-Boot into RAM.
-
-Processing for the NV3P protocol
-********************************
+usable by device. This process is required only on the first installation or to
+recover the device in case of a failed update. You need to know your device
+individual SBK to continue.
 
 .. code-block:: bash
 
     $ git clone https://gitlab.com/grate-driver/re-crypt.git
     $ cd re-crypt # place your u-boot-dtb-tegra.bin here
-    $ ./re-crypt.py --dev ouya
+    $ ./re-crypt.py --dev ouya --sbk <your sbk> --split
 
-The script will produce a ``repart-block.bin`` ready to flash.
+where SBK has next form ``0xXXXXXXXX`` ``0xXXXXXXXX`` ``0xXXXXXXXX`` ``0xXXXXXXXX``
 
-Processing for pre-loaded U-Boot
-********************************
-
-The procedure is the same, but the ``--split`` argument is used with the
-``re-crypt.py``. The script will produce ``bct.img`` and ``ebt.img`` ready
-to flash.
+The script will produce ``bct.img`` and ``ebt.img`` ready to flash.
 
 Flashing U-Boot into the eMMC
 -----------------------------
 
-Permanent installation can be performed either by using the nv3p protocol or by
-pre-loading just built U-Boot into RAM. Regardless of the method bct and bootloader
-will end up in boot0 and boot1 partitions of eMMC.
-
-Flashing with the NV3P protocol
-*******************************
-
-``DISCLAMER!`` All questions related to NvFlash should be asked in the proper
+``DISCLAMER!`` All questions related to fusee-tools should be asked in the proper
 place. NOT HERE! Flashing U-Boot will erase all eMMC, so make a backup before!
 
-Nv3p is a custom Nvidia protocol used to recover bricked devices. Devices can
-enter it by pre-loading vendor bootloader with the Fusée Gelée.
+Permanent installation can be performed by pre-loading just built U-Boot into RAM.
+Bct and bootloader will end up in boot0 and boot1 partitions of eMMC.
 
-With nv3p, ``repart-block.bin`` is used. It contains BCT and a bootloader in
-encrypted state in form, which can just be written RAW at the start of eMMC.
+You have to clone and prepare fusee-tools from here: https://gitlab.com/grate-driver/fusee-tools
+according to fusee-tools README to continue.
 
-.. code-block:: bash
-
-    $ ./run_bootloader.sh -s T30 -t ./bct/ouya.bct -b android_bootloader.bin
-    $ ./utiils/nvflash_v1.13.87205 --resume --rawdevicewrite 0 1024 repart-block.bin
-
-When flashing is done, reboot the device.
-
-Flashing with a pre-loaded U-Boot
-*********************************
+Bootloader preloading is performed to device in APX/RCM mode connected to host
+PC. This mode can be entered from testpad on motherboard with device connected
+to the host PC. Host PC should detect APX USB device in ``lsusb``.
 
 U-Boot pre-loaded into RAM acts the same as when it was booted "cold". Currently
 U-Boot supports bootmenu entry fastboot, which allows to write a processed copy
-of U-Boot permanently into eMMC.
+of U-Boot permanently into eMMC. This is how U-Boot can be preloaded using
+fusee-tools:
+
+.. code-block:: bash
+
+    $ ./run_bootloader.sh -s T30 -t ./bct/ouya.bct --b u-boot-dtb-tegra.bin
 
 While pre-loading U-Boot, interrupt bootflow by pressing ``CTRL + C`` (USB keyboard
 must be plugged in before U-Boot is preloaded, else it will not work), input
@@ -113,8 +95,8 @@ bootmenu provides entries to mount eMMC as mass storage, fastboot, reboot,
 reboot RCM, poweroff, enter U-Boot console and update bootloader (check
 the next chapter).
 
-Flashing ``repart-block.bin`` eliminates vendor restrictions on eMMC and allows
-the user to use/partition it in any way the user desires.
+Flashing ``bct.img`` and ``ebt.img`` eliminates vendor restrictions on eMMC and
+allows the user to use/partition it in any way the user desires.
 
 Self Upgrading
 --------------

@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Copyright (c) 2023-2026 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+# D-82229 Seefeld, Germany.
+# Author: Markus Niebel, Max Merchel
+#
+
+config TQ_COMMON_BB
+	bool
+	default y
+
+config TQ_COMMON_SDMMC
+	bool
+
+config TQ_COMMON_SOM
+	bool

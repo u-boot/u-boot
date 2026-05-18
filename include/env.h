@@ -9,6 +9,7 @@
 #ifndef __ENV_H
 #define __ENV_H
 
+#include <config.h>
 #include <compiler.h>
 #include <stdbool.h>
 #include <linux/types.h>
@@ -159,6 +160,25 @@ bool env_get_autostart(void);
  * Return: 0 if OK, 1 on error
  */
 int env_set(const char *varname, const char *value);
+
+/**
+ * env_set_runtime() - set an environment variable if
+ * CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG is set.
+ *
+ * This is equivalent to env_set(), but does nothing if
+ * CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG is unset.
+ *
+ * @varname: Variable to adjust
+ * @value: Value to set for the variable, or NULL or "" to delete the variable
+ * @return 0 if OK or !CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG, 1 on error
+ */
+static inline int env_set_runtime(const char *varname, const char *value)
+{
+	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG))
+		return env_set(varname, value);
+
+	return 0;
+}
 
 /**
  * env_get_ulong() - Return an environment variable as an integer value

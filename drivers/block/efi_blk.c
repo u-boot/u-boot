@@ -79,7 +79,7 @@ static const struct blk_ops efi_blk_ops = {
 	.write	= efi_bl_write,
 };
 
-U_BOOT_DRIVER(efi_block) = {
+U_BOOT_DRIVER(efi_media_block) = {
 	.name		= "efi_block",
 	.id		= UCLASS_BLK,
 	.ops		= &efi_blk_ops,

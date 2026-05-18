@@ -166,8 +166,9 @@ enum {
  *		When CONFIG_DEVRES is enabled, devm_kmalloc() and friends will
  *		add to this list. Memory so-allocated will be freed
  *		automatically when the device is removed / unbound
- * @dma_offset: Offset between the physical address space (CPU's) and the
- *		device's bus address space
+ * @dma_cpu: DMA physical address space (CPU's)
+ * @dma_bus: DMA device's bus address space
+ * @dma_size: DMA window size
  * @iommu: IOMMU device associated with this device
  */
 struct udevice {
@@ -196,7 +197,9 @@ struct udevice {
 	struct list_head devres_head;
 #endif
 #if CONFIG_IS_ENABLED(DM_DMA)
-	ulong dma_offset;
+	phys_addr_t dma_cpu;
+	dma_addr_t dma_bus;
+	u64 dma_size;
 #endif
 #if CONFIG_IS_ENABLED(IOMMU)
 	struct udevice *iommu;
@@ -271,14 +274,6 @@ static inline __attribute_const__ ofnode dev_ofnode(const struct udevice *dev)
 
 /* Returns non-zero if the device is active (probed and not removed) */
 #define device_active(dev)	(dev_get_flags(dev) & DM_FLAG_ACTIVATED)
-
-#if CONFIG_IS_ENABLED(DM_DMA)
-#define dev_set_dma_offset(_dev, _offset)	_dev->dma_offset = _offset
-#define dev_get_dma_offset(_dev)		_dev->dma_offset
-#else
-#define dev_set_dma_offset(_dev, _offset)
-#define dev_get_dma_offset(_dev)		0
-#endif
 
 static inline __attribute_const__ int dev_of_offset(const struct udevice *dev)
 {

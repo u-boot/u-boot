@@ -235,7 +235,7 @@ int eth_rx(void);			/* Check for received packets */
  */
 void reset_phy(void);
 
-#if CONFIG_IS_ENABLED(NET) || CONFIG_IS_ENABLED(NET_LWIP)
+#if CONFIG_IS_ENABLED(NET)
 /**
  * eth_set_enable_bootdevs() - Enable or disable binding of Ethernet bootdevs
  *
@@ -485,7 +485,7 @@ int net_init(void);
 /* Called when a network operation fails to know if it should be re-tried */
 int net_start_again(void);
 
-/* NET compatibility */
+/* NET_LEGACY compatibility */
 enum proto_t;
 int net_loop(enum proto_t protocol);
 

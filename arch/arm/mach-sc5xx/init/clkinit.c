@@ -6,7 +6,7 @@
  *
  */
 
-#include <asm/arch-adi/sc5xx/sc5xx.h>
+#include <asm/arch/sc5xx.h>
 #include <asm/io.h>
 #include <linux/types.h>
 #include "clkinit.h"

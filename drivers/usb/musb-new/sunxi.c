@@ -545,7 +545,7 @@ static const struct udevice_id sunxi_musb_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(usb_musb) = {
+U_BOOT_DRIVER(musb_sunxi) = {
 	.name		= "sunxi-musb",
 #ifdef CONFIG_USB_MUSB_HOST
 	.id		= UCLASS_USB,

@@ -5,42 +5,29 @@
 # (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-y	:= cache.o cpu.o state.o initjmp.o
-extra-y	:= start.o os.o
+obj-y	:= cache.o cpu.o state.o initjmp.o os.o
+extra-y	:= start.o
 extra-$(CONFIG_SANDBOX_SDL)    += sdl.o
 obj-$(CONFIG_XPL_BUILD)	+= spl.o
 obj-$(CONFIG_ETH_SANDBOX_RAW)	+= eth-raw-os.o
 
-# os.c is build in the system environment, so needs standard includes
-# CFLAGS_REMOVE_os.o cannot be used to drop header include path
-quiet_cmd_cc_os.o = CC $(quiet_modtag)  $@
-cmd_cc_os.o = $(CC) $(filter-out -nostdinc, \
-	$(patsubst -I%,-idirafter%,$(c_flags))) -c -o $@ $<
+# These files need to be built with system headers, since they use system
+# calls or system-level interfaces. Generate a custom compile rule for each
+# one that drops -nostdinc and converts -I to -idirafter.
+CFLAGS_USE_SYSHDRS := eth-raw-os.o initjmp.o os.o sdl.o
 
-$(obj)/os.o: $(src)/os.c FORCE
-	$(call if_changed_dep,cc_os.o)
+define syshdrs_rule
+quiet_cmd_cc_$(1) = CC $$(quiet_modtag)  $$@
+cmd_cc_$(1) = $$(CC) $$(filter-out -nostdinc, \
+	$$(patsubst -I%,-idirafter%,$$(c_flags))) -c -o $$@ $$<
 
-# eth-raw-os.c is built in the system env, so needs standard includes
-# CFLAGS_REMOVE_eth-raw-os.o cannot be used to drop header include path
-quiet_cmd_cc_eth-raw-os.o = CC $(quiet_modtag)  $@
-cmd_cc_eth-raw-os.o = $(CC) $(filter-out -nostdinc, \
-	$(patsubst -I%,-idirafter%,$(c_flags))) -c -o $@ $<
+$$(obj)/$(1): $$(src)/$(1:.o=.c) FORCE
+	$$(call if_changed_dep,cc_$(1))
+endef
 
-$(obj)/eth-raw-os.o: $(src)/eth-raw-os.c FORCE
-	$(call if_changed_dep,cc_eth-raw-os.o)
+$(foreach f,$(CFLAGS_USE_SYSHDRS),$(eval $(call syshdrs_rule,$(f))))
 
-# initjmp.c is build in the system environment, so needs standard includes
-# CFLAGS_REMOVE_initjmp.o cannot be used to drop header include path
-quiet_cmd_cc_initjmp.o = CC $(quiet_modtag)  $@
-cmd_cc_initjmp.o = $(CC) $(filter-out -nostdinc, \
-	$(patsubst -I%,-idirafter%,$(c_flags))) -c -o $@ $<
-
-$(obj)/initjmp.o: $(src)/initjmp.c FORCE
-	$(call if_changed_dep,cc_initjmp.o)
-
-# sdl.c fails to build with -fshort-wchar using musl
+# sdl.c also needs -fshort-wchar removed (musl) and -fno-lto, so override
+# the generated rule
 cmd_cc_sdl.o = $(CC) $(filter-out -nostdinc -fshort-wchar, \
 	$(patsubst -I%,-idirafter%,$(c_flags))) -fno-lto -c -o $@ $<
-
-$(obj)/sdl.o: $(src)/sdl.c FORCE
-	$(call if_changed_dep,cc_sdl.o)

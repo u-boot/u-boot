@@ -73,6 +73,7 @@ config TARGET_KMTEPR2
 config TARGET_GAZERBEAM
 	bool "Support gazerbeam"
 	select ARCH_MPC8308
+	select REGMAP
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply ENV_IS_IN_FLASH
 	help

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2021 - 2022, Xilinx, Inc.
- * Copyright (C) 2022 - 2024, Advanced Micro Devices, Inc.
+ * Copyright (C) 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -18,7 +18,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if CONFIG_IS_ENABLED(PCIE_DW_AMD)
+#define VERSAL2_MEM_MAP_USED	6
+#else
 #define VERSAL2_MEM_MAP_USED	5
+#endif
 
 #define DRAM_BANKS CONFIG_NR_DRAM_BANKS
 
@@ -60,6 +64,16 @@ static struct mm_region versal2_mem_map[VERSAL2_MEM_MAP_MAX] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+#if CONFIG_IS_ENABLED(PCIE_DW_AMD)
+	}, {
+		/* PCIe DBI (1 MB) and config space (255 MB) are contiguous */
+		.virt = 0x100000000000UL,
+		.phys = 0x100000000000UL,
+		.size = 0x10000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+#endif
 	}
 };
 
@@ -69,7 +83,7 @@ static struct mm_region versal2_mem_map[VERSAL2_MEM_MAP_MAX] = {
  * @num_banks: Number of valid DRAM banks in bank_info array
  *
  * Copies DRAM bank information into the global versal2_mem_map[] array
- * starting at index VERSAL2_MEM_MAP_USED (5), which is after the fixed
+ * starting at index VERSAL2_MEM_MAP_USED, which is after the fixed
  * device mappings. This must be called early in boot before MMU
  * initialization so that get_page_table_size() can calculate the
  * required page table size based on actual memory configuration.

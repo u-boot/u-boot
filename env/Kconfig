@@ -259,6 +259,7 @@ config ENV_IS_IN_MMC
 config ENV_IS_IN_NAND
 	bool "Environment in a NAND device"
 	depends on !CHAIN_OF_TRUST
+	depends on MTD_RAW_NAND
 	help
 	  Define this if you have a NAND device which you want to use for the
 	  environment.
@@ -292,6 +293,23 @@ config ENV_IS_IN_SCSI
 	help
 	  Define this if you have an SCSI device which you want to use for the
 	  environment.
+
+	  - CONFIG_ENV_SIZE:
+
+	  The size of the partition where the environment is stored in bytes. Must
+	  be a multiple of the partition block size.
+
+	  - CONFIG_ENV_SCSI_HW_PARTITION:
+
+	  Specifies which SCSI partition the environment is stored in. If not
+	  set, defaults to partition 0, the user area. Common values might be
+	  1 (first SCSI boot partition), 2 (second SCSI boot partition). Ignored
+	  if CONFIG_ENV_SCSI_PART_UUID is set to non-empty string.
+
+	  - CONFIG_ENV_SCSI_PART_UUID:
+
+	  UUID of the SCSI partition where the environment is stored.
+
 
 config ENV_RANGE
 	hex "Length of the region in which the environment can be written"
@@ -762,7 +780,18 @@ config ENV_MMC_USE_DT
 	  The 2 defines CONFIG_ENV_OFFSET, CONFIG_ENV_OFFSET_REDUND
 	  are not used as fallback.
 
-config SCSI_ENV_PART_UUID
+config ENV_SCSI_HW_PARTITION
+	string "SCSI hardware partition number"
+	depends on ENV_IS_IN_SCSI
+	default 0
+	help
+	  SCSI hardware partition device number on the platform where the
+	  environment is stored.  Note that this is not related to any software
+	  defined partition table but instead if we are in the user area, which is
+	  partition 0 or the first boot partition, which is 1 or some other defined
+	  partition.
+
+config ENV_SCSI_PART_UUID
 	string "SCSI partition UUID for saving environment"
 	depends on ENV_IS_IN_SCSI
 	help
@@ -846,6 +875,7 @@ config SPL_ENV_IS_IN_MMC
 	bool "SPL Environment in an MMC device"
 	depends on !SPL_ENV_IS_NOWHERE
 	depends on !SPL_OS_BOOT_SECURE
+	depends on SPL_MMC
 	depends on ENV_IS_IN_MMC
 	default y
 	help

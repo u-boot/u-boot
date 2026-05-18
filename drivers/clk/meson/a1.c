@@ -712,7 +712,7 @@ static struct clk_ops meson_clk_ops = {
 #endif
 };
 
-U_BOOT_DRIVER(meson_clk) = {
+U_BOOT_DRIVER(meson_clk_a1) = {
 	.name		= "meson-clk-a1",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,

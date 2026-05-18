@@ -225,7 +225,7 @@ def test_efi_fit_launch(ubman):
 
         has_dhcp = ubman.config.buildconfig.get('config_cmd_dhcp', 'n') == 'y'
         if not has_dhcp:
-            ubman.log.warning('CONFIG_NET != y: Skipping static network setup')
+            ubman.log.warning('CONFIG_NET_LEGACY != y: Skipping static network setup')
             return False
 
         env_vars = ubman.config.env.get('env__net_static_env_vars', None)

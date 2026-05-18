@@ -22,6 +22,18 @@
 	bootph-pre-ram;
 };
 
+&pca9450 {
+	bootph-all;
+};
+
+&pinctrl_i2c1 {
+	bootph-all;
+};
+
+&pinctrl_pmic {
+	bootph-all;
+};
+
 &pinctrl_uart2 {
 	bootph-pre-ram;
 };
@@ -63,7 +75,7 @@
 };
 
 &i2c1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &i2c2 {
@@ -117,4 +129,8 @@
 	phy-reset-gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
 	phy-reset-duration = <15>;
 	phy-reset-post-delay = <100>;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@25/regulators} {
+	bootph-all;
 };

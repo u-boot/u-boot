@@ -7,6 +7,7 @@ config AHAB_BOOT
 
 config IMX9
 	bool
+	select ARCH_MISC_INIT
 	select BINMAN
 	select CPU
 	select CPU_IMX
@@ -22,7 +23,6 @@ config IMX93
 config IMX91
 	bool
 	select IMX9
-	select ARCH_MISC_INIT
 	select ARMV8_SPL_EXCEPTION_VECTORS
 
 config IMX95_A0
@@ -30,7 +30,6 @@ config IMX95_A0
 
 config IMX95
 	bool
-	select ARCH_MISC_INIT
 	select ARMV8_SPL_EXCEPTION_VECTORS
 	select IMX9
 	select DM_MAILBOX
@@ -129,6 +128,14 @@ config TARGET_KONTRON_MX93
 	  Kontron Electronics BL i.MX93 using SoM module conformant to OSM
 	  standard 1.1 size S.
 
+config TARGET_PHYCORE_IMX91
+	bool "phycore_imx91"
+	select IMX91
+	select IMX9_LPDDR4X
+	imply OF_UPSTREAM
+	select OF_BOARD_FIXUP
+	select OF_BOARD_SETUP
+
 config TARGET_PHYCORE_IMX93
 	bool "phycore_imx93"
 	select IMX93
@@ -161,6 +168,11 @@ config TARGET_IMX943_EVK
 config TARGET_TORADEX_SMARC_IMX95
 	bool "Support Toradex SMARC iMX95"
 	select IMX95
+	imply OF_UPSTREAM
+
+config TARGET_VERDIN_IMX95
+	bool "Support Toradex Verdin iMX95 module"
+	select IMX95
 
 config TARGET_IMX952_EVK
 	bool "imx952_evk"
@@ -181,11 +193,12 @@ source "board/nxp/imx93_evk/Kconfig"
 source "board/nxp/imx93_frdm/Kconfig"
 source "board/nxp/imx93_qsb/Kconfig"
 source "board/kontron/osm-s-mx93/Kconfig"
-source "board/phytec/phycore_imx93/Kconfig"
+source "board/phytec/phycore_imx91_93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
 source "board/nxp/imx94_evk/Kconfig"
 source "board/nxp/imx95_evk/Kconfig"
 source "board/toradex/smarc-imx95/Kconfig"
+source "board/toradex/verdin-imx95/Kconfig"
 source "board/nxp/imx952_evk/Kconfig"
 
 endif

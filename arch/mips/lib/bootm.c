@@ -268,12 +268,7 @@ static void boot_jump_linux(struct bootm_headers *images)
 	if (CONFIG_IS_ENABLED(MALTA))
 		linux_extra = gd->ram_size;
 
-#if IS_ENABLED(CONFIG_BOOTSTAGE_FDT)
-	bootstage_fdt_add_report();
-#endif
-#if IS_ENABLED(CONFIG_BOOTSTAGE_REPORT)
-	bootstage_report();
-#endif
+	bootm_final(0);
 
 	if (CONFIG_IS_ENABLED(RESTORE_EXCEPTION_VECTOR_BASE))
 		trap_restore();

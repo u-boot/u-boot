@@ -12,7 +12,6 @@
 #include <dm/device-internal.h>
 #include <dm/devres.h>
 #include <dm/lists.h>
-#include <eth_phy.h>
 #include <mapmem.h>
 #include <miiphy.h>
 #include <net.h>
@@ -909,6 +908,11 @@ static int airoha_eth_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	if (eth->switch_mdio_dev) {
+		if (!device_probe(eth->switch_mdio_dev))
+			debug("Warning: failed to probe airoha switch mdio\n");
+	}
+
 	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		if (!ofnode_device_is_compatible(node, "airoha,eth-mac"))
 			continue;
@@ -935,8 +939,6 @@ static int airoha_eth_port_probe(struct udevice *dev)
 {
 	struct airoha_eth *eth = (void *)dev_get_driver_data(dev);
 	struct airoha_gdm_port *port = dev_get_priv(dev);
-	struct mdio_perdev_priv *pdata;
-	struct mii_dev *mdio_bus;
 	int ret;
 
 	port->qdma = &eth->qdma[0];
@@ -945,7 +947,6 @@ static int airoha_eth_port_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	mdio_bus = NULL;
 	if (port->id > 1) {
 #if defined(CONFIG_PCS_AIROHA)
 		ret = airoha_pcs_init(dev);
@@ -953,23 +954,10 @@ static int airoha_eth_port_probe(struct udevice *dev)
 			return ret;
 
 		port->phydev = dm_eth_phy_connect(dev);
-		if (port->phydev)
-			mdio_bus = port->phydev->bus;
 #else
 		return -EINVAL;
 #endif
-	} else {
-		if (eth->switch_mdio_dev &&
-		    !device_probe(eth->switch_mdio_dev)) {
-			pdata = dev_get_uclass_priv(eth->switch_mdio_dev);
-			mdio_bus = pdata->mii_bus;
-		}
 	}
-
-#ifdef CONFIG_DM_ETH_PHY
-	if (!IS_ERR_OR_NULL(mdio_bus))
-		eth_phy_set_mdio_bus(dev, mdio_bus);
-#endif
 
 	return 0;
 }

@@ -92,6 +92,8 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 			images->rd_end - images->rd_start);
 	}
 
+	bootm_final(0);
+
 	/* Boot kernel */
 	kernel();
 

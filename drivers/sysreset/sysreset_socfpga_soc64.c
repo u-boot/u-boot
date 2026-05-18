@@ -80,7 +80,7 @@ static struct sysreset_ops socfpga_sysreset = {
 	.request = socfpga_sysreset_request,
 };
 
-U_BOOT_DRIVER(sysreset_socfpga) = {
+U_BOOT_DRIVER(sysreset_socfpga_soc64) = {
 	.id	= UCLASS_SYSRESET,
 	.name	= "socfpga_sysreset",
 	.ops	= &socfpga_sysreset,

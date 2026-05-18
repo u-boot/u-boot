@@ -31,6 +31,16 @@ The minimal QEMU command line to get U-Boot up and running is:
 Note that the `-nographic` option is used to redirect the console to stdio,
 which connects to the emulated Goldfish TTY device.
 
+Debugging U-Boot
+----------------
+
+If you need early debugging output enable `CONFIG_DEBUG_UART_GOLDFISH`.
+The base address for the UART can be found by activating the QEMU monitor,
+running `info qtree`, and then looking for the goldfish tty device and
+taking the mmio address.
+
+Baud rate doesn't matter.
+
 Hardware Support
 ----------------
 The following QEMU virt peripherals are supported in U-Boot:

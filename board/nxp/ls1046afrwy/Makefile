@@ -4,4 +4,4 @@
 
 obj-y += ddr.o
 obj-y += ls1046afrwy.o
-obj-$(CONFIG_NET) += eth.o
+obj-$(CONFIG_NET_LEGACY) += eth.o

@@ -12,7 +12,7 @@
 	.syntax unified
 #endif
 
-#ifdef CONFIG_CPU_V7M
+#ifdef CONFIG_CPU_V7M_V8M
 #define AR_CLASS(x...)
 #define M_CLASS(x...)	x
 #else

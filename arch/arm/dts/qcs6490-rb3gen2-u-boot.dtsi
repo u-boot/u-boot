@@ -17,10 +17,6 @@
 	};
 };
 
-&usb_1 {
-	dr_mode = "host";
-};
-
 // RAM Entry 0 : Base 0x0080000000  Size 0x003A800000
 // RAM Entry 1 : Base 0x00C0000000  Size 0x0001800000
 // RAM Entry 2 : Base 0x00C3400000  Size 0x003CC00000

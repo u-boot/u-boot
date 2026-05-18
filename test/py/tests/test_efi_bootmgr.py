@@ -5,7 +5,7 @@
 import shutil
 import pytest
 from subprocess import call, check_call, CalledProcessError
-from tests import fs_helper
+from tests.fs_helper import DiskHelper, FsHelper
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_efidebug')
@@ -20,22 +20,19 @@ def test_efi_bootmgr(ubman):
     Args:
         ubman -- U-Boot console
     """
-    try:
-        efi_bootmgr_data, mnt = fs_helper.setup_image(ubman, 0, 0xc,
-                                                      basename='test_efi_bootmgr')
+    with DiskHelper(ubman.config, 0, 'test_efi_bootmgr') as img, \
+            FsHelper(ubman.config, 'vfat', 1, 'test_efi_bootmgr') as fsh:
+        with open(f'{fsh.srcdir}/initrd-1.img', 'w', encoding = 'ascii') as outf:
+            outf.write("initrd 1")
+        with open(f'{fsh.srcdir}/initrd-2.img', 'w', encoding = 'ascii') as outf:
+            outf.write("initrd 2")
+        shutil.copyfile(
+            ubman.config.build_dir + '/lib/efi_loader/initrddump.efi',
+            f'{fsh.srcdir}/initrddump.efi')
+        fsh.mk_fs()
 
-        with open(mnt + '/initrd-1.img', 'w', encoding = 'ascii') as file:
-            file.write("initrd 1")
-
-        with open(mnt + '/initrd-2.img', 'w', encoding = 'ascii') as file:
-            file.write("initrd 2")
-
-        shutil.copyfile(ubman.config.build_dir + '/lib/efi_loader/initrddump.efi',
-                        mnt + '/initrddump.efi')
-
-        fsfile = fs_helper.mk_fs(ubman.config, 'vfat', 0x100000,
-                                 'test_efi_bootmgr', mnt)
-        check_call(f'dd if={fsfile} of={efi_bootmgr_data} bs=1M seek=1', shell=True)
+        img.add_fs(fsh, DiskHelper.VFAT)
+        efi_bootmgr_data = img.create()
 
         ubman.run_command(cmd = f'host bind 0 {efi_bootmgr_data}')
 
@@ -61,10 +58,3 @@ def test_efi_bootmgr(ubman):
 
         ubman.run_command(cmd = 'efidebug boot rm 0001')
         ubman.run_command(cmd = 'efidebug boot rm 0002')
-    except CalledProcessError as err:
-        pytest.skip('Preparing test_efi_bootmgr image failed')
-        call('rm -f %s' % efi_bootmgr_data, shell=True)
-        return
-    finally:
-        call('rm -rf %s' % mnt, shell=True)
-        call('rm -f %s' % efi_bootmgr_data, shell=True)

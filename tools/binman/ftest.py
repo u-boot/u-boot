@@ -5895,6 +5895,27 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             data = self._DoReadFileDtb('security/pre_load_invalid_key.dts',
                                        entry_args=entry_args)
 
+    def testPreLoadEncryptedFit(self):
+        """Test an encrypted FIT image with a pre-load header"""
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
+        data = tools.read_file(self.TestFile("fit/aes256.bin"))
+        self._MakeInputFile("keys/aes256.bin", data)
+
+        keys_subdir = os.path.join(self._indir, "keys")
+        data = self._DoReadFileDtb(
+            'security/pre_load_fit_encrypted.dts', entry_args=entry_args,
+            extra_indirs=[keys_subdir])[0]
+
+        image_fname = tools.get_output_filename('image.bin')
+        is_signed = self._CheckPreload(image_fname, self.TestFile("dev.key"))
+
+        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
+        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
+        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+        self.assertEqual(is_signed, True)
+
     def _CheckSafeUniqueNames(self, *images):
         """Check all entries of given images for unsafe unique names"""
         for image in images:
@@ -7560,7 +7581,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self._CheckBintool(p11_kit)
 
         p11_kit_config = configparser.ConfigParser()
-        out = tools.run('p11-kit', 'print-config')
+        out = p11_kit.run_cmd('print-config')
         p11_kit_config.read_string(out)
         softhsm2_lib = p11_kit_config.get('softhsm2', 'module',
                                            fallback=None)
@@ -7569,16 +7590,16 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         with unittest.mock.patch.dict('os.environ',
                                       {'SOFTHSM2_CONF': softhsm2_conf,
                                        'PKCS11_MODULE_PATH': softhsm2_lib}):
-                tools.run('softhsm2-util', '--init-token', '--free', '--label',
-                          'U-Boot token', '--pin', '1111', '--so-pin',
-                          '222222')
-                tools.run('pkcs11-tool', '--module', softhsm2_lib,
-                          '--write-object', cert_file, '--pin', '1111',
-                          '--type', 'cert', '--id', '999999', '--label',
-                          'test_cert', '--login')
-                tools.run('softhsm2-util', '--import', private_key, '--token',
-                          'U-Boot token', '--label', 'test_key', '--id', '999999',
-                          '--pin', '1111')
+                softhsm2_util.run_cmd('--init-token', '--free', '--label',
+                                      'U-Boot token', '--pin', '1111',
+                                      '--so-pin', '222222')
+                pkcs11_tool.run_cmd('--module', softhsm2_lib,
+                                    '--write-object', cert_file, '--pin', '1111',
+                                    '--type', 'cert', '--id', '999999', '--label',
+                                    'test_cert', '--login')
+                softhsm2_util.run_cmd('--import', private_key, '--token',
+                                      'U-Boot token', '--label', 'test_key',
+                                      '--id', '999999', '--pin', '1111')
                 data = self._DoReadFile('capsule/signed_pkcs11.dts')
 
         self._CheckCapsule(data, signed_capsule=True)
@@ -8230,12 +8251,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         with unittest.mock.patch.dict('os.environ',
                                       {'SOFTHSM2_CONF': softhsm2_conf}):
-            tools.run('softhsm2-util', '--init-token', '--free', '--label',
-                      'U-Boot token', '--pin', '1111', '--so-pin',
-                      '222222')
-            tools.run('softhsm2-util', '--import', private_key, '--token',
-                      'U-Boot token', '--label', 'test_key', '--id', '999999',
-                      '--pin', '1111')
+            softhsm2_util.run_cmd('--init-token', '--free', '--label',
+                                  'U-Boot token', '--pin', '1111',
+                                  '--so-pin', '222222')
+            softhsm2_util.run_cmd('--import', private_key, '--token',
+                                  'U-Boot token', '--label', 'test_key',
+                                  '--id', '999999', '--pin', '1111')
 
         # Make sure the private key can only be accessed through the engine
         os.remove(private_key)
@@ -8305,12 +8326,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         with unittest.mock.patch.dict('os.environ',
                                       {'SOFTHSM2_CONF': softhsm2_conf}):
-            tools.run('softhsm2-util', '--init-token', '--free', '--label',
-                      'U-Boot prod token', '--pin', '1234', '--so-pin',
-                      '222222')
-            tools.run('softhsm2-util', '--import', private_key, '--token',
-                      'U-Boot prod token', '--label', 'prod', '--id', '999999',
-                      '--pin', '1234')
+            softhsm2_util.run_cmd('--init-token', '--free', '--label',
+                                  'U-Boot prod token', '--pin', '1234',
+                                  '--so-pin', '222222')
+            softhsm2_util.run_cmd('--import', private_key, '--token',
+                                  'U-Boot prod token', '--label', 'prod',
+                                  '--id', '999999', '--pin', '1234')
 
         # Make sure the private key can only be accessed through the engine
         os.remove(private_key)

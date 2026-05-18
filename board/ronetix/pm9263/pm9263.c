@@ -70,11 +70,6 @@ static void pm9263_nand_hw_init(void)
 }
 #endif
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int board_init(void)
 {
 	/* arch number of PM9263 Board */

@@ -48,7 +48,8 @@ config APPLE_SPI_KEYB
 
 config BUTTON_KEYBOARD
 	bool "Buttons as keyboard"
-	depends on DM_KEYBOARD
+	depends on DM_KEYBOARD && DM_GPIO
+	select BUTTON
 	select BUTTON_GPIO
 	help
 	  Enable support for mapping buttons to keycode events. Use linux,code button driver
@@ -63,7 +64,7 @@ config CPCAP_POWER_BUTTON
 
 config CROS_EC_KEYB
 	bool "Enable Chrome OS EC keyboard support"
-	depends on INPUT
+	depends on INPUT && CROS_EC
 	help
 	  Most ARM Chromebooks use an EC to provide access to the keyboard.
 	  Messages are used to request key scans from the EC and these are
@@ -71,7 +72,7 @@ config CROS_EC_KEYB
 
 config SPL_CROS_EC_KEYB
 	bool "Enable Chrome OS EC keyboard support in SPL"
-	depends on SPL_INPUT
+	depends on SPL_INPUT && SPL_CROS_EC
 	help
 	  Most ARM Chromebooks use an EC to provide access to the keyboard.
 	  Messages are used to request key scans from the EC and these are
@@ -79,7 +80,7 @@ config SPL_CROS_EC_KEYB
 
 config TPL_CROS_EC_KEYB
 	bool "Enable Chrome OS EC keyboard support in TPL"
-	depends on TPL_INPUT
+	depends on TPL_INPUT && TPL_CROS_EC
 	help
 	  Most ARM Chromebooks use an EC to provide access to the keyboard.
 	  Messages are used to request key scans from the EC and these are

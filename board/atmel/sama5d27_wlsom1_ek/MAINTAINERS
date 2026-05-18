@@ -1,6 +1,6 @@
 SAMA5D27 WLSOM1 EK BOARD
 M:	Nicolas Ferre <nicolas.ferre@microchip.com>
-M:	Eugen Hristev <eugen.hristev@microchip.com>
+M:	Eugen Hristev <ehristev@kernel.org>
 S:	Maintained
 F:	board/atmel/sama5d27_wlsom1_ek/
 F:	include/configs/sama5d27_wlsom1_ek.h

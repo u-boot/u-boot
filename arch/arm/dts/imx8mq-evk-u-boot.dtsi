@@ -2,19 +2,105 @@
 
 #include "imx8mq-u-boot.dtsi"
 
-&pinctrl_uart1 {
+&aips1 {
+	bootph-all;
+};
+
+&gpio2 {
 	bootph-pre-ram;
 };
 
-&usdhc1 {
-	mmc-hs400-1_8v;
+&pinctrl_i2c1 {
+	bootph-all;
 };
 
-&usdhc2 {
-	sd-uhs-sdr104;
-	sd-uhs-ddr50;
+&i2c1 {
+	bootph-all;
+};
+
+&soc {
+	bootph-all;
+	bootph-pre-ram;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@8} {
+	bootph-all;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@8/regulators} {
+	bootph-all;
+};
+
+&pinctrl_uart1 {
+	bootph-pre-ram;
 };
 
 &uart1 {
 	bootph-pre-ram;
 };
+
+&usdhc1 {
+	bootph-pre-ram;
+	mmc-hs400-1_8v;
+	/delete-property/ vqmmc-supply;
+};
+
+&pinctrl_usdhc1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc1_100mhz {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc1_200mhz {
+	bootph-pre-ram;
+};
+
+&usdhc2 {
+	bootph-pre-ram;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
+};
+
+&pinctrl_usdhc2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_100mhz {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_200mhz {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2_gpio {
+	bootph-pre-ram;
+};
+
+&pinctrl_reg_usdhc2 {
+	bootph-pre-ram;
+};
+
+&reg_usdhc2_vmmc {
+	bootph-pre-ram;
+};
+
+#ifdef CONFIG_FSL_CAAM
+&crypto {
+	bootph-pre-ram;
+};
+
+&sec_jr0 {
+	bootph-pre-ram;
+};
+
+&sec_jr1 {
+	bootph-pre-ram;
+};
+
+&sec_jr2 {
+	bootph-pre-ram;
+};
+#endif

@@ -168,8 +168,8 @@ static const struct udevice_id rk_mipi_dsi_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(rk_mipi_dsi) = {
-	.name	= "rk_mipi_dsi",
+U_BOOT_DRIVER(rk3399_mipi_dsi) = {
+	.name	= "rk3399_mipi_dsi",
 	.id	= UCLASS_DISPLAY,
 	.of_match = rk_mipi_dsi_ids,
 	.of_to_plat = rk_mipi_of_to_plat,

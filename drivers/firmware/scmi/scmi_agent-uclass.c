@@ -106,7 +106,7 @@ struct udevice *scmi_get_protocol(struct udevice *dev,
 		proto = priv->voltagedom_dev;
 		break;
 #endif
-#if IS_ENABLED(CONFIG_PINCTRL_IMX_SCMI)
+#if IS_ENABLED(CONFIG_PINCTRL_SCMI) || IS_ENABLED(CONFIG_PINCTRL_IMX_SCMI)
 	case SCMI_PROTOCOL_ID_PINCTRL:
 		proto = priv->pinctrl_dev;
 		break;
@@ -179,7 +179,7 @@ static int scmi_add_protocol(struct udevice *dev,
 		priv->voltagedom_dev = proto;
 		break;
 #endif
-#if IS_ENABLED(CONFIG_PINCTRL_IMX_SCMI)
+#if IS_ENABLED(CONFIG_PINCTRL_SCMI) || IS_ENABLED(CONFIG_PINCTRL_IMX_SCMI)
 	case SCMI_PROTOCOL_ID_PINCTRL:
 		priv->pinctrl_dev = proto;
 		break;

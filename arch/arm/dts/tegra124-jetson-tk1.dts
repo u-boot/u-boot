@@ -16,8 +16,8 @@
 		i2c2 = "/i2c@7000c400";
 		i2c3 = "/i2c@7000c500";
 		i2c4 = "/i2c@7000c700";
-		mmc0 = "/sdhci@700b0600";
-		mmc1 = "/sdhci@700b0400";
+		mmc0 = "/mmc@700b0600";
+		mmc1 = "/mmc@700b0400";
 		spi0 = "/spi@7000d400";
 		spi1 = "/spi@7000da00";
 		usb0 = "/usb@7d000000";
@@ -301,7 +301,7 @@
 		};
 	};
 
-	sdhci@700b0400 {
+	mmc@700b0400 {
 		status = "okay";
 		cd-gpios = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_LOW>;
 		power-gpios = <&gpio TEGRA_GPIO(R, 0) GPIO_ACTIVE_HIGH>;
@@ -309,7 +309,7 @@
 		bus-width = <4>;
 	};
 
-	sdhci@700b0600 {
+	mmc@700b0600 {
 		status = "okay";
 		bus-width = <8>;
 		non-removable;

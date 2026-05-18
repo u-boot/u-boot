@@ -1,0 +1,4 @@
+#include <configs/mt8188.config>
+
+CONFIG_DEFAULT_DEVICE_TREE="mediatek/mt8370-genio-510-evk"
+CONFIG_MTK_MEM_MAP_DDR_SIZE=0x100000000

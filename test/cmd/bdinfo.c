@@ -172,7 +172,7 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	ut_assertok(test_num_l(uts, "reloc off", gd->reloc_off));
 	ut_assert_nextline("%-12s= %u-bit", "Build", (uint)sizeof(void *) * 8);
 
-	if (IS_ENABLED(CONFIG_NET) || IS_ENABLED(CONFIG_NET_LWIP))
+	if (IS_ENABLED(CONFIG_NET))
 		ut_assertok(test_eth(uts));
 
 	/*
@@ -314,7 +314,7 @@ static int bdinfo_test_help(struct unit_test_state *uts)
 			ut_assert_nextlinen("bdinfo -a");
 		ut_assert_nextlinen("  - print all Board Info structure");
 		if (CONFIG_IS_ENABLED(GETOPT)) {
-			if (IS_ENABLED(CONFIG_NET) || IS_ENABLED(CONFIG_NET_LWIP)) {
+			if (IS_ENABLED(CONFIG_NET)) {
 				ut_assert_nextlinen("bdinfo -e");
 				ut_assert_nextlinen("  - print Board Info related to network");
 			}
@@ -348,7 +348,7 @@ static int bdinfo_test_eth(struct unit_test_state *uts)
 	ut_assertok(run_commandf("bdinfo -e"));
 	if (!CONFIG_IS_ENABLED(GETOPT))
 		ut_assertok(bdinfo_test_all(uts));
-	else if (IS_ENABLED(CONFIG_NET) || IS_ENABLED(CONFIG_NET_LWIP))
+	else if (IS_ENABLED(CONFIG_NET))
 		ut_assertok(test_eth(uts));
 	ut_assert_console_end();
 

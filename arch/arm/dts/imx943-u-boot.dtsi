@@ -339,12 +339,6 @@
 				};
 			};
 
-			netc_timer0: ethernet@0,1 {
-				compatible = "pci1131,ee02";
-				reg = <0x100 0 0 0 0>;
-				status = "disabled";
-			};
-
 			netc_switch: ethernet-switch@0,2 {
 				compatible = "pci1131,eef2", "nxp,imx943-netc-switch";
 				reg = <0x200 0 0 0 0>;
@@ -408,12 +402,6 @@
 				status = "disabled";
 			};
 
-			netc_timer1: ethernet@0,1 {
-				compatible = "pci1131,ee02";
-				reg = <0x10100 0 0 0 0>;
-				status = "disabled";
-			};
-
 			enetc1: ethernet@8,0 {
 				compatible = "pci1131,e101";
 				reg = <0x14000 0 0 0 0>;
@@ -423,12 +411,6 @@
 			enetc2: ethernet@10,0 {
 				compatible = "pci1131,e101";
 				reg = <0x18000 0 0 0 0>;
-				status = "disabled";
-			};
-
-			netc_timer2: ethernet@10,1 {
-				compatible = "pci1131,ee02";
-				reg = <0x18100 0 0 0 0>;
 				status = "disabled";
 			};
 

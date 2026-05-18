@@ -24,7 +24,8 @@ int dram_init(void)
 {
 	int ret = fdtdec_setup_mem_size_base();
 
-	if (current_el() == 3 && gd->ram_base == 0x48000000) {
+	if (IS_ENABLED(CONFIG_ARM64) && current_el() == 3 &&
+	    gd->ram_base == 0x48000000) {
 		/*
 		 * If this U-Boot runs in EL3, make the bottom 128 MiB
 		 * available for loading of follow up firmware blobs.
@@ -44,7 +45,7 @@ int dram_init_banksize(void)
 
 	fdtdec_setup_memory_banksize();
 
-	if (current_el() != 3)
+	if (IS_ENABLED(CONFIG_ARM64) && current_el() != 3)
 		return 0;
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {

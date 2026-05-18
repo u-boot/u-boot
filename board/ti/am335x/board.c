@@ -911,7 +911,7 @@ int board_late_init(void)
 #endif
 
 /* CPSW plat */
-#if (CONFIG_IS_ENABLED(NET) || CONFIG_IS_ENABLED(NET_LWIP)) && \
+#if CONFIG_IS_ENABLED(NET) && \
     !CONFIG_IS_ENABLED(OF_CONTROL)
 struct cpsw_slave_data slave_data[] = {
 	{

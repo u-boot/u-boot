@@ -26,29 +26,29 @@
 	bus-num = <0>;
 	status = "okay";
 
-	dflash0: sst25wf040b {
+	dflash0: sst25wf040b@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
 		reg = <0>;
 	};
 
-	dflash1: en25s64 {
+	dflash1: en25s64@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
 		reg = <1>;
 	};
-	dflash2: n25q128a {
+	dflash2: n25q128a@2 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -60,29 +60,29 @@
 	bus-num = <0>;
 	status = "okay";
 
-	dflash3: sst25wf040b {
+	dflash3: sst25wf040b@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
 		reg = <0>;
 	};
 
-	dflash4: en25s64 {
+	dflash4: en25s64@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
 		reg = <1>;
 	};
-	dflash5: n25q128a {
+	dflash5: n25q128a@2 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -94,10 +94,10 @@
 	bus-num = <0>;
 	status = "okay";
 
-	dflash8: en25s64 {
+	dflash8: en25s64@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;

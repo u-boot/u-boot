@@ -183,6 +183,7 @@ config SPL_FIT
 	bool "Support Flattened Image Tree within SPL"
 	depends on SPL
 	select SPL_HASH
+	select SPL_LIBGENERIC_SUPPORT
 	select SPL_OF_LIBFDT
 
 config SPL_FIT_PRINT
@@ -315,6 +316,7 @@ config TPL_FIT
 	bool "Support Flattened Image Tree within TPL"
 	depends on TPL
 	select TPL_HASH
+	select TPL_LIBGENERIC_SUPPORT
 	select TPL_OF_LIBFDT
 
 config TPL_LOAD_FIT
@@ -335,7 +337,7 @@ config TPL_LOAD_FIT
 	     property will not be loaded. This limitation also applies to FPGA
 	     images with the correct "compatible" string.
 	  2. For FPGA images, the supported "compatible" list is in the
-	     doc/uImage.FIT/source_file_format.txt.
+	     doc/usage/fit/source_file_format.rst.
 	  3. FDTs are only loaded for images with an "os" property of "u-boot".
 	     "linux" images are also supported with Falcon boot mode.
 
@@ -429,12 +431,12 @@ config BOOT_DEFAULTS_CMDS
 	select CMD_FAT
 	select CMD_FS_GENERIC
 	select CMD_PART if PARTITIONS
-	select CMD_DHCP if CMD_NET
-	select CMD_PING if CMD_NET
-	select CMD_PXE if CMD_NET
-	select CMD_BOOTI if ARM64
-	select CMD_BOOTZ if ARM && !ARM64
-	imply CMD_MII if NET || NET_LWIP
+	select CMD_DHCP if CMD_NET && NET
+	select CMD_PING if CMD_NET && NET
+	select CMD_PXE if CMD_NET && NET
+	select CMD_BOOTI if ARM64 && LMB
+	select CMD_BOOTZ if ARM && !ARM64 && LMB
+	imply CMD_MII if CMD_NET && NET
 
 config BOOT_DEFAULTS
 	bool  # Common defaults for standard boot and distroboot
@@ -561,6 +563,7 @@ config BOOTMETH_ANDROID
 	select CMD_BCB
 	imply CMD_FASTBOOT
 	imply FASTBOOT if !NET_LWIP
+	select EFI_PARTITION
 	select PARTITION_TYPE_GUID
 	select PARTITION_UUIDS
 	help
@@ -989,6 +992,7 @@ if SPL
 
 config SPL_UPL
 	bool "Write a UPL handoff in SPL"
+	depends on SPL_LIBGENERIC_SUPPORT
 	imply SPL_UPL_OUT
 	help
 	  This tells SPL to write a UPL handoff and pass it to the next phase
@@ -1006,6 +1010,7 @@ config SPL_UPL_WRITE
 
 config SPL_UPL_OUT
 	bool "upl - Support writing a Universal Payload handoff in SPL"
+	depends on SPL_UPL
 	select SPL_UPL_WRITE
 	help
 	  Provides support for encoding a UPL-format payload and passing it to
@@ -1159,7 +1164,6 @@ config SYS_BOOT_RAMDISK_HIGH
 	depends on CMD_BOOTM || CMD_BOOTI || CMD_BOOTZ
 	depends on !(NIOS2 || SANDBOX || SH || XTENSA)
 	def_bool y
-	select LMB
 	help
 	  Enable initrd_high functionality.  If defined then the initrd_high
 	  feature is enabled and the boot* ramdisk subcommand is enabled.
@@ -1809,7 +1813,7 @@ config SPL_IMAGE_PRE_LOAD
 config IMAGE_PRE_LOAD_SIG
 	bool "Image pre-load signature support"
 	depends on IMAGE_PRE_LOAD
-	select FIT_SIGNATURE
+	depends on FIT_SIGNATURE
 	select RSA
 	select RSA_VERIFY_WITH_PKEY
 	help
@@ -1826,7 +1830,7 @@ config IMAGE_PRE_LOAD_SIG
 config SPL_IMAGE_PRE_LOAD_SIG
 	bool "Image pre-load signature support within SPL"
 	depends on SPL_IMAGE_PRE_LOAD && IMAGE_PRE_LOAD_SIG
-	select SPL_FIT_SIGNATURE
+	depends on SPL_FIT_SIGNATURE
 	select SPL_RSA
 	select SPL_RSA_VERIFY_WITH_PKEY
 	help
@@ -2036,7 +2040,7 @@ menu "Configuration editor"
 
 config CEDIT
 	bool "Configuration editor"
-	depends on EXPO
+	depends on EXPO && DM_RTC
 	help
 	  Provides a way to deal with board configuration and present it to
 	  the user for adjustment.

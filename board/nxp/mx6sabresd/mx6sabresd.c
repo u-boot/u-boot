@@ -437,6 +437,7 @@ int board_init(void)
 	return 0;
 }
 
+#ifndef CONFIG_XPL_BUILD
 int power_init_board(void)
 {
 	struct udevice *dev;
@@ -468,6 +469,7 @@ int power_init_board(void)
 
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_MXC_SPI
 int board_spi_cs_gpio(unsigned bus, unsigned cs)

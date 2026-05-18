@@ -151,7 +151,6 @@ config DRAM_SUNXI_TPR3
 
 config DRAM_SUNXI_TPR6
 	hex "DRAM TPR6 parameter"
-	default 0x3300c080
 	help
 	  TPR6 value from vendor DRAM settings.
 
@@ -1245,15 +1244,17 @@ config SPL_SUNXI_LED_STATUS
 
 if SPL_SUNXI_LED_STATUS
 
-config SPL_SUNXI_LED_STATUS_BIT
+config SPL_SUNXI_LED_STATUS_GPIO
 	int "GPIO number for GPIO status LED"
 	help
 	  GPIO number for the GPIO controlling the GPIO status LED in SPL.
 
-config SPL_SUNXI_LED_STATUS_STATE
-	bool "GPIO status LED initial state is on"
+config SPL_SUNXI_LED_STATUS_ACTIVE_HIGH
+	bool "GPIO status LED is active high"
+	default y
 	help
-	  Whether the initial state of the status LED in SPL must be on or off.
+	  Whether the GPIO of the status LED must be set high or low to turn
+	  the LED on.
 
 endif # SPL_SUNXI_LED_STATUS
 

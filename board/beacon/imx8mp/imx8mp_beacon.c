@@ -14,7 +14,7 @@ static void setup_fec(void)
 	setbits_le32(&gpr->gpr[1], BIT(22));
 }
 
-#if IS_ENABLED(CONFIG_NET)
+#if IS_ENABLED(CONFIG_NET_LEGACY)
 int board_phy_config(struct phy_device *phydev)
 {
 	if (phydev->drv->config)

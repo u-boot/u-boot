@@ -105,7 +105,7 @@ static int dm_test_cmd_zip_gzwrite(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	ofnode root, node;
-	int i, ret;
+	int i, j, ret;
 
 	/* Enable the mmc9 node for this test */
 	root = oftree_root(oftree_default());
@@ -117,6 +117,16 @@ static int dm_test_cmd_zip_gzwrite(struct unit_test_state *uts)
 		ret = do_test_cmd_zip_unzip(uts, sizes[i], true);
 		if (ret)
 			return ret;
+	}
+
+	/* Test various sizes of decompression chunk sizes */
+	for (j = 0; j < ARRAY_SIZE(sizes); j++) {
+		env_set_ulong("gzwrite_chunk", sizes[j]);
+		for (i = 0; i < ARRAY_SIZE(sizes); i++) {
+			ret = do_test_cmd_zip_unzip(uts, sizes[i], true);
+			if (ret)
+				return ret;
+		}
 	}
 
 	return 0;

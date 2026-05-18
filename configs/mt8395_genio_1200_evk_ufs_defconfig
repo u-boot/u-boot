@@ -1,0 +1,8 @@
+#include <configs/mt8195.config>
+
+CONFIG_DEFAULT_DEVICE_TREE="mediatek/mt8395-genio-1200-evk-ufs"
+CONFIG_CMD_UFS=y
+CONFIG_PHY=y
+CONFIG_SCSI=y
+CONFIG_UFS=y
+CONFIG_UFS_MEDIATEK=y

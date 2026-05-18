@@ -55,9 +55,14 @@
 
 &usb0 {
 	compatible = "fsl,layerscape-dwc3", "snps,dwc3";
+	status = "okay";
 };
 
 &usb1 {
 	compatible = "fsl,layerscape-dwc3", "snps,dwc3";
+	status = "okay";
 };
 
+&esdhc {
+	status = "okay";
+};

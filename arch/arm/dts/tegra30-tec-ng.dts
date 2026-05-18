@@ -16,7 +16,7 @@
 	};
 
 	/* SD card slot */
-	sdhci@78000400 {
+	mmc@78000400 {
 		status = "okay";
 	};
 };

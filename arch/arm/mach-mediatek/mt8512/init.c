@@ -35,14 +35,6 @@ phys_size_t  get_effective_memsize(void)
 	return gd->ram_size - 6 * SZ_1M;
 }
 
-int dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = gd->ram_base;
-	gd->bd->bi_dram[0].size = get_effective_memsize();
-
-	return 0;
-}
-
 void reset_cpu(void)
 {
 	struct udevice *watchdog_dev = NULL;

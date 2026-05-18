@@ -175,5 +175,5 @@ U_BOOT_ENV_LOCATION(eeprom) = {
 	.location	= ENVL_EEPROM,
 	ENV_NAME("EEPROM")
 	.load		= env_eeprom_load,
-	.save		= env_save_ptr(env_eeprom_save),
+	.save		= ENV_SAVE_PTR(env_eeprom_save),
 };

@@ -8,8 +8,8 @@
 
 #include <asm/io.h>
 #include <asm/armv8/mmu.h>
-#include <asm/arch-adi/sc5xx/sc5xx.h>
-#include <asm/arch-adi/sc5xx/spl.h>
+#include <asm/arch/sc5xx.h>
+#include <asm/arch/spl.h>
 
 #define REG_TSGENWR0_CNTCR 0x310AE000
 #define REG_PADS0_PCFG0 0x31004604

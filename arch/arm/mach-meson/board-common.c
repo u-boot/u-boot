@@ -155,16 +155,14 @@ int board_late_init(void)
 	return meson_board_late_init();
 }
 
+#if defined(CONFIG_XPL) || !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(void)
 {
-#if CONFIG_SPL_BUILD
 	/*
 	 * We do not have BL31 running yet, so no PSCI.
 	 * Instead, let the watchdog reset the board.
 	 */
 	for (;;)
 		;
-#else
-	psci_system_reset();
-#endif
 }
+#endif

@@ -1,5 +1,5 @@
 ROCK5A-RK3588
-M:	Eugen Hristev <eugen.hristev@collabora.com>
+M:	Eugen Hristev <ehristev@kernel.org>
 R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	board/radxa/rock5a-rk3588s

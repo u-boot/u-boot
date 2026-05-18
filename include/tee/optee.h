@@ -65,4 +65,13 @@ static inline int optee_copy_fdt_nodes(void *new_blob)
 }
 #endif
 
+#if defined(CONFIG_OPTEE)
+bool is_optee_smc_api(void);
+#else
+static inline bool is_optee_smc_api(void)
+{
+	return false;
+}
+#endif
+
 #endif /* _OPTEE_H */

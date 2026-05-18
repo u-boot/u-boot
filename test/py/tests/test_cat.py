@@ -4,8 +4,7 @@
 """
 
 import pytest
-from subprocess import call, check_call, CalledProcessError
-from tests import fs_helper
+from tests.fs_helper import FsHelper
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_cat')
@@ -15,23 +14,11 @@ def test_cat(ubman):
     Args:
         ubman -- U-Boot console
     """
-    try:
-        scratch_dir = ubman.config.persistent_data_dir + '/scratch'
+    with FsHelper(ubman.config, 'vfat', 1, 'test_cat') as fsh:
+        with open(f'{fsh.srcdir}/hello', 'w', encoding = 'ascii') as outf:
+            outf.write('hello world\n')
+        fsh.mk_fs()
 
-        check_call('mkdir -p %s' % scratch_dir, shell=True)
-
-        with open(scratch_dir + '/hello', 'w', encoding = 'ascii') as file:
-            file.write('hello world\n')
-
-        cat_data = fs_helper.mk_fs(ubman.config, 'vfat', 0x100000,
-                                   'test_cat', scratch_dir)
-        response = ubman.run_command_list([ f'host bind 0 {cat_data}',
-                                                    'cat host 0 hello'])
+        response = ubman.run_command_list([f'host bind 0 {fsh.fs_img}',
+                                           'cat host 0 hello'])
         assert 'hello world' in response
-    except CalledProcessError as err:
-        pytest.skip('Preparing test_cat image failed')
-        call('rm -f %s' % cat_data, shell=True)
-        return
-    finally:
-        call('rm -rf %s' % scratch_dir, shell=True)
-        call('rm -f %s' % cat_data, shell=True)

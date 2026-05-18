@@ -379,6 +379,37 @@ char * strndup(const char *s, size_t n)
 
 	return new;
 }
+
+/**
+ * strdup_const - conditionally duplicate an existing const string
+ * @s: the string to duplicate
+ *
+ * Note: Strings allocated by kstrdup_const should be freed by kfree_const and
+ * must not be passed to krealloc().
+ *
+ * Return: source string if it is in .rodata section otherwise
+ * fallback to kstrdup.
+ */
+const char *strdup_const(const char *s)
+{
+	if (is_kernel_rodata((unsigned long)s))
+		return s;
+
+	return strdup(s);
+}
+
+/**
+ * kfree_const - conditionally free memory
+ * @x: pointer to the memory
+ *
+ * Function calls kfree only if @x is not in .rodata section.
+ */
+void kfree_const(const void *x)
+{
+	if (!is_kernel_rodata((unsigned long)x))
+		free((void *)x);
+}
+
 #endif
 
 #ifndef __HAVE_ARCH_STRSPN

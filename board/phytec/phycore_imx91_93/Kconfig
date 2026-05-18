@@ -1,0 +1,47 @@
+
+if TARGET_PHYCORE_IMX91 || TARGET_PHYCORE_IMX93
+
+config SYS_BOARD
+	default "phycore_imx91_93"
+
+config SYS_VENDOR
+	default "phytec"
+
+config SYS_CONFIG_NAME
+	default "phycore_imx91_93"
+
+config PHYCORE_IMX91_93_RAM_TYPE_FIX
+	bool "Set phyCORE-i.MX91/93 RAM type and size fix instead of detecting"
+	default false
+	help
+	  RAM type and size is being automatically detected with the help
+	  of the PHYTEC EEPROM introspection data.
+	  Set RAM type to a fix value instead.
+
+choice
+	prompt "phyCORE-i.MX91/93 RAM type"
+	depends on PHYCORE_IMX91_93_RAM_TYPE_FIX
+	default PHYCORE_IMX91_93_RAM_TYPE_LPDDR4X_1GB
+
+config PHYCORE_IMX91_93_RAM_TYPE_LPDDR4_1GB
+	bool "LPDDR4 1GB RAM"
+	help
+	  Set RAM type fixed to LPDDR4 and RAM size fixed to 1GB
+	  for phyCORE-i.MX91/93.
+
+config PHYCORE_IMX91_93_RAM_TYPE_LPDDR4X_1GB
+	bool "LPDDR4X 1GB RAM"
+	help
+	  Set RAM type fixed to LPDDR4X and RAM size fixed to 1GB
+	  for phyCORE-i.MX91/93.
+
+config PHYCORE_IMX91_93_RAM_TYPE_LPDDR4X_2GB
+	bool "LPDDR4X 2GB RAM"
+	help
+	  Set RAM type fixed to LPDDR4X and RAM size fixed to 2GB
+	  for phyCORE-i.MX91/93.
+
+endchoice
+
+source "board/phytec/common/Kconfig"
+endif

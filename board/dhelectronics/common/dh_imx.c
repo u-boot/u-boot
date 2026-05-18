@@ -10,13 +10,13 @@
 #include <net.h>
 #include "dh_imx.h"
 
-int dh_imx_get_mac_from_fuse(unsigned char *enetaddr)
+int dh_imx_get_mac_from_fuse(unsigned char *enetaddr, int index)
 {
 	/*
 	 * If IIM fuses contain valid MAC address, use it.
 	 * The IIM MAC address fuses are NOT programmed by default.
 	 */
-	imx_get_mac_from_fuse(0, enetaddr);
+	imx_get_mac_from_fuse(index, enetaddr);
 	if (!is_valid_ethaddr(enetaddr))
 		return -EINVAL;
 

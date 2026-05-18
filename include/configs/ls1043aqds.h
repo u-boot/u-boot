@@ -295,6 +295,11 @@
 /*
  * Environment
  */
+#ifndef SPL_NO_MISC
+/* Initial environment variables */
+#define CFG_EXTRA_ENV_SETTINGS      \
+	EXTRA_ENV_SETTINGS
+#endif
 
 #include <asm/fsl_secure_boot.h>
 

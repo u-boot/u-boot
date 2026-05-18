@@ -10,7 +10,6 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/imx8mq_pins.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -23,8 +22,6 @@
 #include <spl.h>
 
 #include "lpddr4_timing.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define DDR_DET_1		IMX_GPIO_NR(3, 11)
 #define DDR_DET_2		IMX_GPIO_NR(3, 12)
@@ -195,9 +192,6 @@ int board_fit_config_name_match(const char *name)
 void board_init_f(ulong dummy)
 {
 	int ret;
-
-	/* Clear global data */
-	memset((void *)gd, 0, sizeof(gd_t));
 
 	arch_cpu_init();
 

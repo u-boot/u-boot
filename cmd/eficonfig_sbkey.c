@@ -7,6 +7,7 @@
 
 #include <ansi.h>
 #include <charset.h>
+#include <console.h>
 #include <hexdump.h>
 #include <log.h>
 #include <malloc.h>
@@ -288,8 +289,7 @@ static efi_status_t eficonfig_process_show_siglist(void *data)
 		}
 	}
 
-	while (tstc())
-		getchar();
+	console_flush_stdin();
 
 	printf("\n\n  Press any key to continue");
 	getchar();

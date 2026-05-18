@@ -33,10 +33,22 @@ static struct env_scsi_info env_part;
 
 static inline struct env_scsi_info *env_scsi_get_part(void)
 {
+	static bool is_scsi_scanned;
 	struct env_scsi_info *ep = &env_part;
 
-	if (scsi_get_blk_by_uuid(CONFIG_SCSI_ENV_PART_UUID, &ep->blk, &ep->part))
-		return NULL;
+	if (!is_scsi_scanned) {
+		scsi_scan(false /* no verbose */);
+		is_scsi_scanned = true;
+	}
+
+	if (CONFIG_ENV_SCSI_PART_UUID[0] == '\0') {
+		if (blk_get_device_part_str("scsi", CONFIG_ENV_SCSI_HW_PARTITION,
+					    &ep->blk, &ep->part, true))
+			return NULL;
+	} else {
+		if (scsi_get_blk_by_uuid(CONFIG_ENV_SCSI_PART_UUID, &ep->blk, &ep->part))
+			return NULL;
+	}
 
 	ep->count = CONFIG_ENV_SIZE / ep->part.blksz;
 
@@ -83,12 +95,20 @@ static int env_scsi_load(void)
 	int ret;
 
 	if (!ep) {
-		env_set_default(CONFIG_SCSI_ENV_PART_UUID " partition not found", 0);
+		if (CONFIG_ENV_SCSI_PART_UUID[0] == '\0')
+			env_set_default("SCSI partition " CONFIG_ENV_SCSI_HW_PARTITION " not found", 0);
+		else
+			env_set_default(CONFIG_ENV_SCSI_PART_UUID " partition not found", 0);
+
 		return -ENOENT;
 	}
 
 	if (blk_dread(ep->blk, ep->part.start, ep->count, &envbuf) != ep->count) {
-		env_set_default(CONFIG_SCSI_ENV_PART_UUID " partition read failed", 0);
+		if (CONFIG_ENV_SCSI_PART_UUID[0] == '\0')
+			env_set_default("SCSI partition " CONFIG_ENV_SCSI_HW_PARTITION " read failed", 0);
+		else
+			env_set_default(CONFIG_ENV_SCSI_PART_UUID " partition read failed", 0);
+
 		return -EIO;
 	}
 
@@ -108,8 +128,6 @@ U_BOOT_ENV_LOCATION(scsi) = {
 	.location	= ENVL_SCSI,
 	ENV_NAME("SCSI")
 	.load		= env_scsi_load,
-#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_XPL_BUILD)
-	.save		= env_save_ptr(env_scsi_save),
+	.save		= ENV_SAVE_PTR(env_scsi_save),
 	.erase		= ENV_ERASE_PTR(env_scsi_erase),
-#endif
 };

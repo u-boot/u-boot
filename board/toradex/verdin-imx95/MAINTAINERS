@@ -1,0 +1,13 @@
+Verdin iMX95
+F:	arch/arm/dts/imx95-verdin.dtsi
+F:	arch/arm/dts/imx95-verdin-dev.dtsi
+F:	arch/arm/dts/imx95-verdin-wifi.dtsi
+F:	arch/arm/dts/imx95-verdin-wifi-dev.dts
+F:	arch/arm/dts/imx95-verdin-wifi-dev-u-boot.dtsi
+F:	board/toradex/verdin-imx95/
+F:	configs/verdin-imx95_defconfig
+F:	doc/board/toradex/verdin-imx95.rst
+F:	include/configs/verdin-imx95.h
+M:	Francesco Dolcini <francesco.dolcini@toradex.com>
+S:	Maintained
+W:	https://www.toradex.com/computer-on-modules/verdin-arm-family/nxp-imx95

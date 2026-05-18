@@ -135,6 +135,9 @@ enum forced_boot_mode {
 /* TAMP registers */
 #define TAMP_BACKUP_REGISTER(x)		(STM32_TAMP_BASE + 0x100 + 4 * x)
 
+#define TAMP_FWU_BOOT_IDX_MASK		GENMASK(3, 0)
+#define TAMP_FWU_BOOT_IDX_OFFSET	0
+
 #ifdef CONFIG_STM32MP15X
 #define TAMP_BACKUP_MAGIC_NUMBER	TAMP_BACKUP_REGISTER(4)
 #define TAMP_BACKUP_BRANCH_ADDRESS	TAMP_BACKUP_REGISTER(5)
@@ -144,9 +147,6 @@ enum forced_boot_mode {
 #define TAMP_BOOT_CONTEXT		TAMP_BACKUP_REGISTER(20)
 #define TAMP_BOOTCOUNT			TAMP_BACKUP_REGISTER(21)
 
-#define TAMP_FWU_BOOT_IDX_MASK		GENMASK(3, 0)
-
-#define TAMP_FWU_BOOT_IDX_OFFSET	0
 #define TAMP_COPRO_STATE_OFF		0
 #define TAMP_COPRO_STATE_INIT		1
 #define TAMP_COPRO_STATE_CRUN		2
@@ -196,8 +196,6 @@ enum forced_boot_mode {
 /* TAMP registers zone 3 RIF 1 (RW) at 96*/
 #define TAMP_BOOT_CONTEXT		TAMP_BACKUP_REGISTER(96)
 
-#define TAMP_FWU_BOOT_IDX_MASK		GENMASK(3, 0)
-#define TAMP_FWU_BOOT_IDX_OFFSET	0
 #endif /* defined(CONFIG_STM32MP21X) || defined(CONFIG_STM32MP23X) || defined(CONFIG_STM32MP25X) */
 
 /* offset used for BSEC driver: misc_read and misc_write */

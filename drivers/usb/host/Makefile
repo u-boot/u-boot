@@ -5,7 +5,7 @@
 
 ifdef CONFIG_$(PHASE_)DM_USB
 obj-y += usb-uclass.o
-obj-$(CONFIG_SANDBOX) += usb-sandbox.o
+obj-$(CONFIG_USB_EMUL) += usb-sandbox.o
 endif
 
 ifdef CONFIG_$(PHASE_)USB_STORAGE

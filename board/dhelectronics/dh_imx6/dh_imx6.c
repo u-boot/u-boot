@@ -94,7 +94,7 @@ int dh_setup_mac_address(struct eeprom_id_page *eip)
 	if (dh_get_mac_is_enabled("ethernet0"))
 		return 0;
 
-	if (!dh_imx_get_mac_from_fuse(enetaddr))
+	if (!dh_imx_get_mac_from_fuse(enetaddr, 0))
 		goto out;
 
 	if (!dh_get_mac_from_eeprom(enetaddr, "eeprom0"))

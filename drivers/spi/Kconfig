@@ -34,7 +34,7 @@ config DM_SPI
 	  spi_slave structure.
 
 config SPI_MEM
-	bool "SPI memory extension"
+	bool
 	select DEVRES
 	help
 	  Enable this option if you want to enable the SPI memory extension.
@@ -43,7 +43,7 @@ config SPI_MEM
 
 config SPI_DIRMAP
 	bool "SPI direct mapping"
-	depends on SPI_MEM
+	select SPI_MEM
 	help
 	  Enable the SPI direct mapping API. Most modern SPI controllers can
 	  directly map a SPI memory (or a portion of the SPI memory) in the CPU
@@ -62,7 +62,8 @@ config ADI_SPI3
 
 config AIROHA_SNFI_SPI
 	bool "Airoha SPI memory controller driver"
-	depends on SPI_MEM && ARCH_AIROHA
+	depends on ARCH_AIROHA
+	select SPI_MEM
 	help
 	  Enable the Airoha SPI memory controller driver. This driver is
 	  originally based on the Airoha SNFI IP core. It can only be
@@ -102,7 +103,8 @@ config ATH79_SPI
 
 config ATMEL_QSPI
 	bool "Atmel Quad SPI Controller"
-	depends on ARCH_AT91 && SPI_MEM
+	depends on ARCH_AT91
+	select SPI_MEM
 	help
 	  Enable the Atmel Quad SPI controller in master mode. This driver
 	  does not support generic SPI. The implementation supports only the
@@ -152,7 +154,7 @@ config BCMSTB_SPI
 
 config CORTINA_SFLASH
 	bool "Cortina-Access Serial Flash controller driver"
-	depends on SPI_MEM
+	select SPI_MEM
 	help
 	  Enable the Cortina-Access Serial Flash controller driver. This driver
 	  can be used to access the SPI NOR/NAND flash on platforms embedding this
@@ -160,6 +162,7 @@ config CORTINA_SFLASH
 
 config CADENCE_QSPI
 	bool "Cadence QSPI driver"
+	select SPI_MEM
 	help
 	  Enable the Cadence Quad-SPI (QSPI) driver. This driver can be
 	  used to access the SPI NOR flash on platforms embedding this
@@ -205,7 +208,7 @@ config CF_SPI
 
 config CV1800B_SPIF
 	bool "Sophgo cv1800b SPI Flash Controller driver"
-	depends on SPI_MEM
+	select SPI_MEM
 	help
 	  Enable the Sophgo cv1800b SPI Flash Controller driver. This driver
 	  can be used to access the SPI NOR flash on platforms embedding this
@@ -243,6 +246,7 @@ config FSL_DSPI
 
 config FSL_QSPI
 	bool "Freescale QSPI driver"
+	select SPI_MEM
 	imply SPI_FLASH_BAR
 	help
 	  Enable the Freescale Quad-SPI (QSPI) driver. This driver can be
@@ -294,6 +298,7 @@ config MESON_SPIFC
 
 config MICROCHIP_COREQSPI
 	bool "Microchip FPGA QSPI Controller driver"
+	select SPI_MEM
 	help
 	  Enable the QSPI driver for Microchip FPGA QSPI controllers.
 	  This driver can be used on Polarfire SoC.
@@ -343,7 +348,7 @@ config MT7621_SPI
 
 config MTK_SNOR
 	bool "Mediatek SPI-NOR controller driver"
-	depends on SPI_MEM
+	select SPI_MEM
 	select DEVRES
 	help
 	  Enable the Mediatek SPINOR controller driver. This driver has
@@ -351,7 +356,7 @@ config MTK_SNOR
 
 config MTK_SNFI_SPI
 	bool "Mediatek SPI memory controller driver"
-	depends on SPI_MEM
+	select SPI_MEM
 	help
 	  Enable the Mediatek SPI memory controller driver. This driver is
 	  originally based on the MediaTek SNFI IP core. It can only be
@@ -360,7 +365,7 @@ config MTK_SNFI_SPI
 
 config MTK_SPIM
 	bool "Mediatek SPI-MEM master controller driver"
-	depends on SPI_MEM
+	select SPI_MEM
 	help
 	  Enable MediaTek SPI-MEM master controller driver. This driver mainly
 	  supports SPI flashes. You can use single, dual or quad mode
@@ -385,6 +390,7 @@ config MXS_SPI
 
 config SPI_MXIC
 	bool "Macronix MX25F0A SPI controller"
+	select SPI_MEM
 	help
 	  Enable the Macronix MX25F0A SPI controller driver. This driver
 	  can be used to access the SPI flash on platforms embedding
@@ -403,7 +409,7 @@ config NPCM_PSPI
 
 config NXP_FSPI
 	bool "NXP FlexSPI driver"
-	depends on SPI_MEM
+	select SPI_MEM
 	help
 	  Enable the NXP FlexSPI (FSPI) driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this NXP IP core.
@@ -411,7 +417,7 @@ config NXP_FSPI
 config NXP_XSPI
 	bool "NXP XSPI driver"
 	depends on ARCH_IMX9
-	depends on SPI_MEM
+	select SPI_MEM
 	help
 	  Enable the NXP External SPI (XSPI) driver. This driver can be used to
 	  access the SPI NOR/NAND flash on platforms embedding this NXP IP core.
@@ -521,7 +527,8 @@ config SANDBOX_SPI_MAX_CS
 
 config SPI_ASPEED_SMC
 	bool "ASPEED SPI flash controller driver"
-	depends on DM_SPI && SPI_MEM && ARCH_ASPEED
+	depends on DM_SPI && ARCH_ASPEED
+	select SPI_MEM
 	help
 	  Enable ASPEED SPI flash controller driver for AST2500
 	  and AST2600 SoCs.
@@ -542,7 +549,7 @@ config SOFT_SPI
 
 config SPI_SN_F_OSPI
 	tristate "Socionext F_OSPI SPI flash controller"
-	depends on SPI_MEM
+	select SPI_MEM
 	help
 	  This enables support for the Socionext F_OSPI controller
 	  for connecting an SPI flash memory over up to 8-bit wide bus.
@@ -558,7 +565,7 @@ config SPI_SUNXI
 
 config STM32_OSPI
 	bool "STM32MP2 OSPI driver"
-	depends on STM32MP25X && STM32_OMM
+	depends on (STM32MP23X || STM32MP25X) && STM32_OMM
 	help
 	  Enable the STM32MP2 Octo-SPI (OSPI) driver. This driver can be
 	  used to access the SPI NOR flash chips on platforms embedding

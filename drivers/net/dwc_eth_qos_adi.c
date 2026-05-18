@@ -15,7 +15,7 @@
 #include <reset.h>
 #include <linux/io.h>
 
-#include <asm/arch-adi/sc5xx/sc5xx.h>
+#include <asm/arch/sc5xx.h>
 
 #include "dwc_eth_qos.h"
 

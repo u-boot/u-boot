@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <errno.h>
 #include <fdt_support.h>
 #include <malloc.h>
@@ -20,13 +21,20 @@
 #include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/build_bug.h>
+#include <linux/bitfield.h>
+#include <power/regulator.h>
+#include "fsl_enetc.h"
 
 #ifdef CONFIG_ARCH_IMX9
 #include <asm/mach-imx/sys_proto.h>
 #include <cpu_func.h>
+#include "fsl_enetc_xpcs_phy.c"
+#else
+static inline int xpcs_phy_usxgmii_pma_config(struct udevice *dev)
+{
+	return 0;
+}
 #endif
-
-#include "fsl_enetc.h"
 
 #define ENETC_DRIVER_NAME	"enetc_eth"
 
@@ -454,19 +462,23 @@ static void enetc_setup_mac_iface(struct udevice *dev,
 /* set up serdes for SXGMII */
 static int enetc_init_sxgmii(struct udevice *dev)
 {
-	struct enetc_priv *priv = dev_get_priv(dev);
-
 	if (!enetc_has_imdio(dev))
 		return 0;
 
-	/* Dev ability - SXGMII */
-	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, ENETC_PCS_DEVAD_REPL,
-			 ENETC_PCS_DEV_ABILITY, ENETC_PCS_DEV_ABILITY_SXGMII);
+	if (enetc_is_imx95(dev)) {
+		xpcs_phy_usxgmii_pma_config(dev);
+	} else {
+		struct enetc_priv *priv = dev_get_priv(dev);
 
-	/* Restart PCS AN */
-	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, ENETC_PCS_DEVAD_REPL,
-			 ENETC_PCS_CR,
-			 ENETC_PCS_CR_RST | ENETC_PCS_CR_RESET_AN);
+		/* Dev ability - SXGMII */
+		enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, ENETC_PCS_DEVAD_REPL,
+				 ENETC_PCS_DEV_ABILITY, ENETC_PCS_DEV_ABILITY_SXGMII);
+
+		/* Restart PCS AN */
+		enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, ENETC_PCS_DEVAD_REPL,
+				 ENETC_PCS_CR,
+				 ENETC_PCS_CR_RST | ENETC_PCS_CR_RESET_AN);
+	}
 
 	return 0;
 }
@@ -523,6 +535,10 @@ static int enetc_config_phy(struct udevice *dev)
 		return -ENODEV;
 
 	supported = PHY_GBIT_FEATURES | SUPPORTED_2500baseX_Full;
+
+	if (enetc_is_imx95(dev))
+		supported |= PHY_10G_FEATURES;
+
 	priv->phy->supported &= supported;
 	priv->phy->advertising &= supported;
 
@@ -537,10 +553,29 @@ static int enetc_probe(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 	int res;
+	struct udevice *supply = NULL;
 
 	if (ofnode_valid(dev_ofnode(dev)) && !ofnode_is_enabled(dev_ofnode(dev))) {
 		enetc_dbg(dev, "interface disabled\n");
 		return -ENODEV;
+	}
+
+	if (CONFIG_IS_ENABLED(DM_REGULATOR)) {
+		res = device_get_supply_regulator(dev, "serdes-supply",
+						  &supply);
+		if (res  && res  != -ENOENT) {
+			printf("%s: device_get_supply_regulator failed: %d\n",
+			       __func__, res);
+			return res;
+		}
+
+		if (supply) {
+			res = regulator_set_enable_if_allowed(supply, true);
+			if (res) {
+				printf("%s: Error enabling phy supply\n", dev->name);
+				return res;
+			}
+		}
 	}
 
 	priv->enetc_txbd = memalign(ENETC_BD_ALIGN,

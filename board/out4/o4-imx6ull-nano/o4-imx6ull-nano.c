@@ -16,11 +16,6 @@ int dram_init(void)
 	return 0;
 }
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 static int setup_fec_clock(void)
 {
 	if (IS_ENABLED(CONFIG_FEC_MXC) && !IS_ENABLED(CONFIG_CLK_IMX6Q)) {

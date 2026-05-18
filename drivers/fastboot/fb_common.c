@@ -191,13 +191,13 @@ void fastboot_handle_boot(int command, bool success)
 	switch (command) {
 	case FASTBOOT_COMMAND_BOOT:
 		fastboot_boot();
-#if CONFIG_IS_ENABLED(NET)
+#if CONFIG_IS_ENABLED(NET_LEGACY)
 		net_set_state(NETLOOP_SUCCESS);
 #endif
 		break;
 
 	case FASTBOOT_COMMAND_CONTINUE:
-#if CONFIG_IS_ENABLED(NET)
+#if CONFIG_IS_ENABLED(NET_LEGACY)
 		net_set_state(NETLOOP_SUCCESS);
 #endif
 		break;

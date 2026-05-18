@@ -24,9 +24,9 @@ config IMX9_DRAM_INLINE_ECC
 
 config SAVED_DRAM_TIMING_BASE
 	hex "Define the base address for saved dram timing"
+	default 0x2051C000
 	help
 	  after DRAM is trained, need to save the dram related timming
 	  info into memory for low power use.
-	default 0x2051C000
 
 endmenu

@@ -16,6 +16,7 @@ config WATCHDOG_AUTOSTART
 	depends on WDT
 	default n if ARCH_SUNXI
 	default n if ARCH_STM32MP
+	default n if ARCH_SNAPDRAGON
 	default y
 	help
 	  Automatically start watchdog timer and start servicing it during
@@ -354,6 +355,13 @@ config WDT_RENESAS
 	select CLK_RENESAS
 	help
 	  Enables Renesas SoC R8A779F0 watchdog timer support.
+
+config WDT_RENESAS_WWDT
+	bool "Renesas window watchdog timer support"
+	depends on WDT
+	select SYSCON
+	help
+	  Enables Renesas window watchdog timer support.
 
 config WDT_SANDBOX
 	bool "Enable Watchdog Timer support for Sandbox"

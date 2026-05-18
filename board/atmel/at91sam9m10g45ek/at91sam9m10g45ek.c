@@ -155,13 +155,6 @@ void board_debug_uart_init(void)
 }
 #endif
 
-#ifdef CONFIG_BOARD_EARLY_INIT_F
-int board_early_init_f(void)
-{
-	return 0;
-}
-#endif
-
 int board_init(void)
 {
 	/* arch number of AT91SAM9M10G45EK-Board */

@@ -2,7 +2,44 @@
 # Network configuration
 #
 
+config NO_NET
+	bool "Disable networking"
+	help
+	  Transitional variable. Equivalent to setting NET=n.
+
+menuconfig NET
+	bool "Networking"
+	depends on !NO_NET
+	default y
+
 if NET
+
+choice
+	prompt "Networking stack"
+	default NET_LEGACY
+
+config NET_LEGACY
+	bool "Legacy U-Boot networking stack"
+	select NETDEVICES
+	help
+	  Include networking support with U-Boot's internal implementation of
+	  the TCP/IP protocol stack.
+
+config NET_LWIP
+	bool "Use lwIP for networking stack"
+	select NETDEVICES
+	help
+	  Include networking support based on the lwIP (lightweight IP)
+	  TCP/IP stack (https://nongnu.org/lwip). This is a replacement for
+	  the default U-Boot network stack and applications located in net/
+	  and enabled via CONFIG_NET_LEGACY as well as other pieces of code that
+	  depend on CONFIG_NET_LEGACY (such as cmd/net.c enabled via CONFIG_CMD_NET).
+	  Therefore the two symbols CONFIG_NET_LEGACY and CONFIG_NET_LWIP are mutually
+	  exclusive.
+
+endchoice
+
+if NET_LEGACY
 
 config ARP_TIMEOUT
 	int "Milliseconds before trying ARP again"
@@ -195,11 +232,9 @@ config IPV6
 	  ip6addr, serverip6. If a u-boot command is capable to parse an IPv6
 	  address and find it, it will force using IPv6 in the network stack.
 
-endif   # if NET
+endif   # if NET_LEGACY
 
 source "net/lwip/Kconfig"
-
-if NET || NET_LWIP
 
 config BOOTDEV_ETH
 	bool "Enable bootdev for ethernet"
@@ -228,7 +263,7 @@ config DNS
 
 config WGET
 	bool "Enable wget"
-	select PROT_TCP if NET
+	select PROT_TCP if NET_LEGACY
 	select PROT_TCP_LWIP if NET_LWIP
 	help
 	  Selecting this will enable wget, an interface to send HTTP requests
@@ -244,7 +279,7 @@ config TFTP_BLOCKSIZE
 	  almost-MTU block sizes.
 	  You can also activate CONFIG_IP_DEFRAG to set a larger block.
 
-endif   # if NET || NET_LWIP
+endif   # if NET
 
 config SYS_RX_ETH_BUFFER
         int "Number of receive packet buffers"

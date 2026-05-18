@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
+/*
+ * Copyright (C) 2026 MediaTek Inc.
+ */
+
+&mmc1 {
+	/* U-Boot driver doesn't support UHS yet. */
+	/delete-property/ sd-uhs-sdr50;
+	/delete-property/ sd-uhs-sdr104;
+	mmc-no-1-8-v;
+};
+
+/*
+ * Needed to trigger U-Boot auto-set-voltage. Default voltages for these
+ * supplies at boot are incorrect and U-Boot MMC drivers don't set them.
+ */
+
+&mt6359_vpa_buck_reg {
+	regulator-min-microvolt = <3000000>;
+	regulator-max-microvolt = <3000000>;
+	regulator-always-on;
+};
+
+&mt6359_vsim1_ldo_reg {
+	regulator-min-microvolt = <3000000>;
+	regulator-max-microvolt = <3000000>;
+	regulator-always-on;
+};

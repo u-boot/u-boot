@@ -28,6 +28,7 @@ struct nfc_config {
 	bool randomize;
 	bool valid;
 	const struct sunxi_nfc_caps *caps;
+	u8 *user_data_bytes;
 };
 
 /* minimal "boot0" style NAND support for Allwinner A20 */
@@ -223,22 +224,6 @@ static int nand_change_column(u16 column)
 	return 0;
 }
 
-/*
- * On H6/H616 the user_data length has to be set in specific registers
- * before writing.
- */
-static void sunxi_nfc_reset_user_data_len(const struct nfc_config *nfc)
-{
-	int loop_step = NFC_REG_USER_DATA_LEN_CAPACITY;
-
-	/* not all SoCs have this register */
-	if (!NFC_REG_USER_DATA_LEN(nfc, 0))
-		return;
-
-	for (int i = 0; i < nfc->caps->max_ecc_steps; i += loop_step)
-		writel_nfc(0, NFC_REG_USER_DATA_LEN(nfc, i));
-}
-
 static void sunxi_nfc_set_user_data_len(const struct nfc_config *nfc,
 					int len, int step)
 {
@@ -269,13 +254,19 @@ static void sunxi_nfc_set_user_data_len(const struct nfc_config *nfc,
 	writel_nfc(val, NFC_REG_USER_DATA_LEN(nfc, step));
 }
 
+/*
+ * Values in this table are obtained by doing:
+ * DIV_ROUND_UP(info->ecc_strength * 14, 8)
+ * So it's the number of bytes needed for ECC one step
+ * (not counting the user data length)
+ */
 #if defined(CONFIG_MACH_SUN50I_H616) || defined(CONFIG_MACH_SUN50I_H6)
 static const int ecc_bytes[] = {
-	32, 46, 54, 60, 74, 82, 88, 96, 102, 110, 116, 124, 130, 138, 144
+	28, 42, 50, 56, 70, 78, 84, 92, 98, 106, 112, 120, 126, 134, 140
 };
 #else
 static const int ecc_bytes[] = {
-	32, 46, 54, 60, 74, 88, 102, 110, 116
+	28, 42, 50, 56, 70, 84, 98, 106, 112
 };
 #endif
 
@@ -288,6 +279,14 @@ static void nand_readlcpy(u32 *dest, u32 * __iomem src, size_t len)
 		*dest++ = readl(src++);
 }
 
+static u8 nand_user_data_sz(const struct nfc_config *conf, int step)
+{
+	if (!conf->user_data_bytes)
+		return USER_DATA_SZ;
+
+	return conf->user_data_bytes[step];
+}
+
 static int nand_read_page(const struct nfc_config *conf, u32 offs,
 			  void *dest, int len)
 {
@@ -295,8 +294,11 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 	u16 rand_seed = 0;
 	int oob_chunk_sz = ecc_bytes[conf->ecc_strength];
 	int page = offs / conf->page_size;
+	int oob_off = conf->page_size;
 	u32 ecc_st, pattern_found;
 	int i;
+	/* From the controller point of view, we are at step 0 */
+	const int nfc_step = 0;
 
 	if (offs % conf->page_size || len % conf->ecc_size ||
 	    len > conf->page_size || len < 0)
@@ -309,9 +311,9 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 	/* Retrieve data from SRAM (PIO) */
 	for (i = 0; i < nsectors; i++) {
 		int data_off = i * conf->ecc_size;
-		int oob_off = conf->page_size + (i * oob_chunk_sz);
 		u8 *data = dest + data_off;
 		u32 ecc512_bit = 0;
+		unsigned int user_data_sz = nand_user_data_sz(conf, i);
 
 		if (conf->caps->has_ecc_block_512 && conf->ecc_size == 512)
 			ecc512_bit = NFC_ECC_BLOCK_512;
@@ -337,8 +339,7 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 		 */
 		nand_change_column(oob_off);
 
-		sunxi_nfc_reset_user_data_len(conf);
-		sunxi_nfc_set_user_data_len(conf, 4, 0);
+		sunxi_nfc_set_user_data_len(conf, user_data_sz, nfc_step);
 
 		nand_exec_cmd(NFC_DATA_TRANS | NFC_ECC_OP);
 		/* Get the ECC status */
@@ -356,7 +357,7 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 			pattern_found = readl_nfc(conf->caps->reg_pat_found);
 			pattern_found = field_get(NFC_ECC_PAT_FOUND_MSK(conf),
 						  pattern_found);
-			if (pattern_found & NFC_ECC_PAT_FOUND(0))
+			if (pattern_found & NFC_ECC_PAT_FOUND(nfc_step))
 				return 1;
 		}
 
@@ -364,12 +365,60 @@ static int nand_read_page(const struct nfc_config *conf, u32 offs,
 		nand_readlcpy((u32 *)data,
 			      (void *)(uintptr_t)SUNXI_NFC_BASE + NFC_RAM0_BASE,
 			      conf->ecc_size);
-
 		/* Stop the ECC engine */
 		writel_nfc(readl_nfc(NFC_REG_ECC_CTL) & ~NFC_ECC_EN,
 			   NFC_REG_ECC_CTL);
 
 		if (data_off + conf->ecc_size >= len)
+			break;
+
+		oob_off += oob_chunk_sz + user_data_sz;
+	}
+
+	return 0;
+}
+
+static int nand_min_user_data_sz(struct nfc_config *conf, int nsectors)
+{
+	const struct sunxi_nfc_caps *c = conf->caps;
+	int min_user_data_sz = 0;
+	int i;
+
+	if (!c->reg_user_data_len) {
+		for (i = 0; i < nsectors; i++)
+			min_user_data_sz += nand_user_data_sz(conf, i);
+	} else {
+		for (i = 0; i < c->nuser_data_tab; i++)
+			/* We want at least enough size for the BBM */
+			if (c->user_data_len_tab[i] >= 2)
+				break;
+		min_user_data_sz = c->user_data_len_tab[i];
+	}
+
+	return min_user_data_sz;
+}
+
+static int nand_maximize_user_data(struct nfc_config *conf, uint32_t oobsize,
+				   int ecc_len, int nsectors)
+{
+	const struct sunxi_nfc_caps *c = conf->caps;
+	int remaining_bytes = oobsize - (ecc_len * nsectors);
+	int i, step;
+
+	kfree(conf->user_data_bytes);
+
+	conf->user_data_bytes = kzalloc(nsectors, GFP_KERNEL);
+	if (!conf->user_data_bytes)
+		return -ENOMEM;
+
+	for (step = 0; (step < nsectors) && (remaining_bytes > 0); step++) {
+		for (i = 0; i < c->nuser_data_tab; i++) {
+			if (c->user_data_len_tab[i] > remaining_bytes)
+				break;
+			conf->user_data_bytes[step] = c->user_data_len_tab[i];
+		}
+		remaining_bytes -= conf->user_data_bytes[step];
+		if (conf->user_data_bytes[step] == 0)
 			break;
 	}
 
@@ -380,7 +429,8 @@ static int nand_max_ecc_strength(struct nfc_config *conf)
 {
 	int max_oobsize, max_ecc_bytes;
 	int nsectors = conf->page_size / conf->ecc_size;
-	int i;
+	unsigned int total_user_data_sz = 0;
+	int ecc_idx, i;
 
 	/*
 	 * ECC strength is limited by the size of the OOB area which is
@@ -405,15 +455,38 @@ static int nand_max_ecc_strength(struct nfc_config *conf)
 
 	max_ecc_bytes = max_oobsize / nsectors;
 
-	for (i = 0; i < ARRAY_SIZE(ecc_bytes); i++) {
-		if (ecc_bytes[i] > max_ecc_bytes)
+	/*
+	 * nand_min_user_data_sz() will return the total_user_data_sz in case
+	 * of a fixed user data length, or the minimal usable user data size
+	 * in case of variable data length (with at least enough space for the
+	 * BBM.
+	 */
+	total_user_data_sz = nand_min_user_data_sz(conf, nsectors);
+
+	for (ecc_idx = 0; ecc_idx < ARRAY_SIZE(ecc_bytes); ecc_idx++) {
+		if (ecc_bytes[ecc_idx] + total_user_data_sz > max_ecc_bytes)
 			break;
 	}
 
-	if (!i)
+	if (!ecc_idx)
 		return -EINVAL;
 
-	return i - 1;
+	ecc_idx--;
+
+	/*
+	 * The rationale for variable data length is to prioritize maximum ECC
+	 * strength, and then use the remaining space for user data.
+	 */
+	if (conf->caps->reg_user_data_len) {
+		nand_maximize_user_data(conf, max_oobsize,
+					ecc_bytes[ecc_idx], nsectors);
+
+		total_user_data_sz = 0;
+		for (i = 0; i < nsectors; i++)
+			total_user_data_sz += nand_user_data_sz(conf, i);
+	}
+
+	return ecc_idx;
 }
 
 static int nand_detect_ecc_config(struct nfc_config *conf, u32 offs,

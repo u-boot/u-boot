@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+
+/dts-v1/;
+
+#include "mt8189.dtsi"
+#include "mt8371-genio-common.dtsi"
+
+/ {
+	model = "MediaTek Genio-720 EVK";
+	compatible = "mediatek,mt8391-evk", "mediatek,mt8391", "mediatek,mt8189";
+};

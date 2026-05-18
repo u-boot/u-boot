@@ -130,9 +130,6 @@ source "arch/x86/cpu/tangier/Kconfig"
 
 # architecture-specific options below
 
-config AHCI
-	default y
-
 config RAMBASE
 	hex
 	default 0x100000
@@ -319,7 +316,6 @@ config ROM_SIZE
 	default 0x200000 if UBOOT_ROMSIZE_KB_2048
 	default 0x400000 if UBOOT_ROMSIZE_KB_4096
 	default 0x800000 if UBOOT_ROMSIZE_KB_8192
-	default 0xc00000 if UBOOT_ROMSIZE_KB_12288
 	default 0x1000000 if UBOOT_ROMSIZE_KB_16384
 
 config HAVE_INTEL_ME

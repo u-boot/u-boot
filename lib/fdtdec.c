@@ -714,6 +714,24 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 	return err;
 }
 
+int fdtdec_get_long_array(const void *blob, int node, const char *prop_name,
+			 u64 *array, int count)
+{
+	const u64 *cell;
+	int err = 0;
+
+	debug("%s: %s\n", __func__, prop_name);
+	cell = get_prop_check_min_len(blob, node, prop_name,
+				      sizeof(u64) * count, &err);
+	if (!err) {
+		int i;
+
+		for (i = 0; i < count; i++)
+			array[i] = fdt64_to_cpu(cell[i]);
+	}
+	return err;
+}
+
 int fdtdec_get_int_array_count(const void *blob, int node,
 			       const char *prop_name, u32 *array, int count)
 {
@@ -1077,8 +1095,7 @@ int fdtdec_setup_mem_size_base(void)
 
 	gd->ram_size = (phys_size_t)(res.end - res.start + 1);
 	gd->ram_base = (unsigned long)res.start;
-	debug("%s: Initial DRAM size %llx\n", __func__,
-	      (unsigned long long)gd->ram_size);
+	debug("%s: Initial DRAM size %pap\n", __func__, &gd->ram_size);
 
 	return 0;
 }
@@ -1129,10 +1146,10 @@ int fdtdec_setup_memory_banksize(void)
 		gd->bd->bi_dram[bank].size =
 			(phys_size_t)(res.end - res.start + 1);
 
-		debug("%s: DRAM Bank #%d: start = 0x%llx, size = 0x%llx\n",
+		debug("%s: DRAM Bank #%d: start = %pap, size = %pap\n",
 		      __func__, bank,
-		      (unsigned long long)gd->bd->bi_dram[bank].start,
-		      (unsigned long long)gd->bd->bi_dram[bank].size);
+		      &gd->bd->bi_dram[bank].start,
+		      &gd->bd->bi_dram[bank].size);
 	}
 
 	return 0;
@@ -1692,6 +1709,114 @@ void fdtdec_setup_embed(void)
 	gd->fdt_src = FDTSRC_EMBED;
 }
 
+static int fdtdec_match_dto_compatible(const void *base, const void *dto)
+{
+	const char *compat_base;
+	const char *compat_dto;
+	int len;
+
+	compat_base = (const char *)fdt_getprop(base, 0, "compatible", &len);
+	if (!compat_base || len <= 0)
+		return -ENOENT;
+
+	compat_dto = (const char *)fdt_getprop(dto, 0, "compatible", &len);
+	if (!compat_dto || len <= 0)
+		return -ENOENT;
+
+	if (strcmp(compat_base, compat_dto))
+		return -EPERM;
+
+	return 0;
+}
+
+static inline int fdtdec_ret_to_errno(int ret)
+{
+	switch (ret) {
+	case -FDT_ERR_NOTFOUND:
+		return -ENOENT;
+	case -FDT_ERR_EXISTS:
+		return -EEXIST;
+	case -FDT_ERR_NOSPACE:
+	case -FDT_ERR_NOPHANDLES:
+		return -ENOSPC;
+	default:
+		return -EINVAL;
+	}
+}
+
+static int fdtdec_apply_dto_blob(void **blob, __maybe_unused int size)
+{
+	int ret;
+
+	ret = fdt_check_header(*blob);
+	if (ret)
+		return fdtdec_ret_to_errno(ret);
+
+	ret = fdtdec_match_dto_compatible(gd->fdt_blob, *blob);
+	if (ret)
+		return ret;
+
+	ret = fdt_overlay_apply_verbose((void *)gd->fdt_blob, *blob);
+	if (ret)
+		return fdtdec_ret_to_errno(ret);
+
+	return 0;
+}
+
+static int fdtdec_apply_bloblist_dtos(void)
+{
+	int ret;
+	struct fdt_header *live_fdt;
+	int blob_size;
+	size_t padded_size, max_size;
+
+	if (!CONFIG_IS_ENABLED(OF_LIBFDT_OVERLAY) ||
+	    !CONFIG_IS_ENABLED(BLOBLIST))
+		return 0;
+
+	/* Get the total space reserved for FDT in blob */
+	live_fdt = bloblist_get_blob(BLOBLISTT_CONTROL_FDT, &blob_size);
+	if (live_fdt != gd->fdt_blob)
+		return -ENOENT;
+
+	ret = fdt_check_full(live_fdt, blob_size);
+	if (ret)
+		return fdtdec_ret_to_errno(ret);
+
+	/* Calculate the allowed padded size */
+	padded_size = fdt_totalsize(live_fdt) + CONFIG_SYS_FDT_PAD;
+	max_size = bloblist_get_total_size() - bloblist_get_size() + blob_size;
+	if (padded_size > max_size)
+		padded_size = max_size;
+
+	/* Resize if the current space is not sufficient */
+	if (blob_size < padded_size) {
+		ret = bloblist_resize(BLOBLISTT_CONTROL_FDT, padded_size);
+		if (ret)
+			return ret;
+
+		blob_size = padded_size;
+		ret = fdt_open_into(live_fdt, live_fdt, padded_size);
+		if (ret)
+			return fdtdec_ret_to_errno(ret);
+	}
+
+	ret = bloblist_apply_blobs(BLOBLISTT_FDT_OVERLAY, fdtdec_apply_dto_blob);
+	if (ret)
+		return ret;
+
+	ret = fdt_check_full(live_fdt, blob_size);
+	if (ret)
+		return fdtdec_ret_to_errno(ret);
+
+	ret = fdt_pack(live_fdt);
+	if (ret)
+		return fdtdec_ret_to_errno(ret);
+
+	/* Shrink the blob to the actual FDT size */
+	return bloblist_resize(BLOBLISTT_CONTROL_FDT, fdt_totalsize(live_fdt));
+}
+
 int fdtdec_setup(void)
 {
 	int ret = -ENOENT;
@@ -1713,6 +1838,9 @@ int fdtdec_setup(void)
 				gd->fdt_src = FDTSRC_BLOBLIST;
 				log_debug("Devicetree is in bloblist at %p\n",
 					  gd->fdt_blob);
+				ret = fdtdec_apply_bloblist_dtos();
+				if (ret)
+					return ret;
 				goto setup_fdt;
 			} else {
 				log_debug("No FDT found in bloblist\n");

@@ -3,7 +3,7 @@
  * (C) Copyright 2025 - Analog Devices, Inc.
  */
 
-#include <asm/arch-adi/sc5xx/sc5xx.h>
+#include <asm/arch/sc5xx.h>
 #include <linux/delay.h>
 
 #include "somcrr.h"

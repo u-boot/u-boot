@@ -3,6 +3,7 @@ config CMD_STM32PROG
 	select DFU
 	select DFU_RAM
 	select DFU_VIRT
+	select EFI_PARTITION
 	select PARTITION_TYPE_GUID
 	imply CMD_GPT if MMC
 	imply CMD_MTD if MTD

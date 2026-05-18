@@ -9,6 +9,7 @@
 
 #include <asm/io.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
@@ -23,6 +24,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
+#include <phys2bus.h>
 
 #define RSWITCH_SLEEP_US	1000
 #define RSWITCH_TIMEOUT_US	1000000
@@ -482,7 +484,7 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 	/* Access PHY register */
 	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
 		val = rswitch_mii_access_c45(etha_mii, true, phyad, devad, regad, 0);
-	else if (etha->phydev->is_c45)	/* C22 access to C45 PHY */
+	else if (etha->phydev && etha->phydev->is_c45)	/* C22 access to C45 PHY */
 		val = rswitch_mii_access_c45(etha_mii, true, phyad, 1, regad, 0);
 	else
 		val = rswitch_mii_access_c22(etha_mii, true, phyad, regad, 0);
@@ -516,7 +518,7 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 	/* Access PHY register */
 	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
 		rswitch_mii_access_c45(etha_mii, false, phyad, devad, regad, data);
-	else if (etha->phydev->is_c45)	/* C22 access to C45 PHY */
+	else if (etha->phydev && etha->phydev->is_c45)	/* C22 access to C45 PHY */
 		rswitch_mii_access_c45(etha_mii, false, phyad, 1, regad, data);
 	else
 		rswitch_mii_access_c22(etha_mii, false, phyad, regad, data);
@@ -587,9 +589,11 @@ static void rswitch_bat_desc_init(struct rswitch_port_priv *priv)
 	rswitch_flush_dcache((uintptr_t)priv->bat_desc, desc_size);
 }
 
-static void rswitch_tx_desc_init(struct rswitch_port_priv *priv)
+static void rswitch_tx_desc_init(struct udevice *dev)
 {
+	struct rswitch_port_priv *priv = dev_get_priv(dev);
 	const u32 desc_size = RSWITCH_NUM_TX_DESC * sizeof(struct rswitch_desc);
+	dma_addr_t tx_desc_ba;
 	u64 tx_desc_addr;
 	int i;
 
@@ -603,21 +607,25 @@ static void rswitch_tx_desc_init(struct rswitch_port_priv *priv)
 	/* Mark the end of the descriptors */
 	priv->tx_desc[RSWITCH_NUM_TX_DESC - 1].die_dt = DT_LINKFIX;
 	tx_desc_addr = (uintptr_t)priv->tx_desc;
-	priv->tx_desc[RSWITCH_NUM_TX_DESC - 1].dptrl = lower_32_bits(tx_desc_addr);
-	priv->tx_desc[RSWITCH_NUM_TX_DESC - 1].dptrh = upper_32_bits(tx_desc_addr);
+	tx_desc_ba = dev_phys_to_bus(dev, (phys_addr_t)tx_desc_addr);
+
+	priv->tx_desc[RSWITCH_NUM_TX_DESC - 1].dptrl = lower_32_bits(tx_desc_ba);
+	priv->tx_desc[RSWITCH_NUM_TX_DESC - 1].dptrh = upper_32_bits(tx_desc_ba);
 	rswitch_flush_dcache(tx_desc_addr, desc_size);
 
 	/* Point the controller to the TX descriptor list */
 	priv->bat_desc[RSWITCH_TX_CHAIN_INDEX].die_dt = DT_LINKFIX;
-	priv->bat_desc[RSWITCH_TX_CHAIN_INDEX].dptrl = lower_32_bits(tx_desc_addr);
-	priv->bat_desc[RSWITCH_TX_CHAIN_INDEX].dptrh = upper_32_bits(tx_desc_addr);
+	priv->bat_desc[RSWITCH_TX_CHAIN_INDEX].dptrl = lower_32_bits(tx_desc_ba);
+	priv->bat_desc[RSWITCH_TX_CHAIN_INDEX].dptrh = upper_32_bits(tx_desc_ba);
 	rswitch_flush_dcache((uintptr_t)&priv->bat_desc[RSWITCH_TX_CHAIN_INDEX],
 			     sizeof(struct rswitch_desc));
 }
 
-static void rswitch_rx_desc_init(struct rswitch_port_priv *priv)
+static void rswitch_rx_desc_init(struct udevice *dev)
 {
+	struct rswitch_port_priv *priv = dev_get_priv(dev);
 	const u32 desc_size = RSWITCH_NUM_RX_DESC * sizeof(struct rswitch_rxdesc);
+	dma_addr_t packet_ba, next_rx_desc_ba, rx_desc_ba;
 	int i;
 	u64 packet_addr;
 	u64 next_rx_desc_addr;
@@ -631,26 +639,29 @@ static void rswitch_rx_desc_init(struct rswitch_port_priv *priv)
 		priv->rx_desc[i].data.die_dt = DT_FEMPTY;
 		priv->rx_desc[i].data.info_ds = PKTSIZE_ALIGN;
 		packet_addr = (uintptr_t)priv->rx_desc[i].packet;
-		priv->rx_desc[i].data.dptrl = lower_32_bits(packet_addr);
-		priv->rx_desc[i].data.dptrh = upper_32_bits(packet_addr);
+		packet_ba = dev_phys_to_bus(dev, (phys_addr_t)packet_addr);
+		priv->rx_desc[i].data.dptrl = lower_32_bits(packet_ba);
+		priv->rx_desc[i].data.dptrh = upper_32_bits(packet_ba);
 
 		priv->rx_desc[i].link.die_dt = DT_LINKFIX;
 		next_rx_desc_addr = (uintptr_t)&priv->rx_desc[i + 1];
-		priv->rx_desc[i].link.dptrl = lower_32_bits(next_rx_desc_addr);
-		priv->rx_desc[i].link.dptrh = upper_32_bits(next_rx_desc_addr);
+		next_rx_desc_ba = dev_phys_to_bus(dev, (phys_addr_t)next_rx_desc_addr);
+		priv->rx_desc[i].link.dptrl = lower_32_bits(next_rx_desc_ba);
+		priv->rx_desc[i].link.dptrh = upper_32_bits(next_rx_desc_ba);
 	}
 
 	/* Mark the end of the descriptors */
 	priv->rx_desc[RSWITCH_NUM_RX_DESC - 1].link.die_dt = DT_LINKFIX;
 	rx_desc_addr = (uintptr_t)priv->rx_desc;
-	priv->rx_desc[RSWITCH_NUM_RX_DESC - 1].link.dptrl = lower_32_bits(rx_desc_addr);
-	priv->rx_desc[RSWITCH_NUM_RX_DESC - 1].link.dptrh = upper_32_bits(rx_desc_addr);
+	rx_desc_ba = dev_phys_to_bus(dev, (phys_addr_t)rx_desc_addr);
+	priv->rx_desc[RSWITCH_NUM_RX_DESC - 1].link.dptrl = lower_32_bits(rx_desc_ba);
+	priv->rx_desc[RSWITCH_NUM_RX_DESC - 1].link.dptrh = upper_32_bits(rx_desc_ba);
 	rswitch_flush_dcache(rx_desc_addr, desc_size);
 
 	/* Point the controller to the rx descriptor list */
 	priv->bat_desc[RSWITCH_RX_CHAIN_INDEX].die_dt = DT_LINKFIX;
-	priv->bat_desc[RSWITCH_RX_CHAIN_INDEX].dptrl = lower_32_bits(rx_desc_addr);
-	priv->bat_desc[RSWITCH_RX_CHAIN_INDEX].dptrh = upper_32_bits(rx_desc_addr);
+	priv->bat_desc[RSWITCH_RX_CHAIN_INDEX].dptrl = lower_32_bits(rx_desc_ba);
+	priv->bat_desc[RSWITCH_RX_CHAIN_INDEX].dptrh = upper_32_bits(rx_desc_ba);
 	rswitch_flush_dcache((uintptr_t)&priv->bat_desc[RSWITCH_RX_CHAIN_INDEX],
 			     sizeof(struct rswitch_desc));
 }
@@ -741,9 +752,11 @@ static int rswitch_gwca_axi_ram_reset(struct rswitch_gwca *gwca)
 					RSWITCH_SLEEP_US, RSWITCH_TIMEOUT_US);
 }
 
-static int rswitch_gwca_init(struct rswitch_port_priv *priv)
+static int rswitch_gwca_init(struct udevice *dev)
 {
+	struct rswitch_port_priv *priv = dev_get_priv(dev);
 	struct rswitch_gwca *gwca = &priv->gwca;
+	dma_addr_t bat_desc_ba;
 	int ret;
 
 	ret = rswitch_gwca_change_mode(priv, GWMC_OPC_DISABLE);
@@ -765,9 +778,11 @@ static int rswitch_gwca_init(struct rswitch_port_priv *priv)
 	/* Setting flow */
 	writel(GWVCC_VEM_SC_TAG, gwca->addr + GWVCC);
 	writel(0, gwca->addr + GWTTFC);
-	writel(upper_32_bits((uintptr_t)priv->bat_desc) & GWDCBAC0_DCBAUP,
+
+	bat_desc_ba = dev_phys_to_bus(dev, (phys_addr_t)(priv->bat_desc));
+	writel(upper_32_bits(bat_desc_ba) & GWDCBAC0_DCBAUP,
 	       gwca->addr + GWDCBAC0 + priv->drv_data->gwdcbac_offset);
-	writel(lower_32_bits((uintptr_t)priv->bat_desc),
+	writel(lower_32_bits(bat_desc_ba),
 	       gwca->addr + GWDCBAC1 + priv->drv_data->gwdcbac_offset);
 	writel(GWDCC_DQT | GWDCC_BALR, gwca->addr + GWDCC(RSWITCH_TX_CHAIN_INDEX));
 	writel(GWDCC_BALR, gwca->addr + GWDCC(RSWITCH_RX_CHAIN_INDEX));
@@ -844,8 +859,9 @@ static int rswitch_etha_init(struct rswitch_port_priv *priv)
 	return 0;
 }
 
-static int rswitch_init(struct rswitch_port_priv *priv)
+static int rswitch_start(struct udevice *dev)
 {
+	struct rswitch_port_priv *priv = dev_get_priv(dev);
 	struct rswitch_etha *etha = &priv->etha;
 	int ret;
 
@@ -875,8 +891,8 @@ static int rswitch_init(struct rswitch_port_priv *priv)
 		return ret;
 
 	rswitch_bat_desc_init(priv);
-	rswitch_tx_desc_init(priv);
-	rswitch_rx_desc_init(priv);
+	rswitch_tx_desc_init(dev);
+	rswitch_rx_desc_init(dev);
 
 	rswitch_clock_enable(priv);
 
@@ -886,23 +902,11 @@ static int rswitch_init(struct rswitch_port_priv *priv)
 
 	rswitch_mfwd_init(priv);
 
-	ret = rswitch_gwca_init(priv);
+	ret = rswitch_gwca_init(dev);
 	if (ret)
 		return ret;
 
 	ret = rswitch_etha_init(priv);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
-static int rswitch_start(struct udevice *dev)
-{
-	struct rswitch_port_priv *priv = dev_get_priv(dev);
-	int ret;
-
-	ret = rswitch_init(priv);
 	if (ret)
 		return ret;
 
@@ -914,6 +918,7 @@ static int rswitch_send(struct udevice *dev, void *packet, int len)
 {
 	struct rswitch_port_priv *priv = dev_get_priv(dev);
 	struct rswitch_desc *desc = &priv->tx_desc[priv->tx_desc_index];
+	dma_addr_t bpacket = dev_phys_to_bus(dev, (phys_addr_t)packet);
 	struct rswitch_gwca *gwca = &priv->gwca;
 	u32 gwtrc_index, start;
 
@@ -923,8 +928,8 @@ static int rswitch_send(struct udevice *dev, void *packet, int len)
 	memset(desc, 0x0, sizeof(*desc));
 	desc->die_dt = DT_FSINGLE;
 	desc->info_ds = len;
-	desc->dptrl = lower_32_bits((uintptr_t)packet);
-	desc->dptrh = upper_32_bits((uintptr_t)packet);
+	desc->dptrl = lower_32_bits(bpacket);
+	desc->dptrh = upper_32_bits(bpacket);
 	rswitch_flush_dcache((uintptr_t)desc, sizeof(*desc));
 
 	/* Start transmission */
@@ -954,6 +959,7 @@ static int rswitch_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct rswitch_port_priv *priv = dev_get_priv(dev);
 	struct rswitch_rxdesc *desc = &priv->rx_desc[priv->rx_desc_index];
+	dma_addr_t dpacket;
 	u8 *packet;
 	int len;
 
@@ -963,7 +969,9 @@ static int rswitch_recv(struct udevice *dev, int flags, uchar **packetp)
 		return -EAGAIN;
 
 	len = desc->data.info_ds & RX_DS;
-	packet = (u8 *)(((uintptr_t)(desc->data.dptrh) << 32) | (uintptr_t)desc->data.dptrl);
+	dpacket = ((u64)(desc->data.dptrh) << 32) | (u64)(desc->data.dptrl);
+	packet = (u8 *)(uintptr_t)dev_bus_to_phys(dev, dpacket);
+
 	rswitch_invalidate_dcache((uintptr_t)packet, len);
 
 	*packetp = packet;

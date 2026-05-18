@@ -547,8 +547,6 @@ void board_init_f(ulong dummy)
 	gpio_direction_output(WIFI_EN, 1);
 #endif
 
-	board_early_init_f();
-
 	timer_init();
 
 	preloader_console_init();

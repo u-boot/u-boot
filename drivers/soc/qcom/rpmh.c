@@ -60,8 +60,8 @@ static int __rpmh_write(const struct udevice *dev, enum rpmh_state state,
 	struct rpmh_ctrlr *ctrlr = get_rpmh_ctrlr(dev);
 
 	if (state != RPMH_ACTIVE_ONLY_STATE) {
-		log_err("only ACTIVE_ONLY state supported\n");
-		return -EINVAL;
+		log_debug("WARN: Only ACTIVE_ONLY state supported\n");
+		return 0;
 	}
 
 	return rpmh_rsc_send_data(ctrlr_to_drv(ctrlr), &rpm_msg->msg);

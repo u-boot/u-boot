@@ -456,12 +456,12 @@ The following steps describe the process of booting J784S4-EVM over PCIe:
       0000:01:00.1 Non-VGA unclassified device: Texas Instruments Device 0100
       0000:01:00.2 Non-VGA unclassified device: Texas Instruments Device 0100
 
-4. Copy ``tiboot3.bin`` to the endpoint. Use ``lspci -vv`` to identify the BAR
-   address:
+4. Copy ``tiboot3.bin`` to BAR1 of Physical Function Zero of the endpoint:
 
    .. prompt:: bash
 
-      sudo ./pcie_boot_util 0x4007100000 tiboot3.bin
+      tiboot3_bar_address="0x$(lspci -D -nnvv | awk '/^[0-9a-fA-F]{4}:/ {bdf=$1; ram=($0 ~ /RAM memory/ || $0 ~ /Memory controller/)} ram && /Region [1]+:/ {print bdf, $0}' | cut -d ' ' -f 6)"
+      sudo ./pcie_boot_util ${tiboot3_bar_address} tiboot3.bin
 
    The sample program automatically writes the image start address to
    ``0x41CF3FE0`` and the magic word ``0xB17CEAD9`` to ``0x41CF3FE4``.
@@ -491,11 +491,12 @@ The following steps describe the process of booting J784S4-EVM over PCIe:
       (with appropriate DOMAIN:BUS:DEVICE.FUNCTION corresponding to the Endpoint) to enable
       the BAR.
 
-6. Copy ``tispl.bin`` to the new BAR address (use ``lspci -vv`` to find):
+6. Copy ``tispl.bin`` to BAR0 of Physical Function Zero of the endpoint:
 
    .. prompt:: bash
 
-      sudo ./pcie_boot_util 0x4000400000 tispl.bin
+      tispl_bar_address="0x$(lspci -D -nnvv | awk '/^[0-9a-fA-F]{4}:/ {bdf=$1; ram=($0 ~ /RAM memory/ || $0 ~ /Memory controller/)} ram && /Region [0]+:/ {print bdf, $0}' | head -n1 | cut -d ' ' -f 6)"
+      sudo ./pcie_boot_util ${tispl_bar_address} tispl.bin
 
 7. After ``tispl.bin`` is processed, the PCIe link will go down again. Remove
    and rescan the PCIe device:
@@ -505,11 +506,12 @@ The following steps describe the process of booting J784S4-EVM over PCIe:
       echo 1 > /sys/bus/pci/devices/0000\:01\:00.0/remove
       echo 1 > /sys/bus/pci/devices/0000\:00\:00.0/rescan
 
-8. Copy ``u-boot.img``:
+8. Copy ``u-boot.img`` to BAR0 of Physical Function Zero of the endpoint:
 
    .. prompt:: bash
 
-      sudo ./pcie_boot_util 0x4000400000 u-boot.img
+      uboot_bar_address="0x$(lspci -D -nnvv | awk '/^[0-9a-fA-F]{4}:/ {bdf=$1; ram=($0 ~ /RAM memory/ || $0 ~ /Memory controller/)} ram && /Region [0]+:/ {print bdf, $0}' | head -n1 | cut -d ' ' -f 6)"
+      sudo ./pcie_boot_util ${uboot_bar_address} u-boot.img
 
 9. After ``u-boot.img`` is successfully loaded, the boot process is complete
    and endpoint should boot till U-Boot prompt.

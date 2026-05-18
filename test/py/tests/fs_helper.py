@@ -7,9 +7,190 @@
 
 import re
 import os
+import shutil
 from subprocess import call, check_call, check_output, CalledProcessError
+from subprocess import DEVNULL
+import tempfile
 
-def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
+# size_gran (int): Size granularity of file system image in bytes
+SIZE_GRAN = 1 << 20
+
+
+class FsHelper:
+    """Creating a filesystem containing test files
+
+    Usage:
+        with FsHelper(ubman.config, 'ext4', 10, 'mmc1') as fsh:
+            # create files in the self.srcdir directory
+            fsh.mk_fs()
+            # Now use the filesystem
+
+        # The filesystem and srcdir are erased after the 'with' statement.
+
+        It is also possible to use an existing srcdir:
+
+            with FsHelper(ubman.config, 'fat32', 10, 'usb2') as fsh:
+                fsh.srcdir = src_dir
+                fsh.mk_fs()
+                ...
+
+    Properties:
+        fs_img (str): Filename for the filesystem image
+    """
+    def __init__(self, config, fs_type, size_mb, prefix):
+        """Set up a new object
+
+        Args:
+            config (u_boot_config): U-Boot configuration
+            fs_type (str): File system type: one of ext2, ext3, ext4, vfat,
+                fat12, fat16, fat32, exfat, fs_generic (which means vfat)
+            size_mb (int): Size of file system in MB
+            prefix (str): Prefix string of volume's file name
+        """
+        if fs_type not in ['fat12', 'fat16', 'fat32', 'vfat',
+                          'ext2', 'ext3', 'ext4',
+                          'exfat', 'fs_generic']:
+            raise ValueError(f"Unsupported filesystem type '{fs_type}'")
+
+        self.config = config
+        self.fs_type = fs_type
+        self.size_mb = size_mb
+        self.prefix = prefix
+        self.quiet = True
+        self.fs_img = None
+        self.tmpdir = None
+        self.srcdir = None
+        self._do_cleanup = False
+
+    def mk_fs(self):
+        """Make a new filesystem and copy in the files"""
+        self.setup()
+        self._do_cleanup = True
+        src_dir = self.srcdir if os.listdir(self.srcdir) else None
+        self.fs_img = mk_fs(self.config, self.fs_type, self.size_mb << 20,
+                            self.prefix, src_dir, quiet=self.quiet)
+
+    def setup(self):
+        """Set up the srcdir ready to receive files"""
+        if not self.srcdir:
+            if self.config:
+                self.srcdir = os.path.join(self.config.persistent_data_dir,
+                                           f'{self.prefix}.{self.fs_type}.tmp')
+                if os.path.exists(self.srcdir):
+                    shutil.rmtree(self.srcdir)
+                os.mkdir(self.srcdir)
+            else:
+                self.tmpdir = tempfile.TemporaryDirectory('fs_helper')
+                self.srcdir = self.tmpdir.name
+
+    def cleanup(self):
+        """Remove created image"""
+        if self.tmpdir:
+            self.tmpdir.cleanup()
+        if self._do_cleanup:
+            os.remove(self.fs_img)
+
+    def __enter__(self):
+        self.setup()
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        self.cleanup()
+
+
+class DiskHelper:
+    """Helper class for creating disk images containing filesytems
+
+    Usage:
+        with DiskHelper(ubman.config, 0, 'mmc') as img, \
+                FsHelper(ubman.config, 'ext1', 1, 'mmc') as fsh:
+            # Write files to fsh.srcdir
+            ...
+
+            # Create the filesystem
+            fsh.mk_fs()
+
+            # Add this filesystem to the disk
+            img.add_fs(fsh, DiskHelper.VFAT)
+
+            # Add more filesystems as needed (add another 'with' clause)
+            ...
+
+            # Get the final disk image
+            data = img.create()
+    """
+
+    # Partition-type codes
+    VFAT  = 0xc
+    EXT4  = 0x83
+
+    def __init__(self, config, devnum, prefix, cur_dir=False):
+        """Set up a new disk image
+
+        Args:
+            config (u_boot_config): U-Boot configuration
+            devnum (int): Device number (for filename)
+            prefix (str): Prefix string of volume's file name
+            cur_dir (bool): True to put the file in the current directory,
+                instead of the persistent-data directory
+        """
+        self.fs_list = []
+        self.fname = os.path.join('' if cur_dir else config.persistent_data_dir,
+                                  f'{prefix}{devnum}.img')
+
+    def add_fs(self, fs_img, part_type, bootable=False):
+        """Add a new filesystem
+
+        Args:
+            fs_img (FsHelper): Filesystem to add
+            part_type (DiskHelper.FAT or DiskHelper.EXT4): Partition type
+            bootable (bool): True to set the 'bootable' flat
+        """
+        self.fs_list.append([fs_img, part_type, bootable])
+
+    def create(self):
+        """Create the disk image
+
+        Create an image with a partition table and the filesystems
+        """
+        spec = ''
+        pos = 1   # Reserve 1MB for the partition table itself
+        for fsi, part_type, bootable in self.fs_list:
+            if spec:
+                spec += '\n'
+            spec += f'type={part_type:x}, size={fsi.size_mb}M, start={pos}M'
+            if bootable:
+                spec += ', bootable'
+            pos += fsi.size_mb
+
+        img_size = pos
+        try:
+            check_call(f'qemu-img create {self.fname} {img_size}M', shell=True)
+            check_call(f'printf "{spec}" | sfdisk {self.fname}', shell=True)
+        except CalledProcessError:
+            os.remove(self.fname)
+            raise
+
+        pos = 1   # Reserve 1MB for the partition table itself
+        for fsi, part_type, bootable in self.fs_list:
+            check_call(
+                f'dd if={fsi.fs_img} of={self.fname} bs=1M seek={pos} conv=notrunc',
+                shell=True)
+            pos += fsi.size_mb
+        return self.fname
+
+    def cleanup(self, remove_full_img=False):
+        """Remove created file"""
+        os.remove(self.fname)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        self.cleanup()
+
+
+def mk_fs(config, fs_type, size, prefix, src_dir=None, fs_img=None, quiet=False):
     """Create a file system volume
 
     Args:
@@ -18,12 +199,16 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
         size (int): Size of file system in bytes
         prefix (str): Prefix string of volume's file name
         src_dir (str): Root directory to use, or None for none
-        size_gran (int): Size granularity of file system image in bytes
+        fs_img (str or None): Leaf filename for image, or None to use a
+            default name. The image is always placed under
+            persistent_data_dir.
+        quiet (bool): Suppress non-error output
 
     Raises:
         CalledProcessError: if any error occurs when creating the filesystem
     """
-    fs_img = f'{prefix}.{fs_type}.img'
+    if not fs_img:
+        fs_img = f'{prefix}.{fs_type}.img'
     fs_img = os.path.join(config.persistent_data_dir, fs_img)
 
     if fs_type == 'fat12':
@@ -48,7 +233,7 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
         elif fs_lnxtype != 'vfat' and fs_lnxtype != 'exfat':
             raise ValueError(f'src_dir not implemented for fs {fs_lnxtype}')
 
-    count = (size + size_gran - 1) // size_gran
+    count = (size + SIZE_GRAN - 1) // SIZE_GRAN
 
     # Some distributions do not add /sbin to the default PATH, where mkfs lives
     if '/sbin' not in os.environ["PATH"].split(os.pathsep):
@@ -56,16 +241,19 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
 
     try:
         check_call(f'rm -f {fs_img}', shell=True)
-        check_call(f'truncate -s $(( {size_gran} * {count} )) {fs_img}',
+        check_call(f'truncate -s $(( {SIZE_GRAN} * {count} )) {fs_img}',
                    shell=True)
-        check_call(f'mkfs.{fs_lnxtype} {mkfs_opt} {fs_img}', shell=True)
+        check_call(f'mkfs.{fs_lnxtype} {mkfs_opt} {fs_img}', shell=True,
+                   stdout=DEVNULL if quiet else None)
         if fs_type == 'ext4':
             sb_content = check_output(f'tune2fs -l {fs_img}',
                                       shell=True).decode()
             if 'metadata_csum' in sb_content:
                 check_call(f'tune2fs -O ^metadata_csum {fs_img}', shell=True)
         elif fs_lnxtype == 'vfat' and src_dir:
-            check_call(f'mcopy -i {fs_img} -vsmpQ {src_dir}/* ::/', shell=True)
+            flags = f"-smpQ{'' if quiet else 'v'}"
+            check_call(f'mcopy -i {fs_img} {flags} {src_dir}/* ::/',
+                       shell=True)
         elif fs_lnxtype == 'exfat' and src_dir:
             check_call(f'fattools cp {src_dir}/* {fs_img}', shell=True)
         return fs_img
@@ -75,7 +263,7 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
 
 def setup_image(ubman, devnum, part_type, img_size=20, second_part=False,
                 basename='mmc'):
-    """Create a disk image with a single partition
+    """Create a disk image with one or two partitions
 
     Args:
         ubman (ConsoleBase): Console to use

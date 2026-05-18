@@ -340,6 +340,7 @@ int scsi_bus_reset(struct udevice *dev);
  * scsi_scan() - Scan all SCSI controllers for available devices
  *
  * @vebose: true to show information about each device found
+ * Return: 0 if OK, -ve on error
  */
 int scsi_scan(bool verbose);
 
@@ -348,15 +349,19 @@ int scsi_scan(bool verbose);
  *
  * @dev:	SCSI bus
  * @verbose:	true to show information about each device found
+ * Return: 0 if OK, -ve on error
  */
 int scsi_scan_dev(struct udevice *dev, bool verbose);
 
 /**
  * scsi_get_blk_by_uuid() - Provides SCSI partition information.
  *
+ * scsi_scan() must have been called before calling this function.
+ *
  * @uuid:		UUID of the partition for fetching its info
  * @blk_desc_ptr:	Provides the blk descriptor
  * @part_info_ptr:	Provides partition info
+ * Return: 0 if OK, -ve on error
  */
 int scsi_get_blk_by_uuid(const char *uuid, struct blk_desc **blk_desc_ptr,
 			 struct disk_partition *part_info_ptr);

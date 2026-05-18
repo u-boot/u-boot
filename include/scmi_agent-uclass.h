@@ -52,7 +52,7 @@ struct scmi_agent_priv {
 #if IS_ENABLED(CONFIG_DM_REGULATOR_SCMI)
 	struct udevice *voltagedom_dev;
 #endif
-#if IS_ENABLED(CONFIG_PINCTRL_IMX_SCMI)
+#if IS_ENABLED(CONFIG_PINCTRL_SCMI) || IS_ENABLED(CONFIG_PINCTRL_IMX_SCMI)
 	struct udevice *pinctrl_dev;
 #endif
 #if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_80)

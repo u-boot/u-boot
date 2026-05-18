@@ -115,3 +115,21 @@ U_BOOT_DRIVER(serial_goldfish) = {
 	.priv_auto = sizeof(struct goldfish_tty_priv),
 	.flags	= DM_FLAG_PRE_RELOC,
 };
+
+#ifdef CONFIG_DEBUG_UART_GOLDFISH
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
+{
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	void __iomem *base = (void __iomem *)CONFIG_VAL(DEBUG_UART_BASE);
+
+	__raw_writel(ch, base + GOLDFISH_TTY_PUT_CHAR);
+}
+
+DEBUG_UART_FUNCS
+#endif

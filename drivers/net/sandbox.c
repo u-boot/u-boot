@@ -15,7 +15,7 @@
 
 /*
  * Structure definitions for network protocols. Since this file is used for
- * both NET and NET_LWIP, and given that the two network stacks do have
+ * both NET_LEGACY and NET_LWIP, and given that the two network stacks do have
  * conflicting types (for instance struct icmp_hdr), it is on purpose that the
  * structures are defined locally with minimal dependencies -- <asm/types.h> is
  * included for the bit types and that's it.

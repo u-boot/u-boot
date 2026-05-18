@@ -114,7 +114,7 @@ vector192_255:
 	/* Image header: chksum 4 bytes, len 4 bytes, img dest 4 bytes */
 asm_sbf_img_hdr:
 	.long	0x00000000		/* checksum, not yet implemented */
-	.long	0x00040000		/* image length */
+	.long	CONFIG_SYS_MONITOR_LEN	/* image length */
 	.long	CONFIG_TEXT_BASE	/* image to be relocated at */
 
 asm_dram_init:
@@ -292,7 +292,6 @@ asm_dspi_rd_status:
 	move.b	(%a3), %d1
 	rts
 #endif /* CONFIG_CF_SBF */
-
 #ifdef CONFIG_SYS_NAND_BOOT
 	/* copy 4 boot pages to dram as soon as possible */
 	/* each page is 996 bytes (1056 total with 60 ECC bytes */

@@ -7,7 +7,7 @@ config MV88E6352_SWITCH
 
 menuconfig PHYLIB
 	bool "Ethernet PHY (physical media interface) support"
-	depends on NET || NET_LWIP
+	depends on NET
 	help
 	  Enable Ethernet PHY (physical media interface) support.
 
@@ -91,6 +91,7 @@ menuconfig PHY_AQUANTIA
 config PHY_AQUANTIA_UPLOAD_FW
 	bool "Aquantia firmware loading support"
 	depends on PHY_AQUANTIA
+	depends on SUPPORTS_FW_LOADER
 	select FW_LOADER
 	help
 	  Aquantia PHYs use firmware which can be either loaded automatically
@@ -380,7 +381,7 @@ config PHY_FIXED
 
 config PHY_NCSI
 	bool "NC-SI based PHY"
-	depends on NET
+	depends on NET_LEGACY
 
 endif #PHYLIB
 

@@ -476,7 +476,7 @@
 		};
 	};
 
-	sdmmc3: sdhci@700b0400 {
+	sdmmc3: mmc@700b0400 {
 		status = "okay";
 		bus-width = <4>;
 
@@ -487,7 +487,7 @@
 		vqmmc-supply = <&vddio_usd>;
 	};
 
-	sdmmc4: sdhci@700b0600 {
+	sdmmc4: mmc@700b0600 {
 		status = "okay";
 		bus-width = <8>;
 		non-removable;

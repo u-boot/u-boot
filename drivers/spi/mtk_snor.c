@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
-//
-// Mediatek SPI-NOR controller driver
-//
-// Copyright (C) 2020 SkyLake Huang <SkyLake.Huang@mediatek.com>
-//
-// Some parts are based on drivers/spi/spi-mtk-nor.c of linux version
+/*
+ * Mediatek SPI-NOR controller driver
+ *
+ * Copyright (C) 2020 SkyLake Huang <SkyLake.Huang@mediatek.com>
+ *
+ * Some parts are based on drivers/spi/spi-mtk-nor.c of linux version
+ */
 
 #include <clk.h>
 #include <cpu_func.h>
@@ -89,22 +90,33 @@
 #define MTK_NOR_REG_DMA_END_DADR 0x724
 
 #define MTK_NOR_PRG_MAX_SIZE 6
-// Reading DMA src/dst addresses have to be 16-byte aligned
+#define MTK_NOR_PRG_CNT_MAX 56
+/* Reading DMA src/dst addresses have to be 16-byte aligned */
 #define MTK_NOR_DMA_ALIGN 16
 #define MTK_NOR_DMA_ALIGN_MASK (MTK_NOR_DMA_ALIGN - 1)
-// and we allocate a bounce buffer if destination address isn't aligned.
+/* and we allocate a bounce buffer if destination address isn't aligned. */
 #define MTK_NOR_BOUNCE_BUF_SIZE PAGE_SIZE
 
-// Buffered page program can do one 128-byte transfer
+/* Buffered page program can do one 128-byte transfer */
 #define MTK_NOR_PP_SIZE 128
 
 #define CLK_TO_US(priv, clkcnt) DIV_ROUND_UP(clkcnt, (priv)->spi_freq / 1000000)
 
 #define MTK_NOR_UNLOCK_ALL 0x0
 
+struct mtk_snor_caps {
+	/*
+	 * Some new SoCs modify the timing of fetching registers' values and IDs
+	 * of NOR flash, they need a extra_bit which can add more clock cycles
+	 * for fetching data.
+	 */
+	u8 extra_bit;
+};
+
 struct mtk_snor_priv {
 	struct device *dev;
 	void __iomem *base;
+	const struct mtk_snor_caps *caps;
 	u8 *buffer;
 	struct clk spi_clk;
 	struct clk ctlr_clk;
@@ -168,8 +180,8 @@ static int mtk_snor_adjust_op_size(struct spi_slave *slave,
 		return 0;
 
 	if (op->addr.nbytes == 3 || op->addr.nbytes == 4) {
-		if (op->data.dir == SPI_MEM_DATA_IN) { //&&
-			// limit size to prevent timeout calculation overflow
+		if (op->data.dir == SPI_MEM_DATA_IN) {
+			/* limit size to prevent timeout calculation overflow */
 			if (op->data.nbytes > 0x400000)
 				op->data.nbytes = 0x400000;
 			if (op->addr.val & MTK_NOR_DMA_ALIGN_MASK ||
@@ -262,6 +274,7 @@ static int mtk_snor_read_bounce(struct mtk_snor_priv *priv,
 {
 	unsigned int rdlen;
 	int ret;
+	dma_addr_t bounce_dma;
 
 	if (op->data.nbytes & MTK_NOR_DMA_ALIGN_MASK)
 		rdlen = (op->data.nbytes + MTK_NOR_DMA_ALIGN) &
@@ -269,11 +282,21 @@ static int mtk_snor_read_bounce(struct mtk_snor_priv *priv,
 	else
 		rdlen = op->data.nbytes;
 
-	ret = mtk_snor_dma_exec(priv, op->addr.val, rdlen,
-				(dma_addr_t)priv->buffer);
+	/* Map bounce buffer for DMA */
+	bounce_dma = dma_map_single(priv->buffer, rdlen, DMA_FROM_DEVICE);
+	if (dma_mapping_error(priv->dev, bounce_dma)) {
+		dev_err(priv->dev, "bounce buffer dma map failed\n");
+		return -EINVAL;
+	}
 
-	if (!ret)
+	ret = mtk_snor_dma_exec(priv, op->addr.val, rdlen, bounce_dma);
+	/* Ensure DMA writes are visible to CPU and copy the requested bytes */
+	if (!ret) {
+		/* Synchronize cached data to CPU visible memory if needed */
 		memcpy(op->data.buf.in, priv->buffer, op->data.nbytes);
+	}
+	/* Unmap bounce buffer regardless of success/failure */
+	dma_unmap_single(bounce_dma, rdlen, DMA_FROM_DEVICE);
 
 	return ret;
 }
@@ -361,8 +384,12 @@ static int mtk_snor_pp_buffered(struct mtk_snor_priv *priv,
 		      buf[i];
 		writel(val, priv->base + MTK_NOR_REG_PP_DATA);
 	}
-	mtk_snor_cmd_exec(priv, MTK_NOR_CMD_WRITE,
-			  (op->data.nbytes + 5) * BITS_PER_BYTE);
+
+	ret = mtk_snor_cmd_exec(priv, MTK_NOR_CMD_WRITE,
+				(op->data.nbytes + 5) * BITS_PER_BYTE);
+	if (ret)
+		return ret;
+
 	return mtk_snor_write_buffer_disable(priv);
 }
 
@@ -382,50 +409,83 @@ static int mtk_snor_pp_unbuffered(struct mtk_snor_priv *priv,
 static int mtk_snor_cmd_program(struct mtk_snor_priv *priv,
 				const struct spi_mem_op *op)
 {
-	u32 tx_len = 0;
-	u32 trx_len = 0;
+	int rx_len = 0;
 	int reg_offset = MTK_NOR_REG_PRGDATA_MAX;
+	int tx_len, prg_len;
+	int i, ret;
 	void __iomem *reg;
-	u8 *txbuf;
-	int tx_cnt = 0;
-	u8 *rxbuf = op->data.buf.in;
-	int i = 0;
+	u8 val;
 
-	tx_len = 1 + op->addr.nbytes + op->dummy.nbytes;
-	trx_len = tx_len + op->data.nbytes;
+	tx_len = op->cmd.nbytes + op->addr.nbytes;
+
+	/* count dummy bytes only if we need to write data after it */
 	if (op->data.dir == SPI_MEM_DATA_OUT)
-		tx_len += op->data.nbytes;
+		tx_len += op->dummy.nbytes + op->data.nbytes;
+	else if (op->data.dir == SPI_MEM_DATA_IN)
+		rx_len = op->data.nbytes;
 
-	txbuf = kmalloc_array(tx_len, sizeof(u8), GFP_KERNEL);
-	memset(txbuf, 0x0, tx_len * sizeof(u8));
+	prg_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes +
+		  op->data.nbytes;
 
-	/* Join all bytes to be transferred */
-	txbuf[tx_cnt] = op->cmd.opcode;
-	tx_cnt++;
-	for (i = op->addr.nbytes; i > 0; i--, tx_cnt++)
-		txbuf[tx_cnt] = ((u8 *)&op->addr.val)[i - 1];
-	for (i = op->dummy.nbytes; i > 0; i--, tx_cnt++)
-		txbuf[tx_cnt] = 0x0;
-	if (op->data.dir == SPI_MEM_DATA_OUT)
-		for (i = op->data.nbytes; i > 0; i--, tx_cnt++)
-			txbuf[tx_cnt] = ((u8 *)op->data.buf.out)[i - 1];
+	/*
+	 * An invalid op may reach here if the caller calls exec_op without
+	 * adjust_op_size. return -EINVAL instead of -ENOTSUPP so that
+	 * spi-mem won't try this op again with generic spi transfers.
+	 */
+	if ((tx_len > MTK_NOR_REG_PRGDATA_MAX + 1) ||
+	    (rx_len > MTK_NOR_REG_SHIFT_MAX + 1) ||
+	    (prg_len > MTK_NOR_PRG_CNT_MAX / 8))
+		return -EINVAL;
 
-	for (i = MTK_NOR_REG_PRGDATA_MAX; i >= 0; i--)
-		writeb(0, priv->base + MTK_NOR_REG_PRGDATA(i));
+	/* fill tx data */
 
-	for (i = 0; i < tx_len; i++, reg_offset--)
-		writeb(txbuf[i], priv->base + MTK_NOR_REG_PRGDATA(reg_offset));
+	for (i = op->cmd.nbytes; i > 0; i--, reg_offset--) {
+		reg = priv->base + MTK_NOR_REG_PRGDATA(reg_offset);
+		val = (op->cmd.opcode >> ((i - 1) * BITS_PER_BYTE)) & 0xff;
+		writeb(val, reg);
+	}
 
-	kfree(txbuf);
+	for (i = op->addr.nbytes; i > 0; i--, reg_offset--) {
+		reg = priv->base + MTK_NOR_REG_PRGDATA(reg_offset);
+		val = (op->addr.val >> ((i - 1) * BITS_PER_BYTE)) & 0xff;
+		writeb(val, reg);
+	}
 
-	writel(trx_len * BITS_PER_BYTE, priv->base + MTK_NOR_REG_PRG_CNT);
+	if (op->data.dir == SPI_MEM_DATA_OUT) {
+		for (i = 0; i < op->dummy.nbytes; i++, reg_offset--) {
+			reg = priv->base + MTK_NOR_REG_PRGDATA(reg_offset);
+			writeb(0, reg);
+		}
 
-	mtk_snor_cmd_exec(priv, MTK_NOR_CMD_PROGRAM, trx_len * BITS_PER_BYTE);
+		for (i = 0; i < op->data.nbytes; i++, reg_offset--) {
+			reg = priv->base + MTK_NOR_REG_PRGDATA(reg_offset);
+			writeb(((const u8 *)(op->data.buf.out))[i], reg);
+		}
+	}
 
-	reg_offset = op->data.nbytes - 1;
-	for (i = 0; i < op->data.nbytes; i++, reg_offset--) {
-		reg = priv->base + MTK_NOR_REG_SHIFT(reg_offset);
-		rxbuf[i] = readb(reg);
+	for (; reg_offset >= 0; reg_offset--) {
+		reg = priv->base + MTK_NOR_REG_PRGDATA(reg_offset);
+		writeb(0, reg);
+	}
+
+	/* trigger op */
+	if (rx_len)
+		writel(prg_len * BITS_PER_BYTE + priv->caps->extra_bit,
+		       priv->base + MTK_NOR_REG_PRG_CNT);
+	else
+		writel(prg_len * BITS_PER_BYTE, priv->base + MTK_NOR_REG_PRG_CNT);
+
+	ret = mtk_snor_cmd_exec(priv, MTK_NOR_CMD_PROGRAM, prg_len * BITS_PER_BYTE);
+	if (ret)
+		return ret;
+
+	/* fetch read data */
+	reg_offset = 0;
+	if (op->data.dir == SPI_MEM_DATA_IN) {
+		for (i = op->data.nbytes - 1; i >= 0; i--, reg_offset++) {
+			reg = priv->base + MTK_NOR_REG_SHIFT(reg_offset);
+			((u8 *)(op->data.buf.in))[i] = readb(reg);
+		}
 	}
 
 	return 0;
@@ -467,11 +527,12 @@ static int mtk_snor_probe(struct udevice *bus)
 	struct mtk_snor_priv *priv = dev_get_priv(bus);
 	u8 *buffer;
 	int ret;
-	u32 reg;
 
 	priv->base = devfdt_get_addr_ptr(bus);
 	if (!priv->base)
 		return -EINVAL;
+
+	priv->caps = (const void *)dev_get_driver_data(bus);
 
 	ret = clk_get_by_name(bus, "spi", &priv->spi_clk);
 	if (ret < 0)
@@ -496,7 +557,8 @@ static int mtk_snor_probe(struct udevice *bus)
 	priv->spi_freq = clk_get_rate(&priv->spi_clk);
 	printf("spi frequency: %d Hz\n", priv->spi_freq);
 
-	/* With this setting, we issue one command at a time to
+	/*
+	 * With this setting, we issue one command at a time to
 	 * accommodate to SPI-mem framework.
 	 */
 	writel(MTK_NOR_ENABLE_SF_CMD, priv->base + MTK_NOR_REG_WP);
@@ -504,24 +566,13 @@ static int mtk_snor_probe(struct udevice *bus)
 	mtk_snor_rmw(priv, MTK_NOR_REG_CFG3,
 		     MTK_NOR_DISABLE_WREN | MTK_NOR_DISABLE_SR_POLL, 0);
 
-	/* Unlock all blocks using write status command.
-	 * SPI-MEM hasn't implemented unlock procedure on MXIC devices.
-	 * We may remove this later.
-	 */
-	writel(2 * BITS_PER_BYTE, priv->base + MTK_NOR_REG_PRG_CNT);
-	writel(MTK_NOR_UNLOCK_ALL, priv->base + MTK_NOR_REG_PRGDATA(5));
-	writel(MTK_NOR_IRQ_WRSR, priv->base + MTK_NOR_REG_IRQ_EN);
-	writel(MTK_NOR_CMD_WRSR, priv->base + MTK_NOR_REG_CMD);
-	ret = readl_poll_timeout(priv->base + MTK_NOR_REG_IRQ_STAT, reg,
-				 !(reg & MTK_NOR_IRQ_WRSR),
-				 ((3 * BITS_PER_BYTE) + 1) * 200);
-
 	return 0;
 }
 
 static int mtk_snor_set_speed(struct udevice *bus, uint speed)
 {
-	/* MTK's SNOR controller does not have a bus clock divider.
+	/*
+	 * MTK's SNOR controller does not have a bus clock divider.
 	 * We setup maximum bus clock in dts.
 	 */
 
@@ -530,8 +581,7 @@ static int mtk_snor_set_speed(struct udevice *bus, uint speed)
 
 static int mtk_snor_set_mode(struct udevice *bus, uint mode)
 {
-	/* We set up mode later for each transmission.
-	 */
+	/* We set up mode later for each transmission. */
 	return 0;
 }
 
@@ -547,8 +597,19 @@ static const struct dm_spi_ops mtk_snor_ops = {
 	.set_mode = mtk_snor_set_mode,
 };
 
+static const struct mtk_snor_caps mtk_snor_caps_default = {
+	.extra_bit = 0,
+};
+
+static const struct mtk_snor_caps mtk_snor_caps_extra_bit = {
+	.extra_bit = 1,
+};
+
 static const struct udevice_id mtk_snor_ids[] = {
-	{ .compatible = "mediatek,mtk-snor" },
+	{ .compatible = "mediatek,mtk-snor", .data = (ulong)&mtk_snor_caps_default },
+	{ .compatible = "mediatek,mt8188-nor", .data = (ulong)&mtk_snor_caps_extra_bit },
+	{ .compatible = "mediatek,mt8189-nor", .data = (ulong)&mtk_snor_caps_extra_bit },
+	{ .compatible = "mediatek,mt8195-nor", .data = (ulong)&mtk_snor_caps_default },
 	{}
 };
 

@@ -70,6 +70,12 @@
 /*
  * Environment
  */
+#ifndef SPL_NO_MISC
+/* Initial environment variables */
+#define CFG_EXTRA_ENV_SETTINGS      \
+	EXTRA_ENV_SETTINGS
+#endif
+
 #define CFG_SYS_FSL_QSPI_BASE	0x40000000
 
 #undef BOOT_TARGET_DEVICES

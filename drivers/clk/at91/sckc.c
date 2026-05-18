@@ -162,7 +162,7 @@ static const struct udevice_id sam9x60_sckc_ids[] = {
 	{ /* Sentinel. */ },
 };
 
-U_BOOT_DRIVER(at91_sckc) = {
+U_BOOT_DRIVER(sam9x60_sckc) = {
 	.name = UBOOT_DM_CLK_AT91_SCKC,
 	.id = UCLASS_CLK,
 	.of_match = sam9x60_sckc_ids,

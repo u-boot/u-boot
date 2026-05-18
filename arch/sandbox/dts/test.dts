@@ -16,6 +16,7 @@
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/pinctrl/sandbox-pinmux.h>
 #include <dt-bindings/mux/mux.h>
+#include <dt-bindings/phy/phy.h>
 
 / {
 	model = "sandbox";
@@ -500,6 +501,65 @@
 		compatible = "simple-bus";
 		phys = <&phy_provider3 0 0>;
 		phy-names = "phy1";
+	};
+
+	/* PHY common props test nodes */
+	phy_common_props_missing: phy-common-props-missing {
+		/* empty: no rx-polarity or tx-polarity properties */
+	};
+
+	phy_common_props_more_values: phy-common-props-more-values {
+		/* 3 values but only 2 names => count mismatch */
+		rx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT PHY_POL_NORMAL>;
+		rx-polarity-names = "sgmii", "2500base-x";
+		tx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT PHY_POL_NORMAL>;
+		tx-polarity-names = "sgmii", "2500base-x";
+	};
+
+	phy_common_props_single: phy-common-props-single {
+		/* 1 value, no names array => value applies to all modes */
+		rx-polarity = <PHY_POL_INVERT>;
+		tx-polarity = <PHY_POL_INVERT>;
+	};
+
+	phy_common_props_more_names: phy-common-props-more-names {
+		/* 2 values but 3 names => count mismatch */
+		rx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT>;
+		rx-polarity-names = "sgmii", "2500base-x", "1000base-x";
+		tx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT>;
+		tx-polarity-names = "sgmii", "2500base-x", "1000base-x";
+	};
+
+	phy_common_props_find_by_name: phy-common-props-find-by-name {
+		/* valid 3-element arrays, lookup by mode name */
+		rx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT PHY_POL_AUTO>;
+		rx-polarity-names = "sgmii", "2500base-x", "usb-ss";
+		tx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT PHY_POL_NORMAL>;
+		tx-polarity-names = "sgmii", "2500base-x", "1000base-x";
+	};
+
+	phy_common_props_no_default: phy-common-props-no-default {
+		/* name not in array, no "default" entry => -EINVAL */
+		rx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT>;
+		rx-polarity-names = "2500base-x", "1000base-x";
+		tx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT>;
+		tx-polarity-names = "2500base-x", "1000base-x";
+	};
+
+	phy_common_props_with_default: phy-common-props-with-default {
+		/* name not in array, but "default" entry exists */
+		rx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT>;
+		rx-polarity-names = "2500base-x", "default";
+		tx-polarity = <PHY_POL_NORMAL PHY_POL_INVERT>;
+		tx-polarity-names = "2500base-x", "default";
+	};
+
+	phy_common_props_unsupported: phy-common-props-unsupported {
+		/* PHY_POL_AUTO is not supported for manual-only modes */
+		rx-polarity = <PHY_POL_AUTO>;
+		rx-polarity-names = "sgmii";
+		tx-polarity = <PHY_POL_AUTO>;
+		tx-polarity-names = "sgmii";
 	};
 
 	some-bus {

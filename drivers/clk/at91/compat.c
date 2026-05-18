@@ -136,7 +136,7 @@ static const struct udevice_id at91_sckc_match[] = {
 	{}
 };
 
-U_BOOT_DRIVER(at91_sckc) = {
+U_BOOT_DRIVER(at91sam9x5_sckc) = {
 	.name = "at91-sckc",
 	.id = UCLASS_SIMPLE_BUS,
 	.of_match = at91_sckc_match,
@@ -368,7 +368,7 @@ static const struct udevice_id at91_system_clk_match[] = {
 	{}
 };
 
-U_BOOT_DRIVER(at91_system_clk) = {
+U_BOOT_DRIVER(at91rm9200_system_clk) = {
 	.name = "at91-system-clk",
 	.id = UCLASS_MISC,
 	.of_match = at91_system_clk_match,

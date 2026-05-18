@@ -1,1 +1,0 @@
-../../../tools/binman/entries.rst

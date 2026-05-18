@@ -2866,7 +2866,7 @@ static const struct udevice_id udma_ids[] = {
 	{ /* Sentinel */ },
 };
 
-U_BOOT_DRIVER(ti_edma3) = {
+U_BOOT_DRIVER(ti_udma) = {
 	.name	= "ti-udma",
 	.id	= UCLASS_DMA,
 	.of_match = udma_ids,

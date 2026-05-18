@@ -6,6 +6,8 @@
 #ifndef __CONFIG_TQMA6_WRU4_H
 #define __CONFIG_TQMA6_WRU4_H
 
+#include "tqma6.h"
+
 /* Ethernet */
 #define CFG_FEC_MXC_PHYADDR		0x01
 

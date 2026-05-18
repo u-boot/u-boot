@@ -354,7 +354,7 @@ static int virtio_mmio_probe(struct udevice *udev)
 	magic = readl(priv->base + VIRTIO_MMIO_MAGIC_VALUE);
 	if (magic != ('v' | 'i' << 8 | 'r' << 16 | 't' << 24)) {
 		debug("(%s): wrong magic value 0x%08x!\n", udev->name, magic);
-		return 0;
+		return -ENODEV;
 	}
 
 	/* Check device version */
@@ -362,7 +362,7 @@ static int virtio_mmio_probe(struct udevice *udev)
 	if (priv->version < 1 || priv->version > 2) {
 		debug("(%s): version %d not supported!\n",
 		      udev->name, priv->version);
-		return 0;
+		return -ENXIO;
 	}
 
 	/* Check device ID */
@@ -372,7 +372,7 @@ static int virtio_mmio_probe(struct udevice *udev)
 		 * virtio-mmio device with an ID 0 is a (dummy) placeholder
 		 * with no function. End probing now with no error reported.
 		 */
-		return 0;
+		return -ENOENT;
 	}
 	uc_priv->vendor = readl(priv->base + VIRTIO_MMIO_VENDOR_ID);
 

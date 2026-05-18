@@ -154,7 +154,7 @@ struct ufs_mtk_mcq_intr_info {
 };
 
 struct ufs_mtk_host {
-	struct phy *mphy;
+	struct phy mphy;
 	struct reset_ctl *unipro_reset;
 	struct reset_ctl *crypto_reset;
 	struct reset_ctl *hci_reset;

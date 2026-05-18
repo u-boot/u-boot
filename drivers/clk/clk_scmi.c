@@ -341,6 +341,12 @@ static int scmi_clk_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	ret = scmi_generic_protocol_version(dev, SCMI_PROTOCOL_ID_CLOCK, &priv->version);
+	if (ret) {
+		dev_dbg(dev, "%s: get SCMI clock management protocol version failed\n", __func__);
+		return ret;
+	}
+
 	if (!CONFIG_IS_ENABLED(CLK_CCF))
 		return 0;
 
@@ -351,12 +357,6 @@ static int scmi_clk_probe(struct udevice *dev)
 	ret = scmi_clk_get_num_clock(dev, &num_clocks);
 	if (ret)
 		return ret;
-
-	ret = scmi_generic_protocol_version(dev, SCMI_PROTOCOL_ID_CLOCK, &priv->version);
-	if (ret) {
-		dev_dbg(dev, "%s: get SCMI clock management protocol version failed\n", __func__);
-		return ret;
-	}
 
 	clk_scmi_bulk = kzalloc(num_clocks * sizeof(*clk_scmi), GFP_KERNEL);
 	if (!clk_scmi_bulk)
