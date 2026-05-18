@@ -608,9 +608,6 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 		root_inum = inum;
 		name = next;
 	}
-
-	kfree(buf);
-	return 0;
 }
 
 int ubifs_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info)
