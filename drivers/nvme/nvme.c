@@ -94,7 +94,7 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 			*(prp_pool + i) = cpu_to_le64((ulong)prp_pool +
 					page_size);
 			i = 0;
-			prp_pool += page_size;
+			prp_pool = (u64 *)((uintptr_t)prp_pool + page_size);
 		}
 		*(prp_pool + i++) = cpu_to_le64(dma_addr);
 		dma_addr += page_size;
