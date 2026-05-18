@@ -22,7 +22,7 @@
 
 struct qcom_pcie;
 
-struct qcom_pcie_ops {
+static const struct qcom_pcie_ops {
 	int (*config_sid)(struct qcom_pcie *priv);
 };
 
