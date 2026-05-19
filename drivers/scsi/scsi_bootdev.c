@@ -37,9 +37,6 @@ static int scsi_bootdev_hunt(struct bootdev_hunter *info, bool show)
 	return 0;
 }
 
-struct bootdev_ops scsi_bootdev_ops = {
-};
-
 static const struct udevice_id scsi_bootdev_ids[] = {
 	{ .compatible = "u-boot,bootdev-scsi" },
 	{ }
@@ -48,7 +45,6 @@ static const struct udevice_id scsi_bootdev_ids[] = {
 U_BOOT_DRIVER(scsi_bootdev) = {
 	.name		= "scsi_bootdev",
 	.id		= UCLASS_BOOTDEV,
-	.ops		= &scsi_bootdev_ops,
 	.bind		= scsi_bootdev_bind,
 	.of_match	= scsi_bootdev_ids,
 };
