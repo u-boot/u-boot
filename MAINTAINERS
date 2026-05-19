@@ -1506,6 +1506,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-nios.git
 F:	arch/nios2/
 
 NVMe
+M:	Neil Armstrong <neil.armstrong@linaro.org>
 M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 F:	drivers/nvme/
