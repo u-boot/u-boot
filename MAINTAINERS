@@ -1566,6 +1566,16 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	tools/patman/
 
+PCI
+M:	Neil Armstrong <neil.armstrong@linaro.org>
+S:	Maintained
+F:	cmd/pci.c
+F:	drivers/pci
+F:	include/pci.h
+F:	include/pci_ids.h
+F:	test/dm/pci.c
+N:	pci
+
 PCIe DWC IMX
 M:	Sumit Garg <sumit.garg@kernel.org>
 S:	Maintained
