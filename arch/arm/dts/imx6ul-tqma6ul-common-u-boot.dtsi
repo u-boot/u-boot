@@ -15,3 +15,35 @@
 		u-boot,mmc-env-offset-redundant = <0x110000>;
 	};
 };
+
+&clks {
+	bootph-pre-ram;
+};
+
+&flash0 {
+	bootph-pre-ram;
+};
+
+&osc {
+	bootph-pre-ram;
+};
+
+&pinctrl_pmic {
+	bootph-pre-ram;
+};
+
+&pinctrl_qspi {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2 {
+	bootph-pre-ram;
+};
+
+&qspi {
+	bootph-pre-ram;
+};
+
+&usdhc2 {
+	bootph-pre-ram;
+};

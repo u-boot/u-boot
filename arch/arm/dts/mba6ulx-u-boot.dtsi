@@ -5,6 +5,22 @@
  * Author: Max Merchel
  */
 
-#include "imx6ul-u-boot.dtsi"
-#include "imx6ul-tqma6ul-common-u-boot.dtsi"
-#include "mba6ulx-u-boot.dtsi"
+&uart1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart1 {
+	bootph-pre-ram;
+};
+
+&usdhc1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc1 {
+	bootph-pre-ram;
+};
+
+&reg_mba6ul_3v3 {
+	bootph-pre-ram;
+};
