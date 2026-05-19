@@ -121,6 +121,7 @@ config TARGET_IMX93_VAR_SOM
 	bool "imx93_var_som"
 	select IMX93
 	select IMX9_LPDDR4X
+	imply OF_UPSTREAM
 
 config TARGET_KONTRON_MX93
 	bool "Kontron OSM-S/BL i.MX93"
