@@ -284,6 +284,15 @@ config DWC_ETH_QOS_STM32
 	  The Synopsys Designware Ethernet QOS IP block with the specific
 	  configuration used in STM32MP soc.
 
+config DWC_ETH_QOS_SUNXI
+	bool "Synopsys DWC Ethernet QOS device support for Allwinner SoCs"
+	depends on DWC_ETH_QOS && ARCH_SUNXI
+	select REGMAP
+	select SUNXI_SYSCON
+	help
+	  The Synopsys Designware Ethernet QOS IP block with specific
+	  configuration used in Allwinner SoCs.
+
 config DWC_ETH_QOS_TEGRA186
 	bool "Synopsys DWC Ethernet QOS device support for TEGRA186"
 	depends on DWC_ETH_QOS

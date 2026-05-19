@@ -318,3 +318,4 @@ extern struct eqos_config eqos_stm32mp25_config;
 extern struct eqos_config eqos_jh7110_config;
 extern struct eqos_config eqos_adi_config;
 extern struct eqos_config eqos_mtk_config;
+extern struct eqos_config eqos_sunxi_config;
