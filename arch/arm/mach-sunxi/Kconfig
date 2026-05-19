@@ -209,6 +209,13 @@ config SUN6I_PRCM
 	  Support for the PRCM (Power/Reset/Clock Management) unit available
 	  in A31 SoC.
 
+config SUNXI_SYSCON
+	bool
+	select SYSCON
+	help
+	  Enable syscon driver for Allwinner system controllers, which provides
+	  access to the SRAM/system-control node for drivers.
+
 config AXP_PMIC_BUS
 	bool
 	select DM_PMIC if DM_I2C
