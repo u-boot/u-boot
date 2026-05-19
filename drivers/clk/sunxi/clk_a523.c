@@ -16,6 +16,7 @@ static struct ccu_clk_gate a523_gates[] = {
 	[CLK_PLL_PERIPH0_200M]	= GATE_DUMMY,
 	[CLK_APB1]		= GATE_DUMMY,
 
+	[CLK_MBUS_EMAC1]	= GATE(0x804, BIT(12)),
 	[CLK_BUS_MMC0]		= GATE(0x84c, BIT(0)),
 	[CLK_BUS_MMC1]		= GATE(0x84c, BIT(1)),
 	[CLK_BUS_MMC2]		= GATE(0x84c, BIT(2)),
