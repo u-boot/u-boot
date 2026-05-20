@@ -292,7 +292,7 @@
 		#interrupt-cells = <2>;
 	};
 
-	watchdog@23a0000 {
+	wdt0: watchdog@23a0000 {
 		compatible = "arm,sbsa-gwdt";
 		reg = <0x0 0x23a0000 0 0x1000>,
 		      <0x0 0x2390000 0 0x1000>;
