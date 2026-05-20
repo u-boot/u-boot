@@ -5,9 +5,8 @@
 # (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-y	:= cache.o cpu.o state.o initjmp.o os.o
-extra-y	:= start.o
-extra-$(CONFIG_SANDBOX_SDL)    += sdl.o
+obj-y	:= start.o cache.o cpu.o state.o initjmp.o os.o
+obj-$(CONFIG_SANDBOX_SDL)    += sdl.o
 obj-$(CONFIG_XPL_BUILD)	+= spl.o
 obj-$(CONFIG_ETH_SANDBOX_RAW)	+= eth-raw-os.o
 
