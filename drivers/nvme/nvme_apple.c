@@ -88,6 +88,9 @@ static int apple_nvme_setup_queue(struct nvme_queue *nvmeq)
 	}
 
 	priv->tcbs[nvmeq->qid] = (void *)memalign(4096, ANS_NVMMU_TCB_SIZE);
+	if (!priv->tcbs[nvmeq->qid])
+		return -ENOMEM;
+
 	memset((void *)priv->tcbs[nvmeq->qid], 0, ANS_NVMMU_TCB_SIZE);
 
 	switch (nvmeq->qid) {

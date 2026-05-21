@@ -94,7 +94,7 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 			*(prp_pool + i) = cpu_to_le64((ulong)prp_pool +
 					page_size);
 			i = 0;
-			prp_pool += page_size;
+			prp_pool = (u64 *)((uintptr_t)prp_pool + page_size);
 		}
 		*(prp_pool + i++) = cpu_to_le64(dma_addr);
 		dma_addr += page_size;
@@ -112,7 +112,10 @@ static __le16 nvme_get_cmd_id(void)
 {
 	static unsigned short cmdid;
 
-	return cpu_to_le16((cmdid < USHRT_MAX) ? cmdid++ : 0);
+	if (cmdid >= USHRT_MAX)
+		cmdid = 0;
+
+	return cpu_to_le16(cmdid++);
 }
 
 static u16 nvme_read_completion_status(struct nvme_queue *nvmeq, u16 index)
