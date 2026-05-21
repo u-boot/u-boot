@@ -14,6 +14,9 @@ config SYS_VENDOR
 config SYS_MALLOC_F_LEN
 	default 0x2000
 
+config SPL_SYS_MALLOC_F
+	default y
+
 config SPL_SYS_MALLOC_F_LEN
 	default 0x2000
 
@@ -22,6 +25,13 @@ config SYS_MALLOC_LEN
 
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	default 0x80000000
+
+config SPL_SHARES_INIT_SP_ADDR
+	# override the default from common/spl/Kconfig
+	default n
+
+config SPL_HAVE_INIT_STACK
+	default y
 
 config SYS_BOARD
 	string "Snapdragon SoCs based board"
