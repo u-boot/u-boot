@@ -15,3 +15,4 @@ Qualcomm
    phones
    rdp
    signing
+   spl
