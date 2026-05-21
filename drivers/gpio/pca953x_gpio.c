@@ -312,7 +312,7 @@ static int pca953x_probe(struct udevice *dev)
 	u8 val[MAX_BANK];
 
 	addr = dev_read_addr(dev);
-	if (addr == 0)
+	if (addr == FDT_ADDR_T_NONE)
 		return -ENODEV;
 
 	info->addr = addr;
