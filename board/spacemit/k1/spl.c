@@ -442,13 +442,15 @@ int board_fit_config_name_match(const char *name)
 	int i;
 
 	memset(fdt_name, 0, I2C_BUF_SIZE);
-	if (!strncmp(product_name, "k1-x_", 5)) {
-		snprintf(fdt_name, I2C_BUF_SIZE, "%s-%s", "k1",
-			 &product_name[5]);
-	}
+	if (!strncmp(product_name, "k1-x_MUSE-Pi-Pro", 16))
+		snprintf(fdt_name, I2C_BUF_SIZE, "%s",
+			 "spacemit/k1-musepi-pro");
+	else if (!strncmp(product_name, "k1-x_deb1", 9))
+		snprintf(fdt_name, I2C_BUF_SIZE, "%s",
+			 "spacemit/k1-bananapi-f3");
 	if (fdt_name[0] == '\0') {
 		/* set default board name */
-		sprintf(fdt_name, "k1-musepi-pro");
+		sprintf(fdt_name, "spacemit/k1-musepi-pro");
 	}
 	for (i = 0; i < I2C_BUF_SIZE; i++) {
 		if (fdt_name[i] == '\0')
