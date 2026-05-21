@@ -52,4 +52,21 @@ config QCOM_GENERATE_MBN
 	  New platforms can be added to tools/qcom/mkmbn/mkmbn.py if they aren't already
 	  supported.
 
+choice
+	prompt "Qualcomm boot0.h workaround"
+	optional
+	help
+	  While U-Boot on Qualcomm platforms doesn't generally need compile-time
+	  adjustments based on the target SoC, workarounds in boot0.h can't
+	  practically detect the SoC at runtime. Enable one of these workarounds
+	  if you know you need it.
+
+config BOOT0_MSM8916_PSCI_WORKAROUND
+	bool "boot0.h workaround for buggy PSCI on the msm8916 SoC"
+	help
+	  Select this if you are building U-Boot proper for an msm8916 board that
+	  uses the buggy PSCI implementation.
+
+endchoice
+
 endif
