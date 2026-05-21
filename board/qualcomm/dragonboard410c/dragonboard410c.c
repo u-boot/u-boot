@@ -8,7 +8,10 @@
 #include <button.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/device.h>
 #include <dm/pinctrl.h>
+#include <dm/read.h>
+#include <dm/uclass-internal.h>
 #include <env.h>
 #include <init.h>
 #include <mmc.h>
@@ -18,6 +21,44 @@
 #include <asm/gpio.h>
 #include <fdt_support.h>
 #include <linux/delay.h>
+
+/*
+ * db410c requires GPIO configuration when switching USB modes.
+ * Support setting this configuration via pinctrl state.
+ */
+int board_usb_init(int index, enum usb_init_type init)
+{
+	struct udevice *usb;
+	int ret = 0;
+
+	/* USB device */
+	ret = uclass_find_device_by_seq(UCLASS_USB, index, &usb);
+	if (ret) {
+		printf("Cannot find USB device\n");
+		return ret;
+	}
+
+	ret = dev_read_stringlist_search(usb, "pinctrl-names",
+					 "device");
+	/* No "device" pinctrl state, so just bail */
+	if (ret < 0)
+		return 0;
+
+	/* Select "default" or "device" pinctrl */
+	switch (init) {
+	case USB_INIT_HOST:
+		pinctrl_select_state(usb, "default");
+		break;
+	case USB_INIT_DEVICE:
+		pinctrl_select_state(usb, "device");
+		break;
+	default:
+		debug("Unknown usb_init_type %d\n", init);
+		break;
+	}
+
+	return 0;
+}
 
 static u32 msm_board_serial(void)
 {
