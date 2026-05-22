@@ -11,10 +11,32 @@
 #include <dm/device_compat.h>
 
 #define PCF85063_REG_CTRL1		0x00 /* status */
-#define PCF85063_REG_CTRL1_SR		0x58
+#define PCF85063_REG_CTRL1_CAP_SEL	BIT(0)
+#define PCF85063_REG_CTRL1_STOP		BIT(5)
+#define PCF85063_REG_CTRL1_EXT_TEST	BIT(7)
+#define PCF85063_REG_CTRL1_SWR		0x58 /* Software reset command */
+
+#define PCF85063_REG_CTRL2		0x01
+#define PCF85063_CTRL2_AF		BIT(6)
+#define PCF85063_CTRL2_AIE		BIT(7)
+
+#define PCF85063_REG_OFFSET		0x02
+#define PCF85063_OFFSET_SIGN_BIT	6	/* 2's complement sign bit */
+#define PCF85063_OFFSET_MODE		BIT(7)
+#define PCF85063_OFFSET_STEP0		4340
+#define PCF85063_OFFSET_STEP1		4069
+
+#define PCF85063_REG_CLKO_F_MASK	0x07 /* frequency mask */
+#define PCF85063_REG_CLKO_F_32768HZ	0x00
+#define PCF85063_REG_CLKO_F_OFF		0x07
+
+#define PCF85063_REG_RAM		0x03
 
 #define PCF85063_REG_SC			0x04 /* datetime */
 #define PCF85063_REG_SC_OS		0x80
+
+#define PCF85063_REG_ALM_S		0x0b
+#define PCF85063_AEN			BIT(7)
 
 static int pcf85063_get_time(struct udevice *dev, struct rtc_time *tm)
 {
@@ -74,7 +96,7 @@ static int pcf85063_set_time(struct udevice *dev, const struct rtc_time *tm)
 
 static int pcf85063_reset(struct udevice *dev)
 {
-	return dm_i2c_reg_write(dev, PCF85063_REG_CTRL1, PCF85063_REG_CTRL1_SR);
+	return dm_i2c_reg_write(dev, PCF85063_REG_CTRL1, PCF85063_REG_CTRL1_SWR);
 }
 
 static int pcf85063_read(struct udevice *dev, unsigned int offset, u8 *buf,
