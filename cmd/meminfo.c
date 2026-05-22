@@ -21,18 +21,23 @@ void __weak arch_dump_mem_attrs(void)
 {
 }
 
-static void print_region(const char *name, ulong base, ulong size, ulong *uptop)
+static void print_region(const char *name, phys_addr_t base, phys_addr_t size,
+			 phys_addr_t *uptop)
 {
-	ulong end = base + size;
+	phys_addr_t end = base + size;
 
-	printf("%-12s %13lx %13lx %13lx", name, base, size, end);
+	printf("%-12s %13llx %13llx %13llx",
+	       name,
+	       (unsigned long long)base,
+	       (unsigned long long)size,
+	       (unsigned long long)end);
 	if (*uptop)
-		printf(" %13lx", *uptop - end);
+		printf(" %13llx", (unsigned long long)(*uptop - end));
 	putc('\n');
 	*uptop = base;
 }
 
-static void show_lmb(const struct lmb *lmb, ulong *uptop)
+static void show_lmb(const struct lmb *lmb, phys_addr_t *uptop)
 {
 	int i;
 
@@ -56,7 +61,7 @@ static void show_lmb(const struct lmb *lmb, ulong *uptop)
 static int do_meminfo(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
-	ulong upto, stk_bot;
+	phys_addr_t upto, stk_bot;
 
 	puts("DRAM:  ");
 	print_size(gd->ram_size, "\n");
