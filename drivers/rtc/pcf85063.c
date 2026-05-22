@@ -68,11 +68,24 @@ static int pcf85063_get_time(struct udevice *dev, struct rtc_time *tm)
 static int pcf85063_set_time(struct udevice *dev, const struct rtc_time *tm)
 {
 	u8 regs[7];
+	int rc;
 
 	if (tm->tm_year < 2000 || tm->tm_year > 2099) {
 		dev_err(dev, "Year must be between 2000 and 2099.\n");
 		return -EINVAL;
 	}
+
+	/*
+	 * to accurately set the time, reset the divider chain and keep it in
+	 * reset state until all time/date registers are written
+	 */
+	rc = dm_i2c_reg_clrset(dev, PCF85063_REG_CTRL1,
+			       PCF85063_REG_CTRL1_EXT_TEST |
+			       PCF85063_REG_CTRL1_STOP,
+			       PCF85063_REG_CTRL1_STOP);
+
+	if (rc)
+		return rc;
 
 	/* hours, minutes and seconds */
 	regs[0] = bin2bcd(tm->tm_sec) & (~PCF85063_REG_SC_OS);
@@ -91,7 +104,17 @@ static int pcf85063_set_time(struct udevice *dev, const struct rtc_time *tm)
 	/* adjust register to match rtc_time spec */
 	regs[6] = bin2bcd(tm->tm_year % 100);
 
-	return dm_i2c_write(dev, PCF85063_REG_SC, regs, sizeof(regs));
+	rc = dm_i2c_write(dev, PCF85063_REG_SC, regs, sizeof(regs));
+	if (rc)
+		return rc;
+
+	/*
+	 * Write the control register as a separate action since the size of
+	 * the register space is different between the PCF85063TP and
+	 * PCF85063A devices. The rollover point can not be used.
+	 */
+	return dm_i2c_reg_clrset(dev, PCF85063_REG_CTRL1,
+				 PCF85063_REG_CTRL1_STOP, 0);
 }
 
 static int pcf85063_reset(struct udevice *dev)
