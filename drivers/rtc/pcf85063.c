@@ -140,6 +140,30 @@ static int pcf85063_write(struct udevice *dev, unsigned int offset,
 	return dm_i2c_write(dev, offset, buf, len);
 }
 
+static int pcf85063_load_capacitance(struct udevice *dev)
+{
+	u32 load = 7000;
+	u8 reg = 0;
+
+	if (ofnode_read_u32(dev_ofnode(dev), "quartz-load-femtofarads", &load))
+		return 0;
+
+	switch (load) {
+	default:
+		dev_warn(dev, "Unknown quartz-load-femtofarads value: %d. Assuming 7000",
+			 load);
+		fallthrough;
+	case 7000:
+		break;
+	case 12500:
+		reg = PCF85063_REG_CTRL1_CAP_SEL;
+		break;
+	}
+
+	return dm_i2c_reg_clrset(dev, PCF85063_REG_CTRL1,
+				 PCF85063_REG_CTRL1_CAP_SEL, reg);
+}
+
 static const struct rtc_ops pcf85063_rtc_ops = {
 	.get = pcf85063_get_time,
 	.set = pcf85063_set_time,
@@ -150,7 +174,21 @@ static const struct rtc_ops pcf85063_rtc_ops = {
 
 static int pcf85063_probe(struct udevice *dev)
 {
+	u8 tmp;
+	int err;
+
 	i2c_set_chip_flags(dev, DM_I2C_CHIP_RD_ADDRESS | DM_I2C_CHIP_WR_ADDRESS);
+
+	err = dm_i2c_read(dev, PCF85063_REG_SC, &tmp, sizeof(tmp));
+	if (err) {
+		dev_err(dev, "RTC chip is not present\n");
+		return err;
+	}
+
+	err = pcf85063_load_capacitance(dev);
+	if (err < 0)
+		dev_warn(dev, "failed to set xtal load capacitance: %d",
+			 err);
 
 	return 0;
 }
