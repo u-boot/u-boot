@@ -80,12 +80,18 @@ static int pcf85063_reset(struct udevice *dev)
 static int pcf85063_read(struct udevice *dev, unsigned int offset, u8 *buf,
 			 unsigned int len)
 {
+	if (offset + len > dev->driver_data)
+		return -EINVAL;
+
 	return dm_i2c_read(dev, offset, buf, len);
 }
 
 static int pcf85063_write(struct udevice *dev, unsigned int offset,
 			  const u8 *buf, unsigned int len)
 {
+	if (offset + len > dev->driver_data)
+		return -EINVAL;
+
 	return dm_i2c_write(dev, offset, buf, len);
 }
 
@@ -105,7 +111,11 @@ static int pcf85063_probe(struct udevice *dev)
 }
 
 static const struct udevice_id pcf85063_of_id[] = {
-	{ .compatible = "microcrystal,rv8263" },
+	{ .compatible = "microcrystal,rv8263", .data = 0x12 },
+	{ .compatible = "nxp,pcf85063", .data = 0xb },
+	{ .compatible = "nxp,pcf85063a", .data = 0x12 },
+	{ .compatible = "nxp,pcf85063tp", .data = 0xb },
+	{ .compatible = "nxp,pcf85073a", .data = 0x12 },
 	{ }
 };
 
