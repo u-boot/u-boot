@@ -75,6 +75,7 @@ struct hid_report {
 #define SDP_HID_PACKET_SIZE_EP1 1024
 
 #define SDP_EXIT 1
+#define SDP_FAIL 2
 
 struct sdp_command {
 	u16 cmd;
@@ -840,11 +841,14 @@ static int sdp_handle_in_ep(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_LOAD_FIT
 			if (image_get_magic(header) == FDT_MAGIC) {
 				struct spl_load_info load;
+				int ret;
 
 				debug("Found FIT\n");
 				spl_load_init(&load, sdp_load_read, header, 1);
-				spl_load_simple_fit(spl_image, &load, 0,
-						    header);
+				ret = spl_load_simple_fit(spl_image, &load, 0,
+							  header);
+				if (ret)
+					return SDP_FAIL;
 
 				return SDP_EXIT;
 			}
@@ -852,9 +856,13 @@ static int sdp_handle_in_ep(struct spl_image_info *spl_image,
 			if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
 			    valid_container_hdr((void *)header)) {
 				struct spl_load_info load;
+				int ret;
 
 				spl_load_init(&load, sdp_load_read, header, 1);
-				spl_load_imx_container(spl_image, &load, 0);
+				ret = spl_load_imx_container(spl_image, &load, 0);
+				if (ret)
+					return SDP_FAIL;
+
 				return SDP_EXIT;
 			}
 
@@ -924,6 +932,8 @@ int spl_sdp_handle(struct udevice *udc, struct spl_image_info *spl_image,
 
 		if (flag == SDP_EXIT)
 			return 0;
+		else if (flag == SDP_FAIL)
+			return -EIO;
 
 		schedule();
 		dm_usb_gadget_handle_interrupts(udc);
