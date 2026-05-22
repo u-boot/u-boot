@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/*
+ * Device Tree Source for the Ironhide CM33 board
+ *
+ * Copyright (C) 2026 Renesas Electronics Corp.
+ */
+
+#include "../../../dts/upstream/src/arm64/renesas/r8a78000-ironhide.dts"

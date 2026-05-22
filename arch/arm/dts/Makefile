@@ -900,11 +900,7 @@ dtb-$(CONFIG_RZA1) += \
 	r7s72100-gr-peach.dtb
 
 dtb-$(CONFIG_RCAR_GEN5) += \
-	r8a78000-ironhide.dtb
-
-ifdef CONFIG_RCAR_GEN5
-DTC_FLAGS += -R 4 -p 0x1000
-endif
+	r8a78000-ironhide-cm33.dtb
 
 dtb-$(CONFIG_TARGET_AT91SAM9261EK) += at91sam9261ek.dtb
 

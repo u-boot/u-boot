@@ -5,9 +5,41 @@
  * Copyright (C) 2025 Renesas Electronics Corp.
  */
 
+#include <dt-bindings/clock/r8a78000-clock-scmi.h>
+#include <dt-bindings/power/r8a78000-power-scmi.h>
+#include <dt-bindings/reset/r8a78000-reset-scmi.h>
+
 / {
-	soc {
-		bootph-all;
+	firmware {
+		scmi: scmi {
+			compatible = "arm,scmi";
+			arm,poll-transport;
+			mbox-names = "tx", "rx";
+			mboxes = <&mailbox 0>, <&mailbox 1>;
+			shmem = <&cpu_scp_lpri0>, <&cpu_scp_hpri0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			protocol@11 {
+				reg = <0x11>;
+				#power-domain-cells = <1>;
+			};
+
+			protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
+
+			protocol@16 {
+				reg = <0x16>;
+				#reset-cells = <1>;
+			};
+		};
+	};
+
+	psci {
+		compatible = "arm,psci-1.0", "arm,psci-0.2";
+		method = "smc";
 	};
 
 	/* Placeholder clock until the clock provider is in place */
@@ -32,14 +64,10 @@
 	clk_stub_mmc: clk-stub-mmc {
 		compatible = "renesas,compound-clock";
 		#clock-cells = <0>;
-		clocks = <&scmi_clk SCP_CLOCK_ID_MDLC_SDHI0>,
-			 <&scmi_clk 1691>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_SDHI0>,
+			 <&cpg SCP_CLOCK_ID_CLK_S0D6_PERE_MAIN>;
 		clock-names = "mdlc", "per";
 	};
-};
-
-&cpg {
-	bootph-all;
 };
 
 &extal_clk {
@@ -50,90 +78,311 @@
 	bootph-all;
 };
 
-&gpio0 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio1 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio2 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio3 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio4 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio5 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio6 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio7 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio8 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio9 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&gpio10 {
-	clocks = <&clk_stub_gpio>;
-};
-
-&i2c0 {
-	clocks = <&clk_stub_i2c0>;
-};
-
-&i2c1 {
-	clocks = <&clk_stub_i2c1>;
-};
-
-&i2c2 {
-	clocks = <&clk_stub_i2c1>;
-};
-
-&i2c3 {
-	clocks = <&clk_stub_i2c1>;
-};
-
-&i2c4 {
-	clocks = <&clk_stub_i2c1>;
-};
-
-&i2c5 {
-	clocks = <&clk_stub_i2c1>;
-};
-
-&i2c6 {
-	clocks = <&clk_stub_i2c1>;
-};
-
-&i2c7 {
-	clocks = <&clk_stub_i2c1>;
-};
-
-&i2c8 {
-	clocks = <&clk_stub_i2c1>;
-};
-
-&mmc0 {
-	clocks = <&clk_stub_mmc>;
-};
-
 &prr {
 	bootph-all;
+};
+
+&soc {
+	bootph-all;
+
+	mailbox: mfis_mbox@18842000 {
+		compatible = "renesas,mfis-mbox";
+		#mbox-cells = <1>;
+		reg = <0 0x18842004 0 0x8>;
+		interrupts = <GIC_SPI 4362 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	pfc: pinctrl@c0400000 {
+		compatible = "renesas,pfc-r8a78000";
+		reg = <0 0xc1080000 0 0x104>, <0 0xc1080800 0 0x104>,
+		      <0 0xc1081000 0 0x104>, <0 0xc0800000 0 0x104>,
+		      <0 0xc0800800 0 0x104>, <0 0xc0400000 0 0x104>,
+		      <0 0xc0400800 0 0x104>, <0 0xc0401000 0 0x104>,
+		      <0 0xc0401800 0 0x104>, <0 0xc9b00000 0 0x104>,
+		      <0 0xc9b00800 0 0x104>;
+	};
+
+	mmc0: mmc@c0880000 {
+		compatible = "renesas,rcar-gen5-sdhi";
+		reg = <0 0xc0880000 0 0x2000>;
+		clock-names = "core";
+		max-frequency = <200000000>;
+		clocks = <&clk_stub_mmc>;
+		status = "disabled";
+	};
+
+	mdlc_pere: system-controller@c08f0000 {
+		compatible = "renesas,r8a78000-mdlc";
+		reg = <0 0xc08f0000 0 0x1000>;
+		#power-domain-cells = <1>;
+		#reset-cells = <1>;
+		bootph-all;
+	};
+
+	ufs0: ufs@c0a80000 {
+		compatible = "renesas,r8a78000-ufs";
+		reg = <0 0xc0a80000 0 0x1100>, <0 0xc0a00000 0 0x40000>;
+		reg-names = "hcr", "phy";
+		interrupts = <GIC_SPI 4284 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&mdlc_pere X5H_POWER_DOMAIN_ID_UFS0>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_UFS0>;
+		resets = <&mdlc_pere SCP_RESET_DOMAIN_ID_UFS0>;
+		freq-table-hz = <38400000 38400000>;
+		status = "disabled";
+	};
+
+	ufs1: ufs@c0a90000 {
+		compatible = "renesas,r8a78000-ufs";
+		reg = <0 0xc0a90000 0 0x1100>, <0 0xc0a40000 0 0x40000>;
+		reg-names = "hcr", "phy";
+		interrupts = <GIC_SPI 4285 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&mdlc_pere X5H_POWER_DOMAIN_ID_UFS1>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_UFS1>;
+		resets = <&mdlc_pere SCP_RESET_DOMAIN_ID_UFS1>;
+		freq-table-hz = <38400000 38400000>;
+		status = "disabled";
+	};
+
+	scp: sram@c1000000 {
+		compatible = "arm,rcar-sram-ns", "mmio-sram";
+		reg = <0x0 0xc1000000 0x0 0x80000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x0 0xc1000000 0x80000>;
+
+		cpu_scp_lpri0: scp-shmem@60000 {
+			compatible = "arm,rcar-scp-shmem", "arm,scmi-shmem";
+			reg = <0x61200 0x0100>;
+		};
+
+		cpu_scp_hpri0: scp-shmem@60300 {
+			compatible = "arm,rcar-scp-shmem", "arm,scmi-shmem";
+			reg = <0x61300 0x100>;
+		};
+	};
+
+	cpg: clock-controller@c1320000 {
+		compatible = "renesas,r8a78000-cpg";
+		reg = <0 0xc1320000 0 0x10000>;
+		clocks = <&extal_clk>, <&extalr_clk>;
+		clock-names = "extal", "extalr";
+		#clock-cells = <1>;
+		bootph-all;
+	};
+
+	i2c0: i2c@c11d0000 {
+		compatible = "renesas,i2c-r8a78000",
+			     "renesas,rcar-gen5-i2c";
+		reg = <0 0xc11d0000 0 0x40>;
+		i2c-scl-internal-delay-ns = <110>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clk_stub_i2c0>;
+		status = "disabled";
+	};
+
+	i2c1: i2c@c06c0000 {
+		compatible = "renesas,i2c-r8a78000",
+			     "renesas,rcar-gen5-i2c";
+		reg = <0 0xc06c0000 0 0x40>;
+		i2c-scl-internal-delay-ns = <110>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clk_stub_i2c1>;
+		status = "disabled";
+	};
+
+	gpio0: gpio@c1080110 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc1080110 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 0 28>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio1: gpio@c1080910 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc1080910 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 32 22>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio2: gpio@c1081110 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc1081110 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 64 29>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio3: gpio@c0800110 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc0800110 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 96 17>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio4: gpio@c0800910 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc0800910 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 128 16>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio5: gpio@c0400110 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc0400110 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 160 23>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio6: gpio@c0400910 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc0400910 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 192 31>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio7: gpio@c0401110 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc0401110 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 224 31>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio8: gpio@c0401910 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc0401910 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 256 32>;
+		gpio-reserved-ranges = <16 10>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio9: gpio@c9b00110 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc9b00110 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 288 17>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	gpio10: gpio@c9b00910 {
+		compatible = "renesas,gpio-r8a78000",
+			     "renesas,rcar-gen5-gpio";
+		reg = <0 0xc9b00910 0 0xc0>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-ranges = <&pfc 0 320 14>;
+		clocks = <&clk_stub_gpio>;
+	};
+
+	mp_phy: mp_phy@c9a00000 {
+		compatible = "renesas,r8a78000-multi-protocol-phy";
+		reg = <0 0xc9a00000 0 0x100000>;
+		#phy-cells = <2>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_MPPHY01>,
+			 <&cpg SCP_CLOCK_ID_MDLC_MPPHY11>,
+			 <&cpg SCP_CLOCK_ID_MDLC_MPPHY21>,
+			 <&cpg SCP_CLOCK_ID_MDLC_MPPHY31>,
+			 <&cpg SCP_CLOCK_ID_MDLC_MPPHY02>;
+		clock-names = "mpphy01", "mpphy11", "mpphy21",
+			      "mpphy31", "mpphy02";
+		power-domains = <&mdlc_hscn X5H_POWER_DOMAIN_ID_MPP0>,
+				<&mdlc_hscn X5H_POWER_DOMAIN_ID_MPP1>,
+				<&mdlc_hscn X5H_POWER_DOMAIN_ID_MPP2>,
+				<&mdlc_hscn X5H_POWER_DOMAIN_ID_MPP3>;
+		resets = <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY01>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY11>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY21>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY31>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_MPPHY02>;
+		status = "disabled";
+	};
+
+	rswitch3: ethernet@c9bc0000 {
+		compatible = "renesas,r8a78000-ether-switch3",
+				"renesas,etherswitch";
+		reg = <0 0xc9bc0000 0 0x40000>, <0 0xc9b80000 0 0x240000>;
+		reg-names = "base", "secure_base";
+		power-domains = <&mdlc_hscn X5H_POWER_DOMAIN_ID_RSW>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_RSW3>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSN>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3AES>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES0>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES1>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES2>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES3>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES4>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES5>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES6>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3TSNTES7>,
+			 <&cpg SCP_CLOCK_ID_MDLC_RSW3MFWD>;
+		clock-names = "rsw3", "rsw3tsn", "rsw3aes",
+			      "rsw3tsntes0", "rsw3tsntes1", "rsw3tsntes2",
+			      "rsw3tsntes3", "rsw3tsntes4", "rsw3tsntes5",
+			      "rsw3tsntes6", "rsw3tsntes7", "rsw3mfwd";
+		status = "disabled";
+	};
+
+	eth_pcs: phy@c9c50000 {
+		compatible = "renesas,r8a78000-ether-pcs";
+		reg = <0 0xc9c50000 0 0x4000>;
+		#phy-cells = <1>;
+		clocks = <&cpg SCP_CLOCK_ID_MDLC_XPCS0>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS1>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS2>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS3>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS4>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS5>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS6>,
+			 <&cpg SCP_CLOCK_ID_MDLC_XPCS7>;
+		clock-names = "xpcs0", "xpcs1", "xpcs2", "xpcs3",
+			      "xpcs4", "xpcs5", "xpcs6", "xpcs7";
+		resets = <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS0>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS1>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS2>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS3>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS4>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS5>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS6>,
+			 <&mdlc_hscn SCP_RESET_DOMAIN_ID_XPCS7>;
+		reset-names = "xpcs0", "xpcs1", "xpcs2", "xpcs3",
+			      "xpcs4", "xpcs5", "xpcs6", "xpcs7";
+		status = "disabled";
+	};
+
+	mdlc_hscn: system-controller@c9c90000 {
+		compatible = "renesas,r8a78000-mdlc";
+		reg = <0 0xc9c90000 0 0x1000>;
+		#power-domain-cells = <1>;
+		#reset-cells = <1>;
+		bootph-all;
+	};
 };

@@ -45,7 +45,11 @@ endif
 endif
 
 ifdef CONFIG_RCAR_GEN5
+ifdef CONFIG_RCAR_64_RSIP
+obj-y	+= gen5-cm33.o
+else
 obj-y	+= gen5-common.o
+endif
 endif
 endif
 
