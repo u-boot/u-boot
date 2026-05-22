@@ -35,7 +35,9 @@ static int pcf85063_get_time(struct udevice *dev, struct rtc_time *tm)
 	tm->tm_hour = bcd2bin(regs[2] & 0x3f);
 	tm->tm_mday = bcd2bin(regs[3] & 0x3f);
 	tm->tm_wday = regs[4] & 0x07;
-	tm->tm_mon = bcd2bin(regs[5] & 0x1f) - 1;
+	/* rtc register and rtc_time spec uses 1 - 12 */
+	tm->tm_mon = bcd2bin(regs[5] & 0x1f);
+	/* adjust rtc_time (years since 0) to match register spec */
 	tm->tm_year = bcd2bin(regs[6]) + 2000;
 
 	return 0;
@@ -50,12 +52,21 @@ static int pcf85063_set_time(struct udevice *dev, const struct rtc_time *tm)
 		return -EINVAL;
 	}
 
-	regs[0] = bin2bcd(tm->tm_sec);
+	/* hours, minutes and seconds */
+	regs[0] = bin2bcd(tm->tm_sec) & (~PCF85063_REG_SC_OS);
+
 	regs[1] = bin2bcd(tm->tm_min);
 	regs[2] = bin2bcd(tm->tm_hour);
+
+	/* Day of month, 1 - 31 */
 	regs[3] = bin2bcd(tm->tm_mday);
-	regs[4] = tm->tm_wday;
-	regs[5] = bin2bcd(tm->tm_mon + 1);
+
+	/* Day of week 0 - 6 */
+	regs[4] = tm->tm_wday & 0x07;
+
+	/* rtc register and rtc_time spec uses 1 - 12 */
+	regs[5] = bin2bcd(tm->tm_mon);
+	/* adjust register to match rtc_time spec */
 	regs[6] = bin2bcd(tm->tm_year % 100);
 
 	return dm_i2c_write(dev, PCF85063_REG_SC, regs, sizeof(regs));
