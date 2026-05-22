@@ -733,6 +733,17 @@ static void handle_ep_complete(struct ci_ep *ci_ep)
 	ci_invalidate_qtd(num);
 	ci_req = list_first_entry(&ci_ep->queue, struct ci_req, queue);
 
+	/* Check all dtd are completed, otherwise return for next irq process */
+	next_td = item;
+	for (j = 0; j < ci_req->dtd_count; j++) {
+		ci_invalidate_td(next_td);
+		if (next_td->info & INFO_ACTIVE)
+			return;
+		if (j != ci_req->dtd_count - 1)
+			next_td = (struct ept_queue_item *)(unsigned long)
+				next_td->next;
+	}
+
 	next_td = item;
 	len = 0;
 	for (j = 0; j < ci_req->dtd_count; j++) {
