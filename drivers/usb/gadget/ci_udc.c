@@ -680,6 +680,8 @@ static int ci_ep_queue(struct usb_ep *ep,
 	if (ret)
 		return ret;
 
+	req->status = -EINPROGRESS;
+
 	DBG("ept%d %s pre-queue req %p, buffer %p\n",
 	    num, in ? "in" : "out", ci_req, ci_req->hw_buf);
 	list_add_tail(&ci_req->queue, &ci_ep->queue);
@@ -754,6 +756,7 @@ static void handle_ep_complete(struct ci_ep *ci_ep)
 		ci_ep_submit_next_request(ci_ep);
 
 	ci_req->req.actual = ci_req->req.length - len;
+	ci_req->req.status = 0;
 	ci_debounce(ci_req, in);
 
 	DBG("ept%d %s req %p, complete %x\n",
