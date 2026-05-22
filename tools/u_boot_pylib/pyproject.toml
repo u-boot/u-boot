@@ -18,7 +18,7 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://docs.u-boot.org"
+"Homepage" = "https://docs.u-boot-project.org"
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
 
 [tool.setuptools]

@@ -55,7 +55,7 @@ HS-FS and HS-SE parts will not boot without this certificate.
 Have a look at your board's documentation to find and include the latest
 TIFS certificate blobs and how to include them in the build.
 
-    https://docs.u-boot.org/en/latest/board/ti/k3.html
+    https://docs.u-boot-project.org/en/latest/board/ti/k3.html
 
 tee-os:
 See the documentation for your board. You may need to build Open Portable
@@ -69,7 +69,7 @@ will not boot without this firmware.
 Have a look at your board's documentation to find the latest version of
 the DM firmware binary and how to include it in the build.
 
-    https://docs.u-boot.org/en/latest/board/ti/k3.html
+    https://docs.u-boot-project.org/en/latest/board/ti/k3.html
 
 ti-fs-enc.bin:
 You are missing TI's Foundational Security (TIFS) firmware which is
@@ -80,4 +80,4 @@ this firmware.
 Have a look at your board's documentation to find the latest version of the
 TIFS firmware binary and how to include them in the build.
 
-    https://docs.u-boot.org/en/latest/board/ti/k3.html
+    https://docs.u-boot-project.org/en/latest/board/ti/k3.html
