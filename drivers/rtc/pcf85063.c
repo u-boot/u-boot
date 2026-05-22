@@ -185,6 +185,20 @@ static int pcf85063_probe(struct udevice *dev)
 		return err;
 	}
 
+	/*
+	 * If a Power loss is detected, SW reset the device.
+	 * From PCF85063A datasheet:
+	 * There is a low probability that some devices will have corruption
+	 * of the registers after the automatic power-on reset...
+	 */
+	if (tmp & PCF85063_REG_SC_OS) {
+		dev_warn(dev, "POR issue detected, sending a SW reset\n");
+		err = dm_i2c_reg_clrset(dev, PCF85063_REG_CTRL1,
+					0xff, PCF85063_REG_CTRL1_SWR);
+		if (err < 0)
+			dev_warn(dev, "SW reset failed, trying to continue\n");
+	}
+
 	err = pcf85063_load_capacitance(dev);
 	if (err < 0)
 		dev_warn(dev, "failed to set xtal load capacitance: %d",
