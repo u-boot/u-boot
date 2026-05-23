@@ -16,6 +16,7 @@
 #include <generic-phy.h>
 #include <asm/gpio.h>
 #include <interconnect.h>
+#include <power/regulator.h>
 
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -586,6 +587,19 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 		return err;
 	}
 
+	/* enable regulators */
+	err = regulator_set_enable(priv->vcc, true);
+	if (err && err != -ENOSYS)
+		dev_warn(hba->dev, "failed to enable regulator vcc-supply:%d\n", err);
+
+	err = regulator_set_enable(priv->vccq, true);
+	if (err && err != -ENOSYS)
+		dev_warn(hba->dev, "failed to enable regulator vccq-supply:%d\n", err);
+
+	err = regulator_set_enable(priv->vccq2, true);
+	if (err && err != -ENOSYS)
+		dev_warn(hba->dev, "failed to enable regulator vccq2-supply:%d\n", err);
+
 	/* setup clocks */
 	ufs_qcom_setup_clocks(hba, true, PRE_CHANGE);
 
@@ -668,6 +682,17 @@ static int ufs_qcom_probe(struct udevice *dev)
 	if (ret) {
 		dev_err(dev, "Warning: cannot get reset GPIO\n");
 	}
+
+	ret = device_get_supply_regulator(dev, "vcc-supply", &priv->vcc);
+	if (ret)
+		dev_warn(dev, "failed to get regulator vcc-supply:%d\n", ret);
+
+	ret = device_get_supply_regulator(dev, "vccq-supply", &priv->vccq);
+	if (ret)
+		dev_warn(dev, "failed to get regulator vccq-supply:%d\n", ret);
+
+	/* vccq2 is optional on UFS2 and missing on UFS3 and later */
+	device_get_supply_regulator(dev, "vccq2-supply", &priv->vccq2);
 
 	ret = ufshcd_probe(dev, &ufs_qcom_hba_ops);
 	if (ret) {

@@ -134,6 +134,10 @@ struct ufs_qcom_priv {
 	struct clk_bulk clks;
 	bool is_clks_enabled;
 
+	struct udevice *vcc;
+	struct udevice *vccq;
+	struct udevice *vccq2;
+
 	struct ufs_hw_version hw_ver;
 
 	/* Reset control of HCI */
