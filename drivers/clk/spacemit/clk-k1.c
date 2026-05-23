@@ -1420,34 +1420,21 @@ static const struct spacemit_ccu_data k1_ccu_apmu_data = {
 	.offset		= K1_APMU_ID,
 };
 
-struct clk_retry_item {
-	struct ccu_common *common;
-	struct list_head link;
-};
-
-static LIST_HEAD(retry_list);
-
-static int k1_clk_retry_register(void)
+/*
+ * The K1 clock providers are split across separate syscon devices (PLL,
+ * MPMU, APMU, APBC) whose clocks parent across device boundaries.  U-Boot's
+ * CCF resolves a parent by name at registration time and silently binds an
+ * orphan if the parent is not registered yet, so a controller must not
+ * register its clocks before the controllers owning its parents have probed.
+ * Force the parent controller to probe by its driver: this is robust against
+ * device tree node/phandle ordering and needs no helper "clocks" wiring in
+ * the syscon nodes.
+ */
+static int k1_clk_force_probe(const struct driver *drv)
 {
-	struct clk_retry_item *item, *tmp;
-	int retries = 5;
-	int ret;
+	struct udevice *dev;
 
-	while (!list_empty(&retry_list) && retries) {
-		list_for_each_entry_safe(item, tmp, &retry_list, link) {
-			struct ccu_common *common = item->common;
-
-			ret = common->init(common);
-			if (ret)
-				return ret;
-
-			list_del(&item->link);
-			kfree(item);
-		}
-		retries--;
-	}
-
-	return 0;
+	return uclass_get_device_by_driver(UCLASS_CLK, drv, &dev);
 }
 
 static int k1_clk_register(struct udevice *dev, struct regmap *regmap,
@@ -1514,20 +1501,19 @@ static int k1_pll_clk_probe(struct udevice *dev)
 	if (ret)
 		return -EPROBE_DEFER;
 
-	return k1_clk_retry_register();
+	return 0;
 }
 
 static int k1_mpmu_clk_probe(struct udevice *dev)
 {
 	struct regmap *base_regmap, *lock_regmap = NULL;
 	const struct spacemit_ccu_data *data;
-	struct clk clk;
 	int ret;
 
-	/* probe PLL controller */
-	ret = clk_get_by_index(dev, 4, &clk);
+	/* MPMU clocks parent off the PLL controller */
+	ret = k1_clk_force_probe(DM_DRIVER_GET(k1_pll_clk));
 	if (ret)
-		return -EPROBE_DEFER;
+		return ret;
 
 	ret = regmap_init_mem(dev_ofnode(dev), &base_regmap);
 	if (ret)
@@ -1539,7 +1525,7 @@ static int k1_mpmu_clk_probe(struct udevice *dev)
 	if (ret)
 		return -EPROBE_DEFER;
 
-	return k1_clk_retry_register();
+	return 0;
 }
 
 static int k1_apmu_clk_probe(struct udevice *dev)
@@ -1548,6 +1534,14 @@ static int k1_apmu_clk_probe(struct udevice *dev)
 	const struct spacemit_ccu_data *data;
 	int ret;
 
+	/* APMU clocks parent off the PLL and MPMU controllers */
+	ret = k1_clk_force_probe(DM_DRIVER_GET(k1_pll_clk));
+	if (ret)
+		return ret;
+	ret = k1_clk_force_probe(DM_DRIVER_GET(k1_mpmu_clk));
+	if (ret)
+		return ret;
+
 	ret = regmap_init_mem(dev_ofnode(dev), &base_regmap);
 	if (ret)
 		return ret;
@@ -1558,28 +1552,25 @@ static int k1_apmu_clk_probe(struct udevice *dev)
 	if (ret)
 		return -EPROBE_DEFER;
 
-	return k1_clk_retry_register();
+	return 0;
 }
 
 static int k1_apbc_clk_probe(struct udevice *dev)
 {
 	struct regmap *base_regmap, *lock_regmap = NULL;
 	const struct spacemit_ccu_data *data;
-	struct clk clk;
 	int ret;
 
-	/* probe PLL controller */
-	ret = clk_get_by_index(dev, 4, &clk);
+	/* APBC clocks parent off the PLL, MPMU and APMU controllers */
+	ret = k1_clk_force_probe(DM_DRIVER_GET(k1_pll_clk));
 	if (ret)
-		return -EPROBE_DEFER;
-	/* probe MPMU controller */
-	ret = clk_get_by_index(dev, 5, &clk);
+		return ret;
+	ret = k1_clk_force_probe(DM_DRIVER_GET(k1_mpmu_clk));
 	if (ret)
-		return -EPROBE_DEFER;
-	/* probe APMU controller */
-	ret = clk_get_by_index(dev, 6, &clk);
+		return ret;
+	ret = k1_clk_force_probe(DM_DRIVER_GET(k1_apmu_clk));
 	if (ret)
-		return -EPROBE_DEFER;
+		return ret;
 
 	ret = regmap_init_mem(dev_ofnode(dev), &base_regmap);
 	if (ret)
@@ -1591,7 +1582,7 @@ static int k1_apbc_clk_probe(struct udevice *dev)
 	if (ret)
 		return -EPROBE_DEFER;
 
-	return k1_clk_retry_register();
+	return 0;
 }
 
 static int k1_pll_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
