@@ -304,8 +304,8 @@ static int imx_qb_blk(const char * const ifname,
 		ret = blk_derase(bdesc, offset, load_size);
 	}
 
-	if (!ret) {
-		printf("Failed to write to block device\n");
+	if (ret != load_size) {
+		printf("Failed to %s block device\n", save ? "write to" : "erase");
 		return -EIO;
 	}
 
