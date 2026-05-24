@@ -1,0 +1,59 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/*
+ * Device Tree Source extras for U-Boot for the Geist board with r8a779md
+ *
+ * Copyright (C) 2025-2026 Renesas Electronics Corp.
+ */
+
+/ {
+	aliases {
+		spi0 = &rpc;
+	};
+};
+
+&pfc {
+	qspi0_pins: qspi0 {
+		groups = "qspi0_ctrl", "qspi0_data4";
+		function = "qspi0";
+	};
+};
+
+/*
+ * SPI access works only if TFA is built with RCAR_RPC_HYPERFLASH_LOCKED=0
+ * and SPD=none , otherwise the RPC access is blocked either by TFA in case
+ * the former is set to 1, or by OPTEE-OS in case SPD=opteed .
+ */
+&rpc {
+	pinctrl-0 = <&qspi0_pins>;
+	pinctrl-names = "default";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+	spi-max-frequency = <40000000>;
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <40000000>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+	};
+};
+
+&sdhi0 {
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
+	sd-uhs-sdr104;
+	max-frequency = <208000000>;
+};
+
+&sdhi2 {
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
+	max-frequency = <200000000>;
+};
+
+&vcc_sdhi0 {
+	u-boot,off-on-delay-us = <20000>;
+};
