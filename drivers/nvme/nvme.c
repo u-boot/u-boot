@@ -298,11 +298,6 @@ static int nvme_delete_queue(struct nvme_dev *dev, u8 opcode, u16 id)
 	return nvme_submit_admin_cmd(dev, &c, NULL);
 }
 
-static int nvme_delete_sq(struct nvme_dev *dev, u16 sqid)
-{
-	return nvme_delete_queue(dev, nvme_admin_delete_sq, sqid);
-}
-
 static int nvme_delete_cq(struct nvme_dev *dev, u16 cqid)
 {
 	return nvme_delete_queue(dev, nvme_admin_delete_cq, cqid);
@@ -563,20 +558,19 @@ static int nvme_create_queue(struct nvme_queue *nvmeq, int qid)
 	nvmeq->cq_vector = qid - 1;
 	result = nvme_alloc_cq(dev, qid, nvmeq);
 	if (result < 0)
-		goto release_cq;
+		goto release_ret;
 
 	result = nvme_alloc_sq(dev, qid, nvmeq);
 	if (result < 0)
-		goto release_sq;
+		goto release_cq;
 
 	nvme_init_queue(nvmeq, qid);
 
 	return result;
 
- release_sq:
-	nvme_delete_sq(dev, qid);
  release_cq:
 	nvme_delete_cq(dev, qid);
+ release_ret:
 
 	return result;
 }
