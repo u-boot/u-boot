@@ -880,14 +880,14 @@ int nvme_init(struct udevice *udev)
 	if (!ndev->prp_pool) {
 		ret = -ENOMEM;
 		printf("Error: %s: Out of memory!\n", udev->name);
-		goto free_nvme;
+		goto free_queue;
 	}
 	ndev->prp_entry_num = MAX_PRP_POOL >> 3;
 
 	ret = nvme_setup_io_queues(ndev);
 	if (ret) {
 		log_debug("Unable to setup I/O queues(err=%dE)\n", ret);
-		goto free_queue;
+		goto free_prp_pool;
 	}
 
 	nvme_get_info_from_identify(ndev);
@@ -897,7 +897,7 @@ int nvme_init(struct udevice *udev)
 	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));
 	if (!id) {
 		ret = -ENOMEM;
-		goto free_queue;
+		goto free_prp_pool;
 	}
 
 	for (int i = 1; i <= ndev->nn; i++) {
@@ -942,6 +942,8 @@ int nvme_init(struct udevice *udev)
 
 free_id:
 	free(id);
+free_prp_pool:
+	free((void *)ndev->prp_pool);
 free_queue:
 	free((void *)ndev->queues);
 free_nvme:
