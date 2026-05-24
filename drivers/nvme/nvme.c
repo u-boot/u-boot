@@ -27,6 +27,23 @@
 #define IO_TIMEOUT		30
 #define MAX_PRP_POOL		512
 
+/**
+ * nvme_invalidate_cache_aligned() - invalidate cache with proper alignment
+ *
+ * Aligns cache invalidation to cacheline boundaries to ensure correct
+ * behavior even when the DMA buffer is not aligned to page boundaries.
+ *
+ * @addr:	The start address of the buffer
+ * @length:	The length of the buffer in bytes
+ */
+static inline void nvme_invalidate_cache_aligned(uintptr_t addr, int length)
+{
+	uintptr_t start_addr = addr & ~(ARCH_DMA_MINALIGN - 1);
+	uintptr_t end_addr = ALIGN(addr + length, ARCH_DMA_MINALIGN);
+
+	invalidate_dcache_range(start_addr, end_addr);
+}
+
 static int nvme_wait_csts(struct nvme_dev *dev, u32 mask, u32 val)
 {
 	int timeout;
@@ -456,6 +473,7 @@ int nvme_identify(struct nvme_dev *dev, unsigned nsid,
 	u32 page_size = dev->page_size;
 	int offset = dma_addr & (page_size - 1);
 	int length = sizeof(struct nvme_id_ctrl);
+	dma_addr_t orig_dma_addr = dma_addr;
 	int ret;
 
 	memset(&c, 0, sizeof(c));
@@ -473,13 +491,13 @@ int nvme_identify(struct nvme_dev *dev, unsigned nsid,
 
 	c.identify.cns = cpu_to_le32(cns);
 
-	invalidate_dcache_range(dma_addr,
-				dma_addr + sizeof(struct nvme_id_ctrl));
+	nvme_invalidate_cache_aligned((uintptr_t)orig_dma_addr,
+				      sizeof(struct nvme_id_ctrl));
 
 	ret = nvme_submit_admin_cmd(dev, &c, NULL);
 	if (!ret)
-		invalidate_dcache_range(dma_addr,
-					dma_addr + sizeof(struct nvme_id_ctrl));
+		nvme_invalidate_cache_aligned((uintptr_t)orig_dma_addr,
+					      sizeof(struct nvme_id_ctrl));
 
 	return ret;
 }
