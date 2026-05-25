@@ -452,8 +452,7 @@ out:
  * test_hii_database_get_keyboard_layout() - test retrieval of keyboard layout
  *
  * This test adds two package lists, each of which has two keyboard layouts
- * and then tries to get a handle to keyboard layout with a specific guid
- * and the current one.
+ * and then tries to get a handle to every keyboard layout and the current one.
  *
  * @Return:     status code
  */
@@ -463,7 +462,11 @@ static int test_hii_database_get_keyboard_layout(void)
 	struct efi_hii_keyboard_layout *kb_layout;
 	u16 kb_layout_size;
 	efi_status_t ret;
-	int result = EFI_ST_FAILURE;
+	int result = EFI_ST_FAILURE, i;
+	static efi_guid_t *const kb_layout_guids[] = {
+		&kb_layout_guid11, &kb_layout_guid12,
+		&kb_layout_guid21, &kb_layout_guid22
+	};
 
 	PRINT_TESTNAME;
 	ret = hii_database_protocol->new_package_list(hii_database_protocol,
@@ -484,33 +487,37 @@ static int test_hii_database_get_keyboard_layout(void)
 		goto out;
 	}
 
-	/* specific keyboard_layout(guid11) */
-	kb_layout = NULL;
-	kb_layout_size = 0;
-	ret = hii_database_protocol->get_keyboard_layout(hii_database_protocol,
-			&kb_layout_guid11, &kb_layout_size, kb_layout);
-	if (ret != EFI_BUFFER_TOO_SMALL) {
-		efi_st_error("get_keyboard_layout returned %u\n",
-			     (unsigned int)ret);
-		goto out;
-	}
-	ret = boottime->allocate_pool(EFI_LOADER_DATA, kb_layout_size,
-				      (void **)&kb_layout);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("AllocatePool failed\n");
-		goto out;
-	}
-	ret = hii_database_protocol->get_keyboard_layout(hii_database_protocol,
-			&kb_layout_guid11, &kb_layout_size, kb_layout);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("get_keyboard_layout returned %u\n",
-			     (unsigned int)ret);
-		goto out;
-	}
-	ret = boottime->free_pool(kb_layout);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("FreePool failed\n");
-		goto out;
+	/* Verify all keyboard layouts */
+	for (i = 0; i < ARRAY_SIZE(kb_layout_guids); i++) {
+		efi_guid_t *kb_layout_guid = kb_layout_guids[i];
+
+		kb_layout = NULL;
+		kb_layout_size = 0;
+		ret = hii_database_protocol->get_keyboard_layout(hii_database_protocol,
+				kb_layout_guid, &kb_layout_size, kb_layout);
+		if (ret != EFI_BUFFER_TOO_SMALL) {
+			efi_st_error("get_keyboard_layout returned %u\n",
+				     (unsigned int)ret);
+			goto out;
+		}
+		ret = boottime->allocate_pool(EFI_LOADER_DATA, kb_layout_size,
+					      (void **)&kb_layout);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("AllocatePool failed\n");
+			goto out;
+		}
+		ret = hii_database_protocol->get_keyboard_layout(hii_database_protocol,
+				kb_layout_guid, &kb_layout_size, kb_layout);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("get_keyboard_layout returned %u\n",
+				     (unsigned int)ret);
+			goto out;
+		}
+		ret = boottime->free_pool(kb_layout);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("FreePool failed\n");
+			goto out;
+		}
 	}
 
 	/* current */

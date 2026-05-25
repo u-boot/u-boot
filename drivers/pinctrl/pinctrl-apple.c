@@ -192,6 +192,7 @@ static struct pinctrl_ops apple_pinctrl_ops = {
 };
 
 static const struct udevice_id apple_pinctrl_ids[] = {
+	{ .compatible = "apple,t8103-pinctrl" },
 	{ .compatible = "apple,pinctrl" },
 	{ /* sentinel */ }
 };

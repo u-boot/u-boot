@@ -133,15 +133,22 @@ F:	drivers/mmc/snps_dw_mmc.c
 
 APPLE M1 SOC SUPPORT
 M:	Mark Kettenis <kettenis@openbsd.org>
+R:	Janne Grunau <j@jannau.net>
 S:	Maintained
 F:	arch/arm/include/asm/arch-apple/
 F:	arch/arm/mach-apple/
+F:	board/apple/
 F:	configs/apple_m1_defconfig
+F:	doc/board/apple/
+F:	drivers/input/apple_spi_kbd.c
 F:	drivers/iommu/apple_dart.c
+F:	drivers/mailbox/apple-mbox.c
 F:	drivers/nvme/nvme_apple.c
 F:	drivers/pci/pcie_apple.c
 F:	drivers/phy/phy-apple-atc.c
 F:	drivers/pinctrl/pinctrl-apple.c
+F:	drivers/power/domain/apple-pmgr.c
+F:	drivers/spi/apple_spi.c
 F:	drivers/watchdog/apple_wdt.c
 F:	include/configs/apple.h
 
@@ -1096,7 +1103,7 @@ EFI CLIENT
 M:	Simon Glass <sjg@chromium.org>
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 S:	Maintained
-W:	https://docs.u-boot.org/en/latest/develop/uefi/u-boot_on_efi.html
+W:	https://docs.u-boot-project.org/en/latest/develop/uefi/u-boot_on_efi.html
 F:	board/efi/efi-x86_app
 F:	configs/efi-x86_app*
 F:	doc/develop/uefi/u-boot_on_efi.rst
@@ -1486,6 +1493,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-nios.git
 F:	arch/nios2/
 
 NVMe
+M:	Neil Armstrong <neil.armstrong@linaro.org>
 M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 F:	drivers/nvme/

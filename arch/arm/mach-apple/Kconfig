@@ -3,11 +3,21 @@ if ARCH_APPLE
 config TEXT_BASE
 	default 0x00000000
 
-config SYS_CONFIG_NAME
-	default "apple"
-
 config SYS_SOC
 	default "apple"
+
+config SYS_VENDOR
+	default "apple"
+
+config SYS_BOARD
+	string "Board name"
+	default "mac"
+	help
+	  This option contains information about board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
+	  be used.
+	  Apple silicon based devices are expected to use the generic board name
+	  "mac".
 
 config SYS_MALLOC_LEN
 	default 0x4000000

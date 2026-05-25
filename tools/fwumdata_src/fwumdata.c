@@ -84,6 +84,7 @@ static int parse_config(const char *fname)
 		if (line[0] == '#' || line[0] == '\n')
 			continue;
 
+		devname = NULL;
 		rc = sscanf(line, "%ms %lli %lx %lx",
 			    &devname,
 			    &devices[i].devoff,

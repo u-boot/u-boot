@@ -81,12 +81,13 @@ char *soc_name_decode(void)
 	}
 
 	/*
-	 * --rev. are 6 chars
-	 * max platform name is qemu which is 4 chars
+	 * --rev.-el are 9 chars
+	 * max platform name is emu-mmd which is 7 chars
 	 * platform version number are 1+1
-	 * Plus 1 char for \n
+	 * el is 1 char
+	 * Plus 1 char for NULL byte
 	 */
-	name = calloc(1, strlen(CONFIG_SYS_BOARD) + 13);
+	name = calloc(1, strlen(CONFIG_SYS_BOARD) + 20);
 	if (!name)
 		return NULL;
 

@@ -324,7 +324,8 @@ add_keyboard_package(struct efi_hii_packagelist *hii,
 		list_add_tail(&layout_data->link_sys,
 			      &efi_keyboard_layout_list);
 
-		layout += layout_length;
+		layout = (struct efi_hii_keyboard_layout *)
+			 ((uintptr_t)layout + layout_length);
 	}
 
 	list_add_tail(&package_data->link, &hii->keyboard_packages);

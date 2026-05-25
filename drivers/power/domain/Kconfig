@@ -98,6 +98,14 @@ config QCOM_RPMH_POWER_DOMAIN
 	  The RPMH power domain driver is responsible for managing power
 	  domains on Qualcomm SoCs.
 
+config RENESAS_R8A78000_POWER_DOMAIN
+	bool "Enable the Renesas R-Car MDLC Power domain and reset driver"
+	depends on POWER_DOMAIN && ARCH_RENESAS
+	help
+	  Enable support for Renesas R-Car R8A78000 X5H MDLC Power domain
+	  and reset driver. The MDLC is responsible for managing both
+	  power domains and resets on R-Car R8A78000 X5H SoC.
+
 config SANDBOX_POWER_DOMAIN
 	bool "Enable the sandbox power domain test driver"
 	depends on POWER_DOMAIN && SANDBOX

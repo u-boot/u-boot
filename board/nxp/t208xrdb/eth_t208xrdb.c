@@ -93,8 +93,3 @@ void fdt_fixup_board_phy(void *fdt)
 		printf("Unable to rename node ethernet-phy@1: %s\n",
 		       fdt_strerror(ret));
 }
-
-void fdt_fixup_board_enet(void *fdt)
-{
-	return;
-}

@@ -197,10 +197,10 @@
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
-#ifdef CONFIG_MMC
+#ifdef CONFIG_CMD_MMC
 #define BOOT_TARGET_DEVICES_MMC(func, instance) func(MMC, mmc, instance)
 #else
-#define BOOT_TARGET_DEVICES_MMC(func)
+#define BOOT_TARGET_DEVICES_MMC(func, instance)
 #endif
 
 #ifdef CONFIG_SCSI

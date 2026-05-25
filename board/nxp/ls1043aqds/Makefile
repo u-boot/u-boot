@@ -5,7 +5,4 @@
 #
 
 obj-y += ddr.o
-ifndef CONFIG_XPL_BUILD
-obj-y += eth.o
-endif
 obj-y += ls1043aqds.o

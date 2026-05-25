@@ -7,6 +7,8 @@
 #ifndef SDHCI_CADENCE_H_
 #define SDHCI_CADENCE_H_
 
+#include <mmc.h>
+
 /* HRS - Host Register Set (specific to Cadence) */
 /* PHY access port */
 #define SDHCI_CDNS_HRS04		0x10
@@ -60,10 +62,13 @@ struct sdhci_cdns_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
 	void __iomem *hrs_addr;
+	enum bus_mode tuned_mode;
+	u32 tuned_dll_slave_ctrl;
 };
 
 int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 mode);
 int sdhci_cdns6_phy_init(struct udevice *dev, struct sdhci_cdns_plat *plat);
 int sdhci_cdns6_set_tune_val(struct sdhci_cdns_plat *plat, unsigned int val);
+u32 sdhci_cdns6_phy_get_dll_slave(struct sdhci_cdns_plat *plat);
 
 #endif

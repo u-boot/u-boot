@@ -13,6 +13,7 @@
 #include <virtio.h>
 #include <virtio_ring.h>
 #include <linux/log2.h>
+#include <linux/err.h>
 #include "virtio_blk.h"
 #include <malloc.h>
 
@@ -181,7 +182,7 @@ static ulong virtio_blk_do_req(struct udevice *dev, u64 sector,
 
 		ret = virtio_blk_do_single_req(dev, sector + i, blk_per_sg,
 					       buffer + i * 512, type);
-		if (ret < 0)
+		if (IS_ERR_VALUE(ret))
 			return ret;
 		i += blk_per_sg;
 	}

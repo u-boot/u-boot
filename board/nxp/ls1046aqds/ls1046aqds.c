@@ -434,10 +434,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	fdt_fixup_memory_banks(blob, base, size, 2);
 	ft_cpu_setup(blob, bd);
 
-#ifdef CONFIG_FMAN_ENET
-	fdt_fixup_board_enet(blob);
-#endif
-
 	fdt_fixup_icid(blob);
 
 	reg = QIXIS_READ(brdcfg[0]);

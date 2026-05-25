@@ -222,6 +222,11 @@ u64 get_tcr(u64 *pips, u64 *pva_bits);
  * mmu_setup() - Sets up the mmu page tables as per mem_map
  */
 void mmu_setup(void);
+
+/**
+ * mmu_enable() - Enable the MMU by setting 'M' bit in SCTLR register
+ */
+void mmu_enable(void);
 #endif
 
 #endif /* _ASM_ARMV8_MMU_H_ */

@@ -5,6 +5,5 @@
 obj-y += ddr.o
 obj-y += ls1043ardb.o
 ifndef CONFIG_XPL_BUILD
-obj-$(CONFIG_NET_LEGACY) += eth.o
 obj-y += cpld.o
 endif

@@ -22,7 +22,7 @@ Repository
 The official U-Boot repository is located at https://source.denx.de/u-boot/u-boot
 
 Further more detailed documentation can be found at the following link:
-https://docs.u-boot.org/en/latest/index.html
+https://docs.u-boot-project.org/en/latest/index.html
 
 Contributions
 -------------

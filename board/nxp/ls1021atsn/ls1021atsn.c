@@ -123,11 +123,6 @@ int dram_init(void)
 	return 0;
 }
 
-int board_eth_init(struct bd_info *bis)
-{
-	return pci_eth_init(bis);
-}
-
 int board_early_init_f(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
