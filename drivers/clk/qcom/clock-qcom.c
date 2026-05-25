@@ -489,8 +489,14 @@ static const struct reset_ops qcom_reset_ops = {
 
 static int qcom_reset_probe(struct udevice *dev)
 {
+	void *base;
+
+	base = dev_read_addr_ptr(dev);
+	if (!base)
+		return -EINVAL;
+
 	/* Set our priv pointer to the base address */
-	dev_set_priv(dev, (void *)dev_read_addr(dev));
+	dev_set_priv(dev, base);
 
 	return 0;
 }
@@ -564,8 +570,14 @@ static const struct power_domain_ops qcom_power_ops = {
 
 static int qcom_power_probe(struct udevice *dev)
 {
+	void *base;
+
+	base = dev_read_addr_ptr(dev);
+	if (!base)
+		return -EINVAL;
+
 	/* Set our priv pointer to the base address */
-	dev_set_priv(dev, (void *)dev_read_addr(dev));
+	dev_set_priv(dev, base);
 
 	return 0;
 }
