@@ -421,19 +421,16 @@ static void pru_set_id(struct pru_privdata *priv, struct udevice *dev)
 static int pru_probe(struct udevice *dev)
 {
 	struct pru_privdata *priv;
-	ofnode node;
-
-	node = dev_ofnode(dev);
 
 	priv = dev_get_priv(dev);
 	priv->prusspriv = dev_get_priv(dev->parent);
 
-	priv->pru_iram = devfdt_get_addr_size_index(dev, PRU_MEM_IRAM,
-						    &priv->pru_iramsz);
-	priv->pru_ctrl = devfdt_get_addr_size_index(dev, PRU_MEM_CTRL,
-						    &priv->pru_ctrlsz);
-	priv->pru_debug = devfdt_get_addr_size_index(dev, PRU_MEM_DEBUG,
-						     &priv->pru_debugsz);
+	priv->pru_iram = dev_read_addr_size_index(dev, PRU_MEM_IRAM,
+						  &priv->pru_iramsz);
+	priv->pru_ctrl = dev_read_addr_size_index(dev, PRU_MEM_CTRL,
+						  &priv->pru_ctrlsz);
+	priv->pru_debug = dev_read_addr_size_index(dev, PRU_MEM_DEBUG,
+						   &priv->pru_debugsz);
 
 	priv->iram_da = 0;
 	priv->pdram_da = 0;
