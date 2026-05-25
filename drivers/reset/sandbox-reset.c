@@ -9,12 +9,14 @@
 #include <reset-uclass.h>
 #include <asm/io.h>
 #include <asm/reset.h>
+#include <linux/delay.h>
 
 #define SANDBOX_RESET_SIGNALS 101
 
 struct sandbox_reset_signal {
 	bool asserted;
 	bool requested;
+	int reset_count;
 };
 
 struct sandbox_reset {
@@ -31,6 +33,7 @@ static int sandbox_reset_request(struct reset_ctl *reset_ctl)
 		return -EINVAL;
 
 	sbr->signals[reset_ctl->id].requested = true;
+	sbr->signals[reset_ctl->id].reset_count = 0;
 	return 0;
 }
 
@@ -66,6 +69,21 @@ static int sandbox_reset_deassert(struct reset_ctl *reset_ctl)
 	return 0;
 }
 
+static int sandbox_reset_reset(struct reset_ctl *reset_ctl, ulong delay_us)
+{
+	struct sandbox_reset *sbr = dev_get_priv(reset_ctl->dev);
+
+	debug("%s(reset_ctl=%p, delay_us=%lu)\n", __func__, reset_ctl,
+	      delay_us);
+
+	sbr->signals[reset_ctl->id].asserted = true;
+	udelay(delay_us);
+	sbr->signals[reset_ctl->id].asserted = false;
+	sbr->signals[reset_ctl->id].reset_count++;
+
+	return 0;
+}
+
 static int sandbox_reset_bind(struct udevice *dev)
 {
 	debug("%s(dev=%p)\n", __func__, dev);
@@ -90,6 +108,7 @@ static const struct reset_ops sandbox_reset_reset_ops = {
 	.rfree = sandbox_reset_free,
 	.rst_assert = sandbox_reset_assert,
 	.rst_deassert = sandbox_reset_deassert,
+	.rst_reset = sandbox_reset_reset,
 };
 
 U_BOOT_DRIVER(sandbox_reset) = {
@@ -124,4 +143,16 @@ int sandbox_reset_is_requested(struct udevice *dev, unsigned long id)
 		return -EINVAL;
 
 	return sbr->signals[id].requested;
+}
+
+int sandbox_reset_get_count(struct udevice *dev, unsigned long id)
+{
+	struct sandbox_reset *sbr = dev_get_priv(dev);
+
+	debug("%s(dev=%p, id=%ld)\n", __func__, dev, id);
+
+	if (id >= SANDBOX_RESET_SIGNALS)
+		return -EINVAL;
+
+	return sbr->signals[id].reset_count;
 }

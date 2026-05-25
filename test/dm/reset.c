@@ -120,6 +120,73 @@ static int dm_test_reset_devm(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_reset_devm, UTF_SCAN_FDT);
 
+static int dm_test_reset_reset(struct unit_test_state *uts)
+{
+	struct udevice *dev_reset;
+	struct udevice *dev_test;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_RESET, "reset-ctl",
+					      &dev_reset));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "reset-ctl-test",
+					      &dev_test));
+	ut_assertok(sandbox_reset_test_get(dev_test));
+
+	/* Verify reset_count starts at 0 */
+	ut_asserteq(0, sandbox_reset_get_count(dev_reset, TEST_RESET_ID));
+
+	ut_assertok(sandbox_reset_test_assert(dev_test));
+	ut_asserteq(1, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+
+	ut_assertok(sandbox_reset_test_reset(dev_test));
+
+	/* Verify reset was pulsed (count incremented) */
+	ut_asserteq(1, sandbox_reset_get_count(dev_reset, TEST_RESET_ID));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+
+	ut_assertok(sandbox_reset_test_free(dev_test));
+
+	return 0;
+}
+DM_TEST(dm_test_reset_reset, UTF_SCAN_FDT);
+
+static int dm_test_reset_reset_bulk(struct unit_test_state *uts)
+{
+	struct udevice *dev_reset;
+	struct udevice *dev_test;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_RESET, "reset-ctl",
+					      &dev_reset));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, OTHER_RESET_ID));
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "reset-ctl-test",
+					      &dev_test));
+	ut_assertok(sandbox_reset_test_get_bulk(dev_test));
+
+	/* Verify reset_count starts at 0 */
+	ut_asserteq(0, sandbox_reset_get_count(dev_reset, TEST_RESET_ID));
+	ut_asserteq(0, sandbox_reset_get_count(dev_reset, OTHER_RESET_ID));
+
+	ut_assertok(sandbox_reset_test_assert_bulk(dev_test));
+	ut_asserteq(1, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+	ut_asserteq(1, sandbox_reset_query(dev_reset, OTHER_RESET_ID));
+
+	ut_assertok(sandbox_reset_test_reset_bulk(dev_test));
+
+	/* Verify resets were pulsed (counts incremented) */
+	ut_asserteq(1, sandbox_reset_get_count(dev_reset, TEST_RESET_ID));
+	ut_asserteq(1, sandbox_reset_get_count(dev_reset, OTHER_RESET_ID));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, TEST_RESET_ID));
+	ut_asserteq(0, sandbox_reset_query(dev_reset, OTHER_RESET_ID));
+
+	ut_assertok(sandbox_reset_test_release_bulk(dev_test));
+
+	return 0;
+}
+DM_TEST(dm_test_reset_reset_bulk, UTF_SCAN_FDT);
+
 static int dm_test_reset_bulk(struct unit_test_state *uts)
 {
 	struct udevice *dev_reset;
