@@ -454,12 +454,12 @@ static int socfpga_clk_probe(struct udevice *dev)
 static int socfpga_clk_of_to_plat(struct udevice *dev)
 {
 	struct socfpga_clk_plat *plat = dev_get_plat(dev);
-	fdt_addr_t addr;
+	void __iomem *addr;
 
-	addr = devfdt_get_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
+	addr = dev_read_addr_ptr(dev);
+	if (!addr)
 		return -EINVAL;
-	plat->regs = (void __iomem *)addr;
+	plat->regs = addr;
 
 	return 0;
 }
