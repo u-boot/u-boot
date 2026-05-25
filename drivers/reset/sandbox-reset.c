@@ -121,6 +121,33 @@ U_BOOT_DRIVER(sandbox_reset) = {
 	.ops = &sandbox_reset_reset_ops,
 };
 
+/*
+ * Second sandbox reset controller for tests: same assert/deassert
+ * behaviour as sandbox_reset, but no rst_reset so reset_reset() uses
+ * the core assert / udelay / deassert fallback (reset_count never bumps).
+ */
+static const struct udevice_id sandbox_reset_fallback_ids[] = {
+	{ .compatible = "sandbox,reset-ctl-fallback-only" },
+	{ }
+};
+
+static const struct reset_ops sandbox_reset_fallback_reset_ops = {
+	.request = sandbox_reset_request,
+	.rfree = sandbox_reset_free,
+	.rst_assert = sandbox_reset_assert,
+	.rst_deassert = sandbox_reset_deassert,
+};
+
+U_BOOT_DRIVER(sandbox_reset_fallback) = {
+	.name = "sandbox_reset_fallback",
+	.id = UCLASS_RESET,
+	.of_match = sandbox_reset_fallback_ids,
+	.bind = sandbox_reset_bind,
+	.probe = sandbox_reset_probe,
+	.priv_auto = sizeof(struct sandbox_reset),
+	.ops = &sandbox_reset_fallback_reset_ops,
+};
+
 int sandbox_reset_query(struct udevice *dev, unsigned long id)
 {
 	struct sandbox_reset *sbr = dev_get_priv(dev);

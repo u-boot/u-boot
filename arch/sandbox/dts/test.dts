@@ -1530,10 +1530,16 @@
 		#reset-cells = <1>;
 	};
 
+	resetc_fb: reset-ctl-fallback {
+		compatible = "sandbox,reset-ctl-fallback-only";
+		#reset-cells = <1>;
+	};
+
 	reset-ctl-test {
 		compatible = "sandbox,reset-ctl-test";
-		resets = <&resetc 100>, <&resetc 2>, <&resetc 20>, <&resetc 40>;
-		reset-names = "other", "test", "test2", "test3";
+		resets = <&resetc 100>, <&resetc 2>, <&resetc 20>, <&resetc 40>,
+			 <&resetc_fb 5>;
+		reset-names = "other", "test", "test2", "test3", "fallback";
 	};
 
 	rng {
