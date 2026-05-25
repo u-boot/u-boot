@@ -193,7 +193,7 @@ static inline bool save_reg_from_ofdata(struct udevice *dev, int index,
 	fdt_addr_t addr;
 	fdt_size_t off;
 
-	addr = devfdt_get_addr_size_index(dev, index, &off);
+	addr = dev_read_addr_size_index(dev, index, &off);
 	if (addr == FDT_ADDR_T_NONE)
 		return false;
 
