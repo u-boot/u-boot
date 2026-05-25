@@ -426,3 +426,56 @@ class TestFitImage:
 
         output = ubman.run_command_list(cmds)
         assert "can't get kernel image!" in '\n'.join(output)
+
+    def test_fit_iminfo_configs_first(self, ubman, fsetup):
+        """Regression: iminfo prints "Default Configuration" even when
+        /configurations is defined before /images in the source.
+
+        fit_print_contents() in boot/image-fit.c used to read the default
+        configuration name from whatever offset libfdt happened to return
+        after iterating /images children. With /images defined first that
+        offset accidentally landed on /configurations; with /configurations
+        defined first the read returned NULL and the line silently went
+        missing. Fixed in commit "boot/fit: read default-config property
+        from the configurations node".
+        """
+        configs_first_its = '''
+/dts-v1/;
+
+/ {
+        description = "FIT with /configurations before /images";
+        #address-cells = <1>;
+
+        configurations {
+                default = "conf-1";
+                conf-1 {
+                        description = "first config";
+                        kernel = "kernel-1";
+                };
+        };
+
+        images {
+                kernel-1 {
+                        description = "first image";
+                        data = /incbin/("%(kernel)s");
+                        type = "kernel";
+                        arch = "sandbox";
+                        os = "linux";
+                        compression = "none";
+                        load = <0x40000>;
+                        entry = <0x40000>;
+                };
+        };
+};
+'''
+        fit = fit_util.make_fit(ubman, fsetup['mkimage'], configs_first_its,
+                                fsetup, basename='configs-first.fit')
+        cmds = [
+            'host load hostfs 0 %#x %s' % (fsetup['fit_addr'], fit),
+            'iminfo %#x' % fsetup['fit_addr'],
+        ]
+        output = '\n'.join(ubman.run_command_list(cmds))
+        assert "Default Configuration: 'conf-1'" in output, (
+            'iminfo output is missing the "Default Configuration" line for a '
+            'FIT whose /configurations node precedes /images. Output was:\n'
+            + output)
