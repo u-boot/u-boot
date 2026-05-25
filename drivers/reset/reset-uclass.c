@@ -13,6 +13,7 @@
 #include <reset-uclass.h>
 #include <dm/devres.h>
 #include <dm/lists.h>
+#include <linux/delay.h>
 
 static inline struct reset_ops *reset_dev_ops(struct udevice *dev)
 {
@@ -218,6 +219,39 @@ int reset_deassert_bulk(struct reset_ctl_bulk *bulk)
 
 	for (i = 0; i < bulk->count; i++) {
 		ret = reset_deassert(&bulk->resets[i]);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+
+int reset_reset(struct reset_ctl *reset_ctl, ulong delay_us)
+{
+	struct reset_ops *ops = reset_dev_ops(reset_ctl->dev);
+	int ret;
+
+	debug("%s(reset_ctl=%p, delay_us=%lu)\n", __func__, reset_ctl,
+	      delay_us);
+
+	if (ops->rst_reset)
+		return ops->rst_reset(reset_ctl, delay_us);
+
+	ret = reset_assert(reset_ctl);
+	if (ret < 0)
+		return ret;
+
+	udelay(delay_us);
+
+	return reset_deassert(reset_ctl);
+}
+
+int reset_reset_bulk(struct reset_ctl_bulk *bulk, ulong delay_us)
+{
+	int i, ret;
+
+	for (i = 0; i < bulk->count; i++) {
+		ret = reset_reset(&bulk->resets[i], delay_us);
 		if (ret < 0)
 			return ret;
 	}
