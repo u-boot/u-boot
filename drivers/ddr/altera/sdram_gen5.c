@@ -585,7 +585,7 @@ static int altera_gen5_sdram_of_to_plat(struct udevice *dev)
 {
 	struct altera_gen5_sdram_plat *plat = dev_get_plat(dev);
 
-	plat->sdr = devfdt_get_addr_index_ptr(dev, 0);
+	plat->sdr = dev_read_addr_index_ptr(dev, 0);
 	if (!plat->sdr)
 		return -EINVAL;
 
