@@ -21,6 +21,8 @@ int fdt_check_full(const void *fdt, size_t bufsize)
 	const char *propname;
 	bool expect_end = false;
 
+	if (can_assume(PERFECT))
+		return 0;
 	if (bufsize < FDT_V1_SIZE)
 		return -FDT_ERR_TRUNCATED;
 	if (bufsize < fdt_header_size(fdt))
