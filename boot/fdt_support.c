@@ -1633,6 +1633,13 @@ int fdt_get_dma_range(const void *blob, int node, phys_addr_t *cpu,
 		goto out;
 	}
 
+	if (len < (int)((na + pna + ns) * sizeof(*ranges))) {
+		debug("%s: dma-ranges too short for %s\n", __func__,
+		      fdt_get_name(blob, node, NULL));
+		ret = -EINVAL;
+		goto out;
+	}
+
 	*bus = fdt_read_number(ranges, na);
 	*cpu = fdt_translate_dma_address(blob, node, ranges + na);
 	*size = fdt_read_number(ranges + na + pna, ns);
