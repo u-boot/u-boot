@@ -7,7 +7,6 @@
 #include <config.h>
 #include <asm/arch/fsl_serdes.h>
 #include <dm.h>
-#include <asm/global_data.h>
 #include <dm/devres.h>
 #include <errno.h>
 #include <pci_ep.h>
@@ -15,8 +14,6 @@
 #include <linux/sizes.h>
 #include <linux/log2.h>
 #include "pcie_layerscape.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static void ls_pcie_ep_enable_cfg(struct ls_pcie_ep *pcie_ep)
 {
@@ -250,17 +247,15 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 
 	pcie_ep->pcie = pcie;
 
-	pcie->dbi = devfdt_get_addr_index_ptr(dev, 0);
+	pcie->dbi = dev_read_addr_index_ptr(dev, 0);
 	if (!pcie->dbi)
 		return -EINVAL;
 
-	pcie->ctrl = devfdt_get_addr_index_ptr(dev, 1);
+	pcie->ctrl = dev_read_addr_index_ptr(dev, 1);
 	if (!pcie->ctrl)
 		return -EINVAL;
 
-	ret = fdt_get_named_resource(gd->fdt_blob, dev_of_offset(dev),
-				     "reg", "reg-names",
-				     "addr_space", &pcie_ep->addr_res);
+	ret = dev_read_resource_byname(dev, "addr_space", &pcie_ep->addr_res);
 	if (ret) {
 		printf("%s: resource \"addr_space\" not found\n", dev->name);
 		return ret;
@@ -273,8 +268,7 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 	if (!is_serdes_configured(PCIE_SRDS_PRTCL(pcie->idx)))
 		return 0;
 
-	pcie->big_endian = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-					   "big-endian");
+	pcie->big_endian = dev_read_bool(dev, "big-endian");
 
 	svr = SVR_SOC_VER(get_svr());
 
@@ -294,13 +288,9 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 	if (pcie->mode != PCI_HEADER_TYPE_NORMAL)
 		return 0;
 
-	pcie_ep->max_functions = fdtdec_get_int(gd->fdt_blob,
-						dev_of_offset(dev),
-						"max-functions", 1);
-	pcie_ep->num_ib_wins = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					      "num-ib-windows", 8);
-	pcie_ep->num_ob_wins = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					      "num-ob-windows", 8);
+	pcie_ep->max_functions = dev_read_s32_default(dev, "max-functions", 1);
+	pcie_ep->num_ib_wins = dev_read_s32_default(dev, "num-ib-windows", 8);
+	pcie_ep->num_ob_wins = dev_read_s32_default(dev, "num-ob-windows", 8);
 
 	printf("PCIe%u: %s %s", PCIE_SRDS_PRTCL(pcie->idx), dev->name,
 	       "Endpoint");
