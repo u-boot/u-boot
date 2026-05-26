@@ -5,6 +5,7 @@
 
 obj-y += \
 	fdt.o \
+	fdt_check.o \
 	fdt_ro.o \
 	fdt_wip.o \
 	fdt_strerror.o \
