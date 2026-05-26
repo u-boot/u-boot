@@ -565,13 +565,12 @@ static int pcie_dw_mvebu_of_to_plat(struct udevice *dev)
 	struct pcie_dw_mvebu *pcie = dev_get_priv(dev);
 
 	/* Get the controller base address */
-	pcie->ctrl_base = devfdt_get_addr_index_ptr(dev, 0);
+	pcie->ctrl_base = dev_read_addr_index_ptr(dev, 0);
 	if (!pcie->ctrl_base)
 		return -EINVAL;
 
 	/* Get the config space base address and size */
-	pcie->cfg_base = devfdt_get_addr_size_index_ptr(dev, 1,
-							&pcie->cfg_size);
+	pcie->cfg_base = dev_read_addr_size_index_ptr(dev, 1, &pcie->cfg_size);
 	if (!pcie->cfg_base)
 		return -EINVAL;
 
