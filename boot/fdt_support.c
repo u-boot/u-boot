@@ -160,6 +160,12 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 		goto noalias;
 	}
 
+	if (len > (int)sizeof(tmp)) {
+		debug("%s: %s alias path too long (%d bytes)\n",
+		      __func__, sername, len);
+		return -FDT_ERR_NOSPACE;
+	}
+
 	/* fdt_setprop may break "path" so we copy it to tmp buffer */
 	memcpy(tmp, path, len);
 
