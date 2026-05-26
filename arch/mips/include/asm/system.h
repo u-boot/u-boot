@@ -259,9 +259,9 @@ extern void __die_if_kernel(const char *, struct pt_regs *, const char *where,
 	unsigned long line);
 
 #define die(msg, regs)							\
-	__die(msg, regs, __FILE__ ":"__FUNCTION__, __LINE__)
+	__die(msg, regs, __FILE__ ":" __func__, __LINE__)
 #define die_if_kernel(msg, regs)					\
-	__die_if_kernel(msg, regs, __FILE__ ":"__FUNCTION__, __LINE__)
+	__die_if_kernel(msg, regs, __FILE__ ":" __func__, __LINE__)
 
 static inline void execution_hazard_barrier(void)
 {

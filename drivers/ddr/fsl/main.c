@@ -221,7 +221,7 @@ void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
 	unsigned int i2c_address = 0;
 
 	if (ctrl_num >= CONFIG_SYS_NUM_DDR_CTLRS) {
-		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);
+		printf("%s unexpected ctrl_num = %u\n", __func__, ctrl_num);
 		return;
 	}
 
