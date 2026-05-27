@@ -55,4 +55,11 @@ config TI_LM74_THERMAL
 	 Enable thermal support for the Texas Instruments LM74 chip.
 	 The driver supports reading CPU temperature.
 
+config DM_THERMAL_JC42
+	bool "JEDEC JC-42.4/TSE2004av SPD temperature sensor"
+	depends on DM_I2C
+	help
+	  Enable support for the JEDEC JC-42.4 temperature sensor found
+	  on the SPD bus of DDR3 and DDR4 DIMMs (TSE2004av and compatible).
+
 endif # if DM_THERMAL
