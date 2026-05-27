@@ -243,6 +243,13 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 
 static int bootm_start(void)
 {
+	/*
+	 * Free dm-verity allocations from a prior boot attempt before
+	 * zeroing the structure. The pointers are guaranteed to be valid
+	 * or NULL: .bss is zero-initialised, and memset() below zeroes
+	 * them again after every boot.
+	 */
+	fit_verity_free(&images);
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = env_get_yesno("verify");
 
@@ -1071,6 +1078,12 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 		/* For Linux OS do all substitutions at console processing */
 		if (images->os.os == IH_OS_LINUX)
 			flags = BOOTM_CL_ALL;
+		ret = fit_verity_apply_bootargs(images);
+		if (ret) {
+			printf("dm-verity bootargs failed (err=%d)\n", ret);
+			ret = CMD_RET_FAILURE;
+			goto err;
+		}
 		ret = bootm_process_cmdline_env(flags);
 		if (ret) {
 			printf("Cmdline setup failed (err=%d)\n", ret);

@@ -7,7 +7,11 @@
 #ifndef HEXDUMP_H
 #define HEXDUMP_H
 
+#ifdef USE_HOSTCC
+#include <ctype.h>
+#else
 #include <linux/ctype.h>
+#endif
 #include <linux/types.h>
 
 enum dump_prefix_t {
@@ -20,7 +24,7 @@ extern const char hex_asc[];
 #define hex_asc_lo(x)	hex_asc[((x) & 0x0f)]
 #define hex_asc_hi(x)	hex_asc[((x) & 0xf0) >> 4]
 
-static inline char *hex_byte_pack(char *buf, u8 byte)
+static inline char *hex_byte_pack(char *buf, uint8_t byte)
 {
 	*buf++ = hex_asc_hi(byte);
 	*buf++ = hex_asc_lo(byte);
@@ -52,7 +56,7 @@ static inline int hex_to_bin(char ch)
  *
  * Return 0 on success, -1 in case of bad input.
  */
-static inline int hex2bin(u8 *dst, const char *src, size_t count)
+static inline int hex2bin(uint8_t *dst, const char *src, size_t count)
 {
 	while (count--) {
 		int hi = hex_to_bin(*src++);
