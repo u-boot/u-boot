@@ -53,11 +53,7 @@
 #define FIFO_RXSIZE_MASK	0x7
 #define FIFO_RXSIZE_OFF	0
 #define FIFO_TXFE		0x80
-#if defined(CONFIG_ARCH_IMX8) || defined(CONFIG_ARCH_IMXRT)
 #define FIFO_RXFE		0x08
-#else
-#define FIFO_RXFE		0x40
-#endif
 
 #define WATER_TXWATER_OFF	0
 #define WATER_RXWATER_OFF	16
