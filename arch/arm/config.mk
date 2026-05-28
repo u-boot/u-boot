@@ -112,6 +112,14 @@ endif
 # needed for relocation
 LDFLAGS_u-boot += -pie
 
+ifeq ($(CONFIG_ARM64),y)
+# U-Boot uses fixed 4K granules, so we force the linker to match.
+# Otherwise, we're subject to toolchain preferences, (e.g Fedora's
+# aarch64-linux-none toolchain selects 64K granules) and we end up wasting
+# a lot of space in ELFs with MMU_PGPROT enabled.
+LDFLAGS_u-boot += -z common-page-size=0x1000 -z max-page-size=0x1000
+endif
+
 #
 # FIXME: binutils versions < 2.22 have a bug in the assembler where
 # branches to weak symbols can be incorrectly optimized in thumb mode
