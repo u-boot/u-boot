@@ -686,7 +686,7 @@ static int ethoc_of_to_plat(struct udevice *dev)
 	fdt_addr_t addr;
 
 	pdata->eth_pdata.iobase = dev_read_addr(dev);
-	addr = devfdt_get_addr_index(dev, 1);
+	addr = dev_read_addr_index(dev, 1);
 	if (addr != FDT_ADDR_T_NONE)
 		pdata->packet_base = addr;
 	return 0;
