@@ -6,6 +6,7 @@
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <power/regulator.h>
 #include <linux/clk-provider.h>
 
 #include <asm/gpio.h>
@@ -13,14 +14,18 @@
 struct clk_gpio_priv {
 	struct gpio_desc	enable;	/* GPIO, controlling the gate */
 	struct clk		*clk;	/* Gated clock */
+	struct udevice		*vdd_supply;
 };
 
 static int clk_gpio_enable(struct clk *clk)
 {
 	struct clk_gpio_priv *priv = dev_get_priv(clk->dev);
 
-	clk_enable(priv->clk);
-	dm_gpio_set_value(&priv->enable, 1);
+	if (priv->clk)
+		clk_enable(priv->clk);
+
+	if (priv->enable.dev)
+		dm_gpio_set_value(&priv->enable, 1);
 
 	return 0;
 }
@@ -29,8 +34,11 @@ static int clk_gpio_disable(struct clk *clk)
 {
 	struct clk_gpio_priv *priv = dev_get_priv(clk->dev);
 
-	dm_gpio_set_value(&priv->enable, 0);
-	clk_disable(priv->clk);
+	if (priv->enable.dev)
+		dm_gpio_set_value(&priv->enable, 0);
+
+	if (priv->clk)
+		clk_disable(priv->clk);
 
 	return 0;
 }
@@ -39,7 +47,7 @@ static ulong clk_gpio_get_rate(struct clk *clk)
 {
 	struct clk_gpio_priv *priv = dev_get_priv(clk->dev);
 
-	return clk_get_rate(priv->clk);
+	return (priv->clk) ? clk_get_rate(priv->clk) : -1;
 }
 
 const struct clk_ops clk_gpio_ops = {
@@ -57,7 +65,7 @@ static int clk_gpio_probe(struct udevice *dev)
 	if (IS_ERR(priv->clk)) {
 		log_debug("%s: Could not get gated clock: %ld\n",
 			  __func__, PTR_ERR(priv->clk));
-		return PTR_ERR(priv->clk);
+		priv->clk = 0;
 	}
 
 	ret = gpio_request_by_name(dev, "enable-gpios", 0,
@@ -65,8 +73,14 @@ static int clk_gpio_probe(struct udevice *dev)
 	if (ret) {
 		log_debug("%s: Could not decode enable-gpios (%d)\n",
 			  __func__, ret);
-		return ret;
 	}
+
+	ret = device_get_supply_regulator(dev, "vdd-supply",
+					  &priv->vdd_supply);
+	if (ret == 0)
+		ret = regulator_set_enable(priv->vdd_supply, true);
+
+	log_debug("%s: %s regulator = %d\n", __func__, dev->name, ret);
 
 	return 0;
 }
@@ -80,6 +94,7 @@ static int clk_gpio_probe(struct udevice *dev)
  */
 static const struct udevice_id clk_gpio_match[] = {
 	{ .compatible = "gpio-gate-clock" },
+	{ .compatible = "gated-fixed-clock" },
 	{ /* sentinel */ }
 };
 
