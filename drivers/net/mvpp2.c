@@ -5296,16 +5296,16 @@ static int mvpp2_base_probe(struct udevice *dev)
 	}
 
 	/* Save base addresses for later use */
-	priv->base = devfdt_get_addr_index_ptr(dev, 0);
+	priv->base = dev_read_addr_index_ptr(dev, 0);
 	if (!priv->base)
 		return -EINVAL;
 
 	if (priv->hw_version == MVPP21) {
-		priv->lms_base = devfdt_get_addr_index_ptr(dev, 1);
+		priv->lms_base = dev_read_addr_index_ptr(dev, 1);
 		if (!priv->lms_base)
 			return -EINVAL;
 	} else {
-		priv->iface_base = devfdt_get_addr_index_ptr(dev, 1);
+		priv->iface_base = dev_read_addr_index_ptr(dev, 1);
 		if (!priv->iface_base)
 			return -EINVAL;
 
@@ -5346,8 +5346,7 @@ static int mvpp2_probe(struct udevice *dev)
 	if (priv->hw_version == MVPP21) {
 		int priv_common_regs_num = 2;
 
-		port->base = devfdt_get_addr_index_ptr(
-			dev->parent, priv_common_regs_num + port->id);
+		port->base = dev_read_addr_index_ptr(dev->parent, priv_common_regs_num + port->id);
 		if (!port->base)
 			return -EINVAL;
 	} else {
