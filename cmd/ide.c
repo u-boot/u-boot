@@ -63,6 +63,7 @@ U_BOOT_CMD(ide, 5, 1, do_ide,
 	   "IDE sub-system",
 	   "reset - reset IDE controller\n"
 	   "ide info  - show available IDE devices\n"
+	   "ide flush - commit all dirty data to the current IDE device\n"
 	   "ide device [dev] - show or set current device\n"
 	   "ide part [dev] - print partition table of one or all IDE devices\n"
 	   "ide read  addr blk# cnt\n"
