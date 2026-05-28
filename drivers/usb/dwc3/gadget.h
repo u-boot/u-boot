@@ -1,18 +1,19 @@
-/* SPDX-License-Identifier: GPL-2.0 */
 /**
  * gadget.h - DesignWare USB3 DRD Gadget Header
  *
- * Copyright (C) 2015 Texas Instruments Incorporated - https://www.ti.com
+ * Copyright (C) 2010-2011 Texas Instruments Incorporated - http://www.ti.com
  *
  * Authors: Felipe Balbi <balbi@ti.com>,
  *	    Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  *
- * Taken from Linux Kernel v3.19-rc1 (drivers/usb/dwc3/gadget.h) and ported
- * to uboot.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2  of
+ * the License as published by the Free Software Foundation.
  *
- * commit 7a60855972 : usb: dwc3: gadget: fix set_halt() bug with pending
-		       transfers
- *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #ifndef __DRIVERS_USB_DWC3_GADGET_H
@@ -86,7 +87,6 @@ int dwc3_gadget_ep0_set_halt(struct usb_ep *ep, int value);
 int dwc3_gadget_ep0_queue(struct usb_ep *ep, struct usb_request *request,
 		gfp_t gfp_flags);
 int __dwc3_gadget_ep_set_halt(struct dwc3_ep *dep, int value, int protocol);
-void dwc3_gadget_uboot_handle_interrupt(struct dwc3 *dwc);
 
 /**
  * dwc3_gadget_ep_get_transfer_index - Gets transfer index from HW
@@ -102,20 +102,6 @@ static inline u32 dwc3_gadget_ep_get_transfer_index(struct dwc3 *dwc, u8 number)
 	res_id = dwc3_readl(dwc->regs, DWC3_DEPCMD(number));
 
 	return DWC3_DEPCMD_GET_RSC_IDX(res_id);
-}
-
-/**
- * dwc3_gadget_dctl_write_safe - write to DCTL safe from link state change
- * @dwc: pointer to our context structure
- * @value: value to write to DCTL
- *
- * Use this function when doing read-modify-write to DCTL. It will not
- * send link state change request.
- */
-static inline void dwc3_gadget_dctl_write_safe(struct dwc3 *dwc, u32 value)
-{
-	value &= ~DWC3_DCTL_ULSTCHNGREQ_MASK;
-	dwc3_writel(dwc->regs, DWC3_DCTL, value);
 }
 
 #endif /* __DRIVERS_USB_DWC3_GADGET_H */
