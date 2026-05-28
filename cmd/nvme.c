@@ -47,6 +47,7 @@ U_BOOT_CMD(
 	"scan - scan NVMe devices\n"
 	"nvme detail - show details of current NVMe device\n"
 	"nvme info - show all available NVMe devices\n"
+	"nvme flush - commit all dirty data to the current NVMe device\n"
 	"nvme device [dev] - show or set current NVMe device\n"
 	"nvme part [dev] - print partition table of one or all NVMe devices\n"
 	"nvme read addr blk# cnt - read `cnt' blocks starting at block\n"

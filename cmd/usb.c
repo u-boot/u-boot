@@ -706,6 +706,7 @@ U_BOOT_CMD(
 	"    Available modes: J, K, S[E0_NAK], P[acket], F[orce_Enable]\n"
 #ifdef CONFIG_USB_STORAGE
 	"usb storage - show details of USB storage devices\n"
+	"usb flush - commit all dirty data to the current USB storage\n"
 	"usb dev [dev] - show or set current USB storage device\n"
 	"usb part [dev] - print partition table of one or all USB storage"
 	"    devices\n"

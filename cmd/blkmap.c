@@ -220,6 +220,7 @@ U_BOOT_CMD_WITH_SUBCMDS(
 	blkmap, "Composeable virtual block devices",
 	"info - list configured devices\n"
 	"blkmap part - list available partitions on current blkmap device\n"
+	"blkmap flush - commit all dirty data to current blkmap device\n"
 	"blkmap dev [<dev>] - show or set current blkmap device\n"
 	"blkmap read <addr> <blk#> <cnt>\n"
 	"blkmap write <addr> <blk#> <cnt>\n"
@@ -230,6 +231,7 @@ U_BOOT_CMD_WITH_SUBCMDS(
 	"blkmap map <label> <blk#> <cnt> mem <addr> [preserve] - memory mapping\n",
 	U_BOOT_SUBCMD_MKENT(info, 2, 1, do_blkmap_common),
 	U_BOOT_SUBCMD_MKENT(part, 2, 1, do_blkmap_common),
+	U_BOOT_SUBCMD_MKENT(flush, 2, 1, do_blkmap_common),
 	U_BOOT_SUBCMD_MKENT(dev, 4, 1, do_blkmap_common),
 	U_BOOT_SUBCMD_MKENT(read, 5, 1, do_blkmap_common),
 	U_BOOT_SUBCMD_MKENT(write, 5, 1, do_blkmap_common),

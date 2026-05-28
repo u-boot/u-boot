@@ -37,6 +37,23 @@ int blk_common_cmd(int argc, char *const argv[], enum uclass_id uclass_id,
 				printf("\nno %s partition table available\n",
 				       if_name);
 			return CMD_RET_SUCCESS;
+		} else if (strncmp(argv[1], "flush", 5) == 0) {
+			struct blk_desc *desc;
+			int ret;
+
+			ret = blk_get_desc(uclass_id, *cur_devnump, &desc);
+			if (ret)
+				return CMD_RET_FAILURE;
+
+			ret = blk_dflush(desc);
+			if (ret) {
+				printf("\nfailed to flush device %d (%s): %d\n",
+					   *cur_devnump, if_name, ret);
+				return CMD_RET_FAILURE;
+			}
+			printf("\nsuccess!\n");
+
+			return CMD_RET_SUCCESS;
 		}
 		return CMD_RET_USAGE;
 	case 3:

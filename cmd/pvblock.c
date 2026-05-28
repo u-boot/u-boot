@@ -20,6 +20,7 @@ int do_pvblock(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 U_BOOT_CMD(pvblock, 5, 1, do_pvblock,
 	   "Xen para-virtualized block device",
 	   "info  - show available block devices\n"
+	   "pvblock flush - commit all dirty data to the current device\n"
 	   "pvblock device [dev] - show or set current device\n"
 	   "pvblock part [dev] - print partition table of one or all devices\n"
 	   "pvblock read  addr blk# cnt\n"
