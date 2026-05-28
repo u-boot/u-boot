@@ -213,6 +213,17 @@ F:	drivers/reset/reset-ast2500.c
 F:	drivers/watchdog/ast_wdt.c
 N:	aspeed
 
+ARM AXIADO AX3005 SCM3005
+M:	Siu Ming Tong <smtong@axiado.com>
+M:	Karthikeyan Mitran <kmitran@axiado.com>
+M:	Prasad Bolisetty <pbolisetty@axiado.com>
+S:	Maintained
+F:	arch/arm/dts/ax3005*
+F:	arch/arm/mach-axiado/
+F:	board/axiado/scm3005/
+F:	configs/ax3005_scm3005_defconfig
+F:	include/configs/ax3005-scm3005.h
+
 ARM BROADCOM BCM283X / BCM27XX
 M:	Matthias Brugger <mbrugger@suse.com>
 M:	Peter Robinson <pbrobinson@gmail.com>
