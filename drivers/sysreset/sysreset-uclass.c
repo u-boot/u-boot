@@ -168,8 +168,17 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc > 2)
 		return CMD_RET_USAGE;
 
-	if (argc == 2 && argv[1][0] == '-' && argv[1][1] == 'w') {
-		reset_type = SYSRESET_WARM;
+	if (argc == 2 && argv[1][0] == '-' && strlen(argv[1]) == 2) {
+		switch (argv[1][1]) {
+		case 'c':
+			reset_type = SYSRESET_COLD;
+			break;
+		case 'w':
+			reset_type = SYSRESET_WARM;
+			break;
+		default:
+			return CMD_RET_USAGE;
+		}
 	}
 
 	printf("resetting ...\n");
