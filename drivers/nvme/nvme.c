@@ -199,8 +199,10 @@ static int nvme_submit_sync_cmd(struct nvme_queue *nvmeq,
 		if ((status & 0x01) == phase)
 			break;
 		if (timeout_us > 0 && (timer_get_us() - start_time)
-		    >= timeout_us)
+		    >= timeout_us) {
+			pr_warn("nvme: cmd %#x timed out\n", cmd->common.command_id);
 			return -ETIMEDOUT;
+		}
 	}
 
 	ops = (struct nvme_ops *)nvmeq->dev->udev->driver->ops;
