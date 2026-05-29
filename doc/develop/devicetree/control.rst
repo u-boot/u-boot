@@ -232,6 +232,64 @@ outside the U-Boot repository. You can use `DEVICE_TREE_INCLUDES` Kconfig
 option to specify a list of .dtsi files that will also be included when
 building .dtb files.
 
+Scripts embedded in control DTB
+-------------------------------
+
+The `DEVICE_TREE_INCLUDES` option can also be used to make the control
+DTB serve double duty as a FIT image. By including a `scripts.dtsi`
+file containing something like::
+
+  / {
+	images {
+		default = "boot";
+		boot {
+			description = "Bootscript";
+			data = /incbin/("boot.sh");
+			type = "script";
+			compression = "none";
+		};
+		factory-reset {
+			description = "Script for performing factory reset";
+			data = /incbin/("factory-reset.sh");
+			type = "script";
+			compression = "none";
+		};
+	};
+  };
+
+one can call those scripts using the `source` command in the U-Boot shell::
+
+  source ${fdtcontroladdr}:boot
+
+or just ``source ${fdtcontroladdr}`` for invoking the default.
+
+Since one does not need to separately build a "real" FIT image
+containing those scripts, this simplifies both the build process and
+the boot logic, as the latter does not need to first load the FIT
+image from storage.
+
+Another advantage is that when the bootloader and boot script must be
+updated together, it is easier to achieve a guaranteed atomic update
+when the boot script is embedded inside the U-Boot binary, instead of
+stored separately.
+
+For the above to work, one must enable the `CONTROL_DTB_AS_FIT` config
+option, which will (when the address passed to the `source` command is
+the address of U-Boot's control DTB) elide certain sanity checks that
+are normally done: With the above `.dtsi` snippet, the control DTB
+does not quite become a "real" FIT image - it lacks `timestamp` and
+`description` properties, but more importantly, FIT images cannot
+contain nodes with `@` in their names (unit addresses) anywhere, and
+the control DTB obviously does have such nodes.
+
+This is not a security problem, as the control DTB is necessarily
+trusted. In any secure boot setup where the bootloader is verified,
+that mechanism must also include verification of the control DTB. So
+in fact, since the scripts embedded this way are then also
+automatically verified, it simplifies implementation of secure
+boot. When using a separate FIT image, one must build it with
+appropriate signatures, just as when building a FIT image containing a
+kernel/dtb/initramfs.
 
 Devicetree bindings schema checks
 ---------------------------------
