@@ -52,12 +52,12 @@ def test_reset(ubman):
     test_000_version.test_version(ubman)
 
 @pytest.mark.buildconfigspec('hush_parser')
-def test_reset_w(ubman):
-    """Test the reset -w command in non-JTAG bootmode.
-    It does WARM reset, which resets CPU but keep DDR/peripherals active.
+@pytest.mark.parametrize('reset_type', ['c', 'w'])
+def test_reset_type(ubman, reset_type):
+    """Test the reset {-c|-w} command in non-JTAG bootmode.
     """
     setup_reset_env(ubman)
-    ubman.run_command('reset -w', wait_for_reboot=True)
+    ubman.run_command('reset -' + reset_type, wait_for_reboot=True)
 
     # Checks the u-boot command prompt's functionality after reset
     test_000_version.test_version(ubman)
