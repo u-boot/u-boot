@@ -1,6 +1,53 @@
 .. SPDX-License-Identifier: GPL-2.0+
 .. sectionauthor:: Wadim Egorov <w.egorov@phytec.de>
 
+Boot Flow
+---------
+
+The default `bootcmd` performs three steps:
+
+.. code-block::
+
+  run start_watchdog; bootflow scan -lb; run ${boot}boot
+
+Boot devices are scanned in the order given by `boot_targets`:
+
+.. code-block::
+
+  mmc1 mmc0 spi_flash dhcp
+
+For each device, U-Boot tries the boot methods listed in `bootmeths`:
+
+.. code-block::
+
+  [rauc] script efi extlinux pxe
+
+The `rauc` bootmeth is only present when `CONFIG_BOOTMETH_RAUC=y` is set in
+the A53 defconfig. RAUC slot selection is handled entirely by the bootmeth;
+no environment-side configuration is required.
+
+The legacy `${boot}boot` chain (`mmcboot`, `spiboot`, `netboot`) is kept for
+backwards compatibility and prints a deprecation warning when run. New
+deployments should rely on the standard boot mechanism (`bootflow`) only.
+
+
+Watchdog
+--------
+
+`bootcmd` runs `start_watchdog` before starting the boot flow. When
+`CONFIG_WATCHDOG_TIMEOUT_MSECS` is set to a non-zero value and the
+`watchdog` environment variable points to a watchdog device, U-Boot enables
+the watchdog with that timeout.
+
+After this point the OS is responsible for servicing the watchdog. If it
+does not feed the watchdog before the timeout expires, the SoC will reset.
+Make sure the watchdog driver is enabled and configured in the kernel and
+userspace before relying on this.
+
+To skip the watchdog start, either build with `CONFIG_WATCHDOG_TIMEOUT_MSECS=0`
+or set `watchdog_timeout_ms=0` in the environment.
+
+
 Environment
 -----------
 
