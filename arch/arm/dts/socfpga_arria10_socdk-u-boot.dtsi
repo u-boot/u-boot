@@ -12,6 +12,11 @@
 	};
 };
 
+&i2c1 {
+	/* Max value set according to HW spec */
+	i2c-scl-falling-time-ns = <300>;
+};
+
 &uart1 {
 	bootph-all;
 };

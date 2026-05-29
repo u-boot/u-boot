@@ -807,10 +807,6 @@ int designware_i2c_remove(struct udevice *dev)
 {
 	struct dw_i2c *priv = dev_get_priv(dev);
 
-#if CONFIG_IS_ENABLED(CLK)
-	clk_disable(&priv->clk);
-#endif
-
 	return reset_release_bulk(&priv->resets);
 }
 
