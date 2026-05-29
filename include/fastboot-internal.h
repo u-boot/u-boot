@@ -40,4 +40,34 @@ void fastboot_getvar_all(char *response);
  */
 void fastboot_getvar(char *cmd_parameter, char *response);
 
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
+/**
+ * fastboot_flash_gpt_partition_table() - Flash GPT partition table
+ *
+ * @interface: Block interface name (e.g., "mmc", "scsi")
+ * @device: Device number
+ * @download_buffer: Buffer containing GPT data
+ * @response: Pointer to fastboot response buffer
+ */
+void fastboot_flash_gpt_partition_table(const char *interface,
+					int device,
+					void *download_buffer,
+					char *response);
+#endif
+
+#if CONFIG_IS_ENABLED(DOS_PARTITION)
+/**
+ * fastboot_flash_mbr_partition_table() - Flash MBR partition table
+ *
+ * @interface: Block interface name (e.g., "mmc", "scsi")
+ * @device: Device number
+ * @download_buffer: Buffer containing MBR data
+ * @response: Pointer to fastboot response buffer
+ */
+void fastboot_flash_mbr_partition_table(const char *interface,
+					int device,
+					void *download_buffer,
+					char *response);
+#endif
+
 #endif
