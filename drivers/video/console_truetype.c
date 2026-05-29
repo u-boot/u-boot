@@ -1069,7 +1069,7 @@ static int console_truetype_probe(struct udevice *dev)
 	return 0;
 }
 
-struct vidconsole_ops console_truetype_ops = {
+static const struct vidconsole_ops console_truetype_ops = {
 	.putc_xy	= console_truetype_putc_xy,
 	.move_rows	= console_truetype_move_rows,
 	.set_row	= console_truetype_set_row,
