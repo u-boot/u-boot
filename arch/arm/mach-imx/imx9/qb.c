@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0+
-/**
+/*
  * Copyright 2024-2026 NXP
  */
 #include <dm/device-internal.h>
@@ -17,15 +17,15 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/sys_proto.h>
 
-#define QB_STATE_LOAD_SIZE    SZ_64K
+#define QB_STATE_LOAD_SIZE		SZ_64K
 
-#define BLK_DEV		0
-#define SPI_DEV		1
+#define BLK_DEV				0
+#define SPI_DEV				1
 
-#define IMG_FLAGS_IMG_TYPE_MASK   0xF
-#define IMG_FLAGS_IMG_TYPE(x)     FIELD_GET(IMG_FLAGS_IMG_TYPE_MASK, (x))
+#define IMG_FLAGS_IMG_TYPE_MASK		0xF
+#define IMG_FLAGS_IMG_TYPE(x)		FIELD_GET(IMG_FLAGS_IMG_TYPE_MASK, (x))
 
-#define IMG_TYPE_DDR_TDATA_DUMMY  0xD   /* dummy DDR training data image */
+#define IMG_TYPE_DDR_TDATA_DUMMY	0xD /* dummy DDR training data image */
 
 static const struct {
 	const char *ifname;
@@ -33,7 +33,7 @@ static const struct {
 } imx_boot_devs[] = {
 	[BOOT_DEVICE_MMC1] = { "mmc", "0" },
 	[BOOT_DEVICE_MMC2] = { "mmc", "1" },
-	[BOOT_DEVICE_SPI]  = { "spi", "" },
+	[BOOT_DEVICE_SPI] = { "spi", "" },
 };
 
 static int imx_qb_get_board_boot_device(void)
@@ -77,7 +77,7 @@ bool imx_qb_check(void)
 	struct ddrphy_qb_state *qb_state;
 	u32 size, crc;
 
-	/**
+	/*
 	 * Ensure CRC is not empty, the reason is that
 	 * the data is invalidated after first save run
 	 * or after it is overwritten.
@@ -105,7 +105,7 @@ static int imx_qb_get_blk_boot_part(const char * const ifname,
 	if (!IS_ENABLED(CONFIG_XPL_BUILD))
 		return blk_get_device_part_str(ifname, dev, bdesc, &info, 1);
 
-	/**
+	/*
 	 * SPL does not have access to part_get_info,
 	 * so get the partition manually. Currently only
 	 * supporting MMC devices.
@@ -364,7 +364,7 @@ int imx_qb(const char *ifname, const char *dev, bool save)
 
 	ret = 0;
 
-	/* Try to use boot device  */
+	/* Try to use boot device */
 	if (!strcmp(ifname, "auto"))
 		ret = imx_qb_get_boot_dev_str(&ifname, &dev);
 
@@ -385,7 +385,7 @@ int imx_qb(const char *ifname, const char *dev, bool save)
 	if (!save)
 		return 0;
 
-	/**
+	/*
 	 * invalidate qb_state mem so that at next boot
 	 * the check function will fail and save won't happen
 	 */

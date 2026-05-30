@@ -13,21 +13,21 @@
 #define DDR_PHY_BASE			0x4E100000
 #define DDRMIX_BLK_CTRL_BASE		0x4E010000
 
-#define REG_DDR_SDRAM_MD_CNTL	(DDR_CTL_BASE + 0x120)
-#define REG_DDR_CS0_BNDS        (DDR_CTL_BASE + 0x0)
-#define REG_DDR_CS1_BNDS        (DDR_CTL_BASE + 0x8)
+#define REG_DDR_SDRAM_MD_CNTL		(DDR_CTL_BASE + 0x120)
+#define REG_DDR_CS0_BNDS		(DDR_CTL_BASE + 0x0)
+#define REG_DDR_CS1_BNDS		(DDR_CTL_BASE + 0x8)
 #define REG_DDRDSR_2			(DDR_CTL_BASE + 0xB24)
-#define REG_DDR_TIMING_CFG_0	(DDR_CTL_BASE + 0x104)
+#define REG_DDR_TIMING_CFG_0		(DDR_CTL_BASE + 0x104)
 #define REG_DDR_SDRAM_CFG		(DDR_CTL_BASE + 0x110)
-#define REG_DDR_TIMING_CFG_4	(DDR_CTL_BASE + 0x160)
+#define REG_DDR_TIMING_CFG_4		(DDR_CTL_BASE + 0x160)
 #define REG_DDR_DEBUG_19		(DDR_CTL_BASE + 0xF48)
-#define REG_DDR_SDRAM_CFG_3	(DDR_CTL_BASE + 0x260)
-#define REG_DDR_SDRAM_CFG_4	(DDR_CTL_BASE + 0x264)
-#define REG_DDR_SDRAM_MD_CNTL_2	(DDR_CTL_BASE + 0x270)
-#define REG_DDR_SDRAM_MPR4	(DDR_CTL_BASE + 0x28C)
-#define REG_DDR_SDRAM_MPR5	(DDR_CTL_BASE + 0x290)
+#define REG_DDR_SDRAM_CFG_3		(DDR_CTL_BASE + 0x260)
+#define REG_DDR_SDRAM_CFG_4		(DDR_CTL_BASE + 0x264)
+#define REG_DDR_SDRAM_MD_CNTL_2		(DDR_CTL_BASE + 0x270)
+#define REG_DDR_SDRAM_MPR4		(DDR_CTL_BASE + 0x28C)
+#define REG_DDR_SDRAM_MPR5		(DDR_CTL_BASE + 0x290)
 
-#define REG_DDR_ERR_EN		(DDR_CTL_BASE + 0x1000)
+#define REG_DDR_ERR_EN			(DDR_CTL_BASE + 0x1000)
 
 #define SRC_BASE_ADDR			(0x44460000)
 #define SRC_DPHY_BASE_ADDR		(SRC_BASE_ADDR + 0x1400)
@@ -107,13 +107,13 @@ extern struct dram_timing_info dram_timing;
 #define DDRPHY_QB_PSTATES	0
 #define DDRPHY_QB_PST_SIZE	(DDRPHY_QB_PSTATES * 4 * 1024)
 
-/**
+/*
  * This structure needs to be aligned with the one in OEI.
  */
 struct ddrphy_qb_state {
-	u32 crc;		  /* Used for ensuring integrity in DRAM */
-#define MAC_LENGTH		8 /* 256 bits, 32-bit aligned */
-	u32 mac[MAC_LENGTH];	  /* For 95A0/1 use mac[0] to keep CRC32 value */
+	u32 crc;			/* Used for ensuring integrity in DRAM */
+#define MAC_LENGTH		8	/* 256 bits, 32-bit aligned */
+	u32 mac[MAC_LENGTH];		/* For 95A0/1 use mac[0] to keep CRC32 value */
 	u8 trained_vrefca_a0;
 	u8 trained_vrefca_a1;
 	u8 trained_vrefca_b0;
