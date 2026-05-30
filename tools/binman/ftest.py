@@ -8099,6 +8099,20 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             result = cst.fetch(bintool.FETCH_BUILD)
             self.assertEqual(('cst', None), result)
 
+    def testNxpImx8MFSPI(self):
+        """Test that binman can produce an iMX8m FSPI image"""
+        testdir = tempfile.mkdtemp(prefix='binman.')
+
+        tools.write_file(os.path.join(testdir, 'fspi_header.bin'), tools.get_bytes(0, 448))
+        with terminal.capture():
+            self._DoTestFile('vendor/nxp_imx8m_fspi.dts', output_dir=testdir)
+            self._DoTestFile('vendor/nxp_imx8m_fspi_pass.dts', output_dir=testdir)
+
+        tools.write_file(os.path.join(testdir, 'fspi_header_fail.bin'), tools.get_bytes(0, 4097))
+        with terminal.capture():
+            with self.assertRaises(ValueError) as e:
+                self._DoTestFile('vendor/nxp_imx8m_fspi_fail.dts', output_dir=testdir)
+
     def testNxpHeaderDdrfw(self):
         """Test that binman can add a header to DDR PHY firmware images"""
         data = self._DoReadFile('vendor/nxp_ddrfw_imx95.dts')
