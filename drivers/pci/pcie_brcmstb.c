@@ -125,7 +125,7 @@ static int brcm_pcie_config_address(const struct udevice *dev, pci_dev_t bdf,
 				    uint offset, void **paddress)
 {
 	struct brcm_pcie *pcie = dev_get_priv(dev);
-	unsigned int pci_bus = PCI_BUS(bdf);
+	unsigned int pci_bus = PCI_BUS(bdf) - dev_seq(dev);
 	unsigned int pci_dev = PCI_DEV(bdf);
 	unsigned int pci_func = PCI_FUNC(bdf);
 	int idx;
