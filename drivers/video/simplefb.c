@@ -21,7 +21,7 @@ static int simple_video_probe(struct udevice *dev)
 	int ret;
 	fdt_addr_t base;
 	fdt_size_t size;
-	u32 width, height, stride, rot;
+	u32 width, height, stride, rot = 0;
 	struct ofnode_phandle_args args;
 
 	ret = dev_read_phandle_with_args(dev, "memory-region", NULL, 0, 0, &args);
