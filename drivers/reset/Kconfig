@@ -72,6 +72,14 @@ config RESET_BRCMSTB
 	  If you wish to use reset resources managed by the Broadcom
 	  Reset Controller, say Y here. Otherwise, say N.
 
+config RESET_BRCMSTB_RESCAL
+	depends on ARCH_BCM283X
+	bool "Generic Rescal Reset controller driver for Broadcom"
+	help
+	  Support rescal reset controller on Broadcom.
+	  If you wish to use reset resources managed by the Broadcom
+	  Reset Controller, say Y here. Otherwise, say N.
+
 config RESET_UNIPHIER
 	bool "Reset controller driver for UniPhier SoCs"
 	depends on ARCH_UNIPHIER
