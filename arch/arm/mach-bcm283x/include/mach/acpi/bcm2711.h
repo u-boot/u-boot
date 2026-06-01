@@ -54,6 +54,7 @@
 #define  MISC_CTRL_CFG_READ_UR_MODE_MASK          0x2000
 #define  MISC_CTRL_MAX_BURST_SIZE_MASK            0x300000
 #define  MISC_CTRL_MAX_BURST_SIZE_128             0x0
+#define  MISC_CTRL_MAX_BURST_SIZE_128_2712		0x100000
 #define  MISC_CTRL_SCB0_SIZE_MASK                 0xf8000000
 
 #define PCIE_MISC_CPU_2_PCIE_MEM_WIN0_LO          0x400c

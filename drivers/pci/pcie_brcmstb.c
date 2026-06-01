@@ -555,6 +555,30 @@ static void brcm_pcie_set_inbound_windows(struct udevice *dev)
 	}
 }
 
+static void brcm_pcie_munge_pll(struct brcm_pcie *pcie)
+{
+	u32 tmp;
+	int ret, i;
+	u8 regs[] =  { 0x16,   0x17,   0x18,   0x19,   0x1b,   0x1c,   0x1e };
+	u16 data[] = { 0x50b9, 0xbda1, 0x0094, 0x97b4, 0x5030, 0x5030, 0x0007 };
+
+	ret = brcm_pcie_mdio_write(pcie->base, MDIO_PORT0, SET_ADDR_OFFSET,
+				   0x1600);
+	for (i = 0; i < ARRAY_SIZE(regs); i++) {
+		brcm_pcie_mdio_read(pcie->base, MDIO_PORT0, regs[i], &tmp);
+		debug("PCIE MDIO pre_refclk 0x%02x = 0x%04x\n",
+		      regs[i], tmp);
+	}
+	for (i = 0; i < ARRAY_SIZE(regs); i++) {
+		brcm_pcie_mdio_write(pcie->base, MDIO_PORT0, regs[i], data[i]);
+		brcm_pcie_mdio_read(pcie->base, MDIO_PORT0, regs[i], &tmp);
+		debug("PCIE MDIO post_refclk 0x%02x = 0x%04x\n",
+		      regs[i], tmp);
+	}
+
+	udelay(200);
+}
+
 static int brcm_pcie_probe(struct udevice *dev)
 {
 	struct udevice *ctlr = pci_get_controller(dev);
@@ -600,12 +624,27 @@ static int brcm_pcie_probe(struct udevice *dev)
 	/* Wait for SerDes to be stable */
 	udelay(100);
 
+	if (pcie->pcie_cfg->type == BCM2712) {
+		/* Allow a 54MHz (xosc) refclk source */
+		brcm_pcie_munge_pll(pcie);
+		/* Fix for L1SS errata */
+		tmp = readl(base + PCIE_RC_PL_PHY_CTL_15);
+		tmp &= ~PCIE_RC_PL_PHY_CTL_15_PM_CLK_PERIOD_MASK;
+		/* PM clock period is 18.52ns (round down) */
+		tmp |= 0x12;
+		writel(tmp, base + PCIE_RC_PL_PHY_CTL_15);
+	}
+
+	tmp = (pcie->pcie_cfg->type == BCM2712) ?
+			MISC_CTRL_MAX_BURST_SIZE_128_2712 :
+			MISC_CTRL_MAX_BURST_SIZE_128;
 	/* Set SCB_MAX_BURST_SIZE, CFG_READ_UR_MODE, SCB_ACCESS_EN */
 	clrsetbits_le32(base + PCIE_MISC_MISC_CTRL,
 			MISC_CTRL_MAX_BURST_SIZE_MASK,
 			MISC_CTRL_SCB_ACCESS_EN_MASK |
 			MISC_CTRL_CFG_READ_UR_MODE_MASK |
-			MISC_CTRL_MAX_BURST_SIZE_128);
+			MISC_CTRL_PCIE_RCB_MPS_MODE_MASK |
+			tmp);
 
 	tmp = readl(base + PCIE_MISC_MISC_CTRL);
 	if (pcie->pcie_cfg->type == BCM2712) {
@@ -624,6 +663,29 @@ static int brcm_pcie_probe(struct udevice *dev)
 				  MISC_CTRL_SCB0_SIZE_MASK);
 	}
 	writel(tmp, base + PCIE_MISC_MISC_CTRL);
+
+	if (pcie->pcie_cfg->type == BCM2712) {
+		/* Suppress AXI error responses and return 1s for read failures */
+		tmp = readl(base + PCIE_MISC_UBUS_CTRL);
+		u32p_replace_bits(&tmp, 1, PCIE_MISC_UBUS_CTRL_UBUS_PCIE_REPLY_ERR_DIS_MASK);
+		u32p_replace_bits(&tmp, 1, PCIE_MISC_UBUS_CTRL_UBUS_PCIE_REPLY_DECERR_DIS_MASK);
+		writel(tmp, base + PCIE_MISC_UBUS_CTRL);
+		writel(0xffffffff, base + PCIE_MISC_AXI_READ_ERROR_DATA);
+
+		/*
+		 * Adjust timeouts. The UBUS timeout also affects CRS
+		 * completion retries, as the request will get terminated if
+		 * either timeout expires, so both have to be a large value
+		 * (in clocks of 750MHz).
+		 * Set UBUS timeout to 250ms, then set RC config retry timeout
+		 * to be ~240ms.
+		 *
+		 * Setting CRSVis=1 will stop the core from blocking on a CRS
+		 * response, but does require the device to be well-behaved...
+		 */
+		writel(0xB2D0000, base + PCIE_MISC_UBUS_TIMEOUT);
+		writel(0xABA0000, base + PCIE_MISC_RC_CONFIG_RETRY_TIMEOUT);
+	}
 
 	/* Disable the PCIe->GISB memory window (RC_BAR1) */
 	clrbits_le32(base + PCIE_MISC_RC_BAR1_CONFIG_LO,
