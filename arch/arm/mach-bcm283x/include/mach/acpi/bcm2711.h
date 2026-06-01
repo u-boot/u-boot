@@ -70,6 +70,7 @@
 #define PCIE_MISC_RC_BAR2_CONFIG_HI               0x4038
 #define PCIE_MISC_RC_BAR3_CONFIG_LO               0x403c
 #define  RC_BAR3_CONFIG_LO_SIZE_MASK                0x1f
+#define PCIE_MISC_PCIE_CTRL			  0x4064
 #define PCIE_MISC_PCIE_STATUS                     0x4068
 #define  STATUS_PCIE_PORT_MASK                      0x80
 #define  STATUS_PCIE_PORT_SHIFT                        7
@@ -108,6 +109,10 @@
 
 #define PCIE_RGR1_SW_INIT_1                   0x9210
 #define PCIE_EXT_CFG_INDEX                    0x9000
+#define  RGR1_SW_INIT_1_PERST_MASK			0x1
+#define  RGR1_SW_INIT_1_PERSTB_MASK			0x4
+#define  RGR1_SW_INIT_1_INIT_MASK			0x2
+
 /* A small window pointing at the ECAM of the device selected by CFG_INDEX */
 #define PCIE_EXT_CFG_DATA                     0x8000
 

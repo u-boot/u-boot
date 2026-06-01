@@ -49,6 +49,24 @@
 #define SSC_STATUS_PLL_LOCK_MASK			0x800
 #define SSC_STATUS_PLL_LOCK_SHIFT			11
 
+enum {
+	RGR1_SW_INIT_1,
+	PCIE_HARD_DEBUG,
+};
+
+enum brcm_pcie_type {
+	BCM2711,
+	BCM2712
+};
+
+struct brcm_pcie;
+
+struct brcm_pcie_cfg_data {
+	const int *offsets;
+	const enum brcm_pcie_type type;
+	void (*perst_set)(struct brcm_pcie *pcie, u32 val);
+};
+
 /**
  * struct brcm_pcie - the PCIe controller state
  * @base: Base address of memory mapped IO registers of the controller
@@ -61,6 +79,7 @@ struct brcm_pcie {
 
 	int			gen;
 	bool			ssc;
+	const struct brcm_pcie_cfg_data *pcie_cfg;
 };
 
 /**
@@ -102,6 +121,36 @@ static bool brcm_pcie_rc_mode(struct brcm_pcie *pcie)
 	val = readl(pcie->base + PCIE_MISC_PCIE_STATUS);
 
 	return (val & STATUS_PCIE_PORT_MASK) >> STATUS_PCIE_PORT_SHIFT;
+}
+
+static void brcm_pcie_perst_set_generic(struct brcm_pcie *pcie, u32 val)
+{
+	if (val)
+		setbits_le32(pcie->base + pcie->pcie_cfg->offsets[RGR1_SW_INIT_1],
+			     RGR1_SW_INIT_1_PERST_MASK);
+	else
+		clrbits_le32(pcie->base + pcie->pcie_cfg->offsets[RGR1_SW_INIT_1],
+			     RGR1_SW_INIT_1_PERST_MASK);
+}
+
+static void brcm_pcie_perst_set_2712(struct brcm_pcie *pcie, u32 val)
+{
+	u32 tmp;
+
+	/* Perst bit has moved and assert value is 0 */
+	tmp = readl(pcie->base + PCIE_MISC_PCIE_CTRL);
+	u32p_replace_bits(&tmp, !val, RGR1_SW_INIT_1_PERSTB_MASK);
+	writel(tmp, pcie->base + PCIE_MISC_PCIE_CTRL);
+}
+
+static void brcm_pcie_bridge_sw_init_set(struct brcm_pcie *pcie, u32 val)
+{
+	if (val)
+		setbits_le32(pcie->base + pcie->pcie_cfg->offsets[RGR1_SW_INIT_1],
+			     RGR1_SW_INIT_1_INIT_MASK);
+	else
+		clrbits_le32(pcie->base + pcie->pcie_cfg->offsets[RGR1_SW_INIT_1],
+			     RGR1_SW_INIT_1_INIT_MASK);
 }
 
 /**
@@ -365,8 +414,9 @@ static int brcm_pcie_probe(struct udevice *dev)
 	 * e.g. BCM7278, the fundamental reset should not be asserted here.
 	 * This will need to be changed when support for other SoCs is added.
 	 */
-	setbits_le32(base + PCIE_RGR1_SW_INIT_1,
-		     PCIE_RGR1_SW_INIT_1_INIT_MASK | PCIE_RGR1_SW_INIT_1_PERST_MASK);
+	brcm_pcie_bridge_sw_init_set(pcie, 1);
+	if (pcie->pcie_cfg->type != BCM2712)
+		pcie->pcie_cfg->perst_set(pcie, 1);
 	/*
 	 * The delay is a safety precaution to preclude the reset signal
 	 * from looking like a glitch.
@@ -374,9 +424,9 @@ static int brcm_pcie_probe(struct udevice *dev)
 	udelay(100);
 
 	/* Take the bridge out of reset */
-	clrbits_le32(base + PCIE_RGR1_SW_INIT_1, PCIE_RGR1_SW_INIT_1_INIT_MASK);
+	brcm_pcie_bridge_sw_init_set(pcie, 0);
 
-	clrbits_le32(base + PCIE_MISC_HARD_PCIE_HARD_DEBUG,
+	clrbits_le32(base + pcie->pcie_cfg->offsets[PCIE_HARD_DEBUG],
 		     PCIE_HARD_DEBUG_SERDES_IDDQ_MASK);
 
 	/* Wait for SerDes to be stable */
@@ -426,8 +476,7 @@ static int brcm_pcie_probe(struct udevice *dev)
 		brcm_pcie_set_gen(pcie, pcie->gen);
 
 	/* Unassert the fundamental reset */
-	clrbits_le32(pcie->base + PCIE_RGR1_SW_INIT_1,
-		     PCIE_RGR1_SW_INIT_1_PERST_MASK);
+	pcie->pcie_cfg->perst_set(pcie, 0);
 
 	/*
 	 * Wait for 100ms after PERST# deassertion; see PCIe CEM specification
@@ -514,14 +563,25 @@ static int brcm_pcie_remove(struct udevice *dev)
 	void __iomem *base = pcie->base;
 
 	/* Assert fundamental reset */
-	setbits_le32(base + PCIE_RGR1_SW_INIT_1, PCIE_RGR1_SW_INIT_1_PERST_MASK);
+	setbits_le32(base + pcie->pcie_cfg->offsets[RGR1_SW_INIT_1],
+		     PCIE_RGR1_SW_INIT_1_PERST_MASK);
 
 	/* Turn off SerDes */
-	setbits_le32(base + PCIE_MISC_HARD_PCIE_HARD_DEBUG,
+	setbits_le32(base + pcie->pcie_cfg->offsets[PCIE_HARD_DEBUG],
 		     PCIE_HARD_DEBUG_SERDES_IDDQ_MASK);
 
 	/* Shutdown bridge */
-	setbits_le32(base + PCIE_RGR1_SW_INIT_1, PCIE_RGR1_SW_INIT_1_INIT_MASK);
+	brcm_pcie_bridge_sw_init_set(pcie, 1);
+
+	/*
+	 * For the controllers that are utilizing reset for bridge Sw init,
+	 * such as BCM2712, reset should be deasserted after assertion.
+	 * Leaving it in asserted state may lead to unexpected hangs in
+	 * the Linux Kernel driver because it do not perform reset initialization
+	 * and start accessing device memory.
+	 */
+	if (pcie->pcie_cfg->type == BCM2712)
+		brcm_pcie_bridge_sw_init_set(pcie, 0);
 
 	return 0;
 }
@@ -546,6 +606,7 @@ static int brcm_pcie_of_to_plat(struct udevice *dev)
 	else
 		pcie->gen = max_link_speed;
 
+	pcie->pcie_cfg = (const struct brcm_pcie_cfg_data *)dev_get_driver_data(dev);
 	return 0;
 }
 
@@ -554,8 +615,31 @@ static const struct dm_pci_ops brcm_pcie_ops = {
 	.write_config	= brcm_pcie_write_config,
 };
 
+static const int pcie_offsets[] = {
+	[RGR1_SW_INIT_1] = 0x9210,
+	[PCIE_HARD_DEBUG] = 0x4204,
+};
+
+static const struct brcm_pcie_cfg_data bcm2711_cfg = {
+	.offsets	= pcie_offsets,
+	.type		= BCM2711,
+	.perst_set	= brcm_pcie_perst_set_generic,
+};
+
+static const int pcie_offsets_bcm2712[] = {
+	[RGR1_SW_INIT_1] = 0x0,
+	[PCIE_HARD_DEBUG] = 0x4304,
+};
+
+static const struct brcm_pcie_cfg_data bcm2712_cfg = {
+	.offsets	= pcie_offsets_bcm2712,
+	.type		= BCM2712,
+	.perst_set	= brcm_pcie_perst_set_2712,
+};
+
 static const struct udevice_id brcm_pcie_ids[] = {
-	{ .compatible = "brcm,bcm2711-pcie" },
+	{ .compatible = "brcm,bcm2711-pcie", .data = (ulong)&bcm2711_cfg },
+	{ .compatible = "brcm,bcm2712-pcie", .data = (ulong)&bcm2712_cfg },
 	{ }
 };
 
