@@ -267,17 +267,18 @@ int arch_misc_init(void)
 	int ret;
 
 	/*
-	 * The MUSB wrapper driver is bound as a MISC device, so probe here
-	 * to register the musb device early.
+	 * Trigger probe of the UCLASS_MISC device which is a USB wrapper driver
+	 * ti-musb-wrapper that handles all usb host and gadget devices.
 	 */
 	if (IS_ENABLED(CONFIG_USB_MUSB_TI)) {
 		ret = uclass_first_device_err(UCLASS_MISC, &dev);
 		if (ret)
-			return ret;
+			printf("Failed probing USB %d, continue without USB\n", ret);
 	}
 
 #if defined(CONFIG_DM_ETH) && defined(CONFIG_USB_ETHER)
-	usb_ether_init();
+	if (!ret)
+		usb_ether_init();
 #endif
 
 	return 0;
