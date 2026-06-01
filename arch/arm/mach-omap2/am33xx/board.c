@@ -264,13 +264,15 @@ int arch_misc_init(void)
 int arch_misc_init(void)
 {
 	struct udevice *dev;
-	int ret;
+	int ret = 0;
 
-	/*
-	 * Trigger probe of the UCLASS_MISC device which is a USB wrapper driver
-	 * ti-musb-wrapper that handles all usb host and gadget devices.
-	 */
-	if (IS_ENABLED(CONFIG_USB_MUSB_TI)) {
+	if (IS_ENABLED(CONFIG_USB_MUSB_TI) && !IS_ENABLED(CONFIG_OF_UPSTREAM)) {
+		/*
+		 * Trigger probe of the UCLASS_MISC device which is a USB
+		 * wrapper driver ti-musb-wrapper that handles all usb host and
+		 * gadget devices. Note that with OF_UPSTREAM the devices are
+		 * bound directly, no wrapper necessary.
+		 */
 		ret = uclass_first_device_err(UCLASS_MISC, &dev);
 		if (ret)
 			printf("Failed probing USB %d, continue without USB\n", ret);
