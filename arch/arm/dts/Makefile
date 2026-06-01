@@ -399,26 +399,15 @@ dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
 dtb-$(CONFIG_AM33XX) += \
 	am335x-baltos.dtb \
-	am335x-bone.dtb \
-	am335x-boneblack.dtb \
 	am335x-boneblack-wireless.dtb \
 	am335x-boneblue.dtb \
 	am335x-brppt1-mmc.dtb \
 	am335x-brxre1.dtb \
 	am335x-brsmarc1.dtb \
 	am335x-draco.dtb \
-	am335x-evm.dtb \
-	am335x-evmsk.dtb \
-	am335x-bonegreen.dtb \
-	am335x-bonegreen-eco.dtb \
 	am335x-bonegreen-wireless.dtb \
-	am335x-icev2.dtb \
-	am335x-pocketbeagle.dtb \
 	am335x-pxm50.dtb \
 	am335x-rut.dtb \
-	am335x-sancloud-bbe.dtb \
-	am335x-sancloud-bbe-lite.dtb \
-	am335x-sancloud-bbe-extended-wifi.dtb \
 	am335x-shc.dtb \
 	am335x-pdu001.dtb \
 	am335x-chiliboard.dtb \
