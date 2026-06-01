@@ -21,6 +21,7 @@
 #include <linux/bitfield.h>
 #include <linux/log2.h>
 #include <linux/iopoll.h>
+#include <reset.h>
 
 /* PCIe parameters */
 #define BRCM_NUM_PCIE_OUT_WINS				4
@@ -79,6 +80,8 @@ struct brcm_pcie {
 
 	int			gen;
 	bool			ssc;
+	struct reset_ctl	rescal;
+	struct reset_ctl	bridge_reset;
 	const struct brcm_pcie_cfg_data *pcie_cfg;
 };
 
@@ -143,14 +146,58 @@ static void brcm_pcie_perst_set_2712(struct brcm_pcie *pcie, u32 val)
 	writel(tmp, pcie->base + PCIE_MISC_PCIE_CTRL);
 }
 
-static void brcm_pcie_bridge_sw_init_set(struct brcm_pcie *pcie, u32 val)
+static int brcm_pcie_get_resets_dt(struct udevice *dev)
 {
+	struct brcm_pcie *pcie = dev_get_priv(dev);
+	int ret;
+
+	ret = reset_get_by_name(dev, "rescal", &pcie->rescal);
+	if (ret) {
+		printf("Unable to get rescal reset\n");
+		return ret;
+	}
+
+	ret = reset_get_by_name(dev, "bridge", &pcie->bridge_reset);
+	if (ret)
+		printf("Unable to get bridge reset\n");
+
+	return ret;
+}
+
+static int brcm_pcie_do_reset(struct udevice *dev)
+{
+	struct brcm_pcie *pcie = dev_get_priv(dev);
+	int ret;
+
+	ret = reset_deassert(&pcie->rescal);
+	if (ret)
+		printf("failed to deassert 'rescal'\n");
+	return ret;
+}
+
+static int brcm_pcie_bridge_sw_init_set(struct brcm_pcie *pcie, u32 val)
+{
+	int ret = 0;
+
+	if (reset_valid(&pcie->bridge_reset))
+	{
+		if (val)
+			ret = reset_assert(&pcie->bridge_reset);
+		else
+			ret = reset_deassert(&pcie->bridge_reset);
+		if (ret)
+			log_err("failed to %sassert bridge reset, err=%d\n",
+				val ? "" : "de", ret);
+		return ret;
+	}
+
 	if (val)
 		setbits_le32(pcie->base + pcie->pcie_cfg->offsets[RGR1_SW_INIT_1],
 			     RGR1_SW_INIT_1_INIT_MASK);
 	else
 		clrbits_le32(pcie->base + pcie->pcie_cfg->offsets[RGR1_SW_INIT_1],
 			     RGR1_SW_INIT_1_INIT_MASK);
+	return 0;
 }
 
 /**
@@ -405,16 +452,25 @@ static int brcm_pcie_probe(struct udevice *dev)
 	int num_out_wins = 0;
 	u64 rc_bar2_offset, rc_bar2_size;
 	unsigned int scb_size_val;
-	int i, ret;
+	int i, ret = 0;
 	u16 nlw, cls, lnksta;
 	u32 tmp;
 
+	/*
+	 * Ensure rescal reset for BCM2712 is really disabled.
+	 */
+	if (pcie->pcie_cfg->type == BCM2712)
+		ret = brcm_pcie_do_reset(dev);
+	if (ret)
+		return ret;
 	/*
 	 * Reset the bridge, assert the fundamental reset. Note for some SoCs,
 	 * e.g. BCM7278, the fundamental reset should not be asserted here.
 	 * This will need to be changed when support for other SoCs is added.
 	 */
-	brcm_pcie_bridge_sw_init_set(pcie, 1);
+	ret = brcm_pcie_bridge_sw_init_set(pcie, 1);
+	if (ret)
+		return ret;
 	if (pcie->pcie_cfg->type != BCM2712)
 		pcie->pcie_cfg->perst_set(pcie, 1);
 	/*
@@ -424,8 +480,9 @@ static int brcm_pcie_probe(struct udevice *dev)
 	udelay(100);
 
 	/* Take the bridge out of reset */
-	brcm_pcie_bridge_sw_init_set(pcie, 0);
-
+	ret = brcm_pcie_bridge_sw_init_set(pcie, 0);
+	if (ret)
+		return ret;
 	clrbits_le32(base + pcie->pcie_cfg->offsets[PCIE_HARD_DEBUG],
 		     PCIE_HARD_DEBUG_SERDES_IDDQ_MASK);
 
@@ -607,6 +664,10 @@ static int brcm_pcie_of_to_plat(struct udevice *dev)
 		pcie->gen = max_link_speed;
 
 	pcie->pcie_cfg = (const struct brcm_pcie_cfg_data *)dev_get_driver_data(dev);
+
+	if (pcie->pcie_cfg->type == BCM2712)
+		return brcm_pcie_get_resets_dt(dev);
+
 	return 0;
 }
 
