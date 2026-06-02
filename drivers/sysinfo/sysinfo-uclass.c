@@ -152,5 +152,5 @@ UCLASS_DRIVER(sysinfo) = {
 	.id		= UCLASS_SYSINFO,
 	.name		= "sysinfo",
 	.post_bind	= dm_scan_fdt_dev,
-	.per_device_auto	= sizeof(bool),
+	.per_device_auto	= sizeof(struct sysinfo_priv),
 };
