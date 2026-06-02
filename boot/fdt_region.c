@@ -88,6 +88,8 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
 			if (depth == FDT_MAX_DEPTH)
 				return -FDT_ERR_BADSTRUCTURE;
 			name = fdt_get_name(fdt, offset, &len);
+			if (!name)
+				return len;
 
 			/* The root node must have an empty name */
 			if (!depth && *name)
@@ -563,6 +565,9 @@ int fdt_next_region(const void *fdt,
 			if (p.depth == FDT_MAX_DEPTH)
 				return -FDT_ERR_BADSTRUCTURE;
 			name = fdt_get_name(fdt, offset, &len);
+			if (!name)
+				return len;
+
 			if (p.end - path + 2 + len >= path_len)
 				return -FDT_ERR_NOSPACE;
 
