@@ -69,6 +69,8 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
 			include = want >= 2;
 			stop_at = offset;
 			prop = fdt_get_property_by_offset(fdt, offset, NULL);
+			if (!prop)
+				return -FDT_ERR_BADSTRUCTURE;
 			str = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
 			if (!str)
 				return -FDT_ERR_BADSTRUCTURE;
@@ -271,7 +273,11 @@ int fdt_add_alias_regions(const void *fdt, struct fdt_region *region, int count,
 		int target, next;
 
 		prop = fdt_get_property_by_offset(fdt, offset, NULL);
+		if (!prop)
+			return -FDT_ERR_BADSTRUCTURE;
 		name = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+		if (!name)
+			return -FDT_ERR_BADSTRUCTURE;
 		target = fdt_path_offset(fdt, name);
 		if (!region_list_contains_offset(info, fdt, target))
 			continue;
@@ -520,7 +526,11 @@ int fdt_next_region(const void *fdt,
 		case FDT_PROP:
 			stop_at = offset;
 			prop = fdt_get_property_by_offset(fdt, offset, NULL);
+			if (!prop)
+				return -FDT_ERR_BADSTRUCTURE;
 			str = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+			if (!str)
+				return -FDT_ERR_BADSTRUCTURE;
 			val = h_include(priv, fdt, last_node, FDT_IS_PROP, str,
 					    strlen(str) + 1);
 			if (val == -1) {
