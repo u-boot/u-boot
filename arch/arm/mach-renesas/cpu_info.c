@@ -114,12 +114,25 @@ int arch_misc_init(void)
 
 int print_cpuinfo(void)
 {
+	const uintptr_t pfc_base = 0xe6060000;
+	void __iomem *rcar_m3nm3l_ident = (void __iomem *)pfc_base + 0x800;
 	int i = renesas_cpuinfo_idx();
 
 	if (renesas_cpuinfo[i].cpu_type == RENESAS_CPU_TYPE_R8A7796 &&
 	    renesas_get_cpu_rev_integer() == 1 &&
 	    renesas_get_cpu_rev_fraction() == 1) {
 		printf("CPU:   Renesas Electronics %s rev 1.1/1.2\n", get_cpu_name(i));
+		return 0;
+	}
+
+	/*
+	 * M3Le PRR ID is the same as M3N , but PFC register 0x800 reads 0
+	 * on M3N and 1 on M3Le. Use this to discern M3Le from M3N .
+	 */
+	if (renesas_cpuinfo[i].cpu_type == RENESAS_CPU_TYPE_R8A77965 &&
+	    readl(rcar_m3nm3l_ident) == 1) {
+		printf("CPU:   Renesas Electronics R8A779MD rev %d.%d\n",
+		       renesas_get_cpu_rev_integer(), renesas_get_cpu_rev_fraction());
 		return 0;
 	}
 
