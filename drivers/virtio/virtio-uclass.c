@@ -400,9 +400,6 @@ UCLASS_DRIVER(virtio) = {
 	.per_device_auto	= sizeof(struct virtio_dev_priv),
 };
 
-struct bootdev_ops virtio_bootdev_ops = {
-};
-
 static const struct udevice_id virtio_bootdev_ids[] = {
 	{ .compatible = "u-boot,bootdev-virtio" },
 	{ }
@@ -411,7 +408,6 @@ static const struct udevice_id virtio_bootdev_ids[] = {
 U_BOOT_DRIVER(virtio_bootdev) = {
 	.name		= "virtio_bootdev",
 	.id		= UCLASS_BOOTDEV,
-	.ops		= &virtio_bootdev_ops,
 	.bind		= virtio_bootdev_bind,
 	.of_match	= virtio_bootdev_ids,
 };

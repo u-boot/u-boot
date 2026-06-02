@@ -894,7 +894,9 @@ static void initcall_run_f(void)
 	INITCALL(log_init);
 	INITCALL(initf_bootstage); /* uses its own timer, so does not need DM */
 	INITCALL(event_init);
-	INITCALL(bloblist_maybe_init);
+#if CONFIG_IS_ENABLED(BLOBLIST)
+	INITCALL(bloblist_init);
+#endif
 	INITCALL(setup_spl_handoff);
 #if CONFIG_IS_ENABLED(CONSOLE_RECORD_INIT_F)
 	INITCALL(console_record_init);
