@@ -418,8 +418,11 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	ofnode subnode;
 
-	plat->regbase = devfdt_get_addr_index_ptr(bus, 0);
-	plat->ahbbase = devfdt_get_addr_size_index_ptr(bus, 1, &plat->ahbsize);
+	plat->regbase = dev_read_addr_index_ptr(bus, 0);
+	plat->ahbbase = dev_read_addr_size_index_ptr(bus, 1, &plat->ahbsize);
+	if (!plat->regbase || !plat->ahbbase)
+		return -EINVAL;
+
 	plat->is_decoded_cs = dev_read_bool(bus, "cdns,is-decoded-cs");
 	plat->fifo_depth = dev_read_u32_default(bus, "cdns,fifo-depth", 128);
 	plat->fifo_width = dev_read_u32_default(bus, "cdns,fifo-width", 4);
