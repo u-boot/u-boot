@@ -415,6 +415,32 @@ def test_vboot(ubman, name, sha_algo, padding, sign_options, required,
             ubman, [fit_check_sign, '-f', fit, '-k', dtb],
             1, 'Failed to verify required signature')
 
+        # Create a new properly signed fit and replace hashed-strings
+        # size property
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), ubman, mkimage, dtc_args, datadir, fit)
+        sign_fit(sha_algo, sign_options)
+        utils.run_and_log(ubman, 'fdtput -t x %s %s hashed-strings 0' %
+                          (fit, sig_node))
+        run_bootm(sha_algo, 'Signed config with truncated hashed-strings',
+                  'Invalid hashed-strings property', False)
+        ubman.log.action('%s: Check truncated hashed-strings property' % sha_algo)
+
+        # size_dt_strings is at offset 32 in the FDT header
+        with open(fit, 'rb') as handle:
+            handle.seek(32)
+            size_dt_strings = struct.unpack(">I", handle.read(4))[0]
+        utils.run_and_log(ubman, 'fdtput -t x %s %s hashed-strings 0 %#x' %
+                          (fit, sig_node, size_dt_strings + 1))
+        run_bootm(sha_algo, 'Signed config with overflowed hashed-strings size',
+                  'Strings region is out of bounds', False)
+        ubman.log.action('%s: Check overflowed hashed-strings size' % sha_algo)
+
+        utils.run_and_log(ubman, 'fdtput -t x %s %s hashed-strings 0 %#x' %
+                          (fit, sig_node, size_dt_strings))
+        run_bootm(sha_algo, 'Signed config with in-bounds hashed-strings size',
+                  'Bad Data Hash', False)
+        ubman.log.action('%s: Check in-bounds hashed-strings size' % sha_algo)
+
     def test_required_key(sha_algo, padding, sign_options):
         """Test verified boot with the given hash algorithm.
 
