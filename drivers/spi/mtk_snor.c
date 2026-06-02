@@ -528,7 +528,7 @@ static int mtk_snor_probe(struct udevice *bus)
 	u8 *buffer;
 	int ret;
 
-	priv->base = devfdt_get_addr_ptr(bus);
+	priv->base = dev_read_addr_ptr(bus);
 	if (!priv->base)
 		return -EINVAL;
 
