@@ -64,7 +64,7 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 __weak void reset_cpu(void)
 {
 #if defined(CONFIG_SYSRESET)
-	sysreset_walk_halt(SYSRESET_COLD);
+	sysreset_walk_halt(SYSRESET_DEFAULT);
 #else
 	/* TODO: Refactor all the do_reset calls to be reset_cpu() instead */
 	do_reset(NULL, 0, 0, NULL);

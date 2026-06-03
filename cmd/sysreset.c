@@ -13,7 +13,7 @@
 #ifdef CONFIG_SYSRESET_CMD_RESET
 int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	enum sysreset_t reset_type = SYSRESET_COLD;
+	enum sysreset_t reset_type = SYSRESET_DEFAULT;
 
 	if (argc > 2)
 		return CMD_RET_USAGE;
