@@ -791,10 +791,10 @@ static int cdns_torrent_phy_probe(struct udevice *dev)
 		return ret;
 	}
 
-	cdns_phy->sd_base = devfdt_remap_addr_index(dev, 0);
-	if (IS_ERR(cdns_phy->sd_base))
-		return PTR_ERR(cdns_phy->sd_base);
-	devfdt_get_addr_size_index(dev, 0, (fdt_size_t *)&cdns_phy->size);
+	cdns_phy->sd_base = dev_remap_addr_index(dev, 0);
+	if (!cdns_phy->sd_base)
+		return -EINVAL;
+	dev_read_addr_size_index(dev, 0, (fdt_size_t *)&cdns_phy->size);
 
 	dev_for_each_subnode(child, dev)
 		subnodes++;

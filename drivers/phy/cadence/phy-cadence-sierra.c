@@ -1068,12 +1068,12 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 
 	sp->dev = dev;
 
-	sp->base =  devfdt_remap_addr_index(dev, 0);
+	sp->base = dev_remap_addr_index(dev, 0);
 	if (!sp->base) {
 		dev_err(dev, "unable to map regs\n");
 		return -ENOMEM;
 	}
-	devfdt_get_addr_size_index(dev, 0, (fdt_size_t *)&sp->size);
+	dev_read_addr_size_index(dev, 0, (fdt_size_t *)&sp->size);
 
 	/* Get init data for this PHY */
 	data = (struct cdns_sierra_data *)dev_get_driver_data(dev);

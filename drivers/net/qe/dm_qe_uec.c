@@ -1133,7 +1133,7 @@ static int qe_uec_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 
-	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
+	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
