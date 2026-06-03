@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  *
  * Peng Fan <peng.fan@nxp.com>
  */
@@ -716,14 +716,88 @@ int get_reset_reason(bool sys, bool lm)
 	return 0;
 }
 
-const char *get_imx_type(u32 imxtype)
+const char *get_cpu_variant_type_name(u32 type)
 {
-	switch (imxtype) {
-	case SCMI_CPU:
-		return IMX_PLAT_STR;
-	default:
-		return "??";
+	u32 val, core_num, part_num;
+	int ret;
+
+	ret = fuse_read(2, 1, &val);
+	if (ret)
+		return NULL;
+
+	/* Get part num */
+	part_num = (val >> 4) & 0xff;
+	if (!part_num)
+		return NULL;
+
+	if (type == MXC_CPU_IMX95 || type == MXC_CPU_IMX952) {
+		u32 segment;
+		static char name[8] = "95294";
+		char pn[2];
+
+		core_num = part_num & 0x3;
+		segment = (part_num >> 2) & 0xf;
+
+		switch (segment) {
+		case 0xa:
+			pn[0] = 'T';
+			break;
+		case 0xb:
+			pn[0] = 'V';
+			break;
+		case 0xc:
+			pn[0] = 'C';
+			break;
+		case 0xd:
+			pn[0] = 'G';
+			break;
+		case 0xe:
+			pn[0] = 'I';
+			break;
+		case 0xf:
+			pn[0] = 'N';
+			break;
+		default:
+			pn[0] = segment + '0';
+			break;
+		}
+
+		pn[1] = core_num * 2 + '0';
+
+		if (type == MXC_CPU_IMX95)
+			sprintf(name, "95%c%c", pn[0], pn[1]);
+		else
+			sprintf(name, "952%c%c", pn[0], pn[1]);
+
+		return name;
+	} else if (type == MXC_CPU_IMX94) {
+		static char *name = "94398";
+
+		core_num = 8;
+
+		ret = fuse_read(2, 2, &val);
+		if (ret)
+			return NULL;
+
+		if (part_num > 30) { /* 943 */
+			/* A55 2 & 3 disabled */
+			if ((val & 0x18) == 0x18)
+				core_num = 6;
+		} else if (part_num > 20) { /* 942 */
+			core_num = 5;
+
+			/* m7_0 disabled */
+			if ((val & 0x200) == 0x200)
+				core_num = 4;
+		} else if (part_num > 10) { /* 941 */
+			core_num = 5;
+		}
+		sprintf(name, "94%u%u", part_num, core_num);
+
+		return name;
 	}
+
+	return NULL;
 }
 
 void build_info(void)
