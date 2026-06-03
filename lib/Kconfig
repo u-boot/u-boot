@@ -1295,6 +1295,14 @@ config SPL_LMB_ARCH_MEM_MAP
 	  memory map. Enable this config in such scenarios which allow
 	  architectures and boards to define their own memory map.
 
+config LMB_LIMIT_DMA_BELOW_4G
+	bool
+	depends on LMB
+	default y if ARCH_BCM283X
+	help
+	  Some architectures can not DMA above 4 GiB boundary,
+	  limit available memory to memory below 4 GiB boundary.
+
 config PHANDLE_CHECK_SEQ
 	bool "Enable phandle check while getting sequence number"
 	help
