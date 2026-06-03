@@ -150,6 +150,7 @@ config TARGET_PHYCORE_IMX93
 
 config TARGET_IMX95_19X19_EVK
 	bool "imx95_19x19_evk"
+	select OF_BOARD_FIXUP
 	select IMX95
 	imply BOOTSTD_BOOTCOMMAND
 	imply BOOTSTD_FULL
@@ -157,6 +158,7 @@ config TARGET_IMX95_19X19_EVK
 
 config TARGET_IMX95_15X15_EVK
 	bool "imx95_15x15_evk"
+	select OF_BOARD_FIXUP
 	select IMX95
 	imply BOOTSTD_BOOTCOMMAND
 	imply BOOTSTD_FULL
@@ -164,6 +166,7 @@ config TARGET_IMX95_15X15_EVK
 
 config TARGET_IMX943_EVK
 	bool "imx943_evk"
+	select OF_BOARD_FIXUP
 	select IMX94
 	imply BOOTSTD_BOOTCOMMAND
 	imply BOOTSTD_FULL
@@ -180,6 +183,7 @@ config TARGET_VERDIN_IMX95
 
 config TARGET_IMX952_EVK
 	bool "imx952_evk"
+	select OF_BOARD_FIXUP
 	select IMX_SM_CPU
 	select IMX_SM_LMM
 	select IMX952
