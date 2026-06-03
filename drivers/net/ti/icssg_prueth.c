@@ -496,14 +496,15 @@ static int prueth_port_probe(struct udevice *dev)
 {
 	struct prueth_priv *priv = dev_get_priv(dev);
 	struct prueth *prueth;
-	char portname[15];
+	char portname[64];
 	int ret;
 
 	priv->dev = dev;
 	prueth = dev_get_priv(dev->parent);
 	priv->prueth = prueth;
 
-	sprintf(portname, "%s-%s", dev->parent->name, dev->name);
+	snprintf(portname, sizeof(portname), "%s-%s", dev->parent->name, dev->name);
+	portname[sizeof(portname) - 1] = '\0';
 
 	device_set_name(dev, portname);
 

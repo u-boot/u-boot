@@ -339,6 +339,11 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 			break;
 		case DHCP6_OPTION_IA_TA:
 		case DHCP6_OPTION_IA_NA:
+			if (option_len < sizeof(u32)) {
+				debug("Invalid IA_NA/IA_TA option length\n");
+				break;
+			}
+
 			/* check the IA_ID */
 			if (*((u32 *)option_ptr) !=  htonl(sm_params.ia_id)) {
 				debug("IA_ID mismatch 0x%08x 0x%08x\n",
@@ -347,6 +352,10 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 			}
 
 			if (ntohs(option_hdr->option_id) == DHCP6_OPTION_IA_NA) {
+				if (option_len < 3 * sizeof(u32)) {
+					debug("Invalid IA_NA option length\n");
+					break;
+				}
 				/* skip past IA_ID/T1/T2 */
 				option_ptr += 3 * sizeof(u32);
 			} else if (ntohs(option_hdr->option_id) == DHCP6_OPTION_IA_TA) {
@@ -358,12 +367,20 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 			break;
 		case DHCP6_OPTION_STATUS_CODE:
 			debug("DHCP6_OPTION_STATUS_CODE FOUND\n");
+			if (option_len < sizeof(u16)) {
+				debug("Invalid status code option length\n");
+				break;
+			}
 			sm_params.rx_status.status_code = ntohs(*((u16 *)option_ptr));
 			debug("DHCP6 top-level status code %d\n", sm_params.rx_status.status_code);
 			debug("DHCP6 status message: %.*s\n", len, option_ptr + 2);
 			break;
 		case DHCP6_OPTION_SOL_MAX_RT:
 			debug("DHCP6_OPTION_SOL_MAX_RT FOUND\n");
+			if (option_len != sizeof(u32)) {
+				debug("Invalid SOL_MAX_RT option length\n");
+				break;
+			}
 			sol_max_rt_sec = ntohl(*((u32 *)option_ptr));
 
 			/* A DHCP client MUST ignore any SOL_MAX_RT option values that are less
@@ -377,6 +394,11 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 			break;
 		case DHCP6_OPTION_OPT_BOOTFILE_URL:
 			debug("DHCP6_OPTION_OPT_BOOTFILE_URL FOUND\n");
+			if (option_len >= sizeof(net_boot_file_name)) {
+				debug("Option length for BOOTFILE_URL is greater or equal than %zu. Skipping\n",
+				      sizeof(net_boot_file_name));
+				break;
+			}
 			copy_filename(net_boot_file_name, option_ptr, option_len + 1);
 			debug("net_boot_file_name: %s\n", net_boot_file_name);
 
@@ -389,6 +411,12 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 		case DHCP6_OPTION_OPT_BOOTFILE_PARAM:
 			if (IS_ENABLED(CONFIG_DHCP6_PXE_DHCP_OPTION)) {
 				debug("DHCP6_OPTION_OPT_BOOTFILE_PARAM FOUND\n");
+
+				if (option_len < sizeof(u16)) {
+					debug("Invalid BOOTFILE_PARAM option length\n");
+					break;
+				}
+
 				/* if CONFIG_DHCP6_PXE_DHCP_OPTION is set the PXE config file path
 				 * is contained in the first OPT_BOOTFILE_PARAM argument
 				 */
@@ -414,6 +442,10 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 			break;
 		case DHCP6_OPTION_PREFERENCE:
 			debug("DHCP6_OPTION_PREFERENCE FOUND\n");
+			if (option_len != 1) {
+				debug("Invalid preference option length\n");
+				break;
+			}
 			sm_params.rx_status.preference = *option_ptr;
 			break;
 		default:
