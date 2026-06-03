@@ -57,6 +57,33 @@ config SYSRESET_CMD_RESET_ARGS
 	  additional arguments for implementing arch/board specific
 	  functionality.
 
+if SYSRESET_CMD_RESET
+choice
+	prompt "Default reset type for reset command"
+	default SYSRESET_CMD_RESET_DEFAULT_COLD
+	help
+	  Select the default reset type used by the reset command when no
+	  explicit reset type is requested.
+
+config SYSRESET_CMD_RESET_DEFAULT_WARM
+	bool "Warm reset"
+	help
+	  Reset CPU while keeping GPIOs active.
+
+config SYSRESET_CMD_RESET_DEFAULT_COLD
+	bool "Cold reset"
+	help
+	  Full cold reset of the machine, including CPU, GPIOs, PMIC and
+	  other logic in the machine.
+
+config SYSRESET_CMD_RESET_DEFAULT_POWER
+	bool "Power reset"
+	help
+	  Reset PMIC by removing and restoring power.
+
+endchoice
+endif
+
 if CMD_POWEROFF
 
 config SYSRESET_CMD_POWEROFF

@@ -41,9 +41,20 @@ static int sysreset_walk_arg(int argc, char * const argv[])
 #endif /* CONFIG_SYSRESET_CMD_RESET_ARGS */
 
 #if IS_ENABLED(CONFIG_SYSRESET_CMD_RESET)
+static enum sysreset_t sysreset_get_default_type(void)
+{
+	if (IS_ENABLED(CONFIG_SYSRESET_CMD_RESET_DEFAULT_WARM))
+		return SYSRESET_WARM;
+
+	if (IS_ENABLED(CONFIG_SYSRESET_CMD_RESET_DEFAULT_POWER))
+		return SYSRESET_POWER;
+
+	return SYSRESET_COLD;
+}
+
 int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	enum sysreset_t reset_type = SYSRESET_COLD;
+	enum sysreset_t reset_type = sysreset_get_default_type();
 
 	if (argc > 2)
 		return CMD_RET_USAGE;
