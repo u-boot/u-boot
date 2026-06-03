@@ -873,18 +873,6 @@ int arch_misc_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_OF_BOARD_FIXUP) && !defined(CONFIG_SPL_BUILD)
-int board_fix_fdt(void *fdt)
-{
-	return 0;
-}
-#endif
-
-int ft_system_setup(void *blob, struct bd_info *bd)
-{
-	return 0;
-}
-
 #if IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
 void get_board_serial(struct tag_serialnr *serialnr)
 {
