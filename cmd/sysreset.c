@@ -31,9 +31,6 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		}
 	}
 
-	printf("resetting ...\n");
-	mdelay(100);
-
 	sysreset_walk_halt(reset_type);
 
 	return 0;
