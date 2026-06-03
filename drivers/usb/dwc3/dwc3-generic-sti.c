@@ -114,7 +114,7 @@ static void dwc3_stih407_glue_configure(struct udevice *dev, int index,
 	setbits_le32(glue_base + CLKRST_CTRL, SW_PIPEW_RESET_N);
 };
 
-struct dwc3_glue_ops stih407_ops = {
+static const struct dwc3_glue_ops stih407_ops = {
 	.glue_configure = dwc3_stih407_glue_configure,
 };
 
