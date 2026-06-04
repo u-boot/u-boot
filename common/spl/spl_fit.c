@@ -1000,14 +1000,15 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 			     &fit_uname_config, IH_ARCH_DEFAULT, IH_TYPE_FLATDT,
 			     -1, FIT_LOAD_OPTIONAL, &dt_data, &dt_len);
 	if (ret >= 0) {
-		spl_image->fdt_addr = (void *)dt_data;
-
 		if (spl_image->os == IH_OS_U_BOOT) {
 			/* HACK: U-Boot expects FDT at a specific address */
-			fdt_hack = spl_image->load_addr + spl_image->size;
-			fdt_hack = (fdt_hack + 3) & ~3;
-			debug("Relocating FDT to %p\n", spl_image->fdt_addr);
-			memcpy((void *)fdt_hack, spl_image->fdt_addr, dt_len);
+			fdt_hack = ALIGN(spl_image->load_addr + spl_image->size, 8);
+			debug("Relocating FDT to %p\n", (void *)fdt_hack);
+			memcpy(map_sysmem(fdt_hack, dt_len),
+			       map_sysmem(dt_data, 0), dt_len);
+			spl_image->fdt_addr = (void *)fdt_hack;
+		} else {
+			spl_image->fdt_addr = (void *)dt_data;
 		}
 	}
 
