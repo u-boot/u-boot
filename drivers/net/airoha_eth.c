@@ -845,11 +845,45 @@ static int airoha_alloc_gdm_port(struct udevice *dev, ofnode node)
 					    (ulong)eth, node, &gdm_dev);
 }
 
+static struct udevice *airoha_switch_mdio_init(struct udevice *dev)
+{
+	struct airoha_eth_soc_data *data = (void *)dev_get_driver_data(dev);
+	ofnode switch_node, mdio_node;
+	struct udevice *mdio_dev;
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(MDIO_MT7531_MMIO))
+		return NULL;
+
+	switch_node = ofnode_by_compatible(ofnode_null(),
+					   data->switch_compatible);
+	if (!ofnode_valid(switch_node)) {
+		debug("Warning: missing airoha switch node\n");
+		return ERR_PTR(-EINVAL);
+	}
+
+	mdio_node = ofnode_find_subnode(switch_node, "mdio");
+	if (!ofnode_valid(mdio_node)) {
+		debug("Warning: missing airoha switch mdio subnode\n");
+		return ERR_PTR(-EINVAL);
+	}
+
+	ret = device_bind_driver_to_node(dev, "mt7531-mdio-mmio", "mt7531-mdio",
+					 mdio_node, &mdio_dev);
+	if (ret) {
+		debug("Warning: failed to bind airoha switch mdio\n");
+		return ERR_PTR(ret);
+	}
+
+	return mdio_dev;
+}
+
 static int airoha_eth_probe(struct udevice *dev)
 {
 	struct airoha_eth_soc_data *data = (void *)dev_get_driver_data(dev);
 	struct airoha_eth *eth = dev_get_priv(dev);
 	struct regmap *scu_regmap;
+	struct udevice *mdio_dev;
 	ofnode node;
 	int i, ret;
 
@@ -908,10 +942,10 @@ static int airoha_eth_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	if (eth->switch_mdio_dev) {
-		if (!device_probe(eth->switch_mdio_dev))
-			debug("Warning: failed to probe airoha switch mdio\n");
-	}
+	/* Airoha switch mdio PHYs maybe used by several GDM devices */
+	mdio_dev = airoha_switch_mdio_init(dev);
+	if (!IS_ERR_OR_NULL(mdio_dev))
+		eth->switch_mdio_dev = mdio_dev;
 
 	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		if (!ofnode_device_is_compatible(node, "airoha,eth-mac"))
@@ -957,6 +991,16 @@ static int airoha_eth_port_probe(struct udevice *dev)
 #else
 		return -EINVAL;
 #endif
+	} else {
+		/*
+		 * GDM1 device connected to airoha switch. Probe airoha switch
+		 * mdio to be able set/query states of corresponding LAN ports.
+		 */
+		ret = device_probe(eth->switch_mdio_dev);
+		if (ret) {
+			debug("Warning: failed to probe airoha switch mdio\n");
+			eth->switch_mdio_dev = NULL;
+		}
 	}
 
 	return 0;
@@ -1202,37 +1246,11 @@ static int arht_eth_write_hwaddr(struct udevice *dev)
 
 static int airoha_eth_bind(struct udevice *dev)
 {
-	struct airoha_eth_soc_data *data = (void *)dev_get_driver_data(dev);
-	struct airoha_eth *eth = dev_get_priv(dev);
-	ofnode switch_node, mdio_node;
-	int ret;
-
 	/*
 	 * Force Probe as we set the Main ETH driver as misc
 	 * to register multiple eth port for each GDM
 	 */
 	dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
-
-	if (!CONFIG_IS_ENABLED(MDIO_MT7531_MMIO))
-		return 0;
-
-	switch_node = ofnode_by_compatible(ofnode_null(),
-					   data->switch_compatible);
-	if (!ofnode_valid(switch_node)) {
-		debug("Warning: missing switch node\n");
-		return 0;
-	}
-
-	mdio_node = ofnode_find_subnode(switch_node, "mdio");
-	if (!ofnode_valid(mdio_node)) {
-		debug("Warning: missing mdio node\n");
-		return 0;
-	}
-
-	ret = device_bind_driver_to_node(dev, "mt7531-mdio-mmio", "mt7531-mdio",
-					 mdio_node, &eth->switch_mdio_dev);
-	if (ret)
-		debug("Warning: failed to bind mdio controller\n");
 
 	return 0;
 }
