@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	binman {
+		/* confirm that dtbh can be referenced before it's built */
+		collection {
+			content = <&dtbh>;
+		};
+
+		dtbh: dtbh {
+			dtb-0 {
+				model_info-chip = <7870>;
+				model_info-hw_rev = <123>;
+				model_info-hw_rev_end = <321>;
+
+				u-boot-dtb {};
+			};
+		};
+	};
+};

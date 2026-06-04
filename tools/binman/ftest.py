@@ -5857,6 +5857,112 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                          data[page_size + payload_size:
                               page_size + payload_size * 2])
 
+    def testDtbh(self):
+        """Test that binman can produce a DTBH container"""
+        data, dtb_data, _map, _dtb = self._DoReadFileDtb(
+            'dtbh.dts', use_real_dtb=True)
+
+        dtb_size = tools.align(len(dtb_data), 0x800)
+
+        self.assertEqual(b'DTBH', data[:4])
+        self.assertEqual((2, 1), struct.unpack_from('<II', data, 4))
+        self.assertEqual((7870, 0x50a6, 0x217584da, 123, 321, 0x800,
+                          dtb_size, 0x20),
+                         struct.unpack_from('<8I', data, 12))
+        self.assertEqual(0, struct.unpack_from('<I', data, 44)[0])
+        self.assertEqual(0xd00dfeed,
+                          struct.unpack_from('>I', data, 0x800)[0])
+        self.assertEqual(dtb_data, data[0x800:0x800 + len(dtb_data)])
+
+    def testDtbhMulti(self):
+        """Test that DTBH handles explicit properties and multiple DTBs"""
+        data, dtb_data, _map, _dtb = self._DoReadFileDtb(
+            'dtbh_multi.dts', use_real_dtb=True)
+
+        page_size = 0x100
+        dtb_size = tools.align(len(dtb_data), page_size)
+
+        self.assertEqual(b'DTBH', data[:4])
+        self.assertEqual((2, 2), struct.unpack_from('<II', data, 4))
+        self.assertEqual((7870, 0x1234, 0x56789abc, 123, 321, page_size,
+                          dtb_size, 0x20),
+                         struct.unpack_from('<8I', data, 12))
+        self.assertEqual((7871, 0x1234, 0x56789abc, 124, 322,
+                          page_size + dtb_size, dtb_size, 0x20),
+                         struct.unpack_from('<8I', data, 44))
+        self.assertEqual(0, struct.unpack_from('<I', data, 76)[0])
+        self.assertEqual(0xd00dfeed,
+                          struct.unpack_from('>I', data, page_size)[0])
+        self.assertEqual(dtb_data, data[page_size:page_size + len(dtb_data)])
+        self.assertEqual(dtb_data,
+                         data[page_size + dtb_size:page_size + dtb_size +
+                              len(dtb_data)])
+
+    def testDtbhPageSizeFromParent(self):
+        """Test that DTBH inherits page-size from parent android-boot node"""
+        data, dtb_data, _map, _dtb = self._DoReadFileDtb(
+            'dtbh_page_size_from_abootimg.dts', use_real_dtb=True)
+
+        # header+kernel are aligned to 4096, vendor-dt follows after that.
+        vendor_dt_offset = 4096 * 2
+        dtb_size = tools.align(len(dtb_data), 4096)
+
+        self.assertEqual(b'DTBH', data[vendor_dt_offset:vendor_dt_offset+4])
+        self.assertEqual((4096, dtb_size),
+                         struct.unpack_from('<20x2I', data,
+                                            vendor_dt_offset + 12))
+
+    def testDtbhBadModelInfo(self):
+        """Test that DTBH rejects invalid model_info properties"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFileDtb('dtbh_bad_model_info.dts',
+                                use_real_dtb=True)
+        self.assertIn("subnode 'dtb-0': Property 'model_info-chip' must "
+                      "contain exactly 1 cells", str(exc.exception))
+
+    def testDtbhMissingModelInfo(self):
+        """Test that DTBH rejects missing model_info properties"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFileDtb('dtbh_missing_model_info.dts',
+                                use_real_dtb=True)
+        self.assertIn("subnode 'dtb-0': Missing required property "
+                      "'model_info-chip'", str(exc.exception))
+
+    def testDtbhInvalidPageSize(self):
+        """Test that DTBH rejects invalid page-size"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('dtbh_invalid_pagesize.dts')
+        self.assertIn("page-size must be a power of two",
+                      str(exc.exception))
+
+    def testDtbhMultipleDTBs(self):
+        """Test that DTBH rejects multiple embedded DTBs"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('dtbh_multiple_dtbs.dts')
+        self.assertIn("must contain exactly one DTB",
+                      str(exc.exception))
+
+    def testDtbhMissingDTBPayload(self):
+        """Test that DTBH rejects missing DTB payload"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('dtbh_missing_payload.dts')
+        self.assertIn("Missing required DTB payload subnode",
+                      str(exc.exception))
+
+    def testDtbhMissingSubnodes(self):
+        """Test that DTBH rejects missing dtb subnodes"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('dtbh_missing_subnodes.dts')
+        self.assertIn("Missing required DTB subnodes",
+                      str(exc.exception))
+
+    def testDtbhOnlySpecialSubnodes(self):
+        """Test that DTBH rejects special-only subnodes"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('dtbh_special_subnodes.dts')
+        self.assertIn("Missing required DTB subnodes",
+                      str(exc.exception))
+
     def testFitFdtOper(self):
         """Check handling of a specified FIT operation"""
         entry_args = {

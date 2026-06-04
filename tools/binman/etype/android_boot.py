@@ -133,6 +133,29 @@ class Entry_android_boot(Entry_section):
                 };
             };
         };
+
+    Example::
+        A legacy DTBH abootimg, the kind some Samsung bootloaders expect:
+
+        android-boot {
+            kernel {
+                u-boot-nodtb {
+                };
+            };
+
+            vendor-dt {
+                dtbh {
+                    dtb-0 {
+                        model_info-chip = <7870>;
+                        model_info-hw_rev = <123>;
+                        model_info-hw_rev_end = <321>;
+
+                        u-boot-dtb {
+                        };
+                    };
+                };
+            };
+        };
     """
 
     def ReadNode(self):
