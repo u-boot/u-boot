@@ -1073,23 +1073,72 @@ int fit_image_get_data(const void *fit, int noffset, const void **data,
 	int offset;
 	int len;
 	int ret;
+	size_t fdt_total_size_aligned;
+	uintptr_t max_offset;
 
 	if (!fit_image_get_data_position(fit, noffset, &offset)) {
+		if (offset < 0) {
+			printf("Invalid external data position: %d\n", offset);
+			return -EINVAL;
+		}
+
 		external_data = true;
 	} else if (!fit_image_get_data_offset(fit, noffset, &offset)) {
-		external_data = true;
 		/*
 		 * For FIT with external data, figure out where
 		 * the external images start. This is the base
 		 * for the data-offset properties in each image.
 		 */
-		offset += ((fdt_totalsize(fit) + 3) & ~3);
+		fdt_total_size_aligned = ((fdt_totalsize(fit) + 3) & ~3);
+		/* The resulting offset cannot exceed INT_MAX */
+		if (offset < 0 || fdt_total_size_aligned > INT_MAX - offset) {
+			printf("Invalid external data offset: %d\n", offset);
+			return -EINVAL;
+		}
+		offset += fdt_total_size_aligned;
+
+		external_data = true;
 	}
 
 	if (external_data) {
 		debug("External Data\n");
+
+		max_offset = UINTPTR_MAX - (uintptr_t)fit;
+		/* Check that external data offset is within the addressable range */
+		if (offset > max_offset) {
+			printf("Invalid external data offset: %d\n", offset);
+			return -EINVAL;
+		}
+
 		ret = fit_image_get_data_size(fit, noffset, &len);
 		if (!ret) {
+			if (len < 0) {
+				printf("Invalid external data size: %d\n", len);
+				return -EINVAL;
+			}
+			/*
+			 * For non-signed FIT images, we can only check that
+			 * (offset + len) doesn't exceed the addressable range.
+			 * For signed FITs, we can additionally check that
+			 * (offset + len) doesn't exceed the allowed FIT image
+			 * maximum size.
+			 */
+			if (len > max_offset - offset
+			/*
+			 * #if (not a runtime if) is required: FIT_SIGNATURE_MAX_SIZE
+			 * depends on FIT_SIGNATURE, so CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE)
+			 * is undefined when signing is disabled and referencing it
+			 * here would fail to compile.
+			 */
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
+			    || offset > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) ||
+			    len > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) - offset
+#endif
+			) {
+				printf("FIT external data is out of bounds (offset=%d, size=%d)\n",
+				       offset, len);
+				return -EINVAL;
+			}
 			*data = fit + offset;
 			*size = len;
 		}
