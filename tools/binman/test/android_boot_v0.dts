@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		/* confirm that android-boot can be referenced before it's built */
+		collection {
+			content = <&abootimg>;
+		};
+
+		abootimg: android-boot {
+			header-version = <0>;
+			page-size = <0x800>;
+			base = <0x80200000>;
+			cmdline = "foo";
+
+			kernel {
+				u-boot {
+					no-expanded;
+				};
+			};
+
+			ramdisk {
+				fill {
+					size = <1>;
+				};
+			};
+		};
+	};
+};

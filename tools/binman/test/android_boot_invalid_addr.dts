@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	binman {
+		android-boot {
+			kernel-offset = <0xDEADBEEF 0xCAFED00D>;
+
+			kernel {};
+		};
+	};
+};

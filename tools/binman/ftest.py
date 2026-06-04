@@ -5598,6 +5598,154 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn("Node '/binman/renesas-rcar4-sa0': SRAM data longer than 966656 Bytes",
                       str(exc.exception))
 
+    @staticmethod
+    def _AndroidBootId(*payloads):
+        digest = hashlib.sha1()
+        for data in payloads:
+            digest.update(data)
+            digest.update(struct.pack('<I', len(data)))
+
+        return digest.digest() + b'\0' * 12
+
+    def testAndroidBootUnsupportedVersion(self):
+        """Test that binman rejects versions other than v0 and v2"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_unsupported_version.dts')
+        self.assertIn("Only Android boot image header versions 0 and 2 are supported",
+                      str(exc.exception))
+
+    def testAndroidBootInvalidPageSize(self):
+        """Test that binman rejects page sizes that are not a power of 2"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_invalid_pagesize.dts')
+        self.assertIn("page-size must be a power of two",
+                      str(exc.exception))
+
+    def testAndroidBootV0PageSizeTooSmol(self):
+        """Test that binman rejects page sizes that are smaller than header size"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_v0_pagesize_too_smol.dts')
+        self.assertIn("page-size must fit the Android boot image header",
+                      str(exc.exception))
+
+    def testAndroidBootMissingKernel(self):
+        """Test that binman rejects configurations missing a kernel{} subnode"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_missing_kernel.dts')
+        self.assertIn("Missing required subnode 'kernel'",
+                      str(exc.exception))
+
+    def testAndroidBootInvalidSubnode(self):
+        """Test that binman rejects invalid subnodes"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_invalid_subnode.dts')
+        self.assertIn("Unexpected subnode 'bacon'",
+                      str(exc.exception))
+
+    def testAndroidBootInvalidAddr(self):
+        """Test that binman rejects invalid addresses"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_invalid_addr.dts')
+        self.assertIn("kernel address 0xdeadbeefdafed00d does not fit in 32 bits",
+                      str(exc.exception))
+
+    def testAndroidBootOversizedBootName(self):
+        """Test that binman rejects boot-name exceeding 16 chars"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_oversized_bootname.dts')
+        self.assertIn("boot-name is 38 bytes, maximum is 16",
+                      str(exc.exception))
+
+    def testAndroidBootChonkyCells(self):
+        """Test that binman rejects >2 cell addresses"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_chonky_cells.dts')
+        self.assertIn("Property 'base' must contain one or two cells",
+                      str(exc.exception))
+
+    def testAndroidBootV0(self):
+        """Test that binman can produce a plain legacy Android boot image"""
+        data = self._DoReadFile('android_boot_v0.dts')
+        header = struct.unpack_from('<8s10I16s512s32s', data, 0)
+
+        self.assertEqual(b'ANDROID!', header[0])
+        self.assertEqual(len(U_BOOT_DATA), header[1])
+        self.assertEqual(0x80208000, header[2])
+        self.assertEqual(1, header[3])
+        self.assertEqual(0x81200000, header[4])
+        self.assertEqual(0, header[5])
+        self.assertEqual(0, header[6])
+        self.assertEqual(0x80200100, header[7])
+        self.assertEqual(0x800, header[8])
+        self.assertEqual(0, header[9])
+        self.assertEqual(0, header[10])
+        self.assertEqual(b'foo', header[12].split(b'\0', 1)[0])
+        self.assertEqual(self._AndroidBootId(U_BOOT_DATA, b'\0', b''),
+                         header[13])
+
+    def testAndroidBootV0WithDTB(self):
+        """Test that binman rejects v0 abootimgs containing a dtb section"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_dtb_in_v0.dts')
+        self.assertIn("Subnode 'dtb' requires header-version 2",
+                      str(exc.exception))
+
+    def testAndroidBootV2(self):
+        """Test that binman can produce an Android boot image"""
+        data = self._DoReadFile('android_boot_v2.dts')
+        header = struct.unpack_from('<8s10I16s512s32s1024sIQIIQ', data, 0)
+
+        self.assertEqual(b'ANDROID!', header[0])
+        self.assertEqual(len(U_BOOT_DATA), header[1])
+        self.assertEqual(0x80008000, header[2])
+        self.assertEqual(0, header[3])
+        self.assertEqual(0x81000000, header[4])
+        self.assertEqual(0, header[5])
+        self.assertEqual(0, header[6])
+        self.assertEqual(0x80000100, header[7])
+        self.assertEqual(0x800, header[8])
+        self.assertEqual(2, header[9])
+        self.assertEqual(0, header[10])
+        self.assertEqual(b'test-board', header[11].split(b'\0', 1)[0])
+        self.assertEqual(0, header[15])
+        self.assertEqual(0, header[16])
+        self.assertEqual(1660, header[17])
+        self.assertEqual(len(U_BOOT_DTB_DATA), header[18])
+        self.assertEqual(0x81f00000, header[19])
+        self.assertEqual(self._AndroidBootId(U_BOOT_DATA, b'', b'', b'',
+                                             U_BOOT_DTB_DATA), header[13])
+
+        cmdline = header[12].split(b'\0', 1)[0]
+        extra_cmdline = header[14].split(b'\0', 1)[0]
+        self.assertEqual(b"tests.. ", cmdline[-8:])
+        self.assertEqual(512, len(cmdline))
+        self.assertEqual(b'sup', extra_cmdline)
+
+        self.assertEqual(U_BOOT_DATA, data[0x800:0x800 + len(U_BOOT_DATA)])
+        self.assertEqual(U_BOOT_DTB_DATA,
+                         data[0x1000:0x1000 + len(U_BOOT_DTB_DATA)])
+
+    def testAndroidBootV2PageSizeTooSmol(self):
+        """Test that binman rejects page sizes that are smaller than header size"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_v2_pagesize_too_smol.dts')
+        self.assertIn("page-size must fit the Android boot image header",
+                      str(exc.exception))
+
+    def testAndroidBootV2MissingDTB(self):
+        """Test that binman rejects v2 abootimgs missing a DTB section"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_v2_missing_dtb.dts')
+        self.assertIn("Missing required subnode 'dtb'",
+                      str(exc.exception))
+
+    def testAndroidBootV2VendorDt(self):
+        """Test that binman rejects v2 abootimgs with a vendor-dt section"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('android_boot_v2_vendor_dt.dts')
+        self.assertIn("Subnode 'vendor-dt' requires header-version 0",
+                      str(exc.exception))
+
     def testFitFdtOper(self):
         """Check handling of a specified FIT operation"""
         entry_args = {

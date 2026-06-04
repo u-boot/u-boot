@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	binman {
+		android-boot {
+			header-version = <2>;
+			kernel {};
+			dtb {};
+			vendor-dt {};
+		};
+	};
+};

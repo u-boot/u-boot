@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+#define CMDLINE(...) #__VA_ARGS__
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		/* confirm that android-boot can be referenced before it's built */
+		collection {
+			content = <&abootimg>;
+		};
+
+		abootimg: android-boot {
+			header-version = <2>;
+			page-size = <0x800>;
+			base = <0x80000000>;
+			kernel-offset = <0x00008000>;
+			ramdisk-offset = <0x01000000>;
+			tags-offset = <0x00000100>;
+			dtb-offset = <0x01f00000>;
+			boot-name = "test-board";
+			cmdline = CMDLINE(
+					  This is a very long commandline that is sure to exceed the
+					  512 chars that is allotted to the cmdline and this should
+					  spillover into extra_cmdline which is useful from a
+					  function testing standpoint. Gosh, it sure it hard to come
+					  up with enough filler text here to get over the 512 char
+					  limit though, huh? Even for someone as loquacious as
+					  myself. So anyway. How's your day going? I wrote a binman
+					  functional test today. It was fun. Did you know that
+					  binman is great. I like binman. I also like functional
+					  tests.. sup);
+
+			kernel {
+				u-boot {
+					no-expanded;
+				};
+			};
+
+			dtb {
+				u-boot-dtb {
+				};
+			};
+		};
+	};
+};
