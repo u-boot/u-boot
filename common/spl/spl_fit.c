@@ -1024,7 +1024,7 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_FIT_SIGNATURE
 		images.verify = 1;
 #endif
-		ret = fit_image_load(&images, (ulong)header,
+		ret = fit_image_load(&images, virt_to_phys((void *)header),
 				     &uname, &fit_uname_config,
 				     IH_ARCH_DEFAULT, IH_TYPE_LOADABLE, -1,
 				     FIT_LOAD_OPTIONAL_NON_ZERO,
