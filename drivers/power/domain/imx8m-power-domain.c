@@ -476,7 +476,7 @@ static int imx8m_power_domain_bind(struct udevice *dev)
 	const char *name;
 	int ret = 0;
 
-	ofnode_for_each_subnode(subnode, dev_ofnode(dev)) {
+	dev_for_each_subnode(subnode, dev) {
 		/* Bind the subnode to this driver */
 		name = ofnode_get_name(subnode);
 
@@ -531,7 +531,7 @@ static int imx8m_power_domain_of_to_plat(struct udevice *dev)
 	struct imx_pgc_domain_data *domain_data =
 		(struct imx_pgc_domain_data *)dev_get_driver_data(dev);
 
-	pdata->resource_id = ofnode_read_u32_default(dev_ofnode(dev), "reg", -1);
+	pdata->resource_id = dev_read_u32_default(dev, "reg", -1);
 	pdata->domain = &domain_data->domains[pdata->resource_id];
 	pdata->regs = domain_data->pgc_regs;
 	pdata->base = dev_read_addr_ptr(dev->parent);
