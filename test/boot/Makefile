@@ -14,6 +14,9 @@ endif
 
 ifdef CONFIG_SANDBOX
 obj-$(CONFIG_$(PHASE_)CMDLINE) += bootm.o
+ifdef CONFIG_UT_DM
+obj-$(CONFIG_$(PHASE_)OF_LIBFDT) += image_fdt.o
+endif
 endif
 obj-$(CONFIG_MEASURED_BOOT) += measurement.o
 
