@@ -265,6 +265,43 @@ int sandbox_spl_load_fit(char *fname, int maxlen, struct spl_image_info *image)
 	return 0;
 }
 
+int sandbox_spl_load_fit_full(char *fname, int maxlen,
+			      struct spl_image_info *image)
+{
+	struct legacy_img_hdr *header;
+	long long size;
+	int ret;
+	int fd;
+
+	ret = sandbox_find_next_phase(fname, maxlen, true);
+	if (ret) {
+		printf("%s not found, error %d\n", fname, ret);
+		return log_msg_ret("nph", ret);
+	}
+
+	log_debug("reading from %s\n", fname);
+	fd = os_open(fname, OS_O_RDONLY);
+	if (fd < 0) {
+		printf("Failed to open '%s'\n", fname);
+		return log_msg_ret("ope", -errno);
+	}
+
+	if (os_get_filesize(fname, &size))
+		return log_msg_ret("fis", -ENOENT);
+
+	header = spl_get_load_buffer(0, size);
+
+	if (os_read(fd, header, size) != size)
+		return log_msg_ret("rea", -EIO);
+	os_close(fd);
+
+	ret = spl_load_fit_image(image, header);
+	if (ret)
+		return log_msg_ret("slf", ret);
+
+	return 0;
+}
+
 static int upl_load_from_image(struct spl_image_info *spl_image,
 			       struct spl_boot_device *bootdev)
 {
