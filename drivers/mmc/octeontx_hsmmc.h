@@ -123,7 +123,6 @@ struct octeontx_mmc_host {
 	union mio_emm_cfg emm_cfg;
 	u64		timing_taps;
 	struct mmc	*last_mmc;	/** Last mmc used */
-	ofnode		node;
 	int		cur_slotid;
 	int		last_slotid;
 	int		max_width;
