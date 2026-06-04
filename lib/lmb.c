@@ -628,7 +628,7 @@ static void lmb_add_memory(void)
 
 		if (size) {
 			lmb_add(bd->bi_dram[i].start, size);
-			if (!IS_ENABLED(CONFIG_LMB_LIMIT_DMA_BELOW_4G))
+			if (!IS_ENABLED(CONFIG_LMB_LIMIT_DMA_BELOW_RAM_TOP))
 				continue;
 
 			bank_end = bd->bi_dram[i].start + size;
