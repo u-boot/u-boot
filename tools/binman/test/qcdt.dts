@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		/* confirm that qcdt can be referenced before it's built */
+		collection {
+			content = <&qcdt>;
+		};
+
+		qcdt: qcdt {
+			hash {
+			};
+
+			dtb-0 {
+				qcom,msm-id = <0xce 0>;
+				qcom,board-id = <0xce08ff01 1>;
+
+				u-boot-dtb {
+				};
+			};
+
+			dtb-1 {
+				qcom,msm-id = <0xcf 1>;
+				qcom,board-id = <0xce08ff02 2>;
+
+				u-boot-dtb {
+				};
+			};
+		};
+	};
+};

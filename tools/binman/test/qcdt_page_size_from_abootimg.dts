@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		android-boot {
+			page-size = <4096>;
+
+			kernel {
+				fill {
+					size = <1>;
+				};
+			};
+
+			vendor-dt {
+				qcdt {
+					dtb-0 {
+						qcom,msm-id = <0 0>;
+						qcom,board-id = <0 0>;
+
+						fill {
+							size = <1>;
+						};
+					};
+				};
+			};
+		};
+	};
+};
