@@ -679,7 +679,7 @@ static int smbios_write_type3(ulong *current, int *handle,
 	t->serial_number = smbios_add_prop_si(ctx, "serial",
 					      SYSID_SM_ENCLOSURE_SERIAL, NULL);
 	t->asset_tag_number = smbios_add_prop_si(ctx, "asset-tag",
-						 SYSID_SM_BASEBOARD_ASSET_TAG,
+						 SYSID_SM_ENCLOSURE_ASSET_TAG,
 						 NULL);
 	t->oem_defined = smbios_get_val_si(ctx, "oem-defined",
 					   SYSID_SM_ENCLOSURE_OEM, 0);
