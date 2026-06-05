@@ -73,6 +73,8 @@ static const char *get_imx_type_str(u32 imxtype)
 		return "8MP[5]";        /* Quad-core version of the imx8mp, low cost industrial & HMI */
 	case MXC_CPU_IMX8MP6:
 		return "8MP[6]";	/* Quad-core version of the imx8mp, NPU fused */
+	case MXC_CPU_IMX8MPUL:
+		return "8MP UltraLite"; /* Quad-core UltraLite version of the imx8mp */
 	case MXC_CPU_IMX8MQ:
 		return "8MQ";	/* Quad-core version of the imx8mq */
 	case MXC_CPU_IMX8MQL:
