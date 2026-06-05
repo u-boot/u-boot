@@ -42,6 +42,16 @@ int sysinfo_detect(struct udevice *dev)
 	return ret;
 }
 
+int sysinfo_get_and_detect(struct udevice **devp)
+{
+	int ret = sysinfo_get(devp);
+
+	if (!ret)
+		ret = sysinfo_detect(*devp);
+
+	return ret;
+}
+
 int sysinfo_get_fit_loadable(struct udevice *dev, int index, const char *type,
 			     const char **strp)
 {
@@ -152,5 +162,5 @@ UCLASS_DRIVER(sysinfo) = {
 	.id		= UCLASS_SYSINFO,
 	.name		= "sysinfo",
 	.post_bind	= dm_scan_fdt_dev,
-	.per_device_auto	= sizeof(bool),
+	.per_device_auto	= sizeof(struct sysinfo_priv),
 };

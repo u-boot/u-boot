@@ -66,3 +66,19 @@ static int dm_test_sysinfo(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_sysinfo, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+static int dm_test_sysinfo_get_and_detect(struct unit_test_state *uts)
+{
+	struct udevice *sysinfo;
+	bool called_detect = false;
+
+	ut_assertok(sysinfo_get_and_detect(&sysinfo));
+	ut_assert(sysinfo);
+
+	ut_assertok(sysinfo_get_bool(sysinfo, BOOL_CALLED_DETECT,
+				     &called_detect));
+	ut_assert(called_detect);
+
+	return 0;
+}
+DM_TEST(dm_test_sysinfo_get_and_detect, UTF_SCAN_PDATA | UTF_SCAN_FDT);

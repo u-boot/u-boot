@@ -83,8 +83,12 @@ enum bt_mode get_boot_mode(void)
 	return LOW_POWER_BOOT;
 }
 
+static void init_wdog(void);
 int arch_cpu_init(void)
 {
+	/* Disable wdog */
+	init_wdog();
+
 	enable_ca7_smp();
 	return 0;
 }
@@ -146,7 +150,7 @@ static void disable_wdog(u32 wdog_base)
 	while (!(readl(wdog_base + 0x00) & 0x400));
 }
 
-void init_wdog(void)
+static void init_wdog(void)
 {
 	/*
 	 * ROM will configure WDOG1, disable it or enable it
@@ -161,8 +165,17 @@ void init_wdog(void)
 	 * In this function, we will disable both WDOG1 and WDOG2,
 	 * and set update bit for both. So that kernel can reconfigure them.
 	 */
-	disable_wdog(WDG1_RBASE);
-	disable_wdog(WDG2_RBASE);
+	ofnode node;
+
+	ofnode_for_each_compatible_node(node, "fsl,imx7ulp-wdt") {
+		phys_addr_t base;
+
+		base = ofnode_get_addr(node);
+		if (base == FDT_ADDR_T_NONE)
+			continue;
+
+		disable_wdog((u32)base);
+	}
 }
 
 static bool ldo_mode_is_enabled(void)
@@ -221,9 +234,6 @@ static void init_ldo_mode(void)
 
 void s_init(void)
 {
-	/* Disable wdog */
-	init_wdog();
-
 	/* clock configuration. */
 	clock_init();
 

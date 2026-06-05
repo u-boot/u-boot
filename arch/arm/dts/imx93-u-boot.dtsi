@@ -96,3 +96,15 @@
 			       0x000001b2 0x800001b6>;
 	#thermal-sensor-cells = <1>;
 };
+
+&wdog3 {
+	bootph-all;
+};
+
+&wdog4 {
+	bootph-all;
+};
+
+&wdog5 {
+	bootph-all;
+};

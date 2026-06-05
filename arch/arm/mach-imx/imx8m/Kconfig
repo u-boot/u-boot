@@ -114,6 +114,7 @@ config TARGET_IMX8MM_ICORE_MX8MM
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 	help
 	  i.Core MX8M Mini is an EDIMM SOM based on NXP i.MX8MM.
 
@@ -138,6 +139,7 @@ config TARGET_IMX8MM_PHG
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MM_VENICE
 	bool "Support Gateworks Venice iMX8M Mini module"
@@ -263,6 +265,7 @@ config TARGET_IMX8MP_ICORE_MX8MP
 	select IMX8MP
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 	help
 	  i.Core MX8M Plus is an EDIMM SOM based on NXP i.MX8MP.
 
@@ -424,6 +427,7 @@ config TARGET_MSC_SM2S_IMX8MP
 	select IMX8MP
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_LIBREM5
 	bool "Purism Librem5 Phone"
