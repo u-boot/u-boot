@@ -5746,6 +5746,21 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn("Subnode 'vendor-dt' requires header-version 0",
                       str(exc.exception))
 
+    def testAndroidBootVendorDt(self):
+        """Test that android-boot can embed an arbitrary vendor-dt section"""
+        data = self._DoReadFile('android_boot_vendor_dt.dts')
+        header = struct.unpack_from('<8s10I16s512s32s', data, 0)
+        page_size = 2048
+        vendor_dt_offset = page_size * 3
+        vendor_dt = b'howdy'
+        self.assertEqual(len(vendor_dt), header[9])
+        self.assertEqual(0, header[10])
+        self.assertEqual(self._AndroidBootId(U_BOOT_DATA, b'\0', b'',
+                                             vendor_dt), header[13])
+        self.assertEqual(vendor_dt + b'\0' * (page_size - len(vendor_dt)),
+                         data[vendor_dt_offset:vendor_dt_offset + page_size])
+        self.assertEqual(vendor_dt_offset + page_size, len(data))
+
     def testFitFdtOper(self):
         """Check handling of a specified FIT operation"""
         entry_args = {
