@@ -50,10 +50,10 @@ int board_late_init(void)
 }
 
 static const struct ram_alias_check ram_alias_checks[] = {
-	{ (void *)(PHYS_SDRAM + SZ_8G), (void *)(PHYS_SDRAM), SZ_16G },
-	{ (void *)(PHYS_SDRAM + SZ_4G), (void *)(PHYS_SDRAM), SZ_8G },
-	{ (void *)(PHYS_SDRAM + SZ_2G), (void *)(PHYS_SDRAM), SZ_4G },
-	{ (void *)(PHYS_SDRAM + SZ_1G), (void *)(PHYS_SDRAM), SZ_2G },
+	{ (void *)((uintptr_t)PHYS_SDRAM + SZ_8G), (void *)(PHYS_SDRAM), SZ_16G },
+	{ (void *)((uintptr_t)PHYS_SDRAM + SZ_4G), (void *)(PHYS_SDRAM), SZ_8G },
+	{ (void *)((uintptr_t)PHYS_SDRAM + SZ_2G), (void *)(PHYS_SDRAM), SZ_4G },
+	{ (void *)((uintptr_t)PHYS_SDRAM + SZ_1G), (void *)(PHYS_SDRAM), SZ_2G },
 	{ NULL }
 };
 
