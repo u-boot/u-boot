@@ -547,7 +547,7 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 #define gd_malloc_ptr()		gd->malloc_ptr
 #else
-#define gd_malloc_ptr()		0L
+#define gd_malloc_ptr()		0
 #endif
 
 #if CONFIG_IS_ENABLED(UPL)
