@@ -431,11 +431,9 @@ static int msm_serial_pending(struct udevice *dev, bool input)
 	if (input)
 		return readl(priv->base + SE_GENI_RX_FIFO_STATUS) &
 			   RX_FIFO_WC_MSK;
-	else
-		return readl(priv->base + SE_GENI_TX_FIFO_STATUS) &
-			   TX_FIFO_WC_MSK;
 
-	return 0;
+	return readl(priv->base + SE_GENI_TX_FIFO_STATUS) &
+			   TX_FIFO_WC_MSK;
 }
 
 static const struct dm_serial_ops msm_serial_ops = {
