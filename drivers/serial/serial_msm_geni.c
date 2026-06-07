@@ -110,7 +110,7 @@ unsigned long root_freq[] = {7372800,  14745600, 19200000, 29491200,
  *
  * Return: frequency, supported by clock supplier, multiple of clk_freq.
  */
-static int get_clk_cfg(unsigned long clk_freq)
+static unsigned long get_clk_cfg(unsigned long clk_freq)
 {
 	for (int i = 0; i < ARRAY_SIZE(root_freq); i++) {
 		if (!(root_freq[i] % clk_freq))
@@ -131,7 +131,7 @@ static int get_clk_cfg(unsigned long clk_freq)
  *
  * Return: frequency, supported by clock supplier, multiple of clk_freq.
  */
-static int get_clk_div_rate(u32 baud, u64 sampling_rate, u32 *clk_div)
+static unsigned long get_clk_div_rate(u32 baud, u64 sampling_rate, u32 *clk_div)
 {
 	unsigned long ser_clk;
 	unsigned long desired_clk;
