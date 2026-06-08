@@ -734,6 +734,66 @@ void dump_pagetable(u64 ttbr, u64 tcr)
 	walk_pagetable(ttbr, tcr, pagetable_print_entry, NULL);
 }
 
+/* Do a software pagetable walk for the given address */
+void tlb_debug_lookup(u64 addr)
+{
+	u64 va_bits;
+	u64 ttbr = gd->arch.tlb_addr, *pte;
+	int lshift, level;
+
+	get_tcr(NULL, &va_bits);
+	level = va_bits < 39 ? 1 : 0;
+
+	printf("Performing software TLB lookup of address %#010llx va_bits: %lld\n",
+	       addr, va_bits);
+
+	addr = ALIGN_DOWN(addr, 0x1000);
+	pte = ((u64 *)ttbr);
+	for (int i = level; i < 4; i++) {
+		int indent = (i - level + 1) * 2;
+		u32 idx;
+		u64 _addr;
+
+		lshift = level2shift(i);
+		idx = (addr >> lshift) & 0x1FF;
+
+		printf("%*sPTE: %#010llx. addr[%d:%d]: %#05x (offset %#07x)\n", indent, "", (u64)pte,
+		       lshift + 8, lshift, idx, idx * 8);
+		printf("%*sL%d: %#010llx -> ", indent, "", i, (u64)(&pte[idx]));
+
+		pte = &pte[idx];
+		_addr = *pte & GENMASK_ULL(va_bits, PAGE_SHIFT);
+
+		/*
+		 * Check the PTE and either descend if it's a table or print
+		 * the mapping and return.
+		 */
+		switch (pte_type(pte)) {
+		case PTE_TYPE_FAULT:
+			printf("UNMAPPED!\n");
+			return;
+		case PTE_TYPE_BLOCK:
+			printf("BLOCK (%#010llx)\n", _addr);
+			break;
+		case PTE_TYPE_TABLE:
+			if (i < 3) {
+				printf("TABLE (%#010llx)\n", _addr);
+				pte = (u64 *)_addr;
+				continue;
+			} else { /* PTE_TYPE_PAGE */
+				printf("PAGE (%#010llx)\n", _addr);
+			}
+			break;
+		default:
+			printf("Unknown (%#010llx)\n", _addr);
+			break;
+		}
+
+		printf("%*s[%#010llx - %#010llx]\n", indent + 2, "", _addr, _addr + (1 << lshift));
+		return;
+	}
+}
+
 /* Returns the estimated required size of all page tables */
 __weak u64 get_page_table_size(void)
 {
