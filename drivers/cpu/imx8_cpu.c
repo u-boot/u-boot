@@ -228,7 +228,7 @@ static int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 	ret = snprintf(buf, size, "NXP i.MX%s Rev%s %s at %u MHz",
 		       plat->type, plat->rev, plat->name, plat->freq_mhz);
 
-	if (IS_ENABLED(CONFIG_IMX_TMU)) {
+	if (!IS_ENABLED(CONFIG_IMX8)) { /* imx8 does not have segment fuse */
 		switch (get_cpu_temp_grade(&minc, &maxc)) {
 		case TEMP_AUTOMOTIVE:
 			grade = "Automotive temperature grade";
@@ -237,7 +237,10 @@ static int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 			grade = "Industrial temperature grade";
 			break;
 		case TEMP_EXTCOMMERCIAL:
-			grade = "Extended Consumer temperature grade";
+			if (IS_ENABLED(CONFIG_ARCH_IMX9))
+				grade = "Extended Industrial temperature grade";
+			else
+				grade = "Extended Consumer temperature grade";
 			break;
 		default:
 			grade = "Consumer temperature grade";

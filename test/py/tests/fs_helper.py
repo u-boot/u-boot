@@ -87,7 +87,7 @@ class FsHelper:
         """Remove created image"""
         if self.tmpdir:
             self.tmpdir.cleanup()
-        if self._do_cleanup:
+        if self._do_cleanup and self.fs_img:
             os.remove(self.fs_img)
 
     def __enter__(self):

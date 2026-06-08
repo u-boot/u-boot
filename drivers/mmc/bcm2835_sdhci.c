@@ -219,6 +219,10 @@ static int bcm2835_sdhci_probe(struct udevice *dev)
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;
 
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
+
 	ret = sdhci_setup_cfg(&plat->cfg, host, emmc_freq, MIN_FREQ);
 	if (ret) {
 		debug("%s: Failed to setup SDHCI (err=%d)\n", __func__, ret);

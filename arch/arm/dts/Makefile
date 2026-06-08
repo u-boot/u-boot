@@ -885,6 +885,9 @@ dtb-$(CONFIG_RZA1) += \
 	r7s72100-genmai.dtb \
 	r7s72100-gr-peach.dtb
 
+dtb-$(CONFIG_RCAR_GEN3) += \
+	r8a779md-geist.dtb
+
 dtb-$(CONFIG_RCAR_GEN5) += \
 	r8a78000-ironhide-cm33.dtb
 

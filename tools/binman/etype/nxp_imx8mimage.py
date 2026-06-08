@@ -7,6 +7,8 @@
 # configuration file and input data.
 #
 
+import os
+
 from collections import OrderedDict
 
 from binman.entry import Entry
@@ -23,6 +25,8 @@ class Entry_nxp_imx8mimage(Entry_mkimage):
         - nxp,boot-from - device to boot from (e.g. 'sd')
         - nxp,loader-address - loader address (SPL text base)
         - nxp,rom-version - BootROM version ('2' for i.MX8M Nano and Plus)
+        - nxp,fspi-header-filename - FSPI header file name (CONFIG_FSPI_CONF_FILE).
+            Used only if 'nxp,boot-from == "fspi"' .
     """
 
     def __init__(self, section, etype, node):
@@ -33,6 +37,7 @@ class Entry_nxp_imx8mimage(Entry_mkimage):
     def ReadNode(self):
         super().ReadNode()
         self.boot_from = fdt_util.GetString(self._node, 'nxp,boot-from')
+        self.fspi_header = fdt_util.GetString(self._node, 'nxp,fspi-header-filename', 'fspi_header.bin')
         self.loader_address = fdt_util.GetInt(self._node, 'nxp,loader-address')
         self.rom_version = fdt_util.GetInt(self._node, 'nxp,rom-version')
         self.ReadEntries()
@@ -52,7 +57,14 @@ class Entry_nxp_imx8mimage(Entry_mkimage):
         args = ['-d', input_fname, '-n', cfg_fname, '-T', 'imx8mimage',
                 output_fname]
         if self.mkimage.run_cmd(*args) is not None:
-            return tools.read_file(output_fname)
+            outdata = tools.read_file(output_fname)
+            if self.boot_from == 'fspi':
+                spidata = tools.read_file(os.path.join(tools.get_output_dir(), self.fspi_header))
+                if len(spidata) != 448:
+                    raise ValueError("FSPI header is not 448 Bytes long")
+                spidata += tools.get_bytes(0, 0x1000 - len(spidata))
+                outdata = spidata + outdata
+            return outdata
         else:
             # Bintool is missing; just use the input data as the output
             self.record_missing_bintool(self.mkimage)

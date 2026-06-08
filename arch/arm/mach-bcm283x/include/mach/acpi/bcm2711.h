@@ -54,6 +54,7 @@
 #define  MISC_CTRL_CFG_READ_UR_MODE_MASK          0x2000
 #define  MISC_CTRL_MAX_BURST_SIZE_MASK            0x300000
 #define  MISC_CTRL_MAX_BURST_SIZE_128             0x0
+#define  MISC_CTRL_MAX_BURST_SIZE_128_2712		0x100000
 #define  MISC_CTRL_SCB0_SIZE_MASK                 0xf8000000
 
 #define PCIE_MISC_CPU_2_PCIE_MEM_WIN0_LO          0x400c
@@ -70,6 +71,7 @@
 #define PCIE_MISC_RC_BAR2_CONFIG_HI               0x4038
 #define PCIE_MISC_RC_BAR3_CONFIG_LO               0x403c
 #define  RC_BAR3_CONFIG_LO_SIZE_MASK                0x1f
+#define PCIE_MISC_PCIE_CTRL			  0x4064
 #define PCIE_MISC_PCIE_STATUS                     0x4068
 #define  STATUS_PCIE_PORT_MASK                      0x80
 #define  STATUS_PCIE_PORT_SHIFT                        7
@@ -108,6 +110,10 @@
 
 #define PCIE_RGR1_SW_INIT_1                   0x9210
 #define PCIE_EXT_CFG_INDEX                    0x9000
+#define  RGR1_SW_INIT_1_PERST_MASK			0x1
+#define  RGR1_SW_INIT_1_PERSTB_MASK			0x4
+#define  RGR1_SW_INIT_1_INIT_MASK			0x2
+
 /* A small window pointing at the ECAM of the device selected by CFG_INDEX */
 #define PCIE_EXT_CFG_DATA                     0x8000
 

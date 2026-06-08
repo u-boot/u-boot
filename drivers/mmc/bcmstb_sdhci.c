@@ -56,7 +56,7 @@ struct sdhci_brcmstb_dev_priv {
 
 static int sdhci_brcmstb_init_2712(struct udevice *dev)
 {
-	struct sdhci_host *host = dev_get_priv(dev);
+	struct sdhci_bcmstb_plat *plat = dev_get_plat(dev);
 	void *cfg_regs;
 	u32 reg;
 
@@ -65,8 +65,8 @@ static int sdhci_brcmstb_init_2712(struct udevice *dev)
 	if (!cfg_regs)
 		return -ENOENT;
 
-	if ((host->mmc->host_caps & MMC_CAP_NONREMOVABLE) ||
-	    (host->mmc->host_caps & MMC_CAP_NEEDS_POLL)) {
+	if ((plat->cfg.host_caps & MMC_CAP_NONREMOVABLE) ||
+	    (plat->cfg.host_caps & MMC_CAP_NEEDS_POLL)) {
 		/* Force presence */
 		reg = readl(cfg_regs + SDIO_CFG_CTRL);
 		reg &= ~SDIO_CFG_CTRL_SDCD_N_TEST_LEV;
