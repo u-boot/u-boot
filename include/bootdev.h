@@ -30,10 +30,10 @@ struct udevice;
  * generally very quick to access, e.g. less than 100ms
  * @BOOTDEVP_3_INTERNAL_SLOW: Internal devices which don't need scanning but
  * take a significant fraction of a second to access
- * @BOOTDEVP_4_SCAN_FAST: Extenal devices which need scanning or bus
+ * @BOOTDEVP_4_SCAN_FAST: External devices which need scanning or bus
  * enumeration to find, but this enumeration happens quickly, typically under
  * 100ms
- * @BOOTDEVP_5_SCAN_SLOW: Extenal devices which need scanning or bus
+ * @BOOTDEVP_5_SCAN_SLOW: External devices which need scanning or bus
  * enumeration to find. The enumeration takes significant fraction of a second
  * to complete
  * @BOOTDEVP_6_NET_BASE: Basic network devices which are quickly and easily
@@ -327,7 +327,7 @@ int bootdev_hunt_and_find_by_label(const char *label, struct udevice **devp,
  * Bootdev scanners are used as needed. For example a label "mmc1" results in
  * running the "mmc" bootdrv.
  *
- * @iter: Interation info, containing iter->cur_label
+ * @iter: Iteration info, containing iter->cur_label
  * @devp: New bootdev found, if any was found
  * @method_flagsp: If non-NULL, returns any flags implied by the label
  * (enum bootflow_meth_flags_t), 0 if none
@@ -342,7 +342,7 @@ int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
  * This moves @devp to the next bootdev with the current priority. If there is
  * none, then it moves to the next priority and scans for new bootdevs there.
  *
- * @iter: Interation info, containing iter->cur_prio
+ * @iter: Iteration info, containing iter->cur_prio
  * @devp: On entry this is the previous bootdev that was considered. On exit
  *	this is the new bootdev, if any was found
  * Returns 0 on success (*devp is updated), -ENODEV if there are no more
