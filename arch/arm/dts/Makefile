@@ -439,7 +439,6 @@ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria10_chameleonv3_270_2.dtb		\
 	socfpga_arria10_chameleonv3_270_3.dtb		\
 	socfpga_arria10_chameleonv3_480_2.dtb		\
-	socfpga_arria10_socdk_sdmmc.dtb			\
 	socfpga_cyclone5_mcvevk.dtb			\
 	socfpga_cyclone5_is1.dtb			\
 	socfpga_cyclone5_socdk.dtb			\
