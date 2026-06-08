@@ -59,7 +59,7 @@ stages:
           %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Syuu"
         displayName: 'Update MSYS2'
       - script: |
-          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -Sy make gcc bison flex diffutils openssl-devel libgnutls-devel libutil-linux-devel"
+          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -Sy make gcc bison flex diffutils openssl-devel libgnutls-devel libutil-linux-devel mingw-w64-x86_64-pkcs11-helper"
         displayName: 'Install Toolchain'
       - script: |
           echo make tools-only_defconfig tools-only > build-tools.sh
