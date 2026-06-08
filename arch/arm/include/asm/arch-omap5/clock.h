@@ -204,9 +204,6 @@
 /* Clock frequencies */
 #define OMAP_SYS_CLK_IND_38_4_MHZ	6
 
-/* PRM_VC_VAL_BYPASS */
-#define PRM_VC_I2C_CHANNEL_FREQ_KHZ	400
-
 /* CTRL_CORE_SRCOMP_NORTH_SIDE */
 #define USB2PHY_DISCHGDET	(1 << 29)
 #define USB2PHY_AUTORESUME_EN (1 << 30)
