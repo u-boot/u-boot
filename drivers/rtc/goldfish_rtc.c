@@ -80,9 +80,13 @@ static int goldfish_rtc_of_to_plat(struct udevice *dev)
 	struct goldfish_rtc_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr;
 
+	plat->reg = 0;
+
 	addr = dev_read_addr(dev);
-	if (addr != FDT_ADDR_T_NONE)
-		plat->reg = addr;
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->reg = addr;
 
 	return 0;
 }
