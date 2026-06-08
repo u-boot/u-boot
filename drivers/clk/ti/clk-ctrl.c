@@ -8,7 +8,11 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <clk-uclass.h>
-#include <asm/arch-am33xx/clock.h>
+#include <asm/ti-common/omap_clock.h>
+#include <asm/io.h>
+#include <linux/iopoll.h>
+
+#define TRANSITION_TIMEOUT_US	10000
 
 struct clk_ti_ctrl_offs {
 	fdt_addr_t start;
@@ -33,10 +37,37 @@ static int clk_ti_ctrl_check_offs(struct clk *clk, fdt_addr_t offs)
 	return -EFAULT;
 }
 
+#define IDLEST_DISABLED		(MODULE_CLKCTRL_IDLEST_DISABLED << MODULE_CLKCTRL_IDLEST_SHIFT)
+#define IDLEST_TRANSITION	(MODULE_CLKCTRL_IDLEST_TRANSITIONING << MODULE_CLKCTRL_IDLEST_SHIFT)
+static int clk_ti_ctrl_disable_clock_module(u32 addr)
+{
+	int val;
+
+	clrsetbits_le32(addr, MODULE_CLKCTRL_MODULEMODE_MASK,
+			MODULE_CLKCTRL_MODULEMODE_SW_DISABLE <<
+			MODULE_CLKCTRL_MODULEMODE_SHIFT);
+
+	return readl_relaxed_poll_timeout(addr, val,
+					  (val & MODULE_CLKCTRL_IDLEST_MASK) == IDLEST_DISABLED,
+					  TRANSITION_TIMEOUT_US);
+}
+
+static int clk_ti_ctrl_enable_clock_module(u32 addr)
+{
+	int val;
+
+	clrsetbits_le32(addr, MODULE_CLKCTRL_MODULEMODE_MASK,
+			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
+			MODULE_CLKCTRL_MODULEMODE_SHIFT);
+	return readl_relaxed_poll_timeout(addr, val,
+					  ((val & MODULE_CLKCTRL_IDLEST_MASK) != IDLEST_DISABLED) &&
+					  ((val & MODULE_CLKCTRL_IDLEST_MASK) != IDLEST_TRANSITION),
+					  TRANSITION_TIMEOUT_US);
+}
+
 static int clk_ti_ctrl_disable(struct clk *clk)
 {
 	struct clk_ti_ctrl_priv *priv = dev_get_priv(clk->dev);
-	u32 *clk_modules[2] = { };
 	fdt_addr_t offs;
 	int err;
 
@@ -47,16 +78,13 @@ static int clk_ti_ctrl_disable(struct clk *clk)
 		return err;
 	}
 
-	clk_modules[0] = (u32 *)(offs);
-	dev_dbg(clk->dev, "disable module @ %p\n", clk_modules[0]);
-	do_disable_clocks(NULL, clk_modules, 1);
-	return 0;
+	dev_dbg(clk->dev, "disable module @ %x\n", offs);
+	return clk_ti_ctrl_disable_clock_module(offs);
 }
 
 static int clk_ti_ctrl_enable(struct clk *clk)
 {
 	struct clk_ti_ctrl_priv *priv = dev_get_priv(clk->dev);
-	u32 *clk_modules[2] = { };
 	fdt_addr_t offs;
 	int err;
 
@@ -67,10 +95,8 @@ static int clk_ti_ctrl_enable(struct clk *clk)
 		return err;
 	}
 
-	clk_modules[0] = (u32 *)(offs);
-	dev_dbg(clk->dev, "enable module @ %p\n", clk_modules[0]);
-	do_enable_clocks(NULL, clk_modules, 1);
-	return 0;
+	dev_dbg(clk->dev, "enable module @ %x\n", offs);
+	return clk_ti_ctrl_enable_clock_module(offs);
 }
 
 static ulong clk_ti_ctrl_get_rate(struct clk *clk)
