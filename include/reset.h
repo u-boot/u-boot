@@ -321,6 +321,45 @@ int reset_deassert(struct reset_ctl *reset_ctl);
 int reset_deassert_bulk(struct reset_ctl_bulk *bulk);
 
 /**
+ * reset_reset - Reset a HW module by asserting and deasserting a reset signal.
+ *
+ * This function will assert and then deassert the specified reset signal,
+ * thus resetting the affected HW module. This is a convenience function
+ * that combines reset_assert() and reset_deassert().
+ *
+ * If the controller implements struct reset_ops.rst_reset, that callback
+ * is used and @delay_us is interpreted as documented there. Otherwise the
+ * core performs reset_assert(), udelay(@delay_us), then reset_deassert().
+ *
+ * @reset_ctl:	A reset control struct that was previously successfully
+ *		requested by reset_get_by_*().
+ * @delay_us:	Delay in microseconds between assert and deassert on the
+ *		fallback path; meaning is driver-specific when rst_reset is used.
+ *		Use 0 for no delay on the fallback path.
+ * Return: 0 if OK, or a negative error code.
+ */
+int reset_reset(struct reset_ctl *reset_ctl, ulong delay_us);
+
+/**
+ * reset_reset_bulk - Reset all HW modules in a reset control bulk struct.
+ *
+ * This calls reset_reset() on each entry in order. Each line therefore
+ * completes its own assert/delay/deassert (or controller rst_reset) before
+ * the next entry starts. That matches Linux reset_control_bulk_reset().
+ *
+ * When several lines must stay asserted together for @delay_us (typical
+ * multi-reset controllers), use reset_assert_bulk(), udelay(@delay_us),
+ * and reset_deassert_bulk() instead.
+ *
+ * @bulk:	A reset control bulk struct that was previously successfully
+ *		requested by reset_get_bulk().
+ * @delay_us:	Delay in microseconds passed to each reset_reset(); see
+ *		reset_reset() and struct reset_ops.rst_reset.
+ * Return: 0 if OK, or a negative error code.
+ */
+int reset_reset_bulk(struct reset_ctl_bulk *bulk, ulong delay_us);
+
+/**
  * rst_status - Check reset signal status.
  *
  * @reset_ctl:	The reset signal to check.
@@ -441,6 +480,16 @@ static inline int reset_deassert(struct reset_ctl *reset_ctl)
 static inline int reset_deassert_bulk(struct reset_ctl_bulk *bulk)
 {
 	return 0;
+}
+
+static inline int reset_reset(struct reset_ctl *reset_ctl, ulong delay_us)
+{
+	return -ENOSYS;
+}
+
+static inline int reset_reset_bulk(struct reset_ctl_bulk *bulk, ulong delay_us)
+{
+	return -ENOSYS;
 }
 
 static inline int reset_status(struct reset_ctl *reset_ctl)

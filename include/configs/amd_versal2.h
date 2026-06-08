@@ -23,6 +23,11 @@
 #define CFG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
+/* GUID for capsule updatable firmware image */
+#define XILINX_BOOT_IMAGE_GUID \
+	EFI_GUID(0xed9e7fcf, 0x47b3, 0x40cd, 0xb6, 0xe3, \
+		 0x56, 0x5f, 0x14, 0x67, 0x6d, 0x82)
+
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define DFU_ALT_INFO_RAM \
