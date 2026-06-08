@@ -1,0 +1,6 @@
+if OMAP44XX
+
+config SYS_SOC
+	default "omap4"
+
+endif
