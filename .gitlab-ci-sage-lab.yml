@@ -26,7 +26,7 @@
       . /tmp/venv/bin/activate;
       pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt -r tools/u_boot_pylib/requirements.txt
-        labgrid setuptools
+        labgrid==25.0.1 setuptools
     # Acquire and turn on the exporter.
     - labgrid-client reserve --wait board=${LABGRID_EXPORTER} &&
       labgrid-client -p ${LABGRID_EXPORTER} acquire &&
