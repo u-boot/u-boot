@@ -267,8 +267,8 @@ config CPU_MIPS64_OCTEON
 	select 64BIT
 	select SPL_64BIT if SPL
 	help
-	 Choose this option for Marvell Octeon CPUs.  These CPUs are between
-	 MIPS64 R5 and R6 with other extensions.
+	  Choose this option for Marvell Octeon CPUs.  These CPUs are between
+	  MIPS64 R5 and R6 with other extensions.
 
 endchoice
 
@@ -351,7 +351,7 @@ config MIPS_RELOCATION_TABLE_SIZE
 	range 0x100 0x10000
 	default "0xc000" if TARGET_MALTA
 	default "0x8000"
-	---help---
+	help
 	  A table of relocation data will be appended to the U-Boot binary
 	  and parsed in relocate_code() to fix up all offsets in the relocated
 	  U-Boot.
@@ -526,7 +526,7 @@ config MIPS_SRAM_INIT
 config DMA_ADDR_T_64BIT
 	bool
 	help
-	 Select this to enable 64-bit DMA addressing
+	  Select this to enable 64-bit DMA addressing
 
 config SYS_DCACHE_SIZE
 	int
