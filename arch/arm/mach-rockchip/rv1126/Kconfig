@@ -47,7 +47,7 @@ config TPL_LDSCRIPT
 	default "arch/arm/mach-rockchip/u-boot-tpl.lds"
 
 config TPL_STACK
-        default 0xff718000
+	default 0xff718000
 
 config TPL_SYS_MALLOC_F_LEN
 	default 0x2000

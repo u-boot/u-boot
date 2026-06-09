@@ -95,10 +95,10 @@ config MX6_OCRAM_256KB
 	bool "Support 256KB OCRAM"
 	depends on MX6D || MX6Q
 	help
-	 Allows using the full 256KB size of the OCRAM on the MX6Q/MX6D series
-	 of chips, such as for SPL. The OCRAM of the Lite series of chips is
-	 only 128KB, so using this option will prevent the resulting code from
-	 working on those chips.
+	  Allows using the full 256KB size of the OCRAM on the MX6Q/MX6D series
+	  of chips, such as for SPL. The OCRAM of the Lite series of chips is
+	  only 128KB, so using this option will prevent the resulting code from
+	  working on those chips.
 
 config MX6_DDRCAL
 	bool "Include dynamic DDR calibration routines"
@@ -698,10 +698,10 @@ config TARGET_BRPPT2
 	select SUPPORT_SPL
 	select SPL_DM if SPL
 	select SPL_OF_CONTROL if SPL
-        help
-          Support
-          B&R BRPPT2 platform
-          based on Freescale's iMX6 SoC
+	help
+	  Support
+	  B&R BRPPT2 platform
+	  based on Freescale's iMX6 SoC
 
 config TARGET_O4_IMX6ULL_NANO
 	bool "O4-iMX6ULL-NANO"

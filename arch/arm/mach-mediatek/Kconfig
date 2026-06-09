@@ -45,7 +45,7 @@ config TARGET_MT7981
 	help
 	  The MediaTek MT7981 is a ARM64-based SoC with a dual-core Cortex-A53.
 	  including UART, SPI, USB, NAND, SNFI, PWM, Gigabit Ethernet, I2C,
-          built-in Wi-Fi, and PCIe.
+	  built-in Wi-Fi, and PCIe.
 
 config TARGET_MT7986
 	bool "MediaTek MT7986 SoC"
@@ -89,9 +89,9 @@ config TARGET_MT8188
 	select ARM64
 	help
 	  The MediaTek MT8188 is a ARM64-based SoC with a dual-core Cortex-A78
-          cluster and a six-core Cortex-A55 cluster. It includes UART, SPI,
-          USB3.0 dual role, SD and MMC cards, UFS, PWM, I2C, I2S, S/PDIF, and
-          several LPDDR3 and LPDDR4 options.
+	  cluster and a six-core Cortex-A55 cluster. It includes UART, SPI,
+	  USB3.0 dual role, SD and MMC cards, UFS, PWM, I2C, I2S, S/PDIF, and
+	  several LPDDR3 and LPDDR4 options.
 
 config TARGET_MT8189
 	bool "MediaTek MT8189 SoC"
@@ -120,13 +120,13 @@ config TARGET_MT8365
 	  I2C, I2S, S/PDIF, and several LPDDR3 and LPDDR4 options.
 
 config TARGET_MT8512
-        bool "MediaTek MT8512 SoC"
-        select ARM64
-        help
-          The MediaTek MT8512 is a ARM64-based SoC with a dual-core Cortex-A53.
-          including UART, SPI, USB2.0 and OTG, SD and MMC cards, NAND, PWM,
-          IR RX, I2C, I2S, S/PDIF, and built-in Wi-Fi / Bluetooth digital
-          and several LPDDR3 and LPDDR4 options.
+	bool "MediaTek MT8512 SoC"
+	select ARM64
+	help
+	  The MediaTek MT8512 is a ARM64-based SoC with a dual-core Cortex-A53.
+	  including UART, SPI, USB2.0 and OTG, SD and MMC cards, NAND, PWM,
+	  IR RX, I2C, I2S, S/PDIF, and built-in Wi-Fi / Bluetooth digital
+	  and several LPDDR3 and LPDDR4 options.
 
 config TARGET_MT8516
 	bool "MediaTek MT8516 SoC"
@@ -154,7 +154,7 @@ config MTK_MEM_MAP_DDR_BASE_PHY
 	hex "DDR physical base address"
 	default 0x40000000
 	help
-		Target-specific DDR physical base address.
+	  Target-specific DDR physical base address.
 
 config MTK_MEM_MAP_DDR_SIZE
 	hex "DDR .size in mem_map"
@@ -164,14 +164,14 @@ config MTK_MEM_MAP_DDR_SIZE
 	default 0x40000000 if TARGET_MT7622 || TARGET_MT8512
 	default 0x20000000
 	help
-		Target-specific DDR region size in mem_map.
+	  Target-specific DDR region size in mem_map.
 
 config MTK_MEM_MAP_MMIO_SIZE
 	hex "MMIO .size in mem_map"
 	default 0x40000000 if TARGET_MT7622 || TARGET_MT7981 || TARGET_MT7986 || TARGET_MT7987 || TARGET_MT7988 || TARGET_MT8512
 	default 0x20000000
 	help
-		Target-specific MMIO region size in mem_map.
+	  Target-specific MMIO region size in mem_map.
 
 endif
 

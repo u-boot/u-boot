@@ -10,10 +10,10 @@ config CMD_STM32PROG
 	imply DFU_MMC if MMC
 	imply DFU_MTD if MTD
 	help
-		activate a specific command stm32prog for STM32MP soc family
-		witch update the device with the tools STM32CubeProgrammer
-		NB: access to not volatile memory (NOR/NAND/SD/eMMC) is based
-		    on U-Boot DFU framework
+	  activate a specific command stm32prog for STM32MP soc family
+	  witch update the device with the tools STM32CubeProgrammer
+	  NB: access to not volatile memory (NOR/NAND/SD/eMMC) is based
+	  on U-Boot DFU framework
 
 config CMD_STM32PROG_USB
 	bool "support stm32prog over USB"
@@ -21,9 +21,9 @@ config CMD_STM32PROG_USB
 	depends on USB_GADGET_DOWNLOAD
 	default y
 	help
-		activate the command "stm32prog usb" for STM32MP soc family
-		witch update the device with the tools STM32CubeProgrammer,
-		using USB with DFU protocol
+	  activate the command "stm32prog usb" for STM32MP soc family
+	  witch update the device with the tools STM32CubeProgrammer,
+	  using USB with DFU protocol
 
 config CMD_STM32PROG_SERIAL
 	bool "support stm32prog over UART"
@@ -32,13 +32,13 @@ config CMD_STM32PROG_SERIAL
 	imply SILENT_CONSOLE
 	default y
 	help
-		activate the command "stm32prog serial" for STM32MP soc family
-		with the tools STM32CubeProgrammer using U-Boot serial device
-		and UART protocol.
+	  activate the command "stm32prog serial" for STM32MP soc family
+	  with the tools STM32CubeProgrammer using U-Boot serial device
+	  and UART protocol.
 
 config CMD_STM32PROG_OTP
 	bool "support stm32prog for OTP update"
 	depends on CMD_STM32PROG
 	default y if ARM_SMCCC || OPTEE
 	help
-		Support the OTP update with the command "stm32prog" for STM32MP
+	  Support the OTP update with the command "stm32prog" for STM32MP

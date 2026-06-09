@@ -5,7 +5,7 @@ config TARGET_EVB_RK3308
 	select BOARD_LATE_INIT
 
 config TARGET_ROC_RK3308_CC
-       bool "Firefly roc-rk3308-cc"
+	bool "Firefly roc-rk3308-cc"
 	select BOARD_LATE_INIT
 
 config ROCKCHIP_BOOT_MODE_REG

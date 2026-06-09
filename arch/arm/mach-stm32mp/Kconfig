@@ -56,8 +56,8 @@ config STM32MP13X
 	imply CMD_NVEDIT_INFO
 	imply OF_UPSTREAM
 	help
-		support of STMicroelectronics SOC STM32MP13x family
-		STMicroelectronics MPU with core ARMv7
+	  support of STMicroelectronics SOC STM32MP13x family
+	  STMicroelectronics MPU with core ARMv7
 
 config STM32MP15X
 	bool "Support STMicroelectronics STM32MP15x Soc"
@@ -77,10 +77,10 @@ config STM32MP15X
 	imply CMD_NVEDIT_INFO
 	imply OF_UPSTREAM
 	help
-		support of STMicroelectronics SOC STM32MP15x family
-		STM32MP157, STM32MP153 or STM32MP151
-		STMicroelectronics MPU with core ARMv7
-		dual core A7 for STM32MP157/3, monocore for STM32MP151
+	  support of STMicroelectronics SOC STM32MP15x family
+	  STM32MP157, STM32MP153 or STM32MP151
+	  STMicroelectronics MPU with core ARMv7
+	  dual core A7 for STM32MP157/3, monocore for STM32MP151
 
 config STM32MP21X
 	bool "Support STMicroelectronics STM32MP21x Soc"
@@ -104,8 +104,8 @@ config STM32MP21X
 	imply TEE
 	imply VERSION_VARIABLE
 	help
-		Support of STMicroelectronics SOC STM32MP21X family
-		STMicroelectronics MPU with 1 A35 core and 1 M33 core
+	  Support of STMicroelectronics SOC STM32MP21X family
+	  STMicroelectronics MPU with 1 A35 core and 1 M33 core
 
 config STM32MP23X
 	bool "Support STMicroelectronics STM32MP23x Soc"
@@ -129,8 +129,8 @@ config STM32MP23X
 	imply TEE
 	imply VERSION_VARIABLE
 	help
-		Support of STMicroelectronics SOC STM32MP23x family
-		STMicroelectronics MPU with 2 * A53 core and 1 M33 core
+	  Support of STMicroelectronics SOC STM32MP23x family
+	  STMicroelectronics MPU with 2 * A53 core and 1 M33 core
 
 config STM32MP25X
 	bool "Support STMicroelectronics STM32MP25x Soc"
@@ -153,8 +153,8 @@ config STM32MP25X
 	imply TEE
 	imply VERSION_VARIABLE
 	help
-		Support of STMicroelectronics SOC STM32MP25x family
-		STMicroelectronics MPU with 2 * A53 core and 1 M33 core
+	  Support of STMicroelectronics SOC STM32MP25x family
+	  STMicroelectronics MPU with 2 * A53 core and 1 M33 core
 endchoice
 
 config NR_DRAM_BANKS
@@ -164,13 +164,13 @@ config DDR_CACHEABLE_SIZE
 	hex "Size of the DDR marked cacheable in pre-reloc stage"
 	default 0x40000000
 	help
-		Define the size of the DDR marked as cacheable in U-Boot
-		pre-reloc stage.
-		This option can be useful to avoid speculatif access
-		to secured area of DDR used by TF-A or OP-TEE before U-Boot
-		initialization.
-		The areas marked "no-map" in device tree should be located
-		before this limit: STM32_DDR_BASE + DDR_CACHEABLE_SIZE.
+	  Define the size of the DDR marked as cacheable in U-Boot
+	  pre-reloc stage.
+	  This option can be useful to avoid speculatif access
+	  to secured area of DDR used by TF-A or OP-TEE before U-Boot
+	  initialization.
+	  The areas marked "no-map" in device tree should be located
+	  before this limit: STM32_DDR_BASE + DDR_CACHEABLE_SIZE.
 
 config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 	hex "Partition on MMC2 to use to load U-Boot from"
@@ -203,10 +203,10 @@ config CMD_STM32KEY
 	bool "command stm32key to fuse public key hash"
 	depends on CMDLINE
 	help
-		fuse public key hash in corresponding fuse used to authenticate
-		binary.
-		This command is used to evaluate the secure boot on stm32mp SOC,
-		it is deactivated by default in real products.
+	  fuse public key hash in corresponding fuse used to authenticate
+	  binary.
+	  This command is used to evaluate the secure boot on stm32mp SOC,
+	  it is deactivated by default in real products.
 
 config MFD_STM32_TIMERS
 	bool "STM32 multifonction timer support"
@@ -226,15 +226,15 @@ config STM32MP15_PWR
 	depends on DM_REGULATOR && DM_PMIC && (STM32MP13X || STM32MP15X)
 	default y if STM32MP15X
 	help
-		This config enables implementation of driver-model pmic and
-		regulator uclass features for access to STM32MP15x PWR.
+	  This config enables implementation of driver-model pmic and
+	  regulator uclass features for access to STM32MP15x PWR.
 
 config SPL_STM32MP15_PWR
 	bool "Enable driver for STM32MP15x PWR in SPL"
 	depends on SPL && SPL_DM_REGULATOR && SPL_DM_PMIC && (STM32MP13X || STM32MP15X)
 	default y if STM32MP15X
 	help
-		This config enables implementation of driver-model pmic and
-		regulator uclass features for access to STM32MP15x PWR in SPL.
+	  This config enables implementation of driver-model pmic and
+	  regulator uclass features for access to STM32MP15x PWR in SPL.
 
 endif
