@@ -305,6 +305,7 @@ static efi_status_t EFIAPI efi_disk_flush_blocks(struct efi_block_io *this)
 }
 
 static const struct efi_block_io block_io_disk_template = {
+	.revision = EFI_BLOCK_IO_PROTOCOL_REVISION3,
 	.reset = &efi_disk_reset,
 	.read_blocks = &efi_disk_read_blocks,
 	.write_blocks = &efi_disk_write_blocks,
