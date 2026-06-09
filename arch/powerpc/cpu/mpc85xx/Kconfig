@@ -973,7 +973,7 @@ config E500MC
 	select BTB
 	imply CMD_PCI
 	help
-		Enble PowerPC E500MC core
+		Enable PowerPC E500MC core
 
 config E5500
 	bool
