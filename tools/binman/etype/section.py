@@ -1040,3 +1040,12 @@ class Entry_section(Entry):
             for entry in entries.values():
                 return entry.read_elf_segments()
         return None
+
+    def AlignUp(self, value, align):
+        """Return value aligned to given power of 2"""
+        return (value + align - 1) & ~(align - 1)
+
+
+    def PadToAlignment(self, data, align):
+        """Null-pads given data to given power of 2"""
+        return data + b'\0' * (self.AlignUp(len(data), align) - len(data))
