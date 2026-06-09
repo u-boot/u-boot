@@ -47,7 +47,7 @@ config RCAR_GEN3_THERMAL
 config TI_DRA7_THERMAL
         bool "Temperature sensor driver for TI dra7xx SOCs"
         help
-	 Enable thermal support for for the Texas Instruments DRA752 SoC family.
+	 Enable thermal support for the Texas Instruments DRA752 SoC family.
 	 The driver supports reading CPU temperature.
 
 config TI_LM74_THERMAL
