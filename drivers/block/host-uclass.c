@@ -150,6 +150,21 @@ struct udevice *host_find_by_label(const char *label)
 	return NULL;
 }
 
+int host_set_flags_by_label(const char *label, unsigned int flags)
+{
+	struct udevice *dev;
+	struct host_sb_plat *plat;
+
+	dev = host_find_by_label(label);
+	if (!dev)
+		return -ENODEV;
+
+	plat = dev_get_plat(dev);
+	plat->flags = flags;
+
+	return 0;
+}
+
 struct udevice *host_get_cur_dev(void)
 {
 	struct uclass *uc = uclass_find(UCLASS_HOST);
