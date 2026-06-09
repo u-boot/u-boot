@@ -527,7 +527,7 @@ static int at91_pinctrl_probe(struct udevice *dev)
 
 	if (list_empty(&dev->child_head)) {
 		for (index = 0; index < MAX_GPIO_BANKS; index++) {
-			addr_base = devfdt_get_addr_index(dev, index);
+			addr_base = dev_read_addr_index(dev, index);
 			if (addr_base == FDT_ADDR_T_NONE)
 				break;
 

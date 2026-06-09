@@ -176,7 +176,7 @@ static int ti_bandgap_probe(struct udevice *dev)
 {
 	struct ti_bandgap *bgp = dev_get_priv(dev);
 
-	bgp->base = devfdt_get_addr_index(dev, 1);
+	bgp->base = dev_read_addr_index(dev, 1);
 
 	return 0;
 }

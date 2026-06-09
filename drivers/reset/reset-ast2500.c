@@ -77,10 +77,10 @@ static int ast2500_reset_probe(struct udevice *dev)
 		return rc;
 	}
 
-	priv->scu = devfdt_get_addr_ptr(scu_dev);
+	priv->scu = dev_read_addr_ptr(scu_dev);
 	if (IS_ERR_OR_NULL(priv->scu)) {
 		debug("%s: invalid SCU base pointer\n", __func__);
-		return PTR_ERR(priv->scu);
+		return -EINVAL;
 	}
 
 	return 0;

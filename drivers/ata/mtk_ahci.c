@@ -45,7 +45,9 @@ static int mtk_ahci_of_to_plat(struct udevice *dev)
 {
 	struct mtk_ahci_priv *priv = dev_get_priv(dev);
 
-	priv->base = devfdt_remap_addr_index(dev, 0);
+	priv->base = dev_remap_addr_index(dev, 0);
+	if (!priv->base)
+		return -EINVAL;
 
 	return 0;
 }
@@ -54,11 +56,9 @@ static int mtk_ahci_parse_property(struct ahci_uc_priv *hpriv,
 				   struct udevice *dev)
 {
 	struct mtk_ahci_priv *plat = dev_get_priv(dev);
-	const void *fdt = gd->fdt_blob;
 
 	/* enable SATA function if needed */
-	if (fdt_get_property(fdt, dev_of_offset(dev),
-			     "mediatek,phy-mode", NULL)) {
+	if (dev_read_prop(dev, "mediatek,phy-mode", NULL)) {
 		plat->mode = syscon_regmap_lookup_by_phandle(dev,
 						"mediatek,phy-mode");
 		if (IS_ERR(plat->mode)) {
@@ -69,8 +69,8 @@ static int mtk_ahci_parse_property(struct ahci_uc_priv *hpriv,
 				   SYS_CFG_SATA_MSK, SYS_CFG_SATA_EN);
 	}
 
-	ofnode_read_u32(dev_ofnode(dev), "ports-implemented",
-			&hpriv->port_map);
+	dev_read_u32(dev, "ports-implemented", &hpriv->port_map);
+
 	return 0;
 }
 

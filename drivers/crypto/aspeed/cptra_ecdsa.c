@@ -149,7 +149,7 @@ static int cptra_ecdsa_probe(struct udevice *dev)
 {
 	struct cptra_ecdsa *ce = dev_get_priv(dev);
 
-	ce->regs = (void *)devfdt_get_addr(dev);
+	ce->regs = (void *)dev_read_addr(dev);
 	if (ce->regs == (void *)FDT_ADDR_T_NONE) {
 		debug("cannot map Caliptra mailbox registers\n");
 		return -EINVAL;

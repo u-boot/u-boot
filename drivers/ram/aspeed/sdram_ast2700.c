@@ -956,13 +956,13 @@ static int ast2700_sdrammc_of_to_plat(struct udevice *dev)
 	ofnode node;
 	int rc;
 
-	sdrammc->regs = (struct sdrammc_regs *)devfdt_get_addr_index(dev, 0);
+	sdrammc->regs = (struct sdrammc_regs *)dev_read_addr_index(dev, 0);
 	if (sdrammc->regs == (void *)FDT_ADDR_T_NONE) {
 		debug("cannot map DRAM register\n");
 		return -ENODEV;
 	}
 
-	sdrammc->phy = (void *)devfdt_get_addr_index(dev, 1);
+	sdrammc->phy = (void *)dev_read_addr_index(dev, 1);
 	if (sdrammc->phy == (void *)FDT_ADDR_T_NONE) {
 		debug("cannot map PHY memory\n");
 		return -ENODEV;

@@ -1076,10 +1076,10 @@ static int ast2600_sdrammc_probe(struct udevice *dev)
 		return ret;
 	}
 
-	priv->scu = devfdt_get_addr_ptr(clk_dev);
-	if (IS_ERR(priv->scu)) {
+	priv->scu = dev_read_addr_ptr(clk_dev);
+	if (!priv->scu) {
 		debug("%s(): can't get SCU\n", __func__);
-		return PTR_ERR(priv->scu);
+		return -ENODEV;
 	}
 
 	if (readl(&priv->scu->dram_hdshk) & SCU_DRAM_HDSHK_RDY) {
@@ -1136,12 +1136,11 @@ static int ast2600_sdrammc_of_to_plat(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
 
-	priv->regs = (void *)(uintptr_t)devfdt_get_addr_index(dev, 0);
-	priv->phy_setting = (void *)(uintptr_t)devfdt_get_addr_index(dev, 1);
-	priv->phy_status = (void *)(uintptr_t)devfdt_get_addr_index(dev, 2);
+	priv->regs = (void *)(uintptr_t)dev_read_addr_index(dev, 0);
+	priv->phy_setting = (void *)(uintptr_t)dev_read_addr_index(dev, 1);
+	priv->phy_status = (void *)(uintptr_t)dev_read_addr_index(dev, 2);
 
-	priv->clock_rate = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					  "clock-frequency", 0);
+	priv->clock_rate = ofnode_read_s32_default(dev_ofnode(dev), "clock-frequency", 0);
 	if (!priv->clock_rate) {
 		debug("DDR Clock Rate not defined\n");
 		return -EINVAL;

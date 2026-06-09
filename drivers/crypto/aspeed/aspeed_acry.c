@@ -144,13 +144,13 @@ static int aspeed_acry_probe(struct udevice *dev)
 		return ret;
 	}
 
-	acry->base = devfdt_get_addr_index(dev, 0);
+	acry->base = dev_read_addr_index(dev, 0);
 	if (acry->base == FDT_ADDR_T_NONE) {
 		debug("Failed to get acry base\n");
 		return acry->base;
 	}
 
-	acry->sram_base = devfdt_get_addr_index(dev, 1);
+	acry->sram_base = dev_read_addr_index(dev, 1);
 	if (acry->sram_base == FDT_ADDR_T_NONE) {
 		debug("Failed to get acry SRAM base\n");
 		return acry->sram_base;
