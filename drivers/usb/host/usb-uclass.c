@@ -134,7 +134,7 @@ int usb_alloc_device(struct usb_device *udev)
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
-	/* This is only requird by some controllers - current XHCI */
+	/* This is only required by some controllers - currently XHCI */
 	if (!ops->alloc_device)
 		return 0;
 

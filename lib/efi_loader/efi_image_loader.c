@@ -108,11 +108,13 @@ void efi_print_image_infos(void *pc)
  * @rel_size:		size of the relocation table in bytes
  * @efi_reloc:		actual load address of the image
  * @pref_address:	preferred load address of the image
+ * @virt_size:		virtual image size as provided in the PE-COFF header
  * Return:		status code
  */
 static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
-			unsigned long rel_size, void *efi_reloc,
-			unsigned long pref_address)
+					unsigned long rel_size, void *efi_reloc,
+					unsigned long pref_address,
+					unsigned long virt_size)
 {
 	unsigned long delta = (unsigned long)efi_reloc - pref_address;
 	const IMAGE_BASE_RELOCATION *end;
@@ -122,34 +124,95 @@ static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 		return EFI_SUCCESS;
 
 	end = (const IMAGE_BASE_RELOCATION *)((const char *)rel + rel_size);
-	while (rel + 1 < end && rel->SizeOfBlock) {
+	while (rel + 1 < end) {
 		const uint16_t *relocs = (const uint16_t *)(rel + 1);
+
+		/* Each block must start on a 32-bit boundary */
+		if (!IS_ALIGNED((uintptr_t)rel, sizeof(uint32_t))) {
+			log_debug("Relocation block not 32-bit aligned\n");
+			return EFI_LOAD_ERROR;
+		}
+		/* Relocation block cannot be shorter than its header */
+		if (rel->SizeOfBlock < sizeof(*rel)) {
+			log_debug("Relocation block too small: %u\n",
+				rel->SizeOfBlock);
+			return EFI_LOAD_ERROR;
+		}
+		/* All relocation entries must be inside the .reloc section */
+		if ((const char *)rel + rel->SizeOfBlock > (const char *)end) {
+			log_debug("Relocation block exceeds relocation data\n");
+			return EFI_LOAD_ERROR;
+		}
+		/*
+		 * Relocations must be within the virtual address range.
+		 * This also ensures that there is no overflow in the
+		 * entry_offset check below.
+		 */
+		if (rel->VirtualAddress > virt_size) {
+			log_debug("relocation address out of bounds\n");
+			return EFI_LOAD_ERROR;
+		}
+
 		i = (rel->SizeOfBlock - sizeof(*rel)) / sizeof(uint16_t);
 		while (i--) {
-			uint32_t offset = (uint32_t)(*relocs & 0xfff) +
-					  rel->VirtualAddress;
+			uint32_t entry_offset = *relocs & 0xfff;
+			unsigned long offset;
 			int type = *relocs >> EFI_PAGE_SHIFT;
-			uint64_t *x64 = efi_reloc + offset;
-			uint32_t *x32 = efi_reloc + offset;
-			uint16_t *x16 = efi_reloc + offset;
+			uint64_t *x64;
+			uint32_t *x32;
+			uint16_t *x16;
+
+			/*
+			 * Relocation address must be within virtual address
+			 * range.
+			 */
+			if (entry_offset > virt_size - rel->VirtualAddress) {
+				log_debug("relocation address out of bounds\n");
+				return EFI_LOAD_ERROR;
+			}
+
+			offset = rel->VirtualAddress + entry_offset;
+			x64 = efi_reloc + offset;
+			x32 = efi_reloc + offset;
+			x16 = efi_reloc + offset;
 
 			switch (type) {
 			case IMAGE_REL_BASED_ABSOLUTE:
 				break;
 			case IMAGE_REL_BASED_HIGH:
+				if (sizeof(uint16_t) > virt_size - offset) {
+					log_debug("relocation address out of bounds\n");
+					return EFI_LOAD_ERROR;
+				}
 				*x16 += ((uint32_t)delta) >> 16;
 				break;
 			case IMAGE_REL_BASED_LOW:
+				if (sizeof(uint16_t) > virt_size - offset) {
+					log_debug("relocation address out of bounds\n");
+					return EFI_LOAD_ERROR;
+				}
 				*x16 += (uint16_t)delta;
 				break;
 			case IMAGE_REL_BASED_HIGHLOW:
+				if (sizeof(uint32_t) > virt_size - offset) {
+					log_debug("relocation address out of bounds\n");
+					return EFI_LOAD_ERROR;
+				}
 				*x32 += (uint32_t)delta;
 				break;
 			case IMAGE_REL_BASED_DIR64:
+				if (sizeof(uint64_t) > virt_size - offset) {
+					log_debug("relocation address out of bounds\n");
+					return EFI_LOAD_ERROR;
+				}
 				*x64 += (uint64_t)delta;
 				break;
 #ifdef __riscv
 			case IMAGE_REL_BASED_RISCV_HI20:
+				if (sizeof(uint32_t) > virt_size - offset) {
+					log_debug("relocation address out of bounds\n");
+					return EFI_LOAD_ERROR;
+				}
 				*x32 = ((*x32 & 0xfffff000) + (uint32_t)delta) |
 					(*x32 & 0x00000fff);
 				break;
@@ -163,7 +226,7 @@ static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 				break;
 #endif
 			default:
-				log_err("Unknown Relocation off %x type %x\n",
+				log_err("Unknown Relocation off %lx type %x\n",
 					offset, type);
 				return EFI_LOAD_ERROR;
 			}
@@ -970,8 +1033,9 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 
 	/* Run through relocations */
 	if (efi_loader_relocate(rel, rel_size, efi_reloc,
-				(unsigned long)image_base) != EFI_SUCCESS) {
-		efi_free_pages((uintptr_t) efi_reloc,
+				(unsigned long)image_base,
+				virt_size) != EFI_SUCCESS) {
+		efi_free_pages((uintptr_t)efi_reloc,
 			       (virt_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT);
 		ret = EFI_LOAD_ERROR;
 		goto err;

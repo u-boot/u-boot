@@ -986,7 +986,7 @@ def main():
                         default=False, help='run tests')
     parser.add_argument('-T', '--test-coverage', action='store_true',
                         default=False,
-                        help='run tests and check for 100% coverage')
+                        help='run tests and check for 100%% coverage')
     parser.add_argument('name', nargs='*')
     args = parser.parse_args()
 
