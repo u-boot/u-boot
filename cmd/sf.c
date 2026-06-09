@@ -137,8 +137,14 @@ static int do_spi_flash_probe(int argc, char *const argv[])
 	flash = NULL;
 	if (use_dt) {
 		ret = spi_flash_probe_bus_cs(bus, cs, &new);
-		if (!ret)
-			flash = dev_get_uclass_priv(new);
+		if (!ret) {
+			if (device_get_uclass_id(new) == UCLASS_SPI_FLASH) {
+				flash = dev_get_uclass_priv(new);
+			} else {
+				printf("SF: device at %u:%u is not a SPI flash\n", bus, cs);
+				ret = -ENODEV;
+			}
+		}
 	} else {
 		flash = spi_flash_probe(bus, cs, speed, mode);
 	}
