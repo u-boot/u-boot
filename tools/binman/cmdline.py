@@ -201,7 +201,7 @@ controlled by a description in the board device tree.'''
                  'preserve the output directory if a single test is run (pass '
                  'test name at the end of the command line')
         test_parser.add_argument('tests', nargs='*',
-                                 help='Test names to run (omit for all)')
+                                 help='Test names/patterns to run (omit for all)')
 
     tool_parser = subparsers.add_parser('tool', help='Check bintools')
     tool_parser.add_argument('-l', '--list', action='store_true',

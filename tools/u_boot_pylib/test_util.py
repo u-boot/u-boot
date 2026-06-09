@@ -4,6 +4,7 @@
 #
 
 import doctest
+import fnmatch
 import glob
 import multiprocessing
 import os
@@ -186,7 +187,9 @@ def run_test_suites(toolname, debug, verbosity, no_capture, test_preserve_dirs,
         test_names = [test_name]
     else:
         test_names = list(test_name or [])
-    test_name_set = set(test_names)
+
+    def _match_name(name):
+        return any(fnmatch.fnmatchcase(name, pattern) for pattern in test_names)
 
     if use_concurrent and processes != 1 and not test_names:
         suite = ConcurrentTestSuite(suite,
@@ -194,7 +197,7 @@ def run_test_suites(toolname, debug, verbosity, no_capture, test_preserve_dirs,
 
     for module in class_and_module_list:
         if (isinstance(module, str) and
-                (not test_names or module in test_name_set)):
+                (not test_names or _match_name(module))):
             suite.addTests(doctest.DocTestSuite(module))
 
     for module in class_and_module_list:
@@ -211,9 +214,8 @@ def run_test_suites(toolname, debug, verbosity, no_capture, test_preserve_dirs,
             # while traversing a name then a synthetic test that raises that
             # error when run will be returned. Check that the requested test
             # exists, otherwise these errors are included in the results.
-            module_test_names = loader.getTestCaseNames(module)
-            for name in test_names:
-                if name in module_test_names:
+            for name in loader.getTestCaseNames(module):
+                if _match_name(name):
                     suite.addTests(loader.loadTestsFromName(name, module))
         else:
             suite.addTests(loader.loadTestsFromTestCase(module))
