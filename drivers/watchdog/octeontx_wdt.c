@@ -159,7 +159,8 @@ static const struct octeontx_wdt_data octeon_data = {
 };
 
 static const struct udevice_id octeontx_wdt_ids[] = {
-	{ .compatible = "arm,sbsa-gwdt", .data = (ulong)&octeontx_data },
+	{ .compatible = "marvell,cn10624-wdt", .data = (ulong)&octeontx_data },
+	{ .compatible = "marvell,cn9670-wdt", .data = (ulong)&octeontx_data },
 	{ .compatible = "cavium,octeon-7890-ciu3", .data = (ulong)&octeon_data },
 	{}
 };

@@ -217,6 +217,7 @@ config SPL_WDT_GPIO
 config WDT_MAX6370
 	bool "MAX6370 watchdog timer support"
 	depends on WDT
+	select GPIO
 	select DM_GPIO
 	help
 	  Select this to enable max6370 watchdog timer.
