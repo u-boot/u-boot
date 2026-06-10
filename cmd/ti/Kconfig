@@ -4,24 +4,24 @@ config CMD_DDR3
 	bool "command for verifying DDR features"
 	depends on ARCH_KEYSTONE || DRA7XX
 	help
-	   Support for testing ddr3 on TI platforms. This command
-	   supports memory verification, memory comapre and ecc
-	   verification if supported.
+	  Support for testing ddr3 on TI platforms. This command
+	  supports memory verification, memory comapre and ecc
+	  verification if supported.
 
 config CMD_DDR4
 	bool "command for verifying DDRSS Inline ECC features"
 	depends on ARCH_K3
 	help
-	   Support for testing DDRSS on TI platforms. This command supports
-	   memory verification, memory compare and inline ECC verification
-	   if supported.
+	  Support for testing DDRSS on TI platforms. This command supports
+	  memory verification, memory compare and inline ECC verification
+	  if supported.
 
 config CMD_PD
 	bool "command for verifying power domains"
 	depends on TI_POWER_DOMAIN
 	help
-	   Debug command for K3 power domains. For this to work, the
-	   K3 power domain driver must be enabled for the u-boot; by
-	   default it is only enabled for SPL.
+	  Debug command for K3 power domains. For this to work, the
+	  K3 power domain driver must be enabled for the u-boot; by
+	  default it is only enabled for SPL.
 
 endmenu
