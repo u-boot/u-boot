@@ -12,7 +12,7 @@
 	};
 
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci, &ufshc;
 	};
 
 	dmc {
@@ -81,11 +81,27 @@
 	bootph-some-ram;
 };
 
+#ifdef CONFIG_SPL_UFS_SUPPORT
+&gpio4 {
+	/* This is specifically for GPIO4_D0, which is the only 1.2V capable
+	 * pin on RK3576 available for use as the UFS device reset, thus
+	 * &gpio4 is required for booting from UFS on RK3576.
+	 */
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+#endif
+
 &ioc_grf {
 	bootph-all;
 };
 
 &otp {
+	bootph-some-ram;
+};
+
+&pcfg_pull_down {
+	bootph-pre-ram;
 	bootph-some-ram;
 };
 
@@ -170,6 +186,21 @@
 &uart0m0_xfer {
 	bootph-pre-sram;
 	bootph-pre-ram;
+};
+
+&ufshc {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&ufs_refclk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&ufs_rstgpio {
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &xin24m {

@@ -1335,6 +1335,7 @@ static ulong rk3528_clk_get_rate(struct clk *clk)
 					     DPLL);
 		break;
 
+	case CLK_REF_USB3OTG:
 	case TCLK_EMMC:
 	case TCLK_WDT_NS:
 		rate = OSC_HZ;
@@ -1455,6 +1456,7 @@ static ulong rk3528_clk_set_rate(struct clk *clk, ulong rate)
 		priv->ppll_hz = rockchip_pll_get_rate(&rk3528_pll_clks[PPLL],
 						      priv->cru, PPLL);
 		break;
+	case CLK_REF_USB3OTG:
 	case TCLK_EMMC:
 	case TCLK_WDT_NS:
 		return (rate == OSC_HZ) ? 0 : -EINVAL;
