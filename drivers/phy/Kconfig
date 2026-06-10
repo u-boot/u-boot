@@ -72,14 +72,14 @@ config AB8500_USB_PHY
 	  Support for the USB OTG PHY in ST-Ericsson AB8500.
 
 config APPLE_ATCPHY
-       bool "Apple Type-C PHY Driver"
-       depends on PHY && ARCH_APPLE
-       default y
-       help
-         Support for the Apple Type-C PHY.
+	bool "Apple Type-C PHY Driver"
+	depends on PHY && ARCH_APPLE
+	default y
+	help
+	  Support for the Apple Type-C PHY.
 
-	 This is a dummy driver since the PHY is initialized
-	 sufficiently by previous stage firmware.
+	  This is a dummy driver since the PHY is initialized
+	  sufficiently by previous stage firmware.
 
 config BCM6318_USBH_PHY
 	bool "BCM6318 USBH PHY support"
@@ -249,14 +249,14 @@ config MT7620_USB_PHY
 	depends on PHY
 	depends on SOC_MT7620
 	help
-          Support the intergated USB PHY in MediaTek MT7620 SoC
+	  Support the intergated USB PHY in MediaTek MT7620 SoC
 
 config MT76X8_USB_PHY
 	bool "MediaTek MT76x8 (7628/88) USB PHY support"
 	depends on PHY
 	depends on SOC_MT7628
 	help
-          Support the USB PHY in MT76x8 SoCs
+	  Support the USB PHY in MT76x8 SoCs
 
 	  This PHY is found on MT76x8 devices supporting USB.
 

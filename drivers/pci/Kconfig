@@ -101,11 +101,11 @@ config PCI_ENHANCED_ALLOCATION
 	  devices in place of traditional BARS for allocation of resources.
 
 config PCI_ARID
-        bool "Enable Alternate Routing-ID support for PCI"
-        help
-          Say Y here if you want to enable Alternate Routing-ID capability
-          support on PCI devices. This helps to skip some devices in BDF
-          scan that are not present.
+	bool "Enable Alternate Routing-ID support for PCI"
+	help
+	  Say Y here if you want to enable Alternate Routing-ID capability
+	  support on PCI devices. This helps to skip some devices in BDF
+	  scan that are not present.
 
 config PCI_SCAN_SHOW
 	bool "Show PCI devices during startup"
@@ -287,7 +287,7 @@ config PCI_IOMMU_EXTRA_MAPPINGS
 	  the node describing the PCI controller.
 	  The intent is to cover SR-IOV scenarios which need mappings for VFs
 	  and PCI hot-plug scenarios. More documentation can be found under:
-	    arch/arm/cpu/armv8/fsl-layerscape/doc/README.pci_iommu_extra
+	  arch/arm/cpu/armv8/fsl-layerscape/doc/README.pci_iommu_extra
 
 config PCIE_LAYERSCAPE_EP
 	bool "Layerscape PCIe Endpoint mode support"
@@ -440,8 +440,8 @@ config PCIE_XILINX_NWL
 	bool "Xilinx NWL PCIe controller"
 	depends on ARCH_ZYNQMP
 	help
-	 Say 'Y' here if you want support for Xilinx / AMD NWL PCIe
-	 controller as Root Port.
+	  Say 'Y' here if you want support for Xilinx / AMD NWL PCIe
+	  controller as Root Port.
 
 config PCIE_PLDA_COMMON
 	bool

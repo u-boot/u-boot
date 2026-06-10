@@ -68,10 +68,10 @@ config BLKMAP
 	bool "Composable virtual block devices (blkmap)"
 	depends on BLK
 	help
- 	  Create virtual block devices that are backed by various sources,
- 	  e.g. RAM, or parts of an existing block device. Though much more
- 	  rudimentary, it borrows a lot of ideas from Linux's device mapper
- 	  subsystem.
+	  Create virtual block devices that are backed by various sources,
+	  e.g. RAM, or parts of an existing block device. Though much more
+	  rudimentary, it borrows a lot of ideas from Linux's device mapper
+	  subsystem.
 
 	  Example use-cases:
 	  - Treat a region of RAM as a block device, i.e. a RAM disk. This let's
