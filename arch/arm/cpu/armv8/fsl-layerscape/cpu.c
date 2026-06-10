@@ -986,6 +986,27 @@ uint get_svr(void)
 }
 #endif
 
+/*
+ * Layerscape mirror of the i.MX get_cpu_temp_grade(). i.MX reads the
+ * OCOTP "CPU temp grade" fuses; Layerscape has no such fuse, so the
+ * limits come from the data sheet instead. LX2160A Reference Manual
+ * Rev. 1 (10/2021) section 1.12.1 specifies the maximum operating
+ * junction temperature at 105 degC for commercial / embedded parts;
+ * the lower bound is the standard -40 degC commercial low.
+ *
+ * The TMU itself is documented as accurate within +/- 3 degC (RM
+ * section 28.1), which the thermal driver clears by setting its
+ * alert threshold 10 degC below critical.
+ */
+u32 get_cpu_temp_grade(int *minc, int *maxc)
+{
+	if (minc)
+		*minc = -40;
+	if (maxc)
+		*maxc = 105;
+	return 0; /* commercial */
+}
+
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
