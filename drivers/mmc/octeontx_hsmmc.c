@@ -3514,7 +3514,7 @@ static u32 xlate_voltage(u32 voltage)
  */
 static bool octeontx_mmc_get_valid(struct udevice *dev)
 {
-	const char *stat = ofnode_read_string(dev_ofnode(dev), "status");
+	const char *stat = dev_read_string(dev, "status");
 
 	if (!stat || !strncmp(stat, "ok", 2))
 		return true;
@@ -3536,16 +3536,13 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 	uint low, high;
 	char env_name[32];
 	int err;
-	ofnode node = dev_ofnode(dev);
 	int bus_width = 1;
 	ulong new_max_freq;
 
 	debug("%s(%s)", __func__, dev->name);
 	slot->cfg.name = dev->name;
 
-	slot->cfg.f_max = ofnode_read_s32_default(dev_ofnode(dev),
-						  "max-frequency",
-						  26000000);
+	slot->cfg.f_max = dev_read_s32_default(dev, "max-frequency", 26000000);
 	snprintf(env_name, sizeof(env_name), "mmc_max_frequency%d",
 		 slot->bus_id);
 
@@ -3562,26 +3559,21 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 
 	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
 		slot->hs400_tuning_block =
-			ofnode_read_s32_default(dev_ofnode(dev),
-						"marvell,hs400-tuning-block",
-						-1);
+			dev_read_s32_default(dev, "marvell,hs400-tuning-block", -1);
 		debug("%s(%s): mmc HS400 tuning block: %d\n", __func__,
 		      dev->name, slot->hs400_tuning_block);
 
 		slot->hs200_tap_adj =
-			ofnode_read_s32_default(dev_ofnode(dev),
-						"marvell,hs200-tap-adjust", 0);
+			dev_read_s32_default(dev, "marvell,hs200-tap-adjust", 0);
 		debug("%s(%s): hs200-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs200_tap_adj);
 		slot->hs400_tap_adj =
-			ofnode_read_s32_default(dev_ofnode(dev),
-						"marvell,hs400-tap-adjust", 0);
+			dev_read_s32_default(dev, "marvell,hs400-tap-adjust", 0);
 		debug("%s(%s): hs400-tap-adjust: %d\n", __func__, dev->name,
 		      slot->hs400_tap_adj);
 	}
 
-	err = ofnode_read_u32_array(dev_ofnode(dev), "voltage-ranges",
-				    voltages, 2);
+	err = dev_read_u32_array(dev, "voltage-ranges", voltages, 2);
 	if (err) {
 		slot->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	} else {
@@ -3601,12 +3593,12 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 		} while (low <= high);
 	}
 	debug("%s: config voltages: 0x%x\n", __func__, slot->cfg.voltages);
-	slot->slew = ofnode_read_s32_default(node, "cavium,clk-slew", -1);
-	slot->drive = ofnode_read_s32_default(node, "cavium,drv-strength", -1);
+	slot->slew = dev_read_s32_default(dev, "cavium,clk-slew", -1);
+	slot->drive = dev_read_s32_default(dev, "cavium,drv-strength", -1);
 	gpio_request_by_name(dev, "cd-gpios", 0, &slot->cd_gpio, GPIOD_IS_IN);
-	slot->cd_inverted = ofnode_read_bool(node, "cd-inverted");
+	slot->cd_inverted = dev_read_bool(dev, "cd-inverted");
 	gpio_request_by_name(dev, "wp-gpios", 0, &slot->wp_gpio, GPIOD_IS_IN);
-	slot->wp_inverted = ofnode_read_bool(node, "wp-inverted");
+	slot->wp_inverted = dev_read_bool(dev, "wp-inverted");
 	if (slot->cfg.voltages & MMC_VDD_165_195) {
 		slot->is_1_8v = true;
 		slot->is_3_3v = false;
@@ -3617,7 +3609,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 		slot->is_3_3v = true;
 	}
 
-	bus_width = ofnode_read_u32_default(node, "bus-width", 1);
+	bus_width = dev_read_u32_default(dev, "bus-width", 1);
 	/* Note fall-through */
 	switch (bus_width) {
 	case 8:
@@ -3628,63 +3620,63 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 		slot->cfg.host_caps |= MMC_MODE_1BIT;
 		break;
 	}
-	if (ofnode_read_bool(node, "no-1-8-v")) {
+	if (dev_read_bool(dev, "no-1-8-v")) {
 		slot->is_3_3v = true;
 		slot->is_1_8v = false;
 		if (!(slot->cfg.voltages & (MMC_VDD_32_33 | MMC_VDD_33_34)))
 			pr_warn("%s(%s): voltages indicate 3.3v but 3.3v not supported\n",
 				__func__, dev->name);
 	}
-	if (ofnode_read_bool(node, "mmc-ddr-3-3v")) {
+	if (dev_read_bool(dev, "mmc-ddr-3-3v")) {
 		slot->is_3_3v = true;
 		slot->is_1_8v = false;
 		if (!(slot->cfg.voltages & (MMC_VDD_32_33 | MMC_VDD_33_34)))
 			pr_warn("%s(%s): voltages indicate 3.3v but 3.3v not supported\n",
 				__func__, dev->name);
 	}
-	if (ofnode_read_bool(node, "cap-sd-highspeed") ||
-	    ofnode_read_bool(node, "cap-mmc-highspeed") ||
-	    ofnode_read_bool(node, "sd-uhs-sdr25"))
+	if (dev_read_bool(dev, "cap-sd-highspeed") ||
+	    dev_read_bool(dev, "cap-mmc-highspeed") ||
+	    dev_read_bool(dev, "sd-uhs-sdr25"))
 		slot->cfg.host_caps |= MMC_MODE_HS;
 	if (slot->cfg.f_max >= 50000000 &&
 	    slot->cfg.host_caps & MMC_MODE_HS)
 		slot->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-	if (ofnode_read_bool(node, "sd-uhs-sdr50"))
+	if (dev_read_bool(dev, "sd-uhs-sdr50"))
 		slot->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-	if (ofnode_read_bool(node, "sd-uhs-ddr50"))
+	if (dev_read_bool(dev, "sd-uhs-ddr50"))
 		slot->cfg.host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz |
 				       MMC_MODE_DDR_52MHz;
 
 	if (IS_ENABLED(CONFIG_ARCH_OCTEONTX2)) {
 		if (!slot->is_asim && !slot->is_emul) {
-			if (ofnode_read_bool(node, "mmc-hs200-1_8v"))
+			if (dev_read_bool(dev, "mmc-hs200-1_8v"))
 				slot->cfg.host_caps |= MMC_MODE_HS200 |
 					MMC_MODE_HS_52MHz;
-			if (ofnode_read_bool(node, "mmc-hs400-1_8v"))
+			if (dev_read_bool(dev, "mmc-hs400-1_8v"))
 				slot->cfg.host_caps |= MMC_MODE_HS400 |
 					MMC_MODE_HS_52MHz |
 					MMC_MODE_HS200 |
 					MMC_MODE_DDR_52MHz;
 			slot->cmd_out_hs200_delay =
-				ofnode_read_u32_default(node,
+				dev_read_u32_default(dev,
 					"marvell,cmd-out-hs200-dly",
 					MMC_DEFAULT_HS200_CMD_OUT_DLY);
 			debug("%s(%s): HS200 cmd out delay: %d\n",
 			      __func__, dev->name, slot->cmd_out_hs200_delay);
 			slot->data_out_hs200_delay =
-				ofnode_read_u32_default(node,
+				dev_read_u32_default(dev,
 					"marvell,data-out-hs200-dly",
 					MMC_DEFAULT_HS200_DATA_OUT_DLY);
 			debug("%s(%s): HS200 data out delay: %d\n",
 			      __func__, dev->name, slot->data_out_hs200_delay);
 			slot->cmd_out_hs400_delay =
-				ofnode_read_u32_default(node,
+				dev_read_u32_default(dev,
 					"marvell,cmd-out-hs400-dly",
 					MMC_DEFAULT_HS400_CMD_OUT_DLY);
 			debug("%s(%s): HS400 cmd out delay: %d\n",
 			      __func__, dev->name, slot->cmd_out_hs400_delay);
 			slot->data_out_hs400_delay =
-				ofnode_read_u32_default(node,
+				dev_read_u32_default(dev,
 					"marvell,data-out-hs400-dly",
 					MMC_DEFAULT_HS400_DATA_OUT_DLY);
 			debug("%s(%s): HS400 data out delay: %d\n",
@@ -3692,12 +3684,10 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 		}
 	}
 
-	slot->disable_ddr = ofnode_read_bool(node, "marvell,disable-ddr");
-	slot->non_removable = ofnode_read_bool(node, "non-removable");
-	slot->cmd_clk_skew = ofnode_read_u32_default(node,
-						     "cavium,cmd-clk-skew", 0);
-	slot->dat_clk_skew = ofnode_read_u32_default(node,
-						     "cavium,dat-clk-skew", 0);
+	slot->disable_ddr = dev_read_bool(dev, "marvell,disable-ddr");
+	slot->non_removable = dev_read_bool(dev, "non-removable");
+	slot->cmd_clk_skew = dev_read_u32_default(dev, "cavium,cmd-clk-skew", 0);
+	slot->dat_clk_skew = dev_read_u32_default(dev, "cavium,dat-clk-skew", 0);
 	debug("%s(%s): host caps: 0x%x\n", __func__,
 	      dev->name, slot->cfg.host_caps);
 	return 0;
@@ -3843,7 +3833,6 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		pr_err("%s: No device tree information found\n", __func__);
 		return -1;
 	}
-	host->node = dev_ofnode(dev);
 	host->last_slotid = -1;
 #if !defined(CONFIG_ARCH_OCTEON)
 	if (otx_is_platform(PLATFORM_ASIM))
@@ -3851,9 +3840,7 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 	if (otx_is_platform(PLATFORM_EMULATOR))
 		host->is_emul = true;
 #endif
-	host->dma_wait_delay =
-		ofnode_read_u32_default(dev_ofnode(dev),
-					"marvell,dma-wait-delay", 1);
+	host->dma_wait_delay = dev_read_u32_default(dev, "marvell,dma-wait-delay", 1);
 	/* Force reset of eMMC */
 	writeq(0, host->base_addr + MIO_EMM_CFG());
 	debug("%s: Clearing MIO_EMM_CFG\n", __func__);
@@ -3922,13 +3909,12 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	struct octeontx_mmc_host *host = dev_get_priv(dev_get_parent(dev));
 	struct octeontx_mmc_slot *slot;
 	struct mmc_uclass_priv *upriv;
-	ofnode node = dev_ofnode(dev);
 	u32 bus_id;
 	char name[16];
 	int err;
 
 	debug("%s(%s) Pre-Probe\n", __func__, dev->name);
-	if (ofnode_read_u32(node, "reg", &bus_id)) {
+	if (dev_read_u32(dev, "reg", &bus_id)) {
 		pr_err("%s(%s): Error: \"reg\" not found in device tree\n",
 		       __func__, dev->name);
 		return -1;
