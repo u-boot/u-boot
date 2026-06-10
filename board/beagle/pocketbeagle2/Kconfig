@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com/
+#
+
+choice
+	prompt "BeagleBoard.org AM62X based PocketBeagle 2 board"
+	optional
+
+config TARGET_AM62X_A53_POCKETBEAGLE2
+	bool "BeagleBoard.org AM62X PocketBeagle 2 running on A53"
+	select ARM64
+	select BINMAN
+	select OF_SYSTEM_SETUP
+	imply TI_I2C_BOARD_DETECT
+
+config TARGET_AM62X_R5_POCKETBEAGLE2
+	bool "BeagleBoard.org AM62X PocketBeagle 2 running on R5"
+	select CPU_V7R
+	select SYS_THUMB_BUILD
+	select K3_LOAD_SYSFW
+	select RAM
+	select SPL_RAM
+	select K3_DDRSS
+	select BINMAN
+	imply SYS_K3_SPL_ATF
+	imply TI_I2C_BOARD_DETECT
+
+endchoice
+
+if TARGET_AM62X_A53_POCKETBEAGLE2
+
+config SYS_BOARD
+	default "pocketbeagle2"
+
+config SYS_VENDOR
+	default "beagle"
+
+config SYS_CONFIG_NAME
+	default "pocketbeagle2"
+
+source "board/ti/common/Kconfig"
+
+endif
+
+if TARGET_AM62X_R5_POCKETBEAGLE2
+
+config SYS_BOARD
+	default "pocketbeagle2"
+
+config SYS_VENDOR
+	default "beagle"
+
+config SYS_CONFIG_NAME
+	default "pocketbeagle2"
+
+config SPL_LDSCRIPT
+	default "arch/arm/mach-omap2/u-boot-spl.lds"
+
+source "board/ti/common/Kconfig"
+
+endif
+
+config POCKETBEAGLE2_AM62X_RAM_SIZE_FIX
+	bool "Set the PocketBeagle 2 RAM size instead of detecting it"
+	default false
+	help
+	  RAM size is automatically detected through the device revision stored
+	  in EEPROM. This overrides the detection logic with a fixed value.
+
+choice
+	prompt "PocketBeagle 2 RAM size"
+	depends on POCKETBEAGLE2_AM62X_RAM_SIZE_FIX
+	default POCKETBEAGLE2_AM62X_RAM_SIZE_512MB
+
+config POCKETBEAGLE2_AM62X_RAM_SIZE_512MB
+	bool "512MB RAM"
+	help
+	  Set RAM size fix to 512MB for the PocketBeagle 2.
+
+config POCKETBEAGLE2_AM62X_RAM_SIZE_1GB
+	bool "1GB RAM"
+	help
+	  Set RAM size fix to 1GB for the PocketBeagle 2.
+
+endchoice

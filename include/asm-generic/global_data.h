@@ -108,6 +108,15 @@ struct global_data {
 	 */
 	unsigned long relocaddr;
 	/**
+	 * @initial_relocaddr: top address of U-Boot in RAM
+	 *
+	 * This should be the value of relocaddr after setup_dest_addr() and
+	 * before reserve_pram() or any other allocations or reservations shift
+	 * it. This address will, depending on the platform, be equivalent to
+	 * ram_top and should also be considered an exclusive address.
+	 */
+	unsigned long initial_relocaddr;
+	/**
 	 * @irq_sp: IRQ stack pointer
 	 */
 	unsigned long irq_sp;
