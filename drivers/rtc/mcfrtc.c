@@ -73,7 +73,7 @@ int rtc_set(struct rtc_time *tmp)
 		days += month_days[i];
 
 		if (i == 1)
-			days += isleap(i);
+			days += isleap(tmp->tm_year);
 	}
 
 	days += tmp->tm_mday - 1;
