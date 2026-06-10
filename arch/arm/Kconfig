@@ -2153,6 +2153,13 @@ config ARCH_ASPEED
 	select OF_CONTROL
 	imply CMD_DM
 
+config ARCH_AXIADO
+	bool "Support Axiado SoCs"
+	select AXIADO_AX3005
+	help
+	  Support for Axiado AX-series SoCs such as the AX3005.
+	  These ARM64 SoCs are used in BMC and security applications.
+
 config TARGET_DURIAN
 	bool "Support Phytium Durian Platform"
 	select ARM64
@@ -2293,6 +2300,8 @@ source "arch/arm/mach-apple/Kconfig"
 source "arch/arm/mach-aspeed/Kconfig"
 
 source "arch/arm/mach-at91/Kconfig"
+
+source "arch/arm/mach-axiado/Kconfig"
 
 source "arch/arm/mach-bcm283x/Kconfig"
 
