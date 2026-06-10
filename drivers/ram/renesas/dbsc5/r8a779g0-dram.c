@@ -4,14 +4,14 @@
  */
 
 #include <asm/io.h>
-#include <dbsc5.h>
+#include <r8a779g0-dbsc5.h>
 #include <dm.h>
 #include <errno.h>
 #include <hang.h>
 #include <ram.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>
-#include "dbsc5.h"
+#include "r8a779g0-dbsc5.h"
 
 /* Number of array elements in Data Slice */
 #define DDR_PHY_SLICE_REGSET_SIZE_V4H	0x100
