@@ -901,8 +901,7 @@ void fpgamgr_program(const void *buf, size_t bsize, u32 offset)
 
 	fpga_fsinfo.filename = get_fpga_filename();
 
-	if (fpga_fsinfo.filename)
-		socfpga_loadfs(&fpga_fsinfo, buf, bsize, offset);
+	socfpga_loadfs(&fpga_fsinfo, buf, bsize, offset);
 }
 #endif
 
