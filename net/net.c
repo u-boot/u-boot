@@ -1103,6 +1103,15 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 
 	*lenp = total_len + IP_HDR_SIZE;
 	localip->ip_len = htons(*lenp);
+
+	/*
+	 * Mark the reassembly state empty so that any further
+	 * fragment goes through the normal re-init path and
+	 * rebuilds a clean hole list
+	 */
+	total_len = 0;
+	first_hole = 0;
+
 	return localip;
 }
 
