@@ -1321,10 +1321,10 @@ config SPL_PCI
 config SPL_PCI_ENDPOINT
 	bool "Support for PCI endpoint drivers"
 	help
-	   Enable this configuration option to support configurable PCI
-	   endpoints at SPL. This should be enabled if the platform has
-	   a PCI controllers that can operate in endpoint mode (as a device
-	   connected to PCI host or bridge).
+	  Enable this configuration option to support configurable PCI
+	  endpoints at SPL. This should be enabled if the platform has
+	  a PCI controllers that can operate in endpoint mode (as a device
+	  connected to PCI host or bridge).
 
 config SPL_PCH
 	bool "Support PCH drivers"
@@ -1552,18 +1552,18 @@ config SPL_SPI_FLASH_TINY
 	depends on !SPI_FLASH_BAR
 	default y if SPI_FLASH
 	help
-	 Enable lightweight SPL SPI Flash support that supports just reading
-	 data/images from flash. No support to write/erase flash. Enable
-	 this if you have SPL size limitations and don't need full
-	 fledged SPI flash support.
+	  Enable lightweight SPL SPI Flash support that supports just reading
+	  data/images from flash. No support to write/erase flash. Enable
+	  this if you have SPL size limitations and don't need full
+	  fledged SPI flash support.
 
 config SPL_SPI_FLASH_SFDP_SUPPORT
 	bool "SFDP table parsing support for SPI NOR flashes"
 	depends on !SPI_FLASH_BAR && !SPL_SPI_FLASH_TINY
 	help
-	 Enable support for parsing and auto discovery of parameters for
-	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
-	 tables as per JESD216 standard in SPL.
+	  Enable support for parsing and auto discovery of parameters for
+	  SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
+	  tables as per JESD216 standard in SPL.
 
 config SPL_SPI_FLASH_MTD
 	bool "Support for SPI flash MTD drivers in SPL"
@@ -1584,22 +1584,22 @@ config SYS_SPI_U_BOOT_OFFS
 	default 0x0
 	depends on SPL_SPI_LOAD || SPL_SPI_SUNXI
 	help
-	 Address within SPI-Flash from where the u-boot payload is fetched
-	 from.
+	  Address within SPI-Flash from where the u-boot payload is fetched
+	  from.
 
 config SYS_SPI_KERNEL_OFFS
 	hex "Falcon mode: address of kernel payload in SPI flash"
 	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT
 	help
-	 Address within SPI-Flash from where the kernel payload is fetched
-	 in falcon boot.
+	  Address within SPI-Flash from where the kernel payload is fetched
+	  in falcon boot.
 
 config SYS_SPI_ARGS_OFFS
 	hex "Falcon mode: address of args payload in SPI flash"
 	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT_ARGS
 	help
-	 Address within SPI-Flash from where the args payload (usually the
-	 dtb) is fetched in falcon boot.
+	  Address within SPI-Flash from where the args payload (usually the
+	  dtb) is fetched in falcon boot.
 
 config SYS_SPI_ARGS_SIZE
 	hex "Falcon mode: size of args payload in SPI flash"
