@@ -65,9 +65,19 @@
 		syscon = <&ctl>;
 	};
 
+	ram@b8940000 {	/* RT-VRAM */
+		compatible = "renesas,r8a78000-rtvram";
+		reg = <0 0xb8940000 0 0xf000>;
+	};
+
 	scp@c1340000 {
 		compatible = "renesas,r8a78000-rproc";
 		reg = <0 0xc1340000 0 0x80000>;
+	};
+
+	ram@e9800000 {	/* DBSC5 */
+		compatible = "renesas,r8a78000-dbsc";
+		reg = <0 0xe9800000 0 0x1000000>;
 	};
 };
 
