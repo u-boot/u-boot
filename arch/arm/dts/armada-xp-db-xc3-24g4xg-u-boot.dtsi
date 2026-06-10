@@ -5,7 +5,6 @@
 	status = "okay";
 	label = "pxa3xx_nand-0";
 	nand-rb = <0>;
-	marvell,nand-keep-config;
 	nand-on-flash-bbt;
 	nand-ecc-strength = <4>;
 	nand-ecc-step-size = <512>;

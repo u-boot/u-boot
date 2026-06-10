@@ -1,0 +1,259 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Device Tree file for NBX board (Freebox Nodebox10G)
+ * Based on Marvell Armada 8040 SoC
+ *
+ * Copyright (C) 2024
+ */
+
+#include "armada-8040.dtsi"
+
+/ {
+	model = "NBX Armada 8040";
+	compatible = "nbx,armada8040", "marvell,armada8040";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	aliases {
+		i2c0 = &cp0_i2c0;
+		i2c1 = &cp0_i2c1;
+		gpio0 = &ap_gpio0;
+		gpio1 = &cp0_gpio0;
+		gpio2 = &cp0_gpio1;
+	};
+
+	memory@00000000 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;  /* 2GB */
+	};
+};
+
+/* AP806 UART - active */
+&uart0 {
+	status = "okay";
+};
+
+/* AP806 pinctrl */
+&ap_pinctl {
+	/*
+	 * MPP Bus:
+	 * eMMC  [0-10]
+	 * UART0 [11,19]
+	 */
+		  /* 0 1 2 3 4 5 6 7 8 9 */
+	pin-func = < 1 1 1 1 1 1 1 1 1 1
+		     1 3 0 0 0 0 0 0 0 3 >;
+};
+
+/* AP806 on-board eMMC */
+&ap_sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ap_emmc_pins>;
+	bus-width = <8>;
+	non-removable;
+	status = "okay";
+};
+
+/* CP0 pinctrl */
+&cp0_pinctl {
+	/*
+	 * MPP Bus:
+	 * [0-31]  = 0xff: Keep default CP0_shared_pins
+	 * [32,34] GE_MDIO/MDC
+	 * [35-36] I2C1
+	 * [37-38] I2C0
+	 * [57-58] MSS I2C
+	 */
+		/*   0    1    2    3    4    5    6    7    8    9 */
+	pin-func = < 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 7    0    7    2    2    2    2    0
+		     0    0    0    0    0    0    0    0    0    0
+		     0    0    0    0    0    0    0    2    2    0
+		     0    0    0 >;
+
+	cp0_smi_pins: cp0-smi-pins {
+		marvell,pins = <32 34>;
+		marvell,function = <7>;
+	};
+};
+
+/* CP0 I2C0 */
+&cp0_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_i2c0_pins>;
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+/* CP0 I2C1 */
+&cp0_i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_i2c1_pins>;
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+/* CP0 MSS I2C0 - Management SubSystem I2C (pins 57-58, func 2) */
+&cp0_mss_i2c0 {
+	status = "okay";
+};
+
+/* CP0 MDIO for PHY */
+&cp0_mdio {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_smi_pins>;
+
+	nbx_phy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+/* CP0 ComPhy - SerDes configuration */
+&cp0_comphy {
+	/*
+	 * CP0 Serdes Configuration:
+	 * Lane 0-3: Unconnected
+	 * Lane 4:   SFI (10G Ethernet)
+	 * Lane 5:   SGMII2 (1G Ethernet)
+	 */
+	phy0 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy1 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy2 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy3 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy4 {
+		phy-type = <COMPHY_TYPE_SFI0>;
+		phy-speed = <COMPHY_SPEED_10_3125G>;
+	};
+	phy5 {
+		phy-type = <COMPHY_TYPE_SGMII2>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
+	};
+};
+
+/* CP0 Ethernet - only eth2 (MAC3) is active via SGMII */
+&cp0_ethernet {
+	status = "okay";
+};
+
+&cp0_eth2 {
+	status = "okay";
+	phy = <&nbx_phy0>;
+	phy-mode = "sgmii";
+};
+
+/* CP0 UTMI PHY for USB */
+&cp0_utmi {
+	status = "okay";
+};
+
+&cp0_utmi0 {
+	status = "okay";
+};
+
+&cp0_utmi1 {
+	status = "okay";
+};
+
+/* CP0 USB3 Host controllers */
+&cp0_usb3_0 {
+	status = "okay";
+};
+
+&cp0_usb3_1 {
+	status = "okay";
+};
+
+/* CP1 pinctrl */
+&cp1_pinctl {
+	/*
+	 * MPP Bus:
+	 * [0-26]  = Unconfigured
+	 * [27-28] GE_MDIO/MDC
+	 * [29-30] MSS I2C
+	 * [31]    = Unconfigured
+	 * [32-62] = 0xff: Keep default CP1_shared_pins
+	 */
+		/*   0    1    2    3    4    5    6    7    8    9 */
+	pin-func = < 0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0
+		     0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0
+		     0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x8  0x8  0x8
+		     0x8  0x0  0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff>;
+
+	cp1_mss_i2c_pins: cp1-mss-i2c-pins {
+		marvell,pins = <29 30>;
+		marvell,function = <8>;
+	};
+};
+
+/* CP1 MSS I2C0 - Management SubSystem I2C (pins 29-30, func 8) */
+&cp1_mss_i2c0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp1_mss_i2c_pins>;
+};
+
+/* CP1 ComPhy - SerDes configuration */
+&cp1_comphy {
+	/*
+	 * CP1 Serdes Configuration:
+	 * Lane 0:   PCIe x1
+	 * Lane 1:   USB3 Host
+	 * Lane 2-3: Unconnected
+	 * Lane 4:   SFI (10G Ethernet)
+	 * Lane 5:   Unconnected
+	 */
+	phy0 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+	};
+	phy1 {
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+	};
+	phy2 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy3 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy4 {
+		phy-type = <COMPHY_TYPE_SFI0>;
+		phy-speed = <COMPHY_SPEED_10_3125G>;
+	};
+	phy5 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+};
+
+/* CP1 PCIe x1 on lane 0 */
+&cp1_pcie0 {
+	status = "okay";
+};
+
+/* CP1 USB3 Host on lane 1 */
+&cp1_usb3_0 {
+	status = "okay";
+};
+
+/* CP1 UTMI PHY for USB */
+&cp1_utmi {
+	status = "okay";
+};
+
+&cp1_utmi0 {
+	status = "okay";
+};

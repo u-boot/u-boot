@@ -1,0 +1,6 @@
+NBX10G BOARD
+M:	Vincent Jardin <vjardin@free.fr>
+S:	Maintained
+F:	board/freebox/nbx10g/
+F:	configs/mvebu_nbx_88f8040_defconfig
+F:	arch/arm/dts/armada-8040-nbx*

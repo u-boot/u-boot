@@ -184,6 +184,7 @@ struct pxa3xx_nand_host {
 struct pxa3xx_nand_info {
 	struct nand_hw_control	controller;
 	struct pxa3xx_nand_platform_data *pdata;
+	struct udevice *dev;
 
 	struct clk		*clk;
 	void __iomem		*mmio_base;
@@ -585,8 +586,7 @@ static void drain_fifo(struct pxa3xx_nand_info *info, void *data, int len)
 			ts = get_timer(0);
 			while (!(nand_readl(info, NDSR) & NDSR_RDDREQ)) {
 				if (get_timer(ts) > TIMEOUT_DRAIN_FIFO) {
-					dev_err(info->controller.active->mtd.dev,
-						"Timeout on RDDREQ while draining the FIFO\n");
+					dev_err(info->dev, "Timeout on RDDREQ while draining the FIFO\n");
 					return;
 				}
 			}
@@ -638,8 +638,7 @@ static void handle_data_pio(struct pxa3xx_nand_info *info)
 				   DIV_ROUND_UP(info->step_spare_size, 4));
 		break;
 	default:
-		dev_err(info->controller.active->mtd.dev,
-			"%s: invalid state %d\n", __func__, info->state);
+		dev_err(info->dev, "%s: invalid state %d\n", __func__, info->state);
 		BUG();
 	}
 
@@ -1557,8 +1556,7 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 		ecc->size = 512;
 
 	if (ecc_stepsize != 512 || !(nfc_layouts[i].strength)) {
-		dev_err(info->controller.active->mtd.dev,
-			"ECC strength %d at page size %d is not supported\n",
+		dev_err(info->dev, "ECC strength %d at page size %d is not supported\n",
 			strength, page_size);
 		return -ENODEV;
 	}
@@ -1799,6 +1797,7 @@ static int pxa3xx_nand_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	info->dev = dev;
 	pdata = info->pdata;
 
 	ret = alloc_nand_resource(dev, info);
