@@ -69,6 +69,9 @@
 				container;
 				image0 = "a55", "bl31.bin", "0x204E0000";
 				image1 = "a55", "u-boot.bin", "0x80200000";
+#if defined(CONFIG_OPTEE)
+				image2 = "a55", "tee.bin", "0x96000000";
+#endif
 			};
 		};
 	};
