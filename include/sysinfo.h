@@ -374,6 +374,18 @@ int sysinfo_get_data_by_index(struct udevice *dev, int id, int index,
 int sysinfo_get(struct udevice **devp);
 
 /**
+ * sysinfo_get_and_detect() - Get the sysinfo device and detect it.
+ *
+ * @devp:	Pointer to structure to receive the sysinfo device.
+ *
+ * This is a convenience wrapper around sysinfo_get() followed by
+ * sysinfo_detect()
+ *
+ * Return: 0 if OK, -ve on error.
+ */
+int sysinfo_get_and_detect(struct udevice **devp);
+
+/**
  * sysinfo_get_fit_loadable - Get the name of an image to load from FIT
  * This function can be used to provide the image names based on runtime
  * detection. A classic use-case would when DTBOs are used to describe
@@ -434,6 +446,11 @@ static inline int sysinfo_get_data_by_index(struct udevice *dev, int id,
 }
 
 static inline int sysinfo_get(struct udevice **devp)
+{
+	return -ENOSYS;
+}
+
+static inline int sysinfo_get_and_detect(struct udevice **devp)
 {
 	return -ENOSYS;
 }

@@ -1878,6 +1878,7 @@ S:	Maintained
 W:	https://www.tq-group.com/en/products/tq-embedded/
 F:	board/tq/*
 F:	doc/board/tq/*
+F:	drivers/sysinfo/tq_eeprom.c
 F:	include/configs/tq*.h
 F:	include/env/tq/*
 
