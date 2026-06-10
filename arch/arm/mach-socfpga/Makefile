@@ -39,6 +39,7 @@ obj-y	+= system_manager_soc64.o
 obj-y	+= timer_s10.o
 obj-y	+= wrap_handoff_soc64.o
 obj-y	+= wrap_pll_config_soc64.o
+obj-y	+= altera-sysmgr.o
 endif
 
 ifdef CONFIG_ARCH_SOCFPGA_AGILEX
@@ -113,7 +114,6 @@ obj-y	+= wrap_pinmux_config.o
 obj-y	+= wrap_sdram_config.o
 endif
 ifdef CONFIG_ARCH_SOCFPGA_SOC64
-obj-y	+= firewall.o
 obj-y	+= spl_soc64.o
 endif
 ifdef CONFIG_ARCH_SOCFPGA_ARRIA10

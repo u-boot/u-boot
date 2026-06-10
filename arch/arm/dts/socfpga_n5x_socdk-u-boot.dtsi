@@ -8,12 +8,11 @@
 #include "socfpga_n5x-u-boot.dtsi"
 
 /{
-	aliases {
-		spi0 = &qspi;
-		i2c0 = &i2c1;
+	chosen {
+		u-boot,spl-boot-order = &mmc;
 	};
 
-	memory {
+	memory@0 {
 		/*
 		 * Memory type: DDR4 (non-interleaving mode)
 		 * 16GB
@@ -38,10 +37,14 @@
 };
 
 &flash0 {
-	compatible = "jedec,spi-nor";
-	spi-tx-bus-width = <4>;
-	spi-rx-bus-width = <4>;
 	bootph-all;
+	cdns,page-size = <256>;
+	cdns,block-size = <16>;
+	/delete-property/ cdns,read-delay;
+};
+
+&gmac0 {
+	status = "okay";
 };
 
 &i2c1 {
@@ -55,6 +58,7 @@
 };
 
 &qspi {
+	/delete-property/ clocks;
 	status = "okay";
 };
 
