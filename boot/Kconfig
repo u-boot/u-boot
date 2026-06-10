@@ -686,9 +686,9 @@ config BOOTMETH_QFW
 	depends on QFW
 	default y
 	help
-	 Use QEMU parameters -kernel, -initrd, -append to determine the kernel,
-	 initial RAM disk, and kernel command line parameters to boot an
-	 operating system. U-Boot's control device-tree is passed to the kernel.
+	  Use QEMU parameters -kernel, -initrd, -append to determine the kernel,
+	  initial RAM disk, and kernel command line parameters to boot an
+	  operating system. U-Boot's control device-tree is passed to the kernel.
 
 config BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded"
@@ -1084,7 +1084,7 @@ config MEASURED_BOOT
 	  to use some attestation tools on your system.
 
 if MEASURED_BOOT
-	config MEASURE_DEVICETREE
+config MEASURE_DEVICETREE
 	bool "Measure the devicetree image"
 	default y if MEASURED_BOOT
 	help
@@ -1093,7 +1093,7 @@ if MEASURED_BOOT
 	  Therefore, it should not be measured into the TPM. In that case,
 	  disable the measurement here.
 
-	config MEASURE_IGNORE_LOG
+config MEASURE_IGNORE_LOG
 	bool "Ignore the existing event log"
 	help
 	  On platforms that use an event log memory region that persists
