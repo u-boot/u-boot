@@ -205,16 +205,16 @@ config HBMC_AM654
 	bool "HyperBus controller driver for AM65x SoC"
 	depends on MULTIPLEXER && (MUX_MMIO || SPL_MUX_MMIO)
 	help
-	 This is the driver for HyperBus controller on TI's AM65x and
-	 other SoCs
+	  This is the driver for HyperBus controller on TI's AM65x and
+	  other SoCs
 
 config STM32_FLASH
 	bool "STM32 MCU Flash driver"
 	depends on ARCH_STM32
 	select USE_SYS_MAX_FLASH_BANKS
 	help
-	 This is the driver of embedded flash for some STMicroelectronics
-	 STM32 MCU.
+	  This is the driver of embedded flash for some STMicroelectronics
+	  STM32 MCU.
 
 config SYS_MAX_FLASH_SECT
 	int "Maximum number of sectors on a flash chip"
@@ -236,17 +236,17 @@ config SYS_MAX_FLASH_BANKS
 	depends on USE_SYS_MAX_FLASH_BANKS
 	default 1
 	help
-	 Max number of Flash memory banks using by the MTD framework, in the
-	 flash CFI driver and in some other driver to define the flash_info
-	 struct declaration.
+	  Max number of Flash memory banks using by the MTD framework, in the
+	  flash CFI driver and in some other driver to define the flash_info
+	  struct declaration.
 
 config SYS_MAX_FLASH_BANKS_DETECT
 	bool "Detection of flash banks number in CFI driver"
 	depends on CFI_FLASH && FLASH_CFI_DRIVER
 	help
-	 This enables detection of number of flash banks in CFI driver,
-	 to reduce the effective number of flash bank, between 0 and
-	 CONFIG_SYS_MAX_FLASH_BANKS
+	  This enables detection of number of flash banks in CFI driver,
+	  to reduce the effective number of flash bank, between 0 and
+	  CONFIG_SYS_MAX_FLASH_BANKS
 
 source "drivers/mtd/nand/Kconfig"
 
