@@ -21,6 +21,7 @@
 #include <linux/unaligned/le_byteshift.h>
 #include "tpm-utils.h"
 #include <bloblist.h>
+#include <dm/devres.h>
 
 int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_bank, u32 *active_bank,
 		      u32 *bank_num)
@@ -211,6 +212,9 @@ static int tcg2_log_append_check(struct tcg2_event_log *elog, u32 pcr_index,
 {
 	u32 event_size;
 	u8 *log;
+
+	if (!elog || !elog->log_size)
+		return 0;
 
 	event_size = size + tcg2_event_get_size(digest_list);
 	if (elog->log_position + event_size > elog->log_size) {
@@ -553,6 +557,9 @@ int tcg2_measure_data(struct udevice *dev, struct tcg2_event_log *elog,
 	if (rc)
 		return rc;
 
+	if (!elog)
+		elog = tcg2_platform_get_dev_log(dev);
+
 	return tcg2_log_append_check(elog, pcr_index, event_type, &digest_list,
 				     event_size, event);
 }
@@ -560,15 +567,32 @@ int tcg2_measure_data(struct udevice *dev, struct tcg2_event_log *elog,
 int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 			    bool ignore_existing_log)
 {
-	struct tcg2_event_log log;
+	struct tcg2_event_log log = {};
 	int rc;
 	u32 log_active = 0;
 
-	elog->log_position = 0;
-	elog->found = false;
+	if (elog) {
+		elog->log_position = 0;
+		elog->found = false;
+		elog->allocated = false;
+	} else if (tcg2_platform_get_dev_log(dev)) {
+		return -EEXIST;
+	}
 
 	rc = tcg2_platform_get_log(dev, (void **)&log.log, &log.log_size);
-	if (!rc) {
+	/* no existing event log found and none allocated yet */
+	if (rc && !elog) {
+		log.log_size = CONFIG_TPM2_EVENT_LOG_SIZE;
+		log.log = devm_kzalloc(dev, log.log_size, 0);
+		if (log.log) {
+			log.allocated = true;
+			ignore_existing_log = true;
+		} else {
+			log_err("Failed to allocate %u bytes event log\n", log.log_size);
+		}
+	}
+
+	if (log.log) {
 		log.log_position = 0;
 		log.found = false;
 
@@ -577,49 +601,78 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 			if (rc == -ERESTARTSYS && log_active)
 				goto pcr_allocate;
 			if (rc)
-				return rc;
+				goto out;
 		}
 
-		if (elog->log_size) {
-			if (log.found) {
-				if (elog->log_size < log.log_position)
-					return -ENOBUFS;
+		if (elog) {
+			if (elog->log_size) {
+				if (log.found) {
+					if (elog->log_size < log.log_position) {
+						rc = -ENOBUFS;
+						goto out;
+					}
 
-				/*
-				 * Copy the discovered log into the user buffer
-				 * if there's enough space.
-				 */
-				memcpy(elog->log, log.log, log.log_position);
+					/*
+					 * Copy the discovered log into the user buffer
+					 * if there's enough space.
+					 */
+					memcpy(elog->log, log.log, log.log_position);
+				}
+
+				unmap_physmem(log.log, MAP_NOCACHE);
+			} else {
+				elog->log = log.log;
+				elog->log_size = log.log_size;
 			}
+			log.log = NULL;
 
-			unmap_physmem(log.log, MAP_NOCACHE);
+			elog->log_position = log.log_position;
+			elog->found = log.found;
 		} else {
+			struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
+
+			elog = devm_kzalloc(dev, sizeof(struct tcg2_event_log), 0);
+			if (!elog)
+				goto out;
+
 			elog->log = log.log;
 			elog->log_size = log.log_size;
-		}
+			elog->log_position = log.log_position;
+			elog->found = log.found;
+			elog->allocated = log.allocated;
 
-		elog->log_position = log.log_position;
-		elog->found = log.found;
+			priv->log = elog;
+
+			log.log = NULL;
+		}
 	}
 
 pcr_allocate:
 	rc = tpm2_activate_banks(dev, log_active);
 	if (rc)
-		return rc;
+		goto out;
 
 	/*
 	 * Initialize the log buffer if no log was discovered and the buffer is
 	 * valid. User's can pass in their own buffer as a fallback if no
 	 * memory region is found.
 	 */
-	if (!elog->found && elog->log_size)
-		rc = tcg2_log_init(dev, elog);
+	if (elog) {
+		if (!elog->found && elog->log_size)
+			rc = tcg2_log_init(dev, elog);
+	}
+
+out:
+	if (rc && log.log && log.allocated) {
+		devm_kfree(dev, log.log);
+		log.log = NULL;
+		log.log_size = 0;
+	}
 
 	return rc;
 }
 
-int tcg2_measurement_init(struct udevice **dev, struct tcg2_event_log *elog,
-			  bool ignore_existing_log)
+int tcg2_measurement_init(struct udevice **dev, struct tcg2_event_log *elog)
 {
 	int rc;
 
@@ -627,11 +680,14 @@ int tcg2_measurement_init(struct udevice **dev, struct tcg2_event_log *elog,
 	if (rc)
 		return rc;
 
+	if (!elog && tcg2_platform_get_dev_log(*dev))
+		return -EEXIST;
+
 	rc = tpm_auto_start(*dev);
 	if (rc)
 		return rc;
 
-	rc = tcg2_log_prepare_buffer(*dev, elog, ignore_existing_log);
+	rc = tcg2_log_prepare_buffer(*dev, elog, IS_ENABLED(CONFIG_MEASURE_IGNORE_LOG));
 	if (rc) {
 		tcg2_measurement_term(*dev, elog, true);
 		return rc;
@@ -654,12 +710,34 @@ void tcg2_measurement_term(struct udevice *dev, struct tcg2_event_log *elog,
 	u32 event = error ? 0x1 : 0xffffffff;
 	int i;
 
+	/*
+	 * we don't check elog before. Even if there is none, try to
+	 * write the terminating PCR measurements
+	 */
 	for (i = 0; i < 8; ++i)
 		tcg2_measure_event(dev, elog, i, EV_SEPARATOR, sizeof(event),
 				   (const u8 *)&event);
+	if (!elog)
+		elog = tcg2_platform_get_dev_log(dev);
 
-	if (elog->log)
+	if (elog && elog->log)
 		unmap_physmem(elog->log, MAP_NOCACHE);
+}
+
+/**
+ * tcg2_platform_get_dev_log() - Get the TPM event log for a device
+ *
+ * @dev: TPM device
+ *
+ * Return: Pointer to the TPM event log structure for this device, or NULL if not allocated
+ */
+struct tcg2_event_log *tcg2_platform_get_dev_log(struct udevice *dev)
+{
+	struct tpm_chip_priv *priv;
+
+	priv = dev_get_uclass_priv(dev);
+
+	return priv->log;
 }
 
 __weak int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size)
