@@ -281,8 +281,14 @@ static void get_basename(char *str, int size, const char *fname)
 	 */
 	p = strrchr(fname, '/');
 	start = p ? p + 1 : fname;
-	p = strrchr(fname, '.');
-	end = p ? p : fname + strlen(fname);
+	/*
+	 * Search for the extension dot only within the basename. Searching
+	 * the whole path would let a dot in the directory part (for example
+	 * "./mydt" or "a.b/c") place 'end' before 'start' and produce a
+	 * negative length, which the size check below does not catch.
+	 */
+	p = strrchr(start, '.');
+	end = p ? p : start + strlen(start);
 	len = end - start;
 	if (len >= size)
 		len = size - 1;
