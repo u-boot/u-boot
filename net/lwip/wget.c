@@ -300,10 +300,14 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 #endif
 	httpc_connection_t conn;
 	httpc_state_t *state;
+	int ret;
 
 	/* if URL with hostname init dns */
-	if (!ipaddr_aton(ctx->server_name, NULL) && net_lwip_dns_init())
-		return CMD_RET_FAILURE;
+	if (!ipaddr_aton(ctx->server_name, NULL)) {
+		ret = net_lwip_dns_init();
+		if (ret)
+			return ret;
+	}
 
 	memset(&conn, 0, sizeof(conn));
 #if CONFIG_IS_ENABLED(WGET_HTTPS)
@@ -325,7 +329,7 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 					printf("Error: cacert authentication "
 					       "mode is 'required' but no CA "
 					       "certificates given\n");
-				return CMD_RET_FAILURE;
+				return -EINVAL;
 		       }
 		} else if (cacert_auth_mode == AUTH_NONE) {
 			ca = NULL;
@@ -350,7 +354,7 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 
 		if (!tls_allocator.arg) {
 			log_err("error: Cannot create a TLS connection\n");
-			return -1;
+			return -ENODEV;
 		}
 
 		conn.altcp_allocator = &tls_allocator;
@@ -361,7 +365,7 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 	conn.headers_done_fn = httpc_headers_done_cb;
 	if (httpc_get_file_dns(ctx->server_name, ctx->port, ctx->path, &conn,
 			       httpc_recv_cb, ctx, &state)) {
-		return CMD_RET_FAILURE;
+		return -ENODEV;
 	}
 
 	errno = 0;
@@ -378,7 +382,7 @@ static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
 	if (errno == EPERM && !wget_info->silent)
 		printf("Certificate verification failed\n");
 
-	return -1;
+	return -errno ?: -EIO;
 }
 
 int wget_do_request(ulong dst_addr, char *uri)
@@ -398,11 +402,13 @@ int wget_do_request(ulong dst_addr, char *uri)
 	ctx.content_len = 0;
 	ctx.hash_count = 0;
 
-	if (parse_url(uri, ctx.server_name, &ctx.port, &ctx.path, &is_https))
-		return CMD_RET_USAGE;
+	ret = parse_url(uri, ctx.server_name, &ctx.port, &ctx.path, &is_https);
+	if (ret)
+		return ret;
 
-	if (net_lwip_eth_start() < 0)
-		return CMD_RET_FAILURE;
+	ret = net_lwip_eth_start();
+	if (ret)
+		return ret;
 
 	if (!wget_info)
 		wget_info = &default_wget_info;
@@ -411,7 +417,7 @@ int wget_do_request(ulong dst_addr, char *uri)
 
 	netif = net_lwip_new_netif(udev);
 	if (!netif)
-		return -1;
+		return -ENODEV;
 
 	ret = wget_handle_request(&ctx, is_https, udev, netif);
 
