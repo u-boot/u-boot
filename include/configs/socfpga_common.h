@@ -137,10 +137,27 @@
 #define BOOT_TARGET_DEVICES_MMC(func)
 #endif
 
+#ifdef CONFIG_CMD_SF
+#define BOOT_TARGET_DEVICES_QSPI(func) func(QSPI, qspi, na)
+#else
+#define BOOT_TARGET_DEVICES_QSPI(func)
+#endif
+
+#define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
+	"bootcmd_qspi=run qspiload; run qspiboot\0"
+
+#define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
+	"qspi "
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_QSPI(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
 	BOOT_TARGET_DEVICES_DHCP(func)
+
+#ifndef SOCFPGA_BOOT_SETTINGS
+#define SOCFPGA_BOOT_SETTINGS
+#endif
 
 #include <config_distro_bootcmd.h>
 
@@ -154,6 +171,7 @@
 	"pxefile_addr_r=0x02200000\0" \
 	"ramdisk_addr_r=0x02300000\0" \
 	"socfpga_legacy_reset_compat=1\0" \
+	SOCFPGA_BOOT_SETTINGS \
 	BOOTENV
 
 #endif
