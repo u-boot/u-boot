@@ -292,45 +292,17 @@ static err_t httpc_headers_done_cb(httpc_state_t *connection, void *arg, struct 
 #if CONFIG_IS_ENABLED(WGET_CACERT)
 #endif
 
-int wget_do_request(ulong dst_addr, char *uri)
+static int wget_handle_request(struct wget_ctx *ctx, bool is_https,
+			       struct udevice *udev, struct netif *netif)
 {
 #if CONFIG_IS_ENABLED(WGET_HTTPS)
 	altcp_allocator_t tls_allocator;
 #endif
 	httpc_connection_t conn;
 	httpc_state_t *state;
-	struct udevice *udev;
-	struct netif *netif;
-	struct wget_ctx ctx;
-	char *path;
-	bool is_https;
-
-	ctx.daddr = dst_addr;
-	ctx.saved_daddr = dst_addr;
-	ctx.done = NOT_DONE;
-	ctx.size = 0;
-	ctx.prevsize = 0;
-	ctx.start_time = 0;
-	ctx.content_len = 0;
-	ctx.hash_count = 0;
-
-	if (parse_url(uri, ctx.server_name, &ctx.port, &path, &is_https))
-		return CMD_RET_USAGE;
-
-	if (net_lwip_eth_start() < 0)
-		return CMD_RET_FAILURE;
-
-	if (!wget_info)
-		wget_info = &default_wget_info;
-
-	udev = eth_get_dev();
-
-	netif = net_lwip_new_netif(udev);
-	if (!netif)
-		return -1;
 
 	/* if URL with hostname init dns */
-	if (!ipaddr_aton(ctx.server_name, NULL) && net_lwip_dns_init())
+	if (!ipaddr_aton(ctx->server_name, NULL) && net_lwip_dns_init())
 		return CMD_RET_FAILURE;
 
 	memset(&conn, 0, sizeof(conn));
@@ -374,11 +346,10 @@ int wget_do_request(ulong dst_addr, char *uri)
 		tls_allocator.alloc = &altcp_tls_alloc;
 		tls_allocator.arg =
 			altcp_tls_create_config_client(ca, ca_sz,
-						       ctx.server_name);
+						       ctx->server_name);
 
 		if (!tls_allocator.arg) {
 			log_err("error: Cannot create a TLS connection\n");
-			net_lwip_remove_netif(netif);
 			return -1;
 		}
 
@@ -388,30 +359,65 @@ int wget_do_request(ulong dst_addr, char *uri)
 
 	conn.result_fn = httpc_result_cb;
 	conn.headers_done_fn = httpc_headers_done_cb;
-	ctx.path = path;
-	if (httpc_get_file_dns(ctx.server_name, ctx.port, path, &conn, httpc_recv_cb,
-			       &ctx, &state)) {
-		net_lwip_remove_netif(netif);
+	if (httpc_get_file_dns(ctx->server_name, ctx->port, ctx->path, &conn,
+			       httpc_recv_cb, ctx, &state)) {
 		return CMD_RET_FAILURE;
 	}
 
 	errno = 0;
 
-	while (!ctx.done) {
+	while (!ctx->done) {
 		net_lwip_rx(udev, netif);
 		if (ctrlc())
 			break;
 	}
 
-	net_lwip_remove_netif(netif);
-
-	if (ctx.done == SUCCESS)
+	if (ctx->done == SUCCESS)
 		return 0;
 
 	if (errno == EPERM && !wget_info->silent)
 		printf("Certificate verification failed\n");
 
 	return -1;
+}
+
+int wget_do_request(ulong dst_addr, char *uri)
+{
+	struct udevice *udev;
+	struct wget_ctx ctx;
+	struct netif *netif;
+	bool is_https;
+	int ret;
+
+	ctx.daddr = dst_addr;
+	ctx.saved_daddr = dst_addr;
+	ctx.done = NOT_DONE;
+	ctx.size = 0;
+	ctx.prevsize = 0;
+	ctx.start_time = 0;
+	ctx.content_len = 0;
+	ctx.hash_count = 0;
+
+	if (parse_url(uri, ctx.server_name, &ctx.port, &ctx.path, &is_https))
+		return CMD_RET_USAGE;
+
+	if (net_lwip_eth_start() < 0)
+		return CMD_RET_FAILURE;
+
+	if (!wget_info)
+		wget_info = &default_wget_info;
+
+	udev = eth_get_dev();
+
+	netif = net_lwip_new_netif(udev);
+	if (!netif)
+		return -1;
+
+	ret = wget_handle_request(&ctx, is_https, udev, netif);
+
+	net_lwip_remove_netif(netif);
+
+	return ret;
 }
 
 /**
