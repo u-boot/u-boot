@@ -187,6 +187,7 @@ static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
 int do_nfs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret = CMD_RET_SUCCESS;
+	bool started = false;
 	char *arg = NULL;
 	char *words[2] = { };
 	char *fname = NULL;
@@ -281,10 +282,13 @@ int do_nfs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
+	started = true;
 
 	if (nfs_loop(eth_get_dev(), laddr, fname, srvip) < 0)
 		ret = CMD_RET_FAILURE;
 out:
+	if (started)
+		net_lwip_eth_stop();
 	if (arg != net_boot_file_name)
 		free(arg);
 	return ret;

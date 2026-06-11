@@ -91,6 +91,7 @@ int do_dns(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *name;
 	char *var = NULL;
+	int ret;
 
 	if (argc == 1 || argc > 3)
 		return CMD_RET_USAGE;
@@ -103,5 +104,9 @@ int do_dns(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (net_lwip_eth_start() < 0)
 		return CMD_RET_FAILURE;
 
-	return dns_loop(eth_get_dev(), name, var);
+	ret = dns_loop(eth_get_dev(), name, var);
+
+	net_lwip_eth_stop();
+
+	return ret;
 }

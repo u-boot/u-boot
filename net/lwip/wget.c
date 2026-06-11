@@ -416,12 +416,15 @@ int wget_do_request(ulong dst_addr, char *uri)
 	udev = eth_get_dev();
 
 	netif = net_lwip_new_netif(udev);
-	if (!netif)
+	if (!netif) {
+		net_lwip_eth_stop();
 		return -ENODEV;
+	}
 
 	ret = wget_handle_request(&ctx, is_https, udev, netif);
 
 	net_lwip_remove_netif(netif);
+	net_lwip_eth_stop();
 
 	return ret;
 }
