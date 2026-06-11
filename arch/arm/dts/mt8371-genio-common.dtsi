@@ -312,6 +312,68 @@
 			bias-pull-up;
 		};
 	};
+
+	eth_default_pins: eth-default-pins {
+		txd-pins {
+			pinmux = <PINMUX_GPIO119__FUNC_GBE_TXD3>,
+				 <PINMUX_GPIO120__FUNC_GBE_TXD2>,
+				 <PINMUX_GPIO121__FUNC_GBE_TXD1>,
+				 <PINMUX_GPIO122__FUNC_GBE_TXD0>;
+			drive-strength = <MTK_DRIVE_8mA>;
+		};
+		cc-pins {
+			pinmux = <PINMUX_GPIO127__FUNC_GBE_TXC>,
+				 <PINMUX_GPIO130__FUNC_GBE_TXEN>,
+				 <PINMUX_GPIO129__FUNC_GBE_RXDV>,
+				 <PINMUX_GPIO128__FUNC_GBE_RXC>;
+			drive-strength = <MTK_DRIVE_8mA>;
+		};
+		rxd-pins {
+			pinmux = <PINMUX_GPIO123__FUNC_GBE_RXD3>,
+				 <PINMUX_GPIO124__FUNC_GBE_RXD2>,
+				 <PINMUX_GPIO125__FUNC_GBE_RXD1>,
+				 <PINMUX_GPIO126__FUNC_GBE_RXD0>;
+			drive-strength = <MTK_DRIVE_8mA>;
+		};
+		mdio-pins {
+			pinmux = <PINMUX_GPIO131__FUNC_GBE_MDC>,
+				 <PINMUX_GPIO132__FUNC_GBE_MDIO>;
+			drive-strength = <MTK_DRIVE_8mA>;
+			input-enable;
+		};
+		power-pins {
+			pinmux = <PINMUX_GPIO133__FUNC_GPIO133>,
+				 <PINMUX_GPIO134__FUNC_GPIO134>;
+			output-high;
+		};
+	};
+
+	eth_sleep_pins: eth-sleep-pins {
+		txd-pins {
+			pinmux = <PINMUX_GPIO119__FUNC_GPIO119>,
+				 <PINMUX_GPIO120__FUNC_GPIO120>,
+				 <PINMUX_GPIO121__FUNC_GPIO121>,
+				 <PINMUX_GPIO122__FUNC_GPIO122>;
+		};
+		cc-pins {
+			pinmux = <PINMUX_GPIO127__FUNC_GPIO127>,
+				 <PINMUX_GPIO130__FUNC_GPIO130>,
+				 <PINMUX_GPIO129__FUNC_GPIO129>,
+				 <PINMUX_GPIO128__FUNC_GPIO128>;
+		};
+		rxd-pins {
+			pinmux = <PINMUX_GPIO123__FUNC_GPIO123>,
+				 <PINMUX_GPIO124__FUNC_GPIO124>,
+				 <PINMUX_GPIO125__FUNC_GPIO125>,
+				 <PINMUX_GPIO126__FUNC_GPIO126>;
+		};
+		mdio-pins {
+			pinmux = <PINMUX_GPIO131__FUNC_GPIO131>,
+				 <PINMUX_GPIO132__FUNC_GPIO132>;
+			input-disable;
+			bias-disable;
+		};
+	};
 };
 
 &pmic {
@@ -341,4 +403,25 @@
 &xhci4{
 	vbus-supply = <&usb_p4_vbus>;
 	status = "okay";
+};
+
+&eth {
+	/*
+	 * TX clock is provided by MAC
+	 */
+	phy-mode = "rgmii-rxid";
+	phy-handle = <&phy>;
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&eth_default_pins>;
+	pinctrl-1 = <&eth_sleep_pins>;
+	status = "okay";
+	mdio {
+		compatible = "snps,dwmac-mdio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		phy: phy@0 {
+			compatible = "ethernet-phy-idc0ff.0421";
+			reg = <0>;
+		};
+	};
 };

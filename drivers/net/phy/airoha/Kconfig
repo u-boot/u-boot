@@ -2,12 +2,25 @@
 menuconfig PHY_AIROHA
 	bool "Airoha Ethernet PHYs support"
 
+config PHY_AIROHA_AN8801
+	bool "Airoha Ethernet AN8801 support"
+	depends on PHY_AIROHA
+	select PHY_AIROHA_PHYLIB
+	help
+	  Currently support AIROHA AN8801 1G PHY.
+
 config PHY_AIROHA_EN8811
 	bool "Airoha Ethernet EN8811H support"
 	depends on PHY_AIROHA
 	depends on SUPPORTS_FW_LOADER
 	select FW_LOADER
+	select PHY_AIROHA_PHYLIB
 	select PHY_COMMON_PROPS
 	help
 	  AIROHA EN8811H supported.
 	  AIROHA AN8811HB supported.
+
+config PHY_AIROHA_PHYLIB
+	bool
+	help
+	  Airoha Ethernet PHY common library
