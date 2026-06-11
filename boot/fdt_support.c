@@ -160,6 +160,12 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 		goto noalias;
 	}
 
+	if (len > (int)sizeof(tmp)) {
+		debug("%s: %s alias path too long (%d bytes)\n",
+		      __func__, sername, len);
+		return -FDT_ERR_NOSPACE;
+	}
+
 	/* fdt_setprop may break "path" so we copy it to tmp buffer */
 	memcpy(tmp, path, len);
 
@@ -1624,6 +1630,13 @@ int fdt_get_dma_range(const void *blob, int node, phys_addr_t *cpu,
 		printf("%s: Bad cell count for %s\n", __func__,
 		       fdt_get_name(blob, parent, NULL));
 		return -EINVAL;
+		goto out;
+	}
+
+	if (len < (int)((na + pna + ns) * sizeof(*ranges))) {
+		debug("%s: dma-ranges too short for %s\n", __func__,
+		      fdt_get_name(blob, node, NULL));
+		ret = -EINVAL;
 		goto out;
 	}
 
