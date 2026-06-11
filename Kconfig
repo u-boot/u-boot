@@ -548,7 +548,8 @@ config REMAKE_ELF
 
 config BUILD_TARGET
 	string "Build target special images"
-	default "u-boot-elf.srec" if RCAR_64
+	default "u-boot-elf.shdr" if RCAR_64 && RCAR_64_RSIP
+	default "u-boot-elf.srec" if RCAR_64 && !RCAR_64_RSIP
 	default "u-boot-with-spl.bin" if ARCH_AT91 && SPL_NAND_SUPPORT
 	default "u-boot-with-spl.bin" if MPC85xx && !E500MC && !E5500 && !E6500 && SPL
 	default "u-boot-with-spl.imx" if (ARCH_MX6 || ARCH_MX7) && SPL
