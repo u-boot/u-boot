@@ -155,6 +155,15 @@ static int execute(void)
 			       EFI_RUNTIME_SERVICES_DATA) != EFI_ST_SUCCESS)
 		return EFI_ST_FAILURE;
 
+	/* Check memory reservation for the device tree */
+	if (fdt_addr &&
+	    find_in_memory_map(map_size, memory_map, desc_size, fdt_addr,
+			       EFI_ACPI_RECLAIM_MEMORY) != EFI_ST_SUCCESS) {
+		efi_st_error
+			("Device tree not marked as ACPI reclaim memory\n");
+		return EFI_ST_FAILURE;
+	}
+
 	/* Free memory */
 	ret = boottime->free_pages(p1, EFI_ST_NUM_PAGES);
 	if (ret != EFI_SUCCESS) {
@@ -172,14 +181,6 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
-	/* Check memory reservation for the device tree */
-	if (fdt_addr &&
-	    find_in_memory_map(map_size, memory_map, desc_size, fdt_addr,
-			       EFI_ACPI_RECLAIM_MEMORY) != EFI_ST_SUCCESS) {
-		efi_st_error
-			("Device tree not marked as ACPI reclaim memory\n");
-		return EFI_ST_FAILURE;
-	}
 	return EFI_ST_SUCCESS;
 }
 
