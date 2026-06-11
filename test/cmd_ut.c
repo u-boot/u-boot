@@ -59,6 +59,7 @@ SUITE_DECL(env);
 SUITE_DECL(exit);
 SUITE_DECL(fdt);
 SUITE_DECL(fdt_overlay);
+SUITE_DECL(fit);
 SUITE_DECL(font);
 SUITE_DECL(hush);
 SUITE_DECL(lib);
@@ -86,6 +87,7 @@ static struct suite suites[] = {
 	SUITE(exit, "shell exit and variables"),
 	SUITE(fdt, "fdt command"),
 	SUITE(fdt_overlay, "device tree overlays"),
+	SUITE(fit, "fit command"),
 	SUITE(font, "font command"),
 	SUITE(hush, "hush behaviour"),
 	SUITE(lib, "library functions"),
