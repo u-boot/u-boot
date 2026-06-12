@@ -12,6 +12,7 @@
 #include <ec_commands.h>
 #include <cros_ec_message.h>
 #include <asm/gpio.h>
+#include <dm/device.h>
 #include <dm/of_extra.h>
 
 /*
@@ -316,8 +317,10 @@ struct dm_cros_ec_ops {
 	int (*get_switches)(struct udevice *dev);
 };
 
-#define dm_cros_ec_get_ops(dev) \
-		((struct dm_cros_ec_ops *)(dev)->driver->ops)
+static inline const struct dm_cros_ec_ops *dm_cros_ec_get_ops(struct udevice *dev)
+{
+	return (const struct dm_cros_ec_ops *)(dev->driver->ops);
+}
 
 int cros_ec_register(struct udevice *dev);
 
