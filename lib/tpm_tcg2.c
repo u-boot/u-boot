@@ -564,8 +564,25 @@ int tcg2_measure_data(struct udevice *dev, struct tcg2_event_log *elog,
 				     event_size, event);
 }
 
-int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
-			    bool ignore_existing_log)
+/**
+ * Prepare the event log buffer. This function tries to discover an existing
+ * event log in memory from a previous bootloader stage. If such a log exists
+ * and the PCRs are not extended, the log is "replayed" to extend the PCRs.
+ * If no log is discovered, create the log header.
+ *
+ * @dev			TPM device
+ * @elog		Platform event log. The log pointer and log_size
+ *			members must be initialized to either 0 or to a valid
+ *			memory region, in which case any existing log
+ *			discovered will be copied to the specified memory
+ *			region.
+ * @ignore_existing_log	Boolean to indicate whether or not to ignore an
+ *			existing platform log in memory
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+static int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
+				   bool ignore_existing_log)
 {
 	struct tcg2_event_log log = {};
 	int rc;

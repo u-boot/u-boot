@@ -860,24 +860,6 @@ out:
 }
 
 /**
- * efi_append_scrtm_version - Append an S-CRTM EV_S_CRTM_VERSION event on the
- *			      eventlog and extend the PCRs
- *
- * @dev:	TPM device
- *
- * @Return:	status code
- */
-static efi_status_t efi_append_scrtm_version(struct udevice *dev)
-{
-	efi_status_t ret;
-
-	ret = measure_event(dev, 0, EV_S_CRTM_VERSION,
-			    strlen(version_string) + 1, (u8 *)version_string);
-
-	return ret;
-}
-
-/**
  * efi_init_event_log() - initialize an eventlog
  *
  * Return:		status code
@@ -888,7 +870,6 @@ static efi_status_t efi_init_event_log(void)
 	 * vendor_info_size is currently set to 0, we need to change the length
 	 * and allocate the flexible array member if this changes
 	 */
-	struct tcg2_event_log elog;
 	struct udevice *dev;
 	efi_status_t ret;
 	int rc;
@@ -922,24 +903,11 @@ static efi_status_t efi_init_event_log(void)
 	 * Check if earlier firmware have passed any eventlog. Different
 	 * platforms can use different ways to do so.
 	 */
-	elog.log = event_log.log;
-	elog.log_size = CONFIG_TPM2_EVENT_LOG_SIZE;
-	rc = tcg2_log_prepare_buffer(dev, &elog, false);
+	event_log.log_size = CONFIG_TPM2_EVENT_LOG_SIZE;
+	rc = tcg2_measurement_init(dev, &event_log, false);
 	if (rc) {
 		ret = (rc == -ENOBUFS) ? EFI_BUFFER_TOO_SMALL : EFI_DEVICE_ERROR;
 		goto free_pool;
-	}
-
-	event_log.log_position = elog.log_position;
-
-	/*
-	 * Add SCRTM version to the log if previous firmmware
-	 * doesn't pass an eventlog.
-	 */
-	if (!elog.found) {
-		ret = efi_append_scrtm_version(dev);
-		if (ret != EFI_SUCCESS)
-			goto free_pool;
 	}
 
 	ret = create_final_event();
