@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: GPL-2.0
+ /*
+ * Copyright (C) 2019 Intel Corporation <www.intel.com>
+ *
+ */
+
+----------------------------------------
+SOCFPGA Documentation for U-Boot and SPL
+----------------------------------------
+This README is about U-Boot and SPL support for Arria 10 QSPI SoCDK.
+
+a. Steps for building SPL and U-Boot:
+-------------------------------------
+1. cd to U-Boot source directory.
+2. Build both SPL and U-Boot, runs "export CROSS_COMPILE=arm-altera-eabi-;
+make mrproper; make socfpga_arria10_qspi_defconfig; make -8"
+3.Runs "mkpimage -hv 1 -o spl/spl_w_dtb-mkpimage.bin
+ spl/u-boot-spl-dtb.bin spl/u-boot-spl-dtb.bin spl/u-boot-spl-dtb.bin
+ spl/u-boot-spl-dtb.bin"
+
+b. Steps for building default FIT image for FPGA bitstreams:
+------------------------------------------------------------
+1. Copy both ghrd_10as066n2.periph.rbf and ghrd_10as066n2.core.rbf to U-Boot
+source root directory.
+2. Runs "tools /mkimage -E -f
+ board/altera/arria10-socdk/fit_spl_fpga.its fit_spl_fpga.itb"
+
+c. Steps for buiding default FIT image for U-Boot:
+--------------------------------------------------
+1. Ensure a. Steps for building SPL and U-Boot are done.
+2. Runs "tools/mkimage -E -f board/altera/arria10-socdk/fit_uboot.its
+ fit_spl_uboot.itb"
+
+d. Steps for buiding default FIT image for Linux and DTB:
+---------------------------------------------------------
+1. Copy uImage & socfpga_arria10_socdk_qspi.dtb to U-Boot source root directory.
+2. Runs "tools/mkimage -f
+ board/altera/arria10-socdk/fit_kernel.its kernel.itb"
+
+After going through all steps described above, those images/binaries can be
+written into QSPI flash as shown in below proposed layout. Ensure no overlapping
+for each image.
+
+Addr 0		--------------------------------------
+		|     spl_w_dtb-mkpimage.bin         | 1MB
+		--------------------------------------
+		|     fit_spl_uboot.itb	             | 1MB
+		--------------------------------------
+		|env(64K) & env_redundant(64k)       | 1MB
+		--------------------------------------
+		|      fit_spl_fpga.itb              | depend on bitstreams size
+Addr 0x1200000	--------------------------------------
+		|      kernel.itb	             | depend on kernel.itb size
+Addr 0x2720000  --------------------------------------
+		|console-image-minimal-arria10.jffs2 | -(RFS)
+		--------------------------------------

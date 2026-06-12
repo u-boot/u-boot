@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * Copyright (C) 2022 Intel Corporation
+ *
+ *	These codes were based on handoffs
+ *	generated from both Qsys and Quartus.
+ */
+
+#include "socfpga_arria10_socdk_qspi_handoff.h"
+#include "socfpga_arria10-handoff.dtsi"
+#include "socfpga_arria10_handoff_u-boot.dtsi"
+#include "socfpga_arria10_socdk-u-boot.dtsi"
+
+/ {
+	aliases {
+		spi0 = &qspi;
+	};
+
+	fs_loader0: fs-loader {
+		bootph-all;
+		compatible = "u-boot,fs-loader";
+		sfconfig = <0 0 100000000 3>;
+	};
+};
+
+&fpga_mgr {
+	bootph-all;
+	firmware-loader = <&fs_loader0>;
+	altr,bitstream = "300000";
+};
+
+&l4_main_clk {
+	bootph-all;
+};
+
+&qspi_clk {
+	bootph-all;
+};
+
+&qspi {
+	bootph-all;
+
+	flash0: n25q00a@0 {
+		cdns,page-size = <256>;
+		cdns,block-size = <16>;
+		/delete-property/ cdns,read-delay;
+	};
+};
