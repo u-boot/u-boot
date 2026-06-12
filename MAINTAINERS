@@ -222,7 +222,7 @@ F:	drivers/net/ftgmac100.[ch]
 F:	drivers/pinctrl/aspeed/
 F:	drivers/pwm/pwm-aspeed.c
 F:	drivers/ram/aspeed/
-F:	drivers/reset/reset-ast2500.c
+F:	drivers/reset/reset-ast*.c
 F:	drivers/watchdog/ast_wdt.c
 N:	aspeed
 N:	ast2700
