@@ -25,29 +25,7 @@
 #include <linux/unaligned/generic.h>
 #include <hexdump.h>
 
-/**
- * struct event_log_buffer - internal eventlog management structure
- *
- * @buffer:		eventlog buffer
- * @final_buffer:	finalevent config table buffer
- * @pos:		current position of 'buffer'
- * @final_pos:		current position of 'final_buffer'
- * @get_event_called:	true if GetEventLog has been invoked at least once
- * @ebs_called:		true if ExitBootServices has been invoked
- * @truncated:		true if the 'buffer' is truncated
- */
-struct event_log_buffer {
-	void *buffer;
-	void *final_buffer;
-	size_t pos; /* eventlog position */
-	size_t final_pos; /* final events config table position */
-	size_t last_event_size;
-	bool get_event_called;
-	bool ebs_called;
-	bool truncated;
-};
-
-static struct event_log_buffer event_log;
+static struct tcg2_event_log event_log;
 static bool tcg2_efi_app_invoked;
 /*
  * When requesting TPM2_CAP_TPM_PROPERTIES the value is on a standard offset.
@@ -105,7 +83,7 @@ static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
 					  struct tpml_digest_values *digest_list,
 					  u32 size, u8 event[])
 {
-	void *log = (void *)((uintptr_t)event_log.buffer + event_log.pos);
+	void *log = (void *)((uintptr_t)event_log.log + event_log.log_position);
 	u32 event_size = size + tcg2_event_get_size(digest_list);
 	struct efi_tcg2_final_events_table *final_event;
 	efi_status_t ret = EFI_SUCCESS;
@@ -113,12 +91,12 @@ static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
 	/* if ExitBootServices hasn't been called update the normal log */
 	if (!event_log.ebs_called) {
 		if (event_log.truncated ||
-		    event_log.pos + event_size > CONFIG_TPM2_EVENT_LOG_SIZE) {
+		    event_log.log_position + event_size > CONFIG_TPM2_EVENT_LOG_SIZE) {
 			event_log.truncated = true;
 			return EFI_VOLUME_FULL;
 		}
 		tcg2_log_append(pcr_index, event_type, digest_list, size, event, log);
-		event_log.pos += event_size;
+		event_log.log_position += event_size;
 		event_log.last_event_size = event_size;
 	}
 
@@ -126,15 +104,15 @@ static efi_status_t tcg2_agile_log_append(u32 pcr_index, u32 event_type,
 		return ret;
 
 	/* if GetEventLog has been called update FinalEventLog as well */
-	if (event_log.final_pos + event_size > CONFIG_TPM2_EVENT_LOG_SIZE)
+	if (event_log.final_position + event_size > CONFIG_TPM2_EVENT_LOG_SIZE)
 		return EFI_VOLUME_FULL;
 
-	log = (void *)((uintptr_t)event_log.final_buffer + event_log.final_pos);
+	log = (void *)((uintptr_t)event_log.final_buffer + event_log.final_position);
 	tcg2_log_append(pcr_index, event_type, digest_list, size, event, log);
 
 	final_event = event_log.final_buffer;
 	final_event->number_of_events++;
-	event_log.final_pos += event_size;
+	event_log.final_position += event_size;
 
 	return ret;
 }
@@ -358,8 +336,8 @@ efi_tcg2_get_eventlog(struct efi_tcg2_protocol *this,
 		ret = EFI_SUCCESS;
 		goto out;
 	}
-	*event_log_location = (uintptr_t)event_log.buffer;
-	*event_log_last_entry = (uintptr_t)(event_log.buffer + event_log.pos -
+	*event_log_location = (uintptr_t)event_log.log;
+	*event_log_last_entry = (uintptr_t)(event_log.log + event_log.log_position -
 					    event_log.last_event_size);
 	*event_log_truncated = event_log.truncated;
 	event_log.get_event_called = true;
@@ -799,8 +777,8 @@ static void tcg2_uninit(void)
 	if (ret != EFI_SUCCESS && ret != EFI_NOT_FOUND)
 		log_err("Failed to delete final events config table\n");
 
-	efi_free_pool(event_log.buffer);
-	event_log.buffer = NULL;
+	efi_free_pool(event_log.log);
+	event_log.log = NULL;
 	efi_free_pool(event_log.final_buffer);
 	event_log.final_buffer = NULL;
 
@@ -836,7 +814,7 @@ static efi_status_t create_final_event(void)
 	final_event = event_log.final_buffer;
 	final_event->number_of_events = 0;
 	final_event->version = EFI_TCG2_FINAL_EVENTS_TABLE_VERSION;
-	event_log.final_pos = sizeof(*final_event);
+	event_log.final_position = sizeof(*final_event);
 	ret = efi_install_configuration_table(&efi_guid_final_events,
 					      final_event);
 	if (ret != EFI_SUCCESS) {
@@ -920,7 +898,7 @@ static efi_status_t efi_init_event_log(void)
 
 	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA,
 				CONFIG_TPM2_EVENT_LOG_SIZE,
-				(void **)&event_log.buffer);
+				(void **)&event_log.log);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
@@ -928,13 +906,13 @@ static efi_status_t efi_init_event_log(void)
 	 * initialize log area as 0xff so the OS can easily figure out the
 	 * last log entry
 	 */
-	memset(event_log.buffer, 0xff, CONFIG_TPM2_EVENT_LOG_SIZE);
+	memset(event_log.log, 0xff, CONFIG_TPM2_EVENT_LOG_SIZE);
 
 	/*
 	 * The log header is defined to be in SHA1 event log entry format.
 	 * Setup event header
 	 */
-	event_log.pos = 0;
+	event_log.log_position = 0;
 	event_log.last_event_size = 0;
 	event_log.get_event_called = false;
 	event_log.ebs_called = false;
@@ -944,7 +922,7 @@ static efi_status_t efi_init_event_log(void)
 	 * Check if earlier firmware have passed any eventlog. Different
 	 * platforms can use different ways to do so.
 	 */
-	elog.log = event_log.buffer;
+	elog.log = event_log.log;
 	elog.log_size = CONFIG_TPM2_EVENT_LOG_SIZE;
 	rc = tcg2_log_prepare_buffer(dev, &elog, false);
 	if (rc) {
@@ -952,7 +930,7 @@ static efi_status_t efi_init_event_log(void)
 		goto free_pool;
 	}
 
-	event_log.pos = elog.log_position;
+	event_log.log_position = elog.log_position;
 
 	/*
 	 * Add SCRTM version to the log if previous firmmware
@@ -971,8 +949,8 @@ static efi_status_t efi_init_event_log(void)
 	return ret;
 
 free_pool:
-	efi_free_pool(event_log.buffer);
-	event_log.buffer = NULL;
+	efi_free_pool(event_log.log);
+	event_log.log = NULL;
 	return ret;
 }
 

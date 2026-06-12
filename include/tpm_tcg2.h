@@ -163,6 +163,15 @@ struct tcg_efi_spec_id_event {
  * @log_size:		Log space available
  * @found:		Boolean indicating if an existing log was discovered
  * @allocated:		Boolean indicating that the log was allocated by u-boot
+ * @final_buffer:	finalevent config table buffer. Only used for EFI
+ * @final_position:	current position of 'final_buffer'. Only used for EFI
+ * @last_event_size: 	Size of the last event. Only used for EFI
+ * @get_event_called:	true if GetEventLog has been invoked at least once.
+ * 			Only used for EFI
+ * @ebs_called:		true if ExitBootServices has been invoked.
+ * 			Only used for EFI
+ * @truncated:		true if the 'buffer' is truncated.
+ * 			Only used for EFI
  */
 struct tcg2_event_log {
 	u8 *log;
@@ -170,6 +179,12 @@ struct tcg2_event_log {
 	u32 log_size;
 	bool found;
 	bool allocated;
+	void *final_buffer;
+	u32 final_position;
+	u32 last_event_size;
+	bool get_event_called;
+	bool ebs_called;
+	bool truncated;
 };
 
 /**
