@@ -1630,6 +1630,19 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 			goto out;
 		}
 
+		/*
+		 * finfo.offset and finfo.size come from the on-disk inode and
+		 * must not let the copy read past the decompressed fragment
+		 * block (dest_len bytes).
+		 */
+		if (finfo.size < (size_t)*actread ||
+		    finfo.offset > dest_len ||
+		    finfo.size - *actread > dest_len - finfo.offset) {
+			free(fragment_block);
+			ret = -EINVAL;
+			goto out;
+		}
+
 		memcpy(buf + *actread, &fragment_block[finfo.offset], finfo.size - *actread);
 		*actread = finfo.size;
 
@@ -1637,6 +1650,17 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 
 	} else if (finfo.frag && !finfo.comp) {
 		fragment_block = (void *)fragment + table_offset;
+
+		/*
+		 * Same check for the uncompressed fragment: the readable data
+		 * is table_size bytes starting at table_offset within fragment.
+		 */
+		if (finfo.size < (size_t)*actread ||
+		    finfo.offset > table_size ||
+		    finfo.size - *actread > table_size - finfo.offset) {
+			ret = -EINVAL;
+			goto out;
+		}
 
 		memcpy(buf + *actread, &fragment_block[finfo.offset], finfo.size - *actread);
 		*actread = finfo.size;
