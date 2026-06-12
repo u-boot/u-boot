@@ -110,7 +110,7 @@ static int w25m02gv_ooblayout_free(struct mtd_info *mtd, int section,
 	if (section > 3)
 		return -ERANGE;
 
-	region->offset = (16 * section) + 2;
+	region->offset = (16 * section) + 2; /* bytes 0-1 per section: factory BBM */
 	region->length = 6;
 
 	return 0;
