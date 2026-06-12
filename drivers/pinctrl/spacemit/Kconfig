@@ -1,0 +1,9 @@
+config PINCTRL_SPACEMIT_K1
+	bool "Spacemit K1 SoC pinctrl driver"
+	depends on PINCTRL_GENERIC && DM
+	help
+	  Supports pin multiplexing control on Spacemit K1 SoCs.
+
+	  The driver is controlled by a device tree node which contains both
+	  the GPIO definitions and pin control functions for each available
+	  multiplex function.
