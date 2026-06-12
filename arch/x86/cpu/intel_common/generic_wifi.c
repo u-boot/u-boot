@@ -102,7 +102,7 @@ static int intel_wifi_acpi_fill_ssdt(const struct udevice *dev,
 	return 0;
 }
 
-struct acpi_ops wifi_acpi_ops = {
+static const struct acpi_ops wifi_acpi_ops = {
 	.fill_ssdt	= intel_wifi_acpi_fill_ssdt,
 };
 

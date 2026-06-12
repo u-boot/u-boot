@@ -293,7 +293,7 @@ static int coral_write_acpi_tables(const struct udevice *dev,
 	return 0;
 }
 
-struct acpi_ops coral_acpi_ops = {
+static const struct acpi_ops __maybe_unused coral_acpi_ops = {
 	.write_tables	= coral_write_acpi_tables,
 	.inject_dsdt	= chromeos_acpi_gpio_generate,
 };

@@ -459,7 +459,7 @@ static int root_acpi_get_name(const struct udevice *dev, char *out_name)
 	return acpi_copy_name(out_name, "\\_SB");
 }
 
-struct acpi_ops root_acpi_ops = {
+static const struct acpi_ops root_acpi_ops = {
 	.get_name	= root_acpi_get_name,
 };
 #endif

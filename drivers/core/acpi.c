@@ -87,7 +87,7 @@ int acpi_copy_name(char *out_name, const char *name)
 
 int acpi_get_name(const struct udevice *dev, char *out_name)
 {
-	struct acpi_ops *aops;
+	const struct acpi_ops *aops;
 	const char *name;
 	int ret;
 
@@ -275,7 +275,7 @@ static int sort_acpi_item_type(struct acpi_ctx *ctx, void *start,
 
 acpi_method acpi_get_method(struct udevice *dev, enum method_t method)
 {
-	struct acpi_ops *aops;
+	const struct acpi_ops *aops;
 
 	aops = device_get_acpi_ops(dev);
 	if (aops) {

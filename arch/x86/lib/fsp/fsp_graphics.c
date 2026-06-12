@@ -150,7 +150,7 @@ static int fsp_video_acpi_write_tables(const struct udevice *dev,
 }
 #endif
 
-struct acpi_ops fsp_video_acpi_ops = {
+static const struct acpi_ops __maybe_unused fsp_video_acpi_ops = {
 #ifdef CONFIG_INTEL_GMA_ACPI
 	.write_tables	= fsp_video_acpi_write_tables,
 #endif

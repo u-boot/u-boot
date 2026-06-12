@@ -889,7 +889,7 @@ static int cr50_i2c_probe(struct udevice *dev)
 	return 0;
 }
 
-struct acpi_ops cr50_acpi_ops = {
+static const struct acpi_ops cr50_acpi_ops = {
 	.fill_ssdt	= cr50_acpi_fill_ssdt,
 };
 

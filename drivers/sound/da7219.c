@@ -170,7 +170,7 @@ static int da7219_acpi_setup_nhlt(const struct udevice *dev,
 }
 #endif
 
-struct acpi_ops da7219_acpi_ops = {
+static const struct acpi_ops da7219_acpi_ops = {
 #ifdef CONFIG_ACPIGEN
 	.fill_ssdt	= da7219_acpi_fill_ssdt,
 #ifdef CONFIG_X86

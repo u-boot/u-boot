@@ -137,11 +137,11 @@ static int pci_mmc_acpi_fill_ssdt(const struct udevice *dev,
 	return 0;
 }
 
-struct acpi_ops pci_mmc_acpi_ops = {
 #ifdef CONFIG_ACPIGEN
+static const struct acpi_ops pci_mmc_acpi_ops = {
 	.fill_ssdt	= pci_mmc_acpi_fill_ssdt,
-#endif
 };
+#endif
 
 static const struct udevice_id pci_mmc_match[] = {
 	{ .compatible = "intel,apl-sd", .data = TYPE_SD },
