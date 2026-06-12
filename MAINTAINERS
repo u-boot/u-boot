@@ -208,6 +208,7 @@ M:	Chia-Wei Wang <chiawei_wang@aspeedtech.com>
 R:	Aspeed BMC SW team <BMC-SW@aspeedtech.com>
 R:	Joel Stanley <joel@jms.id.au>
 S:	Maintained
+F:	arch/arm/dts/ast*
 F:	arch/arm/mach-aspeed/
 F:	arch/arm/include/asm/arch-aspeed/
 F:	board/aspeed/
