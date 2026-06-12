@@ -211,6 +211,7 @@ S:	Maintained
 F:	arch/arm/dts/ast*
 F:	arch/arm/mach-aspeed/
 F:	arch/arm/include/asm/arch-aspeed/
+F:	arch/riscv/include/asm/arch-ast2700/
 F:	board/aspeed/
 F:	drivers/clk/aspeed/
 F:	drivers/crypto/aspeed/
