@@ -3,6 +3,7 @@
  * Copyright 2024 NXP
  */
 
+#include <env.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -90,6 +91,15 @@ int fixup_thermal_trips(void *blob, const char *name)
 {
 	int minc, maxc;
 	int node, trip;
+
+	/*
+	 * During development or various dangerous experiments, it may
+	 * be necessary to override the trip points. Allow users to do
+	 * that. However, do keep in mind that this may damage the SoC.
+	 */
+	if (CONFIG_IS_ENABLED(ENV_SUPPORT))
+		if (env_get("imx_skip_fixup_thermal_trips"))
+			return 0;
 
 	node = fdt_path_offset(blob, "/thermal-zones");
 	if (node < 0)
