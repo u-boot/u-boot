@@ -26,7 +26,7 @@ MKIMAGE_TARGET-$(CONFIG_MX28) = mxsimage$(CONFIG_SPL_FRAMEWORK:%=-spl).mx28.cfg
 #
 quiet_cmd_mkivt_mxs = MXSIVT  $@
 cmd_mkivt_mxs =								\
-	sz=`expr \`stat -c "%s" $^\` + 64 + 3904 + 128` ;		\
+	sz=`expr \`stat -c "%s" $<\` + 64 + 3904 + 128` ;		\
 	echo -n "0x402000d1 $2 0 0 0 $3 $4 0 $$sz 0 0 0 0 0 0 0" |	\
 	tr -s " " | xargs -d " " -i printf "%08x\n" "{}" | rev |	\
 	sed "s/\(.\)\(.\)/\\\\\\\\x\2\1\n/g" | xargs -i printf "{}" >$@
@@ -34,15 +34,15 @@ cmd_mkivt_mxs =								\
 # Align binary to 64B
 quiet_cmd_mkalign_mxs = MXSALGN $@
 cmd_mkalign_mxs =							\
-	dd if=$^ of=$@ ibs=64 conv=sync 2>/dev/null &&			\
-	mv $@ $^
+	dd if=$< of=$@ ibs=64 conv=sync 2>/dev/null &&			\
+	mv $@ $<
 
 # Assemble the CSF file
 quiet_cmd_mkcsfreq_mxs = MXSCSFR $@
 cmd_mkcsfreq_mxs =							\
-	ivt=$(word 1,$^) ;						\
-	bin=$(word 2,$^) ;						\
-	csf=$(word 3,$^) ;						\
+	ivt=$(word 1,$(real-prereqs)) ;					\
+	bin=$(word 2,$(real-prereqs)) ;					\
+	csf=$(word 3,$(real-prereqs)) ;					\
 	sed "s@VENDOR@$(VENDOR)@g;s@BOARD@$(BOARD)@g" "$$csf" |		\
 		sed '/^\#\#Blocks/ d' > $@ ;				\
 	echo "  Blocks = $2 0x0 `stat -c '%s' $$bin` \"$$bin\" , \\" >> $@ ; \
@@ -50,7 +50,7 @@ cmd_mkcsfreq_mxs =							\
 
 # Sign files
 quiet_cmd_mkcst_mxs = MXSCST  $@
-cmd_mkcst_mxs = cst -o $@ < $^						\
+cmd_mkcst_mxs = cst -o $@ < $<						\
 	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 
 spl/u-boot-spl.ivt: spl/u-boot-spl.bin FORCE
