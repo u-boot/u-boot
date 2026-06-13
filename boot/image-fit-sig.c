@@ -452,6 +452,8 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
 	int max_regions;
 	char path[200];
 	int count;
+	int len;
+	uint32_t size;
 
 	debug("%s: fdt=%p, conf='%s', sig='%s'\n", __func__, key_blob,
 	      fit_get_name(fit, noffset, NULL),
@@ -506,14 +508,27 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
 	}
 
 	/* Add the strings */
-	strings = fdt_getprop(fit, noffset, "hashed-strings", NULL);
+	strings = fdt_getprop(fit, noffset, "hashed-strings", &len);
 	if (strings) {
+		if (len < (int)(2 * sizeof(fdt32_t))) {
+			*err_msgp = "Invalid hashed-strings property";
+			return -1;
+		}
+		size = fdt32_to_cpu(strings[1]);
+		/*
+		 * The offset should be already validated by fdt_check_header();
+		 * validate the size here.
+		 */
+		if (size > fdt_size_dt_strings(fit)) {
+			*err_msgp = "Strings region is out of bounds";
+			return -1;
+		}
 		/*
 		 * The strings region offset must be a static 0x0.
 		 * This is set in tool/image-host.c
 		 */
 		fdt_regions[count].offset = fdt_off_dt_strings(fit);
-		fdt_regions[count].size = fdt32_to_cpu(strings[1]);
+		fdt_regions[count].size = size;
 		count++;
 	}
 
