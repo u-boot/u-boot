@@ -152,6 +152,8 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 				y--;
 				fb -= width * bytes_per_pixel +
 					priv->line_length;
+				if (y < 0)
+					decode = 0;
 				break;
 			case BMP_RLE8_EOBMP:
 				/* end of bitmap */
@@ -165,12 +167,14 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 					(y + y_off - 1) * priv->line_length +
 					(x + x_off) * bytes_per_pixel);
 				bmap += 4;
+				if (x >= width || y < 0)
+					decode = 0;
 				break;
 			default:
 				/* unencoded run */
 				runlen = bmap[1];
 				bmap += 2;
-				if (y < height) {
+				if (y >= 0 && y < height) {
 					if (x < width) {
 						if (x + runlen > width)
 							cnt = width - x;
@@ -188,7 +192,7 @@ static void video_display_rle8_bitmap(struct udevice *dev,
 			}
 		} else {
 			/* encoded run */
-			if (y < height) {
+			if (y >= 0 && y < height) {
 				runlen = bmap[0];
 				if (x < width) {
 					/* aggregate the same code */
