@@ -50,6 +50,8 @@ quiet_cmd_srec_cat = SRECCAT $@
 quiet_cmd_srec_shdr_cat = SRECCAT $@
       cmd_srec_shdr_cat = srec_cat -output $@ -M 8 \
 			-Output_Block_Size 16 \
+			-DISable Data_Count \
+			-Execution_Start_Address 0x18400000 \
 			-generate 0x18400000 0x18400004 $(srec_cat_le_cmd) 0x00000003 4 \
 			-generate 0x18400004 0x18400008 $(srec_cat_le_cmd) 0x0 4 \
 			-generate 0x18402000 0x18402004 $(srec_cat_le_cmd) 0x6b657963 4 \
