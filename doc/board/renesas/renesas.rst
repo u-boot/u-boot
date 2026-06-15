@@ -198,6 +198,18 @@ Renesas is a SoC solutions provider for automotive and industrial applications.
      - arm64
      - r8a779h0_grayhawk_defconfig
 
+   * - R-Car Gen5
+     - Ironhide (Cortex-A720AE application core)
+     - R8A78000 (X5H)
+     - arm64
+     - r8a78000_ironhide_defconfig
+
+   * -
+     - Ironhide (Cortex-M33 RSIP boot core)
+     - R8A78000 (X5H)
+     - arm64
+     - r8a78000_ironhide_cm33_defconfig
+
    * - RZ/G2 Family
      - Beacon EmbeddedWorks RZ/G2M SoM
      - R8A774A1 (RZ/G2M)
