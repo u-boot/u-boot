@@ -62,6 +62,7 @@ SUITE_DECL(fdt_overlay);
 SUITE_DECL(fit_verity);
 SUITE_DECL(font);
 SUITE_DECL(hush);
+SUITE_DECL(image_fdt);
 SUITE_DECL(lib);
 SUITE_DECL(loadm);
 SUITE_DECL(log);
@@ -90,6 +91,7 @@ static struct suite suites[] = {
 	SUITE(fit_verity, "FIT dm-verity cmdline generation"),
 	SUITE(font, "font command"),
 	SUITE(hush, "hush behaviour"),
+	SUITE(image_fdt, "image fdt parsing"),
 	SUITE(lib, "library functions"),
 	SUITE(loadm, "loadm command parameters and loading memory blob"),
 	SUITE(log, "logging functions"),
