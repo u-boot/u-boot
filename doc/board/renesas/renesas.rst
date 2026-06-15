@@ -121,6 +121,12 @@ Renesas is a SoC solutions provider for automotive and industrial applications.
      - rcar3_ulcb_defconfig
 
    * -
+     - Geist
+     - R8A779MD (M3Le)
+     - arm64
+     - r8a779md_geist_defconfig
+
+   * -
      - Eagle
      - R8A77970 (V3M)
      - arm64
