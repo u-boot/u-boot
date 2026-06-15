@@ -123,6 +123,7 @@ static int bootflow_cmd_label(struct unit_test_state *uts)
 	 * 8   [   ]      OK  mmc       mmc2.bootdev
 	 * 9   [ + ]      OK  mmc       mmc1.bootdev
 	 * a   [   ]      OK  mmc       mmc0.bootdev
+	 * a   [   ]      OK  mmc       mmc11.bootdev
 	 *
 	 * However with CONFIG_DSA_SANDBOX=n we have two fewer (dsa-test@0 and
 	 * dsa-test@1).
@@ -159,6 +160,7 @@ static int bootflow_cmd_glob(struct unit_test_state *uts)
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
 	ut_assert_nextline("  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_nextline("Scanning bootdev 'mmc0.bootdev':");
+	ut_assert_nextline("Scanning bootdev 'mmc11.bootdev':");
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("(1 bootflow, 1 valid)");
@@ -206,9 +208,13 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assert_skip_to_line(
 		" 3f  efi          media   mmc          0  mmc0.bootdev.whole        ");
 	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
+	ut_assert_skip_to_line("Scanning bootdev 'mmc11.bootdev':");
+	ut_assert_skip_to_line(
+		" 7b  efi          media   mmc         1d  mmc11.bootdev.part_1d     ");
+	ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(64 bootflows, 1 valid)");
+	ut_assert_nextline("(124 bootflows, 1 valid)");
 	ut_assert_console_end();
 
 	ut_assertok(run_command("bootflow list", 0));
@@ -220,8 +226,9 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assert_skip_to_line(
 		"  4  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_skip_to_line(" 3f  efi          media   mmc          0  mmc0.bootdev.whole        ");
+	ut_assert_skip_to_line(" 7b  efi          media   mmc         1d  mmc11.bootdev.part_1d     ");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(64 bootflows, 1 valid)");
+	ut_assert_nextline("(124 bootflows, 1 valid)");
 	ut_assert_console_end();
 
 	return 0;
@@ -549,6 +556,7 @@ static int bootflow_scan_glob_bootmeth(struct unit_test_state *uts)
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
 	ut_assert_nextline("Scanning bootdev 'mmc0.bootdev':");
+	ut_assert_nextline("Scanning bootdev 'mmc11.bootdev':");
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("(0 bootflows, 0 valid)");

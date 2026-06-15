@@ -34,8 +34,10 @@ static int bootdev_test_cmd_list(struct unit_test_state *uts)
 				   "mmc", "mmc1.bootdev");
 		ut_assert_nextline("%3x   [ %c ]  %6s  %-8s  %s", 2, probe_ch, "OK",
 				   "mmc", "mmc0.bootdev");
+		ut_assert_nextline("%3x   [ %c ]  %6s  %-8s  %s", 3, probe_ch, "OK",
+				   "mmc", "mmc11.bootdev");
 		ut_assert_nextlinen("---");
-		ut_assert_nextline("(3 bootdevs)");
+		ut_assert_nextline("(4 bootdevs)");
 		ut_assert_console_end();
 	}
 
@@ -240,10 +242,11 @@ static int bootdev_test_order(struct unit_test_state *uts)
 
 	/* Now scan past mmc1 and make sure that only mmc0 shows up */
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(3, iter.num_devs);
+	ut_asserteq(4, iter.num_devs);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_used[0]->name);
 	ut_asserteq_str("mmc1.bootdev", iter.dev_used[1]->name);
 	ut_asserteq_str("mmc0.bootdev", iter.dev_used[2]->name);
+	ut_asserteq_str("mmc11.bootdev", iter.dev_used[3]->name);
 	bootflow_iter_uninit(&iter);
 
 	/* Try a single uclass with boot_targets */
@@ -253,10 +256,11 @@ static int bootdev_test_order(struct unit_test_state *uts)
 
 	/* Now scan past mmc1 and make sure that only mmc0 shows up */
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(3, iter.num_devs);
+	ut_asserteq(4, iter.num_devs);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_used[0]->name);
 	ut_asserteq_str("mmc1.bootdev", iter.dev_used[1]->name);
 	ut_asserteq_str("mmc0.bootdev", iter.dev_used[2]->name);
+	ut_asserteq_str("mmc11.bootdev", iter.dev_used[3]->name);
 	bootflow_iter_uninit(&iter);
 
 	/* Try a single uclass with boot_targets */
@@ -270,12 +274,13 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	 */
 	ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(6, iter.num_devs);
+	ut_asserteq(7, iter.num_devs);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_used[0]->name);
 	ut_asserteq_str("mmc1.bootdev", iter.dev_used[1]->name);
 	ut_asserteq_str("mmc0.bootdev", iter.dev_used[2]->name);
+	ut_asserteq_str("mmc11.bootdev", iter.dev_used[3]->name);
 	ut_asserteq_str("usb_mass_storage.lun0.bootdev",
-			iter.dev_used[3]->name);
+			iter.dev_used[4]->name);
 	bootflow_iter_uninit(&iter);
 
 	return 0;
@@ -301,8 +306,9 @@ static int bootdev_test_order_default(struct unit_test_state *uts)
 	ut_asserteq_str("mmc1.bootdev", iter.dev_used[1]->name);
 
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(3, iter.num_devs);
+	ut_asserteq(4, iter.num_devs);
 	ut_asserteq_str("mmc0.bootdev", iter.dev_used[2]->name);
+	ut_asserteq_str("mmc11.bootdev", iter.dev_used[3]->name);
 	bootflow_iter_uninit(&iter);
 
 	return 0;
@@ -328,23 +334,23 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
-	/* 3 MMC and 3 USB bootdevs: MMC should come before USB */
+	/* 4 MMC and 3 USB bootdevs: MMC should come before USB */
 	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 
 	/* get the usb device which has a backing file (flash1.img) */
 	ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(6, iter.num_devs);
+	ut_asserteq(7, iter.num_devs);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_used[0]->name);
 	ut_asserteq_str("usb_mass_storage.lun0.bootdev",
-			iter.dev_used[3]->name);
+			iter.dev_used[4]->name);
 
-	ut_assertok(bootdev_get_sibling_blk(iter.dev_used[3], &blk));
+	ut_assertok(bootdev_get_sibling_blk(iter.dev_used[4], &blk));
 	ut_asserteq_str("usb_mass_storage.lun0", blk->name);
 
 	/* adjust the priority of the first USB bootdev to the highest */
-	ucp = dev_get_uclass_plat(iter.dev_used[3]);
+	ucp = dev_get_uclass_plat(iter.dev_used[4]);
 	ucp->prio = BOOTDEVP_1_PRE_SCAN;
 
 	/* try again but enable hunting, which brings in SCSI */
@@ -356,7 +362,7 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 	ut_asserteq(0, bootflow_scan_next(&iter, &bflow));
 
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(7, iter.num_devs);
+	ut_asserteq(8, iter.num_devs);
 	ut_asserteq_str("usb_mass_storage.lun0.bootdev",
 			iter.dev_used[0]->name);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_used[1]->name);
@@ -730,6 +736,10 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 
 	ut_assertok(bootdev_next_prio(&iter, &dev));
 	ut_asserteq_str("mmc0.bootdev", dev->name);
+	ut_assert_console_end();
+
+	ut_assertok(bootdev_next_prio(&iter, &dev));
+	ut_asserteq_str("mmc11.bootdev", dev->name);
 	ut_assert_console_end();
 
 	ut_assertok(bootdev_next_prio(&iter, &dev));
