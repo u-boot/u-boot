@@ -29,10 +29,10 @@ int dram_init(void)
 	return fdtdec_setup_mem_size_base();
 }
 
-phys_size_t  get_effective_memsize(void)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	/* limit stack below tee reserve memory */
-	return gd->ram_size - 6 * SZ_1M;
+	return gd->ram_base + gd->ram_size - 6 * SZ_1M;
 }
 
 void reset_cpu(void)
