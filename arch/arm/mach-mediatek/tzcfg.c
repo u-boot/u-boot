@@ -35,12 +35,13 @@ struct tz_reserved_region {
 };
 
 static bool fix_tz_region(struct tz_reserved_region region[],
-			  uint32_t used_regions)
+			  uint32_t used_regions,
+			  phys_addr_t ram_top)
 {
 	phys_addr_t size;
 
-	if (region[0].addr + region[0].size > gd->ram_top) {
-		if (region[0].addr >= gd->ram_top) {
+	if (region[0].addr + region[0].size > ram_top) {
+		if (region[0].addr >= ram_top) {
 			debug("Discarded region 0x%08llx, size 0x%llx\n",
 			      region[0].addr, region[0].size);
 
@@ -50,7 +51,7 @@ static bool fix_tz_region(struct tz_reserved_region region[],
 			return true;
 		}
 
-		size = gd->ram_top - region[0].addr;
+		size = ram_top - region[0].addr;
 
 		debug("Truncated region 0x%08llx, size 0x%llx -> 0x%llx\n",
 		      region[0].addr, region[0].size, size);
@@ -63,11 +64,14 @@ static bool fix_tz_region(struct tz_reserved_region region[],
 
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
-	phys_addr_t uboot_ram_top, pstore_size, uboot_size = 0;
+	phys_addr_t uboot_ram_top, ram_top, pstore_size = 0, uboot_size = 0;
 	struct tz_reserved_region region[2], tmp;
 	phys_addr_t top_addr, low_addr;
 	struct arm_smccc_res res;
 	u32 used_regions = 1;
+
+	/* ram_top must be <= 4GiB due to DMA limitations */
+	ram_top = min_t(phys_addr_t, gd->ram_top, SZ_4G);
 
 	/* BL31 region */
 	arm_smccc_smc(MTK_SIP_GET_BL31_REGION, 0, 0, 0, 0, 0, 0, 0, &res);
@@ -119,14 +123,14 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 	}
 
 	debug("Effective memory @ 0x%08zx, size 0x%llx\n", gd->ram_base,
-	      gd->ram_top - gd->ram_base);
+	      ram_top - gd->ram_base);
 
 	/* Discard/fix region which is outside the effective memory */
-	if (fix_tz_region(region, used_regions)) {
+	if (fix_tz_region(region, used_regions, ram_top)) {
 		used_regions--;
 
 		if (used_regions) {
-			if (fix_tz_region(region, used_regions))
+			if (fix_tz_region(region, used_regions, ram_top))
 				used_regions--;
 		}
 	}
@@ -144,7 +148,7 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 	uboot_size += U_BOOT_MIN_STACK_SIZE + REGION_ALIGNMENT - 1;
 	uboot_size &= ~(REGION_ALIGNMENT - 1);
 
-	uboot_ram_top = gd->ram_top & ~(REGION_ALIGNMENT - 1);
+	uboot_ram_top = ram_top & ~(REGION_ALIGNMENT - 1);
 
 	if (!used_regions ||
 	    (uboot_ram_top - region[0].addr - region[0].size >= uboot_size)) {
