@@ -192,6 +192,12 @@ Renesas is a SoC solutions provider for automotive and industrial applications.
      - arm64
      - r8a779g3_sparrowhawk_defconfig
 
+   * -
+     - Gray Hawk
+     - R8A779H0 (V4M)
+     - arm64
+     - r8a779h0_grayhawk_defconfig
+
    * - RZ/G2 Family
      - Beacon EmbeddedWorks RZ/G2M SoM
      - R8A774A1 (RZ/G2M)
