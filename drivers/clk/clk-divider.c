@@ -228,18 +228,28 @@ static struct clk *_register_divider(struct udevice *dev, const char *name,
 	return clk;
 }
 
+struct clk *clk_register_divider_table(struct udevice *dev, const char *name,
+		const char *parent_name, unsigned long flags,
+		void __iomem *reg, u8 shift, u8 width,
+		u8 clk_divider_flags, const struct clk_div_table *table)
+{
+	struct clk *clk;
+
+	clk =  _register_divider(dev, name, parent_name, flags, reg, shift,
+				 width, clk_divider_flags, table);
+	if (IS_ERR(clk))
+		return ERR_CAST(clk);
+	return clk;
+}
+
 struct clk *clk_register_divider(struct udevice *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 shift, u8 width,
 		u8 clk_divider_flags)
 {
-	struct clk *clk;
-
-	clk =  _register_divider(dev, name, parent_name, flags, reg, shift,
-				 width, clk_divider_flags, NULL);
-	if (IS_ERR(clk))
-		return ERR_CAST(clk);
-	return clk;
+	return clk_register_divider_table(dev, name, parent_name, flags, reg,
+					  shift, width, clk_divider_flags,
+					  NULL);
 }
 
 U_BOOT_DRIVER(ccf_clk_divider) = {
