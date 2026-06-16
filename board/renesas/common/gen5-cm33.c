@@ -905,6 +905,24 @@ static void mfis_unprotect(void)
 }
 
 /**
+ * rsip_write_reg() - Write RSIP control register
+ * @reg: Register to write
+ * @val: Value to set in the register
+ */
+static void rsip_write_reg(const u32 reg, const int val)
+{
+	for (;;) {
+		writel(RSIP_CTL_PROT0PCMD_WREN, RSIP_CTL_PROT0PCMD);
+		writel(val, reg);
+		writel(~val, reg);
+		writel(val, reg);
+
+		if (readl(RSIP_CTL_PROT0PS) != RSIP_CTL_PROT0PS_ERR)
+			break;
+	}
+}
+
+/**
  * rsip_irq_setup() - Configure RSIP interrupts
  */
 static void rsip_irq_setup(void)
@@ -1353,6 +1371,26 @@ int mach_cpu_init(void)
 	return 0;
 }
 
+int board_early_init_r(void)
+{
+	u32 remaptmp = readl(RSIP_CTL_ESICREMAP0);
+	struct udevice *dev;
+	int ret;
+
+	/* Remap DDR PHY during DRAM init. */
+	rsip_write_reg(RSIP_CTL_ESICREMAP0, 0xe0000000);
+
+	/* Start DBSC5 */
+	ret = uclass_get_device_by_name(UCLASS_NOP, "ram@e9800000", &dev);
+	if (ret)
+		printf("DBSC5 init failed: %d\n", ret);
+
+	/* Restore remapping. */
+	rsip_write_reg(RSIP_CTL_ESICREMAP0, remaptmp);
+
+	return 0;
+}
+
 /**
  * board_debug_uart_init() - Initialize all HSCIF
  */
@@ -1406,4 +1444,15 @@ void __weak reset_cpu(void)
 {
 	writel(RST_KCPROT_DIS, RST_RESKCPROT0);
 	writel(0x1, RST_SWSRES1A);
+}
+
+/**
+ * lmb_arch_add_memory() - Add memory to LMB
+ *
+ * Add the window to a subset of 32bit DRAM are into LMB,
+ * to make it possible to TFTP into it.
+ */
+void lmb_arch_add_memory(void)
+{
+	lmb_add(0x60000000, 0x40000000);
 }

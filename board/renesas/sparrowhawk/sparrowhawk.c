@@ -5,7 +5,7 @@
 
 #include <asm/io.h>
 #include <compiler.h>
-#include <dbsc5.h>
+#include <r8a779g0-dbsc5.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <spl.h>

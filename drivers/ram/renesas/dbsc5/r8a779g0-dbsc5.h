@@ -3,8 +3,8 @@
  * Copyright (C) 2024 Renesas Electronics Corp.
  */
 
-#ifndef __DRIVERS_RAM_RENESAS_DBSC5_DBSC5_H__
-#define __DRIVERS_RAM_RENESAS_DBSC5_DBSC5_H__
+#ifndef __DRIVERS_RAM_RENESAS_DBSC5_R8A779G0_DBSC5_H__
+#define __DRIVERS_RAM_RENESAS_DBSC5_R8A779G0_DBSC5_H__
 
 /*
  * DBSC5 ... 0xe678_0000..0xe67fffff
@@ -26,4 +26,4 @@ struct renesas_dbsc5_data {
 	const char		*otp_node;
 };
 
-#endif /* __DRIVERS_RAM_RENESAS_DBSC5_DBSC5_H__ */
+#endif /* __DRIVERS_RAM_RENESAS_DBSC5_R8A779G0_DBSC5_H__ */

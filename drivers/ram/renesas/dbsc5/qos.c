@@ -9,7 +9,7 @@
 #include <hang.h>
 #include <linux/sizes.h>
 #include <ram.h>
-#include "dbsc5.h"
+#include "r8a779g0-dbsc5.h"
 
 /* AXMM */
 #define AXMM_ADSPLCR0				0x4008

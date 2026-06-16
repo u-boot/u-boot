@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <linux/sizes.h>
 #include <ram.h>
-#include "dbsc5.h"
+#include "r8a779g0-dbsc5.h"
 
 static int renesas_dbsc5_probe(struct udevice *dev)
 {
