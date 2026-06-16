@@ -46,6 +46,33 @@ static struct clk_ops imx6q_clk_ops = {
 	.disable = ccf_clk_disable,
 };
 
+static const char *const pll_bypass_src_sels[] = {
+	"osc",
+	"lvds1_in",
+	"lvds2_in",
+	"dummy",
+};
+
+static const char *const pll2_bypass_sels[] = {
+	"pll2",
+	"pll2_bypass_src",
+};
+
+static const char *const pll3_bypass_sels[] = {
+	"pll3",
+	"pll3_bypass_src",
+};
+
+static const char *const pll5_bypass_sels[] = {
+	"pll5",
+	"pll5_bypass_src",
+};
+
+static const char *const pll6_bypass_sels[] = {
+	"pll6",
+	"pll6_bypass_src",
+};
+
 static const char *const usdhc_sels[] = {
 	"pll2_pfd2_396m",
 	"pll2_pfd0_352m",
@@ -123,16 +150,63 @@ static int imx6q_clk_probe(struct udevice *dev)
 	/* Anatop clocks */
 	base = (void *)ANATOP_BASE_ADDR;
 
-	clk_dm(IMX6QDL_CLK_PLL2,
-	       imx_clk_pllv3(dev, IMX_PLLV3_GENERIC, "pll2_bus", "osc",
-			     base + 0x30, 0x1));
-	clk_dm(IMX6QDL_CLK_PLL3_USB_OTG,
-	       imx_clk_pllv3(dev, IMX_PLLV3_USB, "pll3_usb_otg", "osc",
-			     base + 0x10, 0x3));
+	clk_dm(IMX6QDL_PLL2_BYPASS_SRC,
+	       imx_clk_mux(dev, "pll2_bypass_src", base + 0x30, 14, 2,
+			   pll_bypass_src_sels,
+			   ARRAY_SIZE(pll_bypass_src_sels)));
+	clk_dm(IMX6QDL_PLL3_BYPASS_SRC,
+	       imx_clk_mux(dev, "pll3_bypass_src", base + 0x10, 14, 2,
+			   pll_bypass_src_sels,
+			   ARRAY_SIZE(pll_bypass_src_sels)));
+	clk_dm(IMX6QDL_PLL5_BYPASS_SRC,
+	       imx_clk_mux(dev, "pll5_bypass_src", base + 0xa0, 14, 2,
+			   pll_bypass_src_sels,
+			   ARRAY_SIZE(pll_bypass_src_sels)));
+	clk_dm(IMX6QDL_PLL6_BYPASS_SRC,
+	       imx_clk_mux(dev, "pll6_bypass_src", base + 0xe0, 14, 2,
+			   pll_bypass_src_sels,
+			   ARRAY_SIZE(pll_bypass_src_sels)));
+
+	clk_dm(IMX6QDL_CLK_PLL2, imx_clk_pllv3(dev, IMX_PLLV3_GENERIC, "pll2",
+					       "osc", base + 0x30, 0x1));
+	clk_dm(IMX6QDL_CLK_PLL3, imx_clk_pllv3(dev, IMX_PLLV3_USB, "pll3",
+					       "osc", base + 0x10, 0x3));
 	clk_dm(IMX6QDL_CLK_PLL5, imx_clk_pllv3(dev, IMX_PLLV3_AV, "pll5", "osc",
 					       base + 0xa0, 0x7f));
 	clk_dm(IMX6QDL_CLK_PLL6, imx_clk_pllv3(dev, IMX_PLLV3_ENET, "pll6",
 					       "osc", base + 0xe0, 0x3));
+
+	clk_dm(IMX6QDL_PLL2_BYPASS,
+	       imx_clk_mux_flags(dev, "pll2_bypass", base + 0x30, 16, 1,
+				 pll2_bypass_sels, ARRAY_SIZE(pll2_bypass_sels),
+				 CLK_SET_RATE_PARENT));
+	clk_dm(IMX6QDL_PLL3_BYPASS,
+	       imx_clk_mux_flags(dev, "pll3_bypass", base + 0x10, 16, 1,
+				 pll3_bypass_sels, ARRAY_SIZE(pll3_bypass_sels),
+				 CLK_SET_RATE_PARENT));
+	clk_dm(IMX6QDL_PLL5_BYPASS,
+	       imx_clk_mux_flags(dev, "pll5_bypass", base + 0xa0, 16, 1,
+				 pll5_bypass_sels, ARRAY_SIZE(pll5_bypass_sels),
+				 CLK_SET_RATE_PARENT));
+	clk_dm(IMX6QDL_PLL6_BYPASS,
+	       imx_clk_mux_flags(dev, "pll6_bypass", base + 0xe0, 16, 1,
+				 pll6_bypass_sels, ARRAY_SIZE(pll6_bypass_sels),
+				 CLK_SET_RATE_PARENT));
+
+	SET_CLK_PARENT(IMX6QDL_PLL2_BYPASS, IMX6QDL_CLK_PLL2);
+	SET_CLK_PARENT(IMX6QDL_PLL3_BYPASS, IMX6QDL_CLK_PLL3);
+	SET_CLK_PARENT(IMX6QDL_PLL5_BYPASS, IMX6QDL_CLK_PLL5);
+	SET_CLK_PARENT(IMX6QDL_PLL6_BYPASS, IMX6QDL_CLK_PLL6);
+
+	clk_dm(IMX6QDL_CLK_PLL2_BUS,
+	       imx_clk_gate(dev, "pll2_bus", "pll2_bypass", base + 0x30, 13));
+	clk_dm(IMX6QDL_CLK_PLL3_USB_OTG,
+	       imx_clk_gate(dev, "pll3_usb_otg", "pll3_bypass", base + 0x10,
+			    13));
+	clk_dm(IMX6QDL_CLK_PLL5_VIDEO,
+	       imx_clk_gate(dev, "pll5_video", "pll5_bypass", base + 0xa0, 13));
+	clk_dm(IMX6QDL_CLK_PLL6_ENET,
+	       imx_clk_gate(dev, "pll6_enet", "pll6_bypass", base + 0xe0, 13));
 
 	clk_dm(IMX6QDL_CLK_PLL3_60M,
 	       imx_clk_fixed_factor(dev, "pll3_60m", "pll3_usb_otg", 1, 8));
@@ -140,10 +214,6 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_fixed_factor(dev, "pll3_80m", "pll3_usb_otg", 1, 6));
 	clk_dm(IMX6QDL_CLK_PLL3_120M,
 	       imx_clk_fixed_factor(dev, "pll3_120m", "pll3_usb_otg", 1, 4));
-	clk_dm(IMX6QDL_CLK_PLL5_VIDEO,
-	       imx_clk_gate(dev, "pll5_video", "pll5", base + 0xa0, 13));
-	clk_dm(IMX6QDL_CLK_PLL6_ENET,
-	       imx_clk_gate(dev, "pll6_enet", "pll6", base + 0xe0, 13));
 
 	clk_dm(IMX6QDL_CLK_PLL2_PFD0_352M,
 	       imx_clk_pfd("pll2_pfd0_352m", "pll2_bus", base + 0x100, 0));
