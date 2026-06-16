@@ -263,7 +263,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	/* Write new kernel size to boot image header */
 	hdr->kernel_size = download_bytes;
 	res = blk_dwrite(dev_desc, info.start, hdr_sectors, (void *)hdr);
-	if (res == 0) {
+	if (res != hdr_sectors) {
 		pr_err("cannot writeback boot image header\n");
 		fastboot_fail("cannot write back boot image header", response);
 		return -1;
@@ -275,7 +275,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 				      sectors_per_page;
 	res = blk_dwrite(dev_desc, kernel_sector_start, kernel_sectors,
 			 download_buffer);
-	if (res == 0) {
+	if (res != kernel_sectors) {
 		pr_err("cannot write new kernel\n");
 		fastboot_fail("cannot write new kernel", response);
 		return -1;
@@ -287,7 +287,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 					     sectors_per_page;
 	res = blk_dwrite(dev_desc, ramdisk_sector_start, ramdisk_sectors,
 			 ramdisk_buffer);
-	if (res == 0) {
+	if (res != ramdisk_sectors) {
 		pr_err("cannot write back original ramdisk\n");
 		fastboot_fail("cannot write back original ramdisk", response);
 		return -1;

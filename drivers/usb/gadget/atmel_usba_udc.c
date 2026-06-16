@@ -1201,7 +1201,7 @@ static struct usba_ep *usba_udc_pdata(struct usba_platform_data *pdata,
 	struct usba_ep *eps;
 	int i;
 
-	eps = malloc(sizeof(struct usba_ep) * pdata->num_ep);
+	eps = calloc(pdata->num_ep, sizeof(struct usba_ep));
 	if (!eps) {
 		log_err("failed to alloc eps\n");
 		return NULL;
