@@ -231,13 +231,13 @@ Renesas is a SoC solutions provider for automotive and industrial applications.
    * - :doc:`RZ/N1 Family <rzn1>`
      - Schneider RZ/N1D board
      - R9A06G032 (RZ/N1D)
-     - arm64
+     - arm
      - rzn1_snarc_defconfig
 
    * -
      - Schneider RZ/N1S board
      - R9A06G033 (RZ/N1S)
-     - arm64
+     - arm
      - rzn1_snarc_defconfig
 
 Build
