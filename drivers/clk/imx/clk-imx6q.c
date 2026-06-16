@@ -101,6 +101,21 @@ static const char *const ecspi_sels[] = {
 	"osc",
 };
 
+static const struct clk_div_table post_div_table[] = {
+	{ .val = 2, .div = 1, },
+	{ .val = 1, .div = 2, },
+	{ .val = 0, .div = 4, },
+	{ /* sentinel */ }
+};
+
+static const struct clk_div_table video_div_table[] = {
+	{ .val = 0, .div = 1, },
+	{ .val = 1, .div = 2, },
+	{ .val = 2, .div = 1, },
+	{ .val = 3, .div = 4, },
+	{ /* sentinel */ }
+};
+
 #if CONFIG_IS_ENABLED(VIDEO)
 static const char *const ipu_sels[] = {
 	"mmdc_ch0_axi",
@@ -341,10 +356,14 @@ static int imx6q_clk_probe(struct udevice *dev)
 	clk_dm(IMX6QDL_CLK_PLL2_198M,
 	       imx_clk_fixed_factor(dev, "pll2_198m", "pll2_pfd2_396m", 1, 2));
 	clk_dm(IMX6QDL_CLK_PLL5_POST_DIV,
-	       imx_clk_fixed_factor(dev, "pll5_post_div", "pll5_video", 1, 1));
+	       clk_register_divider_table(dev, "pll5_post_div", "pll5_video",
+					  CLK_SET_RATE_PARENT, base + 0xa0, 19,
+					  2, 0, post_div_table));
 	clk_dm(IMX6QDL_CLK_PLL5_VIDEO_DIV,
-	       imx_clk_fixed_factor(dev, "pll5_video_div", "pll5_post_div", 1,
-				    1));
+	       clk_register_divider_table(dev, "pll5_video_div",
+					  "pll5_post_div", CLK_SET_RATE_PARENT,
+					  base + 0x170, 30, 2, 0,
+					  video_div_table));
 	clk_dm(IMX6QDL_CLK_VIDEO_27M,
 	       imx_clk_fixed_factor(dev, "video_27m", "pll3_pfd1_540m", 1,
 				    20));
