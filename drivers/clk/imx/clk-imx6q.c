@@ -72,6 +72,8 @@ static const char *const ecspi_sels[] = {
 	"pll3_60m",
 	"osc",
 };
+
+#if CONFIG_IS_ENABLED(VIDEO)
 static const char *const ipu_sels[] = {
 	"mmdc_ch0_axi",
 	"pll2_pfd2_396m",
@@ -112,6 +114,7 @@ static const char *ipu2_di1_sels_2[] = {
 };
 
 static unsigned int share_count_mipi_core_cfg;
+#endif /* CONFIG_IS_ENABLED(VIDEO) */
 
 static int imx6q_clk_probe(struct udevice *dev)
 {
@@ -264,6 +267,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_gate2(dev, "mmdc_ch1_axi", "mmdc_ch1_axi_podf",
 			     base + 0x74, 22));
 
+#if CONFIG_IS_ENABLED(VIDEO)
 	clk_dm(IMX6QDL_CLK_IPU1_SEL,
 	       imx_clk_mux(dev, "ipu1_sel", base + 0x3c, 9, 2, ipu_sels,
 			   ARRAY_SIZE(ipu_sels)));
@@ -414,6 +418,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 					 ARRAY_SIZE(ipu2_di1_sels),
 					 CLK_SET_RATE_PARENT));
 	}
+#endif /* CONFIG_IS_ENABLED(VIDEO) */
 
 	clk_dm(IMX6QDL_CLK_ECSPI1,
 	       imx_clk_gate2(dev, "ecspi1", "ecspi_root", base + 0x6c, 0));
@@ -454,6 +459,8 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_gate2(dev, "enet", "ipg", base + 0x6c, 10));
 	clk_dm(IMX6QDL_CLK_ENET_REF,
 	       imx_clk_fixed_factor(dev, "enet_ref", "pll6_enet", 1, 1));
+
+#if CONFIG_IS_ENABLED(VIDEO)
 	clk_dm(IMX6QDL_CLK_MIPI_CORE_CFG,
 	       imx_clk_gate2_shared(dev, "mipi_core_cfg", "video_27m",
 				    base + 0x74, 16,
@@ -481,6 +488,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 		SET_CLK_PARENT(IMX6QDL_CLK_IPU1_SEL,
 			       IMX6QDL_CLK_PLL3_PFD1_540M);
 	}
+#endif /* CONFIG_IS_ENABLED(VIDEO) */
 
 	return 0;
 }
