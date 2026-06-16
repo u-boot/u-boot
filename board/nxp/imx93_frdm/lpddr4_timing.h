@@ -7,6 +7,7 @@
 #define __LPDDR4_TIMING_H__
 
 extern struct dram_timing_info dram_timing_1GB;
-extern struct dram_timing_info dram_timing_2GB;
+extern struct dram_timing_info dram_timing_1CS_2GB;
+extern struct dram_timing_info dram_timing_2CS_2GB;
 
 #endif /* __LPDDR4_TIMING_H__ */
