@@ -1,0 +1,12 @@
+if TARGET_OMAP4_VAR_SOM
+
+config SYS_BOARD
+	default "omap4_var_som"
+
+config SYS_VENDOR
+	default "variscite"
+
+config SYS_CONFIG_NAME
+	default "ti_omap4_common"
+
+endif
