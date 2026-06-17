@@ -80,7 +80,7 @@ int dram_init(void);
  * dram_init_banksize() - Set up DRAM bank sizes
  *
  * This can be implemented by boards to set up the DRAM bank information in
- * gd->bd->bi_dram(). It is called just before relocation, after dram_init()
+ * gd->dram[] It is called just before relocation, after dram_init()
  * is called.
  *
  * If this is not provided, a default implementation will try to set up a

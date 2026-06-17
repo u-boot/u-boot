@@ -367,11 +367,11 @@ void enable_caches(void)
 
 	while (i < CONFIG_NR_DRAM_BANKS &&
 	       entry < ARRAY_SIZE(imx93_mem_map)) {
-		if (gd->bd->bi_dram[i].start == 0)
+		if (gd->dram[i].start == 0)
 			break;
-		imx93_mem_map[entry].phys = gd->bd->bi_dram[i].start;
-		imx93_mem_map[entry].virt = gd->bd->bi_dram[i].start;
-		imx93_mem_map[entry].size = gd->bd->bi_dram[i].size;
+		imx93_mem_map[entry].phys = gd->dram[i].start;
+		imx93_mem_map[entry].virt = gd->dram[i].start;
+		imx93_mem_map[entry].size = gd->dram[i].size;
 		imx93_mem_map[entry].attrs = attrs;
 		debug("Added memory mapping (%d): %llx %llx\n", entry,
 		      imx93_mem_map[entry].phys, imx93_mem_map[entry].size);
@@ -445,24 +445,24 @@ int dram_init_banksize(void)
 		sdram_b2_size = 0;
 	}
 
-	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
+	gd->dram[bank].start = PHYS_SDRAM;
 	if (!IS_ENABLED(CONFIG_XPL_BUILD) && rom_pointer[1]) {
 		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
 		phys_size_t optee_size = (size_t)rom_pointer[1];
 
-		gd->bd->bi_dram[bank].size = optee_start - gd->bd->bi_dram[bank].start;
+		gd->dram[bank].size = optee_start - gd->dram[bank].start;
 		if ((optee_start + optee_size) < (PHYS_SDRAM + sdram_b1_size)) {
 			if (++bank >= CONFIG_NR_DRAM_BANKS) {
 				puts("CONFIG_NR_DRAM_BANKS is not enough\n");
 				return -1;
 			}
 
-			gd->bd->bi_dram[bank].start = optee_start + optee_size;
-			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
-				sdram_b1_size - gd->bd->bi_dram[bank].start;
+			gd->dram[bank].start = optee_start + optee_size;
+			gd->dram[bank].size = PHYS_SDRAM +
+				sdram_b1_size - gd->dram[bank].start;
 		}
 	} else {
-		gd->bd->bi_dram[bank].size = sdram_b1_size;
+		gd->dram[bank].size = sdram_b1_size;
 	}
 
 	if (sdram_b2_size) {
@@ -470,8 +470,8 @@ int dram_init_banksize(void)
 			puts("CONFIG_NR_DRAM_BANKS is not enough for SDRAM_2\n");
 			return -1;
 		}
-		gd->bd->bi_dram[bank].start = 0x100000000UL;
-		gd->bd->bi_dram[bank].size = sdram_b2_size;
+		gd->dram[bank].start = 0x100000000UL;
+		gd->dram[bank].size = sdram_b2_size;
 	}
 
 	return 0;

@@ -288,13 +288,13 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		 * Reserve 1MB of memory for M4 (1MiB is also the minimum
 		 * alignment for Linux due to MMU section size restrictions).
 		 */
-		start[0] = gd->bd->bi_dram[0].start;
+		start[0] = gd->dram[0].start;
 		size[0] = SZ_256M - SZ_1M;
 
 		/* If needed, create a second entry for memory beyond 256M */
-		if (gd->bd->bi_dram[0].size > SZ_256M) {
-			start[1] = gd->bd->bi_dram[0].start + SZ_256M;
-			size[1] = gd->bd->bi_dram[0].size - SZ_256M;
+		if (gd->dram[0].size > SZ_256M) {
+			start[1] = gd->dram[0].start + SZ_256M;
+			size[1] = gd->dram[0].size - SZ_256M;
 			areas = 2;
 		}
 

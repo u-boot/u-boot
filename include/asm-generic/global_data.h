@@ -457,6 +457,13 @@ struct global_data {
 	 */
 	struct upl *upl;
 #endif
+	/**
+	 * @dram: array describing DRAM banks (start address and size for each bank)
+	 */
+	struct {			/* RAM configuration */
+		phys_addr_t start;
+		phys_size_t size;
+	} dram[CONFIG_NR_DRAM_BANKS];
 };
 #ifndef DO_DEPS_ONLY
 static_assert(sizeof(struct global_data) == GD_SIZE);

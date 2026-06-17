@@ -285,7 +285,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	/* Get bank configuration from devicetree */
 	ret = fdtdec_decode_ram_size(gd->fdt_blob, NULL, 0, NULL,
-				     (phys_size_t *)&gd->ram_size, &bd);
+				     (phys_size_t *)&gd->ram_size, gd);
 	if (ret) {
 		puts("DDR: Failed to decode memory node\n");
 		return -1;
@@ -328,7 +328,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	sdram_size_check(&bd);
 
-	priv->info.base = bd.bi_dram[0].start;
+	priv->info.base = gd->dram[0].start;
 	priv->info.size = gd->ram_size;
 
 	debug("DDR: HMC init success\n");

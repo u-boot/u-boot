@@ -175,8 +175,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	/* fixup DT for the two GPP DDR banks */
 	for (i = 0; i < nbanks; i++) {
-		base[i] = gd->bd->bi_dram[i].start;
-		size[i] = gd->bd->bi_dram[i].size;
+		base[i] = gd->dram[i].start;
+		size[i] = gd->dram[i].size;
 	}
 
 	fdt_fixup_memory_banks(blob, base, size, nbanks);

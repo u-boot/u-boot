@@ -222,11 +222,11 @@ static int show_dram_config(void)
 
 	debug("\nRAM Configuration:\n");
 	for (i = size = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		size += gd->bd->bi_dram[i].size;
+		size += gd->dram[i].size;
 		debug("Bank #%d: %llx ", i,
-		      (unsigned long long)(gd->bd->bi_dram[i].start));
+		      (unsigned long long)(gd->dram[i].start));
 #ifdef DEBUG
-		print_size(gd->bd->bi_dram[i].size, "\n");
+		print_size(gd->dram[i].size, "\n");
 #endif
 	}
 	debug("\nDRAM:  ");
@@ -244,8 +244,8 @@ static int show_dram_config(void)
 
 __weak int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = gd->ram_base;
-	gd->bd->bi_dram[0].size = get_effective_memsize();
+	gd->dram[0].start = gd->ram_base;
+	gd->dram[0].size = get_effective_memsize();
 
 	return 0;
 }

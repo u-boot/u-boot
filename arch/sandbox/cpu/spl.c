@@ -131,8 +131,8 @@ SPL_LOAD_IMAGE_METHOD("sandbox_image", 7, BOOT_DEVICE_BOARD, load_from_image);
 int dram_init_banksize(void)
 {
 	/* These are necessary so TFTP can use LMBs to check its load address */
-	gd->bd->bi_dram[0].start = gd->ram_base;
-	gd->bd->bi_dram[0].size = get_effective_memsize();
+	gd->dram[0].start = gd->ram_base;
+	gd->dram[0].size = get_effective_memsize();
 
 	return 0;
 }

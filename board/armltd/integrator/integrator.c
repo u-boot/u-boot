@@ -137,7 +137,7 @@ int misc_init_r (void)
 
 int dram_init (void)
 {
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
 #ifdef CONFIG_CM_SPD_DETECT
 	{
 extern void dram_query(void);
@@ -170,7 +170,7 @@ extern void dram_query(void);
 				    PHYS_SDRAM_1_SIZE);
 #endif /* CM_SPD_DETECT */
 	/* We only have one bank of RAM, set it to whatever was detected */
-	gd->bd->bi_dram[0].size	 = gd->ram_size;
+	gd->dram[0].size	 = gd->ram_size;
 
 	return 0;
 }

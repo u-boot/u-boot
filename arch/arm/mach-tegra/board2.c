@@ -393,18 +393,18 @@ int dram_init_banksize(void)
 
 	/* fall back to default DRAM bank size computation */
 
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = usable_ram_size_below_4g();
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].size = usable_ram_size_below_4g();
 
 #ifdef CONFIG_PHYS_64BIT
 	if (gd->ram_size > SZ_2G) {
-		gd->bd->bi_dram[1].start = 0x100000000;
-		gd->bd->bi_dram[1].size = gd->ram_size - SZ_2G;
+		gd->dram[1].start = 0x100000000;
+		gd->dram[1].size = gd->ram_size - SZ_2G;
 	} else
 #endif
 	{
-		gd->bd->bi_dram[1].start = 0;
-		gd->bd->bi_dram[1].size = 0;
+		gd->dram[1].start = 0;
+		gd->dram[1].size = 0;
 	}
 
 	return 0;
@@ -418,7 +418,7 @@ int dram_init_banksize(void)
  * carve-out, as mentioned above.
  *
  * This function is called before dram_init_banksize(), so we can't simply
- * return gd->bd->bi_dram[1].start + gd->bd->bi_dram[1].size.
+ * return gd->dram[1].start + gd->dram[1].size.
  */
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {

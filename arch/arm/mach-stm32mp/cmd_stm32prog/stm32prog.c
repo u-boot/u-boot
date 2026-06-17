@@ -825,8 +825,8 @@ static int init_device(struct stm32prog_data *data,
 		dev->mtd = mtd;
 		break;
 	case STM32PROG_RAM:
-		first_addr = gd->bd->bi_dram[0].start;
-		last_addr = first_addr + gd->bd->bi_dram[0].size;
+		first_addr = gd->dram[0].start;
+		last_addr = first_addr + gd->dram[0].size;
 		dev->erase_size = 1;
 		break;
 	default:

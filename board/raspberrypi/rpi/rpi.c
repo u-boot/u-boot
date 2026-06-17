@@ -356,9 +356,9 @@ int dram_init_banksize(void)
 
 	/* Update gd->ram_size to reflect total RAM across all banks */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		if (gd->bd->bi_dram[i].size == 0)
+		if (gd->dram[i].size == 0)
 			break;
-		total_size += gd->bd->bi_dram[i].size;
+		total_size += gd->dram[i].size;
 	}
 	gd->ram_size = total_size;
 

@@ -69,9 +69,9 @@ int mem_map_from_dram_banks(unsigned int index, unsigned int len, u64 attrs)
 	}
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		mem_map[index].virt = gd->bd->bi_dram[i].start;
-		mem_map[index].phys = gd->bd->bi_dram[i].start;
-		mem_map[index].size = gd->bd->bi_dram[i].size;
+		mem_map[index].virt = gd->dram[i].start;
+		mem_map[index].phys = gd->dram[i].start;
+		mem_map[index].size = gd->dram[i].size;
 		mem_map[index].attrs = attrs;
 		index++;
 	}

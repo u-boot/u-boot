@@ -70,8 +70,8 @@ int dram_init_banksize(void)
 		if (t->hdr.tag != ATAG_MEM)
 			continue;
 
-		gd->bd->bi_dram[bank].start = t->u.mem.start;
-		gd->bd->bi_dram[bank].size = t->u.mem.size;
+		gd->dram[bank].start = t->u.mem.start;
+		gd->dram[bank].size = t->u.mem.size;
 		if (++bank == CONFIG_NR_DRAM_BANKS)
 			break;
 	}

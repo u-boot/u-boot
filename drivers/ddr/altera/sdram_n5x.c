@@ -2279,7 +2279,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	/* Get bank configuration from devicetree */
 	ret = fdtdec_decode_ram_size(gd->fdt_blob, NULL, 0, NULL,
-				     (phys_size_t *)&gd->ram_size, &bd);
+				     (phys_size_t *)&gd->ram_size, gd);
 	if (ret) {
 		debug("%s: Failed to decode memory node\n",  __func__);
 		return -1;
@@ -2287,7 +2287,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	printf("DDR: %lld MiB\n", gd->ram_size >> 20);
 
-	priv->info.base = bd.bi_dram[0].start;
+	priv->info.base = gd->dram[0].start;
 	priv->info.size = gd->ram_size;
 
 	sdram_size_check(&bd);

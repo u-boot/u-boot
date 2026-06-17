@@ -227,10 +227,10 @@ static int do_ddr4_ecc_inject(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	if (!((start_addr >= gd->bd->bi_dram[0].start &&
-	       (start_addr <= (gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size - 1))) ||
-	      (start_addr >= gd->bd->bi_dram[1].start &&
-	       (start_addr <= (gd->bd->bi_dram[1].start + gd->bd->bi_dram[1].size - 1))))) {
+	if (!((start_addr >= gd->dram[0].start &&
+	       (start_addr <= (gd->dram[0].start + gd->dram[0].size - 1))) ||
+	      (start_addr >= gd->dram[1].start &&
+	       (start_addr <= (gd->dram[1].start + gd->dram[1].size - 1))))) {
 		puts("Address is not in the DDR range\n");
 		return CMD_RET_FAILURE;
 	}

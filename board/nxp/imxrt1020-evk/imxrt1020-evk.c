@@ -73,7 +73,7 @@ u32 spl_boot_device(void)
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;
+	gd->bd->bi_boot_params = gd->dram[0].start + 0x100;
 
 	return 0;
 }

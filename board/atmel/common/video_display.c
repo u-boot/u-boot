@@ -40,7 +40,7 @@ int at91_video_show_board_info(void)
 
 	dram_size = 0;
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		dram_size += gd->bd->bi_dram[i].size;
+		dram_size += gd->dram[i].size;
 
 	nand_size = 0;
 #ifdef CONFIG_NAND_ATMEL

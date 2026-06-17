@@ -311,12 +311,11 @@ int ahab_verify_cntr_image(struct boot_img_t *img, int image_index)
 static inline bool check_in_dram(ulong addr)
 {
 	int i;
-	struct bd_info *bd = gd->bd;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		if (bd->bi_dram[i].size) {
-			if (addr >= bd->bi_dram[i].start &&
-			    addr < (bd->bi_dram[i].start + bd->bi_dram[i].size))
+		if (gd->dram[i].size) {
+			if (addr >= gd->dram[i].start &&
+			    addr < (gd->dram[i].start + gd->dram[i].size))
 				return true;
 		}
 	}

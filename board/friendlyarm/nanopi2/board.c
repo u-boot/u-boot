@@ -532,17 +532,17 @@ int dram_init_banksize(void)
 	/* set global data memory */
 	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x00000100;
 
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size  = CFG_SYS_SDRAM_SIZE;
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].size  = CFG_SYS_SDRAM_SIZE;
 
 	/* Number of Row: 14 bits */
 	if ((reg_val >> 28) == 14)
-		gd->bd->bi_dram[0].size -= 0x20000000;
+		gd->dram[0].size -= 0x20000000;
 
 	/* Number of Memory Chips */
 	if ((reg_val & 0x3) > 1) {
-		gd->bd->bi_dram[1].start = 0x80000000;
-		gd->bd->bi_dram[1].size  = 0x40000000;
+		gd->dram[1].start = 0x80000000;
+		gd->dram[1].size  = 0x40000000;
 	}
 	return 0;
 }

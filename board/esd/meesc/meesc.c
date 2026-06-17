@@ -141,8 +141,8 @@ int dram_init(void)
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
+	gd->dram[0].start = PHYS_SDRAM;
+	gd->dram[0].size = PHYS_SDRAM_SIZE;
 
 	return 0;
 }

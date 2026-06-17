@@ -93,7 +93,7 @@ int dram_init_banksize(void)
 {
 	u8 ram_size;
 
-	memset(gd->bd->bi_dram, 0, sizeof(gd->bd->bi_dram[0]) * CONFIG_NR_DRAM_BANKS);
+	memset(gd->dram, 0, sizeof(gd->dram[0]) * CONFIG_NR_DRAM_BANKS);
 
 	if (!IS_ENABLED(CONFIG_CPU_V7R))
 		return fdtdec_setup_memory_banksize();
@@ -101,34 +101,34 @@ int dram_init_banksize(void)
 	ram_size = phytec_get_am62_ddr_size_default();
 	switch (ram_size) {
 	case EEPROM_RAM_SIZE_1GB:
-		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-		gd->bd->bi_dram[0].size = 0x40000000;
+		gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->dram[0].size = 0x40000000;
 		gd->ram_size = 0x40000000;
 		break;
 
 	case EEPROM_RAM_SIZE_2GB:
-		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-		gd->bd->bi_dram[0].size = 0x80000000;
+		gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->dram[0].size = 0x80000000;
 		gd->ram_size = 0x80000000;
 		break;
 
 	case EEPROM_RAM_SIZE_4GB:
 		/* Bank 0 declares the memory available in the DDR low region */
-		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-		gd->bd->bi_dram[0].size = 0x80000000;
+		gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->dram[0].size = 0x80000000;
 		gd->ram_size = 0x80000000;
 
 #ifdef CONFIG_PHYS_64BIT
 		/* Bank 1 declares the memory available in the DDR upper region */
-		gd->bd->bi_dram[1].start = 0x880000000;
-		gd->bd->bi_dram[1].size = 0x80000000;
+		gd->dram[1].start = 0x880000000;
+		gd->dram[1].size = 0x80000000;
 		gd->ram_size = 0x100000000;
 #endif
 		break;
 	default:
 		/* Continue with default 2GB setup */
-		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-		gd->bd->bi_dram[0].size = 0x80000000;
+		gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->dram[0].size = 0x80000000;
 		gd->ram_size = 0x80000000;
 		printf("DDR size %d is not supported\n", ram_size);
 	}
@@ -186,8 +186,8 @@ int do_board_detect(void)
 	dram_init_banksize();
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		start[bank] = gd->bd->bi_dram[bank].start;
-		size[bank] = gd->bd->bi_dram[bank].size;
+		start[bank] = gd->dram[bank].start;
+		size[bank] = gd->dram[bank].size;
 	}
 
 	ret = fdt_fixup_memory_banks(fdt, start, size, CONFIG_NR_DRAM_BANKS);

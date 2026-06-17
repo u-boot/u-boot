@@ -41,8 +41,8 @@ int dram_init(void)
 		 * No DDR init yet -> run in L2 cache
 		 */
 		gd->ram_size = (4 << 20);
-		gd->bd->bi_dram[0].size = gd->ram_size;
-		gd->bd->bi_dram[1].size = 0;
+		gd->dram[0].size = gd->ram_size;
+		gd->dram[1].size = 0;
 	}
 
 	return 0;

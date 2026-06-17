@@ -138,16 +138,15 @@ static int lmb_test_dump_all(struct unit_test_state *uts)
 
 static int bdinfo_check_mem(struct unit_test_state *uts)
 {
-	struct bd_info *bd = gd->bd;
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		if (bd->bi_dram[i].size) {
+		if (gd->dram[i].size) {
 			ut_assertok(test_num_l(uts, "DRAM bank", i));
 			ut_assertok(test_num_ll(uts, "-> start",
-						bd->bi_dram[i].start));
+						gd->dram[i].start));
 			ut_assertok(test_num_ll(uts, "-> size",
-						bd->bi_dram[i].size));
+						gd->dram[i].size));
 		}
 	}
 

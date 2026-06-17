@@ -1126,14 +1126,14 @@ static int decode_regions(struct pci_controller *hose, ofnode parent_node,
 		return 0;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		if (bd->bi_dram[i].size) {
-			phys_addr_t start = bd->bi_dram[i].start;
+		if (gd->dram[i].size) {
+			phys_addr_t start = gd->dram[i].start;
 
 			if (IS_ENABLED(CONFIG_PCI_MAP_SYSTEM_MEMORY))
-				start = virt_to_phys((void *)(uintptr_t)bd->bi_dram[i].start);
+				start = virt_to_phys((void *)(uintptr_t)gd->dram[i].start);
 
 			pci_set_region(hose->regions + hose->region_count++,
-				       start, start, bd->bi_dram[i].size,
+				       start, start, gd->dram[i].size,
 				       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 		}
 	}
