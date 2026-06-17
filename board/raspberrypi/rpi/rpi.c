@@ -39,6 +39,8 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 unsigned long __section(".data") fw_dtb_pointer;
 
+static phys_addr_t discovered_ram_size;
+
 /* TODO(sjg@chromium.org): Move these to the msg.c file */
 struct msg_get_arm_mem {
 	struct bcm2835_mbox_hdr hdr;
@@ -335,8 +337,14 @@ int dram_init(void)
 	 * the u-boot's memory setup.
 	 */
 	gd->ram_size &= ~MMU_SECTION_SIZE;
+	discovered_ram_size = gd->ram_size;
 
 	return 0;
+}
+
+phys_size_t get_effective_memsize(void)
+{
+	return discovered_ram_size;
 }
 
 #ifdef CONFIG_OF_BOARD
