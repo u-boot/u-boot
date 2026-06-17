@@ -111,6 +111,15 @@ U-Boot Proper Flow
       This follows the same as in SPL flow. In board_init_f(), a part of memory
       is reserved at the end of RAM (see reserve_* functions in init_sequence_f)
 
+   #. Relocation address
+
+      By default U-Boot will try to relocate below the 4GiB boundary. If
+      RELOC_ADDR_TOP is enabled U-Boot will look into the dram bank config of
+      gd->dram[] and try to relocate to the highest available bank. Use this
+      with caution as devices that can only DMA below 4GiB will misbehave
+      since their buffers may be allocated above the 32-bit boundary.
+      Boards can override thre relocation address via board_get_usable_ram_top().
+
    #. Code Relocation
 
       relocate_code() is called which relocates U-Boot code from the current
