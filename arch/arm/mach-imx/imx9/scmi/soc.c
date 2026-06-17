@@ -248,7 +248,38 @@ static struct mm_region imx9_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
+	},
+#if IS_ENABLED(CONFIG_IMX94)
+	{
+		/* M71 TCM */
+		.virt = 0x202c0000UL,
+		.phys = 0x202c0000UL,
+		.size = 0x80000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	},
+	{
+		/* M33S TCM */
+		.virt = 0x209c0000UL,
+		.phys = 0x209c0000UL,
+		.size = 0x80000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	},
+	/* 644K netc ocram for rpmsg buffer */
+	{
+		/* M33S NETC OCRAM */
+		.virt = 0x20800000UL,
+		.phys = 0x20800000UL,
+		.size = 0xa1000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	},
+#endif
+	{
 		/* OCRAM */
 		.virt = 0x20480000UL,
 		.phys = 0x20480000UL,
