@@ -471,21 +471,12 @@ ARM MICROCHIP/ATMEL AT91
 M:	Eugen Hristev <ehristev@kernel.org>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-at91.git
-F:	arch/arm/dts/at91*
 F:	arch/arm/dts/sam*
-F:	arch/arm/mach-at91/
-F:	board/atmel/
-F:	drivers/cpu/at91_cpu.c
-F:	drivers/memory/atmel-ebi.c
 F:	drivers/misc/microchip_flexcom.c
-F:	drivers/timer/atmel_tcb_timer.c
-F:	include/dt-bindings/clk/at91.h
-F:	include/dt-bindings/dma/at91.h
-F:	include/dt-bindings/mfd/at91-usart.h
-F:	include/dt-bindings/mfd/atmel-flexcom.h
-F:	include/dt-bindings/pinctrl/at91.h
 F:	include/dt-bindings/sound/microchip,pdmc.h
 F:	drivers/timer/mchp-pit64b-timer.c
+N:	at91
+N:	atmel
 
 ARM MSC SM2S IMX8MP SOM
 M:	Martyn Welch <martyn.welch@collabora.com>
