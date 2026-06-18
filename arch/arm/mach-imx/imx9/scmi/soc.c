@@ -507,6 +507,35 @@ phys_size_t get_effective_memsize(void)
 	}
 }
 
+static inline u64 ether_addr_to_u64(const u8 *addr)
+{
+	u64 u = 0;
+	int i;
+
+	for (i = 0; i < 6; i++)
+		u = u << 8 | addr[i];
+
+	return u;
+}
+
+static inline void u64_to_ether_addr(u64 u, u8 *addr)
+{
+	int i;
+
+	for (i = 6 - 1; i >= 0; i--) {
+		addr[i] = u & 0xff;
+		u = u >> 8;
+	}
+}
+
+static inline void eth_addr_add(u8 *addr, long offset)
+{
+	u64 u = ether_addr_to_u64(addr);
+
+	u += offset;
+	u64_to_ether_addr(u, addr);
+}
+
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
 	u32 val[2] = {};
@@ -551,16 +580,16 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 		 * | 10     | netc switch | swp2                      |
 		 */
 		if (dev_id == 0)
-			mac[5] = mac[5] + 2; /* enetc3 mac/swp0 */
+			eth_addr_add(mac, 2); /* enetc3 mac/swp0 */
 		if (dev_id == 1)
-			mac[5] = mac[5] + 8; /* enetc1 */
+			eth_addr_add(mac, 8); /* enetc1 */
 		if (dev_id == 2)
-			mac[5] = mac[5] + 9; /* enetc2 */
+			eth_addr_add(mac, 9); /* enetc2 */
 	} else {
 		if (dev_id == 1)
-			mac[5] = mac[5] + 3;
+			eth_addr_add(mac, 3);
 		if (dev_id == 2)
-			mac[5] = mac[5] + 6;
+			eth_addr_add(mac, 6);
 	}
 
 	debug("%s: MAC%d: %pM\n", __func__, dev_id, mac);
