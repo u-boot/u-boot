@@ -985,10 +985,11 @@ enum boot_device get_boot_device(void)
 
 bool arch_check_dst_in_secure(void *start, ulong size)
 {
-	ulong ns_end = CFG_SYS_SDRAM_BASE + PHYS_SDRAM_SIZE;
-#ifdef PHYS_SDRAM_2_SIZE
-	ns_end += PHYS_SDRAM_2_SIZE;
-#endif
+	ulong ns_end;
+	phys_size_t dram_size;
+
+	board_phys_sdram_size(&dram_size);
+	ns_end = CFG_SYS_SDRAM_BASE + dram_size;
 
 	if ((ulong)start < CFG_SYS_SDRAM_BASE || (ulong)start + size > ns_end)
 		return true;
@@ -998,5 +999,10 @@ bool arch_check_dst_in_secure(void *start, ulong size)
 
 void *arch_get_container_trampoline(void)
 {
-	return (void *)((ulong)CFG_SYS_SDRAM_BASE + PHYS_SDRAM_SIZE - SZ_16M);
+	phys_size_t size;
+
+	board_phys_sdram_size(&size);
+	size = (size > PHYS_SDRAM_SIZE) ? PHYS_SDRAM_SIZE : size;
+
+	return (void *)((ulong)CFG_SYS_SDRAM_BASE + size - SZ_16M);
 }
