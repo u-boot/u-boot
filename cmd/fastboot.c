@@ -103,8 +103,15 @@ static int do_fastboot_usb(int argc, char *const argv[],
 	while (1) {
 		if (g_dnl_detach())
 			break;
-		if (ctrlc())
+		if (IS_ENABLED(CONFIG_CMD_FASTBOOT_ABORT_KEYED)) {
+			if (tstc()) {
+				getchar();
+				puts("\rOperation aborted.\n");
+				break;
+			}
+		} else if (ctrlc()) {
 			break;
+		}
 		schedule();
 		dm_usb_gadget_handle_interrupts(udc);
 	}

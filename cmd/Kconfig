@@ -1208,6 +1208,13 @@ config CMD_FASTBOOT
 
 	  See doc/android/fastboot.rst for more information.
 
+config CMD_FASTBOOT_ABORT_KEYED
+	bool "fastboot abort with any key"
+	depends on CMD_FASTBOOT && USB_FUNCTION_FASTBOOT
+	help
+	  Allow interruption of USB fastboot mode by any key presses,
+	  rather than just Ctrl-c.
+
 config CMD_FLASH
 	bool "flinfo, erase, protect"
 	default y
