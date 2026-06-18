@@ -207,7 +207,7 @@ static int tcpm_pd_transmit(struct udevice *dev,
 	 */
 	timeout_us *= 5;
 	ret = read_poll_timeout(tcpm_transmit_helper, tx_complete,
-				!tx_complete, false, timeout_us, dev);
+				tx_complete, false, timeout_us, dev);
 	if (ret < 0) {
 		dev_err(dev, "TCPM: PD transmit data failed: %d\n", ret);
 		return ret;
