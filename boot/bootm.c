@@ -330,6 +330,10 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 		images.os.type = image_get_type(os_hdr);
 		images.os.comp = image_get_comp(os_hdr);
 		images.os.os = image_get_os(os_hdr);
+		if (images.os.os >= IH_OS_COUNT) {
+			printf("Unsupported OS type %d\n", images.os.os);
+			return 1;
+		}
 
 		images.os.end = image_get_image_end(os_hdr);
 		images.os.load = image_get_load(os_hdr);

@@ -599,7 +599,5 @@ int boot_selected_os(int state, struct bootm_info *bmi, boot_os_fn *boot_fn)
 
 boot_os_fn *bootm_os_get_boot_func(int os)
 {
-	if (os < 0 || os >= ARRAY_SIZE(boot_os))
-		return NULL;
 	return boot_os[os];
 }
