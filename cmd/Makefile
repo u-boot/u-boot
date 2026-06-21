@@ -164,6 +164,7 @@ obj-$(CONFIG_CMD_KASLRSEED) += kaslrseed.o
 obj-$(CONFIG_CMD_RKMTD) += rkmtd.o
 obj-$(CONFIG_CMD_ROCKUSB) += rockusb.o
 obj-$(CONFIG_CMD_RTC) += rtc.o
+obj-$(CONFIG_CMD_POWEROFF) += poweroff.o
 obj-$(CONFIG_SANDBOX) += host.o
 obj-$(CONFIG_CMD_SATA) += sata.o
 obj-$(CONFIG_CMD_NVME) += nvme.o

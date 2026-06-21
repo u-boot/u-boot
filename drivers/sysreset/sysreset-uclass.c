@@ -175,24 +175,6 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 }
 #endif
 
-#if IS_ENABLED(CONFIG_SYSRESET_CMD_POWEROFF)
-int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	int ret;
-
-	puts("poweroff ...\n");
-	mdelay(100);
-
-	ret = sysreset_walk(SYSRESET_POWER_OFF);
-
-	if (ret == -EINPROGRESS)
-		mdelay(1000);
-
-	/*NOTREACHED when power off*/
-	return CMD_RET_FAILURE;
-}
-#endif
-
 UCLASS_DRIVER(sysreset) = {
 	.id		= UCLASS_SYSRESET,
 	.name		= "sysreset",
