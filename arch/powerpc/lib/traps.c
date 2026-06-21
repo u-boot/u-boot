@@ -19,11 +19,3 @@ int arch_initr_trap(void)
 
 	return 0;
 }
-
-#ifndef CONFIG_SYSRESET
-void reset_cpu(void)
-{
-	/* TODO: Refactor all the do_reset calls to be reset_cpu() instead */
-	do_reset(NULL, 0, 0, NULL);
-}
-#endif

@@ -9,12 +9,16 @@
  * Wirzenius wrote this portably, Torvalds fucked it up :-)
  */
 
+#include <cpu_func.h>
 #include <hang.h>
 #if !defined(CONFIG_PANIC_HANG)
 #include <command.h>
 #endif
 #include <linux/delay.h>
 #include <stdio.h>
+#if defined(CONFIG_SYSRESET)
+#include <sysreset.h>
+#endif
 
 static void panic_finish(void) __attribute__ ((noreturn));
 
@@ -26,7 +30,7 @@ static void panic_finish(void)
 #else
 	flush();  /* flush the panic message before reset */
 
-	do_reset(NULL, 0, 0, NULL);
+	reset_cpu();
 #endif
 	while (1)
 		;
@@ -55,4 +59,14 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 	/* This will not return */
 	panic("%s:%u: %s: Assertion `%s' failed.", file, line, function,
 	      assertion);
+}
+
+__weak void reset_cpu(void)
+{
+#if defined(CONFIG_SYSRESET)
+	sysreset_walk_halt(SYSRESET_COLD);
+#else
+	/* TODO: Refactor all the do_reset calls to be reset_cpu() instead */
+	do_reset(NULL, 0, 0, NULL);
+#endif
 }
