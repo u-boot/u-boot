@@ -282,7 +282,7 @@ static void EFIAPI efi_reset_system_boottime(
 	case EFI_RESET_COLD:
 	case EFI_RESET_WARM:
 	case EFI_RESET_PLATFORM_SPECIFIC:
-		do_reset(NULL, 0, 0, NULL);
+		reset_cpu();
 		break;
 	case EFI_RESET_SHUTDOWN:
 #ifdef CONFIG_CMD_POWEROFF
