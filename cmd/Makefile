@@ -9,6 +9,7 @@ obj-y += boot.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_HELP) += help.o
 obj-y += panic.o
+obj-y += reset.o
 obj-y += version.o
 
 # command
