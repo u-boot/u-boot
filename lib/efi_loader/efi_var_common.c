@@ -446,8 +446,10 @@ efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp, loff_t *
 		efi_status_t ret;
 
 		if ((uintptr_t)buf + len <=
-		    (uintptr_t)var->name + old_var_name_length)
+		    (uintptr_t)var->name + old_var_name_length) {
+			free(buf);
 			return EFI_BUFFER_TOO_SMALL;
+		}
 
 		var_name_length = (uintptr_t)buf + len - (uintptr_t)var->name;
 		memcpy(var->name, old_var->name, old_var_name_length);
