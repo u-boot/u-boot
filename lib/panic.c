@@ -27,7 +27,7 @@ static void panic_finish(void)
 #else
 	flush();  /* flush the panic message before reset */
 
-	reset_cpu();
+	reset_cpu_cold();
 #endif
 	while (1)
 		;

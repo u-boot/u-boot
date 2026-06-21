@@ -152,6 +152,11 @@ void sysreset_walk_halt(enum sysreset_t type);
 void reset_cpu(void);
 
 /**
+ * reset_cpu_cold() - calls sysreset_walk(SYSRESET_COLD)
+ */
+void reset_cpu_cold(void);
+
+/**
  * sysreset_register_wdt() - register a watchdog for use with sysreset
  *
  * This registers the given watchdog timer to be used to reset the system.

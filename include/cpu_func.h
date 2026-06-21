@@ -117,5 +117,6 @@ enum {
 int cleanup_before_linux_select(int flags);
 
 void reset_cpu(void);
+void reset_cpu_cold(void);
 
 #endif
