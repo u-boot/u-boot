@@ -9,6 +9,7 @@
  * Wirzenius wrote this portably, Torvalds fucked it up :-)
  */
 
+#include <cpu_func.h>
 #include <hang.h>
 #if !defined(CONFIG_PANIC_HANG)
 #include <command.h>
@@ -26,7 +27,7 @@ static void panic_finish(void)
 #else
 	flush();  /* flush the panic message before reset */
 
-	do_reset(NULL, 0, 0, NULL);
+	reset_cpu();
 #endif
 	while (1)
 		;
