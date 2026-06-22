@@ -1195,6 +1195,7 @@ config ARCH_SOCFPGA
 	imply DM_SPI_FLASH
 	imply FAT_WRITE
 	imply MTD
+	imply NAND_DENALI_SKIP_BBTSCAN_SPL
 	imply SPL
 	imply SPL_DM
 	imply SPL_DM_SPI

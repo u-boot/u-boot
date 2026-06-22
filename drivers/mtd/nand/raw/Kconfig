@@ -223,6 +223,17 @@ config NAND_DENALI_DT
 	  Enable the driver for NAND flash on platforms using a Denali NAND
 	  controller as a DT device.
 
+config NAND_DENALI_SKIP_BBTSCAN_SPL
+	bool "Skip the bad-block-table scan in SPL with the Denali NAND driver"
+	depends on NAND_DENALI && SPL
+	help
+	  Skip the full bad-block-table scan during SPL boot. With this
+	  option, SPL keeps chip->bbt NULL and nand_block_checkbad()
+	  falls through to chip->block_bad() - an on-demand single-block
+	  OOB read - which is sufficient when SPL only loads a single
+	  FIT image at a known offset and the full BBT scan is too slow
+	  or otherwise problematic in the limited SPL environment.
+
 config NAND_FSL_ELBC
 	bool "Support Freescale Enhanced Local Bus Controller FCM NAND driver"
 	select TPL_SYS_NAND_SELF_INIT if TPL_NAND_SUPPORT
