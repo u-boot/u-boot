@@ -91,9 +91,28 @@ int sysreset_get_last_walk(void)
 	return value;
 }
 
+static const char *get_reset_type_str(enum sysreset_t reset_type)
+{
+	switch (reset_type) {
+	case SYSRESET_WARM:
+		return "warm";
+	case SYSRESET_COLD:
+		return "cold";
+	case SYSRESET_POWER:
+		return "power";
+	case SYSRESET_POWER_OFF:
+		return "power off";
+	default:
+		return "unknown";
+	}
+}
+
 void sysreset_walk_halt(enum sysreset_t type)
 {
 	int ret;
+
+	printf("resetting (%s)...\n", get_reset_type_str(type));
+	mdelay(100);
 
 	ret = sysreset_walk(type);
 
