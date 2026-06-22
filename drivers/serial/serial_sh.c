@@ -257,7 +257,7 @@ static int sh_serial_of_to_plat(struct udevice *dev)
 	int ret;
 
 	addr = dev_read_addr(dev);
-	if (!addr)
+	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	plat->base = addr;
