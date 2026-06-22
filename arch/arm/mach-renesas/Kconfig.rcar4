@@ -11,12 +11,14 @@ config R8A779A0
 config R8A779F0
 	bool "Renesas SoC R8A779F0"
 	select GICV3
+	select GICV3_SUPPORT_GIC600
 	imply CLK_R8A779F0
 	imply PINCTRL_PFC_R8A779F0
 
 config R8A779G0
 	bool "Renesas SoC R8A779G0"
 	select GICV3
+	select GICV3_SUPPORT_GIC600
 	select BINMAN
 	select SUPPORT_SPL
 	imply SPL
@@ -33,6 +35,7 @@ config R8A779G0
 config R8A779H0
 	bool "Renesas SoC R8A779H0"
 	select GICV3
+	select GICV3_SUPPORT_GIC600
 	imply CLK_R8A779H0
 	imply PINCTRL_PFC_R8A779H0
 

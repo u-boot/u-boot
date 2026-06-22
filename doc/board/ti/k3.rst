@@ -651,6 +651,17 @@ Refer (:ref:`U-boot ARMV8 build <k3_rst_include_start_build_steps_uboot>`)
    This will need to be explicitly disabled by changing the boot_targets to
    disallow fallback during testing.
 
+DDR Configuration
+-----------------
+
+The K3 DDRSS driver (drivers/ram/k3-ddrss/k3-ddrss.c) configures the DDR during
+the R5 SPL stage. The driver utilizes an auto-generated configuration file
+containing necessary settings for the DDR. It configures the frequency, timing
+parameters, training algorithms etc. for DDR initialization. The configuration
+DTSI can be generated using the `Sysconfig tool <https://dev.ti.com/sysconfig>`_
+and selecting the software product as "DDR Configuration for \*" as well as the
+required device.
+
 Saving environment
 ------------------
 

@@ -1549,6 +1549,24 @@ static ulong rk3576_gmac_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 		con = readl(&cru->clksel_con[31]);
 		div = (con & CLK_GMAC1_125M_DIV_MASK) >> CLK_GMAC1_125M_DIV_SHIFT;
 		return DIV_TO_RATE(priv->cpll_hz, div);
+	case REFCLKO25M_GMAC0_OUT:
+		con = readl(&cru->clksel_con[36]);
+		div = (con & CLK_REFCLKO25M_GMAC0_DIV_MASK) >> CLK_REFCLKO25M_GMAC0_DIV_SHIFT;
+		src = (con & CLK_REFCLKO25M_GMAC0_SEL_MASK) >> CLK_REFCLKO25M_GMAC0_SEL_SHIFT;
+		if (src == CLK_REFCLKO25M_GMAC0_SEL_CPLL)
+			p_rate = priv->cpll_hz;
+		else
+			p_rate = priv->gpll_hz;
+		return DIV_TO_RATE(p_rate, div);
+	case REFCLKO25M_GMAC1_OUT:
+		con = readl(&cru->clksel_con[36]);
+		div = (con & CLK_REFCLKO25M_GMAC1_DIV_MASK) >> CLK_REFCLKO25M_GMAC1_DIV_SHIFT;
+		src = (con & CLK_REFCLKO25M_GMAC1_SEL_MASK) >> CLK_REFCLKO25M_GMAC1_SEL_SHIFT;
+		if (src == CLK_REFCLKO25M_GMAC1_SEL_CPLL)
+			p_rate = priv->cpll_hz;
+		else
+			p_rate = priv->gpll_hz;
+		return DIV_TO_RATE(p_rate, div);
 	default:
 		return -ENOENT;
 	}
@@ -1607,6 +1625,34 @@ static ulong rk3576_gmac_set_clk(struct rk3576_clk_priv *priv,
 		rk_clrsetreg(&cru->clksel_con[31],
 			     CLK_GMAC1_125M_DIV_MASK,
 			     (div - 1) << CLK_GMAC1_125M_DIV_SHIFT);
+		break;
+	case REFCLKO25M_GMAC0_OUT:
+		if (!(priv->gpll_hz % rate)) {
+			src = CLK_REFCLKO25M_GMAC0_SEL_GPLL;
+			div = priv->gpll_hz / rate;
+		} else {
+			src = CLK_REFCLKO25M_GMAC0_SEL_CPLL;
+			div = priv->cpll_hz / rate;
+		}
+		rk_clrsetreg(&cru->clksel_con[36],
+			     CLK_REFCLKO25M_GMAC0_SEL_MASK |
+			     CLK_REFCLKO25M_GMAC0_DIV_MASK,
+			     src << CLK_REFCLKO25M_GMAC0_SEL_SHIFT |
+			     (div - 1) << CLK_REFCLKO25M_GMAC0_DIV_SHIFT);
+		break;
+	case REFCLKO25M_GMAC1_OUT:
+		if (!(priv->gpll_hz % rate)) {
+			src = CLK_REFCLKO25M_GMAC1_SEL_GPLL;
+			div = priv->gpll_hz / rate;
+		} else {
+			src = CLK_REFCLKO25M_GMAC1_SEL_CPLL;
+			div = priv->cpll_hz / rate;
+		}
+		rk_clrsetreg(&cru->clksel_con[36],
+			     CLK_REFCLKO25M_GMAC1_SEL_MASK |
+			     CLK_REFCLKO25M_GMAC1_DIV_MASK,
+			     src << CLK_REFCLKO25M_GMAC1_SEL_SHIFT |
+			     (div - 1) << CLK_REFCLKO25M_GMAC1_DIV_SHIFT);
 		break;
 	default:
 		return -ENOENT;
@@ -1987,6 +2033,8 @@ static ulong rk3576_clk_get_rate(struct clk *clk)
 	case HCLK_SDIO:
 		rate = rk3576_mmc_get_clk(priv, clk->id);
 		break;
+	case CLK_REF_USB3OTG0:
+	case CLK_REF_USB3OTG1:
 	case TCLK_EMMC:
 	case TCLK_WDT0:
 		rate = OSC_HZ;
@@ -2014,6 +2062,8 @@ static ulong rk3576_clk_get_rate(struct clk *clk)
 	case CLK_GMAC1_PTP_REF:
 	case CLK_GMAC0_125M_SRC:
 	case CLK_GMAC1_125M_SRC:
+	case REFCLKO25M_GMAC0_OUT:
+	case REFCLKO25M_GMAC1_OUT:
 		rate = rk3576_gmac_get_clk(priv, clk->id);
 		break;
 	case CLK_UART_FRAC_0:
@@ -2151,6 +2201,8 @@ static ulong rk3576_clk_set_rate(struct clk *clk, ulong rate)
 	case HCLK_SDIO:
 		ret = rk3576_mmc_set_clk(priv, clk->id, rate);
 		break;
+	case CLK_REF_USB3OTG0:
+	case CLK_REF_USB3OTG1:
 	case TCLK_EMMC:
 	case TCLK_WDT0:
 		ret = OSC_HZ;
@@ -2193,6 +2245,8 @@ static ulong rk3576_clk_set_rate(struct clk *clk, ulong rate)
 	case CLK_GMAC1_PTP_REF:
 	case CLK_GMAC0_125M_SRC:
 	case CLK_GMAC1_125M_SRC:
+	case REFCLKO25M_GMAC0_OUT:
+	case REFCLKO25M_GMAC1_OUT:
 		ret = rk3576_gmac_set_clk(priv, clk->id, rate);
 		break;
 	case CLK_UART_FRAC_0:

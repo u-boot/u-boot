@@ -2,8 +2,7 @@ BANANAPI-BPI-R2-PRO
 M:	Frank Wunderlich <frank-w@public-files.de>
 S:	Maintained
 F:	configs/bpi-r2-pro-rk3568_defconfig
-F:	arch/arm/dts/rk3568-bpi-r2-pro.dts
-F:	arch/arm/dts/rk3568-bpi-r2-pro-u-boot.dtsi
+F:	arch/arm/dts/rk3568-bpi-r2-pro*
 
 EVB-RK3568
 M:	Joseph Chen <chenjh@rock-chips.com>
@@ -11,78 +10,67 @@ S:	Maintained
 F:	board/rockchip/evb_rk3568
 F:	include/configs/evb_rk3568.h
 F:	configs/evb-rk3568_defconfig
-F:	arch/arm/dts/rk3568-evb-u-boot.dtsi
-F:	arch/arm/dts/rk3568-evb.dts
+F:	arch/arm/dts/rk3568-evb*
 
 FASTRHINO-R66S-RK3568
 M:	Tianling Shen <cnsztl@gmail.com>
 R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/fastrhino-r66s-rk3568_defconfig
-F:	arch/arm/dts/rk3568-fastrhino-r66s-u-boot.dtsi
+F:	arch/arm/dts/rk3568-fastrhino-r66s*
 
 GENERIC-RK3568
 M:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/generic-rk3568_defconfig
-F:	arch/arm/dts/rk3568-generic.dts
-F:	arch/arm/dts/rk3568-generic-u-boot.dtsi
+F:	arch/arm/dts/rk3568-generic*
 
 LUBANCAT-2
 M:	Andy Yan <andyshrk@163.com>
 S:	Maintained
 F:	configs/lubancat-2-rk3568_defconfig
-F:	arch/arm/dts/rk3568-lubancat-2.dts
-F:	arch/arm/dts/rk3568-lubancat-2-u-boot.dtsi
+F:	arch/arm/dts/rk3568-lubancat-2*
 
 NANOPI-R3S
 M:	Tianling Shen <cnsztl@gmail.com>
 R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/nanopi-r3s-rk3566_defconfig
-F:	arch/arm/dts/rk3566-nanopi-r3s-u-boot.dtsi
+F:	arch/arm/dts/rk3566-nanopi-r3s*
 
 NANOPI-R5C
 M:	Tianling Shen <cnsztl@gmail.com>
 R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/nanopi-r5c-rk3568_defconfig
-F:	arch/arm/dts/rk3568-nanopi-r5c.dts
-F:	arch/arm/dts/rk3568-nanopi-r5c-u-boot.dtsi
+F:	arch/arm/dts/rk3568-nanopi-r5c*
 
 NANOPI-R5S
 M:	Tianling Shen <cnsztl@gmail.com>
 R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/nanopi-r5s-rk3568_defconfig
-F:	arch/arm/dts/rk3568-nanopi-r5s.dts
-F:	arch/arm/dts/rk3568-nanopi-r5s.dtsi
-F:	arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
+F:	arch/arm/dts/rk3568-nanopi-r5s*
 
 RADXA-CM3-IO
 M:	Jagan Teki <jagan@amarulasolutions.com>
 R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/radxa-cm3-io-rk3566_defconfig
-F:	arch/arm/dts/rk3566-radxa-cm3.dtsi
-F:	arch/arm/dts/rk3566-radxa-cm3-io.dts
-F:	arch/arm/dts/rk3566-radxa-cm3-io-u-boot.dtsi
+F:	arch/arm/dts/rk3566-radxa-cm3-io*
 
 RADXA-E25
 M:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/radxa-e25-rk3568_defconfig
-F:	arch/arm/dts/rk3568-radxa-cm3i.dtsi
-F:	arch/arm/dts/rk3568-radxa-e25.dts
-F:	arch/arm/dts/rk3568-radxa-e25-u-boot.dtsi
+F:	arch/arm/dts/rk3568-radxa-e25*
 
 ROCK-3A
 M:	Akash Gajjar <gajjar04akash@gmail.com>
 R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/rock-3a-rk3568_defconfig
-F:	arch/arm/dts/rk3568-rock-3a.dts
-F:	arch/arm/dts/rk3568-rock-3a-u-boot.dtsi
+F:	arch/arm/dts/rk3568-rock-3a*
 
 ROCK-3B
 M:	Jonas Karlman <jonas@kwiboo.se>
@@ -94,11 +82,11 @@ ROCK-3C
 M:	Jonas Karlman <jonas@kwiboo.se>
 M:	Maxim Moskalets <maximmosk4@gmail.com>
 S:	Maintained
-F:	arch/arm/dts/rk3566-rock-3c-u-boot.dtsi
+F:	arch/arm/dts/rk3566-rock-3c*
 F:	configs/rock-3c-rk3566_defconfig
 
 LCKFB-TaishanPi
 M:	Jiehui He <jiehui.he@foxmail.com>
 S:	Maintained
 F:	configs/lckfb-tspi-rk3566_defconfig
-F:	arch/arm/dts/rk3566-lckfb-tspi-u-boot.dtsi
+F:	arch/arm/dts/rk3566-lckfb-tspi*

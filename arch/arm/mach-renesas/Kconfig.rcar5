@@ -2,6 +2,7 @@ if RCAR_GEN5
 
 config RCAR_64_RSIP
 	bool "Renesas ARM SoCs R-Car Gen5 (use Cortex-M33 RSIP)"
+	select LMB_ARCH_MEM_MAP
 	select SKIP_RELOCATE_CODE
 	select TMU_TIMER
 	help

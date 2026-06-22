@@ -212,6 +212,11 @@ or initiate a reboot::
 
 and once the client comes back, the board should reset.
 
+It's possible to interrupt the fastboot command using Ctrl-c::
+
+   => fastboot usb 0
+   Operation aborted.
+
 You can also specify a kernel image to boot. You have to either specify
 the an image in Android format *or* pass a binary kernel and let the
 fastboot client wrap the Android suite around it. On OMAP for instance you

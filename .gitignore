@@ -16,6 +16,9 @@
 *.dtb
 *.dtbo
 *.dtb.S
+*.dtb.clean.dts
+*.dtb.diff
+*.dtb.full.dts
 *.elf
 *.exe
 *.fit

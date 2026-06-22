@@ -289,11 +289,14 @@ int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
 	slot = -1;
 	for (i = 0; i < abc->nb_slot; ++i) {
 		if (abc->slot_info[i].verity_corrupted ||
-		    !abc->slot_info[i].tries_remaining) {
+		    (!abc->slot_info[i].tries_remaining &&
+		     !abc->slot_info[i].successful_boot)) {
 			log_debug("ANDROID: unbootable slot %d tries: %d, ",
 				  i, abc->slot_info[i].tries_remaining);
-			log_debug("corrupt: %d\n",
+			log_debug("corrupt: %d, ",
 				  abc->slot_info[i].verity_corrupted);
+			log_debug("successful: %d\n",
+				  abc->slot_info[i].successful_boot);
 			continue;
 		}
 		log_debug("ANDROID: bootable slot %d pri: %d, tries: %d, ",

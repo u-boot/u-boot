@@ -18,6 +18,12 @@
 #include <mapmem.h>
 #include <spl.h>
 
+#define APMU_BASE			0xe6170000U
+#define CL0GRP3_BIT			BIT(3)
+#define CL1GRP3_BIT			BIT(7)
+#define RTGRP3_BIT			BIT(19)
+#define APMU_ACC_ENB_FOR_ARM_CPU	(CL0GRP3_BIT | CL1GRP3_BIT | RTGRP3_BIT)
+
 #define CNTCR_EN	BIT(0)
 
 #ifdef CONFIG_SPL_BUILD
@@ -47,6 +53,18 @@ void board_init_f(ulong dummy)
 	struct udevice *dev;
 	int ret;
 
+	/* Unlock CPG access */
+	writel(0x5A5AFFFF, CPGWPR);
+	writel(0xA5A50000, CPGWPCR);
+	init_generic_timer();
+
+	/* Define for Work Around of APMU */
+	writel(0x00ff00ff, APMU_BASE + 0x10);
+	writel(0x00ff00ff, APMU_BASE + 0x14);
+	writel(0x00ff00ff, APMU_BASE + 0x18);
+	writel(0x00ff00ff, APMU_BASE + 0x1c);
+	clrbits_le32(APMU_BASE + 0x68, BIT(29));
+
 	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
 		ret = spl_early_init();
 		if (ret) {
@@ -74,29 +92,6 @@ u32 spl_boot_device(void)
 struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 {
 	return map_sysmem(CONFIG_SYS_LOAD_ADDR + offset, 0);
-}
-
-#define APMU_BASE 0xe6170000U
-#define CL0GRP3_BIT			BIT(3)
-#define CL1GRP3_BIT			BIT(7)
-#define RTGRP3_BIT			BIT(19)
-#define APMU_ACC_ENB_FOR_ARM_CPU	(CL0GRP3_BIT | CL1GRP3_BIT | RTGRP3_BIT)
-
-int mach_cpu_init(void)
-{
-	/* Unlock CPG access */
-	writel(0x5A5AFFFF, CPGWPR);
-	writel(0xA5A50000, CPGWPCR);
-	init_generic_timer();
-
-	/* Define for Work Around of APMU */
-	writel(0x00ff00ff, APMU_BASE + 0x10);
-	writel(0x00ff00ff, APMU_BASE + 0x14);
-	writel(0x00ff00ff, APMU_BASE + 0x18);
-	writel(0x00ff00ff, APMU_BASE + 0x1c);
-	clrbits_le32(APMU_BASE + 0x68, BIT(29));
-
-	return 0;
 }
 
 void reset_cpu(void)

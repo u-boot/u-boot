@@ -121,6 +121,12 @@ Renesas is a SoC solutions provider for automotive and industrial applications.
      - rcar3_ulcb_defconfig
 
    * -
+     - Geist
+     - R8A779MD (M3Le)
+     - arm64
+     - r8a779md_geist_defconfig
+
+   * -
      - Eagle
      - R8A77970 (V3M)
      - arm64
@@ -186,6 +192,24 @@ Renesas is a SoC solutions provider for automotive and industrial applications.
      - arm64
      - r8a779g3_sparrowhawk_defconfig
 
+   * -
+     - Gray Hawk
+     - R8A779H0 (V4M)
+     - arm64
+     - r8a779h0_grayhawk_defconfig
+
+   * - R-Car Gen5
+     - Ironhide (Cortex-A720AE application core)
+     - R8A78000 (X5H)
+     - arm64
+     - r8a78000_ironhide_defconfig
+
+   * -
+     - Ironhide (Cortex-M33 RSIP boot core)
+     - R8A78000 (X5H)
+     - arm64
+     - r8a78000_ironhide_cm33_defconfig
+
    * - RZ/G2 Family
      - Beacon EmbeddedWorks RZ/G2M SoM
      - R8A774A1 (RZ/G2M)
@@ -231,13 +255,13 @@ Renesas is a SoC solutions provider for automotive and industrial applications.
    * - :doc:`RZ/N1 Family <rzn1>`
      - Schneider RZ/N1D board
      - R9A06G032 (RZ/N1D)
-     - arm64
+     - arm
      - rzn1_snarc_defconfig
 
    * -
      - Schneider RZ/N1S board
      - R9A06G033 (RZ/N1S)
-     - arm64
+     - arm
      - rzn1_snarc_defconfig
 
 Build
