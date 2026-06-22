@@ -136,14 +136,6 @@ void reset_cpu(void)
 	sysreset_walk_halt(SYSRESET_WARM);
 }
 
-/**
- * reset_cpu_cold() - calls sysreset_walk(SYSRESET_COLD)
- */
-void reset_cpu_cold(void)
-{
-	sysreset_walk_halt(SYSRESET_COLD);
-}
-
 UCLASS_DRIVER(sysreset) = {
 	.id		= UCLASS_SYSRESET,
 	.name		= "sysreset",

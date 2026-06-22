@@ -352,7 +352,7 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 					 sizeof(reset_message), reset_message);
 	} else {
 		efi_restore_gd();
-		reset_cpu_cold();
+		reset_cpu();
 	}
 
 	efi_st_printf("\n");
