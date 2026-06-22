@@ -870,12 +870,9 @@ static efi_status_t efi_init_event_log(void)
 	 * vendor_info_size is currently set to 0, we need to change the length
 	 * and allocate the flexible array member if this changes
 	 */
-	struct udevice *dev;
+	struct udevice *dev = NULL;
 	efi_status_t ret;
 	int rc;
-
-	if (tcg2_platform_get_tpm2(&dev))
-		return EFI_DEVICE_ERROR;
 
 	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA,
 				CONFIG_TPM2_EVENT_LOG_SIZE,
@@ -904,7 +901,7 @@ static efi_status_t efi_init_event_log(void)
 	 * platforms can use different ways to do so.
 	 */
 	event_log.log_size = CONFIG_TPM2_EVENT_LOG_SIZE;
-	rc = tcg2_measurement_init(dev, &event_log, false);
+	rc = tcg2_measurement_init(&dev, &event_log);
 	if (rc) {
 		ret = (rc == -ENOBUFS) ? EFI_BUFFER_TOO_SMALL : EFI_DEVICE_ERROR;
 		goto free_pool;
