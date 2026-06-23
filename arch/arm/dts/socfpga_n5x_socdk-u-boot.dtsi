@@ -8,6 +8,12 @@
 #include "socfpga_n5x-u-boot.dtsi"
 
 /{
+	fs_loader0: fs-loader {
+		bootph-all;
+		compatible = "u-boot,fs-loader";
+		sfconfig = <0 0>;
+	};
+
 	chosen {
 		u-boot,spl-boot-order = &mmc;
 	};
@@ -34,6 +40,13 @@
 		reg = <0 0x00000000 0 0x60000000>,
 			  <0x10 0x00100000 0 0x40000000>;
 	};
+};
+
+&sdr {
+	intel,ddrcal-qspi-offset = "0x7000000";
+	intel,ddrcal-ddr-offset = "0x100000";
+	firmware-loader = <&fs_loader0>;
+	bootph-all;
 };
 
 &flash0 {
