@@ -48,7 +48,7 @@ config USB_MUSB_TI
 	  silicon IP.
 
 config USB_MUSB_OMAP2PLUS
-	tristate "OMAP2430 and onwards"
+	bool "OMAP2430 and onwards"
 	depends on ARCH_OMAP2PLUS
 
 config USB_MUSB_AM35X

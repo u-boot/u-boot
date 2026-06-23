@@ -14,7 +14,7 @@ config CACHE
 	  configuring settings that be found from a device tree file.
 
 config L2X0_CACHE
-	tristate "PL310 cache driver"
+	bool "PL310 cache driver"
 	select CACHE
 	depends on ARM
 	help

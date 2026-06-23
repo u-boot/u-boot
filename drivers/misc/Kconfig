@@ -505,7 +505,7 @@ config TURRIS_OMNIA_MCU
 	  board power off.
 
 config USB_HUB_USB251XB
-	tristate "USB251XB Hub Controller Configuration Driver"
+	bool "USB251XB Hub Controller Configuration Driver"
 	depends on I2C
 	help
 	  This option enables support for configuration via SMBus of the

@@ -3177,7 +3177,7 @@ config CMD_STACKPROTECTOR_TEST
 endmenu
 
 config CMD_UBI
-	tristate "Enable UBI - Unsorted block images commands"
+	bool "Enable UBI - Unsorted block images commands"
 	select MTD_UBI
 	help
 	  UBI is a software layer above MTD layer which admits use of LVM-like
@@ -3197,7 +3197,7 @@ config CMD_UBI_RENAME
 	   ubi rename <oldname> <newname>
 
 config CMD_UBIFS
-	tristate "Enable UBIFS - Unsorted block images filesystem commands"
+	bool "Enable UBIFS - Unsorted block images filesystem commands"
 	depends on CMD_UBI
 	default y if CMD_UBI
 	select LZO

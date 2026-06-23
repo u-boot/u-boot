@@ -233,7 +233,7 @@ config PHY_MICREL_KSZ8XXX
 endif # PHY_MICREL
 
 config PHY_MOTORCOMM
-	tristate "Motorcomm PHYs"
+	bool "Motorcomm PHYs"
 	help
 	  Enables support for Motorcomm network PHYs.
 	  Currently supports the YT8511 and YT8531 Gigabit Ethernet PHYs.
@@ -246,7 +246,7 @@ config PHY_NATSEMI
 	bool "National Semiconductor Ethernet PHYs support"
 
 config PHY_NXP_C45_TJA11XX
-	tristate "NXP C45 TJA11XX PHYs"
+	bool "NXP C45 TJA11XX PHYs"
 	select DEVRES
 	help
 	  Enable support for NXP C45 TJA11XX PHYs.
