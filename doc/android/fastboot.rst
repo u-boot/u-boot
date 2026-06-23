@@ -147,6 +147,38 @@ The Fastboot implementation in U-Boot allows to write images into disk
 partitions. Target partitions are referred on the host computer by
 their names.
 
+Device Selection for Block Devices
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When using ``FASTBOOT_FLASH_BLOCK``, you can specify which block device to
+target by prefixing the partition name with the device number and a colon.
+
+Syntax::
+
+    <device_number>:<partition_name>
+
+Examples::
+
+    fastboot flash 0:boot boot.img        # Flash to device 0, partition "boot"
+    fastboot flash 1:system system.img    # Flash to device 1, partition "system"
+    fastboot flash 0:gpt gpt.img          # Write GPT to device 0
+    fastboot flash 1:mbr mbr.img          # Write MBR to device 1
+
+If no device number is specified, the default device from
+``CONFIG_FASTBOOT_FLASH_BLOCK_DEVICE_ID`` is used::
+
+    fastboot flash boot boot.img          # Uses default device
+
+This syntax is supported for:
+
+* Regular partition flashing
+* GPT partition table updates (``gpt`` or ``N:gpt``)
+* MBR partition table updates (``mbr`` or ``N:mbr``)
+* Partition erasing operations
+
+Partition Name Formats
+^^^^^^^^^^^^^^^^^^^^^^
+
 For GPT/EFI the respective partition name is used.
 
 For MBR the partitions are referred by generic names according to the
@@ -185,6 +217,15 @@ configuration options:
 
    CONFIG_FASTBOOT_GPT_NAME
    CONFIG_FASTBOOT_MBR_NAME
+
+When using block devices (``FASTBOOT_FLASH_BLOCK``), you can specify the target
+device by prefixing with the device number::
+
+   fastboot flash 0:gpt gpt.img    # Write GPT to device 0
+   fastboot flash 1:mbr mbr.img    # Write MBR to device 1
+
+If no device number is specified, the default device from
+``CONFIG_FASTBOOT_FLASH_BLOCK_DEVICE_ID`` is used.
 
 In Action
 ---------
