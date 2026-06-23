@@ -79,17 +79,20 @@ config TARGET_IMX8MQ_PHANBELL
 	bool "imx8mq_phanbell"
 	select IMX8MQ
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MQ_REFORM2
 	bool "imx8mq_reform2"
 	select IMX8MQ
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MM_DATA_MODUL_EDM_SBC
 	bool "Data Modul eDM SBC i.MX8M Mini"
 	select IMX8MM
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MM_EVK
 	bool "imx8mm LPDDR4 EVK board"
@@ -112,6 +115,7 @@ config TARGET_IMX8MM_ICORE_MX8MM
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 	help
 	  i.Core MX8M Mini is an EDIMM SOM based on NXP i.MX8MM.
 
@@ -130,6 +134,7 @@ config TARGET_IMX8MM_MX8MENLO
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MM_PHG
 	bool "i.MX8MM PHG board"
@@ -232,6 +237,7 @@ config TARGET_IMX8MP_DATA_MODUL_EDM_SBC
 	select IMX8MP
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MP_BEACON
 	bool "imx8mm Beacon Embedded devkit"
@@ -261,6 +267,7 @@ config TARGET_IMX8MP_ICORE_MX8MP
 	select IMX8MP
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 	help
 	  i.Core MX8M Plus is an EDIMM SOM based on NXP i.MX8MP.
 
@@ -308,6 +315,7 @@ config TARGET_PICO_IMX8MQ
 	bool "Support Technexion Pico iMX8MQ"
 	select IMX8MQ
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MN_VAR_SOM
 	bool "Variscite imx8mn_var_som"
@@ -324,6 +332,7 @@ config TARGET_KONTRON_PITX_IMX8M
 	bool "Support Kontron pITX-imx8m"
 	select IMX8MQ
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_TORADEX_SMARC_IMX8MP
 	bool "Support Toradex SMARC iMX8M Plus module"
@@ -426,6 +435,7 @@ config TARGET_LIBREM5
 	select IMX8MQ
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 endchoice
 
