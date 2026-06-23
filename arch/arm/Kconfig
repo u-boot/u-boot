@@ -1136,23 +1136,53 @@ config ARCH_SNAPDRAGON
 	bool "Qualcomm Snapdragon SoCs"
 	select ARM64
 	select DM
+	select DM_EVENT if USB_DWC3_GENERIC
 	select DM_GPIO
 	select DM_SERIAL
 	select DM_RESET
 	select POWER_DOMAIN
 	select GPIO_EXTRA_HEADER
-	select MSM_SMEM
 	select OF_CONTROL
-	select SMEM
+	select QCOM_SMEM
 	select SPMI
 	select BOARD_LATE_INIT
 	select OF_BOARD
 	select SAVE_PREV_BL_FDT_ADDR if !ENABLE_ARM_SOC_BOOT0_HOOK
 	select LINUX_KERNEL_IMAGE_HEADER if !ENABLE_ARM_SOC_BOOT0_HOOK
 	select SYSRESET
-	select SYSRESET_PSCI
+	select SYSRESET_PSCI if !SPL
 	select ANDROID_BOOT_IMAGE_IGNORE_BLOB_ADDR
 	select MMU_PGPROT
+	select SUPPORT_SPL
+
+	select OF_LIVE if USB_DWC3_GENERIC
+	select SPL_OF_LIVE if SPL_USB_DWC3_GENERIC
+	select ARMV8_SPL_EXCEPTION_VECTORS if SPL
+	select ENABLE_ARM_SOC_BOOT0_HOOK if SPL
+	select SPL_DM if SPL
+	select SPL_DM_GPIO if SPL
+	select SPL_DM_PMIC if SPL
+	select SPL_DM_USB_GADGET if SPL
+	select SPL_ENV_SUPPORT if SPL
+	select SPL_EVENT if SPL_USB_DWC3_GENERIC
+	select SPL_GPIO if SPL
+	select SPL_HAS_BSS_LINKER_SECTION if SPL
+	select SPL_LIBCOMMON_SUPPORT if SPL
+	select SPL_LIBDISK_SUPPORT if SPL
+	select SPL_LIBGENERIC_SUPPORT if SPL
+	select SPL_OF_CONTROL if SPL
+	select SPL_PINCONF if SPL
+	select SPL_PINCTRL if SPL
+	select SPL_PINCTRL_FULL if SPL
+	select SPL_PINCTRL_GENERIC if SPL
+	select SPL_PINCONF_RECURSIVE if SPL
+	select SPL_PINMUX if SPL
+	select SPL_SPMI if SPL
+	select SPL_SPMI_MSM if SPL
+	select SPL_SPRINTF if SPL
+	select SPL_STRTO if SPL
+	select SPL_USB_GADGET if SPL
+	imply SPL_MMC if SPL
 	imply OF_UPSTREAM
 	imply CMD_DM
 	imply DM_USB_GADGET
