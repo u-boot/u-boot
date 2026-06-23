@@ -1496,6 +1496,9 @@ static bool is_ddrconfig_hash_match(const void *buffer)
 	u8 hash[SHA384_SUM_LEN];
 	u32 memclk_table[4];
 	u32 size = ARRAY_SIZE(memclk_table);
+	u8 *memclk_hash_dst = (u8 *)(DDR_HANDOFF_IMG_ADDR +
+				     DDR_HANDOFF_IMG_LEN - SZ_512);
+	u8 saved_handoff[SHA384_SUM_LEN];
 
 	/* Magic symbol in first 4 bytes of header */
 	struct cal_header_t *header = (struct cal_header_t *)buffer;
@@ -1512,13 +1515,25 @@ static bool is_ddrconfig_hash_match(const void *buffer)
 		return -EFAULT;
 	}
 
+	/*
+	 * The memclk hash is written into the tail of the hashed handoff image
+	 * (DDR_HANDOFF_IMG_ADDR + DDR_HANDOFF_IMG_LEN - SZ_512) so that the
+	 * whole-image hash covers it. That location overlaps the PHY init
+	 * engine handoff table that phy_init_engine() replays on the retention
+	 * restore path, so snapshot the original handoff bytes and restore them
+	 * once the hash has been computed.
+	 */
+	memcpy(saved_handoff, memclk_hash_dst, SHA384_SUM_LEN);
+
 	sha384_csum_wd((u8 *)memclk_table, (4 * sizeof(u32)),
-		       (u8 *)DDR_HANDOFF_IMG_ADDR + DDR_HANDOFF_IMG_LEN - SZ_512,
-		       CHUNKSZ_PER_WD_RESET);
+		       memclk_hash_dst, CHUNKSZ_PER_WD_RESET);
 
 	/* Generate HASH384 from the image */
 	sha384_csum_wd((u8 *)DDR_HANDOFF_IMG_ADDR, DDR_HANDOFF_IMG_LEN,
 		       hash, CHUNKSZ_PER_WD_RESET);
+
+	/* Restore the handoff bytes clobbered by the memclk hash above */
+	memcpy(memclk_hash_dst, saved_handoff, SHA384_SUM_LEN);
 
 	ret = memcmp((void *)hash, (const void *)header->ddrconfig_hash,
 		     SHA384_SUM_LEN);
@@ -2956,10 +2971,31 @@ int sdram_mmr_init_full(struct udevice *dev)
 			}
 
 		} else {
-			/* Updating training result to DDR controller */
-			ret = update_training_result(&ddr_handoff_info);
-			if (ret)
-				return ret;
+			/*
+			 * Retention restore path: the trained results were
+			 * already reloaded into the PHY by cal_data_ocram()
+			 * (LOADING) in init_phy(), so update_training_result()
+			 * must not run here (it would read back results from a
+			 * PHY that was never freshly trained and fail the DFI
+			 * handshake). Bring the PHY microcontroller out of
+			 * reset/stall, then replay the PIE handoff to return the
+			 * PHY to normal operating mode.
+			 */
+			clrbits_le16(ddr_handoff_info.phy_base +
+				     DDR_PHY_APBONLY0_OFFSET,
+				     DDR_PHY_MICROCONTMUXSEL);
+			setbits_le16(ddr_handoff_info.phy_base +
+				     DDR_PHY_MICRORESET_OFFSET,
+				     DDR_PHY_MICRORESET_RESET |
+				     DDR_PHY_MICRORESET_STALL);
+			clrbits_le16(ddr_handoff_info.phy_base +
+				     DDR_PHY_MICRORESET_OFFSET,
+				     DDR_PHY_MICRORESET_RESET);
+			setbits_le16(ddr_handoff_info.phy_base +
+				     DDR_PHY_APBONLY0_OFFSET,
+				     DDR_PHY_MICROCONTMUXSEL);
+
+			phy_init_engine(&ddr_handoff_info);
 		}
 
 		/*
