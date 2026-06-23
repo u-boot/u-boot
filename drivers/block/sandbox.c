@@ -55,9 +55,18 @@ static unsigned long host_block_write(struct udevice *dev,
 	return -EIO;
 }
 
+unsigned long host_block_flush(struct udevice *dev)
+{
+	struct udevice *host_dev = dev_get_parent(dev);
+	struct host_sb_plat *plat = dev_get_plat(host_dev);
+
+	return os_fsync(plat->fd);
+}
+
 static const struct blk_ops sandbox_host_blk_ops = {
 	.read	= host_block_read,
 	.write	= host_block_write,
+	.flush	= host_block_flush,
 };
 
 U_BOOT_DRIVER(sandbox_host_blk) = {

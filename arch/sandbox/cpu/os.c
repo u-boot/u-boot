@@ -139,6 +139,11 @@ int os_close(int fd)
 	return -1;
 }
 
+int os_fsync(int fd)
+{
+    return fsync(fd);
+}
+
 int os_unlink(const char *pathname)
 {
 	return unlink(pathname);
