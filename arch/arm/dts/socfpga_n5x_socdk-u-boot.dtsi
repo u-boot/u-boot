@@ -44,6 +44,10 @@
 	bootph-all;
 };
 
+&gmac0 {
+	status = "okay";
+};
+
 &i2c1 {
 	status = "okay";
 };
@@ -55,6 +59,7 @@
 };
 
 &qspi {
+	/delete-property/ clocks;
 	status = "okay";
 };
 
