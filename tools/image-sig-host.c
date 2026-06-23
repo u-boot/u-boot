@@ -84,6 +84,13 @@ struct crypto_algo crypto_algos[] = {
 		.verify = ecdsa_verify,
 	},
 	{
+		.name = "ecdsa521",
+		.key_len = ECDSA521_BYTES,
+		.sign = ecdsa_sign,
+		.add_verify_data = ecdsa_add_verify_data,
+		.verify = ecdsa_verify,
+	},
+	{
 		.name = "secp521r1",
 		.key_len = ECDSA521_BYTES,
 		.sign = ecdsa_sign,
