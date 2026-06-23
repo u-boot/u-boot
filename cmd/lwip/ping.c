@@ -163,6 +163,7 @@ static int ping_loop(struct udevice *udev, const ip_addr_t *addr)
 int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ip_addr_t addr;
+	int ret;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -171,13 +172,15 @@ int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 
 	net_try_count = 1;
-restart:
-	if (net_lwip_eth_start() < 0 || ping_loop(eth_get_dev(), &addr) < 0) {
-		if (net_start_again() == 0)
-			goto restart;
-		else
-			return CMD_RET_FAILURE;
-	}
 
-	return CMD_RET_SUCCESS;
+	do {
+		if (net_lwip_eth_start() == 0) {
+			ret = ping_loop(eth_get_dev(), &addr);
+			net_lwip_eth_stop();
+			if (ret == 0)
+				return CMD_RET_SUCCESS;
+		}
+	} while (net_start_again() == 0);
+
+	return CMD_RET_FAILURE;
 }

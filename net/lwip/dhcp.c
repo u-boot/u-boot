@@ -138,18 +138,25 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	dev = eth_get_dev();
 	if (!dev) {
 		log_err("No network device\n");
-		return CMD_RET_FAILURE;
+		ret = CMD_RET_FAILURE;
+		goto out;
 	}
 
 	ret = dhcp_loop(dev);
 	if (ret)
-		return ret;
+		goto out;
 
 	if (argc > 1) {
 		struct cmd_tbl cmdtp = {};
 
-		return do_tftpb(&cmdtp, 0, argc, argv);
+		ret = do_tftpb(&cmdtp, 0, argc, argv);
+		goto out;
 	}
 
-	return CMD_RET_SUCCESS;
+	ret = CMD_RET_SUCCESS;
+
+out:
+	net_lwip_eth_stop();
+
+	return ret;
 }
