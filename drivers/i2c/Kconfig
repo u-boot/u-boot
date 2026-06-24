@@ -98,7 +98,7 @@ config SYS_I2C_EARLY_INIT
 	  board_early_init_f.
 
 config I2C_CROS_EC_TUNNEL
-	tristate "Chrome OS EC tunnel I2C bus"
+	bool "Chrome OS EC tunnel I2C bus"
 	depends on CROS_EC
 	help
 	  This provides an I2C bus that will tunnel i2c commands through to
@@ -213,14 +213,14 @@ config SYS_FSL_I2C4_OFFSET
 endif
 
 config SYS_I2C_CADENCE
-	tristate "Cadence I2C Controller"
+	bool "Cadence I2C Controller"
 	depends on DM_I2C
 	help
 	  Say yes here to select Cadence I2C Host Controller. This controller is
 	  e.g. used by Xilinx Zynq.
 
 config SYS_I2C_CA
-	tristate "Cortina-Access I2C Controller"
+	bool "Cortina-Access I2C Controller"
 	depends on DM_I2C && CORTINA_PLATFORM
 	help
 	  Add support for the Cortina Access I2C host controller.

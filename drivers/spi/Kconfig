@@ -548,7 +548,7 @@ config SOFT_SPI
 	 the SPI protocol.
 
 config SPI_SN_F_OSPI
-	tristate "Socionext F_OSPI SPI flash controller"
+	bool "Socionext F_OSPI SPI flash controller"
 	select SPI_MEM
 	help
 	  This enables support for the Socionext F_OSPI controller

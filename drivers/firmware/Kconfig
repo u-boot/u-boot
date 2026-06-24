@@ -14,7 +14,7 @@ config ARM_PSCI_FW
 	select FIRMWARE
 
 config TI_SCI_PROTOCOL
-	tristate "TI System Control Interface (TISCI) Message Protocol"
+	bool "TI System Control Interface (TISCI) Message Protocol"
 	depends on K3_SEC_PROXY
 	select DEVRES
 	select FIRMWARE

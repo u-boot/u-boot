@@ -24,7 +24,7 @@ config UFS_CADENCE
 	  controller present on present TI's J721e devices.
 
 config UFS_MEDIATEK
-	tristate "MediaTek UFS Host Controller Driver"
+	bool "MediaTek UFS Host Controller Driver"
 	depends on UFS && ARCH_MEDIATEK
 	select PHY_MTK_UFS
 	help

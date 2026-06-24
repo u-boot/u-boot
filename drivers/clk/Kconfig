@@ -216,7 +216,7 @@ config CLK_HSDK
 	  Synopsys ARC HSDK-4xD boards
 
 config CLK_VERSACLOCK
-	tristate "Enable VersaClock 5/6 devices"
+	bool "Enable VersaClock 5/6 devices"
 	depends on CLK
 	depends on CLK_CCF
 	depends on OF_CONTROL

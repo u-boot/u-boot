@@ -576,7 +576,7 @@ config MMC_SDHCI_ATMEL
 	  specification.
 
 config MMC_SDHCI_BCM2835
-	tristate "SDHCI support for the BCM2835 SD/MMC Controller"
+	bool "SDHCI support for the BCM2835 SD/MMC Controller"
 	depends on ARCH_BCM283X
 	depends on MMC_SDHCI
 	select MMC_SDHCI_IO_ACCESSORS
@@ -589,7 +589,7 @@ config MMC_SDHCI_BCM2835
 	  If unsure, say N.
 
 config MMC_SDHCI_BCMSTB
-	tristate "SDHCI support for the BCMSTB SD/MMC Controller"
+	bool "SDHCI support for the BCMSTB SD/MMC Controller"
 	depends on MMC_SDHCI && (ARCH_BCMSTB || ARCH_BCM283X)
 	help
 	  This selects the Broadcom set-top box SD/MMC controller.
