@@ -13,6 +13,7 @@
 #include <cli.h>
 #include <command.h>
 #include <console.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <fdtdec.h>
 #include <init.h>
@@ -87,3 +88,11 @@ void main_loop(void)
 
 	panic("No CLI available");
 }
+
+#ifndef CONFIG_SYSRESET
+__weak void reset_cpu(void)
+{
+	/* TODO: Refactor all the do_reset calls to be reset_cpu() instead */
+	do_reset(NULL, 0, 0, NULL);
+}
+#endif

@@ -808,11 +808,3 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	/* NOTREACHED - run_main_loop() does not return */
 	hang();
 }
-
-#ifndef CONFIG_SYSRESET
-__weak void reset_cpu(void)
-{
-	/* TODO: Refactor all the do_reset calls to be reset_cpu() instead */
-	do_reset(NULL, 0, 0, NULL);
-}
-#endif
