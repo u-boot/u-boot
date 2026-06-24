@@ -5,6 +5,7 @@ config MEDIATEK_ETH
 	select PHYLIB
 	select DM_GPIO
 	select DM_RESET
+	select LMB_LIMIT_DMA_BELOW_RAM_TOP
 	help
 	  This Driver support MediaTek Ethernet GMAC
 	  Say Y to enable support for the MediaTek Ethernet GMAC.
