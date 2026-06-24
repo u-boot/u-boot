@@ -13,7 +13,7 @@ ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_IDE) += ide.o
 obj-$(CONFIG_RKMTD) += rkmtd.o
 endif
-obj-$(CONFIG_SANDBOX) += sandbox.o host-uclass.o host_dev.o
+obj-$(CONFIG_SANDBOX) += sandbox.o sandbox-bootdev.o host-uclass.o host_dev.o
 obj-$(CONFIG_$(PHASE_)BLOCK_CACHE) += blkcache.o
 obj-$(CONFIG_$(PHASE_)BLKMAP) += blkmap.o
 obj-$(CONFIG_$(PHASE_)BLKMAP) += blkmap_helper.o
