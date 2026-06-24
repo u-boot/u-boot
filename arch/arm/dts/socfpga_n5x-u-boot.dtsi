@@ -92,6 +92,7 @@
 	clocks = <&clkmgr N5X_L4_MP_CLK>,
 		 <&clkmgr N5X_SDMMC_CLK>;
 	resets = <&rst SDMMC_RESET>, <&rst SDMMC_OCP_RESET>;
+	fifo-mode;
 };
 
 &pdma {
