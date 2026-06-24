@@ -69,13 +69,13 @@ int dram_init_banksize(void)
 {
 	u64 high_mem_size;
 
-	gd->bd->bi_dram[0].start = 0;
-	gd->bd->bi_dram[0].size = qemu_get_low_memory_size();
+	gd->dram[0].start = 0;
+	gd->dram[0].size = qemu_get_low_memory_size();
 
 	high_mem_size = qemu_get_high_memory_size();
 	if (high_mem_size) {
-		gd->bd->bi_dram[1].start = SZ_4G;
-		gd->bd->bi_dram[1].size = high_mem_size;
+		gd->dram[1].start = SZ_4G;
+		gd->dram[1].size = high_mem_size;
 	}
 
 	return 0;

@@ -198,10 +198,10 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
 	/* fixup DT for the two DDR banks */
-	base[0] = gd->bd->bi_dram[0].start;
-	size[0] = gd->bd->bi_dram[0].size;
-	base[1] = gd->bd->bi_dram[1].start;
-	size[1] = gd->bd->bi_dram[1].size;
+	base[0] = gd->dram[0].start;
+	size[0] = gd->dram[0].size;
+	base[1] = gd->dram[1].start;
+	size[1] = gd->dram[1].size;
 
 	fdt_fixup_memory_banks(blob, base, size, 2);
 	ft_cpu_setup(blob, bd);

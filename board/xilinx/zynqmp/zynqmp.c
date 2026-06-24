@@ -279,8 +279,8 @@ int dram_init(void)
 #else
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = get_effective_memsize();
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].size = get_effective_memsize();
 
 	mem_map_fill();
 

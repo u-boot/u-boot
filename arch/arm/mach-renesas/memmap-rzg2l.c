@@ -67,8 +67,8 @@ void enable_caches(void)
 
 	/* Generate entries for DRAM in 32bit address space */
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		start = gd->bd->bi_dram[bank].start;
-		size = gd->bd->bi_dram[bank].size;
+		start = gd->dram[bank].start;
+		size = gd->dram[bank].size;
 
 		/* Skip empty DRAM banks */
 		if (!size)

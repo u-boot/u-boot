@@ -171,7 +171,7 @@ static int rockchip_dram_init_banksize(void)
 
 	/*
 	 * Rockchip guaranteed DDR_MEM is ordered so no need to worry about
-	 * bi_dram order.
+	 * dram order.
 	 */
 	for (i = 0, j = 0; i < ddr_info->count; i++, j++) {
 		phys_size_t size = ddr_info->bank[(i + ddr_info->count)];
@@ -261,8 +261,8 @@ static int rockchip_dram_init_banksize(void)
 				 * split the region in two, one for before the
 				 * reserved memory area and one for after.
 				 */
-				gd->bd->bi_dram[j].start = start_addr;
-				gd->bd->bi_dram[j].size = rsrv_start - start_addr;
+				gd->dram[j].start = start_addr;
+				gd->dram[j].size = rsrv_start - start_addr;
 
 				j++;
 
@@ -281,8 +281,8 @@ static int rockchip_dram_init_banksize(void)
 			return -ENOMEM;
 		}
 
-		gd->bd->bi_dram[j].start = start_addr;
-		gd->bd->bi_dram[j].size = size;
+		gd->dram[j].start = start_addr;
+		gd->dram[j].size = size;
 	}
 
 	return 0;
@@ -309,15 +309,15 @@ int dram_init_banksize(void)
 	      ret);
 
 	/* Reserve 2M for ATF bl31 */
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE + SZ_2M;
-	gd->bd->bi_dram[0].size = top - gd->bd->bi_dram[0].start;
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE + SZ_2M;
+	gd->dram[0].size = top - gd->dram[0].start;
 
 	/* Add usable memory beyond the blob of space for peripheral near 4GB */
 	if (ram_top > SZ_4G && top < SZ_4G) {
-		gd->bd->bi_dram[1].start = SZ_4G;
-		gd->bd->bi_dram[1].size = ram_top - gd->bd->bi_dram[1].start;
+		gd->dram[1].start = SZ_4G;
+		gd->dram[1].size = ram_top - gd->dram[1].start;
 	} else if (ram_top > SZ_4G && top == SZ_4G) {
-		gd->bd->bi_dram[0].size = ram_top - gd->bd->bi_dram[0].start;
+		gd->dram[0].size = ram_top - gd->dram[0].start;
 	}
 #else
 #ifdef CONFIG_SPL_OPTEE_IMAGE
@@ -327,23 +327,23 @@ int dram_init_banksize(void)
 			TRUST_PARAMETER_OFFSET);
 
 	if (tos_parameter->tee_mem.flags == 1) {
-		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-		gd->bd->bi_dram[0].size = tos_parameter->tee_mem.phy_addr
+		gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->dram[0].size = tos_parameter->tee_mem.phy_addr
 					- CFG_SYS_SDRAM_BASE;
-		gd->bd->bi_dram[1].start = tos_parameter->tee_mem.phy_addr +
+		gd->dram[1].start = tos_parameter->tee_mem.phy_addr +
 					tos_parameter->tee_mem.size;
-		gd->bd->bi_dram[1].size = top - gd->bd->bi_dram[1].start;
+		gd->dram[1].size = top - gd->dram[1].start;
 	} else {
-		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-		gd->bd->bi_dram[0].size = 0x8400000;
+		gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->dram[0].size = 0x8400000;
 		/* Reserve 32M for OPTEE with TA */
-		gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE
-					+ gd->bd->bi_dram[0].size + 0x2000000;
-		gd->bd->bi_dram[1].size = top - gd->bd->bi_dram[1].start;
+		gd->dram[1].start = CFG_SYS_SDRAM_BASE
+					+ gd->dram[0].size + 0x2000000;
+		gd->dram[1].size = top - gd->dram[1].start;
 	}
 #else
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = top - gd->bd->bi_dram[0].start;
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].size = top - gd->dram[0].start;
 #endif
 #endif
 

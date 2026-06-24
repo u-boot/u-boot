@@ -1336,7 +1336,7 @@ int sunxi_simplefb_setup(void *blob)
 	 * and e.g. Linux refuses to iomap RAM on ARM, see:
 	 * linux/arch/arm/mm/ioremap.c around line 301.
 	 */
-	start = gd->bd->bi_dram[0].start;
+	start = gd->dram[0].start;
 	size = sunxi_display->fb_addr - start;
 	ret = fdt_fixup_memory_banks(blob, &start, &size, 1);
 	if (ret) {

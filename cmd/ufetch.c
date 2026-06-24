@@ -202,8 +202,8 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 			printf("CPU: " RESET CONFIG_SYS_ARCH " (%d cores, 1 in use)\n", n_cpus);
 			break;
 		case MEMORY:
-			for (int j = 0; j < CONFIG_NR_DRAM_BANKS && gd->bd->bi_dram[j].size; j++)
-				size += gd->bd->bi_dram[j].size;
+			for (int j = 0; j < CONFIG_NR_DRAM_BANKS && gd->dram[j].size; j++)
+				size += gd->dram[j].size;
 			printf("Memory:" RESET " ");
 			print_size(size, "\n");
 			break;

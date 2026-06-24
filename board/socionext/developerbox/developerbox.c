@@ -170,11 +170,11 @@ int dram_init_banksize(void)
 	struct draminfo_entry *ent = synquacer_draminfo->entry;
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(gd->bd->bi_dram); i++) {
+	for (i = 0; i < ARRAY_SIZE(gd->dram); i++) {
 		if (i < synquacer_draminfo->nr_regions) {
 			debug("%s: dram[%d] = %llx@%llx\n", __func__, i, ent[i].size, ent[i].base);
-			gd->bd->bi_dram[i].start = ent[i].base;
-			gd->bd->bi_dram[i].size = ent[i].size;
+			gd->dram[i].start = ent[i].base;
+			gd->dram[i].size = ent[i].size;
 		}
 	}
 

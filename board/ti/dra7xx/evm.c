@@ -643,11 +643,11 @@ int dram_init_banksize(void)
 
 	ram_size = board_ti_get_emif_size();
 
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = get_effective_memsize();
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].size = get_effective_memsize();
 	if (ram_size > CFG_MAX_MEM_MAPPED) {
-		gd->bd->bi_dram[1].start = 0x200000000;
-		gd->bd->bi_dram[1].size = ram_size - CFG_MAX_MEM_MAPPED;
+		gd->dram[1].start = 0x200000000;
+		gd->dram[1].size = ram_size - CFG_MAX_MEM_MAPPED;
 	}
 
 	return 0;

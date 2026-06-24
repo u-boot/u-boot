@@ -42,9 +42,9 @@ int dram_init_banksize(void)
 
 	static_assert(CONFIG_NR_DRAM_BANKS >= 3);
 
-	gd->bd->bi_dram[0].start = gd->ram_base;
-	gd->bd->bi_dram[0].size = get_effective_memsize();
-	size -= gd->bd->bi_dram[0].size;
+	gd->dram[0].start = gd->ram_base;
+	gd->dram[0].size = get_effective_memsize();
+	size -= gd->dram[0].size;
 
 	/* Note: This address space is not mapped via TLB entries in U-Boot */
 
@@ -68,16 +68,16 @@ int dram_init_banksize(void)
 
 	if (size > 0) {
 		/* Free space between PCIe bus 3 MEM and NOR */
-		gd->bd->bi_dram[1].start = 0xc0200000;
-		gd->bd->bi_dram[1].size = min(size, 0xef000000 - gd->bd->bi_dram[1].start);
-		size -= gd->bd->bi_dram[1].size;
+		gd->dram[1].start = 0xc0200000;
+		gd->dram[1].size = min(size, 0xef000000 - gd->dram[1].start);
+		size -= gd->dram[1].size;
 	}
 
 	if (size > 0) {
 		/* Free space between NOR and NAND */
-		gd->bd->bi_dram[2].start = 0xf0000000;
-		gd->bd->bi_dram[2].size = min(size, 0xff800000 - gd->bd->bi_dram[2].start);
-		size -= gd->bd->bi_dram[2].size;
+		gd->dram[2].start = 0xf0000000;
+		gd->dram[2].size = min(size, 0xff800000 - gd->dram[2].start);
+		size -= gd->dram[2].size;
 	}
 #else
 	puts("\n\n!!! TODO: fix sdcard >2GB RAM\n\n\n");
@@ -231,8 +231,8 @@ void ft_memory_setup(void *blob, struct bd_info *bd)
 
 	if (!env_get("bootm_low") && !env_get("bootm_size")) {
 		for (count = 0; count < CONFIG_NR_DRAM_BANKS; count++) {
-			start[count] = gd->bd->bi_dram[count].start;
-			size[count] = gd->bd->bi_dram[count].size;
+			start[count] = gd->dram[count].start;
+			size[count] = gd->dram[count].size;
 			if (!size[count])
 				break;
 		}
@@ -452,13 +452,13 @@ static void recalculate_used_pcie_mem(void)
 	size = gd->ram_size;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		size -= gd->bd->bi_dram[i].size;
+		size -= gd->dram[i].size;
 
 	if (size == 0)
 		return;
 
 	e = find_law_by_addr_id(CFG_SYS_PCIE3_MEM_PHYS, LAW_TRGT_IF_PCIE_3);
-	if (e.index < 0 && gd->bd->bi_dram[1].size > 0) {
+	if (e.index < 0 && gd->dram[1].size > 0) {
 		/*
 		 * If there is no LAW for PCIe 3 MEM then 3rd PCIe controller
 		 * is inactive, which is the case for Turris 1.0 boards. So
@@ -471,8 +471,8 @@ static void recalculate_used_pcie_mem(void)
 		printf("Reserving unused ");
 		print_size(bank_size, "");
 		printf(" of PCIe 3 MEM for DDR RAM\n");
-		gd->bd->bi_dram[1].start -= bank_size;
-		gd->bd->bi_dram[1].size += bank_size;
+		gd->dram[1].start -= bank_size;
+		gd->dram[1].size += bank_size;
 		size -= bank_size;
 		if (size == 0)
 			return;
@@ -534,9 +534,9 @@ static void recalculate_used_pcie_mem(void)
 		printf("Reserving unused ");
 		print_size(free_size2, "");
 		printf(" of PCIe 2 MEM for DDR RAM\n");
-		gd->bd->bi_dram[i].start = free_start2;
-		gd->bd->bi_dram[i].size = min(size, free_size2);
-		size -= gd->bd->bi_dram[i].start;
+		gd->dram[i].start = free_start2;
+		gd->dram[i].size = min(size, free_size2);
+		size -= gd->dram[i].start;
 		i++;
 		if (size == 0)
 			return;
@@ -548,9 +548,9 @@ static void recalculate_used_pcie_mem(void)
 		printf("Reserving unused ");
 		print_size(free_size1, "");
 		printf(" of PCIe 1 MEM for DDR RAM\n");
-		gd->bd->bi_dram[i].start = free_start1;
-		gd->bd->bi_dram[i].size = min(size, free_size1);
-		size -= gd->bd->bi_dram[i].size;
+		gd->dram[i].start = free_start1;
+		gd->dram[i].size = min(size, free_size1);
+		size -= gd->dram[i].size;
 		i++;
 		if (size == 0)
 			return;

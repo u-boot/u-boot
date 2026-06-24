@@ -260,8 +260,8 @@ int boot_relocate_fdt(char **of_flat_tree, ulong *of_size)
 		of_start = NULL;
 
 		for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-			start = gd->bd->bi_dram[bank].start;
-			size = gd->bd->bi_dram[bank].size;
+			start = gd->dram[bank].start;
+			size = gd->dram[bank].size;
 
 			/* DRAM bank addresses are too low, skip it. */
 			if (start + size < low)

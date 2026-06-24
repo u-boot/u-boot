@@ -246,7 +246,6 @@ int qspi_flash_software_reset(void)
 
 void dram_bank_mmu_setup(int bank)
 {
-	struct bd_info *bd = gd->bd;
 	u32 start, size;
 	int i;
 
@@ -261,11 +260,11 @@ void dram_bank_mmu_setup(int bank)
 	 * The default implementation of this function allows the DRAM dcache
 	 * to be enabled only after relocation. However, to speed up ECC
 	 * initialization, we want to be able to enable DRAM dcache before
-	 * relocation, so we don't check GD_FLG_RELOC (this assumes bd->bi_dram
+	 * relocation, so we don't check GD_FLG_RELOC (this assumes gd->dram
 	 * is set first).
 	 */
-	start = bd->bi_dram[bank].start >> MMU_SECTION_SHIFT;
-	size = bd->bi_dram[bank].size >> MMU_SECTION_SHIFT;
+	start = gd->dram[bank].start >> MMU_SECTION_SHIFT;
+	size = gd->dram[bank].size >> MMU_SECTION_SHIFT;
 	for (i = start; i < start + size; i++)
 		set_section_dcache(i, DCACHE_DEFAULT_OPTION);
 }

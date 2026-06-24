@@ -49,15 +49,15 @@ int dram_init_banksize(void)
 		return 0;
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		if (gd->bd->bi_dram[bank].start != 0x48000000)
+		if (gd->dram[bank].start != 0x48000000)
 			continue;
 
 		/*
 		 * If this U-Boot runs in EL3, make the bottom 128 MiB
 		 * available for loading of follow up firmware blobs.
 		 */
-		gd->bd->bi_dram[bank].start -= 0x8000000;
-		gd->bd->bi_dram[bank].size += 0x8000000;
+		gd->dram[bank].start -= 0x8000000;
+		gd->dram[bank].size += 0x8000000;
 		break;
 	}
 

@@ -57,6 +57,7 @@ struct fdt_memory {
 };
 
 struct bd_info;
+struct global_data;
 
 /**
  * enum fdt_source_t - indicates where the devicetree came from
@@ -974,7 +975,7 @@ int fdtdec_setup_mem_size_base(void);
 int fdtdec_setup_mem_size_base_lowest(void);
 
 /**
- * fdtdec_setup_memory_banksize() - decode and populate gd->bd->bi_dram
+ * fdtdec_setup_memory_banksize() - decode and populate gd->dram
  *
  * Decode the /memory 'reg' property to determine the address and size of the
  * memory banks. Use this data to populate the global data board info with the
@@ -1256,12 +1257,12 @@ int board_fdt_blob_setup(void **fdtp);
  * @param basep		Returns base address of first memory bank (NULL to
  *			ignore)
  * @param sizep		Returns total memory size (NULL to ignore)
- * @param bd		Updated with the memory bank information (NULL to skip)
+ * @param gd_ptr	Updated with the memory bank information (NULL to skip)
  * Return: 0 if OK, -ve on error
  */
 int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 			   phys_addr_t *basep, phys_size_t *sizep,
-			   struct bd_info *bd);
+			   struct global_data *gd_ptr);
 
 /**
  * fdtdec_get_srcname() - Get the name of where the devicetree comes from

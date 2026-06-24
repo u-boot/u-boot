@@ -43,14 +43,13 @@ void bootm_announce_and_cleanup(void)
 #if defined(CONFIG_OF_LIBFDT) && !defined(CONFIG_OF_NO_KERNEL)
 int arch_fixup_memory_node(void *blob)
 {
-	struct bd_info	*bd = gd->bd;
 	int bank;
 	u64 start[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		start[bank] = bd->bi_dram[bank].start;
-		size[bank] = bd->bi_dram[bank].size;
+		start[bank] = gd->dram[bank].start;
+		size[bank] = gd->dram[bank].size;
 	}
 
 	return fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);

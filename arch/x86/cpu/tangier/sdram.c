@@ -160,8 +160,8 @@ static int sfi_get_bank_size(void)
 		if (mentry->type != SFI_MEM_CONV)
 			continue;
 
-		gd->bd->bi_dram[bank].start = mentry->phys_start;
-		gd->bd->bi_dram[bank].size = mentry->pages << 12;
+		gd->dram[bank].start = mentry->phys_start;
+		gd->dram[bank].size = mentry->pages << 12;
 		bank++;
 	}
 
