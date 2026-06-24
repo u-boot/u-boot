@@ -6,3 +6,7 @@
  */
 
 #include "socfpga_soc64_fit-u-boot.dtsi"
+
+&mmc {
+	fifo-mode;
+};

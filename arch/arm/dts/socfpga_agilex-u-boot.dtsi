@@ -104,6 +104,7 @@
 
 &mmc {
 	resets = <&rst SDMMC_RESET>, <&rst SDMMC_OCP_RESET>;
+	fifo-mode;
 };
 
 &porta {

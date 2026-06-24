@@ -65,6 +65,7 @@
 	cap-sd-highspeed;
 	broken-cd;
 	bus-width = <4>;
+	fifo-mode;
 };
 
 &osc1 {
