@@ -36,4 +36,4 @@ config FS_FAT_HANDLE_SECTOR_SIZE_MISMATCH
 	depends on FS_FAT
 	help
 	  Handle filesystems on media where the hardware block size and
-          the sector size in the FAT metadata do not match.
+	  the sector size in the FAT metadata do not match.

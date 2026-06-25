@@ -224,7 +224,7 @@ config DEFAULT_DEVICE_TREE
 	  $ make DEVICE_TREE=<device-tree-name>
 
 config DEVICE_TREE_INCLUDES
-       string "Extra .dtsi files to include when building DT control"
+	string "Extra .dtsi files to include when building DT control"
 	depends on OF_CONTROL
 	help
 	  U-Boot's control .dtb is usually built from an in-tree .dts
@@ -297,17 +297,17 @@ config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	hex "Size of memory reserved to uncompress the DTBs"
 	default 0x8000
 	help
-	   This is the size of this area where the DTBs are uncompressed.
-	   If this area is dynamically allocated, make sure that
-	   SYS_MALLOC_F_LEN is big enough to contain it.
+	  This is the size of this area where the DTBs are uncompressed.
+	  If this area is dynamically allocated, make sure that
+	  SYS_MALLOC_F_LEN is big enough to contain it.
 
 config MULTI_DTB_FIT_USER_DEF_ADDR
 	hex "Address of memory where dtbs are uncompressed"
 	depends on MULTI_DTB_FIT_USER_DEFINED_AREA
 	help
-	   the FIT image containing the DTBs is uncompressed in an area defined
-	   at compilation time. This is the address of this area. It must be
-	   aligned on 2-byte boundary.
+	  the FIT image containing the DTBs is uncompressed in an area defined
+	  at compilation time. This is the address of this area. It must be
+	  aligned on 2-byte boundary.
 
 config DTB_RESELECT
 	bool "Support swapping dtbs at a later point in boot"
@@ -398,17 +398,17 @@ config SPL_MULTI_DTB_FIT_UNCOMPRESS_SZ
 	depends on (SPL_MULTI_DTB_FIT_GZIP || SPL_MULTI_DTB_FIT_LZO)
 	default 0x8000
 	help
-	   This is the size of this area where the DTBs are uncompressed.
-	   If this area is dynamically allocated, make sure that
-	   SPL_SYS_MALLOC_F_LEN is big enough to contain it.
+	  This is the size of this area where the DTBs are uncompressed.
+	  If this area is dynamically allocated, make sure that
+	  SPL_SYS_MALLOC_F_LEN is big enough to contain it.
 
 config SPL_MULTI_DTB_FIT_USER_DEF_ADDR
 	hex "Address of memory where dtbs are uncompressed"
 	depends on SPL_MULTI_DTB_FIT_USER_DEFINED_AREA
 	help
-	   the FIT image containing the DTBs is uncompressed in an area defined
-	   at compilation time. This is the address of this area. It must be
-	   aligned on 2-byte boundary.
+	  the FIT image containing the DTBs is uncompressed in an area defined
+	  at compilation time. This is the address of this area. It must be
+	  aligned on 2-byte boundary.
 
 config OF_SPL_REMOVE_PROPS
 	string "List of device tree properties to drop for SPL"

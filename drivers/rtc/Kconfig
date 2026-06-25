@@ -44,8 +44,8 @@ config VPL_DM_RTC
 config RTC_ENABLE_32KHZ_OUTPUT
 	bool "Enable RTC 32Khz output"
 	help
-	   Some real-time clocks support the output of 32kHz square waves (such as ds3231),
-	   the config symbol choose Real Time Clock device 32Khz output feature.
+	  Some real-time clocks support the output of 32kHz square waves (such as ds3231),
+	  the config symbol choose Real Time Clock device 32Khz output feature.
 
 config RTC_ARMADA38X
 	bool "Enable Armada 38x Marvell SoC RTC"

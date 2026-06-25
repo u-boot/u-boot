@@ -19,10 +19,10 @@ menuconfig USB_GADGET
 	select DM_USB
 	imply CMD_BIND
 	help
-	   USB is a master/slave protocol, organized with one master
-	   host (such as a PC) controlling up to 127 peripheral devices.
-	   The USB hardware is asymmetric, which makes it easier to set up:
-	   you can't connect a "to-the-host" connector to a peripheral.
+	  USB is a master/slave protocol, organized with one master
+	  host (such as a PC) controlling up to 127 peripheral devices.
+	  The USB hardware is asymmetric, which makes it easier to set up:
+	  you can't connect a "to-the-host" connector to a peripheral.
 
 	   U-Boot can run in the host, or in the peripheral.  In both cases
 	   you need a low level bus controller driver, and some software
@@ -164,10 +164,10 @@ config USB_GADGET_VBUS_DRAW
 	range 2 500
 	default 2
 	help
-	   Some devices need to draw power from USB when they are
-	   configured, perhaps to operate circuitry or to recharge
-	   batteries.  This is in addition to any local power supply,
-	   such as an AC adapter or batteries.
+	  Some devices need to draw power from USB when they are
+	  configured, perhaps to operate circuitry or to recharge
+	  batteries.  This is in addition to any local power supply,
+	  such as an AC adapter or batteries.
 
 	   Enter the maximum power your device draws through USB, in
 	   milliAmperes.  The permitted range of values is 2 - 500 mA;
@@ -350,9 +350,9 @@ config SPL_DFU_RAM
 	bool "RAM device"
 	depends on SPL_DFU && SPL_RAM_SUPPORT
 	help
-	 select RAM/DDR memory device for loading binary images
-	 (u-boot/kernel) to the selected device partition using
-	 DFU and execute the u-boot/kernel from RAM.
+	  select RAM/DDR memory device for loading binary images
+	  (u-boot/kernel) to the selected device partition using
+	  DFU and execute the u-boot/kernel from RAM.
 
 endchoice
 

@@ -68,7 +68,7 @@ config BOOTCOUNT_ENV
 	  saveenv on all reboots, the environment variable
 	  "upgrade_available" is used. If "upgrade_available" is
 	  0, "bootcount" is always 0. If "upgrade_available" is 1,
-          "bootcount" is incremented in the environment.
+	  "bootcount" is incremented in the environment.
 	  So the Userspace Application must set the "upgrade_available"
 	  and "bootcount" variables to 0, if the system booted successfully.
 
@@ -83,7 +83,7 @@ config BOOTCOUNT_AT91
 	depends on AT91SAM9XE
 
 config DM_BOOTCOUNT
-        bool "Boot counter in a device-model device"
+	bool "Boot counter in a device-model device"
 	help
 	  Enables reading/writing the bootcount in a device-model based
 	  backing store.  If an entry in /chosen/u-boot,bootcount-device

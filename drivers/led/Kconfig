@@ -133,7 +133,7 @@ config LED_GPIO
 
 config SPL_LED_GPIO
 	bool "LED support for GPIO-connected LEDs in SPL"
-        depends on SPL_LED && SPL_DM_GPIO
+	depends on SPL_LED && SPL_DM_GPIO
 	help
 	  This option is an SPL-variant of the LED_GPIO option.
 	  See the help of LED_GPIO for details.

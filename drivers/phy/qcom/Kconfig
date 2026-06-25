@@ -2,7 +2,7 @@ config MSM8916_USB_PHY
 	bool
 	select PHY
 	help
-          Support the Qualcomm MSM8916 USB PHY
+	  Support the Qualcomm MSM8916 USB PHY
 
 	  This PHY is found on qualcomm dragonboard410c development board.
 

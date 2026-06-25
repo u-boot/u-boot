@@ -35,10 +35,10 @@ config BCM6328_POWER_DOMAIN
 
 config IMX8_POWER_DOMAIN
 	bool "Enable i.MX8 power domain driver"
-        depends on ARCH_IMX8
-        help
-          Enable support for manipulating NXP i.MX8 on-SoC power domains via IPC
-          requests to the SCU.
+	depends on ARCH_IMX8
+	help
+	  Enable support for manipulating NXP i.MX8 on-SoC power domains via IPC
+	  requests to the SCU.
 
 config IMX8M_POWER_DOMAIN
 	bool "Enable i.MX8M power domain driver"

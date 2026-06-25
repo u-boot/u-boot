@@ -78,7 +78,7 @@ config SYS_PBSIZE
 config DISABLE_CONSOLE
 	bool "Add functionality to disable console completely"
 	help
-		Disable console (in & out).
+	  Disable console (in & out).
 
 config IDENT_STRING
 	string "Board specific string to be added to uboot version string"
@@ -884,9 +884,9 @@ config AVB_VERIFY
 	help
 	  This option enables compilation of bootloader-dependent operations,
 	  used by Android Verified Boot 2.0 library (libavb). Includes:
-	    * Helpers to process strings in order to build OS bootargs.
-	    * Helpers to access MMC, similar to drivers/fastboot/fb_mmc.c.
-	    * Helpers to alloc/init/free avb ops.
+	  * Helpers to process strings in order to build OS bootargs.
+	  * Helpers to access MMC, similar to drivers/fastboot/fb_mmc.c.
+	  * Helpers to alloc/init/free avb ops.
 
 if AVB_VERIFY
 

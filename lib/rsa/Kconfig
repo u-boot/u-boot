@@ -94,14 +94,14 @@ config RSA_FREESCALE_EXP
 	bool "Enable RSA Modular Exponentiation with FSL crypto accelerator"
 	depends on DM && FSL_CAAM && !ARCH_MX7 && !ARCH_MX7ULP && !ARCH_MX6 && !ARCH_MX5
 	help
-	Enables driver for RSA modular exponentiation using Freescale cryptographic
-	accelerator - CAAM.
+	  Enables driver for RSA modular exponentiation using Freescale cryptographic
+	  accelerator - CAAM.
 
 config RSA_ASPEED_EXP
 	bool "Enable RSA Modular Exponentiation with ASPEED crypto accelerator"
 	depends on DM && ASPEED_ACRY
 	help
-	Enables driver for RSA modular exponentiation using ASPEED cryptographic
-	accelerator - ACRY
+	  Enables driver for RSA modular exponentiation using ASPEED cryptographic
+	  accelerator - ACRY
 
 endif
