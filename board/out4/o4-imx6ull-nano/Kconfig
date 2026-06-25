@@ -13,21 +13,21 @@ choice
 	prompt "Memory model"
 	default K4B4G1646D_BCMA
 	help
-	    Memory type setup.
+	  Memory type setup.
 
 	    Please choose correct memory model here.
 
 config K4B4G1646D_BCMA
 	bool "K4B4G1646D-BCMA 256Mx16 (512 MiB/chip)"
 	help
-	    Samsung DDR3 SDRAM
-	    K4B4G1646D-BCMA
+	  Samsung DDR3 SDRAM
+	  K4B4G1646D-BCMA
 
 config MT41K256M16HA_125E
 	bool "MT41K256M16HA-125:E 256Mx16 (512 MiB/chip)"
 	help
-	    Micron DDR3L SDRAM
-	    MT41K256M16HA-125:E
+	  Micron DDR3L SDRAM
+	  MT41K256M16HA-125:E
 
 endchoice
 
@@ -35,21 +35,21 @@ choice
 	prompt "Mainboard model"
 	default O4_IMX_NANO
 	help
-	    Mainboard setup.
+	  Mainboard setup.
 
 	    Please choose correct main board model here.
 
 config O4_IMX_NANO
 	bool "O4-iMX-NANO"
 	help
-	    A baseboard for EV-iMX280-NANO module:
-	    https://out4.ru/products/board/18-o4-imx-nano.html
+	  A baseboard for EV-iMX280-NANO module:
+	  https://out4.ru/products/board/18-o4-imx-nano.html
 
 config EV_IMX280_NANO_X_MB
 	bool "EV-IMX280-NANO-X-MB"
 	help
-	    A simple baseboard for EV-iMX280-NANO module:
-	    http://evodbg.net/products/mx28-eval-kits/14-ev-imx280-nano-x-mb.html
+	  A simple baseboard for EV-iMX280-NANO module:
+	  http://evodbg.net/products/mx28-eval-kits/14-ev-imx280-nano-x-mb.html
 
 endchoice
 

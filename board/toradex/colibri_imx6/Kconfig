@@ -35,7 +35,7 @@ config TDX_CMD_IMX_MFGR
 	bool "Enable factory testing commands for Toradex iMX 6 modules"
 	help
 	  This adds the commands
-	    pf0100_otp_prog - Program the OTP fuses on the PMIC PF0100
+	  pf0100_otp_prog - Program the OTP fuses on the PMIC PF0100
 	  If executed on already fused modules it doesn't change any fuse setting.
 	default y
 

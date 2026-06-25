@@ -15,8 +15,8 @@ config SOCFPGA_SECURE_VAB_AUTH
 	select SHA512
 	select SPL_FIT_IMAGE_POST_PROCESS
 	help
-	 All images loaded from FIT will be authenticated by Secure Device
-	 Manager.
+	  All images loaded from FIT will be authenticated by Secure Device
+	  Manager.
 
 config SOCFPGA_SECURE_VAB_AUTH_ALLOW_NON_FIT_IMAGE
 	bool "Allow non-FIT VAB signed images"

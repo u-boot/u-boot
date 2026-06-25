@@ -4,7 +4,7 @@ config SYS_CONFIG_NAME
 	default "uniphier"
 
 choice
-        prompt "UniPhier SoC select"
+	prompt "UniPhier SoC select"
 
 config ARCH_UNIPHIER_V7_MULTI
 	bool "UniPhier V7 SoCs"

@@ -34,7 +34,7 @@ config SYS_BOARD
        default "beagleboneai64"
 
 config SYS_VENDOR
-       default "beagle"
+	default "beagle"
 
 config SYS_CONFIG_NAME
        default "beagleboneai64"
@@ -49,7 +49,7 @@ config SYS_BOARD
        default "beagleboneai64"
 
 config SYS_VENDOR
-       default "beagle"
+	default "beagle"
 
 config SYS_CONFIG_NAME
        default "beagleboneai64"

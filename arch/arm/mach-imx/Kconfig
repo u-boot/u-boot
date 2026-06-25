@@ -157,7 +157,7 @@ config CMD_PRIBLOB
 	depends on HAS_CAAM && IMX_HAB
 	help
 	  This option enables the priblob command which can be used
-		to set the priblob setting to 0x3.
+	  to set the priblob setting to 0x3.
 
 config CMD_HDMIDETECT
 	bool "Support the 'hdmidet' command"

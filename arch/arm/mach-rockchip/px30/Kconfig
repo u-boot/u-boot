@@ -18,7 +18,7 @@ config TARGET_PX30_CORE
 	  * PX30.Core is an EDIMM SOM based on Rockchip PX30 from Engicam.
 	  * EDIMM2.2 is a Form Factor Capacitive Evaluation Board from Engicam.
 	  * PX30.Core needs to mount on top of EDIMM2.2 for creating complete
-	    PX30.Core EDIMM2.2 Starter Kit.
+	  PX30.Core EDIMM2.2 Starter Kit.
 
 	  PX30.Core CTOUCH2:
 	  * PX30.Core is an EDIMM SOM based on Rockchip PX30 from Engicam.
@@ -39,7 +39,7 @@ config TARGET_RINGNECK_PX30
 	bool "Theobroma Systems PX30-uQ7 (Ringneck)"
 	help
 	  The PX30-uQ7 (Ringneck) SoM is a uQseven-compatible (40mmx70mm,
-          MXM-230 connector) system-on-module from Theobroma Systems[1],
+	  MXM-230 connector) system-on-module from Theobroma Systems[1],
 	  featuring the Rockchip PX30.
 
 	  It provides the following feature set:

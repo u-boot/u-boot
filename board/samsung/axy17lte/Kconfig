@@ -11,8 +11,8 @@ config SYS_CONFIG_NAME
 	default "exynos78x0-common"
 
 config EXYNOS7880
-    bool "Exynos 7880 SOC support"
-    default y
+	bool "Exynos 7880 SOC support"
+	default y
 endif
 
 if TARGET_A7Y17LTE
@@ -28,8 +28,8 @@ config SYS_CONFIG_NAME
 	default "exynos78x0-common"
 
 config EXYNOS7880
-    bool "Exynos 7880 SOC support"
-    default y
+	bool "Exynos 7880 SOC support"
+	default y
 endif
 
 if TARGET_A3Y17LTE
@@ -45,6 +45,6 @@ config SYS_CONFIG_NAME
 	default "exynos78x0-common"
 
 config EXYNOS7870
-    bool "Exynos 7870 SOC support"
-    default y
+	bool "Exynos 7870 SOC support"
+	default y
 endif

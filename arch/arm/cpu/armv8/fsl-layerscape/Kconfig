@@ -440,8 +440,8 @@ config MAX_CPUS
 config EMC2305
 	bool "Fan controller"
 	help
-	 Enable the EMC2305 fan controller for configuration of fan
-	 speed.
+	  Enable the EMC2305 fan controller for configuration of fan
+	  speed.
 
 config QSPI_AHB_INIT
 	bool "Init the QSPI AHB bus"
@@ -548,7 +548,7 @@ config SYS_FSL_PCLK_DIV
 	help
 	  This is the divider that is used to derive Platform clock from
 	  Platform PLL, in another word:
-		Platform_clk = Platform_PLL_freq / this_divider
+	  Platform_clk = Platform_PLL_freq / this_divider
 
 config SYS_FSL_DSPI_CLK_DIV
 	int "DSPI clock divider"

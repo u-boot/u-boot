@@ -8,7 +8,7 @@ config SYS_BOARD
        default "am64x"
 
 config SYS_VENDOR
-       default "ti"
+	default "ti"
 
 config SYS_CONFIG_NAME
        default "am64x_evm"
@@ -23,7 +23,7 @@ config SYS_BOARD
        default "am64x"
 
 config SYS_VENDOR
-       default "ti"
+	default "ti"
 
 config SYS_CONFIG_NAME
        default "am64x_evm"

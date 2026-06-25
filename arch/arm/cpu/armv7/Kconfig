@@ -13,19 +13,19 @@ config ARMV7_NONSEC
 	bool "Enable support for booting in non-secure mode" if EXPERT
 	depends on CPU_V7_HAS_NONSEC
 	default y
-	---help---
-	Say Y here to enable support for booting in non-secure / SVC mode.
+	help
+	  Say Y here to enable support for booting in non-secure / SVC mode.
 
 config ARMV7_BOOT_SEC_DEFAULT
 	bool "Boot in secure mode by default" if EXPERT
 	depends on ARMV7_NONSEC
 	default y if ARCH_TEGRA
-	---help---
-	Say Y here to boot in secure mode by default even if non-secure mode
-	is supported. This option is useful to boot kernels which do not
-	suppport booting in non-secure mode. Only set this if you need it.
-	This can be overridden at run-time by setting the bootm_boot_mode env.
-	variable to "sec" or "nonsec".
+	help
+	  Say Y here to boot in secure mode by default even if non-secure mode
+	  is supported. This option is useful to boot kernels which do not
+	  support booting in non-secure mode. Only set this if you need it.
+	  This can be overridden at run-time by setting the bootm_boot_mode env.
+	  variable to "sec" or "nonsec".
 
 config HAS_ARMV7_SECURE_BASE
 	bool "Enable support for a hardware secure memory area"
@@ -74,8 +74,8 @@ config ARMV7_VIRT
 	bool "Enable support for hardware virtualization" if EXPERT
 	depends on CPU_V7_HAS_VIRT && ARMV7_NONSEC
 	default y
-	---help---
-	Say Y here to boot in hypervisor (HYP) mode when booting non-secure.
+	help
+	  Say Y here to boot in hypervisor (HYP) mode when booting non-secure.
 
 config ARMV7_PSCI
 	bool "Enable PSCI support" if EXPERT
@@ -115,9 +115,9 @@ config ARMV7_LPAE
 	bool "Use LPAE page table format" if EXPERT
 	depends on CPU_V7A
 	default y if ARMV7_VIRT
-	---help---
-	Say Y here to use the long descriptor page table format. This is
-	required if U-Boot runs in HYP mode.
+	help
+	  Say Y here to use the long descriptor page table format. This is
+	  required if U-Boot runs in HYP mode.
 
 config ARMV7_SET_CORTEX_SMPEN
 	bool

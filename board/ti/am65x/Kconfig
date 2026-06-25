@@ -9,7 +9,7 @@ config SYS_BOARD
        default "am65x"
 
 config SYS_VENDOR
-       default "ti"
+	default "ti"
 
 config SYS_CONFIG_NAME
        default "am65x_evm"
@@ -24,7 +24,7 @@ config SYS_BOARD
        default "am65x"
 
 config SYS_VENDOR
-       default "ti"
+	default "ti"
 
 config SYS_CONFIG_NAME
        default "am65x_evm"
