@@ -427,7 +427,8 @@ dtb-$(CONFIG_TARGET_THUNDERX_88XX) += thunderx-88xx.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_agilex5_socdk.dtb			\
-	socfpga_agilex5_socdk_emmc.dtb		\
+	socfpga_agilex5_socdk_013b.dtb			\
+	socfpga_agilex5_socdk_emmc.dtb			\
 	socfpga_agilex5_socdk_modular.dtb		\
 	socfpga_arria5_secu1.dtb			\
 	socfpga_arria5_socdk.dtb			\
