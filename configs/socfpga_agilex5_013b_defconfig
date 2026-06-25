@@ -1,0 +1,7 @@
+#include <configs/socfpga_agilex5_defconfig>
+
+CONFIG_DEFAULT_DEVICE_TREE="socfpga_agilex5_socdk_013b"
+CONFIG_SYS_SPI_U_BOOT_OFFS=0x0a00000
+# CONFIG_PHY_MARVELL is not set
+CONFIG_PHY_MICREL=y
+CONFIG_PHY_MICREL_KSZ90X1=y
