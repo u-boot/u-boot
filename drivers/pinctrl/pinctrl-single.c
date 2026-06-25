@@ -509,29 +509,74 @@ static int single_add_gpio_func(struct udevice *dev)
 	struct single_priv *priv = dev_get_priv(dev);
 	const char *propname = "pinctrl-single,gpio-range";
 	const char *cellname = "#pinctrl-single,gpio-range-cells";
+	ofnode node = dev_ofnode(dev);
 	struct single_gpiofunc_range *range;
 	struct ofnode_phandle_args gpiospec;
-	int ret, i;
+	int size, total_cells, cells_per_entry, entries, ret, i;
 
-	for (i = 0; ; i++) {
-		ret = ofnode_parse_phandle_with_args(dev_ofnode(dev), propname,
-						     cellname, 0, i, &gpiospec);
-		/* Do not treat it as error. Only treat it as end condition. */
-		if (ret) {
-			ret = 0;
+	/*
+	 * The original loop called ofnode_parse_phandle_with_args() once per
+	 * entry. On a flat DT each call resolves the phandle, which scans the
+	 * whole tree, so the repeated parse is quadratic in the number of
+	 * entries and proportional to the tree size. This is very slow
+	 * pre-relocation with caches off.
+	 *
+	 * The phandle target is not used here (only the argument cells are
+	 * stored), so resolve it only for the first entry to learn the
+	 * per-entry cell count, then read the argument cells directly. This
+	 * follows the existing pinctrl-single,gpio-range usage observed in
+	 * current DTs, where entries use the same provider and therefore a
+	 * uniform per-entry cell count.
+	 */
+	ret = ofnode_parse_phandle_with_args(node, propname, cellname, 0, 0,
+					     &gpiospec);
+	if (ret)
+		return 0;
+	if (gpiospec.args_count != 3)
+		return 0;
+
+	cells_per_entry = 1 + gpiospec.args_count;
+	size = ofnode_read_size(node, propname);
+	if (size < (int)sizeof(u32))
+		return 0;
+	total_cells = size / sizeof(u32);
+	entries = total_cells / cells_per_entry;
+	if (!entries)
+		return 0;
+
+	range = devm_kcalloc(dev, entries, sizeof(*range), GFP_KERNEL);
+	if (!range)
+		return -ENOMEM;
+
+	for (i = 0; i < entries; i++) {
+		int base = i * cells_per_entry;
+		u32 phandle;
+
+		ret = ofnode_read_u32_index(node, propname, base, &phandle);
+		if (ret)
 			break;
-		}
-		range = devm_kzalloc(dev, sizeof(*range), GFP_KERNEL);
-		if (!range) {
-			ret = -ENOMEM;
+
+		/* A zero phandle terminates the list, as in the original loop. */
+		if (!phandle)
 			break;
-		}
-		range->offset = gpiospec.args[0];
-		range->npins = gpiospec.args[1];
-		range->gpiofunc = gpiospec.args[2];
+
+		ret = ofnode_read_u32_index(node, propname, base + 1, &range->offset);
+		if (ret)
+			break;
+
+		ret = ofnode_read_u32_index(node, propname, base + 2, &range->npins);
+		if (ret)
+			break;
+
+		ret = ofnode_read_u32_index(node, propname, base + 3, &range->gpiofunc);
+		if (ret)
+			break;
+
 		list_add_tail(&range->node, &priv->gpiofuncs);
+		range++;
 	}
-	return ret;
+
+	return 0;
 }
 
 static int single_probe(struct udevice *dev)
