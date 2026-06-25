@@ -104,15 +104,15 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
+#ifdef CONFIG_CADENCE_QSPI
+	mbox_qspi_open();
+#endif
+
 #if CONFIG_IS_ENABLED(ALTERA_SDRAM)
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
 		printf("DRAM init failed: %d\n", ret);
 		hang();
 	}
-#endif
-
-#ifdef CONFIG_CADENCE_QSPI
-	mbox_qspi_open();
 #endif
 }
