@@ -19,6 +19,7 @@
 #include <mapmem.h>
 #include <malloc.h>
 #include <spl.h>
+#include <spi_flash.h>
 
 #ifdef CONFIG_CMD_UBIFS
 #include <ubi_uboot.h>
@@ -66,6 +67,11 @@ static int mount_ubifs(char *mtdpart, char *ubivol)
 	return -ENOSYS;
 }
 #endif
+
+__weak struct blk_desc *blk_get_by_device(struct udevice *dev)
+{
+	return NULL;
+}
 
 static int select_fs_dev(struct device_plat *plat)
 {
@@ -121,16 +127,26 @@ static int _request_firmware_prepare(struct udevice *dev,
 				    const char *name, void *dbuf,
 				    size_t size, u32 offset)
 {
-	if (!name || name[0] == '\0')
-		return -EINVAL;
-
 	struct firmware *firmwarep = dev_get_priv(dev);
+	struct device_plat *plat = dev_get_plat(dev);
+	char *endptr;
+	u32 fw_offset;
 
 	if (!firmwarep)
 		return -ENOMEM;
 
 	firmwarep->name = name;
-	firmwarep->offset = offset;
+
+	if (plat->data_type == DATA_RAW) {
+		fw_offset = simple_strtoul(firmwarep->name, &endptr, 16);
+		if (firmwarep->name == endptr || *endptr != '\0')
+			return -EINVAL;
+
+		firmwarep->offset = fw_offset + offset;
+	} else {
+		firmwarep->offset = offset;
+	}
+
 	firmwarep->data = dbuf;
 	firmwarep->size = size;
 
@@ -147,7 +163,8 @@ static int fw_get_filesystem_firmware(struct udevice *dev)
 {
 	loff_t actread = 0;
 	char *storage_interface, *dev_part, *ubi_mtdpart, *ubi_volume;
-	int ret;
+	int ret = 0;
+	struct device_plat *plat = dev_get_plat(dev);
 
 	storage_interface = env_get("storage_interface");
 	dev_part = env_get("fw_dev_part");
@@ -167,7 +184,8 @@ static int fw_get_filesystem_firmware(struct udevice *dev)
 		else
 			ret = -ENODEV;
 	} else {
-		ret = select_fs_dev(dev_get_plat(dev));
+		if (plat->data_type == DATA_FS)
+			ret = select_fs_dev(dev_get_plat(dev));
 	}
 
 	if (ret)
@@ -178,8 +196,19 @@ static int fw_get_filesystem_firmware(struct udevice *dev)
 	if (!firmwarep)
 		return -ENOMEM;
 
-	ret = fs_read(firmwarep->name, (ulong)map_to_sysmem(firmwarep->data),
-			firmwarep->offset, firmwarep->size, &actread);
+	if (plat->data_type == DATA_FS)
+		ret = fs_read(firmwarep->name,
+			      (ulong)map_to_sysmem(firmwarep->data),
+			      firmwarep->offset, firmwarep->size, &actread);
+	else if (plat->data_type == DATA_RAW) {
+		if (IS_ENABLED(CONFIG_SPI_FLASH)) {
+			ret = spi_flash_read_dm(plat->flash,
+						firmwarep->offset,
+						firmwarep->size,
+						(void *)map_to_sysmem(firmwarep->data));
+			actread = firmwarep->size;
+		}
+	}
 
 	if (ret) {
 		debug("Error: %d Failed to read %s from flash %lld != %zu.\n",
@@ -228,6 +257,7 @@ int request_firmware_into_buf(struct udevice *dev,
 static int fs_loader_of_to_plat(struct udevice *dev)
 {
 	u32 phandlepart[2];
+	u32 sfconfig[4];
 
 	ofnode fs_loader_node = dev_ofnode(dev);
 
@@ -247,6 +277,18 @@ static int fs_loader_of_to_plat(struct udevice *dev)
 
 		plat->ubivol = (char *)ofnode_read_string(
 				 fs_loader_node, "ubivol");
+
+		if (!ofnode_read_u32_array(fs_loader_node,
+					   "sfconfig",
+					   sfconfig, 4)) {
+			plat->data_type = DATA_RAW;
+			plat->sfconfig.bus = sfconfig[0];
+			plat->sfconfig.cs = sfconfig[1];
+			plat->sfconfig.speed = sfconfig[2];
+			plat->sfconfig.mode = sfconfig[3];
+		} else {
+			plat->data_type = DATA_FS;
+		}
 	}
 
 	return 0;
@@ -254,30 +296,53 @@ static int fs_loader_of_to_plat(struct udevice *dev)
 
 static int fs_loader_probe(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(DM) && CONFIG_IS_ENABLED(BLK)
-	int ret;
+	int ret = 0;
 	struct device_plat *plat = dev_get_plat(dev);
 
-	if (plat->phandlepart.phandle) {
-		ofnode node = ofnode_get_by_phandle(plat->phandlepart.phandle);
-		struct udevice *parent_dev = NULL;
+	if (IS_ENABLED(CONFIG_SPI_FLASH)) {
+		if (!plat->flash) {
+			debug("bus = %d\ncs = %d\nspeed= %d\nmode = %d\n",
+			      plat->sfconfig.bus, plat->sfconfig.cs,
+			      plat->sfconfig.speed, plat->sfconfig.mode);
 
-		ret = device_get_global_by_ofnode(node, &parent_dev);
-		if (!ret) {
-			struct udevice *dev;
-
-			ret = blk_get_from_parent(parent_dev, &dev);
+			ret = spi_flash_probe_bus_cs(plat->sfconfig.bus,
+						     plat->sfconfig.cs,
+						     plat->sfconfig.speed,
+						     plat->sfconfig.mode,
+						     &plat->flash);
 			if (ret) {
-				debug("fs_loader: No block device: %d\n",
-					ret);
+				debug("fs_loader: Failed to initialize SPI flash at ");
+				debug("%u:%u (error %d)\n", plat->sfconfig.bus,
+				      plat->sfconfig.cs, ret);
+				return -ENODEV;
+			}
 
-				return ret;
+			if (!plat->flash)
+				return -EINVAL;
+		}
+	}
+
+	if (IS_ENABLED(CONFIG_IS_ENABLED(DM)) && IS_ENABLED(CONFIG_IS_ENABLED(BLK))) {
+		if (plat->phandlepart.phandle) {
+			ofnode node = ofnode_get_by_phandle(plat->phandlepart.phandle);
+			struct udevice *parent_dev = NULL;
+
+			ret = device_get_global_by_ofnode(node, &parent_dev);
+			if (!ret) {
+				struct udevice *dev;
+
+				ret = blk_get_from_parent(parent_dev, &dev);
+				if (ret) {
+					debug("fs_loader: No block device: %d\n",
+					      ret);
+
+					return ret;
+				}
 			}
 		}
 	}
-#endif
 
-	return 0;
+	return ret;
 };
 
 static const struct udevice_id fs_loader_ids[] = {
