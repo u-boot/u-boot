@@ -71,13 +71,13 @@ static void modify_dg_result(u32 *reg_st0, u32 *reg_st1, u32 *reg_ctrl)
 	val_ctrl = readl(reg_ctrl);
 	val_ctrl &= 0xf0000000;
 
-	dg_tmp_val = ((readl(reg_st0) & 0x07ff0000) >> 16) - 0xc0;
+	dg_tmp_val = ((readl(reg_st0) & 0x07ff0000) >> 16) - 0x80;
 	dg_dl_abs_offset = dg_tmp_val & 0x7f;
 	dg_hc_del = (dg_tmp_val & 0x780) << 1;
 
 	val_ctrl |= dg_dl_abs_offset + dg_hc_del;
 
-	dg_tmp_val = ((readl(reg_st1) & 0x07ff0000) >> 16) - 0xc0;
+	dg_tmp_val = ((readl(reg_st1) & 0x07ff0000) >> 16) - 0x80;
 	dg_dl_abs_offset = dg_tmp_val & 0x7f;
 	dg_hc_del = (dg_tmp_val & 0x780) << 1;
 
