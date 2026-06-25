@@ -1,0 +1,198 @@
+// SPDX-License-Identifier:     GPL-2.0
+/*
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
+ */
+
+#include "socfpga_agilex5.dtsi"
+
+/ {
+	model = "SoCFPGA Agilex5 013B SoCDK";
+
+	aliases {
+		serial0 = &uart0;
+		ethernet0 = &gmac0;
+		ethernet1 = &gmac1;
+		ethernet2 = &gmac2;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led0 {
+			label = "hps_led0";
+			gpios = <&porta 1 GPIO_ACTIVE_HIGH>;
+		};
+
+		led1 {
+			label = "hps_led1";
+			gpios = <&porta 12 GPIO_ACTIVE_HIGH>;
+		};
+
+	};
+
+	memory {
+		device_type = "memory";
+		/* We expect the bootloader to fill in the reg */
+		reg = <0 0 0 0>;
+	};
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gmac2 {
+	status = "okay";
+	/* No PCB-induced RGMII delays; clock and data skew are added on the
+	 * PHY side via the rx*-skew-ps / tx*-skew-ps properties below.
+	 */
+	phy-mode = "rgmii";
+	phy-handle = <&emac2_phy0>;
+	max-frame-size = <9000>;
+	mdio0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "snps,dwmac-mdio";
+		emac2_phy0: ethernet-phy@0 {
+			reg = <0>;
+			rxc-skew-ps = <0>;
+			rxdv-skew-ps = <0>;
+			rxd0-skew-ps = <0>;
+			rxd1-skew-ps = <0>;
+			rxd2-skew-ps = <0>;
+			rxd3-skew-ps = <0>;
+			txc-skew-ps = <0>;
+			txen-skew-ps = <60>;
+			txd0-skew-ps = <60>;
+			txd1-skew-ps = <60>;
+			txd2-skew-ps = <60>;
+			txd3-skew-ps = <60>;
+		};
+	};
+};
+
+&i3c0 {
+	status = "okay";
+};
+
+&i3c1 {
+	status = "okay";
+};
+
+&mmc {
+	status = "okay";
+	bus-width = <4>;
+	no-1-8-v;
+	cap-sd-highspeed;
+	cap-mmc-highspeed;
+	disable-wp;
+	sd-uhs-sdr50;
+	cdns,phy-use-ext-lpbk-dqs = <1>;
+	cdns,phy-use-lpbk-dqs = <1>;
+	cdns,phy-use-phony-dqs = <1>;
+	cdns,phy-use-phony-dqs-cmd = <1>;
+	cdns,phy-io-mask-always-on = <0>;
+	cdns,phy-io-mask-end = <5>;
+	cdns,phy-io-mask-start = <0>;
+	cdns,phy-data-select-oe-end = <1>;
+	cdns,phy-sync-method = <1>;
+	cdns,phy-sw-half-cycle-shift = <0>;
+	cdns,phy-rd-del-sel = <52>;
+	cdns,phy-underrun-suppress = <1>;
+	cdns,phy-gate-cfg-always-on = <1>;
+	cdns,phy-param-dll-bypass-mode = <1>;
+	cdns,phy-param-phase-detect-sel = <2>;
+	cdns,phy-param-dll-start-point = <254>;
+	cdns,phy-read-dqs-cmd-delay = <0>;
+	cdns,phy-clk-wrdqs-delay = <0>;
+	cdns,phy-clk-wr-delay = <0>;
+	cdns,phy-read-dqs-delay = <0>;
+	cdns,phy-phony-dqs-timing = <0>;
+	cdns,hrs09-rddata-en = <1>;
+	cdns,hrs09-rdcmd-en = <1>;
+	cdns,hrs09-extended-wr-mode = <1>;
+	cdns,hrs09-extended-rd-mode = <1>;
+	cdns,hrs10-hcsdclkadj = <3>;
+	cdns,hrs16-wrdata1-sdclk-dly = <0>;
+	cdns,hrs16-wrdata0-sdclk-dly = <0>;
+	cdns,hrs16-wrcmd1-sdclk-dly = <0>;
+	cdns,hrs16-wrcmd0-sdclk-dly = <0>;
+	cdns,hrs16-wrdata1-dly = <0>;
+	cdns,hrs16-wrdata0-dly = <0>;
+	cdns,hrs16-wrcmd1-dly = <0>;
+	cdns,hrs16-wrcmd0-dly = <0>;
+	cdns,hrs07-rw-compensate = <10>;
+	cdns,hrs07-idelay-val = <0>;
+};
+
+&osc1 {
+	clock-frequency = <25000000>;
+};
+
+&qspi {
+	status = "okay";
+	cdns,fifo-depth = <0x400>;
+	flash0: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <100000000>;
+		m25p,fast-read;
+		cdns,read-delay = <2>;
+		cdns,tshsl-ns = <50>;
+		cdns,tsd2d-ns = <50>;
+		cdns,tchsh-ns = <4>;
+		cdns,tslch-ns = <4>;
+		spi-tx-bus-width=<4>;
+		spi-rx-bus-width=<4>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			rsu-handle = <&qspi_boot>;
+
+			qspi_boot: partition@0 {
+				label = "u-boot";
+				reg = <0x0 0x00c00000>;
+			};
+
+			root: partition@c00000 {
+				label = "root";
+				reg = <0x00c00000 0x03400000>;
+			};
+		};
+	};
+};
+
+&smmu {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+	disable-over-current;
+};
+
+&usb31 {
+	status = "okay";
+	dr_mode = "host";
+	maximum-speed = "high-speed";
+};
+
+&watchdog0 {
+	status = "okay";
+};
