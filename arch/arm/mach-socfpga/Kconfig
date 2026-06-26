@@ -28,6 +28,27 @@ config SOCFPGA_RSU_MULTIFLASH
 	  spans the RSU sub-partition layout across all of them. Leave
 	  disabled for the common single-flash layout.
 
+config SOCFPGA_RSU_MULTIBOOT
+	bool "Enable RSU SPL multiboot SSBL selection"
+	depends on ARCH_SOCFPGA_SOC64 && SPL && SPI_FLASH
+	help
+	  Select the second-stage boot loader (SSBL, i.e. U-Boot proper)
+	  image based on the RSU sub-partition the SPL was loaded from.
+	  SPL reads the RSU sub-partition table (SPT) to locate the SSBL
+	  partition that pairs with the currently running SPL image and
+	  loads U-Boot proper, its environment and FIT from there. This
+	  keeps a multi-image RSU layout self-consistent across updates.
+
+config SPL_SOCFPGA_RSU_SSBL_FALLBACK
+	int "RSU SPL fallback SSBL slot size (MiB)"
+	depends on SOCFPGA_RSU_MULTIBOOT
+	default 8
+	range 1 64
+	help
+	  Conservative upper bound (in MiB) for the SSBL slot used when the
+	  SPT lookup fails, so the environment-offset math in env/sf.c cannot
+	  underflow. Override only if the board's SSBL exceeds the default.
+
 config SOCFPGA_SECURE_VAB_AUTH
 	bool "Enable boot image authentication with Secure Device Manager"
 	depends on ARCH_SOCFPGA_AGILEX || ARCH_SOCFPGA_N5X || \

@@ -147,6 +147,11 @@ obj-$(CONFIG_ARMV8_PSCI)	+= smc_rsu_s10.o
 endif
 endif
 
+# RSU SPL multiboot selects the SSBL (U-Boot proper) image to load; the
+# helpers are consumed from both SPL (spl_mmc/spl_spi) and U-Boot proper
+# (env/fat, env/sf), so build for both.
+obj-$(CONFIG_SOCFPGA_RSU_MULTIBOOT)	+= rsu_spl.o
+
 ifdef CONFIG_ARCH_SOCFPGA_GEN5
 # QTS-generated config file wrappers
 CFLAGS_wrap_iocsr_config.o	+= -I$(srctree)/board/$(BOARDDIR)

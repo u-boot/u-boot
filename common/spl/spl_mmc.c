@@ -11,6 +11,7 @@
 #include <spl.h>
 #include <spl_load.h>
 #include <linux/compiler.h>
+#include <linux/sizes.h>
 #include <errno.h>
 #include <mmc.h>
 #include <image.h>
@@ -456,11 +457,32 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	return ret;
 }
 
+#if IS_ENABLED(CONFIG_SOCFPGA_RSU_MULTIBOOT)
+__weak int rsu_spl_mmc_filename(char *filename, int max_size)
+{
+	return -ENOENT;
+}
+#endif
+
 int spl_mmc_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev)
 {
+#if IS_ENABLED(CONFIG_SOCFPGA_RSU_MULTIBOOT)
+	char filename[SZ_256] = {0};
+	int ret;
+
+	ret = rsu_spl_mmc_filename(filename, SZ_256);
+	if (ret) {
+		printf("RSU: multiboot filename not found\n");
+		return ret;
+	}
+
+	printf("%s: boot from filename: %s\n", __func__, filename);
+#endif
 	return spl_mmc_load(spl_image, bootdev,
-#ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
+#if IS_ENABLED(CONFIG_SOCFPGA_RSU_MULTIBOOT)
+			    filename,
+#elif defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME)
 			    CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
 #else
 			    NULL,
