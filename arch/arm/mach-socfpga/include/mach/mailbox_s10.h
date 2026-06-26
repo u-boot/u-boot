@@ -136,6 +136,9 @@ enum ALT_SDM_MBOX_RESP_CODE {
 #define MBOX_HPS_STAGE_NOTIFY		93
 #define MBOX_QSPI_GET_DEVICE_INFO	116 /* get QSPI size and erasesize */
 
+/* Response length (in words) of the QSPI get-device-info command */
+#define QSPI_GET_DEVICE_INFO_RESP_LEN	8
+
 /* Mailbox registers */
 #define MBOX_CIN			0	/* command valid offset */
 #define MBOX_ROUT			4	/* response output offset */

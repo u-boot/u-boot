@@ -2258,7 +2258,7 @@ int get_num_flash(u32 *flash_enabled)
 		if (mbox_flash_info[i].size > SZ_2G) {
 			/* >2Gb, power the bit 0-30 */
 			debug("RSU: QSPI %d larger than 2Gbits capacity.", i);
-			flash_enabled[i] = pow(2, mbox_flash_info[i].size & GENMASK(30, 0));
+			flash_enabled[i] = rsu_pow(2, mbox_flash_info[i].size & GENMASK(30, 0));
 			flash_enabled[i] = flash_enabled[i] / SZ_8;
 		} else {
 			/* <= 2Gb, total the bit 0-30 */

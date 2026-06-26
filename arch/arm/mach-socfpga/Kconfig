@@ -18,6 +18,16 @@ config SOCFPGA_RSU_SF_CS
 	  loads u-boot.itb from). Override only when RSU metadata lives
 	  on a different chip select than the u-boot.itb boot image.
 
+config SOCFPGA_RSU_MULTIFLASH
+	bool "Enable RSU multiflash support"
+	depends on CMD_SOCFPGA_RSU
+	help
+	  Allow the RSU flow to operate across multiple SPI flash devices.
+	  When enabled, the QSPI low-level backend queries the Secure Device
+	  Manager for the number and size of the attached flash devices and
+	  spans the RSU sub-partition layout across all of them. Leave
+	  disabled for the common single-flash layout.
+
 config SOCFPGA_SECURE_VAB_AUTH
 	bool "Enable boot image authentication with Secure Device Manager"
 	depends on ARCH_SOCFPGA_AGILEX || ARCH_SOCFPGA_N5X || \

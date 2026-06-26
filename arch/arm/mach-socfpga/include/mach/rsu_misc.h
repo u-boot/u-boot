@@ -61,5 +61,5 @@ void rsu_log(const enum rsu_log_level level, const char *format, ...);
 int smc_store_max_retry(u32 value);
 
 void swap_bits(char *data, int size);
-int pow(u32 x, u32 y);
+int rsu_pow(u32 x, u32 y);
 #endif
