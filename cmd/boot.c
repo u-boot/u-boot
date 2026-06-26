@@ -55,24 +55,3 @@ U_BOOT_CMD(
 );
 
 #endif
-
-U_BOOT_CMD(
-	reset, 2, 0,	do_reset,
-	"Perform RESET of the CPU",
-	"- cold boot without level specifier\n"
-#if IS_ENABLED(CONFIG_SYSRESET_CMD_RESET_ARGS)
-// All options handled by sysreset drivers via their sysreset_ops.request_arg callback
-#ifdef CONFIG_SYSRESET_QCOM_PSCI
-	"reset -edl - Boot to Emergency DownLoad mode\n"
-#endif
-#endif
-	"reset -w - warm reset if implemented"
-);
-
-#ifdef CONFIG_CMD_POWEROFF
-U_BOOT_CMD(
-	poweroff, 1, 0,	do_poweroff,
-	"Perform POWEROFF of the device",
-	""
-);
-#endif
