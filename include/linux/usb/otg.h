@@ -46,4 +46,14 @@ enum usb_dr_mode usb_get_role_switch_default_mode(ofnode node);
  */
 enum usb_device_speed usb_get_maximum_speed(ofnode node);
 
+/**
+ * usb_get_maximum_ssp_rate - Get the signaling rate generation and lane count
+ *      of a SuperSpeed Plus capable device.
+ * @node: ofnode of the given device
+ *
+ * If the string from "maximum-speed" property is super-speed-plus-genXxY where
+ * 'X' is the generation number and 'Y' is the number of lanes, then this
+ * function returns the corresponding enum usb_ssp_rate.
+ */
+enum usb_ssp_rate usb_get_maximum_ssp_rate(ofnode node);
 #endif /* __LINUX_USB_OTG_H */

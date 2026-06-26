@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * This file holds USB constants and structures that are needed for
  * USB device APIs.  These are used by the USB device model, which is
@@ -5,7 +6,7 @@
  * Wireless USB 1.0 (spread around).  Linux has several APIs in C that
  * need these:
  *
- * - the master/host side Linux-USB kernel driver API;
+ * - the host side Linux-USB kernel driver API;
  * - the "usbfs" user space API; and
  * - the Linux "gadget" slave/device/peripheral side driver API.
  *
@@ -131,11 +132,11 @@
  * Test Mode Selectors
  * See USB 2.0 spec Table 9-7
  */
-#define	TEST_J		1
-#define	TEST_K		2
-#define	TEST_SE0_NAK	3
-#define	TEST_PACKET	4
-#define	TEST_FORCE_EN	5
+#define	USB_TEST_J		1
+#define	USB_TEST_K		2
+#define	USB_TEST_SE0_NAK	3
+#define	USB_TEST_PACKET		4
+#define	USB_TEST_FORCE_ENABLE	5
 
 /*
  * New Feature Selectors as added by USB 3.0
@@ -873,9 +874,6 @@ struct usb_ss_cap_descriptor {		/* Link Power Management */
 	__le16 bU2DevExitLat;
 } __attribute__((packed));
 
-#define USB_DEFAULT_U1_DEV_EXIT_LAT     0x01	/* Less then 1 microsec */
-#define USB_DEFAULT_U2_DEV_EXIT_LAT     0x01F4	/* Less then 500 microsec */
-
 #define USB_DT_USB_SS_CAP_SIZE	10
 
 /*
@@ -1053,6 +1051,15 @@ struct usb_set_sel_req {
 struct usb_string {
 	u8 id;
 	const char *s;
+};
+
+/* USB 3.2 SuperSpeed Plus phy signaling rate generation and lane count */
+
+enum usb_ssp_rate {
+        USB_SSP_GEN_UNKNOWN = 0,
+        USB_SSP_GEN_2x1,
+        USB_SSP_GEN_1x2,
+        USB_SSP_GEN_2x2,
 };
 
 #endif /* __LINUX_USB_CH9_H */

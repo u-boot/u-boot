@@ -113,9 +113,6 @@ static void dwc2_handle_ep0(struct dwc2_udc *dev);
 static int dwc2_ep0_write(struct dwc2_udc *dev);
 static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req);
 static void done(struct dwc2_ep *ep, struct dwc2_request *req, int status);
-static void stop_activity(struct dwc2_udc *dev,
-			  struct usb_gadget_driver *driver);
-static int udc_enable(struct dwc2_udc *dev);
 static void udc_set_address(struct dwc2_udc *dev, unsigned char address);
 static void reconfig_usbd(struct dwc2_udc *dev);
 static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed);
@@ -171,22 +168,6 @@ __weak void otg_phy_off(struct dwc2_udc *dev) {}
 #include "dwc2_udc_otg_xfer_dma.c"
 
 /*
- *	udc_disable - disable USB device controller
- */
-static void udc_disable(struct dwc2_udc *dev)
-{
-	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
-
-	udc_set_address(dev, 0);
-
-	dev->ep0state = WAIT_FOR_SETUP;
-	dev->gadget.speed = USB_SPEED_UNKNOWN;
-	dev->usb_address = 0;
-
-	otg_phy_off(dev);
-}
-
-/*
  *	udc_reinit - initialize software state
  */
 static void udc_reinit(struct dwc2_udc *dev)
@@ -219,6 +200,18 @@ static void udc_reinit(struct dwc2_udc *dev)
 #define BYTES2MAXP(x)	(x / 8)
 #define MAXP2BYTES(x)	(x * 8)
 
+static int dwc2_gadget_pullup(struct usb_gadget *g, int is_on)
+{
+	clrsetbits_le32(&reg->device_regs.dctl, DCTL_SFTDISCON,
+			is_on ? 0 : DCTL_SFTDISCON);
+
+	return 0;
+}
+
+#if !CONFIG_IS_ENABLED(DM_USB_GADGET)
+
+#else /* !CONFIG_IS_ENABLED(DM_USB_GADGET) */
+
 /* until it's enabled, this UDC should be completely invisible
  * to any USB host.
  */
@@ -237,89 +230,6 @@ static int udc_enable(struct dwc2_udc *dev)
 
 	return 0;
 }
-
-static int dwc2_gadget_pullup(struct usb_gadget *g, int is_on)
-{
-	clrsetbits_le32(&reg->device_regs.dctl, DCTL_SFTDISCON,
-			is_on ? 0 : DCTL_SFTDISCON);
-
-	return 0;
-}
-
-#if !CONFIG_IS_ENABLED(DM_USB_GADGET)
-/*
-  Register entry point for the peripheral controller driver.
-*/
-int usb_gadget_register_driver(struct usb_gadget_driver *driver)
-{
-	struct dwc2_udc *dev = the_controller;
-	int retval = 0;
-	unsigned long flags = 0;
-
-	debug_cond(DEBUG_SETUP != 0, "%s: %s\n", __func__, "no name");
-
-	if (!driver || driver->speed < USB_SPEED_FULL
-	    || !driver->bind || !driver->disconnect || !driver->setup)
-		return -EINVAL;
-	if (!dev)
-		return -ENODEV;
-	if (dev->driver)
-		return -EBUSY;
-
-	spin_lock_irqsave(&dev->lock, flags);
-	/* first hook up the driver ... */
-	dev->driver = driver;
-	spin_unlock_irqrestore(&dev->lock, flags);
-
-	if (retval) { /* TODO */
-		printf("target device_add failed, error %d\n", retval);
-		return retval;
-	}
-
-	retval = driver->bind(&dev->gadget);
-	if (retval) {
-		debug_cond(DEBUG_SETUP != 0,
-			   "%s: bind to driver --> error %d\n",
-			    dev->gadget.name, retval);
-		dev->driver = 0;
-		return retval;
-	}
-
-	enable_irq(IRQ_OTG);
-
-	debug_cond(DEBUG_SETUP != 0,
-		   "Registered gadget driver %s\n", dev->gadget.name);
-	udc_enable(dev);
-
-	return 0;
-}
-
-/*
- * Unregister entry point for the peripheral controller driver.
- */
-int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
-{
-	struct dwc2_udc *dev = the_controller;
-	unsigned long flags = 0;
-
-	if (!dev)
-		return -ENODEV;
-	if (!driver || driver != dev->driver)
-		return -EINVAL;
-
-	spin_lock_irqsave(&dev->lock, flags);
-	dev->driver = 0;
-	stop_activity(dev, driver);
-	spin_unlock_irqrestore(&dev->lock, flags);
-
-	driver->unbind(&dev->gadget);
-
-	disable_irq(IRQ_OTG);
-
-	udc_disable(dev);
-	return 0;
-}
-#else /* !CONFIG_IS_ENABLED(DM_USB_GADGET) */
 
 static int dwc2_gadget_start(struct usb_gadget *g,
 			     struct usb_gadget_driver *driver)
@@ -344,6 +254,50 @@ static int dwc2_gadget_start(struct usb_gadget *g,
 	debug_cond(DEBUG_SETUP != 0,
 		   "Registered gadget driver %s\n", dev->gadget.name);
 	return udc_enable(dev);
+}
+
+static void stop_activity(struct dwc2_udc *dev,
+			  struct usb_gadget_driver *driver)
+{
+	int i;
+
+	/* don't disconnect drivers more than once */
+	if (dev->gadget.speed == USB_SPEED_UNKNOWN)
+		driver = 0;
+	dev->gadget.speed = USB_SPEED_UNKNOWN;
+
+	/* prevent new request submissions, kill any outstanding requests  */
+	for (i = 0; i < DWC2_MAX_ENDPOINTS; i++) {
+		struct dwc2_ep *ep = &dev->ep[i];
+		ep->stopped = 1;
+		nuke(ep, -ESHUTDOWN);
+	}
+
+	/* report disconnect; the driver is already quiesced */
+	if (driver) {
+		spin_unlock(&dev->lock);
+		driver->disconnect(&dev->gadget);
+		spin_lock(&dev->lock);
+	}
+
+	/* re-init driver-visible data structures */
+	udc_reinit(dev);
+}
+
+/*
+ *	udc_disable - disable USB device controller
+ */
+static void udc_disable(struct dwc2_udc *dev)
+{
+	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
+
+	udc_set_address(dev, 0);
+
+	dev->ep0state = WAIT_FOR_SETUP;
+	dev->gadget.speed = USB_SPEED_UNKNOWN;
+	dev->usb_address = 0;
+
+	otg_phy_off(dev);
 }
 
 static int dwc2_gadget_stop(struct usb_gadget *g)
@@ -431,34 +385,6 @@ static void nuke(struct dwc2_ep *ep, int status)
 		req = list_entry(ep->queue.next, struct dwc2_request, queue);
 		done(ep, req, status);
 	}
-}
-
-static void stop_activity(struct dwc2_udc *dev,
-			  struct usb_gadget_driver *driver)
-{
-	int i;
-
-	/* don't disconnect drivers more than once */
-	if (dev->gadget.speed == USB_SPEED_UNKNOWN)
-		driver = 0;
-	dev->gadget.speed = USB_SPEED_UNKNOWN;
-
-	/* prevent new request submissions, kill any outstanding requests  */
-	for (i = 0; i < DWC2_MAX_ENDPOINTS; i++) {
-		struct dwc2_ep *ep = &dev->ep[i];
-		ep->stopped = 1;
-		nuke(ep, -ESHUTDOWN);
-	}
-
-	/* report disconnect; the driver is already quiesced */
-	if (driver) {
-		spin_unlock(&dev->lock);
-		driver->disconnect(&dev->gadget);
-		spin_lock(&dev->lock);
-	}
-
-	/* re-init driver-visible data structures */
-	udc_reinit(dev);
 }
 
 static void reconfig_usbd(struct dwc2_udc *dev)
