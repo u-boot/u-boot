@@ -104,7 +104,3 @@
 &usdhc2 {
 	bootph-pre-ram;
 };
-
-&wdog3 {
-	status = "disabled";
-};
