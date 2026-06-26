@@ -44,6 +44,7 @@ U_BOOT_CMD(
 	"virtio block devices sub-system",
 	"scan - initialize virtio bus\n"
 	"virtio info - show all available virtio block devices\n"
+	"virtio flush - commit all dirty data to the current virtio block device\n"
 	"virtio device [dev] - show or set current virtio block device\n"
 	"virtio part [dev] - print partition table of one or all virtio block devices\n"
 	"virtio read addr blk# cnt - read `cnt' blocks starting at block\n"
