@@ -7,6 +7,11 @@
 
 / {
 	soc@0 {
+		socfpga-rsu {
+			compatible = "altr,socfpga-rsu";
+			bootph-all;
+		};
+
 		socfpga-system-mgr-firewall {
 			compatible = "intel,socfpga-dtreg";
 			#address-cells = <1>;

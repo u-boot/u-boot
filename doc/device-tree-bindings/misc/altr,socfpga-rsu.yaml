@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+title: Altera SoC FPGA Remote System Update (U-Boot anchor)
+
+description: |
+  Devicetree node used by U-Boot as a driver-model anchor for Remote
+  System Update (RSU) on Altera Stratix 10 / Agilex family SoCs.
+
+  RSU is implemented in firmware (SDM mailbox) and SPI NOR (Cadence
+  QSPI); this node has no MMIO. When CONFIG_SOCFPGA_RSU_DM is enabled,
+  U-Boot binds a UCLASS_MISC driver to this compatible and stores the
+  active RSU low-level session on the device private data.
+
+maintainers:
+  - Tien Fong Chee <tien.fong.chee@altera.com>
+  - Dinesh Maniyam <dinesh.maniyam@altera.com>
+
+properties:
+  compatible:
+    const: altr,socfpga-rsu
+
+  bootph-all:
+    description:
+      Bind the anchor at every U-Boot phase that uses RSU (SPL, U-Boot
+      proper).
+    type: boolean
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    soc {
+        socfpga-rsu {
+            compatible = "altr,socfpga-rsu";
+            bootph-all;
+        };
+    };
