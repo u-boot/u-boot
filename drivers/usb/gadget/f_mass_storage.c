@@ -241,6 +241,7 @@
 
 #include <config.h>
 #include <div64.h>
+#include <env.h>
 #include <hexdump.h>
 #include <log.h>
 #include <malloc.h>
@@ -2662,7 +2663,14 @@ static int fsg_bind(struct usb_configuration *c, struct usb_function *f)
 	struct usb_gadget	*gadget = c->cdev->gadget;
 	int			i;
 	struct usb_ep		*ep;
+	char __maybe_unused	*sn;
 	fsg->gadget = gadget;
+
+	if (CONFIG_IS_ENABLED(ENV_SUPPORT)) {
+		sn = env_get("serial#");
+		if (sn)
+			g_dnl_set_serialnumber(sn);
+	}
 
 	/* New interface */
 	i = usb_interface_id(c, f);
