@@ -92,6 +92,8 @@ enum ALT_SDM_MBOX_RESP_CODE {
 	MBOX_RESP_TIMEOUT = 0xB,
 	/* HW (i.e. QSPI) is not ready (initialized or configured) */
 	MBOX_RESP_HW_NOT_RDY = 0xC,
+	/* Mailbox function not supported in this build (e.g. no QSPI) */
+	MBOX_FUNC_NOT_SUPPORTED = 0xF,
 	/* Invalid license for IID registration */
 	MBOX_RESP_PUF_ACCCES_FAILED = 0x80,
 	MBOX_PUF_ENROLL_DISABLE = 0x81,
@@ -128,7 +130,11 @@ enum ALT_SDM_MBOX_RESP_CODE {
 #define MBOX_QSPI_CLOSE		51
 #define MBOX_QSPI_DIRECT	59
 #define MBOX_REBOOT_HPS		71
+#define MBOX_GET_SUBPARTITION_TABLE	90
+#define MBOX_RSU_STATUS			91
+#define MBOX_RSU_UPDATE			92
 #define MBOX_HPS_STAGE_NOTIFY		93
+#define MBOX_QSPI_GET_DEVICE_INFO	116 /* get QSPI size and erasesize */
 
 /* Mailbox registers */
 #define MBOX_CIN			0	/* command valid offset */
@@ -405,4 +411,11 @@ int mbox_reset_cold(void);
 int mbox_hps_stage_notify(u32 execution_stage);
 int mbox_get_fpga_config_status(u32 cmd);
 int mbox_get_fpga_config_status_psci(u32 cmd);
+
+int mbox_qspi_get_device_info(u32 *resp_buf, u32 resp_buf_len);
+int mbox_rsu_get_spt_offset(u32 *resp_buf, u32 resp_buf_len);
+int mbox_rsu_status(u32 *resp_buf, u32 resp_buf_len);
+int mbox_rsu_status_psci(u32 *resp_buf, u32 resp_buf_len);
+int mbox_rsu_update(u32 *flash_offset);
+int mbox_rsu_update_psci(u32 *flash_offset);
 #endif /* _MAILBOX_S10_H_ */
