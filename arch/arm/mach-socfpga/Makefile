@@ -138,6 +138,13 @@ endif
 else
 obj-$(CONFIG_SPL_ATF) += secure_reg_helper.o
 obj-$(CONFIG_SPL_ATF) += smc_api.o
+ifdef CONFIG_CMD_SOCFPGA_RSU
+obj-y	+= rsu.o
+obj-y	+= rsu_misc.o
+obj-y	+= rsu_ll_qspi.o
+obj-y	+= rsu_s10.o
+obj-$(CONFIG_ARMV8_PSCI)	+= smc_rsu_s10.o
+endif
 endif
 
 ifdef CONFIG_ARCH_SOCFPGA_GEN5

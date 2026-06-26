@@ -6,6 +6,18 @@ config ERR_PTR_OFFSET
 config NR_DRAM_BANKS
 	default 1
 
+config SOCFPGA_RSU_SF_CS
+	int "SPI flash chip-select used by the RSU flow (SPT/CPB)"
+	depends on CMD_SOCFPGA_RSU
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default SF_DEFAULT_CS
+	help
+	  Chip select of the SPI flash that holds the RSU sub-partition
+	  table (SPT) and configuration pointer block (CPB) metadata.
+	  Independent from SF_DEFAULT_CS (which selects the flash SPL
+	  loads u-boot.itb from). Override only when RSU metadata lives
+	  on a different chip select than the u-boot.itb boot image.
+
 config SOCFPGA_SECURE_VAB_AUTH
 	bool "Enable boot image authentication with Secure Device Manager"
 	depends on ARCH_SOCFPGA_AGILEX || ARCH_SOCFPGA_N5X || \
