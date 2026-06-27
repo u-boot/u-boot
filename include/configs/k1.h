@@ -1,0 +1,20 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2024, Kongyang Liu <seashell11234455@gmail.com>
+ * Copyright (C) 2025-2026, RISCstar Ltd.
+ *
+ */
+
+#ifndef __CONFIG_H
+#define __CONFIG_H
+
+#define CFG_SYS_NS16550_CLK	    14700000
+#define CFG_SYS_NS16550_IER	    0x40 /* UART Unit Enable */
+#define CFG_SYS_SDRAM_BASE	    0x0
+
+#define RISCV_MMODE_TIMERBASE	    0xe4000000
+#define RISCV_MMODE_TIMEROFF	    0xbff8
+#define RISCV_MMODE_TIMER_FREQ	    24000000
+#define RISCV_SMODE_TIMER_FREQ	    24000000
+
+#endif /* __CONFIG_H */
