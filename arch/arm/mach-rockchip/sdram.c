@@ -294,10 +294,20 @@ __weak int rockchip_dram_init_banksize_fixup(struct bd_info *bd)
 	return 0;
 }
 
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
+{
+	/* Make sure U-Boot only uses the space below the 4G address boundary */
+	u64 usable_top = min_t(u64, CFG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE, SZ_4G);
+
+	return (gd->ram_top > usable_top) ? usable_top : gd->ram_top;
+}
+
 int dram_init_banksize(void)
 {
-	size_t ram_top = (unsigned long)(gd->ram_size + CFG_SYS_SDRAM_BASE);
-	size_t top = min((unsigned long)ram_top, (unsigned long)(gd->ram_top));
+	/* Make sure first bank uses the space below the 4G address boundary */
+	u64 usable_top = min_t(u64, CFG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE, SZ_4G);
+	size_t ram_top = (unsigned long)(CFG_SYS_SDRAM_BASE + gd->ram_size);
+	size_t top = min((unsigned long)ram_top, (unsigned long)(usable_top));
 
 #ifdef CONFIG_ARM64
 	int ret = rockchip_dram_init_banksize();
@@ -506,12 +516,4 @@ int dram_init(void)
 	      (unsigned long)ram.base, (unsigned long)ram.size);
 
 	return 0;
-}
-
-phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
-{
-	/* Make sure U-Boot only uses the space below the 4G address boundary */
-	u64 top = min_t(u64, CFG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE, SZ_4G);
-
-	return (gd->ram_top > top) ? top : gd->ram_top;
 }
