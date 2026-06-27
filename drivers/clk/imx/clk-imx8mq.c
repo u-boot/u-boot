@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright 2019 NXP
+ * Copyright 2019, 2026 NXP
  * Copyright 2022 Purism
  * Peng Fan <peng.fan@nxp.com>
  */
@@ -155,39 +155,52 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	       imx_clk_mux(dev, "dram_pll_ref_sel", base + 0x60, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_ARM_PLL_REF_SEL,
-	       imx_clk_mux(dev, "arm_pll_ref_sel", base + 0x28, 0, 2,
+	       imx_clk_mux(dev, "arm_pll_ref_sel", base + 0x28, 16, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_GPU_PLL_REF_SEL,
-	       imx_clk_mux(dev, "gpu_pll_ref_sel", base + 0x18, 0, 2,
+	       imx_clk_mux(dev, "gpu_pll_ref_sel", base + 0x18, 16, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_VPU_PLL_REF_SEL,
-	       imx_clk_mux(dev, "vpu_pll_ref_sel", base + 0x20, 0, 2,
+	       imx_clk_mux(dev, "vpu_pll_ref_sel", base + 0x20, 16, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_SYS3_PLL1_REF_SEL,
 	       imx_clk_mux(dev, "sys3_pll_ref_sel", base + 0x48, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_AUDIO_PLL1_REF_SEL,
-	       imx_clk_mux(dev, "audio_pll1_ref_sel", base + 0x0, 0, 2,
+	       imx_clk_mux(dev, "audio_pll1_ref_sel", base + 0x0, 16, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_AUDIO_PLL2_REF_SEL,
-	       imx_clk_mux(dev, "audio_pll2_ref_sel", base + 0x8, 0, 2,
+	       imx_clk_mux(dev, "audio_pll2_ref_sel", base + 0x8, 16, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_VIDEO_PLL1_REF_SEL,
-	       imx_clk_mux(dev, "video_pll1_ref_sel", base + 0x10, 0, 2,
+	       imx_clk_mux(dev, "video_pll1_ref_sel", base + 0x10, 16, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_VIDEO2_PLL1_REF_SEL,
 	       imx_clk_mux(dev, "video_pll2_ref_sel", base + 0x54, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 
+	clk_dm(IMX8MQ_ARM_PLL_REF_DIV,
+	       imx_clk_divider(dev, "arm_pll_ref_div", "arm_pll_ref_sel", base + 0x28, 5, 6));
+	clk_dm(IMX8MQ_GPU_PLL_REF_DIV,
+	       imx_clk_divider(dev, "gpu_pll_ref_div", "gpu_pll_ref_sel", base + 0x18, 5, 6));
+	clk_dm(IMX8MQ_VPU_PLL_REF_DIV,
+	       imx_clk_divider(dev, "vpu_pll_ref_div", "vpu_pll_ref_sel", base + 0x20, 5, 6));
+	clk_dm(IMX8MQ_AUDIO_PLL1_REF_DIV,
+	       imx_clk_divider(dev, "audio_pll1_ref_div", "audio_pll1_ref_sel", base + 0x0, 5, 6));
+	clk_dm(IMX8MQ_AUDIO_PLL2_REF_DIV,
+	       imx_clk_divider(dev, "audio_pll2_ref_div", "audio_pll2_ref_sel", base + 0x8, 5, 6));
+	clk_dm(IMX8MQ_VIDEO_PLL1_REF_DIV,
+	       imx_clk_divider(dev, "video_pll1_ref_div", "video_pll1_ref_sel", base + 0x10, 5, 6));
+
 	clk_dm(IMX8MQ_ARM_PLL,
-	       imx_clk_pll14xx("arm_pll", "arm_pll_ref_sel",
-			       base + 0x28, &imx_1416x_pll));
+	       imx_clk_frac_pll("arm_pll", "arm_pll_ref_div",
+				base + 0x28));
 	clk_dm(IMX8MQ_GPU_PLL,
-	       imx_clk_pll14xx("gpu_pll", "gpu_pll_ref_sel",
-			       base + 0x18, &imx_1416x_pll));
+	       imx_clk_frac_pll("gpu_pll", "gpu_pll_ref_div",
+				base + 0x18));
 	clk_dm(IMX8MQ_VPU_PLL,
-	       imx_clk_pll14xx("vpu_pll", "vpu_pll_ref_sel",
-			       base + 0x20, &imx_1416x_pll));
+	       imx_clk_frac_pll("vpu_pll", "vpu_pll_ref_div",
+				base + 0x20));
 
 	clk_dm(IMX8MQ_SYS1_PLL1,
 	       clk_register_fixed_rate(NULL, "sys1_pll", 800000000));
@@ -196,14 +209,14 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MQ_SYS2_PLL1,
 	       clk_register_fixed_rate(NULL, "sys3_pll", 1000000000));
 	clk_dm(IMX8MQ_AUDIO_PLL1,
-	       imx_clk_pll14xx("audio_pll1", "audio_pll1_ref_sel",
-			       base + 0x0, &imx_1443x_pll));
+	       imx_clk_frac_pll("audio_pll1", "audio_pll1_ref_div",
+				base + 0x0));
 	clk_dm(IMX8MQ_AUDIO_PLL2,
-	       imx_clk_pll14xx("audio_pll2", "audio_pll2_ref_sel",
-			       base + 0x8, &imx_1443x_pll));
+	       imx_clk_frac_pll("audio_pll2", "audio_pll2_ref_div",
+				base + 0x8));
 	clk_dm(IMX8MQ_VIDEO_PLL1,
-	       imx_clk_pll14xx("video_pll1", "video_pll1_ref_sel",
-			       base + 0x10, &imx_1443x_pll));
+	       imx_clk_frac_pll("video_pll1", "video_pll1_ref_div",
+				base + 0x10));
 
 	/* PLL bypass out */
 	clk_dm(IMX8MQ_ARM_PLL_BYPASS,
@@ -356,8 +369,8 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MQ_CLK_A53_DIV,
 	       imx_clk_divider2(dev, "arm_a53_div", "arm_a53_cg",
 				base + 0x8000, 0, 3));
-	clk_dm(IMX8MQ_CLK_A53_CORE,
-	       imx_clk_mux2(dev, "arm_a53_src", base + 0x9880, 24, 1,
+	clk_dm(IMX8MQ_CLK_ARM,
+	       imx_clk_mux2(dev, "arm_a53_core", base + 0x9880, 24, 1,
 			    imx8mq_a53_core_sels, ARRAY_SIZE(imx8mq_a53_core_sels)));
 
 	clk_dm(IMX8MQ_CLK_AHB,

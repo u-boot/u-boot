@@ -507,6 +507,35 @@ phys_size_t get_effective_memsize(void)
 	}
 }
 
+static inline u64 ether_addr_to_u64(const u8 *addr)
+{
+	u64 u = 0;
+	int i;
+
+	for (i = 0; i < 6; i++)
+		u = u << 8 | addr[i];
+
+	return u;
+}
+
+static inline void u64_to_ether_addr(u64 u, u8 *addr)
+{
+	int i;
+
+	for (i = 6 - 1; i >= 0; i--) {
+		addr[i] = u & 0xff;
+		u = u >> 8;
+	}
+}
+
+static inline void eth_addr_add(u8 *addr, long offset)
+{
+	u64 u = ether_addr_to_u64(addr);
+
+	u += offset;
+	u64_to_ether_addr(u, addr);
+}
+
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
 	u32 val[2] = {};
@@ -551,16 +580,16 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 		 * | 10     | netc switch | swp2                      |
 		 */
 		if (dev_id == 0)
-			mac[5] = mac[5] + 2; /* enetc3 mac/swp0 */
+			eth_addr_add(mac, 2); /* enetc3 mac/swp0 */
 		if (dev_id == 1)
-			mac[5] = mac[5] + 8; /* enetc1 */
+			eth_addr_add(mac, 8); /* enetc1 */
 		if (dev_id == 2)
-			mac[5] = mac[5] + 9; /* enetc2 */
+			eth_addr_add(mac, 9); /* enetc2 */
 	} else {
 		if (dev_id == 1)
-			mac[5] = mac[5] + 3;
+			eth_addr_add(mac, 3);
 		if (dev_id == 2)
-			mac[5] = mac[5] + 6;
+			eth_addr_add(mac, 6);
 	}
 
 	debug("%s: MAC%d: %pM\n", __func__, dev_id, mac);
@@ -665,11 +694,11 @@ int get_reset_reason(bool sys, bool lm)
 		}
 		if (out.shutdownflags & MISC_SHUTDOWN_FLAG_VLD) {
 			printf("SYS shutdown reason: %s, origin: %ld, errid: %ld\n",
-			       rst[out.bootflags & MISC_SHUTDOWN_FLAG_REASON],
-			       out.bootflags & MISC_SHUTDOWN_FLAG_ORG_VLD ?
-			       FIELD_GET(MISC_SHUTDOWN_FLAG_ORIGIN, out.bootflags) : -1,
-			       out.bootflags & MISC_SHUTDOWN_FLAG_ERR_VLD ?
-			       FIELD_GET(MISC_SHUTDOWN_FLAG_ERR_ID, out.bootflags) : -1
+			       rst[out.shutdownflags & MISC_SHUTDOWN_FLAG_REASON],
+			       out.shutdownflags & MISC_SHUTDOWN_FLAG_ORG_VLD ?
+			       FIELD_GET(MISC_SHUTDOWN_FLAG_ORIGIN, out.shutdownflags) : -1,
+			       out.shutdownflags & MISC_SHUTDOWN_FLAG_ERR_VLD ?
+			       FIELD_GET(MISC_SHUTDOWN_FLAG_ERR_ID, out.shutdownflags) : -1
 			       );
 		}
 	}
@@ -696,11 +725,11 @@ int get_reset_reason(bool sys, bool lm)
 
 		if (out.shutdownflags & MISC_SHUTDOWN_FLAG_VLD) {
 			printf("LM shutdown reason: %s, origin: %ld, errid: %ld\n",
-			       rst[out.bootflags & MISC_SHUTDOWN_FLAG_REASON],
-			       out.bootflags & MISC_SHUTDOWN_FLAG_ORG_VLD ?
-			       FIELD_GET(MISC_SHUTDOWN_FLAG_ORIGIN, out.bootflags) : -1,
-			       out.bootflags & MISC_SHUTDOWN_FLAG_ERR_VLD ?
-			       FIELD_GET(MISC_SHUTDOWN_FLAG_ERR_ID, out.bootflags) : -1
+			       rst[out.shutdownflags & MISC_SHUTDOWN_FLAG_REASON],
+			       out.shutdownflags & MISC_SHUTDOWN_FLAG_ORG_VLD ?
+			       FIELD_GET(MISC_SHUTDOWN_FLAG_ORIGIN, out.shutdownflags) : -1,
+			       out.shutdownflags & MISC_SHUTDOWN_FLAG_ERR_VLD ?
+			       FIELD_GET(MISC_SHUTDOWN_FLAG_ERR_ID, out.shutdownflags) : -1
 			       );
 		}
 	}
@@ -985,10 +1014,11 @@ enum boot_device get_boot_device(void)
 
 bool arch_check_dst_in_secure(void *start, ulong size)
 {
-	ulong ns_end = CFG_SYS_SDRAM_BASE + PHYS_SDRAM_SIZE;
-#ifdef PHYS_SDRAM_2_SIZE
-	ns_end += PHYS_SDRAM_2_SIZE;
-#endif
+	ulong ns_end;
+	phys_size_t dram_size;
+
+	board_phys_sdram_size(&dram_size);
+	ns_end = CFG_SYS_SDRAM_BASE + dram_size;
 
 	if ((ulong)start < CFG_SYS_SDRAM_BASE || (ulong)start + size > ns_end)
 		return true;
@@ -998,5 +1028,10 @@ bool arch_check_dst_in_secure(void *start, ulong size)
 
 void *arch_get_container_trampoline(void)
 {
-	return (void *)((ulong)CFG_SYS_SDRAM_BASE + PHYS_SDRAM_SIZE - SZ_16M);
+	phys_size_t size;
+
+	board_phys_sdram_size(&size);
+	size = (size > PHYS_SDRAM_SIZE) ? PHYS_SDRAM_SIZE : size;
+
+	return (void *)((ulong)CFG_SYS_SDRAM_BASE + size - SZ_16M);
 }
