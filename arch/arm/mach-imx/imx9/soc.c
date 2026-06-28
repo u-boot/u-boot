@@ -21,6 +21,7 @@
 #include <asm/armv8/mmu.h>
 #include <dm/device.h>
 #include <dm/device_compat.h>
+#include <dm/ofnode.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <env_internal.h>
@@ -738,13 +739,16 @@ int arch_cpu_init(void)
 int imx9_probe_mu(void)
 {
 	struct udevice *devp;
-	int node, ret;
+	ofnode node;
+	int ret;
 	u32 res;
 	struct ele_get_info_data info;
 
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "fsl,imx93-mu-s4");
+	node = ofnode_by_compatible(ofnode_null(), "fsl,imx93-mu-s4");
+	if (!ofnode_valid(node))
+		return -ENODEV;
 
-	ret = uclass_get_device_by_of_offset(UCLASS_MISC, node, &devp);
+	ret = uclass_get_device_by_ofnode(UCLASS_MISC, node, &devp);
 	if (ret)
 		return ret;
 

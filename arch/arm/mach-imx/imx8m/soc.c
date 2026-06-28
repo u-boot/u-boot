@@ -1480,6 +1480,33 @@ void reset_cpu(void)
 #endif
 
 #if IS_ENABLED(CONFIG_ARCH_MISC_INIT)
+static char *get_reset_cause(void)
+{
+	switch (get_imx_reset_cause()) {
+	case 0x00001:
+	case 0x00011:
+		return "POR";
+	case 0x00004:
+		return "CSU";
+	case 0x00008:
+		return "IPP USER";
+	case 0x00010:
+		return "WDOG";
+	case 0x00020:
+		return "JTAG HIGH-Z";
+	case 0x00040:
+		return "JTAG SW";
+	case 0x00080:
+		return "WDOG3";
+	case 0x00100:
+		return "WDOG2";
+	case 0x00200:
+		return "TEMPSENSE";
+	default:
+		return "unknown reset";
+	}
+}
+
 int arch_misc_init(void)
 {
 	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
@@ -1490,6 +1517,9 @@ int arch_misc_init(void)
 		if (ret)
 			printf("Failed to initialize caam_jr: %d\n", ret);
 	}
+
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
+		printf("Reset cause: %s\n", get_reset_cause());
 
 	return 0;
 }

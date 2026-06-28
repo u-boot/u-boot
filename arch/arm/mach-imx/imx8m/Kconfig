@@ -10,6 +10,7 @@ config IMX8M
 	select ARMV8_CRYPTO
 	imply CPU
 	imply CPU_IMX
+	imply DM_THERMAL
 	imply IMX_TMU
 
 config IMX8MQ

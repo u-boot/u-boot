@@ -1,0 +1,11 @@
+Aquila iMX95
+F:	arch/arm/dts/imx95-aquila.dtsi
+F:	arch/arm/dts/imx95-aquila-dev.dts
+F:	arch/arm/dts/imx95-aquila-dev-u-boot.dtsi
+F:	board/toradex/aquila-imx95/
+F:	configs/aquila-imx95_defconfig
+F:	doc/board/toradex/aquila-imx95.rst
+F:	include/configs/aquila-imx95.h
+M:	Francesco Dolcini <francesco.dolcini@toradex.com>
+S:	Maintained
+W:	https://www.toradex.com/computer-on-modules/aquila-arm-family/nxp-imx95
