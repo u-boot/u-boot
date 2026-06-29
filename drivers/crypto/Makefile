@@ -8,6 +8,7 @@ obj-y += aes/
 obj-y += rsa_mod_exp/
 obj-y += fsl/
 obj-y += hash/
+obj-y += allwinner/
 obj-y += aspeed/
 obj-y += nuvoton/
 obj-y += tegra/

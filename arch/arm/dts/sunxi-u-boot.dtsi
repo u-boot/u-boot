@@ -19,6 +19,21 @@
 	};
 };
 
+#ifdef CONFIG_SPL_CLK
+&ccu {
+	bootph-pre-ram;
+};
+
+&rtc {
+	bootph-pre-ram;
+};
+#endif
+
+#ifdef CONFIG_SPL_SUNXI_CE
+&crypto {
+	bootph-pre-ram;
+};
+#endif
 /* Let U-Boot be the firmware layer that controls the watchdog. */
 #ifdef CONFIG_MACH_SUN8I_R528
 &wdt {
