@@ -70,6 +70,13 @@ struct crypto_algo crypto_algos[] = {
 		.verify = rsa_verify,
 	},
 	{
+		.name = "ecdsa224",
+		.key_len = ECDSA224_BYTES,
+		.sign = ecdsa_sign,
+		.add_verify_data = ecdsa_add_verify_data,
+		.verify = ecdsa_verify,
+	},
+	{
 		.name = "ecdsa256",
 		.key_len = ECDSA256_BYTES,
 		.sign = ecdsa_sign,
