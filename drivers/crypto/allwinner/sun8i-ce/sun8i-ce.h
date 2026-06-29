@@ -21,6 +21,9 @@
 #define SUNXI_CE_COMM_INT		BIT(31)
 #define SUNXI_CE_METHOD_AES		0
 #define SUNXI_CE_METHOD_RAES		0x30
+#define SUNXI_CE_METHOD_ECC		33
+#define SUNXI_CE_ECC_OP_VERIFY		7
+#define SUNXI_CE_ECC_OP_SHIFT		16
 #define SUNXI_CE_MAX_SG			8
 #define SUNXI_CE_MAX_CHANS		4
 #define SUNXI_CE_CHAN_ERR_MASK(x)	(0xffU << ((x) * 8))

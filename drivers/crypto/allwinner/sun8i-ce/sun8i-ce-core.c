@@ -673,6 +673,12 @@ static int sunxi_ce_bind(struct udevice *dev)
 			return ret;
 	}
 
+	if (CONFIG_IS_ENABLED(SUNXI_CE_ECDSA)) {
+		ret = sunxi_ce_bind_child(dev, "sun8i-ce-ecdsa");
+		if (ret)
+			return ret;
+	}
+
 	return 0;
 }
 
