@@ -1024,6 +1024,8 @@ dtb-$(CONFIG_ASPEED_AST2600) += \
 	ast2600-evb.dtb \
 	ast2600-sbp1.dtb \
 	ast2600-x4tf.dtb
+dtb-$(CONFIG_ASPEED_AST2700) += \
+	ast2700-evb.dtb
 
 dtb-$(CONFIG_STM32MP15X) += \
 	stm32mp157c-odyssey.dtb

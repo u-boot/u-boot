@@ -214,11 +214,13 @@ M:	Chia-Wei Wang <chiawei_wang@aspeedtech.com>
 R:	Aspeed BMC SW team <BMC-SW@aspeedtech.com>
 R:	Joel Stanley <joel@jms.id.au>
 S:	Maintained
+F:	arch/arm/dts/ast*
 F:	drivers/i2c/ast_i2c.[ch]
 F:	drivers/net/ftgmac100.[ch]
 F:	drivers/watchdog/ast_wdt.c
 N:	aspeed
 N:	ast2500
+N:	ast2700
 
 ARM AXIADO AX3005 SCM3005
 M:	Siu Ming Tong <smtong@axiado.com>
@@ -230,6 +232,15 @@ F:	arch/arm/mach-axiado/
 F:	board/axiado/scm3005/
 F:	configs/ax3005_scm3005_defconfig
 F:	include/configs/ax3005-scm3005.h
+=======
+F:	drivers/pinctrl/aspeed/
+F:	drivers/pwm/pwm-aspeed.c
+F:	drivers/ram/aspeed/
+F:	drivers/reset/reset-ast*.c
+F:	drivers/watchdog/ast_wdt.c
+N:	aspeed
+N:	ast2700
+>>>>>>> 4a72fd9fb09109857303ca64fd259009e1d4b554
 
 ARM BROADCOM BCM283X / BCM27XX
 M:	Matthias Brugger <mbrugger@suse.com>
