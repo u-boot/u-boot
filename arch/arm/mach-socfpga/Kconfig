@@ -6,6 +6,49 @@ config ERR_PTR_OFFSET
 config NR_DRAM_BANKS
 	default 1
 
+config SOCFPGA_RSU_SF_CS
+	int "SPI flash chip-select used by the RSU flow (SPT/CPB)"
+	depends on CMD_SOCFPGA_RSU
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default SF_DEFAULT_CS
+	help
+	  Chip select of the SPI flash that holds the RSU sub-partition
+	  table (SPT) and configuration pointer block (CPB) metadata.
+	  Independent from SF_DEFAULT_CS (which selects the flash SPL
+	  loads u-boot.itb from). Override only when RSU metadata lives
+	  on a different chip select than the u-boot.itb boot image.
+
+config SOCFPGA_RSU_MULTIFLASH
+	bool "Enable RSU multiflash support"
+	depends on CMD_SOCFPGA_RSU
+	help
+	  Allow the RSU flow to operate across multiple SPI flash devices.
+	  When enabled, the QSPI low-level backend queries the Secure Device
+	  Manager for the number and size of the attached flash devices and
+	  spans the RSU sub-partition layout across all of them. Leave
+	  disabled for the common single-flash layout.
+
+config SOCFPGA_RSU_MULTIBOOT
+	bool "Enable RSU SPL multiboot SSBL selection"
+	depends on ARCH_SOCFPGA_SOC64 && SPL && SPI_FLASH
+	help
+	  Select the second-stage boot loader (SSBL, i.e. U-Boot proper)
+	  image based on the RSU sub-partition the SPL was loaded from.
+	  SPL reads the RSU sub-partition table (SPT) to locate the SSBL
+	  partition that pairs with the currently running SPL image and
+	  loads U-Boot proper, its environment and FIT from there. This
+	  keeps a multi-image RSU layout self-consistent across updates.
+
+config SPL_SOCFPGA_RSU_SSBL_FALLBACK
+	int "RSU SPL fallback SSBL slot size (MiB)"
+	depends on SOCFPGA_RSU_MULTIBOOT
+	default 8
+	range 1 64
+	help
+	  Conservative upper bound (in MiB) for the SSBL slot used when the
+	  SPT lookup fails, so the environment-offset math in env/sf.c cannot
+	  underflow. Override only if the board's SSBL exceeds the default.
+
 config SOCFPGA_SECURE_VAB_AUTH
 	bool "Enable boot image authentication with Secure Device Manager"
 	depends on ARCH_SOCFPGA_AGILEX || ARCH_SOCFPGA_N5X || \

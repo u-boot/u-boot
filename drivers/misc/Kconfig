@@ -66,6 +66,22 @@ config ALTERA_SYSID
 	  Select this to enable a sysid for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config SOCFPGA_RSU_DM
+	bool "Altera SoC FPGA RSU driver-model anchor device"
+	depends on MISC
+	depends on OF_CONTROL
+	depends on CMD_SOCFPGA_RSU
+	default y
+	help
+	  Expose RSU as a devicetree-bound UCLASS_MISC device
+	  (altr,socfpga-rsu). The RSU command layer stores its active
+	  low-level session on this device; ensure the altr,socfpga-rsu
+	  node is present in the U-Boot DTS.
+
+	  This anchor driver has no MMIO and no flash-controller coupling
+	  of its own; the QSPI flash requirement is enforced by
+	  CMD_SOCFPGA_RSU (the only consumer of this device).
+
 config ATSHA204A
 	bool "Support for Atmel ATSHA204A module"
 	select BITREVERSE

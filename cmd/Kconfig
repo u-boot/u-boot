@@ -1275,6 +1275,17 @@ config CMD_FPGAD
 	  fpga_get_reg() function. This functions similarly to the 'md'
 	  command.
 
+config CMD_SOCFPGA_RSU
+	bool "rsu - Altera SoC FPGA Remote System Update"
+	depends on ARCH_SOCFPGA_SOC64
+	depends on CADENCE_QSPI
+	select MISC
+	help
+	  Remote System Update (RSU) for Altera Stratix 10 / Agilex family
+	  SoCs: inspect flash images and the sub-partition table (SPT) /
+	  configuration pointer block (CPB), manage configuration slots,
+	  trigger firmware updates, and adjust the Linux DTB QSPI layout.
+
 config CMD_FUSE
 	bool "fuse - support for the fuse subssystem"
 	depends on !COMPILE_TEST

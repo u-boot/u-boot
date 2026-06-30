@@ -169,10 +169,16 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-socfpga.git
 F:	arch/arm/dts/socfpga_*
 F:	arch/arm/mach-socfpga/
 F:	board/intel/agilex-socdk/
+F:	cmd/socfpga_rsu.c
 F:	configs/socfpga_*
+F:	doc/device-tree-bindings/misc/altr,socfpga-rsu.yaml
+F:	doc/usage/cmd/rsu.rst
 F:	drivers/ddr/altera/
+F:	drivers/misc/socfpga_rsu.c
 F:	drivers/power/domain/altr-pmgr-agilex5.c
 F:	drivers/sysreset/sysreset_socfpga*
+F:	include/rsu_console.h
+F:	test/cmd/socfpga_rsu.c
 
 ARM AMLOGIC SOC SUPPORT
 M:	Neil Armstrong <neil.armstrong@linaro.org>

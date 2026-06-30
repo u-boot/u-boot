@@ -6,12 +6,14 @@
 
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/mailbox_s10.h>
+#include <asm/arch/rsu.h>
 #include <asm/arch/smc_api.h>
 #include <asm/arch/system_manager.h>
 #include <asm/io.h>
 #include <asm/secure.h>
 #include <asm/system.h>
 #include <hang.h>
+#include <linux/bitfield.h>
 #include <wait_bit.h>
 
 #define MBOX_READL(reg)			\
@@ -390,6 +392,145 @@ error:
 
 	return ret;
 }
+
+int mbox_qspi_get_device_info(u32 *resp_buf, u32 resp_buf_len)
+{
+	int ret;
+
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) && IS_ENABLED(CONFIG_SPL_ATF)) {
+		ret = smc_send_mailbox(MBOX_QSPI_GET_DEVICE_INFO, 0, NULL, 0,
+				       (u32 *)&resp_buf_len, (u32 *)resp_buf);
+	} else {
+		ret = mbox_send_cmd(MBOX_ID_UBOOT, MBOX_QSPI_GET_DEVICE_INFO,
+				    MBOX_CMD_DIRECT, 0, NULL, 0,
+				    (u32 *)&resp_buf_len, (u32 *)resp_buf);
+	}
+
+	if (ret) {
+		debug("%s: Failed to retrieve QSPI Device INFO: %d\n",
+		      __func__, ret);
+		return ret;
+	}
+
+	debug("Successfully retrieve QSPI Device INFO.\n");
+
+	return 0;
+}
+
+int mbox_rsu_get_spt_offset(u32 *resp_buf, u32 resp_buf_len)
+{
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_ATF)
+	return smc_send_mailbox(MBOX_GET_SUBPARTITION_TABLE, 0, NULL, 0,
+				(u32 *)&resp_buf_len, (u32 *)resp_buf);
+#else
+	return mbox_send_cmd(MBOX_ID_UBOOT, MBOX_GET_SUBPARTITION_TABLE,
+			     MBOX_CMD_DIRECT, 0, NULL, 0, (u32 *)&resp_buf_len,
+			     (u32 *)resp_buf);
+#endif
+}
+
+int mbox_rsu_status(u32 *resp_buf, u32 resp_buf_len)
+{
+	int ret;
+	struct rsu_status_info *info = (struct rsu_status_info *)resp_buf;
+
+	info->retry_counter = -1;
+
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_ATF)
+	ret = smc_send_mailbox(MBOX_RSU_STATUS, 0, NULL, 0,
+			       (u32 *)&resp_buf_len, (u32 *)resp_buf);
+#else
+	ret = mbox_send_cmd(MBOX_ID_UBOOT, MBOX_RSU_STATUS, MBOX_CMD_DIRECT, 0,
+			    NULL, 0, (u32 *)&resp_buf_len, (u32 *)resp_buf);
+#endif
+
+	if (ret)
+		return ret;
+
+	if (info->retry_counter != -1)
+		if (!RSU_VERSION_ACMF_VERSION(info->version))
+			info->version |= FIELD_PREP(RSU_VERSION_ACMF_MASK, 1);
+
+	return ret;
+}
+
+#ifdef CONFIG_ARMV8_PSCI
+int __secure mbox_rsu_status_psci(u32 *resp_buf, u32 resp_buf_len)
+{
+	int ret;
+	struct rsu_status_info *info = (struct rsu_status_info *)resp_buf;
+	int adjust = (resp_buf_len >= 9);
+
+	if (adjust)
+		info->retry_counter = -1;
+
+	ret = mbox_send_cmd_psci(MBOX_ID_UBOOT, MBOX_RSU_STATUS,
+				 MBOX_CMD_DIRECT, 0, NULL, 0,
+				 (u32 *)&resp_buf_len, (u32 *)resp_buf);
+
+	if (ret)
+		return ret;
+
+	if (!adjust)
+		return ret;
+
+	if (info->retry_counter != -1)
+		if (!RSU_VERSION_ACMF_VERSION(info->version))
+			info->version |= FIELD_PREP(RSU_VERSION_ACMF_MASK, 1);
+
+	return ret;
+}
+#endif /* CONFIG_ARMV8_PSCI */
+
+int mbox_rsu_update(u32 *flash_offset)
+{
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_ATF)
+	return smc_send_mailbox(MBOX_RSU_UPDATE, 2, (u32 *)flash_offset, 0,
+				0, NULL);
+#else
+	return mbox_send_cmd(MBOX_ID_UBOOT, MBOX_RSU_UPDATE, MBOX_CMD_DIRECT, 2,
+			     (u32 *)flash_offset, 0, 0, NULL);
+#endif
+}
+
+#ifdef CONFIG_ARMV8_PSCI
+int __secure mbox_rsu_update_psci(u32 *flash_offset)
+{
+	return mbox_send_cmd_psci(MBOX_ID_UBOOT, MBOX_RSU_UPDATE,
+				  MBOX_CMD_DIRECT, 2, (u32 *)flash_offset,
+				  0, 0, NULL);
+}
+#endif /* CONFIG_ARMV8_PSCI */
+
+#else
+int mbox_rsu_get_spt_offset(u32 *resp_buf, u32 resp_buf_len)
+{
+	return MBOX_FUNC_NOT_SUPPORTED;
+}
+
+int mbox_rsu_status(u32 *resp_buf, u32 resp_buf_len)
+{
+	return MBOX_FUNC_NOT_SUPPORTED;
+}
+
+#ifdef CONFIG_ARMV8_PSCI
+int __secure mbox_rsu_status_psci(u32 *resp_buf, u32 resp_buf_len)
+{
+	return MBOX_FUNC_NOT_SUPPORTED;
+}
+#endif /* CONFIG_ARMV8_PSCI */
+
+int mbox_rsu_update(u32 *flash_offset)
+{
+	return MBOX_FUNC_NOT_SUPPORTED;
+}
+
+#ifdef CONFIG_ARMV8_PSCI
+int __secure mbox_rsu_update_psci(u32 *flash_offset)
+{
+	return MBOX_FUNC_NOT_SUPPORTED;
+}
+#endif /* CONFIG_ARMV8_PSCI */
 #endif /* CONFIG_CADENCE_QSPI */
 
 int mbox_reset_cold(void)
