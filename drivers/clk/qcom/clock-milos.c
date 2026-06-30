@@ -15,6 +15,7 @@
 #include <linux/bitops.h>
 #include <dt-bindings/clock/qcom,milos-gcc.h>
 #include <dt-bindings/clock/qcom,rpmh.h>
+#include <dt-bindings/clock/qcom,sm8650-tcsr.h>
 
 #include "clock-qcom.h"
 
@@ -98,6 +99,13 @@ static const struct gate_clk milos_clks[] = {
 	GATE_CLK(GCC_USB30_PRIM_MOCK_UTMI_CLK,		0x39028, BIT(0)),
 	GATE_CLK(GCC_USB30_PRIM_SLEEP_CLK,		0x39024, BIT(0)),
 	GATE_CLK(GCC_CFG_NOC_USB3_PRIM_AXI_CLK,		0x3908c, BIT(0)),
+	GATE_CLK(GCC_UFS_PHY_AXI_CLK,			0x77018, BIT(0)),
+	GATE_CLK(GCC_AGGRE_UFS_PHY_AXI_CLK,		0x770e4, BIT(0)),
+	GATE_CLK(GCC_UFS_PHY_AHB_CLK,			0x77024, BIT(0)),
+	GATE_CLK(GCC_UFS_PHY_UNIPRO_CORE_CLK,		0x77068, BIT(0)),
+	GATE_CLK(GCC_UFS_PHY_TX_SYMBOL_0_CLK,		0x77028, BIT(0)),
+	GATE_CLK(GCC_UFS_PHY_RX_SYMBOL_0_CLK,		0x7702c, BIT(0)),
+	GATE_CLK(GCC_UFS_PHY_RX_SYMBOL_1_CLK,		0x770cc, BIT(0)),
 };
 
 static int milos_enable(struct clk *clk)
@@ -193,4 +201,69 @@ U_BOOT_DRIVER(milos_rpmh_clk) = {
 	.of_match	= milos_rpmh_clk_ids,
 	.ops		= &milos_rpmh_clk_ops,
 	.flags		= DM_FLAG_DEFAULT_PD_CTRL_OFF,
+};
+
+/* TCSRCC */
+
+static const struct gate_clk milos_tcsr_clks[] = {
+	GATE_CLK(TCSR_PCIE_0_CLKREF_EN,		0x31100, BIT(0)),
+	GATE_CLK(TCSR_PCIE_1_CLKREF_EN,		0x31114, BIT(0)),
+	GATE_CLK(TCSR_UFS_CLKREF_EN,		0x31118, BIT(0)),
+	GATE_CLK(TCSR_UFS_PAD_CLKREF_EN,	0x31104, BIT(0)),
+};
+
+static struct msm_clk_data milos_tcsrcc_data = {
+	.clks = milos_tcsr_clks,
+	.num_clks = ARRAY_SIZE(milos_tcsr_clks),
+};
+
+static int tcsrcc_milos_clk_enable(struct clk *clk)
+{
+	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
+
+	qcom_gate_clk_en(priv, clk->id);
+
+	return 0;
+}
+
+static ulong tcsrcc_milos_clk_get_rate(struct clk *clk)
+{
+	return TCXO_RATE;
+}
+
+static int tcsrcc_milos_clk_probe(struct udevice *dev)
+{
+	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(dev);
+	struct msm_clk_priv *priv = dev_get_priv(dev);
+
+	priv->base = dev_read_addr(dev);
+	if (priv->base == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	priv->data = data;
+
+	return 0;
+}
+
+static struct clk_ops tcsrcc_milos_clk_ops = {
+	.enable = tcsrcc_milos_clk_enable,
+	.get_rate = tcsrcc_milos_clk_get_rate,
+};
+
+static const struct udevice_id tcsrcc_milos_of_match[] = {
+	{
+		.compatible = "qcom,milos-tcsr",
+		.data = (ulong)&milos_tcsrcc_data,
+	},
+	{ }
+};
+
+U_BOOT_DRIVER(tcsrcc_milos) = {
+	.name		= "tcsrcc_milos",
+	.id		= UCLASS_CLK,
+	.of_match	= tcsrcc_milos_of_match,
+	.ops		= &tcsrcc_milos_clk_ops,
+	.priv_auto	= sizeof(struct msm_clk_priv),
+	.probe		= tcsrcc_milos_clk_probe,
+	.flags		= DM_FLAG_PRE_RELOC | DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };
