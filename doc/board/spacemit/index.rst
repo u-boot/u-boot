@@ -6,4 +6,6 @@ SpacemiT
    :maxdepth: 1
 
    bananapi-f3
+   k1-flash
+   k1-spl
 
