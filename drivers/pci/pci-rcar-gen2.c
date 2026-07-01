@@ -10,6 +10,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <pci.h>
 #include <linux/bitops.h>
 
@@ -235,9 +236,9 @@ static int rcar_gen2_pci_of_to_plat(struct udevice *dev)
 {
 	struct rcar_gen2_pci_priv *priv = dev_get_priv(dev);
 
-	priv->cfg_base = devfdt_get_addr_index(dev, 0);
-	priv->mem_base = devfdt_get_addr_index(dev, 1);
-	if (!priv->cfg_base || !priv->mem_base)
+	priv->cfg_base = dev_read_addr_index(dev, 0);
+	priv->mem_base = dev_read_addr_index(dev, 1);
+	if (priv->cfg_base == FDT_ADDR_T_NONE || priv->mem_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	return 0;
