@@ -24,6 +24,18 @@
 	bootph-pre-ram;
 };
 
+&m24c64_50 {
+	nvmem-layout {
+		compatible = "fixed-layout";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		module_info: module-info@20 {
+			reg = <0x20 0x60>;
+		};
+	};
+};
+
 &osc {
 	bootph-pre-ram;
 };
