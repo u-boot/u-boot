@@ -63,6 +63,7 @@ config SYSINFO_TQ_EEPROM
 	bool "Enable TQ-Systems EEPROM sysinfo driver"
 	depends on I2C_EEPROM
 	depends on SPL_I2C_EEPROM || !SPL_SYSINFO
+	select NVMEM
 	help
 	  Support querying EEPROM of TQ-Systems SOMs to determine board
 	  information.
