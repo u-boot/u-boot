@@ -10,6 +10,7 @@
 #include <command.h>
 
 struct udevice;
+struct tcg2_event_log;
 
 enum tpm_duration {
 	TPM_SHORT = 0,
@@ -83,6 +84,7 @@ struct tpm_chip_priv {
 	u32 active_banks[TPM2_NUM_PCR_BANKS];
 #endif
 	bool plat_hier_disabled;
+	struct tcg2_event_log *log;
 };
 
 /**

@@ -921,23 +921,19 @@ int bootm_measure(struct bootm_headers *images)
 		return ret;
 
 	if (IS_ENABLED(CONFIG_MEASURED_BOOT)) {
-		struct tcg2_event_log elog;
 		struct udevice *dev;
 		void *initrd_buf;
 		void *image_buf;
 		const char *s;
 		u32 rd_len;
-		bool ign;
 
-		elog.log_size = 0;
-		ign = IS_ENABLED(CONFIG_MEASURE_IGNORE_LOG);
-		ret = tcg2_measurement_init(&dev, &elog, ign);
-		if (ret)
+		ret = tcg2_measurement_init(&dev, NULL);
+		if (ret && ret != -EEXIST)
 			return ret;
 
 		image_buf = map_sysmem(images->os.image_start,
 				       images->os.image_len);
-		ret = tcg2_measure_data(dev, &elog, 8, images->os.image_len,
+		ret = tcg2_measure_data(dev, NULL, 8, images->os.image_len,
 					image_buf, EV_COMPACT_HASH,
 					strlen("linux") + 1, (u8 *)"linux");
 		if (ret)
@@ -945,14 +941,14 @@ int bootm_measure(struct bootm_headers *images)
 
 		rd_len = images->rd_end - images->rd_start;
 		initrd_buf = map_sysmem(images->rd_start, rd_len);
-		ret = tcg2_measure_data(dev, &elog, 9, rd_len, initrd_buf,
+		ret = tcg2_measure_data(dev, NULL, 9, rd_len, initrd_buf,
 					EV_COMPACT_HASH, strlen("initrd") + 1,
 					(u8 *)"initrd");
 		if (ret)
 			goto unmap_initrd;
 
 		if (IS_ENABLED(CONFIG_MEASURE_DEVICETREE)) {
-			ret = tcg2_measure_data(dev, &elog, 1, images->ft_len,
+			ret = tcg2_measure_data(dev, NULL, 1, images->ft_len,
 						(u8 *)images->ft_addr,
 						EV_TABLE_OF_DEVICES,
 						strlen("dts") + 1,
@@ -964,7 +960,7 @@ int bootm_measure(struct bootm_headers *images)
 		s = env_get("bootargs");
 		if (!s)
 			s = "";
-		ret = tcg2_measure_data(dev, &elog, 1, strlen(s) + 1, (u8 *)s,
+		ret = tcg2_measure_data(dev, NULL, 1, strlen(s) + 1, (u8 *)s,
 					EV_PLATFORM_CONFIG_FLAGS,
 					strlen(s) + 1, (u8 *)s);
 
@@ -973,7 +969,7 @@ unmap_initrd:
 
 unmap_image:
 		unmap_sysmem(image_buf);
-		tcg2_measurement_term(dev, &elog, ret != 0);
+		tcg2_measurement_term(dev, NULL, ret != 0);
 	}
 
 	return ret;
