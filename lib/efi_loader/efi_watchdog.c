@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#include <cpu_func.h>
 #include <efi_loader.h>
 
 /* Conversion factor from seconds to multiples of 100ns */
@@ -28,7 +29,7 @@ static void EFIAPI efi_watchdog_timer_notify(struct efi_event *event,
 	EFI_ENTRY("%p, %p", event, context);
 
 	printf("\nEFI: Watchdog timeout\n");
-	do_reset(NULL, 0, 0, NULL);
+	reset_cpu();
 
 	EFI_EXIT(EFI_UNSUPPORTED);
 }

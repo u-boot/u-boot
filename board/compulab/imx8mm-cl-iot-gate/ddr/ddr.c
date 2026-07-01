@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/arch/lpddr4_define.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -153,7 +154,7 @@ void spl_dram_init_compulab(void)
 
 	if (ddr_init(lpddr4_array[i].timing)) {
 		SPL_TCM_INIT;
-		do_reset(NULL, 0, 0, NULL);
+		reset_cpu();
 	}
 
 	ddr_info_mrr = lpddr4_get_mr();
@@ -161,7 +162,7 @@ void spl_dram_init_compulab(void)
 		printf("DDRINFO(M): mr5-8 [ 0x%x ] is invalid; reset\n",
 		       ddr_info_mrr);
 		SPL_TCM_INIT;
-		do_reset(NULL, 0, 0, NULL);
+		reset_cpu();
 	}
 
 	printf("DDRINFO(M): mr5-8 [ 0x%x ]\n", ddr_info_mrr);
@@ -170,7 +171,7 @@ void spl_dram_init_compulab(void)
 
 	if (ddr_info_mrr != ddr_info) {
 		SPL_TCM_INIT;
-		do_reset(NULL, 0, 0, NULL);
+		reset_cpu();
 	}
 
 	SPL_TCM_FINI;

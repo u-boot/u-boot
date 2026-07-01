@@ -83,10 +83,6 @@ static char *get_reset_cause(void)
 	}
 }
 
-__weak void reset_cpu(void)
-{
-}
-
 int arch_cpu_init(void)
 {
 #if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_RECOVER_DATA_SECTION)

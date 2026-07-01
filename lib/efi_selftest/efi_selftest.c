@@ -5,6 +5,7 @@
  * Copyright (c) 2017 Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
+#include <cpu_func.h>
 #include <command.h>
 #include <efi_selftest.h>
 #include <vsprintf.h>
@@ -351,7 +352,7 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 					 sizeof(reset_message), reset_message);
 	} else {
 		efi_restore_gd();
-		do_reset(NULL, 0, 0, NULL);
+		reset_cpu();
 	}
 
 	efi_st_printf("\n");

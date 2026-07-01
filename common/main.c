@@ -13,6 +13,7 @@
 #include <cli.h>
 #include <command.h>
 #include <console.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <fdtdec.h>
 #include <init.h>
