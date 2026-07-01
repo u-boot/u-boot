@@ -47,6 +47,7 @@ U_BOOT_CMD(
 	"SCSI sub-system",
 	"scsi info  - show available SCSI devices\n"
 	"scsi scan  - (re-)scan SCSI bus\n"
+	"scsi flush - commit all dirty data to the current SCSI device\n"
 	"scsi device [dev] - show or set current device\n"
 	"scsi part [dev] - print partition table of one or all SCSI devices\n"
 	"scsi read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"

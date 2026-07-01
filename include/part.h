@@ -454,6 +454,14 @@ ulong disk_blk_write(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
  */
 ulong disk_blk_erase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt);
 
+/**
+ * disk_blk_flush() - commit data to a disk
+ *
+ * @dev:	Device to flush
+ * Return:	0 success, or -ve error number (see the IS_ERR_VALUE()) macro
+ */
+ulong disk_blk_flush(struct udevice *dev);
+
 /*
  * We don't support printing partition information in SPL and only support
  * getting partition information in a few cases.

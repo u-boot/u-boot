@@ -698,11 +698,4 @@ struct nvme_ops {
  */
 int nvme_init(struct udevice *udev);
 
-/**
- * nvme_shutdown() - Shutdown NVM Express device
- * @udev:	The NVM Express device
- * Return: 0 if OK, -ve on error
- */
-int nvme_shutdown(struct udevice *udev);
-
 #endif /* __DRIVER_NVME_H__ */
