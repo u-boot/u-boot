@@ -2,7 +2,7 @@
 
 CONFIG_ARM=y
 CONFIG_ARCH_SOCFPGA=y
-CONFIG_DEFAULT_DEVICE_TREE="socfpga_agilex5_socdk"
+CONFIG_DEFAULT_DEVICE_TREE="socfpga_agilex5_socdk_nand2"
 CONFIG_BOOTARGS="earlycon panic=-1 root=${nandroot} rw rootwait rootfstype=ubifs ubi.mtd=1"
 CONFIG_TARGET_SOCFPGA_AGILEX5_NAND2=y
 CONFIG_PHY_CADENCE_COMBOPHY=n
