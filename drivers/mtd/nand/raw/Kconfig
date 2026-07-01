@@ -202,12 +202,6 @@ config NAND_CADENCE
 	depends on OF_CONTROL && DM_MTD && ARCH_SOCFPGA
 	select DEVRES
 	select SYS_NAND_SELF_INIT
-	select SPL_SYS_NAND_SELF_INIT
-	select SPL_NAND_BASE
-	select SPL_NAND_DRIVERS
-	select SPL_NAND_IDENT
-	select SPL_NAND_INIT
-	select SPL_NAND_ECC
 	imply CMD_NAND
 	help
 	  Enable the driver for NAND flash on platforms using a Cadence NAND
@@ -228,6 +222,17 @@ config NAND_DENALI_DT
 	help
 	  Enable the driver for NAND flash on platforms using a Denali NAND
 	  controller as a DT device.
+
+config NAND_DENALI_SKIP_BBTSCAN_SPL
+	bool "Skip the bad-block-table scan in SPL with the Denali NAND driver"
+	depends on NAND_DENALI && SPL
+	help
+	  Skip the full bad-block-table scan during SPL boot. With this
+	  option, SPL keeps chip->bbt NULL and nand_block_checkbad()
+	  falls through to chip->block_bad() - an on-demand single-block
+	  OOB read - which is sufficient when SPL only loads a single
+	  FIT image at a known offset and the full BBT scan is too slow
+	  or otherwise problematic in the limited SPL environment.
 
 config NAND_FSL_ELBC
 	bool "Support Freescale Enhanced Local Bus Controller FCM NAND driver"
@@ -657,8 +662,9 @@ config SYS_NAND_BLOCK_SIZE
 	hex "NAND chip eraseblock size"
 	depends on ARCH_SUNXI || SPL_NAND_SUPPORT || TPL_NAND_SUPPORT || \
 		MVEBU_SPL_BOOT_DEVICE_NAND
-	depends on !NAND_MXS && !NAND_DENALI_DT && !NAND_LPC32XX_MLC && \
+	depends on !NAND_MXS && !NAND_LPC32XX_MLC && \
 		!NAND_FSL_IFC && !NAND_MT7621
+	depends on !NAND_DENALI_DT || SPL_NAND_CADENCE
 	help
 	  Number of data bytes in one eraseblock for the NAND chip on the
 	  board. This is the multiple of NAND_PAGE_SIZE and the number of
@@ -677,7 +683,7 @@ config SYS_NAND_PAGE_SIZE
 		SPL_NAND_SIMPLE || (NAND_MXC && SPL_NAND_SUPPORT) || \
 		MVEBU_SPL_BOOT_DEVICE_NAND || \
 		(NAND_ATMEL && SPL_NAND_SUPPORT) || \
-		SPL_GENERATE_ATMEL_PMECC_HEADER || NAND_SANDBOX || NAND_CADENCE
+		SPL_GENERATE_ATMEL_PMECC_HEADER || NAND_SANDBOX || SPL_NAND_CADENCE
 	help
 	  Number of data bytes in one page for the NAND chip on the
 	  board, not including the OOB area.
@@ -780,6 +786,12 @@ config SPL_NAND_AM33XX_BCH
 config SPL_NAND_CADENCE
 	bool "Support Cadence NAND controller for SPL"
 	depends on SPL_NAND_SUPPORT
+	select SPL_SYS_NAND_SELF_INIT
+	select SPL_NAND_BASE
+	select SPL_NAND_DRIVERS
+	select SPL_NAND_IDENT
+	select SPL_NAND_INIT
+	select SPL_NAND_ECC
 	help
 	  This is a small implementation of the Cadence NAND controller
 	  for use on SPL.
