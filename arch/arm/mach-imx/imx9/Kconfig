@@ -68,6 +68,7 @@ config TARGET_IMX91_11X11_EVK
 	select IMX91
 	imply BOOTSTD_FULL
 	imply BOOTSTD_BOOTCOMMAND
+	imply OF_UPSTREAM
 
 config TARGET_IMX91_11X11_FRDM
 	bool "imx91_11x11_frdm"
@@ -76,6 +77,7 @@ config TARGET_IMX91_11X11_FRDM
 	select IMX9_LPDDR4X
 	imply BOOTSTD_FULL
 	imply BOOTSTD_BOOTCOMMAND
+	imply OF_UPSTREAM
 
 config TARGET_IMX93_9X9_QSB
 	bool "imx93_qsb"
@@ -113,11 +115,13 @@ config TARGET_IMX93_FRDM
 	select REMOTEPROC_IMX
 	select REGMAP
 	select SYSCON
+	imply OF_UPSTREAM
 
 config TARGET_IMX93_VAR_SOM
 	bool "imx93_var_som"
 	select IMX93
 	select IMX9_LPDDR4X
+	imply OF_UPSTREAM
 
 config TARGET_KONTRON_MX93
 	bool "Kontron OSM-S/BL i.MX93"
