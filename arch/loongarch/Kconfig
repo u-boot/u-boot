@@ -1,0 +1,49 @@
+menu "LoongArch architecture"
+	depends on LOONGARCH
+
+config SYS_ARCH
+	default "loongarch"
+
+choice
+	prompt "Target select"
+
+config TARGET_QEMU_LOONGARCH_VIRT
+	bool "Support QEMU Virt Board"
+	select BOARD_LATE_INIT
+
+endchoice
+
+# board-specific options below
+source "board/emulation/qemu-loongarch/Kconfig"
+
+# platform-specific options below
+source "arch/loongarch/cpu/generic/Kconfig"
+
+# architecture-specific options below
+choice
+	prompt "Base ISA"
+
+config ARCH_LA64
+	bool "LoongArch64"
+	select 64BIT
+	select PHYS_64BIT
+	help
+	  Choose this option to target the LoongArch64 base ISA.
+
+endchoice
+
+config DMA_ADDR_T_64BIT
+	bool
+	default y if 64BIT
+
+config SHOW_REGS
+	bool "Show registers on unhandled exception"
+
+config STACK_SIZE_SHIFT
+	int
+	default 14
+
+config OF_BOARD_FIXUP
+	default y if OF_SEPARATE
+
+endmenu
