@@ -828,7 +828,6 @@ static struct dwc2_udc memory = {
 		.ep = {
 			.name = ep0name,
 			.ops = &dwc2_ep_ops,
-			.maxpacket = EP0_FIFO_SIZE,
 		},
 		.dev = &memory,
 
@@ -843,7 +842,6 @@ static struct dwc2_udc memory = {
 		.ep = {
 			.name = "ep1in-bulk",
 			.ops = &dwc2_ep_ops,
-			.maxpacket = EP_FIFO_SIZE,
 		},
 		.dev = &memory,
 
@@ -858,7 +856,6 @@ static struct dwc2_udc memory = {
 		.ep = {
 			.name = "ep2out-bulk",
 			.ops = &dwc2_ep_ops,
-			.maxpacket = EP_FIFO_SIZE,
 		},
 		.dev = &memory,
 
@@ -873,7 +870,6 @@ static struct dwc2_udc memory = {
 		.ep = {
 			.name = "ep3in-int",
 			.ops = &dwc2_ep_ops,
-			.maxpacket = EP_FIFO_SIZE,
 		},
 		.dev = &memory,
 
@@ -893,6 +889,7 @@ int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 {
 	struct dwc2_udc *dev = &memory;
 	int retval = 0;
+	int i;
 
 	debug("%s: %p\n", __func__, pdata);
 
@@ -908,6 +905,10 @@ int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 	dev->gadget.a_alt_hnp_support = 0;
 
 	the_controller = dev;
+
+	usb_ep_set_maxpacket_limit(&dev->ep[0].ep, EP0_FIFO_SIZE);
+	for (i = 1; i < DWC2_MAX_ENDPOINTS; i++)
+		usb_ep_set_maxpacket_limit(&dev->ep[i].ep, EP_FIFO_SIZE);
 
 	usb_ctrl = memalign(CONFIG_SYS_CACHELINE_SIZE,
 			    ROUND(sizeof(struct usb_ctrlrequest),
