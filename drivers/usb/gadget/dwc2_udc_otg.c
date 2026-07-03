@@ -828,6 +828,11 @@ static struct dwc2_udc memory = {
 		.ep = {
 			.name = ep0name,
 			.ops = &dwc2_ep_ops,
+			.caps = {
+				.type_control = 1,
+				.dir_in = 1,
+				.dir_out = 1,
+			},
 		},
 		.dev = &memory,
 
@@ -842,6 +847,10 @@ static struct dwc2_udc memory = {
 		.ep = {
 			.name = "ep1in-bulk",
 			.ops = &dwc2_ep_ops,
+			.caps = {
+				.type_bulk = 1,
+				.dir_in = 1,
+			},
 		},
 		.dev = &memory,
 
@@ -856,6 +865,10 @@ static struct dwc2_udc memory = {
 		.ep = {
 			.name = "ep2out-bulk",
 			.ops = &dwc2_ep_ops,
+			.caps = {
+				.type_bulk = 1,
+				.dir_out = 1,
+			},
 		},
 		.dev = &memory,
 
@@ -870,6 +883,10 @@ static struct dwc2_udc memory = {
 		.ep = {
 			.name = "ep3in-int",
 			.ops = &dwc2_ep_ops,
+			.caps = {
+				.type_int = 1,
+				.dir_in = 1,
+			},
 		},
 		.dev = &memory,
 
