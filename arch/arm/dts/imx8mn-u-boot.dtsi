@@ -116,7 +116,6 @@
 				filename = "u-boot-spl-mkimage.bin";
 #ifdef CONFIG_FSPI_CONF_HEADER
 				nxp,boot-from = "fspi";
-				nxp,fspi-header-filename = CONFIG_FSPI_CONF_FILE;
 #else
 				nxp,boot-from = "sd";
 #endif
