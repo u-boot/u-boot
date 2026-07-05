@@ -10,9 +10,10 @@
 		nxp-imx8mimage {
 			args;	/* TODO: Needed by mkimage etype superclass */
 			nxp,boot-from = "fspi";
-			nxp,fspi-header-filename = "fspi_header_fail.bin";
 			nxp,rom-version = <2>;
 			nxp,loader-address = <0x10>;
+			/* Bogus value */
+			nxp,fspi-flashpadtype = <9>;
 		};
 	};
 };

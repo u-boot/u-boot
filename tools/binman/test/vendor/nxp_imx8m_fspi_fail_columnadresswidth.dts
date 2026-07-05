@@ -10,8 +10,10 @@
 		nxp-imx8mimage {
 			args;	/* TODO: Needed by mkimage etype superclass */
 			nxp,boot-from = "fspi";
-			nxp,rom-version = <1>;
+			nxp,rom-version = <2>;
 			nxp,loader-address = <0x10>;
+			/* Bogus value */
+			nxp,fspi-columnaddresswidth = <1>;
 		};
 	};
 };
