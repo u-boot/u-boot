@@ -4,34 +4,6 @@
  * Copyright (C) 2022 - 2025, Advanced Micro Devices, Inc.
  */
 
-#ifndef __ASSEMBLY__
-#include <linux/bitops.h>
-#endif
-
-struct crlapb_regs {
-	u32 reserved0[67];
-	u32 cpu_r5_ctrl;
-	u32 reserved;
-	u32 iou_switch_ctrl; /* 0x114 */
-	u32 reserved1[13];
-	u32 timestamp_ref_ctrl; /* 0x14c */
-	u32 reserved3[108];
-	u32 rst_cpu_r5;
-	u32 reserved2[17];
-	u32 rst_timestamp; /* 0x348 */
-};
-
-struct iou_scntrs_regs {
-	u32 counter_control_register; /* 0x0 */
-	u32 reserved0[7];
-	u32 base_frequency_id_register; /* 0x20 */
-};
-
-struct crp_regs {
-	u32 reserved0[128];
-	u32 boot_mode_usr;	/* 0x200 */
-};
-
 #define VERSAL2_CRL_APB_BASEADDR		0xEB5E0000
 #define VERSAL2_CRP_BASEADDR			0xF1260000
 #define VERSAL2_IOU_SCNTR_SECURE		0xEC920000
@@ -40,10 +12,6 @@ struct crp_regs {
 #define IOU_SWITCH_CTRL_CLKACT_BIT		BIT(25)
 #define IOU_SWITCH_CTRL_DIVISOR0_SHIFT		8
 #define IOU_SCNTRS_CONTROL_EN			1
-
-#define crlapb_base ((struct crlapb_regs *)VERSAL2_CRL_APB_BASEADDR)
-#define crp_base ((struct crp_regs *)VERSAL2_CRP_BASEADDR)
-#define iou_scntr_secure ((struct iou_scntrs_regs *)VERSAL2_IOU_SCNTR_SECURE)
 
 #define PMC_TAP	0xF11A0000
 
@@ -76,15 +44,6 @@ struct crp_regs {
 #define PMC_MULTI_BOOT_REG	0xF1110004
 #define PMC_MULTI_BOOT_MASK	0x1FFF
 
-enum versal2_platform {
-	VERSAL2_SILICON = 0,
-	VERSAL2_SPP = 1,
-	VERSAL2_EMU = 2,
-	VERSAL2_QEMU = 3,
-	VERSAL2_SPP_MMD = 5,
-	VERSAL2_EMU_MMD = 6,
-};
-
 #define VERSAL2_SLCR_BASEADDR	0xF1060000
 #define VERSAL_AXI_MUX_SEL	(VERSAL2_SLCR_BASEADDR + 0x504)
 #define VERSAL_OSPI_LINEAR_MODE	BIT(1)
@@ -108,3 +67,44 @@ enum versal2_platform {
 
 #define PMC_GLOBAL_PGGS3_REG	0xF111005C
 #define PMC_GLOBAL_PGGS4_REG	0xF1110060
+
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+
+struct crlapb_regs {
+	u32 reserved0[67];
+	u32 cpu_r5_ctrl;
+	u32 reserved;
+	u32 iou_switch_ctrl; /* 0x114 */
+	u32 reserved1[13];
+	u32 timestamp_ref_ctrl; /* 0x14c */
+	u32 reserved3[108];
+	u32 rst_cpu_r5;
+	u32 reserved2[17];
+	u32 rst_timestamp; /* 0x348 */
+};
+
+struct iou_scntrs_regs {
+	u32 counter_control_register; /* 0x0 */
+	u32 reserved0[7];
+	u32 base_frequency_id_register; /* 0x20 */
+};
+
+struct crp_regs {
+	u32 reserved0[128];
+	u32 boot_mode_usr;	/* 0x200 */
+};
+
+#define crlapb_base ((struct crlapb_regs *)VERSAL2_CRL_APB_BASEADDR)
+#define crp_base ((struct crp_regs *)VERSAL2_CRP_BASEADDR)
+#define iou_scntr_secure ((struct iou_scntrs_regs *)VERSAL2_IOU_SCNTR_SECURE)
+
+enum versal2_platform {
+	VERSAL2_SILICON = 0,
+	VERSAL2_SPP = 1,
+	VERSAL2_EMU = 2,
+	VERSAL2_QEMU = 3,
+	VERSAL2_SPP_MMD = 5,
+	VERSAL2_EMU_MMD = 6,
+};
+#endif /* __ASSEMBLY__ */
