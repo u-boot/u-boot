@@ -79,12 +79,12 @@ static int dm_test_blk_usb(struct unit_test_state *uts)
 	ut_asserteq_ptr(usb_dev, dev_get_parent(dev));
 
 	/* Check we have one block device for each mass storage device */
-	ut_asserteq(6, count_blk_devices());
+	ut_asserteq(7, count_blk_devices());
 
 	/* Now go around again, making sure the old devices were unbound */
 	ut_assertok(usb_stop());
 	ut_assertok(usb_init());
-	ut_asserteq(6, count_blk_devices());
+	ut_asserteq(7, count_blk_devices());
 	ut_assertok(usb_stop());
 
 	return 0;
@@ -187,6 +187,8 @@ static int dm_test_blk_iter(struct unit_test_state *uts)
 	ut_asserteq_str("mmc1.blk", dev->name);
 	ut_assertok(blk_next_device_err(BLKF_REMOVABLE, &dev));
 	ut_asserteq_str("mmc0.blk", dev->name);
+	ut_assertok(blk_next_device_err(BLKF_REMOVABLE, &dev));
+	ut_asserteq_str("mmc11.blk", dev->name);
 	ut_asserteq(-ENODEV, blk_next_device_err(BLKF_REMOVABLE, &dev));
 
 	ut_assertok(blk_first_device_err(BLKF_BOTH, &dev));
@@ -195,11 +197,13 @@ static int dm_test_blk_iter(struct unit_test_state *uts)
 	ut_asserteq_str("mmc1.blk", dev->name);
 	ut_assertok(blk_next_device_err(BLKF_BOTH, &dev));
 	ut_asserteq_str("mmc0.blk", dev->name);
+	ut_assertok(blk_next_device_err(BLKF_BOTH, &dev));
+	ut_asserteq_str("mmc11.blk", dev->name);
 	ut_asserteq(-ENODEV, blk_next_device_err(BLKF_FIXED, &dev));
 
 	ut_asserteq(1, blk_count_devices(BLKF_FIXED));
-	ut_asserteq(2, blk_count_devices(BLKF_REMOVABLE));
-	ut_asserteq(3, blk_count_devices(BLKF_BOTH));
+	ut_asserteq(3, blk_count_devices(BLKF_REMOVABLE));
+	ut_asserteq(4, blk_count_devices(BLKF_BOTH));
 
 	i = 0;
 	blk_foreach_probe(BLKF_FIXED, dev)
@@ -208,14 +212,15 @@ static int dm_test_blk_iter(struct unit_test_state *uts)
 
 	i = 0;
 	blk_foreach_probe(BLKF_REMOVABLE, dev)
-		ut_asserteq_str(i++ ? "mmc0.blk" : "mmc1.blk", dev->name);
-	ut_asserteq(2, i);
+		ut_asserteq_str((++i == 1 ? "mmc1.blk" : i == 2 ?
+			"mmc0.blk" : "mmc11.blk"), dev->name);
+	ut_asserteq(3, i);
 
 	i = 0;
 	blk_foreach_probe(BLKF_BOTH, dev)
 		ut_asserteq_str((++i == 1 ? "mmc2.blk" : i == 2 ?
-			"mmc1.blk" : "mmc0.blk"), dev->name);
-	ut_asserteq(3, i);
+			"mmc1.blk" : i == 3 ? "mmc0.blk" : "mmc11.blk"), dev->name);
+	ut_asserteq(4, i);
 
 	return 0;
 }
@@ -239,6 +244,10 @@ static int dm_test_blk_flags(struct unit_test_state *uts)
 	ut_assertnonnull(dev);
 	ut_asserteq_str("mmc0.blk", dev->name);
 
+	ut_assertok(blk_next_device_err(BLKF_BOTH, &dev));
+	ut_assertnonnull(dev);
+	ut_asserteq_str("mmc11.blk", dev->name);
+
 	ut_asserteq(-ENODEV, blk_next_device_err(BLKF_BOTH, &dev));
 
 	/* Look only for fixed devices */
@@ -257,6 +266,10 @@ static int dm_test_blk_flags(struct unit_test_state *uts)
 	ut_assertnonnull(dev);
 	ut_asserteq_str("mmc0.blk", dev->name);
 
+	ut_assertok(blk_next_device_err(BLKF_REMOVABLE, &dev));
+	ut_assertnonnull(dev);
+	ut_asserteq_str("mmc11.blk", dev->name);
+
 	ut_asserteq(-ENODEV, blk_next_device_err(BLKF_REMOVABLE, &dev));
 
 	return 0;
@@ -269,24 +282,24 @@ static int dm_test_blk_foreach(struct unit_test_state *uts)
 	struct udevice *dev;
 	int found;
 
-	/* The test device tree has two fixed and one removable block device(s) */
+	/* The test device tree has three fixed and one removable block device(s) */
 	found = 0;
 	blk_foreach_probe(BLKF_BOTH, dev)
 		found |= 1 << dectoul(&dev->name[3], NULL);
-	ut_asserteq(7, found);
-	ut_asserteq(3, blk_count_devices(BLKF_BOTH));
+	ut_asserteq(BIT(11) | BIT(2) | BIT(1) | BIT(0), found);
+	ut_asserteq(4, blk_count_devices(BLKF_BOTH));
 
 	found = 0;
 	blk_foreach_probe(BLKF_FIXED, dev)
 		found |= 1 << dectoul(&dev->name[3], NULL);
-	ut_asserteq(4, found);
+	ut_asserteq(BIT(2), found);
 	ut_asserteq(1, blk_count_devices(BLKF_FIXED));
 
 	found = 0;
 	blk_foreach_probe(BLKF_REMOVABLE, dev)
 		found |= 1 << dectoul(&dev->name[3], NULL);
-	ut_asserteq(3, found);
-	ut_asserteq(2, blk_count_devices(BLKF_REMOVABLE));
+	ut_asserteq(BIT(11) | BIT(1) | BIT(0), found);
+	ut_asserteq(3, blk_count_devices(BLKF_REMOVABLE));
 
 	return 0;
 }
