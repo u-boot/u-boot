@@ -24,6 +24,9 @@
 #define UFS_PHY_PHY_AUX_CLK_CMD_RCGR		0x830a8
 #define UFS_PHY_UNIPRO_CORE_CLK_CMD_RCGR	0x8308c
 
+#define APCS_GPLL9_STATUS			0x9000
+#define APCS_GPLLX_ENA_REG			0x4b028
+
 #define GCC_QUPV3_WRAP0_S0_CLK_ENA_BIT BIT(10)
 #define GCC_QUPV3_WRAP0_S1_CLK_ENA_BIT BIT(11)
 #define GCC_QUPV3_WRAP0_S2_CLK_ENA_BIT BIT(12)
@@ -90,6 +93,14 @@ static const struct freq_tbl ftbl_gcc_sdcc1_apps_clk_src[] = {
 	{ }
 };
 
+/* GPLL9 (SDCC1 high-speed source) is not enabled by earlier boot stages. */
+static const struct pll_vote_clk gpll9_vote_clk = {
+	.status = APCS_GPLL9_STATUS,
+	.status_bit = BIT(31),
+	.ena_vote = APCS_GPLLX_ENA_REG,
+	.vote_bit = BIT(9),
+};
+
 static ulong sa8775p_set_rate(struct clk *clk, ulong rate)
 {
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
@@ -132,6 +143,8 @@ static ulong sa8775p_set_rate(struct clk *clk, ulong rate)
 
 	case GCC_SDCC1_APPS_CLK:
 		freq = qcom_find_freq(ftbl_gcc_sdcc1_apps_clk_src, rate);
+		if (freq->src == CFG_CLK_SRC_GPLL9)
+			clk_enable_gpll0(priv->base, &gpll9_vote_clk);
 		clk_rcg_set_rate_mnd(priv->base, SDCC1_APPS_CLK_CMD_RCGR,
 				     freq->pre_div, freq->m, freq->n, freq->src, 8);
 		return freq->freq;
