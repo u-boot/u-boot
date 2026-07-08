@@ -19,6 +19,15 @@
 #define GICD_BASE	0xe2000000
 #define GICR_BASE	0xe2060000
 
+/*
+ * The 2VM3654 part has 4 APU cores and 3 GIC ITS blocks (vs 8 cores and a
+ * single ITS on the base part), which moves the redistributor region up by
+ * the two extra ITS blocks. The right base is selected at runtime in
+ * lowlevel_init() based on the PMC TAP IDCODE.
+ */
+#define GICR_BASE_2VM3654	0xe20a0000
+#define GICR_IDCODE_2VM3654	0x04d98093
+
 /* Serial setup */
 #define CFG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
