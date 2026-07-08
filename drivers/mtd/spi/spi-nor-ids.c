@@ -87,6 +87,8 @@ const struct flash_info spi_nor_ids[] = {
 		    SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
 	{ INFO("ds25q4dn", 0xe5301b, 0, 64 * 1024, 2048,
 		    SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
+	{ INFO("ds25q4bb", 0xe53019, 0, 64 * 1024, 512,
+		    SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
 #endif
 #ifdef CONFIG_SPI_FLASH_EON		/* EON */
 	/* EON -- en25xxx */
