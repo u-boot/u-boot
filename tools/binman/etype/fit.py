@@ -105,18 +105,20 @@ class Entry_fit(Entry_section):
         fit,sign
             Enable signing FIT images via mkimage as described in
             verified-boot.rst.
-            If the property is found and fit,engine is not set, the private
-            keys path is detected among binman include directories and passed to
-            mkimage via -k flag. All the keys required for signing FIT must be
-            available at time of signing and must be located in single include
-            directory.
+            If the property is found and fit,engine is not set, the `keydir`
+            entry argument is passed to mkimage via the -k flag. If no key
+            directory is provided, the private keys path is detected among
+            binman include directories. All the keys required for signing FIT
+            must be available at time of signing and must be located in a
+            single directory.
 
         fit,encrypt
             Enable data encryption in FIT images via mkimage. If the property
-            is found, the keys path is detected among binman include
-            directories and passed to mkimage via  -k flag. All the keys
-            required for encrypting the FIT must be available at the time of
-            encrypting and must be located in a single include directory.
+            is found, the `keydir` entry argument is passed to mkimage via the
+            -k flag. If no key directory is provided, the keys path is detected
+            among binman include directories. All the keys required for
+            encrypting the FIT must be available at the time of encrypting and
+            must be located in a single directory.
 
             Incompatible with fit,engine.
 
@@ -485,6 +487,7 @@ class Entry_fit(Entry_section):
                 includes 'generator' entries which are used to create the FIT,
                 but should not be processed as real entries. This is set up once
                 we have the entries
+            _keydir (str): Key directory from the keydir EntryArg, if provided
             _loadables (list of str): List of generated split-elf nodes, each
                 a node name
             _remove_props (list of str): Value of of-spl-remove-props EntryArg,
@@ -502,8 +505,9 @@ class Entry_fit(Entry_section):
         self._priv_entries = {}
         self._loadables = []
         self._remove_props = []
-        props = self.GetEntryArgsOrProps(
-            [EntryArg('of-spl-remove-props', str)], required=False)[0]
+        props, self._keydir = self.GetEntryArgsOrProps(
+            [EntryArg('of-spl-remove-props', str),
+             EntryArg('keydir', str)], required=False)
         if props:
             self._remove_props = props.split()
         self.mkimage = None
@@ -701,7 +705,7 @@ class Entry_fit(Entry_section):
             args.update({'engine': engine})
             # If no engine, keys must exist locally, find them
             if engine is None:
-                keydir = self._get_keys_dir(data)
+                keydir = self._keydir or self._get_keys_dir(data)
             elif self._fit_props.get('fit,encrypt') is not None:
                 self.Raise('fit,engine currently does not support encryption')
 
