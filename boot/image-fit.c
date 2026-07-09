@@ -1799,6 +1799,8 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 	int fdt_compat_len;
 	int best_match_offset = 0;
 	int best_match_pos = 0;
+	const char *default_name;
+	int default_noffset = -1;
 
 	confs_noffset = fdt_path_offset(fit, FIT_CONFS_PATH);
 	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
@@ -1811,6 +1813,15 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 	if (!fdt_compat) {
 		debug("Fdt for comparison has no \"compatible\" property.\n");
 		return -ENXIO;
+	}
+
+	/* the default configuration breaks ties between equal matches */
+	default_name = fdt_getprop(fit, confs_noffset, FIT_DEFAULT_PROP, NULL);
+	if (default_name) {
+		default_noffset = fdt_subnode_offset(fit, confs_noffset,
+						     default_name);
+		if (default_noffset < 0)
+			default_noffset = -1;
 	}
 
 	/*
@@ -1863,10 +1874,15 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 		cur_fdt_compat = fdt_compat;
 		/*
 		 * Look for a match for each U-Boot compatibility string in
-		 * turn in the compat string property.
+		 * turn in the compat string property. A configuration only
+		 * replaces the current best match on a strictly better
+		 * position, or on an equal position if it is the default
+		 * configuration.
 		 */
 		for (i = 0; len > 0 &&
-		     (!best_match_offset || best_match_pos > i); i++) {
+		     (!best_match_offset || best_match_pos > i ||
+		      (best_match_pos == i && noffset == default_noffset));
+		     i++) {
 			int cur_len = strlen(cur_fdt_compat) + 1;
 
 			if (!fdt_node_check_compatible(fdt, compat_noffset,

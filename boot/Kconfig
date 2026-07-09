@@ -191,6 +191,8 @@ config FIT_BEST_MATCH
 	  U-Boot itself. A match is considered "best" if it matches the
 	  most specific compatibility entry of U-Boot's fdt's root node.
 	  The order of entries in the configuration's fdt is ignored.
+	  If several configurations match equally well, the one named by
+	  the configurations node 'default' property is preferred.
 
 config FIT_IMAGE_POST_PROCESS
 	bool "Enable post-processing of FIT artifacts after loading by U-Boot"
