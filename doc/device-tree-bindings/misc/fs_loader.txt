@@ -4,20 +4,30 @@ Required properties:
 --------------------
 
 - compatible: should contain "u-boot,fs-loader"
-- phandlepart: which block storage device and partition the image loading from,
-	       this property is required for mmc, usb and sata. This is unsigned
-	       32-bit array. For example phandlepart=<&mmc_0 1>, meaning use
-	       that MMC0 node pointer, partition 1.
-- mdtpart: which partition of ubi the image loading from, this property is
-	   required for ubi and mounting.
-- ubivol: which volume of ubi the image loading from, this property is required
-	  for ubi and mounting.
 
-Example of storage device and partition search set for mmc, usb, sata and
-ubi in device tree source as shown in below:
+Optional properties:
+--------------------
 
-	Example of storage type and device partition search set for mmc, usb,
-	sata and ubi as shown in below:
+- phandlepart: which block storage device and partition the image is loaded
+	       from. Required for mmc, usb and sata. This is an unsigned
+	       32-bit array. For example phandlepart = <&mmc_0 1>; means
+	       use the MMC0 device, partition 1.
+- mtdpart:     which UBI MTD partition the image is loaded from. Required
+	       for ubi together with "ubivol".
+- ubivol:      which UBI volume the image is loaded from. Required for ubi
+	       together with "mtdpart".
+- sfconfig:    select a raw SPI/QSPI flash partition as the backing storage.
+	       Mutually exclusive with phandlepart/mtdpart/ubivol; when
+	       present the loader reads directly from the flash without a
+	       filesystem. The property is a 4-cell unsigned 32-bit array:
+	       <bus chip-select speed mode>. The "speed" and "mode" cells
+	       are accepted for backwards compatibility but are no longer
+	       used by the probe code; the SPI flash speed and mode are
+	       picked up from the SPI flash device tree node itself.
+
+Examples of storage device and partition search set for mmc, usb, sata
+and ubi in device tree source:
+
 	Example for mmc:
 	fs_loader0: fs-loader@0 {
 		bootph-all;
@@ -43,6 +53,19 @@ ubi in device tree source as shown in below:
 	fs_loader3: fs-loader@3 {
 		bootph-all;
 		compatible = "u-boot,fs-loader";
-		mtdpart = "UBI",
+		mtdpart = "UBI";
 		ubivol = "ubi0";
 	};
+
+	Example for raw SPI/QSPI flash partition (here: bus 0, CS 0):
+	fs_loader4: fs-loader@4 {
+		bootph-all;
+		compatible = "u-boot,fs-loader";
+		sfconfig = <0 0 0 0>;
+	};
+
+When the loader is configured with "sfconfig", callers of
+request_firmware_into_buf() pass the byte offset within the SPI flash
+either via the @offset argument or as a hexadecimal string in @name (or
+both, in which case they are added). A NULL/empty @name simply means
+"use @offset as-is".
