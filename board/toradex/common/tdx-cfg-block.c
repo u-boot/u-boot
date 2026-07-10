@@ -199,6 +199,7 @@ const struct toradex_som toradex_modules[] = {
 	{ VERDIN_IMX8MPQ_4GB_IT_64G,             "Verdin iMX8M Plus Quad 4GB IT",        TARGET_IS_ENABLED(VERDIN_IMX8MP)        },
 	{ VERDIN_IMX8MPQ_8GB_WIFI_BT_IT_64G,     "Verdin iMX8M Plus Quad 8GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)        },
 	{ VERDIN_IMX8MMQ_2G_WIFI_BT_IT_64G,      "Verdin iMX8M Mini Quad 2GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MM)        },
+	{ SMARC_IMX8MPQ_4GB_WB_IT_64G,           "SMARC iMX8M Plus Quad 4GB WB IT",      TARGET_IS_ENABLED(TORADEX_SMARC_IMX8MP) },
 };
 
 struct pid4list {
