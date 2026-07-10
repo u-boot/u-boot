@@ -192,6 +192,9 @@ const struct toradex_som toradex_modules[] = {
 	{ VERDIN_IMX95H_16G_IT,                  "Verdin iMX95 Hexa 16GB IT",            TARGET_IS_ENABLED(VERDIN_IMX95)         },
 	{ SMARC_IMX95_HEXA_4GB_IT,               "SMARC iMX95 Hexa 4GB IT",              TARGET_IS_ENABLED(TORADEX_SMARC_IMX95)  },
 	{ AQUILA_TDA4O_8GB_IT,                   "Aquila TDA4 Octa 8GB IT",              TARGET_IS_ENABLED(AQUILA_AM69_A72)      },
+	{ APALIS_IMX8QM_4GB_WIFI_BT_IT_64G,      "Apalis iMX8QM 4GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)          },
+	{ APALIS_IMX8QM_4GB_IT_64G,              "Apalis iMX8QM 4GB IT",                 TARGET_IS_ENABLED(APALIS_IMX8)          },
+	{ APALIS_IMX8QM_8GB_WIFI_BT_IT_64G,      "Apalis iMX8QM 8GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)          },
 };
 
 struct pid4list {
