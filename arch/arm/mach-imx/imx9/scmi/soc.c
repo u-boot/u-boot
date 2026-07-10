@@ -662,6 +662,18 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 			eth_addr_add(mac, 8); /* enetc1 */
 		if (dev_id == 2)
 			eth_addr_add(mac, 9); /* enetc2 */
+	} else if (is_imx952()) {
+		/*
+		 * i.MX952 uses the following mac address offset list:
+		 * | No. | Mac address user     |
+		 * |-----|----------------------|
+		 * | 0   | enetc mac pf0        |
+		 * | 1   | enetc mac vf0        |
+		 * | 2   | enetc mac pf1        |
+		 * | 3   | enetc mac vf1        |
+		 */
+		if (dev_id == 1)
+			eth_addr_add(mac, 2);
 	} else {
 		if (dev_id == 1)
 			eth_addr_add(mac, 3);
