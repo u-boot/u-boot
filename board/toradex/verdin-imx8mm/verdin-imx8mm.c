@@ -83,7 +83,8 @@ static void select_dt_from_module_version(void)
 			  (tdx_hw_tag.prodid == VERDIN_IMX8MMDL_WIFI_BT_IT) ||
 			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WIFI_BT_IT_NO_CAN) ||
 			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_4G_WIFI_BT_ET) ||
-			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WB_IT_64G);
+			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WB_IT_64G) ||
+			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_2G_WIFI_BT_IT_64G);
 	}
 
 	switch (get_pcb_revision()) {
