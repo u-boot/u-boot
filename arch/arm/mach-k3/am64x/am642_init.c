@@ -7,6 +7,7 @@
  *	Dave Gerlach <d-gerlach@ti.com>
  */
 
+#include <cpu_func.h>
 #include <fdt_support.h>
 #include <spl.h>
 #include <asm/io.h>
@@ -255,7 +256,7 @@ void board_init_f(ulong dummy)
 	if (rst_src == COLD_BOOT || rst_src & (SW_POR_MCU | SW_POR_MAIN)) {
 		printf("Resetting on cold boot to workaround ErrataID:i2331\n");
 		printf("Please resend tiboot3.bin in case of UART/DFU boot\n");
-		do_reset(NULL, 0, 0, NULL);
+		reset_cpu();
 	}
 #endif
 

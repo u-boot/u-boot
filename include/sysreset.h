@@ -23,6 +23,8 @@ enum sysreset_t {
 	SYSRESET_POWER_OFF,
 	/** @SYSRESET_COUNT: number of available reset types */
 	SYSRESET_COUNT,
+	/** @SYSRESET_DEFAULT: default board-specific reset */
+	SYSRESET_DEFAULT,
 };
 
 /**
@@ -129,7 +131,7 @@ int sysreset_get_last_walk(void);
 void sysreset_walk_halt(enum sysreset_t type);
 
 /**
- * reset_cpu() - calls sysreset_walk(SYSRESET_WARM)
+ * reset_cpu() - calls sysreset_walk(SYSRESET_DEFAULT)
  */
 void reset_cpu(void);
 

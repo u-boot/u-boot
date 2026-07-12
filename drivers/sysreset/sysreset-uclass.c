@@ -22,6 +22,17 @@
 #include <linux/err.h>
 #include <asm/global_data.h>
 
+static enum sysreset_t sysreset_get_default_type(void)
+{
+	if (IS_ENABLED(CONFIG_SYSRESET_CMD_RESET_DEFAULT_WARM))
+		return SYSRESET_WARM;
+
+	if (IS_ENABLED(CONFIG_SYSRESET_CMD_RESET_DEFAULT_POWER))
+		return SYSRESET_POWER;
+
+	return SYSRESET_COLD;
+}
+
 int sysreset_request(struct udevice *dev, enum sysreset_t type)
 {
 	struct sysreset_ops *ops = sysreset_get_ops(dev);
@@ -57,6 +68,9 @@ int sysreset_walk(enum sysreset_t type)
 	struct udevice *dev;
 	int ret = -ENOSYS;
 
+	if (type == SYSRESET_DEFAULT)
+		type = sysreset_get_default_type();
+
 	while (ret != -EINPROGRESS && type < SYSRESET_COUNT) {
 		for (uclass_first_device(UCLASS_SYSRESET, &dev);
 		     dev;
@@ -91,9 +105,28 @@ int sysreset_get_last_walk(void)
 	return value;
 }
 
+static const char *get_reset_type_str(enum sysreset_t reset_type)
+{
+	switch (reset_type) {
+	case SYSRESET_WARM:
+		return "warm";
+	case SYSRESET_COLD:
+		return "cold";
+	case SYSRESET_POWER:
+		return "power";
+	case SYSRESET_POWER_OFF:
+		return "power off";
+	default:
+		return "default";
+	}
+}
+
 void sysreset_walk_halt(enum sysreset_t type)
 {
 	int ret;
+
+	printf("resetting (%s)...\n", get_reset_type_str(type));
+	mdelay(100);
 
 	ret = sysreset_walk(type);
 
@@ -114,47 +147,8 @@ void sysreset_walk_halt(enum sysreset_t type)
  */
 void reset_cpu(void)
 {
-	sysreset_walk_halt(SYSRESET_WARM);
+	sysreset_walk_halt(SYSRESET_DEFAULT);
 }
-
-#if IS_ENABLED(CONFIG_SYSRESET_CMD_RESET)
-int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	enum sysreset_t reset_type = SYSRESET_COLD;
-
-	if (argc > 2)
-		return CMD_RET_USAGE;
-
-	if (argc == 2 && argv[1][0] == '-' && argv[1][1] == 'w') {
-		reset_type = SYSRESET_WARM;
-	}
-
-	printf("resetting ...\n");
-	mdelay(100);
-
-	sysreset_walk_halt(reset_type);
-
-	return 0;
-}
-#endif
-
-#if IS_ENABLED(CONFIG_SYSRESET_CMD_POWEROFF)
-int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	int ret;
-
-	puts("poweroff ...\n");
-	mdelay(100);
-
-	ret = sysreset_walk(SYSRESET_POWER_OFF);
-
-	if (ret == -EINPROGRESS)
-		mdelay(1000);
-
-	/*NOTREACHED when power off*/
-	return CMD_RET_FAILURE;
-}
-#endif
 
 UCLASS_DRIVER(sysreset) = {
 	.id		= UCLASS_SYSRESET,
