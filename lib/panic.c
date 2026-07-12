@@ -16,9 +16,7 @@
 #endif
 #include <linux/delay.h>
 #include <stdio.h>
-#if defined(CONFIG_SYSRESET)
 #include <sysreset.h>
-#endif
 
 static void panic_finish(void) __attribute__ ((noreturn));
 
@@ -63,7 +61,9 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 
 __weak void reset_cpu(void)
 {
-#if defined(CONFIG_SYSRESET)
+#if defined(CONFIG_TARGET_XILINX_MBV)
+	/* Nothing to do */
+#elif defined(CONFIG_SYSRESET)
 	sysreset_walk_halt(SYSRESET_DEFAULT);
 #else
 	/* TODO: Refactor all the do_reset calls to be reset_cpu() instead */

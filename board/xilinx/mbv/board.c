@@ -20,7 +20,3 @@ void board_boot_order(u32 *spl_boot_list)
 
 }
 #endif
-
-void reset_cpu(void)
-{
-}
