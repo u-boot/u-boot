@@ -325,7 +325,7 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout_ms)
 		if ((status & MMC_STATUS_RDY_FOR_DATA) &&
 		    (status & MMC_STATUS_CURR_STATE) !=
 		     MMC_STATE_PRG)
-			break;
+			return 0;
 
 		if (status & MMC_STATUS_MASK) {
 #if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
@@ -340,14 +340,10 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout_ms)
 		udelay(1000);
 	}
 
-	if (timeout_ms <= 0) {
 #if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		log_err("Timeout waiting card ready\n");
+	log_err("Timeout waiting card ready\n");
 #endif
-		return -ETIMEDOUT;
-	}
-
-	return 0;
+	return -ETIMEDOUT;
 }
 
 int mmc_set_blocklen(struct mmc *mmc, int len)
