@@ -173,6 +173,30 @@ static void sdhci_cdns6_write_phy_reg(struct sdhci_cdns_plat *plat, u32 addr, u3
 	writel(val, plat->hrs_addr + SDHCI_CDNS_HRS05);
 }
 
+static bool sdhci_cdns6_mode_is_tuned(struct sdhci_cdns_plat *plat, u32 mode)
+{
+	/*
+	 * Check if the given mode has a valid tuned DLL value.
+	 * Only modes that support tuning (driver or framework) can have
+	 * valid tuned values. This prevents the initial state (tuned_mode=0)
+	 * from falsely matching MMC_LEGACY.
+	 */
+	if (plat->tuned_mode != mode)
+		return false;
+
+	switch (mode) {
+	case SD_HS:		/* Driver tuning via set_ios_post */
+	case UHS_SDR50:		/* Future driver tuning support */
+	case UHS_SDR104:	/* Framework tuning */
+	case MMC_HS_200:	/* Framework tuning */
+	case MMC_HS_400:	/* Framework tuning */
+	case MMC_HS_400_ES:	/* Framework tuning */
+		return true;
+	default:
+		return false;
+	}
+}
+
 static int sdhci_cdns6_reset_phy_dll(struct sdhci_cdns_plat *plat, bool reset)
 {
 	void __iomem *reg = plat->hrs_addr + SDHCI_CDNS_HRS09;
@@ -259,7 +283,18 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 	sdhci_cdns6_write_phy_reg(plat, PHY_DQS_TIMING_REG_ADDR, sdhci_cdns6_phy_cfgs[0].val);
 	sdhci_cdns6_write_phy_reg(plat, PHY_GATE_LPBK_CTRL_REG_ADDR, sdhci_cdns6_phy_cfgs[1].val);
 	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_MASTER_CTRL_REG_ADDR, sdhci_cdns6_phy_cfgs[4].val);
-	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR, sdhci_cdns6_phy_cfgs[2].val);
+	if (sdhci_cdns6_mode_is_tuned(plat, mode)) {
+		/*
+		 * Use previously saved tuned DLL slave control value.
+		 * Note: 0 is a valid tuned value (e.g., optimal tap at position 0),
+		 * so we check both mode match AND that it's a tunable mode.
+		 */
+		sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR,
+					  plat->tuned_dll_slave_ctrl);
+	} else {
+		sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR,
+					  sdhci_cdns6_phy_cfgs[2].val);
+	}
 
 	/* Switch Off the DLL Reset */
 	ret = sdhci_cdns6_reset_phy_dll(plat, false);
@@ -318,6 +353,9 @@ int sdhci_cdns6_set_tune_val(struct sdhci_cdns_plat *plat, unsigned int val)
 
 	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR, tmp);
 
+	/* Store tuned DLL slave control value which will be reapplied via set_ios(). */
+	plat->tuned_dll_slave_ctrl = tmp;
+
 	/* Switch Off the DLL Reset */
 	ret = sdhci_cdns6_reset_phy_dll(plat, false);
 	if (ret) {
@@ -326,4 +364,9 @@ int sdhci_cdns6_set_tune_val(struct sdhci_cdns_plat *plat, unsigned int val)
 	}
 
 	return 0;
+}
+
+u32 sdhci_cdns6_phy_get_dll_slave(struct sdhci_cdns_plat *plat)
+{
+	return sdhci_cdns6_read_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR);
 }
