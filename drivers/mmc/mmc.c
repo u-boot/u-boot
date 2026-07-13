@@ -490,7 +490,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 }
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
-static int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt)
+int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt)
 {
 	if (mmc->cfg->ops->get_b_max)
 		return mmc->cfg->ops->get_b_max(mmc, dst, blkcnt);
