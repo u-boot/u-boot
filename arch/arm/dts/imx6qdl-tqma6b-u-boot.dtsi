@@ -5,4 +5,6 @@
  * Author: Markus Niebel
  */
 
+/* SOC specific U-Boot DT adjustments */
+
 #include "imx6qdl-tqma6-u-boot.dtsi"
