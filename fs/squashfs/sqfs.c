@@ -547,8 +547,10 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 		/* Get reference to inode in the inode table */
 		table = sqfs_find_inode(dirs->inode_table, new_inode_number,
 					sblk->inodes, sblk->block_size);
-		if (!table)
-			return -EINVAL;
+		if (!table) {
+			ret = -EINVAL;
+			goto out;
+		}
 		dir = (struct squashfs_dir_inode *)table;
 
 		/* Check for symbolic link and inode type sanity */
@@ -617,8 +619,6 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 			goto out;
 		} else if (!sqfs_is_dir(get_unaligned_le16(&dir->inode_type))) {
 			printf("** Cannot find directory. **\n");
-			free(dirs->entry);
-			dirs->entry = NULL;
 			ret = -EINVAL;
 			goto out;
 		}
@@ -630,8 +630,6 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 		/* Get dir. offset into the directory table */
 		offset = sqfs_dir_offset(table, m_list, m_count);
 		if (offset < 0) {
-			free(dirs->entry);
-			dirs->entry = NULL;
 			ret = offset;
 			goto out;
 		}
@@ -644,8 +642,6 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 		/* Check for empty directory */
 		if (sqfs_is_empty_dir(table)) {
 			printf("Empty directory.\n");
-			free(dirs->entry);
-			dirs->entry = NULL;
 			ret = SQFS_EMPTY_DIR;
 			goto out;
 		}
@@ -660,8 +656,6 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 
 	offset = sqfs_dir_offset(table, m_list, m_count);
 	if (offset < 0) {
-		free(dirs->entry);
-		dirs->entry = NULL;
 		ret = offset;
 		goto out;
 	}
@@ -673,6 +667,10 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 		memcpy(&dirs->i_ldir, ldir, sizeof(*ldir));
 
 out:
+	if (ret < 0) {
+		free(dirs->entry);
+		dirs->entry = NULL;
+	}
 	free(res);
 	free(rem);
 	free(path);
