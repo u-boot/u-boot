@@ -3173,10 +3173,19 @@ int mmc_deinit(struct mmc *mmc)
 		return 0;
 
 	if (IS_SD(mmc)) {
-		caps_filtered = mmc->card_caps &
-			~(MMC_CAP(UHS_SDR12) | MMC_CAP(UHS_SDR25) |
-			  MMC_CAP(UHS_SDR50) | MMC_CAP(UHS_DDR50) |
-			  MMC_CAP(UHS_SDR104));
+		u32 uhs_mask = UHS_CAPS;
+
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+		/*
+		 * Per SD spec, once a card enters 1.8V signaling it
+		 * cannot revert to 3.3V without a power cycle.
+		 * If the card is operating at 1.8V, keep UHS_SDR12
+		 * as the minimum fallback mode.
+		 */
+		if (mmc_sd_card_using_v18(mmc))
+			uhs_mask &= ~MMC_CAP(UHS_SDR12);
+#endif
+		caps_filtered = mmc->card_caps & ~uhs_mask;
 
 		return sd_select_mode_and_width(mmc, caps_filtered);
 	} else {
