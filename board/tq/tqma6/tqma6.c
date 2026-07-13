@@ -117,6 +117,16 @@ static const char *tqma6_get_boardname(void)
 	};
 }
 
+const char *tqma6_get_fdt_configuration(void)
+{
+	if (is_mx6dq())
+		return !tqma6_has_enet_workaround() ? "imx6q-mba6b" : "imx6q-mba6a";
+	if (is_mx6sdl())
+		return !tqma6_has_enet_workaround() ? "imx6dl-mba6b" : "imx6dl-mba6a";
+
+	return NULL;
+}
+
 #if CONFIG_IS_ENABLED(DM_PMIC)
 /* setup board specific PMIC */
 int power_init_board(void)
@@ -137,11 +147,24 @@ int power_init_board(void)
 }
 #endif
 
+#define FDTFILE_STRLEN 32u
 int board_late_init(void)
 {
+	char fdtfile[FDTFILE_STRLEN];
+	const char *config = tqma6_get_fdt_configuration();
+
 	env_set("board_name", tqma6_get_boardname());
 
 	tqma6_detect_enet_workaround();
+
+	if (!env_get("fdtfile")) {
+		if (config) {
+			snprintf(fdtfile, FDTFILE_STRLEN, "%s.dtb", config);
+			env_set_runtime("fdtfile", fdtfile);
+		} else {
+			pr_err("ENV: Could not set kernel devicetree, ${fdtfile} remains unset\n");
+		}
+	}
 
 	tq_bb_board_late_init();
 
@@ -169,15 +192,10 @@ int board_late_init(void)
  * Device Tree Support
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-#define MODELSTRLEN 32u
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	struct mmc *mmc = find_mmc_device(0);
-	char modelstr[MODELSTRLEN];
 
-	snprintf(modelstr, MODELSTRLEN, "TQ %s on %s", tqma6_get_boardname(),
-		 tq_bb_get_boardname());
-	do_fixup_by_path_string(blob, "/", "model", modelstr);
 	fdt_fixup_memory(blob, (u64)PHYS_SDRAM, (u64)gd->ram_size);
 
 	/* bring in eMMC dsr settings if needed */
