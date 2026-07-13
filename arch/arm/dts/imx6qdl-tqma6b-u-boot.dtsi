@@ -8,3 +8,11 @@
 /* SOC specific U-Boot DT adjustments */
 
 #include "imx6qdl-tqma6-u-boot.dtsi"
+
+&i2c3 {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c3 {
+	bootph-pre-ram;
+};
