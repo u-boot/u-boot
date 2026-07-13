@@ -853,12 +853,16 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 		goto out;
 
 	*dir_table = malloc(metablks_count * SQFS_METADATA_BLOCK_SIZE);
-	if (!*dir_table)
+	if (!*dir_table) {
+		metablks_count = -1;
 		goto out;
+	}
 
 	*pos_list = malloc(metablks_count * sizeof(u32));
-	if (!*pos_list)
+	if (!*pos_list) {
+		metablks_count = -1;
 		goto out;
+	}
 
 	ret = sqfs_get_metablk_pos(*pos_list, dtb, table_offset,
 				   metablks_count);
@@ -1473,6 +1477,15 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 
 		symlink = (struct squashfs_symlink_inode *)ipos;
 		resolved = sqfs_resolve_symlink(symlink, filename);
+		/*
+		 * Free the parent directory resources before recursing so that
+		 * the recursive call can allocate its own inode and directory
+		 * tables without exhausting the heap.
+		 */
+		free(dirs->entry);
+		dirs->entry = NULL;
+		sqfs_closedir(dirsp);
+		dirsp = NULL;
 		ret = sqfs_read_nest(resolved, buf, offset, len, actread);
 		free(resolved);
 		goto out;
@@ -1731,6 +1744,11 @@ static int sqfs_size_nest(const char *filename, loff_t *size)
 
 		symlink = (struct squashfs_symlink_inode *)ipos;
 		resolved = sqfs_resolve_symlink(symlink, filename);
+		/*
+		 * Free the parent directory resources before recursing.
+		 */
+		sqfs_closedir(dirsp);
+		dirsp = NULL;
 		ret = sqfs_size(resolved, size);
 		free(resolved);
 		break;
