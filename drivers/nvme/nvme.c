@@ -771,6 +771,13 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	c.rw.appmask = 0;
 	c.rw.metadata = 0;
 
+	/*
+	 * Enable force unit access (FUA) for data integrity if volatile write
+	 * cache (VWC) is enabled.
+	 */
+	if (!read && (dev->flags & NVME_VWC_ENABLED))
+		c.rw.control |= cpu_to_le16(NVME_RW_FUA);
+
 	while (total_lbas) {
 		if (total_lbas < lbas) {
 			lbas = (u16)total_lbas;
@@ -898,6 +905,16 @@ int nvme_init(struct udevice *udev)
 		/* skip inactive namespace */
 		if (!id->nsze)
 			continue;
+
+		/* Check whether volatile write cache is enabled. */
+		if (ndev->vwc & NVME_CTRL_VWC_PRESENT) {
+			u32 features;
+
+			ret = nvme_get_features(ndev, NVME_FEAT_VOLATILE_WC, 0, 0,
+						&features);
+			if (!ret && (features & 0x1))
+				ndev->flags |= NVME_VWC_ENABLED;
+		}
 
 		/*
 		 * Encode the namespace id to the device name so that
