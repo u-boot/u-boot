@@ -1599,6 +1599,8 @@ static const struct mtk_gate infra_ao_clks[] = {
 static const struct mtk_clk_tree mt8195_infracfg_ao_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = infra_ao_clks,
+	.num_gates = ARRAY_SIZE(infra_ao_clks),
 };
 
 static int mt8195_apmixedsys_probe(struct udevice *dev)
@@ -1611,11 +1613,11 @@ static int mt8195_topckgen_probe(struct udevice *dev)
 	return mtk_common_clk_init(dev, &mt8195_topckgen_clk_tree);
 }
 
-static int mt8195_infra_ao_probe(struct udevice *dev)
+static int mt8195_clk_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8195_infracfg_ao_clk_tree,
-					infra_ao_clks,
-					ARRAY_SIZE(infra_ao_clks), 0);
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
+
+	return mtk_common_clk_init(dev, tree);
 }
 
 static const struct udevice_id mt8195_apmixed[] = {
@@ -1629,7 +1631,10 @@ static const struct udevice_id mt8195_topckgen_compat[] = {
 };
 
 static const struct udevice_id of_match_clk_mt8195_infra_ao[] = {
-	{ .compatible = "mediatek,mt8195-infracfg_ao", },
+	{
+		.compatible = "mediatek,mt8195-infracfg_ao",
+		.data = (ulong)&mt8195_infracfg_ao_clk_tree,
+	},
 	{ }
 };
 
@@ -1659,8 +1664,8 @@ U_BOOT_DRIVER(mt8195_clk_infra_ao) = {
 	.name = "mt8195-infra_ao",
 	.id = UCLASS_CLK,
 	.of_match = of_match_clk_mt8195_infra_ao,
-	.probe = mt8195_infra_ao_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.probe = mt8195_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
