@@ -1970,11 +1970,6 @@ static const struct mtk_clk_tree mt8189_vlpckgen_clk_tree = {
 	.type = MTK_CLK_TREE_VLP_CK,
 };
 
-static const struct mtk_clk_tree mt8189_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-};
-
 static const struct udevice_id mt8189_apmixed[] = {
 	{ .compatible = "mediatek,mt8189-apmixedsys", },
 	{ }
@@ -1990,32 +1985,31 @@ static const struct udevice_id mt8189_vlpckgen[] = {
 	{ }
 };
 
-struct mt8189_gate_clk_data {
-	const struct mtk_gate *gates;
-	int num_gates;
-};
-
-#define GATE_CLK_DATA(name) \
-static const struct mt8189_gate_clk_data name##_data = { \
-	.gates = name, .num_gates = ARRAY_SIZE(name) \
+#define GATE_CLK_TREE(_name) \
+static const struct mtk_clk_tree _name##_tree = { \
+	.ext_clk_rates = ext_clock_rates, \
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates), \
+	.gates = _name, \
+	.num_gates = ARRAY_SIZE(_name), \
+	.gates_offs = _name[0].id, \
 }
 
-GATE_CLK_DATA(perao_clks);
-GATE_CLK_DATA(imp_clks);
-GATE_CLK_DATA(mm_clks);
-GATE_CLK_DATA(mminfra_config_clks);
-GATE_CLK_DATA(ufs_config_ao_clks);
-GATE_CLK_DATA(ufs_config_pdn_clks);
-GATE_CLK_DATA(vlpcfg_ao_clks);
+GATE_CLK_TREE(perao_clks);
+GATE_CLK_TREE(imp_clks);
+GATE_CLK_TREE(mm_clks);
+GATE_CLK_TREE(mminfra_config_clks);
+GATE_CLK_TREE(ufs_config_ao_clks);
+GATE_CLK_TREE(ufs_config_pdn_clks);
+GATE_CLK_TREE(vlpcfg_ao_clks);
 
 static const struct udevice_id of_match_mt8189_clk_gate[] = {
-	{ .compatible = "mediatek,mt8189-peri-ao", .data = (ulong)&perao_clks_data },
-	{ .compatible = "mediatek,mt8189-iic-wrap", .data = (ulong)&imp_clks_data },
-	{ .compatible = "mediatek,mt8189-dispsys", .data = (ulong)&mm_clks_data },
-	{ .compatible = "mediatek,mt8189-mm-infra", .data = (ulong)&mminfra_config_clks_data },
-	{ .compatible = "mediatek,mt8189-ufscfg-ao", .data = (ulong)&ufs_config_ao_clks_data },
-	{ .compatible = "mediatek,mt8189-ufscfg-pdn", .data = (ulong)&ufs_config_pdn_clks_data },
-	{ .compatible = "mediatek,mt8189-vlpcfg-ao", .data = (ulong)&vlpcfg_ao_clks_data },
+	{ .compatible = "mediatek,mt8189-peri-ao", .data = (ulong)&perao_clks_tree },
+	{ .compatible = "mediatek,mt8189-iic-wrap", .data = (ulong)&imp_clks_tree },
+	{ .compatible = "mediatek,mt8189-dispsys", .data = (ulong)&mm_clks_tree },
+	{ .compatible = "mediatek,mt8189-mm-infra", .data = (ulong)&mminfra_config_clks_tree },
+	{ .compatible = "mediatek,mt8189-ufscfg-ao", .data = (ulong)&ufs_config_ao_clks_tree },
+	{ .compatible = "mediatek,mt8189-ufscfg-pdn", .data = (ulong)&ufs_config_pdn_clks_tree },
+	{ .compatible = "mediatek,mt8189-vlpcfg-ao", .data = (ulong)&vlpcfg_ao_clks_tree },
 	{ }
 };
 
@@ -2034,15 +2028,11 @@ static int mt8189_infrasys_probe(struct udevice *dev)
 	return mtk_common_clk_init(dev, &mt8189_vlpckgen_clk_tree);
 }
 
-static int mt8189_clk_gate_probe(struct udevice *dev)
+static int mt8189_clk_probe(struct udevice *dev)
 {
-	struct mt8189_gate_clk_data *data;
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 
-	data = (void *)dev_get_driver_data(dev);
-
-	return mtk_common_clk_gate_init(dev, &mt8189_clk_tree,
-					data->gates, data->num_gates,
-					data->gates[0].id);
+	return mtk_common_clk_init(dev, tree);
 }
 
 U_BOOT_DRIVER(mt8189_clk_apmixedsys) = {
@@ -2082,8 +2072,8 @@ U_BOOT_DRIVER(mt8189_clk_gate) = {
 	.name = "mt8189-gate-clk",
 	.id = UCLASS_CLK,
 	.of_match = of_match_mt8189_clk_gate,
-	.probe = mt8189_clk_gate_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.probe = mt8189_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
