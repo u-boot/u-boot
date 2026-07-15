@@ -71,22 +71,23 @@ static const struct mtk_clk_tree mt7987_fixed_pll_clk_tree = {
 };
 
 static const struct udevice_id mt7987_fixed_pll_compat[] = {
-	{ .compatible = "mediatek,mt7987-fixed-plls" },
-	{ .compatible = "mediatek,mt7987-apmixedsys" },
+	{
+		.compatible = "mediatek,mt7987-fixed-plls",
+		.data = (ulong)&mt7987_fixed_pll_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7987-apmixedsys",
+		.data = (ulong)&mt7987_fixed_pll_clk_tree,
+	},
 	{}
 };
-
-static int mt7987_fixed_pll_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7987_fixed_pll_clk_tree);
-}
 
 U_BOOT_DRIVER(mt7987_clk_apmixedsys) = {
 	.name = "mt7987-clock-fixed-pll",
 	.id = UCLASS_CLK,
 	.of_match = mt7987_fixed_pll_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7987_fixed_pll_probe,
+	.probe = mt7987_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_fixed_pll_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -470,20 +471,24 @@ static const struct mtk_clk_tree mt7987_topckgen_clk_tree = {
 };
 
 static const struct udevice_id mt7987_topckgen_compat[] = {
-	{ .compatible = "mediatek,mt7987-topckgen" },
+	{
+		.compatible = "mediatek,mt7987-topckgen",
+		.data = (ulong)&mt7987_topckgen_clk_tree,
+	},
 	{}
 };
 
 static int mt7987_topckgen_probe(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
 		return -ENOENT;
 
 	writel(MT7987_CLK_PDN_EN_WRITE, priv->base + MT7987_CLK_PDN);
-	return mtk_common_clk_init(dev, &mt7987_topckgen_clk_tree);
+	return mtk_common_clk_init(dev, tree);
 }
 
 U_BOOT_DRIVER(mt7987_clk_topckgen) = {
@@ -798,22 +803,23 @@ static const struct mtk_clk_tree mt7987_infracfg_clk_tree = {
 };
 
 static const struct udevice_id mt7987_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt7987-infracfg_ao" },
-	{ .compatible = "mediatek,mt7987-infracfg" },
+	{
+		.compatible = "mediatek,mt7987-infracfg_ao",
+		.data = (ulong)&mt7987_infracfg_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7987-infracfg",
+		.data = (ulong)&mt7987_infracfg_clk_tree,
+	},
 	{}
 };
-
-static int mt7987_infracfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7987_infracfg_clk_tree);
-}
 
 U_BOOT_DRIVER(mt7987_clk_infracfg) = {
 	.name = "mt7987-clock-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt7987_infracfg_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7987_infracfg_probe,
+	.probe = mt7987_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
