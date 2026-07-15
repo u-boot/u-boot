@@ -627,10 +627,12 @@ static const struct mtk_clk_tree mt8183_topckgen_clk_tree = {
 	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
-static const struct mtk_clk_tree mt8183_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-};
+static int mt8183_clk_probe(struct udevice *dev)
+{
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
+
+	return mtk_common_clk_init(dev, tree);
+}
 
 static const struct mtk_gate_regs infra0_cg_regs = {
 	.set_ofs = 0x80,
@@ -802,11 +804,12 @@ static int mt8183_topckgen_probe(struct udevice *dev)
 	return mtk_common_clk_init(dev, &mt8183_topckgen_clk_tree);
 }
 
-static int mt8183_infracfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt8183_clk_tree, infra_clks,
-					ARRAY_SIZE(infra_clks), 0);
-}
+static const struct mtk_clk_tree mt8183_infracfg_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = infra_clks,
+	.num_gates = ARRAY_SIZE(infra_clks),
+};
 
 static const struct udevice_id mt8183_apmixed_compat[] = {
 	{ .compatible = "mediatek,mt8183-apmixedsys", },
@@ -819,7 +822,10 @@ static const struct udevice_id mt8183_topckgen_compat[] = {
 };
 
 static const struct udevice_id mt8183_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt8183-infracfg", },
+	{
+		.compatible = "mediatek,mt8183-infracfg",
+		.data = (ulong)&mt8183_infracfg_tree,
+	},
 	{ }
 };
 
@@ -849,8 +855,8 @@ U_BOOT_DRIVER(mt8183_clk_infracfg) = {
 	.name = "mt8183-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt8183_infracfg_compat,
-	.probe = mt8183_infracfg_probe,
+	.probe = mt8183_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_gate_ops,
+	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
