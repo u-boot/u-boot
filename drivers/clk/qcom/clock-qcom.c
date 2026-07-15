@@ -533,19 +533,35 @@ static int qcom_power_set(struct power_domain *pwr, bool on)
 
 	writel(value, base + map->reg);
 
-	if (on)
-		ret = readl_poll_timeout(base + map->reg + CFG_GDSCR_OFFSET,
-					 value,
-					 (value & GDSC_POWER_UP_COMPLETE) ||
-					 (value & GDSC_PWR_ON_MASK),
-					 GDSC_STATUS_POLL_TIMEOUT_US);
-
-	else
-		ret = readl_poll_timeout(base + map->reg + CFG_GDSCR_OFFSET,
-					 value,
-					 (value & GDSC_POWER_DOWN_COMPLETE) ||
-					 !(value & GDSC_PWR_ON_MASK),
-					 GDSC_STATUS_POLL_TIMEOUT_US);
+	/*
+	 * Depending on the type of GDSC the status register is different,
+	 * and we need to check different status bit (condition passed to
+	 * readl_poll_timeout() is different too).
+	 * See Linux src: drivers/clk/qcom/gdsc.c @ gdsc_check_status() func
+	 */
+	if (map->flags & POLL_CFG_GDSCR) {
+		if (on)
+			ret = readl_poll_timeout(base + map->reg + CFG_GDSCR_OFFSET,
+						 value,
+						 (value & GDSC_POWER_UP_COMPLETE),
+						 GDSC_STATUS_POLL_TIMEOUT_US);
+		else
+			ret = readl_poll_timeout(base + map->reg + CFG_GDSCR_OFFSET,
+						 value,
+						 (value & GDSC_POWER_DOWN_COMPLETE),
+						 GDSC_STATUS_POLL_TIMEOUT_US);
+	} else {
+		if (on)
+			ret = readl_poll_timeout(base + map->reg,
+						 value,
+						 (value & GDSC_PWR_ON_MASK),
+						 GDSC_STATUS_POLL_TIMEOUT_US);
+		else
+			ret = readl_poll_timeout(base + map->reg,
+						 value,
+						 !(value & GDSC_PWR_ON_MASK),
+						 GDSC_STATUS_POLL_TIMEOUT_US);
+	}
 
 	if (ret == -ETIMEDOUT)
 		printf("WARNING: GDSC %lu is stuck during power o%s\n",
