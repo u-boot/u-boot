@@ -757,6 +757,8 @@ static const struct mtk_gate ifr_clks[] = {
 static const struct mtk_clk_tree mt8365_infracfg_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = ifr_clks,
+	.num_gates = ARRAY_SIZE(ifr_clks),
 };
 
 static int mt8365_apmixedsys_probe(struct udevice *dev)
@@ -769,10 +771,11 @@ static int mt8365_topckgen_probe(struct udevice *dev)
 	return mtk_common_clk_init(dev, &mt8365_topckgen_tree);
 }
 
-static int mt8365_infracfg_probe(struct udevice *dev)
+static int mt8365_clk_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8365_infracfg_tree, ifr_clks,
-					ARRAY_SIZE(ifr_clks), 0);
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
+
+	return mtk_common_clk_init(dev, tree);
 }
 
 static const struct udevice_id mt8365_apmixed_compat[] = {
@@ -786,7 +789,10 @@ static const struct udevice_id mt8365_topckgen_compat[] = {
 };
 
 static const struct udevice_id mt8365_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt8365-infracfg", },
+	{
+		.compatible = "mediatek,mt8365-infracfg",
+		.data = (ulong)&mt8365_infracfg_tree,
+	},
 	{ }
 };
 
@@ -816,8 +822,8 @@ U_BOOT_DRIVER(mt8365_clk_infracfg) = {
 	.name = "mt8365-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt8365_infracfg_compat,
-	.probe = mt8365_infracfg_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.probe = mt8365_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
