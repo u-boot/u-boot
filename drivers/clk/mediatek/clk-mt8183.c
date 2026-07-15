@@ -627,13 +627,6 @@ static const struct mtk_clk_tree mt8183_topckgen_clk_tree = {
 	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
-static int mt8183_clk_probe(struct udevice *dev)
-{
-	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
-
-	return mtk_common_clk_init(dev, tree);
-}
-
 static const struct mtk_gate_regs infra0_cg_regs = {
 	.set_ofs = 0x80,
 	.clr_ofs = 0x84,
@@ -830,7 +823,7 @@ U_BOOT_DRIVER(mt8183_clk_apmixedsys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt8183_apmixed_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt8183_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_apmixedsys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -841,7 +834,7 @@ U_BOOT_DRIVER(mt8183_clk_topckgen) = {
 	.id = UCLASS_CLK,
 	.of_match = mt8183_topckgen_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt8183_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -851,7 +844,7 @@ U_BOOT_DRIVER(mt8183_clk_infracfg) = {
 	.name = "mt8183-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt8183_infracfg_compat,
-	.probe = mt8183_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,

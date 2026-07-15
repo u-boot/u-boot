@@ -1045,10 +1045,9 @@ static int mt7623_mcucfg_probe(struct udevice *dev)
 static int mt7623_apmixedsys_probe(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
-	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 	int ret;
 
-	ret = mtk_common_clk_init(dev, tree);
+	ret = mtk_clk_probe(dev);
 	if (ret)
 		return ret;
 
@@ -1083,13 +1082,6 @@ static const struct mtk_clk_tree mt7623_ethsys_tree = {
 	.gates = eth_cgs,
 	.num_gates = ARRAY_SIZE(eth_cgs),
 };
-
-static int mt7623_clk_probe(struct udevice *dev)
-{
-	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
-
-	return mtk_common_clk_init(dev, tree);
-}
 
 static const struct mtk_clk_tree mt7623_clk_peri_tree = {
 	.ext_clk_rates = ext_clock_rates,
@@ -1190,7 +1182,7 @@ U_BOOT_DRIVER(mt7623_clk_topckgen) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7623_topckgen_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7623_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -1200,7 +1192,7 @@ U_BOOT_DRIVER(mt7623_clk_infracfg) = {
 	.name = "mt7623-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt7623_infracfg_compat,
-	.probe = mt7623_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -1210,7 +1202,7 @@ U_BOOT_DRIVER(mt7623_clk_pericfg) = {
 	.name = "mt7623-pericfg",
 	.id = UCLASS_CLK,
 	.of_match = mt7623_pericfg_compat,
-	.probe = mt7623_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -1220,7 +1212,7 @@ U_BOOT_DRIVER(mt7623_clk_eth) = {
 	.name = "mt7623-clk-eth",
 	.id = UCLASS_CLK,
 	.of_match = of_match_mt7623_clk_eth,
-	.probe = mt7623_clk_probe,
+	.probe = mtk_clk_probe,
 	.bind = mt7623_ethsys_hifsys_bind,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,

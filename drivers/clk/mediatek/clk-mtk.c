@@ -1093,9 +1093,10 @@ int mtk_common_clk_parent_bind(struct udevice *dev)
 	return 0;
 }
 
-int mtk_common_clk_init(struct udevice *dev, const struct mtk_clk_tree *tree)
+int mtk_clk_probe(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)

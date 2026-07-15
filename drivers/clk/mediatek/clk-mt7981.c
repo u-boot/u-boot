@@ -656,13 +656,6 @@ static const struct mtk_clk_tree mt7981_infracfg_clk_tree = {
 	.type = MTK_CLK_TREE_INFRASYS,
 };
 
-static int mt7981_clk_probe(struct udevice *dev)
-{
-	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
-
-	return mtk_common_clk_init(dev, tree);
-}
-
 static const struct udevice_id mt7981_fixed_pll_compat[] = {
 	{
 		.compatible = "mediatek,mt7981-fixed-plls",
@@ -686,12 +679,11 @@ static const struct udevice_id mt7981_topckgen_compat[] = {
 static int mt7981_topckgen_probe(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
-	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 
 	priv->base = dev_read_addr_ptr(dev);
 	writel(MT7981_CLK_PDN_EN_WRITE, priv->base + MT7981_CLK_PDN);
 
-	return mtk_common_clk_init(dev, tree);
+	return mtk_clk_probe(dev);
 }
 
 U_BOOT_DRIVER(mt7981_clk_apmixedsys) = {
@@ -699,7 +691,7 @@ U_BOOT_DRIVER(mt7981_clk_apmixedsys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7981_fixed_pll_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7981_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_fixed_pll_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -729,7 +721,7 @@ U_BOOT_DRIVER(mt7981_clk_infracfg) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7981_infracfg_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7981_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -793,7 +785,7 @@ U_BOOT_DRIVER(mt7981_clk_sgmiisys) = {
 	.name = "mt7981-clock-sgmiisys",
 	.id = UCLASS_CLK,
 	.of_match = of_match_mt7981_sgmiisys,
-	.probe = mt7981_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 };
@@ -851,7 +843,7 @@ U_BOOT_DRIVER(mt7981_clk_ethsys) = {
 	.name = "mt7981-clock-ethsys",
 	.id = UCLASS_CLK,
 	.of_match = mt7981_ethsys_compat,
-	.probe = mt7981_clk_probe,
+	.probe = mtk_clk_probe,
 	.bind = mt7981_ethsys_bind,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,

@@ -829,13 +829,6 @@ static const struct mtk_clk_tree mt8512_infracfg_tree = {
 	.num_gates = ARRAY_SIZE(infra_clks),
 };
 
-static int mt8512_clk_probe(struct udevice *dev)
-{
-	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
-
-	return mtk_common_clk_init(dev, tree);
-}
-
 static const struct udevice_id mt8512_apmixed_compat[] = {
 	{
 		.compatible = "mediatek,mt8512-apmixedsys",
@@ -869,7 +862,7 @@ U_BOOT_DRIVER(mt8512_clk_apmixedsys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt8512_apmixed_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt8512_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_apmixedsys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -880,7 +873,7 @@ U_BOOT_DRIVER(mt8512_clk_topckgen) = {
 	.id = UCLASS_CLK,
 	.of_match = mt8512_topckgen_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt8512_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -890,7 +883,7 @@ U_BOOT_DRIVER(mt8512_clk_gate) = {
 	.name = "mt8512-clk-gate",
 	.id = UCLASS_CLK,
 	.of_match = of_match_mt8512_clk_gate,
-	.probe = mt8512_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,

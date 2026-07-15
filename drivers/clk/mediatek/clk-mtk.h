@@ -290,7 +290,6 @@ extern const struct clk_ops mtk_clk_topckgen_ops;
 extern const struct clk_ops mtk_clk_infrasys_ops;
 
 int mtk_common_clk_parent_bind(struct udevice *dev);
-int mtk_common_clk_init(struct udevice *dev,
-			const struct mtk_clk_tree *tree);
+int mtk_clk_probe(struct udevice *dev);
 
 #endif /* __DRV_CLK_MTK_H */

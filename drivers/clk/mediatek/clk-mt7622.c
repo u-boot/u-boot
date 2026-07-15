@@ -699,10 +699,9 @@ static int mt7622_mcucfg_probe(struct udevice *dev)
 static int mt7622_apmixedsys_probe(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
-	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 	int ret;
 
-	ret = mtk_common_clk_init(dev, tree);
+	ret = mtk_clk_probe(dev);
 	if (ret)
 		return ret;
 
@@ -714,13 +713,6 @@ static int mt7622_apmixedsys_probe(struct udevice *dev)
 	writel(0x80008, priv->base + MT7622_PLL_ISO_CON0);
 
 	return 0;
-}
-
-static int mt7622_clk_probe(struct udevice *dev)
-{
-	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
-
-	return mtk_common_clk_init(dev, tree);
 }
 
 static int mt7622_reset_bind(struct udevice *dev)
@@ -817,7 +809,7 @@ U_BOOT_DRIVER(mt7622_clk_topckgen) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7622_topckgen_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7622_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -827,7 +819,7 @@ U_BOOT_DRIVER(mt7622_clk_infracfg) = {
 	.name = "mt7622-clock-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = of_match_mt7622_infracfg,
-	.probe = mt7622_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -837,7 +829,7 @@ U_BOOT_DRIVER(mt7622_clk_eth) = {
 	.name = "mt7622-clk-eth",
 	.id = UCLASS_CLK,
 	.of_match = of_match_mt7622_clk_eth,
-	.probe = mt7622_clk_probe,
+	.probe = mtk_clk_probe,
 	.bind = mt7622_reset_bind,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
@@ -847,7 +839,7 @@ U_BOOT_DRIVER(mt7622_clk) = {
 	.name = "mt7622-clk",
 	.id = UCLASS_CLK,
 	.of_match = of_match_mt7622_clk,
-	.probe = mt7622_clk_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 };
