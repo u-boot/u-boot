@@ -664,29 +664,34 @@ static int mt7981_clk_probe(struct udevice *dev)
 }
 
 static const struct udevice_id mt7981_fixed_pll_compat[] = {
-	{ .compatible = "mediatek,mt7981-fixed-plls" },
-	{ .compatible = "mediatek,mt7981-apmixedsys" },
+	{
+		.compatible = "mediatek,mt7981-fixed-plls",
+		.data = (ulong)&mt7981_fixed_pll_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7981-apmixedsys",
+		.data = (ulong)&mt7981_fixed_pll_clk_tree,
+	},
 	{}
 };
 
 static const struct udevice_id mt7981_topckgen_compat[] = {
-	{ .compatible = "mediatek,mt7981-topckgen" },
+	{
+		.compatible = "mediatek,mt7981-topckgen",
+		.data = (ulong)&mt7981_topckgen_clk_tree,
+	},
 	{}
 };
-
-static int mt7981_fixed_pll_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7981_fixed_pll_clk_tree);
-}
 
 static int mt7981_topckgen_probe(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 
 	priv->base = dev_read_addr_ptr(dev);
 	writel(MT7981_CLK_PDN_EN_WRITE, priv->base + MT7981_CLK_PDN);
 
-	return mtk_common_clk_init(dev, &mt7981_topckgen_clk_tree);
+	return mtk_common_clk_init(dev, tree);
 }
 
 U_BOOT_DRIVER(mt7981_clk_apmixedsys) = {
@@ -694,7 +699,7 @@ U_BOOT_DRIVER(mt7981_clk_apmixedsys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7981_fixed_pll_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7981_fixed_pll_probe,
+	.probe = mt7981_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_fixed_pll_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -712,21 +717,19 @@ U_BOOT_DRIVER(mt7981_clk_topckgen) = {
 };
 
 static const struct udevice_id mt7981_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt7981-infracfg" },
+	{
+		.compatible = "mediatek,mt7981-infracfg",
+		.data = (ulong)&mt7981_infracfg_clk_tree,
+	},
 	{}
 };
-
-static int mt7981_infracfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7981_infracfg_clk_tree);
-}
 
 U_BOOT_DRIVER(mt7981_clk_infracfg) = {
 	.name = "mt7981-clock-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt7981_infracfg_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7981_infracfg_probe,
+	.probe = mt7981_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
