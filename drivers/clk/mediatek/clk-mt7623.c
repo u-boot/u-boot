@@ -1064,15 +1064,35 @@ static int mt7623_topckgen_probe(struct udevice *dev)
 	return mtk_common_clk_init(dev, &mt7623_topckgen_clk_tree);
 }
 
-static const struct mtk_clk_tree mt7623_clk_gate_tree = {
+static const struct mtk_clk_tree mt7623_infracfg_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates_offs = 1,
+	.gates = infra_cgs,
+	.num_gates = ARRAY_SIZE(infra_cgs),
 };
 
-static int mt7623_infracfg_probe(struct udevice *dev)
+static const struct mtk_clk_tree mt7623_hifsys_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates_offs = 1,
+	.gates = hif_cgs,
+	.num_gates = ARRAY_SIZE(hif_cgs),
+};
+
+static const struct mtk_clk_tree mt7623_ethsys_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates_offs = 1,
+	.gates = eth_cgs,
+	.num_gates = ARRAY_SIZE(eth_cgs),
+};
+
+static int mt7623_clk_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, infra_cgs,
-					ARRAY_SIZE(infra_cgs), 1);
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
+
+	return mtk_common_clk_init(dev, tree);
 }
 
 static const struct mtk_clk_tree mt7623_clk_peri_tree = {
@@ -1091,18 +1111,6 @@ static const struct mtk_clk_tree mt7623_clk_peri_tree = {
 static int mt7623_pericfg_probe(struct udevice *dev)
 {
 	return mtk_common_clk_init(dev, &mt7623_clk_peri_tree);
-}
-
-static int mt7623_hifsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, hif_cgs,
-					ARRAY_SIZE(hif_cgs), 1);
-}
-
-static int mt7623_ethsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs), 1);
 }
 
 static int mt7623_ethsys_hifsys_bind(struct udevice *dev)
@@ -1129,7 +1137,10 @@ static const struct udevice_id mt7623_topckgen_compat[] = {
 };
 
 static const struct udevice_id mt7623_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt7623-infracfg", },
+	{
+		.compatible = "mediatek,mt7623-infracfg",
+		.data = (ulong)&mt7623_infracfg_tree,
+	},
 	{ }
 };
 
@@ -1138,13 +1149,15 @@ static const struct udevice_id mt7623_pericfg_compat[] = {
 	{ }
 };
 
-static const struct udevice_id mt7623_ethsys_compat[] = {
-	{ .compatible = "mediatek,mt7623-ethsys" },
-	{ }
-};
-
-static const struct udevice_id mt7623_hifsys_compat[] = {
-	{ .compatible = "mediatek,mt7623-hifsys" },
+static const struct udevice_id of_match_mt7623_clk_eth[] = {
+	{
+		.compatible = "mediatek,mt7623-ethsys",
+		.data = (ulong)&mt7623_ethsys_tree,
+	},
+	{
+		.compatible = "mediatek,mt7623-hifsys",
+		.data = (ulong)&mt7623_hifsys_tree,
+	},
 	{ }
 };
 
@@ -1187,9 +1200,9 @@ U_BOOT_DRIVER(mt7623_clk_infracfg) = {
 	.name = "mt7623-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt7623_infracfg_compat,
-	.probe = mt7623_infracfg_probe,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.probe = mt7623_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -1203,22 +1216,12 @@ U_BOOT_DRIVER(mt7623_clk_pericfg) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mt7623_clk_hifsys) = {
-	.name = "mt7623-clock-hifsys",
+U_BOOT_DRIVER(mt7623_clk_eth) = {
+	.name = "mt7623-clk-eth",
 	.id = UCLASS_CLK,
-	.of_match = mt7623_hifsys_compat,
-	.probe = mt7623_hifsys_probe,
+	.of_match = of_match_mt7623_clk_eth,
+	.probe = mt7623_clk_probe,
 	.bind = mt7623_ethsys_hifsys_bind,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-};
-
-U_BOOT_DRIVER(mt7623_clk_ethsys) = {
-	.name = "mt7623-clock-ethsys",
-	.id = UCLASS_CLK,
-	.of_match = mt7623_ethsys_compat,
-	.probe = mt7623_ethsys_probe,
-	.bind = mt7623_ethsys_hifsys_bind,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };
