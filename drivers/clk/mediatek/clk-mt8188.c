@@ -1622,6 +1622,8 @@ static const struct mtk_gate infracfg_ao_clks[] = {
 static const struct mtk_clk_tree mt8188_infracfg_ao_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = infracfg_ao_clks,
+	.num_gates = ARRAY_SIZE(infracfg_ao_clks),
 };
 
 static const struct mtk_gate_regs peri_ao_cg_regs = {
@@ -1665,6 +1667,8 @@ static const struct mtk_gate pericfg_ao_clks[] = {
 static const struct mtk_clk_tree mt8188_pericfg_ao_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = pericfg_ao_clks,
+	.num_gates = ARRAY_SIZE(pericfg_ao_clks),
 };
 
 static const struct mtk_gate_regs imp_iic_wrap_cg_regs = {
@@ -1700,16 +1704,22 @@ static const struct mtk_gate imp_iic_wrap_en_clks[] = {
 const struct mtk_clk_tree mt8188_imp_iic_wrap_c_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = imp_iic_wrap_c_clks,
+	.num_gates = ARRAY_SIZE(imp_iic_wrap_c_clks),
 };
 
 const struct mtk_clk_tree mt8188_imp_iic_wrap_w_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = imp_iic_wrap_w_clks,
+	.num_gates = ARRAY_SIZE(imp_iic_wrap_w_clks),
 };
 
 const struct mtk_clk_tree mt8188_imp_iic_wrap_en_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = imp_iic_wrap_en_clks,
+	.num_gates = ARRAY_SIZE(imp_iic_wrap_en_clks),
 };
 
 static int mt8188_apmixedsys_probe(struct udevice *dev)
@@ -1722,39 +1732,11 @@ static int mt8188_topckgen_probe(struct udevice *dev)
 	return mtk_common_clk_init(dev, &mt8188_topckgen_clk_tree);
 }
 
-static int mt8188_infracfg_ao_probe(struct udevice *dev)
+static int mt8188_clk_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt8188_infracfg_ao_clk_tree,
-					infracfg_ao_clks,
-					ARRAY_SIZE(infracfg_ao_clks), 0);
-}
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 
-static int mt8188_pericfg_ao_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt8188_pericfg_ao_clk_tree,
-					pericfg_ao_clks,
-					ARRAY_SIZE(pericfg_ao_clks), 0);
-}
-
-static int mt8188_imp_iic_wrap_c_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_c_clk_tree,
-					imp_iic_wrap_c_clks,
-					ARRAY_SIZE(imp_iic_wrap_c_clks), 0);
-}
-
-static int mt8188_imp_iic_wrap_w_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_w_clk_tree,
-					imp_iic_wrap_w_clks,
-					ARRAY_SIZE(imp_iic_wrap_w_clks), 0);
-}
-
-static int mt8188_imp_iic_wrap_en_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt8188_imp_iic_wrap_en_clk_tree,
-					imp_iic_wrap_en_clks,
-					ARRAY_SIZE(imp_iic_wrap_en_clks), 0);
+	return mtk_common_clk_init(dev, tree);
 }
 
 static const struct udevice_id mt8188_apmixed_compat[] = {
@@ -1767,30 +1749,30 @@ static const struct udevice_id mt8188_topckgen_compat[] = {
 	{ }
 };
 
-static const struct udevice_id mt8188_infracfg_ao_compat[] = {
-	{ .compatible = "mediatek,mt8188-infracfg-ao", },
+static const struct udevice_id of_match_mt8188_clk[] = {
+	{
+		.compatible = "mediatek,mt8188-infracfg-ao",
+		.data = (ulong)&mt8188_infracfg_ao_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt8188-pericfg-ao",
+		.data = (ulong)&mt8188_pericfg_ao_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt8188-imp-iic-wrap-c",
+		.data = (ulong)&mt8188_imp_iic_wrap_c_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt8188-imp-iic-wrap-w",
+		.data = (ulong)&mt8188_imp_iic_wrap_w_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt8188-imp-iic-wrap-en",
+		.data = (ulong)&mt8188_imp_iic_wrap_en_clk_tree,
+	},
 	{ }
 };
 
-static const struct udevice_id mt8188_pericfg_ao_compat[] = {
-	{ .compatible = "mediatek,mt8188-pericfg-ao", },
-	{ }
-};
-
-static const struct udevice_id mt8188_imp_iic_wrap_c_compat[] = {
-	{ .compatible = "mediatek,mt8188-imp-iic-wrap-c", },
-	{ }
-};
-
-static const struct udevice_id mt8188_imp_iic_wrap_w_compat[] = {
-	{ .compatible = "mediatek,mt8188-imp-iic-wrap-w", },
-	{ }
-};
-
-static const struct udevice_id mt8188_imp_iic_wrap_en_compat[] = {
-	{ .compatible = "mediatek,mt8188-imp-iic-wrap-en", },
-	{ }
-};
 
 U_BOOT_DRIVER(mt8188_clk_apmixedsys) = {
 	.name = "mt8188-apmixedsys",
@@ -1814,52 +1796,12 @@ U_BOOT_DRIVER(mt8188_clk_topckgen) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mt8188_clk_infracfg_ao) = {
-	.name = "mt8188-infracfg-ao",
+U_BOOT_DRIVER(mt8188_clk) = {
+	.name = "mt8188-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt8188_infracfg_ao_compat,
-	.probe = mt8188_infracfg_ao_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8188_clk_pericfg_ao) = {
-	.name = "mt8188-pericfg-ao",
-	.id = UCLASS_CLK,
-	.of_match = mt8188_pericfg_ao_compat,
-	.probe = mt8188_pericfg_ao_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8188_clk_imp_iic_wrap_c) = {
-	.name = "mt8188-imp_iic_wrap_c",
-	.id = UCLASS_CLK,
-	.of_match = mt8188_imp_iic_wrap_c_compat,
-	.probe = mt8188_imp_iic_wrap_c_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8188_clk_imp_iic_wrap_w) = {
-	.name = "mt8188-imp_iic_wrap_w",
-	.id = UCLASS_CLK,
-	.of_match = mt8188_imp_iic_wrap_w_compat,
-	.probe = mt8188_imp_iic_wrap_w_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8188_clk_imp_iic_wrap_en) = {
-	.name = "mt8188-imp_iic_wrap_en",
-	.id = UCLASS_CLK,
-	.of_match = mt8188_imp_iic_wrap_en_compat,
-	.probe = mt8188_imp_iic_wrap_en_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.of_match = of_match_mt8188_clk,
+	.probe = mt8188_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
