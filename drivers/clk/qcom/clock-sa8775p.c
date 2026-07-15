@@ -283,8 +283,8 @@ static const struct qcom_reset_map sa8775p_gcc_resets[] = {
 };
 
 static const struct qcom_power_map sa8775p_gdscs[] = {
-	[UFS_PHY_GDSC] = { 0x83004 },
-	[USB30_PRIM_GDSC] = { 0x1B004 },
+	[UFS_PHY_GDSC] = { .reg = 0x83004, .flags = RETAIN_FF_ENABLE | POLL_CFG_GDSCR },
+	[USB30_PRIM_GDSC] = { .reg = 0x1B004, .flags = RETAIN_FF_ENABLE | POLL_CFG_GDSCR },
 };
 
 static struct msm_clk_data sa8775_gcc_data = {

@@ -613,12 +613,12 @@ static const struct qcom_reset_map qcs8300_gcc_resets[] = {
 };
 
 static const struct qcom_power_map qcs8300_gdscs[] = {
-	[GCC_EMAC0_GDSC] = { 0xb6004 },
-	[GCC_PCIE_0_GDSC] = { 0xa9004 },
-	[GCC_PCIE_1_GDSC] = { 0x77004 },
-	[GCC_UFS_PHY_GDSC] = { 0x83004 },
-	[GCC_USB20_PRIM_GDSC] = { 0x1c004 },
-	[GCC_USB30_PRIM_GDSC] = { 0x1b004 },
+	[GCC_EMAC0_GDSC] = { .reg = 0xb6004, .flags = RETAIN_FF_ENABLE | POLL_CFG_GDSCR },
+	[GCC_PCIE_0_GDSC] = { .reg = 0xa9004, .flags = RETAIN_FF_ENABLE | POLL_CFG_GDSCR | VOTABLE },
+	[GCC_PCIE_1_GDSC] = { .reg = 0x77004, .flags = RETAIN_FF_ENABLE | POLL_CFG_GDSCR | VOTABLE },
+	[GCC_UFS_PHY_GDSC] = { .reg = 0x83004, .flags = RETAIN_FF_ENABLE | POLL_CFG_GDSCR },
+	[GCC_USB20_PRIM_GDSC] = { .reg = 0x1c004, .flags = RETAIN_FF_ENABLE | POLL_CFG_GDSCR },
+	[GCC_USB30_PRIM_GDSC] = { .reg = 0x1b004, .flags = RETAIN_FF_ENABLE | POLL_CFG_GDSCR },
 };
 
 static struct msm_clk_data qcs8300_gcc_data = {

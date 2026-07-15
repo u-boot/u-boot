@@ -176,10 +176,10 @@ static const struct qcom_power_map sm6125_gdscs[] = {
 	[CAMSS_VFE1_GDSC] = { 0x5403c },
 	[CAMSS_TOP_GDSC] = { 0x5607c },
 	[CAM_CPP_GDSC] = { 0x560bc },
-	[HLOS1_VOTE_TURING_MMU_TBU1_GDSC] = { 0x7d060 },
-	[HLOS1_VOTE_MM_SNOC_MMU_TBU_RT_GDSC] = { 0x80074 },
-	[HLOS1_VOTE_MM_SNOC_MMU_TBU_NRT_GDSC] = { 0x80084 },
-	[HLOS1_VOTE_TURING_MMU_TBU0_GDSC] = { 0x80094 },
+	[HLOS1_VOTE_TURING_MMU_TBU1_GDSC] = { .reg = 0x7d060, .flags = VOTABLE },
+	[HLOS1_VOTE_MM_SNOC_MMU_TBU_RT_GDSC] = { .reg = 0x80074, .flags = VOTABLE },
+	[HLOS1_VOTE_MM_SNOC_MMU_TBU_NRT_GDSC] = { .reg = 0x80084, .flags = VOTABLE },
+	[HLOS1_VOTE_TURING_MMU_TBU0_GDSC] = { .reg = 0x80094, .flags = VOTABLE },
 };
 
 static const phys_addr_t sm6125_gpll_addrs[] = {
