@@ -656,10 +656,12 @@ static const struct mtk_clk_tree mt7981_infracfg_clk_tree = {
 	.type = MTK_CLK_TREE_INFRASYS,
 };
 
-static const struct mtk_clk_tree mt7981_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-};
+static int mt7981_clk_probe(struct udevice *dev)
+{
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
+
+	return mtk_common_clk_init(dev, tree);
+}
 
 static const struct udevice_id mt7981_fixed_pll_compat[] = {
 	{ .compatible = "mediatek,mt7981-fixed-plls" },
@@ -751,24 +753,11 @@ static const struct mtk_gate sgmii0_cgs[] = {
 	GATE_SGMII(CLK_SGM0_CDR_CK0_EN, "sgm0_cdr_ck0_en", CLK_TOP_USB_CDR_CK, 5),
 };
 
-static int mt7981_sgmii0sys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7981_clk_tree,
-					sgmii0_cgs, ARRAY_SIZE(sgmii0_cgs), 0);
-}
-
-static const struct udevice_id mt7981_sgmii0sys_compat[] = {
-	{ .compatible = "mediatek,mt7981-sgmiisys_0", },
-	{}
-};
-
-U_BOOT_DRIVER(mt7981_clk_sgmii0sys) = {
-	.name = "mt7981-clock-sgmii0sys",
-	.id = UCLASS_CLK,
-	.of_match = mt7981_sgmii0sys_compat,
-	.probe = mt7981_sgmii0sys_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+static const struct mtk_clk_tree mt7981_sgmii0_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = sgmii0_cgs,
+	.num_gates = ARRAY_SIZE(sgmii0_cgs),
 };
 
 static const struct mtk_gate sgmii1_cgs[] = {
@@ -778,24 +767,32 @@ static const struct mtk_gate sgmii1_cgs[] = {
 	GATE_SGMII(CLK_SGM1_CDR_CK1_EN, "sgm1_cdr_ck1_en", CLK_TOP_USB_CDR_CK, 5),
 };
 
-static int mt7981_sgmii1sys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7981_clk_tree,
-					sgmii1_cgs, ARRAY_SIZE(sgmii1_cgs), 0);
-}
+static const struct mtk_clk_tree mt7981_sgmii1_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = sgmii1_cgs,
+	.num_gates = ARRAY_SIZE(sgmii1_cgs),
+};
 
-static const struct udevice_id mt7981_sgmii1sys_compat[] = {
-	{ .compatible = "mediatek,mt7981-sgmiisys_1", },
+static const struct udevice_id of_match_mt7981_sgmiisys[] = {
+	{
+		.compatible = "mediatek,mt7981-sgmiisys_0",
+		.data = (ulong)&mt7981_sgmii0_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7981-sgmiisys_1",
+		.data = (ulong)&mt7981_sgmii1_clk_tree,
+	},
 	{}
 };
 
-U_BOOT_DRIVER(mt7981_clk_sgmii1sys) = {
-	.name = "mt7981-clock-sgmii1sys",
+U_BOOT_DRIVER(mt7981_clk_sgmiisys) = {
+	.name = "mt7981-clock-sgmiisys",
 	.id = UCLASS_CLK,
-	.of_match = mt7981_sgmii1sys_compat,
-	.probe = mt7981_sgmii1sys_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.of_match = of_match_mt7981_sgmiisys,
+	.probe = mt7981_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };
 
 /* ethsys */
@@ -819,11 +816,12 @@ static const struct mtk_gate eth_cgs[] = {
 	GATE_ETH(CLK_ETH_WOCPU0_EN, "eth_wocpu0_en", CLK_TOP_NETSYS_WED_MCU, 15),
 };
 
-static int mt7981_ethsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7981_clk_tree,
-					eth_cgs, ARRAY_SIZE(eth_cgs), 0);
-}
+static const struct mtk_clk_tree mt7981_eth_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = eth_cgs,
+	.num_gates = ARRAY_SIZE(eth_cgs),
+};
 
 static int mt7981_ethsys_bind(struct udevice *dev)
 {
@@ -839,7 +837,10 @@ static int mt7981_ethsys_bind(struct udevice *dev)
 }
 
 static const struct udevice_id mt7981_ethsys_compat[] = {
-	{ .compatible = "mediatek,mt7981-ethsys", },
+	{
+		.compatible = "mediatek,mt7981-ethsys",
+		.data = (ulong)&mt7981_eth_clk_tree,
+	},
 	{}
 };
 
@@ -847,8 +848,8 @@ U_BOOT_DRIVER(mt7981_clk_ethsys) = {
 	.name = "mt7981-clock-ethsys",
 	.id = UCLASS_CLK,
 	.of_match = mt7981_ethsys_compat,
-	.probe = mt7981_ethsys_probe,
+	.probe = mt7981_clk_probe,
 	.bind = mt7981_ethsys_bind,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };
