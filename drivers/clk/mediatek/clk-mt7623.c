@@ -1045,9 +1045,10 @@ static int mt7623_mcucfg_probe(struct udevice *dev)
 static int mt7623_apmixedsys_probe(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 	int ret;
 
-	ret = mtk_common_clk_init(dev, &mt7623_apmixedsys_clk_tree);
+	ret = mtk_common_clk_init(dev, tree);
 	if (ret)
 		return ret;
 
@@ -1057,11 +1058,6 @@ static int mt7623_apmixedsys_probe(struct udevice *dev)
 	writel(0x888, priv->base + MT7623_PLL_ISO_CON0);
 
 	return 0;
-}
-
-static int mt7623_topckgen_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7623_topckgen_clk_tree);
 }
 
 static const struct mtk_clk_tree mt7623_infracfg_tree = {
@@ -1108,11 +1104,6 @@ static const struct mtk_clk_tree mt7623_clk_peri_tree = {
 	.num_gates = ARRAY_SIZE(peri_cgs),
 };
 
-static int mt7623_pericfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7623_clk_peri_tree);
-}
-
 static int mt7623_ethsys_hifsys_bind(struct udevice *dev)
 {
 	int ret = 0;
@@ -1127,12 +1118,18 @@ static int mt7623_ethsys_hifsys_bind(struct udevice *dev)
 }
 
 static const struct udevice_id mt7623_apmixed_compat[] = {
-	{ .compatible = "mediatek,mt7623-apmixedsys" },
+	{
+		.compatible = "mediatek,mt7623-apmixedsys",
+		.data = (ulong)&mt7623_apmixedsys_clk_tree,
+	},
 	{ }
 };
 
 static const struct udevice_id mt7623_topckgen_compat[] = {
-	{ .compatible = "mediatek,mt7623-topckgen" },
+	{
+		.compatible = "mediatek,mt7623-topckgen",
+		.data = (ulong)&mt7623_topckgen_clk_tree,
+	},
 	{ }
 };
 
@@ -1145,7 +1142,10 @@ static const struct udevice_id mt7623_infracfg_compat[] = {
 };
 
 static const struct udevice_id mt7623_pericfg_compat[] = {
-	{ .compatible = "mediatek,mt7623-pericfg", },
+	{
+		.compatible = "mediatek,mt7623-pericfg",
+		.data = (ulong)&mt7623_clk_peri_tree,
+	},
 	{ }
 };
 
@@ -1190,7 +1190,7 @@ U_BOOT_DRIVER(mt7623_clk_topckgen) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7623_topckgen_compat,
 	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7623_topckgen_probe,
+	.probe = mt7623_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -1210,7 +1210,7 @@ U_BOOT_DRIVER(mt7623_clk_pericfg) = {
 	.name = "mt7623-pericfg",
 	.id = UCLASS_CLK,
 	.of_match = mt7623_pericfg_compat,
-	.probe = mt7623_pericfg_probe,
+	.probe = mt7623_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
