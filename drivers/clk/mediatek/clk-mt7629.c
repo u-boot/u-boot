@@ -598,9 +598,41 @@ static const struct mtk_clk_tree mt7629_topckgen_clk_tree = {
 	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
-static const struct mtk_clk_tree mt7629_clk_tree = {
+static const struct mtk_clk_tree mt7629_infracfg_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates_offs = CLK_INFRA_DBGCLK_PD,
+	.gates = infra_cgs,
+	.num_gates = ARRAY_SIZE(infra_cgs),
+};
+
+static const struct mtk_clk_tree mt7629_pericfg_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates_offs = CLK_PERI_PWM1_PD,
+	.gates = peri_cgs,
+	.num_gates = ARRAY_SIZE(peri_cgs),
+};
+
+static const struct mtk_clk_tree mt7629_ethsys_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = eth_cgs,
+	.num_gates = ARRAY_SIZE(eth_cgs),
+};
+
+static const struct mtk_clk_tree mt7629_sgmii_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = sgmii_cgs,
+	.num_gates = ARRAY_SIZE(sgmii_cgs),
+};
+
+static const struct mtk_clk_tree mt7629_ssusb_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = ssusb_cgs,
+	.num_gates = ARRAY_SIZE(ssusb_cgs),
 };
 
 static int mt7629_mcucfg_probe(struct udevice *dev)
@@ -641,22 +673,11 @@ static int mt7629_topckgen_probe(struct udevice *dev)
 	return mtk_common_clk_init(dev, &mt7629_topckgen_clk_tree);
 }
 
-static int mt7629_infracfg_probe(struct udevice *dev)
+static int mt7629_clk_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, infra_cgs,
-					ARRAY_SIZE(infra_cgs), 0);
-}
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 
-static int mt7629_pericfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, peri_cgs,
-					ARRAY_SIZE(peri_cgs), CLK_PERI_PWM1_PD);
-}
-
-static int mt7629_ethsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs), 0);
+	return mtk_common_clk_init(dev, tree);
 }
 
 static int mt7629_ethsys_bind(struct udevice *dev)
@@ -672,18 +693,6 @@ static int mt7629_ethsys_bind(struct udevice *dev)
 	return ret;
 }
 
-static int mt7629_sgmiisys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, sgmii_cgs,
-					ARRAY_SIZE(sgmii_cgs), 0);
-}
-
-static int mt7629_ssusbsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, ssusb_cgs,
-					ARRAY_SIZE(ssusb_cgs), 0);
-}
-
 static const struct udevice_id mt7629_apmixed_compat[] = {
 	{ .compatible = "mediatek,mt7629-apmixedsys" },
 	{ }
@@ -694,28 +703,35 @@ static const struct udevice_id mt7629_topckgen_compat[] = {
 	{ }
 };
 
-static const struct udevice_id mt7629_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt7629-infracfg", },
-	{ }
-};
-
-static const struct udevice_id mt7629_pericfg_compat[] = {
-	{ .compatible = "mediatek,mt7629-pericfg", },
+static const struct udevice_id of_match_mt7629_infracfg[] = {
+	{
+		.compatible = "mediatek,mt7629-infracfg",
+		.data = (ulong)&mt7629_infracfg_tree,
+	},
+	{
+		.compatible = "mediatek,mt7629-pericfg",
+		.data = (ulong)&mt7629_pericfg_tree,
+	},
 	{ }
 };
 
 static const struct udevice_id mt7629_ethsys_compat[] = {
-	{ .compatible = "mediatek,mt7629-ethsys", },
+	{
+		.compatible = "mediatek,mt7629-ethsys",
+		.data = (ulong)&mt7629_ethsys_tree,
+	},
 	{ }
 };
 
-static const struct udevice_id mt7629_sgmiisys_compat[] = {
-	{ .compatible = "mediatek,mt7629-sgmiisys", },
-	{ }
-};
-
-static const struct udevice_id mt7629_ssusbsys_compat[] = {
-	{ .compatible = "mediatek,mt7629-ssusbsys" },
+static const struct udevice_id of_match_mt7629_clk[] = {
+	{
+		.compatible = "mediatek,mt7629-sgmiisys",
+		.data = (ulong)&mt7629_sgmii_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7629-ssusbsys",
+		.data = (ulong)&mt7629_ssusb_clk_tree,
+	},
 	{ }
 };
 
@@ -757,20 +773,10 @@ U_BOOT_DRIVER(mt7629_clk_topckgen) = {
 U_BOOT_DRIVER(mt7629_clk_infracfg) = {
 	.name = "mt7629-clock-infracfg",
 	.id = UCLASS_CLK,
-	.of_match = mt7629_infracfg_compat,
-	.probe = mt7629_infracfg_probe,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt7629_clk_pericfg) = {
-	.name = "mt7629-clock-pericfg",
-	.id = UCLASS_CLK,
-	.of_match = mt7629_pericfg_compat,
-	.probe = mt7629_pericfg_probe,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.of_match = of_match_mt7629_infracfg,
+	.probe = mt7629_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -778,26 +784,17 @@ U_BOOT_DRIVER(mt7629_clk_ethsys) = {
 	.name = "mt7629-clock-ethsys",
 	.id = UCLASS_CLK,
 	.of_match = mt7629_ethsys_compat,
-	.probe = mt7629_ethsys_probe,
+	.probe = mt7629_clk_probe,
 	.bind = mt7629_ethsys_bind,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };
 
-U_BOOT_DRIVER(mt7629_clk_sgmiisys) = {
-	.name = "mt7629-clock-sgmiisys",
+U_BOOT_DRIVER(mt7629_clk) = {
+	.name = "mt7629-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt7629_sgmiisys_compat,
-	.probe = mt7629_sgmiisys_probe,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-};
-
-U_BOOT_DRIVER(mt7629_clk_ssusbsys) = {
-	.name = "mt7629-clock-ssusbsys",
-	.id = UCLASS_CLK,
-	.of_match = mt7629_ssusbsys_compat,
-	.probe = mt7629_ssusbsys_probe,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.of_match = of_match_mt7629_clk,
+	.probe = mt7629_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };
