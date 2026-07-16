@@ -42,3 +42,7 @@
 	status = "okay";
 	bootph-pre-ram;
 };
+
+&main_pktdma {
+	ti,sci = <&dm_tifs>;
+};
