@@ -62,6 +62,8 @@ static int dm_test_host(struct unit_test_state *uts)
 	ut_assertok(fs_set_blk_dev_with_part(desc, 0));
 	ut_assertok(fs_write("/testing", 0, 0, 0x1000, &actwrite));
 
+	ut_asserteq(0, blk_dflush(desc));
+
 	ut_assertok(host_detach_file(dev));
 	ut_asserteq(0, plat->fd);
 	ut_asserteq(-ENODEV, blk_get_from_parent(dev, &blk));

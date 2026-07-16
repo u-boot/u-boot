@@ -119,6 +119,7 @@ U_BOOT_CMD(
 	"init - init SATA sub system\n"
 	"sata stop [dev] - disable SATA sub system or device\n"
 	"sata info - show available SATA devices\n"
+	"sata flush - commit all dirty data to the current SATA device\n"
 	"sata device [dev] - show or set current device\n"
 	"sata part [dev] - print partition table\n"
 	"sata read addr blk# cnt\n"

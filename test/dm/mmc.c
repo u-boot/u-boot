@@ -48,6 +48,8 @@ static int dm_test_mmc_blk(struct unit_test_state *uts)
 	ut_asserteq(4, blk_dread(dev_desc, 0, 4, read));
 	ut_asserteq_mem(write, read, sizeof(write));
 
+	ut_asserteq(-ENOSYS, blk_dflush(dev_desc));
+
 	return 0;
 }
 DM_TEST(dm_test_mmc_blk, UTF_SCAN_PDATA | UTF_SCAN_FDT);

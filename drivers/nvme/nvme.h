@@ -594,6 +594,10 @@ enum {
 	NVME_CSTS_SHST_MASK	= 3 << 2,
 };
 
+enum {
+	NVME_VWC_ENABLED			= BIT(0),
+};
+
 /* Represents an NVM Express device. Each nvme_dev is a PCI function. */
 struct nvme_dev {
 	struct udevice *udev;
@@ -621,6 +625,7 @@ struct nvme_dev {
 	u64 *prp_pool;
 	u32 prp_entry_num;
 	u32 nn;
+	unsigned int flags;
 };
 
 /* Admin queue and a single I/O queue. */
@@ -697,12 +702,5 @@ struct nvme_ops {
  * Return: 0 if OK, -ve on error
  */
 int nvme_init(struct udevice *udev);
-
-/**
- * nvme_shutdown() - Shutdown NVM Express device
- * @udev:	The NVM Express device
- * Return: 0 if OK, -ve on error
- */
-int nvme_shutdown(struct udevice *udev);
 
 #endif /* __DRIVER_NVME_H__ */

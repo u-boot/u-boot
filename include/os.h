@@ -91,6 +91,14 @@ int os_open(const char *pathname, int flags);
 int os_close(int fd);
 
 /**
+ * os_fsync() - synchronize a file's in-core state with storage device
+ *
+ * @fd:	File descriptor to synchronize
+ * Return:	0 on success, negative error code - otherwise
+ */
+int os_fsync(int fd);
+
+/**
  * os_unlink() - access to the OS unlink() system call
  *
  * @pathname:	Path of file to delete

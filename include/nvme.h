@@ -90,4 +90,15 @@ int nvme_print_info(struct udevice *udev);
  */
 int nvme_get_namespace_id(struct udevice *udev, u32 *ns_id, u8 *eui64);
 
+/**
+ * nvme_shutdown() - Shutdown NVM Express device
+ *
+ * Must be called before booting an OS to ensure cache is flushed
+ * and the controller is in a clean state for OS to re-initialize.
+ *
+ * @udev:	The NVM Express device
+ * Return: 0 if OK, -ve on error
+ */
+int nvme_shutdown(struct udevice *udev);
+
 #endif /* __NVME_H__ */
