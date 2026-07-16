@@ -47,20 +47,6 @@
 			line-name = "som-flash-cs-en";
 		};
 
-		som-emmc {
-			gpio-hog;
-			gpios = <8 GPIO_ACTIVE_LOW>;
-			output-high;
-			line-name = "som-emmc-en";
-		};
-
-		crr-sdcard {
-			gpio-hog;
-			gpios = <9 GPIO_ACTIVE_LOW>;
-			output-low;
-			line-name = "crr-sdcard-en";
-		};
-
 		led-ds3 {
 			gpio-hog;
 			gpios = <15 GPIO_ACTIVE_LOW>;

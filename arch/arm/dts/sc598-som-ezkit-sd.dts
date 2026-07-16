@@ -11,7 +11,7 @@
 	som-emmc {
 		gpio-hog;
 		gpios = <8 GPIO_ACTIVE_LOW>;
-		output-high;
+		output-low;
 		line-name = "som-emmc-en";
 		bootph-pre-ram;
 	};
@@ -19,8 +19,14 @@
 	crr-sdcard {
 		gpio-hog;
 		gpios = <9 GPIO_ACTIVE_LOW>;
-		output-low;
+		output-high;
 		line-name = "crr-sdcard-en";
 		bootph-pre-ram;
 	};
+};
+
+&mmc0 {
+	max-frequency = <44000000>;
+	bus-width = <4>;
+	no-1-8-v;
 };

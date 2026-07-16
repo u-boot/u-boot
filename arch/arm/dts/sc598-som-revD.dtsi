@@ -73,22 +73,6 @@
 			line-name = "uart0-flow-en";
 			bootph-pre-ram;
 		};
-
-		som-emmc {
-			gpio-hog;
-			gpios = <8 GPIO_ACTIVE_LOW>;
-			output-high;
-			line-name = "som-emmc-en";
-			bootph-pre-ram;
-		};
-
-		crr-sdcard {
-			gpio-hog;
-			gpios = <9 GPIO_ACTIVE_LOW>;
-			output-low;
-			line-name = "crr-sdcard-en";
-			bootph-pre-ram;
-		};
 	};
 };
 
