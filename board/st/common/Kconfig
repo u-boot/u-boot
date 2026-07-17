@@ -14,7 +14,7 @@ config DFU_ALT_RAM0
 	  This defines the partitions of ram used to build dfu dynamically.
 
 config TYPEC_STUSB160X
-	tristate "STMicroelectronics STUSB160X Type-C controller driver"
+	bool "STMicroelectronics STUSB160X Type-C controller driver"
 	depends on DM_I2C
 	help
 	  Say Y if your system has STMicroelectronics STUSB160X Type-C port

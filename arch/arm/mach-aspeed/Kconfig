@@ -36,9 +36,20 @@ config ASPEED_AST2600
 	  It is used as Board Management Controller on many server boards,
 	  which is enabled by support of LPC and eSPI peripherals.
 
+config ASPEED_AST2700
+	bool "Support Aspeed AST2700 SoC"
+	select ARM64
+	select SYS_ARCH_TIMER
+	help
+	  Support for the Aspeed AST2700, an arm64 (Cortex-A35) Baseboard
+	  Management Controller (BMC) SoC. This is the 8th-generation BMC
+	  SoC family from Aspeed and features a dual-die architecture
+	  (CPU die + I/O die) connected via an internal coherent bus.
+
 endchoice
 
 source "arch/arm/mach-aspeed/ast2500/Kconfig"
 source "arch/arm/mach-aspeed/ast2600/Kconfig"
+source "arch/arm/mach-aspeed/ast2700/Kconfig"
 
 endif

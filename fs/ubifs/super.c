@@ -2694,7 +2694,7 @@ MODULE_VERSION(__stringify(UBIFS_VERSION));
 MODULE_AUTHOR("Artem Bityutskiy, Adrian Hunter");
 MODULE_DESCRIPTION("UBIFS - UBI File System");
 #else
-int uboot_ubifs_mount(char *vol_name)
+int uboot_ubifs_mount(const char *vol_name)
 {
 	struct dentry *ret;
 	int flags;

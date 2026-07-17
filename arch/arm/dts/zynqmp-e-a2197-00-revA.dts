@@ -51,83 +51,103 @@
 
 	ina226-vccint {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vccint 0>, <&vccint 1>, <&vccint 2>, <&vccint 3>;
 	};
 	ina226-vcc-soc {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_soc 0>, <&vcc_soc 1>, <&vcc_soc 2>, <&vcc_soc 3>;
 	};
 	ina226-vcc-pmc {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_pmc 0>, <&vcc_pmc 1>, <&vcc_pmc 2>, <&vcc_pmc 3>;
 	};
 	ina226-vcc-ram {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_ram 0>, <&vcc_ram 1>, <&vcc_ram 2>, <&vcc_ram 3>;
 	};
 	ina226-vcc-pslp {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_pslp 0>, <&vcc_pslp 1>, <&vcc_pslp 2>, <&vcc_pslp 3>;
 	};
 	ina226-vcc-psfp {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_psfp 0>, <&vcc_psfp 1>, <&vcc_psfp 2>, <&vcc_psfp 3>;
 	};
 	ina226-vccaux {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vccaux 0>, <&vccaux 1>, <&vccaux 2>, <&vccaux 3>;
 	};
 	ina226-vccaux-pmc {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vccaux_pmc 0>, <&vccaux_pmc 1>, <&vccaux_pmc 2>, <&vccaux_pmc 3>;
 	};
 	ina226-vcco-500 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_500 0>, <&vcco_500 1>, <&vcco_500 2>, <&vcco_500 3>;
 	};
 	ina226-vcco-501 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_501 0>, <&vcco_501 1>, <&vcco_501 2>, <&vcco_501 3>;
 	};
 	ina226-vcco-502 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_502 0>, <&vcco_502 1>, <&vcco_502 2>, <&vcco_502 3>;
 	};
 	ina226-vcco-503 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_503 0>, <&vcco_503 1>, <&vcco_503 2>, <&vcco_503 3>;
 	};
 	ina226-vcc-1v8 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_1v8 0>, <&vcc_1v8 1>, <&vcc_1v8 2>, <&vcc_1v8 3>;
 	};
 	ina226-vcc-3v3 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_3v3 0>, <&vcc_3v3 1>, <&vcc_3v3 2>, <&vcc_3v3 3>;
 	};
 	ina226-vcc-1v2-ddr4 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_1v2_ddr4 0>, <&vcc_1v2_ddr4 1>, <&vcc_1v2_ddr4 2>,
 			      <&vcc_1v2_ddr4 3>;
 	};
 	ina226-vcc-1v1-lp4 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc1v1_lp4 0>, <&vcc1v1_lp4 1>, <&vcc1v1_lp4 2>, <&vcc1v1_lp4 3>;
 	};
 	ina226-vadj-fmc {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vadj_fmc 0>, <&vadj_fmc 1>, <&vadj_fmc 2>, <&vadj_fmc 3>;
 	};
 	ina226-mgtyavcc {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&mgtyavcc 0>, <&mgtyavcc 1>, <&mgtyavcc 2>, <&mgtyavcc 3>;
 	};
 	ina226-mgtyavtt {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&mgtyavtt 0>, <&mgtyavtt 1>, <&mgtyavtt 2>, <&mgtyavtt 3>;
 	};
 	ina226-mgtyvccaux {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&mgtyvccaux 0>, <&mgtyvccaux 1>, <&mgtyvccaux 2>, <&mgtyvccaux 3>;
 	};
 };

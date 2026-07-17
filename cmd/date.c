@@ -16,7 +16,7 @@ static const char * const weekdays[] = {
 	"Sun", "Mon", "Tues", "Wednes", "Thurs", "Fri", "Satur",
 };
 
-int mk_date (const char *, struct rtc_time *);
+static int mk_date(const char *, struct rtc_time *);
 
 static struct rtc_time default_tm = { 0, 0, 0, 1, 1, 2000, 6, 0, 0 };
 
@@ -117,7 +117,7 @@ static int cnvrt2 (const char *str, int *valp)
  * Some basic checking for valid values is done, but this will not catch
  * all possible error conditions.
  */
-int mk_date (const char *datestr, struct rtc_time *tmp)
+static int mk_date(const char *datestr, struct rtc_time *tmp)
 {
 	int len, val;
 	char *ptr;
@@ -167,12 +167,13 @@ int mk_date (const char *datestr, struct rtc_time *tmp)
 		/* fall thru */
 	case 12:		/* MMDDhhmmCCYY	*/
 		if (cnvrt2 (datestr+0, &val) ||
-		    val > 12) {
+		    val > 12 || val < 1) {
 			break;
 		}
 		tmp->tm_mon  = val;
-		if (cnvrt2 (datestr+2, &val) ||
-		    val > ((tmp->tm_mon==2) ? 29 : 31)) {
+		if (cnvrt2(datestr + 2, &val) ||
+		    val < 1 ||
+		    val > rtc_month_days(tmp->tm_mon - 1, tmp->tm_year)) {
 			break;
 		}
 		tmp->tm_mday = val;

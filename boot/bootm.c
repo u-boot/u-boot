@@ -14,6 +14,7 @@
 #include <env.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <imagemap.h>
 #include <irq_func.h>
 #include <lmb.h>
 #include <log.h>
@@ -131,6 +132,8 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 	const char *fit_uname_config = NULL, *fit_uname_kernel = NULL;
 #if CONFIG_IS_ENABLED(FIT)
 	int		os_noffset;
+	int		uuid_len;
+	const		void *uuid;
 #endif
 
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
@@ -147,7 +150,22 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 
 	/* check image type, for FIT images get FIT kernel node */
 	*os_data = *os_len = 0;
-	buf = map_sysmem(img_addr, 0);
+	if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+		/*
+		 * Storage path: read enough bytes to detect the image
+		 * format. genimg_get_kernel_addr_fit() above still
+		 * parsed any #config / :subimage suffix so the FIT
+		 * selection variables are populated.
+		 */
+		buf = imagemap_map(images->imagemap, 0, 64);
+		if (IS_ERR(buf)) {
+			puts("Cannot read image header from storage\n");
+			return PTR_ERR(buf);
+		}
+		img_addr = map_to_sysmem(buf);
+	} else {
+		buf = map_sysmem(img_addr, 0);
+	}
 	switch (genimg_get_format(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
@@ -193,6 +211,20 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 #endif
 #if CONFIG_IS_ENABLED(FIT)
 	case IMAGE_FORMAT_FIT:
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+			/*
+			 * Extend the mapping to cover the full FIT
+			 * FDT structure so all metadata is accessible.
+			 */
+			size_t fdt_sz = fdt_totalsize(buf);
+
+			buf = imagemap_map(images->imagemap, 0, fdt_sz);
+			if (IS_ERR(buf)) {
+				puts("Cannot read FIT header from storage\n");
+				return PTR_ERR(buf);
+			}
+			img_addr = map_to_sysmem(buf);
+		}
 		os_noffset = fit_image_load(images, img_addr,
 				&fit_uname_kernel, &fit_uname_config,
 				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
@@ -205,6 +237,14 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 		images->fit_uname_os = fit_uname_kernel;
 		images->fit_uname_cfg = fit_uname_config;
 		images->fit_noffset_os = os_noffset;
+
+		/* Save install-uuid now while FIT is readable */
+		uuid = fdt_getprop(images->fit_hdr_os, 0,
+				   FIT_INSTALL_UUID_PROP,
+				   &uuid_len);
+		if (uuid && uuid_len == FIT_INSTALL_UUID_LEN)
+			memcpy(images->fit_install_uuid, uuid,
+			       FIT_INSTALL_UUID_LEN);
 		break;
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
@@ -243,6 +283,13 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 
 static int bootm_start(void)
 {
+	/*
+	 * Free dm-verity allocations from a prior boot attempt before
+	 * zeroing the structure. The pointers are guaranteed to be valid
+	 * or NULL: .bss is zero-initialised, and memset() below zeroes
+	 * them again after every boot.
+	 */
+	fit_verity_free(&images);
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = env_get_yesno("verify");
 
@@ -323,6 +370,10 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 		images.os.type = image_get_type(os_hdr);
 		images.os.comp = image_get_comp(os_hdr);
 		images.os.os = image_get_os(os_hdr);
+		if (images.os.os >= IH_OS_COUNT) {
+			printf("Unsupported OS type %d\n", images.os.os);
+			return 1;
+		}
 
 		images.os.end = image_get_image_end(os_hdr);
 		images.os.load = image_get_load(os_hdr);
@@ -364,11 +415,17 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 		images.os.end = fit_get_end(images.fit_hdr_os);
 
 		if (fit_image_get_load(images.fit_hdr_os, images.fit_noffset_os,
-				       &images.os.load)) {
+				       &images.os.load) &&
+		    images.os.type != IH_TYPE_KERNEL_NOLOAD) {
 			puts("Can't get image load address!\n");
 			bootstage_error(BOOTSTAGE_ID_FIT_LOADADDR);
 			return 1;
 		}
+		if (images.os.load && images.os.type == IH_TYPE_KERNEL_NOLOAD) {
+			puts("WARNING: load address set for kernel_noload image, ignoring\n");
+			images.os.load = 0;
+		}
+
 		break;
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
@@ -416,7 +473,7 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 
 		ret = fit_image_get_entry(images.fit_hdr_os,
 					  images.fit_noffset_os, &images.ep);
-		if (ret) {
+		if (ret && images.os.type != IH_TYPE_KERNEL_NOLOAD) {
 			puts("Can't get entry point property!\n");
 			return 1;
 		}
@@ -610,7 +667,8 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	ulong blob_end = os.end;
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
-	ulong flush_start = ALIGN_DOWN(load, ARCH_DMA_MINALIGN);
+	ulong decomp_len = CONFIG_SYS_BOOTM_LEN;
+	ulong flush_start;
 	bool no_overlap;
 	void *load_buf, *image_buf;
 	int err;
@@ -618,16 +676,16 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	/*
 	 * For a "noload" compressed kernel we need to allocate a buffer large
 	 * enough to decompress in to and use that as the load address now.
-	 * Assume that the kernel compression is at most a factor of 4 since
-	 * zstd almost achieves that.
+	 * Allow up to 8x compression: this comfortably covers what zstd and xz
+	 * achieve on real kernels, with headroom for well-compressed payloads.
 	 * Use an alignment of 2MB since this might help arm64
 	 */
 	if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE) {
-		ulong req_size = ALIGN(image_len * 4, SZ_1M);
 		phys_addr_t addr;
 
+		decomp_len = ALIGN(image_len * 8, SZ_1M);
 		err = lmb_alloc_mem(LMB_MEM_ALLOC_ANY, SZ_2M, &addr,
-				    req_size, LMB_NONE);
+				    decomp_len, LMB_NONE);
 		if (err)
 			return 1;
 
@@ -635,23 +693,27 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		images->os.load = (ulong)addr;
 		images->ep = (ulong)addr;
 		debug("Allocated %lx bytes at %lx for kernel (size %lx) decompression\n",
-		      req_size, load, image_len);
+		      decomp_len, load, image_len);
 	}
 
 	load_buf = map_sysmem(load, 0);
 	image_buf = map_sysmem(os.image_start, image_len);
 	err = image_decomp(os.comp, load, os.image_start, os.type,
 			   load_buf, image_buf, image_len,
-			   CONFIG_SYS_BOOTM_LEN, &load_end);
+			   decomp_len, &load_end);
 	if (err) {
 		err = handle_decomp_error(os.comp, load_end - load,
-					  CONFIG_SYS_BOOTM_LEN, err);
+					  decomp_len, err);
+		if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE)
+			printf("Note: noload decompression buffer is %#lx bytes (not CONFIG_SYS_BOOTM_LEN)\n",
+			       decomp_len);
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
 	/* We need the decompressed image size in the next steps */
 	images->os.image_len = load_end - load;
 
+	flush_start = ALIGN_DOWN(load, ARCH_DMA_MINALIGN);
 	flush_cache(flush_start, ALIGN(load_end, ARCH_DMA_MINALIGN) - flush_start);
 
 	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
@@ -992,11 +1054,21 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	 * Work through the states and see how far we get. We stop on
 	 * any error.
 	 */
-	if (states & BOOTM_STATE_START)
+	if (states & BOOTM_STATE_START) {
 		ret = bootm_start();
+		/*
+		 * bootm_start() zeroes the global images struct. Restore
+		 * the loader pointer so the storage-backed path works.
+		 */
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && bmi->imagemap)
+			images->imagemap = bmi->imagemap;
+	}
 
-	if (!ret && (states & BOOTM_STATE_PRE_LOAD))
-		ret = bootm_pre_load(bmi->addr_img);
+	if (!ret && (states & BOOTM_STATE_PRE_LOAD)) {
+		/* Pre-load verification is not applicable to storage boot */
+		if (!IS_ENABLED(CONFIG_IMAGEMAP) || !images->imagemap)
+			ret = bootm_pre_load(bmi->addr_img);
+	}
 
 	if (!ret && (states & BOOTM_STATE_FINDOS))
 		ret = bootm_find_os(bmi->cmd_name, bmi->addr_img);
@@ -1004,8 +1076,11 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	if (!ret && (states & BOOTM_STATE_FINDOTHER)) {
 		ulong img_addr;
 
-		img_addr = bmi->addr_img ? hextoul(bmi->addr_img, NULL)
-			: image_load_addr;
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap)
+			img_addr = images->os.start;
+		else
+			img_addr = bmi->addr_img ? hextoul(bmi->addr_img, NULL)
+				: image_load_addr;
 		ret = bootm_find_other(img_addr, bmi->conf_ramdisk,
 				       bmi->conf_fdt);
 	}
@@ -1071,6 +1146,12 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 		/* For Linux OS do all substitutions at console processing */
 		if (images->os.os == IH_OS_LINUX)
 			flags = BOOTM_CL_ALL;
+		ret = fit_verity_apply_bootargs(images);
+		if (ret) {
+			printf("dm-verity bootargs failed (err=%d)\n", ret);
+			ret = CMD_RET_FAILURE;
+			goto err;
+		}
 		ret = bootm_process_cmdline_env(flags);
 		if (ret) {
 			printf("Cmdline setup failed (err=%d)\n", ret);
@@ -1098,11 +1179,24 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	}
 
 	/* Now run the OS! We hope this doesn't return */
-	if (!ret && (states & BOOTM_STATE_OS_GO))
+	if (!ret && (states & BOOTM_STATE_OS_GO)) {
+		/* Release storage backend before jumping — no return expected */
+		if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+			imagemap_cleanup(images->imagemap);
+			images->imagemap = NULL;
+		}
+
 		ret = boot_selected_os(BOOTM_STATE_OS_GO, bmi, boot_fn);
+	}
 
 	/* Deal with any fallout */
 err:
+	/* Clean up imagemap on error (not reached on successful boot) */
+	if (IS_ENABLED(CONFIG_IMAGEMAP) && images->imagemap) {
+		imagemap_cleanup(images->imagemap);
+		images->imagemap = NULL;
+	}
+
 	if (iflag)
 		enable_interrupts();
 

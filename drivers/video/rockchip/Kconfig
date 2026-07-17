@@ -21,7 +21,7 @@ menuconfig VIDEO_ROCKCHIP
 	  Rockchip RK3288 and RK3399.
 
 config VIDEO_ROCKCHIP_MAX_XRES
-        int "Maximum horizontal resolution (for memory allocation purposes)"
+	int "Maximum horizontal resolution (for memory allocation purposes)"
 	depends on VIDEO_ROCKCHIP
 	default 3840 if DISPLAY_ROCKCHIP_HDMI
 	default 1920
@@ -31,7 +31,7 @@ config VIDEO_ROCKCHIP_MAX_XRES
 	  framebuffer during device-model binding/probing.
 
 config VIDEO_ROCKCHIP_MAX_YRES
-        int "Maximum vertical resolution (for memory allocation purposes)"
+	int "Maximum vertical resolution (for memory allocation purposes)"
 	depends on VIDEO_ROCKCHIP
 	default 2160 if DISPLAY_ROCKCHIP_HDMI
 	default 1080

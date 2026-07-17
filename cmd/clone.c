@@ -97,7 +97,7 @@ read:
 write:
 		ret = blk_dwrite(destdesc, destblk, towrite, buf + offset);
 		if (ret < 0) {
-			printf("Dest write error @blk %ld\n", srcblk);
+			printf("Dest write error @blk %ld\n", destblk);
 			goto exit;
 		}
 		wrcnt += ret * destbz;

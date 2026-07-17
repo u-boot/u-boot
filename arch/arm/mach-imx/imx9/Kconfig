@@ -1,9 +1,9 @@
 if ARCH_IMX9
 
 config AHAB_BOOT
-    bool "Support i.MX9 AHAB features"
-    help
-    This option enables the support for AHAB secure boot.
+	bool "Support i.MX9 AHAB features"
+	help
+	  This option enables the support for AHAB secure boot.
 
 config IMX9
 	bool
@@ -14,6 +14,7 @@ config IMX9
 	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 	imply IMX_TMU
+	imply OF_LIVE
 
 config IMX93
 	bool
@@ -68,6 +69,7 @@ config TARGET_IMX91_11X11_EVK
 	select IMX91
 	imply BOOTSTD_FULL
 	imply BOOTSTD_BOOTCOMMAND
+	imply OF_UPSTREAM
 
 config TARGET_IMX91_11X11_FRDM
 	bool "imx91_11x11_frdm"
@@ -76,6 +78,7 @@ config TARGET_IMX91_11X11_FRDM
 	select IMX9_LPDDR4X
 	imply BOOTSTD_FULL
 	imply BOOTSTD_BOOTCOMMAND
+	imply OF_UPSTREAM
 
 config TARGET_IMX93_9X9_QSB
 	bool "imx93_qsb"
@@ -113,11 +116,13 @@ config TARGET_IMX93_FRDM
 	select REMOTEPROC_IMX
 	select REGMAP
 	select SYSCON
+	imply OF_UPSTREAM
 
 config TARGET_IMX93_VAR_SOM
 	bool "imx93_var_som"
 	select IMX93
 	select IMX9_LPDDR4X
+	imply OF_UPSTREAM
 
 config TARGET_KONTRON_MX93
 	bool "Kontron OSM-S/BL i.MX93"
@@ -146,6 +151,7 @@ config TARGET_PHYCORE_IMX93
 
 config TARGET_IMX95_19X19_EVK
 	bool "imx95_19x19_evk"
+	select OF_BOARD_FIXUP
 	select IMX95
 	imply BOOTSTD_BOOTCOMMAND
 	imply BOOTSTD_FULL
@@ -153,6 +159,7 @@ config TARGET_IMX95_19X19_EVK
 
 config TARGET_IMX95_15X15_EVK
 	bool "imx95_15x15_evk"
+	select OF_BOARD_FIXUP
 	select IMX95
 	imply BOOTSTD_BOOTCOMMAND
 	imply BOOTSTD_FULL
@@ -160,10 +167,15 @@ config TARGET_IMX95_15X15_EVK
 
 config TARGET_IMX943_EVK
 	bool "imx943_evk"
+	select OF_BOARD_FIXUP
 	select IMX94
 	imply BOOTSTD_BOOTCOMMAND
 	imply BOOTSTD_FULL
 	imply OF_UPSTREAM
+
+config TARGET_AQUILA_IMX95
+	bool "Support Toradex Aquila iMX95"
+	select IMX95
 
 config TARGET_TORADEX_SMARC_IMX95
 	bool "Support Toradex SMARC iMX95"
@@ -176,6 +188,7 @@ config TARGET_VERDIN_IMX95
 
 config TARGET_IMX952_EVK
 	bool "imx952_evk"
+	select OF_BOARD_FIXUP
 	select IMX_SM_CPU
 	select IMX_SM_LMM
 	select IMX952
@@ -197,6 +210,7 @@ source "board/phytec/phycore_imx91_93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
 source "board/nxp/imx94_evk/Kconfig"
 source "board/nxp/imx95_evk/Kconfig"
+source "board/toradex/aquila-imx95/Kconfig"
 source "board/toradex/smarc-imx95/Kconfig"
 source "board/toradex/verdin-imx95/Kconfig"
 source "board/nxp/imx952_evk/Kconfig"

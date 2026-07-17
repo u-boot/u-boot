@@ -471,6 +471,30 @@ int mtd_block_isreserved(struct mtd_info *mtd, loff_t ofs);
 int mtd_block_isbad(struct mtd_info *mtd, loff_t ofs);
 int mtd_block_markbad(struct mtd_info *mtd, loff_t ofs);
 
+/**
+ * mtd_read_skip_bad() - Read from an MTD device, skipping bad blocks
+ *
+ * Read @len bytes starting at physical offset @from into @buf. On NAND
+ * devices, erase blocks that are marked bad are transparently skipped
+ * so the caller always receives a contiguous stream of good data.
+ *
+ * If @from is not erase-block-aligned, reading starts at the correct
+ * position within the first good block.
+ *
+ * For NOR and other device types without bad-block support, this is
+ * equivalent to a plain mtd_read().
+ *
+ * @mtd:	MTD device
+ * @from:	Start offset (physical, byte address)
+ * @len:	Number of bytes to read
+ * @retlen:	Actual number of bytes read (output)
+ * @buf:	Destination buffer
+ * Return: 0 on success, negative errno on failure. -EUCLEAN is
+ *	   treated as success (ECC corrected).
+ */
+int mtd_read_skip_bad(struct mtd_info *mtd, loff_t from, size_t len,
+		      size_t *retlen, u_char *buf);
+
 #ifndef __UBOOT__
 static inline int mtd_suspend(struct mtd_info *mtd)
 {

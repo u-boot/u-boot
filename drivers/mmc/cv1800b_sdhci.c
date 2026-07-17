@@ -85,7 +85,7 @@ static int cv1800b_sdhci_probe(struct udevice *dev)
 	int ret;
 
 	host->name = dev->name;
-	host->ioaddr = devfdt_get_addr_ptr(dev);
+	host->ioaddr = dev_read_addr_ptr(dev);
 
 	upriv->mmc = &plat->mmc;
 	host->mmc = &plat->mmc;
@@ -93,6 +93,9 @@ static int cv1800b_sdhci_probe(struct udevice *dev)
 	host->mmc->dev = dev;
 	host->ops = &cv1800b_sdhci_sd_ops;
 	host->max_clk = MMC_MAX_CLOCK;
+
+	if (dev_read_bool(dev, "no-1-8-v"))
+		host->quirks |= SDHCI_QUIRK_NO_1_8_V;
 
 	ret = mmc_of_parse(dev, &plat->cfg);
 	if (ret)

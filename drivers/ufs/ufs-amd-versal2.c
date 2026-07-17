@@ -563,4 +563,5 @@ U_BOOT_DRIVER(ufs_versal2_pltfm) = {
 	.id		= UCLASS_UFS,
 	.of_match	= ufs_versal2_ids,
 	.probe		= ufs_versal2_probe,
+	.priv_auto	= sizeof(struct ufs_versal2_priv),
 };

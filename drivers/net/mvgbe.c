@@ -256,8 +256,8 @@ static void set_dram_access(struct mvgbe_registers *regs)
 		win_param.access_ctrl = EWIN_ACCESS_FULL;
 		win_param.high_addr = 0;
 		/* Get bank base and size */
-		win_param.base_addr = gd->bd->bi_dram[i].start;
-		win_param.size = gd->bd->bi_dram[i].size;
+		win_param.base_addr = gd->dram[i].start;
+		win_param.size = gd->dram[i].size;
 		if (win_param.size == 0)
 			win_param.enable = 0;
 		else

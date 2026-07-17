@@ -1,5 +1,5 @@
 config MTD_NAND_CORE
-	tristate
+	bool
 
 source "drivers/mtd/nand/raw/Kconfig"
 

@@ -63,7 +63,7 @@ HOSTCFLAGS_img2srec.o := -pedantic
 hostprogs-always-y += mkenvimage
 mkenvimage-objs := mkenvimage.o os_support.o generated/lib/crc32.o
 
-hostprogs-always-y += dumpimage mkimage fit_info
+hostprogs-always-y += dumpimage mkimage fit_info fit_set_uuid
 hostprogs-always-$(CONFIG_FIT_SIGNATURE) += fit_check_sign
 hostprogs-always-$(CONFIG_TOOLS_LIBCRYPTO) += fdt_add_pubkey
 hostprogs-always-$(CONFIG_TOOLS_LIBCRYPTO) += preload_check_sign
@@ -82,7 +82,8 @@ HOSTCFLAGS_image-host.o += \
 # The following files are synced with upstream DTC.
 # Use synced versions from scripts/dtc/libfdt/.
 LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
-		fdt_strerror.o fdt_empty_tree.o fdt_addresses.o fdt_overlay.o)
+		fdt_strerror.o fdt_empty_tree.o fdt_addresses.o fdt_overlay.o \
+		fdt_check.o)
 
 RSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/rsa/, \
 					rsa-sign.o rsa-verify.o \
@@ -166,6 +167,8 @@ dumpimage-mkimage-objs := aisimage.o \
 dumpimage-objs := $(dumpimage-mkimage-objs) dumpimage.o
 mkimage-objs   := $(dumpimage-mkimage-objs) mkimage.o
 fit_info-objs   := $(dumpimage-mkimage-objs) fit_info.o
+fit_set_uuid-objs := $(dumpimage-mkimage-objs) fit_set_uuid.o \
+	generated/lib/uuid.o
 fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 fdt_add_pubkey-objs   := $(dumpimage-mkimage-objs) fdt_add_pubkey.o
 file2include-objs := file2include.o
@@ -207,6 +210,7 @@ HOSTCFLAGS_fit_image.o += -DMKIMAGE_DTC=\"$(CONFIG_MKIMAGE_DTC_PATH)\"
 
 HOSTLDLIBS_dumpimage := $(HOSTLDLIBS_mkimage)
 HOSTLDLIBS_fit_info := $(HOSTLDLIBS_mkimage)
+HOSTLDLIBS_fit_set_uuid := $(HOSTLDLIBS_mkimage)
 HOSTLDLIBS_fit_check_sign := $(HOSTLDLIBS_mkimage)
 HOSTLDLIBS_fdt_add_pubkey := $(HOSTLDLIBS_mkimage)
 HOSTLDLIBS_preload_check_sign := $(HOSTLDLIBS_mkimage)

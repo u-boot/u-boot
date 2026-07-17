@@ -115,7 +115,7 @@ int board_init(void)
 	ulong size = CONFIG_SYS_MEM_TOP_HIDE;
 
 	gd->ram_size -= size;
-	gd->bd->bi_dram[CONFIG_NR_DRAM_BANKS - 1].size -= size;
+	gd->dram[CONFIG_NR_DRAM_BANKS - 1].size -= size;
 #endif
 	exynos_init();
 
@@ -143,8 +143,8 @@ int dram_init_banksize(void)
 		addr = CFG_SYS_SDRAM_BASE + (i * SDRAM_BANK_SIZE);
 		size = get_ram_size((long *)addr, SDRAM_BANK_SIZE);
 
-		gd->bd->bi_dram[i].start = addr;
-		gd->bd->bi_dram[i].size = size;
+		gd->dram[i].start = addr;
+		gd->dram[i].size = size;
 	}
 
 	return 0;

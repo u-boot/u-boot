@@ -861,6 +861,15 @@ static int rk_nfc_ecc_init(struct rk_nfc *nfc, struct nand_chip *chip)
 	ecc->steps = mtd->writesize / ecc->size;
 	ecc->bytes = DIV_ROUND_UP(ecc->strength * fls(8 * chip->ecc.size), 8);
 
+	rknand->metadata_size = NFC_SYS_DATA_SIZE * ecc->steps;
+
+	if (rknand->metadata_size < NFC_SYS_DATA_SIZE + 2) {
+		dev_err(nfc->dev,
+			"driver needs at least %d bytes of meta data\n",
+			NFC_SYS_DATA_SIZE + 2);
+		return -EIO;
+	}
+
 	if (ecc->bytes * ecc->steps > mtd->oobsize - rknand->metadata_size)
 		return -EINVAL;
 
@@ -973,15 +982,6 @@ static int rk_nfc_nand_chip_init(ofnode node, struct rk_nfc *nfc, int devnum)
 
 	ret = ofnode_read_u32(node, "rockchip,boot-ecc-strength", &tmp);
 	rknand->boot_ecc = ret ? ecc->strength : tmp;
-
-	rknand->metadata_size = NFC_SYS_DATA_SIZE * ecc->steps;
-
-	if (rknand->metadata_size < NFC_SYS_DATA_SIZE + 2) {
-		dev_err(dev,
-			"driver needs at least %d bytes of meta data\n",
-			NFC_SYS_DATA_SIZE + 2);
-		return -EIO;
-	}
 
 	if (!nfc->page_buf) {
 		nfc->page_buf = kzalloc(NFC_MAX_PAGE_SIZE, GFP_KERNEL);

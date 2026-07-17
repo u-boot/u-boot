@@ -22,66 +22,82 @@
 
 	ina226-u1700 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_ram_ina 0>, <&vcc_ram_ina 1>, <&vcc_ram_ina 2>;
 	};
 	ina226-u1732 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_lpd_ina 0>, <&vcc_lpd_ina 1>, <&vcc_lpd_ina 2>;
 	};
 	ina226-u1733 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vccaux_ina 0>, <&vccaux_ina 1>, <&vccaux_ina 2>;
 	};
 	ina226-u1736 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vccaux_lpd_ina 0>, <&vccaux_lpd_ina 1>, <&vccaux_lpd_ina 2>;
 	};
 	ina226-u1737 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_500_ina 0>, <&vcco_500_ina 1>, <&vcco_500_ina 2>;
 	};
 	ina226-u1739 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_501_ina 0>, <&vcco_501_ina 1>, <&vcco_501_ina 2>;
 	};
 	ina226-u1741 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_502_ina 0>, <&vcco_502_ina 1>, <&vcco_502_ina 2>;
 	};
 	ina226-u1743 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_503_ina 0>, <&vcco_503_ina 1>, <&vcco_503_ina 2>;
 	};
 	ina226-u1745 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_700_ina 0>, <&vcco_700_ina 1>, <&vcco_700_ina 2>;
 	};
 	ina226-u1747 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_706_ina 0>, <&vcco_706_ina 1>, <&vcco_706_ina 2>;
 	};
 	ina226-u1750 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&gtyp_avcc_ina 0>, <&gtyp_avcc_ina 1>, <&gtyp_avcc_ina 2>;
 	};
 	ina226-u1752 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&gtyp_avtt_ina 0>, <&gtyp_avtt_ina 1>, <&gtyp_avtt_ina 2>;
 	};
 	ina226-u1754 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&gtyp_avccaux_ina 0>, <&gtyp_avccaux_ina 1>, <&gtyp_avccaux_ina 2>;
 	};
 	ina226-u1756 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&gtm_avcc_ina 0>, <&gtm_avcc_ina 1>, <&gtm_avcc_ina 2>;
 	};
 	ina226-u1758 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&gtm_avtt_ina 0>, <&gtm_avtt_ina 1>, <&gtm_avtt_ina 2>;
 	};
 	ina226-u1760 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&gtm_avccaux_ina 0>, <&gtm_avccaux_ina 1>, <&gtm_avccaux_ina 2>;
 	};
 

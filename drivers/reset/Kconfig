@@ -107,6 +107,15 @@ config RESET_AST2600
 	  Say Y if you want to control reset signals of different peripherals
 	  through System Control Unit (SCU).
 
+config RESET_AST2700
+	bool "Reset controller driver for AST2700 SoCs"
+	depends on DM_RESET && ASPEED_AST2700
+	default y if ASPEED_AST2700
+	help
+	  Support for reset controller on AST2700 SoC.
+	  Say Y if you want to control reset signals of different peripherals
+	  through System Control Unit (SCU).
+
 config RESET_ROCKCHIP
 	bool "Reset controller driver for Rockchip SoCs"
 	depends on DM_RESET && ARCH_ROCKCHIP && CLK

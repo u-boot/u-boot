@@ -73,19 +73,19 @@ static int ddr_bank_cmp(const void *v1, const void *v2)
 }
 
 /* This has to be done post-relocation since gd->bd isn't preserved */
-static void qcom_configure_bi_dram(void)
+static void qcom_configure_dram(void)
 {
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		gd->bd->bi_dram[i].start = prevbl_ddr_banks[i].start;
-		gd->bd->bi_dram[i].size = prevbl_ddr_banks[i].size;
+		gd->dram[i].start = prevbl_ddr_banks[i].start;
+		gd->dram[i].size = prevbl_ddr_banks[i].size;
 	}
 }
 
 int dram_init_banksize(void)
 {
-	qcom_configure_bi_dram();
+	qcom_configure_dram();
 
 	return 0;
 }
@@ -594,15 +594,15 @@ static void build_mem_map(void)
 	 */
 	mem_map[0].phys = 0x1000;
 	mem_map[0].virt = mem_map[0].phys;
-	mem_map[0].size = gd->bd->bi_dram[0].start - mem_map[0].phys;
+	mem_map[0].size = gd->dram[0].start - mem_map[0].phys;
 	mem_map[0].attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN;
 
-	for (i = 1, j = 0; i < ARRAY_SIZE(rbx_mem_map) - 1 && gd->bd->bi_dram[j].size; i++, j++) {
-		mem_map[i].phys = gd->bd->bi_dram[j].start;
+	for (i = 1, j = 0; i < ARRAY_SIZE(rbx_mem_map) - 1 && gd->dram[j].size; i++, j++) {
+		mem_map[i].phys = gd->dram[j].start;
 		mem_map[i].virt = mem_map[i].phys;
-		mem_map[i].size = gd->bd->bi_dram[j].size;
+		mem_map[i].size = gd->dram[j].size;
 		mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | \
 				   PTE_BLOCK_INNER_SHARE;
 	}

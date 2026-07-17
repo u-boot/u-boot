@@ -29,6 +29,13 @@ config VIDEO_FONT_4X6
 	  Provides character bitmap data in header file.
 	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
 
+config VIDEO_FONT_6X8
+	bool "6 x 8 font size"
+	help
+	  Font for video console driver, 6 x 8 pixels.
+	  Provides character bitmap data in header file.
+	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
+
 config VIDEO_FONT_8X16
 	bool "8 x 16 font size"
 	default y
@@ -247,10 +254,10 @@ config SYS_WHITE_ON_BLACK
 	bool "Display console as white on a black background"
 	default y if ARCH_AT91 || ARCH_EXYNOS || ARCH_ROCKCHIP || ARCH_TEGRA || X86 || ARCH_SUNXI
 	help
-	 Normally the display is black on a white background, Enable this
-	 option to invert this, i.e. white on a black background. This can be
-	 better in low-light situations or to reduce eye strain in some
-	 cases.
+	  Normally the display is black on a white background, Enable this
+	  option to invert this, i.e. white on a black background. This can be
+	  better in low-light situations or to reduce eye strain in some
+	  cases.
 
 config NO_FB_CLEAR
 	bool "Skip framebuffer clear"
@@ -508,10 +515,10 @@ config FRAMEBUFFER_VESA_MODE
 
 config VIDEO_LCD_ANX9804
 	bool "ANX9804 bridge chip"
-	---help---
-	Support for the ANX9804 bridge chip, which can take pixel data coming
-	from a parallel LCD interface and translate it on the fy into a DP
-	interface for driving eDP TFT displays. It uses I2C for configuration.
+	help
+	  Support for the ANX9804 bridge chip, which can take pixel data coming
+	  from a parallel LCD interface and translate it on the fy into a DP
+	  interface for driving eDP TFT displays. It uses I2C for configuration.
 
 config ATMEL_LCD
 	bool "Atmel LCD panel support"
@@ -534,7 +541,7 @@ config VIDEO_BCM2835
 	  that U-Boot can access it with full colour depth.
 
 config VIDEO_LCD_ENDEAVORU
-	tristate "Endeavoru 720x1280 DSI video mode panel"
+	bool "Endeavoru 720x1280 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -549,8 +556,8 @@ config VIDEO_LCD_HIMAX_HX8394
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
-	Say Y here if you want to enable support for Himax HX8394
-	dsi 4dl panel.
+	  Say Y here if you want to enable support for Himax HX8394
+	  dsi 4dl panel.
 
 config VIDEO_LCD_ILITEK_ILI9806E
 	bool "Ilitek ILI9806E-based panels"
@@ -561,7 +568,7 @@ config VIDEO_LCD_ILITEK_ILI9806E
 	  is implemented.
 
 config VIDEO_LCD_MOT
-	tristate "Atrix 4G and Droid X2 540x960 DSI video mode panel"
+	bool "Atrix 4G and Droid X2 540x960 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -574,15 +581,15 @@ config VIDEO_LCD_NOVATEK_NT35510
 	bool "Novatek NT35510 DSI LCD panel support"
 	select VIDEO_MIPI_DSI
 	help
-	Say Y here if you want to enable support for Novatek nt35510
-	dsi panel.
+	  Say Y here if you want to enable support for Novatek nt35510
+	  dsi panel.
 
 config VIDEO_LCD_ORISETECH_OTM8009A
 	bool "OTM8009A DSI LCD panel support"
 	select VIDEO_MIPI_DSI
 	help
-	Say Y here if you want to enable support for Orise Technology
-	otm8009a 480x800 dsi 2dl panel.
+	  Say Y here if you want to enable support for Orise Technology
+	  otm8009a 480x800 dsi 2dl panel.
 
 config VIDEO_LCD_LG_LD070WX3
 	bool "LD070WX3 DSI LCD panel support"
@@ -602,13 +609,14 @@ config VIDEO_LCD_LG_LH400WV3
 
 config VIDEO_LCD_RAYDIUM_RM68200
 	bool "RM68200 DSI LCD panel support"
+	depends on BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
-	Say Y here if you want to enable support for Raydium RM68200
-	720x1280 DSI video mode panel.
+	  Say Y here if you want to enable support for Raydium RM68200
+	  720x1280 DSI video mode panel.
 
 config VIDEO_LCD_RENESAS_R61307
-	tristate "Renesas R61307 DSI video mode panel"
+	bool "Renesas R61307 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -617,7 +625,7 @@ config VIDEO_LCD_RENESAS_R61307
 	  resolution and uses 24 bit RGB per pixel.
 
 config VIDEO_LCD_RENESAS_R69328
-	tristate "Renesas R69328 720x1280 DSI video mode panel"
+	bool "Renesas R69328 720x1280 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -626,7 +634,7 @@ config VIDEO_LCD_RENESAS_R69328
 	  resolution and uses 24 bit RGB per pixel.
 
 config VIDEO_LCD_SAMSUNG_LTL106HL02
-	tristate "Samsung LTL106HL02 1920x1080 DSI video mode panel"
+	bool "Samsung LTL106HL02 1920x1080 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -635,7 +643,7 @@ config VIDEO_LCD_SAMSUNG_LTL106HL02
 	  resolution (1920x1080).
 
 config VIDEO_LCD_SHARP_LQ079L1SX01
-	tristate "Sharp LQ079L1SX01 1536x2048 DSI video mode panel"
+	bool "Sharp LQ079L1SX01 1536x2048 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -644,7 +652,7 @@ config VIDEO_LCD_SHARP_LQ079L1SX01
 	  resolution (1536x2048).
 
 config VIDEO_LCD_SHARP_LQ101R1SX01
-	tristate "Sharp LQ101R1SX01 2560x1600 DSI video mode panel"
+	bool "Sharp LQ101R1SX01 2560x1600 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -654,41 +662,41 @@ config VIDEO_LCD_SHARP_LQ101R1SX01
 
 config VIDEO_LCD_SSD2828
 	bool "SSD2828 bridge chip"
-	---help---
-	Support for the SSD2828 bridge chip, which can take pixel data coming
-	from a parallel LCD interface and translate it on the fly into MIPI DSI
-	interface for driving a MIPI compatible LCD panel. It uses SPI for
-	configuration.
+	help
+	  Support for the SSD2828 bridge chip, which can take pixel data coming
+	  from a parallel LCD interface and translate it on the fly into MIPI DSI
+	  interface for driving a MIPI compatible LCD panel. It uses SPI for
+	  configuration.
 
 config VIDEO_LCD_SSD2828_TX_CLK
 	int "SSD2828 TX_CLK frequency (in MHz)"
 	depends on VIDEO_LCD_SSD2828
 	default 0
-	---help---
-	The frequency of the crystal, which is clocking SSD2828. It may be
-	anything in the 8MHz-30MHz range and the exact value should be
-	retrieved from the board schematics. Or in the case of Allwinner
-	hardware, it can be usually found as 'lcd_xtal_freq' variable in
-	FEX files. It can be also set to 0 for selecting PCLK from the
-	parallel LCD interface instead of TX_CLK as the PLL clock source.
+	help
+	  The frequency of the crystal, which is clocking SSD2828. It may be
+	  anything in the 8MHz-30MHz range and the exact value should be
+	  retrieved from the board schematics. Or in the case of Allwinner
+	  hardware, it can be usually found as 'lcd_xtal_freq' variable in
+	  FEX files. It can be also set to 0 for selecting PCLK from the
+	  parallel LCD interface instead of TX_CLK as the PLL clock source.
 
 config VIDEO_LCD_SSD2828_RESET
 	string "RESET pin of SSD2828"
 	depends on VIDEO_LCD_SSD2828
 	default ""
-	---help---
-	The reset pin of SSD2828 chip. This takes a string in the format
-	understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+	help
+	  The reset pin of SSD2828 chip. This takes a string in the format
+	  understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_TDO_TL070WSH30
 	bool "TDO TL070WSH30 DSI LCD panel support"
 	select VIDEO_MIPI_DSI
 	help
-	Say Y here if you want to enable support for TDO TL070WSH30
-	1024x600 DSI video mode panel.
+	  Say Y here if you want to enable support for TDO TL070WSH30
+	  1024x600 DSI video mode panel.
 
 config VIDEO_LCD_HITACHI_TX10D07VM0BAA
-	tristate "Hitachi TX10D07VM0BAA 480x800 MIPI DSI video mode panel"
+	bool "Hitachi TX10D07VM0BAA 480x800 MIPI DSI video mode panel"
 	depends on PANEL && BACKLIGHT
 	select VIDEO_MIPI_DSI
 	help
@@ -697,13 +705,13 @@ config VIDEO_LCD_HITACHI_TX10D07VM0BAA
 
 config VIDEO_LCD_HITACHI_TX18D42VM
 	bool "Hitachi tx18d42vm LVDS LCD panel support"
-	---help---
-	Support for Hitachi tx18d42vm LVDS LCD panels, these panels have a
-	lcd controller which needs to be initialized over SPI, once that is
-	done they work like a regular LVDS panel.
+	help
+	  Support for Hitachi tx18d42vm LVDS LCD panels, these panels have a
+	  lcd controller which needs to be initialized over SPI, once that is
+	  done they work like a regular LVDS panel.
 
 config VIDEO_LCD_SONY_L4F00430T01
-	tristate "Sony L4F00430T01 480x800 LCD panel support"
+	bool "Sony L4F00430T01 480x800 LCD panel support"
 	depends on PANEL
 	help
 	  Say Y here if you want to enable support for Sony L4F00430T01
@@ -712,7 +720,7 @@ config VIDEO_LCD_SONY_L4F00430T01
 	  data comes from RGB.
 
 config VIDEO_LCD_SAMSUNG_S6E63M0
-	tristate "Samsung S6E63M0 controller based panel support"
+	bool "Samsung S6E63M0 controller based panel support"
 	depends on PANEL && BACKLIGHT
 	help
 	  Say Y here if you want to enable support for Samsung S6E63M0
@@ -723,44 +731,44 @@ config VIDEO_LCD_SPI_CS
 	string "SPI CS pin for LCD related config job"
 	depends on VIDEO_LCD_SSD2828 || VIDEO_LCD_HITACHI_TX18D42VM
 	default ""
-	---help---
-	This is one of the SPI communication pins, involved in setting up a
-	working LCD configuration. The exact role of SPI may differ for
-	different hardware setups. The option takes a string in the format
-	understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+	help
+	  This is one of the SPI communication pins, involved in setting up a
+	  working LCD configuration. The exact role of SPI may differ for
+	  different hardware setups. The option takes a string in the format
+	  understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_SPI_SCLK
 	string "SPI SCLK pin for LCD related config job"
 	depends on VIDEO_LCD_SSD2828 || VIDEO_LCD_HITACHI_TX18D42VM
 	default ""
-	---help---
-	This is one of the SPI communication pins, involved in setting up a
-	working LCD configuration. The exact role of SPI may differ for
-	different hardware setups. The option takes a string in the format
-	understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+	help
+	  This is one of the SPI communication pins, involved in setting up a
+	  working LCD configuration. The exact role of SPI may differ for
+	  different hardware setups. The option takes a string in the format
+	  understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_SPI_MOSI
 	string "SPI MOSI pin for LCD related config job"
 	depends on VIDEO_LCD_SSD2828 || VIDEO_LCD_HITACHI_TX18D42VM
 	default ""
-	---help---
-	This is one of the SPI communication pins, involved in setting up a
-	working LCD configuration. The exact role of SPI may differ for
-	different hardware setups. The option takes a string in the format
-	understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+	help
+	  This is one of the SPI communication pins, involved in setting up a
+	  working LCD configuration. The exact role of SPI may differ for
+	  different hardware setups. The option takes a string in the format
+	  understood by 'sunxi_name_to_gpio' function, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_SPI_MISO
 	string "SPI MISO pin for LCD related config job (optional)"
 	depends on VIDEO_LCD_SSD2828
 	default ""
-	---help---
-	This is one of the SPI communication pins, involved in setting up a
-	working LCD configuration. The exact role of SPI may differ for
-	different hardware setups. If wired up, this pin may provide additional
-	useful functionality. Such as bi-directional communication with the
-	hardware and LCD panel id retrieval (if the panel can report it). The
-	option takes a string in the format understood by 'sunxi_name_to_gpio'
-	function, e.g. PH1 for pin 1 of port H.
+	help
+	  This is one of the SPI communication pins, involved in setting up a
+	  working LCD configuration. The exact role of SPI may differ for
+	  different hardware setups. If wired up, this pin may provide additional
+	  useful functionality. Such as bi-directional communication with the
+	  hardware and LCD panel id retrieval (if the panel can report it). The
+	  option takes a string in the format understood by 'sunxi_name_to_gpio'
+	  function, e.g. PH1 for pin 1 of port H.
 
 source "drivers/video/meson/Kconfig"
 
@@ -768,9 +776,9 @@ config VIDEO_MVEBU
 	bool "Armada XP LCD controller"
 	depends on ARCH_MVEBU
 	imply VIDEO_DAMAGE
-	---help---
-	Support for the LCD controller integrated in the Marvell
-	Armada XP SoC.
+	help
+	  Support for the LCD controller integrated in the Marvell
+	  Armada XP SoC.
 
 config VIDEO_OMAP3
 	bool "Enable OMAP3+ DSS Support"
@@ -781,23 +789,23 @@ config VIDEO_OMAP3
 config I2C_EDID
 	bool "Enable EDID library"
 	help
-	   This enables library for accessing EDID data from an LCD panel.
+	  This enables library for accessing EDID data from an LCD panel.
 
 config I2C_EDID_STANDARD
 	bool "Enable standard timings EDID library expansion"
 	depends on I2C_EDID
 	help
-	   This enables standard timings expansion for EDID data from an LCD panel.
+	  This enables standard timings expansion for EDID data from an LCD panel.
 
 config DISPLAY
 	bool "Enable Display support"
 	depends on DM
 	select I2C_EDID
 	help
-	   This supports drivers that provide a display, such as eDP (Embedded
-	   DisplayPort) and HDMI (High Definition Multimedia Interface).
-	   The devices provide a simple interface to start up the display,
-	   read display information and enable it.
+	  This supports drivers that provide a display, such as eDP (Embedded
+	  DisplayPort) and HDMI (High Definition Multimedia Interface).
+	  The devices provide a simple interface to start up the display,
+	  read display information and enable it.
 
 config NXP_TDA19988
 	bool "Enable NXP TDA19988 support"
@@ -811,7 +819,7 @@ config ATMEL_HLCD
 	depends on ARCH_AT91
 	imply VIDEO_DAMAGE
 	help
-	   HLCDC supports video output to an attached LCD panel.
+	  HLCDC supports video output to an attached LCD panel.
 
 config BACKLIGHT_AAT2870
 	bool "Backlight Driver for AAT2870"
@@ -865,7 +873,7 @@ source "drivers/video/exynos/Kconfig"
 
 config LOGICORE_DP_TX
 	bool "Enable Logicore DP TX driver"
-	depends on DISPLAY
+	depends on DISPLAY && AXI
 	help
 	  Enable the driver for the transmitter part of the Xilinx LogiCORE
 	  DisplayPort, a IP core for Xilinx FPGAs that implements a DisplayPort
@@ -930,9 +938,9 @@ config VIDEO_NX
 	bool "Enable video support on Nexell SoC"
 	depends on ARCH_S5P6818 || ARCH_S5P4418
 	help
-	   Nexell SoC supports many video output options including eDP and
-	   HDMI. This option enables this support which can be used on devices
-	   which have an eDP display connected.
+	  Nexell SoC supports many video output options including eDP and
+	  HDMI. This option enables this support which can be used on devices
+	  which have an eDP display connected.
 
 config VIDEO_SEPS525
 	bool "Enable video support for Seps525"
@@ -1018,9 +1026,9 @@ config OSD
 	bool "Enable OSD support"
 	depends on DM
 	help
-	   This supports drivers that provide a OSD (on-screen display), which
-	   is a (usually text-oriented) graphics buffer to show information on
-	   a display.
+	  This supports drivers that provide a OSD (on-screen display), which
+	  is a (usually text-oriented) graphics buffer to show information on
+	  a display.
 
 config SANDBOX_OSD
 	bool "Enable sandbox OSD"
@@ -1213,10 +1221,10 @@ config SPL_SPLASH_SCREEN
 config SPL_SYS_WHITE_ON_BLACK
 	bool "Display console as white on a black background at SPL"
 	help
-	 Normally the display is black on a white background, Enable this
-	 option to invert this, i.e. white on a black background at spl stage.
-	 This can be better in low-light situations or to reduce eye strain in
-	 some cases.
+	  Normally the display is black on a white background, Enable this
+	  option to invert this, i.e. white on a black background at spl stage.
+	  This can be better in low-light situations or to reduce eye strain in
+	  some cases.
 
 config SPL_VIDEO_PCI_DEFAULT_FB_SIZE
 	hex "Default framebuffer size to use if no drivers request it at SPL"
@@ -1279,10 +1287,10 @@ config SPL_SIMPLE_PANEL
 config SPL_SYS_WHITE_ON_BLACK
 	bool "Display console as white on a black background at SPL"
 	help
-	 Normally the display is black on a white background, Enable this
-	 option to invert this, i.e. white on a black background at spl stage.
-	 This can be better in low-light situations or to reduce eye strain in
-	 some cases.
+	  Normally the display is black on a white background, Enable this
+	  option to invert this, i.e. white on a black background at spl stage.
+	  This can be better in low-light situations or to reduce eye strain in
+	  some cases.
 
 config SPL_VIDEO_REMOVE
 	bool "Remove video driver after SPL stage"
@@ -1408,13 +1416,13 @@ config SPL_VIDEO_BPP32
 	  will be empty.
 
 config SPL_HIDE_LOGO_VERSION
-    bool "Hide the version information on the splash screen at SPL"
-    help
-      Normally the U-Boot version string is shown on the display when the
-      splash screen is enabled. This information is not otherwise visible
-      since video starts up after U-Boot has displayed the initial banner.
+	bool "Hide the version information on the splash screen at SPL"
+	help
+	  Normally the U-Boot version string is shown on the display when the
+	  splash screen is enabled. This information is not otherwise visible
+	  since video starts up after U-Boot has displayed the initial banner.
 
-      Enable this option to hide this information.
+	  Enable this option to hide this information.
 endif
 
 endmenu

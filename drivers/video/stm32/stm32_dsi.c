@@ -511,7 +511,7 @@ err_reg:
 	return ret;
 }
 
-struct video_bridge_ops stm32_dsi_ops = {
+static const struct video_bridge_ops stm32_dsi_ops = {
 	.attach = stm32_dsi_attach,
 	.set_backlight = stm32_dsi_set_backlight,
 };

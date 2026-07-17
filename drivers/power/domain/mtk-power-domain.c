@@ -392,7 +392,7 @@ static const struct udevice_id mtk_power_domain_ids[] = {
 	{ /* sentinel */ }
 };
 
-struct power_domain_ops mtk_power_domain_ops = {
+static const struct power_domain_ops mtk_power_domain_ops = {
 	.off = scpsys_power_off,
 	.on = scpsys_power_on,
 	.request = scpsys_power_request,

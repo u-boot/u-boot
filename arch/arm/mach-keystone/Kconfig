@@ -18,9 +18,9 @@ config TARGET_K2L_EVM
 
 config TARGET_K2G_EVM
 	bool "TI Keystone 2 Galileo EVM"
-        select BOARD_LATE_INIT
+	select BOARD_LATE_INIT
 	select SOC_K2G
-        select TI_I2C_BOARD_DETECT
+	select TI_I2C_BOARD_DETECT
 
 endchoice
 

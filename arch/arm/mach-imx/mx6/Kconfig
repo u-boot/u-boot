@@ -95,10 +95,10 @@ config MX6_OCRAM_256KB
 	bool "Support 256KB OCRAM"
 	depends on MX6D || MX6Q
 	help
-	 Allows using the full 256KB size of the OCRAM on the MX6Q/MX6D series
-	 of chips, such as for SPL. The OCRAM of the Lite series of chips is
-	 only 128KB, so using this option will prevent the resulting code from
-	 working on those chips.
+	  Allows using the full 256KB size of the OCRAM on the MX6Q/MX6D series
+	  of chips, such as for SPL. The OCRAM of the Lite series of chips is
+	  only 128KB, so using this option will prevent the resulting code from
+	  working on those chips.
 
 config MX6_DDRCAL
 	bool "Include dynamic DDR calibration routines"
@@ -633,6 +633,26 @@ config TARGET_TQMA6
 	imply CMD_SF
 	imply CMD_DM
 
+config TARGET_TQMA6UL
+	bool "TQ-Systems TQMa6UL[L]x"
+	depends on MX6UL || MX6ULL
+	select TQ_COMMON_SOM
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select OF_SYSTEM_SETUP
+	select DM
+	select DM_I2C
+	select SUPPORT_SPL
+	select SPL_SEPARATE_BSS if SPL
+	imply DM_GPIO
+	imply DM_MMC
+	imply DM_SPI if SPI
+	imply DM_SPI_FLASH if SPI
+	imply SPI
+	help
+	  TQMa6UL[L]x is a TQ SoM with i.MX6UL/i.MX6ULL CPU
+	  The SoM can be used on various baseboards.
+
 config TARGET_UDOO
 	bool "udoo"
 	depends on MX6QDL
@@ -678,10 +698,10 @@ config TARGET_BRPPT2
 	select SUPPORT_SPL
 	select SPL_DM if SPL
 	select SPL_OF_CONTROL if SPL
-        help
-          Support
-          B&R BRPPT2 platform
-          based on Freescale's iMX6 SoC
+	help
+	  Support
+	  B&R BRPPT2 platform
+	  based on Freescale's iMX6 SoC
 
 config TARGET_O4_IMX6ULL_NANO
 	bool "O4-iMX6ULL-NANO"
@@ -739,6 +759,7 @@ source "board/technexion/pico-imx6/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
 source "board/tq/tqma6/Kconfig"
+source "board/tq/tqma6ul/Kconfig"
 source "board/toradex/apalis_imx6/Kconfig"
 source "board/toradex/colibri_imx6/Kconfig"
 source "board/toradex/colibri-imx6ull/Kconfig"

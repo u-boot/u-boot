@@ -53,11 +53,7 @@
 #define FIFO_RXSIZE_MASK	0x7
 #define FIFO_RXSIZE_OFF	0
 #define FIFO_TXFE		0x80
-#if defined(CONFIG_ARCH_IMX8) || defined(CONFIG_ARCH_IMXRT)
 #define FIFO_RXFE		0x08
-#else
-#define FIFO_RXFE		0x40
-#endif
 
 #define WATER_TXWATER_OFF	0
 #define WATER_RXWATER_OFF	16
@@ -523,8 +519,7 @@ static int lpuart_serial_probe(struct udevice *dev)
 static int lpuart_serial_of_to_plat(struct udevice *dev)
 {
 	struct lpuart_serial_plat *plat = dev_get_plat(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
+	ofnode node = dev_ofnode(dev);
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
@@ -534,18 +529,18 @@ static int lpuart_serial_of_to_plat(struct udevice *dev)
 	plat->reg = (void *)addr;
 	plat->flags = dev_get_driver_data(dev);
 
-	if (fdtdec_get_bool(blob, node, "little-endian"))
+	if (ofnode_read_bool(node, "little-endian"))
 		plat->flags &= ~LPUART_FLAG_REGMAP_ENDIAN_BIG;
 
-	if (!fdt_node_check_compatible(blob, node, "fsl,ls1021a-lpuart"))
+	if (ofnode_device_is_compatible(node, "fsl,ls1021a-lpuart"))
 		plat->devtype = DEV_LS1021A;
-	else if (!fdt_node_check_compatible(blob, node, "fsl,imx7ulp-lpuart"))
+	else if (ofnode_device_is_compatible(node, "fsl,imx7ulp-lpuart"))
 		plat->devtype = DEV_MX7ULP;
-	else if (!fdt_node_check_compatible(blob, node, "fsl,vf610-lpuart"))
+	else if (ofnode_device_is_compatible(node, "fsl,vf610-lpuart"))
 		plat->devtype = DEV_VF610;
-	else if (!fdt_node_check_compatible(blob, node, "fsl,imx8qm-lpuart"))
+	else if (ofnode_device_is_compatible(node, "fsl,imx8qm-lpuart"))
 		plat->devtype = DEV_IMX8;
-	else if (!fdt_node_check_compatible(blob, node, "fsl,imxrt-lpuart"))
+	else if (ofnode_device_is_compatible(node, "fsl,imxrt-lpuart"))
 		plat->devtype = DEV_IMXRT;
 
 	return 0;

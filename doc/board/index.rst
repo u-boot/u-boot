@@ -10,6 +10,7 @@ Board-specific doc
    actions/index
    advantech/index
    andestech/index
+   alliedtelesis/index
    allwinner/index
    amlogic/index
    anbernic/index

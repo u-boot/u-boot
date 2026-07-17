@@ -14,7 +14,11 @@ endif
 
 ifdef CONFIG_SANDBOX
 obj-$(CONFIG_$(PHASE_)CMDLINE) += bootm.o
+ifdef CONFIG_UT_DM
+obj-$(CONFIG_$(PHASE_)OF_LIBFDT) += image_fdt.o
 endif
+endif
+obj-$(CONFIG_$(PHASE_)FIT_VERITY) += fit_verity.o
 obj-$(CONFIG_MEASURED_BOOT) += measurement.o
 
 ifdef CONFIG_OF_LIVE
@@ -23,3 +27,5 @@ endif
 obj-$(CONFIG_BOOTMETH_VBE) += vbe_fixup.o
 
 obj-$(CONFIG_UPL) += upl.o
+
+obj-$(CONFIG_IMAGEMAP) += imagemap.o

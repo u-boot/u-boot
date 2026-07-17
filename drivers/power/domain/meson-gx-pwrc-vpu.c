@@ -262,7 +262,7 @@ static int meson_pwrc_vpu_of_xlate(struct power_domain *power_domain,
 	return 0;
 }
 
-struct power_domain_ops meson_gx_pwrc_vpu_ops = {
+static const struct power_domain_ops meson_gx_pwrc_vpu_ops = {
 	.off = meson_pwrc_vpu_off,
 	.on = meson_pwrc_vpu_on,
 	.of_xlate = meson_pwrc_vpu_of_xlate,
@@ -283,24 +283,19 @@ static const struct udevice_id meson_gx_pwrc_vpu_ids[] = {
 static int meson_gx_pwrc_vpu_probe(struct udevice *dev)
 {
 	struct meson_gx_pwrc_vpu_priv *priv = dev_get_priv(dev);
-	u32 hhi_phandle;
-	ofnode hhi_node;
+	struct ofnode_phandle_args args;
 	int ret;
 
 	priv->regmap_ao = syscon_node_to_regmap(dev_ofnode(dev_get_parent(dev)));
 	if (IS_ERR(priv->regmap_ao))
 		return PTR_ERR(priv->regmap_ao);
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "amlogic,hhi-sysctrl",
-			      &hhi_phandle);
+	ret = dev_read_phandle_with_args(dev, "amlogic,hhi-sysctrl", NULL, 0, 0,
+					 &args);
 	if (ret)
 		return ret;
 
-	hhi_node = ofnode_get_by_phandle(hhi_phandle);
-	if (!ofnode_valid(hhi_node))
-		return -EINVAL;
-
-	priv->regmap_hhi = syscon_node_to_regmap(hhi_node);
+	priv->regmap_hhi = syscon_node_to_regmap(args.node);
 	if (IS_ERR(priv->regmap_hhi))
 		return PTR_ERR(priv->regmap_hhi);
 

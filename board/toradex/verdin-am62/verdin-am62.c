@@ -44,7 +44,7 @@ int dram_init_banksize(void)
 		printf("Error setting up memory banksize. %d\n", ret);
 
 	/* Use the detected RAM size, we only support 1 bank right now. */
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	gd->dram[0].size = gd->ram_size;
 
 	return ret;
 }

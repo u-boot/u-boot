@@ -350,23 +350,6 @@ struct tsec_data {
 	u32 mdio_regs_off;
 };
 
-struct tsec_private {
-	struct txbd8 __iomem txbd[TX_BUF_CNT];
-	struct rxbd8 __iomem rxbd[PKTBUFSRX];
-	struct tsec __iomem *regs;
-	struct tsec_mii_mng __iomem *phyregs_sgmii;
-	struct phy_device *phydev;
-	phy_interface_t interface;
-	struct mii_dev *bus;
-	uint phyaddr;
-	uint tbiaddr;
-	char mii_devname[16];
-	u32 flags;
-	uint rx_idx;	/* index of the current RX buffer */
-	uint tx_idx;	/* index of the current TX buffer */
-	struct udevice *dev;
-};
-
 struct tsec_info_struct {
 	struct tsec __iomem *regs;
 	struct tsec_mii_mng __iomem *miiregs_sgmii;

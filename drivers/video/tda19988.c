@@ -522,7 +522,7 @@ static int tda19988_enable(struct udevice *dev, int panel_bpp,
 	return 0;
 }
 
-struct dm_display_ops tda19988_ops = {
+static const struct dm_display_ops tda19988_ops = {
 	.read_edid = tda19988_read_edid,
 	.enable = tda19988_enable,
 };

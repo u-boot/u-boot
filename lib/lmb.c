@@ -540,13 +540,14 @@ static void lmb_reserve_uboot_region(void)
 	ulong pram = 0;
 
 	rsv_start = gd->start_addr_sp - CONFIG_STACK_SIZE;
-	end = gd->ram_top;
+	end = gd->initial_relocaddr;
 
 	/*
 	 * Reserve memory from aligned address below the bottom of U-Boot stack
-	 * until end of RAM area to prevent LMB from overwriting that memory.
+	 * until the original relocation address to prevent LMB from
+	 * overwriting that memory.
 	 */
-	debug("## Current stack ends at 0x%08lx ", (ulong)rsv_start);
+	debug("## Current stack ends at 0x%08lx\n", (ulong)rsv_start);
 
 #ifdef CFG_PRAM
 	pram = env_get_ulong("pram", 10, CFG_PRAM);
@@ -554,12 +555,12 @@ static void lmb_reserve_uboot_region(void)
 #endif
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		if (!gd->bd->bi_dram[bank].size ||
-		    rsv_start < gd->bd->bi_dram[bank].start)
+		if (!gd->dram[bank].size ||
+		    rsv_start < gd->dram[bank].start)
 			continue;
 		/* Watch out for RAM at end of address space! */
-		bank_end = gd->bd->bi_dram[bank].start +
-			gd->bd->bi_dram[bank].size - 1;
+		bank_end = gd->dram[bank].start +
+			gd->dram[bank].size - 1;
 		if (rsv_start > bank_end)
 			continue;
 		if (bank_end > end)
@@ -614,7 +615,6 @@ static void lmb_add_memory(void)
 	phys_addr_t bank_end;
 	phys_size_t size;
 	u64 ram_top = gd->ram_top;
-	struct bd_info *bd = gd->bd;
 
 	if (CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP))
 		return lmb_arch_add_memory();
@@ -624,22 +624,22 @@ static void lmb_add_memory(void)
 		ram_top = 0x100000000ULL;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		size = bd->bi_dram[i].size;
+		size = gd->dram[i].size;
 
 		if (size) {
-			lmb_add(bd->bi_dram[i].start, size);
+			lmb_add(gd->dram[i].start, size);
 			if (!IS_ENABLED(CONFIG_LMB_LIMIT_DMA_BELOW_RAM_TOP))
 				continue;
 
-			bank_end = bd->bi_dram[i].start + size;
+			bank_end = gd->dram[i].start + size;
 
 			/*
 			 * Reserve memory above ram_top as
 			 * no-overwrite so that it cannot be
 			 * allocated
 			 */
-			if (bd->bi_dram[i].start >= ram_top)
-				lmb_reserve(bd->bi_dram[i].start, size,
+			if (gd->dram[i].start >= ram_top)
+				lmb_reserve(gd->dram[i].start, size,
 					    LMB_NOOVERWRITE);
 			else if (bank_end > ram_top)
 				lmb_reserve(ram_top, bank_end - ram_top,

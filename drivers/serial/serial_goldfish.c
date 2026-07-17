@@ -74,8 +74,10 @@ static int goldfish_serial_of_to_plat(struct udevice *dev)
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
-	if (addr != FDT_ADDR_T_NONE)
-		plat->reg = addr;
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->reg = addr;
 
 	return 0;
 }

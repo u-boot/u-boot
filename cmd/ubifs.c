@@ -19,7 +19,7 @@
 static int ubifs_initialized;
 static int ubifs_mounted;
 
-int cmd_ubifs_mount(char *vol_name)
+int cmd_ubifs_mount(const char *vol_name)
 {
 	int ret;
 

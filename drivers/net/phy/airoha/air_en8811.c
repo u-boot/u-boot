@@ -25,6 +25,8 @@
 #include <u-boot/crc.h>
 #include <linux/phy/phy-common-props.h>
 
+#include "air_phy_lib.h"
+
 /* MII Registers */
 #define AIR_AUX_CTRL_STATUS		0x1d
 #define AIR_AUX_CTRL_STATUS_SPEED_MASK	GENMASK(4, 2)
@@ -32,10 +34,6 @@
 #define AIR_AUX_CTRL_STATUS_SPEED_100	0x4
 #define AIR_AUX_CTRL_STATUS_SPEED_1000	0x8
 #define AIR_AUX_CTRL_STATUS_SPEED_2500	0xc
-
-#define AIR_EXT_PAGE_ACCESS		0x1f
-#define AIR_PHY_PAGE_STANDARD		0x0000
-#define AIR_PHY_PAGE_EXTENDED_4		0x0004
 
 #define AIR_PBUS_MODE_ADDR_HIGH		0x1c
 /* MII Registers Page 4 */
@@ -310,166 +308,6 @@ static int air_pbus_reg_write(struct phy_device *phydev,
 	return ret;
 }
 
-static int air_buckpbus_reg_write(struct phy_device *phydev,
-				  u32 pbus_address, u32 pbus_data)
-{
-	int ret, saved_page;
-
-	saved_page = phy_select_page(phydev, AIR_PHY_PAGE_EXTENDED_4);
-	if (saved_page < 0)
-		return saved_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_MODE,
-			AIR_BPBUS_MODE_ADDR_FIXED);
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_WR_ADDR_HIGH,
-			upper_16_bits(pbus_address));
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_WR_ADDR_LOW,
-			lower_16_bits(pbus_address));
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_WR_DATA_HIGH,
-			upper_16_bits(pbus_data));
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_WR_DATA_LOW,
-			lower_16_bits(pbus_data));
-	if (ret < 0)
-		goto restore_page;
-
-restore_page:
-	if (ret < 0)
-		dev_err(phydev->dev, "%s 0x%08x failed: %d\n", __func__,
-			pbus_address, ret);
-
-	return phy_restore_page(phydev, saved_page, ret);
-}
-
-static int air_buckpbus_reg_read(struct phy_device *phydev,
-				 u32 pbus_address, u32 *pbus_data)
-{
-	int pbus_data_low, pbus_data_high;
-	int ret = 0, saved_page;
-
-	saved_page = phy_select_page(phydev, AIR_PHY_PAGE_EXTENDED_4);
-	if (saved_page < 0)
-		return saved_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_MODE,
-			AIR_BPBUS_MODE_ADDR_FIXED);
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_RD_ADDR_HIGH,
-			upper_16_bits(pbus_address));
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_RD_ADDR_LOW,
-			lower_16_bits(pbus_address));
-	if (ret < 0)
-		goto restore_page;
-
-	pbus_data_high = phy_read(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_RD_DATA_HIGH);
-	if (pbus_data_high < 0) {
-		ret = pbus_data_high;
-		goto restore_page;
-	}
-
-	pbus_data_low = phy_read(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_RD_DATA_LOW);
-	if (pbus_data_low < 0) {
-		ret = pbus_data_low;
-		goto restore_page;
-	}
-
-	*pbus_data = pbus_data_low | (pbus_data_high << 16);
-
-restore_page:
-	if (ret < 0)
-		dev_err(phydev->dev, "%s 0x%08x failed: %d\n", __func__,
-			pbus_address, ret);
-
-	return phy_restore_page(phydev, saved_page, ret);
-}
-
-static int air_buckpbus_reg_modify(struct phy_device *phydev,
-				   u32 pbus_address, u32 mask, u32 set)
-{
-	int pbus_data_low, pbus_data_high;
-	u32 pbus_data_old, pbus_data_new;
-	int ret = 0, saved_page;
-
-	saved_page = phy_select_page(phydev, AIR_PHY_PAGE_EXTENDED_4);
-	if (saved_page < 0)
-		return saved_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_MODE,
-			AIR_BPBUS_MODE_ADDR_FIXED);
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_RD_ADDR_HIGH,
-			upper_16_bits(pbus_address));
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_RD_ADDR_LOW,
-			lower_16_bits(pbus_address));
-	if (ret < 0)
-		goto restore_page;
-
-	pbus_data_high = phy_read(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_RD_DATA_HIGH);
-	if (pbus_data_high < 0) {
-		ret = pbus_data_high;
-		goto restore_page;
-	}
-
-	pbus_data_low = phy_read(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_RD_DATA_LOW);
-	if (pbus_data_low < 0) {
-		ret = pbus_data_low;
-		goto restore_page;
-	}
-
-	pbus_data_old = pbus_data_low | (pbus_data_high << 16);
-	pbus_data_new = (pbus_data_old & ~mask) | set;
-	if (pbus_data_new == pbus_data_old)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_WR_ADDR_HIGH,
-			upper_16_bits(pbus_address));
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_WR_ADDR_LOW,
-			lower_16_bits(pbus_address));
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_WR_DATA_HIGH,
-			upper_16_bits(pbus_data_new));
-	if (ret < 0)
-		goto restore_page;
-
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, AIR_BPBUS_WR_DATA_LOW,
-			lower_16_bits(pbus_data_new));
-	if (ret < 0)
-		goto restore_page;
-
-restore_page:
-	if (ret < 0)
-		dev_err(phydev->dev, "%s 0x%08x failed: %d\n", __func__,
-			pbus_address, ret);
-
-	return phy_restore_page(phydev, saved_page, ret);
-}
-
 static int air_write_buf(struct phy_device *phydev, unsigned long address,
 			 unsigned long array_size, const unsigned char *buffer)
 {
@@ -540,12 +378,12 @@ static int an8811hb_check_crc(struct phy_device *phydev,
 	u32 pbus_value;
 
 	/* Configure CRC */
-	ret = air_buckpbus_reg_modify(phydev, set1, AN8811HB_CRC_RD_EN,
-				      AN8811HB_CRC_RD_EN);
+	ret = air_phy_buckpbus_reg_modify(phydev, set1, AN8811HB_CRC_RD_EN,
+					  AN8811HB_CRC_RD_EN);
 	if (ret < 0)
 		return ret;
 
-	ret = air_buckpbus_reg_read(phydev, set1, &pbus_value);
+	ret = air_phy_buckpbus_reg_read(phydev, set1, &pbus_value);
 	if (ret < 0)
 		return ret;
 
@@ -554,14 +392,14 @@ static int an8811hb_check_crc(struct phy_device *phydev,
 	do {
 		mdelay(300);
 
-		ret = air_buckpbus_reg_read(phydev, mon2, &pbus_value);
+		ret = air_phy_buckpbus_reg_read(phydev, mon2, &pbus_value);
 		if (ret < 0)
 			return ret;
 
 		debug("%d: reg 0x%x val 0x%x!\n", __LINE__, mon2, pbus_value);
 
 		if (pbus_value & AN8811HB_CRC_ST) {
-			ret = air_buckpbus_reg_read(phydev, mon3, &pbus_value);
+			ret = air_phy_buckpbus_reg_read(phydev, mon3, &pbus_value);
 			if (ret < 0)
 				return ret;
 
@@ -585,11 +423,11 @@ static int an8811hb_check_crc(struct phy_device *phydev,
 		}
 	} while (--retry);
 
-	ret = air_buckpbus_reg_modify(phydev, set1, AN8811HB_CRC_RD_EN, 0);
+	ret = air_phy_buckpbus_reg_modify(phydev, set1, AN8811HB_CRC_RD_EN, 0);
 	if (ret < 0)
 		return ret;
 
-	ret = air_buckpbus_reg_read(phydev, set1, &pbus_value);
+	ret = air_phy_buckpbus_reg_read(phydev, set1, &pbus_value);
 	if (ret < 0)
 		return ret;
 
@@ -647,9 +485,9 @@ static int an8811hb_surge_protect_cfg(struct phy_device *phydev)
 		return ret;
 	}
 
-	ret = air_buckpbus_reg_modify(phydev, AIR_PHY_CONTROL,
-				      AIR_PHY_CONTROL_SURGE_5R,
-				      AIR_PHY_CONTROL_SURGE_5R);
+	ret = air_phy_buckpbus_reg_modify(phydev, AIR_PHY_CONTROL,
+					  AIR_PHY_CONTROL_SURGE_5R,
+					  AIR_PHY_CONTROL_SURGE_5R);
 	if (ret < 0)
 		return ret;
 
@@ -707,14 +545,14 @@ static int en8811h_load_firmware(struct phy_device *phydev)
 		goto en8811h_load_firmware_out;
 	}
 
-	ret = air_buckpbus_reg_write(phydev, EN8811H_FW_CTRL_1,
-				     EN8811H_FW_CTRL_1_START);
+	ret = air_phy_buckpbus_reg_write(phydev, EN8811H_FW_CTRL_1,
+					 EN8811H_FW_CTRL_1_START);
 	if (ret < 0)
 		goto en8811h_load_firmware_out;
 
-	ret = air_buckpbus_reg_modify(phydev, EN8811H_FW_CTRL_2,
-				      EN8811H_FW_CTRL_2_LOADING,
-				      EN8811H_FW_CTRL_2_LOADING);
+	ret = air_phy_buckpbus_reg_modify(phydev, EN8811H_FW_CTRL_2,
+					  EN8811H_FW_CTRL_2_LOADING,
+					  EN8811H_FW_CTRL_2_LOADING);
 	if (ret < 0)
 		goto en8811h_load_firmware_out;
 
@@ -728,13 +566,13 @@ static int en8811h_load_firmware(struct phy_device *phydev)
 	if (ret < 0)
 		goto en8811h_load_firmware_out;
 
-	ret = air_buckpbus_reg_modify(phydev, EN8811H_FW_CTRL_2,
-				      EN8811H_FW_CTRL_2_LOADING, 0);
+	ret = air_phy_buckpbus_reg_modify(phydev, EN8811H_FW_CTRL_2,
+					  EN8811H_FW_CTRL_2_LOADING, 0);
 	if (ret < 0)
 		goto en8811h_load_firmware_out;
 
-	ret = air_buckpbus_reg_write(phydev, EN8811H_FW_CTRL_1,
-				     EN8811H_FW_CTRL_1_FINISH);
+	ret = air_phy_buckpbus_reg_write(phydev, EN8811H_FW_CTRL_1,
+					 EN8811H_FW_CTRL_1_FINISH);
 	if (ret < 0)
 		goto en8811h_load_firmware_out;
 
@@ -742,8 +580,8 @@ static int en8811h_load_firmware(struct phy_device *phydev)
 	if (ret < 0)
 		goto en8811h_load_firmware_out;
 
-	air_buckpbus_reg_read(phydev, EN8811H_FW_VERSION,
-			      &priv->firmware_version);
+	air_phy_buckpbus_reg_read(phydev, EN8811H_FW_VERSION,
+				  &priv->firmware_version);
 
 	dev_info(phydev->dev, "MD32 firmware version: %08x\n",
 		 priv->firmware_version);
@@ -779,8 +617,8 @@ static int an8811hb_load_firmware(struct phy_device *phydev)
 	if (ret < 0)
 		goto an8811hb_load_firmware_out;
 
-	ret = air_buckpbus_reg_write(phydev, AIR_PHY_FW_CTRL_1,
-				     AIR_PHY_FW_CTRL_1_START);
+	ret = air_phy_buckpbus_reg_write(phydev, AIR_PHY_FW_CTRL_1,
+					 AIR_PHY_FW_CTRL_1_START);
 	if (ret < 0)
 		goto an8811hb_load_firmware_out;
 
@@ -804,8 +642,8 @@ static int an8811hb_load_firmware(struct phy_device *phydev)
 	if (ret < 0)
 		goto an8811hb_load_firmware_out;
 
-	ret = air_buckpbus_reg_write(phydev, AIR_PHY_FW_CTRL_1,
-				     AIR_PHY_FW_CTRL_1_FINISH);
+	ret = air_phy_buckpbus_reg_write(phydev, AIR_PHY_FW_CTRL_1,
+					 AIR_PHY_FW_CTRL_1_FINISH);
 	if (ret < 0)
 		goto an8811hb_load_firmware_out;
 
@@ -818,7 +656,7 @@ static int an8811hb_load_firmware(struct phy_device *phydev)
 	do {
 		mdelay(300);
 
-		ret = air_buckpbus_reg_read(phydev, AIR_PHY_FW_CTRL_1, &reg_val);
+		ret = air_phy_buckpbus_reg_read(phydev, AIR_PHY_FW_CTRL_1, &reg_val);
 		if (ret < 0)
 			goto an8811hb_load_firmware_out;
 
@@ -828,8 +666,8 @@ static int an8811hb_load_firmware(struct phy_device *phydev)
 		debug("%d: reg 0x%x val 0x%x!\n", __LINE__, AIR_PHY_FW_CTRL_1,
 		      reg_val);
 
-		ret = air_buckpbus_reg_write(phydev, AIR_PHY_FW_CTRL_1,
-					     AIR_PHY_FW_CTRL_1_FINISH);
+		ret = air_phy_buckpbus_reg_write(phydev, AIR_PHY_FW_CTRL_1,
+						 AIR_PHY_FW_CTRL_1_FINISH);
 		if (ret < 0)
 			goto an8811hb_load_firmware_out;
 
@@ -839,8 +677,8 @@ static int an8811hb_load_firmware(struct phy_device *phydev)
 	if (ret < 0)
 		goto an8811hb_load_firmware_out;
 
-	air_buckpbus_reg_read(phydev, AIR_PHY_MD32FW_VERSION,
-			      &priv->firmware_version);
+	air_phy_buckpbus_reg_read(phydev, AIR_PHY_MD32FW_VERSION,
+				  &priv->firmware_version);
 
 	debug("MD32 firmware version: %08x\n", priv->firmware_version);
 
@@ -859,17 +697,17 @@ int an8811hb_cko_cfg(struct phy_device *phydev)
 	int ret = 0;
 
 	if (!ofnode_read_bool(node, "airoha,phy-output-clock")) {
-		ret = air_buckpbus_reg_modify(phydev, AN8811HB_CLK_DRV,
-					      AN8811HB_CLK_DRV_CKO_MASK,
-					      AN8811HB_CLK_DRV_CKOPWD    |
-					      AN8811HB_CLK_DRV_CKO_LDPWD |
-					      AN8811HB_CLK_DRV_CKO_LPPWD);
+		ret = air_phy_buckpbus_reg_modify(phydev, AN8811HB_CLK_DRV,
+						  AN8811HB_CLK_DRV_CKO_MASK,
+						  AN8811HB_CLK_DRV_CKOPWD    |
+						  AN8811HB_CLK_DRV_CKO_LDPWD |
+						  AN8811HB_CLK_DRV_CKO_LPPWD);
 		if (ret < 0)
 			return ret;
 
 		debug("CKO Output mode - Disabled\n");
 	} else {
-		ret = air_buckpbus_reg_read(phydev, AN8811HB_HWTRAP2, &pbus_value);
+		ret = air_phy_buckpbus_reg_read(phydev, AN8811HB_HWTRAP2, &pbus_value);
 		if (ret < 0)
 			return ret;
 
@@ -888,13 +726,13 @@ static int en8811h_restart_mcu(struct phy_device *phydev)
 	if (ret < 0)
 		return ret;
 
-	ret = air_buckpbus_reg_write(phydev, EN8811H_FW_CTRL_1,
-				     EN8811H_FW_CTRL_1_START);
+	ret = air_phy_buckpbus_reg_write(phydev, EN8811H_FW_CTRL_1,
+					 EN8811H_FW_CTRL_1_START);
 	if (ret < 0)
 		return ret;
 
-	return air_buckpbus_reg_write(phydev, EN8811H_FW_CTRL_1,
-				      EN8811H_FW_CTRL_1_FINISH);
+	return air_phy_buckpbus_reg_write(phydev, EN8811H_FW_CTRL_1,
+					  EN8811H_FW_CTRL_1_FINISH);
 }
 
 static int air_led_hw_control_set(struct phy_device *phydev, u8 index,
@@ -1083,9 +921,10 @@ static int en8811h_config_serdes_polarity(struct phy_device *phydev)
 	if (pol == PHY_POL_NORMAL)
 		pbus_value |= EN8811H_POLARITY_TX_NORMAL;
 
-	return air_buckpbus_reg_modify(phydev, EN8811H_POLARITY,
-				       EN8811H_POLARITY_RX_REVERSE |
-				       EN8811H_POLARITY_TX_NORMAL, pbus_value);
+	return air_phy_buckpbus_reg_modify(phydev, EN8811H_POLARITY,
+					   EN8811H_POLARITY_RX_REVERSE |
+					   EN8811H_POLARITY_TX_NORMAL,
+					   pbus_value);
 }
 
 static int en8811h_config(struct phy_device *phydev)
@@ -1170,12 +1009,12 @@ static int an8811hb_config(struct phy_device *phydev)
 		priv->mcu_needs_restart = true;
 	}
 
-	ret = air_buckpbus_reg_read(phydev, AN8811HB_PRO_ID, &pbus_value);
+	ret = air_phy_buckpbus_reg_read(phydev, AN8811HB_PRO_ID, &pbus_value);
 	if (ret < 0)
 		return ret;
 	priv->pro_id = (pbus_value & AN8811HB_PRO_ID_VERSION) + 1;
 
-	ret = air_buckpbus_reg_read(phydev, AN8811HB_HWTRAP2, &pbus_value);
+	ret = air_phy_buckpbus_reg_read(phydev, AN8811HB_HWTRAP2, &pbus_value);
 	if (ret < 0)
 		return ret;
 	priv->pkg_sel = (pbus_value & AN8811HB_HWTRAP2_PKG) >> 12;
@@ -1191,8 +1030,8 @@ static int an8811hb_config(struct phy_device *phydev)
 		pbus_value |= AN8811HB_RX_POLARITY_NORMAL;
 
 	debug("1 pbus_value 0x%x\n", pbus_value);
-	ret = air_buckpbus_reg_modify(phydev, AN8811HB_RX_POLARITY,
-				      AN8811HB_RX_POLARITY_NORMAL, pbus_value);
+	ret = air_phy_buckpbus_reg_modify(phydev, AN8811HB_RX_POLARITY,
+					  AN8811HB_RX_POLARITY_NORMAL, pbus_value);
 	if (ret < 0)
 		return ret;
 
@@ -1203,35 +1042,35 @@ static int an8811hb_config(struct phy_device *phydev)
 		pbus_value |= AN8811HB_TX_POLARITY_NORMAL;
 
 	debug("2 pbus_value 0x%x\n", pbus_value);
-	ret = air_buckpbus_reg_modify(phydev, AN8811HB_TX_POLARITY,
-				      AN8811HB_TX_POLARITY_NORMAL, pbus_value);
+	ret = air_phy_buckpbus_reg_modify(phydev, AN8811HB_TX_POLARITY,
+					  AN8811HB_TX_POLARITY_NORMAL, pbus_value);
 	if (ret < 0)
 		return ret;
 
 	/* Configure led gpio pins as output */
 	if (priv->pkg_sel) {
-		ret = air_buckpbus_reg_modify(phydev, AN8811HB_GPIO_OUTPUT,
-					      AN8811HB_GPIO_OUTPUT_MASK,
-					      AN8811HB_GPIO_OUTPUT_0115);
+		ret = air_phy_buckpbus_reg_modify(phydev, AN8811HB_GPIO_OUTPUT,
+						  AN8811HB_GPIO_OUTPUT_MASK,
+						  AN8811HB_GPIO_OUTPUT_0115);
 		if (ret < 0)
 			return ret;
-		ret = air_buckpbus_reg_modify(phydev, AN8811HB_GPIO_SEL_1,
-					      AN8811HB_GPIO_SEL_1_0_MASK |
-					      AN8811HB_GPIO_SEL_1_1_MASK,
-					      AN8811HB_GPIO_SEL_1_0 |
-					      AN8811HB_GPIO_SEL_1_1);
+		ret = air_phy_buckpbus_reg_modify(phydev, AN8811HB_GPIO_SEL_1,
+						  AN8811HB_GPIO_SEL_1_0_MASK |
+						  AN8811HB_GPIO_SEL_1_1_MASK,
+						  AN8811HB_GPIO_SEL_1_0 |
+						  AN8811HB_GPIO_SEL_1_1);
 		if (ret < 0)
 			return ret;
 
-		ret = air_buckpbus_reg_modify(phydev, AN8811HB_GPIO_SEL_2,
-					      AN8811HB_GPIO_SEL_2_15_MASK,
-					      AN8811HB_GPIO_SEL_2_15);
+		ret = air_phy_buckpbus_reg_modify(phydev, AN8811HB_GPIO_SEL_2,
+						  AN8811HB_GPIO_SEL_2_15_MASK,
+						  AN8811HB_GPIO_SEL_2_15);
 		if (ret < 0)
 			return ret;
 	} else {
-		ret = air_buckpbus_reg_modify(phydev, AN8811HB_GPIO_OUTPUT,
-					      AN8811HB_GPIO_OUTPUT_345,
-					      AN8811HB_GPIO_OUTPUT_345);
+		ret = air_phy_buckpbus_reg_modify(phydev, AN8811HB_GPIO_OUTPUT,
+						  AN8811HB_GPIO_OUTPUT_345,
+						  AN8811HB_GPIO_OUTPUT_345);
 		if (ret < 0)
 			return ret;
 	}
@@ -1399,16 +1238,6 @@ static int en8811h_probe(struct phy_device *phydev)
 	phydev->priv = priv;
 
 	return 0;
-}
-
-static int air_phy_read_page(struct phy_device *phydev)
-{
-	return phy_read(phydev, MDIO_DEVAD_NONE, AIR_EXT_PAGE_ACCESS);
-}
-
-static int air_phy_write_page(struct phy_device *phydev, int page)
-{
-	return phy_write(phydev, MDIO_DEVAD_NONE, AIR_EXT_PAGE_ACCESS, page);
 }
 
 U_BOOT_PHY_DRIVER(en8811h) = {

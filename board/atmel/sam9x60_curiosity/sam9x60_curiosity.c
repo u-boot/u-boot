@@ -66,7 +66,7 @@ int misc_init_r(void)
 int board_init(void)
 {
 	/* address of boot parameters */
-	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;
+	gd->bd->bi_boot_params = gd->dram[0].start + 0x100;
 
 	board_leds_init();
 

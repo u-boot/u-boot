@@ -4528,7 +4528,7 @@ static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 		 */
 		if (phy_dev &&
 		    phy_dev->drv->uid == 0xffffffff) {/* Generic phy */
-			dev_warn(port->phy_dev->dev,
+			dev_warn(dev,
 				 "Marking phy as invalid, link will not be checked\n");
 			/* set phy_addr to invalid value */
 			port->phyaddr = PHY_MAX_ADDR;
@@ -4540,7 +4540,7 @@ static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 
 		port->phy_dev = phy_dev;
 		if (!phy_dev) {
-			dev_err(port->phy_dev->dev, "cannot connect to phy\n");
+			dev_err(dev, "cannot connect to phy\n");
 			return;
 		}
 		phy_dev->supported &= PHY_GBIT_FEATURES;
@@ -4731,33 +4731,32 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 
 static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 {
-	int port_node = dev_of_offset(dev);
-	int phy_node;
+	ofnode port_node = dev_ofnode(dev);
+	ofnode phy_node;
 	u32 id;
 	int phyaddr = 0;
-	int fixed_link = 0;
+	ofnode fixed_link;
 	int ret;
 
-	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
-	fixed_link = fdt_subnode_offset(gd->fdt_blob, port_node, "fixed-link");
+	phy_node = ofnode_parse_phandle(port_node, "phy", 0);
+	fixed_link = ofnode_find_subnode(port_node, "fixed-link");
 
-	if (phy_node > 0) {
-		int parent;
+	if (ofnode_valid(phy_node)) {
+		ofnode parent;
 
-		if (fixed_link != -FDT_ERR_NOTFOUND) {
+		if (ofnode_valid(fixed_link)) {
 			/* phy_addr is set to invalid value for fixed links */
 			phyaddr = PHY_MAX_ADDR;
 		} else {
-			phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node,
-						 "reg", 0);
+			phyaddr = ofnode_read_s32_default(phy_node, "reg", 0);
 			if (phyaddr < 0) {
 				dev_err(dev, "could not find phy address\n");
 				return -1;
 			}
 		}
-		parent = fdt_parent_offset(gd->fdt_blob, phy_node);
-		ret = uclass_get_device_by_of_offset(UCLASS_MDIO, parent,
-						     &port->mdio_dev);
+		parent = ofnode_get_parent(phy_node);
+		ret = uclass_get_device_by_ofnode(UCLASS_MDIO, parent,
+						  &port->mdio_dev);
 		if (ret)
 			return ret;
 	} else {
@@ -4771,7 +4770,7 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 		return -EINVAL;
 	}
 
-	id = fdtdec_get_int(gd->fdt_blob, port_node, "port-id", -1);
+	id = dev_read_s32_default(dev, "port-id", -1);
 	if (id == -1) {
 		dev_err(dev, "missing port-id value\n");
 		return -EINVAL;
@@ -4812,7 +4811,7 @@ static void mvpp2_gpio_init(struct mvpp2_port *port)
 /* Ports initialization */
 static int mvpp2_port_probe(struct udevice *dev,
 			    struct mvpp2_port *port,
-			    int port_node,
+			    ofnode port_node,
 			    struct mvpp2 *priv)
 {
 	int err;
@@ -5296,16 +5295,16 @@ static int mvpp2_base_probe(struct udevice *dev)
 	}
 
 	/* Save base addresses for later use */
-	priv->base = devfdt_get_addr_index_ptr(dev, 0);
+	priv->base = dev_read_addr_index_ptr(dev, 0);
 	if (!priv->base)
 		return -EINVAL;
 
 	if (priv->hw_version == MVPP21) {
-		priv->lms_base = devfdt_get_addr_index_ptr(dev, 1);
+		priv->lms_base = dev_read_addr_index_ptr(dev, 1);
 		if (!priv->lms_base)
 			return -EINVAL;
 	} else {
-		priv->iface_base = devfdt_get_addr_index_ptr(dev, 1);
+		priv->iface_base = dev_read_addr_index_ptr(dev, 1);
 		if (!priv->iface_base)
 			return -EINVAL;
 
@@ -5346,13 +5345,11 @@ static int mvpp2_probe(struct udevice *dev)
 	if (priv->hw_version == MVPP21) {
 		int priv_common_regs_num = 2;
 
-		port->base = devfdt_get_addr_index_ptr(
-			dev->parent, priv_common_regs_num + port->id);
+		port->base = dev_read_addr_index_ptr(dev->parent, priv_common_regs_num + port->id);
 		if (!port->base)
 			return -EINVAL;
 	} else {
-		port->gop_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					      "gop-port-id", -1);
+		port->gop_id = ofnode_read_s32_default(dev_ofnode(dev), "gop-port-id", -1);
 		if (port->gop_id == -1) {
 			dev_err(dev, "missing gop-port-id value\n");
 			return -EINVAL;
@@ -5376,7 +5373,7 @@ static int mvpp2_probe(struct udevice *dev)
 		priv->probe_done = 1;
 	}
 
-	err = mvpp2_port_probe(dev, port, dev_of_offset(dev), priv);
+	err = mvpp2_port_probe(dev, port, dev_ofnode(dev), priv);
 	if (err)
 		return err;
 
@@ -5437,13 +5434,11 @@ static struct driver mvpp2_driver = {
  */
 static int mvpp2_base_bind(struct udevice *parent)
 {
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(parent);
 	struct uclass_driver *drv;
 	struct udevice *dev;
 	struct eth_pdata *plat;
 	char *name;
-	int subnode;
+	ofnode subnode;
 	u32 id;
 	int base_id_add;
 
@@ -5456,19 +5451,19 @@ static int mvpp2_base_bind(struct udevice *parent)
 
 	base_id_add = base_id;
 
-	fdt_for_each_subnode(subnode, blob, node) {
+	dev_for_each_subnode(subnode, parent) {
 		/* Increment base_id for all subnodes, also the disabled ones */
 		base_id++;
 
 		/* Skip disabled ports */
-		if (!fdtdec_get_is_enabled(blob, subnode))
+		if (!ofnode_is_enabled(subnode))
 			continue;
 
 		plat = calloc(1, sizeof(*plat));
 		if (!plat)
 			return -ENOMEM;
 
-		id = fdtdec_get_int(blob, subnode, "port-id", -1);
+		id = ofnode_read_s32_default(subnode, "port-id", -1);
 		id += base_id_add;
 
 		name = calloc(1, 16);
@@ -5479,8 +5474,7 @@ static int mvpp2_base_bind(struct udevice *parent)
 		sprintf(name, "mvpp2-%d", id);
 
 		/* Create child device UCLASS_ETH and bind it */
-		device_bind(parent, &mvpp2_driver, name, plat,
-			    offset_to_ofnode(subnode), &dev);
+		device_bind(parent, &mvpp2_driver, name, plat, subnode, &dev);
 	}
 
 	return 0;

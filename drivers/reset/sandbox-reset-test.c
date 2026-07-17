@@ -96,6 +96,20 @@ int sandbox_reset_test_deassert_bulk(struct udevice *dev)
 	return reset_deassert_bulk(sbrt->bulkp);
 }
 
+int sandbox_reset_test_reset(struct udevice *dev)
+{
+	struct sandbox_reset_test *sbrt = dev_get_priv(dev);
+
+	return reset_reset(sbrt->ctlp, 0);
+}
+
+int sandbox_reset_test_reset_bulk(struct udevice *dev)
+{
+	struct sandbox_reset_test *sbrt = dev_get_priv(dev);
+
+	return reset_reset_bulk(sbrt->bulkp, 0);
+}
+
 int sandbox_reset_test_free(struct udevice *dev)
 {
 	struct sandbox_reset_test *sbrt = dev_get_priv(dev);

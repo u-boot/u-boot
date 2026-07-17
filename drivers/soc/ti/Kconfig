@@ -21,8 +21,8 @@ config TI_KEYSTONE_SERDES
 	bool "Keystone SerDes driver for ethernet"
 	depends on ARCH_KEYSTONE
 	help
-	 SerDes driver for Keystone SoC used for ethernet support on TI
-	 K2 platforms.
+	  SerDes driver for Keystone SoC used for ethernet support on TI
+	  K2 platforms.
 
 config TI_PRUSS
 	bool "Support for TI's K3 based Pruss driver"

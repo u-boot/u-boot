@@ -6,7 +6,7 @@
  */
 
 #include <dm.h>
-#include <ec_commands.h>
+#include <cros_ec.h>
 #include <init.h>
 #include <log.h>
 #include <spi_flash.h>

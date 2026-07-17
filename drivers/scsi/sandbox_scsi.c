@@ -128,7 +128,7 @@ static int sandbox_scsi_remove(struct udevice *dev)
 	return 0;
 }
 
-struct scsi_ops sandbox_scsi_ops = {
+static const struct scsi_ops sandbox_scsi_ops = {
 	.exec		= sandbox_scsi_exec,
 	.bus_reset	= sandbox_scsi_bus_reset,
 };

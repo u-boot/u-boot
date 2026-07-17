@@ -35,6 +35,7 @@
 #include <linux/ctype.h>
 #include <linux/lzo.h>
 #include <linux/ioport.h>
+#include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -1142,14 +1143,14 @@ int fdtdec_setup_memory_banksize(void)
 		if (ret != 0)
 			return -EINVAL;
 
-		gd->bd->bi_dram[bank].start = (phys_addr_t)res.start;
-		gd->bd->bi_dram[bank].size =
+		gd->dram[bank].start = (phys_addr_t)res.start;
+		gd->dram[bank].size =
 			(phys_size_t)(res.end - res.start + 1);
 
 		debug("%s: DRAM Bank #%d: start = %pap, size = %pap\n",
 		      __func__, bank,
-		      &gd->bd->bi_dram[bank].start,
-		      &gd->bd->bi_dram[bank].size);
+		      &gd->dram[bank].start,
+		      &gd->dram[bank].size);
 	}
 
 	return 0;
@@ -1822,17 +1823,12 @@ int fdtdec_setup(void)
 	int ret = -ENOENT;
 
 	/*
-	 * If allowing a bloblist, check that first. There was discussion about
-	 * adding an OF_BLOBLIST Kconfig, but this was rejected.
-	 *
-	 * The necessary test is whether the previous phase passed a bloblist,
-	 * not whether this phase creates one.
+	 * If allowing a bloblist, check that first. The necessary test is
+	 * whether the previous phase passed a bloblist, not whether this phase
+	 * creates one.
 	 */
-	if (CONFIG_IS_ENABLED(BLOBLIST) &&
-	    (xpl_prev_phase() != PHASE_TPL ||
-	     IS_ENABLED(CONFIG_TPL_BLOBLIST))) {
-		ret = bloblist_maybe_init();
-		if (!ret) {
+	if (CONFIG_IS_ENABLED(BLOBLIST) && (xpl_phase() > PHASE_TPL)) {
+		if (bloblist_exists()) {
 			gd->fdt_blob = bloblist_find(BLOBLISTT_CONTROL_FDT, 0);
 			if (gd->fdt_blob) {
 				gd->fdt_src = FDTSRC_BLOBLIST;
@@ -1935,7 +1931,7 @@ int fdtdec_resetup(int *rescan)
 
 int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 			   phys_addr_t *basep, phys_size_t *sizep,
-			   struct bd_info *bd)
+			   gd_t *gd_ptr)
 {
 	int addr_cells, size_cells;
 	const u32 *cell, *end;
@@ -1987,8 +1983,8 @@ int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 	}
 	/* Note: if no matching subnode was found we use the parent node */
 
-	if (bd) {
-		memset(bd->bi_dram, '\0', sizeof(bd->bi_dram[0]) *
+	if (gd_ptr) {
+		memset(gd_ptr->dram, '\0', sizeof(gd_ptr->dram[0]) *
 						CONFIG_NR_DRAM_BANKS);
 	}
 
@@ -2004,8 +2000,8 @@ int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 		if (addr_cells == 2)
 			addr += (u64)fdt32_to_cpu(*cell++) << 32UL;
 		addr += fdt32_to_cpu(*cell++);
-		if (bd)
-			bd->bi_dram[bank].start = addr;
+		if (gd_ptr)
+			gd_ptr->dram[bank].start = addr;
 		if (basep && !bank)
 			*basep = (phys_addr_t)addr;
 
@@ -2027,8 +2023,8 @@ int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,
 			}
 		}
 
-		if (bd)
-			bd->bi_dram[bank].size = size;
+		if (gd_ptr)
+			gd_ptr->dram[bank].size = size;
 		total_size += size;
 	}
 

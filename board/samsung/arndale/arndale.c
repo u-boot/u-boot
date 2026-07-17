@@ -67,8 +67,8 @@ int dram_init_banksize(void)
 		addr = CFG_SYS_SDRAM_BASE + (i * SDRAM_BANK_SIZE);
 		size = get_ram_size((long *)addr, SDRAM_BANK_SIZE);
 
-		gd->bd->bi_dram[i].start = addr;
-		gd->bd->bi_dram[i].size = size;
+		gd->dram[i].start = addr;
+		gd->dram[i].size = size;
 	}
 
 	return 0;

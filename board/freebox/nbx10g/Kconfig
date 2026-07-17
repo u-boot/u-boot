@@ -1,0 +1,94 @@
+if TARGET_NBX10G
+
+config SYS_BOARD
+	default "nbx10g"
+
+config SYS_VENDOR
+	default "freebox"
+
+config SYS_CONFIG_NAME
+	default "nbx10g"
+
+config CMD_NBX_EMMCBOOT
+	bool "emmcboot command"
+	depends on MMC_SDHCI_XENON
+	help
+	  Enable the emmcboot command for dual-bank boot from eMMC.
+	  This is a legacy boot format used on this board for many years.
+	  It implements a boot system with two image banks and automatic
+	  fallback on boot failures. The boot order depends on a reboot
+	  tracking counter (nrboot):
+	  - If healthy: try Bank1 (newer) first, then Bank0 (stable)
+	  - If degraded (>= 4 failures): try Bank0 first, then Bank1
+
+	  Requires image_addr and fdt_addr environment variables to be set.
+
+if CMD_NBX_EMMCBOOT
+
+config NBX_MMC_PART_NRBOOT_OFFSET
+	hex "NRBoot counter offset in eMMC"
+	default 0x802000
+	help
+	  Byte offset in eMMC where the reboot tracking counter is stored.
+	  Default: 0x802000 (8MB + 8KB)
+
+config NBX_MMC_PART_BANK0_OFFSET
+	hex "Bank0 image offset in eMMC"
+	default 0x804000
+	help
+	  Byte offset in eMMC where the stable (Bank0) boot image starts.
+	  Default: 0x804000 (8MB + 16KB)
+
+config NBX_MMC_PART_BANK0_SIZE
+	hex "Bank0 image maximum size"
+	default 0x10000000
+	help
+	  Maximum size of the Bank0 boot image.
+	  Default: 0x10000000 (256MB)
+
+config NBX_MMC_PART_BANK1_OFFSET
+	hex "Bank1 image offset in eMMC"
+	default 0x10804000
+	help
+	  Byte offset in eMMC where the newer (Bank1) boot image starts.
+	  Default: 0x10804000 (264MB + 16KB)
+
+config NBX_MMC_PART_BANK1_SIZE
+	hex "Bank1 image maximum size"
+	default 0x10000000
+	help
+	  Maximum size of the Bank1 boot image.
+	  Default: 0x10000000 (256MB)
+
+endif
+
+config CMD_NBX_FBXSERIAL
+	bool "fbxserial command"
+	depends on MMC_SDHCI_XENON
+	help
+	  Enable the fbxserial command to read and display device
+	  serial information from eMMC. This includes:
+	  - Device serial number (type, version, manufacturer, date, number)
+	  - MAC address (used to set ethaddr environment variables)
+	  - Bundle information (if present)
+
+	  The serial info is stored at a fixed offset in the eMMC user area.
+
+	  Subcommands:
+	  - fbxserial show: display serial info (default)
+	  - fbxserial init: initialize ethaddr from serial info
+
+	  Use CONFIG_PREBOOT="fbxserial init" to auto-initialize at boot.
+
+if CMD_NBX_FBXSERIAL
+
+config NBX_MMC_PART_SERIAL_OFFSET
+	hex "Serial info offset in eMMC"
+	default 0x800000
+	help
+	  Byte offset in eMMC where the serial info structure is stored.
+	  Default: 0x800000 (8MB)
+
+endif
+
+endif

@@ -8,22 +8,22 @@ choice
 	optional
 
 config TARGET_VERDIN_AM62P_A53
-        bool "Toradex Verdin AM62P running on A53"
-        select ARM64
-        select BINMAN
-        select OF_SYSTEM_SETUP
-        imply OF_UPSTREAM
+	bool "Toradex Verdin AM62P running on A53"
+	select ARM64
+	select BINMAN
+	select OF_SYSTEM_SETUP
+	imply OF_UPSTREAM
 
 config TARGET_VERDIN_AM62P_R5
-        bool "Toradex Verdin AM62P running on R5"
-        select CPU_V7R
-        select SYS_THUMB_BUILD
-        select K3_LOAD_SYSFW
-        select RAM
-        select SPL_RAM
-        select K3_DDRSS
-        select BINMAN
-        imply SYS_K3_SPL_ATF
+	bool "Toradex Verdin AM62P running on R5"
+	select CPU_V7R
+	select SYS_THUMB_BUILD
+	select K3_LOAD_SYSFW
+	select RAM
+	select SPL_RAM
+	select K3_DDRSS
+	select BINMAN
+	imply SYS_K3_SPL_ATF
 
 endchoice
 

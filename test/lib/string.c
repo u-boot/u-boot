@@ -223,6 +223,40 @@ static int lib_memdup(struct unit_test_state *uts)
 }
 LIB_TEST(lib_memdup, 0);
 
+/** lib_memdup_nul() - unit test for memdup_nul() */
+static int lib_memdup_nul(struct unit_test_state *uts)
+{
+	char buf[BUFLEN];
+	size_t len;
+	char *p, *q;
+
+	/* Zero size should return a buffer containing a single nul byte */
+	p = memdup_nul(NULL, 0);
+	ut_assertnonnull(p);
+	ut_assert(p[0] == '\0');
+	free(p);
+
+	p = memdup_nul(buf, 0);
+	ut_assertnonnull(p);
+	ut_assert(p[0] == '\0');
+	free(p);
+
+	strcpy(buf, TEST_STR);
+	len = sizeof(TEST_STR);
+	p = memdup_nul(buf, len);
+	ut_asserteq_mem(p, buf, len);
+	ut_assert(p[len] == '\0');
+
+	q = memdup_nul(p, len);
+	ut_asserteq_mem(q, buf, len);
+	ut_assert(q[len] == '\0');
+	free(q);
+	free(p);
+
+	return 0;
+}
+LIB_TEST(lib_memdup_nul, 0);
+
 /** lib_strnstr() - unit test for strnstr() */
 static int lib_strnstr(struct unit_test_state *uts)
 {

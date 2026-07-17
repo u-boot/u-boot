@@ -93,7 +93,7 @@ static int do_upl_read(struct cmd_tbl *cmdtp, int flag, int argc,
 	ulong addr;
 	int ret;
 
-	if (argc < 1)
+	if (argc < 2)
 		return CMD_RET_USAGE;
 	addr = hextoul(argv[1], NULL);
 

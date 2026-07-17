@@ -6,14 +6,17 @@
 
 #include <config.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#if IS_ENABLED(CONFIG_ARCH_IMX8M) || IS_ENABLED(CONFIG_IMX93)
+#include <asm/arch/clock.h>
+#endif
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/device.h>
 #include <errno.h>
 #include <fuse.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <malloc.h>
 #include <thermal.h>
@@ -22,10 +25,12 @@
 #define FLAGS_VER2	0x1
 #define FLAGS_VER3	0x2
 #define FLAGS_VER4	0x4
+#define FLAGS_QORIQ	0x8
 
 #define TMR_DISABLE	0x0
 #define TMR_ME		0x80000000
 #define TMR_ALPF	0x0c000000
+#define QORIQ_TMR_ALPF	(0x3 << 24)	/* QorIQ ALPF lives at bits[25:24] */
 #define TMTMIR_DEFAULT	0x00000002
 #define TIER_DISABLE	0x0
 
@@ -33,7 +38,19 @@
 #define TER_ADC_PD		0x40000000
 #define TER_ALPF		0x3
 
+/* default CPU delay time to cool down if over temperature */
 #define IMX_TMU_POLLING_DELAY_MS	5000
+
+/* TRITSR - QorIQ Immediate Temperature Site Register.
+ *
+ * Per LX2160A Reference Manual, Rev. 1 (10/2021) section 28.3.1.24
+ * the calibrated reading lives in TEMP[8:0] and is reported in
+ * degrees Kelvin (integer). The QorIQ regs_v1 variant has no
+ * fractional 0.5 degC bit, unlike the i.MX regs_v2 / VER4 layouts.
+ */
+#define TRITSR_V		BIT(31)		/* reading valid */
+#define TRITSR_TEMP_MASK	GENMASK(8, 0)	/* degrees Kelvin */
+#define TRITSR_KELVIN_OFFSET	273		/* TEMP[8:0] - 273 = degC */
 /*
  * i.MX TMU Registers
  */
@@ -148,11 +165,37 @@ struct imx_tmu_regs_v3 {
 	u32 trim;
 };
 
+/*
+ * fsl,qoriq-tmu (LX2160A, LS1028A, LS1088A, ...). Same TMU IP family as
+ * the i.MX "regs_v1" layout but: site-enable is a discrete TMSR at 0x08
+ * (TMTMIR moves to 0x0C), and the temperature range registers are
+ * variable-length at 0xF10 (a SoC may use fewer than 16). Calibration is
+ * taken from the DT (fsl,tmu-range / fsl,tmu-calibration) exactly like
+ * the i.MX regs_v1 path, so qoriq reuses imx_tmu_calibration()'s scheme.
+ */
+struct qoriq_tmu_regs {
+	u32 tmr;		/* 0x000 mode */
+	u32 tsr;		/* 0x004 status */
+	u32 tmsr;		/* 0x008 monitor-site enable (bit N = site N) */
+	u32 tmtmir;		/* 0x00C measurement interval */
+	u8 res0[0x10];
+	u32 tier;		/* 0x020 interrupt enable */
+	u32 tidr;		/* 0x024 interrupt detect */
+	u8 res1[0x58];
+	u32 ttcfgr;		/* 0x080 temperature config (cal walk) */
+	u32 tscfgr;		/* 0x084 sensor config (cal walk) */
+	u8 res2[0x78];
+	struct imx_tmu_site_regs site[SITES_MAX]; /* 0x100 */
+	u8 res3[0xd10];
+	u32 ttrcr[16];		/* 0xF10 temperature range control */
+};
+
 union tmu_regs {
 	struct imx_tmu_regs regs_v1;
 	struct imx_tmu_regs_v2 regs_v2;
 	struct imx_tmu_regs_v3 regs_v3;
 	struct imx_tmu_regs_v4 regs_v4;
+	struct qoriq_tmu_regs regs_qoriq;
 };
 
 struct imx_tmu_plat {
@@ -189,6 +232,9 @@ static int read_temperature(struct udevice *dev, int *temp)
 		} else if (drv_data & FLAGS_VER4) {
 			val = readl(&pdata->regs->regs_v4.tritsr0);
 			valid = val & 0x80000000;
+		} else if (drv_data & FLAGS_QORIQ) {
+			val = readl(&pdata->regs->regs_qoriq.site[pdata->id].tritsr);
+			valid = val & TRITSR_V;
 		} else {
 			val = readl(&pdata->regs->regs_v1.site[pdata->id].tritsr);
 			valid = val & 0x80000000;
@@ -213,6 +259,19 @@ static int read_temperature(struct udevice *dev, int *temp)
 
 			/* Convert Kelvin to Celsius */
 			*temp -= 273000;
+		} else if (drv_data & FLAGS_QORIQ) {
+			/*
+			 * LX2160A Reference Manual, Rev. 1 (10/2021)
+			 * section 28.3.1.24: TEMP[8:0] is the calibrated
+			 * reading in degrees Kelvin (integer, no 0.5 degC
+			 * bit on the regs_v1 variant). The calibration
+			 * point examples in the same RM section 28.1.3
+			 * use the same Kelvin/Celsius offset:
+			 *   TTR0CR=0x800000E6 -> 230K (-43 degC)
+			 *   TTR1CR=0x8001017D -> 381K (108 degC)
+			 */
+			*temp = ((val & TRITSR_TEMP_MASK) -
+				 TRITSR_KELVIN_OFFSET) * 1000;
 		} else {
 			*temp = (val & 0xff) * 1000;
 		}
@@ -264,6 +323,35 @@ static int imx_tmu_calibration(struct udevice *dev)
 
 	if (drv_data & (FLAGS_VER2 | FLAGS_VER3))
 		return 0;
+
+	if (drv_data & FLAGS_QORIQ) {
+		const fdt32_t *ranges;
+		int n;
+
+		ranges = dev_read_prop(dev, "fsl,tmu-range", &len);
+		if (!ranges || len % 4 ||
+		    len / 4 > (int)ARRAY_SIZE(pdata->regs->regs_qoriq.ttrcr)) {
+			dev_err(dev, "TMU: missing/invalid fsl,tmu-range\n");
+			return -ENODEV;
+		}
+		n = len / 4;
+		for (i = 0; i < n; i++)
+			writel(fdt32_to_cpu(ranges[i]),
+			       &pdata->regs->regs_qoriq.ttrcr[i]);
+
+		calibration = dev_read_prop(dev, "fsl,tmu-calibration", &len);
+		if (!calibration || len % 8) {
+			dev_err(dev, "TMU: invalid calibration data.\n");
+			return -ENODEV;
+		}
+		for (i = 0; i < len; i += 8, calibration += 2) {
+			writel(fdt32_to_cpu(*calibration),
+			       &pdata->regs->regs_qoriq.ttcfgr);
+			writel(fdt32_to_cpu(*(calibration + 1)),
+			       &pdata->regs->regs_qoriq.tscfgr);
+		}
+		return 0;
+	}
 
 	if (drv_data & FLAGS_VER4) {
 		calibration = dev_read_prop(dev, "fsl,tmu-calibration", &len);
@@ -402,6 +490,18 @@ static inline void imx_tmu_mx8mq_init(struct udevice *dev) { }
 
 static void imx_tmu_arch_init(struct udevice *dev)
 {
+	/*
+	 * QorIQ takes its calibration from the DT (fsl,tmu-calibration),
+	 * not from OCOTP fuses, so it has no per-SoC arch init. The #if
+	 * below is still required: the i.MX SoC-ID helpers and fuse API
+	 * (<asm/arch/sys_proto.h>) do not exist in a Layerscape build, so
+	 * the references must be removed at compile time, not merely
+	 * skipped at runtime.
+	 */
+	if (dev_get_driver_data(dev) & FLAGS_QORIQ)
+		return;
+
+#if IS_ENABLED(CONFIG_ARCH_IMX8M) || IS_ENABLED(CONFIG_IMX93)
 	if (is_imx8mm() || is_imx8mn())
 		imx_tmu_mx8mm_mx8mn_init(dev);
 	else if (is_imx8mp())
@@ -412,6 +512,7 @@ static void imx_tmu_arch_init(struct udevice *dev)
 		imx_tmu_mx8mq_init(dev);
 	else
 		dev_err(dev, "Unsupported SoC, TMU calibration not loaded!\n");
+#endif
 }
 
 static void imx_tmu_init(struct udevice *dev)
@@ -443,6 +544,15 @@ static void imx_tmu_init(struct udevice *dev)
 
 		/* Set update_interval */
 		writel(TMTMIR_DEFAULT, &pdata->regs->regs_v4.tmtmir);
+	} else if (drv_data & FLAGS_QORIQ) {
+		/* Disable monitoring */
+		writel(TMR_DISABLE, &pdata->regs->regs_qoriq.tmr);
+
+		/* Disable interrupt, using polling instead */
+		writel(TIER_DISABLE, &pdata->regs->regs_qoriq.tier);
+
+		/* Set update_interval */
+		writel(TMTMIR_DEFAULT, &pdata->regs->regs_qoriq.tmtmir);
 	} else {
 		/* Disable monitoring */
 		writel(TMR_DISABLE, &pdata->regs->regs_v1.tmr);
@@ -511,6 +621,18 @@ static int imx_tmu_enable_msite(struct udevice *dev)
 		/* Enable ME */
 		reg |= TMR_ME;
 		writel(reg, &pdata->regs->regs_v4.tmr);
+	} else if (drv_data & FLAGS_QORIQ) {
+		/* Clear ME, enable every site at once via the discrete TMSR */
+		reg = readl(&pdata->regs->regs_qoriq.tmr);
+		reg &= ~TMR_ME;
+		writel(reg, &pdata->regs->regs_qoriq.tmr);
+
+		writel(GENMASK(SITES_MAX - 1, 0),
+		       &pdata->regs->regs_qoriq.tmsr);
+
+		reg |= QORIQ_TMR_ALPF;
+		reg |= TMR_ME;
+		writel(reg, &pdata->regs->regs_qoriq.tmr);
 	} else {
 		/* Clear the ME before setting MSITE and ALPF*/
 		reg = readl(&pdata->regs->regs_v1.tmr);
@@ -650,6 +772,7 @@ static const struct udevice_id imx_tmu_ids[] = {
 	{ .compatible = "fsl,imx8mm-tmu", .data = FLAGS_VER2, },
 	{ .compatible = "fsl,imx8mp-tmu", .data = FLAGS_VER3, },
 	{ .compatible = "fsl,imx93-tmu", .data = FLAGS_VER4, },
+	{ .compatible = "fsl,qoriq-tmu", .data = FLAGS_QORIQ, },
 	{ }
 };
 

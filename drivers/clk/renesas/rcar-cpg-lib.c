@@ -30,10 +30,6 @@
 #define SDnSRCFC_SHIFT		2
 #define STPnHCK_TABLE		(CPG_SDCKCR_STPnHCK >> SDnSRCFC_SHIFT)
 
-/* Non-constant mask variant of FIELD_GET/FIELD_PREP */
-#define field_get(_mask, _reg) (((_reg) & (_mask)) >> (ffs(_mask) - 1))
-#define field_prep(_mask, _val) (((_val) << (ffs(_mask) - 1)) & (_mask))
-
 static const struct clk_div_table cpg_sdh_div_table[] = {
 	{ 0, 1 }, { 1, 2 }, { STPnHCK_TABLE | 2, 4 }, { STPnHCK_TABLE | 3, 8 },
 	{ STPnHCK_TABLE | 4, 16 }, { 0, 0 },

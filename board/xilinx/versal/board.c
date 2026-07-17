@@ -10,6 +10,7 @@
 #include <env.h>
 #include <efi_loader.h>
 #include <fdtdec.h>
+#include <fwu.h>
 #include <init.h>
 #include <env_internal.h>
 #include <log.h>
@@ -27,7 +28,6 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <versalpl.h>
-#include <zynqmp_firmware.h>
 #include "../common/board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -39,40 +39,15 @@ static xilinx_desc versalpl = {
 };
 #endif
 
-static u8 versal_get_bootmode(void)
-{
-	u8 bootmode;
-	u32 reg = 0;
-
-	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE) && current_el() != 3) {
-		reg = zynqmp_pm_get_bootmode_reg();
-	} else {
-		reg = readl(&crp_base->boot_mode_usr);
-	}
-
-	if (reg >> BOOT_MODE_ALT_SHIFT)
-		reg >>= BOOT_MODE_ALT_SHIFT;
-
-	bootmode = reg & BOOT_MODES_MASK;
-
-	return bootmode;
-}
-
 static u32 versal_multi_boot(void)
 {
 	u8 bootmode = versal_get_bootmode();
-	u32 reg = 0;
 
 	/* Mostly workaround for QEMU CI pipeline */
 	if (bootmode == JTAG_MODE)
 		return 0;
 
-	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE) && current_el() != 3)
-		reg = zynqmp_pm_get_pmc_multi_boot_reg();
-	else
-		reg = readl(PMC_MULTI_BOOT_REG);
-
-	return reg & PMC_MULTI_BOOT_MASK;
+	return versal_pmc_multi_boot();
 }
 
 int board_init(void)
@@ -93,46 +68,10 @@ int board_init(void)
 
 int board_early_init_r(void)
 {
-	u32 val;
-
 	if (current_el() != 3)
 		return 0;
 
-	debug("iou_switch ctrl div0 %x\n",
-	      readl(&crlapb_base->iou_switch_ctrl));
-
-	writel(IOU_SWITCH_CTRL_CLKACT_BIT |
-	       (CONFIG_IOU_SWITCH_DIVISOR0 << IOU_SWITCH_CTRL_DIVISOR0_SHIFT),
-	       &crlapb_base->iou_switch_ctrl);
-
-	/* Global timer init - Program time stamp reference clk */
-	val = readl(&crlapb_base->timestamp_ref_ctrl);
-	val |= CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT;
-	writel(val, &crlapb_base->timestamp_ref_ctrl);
-
-	debug("ref ctrl 0x%x\n",
-	      readl(&crlapb_base->timestamp_ref_ctrl));
-
-	/* Clear reset of timestamp reg */
-	writel(0, &crlapb_base->rst_timestamp);
-
-	/*
-	 * Program freq register in System counter and
-	 * enable system counter.
-	 */
-	writel(CONFIG_COUNTER_FREQUENCY,
-	       &iou_scntr_secure->base_frequency_id_register);
-
-	debug("counter val 0x%x\n",
-	      readl(&iou_scntr_secure->base_frequency_id_register));
-
-	writel(IOU_SCNTRS_CONTROL_EN,
-	       &iou_scntr_secure->counter_control_register);
-
-	debug("scntrs control 0x%x\n",
-	      readl(&iou_scntr_secure->counter_control_register));
-	debug("timer 0x%llx\n", get_ticks());
-	debug("timer 0x%llx\n", get_ticks());
+	versal_timer_setup();
 
 	return 0;
 }
@@ -293,7 +232,8 @@ int board_late_init(void)
 {
 	int ret;
 
-	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) &&
+	    !IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE))
 		configure_capsule_updates();
 
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
@@ -374,6 +314,8 @@ enum env_location env_get_location(enum env_operation op, int prio)
 
 #define DFU_ALT_BUF_LEN		SZ_1K
 
+#if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && \
+	!defined(CONFIG_FWU_MULTI_BANK_UPDATE)
 static void mtd_found_part(u32 *base, u32 *size)
 {
 	struct mtd_info *part, *mtd;
@@ -450,3 +392,39 @@ void configure_capsule_updates(void)
 	update_info.dfu_string = strdup(buf);
 	debug("Capsule DFU: %s\n", update_info.dfu_string);
 }
+#endif
+
+#if defined(CONFIG_FWU_MULTI_BANK_UPDATE)
+
+/* Generate dfu_alt_info from partitions */
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	int ret;
+	struct mtd_info *mtd;
+
+	/*
+	 * It is called multiple times for every image
+	 * per bank that's why enough to set it up once.
+	 */
+	if (env_get("dfu_alt_info"))
+		return;
+
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+	memset(buf, 0, DFU_ALT_BUF_LEN);
+
+	mtd_probe_devices();
+
+	mtd = get_mtd_device_nm("nor0");
+	if (IS_ERR_OR_NULL(mtd))
+		return;
+
+	ret = fwu_gen_alt_info_from_mtd(buf, DFU_ALT_BUF_LEN, mtd);
+	if (ret < 0) {
+		log_err("Error: Failed to generate dfu_alt_info. (%d)\n", ret);
+		return;
+	}
+	log_debug("Make dfu_alt_info: '%s'\n", buf);
+
+	env_set("dfu_alt_info", buf);
+}
+#endif

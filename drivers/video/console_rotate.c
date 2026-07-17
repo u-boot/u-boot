@@ -284,7 +284,7 @@ static int console_putc_xy_3(struct udevice *dev, uint x_frac, uint y, int cp)
 	return VID_TO_POS(fontdata->width);
 }
 
-struct vidconsole_ops console_ops_1 = {
+static const struct vidconsole_ops console_ops_1 = {
 	.putc_xy	= console_putc_xy_1,
 	.move_rows	= console_move_rows_1,
 	.set_row	= console_set_row_1,
@@ -293,7 +293,7 @@ struct vidconsole_ops console_ops_1 = {
 	.select_font	= console_simple_select_font,
 };
 
-struct vidconsole_ops console_ops_2 = {
+static const struct vidconsole_ops console_ops_2 = {
 	.putc_xy	= console_putc_xy_2,
 	.move_rows	= console_move_rows_2,
 	.set_row	= console_set_row_2,
@@ -302,7 +302,7 @@ struct vidconsole_ops console_ops_2 = {
 	.select_font	= console_simple_select_font,
 };
 
-struct vidconsole_ops console_ops_3 = {
+static const struct vidconsole_ops console_ops_3 = {
 	.putc_xy	= console_putc_xy_3,
 	.move_rows	= console_move_rows_3,
 	.set_row	= console_set_row_3,

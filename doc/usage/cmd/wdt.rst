@@ -16,7 +16,7 @@ Synopsis
     wdt start <timeout_ms> [flags]
     wdt stop
     wdt reset
-    wdt expirer [flags]
+    wdt expire [flags]
 
 Description
 -----------

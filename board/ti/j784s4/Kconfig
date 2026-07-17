@@ -9,7 +9,7 @@ config SYS_BOARD
        default "j784s4"
 
 config SYS_VENDOR
-       default "ti"
+	default "ti"
 
 config SYS_CONFIG_NAME
        default "j784s4_evm"
@@ -24,7 +24,7 @@ config SYS_BOARD
        default "j784s4"
 
 config SYS_VENDOR
-       default "ti"
+	default "ti"
 
 config SYS_CONFIG_NAME
        default "j784s4_evm"
@@ -42,7 +42,7 @@ config SYS_BOARD
        default "j784s4"
 
 config SYS_VENDOR
-       default "ti"
+	default "ti"
 
 config SYS_CONFIG_NAME
        default "j784s4_evm"
@@ -57,7 +57,7 @@ config SYS_BOARD
        default "j784s4"
 
 config SYS_VENDOR
-       default "ti"
+	default "ti"
 
 config SYS_CONFIG_NAME
        default "j784s4_evm"

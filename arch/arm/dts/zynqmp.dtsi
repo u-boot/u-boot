@@ -1006,7 +1006,6 @@
 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "alarm", "sec";
-			calibration = <0x7FFF>;
 		};
 
 		sata: ahci@fd0c0000 {

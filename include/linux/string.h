@@ -101,12 +101,12 @@ size_t strcspn(const char *s, const char *reject);
 # define strndup		sandbox_strndup
 #endif
 
-#ifndef __HAVE_ARCH_STRDUP
 extern char * strdup(const char *);
 extern char * strndup(const char *, size_t);
+
 extern const char *strdup_const(const char *s);
 extern void kfree_const(const void *x);
-#endif
+
 #ifndef __HAVE_ARCH_STRSWAB
 extern char * strswab(const char *);
 #endif
@@ -144,7 +144,20 @@ void *memchr_inv(const void *, int, size_t);
  *	memory is available
  *
  */
-char *memdup(const void *src, size_t len);
+void *memdup(const void *src, size_t len);
+
+/**
+ * memdup_nul() - allocate a buffer and copy in the contents, appending a nul byte
+ *
+ * Note that this returns a valid pointer even if @len is 0
+ *
+ * @src: data to copy in
+ * @len: number of bytes to copy
+ * Return: allocated buffer with the copied contents and an extra nul byte,
+ *      or NULL if not enough memory is available
+ *
+ */
+void *memdup_nul(const void *src, size_t len);
 
 unsigned long ustrtoul(const char *cp, char **endp, unsigned int base);
 unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base);

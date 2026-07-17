@@ -470,6 +470,7 @@ int zynqmp_pm_ufs_sram_csr_read(u32 *value);
 int zynqmp_pm_ufs_sram_csr_write(u32 *value);
 int zynqmp_pm_ufs_cal_reg(u32 *value);
 u32 zynqmp_pm_get_pmc_multi_boot_reg(void);
+u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr);
 
 /* Type of Config Object */
 #define PM_CONFIG_OBJECT_TYPE_BASE	0x1U
@@ -533,5 +534,8 @@ extern smc_call_handler_t __data smc_call_handler;
 #define API_ID_MASK		GENMASK(7, 0)
 
 #define PM_DEV_OSPI		(0x1822402aU)
+
+#define PM_REG_PGGS3	0x30004003
+#define PMC_GLOBAL_PGGS3_REG_NODE	0x1824C005
 
 #endif /* _ZYNQMP_FIRMWARE_H_ */

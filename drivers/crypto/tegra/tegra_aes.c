@@ -518,7 +518,7 @@ static int tegra_aes_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	priv->iram_addr = devfdt_get_addr_size_name_ptr(dev, "iram-buffer", &iram_size);
+	priv->iram_addr = dev_read_addr_size_name_ptr(dev, "iram-buffer", &iram_size);
 	if (!priv->iram_addr) {
 		log_debug("%s: Cannot find iram buffer address, binding failed\n", __func__);
 		return -EINVAL;

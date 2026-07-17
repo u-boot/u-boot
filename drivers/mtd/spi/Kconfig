@@ -94,39 +94,39 @@ config SPI_FLASH_SFDP_SUPPORT
 	bool "SFDP table parsing support for SPI NOR flashes"
 	depends on !SPI_FLASH_BAR
 	help
-	 Enable support for parsing and auto discovery of parameters for
-	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
-	 tables as per JESD216 standard.
+	  Enable support for parsing and auto discovery of parameters for
+	  SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
+	  tables as per JESD216 standard.
 
 config SPI_FLASH_SMART_HWCAPS
 	bool "Smart hardware capability detection based on SPI MEM supports_op() hook"
 	default y
 	help
-	 Enable support for smart hardware capability detection based on SPI
-	 MEM supports_op() hook that lets controllers express whether they
-	 can support a type of operation in a much more refined way compared
-	 to using flags like SPI_RX_DUAL, SPI_TX_QUAD, etc.
+	  Enable support for smart hardware capability detection based on SPI
+	  MEM supports_op() hook that lets controllers express whether they
+	  can support a type of operation in a much more refined way compared
+	  to using flags like SPI_RX_DUAL, SPI_TX_QUAD, etc.
 
 config SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT
 	bool "Command extension type is INVERT for Software Reset on boot"
 	help
-	 Because of SFDP information can not be get before boot.
-	 So define command extension type is INVERT when Software Reset on boot only.
+	  Because of SFDP information can not be get before boot.
+	  So define command extension type is INVERT when Software Reset on boot only.
 
 config SPI_FLASH_SOFT_RESET
 	bool "Software Reset support for SPI NOR flashes"
 	help
-	 Enable support for xSPI Software Reset. It will be used to switch from
-	 Octal DTR mode to legacy mode on shutdown and boot (if enabled).
+	  Enable support for xSPI Software Reset. It will be used to switch from
+	  Octal DTR mode to legacy mode on shutdown and boot (if enabled).
 
 config SPI_FLASH_SOFT_RESET_ON_BOOT
 	bool "Perform a Software Reset on boot on flashes that boot in stateful mode"
 	depends on SPI_FLASH_SOFT_RESET
 	help
-	 Perform a Software Reset on boot to allow detecting flashes that are
-	 handed to us in Octal DTR mode. Do not enable this config on flashes
-	 that are not supposed to be handed to U-Boot in Octal DTR mode, even
-	 if they _do_ support the Soft Reset sequence.
+	  Perform a Software Reset on boot to allow detecting flashes that are
+	  handed to us in Octal DTR mode. Do not enable this config on flashes
+	  that are not supposed to be handed to U-Boot in Octal DTR mode, even
+	  if they _do_ support the Soft Reset sequence.
 
 config SPI_FLASH_BAR
 	bool "SPI flash Bank/Extended address register support"
@@ -139,18 +139,18 @@ config SPI_FLASH_LOCK
 	bool "Enable the Locking feature"
 	default y
 	help
-	 Enable the SPI flash lock support. By default this is set to y.
-	 If you intend not to use the lock support you should say n here.
+	  Enable the SPI flash lock support. By default this is set to y.
+	  If you intend not to use the lock support you should say n here.
 
 config SPI_FLASH_UNLOCK_ALL
 	bool "Unlock the entire SPI flash on u-boot startup"
 	default y
 	help
-	 Some flashes tend to power up with the software write protection
-	 bits set. If this option is set, the whole flash will be unlocked.
+	  Some flashes tend to power up with the software write protection
+	  bits set. If this option is set, the whole flash will be unlocked.
 
-	 For legacy reasons, this option default to y. But if you intend to
-	 actually use the software protection bits you should say n here.
+	  For legacy reasons, this option default to y. But if you intend to
+	  actually use the software protection bits you should say n here.
 
 config SPI_FLASH_ATMEL
 	bool "Atmel SPI flash support"
@@ -201,9 +201,9 @@ config SPI_FLASH_S28HX_T
 	bool "Cypress SEMPER Octal (S28) chip support"
 	depends on SPI_FLASH_SPANSION
 	help
-	 Add support for the Cypress S28HL-T and S28HS-T chip. This is a separate
-	 config because the fixup hooks for this flash add extra size overhead.
-	 Boards that don't use the flash can disable this to save space.
+	  Add support for the Cypress S28HL-T and S28HS-T chip. This is a separate
+	  config because the fixup hooks for this flash add extra size overhead.
+	  Boards that don't use the flash can disable this to save space.
 
 config SPI_FLASH_STMICRO
 	bool "STMicro SPI flash support"
@@ -214,9 +214,9 @@ config SPI_FLASH_MT35XU
 	bool "Micron MT35XU chip support"
 	depends on SPI_FLASH_STMICRO
 	help
-	 Add support for the Micron MT35XU chip. This is a separate config
-	 because the fixup hooks for this flash add extra size overhead. Boards
-	 that don't use the flash can disable this to save space.
+	  Add support for the Micron MT35XU chip. This is a separate config
+	  because the fixup hooks for this flash add extra size overhead. Boards
+	  that don't use the flash can disable this to save space.
 
 config SPI_FLASH_SST
 	bool "SST SPI flash support"
@@ -282,7 +282,7 @@ config SPI_FLASH_MTD
 	bool "SPI Flash MTD support"
 	depends on SPI_FLASH && MTD
 	help
-          Enable the MTD support for spi flash layer, this adapter is for
+	  Enable the MTD support for spi flash layer, this adapter is for
 	  translating mtd_read/mtd_write commands into spi_flash_read/write
 	  commands. It is not intended to use it within sf_cmd or the SPI
 	  flash subsystem. Such an adapter is needed for subsystems like
@@ -294,7 +294,7 @@ config SPL_SPI_FLASH_MTD
 	bool "SPI flash MTD support for SPL"
 	depends on SPI_FLASH && SPL
 	help
-          Enable the MTD support for the SPI flash layer in SPL.
+	  Enable the MTD support for the SPI flash layer in SPL.
 
 	  If unsure, say N
 

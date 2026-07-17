@@ -1,0 +1,15 @@
+if TARGET_SCM3005
+
+config SYS_BOARD
+	string
+	default "scm3005"
+
+config SYS_VENDOR
+	string
+	default "axiado"
+
+config SYS_CONFIG_NAME
+	string
+	default "ax3005-scm3005"
+
+endif

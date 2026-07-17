@@ -84,11 +84,11 @@ static int comphy_probe(struct udevice *dev)
 	int res;
 
 	/* Save base addresses for later use */
-	chip_cfg->comphy_base_addr = devfdt_get_addr_index_ptr(dev, 0);
+	chip_cfg->comphy_base_addr = dev_read_addr_index_ptr(dev, 0);
 	if (!chip_cfg->comphy_base_addr)
 		return -EINVAL;
 
-	chip_cfg->hpipe3_base_addr = devfdt_get_addr_index_ptr(dev, 1);
+	chip_cfg->hpipe3_base_addr = dev_read_addr_index_ptr(dev, 1);
 	if (!chip_cfg->hpipe3_base_addr)
 		return -EINVAL;
 

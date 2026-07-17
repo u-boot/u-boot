@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * dts file for KV260 revA Carrier Card
+ * dts file for KV260 revB Carrier Card
  *
  * (C) Copyright 2020 - 2022, Xilinx, Inc.
  * (C) Copyright 2022 - 2025, Advanced Micro Devices, Inc.
@@ -81,6 +81,24 @@
 		gpio-controller;
 		gpios = <&gpio 44 GPIO_ACTIVE_LOW>;
 	};
+
+	vdd_usb_hub: regulator-vdd-usb-hub {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_usb_hub";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	vdd2_usb_hub: regulator-vdd2-usb-hub {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd2_usb_hub";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
 };
 
 &i2c1 { /* I2C_SCK C23/C24 - MIO from SOM */
@@ -156,6 +174,8 @@
 		peer-hub = <&hub_3_0>;
 		i2c-bus = <&hub>;
 		reset-gpios = <&slg_delay 0 10000 10000>;
+		vdd-supply = <&vdd_usb_hub>;
+		vdd2-supply = <&vdd2_usb_hub>;
 	};
 
 	/* 3.0 hub on port 2 */
@@ -200,7 +220,6 @@
 		#size-cells = <0>;
 
 		phy0: ethernet-phy@1 {
-			#phy-cells = <1>;
 			reg = <1>;
 			compatible = "ethernet-phy-id2000.a231";
 			ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
