@@ -122,6 +122,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	openssl \
 	picocom \
 	parted \
+	pkcs11-provider \
 	pkg-config \
 	python-is-python3 \
 	python3 \
