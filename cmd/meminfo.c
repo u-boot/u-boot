@@ -21,42 +21,69 @@ void __weak arch_dump_mem_attrs(void)
 {
 }
 
-static void print_region(const char *name, ulong base, ulong size, ulong *uptop)
+static void print_region(const char *name, phys_addr_t base, phys_addr_t size,
+			 phys_addr_t *uptop)
 {
-	ulong end = base + size;
+	phys_addr_t end = base + size;
 
-	printf("%-12s %13lx %13lx %13lx", name, base, size, end);
-	if (*uptop)
-		printf(" %13lx", *uptop - end);
+	printf("%-12s %13llx %13llx %13llx",
+	       name,
+	       (unsigned long long)base,
+	       (unsigned long long)size,
+	       (unsigned long long)end);
+	if (*uptop > end)
+		printf(" %13llx", (unsigned long long)(*uptop - end));
+	else
+		printf(" %13llx", (unsigned long long)(end - end));
 	putc('\n');
 	*uptop = base;
 }
 
-static void show_lmb(const struct lmb *lmb, ulong *uptop)
+static void show_lmb(const struct lmb *lmb, phys_addr_t *uptop)
 {
-	int i;
+	int i, j;
+	phys_addr_t bank_top[CONFIG_NR_DRAM_BANKS];
+	struct bd_info *bd = gd->bd;
+	bool get_bank;
+
+	for (j = 0; j < CONFIG_NR_DRAM_BANKS; j++)
+		bank_top[j] = bd->bi_dram[j].start + bd->bi_dram[j].size;
 
 	for (i = lmb->used_mem.count - 1; i >= 0; i--) {
 		const struct lmb_region *rgn = alist_get(&lmb->used_mem, i,
 							 struct lmb_region);
 
+		for (j = 0, get_bank = false; j < CONFIG_NR_DRAM_BANKS; j++) {
+			if (rgn->base >= bd->bi_dram[j].start &&
+			    rgn->base < bank_top[j]) {
+				get_bank = true;
+				break;
+			}
+		}
+		if (!get_bank) {
+			log_err("The region (base:0x%llx, size:0x%llx) does not exists in any DRAM bank.\n",
+				(unsigned long long)rgn->base, (unsigned long long)rgn->size);
+			return;
+		}
 		/*
 		 * Assume that the top lmb region is the U-Boot region, so just
 		 * take account of the memory not already reported
 		 */
 		if (lmb->used_mem.count - 1)
-			print_region("lmb", rgn->base, *uptop - rgn->base,
-				     uptop);
+			print_region("lmb", rgn->base, bank_top[j] - rgn->base,
+				     &bank_top[j]);
 		else
-			print_region("lmb", rgn->base, rgn->size, uptop);
-		*uptop = rgn->base;
+			print_region("lmb", rgn->base, rgn->size, &bank_top[j]);
+		bank_top[j] = rgn->base;
 	}
+
+	*uptop = bank_top[0];
 }
 
 static int do_meminfo(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
-	ulong upto, stk_bot;
+	phys_addr_t upto, stk_bot;
 
 	puts("DRAM:  ");
 	print_size(gd->ram_size, "\n");
