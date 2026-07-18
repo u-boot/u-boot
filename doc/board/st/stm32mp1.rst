@@ -572,7 +572,7 @@ Then you update the eMMC with the next U-Boot command :
 a) prepare GPT on eMMC,
    example with 3 partitions, fip, bootfs and roots::
 
-    # setenv emmc_part "name=fip,size=4MiB;name=bootfs,type=linux,bootable,size=64MiB;name=rootfs,type=linux,size=512"
+    # env set emmc_part "name=fip,size=4MiB;name=bootfs,type=linux,bootable,size=64MiB;name=rootfs,type=linux,size=512"
     # gpt write mmc 1 ${emmc_part}
 
 b) copy FSBL, TF-A_ or SPL, on first eMMC boot partition

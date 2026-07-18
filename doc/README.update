@@ -71,7 +71,7 @@ Example .its files
   '/tftpboot/update_uboot.itb', and set the 'updatefile' variable
   appropriately, for example in the U-Boot prompt:
 
-  setenv updatefile /tftpboot/update_uboot.itb
+  env set updatefile /tftpboot/update_uboot.itb
   saveenv
 
   Now, when the system boots up and the update TFTP server specified in the

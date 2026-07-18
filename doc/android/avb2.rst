@@ -128,7 +128,7 @@ After flashing U-Boot don't forget to update environment and write new
 partition table::
 
    => env default -f -a
-   => setenv partitions $partitions_android
+   => env set partitions $partitions_android
    => env save
    => gpt write mmc 1 $partitions_android
 

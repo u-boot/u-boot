@@ -72,7 +72,7 @@ the offset used in the *saves* command.
     Really kill this window [y/n]
     $ srec_cat out.srec -offset -1337982976 -Output out.txt -binary 2>/dev/null
     $ cat out.txt
-    setenv autoload no
+    env set autoload no
     dhcp
     load mmc 0:1 $fdt_addr_r dtb
     load mmc 0:1 $kernel_addr_r snp.efi

@@ -38,7 +38,7 @@ Observe how variables included in strings are handled:
 
 ::
 
-    => setenv var X; echo "a)" ${var} 'b)' '${var}' c) ${var}
+    => env set var X; echo "a)" ${var} 'b)' '${var}' c) ${var}
     a) X b) ${var} c) X
     =>
 

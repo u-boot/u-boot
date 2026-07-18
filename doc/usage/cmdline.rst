@@ -20,11 +20,11 @@ This takes very little code space and offers only basic features:
 - special characters ('$', ';') can be escaped by prefixing with '\',
   for example::
 
-    setenv bootcmd bootm \${address}
+    env set bootcmd bootm \${address}
 
 - You can also escape text by enclosing in single apostrophes, for example::
 
-    setenv addip 'setenv bootargs $bootargs ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off'
+    env set addip 'env set bootargs $bootargs ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off'
 
 Hush shell
 ----------
@@ -36,7 +36,7 @@ This is similar to Bourne shell, with control structures like:
 - `while` ... `do` ... `done`
 - `until` ... `do` ... `done`
 
-Hush supports environment ("global") variables (through setenv / saveenv
+Hush supports environment ("global") variables (through env set / saveenv
 commands) and local shell variables (through standard shell syntax
 `name=value`); only environment variables can be used with the "run" command
 

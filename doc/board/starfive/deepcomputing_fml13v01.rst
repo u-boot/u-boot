@@ -23,7 +23,7 @@ environment
 
 .. code-block:: console
 
-    setenv fdtfile my_device-tree.dtb
+    env set fdtfile my_device-tree.dtb
     env save
 
 Power switch

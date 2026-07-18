@@ -124,10 +124,10 @@ load uImage.
 
 .. code-block:: none
 
-   => setenv ipaddr 10.206.7.133
-   => setenv netmask 255.255.252.0
-   => setenv serverip 10.206.4.143
-   => setenv gateway 10.206.4.1
+   => env set ipaddr 10.206.7.133
+   => env set netmask 255.255.252.0
+   => env set serverip 10.206.4.143
+   => env set gateway 10.206.4.1
 
 If you want to use a flat kernel image such as Image file
 
@@ -256,7 +256,7 @@ as well.
             1000 Bytes/s
    done
    Bytes transferred = 5614 (15ee hex)
-   => setenv bootargs "root=/dev/ram rw console=ttySIF0 ip=dhcp earlycon=sbi"
+   => env set bootargs "root=/dev/ram rw console=ttySIF0 ip=dhcp earlycon=sbi"
    => booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
    ## Loading init Ramdisk from Legacy Image at 88300000 ...
       Image Name:   Linux RootFS

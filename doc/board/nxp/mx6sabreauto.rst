@@ -87,7 +87,7 @@ To configure Falcon mode for the first time, on U-Boot do the following commands
 
 - Setup kernel bootargs::
 
-   # setenv bootargs "console=ttymxc3,115200 root=/dev/mmcblk0p1 rootfstype=ext4 rootwait quiet rw"
+   # env set bootargs "console=ttymxc3,115200 root=/dev/mmcblk0p1 rootfstype=ext4 rootwait quiet rw"
 
 - Prepare args::
 

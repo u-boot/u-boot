@@ -49,7 +49,7 @@ U-Boot generic environment variable ``ethact``.
 
 .. code-block:: bash
 
-    setenv ethact <FEC>
+    env set ethact <FEC>
 
 ***********
 Boot source

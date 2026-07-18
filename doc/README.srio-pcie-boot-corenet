@@ -54,9 +54,9 @@ The example based on P4080DS platform:
 		   NorFlash.
 		c) Set environment variable "bootmaster" to "SRIO1" or "PCIE1" and save
 		   environment for master.
-					setenv bootmaster SRIO1
+					env set bootmaster SRIO1
 				or
-					setenv bootmaster PCIE1
+					env set bootmaster PCIE1
 					saveenv
 		d) Restart up master and it will boot up normally from its NorFlash.
 		   Then, it will finish necessary configurations for slave's boot from

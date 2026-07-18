@@ -43,7 +43,7 @@ Examples
 
 ::
 
-    => setenv ntpserverip 109.190.177.205
+    => env set ntpserverip 109.190.177.205
     => date
     Date: 2025-06-16 (Monday)    Time: 15:19:35
     => date reset
@@ -55,7 +55,7 @@ Examples
     Date: 2025-06-16 Time: 15:19:43
     => date
     Date: 2025-06-16 (Monday)    Time: 15:19:47
-    => setenv timeoffset 7200
+    => env set timeoffset 7200
     => sntp
     Date: 2025-06-16 Time: 17:19:55
     => date

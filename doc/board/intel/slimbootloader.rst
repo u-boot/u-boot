@@ -104,8 +104,8 @@ Download it from http://downloads.yoctoproject.org/releases/yocto/yocto-2.0/mach
 
 3. Update boot environment values on shell::
 
-   => setenv bootfile vmlinuz
-   => setenv bootdev scsi
+   => env set bootfile vmlinuz
+   => env set bootdev scsi
    => boot
 
 Build Instruction for Slim Bootloader for LeafHill (APL) target

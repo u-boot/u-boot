@@ -205,8 +205,8 @@ Use ``$partitions_android`` as current partition definitions:
 
 .. prompt:: bash =>
 
-  setenv partitions_linux $partitions
-  setenv partitions $partitions_android
+  env set partitions_linux $partitions
+  env set partitions $partitions_android
   env save
 
 Format eMMC to have Android partition table:
@@ -586,17 +586,17 @@ First, prepare the ``boot.txt`` file with OS boot instructions, for example:
 
 .. code-block:: bash
 
-  setenv mmcroot     2
-  setenv console     ttySAC0,115200n8
-  setenv kernel_file Image
-  setenv fdtfile     exynos/exynos850-e850-96.dtb
-  setenv loadaddr    0x80000000
-  setenv fdt_addr_r  0x8c000000
+  env set mmcroot     2
+  env set console     ttySAC0,115200n8
+  env set kernel_file Image
+  env set fdtfile     exynos/exynos850-e850-96.dtb
+  env set loadaddr    0x80000000
+  env set fdt_addr_r  0x8c000000
 
   echo Booting Linux from eMMC...
   mmc dev $mmcdev
   mmc rescan
-  setenv bootargs console=$console root=/dev/mmcblk${mmcdev}p${mmcroot} rootwait rw
+  env set bootargs console=$console root=/dev/mmcblk${mmcdev}p${mmcroot} rootwait rw
   load mmc $mmcdev:$mmcroot $fdt_addr_r /boot/$fdtfile
   load mmc $mmcdev:$mmcroot $loadaddr /boot/$kernel_file
   booti $loadaddr - $fdt_addr_r
@@ -735,7 +735,7 @@ defined in ``$partitions``, it's enough to only set ``$bootdev`` like this:
 
 .. prompt:: bash =>
 
-  setenv bootdev usb
+  env set bootdev usb
   env save
 
 Another thing to be aware of: in order to perform USB boot the USB PHY kernel
@@ -808,7 +808,7 @@ Follow the instructions below to boot from a USB storage device:
 
    .. prompt:: bash =>
 
-     setenv bootdev usb
+     env set bootdev usb
      env save
 
 6. Erase eMMC partition table to make U-Boot use ESP from USB drive:

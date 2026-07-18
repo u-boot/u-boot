@@ -164,9 +164,9 @@ via TFTP in the same manner as the other components are downloaded:
             base 0
 
     rsip_ipl_boot_ca0= /* Start TFA BL31, OPTEE-OS, U-Boot, Linux on Cortex-A720AE core 0 */   \
-            setenv ipaddr 192.168.1.10 &&                                                      \
-            setenv serverip 192.168.1.1 &&                                                     \
-            setenv netmask 255.255.255.0 &&                                                    \
+            env set ipaddr 192.168.1.10 &&                                                     \
+            env set serverip 192.168.1.1 &&                                                    \
+            env set netmask 255.255.255.0 &&                                                   \
                                                                                                \
             tftp ${rsip_ipl_scp_ep} scp.bin &&                                                 \
             tftp ${rsip_ipl_tfa_ep} bl31.bin &&                                                \
@@ -182,7 +182,6 @@ via TFTP in the same manner as the other components are downloaded:
                                                                                                \
             rproc load 13 ${rsip_ipl_tfa_ep} 4 &&          /* Set up Cortex-A720AE Core 0 */   \
             rproc start 13                                 /* Start Cortex-A720AE Core 0 */
-
 
 .. note::
 

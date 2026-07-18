@@ -201,8 +201,8 @@ To boot kernel from eMMC, use the following commands:
 
 .. prompt:: bash =>
 
-  setenv mmcdev 0
-  setenv bootpart 0
+  env set mmcdev 0
+  env set bootpart 0
   boot
 
 OSPI:
@@ -240,7 +240,7 @@ To boot kernel from OSPI, at the U-Boot prompt:
 
 .. prompt:: bash =>
 
-  setenv boot ubi
+  env set boot ubi
   boot
 
 UART:

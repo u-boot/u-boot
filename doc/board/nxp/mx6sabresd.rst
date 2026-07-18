@@ -103,7 +103,7 @@ To configure Falcon mode for the first time, on U-Boot do the following commands
 
 - Setup the IP server::
 
-   # setenv serverip <server_ip_address>
+   # env set serverip <server_ip_address>
 
 - Download dtb file::
 
@@ -119,7 +119,7 @@ To configure Falcon mode for the first time, on U-Boot do the following commands
 
 - Setup kernel bootargs::
 
-   # setenv bootargs "console=ttymxc0,115200 root=/dev/mmcblk1p1 rootfstype=ext4 rootwait quiet rw"
+   # env set bootargs "console=ttymxc0,115200 root=/dev/mmcblk1p1 rootfstype=ext4 rootwait quiet rw"
 
 - Prepare args::
 
