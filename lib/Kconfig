@@ -493,6 +493,7 @@ config TPM
 	bool "Trusted Platform Module (TPM) Support"
 	depends on DM
 	imply DM_RNG
+	imply DEVRES
 	select SHA1
 	help
 	  This enables support for TPMs which can be used to provide security

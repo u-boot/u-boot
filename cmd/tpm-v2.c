@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <log.h>
 #include <mapmem.h>
+#include <malloc.h>
 #include <tpm-common.h>
 #include <tpm-v2.h>
 #include "tpm-user-utils.h"
@@ -150,10 +151,11 @@ static int do_tpm_pcr_read(struct cmd_tbl *cmdtp, int flag, int argc,
 	u32 index, rc;
 	int algo_len;
 	unsigned int updates;
-	void *data;
+	u8 *data;
 	int ret;
+	u32 pcr_start, pcr_end;
 
-	if (argc < 3 || argc > 4)
+	if (argc > 4)
 		return CMD_RET_USAGE;
 	if (argc == 4) {
 		algo = tpm2_name_to_algorithm(argv[3]);
@@ -168,25 +170,51 @@ static int do_tpm_pcr_read(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	priv = dev_get_uclass_priv(dev);
 	if (!priv)
-		return -EINVAL;
+		return CMD_RET_FAILURE;
 
-	index = simple_strtoul(argv[1], NULL, 0);
-	if (index >= priv->pcr_count)
-		return -EINVAL;
-
-	data = map_sysmem(simple_strtoul(argv[2], NULL, 0), 0);
-
-	rc = tpm2_pcr_read(dev, index, priv->pcr_select_min, algo,
-			   data, algo_len, &updates);
-	if (!rc) {
-		printf("PCR #%u %s %d byte content (%u known updates):\n", index,
-		       tpm2_algorithm_name(algo), algo_len, updates);
-		print_byte_string(data, algo_len);
+	if (argc >= 2) {
+		pcr_start = simple_strtoul(argv[1], NULL, 0);
+		if (pcr_start >= priv->pcr_count) {
+			log_err("Index %u out of range (max %u)\n", pcr_start, priv->pcr_count - 1);
+			return CMD_RET_FAILURE;
+		}
+		pcr_end = pcr_start + 1;
+	} else {
+		pcr_start = 0;
+		pcr_end = priv->pcr_count;
 	}
 
-	unmap_sysmem(data);
+	if (argc >= 3) {
+		data = map_sysmem(simple_strtoul(argv[2], NULL, 0), 0);
+	} else {
+		data = malloc(algo_len);
+		if (!data) {
+			log_err("Failed to allocate %u bytes for PCR data\n", algo_len);
+			return CMD_RET_FAILURE;
+		}
+	}
 
-	return report_return_code(rc);
+	printf("%8s:\n", tpm2_algorithm_name(algo));
+	for (index = pcr_start; index < pcr_end; ++index) {
+		printf("%6u: ", index);
+		rc = tpm2_pcr_read(dev, index, priv->pcr_select_min, algo,
+				   data, algo_len, &updates);
+		if (rc == 0) {
+			printf("0x");
+			for (int i = 0; i < algo_len; ++i)
+				printf("%02X", data[i]);
+			printf(" (%u known updates)\n", updates);
+		} else {
+			log_err("PCR #%u read failed: %d\n", index, rc);
+			ret = report_return_code(rc);
+		}
+	}
+	if (argc >= 3)
+		unmap_sysmem(data);
+	else
+		free(data);
+
+	return ret;
 }
 
 static int do_tpm_get_capability(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -548,10 +576,13 @@ U_BOOT_CMD(tpm2, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    Extend PCR #<pcr> with digest at <digest_addr> with digest_algo.\n"
 "    <pcr>: index of the PCR\n"
 "    <digest_addr>: address of digest of digest_algo type (defaults to SHA256)\n"
-"pcr_read <pcr> <digest_addr> [<digest_algo>]\n"
+"pcr_read [<pcr> [<digest_addr> [<digest_algo>]]]\n"
 "    Read PCR #<pcr> to memory address <digest_addr> with <digest_algo>.\n"
-"    <pcr>: index of the PCR\n"
-"    <digest_addr>: address of digest of digest_algo type (defaults to SHA256)\n"
+"    With no arguments, print all PCR registers.\n"
+"    If only <pcr> is specified, a buffer is allocated internally.\n"
+"    <pcr>: index of the PCR (optional, defaults to all PCRs)\n"
+"    <digest_addr>: address of digest of digest_algo type (optional)\n"
+"    <digest_algo>: digest algorithm type (defaults to SHA256)\n"
 "get_capability <capability> <property> <addr> <count>\n"
 "    Read and display <count> entries indexed by <capability>/<property>.\n"
 "    Values are 4 bytes long and are written at <addr>.\n"
