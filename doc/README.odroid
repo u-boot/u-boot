@@ -200,7 +200,7 @@ Odroid #
 Note that this automatically sets the many IP address related variables in
 U-Boot that is obtained from the DHCP server.
 
-Odroid # printenv ipaddr netmask gatewayip dnsip
+Odroid # env print ipaddr netmask gatewayip dnsip
 ipaddr=192.168.1.10
 netmask=255.255.255.0
 gatewayip=192.168.1.1
@@ -256,7 +256,7 @@ Loading: ####
 	 40 KiB/s
 done
 Bytes transferred = 46935 (b757 hex)
-Odroid # printenv bootargs
+Odroid # env print bootargs
 bootargs=Please use defined boot
 Odroid # env set bootargs console=ttySAC1,115200n8 root=/dev/mmcblk0p2 rootwait
 Odroid # bootz 40080000 - 42000000

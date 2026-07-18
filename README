@@ -754,7 +754,7 @@ The following options need to be configured:
 		directly type `$name' at the command prompt.
 
 		Global environment variables are those you use
-		env set/printenv to work with. To run a command stored
+		env set/env print to work with. To run a command stored
 		in such a variable, you need to use the run command,
 		and you must not use the '$' sign to access them.
 
@@ -1655,15 +1655,15 @@ The "bootm" command is used to boot an application that is stored in
 memory (RAM or Flash). In case of a Linux kernel image, the contents
 of the "bootargs" environment variable is passed to the kernel as
 parameters. You can check and modify this variable using the
-"printenv" and "env set" commands:
+"env print" and "env set" commands:
 
 
-	=> printenv bootargs
+	=> env print bootargs
 	bootargs=root=/dev/ram
 
 	=> env set bootargs root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
 
-	=> printenv bootargs
+	=> env print bootargs
 	bootargs=root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
 
 	=> bootm 40020000
