@@ -198,8 +198,7 @@ def test_tpm2_pcr_read(ubman):
     updates = int(re.findall(r'\d+', str)[0])
 
     # Check the output value
-    assert 'PCR #10 sha256 32 byte content' in read_pcr
-    assert '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00' in read_pcr
+    assert 'sha256:\r\r\n    10: 0x0000000000000000000000000000000000000000000000000000000000000000' in read_pcr
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
 @pytest.mark.notbuildconfigspec('target_chromebook_coral')
@@ -230,8 +229,7 @@ def test_tpm2_pcr_extend(ubman):
     read_pcr = ubman.run_command('tpm2 pcr_read 10 0x%x' % (ram + 0x20))
     output = ubman.run_command('echo $?')
     assert output.endswith('0')
-    assert 'f5 a5 fd 42 d1 6a 20 30 27 98 ef 6e d3 09 97 9b' in read_pcr
-    assert '43 00 3d 23 20 d9 f0 e8 ea 98 31 a9 27 59 fb 4b' in read_pcr
+    assert 'sha256:\r\r\n    10: 0xF5A5FD42D16A20302798EF6ED309979B43003D2320D9F0E8EA9831A92759FB4B' in read_pcr
 
     str = re.findall(r'\d+ known updates', read_pcr)[0]
     new_updates = int(re.findall(r'\d+', str)[0])
@@ -244,8 +242,7 @@ def test_tpm2_pcr_extend(ubman):
     read_pcr = ubman.run_command('tpm2 pcr_read 10 0x%x' % (ram + 0x20))
     output = ubman.run_command('echo $?')
     assert output.endswith('0')
-    assert '7a 05 01 f5 95 7b df 9c b3 a8 ff 49 66 f0 22 65' in read_pcr
-    assert 'f9 68 65 8b 7a 9c 62 64 2c ba 11 65 e8 66 42 f5' in read_pcr
+    assert '10: 0x7A0501F5957BDF9CB3A8FF4966F02265F968658B7A9C62642CBA1165E86642F5' in read_pcr
 
     str = re.findall(r'\d+ known updates', read_pcr)[0]
     new_updates = int(re.findall(r'\d+', str)[0])

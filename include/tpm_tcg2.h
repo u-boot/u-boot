@@ -162,12 +162,29 @@ struct tcg_efi_spec_id_event {
  * @log_position:	Current entry position
  * @log_size:		Log space available
  * @found:		Boolean indicating if an existing log was discovered
+ * @allocated:		Boolean indicating that the log was allocated by u-boot
+ * @final_buffer:	finalevent config table buffer. Only used for EFI
+ * @final_position:	current position of 'final_buffer'. Only used for EFI
+ * @last_event_size: 	Size of the last event. Only used for EFI
+ * @get_event_called:	true if GetEventLog has been invoked at least once.
+ * 			Only used for EFI
+ * @ebs_called:		true if ExitBootServices has been invoked.
+ * 			Only used for EFI
+ * @truncated:		true if the 'buffer' is truncated.
+ * 			Only used for EFI
  */
 struct tcg2_event_log {
 	u8 *log;
 	u32 log_position;
 	u32 log_size;
 	bool found;
+	bool allocated;
+	void *final_buffer;
+	u32 final_position;
+	u32 last_event_size;
+	bool get_event_called;
+	bool ebs_called;
+	bool truncated;
 };
 
 /**
@@ -263,26 +280,6 @@ int tcg2_measure_data(struct udevice *dev, struct tcg2_event_log *elog,
 			  event)
 
 /**
- * Prepare the event log buffer. This function tries to discover an existing
- * event log in memory from a previous bootloader stage. If such a log exists
- * and the PCRs are not extended, the log is "replayed" to extend the PCRs.
- * If no log is discovered, create the log header.
- *
- * @dev			TPM device
- * @elog		Platform event log. The log pointer and log_size
- *			members must be initialized to either 0 or to a valid
- *			memory region, in which case any existing log
- *			discovered will be copied to the specified memory
- *			region.
- * @ignore_existing_log	Boolean to indicate whether or not to ignore an
- *			existing platform log in memory
- *
- * Return: zero on success, negative errno otherwise
- */
-int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
-			    bool ignore_existing_log);
-
-/**
  * Begin measurements.
  *
  * @dev			TPM device
@@ -291,13 +288,10 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
  *			memory region, in which case any existing log
  *			discovered will be copied to the specified memory
  *			region.
- * @ignore_existing_log Boolean to indicate whether or not to ignore an
- *			existing platform log in memory
  *
  * Return: zero on success, negative errno otherwise
  */
-int tcg2_measurement_init(struct udevice **dev, struct tcg2_event_log *elog,
-			  bool ignore_existing_log);
+int tcg2_measurement_init(struct udevice **dev, struct tcg2_event_log *elog);
 
 /**
  * Stop measurements and record separator events.
@@ -344,5 +338,7 @@ void tcg2_platform_startup_error(struct udevice *dev, int rc);
  * Return: TCG hashing algorithm bitmaps (or 0 if algo not supported)
  */
 u32 tcg2_algorithm_to_mask(enum tpm2_algorithms);
+
+struct tcg2_event_log *tcg2_platform_get_dev_log(struct udevice *dev);
 
 #endif /* __TPM_TCG_V2_H */

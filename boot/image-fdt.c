@@ -24,6 +24,8 @@
 #include <asm/io.h>
 #include <dm/ofnode.h>
 #include <tee/optee.h>
+#include <tpm_tcg2.h>
+#include <dm/device.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -589,6 +591,68 @@ __weak int arch_fixup_fdt(void *blob)
 	return 0;
 }
 
+static int copy_tpm_event_log(void *blob)
+{
+	int rc;
+	struct udevice *dev;
+	ofnode node;
+	char path[256];
+	int off;
+	struct tcg2_event_log *log;
+
+	if (!IS_ENABLED(CONFIG_MEASURED_BOOT))
+		return 0;
+
+	rc = tcg2_platform_get_tpm2(&dev);
+	if (rc)
+		return rc;
+
+	log = tcg2_platform_get_dev_log(dev);
+
+	if (!log || !log->allocated) {
+		log_debug("tpm event log not allocated\n");
+		return -ENOENT;
+	}
+
+	node = dev_ofnode(dev);
+	if (!ofnode_valid(node)) {
+		log_err("tpm %p has no device tree representation\n", dev);
+		return -ENOENT;
+	}
+
+	rc = ofnode_get_path(node, path, sizeof(path));
+	if (rc)
+		return rc;
+
+	off = fdt_path_offset(blob, path);
+	if (off < 0) {
+		log_warning("kernel device tree lacks %s\n", path);
+		return 0;
+	}
+
+	if (fdt_getprop(blob, off, "linux,sml-base", NULL)) {
+		log_warning("kernel dt already defines an event log address at %s\n", path);
+		return 0;
+	}
+
+	fdt64_t base = cpu_to_fdt64((u64)virt_to_phys(log->log));
+
+	rc = fdt_find_and_setprop(blob, path, "linux,sml-base", &base, sizeof(base), 1);
+	if (rc) {
+		log_err("failed to set sml-base: %d\n", rc);
+		return rc;
+	}
+
+	fdt32_t size = cpu_to_fdt32((u32)log->log_size);
+
+	rc = fdt_find_and_setprop(blob, path, "linux,sml-size", &size, sizeof(size), 1);
+	if (rc) {
+		log_err("failed to set sml-size: %d\n", rc);
+		return rc;
+	}
+	return 0;
+}
+
 int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 {
 	ulong *initrd_start = &images->initrd_start;
@@ -629,6 +693,11 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 		printf("ERROR: transfer of optee nodes to new fdt failed: %s\n",
 		       fdt_strerror(fdt_ret));
 		goto err;
+	}
+
+	fdt_ret = copy_tpm_event_log(blob);
+	if (fdt_ret && fdt_ret != -ENOENT && fdt_ret != -ENODEV) {
+		log_warning("Failed to copy TPM event log: %d\n", fdt_ret);
 	}
 
 	/* Store name of configuration node as u-boot,bootconf in /chosen node */
