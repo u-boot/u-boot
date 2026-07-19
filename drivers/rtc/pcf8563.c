@@ -213,6 +213,7 @@ static const struct rtc_ops pcf8563_rtc_ops = {
 
 static const struct udevice_id pcf8563_rtc_ids[] = {
 	{ .compatible = "nxp,pcf8563" },
+	{ .compatible = "haoyu,hym8563" },
 	{ }
 };
 
