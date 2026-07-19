@@ -451,7 +451,7 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 		return PTR_ERR(rcar->ref_clk);
 
 	ret = clk_prepare_enable(rcar->ref_clk);
-	if (ret)
+	if (ret && ret != -ENOSYS)
 		return ret;
 
 	ret = gpio_request_by_name(dev, "reset-gpios", 0, &rcar->pe_rst,
