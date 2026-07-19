@@ -215,6 +215,13 @@ config CLK_HSDK
 	  Enable this to support the cgu clocks on Synopsys ARC HSDK and
 	  Synopsys ARC HSDK-4xD boards
 
+config CLK_RS9_PCIE
+	tristate "Clock driver for Renesas 9-series PCIe clock generators"
+	depends on CLK
+	help
+	  This driver supports the Renesas 9-series PCIe clock generator
+	  models 9FGV/9DBV/9DMV/9FGL/9DML/9QXL/9SQ.
+
 config CLK_VERSACLOCK
 	bool "Enable VersaClock 5/6 devices"
 	depends on CLK
