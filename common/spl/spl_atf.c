@@ -212,7 +212,9 @@ static void __noreturn bl31_entry(ulong bl31_entry, ulong bl32_entry,
 static int spl_fit_images_find(void *blob, int os)
 {
 	int parent, node, ndepth = 0;
+	int found = -FDT_ERR_NOTFOUND;
 	const void *data;
+	ulong val;
 
 	if (!blob)
 		return -FDT_ERR_BADMAGIC;
@@ -231,11 +233,23 @@ static int spl_fit_images_find(void *blob, int os)
 		if (!data)
 			continue;
 
-		if (genimg_get_os_id(data) == os)
+		if (genimg_get_os_id(data) != os)
+			continue;
+
+		/*
+		 * A multi-segment image, e.g. an OP-TEE ELF split by
+		 * binman, is recorded as one node per segment, all with
+		 * the same os. Only the segment holding the ELF entry
+		 * point carries an entry property, so prefer that node.
+		 */
+		if (!fit_image_get_entry(blob, node, &val))
 			return node;
+
+		if (found < 0)
+			found = node;
 	};
 
-	return -FDT_ERR_NOTFOUND;
+	return found;
 }
 
 ulong spl_fit_images_get_entry(void *blob, int node)
