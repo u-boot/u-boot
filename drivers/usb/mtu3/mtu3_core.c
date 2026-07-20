@@ -10,9 +10,12 @@
 
 #include <linux/log2.h>
 #include <linux/bitmap.h>
+#include <linux/iopoll.h>
 
 #include "mtu3.h"
 #include "mtu3_dr.h"
+
+#define MTU3_TX_FIFO_DRAIN_TIMEOUT_US	1000
 
 static int ep_fifo_alloc(struct mtu3_ep *mep, u32 seg_size)
 {
@@ -226,6 +229,34 @@ static void mtu3_ep_reset(struct mtu3_ep *mep)
 	mtu3_clrbits(mtu->mac_base, U3D_EP_RST, rst_bit);
 }
 
+static int mtu3_wait_for_tx_fifo_empty(struct mtu3 *mtu)
+{
+	struct mtu3_ep *mep;
+	u32 value;
+	int err;
+	int ret = 0;
+	int i;
+
+	for (i = 1; i < mtu->num_eps; i++) {
+		mep = mtu->in_eps + i;
+		if (!(mep->flags & MTU3_EP_ENABLED) ||
+		    !list_empty(&mep->req_list))
+			continue;
+
+		err = readl_poll_timeout(mtu->mac_base + MU3D_EP_TXCR0(i),
+					 value, value & TX_FIFOEMPTY,
+					 MTU3_TX_FIFO_DRAIN_TIMEOUT_US);
+		if (err) {
+			dev_warn(mtu->dev, "%s TX FIFO did not drain\n",
+				 mep->name);
+			mtu3_ep_reset(mep);
+			ret = err;
+		}
+	}
+
+	return ret;
+}
+
 /* set/clear the stall and toggle bits for non-ep0 */
 void mtu3_ep_stall_set(struct mtu3_ep *mep, bool set)
 {
@@ -261,8 +292,15 @@ void mtu3_ep_stall_set(struct mtu3_ep *mep, bool set)
 		set ? "SEND STALL" : "CLEAR STALL, with EP RESET");
 }
 
-void mtu3_dev_on_off(struct mtu3 *mtu, int is_on)
+int mtu3_dev_on_off(struct mtu3 *mtu, int is_on)
 {
+	int ret = 0;
+
+	/* QMU completion may precede transmission from the TX FIFO. */
+	if (!is_on)
+		ret = mtu3_wait_for_tx_fifo_empty(mtu);
+
+	/* Force the disconnect after a timeout; the failed endpoint was reset. */
 	if (mtu->is_u3_ip && mtu->speed >= USB_SPEED_SUPER)
 		mtu3_ss_func_set(mtu, is_on);
 	else
@@ -270,6 +308,8 @@ void mtu3_dev_on_off(struct mtu3 *mtu, int is_on)
 
 	dev_info(mtu->dev, "gadget (%s) pullup D%s\n",
 		 usb_speed_string(mtu->speed), is_on ? "+" : "-");
+
+	return ret;
 }
 
 void mtu3_start(struct mtu3 *mtu)
