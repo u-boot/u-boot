@@ -450,7 +450,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	cmd = argv[1][0];
 
 	// select device
-	if (cmd == 'd') {
+	if (cmd == 'd' && argc > 2) {
 		 /* 'dev' command */
 		unsigned int devnum;
 

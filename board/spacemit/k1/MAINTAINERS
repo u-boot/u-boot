@@ -1,0 +1,15 @@
+BananaPi F3
+M:	Huan Zhou <pericycle.cc@gmail.com>
+M:	Guodong Xu <guodong.xu@riscstar.com>
+L:	u-boot-spacemit@groups.io
+S:	Maintained
+F:	arch/riscv/dts/k1-*-u-boot.dtsi
+F:	board/spacemit/k1/
+F:	configs/spacemit_k1_defconfig
+F:	doc/board/spacemit/
+F:	drivers/gpio/spacemit_gpio.c
+F:	drivers/i2c/k1_i2c.c
+F:	drivers/mmc/spacemit_sdhci.c
+F:	drivers/pinctrl/spacemit/
+F:	drivers/power/pmic/pmic_spacemit_p1.c
+F:	drivers/power/regulator/spacemit_p1_regulator.c
