@@ -38,7 +38,7 @@ script. Please don't send patches as attachments, and ensure corporate mail
 systems don't reformat patches, append disclaimers or other unnecessary notes.
 The b4 tool automates a number of components mentioned above.
 
-Code is not the only thing you can contribute to the project. As most
+Code is not the only thing you can contribute to the project. Like most
 open-source projects, the U-Boot project suffers from a lack of reviewers.
 Consider spending some time reading patches on `the mailing list archive
 <https://lists.u-boot-project.org/pipermail/u-boot/>`_ and providing feedback to
