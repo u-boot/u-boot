@@ -343,7 +343,7 @@ int fastboot_mmc_get_part_info(const char *part_name,
 	return ret;
 }
 
-static struct blk_desc *fastboot_mmc_get_dev(char *response)
+static struct blk_desc __maybe_unused *fastboot_mmc_get_dev(char *response)
 {
 	struct blk_desc *ret = blk_get_dev("mmc",
 					   CONFIG_FASTBOOT_FLASH_MMC_DEV);
@@ -389,53 +389,18 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 
 #if CONFIG_IS_ENABLED(EFI_PARTITION)
 	if (strcmp(cmd, CONFIG_FASTBOOT_GPT_NAME) == 0) {
-		dev_desc = fastboot_mmc_get_dev(response);
-		if (!dev_desc)
-			return;
-
-		printf("%s: updating MBR, Primary and Backup GPT(s)\n",
-		       __func__);
-		if (is_valid_gpt_buf(dev_desc, download_buffer)) {
-			printf("%s: invalid GPT - refusing to write to flash\n",
-			       __func__);
-			fastboot_fail("invalid GPT partition", response);
-			return;
-		}
-		if (write_mbr_and_gpt_partitions(dev_desc, download_buffer)) {
-			printf("%s: writing GPT partitions failed\n", __func__);
-			fastboot_fail("writing GPT partitions failed",
-				      response);
-			return;
-		}
-		part_init(dev_desc);
-		printf("........ success\n");
-		fastboot_okay(NULL, response);
+		fastboot_flash_gpt_partition_table("mmc",
+						   CONFIG_FASTBOOT_FLASH_MMC_DEV,
+						   download_buffer, response);
 		return;
 	}
 #endif
 
 #if CONFIG_IS_ENABLED(DOS_PARTITION)
 	if (strcmp(cmd, CONFIG_FASTBOOT_MBR_NAME) == 0) {
-		dev_desc = fastboot_mmc_get_dev(response);
-		if (!dev_desc)
-			return;
-
-		printf("%s: updating MBR\n", __func__);
-		if (is_valid_dos_buf(download_buffer)) {
-			printf("%s: invalid MBR - refusing to write to flash\n",
-			       __func__);
-			fastboot_fail("invalid MBR partition", response);
-			return;
-		}
-		if (write_mbr_sector(dev_desc, download_buffer)) {
-			printf("%s: writing MBR partition failed\n", __func__);
-			fastboot_fail("writing MBR partition failed",
-				      response);
-			return;
-		}
-		part_init(dev_desc);
-		printf("........ success\n");
-		fastboot_okay(NULL, response);
+		fastboot_flash_mbr_partition_table("mmc",
+						   CONFIG_FASTBOOT_FLASH_MMC_DEV,
+						   download_buffer, response);
 		return;
 	}
 #endif
