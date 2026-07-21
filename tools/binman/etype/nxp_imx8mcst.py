@@ -65,6 +65,13 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
 
     Properties / Entry arguments:
         - nxp,loader-address - loader address (SPL text base)
+        - nxp,srk-table - full path to SRK_1_2_3_4_table.bin
+        - nxp,csf-crt - full path to the CSF Key CSF1_1_sha256_4096_65537_v3_usr_crt.pem
+        - nxp,img-crt - full path to the IMG Key IMG1_1_sha256_4096_65537_v3_usr_crt.pem
+        - nxp,fast-auth - enable fast authentication method
+        - nxp,srk-crt - full path to the SRK Key SRK1_sha256_4096_65537_v3_ca_crt.pem
+        - nxp,unlock - unlock CAAM in SPL
+        - nxp,cst-backend - CST tool backend, default is 'ssl', or selectable 'pkcs11'
     """
 
     def __init__(self, section, etype, node):
@@ -89,6 +96,10 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
             self.srk_crt = os.getenv(
                 'SRK_KEY', fdt_util.GetString(self._node, 'nxp,srk-crt',
                                               f'SRK1_{KEY_NAME}.pem'))
+
+        self.backend = os.getenv(
+            'CST_BACKEND', fdt_util.GetString(self._node, 'nxp,cst-backend',
+                                              'ssl'))
 
         self.unlock = fdt_util.GetBool(self._node, 'nxp,unlock')
         self.ReadEntries()
@@ -161,8 +172,14 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         with open(cfg_fname, 'w') as cfgf:
             config.write(cfgf)
 
+        # SSL is the default backend, PKCS11 backend is optional
+        if self.backend == "pkcs11":
+            cst_backend = "pkcs11"
+        else:
+            cst_backend = "ssl"
+
         output_fname = tools.get_output_filename(f'nxp.csf-output-blob.{uniq}')
-        args = ['-i', cfg_fname, '-o', output_fname]
+        args = ['-i', cfg_fname, '-o', output_fname, '-b', cst_backend]
         if self.cst.run_cmd(*args) is not None:
             outdata = tools.read_file(output_fname)
             # fixme: 0x2000 should be CONFIG_CSF_SIZE
