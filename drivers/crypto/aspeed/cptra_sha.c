@@ -68,7 +68,7 @@ static int cptra_sha_init(struct udevice *dev, enum HASH_ALGO algo, void **ctxp)
 		cs_ctx->dgst_len = 64;
 		break;
 	default:
-		rc = -EINVAL;
+		rc = -EOPNOTSUPP;
 		goto free_n_out;
 	};
 

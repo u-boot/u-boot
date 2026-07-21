@@ -132,13 +132,16 @@ rsa,n0-inverse
 For ECDSA the following are mandatory:
 
 ecdsa,curve
-    Name of ECDSA curve (e.g. "prime256v1")
+    Name of ECDSA curve, such as "secp224r1", "prime256v1",
+    "secp384r1", or "secp521r1"
 
 ecdsa,x-point
-    Public key X coordinate as a big-endian multi-word integer
+    Public key X coordinate as a fixed-width big-endian byte array. The width
+    is the curve size rounded up to whole bytes.
 
 ecdsa,y-point
-    Public key Y coordinate as a big-endian multi-word integer
+    Public key Y coordinate as a fixed-width big-endian byte array. The width
+    is the curve size rounded up to whole bytes.
 
 These parameters can be added to a binary device tree using parameter -K of the
 mkimage command::

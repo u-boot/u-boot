@@ -11,6 +11,7 @@
 
 #ifndef USE_HOSTCC
 #include <command.h>
+#include <dm.h>
 #include <env.h>
 #include <log.h>
 #include <malloc.h>
@@ -20,6 +21,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+#include <u-boot/hash.h>
 #else
 #include "mkimage.h"
 #include <linux/compiler_attributes.h>
@@ -614,7 +616,26 @@ int hash_command(const char *algo_name, int flags, struct cmd_tbl *cmdtp,
 			return CMD_RET_FAILURE;
 
 		buf = map_sysmem(addr, len);
+		if (CONFIG_IS_ENABLED(DM_HASH)) {
+			enum HASH_ALGO hash_algo;
+			int ret;
+
+			hash_algo = hash_algo_lookup_by_name(algo_name);
+			if (hash_algo != HASH_ALGO_INVALID) {
+				ret = hash_digest_wd_lookup(hash_algo, buf, len,
+							    output,
+							    algo->chunk_size);
+				if (ret && ret != -ENODEV && ret != -EOPNOTSUPP) {
+					unmap_sysmem(buf);
+					free(output);
+					return CMD_RET_FAILURE;
+				}
+				if (!ret)
+					goto done;
+			}
+		}
 		algo->hash_func_ws(buf, len, output, algo->chunk_size);
+done:
 		unmap_sysmem(buf);
 
 		/* Try to avoid code bloat when verify is not needed */

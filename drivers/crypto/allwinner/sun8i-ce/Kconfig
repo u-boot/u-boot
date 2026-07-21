@@ -1,0 +1,161 @@
+# SPDX-License-Identifier: GPL-2.0+
+
+config SUNXI_CE
+	bool
+	depends on ARCH_SUNXI
+	depends on CLK && DM_RESET
+
+config SPL_SUNXI_CE
+	bool
+	depends on ARCH_SUNXI
+	depends on MACH_SUN50I_H6 || MACH_SUN50I_H616
+	depends on SPL_DM
+	depends on SPL_OF_CONTROL
+	select SPL_CLK
+	select SPL_CRYPTO
+	select SPL_DM_RESET
+
+config SUNXI_CE_AES
+	bool "Allwinner sunxi CE AES"
+	depends on ARCH_SUNXI
+	depends on DM_AES
+	depends on CLK && DM_RESET
+	select AES
+	select SUNXI_CE
+	help
+	  Select this option to enable AES encryption and decryption using
+	  the Crypto Engine found in Allwinner sunxi SoCs. The driver
+	  supports software-provided AES-128, AES-192 and AES-256 keys.
+
+config SPL_SUNXI_CE_AES
+	bool "Allwinner sunxi CE AES in SPL"
+	depends on ARCH_SUNXI
+	depends on MACH_SUN50I_H6 || MACH_SUN50I_H616
+	depends on SPL_DM_AES
+	depends on SPL_OF_CONTROL
+	select SPL_CRYPTO
+	select SPL_SUNXI_CE
+	help
+	  Select this option to enable AES decryption in SPL using the Crypto
+	  Engine found in Allwinner H6 and H616 compatible SoCs. This can be
+	  used to decrypt FIT images before loading U-Boot proper.
+
+config SUNXI_CE_HASH
+	bool "Allwinner sunxi CE hash"
+	depends on ARCH_SUNXI
+	depends on DM_HASH
+	depends on CLK && DM_RESET
+	select SUNXI_CE
+	help
+	  Select this option to enable hash calculation using the Crypto Engine
+	  found in Allwinner sunxi SoCs. The driver supports MD5, SHA1,
+	  SHA256, SHA384 and SHA512.
+
+config SPL_SUNXI_CE_HASH
+	bool "Allwinner sunxi CE hash in SPL"
+	depends on ARCH_SUNXI
+	depends on MACH_SUN50I_H6 || MACH_SUN50I_H616
+	depends on SPL_DM
+	depends on SPL_OF_CONTROL
+	select SPL_DM_HASH
+	select SPL_CRYPTO
+	select SPL_SUNXI_CE
+	help
+	  Select this option to enable hash calculation in SPL using the Crypto
+	  Engine found in Allwinner H6 and H616 compatible SoCs. FIT image
+	  hashes can then be calculated by the hardware accelerator before
+	  U-Boot proper is loaded.
+
+config SUNXI_CE_ECDSA
+	bool "Allwinner sunxi CE ECDSA verifier"
+	depends on ARCH_SUNXI
+	depends on ECDSA_VERIFY
+	depends on CLK && DM_RESET
+	select SUNXI_CE
+	help
+	  Select this option to enable ECDSA signature verification using
+	  the Crypto Engine found in Allwinner sunxi SoCs. FIT image
+	  signatures can then be checked by the hardware accelerator in
+	  U-Boot proper. Digests wider than the selected curve are
+	  truncated according to ECDSA rules.
+
+config SPL_SUNXI_CE_ECDSA
+	bool "Allwinner sunxi CE ECDSA verifier in SPL"
+	depends on ARCH_SUNXI
+	depends on MACH_SUN50I_H6 || MACH_SUN50I_H616
+	depends on SPL_DM
+	depends on SPL_OF_CONTROL
+	depends on SPL_ECDSA_VERIFY
+	select SPL_CRYPTO
+	select SPL_SUNXI_CE
+	help
+	  Select this option to enable ECDSA signature verification in SPL
+	  using the Crypto Engine found in Allwinner H6 and H616 compatible
+	  SoCs.
+	  This allows SPL FIT image signatures to be checked by the hardware
+	  accelerator before U-Boot proper is loaded. Digests wider than the
+	  selected curve are truncated according to ECDSA rules.
+
+if SUNXI_CE_ECDSA
+
+config SUNXI_CE_ECDSA_SECP224R1
+	bool "Support secp224r1"
+	default y
+	help
+	  Enable the secp224r1 curve parameters for the sunxi CE ECDSA
+	  verifier.
+
+config SUNXI_CE_ECDSA_PRIME256V1
+	bool "Support prime256v1"
+	default y
+	help
+	  Enable the prime256v1 curve parameters for the sunxi CE ECDSA
+	  verifier.
+
+config SUNXI_CE_ECDSA_SECP384R1
+	bool "Support secp384r1"
+	default y
+	help
+	  Enable the secp384r1 curve parameters for the sunxi CE ECDSA
+	  verifier.
+
+config SUNXI_CE_ECDSA_SECP521R1
+	bool "Support secp521r1"
+	default y
+	help
+	  Enable the secp521r1 curve parameters for the sunxi CE ECDSA
+	  verifier.
+
+endif
+
+if SPL_SUNXI_CE_ECDSA
+
+config SPL_SUNXI_CE_ECDSA_SECP224R1
+	bool "Support secp224r1 in SPL"
+	default y
+	help
+	  Enable the secp224r1 curve parameters for the sunxi CE ECDSA
+	  verifier in SPL.
+
+config SPL_SUNXI_CE_ECDSA_PRIME256V1
+	bool "Support prime256v1 in SPL"
+	default y
+	help
+	  Enable the prime256v1 curve parameters for the sunxi CE ECDSA
+	  verifier in SPL.
+
+config SPL_SUNXI_CE_ECDSA_SECP384R1
+	bool "Support secp384r1 in SPL"
+	default y
+	help
+	  Enable the secp384r1 curve parameters for the sunxi CE ECDSA
+	  verifier in SPL.
+
+config SPL_SUNXI_CE_ECDSA_SECP521R1
+	bool "Support secp521r1 in SPL"
+	default y
+	help
+	  Enable the secp521r1 curve parameters for the sunxi CE ECDSA
+	  verifier in SPL.
+
+endif

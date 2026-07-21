@@ -6,6 +6,8 @@ source "drivers/crypto/aes/Kconfig"
 
 source "drivers/crypto/fsl/Kconfig"
 
+source "drivers/crypto/allwinner/Kconfig"
+
 source "drivers/crypto/aspeed/Kconfig"
 
 source "drivers/crypto/nuvoton/Kconfig"
