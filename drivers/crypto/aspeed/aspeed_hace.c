@@ -160,7 +160,7 @@ static int aspeed_hace_init(struct udevice *dev, enum HASH_ALGO algo, void **ctx
 free_n_out:
 	free(hace_ctx);
 
-	return -EINVAL;
+	return -EOPNOTSUPP;
 }
 
 static int aspeed_hace_update(struct udevice *dev, void *ctx, const void *ibuf, uint32_t ilen)
