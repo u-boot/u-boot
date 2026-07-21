@@ -14,3 +14,4 @@ Qualcomm
    iq8
    phones
    rdp
+   spl
