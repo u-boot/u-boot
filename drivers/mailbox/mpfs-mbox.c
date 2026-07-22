@@ -65,8 +65,11 @@ static int mpfs_mbox_send(struct mbox_chan *chan, const void *data)
 
 	u32 *word_buf = (u32 *)msg->cmd_data;
 
-	if (mpfs_mbox_busy(chan))
-		return -EBUSY;
+	ret = regmap_read_poll_timeout(mbox->control_scb, SERVICES_SR_OFFSET,
+				       value, !(value & SERVICE_SR_BUSY_MASK),
+				       1, 20);
+	if (ret)
+		return ret;
 
 	for (idx = 0; idx < (msg->cmd_data_size / BYTES_4); idx++)
 		writel(word_buf[idx], mbox->mbox_base + msg->mbox_offset + idx * BYTES_4);
