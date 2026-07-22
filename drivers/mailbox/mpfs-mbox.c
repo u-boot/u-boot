@@ -18,6 +18,7 @@
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <linux/errno.h>
+#include <linux/iopoll.h>
 #include <log.h>
 #include <mailbox-uclass.h>
 #include <mpfs-mailbox.h>
@@ -60,6 +61,7 @@ static int mpfs_mbox_send(struct mbox_chan *chan, const void *data)
 	u32 mailbox_val, cmd_shifted, value;
 	u8 *byte_buf;
 	u8 idx, byte_idx, byte_offset;
+	int ret;
 
 	u32 *word_buf = (u32 *)msg->cmd_data;
 
@@ -86,13 +88,19 @@ static int mpfs_mbox_send(struct mbox_chan *chan, const void *data)
 
 	regmap_write(mbox->control_scb, SERVICES_CR_OFFSET, cmd_shifted);
 
-	do {
-		regmap_read(mbox->control_scb, SERVICES_CR_OFFSET, &value);
-	} while (SERVICE_CR_REQ_MASK == (value & SERVICE_CR_REQ_MASK));
+	ret = regmap_read_poll_timeout(mbox->control_scb, SERVICES_CR_OFFSET,
+				       value, !(value & SERVICE_CR_REQ_MASK),
+				       1, /* poll every 1 µs */
+				       20); /* timeout 20 ms */
+	if (ret)
+		return ret;
 
-	do {
-		regmap_read(mbox->control_scb, SERVICES_SR_OFFSET, &value);
-	} while (SERVICE_SR_BUSY_MASK == (value & SERVICE_SR_BUSY_MASK));
+	ret = regmap_read_poll_timeout(mbox->control_scb, SERVICES_SR_OFFSET,
+				       value, !(value & SERVICE_SR_BUSY_MASK),
+				       1,
+				       20);
+	if (ret)
+		return ret;
 
 	msg->response->resp_status = (value >> SERVICE_SR_STATUS_SHIFT);
 	if (msg->response->resp_status)
