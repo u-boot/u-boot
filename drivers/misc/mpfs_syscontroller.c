@@ -11,6 +11,7 @@
 #include <asm/system.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <dm/lists.h>
 #include <env.h>
 #include <errno.h>
 #include <linux/compat.h>
@@ -334,6 +335,7 @@ EXPORT_SYMBOL(mpfs_syscontroller_process_dtbo);
 static int mpfs_syscontroller_probe(struct udevice *dev)
 {
 	struct mpfs_syscontroller_priv *sys_controller = dev_get_priv(dev);
+	struct udevice *rng_dev;
 	int ret;
 
 	ret = mbox_get_by_index(dev, 0, &sys_controller->chan);
@@ -342,6 +344,10 @@ static int mpfs_syscontroller_probe(struct udevice *dev)
 			__func__, ret);
 		return ret;
 	}
+
+	ret = device_bind_driver(dev, "mpfs_rng", "mpfs-rng", &rng_dev);
+	if (ret)
+		dev_err(dev, "Failed to bind mpfs_rng: %d\n", ret);
 
 	init_completion(&sys_controller->c);
 	dev_info(dev, "Registered MPFS system controller\n");
