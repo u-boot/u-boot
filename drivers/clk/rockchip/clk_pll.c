@@ -169,18 +169,15 @@ rockchip_pll_clk_set_by_auto(ulong fin_hz,
 static u32
 rockchip_rk3588_pll_k_get(u32 m, u32 p, u32 s, u64 fin_hz, u64 fvco)
 {
-	u64 fref, fout, ffrac;
+	u64 fref, ffrac;
 	u32 k = 0;
 
 	fref = fin_hz / p;
 	ffrac = fvco - (m * fref);
-	fout = ffrac * 65536;
-	k = fout / fref;
+	k = ffrac * 65536 / fref;
 	if (k > 32767) {
-		fref = fin_hz / p;
 		ffrac = ((m + 1) * fref) - fvco;
-		fout = ffrac * 65536;
-		k = ((fout * 10 / fref) + 7) / 10;
+		k = ((ffrac * 65536 * 10 / fref) + 7) / 10;
 		if (k > 32767)
 			k = 0;
 		else
