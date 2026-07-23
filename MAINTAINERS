@@ -344,6 +344,7 @@ F:	arch/arm/mach-hpe/
 F:	board/hpe/
 F:	configs/gxp_defconfig
 F:	doc/device-tree-bindings/spi/hpe,gxp-spi.yaml
+F:	drivers/misc/gxp_eeprom.c
 F:	drivers/timer/gxp-timer.c
 F:	drivers/spi/gxp_spi.c
 
