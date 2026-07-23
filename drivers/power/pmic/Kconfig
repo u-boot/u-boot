@@ -171,6 +171,21 @@ config SPL_DM_PMIC_PCA9450
 	  This config enables implementation of driver-model pmic uclass features
 	  for PMIC PCA9450 in SPL. The driver implements read/write operations.
 
+config DM_PMIC_PF9453
+	bool "Enable Driver Model for PMIC PF9453"
+	depends on DM_I2C
+	help
+	  This config enables implementation of driver-model pmic uclass features
+	  for PMIC PF9453. The driver implements read/write operations.
+
+config SPL_DM_PMIC_PF9453
+	bool "Enable Driver Model for PMIC PF9453 in SPL"
+	depends on SPL_DM_PMIC
+	depends on SPL_DM_I2C
+	help
+	  This config enables implementation of driver-model pmic uclass features
+	  for PMIC PF9453 in SPL. The driver implements read/write operations.
+
 config DM_PMIC_PFUZE100
 	bool "Enable Driver Model for PMIC PFUZE100"
 	help
