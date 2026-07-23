@@ -76,10 +76,10 @@ static int ast2600_reset_probe(struct udevice *dev)
 		return rc;
 	}
 
-	priv->scu = devfdt_get_addr_ptr(scu_dev);
+	priv->scu = dev_read_addr_ptr(scu_dev);
 	if (IS_ERR_OR_NULL(priv->scu)) {
 		debug("%s: invalid SCU base pointer\n", __func__);
-		return PTR_ERR(priv->scu);
+		return -EINVAL;
 	}
 
 	return 0;
@@ -90,7 +90,7 @@ static const struct udevice_id ast2600_reset_ids[] = {
 	{ }
 };
 
-struct reset_ops ast2600_reset_ops = {
+static const struct reset_ops ast2600_reset_ops = {
 	.rst_assert = ast2600_reset_assert,
 	.rst_deassert = ast2600_reset_deassert,
 	.rst_status = ast2600_reset_status,

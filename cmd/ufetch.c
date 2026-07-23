@@ -157,26 +157,37 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 				printf(" (%d baud)", gd->baudrate);
 			putc('\n');
 			break;
-		case FEATURES:
+		case FEATURES: {
+			const char *sep = "";
+
 			printf("Features:" RESET " ");
-			if (IS_ENABLED(CONFIG_NET_LEGACY))
-				printf("Net");
-			if (IS_ENABLED(CONFIG_EFI_LOADER))
-				printf(", EFI");
-			if (IS_ENABLED(CONFIG_CMD_CAT))
-				printf(", cat :3");
+			if (IS_ENABLED(CONFIG_NET)) {
+				printf("%sNet", sep);
+				sep = ", ";
+			}
+			if (IS_ENABLED(CONFIG_EFI_LOADER)) {
+				printf("%sEFI", sep);
+				sep = ", ";
+			}
+			if (IS_ENABLED(CONFIG_CMD_CAT)) {
+				printf("%scat :3", sep);
+				sep = ", ";
+			}
 #ifdef CONFIG_ARM64
 			switch (current_el()) {
 			case 2:
-				printf(", VMs");
+				printf("%sVMs", sep);
+				sep = ", ";
 				break;
 			case 3:
-				printf(", full control!");
+				printf("%sfull control!", sep);
+				sep = ", ";
 				break;
 			}
 #endif
 			printf("\n");
 			break;
+		}
 		case RELOCATION:
 			if (gd->flags & GD_FLG_SKIP_RELOC)
 				printf("Relocated:" RESET " no\n");
@@ -191,8 +202,8 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 			printf("CPU: " RESET CONFIG_SYS_ARCH " (%d cores, 1 in use)\n", n_cpus);
 			break;
 		case MEMORY:
-			for (int j = 0; j < CONFIG_NR_DRAM_BANKS && gd->bd->bi_dram[j].size; j++)
-				size += gd->bd->bi_dram[j].size;
+			for (int j = 0; j < CONFIG_NR_DRAM_BANKS && gd->dram[j].size; j++)
+				size += gd->dram[j].size;
 			printf("Memory:" RESET " ");
 			print_size(size, "\n");
 			break;

@@ -388,7 +388,7 @@ struct driver {
 	const void *ops;	/* driver-specific operations */
 	uint32_t flags;
 #if CONFIG_IS_ENABLED(ACPIGEN)
-	struct acpi_ops *acpi_ops;
+	const struct acpi_ops *acpi_ops;
 #endif
 };
 

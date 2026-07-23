@@ -1750,7 +1750,7 @@ static int hc_reset(ohci_t *ohci)
 	int timeout = 30;
 	int smm_timeout = 50; /* 0,5 sec */
 
-	dbg("%s\n", __FUNCTION__);
+	dbg("%s\n", __func__);
 
 #ifdef CONFIG_PCI_EHCI_DEVNO
 	/*

@@ -230,7 +230,7 @@ dis_clk:
 	return ret;
 }
 
-struct video_bridge_ops imx_ldb_ops = {
+static const struct video_bridge_ops imx_ldb_ops = {
 	.attach = imx_ldb_attach,
 	.set_backlight	= imx_ldb_set_backlight,
 };

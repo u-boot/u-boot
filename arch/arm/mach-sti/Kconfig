@@ -14,7 +14,7 @@ config TARGET_STIH410_B2260
 	  Specifications. Features:
 	  - 1GB DDR
 	  - On-Board USB combo WiFi/Bluetooth RTL8723BU
-	    with PCB soldered antenna
+	  with PCB soldered antenna
 	  - Ethernet 1000-BaseT
 	  - Sata
 	  - HDMI

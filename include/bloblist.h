@@ -489,9 +489,23 @@ const char *bloblist_tag_name(enum bloblist_tag_t tag);
 int bloblist_reloc(void *to, uint to_size);
 
 /**
+ * bloblist_exists() - Check for the prior existence of a bloblist
+ *
+ * This will check for a transfer list having been passed via standard
+ * convention. If CONFIG_BLOBLIST_PASSAGE_MANDATORY is selected and one is not
+ * found, we return false.
+ *
+ * If CONFIG_BLOBLIST_FIXED is selected, it uses CONFIG_BLOBLIST_ADDR and
+ * CONFIG_BLOBLIST_SIZE to check for a bloblist.
+ *
+ * Return: true if found, false if not
+ */
+bool bloblist_exists(void);
+
+/**
  * bloblist_init() - Init the bloblist system with a single bloblist
  *
- * This locates and sets up the blocklist for use.
+ * This creates a bloblist for use, if not already found.
  *
  * If CONFIG_BLOBLIST_FIXED is selected, it uses CONFIG_BLOBLIST_ADDR and
  * CONFIG_BLOBLIST_SIZE to set up a bloblist for use by U-Boot.
@@ -507,22 +521,6 @@ int bloblist_reloc(void *to, uint to_size);
  * Return: 0 if OK, -ve on error
  */
 int bloblist_init(void);
-
-#if CONFIG_IS_ENABLED(BLOBLIST)
-/**
- * bloblist_maybe_init() - Init the bloblist system if not already done
- *
- * Calls bloblist_init() if the GD_FLG_BLOBLIST_READY flag is not set
- *
- * Return: 0 if OK, -ve on error
- */
-int bloblist_maybe_init(void);
-#else
-static inline int bloblist_maybe_init(void)
-{
-	return 0;
-}
-#endif /* BLOBLIST */
 
 /**
  * bloblist_check_reg_conv() - Check whether the bloblist is compliant to

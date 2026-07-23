@@ -105,3 +105,6 @@ enum versal2_platform {
 #define PMXC_UFS_CAL_1_OFFSET		0xBE8
 #define PMXC_SRAM_CSR			0x4C
 #define PMXC_TX_RX_CFG_RDY		0x54
+
+#define PMC_GLOBAL_PGGS3_REG	0xF111005C
+#define PMC_GLOBAL_PGGS4_REG	0xF1110060

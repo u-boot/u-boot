@@ -81,12 +81,12 @@
  */
 #define ENV_FCT_TOGGLE_PARTITION "toggle_partition="\
 	"setenv ${partitionset_active} true;" \
-	"if test -n ${A}; " \
+	"if test -n \"${A}\"; " \
 	"then " \
 		"setenv partitionset_active B; " \
 		"env delete A; " \
 	"fi;" \
-	"if test -n ${B}; "\
+	"if test -n \"${B}\"; "\
 	"then " \
 		"setenv partitionset_active A; " \
 		"env delete B; " \
@@ -103,11 +103,11 @@
  */
 #define ENV_EMMC_FCT_SET_ACTIVE_PARTITION "set_partition=" \
 	"setenv ${partitionset_active} true;" \
-	"if test -n ${A}; " \
+	"if test -n \"${A}\"; " \
 	"then " \
 		"setenv mmc_part_nr 1;" \
 	"fi;" \
-	"if test -n ${B}; " \
+	"if test -n \"${B}\"; " \
 	"then " \
 		"setenv mmc_part_nr 2;" \
 	"fi;" \

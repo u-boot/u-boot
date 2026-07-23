@@ -332,7 +332,7 @@ config MMC_MESON_GX
 	bool "Meson GX EMMC controller support"
 	depends on ARCH_MESON
 	help
-	 Support for EMMC host controller on Meson GX ARM SoCs platform (S905)
+	  Support for EMMC host controller on Meson GX ARM SoCs platform (S905)
 
 config MMC_OWL
 	bool "Actions OWL Multimedia Card Interface support"
@@ -415,7 +415,7 @@ config MMC_OMAP36XX_PINS
 
 config HSMMC2_8BIT
 	bool "Enable 8-bit interface for eMMC (interface #2)"
-	depends on MMC_OMAP_HS && (OMAP54XX || DRA7XX || AM33XX || \
+	depends on MMC_OMAP_HS && (OMAP44XX || OMAP54XX || DRA7XX || AM33XX || \
 		AM43XX || ARCH_KEYSTONE)
 
 config SH_MMCIF
@@ -659,8 +659,8 @@ config MMC_SDHCI_MSM
 	depends on MMC_SDHCI && ARCH_SNAPDRAGON
 	help
 	  Enables support for SDHCI 2.0 controller present on some Qualcomm
-          Snapdragon devices. This device is compatible with eMMC v4.5 and
-          SD 3.0 specifications. Both SD and eMMC devices are supported.
+	  Snapdragon devices. This device is compatible with eMMC v4.5 and
+	  SD 3.0 specifications. Both SD and eMMC devices are supported.
 	  Card-detect gpios are not supported.
 
 config MMC_SDHCI_MV
@@ -852,7 +852,7 @@ config FTSDC010_SDIO
 	bool "Support ftsdc010 sdio"
 	depends on FTSDC010
 	help
-		This can enable ftsdc010 sdio function.
+	  This can enable ftsdc010 sdio function.
 
 config MMC_MTK
 	bool "MediaTek SD/MMC Card Interface support"

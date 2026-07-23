@@ -53,11 +53,10 @@ void enable_caches(void)
 
 void dram_bank_mmu_setup(int bank)
 {
-	struct bd_info *bd = gd->bd;
 	int	i;
 
-	u32 start = bd->bi_dram[bank].start >> MMU_SECTION_SHIFT;
-	u32 size = bd->bi_dram[bank].size >> MMU_SECTION_SHIFT;
+	u32 start = gd->dram[bank].start >> MMU_SECTION_SHIFT;
+	u32 size = gd->dram[bank].size >> MMU_SECTION_SHIFT;
 	u32 end = start + size;
 
 	debug("%s: bank: %d\n", __func__, bank);

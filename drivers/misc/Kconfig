@@ -71,9 +71,9 @@ config ATSHA204A
 	select BITREVERSE
 	depends on MISC
 	help
-	   Enable support for I2C connected Atmel's ATSHA204A
-	   CryptoAuthentication module found for example on the Turris Omnia
-	   board.
+	  Enable support for I2C connected Atmel's ATSHA204A
+	  CryptoAuthentication module found for example on the Turris Omnia
+	  board.
 
 config GATEWORKS_SC
 	bool "Gateworks System Controller Support"
@@ -94,7 +94,7 @@ config QCOM_GENI
 	  etc.
 
 config ROCKCHIP_EFUSE
-        bool "Rockchip e-fuse support"
+	bool "Rockchip e-fuse support"
 	depends on MISC
 	help
 	  Enable (read-only) access for the e-fuse block found in Rockchip
@@ -647,6 +647,7 @@ config IHS_FPGA
 	  gdsys devices, which supply the majority of the functionality offered
 	  by the devices. This driver supports both CON and CPU variants of the
 	  devices, depending on the device tree entry.
+
 config ESM_K3
 	bool "Enable K3 ESM driver"
 	depends on ARCH_K3

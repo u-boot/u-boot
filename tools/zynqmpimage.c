@@ -400,8 +400,8 @@ static void zynqmpimage_pmufw(struct zynqmp_header *zynqhdr,
 	fclose(fpmu);
 }
 
-static void zynqmpimage_parse_initparams(struct zynqmp_header *zynqhdr,
-	const char *filename)
+void zynqmpimage_parse_initparams(struct zynqmp_header *zynqhdr,
+				  const char *filename)
 {
 	FILE *fp;
 	struct zynqmp_reginit reginit;

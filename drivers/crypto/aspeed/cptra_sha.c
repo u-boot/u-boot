@@ -219,7 +219,7 @@ static int cptra_sha_probe(struct udevice *dev)
 {
 	struct cptra_sha *cs = dev_get_priv(dev);
 
-	cs->regs = (void *)devfdt_get_addr(dev);
+	cs->regs = (void *)dev_read_addr(dev);
 	if (cs->regs == (void *)FDT_ADDR_T_NONE) {
 		debug("cannot map Caliptra SHA ACC registers\n");
 		return -ENODEV;

@@ -187,6 +187,13 @@ void walk_pagetable(u64 ttbr, u64 tcr, pte_walker_cb_t cb, void *priv);
  */
 void dump_pagetable(u64 ttbr, u64 tcr);
 
+/**
+ * tlb_debug_lookup() - Perform a software TLB walk printing each stage
+ *
+ * @addr: the address to look-up in the TLB.
+ */
+void tlb_debug_lookup(u64 addr);
+
 struct mm_region {
 	u64 virt;
 	u64 phys;

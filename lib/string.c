@@ -343,41 +343,29 @@ size_t strcspn(const char *s, const char *reject)
 }
 #endif
 
-#ifndef __HAVE_ARCH_STRDUP
+void *memdup_nul(const void *src, size_t len)
+{
+	char *dst;
+
+	if (len + 1 < len)
+		return NULL;
+
+	dst = malloc(len + 1);
+	if (!dst)
+		return NULL;
+
+	dst[len] = '\0';
+	return memcpy(dst, src, len);
+}
+
 char * strdup(const char *s)
 {
-	char *new;
-
-	if ((s == NULL)	||
-	    ((new = malloc (strlen(s) + 1)) == NULL) ) {
-		return NULL;
-	}
-
-	strcpy (new, s);
-	return new;
+	return s ? memdup_nul(s, strlen(s)) : NULL;
 }
 
 char * strndup(const char *s, size_t n)
 {
-	size_t len;
-	char *new;
-
-	if (s == NULL)
-		return NULL;
-
-	len = strlen(s);
-
-	if (n < len)
-		len = n;
-
-	new = malloc(len + 1);
-	if (new == NULL)
-		return NULL;
-
-	strncpy(new, s, len);
-	new[len] = '\0';
-
-	return new;
+	return s ? memdup_nul(s, strnlen(s, n)) : NULL;
 }
 
 /**
@@ -410,7 +398,6 @@ void kfree_const(const void *x)
 		free((void *)x);
 }
 
-#endif
 
 #ifndef __HAVE_ARCH_STRSPN
 /**
@@ -698,17 +685,15 @@ void * memscan(void * addr, int c, size_t size)
 }
 #endif
 
-char *memdup(const void *src, size_t len)
+void *memdup(const void *src, size_t len)
 {
-	char *p;
+	void *p;
 
 	p = malloc(len);
 	if (!p)
 		return NULL;
 
-	memcpy(p, src, len);
-
-	return p;
+	return memcpy(p, src, len);
 }
 
 #ifndef __HAVE_ARCH_STRNSTR

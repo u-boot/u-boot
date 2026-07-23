@@ -159,6 +159,21 @@
 	};
 };
 
+&aips4 {
+	bootph-all;
+
+	wdog4: watchdog@49230000 {
+		compatible = "fsl,imx94-wdt", "fsl,imx93-wdt";
+		reg = <0x49230000 0x10000>;
+		interrupts = <GIC_SPI 91 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&scmi_clk IMX94_CLK_BUSWAKEUP>;
+		timeout-sec = <40>;
+		fsl,ext-reset-output;
+		status = "disabled";
+		bootph-all;
+	};
+};
+
 &clk_ext1 {
 	bootph-all;
 };
@@ -440,5 +455,9 @@
 };
 
 &sram0 {
+	bootph-all;
+};
+
+&wdog3 {
 	bootph-all;
 };

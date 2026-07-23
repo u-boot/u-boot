@@ -89,9 +89,9 @@ void build_mem_map(void)
 		 * The first node is for I/O device, start from node 1 for
 		 * updating DRAM info.
 		 */
-		mem_map[i + 1].virt = gd->bd->bi_dram[i].start;
-		mem_map[i + 1].phys = gd->bd->bi_dram[i].start;
-		mem_map[i + 1].size = gd->bd->bi_dram[i].size;
+		mem_map[i + 1].virt = gd->dram[i].start;
+		mem_map[i + 1].phys = gd->dram[i].start;
+		mem_map[i + 1].size = gd->dram[i].size;
 		mem_map[i + 1].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 				       PTE_BLOCK_INNER_SHARE;
 	}

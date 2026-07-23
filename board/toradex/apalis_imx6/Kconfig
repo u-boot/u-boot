@@ -35,7 +35,7 @@ config TDX_CMD_IMX_MFGR
 	bool "Enable factory testing commands for Toradex iMX 6 modules"
 	help
 	  This adds the commands
-	    pf0100_otp_prog - Program the OTP fuses on the PMIC PF0100
+	  pf0100_otp_prog - Program the OTP fuses on the PMIC PF0100
 	  If executed on already fused modules it doesn't change any fuse setting.
 	default y
 
@@ -43,11 +43,11 @@ config TDX_APALIS_IMX6_V1_0
 	bool "Apalis iMX6 V1.0 HW"
 	help
 	  Apalis iMX6 V1.0 HW has a different pinout for the UART.
-	    The UARTs must be used in DCE mode, RTS/CTS are swapped and
-	    thus unusable on standard carrier boards.
-	    This option configures DCE mode unconditionally. Whithout this
-	    option the config block stating V1.0 HW selects DCE mode,
-	    otherwise the UARTs are configuered in DTE mode.
+	  The UARTs must be used in DCE mode, RTS/CTS are swapped and
+	  thus unusable on standard carrier boards.
+	  This option configures DCE mode unconditionally. Whithout this
+	  option the config block stating V1.0 HW selects DCE mode,
+	  otherwise the UARTs are configuered in DTE mode.
 
 source "board/toradex/common/Kconfig"
 

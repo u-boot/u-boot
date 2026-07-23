@@ -159,12 +159,12 @@ static int splash_select_fs_dev(struct splash_location *location)
 			res = -ENODEV;
 		break;
 	default:
-		printf("Error: unsupported location storage.\n");
+		printf("Error: %s: unsupported location storage.\n", __func__);
 		return -ENODEV;
 	}
 
 	if (res)
-		printf("Error: could not access storage.\n");
+		printf("Error: %s: could not access storage.\n", __func__);
 
 	return res;
 }
@@ -284,7 +284,8 @@ static int splash_load_fs(struct splash_location *location, ulong bmp_load_addr)
 
 	res = fs_size(splash_file, &bmp_size);
 	if (res) {
-		printf("Error (%d): cannot determine file size\n", res);
+		printf("Error: %s: cannot determine file size (%d)\n",
+		       __func__, res);
 		goto out;
 	}
 

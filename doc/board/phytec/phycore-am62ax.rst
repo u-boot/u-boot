@@ -9,7 +9,7 @@ SoM (System on Module) featuring TI's AM62Ax SoC. It can be used in combination
 with different carrier boards. This module can come with different sizes and
 models for DDR, eMMC, SPI NOR Flash and various SoCs from the AM62Ax family.
 
-A development Kit, called `phyBOARD-Lyra <https://www.phytec.com/product/phyboard-am62x>`_
+A development Kit, called `phyBOARD-Lyra <https://www.phytec.com/product/phyboard-am62a>`_
 is used as a carrier board reference design around the AM62Ax SoM.
 
 Quickstart
@@ -57,10 +57,10 @@ Set the variables corresponding to this platform:
  $ export UBOOT_CFG_CORTEXR=phycore_am62ax_r5_defconfig
  $ export UBOOT_CFG_CORTEXA=phycore_am62ax_a53_defconfig
  $ export TFA_BOARD=lite
- $ # we dont use any extra TFA parameters
+ $ # we don't use any extra TFA parameters
  $ unset TFA_EXTRA_ARGS
  $ export OPTEE_PLATFORM=k3-am62ax
- $ # we dont use any extra OPTEE parameters
+ $ # we don't use any extra OPTEE parameters
  $ unset OPTEE_EXTRA_ARGS
 
 1. Trusted Firmware-A:
@@ -147,7 +147,7 @@ the main domain serial port:
 Boot Modes
 ----------
 
-The phyCORE-AM62x development kit supports booting from many different
+The phyCORE-AM62Ax development kit supports booting from many different
 interfaces. By default, the development kit is set to boot from the micro-SD
 card. To change the boot device, DIP switches S5 and S6 can be used.
 Boot switches should be changed with power off.

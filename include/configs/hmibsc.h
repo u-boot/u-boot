@@ -8,8 +8,4 @@
 #ifndef __CONFIGS_HMIBSC_H
 #define __CONFIGS_HMIBSC_H
 
-/* PHY needs a longer aneg time */
-
-#define CFG_ENV_FLAGS_LIST_STATIC "BOOT_A_LEFT:dw,BOOT_B_LEFT:dw,BOOT_ORDER:sw"
-
 #endif

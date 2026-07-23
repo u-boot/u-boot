@@ -534,7 +534,7 @@ static int ast2500_clk_enable(struct clk *clk)
 	return 0;
 }
 
-struct clk_ops ast2500_clk_ops = {
+static const struct clk_ops ast2500_clk_ops = {
 	.get_rate = ast2500_clk_get_rate,
 	.set_rate = ast2500_clk_set_rate,
 	.enable = ast2500_clk_enable,
@@ -544,9 +544,9 @@ static int ast2500_clk_of_to_plat(struct udevice *dev)
 {
 	struct ast2500_clk_priv *priv = dev_get_priv(dev);
 
-	priv->scu = devfdt_get_addr_ptr(dev);
-	if (IS_ERR(priv->scu))
-		return PTR_ERR(priv->scu);
+	priv->scu = dev_read_addr_ptr(dev);
+	if (!priv->scu)
+		return -EINVAL;
 
 	return 0;
 }

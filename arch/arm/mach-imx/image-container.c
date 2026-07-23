@@ -240,6 +240,14 @@ static unsigned long get_boot_device_offset(void *dev, int dev_type)
 		return offset;
 	}
 
+#if IS_ENABLED(CONFIG_ARCH_IMX9) && IS_ENABLED(CONFIG_SCMI_FIRMWARE)
+	int ret;
+	ret = scmi_get_boot_device_offset(&offset);
+	if (!ret)
+		return offset;
+	/* fall back to boot from primary set if get rom passover failed */
+#endif
+
 	sec_boot = check_secondary_cnt_set(&sec_set_off);
 	if (sec_boot)
 		printf("Secondary set selected\n");
@@ -366,10 +374,17 @@ int spl_mmc_emmc_boot_partition(struct mmc *mmc)
 
 	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 	if (part == EMMC_BOOT_PART_BOOT1 || part == EMMC_BOOT_PART_BOOT2) {
-		unsigned long sec_set_off = 0;
 		bool sec_boot = false;
-
+#if IS_ENABLED(CONFIG_ARCH_IMX9) && IS_ENABLED(CONFIG_SCMI_FIRMWARE)
+		u8 stage;
+		int ret;
+		ret = scmi_get_boot_stage(&stage);
+		if (!ret)
+			sec_boot = (stage == 0x9);
+#else
+		unsigned long sec_set_off = 0;
 		sec_boot = check_secondary_cnt_set(&sec_set_off);
+#endif
 		if (sec_boot)
 			part = (part == EMMC_BOOT_PART_BOOT1) ? EMMC_HWPART_BOOT2 : EMMC_HWPART_BOOT1;
 	} else if (part == EMMC_BOOT_PART_USER) {

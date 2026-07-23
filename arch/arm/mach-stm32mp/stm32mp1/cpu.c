@@ -52,7 +52,6 @@ u32 get_bootauth(void)
  */
 void dram_bank_mmu_setup(int bank)
 {
-	struct bd_info *bd = gd->bd;
 	int	i;
 	phys_addr_t start;
 	phys_addr_t addr;
@@ -67,9 +66,9 @@ void dram_bank_mmu_setup(int bank)
 		size = ALIGN(STM32_SYSRAM_SIZE, MMU_SECTION_SIZE);
 #endif
 	} else if (gd->flags & GD_FLG_RELOC) {
-		/* bd->bi_dram is available only after relocation */
-		start = bd->bi_dram[bank].start;
-		size =  bd->bi_dram[bank].size;
+		/* gd->dram is available only after relocation */
+		start = gd->dram[bank].start;
+		size =  gd->dram[bank].size;
 		use_lmb = true;
 	} else {
 		/* mark cacheable and executable the beggining of the DDR */

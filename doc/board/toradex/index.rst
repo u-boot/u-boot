@@ -8,6 +8,7 @@ Toradex
 
    apalis-imx8
    aquila-am69
+   aquila-imx95
    colibri_imx7
    colibri-imx8x
    smarc-imx8mp

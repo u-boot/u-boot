@@ -26,7 +26,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #endif
 
 	if (ctrl_num) {
-		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);
+		printf("%s unexpected ctrl_num = %u\n", __func__, ctrl_num);
 		return;
 	}
 

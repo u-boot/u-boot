@@ -82,7 +82,8 @@ HOSTCFLAGS_image-host.o += \
 # The following files are synced with upstream DTC.
 # Use synced versions from scripts/dtc/libfdt/.
 LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
-		fdt_strerror.o fdt_empty_tree.o fdt_addresses.o fdt_overlay.o)
+		fdt_strerror.o fdt_empty_tree.o fdt_addresses.o fdt_overlay.o \
+		fdt_check.o)
 
 RSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/rsa/, \
 					rsa-sign.o rsa-verify.o \

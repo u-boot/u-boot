@@ -404,7 +404,7 @@ static int rtl8169_init_board(unsigned long dev_iobase, const char *name)
 	u32 tmp;
 
 #ifdef DEBUG_RTL8169
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 	ioaddr = dev_iobase;
 
@@ -534,7 +534,7 @@ static int rtl_recv_common(struct udevice *dev, unsigned long dev_iobase,
 	int length = 0;
 
 #ifdef DEBUG_RTL8169_RX
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 	ioaddr = dev_iobase;
 
@@ -608,7 +608,7 @@ static int rtl_send_common(struct udevice *dev, unsigned long dev_iobase,
 
 #ifdef DEBUG_RTL8169_TX
 	int stime = currticks();
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 	printf("sending %d bytes\n", len);
 #endif
 
@@ -679,7 +679,7 @@ static void rtl8169_set_rx_mode(void)
 	u32 tmp = 0;
 
 #ifdef DEBUG_RTL8169
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 	/* IFF_ALLMULTI */
@@ -701,7 +701,7 @@ static void rtl8169_hw_start(struct udevice *dev)
 
 #ifdef DEBUG_RTL8169
 	int stime = currticks();
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 #if 0
@@ -771,7 +771,7 @@ static void rtl8169_init_ring(struct udevice *dev)
 
 #ifdef DEBUG_RTL8169
 	int stime = currticks();
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 	tpc->cur_rx = 0;
@@ -810,7 +810,7 @@ static void rtl8169_common_start(struct udevice *dev, unsigned char *enetaddr,
 
 #ifdef DEBUG_RTL8169
 	int stime = currticks();
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 	ioaddr = dev_iobase;
@@ -851,7 +851,7 @@ static void rtl_halt_common(struct udevice *dev)
 	int i;
 
 #ifdef DEBUG_RTL8169
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 	ioaddr = priv->iobase;
@@ -906,7 +906,7 @@ static int rtl_init(unsigned long dev_ioaddr, const char *name,
 	int option = -1, Cap10_100 = 0, Cap1000 = 0;
 
 #ifdef DEBUG_RTL8169
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 	ioaddr = dev_ioaddr;
 

@@ -347,7 +347,7 @@ static const struct udevice_id imx8_power_domain_ids[] = {
 	{ }
 };
 
-struct power_domain_ops imx8_power_domain_ops = {
+static const struct power_domain_ops imx8_power_domain_ops = {
 	.on = imx8_power_domain_on,
 	.off = imx8_power_domain_off,
 	.of_xlate = imx8_power_domain_of_xlate,

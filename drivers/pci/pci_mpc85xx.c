@@ -170,13 +170,14 @@ static int mpc85xx_pci_dm_remove(struct udevice *dev)
 static int mpc85xx_pci_of_to_plat(struct udevice *dev)
 {
 	struct mpc85xx_pci_priv *priv = dev_get_priv(dev);
-	fdt_addr_t addr;
+	void __iomem *addr;
 
-	addr = devfdt_get_addr_index(dev, 0);
-	if (addr == FDT_ADDR_T_NONE)
+	addr = dev_remap_addr_index(dev, 0);
+	if (!addr)
 		return -EINVAL;
-	priv->cfg_addr = (void __iomem *)map_physmem(addr, 0, MAP_NOCACHE);
-	priv->cfg_data = (void __iomem *)((ulong)priv->cfg_addr + 4);
+
+	priv->cfg_addr = addr;
+	priv->cfg_data = priv->cfg_addr + 4;
 
 	return 0;
 }

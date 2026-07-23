@@ -243,14 +243,14 @@ int arch_cpu_init(void)
 
 int rockchip_dram_init_banksize_fixup(struct bd_info *bd)
 {
-	size_t ram_top = bd->bi_dram[1].start + bd->bi_dram[1].size;
+	size_t ram_top = gd->dram[1].start + gd->dram[1].size;
 
 	if (ram_top > DRAM_GAP_START) {
-		bd->bi_dram[1].size = DRAM_GAP_START - bd->bi_dram[1].start;
+		gd->dram[1].size = DRAM_GAP_START - gd->dram[1].start;
 
 		if (ram_top > DRAM_GAP_END && CONFIG_NR_DRAM_BANKS > 2) {
-			bd->bi_dram[2].start = DRAM_GAP_END;
-			bd->bi_dram[2].size = ram_top - bd->bi_dram[2].start;
+			gd->dram[2].start = DRAM_GAP_END;
+			gd->dram[2].size = ram_top - gd->dram[2].start;
 		}
 	}
 

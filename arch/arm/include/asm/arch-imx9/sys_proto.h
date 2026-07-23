@@ -22,6 +22,11 @@ int low_drive_freq_update(void *blob);
 
 enum imx9_soc_voltage_mode soc_target_voltage_mode(void);
 int get_reset_reason(bool sys, bool lm);
+int imx9_uboot_fixup_by_fuse(void *fdt);
+
+int scmi_get_boot_device_offset(unsigned long *img_off);
+int scmi_get_boot_stage(u8 *stage);
+u8 scmi_get_imgset_sel(void);
 
 #define is_voltage_mode(mode) (soc_target_voltage_mode() == (mode))
 

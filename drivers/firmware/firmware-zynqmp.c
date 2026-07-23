@@ -3,10 +3,11 @@
  * Xilinx Zynq MPSoC Firmware driver
  *
  * Copyright (C) 2018-2019 Xilinx, Inc.
- * Copyright (C) 2022 - 2025, Advanced Micro Devices, Inc.
+ * Copyright (C) 2022 - 2026, Advanced Micro Devices, Inc.
  */
 
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <cpu_func.h>
 #include <dm.h>
@@ -16,6 +17,7 @@
 #include <zynqmp_firmware.h>
 #include <asm/cache.h>
 #include <asm/ptrace.h>
+#include <asm/system.h>
 #include <linux/bitfield.h>
 
 #if defined(CONFIG_ZYNQMP_IPI)
@@ -197,6 +199,58 @@ int zynqmp_pm_ufs_cal_reg(u32 *value)
 	*value = readl(PMXC_EFUSE_CACHE_BASE_ADDRESS + PMXC_UFS_CAL_1_OFFSET);
 	return 0;
 }
+#endif /* CONFIG_ARCH_VERSAL2 */
+
+#if defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL2)
+u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr)
+{
+	int ret;
+	u32 value = 0;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	if (reg_addr == PMC_GLOBAL_PGGS3_REG) {
+		value = 0;
+	} else if (reg_addr == PMC_GLOBAL_PGGS4_REG) {
+		value = 1;
+	} else {
+		printf("%s: not supported pggs register 0x%x\n",
+		       __func__, reg_addr);
+		return 0;
+	}
+
+	ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_READ_PGGS);
+	if (ret) {
+		ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_READ_REG);
+		if (ret) {
+			printf("%s: IOCTL_READ_REG is not supported : %d\n"
+				, __func__, ret);
+			return 0;
+		}
+
+		/* find node ID from the pggs3 offset */
+		value = PM_REG_PGGS3 + value;
+
+		ret = xilinx_pm_request(PM_IOCTL, value,
+					IOCTL_READ_REG, 0, 0, 0, 0,
+					ret_payload);
+		if (ret) {
+			printf("%s: node 0x%x get pggs register failed\n",
+			       __func__, value);
+			return 0;
+		}
+	} else {
+		ret = xilinx_pm_request(PM_IOCTL, PMC_GLOBAL_PGGS3_REG_NODE,
+					IOCTL_READ_PGGS, value, 0, 0, 0,
+					ret_payload);
+		if (ret) {
+			printf("%s: node 0x%x get pggs register failed\n",
+			       __func__, PMC_GLOBAL_PGGS3_REG_NODE);
+			return 0;
+		}
+	}
+
+	return ret_payload[1];
+}
 #endif
 
 int zynqmp_pm_set_gem_config(u32 node, enum pm_gem_config_type config, u32 value)
@@ -271,6 +325,93 @@ u32 zynqmp_pm_get_pmc_multi_boot_reg(void)
 	}
 
 	return ret_payload[1];
+}
+#endif
+
+#if defined(CONFIG_ARCH_VERSAL)
+u32 versal_pmc_multi_boot(void)
+{
+	/* At EL3 the SMC path to firmware is unavailable, read directly */
+	if (current_el() == 3)
+		return versal_multi_boot_reg();
+
+	return zynqmp_pm_get_pmc_multi_boot_reg() & PMC_MULTI_BOOT_MASK;
+}
+
+u8 versal_get_bootmode(void)
+{
+	u32 reg;
+
+	/* At EL3 the SMC path to firmware is unavailable, read directly */
+	if (current_el() == 3)
+		reg = versal_bootmode_reg();
+	else
+		reg = zynqmp_pm_get_bootmode_reg();
+
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
+	return reg & BOOT_MODES_MASK;
+}
+#endif
+
+#if defined(CONFIG_ARCH_VERSAL_NET)
+u8 versal_net_get_bootmode(void)
+{
+	u32 reg;
+
+	/* At EL3 the SMC path to firmware is unavailable, read directly */
+	if (current_el() == 3)
+		reg = versal_net_bootmode_reg();
+	else
+		reg = zynqmp_pm_get_bootmode_reg();
+
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
+	return reg & BOOT_MODES_MASK;
+}
+#endif
+
+#if defined(CONFIG_ARCH_ZYNQMP)
+int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value)
+{
+	/* At EL3 or in SPL the firmware (SMC) path is unavailable */
+	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3)
+		return zynqmp_mmio_rawwrite(address, mask, value);
+
+	return xilinx_pm_request(PM_MMIO_WRITE, address, mask, value,
+				 0, 0, 0, NULL);
+}
+
+int zynqmp_mmio_read(const u32 address, u32 *value)
+{
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+	int ret;
+
+	if (!value)
+		return -EINVAL;
+
+	/* At EL3 or in SPL the firmware (SMC) path is unavailable */
+	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3)
+		return zynqmp_mmio_rawread(address, value);
+
+	ret = xilinx_pm_request(PM_MMIO_READ, address, 0, 0, 0, 0, 0,
+				ret_payload);
+	*value = ret_payload[1];
+
+	return ret;
+}
+#endif
+
+#if defined(CONFIG_ARCH_VERSAL2)
+u32 versal2_pmc_multi_boot(void)
+{
+	/* At EL3 the SMC path to firmware is unavailable, read directly */
+	if (current_el() == 3)
+		return versal2_multi_boot_reg();
+
+	return zynqmp_pm_get_pmc_multi_boot_reg() & PMC_MULTI_BOOT_MASK;
 }
 #endif
 

@@ -3,6 +3,8 @@
  * Copyright 2019 Foundries.io
  */
 
+#include "imx7ulp-u-boot.dtsi"
+
 &iomuxc1 {
 	bootph-pre-ram;
 };

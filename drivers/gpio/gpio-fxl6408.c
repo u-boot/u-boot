@@ -273,7 +273,7 @@ static int fxl6408_probe(struct udevice *dev)
 	u32 val32;
 
 	addr = dev_read_addr(dev);
-	if (addr == 0)
+	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	info->addr = addr;

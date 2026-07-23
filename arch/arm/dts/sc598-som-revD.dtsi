@@ -8,6 +8,8 @@
 #include "sc598-som.dtsi"
 
 &i2c2 {
+	status = "okay";
+
 	som_gpio_expander: mcp23018@20 {
 		compatible = "microchip,mcp23018";
 		reg = <0x20>;

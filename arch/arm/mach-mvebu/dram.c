@@ -294,11 +294,11 @@ int dram_init_banksize(void)
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		gd->bd->bi_dram[i].start = mvebu_sdram_bar(i);
-		gd->bd->bi_dram[i].size = mvebu_sdram_bs(i);
+		gd->dram[i].start = mvebu_sdram_bar(i);
+		gd->dram[i].size = mvebu_sdram_bs(i);
 
 		/* Clip the banksize to 1GiB if it exceeds the max size */
-		size += gd->bd->bi_dram[i].size;
+		size += gd->dram[i].size;
 		if (size > MVEBU_SDRAM_SIZE_MAX)
 			mvebu_sdram_bs_set(i, 0x40000000);
 	}

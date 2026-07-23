@@ -38,16 +38,16 @@ int a8k_dram_init_banksize(void)
 	 */
 	phys_size_t max_bank0_size = SZ_4G - SZ_1G;
 
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
 	if (gd->ram_size <= max_bank0_size) {
-		gd->bd->bi_dram[0].size = gd->ram_size;
+		gd->dram[0].size = gd->ram_size;
 		return 0;
 	}
 
-	gd->bd->bi_dram[0].size = max_bank0_size;
+	gd->dram[0].size = max_bank0_size;
 	if (CONFIG_NR_DRAM_BANKS > 1) {
-		gd->bd->bi_dram[1].start = SZ_4G;
-		gd->bd->bi_dram[1].size = gd->ram_size - max_bank0_size;
+		gd->dram[1].start = SZ_4G;
+		gd->dram[1].size = gd->ram_size - max_bank0_size;
 	}
 
 	return 0;

@@ -290,7 +290,7 @@ static int sti_reset_deassert(struct reset_ctl *reset_ctl)
 	return sti_reset_program_hw(reset_ctl, false);
 }
 
-struct reset_ops sti_reset_ops = {
+static const struct reset_ops sti_reset_ops = {
 	.rst_assert = sti_reset_assert,
 	.rst_deassert = sti_reset_deassert,
 };
