@@ -112,6 +112,7 @@ config ARM
 
 config LOONGARCH
 	bool "LoongArch architecture"
+	select HAVE_SETJMP
 	select CREATE_ARCH_SYMLINK
 	select SUPPORT_OF_CONTROL
 	select OF_CONTROL
