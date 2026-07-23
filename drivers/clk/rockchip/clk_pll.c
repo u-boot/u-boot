@@ -182,10 +182,7 @@ rockchip_rk3588_pll_k_get(u32 m, u32 p, u32 s, u64 fin_hz, u64 fvco)
 		 * Round up to avoid overshooting requested rate for negative k
 		 */
 		k = DIV64_U64_ROUND_UP(ffrac * 65536, fref);
-		if (k > 32767)
-			k = 0;
-		else
-			k = ~k + 1;
+		k = ~k + 1;
 	}
 	return k;
 }
