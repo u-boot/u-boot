@@ -167,31 +167,31 @@ rockchip_pll_clk_set_by_auto(ulong fin_hz,
 	return rate_table;
 }
 
-static u32
-rockchip_rk3588_pll_k_get(u32 m, u32 p, u32 s, u64 fin_hz, u64 fvco)
+static void
+rockchip_rk3588_pll_k_get(struct rockchip_pll_rate_table *rate_table, u64 fref, u64 fvco)
 {
-	u64 fref, ffrac;
+	u64 ffrac;
 	u32 k = 0;
 
-	fref = fin_hz / p;
-	ffrac = fvco - (m * fref);
+	ffrac = fvco - (rate_table->m) * fref;
 	k = ffrac * 65536 / fref;
 	if (k > 32767) {
-		ffrac = ((m + 1) * fref) - fvco;
+		rate_table->m += 1;
+		ffrac = (rate_table->m) * fref - fvco;
 		/*
 		 * Round up to avoid overshooting requested rate for negative k
 		 */
 		k = DIV64_U64_ROUND_UP(ffrac * 65536, fref);
 		k = ~k + 1;
 	}
-	return k;
+	rate_table->k = k;
 }
 
 static struct rockchip_pll_rate_table *
 rockchip_rk3588_pll_frac_by_auto(unsigned long fin_hz, unsigned long fout_hz)
 {
 	struct rockchip_pll_rate_table *rate_table = &rockchip_auto_table;
-	u32 p, m, s, k;
+	u32 p, m, s;
 	u64 fvco;
 
 	for (s = 0; s <= 6; s++) {
@@ -202,18 +202,13 @@ rockchip_rk3588_pll_frac_by_auto(unsigned long fin_hz, unsigned long fout_hz)
 			for (m = 64; m <= 1023; m++) {
 				if ((fvco >= m * fin_hz / p) &&
 				    (fvco < (m + 1) * fin_hz / p)) {
-					k = rockchip_rk3588_pll_k_get(m, p, s,
-								      fin_hz,
-								      fvco);
-					if (!k)
-						continue;
 					rate_table->p = p;
+					rate_table->m = m;
 					rate_table->s = s;
-					rate_table->k = k;
-					if (k > 32767)
-						rate_table->m = m + 1;
-					else
-						rate_table->m = m;
+
+					rockchip_rk3588_pll_k_get(rate_table,
+								  fin_hz / p,
+								  fvco);
 					return rate_table;
 				}
 			}
