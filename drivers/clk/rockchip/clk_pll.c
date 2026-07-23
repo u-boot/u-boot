@@ -11,6 +11,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <div64.h>
 #include <linux/delay.h>
+#include <linux/math64.h>
 
 static struct rockchip_pll_rate_table rockchip_auto_table;
 
@@ -177,7 +178,10 @@ rockchip_rk3588_pll_k_get(u32 m, u32 p, u32 s, u64 fin_hz, u64 fvco)
 	k = ffrac * 65536 / fref;
 	if (k > 32767) {
 		ffrac = ((m + 1) * fref) - fvco;
-		k = ((ffrac * 65536 * 10 / fref) + 7) / 10;
+		/*
+		 * Round up to avoid overshooting requested rate for negative k
+		 */
+		k = DIV64_U64_ROUND_UP(ffrac * 65536, fref);
 		if (k > 32767)
 			k = 0;
 		else
