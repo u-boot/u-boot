@@ -1476,7 +1476,8 @@ fit-dtb.blob.gz: fit-dtb.blob
 fit-dtb.blob.lzo: fit-dtb.blob
 	@lzop -f9 $< > $@
 
-fit-dtb.blob: dts/dt.dtb FORCE
+of_list_srcs := $(patsubst %,$(dt_dir)/%.dts,$(subst ",,$(CONFIG_OF_LIST)))
+fit-dtb.blob: dts/dt.dtb $(of_list_srcs) FORCE
 	$(call if_changed,mkimage)
 ifneq ($(SOURCE_DATE_EPOCH),)
 	touch -d @$(SOURCE_DATE_EPOCH) fit-dtb.blob
