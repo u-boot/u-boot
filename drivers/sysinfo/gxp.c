@@ -15,12 +15,16 @@
 
 /**
  * struct gxp_sysinfo_priv - GXP sysinfo private data
- * @serial_cell: NVMEM cell for serial number
- * @part_cell: NVMEM cell for part number
+ * @serial_cell: NVMEM cell for system serial number
+ * @part_cell: NVMEM cell for system part number
+ * @pca_serial_cell: NVMEM cell for baseboard (PCA) serial number
+ * @pca_part_cell: NVMEM cell for baseboard (PCA) part number
  */
 struct gxp_sysinfo_priv {
 	struct nvmem_cell serial_cell;
 	struct nvmem_cell part_cell;
+	struct nvmem_cell pca_serial_cell;
+	struct nvmem_cell pca_part_cell;
 };
 
 static int gxp_sysinfo_detect(struct udevice *dev)
@@ -47,10 +51,20 @@ static int gxp_sysinfo_get_str(struct udevice *dev, int id, size_t size,
 			return -ENODEV;
 		cell = &priv->serial_cell;
 		break;
-	case SYSID_SM_BASEBOARD_PRODUCT:
+	case SYSID_SM_SYSTEM_PRODUCT:
 		if (!priv->part_cell.nvmem)
 			return -ENODEV;
 		cell = &priv->part_cell;
+		break;
+	case SYSID_SM_BASEBOARD_SERIAL:
+		if (!priv->pca_serial_cell.nvmem)
+			return -ENODEV;
+		cell = &priv->pca_serial_cell;
+		break;
+	case SYSID_SM_BASEBOARD_PRODUCT:
+		if (!priv->pca_part_cell.nvmem)
+			return -ENODEV;
+		cell = &priv->pca_part_cell;
 		break;
 	default:
 		return -EINVAL;
@@ -74,6 +88,8 @@ static int gxp_sysinfo_probe(struct udevice *dev)
 
 	nvmem_cell_get_by_name(dev, "serial-number", &priv->serial_cell);
 	nvmem_cell_get_by_name(dev, "part-number", &priv->part_cell);
+	nvmem_cell_get_by_name(dev, "pca-serial-number", &priv->pca_serial_cell);
+	nvmem_cell_get_by_name(dev, "pca-part-number", &priv->pca_part_cell);
 
 	return 0;
 }

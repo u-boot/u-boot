@@ -73,6 +73,17 @@ int board_fit_config_name_match(const char *name)
 	return -1;
 }
 
+static void ft_board_show_product(void *blob)
+{
+	if (CONFIG_IS_ENABLED(DISPLAY_BOARDINFO)) {
+		const char *model;
+
+		model = fdt_getprop(blob, 0, "model", NULL);
+		if (model)
+			printf("Product: %s\n", model);
+	}
+}
+
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	struct udevice *dev;
@@ -81,11 +92,11 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	ret = sysinfo_get(&dev);
 	if (ret)
-		return 0;
+		goto skip_sysinfo;
 
 	ret = sysinfo_detect(dev);
 	if (ret)
-		return 0;
+		goto skip_sysinfo;
 
 	ret = sysinfo_get_str(dev, SYSID_BOARD_MANUFACTURER, sizeof(str), str);
 	if (!ret)
@@ -95,9 +106,31 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	if (!ret)
 		fdt_setprop_string(blob, 0, "serial-number", str);
 
-	ret = sysinfo_get_str(dev, SYSID_SM_BASEBOARD_PRODUCT, sizeof(str), str);
+	ret = sysinfo_get_str(dev, SYSID_SM_SYSTEM_PRODUCT, sizeof(str), str);
 	if (!ret)
 		fdt_setprop_string(blob, 0, "part-number", str);
+
+	/* Populate baseboard (PCA) properties in a subnode */
+	int bb_off = fdt_add_subnode(blob, 0, "baseboard");
+
+	if (bb_off >= 0) {
+		fdt_setprop_string(blob, bb_off, "compatible",
+				   "hpe,gxp-baseboard");
+
+		ret = sysinfo_get_str(dev, SYSID_SM_BASEBOARD_SERIAL,
+				      sizeof(str), str);
+		if (!ret)
+			fdt_setprop_string(blob, bb_off, "serial-number", str);
+
+		ret = sysinfo_get_str(dev, SYSID_SM_BASEBOARD_PRODUCT,
+				      sizeof(str), str);
+		if (!ret)
+			fdt_setprop_string(blob, bb_off, "part-number", str);
+	}
+
+skip_sysinfo:
+	if (CONFIG_IS_ENABLED(DISPLAY_BOARDINFO))
+		ft_board_show_product(blob);
 
 	return 0;
 }
