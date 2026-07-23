@@ -45,6 +45,38 @@
 		ranges;
 		dma-ranges;
 
+		eeprom: eeprom@a0017f00 {
+			compatible = "hpe,gxp-eeprom";
+			reg = <0xa0017f00 0x100>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			bootph-all;
+
+			serial_number: serial-number@1 {
+				reg = <0x01 0x10>;
+			};
+
+			part_number: part-number@6d {
+				reg = <0x6d 0x10>;
+			};
+
+			mac_address0: mac-address@84 {
+				reg = <0x84 0x6>;
+			};
+
+			mac_address1: mac-address@8a {
+				reg = <0x8a 0x6>;
+			};
+
+			pca_serial_number: pca-serial-number@90 {
+				reg = <0x90 0x10>;
+			};
+
+			pca_part_number: pca-part-number@a0 {
+				reg = <0xa0 0x10>;
+			};
+		};
+
 		L2: cache-controller@b0040000 {
 			compatible = "arm,pl310-cache";
 			reg = <0xb0040000 0x1000>;
