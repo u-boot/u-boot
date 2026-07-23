@@ -30,6 +30,35 @@ static u16 gxp_get_server_id(void)
 	return FIELD_GET(GXP_XREG_SERVER_ID, readl(GXP_XREG_BASE));
 }
 
+int checkboard(void)
+{
+	struct udevice *dev;
+	char str[64];
+	u16 server_id;
+	int ret;
+
+	server_id = gxp_get_server_id();
+	printf("Server ID: 0x%04x\n", server_id);
+
+	ret = sysinfo_get(&dev);
+	if (ret)
+		return 0;
+
+	ret = sysinfo_detect(dev);
+	if (ret)
+		return 0;
+
+	ret = sysinfo_get_str(dev, SYSID_SM_SYSTEM_SERIAL, sizeof(str), str);
+	if (!ret)
+		printf("Serial Number: %s\n", str);
+
+	ret = sysinfo_get_str(dev, SYSID_SM_BASEBOARD_PRODUCT, sizeof(str), str);
+	if (!ret)
+		printf("Part Number: %s\n", str);
+
+	return 0;
+}
+
 int board_fit_config_name_match(const char *name)
 {
 	char expected[16];
