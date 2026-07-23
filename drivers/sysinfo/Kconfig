@@ -67,4 +67,12 @@ config SYSINFO_TQ_EEPROM
 	  Support querying EEPROM of TQ-Systems SOMs to determine board
 	  information.
 
+config SYSINFO_GXP
+	bool "HPE GXP sysinfo driver"
+	depends on ARCH_GXP && GXP_EEPROM
+	default y if ARCH_GXP
+	help
+	  Support querying board information for HPE GXP BMC SoCs.
+	  Uses the GXP EEPROM driver to retrieve serial and part numbers.
+
 endif

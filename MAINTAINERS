@@ -345,6 +345,8 @@ F:	board/hpe/
 F:	configs/gxp_defconfig
 F:	doc/device-tree-bindings/spi/hpe,gxp-spi.yaml
 F:	drivers/misc/gxp_eeprom.c
+F:	drivers/sysinfo/gxp.c
+F:	drivers/sysinfo/gxp.h
 F:	drivers/timer/gxp-timer.c
 F:	drivers/spi/gxp_spi.c
 
