@@ -437,6 +437,12 @@ config TARGET_LIBREM5
 	select IMX8M_LPDDR4
 	imply OF_UPSTREAM
 
+config TARGET_LIBREM5_DEVKIT
+	bool "Purism Librem5 Devkit"
+	select IMX8MQ
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 endchoice
 
 source "board/advantech/imx8mp_rsb3720a1/Kconfig"
@@ -469,6 +475,7 @@ source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/polyhex/imx8mp_debix_model_a/Kconfig"
 source "board/purism/librem5/Kconfig"
+source "board/purism/librem5-devkit/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"
