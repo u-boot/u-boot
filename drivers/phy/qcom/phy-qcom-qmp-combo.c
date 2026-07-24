@@ -7,10 +7,12 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
+#include <dm/ofnode.h>
 #include <generic-phy.h>
 #include <reset.h>
 #include <power/regulator.h>
 #include <asm/io.h>
+#include <asm-generic/gpio.h>
 #include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/delay.h>
@@ -39,6 +41,7 @@
 #define DP_MODE                                 BIT(1) /* enables DP mode */
 
 /* QPHY_V3_DP_COM_TYPEC_CTRL register bits */
+#define SW_PORTSELECT_VAL                       BIT(0)
 #define SW_PORTSELECT_MUX                       BIT(1)
 
 /* PHY slot identifiers for device tree phandle arguments */
@@ -370,6 +373,7 @@ struct qmp_combo {
 	struct udevice **vregs;
 	int num_vregs;
 	const struct qmp_phy_cfg *cfg;
+	bool orientation_reversed;
 };
 
 static inline void qphy_setbits(void __iomem *base, u32 offset, u32 val)
@@ -465,6 +469,8 @@ static int qmp_combo_com_init(struct qmp_combo *qmp)
 		     SW_USB3PHY_RESET_MUX | SW_USB3PHY_RESET);
 
 	val = SW_PORTSELECT_MUX;
+	if (qmp->orientation_reversed)
+		val |= SW_PORTSELECT_VAL;
 	writel(val, com + QPHY_V3_DP_COM_TYPEC_CTRL);
 
 	writel(USB3_MODE | DP_MODE, com + QPHY_V3_DP_COM_PHY_MODE_CTRL);
@@ -653,6 +659,33 @@ static int qmp_combo_vreg_init(struct qmp_combo *qmp)
 	return 0;
 }
 
+/*
+ * The orientation of the USB-C connector on this platform is reported by a
+ * single GPIO exposed on the "qcom,pmic-glink" node ("orientation-gpios").
+ * Read it once here so the port-select mux can be programmed to
+ * match physical cable orientation.
+ */
+static bool qmp_combo_read_orientation(void)
+{
+	ofnode node;
+	struct gpio_desc desc;
+	int ret, val;
+
+	node = ofnode_by_compatible(ofnode_null(), "qcom,pmic-glink");
+	if (!ofnode_valid(node))
+		return false;
+
+	ret = gpio_request_by_name_nodev(node, "orientation-gpios", 0,
+					 &desc, GPIOD_IS_IN);
+	if (ret)
+		return false;
+
+	val = dm_gpio_get_value(&desc);
+	dm_gpio_free(desc.dev, &desc);
+
+	return val > 0;
+}
+
 static int qmp_combo_parse_dt(struct qmp_combo *qmp)
 {
 	const struct qmp_phy_cfg *cfg = qmp->cfg;
@@ -667,6 +700,8 @@ static int qmp_combo_parse_dt(struct qmp_combo *qmp)
 	base = (void __iomem *)dev_read_addr(dev);
 	if (IS_ERR(base))
 		return PTR_ERR(base);
+
+	qmp->orientation_reversed = qmp_combo_read_orientation();
 
 	qmp->com = base + offs->com;
 	qmp->serdes = base + offs->usb3_serdes;
