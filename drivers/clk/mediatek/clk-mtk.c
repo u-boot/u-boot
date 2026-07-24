@@ -1117,17 +1117,6 @@ const struct clk_ops mtk_clk_infrasys_ops = {
 #endif
 };
 
-int mtk_common_clk_parent_bind(struct udevice *dev)
-{
-	/*
-	 * Clock trees that provide parent clocks need to be probed right away
-	 * so that any clock depending on them will work correctly.
-	 */
-	dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
-
-	return 0;
-}
-
 int mtk_clk_probe(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
