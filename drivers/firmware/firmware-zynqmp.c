@@ -177,26 +177,89 @@ unsigned int zynqmp_firmware_version(void)
 #if defined(CONFIG_ARCH_VERSAL2)
 int zynqmp_pm_ufs_get_txrx_cfgrdy(u32 *value)
 {
-	*value = readl(PMXC_SLCR_BASE_ADDRESS + PMXC_TX_RX_CFG_RDY);
-	return 0;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+	int ret;
+
+	if (!value)
+		return -EINVAL;
+
+	ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_IOU_SLCR,
+				IOCTL_READ_REG, TXRX_CFGRDY_OFFSET, 0, 0,
+				0, ret_payload);
+	if (ret)
+		return ret;
+
+	*value = ret_payload[1];
+
+	return ret;
 }
 
 int zynqmp_pm_ufs_sram_csr_read(u32 *value)
 {
-	*value = readl(PMXC_SLCR_BASE_ADDRESS + PMXC_SRAM_CSR);
-	return 0;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+	int ret;
+
+	if (!value)
+		return -EINVAL;
+
+	ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_IOU_SLCR,
+				IOCTL_READ_REG, SRAM_CSR_OFFSET, 0, 0,
+				0, ret_payload);
+	if (ret)
+		return ret;
+
+	*value = ret_payload[1];
+
+	return ret;
 }
 
 int zynqmp_pm_ufs_sram_csr_write(u32 *value)
 {
-	writel(*value, PMXC_SLCR_BASE_ADDRESS + PMXC_SRAM_CSR);
-	return 0;
+	int ret;
+
+	if (!value)
+		return -EINVAL;
+
+	ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_MASK_WRITE_REG);
+	if (ret) {
+		printf("%s: IOCTL_MASK_WRITE_REG is not supported : %d\n"
+			, __func__, ret);
+		return 0;
+	}
+
+	ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_IOU_SLCR,
+				IOCTL_MASK_WRITE_REG, SRAM_CSR_OFFSET,
+				GENMASK(2, 1), *value, 0, NULL);
+	if (ret)
+		return ret;
+
+	return ret;
 }
 
 int zynqmp_pm_ufs_cal_reg(u32 *value)
 {
-	*value = readl(PMXC_EFUSE_CACHE_BASE_ADDRESS + PMXC_UFS_CAL_1_OFFSET);
-	return 0;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+	int ret;
+
+	if (!value)
+		return -EINVAL;
+
+	ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_READ_REG);
+	if (ret) {
+		printf("%s: IOCTL_READ_REG is not supported : %d\n"
+			, __func__, ret);
+		return 0;
+	}
+
+	ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_EFUSE_CACHE,
+				IOCTL_READ_REG, UFS_CAL_1_OFFSET, 0, 0,
+				0, ret_payload);
+	if (ret)
+		return ret;
+
+	*value = ret_payload[1];
+
+	return ret;
 }
 #endif /* CONFIG_ARCH_VERSAL2 */
 

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2021 - 2022, Xilinx, Inc.
- * Copyright (C) 2022 - 2024, Advanced Micro Devices, Inc.
+ * Copyright (C) 2022 - 2026, Advanced Micro Devices, Inc.
  */
 
 #ifndef _ASM_ARCH_SYS_PROTO_H
@@ -21,5 +21,10 @@ u32 versal2_multi_boot_reg(void);
 u8 versal2_get_bootmode(void);
 /* EL3 clock/timer register setup, called from board_early_init_r() */
 void versal2_timer_setup(void);
+
+int zynqmp_pm_ufs_get_txrx_cfgrdy(u32 *value);
+int zynqmp_pm_ufs_sram_csr_read(u32 *value);
+int zynqmp_pm_ufs_sram_csr_write(u32 *value);
+int zynqmp_pm_ufs_cal_reg(u32 *value);
 
 #endif /* _ASM_ARCH_SYS_PROTO_H */

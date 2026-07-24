@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2024-2025 Advanced Micro Devices, Inc.
+ * Copyright (C) 2024-2026 Advanced Micro Devices, Inc.
  */
 
 #include <clk.h>
@@ -13,6 +13,8 @@
 #include <linux/err.h>
 #include <linux/time.h>
 #include <reset.h>
+
+#include <asm/arch/sys_proto.h>
 
 #include "ufs.h"
 #include "ufshcd-dwc.h"
