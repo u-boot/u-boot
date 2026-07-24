@@ -58,6 +58,7 @@ static const struct efi_mem_attrs {
 	{EFI_MEMORY_SP, "SP"},
 	{EFI_MEMORY_CPU_CRYPTO, "CRYPT"},
 	{EFI_MEMORY_HOT_PLUGGABLE, "HOTPL"},
+	{EFI_MEMORY_ISA_VALID, "ISA_VALID"},
 	{EFI_MEMORY_RUNTIME, "RT"},
 };
 
@@ -91,13 +92,16 @@ static const char *efi_mem_type_name(u32 type)
  * efi_print_mem_attrs() - print the names of set EFI memory attributes
  *
  * Prints the set attribute bits as a '|'-separated list of mnemonics,
- * e.g. ' UC|WB|RT', preceded by a space. Prints nothing if no known
- * attribute bit is set.
+ * e.g. ' UC|WB|RT', preceded by a space. When EFI_MEMORY_ISA_VALID is
+ * set, the EFI_MEMORY_ISA_MASK field is printed as ISA=<value>. Bits
+ * that have no mnemonic are printed as a hexadecimal value so that
+ * invalid or not yet known attributes are never dropped silently.
  *
  * @attributes: memory attributes (EFI_MEMORY_...)
  */
 static void efi_print_mem_attrs(u64 attributes)
 {
+	u64 unknown = attributes;
 	int sep, i;
 
 	for (sep = 0, i = 0; i < ARRAY_SIZE(efi_mem_attrs); i++)
@@ -109,7 +113,19 @@ static void efi_print_mem_attrs(u64 attributes)
 				sep = 1;
 			}
 			puts(efi_mem_attrs[i].text);
+			unknown &= ~efi_mem_attrs[i].bit;
 		}
+
+	if (attributes & EFI_MEMORY_ISA_VALID) {
+		printf("%sISA=0x%llx", sep ? "|" : " ",
+		       (attributes & EFI_MEMORY_ISA_MASK) >>
+		       EFI_MEMORY_ISA_SHIFT);
+		sep = 1;
+		unknown &= ~EFI_MEMORY_ISA_MASK;
+	}
+
+	if (unknown)
+		printf("%s0x%llx", sep ? "|" : " ", unknown);
 }
 
 void efi_show_memmap(struct efi_mem_desc *map, efi_uintn_t map_size,

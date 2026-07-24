@@ -45,7 +45,10 @@ Start, End
 
 Attributes
     The attributes of the region as a '|'-separated list of mnemonics,
-    e.g. UC for EFI_MEMORY_UC and RT for EFI_MEMORY_RUNTIME.
+    e.g. UC for EFI_MEMORY_UC and RT for EFI_MEMORY_RUNTIME. When the
+    region carries ISA-specific attributes (EFI_MEMORY_ISA_VALID is set),
+    the ISA-specific field is shown as ISA=<value>. Attribute bits without
+    a mnemonic are shown as a hexadecimal value.
 
 efi tables
 ~~~~~~~~~~
