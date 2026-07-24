@@ -682,6 +682,24 @@ int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
 void efi_show_tables(struct efi_system_table *systab);
 
 /**
+ * efi_show_memmap() - print an EFI memory map
+ *
+ * Prints one line per descriptor with the memory type name, the physical
+ * start and end address and the attributes as a '|'-separated list of
+ * mnemonics.
+ *
+ * The virtual addresses of the descriptors are not shown: the map is
+ * identity mapped before SetVirtualAddressMap() is called, so the field
+ * carries no information at this point.
+ *
+ * @map:	memory map to print
+ * @map_size:	size of the memory map in bytes
+ * @desc_size:	size of a single descriptor in bytes
+ */
+void efi_show_memmap(struct efi_mem_desc *map, efi_uintn_t map_size,
+		     efi_uintn_t desc_size);
+
+/**
  * efi_get_basename() - Get the default filename to use when loading
  *
  * E.g. this function returns BOOTAA64.EFI for an aarch target
