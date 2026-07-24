@@ -9,6 +9,7 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -59,6 +60,40 @@ static struct udevice *mtk_clk_tree_get_provider(enum mtk_clk_tree_type type)
 {
 	if (!mtk_clk_tree_type_is_provider(type))
 		return NULL;
+
+	if (!mtk_clk_providers[type]) {
+		struct udevice *dev;
+		struct uclass *uc;
+		int ret;
+
+		/* Lazily probe and register the requested provider. */
+		ret = uclass_get(UCLASS_CLK, &uc);
+		if (ret)
+			return ERR_PTR(ret);
+
+		uclass_foreach_dev(dev, uc) {
+			const struct mtk_clk_tree *tree;
+			const void *ops;
+
+			ops = dev_get_driver_ops(dev);
+			if (ops != &mtk_clk_apmixedsys_ops &&
+			    ops != &mtk_clk_fixed_pll_ops &&
+			    ops != &mtk_clk_topckgen_ops &&
+			    ops != &mtk_clk_infrasys_ops)
+				continue;
+
+			tree = (const void *)dev_get_driver_data(dev);
+			if (tree->type != type)
+				continue;
+
+			/* Probe will add it to mtk_clk_providers[type]. */
+			ret = device_probe(dev);
+			if (ret)
+				return ERR_PTR(ret);
+
+			break;
+		}
+	}
 
 	return mtk_clk_providers[type] ?: ERR_PTR(-ENOENT);
 }
