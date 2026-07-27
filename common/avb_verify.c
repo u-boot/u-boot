@@ -1091,6 +1091,19 @@ AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest)
 
 	return AVB_IO_RESULT_OK;
 }
+#else /* CONFIG_AVB_ROOT_KEY_BOARD */
+/*
+ * Weak, fail-closed default. A board/SoC selecting CONFIG_AVB_ROOT_KEY_BOARD
+ * must provide a strong avb_read_root_key_digest() (e.g. reading a hash fused
+ * into OTP/eFuse). If it does not, verification fails rather than silently
+ * trusting a wrong key.
+ */
+__weak AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest)
+{
+	printf("%s: board root key provider not implemented\n", __func__);
+
+	return AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+}
 #endif
 
 /**

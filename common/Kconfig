@@ -929,6 +929,15 @@ config AVB_ROOT_KEY_TEE
 	  The digest must be provisioned into the TEE beforehand. Integrity is
 	  provided by the TEE's (RPMB-backed) storage.
 
+config AVB_ROOT_KEY_BOARD
+	bool "SoC/board specific provider (weak function)"
+	help
+	  Obtain the trusted root key digest from a board/SoC specific strong
+	  definition of avb_read_root_key_digest() (for example reading a hash
+	  fused into OTP/eFuse). The default weak implementation fails closed,
+	  so a board that forgets to override it will refuse verification
+	  rather than silently trust a wrong key.
+
 endchoice
 
 config AVB_ROOT_KEY_TEE_NAME
