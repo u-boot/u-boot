@@ -6,8 +6,6 @@
 #include "avb_descriptor.h"
 #include "avb_util.h"
 #include "avb_vbmeta_image.h"
-#include <log.h>
-#include <malloc.h>
 
 bool avb_descriptor_validate_and_byteswap(const AvbDescriptor* src,
                                           AvbDescriptor* dest) {
@@ -31,6 +29,8 @@ bool avb_descriptor_foreach(const uint8_t* image_data,
   const uint8_t* desc_start;
   const uint8_t* desc_end;
   const uint8_t* p;
+  uint64_t desc_offset = 0;
+  uint64_t desc_size = 0;
 
   if (image_data == NULL) {
     avb_error("image_data is NULL\n.");
@@ -42,6 +42,9 @@ bool avb_descriptor_foreach(const uint8_t* image_data,
     goto out;
   }
 
+  /* The data is supposed to have been cryptographically verified at this point,
+   * This check is just adding defense in depth.
+   */
   if (image_size < sizeof(AvbVBMetaImageHeader)) {
     avb_error("Length is smaller than header.\n");
     goto out;
@@ -58,23 +61,53 @@ bool avb_descriptor_foreach(const uint8_t* image_data,
   header = (const AvbVBMetaImageHeader*)image_data;
   image_end = image_data + image_size;
 
-  desc_start = image_data + sizeof(AvbVBMetaImageHeader) +
-               avb_be64toh(header->authentication_data_block_size) +
-               avb_be64toh(header->descriptors_offset);
+  /* Since the data is supposed to have been cryptographically verified at this
+   * point, being overflow-safe is just for defense.
+   * The following lines are overflow-safe version of:
+   * desc_offset = sizeof(AvbVBMetaImageHeader) +
+   *               avb_be64toh(header->authentication_data_block_size)) +
+   *               avb_be64toh(header->descriptors_offset)
+   */
+  if (!avb_safe_add(&desc_offset,
+                    sizeof(AvbVBMetaImageHeader),
+                    avb_be64toh(header->authentication_data_block_size))) {
+    avb_error("Invalid authentication data block size.\n");
+    goto out;
+  }
+  if (!avb_safe_add_to(&desc_offset, avb_be64toh(header->descriptors_offset))) {
+    avb_error("Invalid descriptors offset.\n");
+    goto out;
+  }
 
-  desc_end = desc_start + avb_be64toh(header->descriptors_size);
-
-  if (desc_start < image_data || desc_start > image_end ||
-      desc_end < image_data || desc_end > image_end || desc_end < desc_start) {
+  if (desc_offset > (uint64_t)(image_end - image_data)) {
     avb_error("Descriptors not inside passed-in data.\n");
     goto out;
   }
 
+  desc_start = image_data + desc_offset;
+
+  desc_size = avb_be64toh(header->descriptors_size);
+  if (desc_size > (uint64_t)(image_end - desc_start)) {
+    avb_error("Descriptors not inside passed-in data.\n");
+    goto out;
+  }
+
+  desc_end = desc_start + desc_size;
+
   for (p = desc_start; p < desc_end;) {
-    const AvbDescriptor* dh = (const AvbDescriptor*)p;
-    avb_assert_aligned(dh);
-    uint64_t nb_following = avb_be64toh(dh->num_bytes_following);
+    uint64_t nb_following;
     uint64_t nb_total = 0;
+    const AvbDescriptor* dh;
+
+    if (sizeof(AvbDescriptor) > (size_t)(desc_end - p)) {
+      avb_error("Invalid descriptor length.\n");
+      goto out;
+    }
+
+    dh = (const AvbDescriptor*)p;
+    avb_assert_aligned(dh);
+    nb_following = avb_be64toh(dh->num_bytes_following);
+
     if (!avb_safe_add(&nb_total, sizeof(AvbDescriptor), nb_following)) {
       avb_error("Invalid descriptor length.\n");
       goto out;
@@ -85,7 +118,7 @@ bool avb_descriptor_foreach(const uint8_t* image_data,
       goto out;
     }
 
-    if (nb_total + p < desc_start || nb_total + p > desc_end) {
+    if (nb_total > (uint64_t)(desc_end - p)) {
       avb_error("Invalid data in descriptors array.\n");
       goto out;
     }
@@ -94,10 +127,7 @@ bool avb_descriptor_foreach(const uint8_t* image_data,
       goto out;
     }
 
-    if (!avb_safe_add_to((uint64_t*)(&p), nb_total)) {
-      avb_error("Invalid descriptor length.\n");
-      goto out;
-    }
+    p += nb_total;
   }
 
   ret = true;
