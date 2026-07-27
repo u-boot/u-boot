@@ -22,6 +22,11 @@ Verified Boot establishes a chain of trust from the bootloader to system images:
 
 Integrity of the bootloader (U-Boot BLOB and environment) is out of scope.
 
+Verification is performed by libavb, which is vendored under ``lib/libavb/``
+from the AOSP ``external/avb`` project (AVB version 1.3.0). Only the U-Boot
+integration in ``common/avb_verify.c`` and the platform port under
+``lib/libavb/avb_sysdeps*`` are U-Boot-specific.
+
 For additional details check [1]_.
 
 AVB using OP-TEE (optional)
@@ -135,5 +140,5 @@ partition table::
 References
 ----------
 
-.. [1] https://android.googlesource.com/platform/external/avb/+/master/README.md
+.. [1] https://android.googlesource.com/platform/external/avb/+/a1fe228b86543a21739c51352f5ce72f134fccfa/README.md
 .. [2] https://www.op-tee.org/
