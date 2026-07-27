@@ -7,6 +7,14 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 
+int board_init(void)
+{
+	/* Power on mcores when using rpmsg cfg */
+	power_on_mcore("mx95evkrpmsg");
+
+	return 0;
+}
+
 int board_late_init(void)
 {
 	if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC))

@@ -58,6 +58,43 @@ uint32_t scmi_get_rom_data(rom_passover_t *rom_data)
 	return 0;
 }
 
+int scmi_misc_cfginfo(u32 *msel, char *cfgname)
+{
+	struct scmi_imx_misc_cfg_info_out out = {};
+	struct scmi_msg msg = {
+		.protocol_id = SCMI_PROTOCOL_ID_IMX_MISC,
+		.message_id = SCMI_IMX_MISC_CFG_INFO,
+		.in_msg = (u8 *)NULL,
+		.in_msg_sz = 0,
+		.out_msg = (u8 *)&out,
+		.out_msg_sz = sizeof(out),
+	};
+	int ret;
+	struct udevice *dev;
+
+	if (!msel || !cfgname)
+		return -EINVAL;
+
+	ret = uclass_get_device_by_name(UCLASS_CLK, "protocol@14", &dev);
+	if (ret)
+		return ret;
+
+	ret = devm_scmi_process_msg(dev, &msg);
+	if (ret)
+		return ret;
+
+	if (out.status) {
+		printf("Failed to get cfg name, scmi_err = %d\n",
+		       out.status);
+		return scmi_to_linux_errno(out.status);
+	}
+
+	*msel = out.msel;
+	strcpy(cfgname, (const char *)out.cfgname);
+
+	return 0;
+}
+
 int scmi_misc_ddrinfo(u32 ddrc_id, struct scmi_ddr_info_out *out)
 {
 	u32 in = ddrc_id;
@@ -858,6 +895,67 @@ const char *get_cpu_variant_type_name(u32 type)
 	}
 
 	return NULL;
+}
+
+int power_on_mcore(const char *sm_cfgname)
+{
+	char cfgname[MISC_MAX_CFGNAME];
+	u32 msel;
+	int ret;
+	struct udevice *dev;
+
+	ret = scmi_misc_cfginfo(&msel, cfgname);
+	if (ret)
+		return ret;
+
+	if (strncmp(cfgname, sm_cfgname, MISC_MAX_CFGNAME))
+		return -EINVAL;
+
+	printf("power on mcore for %s\n", sm_cfgname);
+
+	ret = uclass_get_device_by_name(UCLASS_CLK, "protocol@14", &dev);
+	if (ret)
+		return ret;
+
+	if (!arch_auxiliary_core_check_up(1)) {
+		/* Power up M7MIX */
+		ret = scmi_pwd_state_set(dev, 0, SCMI_PD(M70), 0);
+		if (ret) {
+			printf("Power M7 failed\n");
+			return -EIO;
+		}
+
+		/* In case OEI not init ECC, do it here */
+		memset_io((void *)0x203c0000, 0, 0x40000);
+		memset_io((void *)0x20400000, 0, 0x40000);
+	}
+
+#if IS_ENABLED(CONFIG_IMX94)
+	if (!arch_auxiliary_core_check_up(7)) {
+		ret = scmi_pwd_state_set(dev, 0, SCMI_PD(M71), 0);
+		if (ret) {
+			printf("Power M71 failed\n");
+			return -EIO;
+		}
+
+		memset_io((void *)0x202c0000, 0, 0x40000);
+		memset_io((void *)0x20300000, 0, 0x40000);
+	}
+
+	if (!arch_auxiliary_core_check_up(8)) {
+		ret = scmi_pwd_state_set(dev, 0, SCMI_PD(NETC), 0);
+		if (ret) {
+			printf("Power M33S failed\n");
+			return -EIO;
+		}
+
+		memset_io((void *)0x209c0000, 0, 0x40000);
+		memset_io((void *)0x20A00000, 0, 0x40000);
+		memset_io((void *)0x20800000, 0, 0xa1000);
+	}
+#endif
+
+	return 0;
 }
 
 void build_info(void)
