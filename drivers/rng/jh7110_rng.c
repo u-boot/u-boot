@@ -233,9 +233,9 @@ static int starfive_trng_of_to_plat(struct udevice *dev)
 {
 	struct starfive_trng_plat *pdata = dev_get_plat(dev);
 
-	pdata->base = (void *)dev_read_addr(dev);
+	pdata->base = dev_read_addr_ptr(dev);
 	if (!pdata->base)
-		return -ENODEV;
+		return -EINVAL;
 
 	pdata->hclk = devm_clk_get(dev, "hclk");
 	if (IS_ERR(pdata->hclk))

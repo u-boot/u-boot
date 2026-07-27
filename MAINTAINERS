@@ -1576,6 +1576,7 @@ F:	drivers/mtd/nand/raw/
 RISC-V
 M:	Tim Ouyang <tim609@andestech.com>
 M:	Leo Liang <leo.liang@sifive.com>
+R:	Yao Zi <me@ziyao.cc>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-riscv.git
 F:	arch/riscv/

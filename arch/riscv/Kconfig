@@ -378,7 +378,7 @@ config DMA_ADDR_T_64BIT
 	default y if 64BIT
 
 config RISCV_ACLINT
-	bool
+	bool "RISC-V ACLINT support"
 	depends on RISCV_MMODE
 	select REGMAP
 	select SYSCON
@@ -387,7 +387,7 @@ config RISCV_ACLINT
 	  associated with software and timer interrupts.
 
 config SPL_RISCV_ACLINT
-	bool
+	bool "RISC-V ACLINT support in SPL"
 	depends on SPL_RISCV_MMODE
 	select SPL_REGMAP
 	select SPL_SYSCON

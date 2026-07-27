@@ -149,8 +149,6 @@ __weak int dcache_status(void)
 __weak void enable_caches(void)
 {
 	zicbom_block_size = riscv_get_cbom_block_size();
-	if (!zicbom_block_size)
-		log_debug("Zicbom not initialized.\n");
 }
 
 int __weak pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
