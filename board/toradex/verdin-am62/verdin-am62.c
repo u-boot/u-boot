@@ -84,7 +84,8 @@ static void select_dt_from_module_version(void)
 		is_wifi = (tdx_hw_tag.prodid == VERDIN_AM62Q_WIFI_BT_IT) ||
 			  (tdx_hw_tag.prodid == VERDIN_AM62S_512MB_WIFI_BT_IT) ||
 			  (tdx_hw_tag.prodid == VERDIN_AM62D_1G_WIFI_BT_IT) ||
-			  (tdx_hw_tag.prodid == VERDIN_AM62Q_2G_WIFI_BT_IT);
+			  (tdx_hw_tag.prodid == VERDIN_AM62Q_2G_WIFI_BT_IT) ||
+			  (tdx_hw_tag.prodid == VERDIN_AM62D_1G_WIFI_BT_ET);
 	}
 
 	if (is_wifi)

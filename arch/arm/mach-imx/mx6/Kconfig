@@ -637,6 +637,7 @@ config TARGET_TQMA6UL
 	bool "TQ-Systems TQMa6UL[L]x"
 	depends on MX6UL || MX6ULL
 	select TQ_COMMON_SOM
+	select TQ_COMMON_SYSINFO
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select OF_SYSTEM_SETUP

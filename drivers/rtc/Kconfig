@@ -296,6 +296,13 @@ config SPL_RTC_SANDBOX
 	  emulator and is used to test the RTC uclasses and associated code,
 	  as well as the I2C subsystem.
 
+config RTC_SNVS
+	bool "Enable i.MX SNVS RTC driver"
+	depends on DM_RTC
+	help
+	  Enable i.MX RTC driver. This driver supports the RTC that is present
+	  on various NXP i.MX SoCs.
+
 config RTC_STM32
 	bool "Enable STM32 RTC driver"
 	depends on DM_RTC

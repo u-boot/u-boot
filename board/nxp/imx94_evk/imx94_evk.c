@@ -11,6 +11,9 @@
 
 int board_init(void)
 {
+	/* Power on mcores when using rpmsg cfg */
+	power_on_mcore("mx94evkrpmsg");
+
 	return 0;
 }
 

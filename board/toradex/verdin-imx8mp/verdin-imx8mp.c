@@ -79,7 +79,9 @@ static void select_dt_from_module_version(void)
 		is_wifi = (tdx_hw_tag.prodid == VERDIN_IMX8MPQ_WIFI_BT_IT) ||
 			  (tdx_hw_tag.prodid == VERDIN_IMX8MPQ_2GB_WIFI_BT_IT) ||
 			  (tdx_hw_tag.prodid == VERDIN_IMX8MPQ_8GB_WIFI_BT) ||
-			  (tdx_hw_tag.prodid == VERDIN_IMX8MPQ_8GB_WIFI_BT_IT);
+			  (tdx_hw_tag.prodid == VERDIN_IMX8MPQ_8GB_WIFI_BT_IT) ||
+			  (tdx_hw_tag.prodid == VERDIN_IMX8MPQ_4GB_WIFI_BT_IT_64G) ||
+			  (tdx_hw_tag.prodid == VERDIN_IMX8MPQ_8GB_WIFI_BT_IT_64G);
 	}
 
 	if (is_wifi)

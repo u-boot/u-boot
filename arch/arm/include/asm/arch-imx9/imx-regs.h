@@ -47,6 +47,36 @@
 #define SRC_MEDIA_RBASE		(SRC_IPS_BASE_ADDR + 0x2400)
 #define SRC_M33P_RBASE		(SRC_IPS_BASE_ADDR + 0x2800)
 
+#ifdef CONFIG_IMX94
+#define TCML_BASE_ADDR              (0x209C0000UL)
+#define TCML_BASE_MCORE_SEC_ADDR    (0x1FFC0000UL)
+#define TCML_BASE_MCORE_NSEC_ADDR   (0x0FFC0000UL)
+#define TCML_SIZE                   (0x40000U)
+#define TCMU_BASE_ADDR              (0x20A00000UL)
+#define TCMU_BASE_MCORE_SEC_ADDR    (0x30000000UL)
+#define TCMU_BASE_MCORE_NSEC_ADDR   (0x20000000UL)
+#define TCMU_SIZE                   (0x40000U)
+#else
+#define TCML_BASE_ADDR              (0x201E0000UL)
+#define TCML_BASE_MCORE_SEC_ADDR    (0x1FFE0000UL)
+#define TCML_BASE_MCORE_NSEC_ADDR   (0x0FFE0000UL)
+#define TCML_SIZE                   (0x20000U)
+#define TCMU_BASE_ADDR              (0x20200000UL)
+#define TCMU_BASE_MCORE_SEC_ADDR    (0x30000000UL)
+#define TCMU_BASE_MCORE_NSEC_ADDR   (0x20000000UL)
+#define TCMU_SIZE                   (0x20000U)
+#endif
+
+#define M7_TCML_BASE_ADDR           (0x20380000UL)
+#define M7_TCML_BASE_MCORE_ADDR     (0x0UL)
+#define M7_TCML_MAX_SIZE            (0x80000U) /* Could configure to 512KB TCML */
+#define M71_TCML_BASE_ADDR          (0x20280000UL)
+#define M71_TCML_BASE_MCORE_ADDR    (0x0UL)
+#define M71_TCML_MAX_SIZE           (0x80000U) /* Could configure to 512KB TCML */
+
+#define FLEXSPI_AHB_ADDR            (0x28000000UL)
+#define FLEXSPI_AHB_SIZE            (0x8000000UL)
+
 #define SRC_MIX_SLICE_FUNC_STAT_PSW_STAT BIT(0)
 #define SRC_MIX_SLICE_FUNC_STAT_RST_STAT BIT(2)
 #define SRC_MIX_SLICE_FUNC_STAT_ISO_STAT BIT(4)

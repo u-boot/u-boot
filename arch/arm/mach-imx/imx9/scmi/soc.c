@@ -14,6 +14,7 @@
 #include <asm/setup.h>
 #include <dm/uclass.h>
 #include <dm/device.h>
+#include <dm/ofnode.h>
 #include <env_internal.h>
 #include <fuse.h>
 #include <imx_thermal.h>
@@ -54,6 +55,43 @@ uint32_t scmi_get_rom_data(rom_passover_t *rom_data)
 		       out.status, sizeof(out));
 		return -EINVAL;
 	}
+
+	return 0;
+}
+
+int scmi_misc_cfginfo(u32 *msel, char *cfgname)
+{
+	struct scmi_imx_misc_cfg_info_out out = {};
+	struct scmi_msg msg = {
+		.protocol_id = SCMI_PROTOCOL_ID_IMX_MISC,
+		.message_id = SCMI_IMX_MISC_CFG_INFO,
+		.in_msg = (u8 *)NULL,
+		.in_msg_sz = 0,
+		.out_msg = (u8 *)&out,
+		.out_msg_sz = sizeof(out),
+	};
+	int ret;
+	struct udevice *dev;
+
+	if (!msel || !cfgname)
+		return -EINVAL;
+
+	ret = uclass_get_device_by_name(UCLASS_CLK, "protocol@14", &dev);
+	if (ret)
+		return ret;
+
+	ret = devm_scmi_process_msg(dev, &msg);
+	if (ret)
+		return ret;
+
+	if (out.status) {
+		printf("Failed to get cfg name, scmi_err = %d\n",
+		       out.status);
+		return scmi_to_linux_errno(out.status);
+	}
+
+	*msel = out.msel;
+	strcpy(cfgname, (const char *)out.cfgname);
 
 	return 0;
 }
@@ -248,7 +286,38 @@ static struct mm_region imx9_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
+	},
+#if IS_ENABLED(CONFIG_IMX94)
+	{
+		/* M71 TCM */
+		.virt = 0x202c0000UL,
+		.phys = 0x202c0000UL,
+		.size = 0x80000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	},
+	{
+		/* M33S TCM */
+		.virt = 0x209c0000UL,
+		.phys = 0x209c0000UL,
+		.size = 0x80000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	},
+	/* 644K netc ocram for rpmsg buffer */
+	{
+		/* M33S NETC OCRAM */
+		.virt = 0x20800000UL,
+		.phys = 0x20800000UL,
+		.size = 0xa1000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	},
+#endif
+	{
 		/* OCRAM */
 		.virt = 0x20480000UL,
 		.phys = 0x20480000UL,
@@ -593,6 +662,18 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 			eth_addr_add(mac, 8); /* enetc1 */
 		if (dev_id == 2)
 			eth_addr_add(mac, 9); /* enetc2 */
+	} else if (is_imx952()) {
+		/*
+		 * i.MX952 uses the following mac address offset list:
+		 * | No. | Mac address user     |
+		 * |-----|----------------------|
+		 * | 0   | enetc mac pf0        |
+		 * | 1   | enetc mac vf0        |
+		 * | 2   | enetc mac pf1        |
+		 * | 3   | enetc mac vf1        |
+		 */
+		if (dev_id == 1)
+			eth_addr_add(mac, 2);
 	} else {
 		if (dev_id == 1)
 			eth_addr_add(mac, 3);
@@ -829,6 +910,67 @@ const char *get_cpu_variant_type_name(u32 type)
 	return NULL;
 }
 
+int power_on_mcore(const char *sm_cfgname)
+{
+	char cfgname[MISC_MAX_CFGNAME];
+	u32 msel;
+	int ret;
+	struct udevice *dev;
+
+	ret = scmi_misc_cfginfo(&msel, cfgname);
+	if (ret)
+		return ret;
+
+	if (strncmp(cfgname, sm_cfgname, MISC_MAX_CFGNAME))
+		return -EINVAL;
+
+	printf("power on mcore for %s\n", sm_cfgname);
+
+	ret = uclass_get_device_by_name(UCLASS_CLK, "protocol@14", &dev);
+	if (ret)
+		return ret;
+
+	if (!arch_auxiliary_core_check_up(1)) {
+		/* Power up M7MIX */
+		ret = scmi_pwd_state_set(dev, 0, SCMI_PD(M70), 0);
+		if (ret) {
+			printf("Power M7 failed\n");
+			return -EIO;
+		}
+
+		/* In case OEI not init ECC, do it here */
+		memset_io((void *)0x203c0000, 0, 0x40000);
+		memset_io((void *)0x20400000, 0, 0x40000);
+	}
+
+#if IS_ENABLED(CONFIG_IMX94)
+	if (!arch_auxiliary_core_check_up(7)) {
+		ret = scmi_pwd_state_set(dev, 0, SCMI_PD(M71), 0);
+		if (ret) {
+			printf("Power M71 failed\n");
+			return -EIO;
+		}
+
+		memset_io((void *)0x202c0000, 0, 0x40000);
+		memset_io((void *)0x20300000, 0, 0x40000);
+	}
+
+	if (!arch_auxiliary_core_check_up(8)) {
+		ret = scmi_pwd_state_set(dev, 0, SCMI_PD(NETC), 0);
+		if (ret) {
+			printf("Power M33S failed\n");
+			return -EIO;
+		}
+
+		memset_io((void *)0x209c0000, 0, 0x40000);
+		memset_io((void *)0x20A00000, 0, 0x40000);
+		memset_io((void *)0x20800000, 0, 0xa1000);
+	}
+#endif
+
+	return 0;
+}
+
 void build_info(void)
 {
 	u32 fw_version, sha1, res = 0, status;
@@ -922,6 +1064,22 @@ static void gpio_reset(ulong gpio_base)
 	writel(0, gpio_base + 0x1c);
 }
 
+static int gpio_available(const char *nodes_path)
+{
+	ofnode gpio_node = ofnode_path(nodes_path);
+	const char *status;
+
+	if (!ofnode_valid(gpio_node))
+		return false;
+
+	status = ofnode_read_string(gpio_node, "status");
+
+	if (status && !strcmp(status, "disabled"))
+		return false;
+
+	return true;
+}
+
 int arch_cpu_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
@@ -937,7 +1095,9 @@ int arch_cpu_init(void)
 			disable_wdog((void __iomem *)base);
 		}
 
-		gpio_reset(GPIO2_BASE_ADDR);
+		if (gpio_available("/soc/gpio@43810000"))
+			gpio_reset(GPIO2_BASE_ADDR);
+
 		gpio_reset(GPIO3_BASE_ADDR);
 		gpio_reset(GPIO4_BASE_ADDR);
 		gpio_reset(GPIO5_BASE_ADDR);

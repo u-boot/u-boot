@@ -28,6 +28,8 @@ int scmi_get_boot_device_offset(unsigned long *img_off);
 int scmi_get_boot_stage(u8 *stage);
 u8 scmi_get_imgset_sel(void);
 
+int power_on_mcore(const char *sm_cfgname);
+
 #define is_voltage_mode(mode) (soc_target_voltage_mode() == (mode))
 
 #endif

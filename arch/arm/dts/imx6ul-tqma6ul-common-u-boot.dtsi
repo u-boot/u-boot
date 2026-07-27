@@ -14,6 +14,12 @@
 		u-boot,mmc-env-offset = <0x100000>;
 		u-boot,mmc-env-offset-redundant = <0x110000>;
 	};
+
+	sysinfo: sysinfo {
+		compatible = "tq,eeprom-sysinfo";
+		nvmem-cells = <&module_info>;
+		nvmem-cell-names = "device_info";
+	};
 };
 
 &clks {
@@ -22,6 +28,18 @@
 
 &flash0 {
 	bootph-pre-ram;
+};
+
+&m24c64_50 {
+	nvmem-layout {
+		compatible = "fixed-layout";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		module_info: module-info@20 {
+			reg = <0x20 0x60>;
+		};
+	};
 };
 
 &osc {
