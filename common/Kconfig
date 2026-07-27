@@ -881,6 +881,7 @@ config AVB_VERIFY
 	depends on MMC
 	depends on PARTITION_UUIDS
 	depends on FASTBOOT
+	select SHA256
 	help
 	  This option enables compilation of bootloader-dependent operations,
 	  used by Android Verified Boot 2.0 library (libavb). Includes:
@@ -903,6 +904,23 @@ config AVB_BUF_SIZE
 	help
 	  AVB requires a buffer for memory transactions. This variable defines the
 	  buffer size.
+
+choice
+	prompt "Source of the trusted AVB root public key"
+	default AVB_ROOT_KEY_BUILTIN
+	help
+	  Selects where validate_vbmeta_public_key() obtains the trusted root
+	  key digest that the vbmeta signing key is compared against. This is
+	  the root of trust for the whole AVB chain.
+
+config AVB_ROOT_KEY_BUILTIN
+	bool "Built-in key hard-coded in avb_verify.c"
+	help
+	  Use the avb_root_pub[] blob compiled into U-Boot. By default this is
+	  the AVB reference/test key and is intended for development only;
+	  replace the blob for production use.
+
+endchoice
 
 endif # AVB_VERIFY
 

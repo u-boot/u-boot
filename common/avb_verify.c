@@ -11,7 +11,9 @@
 #include <part.h>
 #include <tee.h>
 #include <tee/optee_ta_avb.h>
+#include <u-boot/sha256.h>
 
+#if CONFIG_IS_ENABLED(AVB_ROOT_KEY_BUILTIN)
 static const unsigned char avb_root_pub[1032] = {
 	0x0, 0x0, 0x10, 0x0, 0x55, 0xd9, 0x4, 0xad, 0xd8, 0x4,
 	0xaf, 0xe3, 0xd3, 0x84, 0x6c, 0x7e, 0xd, 0x89, 0x3d, 0xc2,
@@ -118,6 +120,7 @@ static const unsigned char avb_root_pub[1032] = {
 	0xe1, 0x74, 0xa1, 0xa3, 0x99, 0xa0, 0x85, 0x9e, 0xf1, 0xac,
 	0xd8, 0x7e,
 };
+#endif /* AVB_ROOT_KEY_BUILTIN */
 
 const char *str_avb_io_error(AvbIOResult res)
 {
@@ -654,14 +657,26 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops,
 					      public_key_metadata_length,
 					      bool *out_key_is_trusted)
 {
+	u8 key_digest[SHA256_SUM_LEN];
+	u8 trusted_digest[SHA256_SUM_LEN];
+	AvbIOResult rc;
+
 	if (!public_key_length || !public_key_data || !out_key_is_trusted)
 		return AVB_IO_RESULT_ERROR_IO;
 
+	/* Default deny: only flip to trusted on a positive digest match. */
 	*out_key_is_trusted = false;
-	if (public_key_length != sizeof(avb_root_pub))
-		return AVB_IO_RESULT_ERROR_IO;
 
-	if (memcmp(avb_root_pub, public_key_data, public_key_length) == 0)
+	/* Digest of the key embedded in the (untrusted) vbmeta. */
+	sha256_csum_wd(public_key_data, public_key_length, key_digest,
+		       CHUNKSZ_SHA256);
+
+	/* Digest of the trusted root key from the configured source. */
+	rc = avb_read_root_key_digest(ops, trusted_digest);
+	if (rc != AVB_IO_RESULT_OK)
+		return rc;
+
+	if (avb_safe_memcmp(key_digest, trusted_digest, sizeof(key_digest)) == 0)
 		*out_key_is_trusted = true;
 
 	return AVB_IO_RESULT_OK;
@@ -1037,6 +1052,21 @@ free_name:
 	tee_shm_free(shm_name);
 
 	return rc;
+}
+#endif
+
+/**
+ * ============================================================================
+ * AVB root key digest providers (selected via CONFIG_AVB_ROOT_KEY_*)
+ * ============================================================================
+ */
+#if CONFIG_IS_ENABLED(AVB_ROOT_KEY_BUILTIN)
+AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest)
+{
+	sha256_csum_wd(avb_root_pub, sizeof(avb_root_pub), digest,
+		       CHUNKSZ_SHA256);
+
+	return AVB_IO_RESULT_OK;
 }
 #endif
 
