@@ -920,7 +920,30 @@ config AVB_ROOT_KEY_BUILTIN
 	  the AVB reference/test key and is intended for development only;
 	  replace the blob for production use.
 
+config AVB_ROOT_KEY_TEE
+	bool "Read root key digest from OP-TEE"
+	depends on OPTEE_TA_AVB
+	help
+	  Obtain the SHA-256 digest of the trusted root key from OP-TEE secure
+	  storage, read as a named persistent value ("avb.root_pub_digest").
+	  The digest must be provisioned into the TEE beforehand. Integrity is
+	  provided by the TEE's (RPMB-backed) storage.
+
 endchoice
+
+config AVB_ROOT_KEY_TEE_NAME
+	string "TEE persistent-value name holding the root key digest"
+	depends on AVB_ROOT_KEY_TEE
+	default "avb.root_pub_digest"
+	help
+	  Named persistent value read from the OP-TEE AVB TA (via
+	  TA_AVB_CMD_READ_PERSIST_VALUE) that stores the 32-byte SHA-256 digest
+	  of the trusted root key. It must match the name used to provision the
+	  digest into the TEE. The TA prefixes stored names with "named_value_"
+	  internally, so this string is opaque to the TA; the "avb." prefix only
+	  follows libavb's named-persistent-value convention and does not collide
+	  with libavb's own reserved names (avb.persistent_digest.*,
+	  avb.managed_verity_mode).
 
 endif # AVB_VERIFY
 

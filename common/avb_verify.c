@@ -1068,6 +1068,29 @@ AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest)
 
 	return AVB_IO_RESULT_OK;
 }
+#elif CONFIG_IS_ENABLED(AVB_ROOT_KEY_TEE)
+/*
+ * Read the trusted root key digest from OP-TEE secure storage as a named
+ * persistent value, using the existing TA_AVB_CMD_READ_PERSIST_VALUE command
+ * (see OP-TEE ta/avb/entry.c). The digest must be provisioned into the TEE
+ * beforehand under CONFIG_AVB_ROOT_KEY_TEE_NAME; a missing value returns
+ * AVB_IO_RESULT_ERROR_NO_SUCH_VALUE and verification fails closed.
+ */
+AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest)
+{
+	size_t num_read = 0;
+	AvbIOResult rc;
+
+	rc = read_persistent_value(ops, CONFIG_AVB_ROOT_KEY_TEE_NAME,
+				   SHA256_SUM_LEN, digest, &num_read);
+	if (rc != AVB_IO_RESULT_OK)
+		return rc;
+
+	if (num_read != SHA256_SUM_LEN)
+		return AVB_IO_RESULT_ERROR_INVALID_VALUE_SIZE;
+
+	return AVB_IO_RESULT_OK;
+}
 #endif
 
 /**
