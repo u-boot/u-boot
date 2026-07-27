@@ -520,9 +520,9 @@ F:	drivers/sysinfo/rcar3.c
 F:	drivers/usb/host/xhci-rcar*
 
 ARM ROCKCHIP
-M:	Simon Glass <sjg@chromium.org>
 M:	Quentin Schulz <u-boot@0leil.net>
 M:	Kever Yang <kever.yang@rock-chips.com>
+R:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-rockchip.git
 # Exclude from N: px5 matches
