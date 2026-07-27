@@ -9,10 +9,12 @@
 #define __SANDBOX_HOST__
 
 /**
- * Device flags.
+ * enum host_platform_flags - device flags
+ *
  */
 enum host_platform_flags {
-	HOST_FLAG_BROKEN		= BIT(0), /** Simulate broken device */
+	/** @HOST_FLAG_BROKEN:	simulate broken device */
+	HOST_FLAG_BROKEN		= BIT(0),
 };
 
 /**
