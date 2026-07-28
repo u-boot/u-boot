@@ -264,8 +264,8 @@ static int fit_config_add_node(const void *fit, int noffset, char **node_inc,
 /**
  * fit_config_add_hash() - Add hash nodes for one image to the node list
  *
- * Adds the image path, all its hash-* subnode paths, and its cipher
- * subnode path (if present) to the packed buffer.
+ * Adds the image path, all its hash-* subnode paths, and its cipher and
+ * dm-verity subnode paths (each if present) to the packed buffer.
  *
  * @fit:		FIT blob
  * @image_noffset:	Image node offset (e.g. /images/kernel-1)
@@ -322,6 +322,21 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 			return ret;
 	}
 
+	/*
+	 * Add this image's dm-verity node if present. Its roothash is the
+	 * only integrity anchor for a dm-verity filesystem image, so it must
+	 * be covered by the configuration signature.
+	 */
+	noffset = fdt_subnode_offset(fit, image_noffset, FIT_VERITY_NODENAME);
+	if (noffset != -FDT_ERR_NOTFOUND) {
+		if (noffset < 0)
+			return -EIO;
+		ret = fit_config_add_node(fit, noffset, node_inc, count,
+					  max_nodes, buf, buf_used, buf_len);
+		if (ret)
+			return ret;
+	}
+
 	return 0;
 }
 
@@ -329,8 +344,8 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
  * fit_config_get_hash_list() - Build the list of nodes to hash
  *
  * Works through every image referenced by the configuration and collects the
- * node paths: root + config + all referenced images with their hash and
- * cipher subnodes.
+ * node paths: root + config + all referenced images with their hash,
+ * cipher and dm-verity subnodes.
  *
  * Properties known not to be image references (description, compatible,
  * default, load-only) are skipped, so any new image type is covered by default.

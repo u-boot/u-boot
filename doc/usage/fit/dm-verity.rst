@@ -209,6 +209,11 @@ typically be obtained from its output.
 The ``digest`` and ``salt`` byte arrays correspond to the hex-encoded
 ``Root hash`` and ``Salt`` printed by ``veritysetup format``.
 
+When the configuration is signed, ``digest`` and ``salt`` are covered by
+the configuration signature (see :doc:`signature`), so the roothash
+cannot be swapped out for a matching one without invalidating the
+signature.
+
 Optional boolean properties (when present, they are collected and appended
 as dm-verity optional parameters with hyphens converted to underscores):
 

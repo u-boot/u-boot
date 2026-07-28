@@ -359,7 +359,7 @@ however, U-Boot does not read 'hashed-nodes'. Instead it rebuilds the node
 list from the configuration's own image references (kernel, fdt, ramdisk,
 etc.), since 'hashed-nodes' is not itself covered by the signature. The
 rebuilt list always includes the root node, the configuration node, each
-referenced image node and its hash/cipher subnodes.
+referenced image node and its hash, cipher and dm-verity subnodes.
 
 The image is walked in order and each tag processed as follows:
 

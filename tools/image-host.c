@@ -1287,6 +1287,27 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 			return ret;
 	}
 
+	/*
+	 * Add this image's dm-verity node if present. Its roothash is the
+	 * only integrity anchor for a dm-verity filesystem image, so it must
+	 * be covered by the configuration signature.
+	 */
+	noffset = fdt_subnode_offset(fit, image_noffset,
+				     FIT_VERITY_NODENAME);
+	if (noffset != -FDT_ERR_NOTFOUND) {
+		if (noffset < 0) {
+			fprintf(stderr,
+				"Failed to get dm-verity node in configuration '%s/%s' image '%s': %s\n",
+				conf_name, sig_name, iname,
+				fdt_strerror(noffset));
+			return -EIO;
+		}
+		ret = fit_config_add_node(fit, noffset, node_inc, conf_name,
+					  sig_name, iname);
+		if (ret)
+			return ret;
+	}
+
 	return 0;
 }
 
