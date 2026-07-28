@@ -278,6 +278,17 @@ config PHY_EXYNOS_USBDRD
 	help
 	  Enable USB DRD PHY support for Exynos SoC series.
 
+config PHY_MTK_HDMI
+	bool "MediaTek HDMI-PHY Driver"
+	depends on PHY
+	depends on ARCH_MEDIATEK
+	depends on ARM64
+	depends on CLK
+	help
+	  Support for the HDMI TX PHY found on MediaTek SoCs such as the
+	  MT8188 and MT8195. The PHY provides the TMDS links and the pixel
+	  clock PLL to the HDMI TX controller.
+
 config PHY_MTK_TPHY
 	bool "MediaTek T-PHY Driver"
 	depends on PHY
