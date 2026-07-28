@@ -934,6 +934,7 @@ static efi_status_t efi_bootmgr_delete_invalid_boot_option(struct eficonfig_medi
 	efi_status_t ret = EFI_SUCCESS;
 	u16 *delete_index_list = NULL, *p;
 	efi_uintn_t buf_size;
+	efi_guid_t guid;
 
 	buf_size = 128;
 	var_name16 = malloc(buf_size);
@@ -943,7 +944,6 @@ static efi_status_t efi_bootmgr_delete_invalid_boot_option(struct eficonfig_medi
 	var_name16[0] = 0;
 	for (;;) {
 		int index;
-		efi_guid_t guid;
 		efi_uintn_t tmp;
 
 		ret = efi_next_variable_name(&buf_size, &var_name16, &guid);
