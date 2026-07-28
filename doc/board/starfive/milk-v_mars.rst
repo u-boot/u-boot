@@ -19,7 +19,7 @@ environment
 
 ::
 
-    setenv fdtfile my_device-tree.dtb
+    env set fdtfile my_device-tree.dtb
     env save
 
 or the configuration variable CONFIG_DEFAULT_FDT_FILE can be used to set to

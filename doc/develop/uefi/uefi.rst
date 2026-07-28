@@ -170,11 +170,11 @@ Sign an image with one of the keys in "db" on your host
 Now in U-Boot install the keys on your board::
 
     fatload mmc 0:1 <tmpaddr> PK.auth
-    setenv -e -nv -bs -rt -at -i <tmpaddr>:$filesize PK
+    env set -e -nv -bs -rt -at -i <tmpaddr>:$filesize PK
     fatload mmc 0:1 <tmpaddr> KEK.auth
-    setenv -e -nv -bs -rt -at -i <tmpaddr>:$filesize KEK
+    env set -e -nv -bs -rt -at -i <tmpaddr>:$filesize KEK
     fatload mmc 0:1 <tmpaddr> db.auth
-    setenv -e -nv -bs -rt -at -i <tmpaddr>:$filesize db
+    env set -e -nv -bs -rt -at -i <tmpaddr>:$filesize db
 
 Set up boot parameters on your board::
 
@@ -412,7 +412,7 @@ bit in OsIndications variable with
 
 .. code-block:: console
 
-    => setenv -e -nv -bs -rt -v OsIndications =0x0000000000000004
+    => env set -e -nv -bs -rt -v OsIndications =0x0000000000000004
 
 Since U-Boot doesn't currently support SetVariable at runtime, its value
 won't be taken over across the reboot. If this is the case, you can skip
@@ -698,7 +698,7 @@ end up with "host not found".
 
 We need to preset the "httpserverip" environment variable to proceed the wget::
 
-    setenv httpserverip 192.168.1.1
+    env set httpserverip 192.168.1.1
 
 UEFI HTTP(s) Boot using lwIP
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -789,7 +789,7 @@ If the environment variable is set to 'list' a list of all tests is shown.
 
 Below you can find the output of an example session::
 
-    => setenv efi_selftest simple network protocol
+    => env set efi_selftest simple network protocol
     => bootefi selftest
     Testing EFI API implementation
     Selected test: 'simple network protocol'

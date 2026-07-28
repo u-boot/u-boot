@@ -24,13 +24,13 @@ Example
 
 ::
 
-    => setenv bootcmd 'echo Hello World'
+    => env set bootcmd 'echo Hello World'
     => bootd
     Hello World
-    => setenv bootcmd true
+    => env set bootcmd true
     => bootd; echo $?
     0
-    => setenv bootcmd false
+    => env set bootcmd false
     => bootd; echo $?
     1
 

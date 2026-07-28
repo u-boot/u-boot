@@ -78,13 +78,13 @@ load uImage (with initramfs).
 
 .. code-block:: none
 
-   RISC-V # setenv kernel_addr_r 0x80200000
-   RISC-V # setenv fdt_addr_r 0x82200000
+   RISC-V # env set kernel_addr_r 0x80200000
+   RISC-V # env set fdt_addr_r 0x82200000
 
-   RISC-V # setenv ipaddr 192.168.1.5
-   RISC-V # setenv netmask 255.255.255.0
-   RISC-V # setenv serverip 192.168.1.3
-   RISC-V # setenv gateway 192.168.1.1
+   RISC-V # env set ipaddr 192.168.1.5
+   RISC-V # env set netmask 255.255.255.0
+   RISC-V # env set serverip 192.168.1.3
+   RISC-V # env set gateway 192.168.1.1
 
    RISC-V # tftpboot ${kernel_addr_r} uImage
    ethernet@20112000: PHY present at 9

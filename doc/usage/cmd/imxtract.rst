@@ -52,7 +52,7 @@ extraction. But correct hashes are still indicated in the output
 
 .. code-block:: console
 
-    => setenv verify no
+    => env set verify no
     => imxtract $loadaddr kernel-1 $kernel_addr_r
     ## Copying 'kernel-1' subimage from FIT image at 40200000 ...
     sha256+ sha512+    Loading part 0 ... OK
@@ -62,7 +62,7 @@ With verify=yes incorrect hashes, signatures, or check sums stop the extraction.
 
 .. code-block:: console
 
-    => setenv verify yes
+    => env set verify yes
     => imxtract $loadaddr kernel-1 $kernel_addr_r
     ## Copying 'kernel-1' subimage from FIT image at 40200000 ...
     sha256 error!

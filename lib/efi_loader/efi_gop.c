@@ -471,7 +471,7 @@ efi_status_t efi_gop_register(void)
 {
 	struct efi_gop_obj *gopobj;
 	u32 bpix, format, col, row;
-	u64 fb_base, fb_size;
+	u64 fb_size;
 	efi_status_t ret;
 	struct udevice *vdev;
 	struct video_priv *priv;
@@ -490,7 +490,6 @@ efi_status_t efi_gop_register(void)
 	row = video_get_ysize(vdev);
 
 	plat = dev_get_uclass_plat(vdev);
-	fb_base = IS_ENABLED(CONFIG_VIDEO_COPY) ? plat->copy_base : plat->base;
 	fb_size = plat->size;
 
 	switch (bpix) {
@@ -528,7 +527,7 @@ efi_status_t efi_gop_register(void)
 	gopobj->mode.info = &gopobj->info;
 	gopobj->mode.info_size = sizeof(gopobj->info);
 
-	gopobj->mode.fb_base = fb_base;
+	gopobj->mode.fb_base = (uintptr_t)priv->fb;
 	gopobj->mode.fb_size = fb_size;
 
 	gopobj->info.version = 0;
@@ -553,7 +552,7 @@ efi_status_t efi_gop_register(void)
 	}
 	gopobj->info.pixels_per_scanline = col;
 	gopobj->bpix = bpix;
-	gopobj->fb = map_sysmem(fb_base, fb_size);
+	gopobj->fb = priv->fb;
 	gopobj->vdev = vdev;
 
 	return EFI_SUCCESS;

@@ -54,7 +54,7 @@ or::
 
 Result::
 
-    => printenv slot_name
+    => env print slot_name
     slot_name=a
 
 Based on this slot information, the current boot partition should be defined,

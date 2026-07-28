@@ -62,7 +62,7 @@ script.
 For example, Debian (stretch) can be booted by creating a script file named
 'boot.txt' with the contents::
 
-   setenv bootargs root=/dev/sda1 ro
+   env set bootargs root=/dev/sda1 ro
    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} /vmlinuz
    load ${devtype} ${devnum}:${distro_bootpart} ${ramdisk_addr_r} /initrd.img
    zboot ${kernel_addr_r} - ${ramdisk_addr_r} ${filesize}

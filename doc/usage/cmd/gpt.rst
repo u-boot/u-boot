@@ -119,10 +119,10 @@ Sets the bootable flag for all partitions in the table. If the partition name
 is in 'partition list' (separated by ','), the bootable flag is set, otherwise
 it is cleared. CONFIG_CMD_GPT_RENAME=y is required.
 
-gpt setenv
-~~~~~~~~~~
+gpt env set
+~~~~~~~~~~~
 
-The 'gpt setenv' command will set a series of environment variables with
+The 'gpt env set' command will set a series of environment variables with
 information about the partition named '<partition name>'. The variables are:
 
 gpt_partition_addr
@@ -179,7 +179,7 @@ Examples
 
 Create 6 partitions on a disk::
 
-    => setenv gpt_parts 'uuid_disk=bec9fc2a-86c1-483d-8a0e-0109732277d7;\
+    => env set gpt_parts 'uuid_disk=bec9fc2a-86c1-483d-8a0e-0109732277d7;\
     name=boot,start=4M,size=128M,bootable,type=ebd0a0a2-b9e5-4433-87c0-68b6b72699c7;\
     name=rootfs,size=3072M,type=0fc63daf-8483-4772-8e79-3d69d8477de4;\
     name=system-data,size=512M,type=0fc63daf-8483-4772-8e79-3d69d8477de4;\
@@ -199,7 +199,7 @@ $gpt_parts::
 
 Get the information about the partition named 'rootfs'::
 
-    => gpt setenv mmc 0 rootfs
+    => gpt env set mmc 0 rootfs
     => echo ${gpt_partition_addr}
     2000
     => echo ${gpt_partition_size}
@@ -231,25 +231,25 @@ Set the bootable flag for the 'boot' partition and clear it for all others::
 
 Swap the order of the 'boot' and 'rootfs' partition table entries::
 
-    => gpt setenv mmc 0 rootfs
+    => gpt env set mmc 0 rootfs
     => echo ${gpt_partition_entry}
     2
-    => gpt setenv mmc 0 boot
+    => gpt env set mmc 0 boot
     => echo ${gpt_partition_entry}
     1
 
     => gpt transpose mmc 0 1 2
 
-    => gpt setenv mmc 0 rootfs
+    => gpt env set mmc 0 rootfs
     => echo ${gpt_partition_entry}
     1
-    => gpt setenv mmc 0 boot
+    => gpt env set mmc 0 boot
     => echo ${gpt_partition_entry}
     2
 
 Other example: a disk with known partition types::
 
-    => setenv gpt_parts 'name=u-boot,size=32M,type=data;\
+    => env set gpt_parts 'name=u-boot,size=32M,type=data;\
     name=env,size=1M,type=u-boot-env;
     name=ESP,size=128M,type=system;
     name=rootfs,size=3072M,type=linux;

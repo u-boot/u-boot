@@ -277,28 +277,28 @@ operations being tested on the eth0 interface.
    DHCP
    ....
 
-   setenv autoload no
-   setenv ethrotate no
-   setenv ethact eth1
+   env set autoload no
+   env set ethrotate no
+   env set ethact eth1
    dhcp
 
    PING
    ....
 
-   setenv autoload no
-   setenv ethrotate no
-   setenv ethact eth1
+   env set autoload no
+   env set ethrotate no
+   env set ethact eth1
    dhcp
    ping $gatewayip
 
    TFTP
    ....
 
-   setenv autoload no
-   setenv ethrotate no
-   setenv ethact eth1
+   env set autoload no
+   env set ethrotate no
+   env set ethact eth1
    dhcp
-   setenv serverip WWW.XXX.YYY.ZZZ
+   env set serverip WWW.XXX.YYY.ZZZ
    tftpboot u-boot.bin
 
 The bridge also supports (to a lesser extent) the localhost interface, 'lo'.
@@ -322,8 +322,8 @@ operation being tested on the lo interface.
    TFTP
    ....
 
-   setenv ethrotate no
-   setenv ethact eth5
+   env set ethrotate no
+   env set ethact eth5
    tftpboot u-boot.bin
 
 

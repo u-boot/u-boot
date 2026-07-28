@@ -88,8 +88,8 @@ Manually Loading and Applying Overlays
 
 ::
 
-    => setenv fdtaddr 0x87f00000
-    => setenv fdtovaddr 0x87fc0000
+    => env set fdtaddr 0x87f00000
+    => env set fdtovaddr 0x87fc0000
 
 2. Load the base binary device-tree and the binary device-tree overlay.
 

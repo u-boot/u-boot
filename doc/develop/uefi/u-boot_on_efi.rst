@@ -300,9 +300,9 @@ Content of **boot.scr**:
 .. code-block:: bash
 
   ext4load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} ${prefix}Image
-  setenv kernel_size ${filesize}
+  env set kernel_size ${filesize}
   ext4load ${devtype} ${devnum}:${distro_bootpart} ${ramdisk_addr_r} ${prefix}Initrd
-  setenv initrd_size ${filesize}
+  env set initrd_size ${filesize}
   zboot  ${kernel_addr_r} ${kernel_size} ${ramdisk_addr_r} ${initrd_size}
 
 Extlinux configuration

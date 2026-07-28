@@ -518,13 +518,13 @@ Here the card is /dev/sde::
 
 Boot the board using the commands below::
 
-    setenv bootargs console=ttyO0,115200n8 quiet root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait
+    env set bootargs console=ttyO0,115200n8 quiet root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait
     ext2load mmc 0:2 82000000 /boot/image.fit
     bootm 82000000
 
 You should then see something like this::
 
-    U-Boot# setenv bootargs console=ttyO0,115200n8 quiet root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait
+    U-Boot# env set bootargs console=ttyO0,115200n8 quiet root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait
     U-Boot# ext2load mmc 0:2 82000000 /boot/image.fit
     7824930 bytes read in 589 ms (12.7 MiB/s)
     U-Boot# bootm 82000000
