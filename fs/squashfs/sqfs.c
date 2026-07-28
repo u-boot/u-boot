@@ -852,13 +852,28 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 	if (metablks_count < 1)
 		goto out;
 
-	*dir_table = malloc(metablks_count * SQFS_METADATA_BLOCK_SIZE);
-	if (!*dir_table)
+	if (__builtin_mul_overflow(metablks_count, SQFS_METADATA_BLOCK_SIZE,
+				   &buf_size)) {
+		metablks_count = -1;
 		goto out;
+	}
 
-	*pos_list = malloc(metablks_count * sizeof(u32));
-	if (!*pos_list)
+	*dir_table = malloc(buf_size);
+	if (!*dir_table) {
+		metablks_count = -1;
 		goto out;
+	}
+
+	if (__builtin_mul_overflow(metablks_count, sizeof(u32), &buf_size)) {
+		metablks_count = -1;
+		goto out;
+	}
+
+	*pos_list = malloc(buf_size);
+	if (!*pos_list) {
+		metablks_count = -1;
+		goto out;
+	}
 
 	ret = sqfs_get_metablk_pos(*pos_list, dtb, table_offset,
 				   metablks_count);
