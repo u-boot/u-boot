@@ -1363,7 +1363,7 @@ static const struct mtk_gate_regs top1_cg_regs = {
 		.parent = _parent,				   \
 		.regs = &top0_cg_regs,				   \
 		.shift = _shift,				   \
-		.flags = CLK_GATE_NO_SETCLR | CLK_PARENT_TOPCKGEN, \
+		.flags = CLK_GATE_NO_SETCLR_INV | CLK_PARENT_TOPCKGEN, \
 	}
 
 #define GATE_TOP0E(_id, _parent, _shift) {			   \
@@ -1371,7 +1371,7 @@ static const struct mtk_gate_regs top1_cg_regs = {
 		.parent = _parent,				   \
 		.regs = &top0_cg_regs,				   \
 		.shift = _shift,				   \
-		.flags = CLK_GATE_NO_SETCLR | CLK_PARENT_EXT,	   \
+		.flags = CLK_GATE_NO_SETCLR_INV | CLK_PARENT_EXT,  \
 	}
 
 #define GATE_TOP1(_id, _parent, _shift) {			       \
