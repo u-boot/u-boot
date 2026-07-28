@@ -131,7 +131,8 @@ static void android_boot_image_v3_v4_parse_hdr(const struct andr_boot_img_hdr_v3
 }
 
 static void android_vendor_boot_image_v3_v4_parse_hdr(const struct andr_vnd_boot_img_hdr
-						      *hdr, struct andr_image_data *data)
+						      *hdr, struct andr_image_data *data,
+						      bool write_trailer)
 {
 	ulong end;
 
@@ -167,12 +168,23 @@ static void android_vendor_boot_image_v3_v4_parse_hdr(const struct andr_vnd_boot
 	end += ALIGN(hdr->vendor_ramdisk_table_size, hdr->page_size);
 	data->bootconfig_addr = end;
 	if (hdr->bootconfig_size) {
-		void *bootconfig_ptr = map_sysmem(data->bootconfig_addr,
-						  data->bootconfig_size +
-						  BOOTCONFIG_TRAILER_SIZE);
-		data->bootconfig_size += add_trailer((ulong)bootconfig_ptr,
-						     data->bootconfig_size);
-		unmap_sysmem(bootconfig_ptr);
+		if (write_trailer) {
+			void *bootconfig_ptr = map_sysmem(data->bootconfig_addr,
+							  data->bootconfig_size +
+							  BOOTCONFIG_TRAILER_SIZE);
+			data->bootconfig_size += add_trailer((ulong)bootconfig_ptr,
+							     data->bootconfig_size);
+			unmap_sysmem(bootconfig_ptr);
+		} else {
+			/*
+			 * Only the header has been loaded here (this is a
+			 * size-only query), so the bootconfig region is not
+			 * present in the buffer. Account for the trailer that
+			 * will be appended at load time without writing it, to
+			 * avoid corrupting memory past the header buffer.
+			 */
+			data->bootconfig_size += BOOTCONFIG_TRAILER_SIZE;
+		}
 		data->ramdisk_size += data->bootconfig_size;
 	}
 	end += ALIGN(data->bootconfig_size, hdr->page_size);
@@ -265,7 +277,7 @@ bool android_image_get_vendor_bootimg_size(const void *hdr, u32 *vendor_boot_img
 		return false;
 	}
 
-	android_vendor_boot_image_v3_v4_parse_hdr(hdr, &data);
+	android_vendor_boot_image_v3_v4_parse_hdr(hdr, &data, false);
 
 	*vendor_boot_img_size = data.vendor_boot_img_total_size;
 
@@ -304,7 +316,7 @@ bool android_image_get_data(const void *boot_hdr, const void *vendor_boot_hdr,
 			return false;
 		}
 		android_boot_image_v3_v4_parse_hdr((const struct andr_boot_img_hdr_v3 *)bhdr, data);
-		android_vendor_boot_image_v3_v4_parse_hdr(vhdr, data);
+		android_vendor_boot_image_v3_v4_parse_hdr(vhdr, data, true);
 		unmap_sysmem(vhdr);
 	} else {
 		android_boot_image_v0_v1_v2_parse_hdr(bhdr, data);

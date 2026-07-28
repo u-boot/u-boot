@@ -333,16 +333,16 @@ static void request_complete_list(struct usb_ep *ep, struct list_head *list, int
 	}
 }
 
-static void ep_enable(int num, int in, int maxpacket)
+static void ep_enable(int num, int in, int type, int maxpacket)
 {
 	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	unsigned n;
 
 	n = readl(&udc->epctrl[num]);
 	if (in)
-		n |= (CTRL_TXE | CTRL_TXR | CTRL_TXT_BULK);
+		n |= (CTRL_TXE | CTRL_TXR | CTRL_TXT(type));
 	else
-		n |= (CTRL_RXE | CTRL_RXR | CTRL_RXT_BULK);
+		n |= (CTRL_RXE | CTRL_RXR | CTRL_RXT(type));
 
 	if (num != 0) {
 		struct ept_queue_head *head = ci_get_qh(num, in);
@@ -357,7 +357,7 @@ static int ci_ep_enable(struct usb_ep *ep,
 		const struct usb_endpoint_descriptor *desc)
 {
 	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
-	int num, in;
+	int num, in, type;
 	num = desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (desc->bEndpointAddress & USB_DIR_IN) != 0;
 
@@ -366,6 +366,7 @@ static int ci_ep_enable(struct usb_ep *ep,
 		return -EBUSY;
 	}
 
+	type = usb_endpoint_type(desc);
 	ci_ep->desc = desc;
 	ep->desc = desc;
 
@@ -380,7 +381,7 @@ static int ci_ep_enable(struct usb_ep *ep,
 			ep->maxpacket = max;
 		}
 	}
-	ep_enable(num, in, ep->maxpacket);
+	ep_enable(num, in, type, ep->maxpacket);
 	DBG("%s: num=%d maxpacket=%d\n", __func__, num, ep->maxpacket);
 	return 0;
 }
@@ -679,6 +680,8 @@ static int ci_ep_queue(struct usb_ep *ep,
 	if (ret)
 		return ret;
 
+	req->status = -EINPROGRESS;
+
 	DBG("ept%d %s pre-queue req %p, buffer %p\n",
 	    num, in ? "in" : "out", ci_req, ci_req->hw_buf);
 	list_add_tail(&ci_req->queue, &ci_ep->queue);
@@ -730,6 +733,17 @@ static void handle_ep_complete(struct ci_ep *ci_ep)
 	ci_invalidate_qtd(num);
 	ci_req = list_first_entry(&ci_ep->queue, struct ci_req, queue);
 
+	/* Check all dtd are completed, otherwise return for next irq process */
+	next_td = item;
+	for (j = 0; j < ci_req->dtd_count; j++) {
+		ci_invalidate_td(next_td);
+		if (next_td->info & INFO_ACTIVE)
+			return;
+		if (j != ci_req->dtd_count - 1)
+			next_td = (struct ept_queue_item *)(unsigned long)
+				next_td->next;
+	}
+
 	next_td = item;
 	len = 0;
 	for (j = 0; j < ci_req->dtd_count; j++) {
@@ -753,6 +767,7 @@ static void handle_ep_complete(struct ci_ep *ci_ep)
 		ci_ep_submit_next_request(ci_ep);
 
 	ci_req->req.actual = ci_req->req.length - len;
+	ci_req->req.status = 0;
 	ci_debounce(ci_req, in);
 
 	DBG("ept%d %s req %p, complete %x\n",
@@ -783,7 +798,7 @@ static void handle_setup(void)
 	struct ept_queue_head *head;
 	struct usb_ctrlrequest r;
 	int status = 0;
-	int num, in, _num, _in, i;
+	int num, in, _num, _in, i, type;
 	char *buf;
 
 	ci_req = controller.ep0_req;
@@ -837,8 +852,9 @@ static void handle_setup(void)
 						& USB_ENDPOINT_NUMBER_MASK;
 				in = (ep->desc->bEndpointAddress
 						& USB_DIR_IN) != 0;
+				type = usb_endpoint_type(ep->desc);
 				if ((num == _num) && (in == _in)) {
-					ep_enable(num, in, ep->ep.maxpacket);
+					ep_enable(num, in, type, ep->ep.maxpacket);
 					usb_ep_queue(controller.gadget.ep0,
 							req, 0);
 					break;
