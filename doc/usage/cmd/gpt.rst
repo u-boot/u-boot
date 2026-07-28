@@ -119,10 +119,10 @@ Sets the bootable flag for all partitions in the table. If the partition name
 is in 'partition list' (separated by ','), the bootable flag is set, otherwise
 it is cleared. CONFIG_CMD_GPT_RENAME=y is required.
 
-gpt env set
-~~~~~~~~~~~
+gpt setenv
+~~~~~~~~~~
 
-The 'gpt env set' command will set a series of environment variables with
+The 'gpt setenv' command will set a series of environment variables with
 information about the partition named '<partition name>'. The variables are:
 
 gpt_partition_addr
@@ -199,7 +199,7 @@ $gpt_parts::
 
 Get the information about the partition named 'rootfs'::
 
-    => gpt env set mmc 0 rootfs
+    => gpt setenv mmc 0 rootfs
     => echo ${gpt_partition_addr}
     2000
     => echo ${gpt_partition_size}
@@ -231,19 +231,19 @@ Set the bootable flag for the 'boot' partition and clear it for all others::
 
 Swap the order of the 'boot' and 'rootfs' partition table entries::
 
-    => gpt env set mmc 0 rootfs
+    => gpt setenv mmc 0 rootfs
     => echo ${gpt_partition_entry}
     2
-    => gpt env set mmc 0 boot
+    => gpt setenv mmc 0 boot
     => echo ${gpt_partition_entry}
     1
 
     => gpt transpose mmc 0 1 2
 
-    => gpt env set mmc 0 rootfs
+    => gpt setenv mmc 0 rootfs
     => echo ${gpt_partition_entry}
     1
-    => gpt env set mmc 0 boot
+    => gpt setenv mmc 0 boot
     => echo ${gpt_partition_entry}
     2
 
