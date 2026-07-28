@@ -231,6 +231,37 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
 }
 
 /**
+ * fit_config_add_node() - Append one node's path to the hashed-node list
+ *
+ * @fit:		FIT blob
+ * @noffset:		Offset of the node whose path should be added
+ * @node_inc:		Array of path pointers to fill
+ * @count:		Pointer to current count (updated on return)
+ * @max_nodes:		Maximum entries in @node_inc
+ * @buf:		Buffer for packed path strings
+ * @buf_used:		Pointer to bytes used in @buf (updated on return)
+ * @buf_len:		Total size of @buf
+ * Return: 0 on success, -ve on error
+ */
+static int fit_config_add_node(const void *fit, int noffset, char **node_inc,
+			       int *count, int max_nodes, char *buf,
+			       int *buf_used, int buf_len)
+{
+	int ret, len;
+
+	if (*count >= max_nodes)
+		return -ENOSPC;
+	ret = fdt_get_path(fit, noffset, buf + *buf_used, buf_len - *buf_used);
+	if (ret < 0)
+		return -ENOENT;
+	len = strlen(buf + *buf_used) + 1;
+	node_inc[(*count)++] = buf + *buf_used;
+	*buf_used += len;
+
+	return 0;
+}
+
+/**
  * fit_config_add_hash() - Add hash nodes for one image to the node list
  *
  * Adds the image path, all its hash-* subnode paths, and its cipher
@@ -250,18 +281,12 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 			       char **node_inc, int *count, int max_nodes,
 			       char *buf, int *buf_used, int buf_len)
 {
-	int noffset, hash_count, ret, len;
+	int noffset, hash_count, ret;
 
-	if (*count >= max_nodes)
-		return -ENOSPC;
-
-	ret = fdt_get_path(fit, image_noffset, buf + *buf_used,
-			   buf_len - *buf_used);
-	if (ret < 0)
-		return -ENOENT;
-	len = strlen(buf + *buf_used) + 1;
-	node_inc[(*count)++] = buf + *buf_used;
-	*buf_used += len;
+	ret = fit_config_add_node(fit, image_noffset, node_inc, count,
+				  max_nodes, buf, buf_used, buf_len);
+	if (ret)
+		return ret;
 
 	/* Add all this image's hash subnodes */
 	hash_count = 0;
@@ -273,15 +298,10 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 		if (strncmp(name, FIT_HASH_NODENAME,
 			    strlen(FIT_HASH_NODENAME)))
 			continue;
-		if (*count >= max_nodes)
-			return -ENOSPC;
-		ret = fdt_get_path(fit, noffset, buf + *buf_used,
-				   buf_len - *buf_used);
-		if (ret < 0)
-			return -ENOENT;
-		len = strlen(buf + *buf_used) + 1;
-		node_inc[(*count)++] = buf + *buf_used;
-		*buf_used += len;
+		ret = fit_config_add_node(fit, noffset, node_inc, count,
+					  max_nodes, buf, buf_used, buf_len);
+		if (ret)
+			return ret;
 		hash_count++;
 	}
 
@@ -296,15 +316,10 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 	if (noffset != -FDT_ERR_NOTFOUND) {
 		if (noffset < 0)
 			return -EIO;
-		if (*count >= max_nodes)
-			return -ENOSPC;
-		ret = fdt_get_path(fit, noffset, buf + *buf_used,
-				   buf_len - *buf_used);
-		if (ret < 0)
-			return -ENOENT;
-		len = strlen(buf + *buf_used) + 1;
-		node_inc[(*count)++] = buf + *buf_used;
-		*buf_used += len;
+		ret = fit_config_add_node(fit, noffset, node_inc, count,
+					  max_nodes, buf, buf_used, buf_len);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
