@@ -20,8 +20,9 @@ from binman import elf
 from dtoc import fdt_util
 from u_boot_pylib import tools
 
-MAGIC_NXP_IMX_IVT = 0x412000d1
-MAGIC_FITIMAGE    = 0xedfe0dd0
+MAGIC_NXP_IMX_IVT  = 0x412000d1
+MAGIC_NXP_IMX_FCFB = 0x42464346
+MAGIC_FITIMAGE     = 0xedfe0dd0
 
 KEY_NAME = 'sha256_4096_65537_v3_usr_crt'
 
@@ -112,6 +113,9 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         # - If it is mkimage'd imx8mimage, then extract to be signed data size
         #   from imx8mimage header, and calculate CSF blob offset right past
         #   the SPL from this information.
+        # - If it is mkimage'd imx8mimage wrapped in FCFB, then extract to be
+        #   signed data size from imx8mimage header past the FCFB header, and
+        #   calculate CSF blob offset right past the SPL from this information.
         # - If it is fitImage, then pad the image to 4k, add generated IVT and
         #   sign the whole payload, then append CSF blob at the end right past
         #   the IVT.
@@ -123,6 +127,17 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
             # (extra 0x40 bytes before the payload)
             signbase -= 0x40
             signsize = struct.unpack('<I', data[24:28])[0] - signbase
+            # Remove mkimage generated padding from the end of data
+            data = data[:signsize]
+        elif signtype == MAGIC_NXP_IMX_FCFB: # SPL/imx8mimage with FCFB
+            # Sign the payload including FCFB and imx8mimage headers
+            # (extra 0x1000 and 0x40 bytes before the payload)
+            signbase -= 0x1040
+            # Pull the end address from IVT offset 24 Bytes and subtract
+            # the start address to get amount of data to sign. The IVT
+            # itself is at offset 4096 Bytes, so the total end address
+            # offset in the image is 4120 Bytes.
+            signsize = struct.unpack('<I', data[4120:4124])[0] - signbase
             # Remove mkimage generated padding from the end of data
             data = data[:signsize]
         elif signtype == MAGIC_FITIMAGE: # fitImage

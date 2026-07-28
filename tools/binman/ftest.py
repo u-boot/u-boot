@@ -8044,6 +8044,24 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing bintools.*: cst")
 
+    def testNxpImx8mCSTFCFB(self):
+        """Test CST signing with FCFB-format input (normal auth, no unlock)"""
+        # Create fake FCFB blob: magic(4) + padding(4116)
+        ivt_data = struct.pack('<I', 0x42464346)
+        ivt_data += b'\x00' * 4116
+        # Create fake IVT blob: magic(4) + padding(20) + signsize_addr(4)
+        # + padding(36) = 64 bytes
+        ivt_data += struct.pack('<I', 0x412000d1)
+        ivt_data += b'\x00' * 20
+        ivt_data += struct.pack('<I', 0)
+        ivt_data += b'\x00' * 36
+        self._MakeInputFile('imx8m-ivt.bin', ivt_data)
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('vendor/nxp_imx8_csf.dts',
+                             force_missing_bintools='cst')
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: cst")
+
     def testNxpImx8mCSTFastAuth(self):
         """Test CST signing with fast-auth mode, unlock, and FIT format"""
         # FIT magic covers the FIT-signing path; fast-auth/unlock cover the
