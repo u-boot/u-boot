@@ -17,6 +17,7 @@ NXP Semiconductors
    imx93_9x9_qsb
    imx93_11x11_evk
    imx93_frdm
+   imx93w_evk
    imx943_evk
    imx95_evk
    imx952_evk
