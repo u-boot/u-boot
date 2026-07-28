@@ -341,7 +341,7 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 }
 
 /**
- * fit_config_get_hash_list() - Build the list of nodes to hash
+ * fit_config_get_signed_nodes() - Build the list of nodes to hash
  *
  * Works through every image referenced by the configuration and collects the
  * node paths: root + config + all referenced images with their hash,
@@ -358,9 +358,9 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
  * @buf_len:	Size of @buf
  * Return: number of entries in @node_inc, or -ve on error
  */
-static int fit_config_get_hash_list(const void *fit, int conf_noffset,
-				    char **node_inc, int max_nodes,
-				    char *buf, int buf_len)
+int fit_config_get_signed_nodes(const void *fit, int conf_noffset,
+				char **node_inc, int max_nodes,
+				char *buf, int buf_len)
 {
 	const char *conf_name;
 	int image_count;
@@ -500,9 +500,9 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
 	}
 
 	/* Build the node list from the config, ignoring hashed-nodes */
-	count = fit_config_get_hash_list(fit, conf_noffset,
-					 node_inc, IMAGE_MAX_HASHED_NODES,
-					 hash_buf, sizeof(hash_buf));
+	count = fit_config_get_signed_nodes(fit, conf_noffset,
+					    node_inc, IMAGE_MAX_HASHED_NODES,
+					    hash_buf, sizeof(hash_buf));
 	if (count < 0) {
 		*err_msgp = "Failed to build hash node list";
 		return -1;
