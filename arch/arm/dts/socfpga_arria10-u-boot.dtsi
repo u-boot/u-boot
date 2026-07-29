@@ -53,6 +53,10 @@
 	altr,sysmgr-syscon = <&sysmgr 0x4C 0>;
 };
 
+&mmc {
+	fifo-mode;
+};
+
 &i2c0 {
 	reset-names = "i2c";
 };

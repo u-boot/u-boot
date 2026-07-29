@@ -73,6 +73,7 @@
 };
 
 &mmc {
+	fifo-mode;
 	status = "okay";
 };
 
