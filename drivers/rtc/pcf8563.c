@@ -16,6 +16,7 @@
 #include <log.h>
 #include <rtc.h>
 #include <i2c.h>
+#include <linux/errno.h>
 
 #if !CONFIG_IS_ENABLED(DM_RTC)
 static uchar rtc_read  (uchar reg);
@@ -144,7 +145,7 @@ static int pcf8563_rtc_get(struct udevice *dev, struct rtc_time *tmp)
 
 	if (sec & 0x80) {
 		puts("### Warning: RTC Low Voltage - date/time not reliable\n");
-		rel = -1;
+		rel = -EINVAL;
 	}
 
 	tmp->tm_sec = bcd2bin(sec & 0x7F);
@@ -213,6 +214,7 @@ static const struct rtc_ops pcf8563_rtc_ops = {
 
 static const struct udevice_id pcf8563_rtc_ids[] = {
 	{ .compatible = "nxp,pcf8563" },
+	{ .compatible = "haoyu,hym8563" },
 	{ }
 };
 
