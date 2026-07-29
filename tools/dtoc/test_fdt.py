@@ -426,10 +426,10 @@ class TestNode(unittest.TestCase):
              '/dest/second', '/dest/existing', '/dest/base'],
             [n.path for n in dst.subnodes])
 
-        # Make sure that the phandle for 'over' is not copied
+        # Make sure that the phandle for 'over' is copied
         over = dst.FindNode('over')
         tout.debug(f'keys: {over.props.keys()}')
-        self.assertNotIn('phandle', over.props.keys())
+        self.assertIn('phandle', over.props.keys())
 
         # Check the merged properties, first the base ones in '/dest'
         expect = {'bootph-all', 'compatible', 'stringarray', 'longbytearray',
