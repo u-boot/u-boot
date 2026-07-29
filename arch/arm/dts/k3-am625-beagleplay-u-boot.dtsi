@@ -6,7 +6,7 @@
  * Copyright (C) 2022-2023 Robert Nelson, BeagleBoard.org Foundation
  */
 
-#include "k3-binman.dtsi"
+#include "k3-am625-binman.dtsi"
 
 / {
 	/* Keep the LEDs on by default to indicate life */
