@@ -35,146 +35,10 @@
 #define VERDIN_AM62_DTB "u-boot.dtb"
 
 &binman {
-	tifsstub-hs {
-		filename = "tifsstub.bin_hs";
-		ti-secure-rom {
-			content = <&tifsstub_hs_cert>;
-			core = "secure";
-			load = <0x40000>;
-			sw-rev = <CONFIG_K3_X509_SWRV>;
-			keyfile = "custMpk.pem";
-			countersign;
-			tifsstub;
-		};
-		tifsstub_hs_cert: tifsstub-hs-cert.bin {
-			filename = "ti-sysfw/ti-fs-stub-firmware-am62x-hs-cert.bin";
-			type = "blob-ext";
-			optional;
-		};
-		tifsstub_hs_enc: tifsstub-hs-enc.bin {
-			filename = "ti-sysfw/ti-fs-stub-firmware-am62x-hs-enc.bin";
-			type = "blob-ext";
-			optional;
-		};
-	};
-
-	tifsstub-fs {
-		filename = "tifsstub.bin_fs";
-		tifsstub_fs_cert: tifsstub-fs-cert.bin {
-			filename = "ti-sysfw/ti-fs-stub-firmware-am62x-hs-cert.bin";
-			type = "blob-ext";
-			optional;
-		};
-		tifsstub_fs_enc: tifsstub-fs-enc.bin {
-			filename = "ti-sysfw/ti-fs-stub-firmware-am62x-hs-enc.bin";
-			type = "blob-ext";
-			optional;
-		};
-
-	};
-
-	tifsstub-gp {
-		filename = "tifsstub.bin_gp";
-		ti-secure-rom {
-			content = <&tifsstub_gp>;
-			core = "secure";
-			load = <0x60000>;
-			sw-rev = <CONFIG_K3_X509_SWRV>;
-			keyfile = "ti-degenerate-key.pem";
-			tifsstub;
-		};
-		tifsstub_gp: tifsstub-gp.bin {
-			filename = "ti-sysfw/ti-fs-stub-firmware-am62x-gp.bin";
-			type = "blob-ext";
-			optional;
-		};
-	};
-
 	ti-spl {
-		insert-template = <&ti_spl_template>;
-
+		insert-template = <&ti_spl_am625_template>;
 		fit {
-
 			images {
-				atf {
-					ti-secure {
-						auth-in-place = <0xa02>;
-
-						firewall-1-0 {
-							insert-template = <&firewall_bg_3>;
-							id = <1>;
-							region = <0>;
-						};
-
-						firewall-1-1 {
-							insert-template = <&firewall_armv8_atf_fg>;
-							id = <1>;
-							region = <1>;
-						};
-					};
-				};
-
-				tee {
-					ti-secure {
-						auth-in-place = <0xa02>;
-
-						firewall-1-2 {
-							insert-template = <&firewall_armv8_optee_fg>;
-							id = <1>;
-							region = <2>;
-						};
-					};
-				};
-
-				tifsstub-hs {
-					description = "TIFSSTUB";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-hs";
-					load = <0x9dc00000>;
-					entry = <0x9dc00000>;
-					blob-ext {
-						filename = "tifsstub.bin_hs";
-					};
-				};
-
-				tifsstub-fs {
-					description = "TIFSSTUB";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-fs";
-					load = <0x9dc00000>;
-					entry = <0x9dc00000>;
-					blob-ext {
-						filename = "tifsstub.bin_fs";
-					};
-				};
-
-				tifsstub-gp {
-					description = "TIFSSTUB";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-gp";
-					load = <0x9dc00000>;
-					entry = <0x9dc00000>;
-					blob-ext {
-						filename = "tifsstub.bin_gp";
-					};
-				};
-
-				dm {
-					ti-secure {
-						content = <&dm>;
-						keyfile = "custMpk.pem";
-					};
-					dm: ti-dm {
-						filename = "ti-dm/am62xx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-					};
-				};
-
 				fdt-0 {
 					description = "k3-am625-verdin-wifi-dev";
 					type = "flat_dt";
@@ -260,55 +124,10 @@
 
 &binman {
 	ti-spl_unsigned {
-		insert-template = <&ti_spl_unsigned_template>;
+		insert-template = <&ti_spl_unsigned_am625_template>;
 
 		fit {
 			images {
-				tifsstub-hs {
-					description = "tifsstub";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-hs";
-					load = <0x9dc00000>;
-					entry = <0x9dc00000>;
-					blob-ext {
-						filename = "tifsstub.bin_hs";
-					};
-				};
-
-				tifsstub-fs {
-					description = "tifsstub";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-fs";
-					load = <0x9dc00000>;
-					entry = <0x9dc00000>;
-					blob-ext {
-						filename = "tifsstub.bin_fs";
-					};
-				};
-
-				tifsstub-gp {
-					description = "tifsstub";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-gp";
-					load = <0x9dc00000>;
-					entry = <0x9dc00000>;
-					blob-ext {
-						filename = "tifsstub.bin_gp";
-					};
-				};
-
-				dm {
-					ti-dm {
-						filename = "ti-dm/am62xx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-					};
-				};
-
 				fdt-0 {
 					description = "k3-am625-verdin-wifi-dev";
 					type = "flat_dt";

@@ -63,99 +63,11 @@
 #define AM625_BEAGLEPLAY_DTB "dts/upstream/src/arm64/ti/k3-am625-beagleplay.dtb"
 
 &binman {
-	tifsstub-gp {
-		filename = "tifsstub.bin_gp";
-		ti-secure-rom {
-			content = <&tifsstub_gp>;
-			core = "secure";
-			load = <0x60000>;
-			sw-rev = <CONFIG_K3_X509_SWRV>;
-			keyfile = "ti-degenerate-key.pem";
-			tifsstub;
-		};
-		tifsstub_gp: tifsstub-gp.bin {
-			filename = "ti-sysfw/ti-fs-stub-firmware-am62x-gp.bin";
-			type = "blob-ext";
-			optional;
-		};
-	};
-
 	ti-spl_unsigned {
-		filename = "tispl.bin_unsigned";
+		insert-template = <&ti_spl_unsigned_am625_template>;
 		symlink = "tispl.bin";
-		pad-byte = <0xff>;
-
 		fit {
-			description = "Configuration to load ATF and SPL";
-			#address-cells = <1>;
-
 			images {
-
-				atf {
-					description = "ARM Trusted Firmware";
-					type = "firmware";
-					arch = "arm64";
-					compression = "none";
-					os = "arm-trusted-firmware";
-					load = <CONFIG_K3_ATF_LOAD_ADDR>;
-					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
-					atf-bl31 {
-						filename = "bl31.bin";
-					};
-				};
-
-				tee {
-					description = "OP-TEE";
-					type = "tee";
-					arch = "arm64";
-					compression = "none";
-					os = "tee";
-					load = <CONFIG_K3_OPTEE_LOAD_ADDR>;
-					entry = <CONFIG_K3_OPTEE_LOAD_ADDR>;
-					tee-os {
-						filename = "tee-raw.bin";
-					};
-				};
-
-				tifsstub-gp {
-					description = "tifsstub";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "tifsstub-gp";
-					load = <0x9dc00000>;
-					entry = <0x9dc00000>;
-					blob-ext {
-						filename = "tifsstub.bin_gp";
-					};
-				};
-
-				dm {
-					description = "DM binary";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "DM";
-					load = <0x89000000>;
-					entry = <0x89000000>;
-					ti-dm {
-						filename = "ti-dm/am62xx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
-					};
-				};
-
-				spl {
-					description = "SPL (64-bit)";
-					type = "standalone";
-					os = "U-Boot";
-					arch = "arm64";
-					compression = "none";
-					load = <CONFIG_SPL_TEXT_BASE>;
-					entry = <CONFIG_SPL_TEXT_BASE>;
-					blob {
-						filename = "spl/u-boot-spl-nodtb.bin";
-					};
-				};
-
 				fdt-0 {
 					description = "k3-am625-beagleplay";
 					type = "flat_dt";
@@ -166,10 +78,8 @@
 					};
 				};
 			};
-
 			configurations {
 				default = "conf-0";
-
 				conf-0 {
 					description = "k3-am625-beagleplay";
 					firmware = "atf";
