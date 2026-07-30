@@ -334,6 +334,9 @@
 			<&gpio_c 7 (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_SOURCE)>;
 		test4-gpios = <&gpio_a 14>, <&gpio_b 4 1 3 2 1>;
 		test5-gpios = <&gpio_a 19>;
+		test6-gpios = <&gpio_delay 0 10 20>, <&gpio_delay 1 30 40>,
+			      <&gpio_delay 0 50 60>;
+		test7-gpios = <&gpio_delay 5 10 20>;
 
 		bool-value;
 		int8-value = /bits/ 8 <0x12>;
@@ -927,6 +930,13 @@
 			#gpio-cells = <2>;
 			gpio-bank-name = "c";
 			sandbox,gpio-count = <10>;
+		};
+
+		gpio_delay: gpio-delay-test {
+			compatible = "gpio-delay";
+			gpio-controller;
+			#gpio-cells = <3>;
+			gpios = <&gpio_a 9>, <&gpio_a 18>;
 		};
 	};
 
