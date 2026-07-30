@@ -465,10 +465,12 @@ stages:
           TEST_PY_TEST_SPEC: "not sleep"
         vexpress_fvp:
           TEST_PY_BD: "vexpress_fvp"
-          TEST_PY_TEST_SPEC: "not sleep and not hostfs"
+          # See d75998b476d: hostfs/semihosting tests trigger an FVP bug
+          TEST_PY_TEST_SPEC: "not sleep and not hostfs and not semihosting"
         vexpress_fvp_bloblist:
           TEST_PY_BD: "vexpress_fvp_bloblist"
-          TEST_PY_TEST_SPEC: "not sleep and not hostfs"
+          # See d75998b476d: hostfs/semihosting tests trigger an FVP bug
+          TEST_PY_TEST_SPEC: "not sleep and not hostfs and not semihosting"
         integratorcp_cm926ejs:
           TEST_PY_BD: "integratorcp_cm926ejs"
           TEST_PY_ID: "--id qemu"
