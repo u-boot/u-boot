@@ -293,6 +293,8 @@ static int dm_test_gpio_requestf(struct unit_test_state *uts)
 	ut_assertok(gpio_get_status(dev, offset, buf, sizeof(buf)));
 	ut_asserteq_str("b5: output: 1 [x] testing 1 hi", buf);
 
+	ut_assertok(gpio_free(gpio));
+
 	return 0;
 }
 DM_TEST(dm_test_gpio_requestf, UTF_SCAN_PDATA | UTF_SCAN_FDT);
