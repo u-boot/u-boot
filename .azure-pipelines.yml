@@ -689,7 +689,7 @@ stages:
         layerscape_vf610:
           BUILDMAN: $(layerscape_vf610)
         loongarch_m68k_remaining_mx_xtensa:
-          BUILDMAN: $(m68k_remaining_mx_xtensa)
+          BUILDMAN: $(loongarch_m68k_remaining_mx_xtensa)
         mips_x86:
           BUILDMAN: $(mips_x86)
         mx6:
