@@ -192,6 +192,21 @@ EXPORT_SYMBOL(div64_s64);
  */
 u32 iter_div_u64_rem(u64 dividend, u32 divisor, u64 *remainder)
 {
-	return __iter_div_u64_rem(dividend, divisor, remainder);
+	u32 ret = 0;
+
+	while (dividend >= divisor) {
+		/*
+		 * The following asm() prevents the compiler from
+		 * optimising this loop into a modulo operation.
+		 */
+		asm("" : "+rm"(dividend));
+
+		dividend -= divisor;
+		ret++;
+	}
+
+	*remainder = dividend;
+
+	return ret;
 }
 EXPORT_SYMBOL(iter_div_u64_rem);
