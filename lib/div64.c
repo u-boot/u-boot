@@ -171,7 +171,12 @@ s64 div64_s64(s64 dividend, s64 divisor)
 {
 	s64 quot, t;
 
-	quot = div64_u64(abs(dividend), abs(divisor));
+	/*
+	 * Unlike Linux, U-Boot's abs() is not 64-bit safe: it evaluates its
+	 * argument as int when sizeof(x) != sizeof(long), so both operands
+	 * need abs64() here.
+	 */
+	quot = div64_u64(abs64(dividend), abs64(divisor));
 	t = (dividend ^ divisor) >> 63;
 
 	return (quot ^ t) - t;
