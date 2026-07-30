@@ -22,9 +22,9 @@ u8 versal2_get_bootmode(void);
 /* EL3 clock/timer register setup, called from board_early_init_r() */
 void versal2_timer_setup(void);
 
-int zynqmp_pm_ufs_get_txrx_cfgrdy(u32 *value);
-int zynqmp_pm_ufs_sram_csr_read(u32 *value);
-int zynqmp_pm_ufs_sram_csr_write(u32 *value);
-int zynqmp_pm_ufs_cal_reg(u32 *value);
+int zynqmp_pm_wait_mphy_tx_rx_config_ready(u32 timeout_us);
+int zynqmp_pm_wait_sram_init_done(u32 timeout_us);
+int zynqmp_pm_set_sram_bypass(void);
+int zynqmp_pm_get_ufs_calibration_values(u32 *value);
 
 #endif /* _ASM_ARCH_SYS_PROTO_H */

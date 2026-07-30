@@ -20,18 +20,12 @@
 #include "ufshcd-dwc.h"
 #include "ufshci-dwc.h"
 
-#define SRAM_CSR_INIT_DONE_MASK		BIT(0)
-#define SRAM_CSR_EXT_LD_DONE_MASK	BIT(1)
-#define SRAM_CSR_BYPASS_MASK		BIT(2)
-
 #define MPHY_FAST_RX_AFE_CAL		BIT(2)
 #define MPHY_FW_CALIB_CFG_VAL		BIT(8)
 
 #define MPHY_RX_OVRD_EN			BIT(3)
 #define MPHY_RX_OVRD_VAL		BIT(2)
 #define MPHY_RX_ACK_MASK		BIT(0)
-
-#define TX_RX_CFG_RDY_MASK		GENMASK(3, 0)
 
 #define TIMEOUT_MICROSEC		1000000L
 
@@ -229,7 +223,6 @@ static int ufs_versal2_setup_phy(struct ufs_hba *hba)
 static int ufs_versal2_phy_init(struct ufs_hba *hba)
 {
 	struct ufs_versal2_priv *priv = dev_get_priv(hba->dev);
-	u32 reg, time_left;
 	int ret;
 	static const struct ufshcd_dme_attr_val rmmi_attrs[] = {
 		{ UIC_ARG_MIB(CBREFCLKCTRL2), CBREFREFCLK_GATE_OVR_EN, DME_LOCAL },
@@ -238,24 +231,15 @@ static int ufs_versal2_phy_init(struct ufs_hba *hba)
 		{ UIC_ARG_MIB(VS_MPHYCFGUPDT), 1, DME_LOCAL }
 	};
 
-	/* Wait for Tx/Rx config_rdy */
-	time_left = TIMEOUT_MICROSEC;
-	do {
-		time_left--;
-		ret = zynqmp_pm_ufs_get_txrx_cfgrdy(&reg);
-		if (ret)
-			return ret;
-
-		reg &= TX_RX_CFG_RDY_MASK;
-		if (!reg)
-			break;
-
-		mdelay(5);
-	} while (time_left);
-
-	if (!time_left) {
+	/*
+	 * Wait for Tx/Rx config_rdy. The poll loop lives in the firmware
+	 * backend (IO, EEMI or SCMI) so this driver stays backend-agnostic;
+	 * the timeout budget stays here with the consumer.
+	 */
+	ret = zynqmp_pm_wait_mphy_tx_rx_config_ready(TIMEOUT_MICROSEC);
+	if (ret) {
 		dev_err(hba->dev, "Tx/Rx configuration signal busy.\n");
-		return -ETIMEDOUT;
+		return ret;
 	}
 
 	ret = ufshcd_dwc_dme_set_attrs(hba, rmmi_attrs, ARRAY_SIZE(rmmi_attrs));
@@ -269,24 +253,11 @@ static int ufs_versal2_phy_init(struct ufs_hba *hba)
 		return ret;
 	}
 
-	/* Wait for SRAM init done */
-	time_left = TIMEOUT_MICROSEC;
-	do {
-		time_left--;
-		ret = zynqmp_pm_ufs_sram_csr_read(&reg);
-		if (ret)
-			return ret;
-
-		reg &= SRAM_CSR_INIT_DONE_MASK;
-		if (reg)
-			break;
-
-		mdelay(5);
-	} while (time_left);
-
-	if (!time_left) {
+	/* Wait for SRAM init done (poll handled by the firmware backend). */
+	ret = zynqmp_pm_wait_sram_init_done(TIMEOUT_MICROSEC);
+	if (ret) {
 		dev_err(hba->dev, "SRAM initialization failed.\n");
-		return -ETIMEDOUT;
+		return ret;
 	}
 
 	ret = ufs_versal2_setup_phy(hba);
@@ -301,7 +272,7 @@ static int ufs_versal2_init(struct ufs_hba *hba)
 	struct ufs_versal2_priv *priv = dev_get_priv(hba->dev);
 	struct clk clk;
 	unsigned long core_clk_rate = 0;
-	u32 cal, sram_csr;
+	u32 cal;
 	int ret = 0;
 
 	priv->phy_mode = UFSHCD_DWC_PHY_MODE_ROM;
@@ -345,28 +316,18 @@ static int ufs_versal2_init(struct ufs_hba *hba)
 		return ret;
 	}
 
-	ret = zynqmp_pm_ufs_sram_csr_read(&sram_csr);
-	if (ret)
+	ret = zynqmp_pm_set_sram_bypass();
+	if (ret) {
+		dev_err(hba->dev, "Bypass SRAM interface failed, err = %d\n", ret);
 		return ret;
-
-	if (!priv->phy_mode) {
-		sram_csr &= ~SRAM_CSR_EXT_LD_DONE_MASK;
-		sram_csr |= SRAM_CSR_BYPASS_MASK;
-	} else {
-		dev_err(hba->dev, "Invalid phy-mode %d.\n", priv->phy_mode);
-		return -EINVAL;
 	}
-
-	ret = zynqmp_pm_ufs_sram_csr_write(&sram_csr);
-	if (ret)
-		return ret;
 
 	/* De Assert RST_UFS Reset for UFS block in PMX_IOU */
 	ret = reset_deassert(priv->rstc);
 	if (ret)
 		dev_err(hba->dev, "host reset deassert failed, err = %d\n", ret);
 
-	ret = zynqmp_pm_ufs_cal_reg(&cal);
+	ret = zynqmp_pm_get_ufs_calibration_values(&cal);
 	if (ret)
 		return ret;
 

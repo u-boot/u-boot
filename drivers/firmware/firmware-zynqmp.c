@@ -19,6 +19,7 @@
 #include <asm/ptrace.h>
 #include <asm/system.h>
 #include <linux/bitfield.h>
+#include <linux/delay.h>
 
 #if defined(CONFIG_ZYNQMP_IPI)
 #include <mailbox.h>
@@ -175,50 +176,59 @@ unsigned int zynqmp_firmware_version(void)
 };
 
 #if defined(CONFIG_ARCH_VERSAL2)
-int zynqmp_pm_ufs_get_txrx_cfgrdy(u32 *value)
+/*
+ * Poll the M-PHY TX/RX config-ready status until it settles or @timeout_us
+ * elapses. Legacy EEMI firmware only offers the per-read status primitive, so
+ * the poll loop lives here rather than in the UFS driver; the timeout budget is
+ * owned by the caller.
+ */
+int zynqmp_pm_wait_mphy_tx_rx_config_ready(u32 timeout_us)
 {
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	int ret;
 
-	if (!value)
-		return -EINVAL;
+	while (timeout_us--) {
+		ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_IOU_SLCR,
+					IOCTL_READ_REG, TXRX_CFGRDY_OFFSET, 0, 0,
+					0, ret_payload);
+		if (ret)
+			return ret;
 
-	ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_IOU_SLCR,
-				IOCTL_READ_REG, TXRX_CFGRDY_OFFSET, 0, 0,
-				0, ret_payload);
-	if (ret)
-		return ret;
+		if (!(ret_payload[1] & TX_RX_CFG_RDY_MASK))
+			return 0;
 
-	*value = ret_payload[1];
+		udelay(1);
+	}
 
-	return ret;
+	return -ETIMEDOUT;
 }
 
-int zynqmp_pm_ufs_sram_csr_read(u32 *value)
+int zynqmp_pm_wait_sram_init_done(u32 timeout_us)
 {
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	int ret;
 
-	if (!value)
-		return -EINVAL;
+	while (timeout_us--) {
+		ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_IOU_SLCR,
+					IOCTL_READ_REG, SRAM_CSR_OFFSET, 0, 0,
+					0, ret_payload);
+		if (ret)
+			return ret;
 
-	ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_IOU_SLCR,
-				IOCTL_READ_REG, SRAM_CSR_OFFSET, 0, 0,
-				0, ret_payload);
-	if (ret)
-		return ret;
+		if (ret_payload[1] & SRAM_CSR_INIT_DONE_MASK)
+			return 0;
 
-	*value = ret_payload[1];
+		udelay(1);
+	}
 
-	return ret;
+	return -ETIMEDOUT;
 }
 
-int zynqmp_pm_ufs_sram_csr_write(u32 *value)
+int zynqmp_pm_set_sram_bypass(void)
 {
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+	u32 sram_csr;
 	int ret;
-
-	if (!value)
-		return -EINVAL;
 
 	ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_MASK_WRITE_REG);
 	if (ret) {
@@ -228,15 +238,21 @@ int zynqmp_pm_ufs_sram_csr_write(u32 *value)
 	}
 
 	ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_IOU_SLCR,
-				IOCTL_MASK_WRITE_REG, SRAM_CSR_OFFSET,
-				GENMASK(2, 1), *value, 0, NULL);
+				IOCTL_READ_REG, SRAM_CSR_OFFSET, 0, 0,
+				0, ret_payload);
 	if (ret)
 		return ret;
 
-	return ret;
+	sram_csr = ret_payload[1];
+	sram_csr &= ~SRAM_CSR_EXT_LD_DONE_MASK;
+	sram_csr |= SRAM_CSR_BYPASS_MASK;
+
+	return xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_IOU_SLCR,
+				 IOCTL_MASK_WRITE_REG, SRAM_CSR_OFFSET,
+				 GENMASK(2, 1), sram_csr, 0, NULL);
 }
 
-int zynqmp_pm_ufs_cal_reg(u32 *value)
+int zynqmp_pm_get_ufs_calibration_values(u32 *value)
 {
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	int ret;
