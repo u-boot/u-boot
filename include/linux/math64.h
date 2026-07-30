@@ -1,8 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 #ifndef _LINUX_MATH64_H
 #define _LINUX_MATH64_H
 
 #include <div64.h>
 #include <linux/bitops.h>
+#include <linux/kernel.h>
 #include <linux/types.h>
 
 #if BITS_PER_LONG == 64
@@ -12,6 +14,11 @@
 
 /**
  * div_u64_rem - unsigned 64bit divide with 32bit divisor with remainder
+ * @dividend: unsigned 64bit dividend
+ * @divisor: unsigned 32bit divisor
+ * @remainder: pointer to unsigned 32bit remainder
+ *
+ * Return: sets ``*remainder``, then returns dividend / divisor
  *
  * This is commonly provided by 32bit archs to provide an optimized 64bit
  * divide.
@@ -24,6 +31,11 @@ static inline u64 div_u64_rem(u64 dividend, u32 divisor, u32 *remainder)
 
 /**
  * div_s64_rem - signed 64bit divide with 32bit divisor with remainder
+ * @dividend: signed 64bit dividend
+ * @divisor: signed 32bit divisor
+ * @remainder: pointer to signed 32bit remainder
+ *
+ * Return: sets ``*remainder``, then returns dividend / divisor
  */
 static inline s64 div_s64_rem(s64 dividend, s32 divisor, s32 *remainder)
 {
@@ -33,6 +45,11 @@ static inline s64 div_s64_rem(s64 dividend, s32 divisor, s32 *remainder)
 
 /**
  * div64_u64_rem - unsigned 64bit divide with 64bit divisor and remainder
+ * @dividend: unsigned 64bit dividend
+ * @divisor: unsigned 64bit divisor
+ * @remainder: pointer to unsigned 64bit remainder
+ *
+ * Return: sets ``*remainder``, then returns dividend / divisor
  */
 static inline u64 div64_u64_rem(u64 dividend, u64 divisor, u64 *remainder)
 {
@@ -42,17 +59,22 @@ static inline u64 div64_u64_rem(u64 dividend, u64 divisor, u64 *remainder)
 
 /**
  * div64_u64 - unsigned 64bit divide with 64bit divisor
+ * @dividend: unsigned 64bit dividend
+ * @divisor: unsigned 64bit divisor
+ *
+ * Return: dividend / divisor
  */
 static inline u64 div64_u64(u64 dividend, u64 divisor)
 {
 	return dividend / divisor;
 }
 
-#define DIV64_U64_ROUND_UP(ll, d)	\
-	({ u64 _tmp = (d); div64_u64((ll) + _tmp - 1, _tmp); })
-
 /**
  * div64_s64 - signed 64bit divide with 64bit divisor
+ * @dividend: signed 64bit dividend
+ * @divisor: signed 64bit divisor
+ *
+ * Return: dividend / divisor
  */
 static inline s64 div64_s64(s64 dividend, s64 divisor)
 {
@@ -92,10 +114,14 @@ extern s64 div64_s64(s64 dividend, s64 divisor);
 
 /**
  * div_u64 - unsigned 64bit divide with 32bit divisor
+ * @dividend: unsigned 64bit dividend
+ * @divisor: unsigned 32bit divisor
  *
  * This is the most common 64bit divide and should be used if possible,
  * as many 32bit archs can optimize this variant better than a full 64bit
  * divide.
+ *
+ * Return: dividend / divisor
  */
 #ifndef div_u64
 static inline u64 div_u64(u64 dividend, u32 divisor)
@@ -107,6 +133,10 @@ static inline u64 div_u64(u64 dividend, u32 divisor)
 
 /**
  * div_s64 - signed 64bit divide with 32bit divisor
+ * @dividend: signed 64bit dividend
+ * @divisor: signed 32bit divisor
+ *
+ * Return: dividend / divisor
  */
 #ifndef div_s64
 static inline s64 div_s64(s64 dividend, s32 divisor)
@@ -128,17 +158,28 @@ static inline u64 mul_u32_u32(u32 a, u32 b)
 }
 #endif
 
+#ifndef add_u64_u32
+/*
+ * Many a GCC version also messes this up.
+ * Zero extending b and then spilling everything to stack.
+ */
+static inline u64 add_u64_u32(u64 a, u32 b)
+{
+	return a + b;
+}
+#endif
+
 #if defined(CONFIG_ARCH_SUPPORTS_INT128) && defined(__SIZEOF_INT128__)
 
 #ifndef mul_u64_u32_shr
-static inline u64 mul_u64_u32_shr(u64 a, u32 mul, unsigned int shift)
+static __always_inline u64 mul_u64_u32_shr(u64 a, u32 mul, unsigned int shift)
 {
 	return (u64)(((unsigned __int128)a * mul) >> shift);
 }
 #endif /* mul_u64_u32_shr */
 
 #ifndef mul_u64_u64_shr
-static inline u64 mul_u64_u64_shr(u64 a, u64 mul, unsigned int shift)
+static __always_inline u64 mul_u64_u64_shr(u64 a, u64 mul, unsigned int shift)
 {
 	return (u64)(((unsigned __int128)a * mul) >> shift);
 }
@@ -147,18 +188,14 @@ static inline u64 mul_u64_u64_shr(u64 a, u64 mul, unsigned int shift)
 #else
 
 #ifndef mul_u64_u32_shr
-static inline u64 mul_u64_u32_shr(u64 a, u32 mul, unsigned int shift)
+static __always_inline u64 mul_u64_u32_shr(u64 a, u32 mul, unsigned int shift)
 {
-	u32 ah, al;
+	u32 ah = a >> 32, al = a;
 	u64 ret;
-
-	al = a;
-	ah = a >> 32;
 
 	ret = mul_u32_u32(al, mul) >> shift;
 	if (ah)
 		ret += mul_u32_u32(ah, mul) << (32 - shift);
-
 	return ret;
 }
 #endif /* mul_u64_u32_shr */
@@ -209,6 +246,27 @@ static inline u64 mul_u64_u64_shr(u64 a, u64 b, unsigned int shift)
 
 #endif
 
+#ifndef mul_s64_u64_shr
+static inline u64 mul_s64_u64_shr(s64 a, u64 b, unsigned int shift)
+{
+	u64 ret;
+
+	/*
+	 * Extract the sign before the multiplication and put it back
+	 * afterwards if needed.
+	 *
+	 * Note: Linux uses abs() here, which U-Boot's abs() cannot do:
+	 * it evaluates its argument as int for anything that is not a long.
+	 */
+	ret = mul_u64_u64_shr(abs64(a), b, shift);
+
+	if (a < 0)
+		ret = -((s64) ret);
+
+	return ret;
+}
+#endif /* mul_s64_u64_shr */
+
 #ifndef mul_u64_u32_div
 static inline u64 mul_u64_u32_div(u64 a, u32 mul, u32 divisor)
 {
@@ -237,6 +295,108 @@ static inline u64 mul_u64_u32_div(u64 a, u32 mul, u32 divisor)
 	return rl.ll;
 }
 #endif /* mul_u64_u32_div */
+
+/*
+ * Not ported from Linux: mul_u64_add_u64_div_u64() and the
+ * mul_u64_u64_div_u64() / mul_u64_u64_div_u64_roundup() macros built on it.
+ * They need ~110 lines of lib/math/div64.c brought along, plus a u128 type
+ * and OPTIMIZER_HIDE_VAR(), and U-Boot has no users for them yet. Port the
+ * lot when the first one turns up.
+ */
+
+/**
+ * DIV64_U64_ROUND_UP - unsigned 64bit divide with 64bit divisor rounded up
+ * @ll: unsigned 64bit dividend
+ * @d: unsigned 64bit divisor
+ *
+ * Divide unsigned 64bit dividend by unsigned 64bit divisor
+ * and round up.
+ *
+ * Return: dividend / divisor rounded up
+ */
+#define DIV64_U64_ROUND_UP(ll, d)	\
+	({ u64 _tmp = (d); div64_u64((ll) + _tmp - 1, _tmp); })
+
+/**
+ * DIV_U64_ROUND_UP - unsigned 64bit divide with 32bit divisor rounded up
+ * @ll: unsigned 64bit dividend
+ * @d: unsigned 32bit divisor
+ *
+ * Divide unsigned 64bit dividend by unsigned 32bit divisor
+ * and round up.
+ *
+ * Return: dividend / divisor rounded up
+ */
+#define DIV_U64_ROUND_UP(ll, d)		\
+	({ u32 _tmp = (d); div_u64((ll) + _tmp - 1, _tmp); })
+
+/**
+ * DIV64_U64_ROUND_CLOSEST - unsigned 64bit divide with 64bit divisor rounded to nearest integer
+ * @dividend: unsigned 64bit dividend
+ * @divisor: unsigned 64bit divisor
+ *
+ * Divide unsigned 64bit dividend by unsigned 64bit divisor
+ * and round to closest integer.
+ *
+ * Return: dividend / divisor rounded to nearest integer
+ */
+#define DIV64_U64_ROUND_CLOSEST(dividend, divisor)	\
+	({ u64 _tmp = (divisor); div64_u64((dividend) + _tmp / 2, _tmp); })
+
+/**
+ * DIV_U64_ROUND_CLOSEST - unsigned 64bit divide with 32bit divisor rounded to nearest integer
+ * @dividend: unsigned 64bit dividend
+ * @divisor: unsigned 32bit divisor
+ *
+ * Divide unsigned 64bit dividend by unsigned 32bit divisor
+ * and round to closest integer.
+ *
+ * Return: dividend / divisor rounded to nearest integer
+ */
+#define DIV_U64_ROUND_CLOSEST(dividend, divisor)	\
+	({ u32 _tmp = (divisor); div_u64((u64)(dividend) + _tmp / 2, _tmp); })
+
+/**
+ * DIV_S64_ROUND_CLOSEST - signed 64bit divide with 32bit divisor rounded to nearest integer
+ * @dividend: signed 64bit dividend
+ * @divisor: signed 32bit divisor
+ *
+ * Divide signed 64bit dividend by signed 32bit divisor
+ * and round to closest integer.
+ *
+ * Return: dividend / divisor rounded to nearest integer
+ */
+#define DIV_S64_ROUND_CLOSEST(dividend, divisor)(	\
+{							\
+	s64 __x = (dividend);				\
+	s32 __d = (divisor);				\
+	((__x > 0) == (__d > 0)) ?			\
+		div_s64((__x + (__d / 2)), __d) :	\
+		div_s64((__x - (__d / 2)), __d);	\
+}							\
+)
+
+/**
+ * roundup_u64 - Round up a 64bit value to the next specified 32bit multiple
+ * @x: the value to up
+ * @y: 32bit multiple to round up to
+ *
+ * Rounds @x to the next multiple of @y. For 32bit @x values, see roundup and
+ * the faster round_up() for powers of 2.
+ *
+ * Return: rounded up value.
+ */
+static inline u64 roundup_u64(u64 x, u32 y)
+{
+	return DIV_U64_ROUND_UP(x, y) * y;
+}
+
+/*
+ * U-Boot addition, not present in Linux's <linux/math64.h>: Linux keeps
+ * abs_diff() in <linux/math.h>, which U-Boot does not have. Its other
+ * contents live in <linux/kernel.h> here, but abs_diff() was added to this
+ * header instead, so leave it be rather than move it around.
+ */
 
 /**
  * abs_diff - return absolute value of the difference between the arguments
