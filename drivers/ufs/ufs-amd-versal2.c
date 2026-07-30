@@ -301,7 +301,7 @@ static int ufs_versal2_init(struct ufs_hba *hba)
 	struct ufs_versal2_priv *priv = dev_get_priv(hba->dev);
 	struct clk clk;
 	unsigned long core_clk_rate = 0;
-	u32 cal;
+	u32 cal, sram_csr;
 	int ret = 0;
 
 	priv->phy_mode = UFSHCD_DWC_PHY_MODE_ROM;
@@ -331,6 +331,41 @@ static int ufs_versal2_init(struct ufs_hba *hba)
 		return PTR_ERR(priv->rstphy);
 	}
 
+	/* Assert RST_UFS Reset for UFS block in PMX_IOU */
+	ret = reset_assert(priv->rstc);
+	if (ret) {
+		dev_err(hba->dev, "host reset assert failed, err = %d\n", ret);
+		return ret;
+	}
+
+	/* Assert PHY reset */
+	ret = reset_assert(priv->rstphy);
+	if (ret) {
+		dev_err(hba->dev, "phy reset assert failed, err = %d\n", ret);
+		return ret;
+	}
+
+	ret = zynqmp_pm_ufs_sram_csr_read(&sram_csr);
+	if (ret)
+		return ret;
+
+	if (!priv->phy_mode) {
+		sram_csr &= ~SRAM_CSR_EXT_LD_DONE_MASK;
+		sram_csr |= SRAM_CSR_BYPASS_MASK;
+	} else {
+		dev_err(hba->dev, "Invalid phy-mode %d.\n", priv->phy_mode);
+		return -EINVAL;
+	}
+
+	ret = zynqmp_pm_ufs_sram_csr_write(&sram_csr);
+	if (ret)
+		return ret;
+
+	/* De Assert RST_UFS Reset for UFS block in PMX_IOU */
+	ret = reset_deassert(priv->rstc);
+	if (ret)
+		dev_err(hba->dev, "host reset deassert failed, err = %d\n", ret);
+
 	ret = zynqmp_pm_ufs_cal_reg(&cal);
 	if (ret)
 		return ret;
@@ -346,57 +381,12 @@ static int ufs_versal2_init(struct ufs_hba *hba)
 static int ufs_versal2_hce_enable_notify(struct ufs_hba *hba,
 					 enum ufs_notify_change_status status)
 {
-	struct ufs_versal2_priv *priv = dev_get_priv(hba->dev);
-	u32 sram_csr;
-	int ret;
+	int ret = 0;
 
-	switch (status) {
-	case PRE_CHANGE:
-		/* Assert RST_UFS Reset for UFS block in PMX_IOU */
-		ret = reset_assert(priv->rstc);
-		if (ret) {
-			dev_err(hba->dev, "ufshc reset assert failed, err = %d\n", ret);
-			return ret;
-		}
-
-		/* Assert PHY reset */
-		ret = reset_assert(priv->rstphy);
-		if (ret) {
-			dev_err(hba->dev, "ufsphy reset assert failed, err = %d\n", ret);
-			return ret;
-		}
-
-		ret = zynqmp_pm_ufs_sram_csr_read(&sram_csr);
-		if (ret)
-			return ret;
-
-		if (!priv->phy_mode) {
-			sram_csr &= ~SRAM_CSR_EXT_LD_DONE_MASK;
-			sram_csr |= SRAM_CSR_BYPASS_MASK;
-		} else {
-			dev_err(hba->dev, "Invalid phy-mode %d.\n", priv->phy_mode);
-			return -EINVAL;
-		}
-
-		ret = zynqmp_pm_ufs_sram_csr_write(&sram_csr);
-		if (ret)
-			return ret;
-
-		/* De Assert RST_UFS Reset for UFS block in PMX_IOU */
-		ret = reset_deassert(priv->rstc);
-		if (ret)
-			dev_err(hba->dev, "ufshc reset deassert failed, err = %d\n", ret);
-
-		break;
-	case POST_CHANGE:
+	if (status == POST_CHANGE) {
 		ret = ufs_versal2_phy_init(hba);
 		if (ret)
 			dev_err(hba->dev, "Phy init failed (%d)\n", ret);
-
-		break;
-	default:
-		ret = -EINVAL;
-		break;
 	}
 
 	return ret;
