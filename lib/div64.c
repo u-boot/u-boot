@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2003 Bernardo Innocenti <bernie@develer.com>
  *
@@ -27,9 +28,9 @@
 
 #ifndef __div64_32
 /*
- * Don't instrument this function as it may be called from tracing code, since
- * it needs to read the timer and this often requires calling do_div(), which
- * calls this function.
+ * U-Boot addition, not present upstream: don't instrument this function as it
+ * may be called from tracing code, since it needs to read the timer and this
+ * often requires calling do_div(), which calls this function.
  */
 uint32_t __attribute__((weak, no_instrument_function)) __div64_32(u64 *n,
 								  u32 base)
@@ -87,7 +88,7 @@ s64 div_s64_rem(s64 dividend, s32 divisor, s32 *remainder)
 EXPORT_SYMBOL(div_s64_rem);
 #endif
 
-/**
+/*
  * div64_u64_rem - unsigned 64bit divide with 64bit divisor and remainder
  * @dividend:	64bit dividend
  * @divisor:	64bit divisor
@@ -127,7 +128,7 @@ u64 div64_u64_rem(u64 dividend, u64 divisor, u64 *remainder)
 EXPORT_SYMBOL(div64_u64_rem);
 #endif
 
-/**
+/*
  * div64_u64 - unsigned 64bit divide with 64bit divisor
  * @dividend:	64bit dividend
  * @divisor:	64bit divisor
@@ -161,11 +162,6 @@ u64 div64_u64(u64 dividend, u64 divisor)
 EXPORT_SYMBOL(div64_u64);
 #endif
 
-/**
- * div64_s64 - signed 64bit divide with 64bit divisor
- * @dividend:	64bit dividend
- * @divisor:	64bit divisor
- */
 #ifndef div64_s64
 s64 div64_s64(s64 dividend, s64 divisor)
 {
@@ -190,6 +186,7 @@ EXPORT_SYMBOL(div64_s64);
  * Iterative div/mod for use when dividend is not expected to be much
  * bigger than divisor.
  */
+#ifndef iter_div_u64_rem
 u32 iter_div_u64_rem(u64 dividend, u32 divisor, u64 *remainder)
 {
 	u32 ret = 0;
@@ -210,3 +207,4 @@ u32 iter_div_u64_rem(u64 dividend, u32 divisor, u64 *remainder)
 	return ret;
 }
 EXPORT_SYMBOL(iter_div_u64_rem);
+#endif
