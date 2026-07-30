@@ -1805,7 +1805,15 @@ class TestFunctional(unittest.TestCase):
         """Test for creation of entry documentation"""
         with terminal.capture() as (stdout, stderr):
             control.WriteEntryDocs(control.GetEntryModules())
-        self.assertTrue(len(stdout.getvalue()) > 0)
+        out = stdout.getvalue()
+        self.assertTrue(len(out) > 0)
+
+        # The body of each docstring must come out dedented but otherwise
+        # intact. Check a heading which several etypes use, since truncating
+        # the indent by too much would silently eat the start of every line.
+        self.assertIn('\nProperties / Entry arguments:\n', out)
+        self.assertIn('\nEntry: atf-bl31: ARM Trusted Firmware (ATF) BL31 blob\n',
+                      out)
 
     def testEntryDocsMissing(self):
         """Test handling of missing entry documentation"""
@@ -5491,7 +5499,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test for creation of bintool documentation"""
         with terminal.capture() as (stdout, stderr):
             control.write_bintool_docs(control.bintool.Bintool.get_tool_list())
-        self.assertTrue(len(stdout.getvalue()) > 0)
+        out = stdout.getvalue()
+        self.assertTrue(len(out) > 0)
+
+        # As in testEntryDocs(), check that the body is dedented but intact
+        self.assertIn('\nBintool: mkimage: Image generation for U-Boot\n', out)
+        self.assertIn(
+            '\nThis bintool supports running `mkimage` with some basic parameters as\n',
+            out)
 
     def testBintoolDocsMissing(self):
         """Test handling of missing bintool documentation"""
