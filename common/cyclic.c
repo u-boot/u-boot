@@ -63,6 +63,19 @@ static void cyclic_run(void)
 	struct hlist_node *tmp;
 	u64 now, after, cpu_time;
 
+	/*
+	 * Nothing to do if the list is empty. Also, schedule() can be
+	 * called before timer infrastructure is ready, in which case
+	 * calling get_timer_us() before the (empty) loop could cause
+	 * a divide-by-0 or otherwise crash the system. No clients
+	 * should be registered before the timer infrastructure is up,
+	 * so the check for the list being empty should be
+	 * ok. Otherwise, we would need a new GD_FLG_TIMERS_READY
+	 * flag.
+	 */
+	if (hlist_empty(&gd->cyclic_list))
+		return;
+
 	/* Prevent recursion */
 	if (gd->flags & GD_FLG_CYCLIC_RUNNING)
 		return;
