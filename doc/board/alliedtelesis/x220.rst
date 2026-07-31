@@ -18,8 +18,8 @@ markets.
 - GS980M/52
 - x230-52
 
-DDR Traning (binhdr)
---------------------
+DDR Training (binhdr)
+---------------------
 
 The AlleyCat3 uses a binary blob for it's DDR training. This is launched by
 the built-in bootloader prior to U-Boot starting.
@@ -37,3 +37,5 @@ image
 .. prompt:: bash $
 
    ./tools/dumpimage -T kwbimage -p 1 -o board/alliedtelesis/x220/binary.0 u-boot.kwb
+   arm-softfloat-linux-gnueabi-objcopy -I binary -O binary --pad-to=0x12fcc \
+      board/alliedtelesis/x220/binary.0 board/alliedtelesis/x220/binary.0

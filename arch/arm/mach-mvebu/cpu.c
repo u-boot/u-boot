@@ -276,8 +276,26 @@ int print_cpuinfo(void)
 	case SOC_88F6828_ID:
 		puts("MV88F6828-");
 		break;
+	case SOC_98DX3233_ID:
+		puts("98DX3233-");
+		break;
+	case SOC_98DX3234_ID:
+		puts("98DX3234-");
+		break;
+	case SOC_98DX3235_ID:
+		puts("98DX3235-");
+		break;
 	case SOC_98DX3236_ID:
 		puts("98DX3236-");
+		break;
+	case SOC_98DX3333_ID:
+		puts("98DX3333-");
+		break;
+	case SOC_98DX3334_ID:
+		puts("98DX3334-");
+		break;
+	case SOC_98DX3335_ID:
+		puts("98DX3335-");
 		break;
 	case SOC_98DX3336_ID:
 		puts("98DX3336-");
@@ -337,7 +355,13 @@ int print_cpuinfo(void)
 		}
 		break;
 
+	case SOC_98DX3233_ID:
+	case SOC_98DX3234_ID:
+	case SOC_98DX3235_ID:
 	case SOC_98DX3236_ID:
+	case SOC_98DX3333_ID:
+	case SOC_98DX3334_ID:
+	case SOC_98DX3335_ID:
 	case SOC_98DX3336_ID:
 	case SOC_98DX4251_ID:
 		switch (revid) {

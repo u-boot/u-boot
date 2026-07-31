@@ -170,7 +170,8 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	cn9130-crb-B.dtb			\
 	ac5-98dx35xx-rd.dtb			\
 	ac5-98dx35xx-atl-x240.dtb		\
-	cn9130-atl-x250.dtb
+	cn9130-atl-x250.dtb			\
+	cn9130-atl-x960-28ysq.dtb
 endif
 
 dtb-$(CONFIG_ARCH_SYNQUACER) += synquacer-sc2a11-developerbox.dtb
