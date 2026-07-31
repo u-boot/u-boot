@@ -312,7 +312,7 @@ RUN git clone https://github.com/stefanberger/libtpms /tmp/libtpms && \
 	rm -rf /tmp/libtpms
 
 # Build swtpm
-RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm && \
+RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm -b v0.10.1 && \
 	cd /tmp/swtpm && \
 	./autogen.sh && \
 	./configure && \
