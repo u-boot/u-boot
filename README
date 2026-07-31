@@ -753,8 +753,8 @@ The following options need to be configured:
 		`${name}'; to execute the contents of a variable
 		directly type `$name' at the command prompt.
 
-		Global environment variables are those you use
-		env set/env print to work with. To run a command stored
+		Global environment variables are those you use "env set"
+		or "env print" to work with. To run a command stored
 		in such a variable, you need to use the run command,
 		and you must not use the '$' sign to access them.
 
