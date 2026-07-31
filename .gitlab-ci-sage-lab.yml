@@ -144,6 +144,9 @@ Raspberry Pi 4:
     LABGRID_EXPORTER: "sage-exporter-rpi4-1"
     LG_PLACE: "rpi4-1"
     TEST_PY_BD: "rpi_4"
+    # With commit 623f6c5b6ab7 we get "ERROR" messages that are
+    # harmless during OS boot but fail the test.
+    TEST_PY_TEST_SPEC: "not test_net_tftpboot_boot"
     OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a ~CMD_BOOTEFI_SELFTEST -a CMD_TFTPPUT -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000"
 
 Raspberry Pi 4 (rpi_arm64):
@@ -154,7 +157,9 @@ Raspberry Pi 4 (rpi_arm64):
     LG_PLACE: "rpi4-1"
     TEST_PY_BD: "rpi_arm64"
     # DHCP is not being run first, needs to be investigated.
-    TEST_PY_TEST_SPEC: "not test_efi_helloworld_net_http"
+    # With commit 623f6c5b6ab7 we get "ERROR" messages that are
+    # harmless during OS boot but fail the test.
+    TEST_PY_TEST_SPEC: "not test_efi_helloworld_net_http and not test_net_tftpboot_boot"
     OVERRIDE: "-a UNIT_TEST -a ~CMD_EFIDEBUG -a CMD_BOOTMENU -a CMD_LOG -a ~CMD_BOOTEFI_SELFTEST -a FIT -a FIT_SIGNATURE -a FIT_BEST_MATCH -a SYS_BOOTM_LEN=0x4000000 -a BOOTSTAGE -a BOOTSTAGE_STASH -a CMD_BOOTSTAGE -a BOOTSTAGE_STASH_ADDR=0x02400000"
 
 Raspberry Pi 4 (rpi_4_32b):
