@@ -225,7 +225,8 @@ typedef struct {
 #define EM_MN10300	89		/* Matsushita MN10200 */
 #define EM_MN10200	90		/* Matsushita MN10200 */
 #define EM_PJ		91		/* picoJava */
-#define EM_NUM		92		/* number of machine types */
+#define EM_LOONGARCH	258	/* LoongArch */
+
 
 /* Version */
 #define EV_NONE		0		/* Invalid */
@@ -704,6 +705,12 @@ unsigned long elf_hash(const unsigned char *name);
 #define R_RISCV_32		1
 #define R_RISCV_64		2
 #define R_RISCV_RELATIVE	3
+
+/* LoongArch Relocations */
+#define R_LARCH_NONE				0
+#define R_LARCH_32				1
+#define R_LARCH_64				2
+#define R_LARCH_RELATIVE			3
 
 #ifndef __ASSEMBLY__
 unsigned long bootelf_exec(ulong (*entry)(int, char * const[]),
