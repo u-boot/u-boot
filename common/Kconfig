@@ -614,6 +614,12 @@ config DISPLAY_BOARDINFO_LATE
 	  the relocation phase. The board function checkboard() is called to do
 	  this.
 
+config DISPLAY_DRAM_CONFIG_VERBOSE
+	bool "Display additional information about DRAM layout"
+	help
+	  Display additional information about the board DRAM layout, including
+	  each bank start address, end address and size.
+
 menu "Start-up hooks"
 
 config CYCLIC
