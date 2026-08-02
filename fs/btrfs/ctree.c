@@ -425,8 +425,10 @@ int btrfs_search_slot(struct btrfs_trans_handle *trans,
 		level = btrfs_header_level(b);
 		p->nodes[level] = b;
 		ret = check_block(fs_info, p, level);
-		if (ret)
-			return -1;
+		if (ret) {
+			ret = -1;
+			goto err;
+		}
 		ret = btrfs_bin_search(b, key, &slot);
 		if (level != 0) {
 			if (ret && slot > 0)
@@ -461,8 +463,10 @@ int btrfs_search_slot(struct btrfs_trans_handle *trans,
 				break;
 
 			b = read_node_slot(fs_info, b, slot);
-			if (!extent_buffer_uptodate(b))
-				return -EIO;
+			if (!extent_buffer_uptodate(b)) {
+				ret = -EIO;
+				goto err;
+			}
 		} else {
 			p->slots[level] = slot;
 			/*
@@ -479,6 +483,10 @@ int btrfs_search_slot(struct btrfs_trans_handle *trans,
 		}
 	}
 	return 1;
+
+err:
+	btrfs_release_path(p);
+	return ret;
 }
 
 /*
