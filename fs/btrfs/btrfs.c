@@ -93,7 +93,10 @@ int btrfs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 	struct btrfs_dir_stream *dirs = container_of(fs_dirs, struct btrfs_dir_stream, parent);
 	struct btrfs_fs_info *fs_info = current_fs_info;
 	struct fs_dirent *dent = &dirs->dirent;
+	struct btrfs_inode_item *ii;
 	struct btrfs_root *root;
+	struct btrfs_path path;
+	struct btrfs_key location;
 	struct btrfs_key key;
 	u8 type;
 	int ret;
@@ -110,13 +113,32 @@ int btrfs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 
 	memset(dent, 0, sizeof(*dent));
 	ret = btrfs_next_dir_entry(root, dirs->ino, &dirs->offset, dent->name,
-				   sizeof(dent->name), &type);
+				   sizeof(dent->name), &type, &location);
 	if (ret < 0)
 		return ret;
 	if (ret > 0)
 		return -ENOENT;
 
 	dent->type = btrfs_dirent_type_to_fs_type(type);
+
+	/*
+	 * A subvolume entry points at a root item rather than an inode, and
+	 * has no size of its own.  Everything else carries one, and the fs
+	 * layer prints it, so look it up.
+	 */
+	if (location.type == BTRFS_INODE_ITEM_KEY) {
+		btrfs_init_path(&path);
+		ret = btrfs_search_slot(NULL, root, &location, &path, 0, 0);
+		if (ret == 0) {
+			ii = btrfs_item_ptr(path.nodes[0], path.slots[0],
+					    struct btrfs_inode_item);
+			dent->size = btrfs_inode_size(path.nodes[0], ii);
+		}
+		btrfs_release_path(&path);
+		if (ret < 0)
+			return ret;
+	}
+
 	*dentp = dent;
 	return 0;
 }
