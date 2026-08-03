@@ -138,7 +138,19 @@ endif
 else
 obj-$(CONFIG_SPL_ATF) += secure_reg_helper.o
 obj-$(CONFIG_SPL_ATF) += smc_api.o
+ifdef CONFIG_CMD_SOCFPGA_RSU
+obj-y	+= rsu.o
+obj-y	+= rsu_misc.o
+obj-y	+= rsu_ll_qspi.o
+obj-y	+= rsu_s10.o
+obj-$(CONFIG_ARMV8_PSCI)	+= smc_rsu_s10.o
 endif
+endif
+
+# RSU SPL multiboot selects the SSBL (U-Boot proper) image to load; the
+# helpers are consumed from both SPL (spl_mmc/spl_spi) and U-Boot proper
+# (env/fat, env/sf), so build for both.
+obj-$(CONFIG_SOCFPGA_RSU_MULTIBOOT)	+= rsu_spl.o
 
 ifdef CONFIG_ARCH_SOCFPGA_GEN5
 # QTS-generated config file wrappers

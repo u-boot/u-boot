@@ -164,22 +164,6 @@
 	cdns,tchsh-ns = <4>;
 	cdns,tslch-ns = <4>;
 	/delete-property/ cdns,read-delay;
-
-	partitions {
-		compatible = "fixed-partitions";
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		qspi_boot: partition@0 {
-			label = "u-boot";
-			reg = <0x0 0x04200000>;
-		};
-
-		root: partition@4200000 {
-			label = "root";
-			reg = <0x04200000 0x0BE00000>;
-		};
-	};
 };
 
 #if !defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)

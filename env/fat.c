@@ -22,6 +22,7 @@
 #include <virtio.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
+#include <linux/sizes.h>
 #include <linux/stddef.h>
 
 #ifdef CONFIG_XPL_BUILD
@@ -34,6 +35,37 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if IS_ENABLED(CONFIG_SOCFPGA_RSU_MULTIBOOT)
+__weak int rsu_spl_mmc_env_name(char *filename, int max_size, bool redund)
+{
+	return -ENOENT;
+}
+#endif
+
+/*
+ * Resolve the FAT filename that holds the environment. With RSU multiboot
+ * the name is derived at runtime from the booted SSBL slot (written into
+ * @buf); otherwise it is the static CONFIG_ENV_FAT_FILE[_REDUND]. Returns
+ * NULL on failure.
+ */
+static const char *env_fat_filename(char *buf, int size, bool redund)
+{
+#if IS_ENABLED(CONFIG_SOCFPGA_RSU_MULTIBOOT)
+	if (rsu_spl_mmc_env_name(buf, size, redund)) {
+		printf("RSU: multiboot env filename not found\n");
+		return NULL;
+	}
+
+	return buf;
+#else
+#ifdef CONFIG_ENV_REDUNDANT
+	if (redund)
+		return CONFIG_ENV_FAT_FILE_REDUND;
+#endif
+	return CONFIG_ENV_FAT_FILE;
+#endif
+}
 
 __weak const char *env_fat_get_intf(void)
 {
@@ -62,12 +94,17 @@ static int env_fat_save(void)
 	env_t __aligned(ARCH_DMA_MINALIGN) env_new;
 	struct blk_desc *dev_desc = NULL;
 	struct disk_partition info;
-	const char *file = CONFIG_ENV_FAT_FILE;
+	char env_file[SZ_256] = {0};
+	const char *file;
 	int dev, part;
 	int err;
 	loff_t size;
 	const char *ifname = env_fat_get_intf();
 	const char *dev_and_part = env_fat_get_dev_part();
+
+	file = env_fat_filename(env_file, sizeof(env_file), false);
+	if (!file)
+		return 1;
 
 	err = env_export(&env_new);
 	if (err)
@@ -89,8 +126,11 @@ static int env_fat_save(void)
 	}
 
 #ifdef CONFIG_ENV_REDUNDANT
-	if (gd->env_valid == ENV_VALID)
-		file = CONFIG_ENV_FAT_FILE_REDUND;
+	if (gd->env_valid == ENV_VALID) {
+		file = env_fat_filename(env_file, sizeof(env_file), true);
+		if (!file)
+			return 1;
+	}
 #endif
 
 	err = file_fat_write(file, (void *)&env_new, 0, sizeof(env_t), &size);
@@ -120,6 +160,8 @@ static int env_fat_load(void)
 #endif
 	struct blk_desc *dev_desc = NULL;
 	struct disk_partition info;
+	char env_file[SZ_256] = {0};
+	const char *file;
 	int dev, part;
 	int err1;
 	const char *ifname = env_fat_get_intf();
@@ -162,9 +204,17 @@ static int env_fat_load(void)
 		goto err_env_relocate;
 	}
 
-	err1 = file_fat_read(CONFIG_ENV_FAT_FILE, buf1, CONFIG_ENV_SIZE);
+	file = env_fat_filename(env_file, sizeof(env_file), false);
+	if (!file)
+		goto err_env_relocate;
+
+	err1 = file_fat_read(file, buf1, CONFIG_ENV_SIZE);
 #ifdef CONFIG_ENV_REDUNDANT
-	err2 = file_fat_read(CONFIG_ENV_FAT_FILE_REDUND, buf2, CONFIG_ENV_SIZE);
+	file = env_fat_filename(env_file, sizeof(env_file), true);
+	if (!file)
+		goto err_env_relocate;
+
+	err2 = file_fat_read(file, buf2, CONFIG_ENV_SIZE);
 
 	err1 = (err1 >= 0) ? 0 : -1;
 	err2 = (err2 >= 0) ? 0 : -1;
@@ -175,8 +225,8 @@ static int env_fat_load(void)
 		 * This printf is embedded in the messages from env_save that
 		 * will calling it. The missing \n is intentional.
 		 */
-		printf("Unable to read \"%s\" from %s%d:%d... \n",
-			CONFIG_ENV_FAT_FILE, ifname, dev, part);
+		printf("Unable to read \"%s\" from %s%d:%d...\n",
+		       file, ifname, dev, part);
 		goto err_env_relocate;
 	}
 

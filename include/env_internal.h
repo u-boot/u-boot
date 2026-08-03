@@ -273,6 +273,17 @@ const char *env_fat_get_intf(void);
  * Return: string of device and partition
  */
 char *env_fat_get_dev_part(void);
+
+/**
+ * env_sf_get_env_offset() - Provide the offset of the env in SPI flash
+ *
+ * It is a weak function allowing boards to override the default offset of
+ * the U-Boot environment in SPI flash (CONFIG_ENV_OFFSET) with a value
+ * computed at runtime, e.g. derived from the RSU multiboot SSBL slot.
+ *
+ * Return: byte offset of the primary environment within the SPI flash
+ */
+u32 env_sf_get_env_offset(void);
 #endif /* DO_DEPS_ONLY */
 
 #endif /* _ENV_INTERNAL_H_ */

@@ -18,6 +18,10 @@
 	soc {
 		bootph-all;
 
+		socfpga-rsu {
+			compatible = "altr,socfpga-rsu";
+		};
+
 		ccu: cache-controller@f7000000 {
 			compatible = "arteris,ncore-ccu";
 			reg = <0xf7000000 0x100900>;

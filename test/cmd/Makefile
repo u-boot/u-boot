@@ -48,4 +48,5 @@ endif
 obj-$(CONFIG_CMD_SPAWN) += spawn.o
 ifdef CONFIG_CMD_ZIP
 obj-$(CONFIG_CMD_UNZIP) += unzip.o
+obj-$(CONFIG_CMD_SOCFPGA_RSU) += socfpga_rsu.o
 endif

@@ -38,6 +38,17 @@ static ulong env_new_offset	= CONFIG_ENV_OFFSET_REDUND;
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Offset of the primary environment within the SPI flash. Defaults to the
+ * static CONFIG_ENV_OFFSET, but boards may override this weak helper to
+ * compute the offset at runtime (e.g. RSU multiboot derives it from the
+ * SSBL slot the SPL booted from).
+ */
+__weak u32 env_sf_get_env_offset(void)
+{
+	return CONFIG_ENV_OFFSET;
+}
+
 __weak int spi_get_env_dev(void)
 {
 #ifdef CONFIG_ENV_SPI_BUS
@@ -98,9 +109,9 @@ static int env_sf_save(void)
 
 	if (gd->env_valid == ENV_VALID) {
 		env_new_offset = CONFIG_ENV_OFFSET_REDUND;
-		env_offset = CONFIG_ENV_OFFSET;
+		env_offset = env_sf_get_env_offset();
 	} else {
-		env_new_offset = CONFIG_ENV_OFFSET;
+		env_new_offset = env_sf_get_env_offset();
 		env_offset = CONFIG_ENV_OFFSET_REDUND;
 	}
 
@@ -182,7 +193,7 @@ static int env_sf_load(void)
 	if (ret)
 		goto out;
 
-	read1_fail = spi_flash_read(env_flash, CONFIG_ENV_OFFSET,
+	read1_fail = spi_flash_read(env_flash, env_sf_get_env_offset(),
 				    CONFIG_ENV_SIZE, tmp_env1);
 	read2_fail = spi_flash_read(env_flash, CONFIG_ENV_OFFSET_REDUND,
 				    CONFIG_ENV_SIZE, tmp_env2);
@@ -217,7 +228,7 @@ static int env_sf_save(void)
 	/* Is the sector larger than the env (i.e. embedded) */
 	if (sect_size > CONFIG_ENV_SIZE) {
 		saved_size = sect_size - CONFIG_ENV_SIZE;
-		saved_offset = CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE;
+		saved_offset = env_sf_get_env_offset() + CONFIG_ENV_SIZE;
 		saved_buffer = malloc(saved_size);
 		if (!saved_buffer) {
 			ret = -ENOMEM;
@@ -237,14 +248,14 @@ static int env_sf_save(void)
 	sector = DIV_ROUND_UP(CONFIG_ENV_SIZE, sect_size);
 
 	puts("Erasing SPI flash...");
-	ret = spi_flash_erase(env_flash, CONFIG_ENV_OFFSET,
-		sector * sect_size);
+	ret = spi_flash_erase(env_flash, env_sf_get_env_offset(),
+			      sector * sect_size);
 	if (ret)
 		goto done;
 
 	puts("Writing to SPI flash...");
-	ret = spi_flash_write(env_flash, CONFIG_ENV_OFFSET,
-		CONFIG_ENV_SIZE, &env_new);
+	ret = spi_flash_write(env_flash, env_sf_get_env_offset(),
+			      CONFIG_ENV_SIZE, &env_new);
 	if (ret)
 		goto done;
 
@@ -284,7 +295,7 @@ static int env_sf_load(void)
 		goto out;
 
 	ret = spi_flash_read(env_flash,
-		CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE, buf);
+		env_sf_get_env_offset(), CONFIG_ENV_SIZE, buf);
 	if (ret) {
 		env_set_default("spi_flash_read() failed", 0);
 		goto err_read;
@@ -314,7 +325,7 @@ static int env_sf_erase(void)
 		return ret;
 
 	memset(&env, 0, sizeof(env_t));
-	ret = spi_flash_write(env_flash, CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE, &env);
+	ret = spi_flash_write(env_flash, env_sf_get_env_offset(), CONFIG_ENV_SIZE, &env);
 	if (ret)
 		goto done;
 
@@ -391,7 +402,7 @@ static int env_sf_init_early(void)
 	if (ret)
 		goto out;
 
-	read1_fail = spi_flash_read(env_flash, CONFIG_ENV_OFFSET,
+	read1_fail = spi_flash_read(env_flash, env_sf_get_env_offset(),
 				    CONFIG_ENV_SIZE, tmp_env1);
 
 	if (IS_ENABLED(CONFIG_ENV_REDUNDANT)) {
