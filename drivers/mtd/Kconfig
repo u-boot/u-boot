@@ -196,7 +196,7 @@ config ALTERA_QSPI
 
 config RENESAS_RPC_HF
 	bool "Renesas R-Car Gen3 RPC HyperFlash driver"
-	depends on RCAR_GEN3 && DM_MTD
+	depends on RCAR_64 && DM_MTD
 	help
 	  This enables access to HyperFlash memory through the Renesas
 	  R-Car Gen3 RPC controller.
