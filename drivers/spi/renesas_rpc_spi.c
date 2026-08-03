@@ -145,11 +145,11 @@
 #define RPC_PHYCNT_WBUF		BIT(2)
 #define RPC_PHYCNT_MEM(v)	(((v) & 0x3) << 0)
 
-#define RPCIF_PHYOFFSET1	0x0080	/* R/W */
-#define RPCIF_PHYOFFSET1_DDRTMG(v) (((v) & 0x3) << 28)
+#define RPC_PHYOFFSET1	0x0080	/* R/W */
+#define RPC_PHYOFFSET1_DDRTMG(v) (((v) & 0x3) << 28)
 
-#define RPCIF_PHYOFFSET2	0x0084	/* R/W */
-#define RPCIF_PHYOFFSET2_OCTTMG(v) (((v) & 0x7) << 8)
+#define RPC_PHYOFFSET2	0x0084	/* R/W */
+#define RPC_PHYOFFSET2_OCTTMG(v) (((v) & 0x7) << 8)
 
 #define RPC_PHYINT		0x0088	/* R/W */
 #define RPC_PHYINT_RSTEN	BIT(18)
@@ -233,11 +233,11 @@ static int rpc_spi_claim_bus(struct udevice *dev, bool manual)
 	struct udevice *bus = dev->parent;
 	struct rpc_spi_priv *priv = dev_get_priv(bus);
 
-	setbits_le32(priv->regs + RPCIF_PHYOFFSET1,
-		     RPCIF_PHYOFFSET1_DDRTMG(3));
-	clrsetbits_le32(priv->regs + RPCIF_PHYOFFSET2,
-			RPCIF_PHYOFFSET2_OCTTMG(7),
-			RPCIF_PHYOFFSET2_OCTTMG(4));
+	setbits_le32(priv->regs + RPC_PHYOFFSET1,
+		     RPC_PHYOFFSET1_DDRTMG(3));
+	clrsetbits_le32(priv->regs + RPC_PHYOFFSET2,
+			RPC_PHYOFFSET2_OCTTMG(7),
+			RPC_PHYOFFSET2_OCTTMG(4));
 
 	/* NOTE: The 0x260 are undocumented bits, but they must be set. */
 	writel(RPC_PHYCNT_CAL | rpc_spi_get_strobe_delay() | 0x260,
