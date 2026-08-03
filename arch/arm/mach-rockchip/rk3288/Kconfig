@@ -91,7 +91,7 @@ config TARGET_MIQI_RK3288
 
 config TARGET_PHYCORE_RK3288
 	bool "phyCORE-RK3288"
-        select BOARD_LATE_INIT
+	select BOARD_LATE_INIT
 	help
 	  Add basic support for the PCM-947 carrier board, a RK3288 based
 	  development board made by PHYTEC. This board works in a combination
@@ -128,7 +128,7 @@ config TARGET_ROCK2
 
 config TARGET_TINKER_RK3288
 	bool "Tinker-RK3288"
-        select BOARD_LATE_INIT
+	select BOARD_LATE_INIT
 	select ROCKCHIP_COMMON_STACK_ADDR
 	select TPL
 	help
@@ -173,7 +173,7 @@ config SPL_SERIAL
 	default y
 
 config TPL_STACK
-        default 0xff718000
+	default 0xff718000
 
 config TPL_SYS_MALLOC_F_LEN
 	default 0x2000

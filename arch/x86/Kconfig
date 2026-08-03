@@ -44,9 +44,9 @@ config X86_RUN_64BIT_NO_SPL
 	bool "64-bit"
 	select X86_64
 	help
-          Build U-Boot as a 64-bit binary without SPL. As U-Boot enters
-          in 64-bit mode, the assumption is that the silicon is fully
-          initialized (MP, page tables, etc.).
+	  Build U-Boot as a 64-bit binary without SPL. As U-Boot enters
+	  in 64-bit mode, the assumption is that the silicon is fully
+	  initialized (MP, page tables, etc.).
 
 endchoice
 
@@ -585,11 +585,11 @@ config DCACHE_RAM_MRC_VAR_SIZE
 	  not boot.
 
 config HAVE_REFCODE
-        bool "Add a Reference Code binary"
-        help
-          Select this option to add a Reference Code binary to the resulting
-          U-Boot image. This is an Intel binary blob that handles system
-          initialisation, in this case the PCH and System Agent.
+	bool "Add a Reference Code binary"
+	help
+	  Select this option to add a Reference Code binary to the resulting
+	  U-Boot image. This is an Intel binary blob that handles system
+	  initialisation, in this case the PCH and System Agent.
 
           Note: Without this binary (on platforms that need it such as
           broadwell) U-Boot will be missing some critical setup steps.
@@ -617,8 +617,8 @@ config SMP_AP_WORK
 	bool
 	depends on SMP
 	help
-	 Allow APs to do other work after initialisation instead of going
-	 to sleep.
+	  Allow APs to do other work after initialisation instead of going
+	  to sleep.
 
 config MAX_CPUS
 	int "Maximum number of CPUs permitted"

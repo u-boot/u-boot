@@ -13,14 +13,14 @@ config TARGET_GEEKBOX
 	bool "GeekBox"
 
 config TARGET_EVB_PX5
-        bool "Evb-PX5"
+	bool "Evb-PX5"
 	select ARCH_EARLY_INIT_R
-        help
-	 PX5 EVB is designed by Rockchip for automotive field
-         with integrated CVBS (TP2825) / MIPI DSI / CSI / LVDS
-         HDMI video input/output interface, audio codec ES8396,
-         WIFI/BT (on RTL8723BS), Gsensor BMA250E and light&proximity
-         sensor STK3410.
+	help
+	  PX5 EVB is designed by Rockchip for automotive field
+	  with integrated CVBS (TP2825) / MIPI DSI / CSI / LVDS
+	  HDMI video input/output interface, audio codec ES8396,
+	  WIFI/BT (on RTL8723BS), Gsensor BMA250E and light&proximity
+	  sensor STK3410.
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
@@ -49,9 +49,9 @@ config SPL_STACK_R_ADDR
 	default 0x04000000
 
 config TPL_STACK
-        default 0xff8cffff
+	default 0xff8cffff
 
 config TPL_TEXT_BASE
-        default 0xff8c1000
+	default 0xff8c1000
 
 endif

@@ -66,8 +66,8 @@ int dram_init(void)
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = 0x60000000;
-	gd->bd->bi_dram[0].size = 0x8000000;
+	gd->dram[0].start = 0x60000000;
+	gd->dram[0].size = 0x8000000;
 
 	return 0;
 }

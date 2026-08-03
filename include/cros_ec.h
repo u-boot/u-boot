@@ -12,7 +12,42 @@
 #include <ec_commands.h>
 #include <cros_ec_message.h>
 #include <asm/gpio.h>
+#include <dm/device.h>
 #include <dm/of_extra.h>
+
+/*
+ * Verified-boot NVRAM context interface the EC exposes via
+ * EC_CMD_VBNV_CONTEXT. Upstream cros_ec_commands.h dropped the
+ * whole vbnvcontext machinery, so keep the constants and request /
+ * response structs here for U-Boot. Both 'cros_ec vbnvcontext' and
+ * cros_ec_{read,write}_vbnvcontext() depend on these.
+ */
+#define EC_CMD_VBNV_CONTEXT	0x0017
+#define EC_VER_VBNV_CONTEXT	1
+#define EC_VBNV_BLOCK_SIZE	16
+#define EC_VBNV_BLOCK_SIZE_V2	64
+
+enum ec_vbnvcontext_op {
+	EC_VBNV_CONTEXT_OP_READ,
+	EC_VBNV_CONTEXT_OP_WRITE,
+};
+
+struct __ec_align4 ec_params_vbnvcontext {
+	uint32_t op;
+	uint8_t block[EC_VBNV_BLOCK_SIZE_V2];
+};
+
+struct __ec_align4 ec_response_vbnvcontext {
+	uint8_t block[EC_VBNV_BLOCK_SIZE_V2];
+};
+
+/*
+ * EMI register window used by Microchip MEC-style EC LPC interfaces.
+ * Upstream cros_ec_commands.h does not carry these, but apollolake's
+ * SPL needs them to set up the EC ioport range.
+ */
+#define MEC_EMI_BASE		0x800
+#define MEC_EMI_SIZE		8
 
 /* Our configuration information */
 struct cros_ec_dev {
@@ -101,7 +136,7 @@ int cros_ec_get_next_event(struct udevice *dev,
  * Return: 0 if ok, <0 on error
  */
 int cros_ec_read_current_image(struct udevice *dev,
-			       enum ec_current_image *image);
+			       enum ec_image *image);
 
 /**
  * Read the hash of the CROS-EC device firmware.
@@ -282,8 +317,10 @@ struct dm_cros_ec_ops {
 	int (*get_switches)(struct udevice *dev);
 };
 
-#define dm_cros_ec_get_ops(dev) \
-		((struct dm_cros_ec_ops *)(dev)->driver->ops)
+static inline const struct dm_cros_ec_ops *dm_cros_ec_get_ops(struct udevice *dev)
+{
+	return (const struct dm_cros_ec_ops *)(dev->driver->ops);
+}
 
 int cros_ec_register(struct udevice *dev);
 

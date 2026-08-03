@@ -103,6 +103,19 @@ config FIT_FULL_CHECK
 	  of bugs or omissions in the code. This includes a bad structure,
 	  multiple root nodes and the like.
 
+config CONTROL_DTB_AS_FIT
+	bool "Allow U-Boot's control DTB to act as FIT image"
+	help
+	  Enable this to exempt U-Boot's control DTB from the sanity
+	  checks done to ensure FIT images are valid. This can for
+	  example be used to embed whole scripts in the control DTB,
+	  that can then be invoked using 'source ${fdtcontroladdr}'.
+	  In a secure boot setup, this is safe, as the control DTB is
+	  necessarily covered by any mechanism verifying U-Boot and
+	  can therefore be trusted. This only affects the case where
+	  the image being checked is gd->fdt_blob. See
+	  doc/develop/devicetree/control.rst for details.
+
 config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"
 	depends on DM
@@ -141,6 +154,26 @@ config FIT_CIPHER
 	help
 	  Enable the feature of data ciphering/unciphering in the tool mkimage
 	  and in the u-boot support of the FIT image.
+
+config FIT_VERITY
+	bool "dm-verity boot parameter generation from FIT metadata"
+	depends on FIT && OF_LIBFDT
+	help
+	  When a FIT configuration contains loadable sub-images of type
+	  IH_TYPE_FILESYSTEM with a dm-verity subnode, this option enables
+	  building the dm-mod.create= and dm-mod.waitfor= kernel
+	  command-line parameters from the verity metadata
+	  (data-block-size, hash-block-size, num-data-blocks,
+	  hash-start-block, algorithm, digest, salt) stored in the FIT.
+
+	  The generated parameters reference /dev/fitN block devices that
+	  Linux's uImage.FIT block driver assigns to loadable sub-images.
+
+	  During FIT parsing (BOOTM_STATE_FINDOTHER), verity cmdline
+	  fragments are stored in struct bootm_headers and automatically
+	  appended to the bootargs environment variable during
+	  BOOTM_STATE_OS_PREP.  This works from both the bootm command
+	  and BOOTSTD bootmeths.
 
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"
@@ -653,9 +686,9 @@ config BOOTMETH_QFW
 	depends on QFW
 	default y
 	help
-	 Use QEMU parameters -kernel, -initrd, -append to determine the kernel,
-	 initial RAM disk, and kernel command line parameters to boot an
-	 operating system. U-Boot's control device-tree is passed to the kernel.
+	  Use QEMU parameters -kernel, -initrd, -append to determine the kernel,
+	  initial RAM disk, and kernel command line parameters to boot an
+	  operating system. U-Boot's control device-tree is passed to the kernel.
 
 config BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded"
@@ -1051,7 +1084,7 @@ config MEASURED_BOOT
 	  to use some attestation tools on your system.
 
 if MEASURED_BOOT
-	config MEASURE_DEVICETREE
+config MEASURE_DEVICETREE
 	bool "Measure the devicetree image"
 	default y if MEASURED_BOOT
 	help
@@ -1060,7 +1093,7 @@ if MEASURED_BOOT
 	  Therefore, it should not be measured into the TPM. In that case,
 	  disable the measurement here.
 
-	config MEASURE_IGNORE_LOG
+config MEASURE_IGNORE_LOG
 	bool "Ignore the existing event log"
 	help
 	  On platforms that use an event log memory region that persists

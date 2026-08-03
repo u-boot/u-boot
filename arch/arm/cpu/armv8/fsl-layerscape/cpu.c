@@ -538,16 +538,16 @@ static inline void final_mmu_setup(void)
 		 */
 		switch (final_map[index].virt) {
 		case CFG_SYS_FSL_DRAM_BASE1:
-			final_map[index].virt = gd->bd->bi_dram[0].start;
-			final_map[index].phys = gd->bd->bi_dram[0].start;
-			final_map[index].size = gd->bd->bi_dram[0].size;
+			final_map[index].virt = gd->dram[0].start;
+			final_map[index].phys = gd->dram[0].start;
+			final_map[index].size = gd->dram[0].size;
 			break;
 #ifdef CFG_SYS_FSL_DRAM_BASE2
 		case CFG_SYS_FSL_DRAM_BASE2:
 #if (CONFIG_NR_DRAM_BANKS >= 2)
-			final_map[index].virt = gd->bd->bi_dram[1].start;
-			final_map[index].phys = gd->bd->bi_dram[1].start;
-			final_map[index].size = gd->bd->bi_dram[1].size;
+			final_map[index].virt = gd->dram[1].start;
+			final_map[index].phys = gd->dram[1].start;
+			final_map[index].size = gd->dram[1].size;
 #else
 			final_map[index].size = 0;
 #endif
@@ -556,9 +556,9 @@ static inline void final_mmu_setup(void)
 #ifdef CFG_SYS_FSL_DRAM_BASE3
 		case CFG_SYS_FSL_DRAM_BASE3:
 #if (CONFIG_NR_DRAM_BANKS >= 3)
-			final_map[index].virt = gd->bd->bi_dram[2].start;
-			final_map[index].phys = gd->bd->bi_dram[2].start;
-			final_map[index].size = gd->bd->bi_dram[2].size;
+			final_map[index].virt = gd->dram[2].start;
+			final_map[index].phys = gd->dram[2].start;
+			final_map[index].size = gd->dram[2].size;
 #else
 			final_map[index].size = 0;
 #endif
@@ -986,6 +986,27 @@ uint get_svr(void)
 }
 #endif
 
+/*
+ * Layerscape mirror of the i.MX get_cpu_temp_grade(). i.MX reads the
+ * OCOTP "CPU temp grade" fuses; Layerscape has no such fuse, so the
+ * limits come from the data sheet instead. LX2160A Reference Manual
+ * Rev. 1 (10/2021) section 1.12.1 specifies the maximum operating
+ * junction temperature at 105 degC for commercial / embedded parts;
+ * the lower bound is the standard -40 degC commercial low.
+ *
+ * The TMU itself is documented as accurate within +/- 3 degC (RM
+ * section 28.1), which the thermal driver clears by setting its
+ * alert threshold 10 degC below critical.
+ */
+u32 get_cpu_temp_grade(int *minc, int *maxc)
+{
+	if (minc)
+		*minc = -40;
+	if (maxc)
+		*maxc = 105;
+	return 0; /* commercial */
+}
+
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
@@ -1375,10 +1396,10 @@ static int tfa_dram_init_banksize(void)
 		}
 
 		debug("bank[%d]: start %lx, size %lx\n", i, res.a1, res.a2);
-		gd->bd->bi_dram[i].start = res.a1;
-		gd->bd->bi_dram[i].size = res.a2;
+		gd->dram[i].start = res.a1;
+		gd->dram[i].size = res.a2;
 
-		dram_size -= gd->bd->bi_dram[i].size;
+		dram_size -= gd->dram[i].size;
 
 		i++;
 	} while (dram_size);
@@ -1389,24 +1410,24 @@ static int tfa_dram_init_banksize(void)
 #if defined(CONFIG_RESV_RAM) && !defined(CONFIG_XPL_BUILD)
 	/* Assign memory for MC */
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
-	if (gd->bd->bi_dram[2].size >=
-	    board_reserve_ram_top(gd->bd->bi_dram[2].size)) {
-		gd->arch.resv_ram = gd->bd->bi_dram[2].start +
-			    gd->bd->bi_dram[2].size -
-			    board_reserve_ram_top(gd->bd->bi_dram[2].size);
+	if (gd->dram[2].size >=
+	    board_reserve_ram_top(gd->dram[2].size)) {
+		gd->arch.resv_ram = gd->dram[2].start +
+			    gd->dram[2].size -
+			    board_reserve_ram_top(gd->dram[2].size);
 	} else
 #endif
 	{
-		if (gd->bd->bi_dram[1].size >=
-		    board_reserve_ram_top(gd->bd->bi_dram[1].size)) {
-			gd->arch.resv_ram = gd->bd->bi_dram[1].start +
-				gd->bd->bi_dram[1].size -
-				board_reserve_ram_top(gd->bd->bi_dram[1].size);
-		} else if (gd->bd->bi_dram[0].size >
-			   board_reserve_ram_top(gd->bd->bi_dram[0].size)) {
-			gd->arch.resv_ram = gd->bd->bi_dram[0].start +
-				gd->bd->bi_dram[0].size -
-				board_reserve_ram_top(gd->bd->bi_dram[0].size);
+		if (gd->dram[1].size >=
+		    board_reserve_ram_top(gd->dram[1].size)) {
+			gd->arch.resv_ram = gd->dram[1].start +
+				gd->dram[1].size -
+				board_reserve_ram_top(gd->dram[1].size);
+		} else if (gd->dram[0].size >
+			   board_reserve_ram_top(gd->dram[0].size)) {
+			gd->arch.resv_ram = gd->dram[0].start +
+				gd->dram[0].size -
+				board_reserve_ram_top(gd->dram[0].size);
 		}
 	}
 #endif	/* CONFIG_RESV_RAM */
@@ -1443,30 +1464,30 @@ int dram_init_banksize(void)
 	}
 #endif
 
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
 	if (gd->ram_size > CFG_SYS_DDR_BLOCK1_SIZE) {
-		gd->bd->bi_dram[0].size = CFG_SYS_DDR_BLOCK1_SIZE;
-		gd->bd->bi_dram[1].start = CFG_SYS_DDR_BLOCK2_BASE;
-		gd->bd->bi_dram[1].size = gd->ram_size -
+		gd->dram[0].size = CFG_SYS_DDR_BLOCK1_SIZE;
+		gd->dram[1].start = CFG_SYS_DDR_BLOCK2_BASE;
+		gd->dram[1].size = gd->ram_size -
 					  CFG_SYS_DDR_BLOCK1_SIZE;
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
-		if (gd->bi_dram[1].size > CONFIG_SYS_DDR_BLOCK2_SIZE) {
-			gd->bd->bi_dram[2].start = CONFIG_SYS_DDR_BLOCK3_BASE;
-			gd->bd->bi_dram[2].size = gd->bd->bi_dram[1].size -
+		if (gd->dram[1].size > CONFIG_SYS_DDR_BLOCK2_SIZE) {
+			gd->dram[2].start = CONFIG_SYS_DDR_BLOCK3_BASE;
+			gd->dram[2].size = gd->dram[1].size -
 						  CONFIG_SYS_DDR_BLOCK2_SIZE;
-			gd->bd->bi_dram[1].size = CONFIG_SYS_DDR_BLOCK2_SIZE;
+			gd->dram[1].size = CONFIG_SYS_DDR_BLOCK2_SIZE;
 		}
 #endif
 	} else {
-		gd->bd->bi_dram[0].size = gd->ram_size;
+		gd->dram[0].size = gd->ram_size;
 	}
 #ifdef CFG_SYS_MEM_RESERVE_SECURE
-	if (gd->bd->bi_dram[0].size >
+	if (gd->dram[0].size >
 				CFG_SYS_MEM_RESERVE_SECURE) {
-		gd->bd->bi_dram[0].size -=
+		gd->dram[0].size -=
 				CFG_SYS_MEM_RESERVE_SECURE;
-		gd->arch.secure_ram = gd->bd->bi_dram[0].start +
-				      gd->bd->bi_dram[0].size;
+		gd->arch.secure_ram = gd->dram[0].start +
+				      gd->dram[0].size;
 		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
 		gd->ram_size -= CFG_SYS_MEM_RESERVE_SECURE;
 	}
@@ -1475,24 +1496,24 @@ int dram_init_banksize(void)
 #if defined(CONFIG_RESV_RAM) && !defined(CONFIG_XPL_BUILD)
 	/* Assign memory for MC */
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
-	if (gd->bd->bi_dram[2].size >=
-	    board_reserve_ram_top(gd->bd->bi_dram[2].size)) {
-		gd->arch.resv_ram = gd->bd->bi_dram[2].start +
-			    gd->bd->bi_dram[2].size -
-			    board_reserve_ram_top(gd->bd->bi_dram[2].size);
+	if (gd->dram[2].size >=
+	    board_reserve_ram_top(gd->dram[2].size)) {
+		gd->arch.resv_ram = gd->dram[2].start +
+			    gd->dram[2].size -
+			    board_reserve_ram_top(gd->dram[2].size);
 	} else
 #endif
 	{
-		if (gd->bd->bi_dram[1].size >=
-		    board_reserve_ram_top(gd->bd->bi_dram[1].size)) {
-			gd->arch.resv_ram = gd->bd->bi_dram[1].start +
-				gd->bd->bi_dram[1].size -
-				board_reserve_ram_top(gd->bd->bi_dram[1].size);
-		} else if (gd->bd->bi_dram[0].size >
-			   board_reserve_ram_top(gd->bd->bi_dram[0].size)) {
-			gd->arch.resv_ram = gd->bd->bi_dram[0].start +
-				gd->bd->bi_dram[0].size -
-				board_reserve_ram_top(gd->bd->bi_dram[0].size);
+		if (gd->dram[1].size >=
+		    board_reserve_ram_top(gd->dram[1].size)) {
+			gd->arch.resv_ram = gd->dram[1].start +
+				gd->dram[1].size -
+				board_reserve_ram_top(gd->dram[1].size);
+		} else if (gd->dram[0].size >
+			   board_reserve_ram_top(gd->dram[0].size)) {
+			gd->arch.resv_ram = gd->dram[0].start +
+				gd->dram[0].size -
+				board_reserve_ram_top(gd->dram[0].size);
 		}
 	}
 #endif	/* CONFIG_RESV_RAM */
@@ -1514,8 +1535,8 @@ int dram_init_banksize(void)
 					  CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR,
 					  NULL, NULL, NULL);
 		if (dp_ddr_size) {
-			gd->bd->bi_dram[2].start = CONFIG_SYS_DP_DDR_BASE;
-			gd->bd->bi_dram[2].size = dp_ddr_size;
+			gd->dram[2].start = CONFIG_SYS_DP_DDR_BASE;
+			gd->dram[2].size = dp_ddr_size;
 		} else {
 			puts("Not detected");
 		}
@@ -1546,8 +1567,8 @@ void lmb_arch_add_memory(void)
 		if (i == 2)
 			continue;	/* skip DP-DDR */
 #endif
-		ram_start = gd->bd->bi_dram[i].start;
-		ram_size = gd->bd->bi_dram[i].size;
+		ram_start = gd->dram[i].start;
+		ram_size = gd->dram[i].size;
 #ifdef CONFIG_RESV_RAM
 		if (gd->arch.resv_ram >= ram_start &&
 		    gd->arch.resv_ram < ram_start + ram_size)

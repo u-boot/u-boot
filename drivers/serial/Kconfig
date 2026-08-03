@@ -759,11 +759,11 @@ config MVEBU_A3700_UART
 config MCFUART
 	bool "Freescale ColdFire UART support"
 	depends on M68K
-        help
-          Choose this option to add support for UART driver on the ColdFire
-          SoC's family. The serial communication channel provides a full-duplex
-          asynchronous/synchronous receiver and transmitter deriving an
-          operating frequency from the internal bus clock or an external clock.
+	help
+	  Choose this option to add support for UART driver on the ColdFire
+	  SoC's family. The serial communication channel provides a full-duplex
+	  asynchronous/synchronous receiver and transmitter deriving an
+	  operating frequency from the internal bus clock or an external clock.
 
 config MXC_UART
 	bool "IMX serial port support"
@@ -1024,12 +1024,12 @@ config OCTEON_SERIAL_BOOTCMD
 	bool "MIPS Octeon PCI remote bootcmd input"
 	depends on ARCH_OCTEON
 	depends on DM_SERIAL
-	select SYS_IS_IN_ENV
+	select SYS_CONSOLE_IS_IN_ENV
 	select CONSOLE_MUX
 	help
-	 This driver supports remote input over the PCIe bus from a host
-	 to U-Boot for entering commands.  It is utilized by the host
-	 commands 'oct-remote-load' and 'oct-remote-bootcmd'.
+	  This driver supports remote input over the PCIe bus from a host
+	  to U-Boot for entering commands.  It is utilized by the host
+	  commands 'oct-remote-load' and 'oct-remote-bootcmd'.
 
 config OCTEON_SERIAL_PCIE_CONSOLE
 	bool "MIPS Octeon PCIe remote console"

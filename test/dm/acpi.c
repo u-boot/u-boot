@@ -136,7 +136,7 @@ static int testacpi_inject_dsdt(const struct udevice *dev, struct acpi_ctx *ctx)
 	return 0;
 }
 
-struct acpi_ops testacpi_ops = {
+static const struct acpi_ops testacpi_ops = {
 	.get_name	= testacpi_get_name,
 	.write_tables	= testacpi_write_tables,
 	.fill_madt	= testacpi_fill_madt,

@@ -294,9 +294,9 @@ config MAX7320_GPIO
 	bool "MAX7320 I2C GPIO Expander driver"
 	depends on DM_GPIO && DM_I2C
 	help
-	 Support for MAX7320 I2C 8/16-bit GPIO expander.
-	 original maxim device has 8 push/pull outputs,
-	 some clones offers 16bit.
+	  Support for MAX7320 I2C 8/16-bit GPIO expander.
+	  original maxim device has 8 push/pull outputs,
+	  some clones offers 16bit.
 
 config MAX77663_GPIO
 	bool "MAX77663 GPIO cell of PMIC driver"
@@ -309,27 +309,27 @@ config MAX77663_GPIO
 
 config MCP230XX_GPIO
 	bool "MCP230XX GPIO driver"
-	depends on DM
+	depends on DM && DM_I2C && DM_SPI
 	help
-	  Support for Microchip's MCP230XX I2C connected GPIO devices.
+	  Support for Microchip's MCP230XX I2C and SPI connected GPIO devices.
 	  The following chips are supported:
-	   - MCP23008
-	   - MCP23017
-	   - MCP23018
-	   - MCP23S08
-	   - MCP23S17
-	   - MCP23S18
+	  - MCP23008
+	  - MCP23017
+	  - MCP23018
+	  - MCP23S08
+	  - MCP23S17
+	  - MCP23S18
 
 config MSCC_SGPIO
 	bool "Microsemi Serial GPIO driver"
 	depends on DM_GPIO && SOC_VCOREIII
 	help
 	  Support for the VCoreIII SoC serial GPIO device. By using a
-          serial interface, the SIO controller significantly extends
-          the number of available GPIOs with a minimum number of
-          additional pins on the device. The primary purpose of the
-          SIO controller is to connect control signals from SFP
-          modules and to act as an LED controller.
+	  serial interface, the SIO controller significantly extends
+	  the number of available GPIOs with a minimum number of
+	  additional pins on the device. The primary purpose of the
+	  SIO controller is to connect control signals from SFP
+	  modules and to act as an LED controller.
 
 config MSM_GPIO
 	bool "Qualcomm GPIO driver"
@@ -404,8 +404,8 @@ config PCF8575_GPIO
 	bool "PCF8575 I2C GPIO Expander driver"
 	depends on DM_GPIO && DM_I2C
 	help
-	 Support for PCF8575 I2C 16-bit GPIO expander. Most of these
-	 chips are from NXP and TI.
+	  Support for PCF8575 I2C 16-bit GPIO expander. Most of these
+	  chips are from NXP and TI.
 
 config RCAR_GPIO
 	bool "Renesas R-Car GPIO driver"
@@ -459,9 +459,9 @@ config SUNXI_GPIO
 config SUNXI_NEW_PINCTRL
 	bool
 	depends on SUNXI_GPIO
-	---help---
-	The Allwinner D1 and other new SoCs use a different register map
-	for the GPIO block, which we need to know about in the SPL.
+	help
+	  The Allwinner D1 and other new SoCs use a different register map
+	  for the GPIO block, which we need to know about in the SPL.
 
 config XILINX_GPIO
 	bool "Xilinx GPIO driver"
@@ -728,15 +728,15 @@ config SLG7XL45106_I2C_GPO
 	bool "slg7xl45106 i2c gpo expander"
 	depends on DM_GPIO && ARCH_ZYNQMP
 	help
-	   Support for slg7xl45106 i2c gpo expander. It is an i2c based
-	   8-bit gpo expander, all gpo lines are controlled by writing
-	   value into data register.
+	  Support for slg7xl45106 i2c gpo expander. It is an i2c based
+	  8-bit gpo expander, all gpo lines are controlled by writing
+	  value into data register.
 
 config GPIO_SCMI
 	bool "SCMI GPIO pinctrl driver"
 	depends on DM_GPIO && PINCTRL_SCMI
 	help
-	   Support pinctrl GPIO over the SCMI interface.
+	  Support pinctrl GPIO over the SCMI interface.
 
 config ADP5585_GPIO
 	bool "ADP5585 GPIO driver"
@@ -756,10 +756,11 @@ config SPL_ADP5585_GPIO
 	depends on SPL_DM_GPIO && SPL_I2C
 	help
 	  Support ADP5585 GPIO expander in SPL.
+
 config MPFS_GPIO
 	bool "Enable Polarfire SoC GPIO driver"
 	depends on DM_GPIO
 	help
-		Enable to support the GPIO driver on Polarfire SoC
+	  Enable to support the GPIO driver on Polarfire SoC
 
 endif

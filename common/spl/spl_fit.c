@@ -775,7 +775,7 @@ static int spl_simple_fit_parse(struct spl_fit_info *ctx)
 	if (ctx->conf_node < 0)
 		return -EINVAL;
 
-	if (IS_ENABLED(CONFIG_SPL_FIT_SIGNATURE)) {
+	if (CONFIG_IS_ENABLED(FIT_SIGNATURE)) {
 		printf("## Checking hash(es) for config %s ... ",
 		       fit_get_name(ctx->fit, ctx->conf_node, NULL));
 		if (fit_config_verify(ctx->fit, ctx->conf_node))
@@ -955,22 +955,12 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 	int idx, conf_noffset;
 	int ret;
 
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-	images.verify = 1;
-#endif
+	images.verify = CONFIG_IS_ENABLED(FIT_SIGNATURE);
+
 	ret = fit_image_load(&images, virt_to_phys((void *)header),
-			     NULL, &fit_uname_config,
-			     IH_ARCH_DEFAULT, IH_TYPE_STANDALONE, -1,
-			     FIT_LOAD_OPTIONAL, &fw_data, &fw_len);
-	if (ret >= 0) {
-		printf("DEPRECATED: 'standalone = ' property.");
-		printf("Please use either 'firmware =' or 'kernel ='\n");
-	} else {
-		ret = fit_image_load(&images, virt_to_phys((void *)header),
-				     NULL, &fit_uname_config, IH_ARCH_DEFAULT,
-				     IH_TYPE_FIRMWARE, -1, FIT_LOAD_OPTIONAL,
-				     &fw_data, &fw_len);
-	}
+			     NULL, &fit_uname_config, IH_ARCH_DEFAULT,
+			     IH_TYPE_FIRMWARE, -1, FIT_LOAD_OPTIONAL,
+			     &fw_data, &fw_len);
 
 	if (ret < 0) {
 		ret = fit_image_load(&images, virt_to_phys((void *)header),
@@ -993,21 +983,21 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 	debug(PHASE_PROMPT "payload image: %32s load addr: 0x%lx size: %d\n",
 	      spl_image->name, spl_image->load_addr, spl_image->size);
 
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-	images.verify = 1;
-#endif
+	images.verify = CONFIG_IS_ENABLED(FIT_SIGNATURE);
+
 	ret = fit_image_load(&images, virt_to_phys((void *)header), NULL,
 			     &fit_uname_config, IH_ARCH_DEFAULT, IH_TYPE_FLATDT,
 			     -1, FIT_LOAD_OPTIONAL, &dt_data, &dt_len);
 	if (ret >= 0) {
-		spl_image->fdt_addr = (void *)dt_data;
-
 		if (spl_image->os == IH_OS_U_BOOT) {
 			/* HACK: U-Boot expects FDT at a specific address */
-			fdt_hack = spl_image->load_addr + spl_image->size;
-			fdt_hack = (fdt_hack + 3) & ~3;
-			debug("Relocating FDT to %p\n", spl_image->fdt_addr);
-			memcpy((void *)fdt_hack, spl_image->fdt_addr, dt_len);
+			fdt_hack = ALIGN(spl_image->load_addr + spl_image->size, 8);
+			debug("Relocating FDT to %p\n", (void *)fdt_hack);
+			memcpy(map_sysmem(fdt_hack, dt_len),
+			       map_sysmem(dt_data, 0), dt_len);
+			spl_image->fdt_addr = (void *)fdt_hack;
+		} else {
+			spl_image->fdt_addr = (void *)dt_data;
 		}
 	}
 
@@ -1021,10 +1011,9 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 					FIT_LOADABLE_PROP, idx,
 				NULL), uname;
 	     idx++) {
-#ifdef CONFIG_SPL_FIT_SIGNATURE
-		images.verify = 1;
-#endif
-		ret = fit_image_load(&images, (ulong)header,
+		images.verify = CONFIG_IS_ENABLED(FIT_SIGNATURE);
+
+		ret = fit_image_load(&images, virt_to_phys((void *)header),
 				     &uname, &fit_uname_config,
 				     IH_ARCH_DEFAULT, IH_TYPE_LOADABLE, -1,
 				     FIT_LOAD_OPTIONAL_NON_ZERO,

@@ -34,6 +34,29 @@ config ENV_CALLBACK_LIST_STATIC
 	  If the callback name is not specified, then the callback is deleted.
 	  Spaces are also allowed anywhere in the list.
 
+config ENV_FLAGS_LIST_STATIC
+	string "Static flags list"
+	default ""
+	help
+	  The environment flags are associated with variables in a static
+	  list. Define this list in the following format:
+
+	  type_attribute = [s|d|x|b|i|m]
+	  access_attribute = [a|r|o|c|w]
+	  attributes = type_attribute[access_attribute]
+	  entry = variable_name[:attributes]
+	  list = entry[,list]
+
+	  The type attributes are s for string, d for decimal, x for
+	  hexadecimal and b for boolean. If networking is enabled, i can
+	  be used for IP addresses and m for MAC addresses.
+
+	  The access attributes are a for any, r for read-only, o for
+	  write-once and c for change-default. When CONFIG_ENV_WRITEABLE_LIST
+	  is enabled, w can be used to mark variables as writable.
+
+	  Spaces are also allowed anywhere in the list.
+
 config SAVEENV
 	def_bool y if CMD_SAVEENV
 

@@ -185,8 +185,8 @@ int cboot_dram_init_banksize(void)
 	}
 
 	for (i = 0; i < ram_bank_count; i++) {
-		gd->bd->bi_dram[i].start = tegra_mem_map[1 + i].virt;
-		gd->bd->bi_dram[i].size = tegra_mem_map[1 + i].size;
+		gd->dram[i].start = tegra_mem_map[1 + i].virt;
+		gd->dram[i].size = tegra_mem_map[1 + i].size;
 	}
 
 	return 0;

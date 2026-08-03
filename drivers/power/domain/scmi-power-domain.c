@@ -165,21 +165,15 @@ static int scmi_power_domain_probe(struct udevice *dev)
 	for (i = 0; i < priv->num_pwdoms; i++) {
 		ret = scmi_pwd_attrs(dev, i, &priv->prop[i].attributes,
 				     &priv->prop[i].name);
-		if (ret) {
+		if (ret)
 			dev_err(dev, "failed to get attributes pwd:%d (%d)\n",
 				i, ret);
-			for (i--; i >= 0; i--)
-				free(priv->prop[i].name);
-			free(priv->prop);
-
-			return ret;
-		}
 	}
 
 	return 0;
 }
 
-struct power_domain_ops scmi_power_domain_ops = {
+static const struct power_domain_ops scmi_power_domain_ops = {
 	.on = scmi_power_domain_on,
 	.off = scmi_power_domain_off,
 };

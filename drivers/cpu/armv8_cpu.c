@@ -124,7 +124,7 @@ int armv8_cpu_fill_madt(const struct udevice *dev, struct acpi_ctx *ctx)
 	return 0;
 }
 
-struct acpi_ops armv8_cpu_acpi_ops = {
+static const struct acpi_ops armv8_cpu_acpi_ops = {
 	.fill_ssdt	= armv8_cpu_fill_ssdt,
 	.fill_madt	= armv8_cpu_fill_madt,
 };

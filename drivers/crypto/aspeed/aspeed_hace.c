@@ -341,7 +341,7 @@ static int aspeed_hace_probe(struct udevice *dev)
 		return rc;
 	}
 
-	hace->base = devfdt_get_addr(dev);
+	hace->base = dev_read_addr(dev);
 
 	return rc;
 }

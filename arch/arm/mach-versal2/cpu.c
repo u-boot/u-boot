@@ -109,7 +109,7 @@ void mem_map_fill(struct mm_region *bank_info, u32 num_banks)
  * fill_bd_mem_info() - Copy DRAM banks from mem_map to bd_info
  *
  * Transfers DRAM bank information from the global versal2_mem_map[]
- * array to bd->bi_dram[] for passing memory configuration to the
+ * array to gd->dram[] for passing memory configuration to the
  * Linux kernel via boot parameters (ATAGS/FDT). Each bank's physical
  * address and size are copied.
  *
@@ -119,15 +119,14 @@ void mem_map_fill(struct mm_region *bank_info, u32 num_banks)
  */
 void fill_bd_mem_info(void)
 {
-	struct bd_info *bd = gd->bd;
 	int banks = VERSAL2_MEM_MAP_USED;
 
 	for (int i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		if (!versal2_mem_map[banks].size)
 			break;
 
-		bd->bi_dram[i].start = versal2_mem_map[banks].phys;
-		bd->bi_dram[i].size = versal2_mem_map[banks].size;
+		gd->dram[i].start = versal2_mem_map[banks].phys;
+		gd->dram[i].size = versal2_mem_map[banks].size;
 		banks++;
 	}
 }

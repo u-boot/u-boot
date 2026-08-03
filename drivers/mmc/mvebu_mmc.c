@@ -375,8 +375,8 @@ static void mvebu_window_setup(const struct mmc *mmc)
 			break;
 		}
 
-		size = gd->bd->bi_dram[i].size;
-		base = gd->bd->bi_dram[i].start;
+		size = gd->dram[i].size;
+		base = gd->dram[i].start;
 		if (size && attrib) {
 			mvebu_mmc_write(mmc, WINDOW_CTRL(i),
 					MVCPU_WIN_CTRL_DATA(size,

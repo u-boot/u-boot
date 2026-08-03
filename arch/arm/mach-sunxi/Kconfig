@@ -223,11 +223,11 @@ config SUNXI_SRAM_ADDRESS
 	default 0x44000 if MACH_SUN55I_A523
 	default 0x20000 if SUN50I_GEN_H6 || SUNXI_GEN_NCAT2
 	default 0x0
-	---help---
-	Older Allwinner SoCs have their mask boot ROM mapped just below 4GB,
-	with the first SRAM region being located at address 0.
-	Some newer SoCs map the boot ROM at address 0 instead and move the
-	SRAM to a different address.
+	help
+	  Older Allwinner SoCs have their mask boot ROM mapped just below 4GB,
+	  with the first SRAM region being located at address 0.
+	  Some newer SoCs map the boot ROM at address 0 instead and move the
+	  SRAM to a different address.
 
 config SUNXI_RVBAR_ADDRESS
 	hex
@@ -236,26 +236,26 @@ config SUNXI_RVBAR_ADDRESS
 	default 0x08000040 if MACH_SUN55I_A523
 	default 0x09010040 if SUN50I_GEN_H6
 	default 0x017000a0
-	---help---
-	The read-only RVBAR system register holds the address of the first
-	instruction to execute after a reset. Allwinner cores provide a
-	writable MMIO backing store for this register, to allow to set the
-	entry point when switching to AArch64. This store is on different
-	addresses, depending on the SoC.
+	help
+	  The read-only RVBAR system register holds the address of the first
+	  instruction to execute after a reset. Allwinner cores provide a
+	  writable MMIO backing store for this register, to allow to set the
+	  entry point when switching to AArch64. This store is on different
+	  addresses, depending on the SoC.
 
 config SUNXI_RVBAR_ALTERNATIVE
 	hex
 	depends on ARM64
 	default 0x08100040 if MACH_SUN50I_H616
 	default SUNXI_RVBAR_ADDRESS
-	---help---
-	The H616 die exists in at least two variants, with one having the
-	RVBAR registers at a different address. If the SoC variant ID
-	(stored in SRAM_VER_REG[7:0]) is not 0, we need to use the
-	other address.
-	Set this alternative address to the same as the normal address
-	for all other SoCs, so the content of the SRAM_VER_REG becomes
-	irrelevant there, and we can use the same code.
+	help
+	  The H616 die exists in at least two variants, with one having the
+	  RVBAR registers at a different address. If the SoC variant ID
+	  (stored in SRAM_VER_REG[7:0]) is not 0, we need to use the
+	  other address.
+	  Set this alternative address to the same as the normal address
+	  for all other SoCs, so the content of the SRAM_VER_REG becomes
+	  irrelevant there, and we can use the same code.
 
 config SUNXI_BL31_BASE
 	hex
@@ -282,16 +282,16 @@ config SUNXI_A64_TIMER_ERRATUM
 # not supported by Kconfig
 config SUNXI_GEN_SUN4I
 	bool
-	---help---
-	Select this for sunxi SoCs which have resets and clocks set up
-	as the original A10 (mach-sun4i).
+	help
+	  Select this for sunxi SoCs which have resets and clocks set up
+	  as the original A10 (mach-sun4i).
 
 config SUNXI_GEN_SUN6I
 	bool
-	---help---
-	Select this for sunxi SoCs which have sun6i like periphery, like
-	separate ahb reset control registers, custom pmic bus, new style
-	watchdog, etc.
+	help
+	  Select this for sunxi SoCs which have sun6i like periphery, like
+	  separate ahb reset control registers, custom pmic bus, new style
+	  watchdog, etc.
 
 config SUN50I_GEN_H6
 	bool
@@ -299,38 +299,38 @@ config SUN50I_GEN_H6
 	select SPL_LOAD_FIT if SPL
 	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
-	---help---
-	Select this for sunxi SoCs which have H6 like peripherals, clocks
-	and memory map.
+	help
+	  Select this for sunxi SoCs which have H6 like peripherals, clocks
+	  and memory map.
 
 config SUNXI_GEN_NCAT2
 	bool
 	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
-	---help---
-	Select this for sunxi SoCs which have D1 like peripherals, clocks
-	and memory map.
+	help
+	  Select this for sunxi SoCs which have D1 like peripherals, clocks
+	  and memory map.
 
 config SUNXI_DRAM_DW
 	bool
-	---help---
-	Select this for sunxi SoCs which uses a DRAM controller like the
-	DesignWare controller used in H3, mainly SoCs after H3, which do
-	not have official open-source DRAM initialization code, but can
-	use modified H3 DRAM initialization code.
+	help
+	  Select this for sunxi SoCs which uses a DRAM controller like the
+	  DesignWare controller used in H3, mainly SoCs after H3, which do
+	  not have official open-source DRAM initialization code, but can
+	  use modified H3 DRAM initialization code.
 
 if SUNXI_DRAM_DW
 config SUNXI_DRAM_DW_16BIT
 	bool
-	---help---
-	Select this for sunxi SoCs with DesignWare DRAM controller and
-	have only 16-bit memory buswidth.
+	help
+	  Select this for sunxi SoCs with DesignWare DRAM controller and
+	  have only 16-bit memory buswidth.
 
 config SUNXI_DRAM_DW_32BIT
 	bool
-	---help---
-	Select this for sunxi SoCs with DesignWare DRAM controller with
-	32-bit memory buswidth.
+	help
+	  Select this for sunxi SoCs with DesignWare DRAM controller with
+	  32-bit memory buswidth.
 endif
 
 config MACH_SUNXI_H3_H5
@@ -576,25 +576,25 @@ config MACH_SUN8I
 config RESERVE_ALLWINNER_BOOT0_HEADER
 	bool "reserve space for Allwinner boot0 header"
 	select ENABLE_ARM_SOC_BOOT0_HOOK
-	---help---
-	Prepend a 1536 byte (empty) header to the U-Boot image file, to be
-	filled with magic values post build. The Allwinner provided boot0
-	blob relies on this information to load and execute U-Boot.
-	Only needed on 64-bit Allwinner boards so far when using boot0.
+	help
+	  Prepend a 1536 byte (empty) header to the U-Boot image file, to be
+	  filled with magic values post build. The Allwinner provided boot0
+	  blob relies on this information to load and execute U-Boot.
+	  Only needed on 64-bit Allwinner boards so far when using boot0.
 
 config ARM_BOOT_HOOK_RMR
 	bool
 	depends on ARM64
 	default y
 	select ENABLE_ARM_SOC_BOOT0_HOOK
-	---help---
-	Insert some ARM32 code at the very beginning of the U-Boot binary
-	which uses an RMR register write to bring the core into AArch64 mode.
-	The very first instruction acts as a switch, since it's carefully
-	chosen to be a NOP in one mode and a branch in the other, so the
-	code would only be executed if not already in AArch64.
-	This allows both the SPL and the U-Boot proper to be entered in
-	either mode and switch to AArch64 if needed.
+	help
+	  Insert some ARM32 code at the very beginning of the U-Boot binary
+	  which uses an RMR register write to bring the core into AArch64 mode.
+	  The very first instruction acts as a switch, since it's carefully
+	  chosen to be a NOP in one mode and a branch in the other, so the
+	  code would only be executed if not already in AArch64.
+	  This allows both the SPL and the U-Boot proper to be entered in
+	  either mode and switch to AArch64 if needed.
 
 if SUNXI_DRAM_DW || DRAM_SUN50I_H6 || DRAM_SUN50I_H616 || DRAM_SUN50I_A133 || DRAM_SUN55I_A523
 config SUNXI_DRAM_DDR3
@@ -622,33 +622,33 @@ config SUNXI_DRAM_DDR3_1333
 	bool "DDR3 1333"
 	select SUNXI_DRAM_DDR3
 	depends on !DRAM_SUN50I_A133
-	---help---
-	This option is the original only supported memory type, which suits
-	many H3/H5/A64 boards available now.
+	help
+	  This option is the original only supported memory type, which suits
+	  many H3/H5/A64 boards available now.
 
 config SUNXI_DRAM_LPDDR3_STOCK
 	bool "LPDDR3 with Allwinner stock configuration"
 	select SUNXI_DRAM_LPDDR3
 	depends on !DRAM_SUN50I_A133
-	---help---
-	This option is the LPDDR3 timing used by the stock boot0 by
-	Allwinner.
+	help
+	  This option is the LPDDR3 timing used by the stock boot0 by
+	  Allwinner.
 
 config SUNXI_DRAM_H6_LPDDR3
 	bool "LPDDR3 DRAM chips on the H6 DRAM controller"
 	select SUNXI_DRAM_LPDDR3
 	depends on DRAM_SUN50I_H6
-	---help---
-	This option is the LPDDR3 timing used by the stock boot0 by
-	Allwinner.
+	help
+	  This option is the LPDDR3 timing used by the stock boot0 by
+	  Allwinner.
 
 config SUNXI_DRAM_H6_DDR3_1333
 	bool "DDR3-1333 boot0 timings on the H6 DRAM controller"
 	select SUNXI_DRAM_DDR3
 	depends on DRAM_SUN50I_H6
-	---help---
-	This option is the DDR3 timing used by the boot0 on H6 TV boxes
-	which use a DDR3-1333 timing.
+	help
+	  This option is the DDR3 timing used by the boot0 on H6 TV boxes
+	  which use a DDR3-1333 timing.
 
 config SUNXI_DRAM_H616_LPDDR3
 	bool "LPDDR3 DRAM chips on the H616 DRAM controller"
@@ -694,9 +694,9 @@ config SUNXI_DRAM_DDR2_V3S
 	bool "DDR2 found in V3s chip"
 	select SUNXI_DRAM_DDR2
 	depends on MACH_SUN8I_V3S
-	---help---
-	This option is only for the DDR2 memory chip which is co-packaged in
-	Allwinner V3s SoC.
+	help
+	  This option is only for the DDR2 memory chip which is co-packaged in
+	  Allwinner V3s SoC.
 
 config SUNXI_DRAM_A523_DDR3
 	bool "DDR3 DRAM chips on the A523/T527 DRAM controller"
@@ -720,8 +720,8 @@ config DRAM_TYPE
 	int "sunxi dram type"
 	depends on MACH_SUN8I_A83T
 	default 3
-	---help---
-	Set the dram type, 3: DDR3, 7: LPDDR3
+	help
+	  Set the dram type, 3: DDR3, 7: LPDDR3
 
 config DRAM_CLK
 	int "sunxi dram clock speed"
@@ -734,17 +734,17 @@ config DRAM_CLK
 	default 744 if MACH_SUN50I_H6
 	default 720 if MACH_SUN50I_H616 || MACH_SUN50I_A133
 	default 1200 if MACH_SUN55I_A523
-	---help---
-	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
-	must be a multiple of 24. For the sun9i (A80), the tested values
-	(for DDR3-1600) are 312 to 792.
+	help
+	  Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
+	  must be a multiple of 24. For the sun9i (A80), the tested values
+	  (for DDR3-1600) are 312 to 792.
 
 if MACH_SUN5I || MACH_SUN7I
 config DRAM_MBUS_CLK
 	int "sunxi mbus clock speed"
 	default 300
-	---help---
-	Set the mbus clock speed. The maximum on sun5i hardware is 300MHz.
+	help
+	  Set the mbus clock speed. The maximum on sun5i hardware is 300MHz.
 
 endif
 
@@ -760,8 +760,8 @@ config DRAM_ZQ
 	default 3881979 if MACH_SUNXI_H3_H5 || MACH_SUN8I_R40 || MACH_SUN50I_H6
 	default 4145117 if MACH_SUN9I
 	default 3881915 if MACH_SUN50I
-	---help---
-	Set the dram zq value.
+	help
+	  Set the dram zq value.
 
 config DRAM_ODT_EN
 	bool "sunxi dram odt enable"
@@ -772,72 +772,72 @@ config DRAM_ODT_EN
 	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I
 	default y if MACH_SUN50I_H6
-	---help---
-	Select this to enable dram odt (on die termination).
+	help
+	  Select this to enable dram odt (on die termination).
 
 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 config DRAM_EMR1
 	int "sunxi dram emr1 value"
 	default 0 if MACH_SUN4I
 	default 4 if MACH_SUN5I || MACH_SUN7I
-	---help---
-	Set the dram controller emr1 value.
+	help
+	  Set the dram controller emr1 value.
 
 config DRAM_TPR3
 	hex "sunxi dram tpr3 value"
 	default 0x0
-	---help---
-	Set the dram controller tpr3 parameter. This parameter configures
-	the delay on the command lane and also phase shifts, which are
-	applied for sampling incoming read data. The default value 0
-	means that no phase/delay adjustments are necessary. Properly
-	configuring this parameter increases reliability at high DRAM
-	clock speeds.
+	help
+	  Set the dram controller tpr3 parameter. This parameter configures
+	  the delay on the command lane and also phase shifts, which are
+	  applied for sampling incoming read data. The default value 0
+	  means that no phase/delay adjustments are necessary. Properly
+	  configuring this parameter increases reliability at high DRAM
+	  clock speeds.
 
 config DRAM_DQS_GATING_DELAY
 	hex "sunxi dram dqs_gating_delay value"
 	default 0x0
-	---help---
-	Set the dram controller dqs_gating_delay parmeter. Each byte
-	encodes the DQS gating delay for each byte lane. The delay
-	granularity is 1/4 cycle. For example, the value 0x05060606
-	means that the delay is 5 quarter-cycles for one lane (1.25
-	cycles) and 6 quarter-cycles (1.5 cycles) for 3 other lanes.
-	The default value 0 means autodetection. The results of hardware
-	autodetection are not very reliable and depend on the chip
-	temperature (sometimes producing different results on cold start
-	and warm reboot). But the accuracy of hardware autodetection
-	is usually good enough, unless running at really high DRAM
-	clocks speeds (up to 600MHz). If unsure, keep as 0.
+	help
+	  Set the dram controller dqs_gating_delay parmeter. Each byte
+	  encodes the DQS gating delay for each byte lane. The delay
+	  granularity is 1/4 cycle. For example, the value 0x05060606
+	  means that the delay is 5 quarter-cycles for one lane (1.25
+	  cycles) and 6 quarter-cycles (1.5 cycles) for 3 other lanes.
+	  The default value 0 means autodetection. The results of hardware
+	  autodetection are not very reliable and depend on the chip
+	  temperature (sometimes producing different results on cold start
+	  and warm reboot). But the accuracy of hardware autodetection
+	  is usually good enough, unless running at really high DRAM
+	  clocks speeds (up to 600MHz). If unsure, keep as 0.
 
 choice
 	prompt "sunxi dram timings"
 	default DRAM_TIMINGS_VENDOR_MAGIC
-	---help---
-	Select the timings of the DDR3 chips.
+	help
+	  Select the timings of the DDR3 chips.
 
 config DRAM_TIMINGS_VENDOR_MAGIC
 	bool "Magic vendor timings from Android"
-	---help---
-	The same DRAM timings as in the Allwinner boot0 bootloader.
+	help
+	  The same DRAM timings as in the Allwinner boot0 bootloader.
 
 config DRAM_TIMINGS_DDR3_1066F_1333H
 	bool "JEDEC DDR3-1333H with down binning to DDR3-1066F"
-	---help---
-	Use the timings of the standard JEDEC DDR3-1066F speed bin for
-	DRAM_CLK <= 533MHz and the timings of the DDR3-1333H speed bin
-	for DRAM_CLK > 533MHz. This covers the majority of DDR3 chips
-	used in Allwinner A10/A13/A20 devices. In the case of DDR3-1333
-	or DDR3-1600 chips, be sure to check the DRAM datasheet to confirm
-	that down binning to DDR3-1066F is supported (because DDR3-1066F
-	uses a bit faster timings than DDR3-1333H).
+	help
+	  Use the timings of the standard JEDEC DDR3-1066F speed bin for
+	  DRAM_CLK <= 533MHz and the timings of the DDR3-1333H speed bin
+	  for DRAM_CLK > 533MHz. This covers the majority of DDR3 chips
+	  used in Allwinner A10/A13/A20 devices. In the case of DDR3-1333
+	  or DDR3-1600 chips, be sure to check the DRAM datasheet to confirm
+	  that down binning to DDR3-1066F is supported (because DDR3-1066F
+	  uses a bit faster timings than DDR3-1333H).
 
 config DRAM_TIMINGS_DDR3_800E_1066G_1333J
 	bool "JEDEC DDR3-800E / DDR3-1066G / DDR3-1333J"
-	---help---
-	Use the timings of the slowest possible JEDEC speed bin for the
-	selected DRAM_CLK. Depending on the DRAM_CLK value, it may be
-	DDR3-800E, DDR3-1066G or DDR3-1333J.
+	help
+	  Use the timings of the slowest possible JEDEC speed bin for the
+	  selected DRAM_CLK. Depending on the DRAM_CLK value, it may be
+	  DDR3-800E, DDR3-1066G or DDR3-1333J.
 
 endchoice
 
@@ -847,11 +847,11 @@ if MACH_SUN8I_A23
 config DRAM_ODT_CORRECTION
 	int "sunxi dram odt correction value"
 	default 0
-	---help---
-	Set the dram odt correction value (range -255 - 255). In allwinner
-	fex files, this option is found in bits 8-15 of the u32 odt_en variable
-	in the [dram] section. When bit 31 of the odt_en variable is set
-	then the correction is negative. Usually the value for this is 0.
+	help
+	  Set the dram odt correction value (range -255 - 255). In allwinner
+	  fex files, this option is found in bits 8-15 of the u32 odt_en variable
+	  in the [dram] section. When bit 31 of the odt_en variable is set
+	  then the correction is negative. Usually the value for this is 0.
 endif
 
 config SYS_CLK_FREQ
@@ -888,59 +888,59 @@ config SUNXI_MINIMUM_DRAM_MB
 	default 32 if MACH_SUNIV
 	default 64 if MACH_SUN8I_V3S
 	default 256
-	---help---
-	Minimum DRAM size expected on the board. Traditionally we assumed
-	256 MB, so that U-Boot would load at 160MB. With co-packaged DRAM
-	we have smaller sizes, though, so that U-Boot's own load address and
-	the default payload addresses must be shifted down.
-	This is expected to be fixed by the SoC selection.
+	help
+	  Minimum DRAM size expected on the board. Traditionally we assumed
+	  256 MB, so that U-Boot would load at 160MB. With co-packaged DRAM
+	  we have smaller sizes, though, so that U-Boot's own load address and
+	  the default payload addresses must be shifted down.
+	  This is expected to be fixed by the SoC selection.
 
 config UART0_PORT_F
 	bool "UART0 on MicroSD breakout board"
-	---help---
-	Repurpose the SD card slot for getting access to the UART0 serial
-	console. Primarily useful only for low level u-boot debugging on
-	tablets, where normal UART0 is difficult to access and requires
-	device disassembly and/or soldering. As the SD card can't be used
-	at the same time, the system can be only booted in the FEL mode.
-	Only enable this if you really know what you are doing.
+	help
+	  Repurpose the SD card slot for getting access to the UART0 serial
+	  console. Primarily useful only for low level u-boot debugging on
+	  tablets, where normal UART0 is difficult to access and requires
+	  device disassembly and/or soldering. As the SD card can't be used
+	  at the same time, the system can be only booted in the FEL mode.
+	  Only enable this if you really know what you are doing.
 
 config OLD_SUNXI_KERNEL_COMPAT
 	bool "Enable workarounds for booting old kernels"
-	---help---
-	Set this to enable various workarounds for old kernels, this results in
-	sub-optimal settings for newer kernels, only enable if needed.
+	help
+	  Set this to enable various workarounds for old kernels, this results in
+	  sub-optimal settings for newer kernels, only enable if needed.
 
 config MMC1_PINS_PH
 	bool "Pins for mmc1 are on Port H"
 	depends on MACH_SUN4I || MACH_SUN7I || MACH_SUN8I_R40
-	---help---
-	Select this option for boards where mmc1 uses the Port H pinmux.
+	help
+	  Select this option for boards where mmc1 uses the Port H pinmux.
 
 config MMC_SUNXI_SLOT_EXTRA
 	int "mmc extra slot number"
 	default -1
-	---help---
-	sunxi builds always enable mmc0, some boards also have a second sdcard
-	slot or emmc on mmc1 - mmc3. Setting this to 1, 2 or 3 will enable
-	support for this.
+	help
+	  sunxi builds always enable mmc0, some boards also have a second sdcard
+	  slot or emmc on mmc1 - mmc3. Setting this to 1, 2 or 3 will enable
+	  support for this.
 
 config I2C0_ENABLE
 	bool "Enable I2C/TWI controller 0"
 	default y if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUN8I_R40
 	default n if MACH_SUN6I || MACH_SUN8I
 	select CMD_I2C
-	---help---
-	This allows enabling I2C/TWI controller 0 by muxing its pins, enabling
-	its clock and setting up the bus. This is especially useful on devices
-	with slaves connected to the bus or with pins exposed through e.g. an
-	expansion port/header.
+	help
+	  This allows enabling I2C/TWI controller 0 by muxing its pins, enabling
+	  its clock and setting up the bus. This is especially useful on devices
+	  with slaves connected to the bus or with pins exposed through e.g. an
+	  expansion port/header.
 
 config I2C1_ENABLE
 	bool "Enable I2C/TWI controller 1"
 	select CMD_I2C
-	---help---
-	See I2C0_ENABLE help text.
+	help
+	  See I2C0_ENABLE help text.
 
 if SUNXI_GEN_SUN6I || SUN50I_GEN_H6 || SUNXI_GEN_NCAT2
 config R_I2C_ENABLE
@@ -948,20 +948,20 @@ config R_I2C_ENABLE
 	# This is used for the pmic on H3
 	default y if SY8106A_POWER
 	select CMD_I2C
-	---help---
-	Set this to y to enable the I2C controller which is part of the PRCM.
+	help
+	  Set this to y to enable the I2C controller which is part of the PRCM.
 endif
 
 config AXP_GPIO
 	bool "Enable support for gpio-s on axp PMICs"
 	depends on AXP_PMIC_BUS
-	---help---
-	Say Y here to enable support for the gpio pins of the axp PMIC ICs.
+	help
+	  Say Y here to enable support for the gpio pins of the axp PMIC ICs.
 
 config AXP_DISABLE_BOOT_ON_POWERON
 	bool "Disable device boot on power plug-in"
 	depends on AXP209_POWER || AXP221_POWER || AXP809_POWER || AXP818_POWER
-	---help---
+	help
 	  Say Y here to prevent the device from booting up because of a plug-in
 	  event. When set, the device will boot into the SPL briefly to
 	  determine why it was powered on, and if it was determined because of
@@ -982,127 +982,127 @@ config VIDEO_SUNXI
 	imply VIDEO_DAMAGE
 	imply VIDEO_DT_SIMPLEFB
 	default y
-	---help---
-	Say Y here to add support for using a graphical console on the HDMI,
-	LCD or VGA output found on older sunxi devices. This will also provide
-	a simple_framebuffer device for Linux.
+	help
+	  Say Y here to add support for using a graphical console on the HDMI,
+	  LCD or VGA output found on older sunxi devices. This will also provide
+	  a simple_framebuffer device for Linux.
 
 config VIDEO_HDMI
 	bool "HDMI output support"
 	depends on VIDEO_SUNXI && !MACH_SUN8I && !MACH_SUNIV
 	default y
-	---help---
-	Say Y here to add support for outputting video over HDMI.
+	help
+	  Say Y here to add support for outputting video over HDMI.
 
 config VIDEO_VGA
 	bool "VGA output support"
 	depends on VIDEO_SUNXI && (MACH_SUN4I || MACH_SUN7I)
-	---help---
-	Say Y here to add support for outputting video over VGA.
+	help
+	  Say Y here to add support for outputting video over VGA.
 
 config VIDEO_VGA_VIA_LCD
 	bool "VGA via LCD controller support"
 	depends on VIDEO_SUNXI && (MACH_SUN5I || MACH_SUN6I || MACH_SUN8I)
-	---help---
-	Say Y here to add support for external DACs connected to the parallel
-	LCD interface driving a VGA connector, such as found on the
-	Olimex A13 boards.
+	help
+	  Say Y here to add support for external DACs connected to the parallel
+	  LCD interface driving a VGA connector, such as found on the
+	  Olimex A13 boards.
 
 config VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
 	bool "Force sync active high for VGA via LCD controller support"
 	depends on VIDEO_VGA_VIA_LCD
-	---help---
-	Say Y here if you've a board which uses opendrain drivers for the vga
-	hsync and vsync signals. Opendrain drivers cannot generate steep enough
-	positive edges for a stable video output, so on boards with opendrain
-	drivers the sync signals must always be active high.
+	help
+	  Say Y here if you've a board which uses opendrain drivers for the vga
+	  hsync and vsync signals. Opendrain drivers cannot generate steep enough
+	  positive edges for a stable video output, so on boards with opendrain
+	  drivers the sync signals must always be active high.
 
 config VIDEO_VGA_EXTERNAL_DAC_EN
 	string "LCD panel power enable pin"
 	depends on VIDEO_VGA_VIA_LCD
 	default ""
-	---help---
-	Set the enable pin for the external VGA DAC. This takes a string in the
-	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+	help
+	  Set the enable pin for the external VGA DAC. This takes a string in the
+	  format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_COMPOSITE
 	bool "Composite video output support"
 	depends on VIDEO_SUNXI && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
-	---help---
-	Say Y here to add support for outputting composite video.
+	help
+	  Say Y here to add support for outputting composite video.
 
 config VIDEO_LCD_MODE
 	string "LCD panel timing details"
 	depends on VIDEO_SUNXI
 	default ""
-	---help---
-	LCD panel timing details string, leave empty if there is no LCD panel.
-	This is in drivers/video/videomodes.c: video_get_params() format, e.g.
-	x:800,y:480,depth:18,pclk_khz:33000,le:16,ri:209,up:22,lo:22,hs:30,vs:1,sync:0,vmode:0
-	Also see: http://linux-sunxi.org/LCD
+	help
+	  LCD panel timing details string, leave empty if there is no LCD panel.
+	  This is in drivers/video/videomodes.c: video_get_params() format, e.g.
+	  x:800,y:480,depth:18,pclk_khz:33000,le:16,ri:209,up:22,lo:22,hs:30,vs:1,sync:0,vmode:0
+	  Also see: http://linux-sunxi.org/LCD
 
 config VIDEO_LCD_DCLK_PHASE
 	int "LCD panel display clock phase"
 	depends on VIDEO_SUNXI || VIDEO
 	default 1
 	range 0 3
-	---help---
-	Select LCD panel display clock phase shift
+	help
+	  Select LCD panel display clock phase shift
 
 config VIDEO_LCD_POWER
 	string "LCD panel power enable pin"
 	depends on VIDEO_SUNXI
 	default ""
-	---help---
-	Set the power enable pin for the LCD panel. This takes a string in the
-	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+	help
+	  Set the power enable pin for the LCD panel. This takes a string in the
+	  format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_RESET
 	string "LCD panel reset pin"
 	depends on VIDEO_SUNXI
 	default ""
-	---help---
-	Set the reset pin for the LCD panel. This takes a string in the format
-	understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+	help
+	  Set the reset pin for the LCD panel. This takes a string in the format
+	  understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_BL_EN
 	string "LCD panel backlight enable pin"
 	depends on VIDEO_SUNXI
 	default ""
-	---help---
-	Set the backlight enable pin for the LCD panel. This takes a string in the
-	the format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of
-	port H.
+	help
+	  Set the backlight enable pin for the LCD panel. This takes a string in the
+	  the format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of
+	  port H.
 
 config VIDEO_LCD_BL_PWM
 	string "LCD panel backlight pwm pin"
 	depends on VIDEO_SUNXI
 	default ""
-	---help---
-	Set the backlight pwm pin for the LCD panel. This takes a string in the
-	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+	help
+	  Set the backlight pwm pin for the LCD panel. This takes a string in the
+	  format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
 config VIDEO_LCD_BL_PWM_ACTIVE_LOW
 	bool "LCD panel backlight pwm is inverted"
 	depends on VIDEO_SUNXI
 	default y
-	---help---
-	Set this if the backlight pwm output is active low.
+	help
+	  Set this if the backlight pwm output is active low.
 
 config VIDEO_LCD_PANEL_I2C
 	bool "LCD panel needs to be configured via i2c"
 	depends on VIDEO_SUNXI
 	select DM_I2C_GPIO
-	---help---
-	Say y here if the LCD panel needs to be configured via i2c. This
-	will add a bitbang i2c controller using gpios to talk to the LCD.
+	help
+	  Say y here if the LCD panel needs to be configured via i2c. This
+	  will add a bitbang i2c controller using gpios to talk to the LCD.
 
 config VIDEO_LCD_PANEL_I2C_NAME
 	string "LCD panel i2c interface node name"
 	depends on VIDEO_LCD_PANEL_I2C
 	default "i2c"
-	---help---
-	Set the device tree node name for the LCD i2c interface.
+	help
+	  Set the device tree node name for the LCD i2c interface.
 
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
@@ -1123,16 +1123,16 @@ config VIDEO_DE2
 	select VIDEO_DW_HDMI
 	imply VIDEO_DT_SIMPLEFB
 	default y
-	---help---
-	Say y here if you want to build DE2 video driver which is present on
-	newer SoCs. Currently only HDMI output is supported.
+	help
+	  Say y here if you want to build DE2 video driver which is present on
+	  newer SoCs. Currently only HDMI output is supported.
 
 
 choice
 	prompt "LCD panel support"
 	depends on VIDEO_SUNXI
-	---help---
-	Select which type of LCD panel to support.
+	help
+	  Select which type of LCD panel to support.
 
 config VIDEO_LCD_PANEL_PARALLEL
 	bool "Generic parallel interface LCD panel"
@@ -1146,40 +1146,40 @@ config VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828
 	bool "MIPI 4-lane, 513Mbps LCD panel via SSD2828 bridge chip"
 	select VIDEO_LCD_SSD2828
 	select VIDEO_LCD_IF_PARALLEL
-	---help---
-	7.85" 768x1024 LCD panels, such as LG LP079X01 or AUO B079XAN01.0
+	help
+	  7.85" 768x1024 LCD panels, such as LG LP079X01 or AUO B079XAN01.0
 
 config VIDEO_LCD_PANEL_EDP_4_LANE_1620M_VIA_ANX9804
 	bool "eDP 4-lane, 1.62G LCD panel via ANX9804 bridge chip"
 	select VIDEO_LCD_ANX9804
 	select VIDEO_LCD_IF_PARALLEL
 	select VIDEO_LCD_PANEL_I2C
-	---help---
-	Select this for eDP LCD panels with 4 lanes running at 1.62G,
-	connected via an ANX9804 bridge chip.
+	help
+	  Select this for eDP LCD panels with 4 lanes running at 1.62G,
+	  connected via an ANX9804 bridge chip.
 
 config VIDEO_LCD_PANEL_HITACHI_TX18D42VM
 	bool "Hitachi tx18d42vm LCD panel"
 	select VIDEO_LCD_HITACHI_TX18D42VM
 	select VIDEO_LCD_IF_LVDS
-	---help---
-	7.85" 1024x768 Hitachi tx18d42vm LCD panel support
+	help
+	  7.85" 1024x768 Hitachi tx18d42vm LCD panel support
 
 config VIDEO_LCD_TL059WV5C0
 	bool "tl059wv5c0 LCD panel"
 	select VIDEO_LCD_PANEL_I2C
 	select VIDEO_LCD_IF_PARALLEL
-	---help---
-	6" 480x800 tl059wv5c0 panel support, as used on the Utoo P66 and
-	Aigo M60/M608/M606 tablets.
+	help
+	  6" 480x800 tl059wv5c0 panel support, as used on the Utoo P66 and
+	  Aigo M60/M608/M606 tablets.
 
 endchoice
 
 config GMAC_TX_DELAY
 	int "GMAC Transmit Clock Delay Chain"
 	default 0
-	---help---
-	Set the GMAC Transmit Clock Delay Chain value.
+	help
+	  Set the GMAC Transmit Clock Delay Chain value.
 
 config SPL_STACK_R_ADDR
 	default 0x81e00000 if MACH_SUNIV

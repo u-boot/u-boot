@@ -25,8 +25,8 @@ choice
 config SOC_OCTEON3
 	bool "Octeon III family"
 	help
-	 This selects the Octeon III SoC family CN70xx, CN73XX, CN78xx
-	 and CNF75XX.
+	  This selects the Octeon III SoC family CN70xx, CN73XX, CN78xx
+	  and CNF75XX.
 
 endchoice
 
@@ -38,14 +38,14 @@ config TARGET_OCTEON_EBB7304
 	bool "Marvell Octeon EBB7304"
 	select OCTEON_CN73XX
 	help
-	 Choose this for the Octeon EBB7304 board
+	  Choose this for the Octeon EBB7304 board
 
 config TARGET_OCTEON_NIC23
 	bool "Marvell Octeon NIC23"
 	select ARCH_MISC_INIT
 	select OCTEON_CN73XX
 	help
-	 Choose this for the Octeon NIC23 board
+	  Choose this for the Octeon NIC23 board
 
 endchoice
 

@@ -9,7 +9,7 @@ config SYS_BOARD
        default "am62px"
 
 config SYS_VENDOR
-       default "ti"
+	default "ti"
 
 config SYS_CONFIG_NAME
        default "am62px_evm"

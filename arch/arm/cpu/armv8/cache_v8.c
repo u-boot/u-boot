@@ -69,9 +69,9 @@ int mem_map_from_dram_banks(unsigned int index, unsigned int len, u64 attrs)
 	}
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		mem_map[index].virt = gd->bd->bi_dram[i].start;
-		mem_map[index].phys = gd->bd->bi_dram[i].start;
-		mem_map[index].size = gd->bd->bi_dram[i].size;
+		mem_map[index].virt = gd->dram[i].start;
+		mem_map[index].phys = gd->dram[i].start;
+		mem_map[index].size = gd->dram[i].size;
 		mem_map[index].attrs = attrs;
 		index++;
 	}
@@ -163,7 +163,7 @@ u64 get_tcr(u64 *pips, u64 *pva_bits)
 
 static int pte_type(u64 *pte)
 {
-	return *pte & PTE_TYPE_MASK;
+	return *pte & PTE_TYPE_VALID ? *pte & PTE_TYPE_MASK : PTE_TYPE_FAULT;
 }
 
 /* Returns the LSB number for a PTE on level <level> */
@@ -534,7 +534,7 @@ static void __pagetable_walk(u64 addr, u64 tcr, int level, pte_walker_cb_t cb, v
 		if (exit)
 			return;
 
-		if (pte_type(&pte) == PTE_TYPE_FAULT)
+		if (!pte)
 			continue;
 
 		attrs = pte & ALL_ATTRS;
@@ -573,7 +573,7 @@ static void __pagetable_walk(u64 addr, u64 tcr, int level, pte_walker_cb_t cb, v
 			/* Go down a level */
 			__pagetable_walk(_addr, tcr, level + 1, cb, priv);
 			state[level] = WALKER_STATE_START;
-		} else if (pte_type(&pte) == PTE_TYPE_BLOCK || pte_type(&pte) == PTE_TYPE_PAGE) {
+		} else {
 			/* We foud a block or page, start walking */
 			entry_start = pte;
 			state[level] = WALKER_STATE_REGION;
@@ -732,6 +732,66 @@ void dump_pagetable(u64 ttbr, u64 tcr)
 	printf("Walking pagetable at %p, va_bits: %lld. Using %d levels\n", (void *)ttbr,
 	       va_bits, va_bits < 39 ? 3 : 4);
 	walk_pagetable(ttbr, tcr, pagetable_print_entry, NULL);
+}
+
+/* Do a software pagetable walk for the given address */
+void tlb_debug_lookup(u64 addr)
+{
+	u64 va_bits;
+	u64 ttbr = gd->arch.tlb_addr, *pte;
+	int lshift, level;
+
+	get_tcr(NULL, &va_bits);
+	level = va_bits < 39 ? 1 : 0;
+
+	printf("Performing software TLB lookup of address %#010llx va_bits: %lld\n",
+	       addr, va_bits);
+
+	addr = ALIGN_DOWN(addr, 0x1000);
+	pte = ((u64 *)ttbr);
+	for (int i = level; i < 4; i++) {
+		int indent = (i - level + 1) * 2;
+		u32 idx;
+		u64 _addr;
+
+		lshift = level2shift(i);
+		idx = (addr >> lshift) & 0x1FF;
+
+		printf("%*sPTE: %#010llx. addr[%d:%d]: %#05x (offset %#07x)\n", indent, "", (u64)pte,
+		       lshift + 8, lshift, idx, idx * 8);
+		printf("%*sL%d: %#010llx -> ", indent, "", i, (u64)(&pte[idx]));
+
+		pte = &pte[idx];
+		_addr = *pte & GENMASK_ULL(va_bits, PAGE_SHIFT);
+
+		/*
+		 * Check the PTE and either descend if it's a table or print
+		 * the mapping and return.
+		 */
+		switch (pte_type(pte)) {
+		case PTE_TYPE_FAULT:
+			printf("UNMAPPED!\n");
+			return;
+		case PTE_TYPE_BLOCK:
+			printf("BLOCK (%#010llx)\n", _addr);
+			break;
+		case PTE_TYPE_TABLE:
+			if (i < 3) {
+				printf("TABLE (%#010llx)\n", _addr);
+				pte = (u64 *)_addr;
+				continue;
+			} else { /* PTE_TYPE_PAGE */
+				printf("PAGE (%#010llx)\n", _addr);
+			}
+			break;
+		default:
+			printf("Unknown (%#010llx)\n", _addr);
+			break;
+		}
+
+		printf("%*s[%#010llx - %#010llx]\n", indent + 2, "", _addr, _addr + (1 << lshift));
+		return;
+	}
 }
 
 /* Returns the estimated required size of all page tables */
@@ -931,9 +991,10 @@ u64 *__weak arch_get_page_table(void) {
 	return NULL;
 }
 
+/* Checks if the current PTE is an aligned subset of the region */
 static bool is_aligned(u64 addr, u64 size, u64 align)
 {
-	return !(addr & (align - 1)) && !(size & (align - 1));
+	return !(addr & (align - 1)) && size >= align;
 }
 
 /* Use flag to indicate if attrs has more than d-cache attributes */
@@ -943,9 +1004,14 @@ static u64 set_one_region(u64 start, u64 size, u64 attrs, bool flag, int level)
 	u64 levelsize = 1ULL << levelshift;
 	u64 *pte = find_pte(start, level);
 
-	/* Can we can just modify the current level block PTE? */
+	/* Can we can just modify the current level block/page? */
 	if (is_aligned(start, size, levelsize)) {
-		if (flag) {
+		if (attrs == PTE_TYPE_FAULT) {
+			if (pte_type(pte) == PTE_TYPE_TABLE && level < 3)
+				*pte = 0;
+			else
+				*pte &= ~(PTE_TYPE_MASK);
+		} else if (flag) {
 			*pte &= ~PMD_ATTRMASK;
 			*pte |= attrs & PMD_ATTRMASK;
 		} else {
@@ -973,6 +1039,28 @@ static u64 set_one_region(u64 start, u64 size, u64 attrs, bool flag, int level)
 	return 0;
 }
 
+static void set_regions(u64 start, u64 size, u64 attrs, bool flag)
+{
+	int level;
+	u64 r;
+
+	/*
+	 * Loop through the address range until we find a page granule that fits
+	 * our alignment constraints, then set it to the new cache attributes
+	 */
+	while (size > 0) {
+		for (level = 1; level < 4; level++) {
+			r = set_one_region(start, size, attrs, flag, level);
+			if (r) {
+				/* PTE successfully replaced */
+				size -= r;
+				start += r;
+				break;
+			}
+		}
+	}
+}
+
 void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option)
 {
@@ -992,26 +1080,7 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	 */
 	__asm_switch_ttbr(gd->arch.tlb_emerg);
 
-	/*
-	 * Loop through the address range until we find a page granule that fits
-	 * our alignment constraints, then set it to the new cache attributes
-	 */
-	while (size > 0) {
-		int level;
-		u64 r;
-
-		for (level = 1; level < 4; level++) {
-			/* Set d-cache attributes only */
-			r = set_one_region(start, size, attrs, false, level);
-			if (r) {
-				/* PTE successfully replaced */
-				size -= r;
-				start += r;
-				break;
-			}
-		}
-
-	}
+	set_regions(start, size, attrs, false);
 
 	/* We're done modifying page tables, switch back to our primary ones */
 	__asm_switch_ttbr(gd->arch.tlb_addr);
@@ -1023,29 +1092,9 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	flush_dcache_range(real_start, real_start + real_size);
 }
 
-void mmu_change_region_attr_nobreak(phys_addr_t addr, size_t siz, u64 attrs)
+void mmu_change_region_attr_nobreak(phys_addr_t addr, size_t size, u64 attrs)
 {
-	int level;
-	u64 r, size, start;
-
-	/*
-	 * Loop through the address range until we find a page granule that fits
-	 * our alignment constraints and set the new permissions
-	 */
-	start = addr;
-	size = siz;
-	while (size > 0) {
-		for (level = 1; level < 4; level++) {
-			/* Set PTE to new attributes */
-			r = set_one_region(start, size, attrs, true, level);
-			if (r) {
-				/* PTE successfully updated */
-				size -= r;
-				start += r;
-				break;
-			}
-		}
-	}
+	set_regions(addr, size, attrs, true);
 	flush_dcache_range(gd->arch.tlb_addr,
 			   gd->arch.tlb_addr + gd->arch.tlb_size);
 	__asm_invalidate_tlb_all();
@@ -1056,36 +1105,19 @@ void mmu_change_region_attr_nobreak(phys_addr_t addr, size_t siz, u64 attrs)
  * The procecess is break-before-make. The target region will be marked as
  * invalid during the process of changing.
  */
-void mmu_change_region_attr(phys_addr_t addr, size_t siz, u64 attrs)
+void mmu_change_region_attr(phys_addr_t addr, size_t size, u64 attrs)
 {
-	int level;
-	u64 r, size, start;
-
-	start = addr;
-	size = siz;
-	/*
-	 * Loop through the address range until we find a page granule that fits
-	 * our alignment constraints, then set it to "invalid".
-	 */
-	while (size > 0) {
-		for (level = 1; level < 4; level++) {
-			/* Set PTE to fault */
-			r = set_one_region(start, size, PTE_TYPE_FAULT, true,
-					   level);
-			if (r) {
-				/* PTE successfully invalidated */
-				size -= r;
-				start += r;
-				break;
-			}
-		}
-	}
+	set_regions(addr, size, PTE_TYPE_FAULT, true);
 
 	flush_dcache_range(gd->arch.tlb_addr,
 			   gd->arch.tlb_addr + gd->arch.tlb_size);
 	__asm_invalidate_tlb_all();
 
-	mmu_change_region_attr_nobreak(addr, siz, attrs);
+	/* If we were unmapping a region then we have nothing to make and can return. */
+	if (attrs == PTE_TYPE_FAULT)
+		return;
+
+	mmu_change_region_attr_nobreak(addr, size, attrs);
 }
 
 int pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)

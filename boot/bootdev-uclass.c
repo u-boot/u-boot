@@ -566,13 +566,18 @@ int bootdev_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 {
 	const struct bootdev_ops *ops = bootdev_get_ops(dev);
 
-	log_debug("->get_bootflow %s,%x=%p\n", dev->name, iter->part,
-		  ops->get_bootflow);
 	bootflow_init(bflow, dev, iter->method);
-	if (!ops->get_bootflow)
-		return default_get_bootflow(dev, iter, bflow);
 
-	return ops->get_bootflow(dev, iter, bflow);
+	if (ops && ops->get_bootflow) {
+		log_debug("->get_bootflow %s,%x=%p\n", dev->name, iter->part,
+			  ops->get_bootflow);
+
+		return ops->get_bootflow(dev, iter, bflow);
+	}
+
+	log_debug("->get_bootflow %s,%x is unset\n", dev->name, iter->part);
+
+	return default_get_bootflow(dev, iter, bflow);
 }
 
 int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
@@ -664,8 +669,6 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 							BOOTFLOWIF_SHOW);
 				log_debug("- bootdev_hunt_prio() ret %d\n",
 					  ret);
-				if (ret)
-					return log_msg_ret("hun", ret);
 			}
 		} else {
 			ret = device_probe(dev);

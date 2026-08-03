@@ -10,6 +10,7 @@
  * to decrypt an encrypted boot image.
  */
 
+#include <config.h>
 #include <asm/io.h>
 #include <command.h>
 #include <fsl_sec.h>

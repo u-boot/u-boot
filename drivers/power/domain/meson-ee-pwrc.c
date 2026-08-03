@@ -386,7 +386,7 @@ static int meson_ee_pwrc_of_xlate(struct power_domain *power_domain,
 	return 0;
 }
 
-struct power_domain_ops meson_ee_pwrc_ops = {
+static const struct power_domain_ops meson_ee_pwrc_ops = {
 	.off = meson_ee_pwrc_off,
 	.on = meson_ee_pwrc_on,
 	.of_xlate = meson_ee_pwrc_of_xlate,
@@ -435,8 +435,7 @@ static const struct udevice_id meson_ee_pwrc_ids[] = {
 static int meson_ee_pwrc_probe(struct udevice *dev)
 {
 	struct meson_ee_pwrc_priv *priv = dev_get_priv(dev);
-	u32 ao_phandle;
-	ofnode ao_node;
+	struct ofnode_phandle_args args;
 	int ret;
 
 	priv->data = (void *)dev_get_driver_data(dev);
@@ -447,16 +446,12 @@ static int meson_ee_pwrc_probe(struct udevice *dev)
 	if (IS_ERR(priv->regmap_hhi))
 		return PTR_ERR(priv->regmap_hhi);
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "amlogic,ao-sysctrl",
-			      &ao_phandle);
+	ret = dev_read_phandle_with_args(dev, "amlogic,ao-sysctrl", NULL, 0, 0,
+					 &args);
 	if (ret)
 		return ret;
 
-	ao_node = ofnode_get_by_phandle(ao_phandle);
-	if (!ofnode_valid(ao_node))
-		return -EINVAL;
-
-	priv->regmap_ao = syscon_node_to_regmap(ao_node);
+	priv->regmap_ao = syscon_node_to_regmap(args.node);
 	if (IS_ERR(priv->regmap_ao))
 		return PTR_ERR(priv->regmap_ao);
 

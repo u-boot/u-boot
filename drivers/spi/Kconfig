@@ -2,10 +2,10 @@ menuconfig SPI
 	bool "SPI Support"
 	help
 	  The "Serial Peripheral Interface" is a low level synchronous
-          protocol.  Chips that support SPI can have data transfer rates
-          up to several tens of Mbit/sec.  Chips are addressed with a
-          controller and a chipselect.  Most SPI slaves don't support
-          dynamic device discovery; some are even write-only or read-only.
+	  protocol.  Chips that support SPI can have data transfer rates
+	  up to several tens of Mbit/sec.  Chips are addressed with a
+	  controller and a chipselect.  Most SPI slaves don't support
+	  dynamic device discovery; some are even write-only or read-only.
 
           SPI is widely used by microcontrollers to talk with sensors,
           eeprom and flash memory, codecs and various other controller
@@ -200,11 +200,11 @@ config CADENCE_XSPI
 	  by using the Auto Command work mode.
 
 config CF_SPI
-        bool "ColdFire SPI driver"
-        depends on M68K
-        help
-          Enable the ColdFire SPI driver. This driver can be used on
-          some m68k SoCs.
+	bool "ColdFire SPI driver"
+	depends on M68K
+	help
+	  Enable the ColdFire SPI driver. This driver can be used on
+	  some m68k SoCs.
 
 config CV1800B_SPIF
 	bool "Sophgo cv1800b SPI Flash Controller driver"
@@ -352,7 +352,7 @@ config MTK_SNOR
 	select DEVRES
 	help
 	  Enable the Mediatek SPINOR controller driver. This driver has
-          better read/write performance with NOR.
+	  better read/write performance with NOR.
 
 config MTK_SNFI_SPI
 	bool "Mediatek SPI memory controller driver"
@@ -544,8 +544,8 @@ config SPI_SIFIVE
 config SOFT_SPI
 	bool "Soft SPI driver"
 	help
-	 Enable Soft SPI driver. This driver is to use GPIO simulate
-	 the SPI protocol.
+	  Enable Soft SPI driver. This driver is to use GPIO simulate
+	  the SPI protocol.
 
 config SPI_SN_F_OSPI
 	tristate "Socionext F_OSPI SPI flash controller"
@@ -673,8 +673,8 @@ config ZYNQMP_GQSPI
 config SPI_STACKED_PARALLEL
 	bool "Enable support for stacked or parallel memories"
 	help
-	 Enable support for stacked/or parallel memories. This functionality
-	 may appear on Xilinx hardware. By default this is disabled.
+	  Enable support for stacked/or parallel memories. This functionality
+	  may appear on Xilinx hardware. By default this is disabled.
 
 endif # if DM_SPI
 

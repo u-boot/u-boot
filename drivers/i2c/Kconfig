@@ -110,16 +110,16 @@ config I2C_CROS_EC_TUNNEL
 config I2C_CROS_EC_LDO
 	bool "Provide access to LDOs on the Chrome OS EC"
 	depends on CROS_EC
-	---help---
-	On many Chromebooks the main PMIC is inaccessible to the AP. This is
-	often dealt with by using an I2C pass-through interface provided by
-	the EC. On some unfortunate models (e.g. Spring) the pass-through
-	is not available, and an LDO message is available instead. This
-	option enables a driver which provides very basic access to those
-	regulators, via the EC. We implement this as an I2C bus	which
-	emulates just the TPS65090 messages we know about. This is done to
-	avoid duplicating the logic in the TPS65090 regulator driver for
-	enabling/disabling an LDO.
+	help
+	  On many Chromebooks the main PMIC is inaccessible to the AP. This is
+	  often dealt with by using an I2C pass-through interface provided by
+	  the EC. On some unfortunate models (e.g. Spring) the pass-through
+	  is not available, and an LDO message is available instead. This
+	  option enables a driver which provides very basic access to those
+	  regulators, via the EC. We implement this as an I2C bus	which
+	  emulates just the TPS65090 messages we know about. This is done to
+	  avoid duplicating the logic in the TPS65090 regulator driver for
+	  enabling/disabling an LDO.
 
 config I2C_SET_DEFAULT_BUS_NUM
 	bool "Set default I2C bus number"
@@ -180,9 +180,9 @@ config SYS_I2C_IPROC
 	  Say yes here to to enable the Broadco I2C driver.
 
 config SYS_I2C_FSL
-       bool "Freescale I2C bus driver"
-       depends on M68K || PPC
-       help
+	bool "Freescale I2C bus driver"
+	depends on M68K || PPC
+	help
 	  Add support for Freescale I2C busses as used on MPC8240, MPC8245, and
 	  MPC85xx processors.
 
@@ -249,14 +249,14 @@ config SYS_I2C_DW_PCI
 	  controller.
 
 config SYS_I2C_AST2600
-    bool "AST2600 I2C Controller"
-    depends on DM_I2C && ARCH_ASPEED
-    help
-      Say yes here to select AST2600 I2C Host Controller. The driver
-      support AST2600 I2C new mode register. This I2C controller supports:
-      _Standard-mode (up to 100 kHz)
-      _Fast-mode (up to 400 kHz)
-      _Fast-mode Plus (up to 1 MHz)
+	bool "AST2600 I2C Controller"
+	depends on DM_I2C && ARCH_ASPEED
+	help
+	  Say yes here to select AST2600 I2C Host Controller. The driver
+	  support AST2600 I2C new mode register. This I2C controller supports:
+	  _Standard-mode (up to 100 kHz)
+	  _Fast-mode (up to 400 kHz)
+	  _Fast-mode Plus (up to 1 MHz)
 
 config SYS_I2C_ASPEED
 	bool "Aspeed I2C Controller"
@@ -333,50 +333,50 @@ if SYS_I2C_MXC && (SYS_I2C_LEGACY || SPL_SYS_I2C_LEGACY)
 config SYS_I2C_MXC_I2C1
 	bool "NXP MXC I2C1"
 	help
-	 Add support for NXP MXC I2C Controller 1.
-	 Required for SoCs which have I2C MXC controller 1 eg LS1088A, LS2080A
+	  Add support for NXP MXC I2C Controller 1.
+	  Required for SoCs which have I2C MXC controller 1 eg LS1088A, LS2080A
 
 config SYS_I2C_MXC_I2C2
 	bool "NXP MXC I2C2"
 	help
-	 Add support for NXP MXC I2C Controller 2.
-	 Required for SoCs which have I2C MXC controller 2 eg LS1088A, LS2080A
+	  Add support for NXP MXC I2C Controller 2.
+	  Required for SoCs which have I2C MXC controller 2 eg LS1088A, LS2080A
 
 config SYS_I2C_MXC_I2C3
 	bool "NXP MXC I2C3"
 	help
-	 Add support for NXP MXC I2C Controller 3.
-	 Required for SoCs which have I2C MXC controller 3 eg LS1088A, LS2080A
+	  Add support for NXP MXC I2C Controller 3.
+	  Required for SoCs which have I2C MXC controller 3 eg LS1088A, LS2080A
 
 config SYS_I2C_MXC_I2C4
 	bool "NXP MXC I2C4"
 	help
-	 Add support for NXP MXC I2C Controller 4.
-	 Required for SoCs which have I2C MXC controller 4 eg LS1088A, LS2080A
+	  Add support for NXP MXC I2C Controller 4.
+	  Required for SoCs which have I2C MXC controller 4 eg LS1088A, LS2080A
 
 config SYS_I2C_MXC_I2C5
 	bool "NXP MXC I2C5"
 	help
-	 Add support for NXP MXC I2C Controller 5.
-	 Required for SoCs which have I2C MXC controller 5 eg LX2160A
+	  Add support for NXP MXC I2C Controller 5.
+	  Required for SoCs which have I2C MXC controller 5 eg LX2160A
 
 config SYS_I2C_MXC_I2C6
 	bool "NXP MXC I2C6"
 	help
-	 Add support for NXP MXC I2C Controller 6.
-	 Required for SoCs which have I2C MXC controller 6 eg LX2160A
+	  Add support for NXP MXC I2C Controller 6.
+	  Required for SoCs which have I2C MXC controller 6 eg LX2160A
 
 config SYS_I2C_MXC_I2C7
 	bool "NXP MXC I2C7"
 	help
-	 Add support for NXP MXC I2C Controller 7.
-	 Required for SoCs which have I2C MXC controller 7 eg LX2160A
+	  Add support for NXP MXC I2C Controller 7.
+	  Required for SoCs which have I2C MXC controller 7 eg LX2160A
 
 config SYS_I2C_MXC_I2C8
 	bool "NXP MXC I2C8"
 	help
-	 Add support for NXP MXC I2C Controller 8.
-	 Required for SoCs which have I2C MXC controller 8 eg LX2160A
+	  Add support for NXP MXC I2C Controller 8.
+	  Required for SoCs which have I2C MXC controller 8 eg LX2160A
 endif
 
 if SYS_I2C_MXC_I2C1
@@ -385,13 +385,13 @@ config SYS_MXC_I2C1_SPEED
 	default 40000000 if TARGET_LS2080A_EMU
 	default 100000
 	help
-	 MXC I2C Channel 1 speed
+	  MXC I2C Channel 1 speed
 
 config SYS_MXC_I2C1_SLAVE
 	hex "I2C1 Slave"
 	default 0x0
 	help
-	 MXC I2C1 Slave
+	  MXC I2C1 Slave
 endif
 
 if SYS_I2C_MXC_I2C2
@@ -400,13 +400,13 @@ config SYS_MXC_I2C2_SPEED
 	default 40000000 if TARGET_LS2080A_EMU
 	default 100000
 	help
-	 MXC I2C Channel 2 speed
+	  MXC I2C Channel 2 speed
 
 config SYS_MXC_I2C2_SLAVE
 	hex "I2C2 Slave"
 	default 0x0
 	help
-	 MXC I2C2 Slave
+	  MXC I2C2 Slave
 endif
 
 if SYS_I2C_MXC_I2C3
@@ -414,13 +414,13 @@ config SYS_MXC_I2C3_SPEED
 	int "I2C Channel 3 speed"
 	default 100000
 	help
-	 MXC I2C Channel 3 speed
+	  MXC I2C Channel 3 speed
 
 config SYS_MXC_I2C3_SLAVE
 	hex "I2C3 Slave"
 	default 0x0
 	help
-	 MXC I2C3 Slave
+	  MXC I2C3 Slave
 endif
 
 if SYS_I2C_MXC_I2C4
@@ -428,13 +428,13 @@ config SYS_MXC_I2C4_SPEED
 	int "I2C Channel 4 speed"
 	default 100000
 	help
-	 MXC I2C Channel 4 speed
+	  MXC I2C Channel 4 speed
 
 config SYS_MXC_I2C4_SLAVE
 	hex "I2C4 Slave"
 	default 0x0
 	help
-	 MXC I2C4 Slave
+	  MXC I2C4 Slave
 endif
 
 if SYS_I2C_MXC_I2C5
@@ -442,13 +442,13 @@ config SYS_MXC_I2C5_SPEED
 	int "I2C Channel 5 speed"
 	default 100000
 	help
-	 MXC I2C Channel 5 speed
+	  MXC I2C Channel 5 speed
 
 config SYS_MXC_I2C5_SLAVE
 	hex "I2C5 Slave"
 	default 0x0
 	help
-	 MXC I2C5 Slave
+	  MXC I2C5 Slave
 endif
 
 if SYS_I2C_MXC_I2C6
@@ -456,13 +456,13 @@ config SYS_MXC_I2C6_SPEED
 	int "I2C Channel 6 speed"
 	default 100000
 	help
-	 MXC I2C Channel 6 speed
+	  MXC I2C Channel 6 speed
 
 config SYS_MXC_I2C6_SLAVE
 	hex "I2C6 Slave"
 	default 0x0
 	help
-	 MXC I2C6 Slave
+	  MXC I2C6 Slave
 endif
 
 if SYS_I2C_MXC_I2C7
@@ -470,13 +470,13 @@ config SYS_MXC_I2C7_SPEED
 	int "I2C Channel 7 speed"
 	default 100000
 	help
-	 MXC I2C Channel 7 speed
+	  MXC I2C Channel 7 speed
 
 config SYS_MXC_I2C7_SLAVE
 	hex "I2C7 Slave"
 	default 0x0
 	help
-	 MXC I2C7 Slave
+	  MXC I2C7 Slave
 endif
 
 if SYS_I2C_MXC_I2C8
@@ -484,13 +484,13 @@ config SYS_MXC_I2C8_SPEED
 	int "I2C Channel 8 speed"
 	default 100000
 	help
-	 MXC I2C Channel 8 speed
+	  MXC I2C Channel 8 speed
 
 config SYS_MXC_I2C8_SLAVE
 	hex "I2C8 Slave"
 	default 0x0
 	help
-	 MXC I2C8 Slave
+	  MXC I2C8 Slave
 endif
 
 config SYS_I2C_NEXELL
@@ -668,19 +668,19 @@ config SYS_I2C_STM32F7
 	help
 	  Enable this option to add support for STM32 I2C controller
 	  introduced with STM32F7/H7 SoCs. This I2C controller supports :
-	   _ Slave and master modes
-	   _ Multimaster capability
-	   _ Standard-mode (up to 100 kHz)
-	   _ Fast-mode (up to 400 kHz)
-	   _ Fast-mode Plus (up to 1 MHz)
-	   _ 7-bit and 10-bit addressing mode
-	   _ Multiple 7-bit slave addresses (2 addresses, 1 with configurable mask)
-	   _ All 7-bit addresses acknowledge mode
-	   _ General call
-	   _ Programmable setup and hold times
-	   _ Easy to use event management
-	   _ Optional clock stretching
-	   _ Software reset
+	  _ Slave and master modes
+	  _ Multimaster capability
+	  _ Standard-mode (up to 100 kHz)
+	  _ Fast-mode (up to 400 kHz)
+	  _ Fast-mode Plus (up to 1 MHz)
+	  _ 7-bit and 10-bit addressing mode
+	  _ Multiple 7-bit slave addresses (2 addresses, 1 with configurable mask)
+	  _ All 7-bit addresses acknowledge mode
+	  _ General call
+	  _ Programmable setup and hold times
+	  _ Easy to use event management
+	  _ Optional clock stretching
+	  _ Software reset
 
 config SYS_I2C_SUN6I_P2WI
 	bool "Allwinner sun6i P2WI controller"
@@ -780,7 +780,7 @@ config SYS_I2C_BUS_MAX
 	int "Max I2C busses"
 	depends on ARCH_OMAP2PLUS || ARCH_SOCFPGA
 	default 3 if OMAP34XX || AM33XX || AM43XX
-	default 4 if ARCH_SOCFPGA
+	default 4 if ARCH_SOCFPGA || OMAP44XX
 	default 5 if OMAP54XX
 	help
 	  Define the maximum number of available I2C buses.
@@ -792,10 +792,10 @@ config SYS_I2C_XILINX_XIIC
 	  Support for Xilinx AXI I2C controller.
 
 config SYS_I2C_IHS
-        bool "gdsys IHS I2C driver"
-        depends on DM_I2C
-        help
-          Support for gdsys IHS I2C driver on FPGA bus.
+	bool "gdsys IHS I2C driver"
+	depends on DM_I2C
+	help
+	  Support for gdsys IHS I2C driver on FPGA bus.
 
 source "drivers/i2c/muxes/Kconfig"
 

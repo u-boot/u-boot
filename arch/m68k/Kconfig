@@ -11,56 +11,56 @@ config STATIC_RELA
 config MCF520x
 	select OF_CONTROL
 	select DM
-        select DM_SERIAL
+	select DM_SERIAL
 	select ARCH_COLDFIRE
 	bool
 
 config MCF52x2
 	select OF_CONTROL
 	select DM
-        select DM_SERIAL
+	select DM_SERIAL
 	select ARCH_COLDFIRE
 	bool
 
 config MCF523x
 	select OF_CONTROL
 	select DM
-        select DM_SERIAL
+	select DM_SERIAL
 	select ARCH_COLDFIRE
 	bool
 
 config MCF530x
 	select OF_CONTROL
 	select DM
-        select DM_SERIAL
+	select DM_SERIAL
 	select ARCH_COLDFIRE
 	bool
 
 config MCF5301x
 	select OF_CONTROL
 	select DM
-        select DM_SERIAL
+	select DM_SERIAL
 	select ARCH_COLDFIRE
 	bool
 
 config MCF532x
 	select OF_CONTROL
 	select DM
-        select DM_SERIAL
+	select DM_SERIAL
 	select ARCH_COLDFIRE
 	bool
 
 config MCF537x
 	select OF_CONTROL
 	select DM
-        select DM_SERIAL
+	select DM_SERIAL
 	select ARCH_COLDFIRE
 	bool
 
 config MCF5441x
 	select OF_CONTROL
 	select DM
-        select DM_SERIAL
+	select DM_SERIAL
 	select ARCH_COLDFIRE
 	select CREATE_ARCH_SYMLINK
 	bool
@@ -191,17 +191,19 @@ config TARGET_AMCORE
 	select M5307
 
 config TARGET_STMARK2
-        bool "Support stmark2"
-        select CF_DSPI
-        select M54418
+	bool "Support stmark2"
+	select CF_DSPI
+	select M54418
 
 config TARGET_QEMU_M68K
-    bool "Support QEMU m68k virt"
-    select M68040
-    imply CMD_DM
-    help
-      This target supports the QEMU m68k virtual machine (-M virt).
-      It simulates a Motorola 68040 CPU with Goldfish peripherals.
+	bool "Support QEMU m68k virt"
+	select M68040
+	select BOARD_EARLY_INIT_R
+	select VIRTIO_MMIO
+	imply CMD_DM
+	help
+	  This target supports the QEMU m68k virtual machine (-M virt).
+	  It simulates a Motorola 68040 CPU with Goldfish peripherals.
 
 endchoice
 

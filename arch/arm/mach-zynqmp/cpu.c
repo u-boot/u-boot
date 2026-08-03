@@ -92,12 +92,12 @@ void mem_map_fill(void)
 #if !defined(CONFIG_ZYNQMP_NO_DDR)
 	for (int i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		/* Zero size means no more DDR that's this is end */
-		if (!gd->bd->bi_dram[i].size)
+		if (!gd->dram[i].size)
 			break;
 
-		zynqmp_mem_map[banks].virt = gd->bd->bi_dram[i].start;
-		zynqmp_mem_map[banks].phys = gd->bd->bi_dram[i].start;
-		zynqmp_mem_map[banks].size = gd->bd->bi_dram[i].size;
+		zynqmp_mem_map[banks].virt = gd->dram[i].start;
+		zynqmp_mem_map[banks].phys = gd->dram[i].start;
+		zynqmp_mem_map[banks].size = gd->dram[i].size;
 		zynqmp_mem_map[banks].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 					      PTE_BLOCK_INNER_SHARE;
 		banks = banks + 1;

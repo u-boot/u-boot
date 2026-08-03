@@ -71,10 +71,38 @@ config CSF_SIZE
 	  Define the maximum size for Command Sequence File (CSF) binary
 	  this information is used to define the image boot data.
 
+config IMX_QB
+	bool "Support Quickboot flow for Synopsis DDR PHY on iMX platforms"
+	default y
+	depends on IMX94 || IMX95 || IMX952
+	help
+	  Enable the logic for saving DDR training data from volatile
+	  memory to non-volatile storage. OEI uses the saved data to
+	  run Quickboot flow and skip re-training the DDR PHY.
+
+config SPL_IMX_QB
+	bool "Run qb save during SPL"
+	depends on SPL && IMX_QB
+	help
+	  Automatically save DDR training data (Quickboot data)
+	  to current boot device when needed (when OEI runs Training
+	  flow and saves qb data to volatile memory).
+
+config CMD_IMX_QB
+	bool "Support the 'qb' command"
+	default y
+	depends on IMX_QB
+	help
+	  Enable qb command to write/erase DDR quick boot training
+	  data to/from a chosen boot device. Using 'qb save/erase'
+	  without arguments implies using the current boot device's
+	  first bootable partition (e.g. boot0 for eMMC). For use in
+	  uuu scripts, the boot device must be specified explicitly.
+
 config CMD_BMODE
 	bool "Support the 'bmode' command"
 	default y
-	depends on ARCH_IMX8M || ARCH_MX7 || ARCH_MX6 || ARCH_MX5
+	depends on IMX95 || ARCH_IMX8M || ARCH_MX7 || ARCH_MX6 || ARCH_MX5
 	help
 	  This enables the 'bmode' (bootmode) command for forcing
 	  a boot from specific media.
@@ -129,7 +157,7 @@ config CMD_PRIBLOB
 	depends on HAS_CAAM && IMX_HAB
 	help
 	  This option enables the priblob command which can be used
-		to set the priblob setting to 0x3.
+	  to set the priblob setting to 0x3.
 
 config CMD_HDMIDETECT
 	bool "Support the 'hdmidet' command"

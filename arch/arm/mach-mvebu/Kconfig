@@ -166,6 +166,14 @@ config TARGET_MVEBU_ARMADA_8K
 	select BOARD_LATE_INIT
 	imply SCSI
 
+config TARGET_NBX10G
+	bool "Support Freebox Nodebox 10G"
+	select ARMADA_8K
+	select BOARD_LATE_INIT
+	help
+	  Enable support for the Freebox Nodebox 10G board based on the
+	  Marvell Armada 8040 SoC with dual CP110 companion chips.
+
 config TARGET_MVEBU_ALLEYCAT5
 	bool "Support AlleyCat 5 platforms"
 	select ALLEYCAT_5
@@ -225,6 +233,10 @@ config TARGET_X240
 	bool "Support Allied Telesis x240"
 	select ALLEYCAT_5
 	imply BOOTSTD_DEFAULTS
+
+config TARGET_X220
+	bool "Support Allied Telesis x220"
+	select 98DX3336
 
 config TARGET_DB_XC3_24G4XG
 	bool "Support DB-XC3-24G4XG"
@@ -310,6 +322,7 @@ config SYS_BOARD
 	default "x530" if TARGET_X530
 	default "x250" if TARGET_X250
 	default "x240" if TARGET_X240
+	default "x220" if TARGET_X220
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
 	default "crs3xx-98dx3236" if TARGET_CRS3XX_98DX3236
 	default "mvebu_alleycat-5" if TARGET_MVEBU_ALLEYCAT5
@@ -335,6 +348,7 @@ config SYS_CONFIG_NAME
 	default "x530" if TARGET_X530
 	default "x250" if TARGET_X250
 	default "x240" if TARGET_X240
+	default "x220" if TARGET_X220
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
 	default "crs3xx-98dx3236" if TARGET_CRS3XX_98DX3236
 	default "mvebu_alleycat-5" if TARGET_MVEBU_ALLEYCAT5
@@ -360,6 +374,7 @@ config SYS_VENDOR
 	default "alliedtelesis" if TARGET_X530
 	default "alliedtelesis" if TARGET_X250
 	default "alliedtelesis" if TARGET_X240
+	default "alliedtelesis" if TARGET_X220
 	default "mikrotik" if TARGET_CRS3XX_98DX3236
 	default "Marvell" if TARGET_MVEBU_ALLEYCAT5
 
@@ -508,5 +523,6 @@ config ARMADA_32BIT_SYSCON_SYSRESET
 
 source "board/solidrun/clearfog/Kconfig"
 source "board/kobol/helios4/Kconfig"
+source "board/freebox/nbx10g/Kconfig"
 
 endif

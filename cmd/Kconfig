@@ -881,12 +881,12 @@ config EEPROM_LAYOUT_VERSIONS
 	  via the -l option.
 
 config EEPROM_LAYOUT_HELP_STRING
-	  string "Tells user what layout names are supported"
-	  depends on EEPROM_LAYOUT_VERSIONS
-	  default "<not defined>"
-	  help
-	    Help printed with the LAYOUT VERSIONS part of the 'eeprom'
-	    command's help.
+	string "Tells user what layout names are supported"
+	depends on EEPROM_LAYOUT_VERSIONS
+	default "<not defined>"
+	help
+	  Help printed with the LAYOUT VERSIONS part of the 'eeprom'
+	  command's help.
 
 config SYS_I2C_EEPROM_BUS
 	int "I2C bus of the EEPROM device."
@@ -967,14 +967,14 @@ config CMD_MEMORY
 	default y
 	help
 	  Memory commands.
-	    md - memory display
-	    mm - memory modify (auto-incrementing address)
-	    nm - memory modify (constant address)
-	    mw - memory write (fill)
-	    cp - memory copy
-	    cmp - memory compare
-	    base - print or set address offset
-	    loop - initialize loop on address range
+	  md - memory display
+	  mm - memory modify (auto-incrementing address)
+	  nm - memory modify (constant address)
+	  mw - memory write (fill)
+	  cp - memory copy
+	  cmp - memory compare
+	  base - print or set address offset
+	  loop - initialize loop on address range
 
 config CMD_MEM_SEARCH
 	bool "ms - Memory search"
@@ -1115,9 +1115,9 @@ config CMD_ARMFFA
 	help
 	  Provides a test command for the FF-A support
 	  supported options:
-		- Listing the partition(s) info
-		- Sending a data pattern to the specified partition
-		- Displaying the arm_ffa device info
+	  - Listing the partition(s) info
+	  - Sending a data pattern to the specified partition
+	  - Displaying the arm_ffa device info
 
 config CMD_ARMFLASH
 	bool "armflash"
@@ -1208,15 +1208,22 @@ config CMD_FASTBOOT
 
 	  See doc/android/fastboot.rst for more information.
 
+config CMD_FASTBOOT_ABORT_KEYED
+	bool "fastboot abort with any key"
+	depends on CMD_FASTBOOT && USB_FUNCTION_FASTBOOT
+	help
+	  Allow interruption of USB fastboot mode by any key presses,
+	  rather than just Ctrl-c.
+
 config CMD_FLASH
 	bool "flinfo, erase, protect"
 	default y
 	depends on FLASH_CFI_DRIVER || MTD_NOR_FLASH
 	help
 	  NOR flash support.
-	    flinfo - print FLASH memory information
-	    erase - FLASH memory
-	    protect - enable or disable FLASH write protection
+	  flinfo - print FLASH memory information
+	  erase - FLASH memory
+	  protect - enable or disable FLASH write protection
 
 config CMD_FPGA
 	bool "fpga"
@@ -1548,7 +1555,7 @@ config CMD_OPTEE
 	bool "Enable OP-TEE commands"
 	depends on OPTEE
 	help
-	 OP-TEE commands support.
+	  OP-TEE commands support.
 
 config CMD_MTD
 	bool "mtd"
@@ -1606,7 +1613,7 @@ config CMD_MUX
 	bool "mux"
 	depends on MULTIPLEXER
 	help
-	 List, select, and deselect mux controllers on the fly.
+	  List, select, and deselect mux controllers on the fly.
 
 config CMD_NAND
 	bool "nand"
@@ -1814,7 +1821,7 @@ config CMD_UFS
 	depends on UFS
 	help
 	  "This provides commands to initialise and configure universal flash
-	   subsystem devices"
+	  subsystem devices"
 
 config CMD_USB
 	bool "usb"
@@ -1871,8 +1878,8 @@ config CMD_PVBLOCK
 
 config CMD_VIRTIO
 	bool "virtio"
-	depends on VIRTIO
-	default y if VIRTIO
+	depends on VIRTIO_BLK
+	default y if VIRTIO_BLK
 	help
 	  VirtIO block device support
 
@@ -1936,7 +1943,7 @@ config CMD_SETEXPR
 	default y
 	help
 	  Evaluate boolean and math expressions and store the result in an env
-	    variable.
+	  variable.
 	  Also supports loading the value at a memory location into a variable.
 	  If CONFIG_REGEX is enabled, setexpr also supports a gsub function.
 
@@ -2642,9 +2649,9 @@ config CMD_PSTORE_ECC_SIZE
 	depends on CMD_PSTORE
 	default "0"
 	help
-	if non-zero, the option enables ECC support and specifies ECC buffer
-	size in bytes (1 is a special value, means 16 bytes ECC), should be
-	identical to ramoops.ramoops_ecc parameter used by kernel
+	  if non-zero, the option enables ECC support and specifies ECC buffer
+	  size in bytes (1 is a special value, means 16 bytes ECC), should be
+	  identical to ramoops.ramoops_ecc parameter used by kernel
 
 endif
 
@@ -3156,15 +3163,15 @@ config CMD_AVB
 	help
 	  Enables a "avb" command to perform verification of partitions using
 	  Android Verified Boot 2.0 functionality. It includes such subcommands:
-	    avb init - initialize avb2 subsystem
-	    avb read_rb - read rollback index
-	    avb write_rb - write rollback index
-	    avb is_unlocked - check device lock state
-	    avb get_uuid - read and print uuid of a partition
-	    avb read_part - read data from partition
-	    avb read_part_hex - read data from partition and output to stdout
-	    avb write_part - write data to partition
-	    avb verify - run full verification chain
+	  avb init - initialize avb2 subsystem
+	  avb read_rb - read rollback index
+	  avb write_rb - write rollback index
+	  avb is_unlocked - check device lock state
+	  avb get_uuid - read and print uuid of a partition
+	  avb read_part - read data from partition
+	  avb read_part_hex - read data from partition and output to stdout
+	  avb write_part - write data to partition
+	  avb verify - run full verification chain
 
 config CMD_STACKPROTECTOR_TEST
 	bool "Test command for stack protector"
@@ -3194,7 +3201,7 @@ config CMD_UBI_RENAME
 	depends on CMD_UBI
 	help
 	  Enable a "ubi" command to rename ubi volume:
-	   ubi rename <oldname> <newname>
+	  ubi rename <oldname> <newname>
 
 config CMD_UBIFS
 	tristate "Enable UBIFS - Unsorted block images filesystem commands"

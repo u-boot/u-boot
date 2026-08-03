@@ -21,8 +21,11 @@
 extern void *aligned_alloc(size_t alignment, size_t size);
 #else
 #include <linux/compiler.h>
+#include <linux/log2.h>
 #include <linux/sizes.h>
+#include <env.h>
 #include <errno.h>
+#include <hexdump.h>
 #include <log.h>
 #include <mapmem.h>
 #include <asm/io.h>
@@ -41,6 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <bootm.h>
 #include <image.h>
 #include <bootstage.h>
+#include <fdt_region.h>
 #include <upl.h>
 #include <u-boot/crc.h>
 
@@ -156,18 +160,10 @@ static void fit_get_debug(const void *fit, int noffset,
 int fit_get_subimage_count(const void *fit, int images_noffset)
 {
 	int noffset;
-	int ndepth;
 	int count = 0;
 
-	/* Process its subnodes, print out component images details */
-	for (ndepth = 0, count = 0,
-		noffset = fdt_next_node(fit, images_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			count++;
-		}
-	}
+	fdt_for_each_subnode(noffset, fit, images_noffset)
+		count++;
 
 	return count;
 }
@@ -243,6 +239,39 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 	}
 }
 
+static __maybe_unused void fit_image_print_dm_verity(const void *fit,
+						     int noffset,
+						     const char *p)
+{
+#if defined(USE_HOSTCC) || CONFIG_IS_ENABLED(FIT_VERITY)
+	const char *algo;
+	const uint8_t *bin;
+	int len, i;
+
+	algo = fdt_getprop(fit, noffset, FIT_VERITY_ALGO_PROP, NULL);
+	if (algo)
+		printf("%s  Verity algo:  %s\n", p, algo);
+
+	bin = fdt_getprop(fit, noffset, FIT_VERITY_DIGEST_PROP,
+			  &len);
+	if (bin && len > 0) {
+		printf("%s  Verity hash:  ", p);
+		for (i = 0; i < len; i++)
+			printf("%02x", bin[i]);
+		printf("\n");
+	}
+
+	bin = fdt_getprop(fit, noffset, FIT_VERITY_SALT_PROP,
+			  &len);
+	if (bin && len > 0) {
+		printf("%s  Verity salt:  ", p);
+		for (i = 0; i < len; i++)
+			printf("%02x", bin[i]);
+		printf("\n");
+	}
+#endif
+}
+
 /**
  * fit_image_print_verification_data() - prints out the hash/signature details
  * @fit: pointer to the FIT format image header
@@ -271,6 +300,11 @@ static void fit_image_print_verification_data(const void *fit, int noffset,
 				strlen(FIT_SIG_NODENAME))) {
 		fit_image_print_data(fit, noffset, p, "Sign");
 	}
+#if defined(USE_HOSTCC) || CONFIG_IS_ENABLED(FIT_VERITY)
+	else if (!strcmp(name, FIT_VERITY_NODENAME)) {
+		fit_image_print_dm_verity(fit, noffset, p);
+	}
+#endif
 }
 
 /**
@@ -291,7 +325,7 @@ static void fit_conf_print(const void *fit, int noffset, const char *p)
 	const char *uname;
 	int ret;
 	int fdt_index, loadables_index;
-	int ndepth;
+	int sub_noffset;
 
 	/* Mandatory properties */
 	ret = fit_get_desc(fit, noffset, &desc);
@@ -357,14 +391,8 @@ static void fit_conf_print(const void *fit, int noffset, const char *p)
 	}
 
 	/* Process all hash subnodes of the component configuration node */
-	for (ndepth = 0, noffset = fdt_next_node(fit, noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/* Direct child node of the component configuration node */
-			fit_image_print_verification_data(fit, noffset, p);
-		}
-	}
+	fdt_for_each_subnode(sub_noffset, fit, noffset)
+		fit_image_print_verification_data(fit, sub_noffset, p);
 }
 
 /**
@@ -386,8 +414,7 @@ void fit_print_contents(const void *fit)
 	int images_noffset;
 	int confs_noffset;
 	int noffset;
-	int ndepth;
-	int count = 0;
+	int count;
 	int ret;
 	const char *p;
 	time_t timestamp;
@@ -424,20 +451,12 @@ void fit_print_contents(const void *fit)
 	}
 
 	/* Process its subnodes, print out component images details */
-	for (ndepth = 0, count = 0,
-		noffset = fdt_next_node(fit, images_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/*
-			 * Direct child node of the images parent node,
-			 * i.e. component image node.
-			 */
-			printf("%s Image %u (%s)\n", p, count++,
-			       fit_get_name(fit, noffset, NULL));
+	count = 0;
+	fdt_for_each_subnode(noffset, fit, images_noffset) {
+		printf("%s Image %u (%s)\n", p, count++,
+		       fit_get_name(fit, noffset, NULL));
 
-			fit_image_print(fit, noffset, p);
-		}
+		fit_image_print(fit, noffset, p);
 	}
 
 	/* Find configurations parent node offset */
@@ -449,25 +468,17 @@ void fit_print_contents(const void *fit)
 	}
 
 	/* get default configuration unit name from default property */
-	uname = (char *)fdt_getprop(fit, noffset, FIT_DEFAULT_PROP, NULL);
+	uname = (char *)fdt_getprop(fit, confs_noffset, FIT_DEFAULT_PROP, NULL);
 	if (uname)
 		printf("%s Default Configuration: '%s'\n", p, uname);
 
 	/* Process its subnodes, print out configurations details */
-	for (ndepth = 0, count = 0,
-		noffset = fdt_next_node(fit, confs_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/*
-			 * Direct child node of the configurations parent node,
-			 * i.e. configuration node.
-			 */
-			printf("%s Configuration %u (%s)\n", p, count++,
-			       fit_get_name(fit, noffset, NULL));
+	count = 0;
+	fdt_for_each_subnode(noffset, fit, confs_noffset) {
+		printf("%s Configuration %u (%s)\n", p, count++,
+		       fit_get_name(fit, noffset, NULL));
 
-			fit_conf_print(fit, noffset, p);
-		}
+		fit_conf_print(fit, noffset, p);
 	}
 }
 
@@ -494,7 +505,6 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	ulong load, entry;
 	const void *data;
 	int noffset;
-	int ndepth;
 	int ret;
 
 	if (!CONFIG_IS_ENABLED(FIT_PRINT))
@@ -584,14 +594,8 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	}
 
 	/* Process all hash subnodes of the component image node */
-	for (ndepth = 0, noffset = fdt_next_node(fit, image_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/* Direct child node of the component image node */
-			fit_image_print_verification_data(fit, noffset, p);
-		}
-	}
+	fdt_for_each_subnode(noffset, fit, image_noffset)
+		fit_image_print_verification_data(fit, noffset, p);
 }
 
 /**
@@ -1069,23 +1073,72 @@ int fit_image_get_data(const void *fit, int noffset, const void **data,
 	int offset;
 	int len;
 	int ret;
+	size_t fdt_total_size_aligned;
+	uintptr_t max_offset;
 
 	if (!fit_image_get_data_position(fit, noffset, &offset)) {
+		if (offset < 0) {
+			printf("Invalid external data position: %d\n", offset);
+			return -EINVAL;
+		}
+
 		external_data = true;
 	} else if (!fit_image_get_data_offset(fit, noffset, &offset)) {
-		external_data = true;
 		/*
 		 * For FIT with external data, figure out where
 		 * the external images start. This is the base
 		 * for the data-offset properties in each image.
 		 */
-		offset += ((fdt_totalsize(fit) + 3) & ~3);
+		fdt_total_size_aligned = ((fdt_totalsize(fit) + 3) & ~3);
+		/* The resulting offset cannot exceed INT_MAX */
+		if (offset < 0 || fdt_total_size_aligned > INT_MAX - offset) {
+			printf("Invalid external data offset: %d\n", offset);
+			return -EINVAL;
+		}
+		offset += fdt_total_size_aligned;
+
+		external_data = true;
 	}
 
 	if (external_data) {
 		debug("External Data\n");
+
+		max_offset = UINTPTR_MAX - (uintptr_t)fit;
+		/* Check that external data offset is within the addressable range */
+		if (offset > max_offset) {
+			printf("Invalid external data offset: %d\n", offset);
+			return -EINVAL;
+		}
+
 		ret = fit_image_get_data_size(fit, noffset, &len);
 		if (!ret) {
+			if (len < 0) {
+				printf("Invalid external data size: %d\n", len);
+				return -EINVAL;
+			}
+			/*
+			 * For non-signed FIT images, we can only check that
+			 * (offset + len) doesn't exceed the addressable range.
+			 * For signed FITs, we can additionally check that
+			 * (offset + len) doesn't exceed the allowed FIT image
+			 * maximum size.
+			 */
+			if (len > max_offset - offset
+			/*
+			 * #if (not a runtime if) is required: FIT_SIGNATURE_MAX_SIZE
+			 * depends on FIT_SIGNATURE, so CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE)
+			 * is undefined when signing is disabled and referencing it
+			 * here would fail to compile.
+			 */
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
+			    || offset > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) ||
+			    len > CONFIG_VAL(FIT_SIGNATURE_MAX_SIZE) - offset
+#endif
+			) {
+				printf("FIT external data is out of bounds (offset=%d, size=%d)\n",
+				       offset, len);
+				return -EINVAL;
+			}
 			*data = fit + offset;
 			*size = len;
 		}
@@ -1439,7 +1492,7 @@ int fit_image_verify(const void *fit, int image_noffset)
 	size_t		size;
 	char		*err_msg = "";
 
-	if (IS_ENABLED(CONFIG_FIT_SIGNATURE) && strchr(name, '@')) {
+	if (CONFIG_IS_ENABLED(FIT_SIGNATURE) && strchr(name, '@')) {
 		/*
 		 * We don't support this since libfdt considers names with the
 		 * name root but different @ suffix to be equal
@@ -1477,7 +1530,6 @@ int fit_all_image_verify(const void *fit)
 {
 	int images_noffset;
 	int noffset;
-	int ndepth;
 	int count;
 
 	/* Find images parent node offset */
@@ -1491,23 +1543,15 @@ int fit_all_image_verify(const void *fit)
 	/* Process all image subnodes, check hashes for each */
 	printf("## Checking hash(es) for FIT Image at %08lx ...\n",
 	       (ulong)fit);
-	for (ndepth = 0, count = 0,
-	     noffset = fdt_next_node(fit, images_noffset, &ndepth);
-			(noffset >= 0) && (ndepth > 0);
-			noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/*
-			 * Direct child node of the images parent node,
-			 * i.e. component image node.
-			 */
-			printf("   Hash(es) for Image %u (%s): ", count,
-			       fit_get_name(fit, noffset, NULL));
-			count++;
+	count = 0;
+	fdt_for_each_subnode(noffset, fit, images_noffset) {
+		printf("   Hash(es) for Image %u (%s): ", count,
+		       fit_get_name(fit, noffset, NULL));
+		count++;
 
-			if (!fit_image_verify(fit, noffset))
-				return 0;
-			printf("\n");
-		}
+		if (!fit_image_verify(fit, noffset))
+			return 0;
+		printf("\n");
 	}
 	return 1;
 }
@@ -1643,22 +1687,36 @@ int fit_image_check_comp(const void *fit, int noffset, uint8_t comp)
  *
  * @fit: FIT to check
  * @parent: Parent node to check
- * Return: 0 if OK, -EADDRNOTAVAIL is a node has a name containing '@'
+ * @depth: Current recursion depth
+ * Return: 0 if OK, or error value
  */
-static int fdt_check_no_at(const void *fit, int parent)
+static int fdt_check_no_at(const void *fit, int parent, int depth)
 {
 	const char *name;
 	int node;
 	int ret;
+
+	if (depth >= FDT_MAX_DEPTH)
+		return -FDT_ERR_BADSTRUCTURE;
 
 	name = fdt_get_name(fit, parent, NULL);
 	if (!name || strchr(name, '@'))
 		return -EADDRNOTAVAIL;
 
 	fdt_for_each_subnode(node, fit, parent) {
-		ret = fdt_check_no_at(fit, node);
+		ret = fdt_check_no_at(fit, node, depth + 1);
 		if (ret)
 			return ret;
+	}
+
+	return 0;
+}
+
+static int fit_check_images_node(const void *fit)
+{
+	if (fdt_path_offset(fit, FIT_IMAGES_PATH) < 0) {
+		log_debug("Wrong FIT format: no images parent node\n");
+		return -ENOENT;
 	}
 
 	return 0;
@@ -1675,6 +1733,13 @@ int fit_check_format(const void *fit, ulong size)
 			  ret);
 		return -ENOEXEC;
 	}
+
+	/*
+	 * For the control DTB to act as a FIT image, we only require
+	 * an /images node.
+	 */
+	if (CONFIG_IS_ENABLED(CONTROL_DTB_AS_FIT) && fit == gd_fdt_blob())
+		return fit_check_images_node(fit);
 
 	if (CONFIG_IS_ENABLED(FIT_FULL_CHECK)) {
 		/*
@@ -1696,7 +1761,7 @@ int fit_check_format(const void *fit, ulong size)
 		 * attached. Protect against this by disallowing unit addresses.
 		 */
 		if (!ret && CONFIG_IS_ENABLED(FIT_SIGNATURE)) {
-			ret = fdt_check_no_at(fit, 0);
+			ret = fdt_check_no_at(fit, 0, 0);
 
 			if (ret) {
 				log_debug("FIT check error %d\n", ret);
@@ -1724,17 +1789,11 @@ int fit_check_format(const void *fit, ulong size)
 	}
 
 	/* mandatory subimages parent '/images' node */
-	if (fdt_path_offset(fit, FIT_IMAGES_PATH) < 0) {
-		log_debug("Wrong FIT format: no images parent node\n");
-		return -ENOENT;
-	}
-
-	return 0;
+	return fit_check_images_node(fit);
 }
 
 int fit_conf_find_compat(const void *fit, const void *fdt)
 {
-	int ndepth = 0;
 	int noffset, confs_noffset, images_noffset;
 	const void *fdt_compat;
 	int fdt_compat_len;
@@ -1757,9 +1816,7 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 	/*
 	 * Loop over the configurations in the FIT image.
 	 */
-	for (noffset = fdt_next_node(fit, confs_noffset, &ndepth);
-			(noffset >= 0) && (ndepth > 0);
-			noffset = fdt_next_node(fit, noffset, &ndepth)) {
+	fdt_for_each_subnode(noffset, fit, confs_noffset) {
 		const void *fdt;
 		const char *kfdt_name;
 		int kfdt_noffset, compat_noffset;
@@ -1767,9 +1824,6 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 		int len;
 		size_t sz;
 		int i;
-
-		if (ndepth > 1)
-			continue;
 
 		/* If there's a compat property in the config node, use that. */
 		if (fdt_getprop(fit, noffset, FIT_COMPAT_PROP, NULL)) {
@@ -2642,3 +2696,299 @@ out:
 	return fdt_noffset;
 }
 #endif
+
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(FIT_VERITY)
+
+static const char *const verity_opt_props[] = {
+	FIT_VERITY_OPT_RESTART,
+	FIT_VERITY_OPT_PANIC,
+	FIT_VERITY_OPT_RERR,
+	FIT_VERITY_OPT_PERR,
+	FIT_VERITY_OPT_ONCE,
+};
+
+/**
+ * fit_verity_build_target() - build one dm-verity target specification
+ * @fit:	pointer to the FIT blob
+ * @img_noffset:	image node offset containing the dm-verity subnode
+ * @loadable_idx:	index of this loadable (for /dev/fitN)
+ * @uname:	unit name of the image
+ * @separator:	true if a ";" prefix is needed (not the first target)
+ * @buf:	output buffer, or NULL to measure only
+ * @bufsize:	size of @buf (ignored when @buf is NULL)
+ *
+ * Parses all dm-verity properties from the image's ``dm-verity`` child
+ * node and writes (or measures) a dm target specification string of the
+ * form used by the ``dm-mod.create`` kernel parameter.
+ *
+ * Return: number of characters that would be written (excluding '\0'),
+ *	    or -ve errno on error (e.g. missing mandatory property)
+ */
+static int fit_verity_build_target(const void *fit, int img_noffset,
+				   int loadable_idx, const char *uname,
+				   bool separator, char *buf, int bufsize)
+{
+	const char *algorithm;
+	const u8 *digest_raw, *salt_raw;
+	const fdt32_t *val;
+	char *digest_hex = NULL, *salt_hex = NULL, *opt_buf = NULL;
+	int verity_node;
+	unsigned int data_block_size, hash_block_size;
+	int num_data_blocks, hash_start_block;
+	u64 data_sectors;
+	int digest_len, salt_len;
+	int opt_count, opt_off, opt_buf_size;
+	int len;
+	int i;
+
+	verity_node = fdt_subnode_offset(fit, img_noffset, FIT_VERITY_NODENAME);
+	if (verity_node < 0)
+		return -ENOENT;
+
+	/* Mandatory u32 properties */
+	val = fdt_getprop(fit, verity_node, FIT_VERITY_DBS_PROP, NULL);
+	if (!val)
+		return -EINVAL;
+	data_block_size = fdt32_to_cpu(*val);
+
+	val = fdt_getprop(fit, verity_node, FIT_VERITY_HBS_PROP, NULL);
+	if (!val)
+		return -EINVAL;
+	hash_block_size = fdt32_to_cpu(*val);
+
+	val = fdt_getprop(fit, verity_node, FIT_VERITY_NBLK_PROP, NULL);
+	if (!val)
+		return -EINVAL;
+	num_data_blocks = fdt32_to_cpu(*val);
+
+	val = fdt_getprop(fit, verity_node, FIT_VERITY_HBLK_PROP, NULL);
+	if (!val)
+		return -EINVAL;
+	hash_start_block = fdt32_to_cpu(*val);
+
+	if (data_block_size < 512U || !is_power_of_2(data_block_size) ||
+	    hash_block_size < 512U || !is_power_of_2(hash_block_size) ||
+	    !num_data_blocks)
+		return -EINVAL;
+
+	/* Mandatory string */
+	algorithm = fdt_getprop(fit, verity_node, FIT_VERITY_ALGO_PROP, NULL);
+	if (!algorithm)
+		return -EINVAL;
+
+	/* Mandatory byte arrays */
+	digest_raw = fdt_getprop(fit, verity_node, FIT_VERITY_DIGEST_PROP,
+				 &digest_len);
+	if (!digest_raw || digest_len <= 0)
+		return -EINVAL;
+
+	salt_raw = fdt_getprop(fit, verity_node, FIT_VERITY_SALT_PROP,
+			       &salt_len);
+	if (!salt_raw || salt_len <= 0)
+		return -EINVAL;
+
+	/* Hex-encode digest and salt into dynamically sized buffers */
+	digest_hex = malloc(digest_len * 2 + 1);
+	salt_hex = malloc(salt_len * 2 + 1);
+	if (!digest_hex || !salt_hex) {
+		len = -ENOMEM;
+		goto out;
+	}
+	*bin2hex(digest_hex, digest_raw, digest_len) = '\0';
+	*bin2hex(salt_hex, salt_raw, salt_len) = '\0';
+
+	data_sectors = (u64)num_data_blocks * ((u64)data_block_size / 512);
+
+	/* Compute space needed for optional boolean properties */
+	opt_buf_size = 1; /* NUL terminator */
+	for (i = 0; i < ARRAY_SIZE(verity_opt_props); i++)
+		opt_buf_size += strlen(verity_opt_props[i]) + 1;
+	opt_buf = malloc(opt_buf_size);
+	if (!opt_buf) {
+		len = -ENOMEM;
+		goto out;
+	}
+
+	/* Collect optional boolean properties */
+	opt_count = 0;
+	opt_off = 0;
+	opt_buf[0] = '\0';
+	for (i = 0; i < ARRAY_SIZE(verity_opt_props); i++) {
+		if (fdt_getprop(fit, verity_node,
+				verity_opt_props[i], NULL)) {
+			const char *s = verity_opt_props[i];
+			int slen = strlen(s);
+
+			if (opt_off)
+				opt_buf[opt_off++] = ' ';
+			/* Copy with hyphen-to-underscore conversion */
+			while (slen-- > 0) {
+				opt_buf[opt_off++] =
+					(*s == '-') ? '_' : *s;
+				s++;
+			}
+			opt_buf[opt_off] = '\0';
+			opt_count++;
+		}
+	}
+
+	/* Emit (or measure) the target spec */
+	len = snprintf(buf, buf ? bufsize : 0,
+		       "%s%s,,, ro,0 %llu verity 1 /dev/fit%d /dev/fit%d %u %u %d %d %s %s %s",
+		       separator ? ";" : "", uname,
+		       (unsigned long long)data_sectors, loadable_idx, loadable_idx,
+		       data_block_size, hash_block_size,
+		       num_data_blocks, hash_start_block,
+		       algorithm, digest_hex, salt_hex);
+	if (opt_count) {
+		int extra = snprintf(buf ? buf + len : NULL,
+				     buf ? bufsize - len : 0,
+				     " %d %s", opt_count, opt_buf);
+		len += extra;
+	}
+
+out:
+	free(digest_hex);
+	free(salt_hex);
+	free(opt_buf);
+	return len;
+}
+
+int fit_verity_build_cmdline(const void *fit, int conf_noffset,
+			     struct bootm_headers *images)
+{
+	int images_noffset;
+	int dm_create_len = 0, dm_waitfor_len = 0;
+	char *dm_create = NULL, *dm_waitfor = NULL;
+	const char *uname;
+	int loadable_idx;
+	int found = 0;
+	int ret = 0;
+
+	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
+	if (images_noffset < 0)
+		return 0;
+
+	for (loadable_idx = 0;
+	     (uname = fdt_stringlist_get(fit, conf_noffset,
+					 FIT_LOADABLE_PROP,
+					 loadable_idx, NULL));
+	     loadable_idx++) {
+		int img_noffset, need;
+		u8 img_type;
+		char *tmp;
+
+		img_noffset = fdt_subnode_offset(fit, images_noffset, uname);
+		if (img_noffset < 0)
+			continue;
+
+		if (fit_image_get_type(fit, img_noffset, &img_type) ||
+		    img_type != IH_TYPE_FILESYSTEM)
+			continue;
+
+		/* Measure first, then allocate and write */
+		need = fit_verity_build_target(fit, img_noffset,
+					       loadable_idx, uname,
+					       found > 0, NULL, 0);
+		if (need == -ENOENT)
+			continue;	/* no dm-verity subnode -- fine */
+		if (need < 0) {
+			log_err("FIT: broken dm-verity metadata in '%s'\n",
+				uname);
+			ret = need;
+			goto err;
+		}
+
+		tmp = realloc(dm_create, dm_create_len + need + 1);
+		if (!tmp) {
+			ret = -ENOMEM;
+			goto err;
+		}
+		dm_create = tmp;
+		fit_verity_build_target(fit, img_noffset, loadable_idx,
+					uname, found > 0,
+					dm_create + dm_create_len,
+					need + 1);
+		dm_create_len += need;
+
+		/* Grow dm_waitfor buffer */
+		need = snprintf(NULL, 0, "%s/dev/fit%d",
+				dm_waitfor_len ? "," : "",
+				loadable_idx);
+		tmp = realloc(dm_waitfor, dm_waitfor_len + need + 1);
+		if (!tmp) {
+			ret = -ENOMEM;
+			goto err;
+		}
+		dm_waitfor = tmp;
+		sprintf(dm_waitfor + dm_waitfor_len, "%s/dev/fit%d",
+			dm_waitfor_len ? "," : "",
+			loadable_idx);
+		dm_waitfor_len += need;
+
+		found++;
+	}
+
+	if (found) {
+		/* Transfer ownership to the bootm_headers */
+		images->dm_mod_create = dm_create;
+		images->dm_mod_waitfor = dm_waitfor;
+	} else {
+		free(dm_create);
+		free(dm_waitfor);
+	}
+
+	return 0;
+
+err:
+	free(dm_create);
+	free(dm_waitfor);
+	return ret;
+}
+
+/**
+ * fmt used by both the measurement and the actual write of bootargs.
+ * Shared to guarantee they stay in sync.
+ */
+#define VERITY_BOOTARGS_FMT	"%s%sdm-mod.create=\"%s\" dm-mod.waitfor=\"%s\""
+
+int fit_verity_apply_bootargs(const struct bootm_headers *images)
+{
+	const char *existing;
+	char *newargs;
+	int len;
+
+	if (!images->dm_mod_create)
+		return 0;
+
+	existing = env_get("bootargs");
+	if (!existing)
+		existing = "";
+
+	/* Measure */
+	len = snprintf(NULL, 0, VERITY_BOOTARGS_FMT,
+		       existing, existing[0] ? " " : "",
+		       images->dm_mod_create, images->dm_mod_waitfor);
+
+	newargs = malloc(len + 1);
+	if (!newargs)
+		return -ENOMEM;
+
+	snprintf(newargs, len + 1, VERITY_BOOTARGS_FMT,
+		 existing, existing[0] ? " " : "",
+		 images->dm_mod_create, images->dm_mod_waitfor);
+
+	env_set("bootargs", newargs);
+	free(newargs);
+
+	return 0;
+}
+
+void fit_verity_free(struct bootm_headers *images)
+{
+	free(images->dm_mod_create);
+	free(images->dm_mod_waitfor);
+	images->dm_mod_create = NULL;
+	images->dm_mod_waitfor = NULL;
+}
+#endif /* FIT_VERITY */

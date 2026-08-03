@@ -67,7 +67,7 @@ static int sunxi_reset_deassert(struct reset_ctl *reset_ctl)
 	return sunxi_set_reset(reset_ctl, true);
 }
 
-struct reset_ops sunxi_reset_ops = {
+static const struct reset_ops sunxi_reset_ops = {
 	.request = sunxi_reset_request,
 	.rst_assert = sunxi_reset_assert,
 	.rst_deassert = sunxi_reset_deassert,

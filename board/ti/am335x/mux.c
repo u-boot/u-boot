@@ -190,8 +190,6 @@ static struct module_pin_mux mii1_pin_mux[] = {
 };
 
 static struct module_pin_mux rmii1_pin_mux[] = {
-	{OFFSET(mdio_clk), MODE(0) | PULLUP_EN},	/* MDIO_CLK */
-	{OFFSET(mdio_data), MODE(0) | RXACTIVE | PULLUP_EN}, /* MDIO_DATA */
 	{OFFSET(mii1_crs), MODE(1) | RXACTIVE},		/* MII1_CRS */
 	{OFFSET(mii1_rxerr), MODE(1) | RXACTIVE},	/* MII1_RXERR */
 	{OFFSET(mii1_txen), MODE(1)},			/* MII1_TXEN */

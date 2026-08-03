@@ -114,9 +114,11 @@ bool led_sw_on_state_change(struct udevice *dev, enum led_state_t state)
 		case LEDST_ON:
 			ops->set_state(dev, LEDST_OFF);
 			sw_blink->state = LED_SW_BLINK_ST_OFF;
+			break;
 		default:
 			ops->set_state(dev, LEDST_ON);
 			sw_blink->state = LED_SW_BLINK_ST_ON;
+			break;
 		}
 
 		return true;

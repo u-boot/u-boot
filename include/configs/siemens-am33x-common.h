@@ -104,11 +104,11 @@
 				"then " \
 				"setenv upgrade_available 0;" \
 				"setenv ${partitionset_active} true;" \
-				"if test -n ${A}; then " \
+				"if test -n \"${A}\"; then " \
 					"setenv partitionset_active B; " \
 					"env delete A; " \
 				"fi;" \
-				"if test -n ${B}; then " \
+				"if test -n \"${B}\"; then " \
 					"setenv partitionset_active A; " \
 					"env delete B; " \
 				"fi;" \
@@ -205,11 +205,11 @@
 	"nand_args=run bootargs_defaults;" \
 		"mtdparts default;" \
 		"setenv ${partitionset_active} true;" \
-		"if test -n ${A}; then " \
+		"if test -n \"${A}\"; then " \
 			"setenv nand_active_ubi_vol ${nand_active_ubi_vol_A};" \
 			"setenv nand_src_addr ${nand_src_addr_A};" \
 		"fi;" \
-		"if test -n ${B}; then " \
+		"if test -n \"${B}\"; then " \
 			"setenv nand_active_ubi_vol ${nand_active_ubi_vol_B};" \
 			"setenv nand_src_addr ${nand_src_addr_B};" \
 		"fi;" \
@@ -279,10 +279,10 @@
 	"nand_args=run bootargs_defaults;" \
 		"mtdparts default;" \
 		"setenv ${partitionset_active} true;" \
-		"if test -n ${A}; then " \
+		"if test -n \"${A}\"; then " \
 			"setenv nand_active_ubi_vol ${rootfs_name}_a;" \
 		"fi;" \
-		"if test -n ${B}; then " \
+		"if test -n \"${B}\"; then " \
 			"setenv nand_active_ubi_vol ${rootfs_name}_b;" \
 		"fi;" \
 		"setenv nand_root ubi0:${nand_active_ubi_vol} rw " \

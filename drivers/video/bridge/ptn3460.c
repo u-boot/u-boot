@@ -15,7 +15,7 @@ static int ptn3460_attach(struct udevice *dev)
 	return video_bridge_set_active(dev, true);
 }
 
-struct video_bridge_ops ptn3460_ops = {
+static const struct video_bridge_ops ptn3460_ops = {
 	.attach = ptn3460_attach,
 };
 

@@ -253,12 +253,12 @@ int misc_init_r(void)
 void detail_board_ddr_info(void)
 {
 	puts("\nDDR    ");
-	print_size(gd->bd->bi_dram[0].size + gd->bd->bi_dram[1].size, "");
+	print_size(gd->dram[0].size + gd->dram[1].size, "");
 	print_ddr_info(0);
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-	if (soc_has_dp_ddr() && gd->bd->bi_dram[2].size) {
+	if (soc_has_dp_ddr() && gd->dram[2].size) {
 		puts("\nDP-DDR ");
-		print_size(gd->bd->bi_dram[2].size, "");
+		print_size(gd->dram[2].size, "");
 		print_ddr_info(CONFIG_DP_DDR_CTRL);
 	}
 #endif
@@ -302,10 +302,10 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	ft_cpu_setup(blob, bd);
 
 	/* fixup DT for the two GPP DDR banks */
-	base[0] = gd->bd->bi_dram[0].start;
-	size[0] = gd->bd->bi_dram[0].size;
-	base[1] = gd->bd->bi_dram[1].start;
-	size[1] = gd->bd->bi_dram[1].size;
+	base[0] = gd->dram[0].start;
+	size[0] = gd->dram[0].size;
+	base[1] = gd->dram[1].start;
+	size[1] = gd->dram[1].size;
 
 #ifdef CONFIG_RESV_RAM
 	/* reduce size if reserved memory is within this bank */

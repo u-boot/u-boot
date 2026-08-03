@@ -19,7 +19,7 @@ config UFS_AMD_VERSAL2
 config UFS_CADENCE
 	bool "Cadence platform driver for UFS"
 	depends on UFS
-        help
+	help
 	  This selects the platform driver for the Cadence UFS host
 	  controller present on present TI's J721e devices.
 
@@ -51,7 +51,7 @@ config UFS_PCI
 config UFS_QCOM
 	bool "Qualcomm Host Controller driver for UFS"
 	depends on UFS && ARCH_SNAPDRAGON
-        help
+	help
 	  This selects the platform driver for the UFS host
 	  controller present on Qualcomm Snapdragon SoCs.
 

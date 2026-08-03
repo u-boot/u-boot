@@ -81,7 +81,7 @@ config PHYLIB_10G
 config PHY_ADIN
 	bool "Analog Devices Industrial Ethernet PHYs"
 	help
-		Add support for configuring RGMII on Analog Devices ADIN PHYs.
+	  Add support for configuring RGMII on Analog Devices ADIN PHYs.
 
 menuconfig PHY_AQUANTIA
 	bool "Aquantia Ethernet PHYs support"
@@ -126,9 +126,9 @@ config SYS_CORTINA_NO_FW_UPLOAD
 	bool "Cortina firmware loading support"
 	depends on PHY_CORTINA
 	help
-		Cortina phy has provision to store phy firmware in attached dedicated
-		EEPROM. And boards designed with such EEPROM does not require firmware
-		upload.
+	  Cortina phy has provision to store phy firmware in attached dedicated
+	  EEPROM. And boards designed with such EEPROM does not require firmware
+	  upload.
 
 choice
 	prompt "Location of the Cortina firmware"
@@ -167,7 +167,7 @@ config PHY_CORTINA_ACCESS
 	default y
 	depends on CORTINA_NI_ENET
 	help
-		Cortina Access Ethernet PHYs init process
+	  Cortina Access Ethernet PHYs init process
 
 config PHY_DAVICOM
 	bool "Davicom Ethernet PHYs support"
@@ -317,13 +317,13 @@ config PHY_TERANETICS
 
 config PHY_TI
 	bool "Texas Instruments Ethernet PHYs support"
-	---help---
+	help
 	  Adds PHY registration support for TI PHYs.
 
 config PHY_TI_DP83867
 	select PHY_TI
 	bool "Texas Instruments Ethernet DP83867 PHY support"
-	---help---
+	help
 	  Adds support for the TI DP83867 1Gbit PHY.
 
 config SPL_PHY_TI_DP83867
@@ -333,13 +333,13 @@ config SPL_PHY_TI_DP83867
 config PHY_TI_DP83869
 	select PHY_TI
 	bool "Texas Instruments Ethernet DP83869 PHY support"
-	---help---
+	help
 	  Adds support for the TI DP83869 1Gbit PHY.
 
 config PHY_TI_GENERIC
 	select PHY_TI
 	bool "Texas Instruments Generic Ethernet PHYs support"
-	---help---
+	help
 	  Adds support for Generic TI PHYs that don't need special handling but
 	  the PHY name is associated with a PHY ID.
 
