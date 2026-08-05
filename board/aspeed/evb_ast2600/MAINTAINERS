@@ -5,3 +5,9 @@ F:	board/aspeed/evb_ast2600/
 F:	include/configs/evb_ast2600.h
 F:	configs/evb-ast2600_defconfig
 F:	configs/ibm-sbp1_defconfig
+
+ASROCK RACK B650D4U BMC
+M:	Prasanth Kumar Padarthi <prasanth.padarthi10@gmail.com>
+S:	Maintained
+F:	arch/arm/dts/ast2600-b650d4u.dts
+F:	configs/b650d4u_defconfig
