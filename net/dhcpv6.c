@@ -322,15 +322,19 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 
 		switch (ntohs(option_hdr->option_id)) {
 		case DHCP6_OPTION_CLIENTID:
-			if (memcmp(option_ptr, sm_params.duid, option_len)
-			    != 0) {
-				debug("CLIENT ID DOESN'T MATCH\n");
-			} else {
+			if (option_len == sizeof(sm_params.duid) &&
+			    !memcmp(option_ptr, sm_params.duid, option_len)) {
 				debug("CLIENT ID FOUND and MATCHES\n");
 				sm_params.rx_status.client_id_match = true;
+			} else {
+				debug("CLIENT ID DOESN'T MATCH\n");
 			}
 			break;
 		case DHCP6_OPTION_SERVERID:
+			if (option_len > DHCP6_DUID_MAX_LEN) {
+				debug("SERVER ID too long\n");
+				break;
+			}
 			sm_params.rx_status.server_id_found = true;
 			sm_params.rx_status.server_uid_ptr = (uchar *)option_hdr;
 			sm_params.rx_status.server_uid_size = option_len +
