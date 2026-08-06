@@ -621,6 +621,157 @@ static int dm_test_eth_async_ping_reply(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_eth_async_ping_reply, UTF_SCAN_FDT);
+
+#if IS_ENABLED(CONFIG_CMD_DHCP6) && IS_ENABLED(CONFIG_IPV6)
+#define DHCP6_DUID_LL_LEN	10	/* type(2) + hw_type(2) + MAC(6) */
+static bool dhcp6_request_seen;
+static bool dhcp6_advertise_sent;
+static int dhcp6_clientid_len;
+static int dhcp6_serverid_len;
+
+/*
+ * Answer a DHCPv6 SOLICIT with an ADVERTISE whose SERVERID option is longer
+ * than any valid DUID. A correct client rejects it and never sends a REQUEST;
+ * a client that trusts the length copies it out of bounds while building the
+ * REQUEST.
+ */
+static int sb_dhcp6_advertise_handler(struct udevice *dev, void *packet,
+				      unsigned int len)
+{
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+	struct ethernet_hdr *seth = packet;
+	struct ethernet_hdr *eth;
+	struct ip6_hdr *sip6, *ip6;
+	struct udp_hdr *sudp, *udp;
+	uchar *sdhcp6, *d, *opt, *rx;
+	int msglen;
+	u16 udptot;
+
+	if (ntohs(seth->et_protlen) != PROT_IP6)
+		return 0;
+	sip6 = (struct ip6_hdr *)((uchar *)packet + ETHER_HDR_SIZE);
+	if (sip6->nexthdr != IPPROTO_UDP)
+		return 0;
+	sudp = (struct udp_hdr *)((uchar *)sip6 + IP6_HDR_SIZE);
+	if (ntohs(sudp->udp_dst) != 547 || ntohs(sudp->udp_src) != 546)
+		return 0;
+	sdhcp6 = (uchar *)sudp + UDP_HDR_SIZE;
+
+	/* a REQUEST means the client accepted the over-long SERVERID */
+	if (sdhcp6[0] == 3) {		/* DHCP6_MSG_REQUEST */
+		dhcp6_request_seen = true;
+		net_set_state(NETLOOP_FAIL);
+		return 0;
+	}
+	if (sdhcp6[0] != 1)		/* DHCP6_MSG_SOLICIT */
+		return 0;
+	if (dhcp6_advertise_sent) {
+		/* the client re-solicited, so it rejected the ADVERTISE */
+		net_set_state(NETLOOP_FAIL);
+		return 0;
+	}
+	dhcp6_advertise_sent = true;
+	if (priv->recv_packets >= PKTBUFSRX)
+		return 0;
+
+	rx = priv->recv_packet_buffer[priv->recv_packets];
+	memset(rx, 0, PKTSIZE);
+
+	eth = (struct ethernet_hdr *)rx;
+	memcpy(eth->et_dest, seth->et_src, ARP_HLEN);
+	memcpy(eth->et_src, priv->fake_host_hwaddr, ARP_HLEN);
+	eth->et_protlen = htons(PROT_IP6);
+
+	ip6 = (struct ip6_hdr *)(rx + ETHER_HDR_SIZE);
+	ip6->version = 6;
+	ip6->nexthdr = IPPROTO_UDP;
+	ip6->hop_limit = 255;
+	memcpy(&ip6->saddr, &sip6->daddr, sizeof(struct in6_addr));
+	memcpy(&ip6->daddr, &sip6->saddr, sizeof(struct in6_addr));
+
+	udp = (struct udp_hdr *)((uchar *)ip6 + IP6_HDR_SIZE);
+	udp->udp_src = htons(547);
+	udp->udp_dst = htons(546);
+
+	d = (uchar *)udp + UDP_HDR_SIZE;
+	opt = d;
+	/* dhcp6 header: reuse the SOLICIT trans_id, msg_type = ADVERTISE */
+	memcpy(opt, sdhcp6, 4);
+	opt[0] = 2;			/* DHCP6_MSG_ADVERTISE */
+	opt += 4;
+	/* CLIENTID: the client DUID from the SOLICIT, padded to the test size */
+	opt[0] = 0; opt[1] = 1;
+	opt[2] = dhcp6_clientid_len >> 8;
+	opt[3] = dhcp6_clientid_len & 0xff;
+	memcpy(opt + 4, sdhcp6 + 8, DHCP6_DUID_LL_LEN);
+	opt += 4 + dhcp6_clientid_len;
+	/* echo the client's IA_NA (hdr 4 + iaid/t1/t2 12) */
+	memcpy(opt, sdhcp6 + 4 + 14 + 6, 16);
+	opt += 16;
+	/* PREFERENCE = 255 so the client acts on this ADVERTISE at once */
+	opt[0] = 0; opt[1] = 7; opt[2] = 0; opt[3] = 1; opt[4] = 255;
+	opt += 5;
+	/* SERVERID of the test size */
+	opt[0] = 0; opt[1] = 2;
+	opt[2] = dhcp6_serverid_len >> 8;
+	opt[3] = dhcp6_serverid_len & 0xff;
+	memset(opt + 4, 0x41, dhcp6_serverid_len);
+	opt += 4 + dhcp6_serverid_len;
+
+	msglen = opt - d;
+	udptot = UDP_HDR_SIZE + msglen;
+	ip6->payload_len = htons(udptot);
+	udp->udp_len = htons(udptot);
+	udp->udp_xsum = 0;
+	udp->udp_xsum = csum_ipv6_magic(&ip6->saddr, &ip6->daddr, udptot,
+					IPPROTO_UDP,
+					csum_partial((u8 *)udp, udptot, 0));
+
+	priv->recv_packet_length[priv->recv_packets] =
+		ETHER_HDR_SIZE + IP6_HDR_SIZE + udptot;
+	priv->recv_packets++;
+
+	return 0;
+}
+
+static int dhcp6_run_advertise(struct unit_test_state *uts)
+{
+	dhcp6_request_seen = false;
+	dhcp6_advertise_sent = false;
+	sandbox_eth_set_tx_handler(0, sb_dhcp6_advertise_handler);
+	sandbox_eth_skip_timeout();
+
+	env_set("ethact", "eth@10002000");
+	net_loop(DHCP6);
+
+	sandbox_eth_set_tx_handler(0, NULL);
+
+	/* the malformed ADVERTISE must be rejected: no REQUEST is sent */
+	ut_assert(!dhcp6_request_seen);
+
+	return 0;
+}
+
+/* Check the DHCPv6 client rejects an over-long SERVERID option */
+static int dm_test_dhcp6_serverid_reject(struct unit_test_state *uts)
+{
+	dhcp6_clientid_len = DHCP6_DUID_LL_LEN;
+	dhcp6_serverid_len = 200;
+
+	return dhcp6_run_advertise(uts);
+}
+DM_TEST(dm_test_dhcp6_serverid_reject, UTF_SCAN_FDT);
+
+/* Check the DHCPv6 client rejects an over-long CLIENTID option */
+static int dm_test_dhcp6_clientid_reject(struct unit_test_state *uts)
+{
+	dhcp6_clientid_len = 20;
+	dhcp6_serverid_len = DHCP6_DUID_LL_LEN;
+
+	return dhcp6_run_advertise(uts);
+}
+DM_TEST(dm_test_dhcp6_clientid_reject, UTF_SCAN_FDT);
+#endif
 #endif
 
 #if IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY)
