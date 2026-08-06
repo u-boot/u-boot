@@ -64,22 +64,22 @@ static const struct mtk_clk_tree mt7987_fixed_pll_clk_tree = {
 };
 
 static const struct udevice_id mt7987_fixed_pll_compat[] = {
-	{ .compatible = "mediatek,mt7987-fixed-plls" },
-	{ .compatible = "mediatek,mt7987-apmixedsys" },
+	{
+		.compatible = "mediatek,mt7987-fixed-plls",
+		.data = (ulong)&mt7987_fixed_pll_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7987-apmixedsys",
+		.data = (ulong)&mt7987_fixed_pll_clk_tree,
+	},
 	{}
 };
-
-static int mt7987_fixed_pll_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7987_fixed_pll_clk_tree);
-}
 
 U_BOOT_DRIVER(mt7987_clk_apmixedsys) = {
 	.name = "mt7987-clock-fixed-pll",
 	.id = UCLASS_CLK,
 	.of_match = mt7987_fixed_pll_compat,
-	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7987_fixed_pll_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_fixed_pll_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -462,13 +462,11 @@ static const struct mtk_clk_tree mt7987_topckgen_clk_tree = {
 	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
-static const struct mtk_clk_tree mt7987_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-};
-
 static const struct udevice_id mt7987_topckgen_compat[] = {
-	{ .compatible = "mediatek,mt7987-topckgen" },
+	{
+		.compatible = "mediatek,mt7987-topckgen",
+		.data = (ulong)&mt7987_topckgen_clk_tree,
+	},
 	{}
 };
 
@@ -481,14 +479,13 @@ static int mt7987_topckgen_probe(struct udevice *dev)
 		return -ENOENT;
 
 	writel(MT7987_CLK_PDN_EN_WRITE, priv->base + MT7987_CLK_PDN);
-	return mtk_common_clk_init(dev, &mt7987_topckgen_clk_tree);
+	return mtk_clk_probe(dev);
 }
 
 U_BOOT_DRIVER(mt7987_clk_topckgen) = {
 	.name = "mt7987-clock-topckgen",
 	.id = UCLASS_CLK,
 	.of_match = mt7987_topckgen_compat,
-	.bind = mtk_common_clk_parent_bind,
 	.probe = mt7987_topckgen_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
@@ -796,22 +793,22 @@ static const struct mtk_clk_tree mt7987_infracfg_clk_tree = {
 };
 
 static const struct udevice_id mt7987_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt7987-infracfg_ao" },
-	{ .compatible = "mediatek,mt7987-infracfg" },
+	{
+		.compatible = "mediatek,mt7987-infracfg_ao",
+		.data = (ulong)&mt7987_infracfg_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7987-infracfg",
+		.data = (ulong)&mt7987_infracfg_clk_tree,
+	},
 	{}
 };
-
-static int mt7987_infracfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7987_infracfg_clk_tree);
-}
 
 U_BOOT_DRIVER(mt7987_clk_infracfg) = {
 	.name = "mt7987-clock-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt7987_infracfg_compat,
-	.bind = mtk_common_clk_parent_bind,
-	.probe = mt7987_infracfg_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -838,11 +835,12 @@ static const struct mtk_gate eth_cgs[] = {
 	GATE_ETH_TOP(CLK_ETHDMA_GP3_EN, "ethdma_gp3_en", CLK_TOP_NETSYS_500M_SEL, 10),
 };
 
-static int mt7987_ethsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7987_clk_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs), 0);
-}
+static const struct mtk_clk_tree mt7987_eth_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = eth_cgs,
+	.num_gates = ARRAY_SIZE(eth_cgs),
+};
 
 static int mt7987_ethsys_bind(struct udevice *dev)
 {
@@ -860,6 +858,7 @@ static int mt7987_ethsys_bind(struct udevice *dev)
 static const struct udevice_id mt7987_ethsys_compat[] = {
 	{
 		.compatible = "mediatek,mt7987-ethsys",
+		.data = (ulong)&mt7987_eth_clk_tree,
 	},
 	{}
 };
@@ -868,8 +867,8 @@ U_BOOT_DRIVER(mt7987_clk_ethsys) = {
 	.name = "mt7987-clock-ethsys",
 	.id = UCLASS_CLK,
 	.of_match = mt7987_ethsys_compat,
-	.probe = mt7987_ethsys_probe,
+	.probe = mtk_clk_probe,
 	.bind = mt7987_ethsys_bind,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };

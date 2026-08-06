@@ -60,7 +60,9 @@ enum output_lines {
 	FIRST,
 	SECOND,
 	KERNEL,
+#ifdef CONFIG_SYS_CONFIG_NAME
 	SYSINFO,
+#endif
 	HOST,
 	UPTIME,
 	IP,
@@ -125,9 +127,11 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 		case KERNEL:
 			printf("Kernel:" RESET " %s\n", U_BOOT_VERSION);
 			break;
+#ifdef CONFIG_SYS_CONFIG_NAME
 		case SYSINFO:
 			printf("Config:" RESET " %s_defconfig\n", CONFIG_SYS_CONFIG_NAME);
 			break;
+#endif
 		case HOST:
 			model = ofnode_read_string(ofnode_root(), "model");
 			if (model)

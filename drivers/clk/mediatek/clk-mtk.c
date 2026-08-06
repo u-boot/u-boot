@@ -9,6 +9,7 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -59,6 +60,40 @@ static struct udevice *mtk_clk_tree_get_provider(enum mtk_clk_tree_type type)
 {
 	if (!mtk_clk_tree_type_is_provider(type))
 		return NULL;
+
+	if (!mtk_clk_providers[type]) {
+		struct udevice *dev;
+		struct uclass *uc;
+		int ret;
+
+		/* Lazily probe and register the requested provider. */
+		ret = uclass_get(UCLASS_CLK, &uc);
+		if (ret)
+			return ERR_PTR(ret);
+
+		uclass_foreach_dev(dev, uc) {
+			const struct mtk_clk_tree *tree;
+			const void *ops;
+
+			ops = dev_get_driver_ops(dev);
+			if (ops != &mtk_clk_apmixedsys_ops &&
+			    ops != &mtk_clk_fixed_pll_ops &&
+			    ops != &mtk_clk_topckgen_ops &&
+			    ops != &mtk_clk_infrasys_ops)
+				continue;
+
+			tree = (const void *)dev_get_driver_data(dev);
+			if (tree->type != type)
+				continue;
+
+			/* Probe will add it to mtk_clk_providers[type]. */
+			ret = device_probe(dev);
+			if (ret)
+				return ERR_PTR(ret);
+
+			break;
+		}
+	}
 
 	return mtk_clk_providers[type] ?: ERR_PTR(-ENOENT);
 }
@@ -1039,90 +1074,6 @@ static void mtk_infrasys_dump(struct udevice *dev)
 }
 #endif
 
-/* CG functions */
-
-static const int mtk_clk_gate_of_xlate(struct clk *clk,
-				       struct ofnode_phandle_args *args)
-{
-	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	int ret;
-
-	ret = mtk_common_clk_of_xlate(clk, args, tree);
-	if (ret)
-		return ret;
-
-	if (clk->id >= priv->gates_offs &&
-	    clk->id < priv->gates_offs + priv->num_gates)
-		return 0;
-
-	return -ENOENT;
-}
-
-static int mtk_clk_gate_enable(struct clk *clk)
-{
-	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_gate *gate;
-
-	if (clk->id < priv->gates_offs)
-		return -EINVAL;
-
-	gate = &priv->gates[clk->id - priv->gates_offs];
-	return mtk_gate_enable(priv->base, gate);
-}
-
-static int mtk_clk_gate_disable(struct clk *clk)
-{
-	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_gate *gate;
-
-	if (clk->id < priv->gates_offs)
-		return -EINVAL;
-
-	gate = &priv->gates[clk->id - priv->gates_offs];
-	return mtk_gate_disable(priv->base, gate);
-}
-
-static ulong mtk_clk_gate_get_rate(struct clk *clk)
-{
-	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_gate *gate;
-	struct udevice *pdev;
-
-	if (clk->id < priv->gates_offs)
-		return -EINVAL;
-
-	gate = &priv->gates[clk->id - priv->gates_offs];
-
-	if (gate->flags & CLK_PARENT_EXT)
-		return mtk_ext_clock_get_rate(priv->tree, gate->parent);
-
-	pdev = mtk_clk_parent_get_provider(gate->flags);
-	if (IS_ERR(pdev))
-		return -ENOENT;
-
-	return mtk_clk_find_parent_rate(clk, gate->parent, pdev);
-}
-
-#if CONFIG_IS_ENABLED(CMD_CLK)
-static void mtk_clk_gate_dump(struct udevice *dev)
-{
-	struct mtk_cg_priv *priv = dev_get_priv(dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	u32 i;
-
-	for (i = 0; i < priv->num_gates; i++) {
-		const struct mtk_gate *gate = &priv->gates[i];
-
-		printf("[GATE%u] DT: %u", i, gate->id);
-		mtk_clk_print_mapped_id(gate->id, i + priv->gates_offs, tree->id_offs_map);
-		mtk_clk_print_rate(dev, i + priv->gates_offs);
-		mtk_clk_print_single_parent(gate->parent, gate->flags);
-		printf("\n");
-	}
-}
-#endif
-
 const struct clk_ops mtk_clk_apmixedsys_ops = {
 	.of_xlate = mtk_apmixedsys_of_xlate,
 	.enable = mtk_apmixedsys_enable,
@@ -1166,30 +1117,10 @@ const struct clk_ops mtk_clk_infrasys_ops = {
 #endif
 };
 
-const struct clk_ops mtk_clk_gate_ops = {
-	.of_xlate = mtk_clk_gate_of_xlate,
-	.enable = mtk_clk_gate_enable,
-	.disable = mtk_clk_gate_disable,
-	.get_rate = mtk_clk_gate_get_rate,
-#if CONFIG_IS_ENABLED(CMD_CLK)
-	.dump = mtk_clk_gate_dump,
-#endif
-};
-
-int mtk_common_clk_parent_bind(struct udevice *dev)
-{
-	/*
-	 * Clock trees that provide parent clocks need to be probed right away
-	 * so that any clock depending on them will work correctly.
-	 */
-	dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
-
-	return 0;
-}
-
-int mtk_common_clk_init(struct udevice *dev, const struct mtk_clk_tree *tree)
+int mtk_clk_probe(struct udevice *dev)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
+	const struct mtk_clk_tree *tree = (void *)dev_get_driver_data(dev);
 
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
@@ -1198,23 +1129,4 @@ int mtk_common_clk_init(struct udevice *dev, const struct mtk_clk_tree *tree)
 	priv->tree = tree;
 
 	return mtk_clk_tree_register_provider(dev, tree);
-}
-
-int mtk_common_clk_gate_init(struct udevice *dev,
-			     const struct mtk_clk_tree *tree,
-			     const struct mtk_gate *gates, int num_gates,
-			     int gates_offs)
-{
-	struct mtk_cg_priv *priv = dev_get_priv(dev);
-
-	priv->base = dev_read_addr_ptr(dev);
-	if (!priv->base)
-		return -ENOENT;
-
-	priv->tree = tree;
-	priv->gates = gates;
-	priv->num_gates = num_gates;
-	priv->gates_offs = gates_offs;
-
-	return 0;
 }

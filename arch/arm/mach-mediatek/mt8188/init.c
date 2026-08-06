@@ -33,7 +33,7 @@ void reset_cpu(void)
 {
 	struct udevice *wdt;
 
-	if (IS_ENABLED(CONFIG_PSCI_RESET)) {
+	if (CONFIG_IS_ENABLED(PSCI_RESET)) {
 		psci_system_reset();
 	} else {
 		uclass_first_device(UCLASS_WDT, &wdt);

@@ -270,12 +270,7 @@ struct mtk_clk_tree {
 	const int num_muxes;
 	const int num_gates;
 	u32 flags;
-	/*
-	 * Set this if this tree provides a specific type for parent lookup.
-	 * Devices that set this should also include mtk_common_clk_parent_bind()
-	 * in the driver bind function to ensure that it will be registered as
-	 * a provider.
-	 */
+	/* Set this if this tree provides a specific type for parent lookup. */
 	enum mtk_clk_tree_type type;
 };
 
@@ -284,26 +279,11 @@ struct mtk_clk_priv {
 	const struct mtk_clk_tree *tree;
 };
 
-struct mtk_cg_priv {
-	void __iomem *base;
-	const struct mtk_clk_tree *tree;
-	const struct mtk_gate *gates;
-	int num_gates;
-	int gates_offs;
-};
-
 extern const struct clk_ops mtk_clk_apmixedsys_ops;
 extern const struct clk_ops mtk_clk_fixed_pll_ops;
 extern const struct clk_ops mtk_clk_topckgen_ops;
 extern const struct clk_ops mtk_clk_infrasys_ops;
-extern const struct clk_ops mtk_clk_gate_ops;
 
-int mtk_common_clk_parent_bind(struct udevice *dev);
-int mtk_common_clk_init(struct udevice *dev,
-			const struct mtk_clk_tree *tree);
-int mtk_common_clk_gate_init(struct udevice *dev,
-			     const struct mtk_clk_tree *tree,
-			     const struct mtk_gate *gates, int num_gates,
-			     int gates_offs);
+int mtk_clk_probe(struct udevice *dev);
 
 #endif /* __DRV_CLK_MTK_H */
