@@ -1455,7 +1455,9 @@ dtbs_check: dt_binding_check dtbs
 
 DT_BINDING_DIR := dts/upstream/Bindings
 dt_binding_check: scripts_dtc
-	$(Q)$(MAKE) $(build)=$(DT_BINDING_DIR) $(DT_BINDING_DIR)/processed-schema.json
+	$(Q)$(MAKE) $(build)=$(DT_BINDING_DIR) srctree=$(abspath $(srctree)) \
+		src=$(abspath $(srctree))/$(DT_BINDING_DIR) \
+		$(DT_BINDING_DIR)/processed-schema.json
 
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
