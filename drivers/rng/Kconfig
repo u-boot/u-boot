@@ -23,6 +23,13 @@ config RNG_MESON
 	  Enable support for hardware random number generator
 	  of Amlogic Meson SoCs.
 
+config RNG_MPFS
+	bool "Microchip PolarFire SoC Random Number Generator support"
+	depends on DM_RNG && MPFS_SYSCONTROLLER
+	help
+	  Enable support for hardware random number generator
+	  of Microchip's PolarFire SoCs.
+
 config RNG_SANDBOX
 	bool "Sandbox random number generator"
 	depends on SANDBOX
