@@ -11,6 +11,8 @@
 /delete-node/ &can0;
 /delete-node/ &can1;
 /delete-node/ &canfd;
+/delete-node/ &cluster0_opp;
+/delete-node/ &cluster1_opp;
 /delete-node/ &csi20;
 /delete-node/ &csi40;
 /delete-node/ &drif00;
@@ -69,4 +71,28 @@
 		/delete-node/ imr-lx4@fe880000;
 		/delete-node/ imr-lx4@fe890000;
 	};
+};
+
+&a53_0 {
+	/delete-property/ operating-points-v2;
+};
+
+&a53_1 {
+	/delete-property/ operating-points-v2;
+};
+
+&a53_2 {
+	/delete-property/ operating-points-v2;
+};
+
+&a53_3 {
+	/delete-property/ operating-points-v2;
+};
+
+&a57_0 {
+	/delete-property/ operating-points-v2;
+};
+
+&a57_1 {
+	/delete-property/ operating-points-v2;
 };
