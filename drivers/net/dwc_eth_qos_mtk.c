@@ -19,6 +19,7 @@
  * so add a SoC specific prefix.
  */
 #define MT8189_PERI_ETH_BASE		0x270
+#define MT8366_PERI_ETH_BASE		0x60
 
 #define MTK_PERI_ETH_CTRL0(base)	((base) + 0x0)
 #define MTK_PERI_ETH_CTRL1(base)	((base) + 0x4)
@@ -75,6 +76,10 @@ static const struct eqos_mtk_soc_data eqos_mtk_soc_data[] = {
 	{
 		.compatible = "mediatek,mt8189-gmac",
 		.peri_eth_base = MT8189_PERI_ETH_BASE,
+	},
+	{
+		.compatible = "mediatek,mt8366-gmac",
+		.peri_eth_base = MT8366_PERI_ETH_BASE,
 	},
 	{ }
 };
