@@ -130,11 +130,11 @@ config WDT_ASPEED
 	  Second Boot.
 
 config WDT_AST2600
-	bool "Aspeed AST2600 watchdog timer support"
-	depends on WDT && ASPEED_AST2600
+	bool "Aspeed AST2600/AST2700 watchdog timer support"
+	depends on WDT && (ASPEED_AST2600 || ASPEED_AST2700)
 	default y
 	help
-	  Select this to enable watchdog timer for Aspeed ast2500/ast2400 devices.
+	  Select this to enable watchdog timer for Aspeed ast2600/ast2700 devices.
 	  The watchdog timer is stopped when initialized. It performs reset, either
 	  full SoC reset or CPU or just some peripherals, based on the flags.
 

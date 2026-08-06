@@ -22,17 +22,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void hw_watchdog_reset(void);
 
-struct hlist_head *cyclic_get_list(void)
-{
-	/* Silence "discards 'volatile' qualifier" warning. */
-	return (struct hlist_head *)&gd->cyclic_list;
-}
-
 static bool cyclic_is_registered(const struct cyclic_info *cyclic)
 {
 	const struct cyclic_info *c;
 
-	hlist_for_each_entry(c, cyclic_get_list(), list) {
+	hlist_for_each_entry(c, &gd->cyclic_list, list) {
 		if (c == cyclic)
 			return true;
 	}
@@ -52,7 +46,7 @@ void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,
 	cyclic->name = name;
 	cyclic->delay_us = delay_us;
 	cyclic->start_time_us = get_timer_us(0);
-	hlist_add_head(&cyclic->list, cyclic_get_list());
+	hlist_add_head(&cyclic->list, &gd->cyclic_list);
 }
 
 void cyclic_unregister(struct cyclic_info *cyclic)
@@ -69,13 +63,26 @@ static void cyclic_run(void)
 	struct hlist_node *tmp;
 	u64 now, after, cpu_time;
 
+	/*
+	 * Nothing to do if the list is empty. Also, schedule() can be
+	 * called before timer infrastructure is ready, in which case
+	 * calling get_timer_us() before the (empty) loop could cause
+	 * a divide-by-0 or otherwise crash the system. No clients
+	 * should be registered before the timer infrastructure is up,
+	 * so the check for the list being empty should be
+	 * ok. Otherwise, we would need a new GD_FLG_TIMERS_READY
+	 * flag.
+	 */
+	if (hlist_empty(&gd->cyclic_list))
+		return;
+
 	/* Prevent recursion */
 	if (gd->flags & GD_FLG_CYCLIC_RUNNING)
 		return;
 
 	gd->flags |= GD_FLG_CYCLIC_RUNNING;
 	now = get_timer_us(0);
-	hlist_for_each_entry_safe(cyclic, tmp, cyclic_get_list(), list) {
+	hlist_for_each_entry_safe(cyclic, tmp, &gd->cyclic_list, list) {
 		/*
 		 * Check if this cyclic function needs to get called, e.g.
 		 * do not call the cyclic func too often
@@ -129,7 +136,7 @@ int cyclic_unregister_all(void)
 	struct cyclic_info *cyclic;
 	struct hlist_node *tmp;
 
-	hlist_for_each_entry_safe(cyclic, tmp, cyclic_get_list(), list)
+	hlist_for_each_entry_safe(cyclic, tmp, &gd->cyclic_list, list)
 		cyclic_unregister(cyclic);
 
 	return 0;
