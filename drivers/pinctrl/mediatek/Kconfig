@@ -2,6 +2,7 @@ if ARCH_MEDIATEK
 
 config PINCTRL_MTK
 	depends on PINCTRL_GENERIC
+	select PINCONF
 	select REGMAP
 	select SYSCON
 	bool
