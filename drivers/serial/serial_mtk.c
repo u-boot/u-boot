@@ -213,7 +213,7 @@ static int _mtk_serial_pending(struct mtk_serial_priv *priv, bool input)
 static int mtk_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct mtk_serial_priv *priv = dev_get_priv(dev);
-	u32 clk_rate;
+	ulong clk_rate;
 
 	clk_rate = clk_get_rate(&priv->clk);
 	if (IS_ERR_VALUE(clk_rate) || clk_rate == 0)
@@ -266,6 +266,7 @@ static int mtk_serial_of_to_plat(struct udevice *dev)
 {
 	struct mtk_serial_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
+	ulong clk_rate;
 	int err;
 
 	addr = dev_read_addr(dev);
@@ -282,8 +283,8 @@ static int mtk_serial_of_to_plat(struct udevice *dev)
 			return -EINVAL;
 		}
 	} else {
-		err = clk_get_rate(&priv->clk);
-		if (IS_ERR_VALUE(err)) {
+		clk_rate = clk_get_rate(&priv->clk);
+		if (IS_ERR_VALUE(clk_rate)) {
 			dev_err(dev, "invalid baud clock\n");
 			return -EINVAL;
 		}
