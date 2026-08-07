@@ -215,9 +215,13 @@ static int mtk_serial_setbrg(struct udevice *dev, int baudrate)
 	struct mtk_serial_priv *priv = dev_get_priv(dev);
 	ulong clk_rate;
 
-	clk_rate = clk_get_rate(&priv->clk);
-	if (IS_ERR_VALUE(clk_rate) || clk_rate == 0)
+	if (clk_valid(&priv->clk)) {
+		clk_rate = clk_get_rate(&priv->clk);
+		if (IS_ERR_VALUE(clk_rate) || clk_rate == 0)
+			return -EINVAL;
+	} else {
 		clk_rate = priv->fixed_clk_rate;
+	}
 
 	_mtk_serial_setbrg(priv, baudrate, clk_rate);
 
