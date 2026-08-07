@@ -720,8 +720,8 @@ static int mtk_pwrap_probe(struct udevice *dev)
 	if (IS_ERR(wrp->clk_wrap))
 		return PTR_ERR(wrp->clk_wrap);
 
-	wrp->clk_wrap_sys = devm_clk_get_optional(dev, "wrap_sys");
-	wrp->clk_wrap_tmr = devm_clk_get_optional(dev, "wrap_tmr");
+	wrp->clk_wrap_sys = devm_clk_get_optional(dev, "sys");
+	wrp->clk_wrap_tmr = devm_clk_get_optional(dev, "tmr");
 
 	ret = clk_enable(wrp->clk_spi);
 	if (ret)
