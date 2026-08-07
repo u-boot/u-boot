@@ -260,8 +260,7 @@ static int mtk_serial_probe(struct udevice *dev)
 	writel(UART_FCRVAL, &priv->regs->fcr);
 
 	clk_enable(&priv->clk);
-	if (priv->clk_bus.dev)
-		clk_enable(&priv->clk_bus);
+	clk_enable(&priv->clk_bus);
 
 	return 0;
 }
