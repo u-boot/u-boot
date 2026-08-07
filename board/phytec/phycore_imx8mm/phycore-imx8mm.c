@@ -9,6 +9,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <env.h>
 #include <miiphy.h>
+#include <init.h>
 
 static int setup_fec(void)
 {
@@ -47,6 +48,23 @@ int board_late_init(void)
 	default:
 		break;
 	}
+
+	return 0;
+}
+
+int board_phys_sdram_size(phys_size_t *size)
+{
+	if (!size)
+		return -EINVAL;
+
+	/*
+	 * check various RAM sizes (1, 2 and 4 GB) otherwise
+	 * return the default of 2GB
+	 */
+	*size = get_ram_size((void *)PHYS_SDRAM,
+			     (long)PHYS_SDRAM_SIZE + PHYS_SDRAM_2_SIZE);
+	if (*size == 0)
+		*size = SZ_2G;
 
 	return 0;
 }

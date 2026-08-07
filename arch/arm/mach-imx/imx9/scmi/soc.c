@@ -773,22 +773,20 @@ int get_reset_reason(bool sys, bool lm)
 		}
 
 		if (out.bootflags & MISC_BOOT_FLAG_VLD) {
-			printf("SYS Boot reason: %s, origin: %ld, errid: %ld\n",
-			       rst[out.bootflags & MISC_BOOT_FLAG_REASON],
-			       out.bootflags & MISC_BOOT_FLAG_ORG_VLD ?
-			       FIELD_GET(MISC_BOOT_FLAG_ORIGIN, out.bootflags) : -1,
-			       out.bootflags & MISC_BOOT_FLAG_ERR_VLD ?
-			       FIELD_GET(MISC_BOOT_FLAG_ERR_ID, out.bootflags) : -1
-			       );
+			printf("SYS Boot reason: %s", rst[out.bootflags & MISC_BOOT_FLAG_REASON]);
+			if (out.bootflags & MISC_BOOT_FLAG_ORG_VLD)
+				printf(", origin: %ld", FIELD_GET(MISC_BOOT_FLAG_ORIGIN, out.bootflags));
+			if (out.bootflags & MISC_BOOT_FLAG_ERR_VLD)
+				printf(", errid: %ld", FIELD_GET(MISC_BOOT_FLAG_ERR_ID, out.bootflags));
+			puts("\n");
 		}
 		if (out.shutdownflags & MISC_SHUTDOWN_FLAG_VLD) {
-			printf("SYS shutdown reason: %s, origin: %ld, errid: %ld\n",
-			       rst[out.shutdownflags & MISC_SHUTDOWN_FLAG_REASON],
-			       out.shutdownflags & MISC_SHUTDOWN_FLAG_ORG_VLD ?
-			       FIELD_GET(MISC_SHUTDOWN_FLAG_ORIGIN, out.shutdownflags) : -1,
-			       out.shutdownflags & MISC_SHUTDOWN_FLAG_ERR_VLD ?
-			       FIELD_GET(MISC_SHUTDOWN_FLAG_ERR_ID, out.shutdownflags) : -1
-			       );
+			printf("SYS shutdown reason: %s", rst[out.shutdownflags & MISC_SHUTDOWN_FLAG_REASON]);
+			if (out.shutdownflags & MISC_SHUTDOWN_FLAG_ORG_VLD)
+				printf(", origin: %ld", FIELD_GET(MISC_SHUTDOWN_FLAG_ORIGIN, out.shutdownflags));
+			if (out.shutdownflags & MISC_SHUTDOWN_FLAG_ERR_VLD)
+				printf(", errid: %ld", FIELD_GET(MISC_SHUTDOWN_FLAG_ERR_ID, out.shutdownflags));
+			puts("\n");
 		}
 	}
 
@@ -803,23 +801,21 @@ int get_reset_reason(bool sys, bool lm)
 		}
 
 		if (out.bootflags & MISC_BOOT_FLAG_VLD) {
-			printf("LM Boot reason: %s, origin: %ld, errid: %ld\n",
-			       rst[out.bootflags & MISC_BOOT_FLAG_REASON],
-			       out.bootflags & MISC_BOOT_FLAG_ORG_VLD ?
-			       FIELD_GET(MISC_BOOT_FLAG_ORIGIN, out.bootflags) : -1,
-			       out.bootflags & MISC_BOOT_FLAG_ERR_VLD ?
-			       FIELD_GET(MISC_BOOT_FLAG_ERR_ID, out.bootflags) : -1
-			       );
+			printf("LM Boot reason: %s", rst[out.bootflags & MISC_BOOT_FLAG_REASON]);
+			if (out.bootflags & MISC_BOOT_FLAG_ORG_VLD)
+				printf(", origin: %ld", FIELD_GET(MISC_BOOT_FLAG_ORIGIN, out.bootflags));
+			if (out.bootflags & MISC_BOOT_FLAG_ERR_VLD)
+				printf(", errid: %ld", FIELD_GET(MISC_BOOT_FLAG_ERR_ID, out.bootflags));
+			puts("\n");
 		}
 
 		if (out.shutdownflags & MISC_SHUTDOWN_FLAG_VLD) {
-			printf("LM shutdown reason: %s, origin: %ld, errid: %ld\n",
-			       rst[out.shutdownflags & MISC_SHUTDOWN_FLAG_REASON],
-			       out.shutdownflags & MISC_SHUTDOWN_FLAG_ORG_VLD ?
-			       FIELD_GET(MISC_SHUTDOWN_FLAG_ORIGIN, out.shutdownflags) : -1,
-			       out.shutdownflags & MISC_SHUTDOWN_FLAG_ERR_VLD ?
-			       FIELD_GET(MISC_SHUTDOWN_FLAG_ERR_ID, out.shutdownflags) : -1
-			       );
+			printf("LM shutdown reason: %s", rst[out.shutdownflags & MISC_SHUTDOWN_FLAG_REASON]);
+			if (out.shutdownflags & MISC_SHUTDOWN_FLAG_ORG_VLD)
+				printf(", origin: %ld", FIELD_GET(MISC_SHUTDOWN_FLAG_ORIGIN, out.shutdownflags));
+			if (out.shutdownflags & MISC_SHUTDOWN_FLAG_ERR_VLD)
+				printf(", errid: %ld", FIELD_GET(MISC_SHUTDOWN_FLAG_ERR_ID, out.shutdownflags));
+			puts("\n");
 		}
 	}
 

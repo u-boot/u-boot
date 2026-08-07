@@ -167,17 +167,25 @@ The nxp-imx8mcst etype is configurable using either DT properties or environment
 variables. The following DT properties and environment variables are supported.
 Note that environment variables override DT properties.
 
-+--------------------+-----------+------------------------------------------------------------------+
-| DT property        | Variable  | Description                                                      |
-+====================+===========+==================================================================+
-| nxp,loader-address |           | SPL base address                                                 |
-+--------------------+-----------+------------------------------------------------------------------+
-| nxp,srk-table      | SRK_TABLE | full path to SRK_1_2_3_4_table.bin                               |
-+--------------------+-----------+------------------------------------------------------------------+
-| nxp,csf-crt        | CSF_KEY   | full path to the CSF Key CSF1_1_sha256_4096_65537_v3_usr_crt.pem |
-+--------------------+-----------+------------------------------------------------------------------+
-| nxp,img-crt        | IMG_KEY   | full path to the IMG Key IMG1_1_sha256_4096_65537_v3_usr_crt.pem |
-+--------------------+-----------+------------------------------------------------------------------+
++--------------------+-------------+------------------------------------------------------------------+
+| DT property        | Variable    | Description                                                      |
++====================+=============+==================================================================+
+| nxp,loader-address |             | SPL base address                                                 |
++--------------------+-------------+------------------------------------------------------------------+
+| nxp,srk-table      | SRK_TABLE   | full path to SRK_1_2_3_4_table.bin                               |
++--------------------+-------------+------------------------------------------------------------------+
+| nxp,csf-crt        | CSF_KEY     | full path to the CSF Key CSF1_1_sha256_4096_65537_v3_usr_crt.pem |
++--------------------+-------------+------------------------------------------------------------------+
+| nxp,img-crt        | IMG_KEY     | full path to the IMG Key IMG1_1_sha256_4096_65537_v3_usr_crt.pem |
++--------------------+-------------+------------------------------------------------------------------+
+| nxp,fast-auth      |             | enable fast authentication method                                |
++--------------------+-------------+------------------------------------------------------------------+
+| nxp,srk-crt        | SRK_KEY     | full path to the SRK Key SRK1_sha256_4096_65537_v3_ca_crt.pem    |
++--------------------+-------------+------------------------------------------------------------------+
+| nxp,unlock         |             | unlock CAAM in SPL                                               |
++--------------------+-------------+------------------------------------------------------------------+
+| nxp,cst-backend    | CST_BACKEND | CST tool backend, default is 'ssl', or selectable 'pkcs11'       |
++--------------------+-------------+------------------------------------------------------------------+
 
 Environment variables can be set as follows to point the build process
 to external key material:

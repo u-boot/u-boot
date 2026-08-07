@@ -65,6 +65,9 @@ int timer_init(void)
 	struct sctr_regs *sctr = (struct sctr_regs *)SCTR_BASE_ADDR;
 	unsigned long val, freq;
 
+	if (gd->arch.timer_rate_hz)
+		return 0;
+
 	freq = CFG_SC_TIMER_CLK;
 	asm volatile("mcr p15, 0, %0, c14, c0, 0" : : "r" (freq));
 
@@ -103,8 +106,7 @@ ulong get_timer(ulong base)
 
 ulong timer_get_boot_us(void)
 {
-	if (!gd->arch.timer_rate_hz)
-		timer_init();
+	timer_init();
 
 	return tick_to_time(get_ticks());
 }
