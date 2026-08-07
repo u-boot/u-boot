@@ -218,7 +218,7 @@ static int mtk_serial_setbrg(struct udevice *dev, int baudrate)
 	if (clk_valid(&priv->clk)) {
 		clk_rate = clk_get_rate(&priv->clk);
 		if (IS_ERR_VALUE(clk_rate) || clk_rate == 0)
-			return -EINVAL;
+			return (int)clk_rate ?: -EINVAL;
 	} else {
 		clk_rate = priv->fixed_clk_rate;
 	}
@@ -290,7 +290,7 @@ static int mtk_serial_of_to_plat(struct udevice *dev)
 		clk_rate = clk_get_rate(&priv->clk);
 		if (IS_ERR_VALUE(clk_rate)) {
 			dev_err(dev, "invalid baud clock\n");
-			return -EINVAL;
+			return clk_rate;
 		}
 	}
 
