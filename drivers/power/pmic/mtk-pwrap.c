@@ -14,12 +14,18 @@
 #include <linux/err.h>
 #include <power/pmic.h>
 #include <power/mt6357.h>
+#include <power/mt6358.h>
 #include <power/mt6359.h>
 #include <time.h>
 
 static const struct pmic_child_info mt6357_pmic_children_info[] = {
 	{ .prefix = "buck", .driver = MT6357_REGULATOR_DRIVER },
 	{ .prefix = "ldo", .driver = MT6357_REGULATOR_DRIVER },
+	{ }
+};
+
+static const struct pmic_child_info mt6358_pmic_children_info[] = {
+	{ .prefix = "v", .driver = MT6358_REGULATOR_DRIVER },
 	{ }
 };
 
@@ -137,6 +143,34 @@ static const u32 mt6357_regs[] = {
 	[PWRAP_DEW_CIPHER_SWRST] =	0x0422,
 	[PWRAP_DEW_CIPHER_EN] =		0x041C,
 	[PWRAP_DEW_RDDMY_NO] =		0x0424,
+};
+
+static const u32 mt6358_regs[] = {
+	[PWRAP_SMT_CON1] =		0x0030,
+	[PWRAP_DRV_CON1] =		0x0038,
+	[PWRAP_FILTER_CON0] =		0x0040,
+	[PWRAP_GPIO_PULLEN0_CLR] =	0x0098,
+	[PWRAP_RG_SPI_CON0] =		0x0408,
+	[PWRAP_RG_SPI_RECORD0] =	0x040a,
+	[PWRAP_DEW_DIO_EN] =		0x040c,
+	[PWRAP_DEW_READ_TEST] =		0x040e,
+	[PWRAP_DEW_WRITE_TEST] =	0x0410,
+	[PWRAP_DEW_CRC_EN] =		0x0414,
+	[PWRAP_DEW_CIPHER_KEY_SEL] =	0x041a,
+	[PWRAP_DEW_CIPHER_IV_SEL] =	0x041c,
+	[PWRAP_DEW_CIPHER_EN] =		0x041e,
+	[PWRAP_DEW_CIPHER_RDY] =	0x0420,
+	[PWRAP_DEW_CIPHER_MODE] =	0x0422,
+	[PWRAP_DEW_CIPHER_SWRST] =	0x0424,
+	[PWRAP_RG_SPI_CON2] =		0x0432,
+	[PWRAP_RG_SPI_CON3] =		0x0434,
+	[PWRAP_RG_SPI_CON4] =		0x0436,
+	[PWRAP_RG_SPI_CON5] =		0x0438,
+	[PWRAP_RG_SPI_CON6] =		0x043a,
+	[PWRAP_RG_SPI_CON7] =		0x043c,
+	[PWRAP_RG_SPI_CON8] =		0x043e,
+	[PWRAP_RG_SPI_CON13] =		0x0448,
+	[PWRAP_SPISLV_KEY] =		0x044a,
 };
 
 static const u32 mt6359_regs[] = {
@@ -624,6 +658,11 @@ static const struct pwrap_slv_type pmic_mt6357 = {
 	.caps = 0,
 };
 
+static const struct pwrap_slv_type pmic_mt6358 = {
+	.dew_regs = mt6358_regs,
+	.caps = 0,
+};
+
 static const struct pwrap_slv_type pmic_mt6359 = {
 	.dew_regs = mt6359_regs,
 	.caps = 0,
@@ -632,6 +671,12 @@ static const struct pwrap_slv_type pmic_mt6359 = {
 static const struct udevice_id mtk_pmic_ids[] = {
 	{ .compatible = "mediatek,mt6357", .data = (ulong)&pmic_mt6357 },
 	{ .compatible = "mediatek,mt6359", .data = (ulong)&pmic_mt6359 },
+	/*
+	 * REVISIT: Cooresponding regulator driver only supports MT6366 for
+	 * now. We can change this to mediatek,mt6358 when the regulator driver
+	 * is updated, but will also have to change ofnode_get_property() below.
+	 */
+	{ .compatible = "mediatek,mt6366", .data = (ulong)&pmic_mt6358 },
 	{ }
 };
 
@@ -770,6 +815,8 @@ static int mtk_pwrap_bind(struct udevice *dev)
 
 	if (ofnode_device_is_compatible(pmic_node, "mediatek,mt6357")) {
 		pmic_children_info = mt6357_pmic_children_info;
+	} else if (ofnode_device_is_compatible(pmic_node, "mediatek,mt6358")) {
+		pmic_children_info = mt6358_pmic_children_info;
 	} else if (ofnode_device_is_compatible(pmic_node, "mediatek,mt6359")) {
 		pmic_children_info = mt6359_pmic_children_info;
 	} else {
