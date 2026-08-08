@@ -28,8 +28,8 @@ process_a10_hps_config() {
  * Intel Arria 10 SoCFPGA configuration
  */
 
-#ifndef __SOCFPGA_ARRIA10_CONFIG_H__
-#define __SOCFPGA_ARRIA10_CONFIG_H__
+#ifndef __SOCFPGA_ARRIA10_CFG_H__
+#define __SOCFPGA_ARRIA10_CFG_H__
 
 EOF
 
@@ -84,7 +84,7 @@ EOF
 			sed 's/SHARED_3V_IO_GRP_//' |
 			sed 's/FPGA_INTERFACE_GRP_//' |
 			sed 's/DEDICATED_IO_GRP_//' |
-			sed 's/CONFIGURATION_DEDICATED/CONFIG/' |
+			sed 's/CONFIGURATION_DEDICATED/CFG/' |
 			sort
 
 	echo
@@ -98,14 +98,14 @@ EOF
 			sort
 
 	echo
-	echo "/* Voltage Select for Config IO */"
-	echo "#define CONFIG_IO_BANK_VSEL \\"
-	echo "	(((CONFIG_IO_BANK_VOLTAGE_SEL_CLKRST_IO & 0x3) << 8) | \\"
-	echo "	(CONFIG_IO_BANK_VOLTAGE_SEL_PERI_IO & 0x3))"
+	echo "/* Voltage Select for CFG IO */"
+	echo "#define CFG_IO_BANK_VSEL \\"
+	echo "	(((CFG_IO_BANK_VOLTAGE_SEL_CLKRST_IO & 0x3) << 8) | \\"
+	echo "	(CFG_IO_BANK_VOLTAGE_SEL_PERI_IO & 0x3))"
 
 	echo
-	echo "/* Macro for Config IO bit mapping */"
-	echo -n "#define CONFIG_IO_MACRO(NAME) "
+	echo "/* Macro for CFG IO bit mapping */"
+	echo -n "#define CFG_IO_MACRO(NAME) "
 	echo "(((NAME ## _RTRIM & 0xff) << 19) | \\"
 	echo "	((NAME ## _INPUT_BUF_EN & 0x3) << 17) | \\"
 	echo "	((NAME ## _WK_PU_EN & 0x1) << 16) | \\"
@@ -116,7 +116,7 @@ EOF
 
 	cat << EOF
 
-#endif /* __SOCFPGA_ARRIA10_CONFIG_H__ */
+#endif /* __SOCFPGA_ARRIA10_CFG_H__ */
 EOF
 	) > "${outfile}"
 }

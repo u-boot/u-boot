@@ -1,0 +1,44 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2019 Intel Corporation
+ *
+ */
+
+/dts-v1/;
+
+/ {
+	description = "FIT image with kernel and DTB";
+	#address-cells = <1>;
+
+	images {
+		kernel {
+			description = "Linux Kernel";
+			data = /incbin/("../../../Image");
+			type = "kernel";
+			os = "linux";
+			arch = "arm";
+			compression = "none";
+			load = <0x8000>;
+			entry = <0x8000>;
+		};
+
+		fdt {
+			description = "Linux DTB";
+			data = /incbin/("../../../socfpga_arria10_socdk_nand.dtb");
+			type = "flat_dt";
+			os = "linux";
+			arch = "arm";
+			compression = "none";
+
+		};
+	};
+
+	configurations {
+		default = "conf";
+		conf {
+			description = "Linux boot configuration";
+			kernel = "kernel";
+			fdt = "fdt";
+		};
+	};
+};
