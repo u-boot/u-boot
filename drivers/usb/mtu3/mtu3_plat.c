@@ -439,17 +439,17 @@ static int mtu3_glue_bind(struct udevice *parent)
 
 	switch (dr_mode) {
 	case USB_DR_MODE_PERIPHERAL:
-		if (IS_ENABLED(CONFIG_USB_MTU3_GADGET))
+		if (CONFIG_IS_ENABLED(USB_MTU3_GADGET))
 			return mtu3_bind_gadget(parent);
 		break;
 	case USB_DR_MODE_HOST:
-		if (IS_ENABLED(CONFIG_USB_MTU3_HOST))
+		if (CONFIG_IS_ENABLED(USB_MTU3_HOST))
 			return mtu3_bind_host(parent);
 		break;
 	case USB_DR_MODE_OTG:
-		if (IS_ENABLED(CONFIG_USB_MTU3_GADGET))
+		if (CONFIG_IS_ENABLED(USB_MTU3_GADGET))
 			return mtu3_bind_gadget(parent);
-		if (IS_ENABLED(CONFIG_USB_MTU3_HOST))
+		if (CONFIG_IS_ENABLED(USB_MTU3_HOST))
 			return mtu3_bind_host(parent);
 		break;
 	default:
