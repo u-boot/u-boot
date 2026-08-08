@@ -437,7 +437,7 @@ static int spi_nor_write_tiny(struct mtd_info *mtd, loff_t to, size_t len,
 	return -ENOTSUPP;
 }
 
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 /**
  * macronix_quad_enable() - set QE bit in Status Register.
  * @nor:	pointer to a 'struct spi_nor'
@@ -666,8 +666,9 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 	/* Enable Quad I/O if needed. */
 	if (spi_nor_get_protocol_width(nor->read_proto) == 4) {
 		switch (JEDEC_MFR(info)) {
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 		case SNOR_MFR_MACRONIX:
+		case SNOR_MFR_ISSI:
 			err = macronix_quad_enable(nor);
 			break;
 #endif
