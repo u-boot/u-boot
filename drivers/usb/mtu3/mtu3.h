@@ -137,15 +137,13 @@ enum mtu3_dr_force_mode {
 };
 
 /**
- * @mac_base: register base address of MAC, include xHCI and device
+ * @mac_base: register base address of the device MAC
  * @ippc_base: register base address of IP Power and Clock interface (IPPC)
  * @vusb33_supply: usb3.3V shared by device/host IP
  * @vbus_supply: vbus 5v of OTG port
  * @clks: optional clocks, include "sys_ck", "ref_ck", "mcu_ck",
  *		"dma_ck" and "xhci_ck"
  * @phys: phys used
- * @dr_mode: works in which mode:
- *		host only, device only or dual-role mode
  */
 struct ssusb_mtk {
 	struct udevice *dev;
@@ -158,13 +156,14 @@ struct ssusb_mtk {
 	struct udevice *vbus_supply;
 	struct clk_bulk clks;
 	struct phy_bulk phys;
-	/* otg */
-	enum usb_dr_mode dr_mode;
 };
 
 /**
  * @ctrl: xHCI controller, needs to come first in this struct!
  * @hcd: xHCI's register base address
+ * @vusb33_supply: regulator from the xHCI child node
+ * @vbus_supply: regulator from the xHCI child node or its MTU3 parent
+ * @clks: clocks from the xHCI child node
  * @u2_ports: number of usb2 host ports
  * @u3_ports: number of usb3 host ports
  * @u3p_dis_msk: mask of disabling usb3 ports, for example, bit0==1 to
@@ -176,6 +175,9 @@ struct mtu3_host {
 	void __iomem *ippc_base;
 	struct ssusb_mtk *ssusb;
 	struct udevice *dev;
+	struct udevice *vusb33_supply;
+	struct udevice *vbus_supply;
+	struct clk_bulk clks;
 	u32 u2_ports;
 	u32 u3_ports;
 	u32 u3p_dis_msk;

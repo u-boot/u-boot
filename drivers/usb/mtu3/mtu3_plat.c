@@ -135,7 +135,6 @@ static void ssusb_ip_sw_reset(struct ssusb_mtk *ssusb)
 
 static int get_ssusb_rscs(struct udevice *dev, struct ssusb_mtk *ssusb)
 {
-	struct udevice *child;
 	int ret;
 
 	ret = device_get_supply_regulator(dev, "vusb33-supply",
@@ -154,37 +153,20 @@ static int get_ssusb_rscs(struct udevice *dev, struct ssusb_mtk *ssusb)
 		return ret;
 	}
 
-	ssusb->ippc_base = devfdt_remap_addr_name(dev, "ippc");
+	ssusb->ippc_base = dev_remap_addr_name(dev, "ippc");
 	if (!ssusb->ippc_base) {
 		dev_err(dev, "error mapping memory for ippc\n");
 		return -ENODEV;
 	}
 
-	ret = device_find_first_child(dev, &child);
-	if (ret || !child) {
-		dev_err(dev, "failed to get child %d!\n", ret);
-		return ret;
-	}
-
-	ssusb->mac_base = devfdt_remap_addr_name(child, "mac");
+	ssusb->mac_base = dev_remap_addr_name(dev, "mac");
 	if (!ssusb->mac_base) {
 		dev_err(dev, "error mapping memory for mac\n");
 		return -ENODEV;
 	}
 
-	ssusb->dr_mode = usb_get_dr_mode(dev_ofnode(child));
-
-	if (ssusb->dr_mode == USB_DR_MODE_UNKNOWN ||
-		ssusb->dr_mode == USB_DR_MODE_OTG)
-		ssusb->dr_mode = USB_DR_MODE_PERIPHERAL;
-
-	if (IS_ENABLED(CONFIG_USB_MTU3_GADGET))
-		ssusb->dr_mode = USB_DR_MODE_PERIPHERAL;
-	else if (IS_ENABLED(CONFIG_USB_MTU3_HOST))
-		ssusb->dr_mode = USB_DR_MODE_HOST;
-
-	dev_info(dev, "dr_mode: %d, ippc: 0x%p, mac: 0x%p\n",
-		 ssusb->dr_mode, ssusb->ippc_base, ssusb->mac_base);
+	dev_info(dev, "ippc: 0x%p, mac: 0x%p\n",
+		 ssusb->ippc_base, ssusb->mac_base);
 
 	return 0;
 }
@@ -216,11 +198,6 @@ static int mtu3_remove(struct udevice *dev)
 	ssusb_rscs_exit(ssusb);
 	return 0;
 }
-
-static const struct udevice_id ssusb_of_match[] = {
-	{.compatible = "mediatek,ssusb",},
-	{},
-};
 
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
 static int mtu3_gadget_probe(struct udevice *dev)
@@ -257,16 +234,90 @@ static const struct usb_gadget_generic_ops mtu3_gadget_ops = {
 U_BOOT_DRIVER(mtu3_peripheral) = {
 	.name = "mtu3-peripheral",
 	.id = UCLASS_USB_GADGET_GENERIC,
-	.of_match = ssusb_of_match,
 	.ops = &mtu3_gadget_ops,
 	.probe = mtu3_gadget_probe,
 	.remove = mtu3_gadget_remove,
 	.priv_auto	= sizeof(struct mtu3),
 };
+
+static int mtu3_bind_gadget(struct udevice *parent)
+{
+	struct udevice *dev;
+	int ret;
+
+	/* Node-less device: name it after the controller for diagnostics. */
+	ret = device_bind_driver(parent, "mtu3-peripheral",
+				 ofnode_get_name(dev_ofnode(parent)), &dev);
+	if (ret)
+		dev_err(parent, "failed to bind peripheral mode: %d\n", ret);
+
+	return ret;
+}
+#else
+static int mtu3_bind_gadget(struct udevice *parent)
+{
+	return -ENODEV;
+}
 #endif
 
 #if defined(CONFIG_SPL_USB_HOST) || \
 	(!defined(CONFIG_XPL_BUILD) && defined(CONFIG_USB_HOST))
+static int mtu3_host_rscs_init(struct mtu3_host *u3h)
+{
+	struct ssusb_mtk *ssusb = u3h->ssusb;
+	int ret;
+
+	ret = clk_get_bulk(u3h->dev, &u3h->clks);
+	if (ret) {
+		dev_err(u3h->dev, "failed to get clocks %d!\n", ret);
+		return ret;
+	}
+
+	ret = device_get_supply_regulator(u3h->dev, "vusb33-supply",
+					  &u3h->vusb33_supply);
+	if (ret)
+		dev_dbg(u3h->dev, "can't get optional vusb33 %d\n", ret);
+
+	ret = device_get_supply_regulator(u3h->dev, "vbus-supply",
+					  &u3h->vbus_supply);
+	if (ret) {
+		dev_dbg(u3h->dev, "can't get optional vbus regulator %d\n",
+			ret);
+		u3h->vbus_supply = ssusb->vbus_supply;
+	}
+
+	ret = regulator_set_enable_if_allowed(u3h->vusb33_supply, true);
+	if (ret && ret != -ENOSYS) {
+		dev_err(u3h->dev, "failed to enable vusb33 %d!\n", ret);
+		return ret;
+	}
+
+	ret = regulator_set_enable_if_allowed(u3h->vbus_supply, true);
+	if (ret && ret != -ENOSYS) {
+		dev_err(u3h->dev, "failed to enable vbus %d!\n", ret);
+		goto vbus_err;
+	}
+
+	ret = clk_enable_bulk(&u3h->clks);
+	if (ret)
+		goto clks_err;
+
+	return 0;
+
+clks_err:
+	regulator_set_enable_if_allowed(u3h->vbus_supply, false);
+vbus_err:
+	regulator_set_enable_if_allowed(u3h->vusb33_supply, false);
+	return ret;
+}
+
+static void mtu3_host_rscs_exit(struct mtu3_host *u3h)
+{
+	clk_disable_bulk(&u3h->clks);
+	regulator_set_enable_if_allowed(u3h->vbus_supply, false);
+	regulator_set_enable_if_allowed(u3h->vusb33_supply, false);
+}
+
 static int mtu3_host_probe(struct udevice *dev)
 {
 	struct ssusb_mtk *ssusb = dev_to_ssusb(dev->parent);
@@ -276,15 +327,36 @@ static int mtu3_host_probe(struct udevice *dev)
 
 	u3h->dev = dev;
 	ssusb->u3h = u3h;
-	rc = ssusb_host_init(ssusb);
+	u3h->ssusb = ssusb;
+	u3h->hcd = dev_remap_addr_name(dev, "mac");
+	if (!u3h->hcd) {
+		dev_err(dev, "error mapping memory for xHCI mac\n");
+		return -ENODEV;
+	}
+
+	rc = mtu3_host_rscs_init(u3h);
 	if (rc)
 		return rc;
+
+	rc = ssusb_host_init(ssusb);
+	if (rc)
+		goto rscs_err;
 
 	u3h->ctrl.quirks = XHCI_MTK_HOST;
 	hcor = (struct xhci_hcor *)((uintptr_t)u3h->hcd +
 			HC_LENGTH(xhci_readl(&u3h->hcd->cr_capbase)));
 
-	return xhci_register(dev, u3h->hcd, hcor);
+	rc = xhci_register(dev, u3h->hcd, hcor);
+	if (rc)
+		goto host_err;
+
+	return 0;
+
+host_err:
+	ssusb_host_exit(ssusb);
+rscs_err:
+	mtu3_host_rscs_exit(u3h);
+	return rc;
 }
 
 static int mtu3_host_remove(struct udevice *dev)
@@ -293,68 +365,99 @@ static int mtu3_host_remove(struct udevice *dev)
 
 	xhci_deregister(dev);
 	ssusb_host_exit(u3h->ssusb);
+	mtu3_host_rscs_exit(u3h);
 	return 0;
 }
 
 U_BOOT_DRIVER(mtu3_host) = {
 	.name = "mtu3-host",
 	.id = UCLASS_USB,
-	.of_match = ssusb_of_match,
 	.probe = mtu3_host_probe,
 	.remove = mtu3_host_remove,
 	.priv_auto	= sizeof(struct mtu3_host),
 	.ops = &xhci_usb_ops,
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif
 
-static int mtu3_glue_bind(struct udevice *parent)
+static int mtu3_bind_host(struct udevice *parent)
 {
 	struct udevice *dev;
-	enum usb_dr_mode dr_mode;
-	const char *driver;
 	const char *name;
 	ofnode node;
 	int ret;
 
-	node = ofnode_by_compatible(dev_ofnode(parent), "mediatek,ssusb");
-	if (!ofnode_valid(node))
+	ofnode_for_each_subnode(node, dev_ofnode(parent)) {
+		if (ofnode_is_enabled(node) &&
+		    ofnode_device_is_compatible(node, "mediatek,mtk-xhci"))
+			break;
+	}
+	if (!ofnode_valid(node)) {
+		dev_err(parent, "failed to find enabled xHCI child node\n");
 		return -ENODEV;
+	}
 
 	name = ofnode_get_name(node);
-	dr_mode = usb_get_dr_mode(node);
-
-	switch (dr_mode) {
-#if CONFIG_IS_ENABLED(DM_USB_GADGET)
-	case USB_DR_MODE_PERIPHERAL:
-	case USB_DR_MODE_OTG:
-		dev_dbg(parent, "%s: dr_mode: peripheral\n", __func__);
-		driver = "mtu3-peripheral";
-		break;
-#endif
-
-#if defined(CONFIG_SPL_USB_HOST) || \
-	(!defined(CONFIG_XPL_BUILD) && defined(CONFIG_USB_HOST))
-	case USB_DR_MODE_HOST:
-		dev_dbg(parent, "%s: dr_mode: host\n", __func__);
-		driver = "mtu3-host";
-		break;
-#endif
-	default:
-		dev_err(parent, "%s: unsupported dr_mode %d\n",
-			__func__, dr_mode);
-		return -ENODEV;
-	};
-
-	dev_dbg(parent, "%s: node name: %s, driver %s, dr_mode %d\n",
-		__func__, name, driver, dr_mode);
-
-	ret = device_bind_driver_to_node(parent, driver, name, node, &dev);
+	ret = device_bind_driver_to_node(parent, "mtu3-host", name, node,
+					 &dev);
 	if (ret)
-		dev_err(parent, "%s: not able to bind usb device mode\n",
-			__func__);
+		dev_err(parent, "failed to bind host mode: %d\n", ret);
 
 	return ret;
+}
+#else
+static int mtu3_bind_host(struct udevice *parent)
+{
+	return -ENODEV;
+}
+#endif
+
+static int mtu3_glue_bind(struct udevice *parent)
+{
+	enum usb_dr_mode dr_mode;
+	ofnode node;
+
+	/* Reject the old layout before misinterpreting its register offsets. */
+	ofnode_for_each_subnode(node, dev_ofnode(parent)) {
+		if (ofnode_device_is_compatible(node, "mediatek,ssusb")) {
+			dev_err(parent,
+				"legacy mediatek,ssusb child is unsupported\n");
+			/* Only -ENODEV keeps the failure contained to USB. */
+			return -ENODEV;
+		}
+	}
+
+	dr_mode = usb_get_dr_mode(dev_ofnode(parent));
+	if (dr_mode == USB_DR_MODE_UNKNOWN) {
+		/* Absent defaults to otg, an unparsable value is an error. */
+		if (dev_read_string(parent, "dr_mode")) {
+			dev_err(parent, "invalid dr_mode\n");
+			return -ENODEV;
+		}
+
+		dr_mode = USB_DR_MODE_OTG;
+	}
+
+	switch (dr_mode) {
+	case USB_DR_MODE_PERIPHERAL:
+		if (IS_ENABLED(CONFIG_USB_MTU3_GADGET))
+			return mtu3_bind_gadget(parent);
+		break;
+	case USB_DR_MODE_HOST:
+		if (IS_ENABLED(CONFIG_USB_MTU3_HOST))
+			return mtu3_bind_host(parent);
+		break;
+	case USB_DR_MODE_OTG:
+		if (IS_ENABLED(CONFIG_USB_MTU3_GADGET))
+			return mtu3_bind_gadget(parent);
+		if (IS_ENABLED(CONFIG_USB_MTU3_HOST))
+			return mtu3_bind_host(parent);
+		break;
+	default:
+		break;
+	}
+
+	dev_err(parent, "dr_mode %d is unsupported by this build\n", dr_mode);
+	return -ENODEV;
 }
 
 static const struct udevice_id mtu3_of_match[] = {
