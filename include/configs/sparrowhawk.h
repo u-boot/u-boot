@@ -31,6 +31,37 @@
 		"sf probe && "						\
 		"sf update ${loadaddr} "				\
 			"${renesas_rcar_gen4_pcie_firmware_sf_offset} "	\
-			"${filesize}\0"
+			"${filesize}\0" \
+	\
+	"renesas_update_loader_iface=mmc\0"				\
+	"renesas_update_loader_dev=0\0"					\
+	"renesas_update_loader_part=1\0"				\
+	"renesas_update_loader_sf_offset=0x0\0"				\
+	"renesas_update_loader_filename=flash.bin\0"			\
+	"update_loader_from_blk="					\
+		"load ${renesas_update_loader_iface} "			\
+			"${renesas_update_loader_dev}:${renesas_update_loader_part} "  \
+			"${loadaddr} "					\
+			"${renesas_update_loader_filename} && "		\
+		"sf probe && "						\
+		"sf update ${loadaddr} "				\
+			"${renesas_update_loader_sf_offset} "		\
+			"${filesize} && "				\
+		"reset\0"						\
+	"update_loader_from_blk01="					\
+		"env set renesas_update_loader_dev 0 && "		\
+		"env set renesas_update_loader_part 1 && "		\
+		"run update_loader_from_blk\0"				\
+	"update_loader_from_mmc="					\
+		"env set renesas_update_loader_iface mmc && "		\
+		"run update_loader_from_blk01\0"			\
+	"update_loader_from_nvme="					\
+		"pci enum && nvme scan && "				\
+		"env set renesas_update_loader_iface nvme && "		\
+		"run update_loader_from_blk01\0"			\
+	"update_loader_from_usb="					\
+		"pci enum && usb start && "				\
+		"env set renesas_update_loader_iface usb && "		\
+		"run update_loader_from_blk01\0"
 
 #endif /* __SPARROWHAWK_H */
