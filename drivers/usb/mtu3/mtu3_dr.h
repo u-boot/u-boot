@@ -10,7 +10,7 @@
 #ifndef _MTU3_DR_H_
 #define _MTU3_DR_H_
 
-#if IS_ENABLED(CONFIG_USB_MTU3_HOST)
+#if CONFIG_IS_ENABLED(USB_MTU3_HOST)
 
 int ssusb_host_init(struct ssusb_mtk *ssusb);
 void ssusb_host_exit(struct ssusb_mtk *ssusb);
@@ -27,7 +27,7 @@ static inline void ssusb_host_exit(struct ssusb_mtk *ssusb)
 
 #endif
 
-#if IS_ENABLED(CONFIG_USB_MTU3_GADGET)
+#if CONFIG_IS_ENABLED(USB_MTU3_GADGET)
 int ssusb_gadget_init(struct ssusb_mtk *ssusb);
 void ssusb_gadget_exit(struct ssusb_mtk *ssusb);
 irqreturn_t mtu3_irq(int irq, void *data);

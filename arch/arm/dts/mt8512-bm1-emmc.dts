@@ -114,13 +114,9 @@
 		};
 };
 
-&ssusb {
+&usb3 {
 	dr_mode = "peripheral";
 	maximum-speed = "high-speed";
-	status = "okay";
-};
-
-&usb3 {
 	vbus-supply = <&usb_p0_vbus>;
 	status = "okay";
 };

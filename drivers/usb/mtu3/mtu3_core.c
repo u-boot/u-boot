@@ -842,8 +842,8 @@ int ssusb_gadget_init(struct ssusb_mtk *ssusb)
 	mtu->ippc_base = ssusb->ippc_base;
 	mtu->mac_base = ssusb->mac_base;
 	mtu->ssusb = ssusb;
-	mtu->max_speed = usb_get_maximum_speed(dev_ofnode(dev));
-	mtu->force_vbus = dev_read_bool(dev, "mediatek,force-vbus");
+	mtu->max_speed = usb_get_maximum_speed(dev_ofnode(ssusb->dev));
+	mtu->force_vbus = dev_read_bool(ssusb->dev, "mediatek,force-vbus");
 
 	ret = mtu3_hw_init(mtu);
 	if (ret) {

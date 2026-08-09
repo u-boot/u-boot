@@ -42,3 +42,42 @@ config USB_MTU3_DEBUG
 	  Say Y here to enable debugging messages in the MTU3 Driver.
 
 endif
+
+config SPL_USB_MTU3
+	bool "MediaTek USB3 controller support in SPL"
+	depends on ARCH_MEDIATEK
+	depends on SPL_DM_USB
+	depends on SPL_USB_HOST || (SPL_DM_USB_GADGET && SPL_USB_GADGET)
+	help
+	  Enable the MediaTek USB3 controller in SPL. Select host or peripheral
+	  mode below.
+
+if SPL_USB_MTU3
+
+choice
+	bool "MTU3 SPL Mode Selection"
+	default SPL_USB_MTU3_GADGET if SPL_USB_GADGET
+	default SPL_USB_MTU3_HOST if (SPL_USB_HOST && !SPL_USB_GADGET)
+	help
+	  Select whether the MTU3 controller operates as an xHCI host or a USB
+	  peripheral in SPL.
+
+config SPL_USB_MTU3_HOST
+	bool "Host mode in SPL"
+	depends on SPL_USB_HOST && USB_XHCI_HCD
+	select SPL_OF_TRANSLATE
+	help
+	  Enable the MTU3 xHCI host controller in SPL so USB devices can be
+	  accessed before U-Boot proper starts.
+
+config SPL_USB_MTU3_GADGET
+	bool "Gadget mode in SPL"
+	depends on SPL_DM_USB_GADGET && SPL_USB_GADGET
+	select USB_GADGET_DUALSPEED
+	help
+	  Enable the MTU3 peripheral controller in SPL so USB gadget
+	  functions can use it before U-Boot proper starts.
+
+endchoice
+
+endif
