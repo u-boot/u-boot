@@ -112,6 +112,15 @@ struct rcar_gen4_pcie {
 	size_t			firmware_size;
 };
 
+/**
+ * struct rcar_gen4_pcie_plat - Renesas R-Car Gen4 DW PCIe controller platform data
+ *
+ * @probed: Controller was started
+ */
+struct rcar_gen4_pcie_plat {
+	bool			probed;
+};
+
 /* Common */
 static bool rcar_gen4_pcie_link_up(struct rcar_gen4_pcie *rcar)
 {
@@ -404,9 +413,13 @@ static int rcar_gen4_pcie_load_firmware(struct rcar_gen4_pcie *rcar)
 static int rcar_gen4_pcie_probe(struct udevice *dev)
 {
 	struct rcar_gen4_pcie *rcar = dev_get_priv(dev);
+	struct rcar_gen4_pcie_plat *plat = dev_get_plat(dev);
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	int ret;
+
+	if (plat->probed)
+		return -ENODEV;
 
 	ret = rcar_gen4_pcie_load_firmware(rcar);
 	if (ret)
@@ -447,6 +460,7 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 	dw_pcie_link_set_max_link_width(&rcar->dw, rcar->num_lanes);
 
 	ret = rcar_gen4_pcie_start_link(rcar);
+	plat->probed = true;
 	if (ret)
 		return ret;
 
@@ -569,5 +583,6 @@ U_BOOT_DRIVER(rcar_gen4_pcie) = {
 	.probe		= rcar_gen4_pcie_probe,
 	.remove		= rcar_gen4_pcie_remove,
 	.priv_auto	= sizeof(struct rcar_gen4_pcie),
+	.plat_auto	= sizeof(struct rcar_gen4_pcie_plat),
 	.flags		= DM_FLAG_ACTIVE_DMA,
 };
