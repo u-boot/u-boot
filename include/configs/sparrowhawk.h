@@ -11,6 +11,35 @@
 
 #include "rcar-gen4-common.h"
 
+#define BOOT_TARGET_DEVICES(func)	\
+	func(MMC, mmc, 0)		\
+	func(NVME, nvme, 0)		\
+	func(USB, usb, 0)		\
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
+/*
+ * Support for USB-ethernet and PCIe-ethernet is disabled, do not
+ * initialize either and directly boot via native ethernet only.
+ */
+#undef BOOTENV_RUN_NET_USB_START
+#define BOOTENV_RUN_NET_USB_START
+#undef BOOTENV_SHARED_USB
+#define BOOTENV_SHARED_USB						\
+	"usb_boot="							\
+		"run boot_pci_enum ; usb start ; "			\
+		BOOTENV_SHARED_BLKDEV_BODY(usb)
+#undef BOOTENV_DEV_DHCP
+#define BOOTENV_DEV_DHCP(devtypeu, devtypel, instance)			\
+	"bootcmd_dhcp="							\
+		"devtype=" #devtypel "; "				\
+		"if dhcp ${scriptaddr} ${boot_script_dhcp}; then "	\
+			"source ${scriptaddr}; "			\
+		"fi;"							\
+		BOOTENV_EFI_RUN_DHCP					\
+		"\0"
+
 /* Environment setting */
 #undef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS						\
@@ -62,6 +91,45 @@
 	"update_loader_from_usb="					\
 		"pci enum && usb start && "				\
 		"env set renesas_update_loader_iface usb && "		\
-		"run update_loader_from_blk01\0"
+		"run update_loader_from_blk01\0"			\
+	\
+	BOOTENV								\
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"		\
+	"scan_dev_for_scripts="						\
+		"if test -e ${devtype} ${devnum}:${distro_bootpart} "	\
+				"${prefix}fitImage; then "		\
+			"echo Found fitImage ${prefix}fitImage ; "	\
+			"if test ${devtype} = \"mmc\" ; then "		\
+				"env set bootargs \"${bootargs} "	\
+					"root=/dev/mmcblk0p1\" ; "	\
+			"elif test ${devtype} = \"nvme\" ; then "	\
+				"env set bootargs \"${bootargs} "	\
+					"root=/dev/nvme0n1p1\" ; "	\
+			"elif test ${devtype} = \"usb\" ; then "	\
+				"env set bootargs \"${bootargs} "	\
+					"root=/dev/sda1\" ; "		\
+			"else "						\
+				"part uuid ${devtype} "			\
+					"${devnum}:${distro_bootpart} "	\
+					"uuid ; "			\
+				"env set bootargs \"${bootargs} "	\
+					"root=PARTUUID=${uuid}\" ; "	\
+			"fi ; "						\
+			"env set bootargs \"${bootargs} rw rootwait\" ; " \
+			"load ${devtype} ${devnum}:${distro_bootpart} "	\
+				"${scriptaddr} ${prefix}fitImage && "	\
+			"source ${scriptaddr}:script ; "		\
+			"echo fitImage script FAILED: continuing...; "	\
+		"fi; "							\
+		"for script in ${boot_scripts}; do "			\
+			"if test -e ${devtype} "			\
+					"${devnum}:${distro_bootpart} "	\
+					"${prefix}${script}; then "	\
+				"echo Found U-Boot script "		\
+					"${prefix}${script}; "		\
+				"run boot_a_script; "			\
+				"echo SCRIPT FAILED: continuing...; "	\
+			"fi; "						\
+		"done\0"
 
 #endif /* __SPARROWHAWK_H */
