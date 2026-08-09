@@ -19,6 +19,7 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <env.h>
+#include <fw_loader.h>
 #include <log.h>
 #include <reset.h>
 
@@ -75,6 +76,7 @@
 
 #define RCAR_GEN4_PCIE_FIRMWARE_NAME		"rcar_gen4_pcie.bin"
 #define RCAR_GEN4_PCIE_FIRMWARE_BASE_ADDR	0xc000
+#define RCAR_GEN4_PCIE_FIRMWARE_SIZE		0x8000
 
 #define PCIE_T_PVPERL_MS			100
 
@@ -107,7 +109,7 @@ struct rcar_gen4_pcie {
 	u32			max_link_speed;
 	u32			num_lanes;
 	u16			*firmware;
-	u32			firmware_size;
+	size_t			firmware_size;
 };
 
 /* Common */
@@ -362,56 +364,31 @@ static int rcar_gen4_pcie_host_init(struct udevice *dev)
 
 static int rcar_gen4_pcie_load_firmware(struct rcar_gen4_pcie *rcar)
 {
-	ulong addr, size;
 	int ret;
 
-	/*
-	 * Run user specified firmware loading script, which loads the
-	 * firmware from whichever location the user decides it should
-	 * load the firmware from, by whatever means the user decides.
-	 */
-	ret = run_command_list("run renesas_rcar_gen4_load_firmware", -1, 0);
-	if (ret) {
-		printf("Firmware loading script 'renesas_rcar_gen4_load_firmware' not defined or failed.\n");
-		goto fail;
-	}
-
-	/* Find out where the firmware got loaded and how long it is. */
-	addr = env_get_hex("renesas_rcar_gen4_load_firmware_addr", 0);
-	size = env_get_hex("renesas_rcar_gen4_load_firmware_size", 0);
-
-	/*
-	 * Clear the variables set by the firmware loading script, as
-	 * their content would become stale once this function exits.
-	 */
-	env_set("renesas_rcar_gen4_load_firmware_addr", NULL);
-	env_set("renesas_rcar_gen4_load_firmware_size", NULL);
-
-	if (!addr || !size) {
-		printf("Firmware address (%lx) or size (%lx) are invalid.\n", addr, size);
-		goto fail;
-	}
-
-	/* Create local copy of the loaded firmware. */
-	rcar->firmware = (u16 *)memdup((void *)addr, size);
+	rcar->firmware = calloc(1, RCAR_GEN4_PCIE_FIRMWARE_SIZE);
 	if (!rcar->firmware)
 		return -ENOMEM;
 
-	rcar->firmware_size = size;
+	ret = request_firmware_into_buf_via_script(rcar->firmware,
+						   RCAR_GEN4_PCIE_FIRMWARE_SIZE,
+						   "renesas_rcar_gen4_load_firmware",
+						   &rcar->firmware_size);
+	if (ret) {
+		free(rcar->firmware);
 
-	return 0;
+		printf("Define 'renesas_rcar_gen4_load_firmware' script which loads the R-Car\n"
+		       "Gen4 PCIe controller firmware from storage into memory and sets these\n"
+		       "two environment variables:\n"
+		       "  renesas_rcar_gen4_load_firmware_addr ... address of firmware in memory\n"
+		       "  renesas_rcar_gen4_load_firmware_size ... length of firmware in bytes\n"
+		       "\n"
+		       "Example:\n"
+		       "  => env set renesas_rcar_gen4_load_firmware 'env set renesas_rcar_gen4_load_firmware_addr 0x54000000 && load mmc 0:1 ${renesas_rcar_gen4_load_firmware_addr} lib/firmware/rcar_gen4_pcie.bin && env set renesas_rcar_gen4_load_firmware_size ${filesize}'\n"
+		       );
+	}
 
-fail:
-	printf("Define 'renesas_rcar_gen4_load_firmware' script which loads the R-Car\n"
-	       "Gen4 PCIe controller firmware from storage into memory and sets these\n"
-	       "two environment variables:\n"
-	       "  renesas_rcar_gen4_load_firmware_addr ... address of firmware in memory\n"
-	       "  renesas_rcar_gen4_load_firmware_size ... length of firmware in bytes\n"
-	       "\n"
-	       "Example:\n"
-	       "  => env set renesas_rcar_gen4_load_firmware 'env set renesas_rcar_gen4_load_firmware_addr 0x54000000 && load mmc 0:1 ${renesas_rcar_gen4_load_firmware_addr} lib/firmware/rcar_gen4_pcie.bin && env set renesas_rcar_gen4_load_firmware_size ${filesize}'\n"
-	       );
-	return -EINVAL;
+	return ret;
 }
 
 /**
