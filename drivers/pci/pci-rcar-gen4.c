@@ -99,10 +99,10 @@
 struct rcar_gen4_pcie {
 	/* Must be first member of the struct */
 	struct			pcie_dw dw;
-	struct reset_ctl	pwr_rst;
+	struct reset_ctl	*pwr_rst;
 	struct clk		*core_clk;
 	struct clk		*ref_clk;
-	struct gpio_desc	pe_rst;
+	struct gpio_desc	*pe_rst;
 	void			*app_base;
 	void			*dbi2_base;
 	void			*phy_base;
@@ -313,7 +313,7 @@ static int rcar_gen4_pcie_common_init(struct rcar_gen4_pcie *rcar)
 	if (ret)
 		return ret;
 
-	ret = reset_assert(&rcar->pwr_rst);
+	ret = reset_assert(rcar->pwr_rst);
 	if (ret)
 		goto err_unprepare;
 
@@ -323,11 +323,11 @@ static int rcar_gen4_pcie_common_init(struct rcar_gen4_pcie *rcar)
 		     DEVICE_TYPE_RC |
 		     ((rcar->num_lanes < 4) ? BIFUR_MOD_SET_ON : 0));
 
-	ret = reset_deassert(&rcar->pwr_rst);
+	ret = reset_deassert(rcar->pwr_rst);
 	if (ret)
 		goto err_unprepare;
 
-	reset_status(&rcar->pwr_rst);
+	reset_status(rcar->pwr_rst);
 	mdelay(1);
 
 	rcar_gen4_pcie_additional_common_init(rcar);
@@ -346,7 +346,7 @@ static int rcar_gen4_pcie_host_init(struct udevice *dev)
 	struct rcar_gen4_pcie *rcar = dev_get_priv(dev);
 	int ret;
 
-	dm_gpio_set_value(&rcar->pe_rst, 1);
+	dm_gpio_set_value(rcar->pe_rst, 1);
 
 	ret = rcar_gen4_pcie_common_init(rcar);
 	if (ret)
@@ -366,7 +366,7 @@ static int rcar_gen4_pcie_host_init(struct udevice *dev)
 
 	mdelay(PCIE_T_PVPERL_MS);	/* pe_rst requires 100msec delay */
 
-	dm_gpio_set_value(&rcar->pe_rst, 0);
+	dm_gpio_set_value(rcar->pe_rst, 0);
 
 	return 0;
 }
@@ -428,9 +428,9 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 	rcar->dw.first_busno = dev_seq(dev);
 	rcar->dw.dev = dev;
 
-	ret = reset_get_by_name(dev, "pwr", &rcar->pwr_rst);
-	if (ret)
-		return ret;
+	rcar->pwr_rst = devm_reset_control_get(dev, "pwr");
+	if (IS_ERR(rcar->pwr_rst))
+		return PTR_ERR(rcar->pwr_rst);
 
 	rcar->core_clk = devm_clk_get(dev, "core");
 	if (IS_ERR(rcar->core_clk))
@@ -444,10 +444,10 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 	if (ret && ret != -ENOSYS)
 		return ret;
 
-	ret = gpio_request_by_name(dev, "reset-gpios", 0, &rcar->pe_rst,
-				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-	if (ret)
-		return ret;
+	rcar->pe_rst = devm_gpiod_get(dev, "reset",
+				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	if (IS_ERR(rcar->pe_rst))
+		return PTR_ERR(rcar->pe_rst);
 
 	ret = rcar_gen4_pcie_host_init(dev);
 	if (ret)
@@ -469,8 +469,8 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 	if (!rcar_gen4_pcie_link_up(rcar)) {
 		printf("PCIE-%d: Link down\n", dev_seq(dev));
 		rcar_gen4_pcie_ltssm_control(rcar, false);
-		dm_gpio_set_value(&rcar->pe_rst, 1);
-		reset_assert(&rcar->pwr_rst);
+		dm_gpio_set_value(rcar->pe_rst, 1);
+		reset_assert(rcar->pwr_rst);
 		clk_disable_unprepare(rcar->ref_clk);
 		return -ENODEV;
 	}
@@ -501,8 +501,8 @@ static int rcar_gen4_pcie_remove(struct udevice *dev)
 	struct rcar_gen4_pcie *rcar = dev_get_priv(dev);
 
 	rcar_gen4_pcie_ltssm_control(rcar, false);
-	dm_gpio_set_value(&rcar->pe_rst, 1);
-	reset_assert(&rcar->pwr_rst);
+	dm_gpio_set_value(rcar->pe_rst, 1);
+	reset_assert(rcar->pwr_rst);
 	clk_disable_unprepare(rcar->ref_clk);
 
 	return 0;
