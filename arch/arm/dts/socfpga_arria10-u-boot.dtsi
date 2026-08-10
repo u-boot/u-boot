@@ -18,7 +18,7 @@
 	};
 };
 
-&clkmgr {
+&{/soc/clkmgr@ffd04000} {
 	bootph-all;
 
 	clocks {
