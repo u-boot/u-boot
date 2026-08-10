@@ -1184,6 +1184,41 @@ static const char *fit_config_get_image_list(const void *fit, int noffset,
 }
 
 /**
+ * fit_config_add_node() - Add a node's path to a list of nodes to hash
+ *
+ * @fit:	Pointer to the FIT format image header
+ * @noffset:	Offset of the node whose path should be added
+ * @node_inc:	List of nodes to add to
+ * @conf_name	Configuration-node name, child of /configurations node (only
+ *	used for error messages)
+ * @sig_name	Signature-node name (only used for error messages)
+ * @iname:	Name of image being processed (e.g. "kernel-1" (only used
+ *	for error messages)
+ */
+static int fit_config_add_node(const void *fit, int noffset,
+			       struct strlist *node_inc, const char *conf_name,
+			       const char *sig_name, const char *iname)
+{
+	char path[200];
+	int ret;
+
+	ret = fdt_get_path(fit, noffset, path, sizeof(path));
+	if (ret < 0) {
+		fprintf(stderr,
+			"Failed to get path for image '%s' in configuration '%s/%s': %s\n",
+			iname, conf_name, sig_name, fdt_strerror(ret));
+		return -ENOENT;
+	}
+	if (strlist_add(node_inc, path)) {
+		fprintf(stderr, "Out of memory processing configuration '%s/%s'\n",
+			conf_name, sig_name);
+		return -ENOMEM;
+	}
+
+	return 0;
+}
+
+/**
  * fit_config_add_hash() - Add a list of nodes to hash for an image
  *
  * This adds a list of paths to image nodes (as referred to by a particular
@@ -1202,16 +1237,14 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 			       struct strlist *node_inc, const char *conf_name,
 			       const char *sig_name, const char *iname)
 {
-	char path[200];
 	int noffset;
 	int hash_count;
 	int ret;
 
-	ret = fdt_get_path(fit, image_noffset, path, sizeof(path));
-	if (ret < 0)
-		goto err_path;
-	if (strlist_add(node_inc, path))
-		goto err_mem;
+	ret = fit_config_add_node(fit, image_noffset, node_inc, conf_name,
+				  sig_name, iname);
+	if (ret)
+		return ret;
 
 	/* Add all this image's hashes */
 	hash_count = 0;
@@ -1223,11 +1256,10 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 		if (strncmp(name, FIT_HASH_NODENAME,
 			    strlen(FIT_HASH_NODENAME)))
 			continue;
-		ret = fdt_get_path(fit, noffset, path, sizeof(path));
-		if (ret < 0)
-			goto err_path;
-		if (strlist_add(node_inc, path))
-			goto err_mem;
+		ret = fit_config_add_node(fit, noffset, node_inc, conf_name,
+					  sig_name, iname);
+		if (ret)
+			return ret;
 		hash_count++;
 	}
 
@@ -1249,24 +1281,34 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 				fdt_strerror(noffset));
 			return -EIO;
 		}
-		ret = fdt_get_path(fit, noffset, path, sizeof(path));
-		if (ret < 0)
-			goto err_path;
-		if (strlist_add(node_inc, path))
-			goto err_mem;
+		ret = fit_config_add_node(fit, noffset, node_inc, conf_name,
+					  sig_name, iname);
+		if (ret)
+			return ret;
+	}
+
+	/*
+	 * Add this image's dm-verity node if present. Its roothash is the
+	 * only integrity anchor for a dm-verity filesystem image, so it must
+	 * be covered by the configuration signature.
+	 */
+	noffset = fdt_subnode_offset(fit, image_noffset,
+				     FIT_VERITY_NODENAME);
+	if (noffset != -FDT_ERR_NOTFOUND) {
+		if (noffset < 0) {
+			fprintf(stderr,
+				"Failed to get dm-verity node in configuration '%s/%s' image '%s': %s\n",
+				conf_name, sig_name, iname,
+				fdt_strerror(noffset));
+			return -EIO;
+		}
+		ret = fit_config_add_node(fit, noffset, node_inc, conf_name,
+					  sig_name, iname);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
-
-err_mem:
-	fprintf(stderr, "Out of memory processing configuration '%s/%s'\n", conf_name,
-		sig_name);
-	return -ENOMEM;
-
-err_path:
-	fprintf(stderr, "Failed to get path for image '%s' in configuration '%s/%s': %s\n",
-		iname, conf_name, sig_name, fdt_strerror(ret));
-	return -ENOENT;
 }
 
 /**

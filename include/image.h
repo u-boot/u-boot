@@ -1897,6 +1897,29 @@ struct image_region *fit_region_make_list(const void *fit,
 		struct fdt_region *fdt_regions, int count,
 		struct image_region *region);
 
+/**
+ * fit_config_get_signed_nodes() - Build the list of nodes covered by a config
+ *				   signature
+ *
+ * Collects the paths of the nodes that the configuration signature is
+ * computed over: the root node, the configuration node, and for each image
+ * referenced by the configuration its node, its hash subnodes and its cipher
+ * and dm-verity subnodes. The result is the same node list used when creating
+ * and verifying the signature, and is suitable for passing to
+ * fdt_find_regions().
+ *
+ * @fit:	FIT blob
+ * @conf_noffset: Configuration node offset
+ * @node_inc:	Array to fill with pointers to packed path strings
+ * @max_nodes:	Number of entries in @node_inc
+ * @buf:	Buffer for the packed null-terminated path strings
+ * @buf_len:	Size of @buf
+ * Return: number of entries written to @node_inc, or -ve on error
+ */
+int fit_config_get_signed_nodes(const void *fit, int conf_noffset,
+				char **node_inc, int max_nodes,
+				char *buf, int buf_len);
+
 static inline int fit_image_check_target_arch(const void *fdt, int node)
 {
 #ifndef USE_HOSTCC
