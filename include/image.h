@@ -369,6 +369,7 @@ struct bootm_headers {
 	void		*fit_hdr_os;	/* os FIT image header */
 	const char	*fit_uname_os;	/* os subimage node unit name */
 	int		fit_noffset_os;	/* os subimage node offset */
+	uint8_t		fit_install_uuid[16]; /* install-uuid from FIT root */
 
 	void		*fit_hdr_rd;	/* init ramdisk FIT image header */
 	const char	*fit_uname_rd;	/* init ramdisk subimage node unit name */
@@ -1065,6 +1066,8 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 
 #define FIT_IMAGES_PATH		"/images"
 #define FIT_CONFS_PATH		"/configurations"
+#define FIT_INSTALL_UUID_PROP	"install-uuid"
+#define FIT_INSTALL_UUID_LEN	16
 
 /* hash/signature/key node */
 #define FIT_HASH_NODENAME	"hash"

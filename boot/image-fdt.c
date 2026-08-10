@@ -637,6 +637,17 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 					images->fit_uname_cfg,
 					strlen(images->fit_uname_cfg) + 1, 1);
 
+	/*
+	 * Copy install-uuid (saved at FIT parse time) into /chosen.
+	 * Byte 8 carries the RFC 4122 variant bits (10xxxxxx for all
+	 * standard UUIDs), so it is never zero for a valid UUID while
+	 * the zero-initialized default reliably indicates "not set".
+	 */
+	if (images->fit_install_uuid[8])
+		fdt_find_and_setprop(blob, "/chosen", "u-boot,fit-install-uuid",
+				     images->fit_install_uuid,
+				     FIT_INSTALL_UUID_LEN, 1);
+
 	/* Update ethernet nodes */
 	fdt_fixup_ethernet(blob);
 #if IS_ENABLED(CONFIG_CMD_PSTORE)
