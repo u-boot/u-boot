@@ -170,6 +170,42 @@ static int renesas_rsip_rproc_load(struct udevice *dev, ulong addr, ulong size)
 }
 
 /**
+ * renesas_rsip_rproc_init() - Initialize the remote processor
+ * @dev:	corresponding remote processor device
+ *
+ * Return: 0 if all went ok, else corresponding -ve error
+ */
+static int renesas_rsip_rproc_init(struct udevice *dev)
+{
+	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
+	struct reset_ctl *rst = dev_get_priv(dev->parent);
+	u32 addr;
+
+	if (priv->core_id != 0)	/* No init for non-SCP cores */
+		return 0;
+
+	/*
+	 * Put SCP into reset, configure SCP entry point address and systick
+	 * timer, release SCP from reset, and zero out SCP STCM regions.
+	 */
+	reset_assert(rst);
+
+	writel(SCP_STCM, SCP_CFGVECTABLE);
+	writel(SCP_CFGNSSTCALIB_13_3MHZ, SCP_CFGNSSTCALIB);
+	setbits_le32(SCP_CPUWAIT, SCP_CPUWAIT_WAIT);
+
+	reset_deassert(rst);
+
+	/* Fill zero to SCP STCM regions 0 ... 27 */
+	for (addr = SCP_STCM; addr < 0xc1061b00; addr += 8)
+		writeq(0, addr);
+
+	asm volatile("dsb sy");
+
+	return 0;
+}
+
+/**
  * renesas_rsip_rproc_start() - Start the remote processor
  * @dev:	corresponding remote processor device
  *
@@ -211,9 +247,9 @@ static int renesas_rsip_rproc_stop(struct udevice *dev)
 {
 	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
 
-	if (priv->core_id == 0) {	/* SCP */
-		setbits_le32(SCP_CPUWAIT, SCP_CPUWAIT_WAIT);
-		return 0;
+	if (priv->core_id == 0) {
+		/* SCP */
+		return renesas_rsip_rproc_init(dev);
 	}
 
 	return 0;
@@ -242,43 +278,6 @@ static int renesas_rsip_rproc_is_running(struct udevice *dev)
 {
 	/* We assume the core is stopped. */
 	return 1;
-}
-
-/**
- * renesas_rsip_rproc_init() - Initialize the remote processor
- * @dev:	corresponding remote processor device
- *
- * Return: 0 if all went ok, else corresponding -ve error
- */
-static int renesas_rsip_rproc_init(struct udevice *dev)
-{
-	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
-	struct reset_ctl *rst = dev_get_priv(dev->parent);
-	u32 addr;
-
-	if (priv->core_id != 0)	/* No init for non-SCP cores */
-		return 0;
-
-	/*
-	 * Put SCP into reset, configure SCP entry point address and systick
-	 * timer, release SCP from reset, and zero out SCP STCM regions.
-	 */
-
-	reset_assert(rst);
-
-	writel(SCP_STCM, SCP_CFGVECTABLE);
-	writel(SCP_CFGNSSTCALIB_13_3MHZ, SCP_CFGNSSTCALIB);
-	setbits_le32(SCP_CPUWAIT, SCP_CPUWAIT_WAIT);
-
-	reset_deassert(rst);
-
-	/* Fill zero to SCP STCM regions 0 ... 27 */
-	for (addr = SCP_STCM; addr < 0xc1061b00; addr += 8)
-		writeq(0, addr);
-
-	asm volatile("dsb sy");
-
-	return 0;
 }
 
 /**
