@@ -334,8 +334,8 @@ static void stm32mp1_ddr_subcmd(struct ddr_info *priv,
 
 	if ((strict_strtoul(argv[1], 0, &value) <  0) ||
 	    value >= array_nb) {
-		sprintf(string, "invalid argument %s",
-			argv[1]);
+		snprintf(string, sizeof(string), "invalid argument %s",
+			 argv[1]);
 		result = TEST_FAILED;
 		goto end;
 	}
