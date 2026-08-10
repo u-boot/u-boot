@@ -27,3 +27,6 @@ For example:
 When you run make to build the ``u-boot.mbn`` target, ``mkmbn`` will inspect the DTB in your
 U-Boot image and try to match the compatible to the table, then it will build an ELF image and
 hash/sign it per the MBN spec.
+
+The mkmbn tool requires the python ``cryptography`` module, this can be installed in a virtualenv
+using pip, or from your distros package repositories.
