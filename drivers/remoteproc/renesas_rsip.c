@@ -116,6 +116,7 @@ static void scp_cpu_core_start(const u32 core, const u32 ep)
 	/* Wait for SCP to be free, then set it busy */
 	scp_wait_fw_free();
 	shmem->status &= ~SCP_SCMI_STATUS_FREE;
+	shmem->flags = 0;
 
 	/* Set up the message and copy it to SHMEM */
 	shmem->message_header = SCMI_PD_POWER_STATE_SET_BOOTADDR;
