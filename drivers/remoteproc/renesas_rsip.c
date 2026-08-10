@@ -102,6 +102,7 @@ static void scp_send_interrupt(void)
 #define SCMI_PD_POWER_STATE_SET_BOOTADDR	0x4411
 #define SCMI_PD_POWER_STATE_SET_STATE_ON	0
 #define SCMI_PD_POWER_STATE_SET_STATE_OFF	BIT(30)
+#define SCMI_PD_POWER_STATE_GET			0x4405
 
 /**
  * scp_cpu_core_id_to_domain() - Convert core ID to SCMI domain ID
@@ -171,6 +172,52 @@ static int scp_cpu_core_set(const u32 core, const u32 ep, const u32 state)
 	}
 
 	return 0;
+}
+
+/**
+ * scp_cpu_core_get() - Get CPU core state by invoking SCP via SCMI
+ * @core: CPU core to get
+ */
+static int scp_cpu_core_get(const u32 core)
+{
+	struct scp_scmi_shmem *shmem = (struct scp_scmi_shmem *)SCP_SCMI_SHMEM_AREA09;
+	u32 status, pwr;
+	u32 domain_id;	/* Core ID */
+	int ret;
+
+	ret = scp_cpu_core_id_to_domain(core, &domain_id);
+	if (ret)
+		return ret;
+
+	/* Wait for SCP to be free, then set it busy */
+	scp_wait_fw_free();
+	shmem->status &= ~SCP_SCMI_STATUS_FREE;
+	shmem->flags = 0;
+
+	/* Set up the message and copy it to SHMEM */
+	shmem->message_header = SCMI_PD_POWER_STATE_GET;
+	memcpy(shmem->payload, &domain_id, sizeof(domain_id));
+	shmem->length = sizeof(shmem->message_header) + sizeof(domain_id);
+
+	/* Send message to SCP and wait for completion */
+	scp_send_interrupt();
+	scp_wait_fw_free();
+
+	/* Read back the result */
+	status = readl((uintptr_t)shmem->payload);
+	if (status) {
+		printf("SCP POWER_STATE_GET domain %d failed, status=0x%x (%d)\n",
+		       domain_id, status, status);
+		return -EINVAL;
+	}
+
+	pwr = readl((uintptr_t)(shmem->payload + 4));
+	if (pwr == SCMI_PD_POWER_STATE_SET_STATE_ON)
+		return 0;
+	else if (pwr == SCMI_PD_POWER_STATE_SET_STATE_OFF)
+		return 1;
+	else
+		return -EINVAL;
 }
 
 /**
@@ -301,8 +348,15 @@ static int renesas_rsip_rproc_reset(struct udevice *dev)
  */
 static int renesas_rsip_rproc_is_running(struct udevice *dev)
 {
-	/* We assume the core is stopped. */
-	return 1;
+	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
+
+	if (priv->core_id == 0) {
+		/* SCP */
+		return readl(SCP_CPUWAIT) & SCP_CPUWAIT_WAIT;
+	} else {
+		/* CR52 or CA720 */
+		return scp_cpu_core_get(priv->core_id);
+	}
 }
 
 /**
