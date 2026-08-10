@@ -63,7 +63,10 @@ static void clk_basic_init(struct udevice *dev,
 	clk_write_bypass_mainpll(plat, CLKMGR_BYPASS_MAINPLL_ALL);
 	clk_write_bypass_perpll(plat, CLKMGR_BYPASS_PERPLL_ALL);
 
-	/* Put both PLLs in Reset */
+	/*
+	 * Put both PLLs in bypass which power down the PLLs
+	 * and bypasses it such that PLLOUT tracks REF.
+	 */
 	CM_REG_SETBITS(plat, CLKMGR_MAINPLL_PLLCTRL,
 		       CLKMGR_PLLCTRL_BYPASS_MASK);
 	CM_REG_SETBITS(plat, CLKMGR_PERPLL_PLLCTRL,
@@ -84,7 +87,7 @@ static void clk_basic_init(struct udevice *dev,
 	CM_REG_WRITEL(plat, cfg->per_pll_emacctl, CLKMGR_PERPLL_EMACCTL);
 	CM_REG_WRITEL(plat, cfg->per_pll_gpiodiv, CLKMGR_PERPLL_GPIODIV);
 
-	/* Take both PLL out of reset and power up */
+	/* Take both PLLs out of bypass */
 	CM_REG_CLRBITS(plat, CLKMGR_MAINPLL_PLLCTRL,
 		       CLKMGR_PLLCTRL_BYPASS_MASK);
 	CM_REG_CLRBITS(plat, CLKMGR_PERPLL_PLLCTRL,
