@@ -39,7 +39,6 @@
 				algo = "sha1,rsa2048";
 				padding = "pss";
 				key-name-hint = "dev";
-				sign-images = "fdt", "kernel";
 			};
 		};
 	};

@@ -55,7 +55,6 @@ relies on the FDT provided by the board emulator.
                 signature-1 {
                     algo = "sha256,rsa2048";
                     key-name-hint = "dev";
-                    sign-images = "kernel", "fdt";
                 };
             };
 
@@ -65,7 +64,6 @@ relies on the FDT provided by the board emulator.
                 signature-1 {
                     algo = "sha256,rsa2048";
                     key-name-hint = "dev";
-                    sign-images = "kernel";
                 };
             };
         };

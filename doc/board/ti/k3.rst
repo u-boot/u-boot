@@ -552,7 +552,6 @@ corresponding configuration node as follows.
             signature-1 {
                     algo = "sha512,rsa4096";
                     key-name-hint = "custMpk";
-                    sign-images = "kernel", "fdt";
             };
     };
     # Optional configurations
@@ -563,14 +562,13 @@ corresponding configuration node as follows.
             signature-1 {
                     algo = "sha512,rsa4096";
                     key-name-hint = "custMpk";
-                    sign-images = "fdt";
             };
     };
 
-Specify all images you need the signature to authenticate as a part of
-sign-images. The key-name-hint needs to be changed if you are using some
-other key other than the TI dummy key that we are using for this example.
-It should be the name of the file containing the keys.
+Signed configurations authenticate all images referenced by the configuration
+node. The key-name-hint needs to be changed if you are using some other key
+other than the TI dummy key that we are using for this example. It should be
+the name of the file containing the keys.
 
 .. note::
 

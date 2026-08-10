@@ -72,13 +72,11 @@ static int fit_estimate_hash_sig_size(struct image_tool_params *params, const ch
 	 * FDT by fit_image_process_verity().
 	 *
 	 * One could try to be more precise in the estimates by
-	 * looking at the "algo" property and, in the case of
-	 * configuration signatures, the sign-images property. Also,
-	 * when signing an already created FIT image, the hash nodes
-	 * already have properly sized value properties, so one could
-	 * also take pre-existence of "value" properties in hash nodes
-	 * into account. But this rather simple approach should work
-	 * well enough in practice.
+	 * looking at the "algo" property. Also, when signing an already
+	 * created FIT image, the hash nodes already have properly sized value
+	 * properties, so one could also take pre-existence of "value"
+	 * properties in hash nodes into account. But this rather simple
+	 * approach should work well enough in practice.
 	 */
 	for (depth = 0, noffset = fdt_next_node(fdt, 0, &depth);
 	     noffset >= 0 && depth > 0;
