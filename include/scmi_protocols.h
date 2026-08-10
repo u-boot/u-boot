@@ -1341,7 +1341,7 @@ struct scmi_pinctrl_release_out {
 
 /* SCMI Pinctrl Config Types */
 enum scmi_config_type {
-	SCMI_PIN_DEFUALT = 0,
+	SCMI_PIN_DEFAULT = 0,
 	SCMI_PIN_BIAS_BUS_HOLD = 1,
 	SCMI_PIN_BIAS_DISABLE = 2,
 	SCMI_PIN_BIAS_HIGH_IMPEDANCE = 3,
