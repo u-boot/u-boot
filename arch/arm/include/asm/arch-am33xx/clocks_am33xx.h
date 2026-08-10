@@ -22,7 +22,6 @@
 #define UART_CLK_RUNNING_MASK	0x1
 #define UART_SMART_IDLE_EN	(0x1 << 0x3)
 
-#define CM_DLL_CTRL_NO_OVERRIDE	0x0
 #define CM_DLL_READYST		0x4
 
 #define NUM_OPPS	6

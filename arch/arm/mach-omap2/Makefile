@@ -5,6 +5,7 @@
 
 obj-$(if $(filter am33xx,$(SOC)),y) += am33xx/
 obj-$(CONFIG_OMAP34XX) += omap3/
+obj-$(CONFIG_OMAP44XX) += omap4/
 obj-$(CONFIG_OMAP54XX) += omap5/
 
 obj-y	+= reset.o
@@ -18,7 +19,7 @@ endif
 obj-y	+= utils.o
 
 obj-y	+= sysinfo-common.o
-ifdef CONFIG_OMAP54XX
+ifneq ($(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 obj-y	+= hwinit-common.o
 obj-y	+= clocks-common.o
 obj-y	+= emif-common.o
