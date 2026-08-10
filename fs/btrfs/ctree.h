@@ -1221,7 +1221,8 @@ struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
 					     const char *name, int name_len,
 					     int mod);
 int btrfs_next_dir_entry(struct btrfs_root *root, u64 ino, u64 *offset,
-			 char *namebuf, int namebuf_len, u8 *ftype);
+			 char *namebuf, int namebuf_len, u8 *ftype,
+			 struct btrfs_key *location);
 /* inode.c */
 int btrfs_lookup_path(struct btrfs_root *root, u64 ino, const char *filename,
 			struct btrfs_root **root_ret, u64 *ino_ret,

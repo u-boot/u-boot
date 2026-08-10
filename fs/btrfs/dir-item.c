@@ -126,12 +126,16 @@ struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
  * @namebuf:		caller buffer that receives the NUL-terminated name
  * @namebuf_len:	size of @namebuf in bytes
  * @ftype:		receives the BTRFS_FT_* type of the entry
+ * @location:		receives the key the entry points at, so the caller can
+ *			reach the inode item without searching for the name
+ *			again
  *
  * Return: 0 if an entry was returned, 1 when the directory is exhausted,
  *	   -ve on error.
  */
 int btrfs_next_dir_entry(struct btrfs_root *root, u64 ino, u64 *offset,
-			 char *namebuf, int namebuf_len, u8 *ftype)
+			 char *namebuf, int namebuf_len, u8 *ftype,
+			 struct btrfs_key *location)
 {
 	struct btrfs_path path;
 	struct btrfs_key key;
@@ -180,6 +184,7 @@ int btrfs_next_dir_entry(struct btrfs_root *root, u64 ino, u64 *offset,
 			   (unsigned long)(di + 1), name_len);
 	namebuf[name_len] = '\0';
 	*ftype = btrfs_dir_type(path.nodes[0], di);
+	btrfs_dir_item_key_to_cpu(path.nodes[0], di, location);
 	ret = 0;
 
 out:
