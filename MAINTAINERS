@@ -821,6 +821,12 @@ F:	drivers/spi/cadence_ospi_versal.c
 F:	drivers/watchdog/xilinx_wwdt.c
 N:	(?<!uni)versal
 
+ARM VERSAL GEN 2
+M:	Michal Simek <michal.simek@amd.com>
+S:	Maintained
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-microblaze.git
+F:	arch/arm/mach-versal2/
+
 ARM VERSATILE EXPRESS DRIVERS
 M:	Liviu Dudau <liviu.dudau@foss.arm.com>
 S:	Maintained
