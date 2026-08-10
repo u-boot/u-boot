@@ -167,12 +167,12 @@ int mk_date (const char *datestr, struct rtc_time *tmp)
 		/* fall thru */
 	case 12:		/* MMDDhhmmCCYY	*/
 		if (cnvrt2 (datestr+0, &val) ||
-		    val > 12) {
+		    val > 12 || val < 1) {
 			break;
 		}
 		tmp->tm_mon  = val;
 		if (cnvrt2 (datestr+2, &val) ||
-		    val > ((tmp->tm_mon==2) ? 29 : 31)) {
+		    val > rtc_month_days(tmp->tm_mon - 1, tmp->tm_year)) {
 			break;
 		}
 		tmp->tm_mday = val;
