@@ -13,6 +13,7 @@
 #include <linux/sizes.h>
 #include <malloc.h>
 #include <remoteproc.h>
+#include <reset.h>
 
 /* R-Car X5H contains 1 SCP core, 6 lockstep Cortex-R52 and 32 Cortex-A720AE cores. */
 #define RCAR5_SCP_CORES			1
@@ -20,6 +21,9 @@
 #define RCAR5_CA720_CORES		32
 
 #define SCP_BASE			0xc1340000
+#define SCP_CFGVECTABLE			(SCP_BASE + 0x0)
+#define SCP_CFGNSSTCALIB		(SCP_BASE + 0x10)
+#define SCP_CFGNSSTCALIB_13_3MHZ	0x010040f0
 #define SCP_CPUWAIT			(SCP_BASE + 0x30)
 #define SCP_CPUWAIT_WAIT		BIT(0)
 #define SCP_STCM			0xc1000000
@@ -248,6 +252,32 @@ static int renesas_rsip_rproc_is_running(struct udevice *dev)
  */
 static int renesas_rsip_rproc_init(struct udevice *dev)
 {
+	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
+	struct reset_ctl *rst = dev_get_priv(dev->parent);
+	u32 addr;
+
+	if (priv->core_id != 0)	/* No init for non-SCP cores */
+		return 0;
+
+	/*
+	 * Put SCP into reset, configure SCP entry point address and systick
+	 * timer, release SCP from reset, and zero out SCP STCM regions.
+	 */
+
+	reset_assert(rst);
+
+	writel(SCP_STCM, SCP_CFGVECTABLE);
+	writel(SCP_CFGNSSTCALIB_13_3MHZ, SCP_CFGNSSTCALIB);
+	setbits_le32(SCP_CPUWAIT, SCP_CPUWAIT_WAIT);
+
+	reset_deassert(rst);
+
+	/* Fill zero to SCP STCM regions 0 ... 27 */
+	for (addr = SCP_STCM; addr < 0xc1061b00; addr += 8)
+		writeq(0, addr);
+
+	asm volatile("dsb sy");
+
 	return 0;
 }
 
@@ -298,6 +328,19 @@ U_BOOT_DRIVER(renesas_rsip_core) = {
 	.of_to_plat	= renesas_rsip_rproc_of_to_plat,
 	.priv_auto	= sizeof(struct renesas_rsip_rproc_privdata),
 };
+
+/**
+ * renesas_rsip_rproc_probe() - Common rproc driver probe
+ * @dev:	corresponding remote processor parent device
+ *
+ * Return: 0 if all went ok, else corresponding -ve error
+ */
+static int renesas_rsip_rproc_probe(struct udevice *parent)
+{
+	struct reset_ctl *rst = dev_get_priv(parent);
+
+	return reset_get_by_index(parent, 0, rst);
+}
 
 /**
  * renesas_rsip_rproc_bind() - Bind rproc driver to each core control
@@ -358,4 +401,6 @@ U_BOOT_DRIVER(renesas_rsip_rproc) = {
 	.of_match	= renesas_rsip_rproc_ids,
 	.id		= UCLASS_NOP,
 	.bind		= renesas_rsip_rproc_bind,
+	.probe		= renesas_rsip_rproc_probe,
+	.priv_auto	= sizeof(struct reset_ctl),
 };

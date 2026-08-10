@@ -535,12 +535,6 @@ static void clk_control_set_pll(void)
 #define MDLC_HSCN_BASE				0xc9c90000
 /* The addresses in range 0x08000000..0x1fffffff are incremented by 0xa0000000 */
 #define MDLC_RT_BASE				0xb9440000
-#define MDLC_SCP_BASE				0xc1330000
-
-#define MDLC_SCP_MSRES02			(MDLC_SCP_BASE + 0x908)
-#define MDLC_SCP_MSRESS02			(MDLC_SCP_BASE + 0x968)
-#define MDLC_SCP_MSRES02_SCP_MASK		GENMASK(1, 0)
-#define MDLC_SCP_PKCPROT1			(MDLC_SCP_BASE + 0xcf4)
 
 #define MDLC_PERW_MSRES05			(MDLC_PERW_BASE + 0x914)
 #define MDLC_PERW_MSRESS05			(MDLC_PERW_BASE + 0x974)
@@ -666,32 +660,6 @@ static void mdlc_rmw_msres(const u32 prot, const u32 res, const u32 mask, const 
 	reg |= field_prep(mask, val);
 
 	mdlc_write_msres(prot, res, reg);
-}
-
-/**
- * mdlc_set_reset() - Set IP into reset
- * @prot: Protect register
- * @res: Reset register
- * @stat: Reset register
- * @mask: Mask in the register to clear
- */
-static void mdlc_set_reset(const u32 prot, const u32 res, const u32 stat, const u32 mask)
-{
-	u32 status;
-
-	mdlc_wait_for_reset(res, stat);
-
-	status = field_get(mask, readl(stat));
-	if (status == MDLC_MSRESS_STOP) {
-		mdlc_rmw_msres(prot, res, mask, MDLC_MSRESS_STANDBY);
-		mdlc_wait_for_reset(res, stat);
-		status = field_get(mask, readl(stat));
-	}
-
-	if (status == MDLC_MSRESS_STANDBY || status == MDLC_MSRESS_RUN) {
-		mdlc_rmw_msres(prot, res, mask, MDLC_MSRESS_RESET);
-		mdlc_wait_for_reset(res, stat);
-	}
 }
 
 /**
@@ -1260,41 +1228,6 @@ static void load_perm_tables(void)
 	writel(0xffffffff, 0xe9a081fc);
 }
 
-#define SCP_STCM_BASE				0xc1000000
-#define SCP_BASE				0xc1340000
-#define SCP_CFGVECTABLE				(SCP_BASE + 0x0)
-#define SCP_CFGNSSTCALIB			(SCP_BASE + 0x10)
-#define SCP_CPUWAIT				(SCP_BASE + 0x30)
-#define SCP_CFGNSSTCALIB_13_3MHZ		0x010040f0
-#define SCP_CPUWAIT_WAIT			BIT(0)
-
-/**
- * scp_initialize() - Initialize SCP
- *
- * Put SCP into reset, configure SCP entry point address and systick timer,
- * release SCP from reset, and zero out SCP STCM regions.
- */
-static void scp_initialize(void)
-{
-	u32 addr;
-
-	mdlc_set_reset(MDLC_SCP_PKCPROT1, MDLC_SCP_MSRES02, MDLC_SCP_MSRESS02,
-		       MDLC_SCP_MSRES02_SCP_MASK);
-
-	writel(SCP_STCM_BASE, SCP_CFGVECTABLE);
-	writel(SCP_CFGNSSTCALIB_13_3MHZ, SCP_CFGNSSTCALIB);
-	setbits_le32(SCP_CPUWAIT, SCP_CPUWAIT_WAIT);
-
-	mdlc_release_reset(MDLC_SCP_PKCPROT1, MDLC_SCP_MSRES02, MDLC_SCP_MSRESS02,
-			   MDLC_SCP_MSRES02_SCP_MASK);
-
-	/* Fill zero to SCP STCM regions 0 ... 27 */
-	for (addr = SCP_STCM_BASE; addr < 0xc1061b00; addr += 8)
-		writeq(0, addr);
-
-	asm volatile("dsb sy");
-}
-
 #define GIC720AE_GICR_PWRR(cpu)					\
 	(GICR_BASE + 0x24 + ((cpu) * 0x40000))
 
@@ -1361,9 +1294,6 @@ int mach_cpu_init(void)
 	axi_qos_init();
 	load_perm_tables();
 	gic720ae_init();
-
-	/* Release SCP from reset */
-	scp_initialize();
 
 	return 0;
 }
