@@ -100,22 +100,53 @@ static void scp_send_interrupt(void)
  * This must be removed when proper upstream SCP port exists
  */
 #define SCMI_PD_POWER_STATE_SET_BOOTADDR	0x4411
+#define SCMI_PD_POWER_STATE_SET_STATE_ON	0
+#define SCMI_PD_POWER_STATE_SET_STATE_OFF	BIT(30)
 
 /**
- * scp_cpu_core_start() - Boot CPU core by invoking SCP via SCMI
+ * scp_cpu_core_id_to_domain() - Convert core ID to SCMI domain ID
+ * @core: CPU core
+ * @domain: SCMI domain
+ */
+static int scp_cpu_core_id_to_domain(const u32 core, u32 *domain)
+{
+	if (core >= RCAR5_SCP_CORES && core < RCAR5_SCP_CORES + RCAR5_CR52_CORES) {
+		/* CR52 */
+		*domain = core - RCAR5_SCP_CORES + SCMI_PD_CORE_RT_CORE00;
+		return 0;
+	}
+
+	if (core >= RCAR5_SCP_CORES + RCAR5_CR52_CORES &&
+	    core < RCAR5_SCP_CORES + RCAR5_CR52_CORES + RCAR5_CA720_CORES) {
+		/* CA720 */
+		*domain = core - RCAR5_SCP_CORES - RCAR5_CR52_CORES + SCMI_PD_CORE_AP_CORE00;
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
+/**
+ * scp_cpu_core_set() - Start or stop CPU core by invoking SCP via SCMI
  * @core: CPU core to boot
  * @ep: Entry point
+ * @state: Power state, 0: Power on, BIT(30): Power off
  */
-static void scp_cpu_core_start(const u32 core, const u32 ep)
+static int scp_cpu_core_set(const u32 core, const u32 ep, const u32 state)
 {
 	struct scp_scmi_shmem *shmem = (struct scp_scmi_shmem *)SCP_SCMI_SHMEM_AREA09;
 	struct scp_scmi_pd_power_state_set_a2p scmi_parameter = {
 		.flags = 1,	/* Asynchronous power transition using APMU */
-		.domain_id = core,
-		.power_state = 0,	/* Power on */
+		.domain_id = 0,		/* Core ID */
+		.power_state = state,	/* 0: Power on, BIT(30): Power off */
 		.boot_addr = ep,
 	};
 	u32 status;
+	int ret;
+
+	ret = scp_cpu_core_id_to_domain(core, &scmi_parameter.domain_id);
+	if (ret)
+		return ret;
 
 	/* Wait for SCP to be free, then set it busy */
 	scp_wait_fw_free();
@@ -136,7 +167,10 @@ static void scp_cpu_core_start(const u32 core, const u32 ep)
 	if (status) {
 		printf("SCP POWER_STATE_SET domain %d failed, status=0x%x (%d)\n",
 		       scmi_parameter.domain_id, status, status);
+		return -EINVAL;
 	}
+
+	return 0;
 }
 
 /**
@@ -214,27 +248,16 @@ static int renesas_rsip_rproc_init(struct udevice *dev)
 static int renesas_rsip_rproc_start(struct udevice *dev)
 {
 	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
-	int scmi_core;
 
 	if (priv->core_id == 0) {
 		/* SCP */
 		clrbits_le32(SCP_CPUWAIT, SCP_CPUWAIT_WAIT);
 		return 0;
-	} else if (priv->core_id >= RCAR5_SCP_CORES &&
-		   priv->core_id < RCAR5_SCP_CORES + RCAR5_CR52_CORES) {
-		/* CR52 */
-		scmi_core = priv->core_id - RCAR5_SCP_CORES +
-			    SCMI_PD_CORE_RT_CORE00;
-	} else if (priv->core_id >= RCAR5_SCP_CORES + RCAR5_CR52_CORES &&
-		   priv->core_id < RCAR5_SCP_CORES + RCAR5_CR52_CORES + RCAR5_CA720_CORES) {
-		/* CA720 */
-		scmi_core = priv->core_id - RCAR5_SCP_CORES - RCAR5_CR52_CORES +
-			    SCMI_PD_CORE_AP_CORE00;
+	} else {
+		/* CR52 or CA720 */
+		return scp_cpu_core_set(priv->core_id, priv->ep,
+					SCMI_PD_POWER_STATE_SET_STATE_ON);
 	}
-
-	scp_cpu_core_start(scmi_core, priv->ep);
-
-	return 0;
 }
 
 /**
@@ -250,9 +273,11 @@ static int renesas_rsip_rproc_stop(struct udevice *dev)
 	if (priv->core_id == 0) {
 		/* SCP */
 		return renesas_rsip_rproc_init(dev);
+	} else {
+		/* CR52 or CA720 */
+		return scp_cpu_core_set(priv->core_id, 0,
+					SCMI_PD_POWER_STATE_SET_STATE_OFF);
 	}
-
-	return 0;
 }
 
 /**
