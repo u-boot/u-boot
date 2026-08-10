@@ -129,8 +129,10 @@ static void scp_cpu_core_start(const u32 core, const u32 ep)
 
 	/* Read back the result */
 	status = readl((uintptr_t)shmem->payload);
-	if (status)
-		printf("SCP POWER_STATE_SET failed, status=0x%x\n", status);
+	if (status) {
+		printf("SCP POWER_STATE_SET domain %d failed, status=0x%x (%d)\n",
+		       scmi_parameter.domain_id, status, status);
+	}
 }
 
 /**
