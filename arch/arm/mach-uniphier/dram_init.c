@@ -280,9 +280,9 @@ int dram_init_banksize(void)
 		return ret;
 
 	for (i = 0; i < ARRAY_SIZE(dram_map); i++) {
-		if (i < ARRAY_SIZE(gd->bd->bi_dram)) {
-			gd->bd->bi_dram[i].start = dram_map[i].base;
-			gd->bd->bi_dram[i].size = dram_map[i].size;
+		if (i < ARRAY_SIZE(gd->dram)) {
+			gd->dram[i].start = dram_map[i].base;
+			gd->dram[i].size = dram_map[i].size;
 		}
 
 		if (!dram_map[i].size)

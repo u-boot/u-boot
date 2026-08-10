@@ -153,10 +153,6 @@
 	bootph-pre-ram;
 };
 
-&wdog3 {
-	status = "disabled";
-};
-
 &xspi1 {
 	bootph-pre-ram;
 	pinctrl-names = "default";

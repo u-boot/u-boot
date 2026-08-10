@@ -24,10 +24,7 @@
 #define SUNXI_NAND_H
 
 #include <linux/bitops.h>
-
-/* non compile-time field get/prep */
-#define field_get(_mask, _reg) (((_reg) & (_mask)) >> (ffs(_mask) - 1))
-#define field_prep(_mask, _val) (((_val) << (ffs(_mask) - 1)) & (_mask))
+#include <linux/bitfield.h>
 
 #define NFC_REG_CTL		0x0000
 #define NFC_REG_ST		0x0004

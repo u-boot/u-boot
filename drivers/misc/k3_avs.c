@@ -300,7 +300,7 @@ static void k3_avs_program_tshut(struct k3_avs_privdata *priv)
 	void __iomem *cfg2_base;
 	void __iomem *fuse_base;
 
-	cfg2_base = (void __iomem *)devfdt_get_addr_index(priv->dev, 1);
+	cfg2_base = (void __iomem *)dev_read_addr_index(priv->dev, 1);
 	if (IS_ERR(cfg2_base)) {
 		dev_err(priv->dev, "cfg base is not defined\n");
 		return;
@@ -319,7 +319,7 @@ static void k3_avs_program_tshut(struct k3_avs_privdata *priv)
 	 */
 
 	if (device_is_compatible(priv->dev, "ti,j721e-vtm")) {
-		fuse_base = (void __iomem *)devfdt_get_addr_index(priv->dev, 2);
+		fuse_base = (void __iomem *)dev_read_addr_index(priv->dev, 2);
 		if (IS_ERR(fuse_base)) {
 			dev_err(priv->dev, "fuse-base is not defined for J721E Soc\n");
 			return;

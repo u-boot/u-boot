@@ -11,6 +11,7 @@
 #include <dm/lists.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
+#include <linux/bitfield.h>
 #include <power-domain-uclass.h>
 #include <reset-uclass.h>
 
@@ -20,9 +21,6 @@
 
 #include <dt-bindings/power/r8a78000-power-scmi.h>
 #include <dt-bindings/reset/r8a78000-reset-scmi.h>
-
-#define field_get(_mask, _reg) (((_reg) & (_mask)) >> (ffs(_mask) - 1))
-#define field_prep(_mask, _val) (((_val) << (ffs(_mask) - 1)) & (_mask))
 
 #define PKC_PROT_LOCK			0xa5a5a500
 #define PKC_PROT_UNLOCK			0xa5a5a501

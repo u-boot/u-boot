@@ -37,9 +37,6 @@ static int sata_bootdev_hunt(struct bootdev_hunter *info, bool show)
 	return 0;
 }
 
-struct bootdev_ops sata_bootdev_ops = {
-};
-
 static const struct udevice_id sata_bootdev_ids[] = {
 	{ .compatible = "u-boot,bootdev-sata" },
 	{ }
@@ -48,7 +45,6 @@ static const struct udevice_id sata_bootdev_ids[] = {
 U_BOOT_DRIVER(sata_bootdev) = {
 	.name		= "sata_bootdev",
 	.id		= UCLASS_BOOTDEV,
-	.ops		= &sata_bootdev_ops,
 	.bind		= sata_bootdev_bind,
 	.of_match	= sata_bootdev_ids,
 };

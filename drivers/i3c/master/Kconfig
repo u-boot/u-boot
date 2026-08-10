@@ -1,5 +1,5 @@
 config DW_I3C_MASTER
-	tristate "Synopsys DesignWare I3C master driver"
+	bool "Synopsys DesignWare I3C master driver"
 	depends on I3C
 	help
 	  Support for Synopsys DesignWare MIPI I3C Controller.

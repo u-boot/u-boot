@@ -7,6 +7,7 @@
  *	Dave Gerlach <d-gerlach@ti.com>
  */
 
+#include <cpu_func.h>
 #include <fdt_support.h>
 #include <spl.h>
 #include <asm/io.h>
@@ -212,14 +213,14 @@ void board_init_f(ulong dummy)
 
 #if defined(CONFIG_K3_LOAD_SYSFW)
 	/*
-	 * Process pinctrl for serial3 a.k.a. MAIN UART1 module and continue
+	 * Process pinctrl for serial1 a.k.a. MAIN UART1 module and continue
 	 * regardless of the result of pinctrl. Do this without probing the
 	 * device, but instead by searching the device that would request the
 	 * given sequence number if probed. The UART will be used by the system
 	 * firmware (SYSFW) image for various purposes and SYSFW depends on us
 	 * to initialize its pin settings.
 	 */
-	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 3, &dev);
+	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 1, &dev);
 	if (!ret)
 		pinctrl_select_state(dev, "default");
 
@@ -255,7 +256,7 @@ void board_init_f(ulong dummy)
 	if (rst_src == COLD_BOOT || rst_src & (SW_POR_MCU | SW_POR_MAIN)) {
 		printf("Resetting on cold boot to workaround ErrataID:i2331\n");
 		printf("Please resend tiboot3.bin in case of UART/DFU boot\n");
-		do_reset(NULL, 0, 0, NULL);
+		reset_cpu();
 	}
 #endif
 

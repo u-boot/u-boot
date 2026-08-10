@@ -184,10 +184,10 @@ config CALXEDA_XGMAC
 config DWC_ETH_XGMAC
         bool
 	select PHYLIB
-        help
-          This driver supports the Synopsys Designware Ethernet XGMAC (10G
-          Ethernet MAC) IP block. The IP supports many options for bus type,
-          clocking/reset structure, and feature list.
+	help
+	  This driver supports the Synopsys Designware Ethernet XGMAC (10G
+	  Ethernet MAC) IP block. The IP supports many options for bus type,
+	  clocking/reset structure, and feature list.
 
 config DWC_ETH_XGMAC_SOCFPGA
 	bool "Synopsys DWC Ethernet XGMAC device support for SOCFPGA"
@@ -229,8 +229,8 @@ config DWC_ETH_QOS_ADI
 	bool "Synopsys DWC Ethernet QOS device support for ADI SC59x-64 parts"
 	depends on DWC_ETH_QOS && ARCH_SC5XX
 	help
-		The Synopsis Designware Ethernet QoS IP block with the specific
-		configuration used in the ADI ADSP-SC59X 64 bit SoCs
+	  The Synopsis Designware Ethernet QoS IP block with the specific
+	  configuration used in the ADI ADSP-SC59X 64 bit SoCs
 
 config DWC_ETH_QOS_IMX
 	bool "Synopsys DWC Ethernet QOS device support for IMX"
@@ -246,6 +246,20 @@ config DWC_ETH_QOS_INTEL
 	  The Synopsys Designware Ethernet QOS IP block with the specific
 	  configuration used in the Intel Elkhart-Lake soc.
 
+config DWC_ETH_QOS_MTK
+	bool "Synopsys DWC Ethernet QOS device support for MediaTek SoCs"
+	depends on DWC_ETH_QOS && ARCH_MEDIATEK
+	help
+	  The Synopsys Designware Ethernet QOS IP block with the specific
+	  configuration used in MediaTek SoCs.
+
+config DWC_ETH_QOS_QCOM
+	bool "Synopsys DWC Ethernet QOS device support for Qcom SoCs"
+	depends on DWC_ETH_QOS
+	help
+	  The Synopsys Designware Ethernet QOS IP block with specific
+	  configuration used in Qcom QCS404 SoC.
+
 config DWC_ETH_QOS_ROCKCHIP
 	bool "Synopsys DWC Ethernet QOS device support for Rockchip SoCs"
 	depends on DWC_ETH_QOS && ARCH_ROCKCHIP
@@ -253,6 +267,13 @@ config DWC_ETH_QOS_ROCKCHIP
 	help
 	  The Synopsys Designware Ethernet QOS IP block with specific
 	  configuration used in Rockchip SoCs.
+
+config DWC_ETH_QOS_STARFIVE
+	bool "Synopsys DWC Ethernet QOS device support for STARFIVE"
+	depends on DWC_ETH_QOS
+	help
+	  The Synopsys Designware Ethernet QOS IP block with specific
+	  configuration used in STARFIVE  JH7110 soc.
 
 config DWC_ETH_QOS_STM32
 	bool "Synopsys DWC Ethernet QOS device support for STM32"
@@ -270,20 +291,6 @@ config DWC_ETH_QOS_TEGRA186
 	help
 	  The Synopsys Designware Ethernet QOS IP block with specific
 	  configuration used in NVIDIA's Tegra186 chip.
-
-config DWC_ETH_QOS_QCOM
-	bool "Synopsys DWC Ethernet QOS device support for Qcom SoCs"
-	depends on DWC_ETH_QOS
-	help
-	  The Synopsys Designware Ethernet QOS IP block with specific
-	  configuration used in Qcom QCS404 SoC.
-
-config DWC_ETH_QOS_STARFIVE
-	bool "Synopsys DWC Ethernet QOS device support for STARFIVE"
-	depends on DWC_ETH_QOS
-	help
-	  The Synopsys Designware Ethernet QOS IP block with specific
-	  configuration used in STARFIVE  JH7110 soc.
 
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
@@ -460,9 +467,9 @@ config FSL_FM_10GEC_REGULAR_NOTATION
 	help
 	  On SoCs T4240, T2080, LS1043A, etc, the notation between 10GEC and
 	  MAC as below:
-		10GEC1->MAC9, 10GEC2->MAC10, 10GEC3->MAC1, 10GEC4->MAC2
+	  10GEC1->MAC9, 10GEC2->MAC10, 10GEC3->MAC1, 10GEC4->MAC2
 	  While on SoCs T1024, etc, the notation between 10GEC and MAC as below:
-		10GEC1->MAC1, 10GEC2->MAC2
+	  10GEC1->MAC1, 10GEC2->MAC2
 	  so we introduce CONFIG_FSL_FM_10GEC_REGULAR_NOTATION to identify the
 	  new SoCs on which 10GEC enumeration is consistent with MAC
 	  enumeration.
@@ -529,7 +536,7 @@ config KSZ9477
 config LITEETH
 	bool "LiteX LiteEth Ethernet MAC"
 	help
-	 Driver for the LiteEth Ethernet MAC from LiteX.
+	  Driver for the LiteEth Ethernet MAC from LiteX.
 
 config MV88E6XXX
 	bool "Marvell MV88E6xxx Ethernet switch DSA driver"
@@ -701,12 +708,12 @@ config SJA1105
 	  family. These are 5-port devices and are managed over an SPI
 	  interface. Probing is handled based on OF bindings. The driver
 	  supports the following revisions:
-	    - SJA1105E (Gen. 1, No TT-Ethernet)
-	    - SJA1105T (Gen. 1, TT-Ethernet)
-	    - SJA1105P (Gen. 2, No SGMII, No TT-Ethernet)
-	    - SJA1105Q (Gen. 2, No SGMII, TT-Ethernet)
-	    - SJA1105R (Gen. 2, SGMII, No TT-Ethernet)
-	    - SJA1105S (Gen. 2, SGMII, TT-Ethernet)
+	  - SJA1105E (Gen. 1, No TT-Ethernet)
+	  - SJA1105T (Gen. 1, TT-Ethernet)
+	  - SJA1105P (Gen. 2, No SGMII, No TT-Ethernet)
+	  - SJA1105Q (Gen. 2, No SGMII, TT-Ethernet)
+	  - SJA1105R (Gen. 2, SGMII, No TT-Ethernet)
+	  - SJA1105S (Gen. 2, SGMII, TT-Ethernet)
 
 config SMC911X
 	bool "SMSC LAN911x and LAN921x controller driver"
@@ -740,11 +747,11 @@ config SUN4I_EMAC
 	  This driver supports the Allwinner based SUN4I Ethernet MAC.
 
 config SUN8I_EMAC
-        bool "Allwinner Sun8i Ethernet MAC support"
-        select PHYLIB
+	bool "Allwinner Sun8i Ethernet MAC support"
+	select PHYLIB
 	select PHY_GIGE
-        help
-          This driver supports the  Allwinner based SUN8I/SUN50I Ethernet MAC.
+	help
+	  This driver supports the  Allwinner based SUN8I/SUN50I Ethernet MAC.
 	  It can be found in H3/A64/A83T based SoCs and compatible with both
 	  External and Internal PHYs.
 
@@ -905,7 +912,7 @@ config FEC1_PHY
 	help
 	  Define to the hardcoded PHY address which corresponds
 	  to the given FEC; i. e.
-		#define CONFIG_FEC1_PHY 4
+	  #define CONFIG_FEC1_PHY 4
 	  means that the PHY with address 4 is connected to FEC1
 
 	  When set to -1, means to probe for first available.
@@ -929,7 +936,7 @@ config FEC2_PHY
 	help
 	  Define to the hardcoded PHY address which corresponds
 	  to the given FEC; i. e.
-		#define CONFIG_FEC1_PHY 4
+	  #define CONFIG_FEC1_PHY 4
 	  means that the PHY with address 4 is connected to FEC1
 
 	  When set to -1, means to probe for first available.
@@ -1018,8 +1025,8 @@ config FSL_ENETC
 config FSL_ENETC_NETC_BLK_CTRL
 	bool "NXP ENETC NETC blocks control driver"
 	depends on FSL_ENETC
-	depends on IMX95 || IMX94
-	default y if IMX95 || IMX94
+	depends on IMX95 || IMX94 || IMX952
+	default y if IMX95 || IMX94 || IMX952
 	help
 	  This driver configures Integrated Endpoint Register Block (IERB) and
 	  Privileged Register Block (PRB) of NETC. For i.MX platforms, it also
@@ -1034,7 +1041,7 @@ config MDIO_GPIO_BITBANG
 	bool "GPIO bitbanging MDIO driver"
 	depends on DM_MDIO && DM_GPIO
 	help
-	 Driver for bitbanging MDIO
+	  Driver for bitbanging MDIO
 
 config MDIO_MUX_I2CREG
 	bool "MDIO MUX accessed as a register over I2C"
@@ -1080,8 +1087,8 @@ config MDIO_MSCC_MIIM
 	depends on DM_MDIO
 	select REGMAP
 	help
-		This driver supports MDIO interface found in Microsemi and Microchip
-		network switches.
+	  This driver supports MDIO interface found in Microsemi and Microchip
+	  network switches.
 
 config MDIO_MUX_MMIOREG
 	bool "MDIO MUX accessed as a MMIO register access"

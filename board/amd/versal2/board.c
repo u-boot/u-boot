@@ -1,17 +1,24 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2021 - 2022, Xilinx, Inc.
- * Copyright (C) 2022 - 2025, Advanced Micro Devices, Inc.
+ * Copyright (C) 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
 
 #include <cpu_func.h>
+#include <dfu.h>
+#include <env.h>
+#include <efi_loader.h>
 #include <fdtdec.h>
+#include <fwu.h>
 #include <init.h>
 #include <env_internal.h>
 #include <log.h>
 #include <malloc.h>
+#include <memalign.h>
+#include <mmc.h>
+#include <mtd.h>
 #include <time.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -22,10 +29,8 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <versalpl.h>
-#include <zynqmp_firmware.h>
 #include "../../xilinx/common/board.h"
 
-#include <linux/bitfield.h>
 #include <debug_uart.h>
 #include <generated/dt.h>
 #include <linux/ioport.h>
@@ -54,151 +59,25 @@ int board_init(void)
 	return 0;
 }
 
-static u32 platform_id, platform_version;
-
-char *soc_name_decode(void)
-{
-	char *name, *platform_name;
-
-	switch (platform_id) {
-	case VERSAL2_SPP:
-		platform_name = "spp";
-		break;
-	case VERSAL2_EMU:
-		platform_name = "emu";
-		break;
-	case VERSAL2_SPP_MMD:
-		platform_name = "spp-mmd";
-		break;
-	case VERSAL2_EMU_MMD:
-		platform_name = "emu-mmd";
-		break;
-	case VERSAL2_QEMU:
-		platform_name = "qemu";
-		break;
-	default:
-		return NULL;
-	}
-
-	/*
-	 * --rev.-el are 9 chars
-	 * max platform name is emu-mmd which is 7 chars
-	 * platform version number are 1+1
-	 * el is 1 char
-	 * Plus 1 char for NULL byte
-	 */
-	name = calloc(1, strlen(CONFIG_SYS_BOARD) + 20);
-	if (!name)
-		return NULL;
-
-	sprintf(name, "%s-%s-rev%d.%d-el%d", CONFIG_SYS_BOARD,
-		platform_name, platform_version / 10,
-		platform_version % 10, current_el());
-
-	return name;
-}
-
-bool soc_detection(void)
-{
-	u32 version, ps_version;
-
-	version = readl(PMC_TAP_VERSION);
-	platform_id = FIELD_GET(PLATFORM_MASK, version);
-	ps_version = FIELD_GET(PS_VERSION_MASK, version);
-
-	debug("idcode %x, version %x, usercode %x\n",
-	      readl(PMC_TAP_IDCODE), version,
-	      readl(PMC_TAP_USERCODE));
-
-	debug("pmc_ver %lx, ps version %x, rtl version %lx\n",
-	      FIELD_GET(PMC_VERSION_MASK, version),
-	      ps_version,
-	      FIELD_GET(RTL_VERSION_MASK, version));
-
-	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, version);
-
-	debug("Platform id: %d version: %d.%d\n", platform_id,
-	      platform_version / 10, platform_version % 10);
-
-	return true;
-}
-
 int board_early_init_r(void)
 {
-	u32 val;
-
 	if (current_el() != 3)
 		return 0;
 
-	debug("iou_switch ctrl div0 %x\n",
-	      readl(&crlapb_base->iou_switch_ctrl));
-
-	writel(IOU_SWITCH_CTRL_CLKACT_BIT |
-	       (CONFIG_IOU_SWITCH_DIVISOR0 << IOU_SWITCH_CTRL_DIVISOR0_SHIFT),
-	       &crlapb_base->iou_switch_ctrl);
-
-	/* Global timer init - Program time stamp reference clk */
-	val = readl(&crlapb_base->timestamp_ref_ctrl);
-	val |= CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT;
-	writel(val, &crlapb_base->timestamp_ref_ctrl);
-
-	debug("ref ctrl 0x%x\n",
-	      readl(&crlapb_base->timestamp_ref_ctrl));
-
-	/* Clear reset of timestamp reg */
-	writel(0, &crlapb_base->rst_timestamp);
-
-	/*
-	 * Program freq register in System counter and
-	 * enable system counter.
-	 */
-	writel(CONFIG_COUNTER_FREQUENCY,
-	       &iou_scntr_secure->base_frequency_id_register);
-
-	debug("counter val 0x%x\n",
-	      readl(&iou_scntr_secure->base_frequency_id_register));
-
-	writel(IOU_SCNTRS_CONTROL_EN,
-	       &iou_scntr_secure->counter_control_register);
-
-	debug("scntrs control 0x%x\n",
-	      readl(&iou_scntr_secure->counter_control_register));
-	debug("timer 0x%llx\n", get_ticks());
-	debug("timer 0x%llx\n", get_ticks());
+	versal2_timer_setup();
 
 	return 0;
-}
-
-static u8 versal2_get_bootmode(void)
-{
-	u8 bootmode;
-	u32 reg = 0;
-
-	reg = readl(&crp_base->boot_mode_usr);
-
-	if (reg >> BOOT_MODE_ALT_SHIFT)
-		reg >>= BOOT_MODE_ALT_SHIFT;
-
-	bootmode = reg & BOOT_MODES_MASK;
-
-	return bootmode;
 }
 
 static u32 versal2_multi_boot(void)
 {
 	u8 bootmode = versal2_get_bootmode();
-	u32 reg = 0;
 
 	/* Mostly workaround for QEMU CI pipeline */
 	if (bootmode == JTAG_MODE)
 		return 0;
 
-	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE) && current_el() != 3)
-		reg = zynqmp_pm_get_pmc_multi_boot_reg();
-	else
-		reg = readl(PMC_MULTI_BOOT_REG);
-
-	return reg & PMC_MULTI_BOOT_MASK;
+	return versal2_pmc_multi_boot();
 }
 
 static int boot_targets_setup(void)
@@ -348,6 +227,10 @@ int board_late_init(void)
 	int ret;
 	u32 multiboot;
 
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) &&
+	    !IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE))
+		configure_capsule_updates();
+
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
 		debug("Saved variables - Skipping\n");
 		return 0;
@@ -476,3 +359,148 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	}
 }
 #endif
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+#if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && \
+	!defined(CONFIG_FWU_MULTI_BANK_UPDATE)
+static void mtd_found_part(u32 *base, u32 *size)
+{
+	struct mtd_info *part, *mtd;
+
+	mtd_probe_devices();
+
+	mtd = get_mtd_device_nm("nor0");
+	if (!IS_ERR_OR_NULL(mtd)) {
+		list_for_each_entry(part, &mtd->partitions, node) {
+			debug("0x%012llx-0x%012llx : \"%s\"\n",
+			      part->offset, part->offset + part->size,
+			      part->name);
+
+			if (*base >= part->offset &&
+			    *base < part->offset + part->size) {
+				debug("Found my partition: %d/%s\n",
+				      part->index, part->name);
+				*base = part->offset;
+				*size = part->size;
+				break;
+			}
+		}
+	}
+}
+
+void configure_capsule_updates(void)
+{
+	int bootseq = 0, len = 0;
+	u32 multiboot = versal2_multi_boot();
+	u32 bootmode = versal2_get_bootmode();
+
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	memset(buf, 0, DFU_ALT_BUF_LEN);
+
+	multiboot = env_get_hex("multiboot", multiboot);
+
+	switch (bootmode) {
+	case EMMC_MODE:
+	case SD_MODE:
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		bootseq = mmc_get_env_dev();
+
+		len += snprintf(buf + len, DFU_ALT_BUF_LEN, "mmc %d=boot",
+			       bootseq);
+
+		if (multiboot)
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+					"%04d", multiboot);
+
+		len += snprintf(buf + len, DFU_ALT_BUF_LEN, ".bin fat %d 1",
+			       bootseq);
+		break;
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+	case OSPI_MODE:
+		{
+			u32 base = multiboot * SZ_32K;
+			u32 size = 0x1500000;
+			u32 limit = size;
+
+			mtd_found_part(&base, &limit);
+
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+					"sf 0:0=boot.bin raw 0x%x 0x%x",
+					base, limit);
+		}
+		break;
+	default:
+		return;
+	}
+
+	update_info.dfu_string = strdup(buf);
+	debug("Capsule DFU: %s\n", update_info.dfu_string);
+}
+#endif
+
+#if defined(CONFIG_FWU_MULTI_BANK_UPDATE)
+
+/* Generate dfu_alt_info from partitions */
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	int ret;
+	struct mtd_info *mtd;
+
+	/*
+	 * It is called multiple times for every image
+	 * per bank that's why enough to set it up once.
+	 */
+	if (env_get("dfu_alt_info"))
+		return;
+
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+	memset(buf, 0, DFU_ALT_BUF_LEN);
+
+	mtd_probe_devices();
+
+	mtd = get_mtd_device_nm("nor0");
+	if (IS_ERR_OR_NULL(mtd))
+		return;
+
+	ret = fwu_gen_alt_info_from_mtd(buf, DFU_ALT_BUF_LEN, mtd);
+	if (ret < 0) {
+		log_err("Error: Failed to generate dfu_alt_info. (%d)\n", ret);
+		return;
+	}
+	log_debug("Make dfu_alt_info: '%s'\n", buf);
+
+	env_set("dfu_alt_info", buf);
+}
+#endif
+
+int spi_get_env_dev(void)
+{
+	struct udevice *dev;
+	const char *name;
+	int bootseq;
+
+	switch (versal2_get_bootmode()) {
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		name = "spi@f1030000";
+		break;
+	case OSPI_MODE:
+		name = "spi@f1010000";
+		break;
+	default:
+		return -1;
+	}
+
+	if (uclass_get_device_by_name(UCLASS_SPI, name, &dev)) {
+		debug("SPI driver for %s is not present\n", name);
+		return -1;
+	}
+
+	bootseq = dev_seq(dev);
+	debug("bootseq %d\n", bootseq);
+	return bootseq;
+}

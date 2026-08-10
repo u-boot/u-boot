@@ -5,17 +5,17 @@ config MULTIPLEXER
 	depends on DM
 	select DEVRES
 	help
-	 The mux framework is a minimalistic subsystem that handles multiplexer
-	 controllers. It provides the same API as Linux and mux drivers should
-	 be portable with a minimum effort.
+	  The mux framework is a minimalistic subsystem that handles multiplexer
+	  controllers. It provides the same API as Linux and mux drivers should
+	  be portable with a minimum effort.
 
 if MULTIPLEXER
 
 config SPL_MUX_MMIO
 	bool "MMIO register bitfield-controlled Multiplexer"
-        depends on MULTIPLEXER && SYSCON
-        help
-          MMIO register bitfield-controlled Multiplexer controller.
+	depends on MULTIPLEXER && SYSCON
+	help
+	  MMIO register bitfield-controlled Multiplexer controller.
 
           The driver builds multiplexer controllers for bitfields in a syscon
           register. For N bit wide bitfields, there will be 2^N possible

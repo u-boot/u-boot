@@ -36,9 +36,9 @@ struct bl_params *bl2_plat_get_bl31_params_v2(uintptr_t bl32_entry,
 
 	dram_regions_info.num_dram_regions = CONFIG_NR_DRAM_BANKS;
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		dram_regions_info.region[i].addr = gd->bd->bi_dram[i].start;
-		dram_regions_info.region[i].size = gd->bd->bi_dram[i].size;
-		dram_regions_info.total_dram_size += gd->bd->bi_dram[i].size;
+		dram_regions_info.region[i].addr = gd->dram[i].start;
+		dram_regions_info.region[i].size = gd->dram[i].size;
+		dram_regions_info.total_dram_size += gd->dram[i].size;
 	}
 
 	bl_params = bl2_plat_get_bl31_params_v2_default(bl32_entry, bl33_entry,

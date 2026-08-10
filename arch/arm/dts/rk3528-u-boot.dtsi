@@ -23,7 +23,7 @@
 			reg = <0x0 0xffc50000 0x0 0x200>;
 		};
 
-		otp: nvmem@ffce0000 {
+		otp: efuse@ffce0000 {
 			compatible = "rockchip,rk3528-otp";
 			reg = <0x0 0xffce0000 0x0 0x4000>;
 		};

@@ -129,8 +129,8 @@ int dram_init_banksize(void)
 		return 0;
 
 	/* simply use a single bank to have whole size for now */
-	gd->bd->bi_dram[0].start = 0;
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	gd->dram[0].start = 0;
+	gd->dram[0].size = gd->ram_size;
 	return 0;
 }
 

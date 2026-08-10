@@ -112,7 +112,7 @@ uint mii_send(uint mii_cmd)
 	ep->eir = FEC_EIR_MII;	/* clear MII complete */
 #ifdef ET_DEBUG
 	printf("%s[%d] %s: sent=0x%8.8x, reply=0x%8.8x\n",
-	       __FILE__, __LINE__, __FUNCTION__, mii_cmd, mii_reply);
+	       __FILE__, __LINE__, __func__, mii_cmd, mii_reply);
 #endif
 
 	return (mii_reply & 0xffff);	/* data read from phy */

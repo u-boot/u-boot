@@ -935,7 +935,7 @@ int rkmtd_detach_mtd(struct udevice *dev)
 	return 0;
 }
 
-struct rkmtd_ops rkmtd_ops = {
+static const struct rkmtd_ops rkmtd_ops = {
 	.attach_mtd	= rkmtd_attach_mtd,
 	.detach_mtd	= rkmtd_detach_mtd,
 };

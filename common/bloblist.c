@@ -448,6 +448,7 @@ int bloblist_new(ulong addr, uint size, uint flags, uint align_log2)
 	hdr->align_log2 = align_log2 ? align_log2 : BLOBLIST_BLOB_ALIGN_LOG2;
 	hdr->chksum = 0;
 	gd->bloblist = hdr;
+	gd->flags |= GD_FLG_BLOBLIST_READY;
 
 	return 0;
 }
@@ -475,6 +476,7 @@ int bloblist_check(ulong addr, uint size)
 		return log_msg_ret("Bad checksum", -EIO);
 	}
 	gd->bloblist = hdr;
+	gd->flags |= GD_FLG_BLOBLIST_READY;
 
 	return 0;
 }
@@ -576,90 +578,88 @@ int __weak xferlist_from_boot_arg(ulong __always_unused *addr)
 	return -ENOENT;
 }
 
-int bloblist_init(void)
+bool bloblist_exists(void)
 {
-	bool fixed = IS_ENABLED(CONFIG_BLOBLIST_FIXED);
-	int ret = 0;
-	ulong addr = 0, size;
+	int ret;
+	ulong addr = 0;
 
 	/* Check if a valid transfer list passed in */
-	if (!xferlist_from_boot_arg(&addr)) {
-		size = bloblist_get_total_size();
-	} else {
-		/*
-		 * If U-Boot is not in the first phase, an existing bloblist must
-		 * be at a fixed address.
-		 */
-		bool from_addr = fixed && !xpl_is_first_phase();
+	if (!xferlist_from_boot_arg(&addr))
+		goto found;
 
-		/*
-		 * If Firmware Handoff is mandatory but no transfer list is
-		 * observed, report it as an error.
-		 */
-		if (IS_ENABLED(CONFIG_BLOBLIST_PASSAGE_MANDATORY))
-			return -ENOENT;
+	/*
+	 * If Firmware Handoff is mandatory but no transfer list is
+	 * observed, report it as an error.
+	 */
+	if (IS_ENABLED(CONFIG_BLOBLIST_PASSAGE_MANDATORY))
+		return false;
 
-		ret = -ENOENT;
+	/*
+	 * We have checked for a valid transfer list being passed. At this
+	 * point, if we do not have a fixed address for the bloblist, we cannot
+	 * be provided with one.
+	 */
+	if (xpl_is_first_phase() || !IS_ENABLED(CONFIG_BLOBLIST_FIXED))
+		return false;
 
-		if (xpl_prev_phase() == PHASE_TPL &&
-		    !IS_ENABLED(CONFIG_TPL_BLOBLIST))
-			from_addr = false;
-		if (fixed)
-			addr = IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED,
-					      CONFIG_BLOBLIST_ADDR);
-		size = CONFIG_BLOBLIST_SIZE;
+	/*
+	 * Check for a valid list as the configured address.
+	 */
+	addr = IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED,
+			      CONFIG_BLOBLIST_ADDR);
+	ret = bloblist_check(addr, CONFIG_BLOBLIST_SIZE);
+	if (!ret)
+		goto found;
 
-		if (from_addr)
-			ret = bloblist_check(addr, size);
+	log_debug("Bloblist at %lx not found (err=%d)\n", addr, ret);
+	return false;
 
-		if (ret)
-			log_warning("Bloblist at %lx not found (err=%d)\n",
-				    addr, ret);
-		else
-			/* Get the real size */
-			size = gd->bloblist->total_size;
-	}
-
-	if (ret) {
-		/*
-		 * If we don't have a bloblist from a fixed address, or the one
-		 * in the fixed address is not valid. we must allocate the
-		 * memory for it now.
-		 */
-		if (CONFIG_IS_ENABLED(BLOBLIST_ALLOC)) {
-			void *ptr = memalign(BLOBLIST_ALIGN, size);
-
-			if (!ptr)
-				return log_msg_ret("alloc", -ENOMEM);
-			addr = map_to_sysmem(ptr);
-		} else if (!fixed) {
-			return log_msg_ret("BLOBLIST_FIXED is not enabled",
-					   ret);
-		}
-		log_debug("Creating new bloblist size %lx at %lx\n", size,
-			  addr);
-		ret = bloblist_new(addr, size, 0, 0);
-	} else {
-		log_debug("Found existing bloblist size %lx at %lx\n", size,
-			  addr);
-	}
-
-	if (ret)
-		return log_msg_ret("ini", ret);
-	gd->flags |= GD_FLG_BLOBLIST_READY;
-
+found:
 #ifdef DEBUG
 	bloblist_show_stats();
 	bloblist_show_list();
 #endif
-
-	return 0;
+	return true;
 }
 
-int bloblist_maybe_init(void)
+int bloblist_init(void)
 {
-	if (CONFIG_IS_ENABLED(BLOBLIST) && !(gd->flags & GD_FLG_BLOBLIST_READY))
-		return bloblist_init();
+	int ret;
+	ulong addr = 0, size = CONFIG_BLOBLIST_SIZE;
+
+	if (gd->flags & GD_FLG_BLOBLIST_READY) {
+		log_debug("Found existing bloblist size %x at %p\n",
+			  gd->bloblist->total_size, gd->bloblist);
+		return 0;
+	}
+
+	/*
+	 * If Firmware Handoff is mandatory but no transfer list has been
+	 * observed by fdtdec_setup, report it as an error.
+	 */
+	if (IS_ENABLED(CONFIG_BLOBLIST_PASSAGE_MANDATORY))
+		return -ENOENT;
+
+	/*
+	 * If we don't have an existing bloblist, we either need
+	 * to allocate one now, or initialize the fixed address
+	 * space as a bloblist.
+	 */
+	if (CONFIG_IS_ENABLED(BLOBLIST_ALLOC)) {
+		void *ptr = memalign(BLOBLIST_ALIGN, size);
+
+		if (!ptr)
+			return log_msg_ret("alloc", -ENOMEM);
+		addr = map_to_sysmem(ptr);
+	} else
+		addr = IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED,
+				      CONFIG_BLOBLIST_ADDR);
+
+	log_debug("Creating new bloblist size %lx at %lx\n", size,
+		  addr);
+	ret = bloblist_new(addr, size, 0, 0);
+	if (ret)
+		return log_msg_ret("ini", ret);
 
 	return 0;
 }
@@ -687,7 +687,9 @@ int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig, ulong xlist)
 		return ret;
 
 	if (rfdt != (ulong)bloblist_find(BLOBLISTT_CONTROL_FDT, 0)) {
-		gd->bloblist = NULL;  /* Reset the gd bloblist pointer */
+		/* Remove this bloblist from gd */
+		gd->bloblist = NULL;
+		gd->flags &= ~GD_FLG_BLOBLIST_READY;
 		return -EIO;
 	}
 

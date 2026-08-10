@@ -5,6 +5,7 @@
 #define pr_fmt(fmt) "%s: " fmt, __func__
 
 #include <linux/err.h>
+#include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/device.h>
 #include <dm/devres.h>
@@ -888,7 +889,7 @@ static int rpmh_regulator_probe(struct udevice *dev)
 	priv->hw_data = init_data->hw_data;
 	priv->enabled = -EINVAL;
 	priv->uv = -ENOTRECOVERABLE;
-	if (ofnode_read_u32(dev_ofnode(dev), "regulator-initial-mode", &priv->mode))
+	if (dev_read_u32(dev, "regulator-initial-mode", &priv->mode))
 		priv->mode = -EINVAL;
 
 	plat_data->mode = priv->hw_data->pmic_mode_map;
@@ -939,7 +940,7 @@ static int rpmh_regulators_bind(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	pmic_id = ofnode_read_string(dev_ofnode(dev), "qcom,pmic-id");
+	pmic_id = dev_read_string(dev, "qcom,pmic-id");
 	if (!pmic_id) {
 		dev_err(dev, "No PMIC ID\n");
 		return -ENODEV;
@@ -947,7 +948,7 @@ static int rpmh_regulators_bind(struct udevice *dev)
 
 	drv = lists_driver_lookup_name("rpmh_regulator_drm");
 
-	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
+	dev_for_each_subnode(node, dev) {
 		data = vreg_get_init_data(init_data, node);
 		if (!data)
 			continue;

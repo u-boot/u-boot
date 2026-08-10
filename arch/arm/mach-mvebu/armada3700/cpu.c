@@ -256,7 +256,7 @@ int a3700_dram_init_banksize(void)
 		 * build_mem_map.
 		 */
 		if (last_end == dram_wins[win].base) {
-			gd->bd->bi_dram[bank - 1].size += size;
+			gd->dram[bank - 1].size += size;
 			last_end += size;
 		} else {
 			if (bank == CONFIG_NR_DRAM_BANKS) {
@@ -264,8 +264,8 @@ int a3700_dram_init_banksize(void)
 				return -ENOBUFS;
 			}
 
-			gd->bd->bi_dram[bank].start = dram_wins[win].base;
-			gd->bd->bi_dram[bank].size = size;
+			gd->dram[bank].start = dram_wins[win].base;
+			gd->dram[bank].size = size;
 			last_end = dram_wins[win].base + size;
 			++bank;
 		}
@@ -276,8 +276,8 @@ int a3700_dram_init_banksize(void)
 	 * the rest with zeros.
 	 */
 	for (; bank < CONFIG_NR_DRAM_BANKS; ++bank) {
-		gd->bd->bi_dram[bank].start = 0;
-		gd->bd->bi_dram[bank].size = 0;
+		gd->dram[bank].start = 0;
+		gd->dram[bank].size = 0;
 	}
 
 	return 0;

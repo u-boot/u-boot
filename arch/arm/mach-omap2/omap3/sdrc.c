@@ -222,10 +222,10 @@ int dram_init_banksize(void)
 	size0 = get_sdr_cs_size(CS0);
 	size1 = get_sdr_cs_size(CS1);
 
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = size0;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_1 + get_sdr_cs_offset(CS1);
-	gd->bd->bi_dram[1].size = size1;
+	gd->dram[0].start = PHYS_SDRAM_1;
+	gd->dram[0].size = size0;
+	gd->dram[1].start = PHYS_SDRAM_1 + get_sdr_cs_offset(CS1);
+	gd->dram[1].size = size1;
 
 	return 0;
 }

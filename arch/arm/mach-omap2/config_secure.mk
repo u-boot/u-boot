@@ -104,9 +104,9 @@ ifdef CONFIG_SPL_LOAD_FIT
 MKIMAGEFLAGS_u-boot_HS.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board" -E \
-	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb_HS,$(subst ",,$(CONFIG_OF_LIST)))
+	$(patsubst %,-b $(dt_dir)/%.dtb_HS,$(subst ",,$(CONFIG_OF_LIST)))
 
-OF_LIST_TARGETS = $(patsubst %,arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
+OF_LIST_TARGETS = $(patsubst %,$(dt_dir)/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
 $(OF_LIST_TARGETS): dtbs
 
 %.dtb_HS: %.dtb FORCE

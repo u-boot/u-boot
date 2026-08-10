@@ -366,7 +366,7 @@ ulong sa_get_tseg_base(struct udevice *dev)
 	return sa_read_reg(dev, TSEG);
 }
 
-struct acpi_ops apl_hostbridge_acpi_ops = {
+static const struct acpi_ops __maybe_unused apl_hostbridge_acpi_ops = {
 	.get_name	= apl_acpi_hb_get_name,
 #if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
 	.write_tables	= apl_acpi_hb_write_tables,

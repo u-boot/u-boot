@@ -61,3 +61,7 @@
 	};
 };
 #endif
+
+&wdog3 {
+	bootph-all;
+};

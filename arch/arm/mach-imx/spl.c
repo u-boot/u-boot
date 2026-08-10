@@ -375,8 +375,8 @@ void *spl_load_simple_fit_fix_load(const void *fit)
 #if defined(CONFIG_MX6) && defined(CONFIG_SPL_OS_BOOT)
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = imx_ddr_size();
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].size = imx_ddr_size();
 
 	return 0;
 }

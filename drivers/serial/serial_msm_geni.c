@@ -55,6 +55,7 @@
 #define SE_UART_RX_PARITY_CFG	0x2a8
 
 #define DEF_TX_WM	2
+#define DEF_RX_WM	2
 /* GENI_FORCE_DEFAULT_REG fields */
 
 #define UART_START_READ	0x1
@@ -345,6 +346,7 @@ static void qcom_geni_serial_start_rx(struct udevice *dev)
 
 	geni_se_setup_s_cmd(priv->base, UART_START_READ, 0);
 
+	writel(DEF_RX_WM, priv->base + SE_GENI_RX_WATERMARK_REG);
 	setbits_le32(priv->base + SE_GENI_S_IRQ_EN, S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
 	setbits_le32(priv->base + SE_GENI_M_IRQ_EN, M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
 }
@@ -373,6 +375,7 @@ static void msm_geni_serial_setup_rx(struct udevice *dev)
 
 	geni_se_setup_s_cmd(priv->base, UART_START_READ, 0);
 
+	writel(DEF_RX_WM, priv->base + SE_GENI_RX_WATERMARK_REG);
 	setbits_le32(priv->base + SE_GENI_S_IRQ_EN, S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
 	setbits_le32(priv->base + SE_GENI_M_IRQ_EN, M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
 }
@@ -616,6 +619,7 @@ static inline void _debug_uart_init(void)
 	phys_addr_t base = CONFIG_VAL(DEBUG_UART_BASE);
 
 	geni_serial_init(&init_dev);
+	writel(DEF_RX_WM, base + SE_GENI_RX_WATERMARK_REG);
 	geni_serial_baud(base, CLK_DIV, CONFIG_BAUDRATE);
 	qcom_geni_serial_start_tx(base);
 }

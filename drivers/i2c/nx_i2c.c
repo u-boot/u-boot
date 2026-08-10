@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-2.0+
+
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>
@@ -230,12 +232,13 @@ static void i2c_process_node(struct udevice *dev)
 static int nx_i2c_probe(struct udevice *dev)
 {
 	struct nx_i2c_bus *bus = dev_get_priv(dev);
-	fdt_addr_t addr;
+	void __iomem *addr;
 
 	/* get regs = i2c base address */
-	addr = devfdt_get_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
+	addr = dev_read_addr_ptr(dev);
+	if (!addr)
 		return -EINVAL;
+
 	bus->regs = (struct nx_i2c_regs *)addr;
 
 	bus->bus_num = dev_seq(dev);

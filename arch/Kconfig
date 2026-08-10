@@ -11,14 +11,14 @@ config HAVE_ARCH_IOREMAP
 config HAVE_SETJMP
 	bool
 	help
-	 The architecture supports setjmp() and longjmp().
+	  The architecture supports setjmp() and longjmp().
 
 config HAVE_INITJMP
 	bool
 	depends on HAVE_SETJMP
 	help
-	 The architecture supports initjmp(), a non-standard companion to
-	 setjmp() and longjmp().
+	  The architecture supports initjmp(), a non-standard companion to
+	  setjmp() and longjmp().
 
 config SUPPORT_BIG_ENDIAN
 	bool
@@ -457,11 +457,11 @@ config SYS_CONFIG_NAME
 config SYS_DISABLE_DCACHE_OPS
 	bool
 	help
-	 This option disables dcache flush and dcache invalidation
-	 operations. For example, on coherent systems where cache
-	 operatios are not required, enable this option to avoid them.
-	 Note that, its up to the individual architectures to implement
-	 this functionality.
+	  This option disables dcache flush and dcache invalidation
+	  operations. For example, on coherent systems where cache
+	  operatios are not required, enable this option to avoid them.
+	  Note that, its up to the individual architectures to implement
+	  this functionality.
 
 config SYS_IMMR
 	hex "Address for the Internal Memory-Mapped Registers (IMMR) window"

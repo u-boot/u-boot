@@ -302,7 +302,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	/* Get bank configuration from devicetree */
 	ret = fdtdec_decode_ram_size(gd->fdt_blob, NULL, 0, NULL,
-				     (phys_size_t *)&gd->ram_size, gd->bd);
+				     (phys_size_t *)&gd->ram_size, gd);
 	if (ret) {
 		puts("DDR: Failed to decode memory node\n");
 		ret = -ENXIO;
@@ -345,19 +345,19 @@ int sdram_mmr_init_full(struct udevice *dev)
 		for (i = 0; i < config_dram_banks; i++) {
 			remaining_size = hw_size - size_counter;
 			if (remaining_size <= dram_bank_info[i].max_size) {
-				gd->bd->bi_dram[i].start = dram_bank_info[i].start;
-				gd->bd->bi_dram[i].size = remaining_size;
+				gd->dram[i].start = dram_bank_info[i].start;
+				gd->dram[i].size = remaining_size;
 				debug("Memory bank[%d]  Starting address: 0x%llx  size: 0x%llx\n",
-				      i, gd->bd->bi_dram[i].start, gd->bd->bi_dram[i].size);
+				      i, gd->dram[i].start, gd->dram[i].size);
 				break;
 			}
 
-			gd->bd->bi_dram[i].start = dram_bank_info[i].start;
-			gd->bd->bi_dram[i].size = dram_bank_info[i].max_size;
+			gd->dram[i].start = dram_bank_info[i].start;
+			gd->dram[i].size = dram_bank_info[i].max_size;
 
 			debug("Memory bank[%d]  Starting address: 0x%llx  size: 0x%llx\n",
-			      i, gd->bd->bi_dram[i].start, gd->bd->bi_dram[i].size);
-			size_counter += gd->bd->bi_dram[i].size;
+			      i, gd->dram[i].start, gd->dram[i].size);
+			size_counter += gd->dram[i].size;
 		}
 
 		gd->ram_size = hw_size;
@@ -408,7 +408,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	printf("DDR: firewall init success\n");
 
-	priv->info.base = gd->bd->bi_dram[0].start;
+	priv->info.base = gd->dram[0].start;
 	priv->info.size = gd->ram_size;
 
 	/* Ending DDR driver initialization success tracking */

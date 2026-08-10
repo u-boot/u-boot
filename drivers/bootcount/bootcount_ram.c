@@ -27,7 +27,7 @@ void bootcount_store(ulong a)
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		size += gd->bd->bi_dram[i].size;
+		size += gd->dram[i].size;
 	save_addr = (ulong *)(size - BOOTCOUNT_ADDR);
 	writel(a, save_addr);
 	writel(CONFIG_SYS_BOOTCOUNT_MAGIC, &save_addr[1]);
@@ -50,7 +50,7 @@ ulong bootcount_load(void)
 	int i, tmp;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		size += gd->bd->bi_dram[i].size;
+		size += gd->dram[i].size;
 	save_addr = (ulong *)(size - BOOTCOUNT_ADDR);
 
 	counter = readl(&save_addr[0]);

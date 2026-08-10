@@ -114,15 +114,15 @@ config SERVERIP_FROM_PROXYDHCP
 	bool "Get serverip value from Proxy DHCP response"
 	help
 	  Allows bootfile config to be fetched from Proxy DHCP server
-		while IP is obtained from main DHCP server.
+	  while IP is obtained from main DHCP server.
 
 config SERVERIP_FROM_PROXYDHCP_DELAY_MS
 	int "# of additional milliseconds to wait for ProxyDHCP response"
 	default 100
 	help
 	  Amount of additional time to wait for ProxyDHCP response after
-		receiving response from main DHCP server. Has no effect if
-		SERVERIP_FROM_PROXYDHCP is false.
+	  receiving response from main DHCP server. Has no effect if
+	  SERVERIP_FROM_PROXYDHCP is false.
 
 config KEEP_SERVERADDR
 	bool "Write the server's MAC address to 'serveraddr'"
@@ -279,13 +279,16 @@ config TFTP_BLOCKSIZE
 	  almost-MTU block sizes.
 	  You can also activate CONFIG_IP_DEFRAG to set a larger block.
 
-endif   # if NET
-
 config SYS_RX_ETH_BUFFER
-        int "Number of receive packet buffers"
-        default 4
-        help
-          Defines the number of Ethernet receive buffers. On some Ethernet
-          controllers it is recommended to set this value to 8 or even higher,
-          since all buffers can be full shortly after enabling the interface on
-          high Ethernet traffic.
+	int "Number of receive packet buffers"
+	default 8 if FSL_ENETC
+	default 4
+	help
+	  Defines the number of Ethernet receive buffers. On some Ethernet
+	  controllers (e.g. FSL_ENETC) it is recommended to set this value to 8
+	  or even higher, since all buffers can be full shortly after enabling
+	  the interface on high Ethernet traffic.
+
+	  FSL_ENETC requires this value to be a multiple of 8.
+
+endif   # if NET

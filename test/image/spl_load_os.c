@@ -21,3 +21,14 @@ static int spl_test_load(struct unit_test_state *uts)
 }
 SPL_TEST(spl_test_load, 0);
 
+static int spl_test_load_fit_full(struct unit_test_state *uts)
+{
+	struct spl_image_info image;
+	char fname[256];
+
+	ut_assertok(sandbox_spl_load_fit_full(fname, sizeof(fname), &image));
+
+	return 0;
+}
+SPL_TEST(spl_test_load_fit_full, 0);
+

@@ -3,7 +3,7 @@
  * dts file for Xilinx ZynqMP SM-K26 rev2/1/B/A
  *
  * (C) Copyright 2020 - 2021, Xilinx, Inc.
- * (C) Copyright 2023 - 2024, Advanced Micro Devices, Inc.
+ * (C) Copyright 2023 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -60,6 +60,15 @@
 		pmu_region: pmu@7ff00000 {
 			reg = <0x0 0x7ff00000 0x0 0x100000>;
 			no-map;
+		};
+
+		cma: linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x8000000>;
+			alignment = <0x0 0x8000000>;
+			alloc-ranges = <0x0 0x0 0x0 0x80000000>;
+			linux,cma-default;
 		};
 	};
 

@@ -6,7 +6,7 @@
 #include <command.h>
 #include <cpu_func.h>
 
-__weak void reset_cpu(void)
+void reset_cpu(void)
 {
 	/* Stop debug session here */
 	__builtin_arc_brk();

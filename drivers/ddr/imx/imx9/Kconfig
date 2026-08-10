@@ -29,4 +29,11 @@ config SAVED_DRAM_TIMING_BASE
 	  after DRAM is trained, need to save the dram related timming
 	  info into memory for low power use.
 
+config QB_SAVED_STATE_BASE
+	hex "Define the base address for saved QuickBoot state"
+	default 0x8fe00000
+	help
+	  Once DRAM is trained, the resulted training info is
+	  saved into memory in order to be reachable from U-Boot.
+
 endmenu

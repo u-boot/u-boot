@@ -212,24 +212,24 @@ class ConsoleBase(object):
             while not self.lab_mode and loop_num > 0:
                 loop_num -= 1
                 while config_spl_serial and not env_spl_skipped and env_spl_banner_times > 0:
-                    m = self.p.expect([pattern_u_boot_spl_signon,
-                                       pattern_lab_mode] + self.bad_patterns)
+                    extra_patterns = [pattern_u_boot_spl_signon, pattern_lab_mode]
+                    m = self.p.expect(extra_patterns + self.bad_patterns)
                     if m == 1:
                         self.set_lab_mode()
                         break
                     elif m != 0:
                         raise BootFail('Bad pattern found on SPL console: ' +
-                                       self.bad_pattern_ids[m - 1])
+                                       self.bad_pattern_ids[m - len(extra_patterns)])
                     env_spl_banner_times -= 1
 
                 if not self.lab_mode:
-                    m = self.p.expect([pattern_u_boot_main_signon,
-                                       pattern_lab_mode] + self.bad_patterns)
+                    extra_patterns = [pattern_u_boot_main_signon, pattern_lab_mode]
+                    m = self.p.expect(extra_patterns + self.bad_patterns)
                     if m == 1:
                         self.set_lab_mode()
                     elif m != 0:
                         raise BootFail('Bad pattern found on console: ' +
-                                       self.bad_pattern_ids[m - 1])
+                                       self.bad_pattern_ids[m - len(extra_patterns)])
             if not self.lab_mode:
                 self.u_boot_version_string = self.p.after
             while True:

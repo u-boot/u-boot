@@ -114,54 +114,74 @@ struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
 	return btrfs_match_dir_item_name(root, path, name, name_len);
 }
 
-int btrfs_iter_dir(struct btrfs_root *root, u64 ino,
-		   btrfs_iter_dir_callback_t callback)
+/*
+ * btrfs_next_dir_entry() - read one directory entry at or after a cursor
+ *
+ * Iterator for the fs-layer readdir, which is re-entered once per entry:
+ * returns the first real entry whose BTRFS_DIR_INDEX_KEY offset is
+ * >= *offset and advances *offset past it.
+ *
+ * @root, @ino:		directory to read
+ * @offset:		in/out cursor; DIR_INDEX offset to resume from
+ * @namebuf:		caller buffer that receives the NUL-terminated name
+ * @namebuf_len:	size of @namebuf in bytes
+ * @ftype:		receives the BTRFS_FT_* type of the entry
+ *
+ * Return: 0 if an entry was returned, 1 when the directory is exhausted,
+ *	   -ve on error.
+ */
+int btrfs_next_dir_entry(struct btrfs_root *root, u64 ino, u64 *offset,
+			 char *namebuf, int namebuf_len, u8 *ftype)
 {
 	struct btrfs_path path;
 	struct btrfs_key key;
+	struct btrfs_dir_item *di;
+	int name_len;
 	int ret;
 
 	btrfs_init_path(&path);
 	key.objectid = ino;
 	key.type = BTRFS_DIR_INDEX_KEY;
-	key.offset = 0;
+	key.offset = *offset;
 
 	ret = btrfs_search_slot(NULL, root, &key, &path, 0, 0);
 	if (ret < 0)
-		return ret;
-	/* Should not happen */
-	if (ret == 0) {
-		ret = -EUCLEAN;
 		goto out;
-	}
+
 	if (path.slots[0] >= btrfs_header_nritems(path.nodes[0])) {
 		ret = btrfs_next_leaf(root, &path);
 		if (ret < 0)
 			goto out;
-		if (ret > 0) {
-			ret = 0;
+		if (ret > 0) {		/* end of tree */
+			ret = 1;
 			goto out;
 		}
 	}
-	do {
-		struct btrfs_dir_item *di;
 
-		btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
-		if (key.objectid != ino || key.type != BTRFS_DIR_INDEX_KEY)
-			break;
-		di = btrfs_item_ptr(path.nodes[0], path.slots[0],
-				    struct btrfs_dir_item);
-		if (verify_dir_item(root, path.nodes[0], di)) {
-			ret = -EUCLEAN;
-			goto out;
-		}
-		ret = callback(root, path.nodes[0], di);
-		if (ret < 0)
-			goto out;
-	} while (!(ret = btrfs_next_item(root, &path)));
+	btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
+	if (key.objectid != ino || key.type != BTRFS_DIR_INDEX_KEY) {
+		ret = 1;		/* no more entries for this dir */
+		goto out;
+	}
 
-	if (ret > 0)
-		ret = 0;
+	di = btrfs_item_ptr(path.nodes[0], path.slots[0],
+			    struct btrfs_dir_item);
+	if (verify_dir_item(root, path.nodes[0], di)) {
+		ret = -EUCLEAN;
+		goto out;
+	}
+
+	*offset = key.offset + 1;
+
+	name_len = btrfs_dir_name_len(path.nodes[0], di);
+	if (name_len > namebuf_len - 1)
+		name_len = namebuf_len - 1;
+	read_extent_buffer(path.nodes[0], namebuf,
+			   (unsigned long)(di + 1), name_len);
+	namebuf[name_len] = '\0';
+	*ftype = btrfs_dir_type(path.nodes[0], di);
+	ret = 0;
+
 out:
 	btrfs_release_path(&path);
 	return ret;

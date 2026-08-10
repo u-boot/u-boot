@@ -55,18 +55,3 @@ U_BOOT_CMD(
 );
 
 #endif
-
-U_BOOT_CMD(
-	reset, 2, 0,	do_reset,
-	"Perform RESET of the CPU",
-	"- cold boot without level specifier\n"
-	"reset -w - warm reset if implemented"
-);
-
-#ifdef CONFIG_CMD_POWEROFF
-U_BOOT_CMD(
-	poweroff, 1, 0,	do_poweroff,
-	"Perform POWEROFF of the device",
-	""
-);
-#endif

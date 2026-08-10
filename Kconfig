@@ -193,7 +193,7 @@ config FUZZ
 	select ASAN
 	help
 	  Enables the fuzzing infrastructure to generate fuzzing data and run
-          fuzz tests.
+	  fuzz tests.
 
 config CC_HAS_ASM_INLINE
 	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
@@ -308,11 +308,11 @@ config SYS_MALLOC_F_LEN
 	default 0x10000 if ARCH_IMX8 || ARCH_IMX8M
 	default 0x2000
 	help
-		Size of the malloc() pool for use before relocation. If
-		this is defined, then a very simple malloc() implementation
-		will become available before relocation. The address is just
-		below the global data, and the stack is moved down to make
-		space.
+	  Size of the malloc() pool for use before relocation. If
+	  this is defined, then a very simple malloc() implementation
+	  will become available before relocation. The address is just
+	  below the global data, and the stack is moved down to make
+	  space.
 
 		This feature allocates regions with increasing addresses
 		within the region. calloc() is supported, but realloc()
@@ -420,7 +420,7 @@ menuconfig EXPERT
 	  Use this only if you really know what you are doing.
 
 if EXPERT
-	config SYS_MALLOC_CLEAR_ON_INIT
+config SYS_MALLOC_CLEAR_ON_INIT
 	bool "Init with zeros the memory reserved for malloc (slow)"
 	default y
 	help
@@ -502,6 +502,19 @@ config SKIP_RELOCATE_CODE_DATA_OFFSET
 	help
 	  Offset of the read-write memory which contains data, from read-only
 	  memory which contains executable text.
+
+config RELOC_ADDR_TOP
+	bool "Relocate to the topmost memory address"
+	help
+	  When U-Boot relocates, it chooses the end of the first memory bank.
+	  Enable this if you have multiple banks and want U-Boot to relocate
+	  to the topmost memory address. This will use the information of the
+	  board memory banks configured with dram_init_banksize() to calculate
+	  the relocation address.
+	  Use this if you are certain all of the devices can access memory
+	  above the 32bit boundary. Devices that can only DMA below 4GiB will
+	  misbehave because their buffers may be allocated above the 32-bit
+	  boundary after relocation.
 
 endif # EXPERT
 

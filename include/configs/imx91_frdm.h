@@ -20,6 +20,4 @@
 #define PHYS_SDRAM		0x80000000
 #define PHYS_SDRAM_SIZE		SZ_2G /* 2GB DDR */
 
-#define WDOG_BASE_ADDR		WDG3_BASE_ADDR
-
 #endif

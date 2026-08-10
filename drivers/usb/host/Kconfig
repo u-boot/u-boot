@@ -24,7 +24,7 @@ config USB_XHCI_HCD
 	bool "xHCI HCD (USB 3.0) support"
 	depends on DM && OF_CONTROL
 	select USB_HOST
-	---help---
+	help
 	  The eXtensible Host Controller Interface (xHCI) is standard for USB 3.0
 	  "SuperSpeed" host controller hardware.
 
@@ -149,7 +149,7 @@ config USB_EHCI_HCD
 	select USB_HOST
 	select EHCI_DESC_BIG_ENDIAN if SYS_BIG_ENDIAN
 	select EHCI_MMIO_BIG_ENDIAN if SYS_BIG_ENDIAN
-	---help---
+	help
 	  The Enhanced Host Controller Interface (EHCI) is standard for USB 2.0
 	  "high speed" (480 Mbit/sec, 60 Mbyte/sec) host controller hardware.
 	  If your USB host controller supports USB 2.0, you will likely want to
@@ -174,14 +174,14 @@ config USB_EHCI_ATMEL
 	bool  "Support for Atmel on-chip EHCI USB controller"
 	depends on ARCH_AT91
 	default y
-	---help---
+	help
 	  Enables support for the on-chip EHCI controller on Atmel chips.
 
 config USB_EHCI_EXYNOS
 	bool "Support for Samsung Exynos EHCI USB controller"
 	depends on ARCH_EXYNOS
 	default y
-	---help---
+	help
 	  Enables support for the on-chip EHCI controller on Samsung Exynos
 	  SoCs.
 
@@ -191,7 +191,7 @@ config USB_EHCI_MARVELL
 	default y
 	select USB_EHCI_IS_TDI if !ARM64
 	select USB_EHCI_IS_TDI if ALLEYCAT_5
-	---help---
+	help
 	  Enables support for the on-chip EHCI controller on MVEBU SoCs.
 
 config USB_EHCI_MX5
@@ -205,7 +205,7 @@ config USB_EHCI_MX6
 	depends on ARCH_MX6 || ARCH_MX7ULP || ARCH_IMXRT
 	select EHCI_HCD_INIT_AFTER_RESET
 	default y
-	---help---
+	help
 	  Enables support for the on-chip EHCI controller on i.MX6 SoCs.
 
 config USB_EHCI_MX7
@@ -215,7 +215,7 @@ config USB_EHCI_MX7
 	select PHY if IMX8M || IMX9
 	select NOP_PHY if IMX8M || IMX9
 	default y
-	---help---
+	help
 	  Enables support for the on-chip EHCI controller on i.MX7/i.MX8M/i.MX9 SoCs.
 
 config USB_EHCI_MXS
@@ -230,7 +230,7 @@ config USB_EHCI_MXS
 config USB_EHCI_NPCM
 	bool "Support for Nuvoton NPCM on-chip EHCI USB controller"
 	depends on ARCH_NPCM
-	---help---
+	help
 	  Enables support for the on-chip EHCI controller on
 	  Nuvoton NPCM chips.
 
@@ -240,7 +240,7 @@ config USB_EHCI_OMAP
 	select PHY
 	imply NOP_PHY
 	default y
-	---help---
+	help
 	  Enables support for the on-chip EHCI controller on OMAP3 and later
 	  SoCs.
 
@@ -255,7 +255,7 @@ if USB_EHCI_MX6 || USB_EHCI_MX7
 
 config MXC_USB_OTG_HACTIVE
 	bool "USB Power pin high active"
-	---help---
+	help
 	  Set the USB Power pin polarity to be high active (PWR_POL)
 
 endif
@@ -265,7 +265,7 @@ config USB_EHCI_MSM
 	depends on DM_USB
 	select USB_ULPI
 	select MSM8916_USB_PHY
-	---help---
+	help
 	  Enables support for the on-chip EHCI controller on Qualcomm
 	  Snapdragon SoCs.
 
@@ -280,7 +280,7 @@ config USB_EHCI_TEGRA
 	bool "Support for NVIDIA Tegra on-chip EHCI USB controller"
 	depends on ARCH_TEGRA
 	select USB_EHCI_IS_TDI
-	---help---
+	help
 	  Enable support for Tegra on-chip EHCI USB controller. If you enable
 	  ULPI and your PHY needs a different reference clock than the standard
 	  24 MHz then you have to define CFG_ULPI_REF_CLK to the appropriate
@@ -291,14 +291,14 @@ config USB_EHCI_ZYNQ
 	depends on ARCH_ZYNQ
 	default y
 	select USB_EHCI_IS_TDI
-	---help---
+	help
 	  Enable support for Zynq on-chip EHCI USB controller
 
 config USB_EHCI_GENERIC
 	bool "Support for generic EHCI USB controller"
 	depends on DM_USB
 	default ARCH_SUNXI
-	---help---
+	help
 	  Enables support for generic EHCI controller.
 
 config EHCI_HCD_INIT_AFTER_RESET
@@ -310,7 +310,7 @@ config USB_EHCI_FSL
 	select EHCI_HCD_INIT_AFTER_RESET
 	select SYS_FSL_USB_INTERNAL_UTMI_PHY if MPC85xx && \
 		!(ARCH_B4860 || ARCH_B4420 || ARCH_P4080 || ARCH_P1020 || ARCH_P2020)
-	---help---
+	help
 	  Enables support for the on-chip EHCI controller on FSL chips.
 
 config SYS_FSL_USB_INTERNAL_UTMI_PHY
@@ -340,7 +340,7 @@ config USB_OHCI_HCD
 	depends on DM && OF_CONTROL
 	select USB_HOST
 	select USB_OHCI_NEW
-	---help---
+	help
 	  The Open Host Controller Interface (OHCI) is a standard for accessing
 	  USB 1.1 host controller hardware.  It does more in hardware than Intel's
 	  UHCI specification.  If your USB host controller follows the OHCI spec,
@@ -361,7 +361,7 @@ config USB_OHCI_PCI
 config USB_OHCI_GENERIC
 	bool "Support for generic OHCI USB controller"
 	default ARCH_SUNXI
-	---help---
+	help
 	  Enables support for generic OHCI controller.
 
 config USB_OHCI_DA8XX
@@ -374,7 +374,7 @@ config USB_OHCI_DA8XX
 config USB_OHCI_NPCM
 	bool "Support for Nuvoton NPCM on-chip OHCI USB controller"
 	depends on ARCH_NPCM
-	---help---
+	help
 	  Enables support for the on-chip OHCI controller on
 	  Nuvoton NPCM chips.
 
@@ -391,7 +391,7 @@ config SYS_OHCI_SWAP_REG_ACCESS
 config USB_UHCI_HCD
 	bool "UHCI HCD (most Intel and VIA) support"
 	select USB_HOST
-	---help---
+	help
 	  The Universal Host Controller Interface is a standard by Intel for
 	  accessing the USB hardware in the PC (which is also called the USB
 	  host controller). If your USB host controller conforms to this
@@ -410,7 +410,7 @@ config USB_DWC2
 	bool "DesignWare USB2 Core support"
 	depends on DM && OF_CONTROL
 	select USB_HOST
-	---help---
+	help
 	  The DesignWare USB 2.0 controller is compliant with the
 	  USB-Implementers Forum (USB-IF) USB 2.0 specifications.
 	  Hi-Speed (480 Mbps), Full-Speed (12 Mbps), and Low-Speed (1.5 Mbps)
@@ -421,7 +421,7 @@ if USB_DWC2
 config USB_DWC2_BUFFER_SIZE
 	int "Data buffer size in kB"
 	default 64
-	---help---
+	help
 	  By default 64 kB buffer is used but if amount of RAM avaialble on
 	  the target is not enough to accommodate allocation of buffer of
 	  that size it is possible to shrink it. Smaller sizes should be fine
@@ -433,7 +433,7 @@ config USB_R8A66597_HCD
 	bool "Renesas R8A66597 USB Core support"
 	depends on DM && OF_CONTROL
 	select USB_HOST
-	---help---
+	help
 	  This enables support for the on-chip Renesas R8A66597 USB 2.0
 	  controller, present in various RZ and SH SoCs.
 

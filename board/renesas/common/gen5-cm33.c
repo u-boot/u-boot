@@ -21,9 +21,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define field_get(_mask, _reg) (((_reg) & (_mask)) >> (ffs(_mask) - 1))
-#define field_prep(_mask, _val) (((_val) << (ffs(_mask) - 1)) & (_mask))
-
 #define PKC_PROT_LOCK				0xa5a5a500
 #define PKC_PROT_UNLOCK				0xa5a5a501
 

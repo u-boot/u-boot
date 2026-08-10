@@ -1376,8 +1376,8 @@ efi_status_t efi_launch_capsules(void)
 	 * update on the storage.
 	 */
 	log_info("Reboot after firmware update.\n");
-	/* Cold reset is required for loading the new firmware. */
-	sysreset_walk_halt(SYSRESET_COLD);
+	/* Reset is required for loading the new firmware. */
+	sysreset_walk_halt(SYSRESET_DEFAULT);
 	hang();
 	/* not reach here */
 
