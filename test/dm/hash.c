@@ -31,8 +31,14 @@ static int hash_test_success(struct udevice *dev, enum HASH_ALGO algo,
 			     const void *ibuf, const uint32_t ilen,
 			     void *obuf, uint32_t chunk_sz)
 {
+	ssize_t digest_size;
+
 	success_calls++;
-	memset(obuf, 0x5a, hash_algo_digest_size(algo));
+	digest_size = hash_algo_digest_size(algo);
+	if (digest_size < 0)
+		return digest_size;
+
+	memset(obuf, 0x5a, digest_size);
 
 	return 0;
 }
@@ -123,6 +129,14 @@ static int dm_test_hash_provider_selection(struct unit_test_state *uts)
 	ut_asserteq(1, success_calls);
 	for (int i = 0; i < sizeof(digest); i++)
 		ut_asserteq(0x5a, digest[i]);
+
+	memset(digest, 0, sizeof(digest));
+	ret = hash_digest_wd_lookup(HASH_ALGO_INVALID, "test", 4, digest, 4);
+	ut_asserteq(-EINVAL, ret);
+	ut_asserteq(2, unsupported_calls);
+	ut_asserteq(2, success_calls);
+	for (int i = 0; i < sizeof(digest); i++)
+		ut_asserteq(0, digest[i]);
 
 	ut_assertok(hash_test_unbind_all());
 	ut_assertok(hash_test_bind(DM_DRIVER_GET(hash_test_hard_error_drv),
