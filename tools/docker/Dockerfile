@@ -17,7 +17,7 @@ ARG BUILDPLATFORM
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Set architectures to build for (leaving out ARM which is an exception)
-ENV ARCHS="aarch64 arc i386 m68k mips microblaze nios2 powerpc riscv64 riscv32 sh2 x86_64"
+ENV ARCHS="aarch64 arc i386 loongarch64 m68k mips microblaze nios2 powerpc riscv64 riscv32 sh2 x86_64"
 
 # Mirror containing the toolchains
 ENV MIRROR=https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin
@@ -153,7 +153,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	xxd \
 	zip
 
-# Build GRUB UEFI targets for ARM & RISC-V, 32-bit and 64-bit
+# Build GRUB UEFI targets for ARM & RISC-V, 32-bit and 64-bit, and LoongArch
+# 64-bit
 RUN git clone https://https.git.savannah.gnu.org/git/grub.git /tmp/grub && \
 	cd /tmp/grub && \
 	git checkout grub-2.14 && \
@@ -184,6 +185,20 @@ RUN git clone https://https.git.savannah.gnu.org/git/grub.git /tmp/grub && \
 	TARGET_RANLIB=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-ranlib && \
 	make -j$(nproc) && \
 	./grub-mkimage -O arm-efi -o /opt/grub/grubarm.efi --prefix= -d \
+	grub-core cat chain configfile echo efinet ext2 fat halt help linux \
+	lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot \
+	search search_fs_file search_fs_uuid search_label serial sleep test \
+	true && \
+	make clean && \
+	./configure --target=loongarch64 --with-platform=efi \
+	CC=gcc \
+	TARGET_CC=/opt/gcc-${TCVER}-nolibc/loongarch64-linux/bin/loongarch64-linux-gcc \
+	TARGET_OBJCOPY=/opt/gcc-${TCVER}-nolibc/loongarch64-linux/bin/loongarch64-linux-objcopy \
+	TARGET_STRIP=/opt/gcc-${TCVER}-nolibc/loongarch64-linux/bin/loongarch64-linux-strip \
+	TARGET_NM=/opt/gcc-${TCVER}-nolibc/loongarch64-linux/bin/loongarch64-linux-nm \
+	TARGET_RANLIB=/opt/gcc-${TCVER}-nolibc/loongarch64-linux/bin/loongarch64-linux-ranlib && \
+	make -j$(nproc) && \
+	./grub-mkimage -O loongarch64-efi -o /opt/grub/grubloongarch64.efi --prefix= -d \
 	grub-core cat chain configfile echo efinet ext2 fat halt help linux \
 	lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot \
 	search search_fs_file search_fs_uuid search_label serial sleep test \
@@ -232,7 +247,7 @@ RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	# config user.name and user.email to make 'git am' happy
 	git config user.name u-boot && \
 	git config user.email u-boot@denx.de && \
-	./configure --prefix=/opt/qemu --target-list="aarch64-softmmu,arm-softmmu,i386-softmmu,m68k-softmmu,mips-softmmu,mips64-softmmu,mips64el-softmmu,mipsel-softmmu,ppc-softmmu,riscv32-softmmu,riscv64-softmmu,sh4-softmmu,x86_64-softmmu,xtensa-softmmu" && \
+	./configure --prefix=/opt/qemu --target-list="aarch64-softmmu,arm-softmmu,i386-softmmu,loongarch64-softmmu,m68k-softmmu,mips-softmmu,mips64-softmmu,mips64el-softmmu,mipsel-softmmu,ppc-softmmu,riscv32-softmmu,riscv64-softmmu,sh4-softmmu,x86_64-softmmu,xtensa-softmmu" && \
 	make -j$(nproc) all install && \
 	rm -rf /tmp/qemu
 
@@ -312,7 +327,7 @@ RUN git clone https://github.com/stefanberger/libtpms /tmp/libtpms && \
 	rm -rf /tmp/libtpms
 
 # Build swtpm
-RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm && \
+RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm -b v0.10.1 && \
 	cd /tmp/swtpm && \
 	./autogen.sh && \
 	./configure && \
