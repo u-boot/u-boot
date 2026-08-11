@@ -150,8 +150,10 @@ static int gpio_delay_probe(struct udevice *dev)
 		d = &priv->descs[i];
 		ret = gpio_request_by_name_nodev(node, "gpios", i,
 						 &d->real_gpio, 0);
-		if (ret)
+		if (ret) {
+			gpio_delay_free_wrapped(dev, i);
 			return ret;
+		}
 	}
 
 	return 0;
