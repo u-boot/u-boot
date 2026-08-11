@@ -168,6 +168,8 @@ int lmb_is_reserved_flags(phys_addr_t addr, int flags);
  * @flags: Memory region attributes
  *
  * Return: 0 on success, negative error code on failure.
+ *
+ * The return value can be -EFAULT when the region has not been allocated.
  */
 long lmb_free(phys_addr_t base, phys_size_t size, u32 flags);
 

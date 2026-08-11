@@ -477,7 +477,7 @@ static int lib_test_lmb_at_0(struct unit_test_state *uts)
 		   0, 0, 0, 0);
 	/* check that this was an error by freeing b */
 	ret = lmb_free(b, 4, LMB_NONE);
-	ut_asserteq(ret, -1);
+	ut_asserteq(ret, -EFAULT);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, a, ram_size - 4,
 		   0, 0, 0, 0);
 

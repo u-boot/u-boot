@@ -286,7 +286,7 @@ static long _lmb_free(struct alist *lmb_rgn_lst, phys_addr_t base,
 
 	/* Didn't find the region */
 	if (i == lmb_rgn_lst->count)
-		return -1;
+		return -EFAULT;
 
 	/* Check to see if we are removing entire region */
 	if (rgnbegin == base && rgnend == end) {
