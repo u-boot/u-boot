@@ -77,6 +77,8 @@ static int gpio_delay_xlate(struct udevice *dev, struct gpio_desc *desc,
 	if (args->args[0] >= uc_priv->gpio_count)
 		return -EINVAL;
 
+	desc->offset = args->args[0];
+
 	struct gpio_delay_desc *d = &priv->descs[args->args[0]];
 
 	d->ramp_up_us = args->args[1];
