@@ -1598,10 +1598,6 @@
 		sandbox,filepath = "scsi.img";
 	};
 
-	smem@0 {
-		compatible = "sandbox,smem";
-	};
-
 	sound {
 		compatible = "sandbox,sound";
 		cpu {
