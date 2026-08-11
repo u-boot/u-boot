@@ -90,6 +90,33 @@ static int gpio_delay_xlate(struct udevice *dev, struct gpio_desc *desc,
 	return 0;
 }
 
+static void gpio_delay_free_wrapped(struct udevice *dev, int count)
+{
+	struct gpio_delay_priv *priv = dev_get_priv(dev);
+	int i;
+
+	for (i = 0; i < count; i++) {
+		/*
+		 * Generic DM teardown (e.g. dm_leak_check_end()'s
+		 * uclass-by-uclass destroy) does not guarantee a consumer is
+		 * removed before the provider it wraps, so the real GPIO
+		 * device may already be inactive with its uclass_priv freed
+		 * by the time this runs.
+		 */
+		if (device_active(priv->descs[i].real_gpio.dev))
+			dm_gpio_free(dev, &priv->descs[i].real_gpio);
+	}
+}
+
+static int gpio_delay_remove(struct udevice *dev)
+{
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	gpio_delay_free_wrapped(dev, uc_priv->gpio_count);
+
+	return 0;
+}
+
 static const struct dm_gpio_ops gpio_delay_ops = {
 	.direction_output = gpio_delay_direction_output,
 	.direction_input = gpio_delay_direction_input,
@@ -142,4 +169,5 @@ U_BOOT_DRIVER(gpio_delay) = {
 	.ops = &gpio_delay_ops,
 	.priv_auto = sizeof(struct gpio_delay_priv),
 	.probe = gpio_delay_probe,
+	.remove = gpio_delay_remove,
 };
