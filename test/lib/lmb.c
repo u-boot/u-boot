@@ -779,11 +779,19 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 	/* check that allocating outside memory fails */
 	if (ram_end != 0) {
 		ret = lmb_alloc_addr(ram_end, 1, LMB_NONE);
+		ut_asserteq(ret, -EFAULT);
+		ret = lmb_alloc_addr(ram_end - 1, 2, LMB_NOMAP);
+		ut_asserteq(ret, -EINVAL);
+		ret = lmb_alloc_addr(ram_end - 1, 2, LMB_NOOVERWRITE);
 		ut_asserteq(ret, -EINVAL);
 	}
 	if (ram != 0) {
 		ret = lmb_alloc_addr(ram - 1, 1, LMB_NONE);
-		ut_asserteq(ret, -EINVAL);
+		ut_asserteq(ret, -EFAULT);
+		ret = lmb_alloc_addr(ram - 1, 2, LMB_NOMAP);
+		ut_asserteq(ret, -EEXIST);
+		ret = lmb_alloc_addr(ram - 1, 2, LMB_NOOVERWRITE);
+		ut_asserteq(ret, -EEXIST);
 	}
 
 	lmb_pop(&store);

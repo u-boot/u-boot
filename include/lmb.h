@@ -124,7 +124,7 @@ struct lmb {
  * Return: 0 on success, -ve value on failure
  *
  * When the allocation is of type @LMB_MEM_ALLOC_ADDR, the return value can
- * be -EINVAL if the requested memory region is not part of the LMB memory
+ * be -EFAULT if the requested memory region is not part of the LMB memory
  * map, and -EEXIST if the requested region is already allocated.
  */
 int lmb_alloc_mem(enum lmb_mem_type type, u64 align, phys_addr_t *addr,
