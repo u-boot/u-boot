@@ -68,12 +68,13 @@ static int gpio_delay_direction_output(struct udevice *dev, unsigned int offset,
 static int gpio_delay_xlate(struct udevice *dev, struct gpio_desc *desc,
 			    struct ofnode_phandle_args *args)
 {
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct gpio_delay_priv *priv = dev_get_priv(dev);
 
 	if (args->args_count < 3)
 		return -EINVAL;
 
-	if (args->args[0] >= 32)
+	if (args->args[0] >= uc_priv->gpio_count)
 		return -EINVAL;
 
 	struct gpio_delay_desc *d = &priv->descs[args->args[0]];
@@ -97,6 +98,7 @@ static const struct dm_gpio_ops gpio_delay_ops = {
 
 static int gpio_delay_probe(struct udevice *dev)
 {
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct gpio_delay_priv *priv = dev_get_priv(dev);
 	struct gpio_delay_desc *d;
 	ofnode node = dev_ofnode(dev);
@@ -111,6 +113,8 @@ static int gpio_delay_probe(struct udevice *dev)
 	priv->descs = devm_kmalloc_array(dev, ngpio, sizeof(*d), GFP_KERNEL);
 	if (!priv->descs)
 		return -ENOMEM;
+
+	uc_priv->gpio_count = ngpio;
 
 	/* Request all GPIOs described in the controller node */
 	for (i = 0; i < ngpio; i++) {
