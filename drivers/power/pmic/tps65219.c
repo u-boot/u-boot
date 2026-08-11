@@ -55,6 +55,7 @@ static int tps65219_bind(struct udevice *dev)
 	if (!ofnode_valid(regulators_node)) {
 		debug("%s: %s regulators subnode not found!\n", __func__,
 		      dev->name);
+		return -ENXIO;
 	}
 
 	debug("%s: '%s' - found regulators subnode\n", __func__, dev->name);

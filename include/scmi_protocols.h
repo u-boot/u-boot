@@ -26,6 +26,7 @@ enum scmi_std_protocol {
 	SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN = 0x17,
 	SCMI_PROTOCOL_ID_PINCTRL = 0x19,
 	SCMI_PROTOCOL_ID_VENDOR_80 = 0x80,
+	SCMI_PROTOCOL_ID_VENDOR_81 = 0x81,
 	SCMI_PROTOCOL_ID_VENDOR_82 = 0x82,
 };
 
@@ -1340,7 +1341,7 @@ struct scmi_pinctrl_release_out {
 
 /* SCMI Pinctrl Config Types */
 enum scmi_config_type {
-	SCMI_PIN_DEFUALT = 0,
+	SCMI_PIN_DEFAULT = 0,
 	SCMI_PIN_BIAS_BUS_HOLD = 1,
 	SCMI_PIN_BIAS_DISABLE = 2,
 	SCMI_PIN_BIAS_HIGH_IMPEDANCE = 3,
