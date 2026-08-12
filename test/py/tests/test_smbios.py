@@ -49,7 +49,8 @@ def test_cmd_smbios_sysinfo_verbose(ubman):
     assert 'DMI type 0,' in output
     assert 'Vendor: U-Boot' in output
     assert 'DMI type 1,' in output
-    assert 'Manufacturer: linux' in output
+    # QEMU fdt shows up as emulation, fallback in u-boot is linux
+    assert ('Manufacturer: emulation' or 'Manufacturer: linux') in output
     assert 'DMI type 2,' in output
     assert 'DMI type 3,' in output
     assert 'DMI type 7,' in output
