@@ -3203,6 +3203,9 @@ int mmc_deinit(struct mmc *mmc)
 
 		return sd_select_mode_and_width(mmc, caps_filtered);
 	} else {
+		if (CONFIG_IS_ENABLED(MMC_SKIP_EMMC_DEINIT))
+			return 0;
+
 		caps_filtered = mmc->card_caps &
 			~(MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_HS_400) | MMC_CAP(MMC_HS_400_ES));
 

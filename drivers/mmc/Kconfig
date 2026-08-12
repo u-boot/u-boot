@@ -233,6 +233,30 @@ config SPL_MMC_HS200_SUPPORT
 	  The HS200 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
 
+config MMC_SKIP_EMMC_DEINIT
+	bool "Skip eMMC deinit on OS handoff"
+	depends on MMC_HS200_SUPPORT || MMC_HS400_SUPPORT || MMC_HS400_ES_SUPPORT
+	help
+	  When U-Boot hands off to the OS, the MMC subsystem normally
+	  renegotiates the bus down out of HS200/HS400 by issuing CMD6
+	  switches, then changes the clock.  For eMMC this downgrade is
+	  unnecessary when the OS re-initialises the device itself: CMD0
+	  returns the protocol state machine to Idle, and the OS
+	  renegotiates from scratch regardless of the mode U-Boot left
+	  the device in.
+
+	  Enabling this option skips the deinit for eMMC devices only.
+	  SD cards are always deinitialized, keeping the conservative
+	  default behaviour.
+
+	  This removes unnecessary CMD6 switches and clock changes from
+	  the OS-handoff path, which matters on fast-boot / automotive
+	  platforms.
+
+	  Say Y only if the OS re-initialises the eMMC from scratch and
+	  can hardware-reset the device (RST_n) or power-cycle it in
+	  case of trouble.  If unsure, say N.
+
 config MMC_VERBOSE
 	bool "Output more information about the MMC"
 	default y
