@@ -10,7 +10,7 @@ config UFS
 
 config UFS_AMD_VERSAL2
 	bool "AMD Versal Gen 2 UFS controller platform driver"
-	depends on UFS && ZYNQMP_FIRMWARE
+	depends on UFS && ARCH_VERSAL2
 	help
 	  This selects the AMD specific additions to UFSHCD platform driver.
 	  UFS host on AMD needs some vendor specific configuration before accessing

@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <time.h>
 #include <vsprintf.h>
+#include <wait_bit.h>
 #include <asm/armv8/mmu.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -158,6 +159,45 @@ u8 __weak versal2_get_bootmode(void)
 	bootmode = reg & BOOT_MODES_MASK;
 
 	return bootmode;
+}
+
+/*
+ * Wait for the M-PHY TX/RX config-ready status to settle (all bits cleared) or
+ * @timeout_us to elapse. The direct-MMIO fallback owns the poll loop, mirroring
+ * the EEMI backend; the timeout budget is owned by the caller.
+ */
+int __weak zynqmp_pm_wait_mphy_tx_rx_config_ready(u32 timeout_us)
+{
+	return wait_for_bit_le32((void *)(uintptr_t)(PMXC_SLCR_BASE_ADDRESS +
+						     PMXC_TX_RX_CFG_RDY),
+				 TX_RX_CFG_RDY_MASK, false, timeout_us / 1000,
+				 false);
+}
+
+int __weak zynqmp_pm_wait_sram_init_done(u32 timeout_us)
+{
+	return wait_for_bit_le32((void *)(uintptr_t)(PMXC_SLCR_BASE_ADDRESS +
+						     PMXC_SRAM_CSR),
+				 SRAM_CSR_INIT_DONE_MASK, true, timeout_us / 1000,
+				 false);
+}
+
+int __weak zynqmp_pm_set_sram_bypass(void)
+{
+	u32 sram_csr;
+
+	sram_csr = readl(PMXC_SLCR_BASE_ADDRESS + PMXC_SRAM_CSR);
+	sram_csr &= ~SRAM_CSR_EXT_LD_DONE_MASK;
+	sram_csr |= SRAM_CSR_BYPASS_MASK;
+	writel(sram_csr, PMXC_SLCR_BASE_ADDRESS + PMXC_SRAM_CSR);
+
+	return 0;
+}
+
+int __weak zynqmp_pm_get_ufs_calibration_values(u32 *value)
+{
+	*value = readl(PMXC_EFUSE_CACHE_BASE_ADDRESS + PMXC_UFS_CAL_1_OFFSET);
+	return 0;
 }
 
 void versal2_timer_setup(void)
