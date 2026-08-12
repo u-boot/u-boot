@@ -290,8 +290,11 @@ void socfpga_get_sys_mgr_addr(void)
 
 	ofnode node = ofnode_get_aliases_node("sysmgr");
 
+	if (!ofnode_valid(node))
+		node = ofnode_by_compatible(ofnode_null(), "altr,sys-mgr");
+
 	if (!ofnode_valid(node)) {
-		printf("'sysmgr' alias not found in device tree\n");
+		printf("sysmgr device tree node not found\n");
 		hang();
 	}
 
@@ -299,9 +302,9 @@ void socfpga_get_sys_mgr_addr(void)
 	if (ret) {
 		printf("Altera system manager init failed: %d\n", ret);
 		hang();
-	} else {
-		socfpga_sysmgr_base = (phys_addr_t)dev_read_addr(dev);
 	}
+
+	socfpga_sysmgr_base = (phys_addr_t)dev_read_addr(dev);
 }
 
 phys_addr_t socfpga_get_rstmgr_addr(void)
