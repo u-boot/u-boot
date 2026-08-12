@@ -1,0 +1,24 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QCS8300 interconnect IDs
+ *
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ */
+
+#ifndef __DRIVERS_INTERCONNECT_QCOM_QCS8300_H
+#define __DRIVERS_INTERCONNECT_QCOM_QCS8300_H
+
+#define QCS8300_MASTER_UFS_MEM			0
+#define QCS8300_SLAVE_A1NOC_SNOC		1
+#define QCS8300_MASTER_A1NOC_SNOC		2
+#define QCS8300_SLAVE_SNOC_GEM_NOC_SF		3
+#define QCS8300_MASTER_SNOC_SF_MEM_NOC		4
+#define QCS8300_SLAVE_LLCC			5
+#define QCS8300_MASTER_APPSS_PROC		6
+#define QCS8300_SLAVE_GEM_NOC_CNOC		7
+#define QCS8300_MASTER_GEM_NOC_CNOC		8
+#define QCS8300_MASTER_LLCC			9
+#define QCS8300_SLAVE_EBI1			10
+#define QCS8300_SLAVE_UFS_MEM_CFG		11
+
+#endif
