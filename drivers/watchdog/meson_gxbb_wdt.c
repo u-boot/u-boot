@@ -18,7 +18,6 @@
 #define GXBB_WDT_CTRL_SYS_RESET_NOW		BIT(26)
 #define GXBB_WDT_CTRL_CLKDIV_EN			BIT(25)
 #define GXBB_WDT_CTRL_CLK_EN			BIT(24)
-#define GXBB_WDT_CTRL_EE_RESET			BIT(21)
 #define GXBB_WDT_CTRL_EN			BIT(18)
 
 #define GXBB_WDT_CTRL_DIV_MASK			GENMASK(17, 0)
@@ -26,6 +25,10 @@
 
 struct amlogic_wdt_priv {
 	void __iomem *reg_base;
+};
+
+struct wdt_params {
+	u32 rst;
 };
 
 static int amlogic_wdt_set_timeout(struct udevice *dev, u64 timeout_ms)
@@ -84,13 +87,13 @@ static int amlogic_wdt_expire_now(struct udevice *dev, ulong flags)
 static int amlogic_wdt_probe(struct udevice *dev)
 {
 	struct amlogic_wdt_priv *data = dev_get_priv(dev);
+	struct wdt_params *params = (void *)dev_get_driver_data(dev);
+	struct clk clk;
 	int ret;
 
 	data->reg_base = dev_remap_addr(dev);
 	if (!data->reg_base)
 		return -EINVAL;
-
-	struct clk clk;
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
@@ -102,7 +105,7 @@ static int amlogic_wdt_probe(struct udevice *dev)
 
 	/* Setup with 1ms timebase */
 	writel(((clk_get_rate(&clk) / 1000) & GXBB_WDT_CTRL_DIV_MASK) |
-	       GXBB_WDT_CTRL_EE_RESET |
+	       params->rst |
 	       GXBB_WDT_CTRL_CLK_EN |
 	       GXBB_WDT_CTRL_CLKDIV_EN,
 	       data->reg_base + GXBB_WDT_CTRL_REG);
@@ -117,8 +120,17 @@ static const struct wdt_ops amlogic_wdt_ops = {
 	.expire_now = amlogic_wdt_expire_now,
 };
 
+static const struct wdt_params gxbb_params = {
+	.rst = BIT(21),
+};
+
+static const struct wdt_params t7_params = {
+	.rst = BIT(22),
+};
+
 static const struct udevice_id amlogic_wdt_ids[] = {
-	{ .compatible = "amlogic,meson-gxbb-wdt" },
+	{ .compatible = "amlogic,meson-gxbb-wdt", .data = (ulong)&gxbb_params, },
+	{ .compatible = "amlogic,t7-wdt", .data = (ulong)&t7_params, },
 	{}
 };
 
