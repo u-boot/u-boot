@@ -69,12 +69,12 @@ static int meson_set_gate(struct clk *clk, bool on)
 	return 0;
 }
 
-static int meson_clk_enable(struct clk *clk)
+static int meson_axg_clk_enable(struct clk *clk)
 {
 	return meson_set_gate(clk, true);
 }
 
-static int meson_clk_disable(struct clk *clk)
+static int meson_axg_clk_disable(struct clk *clk)
 {
 	return meson_set_gate(clk, false);
 }
@@ -279,7 +279,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 	return rate;
 }
 
-static ulong meson_clk_get_rate(struct clk *clk)
+static ulong meson_axg_clk_get_rate(struct clk *clk)
 {
 	return meson_clk_get_rate_by_id(clk, clk->id);
 }
@@ -305,9 +305,9 @@ static int meson_clk_probe(struct udevice *dev)
 }
 
 static struct clk_ops meson_clk_ops = {
-	.disable	= meson_clk_disable,
-	.enable		= meson_clk_enable,
-	.get_rate	= meson_clk_get_rate,
+	.disable	= meson_axg_clk_disable,
+	.enable		= meson_axg_clk_enable,
+	.get_rate	= meson_axg_clk_get_rate,
 };
 
 static const struct udevice_id meson_clk_ids[] = {
