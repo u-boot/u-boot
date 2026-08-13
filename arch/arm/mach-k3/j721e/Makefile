@@ -5,3 +5,4 @@
 
 obj-$(CONFIG_OF_SYSTEM_SETUP) += j721e_fdt.o
 obj-$(CONFIG_XPL_BUILD) += j721e_init.o
+obj-y += boot.o
