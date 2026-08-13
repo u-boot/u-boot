@@ -127,7 +127,6 @@ ARC HSDK RESET
 M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 S:	Maintained
 L:	uboot-snps-arc@synopsys.com
-F:	include/dt-bindings/reset/snps,hsdk-reset.h
 F:	drivers/reset/reset-hsdk.c
 
 ARC SYNOPSYS DW MMC EXTENSIONS
@@ -156,7 +155,6 @@ F:	drivers/pinctrl/pinctrl-apple.c
 F:	drivers/power/domain/apple-pmgr.c
 F:	drivers/spi/apple_spi.c
 F:	drivers/watchdog/apple_wdt.c
-F:	include/configs/apple.h
 
 ARM
 M:	Tom Rini <trini@konsulko.com>
@@ -246,7 +244,6 @@ F:	drivers/serial/serial_bcm283x_mu.c
 F:	drivers/serial/serial_bcm283x_pl011.c
 F:	drivers/video/bcm2835.c
 F:	include/dm/platform_data/serial_bcm283x_mu.h
-F:	include/dt-bindings/pinctrl/bcm2835.h
 F:	drivers/pinctrl/broadcom/
 F:	configs/rpi_*
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-arm.git
@@ -282,7 +279,6 @@ S:	Maintained
 F:	arch/arm/mach-bcmstb/
 F:	board/broadcom/bcmstb/
 F:	configs/bcm7*_defconfig
-F:	doc/README.bcm7xxx
 F:	drivers/mmc/bcmstb_sdhci.c
 F:	drivers/spi/bcmstb_spi.c
 
@@ -352,9 +348,7 @@ ARM IPQ40XX
 M:	Robert Marko <robert.marko@sartura.hr>
 S:	Maintained
 F:	arch/arm/mach-ipq40xx/
-F:	include/dt-bindings/clock/qcom,gcc-ipq4019.h
 F:	drivers/clk/qcom/clock-ipq4019.c
-F:	drivers/phy/phy-qcom-ipq4019-usb.c
 F:	drivers/spi/spi-qup.c
 F:	drivers/net/mdio-ipq4019.c
 F:	drivers/rng/msm_rng.c
@@ -442,7 +436,6 @@ S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-at91.git
 F:	arch/arm/dts/sam*
 F:	drivers/misc/microchip_flexcom.c
-F:	include/dt-bindings/sound/microchip,pdmc.h
 F:	drivers/timer/mchp-pit64b-timer.c
 N:	at91
 N:	atmel
@@ -467,7 +460,6 @@ F:	configs/s5p4418_nanopi2_defconfig
 F:	doc/README.s5p4418
 F:	drivers/gpio/nx_gpio.c
 F:	drivers/i2c/nx_i2c.c
-F:	drivers/mmc/nexell_dw_mmc_dm.c
 F:	drivers/pinctrl/nexell/
 F:	drivers/serial/serial_s5p4418_pl011.c
 F:	drivers/video/nexell/
@@ -623,11 +615,8 @@ L:	u-boot-qcom@groups.io
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-snapdragon.git
 F:	configs/qcm6490_defconfig
-F:	configs/qcs9100_defconfig
-F:	drivers/*/*/pm8???-*
 F:	drivers/gpio/msm_gpio.c
 F:	drivers/mmc/msm_sdhci.c
-F:	drivers/phy/msm8916-usbh-phy.c
 F:	drivers/phy/qcom/
 F:	drivers/serial/serial_msm.c
 F:	drivers/serial/serial_msm_geni.c
@@ -650,10 +639,6 @@ F:	drivers/reset/sti-reset.c
 F:	drivers/serial/serial_sti_asc.c
 F:	drivers/sysreset/sysreset_sti.c
 F:	drivers/timer/arm_global_timer.c
-F:	drivers/usb/host/dwc3-sti.c
-F:	include/dt-bindings/clock/stih407-clks.h
-F:	include/dt-bindings/clock/stih410-clks.h
-F:	include/dt-bindings/reset/stih407-resets.h
 
 ARM STM STM32MP
 M:	Patrick Delaunay <patrick.delaunay@foss.st.com>
@@ -669,7 +654,6 @@ F:	drivers/gpio/stm32_gpio.c
 F:	drivers/hwspinlock/stm32_hwspinlock.c
 F:	drivers/i2c/stm32f7_i2c.c
 F:	drivers/mailbox/stm32-ipcc.c
-F:	drivers/memory/stm32-omm.c
 F:	drivers/misc/stm32mp_fuse.c
 F:	drivers/misc/stm32_rcc.c
 F:	drivers/mmc/stm32_sdmmc2.c
@@ -692,10 +676,7 @@ F:	drivers/spi/stm32_spi.c
 F:	drivers/video/stm32/stm32_ltdc.c
 F:	drivers/video/stm32/stm32_lvds.c
 F:	drivers/watchdog/stm32mp_wdt.c
-F:	include/dt-bindings/clock/stm32fx-clock.h
 F:	include/dt-bindings/clock/stm32mp*
-F:	include/dt-bindings/pinctrl/stm32-pinfunc.h
-F:	include/dt-bindings/reset/stm32mp*
 F:	include/stm32_rcc.h
 F:	tools/logos/st.bmp
 F:	tools/stm32image.c
@@ -747,7 +728,6 @@ F:	drivers/firmware/ti_sci.*
 F:	drivers/gpio/omap_gpio.c
 F:	drivers/memory/ti-aemif.c
 F:	drivers/misc/k3_avs.c
-F:	drivers/mailbox/k3-sec-procy.c
 F:	drivers/pci/pcie_cdns_ti.c
 F:	drivers/pci/pcie_dw_ti.c
 F:	drivers/phy/keystone-usb-phy.c
@@ -758,7 +738,6 @@ F:	drivers/ram/k3*
 F:	drivers/ram/k3*/
 F:	drivers/remoteproc/ipu_rproc.c
 F:	drivers/remoteproc/k3_system_controller.c
-F:	drivers/remoteproc/pruc_rpoc.c
 F:	drivers/remoteproc/ti*
 F:	drivers/reset/reset-dra7.c
 F:	drivers/reset/reset-ti-sci.c
@@ -897,19 +876,14 @@ S:	Maintained
 F:	boot/bootdev*.c
 F:	boot/bootflow.c
 F:	boot/bootmeth*.c
-F:	boot/bootstd.c
 F:	cmd/bootdev.c
 F:	cmd/bootflow.c
 F:	doc/develop/bootstd/
-F:	doc/usage/bootdev.rst
-F:	doc/usage/bootflow.rst
-F:	doc/usage/bootmeth.rst
 F:	drivers/mmc/mmc_bootdev.c
 F:	include/bootdev.h
 F:	include/bootflow.h
 F:	include/bootmeth.h
 F:	include/bootstd.h
-F:	net/eth_bootdevice.c
 F:	test/boot/
 
 BOOTMETH_ANDROID
@@ -965,7 +939,6 @@ M:	Simon Glass <sjg@chromium.org>
 M:	Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 S:	Maintained
 F:	cmd/cpu.c
-F:	doc/usage/cpu.rst
 
 CYCLIC
 M:	Stefan Roese <stefan.roese@mailbox.org>
@@ -1003,7 +976,6 @@ DRIVER MODEL
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dm.git
-F:	doc/driver-model/
 F:	drivers/core/
 F:	include/dm/
 F:	test/dm/
@@ -1035,7 +1007,6 @@ F:	cmd/nvedit_efi.c
 F:	doc/api/efi.rst
 F:	doc/develop/uefi/*
 F:	doc/mkeficapsule.1
-F:	doc/usage/bootefi.rst
 F:	drivers/rtc/emul_rtc.c
 F:	include/capitalization.h
 F:	include/charset.h
@@ -1050,7 +1021,6 @@ F:	lib/efi*/
 F:	test/lib/efi_*
 F:	test/py/tests/test_efi*
 F:	test/py/tests/test_efi*/
-F:	test/unicode_ut.c
 F:	cmd/bootefi.c
 F:	cmd/efidebug.c
 F:	cmd/nvedit_efi.c
@@ -1136,7 +1106,6 @@ F:	lib/libfdt/
 F:	include/fdt*
 F:	include/linux/libfdt*
 F:	cmd/fdt.c
-F:	common/fdt_support.c
 F:	scripts/dtc-version.sh
 
 FREEBSD
@@ -1252,7 +1221,6 @@ MALI DISPLAY PROCESSORS
 M:	Liviu Dudau <liviu.dudau@foss.arm.com>
 S:	Supported
 T:	git git://github.com/ARM-software/u-boot.git
-F:	drivers/video/mali_dp.c
 F:	drivers/i2c/i2c-versatile.c
 
 MBEDTLS
@@ -1272,7 +1240,6 @@ M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-microblaze.git
 F:	arch/microblaze/
-F:	cmd/mfsl.c
 F:	drivers/gpio/xilinx_gpio.c
 F:	drivers/net/xilinx_axi_emac.c
 F:	drivers/net/xilinx_emaclite.c
@@ -1368,7 +1335,6 @@ MIPS Octeon
 M:	Aaron Williams <awilliams@marvell.com>
 S:	Maintained
 F:	arch/mips/mach-octeon/
-F:	arch/mips/include/asm/arch-octeon/
 F:	arch/mips/dts/mrvl,cn73xx.dtsi
 
 MMC
@@ -1392,9 +1358,7 @@ M:	Jerome Forissier <jerome.forissier@arm.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-net.git
 F:	cmd/lwip/
-F:	cmd/net-lwip.c
 F:	configs/qemu_arm64_lwip_defconfig
-F:	drivers/net/sandbox-lwip.c
 F:	include/net-lwip.h
 F:	lib/lwip/Makefile
 F:	lib/lwip/u-boot/
@@ -1575,7 +1539,6 @@ T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-riscv.git
 F:	arch/riscv/
 F:	cmd/riscv/
 F:	doc/arch/riscv.rst
-F:	doc/usage/sbi.rst
 F:	drivers/sysreset/sysreset_sbi.c
 F:	drivers/timer/andes_plmt_timer.c
 F:	drivers/timer/riscv_aclint_timer.c
@@ -1621,7 +1584,6 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	arch/sandbox/
 F:	configs/sandbox*
-F:	doc/arch/sandbox.rst
 F:	drivers/*/*sandbox*.c
 F:	include/dt-bindings/*/sandbox*.h
 F:	include/os.h
@@ -1654,7 +1616,6 @@ SETEXPR
 M:	Roland Gaudig <roland.gaudig@weidmueller.com>
 S:	Maintained
 F:	cmd/printf.c
-F:	doc/usage/setexpr.rst
 
 SH
 M:	Marek Vasut <marek.vasut+renesas@mailbox.org>
@@ -1736,7 +1697,6 @@ S:	Maintained
 F:	cmd/sqfs.c
 F:	common/spl/spl_squashfs.c
 F:	fs/squashfs/
-F:	include/sqfs.h
 F:	test/py/tests/test_fs/test_squashfs/
 
 STACKPROTECTOR
@@ -1910,7 +1870,6 @@ VBE
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	boot/vbe*
-F:	common/spl_reloc.c
 F:	include/vbe.h
 
 VIDEO
@@ -1925,9 +1884,6 @@ M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 F:	drivers/virtio/
 F:	cmd/virtio.c
-F:	include/config/virtio/
-F:	include/config/virtio.h
-F:	include/config/cmd/virtio.h
 F:	include/virtio*.h
 F:	test/dm/virtio.c
 F:	doc/develop/driver-model/virtio.rst
@@ -1974,7 +1930,6 @@ M:	Roger Knecht <rknecht@pm.me>
 S:	Maintained
 F:	cmd/xxd.c
 F:	doc/usage/cmd/xxd.rst
-F:	test/py/tests/test_xxd/
 
 THE REST
 M:	Tom Rini <trini@konsulko.com>
