@@ -3,6 +3,7 @@
 # Copyright (c) 2019 Baylibre, SAS
 # Jerome Brunet <jbrunet@baylibre.com>
 
+obj-y += clk_meson.o
 obj-$(CONFIG_CLK_MESON_GX) += gxbb.o
 obj-$(CONFIG_CLK_MESON_AXG) += axg.o
 obj-$(CONFIG_CLK_MESON_AXG) += axg-ao.o
