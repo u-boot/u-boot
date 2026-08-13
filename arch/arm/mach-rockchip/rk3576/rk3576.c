@@ -9,7 +9,8 @@
 #include <misc.h>
 #include <asm/armv8/mmu.h>
 #include <asm/arch-rockchip/bootrom.h>
-#include <asm/arch-rockchip/hardware.h>
+#include <asm/io.h>
+#include <linux/hw_bitfield.h>
 
 #define SYS_GRF_BASE		0x2600A000
 #define SYS_GRF_SOC_CON2	0x0008
@@ -20,6 +21,10 @@
 #define GPIO0_IOC_BASE		0x26040000
 #define GPIO0B_PULL_L		0x0024
 #define GPIO0B_IE_L		0x002C
+
+#define TOP_IOC_BASE		0x26044000
+#define IOC_MISC_CON		0x00F0
+#define TOP_IOC_FORCE_JTAG	BIT(1)
 
 #define SYS_SGRF_BASE		0x26004000
 #define SYS_SGRF_SOC_CON14	0x0058
@@ -189,6 +194,11 @@ int arch_cpu_init(void)
 	 * Module: GMAC0/1, MMU0/1(PCIe, SATA, USB3)
 	 */
 	writel(0xffffff00, SYS_SGRF_BASE + SYS_SGRF_SOC_CON20);
+
+	/* Disable JTAG exposed on SDMMC pins (GPIO2A2 and GPIO2A3) */
+	if (IS_ENABLED(CONFIG_ROCKCHIP_DISABLE_FORCE_JTAG))
+		writel(FIELD_PREP_WM16(TOP_IOC_FORCE_JTAG, 0),
+		       TOP_IOC_BASE + IOC_MISC_CON);
 
 	/* Disable USB3OTG0 U3 port, later enabled by USBDP PHY driver */
 	writel(0xffff0188, USB_GRF_BASE + USB3OTG0_CON1);
