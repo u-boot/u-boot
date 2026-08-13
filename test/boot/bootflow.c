@@ -1403,6 +1403,7 @@ static int bootflow_rauc(struct unit_test_state *uts)
 	struct udevice *bootstd;
 	static const char *order[] = {NULL, NULL};
 	const char **old_order;
+	ulong mem_start;
 	ofnode root;
 	ofnode node;
 
@@ -1457,6 +1458,13 @@ static int bootflow_rauc(struct unit_test_state *uts)
 	ut_assertok(run_command("bootflow list", 0));
 	ut_assert_skip_to_line("(0 bootflows, 0 valid)");
 	ut_assert_console_end();
+
+	/* Repeating the failed scan must not leak memory */
+	mem_start = ut_check_delta(0);
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_nextline("No bootflows found; try again with -l");
+	ut_assert_console_end();
+	ut_asserteq(0, ut_check_delta(mem_start));
 
 	/*
 	 * A failed scan with -a stores the failed bootflows; the next scan
