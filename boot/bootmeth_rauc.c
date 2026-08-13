@@ -71,7 +71,7 @@ static struct distro_rauc_slot *get_slot(struct distro_rauc_priv *priv,
 {
 	int i;
 
-	for (i = 0; priv->slots[i]->name; i++) {
+	for (i = 0; priv->slots[i]; i++) {
 		if (!strcmp(priv->slots[i]->name, slot_name))
 			return priv->slots[i];
 	}
