@@ -91,10 +91,6 @@
 
 #define XTAL_RATE 24000000
 
-struct meson_clk {
-	struct regmap *map;
-};
-
 static ulong meson_div_get_rate(struct clk *clk, unsigned long id);
 static ulong meson_div_set_rate(struct clk *clk, unsigned long id, ulong rate,
 				ulong current_rate);
