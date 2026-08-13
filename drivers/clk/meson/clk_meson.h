@@ -61,6 +61,7 @@ struct meson_clk {
  * @MESON_CLK_GATE: This clock is a gate
  * @MESON_CLK_MUX: This clock is a multiplexer
  * @MESON_CLK_DIV: This clock is a configurable divider
+ * @MESON_CLK_DIV2: This clock is a configurable power-of-two divider
  * @MESON_CLK_FIXED_DIV: This clock is a (fractional) fixed-factor clock
  * @MESON_CLK_EXTERNAL: This is an external clock from different clock provider
  * @MESON_CLK_PLL: This is a PLL
@@ -70,6 +71,7 @@ enum meson_clk_type {
 	MESON_CLK_GATE,
 	MESON_CLK_MUX,
 	MESON_CLK_DIV,
+	MESON_CLK_DIV2,
 	MESON_CLK_FIXED_DIV,
 	MESON_CLK_EXTERNAL,
 	MESON_CLK_PLL,
@@ -122,8 +124,7 @@ struct meson_clk_data {
 		.type = MESON_CLK_MUX,					\
 	})
 
-/* A divider with an integral divisor */
-#define CLK_DIV(_name, _reg, _shift, _width, _parent)			\
+#define _CLK_REG(_type, _name, _reg, _shift, _width, _parent)		\
 	(&(struct meson_clk_info){					\
 		.parents = (const unsigned int[]) { (_parent) },	\
 		.parm = &(struct parm) {				\
@@ -132,8 +133,16 @@ struct meson_clk_data {
 			.width = (_width),				\
 		},							\
 		.name = (_name),					\
-		.type = MESON_CLK_DIV,					\
+		.type = _type,						\
 	})
+
+/* A divider with an integral divisor */
+#define CLK_DIV(name, reg, shift, width, parent)			\
+	_CLK_REG(MESON_CLK_DIV, name, reg, shift, width, parent)
+
+/* A divider with a power-of-two divisor */
+#define CLK_DIV2(name, reg, shift, width, parent)			\
+	_CLK_REG(MESON_CLK_DIV2, name, reg, shift, width, parent)
 
 /* A fixed divider */
 #define CLK_DIV_FIXED_FULL(_name, _mult, _div, _parent)			\
@@ -156,17 +165,8 @@ struct meson_clk_data {
 	})
 
 /* A clock gate */
-#define CLK_GATE(_name, _reg, _shift, _parent)				\
-	(&(struct meson_clk_info){					\
-		.parents = (const unsigned int[]) { (_parent) },	\
-		.parm = &(struct parm) {				\
-			.reg_off = (_reg),				\
-			.shift = (_shift),				\
-			.width = 1,					\
-		},							\
-		.name = (_name),					\
-		.type = MESON_CLK_GATE,					\
-	})
+#define CLK_GATE(name, reg, shift, parent)				\
+	_CLK_REG(MESON_CLK_GATE, name, reg, shift, 1, parent)
 
 /* A PLL clock */
 #define CLK_PLL(_name, _parent, ...)					\

@@ -55,26 +55,49 @@ int meson_clk_disable(struct clk *clk)
 	return meson_set_gate(clk, false);
 }
 
-static ulong meson_div_get_rate(struct clk *clk)
+static ulong meson_div_get_rate_common(struct clk *clk,
+				       enum meson_clk_type type, u16 *n,
+				       ulong *rate)
 {
 	struct meson_clk *priv = dev_get_priv(clk->dev);
-	u16 n;
-	ulong rate;
 	const struct meson_clk_info *info;
 	struct clk parent;
 
-	info = meson_clk_get_info(clk, MESON_CLK_DIV);
+	info = meson_clk_get_info(clk, type);
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 
-	/* Actual divider value is (field value + 1), hence the increment */
-	n = GET_PARM_VALUE(priv, info->parm) + 1;
+	*n = GET_PARM_VALUE(priv, info->parm);
 
 	parent.dev = clk->dev;
 	parent.id = info->parents[0];
-	rate = meson_clk_get_rate(&parent);
+	*rate = meson_clk_get_rate(&parent);
+	return 0;
+}
 
-	return rate / n;
+static ulong meson_div_get_rate(struct clk *clk)
+{
+	ulong rate, err;
+	u16 n;
+
+	err = meson_div_get_rate_common(clk, MESON_CLK_DIV, &n, &rate);
+	if (err)
+		return err;
+
+	/* Actual divider value is (field value + 1), hence the increment */
+	return rate / (n + 1);
+}
+
+static ulong meson_div2_get_rate(struct clk *clk)
+{
+	ulong rate, err;
+	u16 n;
+
+	err = meson_div_get_rate_common(clk, MESON_CLK_DIV2, &n, &rate);
+	if (err)
+		return err;
+
+	return rate >> n;
 }
 
 int meson_clk_get_parent(struct clk *clk)
@@ -150,6 +173,8 @@ ulong meson_clk_get_rate(struct clk *clk)
 		return meson_clk_get_rate(&parent);
 	case MESON_CLK_DIV:
 		return meson_div_get_rate(clk);
+	case MESON_CLK_DIV2:
+		return meson_div2_get_rate(clk);
 	case MESON_CLK_FIXED_DIV:
 		parent.dev = clk->dev;
 		parent.id = meson_clk_get_parent(clk);
