@@ -72,6 +72,17 @@
 #define PBUF_POOL_RESERVE               4
 #define TFTP_BLOCKSIZE_THRESHOLD        4096
 
+/*
+ * Match the legacy U-Boot TFTP filename buffer. The legacy
+ * CONFIG_TFTP_FILE_NAME_MAX_LEN value is a buffer size including the trailing
+ * NUL, while lwIP's TFTP_MAX_FILENAME_LEN is the usable string length.
+ */
+#ifdef CONFIG_TFTP_FILE_NAME_MAX_LEN
+#define TFTP_MAX_FILENAME_LEN		(CONFIG_TFTP_FILE_NAME_MAX_LEN - 1)
+#else
+#define TFTP_MAX_FILENAME_LEN		127
+#endif
+
 #if defined(CONFIG_TFTP_BLOCKSIZE) && (CONFIG_TFTP_BLOCKSIZE > TFTP_BLOCKSIZE_THRESHOLD)
 #define PBUF_POOL_SIZE			(((CONFIG_TFTP_BLOCKSIZE + (IP_FRAG_MTU_USABLE - 1)) / \
 					  IP_FRAG_MTU_USABLE) + PBUF_POOL_HEADROOM)

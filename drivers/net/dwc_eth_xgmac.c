@@ -507,6 +507,7 @@ static int xgmac_start(struct udevice *dev)
 					 xgmac->config->interface(dev));
 		if (!xgmac->phy) {
 			pr_err("%s phy_connect() failed\n", dev->name);
+			ret = -ENODEV;
 			goto err_stop_resets;
 		}
 

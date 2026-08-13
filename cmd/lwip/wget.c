@@ -67,11 +67,14 @@ static int _set_cacert(const void *addr, size_t sz)
 	if (ret) {
 		if (!wget_info->silent)
 			printf("Could not parse certificates (%d)\n", ret);
+		mbedtls_x509_crt_free(&crt);
 		free(cacert);
 		cacert = NULL;
 		cacert_size = 0;
 		return CMD_RET_FAILURE;
 	}
+
+	mbedtls_x509_crt_free(&crt);
 
 #if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
 	cacert_initialized = true;
