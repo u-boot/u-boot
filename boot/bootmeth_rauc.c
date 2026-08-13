@@ -398,6 +398,8 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 	if (desc->uclass_id != UCLASS_MMC)
 		return log_msg_ret("blk", -EINVAL);
 	priv = bflow->bootmeth_priv;
+	if (!priv || !priv->slots)
+		return log_msg_ret("priv", -EINVAL);
 
 	/* Device info variables */
 	ret = env_set("devtype", blk_get_devtype(bflow->blk));
@@ -464,6 +466,7 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 		return log_msg_ret("boot", ret);
 
 	distro_rauc_priv_free(priv);
+	bflow->bootmeth_priv = NULL;
 
 	return 0;
 }
