@@ -153,7 +153,8 @@ ulong meson_clk_get_rate(struct clk *clk)
 	case MESON_CLK_FIXED_DIV:
 		parent.dev = clk->dev;
 		parent.id = meson_clk_get_parent(clk);
-		return meson_clk_get_rate(&parent) / info->div;
+		return mult_frac(meson_clk_get_rate(&parent), info->mult,
+				 info->div);
 	case MESON_CLK_EXTERNAL: {
 		int ret;
 		struct clk external_clk;

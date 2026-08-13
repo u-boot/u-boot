@@ -61,7 +61,7 @@ struct meson_clk {
  * @MESON_CLK_GATE: This clock is a gate
  * @MESON_CLK_MUX: This clock is a multiplexer
  * @MESON_CLK_DIV: This clock is a configurable divider
- * @MESON_CLK_FIXED_DIV: This clock is a configurable divider
+ * @MESON_CLK_FIXED_DIV: This clock is a (fractional) fixed-factor clock
  * @MESON_CLK_EXTERNAL: This is an external clock from different clock provider
  * @MESON_CLK_PLL: This is a PLL
  */
@@ -87,7 +87,10 @@ struct meson_clk_info {
 	const char *name;
 	union {
 		const struct parm *parm;
-		u8 div;
+		struct {
+			u8 mult;
+			u8 div;
+		};
 	};
 	const unsigned int *parents;
 	const enum meson_clk_type type;
@@ -133,13 +136,16 @@ struct meson_clk_data {
 	})
 
 /* A fixed divider */
-#define CLK_DIV_FIXED(_name, _div, _parent)				\
+#define CLK_DIV_FIXED_FULL(_name, _mult, _div, _parent)			\
 	(&(struct meson_clk_info){					\
 		.parents = (const unsigned int[]) { (_parent) },	\
+		.mult = (_mult),					\
 		.div = (_div),						\
 		.name = (_name),					\
 		.type = MESON_CLK_FIXED_DIV,				\
 	})
+#define CLK_DIV_FIXED(name, div, parent)				\
+	CLK_DIV_FIXED_FULL(name, 1, div, parent)
 
 /* An external clock */
 #define CLK_EXTERNAL(_name)						\
