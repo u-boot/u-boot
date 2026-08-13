@@ -194,12 +194,12 @@ static int meson_set_gate_by_id(struct clk *clk, unsigned long id, bool on)
 	return 0;
 }
 
-static int meson_clk_enable(struct clk *clk)
+static int meson_g12a_clk_enable(struct clk *clk)
 {
 	return meson_set_gate_by_id(clk, clk->id, true);
 }
 
-static int meson_clk_disable(struct clk *clk)
+static int meson_g12a_clk_disable(struct clk *clk)
 {
 	return meson_set_gate_by_id(clk, clk->id, false);
 }
@@ -858,7 +858,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 	return rate;
 }
 
-static ulong meson_clk_get_rate(struct clk *clk)
+static ulong meson_g12a_clk_get_rate(struct clk *clk)
 {
 	return meson_clk_get_rate_by_id(clk, clk->id);
 }
@@ -888,7 +888,7 @@ static ulong meson_pcie_pll_set_rate(struct clk *clk, ulong rate)
 	return 100000000;
 }
 
-static int meson_clk_set_parent(struct clk *clk, struct clk *parent)
+static int meson_g12a_clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	return meson_mux_set_parent(clk, clk->id, parent->id);
 }
@@ -958,7 +958,7 @@ static ulong meson_clk_set_rate_by_id(struct clk *clk, unsigned long id,
 	return -EINVAL;
 }
 
-static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
+static ulong meson_g12a_clk_set_rate(struct clk *clk, ulong rate)
 {
 	ulong current_rate = meson_clk_get_rate_by_id(clk, clk->id);
 	int ret;
@@ -1000,11 +1000,11 @@ static int meson_clk_probe(struct udevice *dev)
 }
 
 static struct clk_ops meson_clk_ops = {
-	.disable	= meson_clk_disable,
-	.enable		= meson_clk_enable,
-	.get_rate	= meson_clk_get_rate,
-	.set_parent	= meson_clk_set_parent,
-	.set_rate	= meson_clk_set_rate,
+	.disable	= meson_g12a_clk_disable,
+	.enable		= meson_g12a_clk_enable,
+	.get_rate	= meson_g12a_clk_get_rate,
+	.set_parent	= meson_g12a_clk_set_parent,
+	.set_rate	= meson_g12a_clk_set_rate,
 };
 
 static const struct udevice_id meson_clk_ids[] = {
