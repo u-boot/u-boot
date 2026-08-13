@@ -1458,6 +1458,19 @@ static int bootflow_rauc(struct unit_test_state *uts)
 	ut_assert_skip_to_line("(0 bootflows, 0 valid)");
 	ut_assert_console_end();
 
+	/*
+	 * A failed scan with -a stores the failed bootflows; the next scan
+	 * removes them, freeing bootmeth_priv. This used to double free the
+	 * RAUC private data.
+	 */
+	ut_assertok(run_command("bootflow scan -a", 0));
+	ut_assert_nextline("No bootflows found; try again with -l");
+	ut_assert_console_end();
+
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_nextline("No bootflows found; try again with -l");
+	ut_assert_console_end();
+
 	ut_assertok(env_set("BOOT_ORDER", "A B"));
 
 	/* Restore the order used by the device tree */

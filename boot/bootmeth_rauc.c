@@ -239,6 +239,7 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 
 rauc_read_bootflow_err:
 	distro_rauc_priv_free(priv);
+	bflow->bootmeth_priv = NULL;
 	free(boot_order_copy);
 	free(partitions);
 
