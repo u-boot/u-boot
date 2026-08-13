@@ -12,6 +12,14 @@
 	};
 };
 
+&i2c7 {
+	bootph-pre-ram;
+};
+
+&i2c7_xfer {
+	bootph-pre-ram;
+};
+
 &gpio4 {
 	bootph-pre-ram;
 };
