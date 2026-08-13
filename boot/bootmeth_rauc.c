@@ -147,10 +147,12 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 	char *slot;
 	int i;
 	char *partitions = NULL;
+	char *partitions_cursor;
 	char *boot_order = NULL;
 	const char *default_boot_order;
 	const char **default_boot_order_list;
 	char *boot_order_copy;
+	char *boot_order_cursor;
 	char boot_left[BOOT_LEFT_LEN];
 	char *parts;
 
@@ -198,9 +200,11 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 		goto rauc_read_bootflow_err;
 	}
 
+	partitions_cursor = partitions;
+	boot_order_cursor = boot_order_copy;
 	for (i = 1;
-	     (parts = strsep(&partitions, " ")) &&
-	     (slot = strsep(&boot_order_copy, " "));
+	     (parts = strsep(&partitions_cursor, " ")) &&
+	     (slot = strsep(&boot_order_cursor, " "));
 	     i++) {
 		struct distro_rauc_slot *s;
 		struct distro_rauc_slot **new_slots;
@@ -238,6 +242,9 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 		goto rauc_read_bootflow_err;
 
 	bflow->state = BOOTFLOWST_READY;
+
+	free(boot_order_copy);
+	free(partitions);
 
 	return 0;
 
