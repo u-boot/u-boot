@@ -120,19 +120,25 @@ static void get_tdx_user_fuse(struct tdx_user_fuses *tdxuserfuse)
 	tdxuserfuse->ramid = fuse_block & GENMASK(3, 0);
 }
 
+static bool is_imx8qp(void)
+{
+	u32 val = 0;
+	int scierr = sc_misc_otp_fuse_read(-1, 6, &val);
+
+	if (!scierr) {
+		/* QP has one A72 core disabled */
+		return ((val >> 4) & 0x3) != 0x0;
+	}
+
+	return false;
+}
+
 void board_mem_get_layout(u64 *phys_sdram_1_start,
 			  u64 *phys_sdram_1_size,
 			  u64 *phys_sdram_2_start,
 			  u64 *phys_sdram_2_size)
 {
-	u32 is_quadplus = 0, val = 0;
 	struct tdx_user_fuses tdxramfuses;
-	int scierr = sc_misc_otp_fuse_read(-1, 6, &val);
-
-	if (!scierr) {
-		/* QP has one A72 core disabled */
-		is_quadplus = ((val >> 4) & 0x3) != 0x0;
-	}
 
 	get_tdx_user_fuse(&tdxramfuses);
 
@@ -154,7 +160,7 @@ void board_mem_get_layout(u64 *phys_sdram_1_start,
 		*phys_sdram_2_size = SZ_4G + SZ_2G;
 		break;
 	default:
-		if (is_quadplus)
+		if (is_imx8qp())
 			/* Our QP based SKUs only have 2 GB RAM (PHYS_SDRAM_1_SIZE) */
 			*phys_sdram_2_size = 0x0UL;
 		else
@@ -245,18 +251,10 @@ static void select_dt_from_module_version(void)
 	else
 		env_set("variant", "-v1.1");
 
-	switch (tdx_hw_tag.prodid) {
-	/* Select Apalis iMX8QP device trees */
-	case APALIS_IMX8QP_WIFI_BT:
-	case APALIS_IMX8QP:
-	case APALIS_IMX8QP_WIFI_BT_1300MHZ:
-	case APALIS_IMX8QP_1300MHZ:
+	if (is_imx8qp())
 		env_set("soc", "imx8qp");
-		break;
-	default:
+	else
 		env_set("soc", "imx8qm");
-		break;
-	}
 }
 
 static int do_select_dt_from_module_version(struct cmd_tbl *cmdtp, int flag,
