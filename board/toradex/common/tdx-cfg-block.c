@@ -512,24 +512,16 @@ static int get_cfgblock_interactive(void)
 	int len = 0;
 	int ret = 0;
 	unsigned int prodid;
-	int i, idx;
 
-	printf("Enabled modules:\n");
-	for (i = 0; i < ARRAY_SIZE(toradex_modules); i++) {
-		if (toradex_modules[i].is_enabled)
-			printf(" %04d %s\n", toradex_modules[i].pid4,
-			       toradex_modules[i].name);
-	}
-
-	snprintf(message, sizeof(message), "Enter the module ID: ");
+	snprintf(message, sizeof(message), "Enter the module PID4: ");
 	len = cli_readline(message);
 
-	prodid = dectoul(console_buffer, NULL);
-	idx = get_toradex_modules_idx(prodid);
-	if (!toradex_modules[idx].pid4 || !toradex_modules[idx].is_enabled) {
-		printf("Parsing module id failed\n");
-		return -1;
+	if (len > 4) {
+		printf("Invalid module PID4. Too many digits\n");
+		return -EINVAL;
 	}
+
+	prodid = dectoul(console_buffer, NULL);
 	tdx_hw_tag.prodid = prodid;
 
 	len = 0;
