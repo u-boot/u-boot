@@ -40,6 +40,7 @@ static const struct meson_gx_soc_id {
 	{ "G12B",   0x29 },
 	{ "SM1",    0x2b },
 	{ "A1",	    0x2c },
+	{ "S4",     0x37 },
 };
 
 static const struct meson_gx_package_id {
@@ -73,6 +74,7 @@ static const struct meson_gx_package_id {
 	{ "S905X3", 0x2b, 0x10, 0x3f },
 	{ "S905D3", 0x2b, 0x30, 0x3f },
 	{ "A113L", 0x2c, 0x0, 0xf8 },
+	{ "S905Y4", 0x37, 0x03, 0xff },
 };
 
 DECLARE_GLOBAL_DATA_PTR;
