@@ -68,6 +68,7 @@ struct mtk_scpsys_bus_prot_data {
 	u32 bus_prot_mask;
 	u32 bus_prot_set;
 	u32 bus_prot_clr;
+	u32 bus_prot_sta_mask;
 	u32 bus_prot_sta;
 	bool bus_prot_reg_update;
 	bool ignore_clr_ack;
@@ -111,17 +112,21 @@ struct mtk_scpsys {
 	struct mtk_scp_domain *domains;
 };
 
-#define _BUS_PROT(_mask, _set, _clr, _sta, _update, _ignore) {	\
+#define _BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, _update, _ignore) { \
 	.bus_prot_mask = (_mask),				\
 	.bus_prot_set = (_set),					\
 	.bus_prot_clr = (_clr),					\
+	.bus_prot_sta_mask = (_sta_mask),			\
 	.bus_prot_sta = (_sta),					\
 	.bus_prot_reg_update = (_update),			\
 	.ignore_clr_ack = (_ignore),				\
 }
 
 #define BUS_PROT_WR(_mask, _set, _clr, _sta)			\
-	_BUS_PROT(_mask, _set, _clr, _sta, false, false)
+	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, false)
+
+#define BUS_PROT_WR_STA_MASK(_mask, _sta_mask, _set, _clr, _sta) \
+	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, false)
 
 int mtk_scpsys_probe(struct udevice *dev);
 int mtk_power_controller_probe(struct udevice *dev);
