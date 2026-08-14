@@ -229,20 +229,6 @@ const u32 toradex_ouis[] = {
 	[1] = 0x8c06cbUL,
 };
 
-int get_toradex_modules_idx(int pid4)
-{
-	int i, index = 0;
-
-	for (i = 1; i < ARRAY_SIZE(toradex_modules); i++) {
-		if (pid4 == toradex_modules[i].pid4) {
-			index = i;
-			break;
-		}
-	}
-
-	return index;
-}
-
 const char * const get_toradex_carrier_boards(int pid4)
 {
 	int i, index = 0;
@@ -416,7 +402,7 @@ static int write_tdx_cfg_block_to_eeprom(unsigned char *config_block)
 
 int read_tdx_cfg_block(void)
 {
-	int idx, ret = 0;
+	int ret = 0;
 	u8 *config_block = NULL;
 	struct toradex_tag *tag;
 	size_t size = TDX_CFG_BLOCK_MAX_SIZE;
@@ -483,11 +469,6 @@ int read_tdx_cfg_block(void)
 		/* Get to next tag according to current tags length */
 		offset += tag->len * 4;
 	}
-
-	/* Cap product id to avoid issues with a yet unknown one */
-	idx = get_toradex_modules_idx(tdx_hw_tag.prodid);
-	if (!toradex_modules[idx].pid4)
-		tdx_hw_tag.prodid = 0;
 
 out:
 	free(config_block);
