@@ -9,6 +9,10 @@
 #include <dt-bindings/clock/n5x-clock.h>
 
 /{
+	aliases {
+		sysmgr = &sysmgr;
+	};
+
 	memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
