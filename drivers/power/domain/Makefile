@@ -17,6 +17,7 @@ obj-$(CONFIG_MESON_SECURE_POWER_DOMAIN) += meson-secure-pwrc.o
 obj-$(CONFIG_MT2701_POWER_DOMAIN) += mt2701-power-domain.o
 obj-$(CONFIG_MT7622_POWER_DOMAIN) += mt7622-power-domain.o
 obj-$(CONFIG_MT8188_POWER_DOMAIN) += mt8188-power-domain.o
+obj-$(CONFIG_MT8366_POWER_DOMAIN) += mt8366-power-domain.o
 obj-$(CONFIG_MTK_POWER_DOMAIN) += mtk-power-domain.o
 obj-$(CONFIG_QCOM_RPMH_POWER_DOMAIN) += qcom-rpmhpd.o
 obj-$(CONFIG_RENESAS_R8A78000_POWER_DOMAIN) += renesas-r8a78000-power-domain.o

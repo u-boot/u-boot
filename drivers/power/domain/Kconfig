@@ -113,6 +113,16 @@ config MT8188_POWER_DOMAIN
 	  the SoC power domains on and off and handles the associated bus
 	  protection steps, per-domain clocks and parent domains.
 
+config MT8366_POWER_DOMAIN
+	bool "Enable the MediaTek power domain driver for MT8366 compatible SoC"
+	depends on POWER_DOMAIN && ARCH_MEDIATEK
+	select MTK_POWER_DOMAIN
+	help
+	  Enable support for manipulating MediaTek power domains via MMIO
+	  mapped registers for MT8366 compatible SoC. The driver powers
+	  the SoC power domains on and off and handles the associated bus
+	  protection steps, per-domain clocks and parent domains.
+
 config MTK_POWER_DOMAIN
 	bool
 	depends on POWER_DOMAIN && ARCH_MEDIATEK
