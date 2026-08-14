@@ -125,8 +125,14 @@ struct mtk_scpsys {
 #define BUS_PROT_WR(_mask, _set, _clr, _sta)			\
 	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, false)
 
+#define BUS_PROT_WR_IGN(_mask, _set, _clr, _sta)		\
+	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, true)
+
 #define BUS_PROT_WR_STA_MASK(_mask, _sta_mask, _set, _clr, _sta) \
 	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, false)
+
+#define BUS_PROT_WR_IGN_STA_MASK(_mask, _sta_mask, _set, _clr, _sta) \
+	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, true)
 
 int mtk_scpsys_probe(struct udevice *dev);
 int mtk_power_controller_probe(struct udevice *dev);
