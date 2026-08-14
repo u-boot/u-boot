@@ -1264,6 +1264,7 @@ F:	include/configs/mt7621.h
 F:	include/dt-bindings/clock/mt7620-clk.h
 F:	include/dt-bindings/clock/mt7621-clk.h
 F:	include/dt-bindings/clock/mt7628-clk.h
+F:	include/dt-bindings/clock/mt8366-clk.h
 F:	include/dt-bindings/reset/mt7620-reset.h
 F:	include/dt-bindings/reset/mt7621-reset.h
 F:	include/dt-bindings/reset/mt7628-reset.h
