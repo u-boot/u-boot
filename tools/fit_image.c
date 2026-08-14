@@ -24,6 +24,18 @@
 
 static struct legacy_img_hdr header;
 
+struct fit_region {
+	ulong load;
+	ulong size;
+	const char *name;
+};
+
+static bool fit_regions_overlap(const struct fit_region *a,
+				const struct fit_region *b)
+{
+	return a->load < b->load + b->size && b->load < a->load + a->size;
+}
+
 static int fit_estimate_hash_sig_size(struct image_tool_params *params, const char *fname)
 {
 	bool signing = IMAGE_ENABLE_SIGN &&
@@ -905,6 +917,8 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	int images;
 	int confs;
 	int node;
+	struct fit_region *regions = NULL;
+	unsigned int regions_alloc = 0;
 
 	fd = mmap_fdt(params->cmdname, fname, 0, &old_fdt, &sbuf, false, false);
 	if (fd < 0)
@@ -1009,6 +1023,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 
 	fdt_for_each_subnode(node, fdt, confs) {
 		const char *conf_name = fdt_get_name(fdt, node, NULL);
+		unsigned int reg_count = 0;
 
 		for (int i = 0; i < ARRAY_SIZE(props); i++) {
 			int count = fdt_stringlist_count(fdt, node, props[i]);
@@ -1017,6 +1032,11 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 				continue;
 
 			for (int j = 0; j < count; j++) {
+				const char *img_data;
+				ulong img_load;
+				int img_size;
+				unsigned int k;
+
 				const char *img_name =
 					fdt_stringlist_get(fdt, node, props[i], j, NULL);
 				if (!img_name || !*img_name)
@@ -1031,9 +1051,87 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 					ret = FDT_ERR_NOTFOUND;
 					goto err_munmap;
 				}
+
+				/*
+				 * Collect the memory region the image is
+				 * loaded to. Images without a load address or
+				 * without data are never copied anywhere, so
+				 * they cannot conflict.
+				 */
+				if (fit_image_get_load(fdt, img, &img_load))
+					continue;
+				img_data = fdt_getprop(fdt, img, FIT_DATA_PROP,
+						       &img_size);
+				if (!img_data || img_size <= 0)
+					continue;
+
+				/*
+				 * A configuration may reference one image
+				 * through several properties, for example
+				 * both "firmware" and "loadables". Count
+				 * each image only once.
+				 */
+				for (k = 0; k < reg_count; k++) {
+					if (!strcmp(regions[k].name, img_name))
+						break;
+				}
+				if (k < reg_count)
+					continue;
+
+				if (reg_count == regions_alloc) {
+					struct fit_region *tmp;
+
+					regions_alloc = regions_alloc ?
+						regions_alloc * 2 : 8;
+					tmp = realloc(regions, regions_alloc *
+						      sizeof(*regions));
+					if (!tmp) {
+						fprintf(stderr,
+							"%s: Out of memory for %u load regions\n",
+							params->cmdname,
+							regions_alloc);
+						ret = -ENOMEM;
+						goto err_munmap;
+					}
+					regions = tmp;
+				}
+
+				regions[reg_count].load = img_load;
+				regions[reg_count].size = img_size;
+				regions[reg_count].name = img_name;
+				reg_count++;
+			}
+		}
+
+		/*
+		 * All images referenced by one configuration are loaded
+		 * together, so no two of them may claim overlapping memory
+		 * regions. Images sharing a load address across different
+		 * configurations are fine, since only one configuration is
+		 * selected at runtime.
+		 */
+		for (unsigned int i = 0; i < reg_count; i++) {
+			for (unsigned int j = i + 1; j < reg_count; j++) {
+				if (!fit_regions_overlap(&regions[i],
+							 &regions[j]))
+					continue;
+				fprintf(stderr,
+					"Error: configuration '%s' has overlapping load regions:\n"
+					"  - %s: [0x%lx - 0x%lx]\n"
+					"  - %s: [0x%lx - 0x%lx]\n",
+					conf_name,
+					regions[i].name, regions[i].load,
+					regions[i].load + regions[i].size,
+					regions[j].name, regions[j].load,
+					regions[j].load + regions[j].size);
+				ret = FDT_ERR_BADSTRUCTURE;
+				goto err_munmap;
 			}
 		}
 	}
+
+	free(regions);
+	regions = NULL;
 
 	munmap(old_fdt, sbuf.st_size);
 
@@ -1067,6 +1165,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 err_munmap:
 	munmap(old_fdt, sbuf.st_size);
 err:
+	free(regions);
 	free(fdt);
 	close(fd);
 	return ret;
