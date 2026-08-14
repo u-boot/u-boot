@@ -264,7 +264,8 @@ void socfpga_get_managers_addr(void)
 	if (!IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) &&
 	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M) &&
 	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5) &&
-	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_STRATIX10)) {
+	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_STRATIX10) &&
+	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_N5X)) {
 		ret = socfpga_get_base_addr("altr,sys-mgr",
 					    &socfpga_sysmgr_base);
 		if (ret)
