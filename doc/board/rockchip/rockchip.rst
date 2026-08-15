@@ -328,6 +328,14 @@ To build rk3588 boards:
         make evb-rk3588_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
+Notes
+^^^^^
+
+* rk3036: SDMMC and the debug uart share the same iomux, so if
+  a SD card is the boot medium, the debug uart must be disabled.
+* rk3066: eMMC and NAND share the same iomux, so if in Mask ROM mode
+  and a NAND is the boot medium, clear the emmc_flash_sel bit in GRF_SOC_CON0.
+
 Mask ROM mode
 -------------
 
