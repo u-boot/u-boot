@@ -32,6 +32,7 @@ int sqfs_dir_offset(void *dir_i, u32 *m_list, int m_count)
 	struct squashfs_base_inode *base = dir_i;
 	struct squashfs_ldir_inode *ldir;
 	struct squashfs_dir_inode *dir;
+	u64 table_size, res;
 	u32 start_block;
 	int j, offset;
 
@@ -51,20 +52,49 @@ int sqfs_dir_offset(void *dir_i, u32 *m_list, int m_count)
 		return -EINVAL;
 	}
 
-	if (offset < 0)
+	/*
+	 * 'offset' is an offset into a decompressed metadata block, so it can
+	 * never address past the end of one.
+	 */
+	if (offset >= SQFS_METADATA_BLOCK_SIZE)
 		return -EINVAL;
+
+	if (m_count < 1)
+		return -EINVAL;
+
+	/* The caller's directory table holds m_count decompressed blocks. */
+	table_size = (u64)m_count * SQFS_METADATA_BLOCK_SIZE;
 
 	for (j = 0; j < m_count; j++) {
 		if (m_list[j] == start_block)
-			return (++j * SQFS_METADATA_BLOCK_SIZE) + offset;
+			break;
 	}
 
-	if (start_block == 0)
-		return offset;
+	if (j < m_count) {
+		/*
+		 * m_list[j] is the position of the metadata block following
+		 * block j, so a match means the directory starts in block
+		 * j + 1.
+		 */
+		res = (u64)(j + 1) * SQFS_METADATA_BLOCK_SIZE + offset;
+	} else if (start_block == 0) {
+		res = offset;
+	} else {
+		printf("Error: invalid inode reference to directory table.\n");
+		return -EINVAL;
+	}
 
-	printf("Error: invalid inode reference to directory table.\n");
+	/*
+	 * Callers use the return value to index the directory table and read a
+	 * directory header from it, so the whole header must lie inside the
+	 * table.
+	 */
+	if (res + SQFS_DIR_HEADER_SIZE > table_size) {
+		printf("Error: inode points past the end of the directory table.\n");
+		return -EINVAL;
+	}
 
-	return -EINVAL;
+	return res;
 }
 
 bool sqfs_is_empty_dir(void *dir_i)
