@@ -328,6 +328,27 @@ To build rk3588 boards:
         make evb-rk3588_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
+Mask ROM mode
+-------------
+
+Mask ROM mode is the fallback mode of the boot ROM,
+in which it listens for USB commands 0x471/0x472.
+
+Options to get your board into Mask ROM mode:
+
+* Hold the recovery button, depending on firmware support or wiring,
+  while booting the board.
+* Remove any SD cards, removable eMMC or removable UFS modules.
+* Erase any storage media containing boot firmware.
+
+Methods of last resort (USE AT YOUR OWN RISK):
+
+Short the following pins briefly while powering the board, so the boot ROM
+cannot locate any boot firmware and falls back into Mask ROM mode:
+
+* NAND: connect pin 8 and 9 of the NAND flash with a needle.
+* eMMC: connect the clock line to ground.
+
 Flashing
 --------
 
@@ -446,8 +467,8 @@ Note:
 3. Package the RK3066 image with U-Boot TPL/SPL on NAND
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Unlike later SoC models the rk3066 BootROM doesn't have SDMMC support.
-If all other boot options fail then it enters into a BootROM mode on the USB OTG port.
+Unlike later SoC models the rk3066 boot ROM doesn't have SDMMC support.
+If all other boot options fail then it enters into a Mask ROM mode on the USB OTG port.
 This method loads TPL/SPL on NAND with U-Boot and kernel on SD card.
 
 SD Card
@@ -488,10 +509,10 @@ To write a U-Boot image to the SD card (assumed to be /dev/sda):
 NAND
 """"
 
-Bring device in BootROM mode:
+Bring device in Mask ROM mode:
 
-If bricked and no BootROM mode shows up then connect pin 8 and 9 of the NAND flash
-with a needle while reconnecting to the USB OTG port to a PC.
+If bricked and no Mask ROM mode shows up then connect pin 8 and 9
+of the NAND flash briefly with a needle while powering the board.
 
 Show connected devices with:
 
