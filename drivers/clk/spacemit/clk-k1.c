@@ -314,7 +314,7 @@ static const char * const twsi_parents[] = {
 
 CCU_MUX_GATE_DEFINE(CLK_TWSI2, twsi2_clk, twsi2_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI2_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 /*
  * APBC_TWSI8_CLK_RST has a quirk that reading always results in zero.
  * Combine functional and bus bits together as a gate to avoid sharing the
@@ -345,7 +345,7 @@ static const char * const twsi_parents[] = {
 
 CCU_MUX_GATE_DEFINE(CLK_TWSI2, twsi2_clk, twsi2_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI2_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 /*
  * APBC_TWSI8_CLK_RST has a quirk that reading always results in zero.
  * Combine functional and bus bits together as a gate to avoid sharing the
@@ -467,22 +467,22 @@ CCU_GATE_DEFINE(CLK_RTC, rtc_clk, rtc_clk, "clock-32k", APBC_RTC_CLK_RST,
 
 CCU_MUX_GATE_DEFINE(CLK_TWSI0, twsi0_clk, twsi0_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI0_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI1, twsi1_clk, twsi1_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI1_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI4, twsi4_clk, twsi4_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI4_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI5, twsi5_clk, twsi5_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI5_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI6, twsi6_clk, twsi6_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI6_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI7, twsi7_clk, twsi7_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI7_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 
 static const char * const timer_parents[] = {
 	"pll1_d192_12p8",
