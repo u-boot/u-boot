@@ -109,6 +109,7 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	unsigned char *metadata_buffer, *metadata, *table;
 	struct squashfs_fragment_block_entry *entries;
 	struct squashfs_super_block *sblk = ctxt.sblk;
+	size_t table_size, metadata_size, valid_len;
 	unsigned long dest_len;
 	int block, offset, ret;
 	u16 header;
@@ -133,7 +134,12 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	start /= ctxt.cur_dev->blksz;
 
 	/* Allocate a proper sized buffer to store the fragment index table */
-	table = malloc_cache_aligned(n_blks * ctxt.cur_dev->blksz);
+	if (__builtin_mul_overflow(n_blks, ctxt.cur_dev->blksz, &table_size)) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	table = malloc_cache_aligned(table_size);
 	if (!table) {
 		ret = -ENOMEM;
 		goto out;
@@ -148,6 +154,16 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	offset = SQFS_FRAGMENT_INDEX_OFFSET(inode_fragment_index);
 
 	/*
+	 * 'inode_fragment_index' is only checked against sblk->fragments, which
+	 * is itself read from the image, so the resulting index may point past
+	 * the fragment index table that was actually read from the device.
+	 */
+	if (table_offset + ((u64)block + 1) * sizeof(u64) > table_size) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/*
 	 * Get the start offset of the metadata block that contains the right
 	 * fragment block entry
 	 */
@@ -158,7 +174,13 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	n_blks = sqfs_calc_n_blks(cpu_to_le64(start_block),
 				  sblk->fragment_table_start, &table_offset);
 
-	metadata_buffer = malloc_cache_aligned(n_blks * ctxt.cur_dev->blksz);
+	if (__builtin_mul_overflow(n_blks, ctxt.cur_dev->blksz,
+				   &metadata_size)) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	metadata_buffer = malloc_cache_aligned(metadata_size);
 	if (!metadata_buffer) {
 		ret = -ENOMEM;
 		goto out;
@@ -170,6 +192,11 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	}
 
 	/* Every metadata block starts with a 16-bit header */
+	if (table_offset + SQFS_HEADER_SIZE > metadata_size) {
+		ret = -EINVAL;
+		goto out;
+	}
+
 	header = get_unaligned_le16(metadata_buffer + table_offset);
 	metadata = metadata_buffer + table_offset + SQFS_HEADER_SIZE;
 
@@ -179,6 +206,16 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	}
 
 	if (SQFS_METADATA_SIZE(header) > SQFS_METADATA_BLOCK_SIZE) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/*
+	 * The metadata block's payload is read straight out of
+	 * 'metadata_buffer', so it has to fit in what was read from the device.
+	 */
+	if (table_offset + SQFS_HEADER_SIZE + SQFS_METADATA_SIZE(header) >
+	    metadata_size) {
 		ret = -EINVAL;
 		goto out;
 	}
@@ -198,8 +235,17 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 			ret = -EINVAL;
 			goto out;
 		}
+
+		valid_len = dest_len;
 	} else {
 		memcpy(entries, metadata, SQFS_METADATA_SIZE(header));
+		valid_len = SQFS_METADATA_SIZE(header);
+	}
+
+	/* Only the part of 'entries' that was actually filled in is usable */
+	if (((u64)offset + 1) * sizeof(*entries) > valid_len) {
+		ret = -EINVAL;
+		goto out;
 	}
 
 	*e = entries[offset];
