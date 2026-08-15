@@ -563,5 +563,16 @@ config-flash.ini:
         PATH=RK30xxLoader_uboot.bin
 
 
+Boot flow
+---------
+
+Back to ROM
+^^^^^^^^^^^
+
+Rockchip SoCs have the ability to load a second loader binary.
+If enabled, the TPL/SPL code will return to the boot ROM, which will then
+load and execute a SPL or U-Boot binary.
+
+
 .. Jagan Teki <jagan@amarulasolutions.com>
 .. Wednesday 28 October 2020 06:47:26 PM IST
