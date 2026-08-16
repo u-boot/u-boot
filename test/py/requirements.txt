@@ -1,5 +1,5 @@
 filelock==3.20.3
 pycryptodomex==3.21.0
-pytest==8.4.2
+pytest==9.0.3
 pytest-xdist==2.5.0
 FATtools==1.0.42
