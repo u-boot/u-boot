@@ -650,7 +650,6 @@ static void busy_indicator(void)
 
 static int sleep_thread(struct fsg_common *common)
 {
-	int	rc = 0;
 	int i = 0, k = 0;
 
 	/* Wait until a signal arrives or we are woken up */
@@ -684,7 +683,8 @@ static int sleep_thread(struct fsg_common *common)
 		dm_usb_gadget_handle_interrupts(udcdev);
 	}
 	common->thread_wakeup_needed = 0;
-	return rc;
+
+	return 0;
 }
 
 /*-------------------------------------------------------------------------*/
