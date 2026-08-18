@@ -372,11 +372,6 @@ static int mtk_scpsys_add_one_domain(struct udevice *dev, ofnode node, int paren
 			return PTR_ERR(regmap);
 
 		domain->infracfg = regmap_get_range(regmap, 0);
-
-		/* enable Infra DCM */
-		if (domain->infracfg)
-			setbits_le32(domain->infracfg + INFRA_TOPDCM_CTRL,
-				     DCM_TOP_EN);
 	}
 
 	num_clks = ofnode_read_string_count(node, "clock-names");
