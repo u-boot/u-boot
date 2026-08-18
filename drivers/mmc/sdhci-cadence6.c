@@ -171,6 +171,16 @@ static void sdhci_cdns6_write_phy_reg(struct sdhci_cdns_plat *plat, u32 addr, u3
 {
 	writel(addr, plat->hrs_addr + SDHCI_CDNS_HRS04);
 	writel(val, plat->hrs_addr + SDHCI_CDNS_HRS05);
+
+	/*
+	 * HRS04/HRS05 form the indirect PHY register port: HRS04 latches the
+	 * target address, HRS05 the data. Both are posted writes, so read
+	 * HRS05 back to force them to complete before the next PHY access.
+	 * The readback also orders the preceding HRS04 write - reads and
+	 * writes to the same slave are not reordered on this interconnect, so
+	 * a single HRS05 readback flushes the whole address+data pair.
+	 */
+	(void)readl(plat->hrs_addr + SDHCI_CDNS_HRS05);
 }
 
 static int sdhci_cdns6_reset_phy_dll(struct sdhci_cdns_plat *plat, bool reset)
