@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/unaligned.h>
 #include <linux/sizes.h>
+#include <linux/zstd.h>
 #include <tpm-v2.h>
 #include <tpm_tcg2.h>
 #if defined(CONFIG_CMD_USB)
@@ -657,6 +658,31 @@ static ulong bootm_gzip_uncompressed_size(const void *src, ulong len)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(ZSTD)
+/*
+ * Return the zstd frame's Frame_Content_Size, or 0 if the header does
+ * not parse or the size is absent. zstd_get_frame_header() and the
+ * frame-parsing code behind it are part of the zstd decompressor that
+ * is already linked into any board with ZSTD enabled, so the call adds
+ * only the call site. The value is an allocation hint; the decoder
+ * stays authoritative during the actual decompression.
+ */
+static ulong bootm_zstd_uncompressed_size(const void *src, ulong len)
+{
+	zstd_frame_header hdr;
+	size_t ret;
+
+	ret = zstd_get_frame_header(&hdr, src, len);
+	if (zstd_is_error(ret) || ret > 0)
+		return 0;
+	if (hdr.frameContentSize == ZSTD_CONTENTSIZE_UNKNOWN ||
+	    hdr.frameContentSize == ZSTD_CONTENTSIZE_ERROR ||
+	    hdr.frameContentSize > ULONG_MAX)
+		return 0;
+	return (ulong)hdr.frameContentSize;
+}
+#endif
+
 static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 {
 	const struct image_info os = images->os;
@@ -678,12 +704,12 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	/*
 	 * For a "noload" compressed kernel we need to allocate a buffer large
 	 * enough to decompress in to and use that as the load address now.
-	 * For a gzip stream the trailing 4-byte ISIZE field holds the
-	 * original size modulo 2^32; when it is present and within
-	 * CONFIG_SYS_BOOTM_LEN, allocate exactly that. Otherwise fall back
-	 * to an 8x multiplier, which comfortably covers what zstd and xz
-	 * achieve on real kernels with headroom for well-compressed
-	 * payloads. Use an alignment of 2MB since this might help arm64.
+	 * When the compressed stream records its uncompressed size and that
+	 * value is within CONFIG_SYS_BOOTM_LEN, allocate exactly that.
+	 * Otherwise fall back to an 8x multiplier, which comfortably covers
+	 * what zstd and xz achieve on real kernels with headroom for
+	 * well-compressed payloads. Use an alignment of 2MB since this
+	 * might help arm64.
 	 */
 	if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE) {
 		phys_addr_t addr;
@@ -693,6 +719,12 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 #if CONFIG_IS_ENABLED(GZIP)
 		case IH_COMP_GZIP:
 			hdr_size = bootm_gzip_uncompressed_size(image_buf,
+								image_len);
+			break;
+#endif
+#if CONFIG_IS_ENABLED(ZSTD)
+		case IH_COMP_ZSTD:
+			hdr_size = bootm_zstd_uncompressed_size(image_buf,
 								image_len);
 			break;
 #endif
