@@ -23,6 +23,7 @@
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <asm/unaligned.h>
 #include <linux/sizes.h>
 #include <tpm-v2.h>
 #include <tpm_tcg2.h>
@@ -638,6 +639,24 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size,
 #endif
 
 #ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(GZIP)
+/*
+ * Return the gzip stream's uncompressed size from its ISIZE trailer, or
+ * 0 if the buffer is not a gzip stream. Only the two magic bytes are
+ * checked, since a fuller validation happens inside gunzip() during
+ * decompression; the caller uses the return value as a size hint only.
+ */
+static ulong bootm_gzip_uncompressed_size(const void *src, ulong len)
+{
+	const u8 *b = src;
+
+	/* Minimum gzip: 10-byte header + 2-byte deflate + 8-byte trailer */
+	if (len < 20 || b[0] != 0x1f || b[1] != 0x8b)
+		return 0;
+	return get_unaligned_le32(b + len - 4);
+}
+#endif
+
 static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 {
 	const struct image_info os = images->os;
@@ -654,17 +673,36 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	void *load_buf, *image_buf;
 	int err;
 
+	image_buf = map_sysmem(os.image_start, image_len);
+
 	/*
 	 * For a "noload" compressed kernel we need to allocate a buffer large
 	 * enough to decompress in to and use that as the load address now.
-	 * Allow up to 8x compression: this comfortably covers what zstd and xz
-	 * achieve on real kernels, with headroom for well-compressed payloads.
-	 * Use an alignment of 2MB since this might help arm64
+	 * For a gzip stream the trailing 4-byte ISIZE field holds the
+	 * original size modulo 2^32; when it is present and within
+	 * CONFIG_SYS_BOOTM_LEN, allocate exactly that. Otherwise fall back
+	 * to an 8x multiplier, which comfortably covers what zstd and xz
+	 * achieve on real kernels with headroom for well-compressed
+	 * payloads. Use an alignment of 2MB since this might help arm64.
 	 */
 	if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE) {
 		phys_addr_t addr;
+		ulong hdr_size = 0;
 
-		decomp_len = ALIGN(image_len * 8, SZ_1M);
+		switch (os.comp) {
+#if CONFIG_IS_ENABLED(GZIP)
+		case IH_COMP_GZIP:
+			hdr_size = bootm_gzip_uncompressed_size(image_buf,
+								image_len);
+			break;
+#endif
+		default:
+			break;
+		}
+		if (hdr_size && hdr_size <= CONFIG_SYS_BOOTM_LEN)
+			decomp_len = ALIGN(hdr_size, SZ_1M);
+		else
+			decomp_len = ALIGN(image_len * 8, SZ_1M);
 		decomp_limit = BOOTM_DECOMP_LIMIT_PER_IMAGE;
 		err = lmb_alloc_mem(LMB_MEM_ALLOC_ANY, SZ_2M, &addr,
 				    decomp_len, LMB_NONE);
@@ -679,7 +717,6 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	}
 
 	load_buf = map_sysmem(load, 0);
-	image_buf = map_sysmem(os.image_start, image_len);
 	err = image_decomp(os.comp, load, os.image_start, os.type,
 			   load_buf, image_buf, image_len,
 			   decomp_len, &load_end);
