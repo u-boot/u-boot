@@ -26,6 +26,7 @@
 #include <asm/unaligned.h>
 #include <linux/sizes.h>
 #include <linux/zstd.h>
+#include <lzma/LzmaDec.h>
 #include <tpm-v2.h>
 #include <tpm_tcg2.h>
 #if defined(CONFIG_CMD_USB)
@@ -658,6 +659,28 @@ static ulong bootm_gzip_uncompressed_size(const void *src, ulong len)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(LZMA)
+/*
+ * Return the uncompressed size recorded in the lzma stream header, or
+ * 0 if the buffer is too short or the size field carries the "unknown"
+ * marker (0xff..ff). The .lzma-alone format keeps the size in a fixed
+ * 8-byte field right after the 5-byte properties block; nothing else
+ * is validated since the value is only an allocation hint.
+ */
+static ulong bootm_lzma_uncompressed_size(const void *src, ulong len)
+{
+	const u8 *b = src;
+	u64 usize;
+
+	if (len < LZMA_PROPS_SIZE + 8)
+		return 0;
+	usize = get_unaligned_le64(b + LZMA_PROPS_SIZE);
+	if (usize == U64_MAX || usize > ULONG_MAX)
+		return 0;
+	return (ulong)usize;
+}
+#endif
+
 #if CONFIG_IS_ENABLED(LZ4)
 /*
  * Return the lz4 frame's Content_Size, or 0 if the buffer is not an
@@ -749,6 +772,12 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 #if CONFIG_IS_ENABLED(GZIP)
 		case IH_COMP_GZIP:
 			hdr_size = bootm_gzip_uncompressed_size(image_buf,
+								image_len);
+			break;
+#endif
+#if CONFIG_IS_ENABLED(LZMA)
+		case IH_COMP_LZMA:
+			hdr_size = bootm_lzma_uncompressed_size(image_buf,
 								image_len);
 			break;
 #endif
