@@ -43,6 +43,16 @@ static int sandbox_wdt_expire_now(struct udevice *dev, ulong flags)
 	return 0;
 }
 
+static int sandbox_wdt_probe(struct udevice *dev)
+{
+	struct wdt_uc_plat *plat = dev_get_uclass_plat(dev);
+
+	/* Store the emulated hardware max timeout in uclass plat data */
+	plat->max_timeout_ms = SANDBOX_WDT_MAX_TIMEOUT_MS;
+
+	return 0;
+}
+
 static const struct wdt_ops sandbox_wdt_ops = {
 	.start = sandbox_wdt_start,
 	.reset = sandbox_wdt_reset,
@@ -59,5 +69,6 @@ U_BOOT_DRIVER(wdt_sandbox) = {
 	.name = "wdt_sandbox",
 	.id = UCLASS_WDT,
 	.of_match = sandbox_wdt_ids,
+	.probe = sandbox_wdt_probe,
 	.ops = &sandbox_wdt_ops,
 };
