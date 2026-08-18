@@ -74,6 +74,17 @@ int wdt_reset(struct udevice *dev);
  */
 int wdt_expire_now(struct udevice *dev, ulong flags);
 
+/**
+ * struct wdt_uc_plat - uclass platform data for a watchdog device
+ *
+ * @max_timeout_ms: Maximum timeout (in ms) that the hardware can honour.
+ *  A driver should set this typically at probe time. Default value 0
+ *  means no limit set by the driver.
+ */
+struct wdt_uc_plat {
+	u32 max_timeout_ms;
+};
+
 /*
  * struct wdt_ops - Driver model wdt operations
  *

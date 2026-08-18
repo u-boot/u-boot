@@ -119,15 +119,23 @@ int initr_watchdog(void)
 int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	const struct wdt_ops *ops = device_get_ops(dev);
+	struct wdt_uc_plat *plat = dev_get_uclass_plat(dev);
+	u64 req_timeout_ms = timeout_ms;
 	int ret;
 
 	if (!ops->start)
 		return -ENOSYS;
+	/* Clamp to max timeout if reported by driver */
+	if (plat->max_timeout_ms && timeout_ms > plat->max_timeout_ms)
+		timeout_ms = plat->max_timeout_ms;
 
 	ret = ops->start(dev, timeout_ms, flags);
 	if (ret == 0) {
 		struct wdt_priv *priv = dev_get_uclass_priv(dev);
 		char svc_str[16];
+		char req_str[32];
+		u32 req_s = lldiv(req_timeout_ms, 1000);
+		u32 tout_s = lldiv(timeout_ms, 1000);
 
 		svc_str[0] = '\0';
 		if (IS_ENABLED(CONFIG_WATCHDOG)) {
@@ -144,9 +152,19 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 		}
 
 		priv->running = true;
-		printf("WDT:   Started %s with%s servicing %s (%ds timeout)\n",
+
+		/*
+		 * If the requested timeout was clamped, note the value
+		 * when it differs at whole-second resolution. Sub-second
+		 * rounding is ignored to avoid noise.
+		 */
+		req_str[0] = '\0';
+		if (req_s != tout_s)
+			snprintf(req_str, sizeof(req_str), ", requested %ds", req_s);
+
+		printf("WDT:   Started %s with%s servicing %s (%ds timeout%s)\n",
 		       dev->name, IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out",
-		       svc_str, (u32)lldiv(timeout_ms, 1000));
+		       svc_str, tout_s, req_str);
 	}
 
 	return ret;
@@ -269,4 +287,5 @@ UCLASS_DRIVER(wdt) = {
 	.flags			= DM_UC_FLAG_SEQ_ALIAS,
 	.pre_probe		= wdt_pre_probe,
 	.per_device_auto	= sizeof(struct wdt_priv),
+	.per_device_plat_auto	= sizeof(struct wdt_uc_plat),
 };
