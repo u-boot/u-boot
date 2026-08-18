@@ -658,6 +658,36 @@ static ulong bootm_gzip_uncompressed_size(const void *src, ulong len)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(LZ4)
+/*
+ * Return the lz4 frame's Content_Size, or 0 if the buffer is not an
+ * lz4 frame or the frame does not carry the size. The header parse
+ * mirrors ulz4fn()'s validation so we do not accept a stream the
+ * decoder itself would refuse.
+ */
+static ulong bootm_lz4_uncompressed_size(const void *src, ulong len)
+{
+	const u8 *b = src;
+	u8 flg, version, indep_blocks, has_content_size, bd;
+	u64 cs;
+
+	if (len < 4 + 2 || get_unaligned_le32(b) != LZ4F_MAGIC)
+		return 0;
+	flg = b[4];
+	bd = b[5];
+	version = (flg >> 6) & 3;
+	indep_blocks = (flg >> 5) & 1;
+	has_content_size = (flg >> 3) & 1;
+	if (version != 1 || !indep_blocks || (flg & 3) || (bd & 0x8f) ||
+	    !has_content_size)
+		return 0;
+	if (len < 4 + 2 + 8)
+		return 0;
+	cs = get_unaligned_le64(b + 6);
+	return cs > ULONG_MAX ? 0 : (ulong)cs;
+}
+#endif
+
 #if CONFIG_IS_ENABLED(ZSTD)
 /*
  * Return the zstd frame's Frame_Content_Size, or 0 if the header does
@@ -720,6 +750,12 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		case IH_COMP_GZIP:
 			hdr_size = bootm_gzip_uncompressed_size(image_buf,
 								image_len);
+			break;
+#endif
+#if CONFIG_IS_ENABLED(LZ4)
+		case IH_COMP_LZ4:
+			hdr_size = bootm_lz4_uncompressed_size(image_buf,
+							       image_len);
 			break;
 #endif
 #if CONFIG_IS_ENABLED(ZSTD)
