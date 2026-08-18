@@ -119,8 +119,9 @@ host save hostfs 0 %(loadables2_addr)x %(loadables2_out)s %(loadables2_size)x
 
 # A minimal ITS for a compressed 'kernel_noload' kernel. bootm allocates a
 # per-image decompression buffer for this image type, sized either from the
-# gzip ISIZE trailer or as a multiple of the compressed length; see the
-# test_fit_kernel_noload_decomp_* tests.
+# compressor header (gzip ISIZE, zstd Frame_Content_Size, ...) or as a
+# multiple of the compressed length; see the test_fit_kernel_noload_decomp_*
+# tests.
 NOLOAD_ITS = '''
 /dts-v1/;
 
@@ -134,7 +135,7 @@ NOLOAD_ITS = '''
                         type = "kernel_noload";
                         arch = "sandbox";
                         os = "linux";
-                        compression = "gzip";
+                        compression = "%(compression)s";
                         load = <0>;
                         entry = <0>;
                 };
@@ -544,7 +545,7 @@ class TestFitImage:
             fd.write((256).to_bytes(4, 'little'))
 
         fit = fit_util.make_fit(ubman, fsetup['mkimage'], NOLOAD_ITS,
-                                {'kernel': kernel_gz})
+                                {'kernel': kernel_gz, 'compression': 'gzip'})
         fit_addr = fsetup['fit_addr']
 
         ubman.run_command_list([
@@ -594,7 +595,7 @@ class TestFitImage:
             'the test needs a bigger payload' % (heuristic_bound, decomp_size))
 
         fit = fit_util.make_fit(ubman, fsetup['mkimage'], NOLOAD_ITS,
-                                {'kernel': kernel_gz},
+                                {'kernel': kernel_gz, 'compression': 'gzip'},
                                 basename='test-noload-hdrsized.fit')
         fit_addr = fsetup['fit_addr']
 
@@ -609,6 +610,52 @@ class TestFitImage:
         assert 'Image too large' not in text, (
             'bootm rejected a well-compressed kernel_noload image whose '
             'ISIZE trailer records the real uncompressed size: %s' % text)
+
+    @pytest.mark.buildconfigspec('zstd')
+    @pytest.mark.requiredtool('zstd')
+    def test_fit_kernel_noload_decomp_zstd_hdr_sized(self, ubman, fsetup):
+        """A well-compressed zstd kernel_noload image fits when the frame
+        header carries Frame_Content_Size.
+
+        Same as test_fit_kernel_noload_decomp_gzip_hdr_sized but for zstd.
+        The default zstd encoder embeds Frame_Content_Size for a
+        single-segment frame, so bootm can read it and size the buffer
+        accordingly.
+        """
+        sz_1m = 1 << 20
+        bootm_len = int(ubman.config.buildconfig['config_sys_bootm_len'], 0)
+
+        decomp_size = 6 * sz_1m
+        assert decomp_size <= bootm_len, (
+            'Test setup error: decomp_size (%#x) must be <= '
+            'CONFIG_SYS_BOOTM_LEN (%#x)' % (decomp_size, bootm_len))
+        kernel = fit_util.make_fname(ubman, 'test-noload-kernel-zstd.bin')
+        with open(kernel, 'wb') as fd:
+            fd.write(b'\0' * decomp_size)
+        kernel_zstd = kernel + '.zst'
+        utils.run_and_log(ubman, ['zstd', '-f', kernel, '-o', kernel_zstd])
+
+        image_len = self.filesize(kernel_zstd)
+        heuristic_bound = (image_len * 8 + sz_1m - 1) // sz_1m * sz_1m
+        assert heuristic_bound < decomp_size, (
+            'Test setup error: 8x heuristic bound (%#x) must be < uncompressed '
+            'size (%#x); if this fires, zstd got less effective and the test '
+            'needs a bigger payload' % (heuristic_bound, decomp_size))
+
+        fit = fit_util.make_fit(ubman, fsetup['mkimage'], NOLOAD_ITS,
+                                {'kernel': kernel_zstd, 'compression': 'zstd'},
+                                basename='test-noload-zstd-hdrsized.fit')
+        fit_addr = fsetup['fit_addr']
+
+        output = ubman.run_command_list([
+            'host load hostfs 0 %x %s' % (fit_addr, fit),
+            'bootm start %x' % fit_addr,
+            'bootm loados',
+        ])
+        text = '\n'.join(output)
+        assert 'Image too large' not in text, (
+            'bootm rejected a well-compressed zstd kernel_noload image whose '
+            'frame header records the real content size: %s' % text)
 
     @pytest.mark.buildconfigspec('gzip')
     def test_fit_kernel_noload_decomp_gzip_boundary(self, ubman, fsetup):
@@ -637,7 +684,7 @@ class TestFitImage:
             % (decomp_size, req_size))
 
         fit = fit_util.make_fit(ubman, fsetup['mkimage'], NOLOAD_ITS,
-                                {'kernel': kernel_gz},
+                                {'kernel': kernel_gz, 'compression': 'gzip'},
                                 basename='test-noload-boundary.fit')
         fit_addr = fsetup['fit_addr']
 
