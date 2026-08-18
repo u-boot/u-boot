@@ -611,6 +611,53 @@ class TestFitImage:
             'bootm rejected a well-compressed kernel_noload image whose '
             'ISIZE trailer records the real uncompressed size: %s' % text)
 
+    @pytest.mark.buildconfigspec('lz4')
+    @pytest.mark.requiredtool('lz4')
+    def test_fit_kernel_noload_decomp_lz4_hdr_sized(self, ubman, fsetup):
+        """A well-compressed lz4 kernel_noload image fits when the frame
+        header carries the content size.
+
+        Same as test_fit_kernel_noload_decomp_gzip_hdr_sized but for lz4:
+        the tool must be invoked with --content-size so the frame's FLG
+        bit is set and bootm can read the size instead of falling back to
+        the 8x heuristic.
+        """
+        sz_1m = 1 << 20
+        bootm_len = int(ubman.config.buildconfig['config_sys_bootm_len'], 0)
+
+        decomp_size = 6 * sz_1m
+        assert decomp_size <= bootm_len, (
+            'Test setup error: decomp_size (%#x) must be <= '
+            'CONFIG_SYS_BOOTM_LEN (%#x)' % (decomp_size, bootm_len))
+        kernel = fit_util.make_fname(ubman, 'test-noload-kernel-lz4.bin')
+        with open(kernel, 'wb') as fd:
+            fd.write(b'\0' * decomp_size)
+        kernel_lz4 = kernel + '.lz4'
+        utils.run_and_log(
+            ubman, ['lz4', '--content-size', '-f', kernel, kernel_lz4])
+
+        image_len = self.filesize(kernel_lz4)
+        heuristic_bound = (image_len * 8 + sz_1m - 1) // sz_1m * sz_1m
+        assert heuristic_bound < decomp_size, (
+            'Test setup error: 8x heuristic bound (%#x) must be < uncompressed '
+            'size (%#x); if this fires, lz4 got less effective and the test '
+            'needs a bigger payload' % (heuristic_bound, decomp_size))
+
+        fit = fit_util.make_fit(ubman, fsetup['mkimage'], NOLOAD_ITS,
+                                {'kernel': kernel_lz4, 'compression': 'lz4'},
+                                basename='test-noload-lz4-hdrsized.fit')
+        fit_addr = fsetup['fit_addr']
+
+        output = ubman.run_command_list([
+            'host load hostfs 0 %x %s' % (fit_addr, fit),
+            'bootm start %x' % fit_addr,
+            'bootm loados',
+        ])
+        text = '\n'.join(output)
+        assert 'Image too large' not in text, (
+            'bootm rejected a well-compressed lz4 kernel_noload image whose '
+            'frame header records the real content size: %s' % text)
+
     @pytest.mark.buildconfigspec('zstd')
     @pytest.mark.requiredtool('zstd')
     def test_fit_kernel_noload_decomp_zstd_hdr_sized(self, ubman, fsetup):
