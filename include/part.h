@@ -31,6 +31,16 @@ struct block_drvr {
 #define PART_TYPE_MTD		0x06
 #define PART_TYPE_UBI		0x07
 
+#define PART_TYPE_NAME_UNKNOWN	"unknown"
+#define PART_TYPE_NAME_MAC	"mac"
+#define PART_TYPE_NAME_DOS	"dos"
+#define PART_TYPE_NAME_ISO	"iso"
+#define PART_TYPE_NAME_AMIGA	"amiga"
+#define PART_TYPE_NAME_EFI	"efi"
+#define PART_TYPE_NAME_MTD	"mtd"
+#define PART_TYPE_NAME_UBI	"ubi"
+#define PART_TYPE_NAME_HOSTFS	"hostfs"
+
 /* maximum number of partition entries supported by search */
 #define DOS_ENTRY_NUMBERS	8
 #define ISO_ENTRY_NUMBERS	64

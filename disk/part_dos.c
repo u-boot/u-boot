@@ -273,8 +273,7 @@ static int part_get_info_extended(struct blk_desc *desc,
 				info->size  = (lbaint_t)get_unaligned_le32(&pt->nr_sects);
 				part_set_generic_name(desc, part_num,
 						      (char *)info->name);
-				/* sprintf(info->type, "%d, pt->sys_ind); */
-				strcpy((char *)info->type, "U-Boot");
+				strcpy((char *)info->type, PART_TYPE_NAME_DOS);
 				info->bootable = get_bootable(pt);
 				if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
 					char str[12];
@@ -321,7 +320,7 @@ static int part_get_info_extended(struct blk_desc *desc,
 		else
 			info->blksz = DOS_PART_DEFAULT_SECTOR;
 		info->bootable = 0;
-		strcpy((char *)info->type, "U-Boot");
+		strcpy((char *)info->type, PART_TYPE_NAME_DOS);
 		disk_partition_clr_uuid(info);
 		return 0;
 	}
