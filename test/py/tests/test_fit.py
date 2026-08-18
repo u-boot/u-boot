@@ -704,6 +704,104 @@ class TestFitImage:
             'bootm rejected a well-compressed zstd kernel_noload image whose '
             'frame header records the real content size: %s' % text)
 
+    @pytest.mark.buildconfigspec('lzma')
+    def test_fit_kernel_noload_decomp_lzma_hdr_sized(self, ubman, fsetup):
+        """A well-compressed lzma kernel_noload image fits when the header
+        records the real uncompressed size.
+
+        Same as test_fit_kernel_noload_decomp_gzip_hdr_sized but for lzma.
+        Streaming encoders write the "unknown" marker into the .lzma-alone
+        size field, so compress with Python's lzma module and patch the
+        real size into the fixed 8-byte header field, the way LZMA SDK
+        style encoders record it.
+        """
+        lzma = pytest.importorskip('lzma')
+        sz_1m = 1 << 20
+        bootm_len = int(ubman.config.buildconfig['config_sys_bootm_len'], 0)
+
+        decomp_size = 6 * sz_1m
+        assert decomp_size <= bootm_len, (
+            'Test setup error: decomp_size (%#x) must be <= '
+            'CONFIG_SYS_BOOTM_LEN (%#x)' % (decomp_size, bootm_len))
+        kernel = fit_util.make_fname(ubman, 'test-noload-kernel-lzma.bin')
+        with open(kernel, 'wb') as fd:
+            fd.write(b'\0' * decomp_size)
+        filters = [{'id': lzma.FILTER_LZMA1, 'preset': 6,
+                    'dict_size': 1 << 20}]
+        blob = lzma.compress(self.read_file(kernel),
+                             format=lzma.FORMAT_ALONE, filters=filters)
+        assert blob[5:13] == b'\xff' * 8, (
+            'Test setup error: expected the streaming encoder to write the '
+            '"unknown" size marker')
+        blob = blob[:5] + decomp_size.to_bytes(8, 'little') + blob[13:]
+        kernel_lzma = kernel + '.lzma'
+        with open(kernel_lzma, 'wb') as fd:
+            fd.write(blob)
+
+        image_len = self.filesize(kernel_lzma)
+        heuristic_bound = (image_len * 8 + sz_1m - 1) // sz_1m * sz_1m
+        assert heuristic_bound < decomp_size, (
+            'Test setup error: 8x heuristic bound (%#x) must be < uncompressed '
+            'size (%#x); if this fires, lzma got less effective and the test '
+            'needs a bigger payload' % (heuristic_bound, decomp_size))
+
+        fit = fit_util.make_fit(ubman, fsetup['mkimage'], NOLOAD_ITS,
+                                {'kernel': kernel_lzma, 'compression': 'lzma'},
+                                basename='test-noload-lzma-hdrsized.fit')
+        fit_addr = fsetup['fit_addr']
+
+        output = ubman.run_command_list([
+            'host load hostfs 0 %x %s' % (fit_addr, fit),
+            'bootm start %x' % fit_addr,
+            'bootm loados',
+        ])
+        text = '\n'.join(output)
+        assert 'Image too large' not in text, (
+            'bootm rejected a well-compressed lzma kernel_noload image whose '
+            'header records the real uncompressed size: %s' % text)
+
+    @pytest.mark.buildconfigspec('lzma')
+    def test_fit_kernel_noload_decomp_lzma_unknown_size(self, ubman, fsetup):
+        """An lzma stream with the "unknown" size marker falls back cleanly
+
+        Streaming encoders write 0xff..ff into the .lzma-alone size field.
+        bootm must fall back to the 8x heuristic buffer and still boot the
+        image.
+        """
+        lzma = pytest.importorskip('lzma')
+        sz_1m = 1 << 20
+
+        # Incompressible data keeps the real size well inside the 8x
+        # fallback buffer.
+        payload = os.urandom(sz_1m)
+        kernel = fit_util.make_fname(ubman, 'test-noload-kernel-lzma-unk.bin')
+        filters = [{'id': lzma.FILTER_LZMA1, 'preset': 6,
+                    'dict_size': 1 << 20}]
+        blob = lzma.compress(payload, format=lzma.FORMAT_ALONE,
+                             filters=filters)
+        assert blob[5:13] == b'\xff' * 8, (
+            'Test setup error: expected the streaming encoder to write the '
+            '"unknown" size marker')
+        kernel_lzma = kernel + '.lzma'
+        with open(kernel_lzma, 'wb') as fd:
+            fd.write(blob)
+
+        fit = fit_util.make_fit(ubman, fsetup['mkimage'], NOLOAD_ITS,
+                                {'kernel': kernel_lzma, 'compression': 'lzma'},
+                                basename='test-noload-lzma-unk.fit')
+        fit_addr = fsetup['fit_addr']
+
+        output = ubman.run_command_list([
+            'host load hostfs 0 %x %s' % (fit_addr, fit),
+            'bootm start %x' % fit_addr,
+            'bootm loados',
+        ])
+        text = '\n'.join(output)
+        assert 'Image too large' not in text, (
+            'bootm rejected an lzma kernel_noload image carrying the '
+            '"unknown" size marker; the 8x fallback should have covered '
+            'it: %s' % text)
+
     @pytest.mark.buildconfigspec('gzip')
     def test_fit_kernel_noload_decomp_gzip_boundary(self, ubman, fsetup):
         """Test that decompression succeeds exactly at the buffer limit
