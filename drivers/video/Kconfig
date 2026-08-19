@@ -320,6 +320,16 @@ config PANEL_HX8238D
 	  It can drive a maximum 960x240 dot graphics on a-TFT panel
 	  displays in 16M colors with dithering.
 
+config PANEL_STARTEK_KD070FHFID015
+	bool "STARTEK KD070FHFID015 panel"
+	depends on PANEL && DM_GPIO && DM_REGULATOR
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for STARTEK KD070FHFID015
+	  DSI panel. The panel is a 7-inch TFT LCD display with a resolution of
+	  1200 x 1920 pixels. It provides a MIPI DSI interface to the host, a
+	  built-in LED backlight and touch controller.
+
 config VIDEO_BOCHS
 	bool "Enable Bochs video emulation for QEMU"
 	help
