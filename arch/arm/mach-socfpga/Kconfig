@@ -6,6 +6,19 @@ config ERR_PTR_OFFSET
 config NR_DRAM_BANKS
 	default 1
 
+config SOCFPGA_ECC_SUPPORT
+	bool "Enable ECC support for DRAM"
+	help
+	 Adds CPU-based ECC support for DRAM at boot. This will initialize
+	 all DRAM ECC metadata to zero, preventing false ECC errors and
+	 improving reliability.
+
+config SOCFPGA_DRAM_SIZE_CHECK
+	bool "Enable DRAM size checking for safety"
+	help
+	 Compares device tree DRAM size with actual hardware. Hangs on
+	 oversized claim.
+
 config SOCFPGA_SECURE_VAB_AUTH
 	bool "Enable boot image authentication with Secure Device Manager"
 	depends on ARCH_SOCFPGA_AGILEX || ARCH_SOCFPGA_N5X || \
@@ -87,8 +100,10 @@ config ARCH_SOCFPGA_ARRIA10
 	select SPL_ALTERA_SDRAM
 	select SPL_BOARD_INIT if SPL
 	select SPL_CACHE if SPL
+	select SPL_WDT if SPL
 	select CLK
 	select SPL_CLK if SPL
+	select DESIGNWARE_WATCHDOG
 	select DM_I2C
 	select DM_RESET
 	select SPL_DM_RESET if SPL
@@ -97,8 +112,9 @@ config ARCH_SOCFPGA_ARRIA10
 	select SYSCON
 	select SPL_SYSCON if SPL
 	select ETH_DESIGNWARE_SOCFPGA
+	select WDT
 	imply FPGA_SOCFPGA
-	imply SPL_USE_TINY_PRINTF
+	select SOCFPGA_ECC_SUPPORT
 
 config SOCFPGA_ARRIA10_ALWAYS_REPROGRAM
 	bool "Always reprogram Arria 10 FPGA"
@@ -111,10 +127,23 @@ config SOCFPGA_ARRIA10_ALWAYS_REPROGRAM
 config ARCH_SOCFPGA_CYCLONE5
 	bool
 	select ARCH_SOCFPGA_GEN5
+	select DESIGNWARE_WATCHDOG if !TARGET_SOCFPGA_TERASIC_SOCKIT \
+	  && !TARGET_SOCFPGA_EBV_SOCRATES \
+	  && !TARGET_SOCFPGA_SOFTING_VINING_FPGA
+	select WDT if !TARGET_SOCFPGA_TERASIC_SOCKIT \
+	  && !TARGET_SOCFPGA_EBV_SOCRATES \
+	  && !TARGET_SOCFPGA_SOFTING_VINING_FPGA
+	select SOCFPGA_ECC_SUPPORT if \
+	  !TARGET_SOCFPGA_TERASIC_SOCKIT && !TARGET_SOCFPGA_EBV_SOCRATES \
+	  && !TARGET_SOCFPGA_SOFTING_VINING_FPGA
+	select SOCFPGA_DRAM_SIZE_CHECK if !TARGET_SOCFPGA_TERASIC_SOCKIT \
+	  && !TARGET_SOCFPGA_EBV_SOCRATES && \
+	  !TARGET_SOCFPGA_SOFTING_VINING_FPGA
 
 config ARCH_SOCFPGA_GEN5
 	bool
 	select SPL_ALTERA_SDRAM
+	select SPL_CACHE if SPL && SOCFPGA_ECC_SUPPORT
 	imply FPGA_SOCFPGA
 	imply SPL_SIZE_LIMIT_SUBTRACT_GD
 	imply SPL_SIZE_LIMIT_SUBTRACT_MALLOC
@@ -146,8 +175,10 @@ config ARCH_SOCFPGA_STRATIX10
 	select ARMV8_MULTIENTRY
 	select ARMV8_SET_SMPEN
 	select BINMAN if SPL_ATF
+	select CLK
 	select FPGA_INTEL_SDM_MAILBOX
 	select GICV2
+	select SPL_CLK if SPL
 	select ARCH_SOCFPGA_SOC64
 
 choice
