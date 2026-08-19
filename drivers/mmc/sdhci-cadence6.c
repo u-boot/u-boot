@@ -59,6 +59,8 @@
 #define PHY_DLL_SLAVE_CTRL_REG_READ_DQS_CMD_DELAY	GENMASK(31, 24)
 #define PHY_DLL_SLAVE_CTRL_REG_READ_DQS_DELAY		GENMASK(7, 0)
 
+/* PHY control/status register */
+#define SDHCI_CDNS6_PHY_CTRL_REG	0x2080
 
 struct sdhci_cdns6_phy_cfg {
 	const char *property;
@@ -81,6 +83,7 @@ enum {
 	SDHCI_CDNS6_PHY_CFG_DLL_SLAVE_CTRL,
 	SDHCI_CDNS6_PHY_CFG_DQ_TIMING,
 	SDHCI_CDNS6_PHY_CFG_DLL_MASTER_CTRL,
+	SDHCI_CDNS6_PHY_CFG_CTRL,
 	SDHCI_CDNS6_PHY_CFG_NUM,
 };
 
@@ -103,6 +106,7 @@ static const struct sdhci_cdns6_phy_cfg sd_ds_phy_cfgs[] = {
 	{ "cdns,phy-dll-slave-ctrl-sd-ds", 0x00000000, },
 	{ "cdns,phy-dq-timing-delay-sd-ds", 0x00000001, },
 	{ "cdns,phy-dll-master-ctrl-sd-ds", 0x00800004, },
+	{ "cdns,phy-ctrl-sd-ds", 0x000041F0, },
 };
 
 static const struct sdhci_cdns6_phy_cfg sd_hs_phy_cfgs[] = {
@@ -111,6 +115,7 @@ static const struct sdhci_cdns6_phy_cfg sd_hs_phy_cfgs[] = {
 	{ "cdns,phy-dll-slave-ctrl-sd-hs", 0x00000000, },
 	{ "cdns,phy-dq-timing-delay-sd-hs", 0x00000001, },
 	{ "cdns,phy-dll-master-ctrl-sd-hs", 0x00800004, },
+	{ "cdns,phy-ctrl-sd-hs", 0x000041F0, },
 };
 
 static const struct sdhci_cdns6_phy_cfg emmc_sdr_phy_cfgs[] = {
@@ -119,6 +124,7 @@ static const struct sdhci_cdns6_phy_cfg emmc_sdr_phy_cfgs[] = {
 	{ "cdns,phy-dll-slave-ctrl-emmc-sdr", 0x00000000, },
 	{ "cdns,phy-dq-timing-delay-emmc-sdr", 0x00000001, },
 	{ "cdns,phy-dll-master-ctrl-emmc-sdr", 0x00800004, },
+	{ "cdns,phy-ctrl-emmc-sdr", 0x000041F0, },
 };
 
 static const struct sdhci_cdns6_phy_cfg emmc_ddr_phy_cfgs[] = {
@@ -127,6 +133,7 @@ static const struct sdhci_cdns6_phy_cfg emmc_ddr_phy_cfgs[] = {
 	{ "cdns,phy-dll-slave-ctrl-emmc-ddr", 0x00000000, },
 	{ "cdns,phy-dq-timing-delay-emmc-ddr", 0x10000001, },
 	{ "cdns,phy-dll-master-ctrl-emmc-ddr", 0x00800004, },
+	{ "cdns,phy-ctrl-emmc-ddr", 0x000041F0, },
 };
 
 static const struct sdhci_cdns6_phy_cfg emmc_hs200_phy_cfgs[] = {
@@ -135,6 +142,7 @@ static const struct sdhci_cdns6_phy_cfg emmc_hs200_phy_cfgs[] = {
 	{ "cdns,phy-dll-slave-ctrl-emmc-hs200", 0x00DADA00, },
 	{ "cdns,phy-dq-timing-delay-emmc-hs200", 0x00000001, },
 	{ "cdns,phy-dll-master-ctrl-emmc-hs200", 0x00000004, },
+	{ "cdns,phy-ctrl-emmc-hs200", 0x000041F0, },
 };
 
 static const struct sdhci_cdns6_phy_cfg emmc_hs400_phy_cfgs[] = {
@@ -143,6 +151,7 @@ static const struct sdhci_cdns6_phy_cfg emmc_hs400_phy_cfgs[] = {
 	{ "cdns,phy-dll-slave-ctrl-emmc-hs400", 0x00DAD800, },
 	{ "cdns,phy-dq-timing-delay-emmc-hs400", 0x00000001, },
 	{ "cdns,phy-dll-master-ctrl-emmc-hs400", 0x00000004, },
+	{ "cdns,phy-ctrl-emmc-hs400", 0x000041F0, },
 };
 
 static const struct sdhci_cdns6_ctrl_cfg sd_ds_ctrl_cfgs[] = {
@@ -310,6 +319,9 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_DLL_MASTER_CTRL].val);
 	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR,
 				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_DLL_SLAVE_CTRL].val);
+	/* Program PHY CTRL register */
+	sdhci_cdns6_write_phy_reg(plat, SDHCI_CDNS6_PHY_CTRL_REG,
+				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_CTRL].val);
 
 	/* Switch Off the DLL Reset */
 	ret = sdhci_cdns6_reset_phy_dll(plat, false);
