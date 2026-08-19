@@ -59,8 +59,6 @@
 #define PHY_DLL_SLAVE_CTRL_REG_READ_DQS_CMD_DELAY	GENMASK(31, 24)
 #define PHY_DLL_SLAVE_CTRL_REG_READ_DQS_DELAY		GENMASK(7, 0)
 
-#define SDHCI_CDNS6_PHY_CFG_NUM		5
-#define SDHCI_CDNS6_CTRL_CFG_NUM	4
 
 struct sdhci_cdns6_phy_cfg {
 	const char *property;
@@ -70,6 +68,33 @@ struct sdhci_cdns6_phy_cfg {
 struct sdhci_cdns6_ctrl_cfg {
 	const char *property;
 	u32 val;
+};
+
+/*
+ * PHY configuration slots. The enumeration order must match the entry
+ * order in every *_phy_cfgs[] table; SDHCI_CDNS6_PHY_CFG_NUM tracks the
+ * table size so the two never drift out of sync.
+ */
+enum {
+	SDHCI_CDNS6_PHY_CFG_DQS_TIMING,
+	SDHCI_CDNS6_PHY_CFG_GATE_LPBK_CTRL,
+	SDHCI_CDNS6_PHY_CFG_DLL_SLAVE_CTRL,
+	SDHCI_CDNS6_PHY_CFG_DQ_TIMING,
+	SDHCI_CDNS6_PHY_CFG_DLL_MASTER_CTRL,
+	SDHCI_CDNS6_PHY_CFG_NUM,
+};
+
+/*
+ * Controller (HRS) configuration slots. The enumeration order must match
+ * the entry order in every *_ctrl_cfgs[] table; SDHCI_CDNS6_CTRL_CFG_NUM
+ * tracks the table size so the two never drift out of sync.
+ */
+enum {
+	SDHCI_CDNS6_CTRL_CFG_HRS09,
+	SDHCI_CDNS6_CTRL_CFG_HRS10,
+	SDHCI_CDNS6_CTRL_CFG_HRS16,
+	SDHCI_CDNS6_CTRL_CFG_HRS07,
+	SDHCI_CDNS6_CTRL_CFG_NUM,
 };
 
 static const struct sdhci_cdns6_phy_cfg sd_ds_phy_cfgs[] = {
@@ -277,10 +302,14 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 	/* Switch On the DLL Reset */
 	sdhci_cdns6_reset_phy_dll(plat, true);
 
-	sdhci_cdns6_write_phy_reg(plat, PHY_DQS_TIMING_REG_ADDR, phy_cfgs[0].val);
-	sdhci_cdns6_write_phy_reg(plat, PHY_GATE_LPBK_CTRL_REG_ADDR, phy_cfgs[1].val);
-	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_MASTER_CTRL_REG_ADDR, phy_cfgs[4].val);
-	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR, phy_cfgs[2].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_DQS_TIMING_REG_ADDR,
+				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_DQS_TIMING].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_GATE_LPBK_CTRL_REG_ADDR,
+				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_GATE_LPBK_CTRL].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_MASTER_CTRL_REG_ADDR,
+				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_DLL_MASTER_CTRL].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR,
+				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_DLL_SLAVE_CTRL].val);
 
 	/* Switch Off the DLL Reset */
 	ret = sdhci_cdns6_reset_phy_dll(plat, false);
@@ -290,7 +319,8 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 	}
 
 	/* Set PHY DQ TIMING control register */
-	sdhci_cdns6_write_phy_reg(plat, PHY_DQ_TIMING_REG_ADDR, phy_cfgs[3].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_DQ_TIMING_REG_ADDR,
+				  phy_cfgs[SDHCI_CDNS6_PHY_CFG_DQ_TIMING].val);
 
 	/* Set HRS09 register */
 	tmp = readl(plat->hrs_addr + SDHCI_CDNS_HRS09);
@@ -298,20 +328,22 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 		 SDHCI_CDNS_HRS09_EXTENDED_RD_MODE |
 		 SDHCI_CDNS_HRS09_RDDATA_EN |
 		 SDHCI_CDNS_HRS09_RDCMD_EN);
-	tmp |= ctrl_cfgs[0].val;
+	tmp |= ctrl_cfgs[SDHCI_CDNS6_CTRL_CFG_HRS09].val;
 	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS09);
 
 	/* Set HRS10 register */
 	tmp = readl(plat->hrs_addr + SDHCI_CDNS_HRS10);
 	tmp &= ~SDHCI_CDNS_HRS10_HCSDCLKADJ;
-	tmp |= ctrl_cfgs[1].val;
+	tmp |= ctrl_cfgs[SDHCI_CDNS6_CTRL_CFG_HRS10].val;
 	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS10);
 
 	/* Set HRS16 register */
-	writel(ctrl_cfgs[2].val, plat->hrs_addr + SDHCI_CDNS_HRS16);
+	writel(ctrl_cfgs[SDHCI_CDNS6_CTRL_CFG_HRS16].val,
+	       plat->hrs_addr + SDHCI_CDNS_HRS16);
 
 	/* Set HRS07 register */
-	writel(ctrl_cfgs[3].val, plat->hrs_addr + SDHCI_CDNS_HRS07);
+	writel(ctrl_cfgs[SDHCI_CDNS6_CTRL_CFG_HRS07].val,
+	       plat->hrs_addr + SDHCI_CDNS_HRS07);
 
 	/*
 	 * Wait for the PHY/DLL to settle before the first data transfer.
