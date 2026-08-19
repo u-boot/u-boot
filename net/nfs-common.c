@@ -700,7 +700,8 @@ static int nfs_readlink_reply(uchar *pkt, unsigned int len)
 static int nfs_read_reply(uchar *pkt, unsigned int len)
 {
 	struct rpc_t rpc_pkt;
-	int rlen;
+	u32 rlen;
+	size_t data_offset;
 	uchar *data_ptr;
 
 	memcpy(&rpc_pkt.u.data[0], pkt, sizeof(rpc_pkt.u.reply));
@@ -734,17 +735,19 @@ static int nfs_read_reply(uchar *pkt, unsigned int len)
 		int nfsv3_data_offset =
 			nfs3_get_attributes_offset(rpc_pkt.u.reply.data);
 
-		/* count value */
-		rlen = ntohl(rpc_pkt.u.reply.data[1 + nfsv3_data_offset]);
-		/* Skip unused values :
-		 *	EOF:		32 bits value,
-		 *	data_size:	32 bits value,
-		 */
+		/* Skip count and EOF, read data_size from opaque data */
+		rlen = ntohl(rpc_pkt.u.reply.data[3 + nfsv3_data_offset]);
 		data_ptr = (uchar *)
 			&rpc_pkt.u.reply.data[4 + nfsv3_data_offset];
 	}
 
-	if (((uchar *)&rpc_pkt.u.reply.data[0] - (uchar *)&rpc_pkt + rlen) > len)
+	/* reject a length larger than a read requests */
+	if (rlen > NFS_READ_SIZE)
+		return -9999;
+
+	/* reject a length that runs past the received packet */
+	data_offset = data_ptr - (uchar *)&rpc_pkt;
+	if (data_offset > len || rlen > len - data_offset)
 		return -9999;
 
 	if (store_block(data_ptr, nfs_offset, rlen))
