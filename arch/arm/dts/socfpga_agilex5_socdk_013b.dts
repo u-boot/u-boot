@@ -90,11 +90,13 @@
 &mmc {
 	status = "okay";
 	bus-width = <4>;
-	no-1-8-v;
 	cap-sd-highspeed;
 	cap-mmc-highspeed;
 	disable-wp;
 	sd-uhs-sdr50;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
+	sdhci-caps-mask = <0x00002000 0x0000ff00>;
 	cdns,phy-use-ext-lpbk-dqs = <1>;
 	cdns,phy-use-lpbk-dqs = <1>;
 	cdns,phy-use-phony-dqs = <1>;
