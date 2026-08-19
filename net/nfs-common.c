@@ -642,7 +642,8 @@ static int nfs3_get_attributes_offset(uint32_t *data)
 static int nfs_readlink_reply(uchar *pkt, unsigned int len)
 {
 	struct rpc_t rpc_pkt;
-	int rlen;
+	u32 rlen;
+	size_t data_offset;
 	int nfsv3_data_offset = 0;
 
 	memcpy((unsigned char *)&rpc_pkt, pkt, len);
@@ -666,27 +667,33 @@ static int nfs_readlink_reply(uchar *pkt, unsigned int len)
 	/* new path length */
 	rlen = ntohl(rpc_pkt.u.reply.data[1 + nfsv3_data_offset]);
 
-	if (((uchar *)&rpc_pkt.u.reply.data[0] - (uchar *)&rpc_pkt + rlen) > len)
+	data_offset = (uchar *)&rpc_pkt.u.reply.data[2 + nfsv3_data_offset] -
+		      (uchar *)&rpc_pkt;
+
+	/* reject a length that runs past the received packet */
+	if (data_offset > len || rlen > len - data_offset)
 		return -NFS_RPC_DROP;
 
 	if (*((char *)&rpc_pkt.u.reply.data[2 + nfsv3_data_offset]) != '/') {
-		int pathlen;
-		int new_len;
+		size_t pathlen;
+		size_t new_len;
 
 		strcat(nfs_path, "/");
 		pathlen = strlen(nfs_path);
-		new_len = pathlen + rlen;
-		if (new_len >= sizeof(nfs_path_buff)) {
-			printf("NFS: symlink too long (%d bytes)\n", new_len);
+		if (pathlen >= sizeof(nfs_path_buff) ||
+		    rlen >= sizeof(nfs_path_buff) - pathlen) {
+			printf("NFS: symlink too long (%zu + %u bytes)\n",
+			       pathlen, rlen);
 			return -NFS_RPC_DROP;
 		}
+		new_len = pathlen + rlen;
 		memcpy(nfs_path + pathlen,
 		       (uchar *)&rpc_pkt.u.reply.data[2 + nfsv3_data_offset],
 		       rlen);
 		nfs_path[new_len] = 0;
 	} else {
 		if (rlen >= sizeof(nfs_path_buff)) {
-			printf("NFS: symlink too long (%d bytes)\n", rlen);
+			printf("NFS: symlink too long (%u bytes)\n", rlen);
 			return -NFS_RPC_DROP;
 		}
 		memcpy(nfs_path,
