@@ -11,6 +11,7 @@
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>
@@ -301,6 +302,17 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 
 	/* Set HRS07 register */
 	writel(sdhci_cdns6_ctrl_cfgs[3].val, plat->hrs_addr + SDHCI_CDNS_HRS07);
+
+	/*
+	 * Wait for the PHY/DLL to settle before the first data transfer.
+	 * The HRS09.PHY_INIT_COMPLETE handshake polled above only covers DLL
+	 * relock, not the analog read/write path retiming that follows a
+	 * timing change. Without this extra settle (together with the HRS05
+	 * posted-write flush in sdhci_cdns6_write_phy_reg()) the first
+	 * transfer after a DDR50 mode switch intermittently returns a CRC
+	 * error.
+	 */
+	mdelay(5);
 
 	return 0;
 }
