@@ -72,7 +72,7 @@ struct sdhci_cdns6_ctrl_cfg {
 	u32 val;
 };
 
-static struct sdhci_cdns6_phy_cfg sd_ds_phy_cfgs[] = {
+static const struct sdhci_cdns6_phy_cfg sd_ds_phy_cfgs[] = {
 	{ "cdns,phy-dqs-timing-delay-sd-ds", 0x00380004, },
 	{ "cdns,phy-gate-lpbk-ctrl-delay-sd-ds", 0x01A00040, },
 	{ "cdns,phy-dll-slave-ctrl-sd-ds", 0x00000000, },
@@ -80,7 +80,7 @@ static struct sdhci_cdns6_phy_cfg sd_ds_phy_cfgs[] = {
 	{ "cdns,phy-dll-master-ctrl-sd-ds", 0x00800004, },
 };
 
-static struct sdhci_cdns6_phy_cfg sd_hs_phy_cfgs[] = {
+static const struct sdhci_cdns6_phy_cfg sd_hs_phy_cfgs[] = {
 	{ "cdns,phy-dqs-timing-delay-sd-hs", 0x00380004, },
 	{ "cdns,phy-gate-lpbk-ctrl-delay-sd-hs", 0x01A00040, },
 	{ "cdns,phy-dll-slave-ctrl-sd-hs", 0x00000000, },
@@ -88,7 +88,7 @@ static struct sdhci_cdns6_phy_cfg sd_hs_phy_cfgs[] = {
 	{ "cdns,phy-dll-master-ctrl-sd-hs", 0x00800004, },
 };
 
-static struct sdhci_cdns6_phy_cfg emmc_sdr_phy_cfgs[] = {
+static const struct sdhci_cdns6_phy_cfg emmc_sdr_phy_cfgs[] = {
 	{ "cdns,phy-dqs-timing-delay-emmc-sdr", 0x00380004, },
 	{ "cdns,phy-gate-lpbk-ctrl-delay-emmc-sdr", 0x01A00040, },
 	{ "cdns,phy-dll-slave-ctrl-emmc-sdr", 0x00000000, },
@@ -96,7 +96,7 @@ static struct sdhci_cdns6_phy_cfg emmc_sdr_phy_cfgs[] = {
 	{ "cdns,phy-dll-master-ctrl-emmc-sdr", 0x00800004, },
 };
 
-static struct sdhci_cdns6_phy_cfg emmc_ddr_phy_cfgs[] = {
+static const struct sdhci_cdns6_phy_cfg emmc_ddr_phy_cfgs[] = {
 	{ "cdns,phy-dqs-timing-delay-emmc-ddr", 0x00380004, },
 	{ "cdns,phy-gate-lpbk-ctrl-delay-emmc-ddr", 0x01A00040, },
 	{ "cdns,phy-dll-slave-ctrl-emmc-ddr", 0x00000000, },
@@ -104,7 +104,7 @@ static struct sdhci_cdns6_phy_cfg emmc_ddr_phy_cfgs[] = {
 	{ "cdns,phy-dll-master-ctrl-emmc-ddr", 0x00800004, },
 };
 
-static struct sdhci_cdns6_phy_cfg emmc_hs200_phy_cfgs[] = {
+static const struct sdhci_cdns6_phy_cfg emmc_hs200_phy_cfgs[] = {
 	{ "cdns,phy-dqs-timing-delay-emmc-hs200", 0x00380004, },
 	{ "cdns,phy-gate-lpbk-ctrl-delay-emmc-hs200", 0x01A00040, },
 	{ "cdns,phy-dll-slave-ctrl-emmc-hs200", 0x00DADA00, },
@@ -112,7 +112,7 @@ static struct sdhci_cdns6_phy_cfg emmc_hs200_phy_cfgs[] = {
 	{ "cdns,phy-dll-master-ctrl-emmc-hs200", 0x00000004, },
 };
 
-static struct sdhci_cdns6_phy_cfg emmc_hs400_phy_cfgs[] = {
+static const struct sdhci_cdns6_phy_cfg emmc_hs400_phy_cfgs[] = {
 	{ "cdns,phy-dqs-timing-delay-emmc-hs400", 0x00280004, },
 	{ "cdns,phy-gate-lpbk-ctrl-delay-emmc-hs400", 0x01A00040, },
 	{ "cdns,phy-dll-slave-ctrl-emmc-hs400", 0x00DAD800, },
@@ -120,42 +120,42 @@ static struct sdhci_cdns6_phy_cfg emmc_hs400_phy_cfgs[] = {
 	{ "cdns,phy-dll-master-ctrl-emmc-hs400", 0x00000004, },
 };
 
-static struct sdhci_cdns6_ctrl_cfg sd_ds_ctrl_cfgs[] = {
+static const struct sdhci_cdns6_ctrl_cfg sd_ds_ctrl_cfgs[] = {
 	{ "cdns,ctrl-hrs09-timing-delay-sd-ds", 0x0001800C, },
 	{ "cdns,ctrl-hrs10-lpbk-ctrl-delay-sd-ds", 0x00020000, },
 	{ "cdns,ctrl-hrs16-slave-ctrl-sd-ds", 0x00000000, },
 	{ "cdns,ctrl-hrs07-timing-delay-sd-ds", 0x00080000, },
 };
 
-static struct sdhci_cdns6_ctrl_cfg sd_hs_ctrl_cfgs[] = {
+static const struct sdhci_cdns6_ctrl_cfg sd_hs_ctrl_cfgs[] = {
 	{ "cdns,ctrl-hrs09-timing-delay-sd-hs", 0x0001800C, },
 	{ "cdns,ctrl-hrs10-lpbk-ctrl-delay-sd-hs", 0x00030000, },
 	{ "cdns,ctrl-hrs16-slave-ctrl-sd-hs", 0x00000000, },
 	{ "cdns,ctrl-hrs07-timing-delay-sd-hs", 0x00080000, },
 };
 
-static struct sdhci_cdns6_ctrl_cfg emmc_sdr_ctrl_cfgs[] = {
+static const struct sdhci_cdns6_ctrl_cfg emmc_sdr_ctrl_cfgs[] = {
 	{ "cdns,ctrl-hrs09-timing-delay-emmc-sdr", 0x0001800C, },
 	{ "cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-sdr", 0x00030000, },
 	{ "cdns,ctrl-hrs16-slave-ctrl-emmc-sdr", 0x00000000, },
 	{ "cdns,ctrl-hrs07-timing-delay-emmc-sdr", 0x00080000, },
 };
 
-static struct sdhci_cdns6_ctrl_cfg emmc_ddr_ctrl_cfgs[] = {
+static const struct sdhci_cdns6_ctrl_cfg emmc_ddr_ctrl_cfgs[] = {
 	{ "cdns,ctrl-hrs09-timing-delay-emmc-ddr", 0x0001800C, },
 	{ "cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-ddr", 0x00020000, },
 	{ "cdns,ctrl-hrs16-slave-ctrl-emmc-ddr", 0x11000001, },
 	{ "cdns,ctrl-hrs07-timing-delay-emmc-ddr", 0x00090001, },
 };
 
-static struct sdhci_cdns6_ctrl_cfg emmc_hs200_ctrl_cfgs[] = {
+static const struct sdhci_cdns6_ctrl_cfg emmc_hs200_ctrl_cfgs[] = {
 	{ "cdns,ctrl-hrs09-timing-delay-emmc-hs200", 0x00018000, },
 	{ "cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-hs200", 0x00080000, },
 	{ "cdns,ctrl-hrs16-slave-ctrl-emmc-hs200", 0x00000000, },
 	{ "cdns,ctrl-hrs07-timing-delay-emmc-hs200", 0x00090000, },
 };
 
-static struct sdhci_cdns6_ctrl_cfg emmc_hs400_ctrl_cfgs[] = {
+static const struct sdhci_cdns6_ctrl_cfg emmc_hs400_ctrl_cfgs[] = {
 	{ "cdns,ctrl-hrs09-timing-delay-emmc-hs400", 0x00018000, },
 	{ "cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-hs400", 0x00080000, },
 	{ "cdns,ctrl-hrs16-slave-ctrl-emmc-hs400", 0x11000000, },
@@ -212,65 +212,75 @@ static int sdhci_cdns6_reset_phy_dll(struct sdhci_cdns_plat *plat, bool reset)
 
 int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 mode)
 {
-	struct sdhci_cdns6_phy_cfg *sdhci_cdns6_phy_cfgs;
-	struct sdhci_cdns6_ctrl_cfg *sdhci_cdns6_ctrl_cfgs;
+	const struct sdhci_cdns6_phy_cfg *phy_defaults;
+	const struct sdhci_cdns6_ctrl_cfg *ctrl_defaults;
+	struct sdhci_cdns6_phy_cfg phy_cfgs[SDHCI_CDNS6_PHY_CFG_NUM];
+	struct sdhci_cdns6_ctrl_cfg ctrl_cfgs[SDHCI_CDNS6_CTRL_CFG_NUM];
 	u32 tmp;
 	int i, ret;
 
 	switch (mode) {
 	case UHS_SDR12:
 	case MMC_LEGACY:
-		sdhci_cdns6_phy_cfgs = sd_ds_phy_cfgs;
-		sdhci_cdns6_ctrl_cfgs = sd_ds_ctrl_cfgs;
+		phy_defaults = sd_ds_phy_cfgs;
+		ctrl_defaults = sd_ds_ctrl_cfgs;
 		break;
 
 	case SD_HS:
 	case UHS_SDR25:
 	case MMC_HS:
-		sdhci_cdns6_phy_cfgs = sd_hs_phy_cfgs;
-		sdhci_cdns6_ctrl_cfgs = sd_hs_ctrl_cfgs;
+		phy_defaults = sd_hs_phy_cfgs;
+		ctrl_defaults = sd_hs_ctrl_cfgs;
 		break;
 
 	case UHS_SDR50:
 	case MMC_HS_52:
-		sdhci_cdns6_phy_cfgs = emmc_sdr_phy_cfgs;
-		sdhci_cdns6_ctrl_cfgs = emmc_sdr_ctrl_cfgs;
+		phy_defaults = emmc_sdr_phy_cfgs;
+		ctrl_defaults = emmc_sdr_ctrl_cfgs;
 		break;
 
 	case UHS_DDR50:
 	case MMC_DDR_52:
-		sdhci_cdns6_phy_cfgs = emmc_ddr_phy_cfgs;
-		sdhci_cdns6_ctrl_cfgs = emmc_ddr_ctrl_cfgs;
+		phy_defaults = emmc_ddr_phy_cfgs;
+		ctrl_defaults = emmc_ddr_ctrl_cfgs;
 		break;
 
 	case UHS_SDR104:
 	case MMC_HS_200:
-		sdhci_cdns6_phy_cfgs = emmc_hs200_phy_cfgs;
-		sdhci_cdns6_ctrl_cfgs = emmc_hs200_ctrl_cfgs;
+		phy_defaults = emmc_hs200_phy_cfgs;
+		ctrl_defaults = emmc_hs200_ctrl_cfgs;
 		break;
 
 	case MMC_HS_400:
 	case MMC_HS_400_ES:
-		sdhci_cdns6_phy_cfgs = emmc_hs400_phy_cfgs;
-		sdhci_cdns6_ctrl_cfgs = emmc_hs400_ctrl_cfgs;
+		phy_defaults = emmc_hs400_phy_cfgs;
+		ctrl_defaults = emmc_hs400_ctrl_cfgs;
 		break;
 	default:
 		return -EINVAL;
 	}
 
-	for (i = 0; i < SDHCI_CDNS6_PHY_CFG_NUM; i++)
-		dev_read_u32(dev, sdhci_cdns6_phy_cfgs[i].property, &sdhci_cdns6_phy_cfgs[i].val);
+	/*
+	 * Work on per-call copies so DT overrides never mutate the shared
+	 * const defaults, which would otherwise leak between controllers.
+	 */
+	for (i = 0; i < SDHCI_CDNS6_PHY_CFG_NUM; i++) {
+		phy_cfgs[i] = phy_defaults[i];
+		dev_read_u32(dev, phy_cfgs[i].property, &phy_cfgs[i].val);
+	}
 
-	for (i = 0; i < SDHCI_CDNS6_CTRL_CFG_NUM; i++)
-		dev_read_u32(dev, sdhci_cdns6_ctrl_cfgs[i].property, &sdhci_cdns6_ctrl_cfgs[i].val);
+	for (i = 0; i < SDHCI_CDNS6_CTRL_CFG_NUM; i++) {
+		ctrl_cfgs[i] = ctrl_defaults[i];
+		dev_read_u32(dev, ctrl_cfgs[i].property, &ctrl_cfgs[i].val);
+	}
 
 	/* Switch On the DLL Reset */
 	sdhci_cdns6_reset_phy_dll(plat, true);
 
-	sdhci_cdns6_write_phy_reg(plat, PHY_DQS_TIMING_REG_ADDR, sdhci_cdns6_phy_cfgs[0].val);
-	sdhci_cdns6_write_phy_reg(plat, PHY_GATE_LPBK_CTRL_REG_ADDR, sdhci_cdns6_phy_cfgs[1].val);
-	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_MASTER_CTRL_REG_ADDR, sdhci_cdns6_phy_cfgs[4].val);
-	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR, sdhci_cdns6_phy_cfgs[2].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_DQS_TIMING_REG_ADDR, phy_cfgs[0].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_GATE_LPBK_CTRL_REG_ADDR, phy_cfgs[1].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_MASTER_CTRL_REG_ADDR, phy_cfgs[4].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_DLL_SLAVE_CTRL_REG_ADDR, phy_cfgs[2].val);
 
 	/* Switch Off the DLL Reset */
 	ret = sdhci_cdns6_reset_phy_dll(plat, false);
@@ -280,7 +290,7 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 	}
 
 	/* Set PHY DQ TIMING control register */
-	sdhci_cdns6_write_phy_reg(plat, PHY_DQ_TIMING_REG_ADDR, sdhci_cdns6_phy_cfgs[3].val);
+	sdhci_cdns6_write_phy_reg(plat, PHY_DQ_TIMING_REG_ADDR, phy_cfgs[3].val);
 
 	/* Set HRS09 register */
 	tmp = readl(plat->hrs_addr + SDHCI_CDNS_HRS09);
@@ -288,20 +298,20 @@ int sdhci_cdns6_phy_adj(struct udevice *dev, struct sdhci_cdns_plat *plat, u32 m
 		 SDHCI_CDNS_HRS09_EXTENDED_RD_MODE |
 		 SDHCI_CDNS_HRS09_RDDATA_EN |
 		 SDHCI_CDNS_HRS09_RDCMD_EN);
-	tmp |= sdhci_cdns6_ctrl_cfgs[0].val;
+	tmp |= ctrl_cfgs[0].val;
 	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS09);
 
 	/* Set HRS10 register */
 	tmp = readl(plat->hrs_addr + SDHCI_CDNS_HRS10);
 	tmp &= ~SDHCI_CDNS_HRS10_HCSDCLKADJ;
-	tmp |= sdhci_cdns6_ctrl_cfgs[1].val;
+	tmp |= ctrl_cfgs[1].val;
 	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS10);
 
 	/* Set HRS16 register */
-	writel(sdhci_cdns6_ctrl_cfgs[2].val, plat->hrs_addr + SDHCI_CDNS_HRS16);
+	writel(ctrl_cfgs[2].val, plat->hrs_addr + SDHCI_CDNS_HRS16);
 
 	/* Set HRS07 register */
-	writel(sdhci_cdns6_ctrl_cfgs[3].val, plat->hrs_addr + SDHCI_CDNS_HRS07);
+	writel(ctrl_cfgs[3].val, plat->hrs_addr + SDHCI_CDNS_HRS07);
 
 	/*
 	 * Wait for the PHY/DLL to settle before the first data transfer.
