@@ -121,14 +121,12 @@
 	status = "okay";
 
 	no-mmc;
-	no-1-8-v;
 	disable-wp;
 	cap-sd-highspeed;
 	vmmc-supply = <&sd_emmc_power>;
 	vqmmc-supply = <&sd_io_1v8_reg>;
 	max-frequency = <200000000>;
 	sdhci-caps = <0x00000000 0x0000c800>;
-	sdhci-caps-mask = <0x00002007 0x0000ff00>;
 
 	/* SD card default speed (DS) and UHS-I SDR12 mode timing configuration */
 	cdns,phy-dqs-timing-delay-sd-ds = <0x00780000>;
@@ -152,6 +150,28 @@
 	cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-sdr = <0x20000>;
 	cdns,ctrl-hrs16-slave-ctrl-emmc-sdr = <0x101>;
 	cdns,ctrl-hrs07-timing-delay-emmc-sdr = <0x90005>;
+
+	/* SD card UHS-I SDR104 mode timing configuration */
+	cdns,phy-dq-timing-delay-emmc-hs200 = <0x11000001>;
+	cdns,phy-dqs-timing-delay-emmc-hs200 = <0x780004>;
+	cdns,phy-dll-slave-ctrl-emmc-hs200 = <0x4d4d00>;
+	cdns,phy-gate-lpbk-ctrl-delay-emmc-hs200 = <0x81a40040>;
+	cdns,ctrl-hrs09-timing-delay-emmc-hs200 = <0xf1c18000>;
+	cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-hs200 = <0x90000>;
+	cdns,ctrl-hrs16-slave-ctrl-emmc-hs200 = <0x101>;
+	cdns,ctrl-hrs07-timing-delay-emmc-hs200 = <0xa0001>;
+
+	/* SD card UHS-I DDR50 mode & eMMC DDR52 mode timing configuration */
+	cdns,phy-dqs-timing-delay-emmc-ddr = <0x00580000>;
+	cdns,phy-gate-lpbk-ctrl-delay-emmc-ddr = <0x81a40040>;
+	cdns,phy-dll-master-ctrl-emmc-ddr = <0xa00004>;
+	cdns,phy-dll-slave-ctrl-emmc-ddr = <0x60>;
+	cdns,phy-ctrl-emmc-ddr = <0x4010>;
+	cdns,phy-dq-timing-delay-emmc-ddr = <0x10000001>;
+	cdns,ctrl-hrs09-timing-delay-emmc-ddr = <0xf1c1800f>;
+	cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-ddr = <0x00020000>;
+	cdns,ctrl-hrs16-slave-ctrl-emmc-ddr = <0x11000000>;
+	cdns,ctrl-hrs07-timing-delay-emmc-ddr = <0x00090001>;
 
 	bootph-all;
 };
