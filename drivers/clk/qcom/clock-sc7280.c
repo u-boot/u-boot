@@ -27,6 +27,10 @@
 #define UFS_PHY_ICE_CORE_CLK_CMD_RCGR 0x7706c
 #define UFS_PHY_PHY_AUX_CLK_CMD_RCGR 0x770a0
 #define UFS_PHY_UNIPRO_CORE_CLK_CMD_RCGR 0x77084
+#define SDCC2_APPS_CLK_CMD_RCGR 0x1400c
+
+#define APCS_GPLL9_STATUS 0x1c000
+#define APCS_GPLLX_ENA_REG 0x52010
 
 static const struct freq_tbl ftbl_gcc_usb30_prim_master_clk_src[] = {
 	F(66666667, CFG_CLK_SRC_GPLL0_EVEN, 4.5, 0, 0),
@@ -83,6 +87,23 @@ static const struct freq_tbl ftbl_gcc_ufs_phy_unipro_core_clk_src[] = {
 	F(150000000, CFG_CLK_SRC_GPLL0_EVEN, 2, 0, 0),
 	F(300000000, CFG_CLK_SRC_GPLL0_EVEN, 1, 0, 0),
 	{ }
+};
+
+static const struct freq_tbl ftbl_gcc_sdcc2_apps_clk_src[] = {
+	F(400000, CFG_CLK_SRC_CXO, 12, 1, 4),
+	F(19200000, CFG_CLK_SRC_CXO, 1, 0, 0),
+	F(25000000, CFG_CLK_SRC_GPLL0_EVEN, 12, 0, 0),
+	F(50000000, CFG_CLK_SRC_GPLL0_EVEN, 6, 0, 0),
+	F(100000000, CFG_CLK_SRC_GPLL0_EVEN, 3, 0, 0),
+	F(202000000, CFG_CLK_SRC_GPLL9, 4, 0, 0),
+	{ }
+};
+
+static const struct pll_vote_clk gpll9_vote_clk = {
+	.status = APCS_GPLL9_STATUS,
+	.status_bit = BIT(31),
+	.ena_vote = APCS_GPLLX_ENA_REG,
+	.vote_bit = BIT(8),
 };
 
 static ulong sc7280_set_rate(struct clk *clk, ulong rate)
@@ -152,6 +173,13 @@ static ulong sc7280_set_rate(struct clk *clk, ulong rate)
 	case GCC_UFS_PHY_UNIPRO_CORE_CLK:
 		freq = qcom_find_freq(ftbl_gcc_ufs_phy_unipro_core_clk_src, rate);
 		clk_rcg_set_rate_mnd(priv->base, UFS_PHY_UNIPRO_CORE_CLK_CMD_RCGR,
+				     freq->pre_div, freq->m, freq->n, freq->src, 8);
+		return freq->freq;
+	case GCC_SDCC2_APPS_CLK:
+		freq = qcom_find_freq(ftbl_gcc_sdcc2_apps_clk_src, rate);
+		if (freq->src == CFG_CLK_SRC_GPLL9)
+			clk_enable_gpll0(priv->base, &gpll9_vote_clk);
+		clk_rcg_set_rate_mnd(priv->base, SDCC2_APPS_CLK_CMD_RCGR,
 				     freq->pre_div, freq->m, freq->n, freq->src, 8);
 		return freq->freq;
 	default:
