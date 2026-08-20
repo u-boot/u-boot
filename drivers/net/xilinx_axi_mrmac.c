@@ -162,6 +162,7 @@ static int axi_mrmac_start(struct udevice *dev)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
 	struct mrmac_regs *regs = priv->iobase;
+	int i;
 
 	/*
 	 * Initialize MCDMA engine. MCDMA engine must be initialized before
@@ -181,27 +182,30 @@ static int axi_mrmac_start(struct udevice *dev)
 	/* Update current descriptor */
 	axi_mrmac_dma_write(&priv->rx_bd[0], &priv->mcdma_rx->current);
 
-	/* Setup Rx BD. MRMAC needs atleast two descriptors */
+	/*
+	 * Setup Rx BDs as a closed ring: every descriptor points at the next
+	 * one and the last one wraps back to the first, each with its own
+	 * slice of the Rx buffer pool. MRMAC needs at least two descriptors.
+	 */
 	memset(priv->rx_bd, 0, RX_BD_TOTAL_SIZE);
 
-	priv->rx_bd[0].next_desc = lower_32_bits((u64)&priv->rx_bd[1]);
-	priv->rx_bd[0].buf_addr = lower_32_bits((u64)priv->rx_buf);
+	for (i = 0; i < RX_DESC; i++) {
+		struct mcdma_bd *next = &priv->rx_bd[(i + 1) % RX_DESC];
+		u8 *buf = priv->rx_buf + i * PKTSIZE_ALIGN;
+		struct mcdma_bd *bd = &priv->rx_bd[i];
 
-	priv->rx_bd[1].next_desc = lower_32_bits((u64)&priv->rx_bd[0]);
-	priv->rx_bd[1].buf_addr = lower_32_bits((u64)priv->rx_buf + PKTSIZE_ALIGN);
+		bd->next_desc = lower_32_bits((u64)next);
+		bd->buf_addr = lower_32_bits((u64)buf);
 
-	if (IS_ENABLED(CONFIG_PHYS_64BIT)) {
-		priv->rx_bd[0].next_desc_msb = upper_32_bits((u64)&priv->rx_bd[1]);
-		priv->rx_bd[0].buf_addr_msb = upper_32_bits((u64)priv->rx_buf);
+		if (IS_ENABLED(CONFIG_PHYS_64BIT)) {
+			bd->next_desc_msb = upper_32_bits((u64)next);
+			bd->buf_addr_msb = upper_32_bits((u64)buf);
+		}
 
-		priv->rx_bd[1].next_desc_msb = upper_32_bits((u64)&priv->rx_bd[0]);
-		priv->rx_bd[1].buf_addr_msb = upper_32_bits((u64)priv->rx_buf + PKTSIZE_ALIGN);
+		bd->cntrl = PKTSIZE_ALIGN;
 	}
 
-	priv->rx_bd[0].cntrl = PKTSIZE_ALIGN;
-	priv->rx_bd[1].cntrl = PKTSIZE_ALIGN;
-
-	/* Flush the last BD so DMA core could see the updates */
+	/* Flush the BDs so DMA core could see the updates */
 	flush_cache((phys_addr_t)priv->rx_bd, RX_BD_TOTAL_SIZE);
 
 	/* It is necessary to flush rx buffers because if you don't do it
@@ -218,7 +222,7 @@ static int axi_mrmac_start(struct udevice *dev)
 	setbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
 
 	/* Update tail descriptor. Now it's ready to receive data */
-	axi_mrmac_dma_write(&priv->rx_bd[1], &priv->mcdma_rx->tail);
+	axi_mrmac_dma_write(&priv->rx_bd[RX_DESC - 1], &priv->mcdma_rx->tail);
 
 	/* Enable Tx */
 	setbits_le32(&regs->tx_config, MRMAC_TX_EN_MASK);
