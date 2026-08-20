@@ -484,14 +484,20 @@ static int axi_mrmac_probe(struct udevice *dev)
 
 	/* Align buffers to ARCH_DMA_MINALIGN */
 	priv->tx_bd[0] = memalign(ARCH_DMA_MINALIGN, TX_BD_TOTAL_SIZE);
+	if (!priv->tx_bd[0])
+		return -ENOMEM;
 	priv->tx_bd[1] = (struct mcdma_bd *)((ulong)priv->tx_bd[0] +
 					     sizeof(struct mcdma_bd));
 
 	priv->rx_bd[0] = memalign(ARCH_DMA_MINALIGN, RX_BD_TOTAL_SIZE);
+	if (!priv->rx_bd[0])
+		return -ENOMEM;
 	priv->rx_bd[1] = (struct mcdma_bd *)((ulong)priv->rx_bd[0] +
 					     sizeof(struct mcdma_bd));
 
 	priv->txminframe = memalign(ARCH_DMA_MINALIGN, MIN_PKT_SIZE);
+	if (!priv->txminframe)
+		return -ENOMEM;
 
 	return 0;
 }
