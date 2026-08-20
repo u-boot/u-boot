@@ -19,6 +19,7 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <env.h>
+#include <fw_loader.h>
 #include <log.h>
 #include <reset.h>
 
@@ -75,6 +76,7 @@
 
 #define RCAR_GEN4_PCIE_FIRMWARE_NAME		"rcar_gen4_pcie.bin"
 #define RCAR_GEN4_PCIE_FIRMWARE_BASE_ADDR	0xc000
+#define RCAR_GEN4_PCIE_FIRMWARE_SIZE		0x8000
 
 #define PCIE_T_PVPERL_MS			100
 
@@ -97,17 +99,26 @@
 struct rcar_gen4_pcie {
 	/* Must be first member of the struct */
 	struct			pcie_dw dw;
-	struct reset_ctl	pwr_rst;
+	struct reset_ctl	*pwr_rst;
 	struct clk		*core_clk;
 	struct clk		*ref_clk;
-	struct gpio_desc	pe_rst;
+	struct gpio_desc	*pe_rst;
 	void			*app_base;
 	void			*dbi2_base;
 	void			*phy_base;
 	u32			max_link_speed;
 	u32			num_lanes;
 	u16			*firmware;
-	u32			firmware_size;
+	size_t			firmware_size;
+};
+
+/**
+ * struct rcar_gen4_pcie_plat - Renesas R-Car Gen4 DW PCIe controller platform data
+ *
+ * @probed: Controller was started
+ */
+struct rcar_gen4_pcie_plat {
+	bool			probed;
 };
 
 /* Common */
@@ -302,7 +313,7 @@ static int rcar_gen4_pcie_common_init(struct rcar_gen4_pcie *rcar)
 	if (ret)
 		return ret;
 
-	ret = reset_assert(&rcar->pwr_rst);
+	ret = reset_assert(rcar->pwr_rst);
 	if (ret)
 		goto err_unprepare;
 
@@ -312,11 +323,11 @@ static int rcar_gen4_pcie_common_init(struct rcar_gen4_pcie *rcar)
 		     DEVICE_TYPE_RC |
 		     ((rcar->num_lanes < 4) ? BIFUR_MOD_SET_ON : 0));
 
-	ret = reset_deassert(&rcar->pwr_rst);
+	ret = reset_deassert(rcar->pwr_rst);
 	if (ret)
 		goto err_unprepare;
 
-	reset_status(&rcar->pwr_rst);
+	reset_status(rcar->pwr_rst);
 	mdelay(1);
 
 	rcar_gen4_pcie_additional_common_init(rcar);
@@ -335,7 +346,7 @@ static int rcar_gen4_pcie_host_init(struct udevice *dev)
 	struct rcar_gen4_pcie *rcar = dev_get_priv(dev);
 	int ret;
 
-	dm_gpio_set_value(&rcar->pe_rst, 1);
+	dm_gpio_set_value(rcar->pe_rst, 1);
 
 	ret = rcar_gen4_pcie_common_init(rcar);
 	if (ret)
@@ -355,63 +366,38 @@ static int rcar_gen4_pcie_host_init(struct udevice *dev)
 
 	mdelay(PCIE_T_PVPERL_MS);	/* pe_rst requires 100msec delay */
 
-	dm_gpio_set_value(&rcar->pe_rst, 0);
+	dm_gpio_set_value(rcar->pe_rst, 0);
 
 	return 0;
 }
 
 static int rcar_gen4_pcie_load_firmware(struct rcar_gen4_pcie *rcar)
 {
-	ulong addr, size;
 	int ret;
 
-	/*
-	 * Run user specified firmware loading script, which loads the
-	 * firmware from whichever location the user decides it should
-	 * load the firmware from, by whatever means the user decides.
-	 */
-	ret = run_command_list("run renesas_rcar_gen4_load_firmware", -1, 0);
-	if (ret) {
-		printf("Firmware loading script 'renesas_rcar_gen4_load_firmware' not defined or failed.\n");
-		goto fail;
-	}
-
-	/* Find out where the firmware got loaded and how long it is. */
-	addr = env_get_hex("renesas_rcar_gen4_load_firmware_addr", 0);
-	size = env_get_hex("renesas_rcar_gen4_load_firmware_size", 0);
-
-	/*
-	 * Clear the variables set by the firmware loading script, as
-	 * their content would become stale once this function exits.
-	 */
-	env_set("renesas_rcar_gen4_load_firmware_addr", NULL);
-	env_set("renesas_rcar_gen4_load_firmware_size", NULL);
-
-	if (!addr || !size) {
-		printf("Firmware address (%lx) or size (%lx) are invalid.\n", addr, size);
-		goto fail;
-	}
-
-	/* Create local copy of the loaded firmware. */
-	rcar->firmware = (u16 *)memdup((void *)addr, size);
+	rcar->firmware = calloc(1, RCAR_GEN4_PCIE_FIRMWARE_SIZE);
 	if (!rcar->firmware)
 		return -ENOMEM;
 
-	rcar->firmware_size = size;
+	ret = request_firmware_into_buf_via_script(rcar->firmware,
+						   RCAR_GEN4_PCIE_FIRMWARE_SIZE,
+						   "renesas_rcar_gen4_load_firmware",
+						   &rcar->firmware_size);
+	if (ret) {
+		free(rcar->firmware);
 
-	return 0;
+		printf("Define 'renesas_rcar_gen4_load_firmware' script which loads the R-Car\n"
+		       "Gen4 PCIe controller firmware from storage into memory and sets these\n"
+		       "two environment variables:\n"
+		       "  renesas_rcar_gen4_load_firmware_addr ... address of firmware in memory\n"
+		       "  renesas_rcar_gen4_load_firmware_size ... length of firmware in bytes\n"
+		       "\n"
+		       "Example:\n"
+		       "  => env set renesas_rcar_gen4_load_firmware 'env set renesas_rcar_gen4_load_firmware_addr 0x54000000 && load mmc 0:1 ${renesas_rcar_gen4_load_firmware_addr} lib/firmware/rcar_gen4_pcie.bin && env set renesas_rcar_gen4_load_firmware_size ${filesize}'\n"
+		       );
+	}
 
-fail:
-	printf("Define 'renesas_rcar_gen4_load_firmware' script which loads the R-Car\n"
-	       "Gen4 PCIe controller firmware from storage into memory and sets these\n"
-	       "two environment variables:\n"
-	       "  renesas_rcar_gen4_load_firmware_addr ... address of firmware in memory\n"
-	       "  renesas_rcar_gen4_load_firmware_size ... length of firmware in bytes\n"
-	       "\n"
-	       "Example:\n"
-	       "  => env set renesas_rcar_gen4_load_firmware 'env set renesas_rcar_gen4_load_firmware_addr 0x54000000 && load mmc 0:1 ${renesas_rcar_gen4_load_firmware_addr} lib/firmware/rcar_gen4_pcie.bin && env set renesas_rcar_gen4_load_firmware_size ${filesize}'\n"
-	       );
-	return -EINVAL;
+	return ret;
 }
 
 /**
@@ -427,9 +413,13 @@ fail:
 static int rcar_gen4_pcie_probe(struct udevice *dev)
 {
 	struct rcar_gen4_pcie *rcar = dev_get_priv(dev);
+	struct rcar_gen4_pcie_plat *plat = dev_get_plat(dev);
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	int ret;
+
+	if (plat->probed)
+		return -ENODEV;
 
 	ret = rcar_gen4_pcie_load_firmware(rcar);
 	if (ret)
@@ -438,9 +428,9 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 	rcar->dw.first_busno = dev_seq(dev);
 	rcar->dw.dev = dev;
 
-	ret = reset_get_by_name(dev, "pwr", &rcar->pwr_rst);
-	if (ret)
-		return ret;
+	rcar->pwr_rst = devm_reset_control_get(dev, "pwr");
+	if (IS_ERR(rcar->pwr_rst))
+		return PTR_ERR(rcar->pwr_rst);
 
 	rcar->core_clk = devm_clk_get(dev, "core");
 	if (IS_ERR(rcar->core_clk))
@@ -454,10 +444,10 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 	if (ret && ret != -ENOSYS)
 		return ret;
 
-	ret = gpio_request_by_name(dev, "reset-gpios", 0, &rcar->pe_rst,
-				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-	if (ret)
-		return ret;
+	rcar->pe_rst = devm_gpiod_get(dev, "reset",
+				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	if (IS_ERR(rcar->pe_rst))
+		return PTR_ERR(rcar->pe_rst);
 
 	ret = rcar_gen4_pcie_host_init(dev);
 	if (ret)
@@ -470,6 +460,7 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 	dw_pcie_link_set_max_link_width(&rcar->dw, rcar->num_lanes);
 
 	ret = rcar_gen4_pcie_start_link(rcar);
+	plat->probed = true;
 	if (ret)
 		return ret;
 
@@ -478,8 +469,8 @@ static int rcar_gen4_pcie_probe(struct udevice *dev)
 	if (!rcar_gen4_pcie_link_up(rcar)) {
 		printf("PCIE-%d: Link down\n", dev_seq(dev));
 		rcar_gen4_pcie_ltssm_control(rcar, false);
-		dm_gpio_set_value(&rcar->pe_rst, 1);
-		reset_assert(&rcar->pwr_rst);
+		dm_gpio_set_value(rcar->pe_rst, 1);
+		reset_assert(rcar->pwr_rst);
 		clk_disable_unprepare(rcar->ref_clk);
 		return -ENODEV;
 	}
@@ -510,8 +501,8 @@ static int rcar_gen4_pcie_remove(struct udevice *dev)
 	struct rcar_gen4_pcie *rcar = dev_get_priv(dev);
 
 	rcar_gen4_pcie_ltssm_control(rcar, false);
-	dm_gpio_set_value(&rcar->pe_rst, 1);
-	reset_assert(&rcar->pwr_rst);
+	dm_gpio_set_value(rcar->pe_rst, 1);
+	reset_assert(rcar->pwr_rst);
 	clk_disable_unprepare(rcar->ref_clk);
 
 	return 0;
@@ -592,5 +583,6 @@ U_BOOT_DRIVER(rcar_gen4_pcie) = {
 	.probe		= rcar_gen4_pcie_probe,
 	.remove		= rcar_gen4_pcie_remove,
 	.priv_auto	= sizeof(struct rcar_gen4_pcie),
+	.plat_auto	= sizeof(struct rcar_gen4_pcie_plat),
 	.flags		= DM_FLAG_ACTIVE_DMA,
 };

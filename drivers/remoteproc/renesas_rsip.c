@@ -13,6 +13,7 @@
 #include <linux/sizes.h>
 #include <malloc.h>
 #include <remoteproc.h>
+#include <reset.h>
 
 /* R-Car X5H contains 1 SCP core, 6 lockstep Cortex-R52 and 32 Cortex-A720AE cores. */
 #define RCAR5_SCP_CORES			1
@@ -20,6 +21,9 @@
 #define RCAR5_CA720_CORES		32
 
 #define SCP_BASE			0xc1340000
+#define SCP_CFGVECTABLE			(SCP_BASE + 0x0)
+#define SCP_CFGNSSTCALIB		(SCP_BASE + 0x10)
+#define SCP_CFGNSSTCALIB_13_3MHZ	0x010040f0
 #define SCP_CPUWAIT			(SCP_BASE + 0x30)
 #define SCP_CPUWAIT_WAIT		BIT(0)
 #define SCP_STCM			0xc1000000
@@ -96,26 +100,59 @@ static void scp_send_interrupt(void)
  * This must be removed when proper upstream SCP port exists
  */
 #define SCMI_PD_POWER_STATE_SET_BOOTADDR	0x4411
+#define SCMI_PD_POWER_STATE_SET_STATE_ON	0
+#define SCMI_PD_POWER_STATE_SET_STATE_OFF	BIT(30)
+#define SCMI_PD_POWER_STATE_GET			0x4405
 
 /**
- * scp_cpu_core_start() - Boot CPU core by invoking SCP via SCMI
+ * scp_cpu_core_id_to_domain() - Convert core ID to SCMI domain ID
+ * @core: CPU core
+ * @domain: SCMI domain
+ */
+static int scp_cpu_core_id_to_domain(const u32 core, u32 *domain)
+{
+	if (core >= RCAR5_SCP_CORES && core < RCAR5_SCP_CORES + RCAR5_CR52_CORES) {
+		/* CR52 */
+		*domain = core - RCAR5_SCP_CORES + SCMI_PD_CORE_RT_CORE00;
+		return 0;
+	}
+
+	if (core >= RCAR5_SCP_CORES + RCAR5_CR52_CORES &&
+	    core < RCAR5_SCP_CORES + RCAR5_CR52_CORES + RCAR5_CA720_CORES) {
+		/* CA720 */
+		*domain = core - RCAR5_SCP_CORES - RCAR5_CR52_CORES + SCMI_PD_CORE_AP_CORE00;
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
+/**
+ * scp_cpu_core_set() - Start or stop CPU core by invoking SCP via SCMI
  * @core: CPU core to boot
  * @ep: Entry point
+ * @state: Power state, 0: Power on, BIT(30): Power off
  */
-static void scp_cpu_core_start(const u32 core, const u32 ep)
+static int scp_cpu_core_set(const u32 core, const u32 ep, const u32 state)
 {
 	struct scp_scmi_shmem *shmem = (struct scp_scmi_shmem *)SCP_SCMI_SHMEM_AREA09;
 	struct scp_scmi_pd_power_state_set_a2p scmi_parameter = {
 		.flags = 1,	/* Asynchronous power transition using APMU */
-		.domain_id = core,
-		.power_state = 0,	/* Power on */
+		.domain_id = 0,		/* Core ID */
+		.power_state = state,	/* 0: Power on, BIT(30): Power off */
 		.boot_addr = ep,
 	};
 	u32 status;
+	int ret;
+
+	ret = scp_cpu_core_id_to_domain(core, &scmi_parameter.domain_id);
+	if (ret)
+		return ret;
 
 	/* Wait for SCP to be free, then set it busy */
 	scp_wait_fw_free();
 	shmem->status &= ~SCP_SCMI_STATUS_FREE;
+	shmem->flags = 0;
 
 	/* Set up the message and copy it to SHMEM */
 	shmem->message_header = SCMI_PD_POWER_STATE_SET_BOOTADDR;
@@ -128,8 +165,59 @@ static void scp_cpu_core_start(const u32 core, const u32 ep)
 
 	/* Read back the result */
 	status = readl((uintptr_t)shmem->payload);
-	if (status)
-		printf("SCP POWER_STATE_SET failed, status=0x%x\n", status);
+	if (status) {
+		printf("SCP POWER_STATE_SET domain %d failed, status=0x%x (%d)\n",
+		       scmi_parameter.domain_id, status, status);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+/**
+ * scp_cpu_core_get() - Get CPU core state by invoking SCP via SCMI
+ * @core: CPU core to get
+ */
+static int scp_cpu_core_get(const u32 core)
+{
+	struct scp_scmi_shmem *shmem = (struct scp_scmi_shmem *)SCP_SCMI_SHMEM_AREA09;
+	u32 status, pwr;
+	u32 domain_id;	/* Core ID */
+	int ret;
+
+	ret = scp_cpu_core_id_to_domain(core, &domain_id);
+	if (ret)
+		return ret;
+
+	/* Wait for SCP to be free, then set it busy */
+	scp_wait_fw_free();
+	shmem->status &= ~SCP_SCMI_STATUS_FREE;
+	shmem->flags = 0;
+
+	/* Set up the message and copy it to SHMEM */
+	shmem->message_header = SCMI_PD_POWER_STATE_GET;
+	memcpy(shmem->payload, &domain_id, sizeof(domain_id));
+	shmem->length = sizeof(shmem->message_header) + sizeof(domain_id);
+
+	/* Send message to SCP and wait for completion */
+	scp_send_interrupt();
+	scp_wait_fw_free();
+
+	/* Read back the result */
+	status = readl((uintptr_t)shmem->payload);
+	if (status) {
+		printf("SCP POWER_STATE_GET domain %d failed, status=0x%x (%d)\n",
+		       domain_id, status, status);
+		return -EINVAL;
+	}
+
+	pwr = readl((uintptr_t)(shmem->payload + 4));
+	if (pwr == SCMI_PD_POWER_STATE_SET_STATE_ON)
+		return 0;
+	else if (pwr == SCMI_PD_POWER_STATE_SET_STATE_OFF)
+		return 1;
+	else
+		return -EINVAL;
 }
 
 /**
@@ -163,6 +251,42 @@ static int renesas_rsip_rproc_load(struct udevice *dev, ulong addr, ulong size)
 }
 
 /**
+ * renesas_rsip_rproc_init() - Initialize the remote processor
+ * @dev:	corresponding remote processor device
+ *
+ * Return: 0 if all went ok, else corresponding -ve error
+ */
+static int renesas_rsip_rproc_init(struct udevice *dev)
+{
+	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
+	struct reset_ctl *rst = dev_get_priv(dev->parent);
+	u32 addr;
+
+	if (priv->core_id != 0)	/* No init for non-SCP cores */
+		return 0;
+
+	/*
+	 * Put SCP into reset, configure SCP entry point address and systick
+	 * timer, release SCP from reset, and zero out SCP STCM regions.
+	 */
+	reset_assert(rst);
+
+	writel(SCP_STCM, SCP_CFGVECTABLE);
+	writel(SCP_CFGNSSTCALIB_13_3MHZ, SCP_CFGNSSTCALIB);
+	setbits_le32(SCP_CPUWAIT, SCP_CPUWAIT_WAIT);
+
+	reset_deassert(rst);
+
+	/* Fill zero to SCP STCM regions 0 ... 27 */
+	for (addr = SCP_STCM; addr < 0xc1061b00; addr += 8)
+		writeq(0, addr);
+
+	asm volatile("dsb sy");
+
+	return 0;
+}
+
+/**
  * renesas_rsip_rproc_start() - Start the remote processor
  * @dev:	corresponding remote processor device
  *
@@ -171,27 +295,16 @@ static int renesas_rsip_rproc_load(struct udevice *dev, ulong addr, ulong size)
 static int renesas_rsip_rproc_start(struct udevice *dev)
 {
 	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
-	int scmi_core;
 
 	if (priv->core_id == 0) {
 		/* SCP */
 		clrbits_le32(SCP_CPUWAIT, SCP_CPUWAIT_WAIT);
 		return 0;
-	} else if (priv->core_id >= RCAR5_SCP_CORES &&
-		   priv->core_id < RCAR5_SCP_CORES + RCAR5_CR52_CORES) {
-		/* CR52 */
-		scmi_core = priv->core_id - RCAR5_SCP_CORES +
-			    SCMI_PD_CORE_RT_CORE00;
-	} else if (priv->core_id >= RCAR5_SCP_CORES + RCAR5_CR52_CORES &&
-		   priv->core_id < RCAR5_SCP_CORES + RCAR5_CR52_CORES + RCAR5_CA720_CORES) {
-		/* CA720 */
-		scmi_core = priv->core_id - RCAR5_SCP_CORES - RCAR5_CR52_CORES +
-			    SCMI_PD_CORE_AP_CORE00;
+	} else {
+		/* CR52 or CA720 */
+		return scp_cpu_core_set(priv->core_id, priv->ep,
+					SCMI_PD_POWER_STATE_SET_STATE_ON);
 	}
-
-	scp_cpu_core_start(scmi_core, priv->ep);
-
-	return 0;
 }
 
 /**
@@ -204,12 +317,14 @@ static int renesas_rsip_rproc_stop(struct udevice *dev)
 {
 	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
 
-	if (priv->core_id == 0) {	/* SCP */
-		setbits_le32(SCP_CPUWAIT, SCP_CPUWAIT_WAIT);
-		return 0;
+	if (priv->core_id == 0) {
+		/* SCP */
+		return renesas_rsip_rproc_init(dev);
+	} else {
+		/* CR52 or CA720 */
+		return scp_cpu_core_set(priv->core_id, 0,
+					SCMI_PD_POWER_STATE_SET_STATE_OFF);
 	}
-
-	return 0;
 }
 
 /**
@@ -233,19 +348,15 @@ static int renesas_rsip_rproc_reset(struct udevice *dev)
  */
 static int renesas_rsip_rproc_is_running(struct udevice *dev)
 {
-	/* We assume the core is stopped. */
-	return 1;
-}
+	struct renesas_rsip_rproc_privdata *priv = dev_get_priv(dev);
 
-/**
- * renesas_rsip_rproc_init() - Initialize the remote processor
- * @dev:	corresponding remote processor device
- *
- * Return: 0 if all went ok, else corresponding -ve error
- */
-static int renesas_rsip_rproc_init(struct udevice *dev)
-{
-	return 0;
+	if (priv->core_id == 0) {
+		/* SCP */
+		return readl(SCP_CPUWAIT) & SCP_CPUWAIT_WAIT;
+	} else {
+		/* CR52 or CA720 */
+		return scp_cpu_core_get(priv->core_id);
+	}
 }
 
 /**
@@ -295,6 +406,19 @@ U_BOOT_DRIVER(renesas_rsip_core) = {
 	.of_to_plat	= renesas_rsip_rproc_of_to_plat,
 	.priv_auto	= sizeof(struct renesas_rsip_rproc_privdata),
 };
+
+/**
+ * renesas_rsip_rproc_probe() - Common rproc driver probe
+ * @dev:	corresponding remote processor parent device
+ *
+ * Return: 0 if all went ok, else corresponding -ve error
+ */
+static int renesas_rsip_rproc_probe(struct udevice *parent)
+{
+	struct reset_ctl *rst = dev_get_priv(parent);
+
+	return reset_get_by_index(parent, 0, rst);
+}
 
 /**
  * renesas_rsip_rproc_bind() - Bind rproc driver to each core control
@@ -355,4 +479,6 @@ U_BOOT_DRIVER(renesas_rsip_rproc) = {
 	.of_match	= renesas_rsip_rproc_ids,
 	.id		= UCLASS_NOP,
 	.bind		= renesas_rsip_rproc_bind,
+	.probe		= renesas_rsip_rproc_probe,
+	.priv_auto	= sizeof(struct reset_ctl),
 };

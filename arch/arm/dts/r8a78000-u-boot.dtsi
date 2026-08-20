@@ -170,6 +170,14 @@
 		bootph-all;
 	};
 
+	mdlc_scp: system-controller@c1330000 {
+		compatible = "renesas,r8a78000-mdlc";
+		reg = <0 0xc1330000 0 0x1000>;
+		#power-domain-cells = <1>;
+		#reset-cells = <1>;
+		bootph-all;
+	};
+
 	i2c0: i2c@c11d0000 {
 		compatible = "renesas,i2c-r8a78000",
 			     "renesas,rcar-gen5-i2c";
