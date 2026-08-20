@@ -547,8 +547,9 @@ static int axi_mrmac_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	/* Set default MRMAC rate to 10000 */
-	plat->mrmac_rate = dev_read_u32_default(dev, "xlnx,mrmac-rate", 10000);
+	if (dev_read_u32(dev, "max-speed", &plat->mrmac_rate))
+		/* Set default MRMAC rate to 10000 */
+		plat->mrmac_rate = dev_read_u32_default(dev, "xlnx,mrmac-rate", 10000);
 
 	return 0;
 }
