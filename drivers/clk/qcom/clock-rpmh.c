@@ -47,6 +47,7 @@ static struct clk_ops qcom_rpmh_clk_ops = {
 
 static const struct udevice_id qcom_rpmh_clk_ids[] = {
 	{ .compatible = "qcom,sa8775p-rpmh-clk", .data = TCXO_DIV2_RATE },
+	{ .compatible = "qcom,sc7280-rpmh-clk", .data = TCXO_DIV2_RATE },
 	{ .compatible = "qcom,sm8550-rpmh-clk", .data = TCXO_DIV2_RATE },
 	{ .compatible = "qcom,sm8650-rpmh-clk", .data = TCXO_DIV2_RATE },
 	{ }
