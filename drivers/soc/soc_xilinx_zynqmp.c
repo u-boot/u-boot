@@ -13,7 +13,6 @@
 #include <dm/device_compat.h>
 #include <asm/cache.h>
 #include <soc.h>
-#include <zynqmp_firmware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 
@@ -400,22 +399,17 @@ static const struct soc_ops soc_xilinx_zynqmp_ops = {
 static int soc_xilinx_zynqmp_probe(struct udevice *dev)
 {
 	struct soc_xilinx_zynqmp_priv *priv = dev_get_priv(dev);
-	u32 ret_payload[PAYLOAD_ARG_CNT];
+	u32 idcode = 0, version;
 	int ret;
 
-	priv->family = zynqmp_family;
-
-	if (!IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE))
-		ret = zynqmp_mmio_read(ZYNQMP_PS_VERSION, &ret_payload[2]);
-	else
-		ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0,
-					0, 0, ret_payload);
+	ret = xilinx_pm_get_chipid(&idcode, &version);
 	if (ret < 0)
 		return ret;
 
-	priv->revision = ret_payload[2] & ZYNQMP_PS_VER_MASK;
+	priv->family = zynqmp_family;
+	priv->revision = version & ZYNQMP_PS_VER_MASK;
 
-	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
+	if (idcode) {
 		/*
 		 * Firmware returns:
 		 * payload[0][31:0] = status of the operation
@@ -424,9 +418,8 @@ static int soc_xilinx_zynqmp_probe(struct udevice *dev)
 		 * payload[2][28:20] = EXTENDED_IDCODE
 		 * payload[2][29] = PL_INIT
 		 */
-		u32 idcode = ret_payload[1];
-		u32 idcode2 = ret_payload[2] >>
-				   ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
+		u32 idcode2 = version >> ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
+
 		dev_dbg(dev, "IDCODE: 0x%0x, IDCODE2: 0x%0x\n", idcode,
 			idcode2);
 

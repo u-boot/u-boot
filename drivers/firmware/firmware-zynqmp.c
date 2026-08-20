@@ -182,6 +182,23 @@ int zynqmp_pm_reset_assert(const u32 reset,
 				 0, 0, NULL);
 }
 
+int xilinx_pm_get_chipid(u32 *idcode, u32 *version)
+{
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+	int ret;
+
+	ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, 0, 0, ret_payload);
+	if (ret)
+		return ret;
+
+	if (idcode)
+		*idcode = ret_payload[1];
+	if (version)
+		*version = ret_payload[2];
+
+	return 0;
+}
+
 #if defined(CONFIG_ARCH_VERSAL2)
 /*
  * Poll the M-PHY TX/RX config-ready status until it settles or @timeout_us

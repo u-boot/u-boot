@@ -12,6 +12,7 @@
 #include <time.h>
 #include <vsprintf.h>
 #include <wait_bit.h>
+#include <linux/errno.h>
 #include <asm/armv8/mmu.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -309,6 +310,18 @@ bool soc_detection(void)
 	      platform_version / 10, platform_version % 10);
 
 	return true;
+}
+
+__weak int xilinx_pm_get_chipid(u32 *idcode, u32 *version)
+{
+	if (idcode)
+		*idcode = 0;
+
+	*version = readl(PMC_TAP_VERSION);
+	if (!*version)
+		return -EINVAL;
+
+	return 0;
 }
 
 U_BOOT_DRVINFO(soc_amd_versal2) = {

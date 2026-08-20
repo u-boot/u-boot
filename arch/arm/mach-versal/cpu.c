@@ -9,6 +9,7 @@
 #include <init.h>
 #include <log.h>
 #include <time.h>
+#include <linux/errno.h>
 #include <asm/armv8/mmu.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -176,6 +177,18 @@ u8 __weak versal_get_bootmode(void)
 		reg >>= BOOT_MODE_ALT_SHIFT;
 
 	return reg & BOOT_MODES_MASK;
+}
+
+__weak int xilinx_pm_get_chipid(u32 *idcode, u32 *version)
+{
+	if (idcode)
+		*idcode = 0;
+
+	*version = readl(VERSAL_PS_PMC_VERSION);
+	if (!*version)
+		return -EINVAL;
+
+	return 0;
 }
 
 U_BOOT_DRVINFO(soc_xilinx_versal) = {
