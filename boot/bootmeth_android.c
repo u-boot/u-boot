@@ -384,6 +384,14 @@ static int read_slotted_partition(struct blk_desc *desc, const char *const name,
 	if (ret < 0)
 		return log_msg_ret("part", ret);
 
+	/*
+	 * The image size comes from the (untrusted) boot image header, so bound
+	 * the read by the partition size: a valid image cannot be larger than
+	 * the partition holding it.
+	 */
+	if (num_blks > partition.size)
+		return log_msg_ret("image larger than partition", -EFBIG);
+
 	n = blk_dread(desc, partition.start, num_blks, map_sysmem(addr, 0));
 	if (n < num_blks)
 		return log_msg_ret("part read", -EIO);
