@@ -37,6 +37,7 @@ struct axi_mrmac_priv {
 	struct mcdma_bd *tx_bd[TX_DESC];
 	struct mcdma_bd *rx_bd[RX_DESC];
 	u8 *txminframe;		/* Pointer to hold min length Tx frame(60) */
+	u8 *rx_buf;		/* Driver-owned RX buffer pool (RX_DESC * PKTSIZE_ALIGN) */
 	u32 mrmac_rate;		/* Speed to configure(Read from DT 10G/25G..) */
 };
 

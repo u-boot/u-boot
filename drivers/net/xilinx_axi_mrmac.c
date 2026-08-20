@@ -185,17 +185,17 @@ static int axi_mrmac_start(struct udevice *dev)
 	memset(priv->rx_bd[0], 0, RX_BD_TOTAL_SIZE);
 
 	priv->rx_bd[0]->next_desc = lower_32_bits((u64)priv->rx_bd[1]);
-	priv->rx_bd[0]->buf_addr = lower_32_bits((u64)net_rx_packets[0]);
+	priv->rx_bd[0]->buf_addr = lower_32_bits((u64)priv->rx_buf);
 
 	priv->rx_bd[1]->next_desc = lower_32_bits((u64)priv->rx_bd[0]);
-	priv->rx_bd[1]->buf_addr = lower_32_bits((u64)net_rx_packets[1]);
+	priv->rx_bd[1]->buf_addr = lower_32_bits((u64)priv->rx_buf + PKTSIZE_ALIGN);
 
 	if (IS_ENABLED(CONFIG_PHYS_64BIT)) {
 		priv->rx_bd[0]->next_desc_msb = upper_32_bits((u64)priv->rx_bd[1]);
-		priv->rx_bd[0]->buf_addr_msb = upper_32_bits((u64)net_rx_packets[0]);
+		priv->rx_bd[0]->buf_addr_msb = upper_32_bits((u64)priv->rx_buf);
 
 		priv->rx_bd[1]->next_desc_msb = upper_32_bits((u64)priv->rx_bd[0]);
-		priv->rx_bd[1]->buf_addr_msb = upper_32_bits((u64)net_rx_packets[1]);
+		priv->rx_bd[1]->buf_addr_msb = upper_32_bits((u64)priv->rx_buf + PKTSIZE_ALIGN);
 	}
 
 	priv->rx_bd[0]->cntrl = PKTSIZE_ALIGN;
@@ -207,7 +207,7 @@ static int axi_mrmac_start(struct udevice *dev)
 	/* It is necessary to flush rx buffers because if you don't do it
 	 * then cache can contain uninitialized data
 	 */
-	flush_cache((phys_addr_t)priv->rx_bd[0]->buf_addr, RX_BUFF_TOTAL_SIZE);
+	flush_cache((phys_addr_t)priv->rx_buf, RX_BUFF_TOTAL_SIZE);
 
 	/* Start the hardware */
 	setbits_le32(&priv->s2mm_cmn->control, XMCDMA_CR_RUNSTOP_MASK);
@@ -413,7 +413,7 @@ static int axi_mrmac_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 #ifdef DEBUG
 	/* It is useful to clear buffer to be sure that it is consistent */
-	memset(priv->rx_bd[0]->buf_addr, 0, RX_BUFF_TOTAL_SIZE);
+	memset(priv->rx_buf, 0, RX_BUFF_TOTAL_SIZE);
 #endif
 	/* Disable all Rx interrupts before RxBD space setup */
 	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
@@ -430,7 +430,7 @@ static int axi_mrmac_free_pkt(struct udevice *dev, uchar *packet, int length)
 	/* It is necessary to flush rx buffers because if you don't do it
 	 * then cache will contain previous packet
 	 */
-	flush_cache((phys_addr_t)priv->rx_bd[0]->buf_addr, RX_BUFF_TOTAL_SIZE);
+	flush_cache((phys_addr_t)priv->rx_buf, RX_BUFF_TOTAL_SIZE);
 
 	/* Enable all IRQ */
 	setbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
@@ -495,6 +495,15 @@ static int axi_mrmac_probe(struct udevice *dev)
 	priv->rx_bd[1] = (struct mcdma_bd *)((ulong)priv->rx_bd[0] +
 					     sizeof(struct mcdma_bd));
 
+	/*
+	 * Use a driver-owned RX buffer pool rather than the shared
+	 * net_rx_packets[] global, which is capped at PKTBUFSRX system-wide
+	 * and not private to this device.
+	 */
+	priv->rx_buf = memalign(ARCH_DMA_MINALIGN, RX_BUFF_TOTAL_SIZE);
+	if (!priv->rx_buf)
+		return -ENOMEM;
+
 	priv->txminframe = memalign(ARCH_DMA_MINALIGN, MIN_PKT_SIZE);
 	if (!priv->txminframe)
 		return -ENOMEM;
@@ -509,6 +518,7 @@ static int axi_mrmac_remove(struct udevice *dev)
 	/* Free buffer descriptors */
 	free(priv->tx_bd[0]);
 	free(priv->rx_bd[0]);
+	free(priv->rx_buf);
 	free(priv->txminframe);
 
 	return 0;
