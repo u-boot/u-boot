@@ -202,6 +202,8 @@ static int axi_mrmac_start(struct udevice *dev)
 		bd->cntrl = PKTSIZE_ALIGN;
 	}
 
+	priv->rx_bd_idx = 0;
+
 	/* Flush the BDs so DMA core could see the updates */
 	flush_cache((phys_addr_t)priv->rx_bd, RX_BD_TOTAL_SIZE);
 
@@ -326,26 +328,6 @@ static int axi_mrmac_send(struct udevice *dev, void *ptr, int len)
 	return 0;
 }
 
-static bool isrxready(struct axi_mrmac_priv *priv)
-{
-	u32 status;
-
-	/* Read pending interrupts */
-	status = readl(&priv->mcdma_rx->status);
-
-	/* Acknowledge pending interrupts */
-	writel(status & XMCDMA_IRQ_ALL_MASK, &priv->mcdma_rx->status);
-
-	/*
-	 * If Reception done interrupt is asserted, call Rx call back function
-	 * to handle the processed BDs and then raise the according flag.
-	 */
-	if (status & (XMCDMA_IRQ_IOC_MASK | XMCDMA_IRQ_DELAY_MASK))
-		return 1;
-
-	return 0;
-}
-
 /**
  * axi_mrmac_recv - MRMAC Rx function
  * @dev:	udevice structure
@@ -354,47 +336,62 @@ static bool isrxready(struct axi_mrmac_priv *priv)
  *
  * Return:	received data length on success, negative value on errors
  *
- * This is a Rx function of MRMAC. Check if any data is received on MCDMA.
- * Copy buffer pointer to packetp and return received data length.
+ * This is a Rx function of MRMAC. Check whether the descriptor that
+ * rx_bd_idx points at has been completed by the DMA engine, and if so copy
+ * its buffer pointer to packetp and return the received data length. The
+ * descriptor stays owned by the driver until axi_mrmac_free_pkt() gives it
+ * back to hardware.
+ *
+ * A completed descriptor with no length, or one flagged with an error, holds
+ * no frame for the network stack. Report an empty packet for it, so that the
+ * caller recycles the descriptor through axi_mrmac_free_pkt().
  */
 static int axi_mrmac_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
-	u32 rx_bd_end;
+	struct mcdma_bd *bd;
+	uchar *buf;
 	u32 length;
 
+	bd = &priv->rx_bd[priv->rx_bd_idx];
+
+	/* Invalidate the descriptor to see the status written by DMA */
+	invalidate_dcache_range((phys_addr_t)bd,
+				(phys_addr_t)bd + roundup(sizeof(*bd),
+							  ARCH_DMA_MINALIGN));
+
 	/* Wait for an incoming packet */
-	if (!isrxready(priv))
+	if (!(bd->status & XMCDMA_BD_STS_COMPLETE))
 		return -EAGAIN;
 
-	/* Clear all interrupts */
-	writel(XMCDMA_IRQ_ALL_MASK, &priv->mcdma_rx->status);
-
-	/* Disable IRQ for a moment till packet is handled */
-	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
-
-	/* Disable channel fetch */
-	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
-
-	rx_bd_end = (ulong)priv->rx_bd + roundup(RX_BD_TOTAL_SIZE,
-						 ARCH_DMA_MINALIGN);
-	/* Invalidate Rx descriptors to see proper Rx length */
-	invalidate_dcache_range((phys_addr_t)priv->rx_bd, rx_bd_end);
-
-	length = priv->rx_bd[0].status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
-	*packetp = (uchar *)(ulong)priv->rx_bd[0].buf_addr;
-
-	if (!length) {
-		length = priv->rx_bd[1].status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
-		*packetp = (uchar *)(ulong)priv->rx_bd[1].buf_addr;
+	/*
+	 * A completed descriptor with an error, or with no data in it, holds
+	 * no frame to pass up. Report an empty packet so that the caller
+	 * recycles the descriptor through free_pkt() and moves on.
+	 */
+	if (bd->status & XMCDMA_BD_STS_ALL_ERR) {
+		*packetp = NULL;
+		return 0;
 	}
+
+	length = bd->status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
+	if (!length) {
+		*packetp = NULL;
+		return 0;
+	}
+
+	buf = (uchar *)(ulong)(((u64)bd->buf_addr_msb << 32) | bd->buf_addr);
+
+	/* Invalidate the buffer before the network stack reads it */
+	invalidate_dcache_range((phys_addr_t)buf,
+				(phys_addr_t)buf + roundup(PKTSIZE_ALIGN,
+							   ARCH_DMA_MINALIGN));
+
+	*packetp = buf;
 
 #ifdef DEBUG
 	print_buffer(*packetp, *packetp, 1, length, 16);
 #endif
-	/* Clear status */
-	priv->rx_bd[0].status = 0;
-	priv->rx_bd[1].status = 0;
 
 	return length;
 }
@@ -407,43 +404,34 @@ static int axi_mrmac_recv(struct udevice *dev, int flags, uchar **packetp)
  *
  * Return:	0 on success, negative value on errors
  *
- * This is Rx free packet function of MRMAC. Prepare MRMAC for reception of
- * data again. Invalidate previous data from Rx buffers and set Rx buffer
- * descriptors. Trigger reception by updating tail descriptor.
+ * This is Rx free packet function of MRMAC. The caller is done with the
+ * descriptor that axi_mrmac_recv() looked at, so give that one descriptor
+ * back to hardware by extending the tail pointer to it. The channel is
+ * never stopped, so nothing else has to be touched: no halt, no current
+ * descriptor rewrite and no re-arming of the whole ring.
  */
 static int axi_mrmac_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
+	struct mcdma_bd *bd = &priv->rx_bd[priv->rx_bd_idx];
 
 #ifdef DEBUG
 	/* It is useful to clear buffer to be sure that it is consistent */
 	memset(priv->rx_buf, 0, RX_BUFF_TOTAL_SIZE);
 #endif
-	/* Disable all Rx interrupts before RxBD space setup */
-	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
-
-	/* Disable channel fetch */
-	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
-
-	/* Update current descriptor */
-	axi_mrmac_dma_write(&priv->rx_bd[0], &priv->mcdma_rx->current);
-
-	/* Write bd to HW */
-	flush_cache((phys_addr_t)priv->rx_bd, RX_BD_TOTAL_SIZE);
-
-	/* It is necessary to flush rx buffers because if you don't do it
-	 * then cache will contain previous packet
+	/*
+	 * Clear the status written by the DMA engine, restore the buffer
+	 * length, flush the descriptor and extend the tail pointer to it so
+	 * the engine may reuse this slot.
 	 */
-	flush_cache((phys_addr_t)priv->rx_buf, RX_BUFF_TOTAL_SIZE);
+	bd->status = 0;
+	bd->cntrl = PKTSIZE_ALIGN;
 
-	/* Enable all IRQ */
-	setbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
+	flush_cache((phys_addr_t)bd, roundup(sizeof(*bd), ARCH_DMA_MINALIGN));
 
-	/* Channel fetch */
-	setbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
+	axi_mrmac_dma_write(bd, &priv->mcdma_rx->tail);
 
-	/* Update tail descriptor. Now it's ready to receive data */
-	axi_mrmac_dma_write(&priv->rx_bd[1], &priv->mcdma_rx->tail);
+	priv->rx_bd_idx = (priv->rx_bd_idx + 1) % RX_DESC;
 
 	log_debug("Rx completed, framelength = %x\n", length);
 
