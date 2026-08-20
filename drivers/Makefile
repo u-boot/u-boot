@@ -32,6 +32,7 @@ obj-$(CONFIG_$(PHASE_)PHY) += phy/
 obj-$(CONFIG_$(PHASE_)PINCTRL) += pinctrl/
 obj-$(CONFIG_$(PHASE_)POWER) += power/
 obj-$(CONFIG_$(PHASE_)RAM) += ram/
+obj-$(CONFIG_$(PHASE_)DM_RNG) += rng/
 obj-$(CONFIG_$(PHASE_)RTC) += rtc/
 obj-$(CONFIG_$(PHASE_)SERIAL) += serial/
 obj-$(CONFIG_$(PHASE_)SPI) += spi/
@@ -132,7 +133,6 @@ obj-$(CONFIG_W1_EEPROM) += w1-eeprom/
 obj-$(CONFIG_MACH_PIC32) += ddr/microchip/
 obj-$(CONFIG_FUZZ) += fuzz/
 obj-$(CONFIG_DM_HWSPINLOCK) += hwspinlock/
-obj-$(CONFIG_$(PHASE_)DM_RNG) += rng/
 endif
 
 obj-y += soc/
