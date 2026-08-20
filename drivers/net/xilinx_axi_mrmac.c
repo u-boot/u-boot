@@ -179,9 +179,6 @@ static int axi_mrmac_start(struct udevice *dev)
 	/* Disable all Rx interrupts before RxBD space setup */
 	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
 
-	/* Update current descriptor */
-	axi_mrmac_dma_write(&priv->rx_bd[0], &priv->mcdma_rx->current);
-
 	/*
 	 * Setup Rx BDs as a closed ring: every descriptor points at the next
 	 * one and the last one wraps back to the first, each with its own
@@ -212,6 +209,9 @@ static int axi_mrmac_start(struct udevice *dev)
 	 * then cache can contain uninitialized data
 	 */
 	flush_cache((phys_addr_t)priv->rx_buf, RX_BUFF_TOTAL_SIZE);
+
+	/* Update current descriptor once the ring is built and flushed */
+	axi_mrmac_dma_write(&priv->rx_bd[0], &priv->mcdma_rx->current);
 
 	/* Start the hardware */
 	setbits_le32(&priv->s2mm_cmn->control, XMCDMA_CR_RUNSTOP_MASK);
