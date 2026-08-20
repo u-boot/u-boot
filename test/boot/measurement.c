@@ -9,9 +9,9 @@
 #include <bootm.h>
 #include <env.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <test/test.h>
 #include <test/ut.h>
-#include <asm/io.h>
 
 #define MEASUREMENT_TEST(_name, _flags)	\
 	UNIT_TEST(_name, _flags, measurement)
