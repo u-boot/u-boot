@@ -881,6 +881,7 @@ config AVB_VERIFY
 	depends on MMC
 	depends on PARTITION_UUIDS
 	depends on FASTBOOT
+	select SHA256
 	help
 	  This option enables compilation of bootloader-dependent operations,
 	  used by Android Verified Boot 2.0 library (libavb). Includes:
@@ -903,6 +904,55 @@ config AVB_BUF_SIZE
 	help
 	  AVB requires a buffer for memory transactions. This variable defines the
 	  buffer size.
+
+choice
+	prompt "Source of the trusted AVB root public key"
+	default AVB_ROOT_KEY_BUILTIN
+	help
+	  Selects where validate_vbmeta_public_key() obtains the trusted root
+	  key digest that the vbmeta signing key is compared against. This is
+	  the root of trust for the whole AVB chain.
+
+config AVB_ROOT_KEY_BUILTIN
+	bool "Built-in key hard-coded in avb_verify.c"
+	help
+	  Use the avb_root_pub[] blob compiled into U-Boot. By default this is
+	  the AVB reference/test key and is intended for development only;
+	  replace the blob for production use.
+
+config AVB_ROOT_KEY_TEE
+	bool "Read root key digest from OP-TEE"
+	depends on OPTEE_TA_AVB
+	help
+	  Obtain the SHA-256 digest of the trusted root key from OP-TEE secure
+	  storage, read as a named persistent value ("avb.root_pub_digest").
+	  The digest must be provisioned into the TEE beforehand. Integrity is
+	  provided by the TEE's (RPMB-backed) storage.
+
+config AVB_ROOT_KEY_BOARD
+	bool "SoC/board specific provider (weak function)"
+	help
+	  Obtain the trusted root key digest from a board/SoC specific strong
+	  definition of avb_read_root_key_digest() (for example reading a hash
+	  fused into OTP/eFuse). The default weak implementation fails closed,
+	  so a board that forgets to override it will refuse verification
+	  rather than silently trust a wrong key.
+
+endchoice
+
+config AVB_ROOT_KEY_TEE_NAME
+	string "TEE persistent-value name holding the root key digest"
+	depends on AVB_ROOT_KEY_TEE
+	default "avb.root_pub_digest"
+	help
+	  Named persistent value read from the OP-TEE AVB TA (via
+	  TA_AVB_CMD_READ_PERSIST_VALUE) that stores the 32-byte SHA-256 digest
+	  of the trusted root key. It must match the name used to provision the
+	  digest into the TEE. The TA prefixes stored names with "named_value_"
+	  internally, so this string is opaque to the TA; the "avb." prefix only
+	  follows libavb's named-persistent-value convention and does not collide
+	  with libavb's own reserved names (avb.persistent_digest.*,
+	  avb.managed_verity_mode).
 
 endif # AVB_VERIFY
 
