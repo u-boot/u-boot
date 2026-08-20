@@ -339,6 +339,11 @@ __weak u32 zynqmp_pm_get_pmc_tap_usercode(void)
 	return readl(PMC_TAP_USERCODE);
 }
 
+__weak u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr)
+{
+	return readl((ulong)reg_addr);
+}
+
 U_BOOT_DRVINFO(soc_amd_versal2) = {
 	.name = "soc_amd_versal2",
 };

@@ -191,6 +191,11 @@ __weak int xilinx_pm_get_chipid(u32 *idcode, u32 *version)
 	return 0;
 }
 
+__weak u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr)
+{
+	return readl((ulong)reg_addr);
+}
+
 U_BOOT_DRVINFO(soc_xilinx_versal) = {
 	.name = "soc_xilinx_versal",
 };

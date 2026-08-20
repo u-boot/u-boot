@@ -27,6 +27,8 @@ int xilinx_pm_get_chipid(u32 *idcode, u32 *version);
 u32 zynqmp_pm_get_pmc_tap_idcode(void);
 u32 zynqmp_pm_get_pmc_tap_version(void);
 u32 zynqmp_pm_get_pmc_tap_usercode(void);
+/* Overridable PMC GLOBAL PGGS register accessor: weak MMIO default, firmware override */
+u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr);
 
 int zynqmp_pm_wait_mphy_tx_rx_config_ready(u32 timeout_us);
 int zynqmp_pm_wait_sram_init_done(u32 timeout_us);
