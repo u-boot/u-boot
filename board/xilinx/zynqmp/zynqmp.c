@@ -288,13 +288,12 @@ void reset_cpu(void)
 		return;
 	}
 
-	/* In case of !CONFIG_ZYNQMP_FIRMWARE the call to 'xilinx_pm_request()'
+	/* In case of !CONFIG_ZYNQMP_FIRMWARE the call to 'zynqmp_pm_reset_assert()'
 	 * will be removed by the compiler due to the early return.
-	 * If CONFIG_ZYNQMP_FIRMWARE is defined in SPL 'xilinx_pm_request()'
+	 * If CONFIG_ZYNQMP_FIRMWARE is defined in SPL 'zynqmp_pm_reset_assert()'
 	 * will send command over IPI and requires pmufw to be present.
 	 */
-	xilinx_pm_request(PM_RESET_ASSERT, ZYNQMP_PM_RESET_SOFT,
-			  PM_RESET_ACTION_ASSERT, 0, 0, 0, 0, NULL);
+	zynqmp_pm_reset_assert(ZYNQMP_PM_RESET_SOFT, PM_RESET_ACTION_ASSERT);
 }
 #endif
 
