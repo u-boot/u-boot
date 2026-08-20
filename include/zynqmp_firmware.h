@@ -463,6 +463,8 @@ int zynqmp_pm_set_gem_config(u32 node, enum pm_gem_config_type config,
 int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id);
 int zynqmp_mmio_read(const u32 address, u32 *value);
 int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value);
+int zynqmp_pm_reset_assert(const u32 reset,
+			   const enum zynqmp_pm_reset_action assert_flag);
 int zynqmp_pm_feature(const u32 api_id);
 u32 zynqmp_pm_get_bootmode_reg(void);
 u32 zynqmp_pm_get_pmc_multi_boot_reg(void);

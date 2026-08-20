@@ -175,6 +175,13 @@ unsigned int zynqmp_firmware_version(void)
 	return pm_api_version;
 };
 
+int zynqmp_pm_reset_assert(const u32 reset,
+			   const enum zynqmp_pm_reset_action assert_flag)
+{
+	return xilinx_pm_request(PM_RESET_ASSERT, reset, assert_flag, 0, 0,
+				 0, 0, NULL);
+}
+
 #if defined(CONFIG_ARCH_VERSAL2)
 /*
  * Poll the M-PHY TX/RX config-ready status until it settles or @timeout_us
