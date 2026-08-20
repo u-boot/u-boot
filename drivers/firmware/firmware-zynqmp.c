@@ -517,6 +517,46 @@ u32 versal2_pmc_multi_boot(void)
 }
 #endif
 
+#if defined(CONFIG_ARCH_VERSAL_NET) || defined(CONFIG_ARCH_VERSAL2)
+static u32 zynqmp_pm_get_pmc_tap_reg(u32 offset)
+{
+	int ret;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_READ_REG);
+	if (ret) {
+		printf("%s: IOCTL_READ_REG is not supported failed with error code: %d\n"
+		       , __func__, ret);
+		return 0;
+	}
+
+	ret = xilinx_pm_request(PM_IOCTL, PM_REGNODE_PMC_TAP, IOCTL_READ_REG,
+				offset, 0, 0, 0, ret_payload);
+	if (ret) {
+		printf("%s: node 0x%x: pmc_tap offset 0x%x failed\n",
+		       __func__, PM_REGNODE_PMC_TAP, offset);
+		return 0;
+	}
+
+	return ret_payload[1];
+}
+
+u32 zynqmp_pm_get_pmc_tap_idcode(void)
+{
+	return zynqmp_pm_get_pmc_tap_reg(PMC_TAP_IDCODE_OFFSET);
+}
+
+u32 zynqmp_pm_get_pmc_tap_version(void)
+{
+	return zynqmp_pm_get_pmc_tap_reg(PMC_TAP_VERSION_OFFSET);
+}
+
+u32 zynqmp_pm_get_pmc_tap_usercode(void)
+{
+	return zynqmp_pm_get_pmc_tap_reg(PMC_TAP_USERCODE_OFFSET);
+}
+#endif
+
 int zynqmp_pm_feature(const u32 api_id)
 {
 	int ret;

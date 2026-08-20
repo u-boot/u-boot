@@ -23,6 +23,10 @@ u8 versal2_get_bootmode(void);
 void versal2_timer_setup(void);
 /* Overridable chip ID accessor: weak MMIO default, firmware override */
 int xilinx_pm_get_chipid(u32 *idcode, u32 *version);
+/* Overridable PMC TAP register accessors: weak MMIO default, firmware override */
+u32 zynqmp_pm_get_pmc_tap_idcode(void);
+u32 zynqmp_pm_get_pmc_tap_version(void);
+u32 zynqmp_pm_get_pmc_tap_usercode(void);
 
 int zynqmp_pm_wait_mphy_tx_rx_config_ready(u32 timeout_us);
 int zynqmp_pm_wait_sram_init_done(u32 timeout_us);
