@@ -719,6 +719,17 @@ static int omap_read_page_bch(struct mtd_info *mtd, struct nand_chip *chip,
 	uint32_t oob_pos;
 	u32 data_pos = 0;
 
+	/*
+	 * Read the full OOB first so that non-ECC bytes (bad-block markers
+	 * and the free area where JFFS2 cleanmarkers are stored) are filled
+	 * into chip->oob_poi from the physical device.  The ECC loop below
+	 * will overwrite the ECC positions with the same hardware-read values.
+	 */
+	if (oob_required) {
+		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, mtd->writesize, -1);
+		chip->read_buf(mtd, chip->oob_poi, mtd->oobsize);
+	}
+
 	/* oob area start */
 	oob_pos = (eccsize * eccsteps) + chip->ecc.layout->eccpos[0];
 	oob += chip->ecc.layout->eccpos[0];
