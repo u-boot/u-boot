@@ -999,7 +999,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		for (i = 0; i < ecclayout->eccbytes; i++)
 			ecclayout->eccpos[i] = i + BADBLOCK_MARKER_LENGTH;
 		ecclayout->oobfree[0].offset = i + BADBLOCK_MARKER_LENGTH;
-		ecclayout->oobfree[0].length = oobsize - nand->ecc.bytes -
+		ecclayout->oobfree[0].length = oobsize - ecclayout->eccbytes -
 						BADBLOCK_MARKER_LENGTH;
 		break;
 #else
