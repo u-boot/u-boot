@@ -78,10 +78,6 @@
 	bootph-all;
 };
 
-&prr {
-	bootph-all;
-};
-
 &soc {
 	bootph-all;
 
