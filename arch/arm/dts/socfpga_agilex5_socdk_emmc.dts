@@ -25,6 +25,7 @@
 	disable-wp;
 	non-removable;
 	cap-mmc-highspeed;
+	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
 	mmc-hs400-1_8v;
 	bus-width = <8>;
@@ -71,4 +72,16 @@
 	cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-hs400 = <0x80000>;
 	cdns,ctrl-hrs16-slave-ctrl-emmc-hs400 = <0x11000001>;
 	cdns,ctrl-hrs07-timing-delay-emmc-hs400 = <0x90001>;
+
+	/* SD card UHS-I DDR50 mode & eMMC DDR52 mode timing configuration */
+	cdns,phy-dqs-timing-delay-emmc-ddr = <0x00580000>;
+	cdns,phy-gate-lpbk-ctrl-delay-emmc-ddr = <0x81a40040>;
+	cdns,phy-dll-master-ctrl-emmc-ddr = <0xa00004>;
+	cdns,phy-dll-slave-ctrl-emmc-ddr = <0x60>;
+	cdns,phy-ctrl-emmc-ddr = <0x4010>;
+	cdns,phy-dq-timing-delay-emmc-ddr = <0x10000001>;
+	cdns,ctrl-hrs09-timing-delay-emmc-ddr = <0xf1c1800f>;
+	cdns,ctrl-hrs10-lpbk-ctrl-delay-emmc-ddr = <0x00020000>;
+	cdns,ctrl-hrs16-slave-ctrl-emmc-ddr = <0x11000000>;
+	cdns,ctrl-hrs07-timing-delay-emmc-ddr = <0x00090001>;
 };

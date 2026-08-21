@@ -1,0 +1,9 @@
+#include <configs/socfpga_agilex5_defconfig>
+
+CONFIG_DEFAULT_DEVICE_TREE="socfpga_agilex5_socdk_modular"
+CONFIG_SPL_DM_REGULATOR_GPIO=y
+CONFIG_DM_REGULATOR_GPIO=y
+CONFIG_SPL_SYS_I2C_DW=y
+CONFIG_SPL_I2C=y
+CONFIG_SPL_DM_PCA953X=y
+CONFIG_DM_PCA953X=y
