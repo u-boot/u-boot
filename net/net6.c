@@ -392,11 +392,19 @@ int net_ip6_handler(struct ethernet_hdr *et, struct ip6_hdr *ip6, int len)
 	if (ip6->version != 6)
 		return -EINVAL;
 
+	hlen = ntohs(ip6->payload_len);
+
+	if (len < IP6_HDR_SIZE + hlen)
+		return -EINVAL;
+	len = IP6_HDR_SIZE + hlen;
+
 	switch (ip6->nexthdr) {
 	case PROT_ICMPV6:
+		if (hlen < sizeof(struct icmp6hdr))
+			return -EINVAL;
+
 		icmp = (struct icmp6hdr *)(((uchar *)ip6) + IP6_HDR_SIZE);
 		csum = icmp->icmp6_cksum;
-		hlen = ntohs(ip6->payload_len);
 		icmp->icmp6_cksum = 0;
 		/* checksum */
 		csum_p = csum_partial((u8 *)icmp, hlen, 0);
@@ -421,9 +429,15 @@ int net_ip6_handler(struct ethernet_hdr *et, struct ip6_hdr *ip6, int len)
 		}
 		break;
 	case IPPROTO_UDP:
+		if (hlen < UDP_HDR_SIZE)
+			return -EINVAL;
+
 		udp = (struct udp_hdr *)(((uchar *)ip6) + IP6_HDR_SIZE);
+		if (ntohs(udp->udp_len) < UDP_HDR_SIZE ||
+		    ntohs(udp->udp_len) > hlen)
+			return -EINVAL;
+
 		csum = udp->udp_xsum;
-		hlen = ntohs(ip6->payload_len);
 		udp->udp_xsum = 0;
 		/* checksum */
 		csum_p = csum_partial((u8 *)udp, hlen, 0);
