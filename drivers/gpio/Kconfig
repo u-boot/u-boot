@@ -450,12 +450,13 @@ config SANDBOX_GPIO_COUNT
 	  Select a suitable value depending on your needs.
 
 config SPACEMIT_GPIO
-	bool "Spacemit K1 GPIO driver"
-	depends on DM_GPIO && TARGET_SPACEMIT_K1
+	bool "Spacemit K1/K3 GPIO driver"
+	depends on DM_GPIO && (TARGET_SPACEMIT_K1 || TARGET_SPACEMIT_K3)
 	help
-	  Support the GPIO device in Spacemit SoCs. The GPIOs are arranged
-	  into a number of banks (different for each SoC type) each with 32
-	  GPIOs.
+	  Support the GPIO device in Spacemit K1 and K3 SoCs. The GPIOs are
+	  arranged into a number of banks (different for each SoC type) each
+	  with 32 GPIOs.
+
 
 config SUNXI_GPIO
 	bool "Allwinner GPIO driver"

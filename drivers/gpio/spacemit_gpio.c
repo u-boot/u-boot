@@ -19,37 +19,28 @@
 #define GPIO_TO_BANK(pin)	((pin) / GPIO_BANK_SIZE)
 #define GPIO_TO_BIT(pin)	((pin) % GPIO_BANK_SIZE)
 
-static inline int gpio_to_reg_offset(unsigned int pin)
-{
-	unsigned int bank = GPIO_TO_BANK(pin);
+#define to_spacemit_gpio_regs(priv, reg)	((priv)->data->offsets[reg])
 
-	if (bank == 0)
-		return 0;
-	else if (bank == 1)
-		return 4;
-	else if (bank == 2)
-		return 8;
-	else if (bank == 3)
-		return 0x100;
-	log_warning("Use default GPIO bank for an invalid GPIO[%d].\n", pin);
-	return 0;
-}
-
-#define REG_PLR(pin)		(0x00 + gpio_to_reg_offset(pin))
-#define REG_PDR(pin)		(0x0c + gpio_to_reg_offset(pin))
-#define REG_PSR(pin)		(0x18 + gpio_to_reg_offset(pin))
-#define REG_PCR(pin)		(0x24 + gpio_to_reg_offset(pin))
-#define REG_SDR(pin)		(0x54 + gpio_to_reg_offset(pin))
-#define REG_CDR(pin)		(0x60 + gpio_to_reg_offset(pin))
+enum spacemit_gpio_registers {
+	SPACEMIT_GPLR,
+	SPACEMIT_GPDR,
+	SPACEMIT_GPSR,
+	SPACEMIT_GPCR,
+	SPACEMIT_GSDR,
+	SPACEMIT_GCDR,
+};
 
 struct spacemit_gpio_data {
 	u16	gpio_base;
 	u16	gpio_count;
 	u8	num_banks;
+	const u16	*bank_offsets;
+	const u16	*offsets;
 };
 
 struct spacemit_gpio_priv {
 	void __iomem *regs;
+	const struct spacemit_gpio_data *data;
 };
 
 static int spacemit_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
@@ -85,10 +76,12 @@ static int spacemit_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 static int spacemit_gpio_get_value(struct udevice *dev, unsigned int offset)
 {
 	struct spacemit_gpio_priv *priv = dev_get_priv(dev);
-	void __iomem *addr;
+	void __iomem *base, *addr;
 	u32 value, mask;
 
-	addr = priv->regs + REG_PLR(offset);
+	base = priv->regs + priv->data->bank_offsets[GPIO_TO_BANK(offset)];
+
+	addr = base + to_spacemit_gpio_regs(priv, SPACEMIT_GPLR);
 	value = readl(addr);
 	mask = 1 << GPIO_TO_BIT(offset);
 	return !!(value & mask);
@@ -97,10 +90,12 @@ static int spacemit_gpio_get_value(struct udevice *dev, unsigned int offset)
 static int spacemit_gpio_get_function(struct udevice *dev, unsigned int offset)
 {
 	struct spacemit_gpio_priv *priv = dev_get_priv(dev);
-	void __iomem *addr;
+	void __iomem *base, *addr;
 	u32 value, mask;
 
-	addr = priv->regs + REG_PDR(offset);
+	base = priv->regs + priv->data->bank_offsets[GPIO_TO_BANK(offset)];
+
+	addr = base + to_spacemit_gpio_regs(priv, SPACEMIT_GPDR);
 	value = readl(addr);
 	mask = 1 << GPIO_TO_BIT(offset);
 	if (value & mask)
@@ -130,23 +125,25 @@ static int spacemit_gpio_set_flags(struct udevice *dev, unsigned int offset,
 				   ulong flags)
 {
 	struct spacemit_gpio_priv *priv = dev_get_priv(dev);
-	void __iomem *addr;
+	void __iomem *base, *addr;
 	int value;
+
+	base = priv->regs + priv->data->bank_offsets[GPIO_TO_BANK(offset)];
 
 	value = (flags & GPIOD_IS_OUT_ACTIVE) ? 1 : 0;
 	if (flags & GPIOD_IS_IN) {
-		addr = priv->regs + REG_CDR(offset);
+		addr = base + to_spacemit_gpio_regs(priv, SPACEMIT_GCDR);
 		writel(1 << GPIO_TO_BIT(offset), addr);
 	}
 	if (flags & GPIOD_IS_OUT) {
 		if (value) {
-			addr = priv->regs + REG_PSR(offset);
+			addr = base + to_spacemit_gpio_regs(priv, SPACEMIT_GPSR);
 			writel(1 << GPIO_TO_BIT(offset), addr);
 		} else {
-			addr = priv->regs + REG_PCR(offset);
+			addr = base + to_spacemit_gpio_regs(priv, SPACEMIT_GPCR);
 			writel(1 << GPIO_TO_BIT(offset), addr);
 		}
-		addr = priv->regs + REG_SDR(offset);
+		addr = base + to_spacemit_gpio_regs(priv, SPACEMIT_GSDR);
 		writel(1 << GPIO_TO_BIT(offset), addr);
 	}
 	return 0;
@@ -207,6 +204,7 @@ static int spacemit_gpio_probe(struct udevice *dev)
 
 	data = (struct spacemit_gpio_data *)dev_get_driver_data(dev);
 	priv = dev_get_priv(dev);
+	priv->data = data;
 	priv->regs = dev_read_addr_ptr(dev);
 	if (!priv->regs) {
 		dev_err(dev, "Fail to get base address\n");
@@ -232,14 +230,51 @@ out:
 	return ret;
 }
 
+static const u16 spacemit_gpio_k1_offsets[] = {
+	[SPACEMIT_GPLR] = 0x00,
+	[SPACEMIT_GPDR] = 0x0c,
+	[SPACEMIT_GPSR] = 0x18,
+	[SPACEMIT_GPCR] = 0x24,
+	[SPACEMIT_GSDR] = 0x54,
+	[SPACEMIT_GCDR] = 0x60,
+};
+
+static const u16 spacemit_gpio_k1_bank_offsets[] = {
+	0x0, 0x4, 0x8, 0x100,
+};
+
+static const u16 spacemit_gpio_k3_offsets[] = {
+	[SPACEMIT_GPLR] = 0x00,
+	[SPACEMIT_GPDR] = 0x04,
+	[SPACEMIT_GPSR] = 0x08,
+	[SPACEMIT_GPCR] = 0x0c,
+	[SPACEMIT_GSDR] = 0x1c,
+	[SPACEMIT_GCDR] = 0x20,
+};
+
+static const u16 spacemit_gpio_k3_bank_offsets[] = {
+	0x0, 0x40, 0x80, 0x100,
+};
+
 static const struct spacemit_gpio_data k1_gpio_data = {
 	.num_banks	= 4,
 	.gpio_count	= 128,
 	.gpio_base	= 0,
+	.bank_offsets	= spacemit_gpio_k1_bank_offsets,
+	.offsets	= spacemit_gpio_k1_offsets,
+};
+
+static const struct spacemit_gpio_data k3_gpio_data = {
+	.num_banks	= 4,
+	.gpio_count	= 128,
+	.gpio_base	= 0,
+	.bank_offsets	= spacemit_gpio_k3_bank_offsets,
+	.offsets	= spacemit_gpio_k3_offsets,
 };
 
 static const struct udevice_id spacemit_gpio_ids[] = {
 	{ .compatible = "spacemit,k1-gpio", .data = (uintptr_t)&k1_gpio_data, },
+	{ .compatible = "spacemit,k3-gpio", .data = (uintptr_t)&k3_gpio_data, },
 	{ /* sentinel */ }
 };
 
