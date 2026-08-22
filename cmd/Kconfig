@@ -300,8 +300,7 @@ menu "Boot commands"
 
 config CMD_BOOTD
 	bool "bootd"
-	depends on CMD_BOOTM
-	default y
+	default y if CMD_BOOTM
 	help
 	  Run the command stored in the environment "bootcmd", i.e.
 	  "bootd" does the same thing as "run bootcmd".
