@@ -15,6 +15,5 @@ ifneq ($(CONFIG_$(PHASE_)BLK),$(CONFIG_SPL_LEGACY_BLOCK),)
 obj-$(CONFIG_$(PHASE_)MAC_PARTITION)   += part_mac.o
 obj-$(CONFIG_$(PHASE_)DOS_PARTITION)   += part_dos.o
 obj-$(CONFIG_$(PHASE_)ISO_PARTITION)   += part_iso.o
-obj-$(CONFIG_$(PHASE_)AMIGA_PARTITION) += part_amiga.o
 obj-$(CONFIG_$(PHASE_)EFI_PARTITION)   += part_efi.o
 endif
