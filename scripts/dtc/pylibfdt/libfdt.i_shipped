@@ -1112,7 +1112,7 @@ class FdtSw(FdtRo):
 
         Args:
             name: Name of property to add
-            val: Value of property
+            val: Value of property (bytes)
             quiet: Errors to ignore (empty to raise on all errors)
 
         Raises:
