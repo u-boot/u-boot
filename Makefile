@@ -1237,7 +1237,7 @@ INPUTS-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
 INPUTS-$(CONFIG_VPL) += vpl/u-boot-vpl.bin
 
 # Allow omitting the .dtb output if it is not normally used
-INPUTS-$(CONFIG_OF_SEPARATE) += $(if $(CONFIG_OF_OMIT_DTB),dts/dt.dtb,u-boot.dtb)
+INPUTS-$(CONFIG_OF_SEPARATE) += $(if $(CONFIG_OF_OMIT_DTB),,u-boot.dtb)
 ifeq ($(CONFIG_SPL_FRAMEWORK),y)
 INPUTS-$(CONFIG_OF_SEPARATE) += u-boot-dtb.img
 endif
@@ -1615,12 +1615,18 @@ endif
 # The 1/4 margin below is somewhat arbitrary. The likely initial SP usage is
 # so low that the DTB could probably use 90%+ of the available space, for
 # current values of CONFIG_SYS_INIT_SP_BSS_OFFSET at least. However, let's be
-# safe for now and tweak this later if space becomes tight.
+# safe for now and tweak this later if space becomes tight. When we omit the
+# DTB we simply have to have accounted for this when configuring U-Boot.
 # A rejected alternative would be to check that some absolute minimum stack
 # space was available. However, since CONFIG_SYS_INIT_SP_BSS_OFFSET is
 # deliberately build-specific, to take account of build-to-build stack usage
 # differences due to different feature sets, there is no common absolute value
 # to check against.
+ifneq ($(CONFIG_OF_OMIT_DTB),)
+init_sp_bss_offset_check: FORCE
+	space=$(CONFIG_SYS_INIT_SP_BSS_OFFSET) ; \
+	$(subtract_sys_malloc_f_len)
+else
 init_sp_bss_offset_check: u-boot.dtb FORCE
 	@dtb_size=$(shell wc -c u-boot.dtb | awk '{print $$1}') ; \
 	space=$(CONFIG_SYS_INIT_SP_BSS_OFFSET) ; \
@@ -1631,6 +1637,7 @@ init_sp_bss_offset_check: u-boot.dtb FORCE
 		echo "(CONFIG_SYS_INIT_SP_BSS_OFFSET - CONFIG_SYS_MALLOC_F_LEN)" >&2 ; \
 		exit 1 ; \
 	fi
+endif
 endif
 
 shell_cmd = { $(call echo-cmd,$(1)) $(cmd_$(1)); }
