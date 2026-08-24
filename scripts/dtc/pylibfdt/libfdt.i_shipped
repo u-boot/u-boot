@@ -640,6 +640,42 @@ class Fdt(FdtRo):
         del self._fdt[self.totalsize():]
         return err
 
+    def add_mem_rsv(self, addr, size, quiet=()):
+        """Add a memory reserve-map record
+
+        This asks the client program not to use the given region of memory,
+        e.g. because something was loaded there.
+
+        Args:
+            addr: Start address of the region to reserve
+            size: Size of the region to reserve, in bytes
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Error code, or 0 if OK
+
+        Raises:
+            FdtException if there is no space for another record, or another
+            error occurs
+        """
+        return check_err(fdt_add_mem_rsv(self._fdt, addr, size), quiet)
+
+    def del_mem_rsv(self, index, quiet=()):
+        """Remove the indexed memory reserve-map record
+
+        Args:
+            index: Record to remove (0=first)
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Error code, or 0 if OK
+
+        Raises:
+            FdtException if there is no record at @index, or another error
+            occurs
+        """
+        return check_err(fdt_del_mem_rsv(self._fdt, index), quiet)
+
     def set_name(self, nodeoffset, name, quiet=()):
         """Set the name of a node
 
