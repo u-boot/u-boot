@@ -299,7 +299,9 @@ class FdtRo(object):
         Returns:
             Number of memory reserve-map records
         """
-        return check_err(fdt_get_mem_rsv(self._fdt, index), quiet)
+        val = fdt_get_mem_rsv(self._fdt, index)
+        check_err(val[0], quiet)
+        return val[1:]
 
     def subnode_offset(self, parentoffset, name, quiet=()):
         """Get the offset of a named subnode
@@ -1193,12 +1195,7 @@ typedef uint32_t fdt32_t;
 
 %typemap(argout) uint64_t * {
         PyObject *val = PyLong_FromUnsignedLongLong(*arg$argnum);
-        if (!result) {
-           if (PyTuple_GET_SIZE(resultobj) == 0)
-              resultobj = val;
-           else
-              resultobj = SWIG_AppendOutput(resultobj, val);
-        }
+        resultobj = SWIG_AppendOutput(resultobj, val);
 }
 
 %include "cstring.i"
