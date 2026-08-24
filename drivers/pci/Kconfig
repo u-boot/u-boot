@@ -444,6 +444,15 @@ config PCIE_XILINX_NWL
 	  Say 'Y' here if you want support for Xilinx / AMD NWL PCIe
 	  controller as Root Port.
 
+config PCIE_AMD_CPM
+	bool "AMD Versal CPM PCIe host bridge support"
+	depends on ARCH_VERSAL
+	depends on DM_GPIO
+	select SYS_PCI_64BIT
+	help
+	  Say 'Y' here if you want support for the AMD Versal
+	  CPM PCIe host bridge.
+
 config PCIE_AMD_QDMA_PL
 	bool "AMD QDMA PL PCIe host bridge support"
 	depends on ARCH_VERSAL
