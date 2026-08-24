@@ -720,6 +720,21 @@ class Property(bytearray):
     def as_int64(self):
         return self.as_cell('q')
 
+    def as_list(self, fmt):
+        return list(map(lambda x: x[0], struct.iter_unpack('>' + fmt, self)))
+
+    def as_uint32_list(self):
+        return self.as_list('L')
+
+    def as_int32_list(self):
+        return self.as_list('l')
+
+    def as_uint64_list(self):
+        return self.as_list('Q')
+
+    def as_int64_list(self):
+        return self.as_list('q')
+
     def as_str(self):
         """Unicode is supported by decoding from UTF-8"""
         if self[-1] != 0:
