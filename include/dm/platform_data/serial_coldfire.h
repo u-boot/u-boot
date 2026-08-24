@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (c) 2015  Angelo Dureghello <angelo@sysam.it>
+ * Copyright (c) 2015  Angelo Dureghello <angelo@kernel-space.org>
  */
 
 #ifndef __serial_coldfire_h

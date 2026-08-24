@@ -4,10 +4,10 @@
  * TsiChung Liew, Tsi-Chung.Liew@freescale.com.
  *
  * Modified to add device model (DM) support
- * (C) Copyright 2015  Angelo Dureghello <angelo@sysam.it>
+ * (C) Copyright 2015  Angelo Dureghello <angelo@kernel-space.org>
  *
  * Modified to add DM and fdt support, removed non DM code
- * (C) Copyright 2018  Angelo Dureghello <angelo@sysam.it>
+ * (C) Copyright 2018  Angelo Dureghello <angelo@kernel-space.org>
  */
 
 /*

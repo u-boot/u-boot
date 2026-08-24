@@ -2,7 +2,7 @@
 /*
  * Sysam AMCORE board configuration
  *
- * (C) Copyright 2016  Angelo Dureghello <angelo@sysam.it>
+ * (C) Copyright 2016  Angelo Dureghello <angelo@kernel-space.org>
  */
 
 #ifndef __AMCORE_CONFIG_H

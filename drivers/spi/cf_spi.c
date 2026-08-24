@@ -8,7 +8,7 @@
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
  * Support for DM and DT, non-DM code removed.
- * Copyright (C) 2018 Angelo Dureghello <angelo@sysam.it>
+ * Copyright (C) 2018 Angelo Dureghello <angelo@kernel-space.org>
  *
  * TODO: fsl_dspi.c should work as a driver for the DSPI module.
  */
