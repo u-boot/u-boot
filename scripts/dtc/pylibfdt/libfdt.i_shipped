@@ -447,6 +447,29 @@ class FdtRo(object):
         """
         return fdt_get_alias(self._fdt, name)
 
+    def get_path(self, nodeoffset, quiet=()):
+        """Get the full path of a node
+
+        Args:
+            nodeoffset: Node offset to check
+
+        Returns:
+            Full path to the node
+
+        Raises:
+            FdtException if an error occurs
+        """
+        size = 1024
+        while True:
+            ret, path = fdt_get_path(self._fdt, nodeoffset, size)
+            if ret == -NOSPACE:
+                size = size * 2
+                continue
+            err = check_err(ret, quiet)
+            if err:
+                return err
+            return path
+
     def parent_offset(self, nodeoffset, quiet=()):
         """Get the offset of a node's parent
 
@@ -1119,6 +1142,11 @@ typedef uint32_t fdt32_t;
               resultobj = SWIG_AppendOutput(resultobj, val);
         }
 }
+
+%include "cstring.i"
+
+%cstring_output_maxsize(char *buf, int buflen);
+int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen);
 
 /* We have both struct fdt_property and a function fdt_property() */
 %warnfilter(302) fdt_property;
