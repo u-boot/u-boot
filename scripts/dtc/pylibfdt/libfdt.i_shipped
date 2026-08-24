@@ -728,6 +728,13 @@ class Property(bytearray):
             raise ValueError('Property contains embedded nul characters')
         return self[:-1].decode('utf-8')
 
+    def as_stringlist(self):
+        """Unicode is supported by decoding from UTF-8"""
+        if self[-1] != 0:
+            raise ValueError('Property lacks nul termination')
+        parts = self[:-1].split(b'\x00')
+        return list(map(lambda x: x.decode('utf-8'), parts))
+
 
 class FdtSw(FdtRo):
     """Software interface to create a device tree from scratch
