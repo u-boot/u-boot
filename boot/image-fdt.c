@@ -91,10 +91,10 @@ static void boot_fdt_handle_region(u64 addr, u64 size, u32 flags, bool free)
 		ret = lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &rsv_addr, size,
 				    flags);
 
-	if (!ret) {
-		debug("   %s fdt memory region: addr=%llx size=%llx flags=%x\n",
-		      free ? "freed" : "reserved", (unsigned long long)addr,
-		      (unsigned long long)size, flags);
+	if (!ret || ret == -EFAULT) {
+		debug("   %s fdt memory region%s: addr=%llx size=%llx flags=%x ret=%ld\n",
+		      free ? "free" : "reserve", ret ? " failed" : "",
+		      (unsigned long long)addr, (unsigned long long)size, flags, ret);
 	} else {
 		printf("ERROR: %s fdt memory region failed (addr=%llx size=%llx flags=%x): %ld\n",
 		       free ? "freeing" : "reserving", (unsigned long long)addr,

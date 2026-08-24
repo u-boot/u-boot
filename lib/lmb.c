@@ -286,7 +286,7 @@ static long _lmb_free(struct alist *lmb_rgn_lst, phys_addr_t base,
 
 	/* Didn't find the region */
 	if (i == lmb_rgn_lst->count)
-		return -1;
+		return -EFAULT;
 
 	/* Check to see if we are removing entire region */
 	if (rgnbegin == base && rgnend == end) {
@@ -752,9 +752,11 @@ static int _lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags)
 				      base + size - 1, 1))
 			/* ok, reserve the memory */
 			return lmb_reserve(base, size, flags);
+
+		return -EINVAL;
 	}
 
-	return -EINVAL;
+	return -EFAULT;
 }
 
 int lmb_alloc_mem(enum lmb_mem_type type, u64 align, phys_addr_t *addr,
