@@ -306,6 +306,38 @@ class FdtRo(object):
         check_err(val[0], quiet)
         return val[1:]
 
+    def address_cells(self, nodeoffset, quiet=()):
+        """Return the number of address cells used by a node's children
+
+        Args:
+            nodeoffset: Offset of the node to check
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Number of address cells used by the children of @nodeoffset
+
+        Raises:
+            FdtException if the node has an invalid #address-cells property,
+            or another error occurs
+        """
+        return check_err(fdt_address_cells(self._fdt, nodeoffset), quiet)
+
+    def size_cells(self, nodeoffset, quiet=()):
+        """Return the number of size cells used by a node's children
+
+        Args:
+            nodeoffset: Offset of the node to check
+            quiet: Errors to ignore (empty to raise on all errors)
+
+        Returns:
+            Number of size cells used by the children of @nodeoffset
+
+        Raises:
+            FdtException if the node has an invalid #size-cells property, or
+            another error occurs
+        """
+        return check_err(fdt_size_cells(self._fdt, nodeoffset), quiet)
+
     def subnode_offset(self, parentoffset, name, quiet=()):
         """Get the offset of a named subnode
 
