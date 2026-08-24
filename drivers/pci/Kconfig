@@ -478,14 +478,14 @@ config PCIE_STARFIVE_JH7110
 
 config PCIE_DW_AMD
 	bool "AMD Versal2 DW PCIe host controller"
-	depends on ARCH_VERSAL2
+	depends on ARCH_VERSAL2 || ARCH_VERSAL
 	depends on DM_GPIO
 	select PCIE_DW_COMMON
 	select SYS_PCI_64BIT
 	help
 	  Say Y here to enable support for the AMD Versal Gen 2 PCIe
 	  host controller. This is a DesignWare-based PCIe controller
-	  used in AMD Versal Gen 2 SoCs.
+	  used in AMD Versal Gen 2 and premium gen 2 SoCs.
 
 config PCIE_DW_IMX
 	bool "i.MX DW PCIe controller support"

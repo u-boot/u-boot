@@ -236,6 +236,7 @@ static const struct dm_pci_ops amd_dw_pcie_ops = {
 
 static const struct udevice_id amd_dw_pcie_ids[] = {
 	{ .compatible = "amd,versal2-mdb-host" },
+	{ .compatible = "amd,versal2-cpm6-host" },
 	{ }
 };
 
