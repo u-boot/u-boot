@@ -1049,9 +1049,9 @@ typedef uint32_t fdt32_t;
 		$result = Py_None;
 	else
         %#if PY_VERSION_HEX >= 0x03000000
-            $result = Py_BuildValue("y#", $1, *arg4);
+            $result = Py_BuildValue("y#", $1, (Py_ssize_t)*arg4);
         %#else
-            $result = Py_BuildValue("s#", $1, *arg4);
+            $result = Py_BuildValue("s#", $1, (Py_ssize_t)*arg4);
         %#endif
 }
 
