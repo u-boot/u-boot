@@ -444,6 +444,16 @@ config PCIE_XILINX_NWL
 	  Say 'Y' here if you want support for Xilinx / AMD NWL PCIe
 	  controller as Root Port.
 
+config PCIE_AMD_QDMA_PL
+	bool "AMD QDMA PL PCIe host bridge support"
+	depends on ARCH_VERSAL
+	select SYS_PCI_64BIT
+	help
+	  Say 'Y' here if you want support for the Xilinx/AMD QDMA
+	  PL PCIe host bridge. The controller is a Soft IP instantiated
+	  in the PL fabric which can act as a PCIe Root Port. It provides
+	  ECAM-based configuration space access for device enumeration.
+
 config PCIE_PLDA_COMMON
 	bool
 

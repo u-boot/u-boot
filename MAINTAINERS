@@ -71,6 +71,11 @@ F:	include/alist.h
 F:	lib/alist.c
 F:	test/lib/alist.c
 
+AMD QDMA PL PCIE DRIVER
+M:	Pranav Sanwal <pranav.sanwal@amd.com>
+S:	Maintained
+F:	drivers/pci/pcie_amd_qdma_pl.c
+
 AMD VERSAL2 PCIE DRIVER
 M:	Pranav Sanwal <pranav.sanwal@amd.com>
 S:	Maintained
