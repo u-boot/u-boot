@@ -834,8 +834,6 @@ dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-com.dtb \
 	imx7ulp-evk.dtb
 
-dtb-$(CONFIG_ARCH_HIGHBANK) += highbank.dtb
-
 dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8qm-apalis.dtb \
 	fsl-imx8qm-mek.dtb \
@@ -962,27 +960,9 @@ dtb-$(CONFIG_TARGET_SAMA5D4_XPLAINED) += \
 dtb-$(CONFIG_TARGET_VINCO) += \
 	at91-vinco.dtb
 
-dtb-$(CONFIG_ARCH_BCM283X) += \
-	bcm2835-rpi-a.dtb \
-	bcm2835-rpi-a-plus.dtb \
-	bcm2835-rpi-b.dtb \
-	bcm2835-rpi-b-plus.dtb \
-	bcm2835-rpi-b-rev2.dtb \
-	bcm2835-rpi-cm1-io1.dtb \
-	bcm2835-rpi-zero.dtb \
-	bcm2835-rpi-zero-w.dtb\
-	bcm2836-rpi-2-b.dtb \
-	bcm2837-rpi-3-a-plus.dtb \
-	bcm2837-rpi-3-b.dtb \
-	bcm2837-rpi-3-b-plus.dtb \
-	bcm2837-rpi-cm3-io3.dtb \
-	bcm2711-rpi-4-b.dtb
-
 dtb-$(CONFIG_TARGET_BCMNS) += ns-board.dtb
 
 dtb-$(CONFIG_TARGET_BCMNS3) += ns3-board.dtb
-
-dtb-$(CONFIG_ARCH_BCMSTB) += bcm7xxx.dtb
 
 dtb-$(CONFIG_BCM47622) += \
 	bcm947622.dtb
@@ -1099,10 +1079,6 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 
 dtb-$(CONFIG_ARCH_NPCM7xx) += nuvoton-npcm750-evb.dtb
 dtb-$(CONFIG_ARCH_NPCM8XX) += nuvoton-npcm845-evb.dtb
-dtb-$(CONFIG_XEN) += xenguest-arm64.dtb
-
-dtb-$(CONFIG_ARCH_OCTEONTX) += octeontx.dtb
-dtb-$(CONFIG_ARCH_OCTEONTX2) += octeontx.dtb
 
 dtb-$(CONFIG_TARGET_GE_BX50V3) += \
 	imx6q-bx50v3.dtb \
@@ -1117,7 +1093,6 @@ dtb-$(CONFIG_TARGET_MX53PPD) += imx53-ppd.dtb
 # Kconfig option to build all of these. See examples above.
 dtb-$(CONFIG_TARGET_VEXPRESS_CA9X4) += vexpress-v2p-ca9.dtb
 dtb-$(CONFIG_TARGET_VEXPRESS64_BASE_FVP) += fvp-base-revc.dtb
-dtb-$(CONFIG_TARGET_VEXPRESS64_BASER_FVP) += arm_fvp.dtb
 dtb-$(CONFIG_TARGET_VEXPRESS64_JUNO) += juno-r2.dtb
 
 dtb-$(CONFIG_TARGET_TOTAL_COMPUTE) += total_compute.dtb
@@ -1163,7 +1138,7 @@ endif
 
 dtb-$(CONFIG_TARGET_EA_LPC3250DEVKITV2) += lpc3250-ea3250.dtb
 
-dtb-$(CONFIG_ARCH_QEMU) += qemu-arm.dtb qemu-arm64.dtb
+dtb-$(CONFIG_TARGET_QEMU_ARM_64BIT) += qemu-arm64.dtb
 
 dtb-$(CONFIG_TARGET_CORSTONE1000) += corstone1000-mps3.dtb \
 				corstone1000-fvp.dtb
