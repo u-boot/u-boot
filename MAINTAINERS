@@ -1063,7 +1063,7 @@ F:	tools/file2include.c
 F:	tools/mkeficapsule.c
 
 ENVIRONMENT
-S:	Orphaned
+S:	Orphan
 F:	env/
 F:	include/env/
 F:	include/env*
@@ -1442,7 +1442,7 @@ F:	drivers/net/phy/nxp-c45-tja11xx.c
 
 ONENAND
 #M:	Lukasz Majewski <l.majewski@majess.pl>
-S:	Orphaned (Since 2017-01)
+S:	Orphan (Since 2017-01)
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-onenand.git
 F:	drivers/mtd/onenand/
 
@@ -1480,7 +1480,7 @@ F:	drivers/pci/pcie_dw_imx.c
 F:	drivers/phy/phy-imx8m-pcie.c
 
 PCI Endpoint
-S:	Orphaned
+S:	Orphan
 F:	drivers/pci_endpoint/
 F:  include/pci_ep.h
 
@@ -1651,7 +1651,7 @@ F:	test/cmd/seama.c
 
 SEMIHOSTING
 R:	Sean Anderson <sean.anderson@linux.dev>
-S:	Orphaned
+S:	Orphan
 N:	semihosting
 
 SETEXPR
@@ -1703,7 +1703,7 @@ S:	Maintained
 F:	drivers/rng/smccc_trng.c
 
 SPI
-S:	Orphaned
+S:	Orphan
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-spi.git
 F:	drivers/spi/
 F:	include/spi*
