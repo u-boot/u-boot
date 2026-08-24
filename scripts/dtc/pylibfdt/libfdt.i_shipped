@@ -421,7 +421,7 @@ class FdtRo(object):
                                quiet)
         if isinstance(pdata, (int)):
             return pdata
-        return Property(prop_name, bytes(pdata[0]))
+        return Property(prop_name, bytearray(pdata[0]))
 
     def get_phandle(self, nodeoffset):
         """Get the phandle of a node
