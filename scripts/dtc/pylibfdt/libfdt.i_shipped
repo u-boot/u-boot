@@ -166,7 +166,7 @@ class FdtRo(object):
             quiet: Errors to ignore (empty to raise on all errors)
 
         Returns:
-            Typle:
+            Tuple:
                 Offset of the next node, if any, else a -ve error
                 Depth of the returned node, if any, else undefined
 
