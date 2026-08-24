@@ -32,6 +32,7 @@ enum mpq_chip_id {
 	MPQ_MPM3695_25  = 1,
 	MPQ_MPM82504    = 2,
 	MPQ_MPQ8785     = 3,
+	MPQ_MPQ8646     = 4,
 };
 
 /*
@@ -398,6 +399,7 @@ static struct pmbus_driver_info *mpq8785_pick_info(enum mpq_chip_id chip_id)
 	case MPQ_MPM82504:
 		return &mpm82504_info;
 	case MPQ_MPQ8785:
+	case MPQ_MPQ8646:
 	default:
 		return &mpq8785_info;
 	}
@@ -444,8 +446,8 @@ static int mpq8785_probe(struct udevice *dev)
 		}
 	}
 
-	/* MPQ8785 specific: refine VOUT format from VOUT_MODE. */
-	if (chip_id == MPQ_MPQ8785)
+	/* MPQ8785/MPQ8646 specific: refine VOUT format from VOUT_MODE. */
+	if (chip_id == MPQ_MPQ8785 || chip_id == MPQ_MPQ8646)
 		mpq8785_identify_vout(priv->i2c_dev);
 
 	/* Apply mps,vout-fb-divider-ratio-permille if present in DT. */
@@ -481,6 +483,7 @@ static const struct udevice_id mpq8785_ids[] = {
 	{ .compatible = "mps,mpm3695-25", .data = MPQ_MPM3695_25 },
 	{ .compatible = "mps,mpm82504",   .data = MPQ_MPM82504 },
 	{ .compatible = "mps,mpq8785",    .data = MPQ_MPQ8785 },
+	{ .compatible = "mps,mpq8646",    .data = MPQ_MPQ8646 },
 	{ }
 };
 
