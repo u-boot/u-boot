@@ -861,7 +861,7 @@ class FdtSw(FdtRo):
     device tree. This will be increased automatically as needed as new items
     are added to the tree.
     """
-    INC_SIZE = 1024  # Expand size by this much when out of space
+    INC_SIZE = 1024  # Expand size by at least this much when out of space
 
     def __init__(self, size_hint=None):
         """Create a new FdtSw object
@@ -906,6 +906,10 @@ class FdtSw(FdtRo):
         -NOSPACE then the FDT will be expanded to have more space, and True will
         be returned, indicating that the operation needs to be tried again.
 
+        Each expansion copies the whole tree into a new buffer, so the size is
+        at least doubled rather than grown by a fixed amount, to keep the total
+        amount of copying proportional to the size of the tree.
+
         Args:
             val: Return value from the operation that was attempted
 
@@ -913,7 +917,7 @@ class FdtSw(FdtRo):
             True if the operation must be retried, else False
         """
         if check_err(val, QUIET_NOSPACE) < 0:
-            self.resize(len(self._fdt) + self.INC_SIZE)
+            self.resize(len(self._fdt) + max(len(self._fdt), self.INC_SIZE))
             return True
         return False
 
