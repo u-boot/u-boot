@@ -1,0 +1,5 @@
+/ {
+	chosen {
+		stdout-path = "serial0:921600n8";
+	};
+};

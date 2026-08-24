@@ -280,6 +280,9 @@ U_BOOT_DRIVER(dwmac_thead) = {
 	.id		= UCLASS_ETH,
 	.of_match	= dwmac_thead_match,
 	.of_to_plat	= dwmac_thead_of_to_plat,
+#if IS_ENABLED(CONFIG_DM_MDIO)
+	.bind		= dw_dm_mdio_bind,
+#endif
 	.probe		= dwmac_thead_probe,
 	.ops		= &dwmac_thead_eth_ops,
 	.priv_auto	= sizeof(struct dw_eth_dev),

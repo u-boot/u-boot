@@ -1,0 +1,7 @@
+VIM1S
+M:	Neil Armstrong <neil.armstrong@linaro.org>
+R:	Sean Anderson <sanderson@brivo.com>
+S:	Maintained
+L:	u-boot-amlogic@groups.io
+F:	board/amlogic/vim1s/
+F:	configs/khadas-vim1s_defconfig

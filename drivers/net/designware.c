@@ -137,15 +137,16 @@ static int dw_bb_mdio_reset(struct mii_dev *bus)
 
 #endif
 
-#if IS_ENABLED(CONFIG_DM_MDIO)
-int designware_eth_mdio_read(struct udevice *mdio_dev, int addr, int devad, int reg)
+static int designware_eth_mdio_read(struct udevice *mdio_dev, int addr,
+				    int devad, int reg)
 {
 	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(mdio_dev);
 
 	return dw_mdio_read(pdata->mii_bus, addr, devad, reg);
 }
 
-int designware_eth_mdio_write(struct udevice *mdio_dev, int addr, int devad, int reg, u16 val)
+static int designware_eth_mdio_write(struct udevice *mdio_dev, int addr,
+				     int devad, int reg, u16 val)
 {
 	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(mdio_dev);
 
@@ -162,7 +163,7 @@ int designware_eth_mdio_reset(struct udevice *mdio_dev)
 }
 #endif
 
-static const struct mdio_ops designware_eth_mdio_ops = {
+static __maybe_unused const struct mdio_ops designware_eth_mdio_ops = {
 	.read = designware_eth_mdio_read,
 	.write = designware_eth_mdio_write,
 #if CONFIG_IS_ENABLED(DM_GPIO)
@@ -170,7 +171,7 @@ static const struct mdio_ops designware_eth_mdio_ops = {
 #endif
 };
 
-static int designware_eth_mdio_probe(struct udevice *dev)
+static __maybe_unused int designware_eth_mdio_probe(struct udevice *dev)
 {
 	/* Use the priv data of parent */
 	dev_set_priv(dev, dev_get_priv(dev->parent));
@@ -178,6 +179,7 @@ static int designware_eth_mdio_probe(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(DM_MDIO)
 U_BOOT_DRIVER(designware_eth_mdio) = {
 	.name = "eth_designware_mdio",
 	.id = UCLASS_MDIO,
@@ -208,16 +210,14 @@ static int dw_mdio_init(const char *name, void *priv)
 	return mdio_register(bus);
 }
 
-#if IS_ENABLED(CONFIG_DM_MDIO)
-static int dw_dm_mdio_init(const char *name, void *priv)
+int dw_dm_mdio_bind(struct udevice *dev)
 {
-	struct udevice *dev = priv;
+	struct udevice *mdiodev;
 	ofnode node;
 	int ret;
 
 	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		const char *subnode_name = ofnode_get_name(node);
-		struct udevice *mdiodev;
 
 		if (strcmp(subnode_name, "mdio"))
 			continue;
@@ -231,10 +231,11 @@ static int dw_dm_mdio_init(const char *name, void *priv)
 	}
 
 	printf("%s: mdio node is missing, registering legacy mdio bus", __func__);
-
-	return dw_mdio_init(name, priv);
+	ret = device_bind_driver(dev, "eth_designware_mdio", dev->name, &mdiodev);
+	if (ret)
+		debug("%s: not able to create mdio bus\n", __func__);
+	return ret;
 }
-#endif
 
 #if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
 static int dw_eth_bb_mdio_active(struct mii_dev *miidev)
@@ -757,24 +758,24 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 	if (IS_ENABLED(CONFIG_DM_ETH_PHY))
 		eth_phy_set_mdio_bus(dev, NULL);
 
-#if IS_ENABLED(CONFIG_DM_MDIO)
-	phydev = dm_eth_phy_connect(dev);
-	if (!phydev)
-		return -ENODEV;
-#else
-	int phy_addr = -1;
+	if (IS_ENABLED(CONFIG_DM_MDIO)) {
+		phydev = dm_eth_phy_connect(dev);
+		if (!phydev)
+			return -ENODEV;
+	} else {
+		int phy_addr = -1;
 
-	if (IS_ENABLED(CONFIG_DM_ETH_PHY))
-		phy_addr = eth_phy_get_addr(dev);
+		if (IS_ENABLED(CONFIG_DM_ETH_PHY))
+			phy_addr = eth_phy_get_addr(dev);
 
 #ifdef CONFIG_PHY_ADDR
-	phy_addr = CONFIG_PHY_ADDR;
+		phy_addr = CONFIG_PHY_ADDR;
 #endif
 
-	phydev = phy_connect(priv->bus, phy_addr, dev, priv->interface);
-	if (!phydev)
-		return -ENODEV;
-#endif
+		phydev = phy_connect(priv->bus, phy_addr, dev, priv->interface);
+		if (!phydev)
+			return -ENODEV;
+	}
 
 	phydev->supported &= PHY_GBIT_FEATURES;
 	if (priv->max_speed) {
@@ -855,6 +856,8 @@ static int designware_eth_bind(struct udevice *dev)
 		}
 	}
 
+	if (IS_ENABLED(CONFIG_DM_MDIO))
+		return dw_dm_mdio_bind(dev);
 	return 0;
 }
 
@@ -962,17 +965,15 @@ int designware_eth_probe(struct udevice *dev)
 	} else
 #endif
 	{
-#if IS_ENABLED(CONFIG_DM_MDIO)
-		ret = dw_dm_mdio_init(dev->name, dev);
-#else
-		ret = dw_mdio_init(dev->name, dev);
-#endif
-		if (ret) {
-			err = ret;
-			goto mdio_err;
-		}
-		priv->bus = miiphy_get_dev_by_name(dev->name);
 		priv->dev = dev;
+		if (!IS_ENABLED(CONFIG_DM_MDIO)) {
+			ret = dw_mdio_init(dev->name, dev);
+			if (ret) {
+				err = ret;
+				goto mdio_err;
+			}
+			priv->bus = miiphy_get_dev_by_name(dev->name);
+		}
 	}
 
 	ret = dw_phy_init(priv, dev);
