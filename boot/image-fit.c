@@ -1035,15 +1035,20 @@ int fit_image_get_data_size(const void *fit, int noffset, int *data_size)
  * returns:
  *     0, on success
  *     -ENOENT if the property could not be found
+ *     -EINVAL if the property is not exactly one fdt32_t long
  */
 int fit_image_get_data_size_unciphered(const void *fit, int noffset,
 				       size_t *data_size)
 {
 	const fdt32_t *val;
+	int len;
 
-	val = fdt_getprop(fit, noffset, "data-size-unciphered", NULL);
+	val = fdt_getprop(fit, noffset, "data-size-unciphered", &len);
 	if (!val)
 		return -ENOENT;
+
+	if (len != sizeof(*val))
+		return -EINVAL;
 
 	*data_size = (size_t)fdt32_to_cpu(*val);
 
