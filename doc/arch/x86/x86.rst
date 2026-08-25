@@ -486,4 +486,4 @@ TODO List
 .. _SFI: https://en.wikipedia.org/wiki/Simple_Firmware_Interface
 .. _MP: https://en.wikipedia.org/wiki/MultiProcessor_Specification
 .. _SeaBIOS: https://www.seabios.org/
-.. _ACPI: http://www.acpi.info
+.. _ACPI: https://uefi.org/acpi/specs
