@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2025, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -14,6 +14,8 @@
 #include <init.h>
 #include <jffs2/load_kernel.h>
 #include <log.h>
+#include <memalign.h>
+#include <mtd.h>
 #include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/sections.h>
@@ -22,6 +24,7 @@
 #endif
 #include <dm/uclass.h>
 #include <i2c.h>
+#include <linux/err.h>
 #include <linux/sizes.h>
 #include <malloc.h>
 #include <memtop.h>
@@ -64,6 +67,8 @@ struct efi_capsule_update_info update_info = {
 	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
+
+#define DFU_ALT_BUF_LEN		SZ_1K
 
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
@@ -845,6 +850,36 @@ int fwu_platform_hook(struct udevice *dev, struct fwu_data *data)
 
 	/* Copy image type GUID */
 	memcpy(&fw_images[0].image_type_id, &img_entry->image_type_guid, 16);
+
+	/*
+	 * Generate the capsule DFU string from the FWU metadata. This has to
+	 * happen here, and not in configure_capsule_updates() called from
+	 * board_late_init(), because the FWU data is only populated by
+	 * fwu_boottime_checks() at EVT_POST_PREBOOT.
+	 */
+	{
+		ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+		struct mtd_info *mtd;
+		int ret;
+
+		memset(buf, 0, DFU_ALT_BUF_LEN);
+
+		mtd_probe_devices();
+
+		mtd = get_mtd_device_nm("nor0");
+		if (IS_ERR_OR_NULL(mtd))
+			return -ENODEV;
+
+		ret = fwu_gen_alt_info_from_mtd(buf, DFU_ALT_BUF_LEN, mtd);
+		if (ret < 0) {
+			log_err("Error: Failed to generate dfu_alt_info. (%d)\n", ret);
+			return ret;
+		}
+		log_debug("Make dfu_alt_info: '%s'\n", buf);
+
+		update_info.dfu_string = strdup(buf);
+		debug("Capsule DFU: %s\n", update_info.dfu_string);
+	}
 
 	if (IS_ENABLED(CONFIG_EFI_ESRT)) {
 		efi_status_t ret;

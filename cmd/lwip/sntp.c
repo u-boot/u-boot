@@ -71,6 +71,7 @@ static int sntp_loop(struct udevice *udev, ip_addr_t *srvip)
 	} else {
 		if (!ntp_server_known()) {
 			log_err("error: ntpserverip not set\n");
+			net_lwip_remove_netif(netif);
 			return -1;
 		}
 	}

@@ -671,18 +671,24 @@ static int nfs_readlink_reply(uchar *pkt, unsigned int len)
 
 	if (*((char *)&rpc_pkt.u.reply.data[2 + nfsv3_data_offset]) != '/') {
 		int pathlen;
+		int new_len;
 
 		strcat(nfs_path, "/");
 		pathlen = strlen(nfs_path);
-		if (pathlen + rlen >= sizeof(nfs_path_buff))
+		new_len = pathlen + rlen;
+		if (new_len >= sizeof(nfs_path_buff)) {
+			printf("NFS: symlink too long (%d bytes)\n", new_len);
 			return -NFS_RPC_DROP;
+		}
 		memcpy(nfs_path + pathlen,
 		       (uchar *)&rpc_pkt.u.reply.data[2 + nfsv3_data_offset],
 		       rlen);
-		nfs_path[pathlen + rlen] = 0;
+		nfs_path[new_len] = 0;
 	} else {
-		if (rlen >= sizeof(nfs_path_buff))
+		if (rlen >= sizeof(nfs_path_buff)) {
+			printf("NFS: symlink too long (%d bytes)\n", rlen);
 			return -NFS_RPC_DROP;
+		}
 		memcpy(nfs_path,
 		       (uchar *)&rpc_pkt.u.reply.data[2 + nfsv3_data_offset],
 		       rlen);

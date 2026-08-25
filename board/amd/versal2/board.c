@@ -11,7 +11,6 @@
 #include <env.h>
 #include <efi_loader.h>
 #include <fdtdec.h>
-#include <fwu.h>
 #include <init.h>
 #include <env_internal.h>
 #include <log.h>
@@ -362,8 +361,6 @@ enum env_location env_get_location(enum env_operation op, int prio)
 
 #define DFU_ALT_BUF_LEN		SZ_1K
 
-#if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && \
-	!defined(CONFIG_FWU_MULTI_BANK_UPDATE)
 static void mtd_found_part(u32 *base, u32 *size)
 {
 	struct mtd_info *part, *mtd;
@@ -440,42 +437,6 @@ void configure_capsule_updates(void)
 	update_info.dfu_string = strdup(buf);
 	debug("Capsule DFU: %s\n", update_info.dfu_string);
 }
-#endif
-
-#if defined(CONFIG_FWU_MULTI_BANK_UPDATE)
-
-/* Generate dfu_alt_info from partitions */
-void set_dfu_alt_info(char *interface, char *devstr)
-{
-	int ret;
-	struct mtd_info *mtd;
-
-	/*
-	 * It is called multiple times for every image
-	 * per bank that's why enough to set it up once.
-	 */
-	if (env_get("dfu_alt_info"))
-		return;
-
-	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
-	memset(buf, 0, DFU_ALT_BUF_LEN);
-
-	mtd_probe_devices();
-
-	mtd = get_mtd_device_nm("nor0");
-	if (IS_ERR_OR_NULL(mtd))
-		return;
-
-	ret = fwu_gen_alt_info_from_mtd(buf, DFU_ALT_BUF_LEN, mtd);
-	if (ret < 0) {
-		log_err("Error: Failed to generate dfu_alt_info. (%d)\n", ret);
-		return;
-	}
-	log_debug("Make dfu_alt_info: '%s'\n", buf);
-
-	env_set("dfu_alt_info", buf);
-}
-#endif
 
 int spi_get_env_dev(void)
 {

@@ -396,6 +396,7 @@ config PCI_RCAR_GEN4
 	depends on RCAR_GEN4
 	select DM_RESET
 	select DM_GPIO
+	select FW_LOADER
 	select PCIE_DW_COMMON
 	help
 	  Say Y here if you want to enable PCIe controller support on

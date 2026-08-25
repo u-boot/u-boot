@@ -1402,32 +1402,43 @@ static int tfa_dram_init_banksize(void)
 		dram_size -= gd->dram[i].size;
 
 		i++;
-	} while (dram_size);
+	} while (dram_size && i < CONFIG_NR_DRAM_BANKS);
+
+	if (dram_size)
+		printf("Warning: CONFIG_NR_DRAM_BANKS is too small, %llx bytes left unassigned\n",
+		       dram_size);
 
 	if (i > 0)
 		ret = 0;
 
 #if defined(CONFIG_RESV_RAM) && !defined(CONFIG_XPL_BUILD)
 	/* Assign memory for MC */
-#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
-	if (gd->dram[2].size >=
+#if defined(CONFIG_SYS_DDR_BLOCK3_BASE) && (CONFIG_NR_DRAM_BANKS >= 3)
+	if (gd->dram[2].size &&
+	    gd->dram[2].size >=
 	    board_reserve_ram_top(gd->dram[2].size)) {
 		gd->arch.resv_ram = gd->dram[2].start +
-			    gd->dram[2].size -
-			    board_reserve_ram_top(gd->dram[2].size);
+			gd->dram[2].size -
+			board_reserve_ram_top(gd->dram[2].size);
 	} else
 #endif
 	{
-		if (gd->dram[1].size >=
+#if defined(CFG_SYS_DDR_BLOCK2_BASE) && (CONFIG_NR_DRAM_BANKS >= 2)
+		if (gd->dram[1].size &&
+		    gd->dram[1].size >=
 		    board_reserve_ram_top(gd->dram[1].size)) {
 			gd->arch.resv_ram = gd->dram[1].start +
 				gd->dram[1].size -
 				board_reserve_ram_top(gd->dram[1].size);
-		} else if (gd->dram[0].size >
-			   board_reserve_ram_top(gd->dram[0].size)) {
-			gd->arch.resv_ram = gd->dram[0].start +
-				gd->dram[0].size -
-				board_reserve_ram_top(gd->dram[0].size);
+		} else
+#endif
+		{
+			if (gd->dram[0].size >
+			    board_reserve_ram_top(gd->dram[0].size)) {
+				gd->arch.resv_ram = gd->dram[0].start +
+					gd->dram[0].size -
+					board_reserve_ram_top(gd->dram[0].size);
+			}
 		}
 	}
 #endif	/* CONFIG_RESV_RAM */

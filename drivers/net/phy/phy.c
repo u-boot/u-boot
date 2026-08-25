@@ -20,6 +20,7 @@
 #include <asm-generic/gpio.h>
 #include <dm/device_compat.h>
 #include <dm/of_extra.h>
+#include <dm/uclass-internal.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/err.h>
@@ -921,6 +922,27 @@ static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
 }
 #endif
 
+#ifdef CONFIG_DM_ETH_PHY
+static struct phy_device *phy_connect_dm_bound(struct mii_dev *bus,
+					       struct udevice *dev,
+					       uint mask)
+{
+	struct udevice *dm_phy_dev;
+	struct phy_device *phydev;
+
+	if (!uclass_find_device_by_phandle(UCLASS_ETH_PHY, dev,
+					   "phy-handle", &dm_phy_dev)) {
+		phydev = phy_find_by_mask(bus, mask);
+		if (phydev)
+			phydev->node = dev_ofnode(dm_phy_dev);
+
+		return phydev;
+	}
+
+	return NULL;
+}
+#endif
+
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 			       struct udevice *dev,
 			       phy_interface_t interface)
@@ -928,8 +950,13 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 	struct phy_device *phydev = NULL;
 	uint mask = (addr >= 0) ? (1 << addr) : 0xffffffff;
 
+#ifdef CONFIG_DM_ETH_PHY
+	phydev = phy_connect_dm_bound(bus, dev, mask);
+#endif
+
 #ifdef CONFIG_PHY_FIXED
-	phydev = phy_connect_fixed(bus, dev);
+	if (!phydev)
+		phydev = phy_connect_fixed(bus, dev);
 #endif
 
 #ifdef CONFIG_PHY_NCSI

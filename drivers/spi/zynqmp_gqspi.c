@@ -283,16 +283,21 @@ static u32 zynqmp_qspi_genfifo_mode(u8 buswidth)
 	}
 }
 
-static void zynqmp_qspi_fill_gen_fifo(struct zynqmp_qspi_priv *priv,
-				      u32 gqspi_fifo_reg)
+static void zynqmp_qspi_write_gen_fifo(struct zynqmp_qspi_priv *priv,
+				       u32 gqspi_fifo_reg)
 {
 	struct zynqmp_qspi_regs *regs = priv->regs;
-	u32 config_reg, ier;
-	int ret = 0;
 
 	log_content("%s, GFIFO_CMD: 0x%X\n", __func__, gqspi_fifo_reg);
 
 	writel(gqspi_fifo_reg, &regs->genfifo);
+}
+
+static int zynqmp_qspi_start_gen_fifo(struct zynqmp_qspi_priv *priv)
+{
+	struct zynqmp_qspi_regs *regs = priv->regs;
+	u32 config_reg, ier;
+	int ret = 0;
 
 	config_reg = readl(&regs->confr);
 	/* Manual start if needed */
@@ -310,6 +315,15 @@ static void zynqmp_qspi_fill_gen_fifo(struct zynqmp_qspi_priv *priv,
 	if (ret)
 		log_warning("%s, Timeout\n", __func__);
 
+	return ret;
+}
+
+static int zynqmp_qspi_fill_gen_fifo(struct zynqmp_qspi_priv *priv,
+				     u32 gqspi_fifo_reg)
+{
+	zynqmp_qspi_write_gen_fifo(priv, gqspi_fifo_reg);
+
+	return zynqmp_qspi_start_gen_fifo(priv);
 }
 
 static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
@@ -573,7 +587,7 @@ static void zynqmp_qspi_genfifo_cmd(struct zynqmp_qspi_priv *priv)
 	gen_fifo_cmd |= zynqmp_qspi_genfifo_mode(op->cmd.buswidth);
 	gen_fifo_cmd |= GQSPI_GFIFO_TX;
 	gen_fifo_cmd |= op->cmd.opcode;
-	zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+	zynqmp_qspi_write_gen_fifo(priv, gen_fifo_cmd);
 
 	/* Send address */
 	for (i = 0; i < op->addr.nbytes; i++) {
@@ -584,7 +598,7 @@ static void zynqmp_qspi_genfifo_cmd(struct zynqmp_qspi_priv *priv)
 		gen_fifo_cmd |= GQSPI_GFIFO_TX;
 		gen_fifo_cmd |= addr;
 
-		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+		zynqmp_qspi_write_gen_fifo(priv, gen_fifo_cmd);
 	}
 
 	/* Send dummy */
@@ -596,7 +610,7 @@ static void zynqmp_qspi_genfifo_cmd(struct zynqmp_qspi_priv *priv)
 		gen_fifo_cmd &= ~(GQSPI_GFIFO_TX | GQSPI_GFIFO_RX);
 		gen_fifo_cmd |= GQSPI_GFIFO_DATA_XFR_MASK;
 		gen_fifo_cmd |= dummy_cycles;
-		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+		zynqmp_qspi_write_gen_fifo(priv, gen_fifo_cmd);
 	}
 }
 
@@ -644,7 +658,9 @@ static int zynqmp_qspi_genfifo_fill_tx(struct zynqmp_qspi_priv *priv)
 
 	while (priv->len) {
 		len = zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
-		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+		ret = zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+		if (ret)
+			return ret;
 
 		if (gen_fifo_cmd & GQSPI_GFIFO_EXP_MASK)
 			ret = zynqmp_qspi_fill_tx_fifo(priv, 1 << len);
@@ -666,6 +682,7 @@ static int zynqmp_qspi_start_io(struct zynqmp_qspi_priv *priv,
 	struct zynqmp_qspi_regs *regs = priv->regs;
 	u32 last_bits;
 	u32 *traverse = buf;
+	int ret;
 
 	while (priv->len) {
 		len = zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
@@ -674,7 +691,9 @@ static int zynqmp_qspi_start_io(struct zynqmp_qspi_priv *priv,
 			priv->bytes_to_receive = (1 << len);
 		else
 			priv->bytes_to_receive = len;
-		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+		ret = zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+		if (ret)
+			return ret;
 
 		/* Manual start */
 		config_reg = readl(&regs->confr);
@@ -741,7 +760,9 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 
 		while (priv->len) {
 			zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
-			zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+			ret = zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+			if (ret)
+				return ret;
 		}
 
 		ret = wait_for_bit_le32(&dma_regs->dmaisr,
@@ -886,6 +907,8 @@ static int zynqmp_qspi_exec_op(struct spi_slave *slave,
 		ret = zynqmp_qspi_genfifo_fill_rx(priv);
 	else if (op->data.dir == SPI_MEM_DATA_OUT)
 		ret = zynqmp_qspi_genfifo_fill_tx(priv);
+	else
+		ret = zynqmp_qspi_start_gen_fifo(priv);
 
 	zynqmp_qspi_chipselect(priv, 0);
 

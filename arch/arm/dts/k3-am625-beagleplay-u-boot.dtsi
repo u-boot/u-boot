@@ -319,6 +319,34 @@
 	bootph-all;
 };
 
+&buck1_reg {
+	bootph-all;
+};
+
+&buck2_reg {
+	bootph-all;
+};
+
+&buck3_reg {
+	bootph-all;
+};
+
+&ldo1_reg {
+	bootph-all;
+};
+
+&ldo2_reg {
+	bootph-all;
+};
+
+&ldo3_reg {
+	bootph-all;
+};
+
+&ldo4_reg {
+	bootph-all;
+};
+
 &cpsw_port2 {
 	status = "disabled";
 };

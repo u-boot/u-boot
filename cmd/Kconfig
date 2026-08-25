@@ -2134,12 +2134,6 @@ config CMD_TFTPPUT
 	help
 	  TFTP put command, for uploading files to a server
 
-config CMD_TFTPSRV
-	bool "tftpsrv"
-	depends on CMD_TFTPBOOT
-	help
-	  Act as a TFTP server and boot the first received file
-
 config NET_TFTP_VARS
 	bool "Control TFTP timeout and count through environment"
 	depends on CMD_TFTPBOOT
@@ -2285,6 +2279,14 @@ config CMD_TFTPBOOT
 	default y
 	help
 	  tftpboot - load file via network using TFTP protocol
+
+config CMD_TFTPSRV
+	bool "tftpsrv"
+	depends on CMD_TFTPBOOT
+	help
+	  Act as a TFTP server and receive the first incoming file into
+	  memory. The command returns successfully after the transfer so
+	  boot scripts can boot the received image from the load address.
 
 config CMD_WGET
 	bool "wget"
