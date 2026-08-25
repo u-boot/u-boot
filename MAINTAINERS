@@ -1191,6 +1191,7 @@ M:	Daniel Golle <daniel@makrotopia.org>
 L:	openwrt-devel@lists.openwrt.org
 S:	Maintained
 F:	boot/imagemap.c
+F:	doc/develop/imagemap.rst
 F:	include/imagemap.h
 F:	test/boot/imagemap.c
 
