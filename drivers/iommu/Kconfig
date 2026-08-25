@@ -40,4 +40,12 @@ config QCOM_HYP_SMMU
 	  Say Y here to enable support for non-boot peripherals like USB by
 	  configuring identity mapped streams for them.
 
+config RISCV_IOMMU
+	bool "RISC-V IOMMU support"
+	depends on IOMMU && RISCV && 64BIT
+	help
+	  Enable support for the RISC-V IOMMU. This driver configures the IOMMU
+	  in Bare mode so that devices requiring DMA in U-Boot can work
+	  without additional configuration.
+
 endmenu
