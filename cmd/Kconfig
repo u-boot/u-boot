@@ -2194,14 +2194,6 @@ config IPV6_ROUTER_DISCOVERY
 	  Will automatically perform router solicitation on first IPv6
 	  network operation
 
-config CMD_ETHSW
-	bool "ethsw"
-	help
-	  Allow control of L2 Ethernet switch commands. These are supported
-	  by the vsc9953 Ethernet driver at present. Sub-commands allow
-	  operations such as enabling / disabling a port and
-	  viewing/maintaining the filtering database (FDB)
-
 config CMD_WOL
 	bool "wol"
 	help
@@ -2221,6 +2213,14 @@ config CMD_DNS
 	select DNS
 	help
 	  Lookup the IP of a hostname
+
+config CMD_ETHSW
+	bool "ethsw"
+	help
+	  Allow control of L2 Ethernet switch commands. These are supported
+	  by the vsc9953 Ethernet driver at present. Sub-commands allow
+	  operations such as enabling / disabling a port and
+	  viewing/maintaining the filtering database (FDB)
 
 config CMD_MII
 	bool "mii"
