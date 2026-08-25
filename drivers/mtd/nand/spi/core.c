@@ -1654,9 +1654,6 @@ static int spinand_bind(struct udevice *dev)
 			if (ret)
 				return ret;
 		}
-
-		if (CONFIG_IS_ENABLED(UBI_BLOCK))
-			return ubi_bind(dev);
 	}
 
 	return 0;
