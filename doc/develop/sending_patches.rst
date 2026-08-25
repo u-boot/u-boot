@@ -361,7 +361,7 @@ Notes
 
 1. U-Boot is Free Software that can redistributed and/or modified under the
    terms of the `GNU General Public License
-   <http://www.fsf.org/licensing/licenses/gpl.html>`_ (GPL). Currently (August
+   <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>`_ (GPL). Currently (August
    2022) version 2 of the GPL applies. Please see :download:`Licensing
    <../../Licenses/README>` for details. To allow that later versions of U-Boot
    may be released under a later version of the GPL, all new code that gets
