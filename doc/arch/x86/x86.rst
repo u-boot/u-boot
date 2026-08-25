@@ -483,7 +483,7 @@ TODO List
 .. _coreboot: http://www.coreboot.org
 .. _QEMU: http://www.qemu.org
 .. _microcode: http://en.wikipedia.org/wiki/Microcode
-.. _SFI: http://simplefirmware.org
+.. _SFI: https://en.wikipedia.org/wiki/Simple_Firmware_Interface
 .. _MP: http://www.intel.com/design/archives/processors/pro/docs/242016.htm
 .. _SeaBIOS: http://www.seabios.org/SeaBIOS
 .. _ACPI: http://www.acpi.info
