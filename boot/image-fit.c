@@ -26,6 +26,7 @@ extern void *aligned_alloc(size_t alignment, size_t size);
 #include <env.h>
 #include <errno.h>
 #include <hexdump.h>
+#include <imagemap.h>
 #include <log.h>
 #include <mapmem.h>
 #include <asm/io.h>
@@ -1140,6 +1141,16 @@ int fit_image_get_data(const void *fit, int noffset, const void **data,
 				return -EINVAL;
 			}
 			*data = fit + offset;
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
+			if (images.imagemap) {
+				void *mapped;
+
+				mapped = imagemap_lookup(images.imagemap,
+							 offset, len);
+				if (mapped)
+					*data = mapped;
+			}
+#endif
 			*size = len;
 		}
 	} else {
@@ -2140,6 +2151,84 @@ static const char *fit_get_image_type_property(int ph_type)
 	return "unknown";
 }
 
+#if !defined(USE_HOSTCC) && CONFIG_IS_ENABLED(IMAGEMAP)
+/**
+ * fit_image_load_storage() - Pre-load a sub-image from on-demand storage
+ *
+ * Brings an external-data sub-image into RAM through the imagemap loader before
+ * fit_image_select() runs verification, so the existing verify/copy path sees a
+ * valid RAM pointer.  Uncompressed sub-images with a load address are read
+ * straight to their destination (zero-copy); everything else goes to scratch
+ * RAM.  Filesystem sub-images protected by dm-verity are left on storage and
+ * verified by the kernel at block level; @early is set for those so the caller
+ * returns the node without loading the payload.
+ *
+ * @early is set to true when the caller should stop and return @noffset with an
+ * empty payload.
+ *
+ * Return: 0 to continue, negative errno on failure
+ */
+static int fit_image_load_storage(struct bootm_headers *images, const void *fit,
+				  int noffset, enum fit_load_op load_op,
+				  ulong *datap, ulong *lenp, bool *early)
+{
+	int data_off = 0, data_sz = 0;
+	bool external = false;
+	ulong img_load;
+	u8 img_comp = IH_COMP_NONE;
+	void *mapped;
+
+	if (CONFIG_IS_ENABLED(FIT_VERITY)) {
+		u8 img_type;
+
+		if (!fit_image_get_type(fit, noffset, &img_type) &&
+		    img_type == IH_TYPE_FILESYSTEM &&
+		    fdt_subnode_offset(fit, noffset, "dm-verity") >= 0) {
+			fit_image_print(fit, noffset, "   ");
+			*datap = 0;
+			*lenp = 0;
+			*early = true;
+			return 0;
+		}
+	}
+
+	if (!fit_image_get_data_position(fit, noffset, &data_off)) {
+		external = true;
+	} else if (!fit_image_get_data_offset(fit, noffset, &data_off)) {
+		external = true;
+		data_off += ALIGN(fdt_totalsize(fit), 4);
+	}
+
+	if (!external || fit_image_get_data_size(fit, noffset, &data_sz))
+		return 0;
+
+	if (data_off < 0 || data_sz < 0)
+		return -EINVAL;
+
+	fit_image_get_comp(fit, noffset, &img_comp);
+
+	if (img_comp == IH_COMP_NONE && load_op != FIT_LOAD_IGNORED &&
+	    !fit_image_get_load(fit, noffset, &img_load)) {
+		void *dst = map_sysmem(img_load, data_sz);
+
+		mapped = imagemap_map_to(images->imagemap, data_off, data_sz,
+					 dst);
+	} else {
+		mapped = imagemap_map(images->imagemap, data_off, data_sz);
+	}
+
+	return IS_ERR(mapped) ? PTR_ERR(mapped) : 0;
+}
+#else
+static inline int fit_image_load_storage(struct bootm_headers *images,
+					 const void *fit, int noffset,
+					 enum fit_load_op load_op, ulong *datap,
+					 ulong *lenp, bool *early)
+{
+	return 0;
+}
+#endif
+
 int fit_image_load(struct bootm_headers *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
 		   int arch, int ph_type, int bootstage_id,
@@ -2235,6 +2324,21 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		fit_uname = fit_get_name(fit, noffset, NULL);
 
 	printf("   Trying '%s' %s subimage\n", fit_uname, prop_name);
+
+	/*
+	 * On-demand storage: pre-load external-data payloads into RAM (or leave
+	 * dm-verity filesystems on storage) before fit_image_select() verifies.
+	 */
+	if (CONFIG_IS_ENABLED(IMAGEMAP) && !tools_build() && images->imagemap) {
+		bool early = false;
+
+		ret = fit_image_load_storage(images, fit, noffset, load_op,
+					     datap, lenp, &early);
+		if (ret)
+			return ret;
+		if (early)
+			return noffset;
+	}
 
 	ret = fit_image_select(fit, noffset, images->verify);
 	if (ret) {
@@ -2349,8 +2453,9 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 			return -EXDEV;
 		}
 
-		printf("   Loading %s from 0x%08lx to 0x%08lx\n",
-		       prop_name, data, load);
+		if (!CONFIG_IS_ENABLED(IMAGEMAP) || data != load)
+			printf("   Loading %s from 0x%08lx to 0x%08lx\n",
+			       prop_name, data, load);
 	} else {
 		load = data;	/* load address specified but set to 0 */
 	}
