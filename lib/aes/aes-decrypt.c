@@ -17,6 +17,16 @@ int image_aes_decrypt(struct image_cipher_info *info,
 	unsigned char key_exp[AES256_EXPAND_KEY_LENGTH];
 	unsigned int aes_blocks, key_len = info->cipher->key_len;
 
+	/*
+	 * The ciphertext is a whole number of AES blocks by construction, and
+	 * the decryption below writes one full block at a time, so anything
+	 * else would overflow the output buffer.
+	 */
+	if (!cipher_len || cipher_len % AES_BLOCK_LENGTH) {
+		printf("Invalid ciphertext length\n");
+		return -EINVAL;
+	}
+
 	*data = malloc(cipher_len);
 	if (!*data) {
 		printf("Can't allocate memory to decrypt\n");
@@ -30,7 +40,7 @@ int image_aes_decrypt(struct image_cipher_info *info,
 	aes_expand_key((u8 *)info->key, key_len, key_exp);
 
 	/* Calculate the number of AES blocks to encrypt. */
-	aes_blocks = DIV_ROUND_UP(cipher_len, AES_BLOCK_LENGTH);
+	aes_blocks = cipher_len / AES_BLOCK_LENGTH;
 
 	aes_cbc_decrypt_blocks(key_len, key_exp, (u8 *)info->iv,
 			       (u8 *)cipher, *data, aes_blocks);
