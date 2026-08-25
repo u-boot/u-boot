@@ -27,6 +27,15 @@ int image_aes_decrypt(struct image_cipher_info *info,
 		return -EINVAL;
 	}
 
+	/*
+	 * Decryption produces exactly cipher_len bytes, so the unciphered
+	 * size the image claims cannot be larger than that.
+	 */
+	if (info->size_unciphered > cipher_len) {
+		printf("Invalid unciphered size\n");
+		return -EINVAL;
+	}
+
 	*data = malloc(cipher_len);
 	if (!*data) {
 		printf("Can't allocate memory to decrypt\n");
