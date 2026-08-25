@@ -58,12 +58,6 @@ https://github.com/coccinelle/coccinelle/blob/master/install.txt
 Supplemental documentation
 --------------------------
 
-For supplemental documentation refer to the wiki:
-
-https://bottest.wiki.kernel.org/coccicheck
-
-The wiki documentation always refers to the linux-next version of the script.
-
 For Semantic Patch Language(SmPL) grammar documentation refer to:
 
 https://coccinelle.gitlabpages.inria.fr/website/documentation.html
