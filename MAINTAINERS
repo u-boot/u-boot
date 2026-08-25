@@ -1186,6 +1186,13 @@ S:	Maintained
 F:	drivers/timer/goldfish_timer.c
 F:	include/goldfish_timer.h
 
+IMAGEMAP
+M:	Daniel Golle <daniel@makrotopia.org>
+L:	openwrt-devel@lists.openwrt.org
+S:	Maintained
+F:	boot/imagemap.c
+F:	include/imagemap.h
+
 INTERCONNECT
 M:	Neil Armstrong <neil.armstrong@linaro.org>
 S:	Maintained
