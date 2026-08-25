@@ -4081,7 +4081,11 @@
 				     "qcom,inline-crypto-engine";
 			reg = <0 0x01d88000 0 0x18000>;
 
-			clocks = <&gcc GCC_UFS_PHY_ICE_CORE_CLK>;
+			clocks = <&gcc GCC_UFS_PHY_ICE_CORE_CLK>,
+				 <&gcc GCC_UFS_PHY_AHB_CLK>;
+			clock-names = "core",
+				      "iface";
+			power-domains = <&gcc UFS_PHY_GDSC>;
 		};
 
 		cryptobam: dma-controller@1dc4000 {
@@ -4486,7 +4490,7 @@
 
 			status = "disabled";
 
-			remoteproc_adsp_glink: glink-edge {
+			glink-edge {
 				interrupts-extended = <&ipcc IPCC_CLIENT_LPASS
 							     IPCC_MPROC_SIGNAL_GLINK_QMP
 							     IRQ_TYPE_EDGE_RISING>;
@@ -7087,8 +7091,8 @@
 
 			ranges = <0 0 0x14680000 0x2c000>;
 
-			ipa_modem_tables: modem-tables@8000 {
-				reg = <0x8000 0x2000>;
+			ipa_modem_tables: modem-tables@3000 {
+				reg = <0x3000 0x2000>;
 			};
 		};
 
