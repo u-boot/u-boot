@@ -125,7 +125,7 @@ iPXE
 
 For running iPXE on arm64 the bin-arm64-efi/snp.efi build target is needed::
 
-    git clone http://git.ipxe.org/ipxe.git
+    git clone https://github.com/ipxe/ipxe
     cd ipxe/src
     make bin-arm64-efi/snp.efi -j6 EMBED=myscript.ipxe
 
