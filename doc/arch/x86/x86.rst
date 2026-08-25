@@ -185,7 +185,7 @@ These notes are for those who want to port U-Boot to a new x86 platform.
 Since x86 CPUs boot from SPI flash, a SPI flash emulator is a good investment.
 The Dediprog em100 can be used on Linux.
 
-The em100 tool is available here: http://review.coreboot.org/p/em100.git
+The em100 tool is available here: https://review.coreboot.org/admin/repos/em100,general
 
 On Minnowboard Max the following command line can be used::
 
