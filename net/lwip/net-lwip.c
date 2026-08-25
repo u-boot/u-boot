@@ -19,6 +19,7 @@
 #include <lwip/prot/etharp.h>
 #include <lwip/timeouts.h>
 #include <net.h>
+#include <net/pcap.h>
 #include <timer.h>
 #include <u-boot/schedule.h>
 
@@ -85,6 +86,8 @@ static err_t net_lwip_tx(struct netif *netif, struct pbuf *p)
 	}
 
 	err = eth_get_ops(udev)->send(udev, pp, plen);
+	if (err >= 0 && CONFIG_IS_ENABLED(CMD_PCAP))
+		pcap_post(pp, plen, true);
 
 	if (pp_allocated)
 		free(pp);
@@ -270,6 +273,8 @@ static int net_lwip_eth_start(void)
 static void net_lwip_eth_stop(void)
 {
 	eth_halt();
+	if (CONFIG_IS_ENABLED(CMD_PCAP) && pcap_active())
+		pcap_print_status();
 }
 
 static struct netif *new_netif(struct udevice *udev, bool with_ip)
@@ -597,6 +602,9 @@ static int net_lwip_rx(struct udevice *udev, struct netif *netif)
 		flags = 0;
 
 		if (len > 0) {
+			if (CONFIG_IS_ENABLED(CMD_PCAP))
+				pcap_post(packet, len, false);
+
 			if (CONFIG_IS_ENABLED(LWIP_DEBUG_RXTX)) {
 				printf("net_lwip_tx: %u bytes, udev %s \n", len,
 				       udev->name);
