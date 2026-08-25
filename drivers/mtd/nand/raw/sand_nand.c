@@ -602,6 +602,8 @@ static int sand_nand_probe(struct udevice *dev)
 
 		nand = &chip->nand;
 		nand->options = not_xpl() ? 0 : NAND_SKIP_BBTSCAN;
+		/* Each page is programmed in a single operation only */
+		nand->options |= NAND_NO_SUBPAGE_WRITE;
 		nand->flash_node = np;
 		nand->dev_ready = sand_nand_dev_ready;
 		nand->cmdfunc = sand_nand_command;
