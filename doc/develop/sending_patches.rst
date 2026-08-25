@@ -353,8 +353,8 @@ posted before, look up the old threads, and then manually compare if anything
 has been changed, or what.
 
 If you have problems with your e-mail client, for example because it mangles
-white space or wraps long lines, then please read this article about `Email
-Clients and Patches <http://kerneltrap.org/Linux/Email_Clients_and_Patches>`_.
+white space or wraps long lines, then please read this about `Email
+Clients and Patches <https://docs.kernel.org/process/email-clients.html>`_.
 
 Notes
 -----
