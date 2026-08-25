@@ -484,6 +484,6 @@ TODO List
 .. _QEMU: http://www.qemu.org
 .. _microcode: http://en.wikipedia.org/wiki/Microcode
 .. _SFI: https://en.wikipedia.org/wiki/Simple_Firmware_Interface
-.. _MP: http://www.intel.com/design/archives/processors/pro/docs/242016.htm
+.. _MP: https://en.wikipedia.org/wiki/MultiProcessor_Specification
 .. _SeaBIOS: http://www.seabios.org/SeaBIOS
 .. _ACPI: http://www.acpi.info
