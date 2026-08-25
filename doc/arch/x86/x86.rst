@@ -242,7 +242,7 @@ debug serial port may be useful here. See setup_internal_uart() for an example.
 During the U-Boot porting, one of the important steps is to write correct PIRQ
 routing information in the board device tree. Without it, device drivers in the
 Linux kernel won't function correctly due to interrupt is not working. Please
-refer to U-Boot `doc <doc/device-tree-bindings/misc/intel,irq-router.txt>`_ for
+refer to :download:`intel,irq-router.txt <../../device-tree-bindings/misc/intel,irq-router.txt>` for
 the device tree bindings of Intel interrupt router. Here we have more details
 on the intel,pirq-routing property below.
 
