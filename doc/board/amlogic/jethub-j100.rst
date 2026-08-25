@@ -3,7 +3,7 @@
 U-Boot for JetHub J100/J110 (A113X)
 ===================================
 
-JetHome Jethub D1/D1+ (http://jethome.ru/jethub-d1p) is a home automation controller device
+JetHome Jethub D1/D1+ (https://jethome.com/d1p/) is a home automation controller device
 manufactured by JetHome with the following specifications:
 
  - Amlogic A113X (ARM Cortex-A53) quad-core up to 1.5GHz
