@@ -1331,9 +1331,25 @@ static int do_efi_boot_order(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 
 	for (i = 0; i < argc; i++) {
+		u16 var_name16[9];
+		efi_uintn_t size;
+		efi_status_t ret;
+
 		id = (int)hextoul(argv[i], &endp);
 		if (*endp != '\0' || id > 0xffff) {
 			printf("invalid value: %s\n", argv[i]);
+			r = CMD_RET_FAILURE;
+			goto out;
+		}
+		efi_create_indexed_name(var_name16, sizeof(var_name16),
+					"Boot", id);
+
+		size = 0;
+		ret = efi_get_variable_int(var_name16,
+					   &efi_global_variable_guid, NULL,
+					   &size, NULL, NULL);
+		if (ret != EFI_BUFFER_TOO_SMALL) {
+			printf("%ls not defined\n", var_name16);
 			r = CMD_RET_FAILURE;
 			goto out;
 		}
