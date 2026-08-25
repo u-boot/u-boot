@@ -30,7 +30,7 @@ Commands
 	try. The order and contents of paths it tries mirrors exactly
 	that of PXELINUX - you can read in more detail about it at:
 
-	http://syslinux.zytor.com/wiki/index.php/Doc/pxelinux
+	https://wiki.syslinux.org/wiki/index.php?title=Doc/pxelinux
 
 ``pxe boot``
         **Syntax:** ``pxe boot [pxefile_addr_r]``
@@ -130,7 +130,7 @@ pxe file format
 ---------------
 
 The pxe file format is nearly a subset of the PXELINUX file format;
-see http://syslinux.zytor.com/wiki/index.php/PXELINUX. It's composed
+see https://wiki.syslinux.org/wiki/index.php?title=PXELINUX. It's composed
 of one line commands - global commands, and commands specific to
 labels. Lines beginning with # are treated as comments. White space
 between and at the beginning of lines is ignored.
