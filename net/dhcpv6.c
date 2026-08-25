@@ -115,6 +115,9 @@ static int dhcp6_add_option(int option_id, uchar *pkt)
 
 		opt_len = sizeof(struct dhcp6_option_ia_na);
 		break;
+	case DHCP6_OPTION_RAPID_COMMIT:
+		opt_len = 0;
+		break;
 	case DHCP6_OPTION_ORO:
 		oro_opt = (struct dhcp6_option_oro *)dhcp_option_start;
 		oro_opt->req_option_code[num_oro++] = htons(DHCP6_OPTION_OPT_BOOTFILE_URL);
@@ -194,6 +197,8 @@ static void dhcp6_send_solicit_packet(void)
 	pkt += dhcp6_add_option(DHCP6_OPTION_ELAPSED_TIME, pkt);
 	pkt += dhcp6_add_option(DHCP6_OPTION_IA_NA, pkt);
 	pkt += dhcp6_add_option(DHCP6_OPTION_ORO, pkt);
+	if (IS_ENABLED(CONFIG_DHCP6_RAPID_COMMIT))
+		pkt += dhcp6_add_option(DHCP6_OPTION_RAPID_COMMIT, pkt);
 	if (CONFIG_DHCP_PXE_CLIENTARCH != 0xFF)
 		pkt += dhcp6_add_option(DHCP6_OPTION_CLIENT_ARCH_TYPE, pkt);
 	pkt += dhcp6_add_option(DHCP6_OPTION_VENDOR_CLASS, pkt);
@@ -452,6 +457,16 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 			}
 			sm_params.rx_status.preference = *option_ptr;
 			break;
+		case DHCP6_OPTION_RAPID_COMMIT:
+			if (option_len != 0) {
+				debug("Invalid rapid commit option length\n");
+				break;
+			}
+			if (IS_ENABLED(CONFIG_DHCP6_RAPID_COMMIT)) {
+				debug("DHCP6_OPTION_RAPID_COMMIT FOUND\n");
+				sm_params.rx_status.rapid_commit_found = true;
+			}
+			break;
 		default:
 			debug("Unknown Option ID: %d, skipping parsing\n",
 			      ntohs(option_hdr->option_id));
@@ -622,14 +637,28 @@ static void dhcp6_state_machine(bool timeout, uchar *rx_pkt, unsigned int len)
 		break;
 	case DHCP6_SOLICIT:
 		if (!timeout) {
-			/* check the rx packet and determine if we can transition to next
-			 * state.
-			 */
-			if (dhcp6_check_advertise_packet(rx_pkt, len))
-				return;
+			struct dhcp6_hdr *dhcp6_hdr = (struct dhcp6_hdr *)rx_pkt;
 
-			debug("ADVERTISE good, transition to REQUEST\n");
-			sm_params.next_state = DHCP6_REQUEST;
+			if (IS_ENABLED(CONFIG_DHCP6_RAPID_COMMIT) &&
+			    dhcp6_hdr->msg_type == DHCP6_MSG_REPLY) {
+				if (dhcp6_check_reply_packet(rx_pkt, len))
+					return;
+				if (!sm_params.rx_status.rapid_commit_found) {
+					debug("[DHCPv6] REPLY received without Rapid Commit option, ignoring\n");
+					return;
+				}
+				debug("REPLY (Rapid Commit) good, transition to DONE\n");
+				sm_params.next_state = DHCP6_DONE;
+			} else {
+				/* check the rx packet and determine if we can transition to next
+				 * state.
+				 */
+				if (dhcp6_check_advertise_packet(rx_pkt, len))
+					return;
+
+				debug("ADVERTISE good, transition to REQUEST\n");
+				sm_params.next_state = DHCP6_REQUEST;
+			}
 		} else if (sm_params.retry_cnt == 1)  {
 			/* If a server UID was received in the first SOLICIT period
 			 * transition to REQUEST

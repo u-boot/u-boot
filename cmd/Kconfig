@@ -1995,6 +1995,14 @@ config DHCP6_ENTERPRISE_ID
 	int "Enterprise ID to send in DHCPv6 Vendor Class Option"
 	default 0
 
+config DHCP6_RAPID_COMMIT
+	bool "Request Rapid Commit (2-message exchange) from DHCPv6 server"
+	default n
+	help
+	  Request the Rapid Commit option (option 14) in DHCPv6 Solicit
+	  messages to enable a 2-message exchange (Solicit-Reply) rather
+	  than the default 4-message exchange.
+
 endif
 
 config BOOTP_MAY_FAIL
