@@ -479,9 +479,8 @@ mbox file and apply it using::
 
    git am file
 
-The `openembedded wiki <http://wiki.openembedded.net/>`_ also provides a script
-named `pw-am.sh
-<http://cgit.openembedded.org/cgit.cgi/openembedded/tree/contrib/patchwork/pw-am.sh>`_
+OpenEmbedded also provides a script named `pw-am.sh
+<https://git.openembedded.org/openembedded/tree/contrib/patchwork/pw-am.sh>`_
 which can be used to fetch an 'mbox' patch from patchwork and git am it::
 
    usage: pw-am.sh <number>
