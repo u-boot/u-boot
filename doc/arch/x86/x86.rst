@@ -192,7 +192,7 @@ On Minnowboard Max the following command line can be used::
    sudo em100 -s -p LOW -d u-boot.rom -c W25Q64DW -r
 
 A suitable clip for connecting over the SPI flash chip is here:
-http://www.dediprog.com/pd/programmer-accessories/EM-TC-8.
+https://www.dediprog.com/product/EM-TC-8.
 
 This allows you to override the SPI flash contents for development purposes.
 Typically you can write to the em100 in around 1200ms, considerably faster
