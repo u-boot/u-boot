@@ -1666,6 +1666,96 @@ static int bootflow_rauc(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_rauc, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
 
+/*
+ * Test the BLS bootmeth against entries that live below a '/boot/' prefix,
+ * so that they are only found via the second bootstd prefix. The Fedora
+ * image used by the other tests covers the unprefixed layout.
+ */
+static int bootflow_bls_prefix(struct unit_test_state *uts)
+{
+	static const char *order[] = {NULL, NULL};
+	const char *mmc_dev = "mmc11";
+	struct bootstd_priv *std;
+	struct udevice *bootstd;
+	const char **old_order;
+	ofnode root;
+	ofnode node;
+
+	if (!CONFIG_IS_ENABLED(BOOTMETH_BLS))
+		return -EAGAIN;
+
+	order[0] = mmc_dev;
+
+	/* Enable the requested mmc node since we need a different bootflow */
+	root = oftree_root(oftree_default());
+	node = ofnode_find_subnode(root, mmc_dev);
+	ut_assert(ofnode_valid(node));
+	ut_assertok(lists_bind_fdt(gd->dm_root, node, NULL, NULL, false));
+
+	/* Change the device and bootmeth order */
+	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
+	std = dev_get_priv(bootstd);
+	old_order = std->bootdev_order;
+	std->bootdev_order = order;
+
+	ut_assertok(bootmeth_set_order("bls"));
+
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_console_end();
+
+	ut_assertok(run_command("bootflow list", 0));
+	ut_assert_nextlinen("Showing all");
+	ut_assert_nextlinen("Seq");
+	ut_assert_nextlinen("---");
+	ut_assert_nextlinen("  0  bls          ready   mmc          1  mmc11.bootdev.part_1      /boot/loader/entries/aabbccdd-6.17.0-bls.conf");
+	ut_assert_nextlinen("---");
+	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	ut_assert_console_end();
+
+	/*
+	 * The prefix the entry was found under must be recorded, and the BLS
+	 * 'title' key must surface as the OS name
+	 */
+	ut_assertok(run_command("bootflow select 0", 0));
+	ut_assert_console_end();
+	ut_assertok(run_command("bootflow info", 0));
+	ut_assert_skip_to_line("Subdir:    /boot/");
+	ut_assert_skip_to_line("OS:        BLS prefix test");
+	ut_assert_skip_to_line("Error:     0");
+	ut_assert_console_end();
+
+	/*
+	 * Rescan on top of a selected bootflow. This frees the previous
+	 * bootflow, so it walks the path that would double-free a retained
+	 * bootmeth_priv: the bootflow is shallow-copied into the bootflow list,
+	 * leaving the iterator's temporary and the stored copy sharing it.
+	 */
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_console_end();
+	ut_assertok(run_command("bootflow select 0", 0));
+	ut_assert_console_end();
+
+	/*
+	 * Paths inside the entry stay relative to the partition root even
+	 * though the entry itself was found under '/boot/', so they are used
+	 * as written rather than rebased onto the prefix.
+	 */
+	ut_asserteq(1, run_command("bootflow boot", 0));
+	ut_assert_nextline("** Booting bootflow 'mmc11.bootdev.part_1' with bls");
+	ut_assert_skip_to_line("Retrieving file: /boot/vmlinuz-6.17.0-bls");
+	ut_assert_skip_to_line("Retrieving file: /boot/initramfs-6.17.0-bls.img");
+	ut_assert_skip_to_line("Retrieving file: /boot/dtb-6.17.0-bls/sandbox.dtb");
+	ut_assert_skip_to_line("sandbox: continuing, as we cannot run Linux");
+	ut_assert_nextline("Boot failed (err=-22)");
+	ut_assert_console_end();
+
+	/* Restore the order used by the device tree */
+	std->bootdev_order = old_order;
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_bls_prefix, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
+
 /* Check 'bootflow scan' provides a list of images */
 static int bootstd_images(struct unit_test_state *uts)
 {

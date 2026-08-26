@@ -49,6 +49,7 @@
 		mmc8 = "/mmc8";
 		mmc9 = "/mmc9";
 		mmc10 = "/mmc10";
+		mmc11 = "/mmc11";
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
@@ -1370,6 +1371,13 @@
 		status = "disabled";
 		compatible = "sandbox,mmc";
 		filename = "mmc10.img";
+	};
+
+	/* This is used for BLS boot tests */
+	mmc11 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc11.img";
 	};
 
 	pch {

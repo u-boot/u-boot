@@ -261,6 +261,68 @@ def setup_fedora_image(ubman, devnum, basename):
     dtbdir = 'dtb-5.3.7-301.fc31.armv7hl'
     setup_extlinux_bls_image(ubman, devnum, basename, vmlinux, initrd, dtbdir)
 
+def setup_bls_prefix_image(ubman):
+    """Create a disk image holding BLS entries below a '/boot/' prefix
+
+    This is the layout where $BOOT is a directory on a larger filesystem
+    rather than a partition of its own, so the entries are only found via
+    the second bootstd prefix. The Fedora image covers the other layout,
+    where they sit at the root of the filesystem.
+
+    Paths inside the entry stay relative to the partition root either way,
+    which is both what the spec requires and what systemd's
+    90-loaderentry.install writes: it strips the mount point from the entry
+    directory, so a $BOOT that is not its own mount keeps the '/boot'
+    component.
+    """
+    mmc_dev = 11
+    vmlinux = 'vmlinuz-6.17.0-bls'
+    initrd = 'initramfs-6.17.0-bls.img'
+    dtbdir = 'dtb-6.17.0-bls'
+
+    fsh = FsHelper(ubman.config, 'ext4', 8, prefix='bls')
+    fsh.setup()
+
+    boot = os.path.join(fsh.srcdir, 'boot')
+    mkdir_cond(boot)
+    bls = os.path.join(boot, 'loader')
+    mkdir_cond(bls)
+    bls = os.path.join(bls, 'entries')
+    mkdir_cond(bls)
+
+    # Paths are relative to the partition root, so they keep the '/boot'
+    script = '''title BLS prefix test
+version 6.17.0-bls
+linux /boot/%s
+initrd /boot/%s
+devicetree /boot/%s/sandbox.dtb
+options ro root=/dev/sda1''' % (vmlinux, initrd, dtbdir)
+
+    conf = os.path.join(bls, 'aabbccdd-6.17.0-bls.conf')
+    with open(conf, 'w', encoding='ascii') as fd:
+        print(script, file=fd)
+
+    inf = os.path.join(ubman.config.persistent_data_dir, 'inf')
+    with open(inf, 'wb') as fd:
+        fd.write(gzip.compress(b'vmlinux'))
+    mkimage = ubman.config.build_dir + '/tools/mkimage'
+    utils.run_and_log(
+        ubman, f'{mkimage} -f auto -d {inf} {os.path.join(boot, vmlinux)}')
+
+    with open(os.path.join(boot, initrd), 'w', encoding='ascii') as fd:
+        print('initrd', file=fd)
+
+    mkdir_cond(os.path.join(boot, dtbdir))
+    dtb_file = os.path.join(boot, f'{dtbdir}/sandbox.dtb')
+    utils.run_and_log(ubman, f'dtc -o {dtb_file}', stdin=b'/dts-v1/; / {};')
+
+    fsh.mk_fs()
+
+    img = DiskHelper(ubman.config, mmc_dev, 'mmc', True)
+    img.add_fs(fsh, DiskHelper.EXT4)
+    img.create()
+    fsh.cleanup()
+
 def setup_cros_image(ubman):
     """Create a 20MB disk image with ChromiumOS partitions"""
     Partition = collections.namedtuple('part', 'start,size,name')
@@ -648,6 +710,7 @@ def test_ut_dm_init_bootstd(ubman):
     setup_android_image(ubman)
     setup_efi_image(ubman)
     setup_rauc_image(ubman)
+    setup_bls_prefix_image(ubman)
 
     # Restart so that the new mmc1.img is picked up
     ubman.restart_uboot()
@@ -665,7 +728,8 @@ def ut_ubman_fixture(ubman, ut_subtest):
 
     yield ubman
 
-    if ut_subtest in ("bootstd bootflow_cmd_boot", "bootstd bootflow_scan_boot"):
+    if ut_subtest in ("bootstd bootflow_cmd_boot", "bootstd bootflow_scan_boot",
+                      "bootstd bootflow_bls_prefix"):
         ubman.restart_uboot()
 
 
