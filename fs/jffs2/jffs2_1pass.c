@@ -647,6 +647,7 @@ jffs2_free_cache(struct part_info *part)
 		free_nodes(&pL->dir);
 		free(pL->readbuf);
 		free(pL);
+		part->jffs2_priv = NULL;
 	}
 }
 
