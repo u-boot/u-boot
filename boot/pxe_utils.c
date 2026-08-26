@@ -894,6 +894,7 @@ static const struct token keywords[] = {
 	{"linux", T_LINUX},
 	{"localboot", T_LOCALBOOT},
 	{"append", T_APPEND},
+	{"options", T_APPEND},
 	{"initrd", T_INITRD},
 	{"include", T_INCLUDE},
 	{"devicetree", T_FDT},
