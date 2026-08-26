@@ -344,15 +344,11 @@ int net_loop(enum proto_t);
 /* Get size of the ethernet header when we send */
 int net_eth_hdr_size(void);
 
-/* Set ethernet header; returns the size of the header */
-int net_set_ether(uchar *xet, const uchar *dest_ethaddr, uint prot);
 int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot);
 
 /* Set IP header */
 void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source,
 		       u16 pkt_len, u8 proto);
-void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport,
-			int sport, int len);
 
 /* Callbacks */
 rxhand_f *net_get_udp_handler(void);	/* Get UDP RX packet handler */

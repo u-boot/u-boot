@@ -362,6 +362,13 @@ struct ethernet_hdr {
 /* Ethernet header size */
 #define ETHER_HDR_SIZE	(sizeof(struct ethernet_hdr))
 
+/* Set Ethernet header; returns the size of the header */
+int net_set_ether(uchar *xet, const uchar *dest_ethaddr, uint prot);
+
+/* Set IPv4 and UDP headers */
+void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport,
+			int sport, int len);
+
 /**
  * net_random_ethaddr - Generate software assigned random Ethernet address
  * @addr: Pointer to a six-byte array containing the Ethernet address

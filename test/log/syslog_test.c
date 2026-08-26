@@ -34,11 +34,13 @@ int sb_log_tx_handler(struct udevice *dev, void *packet, unsigned int len)
 
 	/* Check Ethernet header */
 	ut_asserteq_mem(&eth_hdr->et_dest, net_bcast_ethaddr, ARP_HLEN);
+	ut_asserteq_mem(&eth_hdr->et_src, eth_get_ethaddr(), ARP_HLEN);
 	ut_asserteq(ntohs(eth_hdr->et_protlen), PROT_IP);
 
 	/* Check IP header */
 	buf += sizeof(struct ethernet_hdr);
 	ip_udp_hdr = (struct ip_udp_hdr *)buf;
+	ut_assert(ip_checksum_ok(ip_udp_hdr, IP_HDR_SIZE));
 	ut_asserteq(ip_udp_hdr->ip_p, IPPROTO_UDP);
 	ut_asserteq(ip_udp_hdr->ip_dst.s_addr, 0xffffffff);
 	ut_asserteq(ntohs(ip_udp_hdr->udp_dst), 514);

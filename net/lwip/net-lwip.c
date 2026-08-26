@@ -154,6 +154,66 @@ static int get_udev_ipv4_info(struct udevice *dev, ip4_addr_t *ip,
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(LOG_SYSLOG)
+int net_set_ether(uchar *xet, const uchar *dest_ethaddr, uint prot)
+{
+	struct ethernet_hdr *et = (struct ethernet_hdr *)xet;
+	const uchar *src = eth_get_ethaddr();
+
+	memcpy(et->et_dest, dest_ethaddr, ARP_HLEN);
+	if (src)
+		memcpy(et->et_src, src, ARP_HLEN);
+	else
+		memset(et->et_src, 0, ARP_HLEN);
+	et->et_protlen = htons(prot);
+
+	return ETHER_HDR_SIZE;
+}
+
+static void net_lwip_set_ip_header(uchar *pkt, struct in_addr dest,
+				   struct in_addr source, u16 pkt_len,
+				   u8 proto)
+{
+	static u16 ip_id;
+	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)pkt;
+
+	ip->ip_hl_v = 0x45;
+	ip->ip_tos = 0;
+	ip->ip_len = htons(pkt_len);
+	ip->ip_p = proto;
+	ip->ip_id = htons(ip_id++);
+	ip->ip_off = htons(IP_FLAGS_DFRAG);
+	ip->ip_ttl = 255;
+	ip->ip_sum = 0;
+	memcpy(&ip->ip_src, &source, sizeof(source));
+	memcpy(&ip->ip_dst, &dest, sizeof(dest));
+	ip->ip_sum = compute_ip_checksum(ip, IP_HDR_SIZE);
+}
+
+void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
+			int len)
+{
+	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)pkt;
+	struct in_addr source = {};
+	ip4_addr_t addr, mask, gateway;
+	struct udevice *dev = eth_get_dev();
+	u16 pkt_len = IP_UDP_HDR_SIZE + len;
+
+	if (len & 1)
+		pkt[IP_UDP_HDR_SIZE + len] = 0;
+
+	if (dev && !get_udev_ipv4_info(dev, &addr, &mask, &gateway))
+		source.s_addr = addr.addr;
+
+	net_lwip_set_ip_header(pkt, dest, source, pkt_len, IPPROTO_UDP);
+
+	ip->udp_src = htons(sport);
+	ip->udp_dst = htons(dport);
+	ip->udp_len = htons(UDP_HDR_SIZE + len);
+	ip->udp_xsum = 0;
+}
+#endif
+
 /*
  * Initialize DNS via env
  */
