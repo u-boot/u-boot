@@ -10,9 +10,7 @@
 
 	aliases {
 		serial0 = &uart0;
-		ethernet0 = &gmac0;
-		ethernet1 = &gmac1;
-		ethernet2 = &gmac2;
+		ethernet0 = &gmac2;
 	};
 
 	chosen {
@@ -51,16 +49,13 @@
 
 &gmac2 {
 	status = "okay";
-	/* No PCB-induced RGMII delays; clock and data skew are added on the
-	 * PHY side via the rx*-skew-ps / tx*-skew-ps properties below.
-	 */
 	phy-mode = "rgmii";
 	phy-handle = <&emac2_phy0>;
 	max-frame-size = <9000>;
 	mdio0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "snps,dwmac-mdio";
+		compatible = "snps,dwxgmac-mdio";
 		emac2_phy0: ethernet-phy@0 {
 			reg = <0>;
 			rxc-skew-ps = <0>;
@@ -88,49 +83,9 @@
 };
 
 &mmc {
-	status = "okay";
 	bus-width = <4>;
-	no-1-8-v;
 	cap-sd-highspeed;
-	cap-mmc-highspeed;
 	disable-wp;
-	sd-uhs-sdr50;
-	cdns,phy-use-ext-lpbk-dqs = <1>;
-	cdns,phy-use-lpbk-dqs = <1>;
-	cdns,phy-use-phony-dqs = <1>;
-	cdns,phy-use-phony-dqs-cmd = <1>;
-	cdns,phy-io-mask-always-on = <0>;
-	cdns,phy-io-mask-end = <5>;
-	cdns,phy-io-mask-start = <0>;
-	cdns,phy-data-select-oe-end = <1>;
-	cdns,phy-sync-method = <1>;
-	cdns,phy-sw-half-cycle-shift = <0>;
-	cdns,phy-rd-del-sel = <52>;
-	cdns,phy-underrun-suppress = <1>;
-	cdns,phy-gate-cfg-always-on = <1>;
-	cdns,phy-param-dll-bypass-mode = <1>;
-	cdns,phy-param-phase-detect-sel = <2>;
-	cdns,phy-param-dll-start-point = <254>;
-	cdns,phy-read-dqs-cmd-delay = <0>;
-	cdns,phy-clk-wrdqs-delay = <0>;
-	cdns,phy-clk-wr-delay = <0>;
-	cdns,phy-read-dqs-delay = <0>;
-	cdns,phy-phony-dqs-timing = <0>;
-	cdns,hrs09-rddata-en = <1>;
-	cdns,hrs09-rdcmd-en = <1>;
-	cdns,hrs09-extended-wr-mode = <1>;
-	cdns,hrs09-extended-rd-mode = <1>;
-	cdns,hrs10-hcsdclkadj = <3>;
-	cdns,hrs16-wrdata1-sdclk-dly = <0>;
-	cdns,hrs16-wrdata0-sdclk-dly = <0>;
-	cdns,hrs16-wrcmd1-sdclk-dly = <0>;
-	cdns,hrs16-wrcmd0-sdclk-dly = <0>;
-	cdns,hrs16-wrdata1-dly = <0>;
-	cdns,hrs16-wrdata0-dly = <0>;
-	cdns,hrs16-wrcmd1-dly = <0>;
-	cdns,hrs16-wrcmd0-dly = <0>;
-	cdns,hrs07-rw-compensate = <10>;
-	cdns,hrs07-idelay-val = <0>;
 };
 
 &osc1 {
