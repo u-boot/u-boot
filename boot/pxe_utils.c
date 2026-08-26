@@ -1284,6 +1284,19 @@ int parse_label_keys(char **c, struct pxe_menu *cfg, struct pxe_label *label,
 			err = parse_label_menu(c, cfg, label);
 			break;
 
+		case T_TITLE:
+			/*
+			 * Equivalent to 'menu label' inside a label body.
+			 * Boot Loader Specification entries use a bare
+			 * 'title' line for the human-readable name; honour
+			 * it here so the existing parser handles BLS files
+			 * natively. extlinux/pxelinux files conventionally
+			 * use 'menu label' instead, so this is additive.
+			 */
+			if (!label->menu)
+				err = parse_sliteral(c, &label->menu);
+			break;
+
 		case T_KERNEL:
 		case T_LINUX:
 			err = parse_label_kernel(c, label);
