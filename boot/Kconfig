@@ -659,6 +659,22 @@ config BOOTMETH_EXTLINUX_PXE
 
 	  This provides a way to try out standard boot on an existing boot flow.
 
+config BOOTMETH_BLS
+	bool "Bootdev support for Boot Loader Specification entries"
+	select PXE_UTILS
+	help
+	  Enables support for booting via Boot Loader Specification type #1
+	  entry files. The bootmeth scans each filesystem it finds for files
+	  matching 'loader/entries/*.conf' (or '/boot/loader/entries/*.conf')
+	  and boots the highest-sorting entry.
+
+	  The specification is here:
+
+	    https://uapi-group.org/specifications/specs/boot_loader_specification/
+
+	  Type #2 BLS (drop-in directory of EFI binaries) is not handled here;
+	  use BOOTMETH_EFI_BOOTMGR for that.
+
 config BOOTMETH_EFILOADER
 	bool "Bootdev support for EFI boot"
 	depends on EFI_BINARY_EXEC
