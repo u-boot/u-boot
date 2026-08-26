@@ -622,9 +622,16 @@ config BOOTMETH_CROS
 
 	  Note that only x86 devices are supported at present.
 
+config BOOTMETH_PXE_COMMON
+	bool
+	help
+	  Helpers shared by the bootmeths that hand their config files to the
+	  pxelinux parser. Selected by those bootmeths, not user-visible.
+
 config BOOTMETH_EXTLINUX
 	bool "Bootdev support for extlinux boot"
 	select PXE_UTILS
+	select BOOTMETH_PXE_COMMON
 	default y
 	help
 	  Enables support for extlinux boot using bootdevs. This makes the
@@ -640,6 +647,7 @@ config BOOTMETH_EXTLINUX
 config BOOTMETH_EXTLINUX_PXE
 	bool "Bootdev support for extlinux boot over network"
 	depends on CMD_PXE && CMD_NET && DM_ETH
+	select BOOTMETH_PXE_COMMON
 	default y
 	help
 	  Enables support for extlinux boot using bootdevs. This makes the
