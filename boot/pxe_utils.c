@@ -1333,16 +1333,16 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 
 		case T_APPEND:
 			err = parse_sliteral(c, &label->append);
-			if (label->initrd)
+			if (err < 0 || label->initrd)
 				break;
 			s = strstr(label->append, "initrd=");
 			if (!s)
 				break;
-			s += 7;
-			len = (int)(strchr(s, ' ') - s);
-			label->initrd = malloc(len + 1);
-			strncpy(label->initrd, s, len);
-			label->initrd[len] = '\0';
+			s += strlen("initrd=");
+			len = strcspn(s, " ");
+			label->initrd = strndup(s, len);
+			if (!label->initrd)
+				err = -ENOMEM;
 
 			break;
 
