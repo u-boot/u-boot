@@ -237,9 +237,15 @@ void label_destroy(struct pxe_label *label);
  * @cfg: Menu the label belongs to (used for 'menu default' bookkeeping)
  * @label: Label to populate; must already be allocated and (when called for
  *	a file that has a 'label' header) attached to @cfg->labels
+ * @ignore_unknown: If true, silently skip unknown keys (and consume the
+ *	rest of their lines) instead of stopping. This matches the Boot
+ *	Loader Specification's requirement that unknown keys be ignored.
+ *	If false (extlinux/pxelinux behaviour), an unknown token is pushed
+ *	back so the caller can treat it as the start of the next label.
  * Return: 1 on success, < 0 on error
  */
-int parse_label_keys(char **c, struct pxe_menu *cfg, struct pxe_label *label);
+int parse_label_keys(char **c, struct pxe_menu *cfg, struct pxe_label *label,
+		     bool ignore_unknown);
 
 /**
  * label_boot() - Boot according to the contents of a single pxe_label

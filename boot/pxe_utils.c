@@ -1266,7 +1266,8 @@ static int parse_label_kernel(char **c, struct pxe_label *label)
 	return 1;
 }
 
-int parse_label_keys(char **c, struct pxe_menu *cfg, struct pxe_label *label)
+int parse_label_keys(char **c, struct pxe_menu *cfg, struct pxe_label *label,
+		     bool ignore_unknown)
 {
 	struct token t;
 	char *s;
@@ -1339,7 +1340,31 @@ int parse_label_keys(char **c, struct pxe_menu *cfg, struct pxe_label *label)
 		case T_EOL:
 			break;
 
+		case T_EOF:
+			if (ignore_unknown) {
+				/*
+				 * BLS-style callers parse a standalone label
+				 * body, so there is no outer context to push
+				 * T_EOF back into. Stop cleanly here.
+				 */
+				return 1;
+			}
+			/*
+			 * For pxelinux/extlinux, fall through so the default
+			 * case pushes T_EOF back for the top-level parser.
+			 */
+			fallthrough;
 		default:
+			if (ignore_unknown) {
+				/*
+				 * Skip the rest of the line and keep going.
+				 * Used for formats like the Boot Loader
+				 * Specification, where the spec mandates that
+				 * unknown keys must be silently ignored.
+				 */
+				eol_or_eof(c);
+				break;
+			}
 			/*
 			 * put the token back! we don't want it - it's the end
 			 * of a label and whatever token this is, it's
@@ -1381,7 +1406,7 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 
 	list_add_tail(&label->list, &cfg->labels);
 
-	return parse_label_keys(c, cfg, label);
+	return parse_label_keys(c, cfg, label, false);
 }
 
 /*
