@@ -130,6 +130,10 @@
 			compatible = "u-boot,distro-efi";
 		};
 
+		bls {
+			compatible = "u-boot,bls";
+		};
+
 		theme {
 			font-size = <30>;
 			menu-inset = <3>;

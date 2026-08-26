@@ -39,6 +39,12 @@ extern U_BOOT_DRIVER(bootmeth_2script);
 /* Use this as the vendor for EFI to tell the app to exit boot services */
 static u16 __efi_runtime_data test_vendor[] = u"U-Boot testing";
 
+/*
+ * How the BLS entry written to the mmc1 image by setup_extlinux_bls_image()
+ * shows up in a bootflow listing
+ */
+#define BLS_BFLOW "  1  bls          ready   mmc          1  mmc1.bootdev.part_1       /loader/entries/4098b3f648d74c13b1f04ccfba7798e8-5.3.7-301.fc31.armv7hl.conf"
+
 static int inject_response(struct unit_test_state *uts)
 {
 	/*
@@ -67,9 +73,14 @@ static int bootflow_cmd(struct unit_test_state *uts)
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
 	ut_assert_nextline("  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline(BLS_BFLOW);
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(1 bootflow, 1 valid)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline("(2 bootflows, 2 valid)");
+	else
+		ut_assert_nextline("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
 
 	ut_assertok(run_command("bootflow list", 0));
@@ -77,16 +88,26 @@ static int bootflow_cmd(struct unit_test_state *uts)
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline(BLS_BFLOW);
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(1 bootflow, 1 valid)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline("(2 bootflows, 2 valid)");
+	else
+		ut_assert_nextline("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
 
 	ut_assertok(run_command("bootstd images", 0));
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
 	ut_assert_nextlinen("  0  mmc1.bootdev.part_1  extlinux_cfg");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextlinen("  1  mmc1.bootdev.part_1  extlinux_cfg");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(1 image)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline("(2 images)");
+	else
+		ut_assert_nextline("(1 image)");
 	ut_assert_console_end();
 
 	return 0;
@@ -100,7 +121,10 @@ static int bootflow_cmd_label(struct unit_test_state *uts)
 
 	ut_assertok(run_command("bootflow scan -lH mmc1", 0));
 	ut_assert_nextline("Scanning for bootflows with label 'mmc1'");
-	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	else
+		ut_assert_skip_to_line("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
 
 	ut_assertok(run_command("bootflow scan -lH 0", 0));
@@ -136,7 +160,10 @@ static int bootflow_cmd_label(struct unit_test_state *uts)
 		ut_assertok(run_command("bootflow scan -lH 7", 0));
 		ut_assert_nextline("Scanning for bootflows with label '7'");
 	}
-	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	else
+		ut_assert_skip_to_line("(1 bootflow, 1 valid)");
 
 	ut_assertok(run_command("bootflow scan -lH 0", 0));
 	ut_assert_nextline("Scanning for bootflows with label '0'");
@@ -160,10 +187,15 @@ static int bootflow_cmd_glob(struct unit_test_state *uts)
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
 	ut_assert_nextline("  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline(BLS_BFLOW);
 	ut_assert_nextline("Scanning bootdev 'mmc0.bootdev':");
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(1 bootflow, 1 valid)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline("(2 bootflows, 2 valid)");
+	else
+		ut_assert_nextline("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
 
 	ut_assertok(run_command("bootflow list", 0));
@@ -171,8 +203,13 @@ static int bootflow_cmd_glob(struct unit_test_state *uts)
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline(BLS_BFLOW);
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(1 bootflow, 1 valid)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline("(2 bootflows, 2 valid)");
+	else
+		ut_assert_nextline("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
 
 	return 0;
@@ -193,24 +230,45 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
 	ut_assert_nextline("  1  efi          media   mmc          0  mmc2.bootdev.whole        ");
 	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		ut_assert_nextline("  2  bls          media   mmc          0  mmc2.bootdev.whole        ");
+		ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
+	}
 
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
-	ut_assert_nextline("  2  extlinux     media   mmc          0  mmc1.bootdev.whole        ");
+	ut_assert_nextline("  %x  extlinux     media   mmc          0  mmc1.bootdev.whole        ",
+			   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
-	ut_assert_nextline("  3  efi          media   mmc          0  mmc1.bootdev.whole        ");
+	ut_assert_nextline("  %x  efi          media   mmc          0  mmc1.bootdev.whole        ",
+			   3 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
-	ut_assert_nextline("  4  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
-	ut_assert_nextline(
-		"  5  efi          fs      mmc          1  mmc1.bootdev.part_1       /EFI/BOOT/%s",
-		efi_get_basename());
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		ut_assert_nextline("  %x  bls          media   mmc          0  mmc1.bootdev.whole        ",
+				   4 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+		ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
+	}
+	ut_assert_nextline("  %x  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf",
+			   4 + 2 * IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextline("  %x  efi          fs      mmc          1  mmc1.bootdev.part_1       /EFI/BOOT/%s",
+			   5 + 2 * IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			   efi_get_basename());
 
 	ut_assert_skip_to_line("Scanning bootdev 'mmc0.bootdev':");
 	ut_assert_skip_to_line(
-		" 3f  efi          media   mmc          0  mmc0.bootdev.whole        ");
+		" %x  efi          media   mmc          0  mmc0.bootdev.whole        ",
+		1 + 31 * (2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)));
 	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		ut_assert_skip_to_line(
+			" %x  bls          media   mmc          0  mmc0.bootdev.whole        ",
+			2 + 31 * (2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)));
+		ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
+	}
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(64 bootflows, 1 valid)");
+	ut_assert_nextline("(%d bootflows, %d valid)",
+			   32 * (2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)),
+			   1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_console_end();
 
 	ut_assertok(run_command("bootflow list", 0));
@@ -219,11 +277,17 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("  0  extlinux     media   mmc          0  mmc2.bootdev.whole        ");
 	ut_assert_nextline("  1  efi          media   mmc          0  mmc2.bootdev.whole        ");
-	ut_assert_skip_to_line(
-		"  4  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
-	ut_assert_skip_to_line(" 3f  efi          media   mmc          0  mmc0.bootdev.whole        ");
+	ut_assert_skip_to_line("  %x  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf",
+			       4 + 2 * IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_skip_to_line(" %x  efi          media   mmc          0  mmc0.bootdev.whole        ",
+			       1 + 31 * (2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)));
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline(" %x  bls          media   mmc          0  mmc0.bootdev.whole        ",
+			2 + 31 * (2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)));
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(64 bootflows, 1 valid)");
+	ut_assert_nextline("(%d bootflows, %d valid)",
+			   32 * (2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)),
+			   1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_console_end();
 
 	return 0;
@@ -285,6 +349,13 @@ static int bootflow_scan_boot(struct unit_test_state *uts)
 	 */
 	ut_assert_skip_to_line("sandbox: continuing, as we cannot run Linux");
 	ut_assert_nextline("Boot failed (err=-14)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		ut_assert_nextline(
+			"** Booting bootflow 'mmc1.bootdev.part_1' with bls");
+		ut_assert_skip_to_line(
+			"sandbox: continuing, as we cannot run Linux");
+		ut_assert_nextline("Boot failed (err=-22)");
+	}
 	ut_assert_console_end();
 
 	return 0;
@@ -304,7 +375,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 		    bootflow_scan_first(NULL, NULL, &iter, BOOTFLOWIF_ALL |
 					BOOTFLOWIF_SKIP_GLOBAL |
 					BOOTFLOWIF_ONLY_BOOTABLE, &bflow));
-	ut_asserteq(2, iter.num_methods);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(0, iter.part);
 	ut_asserteq(0, iter.max_part);
@@ -325,7 +396,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 	bootflow_free(&bflow);
 
 	ut_asserteq(-EPROTONOSUPPORT, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(2, iter.num_methods);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 	ut_asserteq(1, iter.cur_method);
 	ut_asserteq(0, iter.part);
 	ut_asserteq(0, iter.max_part);
@@ -335,32 +406,58 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq(BIT(0) | BIT(1), iter.methods_done);
 	bootflow_free(&bflow);
 
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		ut_asserteq(-EPROTONOSUPPORT, bootflow_scan_next(&iter, &bflow));
+		ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
+		ut_asserteq(2, iter.cur_method);
+		ut_asserteq(0, iter.part);
+		ut_asserteq(0, iter.max_part);
+		ut_asserteq_str("bls", iter.method->name);
+		ut_asserteq(0, bflow.err);
+		ut_asserteq(BOOTFLOWST_MEDIA, bflow.state);
+		ut_asserteq(BIT(0) | BIT(1) | BIT(2), iter.methods_done);
+		bootflow_free(&bflow);
+	}
+
 	/* The next device is mmc1.bootdev - at first we use the whole device */
 	ut_asserteq(-ENOENT, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(2, iter.num_methods);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(0, iter.part);
 	ut_asserteq(0x1e, iter.max_part);
 	ut_asserteq_str("extlinux", iter.method->name);
 	ut_asserteq(0, bflow.err);
 	ut_asserteq(BOOTFLOWST_MEDIA, bflow.state);
-	ut_asserteq(BIT(0) | BIT(1), iter.methods_done);
+	ut_asserteq(BIT(0) | BIT(1) | (IS_ENABLED(CONFIG_BOOTMETH_BLS) ? BIT(2) : 0), iter.methods_done);
 	bootflow_free(&bflow);
 
 	ut_asserteq(-ENOENT, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(2, iter.num_methods);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 	ut_asserteq(1, iter.cur_method);
 	ut_asserteq(0, iter.part);
 	ut_asserteq(0x1e, iter.max_part);
 	ut_asserteq_str("efi", iter.method->name);
 	ut_asserteq(0, bflow.err);
 	ut_asserteq(BOOTFLOWST_MEDIA, bflow.state);
-	ut_asserteq(BIT(0) | BIT(1), iter.methods_done);
+	ut_asserteq(BIT(0) | BIT(1) | (IS_ENABLED(CONFIG_BOOTMETH_BLS) ? BIT(2) : 0), iter.methods_done);
 	bootflow_free(&bflow);
+
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		ut_asserteq(-ENOENT, bootflow_scan_next(&iter, &bflow));
+		ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
+		ut_asserteq(2, iter.cur_method);
+		ut_asserteq(0, iter.part);
+		ut_asserteq(0x1e, iter.max_part);
+		ut_asserteq_str("bls", iter.method->name);
+		ut_asserteq(0, bflow.err);
+		ut_asserteq(BOOTFLOWST_MEDIA, bflow.state);
+		ut_asserteq(BIT(0) | BIT(1) | BIT(2), iter.methods_done);
+		bootflow_free(&bflow);
+	}
 
 	/* Then move to partition 1 where we find something */
 	ut_assertok(bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(2, iter.num_methods);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(1, iter.part);
 	ut_asserteq(0x1e, iter.max_part);
@@ -370,7 +467,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 	bootflow_free(&bflow);
 
 	ut_asserteq(-ENOENT, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(2, iter.num_methods);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 	ut_asserteq(1, iter.cur_method);
 	ut_asserteq(1, iter.part);
 	ut_asserteq(0x1e, iter.max_part);
@@ -379,16 +476,28 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq(BOOTFLOWST_FS, bflow.state);
 	bootflow_free(&bflow);
 
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		ut_assertok(bootflow_scan_next(&iter, &bflow));
+		ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
+		ut_asserteq(2, iter.cur_method);
+		ut_asserteq(1, iter.part);
+		ut_asserteq(0x1e, iter.max_part);
+		ut_asserteq_str("bls", iter.method->name);
+		ut_asserteq(0, bflow.err);
+		ut_asserteq(BOOTFLOWST_READY, bflow.state);
+		bootflow_free(&bflow);
+	}
+
 	/* Then more to partition 2 which exists but is not bootable */
 	ut_asserteq(-EINVAL, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(2, iter.num_methods);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(2, iter.part);
 	ut_asserteq(0x1e, iter.max_part);
 	ut_asserteq_str("extlinux", iter.method->name);
 	ut_asserteq(0, bflow.err);
 	ut_asserteq(BOOTFLOWST_MEDIA, bflow.state);
-	ut_asserteq(BIT(0) | BIT(1), iter.methods_done);
+	ut_asserteq(BIT(0) | BIT(1) | (IS_ENABLED(CONFIG_BOOTMETH_BLS) ? BIT(2) : 0), iter.methods_done);
 	bootflow_free(&bflow);
 
 	bootflow_iter_uninit(&iter);
@@ -413,12 +522,12 @@ static int bootflow_iter_glob(struct unit_test_state *uts)
 	ut_asserteq(-EINVAL,
 		    bootflow_scan_first(NULL, NULL, &iter, BOOTFLOWIF_ALL |
 					BOOTFLOWIF_SHOW, &bflow));
-	ut_asserteq(3, iter.num_methods);
+	ut_asserteq(3 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 	ut_assert(iter.doing_global);
 	ut_assert(iter.have_global);
-	ut_asserteq(2, iter.first_glob_method);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.first_glob_method);
 
-	ut_asserteq(2, iter.cur_method);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.cur_method);
 	ut_asserteq(0, iter.part);
 	ut_asserteq(0, iter.max_part);
 	ut_asserteq_str("firmware0", iter.method->name);
@@ -429,8 +538,8 @@ static int bootflow_iter_glob(struct unit_test_state *uts)
 	ut_asserteq(-EPROTONOSUPPORT, bootflow_scan_next(&iter, &bflow));
 
 	/* at this point the global bootmeths are stranded above num_methods */
-	ut_asserteq(3, iter.num_methods);
-	ut_asserteq(2, iter.first_glob_method);
+	ut_asserteq(3 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.first_glob_method);
 	ut_assert(!iter.doing_global);
 	ut_assert(iter.have_global);
 
@@ -461,9 +570,12 @@ static int bootflow_system(struct unit_test_state *uts)
 	bootstd_clear_glob();
 	ut_assertok(run_command("bootflow scan -lH", 0));
 	ut_assert_skip_to_line(
-		"  1  efi_mgr      ready   (none)       0  <NULL>                    ");
+		"  %x  efi_mgr      ready   (none)       0  <NULL>                    ",
+		1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_skip_to_line("No more bootdevs");
-	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_skip_to_line("(%d bootflows, %d valid)",
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_console_end();
 
 	return 0;
@@ -496,10 +608,10 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 
 	/* at this point the global bootmeths are stranded above num_methods */
-	ut_asserteq(4, iter.num_methods);
+	ut_asserteq(4 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 	ut_assert(!iter.doing_global);
 	ut_assert(iter.have_global);
-	ut_asserteq(3, iter.first_glob_method);
+	ut_asserteq(3 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.first_glob_method);
 	ut_asserteq_str("sandbox", iter.method->name);
 	ut_assertok(inject_response(uts));
 	ut_asserteq(-ENOTSUPP, bootflow_run_boot(&iter, &bflow));
@@ -508,13 +620,13 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* Check that the sandbox bootmeth has been removed */
-	ut_asserteq(3, iter.num_methods);
+	ut_asserteq(3 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.num_methods);
 
 	for (i = 0; i < iter.num_methods; i++)
 		ut_assert(strcmp("sandbox", iter.method_order[i]->name));
 
 	/* the first global bootmeth is now down one place in the list */
-	ut_asserteq(2, iter.first_glob_method);
+	ut_asserteq(2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), iter.first_glob_method);
 
 	return 0;
 }
@@ -736,7 +848,10 @@ static int bootflow_cmd_menu(struct unit_test_state *uts)
 	ut_asserteq(2, console_in_puts(prev));
 
 	ut_assertok(run_command("bootflow menu", 0));
-	ut_assert_nextline("Selected: Armbian");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline("Selected: Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)");
+	else
+		ut_assert_nextline("Selected: Armbian");
 	ut_assertnonnull(std->cur_bootflow);
 	ut_assert_console_end();
 
@@ -759,18 +874,27 @@ static int bootflow_scan_menu(struct unit_test_state *uts)
 {
 	struct bootstd_priv *std;
 	const char **old_order, **new_order;
-	char prev[3];
+	char prev[4];
 
 	/* get access to the current bootflow */
 	ut_assertok(bootstd_get_priv(&std));
 
 	ut_assertok(prep_mmc_bootdev(uts, "mmc4", false, &old_order));
 
-	/* Add keypresses to move to and select the second one in the list */
-	prev[0] = CTL_CH('n');
-	prev[1] = '\r';
-	prev[2] = '\0';
-	ut_asserteq(2, console_in_puts(prev));
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		/* Add keypresses to move to and select the third one in the list */
+		prev[0] = CTL_CH('n');
+		prev[1] = CTL_CH('n');
+		prev[2] = '\r';
+		prev[3] = '\0';
+		ut_asserteq(3, console_in_puts(prev));
+	} else {
+		/* Add keypresses to move to and select the second one in the list */
+		prev[0] = CTL_CH('n');
+		prev[1] = '\r';
+		prev[2] = '\0';
+		ut_asserteq(2, console_in_puts(prev));
+	}
 
 	ut_assertok(run_command("bootflow scan -lm", 0));
 	new_order = std->bootdev_order;
@@ -778,7 +902,9 @@ static int bootflow_scan_menu(struct unit_test_state *uts)
 
 	ut_assert_skip_to_line("No more bootdevs");
 	ut_assert_nextlinen("--");
-	ut_assert_nextline("(2 bootflows, 2 valid)");
+	ut_assert_nextline("(%d bootflows, %d valid)",
+			   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 
 	ut_assert_nextline("Selected: Armbian");
 	ut_assertnonnull(std->cur_bootflow);
@@ -794,7 +920,9 @@ static int bootflow_scan_menu(struct unit_test_state *uts)
 	std->bootdev_order = old_order;
 
 	ut_assertnull(std->cur_bootflow);
-	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_skip_to_line("(%d bootflows, %d valid)",
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextline("Nothing chosen");
 	ut_assert_console_end();
 
@@ -807,23 +935,34 @@ static int bootflow_scan_menu_boot(struct unit_test_state *uts)
 {
 	struct bootstd_priv *std;
 	const char **old_order;
-	char prev[3];
+	char prev[4];
 
 	/* get access to the current bootflow */
 	ut_assertok(bootstd_get_priv(&std));
 
 	ut_assertok(prep_mmc_bootdev(uts, "mmc4", false, &old_order));
 
-	/* Add keypresses to move to and select the second one in the list */
-	prev[0] = CTL_CH('n');
-	prev[1] = '\r';
-	prev[2] = '\0';
-	ut_asserteq(2, console_in_puts(prev));
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		/* Add keypresses to move to and select the third one in the list */
+		prev[0] = CTL_CH('n');
+		prev[1] = CTL_CH('n');
+		prev[2] = '\r';
+		prev[3] = '\0';
+		ut_asserteq(3, console_in_puts(prev));
+	} else {
+		/* Add keypresses to move to and select the second one in the list */
+		prev[0] = CTL_CH('n');
+		prev[1] = '\r';
+		prev[2] = '\0';
+		ut_asserteq(2, console_in_puts(prev));
+	}
 
 	ut_assertok(run_command("bootflow scan -lmb", 0));
 	std->bootdev_order = old_order;
 
-	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_skip_to_line("(%d bootflows, %d valid)",
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 
 	ut_assert_nextline("Selected: Armbian");
 
@@ -860,7 +999,10 @@ static int bootflow_cmd_hunt_single(struct unit_test_state *uts)
 
 	ut_assertok(run_command("bootflow scan -l mmc1", 0));
 	ut_assert_nextline("Scanning for bootflows with label 'mmc1'");
-	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	else
+		ut_assert_skip_to_line("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
 
 	/* check that the hunter was used */
@@ -897,8 +1039,13 @@ static int bootflow_cmd_hunt_label(struct unit_test_state *uts)
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
 	ut_assert_nextline(
 		"  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline(BLS_BFLOW);
 	ut_assert_nextline("Scanning bootdev 'mmc0.bootdev':");
-	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	else
+		ut_assert_skip_to_line("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
 
 	return 0;
@@ -1262,23 +1409,37 @@ static int bootflow_cros(struct unit_test_state *uts)
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
 	ut_assert_nextlinen("  0  extlinux");
-	ut_assert_nextlinen("  1  cros         ready   mmc          2  mmc5.bootdev.part_2       ");
-	ut_assert_nextlinen("  2  cros         ready   mmc          4  mmc5.bootdev.part_4       ");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextlinen(BLS_BFLOW);
+	ut_assert_nextlinen("  %x  cros         ready   mmc          2  mmc5.bootdev.part_2       ",
+			    1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  cros         ready   mmc          4  mmc5.bootdev.part_4       ",
+			    2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
-	ut_assert_skip_to_line("(3 bootflows, 3 valid)");
+	ut_assert_skip_to_line("(%d bootflows, %d valid)",
+			       3 + IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			       3 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 
 	ut_assertok(run_command("bootstd images", 0));
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
 	ut_assert_nextlinen("  0  mmc1.bootdev.part_1  extlinux_cfg");
-	ut_assert_nextlinen("  1  mmc5.bootdev.part_2  x86_setup");
-	ut_assert_nextlinen("  1  mmc5.bootdev.part_2  cmdline");
-	ut_assert_nextlinen("  1  mmc5.bootdev.part_2  kernel                 -      4000  kernel");
-	ut_assert_nextlinen("  2  mmc5.bootdev.part_4  x86_setup");
-	ut_assert_nextlinen("  2  mmc5.bootdev.part_4  cmdline");
-	ut_assert_nextlinen("  2  mmc5.bootdev.part_4  kernel                 -      4000  kernel");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextlinen("  1  mmc1.bootdev.part_1  extlinux_cfg");
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_2  x86_setup",
+			    1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_2  cmdline",
+			    1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_2  kernel                 -      4000  kernel",
+			    1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_4  x86_setup",
+			    2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_4  cmdline",
+			    2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_4  kernel                 -      4000  kernel",
+			    2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(7 images)");
+	ut_assert_nextline("(%d images)", 7 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 
 	ut_assert_console_end();
 
@@ -1299,9 +1460,14 @@ static int bootflow_android_image_v4(struct unit_test_state *uts)
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
 	ut_assert_nextlinen("  0  extlinux");
-	ut_assert_nextlinen("  1  android      ready   mmc          0  mmc7.bootdev.whole        ");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextlinen(BLS_BFLOW);
+	ut_assert_nextlinen("  %d  android      ready   mmc          0  mmc7.bootdev.whole        ",
+			    1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
-	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_skip_to_line("(%d bootflows, %d valid)",
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 
 	ut_assert_console_end();
 
@@ -1322,9 +1488,14 @@ static int bootflow_android_image_v2(struct unit_test_state *uts)
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
 	ut_assert_nextlinen("  0  extlinux");
-	ut_assert_nextlinen("  1  android      ready   mmc          0  mmc8.bootdev.whole        ");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextlinen(BLS_BFLOW);
+	ut_assert_nextlinen("  %d  android      ready   mmc          0  mmc8.bootdev.whole        ",
+			    1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
-	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_skip_to_line("(%d bootflows, %d valid)",
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 
 	ut_assert_console_end();
 
@@ -1363,13 +1534,20 @@ static int bootflow_efi(struct unit_test_state *uts)
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
 	ut_assert_nextlinen("  0  extlinux");
-	ut_assert_nextlinen(
-		"  1  efi          ready   usb_mass_    1  usb_mass_storage.lun0.boo /EFI/BOOT/BOOTSBOX.EFI");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextlinen(BLS_BFLOW);
+	ut_assert_nextlinen("  %x  efi          ready   usb_mass_    1  usb_mass_storage.lun0.boo /EFI/BOOT/BOOTSBOX.EFI",
+			    1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
-	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_skip_to_line("(%d bootflows, %d valid)",
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_console_end();
 
-	ut_assertok(run_command("bootflow select 1", 0));
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assertok(run_command("bootflow select 2", 0));
+	else
+		ut_assertok(run_command("bootflow select 1", 0));
 	ut_assert_console_end();
 
 	systab.fw_vendor = test_vendor;
@@ -1519,30 +1697,49 @@ static int bootstd_images(struct unit_test_state *uts)
 	std->bootdev_order = old_order;
 
 	ut_assertok(run_command("bootflow list", 0));
-	ut_assert_skip_to_line("(4 bootflows, 4 valid)");
+	ut_assert_skip_to_line("(%d bootflows, %d valid)",
+			       4 + IS_ENABLED(CONFIG_BOOTMETH_BLS),
+			       4 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 
 	ut_assertok(run_command("bootstd images", 0));
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
 	ut_assert_nextlinen("  0  mmc1.bootdev.part_1  extlinux_cfg");
-	ut_assert_nextlinen("  1  mmc4.bootdev.part_1  script");
-	ut_assert_nextlinen("  1  mmc4.bootdev.part_1  logo");
-	ut_assert_nextlinen("  2  mmc5.bootdev.part_2  x86_setup");
-	ut_assert_nextlinen("  2  mmc5.bootdev.part_2  cmdline");
-	ut_assert_nextlinen("  2  mmc5.bootdev.part_2  kernel                 -");
-	ut_assert_nextlinen("  3  mmc5.bootdev.part_4  x86_setup");
-	ut_assert_nextlinen("  3  mmc5.bootdev.part_4  cmdline");
-	ut_assert_nextlinen("  3  mmc5.bootdev.part_4  kernel                 -");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextlinen("  1  mmc1.bootdev.part_1  extlinux_cfg");
+	ut_assert_nextlinen("  %x  mmc4.bootdev.part_1  script",
+			    1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc4.bootdev.part_1  logo",
+			    1 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_2  x86_setup",
+			    2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_2  cmdline",
+			    2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_2  kernel                 -",
+			    2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_4  x86_setup",
+			    3 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_4  cmdline",
+			    3 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
+	ut_assert_nextlinen("  %x  mmc5.bootdev.part_4  kernel                 -",
+			    3 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(9 images)");
+	ut_assert_nextline("(%d images)", 9 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 
-	/* check the first image */
+	/* check the extlinux.conf image */
 	bflow = alist_get(&std->bootflows, 0, struct bootflow);
 	img = alist_get(&bflow->images, 0, struct bootflow_img);
 	ut_asserteq_strn("# extlinux.conf", map_sysmem(img->addr, 0));
 
-	/* check the second image */
-	bflow = alist_get(&std->bootflows, 1, struct bootflow);
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS)) {
+		/* check the BLS entry image */
+		bflow = alist_get(&std->bootflows, 1, struct bootflow);
+		img = alist_get(&bflow->images, 0, struct bootflow_img);
+		ut_asserteq_strn("# BLS type 1 ", map_sysmem(img->addr, 0));
+	}
+
+	/* check the script image */
+	bflow = alist_get(&std->bootflows, 1 + IS_ENABLED(CONFIG_BOOTMETH_BLS), struct bootflow);
 	img = alist_get(&bflow->images, 0, struct bootflow_img);
 
 	/* this is the length of the script in bytes */
@@ -1552,7 +1749,7 @@ static int bootstd_images(struct unit_test_state *uts)
 	ut_asserteq_strn("# DO NOT EDIT THIS FILE", ptr);
 
 	/* check the ChromiumOS images */
-	bflow = alist_get(&std->bootflows, 2, struct bootflow);
+	bflow = alist_get(&std->bootflows, 2 + IS_ENABLED(CONFIG_BOOTMETH_BLS), struct bootflow);
 	img = alist_get(&bflow->images, 1, struct bootflow_img);
 	ptr = map_sysmem(img->addr, 0);
 	ut_asserteq_strn("BOOT_IMAGE=/vmlinuz-5.15.0-121-generic root=", ptr);
