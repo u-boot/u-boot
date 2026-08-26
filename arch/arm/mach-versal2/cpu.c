@@ -241,7 +241,8 @@ void versal2_timer_setup(void)
 	debug("timer 0x%llx\n", get_ticks());
 }
 
-static u32 platform_id, platform_version;
+static u32 platform_id __section(".data");
+static u32 platform_version __section(".data");
 
 char *soc_name_decode(void)
 {
