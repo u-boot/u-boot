@@ -218,15 +218,7 @@ static int get_relfile_envaddr(struct pxe_context *ctx, const char *file_path,
 	return get_relfile(ctx, file_path, file_addr, type, filesizep);
 }
 
-/**
- * label_create() - crate a new PXE label
- *
- * Allocates memory for and initializes a pxe_label. This uses malloc, so the
- * result must be free()'d to reclaim the memory.
- *
- * Returns a pointer to the label, or NULL if out of memory
- */
-static struct pxe_label *label_create(void)
+struct pxe_label *label_create(void)
 {
 	struct pxe_label *label;
 
@@ -239,20 +231,7 @@ static struct pxe_label *label_create(void)
 	return label;
 }
 
-/**
- * label_destroy() - free the memory used by a pxe_label
- *
- * This frees @label itself as well as memory used by its name,
- * kernel, config, append, initrd, fdt, fdtdir and fdtoverlay members, if
- * they're non-NULL.
- *
- * So - be sure to only use dynamically allocated memory for the members of
- * the pxe_label struct, unless you want to clean it up first. These are
- * currently only created by the pxe file parsing code.
- *
- * @label: Label to free
- */
-static void label_destroy(struct pxe_label *label)
+void label_destroy(struct pxe_label *label)
 {
 	free(label->name);
 	free(label->kernel_label);
@@ -542,7 +521,7 @@ cleanup:
  * Returns does not return on success, otherwise returns 0 if a localboot
  *	label was processed, or 1 on error
  */
-static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
+int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
 	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
@@ -1287,21 +1266,7 @@ static int parse_label_kernel(char **c, struct pxe_label *label)
 	return 1;
 }
 
-/**
- * parse_label_keys() - Parse the body of a label
- *
- * Walks the sequence of key/value lines that follow a 'label NAME' header,
- * populating @label. Stops at end-of-file or at a token that does not
- * belong inside a label (which is pushed back so the caller can handle it).
- *
- * @c: Pointer to the cursor into the file being parsed; updated on return
- * @cfg: Menu the label belongs to (used for 'menu default' bookkeeping)
- * @label: Label to populate; must already be allocated and (when called for
- *	a file that has a 'label' header) attached to @cfg->labels
- * Return: 1 on success, < 0 on error
- */
-static int parse_label_keys(char **c, struct pxe_menu *cfg,
-			    struct pxe_label *label)
+int parse_label_keys(char **c, struct pxe_menu *cfg, struct pxe_label *label)
 {
 	struct token t;
 	char *s;

@@ -203,6 +203,62 @@ void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg);
 struct pxe_menu *parse_pxefile(struct pxe_context *ctx, ulong menucfg);
 
 /**
+ * label_create() - Allocate and zero-initialise a struct pxe_label
+ *
+ * The result must be freed with label_destroy().
+ *
+ * Return: pointer to the new label, or NULL if out of memory
+ */
+struct pxe_label *label_create(void);
+
+/**
+ * label_destroy() - Free a struct pxe_label and its string members
+ *
+ * Frees @label as well as memory used by its name, kernel, config, append,
+ * initrd, fdt, fdtdir and fdtoverlays members, if they are non-NULL. All
+ * such members must therefore reference malloc()'d memory.
+ *
+ * @label: Label to free
+ */
+void label_destroy(struct pxe_label *label);
+
+/**
+ * parse_label_keys() - Parse the body of a label
+ *
+ * Walks the sequence of key/value lines that follow a 'label NAME' header,
+ * populating @label. Stops at end-of-file or at a token that does not
+ * belong inside a label (which is pushed back so the caller can handle it).
+ *
+ * This is exported so that callers handling formats which lack a 'label'
+ * header (e.g. Boot Loader Specification type #1 entry files) can populate
+ * a pre-created label directly from a file body.
+ *
+ * @c: Pointer to the cursor into the file being parsed; updated on return
+ * @cfg: Menu the label belongs to (used for 'menu default' bookkeeping)
+ * @label: Label to populate; must already be allocated and (when called for
+ *	a file that has a 'label' header) attached to @cfg->labels
+ * Return: 1 on success, < 0 on error
+ */
+int parse_label_keys(char **c, struct pxe_menu *cfg, struct pxe_label *label);
+
+/**
+ * label_boot() - Boot according to the contents of a single pxe_label
+ *
+ * On success this function does not return; on failure it returns to
+ * let the caller try a different label or surface an error.
+ *
+ * The kernel is staged at $kernel_addr_r, an optional initrd at
+ * $ramdisk_addr_r, and an optional FDT at $fdt_addr_r. If the label
+ * has an 'append' string it overwrites $bootargs.
+ *
+ * @ctx: PXE context
+ * @label: Label to boot
+ * Return: does not return on success; 0 if a 'localboot' label was
+ *	processed; 1 on error
+ */
+int label_boot(struct pxe_context *ctx, struct pxe_label *label);
+
+/**
  * format_mac_pxe() - Convert a MAC address to PXE format
  *
  * Convert an ethaddr from the environment to the format used by pxelinux
