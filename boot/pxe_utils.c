@@ -1287,34 +1287,26 @@ static int parse_label_kernel(char **c, struct pxe_label *label)
 	return 1;
 }
 
-/*
- * Parses a label and adds it to the list of labels for a menu.
+/**
+ * parse_label_keys() - Parse the body of a label
  *
- * A label ends when we either get to the end of a file, or
- * get some input we otherwise don't have a handler defined
- * for.
+ * Walks the sequence of key/value lines that follow a 'label NAME' header,
+ * populating @label. Stops at end-of-file or at a token that does not
+ * belong inside a label (which is pushed back so the caller can handle it).
  *
+ * @c: Pointer to the cursor into the file being parsed; updated on return
+ * @cfg: Menu the label belongs to (used for 'menu default' bookkeeping)
+ * @label: Label to populate; must already be allocated and (when called for
+ *	a file that has a 'label' header) attached to @cfg->labels
+ * Return: 1 on success, < 0 on error
  */
-static int parse_label(char **c, struct pxe_menu *cfg)
+static int parse_label_keys(char **c, struct pxe_menu *cfg,
+			    struct pxe_label *label)
 {
 	struct token t;
+	char *s;
 	int len;
-	char *s = *c;
-	struct pxe_label *label;
 	int err;
-
-	label = label_create();
-	if (!label)
-		return -ENOMEM;
-
-	err = parse_sliteral(c, &label->name);
-	if (err < 0) {
-		printf("Expected label name: %.*s\n", (int)(*c - s), s);
-		label_destroy(label);
-		return -EINVAL;
-	}
-
-	list_add_tail(&label->list, &cfg->labels);
 
 	while (1) {
 		s = *c;
@@ -1395,6 +1387,36 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 		if (err < 0)
 			return err;
 	}
+}
+
+/*
+ * Parses a label and adds it to the list of labels for a menu.
+ *
+ * A label ends when we either get to the end of a file, or
+ * get some input we otherwise don't have a handler defined
+ * for.
+ *
+ */
+static int parse_label(char **c, struct pxe_menu *cfg)
+{
+	char *s = *c;
+	struct pxe_label *label;
+	int err;
+
+	label = label_create();
+	if (!label)
+		return -ENOMEM;
+
+	err = parse_sliteral(c, &label->name);
+	if (err < 0) {
+		printf("Expected label name: %.*s\n", (int)(*c - s), s);
+		label_destroy(label);
+		return -EINVAL;
+	}
+
+	list_add_tail(&label->list, &cfg->labels);
+
+	return parse_label_keys(c, cfg, label);
 }
 
 /*
