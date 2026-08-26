@@ -95,6 +95,7 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len)
  * @ctx: PXE context
  * @file_path: File path to read (relative to the PXE file)
  * @file_addr: Address to load file to
+ * @type: Image type used to record the loaded file in the bootflow
  * @filesizep: If not NULL, returns the file size in bytes
  * Returns 1 for success, or < 0 on error
  */
@@ -162,6 +163,7 @@ int get_pxe_file(struct pxe_context *ctx, const char *file_path,
  *
  * @ctx: PXE context
  * @file: Filename to process (relative to pxelinux.cfg/)
+ * @pxefile_addr_r: Address to load the file to
  * Returns 1 for success, -ENAMETOOLONG if the resulting path is too long.
  *	or other value < 0 on other error
  */
@@ -914,6 +916,13 @@ static const struct token keywords[] = {
  * Since pxe(linux) files don't have a token to identify the start of a
  * literal, we have to keep track of when we're in a state where a literal is
  * expected vs when we're in a state a keyword is expected.
+ *
+ * @L_NORMAL: Outside any specific lexical context; whitespace is skipped
+ *	and the next non-blank token determines what is read
+ * @L_KEYWORD: A keyword is expected; the next word is matched against the
+ *	keyword table and tagged with the matching token type
+ * @L_SLITERAL: A string literal is expected; characters are read up to the
+ *	end of the line
  */
 enum lex_state {
 	L_NORMAL = 0,
@@ -1018,6 +1027,9 @@ static void get_keyword(struct token *t)
  *
  * @p: Points to a pointer to the current position in the input being processed.
  *	Updated to point at the first character after the current token
+ * @t: Token to populate with the type and value of what was read
+ * @state: Current lexer state, controlling whether a keyword or a string
+ *	literal is expected next
  */
 static void get_token(char **p, struct token *t, enum lex_state state)
 {
