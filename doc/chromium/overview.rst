@@ -13,7 +13,7 @@ available:
    - Running U-Boot from the 'altfw' feature, which is available on selected
      Chromebooks from 2019 onwards (initially Grunt). Press '1' from the
      developer-mode screen to get into U-Boot. See here for details:
-     https://chromium.googlesource.com/chromiumos/docs/+/HEAD/developer_mode.md
+     https://www.chromium.org/chromium-os/developer-library/guides/device/developer-mode/
 
    - Running U-Boot from the disk partition. This involves signing U-Boot and
      placing it on the disk, for booting as a 'kernel'. See
