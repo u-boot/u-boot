@@ -44,7 +44,7 @@ Here is some material relevant to Chromium OS verified boot with U-Boot:
      - Author: Simon Glass
      - Presented at Open Source Firmware Conference 2018, Erlangen
      - Describes the work in progress as at the end of 2018
-     - Slides at `OSFC <https://2018.osfc.io/uploads/talk/paper/26/U-Boot_with_Chrome_OS_and_firmware_packaging.pdf>`_
+     - Slides at `OSFC <https://pretalx.com/media/osfc2018/submissions/YBHYHA/resources/U-Boot_with_Chrome_OS_and_firmware_packaging_Rju11gX.pdf>`_
      - `Youtube video 'OSFC - U-Boot with Chrome OS and firmware packaging' <https://www.youtube.com/watch?v=1jknxUvmwpo>`_
 
    - "Verified Boot in Chrome OS and how to make it work for you"
@@ -57,7 +57,7 @@ Here is some material relevant to Chromium OS verified boot with U-Boot:
        spring (`HP Chromebook 11 <https://www.cnet.com/products/hp-chromebook-11-g2-11-6-exynos-5250-4-gb-ram-16-gb-emmc/>`_)
        and pit/pi (`Samsung Chromebook 2 <https://www.cnet.com/products/samsung-chromebook-2-xe503c12-11-6-exynos-5-octa-4-gb-ram-16-gb-ssd/>`_
        with Exynos 5 Octa 5420 in 2014).
-     - Slides at `Google research <https://research.google/pubs/pub42038/>`_
+     - Slides at `Google research <https://elinux.org/images/0/05/Glass-chromeos_and_diy_vboot_0.pdf>`_
      - `Youtube video 'Verified Boot on Chrome OS and How to do it yourself' <https://www.youtube.com/watch?v=kdpZC9jFzZA>`_
 
    - "Chrome University 2018: Chrome OS Firmware and Verified Boot 201"
