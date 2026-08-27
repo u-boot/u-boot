@@ -6,7 +6,7 @@ File System Firmware Loader
 
 This is file system firmware loader for U-Boot framework, which has very close
 to some Linux Firmware API. For the details of Linux Firmware API, you can refer
-to https://01.org/linuxgraphics/gfx-docs/drm/driver-api/firmware/index.html.
+to https://docs.kernel.org/driver-api/firmware/index.html.
 
 File system firmware loader can be used to load whatever(firmware, image,
 and binary) from the storage device in file system format into target location
