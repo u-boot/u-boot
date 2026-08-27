@@ -61,6 +61,8 @@ int mpfs_syscontroller_run_service(struct mpfs_syscontroller_priv *sys_controlle
 int mpfs_syscontroller_recv_response(struct mpfs_syscontroller_priv
 	*sys_controller, struct mpfs_mss_msg *msg, unsigned long timeout_ms);
 int mpfs_syscontroller_read_sernum(struct mpfs_sys_serv *sys_serv_priv, u8 *device_serial_number);
+int mpfs_syscontroller_read_design_info(struct mpfs_sys_serv *sys_serv_priv,
+		u8 *designid, u16 *designver, u16 *backlevel);
 void mpfs_syscontroller_process_dtbo(struct mpfs_sys_serv *sys_serv_priv);
 struct mpfs_syscontroller_priv *mpfs_syscontroller_get(struct udevice *dev);
 

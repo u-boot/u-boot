@@ -45,6 +45,7 @@
 #define DESIGN_MAGIC_3					0x50 /* 'P'*/
 
 #define CMD_OPCODE						0x0u
+#define CMD_DESIGN_INFO						0x2u
 #define CMD_DATA_SIZE					0U
 #define CMD_DATA						NULL
 #define MBOX_OFFSET						0x0
@@ -151,6 +152,60 @@ int mpfs_syscontroller_read_sernum(struct mpfs_sys_serv *sys_serv_priv, u8 *devi
 	return 0;
 }
 EXPORT_SYMBOL(mpfs_syscontroller_read_sernum);
+
+/**
+ * mpfs_syscontroller_read_design_info() - Use system service to read FPGA design info
+ * @sys_serv_priv:	system service private data
+ * @designid:		30-byte string name of top module in FPGA logic design
+ * 			NB: null termination is not guaranteed
+ * @designver:		version number of the FPGA design
+ * @backlevel:		programmed minimum allowed FPGA design version
+ *
+ * Return: 0 if all went ok, else return appropriate error
+ */
+int mpfs_syscontroller_read_design_info(struct mpfs_sys_serv *sys_serv_priv,
+		u8 *designid, u16 *designver, u16 *backlevel)
+{
+	unsigned long timeoutsecs = 300;
+	u8 data[36];
+	int ret;
+
+	struct mpfs_mss_response response = {
+		.resp_status = 0U,
+		.resp_msg = (u32 *)data,
+		.resp_size = sizeof(data)};
+	struct mpfs_mss_msg msg = {
+		.cmd_opcode = CMD_DESIGN_INFO,
+		.cmd_data_size = CMD_DATA_SIZE,
+		.response = &response,
+		.cmd_data = CMD_DATA,
+		.mbox_offset = MBOX_OFFSET,
+		.resp_offset = RESP_OFFSET};
+
+	ret = mpfs_syscontroller_run_service(sys_serv_priv->sys_controller, &msg);
+	if (ret) {
+		dev_err(sys_serv_priv->sys_controller->chan.dev, "Service failed: %d, abort\n", ret);
+		return ret;
+	}
+
+	/* Receive the response */
+	ret = mpfs_syscontroller_recv_response(sys_serv_priv->sys_controller, &msg, timeoutsecs);
+	if (ret)
+		return ret;
+
+	debug("%s: Read successful %s\n",
+	      __func__, sys_serv_priv->sys_controller->chan.dev->name);
+
+	if (designid != NULL)
+		memcpy(designid, &data[2], 30);
+	if (designver != NULL)
+		memcpy(designver, &data[32], 2);
+	if (backlevel != NULL)
+		memcpy(backlevel, &data[34], 2);
+
+	return 0;
+}
+EXPORT_SYMBOL(mpfs_syscontroller_read_design_info);
 
 static u16 mpfs_syscontroller_service_spi_copy(struct mpfs_sys_serv *sys_serv_priv, u64 dst_addr, u32 src_addr, u32 length)
 {
