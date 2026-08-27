@@ -142,10 +142,6 @@ General Patch Submission Rules
   like wrapping of longer lines etc.
   The best way to send patches is by not using your regular mail tool, but by
   using either ``git send-email`` or the ``git imap-send`` command instead.
-  If you believe you need to use a mailing list for testing (instead of any
-  regular mail address you own), we have a special test list for such purposes.
-  It would be best to subscribe to the list for the duration of your tests to
-  avoid repeated moderation - see https://lists.u-boot-project.org/listinfo/test
 
 * Choose a meaningful Subject: - keep in mind that the Subject will also be
   visible as headline of your commit message. Make sure the subject does not
