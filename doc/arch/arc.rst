@@ -8,7 +8,7 @@ that SoC designers can optimize for a wide range of uses, from deeply embedded
 to high-performance host applications.
 
 More information on ARC cores avaialble here:
-http://www.synopsys.com/IP/ProcessorIP/ARCProcessors/Pages/default.aspx
+https://mips.com/processor-solutions/arc-processors/
 
 Designers can differentiate their products by using patented configuration
 technology to tailor each ARC processor instance to meet specific performance,
