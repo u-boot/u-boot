@@ -5,7 +5,7 @@ Sending patches
 
 *Before you begin* to implement any new ideas or concepts it is always a good
 idea to present your plans on the `U-Boot mailing list
-<https://lists.u-boot-project.org/listinfo/u-boot>`_. U-Boot supports a huge amount of
+<https://lists.u-boot-project.org/mailman/listinfo/u-boot>`_. U-Boot supports a huge amount of
 very different systems, and it is often impossible for the individual developer
 to oversee the consequences of a specific change to all architectures.
 Discussing concepts early can help you to avoid spending effort on code which,
@@ -87,7 +87,7 @@ General Patch Submission Rules
 ------------------------------
 
 * All patches must be sent to the `u-boot@lists.u-boot-project.org
-  <https://lists.u-boot-project.org/listinfo/u-boot>`_ mailing list.
+  <https://lists.u-boot-project.org/mailman/listinfo/u-boot>`_ mailing list.
 
 * If your patch affects the code maintained by one of the :ref:`custodians`, CC
   them when emailing your patch. The easiest way to make sure you don't forget
