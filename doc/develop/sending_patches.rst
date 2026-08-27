@@ -506,4 +506,4 @@ for an overview on how to use it.
 pwparser
 ^^^^^^^^
 
-See http://www.mail-archive.com/patchwork@lists.ozlabs.org/msg00057.html
+See https://lists.ozlabs.org/pipermail/patchwork/2010-January/000186.html
