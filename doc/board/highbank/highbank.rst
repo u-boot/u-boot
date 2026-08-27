@@ -73,6 +73,6 @@ existing U-Boot, and execute it with bootm::
     => tftpboot 0x8000 u-boot-highbank.img
     => bootm
 
-.. _`ipmitool`: https://github.com/Cynerva/ipmitool
+.. _`ipmitool`: https://codeberg.org/IPMITool/ipmitool
 .. _`pyipmi`: https://pypi.org/project/pyipmi/
-.. _`management script`: https://github.com/Cynerva/cxmanage
+.. _`management script`: https://pypi.org/project/cxmanage/
