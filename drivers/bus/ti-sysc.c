@@ -53,9 +53,9 @@ static int ti_sysc_get_one_clock(struct udevice *dev, enum ti_sysc_clocks index)
 
 	name = clock_names[index];
 
-	err = clk_get_by_name(dev, name, &priv->clocks[index]);
+	err = clk_get_by_name_optional(dev, name, &priv->clocks[index]);
 	if (err) {
-		if (err == -ENODATA || err == -ENOSYS)
+		if (err == -ENOSYS)
 			return 0;
 
 		dev_err(dev, "failed to get %s clock\n", name);
@@ -86,10 +86,10 @@ static int ti_sysc_get_clocks(struct udevice *dev)
 
 	for (i = 0; i < TI_SYSC_MAX_CLOCKS; i++) {
 		err = ti_sysc_get_one_clock(dev, i);
-		if (!err)
-			priv->clocks_count++;
-		else if (err != -ENOENT)
+		if (err)
 			return err;
+
+		priv->clocks_count++;
 	}
 
 	return 0;
