@@ -149,6 +149,11 @@ struct efi_guid;
 /**
  * gen_v5_guid() - generate little endian v5 GUID from namespace and other seed data.
  *
+ * The seed data is hashed as raw bytes, so any of it that is not a byte string
+ * has to be supplied in a fixed byte order for the result to be reproducible.
+ * UTF-16 seed data, such as a firmware image name, must therefore be passed
+ * little-endian, which is the byte order the UEFI specification uses for it.
+ *
  * @namespace:   pointer to UUID namespace salt
  * @guid:        pointer to allocated GUID output
  * @...:         NULL terminated list of seed data as pairs of pointers
