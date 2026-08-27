@@ -55,7 +55,7 @@ static int ti_sysc_get_one_clock(struct udevice *dev, enum ti_sysc_clocks index)
 
 	err = clk_get_by_name(dev, name, &priv->clocks[index]);
 	if (err) {
-		if (err == -ENODATA)
+		if (err == -ENODATA || err == -ENOSYS)
 			return 0;
 
 		dev_err(dev, "failed to get %s clock\n", name);
@@ -71,10 +71,12 @@ static int ti_sysc_put_clocks(struct udevice *dev)
 	int err;
 
 	err = clk_release_all(priv->clocks, priv->clocks_count);
-	if (err)
+	if (err && err != -ENOSYS) {
 		dev_err(dev, "failed to release all clocks\n");
+		return err;
+	}
 
-	return err;
+	return 0;
 }
 
 static int ti_sysc_get_clocks(struct udevice *dev)
