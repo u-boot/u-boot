@@ -24,8 +24,10 @@ struct ti_sysc_priv {
 
 static const struct udevice_id ti_sysc_ids[] = {
 	{.compatible = "ti,sysc-omap2"},
+	{.compatible = "ti,sysc-omap2-timer"},
 	{.compatible = "ti,sysc-omap4"},
 	{.compatible = "ti,sysc-omap4-simple"},
+	{.compatible = "ti,sysc-omap4-timer"},
 	{.compatible = "ti,sysc-omap3430-sr"},
 	{.compatible = "ti,sysc-omap3630-sr"},
 	{.compatible = "ti,sysc-omap4-sr"},
