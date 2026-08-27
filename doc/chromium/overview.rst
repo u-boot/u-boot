@@ -71,4 +71,4 @@ Here is some material relevant to Chromium OS verified boot with U-Boot:
 
    - `Chromium OS U-Boot <https://www.chromium.org/developers/u-boot>`_
 
-   - `Firmware porting Guide <https://www.chromium.org/chromium-os/firmware-porting-guide>`_
+   - `Firmware porting Guide <https://www.chromium.org/chromium-os/developer-library/guides/firmware/firmware-porting-guide/>`_
