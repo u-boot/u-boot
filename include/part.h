@@ -23,7 +23,6 @@ struct block_drvr {
 
 /* Part types */
 #define PART_TYPE_UNKNOWN	0x00
-#define PART_TYPE_MAC		0x01
 #define PART_TYPE_DOS		0x02
 #define PART_TYPE_ISO		0x03
 #define PART_TYPE_EFI		0x05
@@ -33,7 +32,6 @@ struct block_drvr {
 /* maximum number of partition entries supported by search */
 #define DOS_ENTRY_NUMBERS	8
 #define ISO_ENTRY_NUMBERS	64
-#define MAC_ENTRY_NUMBERS	64
 #define MTD_ENTRY_NUMBERS	64
 #define UBI_ENTRY_NUMBERS	UBI_MAX_VOLUMES
 
