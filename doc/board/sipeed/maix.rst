@@ -19,7 +19,7 @@ Currently, only the Sipeed MAIX BiT V2.0 (bitm) and Sipeed MAIXDUINO are
 supported, but the boards are fairly similar.
 
 Documentation for Maix boards is available from
-`Sipeed's website <http://dl.sipeed.com/MAIX/HDK/>`_.
+`Sipeed's website <https://dl.sipeed.com/MAIX/HDK/>`_.
 Documentation for the Kendryte K210 is available from
 `Kendryte's website <https://kendryte.com/downloads/>`_. However, hardware
 details are rather lacking, so most technical reference has been taken from the

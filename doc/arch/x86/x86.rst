@@ -480,9 +480,9 @@ TODO List
 - Audio
 - Chrome OS verified boot
 
-.. _coreboot: http://www.coreboot.org
-.. _QEMU: http://www.qemu.org
-.. _microcode: http://en.wikipedia.org/wiki/Microcode
+.. _coreboot: https://www.coreboot.org
+.. _QEMU: https://www.qemu.org
+.. _microcode: https://en.wikipedia.org/wiki/Microcode
 .. _SFI: https://en.wikipedia.org/wiki/Simple_Firmware_Interface
 .. _MP: https://en.wikipedia.org/wiki/MultiProcessor_Specification
 .. _SeaBIOS: https://www.seabios.org/

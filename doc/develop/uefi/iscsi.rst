@@ -131,11 +131,11 @@ For running iPXE on arm64 the bin-arm64-efi/snp.efi build target is needed::
 
 The available commands for the boot script are documented at:
 
-http://ipxe.org/cmd
+https://ipxe.org/cmd
 
 Credentials are managed as environment variables. These are described here:
 
-http://ipxe.org/cfg
+https://ipxe.org/cfg
 
 iPXE by default will put the CPU to rest when waiting for input. U-Boot does
 not wake it up due to missing interrupt support. To avoid this behavior create
