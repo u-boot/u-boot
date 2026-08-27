@@ -359,6 +359,15 @@ static int clk_set_default_rates(struct udevice *dev,
 
 		ret = clk_set_rate(c, rates[index]);
 
+		/*
+		 * Not all drivers/clocks support setting the rate (as of now).
+		 * Ignore that and keep the rate set by an earlier boot stage.
+		 */
+		if (ret == -ENOSYS) {
+			ret = 0;
+			continue;
+		}
+
 		if (IS_ERR_VALUE(ret)) {
 			dev_warn(dev,
 				 "failed to set rate on clock index %d (%ld) (error = %d)\n",
