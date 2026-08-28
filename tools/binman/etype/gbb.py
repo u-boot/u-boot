@@ -48,7 +48,7 @@ class Entry_gbb(Entry):
     the root and recovery keys that are used to verify the boot process. Some
     more details are here:
 
-        https://www.chromium.org/chromium-os/firmware-porting-guide/2-concepts
+        https://www.chromium.org/chromium-os/developer-library/guides/firmware/firmware-porting-guide/2-concepts/
 
     but note that the page dates from 2013 so is quite out of date. See
     README.chromium for how to obtain the required keys and tools.
