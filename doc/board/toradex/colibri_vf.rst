@@ -25,8 +25,18 @@ Build U-Boot
     $ make colibri_vf_defconfig
     $ make
 
-This produces ``u-boot.imx``, the image with the IVT for the Vybrid
-BootROM, ready to be written to the ``u-boot`` NAND partition.
+This produces ``u-boot.imx``, the plain image with the IVT for the
+Vybrid BootROM. The BootROM expects the IVT at offset 0x400 of a NAND
+boot device (VFxxx Reference Manual rev. 8, table 7-51), so the image
+written to the ``u-boot`` NAND partition needs 1 KiB of padding in
+front of it:
+
+.. code-block:: console
+
+    $ make u-boot-nand.imx
+
+The plain ``u-boot.imx`` written to NAND is refused by the BootROM,
+which then silently falls back to the serial downloader.
 
 Flash to NAND from a running U-Boot
 -----------------------------------
@@ -36,7 +46,7 @@ Load the image over TFTP or from a FAT formatted SD card and use the
 
 .. code-block:: none
 
-    Colibri VFxx # fatload mmc 0:1 ${loadaddr} u-boot.imx
+    Colibri VFxx # fatload mmc 0:1 ${loadaddr} u-boot-nand.imx
     Colibri VFxx # run update_uboot
     Colibri VFxx # reset
 
@@ -62,5 +72,5 @@ offer a ``flashloader`` command that writes a U-Boot image to NAND:
 
 .. code-block:: none
 
-    > flashloader u-boot.imx
+    > flashloader u-boot-nand.imx
     > reboot
