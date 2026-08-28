@@ -1,17 +1,27 @@
-* File system firmware loader
+* Generic Firmware loader
 
 Required properties:
 --------------------
 
-- compatible: should contain "u-boot,fs-loader"
+- compatible: should contain "u-boot,fs-loader" or "u-boot,fip-loader"
+
+Optional properties:
+--------------------
+
 - phandlepart: which block storage device and partition the image loading from,
 	       this property is required for mmc, usb and sata. This is unsigned
 	       32-bit array. For example phandlepart=<&mmc_0 1>, meaning use
 	       that MMC0 node pointer, partition 1.
-- mdtpart: which partition of ubi the image loading from, this property is
+- mtdpart: which partition of ubi the image loading from, this property is
 	   required for ubi and mounting.
 - ubivol: which volume of ubi the image loading from, this property is required
 	  for ubi and mounting.
+- partoffset: valid ONLY for "u-boot,fip-loader". Offset of the partition to
+	      parse the FIP partition from.
+
+Either 'phandlepart' or 'mtdpart' can be used. For Block device, 'phandlepart'
+should be used and for MTD device, 'mtdpart' should be used. With UBI device,
+in addition to 'mtdpart' also 'ubivol' is required.
 
 Example of storage device and partition search set for mmc, usb, sata and
 ubi in device tree source as shown in below:
@@ -46,3 +56,20 @@ ubi in device tree source as shown in below:
 		mtdpart = "UBI",
 		ubivol = "ubi0";
 	};
+
+	Example for FIP from eMMC:
+	fs_loader4: fip-loader@4 {
+		bootph-all;
+		compatible = "u-boot,fip-loader";
+		phandlepart = <&mmc0 0>;
+		partoffset = <0x100>;
+	};
+
+	Example for FIP from ubi:
+	fs_loader4: fip-loader@4 {
+		bootph-all;
+		compatible = "u-boot,fip-loader";
+		mtdpart = "ubi",
+		ubivol = "bl31";
+	};
+
