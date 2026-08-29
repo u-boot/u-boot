@@ -703,7 +703,7 @@ We need to preset the "httpserverip" environment variable to proceed the wget::
 UEFI HTTP(s) Boot using lwIP
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Similar to the above U-Boot can do EFI HTTP boot using lwIP. If we combine this
-with Mbed TLS we can also download from https://
+with Mbed TLS we can also download from HTTPS.
 
 HTTP(s) Boot can be activated by specifying::
 

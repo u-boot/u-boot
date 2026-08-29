@@ -6,7 +6,7 @@ Amlogic
 Hardware Support Matrix
 -----------------------
 
-An up-do-date matrix is also available on: http://linux-meson.com
+An up-do-date matrix is also available on: https://linux-meson.com
 
 This matrix concerns the actual source code version.
 

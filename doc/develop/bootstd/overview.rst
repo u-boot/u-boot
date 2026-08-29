@@ -882,7 +882,7 @@ Other ideas:
 
 
 .. _distro_bootcmd: https://github.com/u-boot/u-boot/blob/master/include/config_distro_bootcmd.h
-.. _BootLoaderSpec: http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/
-.. _distro_boot: https://github.com/u-boot/u-boot/blob/master/boot/distro.c
+.. _BootLoaderSpec: https://uapi-group.org/specifications/specs/boot_loader_specification/
+.. _distro_boot: https://github.com/u-boot/u-boot/blob/v2023.04/boot/bootmeth_distro.c
 .. _bootflow_h: https://github.com/u-boot/u-boot/blob/master/include/bootflow.h
 .. _migrate_patch: https://patchwork.ozlabs.org/project/uboot/patch/20230727215433.578830-2-sjg@chromium.org/

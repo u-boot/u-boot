@@ -5,7 +5,7 @@ Sending patches
 
 *Before you begin* to implement any new ideas or concepts it is always a good
 idea to present your plans on the `U-Boot mailing list
-<https://lists.u-boot-project.org/listinfo/u-boot>`_. U-Boot supports a huge amount of
+<https://lists.u-boot-project.org/mailman/listinfo/u-boot>`_. U-Boot supports a huge amount of
 very different systems, and it is often impossible for the individual developer
 to oversee the consequences of a specific change to all architectures.
 Discussing concepts early can help you to avoid spending effort on code which,
@@ -15,7 +15,7 @@ resource - use it. Being familiar with the :doc:`process` is also important.
 
 A good introduction how to prepare for submitting patches can be found in the
 LWN article `How to Get Your Change Into the Linux Kernel
-<http://lwn.net/Articles/139918/>`_ as the same rules apply to U-Boot, too.
+<https://lwn.net/Articles/139918/>`_ as the same rules apply to U-Boot, too.
 
 .. _b4_contrib:
 
@@ -87,7 +87,7 @@ General Patch Submission Rules
 ------------------------------
 
 * All patches must be sent to the `u-boot@lists.u-boot-project.org
-  <https://lists.u-boot-project.org/listinfo/u-boot>`_ mailing list.
+  <https://lists.u-boot-project.org/mailman/listinfo/u-boot>`_ mailing list.
 
 * If your patch affects the code maintained by one of the :ref:`custodians`, CC
   them when emailing your patch. The easiest way to make sure you don't forget
@@ -142,10 +142,6 @@ General Patch Submission Rules
   like wrapping of longer lines etc.
   The best way to send patches is by not using your regular mail tool, but by
   using either ``git send-email`` or the ``git imap-send`` command instead.
-  If you believe you need to use a mailing list for testing (instead of any
-  regular mail address you own), we have a special test list for such purposes.
-  It would be best to subscribe to the list for the duration of your tests to
-  avoid repeated moderation - see https://lists.u-boot-project.org/listinfo/test
 
 * Choose a meaningful Subject: - keep in mind that the Subject will also be
   visible as headline of your commit message. Make sure the subject does not
@@ -317,7 +313,7 @@ to observe the following rules.
   Note: it is *not* sufficient to provide a change log in some cover letter
   that gets sent as a separate message with the patch series. The reason is
   that such cover letters are not as easily reviewed in our `patchwork queue
-  <http://patchwork.ozlabs.org/project/uboot/list/>`_ so they are not helpful
+  <https://patchwork.ozlabs.org/project/uboot/list/>`_ so they are not helpful
   to any reviewers using this tool. Example::
 
    From: Joe Hacker <jh@hackers.paradise.com>
@@ -353,15 +349,15 @@ posted before, look up the old threads, and then manually compare if anything
 has been changed, or what.
 
 If you have problems with your e-mail client, for example because it mangles
-white space or wraps long lines, then please read this article about `Email
-Clients and Patches <http://kerneltrap.org/Linux/Email_Clients_and_Patches>`_.
+white space or wraps long lines, then please read this about `Email
+Clients and Patches <https://docs.kernel.org/process/email-clients.html>`_.
 
 Notes
 -----
 
 1. U-Boot is Free Software that can redistributed and/or modified under the
    terms of the `GNU General Public License
-   <http://www.fsf.org/licensing/licenses/gpl.html>`_ (GPL). Currently (August
+   <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>`_ (GPL). Currently (August
    2022) version 2 of the GPL applies. Please see :download:`Licensing
    <../../Licenses/README>` for details. To allow that later versions of U-Boot
    may be released under a later version of the GPL, all new code that gets
@@ -384,12 +380,12 @@ Notes
 Patch Tracking
 --------------
 
-Like some other projects, U-Boot uses `Patchwork <http://patchwork.ozlabs.org/>`__
+Like some other projects, U-Boot uses `Patchwork <https://patchwork.ozlabs.org/>`__
 to track the state of patches. This is one of the reasons why it is mandatory
 to submit all patches to the U-Boot mailing list - only then they will be
 picked up by patchwork.
 
-At http://patchwork.ozlabs.org/project/uboot/list/ you can find the list of
+At https://patchwork.ozlabs.org/project/uboot/list/ you can find the list of
 open U-Boot patches. By using the "Filters" link (Note: requires JavaScript)
 you can also select other views, for example, to include old patches that have,
 for example, already been applied or rejected.
@@ -474,14 +470,13 @@ Apply patches
 ^^^^^^^^^^^^^
 
 To apply a patch from the `patchwork queue
-<http://patchwork.ozlabs.org/project/uboot/list/>`_ using ``git``, download the
+<https://patchwork.ozlabs.org/project/uboot/list/>`_ using ``git``, download the
 mbox file and apply it using::
 
    git am file
 
-The `openembedded wiki <http://wiki.openembedded.net/>`_ also provides a script
-named `pw-am.sh
-<http://cgit.openembedded.org/cgit.cgi/openembedded/tree/contrib/patchwork/pw-am.sh>`_
+OpenEmbedded also provides a script named `pw-am.sh
+<https://git.openembedded.org/openembedded/tree/contrib/patchwork/pw-am.sh>`_
 which can be used to fetch an 'mbox' patch from patchwork and git am it::
 
    usage: pw-am.sh <number>
@@ -500,7 +495,7 @@ The `pwclient` command line tool can be used for example to retrieve patches,
 search the queue or update the state.
 
 All necessary information for `pwclient` is linked from the bottom of
-http://patchwork.ozlabs.org/project/uboot/
+https://patchwork.ozlabs.org/project/uboot/
 
 Use::
 
@@ -511,4 +506,4 @@ for an overview on how to use it.
 pwparser
 ^^^^^^^^
 
-See http://www.mail-archive.com/patchwork@lists.ozlabs.org/msg00057.html
+See https://lists.ozlabs.org/pipermail/patchwork/2010-January/000186.html
