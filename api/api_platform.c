@@ -21,8 +21,8 @@ int platform_sys_info(struct sys_info *si)
 	si->clk_cpu = gd->cpu_clk;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		platform_set_mr(si, gd->bd->bi_dram[i].start,
-				gd->bd->bi_dram[i].size, MR_ATTR_DRAM);
+		platform_set_mr(si, gd->dram[i].start,
+				gd->dram[i].size, MR_ATTR_DRAM);
 
 	platform_set_mr(si, gd->ram_base, gd->ram_size, MR_ATTR_DRAM);
 	platform_set_mr(si, gd->bd->bi_flashstart, gd->bd->bi_flashsize, MR_ATTR_FLASH);

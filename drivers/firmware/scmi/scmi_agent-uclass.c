@@ -116,6 +116,11 @@ struct udevice *scmi_get_protocol(struct udevice *dev,
 		proto = priv->vendor_dev_80;
 		break;
 #endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_81)
+	case SCMI_PROTOCOL_ID_VENDOR_81:
+		proto = priv->vendor_dev_81;
+		break;
+#endif
 #if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_82)
 	case SCMI_PROTOCOL_ID_VENDOR_82:
 		proto = priv->vendor_dev_82;
@@ -187,6 +192,11 @@ static int scmi_add_protocol(struct udevice *dev,
 #if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_80)
 	case SCMI_PROTOCOL_ID_VENDOR_80:
 		priv->vendor_dev_80 = proto;
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_81)
+	case SCMI_PROTOCOL_ID_VENDOR_81:
+		priv->vendor_dev_81 = proto;
 		break;
 #endif
 #if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_82)

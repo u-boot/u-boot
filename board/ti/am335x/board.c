@@ -28,6 +28,7 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
+#include <asm/arch/mux.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/emif.h>
@@ -71,6 +72,12 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 #define GPIO0_IRQSTATUSRAW	(AM33XX_GPIO0_BASE + 0x024)
 #define GPIO1_IRQSTATUSRAW	(AM33XX_GPIO1_BASE + 0x024)
+
+static __maybe_unused struct module_pin_mux rmii1_mdio_pin_mux[] = {
+	{OFFSET(mdio_clk), MODE(0) | PULLUP_EN},	/* MDIO_CLK */
+	{OFFSET(mdio_data), MODE(0) | RXACTIVE | PULLUP_EN}, /* MDIO_DATA */
+	{-1},
+};
 
 /*
  * Read header information from EEPROM into global structure.
@@ -778,6 +785,9 @@ int board_init(void)
 			printf("Both ports must be set as RMII or MII\n");
 			hang();
 		}
+
+		if (!eth0_is_mii)
+			configure_module_pin_mux(rmii1_mdio_pin_mux);
 
 		prueth_is_mii = eth0_is_mii;
 

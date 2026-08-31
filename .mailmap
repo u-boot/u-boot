@@ -16,6 +16,7 @@
 # Proper Name <proper@email.xx> Commit Name <commit@email.xx>
 
 <duje@dujemihanovic.xyz> <duje.mihanovic@skole.hr>
+<u-boot@lists.u-boot-project.org> <u-boot@lists.denx.de>
 AKASHI Takahiro <akashi.tkhro@gmail.com> <takahiro.akashi@linaro.org>
 Abbarapu Venkatesh Yadav <venkyada@qti.qualcomm.com> Venkatesh Yadav Abbarapu <venkatesh.abbarapu@amd.com>
 Alexander Graf <agraf@csgraf.de> <agraf@suse.de>
@@ -41,7 +42,8 @@ Boris Brezillon <bbrezillon@kernel.org> <boris.brezillon@free-electrons.com>
 Casey Connolly <casey.connolly@linaro.org> <caleb.connolly@linaro.org>
 Chen-Yu Tsai <wens@kernel.org> <wens@csie.org>
 Christian Kohn <chris.kohn@amd.com> <christian.kohn@xilinx.com>
-Christopher Obbard <christopher.obbard@linaro.org> <chris.obbard@collabora.com>
+Christopher Obbard <chris.obbard@oss.qualcomm.com> <chris.obbard@collabora.com>
+Christopher Obbard <chris.obbard@oss.qualcomm.com> <christopher.obbard@linaro.org>
 Dirk Behme <dirk.behme@googlemail.com>
 Durga Challa <durga.challa@amd.com> <vnsl.durga.challa@xilinx.com>
 Eugen Hristev <ehristev@kernel.org> <eugen.hristev@collabora.com>
@@ -85,9 +87,10 @@ Love Kumar <love.kumar@amd.com> <love.kumar@xilinx.com>
 Lukasz Majewski <lukma@denx.de>
 Marek Behún <kabel@kernel.org> <marek.behun@nic.cz>
 Marek Behún <kabel@kernel.org> Marek Behun <marek.behun@nic.cz>
-Marek Vasut <marex@denx.de> <marek.vasut+renesas@gmail.com>
-Marek Vasut <marex@denx.de> <marek.vasut@gmail.com>
-Marek Vasut <marex@denx.de> <marex at denx.de>
+Marek Vasut <marek.vasut+renesas@mailbox.org> <marek.vasut+renesas@gmail.com>
+Marek Vasut <marek.vasut+uboot@mailbox.org> <marek.vasut@gmail.com>
+Marek Vasut <marex@nabladev.com> <marex at denx.de>
+Marek Vasut <marex@nabladev.com> <marex@denx.de>
 Markus Klotzbuecher <mk@denx.de>
 Masahiro Yamada <masahiroy@kernel.org> <yamada.m@jp.panasonic.com>
 Masahiro Yamada <masahiroy@kernel.org> <yamada.masahiro@socionext.com>

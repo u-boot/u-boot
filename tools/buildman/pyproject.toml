@@ -24,7 +24,7 @@ classifiers = [
 
 [project.urls]
 "Homepage" = "https://docs.u-boot-project.org/en/latest/build/buildman.html"
-"Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
+"Bug Tracker" = "https://git.u-boot-project.org/groups/u-boot/-/issues"
 
 [project.scripts]
 buildman = "buildman.main:run_buildman"

@@ -22,6 +22,11 @@ Verified Boot establishes a chain of trust from the bootloader to system images:
 
 Integrity of the bootloader (U-Boot BLOB and environment) is out of scope.
 
+Verification is performed by libavb, which is vendored under ``lib/libavb/``
+from the AOSP ``external/avb`` project (AVB version 1.3.0). Only the U-Boot
+integration in ``common/avb_verify.c`` and the platform port under
+``lib/libavb/avb_sysdeps*`` are U-Boot-specific.
+
 For additional details check [1]_.
 
 AVB using OP-TEE (optional)
@@ -31,6 +36,43 @@ If AVB is configured to use OP-TEE (see `Enable on your board`_) rollback
 indexes and device lock state are stored in RPMB. The RPMB partition is managed
 by OP-TEE (see [2]_ for details) which is a secure OS leveraging ARM
 TrustZone.
+
+Root of trust
+-------------
+
+AVB anchors its chain of trust in a single public key: the key embedded in
+the vbmeta image is attacker-controlled, so ``validate_vbmeta_public_key()``
+hashes it (SHA-256) and compares the digest against a *trusted* digest. The
+source of that trusted digest is selected by the ``CONFIG_AVB_ROOT_KEY_*``
+choice. Any error obtaining the trusted digest fails closed, i.e. the vbmeta
+key is treated as untrusted.
+
+``AVB_ROOT_KEY_BUILTIN`` (default)
+  Use the SHA-256 of the ``avb_root_pub`` blob compiled into U-Boot. By
+  default this is the AVB reference/test key, whose private half is publicly
+  available; it is intended for development only and MUST be replaced for
+  production. The built-in key is only a meaningful root of trust if the
+  U-Boot image itself is verified by an earlier boot stage.
+
+``AVB_ROOT_KEY_TEE``
+  Read the trusted digest from OP-TEE secure storage as a named persistent
+  value (``CONFIG_AVB_ROOT_KEY_TEE_NAME``, default ``avb.root_pub_digest``)
+  via the OP-TEE AVB TA. Requires ``CONFIG_OPTEE_TA_AVB``. The 32-byte digest
+  must be provisioned into the TEE beforehand. Note that the OP-TEE AVB TA
+  lets normal world write arbitrary persistent values, so for this to be a
+  real anchor the TA must reject writes to this value while the device is
+  locked; otherwise it can be overwritten from normal world.
+
+``AVB_ROOT_KEY_BOARD``
+  Obtain the trusted digest from a board/SoC specific strong definition of
+  ``avb_read_root_key_digest()`` (for example reading a hash fused into
+  OTP/eFuse). The default weak implementation fails closed, so a board that
+  forgets to override it refuses verification rather than silently trusting a
+  wrong key.
+
+Note that device lock state and rollback protection are only enforced when
+backed by OP-TEE (see `AVB using OP-TEE (optional)`_); without it,
+verification is advisory regardless of the root key source.
 
 AVB 2.0 U-Boot shell commands
 -----------------------------
@@ -128,12 +170,12 @@ After flashing U-Boot don't forget to update environment and write new
 partition table::
 
    => env default -f -a
-   => setenv partitions $partitions_android
+   => env set partitions $partitions_android
    => env save
    => gpt write mmc 1 $partitions_android
 
 References
 ----------
 
-.. [1] https://android.googlesource.com/platform/external/avb/+/master/README.md
+.. [1] https://android.googlesource.com/platform/external/avb/+/a1fe228b86543a21739c51352f5ce72f134fccfa/README.md
 .. [2] https://www.op-tee.org/

@@ -247,13 +247,18 @@
 			};
 
 			configurations {
-				default = "conf-0";
+				default = "conf-hs-fs";
 
-				conf-0 {
-					description = "k3-am62a7-phyboard-lyra-rdk";
+				conf-hs-fs {
+					description = "k3-am62a7-phyboard-lyra-rdk-hs-fs";
 					firmware = "atf";
-					loadables = "tee", "dm", "spl",
-					"tifsstub-hs", "tifsstub-fs";
+					loadables = "tee", "dm", "spl", "tifsstub-fs";
+					fdt = "fdt-0";
+				};
+				conf-hs-se {
+					description = "k3-am62a7-phyboard-lyra-rdk-hs-se";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl", "tifsstub-hs";
 					fdt = "fdt-0";
 				};
 			};
@@ -290,7 +295,7 @@
 					description = "k3-am6xx-phycore-disable-spi-nor";
 					type = "flat_dt";
 					compression = "none";
-					load = <0x8F001000>;
+					load = <0x8F004000>;
 					arch = "arm";
 					ti-secure {
 						content = <&am6xx_phycore_disable_spi_not_dtbo>;
@@ -305,7 +310,7 @@
 					description = "k3-am6xx-phycore-disable-eth-phy";
 					type = "flat_dt";
 					compression = "none";
-					load = <0x8F002000>;
+					load = <0x8F008000>;
 					arch = "arm";
 					ti-secure {
 						content = <&am6xx_phycore_disable_eth_phy_dtbo>;
@@ -320,7 +325,7 @@
 					description = "k3-am6xx-phycore-qspi-nor";
 					type = "flat_dt";
 					compression = "none";
-					load = <0x8F003000>;
+					load = <0x8F00C000>;
 					arch = "arm";
 					ti-secure {
 						content = <&am6xx_phycore_disable_qspi_nor_dtbo>;

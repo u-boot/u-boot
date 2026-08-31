@@ -3,7 +3,7 @@
  * dts file for Xilinx ZynqMP ZCU102 RevA
  *
  * (C) Copyright 2015 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -45,6 +45,21 @@
 		reg = <0x0 0x0 0x0 0x80000000>, <0x8 0x00000000 0x0 0x80000000>;
 	};
 
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		cma: linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x8000000>;
+			alignment = <0x0 0x8000000>;
+			alloc-ranges = <0x0 0x0 0x0 0x80000000>;
+			linux,cma-default;
+		};
+	};
+
 	gpio-keys {
 		compatible = "gpio-keys";
 		autorepeat;
@@ -68,74 +83,92 @@
 
 	ina226-u76 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u76 0>, <&u76 1>, <&u76 2>, <&u76 3>;
 	};
 	ina226-u77 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u77 0>, <&u77 1>, <&u77 2>, <&u77 3>;
 	};
 	ina226-u78 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u78 0>, <&u78 1>, <&u78 2>, <&u78 3>;
 	};
 	ina226-u87 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u87 0>, <&u87 1>, <&u87 2>, <&u87 3>;
 	};
 	ina226-u85 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u85 0>, <&u85 1>, <&u85 2>, <&u85 3>;
 	};
 	ina226-u86 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u86 0>, <&u86 1>, <&u86 2>, <&u86 3>;
 	};
 	ina226-u93 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u93 0>, <&u93 1>, <&u93 2>, <&u93 3>;
 	};
 	ina226-u88 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u88 0>, <&u88 1>, <&u88 2>, <&u88 3>;
 	};
 	ina226-u15 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u15 0>, <&u15 1>, <&u15 2>, <&u15 3>;
 	};
 	ina226-u92 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u92 0>, <&u92 1>, <&u92 2>, <&u92 3>;
 	};
 	ina226-u79 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u79 0>, <&u79 1>, <&u79 2>, <&u79 3>;
 	};
 	ina226-u81 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u81 0>, <&u81 1>, <&u81 2>, <&u81 3>;
 	};
 	ina226-u80 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u80 0>, <&u80 1>, <&u80 2>, <&u80 3>;
 	};
 	ina226-u84 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u84 0>, <&u84 1>, <&u84 2>, <&u84 3>;
 	};
 	ina226-u16 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u16 0>, <&u16 1>, <&u16 2>, <&u16 3>;
 	};
 	ina226-u65 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u65 0>, <&u65 1>, <&u65 2>, <&u65 3>;
 	};
 	ina226-u74 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u74 0>, <&u74 1>, <&u74 2>, <&u74 3>;
 	};
 	ina226-u75 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u75 0>, <&u75 1>, <&u75 2>, <&u75 3>;
 	};
 
@@ -217,7 +250,6 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		phy0: ethernet-phy@21 {
-			#phy-cells = <1>;
 			compatible = "ethernet-phy-id2000.a231";
 			reg = <21>;
 			ti,rx-internal-delay = <0x8>;
@@ -987,28 +1019,32 @@
 	num-cs = <2>;
 	flash@0 {
 		compatible = "m25p80", "jedec,spi-nor"; /* 32MB */
-		#address-cells = <1>;
-		#size-cells = <1>;
 		reg = <0>, <1>;
 		parallel-memories = /bits/ 64 <0x4000000 0x4000000>; /* 64MB */
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>; /* FIXME also DUAL configuration possible */
 		spi-max-frequency = <108000000>; /* Based on DC1 spec */
-		partition@0 { /* for testing purpose */
-			label = "qspi-fsbl-uboot";
-			reg = <0x0 0x100000>;
-		};
-		partition@100000 { /* for testing purpose */
-			label = "qspi-linux";
-			reg = <0x100000 0x500000>;
-		};
-		partition@600000 { /* for testing purpose */
-			label = "qspi-device-tree";
-			reg = <0x600000 0x20000>;
-		};
-		partition@620000 { /* for testing purpose */
-			label = "qspi-rootfs";
-			reg = <0x620000 0x5e0000>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 { /* for testing purpose */
+				label = "qspi-fsbl-uboot";
+				reg = <0x0 0x100000>;
+			};
+			partition@100000 { /* for testing purpose */
+				label = "qspi-linux";
+				reg = <0x100000 0x500000>;
+			};
+			partition@600000 { /* for testing purpose */
+				label = "qspi-device-tree";
+				reg = <0x600000 0x20000>;
+			};
+			partition@620000 { /* for testing purpose */
+				label = "qspi-rootfs";
+				reg = <0x620000 0x5e0000>;
+			};
 		};
 	};
 };

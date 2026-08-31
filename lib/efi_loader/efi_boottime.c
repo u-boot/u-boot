@@ -3895,7 +3895,7 @@ efi_status_t EFIAPI efi_disconnect_controller(
 				      &number_of_children,
 				      &child_handle_buffer);
 	if (r != EFI_SUCCESS)
-		return r;
+		goto out;
 	sole_child = (number_of_children == 1);
 
 	if (child_handle) {

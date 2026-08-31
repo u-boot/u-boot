@@ -121,6 +121,7 @@ config IMXRT_SDRAM
 config K3_INLINE_ECC
 	bool "Enable TI Inline ECC support"
 	depends on K3_DDRSS
+	select FDT_64BIT
 	help
 	  Enable Inline ECC support on K3 platforms. 1/9th of the SDRAM space
 	  is used for ECC storage and the rest 8/9th is available for system

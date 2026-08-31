@@ -24,6 +24,18 @@
 
 static struct legacy_img_hdr header;
 
+struct fit_region {
+	ulong load;
+	ulong size;
+	const char *name;
+};
+
+static bool fit_regions_overlap(const struct fit_region *a,
+				const struct fit_region *b)
+{
+	return a->load < b->load + b->size && b->load < a->load + a->size;
+}
+
 static int fit_estimate_hash_sig_size(struct image_tool_params *params, const char *fname)
 {
 	bool signing = IMAGE_ENABLE_SIGN &&
@@ -40,10 +52,10 @@ static int fit_estimate_hash_sig_size(struct image_tool_params *params, const ch
 		return -EIO;
 
 	/*
-	 * Walk the FIT image, looking for nodes named hash* and
-	 * signature*. Since the interesting nodes are subnodes of an
-	 * image or configuration node, we are only interested in
-	 * those at depth exactly 3.
+	 * Walk the FIT image, looking for nodes named hash*,
+	 * signature*, and dm-verity. Since the interesting nodes are
+	 * subnodes of an image or configuration node, we are only
+	 * interested in those at depth exactly 3.
 	 *
 	 * The estimate for a hash node is based on a sha512 digest
 	 * being 64 bytes, with another 64 bytes added to account for
@@ -55,14 +67,16 @@ static int fit_estimate_hash_sig_size(struct image_tool_params *params, const ch
 	 * account for fdt overhead and the various other properties
 	 * (hashed-nodes etc.) that will also be filled in.
 	 *
+	 * For a dm-verity node the small metadata properties (digest,
+	 * salt, two u32s and a temp-file path) are written into the
+	 * FDT by fit_image_process_verity().
+	 *
 	 * One could try to be more precise in the estimates by
-	 * looking at the "algo" property and, in the case of
-	 * configuration signatures, the sign-images property. Also,
-	 * when signing an already created FIT image, the hash nodes
-	 * already have properly sized value properties, so one could
-	 * also take pre-existence of "value" properties in hash nodes
-	 * into account. But this rather simple approach should work
-	 * well enough in practice.
+	 * looking at the "algo" property. Also, when signing an already
+	 * created FIT image, the hash nodes already have properly sized value
+	 * properties, so one could also take pre-existence of "value"
+	 * properties in hash nodes into account. But this rather simple
+	 * approach should work well enough in practice.
 	 */
 	for (depth = 0, noffset = fdt_next_node(fdt, 0, &depth);
 	     noffset >= 0 && depth > 0;
@@ -76,6 +90,18 @@ static int fit_estimate_hash_sig_size(struct image_tool_params *params, const ch
 
 		if (signing && !strncmp(name, FIT_SIG_NODENAME, strlen(FIT_SIG_NODENAME)))
 			estimate += 1024;
+
+		if (!strcmp(name, FIT_VERITY_NODENAME)) {
+			if (!params->external_data) {
+				fprintf(stderr,
+					"%s: dm-verity requires external data (-E)\n",
+					params->cmdname);
+				munmap(fdt, sbuf.st_size);
+				close(fd);
+				return -EINVAL;
+			}
+			estimate += 256;
+		}
 	}
 
 	munmap(fdt, sbuf.st_size);
@@ -265,8 +291,14 @@ static void get_basename(char *str, int size, const char *fname)
 	 */
 	p = strrchr(fname, '/');
 	start = p ? p + 1 : fname;
-	p = strrchr(fname, '.');
-	end = p ? p : fname + strlen(fname);
+	/*
+	 * Search for the extension dot only within the basename. Searching
+	 * the whole path would let a dot in the directory part (for example
+	 * "./mydt" or "a.b/c") place 'end' before 'start' and produce a
+	 * negative length, which the size check below does not catch.
+	 */
+	p = strrchr(start, '.');
+	end = p ? p : start + strlen(start);
 	len = end - start;
 	if (len >= size)
 		len = size - 1;
@@ -471,6 +503,41 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 }
 
 /**
+ * fit_copy_image_data() - copy image data, using cached verity expansion
+ * @fdt:		FIT blob
+ * @node:		image node offset
+ * @buf:		destination buffer
+ * @buf_ptr:	write offset within @buf
+ * @data:		embedded image data (used when no dm-verity expansion exists)
+ * @lenp:		in/out: on entry, length of @data; on exit, bytes written
+ *
+ * When fit_image_process_verity() has run, the expanded image data
+ * (original + hash tree) is cached in memory. Look it up by image name
+ * and copy from the cached buffer rather than the embedded ``data``
+ * property; fall back to @data otherwise.
+ *
+ * Return: 0 on success
+ */
+static int fit_copy_image_data(void *fdt, int node, void *buf,
+			       int buf_ptr, const void *data, int *lenp)
+{
+	const char *image_name = fdt_get_name(fdt, node, NULL);
+	const void *vdata;
+	size_t vsize;
+
+	if (image_name &&
+	    !fit_verity_get_expanded(image_name, &vdata, &vsize)) {
+		memcpy(buf + buf_ptr, vdata, vsize);
+		*lenp = vsize;
+		return 0;
+	}
+
+	memcpy(buf + buf_ptr, data, *lenp);
+
+	return 0;
+}
+
+/**
  * fit_write_configs() - Write out a list of configurations to the FIT
  *
  * If there are device tree files, we include a configuration for each, which
@@ -653,6 +720,8 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	int node;
 	int align_size = 0;
 	int len = 0;
+	int verity_extra = 0;
+	int orig_len;
 
 	fd = mmap_fdt(params->cmdname, fname, 0, &fdt, &sbuf, false, false);
 	if (fd < 0)
@@ -687,10 +756,33 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	}
 
 	/*
+	 * When dm-verity is active the external data for an image is
+	 * larger than the embedded data property (original + hash tree).
+	 * Walk images once more and consult the in-memory cache for the
+	 * actual expanded size.
+	 */
+	fdt_for_each_subnode(node, fdt, images) {
+		const char *image_name;
+		const void *vdata;
+		size_t vsize;
+
+		orig_len = 0;
+		if (fdt_subnode_offset(fdt, node, FIT_VERITY_NODENAME) < 0)
+			continue;
+		image_name = fdt_get_name(fdt, node, NULL);
+		if (!image_name ||
+		    fit_verity_get_expanded(image_name, &vdata, &vsize))
+			continue;
+		fdt_getprop(fdt, node, FIT_DATA_PROP, &orig_len);
+		if ((int)vsize > orig_len)
+			verity_extra += (int)vsize - orig_len;
+	}
+
+	/*
 	 * Allocate space to hold the image data we will extract,
 	 * extral space allocate for image alignment to prevent overflow.
 	 */
-	buf = calloc(1, fit_size + align_size);
+	buf = calloc(1, fit_size + align_size + verity_extra);
 	if (!buf) {
 		ret = -ENOMEM;
 		goto err_munmap;
@@ -721,7 +813,10 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		data = fdt_getprop(fdt, node, FIT_DATA_PROP, &len);
 		if (!data)
 			continue;
-		memcpy(buf + buf_ptr, data, len);
+
+		ret = fit_copy_image_data(fdt, node, buf, buf_ptr, data, &len);
+		if (ret)
+			goto err_munmap;
 		debug("Extracting data size %x\n", len);
 
 		ret = fdt_delprop(fdt, node, FIT_DATA_PROP);
@@ -813,8 +908,6 @@ err:
 static int fit_import_data(struct image_tool_params *params, const char *fname)
 {
 	void *fdt, *old_fdt;
-	void *data = NULL;
-	const char *ext_data_prop = NULL;
 	int fit_size, new_size, size, data_base;
 	int fd;
 	struct stat sbuf;
@@ -822,6 +915,8 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	int images;
 	int confs;
 	int node;
+	struct fit_region *regions = NULL;
+	unsigned int regions_alloc = 0;
 
 	fd = mmap_fdt(params->cmdname, fname, 0, &old_fdt, &sbuf, false, false);
 	if (fd < 0)
@@ -856,6 +951,8 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	for (node = fdt_first_subnode(fdt, images);
 	     node >= 0;
 	     node = fdt_next_subnode(fdt, node)) {
+		const char *ext_data_prop = NULL;
+		void *data = NULL;
 		int buf_ptr;
 		int len;
 
@@ -924,6 +1021,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 
 	fdt_for_each_subnode(node, fdt, confs) {
 		const char *conf_name = fdt_get_name(fdt, node, NULL);
+		unsigned int reg_count = 0;
 
 		for (int i = 0; i < ARRAY_SIZE(props); i++) {
 			int count = fdt_stringlist_count(fdt, node, props[i]);
@@ -932,6 +1030,11 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 				continue;
 
 			for (int j = 0; j < count; j++) {
+				const char *img_data;
+				ulong img_load;
+				int img_size;
+				unsigned int k;
+
 				const char *img_name =
 					fdt_stringlist_get(fdt, node, props[i], j, NULL);
 				if (!img_name || !*img_name)
@@ -946,9 +1049,87 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 					ret = FDT_ERR_NOTFOUND;
 					goto err_munmap;
 				}
+
+				/*
+				 * Collect the memory region the image is
+				 * loaded to. Images without a load address or
+				 * without data are never copied anywhere, so
+				 * they cannot conflict.
+				 */
+				if (fit_image_get_load(fdt, img, &img_load))
+					continue;
+				img_data = fdt_getprop(fdt, img, FIT_DATA_PROP,
+						       &img_size);
+				if (!img_data || img_size <= 0)
+					continue;
+
+				/*
+				 * A configuration may reference one image
+				 * through several properties, for example
+				 * both "firmware" and "loadables". Count
+				 * each image only once.
+				 */
+				for (k = 0; k < reg_count; k++) {
+					if (!strcmp(regions[k].name, img_name))
+						break;
+				}
+				if (k < reg_count)
+					continue;
+
+				if (reg_count == regions_alloc) {
+					struct fit_region *tmp;
+
+					regions_alloc = regions_alloc ?
+						regions_alloc * 2 : 8;
+					tmp = realloc(regions, regions_alloc *
+						      sizeof(*regions));
+					if (!tmp) {
+						fprintf(stderr,
+							"%s: Out of memory for %u load regions\n",
+							params->cmdname,
+							regions_alloc);
+						ret = -ENOMEM;
+						goto err_munmap;
+					}
+					regions = tmp;
+				}
+
+				regions[reg_count].load = img_load;
+				regions[reg_count].size = img_size;
+				regions[reg_count].name = img_name;
+				reg_count++;
+			}
+		}
+
+		/*
+		 * All images referenced by one configuration are loaded
+		 * together, so no two of them may claim overlapping memory
+		 * regions. Images sharing a load address across different
+		 * configurations are fine, since only one configuration is
+		 * selected at runtime.
+		 */
+		for (unsigned int i = 0; i < reg_count; i++) {
+			for (unsigned int j = i + 1; j < reg_count; j++) {
+				if (!fit_regions_overlap(&regions[i],
+							 &regions[j]))
+					continue;
+				fprintf(stderr,
+					"Error: configuration '%s' has overlapping load regions:\n"
+					"  - %s: [0x%lx - 0x%lx]\n"
+					"  - %s: [0x%lx - 0x%lx]\n",
+					conf_name,
+					regions[i].name, regions[i].load,
+					regions[i].load + regions[i].size,
+					regions[j].name, regions[j].load,
+					regions[j].load + regions[j].size);
+				ret = FDT_ERR_BADSTRUCTURE;
+				goto err_munmap;
 			}
 		}
 	}
+
+	free(regions);
+	regions = NULL;
 
 	munmap(old_fdt, sbuf.st_size);
 
@@ -982,6 +1163,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 err_munmap:
 	munmap(old_fdt, sbuf.st_size);
 err:
+	free(regions);
 	free(fdt);
 	close(fd);
 	return ret;

@@ -12,6 +12,7 @@
 #include <dm/uclass.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <image.h>
 #include <init.h>
 #include <k3-ddrss.h>
 #include <spl.h>
@@ -44,7 +45,7 @@ int dram_init_banksize(void)
 		printf("Error setting up memory banksize. %d\n", ret);
 
 	/* Use the detected RAM size, we only support 1 bank right now. */
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	gd->dram[0].size = gd->ram_size;
 
 	return ret;
 }
@@ -57,12 +58,10 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 	return 0x9C000000;
 }
 
-#if defined(CONFIG_SPL_LOAD_FIT)
 int board_fit_config_name_match(const char *name)
 {
-	return 0;
+	return k3_fit_config_match_security_state(name);
 }
-#endif
 
 #if IS_ENABLED(CONFIG_OF_LIBFDT) && IS_ENABLED(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
@@ -75,17 +74,17 @@ static void select_dt_from_module_version(void)
 {
 	char variant[32];
 	char *env_variant = env_get("variant");
-	int is_wifi = 0;
+	bool is_wifi = true;
 
 	if (IS_ENABLED(CONFIG_TDX_CFG_BLOCK)) {
 		/*
 		 * If we have a valid config block and it says we are a module with
 		 * Wi-Fi/Bluetooth make sure we use the -wifi device tree.
 		 */
-		is_wifi = (tdx_hw_tag.prodid == VERDIN_AM62Q_WIFI_BT_IT) ||
-			  (tdx_hw_tag.prodid == VERDIN_AM62S_512MB_WIFI_BT_IT) ||
-			  (tdx_hw_tag.prodid == VERDIN_AM62D_1G_WIFI_BT_IT) ||
-			  (tdx_hw_tag.prodid == VERDIN_AM62Q_2G_WIFI_BT_IT);
+		is_wifi = !((tdx_hw_tag.prodid == VERDIN_AM62S_512MB) ||
+			    (tdx_hw_tag.prodid == VERDIN_AM62D_1G_ET) ||
+			    (tdx_hw_tag.prodid == VERDIN_AM62D_1G_IT) ||
+			    (tdx_hw_tag.prodid == VERDIN_AM62D_1G_ET_GPU_NODSI));
 	}
 
 	if (is_wifi)

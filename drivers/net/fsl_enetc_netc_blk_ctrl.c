@@ -35,6 +35,7 @@
 #define  MII_PROT_RGMII			0x2
 #define  MII_PROT_SERIAL		0x3
 #define  MII_PROT(port, prot)		(((prot) & 0xf) << ((port) << 2))
+#define  MII_PROT_GET(reg, port)	(((reg) >> ((port) << 2)) & 0xf)
 
 #define IMX95_CFG_LINK_PCS_PROT(a)	(0x8 + (a) * 4)
 #define PCS_PROT_1G_SGMII		BIT(0)
@@ -96,6 +97,9 @@
 #define IMX94_TIMER0_ID			0
 #define IMX94_TIMER1_ID			1
 #define IMX94_TIMER2_ID			2
+
+#define IMX952_ENETC0_BUS_DEVFN		0x0
+#define IMX952_ENETC1_BUS_DEVFN		0x100
 
 /* Flags for different platforms */
 #define NETC_HAS_NETCMIX		BIT(0)
@@ -567,6 +571,69 @@ static int netc_prb_check_error(struct netc_blk_ctrl *priv)
 	return 0;
 }
 
+static int imx952_netcmix_init(struct udevice *dev)
+{
+	struct netc_blk_ctrl *priv = dev_get_priv(dev);
+	ofnode child, gchild;
+	phy_interface_t interface;
+	int bus_devfn, mii_proto;
+	u32 val;
+
+	/* Default setting */
+	val = MII_PROT(0, MII_PROT_RGMII) | MII_PROT(1, MII_PROT_RGMII);
+
+	/* Update the link MII protocol through parsing phy-mode */
+	dev_for_each_subnode(child, dev) {
+		if (!ofnode_is_enabled(child))
+			continue;
+
+		ofnode_for_each_subnode(gchild, child) {
+			if (!ofnode_is_enabled(gchild))
+				continue;
+
+			if (!ofnode_device_is_compatible(gchild, "pci1131,e101"))
+				continue;
+
+			bus_devfn = netc_of_pci_get_bus_devfn(gchild);
+			if (bus_devfn < 0)
+				return -EINVAL;
+
+			interface = ofnode_read_phy_mode(gchild);
+			if (interface == -1)
+				continue;
+
+			mii_proto = netc_get_link_mii_protocol(interface);
+			if (mii_proto < 0)
+				return -EINVAL;
+
+			switch (bus_devfn) {
+			case IMX952_ENETC0_BUS_DEVFN:
+				val &= ~CFG_LINK_MII_PORT_0;
+				val |= FIELD_PREP(CFG_LINK_MII_PORT_0, mii_proto);
+				break;
+			case IMX952_ENETC1_BUS_DEVFN:
+				val &= ~CFG_LINK_MII_PORT_1;
+				val |= FIELD_PREP(CFG_LINK_MII_PORT_1, mii_proto);
+				break;
+			default:
+				return -EINVAL;
+			}
+		}
+	}
+
+	if (MII_PROT_GET(val, 1) == MII_PROT_SERIAL) {
+		/* Configure Link I/O variant */
+		netc_reg_write(priv->netcmix, IMX95_CFG_LINK_IO_VAR,
+			       IO_VAR(1, IO_VAR_16FF_16G_SERDES));
+		/* Configure Link 2 PCS protocol */
+		netc_reg_write(priv->netcmix, IMX95_CFG_LINK_PCS_PROT(1),
+			       PCS_PROT_2500M_SGMII);
+	}
+	netc_reg_write(priv->netcmix, IMX95_CFG_LINK_MII_PROT, val);
+
+	return 0;
+}
+
 static const struct netc_devinfo imx95_devinfo = {
 	.netcmix_init = imx95_netcmix_init,
 	.ierb_init = imx95_ierb_init,
@@ -578,9 +645,14 @@ static const struct netc_devinfo imx94_devinfo = {
 	.xpcs_port_init = imx94_netc_xpcs_port_init,
 };
 
+static const struct netc_devinfo imx952_devinfo = {
+	.netcmix_init = imx952_netcmix_init,
+};
+
 static const struct udevice_id netc_blk_ctrl_match[] = {
 	{ .compatible = "nxp,imx95-netc-blk-ctrl", .data = (ulong)&imx95_devinfo },
 	{ .compatible = "nxp,imx94-netc-blk-ctrl", .data = (ulong)&imx94_devinfo },
+	{ .compatible = "nxp,imx952-netc-blk-ctrl", .data = (ulong)&imx952_devinfo },
 	{},
 };
 

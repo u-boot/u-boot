@@ -171,6 +171,58 @@ static int mpc8xxx_gpio_get_function(struct udevice *dev, uint gpio)
 	return dir ? GPIOF_OUTPUT : GPIOF_INPUT;
 }
 
+static int mpc8xxx_gpio_set_flags(struct udevice *dev, uint gpio,
+				  ulong flags)
+{
+	u32 mask = gpio_mask(gpio);
+	int ret;
+
+	/* The QorIQ GPIO pad supports open-drain only; open-source has
+	 * no silicon counterpart, so reject it rather than silently
+	 * pretending.
+	 */
+	if (flags & GPIOD_OPEN_SOURCE)
+		return -EOPNOTSUPP;
+
+	/* GPODR is per-pin and meaningful in both directions (it stays
+	 * latched when the pin is re-purposed), so apply it before the
+	 * direction change.
+	 */
+	if (flags & GPIOD_OPEN_DRAIN)
+		mpc8xxx_gpio_open_drain_on(dev, mask);
+	else
+		mpc8xxx_gpio_open_drain_off(dev, mask);
+
+	if (flags & GPIOD_IS_OUT) {
+		ret = mpc8xxx_gpio_direction_output(dev, gpio,
+						    !!(flags & GPIOD_IS_OUT_ACTIVE));
+	} else if (flags & GPIOD_IS_IN) {
+		ret = mpc8xxx_gpio_direction_input(dev, gpio);
+	} else {
+		ret = 0;
+	}
+
+	return ret;
+}
+
+static int mpc8xxx_gpio_get_flags(struct udevice *dev, uint gpio,
+				  ulong *flagsp)
+{
+	u32 mask = gpio_mask(gpio);
+	ulong flags = 0;
+
+	if (mpc8xxx_gpio_get_dir(dev, mask))
+		flags |= GPIOD_IS_OUT;
+	else
+		flags |= GPIOD_IS_IN;
+
+	if (mpc8xxx_gpio_open_drain_val(dev, mask))
+		flags |= GPIOD_OPEN_DRAIN;
+
+	*flagsp = flags;
+	return 0;
+}
+
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static int mpc8xxx_gpio_of_to_plat(struct udevice *dev)
 {
@@ -255,6 +307,8 @@ static const struct dm_gpio_ops gpio_mpc8xxx_ops = {
 	.get_value		= mpc8xxx_gpio_get_value,
 	.set_value		= mpc8xxx_gpio_set_value,
 	.get_function		= mpc8xxx_gpio_get_function,
+	.set_flags		= mpc8xxx_gpio_set_flags,
+	.get_flags		= mpc8xxx_gpio_get_flags,
 };
 
 static const struct udevice_id mpc8xxx_gpio_ids[] = {

@@ -401,9 +401,6 @@ static void hisi_femac_get_strings(struct udevice *dev, u8 *data)
 		strcpy(data + i * ETH_GSTRING_LEN, hisi_femac_stats_table[i].name);
 }
 
-/* Non-constant mask variant of FIELD_GET/FIELD_PREP */
-#define field_get(_mask, _reg) (((_reg) & (_mask)) >> (ffs(_mask) - 1))
-
 static void hisi_femac_get_stats(struct udevice *dev, u64 *data)
 {
 	int i;

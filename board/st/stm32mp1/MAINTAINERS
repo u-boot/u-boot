@@ -2,7 +2,7 @@ STM32MP1 BOARD
 M:	Patrick Delaunay <patrick.delaunay@foss.st.com>
 M:	Patrice Chotard <patrice.chotard@foss.st.com>
 L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
-T:	git https://source.denx.de/u-boot/custodians/u-boot-stm.git
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-stm.git
 S:	Maintained
 F:	arch/arm/dts/stm32mp13*
 F:	arch/arm/dts/stm32mp15*

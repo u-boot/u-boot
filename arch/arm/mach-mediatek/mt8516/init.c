@@ -44,7 +44,7 @@ static int mtk_pll_early_init(void)
 	int ret, i;
 
 	ret = uclass_get_device_by_driver(UCLASS_CLK,
-			DM_DRIVER_GET(mtk_clk_apmixedsys), &dev);
+			DM_DRIVER_GET(mt8516_clk_apmixedsys), &dev);
 	if (ret)
 		return ret;
 

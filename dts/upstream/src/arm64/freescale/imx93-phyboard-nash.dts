@@ -141,11 +141,45 @@
 	status = "okay";
 };
 
+&gpio1 {
+	gpio-line-names = "", "USER_LED", "I2C2_SCL", "I2C2_SDA";
+};
+
+&gpio2 {
+	gpio-line-names = "SPI6_CS0", "", "", "", "",
+			  "", "", "", "", "",
+			  "", "", "", "", "",
+			  "", "", "TPM_nIRQ", "", "",
+			  "", "", "", "", "",
+			  "", "", "", "I2C3_SDA", "I2C3_SCL";
+};
+
+&gpio3 {
+	gpio-line-names = "SD2_nCD", "", "", "", "",
+			  "", "", "SD2_nRESET", "", "",
+			  "", "", "", "", "",
+			  "", "", "", "", "",
+			  "", "", "", "", "",
+			  "", "nENET1_INT";
+};
+
+&gpio4 {
+	gpio-line-names = "", "", "", "", "",
+			  "", "", "", "", "",
+			  "", "", "", "", "",
+			  "", "nCAN_EN", "", "", "",
+			  "", "", "", "RESET_PHY", "",
+			  "", "RTC_nINT", "PMIC_IRQ_B";
+};
+
 /* I2C2 */
 &lpi2c2 {
 	clock-frequency = <400000>;
-	pinctrl-names = "default";
+	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_lpi2c2>;
+	pinctrl-1 = <&pinctrl_lpi2c2_gpio>;
+	scl-gpios = <&gpio1 2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio1 3 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	status = "okay";
 
 	/* RTC */
@@ -277,6 +311,13 @@
 		>;
 	};
 
+	pinctrl_lpi2c2_gpio: lpi2c2gpiogrp {
+		fsl,pins = <
+			MX93_PAD_I2C2_SCL__GPIO1_IO02		0x31e
+			MX93_PAD_I2C2_SDA__GPIO1_IO03		0x31e
+		>;
+	};
+
 	pinctrl_lpspi6: lpspi6grp {
 		fsl,pins = <
 			MX93_PAD_GPIO_IO00__GPIO2_IO00		0x386
@@ -329,8 +370,8 @@
 	/* need to config the SION for data and cmd pad, refer to ERR052021 */
 	pinctrl_usdhc2_default: usdhc2grp {
 		fsl,pins = <
-			MX93_PAD_SD2_CLK__USDHC2_CLK		0x159e
-			MX93_PAD_SD2_CMD__USDHC2_CMD		0x4000178e
+			MX93_PAD_SD2_CLK__USDHC2_CLK		0x119e
+			MX93_PAD_SD2_CMD__USDHC2_CMD		0x4000138e
 			MX93_PAD_SD2_DATA0__USDHC2_DATA0	0x40001386
 			MX93_PAD_SD2_DATA1__USDHC2_DATA1	0x40001386
 			MX93_PAD_SD2_DATA2__USDHC2_DATA2	0x40001386
@@ -342,7 +383,7 @@
 	/* need to config the SION for data and cmd pad, refer to ERR052021 */
 	pinctrl_usdhc2_100mhz: usdhc2-100mhzgrp {
 		fsl,pins = <
-			MX93_PAD_SD2_CLK__USDHC2_CLK		0x159e
+			MX93_PAD_SD2_CLK__USDHC2_CLK		0x119e
 			MX93_PAD_SD2_CMD__USDHC2_CMD		0x4000139e
 			MX93_PAD_SD2_DATA0__USDHC2_DATA0	0x4000139e
 			MX93_PAD_SD2_DATA1__USDHC2_DATA1	0x4000139e
@@ -355,7 +396,7 @@
 	/* need to config the SION for data and cmd pad, refer to ERR052021 */
 	pinctrl_usdhc2_200mhz: usdhc2-200mhzgrp {
 		fsl,pins = <
-			MX93_PAD_SD2_CLK__USDHC2_CLK		0x159e
+			MX93_PAD_SD2_CLK__USDHC2_CLK		0x119e
 			MX93_PAD_SD2_CMD__USDHC2_CMD		0x4000139e
 			MX93_PAD_SD2_DATA0__USDHC2_DATA0	0x4000139e
 			MX93_PAD_SD2_DATA1__USDHC2_DATA1	0x4000139e

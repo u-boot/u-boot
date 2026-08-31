@@ -265,6 +265,7 @@ out:
 	struct acpi_rsdp *rsdp = ctx->rsdp;
 
 	rsdp->length = sizeof(*rsdp);
+	rsdp->ext_checksum = 0;
 	rsdp->ext_checksum = table_compute_checksum((u8 *)rsdp, sizeof(*rsdp));
 
 	gd_set_acpi_start(acpi_get_rsdp_addr());

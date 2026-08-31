@@ -160,7 +160,7 @@ static int aspeed_hace_init(struct udevice *dev, enum HASH_ALGO algo, void **ctx
 free_n_out:
 	free(hace_ctx);
 
-	return -EINVAL;
+	return -EOPNOTSUPP;
 }
 
 static int aspeed_hace_update(struct udevice *dev, void *ctx, const void *ibuf, uint32_t ilen)
@@ -341,7 +341,7 @@ static int aspeed_hace_probe(struct udevice *dev)
 		return rc;
 	}
 
-	hace->base = devfdt_get_addr(dev);
+	hace->base = dev_read_addr(dev);
 
 	return rc;
 }

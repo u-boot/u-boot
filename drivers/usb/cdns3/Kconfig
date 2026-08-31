@@ -1,5 +1,5 @@
 config USB_CDNS3
-	tristate "Cadence USB3 Dual-Role Controller"
+	bool "Cadence USB3 Dual-Role Controller"
 	depends on USB_XHCI_HCD || USB_GADGET
 	select DEVRES
 	help
@@ -51,14 +51,14 @@ config SPL_USB_CDNS3_HOST
 	  standard XHCI driver.
 
 config USB_CDNS3_STARFIVE
-	tristate "Cadence USB3 support on Starfive platforms"
+	bool "Cadence USB3 support on Starfive platforms"
 	default y if STARFIVE_JH7110
 	help
 	  Say 'Y' here if you are building for Starfive platforms
 	  that contain Cadence USB3 controller core. E.g.: JH7110.
 
 config USB_CDNS3_TI
-	tristate "Cadence USB3 support on TI platforms"
+	bool "Cadence USB3 support on TI platforms"
 	default USB_CDNS3
 	help
 	  Say 'Y' here if you are building for Texas Instruments

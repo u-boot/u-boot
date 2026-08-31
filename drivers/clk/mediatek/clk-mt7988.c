@@ -808,6 +808,7 @@ static const struct mtk_clk_tree mt7988_fixed_pll_clk_tree = {
 	.fclks = apmixedsys_mtk_plls,
 	.num_fclks = ARRAY_SIZE(apmixedsys_mtk_plls),
 	.flags = CLK_PARENT_APMIXED,
+	.type = MTK_CLK_TREE_APMIXED,
 };
 
 static const struct mtk_clk_tree mt7988_topckgen_clk_tree = {
@@ -822,6 +823,7 @@ static const struct mtk_clk_tree mt7988_topckgen_clk_tree = {
 	.num_fdivs = ARRAY_SIZE(topckgen_mtk_fixed_factors),
 	.num_muxes = ARRAY_SIZE(topckgen_mtk_muxes),
 	.flags = CLK_PARENT_TOPCKGEN,
+	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
 static const struct mtk_clk_tree mt7988_infracfg_clk_tree = {
@@ -833,23 +835,28 @@ static const struct mtk_clk_tree mt7988_infracfg_clk_tree = {
 	.gates = infracfg_mtk_gates,
 	.num_muxes = ARRAY_SIZE(infracfg_mtk_mux),
 	.num_gates = ARRAY_SIZE(infracfg_mtk_gates),
+	.type = MTK_CLK_TREE_INFRASYS,
 };
 
 static const struct udevice_id mt7988_fixed_pll_compat[] = {
-	{ .compatible = "mediatek,mt7988-fixed-plls" },
-	{ .compatible = "mediatek,mt7988-apmixedsys" },
+	{
+		.compatible = "mediatek,mt7988-fixed-plls",
+		.data = (ulong)&mt7988_fixed_pll_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7988-apmixedsys",
+		.data = (ulong)&mt7988_fixed_pll_clk_tree,
+	},
 	{}
 };
 
 static const struct udevice_id mt7988_topckgen_compat[] = {
-	{ .compatible = "mediatek,mt7988-topckgen" },
+	{
+		.compatible = "mediatek,mt7988-topckgen",
+		.data = (ulong)&mt7988_topckgen_clk_tree,
+	},
 	{}
 };
-
-static int mt7988_fixed_pll_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7988_fixed_pll_clk_tree);
-}
 
 static int mt7988_topckgen_probe(struct udevice *dev)
 {
@@ -860,20 +867,20 @@ static int mt7988_topckgen_probe(struct udevice *dev)
 		return -ENOENT;
 
 	writel(MT7988_CLK_PDN_EN_WRITE, priv->base + MT7988_CLK_PDN);
-	return mtk_common_clk_init(dev, &mt7988_topckgen_clk_tree);
+	return mtk_clk_probe(dev);
 }
 
-U_BOOT_DRIVER(mtk_clk_apmixedsys) = {
+U_BOOT_DRIVER(mt7988_clk_apmixedsys) = {
 	.name = "mt7988-clock-fixed-pll",
 	.id = UCLASS_CLK,
 	.of_match = mt7988_fixed_pll_compat,
-	.probe = mt7988_fixed_pll_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_fixed_pll_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mtk_clk_topckgen) = {
+U_BOOT_DRIVER(mt7988_clk_topckgen) = {
 	.name = "mt7988-clock-topckgen",
 	.id = UCLASS_CLK,
 	.of_match = mt7988_topckgen_compat,
@@ -884,20 +891,18 @@ U_BOOT_DRIVER(mtk_clk_topckgen) = {
 };
 
 static const struct udevice_id mt7988_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt7988-infracfg" },
+	{
+		.compatible = "mediatek,mt7988-infracfg",
+		.data = (ulong)&mt7988_infracfg_clk_tree,
+	},
 	{}
 };
 
-static int mt7988_infracfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_infrasys_init(dev, &mt7988_infracfg_clk_tree);
-}
-
-U_BOOT_DRIVER(mtk_clk_infracfg) = {
+U_BOOT_DRIVER(mt7988_clk_infracfg) = {
 	.name = "mt7988-clock-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt7988_infracfg_compat,
-	.probe = mt7988_infracfg_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -922,12 +927,12 @@ static const struct mtk_gate ethdma_mtk_gate[] = {
 	GATE_ETHDMA(CLK_ETHDMA_FE_EN, "ethdma_fe_en", CLK_TOP_NETSYS_2X_SEL, 6),
 };
 
-static int mt7988_ethdma_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
-					ethdma_mtk_gate,
-					ARRAY_SIZE(ethdma_mtk_gate), 0);
-}
+static const struct mtk_clk_tree mt7988_ethdma_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = ethdma_mtk_gate,
+	.num_gates = ARRAY_SIZE(ethdma_mtk_gate),
+};
 
 static int mt7988_ethdma_bind(struct udevice *dev)
 {
@@ -945,18 +950,19 @@ static int mt7988_ethdma_bind(struct udevice *dev)
 static const struct udevice_id mt7988_ethdma_compat[] = {
 	{
 		.compatible = "mediatek,mt7988-ethdma",
+		.data = (ulong)&mt7988_ethdma_clk_tree,
 	},
 	{}
 };
 
-U_BOOT_DRIVER(mtk_clk_ethdma) = {
+U_BOOT_DRIVER(mt7988_clk_ethdma) = {
 	.name = "mt7988-clock-ethdma",
 	.id = UCLASS_CLK,
 	.of_match = mt7988_ethdma_compat,
-	.probe = mt7988_ethdma_probe,
+	.probe = mtk_clk_probe,
 	.bind = mt7988_ethdma_bind,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };
 
 /* SGMIISYS_0 */
@@ -981,27 +987,11 @@ static const struct mtk_gate sgmiisys_0_mtk_gate[] = {
 	GATE_SGMII0(CLK_SGM0_RX_EN, "sgm0_rx_en", CLK_TOP_XTAL, 3),
 };
 
-static int mt7988_sgmiisys_0_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
-					sgmiisys_0_mtk_gate,
-					ARRAY_SIZE(sgmiisys_0_mtk_gate), 0);
-}
-
-static const struct udevice_id mt7988_sgmiisys_0_compat[] = {
-	{
-		.compatible = "mediatek,mt7988-sgmiisys_0",
-	},
-	{}
-};
-
-U_BOOT_DRIVER(mtk_clk_sgmiisys_0) = {
-	.name = "mt7988-clock-sgmiisys_0",
-	.id = UCLASS_CLK,
-	.of_match = mt7988_sgmiisys_0_compat,
-	.probe = mt7988_sgmiisys_0_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+static const struct mtk_clk_tree mt7988_sgmiisys_0_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = sgmiisys_0_mtk_gate,
+	.num_gates = ARRAY_SIZE(sgmiisys_0_mtk_gate),
 };
 
 /* SGMIISYS_1 */
@@ -1026,27 +1016,32 @@ static const struct mtk_gate sgmiisys_1_mtk_gate[] = {
 	GATE_SGMII1(CLK_SGM1_RX_EN, "sgm1_rx_en", CLK_TOP_XTAL, 3),
 };
 
-static int mt7988_sgmiisys_1_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
-					sgmiisys_1_mtk_gate,
-					ARRAY_SIZE(sgmiisys_1_mtk_gate), 0);
-}
+static const struct mtk_clk_tree mt7988_sgmiisys_1_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = sgmiisys_1_mtk_gate,
+	.num_gates = ARRAY_SIZE(sgmiisys_1_mtk_gate),
+};
 
-static const struct udevice_id mt7988_sgmiisys_1_compat[] = {
+static const struct udevice_id of_match_mt7988_sgmiisys[] = {
+	{
+		.compatible = "mediatek,mt7988-sgmiisys_0",
+		.data = (ulong)&mt7988_sgmiisys_0_clk_tree,
+	},
 	{
 		.compatible = "mediatek,mt7988-sgmiisys_1",
+		.data = (ulong)&mt7988_sgmiisys_1_clk_tree,
 	},
 	{}
 };
 
-U_BOOT_DRIVER(mtk_clk_sgmiisys_1) = {
-	.name = "mt7988-clock-sgmiisys_1",
+U_BOOT_DRIVER(mt7988_clk_sgmiisys) = {
+	.name = "mt7988-clock-sgmiisys",
 	.id = UCLASS_CLK,
-	.of_match = mt7988_sgmiisys_1_compat,
-	.probe = mt7988_sgmiisys_1_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.of_match = of_match_mt7988_sgmiisys,
+	.probe = mtk_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };
 
 /* ETHWARP */
@@ -1073,12 +1068,12 @@ static const struct mtk_gate ethwarp_mtk_gate[] = {
 		     CLK_TOP_NETSYS_MCU_SEL, 15),
 };
 
-static int mt7988_ethwarp_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7988_topckgen_clk_tree,
-					ethwarp_mtk_gate,
-					ARRAY_SIZE(ethwarp_mtk_gate), 0);
-}
+static const struct mtk_clk_tree mt7988_ethwarp_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = ethwarp_mtk_gate,
+	.num_gates = ARRAY_SIZE(ethwarp_mtk_gate),
+};
 
 static int mt7988_ethwarp_bind(struct udevice *dev)
 {
@@ -1096,16 +1091,17 @@ static int mt7988_ethwarp_bind(struct udevice *dev)
 static const struct udevice_id mt7988_ethwarp_compat[] = {
 	{
 		.compatible = "mediatek,mt7988-ethwarp",
+		.data = (ulong)&mt7988_ethwarp_clk_tree,
 	},
 	{}
 };
 
-U_BOOT_DRIVER(mtk_clk_ethwarp) = {
+U_BOOT_DRIVER(mt7988_clk_ethwarp) = {
 	.name = "mt7988-clock-ethwarp",
 	.id = UCLASS_CLK,
 	.of_match = mt7988_ethwarp_compat,
-	.probe = mt7988_ethwarp_probe,
+	.probe = mtk_clk_probe,
 	.bind = mt7988_ethwarp_bind,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };

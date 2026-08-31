@@ -15,7 +15,10 @@ select:
     compatible:
       contains:
         enum:
+          - qcom,eliza-ufshc
+          - qcom,hawi-ufshc
           - qcom,kaanapali-ufshc
+          - qcom,nord-ufshc
           - qcom,sm8650-ufshc
           - qcom,sm8750-ufshc
   required:
@@ -25,7 +28,10 @@ properties:
   compatible:
     items:
       - enum:
+          - qcom,eliza-ufshc
+          - qcom,hawi-ufshc
           - qcom,kaanapali-ufshc
+          - qcom,nord-ufshc
           - qcom,sm8650-ufshc
           - qcom,sm8750-ufshc
       - const: qcom,ufshc
@@ -66,6 +72,19 @@ required:
 
 allOf:
   - $ref: qcom,ufs-common.yaml
+  - if:
+      properties:
+        compatible:
+          contains:
+            enum:
+              - qcom,eliza-ufshc
+              - qcom,nord-ufshc
+    then:
+      properties:
+        reg:
+          minItems: 2
+        reg-names:
+          minItems: 2
 
 unevaluatedProperties: false
 

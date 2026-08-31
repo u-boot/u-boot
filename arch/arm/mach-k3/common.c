@@ -191,6 +191,33 @@ enum k3_device_type get_device_type(void)
 	}
 }
 
+int k3_fit_config_match_security_state(const char *name)
+{
+	const char *suffix;
+	size_t name_len, suffix_len;
+
+	switch (get_device_type()) {
+	case K3_DEVICE_TYPE_HS_SE:
+		suffix = "-hs-se";
+		break;
+	case K3_DEVICE_TYPE_HS_FS:
+		suffix = "-hs-fs";
+		break;
+	case K3_DEVICE_TYPE_GP:
+		suffix = "-gp";
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	name_len = strlen(name);
+	suffix_len = strlen(suffix);
+	if (name_len < suffix_len)
+		return -EINVAL;
+
+	return strncmp(name + name_len - suffix_len, suffix, suffix_len);
+}
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 static const char *get_device_type_name(void)
 {

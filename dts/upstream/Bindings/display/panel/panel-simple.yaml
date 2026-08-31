@@ -31,6 +31,8 @@ properties:
 
         # Ampire AM-1280800N3TZQW-T00H 10.1" WQVGA TFT LCD panel
       - ampire,am-1280800n3tzqw-t00h
+        # Ampire AM-1280800W8TZQW-T00H 10.1" WXGA TFT LCD panel
+      - ampire,am-1280800w8tzqw-t00h
         # Ampire AM-480272H3TMQW-T01H 4.3" WQVGA TFT LCD panel
       - ampire,am-480272h3tmqw-t01h
         # Ampire AM-800480L1TMQW-T00H 5" WVGA TFT LCD panel
@@ -61,8 +63,6 @@ properties:
       - auo,p238han01
         # AU Optronics Corporation 31.5" FHD (1920x1080) TFT LCD panel
       - auo,p320hvn03
-        # AU Optronics Corporation 21.5" FHD (1920x1080) color TFT LCD panel
-      - auo,t215hvn01
         # Shanghai AVIC Optoelectronics 7" 1024x600 color TFT-LCD panel
       - avic,tm070ddh03
         # BOE AV101HDT-a10 10.1" 1280x720 LVDS panel
@@ -99,10 +99,14 @@ properties:
       - dataimage,fg1001l0dsswmg01
         # DataImage, Inc. 7" WVGA (800x480) TFT LCD panel with 24-bit parallel interface.
       - dataimage,scf0700c48ggu18
+        # Displaytech DT050BTFT-PTS 5.0" 800x480 TFT LCD Panel
+      - displaytech,dt050btft-pts
         # DLC Display Co. DLC1010GIG 10.1" WXGA TFT LCD Panel
       - dlc,dlc1010gig
         # Emerging Display Technology Corp. 3.5" QVGA TFT LCD panel
       - edt,et035012dm6
+        # Emerging Display Technology Corp. 5.7" 24-bit VGA TFT LCD panel
+      - edt,et057023udba
         # Emerging Display Technology Corp. 5.7" VGA TFT LCD panel
       - edt,et057090dhu
       - edt,et070080dh6
@@ -144,8 +148,6 @@ properties:
       - foxlink,fl500wvr00-a0t
         # Frida FRD350H54004 3.5" QVGA TFT LCD panel
       - frida,frd350h54004
-        # FriendlyELEC HD702E 800x1280 LCD panel
-      - friendlyarm,hd702e
         # GiantPlus GPG48273QS5 4.3" (480x272) WQVGA TFT LCD panel
       - giantplus,gpg48273qs5
         # GiantPlus GPM940B0 3.0" QVGA TFT LCD panel
@@ -180,14 +182,14 @@ properties:
       - innolux,g121xce-l01
         # InnoLux 15.0" G150XGE-L05 XGA (1024x768) TFT LCD panel
       - innolux,g150xge-l05
-        # InnoLux 15.6" FHD (1920x1080) TFT LCD panel
-      - innolux,g156hce-l01
         # InnoLux 13.3" FHD (1920x1080) TFT LCD panel
       - innolux,n133hse-ea1
         # InnoLux 15.6" WXGA TFT LCD panel
       - innolux,n156bge-l21
         # Innolux Corporation 7.0" WSVGA (1024x600) TFT LCD panel
       - innolux,zj070na-01p
+        # JuTouch Technology Co.. 7" JT070TM041 WSVGA (1024 x 600) LVDS panel
+      - jutouch,jt070tm041
         # JuTouch Technology Co.. 10" JT101TM023 WXGA (1280 x 800) LVDS panel
       - jutouch,jt101tm023
         # Kaohsiung Opto-Electronics Inc. 5.7" QVGA (320 x 240) TFT LCD panel
@@ -202,6 +204,8 @@ properties:
       - lemaker,bl035-rgb-002
         # LG 7" (800x480 pixels) TFT LCD panel
       - lg,lb070wv8
+        # LG 6.1" (1440x3120) IPS LCD panel
+      - lg,sw49410
         # Logic Technologies LT161010-2NHC 7" WVGA TFT Cap Touch Module
       - logictechno,lt161010-2nhc
         # Logic Technologies LT161010-2NHR 7" WVGA TFT Resistive Touch Module
@@ -232,6 +236,8 @@ properties:
       - nec,nl12880bc20-05
         # NEC LCD Technologies,Ltd. WQVGA TFT LCD panel
       - nec,nl4827hc19-05b
+        # NEC LCD Technologies,Ltd. VGA TFT LCD panel
+      - nec,nl6448bc33-70c
         # Netron-DY E231732 7.0" WSVGA TFT LCD panel
       - netron-dy,e231732
         # Newhaven Display International 480 x 272 TFT LCD panel
@@ -268,6 +274,8 @@ properties:
       - powertip,ph128800t006-zhc01
         # POWERTIP PH800480T013-IDF2 7.0" WVGA TFT LCD panel
       - powertip,ph800480t013-idf02
+        # POWERTIP PH800480T032-ZHC19 7.0" WVGA TFT LCD panel
+      - powertip,ph800480t032-zhc19
         # PrimeView PM070WL4 7.0" 800x480 TFT LCD panel
       - primeview,pm070wl4
         # QiaoDian XianShi Corporation 4"3 TFT LCD panel
@@ -302,12 +310,16 @@ properties:
       - shelly,sca07010-bfn-lnn
         # Starry KR070PE2T 7" WVGA TFT LCD panel
       - starry,kr070pe2t
+        # Startek KD070HDFLD092 7" WSVGA TFT LCD panel
+      - startek,kd070hdfld092
         # Startek KD070WVFPA043-C069A 7" TFT LCD panel
       - startek,kd070wvfpa
         # Team Source Display Technology TST043015CMHX 4.3" WQVGA TFT LCD panel
       - team-source-display,tst043015cmhx
         # Tianma Micro-electronics P0700WXF1MBAA 7.0" WXGA (1280x800) LVDS TFT LCD panel
       - tianma,p0700wxf1mbaa
+        # Tianma Micro-electronics TM050RDH03 5.0" WVGA TFT LCD panel
+      - tianma,tm050rdh03
         # Tianma Micro-electronics TM070JDHG30 7.0" WXGA TFT LCD panel
       - tianma,tm070jdhg30
         # Tianma Micro-electronics TM070JDHG34-00 7.0" WXGA (1280x800) LVDS TFT LCD panel
@@ -337,10 +349,38 @@ properties:
       - vivax,tpc9150-panel
         # VXT 800x480 color TFT LCD panel
       - vxt,vl050-8048nt-c01
+        # Waveshare 10.1" WXGA (1280x800) LCD panel
+      - waveshare,10.1inch-c-panel
+        # Waveshare 11.9" (320x1480) LCD panel
+      - waveshare,11.9inch-panel
         # Waveshare 13.3" FHD (1920x1080) LCD panel
       - waveshare,13.3inch-panel
+        # Waveshare 2.8" VGA (480x640) LCD panel
+      - waveshare,2.8inch-panel
+        # Waveshare 3.4" (800x800) LCD panel
+      - waveshare,3.4inch-c-panel
+        # Waveshare 4.0" WVGA (480x800) LCD panel
+      - waveshare,4.0inch-panel
+        # Waveshare 4.0" (720x720) LCD panel
+      - waveshare,4.0inch-c-panel
+        # Waveshare 5.0" WSVGA (1024x600) LCD panel
+      - waveshare,5.0inch-c-panel
+        # Waveshare 5.0" HD 720p (720x1280) LCD panel
+      - waveshare,5.0inch-d-panel
+        # Waveshare 6.25" (720x1560) LCD panel
+      - waveshare,6.25inch-panel
         # Waveshare 7.0" WSVGA (1024x600) LCD panel
       - waveshare,7.0inch-c-panel
+        # Waveshare 7.0" WXGA (1280x800) LCD panel
+      - waveshare,7.0inch-e-panel
+        # Waveshare 7.0" HD 720p (720x1280) LCD panel
+      - waveshare,7.0inch-h-panel
+        # Waveshare 7.9" (400x1280) LCD panel
+      - waveshare,7.9inch-panel
+        # Waveshare 8.0" WXGA (1280x800) LCD panel
+      - waveshare,8.0inch-c-panel
+        # Waveshare 8.8" (480x1920) LCD panel
+      - waveshare,8.8inch-panel
         # Winstar Display Corporation 3.5" QVGA (320x240) TFT LCD panel
       - winstar,wf35ltiacd
         # Yes Optoelectronics YTC700TLAG-05-201C 7" TFT LCD panel

@@ -50,7 +50,7 @@ static int setup_gpt_partitions(struct unit_test_state *uts,
 	if (ret == -ENODEV)
 		return -EAGAIN;
 
-	ut_asserteq(mmc_dev_num, ret);
+	ut_assert(ret >= 0 && ret == mmc_dev_num);
 
 	if (CONFIG_IS_ENABLED(RANDOM_UUID)) {
 		for (i = 0; i < ARRAY_SIZE(gpt_parts); i++)

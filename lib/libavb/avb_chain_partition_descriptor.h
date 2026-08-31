@@ -16,6 +16,16 @@
 extern "C" {
 #endif
 
+/* Flags for chain descriptors.
+ *
+ * AVB_CHAIN_PARTITION_DESCRIPTOR_FLAGS_DO_NOT_USE_AB: Do not apply the default A/B
+ *   partition logic to this partition. This is intentionally a negative boolean
+ *   because A/B should be both the default and most used in practice.
+ */
+typedef enum {
+  AVB_CHAIN_PARTITION_DESCRIPTOR_FLAGS_DO_NOT_USE_AB = (1 << 0),
+} AvbChainPartitionDescriptorFlags;
+
 /* A descriptor containing a pointer to signed integrity data stored
  * on another partition. The descriptor contains the partition name in
  * question (without the A/B suffix), the public key used to sign the
@@ -28,13 +38,17 @@ extern "C" {
  *
  * The |reserved| field is for future expansion and must be set to NUL
  * bytes.
+ *
+ * Changes in v1.3:
+ *   - flags field is added which supports AVB_CHAIN_PARTITION_DESCRIPTOR_FLAGS_DO_NOT_USE_AB
  */
 typedef struct AvbChainPartitionDescriptor {
   AvbDescriptor parent_descriptor;
   uint32_t rollback_index_location;
   uint32_t partition_name_len;
   uint32_t public_key_len;
-  uint8_t reserved[64];
+  uint32_t flags;
+  uint8_t reserved[60];
 } AVB_ATTR_PACKED AvbChainPartitionDescriptor;
 
 /* Copies |src| to |dest| and validates, byte-swapping fields in the

@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright (c) 2024-2026 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+ * D-82229 Seefeld, Germany.
+ * Author: Max Merchel
+ */
+
+#include "imx6ul-u-boot.dtsi"
+#include "imx6ul-tqma6ul-common-u-boot.dtsi"
+#include "mba6ulx-u-boot.dtsi"

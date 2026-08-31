@@ -250,7 +250,7 @@
 
 	pmic {
 		pmic_sleep: pmic-sleep {
-			rockchip,pins = <0 0 RK_FUNC_2 &pcfg_pull_none>;
+			rockchip,pins = <0 0 2 &pcfg_pull_none>;
 		};
 
 		pmic_int: pmic-int {

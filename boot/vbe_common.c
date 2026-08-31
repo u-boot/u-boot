@@ -278,6 +278,17 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 		ulong fdt_offset;
 		void *base_buf, *fdt_base_buf;
 
+		/*
+		 * load_addr and len describe the external data location in
+		 * the FIT, which lives on mutable boot media. Bound them
+		 * against the trusted area_size so the blk_read() below
+		 * cannot read past the firmware area or write an
+		 * attacker-chosen number of blocks past the FIT allocation.
+		 */
+		if (load_addr < addr || load_addr - addr > area_size ||
+		    len > area_size - (load_addr - addr))
+			return log_msg_ret("rng", -E2BIG);
+
 		/* Find the start address to load from */
 		base = ALIGN_DOWN(load_addr, desc->blksz);
 
@@ -321,6 +332,11 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 
 		/* now the FDT */
 		if (fdt_size) {
+			/* Same constraint as above for the FDT region */
+			if (fdt_load_addr < addr ||
+			    fdt_load_addr - addr > area_size ||
+			    fdt_size > area_size - (fdt_load_addr - addr))
+				return log_msg_ret("rng", -E2BIG);
 			fdt_offset = area_offset + fdt_load_addr - addr;
 			blknum = fdt_offset / desc->blksz;
 			extra = fdt_offset % desc->blksz;

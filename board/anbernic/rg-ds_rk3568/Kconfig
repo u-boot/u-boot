@@ -1,0 +1,12 @@
+if TARGET_RG_DS_RK3568
+
+config SYS_BOARD
+	default "rg-ds_rk3568"
+
+config SYS_VENDOR
+	default "anbernic"
+
+config SYS_CONFIG_NAME
+	default "anbernic-rg-ds-rk3568"
+
+endif

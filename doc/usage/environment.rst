@@ -70,10 +70,10 @@ Example::
         /* U-Boot script for booting */
 
         if [ -z ${tftpserverip} ]; then
-            echo "Use 'setenv tftpserverip a.b.c.d' to set IP address."
+            echo "Use 'env set tftpserverip a.b.c.d' to set IP address."
         fi
 
-        usb start; setenv autoload n; bootp;
+        usb start; env set autoload n; bootp;
         tftpboot ${tftpserverip}:
         bootm
     failed=
@@ -263,7 +263,7 @@ initrd_high
     sure that the initrd image is placed in the first
     12 MB as well - this can be done with::
 
-        setenv initrd_high 00c00000
+        env set initrd_high 00c00000
 
     If you set initrd_high to 0xffffffff (32-bit machines) or
     0xffffffffffffffff (64-bit machines), this is an
@@ -310,9 +310,9 @@ ethact
     controls which interface is currently active.
     For example you can do the following::
 
-    => setenv ethact FEC
+    => env set ethact FEC
     => ping 192.168.0.1 # traffic sent on FEC
-    => setenv ethact SCC
+    => env set ethact SCC
     => ping 10.0.0.1 # traffic sent on SCC
 
 ethrotate

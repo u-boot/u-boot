@@ -49,7 +49,7 @@ static int __maybe_unused part_get_info_ubi(struct blk_desc *dev_desc, int part_
 	if (!vol)
 		return -ENOENT;
 
-	snprintf(info->name, PART_NAME_LEN, vol->name);
+	snprintf(info->name, PART_NAME_LEN, "%s", vol->name);
 
 	info->start = 0;
 	info->size = (unsigned long)vol->used_bytes / dev_desc->blksz;

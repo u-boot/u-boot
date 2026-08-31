@@ -78,64 +78,6 @@ int sdram_mmr_init_full(struct udevice *dev)
 	phys_size_t hw_size;
 	struct bd_info bd = {0};
 
-	/* Enable access to DDR from CPU master */
-	clrbits_le32(CCU_REG_ADDR(CCU_CPU0_MPRT_ADBASE_DDRREG),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_CPU0_MPRT_ADBASE_MEMSPACE0),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_CPU0_MPRT_ADBASE_MEMSPACE1A),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_CPU0_MPRT_ADBASE_MEMSPACE1B),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_CPU0_MPRT_ADBASE_MEMSPACE1C),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_CPU0_MPRT_ADBASE_MEMSPACE1D),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_CPU0_MPRT_ADBASE_MEMSPACE1E),
-		     CCU_ADBASE_DI_MASK);
-
-	/* Enable access to DDR from IO master */
-	clrbits_le32(CCU_REG_ADDR(CCU_IOM_MPRT_ADBASE_MEMSPACE0),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_IOM_MPRT_ADBASE_MEMSPACE1A),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_IOM_MPRT_ADBASE_MEMSPACE1B),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_IOM_MPRT_ADBASE_MEMSPACE1C),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_IOM_MPRT_ADBASE_MEMSPACE1D),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_IOM_MPRT_ADBASE_MEMSPACE1E),
-		     CCU_ADBASE_DI_MASK);
-
-	/* Enable access to DDR from TCU */
-	clrbits_le32(CCU_REG_ADDR(CCU_TCU_MPRT_ADBASE_MEMSPACE0),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_TCU_MPRT_ADBASE_MEMSPACE1A),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_TCU_MPRT_ADBASE_MEMSPACE1B),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_TCU_MPRT_ADBASE_MEMSPACE1C),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_TCU_MPRT_ADBASE_MEMSPACE1D),
-		     CCU_ADBASE_DI_MASK);
-	clrbits_le32(CCU_REG_ADDR(CCU_TCU_MPRT_ADBASE_MEMSPACE1E),
-		     CCU_ADBASE_DI_MASK);
-
-	/* this enables nonsecure access to DDR */
-	/* mpuregion0addr_limit */
-	FW_MPU_DDR_SCR_WRITEL(0xFFFF0000, FW_MPU_DDR_SCR_MPUREGION0ADDR_LIMIT);
-	FW_MPU_DDR_SCR_WRITEL(0x1F, FW_MPU_DDR_SCR_MPUREGION0ADDR_LIMITEXT);
-
-	/* nonmpuregion0addr_limit */
-	FW_MPU_DDR_SCR_WRITEL(0xFFFF0000,
-			      FW_MPU_DDR_SCR_NONMPUREGION0ADDR_LIMIT);
-	FW_MPU_DDR_SCR_WRITEL(0x1F, FW_MPU_DDR_SCR_NONMPUREGION0ADDR_LIMITEXT);
-
-	/* Enable mpuregion0enable and nonmpuregion0enable */
-	FW_MPU_DDR_SCR_WRITEL(MPUREGION0_ENABLE | NONMPUREGION0_ENABLE,
-			      FW_MPU_DDR_SCR_EN_SET);
-
 	/* Ensure HMC clock is running */
 	if (poll_hmc_clock_status()) {
 		puts("DDR: Error as HMC clock not running\n");
@@ -285,7 +227,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	/* Get bank configuration from devicetree */
 	ret = fdtdec_decode_ram_size(gd->fdt_blob, NULL, 0, NULL,
-				     (phys_size_t *)&gd->ram_size, &bd);
+				     (phys_size_t *)&gd->ram_size, gd);
 	if (ret) {
 		puts("DDR: Failed to decode memory node\n");
 		return -1;
@@ -328,7 +270,9 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	sdram_size_check(&bd);
 
-	priv->info.base = bd.bi_dram[0].start;
+	sdram_set_firewall(&bd);
+
+	priv->info.base = gd->dram[0].start;
 	priv->info.size = gd->ram_size;
 
 	debug("DDR: HMC init success\n");

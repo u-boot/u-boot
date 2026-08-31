@@ -9,7 +9,7 @@ config SYS_BOARD
        default "phycore_am68x"
 
 config SYS_VENDOR
-       default "phytec"
+	default "phytec"
 
 config SYS_CONFIG_NAME
        default "phycore_am68x"
@@ -27,7 +27,7 @@ config SYS_BOARD
        default "phycore_am68x"
 
 config SYS_VENDOR
-       default "phytec"
+	default "phytec"
 
 config SYS_CONFIG_NAME
        default "phycore_am68x"

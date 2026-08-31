@@ -20,18 +20,13 @@ First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for ``QCS615``, `
 
   $ export CROSS_COMPILE=<aarch64 toolchain prefix>
   $ make qcom_qcs8300_defconfig
-  $ make -j8 u-boot.mbn
+  $ make -j8
 
 Although the board does not have secure boot set up by default,
-the firmware still expects firmware ELF images to be "signed". The signature
-does not provide any security in this case, but it provides the firmware with
-some required metadata.
+the firmware still expects firmware ELF images to be "signed" in the MBN format.
+This is handled automatically with mkmbn (see :doc:`signing` for more details).
 
-To "sign" ``u-boot.elf`` you can use e.g. `qtestsign`_::
-
-  $ qtestsign -v6 aboot -o u-boot.mbn u-boot.elf
-
-Then flash the resulting ``u-boot.mbn`` to the ``uefi_a`` partition
+Just flash the resulting ``u-boot.mbn`` to the ``uefi_a`` partition
 on your device with ``fastboot flash uefi_a u-boot.mbn``.
 
 U-Boot should be running after a reboot (``fastboot reboot``).
@@ -44,6 +39,5 @@ the firehose loader can be obtained from `dragonwing IQ9 bootbinaries`.) ::
 
 $ edl.py --loader /path/to/prog_firehose_ddr.elf w uefi_a u-boot.mbn
 
-.. _qtestsign: https://github.com/msm8916-mainline/qtestsign
 .. _edl: https://github.com/bkerler/edl
 .. _dragonwing IQ9 bootbinaries: https://artifacts.codelinaro.org/ui/native/qli-ci/flashable-binaries/qimpsdk/qcs9075-rb8-core-kit

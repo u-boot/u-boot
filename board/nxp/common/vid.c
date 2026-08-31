@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <irq_func.h>
 #include <log.h>
+#include <pmbus.h>
 #include <vsprintf.h>
 #include <asm/io.h>
 #ifdef CONFIG_FSL_LSCH2
@@ -260,45 +261,38 @@ static int read_voltage_from_IR(int i2caddress)
  */
 #define VOUT_WARNING "VID: VOUT_MODE exponent has resolution worse than 1 V!\n"
 
-/* Checks the PMBus voltage monitor for the format used for voltage values */
-static int get_pmbus_multiplier(DEVICE_HANDLE_T dev)
+/*
+ * Read VOUT_MODE for downstream LINEAR16 decode/encode through the
+ * tree level <pmbus.h> helpers (pmbus_reg2data_linear16,
+ * pmbus_data2reg_linear16). Stores the raw VOUT_MODE byte in *mode
+ * and returns 0 on success, or the negative bus error (a failed read
+ * must not be decoded: raw 0 aliases Linear mode with exponent 0).
+ * Emits VOUT_WARNING on Linear mode chips with a non negative
+ * exponent (resolution >= 1 V is unusable for sub volt SoC rails)
+ * and an informational note on the unsupported VID format.
+ */
+static int vid_read_vout_mode(DEVICE_HANDLE_T dev, u8 *mode)
 {
-	u8 mode;
-	int exponent, multiplier, ret;
+	int ret;
 
-	ret = I2C_READ(dev, PMBUS_CMD_VOUT_MODE, &mode, sizeof(mode));
+	ret = pmbus_read_byte(dev, PMBUS_VOUT_MODE, mode);
 	if (ret) {
 		printf("VID: unable to determine voltage multiplier\n");
-		return 1;
+		return ret;
 	}
 
-	/* Upper 3 bits is mode, lower 5 bits is exponent */
-	exponent = (int)mode & 0x1F;
-	mode >>= 5;
-	switch (mode) {
-	case 0:
-		/* Linear, 5 bit twos component exponent */
-		if (exponent & 0x10) {
-			multiplier = 1 << (16 - (exponent & 0xF));
-		} else {
-			/* If exponent is >= 0, then resolution is 1 V! */
+	switch (*mode & PB_VOUT_MODE_MODE_MASK) {
+	case PB_VOUT_MODE_LINEAR:
+		if (!(*mode & 0x10))
 			printf(VOUT_WARNING);
-			multiplier = 1;
-		}
 		break;
-	case 1:
-		/* VID code identifier */
+	case PB_VOUT_MODE_VID:
 		printf("VID: custom VID codes are not supported\n");
-		multiplier = MV_PER_V;
 		break;
 	default:
-		/* Direct, in mV */
-		multiplier = MV_PER_V;
 		break;
 	}
-
-	debug("VID: calculated multiplier is %d\n", multiplier);
-	return multiplier;
+	return 0;
 }
 #endif
 
@@ -306,8 +300,8 @@ static int get_pmbus_multiplier(DEVICE_HANDLE_T dev)
 	defined(CONFIG_VOL_MONITOR_LTC3882_READ)
 static int read_voltage_from_pmbus(int i2caddress)
 {
-	int ret, multiplier, vout;
-	u8 channel = PWM_CHANNEL0;
+	int ret, vout;
+	u8 channel = PWM_CHANNEL0, vout_mode;
 	u16 vcode;
 	DEVICE_HANDLE_T dev;
 
@@ -317,25 +311,33 @@ static int read_voltage_from_pmbus(int i2caddress)
 		return ret;
 
 	/* Select the right page */
-	ret = I2C_WRITE(dev, PMBUS_CMD_PAGE, &channel, sizeof(channel));
+	ret = pmbus_write_byte(dev, PMBUS_PAGE, channel);
 	if (ret) {
 		printf("VID: failed to select VDD page %d\n", channel);
 		return ret;
 	}
 
-	/* VOUT is little endian */
-	ret = I2C_READ(dev, PMBUS_CMD_READ_VOUT, (void *)&vcode, sizeof(vcode));
+	ret = pmbus_read_word(dev, PMBUS_READ_VOUT, &vcode);
 	if (ret) {
 		printf("VID: failed to read core voltage\n");
 		return ret;
 	}
 
-	/* Scale down to the real mV */
-	multiplier = get_pmbus_multiplier(dev);
-	vout = (int)vcode;
-	/* Multiplier 1000 (direct mode) requires no change to convert */
-	if (multiplier != MV_PER_V)
-		vout = DIV_ROUND_UP(vout * MV_PER_V, multiplier);
+	/*
+	 * Decode LINEAR16 via the tree level helper from <pmbus.h>. For
+	 * non Linear VOUT_MODE settings the helper returns 0; fall back
+	 * to the historic mV pass through so existing LSCH boards keep.
+	 */
+	ret = vid_read_vout_mode(dev, &vout_mode);
+	if (ret)
+		return ret;
+	if ((vout_mode & PB_VOUT_MODE_MODE_MASK) == PB_VOUT_MODE_LINEAR) {
+		s64 uv = pmbus_reg2data_linear16(vcode, vout_mode);
+
+		vout = (int)((uv + 500) / 1000);	/* round to mV */
+	} else {
+		vout = (int)vcode;
+	}
 	return vout - board_vdd_drop_compensation();
 }
 #endif
@@ -463,11 +465,13 @@ static int set_voltage_to_IR(int i2caddress, int vdd)
 static int set_voltage_to_pmbus(int i2caddress, int vdd)
 {
 	int ret, vdd_last, vdd_target = vdd;
-	int count = MAX_LOOP_WAIT_NEW_VOL, temp = 0, multiplier;
+	int count = MAX_LOOP_WAIT_NEW_VOL, temp = 0;
+	u8 vout_mode;
+	u16 raw;
 	unsigned char value;
 
 	/* The data to be sent with the PMBus command PAGE_PLUS_WRITE */
-	u8 buffer[5] = { 0x04, PWM_CHANNEL0, PMBUS_CMD_VOUT_COMMAND, 0, 0 };
+	u8 buffer[5] = { 0x04, PWM_CHANNEL0, PMBUS_VOUT_COMMAND, 0, 0 };
 	DEVICE_HANDLE_T dev;
 
 	/* Open device handle */
@@ -475,24 +479,32 @@ static int set_voltage_to_pmbus(int i2caddress, int vdd)
 	if (ret)
 		return ret;
 
-	/* Scale up to the proper value for the VOUT command, little endian */
-	multiplier = get_pmbus_multiplier(dev);
+	/*
+	 * Encode target mV as LINEAR16 raw via the tree level helper
+	 * from <pmbus.h>. For non Linear VOUT_MODE settings the helper
+	 * returns 0; fall back to the historic mV pass through. A failed
+	 * VOUT_MODE read aborts: never write a voltage code whose
+	 * encoding could not be determined.
+	 */
 	vdd += board_vdd_drop_compensation();
-	if (multiplier != MV_PER_V)
-		vdd = DIV_ROUND_UP(vdd * multiplier, MV_PER_V);
-	buffer[3] = vdd & 0xFF;
-	buffer[4] = (vdd & 0xFF00) >> 8;
+	ret = vid_read_vout_mode(dev, &vout_mode);
+	if (ret)
+		return ret;
+	if ((vout_mode & PB_VOUT_MODE_MODE_MASK) == PB_VOUT_MODE_LINEAR)
+		raw = pmbus_data2reg_linear16((s64)vdd * 1000LL, vout_mode);
+	else
+		raw = (u16)vdd;
+	buffer[3] = raw & 0xFF;
+	buffer[4] = (raw & 0xFF00) >> 8;
 
 	/* Check write protect state */
-	ret = I2C_READ(dev, PMBUS_CMD_WRITE_PROTECT, (void *)&value,
-		       sizeof(value));
+	ret = pmbus_read_byte(dev, PMBUS_WRITE_PROTECT, &value);
 	if (ret)
 		goto exit;
 
 	if (value != EN_WRITE_ALL_CMD) {
 		value = EN_WRITE_ALL_CMD;
-		ret = I2C_WRITE(dev, PMBUS_CMD_WRITE_PROTECT,
-				(void *)&value, sizeof(value));
+		ret = pmbus_write_byte(dev, PMBUS_WRITE_PROTECT, value);
 		if (ret)
 			goto exit;
 	}

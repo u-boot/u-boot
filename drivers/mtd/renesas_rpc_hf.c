@@ -344,21 +344,21 @@ static int rpc_hf_bind(struct udevice *parent)
 
 static int rpc_hf_probe(struct udevice *dev)
 {
-	void *blob = (void *)gd->fdt_blob;
-	const fdt32_t *cell;
-	int node = dev_of_offset(dev);
-	int parent, addrc, sizec, len, ret;
-	struct clk clk;
 	phys_addr_t flash_base;
+	struct clk clk;
+	int ret;
 
-	parent = fdt_parent_offset(blob, node);
-	fdt_support_default_count_cells(blob, parent, &addrc, &sizec);
-	cell = fdt_getprop(blob, node, "reg", &len);
-	if (!cell)
-		return -ENOENT;
-
-	if (addrc != 2 || sizec != 2)
+	rpc_base = dev_read_addr_name(dev, "regs");
+	if (rpc_base == FDT_ADDR_T_NONE) {
+		dev_err(dev, "Failed to get RPC control registers\n");
 		return -EINVAL;
+	}
+
+	flash_base = dev_read_addr_name(dev, "dirmap");
+	if (flash_base == FDT_ADDR_T_NONE) {
+		dev_err(dev, "Failed to get RPC direct map registers\n");
+		return -EINVAL;
+	}
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0) {
@@ -372,9 +372,6 @@ static int rpc_hf_probe(struct udevice *dev)
 		return ret;
 	}
 
-	rpc_base = fdt_translate_address(blob, node, cell);
-	flash_base = fdt_translate_address(blob, node, cell + addrc + sizec);
-
 	flash_info[0].dev = dev;
 	flash_info[0].base = flash_base;
 	cfi_flash_num_flash_banks = 1;
@@ -387,6 +384,7 @@ static const struct udevice_id rpc_hf_ids[] = {
 	{ .compatible = "renesas,r7s72100-rpc-if" },
 	{ .compatible = "renesas,rcar-gen3-rpc-if" },
 	{ .compatible = "renesas,rcar-gen4-rpc-if" },
+	{ .compatible = "renesas,rcar-gen5-rpc-if" },
 	{}
 };
 

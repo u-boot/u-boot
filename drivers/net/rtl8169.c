@@ -49,6 +49,7 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
 
@@ -152,7 +153,23 @@ enum RTL8125_registers {
 	IntrMask_8125 = 0x38,
 	IntrStatus_8125 = 0x3C,
 	TxPoll_8125 = 0x90,
+	RX_DESC_MODE = 0xd8,
+	MACOCP = 0xb0,
+	RADMFIFO_PROTECT = 0x0402,
+	TX_DESC_MODE = 0xeb58,
 };
+
+/* MAC OCP indirect access via the MACOCP register */
+#define RTL8125_OCP_WRITE	0x80000000
+#define RTL8125_OCP_ADDR_SHIFT	16
+#define RX_DESC_CRC_DROP	BIT(0)
+#define RX_DESC_TYPE		BIT(1)
+
+/* TX_DESC_MODE (MAC OCP 0xeb58): TX descriptor format select, bits [1:0] */
+#define TX_DESC_FMT_MASK	GENMASK(1, 0)
+#define TX_DESC_FMT_STD		BIT(0)
+#define TX_DESC_FMT_V3		BIT(1)
+#define RX_PAUSE_SLOT_ON	BIT(11)
 
 enum RTL8169_register_content {
 	/*InterruptStatusBits */
@@ -271,6 +288,8 @@ static struct {
 	{"RTL-8168h/8111h",	0x54, 0xff7e1880,},
 	{"RTL-8125B",		0x64, 0xff7e1880,},
 	{"RTL-8125d",		0x6a, 0xff7e5880,},
+	{"RTL-8126A",		0x66, 0xff7e5880,},
+	{"RTL-8127A",		0x6e, 0xff7e5880,},
 };
 
 enum _DescStatusBit {
@@ -355,6 +374,8 @@ static const unsigned int rtl8169_rx_config =
 
 static struct pci_device_id supported[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8125) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8126) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8127) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8161) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8167) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8168) },
@@ -398,13 +419,40 @@ int mdio_read(int RegAddr)
 	return value;
 }
 
+/* RTL8125/8126/8127 share the same register layout and quirks */
+static bool rtl_is_8125(struct pci_child_plat *pplat)
+{
+	return pplat->device == 0x8125 || pplat->device == 0x8126 ||
+	       pplat->device == 0x8127;
+}
+
+static void rtl_mac_ocp_write(u16 reg_addr, u16 value)
+{
+	u32 data32;
+
+	data32 = (u32)(reg_addr / 2) << RTL8125_OCP_ADDR_SHIFT;
+	data32 += value;
+	data32 |= RTL8125_OCP_WRITE;
+	RTL_W32(MACOCP, data32);
+}
+
+static u16 rtl_mac_ocp_read(u16 reg_addr)
+{
+	u32 data32;
+
+	data32 = (u32)(reg_addr / 2) << RTL8125_OCP_ADDR_SHIFT;
+	RTL_W32(MACOCP, data32);
+
+	return (u16)RTL_R32(MACOCP);
+}
+
 static int rtl8169_init_board(unsigned long dev_iobase, const char *name)
 {
 	int i;
 	u32 tmp;
 
 #ifdef DEBUG_RTL8169
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 	ioaddr = dev_iobase;
 
@@ -534,7 +582,7 @@ static int rtl_recv_common(struct udevice *dev, unsigned long dev_iobase,
 	int length = 0;
 
 #ifdef DEBUG_RTL8169_RX
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 	ioaddr = dev_iobase;
 
@@ -571,12 +619,15 @@ static int rtl_recv_common(struct udevice *dev, unsigned long dev_iobase,
 		return length;
 
 	} else {
-		u32 IntrStatus = IntrStatus_8169;
+		u32 sts;
 
-		if (pplat->device == 0x8125)
-			IntrStatus = IntrStatus_8125;
-		ushort sts = RTL_R8(IntrStatus);
-		RTL_W8(IntrStatus, sts & ~(TxErr | RxErr | SYSErr));
+		if (rtl_is_8125(pplat)) {
+			sts = RTL_R32(IntrStatus_8125);
+			RTL_W32(IntrStatus_8125, sts & ~(TxErr | RxErr | SYSErr));
+		} else {
+			sts = RTL_R16(IntrStatus_8169);
+			RTL_W16(IntrStatus_8169, sts & ~(TxErr | RxErr | SYSErr));
+		}
 		udelay(100);	/* wait */
 	}
 	tpc->cur_rx = cur_rx;
@@ -608,7 +659,7 @@ static int rtl_send_common(struct udevice *dev, unsigned long dev_iobase,
 
 #ifdef DEBUG_RTL8169_TX
 	int stime = currticks();
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 	printf("sending %d bytes\n", len);
 #endif
 
@@ -636,8 +687,8 @@ static int rtl_send_common(struct udevice *dev, unsigned long dev_iobase,
 				    ((len > ETH_ZLEN) ? len : ETH_ZLEN));
 	}
 	rtl_flush_tx_desc(&tpc->TxDescArray[entry]);
-	if (pplat->device == 0x8125)
-		RTL_W8(TxPoll_8125, 0x1);	/* set polling bit */
+	if (rtl_is_8125(pplat))
+		RTL_W32(TxPoll_8125, 0x1);	/* set polling bit */
 	else
 		RTL_W8(TxPoll_8169, 0x40);	/* set polling bit */
 
@@ -679,7 +730,7 @@ static void rtl8169_set_rx_mode(void)
 	u32 tmp = 0;
 
 #ifdef DEBUG_RTL8169
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 	/* IFF_ALLMULTI */
@@ -697,11 +748,13 @@ static void rtl8169_set_rx_mode(void)
 
 static void rtl8169_hw_start(struct udevice *dev)
 {
+	u8 version = rtl_chip_info[tpc->chipset].version;
+	u16 tx_desc_mode;
 	u32 i;
 
 #ifdef DEBUG_RTL8169
 	int stime = currticks();
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 #if 0
@@ -718,6 +771,36 @@ static void rtl8169_hw_start(struct udevice *dev)
 #endif
 
 	RTL_W8(Cfg9346, Cfg9346_Unlock);
+
+	/*
+	 * RTL8125D/8126A/8127A require explicit descriptor-type and CRC-drop setup.
+	 * RTL8125B (0x64) is intentionally excluded to avoid regressing working hardware.
+	 */
+	switch (version) {
+	case 0x6a:
+	case 0x66:
+	case 0x6e:
+		/* Reg 0xD8: Disable CRC drop and force legacy 16-byte RX desc */
+		RTL_W8(RX_DESC_MODE, RTL_R8(RX_DESC_MODE) & ~(RX_DESC_CRC_DROP | RX_DESC_TYPE));
+
+		/* RxConfig 0x44: enable RX pause slot (RTL8125B and later) */
+		RTL_W32(RxConfig, RTL_R32(RxConfig) | RX_PAUSE_SLOT_ON);
+
+		/* MAC OCP 0xEB58: TX descriptor format setup */
+		tx_desc_mode = rtl_mac_ocp_read(TX_DESC_MODE) & ~TX_DESC_FMT_MASK;
+
+		if (version == 0x6e) {
+			/* RTL8127A specific: Tx desc V3 and RADM FIFO protection */
+			rtl_mac_ocp_write(TX_DESC_MODE, tx_desc_mode | TX_DESC_FMT_V3);
+			RTL_W16(RADMFIFO_PROTECT, 0x2001);
+		} else {
+			/* RTL8125D / RTL8126A specific: standard Tx desc */
+			rtl_mac_ocp_write(TX_DESC_MODE, tx_desc_mode | TX_DESC_FMT_STD);
+		}
+		break;
+	default:
+		break;
+	}
 
 	/* RTL-8169sb/8110sb or previous version */
 	if (tpc->chipset <= 5)
@@ -771,7 +854,7 @@ static void rtl8169_init_ring(struct udevice *dev)
 
 #ifdef DEBUG_RTL8169
 	int stime = currticks();
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 	tpc->cur_rx = 0;
@@ -810,7 +893,7 @@ static void rtl8169_common_start(struct udevice *dev, unsigned char *enetaddr,
 
 #ifdef DEBUG_RTL8169
 	int stime = currticks();
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 	ioaddr = dev_iobase;
@@ -851,7 +934,7 @@ static void rtl_halt_common(struct udevice *dev)
 	int i;
 
 #ifdef DEBUG_RTL8169
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 
 	ioaddr = priv->iobase;
@@ -860,8 +943,8 @@ static void rtl_halt_common(struct udevice *dev)
 	RTL_W8(ChipCmd, 0x00);
 
 	/* Disable interrupts by clearing the interrupt mask. */
-	if (pplat->device == 0x8125)
-		RTL_W16(IntrMask_8125, 0x0000);
+	if (rtl_is_8125(pplat))
+		RTL_W32(IntrMask_8125, 0x00000000);
 	else
 		RTL_W16(IntrMask_8169, 0x0000);
 
@@ -906,7 +989,7 @@ static int rtl_init(unsigned long dev_ioaddr, const char *name,
 	int option = -1, Cap10_100 = 0, Cap1000 = 0;
 
 #ifdef DEBUG_RTL8169
-	printf ("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 #endif
 	ioaddr = dev_ioaddr;
 
@@ -1052,6 +1135,8 @@ static int rtl8169_eth_probe(struct udevice *dev)
 
 	switch (pplat->device) {
 	case 0x8125:
+	case 0x8126:
+	case 0x8127:
 	case 0x8161:
 	case 0x8168:
 		region = 2;

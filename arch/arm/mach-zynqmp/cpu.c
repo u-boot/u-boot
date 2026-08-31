@@ -8,6 +8,7 @@
 #include <time.h>
 #include <linux/errno.h>
 #include <linux/types.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/armv8/mmu.h>
@@ -92,12 +93,12 @@ void mem_map_fill(void)
 #if !defined(CONFIG_ZYNQMP_NO_DDR)
 	for (int i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		/* Zero size means no more DDR that's this is end */
-		if (!gd->bd->bi_dram[i].size)
+		if (!gd->dram[i].size)
 			break;
 
-		zynqmp_mem_map[banks].virt = gd->bd->bi_dram[i].start;
-		zynqmp_mem_map[banks].phys = gd->bd->bi_dram[i].start;
-		zynqmp_mem_map[banks].size = gd->bd->bi_dram[i].size;
+		zynqmp_mem_map[banks].virt = gd->dram[i].start;
+		zynqmp_mem_map[banks].phys = gd->dram[i].start;
+		zynqmp_mem_map[banks].size = gd->dram[i].size;
 		zynqmp_mem_map[banks].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 					      PTE_BLOCK_INNER_SHARE;
 		banks = banks + 1;
@@ -171,15 +172,19 @@ unsigned int zynqmp_get_silicon_version(void)
 	return ZYNQMP_CSU_VERSION_SILICON;
 }
 
-static int zynqmp_mmio_rawwrite(const u32 address,
-		      const u32 mask,
-		      const u32 value)
+int zynqmp_mmio_rawread(const u32 address, u32 *value)
+{
+	*value = readl((ulong)address);
+	return 0;
+}
+
+int zynqmp_mmio_rawwrite(const u32 address, const u32 mask, const u32 value)
 {
 	u32 data;
 	u32 value_local = value;
 	int ret;
 
-	ret = zynqmp_mmio_read(address, &data);
+	ret = zynqmp_mmio_rawread(address, &data);
 	if (ret)
 		return ret;
 
@@ -190,48 +195,44 @@ static int zynqmp_mmio_rawwrite(const u32 address,
 	return 0;
 }
 
-static int zynqmp_mmio_rawread(const u32 address, u32 *value)
-{
-	*value = readl((ulong)address);
-	return 0;
-}
-
-int zynqmp_mmio_write(const u32 address,
-		      const u32 mask,
-		      const u32 value)
+int __weak zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value)
 {
 	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3)
 		return zynqmp_mmio_rawwrite(address, mask, value);
-#if defined(CONFIG_ZYNQMP_FIRMWARE)
-	else
-		return xilinx_pm_request(PM_MMIO_WRITE, address, mask,
-					 value, 0, 0, 0, NULL);
-#endif
 
 	return -EINVAL;
 }
 
-int zynqmp_mmio_read(const u32 address, u32 *value)
+int __weak zynqmp_mmio_read(const u32 address, u32 *value)
 {
-	u32 ret = -EINVAL;
-
 	if (!value)
-		return ret;
+		return -EINVAL;
 
-	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3) {
-		ret = zynqmp_mmio_rawread(address, value);
+	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3)
+		return zynqmp_mmio_rawread(address, value);
+
+	return -EINVAL;
+}
+
+void zynqmp_timer_setup(void)
+{
+	u32 val;
+
+	val = readl(&crlapb_base->timestamp_ref_ctrl);
+	val &= ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT;
+
+	if (!val) {
+		val = readl(&crlapb_base->timestamp_ref_ctrl);
+		val |= ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT;
+		writel(val, &crlapb_base->timestamp_ref_ctrl);
+
+		/* Program freq register in System counter */
+		writel(zynqmp_get_system_timer_freq(),
+		       &iou_scntr_secure->base_frequency_id_register);
+		/* And enable system counter */
+		writel(ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN,
+		       &iou_scntr_secure->counter_control_register);
 	}
-#if defined(CONFIG_ZYNQMP_FIRMWARE)
-	else {
-		u32 ret_payload[PAYLOAD_ARG_CNT];
-
-		ret = xilinx_pm_request(PM_MMIO_READ, address, 0, 0,
-					0, 0, 0, ret_payload);
-		*value = ret_payload[1];
-	}
-#endif
-
-	return ret;
 }
 
 U_BOOT_DRVINFO(soc_xilinx_zynqmp) = {

@@ -19,17 +19,16 @@ projects available to review if you are unsure of expectations.
 Repository
 ----------
 
-The official U-Boot repository is located at https://source.denx.de/u-boot/u-boot
+The official U-Boot repository is located at https://git.u-boot-project.org/u-boot/u-boot
 
-Further more detailed documentation can be found at the following link:
-https://docs.u-boot-project.org/en/latest/index.html
+Further more detailed documentation can be found at the following link: :doc:`/index`.
 
 Contributions
 -------------
 
 Contributions to the project are welcome. The U-Boot project uses a fairly
 traditional Linux style development work-flow using git and `a mailing list
-<https://lists.denx.de/listinfo/u-boot>`_.
+<https://lists.u-boot-project.org/listinfo/u-boot>`_.
 
 Patches should be sent to the mailing list using ``git send-email`` or the
 equivalent commands using ``b4`` or ``patman`` with appropriate sign-off and
@@ -38,6 +37,22 @@ and they can be found with the ``./scripts/get_maintainer.pl 0001-fix.patch``
 script. Please don't send patches as attachments, and ensure corporate mail
 systems don't reformat patches, append disclaimers or other unnecessary notes.
 The b4 tool automates a number of components mentioned above.
+
+Code is not the only thing you can contribute to the project. Like most
+open-source projects, the U-Boot project suffers from a lack of reviewers.
+Consider spending some time reading patches on `the mailing list archive
+<https://lists.u-boot-project.org/pipermail/u-boot/>`_ and providing feedback to
+contributors when something could be improved or if you have questions. Contrary
+to what's most often believed, you do not need to be an expert to review patches
+and the project will benefit from people with different skillsets and experience
+looking at the same patches and each catch different bugs.
+
+The project would also benefit from more :ref:`develop/index:testing`.
+
+New sections or updates to the documentation are most welcome, e.g.
+:ref:`usage/index:shell commands`. See :doc:`/develop/docstyle`.
+
+Thank you for your help!
 
 Patch Series
 ------------

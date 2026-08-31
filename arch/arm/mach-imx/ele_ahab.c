@@ -255,7 +255,7 @@ static void display_ahab_auth_ind(u32 event)
 	printf("%s\n", ele_ind_str[get_idx(ele_ind, resp_ind, ARRAY_SIZE(ele_ind))]);
 }
 
-int ahab_auth_cntr_hdr(struct container_hdr *container, u16 length)
+void *ahab_auth_cntr_hdr(struct container_hdr *container, u16 length)
 {
 	int err;
 	u32 resp;
@@ -271,9 +271,10 @@ int ahab_auth_cntr_hdr(struct container_hdr *container, u16 length)
 		printf("Authenticate container hdr failed, return %d, resp 0x%x\n",
 		       err, resp);
 		display_ahab_auth_ind(resp);
+		return NULL;
 	}
 
-	return err;
+	return (void *)IMG_CONTAINER_BASE; /* Return authenticated container header */
 }
 
 int ahab_auth_release(void)
@@ -310,12 +311,11 @@ int ahab_verify_cntr_image(struct boot_img_t *img, int image_index)
 static inline bool check_in_dram(ulong addr)
 {
 	int i;
-	struct bd_info *bd = gd->bd;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		if (bd->bi_dram[i].size) {
-			if (addr >= bd->bi_dram[i].start &&
-			    addr < (bd->bi_dram[i].start + bd->bi_dram[i].size))
+		if (gd->dram[i].size) {
+			if (addr >= gd->dram[i].start &&
+			    addr < (gd->dram[i].start + gd->dram[i].size))
 				return true;
 		}
 	}
@@ -327,7 +327,6 @@ int authenticate_os_container(ulong addr)
 {
 	struct container_hdr *phdr;
 	int i, ret = 0;
-	int err;
 	u16 length;
 	struct boot_img_t *img;
 	unsigned long s, e;
@@ -357,8 +356,8 @@ int authenticate_os_container(ulong addr)
 
 	debug("container length %u\n", length);
 
-	err = ahab_auth_cntr_hdr(phdr, length);
-	if (err) {
+	phdr = ahab_auth_cntr_hdr(phdr, length);
+	if (!phdr) {
 		ret = -EIO;
 		goto exit;
 	}
@@ -367,7 +366,7 @@ int authenticate_os_container(ulong addr)
 
 	/* Copy images to dest address */
 	for (i = 0; i < phdr->num_images; i++) {
-		img = (struct boot_img_t *)(addr +
+		img = (struct boot_img_t *)((ulong)phdr +
 					    sizeof(struct container_hdr) +
 					    i * sizeof(struct boot_img_t));
 

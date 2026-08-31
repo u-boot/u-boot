@@ -144,23 +144,16 @@ static int sifive_serial_probe(struct udevice *dev)
 
 static int sifive_serial_getc(struct udevice *dev)
 {
-	int c;
 	struct sifive_uart_plat *plat = dev_get_plat(dev);
-	struct uart_sifive *regs = plat->regs;
 
-	while ((c = _sifive_serial_getc(regs)) == -EAGAIN) ;
-
-	return c;
+	return _sifive_serial_getc(plat->regs);
 }
 
 static int sifive_serial_putc(struct udevice *dev, const char ch)
 {
-	int rc;
 	struct sifive_uart_plat *plat = dev_get_plat(dev);
 
-	while ((rc = _sifive_serial_putc(plat->regs, ch)) == -EAGAIN) ;
-
-	return rc;
+	return _sifive_serial_putc(plat->regs, ch);
 }
 
 static int sifive_serial_pending(struct udevice *dev, bool input)

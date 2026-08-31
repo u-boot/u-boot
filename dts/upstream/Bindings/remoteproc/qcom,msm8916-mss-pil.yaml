@@ -17,10 +17,14 @@ properties:
   compatible:
     oneOf:
       - enum:
+          - qcom,mdm9607-mss-pil
           - qcom,msm8226-mss-pil
           - qcom,msm8909-mss-pil
           - qcom,msm8916-mss-pil
+          - qcom,msm8917-mss-pil
           - qcom,msm8926-mss-pil
+          - qcom,msm8937-mss-pil
+          - qcom,msm8940-mss-pil
           - qcom,msm8953-mss-pil
           - qcom,msm8974-mss-pil
 
@@ -89,7 +93,7 @@ properties:
     description: PLL proxy supply (control handed over after startup)
 
   mss-supply:
-    description: MSS power domain supply (only valid for qcom,msm8974-mss-pil)
+    description: MSS power domain supply
 
   resets:
     items:
@@ -104,6 +108,12 @@ properties:
     description: States used by the AP to signal the Hexagon core
     items:
       - description: Stop modem
+        items:
+          - description: Phandle to the Shared Memory Point 2 Point device
+              handling the communication with a remote processor
+          - description: Single bit index to toggle in the value sent to
+              the remote processor
+            maximum: 32
 
   qcom,smem-state-names:
     description: Names of the states used by the AP to signal the Hexagon core
@@ -137,7 +147,6 @@ properties:
       - description: MPSS reserved region
 
   firmware-name:
-    $ref: /schemas/types.yaml#/definitions/string-array
     items:
       - description: Name of MBA firmware
       - description: Name of modem firmware
@@ -226,8 +235,12 @@ allOf:
         compatible:
           contains:
             enum:
+              - qcom,mdm9607-mss-pil
               - qcom,msm8909-mss-pil
               - qcom,msm8916-mss-pil
+              - qcom,msm8917-mss-pil
+              - qcom,msm8937-mss-pil
+              - qcom,msm8940-mss-pil
     then:
       properties:
         power-domains:
@@ -271,6 +284,9 @@ allOf:
           contains:
             enum:
               - qcom,msm8926-mss-pil
+              - qcom,msm8917-mss-pil
+              - qcom,msm8937-mss-pil
+              - qcom,msm8940-mss-pil
               - qcom,msm8974-mss-pil
     then:
       required:

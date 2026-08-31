@@ -152,7 +152,7 @@ boot_targets
 This environment variable can be used to control the list of bootdevs searched
 and their ordering, for example::
 
-   setenv boot_targets "mmc0 mmc1 usb pxe"
+   env set boot_targets "mmc0 mmc1 usb pxe"
 
 Entries may be removed or re-ordered in this list to affect the boot order. If
 the variable is empty, the default ordering is used, based on the priority of
@@ -169,7 +169,7 @@ used by the old distro scripts.
 This environment variable can be used to control the list of bootmeths used and
 their ordering for example::
 
-   setenv bootmeths "extlinux efi"
+   env set bootmeths "extlinux efi"
 
 Entries may be removed or re-ordered in this list to affect the order the
 bootmeths are tried on each bootdev. If the variable is empty, the default

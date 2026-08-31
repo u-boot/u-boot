@@ -105,35 +105,30 @@
 
 /*
  * Allwinner A10/A20 SoCs were using pins PC0,PC1,PC2,PC23 for booting
- * from SPI Flash, everything else is using pins PC0,PC1,PC2,PC3.
- * The H6 uses PC0, PC2, PC3, PC5, the H616 PC0, PC2, PC3, PC4.
+ * from SPI Flash, later SoCs are using pins PC0,PC1,PC2,PC3.
+ * Newer SoCs are all over the place.
  */
 static void spi0_pinmux_setup(unsigned int pin_function)
 {
-	/* All chips use PC2. And all chips use PC0, except R528/T113 */
-	if (!IS_ENABLED(CONFIG_MACH_SUN8I_R528))
-		sunxi_gpio_set_cfgpin(SUNXI_GPC(0), pin_function);
+	const u16 spi0_pc_pins[4] = {
+#if IS_ENABLED(CONFIG_MACH_SUN8I_R528)
+		SUNXI_GPC(2), SUNXI_GPC(3), SUNXI_GPC(4), SUNXI_GPC(5)
+#elif IS_ENABLED(CONFIG_MACH_SUN55I_A523)
+		SUNXI_GPC(2), SUNXI_GPC(3), SUNXI_GPC(4), SUNXI_GPC(12)
+#elif IS_ENABLED(CONFIG_MACH_SUN50I_H616)
+		SUNXI_GPC(0), SUNXI_GPC(2), SUNXI_GPC(3), SUNXI_GPC(4)
+#elif IS_ENABLED(CONFIG_MACH_SUN50I_H6)
+		SUNXI_GPC(0), SUNXI_GPC(2), SUNXI_GPC(3), SUNXI_GPC(5)
+#elif IS_ENABLED(CONFIG_MACH_SUN4I) || IS_ENABLED(CONFIG_MACH_SUN7I) || \
+      IS_ENABLED(CONFIG_MACH_SUN8I_R40)
+		SUNXI_GPC(0), SUNXI_GPC(1), SUNXI_GPC(2), SUNXI_GPC(23)
+#else
+		SUNXI_GPC(0), SUNXI_GPC(1), SUNXI_GPC(2), SUNXI_GPC(3)
+#endif
+	};
 
-	sunxi_gpio_set_cfgpin(SUNXI_GPC(2), pin_function);
-
-	/* All chips except H6/H616/R528/T113 use PC1. */
-	if (!IS_ENABLED(CONFIG_SUN50I_GEN_H6) &&
-	    !IS_ENABLED(CONFIG_MACH_SUN8I_R528))
-		sunxi_gpio_set_cfgpin(SUNXI_GPC(1), pin_function);
-
-	if (IS_ENABLED(CONFIG_MACH_SUN50I_H6) ||
-	    IS_ENABLED(CONFIG_MACH_SUN8I_R528))
-		sunxi_gpio_set_cfgpin(SUNXI_GPC(5), pin_function);
-	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616) ||
-	    IS_ENABLED(CONFIG_MACH_SUN8I_R528))
-		sunxi_gpio_set_cfgpin(SUNXI_GPC(4), pin_function);
-
-	/* Older generations use PC23 for CS, newer ones use PC3. */
-	if (IS_ENABLED(CONFIG_MACH_SUN4I) || IS_ENABLED(CONFIG_MACH_SUN7I) ||
-	    IS_ENABLED(CONFIG_MACH_SUN8I_R40))
-		sunxi_gpio_set_cfgpin(SUNXI_GPC(23), pin_function);
-	else
-		sunxi_gpio_set_cfgpin(SUNXI_GPC(3), pin_function);
+	for (int i = 0; i < 4; i++)
+		sunxi_gpio_set_cfgpin(spi0_pc_pins[i], pin_function);
 }
 
 static bool is_sun6i_gen_spi(void)
@@ -257,7 +252,8 @@ static void spi0_init(void)
 	unsigned int pin_function = SUNXI_GPC_SPI0;
 
 	if (IS_ENABLED(CONFIG_MACH_SUN50I) ||
-	    IS_ENABLED(CONFIG_SUN50I_GEN_H6))
+	    IS_ENABLED(CONFIG_SUN50I_GEN_H6) ||
+	    IS_ENABLED(CONFIG_MACH_SUN55I_A523))
 		pin_function = SUN50I_GPC_SPI0;
 	else if (IS_ENABLED(CONFIG_MACH_SUNIV) ||
 		 IS_ENABLED(CONFIG_MACH_SUN8I_R528))

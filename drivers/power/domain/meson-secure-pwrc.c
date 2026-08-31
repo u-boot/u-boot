@@ -120,7 +120,7 @@ static struct meson_secure_pwrc_domain_desc a1_pwrc_domains[] = {
 	SEC_PD(RSA),
 };
 
-struct power_domain_ops meson_secure_pwrc_ops = {
+static const struct power_domain_ops meson_secure_pwrc_ops = {
 	.on = meson_secure_pwrc_on,
 	.off = meson_secure_pwrc_off,
 	.of_xlate = meson_secure_pwrc_of_xlate,

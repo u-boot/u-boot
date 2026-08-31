@@ -4,6 +4,7 @@ dtb-$(CONFIG_TARGET_SMARTWEB) += at91sam9260-smartweb.dtb
 dtb-$(CONFIG_TARGET_TAURUS) += at91sam9g20-taurus.dtb
 dtb-$(CONFIG_TARGET_CORVUS) += at91sam9g45-corvus.dtb
 dtb-$(CONFIG_TARGET_GURNARD) += at91sam9g45-gurnard.dtb
+dtb-$(CONFIG_TARGET_SCM3005) += ax3005-scm3005.dtb
 
 dtb-$(CONFIG_TARGET_SMDKC100) += s5pc1xx-smdkc100.dtb
 dtb-$(CONFIG_TARGET_S5P_GONI) += s5pc1xx-goni.dtb
@@ -131,6 +132,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-388-gp.dtb			\
 	armada-388-helios4.dtb			\
 	armada-38x-controlcenterdc.dtb		\
+	armada-xp-atl-x220.dtb			\
 	armada-xp-crs305-1g-4s.dtb		\
 	armada-xp-crs305-1g-4s-bit.dtb		\
 	armada-xp-crs326-24g-2s.dtb		\
@@ -156,6 +158,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-8040-clearfog-gt-8k.dtb		\
 	armada-8040-db.dtb			\
 	armada-8040-mcbin.dtb			\
+	armada-8040-nbx.dtb			\
 	armada-8040-puzzle-m801.dtb		\
 	cn9130-db-A.dtb				\
 	cn9130-db-B.dtb				\
@@ -167,7 +170,8 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	cn9130-crb-B.dtb			\
 	ac5-98dx35xx-rd.dtb			\
 	ac5-98dx35xx-atl-x240.dtb		\
-	cn9130-atl-x250.dtb
+	cn9130-atl-x250.dtb			\
+	cn9130-atl-x960-28ysq.dtb
 endif
 
 dtb-$(CONFIG_ARCH_SYNQUACER) += synquacer-sc2a11-developerbox.dtb
@@ -390,26 +394,12 @@ dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
 dtb-$(CONFIG_AM33XX) += \
 	am335x-baltos.dtb \
-	am335x-bone.dtb \
-	am335x-boneblack.dtb \
-	am335x-boneblack-wireless.dtb \
-	am335x-boneblue.dtb \
 	am335x-brppt1-mmc.dtb \
 	am335x-brxre1.dtb \
 	am335x-brsmarc1.dtb \
 	am335x-draco.dtb \
-	am335x-evm.dtb \
-	am335x-evmsk.dtb \
-	am335x-bonegreen.dtb \
-	am335x-bonegreen-eco.dtb \
-	am335x-bonegreen-wireless.dtb \
-	am335x-icev2.dtb \
-	am335x-pocketbeagle.dtb \
 	am335x-pxm50.dtb \
 	am335x-rut.dtb \
-	am335x-sancloud-bbe.dtb \
-	am335x-sancloud-bbe-lite.dtb \
-	am335x-sancloud-bbe-extended-wifi.dtb \
 	am335x-shc.dtb \
 	am335x-pdu001.dtb \
 	am335x-chiliboard.dtb \
@@ -446,9 +436,7 @@ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_cyclone5_sr1500.dtb			\
 	socfpga_cyclone5_vining_fpga.dtb		\
 	socfpga_cyclone5_ac501soc.dtb			\
-	socfpga_cyclone5_ac550soc.dtb			\
-	socfpga_n5x_socdk.dtb				\
-	socfpga_stratix10_socdk.dtb
+	socfpga_cyclone5_ac550soc.dtb
 
 dtb-$(CONFIG_TARGET_DRA7XX_EVM) += dra72-evm.dtb dra7-evm.dtb	\
 	dra72-evm-revc.dtb dra71-evm.dtb dra76-evm.dtb
@@ -861,13 +849,8 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 
 dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-data-modul-edm-sbc.dtb \
-	imx8mm-icore-mx8mm-ctouch2.dtb \
-	imx8mm-icore-mx8mm-edimm2.2.dtb \
 	imx8mm-mx8menlo.dtb \
-	imx8mm-phg.dtb \
 	imx8mq-cm.dtb \
-	imx8mq-mnt-reform2.dtb \
-	imx8mq-phanbell.dtb \
 	imx8mp-data-modul-edm-sbc.dtb \
 	imx8mp-dhcom-som-overlay-rev100.dtbo \
 	imx8mp-dhcom-som-overlay-eth1xfast.dtbo \
@@ -875,16 +858,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-dhcom-pdk-overlay-eth2xfast.dtbo \
 	imx8mp-dhcom-drc02.dtb \
 	imx8mp-dhcom-pdk3-overlay-rev100.dtbo \
-	imx8mp-dhcom-picoitx.dtb \
-	imx8mp-icore-mx8mp-edimm2.2.dtb \
-	imx8mp-msc-sm2s.dtb \
-	imx8mq-pico-pi.dtb \
-	imx8mq-kontron-pitx-imx8m.dtb \
-	imx8mq-librem5-r4.dtb
-
-dtb-$(CONFIG_ARCH_IMX9) += \
-	imx93-11x11-frdm.dtb \
-	imx93-var-som-symphony.dtb
+	imx8mp-dhcom-picoitx.dtb
 
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1020-evk.dtb \
 	imxrt1170-evk.dtb \
@@ -1049,6 +1023,8 @@ dtb-$(CONFIG_ASPEED_AST2600) += \
 	ast2600-evb.dtb \
 	ast2600-sbp1.dtb \
 	ast2600-x4tf.dtb
+dtb-$(CONFIG_ASPEED_AST2700) += \
+	ast2700-evb.dtb
 
 dtb-$(CONFIG_STM32MP15X) += \
 	stm32mp157c-odyssey.dtb
@@ -1077,6 +1053,7 @@ dtb-$(CONFIG_SOC_K3_AM642) += k3-am642-r5-evm.dtb \
 			      k3-am642-r5-phycore-som-2gb.dtb
 
 dtb-$(CONFIG_SOC_K3_AM625) += k3-am625-r5-sk.dtb \
+			      k3-am62-r5-pocketbeagle2.dtb \
 			      k3-am625-r5-beagleplay.dtb \
 			      k3-am625-verdin-r5.dtb \
 			      k3-am625-r5-phycore-som-2gb.dtb
@@ -1171,13 +1148,13 @@ dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE_OPTEE) += imx8mm-cl-iot-gate-optee.dtb \
 					imx8mm-cl-iot-gate-ied-tpm0.dtbo \
 					imx8mm-cl-iot-gate-ied-tpm1.dtbo
 
-dtb-$(CONFIG_TARGET_SC573_EZKIT) += sc573-ezkit.dtb
+dtb-$(CONFIG_TARGET_SC573_EZLITE) += sc573-ezlite.dtb
 dtb-$(CONFIG_TARGET_SC584_EZKIT) += sc584-ezkit.dtb
 dtb-$(CONFIG_TARGET_SC589_MINI) += sc589-mini.dtb
 dtb-$(CONFIG_TARGET_SC589_EZKIT) += sc589-ezkit.dtb
 dtb-$(CONFIG_TARGET_SC594_SOM_EZKIT) += sc594-som-ezkit.dtb
 dtb-$(CONFIG_TARGET_SC594_SOM_EZLITE) += sc594-som-ezlite.dtb
-dtb-$(CONFIG_TARGET_SC598_SOM_EZKIT) += sc598-som-ezkit.dtb
+dtb-$(CONFIG_TARGET_SC598_SOM_EZKIT) += sc598-som-ezkit.dtb sc598-som-ezkit-sd.dtb
 dtb-$(CONFIG_TARGET_SC598_SOM_EZLITE) += sc598-som-ezlite.dtb
 
 ifneq ($(CONFIG_TARGET_IMX8MP_RSB3720A1_4G)$(CONFIG_TARGET_IMX8MP_RSB3720A1_6G),)

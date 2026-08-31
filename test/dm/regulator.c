@@ -28,6 +28,7 @@ enum {
 	BUCK3,
 	LDO1,
 	LDO2,
+	LDO3,
 	OUTPUT_COUNT,
 };
 
@@ -44,6 +45,7 @@ static const char *regulator_names[OUTPUT_COUNT][OUTPUT_NAME_COUNT] = {
 	{ SANDBOX_BUCK3_DEVNAME, SANDBOX_BUCK3_PLATNAME },
 	{ SANDBOX_LDO1_DEVNAME, SANDBOX_LDO1_PLATNAME},
 	{ SANDBOX_LDO2_DEVNAME, SANDBOX_LDO2_PLATNAME},
+	{ SANDBOX_LDO3_DEVNAME, SANDBOX_LDO3_PLATNAME},
 };
 
 /* Test regulator get method */
@@ -117,6 +119,42 @@ static int dm_test_power_regulator_set_get_voltage(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_power_regulator_set_get_voltage, UTF_SCAN_FDT);
+
+/* Test regulator set Voltage clamp method */
+static int dm_test_power_regulator_set_value_clamp(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	const char *platname;
+
+	/* LDO3 have 'min' 1.8V and 'max' 3.3V */
+	platname = regulator_names[LDO3][PLATNAME];
+	ut_assertok(regulator_get_by_platname(platname, &dev));
+
+	/* 'target' in 'min'/'max' range - should not clamp voltage */
+	ut_assertok(regulator_set_value_clamp(dev, 1700000, 1800000, 1950000));
+	ut_asserteq(1800000, regulator_get_value(dev));
+	ut_assertok(regulator_set_value_clamp(dev, 2700000, 3300000, 3600000));
+	ut_asserteq(3300000, regulator_get_value(dev));
+
+	/* 'target' out of 'min'/'max' range - should clamp voltage */
+	ut_assertok(regulator_set_value_clamp(dev, 1700000, 1700000, 1950000));
+	ut_asserteq(1800000, regulator_get_value(dev));
+	ut_assertok(regulator_set_value_clamp(dev, 2700000, 3400000, 3600000));
+	ut_asserteq(3300000, regulator_get_value(dev));
+
+	/* 'min'/'max' out of range - should return -EINVAL */
+	ut_asserteq(-EINVAL,
+		    regulator_set_value_clamp(dev, 1200000, 1500000, 1700000));
+	ut_asserteq(-EINVAL,
+		    regulator_set_value_clamp(dev, 3500000, 4000000, 5000000));
+
+	/* 'min' higher than 'max' - should return -EINVAL */
+	ut_asserteq(-EINVAL,
+		    regulator_set_value_clamp(dev, 3100000, 3000000, 2900000));
+
+	return 0;
+}
+DM_TEST(dm_test_power_regulator_set_value_clamp, UTF_SCAN_FDT);
 
 /* Test regulator set and get Current method */
 static int dm_test_power_regulator_set_get_current(struct unit_test_state *uts)

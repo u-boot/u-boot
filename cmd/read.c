@@ -46,7 +46,7 @@ do_rw(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		limit = ~0;
 	}
 
-	if (cnt + blk > limit) {
+	if (blk > limit || cnt > limit - blk) {
 		printf("%s out of range\n", cmdtp->name);
 		unmap_sysmem(ptr);
 		return 1;

@@ -138,6 +138,16 @@
 
 &aips2 {
 	bootph-all;
+
+	wdog4: watchdog@424a0000 {
+		compatible = "fsl,imx93-wdt";
+		reg = <0x424a0000 0x10000>;
+		interrupts = <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&scmi_clk IMX95_CLK_BUSWAKEUP>;
+		timeout-sec = <40>;
+		status = "disabled";
+		bootph-all;
+	};
 };
 
 &aips3 {
@@ -236,5 +246,9 @@
 };
 
 &scmi_buf1 {
+	bootph-all;
+};
+
+&wdog3 {
 	bootph-all;
 };

@@ -95,7 +95,7 @@ In the example the following steps are executed:
 
 ::
 
-    => setenv autoload no
+    => env set autoload no
     => dhcp
     BOOTP broadcast 1
     *** Unhandled DHCP Option in OFFER/ACK: 23

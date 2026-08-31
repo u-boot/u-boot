@@ -88,15 +88,19 @@
 	status = "okay";
 	flash@0 {
 		compatible = "m25p80", "jedec,spi-nor"; /* mt25qu512abb8e12 512Mib */
-		#address-cells = <1>;
-		#size-cells = <1>;
 		reg = <0>;
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>;
 		spi-max-frequency = <108000000>;
-		partition@0 { /* for testing purpose */
-			label = "qspi";
-			reg = <0 0x4000000>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 { /* for testing purpose */
+				label = "qspi";
+				reg = <0 0x4000000>;
+			};
 		};
 	};
 };

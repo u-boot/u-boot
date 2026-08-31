@@ -29,12 +29,21 @@ static struct cm_device_inst *cm_device =
 
 static void config_vtp(int nr)
 {
-	writel(readl(&vtpreg[nr]->vtp0ctrlreg) | VTP_CTRL_ENABLE,
-			&vtpreg[nr]->vtp0ctrlreg);
-	writel(readl(&vtpreg[nr]->vtp0ctrlreg) & (~VTP_CTRL_START_EN),
-			&vtpreg[nr]->vtp0ctrlreg);
-	writel(readl(&vtpreg[nr]->vtp0ctrlreg) | VTP_CTRL_START_EN,
-			&vtpreg[nr]->vtp0ctrlreg);
+	/*
+	 * A warm reset will result in DDR going into self refresh. Once the
+	 * reset is released we will exit self refresh and resume normally
+	 * so a reinitialization of the controller is not needed.
+	 *
+	 * Check to see if VTP is ready before we reinitialize the controller
+	 */
+	if ((readl(&vtpreg[nr]->vtp0ctrlreg) & VTP_CTRL_READY) != VTP_CTRL_READY) {
+		writel(readl(&vtpreg[nr]->vtp0ctrlreg) | VTP_CTRL_ENABLE,
+		       &vtpreg[nr]->vtp0ctrlreg);
+		writel(readl(&vtpreg[nr]->vtp0ctrlreg) & (~VTP_CTRL_START_EN),
+		       &vtpreg[nr]->vtp0ctrlreg);
+		writel(readl(&vtpreg[nr]->vtp0ctrlreg) | VTP_CTRL_START_EN,
+		       &vtpreg[nr]->vtp0ctrlreg);
+	}
 
 	/* Poll for READY */
 	while ((readl(&vtpreg[nr]->vtp0ctrlreg) & VTP_CTRL_READY) !=

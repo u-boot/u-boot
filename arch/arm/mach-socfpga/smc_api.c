@@ -44,11 +44,11 @@ int smc_send_mailbox(u32 cmd, u32 len, u32 *arg, u8 urgent, u32 *resp_buf_len,
 	args[4] = (u64)resp_buf;
 
 	if (arg && len > 0)
-		flush_dcache_range((uintptr_t)arg, (uintptr_t)arg + len);
+		flush_dcache_range((uintptr_t)arg, (uintptr_t)(arg + len));
 
 	if (resp_buf && resp_buf_len && *resp_buf_len > 0) {
 		args[5] = *resp_buf_len;
-		flush_dcache_range((uintptr_t)resp_buf, (uintptr_t)resp_buf + *resp_buf_len);
+		flush_dcache_range((uintptr_t)resp_buf, (uintptr_t)(resp_buf + *resp_buf_len));
 	} else {
 		args[5] = 0;
 	}

@@ -197,9 +197,9 @@ specific to the new image format).
 [on the target system]::
 
     => print nfsargs
-    nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}
+    nfsargs=env set bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}
     => print addip
-    addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:${netdev}:off panic=1
+    addip=env set bootargs ${bootargs} ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:${netdev}:off panic=1
     => run nfsargs addip
     => tftp 900000 /path/to/tftp/location/kernel.itb
     Using FEC device

@@ -409,7 +409,8 @@ This example shows the abridged sandbox output::
     regulator     1  [   ]   sandbox_buck          |   |   |-- buck2
     regulator     2  [   ]   sandbox_ldo           |   |   |-- ldo1
     regulator     3  [   ]   sandbox_ldo           |   |   |-- ldo2
-    regulator     4  [   ]   sandbox_buck          |   |   `-- no_match_by_nodename
+    regulator     4  [   ]   sandbox_buck          |   |   |-- no_match_by_nodename
+    regulator     5  [   ]   sandbox_ldo           |   |   `-- ldo3
     pmic          1  [   ]   mc34708_pmic          |   `-- pmic@41
     bootcount     0  [ + ]   bootcount-rtc         |-- bootcount@0
     bootcount     1  [   ]   bootcount-i2c-eeprom  |-- bootcount

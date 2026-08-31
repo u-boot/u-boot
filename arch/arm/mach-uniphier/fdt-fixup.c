@@ -4,6 +4,7 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
+#include <asm/global_data.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <jffs2/load_kernel.h>
@@ -20,6 +21,7 @@
  */
 static int uniphier_ld20_fdt_mem_rsv(void *fdt, struct bd_info *bd)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	unsigned long rsv_addr;
 	const unsigned long rsv_size = 64;
 	int i, ret;
@@ -28,11 +30,11 @@ static int uniphier_ld20_fdt_mem_rsv(void *fdt, struct bd_info *bd)
 	    uniphier_get_soc_id() != UNIPHIER_LD20_ID)
 		return 0;
 
-	for (i = 0; i < ARRAY_SIZE(bd->bi_dram); i++) {
-		if (!bd->bi_dram[i].size)
+	for (i = 0; i < ARRAY_SIZE(gd->dram); i++) {
+		if (!gd->dram[i].size)
 			continue;
 
-		rsv_addr = bd->bi_dram[i].start + bd->bi_dram[i].size;
+		rsv_addr = gd->dram[i].start + gd->dram[i].size;
 		rsv_addr -= rsv_size;
 
 		ret = fdt_add_mem_rsv(fdt, rsv_addr, rsv_size);

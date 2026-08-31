@@ -59,7 +59,8 @@ static int read_dbg2(struct ns16550_plat *plat)
 		log_debug("Not a serial port\n");
 		return -EPROTOTYPE;
 	}
-	if (dbg->port_subtype != ACPI_DBG2_16550_COMPATIBLE) {
+	if (dbg->port_subtype != ACPI_DBG2_16550_COMPATIBLE &&
+	    dbg->port_subtype != ACPI_DBG2_16550_WITH_GAS) {
 		log_debug("Incompatible serial port\n");
 		return -EPROTOTYPE;
 	}

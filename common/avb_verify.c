@@ -11,7 +11,9 @@
 #include <part.h>
 #include <tee.h>
 #include <tee/optee_ta_avb.h>
+#include <u-boot/sha256.h>
 
+#if CONFIG_IS_ENABLED(AVB_ROOT_KEY_BUILTIN)
 static const unsigned char avb_root_pub[1032] = {
 	0x0, 0x0, 0x10, 0x0, 0x55, 0xd9, 0x4, 0xad, 0xd8, 0x4,
 	0xaf, 0xe3, 0xd3, 0x84, 0x6c, 0x7e, 0xd, 0x89, 0x3d, 0xc2,
@@ -118,6 +120,7 @@ static const unsigned char avb_root_pub[1032] = {
 	0xe1, 0x74, 0xa1, 0xa3, 0x99, 0xa0, 0x85, 0x9e, 0xf1, 0xac,
 	0xd8, 0x7e,
 };
+#endif /* AVB_ROOT_KEY_BUILTIN */
 
 const char *str_avb_io_error(AvbIOResult res)
 {
@@ -452,6 +455,7 @@ static AvbIOResult mmc_byte_io(AvbOps *ops,
 	u64 start_offset, start_sector, sectors, residue;
 	u8 *tmp_buf;
 	size_t io_cnt = 0;
+	AvbIOResult io_ret = AVB_IO_RESULT_OK;
 
 	if (!partition || !buffer || io_type > IO_WRITE)
 		return AVB_IO_RESULT_ERROR_IO;
@@ -460,8 +464,10 @@ static AvbIOResult mmc_byte_io(AvbOps *ops,
 	if (!part)
 		return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
 
-	if (!part->info.blksz)
-		return AVB_IO_RESULT_ERROR_IO;
+	if (!part->info.blksz) {
+		io_ret = AVB_IO_RESULT_ERROR_IO;
+		goto out;
+	}
 
 	start_offset = calc_offset(part, offset);
 	while (num_bytes) {
@@ -489,7 +495,8 @@ static AvbIOResult mmc_byte_io(AvbOps *ops,
 				if (ret != 1) {
 					printf("%s: read error (%ld, %lld)\n",
 					       __func__, ret, start_sector);
-					return AVB_IO_RESULT_ERROR_IO;
+					io_ret = AVB_IO_RESULT_ERROR_IO;
+					goto out;
 				}
 				/*
 				 * if this is not aligned at sector start,
@@ -506,7 +513,8 @@ static AvbIOResult mmc_byte_io(AvbOps *ops,
 				if (ret != 1) {
 					printf("%s: read error (%ld, %lld)\n",
 					       __func__, ret, start_sector);
-					return AVB_IO_RESULT_ERROR_IO;
+					io_ret = AVB_IO_RESULT_ERROR_IO;
+					goto out;
 				}
 				memcpy((void *)tmp_buf +
 					start_offset % part->info.blksz,
@@ -517,7 +525,8 @@ static AvbIOResult mmc_byte_io(AvbOps *ops,
 				if (ret != 1) {
 					printf("%s: write error (%ld, %lld)\n",
 					       __func__, ret, start_sector);
-					return AVB_IO_RESULT_ERROR_IO;
+					io_ret = AVB_IO_RESULT_ERROR_IO;
+					goto out;
 				}
 			}
 
@@ -543,7 +552,8 @@ static AvbIOResult mmc_byte_io(AvbOps *ops,
 
 			if (!ret) {
 				printf("%s: sector read error\n", __func__);
-				return AVB_IO_RESULT_ERROR_IO;
+				io_ret = AVB_IO_RESULT_ERROR_IO;
+				goto out;
 			}
 
 			io_cnt += ret * part->info.blksz;
@@ -557,7 +567,9 @@ static AvbIOResult mmc_byte_io(AvbOps *ops,
 	if (io_type == IO_READ && out_num_read)
 		*out_num_read = io_cnt;
 
-	return AVB_IO_RESULT_OK;
+out:
+	free(part);
+	return io_ret;
 }
 
 /**
@@ -645,14 +657,26 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops,
 					      public_key_metadata_length,
 					      bool *out_key_is_trusted)
 {
+	u8 key_digest[SHA256_SUM_LEN];
+	u8 trusted_digest[SHA256_SUM_LEN];
+	AvbIOResult rc;
+
 	if (!public_key_length || !public_key_data || !out_key_is_trusted)
 		return AVB_IO_RESULT_ERROR_IO;
 
+	/* Default deny: only flip to trusted on a positive digest match. */
 	*out_key_is_trusted = false;
-	if (public_key_length != sizeof(avb_root_pub))
-		return AVB_IO_RESULT_ERROR_IO;
 
-	if (memcmp(avb_root_pub, public_key_data, public_key_length) == 0)
+	/* Digest of the key embedded in the (untrusted) vbmeta. */
+	sha256_csum_wd(public_key_data, public_key_length, key_digest,
+		       CHUNKSZ_SHA256);
+
+	/* Digest of the trusted root key from the configured source. */
+	rc = avb_read_root_key_digest(ops, trusted_digest);
+	if (rc != AVB_IO_RESULT_OK)
+		return rc;
+
+	if (avb_safe_memcmp(key_digest, trusted_digest, sizeof(key_digest)) == 0)
 		*out_key_is_trusted = true;
 
 	return AVB_IO_RESULT_OK;
@@ -867,12 +891,15 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps *ops,
 		return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
 
 	uuid_size = sizeof(part->info.uuid);
-	if (uuid_size > guid_buf_size)
+	if (uuid_size > guid_buf_size) {
+		free(part);
 		return AVB_IO_RESULT_ERROR_IO;
+	}
 
 	memcpy(guid_buf, part->info.uuid, uuid_size);
 	guid_buf[uuid_size - 1] = 0;
 
+	free(part);
 	return AVB_IO_RESULT_OK;
 }
 
@@ -903,6 +930,7 @@ static AvbIOResult get_size_of_partition(AvbOps *ops,
 		return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
 
 	*out_size_num_bytes = part->info.blksz * part->info.size;
+	free(part);
 
 	return AVB_IO_RESULT_OK;
 }
@@ -1024,6 +1052,57 @@ free_name:
 	tee_shm_free(shm_name);
 
 	return rc;
+}
+#endif
+
+/**
+ * ============================================================================
+ * AVB root key digest providers (selected via CONFIG_AVB_ROOT_KEY_*)
+ * ============================================================================
+ */
+#if CONFIG_IS_ENABLED(AVB_ROOT_KEY_BUILTIN)
+AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest)
+{
+	sha256_csum_wd(avb_root_pub, sizeof(avb_root_pub), digest,
+		       CHUNKSZ_SHA256);
+
+	return AVB_IO_RESULT_OK;
+}
+#elif CONFIG_IS_ENABLED(AVB_ROOT_KEY_TEE)
+/*
+ * Read the trusted root key digest from OP-TEE secure storage as a named
+ * persistent value, using the existing TA_AVB_CMD_READ_PERSIST_VALUE command
+ * (see OP-TEE ta/avb/entry.c). The digest must be provisioned into the TEE
+ * beforehand under CONFIG_AVB_ROOT_KEY_TEE_NAME; a missing value returns
+ * AVB_IO_RESULT_ERROR_NO_SUCH_VALUE and verification fails closed.
+ */
+AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest)
+{
+	size_t num_read = 0;
+	AvbIOResult rc;
+
+	rc = read_persistent_value(ops, CONFIG_AVB_ROOT_KEY_TEE_NAME,
+				   SHA256_SUM_LEN, digest, &num_read);
+	if (rc != AVB_IO_RESULT_OK)
+		return rc;
+
+	if (num_read != SHA256_SUM_LEN)
+		return AVB_IO_RESULT_ERROR_INVALID_VALUE_SIZE;
+
+	return AVB_IO_RESULT_OK;
+}
+#else /* CONFIG_AVB_ROOT_KEY_BOARD */
+/*
+ * Weak, fail-closed default. A board/SoC selecting CONFIG_AVB_ROOT_KEY_BOARD
+ * must provide a strong avb_read_root_key_digest() (e.g. reading a hash fused
+ * into OTP/eFuse). If it does not, verification fails rather than silently
+ * trusting a wrong key.
+ */
+__weak AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest)
+{
+	printf("%s: board root key provider not implemented\n", __func__);
+
+	return AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
 }
 #endif
 

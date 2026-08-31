@@ -107,6 +107,15 @@ config RESET_AST2600
 	  Say Y if you want to control reset signals of different peripherals
 	  through System Control Unit (SCU).
 
+config RESET_AST2700
+	bool "Reset controller driver for AST2700 SoCs"
+	depends on DM_RESET && ASPEED_AST2700
+	default y if ASPEED_AST2700
+	help
+	  Support for reset controller on AST2700 SoC.
+	  Say Y if you want to control reset signals of different peripherals
+	  through System Control Unit (SCU).
+
 config RESET_ROCKCHIP
 	bool "Reset controller driver for Rockchip SoCs"
 	depends on DM_RESET && ARCH_ROCKCHIP && CLK
@@ -269,13 +278,6 @@ config RESET_RZG2L_USBPHY_CTRL
 	  Enable support for controlling USB 2.0 PHY resets on the Renesas
 	  RZ/G2L SoC. This is required for USB 2.0 functionality to work on this
 	  SoC.
-
-config RESET_SPACEMIT_K1
-	bool "Support for SPACEMIT's K1 Reset driver"
-	depends on DM_RESET
-	help
-	  Support for SPACEMIT's K1 Reset system. Basic Assert/Deassert
-	  is supported.
 
 source "drivers/reset/stm32/Kconfig"
 endmenu

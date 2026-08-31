@@ -104,8 +104,8 @@ Download it from http://downloads.yoctoproject.org/releases/yocto/yocto-2.0/mach
 
 3. Update boot environment values on shell::
 
-   => setenv bootfile vmlinuz
-   => setenv bootdev scsi
+   => env set bootfile vmlinuz
+   => env set bootdev scsi
    => boot
 
 Build Instruction for Slim Bootloader for LeafHill (APL) target
@@ -170,7 +170,7 @@ Build Instruction to use ELF U-Boot
 
    $ python BuildLoader.py build <qemu or apl> -p "OsLoader.efi:LLDR:Lz4;u-boot:U-BT:Lzma"
 
-.. _U-Boot: https://source.denx.de/
+.. _U-Boot: https://git.u-boot-project.org/
 .. _`Slim Bootloader`: https://github.com/slimbootloader/
 .. _`Intel FSP`: https://github.com/IntelFsp/
 .. _`Getting Started`: https://slimbootloader.github.io/getting-started/

@@ -358,7 +358,9 @@ static int soc_xilinx_zynqmp_detect_machine(struct udevice *dev, u32 idcode,
 	} else if (device->variants & ZYNQMP_VARIANT_DR_SE) {
 		strlcat(priv->machine, "dr_SE", sizeof(priv->machine));
 	} else if (device->variants & ZYNQMP_VARIANT_TEG) {
-		strlcat(priv->machine, "teg", sizeof(priv->machine));
+		/* Devices with TEG variant might be TEG or TCG family */
+		strlcat(priv->machine, (idcode2 & EFUSE_GPU_DIS_MASK) ?
+			"tcg" : "teg", sizeof(priv->machine));
 	}
 
 	return 0;

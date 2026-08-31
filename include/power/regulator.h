@@ -316,6 +316,18 @@ int regulator_set_suspend_value(struct udevice *dev, int uV);
 int regulator_get_suspend_value(struct udevice *dev);
 
 /**
+ * regulator_set_value_clamp: set clamped microvoltage value of a given regulator
+ *
+ * @dev       - pointer to the regulator device
+ * @min_uV    - the minimum output value to set [micro Volts]
+ * @target_uV - the target output value to set [micro Volts]
+ * @max_uV    - the maximum output value to set [micro Volts]
+ * Return:    - 0 on success or -errno val if fails
+ */
+int regulator_set_value_clamp(struct udevice *dev,
+			      int min_uV, int target_uV, int max_uV);
+
+/**
  * regulator_set_value_force: set the microvoltage value of a given regulator
  *			      without any min-,max condition check
  *
@@ -358,9 +370,6 @@ int regulator_get_enable(struct udevice *dev);
  * Return: - 0 on success or -errno val if fails
  */
 int regulator_set_enable(struct udevice *dev, bool enable);
-
-#define regulator_enable(dev) regulator_set_enable(dev, true)
-#define regulator_disable(dev) regulator_set_enable(dev, false)
 
 /**
  * regulator_set_enable_if_allowed: set regulator enable state if allowed by
@@ -550,6 +559,12 @@ static inline int regulator_get_suspend_value(struct udevice *dev)
 	return -ENOSYS;
 }
 
+static inline int regulator_set_value_clamp(struct udevice *dev,
+					    int min_uV, int target_uV, int max_uV)
+{
+	return -ENOSYS;
+}
+
 static inline int regulator_set_value_force(struct udevice *dev, int uV)
 {
 	return -ENOSYS;
@@ -632,5 +647,8 @@ static inline int device_get_supply_regulator(struct udevice *dev, const char *s
 	return -ENOSYS;
 }
 #endif
+
+#define regulator_enable(dev) regulator_set_enable_if_allowed(dev, true)
+#define regulator_disable(dev) regulator_set_enable_if_allowed(dev, false)
 
 #endif /* _INCLUDE_REGULATOR_H_ */

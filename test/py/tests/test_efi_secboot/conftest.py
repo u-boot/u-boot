@@ -96,6 +96,14 @@ def efi_boot_env(request, ubman):
         check_call('cd %s; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx db.esl dbx_db.auth'
                    % (mnt_point, EFITOOLS_PATH),
                    shell=True)
+        # dbt (with TEST_db certificate)
+        check_call('cd %s; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbt db.esl dbt.auth'
+                   % (mnt_point, EFITOOLS_PATH),
+                   shell=True)
+        # dbr (with TEST_db certificate)
+        check_call('cd %s; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbr db.esl dbr.auth'
+                   % (mnt_point, EFITOOLS_PATH),
+                   shell=True)
 
         # Copy image
         check_call('cp %s/lib/efi_loader/helloworld.efi %s' %

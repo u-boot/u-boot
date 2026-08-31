@@ -16,6 +16,9 @@
 #include <vsprintf.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
+#include <asm/global_data.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 struct cyclic_demo_info {
 	struct cyclic_info cyclic;
@@ -64,7 +67,7 @@ static int do_cyclic_list(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct hlist_node *tmp;
 	u64 cnt, freq;
 
-	hlist_for_each_entry_safe(cyclic, tmp, cyclic_get_list(), list) {
+	hlist_for_each_entry_safe(cyclic, tmp, &gd->cyclic_list, list) {
 		cnt = cyclic->run_cnt * 1000000ULL * 100ULL;
 		freq = lldiv(cnt, timer_get_us() - cyclic->start_time_us);
 		printf("function: %s, cpu-time: %lld us, frequency: %lld.%02d times/s\n",

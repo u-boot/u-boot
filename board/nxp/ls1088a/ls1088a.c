@@ -7,6 +7,7 @@
 #include <display_options.h>
 #include <env.h>
 #include <i2c.h>
+#include <pmbus.h>
 #include <init.h>
 #include <log.h>
 #include <malloc.h>
@@ -667,13 +668,13 @@ int get_serdes_volt(void)
 	/* Select the PAGE 0 using PMBus commands PAGE for VDD */
 #if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_write(I2C_SVDD_MONITOR_ADDR,
-			PMBUS_CMD_PAGE, 1, &chan, 1);
+			PMBUS_PAGE, 1, &chan, 1);
 #else
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(0, I2C_SVDD_MONITOR_ADDR, 1, &dev);
 	if (!ret)
-		ret = dm_i2c_write(dev, PMBUS_CMD_PAGE,
+		ret = dm_i2c_write(dev, PMBUS_PAGE,
 				   &chan, 1);
 #endif
 
@@ -685,9 +686,9 @@ int get_serdes_volt(void)
 	/* Read the output voltage using PMBus command READ_VOUT */
 #if !CONFIG_IS_ENABLED(DM_I2C)
 	ret = i2c_read(I2C_SVDD_MONITOR_ADDR,
-		       PMBUS_CMD_READ_VOUT, 1, (void *)&vcode, 2);
+		       PMBUS_READ_VOUT, 1, (void *)&vcode, 2);
 #else
-	dm_i2c_read(dev, PMBUS_CMD_READ_VOUT, (void *)&vcode, 2);
+	dm_i2c_read(dev, PMBUS_READ_VOUT, (void *)&vcode, 2);
 #endif
 	if (ret) {
 		printf("VID: failed to read the voltage\n");
@@ -700,7 +701,7 @@ int get_serdes_volt(void)
 int set_serdes_volt(int svdd)
 {
 	int ret, vdd_last;
-	u8 buff[5] = {0x04, PWM_CHANNEL0, PMBUS_CMD_VOUT_COMMAND,
+	u8 buff[5] = {0x04, PWM_CHANNEL0, PMBUS_VOUT_COMMAND,
 			svdd & 0xFF, (svdd & 0xFF00) >> 8};
 
 	/* Write the desired voltage code to the SVDD regulator */
@@ -830,7 +831,7 @@ int board_init(void)
 void detail_board_ddr_info(void)
 {
 	puts("\nDDR    ");
-	print_size(gd->bd->bi_dram[0].size + gd->bd->bi_dram[1].size, "");
+	print_size(gd->dram[0].size + gd->dram[1].size, "");
 	print_ddr_info(0);
 }
 
@@ -959,8 +960,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	/* fixup DT for the two GPP DDR banks */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		base[i] = gd->bd->bi_dram[i].start;
-		size[i] = gd->bd->bi_dram[i].size;
+		base[i] = gd->dram[i].start;
+		size[i] = gd->dram[i].size;
 	}
 
 #ifdef CONFIG_RESV_RAM

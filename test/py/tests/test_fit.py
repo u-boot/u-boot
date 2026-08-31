@@ -117,6 +117,36 @@ host save hostfs 0 %(loadables1_addr)x %(loadables1_out)s %(loadables1_size)x
 host save hostfs 0 %(loadables2_addr)x %(loadables2_out)s %(loadables2_size)x
 '''
 
+# A minimal ITS for a compressed 'kernel_noload' kernel. bootm allocates a
+# per-image decompression buffer for this image type, sized as a multiple of
+# the compressed length; see the test_fit_kernel_noload_decomp_* tests.
+NOLOAD_ITS = '''
+/dts-v1/;
+
+/ {
+        description = "FIT with a compressed kernel_noload image";
+        #address-cells = <1>;
+
+        images {
+                kernel-1 {
+                        data = /incbin/("%(kernel)s");
+                        type = "kernel_noload";
+                        arch = "sandbox";
+                        os = "linux";
+                        compression = "gzip";
+                        load = <0>;
+                        entry = <0>;
+                };
+        };
+        configurations {
+                default = "conf-1";
+                conf-1 {
+                        kernel = "kernel-1";
+                };
+        };
+};
+'''
+
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('fit')
 @pytest.mark.requiredtool('dtc')
@@ -426,3 +456,151 @@ class TestFitImage:
 
         output = ubman.run_command_list(cmds)
         assert "can't get kernel image!" in '\n'.join(output)
+
+    def test_fit_iminfo_configs_first(self, ubman, fsetup):
+        """Regression: iminfo prints "Default Configuration" even when
+        /configurations is defined before /images in the source.
+
+        fit_print_contents() in boot/image-fit.c used to read the default
+        configuration name from whatever offset libfdt happened to return
+        after iterating /images children. With /images defined first that
+        offset accidentally landed on /configurations; with /configurations
+        defined first the read returned NULL and the line silently went
+        missing. Fixed in commit "boot/fit: read default-config property
+        from the configurations node".
+        """
+        configs_first_its = '''
+/dts-v1/;
+
+/ {
+        description = "FIT with /configurations before /images";
+        #address-cells = <1>;
+
+        configurations {
+                default = "conf-1";
+                conf-1 {
+                        description = "first config";
+                        kernel = "kernel-1";
+                };
+        };
+
+        images {
+                kernel-1 {
+                        description = "first image";
+                        data = /incbin/("%(kernel)s");
+                        type = "kernel";
+                        arch = "sandbox";
+                        os = "linux";
+                        compression = "none";
+                        load = <0x40000>;
+                        entry = <0x40000>;
+                };
+        };
+};
+'''
+        fit = fit_util.make_fit(ubman, fsetup['mkimage'], configs_first_its,
+                                fsetup, basename='configs-first.fit')
+        cmds = [
+            'host load hostfs 0 %#x %s' % (fsetup['fit_addr'], fit),
+            'iminfo %#x' % fsetup['fit_addr'],
+        ]
+        output = '\n'.join(ubman.run_command_list(cmds))
+        assert "Default Configuration: 'conf-1'" in output, (
+            'iminfo output is missing the "Default Configuration" line for a '
+            'FIT whose /configurations node precedes /images. Output was:\n'
+            + output)
+
+    @pytest.mark.buildconfigspec('gzip')
+    def test_fit_kernel_noload_decomp_overflow(self, ubman, fsetup):
+        """Test that an over-large compressed kernel_noload image is rejected
+
+        For a compressed 'kernel_noload' kernel, bootm_load_os() allocates a
+        decompression buffer of ALIGN(image_len * 8, SZ_1M) and must bound the
+        decompressor by that buffer. A kernel that decompresses to far more
+        than eight times its compressed size must therefore fail with a
+        decompression error instead of overflowing the buffer.
+        """
+        sz_1m = 1 << 20
+
+        # CONFIG_SYS_BOOTM_LEN is the global decompression limit. Keep the
+        # uncompressed size below it, so the failure is forced by the smaller
+        # per-image kernel_noload buffer rather than by that global limit.
+        bootm_len = int(ubman.config.buildconfig['config_sys_bootm_len'], 0)
+
+        # 4MB of zeros compresses to a few KB, so the decompression buffer
+        # (ALIGN(image_len * 8, SZ_1M), i.e. 1MB here) ends up far smaller
+        # than the uncompressed image.
+        decomp_size = 4 * sz_1m
+        kernel = fit_util.make_fname(ubman, 'test-noload-kernel.bin')
+        with open(kernel, 'wb') as fd:
+            fd.write(b'\0' * decomp_size)
+        kernel_gz = self.make_compressed(ubman, kernel)
+
+        image_len = self.filesize(kernel_gz)
+        req_size = (image_len * 8 + sz_1m - 1) // sz_1m * sz_1m
+        assert req_size < decomp_size <= bootm_len, (
+            'Test setup error: need decomp buffer (%#x) < image (%#x) <= '
+            'CONFIG_SYS_BOOTM_LEN (%#x)' % (req_size, decomp_size, bootm_len))
+
+        fit = fit_util.make_fit(ubman, fsetup['mkimage'], NOLOAD_ITS,
+                                {'kernel': kernel_gz})
+        fit_addr = fsetup['fit_addr']
+
+        ubman.run_command_list([
+            'host load hostfs 0 %x %s' % (fit_addr, fit),
+            'bootm start %x' % fit_addr,
+        ])
+
+        # 'bootm loados' decompresses the kernel. Decompression must stop at
+        # the buffer boundary and report 'Image too large'; it must not run
+        # past the buffer and return to the prompt.
+        ubman.run_command('bootm loados', wait_for_prompt=False)
+        try:
+            ubman.wait_for('Image too large')
+        finally:
+            # The decompression failure resets the board; bring up a fresh
+            # instance so later tests start from a clean console.
+            ubman.restart_uboot()
+
+    @pytest.mark.buildconfigspec('gzip')
+    def test_fit_kernel_noload_decomp_boundary(self, ubman, fsetup):
+        """Test that decompression succeeds exactly at the buffer limit
+
+        For a compressed 'kernel_noload' kernel, bootm_load_os() allocates a
+        decompression buffer of ALIGN(image_len * 8, SZ_1M). A kernel whose
+        decompressed size equals that buffer exactly must succeed, guarding
+        against an off-by-one rejection at the buffer limit.
+        """
+        sz_1m = 1 << 20
+
+        # 1MiB of zeros compresses to a few KB, so image_len * 8 rounds up to
+        # exactly 1MiB. Picking decomp_size = 1MiB makes the decompressed size
+        # match the buffer exactly.
+        decomp_size = sz_1m
+        kernel = fit_util.make_fname(ubman, 'test-noload-kernel-boundary.bin')
+        with open(kernel, 'wb') as fd:
+            fd.write(b'\0' * decomp_size)
+        kernel_gz = self.make_compressed(ubman, kernel)
+
+        image_len = self.filesize(kernel_gz)
+        req_size = (image_len * 8 + sz_1m - 1) // sz_1m * sz_1m
+        assert decomp_size == req_size, (
+            'Test setup error: need decomp_size (%#x) == req_size (%#x)'
+            % (decomp_size, req_size))
+
+        fit = fit_util.make_fit(ubman, fsetup['mkimage'], NOLOAD_ITS,
+                                {'kernel': kernel_gz},
+                                basename='test-noload-boundary.fit')
+        fit_addr = fsetup['fit_addr']
+
+        # Decompression at the buffer limit must succeed, returning to the
+        # prompt cleanly and never printing 'Image too large'.
+        output = ubman.run_command_list([
+            'host load hostfs 0 %x %s' % (fit_addr, fit),
+            'bootm start %x' % fit_addr,
+            'bootm loados',
+        ])
+        text = '\n'.join(output)
+        assert 'Image too large' not in text, (
+            "'bootm loados' rejected a kernel_noload image whose decompressed "
+            'size matches its buffer exactly: %s' % text)

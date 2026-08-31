@@ -861,7 +861,7 @@ static int k3_r5f_probe(struct udevice *dev)
 			return 0;
 		}
 
-		ret = k3_r5f_proc_request(core);
+		ret = ti_sci_proc_request(&core->tsp);
 		if (ret)
 			return ret;
 

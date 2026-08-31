@@ -13,10 +13,10 @@
 #define SANDBOX_OF_BUCK_PREFIX		"buck"
 
 #define SANDBOX_BUCK_COUNT	3
-#define SANDBOX_LDO_COUNT	2
+#define SANDBOX_LDO_COUNT	3
 /*
  * Sandbox PMIC registers:
- * We have only 12 significant registers, but we alloc 16 for padding.
+ * We have only 15 significant registers, but we alloc 16 for padding.
  */
 enum {
 	SANDBOX_PMIC_REG_BUCK1_UV = 0,
@@ -35,6 +35,10 @@ enum {
 	SANDBOX_PMIC_REG_LDO2_UV,
 	SANDBOX_PMIC_REG_LDO2_UA,
 	SANDBOX_PMIC_REG_LDO2_OM,
+
+	SANDBOX_PMIC_REG_LDO3_UV,
+	SANDBOX_PMIC_REG_LDO3_UA,
+	SANDBOX_PMIC_REG_LDO3_OM,
 
 	SANDBOX_PMIC_REG_COUNT = 16,
 };
@@ -94,6 +98,11 @@ enum {
 #define OUT_LDO2_UV_MAX		3950000
 #define OUT_LDO2_UV_STEP	50000
 
+/* LDO3 Voltage: min: 0.75V, step: 50mV, max 3.95V */
+#define OUT_LDO3_UV_MIN		750000
+#define OUT_LDO3_UV_MAX		3950000
+#define OUT_LDO3_UV_STEP	50000
+
 /* register <-> value conversion */
 #define REG2VAL(min, step, reg)		((min) + ((step) * (reg)))
 #define VAL2REG(min, step, val)		(((val) - (min)) / (step))
@@ -116,6 +125,8 @@ enum {
 #define SANDBOX_LDO1_PLATNAME	"VDD_EMMC_1.8V"
 #define SANDBOX_LDO2_DEVNAME	"ldo2"
 #define SANDBOX_LDO2_PLATNAME	"VDD_LCD_3.3V"
+#define SANDBOX_LDO3_DEVNAME	"ldo3"
+#define SANDBOX_LDO3_PLATNAME	"SUPPLY_1.8_3.3V"
 
 /*
  * Expected regulators setup after call of:

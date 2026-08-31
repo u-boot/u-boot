@@ -1,29 +1,38 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright (c) 2023-2026 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+ * D-82229 Seefeld, Germany.
+ * Author: Markus Niebel
+ */
 
-#include "imx6qdl-u-boot.dtsi"
+#include "imx6qdl-tqma6-u-boot.dtsi"
 
-/ {
-	wdt-reboot {
-		compatible = "wdt-reboot";
-		wdt = <&wdog1>;
-		bootph-pre-ram;
-	};
+&gpio1 {
+	bootph-pre-ram;
 };
 
-&aips2 {
-	bootph-all;
+&i2c1 {
+	bootph-pre-ram;
 };
 
 &pinctrl_uart2 {
-	bootph-all;
+	bootph-pre-ram;
 };
 
-&soc {
-	bootph-all;
+&pinctrl_usdhc2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_wdog1{
+	bootph-pre-ram;
 };
 
 &uart2 {
-	bootph-all;
+	bootph-pre-ram;
+};
+
+&usdhc2 {
+	bootph-pre-ram;
 };
 
 &wdog1 {

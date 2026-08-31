@@ -9,3 +9,7 @@
 &uart1 { /* console */
 	bootph-pre-ram;
 };
+
+&{/panel} {
+	compatible = "innolux,n125hce-gn1", "simple-panel";
+};

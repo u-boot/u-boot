@@ -132,10 +132,7 @@ static int do_host_unbind(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	ret = device_unbind(dev);
 	if (ret) {
-		printf("Cannot attach file\n");
-		ret = device_unbind(dev);
-		if (ret)
-			printf("Cannot unbind device '%s'\n", dev->name);
+		printf("Cannot unbind device '%s'\n", dev->name);
 		return CMD_RET_FAILURE;
 	}
 

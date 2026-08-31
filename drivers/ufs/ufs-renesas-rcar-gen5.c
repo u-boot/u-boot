@@ -72,7 +72,7 @@ static int ufs_renesas_pre_init(struct ufs_hba *hba)
 	if (ret)
 		return ret;
 
-	writew(0x0000, priv->phy_base + 0x20000);
+	clrbits_le16(priv->phy_base + 0x20000, BIT(0));
 
 	ufshcd_writel(hba, BIT(0), REG_CONTROLLER_ENABLE);
 
@@ -87,6 +87,9 @@ static int ufs_renesas_pre_init(struct ufs_hba *hba)
 				hba, REG_CONTROLLER_STATUS);
 	if (ret)
 		return ret;
+
+	ufshcd_rmwl(hba, 0xe000, 0, 0xc0);
+	ufshcd_rmwl(hba, 0x5000, 0x5000, 0xc0);
 
 	/* Skip IE because we cannot handle interrupts here */
 	ufs_dme_command(hba, 0x00000002, 0x81010000, 0x00000000, 0x00000005);
@@ -133,6 +136,10 @@ static int ufs_renesas_pre_init(struct ufs_hba *hba)
 	if (ret)
 		return ret;
 
+	clrbits_le16(priv->phy_base + 0x20000, BIT(0));
+
+	ufs_dme_command(hba, 0x00000002, 0xd0890000, 0x00000000, 0x00000001);
+
 	priv->initialized = true;
 
 	return 0;
@@ -140,8 +147,7 @@ static int ufs_renesas_pre_init(struct ufs_hba *hba)
 
 static int ufs_renesas_init(struct ufs_hba *hba)
 {
-	hba->quirks |= UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS | UFSHCD_QUIRK_HIBERN_FASTAUTO |
-		       UFSHCD_QUIRK_BROKEN_LCC;
+	hba->quirks |= UFSHCD_QUIRK_HIBERN_FASTAUTO | UFSHCD_QUIRK_BROKEN_LCC;
 
 	return 0;
 }
@@ -180,12 +186,12 @@ static int ufs_renesas_get_max_pwr_mode(struct ufs_hba *hba,
 {
 	max_pwr_info->info.gear_rx = UFS_HS_G5;
 	max_pwr_info->info.gear_tx = UFS_HS_G5;
-	max_pwr_info->info.pwr_tx = FASTAUTO_MODE;
-	max_pwr_info->info.pwr_rx = FASTAUTO_MODE;
-	max_pwr_info->info.hs_rate = PA_HS_MODE_A;
+	max_pwr_info->info.pwr_tx = FAST_MODE;
+	max_pwr_info->info.pwr_rx = FAST_MODE;
+	max_pwr_info->info.hs_rate = PA_HS_MODE_B;
 
-	max_pwr_info->info.lane_rx = 1;
-	max_pwr_info->info.lane_tx = 1;
+	max_pwr_info->info.lane_rx = 2;
+	max_pwr_info->info.lane_tx = 2;
 
 	dev_info(hba->dev, "Max HS Gear: %d\n", max_pwr_info->info.gear_rx);
 

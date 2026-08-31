@@ -22,6 +22,8 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
+#include "sdram_soc32.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -191,24 +193,6 @@ static int sdram_is_ecc_enabled(void)
 {
 	return !!(readl(&socfpga_ecc_hmc_base->eccctrl) &
 		  ALT_ECC_HMC_OCP_ECCCTL_ECC_EN_SET_MSK);
-}
-
-/* Initialize SDRAM ECC bits to avoid false DBE */
-static void sdram_init_ecc_bits(u32 size)
-{
-	icache_enable();
-
-	memset(0, 0, 0x8000);
-	gd->arch.tlb_addr = 0x4000;
-	gd->arch.tlb_size = PGTABLE_SIZE;
-
-	dcache_enable();
-
-	printf("DDRCAL: Scrubbing ECC RAM (%i MiB).\n", size >> 20);
-	memset((void *)0x8000, 0, size - 0x8000);
-	flush_dcache_all();
-	printf("DDRCAL: Scrubbing ECC RAM done.\n");
-	dcache_disable();
 }
 
 /* Function to startup the SDRAM*/
@@ -476,7 +460,6 @@ const struct firewall_entry firewall_table[] = {
 	},
 	{
 		"mpu1",
-		SOCFPGA_SDR_FIREWALL_MPU_FPGA_ADDRESS +
 		SOCFPGA_SDR_FIREWALL_MPU_FPGA_ADDRESS_OFFSET(mpuregion1addr),
 		SOCFPGA_SDR_FIREWALL_MPU_FPGA_ADDRESS_OFFSET(enable),
 		ALT_NOC_FW_DDR_SCR_EN_MPUREG1EN_SET_MSK
@@ -674,9 +657,9 @@ static void sdram_size_check(void)
 
 	debug("DDR: Running SDRAM size sanity check\n");
 
-	ram_check = get_ram_size((long *)gd->bd->bi_dram[0].start,
-				 gd->bd->bi_dram[0].size);
-	if (ram_check != gd->bd->bi_dram[0].size) {
+	ram_check = get_ram_size((long *)gd->dram[0].start,
+				 gd->dram[0].size);
+	if (ram_check != gd->dram[0].size) {
 		puts("DDR: SDRAM size check failed!\n");
 		hang();
 	}
@@ -719,14 +702,14 @@ int ddr_calibration_sequence(void)
 	/* setup the dram info within bd */
 	dram_init_banksize();
 
-	if (gd->ram_size != gd->bd->bi_dram[0].size) {
+	if (gd->ram_size != gd->dram[0].size) {
 		printf("DDR: Warning: DRAM size from device tree (%ld MiB)\n",
-		       gd->bd->bi_dram[0].size >> 20);
+		       gd->dram[0].size >> 20);
 		printf(" mismatch with hardware (%ld MiB).\n",
 		       gd->ram_size >> 20);
 	}
 
-	if (gd->bd->bi_dram[0].size > gd->ram_size) {
+	if (gd->dram[0].size > gd->ram_size) {
 		printf("DDR: Error: DRAM size from device tree is greater\n");
 		printf(" than hardware size.\n");
 		hang();
@@ -735,8 +718,15 @@ int ddr_calibration_sequence(void)
 	if (of_sdram_firewall_setup(gd->fdt_blob))
 		puts("FW: Error Configuring Firewall\n");
 
-	if (sdram_is_ecc_enabled())
-		sdram_init_ecc_bits(gd->ram_size);
+	if (sdram_is_ecc_enabled()) {
+#if IS_ENABLED(CONFIG_SOCFPGA_ECC_SUPPORT)
+		sdram_init_ecc_bits();
+#else
+		puts("DDR: Enable CONFIG_SOCFPGA_ECC_SUPPORT when SDRAM ");
+		puts("ECC is enabled.\n");
+		hang();
+#endif
+	}
 
 	sdram_size_check();
 

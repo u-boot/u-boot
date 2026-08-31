@@ -71,9 +71,9 @@ config ATSHA204A
 	select BITREVERSE
 	depends on MISC
 	help
-	   Enable support for I2C connected Atmel's ATSHA204A
-	   CryptoAuthentication module found for example on the Turris Omnia
-	   board.
+	  Enable support for I2C connected Atmel's ATSHA204A
+	  CryptoAuthentication module found for example on the Turris Omnia
+	  board.
 
 config GATEWORKS_SC
 	bool "Gateworks System Controller Support"
@@ -82,6 +82,15 @@ config GATEWORKS_SC
 	  Enable access for the Gateworks System Controller used on Gateworks
 	  boards to provide a boot watchdog, power control, temperature monitor,
 	  voltage ADCs, and EEPROM.
+
+config GXP_EEPROM
+	bool "HPE GXP EEPROM driver"
+	depends on MISC
+	select NVMEM
+	help
+	  Enable access to the memory-mapped system information area
+	  on HPE GXP BMC SoCs. This region contains board data such as
+	  MAC addresses, serial number, and part number.
 
 config QCOM_GENI
 	bool "Qualcomm Generic Interface (GENI) driver"
@@ -94,7 +103,7 @@ config QCOM_GENI
 	  etc.
 
 config ROCKCHIP_EFUSE
-        bool "Rockchip e-fuse support"
+	bool "Rockchip e-fuse support"
 	depends on MISC
 	help
 	  Enable (read-only) access for the e-fuse block found in Rockchip
@@ -505,7 +514,7 @@ config TURRIS_OMNIA_MCU
 	  board power off.
 
 config USB_HUB_USB251XB
-	tristate "USB251XB Hub Controller Configuration Driver"
+	bool "USB251XB Hub Controller Configuration Driver"
 	depends on I2C
 	help
 	  This option enables support for configuration via SMBus of the
@@ -647,6 +656,7 @@ config IHS_FPGA
 	  gdsys devices, which supply the majority of the functionality offered
 	  by the devices. This driver supports both CON and CPU variants of the
 	  devices, depending on the device tree entry.
+
 config ESM_K3
 	bool "Enable K3 ESM driver"
 	depends on ARCH_K3

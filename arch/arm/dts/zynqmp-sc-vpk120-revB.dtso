@@ -3,7 +3,7 @@
  * dts file for Xilinx ZynqMP VPK120 revB
  *
  * (C) Copyright 2021 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -14,8 +14,7 @@
 /plugin/;
 
 &{/} {
-	compatible = "xlnx,zynqmp-sc-vpk120-revB", "xlnx,zynqmp-vpk120-revB",
-		     "xlnx,zynqmp-vpk120", "xlnx,zynqmp";
+	compatible = "xlnx,zynqmp-sc-vpk120-revB", "xlnx,zynqmp-sc-vpk120", "xlnx,zynqmp";
 };
 
 &i2c0 {

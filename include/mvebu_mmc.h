@@ -253,8 +253,6 @@
 #define MMC_CAP_DRIVER_TYPE_C			(1 << 24)
 /* Host supports Driver Type D */
 #define MMC_CAP_DRIVER_TYPE_D			(1 << 25)
-/* CMD23 supported. */
-#define MMC_CAP_CMD23				(1 << 30)
 /* Hardware reset */
 #define MMC_CAP_HW_RESET			(1 << 31)
 

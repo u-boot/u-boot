@@ -8,6 +8,12 @@ config TARGET_EVB_RK3568
 	help
 	  RK3568 EVB is a evaluation board for Rockchp RK3568.
 
+config TARGET_ANBERNIC_RG_DS_RK3568
+	bool "Anbernic RG DS"
+	help
+	  Anbernic RG DS gaming device with Rockchip RK3568 and dual
+	  displays.
+
 config TARGET_ANBERNIC_RGXX3_RK3566
 	bool "Anbernic RGXX3"
 	help
@@ -71,6 +77,7 @@ config SYS_SOC
 	default "rk3568"
 
 source "board/rockchip/evb_rk3568/Kconfig"
+source "board/anbernic/rg-ds_rk3568/Kconfig"
 source "board/anbernic/rgxx3_rk3566/Kconfig"
 source "board/hardkernel/odroid_m1/Kconfig"
 source "board/hardkernel/odroid_m1s/Kconfig"

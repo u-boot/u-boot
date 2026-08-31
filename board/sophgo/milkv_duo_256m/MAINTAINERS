@@ -1,0 +1,5 @@
+Milk-V Duo 256M
+M:	Hiago De Franco <hfranco@baylibre.com>
+S:	Maintained
+F:	board/sophgo/milkv_duo_256m/
+F:	configs/milkv_duo_256m_defconfig

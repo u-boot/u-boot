@@ -837,7 +837,7 @@ static int dw_mipi_dsi_enable(struct udevice *dev)
 	return 0;
 }
 
-struct dsi_host_ops dw_mipi_dsi_ops = {
+static const struct dsi_host_ops dw_mipi_dsi_ops = {
 	.init = dw_mipi_dsi_init,
 	.enable = dw_mipi_dsi_enable,
 };

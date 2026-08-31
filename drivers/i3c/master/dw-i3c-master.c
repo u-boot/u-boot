@@ -671,8 +671,8 @@ static int dw_i3c_master_daa(struct i3c_master_controller *m)
 
 	for (pos = 0; pos < master->maxdevs; pos++) {
 		if (newdevs & BIT(pos)) {
-			i3c_master_add_i3c_dev_locked(m, master->addrs[pos]);
-			master->i3cdev[pos] = m->this;
+			if (i3c_master_add_i3c_dev_locked(m, master->addrs[pos]))
+				continue;
 			master->num_i3cdevs++;
 		}
 	}
@@ -806,6 +806,7 @@ static int dw_i3c_master_attach_i3c_dev(struct i3c_dev_desc *dev)
 	master->addrs[pos] = dev->info.dyn_addr ? : dev->info.static_addr;
 	master->free_pos &= ~BIT(pos);
 	i3c_dev_set_master_data(dev, data);
+	master->i3cdev[pos] = dev;
 
 	writel(DEV_ADDR_TABLE_DYNAMIC_ADDR(master->addrs[pos]),
 	       master->regs +
@@ -972,7 +973,7 @@ static int dw_i3c_probe(struct udevice *dev)
 	}
 
 	ret = reset_get_bulk(dev, &master->resets);
-	if (ret) {
+	if (ret && ret != -ENOTSUPP && ret != -ENOENT) {
 		dev_err(dev, "Can't get reset: %d\n", ret);
 		return ret;
 	}

@@ -1659,6 +1659,22 @@ static const struct udevice_id eqos_ids[] = {
 		.data = (ulong)&eqos_adi_config
 	},
 #endif
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_MTK)
+	{
+		.compatible = "mediatek,mt8189-gmac",
+		.data = (ulong)&eqos_mtk_config
+	},
+	{
+		.compatible = "mediatek,mt8366-gmac",
+		.data = (ulong)&eqos_mtk_config
+	},
+#endif
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_SUNXI)
+	{
+		.compatible = "allwinner,sun55i-a523-gmac200",
+		.data = (ulong)&eqos_sunxi_config
+	},
+#endif
 	{ }
 };
 

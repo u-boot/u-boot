@@ -1443,7 +1443,6 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
 	if (IS_ERR(newdev))
 		return PTR_ERR(newdev);
 
-	master->this = newdev;
 	ret = i3c_master_attach_i3c_dev(master, newdev);
 	if (ret)
 		goto err_free_dev;

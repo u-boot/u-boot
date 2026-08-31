@@ -1071,7 +1071,7 @@ int of_add_subnode(struct device_node *parent, const char *name, int len,
 		 * make sure we don't use a child called "trevor" when we are
 		 * searching for "trev".
 		 */
-		if (!strncmp(child->name, name, len) && strlen(name) == len) {
+		if (!strncmp(child->name, name, len) && strlen(child->name) == len) {
 			*childp = child;
 			return -EEXIST;
 		}

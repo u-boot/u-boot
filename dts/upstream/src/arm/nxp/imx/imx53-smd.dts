@@ -5,6 +5,7 @@
 
 /dts-v1/;
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/media/video-interfaces.h>
 #include "imx53.dtsi"
 
 / {
@@ -30,6 +31,20 @@
 			gpios = <&gpio2 15 0>;
 			linux,code = <KEY_VOLUMEDOWN>;
 		};
+	};
+
+	reg_1v8: regulator-1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+
+	reg_3v3: regulator-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 	};
 };
 
@@ -253,6 +268,10 @@
 	codec: sgtl5000@a {
 		compatible = "fsl,sgtl5000";
 		reg = <0x0a>;
+		#sound-dai-cells = <0>;
+		clocks = <&clks IMX5_CLK_DUMMY>;
+		VDDA-supply = <&reg_1v8>;
+		VDDIO-supply = <&reg_3v3>;
 	};
 
 	magnetometer: mag3110@e {
@@ -296,6 +315,7 @@
 		port {
 			ov5642_to_ipu_csi0: endpoint {
 				remote-endpoint = <&ipu_csi0_from_parallel_sensor>;
+				bus-type = <MEDIA_BUS_TYPE_PARALLEL>;
 				bus-width = <8>;
 				hsync-active = <1>;
 				vsync-active = <1>;

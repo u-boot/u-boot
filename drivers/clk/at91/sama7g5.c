@@ -1109,7 +1109,7 @@ static const struct pmc_clk_setup sama7g5_clk_setup[] = {
 
 static int sama7g5_clk_probe(struct udevice *dev)
 {
-	void __iomem *base = devfdt_get_addr_ptr(dev);
+	void __iomem *base = dev_read_addr_ptr(dev);
 	unsigned int *clkmuxallocs[SAMA7G5_MAX_MUX_ALLOCS];
 	unsigned int *muxallocs[SAMA7G5_MAX_MUX_ALLOCS];
 	const char *p[10];
@@ -1118,8 +1118,8 @@ static int sama7g5_clk_probe(struct udevice *dev)
 	bool main_osc_bypass;
 	int ret, muxallocindex = 0, clkmuxallocindex = 0, i, j;
 
-	if (IS_ERR(base))
-		return PTR_ERR(base);
+	if (!base)
+		return -EINVAL;
 
 	memset(muxallocs,    0, sizeof(muxallocs));
 	memset(clkmuxallocs, 0, sizeof(clkmuxallocs));

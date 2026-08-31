@@ -12,6 +12,13 @@
 		bootph-pre-ram;
 		bootph-some-ram;
 	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
 };
 
 &A55_0 {

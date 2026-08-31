@@ -619,6 +619,7 @@ struct nvme_dev {
 	u32 page_size;
 	u8 vwc;
 	u64 *prp_pool;
+	uintptr_t prp_pool_dma;
 	u32 prp_entry_num;
 	u32 nn;
 };
@@ -637,7 +638,9 @@ enum nvme_queue_id {
 struct nvme_queue {
 	struct nvme_dev *dev;
 	struct nvme_command *sq_cmds;
+	dma_addr_t sq_dma_addr;
 	struct nvme_completion *cqes;
+	dma_addr_t cq_dma_addr;
 	u32 __iomem *q_db;
 	u16 q_depth;
 	s16 cq_vector;

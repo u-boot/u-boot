@@ -397,8 +397,11 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 	int ret;
 
 	uc_priv = dev_get_uclass_priv(dev);
-	if (gpio_is_claimed(uc_priv, desc->offset))
+	if (gpio_is_claimed(uc_priv, desc->offset)) {
+		dev_dbg(dev, "gpio offset %u already claimed by '%s', requested label '%s'\n",
+			desc->offset, uc_priv->name[desc->offset], label);
 		return -EBUSY;
+	}
 	str = strdup(label);
 	if (!str)
 		return -ENOMEM;
@@ -877,8 +880,19 @@ static int get_function(struct udevice *dev, int offset, bool skip_unused,
 		return -ENODEV;
 	if (offset < 0 || offset >= uc_priv->gpio_count)
 		return -EINVAL;
-	if (namep)
+	if (namep) {
 		*namep = uc_priv->name[offset];
+		/* Fall back to DT "gpio-line-names" for unrequested pins. */
+		if (CONFIG_IS_ENABLED(DM_GPIO_LOOKUP_LINE_NAME) &&
+		    (!*namep || !**namep)) {
+			const char *dt_name = NULL;
+
+			if (!dev_read_string_index(dev, "gpio-line-names",
+						   offset, &dt_name) &&
+			    dt_name && *dt_name)
+				*namep = dt_name;
+		}
+	}
 	if (skip_unused && !gpio_is_claimed(uc_priv, offset))
 		return GPIOF_UNUSED;
 	if (ops->get_function) {

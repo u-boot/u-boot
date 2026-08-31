@@ -9,6 +9,14 @@ config POWER_DOMAIN
 	  domains). This may be used to save power. This API provides the
 	  means to control such power management hardware.
 
+config AGILEX5_PMGR_POWER_DOMAIN
+	bool "Enable the Agilex5 PMGR power domain driver"
+	depends on SPL_POWER_DOMAIN && ARCH_SOCFPGA_SOC64
+	help
+	  Enable support for power gating peripherals' SRAM specified in
+	  the handoff data values obtained from the bitstream to reduce
+	  power consumption.
+
 config APPLE_PMGR_POWER_DOMAIN
 	bool "Enable the Apple PMGR power domain driver"
 	depends on POWER_DOMAIN
@@ -17,14 +25,6 @@ config APPLE_PMGR_POWER_DOMAIN
 	  Enable support for manipulating power domains on Apple SoCs.
 	  This driver is needed to power on parts of the SoC that have
 	  not been powered on by previous boot stages.
-
-config AGILEX5_PMGR_POWER_DOMAIN
-	bool "Enable the Agilex5 PMGR power domain driver"
-	depends on SPL_POWER_DOMAIN && ARCH_SOCFPGA_SOC64
-	help
-	  Enable support for power gating peripherals' SRAM specified in
-	  the handoff data values obtained from the bitstream to reduce
-	  power consumption.
 
 config BCM6328_POWER_DOMAIN
 	bool "Enable the BCM6328 power domain driver"
@@ -35,10 +35,10 @@ config BCM6328_POWER_DOMAIN
 
 config IMX8_POWER_DOMAIN
 	bool "Enable i.MX8 power domain driver"
-        depends on ARCH_IMX8
-        help
-          Enable support for manipulating NXP i.MX8 on-SoC power domains via IPC
-          requests to the SCU.
+	depends on ARCH_IMX8
+	help
+	  Enable support for manipulating NXP i.MX8 on-SoC power domains via IPC
+	  requests to the SCU.
 
 config IMX8M_POWER_DOMAIN
 	bool "Enable i.MX8M power domain driver"
@@ -62,12 +62,12 @@ config IMX8MP_MEDIAMIX_BLKCTRL
 	help
 	  Enable support for manipulating NXP i.MX8MP on-SoC MEDIAMIX block controller.
 
-config MTK_POWER_DOMAIN
-	bool "Enable the MediaTek power domain driver"
-	depends on POWER_DOMAIN && ARCH_MEDIATEK
+config MESON_EE_POWER_DOMAIN
+	bool "Enable Amlogic Everything-Else power domain driver"
+	depends on POWER_DOMAIN && ARCH_MESON
 	help
-	  Enable support for manipulating MediaTek power domains via MMIO
-	  mapped registers.
+	  Enable support for manipulating Amlogic Meson Everything-Else power
+	  domains.
 
 config MESON_GX_VPU_POWER_DOMAIN
 	bool "Enable Amlogic Meson GX VPU power domain driver"
@@ -76,19 +76,46 @@ config MESON_GX_VPU_POWER_DOMAIN
 	  Enable support for manipulating Amlogic Meson GX Video Processing
 	  Unit power domain.
 
-config MESON_EE_POWER_DOMAIN
-	bool "Enable Amlogic Everything-Else power domain driver"
-	depends on POWER_DOMAIN && ARCH_MESON
-	help
-	  Enable support for manipulating Amlogic Meson Everything-Else power
-	  domains.
-
 config MESON_SECURE_POWER_DOMAIN
 	bool "Enable Amlogic Secure power domain driver"
 	depends on POWER_DOMAIN && ARCH_MESON && MESON_A1
 	help
 	  Enable support for manipulating Amlogic Meson Secure power domains.
 	  Support for Amlogic A1 series.
+
+config MT2701_POWER_DOMAIN
+	bool "Enable the MediaTek power domain driver for MT2701 compatible SoC"
+	depends on POWER_DOMAIN && ARCH_MEDIATEK
+	select MTK_POWER_DOMAIN
+	help
+	  Enable support for manipulating MediaTek power domains via MMIO
+	  mapped registers for MT2701 compatible SoC. The driver powers
+	  the SoC power domains on and off and handles the associated bus
+	  protection bits. It is also used on MT7623.
+
+config MT7622_POWER_DOMAIN
+	bool "Enable the MediaTek power domain driver for MT7622 compatible SoC"
+	depends on POWER_DOMAIN && ARCH_MEDIATEK
+	select MTK_POWER_DOMAIN
+	help
+	  Enable support for manipulating MediaTek power domains via MMIO
+	  mapped registers for MT7622 compatible SoC. The driver powers
+	  the SoC power domains on and off and handles the associated bus
+	  protection bits. It is also used on MT7629.
+
+config MT8188_POWER_DOMAIN
+	bool "Enable the MediaTek power domain driver for MT8188 compatible SoC"
+	depends on POWER_DOMAIN && ARCH_MEDIATEK
+	select MTK_POWER_DOMAIN
+	help
+	  Enable support for manipulating MediaTek power domains via MMIO
+	  mapped registers for MT8188 compatible SoC. The driver powers
+	  the SoC power domains on and off and handles the associated bus
+	  protection steps, per-domain clocks and parent domains.
+
+config MTK_POWER_DOMAIN
+	bool
+	depends on POWER_DOMAIN && ARCH_MEDIATEK
 
 config QCOM_RPMH_POWER_DOMAIN
 	bool "Enable the QCOM RPMH Power domain driver"
@@ -128,19 +155,6 @@ config TEGRA186_POWER_DOMAIN
 	  Enable support for manipulating Tegra's on-SoC power domains via IPC
 	  requests to the BPMP (Boot and Power Management Processor).
 
-config TI_SCI_POWER_DOMAIN
-	bool "Enable the TI SCI-based power domain driver"
-	depends on POWER_DOMAIN && TI_SCI_PROTOCOL
-	help
-	  Generic power domain implementation for TI devices implementing the
-	  TI SCI protocol.
-
-config TI_POWER_DOMAIN
-	bool "Enable the TI K3 Power domain driver"
-	depends on POWER_DOMAIN && ARCH_K3
-	help
-	  Generic power domain implementation for TI K3 devices.
-
 config TI_OMAP_PRM_POWER_DOMAIN
 	bool "Enable the TI OMAP PRM power domain driver"
 	depends on POWER_DOMAIN && ARCH_OMAP2PLUS
@@ -148,6 +162,19 @@ config TI_OMAP_PRM_POWER_DOMAIN
 	  Enable support for TI OMAP Power and Reset Manager (PRM) power domains.
 	  The driver is currently a stub to be able to probe devices that
 	  require this type of power domain device.
+
+config TI_POWER_DOMAIN
+	bool "Enable the TI K3 Power domain driver"
+	depends on POWER_DOMAIN && ARCH_K3
+	help
+	  Generic power domain implementation for TI K3 devices.
+
+config TI_SCI_POWER_DOMAIN
+	bool "Enable the TI SCI-based power domain driver"
+	depends on POWER_DOMAIN && TI_SCI_PROTOCOL
+	help
+	  Generic power domain implementation for TI devices implementing the
+	  TI SCI protocol.
 
 config ZYNQMP_POWER_DOMAIN
 	bool "Enable the Xilinx ZynqMP Power domain driver"

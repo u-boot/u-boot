@@ -960,7 +960,7 @@ static int sata_fsl_scan(struct udevice *dev)
 	return 0;
 }
 
-struct ahci_ops sata_fsl_ahci_ops = {
+static const struct ahci_ops sata_fsl_ahci_ops = {
 	.scan = sata_fsl_scan,
 };
 

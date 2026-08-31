@@ -75,10 +75,10 @@ to the user.
 
 Example environment::
 
-    setenv bootmenu_0 Boot 1. kernel=bootm 0x82000000  # Set first menu entry
-    setenv bootmenu_1 Boot 2. kernel=bootm 0x83000000  # Set second menu entry
-    setenv bootmenu_2 Reset board=reset                # Set third menu entry
-    setenv bootmenu_3 U-Boot boot order=boot           # Set fourth menu entry
+    env set bootmenu_0 Boot 1. kernel=bootm 0x82000000  # Set first menu entry
+    env set bootmenu_1 Boot 2. kernel=bootm 0x83000000  # Set second menu entry
+    env set bootmenu_2 Reset board=reset                # Set third menu entry
+    env set bootmenu_3 U-Boot boot order=boot           # Set fourth menu entry
     bootmenu 20        # Run bootmenu with autoboot delay 20s
 
 

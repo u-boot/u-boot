@@ -45,17 +45,17 @@ Where to get help:
 
 In case you have questions about, problems with or contributions for
 U-Boot, you should send a message to the U-Boot mailing list at
-<u-boot@lists.denx.de>. There is also an archive of previous traffic
+<u-boot@lists.u-boot-project.org>. There is also an archive of previous traffic
 on the mailing list - please search the archive before asking FAQ's.
-Please see https://lists.denx.de/pipermail/u-boot and
+Please see https://lists.u-boot-project.org/pipermail/u-boot and
 https://marc.info/?l=u-boot
 
 Where to get source code:
 =========================
 
 The U-Boot source code is maintained in the Git repository at
-https://source.denx.de/u-boot/u-boot.git ; you can browse it online at
-https://source.denx.de/u-boot/u-boot
+https://git.u-boot-project.org/u-boot/u-boot.git ; you can browse it online at
+https://git.u-boot-project.org/u-boot/u-boot
 
 The "Tags" links on this page allow you to download tarballs of
 any version you might be interested in. Official releases are also
@@ -401,7 +401,7 @@ The following options need to be configured:
 - USB Device:
 		Define the below if you wish to use the USB console.
 		Once firmware is rebuilt from a serial console issue the
-		command "setenv stdin usbtty; setenv stdout usbtty" and
+		command "env set stdin usbtty; env set stdout usbtty" and
 		attach your USB cable. The Unix command "dmesg" should print
 		it has found a new device. The environment variable usbtty
 		can be set to gserial or cdc_acm to enable your device to
@@ -707,7 +707,7 @@ The following options need to be configured:
 		The same can be accomplished in a more flexible way
 		for any variable by configuring the type of access
 		to allow for those variables in the ".flags" variable
-		or define CFG_ENV_FLAGS_LIST_STATIC.
+		or by setting CONFIG_ENV_FLAGS_LIST_STATIC.
 
 - Protected RAM:
 		CFG_PRAM
@@ -725,7 +725,7 @@ The following options need to be configured:
 		remaining RAM in a form that can be passed as boot
 		argument to Linux, for instance like that:
 
-			setenv bootargs ... mem=\${mem}
+			env set bootargs ... mem=\${mem}
 			saveenv
 
 		This way you can tell Linux not to use this memory,
@@ -753,8 +753,8 @@ The following options need to be configured:
 		`${name}'; to execute the contents of a variable
 		directly type `$name' at the command prompt.
 
-		Global environment variables are those you use
-		setenv/printenv to work with. To run a command stored
+		Global environment variables are those you use "env set"
+		or "env print" to work with. To run a command stored
 		in such a variable, you need to use the run command,
 		and you must not use the '$' sign to access them.
 
@@ -940,173 +940,6 @@ typically in board_init_f() and board_init_r().
 - CONFIG_BOARD_EARLY_INIT_F: Call board_early_init_f()
 - CONFIG_BOARD_EARLY_INIT_R: Call board_early_init_r()
 - CONFIG_BOARD_LATE_INIT: Call board_late_init()
-
-Configuration Settings:
------------------------
-
-- CONFIG_SYS_LONGHELP: Defined when you want long help messages included;
-		undefine this when you're short of memory.
-
-- CFG_SYS_HELP_CMD_WIDTH: Defined when you want to override the default
-		width of the commands listed in the 'help' command output.
-
-- CONFIG_SYS_PROMPT:	This is what U-Boot prints on the console to
-		prompt for user input.
-
-- CFG_SYS_BAUDRATE_TABLE:
-		List of legal baudrate settings for this board.
-
-- CFG_SYS_MEM_RESERVE_SECURE
-		Only implemented for ARMv8 for now.
-		If defined, the size of CFG_SYS_MEM_RESERVE_SECURE memory
-		is substracted from total RAM and won't be reported to OS.
-		This memory can be used as secure memory. A variable
-		gd->arch.secure_ram is used to track the location. In systems
-		the RAM base is not zero, or RAM is divided into banks,
-		this variable needs to be recalcuated to get the address.
-
-- CFG_SYS_SDRAM_BASE:
-		Physical start address of SDRAM. _Must_ be 0 here.
-
-- CFG_SYS_FLASH_BASE:
-		Physical start address of Flash memory.
-
-- CONFIG_SYS_MALLOC_LEN:
-		Size of DRAM reserved for malloc() use.
-
-- CFG_SYS_BOOTMAPSZ:
-		Maximum size of memory mapped by the startup code of
-		the Linux kernel; all data that must be processed by
-		the Linux kernel (bd_info, boot arguments, FDT blob if
-		used) must be put below this limit, unless "bootm_low"
-		environment variable is defined and non-zero. In such case
-		all data for the Linux kernel must be between "bootm_low"
-		and "bootm_low" + CFG_SYS_BOOTMAPSZ.	 The environment
-		variable "bootm_mapsize" will override the value of
-		CFG_SYS_BOOTMAPSZ.  If CFG_SYS_BOOTMAPSZ is undefined,
-		then the value in "bootm_size" will be used instead.
-
-- CONFIG_SYS_BOOT_GET_CMDLINE:
-		Enables allocating and saving kernel cmdline in space between
-		"bootm_low" and "bootm_low" + BOOTMAPSZ.
-
-- CONFIG_SYS_BOOT_GET_KBD:
-		Enables allocating and saving a kernel copy of the bd_info in
-		space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
-
-- CONFIG_SYS_FLASH_PROTECTION
-		If defined, hardware flash sectors protection is used
-		instead of U-Boot software protection.
-
-- CONFIG_SYS_FLASH_CFI:
-		Define if the flash driver uses extra elements in the
-		common flash structure for storing flash geometry.
-
-- CONFIG_FLASH_CFI_DRIVER
-		This option also enables the building of the cfi_flash driver
-		in the drivers directory
-
-- CONFIG_FLASH_CFI_MTD
-		This option enables the building of the cfi_mtd driver
-		in the drivers directory. The driver exports CFI flash
-		to the MTD layer.
-
-- CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-		Use buffered writes to flash.
-
-- CONFIG_ENV_FLAGS_LIST_DEFAULT
-- CFG_ENV_FLAGS_LIST_STATIC
-	Enable validation of the values given to environment variables when
-	calling env set.  Variables can be restricted to only decimal,
-	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
-	the variables can also be restricted to IP address or MAC address.
-
-	The format of the list is:
-		type_attribute = [s|d|x|b|i|m]
-		access_attribute = [a|r|o|c]
-		attributes = type_attribute[access_attribute]
-		entry = variable_name[:attributes]
-		list = entry[,list]
-
-	The type attributes are:
-		s - String (default)
-		d - Decimal
-		x - Hexadecimal
-		b - Boolean ([1yYtT|0nNfF])
-		i - IP address
-		m - MAC address
-
-	The access attributes are:
-		a - Any (default)
-		r - Read-only
-		o - Write-once
-		c - Change-default
-
-	- CONFIG_ENV_FLAGS_LIST_DEFAULT
-		Define this to a list (string) to define the ".flags"
-		environment variable in the default or embedded environment.
-
-	- CFG_ENV_FLAGS_LIST_STATIC
-		Define this to a list (string) to define validation that
-		should be done if an entry is not found in the ".flags"
-		environment variable.  To override a setting in the static
-		list, simply add an entry for the same variable name to the
-		".flags" variable.
-
-	If CONFIG_REGEX is defined, the variable_name above is evaluated as a
-	regular expression. This allows multiple variables to define the same
-	flags without explicitly listing them for each variable.
-
-The following definitions that deal with the placement and management
-of environment data (variable area); in general, we support the
-following configurations:
-
-BE CAREFUL! The first access to the environment happens quite early
-in U-Boot initialization (when we try to get the setting of for the
-console baudrate). You *MUST* have mapped your NVRAM area then, or
-U-Boot will hang.
-
-Please note that even with NVRAM we still use a copy of the
-environment in RAM: we could work on NVRAM directly, but we want to
-keep settings there always unmodified except somebody uses "saveenv"
-to save the current settings.
-
-BE CAREFUL! For some special cases, the local device can not use
-"saveenv" command. For example, the local device will get the
-environment stored in a remote NOR flash by SRIO or PCIE link,
-but it can not erase, write this NOR flash by SRIO or PCIE interface.
-
-- CONFIG_NAND_ENV_DST
-
-	Defines address in RAM to which the nand_spl code should copy the
-	environment. If redundant environment is used, it will be copied to
-	CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE.
-
-Please note that the environment is read-only until the monitor
-has been relocated to RAM and a RAM copy of the environment has been
-created; also, when using EEPROM you will have to use env_get_f()
-until then to read environment variables.
-
-The environment is protected by a CRC32 checksum. Before the monitor
-is relocated into RAM, as a result of a bad CRC you will be working
-with the compiled-in default environment - *silently*!!! [This is
-necessary, because the first environment variable we need is the
-"baudrate" setting for the console - if we have a bad CRC, we don't
-have any device yet where we could complain.]
-
-Note: once the monitor has been relocated, then it will complain if
-the default environment is used; a new CRC is computed as soon as you
-use the "saveenv" command to store a valid environment.
-
-- CONFIG_DISPLAY_BOARDINFO
-		Display information about the board that U-Boot is running on
-		when U-Boot starts up. The board function checkboard() is called
-		to do this.
-
-- CONFIG_DISPLAY_BOARDINFO_LATE
-		Similar to the previous option, but display this information
-		later, once stdio is running and output goes to the LCD, if
-		present.
 
 Low Level (hardware related) configuration options:
 ---------------------------------------------------
@@ -1822,15 +1655,15 @@ The "bootm" command is used to boot an application that is stored in
 memory (RAM or Flash). In case of a Linux kernel image, the contents
 of the "bootargs" environment variable is passed to the kernel as
 parameters. You can check and modify this variable using the
-"printenv" and "setenv" commands:
+"env print" and "env set" commands:
 
 
-	=> printenv bootargs
+	=> env print bootargs
 	bootargs=root=/dev/ram
 
-	=> setenv bootargs root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
+	=> env set bootargs root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
 
-	=> printenv bootargs
+	=> env print bootargs
 	bootargs=root=/dev/nfs rw nfsroot=10.0.0.2:/LinuxPPC nfsaddrs=10.0.0.99:10.0.0.2
 
 	=> bootm 40020000

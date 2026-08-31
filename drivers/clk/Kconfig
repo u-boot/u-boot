@@ -114,6 +114,13 @@ config CLK_STUB
 	  Enable this to provide a stub clock driver for non-essential clock
 	  controllers.
 
+config SPL_CLK_STUB
+	bool "Stub clock driver"
+	depends on SPL_CLK
+	help
+	  Enable this to provide a stub clock driver in SPL for non-essential
+	  clock controllers
+
 config CLK_BCM6345
 	bool "Clock controller driver for BCM6345"
 	depends on CLK && ARCH_BMIPS
@@ -134,8 +141,8 @@ config CLK_CDCE9XX
 	bool "Enable CDCD9XX clock driver"
 	depends on CLK && ARCH_OMAP2PLUS
 	help
-	   Enable the clock synthesizer driver for CDCE913/925/937/949
-	   series of chips.
+	  Enable the clock synthesizer driver for CDCE913/925/937/949
+	  series of chips.
 
 config CLK_ICS8N3QV01
 	bool "Enable ICS8N3QV01 VCXO driver"
@@ -215,8 +222,15 @@ config CLK_HSDK
 	  Enable this to support the cgu clocks on Synopsys ARC HSDK and
 	  Synopsys ARC HSDK-4xD boards
 
+config CLK_RS9_PCIE
+	tristate "Clock driver for Renesas 9-series PCIe clock generators"
+	depends on CLK
+	help
+	  This driver supports the Renesas 9-series PCIe clock generator
+	  models 9FGV/9DBV/9DMV/9FGL/9DML/9QXL/9SQ.
+
 config CLK_VERSACLOCK
-	tristate "Enable VersaClock 5/6 devices"
+	bool "Enable VersaClock 5/6 devices"
 	depends on CLK
 	depends on CLK_CCF
 	depends on OF_CONTROL
@@ -277,11 +291,12 @@ source "drivers/clk/mvebu/Kconfig"
 source "drivers/clk/owl/Kconfig"
 source "drivers/clk/qcom/Kconfig"
 source "drivers/clk/renesas/Kconfig"
-source "drivers/clk/sophgo/Kconfig"
-source "drivers/clk/sunxi/Kconfig"
 source "drivers/clk/sifive/Kconfig"
+source "drivers/clk/sophgo/Kconfig"
+source "drivers/clk/spacemit/Kconfig"
 source "drivers/clk/starfive/Kconfig"
 source "drivers/clk/stm32/Kconfig"
+source "drivers/clk/sunxi/Kconfig"
 source "drivers/clk/tegra/Kconfig"
 source "drivers/clk/ti/Kconfig"
 source "drivers/clk/thead/Kconfig"

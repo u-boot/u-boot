@@ -325,7 +325,7 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout_ms)
 		if ((status & MMC_STATUS_RDY_FOR_DATA) &&
 		    (status & MMC_STATUS_CURR_STATE) !=
 		     MMC_STATE_PRG)
-			break;
+			return 0;
 
 		if (status & MMC_STATUS_MASK) {
 #if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
@@ -340,14 +340,10 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout_ms)
 		udelay(1000);
 	}
 
-	if (timeout_ms <= 0) {
 #if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		log_err("Timeout waiting card ready\n");
+	log_err("Timeout waiting card ready\n");
 #endif
-		return -ETIMEDOUT;
-	}
-
-	return 0;
+	return -ETIMEDOUT;
 }
 
 int mmc_set_blocklen(struct mmc *mmc, int len)
@@ -461,6 +457,14 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 
+	if (blkcnt > 1 && (mmc->host_caps & MMC_CAP_CMD23)) {
+		cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
+		cmd.cmdarg = blkcnt & 0x0000ffff;
+		cmd.resp_type = MMC_RSP_R1;
+		if (mmc_send_cmd(mmc, &cmd, NULL))
+			return 0;
+	}
+
 	if (blkcnt > 1)
 		cmd.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK;
 	else
@@ -481,7 +485,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	if (mmc_send_cmd(mmc, &cmd, &data))
 		return 0;
 
-	if (blkcnt > 1) {
+	if (blkcnt > 1 && !(mmc->host_caps & MMC_CAP_CMD23)) {
 		if (mmc_send_stop_transmission(mmc, false)) {
 #if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			log_err("mmc fail to send stop cmd\n");
@@ -494,7 +498,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 }
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
-static int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt)
+int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt)
 {
 	if (mmc->cfg->ops->get_b_max)
 		return mmc->cfg->ops->get_b_max(mmc, dst, blkcnt);
@@ -1037,6 +1041,10 @@ static int mmc_get_capabilities(struct mmc *mmc)
 
 	mmc->card_caps = MMC_MODE_1BIT | MMC_CAP(MMC_LEGACY);
 
+	/* CMD23(SET_BLOCK_COUNT) requires eMMC spec v3.1 or above */
+	if (mmc->version < MMC_VERSION_3)
+		mmc->host_caps &= ~MMC_CAP_CMD23;
+
 	if (mmc_host_is_spi(mmc))
 		return 0;
 
@@ -1436,6 +1444,8 @@ static int sd_get_capabilities(struct mmc *mmc)
 
 	if (mmc->scr[0] & SD_DATA_4BIT)
 		mmc->card_caps |= MMC_MODE_4BIT;
+	if (!(mmc->scr[0] & SD_SCR_CMD23_SUPPORT))
+		mmc->host_caps &= ~MMC_CAP_CMD23;
 
 	/* Version 1.0 doesn't support switching */
 	if (mmc->version == SD_VERSION_1_0)
@@ -3177,10 +3187,19 @@ int mmc_deinit(struct mmc *mmc)
 		return 0;
 
 	if (IS_SD(mmc)) {
-		caps_filtered = mmc->card_caps &
-			~(MMC_CAP(UHS_SDR12) | MMC_CAP(UHS_SDR25) |
-			  MMC_CAP(UHS_SDR50) | MMC_CAP(UHS_DDR50) |
-			  MMC_CAP(UHS_SDR104));
+		u32 uhs_mask = UHS_CAPS;
+
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+		/*
+		 * Per SD spec, once a card enters 1.8V signaling it
+		 * cannot revert to 3.3V without a power cycle.
+		 * If the card is operating at 1.8V, keep UHS_SDR12
+		 * as the minimum fallback mode.
+		 */
+		if (mmc_sd_card_using_v18(mmc))
+			uhs_mask &= ~MMC_CAP(UHS_SDR12);
+#endif
+		caps_filtered = mmc->card_caps & ~uhs_mask;
 
 		return sd_select_mode_and_width(mmc, caps_filtered);
 	} else {

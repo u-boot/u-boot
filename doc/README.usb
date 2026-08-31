@@ -118,7 +118,7 @@ The normal U-Boot commands are used with USB networking, but you must
 start USB first. For example:
 
 usb start
-setenv bootfile /tftpboot/uImage
+env set bootfile /tftpboot/uImage
 bootp
 
 

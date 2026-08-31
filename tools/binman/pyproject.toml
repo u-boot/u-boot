@@ -20,7 +20,7 @@ classifiers = [
 
 [project.urls]
 "Homepage" = "https://docs.u-boot-project.org/en/latest/develop/package/index.html"
-"Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
+"Bug Tracker" = "https://git.u-boot-project.org/groups/u-boot/-/issues"
 
 [project.scripts]
 binman = "binman.main:start_binman"

@@ -87,6 +87,9 @@ int regulator_common_set_enable(const struct udevice *dev,
 			}
 		}
 
+		if (enable && plat->off_on_delay_us)
+			udelay(plat->off_on_delay_us);
+
 		ret = dm_gpio_set_value(&plat->gpio, enable);
 		if (ret) {
 			pr_err("Can't set regulator : %s gpio to: %d\n", dev->name,
@@ -96,9 +99,6 @@ int regulator_common_set_enable(const struct udevice *dev,
 
 		if (enable && plat->startup_delay_us)
 			udelay(plat->startup_delay_us);
-
-		if (!enable && plat->off_on_delay_us)
-			udelay(plat->off_on_delay_us);
 
 		if (enable)
 			plat->enable_count++;

@@ -243,6 +243,8 @@ static u32 uib_mailbox_read_request(u32 target_read_addr, phys_addr_t csr_addr)
 		hang();
 	}
 
+	mdelay(1);
+
 	/* Write <target read address> to chms0034 MBRDADDR */
 	debug("%s: #2 Write 0x%x to UIB_R_MBRDADDR\n", __func__, target_read_addr);
 	writel(target_read_addr, csr_addr + UIB_R_MBRDADDR);

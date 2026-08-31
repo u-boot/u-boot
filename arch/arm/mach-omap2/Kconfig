@@ -29,6 +29,25 @@ config OMAP34XX
 	imply SYS_THUMB_BUILD
 	imply TWL4030_POWER
 
+config OMAP44XX
+	bool "OMAP44XX SoC"
+	select DM_EVENT
+	select SPL_USE_TINY_PRINTF
+	select SPL_SYS_NO_VECTOR_TABLE if SPL
+	imply SPL_FS_FAT
+	imply SPL_GPIO
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBDISK_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_MMC
+	imply SPL_POWER
+	imply SPL_SERIAL
+	imply SYS_I2C_OMAP24XX
+	imply SYS_THUMB_BUILD
+	help
+	  Support for OMAP44x SOC from Texas Instruments.
+	  OMAP44x features two Cortex-A9 cores.
+
 config OMAP54XX
 	bool "OMAP54XX SoC"
 	select ARM_CORTEX_A15_CVE_2017_5715
@@ -139,7 +158,7 @@ config SYS_AUTOMATIC_SDRAM_DETECTION
 	bool
 
 choice
-	depends on OMAP54XX
+	depends on OMAP44XX || OMAP54XX
 	prompt "Static or dynamic DDR timing calculations"
 	default SYS_EMIF_PRECALCULATED_TIMING_REGS
 	help
@@ -152,6 +171,7 @@ config SYS_EMIF_PRECALCULATED_TIMING_REGS
 
 config SYS_DEFAULT_LPDDR2_TIMINGS
 	bool "Use default LPDDR2 timing values"
+	depends on !OMAP44XX
 	select SYS_AUTOMATIC_SDRAM_DETECTION
 
 endchoice
@@ -194,6 +214,8 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR_384K
 endif
 
 source "arch/arm/mach-omap2/omap3/Kconfig"
+
+source "arch/arm/mach-omap2/omap4/Kconfig"
 
 source "arch/arm/mach-omap2/omap5/Kconfig"
 

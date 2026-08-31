@@ -40,28 +40,47 @@ char *pxelinux_configfile;
 static err_t net_lwip_tx(struct netif *netif, struct pbuf *p)
 {
 	struct udevice *udev = netif->state;
-	void *pp = NULL;
+	bool pp_allocated = false;
+	u32 plen;
+	void *pp;
 	int err;
 
-	if (CONFIG_IS_ENABLED(LWIP_DEBUG_RXTX)) {
-		printf("net_lwip_tx: %u bytes, udev %s\n", p->len, udev->name);
-		print_hex_dump("net_lwip_tx: ", 0, 16, 1, p->payload, p->len,
-			       true);
-	}
-
-	if ((unsigned long)p->payload % PKTALIGN) {
+	if ((unsigned long)p->payload % PKTALIGN || p->len != p->tot_len) {
 		/*
 		 * Some net drivers have strict alignment requirements and may
 		 * fail or output invalid data if the packet is not aligned.
+		 *
+		 * A packet may also be stored in multiple chained pbufs. In
+		 * this case, assemble the fragments into one contiguous packet
+		 * buffer before passing it to the Ethernet driver.
 		 */
-		pp = memalign(PKTALIGN, p->len);
+
+		pp = memalign(PKTALIGN, p->tot_len);
 		if (!pp)
-			return ERR_ABRT;
-		memcpy(pp, p->payload, p->len);
+			return ERR_MEM;
+
+		pp_allocated = true;
+
+		plen = pbuf_copy_partial(p, pp, p->tot_len, 0);
+		if (plen != p->tot_len) {
+			free(pp);
+			return ERR_BUF;
+		}
+	} else {
+		pp = p->payload;
+		plen = p->len;
 	}
 
-	err = eth_get_ops(udev)->send(udev, pp ? pp : p->payload, p->len);
-	free(pp);
+	if (CONFIG_IS_ENABLED(LWIP_DEBUG_RXTX)) {
+		printf("net_lwip_tx: %u bytes, udev %s\n", plen, udev->name);
+		print_hex_dump("net_lwip_tx: ", 0, 16, 1, pp, plen, true);
+	}
+
+	err = eth_get_ops(udev)->send(udev, pp, plen);
+
+	if (pp_allocated)
+		free(pp);
+
 	if (err) {
 		debug("send error %d\n", err);
 		return ERR_ABRT;

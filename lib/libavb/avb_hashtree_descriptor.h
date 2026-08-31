@@ -21,9 +21,12 @@ extern "C" {
  * AVB_HASHTREE_DESCRIPTOR_FLAGS_DO_NOT_USE_AB: Do not apply the default A/B
  *   partition logic to this partition. This is intentionally a negative boolean
  *   because A/B should be both the default and most used in practice.
+ * AVB_HASHTREE_DESCRIPTOR_FLAGS_CHECK_AT_MOST_ONCE: supports to validate hashes
+ *   at most once in DM-Verity.
  */
 typedef enum {
   AVB_HASHTREE_DESCRIPTOR_FLAGS_DO_NOT_USE_AB = (1 << 0),
+  AVB_HASHTREE_DESCRIPTOR_FLAGS_CHECK_AT_MOST_ONCE = (1 << 1),
 } AvbHashtreeDescriptorFlags;
 
 /* A descriptor containing information about a dm-verity hashtree.

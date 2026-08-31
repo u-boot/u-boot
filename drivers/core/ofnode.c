@@ -130,8 +130,10 @@ int oftree_new(oftree *treep)
 		if (!fdt)
 			return log_msg_ret("fla", -ENOMEM);
 		ret = fdt_create_empty_tree(fdt, size);
-		if (ret)
+		if (ret) {
+			free(fdt);
 			return log_msg_ret("fla", -EINVAL);
+		}
 		oftree_list[oftree_count++] = fdt;
 		tree.fdt = fdt;
 	}
@@ -1798,10 +1800,9 @@ int ofnode_write_prop(ofnode node, const char *propname, const void *value,
 		void *newval;
 
 		if (copy) {
-			newval = malloc(len);
+			newval = memdup(value, len);
 			if (!newval)
 				return log_ret(-ENOMEM);
-			memcpy(newval, value, len);
 			value = newval;
 		}
 		ret = of_write_prop(ofnode_to_np(node), propname, len, value);

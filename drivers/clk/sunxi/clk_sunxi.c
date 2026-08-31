@@ -64,7 +64,7 @@ static int sunxi_clk_disable(struct clk *clk)
 	return sunxi_set_gate(clk, false);
 }
 
-struct clk_ops sunxi_clk_ops = {
+static const struct clk_ops sunxi_clk_ops = {
 	.enable = sunxi_clk_enable,
 	.disable = sunxi_clk_disable,
 };

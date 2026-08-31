@@ -105,6 +105,7 @@ struct clk_map_in {
 #define GEN5_SCMI_SDK_4_30		0x010c0000
 #define GEN5_SCMI_SDK_4_31		0x010d0000
 #define GEN5_SCMI_SDK_4_32		0x010e0000
+#define GEN5_SCMI_SDK_4_36		0x01100000
 
 static const struct clk_map_in gen5_clk_map_dt_sdk_4_28[] = {
 	{ SCP_CLOCK_ID_MDLC_UFS0, 202 },
@@ -186,7 +187,8 @@ static int gen5_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
 		map = gen5_clk_map_dt_sdk_4_28;
 		map_size = ARRAY_SIZE(gen5_clk_map_dt_sdk_4_28);
 	} else if (priv->basever == GEN5_SCMI_SDK_4_31 ||
-		   priv->basever == GEN5_SCMI_SDK_4_32) {
+		   priv->basever == GEN5_SCMI_SDK_4_32 ||
+		   priv->basever == GEN5_SCMI_SDK_4_36) {
 		map = gen5_clk_map_dt_sdk_4_31;
 		map_size = ARRAY_SIZE(gen5_clk_map_dt_sdk_4_31);
 	} else {

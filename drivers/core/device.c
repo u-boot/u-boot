@@ -1147,6 +1147,8 @@ int device_set_name(struct udevice *dev, const char *name)
 	name = strdup(name);
 	if (!name)
 		return -ENOMEM;
+	if (dev_get_flags(dev) & DM_FLAG_NAME_ALLOCED)
+		free((char *)dev->name);
 	dev->name = name;
 	device_set_name_alloced(dev);
 

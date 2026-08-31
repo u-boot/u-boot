@@ -136,7 +136,7 @@ To boot Ubuntu from U-Boot the steps are as follows:
 
 1. Set up the boot arguments. Use the GUID for the partition you want to boot::
 
-   => setenv bootargs root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro
+   => env set bootargs root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro
 
 Here root= tells Linux the location of its root disk. The disk is specified
 by its GUID, using '/dev/disk/by-partuuid/', a Linux path to a 'directory'
@@ -229,7 +229,7 @@ You should also see your boot disk turn up::
 Linux has found the three partitions (sda1-3). Mercifully it doesn't print out
 the GUIDs. In step 1 above we could have used::
 
-   setenv bootargs root=/dev/sda2 ro
+   env set bootargs root=/dev/sda2 ro
 
 instead of the GUID. However if you add another drive to your board the
 numbering may change whereas the GUIDs will not. So if your boot partition
@@ -245,12 +245,12 @@ After a pause you should see a login screen on your display and you are done.
 
 If you want to put this in a script you can use something like this::
 
-   setenv bootargs root=UUID=b2aaf743-0418-4d90-94cc-3e6108d7d968 ro
-   setenv boot zboot 03000000 0 04000000 \${filesize}
-   setenv bootcmd "ext2load scsi 0:2 03000000 /boot/vmlinuz-3.13.0-58-generic; ext2load scsi 0:2 04000000 /boot/initrd.img-3.13.0-58-generic; run boot"
+   env set bootargs root=UUID=b2aaf743-0418-4d90-94cc-3e6108d7d968 ro
+   env set boot zboot 03000000 0 04000000 \${filesize}
+   env set bootcmd "ext2load scsi 0:2 03000000 /boot/vmlinuz-3.13.0-58-generic; ext2load scsi 0:2 04000000 /boot/initrd.img-3.13.0-58-generic; run boot"
    saveenv
 
-The \ is to tell the shell not to evaluate ${filesize} as part of the setenv
+The \ is to tell the shell not to evaluate ${filesize} as part of the env set
 command.
 
 You can also bake this behaviour into your build by hard-coding the

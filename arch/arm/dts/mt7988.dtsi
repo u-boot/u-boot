@@ -106,7 +106,6 @@
 	topckgen: topckgen@1001b000 {
 		compatible = "mediatek,mt7988-topckgen", "syscon";
 		reg = <0 0x1001b000 0 0x1000>;
-		clock-parent = <&apmixedsys>;
 		#clock-cells = <1>;
 	};
 
@@ -129,28 +128,24 @@
 	sgmiisys0: syscon@10060000 {
 		compatible = "mediatek,mt7988-sgmiisys_0", "syscon";
 		reg = <0 0x10060000 0 0x1000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
 	sgmiisys1: syscon@10070000 {
 		compatible = "mediatek,mt7988-sgmiisys_1", "syscon";
 		reg = <0 0x10070000 0 0x1000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
 	usxgmiisys0: syscon@10080000 {
 		compatible = "mediatek,mt7988-usxgmiisys_0", "syscon";
 		reg = <0 0x10080000 0 0x1000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
 	usxgmiisys1: syscon@10081000 {
 		compatible = "mediatek,mt7988-usxgmiisys_1", "syscon";
 		reg = <0 0x10081000 0 0x1000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
@@ -378,21 +373,18 @@
 	xfi_pextp0: syscon@11f20000 {
 		compatible = "mediatek,mt7988-xfi_pextp_0", "syscon";
 		reg = <0 0x11f20000 0 0x10000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
 	xfi_pextp1: syscon@11f30000 {
 		compatible = "mediatek,mt7988-xfi_pextp_1", "syscon";
 		reg = <0 0x11f30000 0 0x10000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
 	xfi_pll: syscon@11f40000 {
 		compatible = "mediatek,mt7988-xfi_pll", "syscon";
 		reg = <0 0x11f40000 0 0x1000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
@@ -400,14 +392,12 @@
 		compatible = "mediatek,mt7988-topmisc", "syscon",
 			     "mediatek,mt7988-power-controller";
 		reg = <0 0x11d10000 0 0x10000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
 	infracfg: infracfg@10001000 {
 		compatible = "mediatek,mt7988-infracfg", "syscon";
 		reg = <0 0x10001000 0 0x1000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
@@ -572,7 +562,6 @@
 	ethdma: syscon@15000000 {
 		compatible = "mediatek,mt7988-ethdma", "syscon";
 		reg = <0 0x15000000 0 0x20000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 		#reset-cells = <1>;
 	};
@@ -580,7 +569,6 @@
 	ethwarp: syscon@15031000 {
 		compatible = "mediatek,mt7988-ethwarp", "syscon";
 		reg = <0 0x15031000 0 0x1000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 		#reset-cells = <1>;
 	};

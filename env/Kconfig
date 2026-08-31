@@ -34,6 +34,29 @@ config ENV_CALLBACK_LIST_STATIC
 	  If the callback name is not specified, then the callback is deleted.
 	  Spaces are also allowed anywhere in the list.
 
+config ENV_FLAGS_LIST_STATIC
+	string "Static flags list"
+	default ""
+	help
+	  The environment flags are associated with variables in a static
+	  list. Define this list in the following format:
+
+	  type_attribute = [s|d|x|b|i|m]
+	  access_attribute = [a|r|o|c|w]
+	  attributes = type_attribute[access_attribute]
+	  entry = variable_name[:attributes]
+	  list = entry[,list]
+
+	  The type attributes are s for string, d for decimal, x for
+	  hexadecimal and b for boolean. If networking is enabled, i can
+	  be used for IP addresses and m for MAC addresses.
+
+	  The access attributes are a for any, r for read-only, o for
+	  write-once and c for change-default. When CONFIG_ENV_WRITEABLE_LIST
+	  is enabled, w can be used to mark variables as writable.
+
+	  Spaces are also allowed anywhere in the list.
+
 config SAVEENV
 	def_bool y if CMD_SAVEENV
 
@@ -715,6 +738,26 @@ config ENV_UBI_VOLUME_REDUND
 	depends on ENV_IS_IN_UBI && ENV_REDUNDANT
 	help
 	  Name of the redundant volume that you want to store the environment in.
+
+config ENV_UBI_VOLUME_CREATE
+	bool "Create UBI volume if it does not exist"
+	depends on ENV_IS_IN_UBI
+	help
+	  This option is useful if U-Boot will be booted from a fresh device
+	  where the environment volume has not been created.
+	  This is a common case where factory UBI image contains only volumes
+	  with valid data.
+	  By enabling this option, any missing environment volumes will be
+	  created before loading.
+	  If ENV_UBI_VOLUME_REDUND is also enabled, both volumes will be
+	  created.
+
+config ENV_UBI_VOLUME_STATIC
+	bool "Create static UBI volume"
+	depends on ENV_UBI_VOLUME_CREATE
+	help
+	  By default environment volume will be dynamic.
+	  Enable this option to create static volume.
 
 config ENV_UBI_VID_OFFSET
 	int "ubi environment VID offset"

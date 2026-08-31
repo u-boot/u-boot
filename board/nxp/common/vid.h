@@ -22,8 +22,9 @@
 #define IR_VDD_STEP_UP			5
 
 /* LTC3882 */
-#define PMBUS_CMD_WRITE_PROTECT         0x10
 /*
+ * PMBUS_WRITE_PROTECT (10h) provided by <pmbus.h>
+ *
  * WRITE_PROTECT command supported values
  * 0x80: Disable all writes except WRITE_PROTECT, PAGE,
  *       STORE_USER_ALL and MFR_EE_UNLOCK commands.
@@ -51,12 +52,14 @@
 #define VDD_MV_MAX			925
 #endif
 
-/* PM Bus commands code for LTC3882*/
+/*
+ * PM Bus commands code for LTC3882. PMBUS_PAGE / PMBUS_READ_VOUT /
+ * PMBUS_VOUT_MODE / PMBUS_VOUT_COMMAND are provided by <pmbus.h>.
+ * PMBUS_CMD_PAGE_PLUS_WRITE (05h) is the LTC3882 SMBus block write
+ * transaction not in <pmbus.h>'s standard subset, so keep its
+ * definition here.
+ */
 #define PWM_CHANNEL0                    0x0
-#define PMBUS_CMD_PAGE                  0x0
-#define PMBUS_CMD_READ_VOUT             0x8B
-#define PMBUS_CMD_VOUT_MODE			0x20
-#define PMBUS_CMD_VOUT_COMMAND          0x21
 #define PMBUS_CMD_PAGE_PLUS_WRITE       0x05
 
 #if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS) || \

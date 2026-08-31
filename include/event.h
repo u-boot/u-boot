@@ -308,44 +308,13 @@ static inline const char *event_spy_id(struct evspy_info *spy)
 #endif
 }
 
-/*
- * It seems that LTO will drop list entries if it decides they are not used,
- * although the conditions that cause this are unclear.
- *
- * The example found is the following:
- *
- * static int sandbox_misc_init_f(void *ctx, struct event *event)
- * {
- *    return sandbox_early_getopt_check();
- * }
- * EVENT_SPY_FULL(EVT_MISC_INIT_F, sandbox_misc_init_f);
- *
- * where EVENT_SPY_FULL uses ll_entry_declare()
- *
- * In this case, LTO decides to drop the sandbox_misc_init_f() function
- * (which is fine) but then drops the linker-list entry too. This means
- * that the code no longer works, in this case sandbox no-longer checks its
- * command-line arguments properly.
- *
- * Without LTO, the KEEP() command in the .lds file is enough to keep the
- * entry around. But with LTO it seems that the entry has already been
- * dropped before the link script is considered.
- *
- * The only solution I can think of is to mark linker-list entries as 'used'
- * using an attribute. This should be safe, since we don't actually want to drop
- * any of these. However this does slightly limit LTO's optimisation choices.
- *
- * Another issue has come up, only with clang: using 'static' makes it throw
- * away the linker-list entry sometimes, e.g. with the EVT_FT_FIXUP entry in
- * vbe_simple.c - so for now, make it global.
- */
 #define EVENT_SPY_FULL(_type, _func) \
-	__used ll_entry_declare(struct evspy_info, _type ## _3_ ## _func, \
+	ll_entry_declare(struct evspy_info, _type ## _3_ ## _func, \
 		evspy_info) = _ESPY_REC(_type, _func)
 
 /* Simple spy with no function arguments */
 #define EVENT_SPY_SIMPLE(_type, _func) \
-	__used ll_entry_declare(struct evspy_info_simple, \
+	ll_entry_declare(struct evspy_info_simple, \
 		_type ## _3_ ## _func, \
 		evspy_info) = _ESPY_REC_SIMPLE(_type, _func)
 

@@ -3,7 +3,7 @@
  * dts file for Xilinx ZynqMP SM-K24 RevA
  *
  * (C) Copyright 2020 - 2021, Xilinx, Inc.
- * (C) Copyright 2022, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022-2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -20,4 +20,9 @@
 		device_type = "memory"; /* 2GB */
 		reg = <0 0 0 0x80000000>;
 	};
+};
+
+&cma {
+	size = <0x0 0x4000000>;
+	alignment = <0x0 0x4000000>;
 };

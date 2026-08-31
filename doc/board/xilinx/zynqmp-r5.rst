@@ -95,7 +95,7 @@ visible from the following log::
   ZYNQ GEM: ff0e0000, mdio bus ff0e0000, phyaddr 12, interface rgmii-id
   eth0: ethernet@ff0e0000
   Hit any key to stop autoboot:  0
-  ZynqMP> setenv autoload no
+  ZynqMP> env set autoload no
   ZynqMP> dhcp
   BOOTP broadcast 1
   DHCP client bound to address 192.168.0.167 (8 ms)
@@ -114,7 +114,7 @@ visible from the following log::
   	 376 KiB/s
   done
   Bytes transferred = 2075464 (1fab48 hex)
-  ZynqMP> setenv autostart no
+  ZynqMP> env set autostart no
   ZynqMP> bootelf -p 20000000
   ZynqMP> cpu 4 release 10000000 lockstep
   Using TCM jump trampoline for address 0x10000000

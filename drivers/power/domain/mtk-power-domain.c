@@ -6,161 +6,15 @@
 
 #include <clk.h>
 #include <dm.h>
-#include <malloc.h>
-#include <power-domain-uclass.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/processor.h>
-#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/iopoll.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 
-#include <dt-bindings/power/mt7623-power.h>
-#include <dt-bindings/power/mt7629-power.h>
-
-#define SPM_EN			(0xb16 << 16 | 0x1)
-#define SPM_VDE_PWR_CON		0x0210
-#define SPM_MFG_PWR_CON		0x0214
-#define SPM_ISP_PWR_CON		0x0238
-#define SPM_DIS_PWR_CON		0x023c
-#define SPM_CONN_PWR_CON	0x0280
-#define SPM_BDP_PWR_CON		0x029c
-#define SPM_ETH_PWR_CON		0x02a0
-#define SPM_HIF_PWR_CON		0x02a4
-#define SPM_IFR_MSC_PWR_CON	0x02a8
-#define SPM_ETHSYS_PWR_CON	0x2e0
-#define SPM_HIF0_PWR_CON	0x2e4
-#define SPM_HIF1_PWR_CON	0x2e8
-#define SPM_PWR_STATUS		0x60c
-#define SPM_PWR_STATUS_2ND	0x610
-
-#define PWR_RST_B_BIT		BIT(0)
-#define PWR_ISO_BIT		BIT(1)
-#define PWR_ON_BIT		BIT(2)
-#define PWR_ON_2ND_BIT		BIT(3)
-#define PWR_CLK_DIS_BIT		BIT(4)
-
-#define PWR_STATUS_CONN		BIT(1)
-#define PWR_STATUS_DISP		BIT(3)
-#define PWR_STATUS_MFG		BIT(4)
-#define PWR_STATUS_ISP		BIT(5)
-#define PWR_STATUS_VDEC		BIT(7)
-#define PWR_STATUS_BDP		BIT(14)
-#define PWR_STATUS_ETH		BIT(15)
-#define PWR_STATUS_HIF		BIT(16)
-#define PWR_STATUS_IFR_MSC	BIT(17)
-#define PWR_STATUS_ETHSYS	BIT(24)
-#define PWR_STATUS_HIF0		BIT(25)
-#define PWR_STATUS_HIF1		BIT(26)
-
-/* Infrasys configuration */
-#define INFRA_TOPDCM_CTRL	0x10
-#define INFRA_TOPAXI_PROT_EN	0x220
-#define INFRA_TOPAXI_PROT_STA1	0x228
-
-#define DCM_TOP_EN		BIT(0)
-
-enum scp_domain_type {
-	SCPSYS_MT7622,
-	SCPSYS_MT7623,
-	SCPSYS_MT7629,
-};
-
-struct scp_domain;
-
-struct scp_domain_data {
-	struct scp_domain *scpd;
-	u32 sta_mask;
-	int ctl_offs;
-	u32 sram_pdn_bits;
-	u32 sram_pdn_ack_bits;
-	u32 bus_prot_mask;
-};
-
-struct scp_domain {
-	void __iomem *base;
-	void __iomem *infracfg;
-	enum scp_domain_type type;
-	struct scp_domain_data *data;
-};
-
-static struct scp_domain_data scp_domain_mt7623[] = {
-	[MT7623_POWER_DOMAIN_CONN] = {
-		.sta_mask = PWR_STATUS_CONN,
-		.ctl_offs = SPM_CONN_PWR_CON,
-		.bus_prot_mask = BIT(8) | BIT(2),
-	},
-	[MT7623_POWER_DOMAIN_DISP] = {
-		.sta_mask = PWR_STATUS_DISP,
-		.ctl_offs = SPM_DIS_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-		.bus_prot_mask = BIT(2),
-	},
-	[MT7623_POWER_DOMAIN_MFG] = {
-		.sta_mask = PWR_STATUS_MFG,
-		.ctl_offs = SPM_MFG_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-		.sram_pdn_ack_bits = GENMASK(12, 12),
-	},
-	[MT7623_POWER_DOMAIN_VDEC] = {
-		.sta_mask = PWR_STATUS_VDEC,
-		.ctl_offs = SPM_VDE_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-		.sram_pdn_ack_bits = GENMASK(12, 12),
-	},
-	[MT7623_POWER_DOMAIN_ISP] = {
-		.sta_mask = PWR_STATUS_ISP,
-		.ctl_offs = SPM_ISP_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-		.sram_pdn_ack_bits = GENMASK(13, 12),
-	},
-	[MT7623_POWER_DOMAIN_BDP] = {
-		.sta_mask = PWR_STATUS_BDP,
-		.ctl_offs = SPM_BDP_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-	},
-	[MT7623_POWER_DOMAIN_ETH] = {
-		.sta_mask = PWR_STATUS_ETH,
-		.ctl_offs = SPM_ETH_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-		.sram_pdn_ack_bits = GENMASK(15, 12),
-	},
-	[MT7623_POWER_DOMAIN_HIF] = {
-		.sta_mask = PWR_STATUS_HIF,
-		.ctl_offs = SPM_HIF_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-		.sram_pdn_ack_bits = GENMASK(15, 12),
-	},
-	[MT7623_POWER_DOMAIN_IFR_MSC] = {
-		.sta_mask = PWR_STATUS_IFR_MSC,
-		.ctl_offs = SPM_IFR_MSC_PWR_CON,
-	},
-};
-
-static struct scp_domain_data scp_domain_mt7629[] = {
-	[MT7629_POWER_DOMAIN_ETHSYS] = {
-		.sta_mask = PWR_STATUS_ETHSYS,
-		.ctl_offs = SPM_ETHSYS_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-		.sram_pdn_ack_bits = GENMASK(15, 12),
-		.bus_prot_mask = (BIT(3) | BIT(17)),
-	},
-	[MT7629_POWER_DOMAIN_HIF0] = {
-		.sta_mask = PWR_STATUS_HIF0,
-		.ctl_offs = SPM_HIF0_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-		.sram_pdn_ack_bits = GENMASK(15, 12),
-		.bus_prot_mask = GENMASK(25, 24),
-	},
-	[MT7629_POWER_DOMAIN_HIF1] = {
-		.sta_mask = PWR_STATUS_HIF1,
-		.ctl_offs = SPM_HIF1_PWR_CON,
-		.sram_pdn_bits = GENMASK(11, 8),
-		.sram_pdn_ack_bits = GENMASK(15, 12),
-		.bus_prot_mask = GENMASK(28, 26),
-	},
-};
+#include "mtk-power-domain.h"
 
 /**
  * This function enables the bus protection bits for disabled power
@@ -189,13 +43,79 @@ static int mtk_infracfg_clear_bus_protection(void __iomem *infracfg,
 				  !(val & mask), 100);
 }
 
-static int scpsys_domain_is_on(struct scp_domain_data *data)
+static int _scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
+				      void __iomem *reg)
 {
-	struct scp_domain *scpd = data->scpd;
-	u32 sta = readl(scpd->base + SPM_PWR_STATUS) &
-			data->sta_mask;
-	u32 sta2 = readl(scpd->base + SPM_PWR_STATUS_2ND) &
-			 data->sta_mask;
+	u32 val = 0, mask = bpd->bus_prot_mask;
+
+	if (!mask)
+		return 0;
+
+	if (bpd->bus_prot_reg_update)
+		clrsetbits_le32(reg + bpd->bus_prot_set, mask, mask);
+	else
+		writel(mask, reg + bpd->bus_prot_set);
+
+	return readl_poll_timeout(reg + bpd->bus_prot_sta, val, (val & mask) == mask, 1000);
+}
+
+static int _scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bpd,
+				       void __iomem *reg)
+{
+	u32 val = 0, mask = bpd->bus_prot_mask;
+
+	if (!mask)
+		return 0;
+
+	if (bpd->bus_prot_reg_update)
+		clrbits_le32(reg + bpd->bus_prot_clr, mask);
+	else
+		writel(mask, reg + bpd->bus_prot_clr);
+
+	if (bpd->ignore_clr_ack)
+		return 0;
+
+	return readl_poll_timeout(reg + bpd->bus_prot_sta, val, !(val & mask), 1000);
+}
+
+static int scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
+				     int bpd_size, void __iomem *reg)
+{
+	int ret, i;
+
+	for (i = 0; i < bpd_size; i++) {
+		ret = _scpsys_bus_protect_enable(&bpd[i], reg);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static int scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bpd,
+				      int bpd_size, void __iomem *reg)
+{
+	int i, ret;
+
+	for (i = bpd_size - 1; i >= 0; i--) {
+		ret = _scpsys_bus_protect_disable(&bpd[i], reg);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static int mtk_scpsys_domain_is_on(struct power_domain *power_domain)
+{
+	struct mtk_scpsys *scpsys = dev_get_priv(power_domain->dev);
+	const struct mtk_scp_domain_data *data = scpsys->domains[power_domain->id].data;
+	u32 spm_pwr_status = data->pwr_sta_offs ?: SPM_PWR_STATUS;
+	u32 spm_pwr_status_2nd = data->pwr_sta2nd_offs ?: SPM_PWR_STATUS_2ND;
+	u32 sta, sta2;
+
+	sta = readl(scpsys->base + spm_pwr_status) & data->sta_mask;
+	sta2 = readl(scpsys->base + spm_pwr_status_2nd) & data->sta_mask;
 
 	/*
 	 * A domain is on when both status bits are set. If only one is set
@@ -209,16 +129,40 @@ static int scpsys_domain_is_on(struct scp_domain_data *data)
 	return -EINVAL;
 }
 
-static int scpsys_power_on(struct power_domain *power_domain)
+static int mtk_scpsys_power_on(struct power_domain *power_domain)
 {
-	struct scp_domain *scpd = dev_get_priv(power_domain->dev);
-	struct scp_domain_data *data = &scpd->data[power_domain->id];
-	void __iomem *ctl_addr = scpd->base + data->ctl_offs;
-	u32 pdn_ack = data->sram_pdn_ack_bits;
+	struct mtk_scpsys *scpsys = dev_get_priv(power_domain->dev);
+	struct mtk_scp_domain *domain;
+	const struct mtk_scp_domain_data *data;
+	void __iomem *ctl_addr;
+	void __iomem *infracfg;
+	u32 pdn_ack;
 	u32 val;
 	int ret, tmp;
 
-	writel(SPM_EN, scpd->base);
+	if (power_domain->id >= scpsys->soc_data->num_domains)
+		return -EINVAL;
+
+	domain = &scpsys->domains[power_domain->id];
+	data = domain->data;
+	if (!data)
+		return -EINVAL;
+
+	ctl_addr = scpsys->base + data->ctl_offs;
+	infracfg = domain->infracfg ? domain->infracfg : scpsys->infracfg;
+	pdn_ack = data->sram_pdn_ack_bits;
+
+	if (domain->has_pd) {
+		ret = power_domain_on(&domain->parent_pd);
+		if (ret)
+			return ret;
+	}
+
+	ret = clk_enable_bulk(&domain->clks);
+	if (ret)
+		return ret;
+
+	writel(SPM_EN, scpsys->base);
 
 	val = readl(ctl_addr);
 	val |= PWR_ON_BIT;
@@ -227,7 +171,7 @@ static int scpsys_power_on(struct power_domain *power_domain)
 	val |= PWR_ON_2ND_BIT;
 	writel(val, ctl_addr);
 
-	ret = readx_poll_timeout(scpsys_domain_is_on, data, tmp, tmp > 0,
+	ret = readx_poll_timeout(mtk_scpsys_domain_is_on, power_domain, tmp, tmp > 0,
 				 100);
 	if (ret < 0)
 		return ret;
@@ -241,6 +185,10 @@ static int scpsys_power_on(struct power_domain *power_domain)
 	val |= PWR_RST_B_BIT;
 	writel(val, ctl_addr);
 
+	ret = clk_enable_bulk(&domain->subsys_clks);
+	if (ret)
+		return ret;
+
 	val &= ~data->sram_pdn_bits;
 	writel(val, ctl_addr);
 
@@ -249,30 +197,51 @@ static int scpsys_power_on(struct power_domain *power_domain)
 		return ret;
 
 	if (data->bus_prot_mask) {
-		ret = mtk_infracfg_clear_bus_protection(scpd->infracfg,
+		ret = mtk_infracfg_clear_bus_protection(infracfg,
 							data->bus_prot_mask);
 		if (ret)
 			return ret;
 	}
+	ret = scpsys_bus_protect_disable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA, infracfg);
+	if (ret < 0)
+		return ret;
 
 	return 0;
 }
 
-static int scpsys_power_off(struct power_domain *power_domain)
+static int mtk_scpsys_power_off(struct power_domain *power_domain)
 {
-	struct scp_domain *scpd = dev_get_priv(power_domain->dev);
-	struct scp_domain_data *data = &scpd->data[power_domain->id];
-	void __iomem *ctl_addr = scpd->base + data->ctl_offs;
-	u32 pdn_ack = data->sram_pdn_ack_bits;
+	struct mtk_scpsys *scpsys = dev_get_priv(power_domain->dev);
+	struct mtk_scp_domain *domain;
+	const struct mtk_scp_domain_data *data;
+	void __iomem *ctl_addr;
+	void __iomem *infracfg;
+	u32 pdn_ack;
 	u32 val;
 	int ret, tmp;
 
+	if (power_domain->id >= scpsys->soc_data->num_domains)
+		return -EINVAL;
+
+	domain = &scpsys->domains[power_domain->id];
+	data = domain->data;
+	if (!data)
+		return -EINVAL;
+
+	ctl_addr = scpsys->base + data->ctl_offs;
+	infracfg = domain->infracfg ?: scpsys->infracfg;
+	pdn_ack = data->sram_pdn_ack_bits;
+
 	if (data->bus_prot_mask) {
-		ret = mtk_infracfg_set_bus_protection(scpd->infracfg,
+		ret = mtk_infracfg_set_bus_protection(infracfg,
 						      data->bus_prot_mask);
 		if (ret)
 			return ret;
 	}
+
+	ret = scpsys_bus_protect_enable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA, infracfg);
+	if (ret < 0)
+		return ret;
 
 	val = readl(ctl_addr);
 	val |= data->sram_pdn_bits;
@@ -281,6 +250,10 @@ static int scpsys_power_off(struct power_domain *power_domain)
 	ret = readl_poll_timeout(ctl_addr, tmp, (tmp & pdn_ack) == pdn_ack,
 				 100);
 	if (ret < 0)
+		return ret;
+
+	ret = clk_disable_bulk(&domain->subsys_clks);
+	if (ret)
 		return ret;
 
 	val |= PWR_ISO_BIT;
@@ -298,60 +271,38 @@ static int scpsys_power_off(struct power_domain *power_domain)
 	val &= ~PWR_ON_2ND_BIT;
 	writel(val, ctl_addr);
 
-	ret = readx_poll_timeout(scpsys_domain_is_on, data, tmp, !tmp, 100);
+	ret = readx_poll_timeout(mtk_scpsys_domain_is_on, power_domain, tmp, !tmp, 100);
 	if (ret < 0)
+		return ret;
+
+	ret = clk_disable_bulk(&domain->clks);
+	if (ret)
 		return ret;
 
 	return 0;
 }
 
-static int scpsys_power_request(struct power_domain *power_domain)
-{
-	struct scp_domain *scpd = dev_get_priv(power_domain->dev);
-	struct scp_domain_data *data;
-
-	data = &scpd->data[power_domain->id];
-	data->scpd = scpd;
-
-	return 0;
-}
-
-static int mtk_power_domain_hook(struct udevice *dev)
-{
-	struct scp_domain *scpd = dev_get_priv(dev);
-
-	scpd->type = (enum scp_domain_type)dev_get_driver_data(dev);
-
-	switch (scpd->type) {
-	case SCPSYS_MT7623:
-		scpd->data = scp_domain_mt7623;
-		break;
-	case SCPSYS_MT7622:
-	case SCPSYS_MT7629:
-		scpd->data = scp_domain_mt7629;
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
-static int mtk_power_domain_probe(struct udevice *dev)
+int mtk_scpsys_probe(struct udevice *dev)
 {
 	struct ofnode_phandle_args args;
-	struct scp_domain *scpd = dev_get_priv(dev);
+	struct mtk_scpsys *scpsys = dev_get_priv(dev);
 	struct regmap *regmap;
 	struct clk_bulk bulk;
-	int err;
+	int err, i;
 
-	scpd->base = dev_read_addr_ptr(dev);
-	if (!scpd->base)
+	scpsys->base = dev_read_addr_ptr(dev);
+	if (!scpsys->base)
 		return -ENOENT;
 
-	err = mtk_power_domain_hook(dev);
-	if (err)
-		return err;
+	scpsys->soc_data = (const struct mtk_scp_soc_data *)dev_get_driver_data(dev);
+
+	scpsys->domains = devm_kcalloc(dev, scpsys->soc_data->num_domains,
+				       sizeof(*scpsys->domains), GFP_KERNEL);
+	if (!scpsys->domains)
+		return -ENOMEM;
+
+	for (i = 0; i < scpsys->soc_data->num_domains; i++)
+		scpsys->domains[i].data = &scpsys->soc_data->data[i];
 
 	/* get corresponding syscon phandle */
 	err = dev_read_phandle_with_args(dev, "infracfg", NULL, 0, 0, &args);
@@ -362,12 +313,12 @@ static int mtk_power_domain_probe(struct udevice *dev)
 	if (IS_ERR(regmap))
 		return PTR_ERR(regmap);
 
-	scpd->infracfg = regmap_get_range(regmap, 0);
-	if (!scpd->infracfg)
+	scpsys->infracfg = regmap_get_range(regmap, 0);
+	if (!scpsys->infracfg)
 		return -ENOENT;
 
 	/* enable Infra DCM */
-	setbits_le32(scpd->infracfg + INFRA_TOPDCM_CTRL, DCM_TOP_EN);
+	setbits_le32(scpsys->infracfg + INFRA_TOPDCM_CTRL, DCM_TOP_EN);
 
 	err = clk_get_bulk(dev, &bulk);
 	if (err)
@@ -376,33 +327,180 @@ static int mtk_power_domain_probe(struct udevice *dev)
 	return clk_enable_bulk(&bulk);
 }
 
-static const struct udevice_id mtk_power_domain_ids[] = {
-	{
-		.compatible = "mediatek,mt7622-scpsys",
-		.data = SCPSYS_MT7622,
-	},
-	{
-		.compatible = "mediatek,mt7623-scpsys",
-		.data = SCPSYS_MT7623,
-	},
-	{
-		.compatible = "mediatek,mt7629-scpsys",
-		.data = SCPSYS_MT7629,
-	},
-	{ /* sentinel */ }
-};
+static int mtk_scpsys_add_one_domain(struct udevice *dev, ofnode node, int parent_id)
+{
+	struct mtk_scpsys *scpsys = dev_get_priv(dev);
+	struct ofnode_phandle_args args;
+	struct mtk_scp_domain *domain;
+	struct regmap *regmap;
+	const char *clk_name;
+	int i, ret, num_clks;
+	u32 id;
 
-struct power_domain_ops mtk_power_domain_ops = {
-	.off = scpsys_power_off,
-	.on = scpsys_power_on,
-	.request = scpsys_power_request,
-};
+	ret = ofnode_read_u32(node, "reg", &id);
+	if (ret) {
+		dev_err(dev, "%s: failed to retrieve domain id from reg: %d\n",
+			ofnode_get_name(node), ret);
+		return ret;
+	}
 
-U_BOOT_DRIVER(mtk_power_domain) = {
-	.name = "mtk_power_domain",
-	.id = UCLASS_POWER_DOMAIN,
-	.ops = &mtk_power_domain_ops,
-	.probe = mtk_power_domain_probe,
-	.of_match = mtk_power_domain_ids,
-	.priv_auto	= sizeof(struct scp_domain),
+	if (id >= scpsys->soc_data->num_domains) {
+		dev_err(dev, "%s: invalid domain id %d\n", ofnode_get_name(node), id);
+		return -EINVAL;
+	}
+
+	domain = &scpsys->domains[id];
+	domain->data = &scpsys->soc_data->data[id];
+
+	if (parent_id >= 0) {
+		domain->has_pd = true;
+		domain->parent_pd.dev = dev;
+		domain->parent_pd.id = parent_id;
+	}
+
+	if (ofnode_read_bool(node, "mediatek,infracfg")) {
+		ret = ofnode_parse_phandle_with_args(node, "mediatek,infracfg", NULL, 0, 0, &args);
+		if (ret)
+			return ret;
+
+		regmap = syscon_node_to_regmap(args.node);
+		if (IS_ERR(regmap))
+			return PTR_ERR(regmap);
+
+		domain->infracfg = regmap_get_range(regmap, 0);
+
+		/* enable Infra DCM */
+		if (domain->infracfg)
+			setbits_le32(domain->infracfg + INFRA_TOPDCM_CTRL,
+				     DCM_TOP_EN);
+	}
+
+	num_clks = ofnode_read_string_count(node, "clock-names");
+	for (i = 0; i < num_clks; i++) {
+		ret = ofnode_read_string_index(node, "clock-names", i, &clk_name);
+		if (ret) {
+			dev_err(dev, "%s: failed to retrieve clock-names at index %i: %d\n",
+				ofnode_get_name(node), i, ret);
+			return ret;
+		}
+
+		if (strchr(clk_name, '-'))
+			domain->subsys_clks.count++;
+		else
+			domain->clks.count++;
+	}
+
+	if (domain->clks.count) {
+		domain->clks.clks = devm_kcalloc(dev, domain->clks.count,
+						 sizeof(struct clk), GFP_KERNEL);
+		if (!domain->clks.clks)
+			return -ENOMEM;
+	}
+
+	if (domain->subsys_clks.count) {
+		domain->subsys_clks.clks = devm_kcalloc(dev,
+							domain->subsys_clks.count,
+							sizeof(struct clk), GFP_KERNEL);
+		if (!domain->subsys_clks.clks)
+			return -ENOMEM;
+	}
+
+	for (i = 0; i < domain->clks.count; i++) {
+		ret = clk_get_by_index_nodev(node, i, &domain->clks.clks[i]);
+		if (ret < 0) {
+			dev_err(dev, "%s: failed to get clk at index %d: %d\n",
+				ofnode_get_name(node), i, ret);
+			goto err_put_clocks;
+		}
+	}
+
+	for (i = 0; i < domain->subsys_clks.count; i++) {
+		ret = clk_get_by_index_nodev(node, i + domain->clks.count,
+					     &domain->subsys_clks.clks[i]);
+		if (ret < 0) {
+			dev_err(dev, "%s: failed to get subsys clk at index %d: %d\n",
+				ofnode_get_name(node), i + domain->clks.count, ret);
+			goto err_put_subsys_clocks;
+		}
+	}
+
+	return 0;
+
+err_put_subsys_clocks:
+	clk_release_all(domain->subsys_clks.clks, domain->subsys_clks.count);
+	domain->subsys_clks.count = 0;
+err_put_clocks:
+	clk_release_all(domain->clks.clks, domain->clks.count);
+	domain->clks.count = 0;
+	domain->data = NULL;
+	return ret;
+}
+
+static int mtk_scpsys_add_subdomain(struct udevice *dev, ofnode node)
+{
+	ofnode subnode;
+	int ret;
+	u32 id;
+
+	ret = ofnode_read_u32(node, "reg", &id);
+	if (ret) {
+		dev_err(dev, "%s: failed to get domain id\n", ofnode_get_name(node));
+		return ret;
+	}
+
+	ofnode_for_each_subnode(subnode, node) {
+		ret = mtk_scpsys_add_one_domain(dev, subnode, id);
+		if (ret) {
+			dev_err(dev, "failed to add child domain: %s\n",
+				ofnode_get_name(subnode));
+			continue;
+		}
+
+		ret = mtk_scpsys_add_subdomain(dev, subnode);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+int mtk_power_controller_probe(struct udevice *dev)
+{
+	struct mtk_scpsys *scpsys = dev_get_priv(dev);
+	ofnode subnode;
+	int ret;
+
+	scpsys->base = dev_read_addr_ptr(dev_get_parent(dev));
+	if (!scpsys->base)
+		return -ENOENT;
+
+	scpsys->soc_data = (const struct mtk_scp_soc_data *)dev_get_driver_data(dev);
+
+	scpsys->domains = devm_kcalloc(dev, scpsys->soc_data->num_domains,
+				       sizeof(*scpsys->domains), GFP_KERNEL);
+	if (!scpsys->domains)
+		return -ENOMEM;
+
+	dev_for_each_subnode(subnode, dev) {
+		ret = mtk_scpsys_add_one_domain(dev, subnode, -1);
+		if (ret) {
+			dev_err(dev, "failed to add child domain: %s\n",
+				ofnode_get_name(subnode));
+			continue;
+		}
+
+		ret = mtk_scpsys_add_subdomain(dev, subnode);
+		if (ret) {
+			dev_err(dev, "failed to add sub domain: %s\n",
+				ofnode_get_name(subnode));
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+const struct power_domain_ops mtk_power_domain_ops = {
+	.off = mtk_scpsys_power_off,
+	.on = mtk_scpsys_power_on,
 };

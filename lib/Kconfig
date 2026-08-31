@@ -283,6 +283,22 @@ config PANIC_HANG
 	  development since you can try to debug the conditions that lead to
 	  the situation.
 
+config PMBUS
+	bool "PMBus 1.x decoder and transport helpers"
+	depends on DM_I2C
+	help
+	  Enable include/pmbus.h and lib/pmbus.c: standard PMBus 1.x
+	  command codes, LINEAR11, LINEAR16, and DIRECT numeric format
+	  decoders, the two stage SMBus block read helper used for
+	  MFR_ID, MFR_MODEL, and MFR_REVISION reads, and the table
+	  driven STATUS_* bit print helper.
+
+	  This is the substrate for any pre kernel PMBus consumer in
+	  U-Boot (board/nxp/common/vid.c rail trim, board local telemetry
+	  diagnostics, future per chip regulator drivers under
+	  drivers/power/regulator/). It is not a hwmon clone. See
+	  doc/develop/pmbus.rst for the policy notes.
+
 config REGEX
 	bool "Enable regular expression support"
 	default y if NET_LEGACY

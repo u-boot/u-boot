@@ -440,7 +440,8 @@ static int rk_nfc_write_page_raw(struct mtd_info *mtd,
 	int i, pages_per_blk;
 
 	pages_per_blk = mtd->erasesize / mtd->writesize;
-	if ((page < (pages_per_blk * rknand->boot_blks)) &&
+	if ((chip->options & NAND_IS_BOOT_MEDIUM) &&
+	    (page < (pages_per_blk * rknand->boot_blks)) &&
 	    rknand->boot_ecc != ecc->strength) {
 		/*
 		 * There's currently no method to notify the MTD framework that
@@ -560,7 +561,8 @@ static int rk_nfc_write_page_hwecc(struct mtd_info *mtd,
 	 *
 	 * Configure the ECC algorithm supported by the boot ROM.
 	 */
-	if (page < (pages_per_blk * rknand->boot_blks)) {
+	if ((page < (pages_per_blk * rknand->boot_blks)) &&
+	    (chip->options & NAND_IS_BOOT_MEDIUM)) {
 		boot_rom_mode = 1;
 		if (rknand->boot_ecc != ecc->strength)
 			rk_nfc_hw_ecc_setup(chip, rknand->boot_ecc);
@@ -624,8 +626,8 @@ static int rk_nfc_read_page_raw(struct mtd_info *mtd,
 	int i, pages_per_blk;
 
 	pages_per_blk = mtd->erasesize / mtd->writesize;
-	if ((page < (pages_per_blk * rknand->boot_blks)) &&
-	    nfc->selected_bank == 0 &&
+	if ((chip->options & NAND_IS_BOOT_MEDIUM) &&
+	    (page < (pages_per_blk * rknand->boot_blks)) &&
 	    rknand->boot_ecc != ecc->strength) {
 		/*
 		 * There's currently no method to notify the MTD framework that
@@ -700,8 +702,8 @@ static int rk_nfc_read_page_hwecc(struct mtd_info *mtd,
 	 * are used by the boot ROM.
 	 * Configure the ECC algorithm supported by the boot ROM.
 	 */
-	if (page < (pages_per_blk * rknand->boot_blks) &&
-	    nfc->selected_bank == 0) {
+	if ((page < (pages_per_blk * rknand->boot_blks)) &&
+	    (chip->options & NAND_IS_BOOT_MEDIUM)) {
 		boot_rom_mode = 1;
 		if (rknand->boot_ecc != ecc->strength)
 			rk_nfc_hw_ecc_setup(chip, rknand->boot_ecc);
@@ -861,6 +863,15 @@ static int rk_nfc_ecc_init(struct rk_nfc *nfc, struct nand_chip *chip)
 	ecc->steps = mtd->writesize / ecc->size;
 	ecc->bytes = DIV_ROUND_UP(ecc->strength * fls(8 * chip->ecc.size), 8);
 
+	rknand->metadata_size = NFC_SYS_DATA_SIZE * ecc->steps;
+
+	if (rknand->metadata_size < NFC_SYS_DATA_SIZE + 2) {
+		dev_err(nfc->dev,
+			"driver needs at least %d bytes of meta data\n",
+			NFC_SYS_DATA_SIZE + 2);
+		return -EIO;
+	}
+
 	if (ecc->bytes * ecc->steps > mtd->oobsize - rknand->metadata_size)
 		return -EINVAL;
 
@@ -973,15 +984,6 @@ static int rk_nfc_nand_chip_init(ofnode node, struct rk_nfc *nfc, int devnum)
 
 	ret = ofnode_read_u32(node, "rockchip,boot-ecc-strength", &tmp);
 	rknand->boot_ecc = ret ? ecc->strength : tmp;
-
-	rknand->metadata_size = NFC_SYS_DATA_SIZE * ecc->steps;
-
-	if (rknand->metadata_size < NFC_SYS_DATA_SIZE + 2) {
-		dev_err(dev,
-			"driver needs at least %d bytes of meta data\n",
-			NFC_SYS_DATA_SIZE + 2);
-		return -EIO;
-	}
 
 	if (!nfc->page_buf) {
 		nfc->page_buf = kzalloc(NFC_MAX_PAGE_SIZE, GFP_KERNEL);

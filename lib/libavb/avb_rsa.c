@@ -3,6 +3,11 @@
  * Copyright (C) 2016 The Android Open Source Project
  */
 
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 /* Implementation of RSA signature verification which uses a pre-processed
  * key for computation. The code extends libmincrypt RSA verification code to
  * support multiple RSA key lengths and hash digest algorithms.
@@ -12,7 +17,6 @@
 #include "avb_sha.h"
 #include "avb_util.h"
 #include "avb_vbmeta_image.h"
-#include <malloc.h>
 
 typedef struct IAvbKey {
   unsigned int len; /* Length of n[] in number of uint32_t */

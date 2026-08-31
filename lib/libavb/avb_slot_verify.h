@@ -69,7 +69,8 @@ typedef enum {
   AVB_HASHTREE_ERROR_MODE_RESTART,
   AVB_HASHTREE_ERROR_MODE_EIO,
   AVB_HASHTREE_ERROR_MODE_LOGGING,
-  AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO
+  AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO,
+  AVB_HASHTREE_ERROR_MODE_PANIC
 } AvbHashtreeErrorMode;
 
 /* Flags that influence how avb_slot_verify() works.
@@ -138,6 +139,7 @@ typedef struct {
   uint8_t* data;
   size_t data_size;
   bool preloaded;
+  AvbSlotVerifyResult verify_result;
 } AvbPartitionData;
 
 /* AvbVBMetaData contains a vbmeta struct loaded from a partition when
@@ -291,7 +293,7 @@ typedef struct {
  * in |out_digest| which must be large enough to hold a digest
  * of the requested type.
  */
-void avb_slot_verify_data_calculate_vbmeta_digest(AvbSlotVerifyData* data,
+void avb_slot_verify_data_calculate_vbmeta_digest(const AvbSlotVerifyData* data,
                                                   AvbDigestType digest_type,
                                                   uint8_t* out_digest);
 

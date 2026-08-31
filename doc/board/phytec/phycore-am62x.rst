@@ -60,7 +60,7 @@ Set the variables corresponding to this platform:
  $ # we don't use any extra TFA parameters
  $ unset TFA_EXTRA_ARGS
  $ export OPTEE_PLATFORM=k3-am62x
- $ # we dont use any extra OPTEE parameters
+ $ # we don't use any extra OPTEE parameters
  $ unset OPTEE_EXTRA_ARGS
 
 .. include::  ../ti/am62x_sk.rst
@@ -176,6 +176,25 @@ Boot switches should be changed with power off.
    * - USB DFU
      - 11001010
      - 00100000
+
+DDR RAM Size
+------------
+
+By default, the R5 SPL detects the populated DDR size by reading the SoM
+EEPROM and configures the DDR controller and the U-Boot device-tree memory
+node accordingly. The phyCORE-AM62x is available with 1 GB, 2 GB, or 4 GB of
+DDR. If the EEPROM cannot be read or is invalid, the SPL falls back to a
+2 GB configuration.
+
+EEPROM-based detection can be bypassed by enabling
+`CONFIG_PHYCORE_AM62X_RAM_SIZE_FIX` in the R5 defconfig and selecting one of:
+
+* `CONFIG_PHYCORE_AM62X_RAM_SIZE_1GB`
+* `CONFIG_PHYCORE_AM62X_RAM_SIZE_2GB`
+* `CONFIG_PHYCORE_AM62X_RAM_SIZE_4GB`
+
+This is mainly useful if no detection is needed or for boards without a
+populated SoM EEPROM.
 
 .. include:: k3-common.rst
 

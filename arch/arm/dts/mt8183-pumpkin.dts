@@ -88,10 +88,6 @@
 };
 
 &usb {
-	status = "okay";
-};
-
-&ssusb {
 	mediatek,force-vbus;
 	maximum-speed = "high-speed";
 	dr_mode = "peripheral";

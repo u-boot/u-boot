@@ -150,9 +150,9 @@ config TARGET_SAM9X60EK
 	select BOARD_LATE_INIT
 
 config TARGET_SAM9X60_CURIOSITY
-        bool "SAM9X60 CURIOSITY board"
-        select SAM9X60
-        select BOARD_LATE_INIT
+	bool "SAM9X60 CURIOSITY board"
+	select SAM9X60
+	select BOARD_LATE_INIT
 
 config TARGET_SAM9X75_CURIOSITY
 	bool "SAM9X75 CURIOSITY board"
@@ -270,9 +270,9 @@ config TARGET_CORVUS
 	imply CMD_DM
 
 config TARGET_SAMA7G5EK
-       bool "SAMA7G5 EK board"
-       select SAMA7G5
-       select BOARD_LATE_INIT
+	bool "SAMA7G5 EK board"
+	select SAMA7G5
+	select BOARD_LATE_INIT
 
 config TARGET_SAMA7G54_CURIOSITY
 	bool "SAMA7G54 CURIOSITY board"

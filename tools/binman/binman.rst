@@ -2161,6 +2161,11 @@ BINMAN_INDIRS
     Sets the search path for input files used by binman by adding one or more
     `-I` arguments. See :ref:`External blobs`.
 
+KEYDIR
+    Sets the key directory passed to FIT entries by adding a
+    `-a keydir=$(KEYDIR)` argument. FIT entries use this directory for
+    mkimage's `-k` argument when `fit,sign` or `fit,encrypt` is enabled.
+
 BINMAN_TOOLPATHS
     Sets the search path for external tool used by binman by adding one or more
     `--toolpath` arguments. See :ref:`External tools`.

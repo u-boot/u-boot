@@ -126,19 +126,6 @@
 	status = "okay";
 };
 
-&usb3_dwc3 {
-	bootph-pre-ram;
-	dr_mode = "otg";
-	hnp-disable;
-	srp-disable;
-	adp-disable;
-	usb-role-switch;
-	role-switch-default-mode = "peripheral";
-	snps,dis-u1-entry-quirk;
-	snps,dis-u2-entry-quirk;
-	status = "okay";
-};
-
 &usb3_phy {
 	bootph-pre-ram;
 	orientation-switch;
@@ -151,10 +138,6 @@
 
 &usdhc2 {
 	bootph-pre-ram;
-};
-
-&wdog3 {
-	status = "disabled";
 };
 
 &xspi1 {
@@ -275,4 +258,32 @@
 
 &pinctrl_usdhc2_gpio {
 	bootph-pre-ram;
+};
+
+&pcal6416_i2c3_u46 {
+	label = "u46";
+};
+
+&pcal6416_i2c3_u171 {
+	label = "u171";
+};
+
+&pcal6416_i2c3_u48 {
+	label = "u48";
+};
+
+&pcal6408_i2c3_u172 {
+	label = "u172";
+};
+
+&pcal6416_i2c6_u50 {
+	label = "u50";
+};
+
+&pcal6408_i2c6_u170 {
+	label = "u170";
+};
+
+&pcal6416_i2c6_u44 {
+	label = "u44";
 };

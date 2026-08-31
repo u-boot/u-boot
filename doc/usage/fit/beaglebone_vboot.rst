@@ -169,7 +169,6 @@ Put this into a file in that directory called sign.its::
                 signature-1 {
                     algo = "sha256,rsa2048";
                     key-name-hint = "dev";
-                    sign-images = "fdt", "kernel";
                 };
             };
         };
@@ -178,7 +177,8 @@ Put this into a file in that directory called sign.its::
 
 The explanation for this is all in the documentation you have already read.
 But briefly it packages a kernel and device tree, and provides a single
-configuration to be signed with a key named 'dev'. The kernel is compressed
+configuration to be signed with a key named 'dev'. The configuration signature
+covers all images referenced by the configuration. The kernel is compressed
 with LZO to make it smaller.
 
 
@@ -407,7 +407,6 @@ First we can check which nodes are actually hashed by the configuration::
     value
     algo
     key-name-hint
-    sign-images
 
     $ fdtget image.fit /configurations/conf-1/signature-1 hashed-nodes
     / /configurations/conf-1 /images/fdt-1 /images/fdt-1/hash /images/kernel /images/kernel/hash-1
@@ -518,13 +517,13 @@ Here the card is /dev/sde::
 
 Boot the board using the commands below::
 
-    setenv bootargs console=ttyO0,115200n8 quiet root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait
+    env set bootargs console=ttyO0,115200n8 quiet root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait
     ext2load mmc 0:2 82000000 /boot/image.fit
     bootm 82000000
 
 You should then see something like this::
 
-    U-Boot# setenv bootargs console=ttyO0,115200n8 quiet root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait
+    U-Boot# env set bootargs console=ttyO0,115200n8 quiet root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait
     U-Boot# ext2load mmc 0:2 82000000 /boot/image.fit
     7824930 bytes read in 589 ms (12.7 MiB/s)
     U-Boot# bootm 82000000

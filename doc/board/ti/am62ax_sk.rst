@@ -185,7 +185,202 @@ https://www.ti.com/lit/pdf/spruj16 under the `Boot Mode Pins` section.
      - 00000000
      - 11001010
 
-For SW2 and SW1, the switch state in the "ON" position = 1.
+   * - Ethernet
+     - 00110000
+     - 11000100
+
+For SW3 and SW2, the switch state in the "ON" position = 1.
+
+Ethernet based boot
+-------------------
+
+To boot the board via Ethernet, configure the BOOT MODE pins for Ethernet boot.
+
+On powering on the device, ROM uses the Ethernet Port corresponding to CPSW3G's MAC
+Port 1 to transmit "TI K3 Bootp Boot".
+
+The TFTP server and DHCP server on the receiver device need to be configured such
+that VCI string "TI K3 Bootp Boot" maps to the file `tiboot3.bin` and the TFTP
+server should be capable of transferring it to the device.
+
+**Configuring DHCP server includes following steps:**
+
+* Install DHCP server:
+
+.. prompt:: bash $
+
+  sudo apt install isc-dhcp-server
+
+* Disable services before configuring:
+
+.. prompt:: bash $
+
+  sudo systemctl disable --now isc-dhcp-server.service isc-dhcp-server6.service
+
+* DHCP server setup
+
+Run the ip link or ifconfig command to find the name of your network interface:
+
+Example
+
+.. code-block::
+
+  eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.0.0.5  netmask 255.255.255.0  broadcast 10.0.0.255
+        inet6 fe80::1a2b:3c4d:5e6f:7a8b  prefixlen 64  scopeid 0x20<link>
+        ether aa:bb:cc:dd:ee:ff  txqueuelen 1000  (Ethernet)
+        RX packets 100000  bytes 120000000 (120.0 MB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 50000  bytes 6000000 (6.0 MB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+  enx001122334455: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+          ether 00:11:22:33:44:55  txqueuelen 1000  (Ethernet)
+          RX packets 200  bytes 64000 (64.0 KB)
+          RX errors 0  dropped 0  overruns 0  frame 0
+          TX packets 150  bytes 20000 (20.0 KB)
+          TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+  lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+          inet 127.0.0.1  netmask 255.0.0.0
+          inet6 ::1  prefixlen 128  scopeid 0x10<host>
+          loop  txqueuelen 1000  (Local Loopback)
+          RX packets 10000  bytes 800000 (800.0 KB)
+          RX errors 0  dropped 0  overruns 0  frame 0
+          TX packets 10000  bytes 800000 (800.0 KB)
+          TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+Suppose we are using enx001122334455 interface, one end of it is connected to host PC
+and other to board.
+
+* Do the following changes in /etc/dhcp/dhcpd.conf in host PC.
+
+.. code-block::
+
+  subnet 192.168.0.0 netmask 255.255.254.0
+  {
+  range dynamic-bootp 192.168.0.2 192.168.0.5;
+  if substring (option vendor-class-identifier, 0, 16) = "TI K3 Bootp Boot"
+  {
+  filename "tiboot3.bin";
+  } elsif substring (option vendor-class-identifier, 0, 20) = "AM62AX U-Boot R5 SPL"
+  {
+  filename "tispl.bin";
+  } elsif substring (option vendor-class-identifier, 0, 21) = "AM62AX U-Boot A53 SPL"
+  {
+  filename "u-boot.img";
+  }
+  default-lease-time 60000;
+  max-lease-time 720000;
+  next-server 192.168.0.1;
+  }
+
+* Do following changes in /etc/default/isc-dhcp-server
+
+.. code-block::
+
+  DHCPDv4_CONF=/etc/dhcp/dhcpd.conf
+  INTERFACESv4="enx001122334455"
+  INTERFACESv6=""
+
+* For your interface change ip address and netmask to next-server and your netmask
+
+.. prompt:: bash $
+
+  sudo ifconfig enx001122334455 192.168.0.1 netmask 255.255.254.0
+
+* Enable DHCP
+
+.. prompt:: bash $
+
+  sudo systemctl enable --now isc-dhcp-server
+
+* To see if there is any configuration error or if dhcp is running run
+
+.. prompt:: bash $
+
+  sudo service isc-dhcp-server status
+  # If it shows error then something is wrong with configuration
+
+**For TFTP setup follow below steps:**
+
+* Install TFTP server:
+
+.. prompt:: bash $
+
+  sudo apt install tftpd-hpa
+
+tftpd-hpa package should be installed.
+
+Now, check whether the tftpd-hpa service is running with the following command:
+
+.. prompt:: bash $
+
+  sudo systemctl status tftpd-hpa
+
+* Configuring TFTP server:
+
+The default configuration file of tftpd-hpa server is /etc/default/tftpd-hpa.
+If you want to configure the TFTP server, then you have to modify this configuration
+file and restart the tftpd-hpa service afterword.
+
+To modify the /etc/default/tftpd-hpa configuration file, run the following command
+
+.. prompt:: bash $
+
+  sudo vim /etc/default/tftpd-hpa
+
+Configuration file may contain following configuration options by default:
+
+.. code-block::
+
+  # /etc/default/tftpd-hpa
+
+  TFTP_USERNAME="tftp"
+  TFTP_DIRECTORY="/var/lib/tftpboot"
+  TFTP_ADDRESS=":69"
+  TFTP_OPTIONS="--secure"
+
+Now change the **TFTP_DIRECTORY** to **/tftp** and add the **--create** option to the
+**TFTP_OPTIONS**. Without the **--create** option, you won't be able to create or upload
+new files to the TFTP server. You will only be able to update existing files.
+
+After above changes /etc/default/tftpd-hpa file would look like this:
+
+.. code-block::
+
+  # /etc/default/tftpd-hpa
+
+  TFTP_USERNAME="tftp"
+  TFTP_DIRECTORY="/tftp"
+  TFTP_ADDRESS=":69"
+  TFTP_OPTIONS="--secure --create"
+
+Since we have configured tftp directory as /tftp, put tiboot3.bin, tispl.bin
+and u-boot.img after building it using sdk or manually cloning all the repos.
+
+To build binaries use following defconfig files:
+
+.. code-block::
+
+  am62ax_evm_r5_ethboot_defconfig
+  am62ax_evm_a53_ethboot_defconfig
+
+`tiboot3.bin` is expected to be built from `am62ax_evm_r5_ethboot_defconfig` and
+`tispl.bin` and `u-boot.img` are expected to be built from
+`am62ax_evm_a53_ethboot_defconfig`.
+
+Images should get fetched in following sequence as a part of boot procedure:
+
+.. code-block::
+
+  tiboot3.bin => tispl.bin => u-boot.img
+
+ROM loads and executes `tiboot3.bin` provided by the TFTP server.
+
+Next, based on NET_VCI_STRING string mentioned in respective defconfig file `tiboot3.bin`
+fetches `tispl.bin` and then `tispl.bin` fetches `u-boot.img` from TFTP server which
+completes Ethernet boot on the device.
 
 Falcon Mode
 -----------

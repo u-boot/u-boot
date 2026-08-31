@@ -348,19 +348,7 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 	}
 
 	if (i < IMAGE_AMT && i > IMAGE_ID_DM_FW) {
-		int device_type = get_device_type();
-
-		if ((device_type == K3_DEVICE_TYPE_HS_SE &&
-		     strcmp(os, "tifsstub-hs")) ||
-		   (device_type == K3_DEVICE_TYPE_HS_FS &&
-		     strcmp(os, "tifsstub-fs")) ||
-		   (device_type == K3_DEVICE_TYPE_GP &&
-		     strcmp(os, "tifsstub-gp"))) {
-			*p_size = 0;
-		} else {
-			debug("tifsstub-type: %s\n", os);
-		}
-
+		debug("tifsstub-type: %s\n", os);
 		return;
 	}
 

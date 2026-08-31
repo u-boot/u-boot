@@ -96,7 +96,7 @@ SECTIONS
 	{
 		KEEP(*(.__secure_stack_start))
 
-		/* Skip addreses for stack */
+		/* Skip addresses for stack */
 		. = . + CONFIG_ARMV7_PSCI_NR_CPUS * ARM_PSCI_STACK_SIZE;
 
 		/* Align end of stack section to page boundary */

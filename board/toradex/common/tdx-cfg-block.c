@@ -190,6 +190,18 @@ const struct toradex_som toradex_modules[] = {
 	{ VERDIN_IMX95H_4G_WB_IT,                "Verdin iMX95 Hexa 4GB WB IT",          TARGET_IS_ENABLED(VERDIN_IMX95)         },
 	{ VERDIN_IMX95H_4G_ET,                   "Verdin iMX95 Hexa 4GB ET",             TARGET_IS_ENABLED(VERDIN_IMX95)         },
 	{ VERDIN_IMX95H_16G_IT,                  "Verdin iMX95 Hexa 16GB IT",            TARGET_IS_ENABLED(VERDIN_IMX95)         },
+	{ SMARC_IMX95_HEXA_4GB_IT,               "SMARC iMX95 Hexa 4GB IT",              TARGET_IS_ENABLED(TORADEX_SMARC_IMX95)  },
+	{ AQUILA_TDA4O_8GB_IT,                   "Aquila TDA4 Octa 8GB IT",              TARGET_IS_ENABLED(AQUILA_AM69_A72)      },
+	{ APALIS_IMX8QM_4GB_WIFI_BT_IT_64G,      "Apalis iMX8QM 4GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)          },
+	{ APALIS_IMX8QM_4GB_IT_64G,              "Apalis iMX8QM 4GB IT",                 TARGET_IS_ENABLED(APALIS_IMX8)          },
+	{ APALIS_IMX8QM_8GB_WIFI_BT_IT_64G,      "Apalis iMX8QM 8GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)          },
+	{ VERDIN_IMX8MPQ_4GB_WIFI_BT_IT_64G,     "Verdin iMX8M Plus Quad 4GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)        },
+	{ VERDIN_IMX8MPQ_4GB_IT_64G,             "Verdin iMX8M Plus Quad 4GB IT",        TARGET_IS_ENABLED(VERDIN_IMX8MP)        },
+	{ VERDIN_IMX8MPQ_8GB_WIFI_BT_IT_64G,     "Verdin iMX8M Plus Quad 8GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)        },
+	{ VERDIN_IMX8MMQ_2G_WIFI_BT_IT_64G,      "Verdin iMX8M Mini Quad 2GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MM)        },
+	{ SMARC_IMX8MPQ_4GB_WB_IT_64G,           "SMARC iMX8M Plus Quad 4GB WB IT",      TARGET_IS_ENABLED(TORADEX_SMARC_IMX8MP) },
+	{ VERDIN_AM62D_1G_WIFI_BT_ET,            "Verdin AM62 Dual 1GB WB ET",           TARGET_IS_ENABLED(VERDIN_AM62_A53)      },
+	{ AQUILA_IMX95_HEXA_8GB_IT,              "Aquila iMX95 Hexa 8GB IT",             TARGET_IS_ENABLED(AQUILA_IMX95)         },
 };
 
 struct pid4list {
@@ -216,20 +228,6 @@ const u32 toradex_ouis[] = {
 	[0] = 0x00142dUL,
 	[1] = 0x8c06cbUL,
 };
-
-int get_toradex_modules_idx(int pid4)
-{
-	int i, index = 0;
-
-	for (i = 1; i < ARRAY_SIZE(toradex_modules); i++) {
-		if (pid4 == toradex_modules[i].pid4) {
-			index = i;
-			break;
-		}
-	}
-
-	return index;
-}
 
 const char * const get_toradex_carrier_boards(int pid4)
 {
@@ -404,7 +402,7 @@ static int write_tdx_cfg_block_to_eeprom(unsigned char *config_block)
 
 int read_tdx_cfg_block(void)
 {
-	int idx, ret = 0;
+	int ret = 0;
 	u8 *config_block = NULL;
 	struct toradex_tag *tag;
 	size_t size = TDX_CFG_BLOCK_MAX_SIZE;
@@ -472,11 +470,6 @@ int read_tdx_cfg_block(void)
 		offset += tag->len * 4;
 	}
 
-	/* Cap product id to avoid issues with a yet unknown one */
-	idx = get_toradex_modules_idx(tdx_hw_tag.prodid);
-	if (!toradex_modules[idx].pid4)
-		tdx_hw_tag.prodid = 0;
-
 out:
 	free(config_block);
 	return ret;
@@ -500,24 +493,16 @@ static int get_cfgblock_interactive(void)
 	int len = 0;
 	int ret = 0;
 	unsigned int prodid;
-	int i, idx;
 
-	printf("Enabled modules:\n");
-	for (i = 0; i < ARRAY_SIZE(toradex_modules); i++) {
-		if (toradex_modules[i].is_enabled)
-			printf(" %04d %s\n", toradex_modules[i].pid4,
-			       toradex_modules[i].name);
-	}
-
-	snprintf(message, sizeof(message), "Enter the module ID: ");
+	snprintf(message, sizeof(message), "Enter the module PID4: ");
 	len = cli_readline(message);
 
-	prodid = dectoul(console_buffer, NULL);
-	idx = get_toradex_modules_idx(prodid);
-	if (!toradex_modules[idx].pid4 || !toradex_modules[idx].is_enabled) {
-		printf("Parsing module id failed\n");
-		return -1;
+	if (len > 4) {
+		printf("Invalid module PID4. Too many digits\n");
+		return -EINVAL;
 	}
+
+	prodid = dectoul(console_buffer, NULL);
 	tdx_hw_tag.prodid = prodid;
 
 	len = 0;

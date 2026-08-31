@@ -24,7 +24,9 @@ properties:
           - starfive,jh7110-axi-dma
           - starfive,jh8100-axi-dma
       - items:
-          - const: altr,agilex5-axi-dma
+          - enum:
+              - altr,agilex5-axi-dma
+              - sophgo,cv1800b-axi-dma
           - const: snps,axi-dma-1.01a
 
   reg:
@@ -67,6 +69,8 @@ properties:
     maximum: 8
 
   dma-noncoherent: true
+
+  dma-coherent: true
 
   resets:
     minItems: 1

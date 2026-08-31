@@ -49,6 +49,7 @@ Implementation
    logging
    makefiles
    menus
+   pmbus
    printf
    smbios
    spl

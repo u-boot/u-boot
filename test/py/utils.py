@@ -51,6 +51,19 @@ def md5sum_file(fn, max_length=None):
         data = fh.read(*params)
     return md5sum_data(data)
 
+def generate_file(file_name, file_size):
+    """ Generates a file filled with 'x'.
+
+    Args:
+        file_name: the file's name.
+        file_size: the content's length and therefore the file size.
+    """
+    content = 'x' * file_size
+
+    file = open(file_name, 'w')
+    file.write(content)
+    file.close()
+
 class PersistentRandomFile:
     """Generate and store information about a persistent file containing
     random data."""

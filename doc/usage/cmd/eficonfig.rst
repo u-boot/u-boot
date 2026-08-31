@@ -61,7 +61,7 @@ Auto boot with the UEFI Boot Option
 To do auto boot according to the UEFI BootOrder variable,
 add "bootefi bootmgr" entry as a default or first bootmenu entry::
 
-    CONFIG_PREBOOT="setenv bootmenu_0 UEFI Boot Manager=bootefi bootmgr; setenv bootmenu_1 UEFI Maintenance Menu=eficonfig"
+    CONFIG_PREBOOT="env set bootmenu_0 UEFI Boot Manager=bootefi bootmgr; env set bootmenu_1 UEFI Maintenance Menu=eficonfig"
 
 UEFI Secure Boot Configuration
 ''''''''''''''''''''''''''''''
@@ -84,7 +84,7 @@ If CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE is enabled, the user can not enter
 U-Boot console. In this case, the bootmenu can be used to invoke "eficonfig"::
 
     CONFIG_USE_PREBOOT=y
-    CONFIG_PREBOOT="setenv bootmenu_0 UEFI Maintenance Menu=eficonfig"
+    CONFIG_PREBOOT="env set bootmenu_0 UEFI Maintenance Menu=eficonfig"
 
 The only way U-Boot can currently store EFI variables on a tamper
 resistant medium is via OP-TEE. The Kconfig option that enables that is::

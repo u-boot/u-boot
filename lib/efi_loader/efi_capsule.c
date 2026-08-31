@@ -860,7 +860,11 @@ static efi_status_t get_dp_device(u16 *boot_var,
 	if (!buf)
 		return EFI_NOT_FOUND;
 
-	efi_deserialize_load_option(&lo, buf, &size);
+	ret = efi_deserialize_load_option(&lo, buf, &size);
+	if (ret != EFI_SUCCESS) {
+		log_err("Invalid load option %ls\n", boot_var);
+		goto out;
+	}
 
 	if (lo.attributes & LOAD_OPTION_ACTIVE) {
 		efi_dp_split_file_path(lo.file_path, device_dp, &file_dp);
@@ -871,6 +875,7 @@ static efi_status_t get_dp_device(u16 *boot_var,
 		ret = EFI_NOT_FOUND;
 	}
 
+out:
 	free(buf);
 
 	return ret;

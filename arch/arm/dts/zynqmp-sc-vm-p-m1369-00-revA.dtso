@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP VM-P-M1369-00
  *
- * Copyright (C) 2024, Advanced Micro Devices, Inc.
+ * Copyright (C) 2024-2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -18,66 +18,82 @@
 
 	ina226-u19 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_soc_ina 0>, <&vcc_soc_ina 1>, <&vcc_soc_ina 2>;
 	};
 	ina226-u287 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_ram_ina 0>, <&vcc_ram_ina 1>, <&vcc_ram_ina 2>;
 	};
 	ina226-u288 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_pslp_ina 0>, <&vcc_pslp_ina 1>, <&vcc_pslp_ina 2>;
 	};
 	ina226-u289 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vccaux_ina 0>, <&vccaux_ina 1>, <&vccaux_ina 2>;
 	};
 	ina226-u290 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vccaux_pmc_ina 0>, <&vccaux_pmc_ina 1>, <&vccaux_pmc_ina 2>;
 	};
 	ina226-u291 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_500_ina 0>, <&vcco_500_ina 1>, <&vcco_500_ina 2>;
 	};
 	ina226-u292 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_501_ina 0>, <&vcco_501_ina 1>, <&vcco_501_ina 2>;
 	};
 	ina226-u293 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_502_ina 0>, <&vcco_502_ina 1>, <&vcco_502_ina 2>;
 	};
 	ina226-u294 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcco_503_ina 0>, <&vcco_503_ina 1>, <&vcco_503_ina 2>;
 	};
 	ina226-u295 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_ddr5_rdimm_ina 0>, <&vcc_ddr5_rdimm_ina 1>, <&vcc_ddr5_rdimm_ina 2>;
 	};
 	ina226-u298 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&lp5_1v0_ina 0>, <&lp5_1v0_ina 1>, <&lp5_1v0_ina 2>;
 	};
 	ina226-u296 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_fmc_ina 0>, <&vcc_fmc_ina 1>, <&vcc_fmc_ina 2>;
 	};
 	ina226-u299 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&gtm_avcc_ina 0>, <&gtm_avcc_ina 1>, <&gtm_avcc_ina 2>;
 	};
 	ina226-u300 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&gtm_avtt_ina 0>, <&gtm_avtt_ina 1>, <&gtm_avtt_ina 2>;
 	};
 	ina226-u301 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&gtm_avccaux_ina 0>, <&gtm_avccaux_ina 1>, <&gtm_avccaux_ina 2>;
 	};
 	ina226-u297 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&vcc_mipi_ina 0>, <&vcc_mipi_ina 1>, <&vcc_mipi_ina 2>;
 	};
 };
@@ -393,7 +409,7 @@
 	};
 
 	/* connected via J425 connector
-	 ucd90320: power-sequencer@73 { // u16
+	ucd90320: power-sequencer@73 { // u16
 		compatible = "ti,ucd90320";
 		reg = <0x73>;
 	};*/

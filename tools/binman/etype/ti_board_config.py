@@ -38,6 +38,8 @@ class Entry_ti_board_config(Entry_section):
         - config-file: File containing board configuration data in YAML
         - schema-file: File containing board configuration YAML schema against
           which the config file is validated
+        - sw-rev: Software revision for the board config binary header
+          (optional, default 1)
 
     Output files:
         - board config binary: File containing board configuration binary
@@ -80,11 +82,11 @@ class Entry_ti_board_config(Entry_section):
         self._fmt = '<HHHBB'
         self._index = 0
         self._binary_offset = 0
-        self._sw_rev = 1
         self._devgrp = 0
 
     def ReadNode(self):
         super().ReadNode()
+        self._sw_rev = fdt_util.GetInt(self._node, 'sw-rev', 1)
         self._config = fdt_util.GetString(self._node, 'config')
         self._schema = fdt_util.GetString(self._node, 'schema')
         # Depending on whether config file is present in node, we determine

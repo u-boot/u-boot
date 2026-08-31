@@ -7,6 +7,7 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <dm.h>
+#include <linux/delay.h>
 #include <wdt.h>
 
 /*
@@ -51,11 +52,9 @@ struct ulp_wdt_priv {
 #define CLK_RATE_1KHZ			1000
 #define CLK_RATE_32KHZ			125
 
-void hw_watchdog_set_timeout(u16 val)
+void hw_watchdog_set_timeout(struct wdog_regs *wdog, u16 val)
 {
 	/* setting timeout value */
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
-
 	writel(val, &wdog->toval);
 }
 
@@ -89,7 +88,7 @@ void ulp_watchdog_init(struct wdog_regs *wdog, u16 timeout)
 	while (!(readl(&wdog->cs) & WDGCS_ULK))
 		;
 
-	hw_watchdog_set_timeout(timeout);
+	hw_watchdog_set_timeout(wdog, timeout);
 	writel(0, &wdog->win);
 
 	/* setting 1-kHz clock source, enable counter running, and clear interrupt */
@@ -107,57 +106,20 @@ void ulp_watchdog_init(struct wdog_regs *wdog, u16 timeout)
 	ulp_watchdog_reset(wdog);
 }
 
-void hw_watchdog_reset(void)
-{
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
-
-	ulp_watchdog_reset(wdog);
-}
-
-void hw_watchdog_init(void)
-{
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
-
-	ulp_watchdog_init(wdog, CONFIG_WATCHDOG_TIMEOUT_MSECS);
-}
-
-#if !CONFIG_IS_ENABLED(SYSRESET)
+#if !CONFIG_IS_ENABLED(SYSRESET) && CONFIG_IS_ENABLED(WDT)
 void reset_cpu(void)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
-	u32 cmd32 = 0;
+	struct udevice *wdt;
 
-	if (readl(&wdog->cs) & WDGCS_CMD32EN) {
-		writel(UNLOCK_WORD, &wdog->cnt);
-		cmd32 = WDGCS_CMD32EN;
-	} else {
-		dmb();
-		__raw_writel(UNLOCK_WORD0, &wdog->cnt);
-		__raw_writel(UNLOCK_WORD1, &wdog->cnt);
-		dmb();
+	for (uclass_first_device(UCLASS_WDT, &wdt);
+	     wdt;
+	     uclass_next_device(&wdt)) {
+		if (!dev_read_enabled(wdt))
+			continue;
+
+		wdt_expire_now(wdt, 0);
+		break;
 	}
-
-	/* Wait WDOG Unlock */
-	while (!(readl(&wdog->cs) & WDGCS_ULK))
-		;
-
-	hw_watchdog_set_timeout(5); /* 5ms timeout for general; 40ms timeout for imx93 */
-	writel(0, &wdog->win);
-
-	/* enable counter running */
-	if (IS_ENABLED(CONFIG_ARCH_IMX9))
-		writel((cmd32 | WDGCS_WDGE | (WDG_LPO_CLK << 8) | WDOG_CS_PRES |
-		       WDGCS_INT), &wdog->cs);
-	else
-		writel((cmd32 | WDGCS_WDGE | (WDG_LPO_CLK << 8)), &wdog->cs);
-
-	/* Wait WDOG reconfiguration */
-	while (!(readl(&wdog->cs) & WDGCS_RCS))
-		;
-
-	hw_watchdog_reset();
-
-	while (1);
 }
 #endif
 
@@ -184,6 +146,20 @@ static int ulp_wdt_reset(struct udevice *dev)
 	return 0;
 }
 
+static int ulp_wdt_expire_now(struct udevice *dev, ulong flags)
+{
+	int ret;
+
+	/* 5ms timeout for all others; 40ms timeout for "fsl,imx93-wdt" */
+	ret = ulp_wdt_start(dev, 5, flags);
+	if (ret)
+		return ret;
+
+	mdelay(50);
+
+	return 0;
+}
+
 static int ulp_wdt_probe(struct udevice *dev)
 {
 	struct ulp_wdt_priv *priv = dev_get_priv(dev);
@@ -202,6 +178,7 @@ static int ulp_wdt_probe(struct udevice *dev)
 static const struct wdt_ops ulp_wdt_ops = {
 	.start = ulp_wdt_start,
 	.reset = ulp_wdt_reset,
+	.expire_now = ulp_wdt_expire_now,
 };
 
 static const struct udevice_id ulp_wdt_ids[] = {

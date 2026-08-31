@@ -387,7 +387,7 @@ int imx_mu_of_xlate(struct mbox_chan *chan, struct ofnode_phandle_args *args)
 	return plat->dcfg->of_xlate(chan, args);
 }
 
-struct mbox_ops imx_mu_ops = {
+static const struct mbox_ops imx_mu_ops = {
 	.of_xlate = imx_mu_of_xlate,
 	.request  = imx_mu_chan_request,
 	.rfree    = imx_mu_chan_free,

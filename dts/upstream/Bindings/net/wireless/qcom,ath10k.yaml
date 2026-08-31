@@ -158,7 +158,13 @@ properties:
     description: State bits used by the AP to signal the WLAN Q6.
     items:
       - description: Signal bits used to enable/disable low power mode
-                     on WCN in the case of WoW (Wake on Wireless).
+          on WCN in the case of WoW (Wake on Wireless).
+        items:
+          - description: Phandle to the Shared Memory Point 2 Point device
+              handling the communication with a remote processor
+          - description: Single bit index to toggle in the value sent to
+              the remote processor
+            maximum: 32
 
   qcom,smem-state-names:
     description: The names of the state bits used for SMP2P output.
@@ -170,6 +176,12 @@ properties:
     description:
       Quirk specifying that the firmware expects the 8bit version
       of the host capability QMI request
+
+  qcom,snoc-host-cap-skip-quirk:
+    type: boolean
+    description:
+      Quirk specifying that the firmware wants to skip the host
+      capability QMI request
 
   qcom,xo-cal-data:
     $ref: /schemas/types.yaml#/definitions/uint32
@@ -291,6 +303,11 @@ allOf:
 
       required:
         - interrupts
+
+  - not:
+      required:
+        - qcom,snoc-host-cap-8bit-quirk
+        - qcom,snoc-host-cap-skip-quirk
 
 examples:
   # SNoC

@@ -384,6 +384,14 @@ static int read_slotted_partition(struct blk_desc *desc, const char *const name,
 	if (ret < 0)
 		return log_msg_ret("part", ret);
 
+	/*
+	 * The image size comes from the (untrusted) boot image header, so bound
+	 * the read by the partition size: a valid image cannot be larger than
+	 * the partition holding it.
+	 */
+	if (num_blks > partition.size)
+		return log_msg_ret("image larger than partition", -EFBIG);
+
 	n = blk_dread(desc, partition.start, num_blks, map_sysmem(addr, 0));
 	if (n < num_blks)
 		return log_msg_ret("part read", -EIO);
@@ -428,7 +436,7 @@ static int run_avb_verification(struct bootflow *bflow)
 	const char * const requested_partitions[] = {"boot", "vendor_boot", NULL};
 	struct AvbOps *avb_ops;
 	AvbSlotVerifyResult result;
-	AvbSlotVerifyData *out_data;
+	AvbSlotVerifyData *out_data = NULL;
 	enum avb_boot_state boot_state;
 	char *extra_args;
 	char slot_suffix[3] = "";
@@ -443,8 +451,10 @@ static int run_avb_verification(struct bootflow *bflow)
 		sprintf(slot_suffix, "_%s", priv->slot);
 
 	ret = avb_ops->read_is_device_unlocked(avb_ops, &unlocked);
-	if (ret != AVB_IO_RESULT_OK)
-		return log_msg_ret("avb lock", -EIO);
+	if (ret != AVB_IO_RESULT_OK) {
+		ret = log_msg_ret("avb lock", -EIO);
+		goto out;
+	}
 
 	result = avb_slot_verify(avb_ops,
 				 requested_partitions,
@@ -458,9 +468,8 @@ static int run_avb_verification(struct bootflow *bflow)
 		if (result != AVB_SLOT_VERIFY_RESULT_OK) {
 			printf("Verification failed, reason: %s\n",
 			       str_avb_slot_error(result));
-			if (out_data)
-				avb_slot_verify_data_free(out_data);
-			return log_msg_ret("avb verify", -EIO);
+			ret = log_msg_ret("avb verify", -EIO);
+			goto out;
 		}
 		boot_state = AVB_GREEN;
 	} else {
@@ -469,9 +478,8 @@ static int run_avb_verification(struct bootflow *bflow)
 		    result != AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION) {
 			printf("Unlocked verification failed, reason: %s\n",
 			       str_avb_slot_error(result));
-			if (out_data)
-				avb_slot_verify_data_free(out_data);
-			return log_msg_ret("avb verify unlocked", -EIO);
+			ret = log_msg_ret("avb verify unlocked", -EIO);
+			goto out;
 		}
 		boot_state = AVB_ORANGE;
 	}
@@ -480,23 +488,28 @@ static int run_avb_verification(struct bootflow *bflow)
 	if (extra_args) {
 		/* extra_args will be modified after this. This is fine */
 		ret = avb_append_commandline_arg(bflow, extra_args);
-		if (ret < 0)
-			goto free_out_data;
+		if (ret < 0) {
+			ret = log_msg_ret("avb cmdline", ret);
+			goto out;
+		}
 	}
 
 	if (result == AVB_SLOT_VERIFY_RESULT_OK) {
 		ret = avb_append_commandline(bflow, out_data->cmdline);
-		if (ret < 0)
-			goto free_out_data;
+		if (ret < 0) {
+			ret = log_msg_ret("avb cmdline", ret);
+			goto out;
+		}
 	}
 
-	return 0;
+	ret = 0;
 
- free_out_data:
+ out:
 	if (out_data)
 		avb_slot_verify_data_free(out_data);
+	avb_ops_free(avb_ops);
 
-	return log_msg_ret("avb cmdline", ret);
+	return ret;
 }
 #else
 static int run_avb_verification(struct bootflow *bflow)

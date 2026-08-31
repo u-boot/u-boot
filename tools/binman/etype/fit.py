@@ -105,18 +105,20 @@ class Entry_fit(Entry_section):
         fit,sign
             Enable signing FIT images via mkimage as described in
             verified-boot.rst.
-            If the property is found and fit,engine is not set, the private
-            keys path is detected among binman include directories and passed to
-            mkimage via -k flag. All the keys required for signing FIT must be
-            available at time of signing and must be located in single include
-            directory.
+            If the property is found and fit,engine is not set, the `keydir`
+            entry argument is passed to mkimage via the -k flag. If no key
+            directory is provided, the private keys path is detected among
+            binman include directories. All the keys required for signing FIT
+            must be available at time of signing and must be located in a
+            single directory.
 
         fit,encrypt
             Enable data encryption in FIT images via mkimage. If the property
-            is found, the keys path is detected among binman include
-            directories and passed to mkimage via  -k flag. All the keys
-            required for encrypting the FIT must be available at the time of
-            encrypting and must be located in a single include directory.
+            is found, the `keydir` entry argument is passed to mkimage via the
+            -k flag. If no key directory is provided, the keys path is detected
+            among binman include directories. All the keys required for
+            encrypting the FIT must be available at the time of encrypting and
+            must be located in a single directory.
 
             Incompatible with fit,engine.
 
@@ -317,6 +319,32 @@ class Entry_fit(Entry_section):
             Generates a `load = <...>` property with the load address of the
             segment
 
+            Note: The load address comes from the ELF file's program headers.
+            To determine where an ELF file will be loaded, you can:
+
+            1. Use readelf to examine the program headers:
+
+               ``readelf -l your_elf_file.elf``
+
+               Look for the LOAD segments and their VirtAddr (Virtual Address)
+
+            2. Check the linker script (.lds file) used to build the ELF:
+               look for the `. = <address>;` statements which set the location
+               counter and determine load addresses for different sections
+
+            3. Use objdump to see section addresses:
+
+               ``objdump -h your_elf_file.elf``
+
+            For example, in binman tests, elf_sections.lds sets the ATF load
+            address to 0x00000010, while elf_sections_tee.lds sets the TEE
+            load address to 0x00100010 to avoid memory overlap conflicts.
+
+            Note that the mkimage load address overlap check compares the
+            packaged data size of each image, so it assumes uncompressed
+            images: a compressed image occupies more memory after
+            decompression than the check accounts for.
+
         fit,entry
             Generates a `entry = <...>` property with the entry address of the
             ELF. This is only produced for the first entry
@@ -485,6 +513,7 @@ class Entry_fit(Entry_section):
                 includes 'generator' entries which are used to create the FIT,
                 but should not be processed as real entries. This is set up once
                 we have the entries
+            _keydir (str): Key directory from the keydir EntryArg, if provided
             _loadables (list of str): List of generated split-elf nodes, each
                 a node name
             _remove_props (list of str): Value of of-spl-remove-props EntryArg,
@@ -502,8 +531,9 @@ class Entry_fit(Entry_section):
         self._priv_entries = {}
         self._loadables = []
         self._remove_props = []
-        props = self.GetEntryArgsOrProps(
-            [EntryArg('of-spl-remove-props', str)], required=False)[0]
+        props, self._keydir = self.GetEntryArgsOrProps(
+            [EntryArg('of-spl-remove-props', str),
+             EntryArg('keydir', str)], required=False)
         if props:
             self._remove_props = props.split()
         self.mkimage = None
@@ -701,7 +731,7 @@ class Entry_fit(Entry_section):
             args.update({'engine': engine})
             # If no engine, keys must exist locally, find them
             if engine is None:
-                keydir = self._get_keys_dir(data)
+                keydir = self._keydir or self._get_keys_dir(data)
             elif self._fit_props.get('fit,encrypt') is not None:
                 self.Raise('fit,engine currently does not support encryption')
 

@@ -59,4 +59,21 @@ config SYSINFO_GPIO
 	  This ternary number is then mapped to a board revision name using
 	  device tree properties.
 
+config SYSINFO_TQ_EEPROM
+	bool "Enable TQ-Systems EEPROM sysinfo driver"
+	depends on I2C_EEPROM
+	depends on SPL_I2C_EEPROM || !SPL_SYSINFO
+	select NVMEM
+	help
+	  Support querying EEPROM of TQ-Systems SOMs to determine board
+	  information.
+
+config SYSINFO_GXP
+	bool "HPE GXP sysinfo driver"
+	depends on ARCH_GXP && GXP_EEPROM
+	default y if ARCH_GXP
+	help
+	  Support querying board information for HPE GXP BMC SoCs.
+	  Uses the GXP EEPROM driver to retrieve serial and part numbers.
+
 endif

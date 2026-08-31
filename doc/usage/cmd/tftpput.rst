@@ -48,7 +48,7 @@ In the example the following steps are executed:
 
 ::
 
-    => setenv autoload no
+    => env set autoload no
     => dhcp
     BOOTP broadcast 1
     DHCP client bound to address 192.168.1.40 (7 ms)

@@ -744,79 +744,86 @@ static const struct mtk_gate top_clks[] = {
 	GATE_TOP5(CLK_TOP_APLL12_DIV6, CLK_TOP_APLL12_CK_DIV6, 8),
 };
 
-static const struct mtk_clk_tree mt8516_clk_tree = {
+static const struct mtk_clk_tree mt8516_apmixed_clk_tree = {
 	.pll_parent = EXT_PARENT(CLK_PAD_CLK26M),
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.plls = apmixed_plls,
+	.num_plls = ARRAY_SIZE(apmixed_plls),
+	.type = MTK_CLK_TREE_APMIXED,
+};
+
+static const struct mtk_clk_tree mt8516_topckgen_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.fdivs_offs = CLK_TOP_DMPLL,
 	.muxes_offs = CLK_TOP_UART0_SEL,
-	.plls = apmixed_plls,
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
-	.num_plls = ARRAY_SIZE(apmixed_plls),
 	.num_fclks = ARRAY_SIZE(top_fixed_clks),
 	.num_fdivs = ARRAY_SIZE(top_fixed_divs),
 	.num_muxes = ARRAY_SIZE(top_muxes),
+	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
-static int mt8516_apmixedsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt8516_clk_tree);
-}
-
-static int mt8516_topckgen_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt8516_clk_tree);
-}
-
-static int mt8516_topckgen_cg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt8516_clk_tree, top_clks,
-					ARRAY_SIZE(top_clks), 0);
-}
+static const struct mtk_clk_tree mt8516_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = top_clks,
+	.num_gates = ARRAY_SIZE(top_clks),
+};
 
 static const struct udevice_id mt8516_apmixed_compat[] = {
-	{ .compatible = "mediatek,mt8516-apmixedsys", },
+	{
+		.compatible = "mediatek,mt8516-apmixedsys",
+		.data = (ulong)&mt8516_apmixed_clk_tree,
+	},
 	{ }
 };
 
 static const struct udevice_id mt8516_topckgen_compat[] = {
-	{ .compatible = "mediatek,mt8516-topckgen", },
+	{
+		.compatible = "mediatek,mt8516-topckgen",
+		.data = (ulong)&mt8516_topckgen_clk_tree,
+	},
 	{ }
 };
 
 static const struct udevice_id mt8516_topckgen_cg_compat[] = {
-	{ .compatible = "mediatek,mt8516-topckgen-cg", },
+	{
+		.compatible = "mediatek,mt8516-topckgen-cg",
+		.data = (ulong)&mt8516_clk_tree,
+	},
 	{ }
 };
 
-U_BOOT_DRIVER(mtk_clk_apmixedsys) = {
+U_BOOT_DRIVER(mt8516_clk_apmixedsys) = {
 	.name = "mt8516-apmixedsys",
 	.id = UCLASS_CLK,
 	.of_match = mt8516_apmixed_compat,
-	.probe = mt8516_apmixedsys_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_apmixedsys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mtk_clk_topckgen) = {
+U_BOOT_DRIVER(mt8516_clk_topckgen) = {
 	.name = "mt8516-topckgen",
 	.id = UCLASS_CLK,
 	.of_match = mt8516_topckgen_compat,
-	.probe = mt8516_topckgen_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mtk_clk_topckgen_cg) = {
+U_BOOT_DRIVER(mt8516_clk_topckgen_cg) = {
 	.name = "mt8516-topckgen-cg",
 	.id = UCLASS_CLK,
 	.of_match = mt8516_topckgen_cg_compat,
-	.probe = mt8516_topckgen_cg_probe,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.probe = mtk_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

@@ -32,15 +32,6 @@ enum k3_firewall_region_type {
 	K3_FIREWALL_REGION_BACKGROUND
 };
 
-enum k3_device_type {
-	K3_DEVICE_TYPE_BAD,
-	K3_DEVICE_TYPE_GP,
-	K3_DEVICE_TYPE_TEST,
-	K3_DEVICE_TYPE_EMU,
-	K3_DEVICE_TYPE_HS_FS,
-	K3_DEVICE_TYPE_HS_SE,
-};
-
 void setup_k3_mpu_regions(void);
 int early_console_init(void);
 void disable_linefill_optimization(void);
@@ -55,7 +46,6 @@ const struct k3_speed_grade_map *k3_get_speed_grade_map(void);
 void k3_fix_rproc_clock(const char *path);
 void mmr_unlock(uintptr_t base, u32 partition);
 bool is_rom_loaded_sysfw(struct rom_extended_boot_data *data);
-enum k3_device_type get_device_type(void);
 struct ti_sci_handle *get_ti_sci_handle(void);
 void do_board_detect(void);
 void ti_secure_image_check_binary(void **p_image, size_t *p_size);

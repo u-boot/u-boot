@@ -391,9 +391,60 @@
 		};
 	};
 
+	funnel0: funnel {
+		/*
+		 * non-configurable funnel don't show up on the AMBA
+		 * bus.  As such no need to add "arm,primecell".
+		 */
+		compatible = "arm,coresight-static-funnel";
+		status = "disabled";
+
+		in-ports {
+			port {
+				ca_funnel_in_port0: endpoint {
+					remote-endpoint = <&etm0_out_port>;
+				};
+			};
+		};
+
+		out-ports {
+			port {
+				ca_funnel_out_port0: endpoint {
+					remote-endpoint = <&hugo_funnel_in_port0>;
+				};
+			};
+		};
+	};
+
+	funnel1: funnel-sys {
+		compatible = "arm,coresight-static-funnel";
+		status = "disabled";
+
+		in-ports {
+			port {
+				hugo_funnel_in_port0: endpoint {
+					remote-endpoint = <&ca_funnel_out_port0>;
+				};
+			};
+		};
+
+		out-ports {
+			port {
+				hugo_funnel_out_port0: endpoint {
+					remote-endpoint = <&etf_in_port>;
+				};
+			};
+		};
+	};
+
+	mqs1: mqs-1 {
+		compatible = "fsl,imx95-aonmix-mqs";
+		status = "disabled";
+	};
+
 	pmu {
 		compatible = "arm,cortex-a55-pmu";
-		interrupts = <GIC_PPI 7 (GIC_CPU_MASK_SIMPLE(6) | IRQ_TYPE_LEVEL_HIGH)>;
+		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
 	thermal_zones: thermal-zones {
@@ -470,10 +521,10 @@
 
 	timer {
 		compatible = "arm,armv8-timer";
-		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(6) | IRQ_TYPE_LEVEL_LOW)>,
-			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(6) | IRQ_TYPE_LEVEL_LOW)>,
-			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(6) | IRQ_TYPE_LEVEL_LOW)>,
-			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(6) | IRQ_TYPE_LEVEL_LOW)>;
+		interrupts = <GIC_PPI 13 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 14 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;
 		clock-frequency = <24000000>;
 		arm,no-tick-in-suspend;
 		interrupt-parent = <&gic>;
@@ -532,52 +583,6 @@
 			};
 		};
 
-		funnel0: funnel {
-			/*
-			 * non-configurable funnel don't show up on the AMBA
-			 * bus.  As such no need to add "arm,primecell".
-			 */
-			compatible = "arm,coresight-static-funnel";
-			status = "disabled";
-
-			in-ports {
-				port {
-					ca_funnel_in_port0: endpoint {
-						remote-endpoint = <&etm0_out_port>;
-					};
-				};
-			};
-
-			out-ports {
-				port {
-					ca_funnel_out_port0: endpoint {
-						remote-endpoint = <&hugo_funnel_in_port0>;
-					};
-				};
-			};
-		};
-
-		funnel1: funnel-sys {
-			compatible = "arm,coresight-static-funnel";
-			status = "disabled";
-
-			in-ports {
-				port {
-					hugo_funnel_in_port0: endpoint {
-						remote-endpoint = <&ca_funnel_out_port0>;
-					};
-				};
-			};
-
-			out-ports {
-				port {
-					hugo_funnel_out_port0: endpoint {
-						remote-endpoint = <&etf_in_port>;
-					};
-				};
-			};
-		};
-
 		etf: etf@41030000 {
 			compatible = "arm,coresight-tmc", "arm,primecell";
 			reg = <0x0 0x41030000 0x0 0x1000>;
@@ -631,6 +636,8 @@
 				reg = <0x42000000 0x210000>;
 				#dma-cells = <3>;
 				dma-channels = <64>;
+				/* channels 0 and 1 reserved for V2X fast hash */
+				dma-channel-mask = <0x3>;
 				interrupts = <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>,
 					     <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>,
 					     <GIC_SPI 129 IRQ_TYPE_LEVEL_HIGH>,
@@ -788,6 +795,17 @@
 				clocks = <&scmi_clk IMX95_CLK_BUSWAKEUP>;
 				timeout-sec = <40>;
 				status = "disabled";
+				bootph-all;
+			};
+
+			wdog4: watchdog@424a0000 {
+				compatible = "fsl,imx93-wdt";
+				reg = <0x424a0000 0x10000>;
+				interrupts = <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
+				clocks = <&scmi_clk IMX95_CLK_BUSWAKEUP>;
+				timeout-sec = <40>;
+				status = "disabled";
+				bootph-all;
 			};
 
 			tpm3: pwm@424e0000 {
@@ -1754,7 +1772,7 @@
 
 			smmu: iommu@490d0000 {
 				compatible = "arm,smmu-v3";
-				reg = <0x490d0000 0x100000>;
+				reg = <0x490d0000 0x40000>;
 				interrupts = <GIC_SPI 325 IRQ_TYPE_EDGE_RISING>,
 					     <GIC_SPI 328 IRQ_TYPE_EDGE_RISING>,
 					     <GIC_SPI 334 IRQ_TYPE_EDGE_RISING>,
@@ -1762,6 +1780,90 @@
 				interrupt-names = "eventq", "gerror", "priq", "cmdq-sync";
 				#iommu-cells = <1>;
 				status = "disabled";
+			};
+
+			pmu@490d2000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x490d2000 0x1000>,
+				      <0x490f2000 0x1000>;
+				interrupts = <GIC_SPI 333 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@49112000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x49112000 0x1000>,
+				      <0x49122000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@49132000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x49132000 0x1000>,
+				      <0x49142000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@49152000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x49152000 0x1000>,
+				      <0x49162000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@49172000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x49172000 0x1000>,
+				      <0x49182000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@49192000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x49192000 0x1000>,
+				      <0x491a2000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@491b2000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x491b2000 0x1000>,
+				      <0x491c2000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@491d2000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x491d2000 0x1000>,
+				      <0x491e2000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@491f2000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x491f2000 0x1000>,
+				      <0x49202000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@49212000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x49212000 0x1000>,
+				      <0x49222000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@49232000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x49232000 0x1000>,
+				      <0x49242000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
+			};
+
+			pmu@49252000 {
+				compatible = "arm,smmu-v3-pmcg";
+				reg = <0x49252000 0x1000>,
+				      <0x49262000 0x1000>;
+				interrupts = <GIC_SPI 323 IRQ_TYPE_EDGE_RISING>;
 			};
 		};
 
@@ -1845,8 +1947,9 @@
 			      <0 0x4c360000 0 0x10000>,
 			      <0 0x4c340000 0 0x4000>;
 			reg-names = "dbi", "config", "atu", "app";
-			ranges = <0x81000000 0x0 0x00000000 0x0 0x6ff00000 0 0x00100000>,
-				 <0x82000000 0x0 0x10000000 0x9 0x10000000 0 0x10000000>;
+			ranges = <0x43000000 0x9 0x00000000 0x9 0x00000000 0x0 0xe0000000>,
+				 <0x82000000 0x0 0xe0000000 0x9 0xe0000000 0x0 0x10000000>,
+				 <0x81000000 0x0 0x00000000 0x9 0xf0000000 0x0 0x00100000>;
 			#address-cells = <3>;
 			#size-cells = <2>;
 			device_type = "pci";
@@ -1883,6 +1986,17 @@
 			iommu-map-mask = <0x1ff>;
 			fsl,max-link-speed = <3>;
 			status = "disabled";
+
+			pcie0_port0: pcie@0 {
+				compatible = "pciclass,0604";
+				device_type = "pci";
+				reg = <0x0 0x0 0x0 0x0 0x0>;
+				bus-range = <0x01 0xff>;
+
+				#address-cells = <3>;
+				#size-cells = <2>;
+				ranges;
+			};
 		};
 
 		pcie0_ep: pcie-ep@4c300000 {
@@ -1920,8 +2034,9 @@
 			      <0 0x4c3e0000 0 0x10000>,
 			      <0 0x4c3c0000 0 0x4000>;
 			reg-names = "dbi", "config", "atu", "app";
-			ranges = <0x81000000 0 0x00000000 0x8 0x8ff00000 0 0x00100000>,
-				 <0x82000000 0 0x10000000 0xa 0x10000000 0 0x10000000>;
+			ranges = <0x43000000 0xa 0x00000000 0xa 0x00000000 0x0 0xe0000000>,
+				 <0x82000000 0x0 0xe0000000 0xa 0xe0000000 0x0 0x10000000>,
+				 <0x81000000 0x0 0x00000000 0xa 0xf0000000 0x0 0x00100000>;
 			#address-cells = <3>;
 			#size-cells = <2>;
 			device_type = "pci";
@@ -1960,6 +2075,17 @@
 			iommu-map-mask = <0x1ff>;
 			fsl,max-link-speed = <3>;
 			status = "disabled";
+
+			pcie1_port0: pcie@0 {
+				compatible = "pciclass,0604";
+				device_type = "pci";
+				reg = <0x0 0x0 0x0 0x0 0x0>;
+				bus-range = <0x01 0xff>;
+
+				#address-cells = <3>;
+				#size-cells = <2>;
+				ranges;
+			};
 		};
 
 		pcie1_ep: pcie-ep@4c380000 {

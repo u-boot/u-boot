@@ -79,6 +79,7 @@
 
 &i2c2 {
 	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
+	status = "okay";
 
 	som_gpio_expander: mcp23017@21 {
 		compatible = "microchip,mcp23017";
@@ -151,6 +152,18 @@
 			bootph-pre-ram;
 		};
 	};
+};
+
+&i2c3 {
+	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
+};
+
+&i2c4 {
+	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
+};
+
+&i2c5 {
+	clocks = <&clk ADSP_SC594_CLK_CGU0_SCLK0>;
 };
 
 &ospi {

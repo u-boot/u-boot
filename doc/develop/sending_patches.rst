@@ -5,7 +5,7 @@ Sending patches
 
 *Before you begin* to implement any new ideas or concepts it is always a good
 idea to present your plans on the `U-Boot mailing list
-<https://lists.denx.de/listinfo/u-boot>`_. U-Boot supports a huge amount of
+<https://lists.u-boot-project.org/listinfo/u-boot>`_. U-Boot supports a huge amount of
 very different systems, and it is often impossible for the individual developer
 to oversee the consequences of a specific change to all architectures.
 Discussing concepts early can help you to avoid spending effort on code which,
@@ -25,7 +25,7 @@ Using b4
 Use the `b4 <https://b4.docs.kernel.org/en/latest/>`__ tool to prepare and send
 your patches. b4 has become the preferred tool to sending patches for many Linux
 kernel contributors, and U-Boot ships with a ready-to-use ``.b4-config`` that
-targets ``u-boot@lists.denx.de`` and integrates with ``scripts/get_maintainer.pl``
+targets ``u-boot@lists.u-boot-project.org`` and integrates with ``scripts/get_maintainer.pl``
 for recipient discovery.
 
 Start a topical series with ``b4 prep`` and keep the commits organised with
@@ -51,7 +51,7 @@ additional runs.
 
 When the series is ready, use ``b4 send``. Begin with ``--dry-run`` to review the
 generated emails and ``--reflect`` to copy yourself for records before
-dispatching to ``u-boot@lists.denx.de``.
+dispatching to ``u-boot@lists.u-boot-project.org``.
 
 .. code-block:: bash
 
@@ -86,8 +86,8 @@ patman now lives outside the U-Boot tree; install it with
 General Patch Submission Rules
 ------------------------------
 
-* All patches must be sent to the `u-boot@lists.denx.de
-  <https://lists.denx.de/listinfo/u-boot>`_ mailing list.
+* All patches must be sent to the `u-boot@lists.u-boot-project.org
+  <https://lists.u-boot-project.org/listinfo/u-boot>`_ mailing list.
 
 * If your patch affects the code maintained by one of the :ref:`custodians`, CC
   them when emailing your patch. The easiest way to make sure you don't forget
@@ -134,7 +134,7 @@ General Patch Submission Rules
   patches is by using the ``git format-patch`` command. For a patch that is
   fixing a bug or regression of some sort, please use the ``master`` branch of
   the mainline U-Boot git repository located at
-  https://source.denx.de/u-boot/u-boot.git as reference. For new features, if
+  https://git.u-boot-project.org/u-boot/u-boot.git as reference. For new features, if
   the ``next`` branch has been opened (which happens with the release of
   ``-rc2``) that branch should be used, otherwise ``master`` is acceptable.
 
@@ -145,7 +145,7 @@ General Patch Submission Rules
   If you believe you need to use a mailing list for testing (instead of any
   regular mail address you own), we have a special test list for such purposes.
   It would be best to subscribe to the list for the duration of your tests to
-  avoid repeated moderation - see https://lists.denx.de/listinfo/test
+  avoid repeated moderation - see https://lists.u-boot-project.org/listinfo/test
 
 * Choose a meaningful Subject: - keep in mind that the Subject will also be
   visible as headline of your commit message. Make sure the subject does not

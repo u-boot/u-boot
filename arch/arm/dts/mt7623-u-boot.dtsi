@@ -8,10 +8,6 @@
 	bootph-all;
 };
 
-&topckgen {
-	bootph-all;
-};
-
 &pericfg {
 	bootph-all;
 };

@@ -10377,6 +10377,7 @@ static NOINLINE int run_pipe(struct pipe *pi)
 	debug_printf_exec("run_pipe return -1 (%u children started)\n", pi->alive_cmds);
 	return -1;
 #else /* __U_BOOT__ */
+	IF_HAS_KEYWORDS(if (pi->pi_inverted) rcode = !rcode;)
 	debug_printf_exec("run_pipe return %d\n", rcode);
 	return rcode;
 #endif /* __U_BOOT__ */

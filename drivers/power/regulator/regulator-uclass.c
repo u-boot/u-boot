@@ -111,6 +111,33 @@ int regulator_get_suspend_value(struct udevice *dev)
 	return ops->get_suspend_value(dev);
 }
 
+int regulator_set_value_clamp(struct udevice *dev,
+			      int min_uV, int target_uV, int max_uV)
+{
+	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
+	struct dm_regulator_uclass_plat *uc_pdata;
+	int uV;
+
+	if (!ops || !ops->set_value)
+		return -ENOSYS;
+
+	uc_pdata = dev_get_uclass_plat(dev);
+	if (uc_pdata->min_uV != -ENODATA && max_uV < uc_pdata->min_uV)
+		return -EINVAL;
+	if (uc_pdata->max_uV != -ENODATA && min_uV > uc_pdata->max_uV)
+		return -EINVAL;
+	if (min_uV > max_uV)
+		return -EINVAL;
+
+	if (uc_pdata->min_uV != -ENODATA)
+		min_uV = max(min_uV, uc_pdata->min_uV);
+	if (uc_pdata->max_uV != -ENODATA)
+		max_uV = min(max_uV, uc_pdata->max_uV);
+	uV = clamp(target_uV, min_uV, max_uV);
+
+	return regulator_set_value(dev, uV);
+}
+
 /*
  * To be called with at most caution as there is no check
  * before setting the actual voltage value.

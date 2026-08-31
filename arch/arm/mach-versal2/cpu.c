@@ -7,21 +7,30 @@
  */
 
 #include <init.h>
+#include <log.h>
+#include <malloc.h>
+#include <time.h>
+#include <vsprintf.h>
+#include <wait_bit.h>
 #include <asm/armv8/mmu.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <asm/system.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/cache.h>
 #include <dm/platdata.h>
+#include <linux/bitfield.h>
+#include <linux/string.h>
+#include "../../../board/xilinx/common/board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(PCIE_DW_AMD)
-#define VERSAL2_MEM_MAP_USED	6
+#define VERSAL2_MEM_MAP_USED	4
 #else
-#define VERSAL2_MEM_MAP_USED	5
+#define VERSAL2_MEM_MAP_USED	3
 #endif
 
 #define DRAM_BANKS CONFIG_NR_DRAM_BANKS
@@ -48,19 +57,6 @@ static struct mm_region versal2_mem_map[VERSAL2_MEM_MAP_MAX] = {
 		.virt = 0x400000000UL,
 		.phys = 0x400000000UL,
 		.size = 0x200000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		.virt = 0x600000000UL,
-		.phys = 0x600000000UL,
-		.size = 0x800000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0xe00000000UL,
-		.phys = 0xe00000000UL,
-		.size = 0xf200000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -109,7 +105,7 @@ void mem_map_fill(struct mm_region *bank_info, u32 num_banks)
  * fill_bd_mem_info() - Copy DRAM banks from mem_map to bd_info
  *
  * Transfers DRAM bank information from the global versal2_mem_map[]
- * array to bd->bi_dram[] for passing memory configuration to the
+ * array to gd->dram[] for passing memory configuration to the
  * Linux kernel via boot parameters (ATAGS/FDT). Each bank's physical
  * address and size are copied.
  *
@@ -119,15 +115,14 @@ void mem_map_fill(struct mm_region *bank_info, u32 num_banks)
  */
 void fill_bd_mem_info(void)
 {
-	struct bd_info *bd = gd->bd;
 	int banks = VERSAL2_MEM_MAP_USED;
 
 	for (int i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		if (!versal2_mem_map[banks].size)
 			break;
 
-		bd->bi_dram[i].start = versal2_mem_map[banks].phys;
-		bd->bi_dram[i].size = versal2_mem_map[banks].size;
+		gd->dram[i].start = versal2_mem_map[banks].phys;
+		gd->dram[i].size = versal2_mem_map[banks].size;
 		banks++;
 	}
 }
@@ -140,6 +135,180 @@ u64 get_page_table_size(void)
 	return 0x14000;
 }
 #endif
+
+u32 versal2_multi_boot_reg(void)
+{
+	return readl(PMC_MULTI_BOOT_REG) & PMC_MULTI_BOOT_MASK;
+}
+
+u32 __weak versal2_pmc_multi_boot(void)
+{
+	return versal2_multi_boot_reg();
+}
+
+u8 __weak versal2_get_bootmode(void)
+{
+	u8 bootmode;
+	u32 reg;
+
+	reg = readl(&crp_base->boot_mode_usr);
+
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
+	bootmode = reg & BOOT_MODES_MASK;
+
+	return bootmode;
+}
+
+/*
+ * Wait for the M-PHY TX/RX config-ready status to settle (all bits cleared) or
+ * @timeout_us to elapse. The direct-MMIO fallback owns the poll loop, mirroring
+ * the EEMI backend; the timeout budget is owned by the caller.
+ */
+int __weak zynqmp_pm_wait_mphy_tx_rx_config_ready(u32 timeout_us)
+{
+	return wait_for_bit_le32((void *)(uintptr_t)(PMXC_SLCR_BASE_ADDRESS +
+						     PMXC_TX_RX_CFG_RDY),
+				 TX_RX_CFG_RDY_MASK, false, timeout_us / 1000,
+				 false);
+}
+
+int __weak zynqmp_pm_wait_sram_init_done(u32 timeout_us)
+{
+	return wait_for_bit_le32((void *)(uintptr_t)(PMXC_SLCR_BASE_ADDRESS +
+						     PMXC_SRAM_CSR),
+				 SRAM_CSR_INIT_DONE_MASK, true, timeout_us / 1000,
+				 false);
+}
+
+int __weak zynqmp_pm_set_sram_bypass(void)
+{
+	u32 sram_csr;
+
+	sram_csr = readl(PMXC_SLCR_BASE_ADDRESS + PMXC_SRAM_CSR);
+	sram_csr &= ~SRAM_CSR_EXT_LD_DONE_MASK;
+	sram_csr |= SRAM_CSR_BYPASS_MASK;
+	writel(sram_csr, PMXC_SLCR_BASE_ADDRESS + PMXC_SRAM_CSR);
+
+	return 0;
+}
+
+int __weak zynqmp_pm_get_ufs_calibration_values(u32 *value)
+{
+	*value = readl(PMXC_EFUSE_CACHE_BASE_ADDRESS + PMXC_UFS_CAL_1_OFFSET);
+	return 0;
+}
+
+void versal2_timer_setup(void)
+{
+	u32 val;
+
+	debug("iou_switch ctrl div0 %x\n",
+	      readl(&crlapb_base->iou_switch_ctrl));
+
+	writel(IOU_SWITCH_CTRL_CLKACT_BIT |
+	       (CONFIG_IOU_SWITCH_DIVISOR0 << IOU_SWITCH_CTRL_DIVISOR0_SHIFT),
+	       &crlapb_base->iou_switch_ctrl);
+
+	/* Global timer init - Program time stamp reference clk */
+	val = readl(&crlapb_base->timestamp_ref_ctrl);
+	val |= CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT;
+	writel(val, &crlapb_base->timestamp_ref_ctrl);
+
+	debug("ref ctrl 0x%x\n",
+	      readl(&crlapb_base->timestamp_ref_ctrl));
+
+	/* Clear reset of timestamp reg */
+	writel(0, &crlapb_base->rst_timestamp);
+
+	/*
+	 * Program freq register in System counter and
+	 * enable system counter.
+	 */
+	writel(CONFIG_COUNTER_FREQUENCY,
+	       &iou_scntr_secure->base_frequency_id_register);
+
+	debug("counter val 0x%x\n",
+	      readl(&iou_scntr_secure->base_frequency_id_register));
+
+	writel(IOU_SCNTRS_CONTROL_EN,
+	       &iou_scntr_secure->counter_control_register);
+
+	debug("scntrs control 0x%x\n",
+	      readl(&iou_scntr_secure->counter_control_register));
+	debug("timer 0x%llx\n", get_ticks());
+	debug("timer 0x%llx\n", get_ticks());
+}
+
+static u32 platform_id, platform_version;
+
+char *soc_name_decode(void)
+{
+	char *name, *platform_name;
+
+	switch (platform_id) {
+	case VERSAL2_SPP:
+		platform_name = "spp";
+		break;
+	case VERSAL2_EMU:
+		platform_name = "emu";
+		break;
+	case VERSAL2_SPP_MMD:
+		platform_name = "spp-mmd";
+		break;
+	case VERSAL2_EMU_MMD:
+		platform_name = "emu-mmd";
+		break;
+	case VERSAL2_QEMU:
+		platform_name = "qemu";
+		break;
+	default:
+		return NULL;
+	}
+
+	/*
+	 * --rev.-el are 9 chars
+	 * max platform name is emu-mmd which is 7 chars
+	 * platform version number are 1+1
+	 * el is 1 char
+	 * Plus 1 char for NULL byte
+	 */
+	name = calloc(1, strlen(CONFIG_SYS_BOARD) + 20);
+	if (!name)
+		return NULL;
+
+	sprintf(name, "%s-%s-rev%d.%d-el%d", CONFIG_SYS_BOARD,
+		platform_name, platform_version / 10,
+		platform_version % 10, current_el());
+
+	return name;
+}
+
+bool soc_detection(void)
+{
+	u32 version, ps_version;
+
+	version = readl(PMC_TAP_VERSION);
+	platform_id = FIELD_GET(PLATFORM_MASK, version);
+	ps_version = FIELD_GET(PS_VERSION_MASK, version);
+
+	debug("idcode %x, version %x, usercode %x\n",
+	      readl(PMC_TAP_IDCODE), version,
+	      readl(PMC_TAP_USERCODE));
+
+	debug("pmc_ver %lx, ps version %x, rtl version %lx\n",
+	      FIELD_GET(PMC_VERSION_MASK, version),
+	      ps_version,
+	      FIELD_GET(RTL_VERSION_MASK, version));
+
+	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, version);
+
+	debug("Platform id: %d version: %d.%d\n", platform_id,
+	      platform_version / 10, platform_version % 10);
+
+	return true;
+}
 
 U_BOOT_DRVINFO(soc_amd_versal2) = {
 	.name = "soc_amd_versal2",

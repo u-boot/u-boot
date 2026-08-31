@@ -85,7 +85,7 @@ static const struct mtk_gate_regs apmixed_cg_regs = {
 		.parent = _parent,			\
 		.regs = &apmixed_cg_regs,		\
 		.shift = _shift,			\
-		.flags = CLK_GATE_NO_SETCLR_INV,	\
+		.flags = CLK_GATE_NO_SETCLR_INV | CLK_PARENT_APMIXED,	\
 	}
 
 static const struct mtk_gate apmixed_cgs[] = {
@@ -613,6 +613,21 @@ static const struct mtk_clk_tree mt7622_apmixed_clk_tree = {
 	.gates = apmixed_cgs,
 	.num_plls = ARRAY_SIZE(apmixed_plls),
 	.num_gates = ARRAY_SIZE(apmixed_cgs),
+	.type = MTK_CLK_TREE_APMIXED,
+};
+
+static const struct mtk_clk_tree mt7622_topckgen_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
+	.muxes_offs = CLK_TOP_AXI_SEL,
+	.fclks = top_fixed_clks,
+	.fdivs = top_fixed_divs,
+	.muxes = top_muxes,
+	.num_fclks = ARRAY_SIZE(top_fixed_clks),
+	.num_fdivs = ARRAY_SIZE(top_fixed_divs),
+	.num_muxes = ARRAY_SIZE(top_muxes),
+	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
 static const struct mtk_clk_tree mt7622_infra_clk_tree = {
@@ -637,17 +652,32 @@ static const struct mtk_clk_tree mt7622_peri_clk_tree = {
 	.num_gates = ARRAY_SIZE(peri_cgs),
 };
 
-static const struct mtk_clk_tree mt7622_clk_tree = {
+static const struct mtk_clk_tree mt7622_pcie_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
-	.muxes_offs = CLK_TOP_AXI_SEL,
-	.fclks = top_fixed_clks,
-	.fdivs = top_fixed_divs,
-	.muxes = top_muxes,
-	.num_fclks = ARRAY_SIZE(top_fixed_clks),
-	.num_fdivs = ARRAY_SIZE(top_fixed_divs),
-	.num_muxes = ARRAY_SIZE(top_muxes),
+	.gates = pcie_cgs,
+	.num_gates = ARRAY_SIZE(pcie_cgs),
+};
+
+static const struct mtk_clk_tree mt7622_eth_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = eth_cgs,
+	.num_gates = ARRAY_SIZE(eth_cgs),
+};
+
+static const struct mtk_clk_tree mt7622_sgmii_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = sgmii_cgs,
+	.num_gates = ARRAY_SIZE(sgmii_cgs),
+};
+
+static const struct mtk_clk_tree mt7622_ssusb_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = ssusb_cgs,
+	.num_gates = ARRAY_SIZE(ssusb_cgs),
 };
 
 static int mt7622_mcucfg_probe(struct udevice *dev)
@@ -671,7 +701,7 @@ static int mt7622_apmixedsys_probe(struct udevice *dev)
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = mtk_common_clk_init(dev, &mt7622_apmixed_clk_tree);
+	ret = mtk_clk_probe(dev);
 	if (ret)
 		return ret;
 
@@ -685,103 +715,68 @@ static int mt7622_apmixedsys_probe(struct udevice *dev)
 	return 0;
 }
 
-static int mt7622_topckgen_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7622_clk_tree);
-}
-
-static int mt7622_infracfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_infrasys_init(dev, &mt7622_infra_clk_tree);
-}
-
-static int mt7622_pericfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_infrasys_init(dev, &mt7622_peri_clk_tree);
-}
-
-static int mt7622_pciesys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, pcie_cgs,
-					ARRAY_SIZE(pcie_cgs), 0);
-}
-
-static int mt7622_pciesys_bind(struct udevice *dev)
+static int mt7622_reset_bind(struct udevice *dev)
 {
 	int ret = 0;
 
-	if (IS_ENABLED(CONFIG_RESET_MEDIATEK)) {
-	ret = mediatek_reset_bind(dev, ETHSYS_HIFSYS_RST_CTRL_OFS, 1);
-	if (ret)
-		debug("Warning: failed to bind reset controller\n");
+	if (CONFIG_IS_ENABLED(RESET_MEDIATEK)) {
+		ret = mediatek_reset_bind(dev, ETHSYS_HIFSYS_RST_CTRL_OFS, 1);
+		if (ret)
+			debug("Warning: failed to bind reset controller\n");
 	}
 
 	return ret;
 }
 
-static int mt7622_ethsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs), 0);
-}
-
-static int mt7622_ethsys_bind(struct udevice *dev)
-{
-	int ret = 0;
-
-#if CONFIG_IS_ENABLED(RESET_MEDIATEK)
-	ret = mediatek_reset_bind(dev, ETHSYS_HIFSYS_RST_CTRL_OFS, 1);
-	if (ret)
-		debug("Warning: failed to bind reset controller\n");
-#endif
-
-	return ret;
-}
-
-static int mt7622_sgmiisys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, sgmii_cgs,
-					ARRAY_SIZE(sgmii_cgs), 0);
-}
-
-static int mt7622_ssusbsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, ssusb_cgs,
-					ARRAY_SIZE(ssusb_cgs), 0);
-}
-
 static const struct udevice_id mt7622_apmixed_compat[] = {
-	{ .compatible = "mediatek,mt7622-apmixedsys" },
+	{
+		.compatible = "mediatek,mt7622-apmixedsys",
+		.data = (ulong)&mt7622_apmixed_clk_tree,
+	},
 	{ }
 };
 
 static const struct udevice_id mt7622_topckgen_compat[] = {
-	{ .compatible = "mediatek,mt7622-topckgen" },
+	{
+		.compatible = "mediatek,mt7622-topckgen",
+		.data = (ulong)&mt7622_topckgen_clk_tree,
+	},
 	{ }
 };
 
-static const struct udevice_id mt7622_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt7622-infracfg", },
+static const struct udevice_id of_match_mt7622_infracfg[] = {
+	{
+		.compatible = "mediatek,mt7622-infracfg",
+		.data = (ulong)&mt7622_infra_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7622-pericfg",
+		.data = (ulong)&mt7622_peri_clk_tree,
+	},
 	{ }
 };
 
-static const struct udevice_id mt7622_pericfg_compat[] = {
-	{ .compatible = "mediatek,mt7622-pericfg", },
+static const struct udevice_id of_match_mt7622_clk_eth[] = {
+	{
+		.compatible = "mediatek,mt7622-pciesys",
+		.data = (ulong)&mt7622_pcie_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7622-ethsys",
+		.data = (ulong)&mt7622_eth_clk_tree,
+	},
 	{ }
 };
 
-static const struct udevice_id mt7622_pciesys_compat[] = {
-	{ .compatible = "mediatek,mt7622-pciesys", },
-	{ }
-};
-
-static const struct udevice_id mt7622_ethsys_compat[] = {
-	{ .compatible = "mediatek,mt7622-ethsys", },
-	{ }
-};
-
-static const struct udevice_id mt7622_sgmiisys_compat[] = {
-	{ .compatible = "mediatek,mt7622-sgmiisys", },
+static const struct udevice_id of_match_mt7622_clk[] = {
+	{
+		.compatible = "mediatek,mt7622-sgmiisys",
+		.data = (ulong)&mt7622_sgmii_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7622-ssusbsys",
+		.data = (ulong)&mt7622_ssusb_clk_tree,
+	},
 	{ }
 };
 
@@ -790,12 +785,7 @@ static const struct udevice_id mt7622_mcucfg_compat[] = {
 	{ }
 };
 
-static const struct udevice_id mt7622_ssusbsys_compat[] = {
-	{ .compatible = "mediatek,mt7622-ssusbsys" },
-	{ }
-};
-
-U_BOOT_DRIVER(mtk_mcucfg) = {
+U_BOOT_DRIVER(mt7622_mcucfg) = {
 	.name = "mt7622-mcucfg",
 	.id = UCLASS_SYSCON,
 	.of_match = mt7622_mcucfg_compat,
@@ -803,7 +793,7 @@ U_BOOT_DRIVER(mtk_mcucfg) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mtk_clk_apmixedsys) = {
+U_BOOT_DRIVER(mt7622_clk_apmixedsys) = {
 	.name = "mt7622-clock-apmixedsys",
 	.id = UCLASS_CLK,
 	.of_match = mt7622_apmixed_compat,
@@ -813,70 +803,41 @@ U_BOOT_DRIVER(mtk_clk_apmixedsys) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mtk_clk_topckgen) = {
+U_BOOT_DRIVER(mt7622_clk_topckgen) = {
 	.name = "mt7622-clock-topckgen",
 	.id = UCLASS_CLK,
 	.of_match = mt7622_topckgen_compat,
-	.probe = mt7622_topckgen_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mtk_clk_infracfg) = {
+U_BOOT_DRIVER(mt7622_clk_infracfg) = {
 	.name = "mt7622-clock-infracfg",
 	.id = UCLASS_CLK,
-	.of_match = mt7622_infracfg_compat,
-	.probe = mt7622_infracfg_probe,
+	.of_match = of_match_mt7622_infracfg,
+	.probe = mtk_clk_probe,
 	.priv_auto	= sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mtk_clk_pericfg) = {
-	.name = "mt7622-clock-pericfg",
+U_BOOT_DRIVER(mt7622_clk_eth) = {
+	.name = "mt7622-clk-eth",
 	.id = UCLASS_CLK,
-	.of_match = mt7622_pericfg_compat,
-	.probe = mt7622_pericfg_probe,
+	.of_match = of_match_mt7622_clk_eth,
+	.probe = mtk_clk_probe,
+	.bind = mt7622_reset_bind,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_infrasys_ops,
-	.flags = DM_FLAG_PRE_RELOC,
+	.ops = &mtk_clk_topckgen_ops,
 };
 
-U_BOOT_DRIVER(mtk_clk_pciesys) = {
-	.name = "mt7622-clock-pciesys",
+U_BOOT_DRIVER(mt7622_clk) = {
+	.name = "mt7622-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt7622_pciesys_compat,
-	.probe = mt7622_pciesys_probe,
-	.bind = mt7622_pciesys_bind,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-};
-
-U_BOOT_DRIVER(mtk_clk_ethsys) = {
-	.name = "mt7622-clock-ethsys",
-	.id = UCLASS_CLK,
-	.of_match = mt7622_ethsys_compat,
-	.probe = mt7622_ethsys_probe,
-	.bind = mt7622_ethsys_bind,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-};
-
-U_BOOT_DRIVER(mtk_clk_sgmiisys) = {
-	.name = "mt7622-clock-sgmiisys",
-	.id = UCLASS_CLK,
-	.of_match = mt7622_sgmiisys_compat,
-	.probe = mt7622_sgmiisys_probe,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
-};
-
-U_BOOT_DRIVER(mtk_clk_ssusbsys) = {
-	.name = "mt7622-clock-ssusbsys",
-	.id = UCLASS_CLK,
-	.of_match = mt7622_ssusbsys_compat,
-	.probe = mt7622_ssusbsys_probe,
-	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.of_match = of_match_mt7622_clk,
+	.probe = mtk_clk_probe,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };

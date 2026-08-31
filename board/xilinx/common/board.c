@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2025, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -14,10 +14,17 @@
 #include <init.h>
 #include <jffs2/load_kernel.h>
 #include <log.h>
+#include <memalign.h>
+#include <mtd.h>
+#include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/sections.h>
+#if defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL2)
+#include <asm/arch/hardware.h>
+#endif
 #include <dm/uclass.h>
 #include <i2c.h>
+#include <linux/err.h>
 #include <linux/sizes.h>
 #include <malloc.h>
 #include <memtop.h>
@@ -30,6 +37,8 @@
 #include <rng.h>
 #include <slre.h>
 #include <soc.h>
+#include <zynqmp_firmware.h>
+#include <linux/bitfield.h>
 #include <linux/ctype.h>
 #include <linux/kernel.h>
 #include <u-boot/uuid.h>
@@ -58,6 +67,8 @@ struct efi_capsule_update_info update_info = {
 	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
+
+#define DFU_ALT_BUF_LEN		SZ_1K
 
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
@@ -718,7 +729,74 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 
 	return reg + size;
 }
+#endif
 
+#if defined(CONFIG_FWU_MULTI_BANK_UPDATE)
+
+#if defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL2)
+/*
+ * The Versal and Versal Gen 2 PMC Global pggs4 register contains below
+ * information in each byte as:
+ *
+ * Byte[3]: Magic number
+ * Byte[2]: Boot counter value
+ * Byte[1]: Boot partition value - boot index
+ * Byte[0]: Rollback counter value
+ */
+
+#define MAGIC_NUM	0x1D
+#define MAGIC_MASK	GENMASK(31, 24)
+#define BOOTINDEX_MASK	GENMASK(15, 8)
+
+static int plat_get_boot_index(void)
+{
+	u32 val;
+
+	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE))
+		val = zynqmp_pm_get_pmc_global_pggs_reg(PMC_GLOBAL_PGGS4_REG);
+	else
+		val = readl(PMC_GLOBAL_PGGS4_REG);
+
+	if (FIELD_GET(MAGIC_MASK, val) != MAGIC_NUM) {
+		log_err("FWU requires PMC magic number 0x%x\n", MAGIC_NUM);
+		return -EINVAL;
+	}
+
+	return FIELD_GET(BOOTINDEX_MASK, val);
+}
+#endif
+
+int fwu_plat_get_alt_num(struct udevice __always_unused *dev,
+			 efi_guid_t *image_id, u8 *alt_num)
+{
+	int ret;
+
+	ret = fwu_mtd_get_alt_num(image_id, alt_num, "nor0");
+	debug("%s: return %d\n", __func__, ret);
+
+	return ret;
+}
+
+void fwu_plat_get_bootidx(uint *boot_idx)
+{
+	int ret;
+	u32 active_idx;
+
+	ret = fwu_get_active_index(&active_idx);
+	if (ret < 0)
+		printf("%s: failed to read active index\n", __func__);
+
+	ret = plat_get_boot_index();
+	if (ret < 0) {
+		*boot_idx = 0;
+		printf("%s: failed and setup boot index to 0\n", __func__);
+	} else {
+		*boot_idx = ret;
+	}
+
+	debug("%s: boot_idx: %d, active_idx: %d\n",
+	      __func__, *boot_idx, active_idx);
+}
 #endif
 
 #if IS_ENABLED(CONFIG_BOARD_RNG_SEED)
@@ -772,6 +850,36 @@ int fwu_platform_hook(struct udevice *dev, struct fwu_data *data)
 
 	/* Copy image type GUID */
 	memcpy(&fw_images[0].image_type_id, &img_entry->image_type_guid, 16);
+
+	/*
+	 * Generate the capsule DFU string from the FWU metadata. This has to
+	 * happen here, and not in configure_capsule_updates() called from
+	 * board_late_init(), because the FWU data is only populated by
+	 * fwu_boottime_checks() at EVT_POST_PREBOOT.
+	 */
+	{
+		ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+		struct mtd_info *mtd;
+		int ret;
+
+		memset(buf, 0, DFU_ALT_BUF_LEN);
+
+		mtd_probe_devices();
+
+		mtd = get_mtd_device_nm("nor0");
+		if (IS_ERR_OR_NULL(mtd))
+			return -ENODEV;
+
+		ret = fwu_gen_alt_info_from_mtd(buf, DFU_ALT_BUF_LEN, mtd);
+		if (ret < 0) {
+			log_err("Error: Failed to generate dfu_alt_info. (%d)\n", ret);
+			return ret;
+		}
+		log_debug("Make dfu_alt_info: '%s'\n", buf);
+
+		update_info.dfu_string = strdup(buf);
+		debug("Capsule DFU: %s\n", update_info.dfu_string);
+	}
 
 	if (IS_ENABLED(CONFIG_EFI_ESRT)) {
 		efi_status_t ret;
