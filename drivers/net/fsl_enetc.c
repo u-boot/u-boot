@@ -21,6 +21,7 @@
 #include <linux/bitfield.h>
 #include <linux/bug.h>
 #include <linux/delay.h>
+#include <linux/iopoll.h>
 #include <linux/build_bug.h>
 #include <linux/bitfield.h>
 #include <power/regulator.h>
