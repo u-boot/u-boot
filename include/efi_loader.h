@@ -1026,11 +1026,6 @@ struct efi_load_option {
 	const u8 *optional_data;
 };
 
-struct efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
-				       const efi_guid_t *guid);
-struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
-				      const struct efi_device_path *dp2,
-				      size_t split_end_node);
 struct efi_device_path *search_gpt_dp_node(struct efi_device_path *device_path);
 efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
 					 efi_uintn_t *size);
