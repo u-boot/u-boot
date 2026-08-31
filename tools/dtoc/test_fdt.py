@@ -10,6 +10,7 @@ Written by Simon Glass <sjg@chromium.org>
 from argparse import ArgumentParser
 import os
 import shutil
+import struct
 import sys
 import tempfile
 import unittest
@@ -754,6 +755,178 @@ class TestProp(unittest.TestCase):
                          self.dtb.GetFilename())
 
 
+class TestPylibfdt(unittest.TestCase):
+    """Tests for the parts of pylibfdt that dtoc does not itself use
+
+    These bindings come from upstream dtc and have no coverage elsewhere in
+    U-Boot, so exercise them directly rather than through the Fdt wrapper.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        tools.prepare_output_dir(None)
+
+    @classmethod
+    def tearDownClass(cls):
+        tools.finalise_output_dir()
+
+    def setUp(self):
+        self.dtb = fdt.FdtScan(find_dtb_file('dtoc_test_simple.dts'))
+        self.fdt = self.dtb.GetFdtObj()
+        self.node = self.fdt.path_offset('/spl-test')
+
+    def test_hasprop(self):
+        """Test checking for the presence of a property"""
+        self.assertTrue(self.fdt.hasprop(self.node, 'boolval'))
+        self.assertTrue(self.fdt.hasprop(self.node, 'intval'))
+        self.assertFalse(self.fdt.hasprop(self.node, 'missing'))
+
+    def test_hasprop_bad_node(self):
+        """Test that hasprop() still reports errors other than NOTFOUND"""
+        with self.assertRaises(libfdt.FdtException) as exc:
+            self.fdt.hasprop(-1, 'boolval')
+        self.assertEqual(-libfdt.BADOFFSET, exc.exception.err)
+
+    def test_setprop_bool(self):
+        """Test creating and deleting a boolean property"""
+        # Leave room for the new property
+        self.fdt.resize(self.fdt.totalsize() + 1024)
+        node = self.fdt.path_offset('/spl-test')
+
+        self.fdt.setprop_bool(node, 'newbool', True)
+        self.assertTrue(self.fdt.hasprop(node, 'newbool'))
+        self.assertEqual(b'', self.fdt.getprop(node, 'newbool'))
+
+        # Setting it again should be a no-op
+        self.fdt.setprop_bool(node, 'newbool', True)
+        self.assertTrue(self.fdt.hasprop(node, 'newbool'))
+
+        self.fdt.setprop_bool(node, 'newbool', False)
+        self.assertFalse(self.fdt.hasprop(node, 'newbool'))
+
+        # Deleting it again should also be a no-op
+        self.fdt.setprop_bool(node, 'newbool', False)
+        self.assertFalse(self.fdt.hasprop(node, 'newbool'))
+
+    def test_get_path(self):
+        """Test reading back the full path of a node"""
+        node = self.fdt.path_offset('/i2c@0/pmic@9')
+        self.assertEqual('/i2c@0/pmic@9', self.fdt.get_path(node))
+        self.assertEqual('/', self.fdt.get_path(0))
+
+    def test_get_path_no_space(self):
+        """Test that get_path() retries with a larger buffer as needed"""
+        node = self.fdt.path_offset('/i2c@0/pmic@9')
+        self.assertEqual('/i2c@0/pmic@9', self.fdt.get_path(node, size_hint=1))
+
+    def test_get_path_bad_node(self):
+        """Test get_path() on an invalid node offset"""
+        with self.assertRaises(libfdt.FdtException) as exc:
+            self.fdt.get_path(-1)
+        self.assertEqual(-libfdt.BADOFFSET, exc.exception.err)
+
+    def test_as_stringlist(self):
+        """Test decoding a string-list property"""
+        prop = self.fdt.getprop(self.node, 'stringarray')
+        self.assertEqual(['multi-word', 'message'], prop.as_stringlist())
+
+        prop = self.fdt.getprop(self.node, 'stringval')
+        self.assertEqual(['message'], prop.as_stringlist())
+
+    def test_as_int_lists(self):
+        """Test decoding integer-array properties"""
+        prop = self.fdt.getprop(self.node, 'intarray')
+        self.assertEqual([2, 3, 4], prop.as_uint32_list())
+        self.assertEqual([2, 3, 4], prop.as_int32_list())
+
+        prop = self.fdt.getprop(self.node, 'int64val')
+        self.assertEqual([0x123456789abcdef0], prop.as_uint64_list())
+        self.assertEqual([0x123456789abcdef0], prop.as_int64_list())
+
+    def test_as_int_lists_negative(self):
+        """Test that the signed accessors differ from the unsigned ones"""
+        self.fdt.resize(self.fdt.totalsize() + 1024)
+        node = self.fdt.path_offset('/spl-test')
+
+        self.fdt.setprop(node, 'negs32', struct.pack('>ll', -1, -2))
+        prop = self.fdt.getprop(node, 'negs32')
+        self.assertEqual([-1, -2], prop.as_int32_list())
+        self.assertEqual([0xffffffff, 0xfffffffe], prop.as_uint32_list())
+
+        self.fdt.setprop(node, 'negs64', struct.pack('>qq', -1, -2))
+        prop = self.fdt.getprop(node, 'negs64')
+        self.assertEqual([-1, -2], prop.as_int64_list())
+        self.assertEqual([0xffffffffffffffff, 0xfffffffffffffffe],
+                         prop.as_uint64_list())
+
+    def test_address_and_size_cells(self):
+        """Test reading the cell counts a node uses for its children"""
+        self.assertEqual(1, self.fdt.address_cells(0))
+        self.assertEqual(1, self.fdt.size_cells(0))
+
+        # i2c@0 overrides both
+        i2c = self.fdt.path_offset('/i2c@0')
+        self.assertEqual(1, self.fdt.address_cells(i2c))
+        self.assertEqual(0, self.fdt.size_cells(i2c))
+
+    def test_mem_rsv(self):
+        """Test adding, reading back and deleting reserve-map records"""
+        self.assertEqual(0, self.fdt.num_mem_rsv())
+
+        # Leave room for the new records
+        self.fdt.resize(self.fdt.totalsize() + 1024)
+        self.fdt.add_mem_rsv(0xdeadbeef00000000, 0x100000)
+        self.fdt.add_mem_rsv(0x1000, 0x2000)
+        self.assertEqual(2, self.fdt.num_mem_rsv())
+        self.assertEqual([0xdeadbeef00000000, 0x100000],
+                         list(self.fdt.get_mem_rsv(0)))
+        self.assertEqual([0x1000, 0x2000], list(self.fdt.get_mem_rsv(1)))
+
+        self.fdt.del_mem_rsv(0)
+        self.assertEqual(1, self.fdt.num_mem_rsv())
+        self.assertEqual([0x1000, 0x2000], list(self.fdt.get_mem_rsv(0)))
+
+    def test_del_mem_rsv_missing(self):
+        """Test deleting a reserve-map record which is not there"""
+        with self.assertRaises(libfdt.FdtException) as exc:
+            self.fdt.del_mem_rsv(0)
+        self.assertEqual(-libfdt.NOTFOUND, exc.exception.err)
+
+    def test_fdtsw_growth(self):
+        """Test that running out of space at least doubles the buffer"""
+        fdtsw = libfdt.FdtSw()
+        size = len(fdtsw._fdt)
+        self.assertEqual(fdtsw.INC_SIZE, size)
+
+        self.assertTrue(fdtsw.check_space(-libfdt.NOSPACE))
+        self.assertEqual(size * 2, len(fdtsw._fdt))
+
+        self.assertTrue(fdtsw.check_space(-libfdt.NOSPACE))
+        self.assertEqual(size * 4, len(fdtsw._fdt))
+
+        # Anything that is not an out-of-space error leaves the buffer alone
+        self.assertFalse(fdtsw.check_space(0))
+        self.assertEqual(size * 4, len(fdtsw._fdt))
+
+    def test_fdtsw_build(self):
+        """Test building a tree large enough to need several expansions"""
+        fdtsw = libfdt.FdtSw()
+        fdtsw.finish_reservemap()
+        fdtsw.begin_node('')
+        for i in range(50):
+            fdtsw.begin_node(f'node{i}')
+            fdtsw.property('data', b'x' * 200)
+            fdtsw.end_node()
+        fdtsw.end_node()
+
+        out = fdtsw.as_fdt()
+        self.assertGreater(out.totalsize(), fdtsw.INC_SIZE * 4)
+        for i in range(50):
+            node = out.path_offset(f'/node{i}')
+            self.assertEqual(f'/node{i}', out.get_path(node))
+            self.assertEqual(b'x' * 200, out.getprop(node, 'data'))
+
+
 class TestFdtUtil(unittest.TestCase):
     """Tests for the fdt_util module
 
@@ -970,7 +1143,7 @@ def run_tests(names, processes):
     test_name = names[0] if names else None
     result = test_util.run_test_suites(
         'test_fdt', False, False, False, False, processes, test_name, None,
-        [TestFdt, TestNode, TestProp, TestFdtUtil])
+        [TestFdt, TestNode, TestProp, TestPylibfdt, TestFdtUtil])
 
     return (0 if result.wasSuccessful() else 1)
 
