@@ -22,14 +22,6 @@
 	};
 };
 
-&clks {
-	bootph-pre-ram;
-};
-
-&flash0 {
-	bootph-pre-ram;
-};
-
 &m24c64_50 {
 	nvmem-layout {
 		compatible = "fixed-layout";
@@ -40,28 +32,4 @@
 			reg = <0x20 0x60>;
 		};
 	};
-};
-
-&osc {
-	bootph-pre-ram;
-};
-
-&pinctrl_pmic {
-	bootph-pre-ram;
-};
-
-&pinctrl_qspi {
-	bootph-pre-ram;
-};
-
-&pinctrl_usdhc2 {
-	bootph-pre-ram;
-};
-
-&qspi {
-	bootph-pre-ram;
-};
-
-&usdhc2 {
-	bootph-pre-ram;
 };
