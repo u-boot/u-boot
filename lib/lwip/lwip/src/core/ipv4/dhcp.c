@@ -1315,20 +1315,15 @@ dhcp_reboot(struct netif *netif)
   return result;
 }
 
-/**
- * @ingroup dhcp4
- * Release a DHCP lease and stop DHCP statemachine (and AUTOIP if LWIP_DHCP_AUTOIP_COOP).
- *
- * @param netif network interface
- */
-void
-dhcp_release_and_stop(struct netif *netif)
+/** Stop the DHCP state machine, optionally releasing its lease. */
+static void
+dhcp_stop_internal(struct netif *netif, int release)
 {
   struct dhcp *dhcp = netif_dhcp_data(netif);
   ip_addr_t server_ip_addr;
 
   LWIP_ASSERT_CORE_LOCKED();
-  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_release_and_stop()\n"));
+  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_stop_internal()\n"));
   if (dhcp == NULL) {
     return;
   }
@@ -1352,7 +1347,7 @@ dhcp_release_and_stop(struct netif *netif)
   dhcp->t1_renew_time = dhcp->t2_rebind_time = dhcp->lease_used = dhcp->t0_timeout = 0;
 
   /* send release message when current IP was assigned via DHCP */
-  if (dhcp_supplied_address(netif)) {
+  if (release && dhcp_supplied_address(netif)) {
     /* create and initialize the DHCP message header */
     struct pbuf *p_out;
     u16_t options_out_len;
@@ -1389,6 +1384,30 @@ dhcp_release_and_stop(struct netif *netif)
     dhcp_dec_pcb_refcount(); /* free DHCP PCB if not needed any more */
     dhcp->pcb_allocated = 0;
   }
+}
+
+/**
+ * @ingroup dhcp4
+ * Stop DHCP without sending DHCPRELEASE or removing the configured address.
+ *
+ * @param netif network interface
+ */
+void
+dhcp_stop_without_release(struct netif *netif)
+{
+  dhcp_stop_internal(netif, 0);
+}
+
+/**
+ * @ingroup dhcp4
+ * Release a DHCP lease and stop DHCP statemachine (and AUTOIP if LWIP_DHCP_AUTOIP_COOP).
+ *
+ * @param netif network interface
+ */
+void
+dhcp_release_and_stop(struct netif *netif)
+{
+  dhcp_stop_internal(netif, 1);
 }
 
 /**
