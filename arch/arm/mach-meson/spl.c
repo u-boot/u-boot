@@ -84,7 +84,7 @@ void board_init_f(ulong dummy)
 
 		SET_PARAM_HEAD(&spl_ep_info, ATF_PARAM_BL31, ATF_VERSION_1, 0);
 		spl_ep_info.pc = CONFIG_SPL_TEXT_BASE;
-		spl_ep_info.spsr = SPSR_64(MODE_EL3, MODE_SP_ELX, DISABLE_ALL_EXECPTIONS);
+		spl_ep_info.spsr = SPSR_64(MODE_EL3, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 
 		regs.regs[0] = 0xc0000000;
 		regs.regs[1] = (unsigned long)&spl_ep_info;
