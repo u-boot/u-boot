@@ -232,4 +232,4 @@ To start OpenOCD and connect to the board
 
 .. prompt:: bash $
 
-  openocd -f board/ti_j7200evm.cfg
+   openocd -f board/ti/j7200evm.cfg
