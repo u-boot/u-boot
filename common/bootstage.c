@@ -478,7 +478,7 @@ int bootstage_unstash(const void *base, int size)
 
 	/* Read the name strings */
 	ptr += rec_size;
-	for (rec = data->record + data->next_id, i = 0; i < hdr->count;
+	for (rec = data->record + data->rec_count, i = 0; i < hdr->count;
 	     i++, rec++) {
 		rec->name = ptr;
 		if (xpl_phase() == PHASE_SPL)
