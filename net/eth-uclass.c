@@ -289,8 +289,10 @@ int eth_start_udev(struct udevice *dev)
 	if (priv->running)
 		return 0;
 
-	if (!device_active(dev))
+	if (!device_active(dev)) {
+		eth_errno = -EINVAL;
 		return -EINVAL;
+	}
 
 	ret = eth_get_ops(dev)->start(dev);
 	if (ret < 0)
