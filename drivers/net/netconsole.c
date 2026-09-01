@@ -16,12 +16,18 @@
 #define CFG_NETCONSOLE_BUFFER_SIZE 512
 #endif
 
+#define NC_DEFAULT_PORT 6666
+
 static char input_buffer[CFG_NETCONSOLE_BUFFER_SIZE];
 static int input_size; /* char count in input buffer */
 static int input_offset; /* offset to valid chars in input buffer */
 static int input_recursion;
 static int output_recursion;
-struct nc_settings nc_settings;
+struct nc_settings nc_settings = {
+	.ip.s_addr = ~0,
+	.out_port = NC_DEFAULT_PORT,
+	.in_port = NC_DEFAULT_PORT,
+};
 
 bool nc_is_broadcast(struct in_addr ip)
 {
@@ -46,8 +52,13 @@ bool nc_is_broadcast(struct in_addr ip)
 
 int nc_refresh_settings_from_env(void)
 {
+	struct nc_settings settings = {
+		.ip.s_addr = ~0,
+		.out_port = NC_DEFAULT_PORT,
+		.in_port = NC_DEFAULT_PORT,
+	};
 	const char *p;
-	static int env_changed_id;
+	static int env_changed_id = -1;
 	int env_id = env_get_id();
 
 	/* update only when the environment has changed */
@@ -55,25 +66,25 @@ int nc_refresh_settings_from_env(void)
 		char *tmp = env_get("ncip");
 
 		if (tmp) {
-			nc_settings.ip = string_to_ip(tmp);
-			if (!nc_settings.ip.s_addr)
+			settings.ip = string_to_ip(tmp);
+			if (!settings.ip.s_addr)
 				return -1;	/* ncip is 0.0.0.0 */
 			p = strchr(tmp, ':');
 			if (p != NULL) {
-				nc_settings.out_port = dectoul(p + 1, NULL);
-				nc_settings.in_port = nc_settings.out_port;
+				settings.out_port = dectoul(p + 1, NULL);
+				settings.in_port = settings.out_port;
 			}
-		} else {
-			nc_settings.ip.s_addr = ~0;
 		}
 
 		p = env_get("ncoutport");
 		if (p != NULL)
-			nc_settings.out_port = dectoul(p, NULL);
+			settings.out_port = dectoul(p, NULL);
 		p = env_get("ncinport");
 		if (p != NULL)
-			nc_settings.in_port = dectoul(p, NULL);
+			settings.in_port = dectoul(p, NULL);
 
+		nc_settings = settings;
+		env_changed_id = env_id;
 		return 1;
 	}
 
@@ -130,9 +141,6 @@ int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 
 static int nc_stdio_start(struct stdio_dev *dev)
 {
-	nc_settings.out_port = 6666;
-	nc_settings.in_port = nc_settings.out_port;
-
 	return nc_transport_start();
 }
 
