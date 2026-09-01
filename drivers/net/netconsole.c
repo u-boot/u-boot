@@ -4,12 +4,13 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <command.h>
 #include <env.h>
 #include <log.h>
 #include <stdio_dev.h>
 #include <net.h>
 #include <vsprintf.h>
+
+#include "netconsole.h"
 
 #ifndef CFG_NETCONSOLE_BUFFER_SIZE
 #define CFG_NETCONSOLE_BUFFER_SIZE 512
@@ -20,39 +21,9 @@ static int input_size; /* char count in input buffer */
 static int input_offset; /* offset to valid chars in input buffer */
 static int input_recursion;
 static int output_recursion;
-static int net_timeout;
-static uchar nc_ether[6]; /* server enet address */
-static struct in_addr nc_ip; /* server ip */
-static short nc_out_port; /* target output port */
-static short nc_in_port; /* source input port */
-static const char *output_packet; /* used by first send udp */
-static int output_packet_len;
-/*
- * Start with a default last protocol.
- * We are only interested in NETCONS or not.
- */
-enum proto_t net_loop_last_protocol = BOOTP;
+struct nc_settings nc_settings;
 
-static void nc_wait_arp_handler(uchar *pkt, unsigned dest,
-				 struct in_addr sip, unsigned src,
-				 unsigned len)
-{
-	net_set_state(NETLOOP_SUCCESS); /* got arp reply - quit net loop */
-}
-
-static void nc_handler(uchar *pkt, unsigned dest, struct in_addr sip,
-		       unsigned src, unsigned len)
-{
-	if (input_size)
-		net_set_state(NETLOOP_SUCCESS); /* got input - quit net loop */
-}
-
-static void nc_timeout_handler(void)
-{
-	net_set_state(NETLOOP_SUCCESS);
-}
-
-static int is_broadcast(struct in_addr ip)
+bool nc_is_broadcast(struct in_addr ip)
 {
 	static struct in_addr netmask;
 	static struct in_addr our_ip;
@@ -73,7 +44,7 @@ static int is_broadcast(struct in_addr ip)
 		 (netmask.s_addr | ip.s_addr) == ~0)); /* bcast to our net */
 }
 
-static int refresh_settings_from_env(void)
+int nc_refresh_settings_from_env(void)
 {
 	const char *p;
 	static int env_changed_id;
@@ -82,56 +53,41 @@ static int refresh_settings_from_env(void)
 	/* update only when the environment has changed */
 	if (env_changed_id != env_id) {
 		char *tmp = env_get("ncip");
+
 		if (tmp) {
-			nc_ip = string_to_ip(tmp);
-			if (!nc_ip.s_addr)
+			nc_settings.ip = string_to_ip(tmp);
+			if (!nc_settings.ip.s_addr)
 				return -1;	/* ncip is 0.0.0.0 */
 			p = strchr(tmp, ':');
 			if (p != NULL) {
-				nc_out_port = dectoul(p + 1, NULL);
-				nc_in_port = nc_out_port;
+				nc_settings.out_port = dectoul(p + 1, NULL);
+				nc_settings.in_port = nc_settings.out_port;
 			}
 		} else {
-			nc_ip.s_addr = ~0; /* ncip is not set, so broadcast */
+			nc_settings.ip.s_addr = ~0;
 		}
 
 		p = env_get("ncoutport");
 		if (p != NULL)
-			nc_out_port = dectoul(p, NULL);
+			nc_settings.out_port = dectoul(p, NULL);
 		p = env_get("ncinport");
 		if (p != NULL)
-			nc_in_port = dectoul(p, NULL);
+			nc_settings.in_port = dectoul(p, NULL);
 
-		if (is_broadcast(nc_ip))
-			/* broadcast MAC address */
-			memset(nc_ether, 0xff, sizeof(nc_ether));
-		else
-			/* force arp request */
-			memset(nc_ether, 0, sizeof(nc_ether));
+		return 1;
 	}
+
 	return 0;
 }
 
-/**
- * Called from net_loop in net/net.c before each packet
- */
-void nc_start(void)
+bool nc_has_input(void)
 {
-	refresh_settings_from_env();
-	if (!output_packet_len || memcmp(nc_ether, net_null_ethaddr, 6)) {
-		/* going to check for input packet */
-		net_set_udp_handler(nc_handler);
-		net_set_timeout_handler(net_timeout, nc_timeout_handler);
-	} else {
-		/* send arp request */
-		uchar *pkt;
-		net_set_arp_handler(nc_wait_arp_handler);
-		pkt = (uchar *)net_tx_packet + net_eth_hdr_size() +
-			IP_UDP_HDR_SIZE;
-		memcpy(pkt, output_packet, output_packet_len);
-		net_send_udp_packet(nc_ether, nc_ip, nc_out_port, nc_in_port,
-				    output_packet_len);
-	}
+	return input_size != 0;
+}
+
+void nc_set_input_recursion(bool enable)
+{
+	input_recursion = enable;
 }
 
 int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
@@ -139,10 +95,11 @@ int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 {
 	int end, chunk;
 
-	if (dest_port != nc_in_port || !len)
+	if (dest_port != nc_settings.in_port || !len)
 		return 0; /* not for us */
 
-	if (src_ip.s_addr != nc_ip.s_addr && !is_broadcast(nc_ip))
+	if (src_ip.s_addr != nc_settings.ip.s_addr &&
+	    !nc_is_broadcast(nc_settings.ip))
 		return 0; /* not from our client */
 
 	debug_cond(DEBUG_DEV_PKT, "input: \"%*.*s\"\n", len, len, pkt);
@@ -171,75 +128,17 @@ int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 	return 1;
 }
 
-static void nc_send_packet(const char *buf, int len)
-{
-	struct udevice *eth;
-	int inited = 0;
-	uchar *pkt;
-	uchar *ether;
-	struct in_addr ip;
-
-	debug_cond(DEBUG_DEV_PKT, "output: \"%*.*s\"\n", len, len, buf);
-
-	eth = eth_get_dev();
-	if (eth == NULL)
-		return;
-
-	if (!memcmp(nc_ether, net_null_ethaddr, 6)) {
-		if (eth_is_active(eth))
-			return;	/* inside net loop */
-		output_packet = buf;
-		output_packet_len = len;
-		input_recursion = 1;
-		net_loop(NETCONS); /* wait for arp reply and send packet */
-		input_recursion = 0;
-		output_packet_len = 0;
-		return;
-	}
-
-	if (!eth_is_active(eth)) {
-		if (eth_is_on_demand_init()) {
-			if (eth_init() < 0)
-				return;
-			eth_set_last_protocol(NETCONS);
-		} else {
-			eth_init_state_only();
-		}
-
-		inited = 1;
-	}
-	pkt = (uchar *)net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
-	memcpy(pkt, buf, len);
-	ether = nc_ether;
-	ip = nc_ip;
-	net_send_udp_packet(ether, ip, nc_out_port, nc_in_port, len);
-
-	if (inited) {
-		if (eth_is_on_demand_init())
-			eth_halt();
-		else
-			eth_halt_state_only();
-	}
-}
-
 static int nc_stdio_start(struct stdio_dev *dev)
 {
-	int retval;
+	nc_settings.out_port = 6666;
+	nc_settings.in_port = nc_settings.out_port;
 
-	nc_out_port = 6666; /* default port */
-	nc_in_port = nc_out_port;
+	return nc_transport_start();
+}
 
-	retval = refresh_settings_from_env();
-	if (retval != 0)
-		return retval;
-
-	/*
-	 * Initialize the static IP settings and buffer pointers
-	 * incase we call net_send_udp_packet before net_loop
-	 */
-	net_init();
-
-	return 0;
+static int nc_stdio_stop(struct stdio_dev *dev)
+{
+	return nc_transport_stop();
 }
 
 static void nc_stdio_putc(struct stdio_dev *dev, char c)
@@ -248,7 +147,7 @@ static void nc_stdio_putc(struct stdio_dev *dev, char c)
 		return;
 	output_recursion = 1;
 
-	nc_send_packet(&c, 1);
+	nc_transport_send(&c, 1);
 
 	output_recursion = 0;
 }
@@ -264,7 +163,7 @@ static void nc_stdio_puts(struct stdio_dev *dev, const char *s)
 	len = strlen(s);
 	while (len) {
 		int send_len = min(len, (int)sizeof(input_buffer));
-		nc_send_packet(s, send_len);
+		nc_transport_send(s, send_len);
 		len -= send_len;
 		s += send_len;
 	}
@@ -278,9 +177,8 @@ static int nc_stdio_getc(struct stdio_dev *dev)
 
 	input_recursion = 1;
 
-	net_timeout = 0;	/* no timeout */
 	while (!input_size)
-		net_loop(NETCONS);
+		nc_transport_poll(true);
 
 	input_recursion = 0;
 
@@ -295,23 +193,14 @@ static int nc_stdio_getc(struct stdio_dev *dev)
 
 static int nc_stdio_tstc(struct stdio_dev *dev)
 {
-	struct udevice *eth;
-
 	if (input_recursion)
 		return 0;
 
 	if (input_size)
 		return 1;
 
-	eth = eth_get_dev();
-	if (eth_is_active(eth))
-		return 0;	/* inside net loop */
-
 	input_recursion = 1;
-
-	net_timeout = 1;
-	net_loop(NETCONS);	/* kind of poll */
-
+	nc_transport_poll(false);
 	input_recursion = 0;
 
 	return input_size != 0;
@@ -327,6 +216,7 @@ int drv_nc_init(void)
 	strcpy(dev.name, "nc");
 	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 	dev.start = nc_stdio_start;
+	dev.stop = nc_stdio_stop;
 	dev.putc = nc_stdio_putc;
 	dev.puts = nc_stdio_puts;
 	dev.getc = nc_stdio_getc;
