@@ -54,14 +54,8 @@ static bool ntp_server_known(void)
 	return false;
 }
 
-static int sntp_loop(struct udevice *udev, ip_addr_t *srvip)
+static int sntp_loop(struct net_lwip_ctx *net, ip_addr_t *srvip)
 {
-	struct netif *netif;
-
-	netif = net_lwip_new_netif(udev);
-	if (!netif)
-		return -1;
-
 	sntp_state = NOT_DONE;
 
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
@@ -71,7 +65,6 @@ static int sntp_loop(struct udevice *udev, ip_addr_t *srvip)
 	} else {
 		if (!ntp_server_known()) {
 			log_err("error: ntpserverip not set\n");
-			net_lwip_remove_netif(netif);
 			return -1;
 		}
 	}
@@ -79,7 +72,7 @@ static int sntp_loop(struct udevice *udev, ip_addr_t *srvip)
 
 	sys_timeout(SNTP_TIMEOUT, no_response, NULL);
 	while (sntp_state == NOT_DONE) {
-		net_lwip_rx(udev, netif);
+		net_lwip_poll();
 		if (ctrlc()) {
 			printf("\nAbort\n");
 			sntp_state = ABORTED;
@@ -89,7 +82,6 @@ static int sntp_loop(struct udevice *udev, ip_addr_t *srvip)
 	sys_untimeout(no_response, NULL);
 
 	sntp_stop();
-	net_lwip_remove_netif(netif);
 
 	if (sntp_state == SUCCESS)
 		return 0;
@@ -99,6 +91,7 @@ static int sntp_loop(struct udevice *udev, ip_addr_t *srvip)
 
 int do_sntp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct net_lwip_ctx net = {};
 	ip_addr_t *srvip;
 	char *server;
 	ip_addr_t ipaddr;
@@ -125,16 +118,16 @@ int do_sntp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 	}
 
-	if (net_lwip_eth_start() < 0)
+	if (net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT))
 		return CMD_RET_FAILURE;
 
-	if (sntp_loop(eth_get_dev(), srvip) < 0)
+	if (sntp_loop(&net, srvip) < 0)
 		goto out;
 
 	ret = CMD_RET_SUCCESS;
 
 out:
-	net_lwip_eth_stop();
+	net_lwip_stop(&net);
 
 	return ret;
 }

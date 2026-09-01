@@ -226,11 +226,10 @@ static void no_response(void *arg)
 	ctx->done = FAILURE;
 }
 
-static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
+static int tftp_loop(struct net_lwip_ctx *net, ulong addr, char *fname,
 		     ip_addr_t srvip, uint16_t srvport)
 {
 	int blksize = CONFIG_TFTP_BLOCKSIZE;
-	struct netif *netif;
 	struct tftp_ctx ctx;
 	const char *ep;
 	err_t err;
@@ -241,10 +240,6 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 	if (!srvport)
 		srvport = TFTP_PORT;
 
-	netif = net_lwip_new_netif(udev);
-	if (!netif)
-		return -1;
-
 	ctx.done = NOT_DONE;
 	ctx.size = 0;
 	ctx.block_count = 0;
@@ -254,7 +249,7 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 	ctx.wrq_accepted = false;
 	ctx.fname[0] = '\0';
 
-	printf("Using %s device\n", udev->name);
+	printf("Using %s device\n", net->dev->name);
 	printf("TFTP from server %s; our IP address is %s\n",
 	       ipaddr_ntoa(&srvip), env_get("ipaddr"));
 	printf("Filename '%s'.\n", fname);
@@ -262,8 +257,10 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 	printf("Loading: ");
 
 	err = tftp_init_client(&tftp_context);
-	if (!(err == ERR_OK || err == ERR_USE))
+	if (err != ERR_OK) {
 		log_err("tftp_init_client err: %d\n", err);
+		return -1;
+	}
 
 	ep = env_get("tftpblocksize");
 	if (ep)
@@ -275,13 +272,13 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 	/* might return different errors, like routing problems */
 	if (err != ERR_OK) {
 		printf("tftp_get() error %d\n", err);
-		net_lwip_remove_netif(netif);
+		tftp_cleanup();
 		return -1;
 	}
 
 	sys_timeout(NO_RSP_TIMEOUT_MS, no_response, &ctx);
 	while (!ctx.done) {
-		net_lwip_rx(udev, netif);
+		net_lwip_poll();
 		if (ctrlc()) {
 			printf("\nAbort\n");
 			ctx.done = ABORTED;
@@ -291,8 +288,6 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 	sys_untimeout(no_response, (void *)&ctx);
 
 	tftp_cleanup();
-
-	net_lwip_remove_netif(netif);
 
 	if (ctx.done == SUCCESS) {
 		if (env_set_hex("fileaddr", addr)) {
@@ -318,9 +313,8 @@ static void no_request(void *arg)
 	ctx->done = FAILURE;
 }
 
-static int tftpsrv_loop(struct udevice *udev, ulong addr)
+static int tftpsrv_loop(struct net_lwip_ctx *net, ulong addr)
 {
-	struct netif *netif;
 	struct tftp_ctx ctx;
 	const char *ipaddr;
 	int ret = -1;
@@ -335,16 +329,12 @@ static int tftpsrv_loop(struct udevice *udev, ulong addr)
 		return -1;
 	}
 
-	netif = net_lwip_new_netif(udev);
-	if (!netif)
-		return -1;
-
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.done = NOT_DONE;
 	ctx.daddr = addr;
 	ctx.is_server = true;
 
-	printf("Using %s device\n", udev->name);
+	printf("Using %s device\n", net->dev->name);
 	printf("Listening for TFTP transfer on %s\n", ipaddr);
 	printf("Load address: 0x%lx\n", ctx.daddr);
 
@@ -352,13 +342,13 @@ static int tftpsrv_loop(struct udevice *udev, ulong addr)
 	err = tftp_init_server(&tftp_context);
 	if (err != ERR_OK) {
 		log_err("tftp_init_server err: %d\n", err);
-		goto out_remove_netif;
+		goto out;
 	}
 
 	ctx.start_time = get_timer(0);
 	sys_timeout(TFTPSRV_LISTEN_TIMEOUT_MS, no_request, &ctx);
 	while (!ctx.done) {
-		net_lwip_rx(udev, netif);
+		net_lwip_poll();
 		if (ctrlc()) {
 			printf("\nAbort\n");
 			ctx.done = ABORTED;
@@ -373,22 +363,22 @@ static int tftpsrv_loop(struct udevice *udev, ulong addr)
 	if (ctx.done == SUCCESS) {
 		if (env_set_hex("fileaddr", addr)) {
 			log_err("fileaddr not updated\n");
-			goto out_remove_netif;
+			goto out;
 		}
 		efi_set_bootdev("Net", "", ctx.fname, map_sysmem(addr, 0),
 				ctx.size);
 		ret = 0;
 	}
 
-out_remove_netif:
+out:
 	tftpsrv_active_ctx = NULL;
-	net_lwip_remove_netif(netif);
 
 	return ret;
 }
 
 int do_tftpsrv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct net_lwip_ctx net = {};
 	int ret = CMD_RET_SUCCESS;
 	char *end;
 	ulong laddr;
@@ -421,25 +411,25 @@ int do_tftpsrv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto out;
 	}
 
-	if (net_lwip_eth_start() < 0) {
+	if (net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT)) {
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
 
-	if (tftpsrv_loop(eth_get_dev(), laddr) < 0)
+	if (tftpsrv_loop(&net, laddr) < 0)
 		ret = CMD_RET_FAILURE;
 	else
 		image_load_addr = laddr;
-	net_lwip_eth_stop();
 
 out:
+	net_lwip_stop(&net);
 	return ret;
 }
 
 int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct net_lwip_ctx net = {};
 	int ret = CMD_RET_SUCCESS;
-	bool started = false;
 	char *arg = NULL;
 	char *words[3] = { };
 	char *fname = NULL;
@@ -540,19 +530,17 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto out;
 	}
 
-	if (net_lwip_eth_start() < 0) {
+	if (net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT)) {
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
-	started = true;
 
-	if (tftp_loop(eth_get_dev(), laddr, fname, srvip, port) < 0)
+	if (tftp_loop(&net, laddr, fname, srvip, port) < 0)
 		ret = CMD_RET_FAILURE;
 	else
 		image_load_addr = laddr;
 out:
-	if (started)
-		net_lwip_eth_stop();
+	net_lwip_stop(&net);
 	if (arg != net_boot_file_name)
 		free(arg);
 	return ret;

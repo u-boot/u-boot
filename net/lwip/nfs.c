@@ -98,10 +98,9 @@ static int nfs_timeout_check(void)
 	return 1;
 }
 
-static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
+static int nfs_loop(struct net_lwip_ctx *net, ulong addr, char *fname,
 		    ip_addr_t srvip)
 {
-	struct netif *netif;
 	int ret;
 
 	nfs_download_state = NETLOOP_FAIL;
@@ -110,16 +109,12 @@ static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
 	if (!fname || addr == 0)
 		return -1;
 
-	netif = net_lwip_new_netif(udev);
-	if (!netif)
-		return -1;
-
 	strlcpy(nfs_path_buff, fname, sizeof(nfs_path_buff));
 
 	nfs_filename = nfs_basename(nfs_path_buff);
 	nfs_path     = nfs_dirname(nfs_path_buff);
 
-	printf("Using %s device\n", udev->name);
+	printf("Using %s device\n", net->dev->name);
 
 	printf("File transfer via NFS from server %s; our IP address is %s\n",
 	       ipaddr_ntoa(&srvip), env_get("ipaddr"));
@@ -139,7 +134,6 @@ static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
 
 	ret = nfs_udp_init(&sess_ctx);
 	if (ret < 0) {
-		net_lwip_remove_netif(netif);
 		debug("Failed to init network interface, aborting for error = %d\n", ret);
 		return ret;
 	}
@@ -152,7 +146,7 @@ static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
 
 	timer_start = get_timer(0);
 	do {
-		net_lwip_rx(udev, netif);
+		net_lwip_poll();
 		if (net_state != NETLOOP_CONTINUE)
 			break;
 		if (ctrlc()) {
@@ -165,7 +159,8 @@ static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
 	} while (true);
 	debug("%s: Loop exit at %lu\n", __func__, get_timer(0));
 
-	net_lwip_remove_netif(netif);
+	udp_remove(sess_ctx.pcb);
+	sess_ctx.pcb = NULL;
 
 	if (net_state == NETLOOP_SUCCESS) {
 		ret = 0;
@@ -186,8 +181,8 @@ static int nfs_loop(struct udevice *udev, ulong addr, char *fname,
 
 int do_nfs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct net_lwip_ctx net = {};
 	int ret = CMD_RET_SUCCESS;
-	bool started = false;
 	char *arg = NULL;
 	char *words[2] = { };
 	char *fname = NULL;
@@ -278,17 +273,15 @@ int do_nfs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto out;
 	}
 
-	if (net_lwip_eth_start() < 0) {
+	if (net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT)) {
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
-	started = true;
 
-	if (nfs_loop(eth_get_dev(), laddr, fname, srvip) < 0)
+	if (nfs_loop(&net, laddr, fname, srvip) < 0)
 		ret = CMD_RET_FAILURE;
 out:
-	if (started)
-		net_lwip_eth_stop();
+	net_lwip_stop(&net);
 	if (arg != net_boot_file_name)
 		free(arg);
 	return ret;

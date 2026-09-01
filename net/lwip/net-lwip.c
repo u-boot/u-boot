@@ -31,7 +31,15 @@ void (*push_packet)(void *, int len) = 0;
 int net_try_count;
 static int net_restarted;
 int net_restart_wrap;
-static int net_lwip_eth_started;
+static struct {
+	struct udevice *dev;
+	struct netif *netif;
+	unsigned int users;
+	unsigned int env_users;
+	unsigned int strict_env_users;
+	unsigned int no_addr_users;
+	bool polling;
+} net_lwip_runtime;
 static uchar net_pkt_buf[(PKTBUFSRX) * PKTSIZE_ALIGN + PKTALIGN]
 	__aligned(PKTALIGN);
 const u8 net_bcast_ethaddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
@@ -105,19 +113,6 @@ static void eth_init_rings(void)
 
 	for (i = 0; i < PKTBUFSRX; i++)
 		net_rx_packets[i] = net_pkt_buf + i  * PKTSIZE_ALIGN;
-}
-
-struct netif *net_lwip_get_netif(void)
-{
-	struct netif *netif, *found = NULL;
-
-	NETIF_FOREACH(netif) {
-		if (!found)
-			found = netif;
-		else
-			printf("Error: more than one netif in lwIP\n");
-	}
-	return found;
 }
 
 static int get_udev_ipv4_info(struct udevice *dev, ip4_addr_t *ip,
@@ -196,19 +191,15 @@ int net_lwip_dns_init(void)
 /*
  * Initialize the network stack if needed and start the current device if valid
  */
-int net_lwip_eth_start(void)
+static int net_lwip_eth_start(void)
 {
 	int ret;
-
-	if (net_lwip_eth_started++ > 0)
-		return 0;
 
 	net_init();
 	eth_halt();
 	eth_set_current();
 	ret = eth_init();
 	if (ret < 0) {
-		net_lwip_eth_started--;
 		eth_halt();
 		return ret;
 	}
@@ -216,14 +207,8 @@ int net_lwip_eth_start(void)
 	return 0;
 }
 
-void net_lwip_eth_stop(void)
+static void net_lwip_eth_stop(void)
 {
-	if (!net_lwip_eth_started)
-		return;
-
-	if (--net_lwip_eth_started)
-		return;
-
 	eth_halt();
 }
 
@@ -242,8 +227,6 @@ static struct netif *new_netif(struct udevice *udev, bool with_ip)
 		log_err("Could not start %s\n", udev->name);
 		return NULL;
 	}
-
-	netif_remove(net_lwip_get_netif());
 
 	ip4_addr_set_zero(&ip);
 	ip4_addr_set_zero(&mask);
@@ -287,20 +270,209 @@ static struct netif *new_netif(struct udevice *udev, bool with_ip)
 	return netif;
 }
 
-struct netif *net_lwip_new_netif(struct udevice *udev)
-{
-	return new_netif(udev, true);
-}
-
-struct netif *net_lwip_new_netif_noip(struct udevice *udev)
-{
-	return new_netif(udev, false);
-}
-
-void net_lwip_remove_netif(struct netif *netif)
+static void net_lwip_remove_netif(struct netif *netif)
 {
 	netif_remove(netif);
 	free(netif);
+}
+
+static int net_lwip_configure(enum net_lwip_addr_mode addr_mode)
+{
+	ip4_addr_t ip, mask, gw;
+
+	if (addr_mode != NET_LWIP_ADDR_NONE) {
+		if (get_udev_ipv4_info(net_lwip_runtime.dev, &ip, &mask, &gw))
+			return -EINVAL;
+	} else {
+		ip4_addr_set_zero(&ip);
+		ip4_addr_set_zero(&mask);
+		ip4_addr_set_zero(&gw);
+	}
+
+	if (ip4_addr_cmp(netif_ip4_addr(net_lwip_runtime.netif), &ip) &&
+	    ip4_addr_cmp(netif_ip4_netmask(net_lwip_runtime.netif), &mask) &&
+	    ip4_addr_cmp(netif_ip4_gw(net_lwip_runtime.netif), &gw))
+		return 0;
+
+	if (net_lwip_runtime.strict_env_users)
+		return -EBUSY;
+
+	netif_set_addr(net_lwip_runtime.netif, &ip, &mask, &gw);
+
+	return 0;
+}
+
+/**
+ * net_lwip_start - Attach a client to the shared lwIP runtime
+ * @ctx: Zero-initialized client attachment
+ * @addr_mode: Initial IPv4 address configuration requested by the client
+ *
+ * The first client starts the selected Ethernet device and creates the lwIP
+ * network interface. Later clients share both resources. Strict environment
+ * clients and address-less clients are mutually exclusive. Flexible clients
+ * can remain attached while an address-less client temporarily owns the
+ * interface configuration.
+ *
+ * Return: 0 on success, or a negative error code.
+ */
+int net_lwip_start(struct net_lwip_ctx *ctx,
+		   enum net_lwip_addr_mode addr_mode)
+{
+	struct netif *netif;
+	int ret;
+
+	if (!ctx)
+		return -EINVAL;
+	if (ctx->netif || ctx->dev)
+		return -EBUSY;
+	if (addr_mode != NET_LWIP_ADDR_ENV_STRICT &&
+	    addr_mode != NET_LWIP_ADDR_ENV_FLEXIBLE &&
+	    addr_mode != NET_LWIP_ADDR_NONE)
+		return -EINVAL;
+	if ((addr_mode == NET_LWIP_ADDR_NONE &&
+	     (net_lwip_runtime.strict_env_users ||
+	      net_lwip_runtime.no_addr_users)) ||
+	    (addr_mode == NET_LWIP_ADDR_ENV_STRICT &&
+	     net_lwip_runtime.no_addr_users))
+		return -EBUSY;
+
+	if (!net_lwip_runtime.users) {
+		ret = net_lwip_eth_start();
+		if (ret)
+			return ret;
+
+		net_lwip_runtime.dev = eth_get_dev();
+		netif = new_netif(net_lwip_runtime.dev,
+				  addr_mode != NET_LWIP_ADDR_NONE);
+		if (!netif) {
+			net_lwip_runtime.dev = NULL;
+			net_lwip_eth_stop();
+			return -ENODEV;
+		}
+		net_lwip_runtime.netif = netif;
+	} else if (addr_mode == NET_LWIP_ADDR_NONE &&
+		   !net_lwip_runtime.no_addr_users) {
+		ret = net_lwip_configure(NET_LWIP_ADDR_NONE);
+		if (ret)
+			return ret;
+	} else if (addr_mode != NET_LWIP_ADDR_NONE &&
+		   !net_lwip_runtime.no_addr_users) {
+		ret = net_lwip_configure(addr_mode);
+		if (ret)
+			return ret;
+	}
+
+	net_lwip_runtime.users++;
+	if (addr_mode == NET_LWIP_ADDR_NONE) {
+		net_lwip_runtime.no_addr_users++;
+	} else {
+		net_lwip_runtime.env_users++;
+		if (addr_mode == NET_LWIP_ADDR_ENV_STRICT)
+			net_lwip_runtime.strict_env_users++;
+	}
+
+	ctx->dev = net_lwip_runtime.dev;
+	ctx->netif = net_lwip_runtime.netif;
+	ctx->addr_mode = addr_mode;
+
+	return 0;
+}
+
+/**
+ * net_lwip_stop - Detach a client from the shared lwIP runtime
+ * @ctx: Active client attachment
+ *
+ * The final client removes the lwIP interface and stops Ethernet. When the
+ * last address-less client leaves, environment addressing is restored for
+ * any clients which remain attached. Callers must first remove every lwIP
+ * callback and protocol control block owned by @ctx. This function must not
+ * be called from a callback dispatched by net_lwip_poll().
+ */
+void net_lwip_stop(struct net_lwip_ctx *ctx)
+{
+	if (!ctx || ctx->netif != net_lwip_runtime.netif ||
+	    ctx->dev != net_lwip_runtime.dev || !net_lwip_runtime.users)
+		return;
+
+	if (ctx->addr_mode == NET_LWIP_ADDR_NONE) {
+		net_lwip_runtime.no_addr_users--;
+	} else {
+		net_lwip_runtime.env_users--;
+		if (ctx->addr_mode == NET_LWIP_ADDR_ENV_STRICT)
+			net_lwip_runtime.strict_env_users--;
+	}
+	net_lwip_runtime.users--;
+
+	ctx->dev = NULL;
+	ctx->netif = NULL;
+
+	if (!net_lwip_runtime.users) {
+		net_lwip_remove_netif(net_lwip_runtime.netif);
+		net_lwip_runtime.netif = NULL;
+		net_lwip_runtime.dev = NULL;
+		net_lwip_eth_stop();
+		return;
+	}
+
+	if (!net_lwip_runtime.no_addr_users &&
+	    net_lwip_runtime.env_users &&
+	    net_lwip_configure(NET_LWIP_ADDR_ENV_FLEXIBLE))
+		log_err("Failed to restore lwIP interface addressing\n");
+}
+
+/**
+ * net_lwip_restart - Restart an exclusively held lwIP runtime
+ * @ctx: Active client attachment
+ *
+ * Stop the current interface, select the next interface according to the
+ * normal network retry policy and attach @ctx to the replacement interface.
+ * A shared runtime cannot be restarted without disrupting other clients.
+ *
+ * Return: 0 on success, -EBUSY if other clients are attached, or another
+ * negative error code.
+ */
+int net_lwip_restart(struct net_lwip_ctx *ctx)
+{
+	enum net_lwip_addr_mode addr_mode;
+	int ret;
+
+	if (!ctx || ctx->netif != net_lwip_runtime.netif ||
+	    ctx->dev != net_lwip_runtime.dev || !net_lwip_runtime.users)
+		return -EINVAL;
+	if (net_lwip_runtime.users != 1)
+		return -EBUSY;
+
+	addr_mode = ctx->addr_mode;
+	net_lwip_stop(ctx);
+
+	ret = net_start_again();
+	if (ret)
+		return ret;
+
+	return net_lwip_start(ctx, addr_mode);
+}
+
+/**
+ * net_lwip_refresh - Refresh environment addressing for the shared interface
+ * @ctx: Active environment-addressed client attachment
+ *
+ * Address-less clients take priority, so flexible-client refreshes are
+ * deferred until the last such client detaches. A refresh which would change
+ * the address while a strict client is attached fails with -EBUSY.
+ *
+ * Return: 0 on success, or a negative error code.
+ */
+int net_lwip_refresh(struct net_lwip_ctx *ctx)
+{
+	if (!ctx || ctx->netif != net_lwip_runtime.netif ||
+	    ctx->dev != net_lwip_runtime.dev ||
+	    ctx->addr_mode == NET_LWIP_ADDR_NONE)
+		return -EINVAL;
+
+	if (net_lwip_runtime.no_addr_users)
+		return 0;
+
+	return net_lwip_configure(ctx->addr_mode);
 }
 
 /*
@@ -343,7 +515,7 @@ static struct pbuf *alloc_pbuf_and_copy(uchar *data, int len)
 	return p;
 }
 
-int net_lwip_rx(struct udevice *udev, struct netif *netif)
+static int net_lwip_rx(struct udevice *udev, struct netif *netif)
 {
 	struct pbuf *pbuf;
 	uchar *packet;
@@ -385,6 +557,32 @@ int net_lwip_rx(struct udevice *udev, struct netif *netif)
 		len = 0;
 
 	return len;
+}
+
+/**
+ * net_lwip_poll - Service the shared lwIP runtime
+ *
+ * Run lwIP timers, schedule other U-Boot work and dispatch received packets
+ * to all registered lwIP protocol control blocks. Reentrant calls are rejected
+ * so protocol callbacks may safely invoke code which attempts to poll.
+ *
+ * Return: Receive status, -ENODEV with no active clients, or -EBUSY when a
+ * poll is already in progress.
+ */
+int net_lwip_poll(void)
+{
+	int ret;
+
+	if (!net_lwip_runtime.users)
+		return -ENODEV;
+	if (net_lwip_runtime.polling)
+		return -EBUSY;
+
+	net_lwip_runtime.polling = true;
+	ret = net_lwip_rx(net_lwip_runtime.dev, net_lwip_runtime.netif);
+	net_lwip_runtime.polling = false;
+
+	return ret;
 }
 
 /**
