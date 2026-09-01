@@ -8,8 +8,8 @@
 
 struct nc_settings {
 	struct in_addr ip;
-	short out_port;
-	short in_port;
+	u16 out_port;
+	u16 in_port;
 };
 
 extern struct nc_settings nc_settings;
