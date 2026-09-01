@@ -113,7 +113,8 @@ int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 	    !nc_is_broadcast(nc_settings.ip))
 		return 0; /* not from our client */
 
-	debug_cond(DEBUG_DEV_PKT, "input: \"%*.*s\"\n", len, len, pkt);
+	debug_cond(DEBUG_NET_PKT_TRACE, "input: \"%*.*s\"\n", len, len,
+		   pkt);
 
 	if (input_size == sizeof(input_buffer))
 		return 1; /* no space */

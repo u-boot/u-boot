@@ -52,6 +52,9 @@ obj-$(CONFIG_DM_ETH) += eth.o
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_PROT_UDP_LWIP),yy)
 obj-y += lwip.o
 endif
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_NETCONSOLE),yy)
+obj-y += netconsole.o
+endif
 obj-$(CONFIG_EXTCON) += extcon.o
 ifneq ($(CONFIG_EFI_PARTITION),)
 obj-$(CONFIG_FASTBOOT_FLASH_MMC) += fastboot.o

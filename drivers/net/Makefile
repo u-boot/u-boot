@@ -85,6 +85,7 @@ obj-$(CONFIG_MVPP2) += mvpp2.o
 ifdef CONFIG_NETCONSOLE
 obj-y += netconsole.o
 obj-$(CONFIG_NET_LEGACY) += netconsole-legacy.o
+obj-$(CONFIG_NET_LWIP) += netconsole-lwip.o
 endif
 obj-$(CONFIG_NET_NPCM750) += npcm750_eth.o
 obj-$(CONFIG_NET_OCTEON) += octeon/
