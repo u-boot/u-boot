@@ -903,8 +903,10 @@ static int initf_upl(void)
 		return 0;
 
 	upl = malloc(sizeof(struct upl));
-	if (upl)
-		ret = upl_read_handoff(upl, oftree_default());
+	if (!upl)
+		return -ENOMEM;
+
+	ret = upl_read_handoff(upl, oftree_default());
 	if (ret) {
 		printf("UPL handoff: read failure (err=%dE)\n", ret);
 		return ret;
