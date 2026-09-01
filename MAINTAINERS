@@ -645,42 +645,12 @@ M:	Patrice Chotard <patrice.chotard@foss.st.com>
 L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-stm.git
 S:	Maintained
-F:	arch/arm/mach-stm32mp/
 F:	doc/board/st/
-F:	drivers/adc/stm32-adc*
-F:	drivers/clk/stm32/
-F:	drivers/gpio/stm32_gpio.c
-F:	drivers/hwspinlock/stm32_hwspinlock.c
-F:	drivers/i2c/stm32f7_i2c.c
-F:	drivers/mailbox/stm32-ipcc.c
-F:	drivers/misc/stm32mp_fuse.c
-F:	drivers/misc/stm32_rcc.c
-F:	drivers/mmc/stm32_sdmmc2.c
-F:	drivers/mtd/nand/raw/stm32_fmc2_nand.c
-F:	drivers/phy/phy-stm32-usbphyc.c
-F:	drivers/pinctrl/pinctrl_stm32.c
-F:	drivers/power/pmic/stpmic1.c
-F:	drivers/power/regulator/stm32-vrefbuf.c
-F:	drivers/power/regulator/stpmic1.c
-F:	drivers/ram/stm32mp1/
-F:	drivers/remoteproc/stm32_copro.c
-F:	drivers/reset/stm32/
 F:	drivers/rng/optee_rng.c
-F:	drivers/rng/stm32_rng.c
-F:	drivers/rtc/stm32_rtc.c
-F:	drivers/serial/serial_stm32.*
-F:	drivers/spi/stm32_ospi.c
-F:	drivers/spi/stm32_qspi.c
-F:	drivers/spi/stm32_spi.c
-F:	drivers/video/stm32/stm32_ltdc.c
-F:	drivers/video/stm32/stm32_lvds.c
-F:	drivers/watchdog/stm32mp_wdt.c
-F:	include/dt-bindings/clock/stm32mp*
-F:	include/stm32_rcc.h
 F:	tools/logos/st.bmp
-F:	tools/stm32image.c
 N:	stm
 N:	stm32
+N:	stpmic
 
 ARM SUNXI
 M:	Andre Przywara <andre.przywara@arm.com>
