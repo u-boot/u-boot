@@ -47,6 +47,7 @@ static int _scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd
 				      void __iomem *reg)
 {
 	u32 val = 0, mask = bpd->bus_prot_mask;
+	u32 sta_mask = bpd->bus_prot_sta_mask;
 
 	if (!mask)
 		return 0;
@@ -56,13 +57,15 @@ static int _scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd
 	else
 		writel(mask, reg + bpd->bus_prot_set);
 
-	return readl_poll_timeout(reg + bpd->bus_prot_sta, val, (val & mask) == mask, 1000);
+	return readl_poll_timeout(reg + bpd->bus_prot_sta, val,
+				  (val & sta_mask) == sta_mask, 1000);
 }
 
 static int _scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bpd,
 				       void __iomem *reg)
 {
 	u32 val = 0, mask = bpd->bus_prot_mask;
+	u32 sta_mask = bpd->bus_prot_sta_mask;
 
 	if (!mask)
 		return 0;
@@ -75,7 +78,8 @@ static int _scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bp
 	if (bpd->ignore_clr_ack)
 		return 0;
 
-	return readl_poll_timeout(reg + bpd->bus_prot_sta, val, !(val & mask), 1000);
+	return readl_poll_timeout(reg + bpd->bus_prot_sta, val,
+				  !(val & sta_mask), 1000);
 }
 
 static int scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
@@ -368,11 +372,6 @@ static int mtk_scpsys_add_one_domain(struct udevice *dev, ofnode node, int paren
 			return PTR_ERR(regmap);
 
 		domain->infracfg = regmap_get_range(regmap, 0);
-
-		/* enable Infra DCM */
-		if (domain->infracfg)
-			setbits_le32(domain->infracfg + INFRA_TOPDCM_CTRL,
-				     DCM_TOP_EN);
 	}
 
 	num_clks = ofnode_read_string_count(node, "clock-names");
