@@ -25,11 +25,6 @@ static void init_gic_v3(void)
 	writel(0xffffffff, GICR_SGI_BASE + GICR_IGROUPR0);
 }
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int board_init(void)
 {
 	/* Allow WDT reset */
