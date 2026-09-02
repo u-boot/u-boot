@@ -1737,7 +1737,14 @@ static int find_nvmem_device(void)
 
 		fp = fopen(comp, "r");
 		if (!fp) {
-			continue;
+			bytes = snprintf(comp, sizeof(comp), "%s/%s/of_node/nvmem-layout/compatible",
+					 path, dent->d_name);
+			if (bytes < 0 || bytes == sizeof(comp))
+				continue;
+
+			fp = fopen(comp, "r");
+			if (!fp)
+				continue;
 		}
 
 		if (fstat(fileno(fp), &s)) {
