@@ -131,6 +131,29 @@
 			reg = <0x0 0x1fa20000 0x0 0x388>;
 		};
 
+		eth: ethernet@1fb50000 {
+			compatible = "airoha,an7583-eth";
+			reg = <0 0x1fb50000 0 0x2600>,
+				<0 0x1fb54000 0 0x2000>,
+				<0 0x1fb56000 0 0x2000>;
+			reg-names = "fe", "qdma0", "qdma1";
+
+			resets = <&scuclk AN7583_FE_RST>,
+				 <&scuclk AN7583_FE_PDMA_RST>,
+				 <&scuclk AN7583_FE_QDMA_RST>,
+				 <&scuclk AN7583_DUAL_HSI0_MAC_RST>,
+				 <&scuclk AN7583_DUAL_HSI1_MAC_RST>,
+				 <&scuclk AN7583_XFP_MAC_RST>;
+			reset-names = "fe", "pdma", "qdma",
+				      "hsi0-mac", "hsi1-mac",
+				      "xfp-mac";
+		};
+
+		switch: switch@1fb58000 {
+			compatible = "airoha,an7583-switch";
+			reg = <0 0x1fb58000 0 0x8000>;
+		};
+
 		syscon@1fbe3400 {
 			compatible = "airoha,en7581-pbus-csr", "syscon";
 			reg = <0x0 0x1fbe3400 0x0 0xff>;
