@@ -1218,3 +1218,20 @@ static inline void an7581_pcs_phya_link_up(struct airoha_pcs_priv *priv)
 {
 }
 #endif
+
+#ifdef CONFIG_PCS_AIROHA_AN7583
+int an7583_pcs_common_phya_bringup(struct airoha_pcs_priv *priv,
+				   phy_interface_t interface);
+
+void an7583_pcs_common_phya_link_up(struct airoha_pcs_priv *priv);
+#else
+static inline int an7583_pcs_common_phya_bringup(struct airoha_pcs_priv *priv,
+						 phy_interface_t interface)
+{
+	return -EOPNOTSUPP;
+}
+
+static inline void an7583_pcs_common_phya_link_up(struct airoha_pcs_priv *priv)
+{
+}
+#endif
