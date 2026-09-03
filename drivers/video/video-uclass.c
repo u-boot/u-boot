@@ -579,6 +579,7 @@ int video_get_ysize(struct udevice *dev)
 	return priv->ysize;
 }
 
+#if CONFIG_IS_ENABLED(VIDEO_LOGO)
 #define SPLASH_DECL(_name) \
 	extern u8 __splash_ ## _name ## _begin[]; \
 	extern u8 __splash_ ## _name ## _end[]
@@ -591,6 +592,7 @@ void *video_get_u_boot_logo(void)
 {
 	return SPLASH_START(u_boot_logo);
 }
+#endif
 
 int video_default_font_height(struct udevice *dev)
 {
