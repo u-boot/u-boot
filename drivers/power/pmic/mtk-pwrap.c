@@ -712,8 +712,8 @@ static int mtk_pwrap_probe(struct udevice *dev)
 	wrp->dev = dev;
 
 	wrp->base = dev_remap_addr(dev);
-	if (IS_ERR(wrp->base))
-		return PTR_ERR(wrp->base);
+	if (!wrp->base)
+		return -EINVAL;
 
 	wrp->master = (void *)dev_get_driver_data(dev);
 
