@@ -30,6 +30,7 @@
 #include <u-boot/crc.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <asm/byteorder.h>
 
 #ifdef MTD_OLD
 # include <stdint.h>
@@ -1714,6 +1715,7 @@ static int find_nvmem_device(void)
 	char comp[256];
 	char buf[32];
 	int bytes;
+	ulong layout_size = 0;
 	DIR *dir;
 
 	dir = opendir(path);
@@ -1771,6 +1773,9 @@ static int find_nvmem_device(void)
 			}
 		}
 
+		/* Remember the nvmem device path for parsing other properties. */
+		bytes = snprintf(comp, sizeof(comp), "%s/%s", path, dent->d_name);
+
 next:
 		fclose(fp);
 	}
@@ -1779,12 +1784,28 @@ next:
 
 	if (nvmem) {
 		struct stat s;
+		FILE *fp;
+		size_t size;
 
 		stat(nvmem, &s);
 
 		DEVNAME(0) = nvmem;
 		DEVOFFSET(0) = 0;
 		ENVSIZE(0) = s.st_size;
+
+		if (bytes > 0 && bytes < sizeof(comp)) {
+			strcat(comp, "/of_node/nvmem-layout/env-size");
+			fp = fopen(comp, "rb");
+			if (fp) {
+				fstat(fileno(fp), &s);
+				size = fread(&layout_size, s.st_size, 1, fp);
+				if (size == 1)
+					ENVSIZE(0) = __be32_to_cpu(layout_size);
+				fclose(fp);
+			}
+
+			comp[bytes] = '\0';
+		}
 
 		return 0;
 	}
