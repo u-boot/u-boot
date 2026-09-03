@@ -13,6 +13,21 @@
 #include <malloc.h>
 #include <net.h>
 
+#define ARP_PROTOCOL_ADDR_LEN	4
+#define ARP_OP_REPLY		2
+
+struct sb_arp_hdr {
+	u16 hrd;
+	u16 pro;
+	u8 hln;
+	u8 pln;
+	u16 op;
+	u8 sha[ARP_HLEN];
+	struct in_addr spa;
+	u8 tha[ARP_HLEN];
+	struct in_addr tpa;
+} __packed;
+
 static int reply_arp;
 static struct in_addr arp_ip;
 
@@ -20,16 +35,23 @@ static int sb_eth_raw_start(struct udevice *dev)
 {
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
+	char ipaddr[sizeof("ipaddr99")];
+	int idx = dev_seq(dev);
 	int ret;
 
 	debug("eth_sandbox_raw: Start\n");
 
 	ret = sandbox_eth_raw_os_start(priv, pdata->enetaddr);
 	if (priv->local) {
-		env_set("ipaddr", "127.0.0.1");
+		if (!IS_ENABLED(CONFIG_NET_LWIP) || !idx) {
+			env_set("ipaddr", "127.0.0.1");
+		} else if (idx > 0 && idx <= 99) {
+			snprintf(ipaddr, sizeof(ipaddr), "ipaddr%d", idx);
+			env_set(ipaddr, "127.0.0.1");
+		}
 		env_set("serverip", "127.0.0.1");
 		net_ip = string_to_ip("127.0.0.1");
-		net_server_ip = net_ip;
+		net_set_server_ip(net_ip);
 	}
 	return ret;
 }
@@ -44,13 +66,13 @@ static int sb_eth_raw_send(struct udevice *dev, void *packet, int length)
 		struct ethernet_hdr *eth = packet;
 
 		if (ntohs(eth->et_protlen) == PROT_ARP) {
-			struct arp_hdr *arp = packet + ETHER_HDR_SIZE;
+			struct sb_arp_hdr *arp = packet + ETHER_HDR_SIZE;
 
 			/**
 			 * localhost works on a higher-level API in Linux than
 			 * ARP packets, so fake it
 			 */
-			arp_ip = net_read_ip(&arp->ar_tpa);
+			memcpy(&arp_ip, &arp->tpa, sizeof(arp_ip));
 			reply_arp = 1;
 			return 0;
 		}
@@ -68,7 +90,7 @@ static int sb_eth_raw_recv(struct udevice *dev, int flags, uchar **packetp)
 	int length;
 
 	if (reply_arp) {
-		struct arp_hdr *arp = (void *)net_rx_packets[0] +
+		struct sb_arp_hdr *arp = (void *)net_rx_packets[0] +
 			ETHER_HDR_SIZE;
 
 		/*
@@ -80,18 +102,18 @@ static int sb_eth_raw_recv(struct udevice *dev, int flags, uchar **packetp)
 		 * to get a response. For this reason we fake the response to
 		 * make the u-boot network stack happy.
 		 */
-		arp->ar_hrd = htons(ARP_ETHER);
-		arp->ar_pro = htons(PROT_IP);
-		arp->ar_hln = ARP_HLEN;
-		arp->ar_pln = ARP_PLEN;
-		arp->ar_op = htons(ARPOP_REPLY);
+		arp->hrd = htons(ARP_ETHER);
+		arp->pro = htons(PROT_IP);
+		arp->hln = ARP_HLEN;
+		arp->pln = ARP_PROTOCOL_ADDR_LEN;
+		arp->op = htons(ARP_OP_REPLY);
 		/* Any non-zero MAC address will work */
-		memset(&arp->ar_sha, 0x01, ARP_HLEN);
+		memset(arp->sha, 0x01, ARP_HLEN);
 		/* Use whatever IP we were looking for (always 127.0.0.1?) */
-		net_write_ip(&arp->ar_spa, arp_ip);
-		memcpy(&arp->ar_tha, pdata->enetaddr, ARP_HLEN);
-		net_write_ip(&arp->ar_tpa, net_ip);
-		length = ARP_HDR_SIZE;
+		memcpy(&arp->spa, &arp_ip, sizeof(arp->spa));
+		memcpy(arp->tha, pdata->enetaddr, ARP_HLEN);
+		memcpy(&arp->tpa, &net_ip, sizeof(arp->tpa));
+		length = sizeof(*arp);
 	} else {
 		/* If local, the Ethernet header won't be included; skip it */
 		uchar *pktptr = priv->local ?

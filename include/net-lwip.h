@@ -61,6 +61,11 @@ enum proto_t {
 	TFTPGET
 };
 
+static inline void net_set_server_ip(struct in_addr ip)
+{
+	/* lwIP reads serverip from the environment when starting a command. */
+}
+
 static inline int eth_is_on_demand_init(void)
 {
 	return 1;
