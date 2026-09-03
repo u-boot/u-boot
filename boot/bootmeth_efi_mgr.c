@@ -84,10 +84,13 @@ static int efi_mgr_read_file(struct udevice *dev, struct bootflow *bflow,
 
 static int efi_mgr_boot(struct udevice *dev, struct bootflow *bflow)
 {
-	int ret;
+	efi_status_t ret;
 
 	/* Booting is handled by the 'bootefi bootmgr' command */
 	ret = efi_bootmgr_run(EFI_FDT_USE_INTERNAL);
+	if (ret != EFI_SUCCESS)
+		return log_msg_ret("mgr",
+				   ret == EFI_NOT_FOUND ? -ENOENT : -EIO);
 
 	return 0;
 }
