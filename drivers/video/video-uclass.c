@@ -592,16 +592,6 @@ void *video_get_u_boot_logo(void)
 	return SPLASH_START(u_boot_logo);
 }
 
-static int show_splash(struct udevice *dev)
-{
-	u8 *data = SPLASH_START(u_boot_logo);
-	int ret;
-
-	ret = video_bmp_display(dev, map_to_sysmem(data), -4, 4, true);
-
-	return 0;
-}
-
 int video_default_font_height(struct udevice *dev)
 {
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
@@ -721,11 +711,11 @@ static int video_post_probe(struct udevice *dev)
 
 	if (CONFIG_IS_ENABLED(VIDEO_LOGO) &&
 	    !CONFIG_IS_ENABLED(SPLASH_SCREEN) && !plat->hide_logo) {
-		ret = show_splash(dev);
-		if (ret) {
-			log_debug("Cannot show splash screen\n");
-			return ret;
-		}
+		u8 *data = video_get_u_boot_logo();
+
+		ret = video_bmp_display(dev, map_to_sysmem(data), -4, 4, true);
+		if (ret)
+			log_debug("Cannot show splash screen (err=%dE)\n", ret);
 	}
 
 	/* register cyclic as soon as the first video device is probed */
