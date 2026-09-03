@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <efi.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 #include <env.h>
 #include <expo.h>
 #include <mapmem.h>
@@ -582,6 +583,45 @@ static int bootflow_system(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_system, UTF_DM | UTF_SCAN_PDATA | UTF_SCAN_FDT |
 	     UTF_CONSOLE);
+
+/* Check that a failed 'efi_mgr' boot reports the boot manager's error */
+static int bootflow_efi_mgr_err(struct unit_test_state *uts)
+{
+	struct udevice *bootstd, *dev;
+	struct bootflow *bflow;
+	efi_status_t status;
+	int ret;
+
+	if (!IS_ENABLED(CONFIG_EFI_BOOTMGR))
+		return -EAGAIN;
+	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
+	ut_assertok(device_bind(bootstd, DM_DRIVER_GET(bootmeth_3efi_mgr),
+				"efi_mgr", 0, ofnode_null(), &dev));
+	ut_assertok(device_probe(dev));
+	sandbox_set_fake_efi_mgr_dev(dev, true);
+
+	bootstd_clear_glob();
+	ut_assertok(run_command("bootflow scan -H", 0));
+
+	/* Remove any BootOrder so that the boot manager has nothing to load */
+	ut_asserteq(EFI_SUCCESS, efi_init_obj_list());
+	status = efi_set_variable_int(u"BootOrder", &efi_global_variable_guid,
+				      0, 0, NULL, false);
+	ut_assert(status == EFI_SUCCESS || status == EFI_NOT_FOUND);
+
+	for (ret = bootflow_first_glob(&bflow); !ret;
+	     ret = bootflow_next_glob(&bflow)) {
+		if (!strcmp("efi_mgr", bflow->method->name))
+			break;
+	}
+	ut_assertok(ret);
+
+	/* The boot manager finds no boot option; its error must not be lost */
+	ut_asserteq(-ENOENT, bootflow_boot(bflow));
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_efi_mgr_err, UTF_DM | UTF_SCAN_PDATA | UTF_SCAN_FDT);
 #endif
 
 /* Check disabling a bootmethod if it requests it */
