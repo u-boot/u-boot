@@ -83,11 +83,14 @@ static int _scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bp
 }
 
 static int scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
-				     int bpd_size, void __iomem *reg)
+				     int bpd_size, void __iomem *reg, bool subclk)
 {
 	int ret, i;
 
 	for (i = 0; i < bpd_size; i++) {
+		if (bpd[i].subclk != subclk)
+			continue;
+
 		ret = _scpsys_bus_protect_enable(&bpd[i], reg);
 		if (ret)
 			return ret;
@@ -97,11 +100,14 @@ static int scpsys_bus_protect_enable(const struct mtk_scpsys_bus_prot_data *bpd,
 }
 
 static int scpsys_bus_protect_disable(const struct mtk_scpsys_bus_prot_data *bpd,
-				      int bpd_size, void __iomem *reg)
+				      int bpd_size, void __iomem *reg, bool subclk)
 {
 	int i, ret;
 
 	for (i = bpd_size - 1; i >= 0; i--) {
+		if (bpd[i].subclk != subclk)
+			continue;
+
 		ret = _scpsys_bus_protect_disable(&bpd[i], reg);
 		if (ret)
 			return ret;
@@ -189,6 +195,15 @@ static int mtk_scpsys_power_on(struct power_domain *power_domain)
 	val |= PWR_RST_B_BIT;
 	writel(val, ctl_addr);
 
+	/*
+	 * Some domains split the bus protection policy in two: one part has to
+	 * be released before the subsys clocks are enabled and the rest after.
+	 */
+	ret = scpsys_bus_protect_disable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
+					 infracfg, true);
+	if (ret < 0)
+		return ret;
+
 	ret = clk_enable_bulk(&domain->subsys_clks);
 	if (ret)
 		return ret;
@@ -206,7 +221,8 @@ static int mtk_scpsys_power_on(struct power_domain *power_domain)
 		if (ret)
 			return ret;
 	}
-	ret = scpsys_bus_protect_disable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA, infracfg);
+	ret = scpsys_bus_protect_disable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
+					 infracfg, false);
 	if (ret < 0)
 		return ret;
 
@@ -243,7 +259,8 @@ static int mtk_scpsys_power_off(struct power_domain *power_domain)
 			return ret;
 	}
 
-	ret = scpsys_bus_protect_enable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA, infracfg);
+	ret = scpsys_bus_protect_enable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
+					infracfg, false);
 	if (ret < 0)
 		return ret;
 
@@ -258,6 +275,11 @@ static int mtk_scpsys_power_off(struct power_domain *power_domain)
 
 	ret = clk_disable_bulk(&domain->subsys_clks);
 	if (ret)
+		return ret;
+
+	ret = scpsys_bus_protect_enable(data->bp_infracfg, SPM_MAX_BUS_PROT_DATA,
+					infracfg, true);
+	if (ret < 0)
 		return ret;
 
 	val |= PWR_ISO_BIT;
