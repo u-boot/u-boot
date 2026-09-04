@@ -700,12 +700,12 @@ def test_vboot_ext_data_bounds(ubman):
         fd.write(500 * b'\0')
 
     testcases = [
-        ('negative data-position',
-         {'data-position': 0xffffffff}, 'Invalid external data position'),
-        ('negative data-offset',
+        ('invalid data-position',
+         {'data-position': 0xffffffff}, 'FIT external data is out of bounds'),
+        ('invalid data-offset',
          {'data-offset': 0xffffffff}, 'Invalid external data offset'),
-        ('negative data-size',
-         {'data-size': 0xffffffff}, 'Invalid external data size'),
+        ('invalid data-size',
+         {'data-size': 0xffffffff}, 'FIT external data is out of bounds'),
         ('off-bounds data-position',
          {'data-position': 0x7fffffff}, 'FIT external data is out of bounds'),
         ('off-bounds data-offset',

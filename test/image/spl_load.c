@@ -368,6 +368,49 @@ SPL_IMG_TEST(spl_test_image, FIT_INTERNAL, 0);
 SPL_IMG_TEST(spl_test_image, FIT_EXTERNAL, 0);
 
 /*
+ * Build a FIT with external data, overwrite one property of the image node
+ * with a hostile value and check that loading fails with the expected error.
+ * The external-data properties are excluded from the configuration signature,
+ * so load_simple_fit() must reject values that would wrap its offset/size
+ * arithmetic rather than read from a bogus location.
+ */
+static int check_fit_ext_prop(struct unit_test_state *uts, const char *prop,
+			      u32 value, uint bl_len, spl_load_reader h_read,
+			      ulong fit_offset, int expected)
+{
+	size_t img_size, img_data, data_size = SPL_TEST_DATA_SIZE;
+	struct spl_image_info info_write = {
+		.name = "ext-prop",
+		.size = data_size,
+	}, info_read = { };
+	struct spl_load_info load;
+	void *img;
+	int node;
+
+	img_size = create_image(NULL, FIT_EXTERNAL, &info_write, &img_data);
+	ut_assert(img_size);
+	img = calloc(img_size, 1);
+	ut_assertnonnull(img);
+
+	generate_data(img + img_data, data_size, "ext-prop");
+	ut_asserteq(img_size, create_image(img, FIT_EXTERNAL, &info_write,
+					   NULL));
+
+	node = fdt_path_offset(img, FIT_IMAGES_PATH);
+	ut_assert(node >= 0);
+	node = fdt_first_subnode(img, node);
+	ut_assert(node >= 0);
+	ut_assertok(fdt_setprop_inplace_u32(img, node, prop, value));
+
+	spl_load_init(&load, h_read, img, bl_len);
+	ut_asserteq(expected,
+		    spl_load_simple_fit(&info_read, &load, fit_offset, img));
+
+	free(img);
+	return 0;
+}
+
+/*
  * A FIT image's data-size property is not covered by the configuration
  * signature, so it is untrusted input. load_simple_fit() must reject a
  * data-size larger than the destination rather than overrun it, because the
@@ -375,46 +418,93 @@ SPL_IMG_TEST(spl_test_image, FIT_EXTERNAL, 0);
  */
 static int spl_test_fit_external_oversize(struct unit_test_state *uts)
 {
-	size_t img_size, img_data, data_size = SPL_TEST_DATA_SIZE;
-	struct spl_image_info info_write = {
-		.name = "oversize",
-		.size = data_size,
-	}, info_read = { };
-	struct spl_load_info load;
-	void *img;
-	int node;
-
 	if (!image_supported(FIT_EXTERNAL))
 		return -EAGAIN;
 
-	img_size = create_image(NULL, FIT_EXTERNAL, &info_write, &img_data);
-	ut_assert(img_size);
-	img = calloc(img_size, 1);
-	ut_assertnonnull(img);
-
-	generate_data(img + img_data, data_size, "oversize");
-	ut_asserteq(img_size, create_image(img, FIT_EXTERNAL, &info_write,
-					   NULL));
-
-	/*
-	 * Inflate data-size far beyond the image buffer and any plausible
-	 * load region. Without a bounds check, load_simple_fit() reads this
-	 * many bytes off the "device" before the hash is checked.
-	 */
-	node = fdt_path_offset(img, FIT_IMAGES_PATH);
-	ut_assert(node >= 0);
-	node = fdt_first_subnode(img, node);
-	ut_assert(node >= 0);
-	ut_assertok(fdt_setprop_inplace_u32(img, node, FIT_DATA_SIZE_PROP,
-					    0x40000000));
-
-	spl_load_init(&load, spl_test_read, img, 1);
-	ut_asserteq(-EFBIG, spl_load_simple_fit(&info_read, &load, 0, img));
-
-	free(img);
-	return 0;
+	return check_fit_ext_prop(uts, FIT_DATA_SIZE_PROP, 0x40000000, 1,
+				  spl_test_read, 0, -EFBIG);
 }
 SPL_TEST(spl_test_fit_external_oversize, 0);
+
+/*
+ * A data-offset which wraps past UINT32_MAX once the external-data base
+ * offset is added must be rejected before it is used as a read offset.
+ */
+static int spl_test_fit_data_offset_overflow(struct unit_test_state *uts)
+{
+	if (!image_supported(FIT_EXTERNAL))
+		return -EAGAIN;
+
+	return check_fit_ext_prop(uts, FIT_DATA_OFFSET_PROP, 0xffffffff, 1,
+				  spl_test_read, 0, -EINVAL);
+}
+SPL_TEST(spl_test_fit_data_offset_overflow, 0);
+
+/*
+ * A data-size whose block-aligned read size wraps past ULONG_MAX must be
+ * rejected. Since data-size is a 32-bit property, the wrap is only reachable
+ * when ulong is 32 bits wide, so skip the test on other targets.
+ */
+static int spl_test_fit_data_size_overflow(struct unit_test_state *uts)
+{
+	if (!image_supported(FIT_EXTERNAL) || sizeof(ulong) != 4)
+		return -EAGAIN;
+
+	return check_fit_ext_prop(uts, FIT_DATA_SIZE_PROP, 0xffffffff, 2,
+				  spl_test_read, 0, -EOVERFLOW);
+}
+SPL_TEST(spl_test_fit_data_size_overflow, 0);
+
+/* Device offset the reader pretends the FIT was loaded from */
+static ulong spl_test_fit_offset;
+
+static ulong spl_test_read_fit_offset(struct spl_load_info *load, ulong sector,
+				      ulong count, void *buf)
+{
+	return spl_test_read(load, sector - spl_test_fit_offset, count, buf);
+}
+
+/*
+ * An aligned external-data offset which wraps past ULONG_MAX once the FIT's
+ * offset on the device is added must be rejected before it is used as a read
+ * offset.
+ */
+static int spl_test_fit_read_offset_overflow(struct unit_test_state *uts)
+{
+	if (!image_supported(FIT_EXTERNAL))
+		return -EAGAIN;
+
+	/* So that ULONG_MAX - fit_offset < the aligned external-data offset */
+	spl_test_fit_offset = ULONG_MAX - 0xfff;
+
+	return check_fit_ext_prop(uts, FIT_DATA_OFFSET_PROP, 0x1000, 1,
+				  spl_test_read_fit_offset, spl_test_fit_offset,
+				  -EINVAL);
+}
+SPL_TEST(spl_test_fit_read_offset_overflow, 0);
+
+/*
+ * A read whose end position (read_offset + size) wraps past the addressable
+ * range must be rejected.
+ */
+static int spl_test_fit_read_end_overflow(struct unit_test_state *uts)
+{
+	if (!image_supported(FIT_EXTERNAL))
+		return -EAGAIN;
+
+	/*
+	 * The aligned external-data offset (0x2000 plus the size of the FIT
+	 * itself) stays below the 0x2fff bytes remaining before ULONG_MAX, so
+	 * read_offset passes the offset-wrap check above, but reading the
+	 * SPL_TEST_DATA_SIZE bytes of data crosses past UINTPTR_MAX.
+	 */
+	spl_test_fit_offset = ULONG_MAX - 0x2fff;
+
+	return check_fit_ext_prop(uts, FIT_DATA_OFFSET_PROP, 0x2000, 1,
+				  spl_test_read_fit_offset, spl_test_fit_offset,
+				  -EINVAL);
+}
+SPL_TEST(spl_test_fit_read_end_overflow, 0);
 
 /*
  * LZMA is too complex to generate on the fly, so let's use some data I put in
