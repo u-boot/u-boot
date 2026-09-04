@@ -506,6 +506,90 @@ static struct dm_regulator_mode pmic_mode_map_pmic5_smps[] = {
 	},
 };
 
+static struct dm_regulator_mode pmic_mode_map_pmic4_ldo[] = {
+	{
+		.id = REGULATOR_MODE_RETENTION,
+		.register_value = PMIC4_LDO_MODE_RETENTION,
+		.name = "PMIC4_LDO_MODE_RETENTION"
+	}, {
+		.id = REGULATOR_MODE_LPM,
+		.register_value = PMIC4_LDO_MODE_LPM,
+		.name = "PMIC4_LDO_MODE_LPM"
+	}, {
+		.id = REGULATOR_MODE_HPM,
+		.register_value = PMIC4_LDO_MODE_HPM,
+		.name = "PMIC4_LDO_MODE_HPM"
+	},
+};
+
+static struct dm_regulator_mode pmic_mode_map_pmic4_smps[] = {
+	{
+		.id = REGULATOR_MODE_RETENTION,
+		.register_value = PMIC4_SMPS_MODE_RETENTION,
+		.name = "PMIC4_SMPS_MODE_RETENTION"
+	}, {
+		.id = REGULATOR_MODE_LPM,
+		.register_value = PMIC4_SMPS_MODE_PFM,
+		.name = "PMIC4_SMPS_MODE_PFM"
+	}, {
+		.id = REGULATOR_MODE_AUTO,
+		.register_value = PMIC4_SMPS_MODE_AUTO,
+		.name = "PMIC4_SMPS_MODE_AUTO"
+	}, {
+		.id = REGULATOR_MODE_HPM,
+		.register_value = PMIC4_SMPS_MODE_PWM,
+		.name = "PMIC4_SMPS_MODE_PWM"
+	},
+};
+
+static const struct rpmh_vreg_hw_data pmic4_pldo = {
+	.regulator_type = VRM,
+	.ops = &rpmh_regulator_vrm_drms_ops,
+	.voltage_range = REGULATOR_LINEAR_RANGE(1664000, 0, 255, 8000),
+	.n_voltages = 256,
+	.hpm_min_load_uA = 10000,
+	.pmic_mode_map = pmic_mode_map_pmic4_ldo,
+	.n_modes = ARRAY_SIZE(pmic_mode_map_pmic4_ldo),
+};
+
+static const struct rpmh_vreg_hw_data pmic4_pldo_lv = {
+	.regulator_type = VRM,
+	.ops = &rpmh_regulator_vrm_drms_ops,
+	.voltage_range = REGULATOR_LINEAR_RANGE(1256000, 0, 127, 8000),
+	.n_voltages = 128,
+	.hpm_min_load_uA = 10000,
+	.pmic_mode_map = pmic_mode_map_pmic4_ldo,
+	.n_modes = ARRAY_SIZE(pmic_mode_map_pmic4_ldo),
+};
+
+static const struct rpmh_vreg_hw_data pmic4_nldo = {
+	.regulator_type = VRM,
+	.ops = &rpmh_regulator_vrm_drms_ops,
+	.voltage_range = REGULATOR_LINEAR_RANGE(312000, 0, 127, 8000),
+	.n_voltages = 128,
+	.hpm_min_load_uA = 30000,
+	.pmic_mode_map = pmic_mode_map_pmic4_ldo,
+	.n_modes = ARRAY_SIZE(pmic_mode_map_pmic4_ldo),
+};
+
+static const struct rpmh_vreg_hw_data pmic4_hfsmps3 = {
+	.regulator_type = VRM,
+	.ops = &rpmh_regulator_vrm_drms_ops,
+	.voltage_range = REGULATOR_LINEAR_RANGE(320000, 0, 215, 8000),
+	.n_voltages = 216,
+	.pmic_mode_map = pmic_mode_map_pmic4_smps,
+	.n_modes = ARRAY_SIZE(pmic_mode_map_pmic4_smps),
+};
+
+static const struct rpmh_vreg_hw_data pmic4_ftsmps426 = {
+	.regulator_type = VRM,
+	.ops = &rpmh_regulator_vrm_drms_ops,
+	.voltage_range = REGULATOR_LINEAR_RANGE(320000, 0, 258, 4000),
+	.n_voltages = 259,
+	.pmic_mode_map = pmic_mode_map_pmic4_smps,
+	.n_modes = ARRAY_SIZE(pmic_mode_map_pmic4_smps),
+};
+
 static const struct rpmh_vreg_hw_data pmic5_bob = {
 	.regulator_type = VRM,
 	.ops = &rpmh_regulator_vrm_drms_ops,
@@ -651,6 +735,55 @@ static const struct rpmh_vreg_hw_data pmic5_pldo515_mv = {
 	.hw_data	= _hw_data, \
 	.supply_name	= _supply_name, \
 }
+
+/*
+ * LVS regulators are omitted: they are XOB type and this driver only
+ * implements the VRM accelerator.
+ */
+static const struct rpmh_vreg_init_data pm8998_vreg_data[] = {
+	RPMH_VREG("smps1",  "smp%s1",  &pmic4_ftsmps426, "vdd-s1"),
+	RPMH_VREG("smps2",  "smp%s2",  &pmic4_ftsmps426, "vdd-s2"),
+	RPMH_VREG("smps3",  "smp%s3",  &pmic4_hfsmps3,   "vdd-s3"),
+	RPMH_VREG("smps4",  "smp%s4",  &pmic4_hfsmps3,   "vdd-s4"),
+	RPMH_VREG("smps5",  "smp%s5",  &pmic4_hfsmps3,   "vdd-s5"),
+	RPMH_VREG("smps6",  "smp%s6",  &pmic4_ftsmps426, "vdd-s6"),
+	RPMH_VREG("smps7",  "smp%s7",  &pmic4_ftsmps426, "vdd-s7"),
+	RPMH_VREG("smps8",  "smp%s8",  &pmic4_ftsmps426, "vdd-s8"),
+	RPMH_VREG("smps9",  "smp%s9",  &pmic4_ftsmps426, "vdd-s9"),
+	RPMH_VREG("smps10", "smp%s10", &pmic4_ftsmps426, "vdd-s10"),
+	RPMH_VREG("smps11", "smp%s11", &pmic4_ftsmps426, "vdd-s11"),
+	RPMH_VREG("smps12", "smp%s12", &pmic4_ftsmps426, "vdd-s12"),
+	RPMH_VREG("smps13", "smp%s13", &pmic4_ftsmps426, "vdd-s13"),
+	RPMH_VREG("ldo1",   "ldo%s1",  &pmic4_nldo,      "vdd-l1-l27"),
+	RPMH_VREG("ldo2",   "ldo%s2",  &pmic4_nldo,      "vdd-l2-l8-l17"),
+	RPMH_VREG("ldo3",   "ldo%s3",  &pmic4_nldo,      "vdd-l3-l11"),
+	RPMH_VREG("ldo4",   "ldo%s4",  &pmic4_nldo,      "vdd-l4-l5"),
+	RPMH_VREG("ldo5",   "ldo%s5",  &pmic4_nldo,      "vdd-l4-l5"),
+	RPMH_VREG("ldo6",   "ldo%s6",  &pmic4_pldo,      "vdd-l6"),
+	RPMH_VREG("ldo7",   "ldo%s7",  &pmic4_pldo_lv,   "vdd-l7-l12-l14-l15"),
+	RPMH_VREG("ldo8",   "ldo%s8",  &pmic4_nldo,      "vdd-l2-l8-l17"),
+	RPMH_VREG("ldo9",   "ldo%s9",  &pmic4_pldo,      "vdd-l9"),
+	RPMH_VREG("ldo10",  "ldo%s10", &pmic4_pldo,      "vdd-l10-l23-l25"),
+	RPMH_VREG("ldo11",  "ldo%s11", &pmic4_nldo,      "vdd-l3-l11"),
+	RPMH_VREG("ldo12",  "ldo%s12", &pmic4_pldo_lv,   "vdd-l7-l12-l14-l15"),
+	RPMH_VREG("ldo13",  "ldo%s13", &pmic4_pldo,      "vdd-l13-l19-l21"),
+	RPMH_VREG("ldo14",  "ldo%s14", &pmic4_pldo_lv,   "vdd-l7-l12-l14-l15"),
+	RPMH_VREG("ldo15",  "ldo%s15", &pmic4_pldo_lv,   "vdd-l7-l12-l14-l15"),
+	RPMH_VREG("ldo16",  "ldo%s16", &pmic4_pldo,      "vdd-l16-l28"),
+	RPMH_VREG("ldo17",  "ldo%s17", &pmic4_nldo,      "vdd-l2-l8-l17"),
+	RPMH_VREG("ldo18",  "ldo%s18", &pmic4_pldo,      "vdd-l18-l22"),
+	RPMH_VREG("ldo19",  "ldo%s19", &pmic4_pldo,      "vdd-l13-l19-l21"),
+	RPMH_VREG("ldo20",  "ldo%s20", &pmic4_pldo,      "vdd-l20-l24"),
+	RPMH_VREG("ldo21",  "ldo%s21", &pmic4_pldo,      "vdd-l13-l19-l21"),
+	RPMH_VREG("ldo22",  "ldo%s22", &pmic4_pldo,      "vdd-l18-l22"),
+	RPMH_VREG("ldo23",  "ldo%s23", &pmic4_pldo,      "vdd-l10-l23-l25"),
+	RPMH_VREG("ldo24",  "ldo%s24", &pmic4_pldo,      "vdd-l20-l24"),
+	RPMH_VREG("ldo25",  "ldo%s25", &pmic4_pldo,      "vdd-l10-l23-l25"),
+	RPMH_VREG("ldo26",  "ldo%s26", &pmic4_nldo,      "vdd-l26"),
+	RPMH_VREG("ldo27",  "ldo%s27", &pmic4_nldo,      "vdd-l1-l27"),
+	RPMH_VREG("ldo28",  "ldo%s28", &pmic4_pldo,      "vdd-l16-l28"),
+	{}
+};
 
 static const struct rpmh_vreg_init_data pm6150l_vreg_data[] = {
 	/* smps1 - smps8 are not added to u-boot yet */
@@ -1040,6 +1173,10 @@ static const struct udevice_id rpmh_regulator_ids[] = {
 	{
 		.compatible = "qcom,pm8550vs-rpmh-regulators",
 		.data = (ulong)pm8550vs_vreg_data,
+	},
+	{
+		.compatible = "qcom,pm8998-rpmh-regulators",
+		.data = (ulong)pm8998_vreg_data,
 	},
 	{
 		.compatible = "qcom,pmc8380-rpmh-regulators",
