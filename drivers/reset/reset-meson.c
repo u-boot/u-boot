@@ -82,6 +82,11 @@ static const struct meson_reset_drvdata meson_a1_data = {
 	.level_offset = 0x40,
 };
 
+static const struct meson_reset_drvdata meson_s4_data = {
+	.reg_count = 6,
+	.level_offset = 0x40,
+};
+
 static const struct udevice_id meson_reset_ids[] = {
 	{
 		.compatible = "amlogic,meson-gxbb-reset",
@@ -94,6 +99,10 @@ static const struct udevice_id meson_reset_ids[] = {
 	{
 		.compatible = "amlogic,meson-a1-reset",
 		.data = (ulong)&meson_a1_data,
+	},
+	{
+		.compatible = "amlogic,meson-s4-reset",
+		.data = (ulong)&meson_s4_data,
 	},
 	{ }
 };
