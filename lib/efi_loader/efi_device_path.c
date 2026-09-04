@@ -60,28 +60,6 @@ struct efi_device_path *efi_dp_next(const struct efi_device_path *dp)
 	return (struct efi_device_path *)dp;
 }
 
-int efi_dp_match(const struct efi_device_path *a,
-		 const struct efi_device_path *b)
-{
-	while (1) {
-		int ret;
-
-		ret = memcmp(&a->length, &b->length, sizeof(a->length));
-		if (ret)
-			return ret;
-
-		ret = memcmp(a, b, a->length);
-		if (ret)
-			return ret;
-
-		a = efi_dp_next(a);
-		b = efi_dp_next(b);
-
-		if (!a || !b)
-			return 0;
-	}
-}
-
 struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp)
 {
 	while (dp) {
