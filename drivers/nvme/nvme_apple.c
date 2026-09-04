@@ -121,7 +121,7 @@ static void apple_nvme_submit_cmd(struct nvme_queue *nvmeq,
 
 	tcb = ((void *)priv->tcbs[nvmeq->qid]) + tail * ANS_NVMMU_TCB_PITCH;
 	memset(tcb, 0, sizeof(*tcb));
-	tcb->opcode = cmd->common.opcode;
+	tcb->opcode = 0;
 	if (cmd->common.prp1)
 		tcb->flags = ANS_NVMMU_TCB_WRITE | ANS_NVMMU_TCB_READ;
 	else
