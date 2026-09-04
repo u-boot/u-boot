@@ -117,7 +117,7 @@ static int ecdsa_verify_hash(struct udevice *dev,
 	if (!ops || !ops->verify)
 		return -ENODEV;
 
-	if (info->required_keynode > 0) {
+	if (info->required_keynode >= 0) {
 		ret = fdt_get_key(&key, info->fdt_blob, info->required_keynode);
 		if (ret < 0)
 			return ret;
