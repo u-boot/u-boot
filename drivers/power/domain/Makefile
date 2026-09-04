@@ -14,11 +14,14 @@ obj-$(CONFIG_IMX8MP_MEDIAMIX_BLKCTRL) += imx8mp-mediamix.o
 obj-$(CONFIG_MESON_EE_POWER_DOMAIN) += meson-ee-pwrc.o
 obj-$(CONFIG_MESON_GX_VPU_POWER_DOMAIN) += meson-gx-pwrc-vpu.o
 obj-$(CONFIG_MESON_SECURE_POWER_DOMAIN) += meson-secure-pwrc.o
-obj-$(CONFIG_MT2701_POWER_DOMAIN) += mt2701-power-domain.o
-obj-$(CONFIG_MT7622_POWER_DOMAIN) += mt7622-power-domain.o
-obj-$(CONFIG_MT8188_POWER_DOMAIN) += mt8188-power-domain.o
-obj-$(CONFIG_MT8366_POWER_DOMAIN) += mt8366-power-domain.o
 obj-$(CONFIG_MTK_POWER_DOMAIN) += mtk-power-domain.o
+ifdef CONFIG_MTK_POWER_DOMAIN
+# Some drivers are named after the first SoC they supported, not after a target.
+obj-$(CONFIG_TARGET_MT7623) += mt2701-power-domain.o
+obj-$(CONFIG_TARGET_MT7622)$(CONFIG_TARGET_MT7629) += mt7622-power-domain.o
+obj-$(CONFIG_TARGET_MT8188) += mt8188-power-domain.o
+obj-$(CONFIG_TARGET_MT8366) += mt8366-power-domain.o
+endif
 obj-$(CONFIG_QCOM_RPMH_POWER_DOMAIN) += qcom-rpmhpd.o
 obj-$(CONFIG_RENESAS_R8A78000_POWER_DOMAIN) += renesas-r8a78000-power-domain.o
 obj-$(CONFIG_SANDBOX_POWER_DOMAIN) += sandbox-power-domain.o
