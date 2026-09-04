@@ -47,6 +47,7 @@ obj-$(CONFIG_CMD_WGET) += wget.o
 endif
 obj-$(CONFIG_ARM_FFA_TRANSPORT) += armffa.o
 endif
+obj-$(CONFIG_FPGA_ALTERA_PR) += pr.o
 obj-$(CONFIG_CMD_SPAWN) += spawn.o
 ifdef CONFIG_CMD_ZIP
 obj-$(CONFIG_CMD_UNZIP) += unzip.o
