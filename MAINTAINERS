@@ -805,7 +805,7 @@ N:	uniphier
 ARM VERSAL NET
 M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-microblaze.git
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
 F:	arch/arm/mach-versal-net/
 F:	drivers/soc/soc_xilinx_versal_net.c
 N:	(?<!uni)versal-net
@@ -813,7 +813,7 @@ N:	(?<!uni)versal-net
 ARM VERSAL
 M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-microblaze.git
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
 F:	arch/arm/mach-versal/
 F:	drivers/net/xilinx_axi_mrmac.*
 F:	drivers/soc/soc_xilinx_versal.c
@@ -824,7 +824,7 @@ N:	(?<!uni)versal
 ARM VERSAL GEN 2
 M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-microblaze.git
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
 F:	arch/arm/mach-versal2/
 
 ARM VERSATILE EXPRESS DRIVERS
@@ -838,7 +838,7 @@ ARM ZYNQ and ZYNQMP
 M:	Michal Simek <monstr@monstr.eu>
 M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-microblaze.git
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
 F:	doc/board/xilinx/
 F:	doc/device-tree-bindings/video/syncoam,seps525.txt
 F:	drivers/gpio/gpio_slg7xl45106.c
@@ -856,7 +856,7 @@ N:	zynq
 ARM ZYNQMP R5
 M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-microblaze.git
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
 F:	arch/arm/mach-zynqmp-r5/
 
 ARM PHYTIUM
@@ -1125,7 +1125,7 @@ F:	test/dm/fastboot.c
 FPGA
 M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-microblaze.git
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
 F:	drivers/fpga/
 F:	cmd/fpga.c
 F:	include/fpga.h
@@ -1274,7 +1274,7 @@ F:	lib/membuf.c
 MICROBLAZE
 M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-microblaze.git
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
 F:	arch/microblaze/
 F:	cmd/mfsl.c
 F:	drivers/gpio/xilinx_gpio.c
