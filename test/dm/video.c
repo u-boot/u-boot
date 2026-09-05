@@ -424,6 +424,56 @@ static int dm_test_video_bmp8(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_video_bmp8, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
+/*
+ * A crafted RLE8 bitmap whose decode cursor is driven outside the
+ * framebuffer. Two End-Of-Line escapes move the cursor a full framebuffer
+ * below priv->fb while the scanline index y stays in range, then an
+ * unencoded run attempts to write there. The geometry (1366x3, 8bpp on the
+ * 16bpp sandbox display) makes the underflow happen after exactly two EOL
+ * escapes. video_bmp_display() must reject the image rather than write out
+ * of bounds.
+ */
+static const u8 rle8_oob_bmp[] = {
+	'B', 'M',			/* signature */
+	0x46, 0x00, 0x00, 0x00,		/* file size */
+	0x00, 0x00, 0x00, 0x00,		/* reserved */
+	0x3a, 0x00, 0x00, 0x00,		/* data offset (58) */
+	0x28, 0x00, 0x00, 0x00,		/* info header size (40) */
+	0x56, 0x05, 0x00, 0x00,		/* width (1366) */
+	0x03, 0x00, 0x00, 0x00,		/* height (3) */
+	0x01, 0x00,			/* planes */
+	0x08, 0x00,			/* bit count (8) */
+	0x01, 0x00, 0x00, 0x00,		/* compression (BI_RLE8) */
+	0x0c, 0x00, 0x00, 0x00,		/* image size */
+	0x00, 0x00, 0x00, 0x00,		/* x pixels per m */
+	0x00, 0x00, 0x00, 0x00,		/* y pixels per m */
+	0x01, 0x00, 0x00, 0x00,		/* colours used */
+	0x00, 0x00, 0x00, 0x00,		/* colours important */
+	0x00, 0x00, 0x00, 0x00,		/* palette entry 0 */
+	0x00, 0x00,			/* end of line */
+	0x00, 0x00,			/* end of line */
+	0x00, 0x03,			/* unencoded run of three pixels */
+	0x00, 0x00, 0x00,		/* pixel data */
+	0x00,				/* padding to word boundary */
+	0x00, 0x01,			/* end of bitmap */
+};
+
+/* A crafted RLE8 image must be rejected, not written out of bounds */
+static int dm_test_video_bmp_rle8_oob(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	void *bmp;
+
+	ut_assertok(video_get_nologo(uts, &dev));
+	bmp = map_sysmem(0, 0);
+	memcpy(bmp, rle8_oob_bmp, sizeof(rle8_oob_bmp));
+
+	ut_asserteq(-EINVAL, video_bmp_display(dev, 0, 0, 0, false));
+
+	return 0;
+}
+DM_TEST(dm_test_video_bmp_rle8_oob, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
 /* Test drawing a bitmap file on a 16bpp display */
 static int dm_test_video_bmp16(struct unit_test_state *uts)
 {

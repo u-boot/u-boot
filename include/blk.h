@@ -120,7 +120,7 @@ struct blk_desc {
  *
  * Return: - 1 if block returned from cache, 0 otherwise.
  */
-int blkcache_read(int iftype, int dev,
+int blkcache_read(int iftype, int dev, int hwpart,
 		  lbaint_t start, lbaint_t blkcnt,
 		  unsigned long blksz, void *buffer);
 
@@ -136,7 +136,7 @@ int blkcache_read(int iftype, int dev,
  * @param buffer - buffer containing data to cache
  *
  */
-void blkcache_fill(int iftype, int dev,
+void blkcache_fill(int iftype, int dev, int hwpart,
 		   lbaint_t start, lbaint_t blkcnt,
 		   unsigned long blksz, void const *buffer);
 
@@ -180,14 +180,14 @@ void blkcache_free(void);
 
 #else
 
-static inline int blkcache_read(int iftype, int dev,
+static inline int blkcache_read(int iftype, int dev, int hwpart,
 				lbaint_t start, lbaint_t blkcnt,
 				unsigned long blksz, void *buffer)
 {
 	return 0;
 }
 
-static inline void blkcache_fill(int iftype, int dev,
+static inline void blkcache_fill(int iftype, int dev, int hwpart,
 				 lbaint_t start, lbaint_t blkcnt,
 				 unsigned long blksz, void const *buffer) {}
 
@@ -529,7 +529,8 @@ static inline ulong blk_dread(struct blk_desc *block_dev, lbaint_t start,
 {
 	ulong blks_read;
 	if (blkcache_read(block_dev->uclass_id, block_dev->devnum,
-			  start, blkcnt, block_dev->blksz, buffer))
+			  block_dev->hwpart, start, blkcnt, block_dev->blksz,
+			  buffer))
 		return blkcnt;
 
 	/*
@@ -540,7 +541,8 @@ static inline ulong blk_dread(struct blk_desc *block_dev, lbaint_t start,
 	blks_read = block_dev->block_read(block_dev, start, blkcnt, buffer);
 	if (blks_read == blkcnt)
 		blkcache_fill(block_dev->uclass_id, block_dev->devnum,
-			      start, blkcnt, block_dev->blksz, buffer);
+			      block_dev->hwpart, start, blkcnt,
+			      block_dev->blksz, buffer);
 
 	return blks_read;
 }

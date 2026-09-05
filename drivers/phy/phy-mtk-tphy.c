@@ -228,6 +228,7 @@
 enum mtk_phy_version {
 	MTK_TPHY_V1 = 1,
 	MTK_TPHY_V2,
+	MTK_TPHY_V3,
 };
 
 struct tphy_pdata {
@@ -331,9 +332,10 @@ static void u2_phy_instance_init(struct mtk_tphy *tphy,
 			FIELD_PREP(PA6_RG_U2_SQTH, 2));
 
 	/* set HS slew rate */
-	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR5,
-			PA5_RG_U2_HSTX_SRCTRL,
-			FIELD_PREP(PA5_RG_U2_HSTX_SRCTRL, 4));
+	if (tphy->pdata->version < MTK_TPHY_V3)
+		clrsetbits_le32(u2_banks->com + U3P_USBPHYACR5,
+				PA5_RG_U2_HSTX_SRCTRL,
+				FIELD_PREP(PA5_RG_U2_HSTX_SRCTRL, 4));
 
 	u2_phy_pll_26m_set(tphy, instance);
 
@@ -813,6 +815,7 @@ static int mtk_phy_xlate(struct phy *phy,
 		phy_v1_banks_init(tphy, instance);
 		break;
 	case MTK_TPHY_V2:
+	case MTK_TPHY_V3:
 		phy_v2_banks_init(tphy, instance);
 		break;
 	default:
@@ -900,8 +903,12 @@ static struct tphy_pdata tphy_v2_pdata = {
 	.version = MTK_TPHY_V2,
 };
 
+static struct tphy_pdata tphy_v3_pdata = {
+	.version = MTK_TPHY_V3,
+};
+
 static struct tphy_pdata mt8195_pdata = {
-	.version = MTK_TPHY_V2,
+	.version = MTK_TPHY_V3,
 	.sw_pll_48m_to_26m = true,
 };
 
@@ -913,6 +920,10 @@ static const struct udevice_id mtk_tphy_id_table[] = {
 	{
 		.compatible = "mediatek,generic-tphy-v2",
 		.data = (ulong)&tphy_v2_pdata,
+	},
+	{
+		.compatible = "mediatek,generic-tphy-v3",
+		.data = (ulong)&tphy_v3_pdata,
 	},
 	{
 		.compatible = "mediatek,mt8195-tphy",

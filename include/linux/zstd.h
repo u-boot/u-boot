@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
@@ -77,6 +77,30 @@ int zstd_min_clevel(void);
  */
 int zstd_max_clevel(void);
 
+/**
+ * zstd_default_clevel() - default compression level
+ *
+ * Return: Default compression level.
+ */
+int zstd_default_clevel(void);
+
+/**
+ * struct zstd_custom_mem - custom memory allocation
+ */
+typedef ZSTD_customMem zstd_custom_mem;
+
+/**
+ * struct zstd_dict_load_method - Dictionary load method.
+ * See zstd_lib.h.
+ */
+typedef ZSTD_dictLoadMethod_e zstd_dict_load_method;
+
+/**
+ * struct zstd_dict_content_type - Dictionary context type.
+ * See zstd_lib.h.
+ */
+typedef ZSTD_dictContentType_e zstd_dict_content_type;
+
 /* ======   Parameter Selection   ====== */
 
 /**
@@ -136,9 +160,32 @@ typedef ZSTD_parameters zstd_parameters;
 zstd_parameters zstd_get_params(int level,
 	unsigned long long estimated_src_size);
 
-/* ======   Single-pass Compression   ====== */
+/**
+ * zstd_get_cparams() - returns zstd_compression_parameters for selected level
+ * @level:              The compression level
+ * @estimated_src_size: The estimated source size to compress or 0
+ *                      if unknown.
+ * @dict_size:          Dictionary size.
+ *
+ * Return:              The selected zstd_compression_parameters.
+ */
+zstd_compression_parameters zstd_get_cparams(int level,
+	unsigned long long estimated_src_size, size_t dict_size);
 
 typedef ZSTD_CCtx zstd_cctx;
+typedef ZSTD_cParameter zstd_cparameter;
+
+/**
+ * zstd_cctx_set_param() - sets a compression parameter
+ * @cctx:         The context. Must have been initialized with zstd_init_cctx().
+ * @param:        The parameter to set.
+ * @value:        The value to set the parameter to.
+ *
+ * Return:        Zero or an error, which can be checked using zstd_is_error().
+ */
+size_t zstd_cctx_set_param(zstd_cctx *cctx, zstd_cparameter param, int value);
+
+/* ======   Single-pass Compression   ====== */
 
 /**
  * zstd_cctx_workspace_bound() - max memory needed to initialize a zstd_cctx
@@ -152,6 +199,20 @@ typedef ZSTD_CCtx zstd_cctx;
  *              zstd_init_cctx().
  */
 size_t zstd_cctx_workspace_bound(const zstd_compression_parameters *parameters);
+
+/**
+ * zstd_cctx_workspace_bound_with_ext_seq_prod() - max memory needed to
+ * initialize a zstd_cctx when using the block-level external sequence
+ * producer API.
+ * @parameters: The compression parameters to be used.
+ *
+ * If multiple compression parameters might be used, the caller must call
+ * this function for each set of parameters and use the maximum size.
+ *
+ * Return:      A lower bound on the size of the workspace that is passed to
+ *              zstd_init_cctx().
+ */
+size_t zstd_cctx_workspace_bound_with_ext_seq_prod(const zstd_compression_parameters *parameters);
 
 /**
  * zstd_init_cctx() - initialize a zstd compression context
@@ -179,6 +240,71 @@ zstd_cctx *zstd_init_cctx(void *workspace, size_t workspace_size);
  */
 size_t zstd_compress_cctx(zstd_cctx *cctx, void *dst, size_t dst_capacity,
 	const void *src, size_t src_size, const zstd_parameters *parameters);
+
+/**
+ * zstd_create_cctx_advanced() - Create compression context
+ * @custom_mem:   Custom allocator.
+ *
+ * Return:        NULL on error, pointer to compression context otherwise.
+ */
+zstd_cctx *zstd_create_cctx_advanced(zstd_custom_mem custom_mem);
+
+/**
+ * zstd_free_cctx() - Free compression context
+ * @cdict:        Pointer to compression context.
+ *
+ * Return:        Always 0.
+ */
+size_t zstd_free_cctx(zstd_cctx* cctx);
+
+/**
+ * struct zstd_cdict - Compression dictionary.
+ * See zstd_lib.h.
+ */
+typedef ZSTD_CDict zstd_cdict;
+
+/**
+ * zstd_create_cdict_byreference() - Create compression dictionary
+ * @dict:              Pointer to dictionary buffer.
+ * @dict_size:         Size of the dictionary buffer.
+ * @dict_load_method:  Dictionary load method.
+ * @dict_content_type: Dictionary content type.
+ * @custom_mem:        Memory allocator.
+ *
+ * Note, this uses @dict by reference (ZSTD_dlm_byRef), so it should be
+ * free before zstd_cdict is destroyed.
+ *
+ * Return:             NULL on error, pointer to compression dictionary
+ *                     otherwise.
+ */
+zstd_cdict *zstd_create_cdict_byreference(const void *dict, size_t dict_size,
+					  zstd_compression_parameters cparams,
+					  zstd_custom_mem custom_mem);
+
+/**
+ * zstd_free_cdict() - Free compression dictionary
+ * @cdict:        Pointer to compression dictionary.
+ *
+ * Return:        Always 0.
+ */
+size_t zstd_free_cdict(zstd_cdict* cdict);
+
+/**
+ * zstd_compress_using_cdict() - compress src into dst using a dictionary
+ * @cctx:         The context. Must have been initialized with zstd_init_cctx().
+ * @dst:          The buffer to compress src into.
+ * @dst_capacity: The size of the destination buffer. May be any size, but
+ *                ZSTD_compressBound(srcSize) is guaranteed to be large enough.
+ * @src:          The data to compress.
+ * @src_size:     The size of the data to compress.
+ * @cdict:        The dictionary to be used.
+ *
+ * Return:        The compressed size or an error, which can be checked using
+ *                zstd_is_error().
+ */
+size_t zstd_compress_using_cdict(zstd_cctx *cctx, void *dst,
+	size_t dst_capacity, const void *src, size_t src_size,
+	const zstd_cdict *cdict);
 
 /* ======   Single-pass Decompression   ====== */
 
@@ -220,6 +346,70 @@ zstd_dctx *zstd_init_dctx(void *workspace, size_t workspace_size);
 size_t zstd_decompress_dctx(zstd_dctx *dctx, void *dst, size_t dst_capacity,
 	const void *src, size_t src_size);
 
+/**
+ * struct zstd_ddict - Decompression dictionary.
+ * See zstd_lib.h.
+ */
+typedef ZSTD_DDict zstd_ddict;
+
+/**
+ * zstd_create_ddict_byreference() - Create decompression dictionary
+ * @dict:              Pointer to dictionary buffer.
+ * @dict_size:         Size of the dictionary buffer.
+ * @dict_load_method:  Dictionary load method.
+ * @dict_content_type: Dictionary content type.
+ * @custom_mem:        Memory allocator.
+ *
+ * Note, this uses @dict by reference (ZSTD_dlm_byRef), so it should be
+ * free before zstd_ddict is destroyed.
+ *
+ * Return:             NULL on error, pointer to decompression dictionary
+ *                     otherwise.
+ */
+zstd_ddict *zstd_create_ddict_byreference(const void *dict, size_t dict_size,
+					  zstd_custom_mem custom_mem);
+/**
+ * zstd_free_ddict() - Free decompression dictionary
+ * @dict:         Pointer to the dictionary.
+ *
+ * Return:        Always 0.
+ */
+size_t zstd_free_ddict(zstd_ddict *ddict);
+
+/**
+ * zstd_create_dctx_advanced() - Create decompression context
+ * @custom_mem:   Custom allocator.
+ *
+ * Return:        NULL on error, pointer to decompression context otherwise.
+ */
+zstd_dctx *zstd_create_dctx_advanced(zstd_custom_mem custom_mem);
+
+/**
+ * zstd_free_dctx() -- Free decompression context
+ * @dctx:         Pointer to decompression context.
+ * Return:        Always 0.
+ */
+size_t zstd_free_dctx(zstd_dctx *dctx);
+
+/**
+ * zstd_decompress_using_ddict() - decompress src into dst using a dictionary
+ * @dctx:         The decompression context.
+ * @dst:          The buffer to decompress src into.
+ * @dst_capacity: The size of the destination buffer. Must be at least as large
+ *                as the decompressed size. If the caller cannot upper bound the
+ *                decompressed size, then it's better to use the streaming API.
+ * @src:          The zstd compressed data to decompress. Multiple concatenated
+ *                frames and skippable frames are allowed.
+ * @src_size:     The exact size of the data to decompress.
+ * @ddict:        The dictionary to be used.
+ *
+ * Return:        The decompressed size or an error, which can be checked using
+ *                zstd_is_error().
+ */
+size_t zstd_decompress_using_ddict(zstd_dctx *dctx,
+	void *dst, size_t dst_capacity, const void *src, size_t src_size,
+	const zstd_ddict *ddict);
+
 /* ======   Streaming Buffers   ====== */
 
 /**
@@ -256,6 +446,16 @@ typedef ZSTD_CStream zstd_cstream;
  *           zstd_init_cstream().
  */
 size_t zstd_cstream_workspace_bound(const zstd_compression_parameters *cparams);
+
+/**
+ * zstd_cstream_workspace_bound_with_ext_seq_prod() - memory needed to initialize
+ * a zstd_cstream when using the block-level external sequence producer API.
+ * @cparams: The compression parameters to be used for compression.
+ *
+ * Return:   A lower bound on the size of the workspace that is passed to
+ *           zstd_init_cstream().
+ */
+size_t zstd_cstream_workspace_bound_with_ext_seq_prod(const zstd_compression_parameters *cparams);
 
 /**
  * zstd_init_cstream() - initialize a zstd streaming compression context
@@ -417,6 +617,18 @@ size_t zstd_decompress_stream(zstd_dstream *dstream, zstd_out_buffer *output,
 size_t zstd_find_frame_compressed_size(const void *src, size_t src_size);
 
 /**
+ * zstd_register_sequence_producer() - exposes the zstd library function
+ * ZSTD_registerSequenceProducer(). This is used for the block-level external
+ * sequence producer API. See upstream zstd.h for detailed documentation.
+ */
+typedef ZSTD_sequenceProducer_F zstd_sequence_producer_f;
+void zstd_register_sequence_producer(
+  zstd_cctx *cctx,
+  void* sequence_producer_state,
+  zstd_sequence_producer_f sequence_producer
+);
+
+/**
  * struct zstd_frame_params - zstd frame parameters stored in the frame header
  * @frameContentSize: The frame content size, or ZSTD_CONTENTSIZE_UNKNOWN if not
  *                    present.
@@ -429,7 +641,7 @@ size_t zstd_find_frame_compressed_size(const void *src, size_t src_size);
  *
  * See zstd_lib.h.
  */
-typedef ZSTD_frameHeader zstd_frame_header;
+typedef ZSTD_FrameHeader zstd_frame_header;
 
 /**
  * zstd_get_frame_header() - extracts parameters from a zstd or skippable frame
@@ -444,6 +656,39 @@ typedef ZSTD_frameHeader zstd_frame_header;
 size_t zstd_get_frame_header(zstd_frame_header *params, const void *src,
 	size_t src_size);
 
+/**
+ * struct zstd_sequence - a sequence of literals or a match
+ *
+ * @offset: The offset of the match
+ * @litLength: The literal length of the sequence
+ * @matchLength: The match length of the sequence
+ * @rep: Represents which repeat offset is used
+ */
+typedef ZSTD_Sequence zstd_sequence;
+
+/**
+ * zstd_compress_sequences_and_literals() - compress an array of zstd_sequence and literals
+ *
+ * @cctx: The zstd compression context.
+ * @dst: The buffer to compress the data into.
+ * @dst_capacity: The size of the destination buffer.
+ * @in_seqs: The array of zstd_sequence to compress.
+ * @in_seqs_size: The number of sequences in in_seqs.
+ * @literals: The literals associated to the sequences to be compressed.
+ * @lit_size: The size of the literals in the literals buffer.
+ * @lit_capacity: The size of the literals buffer.
+ * @decompressed_size: The size of the input data
+ *
+ * Return: The compressed size or an error, which can be checked using
+ * 	   zstd_is_error().
+ */
+size_t zstd_compress_sequences_and_literals(zstd_cctx *cctx, void* dst, size_t dst_capacity,
+					    const zstd_sequence *in_seqs, size_t in_seqs_size,
+					    const void* literals, size_t lit_size, size_t lit_capacity,
+					    size_t decompressed_size);
+
+#endif  /* LINUX_ZSTD_H */
+
 struct abuf;
 
 /**
@@ -454,5 +699,3 @@ struct abuf;
  * Return: size of the decompressed data, or -ve on error
  */
 int zstd_decompress(struct abuf *in, struct abuf *out);
-
-#endif  /* LINUX_ZSTD_H */

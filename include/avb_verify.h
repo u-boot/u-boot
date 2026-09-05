@@ -47,6 +47,25 @@ enum mmc_io_type {
 AvbOps *avb_ops_alloc(int boot_device);
 void avb_ops_free(AvbOps *ops);
 
+/**
+ * avb_read_root_key_digest() - get the SHA-256 digest of the trusted AVB
+ * root public key
+ *
+ * This is the root of trust for AVB: validate_vbmeta_public_key() hashes the
+ * key embedded in the (untrusted) vbmeta and compares it against the digest
+ * returned here. The provider is selected via CONFIG_AVB_ROOT_KEY_* and, for
+ * CONFIG_AVB_ROOT_KEY_BOARD, may be overridden by a SoC/board specific strong
+ * definition (e.g. reading a hash fused into OTP).
+ *
+ * @ops: AvbOps, contains AVB ops handlers (needed by the TEE provider)
+ * @digest: output buffer of AVB_SHA256_DIGEST_SIZE bytes
+ *
+ * @return:
+ *      AVB_IO_RESULT_OK on success (@digest populated)
+ *      any other AvbIOResult fails verification closed (key not trusted)
+ */
+AvbIOResult avb_read_root_key_digest(AvbOps *ops, uint8_t *digest);
+
 char *avb_set_state(AvbOps *ops, enum avb_boot_state boot_state);
 char *avb_set_enforce_verity(const char *cmdline);
 char *avb_set_ignore_corruption(const char *cmdline);
