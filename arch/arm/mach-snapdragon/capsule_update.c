@@ -298,7 +298,7 @@ void qcom_configure_capsule_updates(void)
 
 	if (IS_ENABLED(CONFIG_SCSI)) {
 		/* Scan for SCSI devices */
-		ret = scsi_scan(false);
+		ret = scsi_scan_new(false);
 		if (ret) {
 			debug("Failed to scan SCSI devices: %d\n", ret);
 			return;
