@@ -673,6 +673,33 @@ int scsi_scan(bool verbose)
 	return 0;
 }
 
+int scsi_scan_new(bool verbose)
+{
+	struct uclass *uc;
+	struct udevice *dev;
+	int ret;
+
+	if (verbose)
+		printf("scanning bus for devices...\n");
+
+	ret = uclass_get(UCLASS_SCSI, &uc);
+	if (ret)
+		return ret;
+
+	uclass_foreach_dev(dev, uc) {
+		struct udevice *blk;
+
+		if (device_find_first_child_by_uclass(dev, UCLASS_BLK, &blk) == 0)
+			continue;
+
+		ret = scsi_scan_dev(dev, verbose);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 static const struct blk_ops scsi_blk_ops = {
 	.read	= scsi_read,
 	.write	= scsi_write,
