@@ -67,43 +67,43 @@ config SYSTEM_PLL_FACTOR_6_1
 	bool "6 : 1"
 
 config SYSTEM_PLL_FACTOR_7_1
-	depends on ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "7 : 1"
 
 config SYSTEM_PLL_FACTOR_8_1
-	depends on ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "8 : 1"
 
 config SYSTEM_PLL_FACTOR_9_1
-	depends on ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "9 : 1"
 
 config SYSTEM_PLL_FACTOR_10_1
-	depends on ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "10 : 1"
 
 config SYSTEM_PLL_FACTOR_11_1
-	depends on ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "11 : 1"
 
 config SYSTEM_PLL_FACTOR_12_1
-	depends on ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "12 : 1"
 
 config SYSTEM_PLL_FACTOR_13_1
-	depends on ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "13 : 1"
 
 config SYSTEM_PLL_FACTOR_14_1
-	depends on ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "14 : 1"
 
 config SYSTEM_PLL_FACTOR_15_1
-	depends on ARCH_MPV8360 || ARCH_MPC837X
+	depends on ARCH_MPC8360 || ARCH_MPC837X
 	bool "15 : 1"
 
 config SYSTEM_PLL_FACTOR_16_1
-	depends on ARCH_MPV8360
+	depends on ARCH_MPC8360
 	bool "16 : 1"
 
 endchoice
