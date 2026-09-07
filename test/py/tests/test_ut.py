@@ -10,6 +10,7 @@ test one at a time, as well setting up some files needed by the tests.
 import collections
 import gzip
 import os
+import struct
 import os.path
 import re
 import pytest
@@ -319,6 +320,10 @@ def setup_cros_image(ubman):
         {'num': 5, 'label':'ROOT_B', 'type': uuid_root, 'size': '1'},
         {'num': 3, 'label':'ROOT_A', 'type': uuid_root, 'size': '1'},
         {'num': 1, 'label':'STATE', 'type': uuid_state, 'size': '1M'},
+
+        {'num': 0xd, 'label':'KERN_D', 'type': uuid_kern, 'size': '1'},
+        {'num': 0xe, 'label':'KERN_E', 'type': uuid_kern, 'size': '1'},
+        {'num': 0xf, 'label':'KERN_F', 'type': uuid_kern, 'size': '1'},
         ]
 
     for part in required_parts:
@@ -372,6 +377,45 @@ def setup_cros_image(ubman):
     # put x86 kernel in partition 2 and arm one in partition 4
     set_part_data(2, pack_kernel(ubman, 'x86', kern, dummy))
     set_part_data(4, pack_kernel(ubman, 'arm', kern, dummy))
+
+    def bad_kernel_part(keyblock_size, preamble_size):
+        """Build corrupt-kernel-partition data that U-Boot must reject
+
+        The keyblock carries a valid magic and the given keyblock_size; a
+        preamble with the given preamble_size follows it. The bootloader
+        address/size fields are chosen so that, were the partition not
+        rejected, scanning it would succeed and produce a spurious ready
+        bootflow, which the bootflow-list assertions would then catch.
+
+        Args:
+            keyblock_size (int): Value for the keyblock_size field
+            preamble_size (int): Value for the preamble_size field
+
+        Return:
+            bytes: Data to place at the start of the partition
+        """
+        kblock = b'CHROMEOS' + struct.pack('<IIII', 2, 1, keyblock_size, 0)
+        kblock = kblock.ljust(min(keyblock_size, 0x100), b'\0')
+        # preamble_size, then body_load_address / bootloader_address /
+        # bootloader_size at offsets 48 / 56 / 64, body-signature data_size
+        # at offset 88
+        pre = struct.pack('<I', preamble_size).ljust(48, b'\0')
+        pre += struct.pack('<QQI', 0x100000, 0x103000, 0x1000)
+        pre = pre.ljust(88, b'\0') + struct.pack('<I', 0x4000)
+        return kblock + pre
+
+    # add corrupt kernel partitions, all of which must be rejected:
+    # - partition 6 (KERN_C): keyblock_size placing the preamble far outside
+    #   the probed data
+    # - partition 13 (KERN_D): preamble_size placing the kernel body offset
+    #   inside the probed data
+    # - partition 14 (KERN_E): preamble_size wrapping the 32-bit body offset
+    # - partition 15 (KERN_F): keyblock_size smaller than the keyblock header,
+    #   placing the claimed preamble inside the header
+    set_part_data(6, bad_kernel_part(0xffffffff, 0x800))
+    set_part_data(0xd, bad_kernel_part(0x100, 0x800))
+    set_part_data(0xe, bad_kernel_part(0x100, 0xffffff10))
+    set_part_data(0xf, bad_kernel_part(0x18, 0x1000))
 
     with open(fname, 'wb') as outf:
         outf.write(disk_data)

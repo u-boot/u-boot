@@ -1255,6 +1255,12 @@ BOOTSTD_TEST(bootflow_cmdline_special, 0);
 /* Test ChromiumOS bootmeth */
 static int bootflow_cros(struct unit_test_state *uts)
 {
+	/*
+	 * mmc5 has valid kernels in partitions 2 and 4 and corrupt kernel
+	 * metadata in partitions 6, 13, 14 and 15 (oversized keyblock,
+	 * undersized body offset, wrapped body offset, undersized keyblock),
+	 * none of which may produce a bootflow
+	 */
 	ut_assertok(scan_mmc_bootdev(uts, "mmc5", true));
 	ut_assertok(run_command("bootflow list", 0));
 
