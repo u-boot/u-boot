@@ -210,8 +210,8 @@ void lmb_arch_add_memory(void)
 }
 #endif
 
-#if (defined(CONFIG_TARGET_SOCFPGA_ARRIA10) || \
-     defined(CONFIG_TARGET_SOCFPGA_GEN5)) && defined(CONFIG_XPL_BUILD)
+#if (defined(CONFIG_ARCH_SOCFPGA_ARRIA10) || \
+     defined(CONFIG_ARCH_SOCFPGA_GEN5)) && defined(CONFIG_XPL_BUILD)
 unsigned long board_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 						 unsigned long raw_sect)
 {
