@@ -598,12 +598,12 @@ config DM_REGULATOR_PMBUS_GENERIC
 	  m / b / R coefficients) need handling.
 
 config DM_REGULATOR_MPQ8785
-	bool "MPS MPQ8785 / MPM3695 / MPM82504 PMBus voltage regulator"
+	bool "MPS MPQ8785 / MPQ8646 / MPM3695 / MPM82504 PMBus voltage regulator"
 	depends on DM_REGULATOR_PMBUS_HELPER
 	help
 	  Driver for the Monolithic Power Systems MPQ8785 family of
 	  digital multiphase voltage regulators with PMBus. Supports
-	  MPM3695, MPM3695-25, MPM82504, and MPQ8785. Adapted from the
+	  MPM3695, MPM3695-25, MPM82504, MPQ8785 and MPQ8646. Adapted from the
 	  Linux drivers/hwmon/pmbus/mpq8785.c reference.
 
 config SANDBOX_PMBUS
