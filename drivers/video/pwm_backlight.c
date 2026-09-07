@@ -124,7 +124,7 @@ static int set_pwm(struct pwm_backlight_priv *priv)
 	int ret;
 
 	if (priv->period_ns) {
-		width = priv->period_ns * (priv->cur_level - priv->min_level);
+		width = (u64)priv->period_ns * (priv->cur_level - priv->min_level);
 		duty_cycle = div_u64(width,
 				     (priv->max_level - priv->min_level));
 		ret = pwm_set_config(priv->pwm, priv->channel, priv->period_ns,
