@@ -663,4 +663,4 @@ following.
 
 .. prompt:: bash
 
-  openocd -f board/ti_j784s4evm.cfg
+   openocd -f board/ti/j784s4evm.cfg
