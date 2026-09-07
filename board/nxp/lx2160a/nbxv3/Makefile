@@ -3,3 +3,4 @@
 #
 
 obj-y += eth_nbxv3.o
+obj-y += mps_pmbus.o
