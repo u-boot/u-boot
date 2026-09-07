@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Free Mobile Nodebox v3 CPU Module (LX2160A), U-Boot specific
+ *
+ * Copyright 2026 Free Mobile, Vincent Jardin
+ */
+
+/ {
+	aliases {
+		spi0 = &dspi0;
+		spi2 = &dspi2;
+		spi3 = &fspi;
+	};
+};
+
+&dpmac13 {
+	u-boot,nickname = "ptp0";
+};
+
+&dpmac14 {
+	u-boot,nickname = "ptp1";
+};
+
+&dpmac17 {
+	u-boot,nickname = "lanconsole0";
+};
+
+&fsl_mc {
+	compatible = "fsl,qoriq-mc", "simple-mfd";
+
+	dpmacs {
+		compatible = "simple-mfd";
+	};
+};
+
+&i2c0 {
+	bootph-all;
+};
+
+/* The VID hand-off */
+&vdd08 {
+	regulator-name = "+0V8_VDD";
+	regulator-min-microvolt = <600000>;
+	regulator-max-microvolt = <1100000>;
+	regulator-boot-on;
+	regulator-always-on;
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&uart2 {
+	status = "okay";
+};
+
+&uart3 {
+	status = "okay";
+};
+
+/*
+ * DDR training, MC boot, DPL apply and a big NOR kernel load do
+ * not fit in the 30s default.
+ */
+&wdt0 {
+	timeout-sec = <120>;
+};

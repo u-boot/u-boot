@@ -10,3 +10,4 @@ obj-y += serdes_split.o
 obj-$(CONFIG_TARGET_LX2160ARDB) += eth_lx2160ardb.o
 obj-$(CONFIG_TARGET_LX2160AQDS) += eth_lx2160aqds.o
 obj-$(CONFIG_TARGET_LX2162AQDS) += eth_lx2162aqds.o
+obj-$(CONFIG_TARGET_NBXV3) += nbxv3/

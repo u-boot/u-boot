@@ -1603,6 +1603,18 @@ config TARGET_LX2162AQDS
 	  Support for NXP LX2162AQDS platform.
 	  The lx2162aqds support is based on LX2160A Layerscape Architecture processor.
 
+config TARGET_NBXV3
+	bool "Support Nodebox v3 CPU Module (LX2160A)"
+	select ARCH_LX2160A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
+	select BOARD_LATE_INIT
+	select GPIO_EXTRA_HEADER
+	help
+	  Support for the Free Mobile Nodebox v3 CPU Module, an LX2160A
+	  based platform.
+
 config TARGET_HIKEY
 	bool "Support HiKey 96boards Consumer Edition Platform"
 	select ARM64
