@@ -14,6 +14,8 @@
 #include <exports.h>
 #include <fsl-mc/fsl_mc.h>
 
+#include "carrier.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_eth_init(struct bd_info *bis)
@@ -24,6 +26,14 @@ int board_eth_init(struct bd_info *bis)
 #if defined(CONFIG_RESET_PHY_R)
 void reset_phy(void)
 {
+	/*
+	 * MUST come first: mc_env_boot() evaluates ${mcinitcmd}, which
+	 * imxtracts dpc-${carrier} / dpl-${carrier} out of the FIT. If
+	 * ${carrier} is still unset a subimage named "dpc-" and the MC
+	 * firmware never starts.
+	 */
+	nbxv3_carrier_env_init();
+
 	if (IS_ENABLED(CONFIG_FSL_MC_ENET))
 		mc_env_boot();
 }
