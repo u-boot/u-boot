@@ -5,3 +5,4 @@
 obj-y += eth_nbxv3.o
 obj-y += mps_pmbus.o
 obj-y += psu_pmbus.o
+obj-y += vid_handoff.o
