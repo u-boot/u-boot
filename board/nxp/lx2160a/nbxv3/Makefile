@@ -8,3 +8,4 @@ obj-y += psu_pmbus.o
 obj-y += vid_handoff.o
 obj-y += carrier.o
 obj-y += dpll_zl30733.o
+obj-y += fan_power.o
