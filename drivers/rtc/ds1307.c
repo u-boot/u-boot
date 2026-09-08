@@ -16,6 +16,7 @@
 #include <config.h>
 #include <command.h>
 #include <dm.h>
+#include <linux/delay.h>
 #include <log.h>
 #include <rtc.h>
 #include <i2c.h>
@@ -27,6 +28,7 @@ enum ds_type {
 	ds_1340,
 	m41t11,
 	mcp794xx,
+	rx_8130,
 };
 
 struct rtc_ds1370_data {
@@ -73,6 +75,28 @@ struct rtc_ds1370_data {
 #define MCP7941X_BIT_ST		0x80
 #define MCP7941X_BIT_VBATEN	0x08
 
+/* RX8130-specific bits */
+#define RX8130_REG_ALARM_MIN		0x17
+#define RX8130_REG_ALARM_HOUR		0x18
+#define RX8130_REG_ALARM_WEEK_OR_DAY	0x19
+#define RX8130_REG_EXTENSION		0x1c
+#define RX8130_REG_EXTENSION_TE		BIT(4)
+#define RX8130_REG_EXTENSION_USEL	BIT(5)
+#define RX8130_REG_EXTENSION_FSEL0	BIT(6)
+#define RX8130_REG_EXTENSION_FESL1	BIT(7)
+#define RX8130_REG_FLAG			0x1d
+#define RX8130_REG_FLAG_VLF		BIT(1)
+#define RX8130_REG_FLAG_AF		BIT(3)
+#define RX8130_REG_CONTROL0		0x1e
+#define RX8130_REG_CONTROL0_AIE		BIT(3)
+#define RX8130_REG_CONTROL0_TIE		BIT(4)
+#define RX8130_REG_CONTROL0_UIE		BIT(5)
+#define RX8130_REG_CONTROL0_STOP	BIT(6)
+#define RX8130_REG_CONTROL0_TEST	BIT(7)
+#define RX8130_REG_CONTROL1		0x1f
+#define RX8130_REG_CONTROL1_INIEN	BIT(4)
+#define RX8130_REG_CONTROL1_CHGEN	BIT(5)
+
 static int ds1307_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 {
 	int ret;
@@ -88,7 +112,11 @@ static int ds1307_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 
 	buf[RTC_YR_REG_ADDR] = bin2bcd(tm->tm_year % 100);
 	buf[RTC_MON_REG_ADDR] = bin2bcd(tm->tm_mon);
-	buf[RTC_DAY_REG_ADDR] = bin2bcd(tm->tm_wday + 1);
+	/* rx8130 is bit position, not BCD */
+	if (data->type == rx_8130)
+		buf[RTC_DAY_REG_ADDR] = 1 << tm->tm_wday;
+	else
+		buf[RTC_DAY_REG_ADDR] = bin2bcd(tm->tm_wday + 1);
 	buf[RTC_DATE_REG_ADDR] = bin2bcd(tm->tm_mday);
 	buf[RTC_HR_REG_ADDR] = bin2bcd(tm->tm_hour);
 	buf[RTC_MIN_REG_ADDR] = bin2bcd(tm->tm_min);
@@ -97,6 +125,10 @@ static int ds1307_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 	if (data->type == mcp794xx) {
 		buf[RTC_DAY_REG_ADDR] |= MCP7941X_BIT_VBATEN;
 		buf[RTC_SEC_REG_ADDR] |= MCP7941X_BIT_ST;
+	} else if (data->type == rx_8130) {
+		ret = dm_i2c_reg_clrset(dev, RX8130_REG_CONTROL0, 0, RX8130_REG_CONTROL0_STOP);
+		if (ret < 0)
+			return ret;
 	}
 
 	ret = dm_i2c_write(dev, data->offset, buf, sizeof(buf));
@@ -105,7 +137,18 @@ static int ds1307_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 
 	if (data->type == ds_1337) {
 		/* Ensure oscillator is enabled */
-		dm_i2c_reg_write(dev, plat->offset + DS1337_CTL_REG_ADDR, 0);
+		dm_i2c_reg_write(dev, data->offset + DS1337_CTL_REG_ADDR, 0);
+	} else if (data->type == rx_8130) {
+		ret = dm_i2c_reg_clrset(dev, RX8130_REG_CONTROL0, RX8130_REG_CONTROL0_STOP, 0);
+		if (ret < 0)
+			return ret;
+
+		/* clear Voltage Loss Flag as data is available now */
+		ret = dm_i2c_reg_clrset(dev, RX8130_REG_FLAG, RX8130_REG_FLAG_VLF, 0);
+		if (ret < 0) {
+			printf("RTC: write VLF error %d\n", ret);
+			return ret;
+		}
 	}
 
 	return 0;
@@ -131,6 +174,17 @@ static int ds1307_rtc_get(struct udevice *dev, struct rtc_time *tm)
 			/* clear the OSF flag */
 			dm_i2c_reg_write(dev, data->offset + reg, status & ~RTC_STAT_BIT_OSF);
 		}
+	} else if (data->type == rx_8130) {
+		ret = dm_i2c_reg_read(dev, RX8130_REG_FLAG);
+		if (ret < 0) {
+			printf("RTC: read error %d\n", ret);
+			return ret;
+		}
+
+		if (ret & RX8130_REG_FLAG_VLF) {
+			printf("RTC: oscillator failed, set time!\n");
+			return -EINVAL;
+		}
 	}
 
 	tm->tm_sec  = bcd2bin(buf[RTC_SEC_REG_ADDR] & 0x7F);
@@ -141,7 +195,11 @@ static int ds1307_rtc_get(struct udevice *dev, struct rtc_time *tm)
 	tm->tm_year = bcd2bin(buf[RTC_YR_REG_ADDR]) +
 			      (bcd2bin(buf[RTC_YR_REG_ADDR]) >= 70 ?
 			       1900 : 2000);
-	tm->tm_wday = bcd2bin((buf[RTC_DAY_REG_ADDR] - 1) & 0x07);
+	/* rx8130 is bit position, not BCD */
+	if (data->type == rx_8130)
+		tm->tm_wday = fls(buf[RTC_DAY_REG_ADDR] & 0x07);
+	else
+		tm->tm_wday = bcd2bin((buf[RTC_DAY_REG_ADDR] - 1) & 0x07);
 	tm->tm_yday = 0;
 	tm->tm_isdst = 0;
 
@@ -152,10 +210,77 @@ static int ds1307_rtc_get(struct udevice *dev, struct rtc_time *tm)
 	return 0;
 }
 
+int ds1307_rx8130_rtc_reset(struct udevice *dev) {
+	/*
+	 * RX8130CE manual, 18.2 Software Reset
+	 */
+	const uint8_t reg_address[]  = { 0x1e, 0x1e, 0x50, 0x53, 0x66, 0x6b, 0x6b };
+	const uint8_t reg_sequence[] = { 0x00, 0x80, 0x6c, 0x01, 0x03, 0x02, 0x01 };
+	int ret = 0;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(reg_sequence); ++i) {
+		ret = dm_i2c_reg_write(dev, reg_address[i], reg_sequence[i]);
+		if (ret < 0)
+			return ret;
+	}
+
+	mdelay(150);
+
+	/* Dummy read before reading FLAG register */
+	ret = dm_i2c_reg_read(dev, RX8130_REG_FLAG);
+	ret = dm_i2c_reg_read(dev, RX8130_REG_FLAG);
+	if (ret < 0)
+		return ret;
+
+	while (ret >= 0 && (ret & RX8130_REG_FLAG_VLF)) {
+		ret &= ~RX8130_REG_FLAG_VLF;
+		dm_i2c_reg_write(dev, RX8130_REG_FLAG, ret);
+		mdelay(1);
+		ret = dm_i2c_reg_read(dev, RX8130_REG_FLAG);
+	}
+	printf("rx8130 VLF cleared: %d\n", ret);
+
+	/* Clear TE bit and Disable FOUT */
+	if (ret >= 0)
+		ret = dm_i2c_reg_clrset(dev, RX8130_REG_EXTENSION, RX8130_REG_EXTENSION_TE,
+					RX8130_REG_EXTENSION_FSEL0 | RX8130_REG_EXTENSION_FESL1);
+
+	/* Clear VLF bit */
+	if (ret >= 0)
+		ret = dm_i2c_reg_clrset(dev, RX8130_REG_FLAG, RX8130_REG_FLAG_VLF, 0);
+
+	/* Clear TEST, AIE, TIE, UIE for inhibit interrupt output of suddenness */
+	if (ret >= 0)
+		ret = dm_i2c_reg_clrset(dev, RX8130_REG_CONTROL0, RX8130_REG_CONTROL0_TEST |
+					RX8130_REG_CONTROL0_AIE |  RX8130_REG_CONTROL0_TIE |
+					RX8130_REG_CONTROL0_UIE, 0);
+
+	/* Set INIEN to 1 */
+	if (ret >= 0)
+		ret = dm_i2c_reg_clrset(dev, RX8130_REG_CONTROL1, 0, RX8130_REG_CONTROL1_INIEN);
+
+	/* Set CHGEN to 0 */
+	if (ret >= 0)
+		ret = dm_i2c_reg_clrset(dev, RX8130_REG_CONTROL1, RX8130_REG_CONTROL1_CHGEN, 0);
+
+	/* Start clock */
+	if (ret >= 0)
+		ret = dm_i2c_reg_clrset(dev, RX8130_REG_CONTROL0, RX8130_REG_CONTROL0_STOP, 0);
+
+	return ret;
+}
+
 static int ds1307_rtc_reset(struct udevice *dev)
 {
 	int ret;
 	struct rtc_ds1370_data *data = (void*)dev_get_driver_data(dev);
+
+	if (data->type == rx_8130) {
+		ret = ds1307_rx8130_rtc_reset(dev);
+		if (ret < 0)
+			return ret;
+	}
 
 	/*
 	 * reset clock/oscillator in the seconds register:
@@ -222,6 +347,11 @@ static const struct rtc_ds1370_data ds_1340_data = {
 	.offset = 0,
 };
 
+static const struct rtc_ds1370_data rx_8130_data = {
+	.type   = rx_8130,
+	.offset = 0x10,
+};
+
 static const struct rtc_ds1370_data mcp794xx_data = {
 	.type   = mcp794xx,
 	.offset = 0,
@@ -237,6 +367,7 @@ static const struct udevice_id ds1307_rtc_ids[] = {
 	{ .compatible = "dallas,ds1337", .data = (ulong)&ds_1337_data },
 	{ .compatible = "dallas,ds1339", .data = (ulong)&ds_1339_data },
 	{ .compatible = "dallas,ds1340", .data = (ulong)&ds_1340_data },
+	{ .compatible = "epson,rx8130", .data = (ulong)&rx_8130_data },
 	{ .compatible = "microchip,mcp7940x", .data = (ulong)&mcp794xx_data },
 	{ .compatible = "microchip,mcp7941x", .data = (ulong)&mcp794xx_data },
 	{ .compatible = "st,m41t11", .data = (ulong)&m41t11_data },
