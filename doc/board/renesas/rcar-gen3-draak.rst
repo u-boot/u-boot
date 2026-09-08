@@ -16,7 +16,7 @@ newly cloned source directory:
 
 .. code-block:: console
 
-    $ git clone https://source.denx.de/u-boot/u-boot.git/
+    $ git clone https://git.u-boot-project.org/u-boot/u-boot.git
     $ cd u-boot
 
 Configure U-Boot:

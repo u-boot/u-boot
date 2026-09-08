@@ -187,5 +187,5 @@ Links:
 ------
   - https://www.tbsdtv.com/download/document/tbs2910/TBS2910-Matrix-ARM-mini-PC-SCH_rev2.1.pdf
     - The schematics for the revision 2.1 of the TBS2910 Matrix ARM miniPC.
-  - https://cache.freescale.com/files/32bit/doc/ref_manual/IMX6DQRM.pdf - The
+  - https://community.nxp.com/t5/i-MX-Processors-Knowledge-Base/i-MX-6DQ-Reference-Manual-IMX6DQRM-R2-Part-1/ta-p/1115983 - The
     SoC reference manual for additional details on the BOOT_CFG registers.

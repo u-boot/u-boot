@@ -2,7 +2,7 @@
 /*
  * Board-specific init.
  *
- * (C) Copyright 2017 Angelo Dureghello <angelo@sysam.it>
+ * (C) Copyright 2017 Angelo Dureghello <angelo@kernel-space.org>
  */
 
 #include <config.h>

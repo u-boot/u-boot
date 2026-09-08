@@ -34,7 +34,7 @@ Snow (Samsung ARM Chromebook)
 
 See here:
 
-https://www.chromium.org/chromium-os/firmware-porting-guide/using-nv-u-boot-on-the-samsung-arm-chromebook
+https://chromium.googlesource.com/playground/chromium-org-site/+/refs/heads/main/chromium-os/firmware-porting-guide/using-nv-u-boot-on-the-samsung-arm-chromebook.md
 
 
 Nyan-big

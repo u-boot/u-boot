@@ -10,7 +10,7 @@ Please refer to the link for more information on Nios II:
 https://www.altera.com/products/processors/overview.html
 
 Please refer to the link for Linux port and toolchains:
-http://rocketboards.org/foswiki/view/Documentation/NiosIILinuxUserManual
+https://rocketboards.org/foswiki/view/Documentation/NiosIILinuxUserManual
 
 The Nios II port of u-boot is controlled by device tree. Please check
 out :doc:`/develop/devicetree/control`.

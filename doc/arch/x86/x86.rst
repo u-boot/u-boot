@@ -185,14 +185,14 @@ These notes are for those who want to port U-Boot to a new x86 platform.
 Since x86 CPUs boot from SPI flash, a SPI flash emulator is a good investment.
 The Dediprog em100 can be used on Linux.
 
-The em100 tool is available here: http://review.coreboot.org/p/em100.git
+The em100 tool is available here: https://review.coreboot.org/admin/repos/em100,general
 
 On Minnowboard Max the following command line can be used::
 
    sudo em100 -s -p LOW -d u-boot.rom -c W25Q64DW -r
 
 A suitable clip for connecting over the SPI flash chip is here:
-http://www.dediprog.com/pd/programmer-accessories/EM-TC-8.
+https://www.dediprog.com/product/EM-TC-8.
 
 This allows you to override the SPI flash contents for development purposes.
 Typically you can write to the em100 in around 1200ms, considerably faster
@@ -242,7 +242,7 @@ debug serial port may be useful here. See setup_internal_uart() for an example.
 During the U-Boot porting, one of the important steps is to write correct PIRQ
 routing information in the board device tree. Without it, device drivers in the
 Linux kernel won't function correctly due to interrupt is not working. Please
-refer to U-Boot `doc <doc/device-tree-bindings/misc/intel,irq-router.txt>`_ for
+refer to :download:`intel,irq-router.txt <../../device-tree-bindings/misc/intel,irq-router.txt>` for
 the device tree bindings of Intel interrupt router. Here we have more details
 on the intel,pirq-routing property below.
 
@@ -480,10 +480,10 @@ TODO List
 - Audio
 - Chrome OS verified boot
 
-.. _coreboot: http://www.coreboot.org
-.. _QEMU: http://www.qemu.org
-.. _microcode: http://en.wikipedia.org/wiki/Microcode
-.. _SFI: http://simplefirmware.org
-.. _MP: http://www.intel.com/design/archives/processors/pro/docs/242016.htm
-.. _SeaBIOS: http://www.seabios.org/SeaBIOS
-.. _ACPI: http://www.acpi.info
+.. _coreboot: https://www.coreboot.org
+.. _QEMU: https://www.qemu.org
+.. _microcode: https://en.wikipedia.org/wiki/Microcode
+.. _SFI: https://en.wikipedia.org/wiki/Simple_Firmware_Interface
+.. _MP: https://en.wikipedia.org/wiki/MultiProcessor_Specification
+.. _SeaBIOS: https://www.seabios.org/
+.. _ACPI: https://uefi.org/acpi/specs

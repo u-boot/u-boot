@@ -109,6 +109,7 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	unsigned char *metadata_buffer, *metadata, *table;
 	struct squashfs_fragment_block_entry *entries;
 	struct squashfs_super_block *sblk = ctxt.sblk;
+	size_t table_size, metadata_size, valid_len;
 	unsigned long dest_len;
 	int block, offset, ret;
 	u16 header;
@@ -133,7 +134,12 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	start /= ctxt.cur_dev->blksz;
 
 	/* Allocate a proper sized buffer to store the fragment index table */
-	table = malloc_cache_aligned(n_blks * ctxt.cur_dev->blksz);
+	if (__builtin_mul_overflow(n_blks, ctxt.cur_dev->blksz, &table_size)) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	table = malloc_cache_aligned(table_size);
 	if (!table) {
 		ret = -ENOMEM;
 		goto out;
@@ -148,6 +154,16 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	offset = SQFS_FRAGMENT_INDEX_OFFSET(inode_fragment_index);
 
 	/*
+	 * 'inode_fragment_index' is only checked against sblk->fragments, which
+	 * is itself read from the image, so the resulting index may point past
+	 * the fragment index table that was actually read from the device.
+	 */
+	if (table_offset + ((u64)block + 1) * sizeof(u64) > table_size) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/*
 	 * Get the start offset of the metadata block that contains the right
 	 * fragment block entry
 	 */
@@ -158,7 +174,13 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	n_blks = sqfs_calc_n_blks(cpu_to_le64(start_block),
 				  sblk->fragment_table_start, &table_offset);
 
-	metadata_buffer = malloc_cache_aligned(n_blks * ctxt.cur_dev->blksz);
+	if (__builtin_mul_overflow(n_blks, ctxt.cur_dev->blksz,
+				   &metadata_size)) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	metadata_buffer = malloc_cache_aligned(metadata_size);
 	if (!metadata_buffer) {
 		ret = -ENOMEM;
 		goto out;
@@ -170,6 +192,11 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	}
 
 	/* Every metadata block starts with a 16-bit header */
+	if (table_offset + SQFS_HEADER_SIZE > metadata_size) {
+		ret = -EINVAL;
+		goto out;
+	}
+
 	header = get_unaligned_le16(metadata_buffer + table_offset);
 	metadata = metadata_buffer + table_offset + SQFS_HEADER_SIZE;
 
@@ -179,6 +206,16 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 	}
 
 	if (SQFS_METADATA_SIZE(header) > SQFS_METADATA_BLOCK_SIZE) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/*
+	 * The metadata block's payload is read straight out of
+	 * 'metadata_buffer', so it has to fit in what was read from the device.
+	 */
+	if (table_offset + SQFS_HEADER_SIZE + SQFS_METADATA_SIZE(header) >
+	    metadata_size) {
 		ret = -EINVAL;
 		goto out;
 	}
@@ -198,8 +235,17 @@ static int sqfs_frag_lookup(u32 inode_fragment_index,
 			ret = -EINVAL;
 			goto out;
 		}
+
+		valid_len = dest_len;
 	} else {
 		memcpy(entries, metadata, SQFS_METADATA_SIZE(header));
+		valid_len = SQFS_METADATA_SIZE(header);
+	}
+
+	/* Only the part of 'entries' that was actually filled in is usable */
+	if (((u64)offset + 1) * sizeof(*entries) > valid_len) {
+		ret = -EINVAL;
+		goto out;
 	}
 
 	*e = entries[offset];
@@ -486,7 +532,8 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 	dirsp = (struct fs_dir_stream *)dirs;
 
 	/* Start by root inode */
-	table = sqfs_find_inode(dirs->inode_table, le32_to_cpu(sblk->inodes),
+	table = sqfs_find_inode(dirs->inode_table, dirs->inode_table_size,
+				le32_to_cpu(sblk->inodes),
 				sblk->inodes, sblk->block_size);
 	if (!table)
 		return -EINVAL;
@@ -545,7 +592,8 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 			dirs->dir_header->inode_number;
 
 		/* Get reference to inode in the inode table */
-		table = sqfs_find_inode(dirs->inode_table, new_inode_number,
+		table = sqfs_find_inode(dirs->inode_table,
+					dirs->inode_table_size, new_inode_number,
 					sblk->inodes, sblk->block_size);
 		if (!table) {
 			ret = -EINVAL;
@@ -731,7 +779,7 @@ static int sqfs_get_metablk_pos(u32 *pos_list, void *table, u32 offset,
 	return ret;
 }
 
-static int sqfs_read_inode_table(unsigned char **inode_table)
+static int sqfs_read_inode_table(unsigned char **inode_table, size_t *out_size)
 {
 	struct squashfs_super_block *sblk = ctxt.sblk;
 	u64 start, n_blks, table_offset, table_size;
@@ -784,6 +832,8 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 		       metablks_count * SQFS_METADATA_BLOCK_SIZE);
 		goto free_itb;
 	}
+
+	*out_size = (size_t)metablks_count * SQFS_METADATA_BLOCK_SIZE;
 
 	src_table = itb + table_offset + SQFS_HEADER_SIZE;
 
@@ -864,13 +914,24 @@ static int sqfs_read_directory_table(unsigned char **dir_table, u32 **pos_list)
 	if (metablks_count < 1)
 		goto out;
 
-	*dir_table = malloc(metablks_count * SQFS_METADATA_BLOCK_SIZE);
+	if (__builtin_mul_overflow(metablks_count, SQFS_METADATA_BLOCK_SIZE,
+				   &buf_size)) {
+		metablks_count = -1;
+		goto out;
+	}
+
+	*dir_table = malloc(buf_size);
 	if (!*dir_table) {
 		metablks_count = -1;
 		goto out;
 	}
 
-	*pos_list = malloc(metablks_count * sizeof(u32));
+	if (__builtin_mul_overflow(metablks_count, sizeof(u32), &buf_size)) {
+		metablks_count = -1;
+		goto out;
+	}
+
+	*pos_list = malloc(buf_size);
 	if (!*pos_list) {
 		metablks_count = -1;
 		goto out;
@@ -936,6 +997,7 @@ static int sqfs_opendir_nest(const char *filename, struct fs_dir_stream **dirsp)
 	int j, token_count = 0, ret = 0, metablks_count;
 	struct squashfs_dir_stream *dirs;
 	char **token_list = NULL, *path = NULL;
+	size_t inode_table_size = 0;
 	u32 *pos_list = NULL;
 
 	dirs = calloc(1, sizeof(*dirs));
@@ -949,7 +1011,7 @@ static int sqfs_opendir_nest(const char *filename, struct fs_dir_stream **dirsp)
 	dirs->inode_table = NULL;
 	dirs->dir_table = NULL;
 
-	ret = sqfs_read_inode_table(&inode_table);
+	ret = sqfs_read_inode_table(&inode_table, &inode_table_size);
 	if (ret) {
 		ret = -EINVAL;
 		goto out;
@@ -989,6 +1051,7 @@ static int sqfs_opendir_nest(const char *filename, struct fs_dir_stream **dirsp)
 	 * a general solution for the malloc size, since 'i' is a union.
 	 */
 	dirs->inode_table = inode_table;
+	dirs->inode_table_size = inode_table_size;
 	dirs->dir_table = dir_table;
 	ret = sqfs_search_dir(dirs, token_list, token_count, pos_list,
 			      metablks_count);
@@ -1087,8 +1150,8 @@ static int sqfs_readdir_nest(struct fs_dir_stream *fs_dirs, struct fs_dirent **d
 	}
 
 	i_number = dirs->dir_header->inode_number + dirs->entry->inode_offset;
-	ipos = sqfs_find_inode(dirs->inode_table, i_number, sblk->inodes,
-			       sblk->block_size);
+	ipos = sqfs_find_inode(dirs->inode_table, dirs->inode_table_size,
+			       i_number, sblk->inodes, sblk->block_size);
 	if (!ipos)
 		return -SQFS_STOP_READDIR;
 
@@ -1446,8 +1509,8 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 	}
 
 	i_number = dirs->dir_header->inode_number + dirs->entry->inode_offset;
-	ipos = sqfs_find_inode(dirs->inode_table, i_number, sblk->inodes,
-			       sblk->block_size);
+	ipos = sqfs_find_inode(dirs->inode_table, dirs->inode_table_size,
+			       i_number, sblk->inodes, sblk->block_size);
 	if (!ipos) {
 		ret = -EINVAL;
 		goto out;
@@ -1649,6 +1712,19 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 			goto out;
 		}
 
+		/*
+		 * finfo.offset and finfo.size come from the on-disk inode and
+		 * must not let the copy read past the decompressed fragment
+		 * block (dest_len bytes).
+		 */
+		if (finfo.size < (size_t)*actread ||
+		    finfo.offset > dest_len ||
+		    finfo.size - *actread > dest_len - finfo.offset) {
+			free(fragment_block);
+			ret = -EINVAL;
+			goto out;
+		}
+
 		memcpy(buf + *actread, &fragment_block[finfo.offset], finfo.size - *actread);
 		*actread = finfo.size;
 
@@ -1656,6 +1732,17 @@ static int sqfs_read_nest(const char *filename, void *buf, loff_t offset,
 
 	} else if (finfo.frag && !finfo.comp) {
 		fragment_block = (void *)fragment + table_offset;
+
+		/*
+		 * Same check for the uncompressed fragment: the readable data
+		 * is table_size bytes starting at table_offset within fragment.
+		 */
+		if (finfo.size < (size_t)*actread ||
+		    finfo.offset > table_size ||
+		    finfo.size - *actread > table_size - finfo.offset) {
+			ret = -EINVAL;
+			goto out;
+		}
 
 		memcpy(buf + *actread, &fragment_block[finfo.offset], finfo.size - *actread);
 		*actread = finfo.size;
@@ -1724,8 +1811,8 @@ static int sqfs_size_nest(const char *filename, loff_t *size)
 	}
 
 	i_number = dirs->dir_header->inode_number + dirs->entry->inode_offset;
-	ipos = sqfs_find_inode(dirs->inode_table, i_number, sblk->inodes,
-			       sblk->block_size);
+	ipos = sqfs_find_inode(dirs->inode_table, dirs->inode_table_size,
+			       i_number, sblk->inodes, sblk->block_size);
 
 	if (!ipos) {
 		*size = 0;

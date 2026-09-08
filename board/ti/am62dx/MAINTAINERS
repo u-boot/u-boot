@@ -1,8 +1,19 @@
-AM62Dx BOARD
+AUDIO-AM62D-EVM BOARD
 M:	Vignesh Raghavendra <vigneshr@ti.com>
 M:	Bryan Brattlof <bb@ti.com>
 S:	Maintained
+F:	arch/arm/dts/k3-am62d-ddr-1866mhz-32bit.dtsi
+F:	arch/arm/dts/k3-am62d-evm-binman.dtsi
+F:	arch/arm/dts/k3-am62d2-evm-u-boot.dtsi
+F:	arch/arm/dts/k3-am62d2-r5-evm.dts
+F:	arch/arm/dts/k3-am62d2-r5.dtsi
 F:	board/ti/am62dx/
-F:	include/configs/am62a7_evm.h
-F:	configs/am62dx_evm_r5_defconfig
 F:	configs/am62dx_evm_a53_defconfig
+F:	configs/am62dx_evm_r5_defconfig
+F:	configs/am62x_a53_android.config
+F:	configs/am62x_a53_usbdfu.config
+F:	configs/am62x_a53_usbmsc.config
+F:	configs/am62x_r5_usbdfu.config
+F:	configs/am62x_r5_usbmsc.config
+F:	doc/board/ti/am62dx_evm.rst
+F:	include/configs/am62ax_evm.h

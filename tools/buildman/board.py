@@ -10,7 +10,7 @@ class Board:
         """Create a new board type.
 
         Args:
-            status: define whether the board is 'Active' or 'Orphaned'
+            status: define whether the board is 'Active' or 'Orphan'
             arch: Architecture name (e.g. arm)
             cpu: Cpu name (e.g. arm1136)
             soc: Name of SOC, or '' if none (e.g. mx31)

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2019
- * Angelo Dureghello <angleo@sysam.it>
+ * Angelo Dureghello <angleo@kernel-space.org>
  *
  * CPU specific dspi routines
  */

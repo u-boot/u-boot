@@ -272,5 +272,5 @@ and change CONFIG_BOOTARGS value in configs/minnowmax_defconfig to::
    CONFIG_BOOTARGS="root=/dev/sda2 ro"
 
 .. _here: https://en.wikipedia.org/wiki/GUID_Partition_Table
-.. _this: http://events.linuxfoundation.org/sites/events/files/slides/chromeos_and_diy_vboot_0.pdf
-.. _that: http://events.linuxfoundation.org/sites/events/files/slides/elce-2014.pdf
+.. _this: http://events.static.linuxfound.org/sites/events/files/slides/chromeos_and_diy_vboot_0.pdf
+.. _that: http://events.static.linuxfound.org/sites/events/files/slides/elce-2014.pdf

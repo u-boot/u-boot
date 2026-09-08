@@ -312,7 +312,7 @@ also be uploaded via FEL, check the Wiki's `FEL page`_ for more details.
 .. _`configs/`: https://github.com/crust-firmware/crust/tree/master/configs
 .. _`crust README`: https://github.com/crust-firmware/crust/blob/master/README.md#building-the-firmware
 .. _`linux-sunxi`: https://linux-sunxi.org
-.. _`MTD utils`: http://www.linux-mtd.infradead.org/
+.. _`MTD utils`: http://linux-mtd.infradead.org/
 .. _`magic binary`: https://github.com/linux-sunxi/sunxi-tools/raw/master/bin/fel-sdboot.sunxi
 .. _`sunxi_fel`: https://github.com/linux-sunxi/sunxi-tools
 .. _`FEL page`: https://linux-sunxi.org/FEL/USBBoot

@@ -3,7 +3,7 @@
 U-Boot for JetHub J80 (S905W)
 =============================
 
-JetHome Jethub H1 (http://jethome.ru/jethub-h1) is a home automation controller device
+JetHome Jethub H1 (https://jethome.ru/h1/?variation_id=56) is a home automation controller device
 manufactured by JetHome with the following specifications:
 
  - Amlogic S905W (ARM Cortex-A53) quad-core up to 1.5GHz

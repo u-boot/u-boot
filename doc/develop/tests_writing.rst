@@ -236,7 +236,7 @@ Include ``test/ut.h`` defines a number of macros to check values and to return
 from the test function if the assertion fails. See :doc:`../api/test`
 for details.
 
-[1] https://gitlab.denx.de/u-boot/u-boot/-/commit/9fe064646d2
+[1] https://git.u-boot-project.org/u-boot/u-boot/-/commit/9fe064646d
 
 
 Add a new driver model test
@@ -282,7 +282,7 @@ implementations work as expected.
 
 Example commit: c48cb7ebfb4 ("sandbox: add ADC unit tests") [1]
 
-[1] https://gitlab.denx.de/u-boot/u-boot/-/commit/c48cb7ebfb4
+[1] https://git.u-boot-project.org/u-boot/u-boot/-/commit/c48cb7ebfb4
 
 
 Add a new test suite

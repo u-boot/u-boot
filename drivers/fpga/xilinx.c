@@ -44,6 +44,7 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 	unsigned int length;
 	unsigned int swapsize;
 	unsigned char *dataptr;
+	unsigned long hdrlen;
 	unsigned int i;
 	const fpga_desc *desc;
 	xilinx_desc *xdesc;
@@ -142,6 +143,14 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 		   ((unsigned int) *(dataptr + 3));
 	dataptr += 4;
 	printf("  bytes in bitstream = %d\n", swapsize);
+
+	/* Make sure the header and data fit in the caller's buffer */
+	hdrlen = (unsigned long)dataptr - (unsigned long)fpgadata;
+	if (hdrlen > size || swapsize > size - hdrlen) {
+		printf("%s: Bitstream does not fit in %lu byte buffer\n",
+		       __func__, (unsigned long)size);
+		return FPGA_FAIL;
+	}
 
 	return fpga_load(devnum, dataptr, swapsize, bstype, 0);
 }

@@ -105,10 +105,8 @@ static int enetc_dev_id(struct udevice *dev)
 {
 	if (enetc_is_imx95(dev))
 		return enetc_dev_id_imx(dev);
-	if (enetc_is_ls1028a(dev))
-		return PCI_FUNC(pci_get_devfn(dev));
 
-	return 0;
+	return PCI_FUNC(pci_get_devfn(dev));
 }
 
 static void enetc_inval_rxbd(struct udevice *dev)

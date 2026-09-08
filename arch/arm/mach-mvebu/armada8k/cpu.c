@@ -6,8 +6,11 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <lmb.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <linux/sizes.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/system.h>
 #include <asm/arch/cpu.h>
@@ -16,6 +19,8 @@
 #include <mach/fw_info.h>
 
 #include "soc_info.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* Armada 7k/8k */
 #define MVEBU_RFU_BASE			(MVEBU_REGISTER(0x6f0000))
@@ -60,6 +65,90 @@ static struct mm_region mvebu_mem_map[] = {
 };
 
 struct mm_region *mem_map = mvebu_mem_map;
+
+#if CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP)
+/**
+ * mvebu_lmb_reserve() - mark a region as present but not allocatable
+ * @base:	start of the region
+ * @size:	size of the region
+ */
+static void mvebu_lmb_reserve(phys_addr_t base, phys_size_t size)
+{
+	phys_addr_t addr = base;
+
+	if (lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &addr, size, LMB_NOOVERWRITE))
+		log_err("Failed to reserve 0x%llx bytes at 0x%llx\n",
+			(unsigned long long)size, (unsigned long long)base);
+}
+
+/**
+ * mvebu_lmb_add_bank() - add one memory range, honouring ram_top
+ * @base:	start of the range
+ * @size:	size of the range
+ * @ram_top:	highest address U-Boot may allocate from
+ *
+ * The reservation above @ram_top mirrors the generic lmb_add_memory(), which
+ * this hook replaces.
+ */
+static void mvebu_lmb_add_bank(phys_addr_t base, phys_size_t size, u64 ram_top)
+{
+	phys_addr_t bank_end = base + size;
+
+	lmb_add(base, size);
+
+	if (!IS_ENABLED(CONFIG_LMB_LIMIT_DMA_BELOW_RAM_TOP))
+		return;
+
+	if (base >= ram_top)
+		mvebu_lmb_reserve(base, size);
+	else if (bank_end > ram_top)
+		mvebu_lmb_reserve(ram_top, bank_end - ram_top);
+}
+
+/**
+ * lmb_arch_add_memory() - add DRAM to LMB, minus the ATF and TEE region
+ *
+ * mvebu_mem_map[] above deliberately has no entry for ATF_REGION_START to
+ * ATF_REGION_END, so U-Boot has no translation for that range and any access
+ * to it takes a translation fault. It must not be handed to LMB either:
+ * everything LMB holds as available is published to EFI payloads as
+ * EFI_CONVENTIONAL_MEMORY, and the first payload to use it aborts.
+ */
+void lmb_arch_add_memory(void)
+{
+	phys_addr_t bank_start, bank_end;
+	u64 ram_top = gd->ram_top;
+	int i;
+
+	/* Assume a 4GB ram_top if not defined */
+	if (!ram_top)
+		ram_top = 0x100000000ULL;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		if (!gd->dram[i].size)
+			continue;
+
+		bank_start = gd->dram[i].start;
+		bank_end = bank_start + gd->dram[i].size;
+
+		if (bank_end <= ATF_REGION_START ||
+		    bank_start >= ATF_REGION_END) {
+			mvebu_lmb_add_bank(bank_start, gd->dram[i].size,
+					   ram_top);
+			continue;
+		}
+
+		if (bank_start < ATF_REGION_START)
+			mvebu_lmb_add_bank(bank_start,
+					   ATF_REGION_START - bank_start,
+					   ram_top);
+		if (bank_end > ATF_REGION_END)
+			mvebu_lmb_add_bank(ATF_REGION_END,
+					   bank_end - ATF_REGION_END,
+					   ram_top);
+	}
+}
+#endif
 
 void enable_caches(void)
 {

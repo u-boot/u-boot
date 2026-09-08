@@ -1295,7 +1295,7 @@ config SPL_LMB
 config LMB_ARCH_MEM_MAP
 	bool
 	depends on LMB
-	default y if FSL_LAYERSCAPE || X86
+	default y if ARMADA_8K || FSL_LAYERSCAPE || X86
 	help
 	  Some architectures have special or unique aspects which need
 	  consideration when adding memory ranges to the list of available

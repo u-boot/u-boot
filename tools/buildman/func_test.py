@@ -951,7 +951,7 @@ Active  aarch64     armv8 - armltd total_compute board2
         self.assertEqual(["WARNING: no maintainers for 'board0'"], warnings)
 
         # Mark a board as orphaned - this should give a warning
-        lines = ['S: Orphaned' if line.startswith('S') else line
+        lines = ['S: Orphan' if line.startswith('S') else line
                  for line in orig_data.splitlines(keepends=True)]
         tools.write_file(main, ''.join(lines), binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)

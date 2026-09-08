@@ -30,10 +30,8 @@ __weak efi_status_t platform_get_rng_device(struct udevice **dev)
 	struct udevice *devp;
 
 	ret = uclass_get_device(UCLASS_RNG, 0, &devp);
-	if (ret) {
-		debug("Unable to get rng device\n");
+	if (ret)
 		return EFI_DEVICE_ERROR;
-	}
 
 	*dev = devp;
 
@@ -105,7 +103,7 @@ static efi_status_t EFIAPI getrng(struct efi_rng_protocol *this,
 				  uint8_t *rng_value)
 {
 	int ret;
-	efi_status_t status = EFI_SUCCESS;
+	efi_status_t status;
 	struct udevice *dev;
 	const efi_guid_t rng_raw_guid = EFI_RNG_ALGORITHM_RAW;
 
@@ -125,10 +123,9 @@ static efi_status_t EFIAPI getrng(struct efi_rng_protocol *this,
 		}
 	}
 
-	ret = platform_get_rng_device(&dev);
-	if (ret != EFI_SUCCESS) {
+	status = platform_get_rng_device(&dev);
+	if (status != EFI_SUCCESS) {
 		EFI_PRINT("Rng device not found\n");
-		status = EFI_UNSUPPORTED;
 		goto back;
 	}
 

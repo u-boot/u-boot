@@ -262,7 +262,8 @@ int dram_init(void)
 	ofnode mem = ofnode_null();
 	struct resource res;
 	int ret, i, reg = 0;
-	u32 num_banks, reloc_use = 0;
+	u32 num_banks = 0;
+	u32 reloc_use = 0;
 	u64 text = (u64)_start;
 
 	gd->ram_base = (unsigned long)~0;

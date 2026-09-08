@@ -275,6 +275,8 @@ struct squashfs_dir_stream {
 	 * sqfs_opendir() and freed in sqfs_closedir().
 	 */
 	unsigned char *inode_table;
+	/* Size in bytes of the decompressed inode_table buffer */
+	size_t inode_table_size;
 	unsigned char *dir_table;
 };
 
@@ -293,8 +295,8 @@ struct squashfs_file_info {
 	bool comp;
 };
 
-void *sqfs_find_inode(void *inode_table, int inode_number, __le32 inode_count,
-		      __le32 block_size);
+void *sqfs_find_inode(void *inode_table, size_t table_size, int inode_number,
+		      __le32 inode_count, __le32 block_size);
 
 int sqfs_dir_offset(void *dir_i, u32 *m_list, int m_count);
 

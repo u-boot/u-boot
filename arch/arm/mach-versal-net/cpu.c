@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2021 - 2022, Xilinx, Inc.
- * Copyright (C) 2022, Advanced Micro Devices, Inc.
+ * Copyright (C) 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -151,7 +151,8 @@ u8 __weak versal_net_get_bootmode(void)
 	return reg & BOOT_MODES_MASK;
 }
 
-static u32 platform_id, platform_version;
+static u32 platform_id __section(".data");
+static u32 platform_version __section(".data");
 
 char *soc_name_decode(void)
 {

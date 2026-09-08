@@ -53,6 +53,8 @@
 #define SPISR_RX_FULL		BIT(1)
 #define SPISR_RX_EMPTY		BIT(0)
 
+#define IPISR_DTR_EMPTY		BIT(2)
+
 /* SPI Data Transmit Register (spidtr), [1] p12, [2] p12 */
 #define SPIDTR_8BIT_MASK	GENMASK(7, 0)
 #define SPIDTR_16BIT_MASK	GENMASK(15, 0)
@@ -256,6 +258,13 @@ static int start_transfer(struct udevice *dev, const void *dout, void *din, u32 
 		reg = readl(&regs->spicr) | SPICR_MASTER_INHIBIT;
 		writel(reg, &regs->spicr);
 		count = xilinx_spi_fill_txfifo(bus, txp, txbytes);
+		/*
+		 * Clear any stale DTR_EMPTY before starting. IPISR is
+		 * toggle-on-write, so only write (toggle) the bit when it is
+		 * actually set, otherwise the write would spuriously set it.
+		 */
+		if (readl(&regs->ipisr) & IPISR_DTR_EMPTY)
+			writel(IPISR_DTR_EMPTY, &regs->ipisr);
 		/* Enable master transaction */
 		reg = readl(&regs->spicr) & ~SPICR_MASTER_INHIBIT;
 		writel(reg, &regs->spicr);
@@ -263,12 +272,22 @@ static int start_transfer(struct udevice *dev, const void *dout, void *din, u32 
 		if (txp)
 			txp += count;
 
-		ret = wait_for_bit_le32(&regs->spisr, SPISR_TX_EMPTY, true,
+		/*
+		 * Wait for the transfer to fully complete before inhibiting
+		 * the master. The final byte may still be in the shift
+		 * pipeline. Poll IPISR_DTR_EMPTY, which is set only once the
+		 * last byte has been shifted out to the slave. Asserting
+		 * MASTER_INHIBIT before this stops SCK and truncates the last
+		 * byte, which is observable at low SCK frequencies.
+		 */
+		ret = wait_for_bit_le32(&regs->ipisr, IPISR_DTR_EMPTY, true,
 					XILINX_SPISR_TIMEOUT, false);
 		if (ret < 0) {
 			printf("XILSPI error: Xfer timeout\n");
 			return ret;
 		}
+		/* IPISR is toggle-on-write; write 1 to clear DTR_EMPTY */
+		writel(IPISR_DTR_EMPTY, &regs->ipisr);
 
 		reg = readl(&regs->spicr) | SPICR_MASTER_INHIBIT;
 		writel(reg, &regs->spicr);

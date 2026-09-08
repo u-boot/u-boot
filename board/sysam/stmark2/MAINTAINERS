@@ -1,5 +1,5 @@
 STMARK2 BOARD
-M:	Angelo Dureghello <angelo@sysam.it>
+M:	Angelo Dureghello <angelo@kernel-space.org>
 S:	Maintained
 F:	board/sysam/stmark2/
 F:	include/configs/stmark2.h

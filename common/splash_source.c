@@ -351,7 +351,7 @@ static int splash_load_fit(struct splash_location *location, ulong bmp_load_addr
 	const void *internal_splash_data;
 	size_t internal_splash_size;
 	int external_splash_addr;
-	int external_splash_size;
+	u32 external_splash_size;
 	bool is_splash_external = false;
 	struct legacy_img_hdr *img_header;
 	const u32 *fit_header;
