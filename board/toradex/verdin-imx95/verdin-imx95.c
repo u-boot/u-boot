@@ -78,3 +78,11 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return ft_common_board_setup(blob, bd);
 }
 #endif
+
+#if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
+int board_fix_fdt(void *fdt)
+{
+	/* Remove nodes based on fuses. */
+	return imx9_uboot_fixup_by_fuse(fdt);
+}
+#endif
