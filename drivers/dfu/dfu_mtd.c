@@ -289,6 +289,9 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char **argv, int a
 	struct mtd_info *mtd;
 	int part;
 
+	/* register partitions with MTDIDS/MTDPARTS or OF fallback */
+	mtd_probe_devices();
+
 	mtd = get_mtd_device_nm(devstr);
 	if (IS_ERR_OR_NULL(mtd))
 		return -ENODEV;
@@ -323,9 +326,6 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char **argv, int a
 		part = dectoul(argv[1], &s);
 		if (*s)
 			return -EINVAL;
-
-		/* register partitions with MTDIDS/MTDPARTS or OF fallback */
-		mtd_probe_devices();
 
 		partnum = 0;
 		list_for_each_entry(partition, &mtd->partitions, node) {
