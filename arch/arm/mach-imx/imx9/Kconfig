@@ -205,6 +205,7 @@ config TARGET_TORADEX_SMARC_IMX95
 config TARGET_VERDIN_IMX95
 	bool "Support Toradex Verdin iMX95 module"
 	select IMX95
+	imply OF_UPSTREAM
 
 config TARGET_IMX952_EVK
 	bool "imx952_evk"
