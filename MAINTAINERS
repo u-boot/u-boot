@@ -1510,13 +1510,9 @@ M:	Leo Liang <leo.liang@sifive.com>
 R:	Yao Zi <me@ziyao.cc>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-riscv.git
-F:	arch/riscv/
-F:	cmd/riscv/
-F:	doc/arch/riscv.rst
 F:	drivers/sysreset/sysreset_sbi.c
 F:	drivers/timer/andes_plmt_timer.c
-F:	drivers/timer/riscv_aclint_timer.c
-F:	tools/prelink-riscv.c
+N:	riscv
 
 RISC-V CANAAN KENDRYTE K210
 M:	Sean Anderson <seanga2@gmail.com>
