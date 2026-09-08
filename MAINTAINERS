@@ -1819,7 +1819,7 @@ F:	include/configs/tq*.h
 F:	include/env/tq/*
 
 TEE
-M:	Jens Wiklander <jens.wiklander@linaro.org>
+M:	Jens Wiklander <jenswi@kernel.org>
 M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-tpm.git
 S:	Maintained
