@@ -73,6 +73,13 @@ conventions used by the load commands, e.g. ``0:1`` or ``0#splash``. When
 *splashdevpart* is not set, the ``devpart`` field of the board's splash location
 entry is used instead.
 
+Where the splash data starts in that storage -- the BMP itself for a raw
+location, or the FIT for a FIT location -- can be overridden with the
+environment variable *splashoffset*, given in hexadecimal. When *splashoffset*
+is not set, the ``offset`` field of the board's splash location entry is used
+instead. Only the SPI flash and NAND backends read from the offset at all; MMC
+always starts at the beginning of the partition selected by *splashdevpart*.
+
 The default weak splash_screen_prepare() passes the ``default_splash_locations``
 array, defined in ``common/splash.c``, to splash_source_load(). It provides the
 following *splashsource* names out of the box:

@@ -440,6 +440,7 @@ int splash_source_load(struct splash_location *locations, uint size)
 	struct splash_location *splash_location;
 	char *env_splashimage_value;
 	char *devpart;
+	char *env_splashoffset_value;
 	ulong bmp_load_addr;
 
 	env_splashimage_value = env_get("splashimage");
@@ -459,6 +460,10 @@ int splash_source_load(struct splash_location *locations, uint size)
 	devpart = env_get("splashdevpart");
 	if (devpart)
 		splash_location->devpart = devpart;
+
+	env_splashoffset_value = env_get("splashoffset");
+	if (env_splashoffset_value)
+		splash_location->offset = hextoul(env_splashoffset_value, NULL);
 
 	if (splash_location->flags == SPLASH_STORAGE_RAW)
 		return splash_load_raw(splash_location, bmp_load_addr);
