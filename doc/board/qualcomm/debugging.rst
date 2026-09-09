@@ -18,6 +18,8 @@ Newer boards (SDM845 and newer, those with GENI SE UART)
 
 Open ``configs/qcom_defconfig`` and add the following snippet to the bottom:
 
+.. code-block:: kconfig
+
 	CONFIG_BAUDRATE=115200
 
 	# Uncomment to enable UART pre-relocation
@@ -42,6 +44,8 @@ Older boards (db410c and db820c)
 
 Open ``configs/dragonboard<BOARD>_defconfig``
 
+.. code-block:: kconfig
+
 	CONFIG_DEBUG_UART=y
 	CONFIG_DEBUG_UART_ANNOUNCE=y
 	# db410c - 0x78b0000
@@ -56,4 +60,3 @@ Open ``configs/dragonboard<BOARD>_defconfig``
 	CONFIG_LOG_MAX_LEVEL=9
 	CONFIG_LOG_DEFAULT_LEVEL=9
 	CONFIG_LOGLEVEL=9
-
