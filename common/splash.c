@@ -156,7 +156,7 @@ void splash_display_banner(void)
 
 /*
  * Common function to show a splash image if env("splashimage") is set.
- * For additional details please refer to doc/README.splashprepare.
+ * For additional details please refer to doc/develop/splash.rst.
  */
 int splash_display(void)
 {
