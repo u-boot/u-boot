@@ -719,6 +719,17 @@ static int omap_read_page_bch(struct mtd_info *mtd, struct nand_chip *chip,
 	uint32_t oob_pos;
 	u32 data_pos = 0;
 
+	/*
+	 * Read the full OOB first so that non-ECC bytes (bad-block markers
+	 * and the free area where JFFS2 cleanmarkers are stored) are filled
+	 * into chip->oob_poi from the physical device.  The ECC loop below
+	 * will overwrite the ECC positions with the same hardware-read values.
+	 */
+	if (oob_required) {
+		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, mtd->writesize, -1);
+		chip->read_buf(mtd, chip->oob_poi, mtd->oobsize);
+	}
+
 	/* oob area start */
 	oob_pos = (eccsize * eccsteps) + chip->ecc.layout->eccpos[0];
 	oob += chip->ecc.layout->eccpos[0];
@@ -873,6 +884,8 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		nand->ecc.calculate	= omap_calculate_ecc;
 		/* define ecc-layout */
 		ecclayout->eccbytes	= nand->ecc.bytes * eccsteps;
+		ecclayout->oobavail = oobsize - ecclayout->eccbytes -
+						BADBLOCK_MARKER_LENGTH;
 		for (i = 0; i < ecclayout->eccbytes; i++) {
 			if (nand->options & NAND_BUSWIDTH_16)
 				ecclayout->eccpos[i] = i + 2;
@@ -912,6 +925,8 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		/* define ecc-layout */
 		ecclayout->eccbytes	= nand->ecc.bytes * eccsteps;
 		ecclayout->eccpos[0]	= BADBLOCK_MARKER_LENGTH;
+		ecclayout->oobavail = oobsize - ecclayout->eccbytes -
+						BADBLOCK_MARKER_LENGTH;
 		for (i = 1; i < ecclayout->eccbytes; i++) {
 			if (i % nand->ecc.bytes)
 				ecclayout->eccpos[i] =
@@ -954,6 +969,8 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		nand->ecc.steps		= eccsteps;
 		/* define ecc-layout */
 		ecclayout->eccbytes	= nand->ecc.bytes * eccsteps;
+		ecclayout->oobavail = oobsize - ecclayout->eccbytes -
+						BADBLOCK_MARKER_LENGTH;
 		for (i = 0; i < ecclayout->eccbytes; i++)
 			ecclayout->eccpos[i] = i + BADBLOCK_MARKER_LENGTH;
 		ecclayout->oobfree[0].offset = i + BADBLOCK_MARKER_LENGTH;
@@ -988,10 +1005,12 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		nand->ecc.steps		= eccsteps;
 		/* define ecc-layout */
 		ecclayout->eccbytes	= nand->ecc.bytes * eccsteps;
+		ecclayout->oobavail = oobsize - ecclayout->eccbytes -
+						BADBLOCK_MARKER_LENGTH;
 		for (i = 0; i < ecclayout->eccbytes; i++)
 			ecclayout->eccpos[i] = i + BADBLOCK_MARKER_LENGTH;
 		ecclayout->oobfree[0].offset = i + BADBLOCK_MARKER_LENGTH;
-		ecclayout->oobfree[0].length = oobsize - nand->ecc.bytes -
+		ecclayout->oobfree[0].length = oobsize - ecclayout->eccbytes -
 						BADBLOCK_MARKER_LENGTH;
 		break;
 #else
