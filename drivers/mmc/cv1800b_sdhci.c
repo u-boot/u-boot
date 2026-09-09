@@ -8,11 +8,17 @@
 #include <sdhci.h>
 #include <linux/delay.h>
 
+#define CV18XX_SDHCI_MSHC_CTRL  0x200
+#define CV18XX_SDHCI_PHY_CONFIG 0x24c
 #define SDHCI_PHY_TX_RX_DLY  0x240
 #define MMC_MAX_CLOCK        375000000
 #define TUNE_MAX_PHCODE      128
 
 #define PHY_TX_SRC_INVERT  BIT(8)
+#define PHY_RX_SRC_INVERT  BIT(24)
+
+#define CV18XX_LATANCY_1T BIT(1)
+#define CV18XX_PHY_TX_BPS BIT(0)
 
 struct cv1800b_sdhci_plat {
 	struct mmc_config cfg;
@@ -64,6 +70,24 @@ static int cv1800b_execute_tuning(struct mmc *mmc, u8 opcode)
 }
 #endif
 
+static int cv1800b_configure_phy(struct sdhci_host *host)
+{
+	u32 val;
+
+	val = sdhci_readl(host, CV18XX_SDHCI_MSHC_CTRL);
+	val |= CV18XX_LATANCY_1T;
+	sdhci_writel(host, val, CV18XX_SDHCI_MSHC_CTRL);
+
+	val = sdhci_readl(host, CV18XX_SDHCI_PHY_CONFIG);
+	val |= CV18XX_PHY_TX_BPS;
+	sdhci_writel(host, val, CV18XX_SDHCI_PHY_CONFIG);
+
+	val = PHY_TX_SRC_INVERT | PHY_RX_SRC_INVERT;
+	sdhci_writel(host, val, SDHCI_PHY_TX_RX_DLY);
+
+	return 0;
+}
+
 const struct sdhci_ops cv1800b_sdhci_sd_ops = {
 #if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	.platform_execute_tuning = cv1800b_execute_tuning,
@@ -105,7 +129,11 @@ static int cv1800b_sdhci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	return sdhci_probe(dev);
+	ret = sdhci_probe(dev);
+	if (ret)
+		return ret;
+
+	return cv1800b_configure_phy(host);
 }
 
 static const struct udevice_id cv1800b_sdhci_match[] = {
