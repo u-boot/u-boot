@@ -26,7 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SPI_FLASH
 static struct spi_flash *sf;
-static int splash_sf_read_raw(ulong bmp_load_addr, int offset, size_t read_size)
+static int splash_sf_read_raw(ulong bmp_load_addr, u32 offset, size_t read_size)
 {
 	if (!sf) {
 		sf = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
@@ -40,7 +40,7 @@ static int splash_sf_read_raw(ulong bmp_load_addr, int offset, size_t read_size)
 	return spi_flash_read(sf, offset, read_size, (void *)(uintptr_t)bmp_load_addr);
 }
 #else
-static int splash_sf_read_raw(ulong bmp_load_addr, int offset, size_t read_size)
+static int splash_sf_read_raw(ulong bmp_load_addr, u32 offset, size_t read_size)
 {
 	debug("%s: sf support not available\n", __func__);
 	return -ENOSYS;
@@ -48,7 +48,7 @@ static int splash_sf_read_raw(ulong bmp_load_addr, int offset, size_t read_size)
 #endif
 
 #ifdef CONFIG_CMD_NAND
-static int splash_nand_read_raw(ulong bmp_load_addr, int offset, size_t read_size)
+static int splash_nand_read_raw(ulong bmp_load_addr, u32 offset, size_t read_size)
 {
 	struct mtd_info *mtd = get_nand_dev_by_index(nand_curr_device);
 	return nand_read_skip_bad(mtd, offset,
@@ -57,7 +57,7 @@ static int splash_nand_read_raw(ulong bmp_load_addr, int offset, size_t read_siz
 				  (u_char *)bmp_load_addr);
 }
 #else
-static int splash_nand_read_raw(ulong bmp_load_addr, int offset, size_t read_size)
+static int splash_nand_read_raw(ulong bmp_load_addr, u32 offset, size_t read_size)
 {
 	debug("%s: nand support not available\n", __func__);
 	return -ENOSYS;
