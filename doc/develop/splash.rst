@@ -92,6 +92,7 @@ mmc_fs   MMC          file system        ``0:1``
 mmc_raw  MMC          raw                ``0:1``
 usb_fs   USB          file system        ``0:1``
 sata_fs  SATA         file system        ``0:1``
+scsi_fs  SCSI         file system        ``0:1``
 ======== ============ ================== ===============
 
 A board that needs different locations, other storage backends (e.g. NAND,

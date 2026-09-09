@@ -15,6 +15,7 @@
 #include <log.h>
 #include <nand.h>
 #include <sata.h>
+#include <scsi.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <splash.h>
@@ -152,6 +153,9 @@ static int splash_select_fs_dev(struct splash_location *location)
 	case SPLASH_STORAGE_SATA:
 		res = fs_set_blk_dev("sata", location->devpart, FS_TYPE_ANY);
 		break;
+	case SPLASH_STORAGE_SCSI:
+		res = fs_set_blk_dev("scsi", location->devpart, FS_TYPE_ANY);
+		break;
 	case SPLASH_STORAGE_NAND:
 		if (location->ubivol != NULL)
 			res = fs_set_blk_dev("ubi", NULL, FS_TYPE_UBIFS);
@@ -204,6 +208,16 @@ static inline int splash_init_sata(void)
 	return -ENOSYS;
 }
 #endif
+
+static int splash_init_scsi(void)
+{
+	if (!IS_ENABLED(CONFIG_SCSI)) {
+		printf("Cannot load splash image: no SCSI support\n");
+		return -ENOSYS;
+	} else {
+		return scsi_scan(false);
+	}
+}
 
 static int splash_init_virtio(void)
 {
@@ -268,6 +282,9 @@ static int splash_load_fs(struct splash_location *location, ulong bmp_load_addr)
 
 	if (location->storage == SPLASH_STORAGE_SATA)
 		res = splash_init_sata();
+
+	if (location->storage == SPLASH_STORAGE_SCSI)
+		res = splash_init_scsi();
 
 	if (location->storage == SPLASH_STORAGE_VIRTIO)
 		res = splash_init_virtio();
