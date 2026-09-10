@@ -38,6 +38,11 @@ static int fixed_regulator_of_to_plat(struct udevice *dev)
 	return regulator_common_of_to_plat(dev, plat, gpios ? "gpios" : "gpio");
 }
 
+static int fixed_regulator_probe(struct udevice *dev)
+{
+	return regulator_common_probe(dev, dev_get_plat(dev));
+}
+
 static int fixed_regulator_get_value(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
@@ -150,6 +155,7 @@ U_BOOT_DRIVER(regulator_fixed) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &fixed_regulator_ops,
 	.of_match = fixed_regulator_ids,
+	.probe = fixed_regulator_probe,
 	.of_to_plat = fixed_regulator_of_to_plat,
 	.plat_auto = sizeof(struct regulator_common_plat),
 };
