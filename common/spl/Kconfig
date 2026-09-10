@@ -194,6 +194,7 @@ config SPL_SHOW_ERRORS
 config SPL_BINMAN_SYMBOLS
 	bool "Declare binman symbols in SPL"
 	depends on SPL_FRAMEWORK && BINMAN
+	default n if MTK_GENIO_BOOT_IMAGES
 	default y
 	help
 	  This enables use of symbols in SPL which refer to other entries in
