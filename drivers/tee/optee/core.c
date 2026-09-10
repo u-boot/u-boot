@@ -156,7 +156,7 @@ static int enum_services(struct udevice *dev, struct tee_shm **shm, size_t *coun
 	return ret;
 }
 
-static int open_enum_session(struct udevice *dev, u32 *tee_sess)
+int optee_open_enum_session(struct udevice *dev, u32 *tee_sess)
 {
 	const struct tee_optee_ta_uuid pta_uuid = PTA_DEVICE_ENUM;
 	struct tee_open_session_arg arg = { };
@@ -176,31 +176,34 @@ static int open_enum_session(struct udevice *dev, u32 *tee_sess)
 	return 0;
 }
 
-static int bind_service_drivers(struct udevice *dev)
+int optee_bind_services(struct udevice *dev, u32 tee_sess,
+			unsigned int pta_cmd)
 {
 	struct tee_shm *service_list = NULL;
 	size_t service_count;
-	u32 tee_sess;
-	int ret, ret2;
-
-	ret = open_enum_session(dev, &tee_sess);
-	if (ret)
-		return ret;
+	int ret;
 
 	ret = enum_services(dev, &service_list, &service_count, tee_sess,
-			    PTA_CMD_GET_DEVICES);
+			    pta_cmd);
 	if (!ret && service_count)
 		ret = bind_service_list(dev, service_list, service_count);
 
 	tee_shm_free(service_list);
-	service_list = NULL;
 
-	ret2 = enum_services(dev, &service_list, &service_count, tee_sess,
-			     PTA_CMD_GET_DEVICES_SUPP);
-	if (!ret2 && service_count)
-		ret2 = bind_service_list(dev, service_list, service_count);
+	return ret;
+}
 
-	tee_shm_free(service_list);
+static int bind_service_drivers(struct udevice *dev)
+{
+	u32 tee_sess;
+	int ret, ret2;
+
+	ret = optee_open_enum_session(dev, &tee_sess);
+	if (ret)
+		return ret;
+
+	ret = optee_bind_services(dev, tee_sess, PTA_CMD_GET_DEVICES);
+	ret2 = optee_bind_services(dev, tee_sess, PTA_CMD_GET_DEVICES_SUPP);
 
 	tee_close_session(dev, tee_sess);
 

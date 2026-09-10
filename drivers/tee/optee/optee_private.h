@@ -27,6 +27,9 @@ struct optee_msg_arg;
 
 void optee_suppl_cmd(struct udevice *dev, struct tee_shm *shm_arg,
 		     void **page_list);
+int optee_open_enum_session(struct udevice *dev, u32 *tee_sess);
+int optee_bind_services(struct udevice *dev, u32 tee_sess,
+			unsigned int pta_cmd);
 
 #ifdef CONFIG_SUPPORT_EMMC_RPMB
 /**
