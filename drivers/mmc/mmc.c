@@ -27,6 +27,7 @@
 #include <linux/list.h>
 #include <linux/printk.h>
 #include <div64.h>
+#include <tee/optee.h>
 #include "mmc_private.h"
 
 #define DEFAULT_CMD6_TIMEOUT_MS  500
@@ -3175,6 +3176,9 @@ int mmc_init(struct mmc *mmc)
 		cyclic_register(&mmc->cyclic, mmc_cyclic_cd_poll, 100 * 1000,
 				mmc->cfg->name);
 	}
+
+	if (CONFIG_IS_ENABLED(OPTEE) && mmc->capacity_rpmb > 0)
+		optee_rpmb_available();
 
 	return err;
 }
