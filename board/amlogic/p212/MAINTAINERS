@@ -3,7 +3,7 @@ M:	Neil Armstrong <neil.armstrong@linaro.org>
 S:	Maintained
 L:	u-boot-amlogic@groups.io
 F:	board/amlogic/p212/
-F:	include/configs/p212.h
+F:	include/configs/meson64.h
 F:	configs/khadas-vim_defconfig
 F:	configs/libretech-cc_defconfig
 F:	configs/libretech-cc_v2_defconfig
