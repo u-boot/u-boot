@@ -2,6 +2,6 @@ LIBRE-COMPUTER AML-A311D-CC
 M:	Neil Armstrong <neil.armstrong@linaro.org>
 S:	Maintained
 L:	u-boot-amlogic@groups.io
-F:	board/amlogic/aml-a311d-cc/
+F:	board/libre-computer/aml-a311d-cc/
 F:	configs/aml-a311d-cc_defconfig
 F:	doc/board/amlogic/aml-a311d-cc.rst

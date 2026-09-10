@@ -5,7 +5,7 @@ L:	upstream@lists.phytec.de
 W:	https://www.phytec.com/product/phycore-am62a
 S:	Maintained
 F:	arch/arm/dts/k3-am62a-phycore-som-binman.dtsi
-F:	arch/arm/dts/k3-am62a-phycore-som-ddr4-2gb.dtsit.dtsi
+F:	arch/arm/dts/k3-am62a-phycore-som-ddr4-2gb.dtsi
 F:	arch/arm/dts/k3-am62a7-phyboard-lyra-rdk-u-boot.dtsi
 F:	arch/arm/dts/k3-am62a7-r5-phycore-som-2gb.dts
 F:	board/phytec/phycore_am62ax/

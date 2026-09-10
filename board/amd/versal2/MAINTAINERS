@@ -2,6 +2,6 @@ XILINX_VERSAL2 BOARDS
 M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
-F:	arch/arm/dts/versal2*
+F:	arch/arm/dts/amd-versal2*
 F:	board/amd/
 F:	configs/amd*

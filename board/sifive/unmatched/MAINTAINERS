@@ -3,6 +3,6 @@ M:	Paul Walmsley <paul.walmsley@sifive.com>
 M:	Green Wan <green.wan@sifive.com>
 S:	Maintained
 F:	board/sifive/unmatched/
-F:	doc/board/sifive/hifive-unmatched-fu740.rst
+F:	doc/board/sifive/unmatched.rst
 F:	include/configs/sifive-unmatched.h
 F:	configs/sifive_unmatched_defconfig

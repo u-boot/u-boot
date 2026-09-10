@@ -10,5 +10,5 @@ F:	configs/da850evm_direct_nor_defconfig
 OMAPL138_LCDK BOARD
 M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
-F:	include/configs/omap1l38_lcdk.h
+F:	include/configs/omapl138_lcdk.h
 F:	configs/omapl138_lcdk_defconfig
