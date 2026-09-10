@@ -112,7 +112,10 @@ static int __enum_services(struct udevice *dev, struct tee_shm *shm, size_t *shm
 
 	ret = tee_invoke_func(dev, &arg, 1, &param);
 	if (ret || (arg.ret && arg.ret != TEE_ERROR_SHORT_BUFFER)) {
-		dev_err(dev, "Enumeration command 0x%x failed: 0x%x\n", pta_cmd, arg.ret);
+		if (arg.ret != TEE_ERROR_STORAGE_NOT_AVAILABLE)
+			dev_err(dev, "Enumeration command 0x%x failed: 0x%x\n", pta_cmd, arg.ret);
+		else
+			dev_dbg(dev, "Enumeration command 0x%x failed due to unavailable storage\n", pta_cmd);
 		return -EINVAL;
 	}
 
