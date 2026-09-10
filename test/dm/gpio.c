@@ -257,6 +257,45 @@ static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
 DM_TEST(dm_test_gpio_opendrain_opensource,
 	UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
+/* Test parsing a GPIO in one phase and requesting it in another */
+static int dm_test_gpio_parse_request(struct unit_test_state *uts)
+{
+	struct gpio_dt_spec spec;
+	struct gpio_desc desc, chk;
+	struct udevice *dev;
+	const char *label;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	/* test2-gpios index 1 is a4: parsing alone must not claim it */
+	ut_assertok(dm_gpio_lookup_name("a4", &chk));
+	ut_assertok(gpio_parse_by_name(dev, "test2-gpios", 1, GPIOD_IS_OUT,
+				       &spec));
+	ut_asserteq(true, spec.present);
+	ut_asserteq(GPIOF_UNUSED, gpio_get_function(chk.dev, chk.offset,
+						    NULL));
+	ut_asserteq(0, sandbox_gpio_get_direction(chk.dev, chk.offset));
+
+	/* the request claims it with the label gpio_request_by_name() uses */
+	ut_assertok(gpio_request_parsed(dev, &spec, &desc));
+	ut_asserteq_ptr(chk.dev, desc.dev);
+	ut_asserteq(chk.offset, desc.offset);
+	ut_asserteq(GPIOF_OUTPUT, gpio_get_function(desc.dev, desc.offset,
+						    &label));
+	ut_asserteq_str("a-test.test2-gpios1", label);
+	ut_assertok(dm_gpio_free(dev, &desc));
+
+	/* a missing property parses and requests as -ENOENT */
+	ut_asserteq(-ENOENT,
+		    gpio_parse_by_name(dev, "no-such-gpios", 0, 0, &spec));
+	ut_asserteq(-ENOENT, gpio_request_parsed(dev, &spec, &desc));
+	ut_asserteq(false, dm_gpio_is_valid(&desc));
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_parse_request, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
 /* Test that sandbox anonymous GPIOs work correctly */
 static int dm_test_gpio_anon(struct unit_test_state *uts)
 {
