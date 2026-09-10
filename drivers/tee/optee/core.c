@@ -83,12 +83,18 @@ static int bind_service_list(struct udevice *dev, struct tee_shm *service_list, 
 {
 	const struct tee_optee_ta_uuid *service_uuid = (const void *)service_list->addr;
 	struct optee_service *service;
+	struct udevice *service_dev;
 	size_t idx;
 	int ret;
 
 	for (idx = 0; idx < count; idx++) {
 		service = find_service_driver(service_uuid + idx);
 		if (!service)
+			continue;
+
+		ret = device_find_child_by_name(dev, service->driver_name,
+						&service_dev);
+		if (!ret && dev_get_flags(service_dev) & DM_FLAG_BOUND)
 			continue;
 
 		ret = device_bind_driver_to_node(dev, service->driver_name, service->driver_name,
