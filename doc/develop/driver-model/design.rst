@@ -759,6 +759,16 @@ The steps are:
 
    6. The device is marked 'plat valid'.
 
+The of_to_plat() method must only read the devicetree. It must not probe
+other devices or claim resources such as GPIOs or clocks: ofdata is read
+before the device's pinctrl state is applied, so a pin claimed here can have
+its configuration undone a moment later, and probing another device from this
+method defeats the lazy-probing model. When a resource is named in the
+devicetree, read its description into the platform data here with
+gpio_parse_by_name() and claim it in probe() with gpio_request_parsed(). The
+same 'parse now, request later' shape applies to clocks, resets and phys,
+even though those helpers do not exist yet.
+
 Note that ofdata reading is always done (for a child and all its parents)
 before probing starts. Thus devices go through two distinct states when
 probing: reading platform data and actually touching the hardware to bring
@@ -778,11 +788,7 @@ present will cause an error on probe, yet we still must tell Linux about
 the SD card connector in case it is used while Linux is running.
 
 It is important that the of_to_plat() method does not actually probe
-the device itself. However there are cases where other devices must be probed
-in the of_to_plat() method. An example is where a device requires a
-GPIO for it to operate. To select a GPIO obviously requires that the GPIO
-device is probed. This is OK when used by common, core devices such as GPIO,
-clock, interrupts, reset and the like.
+the device itself.
 
 If your device relies on its parent setting up a suitable address space, so
 that dev_read_addr() works correctly, then make sure that the parent device
