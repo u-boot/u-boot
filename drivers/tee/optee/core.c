@@ -27,19 +27,6 @@
  */
 #define PTA_DEVICE_ENUM		{ 0x7011a688, 0xddde, 0x4053, \
 				  { 0xa5, 0xa9, 0x7b, 0x3c, 0x4d, 0xdf, 0x13, 0xb8 } }
-/*
- * PTA_CMD_GET_DEVICES - List services without supplicant dependencies
- *
- * [out]    memref[0]: List of the UUIDs of service enumerated by OP-TEE
- */
-#define PTA_CMD_GET_DEVICES		0x0
-
-/*
- * PTA_CMD_GET_DEVICES_SUPP - List services depending on tee supplicant
- *
- * [out]    memref[0]: List of the UUIDs of service enumerated by OP-TEE
- */
-#define PTA_CMD_GET_DEVICES_SUPP	0x1
 
 typedef void (optee_invoke_fn)(unsigned long, unsigned long, unsigned long,
 			       unsigned long, unsigned long, unsigned long,
@@ -201,8 +188,8 @@ int optee_bind_services(struct udevice *dev, u32 tee_sess,
 
 static int bind_service_drivers(struct udevice *dev)
 {
+	int ret, ret2, ret3 = 0;
 	u32 tee_sess;
-	int ret, ret2;
 
 	ret = optee_open_enum_session(dev, &tee_sess);
 	if (ret)
@@ -210,13 +197,18 @@ static int bind_service_drivers(struct udevice *dev)
 
 	ret = optee_bind_services(dev, tee_sess, PTA_CMD_GET_DEVICES);
 	ret2 = optee_bind_services(dev, tee_sess, PTA_CMD_GET_DEVICES_SUPP);
+	if (CONFIG_IS_ENABLED(SUPPORT_EMMC_RPMB))
+		ret3 = optee_bind_services(dev, tee_sess,
+					   PTA_CMD_GET_DEVICES_RPMB);
 
 	tee_close_session(dev, tee_sess);
 
 	if (ret)
 		return ret;
+	if (ret2)
+		return ret2;
 
-	return ret2;
+	return ret3;
 }
 
 /**

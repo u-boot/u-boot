@@ -191,3 +191,23 @@ void optee_suppl_rpmb_release(struct udevice *dev)
 {
 	release_mmc(dev_get_priv(dev));
 }
+
+void optee_rpmb_available(void)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	u32 tee_sess;
+
+	uclass_id_foreach_dev(UCLASS_TEE, dev, uc) {
+		if (strcmp(dev->driver->name, "optee") != 0 ||
+		    !device_active(dev))
+			continue;
+
+		if (optee_open_enum_session(dev, &tee_sess) != 0)
+			continue;
+
+		optee_bind_services(dev, tee_sess, PTA_CMD_GET_DEVICES_RPMB);
+
+		tee_close_session(dev, tee_sess);
+	}
+}
