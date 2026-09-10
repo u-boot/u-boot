@@ -90,7 +90,7 @@ stages:
           make infodocs
 
   - job: maintainers
-    displayName: 'Ensure all configs have MAINTAINERS entries'
+    displayName: 'Check all configs are in MAINTAINERS and validate MAINTAINERS'
     pool:
       vmImage: $(ubuntu_vm)
     container:
@@ -99,6 +99,7 @@ stages:
     steps:
       - script: |
           ./tools/buildman/buildman --maintainer-check
+          ./scripts/check_maintainers_files.sh
 
   - job: allyesconfig_and_tools
     displayName: 'Ensure allyesconfig, tools-only and envtools build'
