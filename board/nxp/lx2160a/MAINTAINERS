@@ -19,7 +19,6 @@ LX2160AQDS BOARD
 M:	Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
 M:	Wasim Khan <wasim.khan@nxp.com>
 S:	Maintained
-F:	board/nxp/lx2160a/eth_lx2160aqds.h
 F:	include/configs/lx2160aqds.h
 F:	configs/lx2160aqds_tfa_defconfig
 F:	arch/arm/dts/fsl-lx2160a-qds.dts
@@ -33,7 +32,6 @@ LX2162AQDS BOARD
 M:	Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
 M:	Wasim Khan <wasim.khan@nxp.com>
 S:	Maintained
-F:	board/nxp/lx2160a/eth_lx2162aqds.h
 F:	include/configs/lx2162aqds.h
 F:	configs/lx2162aqds_tfa_defconfig
 F:	arch/arm/dts/fsl-lx2162a-qds.dts

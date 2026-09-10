@@ -9,7 +9,6 @@ F:	arch/arm/dts/imx6ull-colibri-emmc-nonwifi.dtsi
 F:	arch/arm/dts/imx6ull-colibri-eval-v3.dts
 F:	arch/arm/dts/imx6ull-colibri-eval-v3.dtsi
 F:	arch/arm/dts/imx6ull-colibri-nonwifi.dtsi
-F:	arch/arm/dts/imx6ull-colibri-u-boot.dtsi
 F:	board/toradex/colibri-imx6ull/
 F:	board/toradex/common/
 F:	configs/colibri-imx6ull_defconfig
