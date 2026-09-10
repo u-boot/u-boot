@@ -327,7 +327,7 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 
 		/*
 		 * Clear (parts of) current line
-		 *   [0K       - clear line to end
+		 *   [0K / [K  - clear from cursor to end of line
 		 *   [2K       - clear entire line
 		 */
 		parsenum(priv->escape_buf + 1, &mode);
@@ -337,6 +337,19 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 
 			get_cursor_position(priv, &row, &col);
 			vidconsole_set_row(dev, row, vid_priv->colour_bg);
+		} else if (mode == 0) {
+			/*
+			 * Clear from the cursor to the end of the line,
+			 * leaving the cursor where it is. Same span the
+			 * truetype console erases on backspace.
+			 */
+			video_fill_part(dev->parent,
+					VID_TO_PIXEL(priv->xcur_frac),
+					priv->ycur, vid_priv->xsize,
+					priv->ycur + priv->y_charsize,
+					vid_priv->colour_bg);
+		} else {
+			debug("unsupported clear mode: %d\n", mode);
 		}
 		break;
 	}
