@@ -1,6 +1,4 @@
 Aquila iMX95
-F:	arch/arm/dts/imx95-aquila.dtsi
-F:	arch/arm/dts/imx95-aquila-dev.dts
 F:	arch/arm/dts/imx95-aquila-dev-u-boot.dtsi
 F:	board/toradex/aquila-imx95/
 F:	configs/aquila-imx95_defconfig

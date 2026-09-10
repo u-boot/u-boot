@@ -196,6 +196,7 @@ config TARGET_IMX943_EVK
 config TARGET_AQUILA_IMX95
 	bool "Support Toradex Aquila iMX95"
 	select IMX95
+	imply OF_UPSTREAM
 
 config TARGET_TORADEX_SMARC_IMX95
 	bool "Support Toradex SMARC iMX95"
