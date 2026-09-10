@@ -148,6 +148,106 @@ static int ipi_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 	return ret;
 }
 
+/**
+ * Send a configuration object to the PMU firmware.
+ *
+ * @cfg_obj: Pointer to the configuration object
+ * @size:    Size of @cfg_obj in bytes
+ * Return:   0 on success otherwise negative errno.
+ */
+int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
+{
+	int err;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
+		printf("Loading new PMUFW cfg obj (%ld bytes)\n", size);
+
+	flush_dcache_range((ulong)cfg_obj, (ulong)(cfg_obj + size));
+
+	err = xilinx_pm_request(PM_SET_CONFIGURATION, (u32)(u64)cfg_obj, 0, 0,
+				0, 0, 0, ret_payload);
+	if (err == XST_PM_NO_ACCESS) {
+		return -EACCES;
+	}
+
+	if (err == XST_PM_ALREADY_CONFIGURED) {
+		debug("PMUFW Node is already configured\n");
+		return -ENODEV;
+	}
+
+	if (err)
+		printf("Cannot load PMUFW configuration object (%d)\n", err);
+
+	if (ret_payload[0])
+		printf("PMUFW returned 0x%08x status!\n", ret_payload[0]);
+
+	if ((err || ret_payload[0]) && IS_ENABLED(CONFIG_XPL_BUILD))
+		panic("PMUFW config object loading failed in EL3\n");
+
+	return 0;
+}
+
+static int zynqmp_power_probe(struct udevice *dev)
+{
+	struct udevice *ipi_dev;
+	ofnode ipi_node;
+	int ret;
+
+	debug("%s, (dev=%p)\n", __func__, dev);
+
+	/*
+	 * Probe all IPI parent node driver. It is important to have IPI
+	 * devices available when requested by mbox_get_by* API.
+	 * If IPI device isn't available, then mailbox request fails and
+	 * that causes system boot failure.
+	 * To avoid this make sure all IPI parent drivers are probed here,
+	 * and IPI parent driver binds each child node to mailbox driver.
+	 * This way mbox_get_by_* API will have correct mailbox device
+	 * driver probed.
+	 */
+	ofnode_for_each_compatible_node(ipi_node, "xlnx,zynqmp-ipi-mailbox") {
+		ret = uclass_get_device_by_ofnode(UCLASS_NOP, ipi_node, &ipi_dev);
+		if (ret) {
+			dev_err(dev, "failed to get IPI device from node %s\n",
+				ofnode_get_name(ipi_node));
+			return ret;
+		}
+	}
+
+	ret = mbox_get_by_name(dev, "tx", &zynqmp_power.tx_chan);
+	if (ret) {
+		debug("%s: Cannot find tx mailbox\n", __func__);
+		return ret;
+	}
+
+	ret = mbox_get_by_name(dev, "rx", &zynqmp_power.rx_chan);
+	if (ret) {
+		debug("%s: Cannot find rx mailbox\n", __func__);
+		return ret;
+	}
+
+	ret = zynqmp_firmware_version();
+	printf("PMUFW:\tv%d.%d\n",
+	       ret >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
+	       ret & ZYNQMP_PM_VERSION_MINOR_MASK);
+
+	return 0;
+};
+
+static const struct udevice_id zynqmp_power_ids[] = {
+	{ .compatible = "xlnx,zynqmp-power" },
+	{ }
+};
+
+U_BOOT_DRIVER(zynqmp_power) = {
+	.name = "zynqmp_power",
+	.id = UCLASS_FIRMWARE,
+	.of_match = zynqmp_power_ids,
+	.probe = zynqmp_power_probe,
+};
+#endif
+
 unsigned int zynqmp_firmware_version(void)
 {
 	int ret;
@@ -609,106 +709,6 @@ int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
 
 	return 0;
 }
-
-/**
- * Send a configuration object to the PMU firmware.
- *
- * @cfg_obj: Pointer to the configuration object
- * @size:    Size of @cfg_obj in bytes
- * Return:   0 on success otherwise negative errno.
- */
-int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
-{
-	int err;
-	u32 ret_payload[PAYLOAD_ARG_CNT];
-
-	if (IS_ENABLED(CONFIG_XPL_BUILD))
-		printf("Loading new PMUFW cfg obj (%ld bytes)\n", size);
-
-	flush_dcache_range((ulong)cfg_obj, (ulong)(cfg_obj + size));
-
-	err = xilinx_pm_request(PM_SET_CONFIGURATION, (u32)(u64)cfg_obj, 0, 0,
-				0, 0, 0, ret_payload);
-	if (err == XST_PM_NO_ACCESS) {
-		return -EACCES;
-	}
-
-	if (err == XST_PM_ALREADY_CONFIGURED) {
-		debug("PMUFW Node is already configured\n");
-		return -ENODEV;
-	}
-
-	if (err)
-		printf("Cannot load PMUFW configuration object (%d)\n", err);
-
-	if (ret_payload[0])
-		printf("PMUFW returned 0x%08x status!\n", ret_payload[0]);
-
-	if ((err || ret_payload[0]) && IS_ENABLED(CONFIG_XPL_BUILD))
-		panic("PMUFW config object loading failed in EL3\n");
-
-	return 0;
-}
-
-static int zynqmp_power_probe(struct udevice *dev)
-{
-	struct udevice *ipi_dev;
-	ofnode ipi_node;
-	int ret;
-
-	debug("%s, (dev=%p)\n", __func__, dev);
-
-	/*
-	 * Probe all IPI parent node driver. It is important to have IPI
-	 * devices available when requested by mbox_get_by* API.
-	 * If IPI device isn't available, then mailbox request fails and
-	 * that causes system boot failure.
-	 * To avoid this make sure all IPI parent drivers are probed here,
-	 * and IPI parent driver binds each child node to mailbox driver.
-	 * This way mbox_get_by_* API will have correct mailbox device
-	 * driver probed.
-	 */
-	ofnode_for_each_compatible_node(ipi_node, "xlnx,zynqmp-ipi-mailbox") {
-		ret = uclass_get_device_by_ofnode(UCLASS_NOP, ipi_node, &ipi_dev);
-		if (ret) {
-			dev_err(dev, "failed to get IPI device from node %s\n",
-				ofnode_get_name(ipi_node));
-			return ret;
-		}
-	}
-
-	ret = mbox_get_by_name(dev, "tx", &zynqmp_power.tx_chan);
-	if (ret) {
-		debug("%s: Cannot find tx mailbox\n", __func__);
-		return ret;
-	}
-
-	ret = mbox_get_by_name(dev, "rx", &zynqmp_power.rx_chan);
-	if (ret) {
-		debug("%s: Cannot find rx mailbox\n", __func__);
-		return ret;
-	}
-
-	ret = zynqmp_firmware_version();
-	printf("PMUFW:\tv%d.%d\n",
-	       ret >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
-	       ret & ZYNQMP_PM_VERSION_MINOR_MASK);
-
-	return 0;
-};
-
-static const struct udevice_id zynqmp_power_ids[] = {
-	{ .compatible = "xlnx,zynqmp-power" },
-	{ }
-};
-
-U_BOOT_DRIVER(zynqmp_power) = {
-	.name = "zynqmp_power",
-	.id = UCLASS_FIRMWARE,
-	.of_match = zynqmp_power_ids,
-	.probe = zynqmp_power_probe,
-};
-#endif
 
 static const char *const pinctrl_functions[] = {
 	"can0",
