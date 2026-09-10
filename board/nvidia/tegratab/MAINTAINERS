@@ -5,4 +5,3 @@ F:	arch/arm/dts/tegra114-nvidia-tegratab.dts
 F:	board/nvidia/tegratab/
 F:	configs/tegratab_defconfig
 F:	doc/board/nvidia/tegratab.rst
-F:	include/configs/tegratab.h

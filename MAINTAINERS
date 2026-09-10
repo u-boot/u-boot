@@ -671,11 +671,7 @@ M:	Thierry Reding <treding@nvidia.com>
 M:	Svyatoslav Ryhel <clamor95@gmail.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-tegra.git
-F:	arch/arm/dts/tegra*
-F:	arch/arm/include/asm/arch-tegra*/
-F:	arch/arm/mach-tegra/
-F:	drivers/*/tegra*
-F:	drivers/*/tegra*/
+N:	tegra
 
 ARM TI
 M:	Tom Rini <trini@konsulko.com>
