@@ -18,6 +18,7 @@
 			       "-n", CONFIG_MTK_BROM_HEADER_INFO;
 
 			section {
+				filename = "mtk-boot-payload.bin";
 				pad-byte = <0>;
 #include "mtk-genio-loader-spl-binman-u-boot.dtsi"
 			};
