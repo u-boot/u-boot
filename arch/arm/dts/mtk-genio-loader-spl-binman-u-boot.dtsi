@@ -12,6 +12,22 @@ ddr-loader {
 	size = <CONFIG_MTK_GENIO_DDR_LOADER_SIZE>;
 };
 
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+u-boot-spl {
+	type = "section";
+	size = <CONFIG_SPL_MAX_SIZE>;
+
+	u-boot-spl-nodtb {
+	};
+
+	u-boot-spl-pubkey-dtb {
+		algo = "sha256,rsa3072";
+		required = "conf";
+		key-name-hint = "bootloaders";
+	};
+};
+#else
 u-boot-spl {
 	size = <CONFIG_SPL_MAX_SIZE>;
 };
+#endif
