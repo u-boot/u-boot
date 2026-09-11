@@ -104,8 +104,25 @@ __weak int print_bootinfo(void)
 
 int checkboard(void)
 {
-	if (valid_cfgblock)
-		printf("Serial#: %s\n", tdx_serial_str);
+	struct udevice *sysinfo;
+	int ret;
+
+	if (valid_cfgblock) {
+		char str[96], str2[96];
+
+		ret = sysinfo_get_and_detect(&sysinfo);
+		if (ret) {
+			log_debug("Failed to get sysinfo data: %d\n", ret);
+			return ret;
+		}
+
+		if (!sysinfo_get_str(sysinfo, SYSID_TDX_PID8, sizeof(str), str) &&
+		    !sysinfo_get_str(sysinfo, SYSID_TDX_BOARD_REV, sizeof(str2), str2))
+			printf("Toradex SoM: %s (%s)\n", str2, str);
+
+		if (!sysinfo_get_str(sysinfo, SYSID_TDX_SERIAL, sizeof(str), str))
+			printf("Serial#: %s\n", str);
+	}
 
 #ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
 	if (tdx_carrier_board_name)
@@ -202,23 +219,33 @@ static int tdx_detect(struct udevice *dev)
 
 static int tdx_get_str(struct udevice *dev, int id, size_t size, char *val)
 {
-	int ret = -ENOTSUPP;
-	int idx;
-
 	switch (id) {
 	case SYSID_BOARD_MODEL:
-		idx = get_toradex_modules_idx(tdx_hw_tag.prodid);
+		const char *model;
 
-		snprintf(val, size,
-			 "Toradex %04d %s %s",
-			 tdx_hw_tag.prodid,
-			 toradex_modules[idx].name,
-			 tdx_board_rev_str);
+		model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
+		if (!model)
+			return -ENODATA;
 
-		ret = 0;
+		strlcpy(val, model, size);
+		return 0;
+
+	case SYSID_TDX_BOARD_REV:
+		snprintf(val, size, "%04d %s", tdx_hw_tag.prodid, tdx_board_rev_str);
+		return 0;
+
+	case SYSID_TDX_PID8:
+		snprintf(val, size, "%04d%0d%0d%02d", tdx_hw_tag.prodid,
+			 tdx_hw_tag.ver_major, tdx_hw_tag.ver_minor,
+			 tdx_hw_tag.ver_assembly);
+		return 0;
+
+	case SYSID_TDX_SERIAL:
+		strlcpy(val, tdx_serial_str, size);
+		return 0;
 	}
 
-	return ret;
+	return -EOPNOTSUPP;
 }
 
 static const struct udevice_id sysinfo_tdx_ids[] = {

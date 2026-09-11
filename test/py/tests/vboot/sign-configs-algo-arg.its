@@ -37,7 +37,6 @@
 			fdt = "fdt-1";
 			signature {
 				key-name-hint = "dev";
-				sign-images = "fdt", "kernel";
 			};
 		};
 	};

@@ -71,7 +71,7 @@ static struct distro_rauc_slot *get_slot(struct distro_rauc_priv *priv,
 {
 	int i;
 
-	for (i = 0; priv->slots[i]->name; i++) {
+	for (i = 0; priv->slots[i]; i++) {
 		if (!strcmp(priv->slots[i]->name, slot_name))
 			return priv->slots[i];
 	}
@@ -117,8 +117,10 @@ static int distro_rauc_scan_parts(struct bootflow *bflow)
 		const struct distro_rauc_slot *slot;
 
 		slot = get_slot(priv, boot_order_list[i]);
-		if (!slot)
+		if (!slot) {
+			str_free_list(boot_order_list);
 			return log_msg_ret("slot", -EINVAL);
+		}
 		if (desc) {
 			ret = fs_set_blk_dev_with_part(desc, slot->boot_part);
 			if (ret)
@@ -145,10 +147,12 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 	char *slot;
 	int i;
 	char *partitions = NULL;
+	char *partitions_cursor;
 	char *boot_order = NULL;
 	const char *default_boot_order;
 	const char **default_boot_order_list;
 	char *boot_order_copy;
+	char *boot_order_cursor;
 	char boot_left[BOOT_LEFT_LEN];
 	char *parts;
 
@@ -167,8 +171,10 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 		if (!env_get(boot_left)) {
 			log_debug("%s did not exist yet, setting default value\n",
 				  boot_left);
-			if (env_set_ulong(boot_left, CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES))
+			if (env_set_ulong(boot_left, CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES)) {
+				str_free_list(default_boot_order_list);
 				return log_msg_ret("env", -EPERM);
+			}
 		}
 	}
 	str_free_list(default_boot_order_list);
@@ -194,9 +200,11 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 		goto rauc_read_bootflow_err;
 	}
 
+	partitions_cursor = partitions;
+	boot_order_cursor = boot_order_copy;
 	for (i = 1;
-	     (parts = strsep(&partitions, " ")) &&
-	     (slot = strsep(&boot_order_copy, " "));
+	     (parts = strsep(&partitions_cursor, " ")) &&
+	     (slot = strsep(&boot_order_cursor, " "));
 	     i++) {
 		struct distro_rauc_slot *s;
 		struct distro_rauc_slot **new_slots;
@@ -235,10 +243,14 @@ static int distro_rauc_read_bootflow(struct udevice *dev, struct bootflow *bflow
 
 	bflow->state = BOOTFLOWST_READY;
 
+	free(boot_order_copy);
+	free(partitions);
+
 	return 0;
 
 rauc_read_bootflow_err:
 	distro_rauc_priv_free(priv);
+	bflow->bootmeth_priv = NULL;
 	free(boot_order_copy);
 	free(partitions);
 
@@ -323,13 +335,17 @@ static int find_active_slot(char **slot_name, ulong *slot_tries)
 	for (i = 0; boot_order_list[i] && !slot_found; i++) {
 		sprintf(boot_left, "BOOT_%s_LEFT", boot_order_list[i]);
 		tries = env_get_ulong(boot_left, 10, ULONG_MAX);
-		if (tries == ULONG_MAX)
+		if (tries == ULONG_MAX) {
+			str_free_list(boot_order_list);
 			return log_msg_ret("env", -ENOENT);
+		}
 
 		if (tries) {
 			ret = env_set_ulong(boot_left, tries - 1);
-			if (ret)
+			if (ret) {
+				str_free_list(boot_order_list);
 				return log_msg_ret("env", ret);
+			}
 			*slot_name = strdup(boot_order_list[i]);
 			*slot_tries = tries;
 			slot_found = true;
@@ -345,8 +361,10 @@ static int find_active_slot(char **slot_name, ulong *slot_tries)
 			for (i = 0; boot_order_list[i]; i++) {
 				sprintf(boot_left, "BOOT_%s_LEFT", boot_order_list[i]);
 				ret = env_set_ulong(boot_left, CONFIG_BOOTMETH_RAUC_DEFAULT_TRIES);
-				if (ret)
+				if (ret) {
+					str_free_list(boot_order_list);
 					return log_msg_ret("env", ret);
+				}
 			}
 			str_free_list(boot_order_list);
 			ret = env_save();
@@ -380,6 +398,8 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 	if (desc->uclass_id != UCLASS_MMC)
 		return log_msg_ret("blk", -EINVAL);
 	priv = bflow->bootmeth_priv;
+	if (!priv || !priv->slots)
+		return log_msg_ret("priv", -EINVAL);
 
 	/* Device info variables */
 	ret = env_set("devtype", blk_get_devtype(bflow->blk));
@@ -446,6 +466,7 @@ static int distro_rauc_boot(struct udevice *dev, struct bootflow *bflow)
 		return log_msg_ret("boot", ret);
 
 	distro_rauc_priv_free(priv);
+	bflow->bootmeth_priv = NULL;
 
 	return 0;
 }

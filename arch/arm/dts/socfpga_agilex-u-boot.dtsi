@@ -258,12 +258,6 @@
 	#dma-requests = <32>;
 };
 
-#if !defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
-&binman {
-	/delete-node/ kernel;
-};
-#endif
-
 #ifdef CONFIG_ARCH_SOCFPGA_AGILEX7M
 &sdr {
 	compatible = "intel,sdr-ctl-agilex7m";

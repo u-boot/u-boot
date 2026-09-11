@@ -473,18 +473,24 @@ choose any configuration at runtime to boot from.
         #address-cells = <1>;
 
         images {
-            [image-1]
-            [image-2]
-            [fdt-1]
-            [fdt-2]
-        }
+            kernel-1 { };
+            kernel-2 { };
+            fdt-1 { };
+            fdt-2 { };
+        };
 
         configurations {
-            default = <conf-1>
-            [conf-1: image-1,fdt-1]
-            [conf-2: image-2,fdt-1]
-        }
-    }
+            default = "conf-1";
+            conf-1 {
+                kernel = "kernel-1";
+                fdt = "fdt-1";
+            };
+            conf-2 {
+                kernel = "kernel-2";
+                fdt = "fdt-2";
+            };
+        };
+    };
 
 * Sample Images
 
@@ -546,7 +552,6 @@ corresponding configuration node as follows.
             signature-1 {
                     algo = "sha512,rsa4096";
                     key-name-hint = "custMpk";
-                    sign-images = "kernel", "fdt";
             };
     };
     # Optional configurations
@@ -557,14 +562,13 @@ corresponding configuration node as follows.
             signature-1 {
                     algo = "sha512,rsa4096";
                     key-name-hint = "custMpk";
-                    sign-images = "fdt";
             };
     };
 
-Specify all images you need the signature to authenticate as a part of
-sign-images. The key-name-hint needs to be changed if you are using some
-other key other than the TI dummy key that we are using for this example.
-It should be the name of the file containing the keys.
+Signed configurations authenticate all images referenced by the configuration
+node. The key-name-hint needs to be changed if you are using some other key
+other than the TI dummy key that we are using for this example. It should be
+the name of the file containing the keys.
 
 .. note::
 

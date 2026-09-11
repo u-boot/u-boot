@@ -137,4 +137,79 @@ u32 imx6_src_get_boot_mode(void)
 	else
 		return readl(&src_base->sbmr1);
 }
+
+/*
+ * The boot ROM records what it did in an event log buffer in OCRAM. The
+ * address of that buffer is stored at a fixed, SoC specific location inside
+ * the ROM, see AN12853 "i.MX ROMs Log Events". i.MX6 uses the version 0 log
+ * format, where an entry consists of a 32-bit word holding a 24-bit event
+ * ID, optionally followed by up to three parameter words.
+ */
+#define IMX6_ROM_LOG_ID_MASK		GENMASK(23, 0)
+#define IMX6_ROM_LOG_MAX_ENTRIES	128
+
+static const u32 *imx6_get_rom_log(void)
+{
+	uintptr_t log;
+	ulong addr;
+
+	if (is_mx6dq() || is_mx6dqp() || is_mx6sl())
+		addr = 0xd4;
+	else if (is_mx6sdl())
+		addr = 0xd8;
+	else if (is_mx6sx() || is_mx6sll() || is_mx6ul() || is_mx6ull())
+		addr = 0x1e0;
+	else
+		return NULL;
+
+	log = readl(addr);
+
+	/* The log buffer lives in OCRAM, ignore an invalid pointer */
+	if (log < IRAM_BASE_ADDR || log >= IRAM_BASE_ADDR + IRAM_SIZE ||
+	    log & 0x3)
+		return NULL;
+
+	return (const u32 *)log;
+}
+
+/*
+ * If BOOT_CFG4[6] is fused, the boot ROM does not fall back to the serial
+ * downloader right away when the primary boot device fails, but first tries
+ * a recovery boot from the serial ROM selected by BOOT_CFG4[2:0]. Neither
+ * SRC_SBMR1 nor SRC_SBMR2 reflect that this happened, so ask the ROM event
+ * log instead.
+ */
+bool imx6_is_ecspi_recovery_boot(void)
+{
+	const u32 *log = imx6_get_rom_log();
+	u32 event_id;
+	int i;
+
+	if (!log)
+		return false;
+
+	for (i = 0; i < IMX6_ROM_LOG_MAX_ENTRIES; i++) {
+		event_id = log[i] & IMX6_ROM_LOG_ID_MASK;
+
+		switch (event_id) {
+		case 0x000000: /* End of list */
+			return false;
+		/* Recovery boot from ECSPI NOR device */
+		case 0x061004:
+			return true;
+		/* Log entries with 1 parameter, skip 1 */
+		case 0x080000: /* Start to read data from boot device */
+		case 0x090000: /* Image authentication result */
+		case 0x0a0000: /* Start to execute the plugin program */
+		case 0x0b0000: /* Jump to the boot image soon */
+		case 0x0d0000: /* Jump to the SDP boot image soon */
+			i += 1;
+			continue;
+		default:
+			continue;
+		}
+	}
+
+	return false;
+}
 #endif

@@ -93,6 +93,13 @@ u32 spl_boot_device(void)
 	if (is_usbotg_phy_active())
 		return BOOT_DEVICE_BOARD;
 
+	/*
+	 * Likewise the boot ROM may have done a recovery boot from a serial
+	 * ROM on ECSPI after the primary boot device failed.
+	 */
+	if (imx6_is_ecspi_recovery_boot())
+		return BOOT_DEVICE_SPI;
+
 	/* BOOT_CFG1[7:4] - see IMX6DQRM Table 8-8 */
 	switch ((reg & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT) {
 	 /* EIM: See 8.5.1, Table 8-9 */

@@ -1152,6 +1152,7 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 #define FIT_SIG_NODENAME	"signature"
 #define FIT_KEY_REQUIRED	"required"
 #define FIT_KEY_HINT		"key-name-hint"
+#define FIT_SIGN_IMAGES_PROP	"sign-images"
 
 /* cipher node */
 #define FIT_CIPHER_NODENAME	"cipher"
@@ -1205,6 +1206,14 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 #define FIT_COMPAT_PROP		"compatible"
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
+
+/**
+ * fit_config_prop_is_image_ref() - Check whether a config property names images
+ *
+ * @prop_name: Configuration property name
+ * Return: true if the property contains image references
+ */
+bool fit_config_prop_is_image_ref(const char *prop_name);
 
 /* cmdline argument format parsing */
 int fit_parse_conf(const char *spec, ulong addr_curr,

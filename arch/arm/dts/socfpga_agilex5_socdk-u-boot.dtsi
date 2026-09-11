@@ -217,3 +217,13 @@
 		};
 	};
 };
+
+#if !defined(CONFIG_SOCFPGA_SECURE_VAB_AUTH)
+&fdt_0_blob {
+	filename = "arch/arm/dts/socfpga_agilex5_socdk.dtb";
+};
+
+&binman {
+	/delete-node/ kernel;
+};
+#endif

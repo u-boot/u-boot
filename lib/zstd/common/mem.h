@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
@@ -18,13 +18,14 @@
 #include <asm/unaligned.h>  /* get_unaligned, put_unaligned* */
 #include <linux/compiler.h>  /* inline */
 #include <asm/byteorder.h>  /* swab32, swab64 */
+#include "compiler.h"  /* INLINE_KEYWORD, UNUSED_ATTR */
 #include <linux/types.h>  /* size_t, ptrdiff_t */
 #include "debug.h"  /* DEBUG_STATIC_ASSERT */
-#include "compiler.h"  /* INLINE_KEYWORD, UNUSED_ATTR */
 
 /*-****************************************
 *  Compiler specifics
 ******************************************/
+#undef MEM_STATIC /* may be already defined from common/compiler.h */
 #define MEM_STATIC static INLINE_KEYWORD UNUSED_ATTR
 
 /*-**************************************************************

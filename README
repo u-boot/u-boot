@@ -309,7 +309,6 @@ The following options need to be configured:
 
 - Partition Labels (disklabels) Supported:
 		Zero or more of the following:
-		CONFIG_MAC_PARTITION   Apple's MacOS partition table.
 		CONFIG_ISO_PARTITION   ISO partition table, used on CDROM etc.
 		CONFIG_EFI_PARTITION   GPT partition table, common when EFI is the
 				       bootloader.  Note 2TB partition limit; see

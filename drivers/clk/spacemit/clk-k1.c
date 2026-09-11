@@ -154,11 +154,27 @@ CCU_GATE_DEFINE(CLK_PLL1_409P6, pll1_d6_409p6, pll1_d6_409p6, "pll1_d6",
 		MPMU_ACGR, BIT(0), 0);
 CCU_GATE_DEFINE(CLK_PLL1_307P2, pll1_d8_307p2, pll1_d8_307p2, "pll1_d8",
 		MPMU_ACGR, BIT(13), 0);
+CCU_FACTOR_GATE_DEFINE(CLK_PLL1_102P4, pll1_d24_102p4, pll1_d24_102p4,
+		       "pll1_d8", MPMU_ACGR, BIT(12), 3, 1);
+CCU_FACTOR_GATE_DEFINE(CLK_PLL1_51P2, pll1_d48_51p2, pll1_d48_51p2,
+		       "pll1_d8", MPMU_ACGR, BIT(7), 6, 1);
+CCU_FACTOR_GATE_DEFINE(CLK_PLL1_25P6, pll1_d96_25p6, pll1_d96_25p6,
+		       "pll1_d8", MPMU_ACGR, BIT(4), 12, 1);
 CCU_FACTOR_GATE_DEFINE(CLK_PLL1_31P5, pll1_d78_31p5, pll1_d78_31p5,
 		       "pll1_d4", MPMU_ACGR, BIT(6), 39, 2);
 CCU_DDN_DEFINE(CLK_SLOW_UART2, slow_uart2_48, slow_uart2_48,
 	       "pll1_d4_614p4", MPMU_SUCCR_1,
 	       CCU_DDN_MASK(16, 13), 16, CCU_DDN_MASK(0, 13), 0, 2, 0);
+
+static const char * const apb_parents[] = {
+	"pll1_d96_25p6",
+	"pll1_d48_51p2",
+	"pll1_d96_25p6",
+	"pll1_d24_102p4",
+};
+
+CCU_MUX_DEFINE(CLK_APB, apb_clk, apb_clk, apb_parents, ARRAY_SIZE(apb_parents),
+	       MPMU_APBCSCR, 0, 2, 0);
 #else
 CCU_GATE_DEFINE(CLK_PLL1_307P2, pll1_d8_307p2, pll1_d8_307p2, "pll1_d8",
 		MPMU_ACGR, BIT(13), 0);
@@ -298,7 +314,7 @@ static const char * const twsi_parents[] = {
 
 CCU_MUX_GATE_DEFINE(CLK_TWSI2, twsi2_clk, twsi2_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI2_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 /*
  * APBC_TWSI8_CLK_RST has a quirk that reading always results in zero.
  * Combine functional and bus bits together as a gate to avoid sharing the
@@ -306,6 +322,9 @@ CCU_MUX_GATE_DEFINE(CLK_TWSI2, twsi2_clk, twsi2_clk, twsi_parents,
  */
 CCU_GATE_DEFINE(CLK_TWSI8, twsi8_clk, twsi8_clk, "pll1_d78_31p5",
 		APBC_TWSI8_CLK_RST, BIT(1) | BIT(0), 0);
+CCU_GATE_DEFINE(CLK_TWSI2_BUS, twsi2_bus_clk, twsi2_bus_clk, "apb_clk",
+		APBC_TWSI2_CLK_RST, BIT(0), 0);
+CCU_FACTOR_DEFINE(CLK_TWSI8_BUS, twsi8_bus_clk, twsi8_bus_clk, "apb_clk", 1, 1);
 
 #else
 static const char * const uart_clk_parents[] = {
@@ -326,7 +345,7 @@ static const char * const twsi_parents[] = {
 
 CCU_MUX_GATE_DEFINE(CLK_TWSI2, twsi2_clk, twsi2_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI2_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 /*
  * APBC_TWSI8_CLK_RST has a quirk that reading always results in zero.
  * Combine functional and bus bits together as a gate to avoid sharing the
@@ -448,22 +467,22 @@ CCU_GATE_DEFINE(CLK_RTC, rtc_clk, rtc_clk, "clock-32k", APBC_RTC_CLK_RST,
 
 CCU_MUX_GATE_DEFINE(CLK_TWSI0, twsi0_clk, twsi0_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI0_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI1, twsi1_clk, twsi1_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI1_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI4, twsi4_clk, twsi4_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI4_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI5, twsi5_clk, twsi5_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI5_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI6, twsi6_clk, twsi6_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI6_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 CCU_MUX_GATE_DEFINE(CLK_TWSI7, twsi7_clk, twsi7_clk, twsi_parents,
 		    ARRAY_SIZE(twsi_parents), APBC_TWSI7_CLK_RST,
-		    4, 3, BIT(1) | BIT(0), 0);
+		    4, 3, BIT(1), 0);
 
 static const char * const timer_parents[] = {
 	"pll1_d192_12p8",
@@ -1232,8 +1251,12 @@ static struct clk *k1_ccu_mpmu_clks[] = {
 	&pll1_d4_614p4.common.clk,
 	&pll1_d6_409p6.common.clk,
 	&pll1_d8_307p2.common.clk,
+	&pll1_d24_102p4.common.clk,
+	&pll1_d48_51p2.common.clk,
+	&pll1_d96_25p6.common.clk,
 	&pll1_d78_31p5.common.clk,
 	&slow_uart2_48.common.clk,
+	&apb_clk.common.clk,
 };
 #else
 static struct clk *k1_ccu_mpmu_clks[] = {
@@ -1288,6 +1311,8 @@ static struct clk *k1_ccu_apbc_clks[] = {
 	&uart0_clk.common.clk,
 	&twsi2_clk.common.clk,
 	&twsi8_clk.common.clk,
+	&twsi2_bus_clk.common.clk,
+	&twsi8_bus_clk.common.clk,
 };
 #else
 static struct clk *k1_ccu_apbc_clks[] = {

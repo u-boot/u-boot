@@ -347,8 +347,8 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
  * node paths: root + config + all referenced images with their hash,
  * cipher and dm-verity subnodes.
  *
- * Properties known not to be image references (description, compatible,
- * default, load-only) are skipped, so any new image type is covered by default.
+ * Non-image metadata properties are skipped through the shared classifier, so
+ * any new image type is covered by default.
  *
  * @fit:	FIT blob
  * @conf_noffset: Configuration node offset
@@ -399,10 +399,7 @@ int fit_config_get_signed_nodes(const void *fit, int conf_noffset,
 		if (!prop_name)
 			continue;
 
-		/* Skip properties that are not image references */
-		if (!strcmp(prop_name, FIT_DESC_PROP) ||
-		    !strcmp(prop_name, FIT_COMPAT_PROP) ||
-		    !strcmp(prop_name, FIT_DEFAULT_PROP))
+		if (!fit_config_prop_is_image_ref(prop_name))
 			continue;
 
 		img_count = fdt_stringlist_count(fit, conf_noffset, prop_name);

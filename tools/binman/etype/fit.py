@@ -319,6 +319,32 @@ class Entry_fit(Entry_section):
             Generates a `load = <...>` property with the load address of the
             segment
 
+            Note: The load address comes from the ELF file's program headers.
+            To determine where an ELF file will be loaded, you can:
+
+            1. Use readelf to examine the program headers:
+
+               ``readelf -l your_elf_file.elf``
+
+               Look for the LOAD segments and their VirtAddr (Virtual Address)
+
+            2. Check the linker script (.lds file) used to build the ELF:
+               look for the `. = <address>;` statements which set the location
+               counter and determine load addresses for different sections
+
+            3. Use objdump to see section addresses:
+
+               ``objdump -h your_elf_file.elf``
+
+            For example, in binman tests, elf_sections.lds sets the ATF load
+            address to 0x00000010, while elf_sections_tee.lds sets the TEE
+            load address to 0x00100010 to avoid memory overlap conflicts.
+
+            Note that the mkimage load address overlap check compares the
+            packaged data size of each image, so it assumes uncompressed
+            images: a compressed image occupies more memory after
+            decompression than the check accounts for.
+
         fit,entry
             Generates a `entry = <...>` property with the entry address of the
             ELF. This is only produced for the first entry

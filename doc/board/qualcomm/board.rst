@@ -104,7 +104,7 @@ Use the following commands::
 
 Or for db410c (and other boards not supported by the generic target)::
 
-	make CROSS_COMPILE=aarch64-linux-gnu- O=.output dragonboard410c_defconfig
+	make CROSS_COMPILE=aarch64-linux-gnu- O=.output qcom_dragonboard410c_defconfig
 	make CROSS_COMPILE=aarch64-linux-gnu- O=.output -j$(nproc)
 
 Or for smartphones::

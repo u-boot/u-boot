@@ -16,6 +16,7 @@ struct block_cache_node {
 	struct list_head lh;
 	int iftype;
 	int devnum;
+	int hwpart;
 	lbaint_t start;
 	lbaint_t blkcnt;
 	unsigned long blksz;
@@ -29,7 +30,7 @@ static struct block_cache_stats _stats = {
 	.max_entries = 32
 };
 
-static struct block_cache_node *cache_find(int iftype, int devnum,
+static struct block_cache_node *cache_find(int iftype, int devnum, int hwpart,
 					   lbaint_t start, lbaint_t blkcnt,
 					   unsigned long blksz)
 {
@@ -38,6 +39,7 @@ static struct block_cache_node *cache_find(int iftype, int devnum,
 	list_for_each_entry(node, &block_cache, lh)
 		if ((node->iftype == iftype) &&
 		    (node->devnum == devnum) &&
+		    (node->hwpart == hwpart) &&
 		    (node->blksz == blksz) &&
 		    (node->start <= start) &&
 		    (node->start + node->blkcnt >= start + blkcnt)) {
@@ -51,12 +53,12 @@ static struct block_cache_node *cache_find(int iftype, int devnum,
 	return 0;
 }
 
-int blkcache_read(int iftype, int devnum,
+int blkcache_read(int iftype, int devnum, int hwpart,
 		  lbaint_t start, lbaint_t blkcnt,
 		  unsigned long blksz, void *buffer)
 {
-	struct block_cache_node *node = cache_find(iftype, devnum, start,
-						   blkcnt, blksz);
+	struct block_cache_node *node = cache_find(iftype, devnum, hwpart,
+						   start, blkcnt, blksz);
 	if (node) {
 		const char *src = node->cache + (start - node->start) * blksz;
 		memcpy(buffer, src, blksz * blkcnt);
@@ -72,7 +74,7 @@ int blkcache_read(int iftype, int devnum,
 	return 0;
 }
 
-void blkcache_fill(int iftype, int devnum,
+void blkcache_fill(int iftype, int devnum, int hwpart,
 		   lbaint_t start, lbaint_t blkcnt,
 		   unsigned long blksz, void const *buffer)
 {
@@ -118,6 +120,7 @@ void blkcache_fill(int iftype, int devnum,
 
 	node->iftype = iftype;
 	node->devnum = devnum;
+	node->hwpart = hwpart;
 	node->start = start;
 	node->blkcnt = blkcnt;
 	node->blksz = blksz;

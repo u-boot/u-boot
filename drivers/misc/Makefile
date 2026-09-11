@@ -38,6 +38,7 @@ obj-$(CONFIG_FSL_IIM) += fsl_iim.o
 obj-$(CONFIG_FSL_SEC_MON) += fsl_sec_mon.o
 obj-$(CONFIG_$(PHASE_)FS_LOADER) += fs_loader.o
 obj-$(CONFIG_GATEWORKS_SC) += gsc.o
+obj-$(CONFIG_GXP_EEPROM) += gxp_eeprom.o
 obj-$(CONFIG_GDSYS_IOEP) += gdsys_ioep.o
 obj-$(CONFIG_GDSYS_RXAUI_CTRL) += gdsys_rxaui_ctrl.o
 obj-$(CONFIG_GDSYS_SOC) += gdsys_soc.o

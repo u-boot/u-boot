@@ -527,7 +527,6 @@ check_member(rk3288_edp, pll_reg_5, 0xa00);
 #define PLL_LOCK_TIMEOUT 10
 #define DP_INIT_TRIES 10
 
-#define EDID_ADDR				0x50
 #define EDID_LENGTH				0x80
 #define EDID_HEADER				0x00
 #define EDID_EXTENSION_FLAG			0x7e

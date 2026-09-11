@@ -705,6 +705,7 @@ stages:
           . /tmp/venv/bin/activate
           pip install -r tools/binman/requirements.txt \
             -r tools/buildman/requirements.txt \
+            -r board/qualcomm/requirements.txt \
             setuptools
           if [[ "${BUILDMAN}" != "" ]]; then
               ret=0;

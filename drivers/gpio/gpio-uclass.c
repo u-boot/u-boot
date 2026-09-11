@@ -397,8 +397,11 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 	int ret;
 
 	uc_priv = dev_get_uclass_priv(dev);
-	if (gpio_is_claimed(uc_priv, desc->offset))
+	if (gpio_is_claimed(uc_priv, desc->offset)) {
+		dev_dbg(dev, "gpio offset %u already claimed by '%s', requested label '%s'\n",
+			desc->offset, uc_priv->name[desc->offset], label);
 		return -EBUSY;
+	}
 	str = strdup(label);
 	if (!str)
 		return -ENOMEM;

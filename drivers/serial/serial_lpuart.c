@@ -194,10 +194,11 @@ static int _lpuart_serial_tstc(struct lpuart_serial_plat *plat)
 {
 	struct lpuart_fsl *base = plat->reg;
 
-	if (__raw_readb(&base->urcfifo) == 0)
-		return 0;
-
-	return 1;
+	/*
+	 * The receive FIFO counter stays at zero because _lpuart_serial_init()
+	 * disables the FIFO, so ask the status register, the way getc() does.
+	 */
+	return __raw_readb(&base->us1) & (US1_RDRF | US1_OR) ? 1 : 0;
 }
 
 /*

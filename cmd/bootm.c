@@ -230,30 +230,6 @@ U_BOOT_CMD(
 );
 
 /*******************************************************************/
-/* bootd - boot default image */
-/*******************************************************************/
-#if defined(CONFIG_CMD_BOOTD)
-int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	return run_command(env_get("bootcmd"), flag);
-}
-
-U_BOOT_CMD(
-	boot,	1,	1,	do_bootd,
-	"boot default, i.e., run 'bootcmd'",
-	""
-);
-
-/* keep old command name "bootd" for backward compatibility */
-U_BOOT_CMD(
-	bootd, 1,	1,	do_bootd,
-	"boot default, i.e., run 'bootcmd'",
-	""
-);
-
-#endif
-
-/*******************************************************************/
 /* iminfo - print header info for a requested image */
 /*******************************************************************/
 #if defined(CONFIG_CMD_IMI)

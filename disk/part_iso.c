@@ -135,7 +135,7 @@ int part_get_info_iso_verb(struct blk_desc *desc, int part_num,
 	/* the validation entry seems to be ok, now search the "partition" */
 	entry_num=1;
 	offset=0x20;
-	strcpy((char *)info->type, "U-Boot");
+	strcpy((char *)info->type, PART_TYPE_NAME_ISO);
 	part_set_generic_name(desc, part_num, (char *)info->name);
 	/* the bootcatalog (including validation Entry) is limited to 2048Bytes
 	 * (63 boot entries + validation entry) */

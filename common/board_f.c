@@ -122,7 +122,7 @@ static int display_text_info(void)
 	return 0;
 }
 
-#ifdef CONFIG_SYSRESET
+#ifdef CONFIG_SYSRESET_PRINT_RESETINFO
 static int print_resetinfo(void)
 {
 	struct udevice *dev;
@@ -963,7 +963,7 @@ static void initcall_run_f(void)
 	INITCALL(display_options);	/* say that we are here */
 	INITCALL(display_text_info);	/* show debugging info if required */
 	INITCALL(checkcpu);
-#if CONFIG_IS_ENABLED(SYSRESET)
+#if CONFIG_IS_ENABLED(SYSRESET_PRINT_RESETINFO)
 	INITCALL(print_resetinfo);
 #endif
 	/* display cpu info (and speed) */

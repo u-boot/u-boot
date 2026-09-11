@@ -6,6 +6,7 @@
 ifndef CONFIG_XPL_BUILD
 # core command
 obj-y += boot.o
+obj-$(CONFIG_CMD_BOOTD) += bootd.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_HELP) += help.o
 obj-y += panic.o

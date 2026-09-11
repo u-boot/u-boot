@@ -18,9 +18,12 @@
  * Peri Configuration register is SoC specific,
  * so add a SoC specific prefix.
  */
-#define MT8189_PERI_ETH_CTRL0		0x270
-#define MT8189_PERI_ETH_CTRL1		0x274
-#define MT8189_PERI_ETH_CTRL2		0x278
+#define MT8189_PERI_ETH_BASE		0x270
+#define MT8366_PERI_ETH_BASE		0x60
+
+#define MTK_PERI_ETH_CTRL0(base)	((base) + 0x0)
+#define MTK_PERI_ETH_CTRL1(base)	((base) + 0x4)
+#define MTK_PERI_ETH_CTRL2(base)	((base) + 0x8)
 
 #define EQOS_MTK_RMII_CLK_SRC_INTERNAL	BIT(28)
 #define EQOS_MTK_RMII_CLK_SRC_RXC	BIT(27)
@@ -55,6 +58,7 @@
 
 struct eqos_mtk_priv {
 	struct regmap *peri_regmap;
+	const struct eqos_mtk_soc_data *soc_data;
 	bool rmii_clk_from_mac;
 	bool rmii_rxc;
 	u32 tx_delay_stage;
@@ -62,6 +66,36 @@ struct eqos_mtk_priv {
 	bool tx_inv;
 	bool rx_inv;
 };
+
+struct eqos_mtk_soc_data {
+	const char *compatible;
+	u32 peri_eth_base;
+};
+
+static const struct eqos_mtk_soc_data eqos_mtk_soc_data[] = {
+	{
+		.compatible = "mediatek,mt8189-gmac",
+		.peri_eth_base = MT8189_PERI_ETH_BASE,
+	},
+	{
+		.compatible = "mediatek,mt8366-gmac",
+		.peri_eth_base = MT8366_PERI_ETH_BASE,
+	},
+	{ }
+};
+
+static const struct eqos_mtk_soc_data *eqos_mtk_get_soc_data(struct udevice *dev)
+{
+	const struct eqos_mtk_soc_data *data = eqos_mtk_soc_data;
+
+	while (data->compatible) {
+		if (device_is_compatible(dev, data->compatible))
+			return data;
+		data++;
+	}
+
+	return NULL;
+}
 
 static int mtk_clk_init(struct udevice *dev)
 {
@@ -87,6 +121,7 @@ static int mtk_set_delay(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct eqos_mtk_priv *mtk_pdata = pdata->priv_pdata;
+	u32 peri_eth_base = mtk_pdata->soc_data->peri_eth_base;
 	u32 gtxc_delay_val = 0, delay_val = 0, rmii_delay_val = 0;
 
 	switch (pdata->phy_interface) {
@@ -176,15 +211,17 @@ static int mtk_set_delay(struct udevice *dev)
 	}
 
 	regmap_update_bits(mtk_pdata->peri_regmap,
-			   MT8189_PERI_ETH_CTRL0,
+			   MTK_PERI_ETH_CTRL0(peri_eth_base),
 			   EQOS_MTK_RGMII_TXC_PHASE_CTRL |
 			   EQOS_MTK_DLY_GTXC_ENABLE |
 			   EQOS_MTK_DLY_GTXC_INV |
 			   EQOS_MTK_DLY_GTXC_STAGE_FINE |
 			   EQOS_MTK_DLY_GTXC_STAGES,
 			   gtxc_delay_val);
-	regmap_write(mtk_pdata->peri_regmap, MT8189_PERI_ETH_CTRL1, delay_val);
-	regmap_write(mtk_pdata->peri_regmap, MT8189_PERI_ETH_CTRL2, rmii_delay_val);
+	regmap_write(mtk_pdata->peri_regmap,
+		     MTK_PERI_ETH_CTRL1(peri_eth_base), delay_val);
+	regmap_write(mtk_pdata->peri_regmap,
+		     MTK_PERI_ETH_CTRL2(peri_eth_base), rmii_delay_val);
 
 	return 0;
 }
@@ -195,6 +232,7 @@ static int mtk_set_interface(struct udevice *dev)
 	struct eqos_mtk_priv *mtk_pdata = pdata->priv_pdata;
 	int rmii_clk_from_mac = mtk_pdata->rmii_clk_from_mac ? EQOS_MTK_RMII_CLK_SRC_INTERNAL : 0;
 	int rmii_rxc = mtk_pdata->rmii_rxc ? EQOS_MTK_RMII_CLK_SRC_RXC : 0;
+	u32 peri_eth_base = mtk_pdata->soc_data->peri_eth_base;
 	u32 intf_val = 0;
 
 	/* select phy interface in top control domain */
@@ -222,7 +260,8 @@ static int mtk_set_interface(struct udevice *dev)
 
 	intf_val |= EQOS_MTK_TXC_OUT_OP;
 
-	regmap_write(mtk_pdata->peri_regmap, MT8189_PERI_ETH_CTRL0, intf_val);
+	regmap_write(mtk_pdata->peri_regmap,
+		     MTK_PERI_ETH_CTRL0(peri_eth_base), intf_val);
 
 	return 0;
 }
@@ -289,6 +328,13 @@ static int eqos_probe_resources_mtk(struct udevice *dev)
 	mtk_pdata = calloc(1, sizeof(struct eqos_mtk_priv));
 	if (!mtk_pdata)
 		return -ENOMEM;
+
+	mtk_pdata->soc_data = eqos_mtk_get_soc_data(dev);
+	if (!mtk_pdata->soc_data) {
+		dev_err(dev, "missing MTK SoC data\n");
+		ret = -EINVAL;
+		goto err;
+	}
 
 	pdata->priv_pdata = mtk_pdata;
 
@@ -384,6 +430,7 @@ static int eqos_fix_mac_speed_mtk(struct udevice *dev)
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct eqos_mtk_priv *mtk_pdata = pdata->priv_pdata;
+	u32 peri_eth_base = mtk_pdata->soc_data->peri_eth_base;
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
@@ -394,7 +441,7 @@ static int eqos_fix_mac_speed_mtk(struct udevice *dev)
 	case PHY_INTERFACE_MODE_RGMII_ID:
 		if (eqos->phy->speed == SPEED_1000)
 			regmap_update_bits(mtk_pdata->peri_regmap,
-					   MT8189_PERI_ETH_CTRL0,
+					   MTK_PERI_ETH_CTRL0(peri_eth_base),
 					   EQOS_MTK_RGMII_TXC_PHASE_CTRL |
 					   EQOS_MTK_DLY_GTXC_ENABLE |
 					   EQOS_MTK_DLY_GTXC_INV |

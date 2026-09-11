@@ -1953,6 +1953,23 @@ int fit_conf_get_node(const void *fit, const char *conf_uname)
 	return noffset;
 }
 
+bool fit_config_prop_is_image_ref(const char *prop_name)
+{
+	static const char * const non_image_props[] = {
+		FIT_DESC_PROP,
+		FIT_COMPAT_PROP,
+		FIT_DEFAULT_PROP,
+	};
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(non_image_props); i++) {
+		if (!strcmp(prop_name, non_image_props[i]))
+			return false;
+	}
+
+	return true;
+}
+
 int fit_conf_get_prop_node_count(const void *fit, int noffset,
 		const char *prop_name)
 {

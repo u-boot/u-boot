@@ -204,6 +204,33 @@ static int get_aligned_image_size(struct spl_load_info *info, ulong data_size,
 }
 
 /**
+ * fit_fill_image_info(): describe a loaded image to the caller
+ * @fit:	points to the FIT image
+ * @node:	offset of the DT node describing the image
+ * @image_info:	filled in with where the image ended up and how big it is;
+ *		ignored if NULL
+ * @load_addr:	address the image was loaded to
+ * @size:	number of bytes loaded, which may be zero
+ */
+static void fit_fill_image_info(const void *fit, int node,
+				struct spl_image_info *image_info,
+				ulong load_addr, ulong size)
+{
+	ulong entry_point;
+
+	if (!image_info)
+		return;
+
+	image_info->load_addr = load_addr;
+	image_info->size = size;
+
+	if (!fit_image_get_entry(fit, node, &entry_point))
+		image_info->entry_point = entry_point;
+	else
+		image_info->entry_point = FDT_ERROR;
+}
+
+/**
  * load_simple_fit(): load the image described in a certain FIT node
  * @info:	points to information about the device to load data from
  * @fit_offset:	the offset of the FIT image on the device
@@ -306,6 +333,7 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 		if (!len) {
 			log_warning("%s: Skip load '%s': image size is 0!\n",
 				    __func__, fit_get_name(fit, node, NULL));
+			fit_fill_image_info(fit, node, image_info, load_addr, 0);
 			return 0;
 		}
 
@@ -423,17 +451,7 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 		memmove(load_ptr, src, length);
 	}
 
-	if (image_info) {
-		ulong entry_point;
-
-		image_info->load_addr = load_addr;
-		image_info->size = length;
-
-		if (!fit_image_get_entry(fit, node, &entry_point))
-			image_info->entry_point = entry_point;
-		else
-			image_info->entry_point = FDT_ERROR;
-	}
+	fit_fill_image_info(fit, node, image_info, load_addr, length);
 	log_debug("- done loading\n");
 
 	upl_add_image(fit, node, load_addr, length);

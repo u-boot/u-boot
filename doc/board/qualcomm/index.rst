@@ -11,6 +11,9 @@ Qualcomm
    dragonboard410c
    dragonwing
    rb3gen2
+   rubikpi3
    iq8
    phones
    rdp
+   signing
+   spl

@@ -1,19 +1,20 @@
 # SPDX-License-Identifier: GPL-2.0
 # Core
-obj-$(CONFIG_PINCTRL_MTK) += pinctrl-mtk-common.o
+obj-y += pinctrl-mtk-common.o
 
 # SoC Drivers
-obj-$(CONFIG_PINCTRL_MT7622) += pinctrl-mt7622.o
-obj-$(CONFIG_PINCTRL_MT7623) += pinctrl-mt7623.o
-obj-$(CONFIG_PINCTRL_MT7629) += pinctrl-mt7629.o
-obj-$(CONFIG_PINCTRL_MT7981) += pinctrl-mt7981.o
-obj-$(CONFIG_PINCTRL_MT7986) += pinctrl-mt7986.o
-obj-$(CONFIG_PINCTRL_MT7987) += pinctrl-mt7987.o
-obj-$(CONFIG_PINCTRL_MT7988) += pinctrl-mt7988.o
-obj-$(CONFIG_PINCTRL_MT8188) += pinctrl-mt8188.o
-obj-$(CONFIG_PINCTRL_MT8195) += pinctrl-mt8195.o
-obj-$(CONFIG_PINCTRL_MT8189) += pinctrl-mt8189.o
-obj-$(CONFIG_PINCTRL_MT8365) += pinctrl-mt8365.o
-obj-$(CONFIG_PINCTRL_MT8512) += pinctrl-mt8512.o
-obj-$(CONFIG_PINCTRL_MT8516) += pinctrl-mt8516.o
-obj-$(CONFIG_PINCTRL_MT8518) += pinctrl-mt8518.o
+obj-$(CONFIG_TARGET_MT7622) += pinctrl-mt7622.o
+obj-$(CONFIG_TARGET_MT7623) += pinctrl-mt7623.o
+obj-$(CONFIG_TARGET_MT7629) += pinctrl-mt7629.o
+obj-$(CONFIG_TARGET_MT7981) += pinctrl-mt7981.o
+obj-$(CONFIG_TARGET_MT7986) += pinctrl-mt7986.o
+obj-$(CONFIG_TARGET_MT7987) += pinctrl-mt7987.o
+obj-$(CONFIG_TARGET_MT7988) += pinctrl-mt7988.o
+obj-$(CONFIG_TARGET_MT8188) += pinctrl-mt8188.o
+obj-$(CONFIG_TARGET_MT8189) += pinctrl-mt8189.o
+obj-$(CONFIG_TARGET_MT8195) += pinctrl-mt8195.o
+obj-$(CONFIG_TARGET_MT8365) += pinctrl-mt8365.o
+obj-$(CONFIG_TARGET_MT8366) += pinctrl-mt8366.o
+obj-$(CONFIG_TARGET_MT8512) += pinctrl-mt8512.o
+obj-$(CONFIG_TARGET_MT8516) += pinctrl-mt8516.o
+obj-$(CONFIG_TARGET_MT8518) += pinctrl-mt8518.o

@@ -71,7 +71,7 @@ static void select_dt_from_module_version(void)
 {
 	char variant[32];
 	char *env_variant = env_get("variant");
-	int is_wifi = 0;
+	bool is_wifi = true;
 
 	if (IS_ENABLED(CONFIG_TDX_CFG_BLOCK)) {
 		/*
@@ -79,12 +79,10 @@ static void select_dt_from_module_version(void)
 		 * module with Wi-Fi/Bluetooth make sure we use the -wifi
 		 * device tree.
 		 */
-		is_wifi = (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WIFI_BT_IT) ||
-			  (tdx_hw_tag.prodid == VERDIN_IMX8MMDL_WIFI_BT_IT) ||
-			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WIFI_BT_IT_NO_CAN) ||
-			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_4G_WIFI_BT_ET) ||
-			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WB_IT_64G) ||
-			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_2G_WIFI_BT_IT_64G);
+		is_wifi = !((tdx_hw_tag.prodid == VERDIN_IMX8MMDL) ||
+			    (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_IT) ||
+			    (tdx_hw_tag.prodid == VERDIN_IMX8MMDL_2G_IT) ||
+			    (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_2G_IT_NO_CAN));
 	}
 
 	switch (get_pcb_revision()) {

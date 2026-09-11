@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * U-Boot additions
+ *
+ * Copyright (C) 2026 Altera Corporation <www.altera.com>
+ */
+
+#include "socfpga_agilex_socdk-u-boot.dtsi"
+
+&gmac0 {
+	status = "disabled";
+};
+
+&gmac2 {
+	status = "okay";
+};

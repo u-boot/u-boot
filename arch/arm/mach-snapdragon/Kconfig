@@ -11,11 +11,11 @@ config SYS_VENDOR
 	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD>
 	  will be used as the custom board directory.
 
-config SYS_MALLOC_LEN
-	default 0x10000000
-
 config SYS_MALLOC_F_LEN
 	default 0x2000
+
+config SPL_SYS_MALLOC_F
+	default y
 
 config SPL_SYS_MALLOC_F_LEN
 	default 0x2000
@@ -25,6 +25,13 @@ config SYS_MALLOC_LEN
 
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	default 0x80000000
+
+config SPL_SHARES_INIT_SP_ADDR
+	# override the default from common/spl/Kconfig
+	default n
+
+config SPL_HAVE_INIT_STACK
+	default y
 
 config SYS_BOARD
 	string "Snapdragon SoCs based board"
@@ -41,5 +48,38 @@ config SYS_CONFIG_NAME
 	  This option contains information about board configuration name.
 	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
 	  will be used for board configuration.
+
+config QCOM_GENERATE_MBN
+	bool "Generate an MBN-compatible ELF binary"
+	help
+	  Enable this if you intend to flash U-Boot as a first-stage bootloader.
+	  The build system will generate a board-specific ELF file with the appropriate
+	  MBN hash segments and test keys.
+
+	  New platforms can be added to tools/qcom/mkmbn/mkmbn.py if they aren't already
+	  supported.
+
+choice
+	prompt "Qualcomm boot0.h workaround"
+	optional
+	help
+	  While U-Boot on Qualcomm platforms doesn't generally need compile-time
+	  adjustments based on the target SoC, workarounds in boot0.h can't
+	  practically detect the SoC at runtime. Enable one of these workarounds
+	  if you know you need it.
+
+config BOOT0_MSM8916_PSCI_WORKAROUND
+	bool "boot0.h workaround for buggy PSCI on the msm8916 SoC"
+	help
+	  Select this if you are building U-Boot proper for an msm8916 board that
+	  uses the buggy PSCI implementation.
+
+config BOOT0_SDM845_WORKAROUND
+	bool "boot0.h workaround for SPL on the sdm845 SoC"
+	depends on SPL
+	help
+	  Select this if you are building U-Boot SPL for sdm845.
+
+endchoice
 
 endif

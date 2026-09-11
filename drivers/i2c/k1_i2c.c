@@ -51,8 +51,6 @@ struct k1_i2c {
 struct k1_i2c_priv {
 	int id;
 	void __iomem *base;
-	struct clk clk;
-	u32 clk_rate;
 };
 
 /*
@@ -466,6 +464,8 @@ static int k1_i2c_probe(struct udevice *bus)
 {
 	struct k1_i2c_priv *priv = dev_get_priv(bus);
 	struct reset_ctl reset;
+	struct clk clk;
+	u32 speed;
 	int ret;
 
 	priv->id = dev_seq(bus);
@@ -487,19 +487,28 @@ static int k1_i2c_probe(struct udevice *bus)
 		return ret;
 	}
 
-	ret = clk_get_by_index(bus, 0, &priv->clk);
+	ret = clk_get_by_name(bus, "func", &clk);
 	if (ret)
 		return ret;
 
-	ret = clk_enable(&priv->clk);
-	if (ret && ret != -ENOSYS && ret != -EOPNOTSUPP) {
-		debug("%s: failed to enable clock\n", __func__);
+	ret = clk_enable(&clk);
+	if (ret)
 		return ret;
-	}
-	priv->clk_rate = clk_get_rate(&priv->clk);
+
+	ret = clk_get_by_name(bus, "bus", &clk);
+	if (ret)
+		return ret;
+
+	ret = clk_enable(&clk);
+	if (ret)
+		return ret;
 
 	priv->base = (void *)devfdt_get_addr_ptr(bus);
-	k1_i2c_set_bus_speed(bus, priv->clk_rate);
+
+	speed = dev_read_u32_default(bus, "clock-frequency",
+				     I2C_SPEED_STANDARD_RATE);
+	k1_i2c_set_bus_speed(bus, speed);
+
 	return 0;
 }
 
