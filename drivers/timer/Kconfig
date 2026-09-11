@@ -227,8 +227,13 @@ config RISCV_TIMER
 	bool "RISC-V timer support"
 	depends on TIMER && RISCV
 	help
-	  Select this to enable support for a generic RISC-V S-Mode timer
-	  driver.
+	  Enable support for the generic RISC-V timer driver using the TIME CSR.
+
+	  This driver works in S-Mode and M-Mode if the TIME CSR is implemented
+	  in hardware (e.g., when the Zicntr extension is present).
+	  If CONFIG_TIMER_EARLY is also set, then timer frequency must be provided
+	  via the macros RISCV_SMODE_TIMER_FREQ/RISCV_MMODE_TIMER_FREQ for
+	  S-Mode/M-Mode respectively.
 
 config ROCKCHIP_TIMER
 	bool "Rockchip timer support"
