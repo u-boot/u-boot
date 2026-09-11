@@ -235,6 +235,20 @@ bool qrcodegen_encodeBinary(uint8_t dataAndTemp[], size_t dataLen, uint8_t qrcod
 	enum qrcodegen_Ecc ecl, int minVersion, int maxVersion, enum qrcodegen_Mask mask, bool boostEcl);
 
 
+#if defined(CONFIG_LIB_QRCODE_GZIP)
+/*
+ * Encode a payload, transparently falling back to gzip compression
+ * if the plain payload does not fit in any QR code version up to
+ * qrcodegen_VERSION_MAX at the requested ECC level.
+ *
+ * Returns true on success, false if neither plain nor gzip-compressed
+ * payload fits.
+ */
+bool qrcodegen_encodeBinaryCompressed(uint8_t dataAndTemp[], size_t dataLen,
+	uint8_t qrcode[], enum qrcodegen_Ecc ecl);
+#endif
+
+
 /*---- Functions (low level) to generate QR Codes ----*/
 
 /* 

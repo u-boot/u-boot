@@ -321,6 +321,21 @@ config LIB_QRCODE_MAX_VERSION
 	  pairing tokens or short URLs and want to reclaim the static
 	  buffer footprint. The default of 40 matches upstream Nayuki.
 
+config LIB_QRCODE_GZIP
+	bool "Allow gzip pre-compression of QR code payloads"
+	depends on LIB_QRCODE
+	depends on GZIP_COMPRESSED
+	help
+	  When a payload does not fit in the configured maximum QR code
+	  version, transparently gzip-compress it and re-encode in binary
+	  mode with a four-byte magic header ("QRGZ"), so the scanner side
+	  knows to decompress.
+
+	  Useful for diagnostic / state-dump QR codes where the raw payload
+	  is highly compressible (printable text, log fragments) but would
+	  not otherwise fit a small QR symbol. The plain (uncompressed)
+	  encoder remains the first attempt; this just adds a fallback.
+
 choice
 	prompt "Pseudo-random library support type"
 	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID || \
