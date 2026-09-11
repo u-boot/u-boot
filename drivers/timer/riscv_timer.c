@@ -37,7 +37,7 @@ static u64 notrace riscv_timer_get_count(struct udevice *dev)
 /**
  * timer_early_get_rate() - Get the timer rate before driver model
  */
-unsigned long notrace timer_early_get_rate(void)
+unsigned long notrace __weak timer_early_get_rate(void)
 {
 	return RISCV_SMODE_TIMER_FREQ;
 }
@@ -46,7 +46,7 @@ unsigned long notrace timer_early_get_rate(void)
  * timer_early_get_count() - Get the timer count before driver model
  *
  */
-u64 notrace timer_early_get_count(void)
+u64 notrace __weak timer_early_get_count(void)
 {
 	return riscv_timer_get_count(NULL);
 }
