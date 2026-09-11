@@ -303,6 +303,24 @@ config LIB_QRCODE
 
 	  Imported from https://github.com/nayuki/QR-Code-generator
 
+config LIB_QRCODE_MAX_VERSION
+	int "Maximum QR code version supported (1..40)"
+	depends on LIB_QRCODE
+	range 1 40
+	default 40
+	help
+	  Maximum QR code "version" the library is built to support, in
+	  the range 1..40. The version determines both the maximum payload
+	  capacity and the static scratch-buffer size demanded of callers:
+
+	    qrcodegen_BUFFER_LEN_FOR_VERSION(N) bytes per buffer,
+	    growing quadratically (N=20 -> ~370 B, N=30 -> ~810 B,
+	    N=40 -> ~1430 B per buffer; callers typically need two).
+
+	  Lower this if you only need to encode short payloads such as
+	  pairing tokens or short URLs and want to reclaim the static
+	  buffer footprint. The default of 40 matches upstream Nayuki.
+
 choice
 	prompt "Pseudo-random library support type"
 	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID || \

@@ -134,7 +134,11 @@ struct qrcodegen_Segment {
 /*---- Macro constants and functions ----*/
 
 #define qrcodegen_VERSION_MIN   1  // The minimum version number supported in the QR Code Model 2 standard
+#ifdef CONFIG_LIB_QRCODE_MAX_VERSION
+#define qrcodegen_VERSION_MAX  CONFIG_LIB_QRCODE_MAX_VERSION
+#else
 #define qrcodegen_VERSION_MAX  40  // The maximum version number supported in the QR Code Model 2 standard
+#endif
 
 // Calculates the number of bytes needed to store any QR Code up to and including the given version number,
 // as a compile-time constant. For example, 'uint8_t buffer[qrcodegen_BUFFER_LEN_FOR_VERSION(25)];'
