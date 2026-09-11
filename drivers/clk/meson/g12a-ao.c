@@ -10,10 +10,6 @@
 
 #include "clk_meson.h"
 
-struct meson_clk {
-	struct regmap *map;
-};
-
 #define AO_CLK_GATE0		0x4c
 #define AO_SAR_CLK		0x90
 
@@ -35,12 +31,12 @@ static int meson_set_gate(struct clk *clk, bool on)
 	return 0;
 }
 
-static int meson_clk_enable(struct clk *clk)
+static int meson_g12a_ao_clk_enable(struct clk *clk)
 {
 	return meson_set_gate(clk, true);
 }
 
-static int meson_clk_disable(struct clk *clk)
+static int meson_g12a_ao_clk_disable(struct clk *clk)
 {
 	return meson_set_gate(clk, false);
 }
@@ -65,8 +61,8 @@ static int meson_clk_request(struct clk *clk)
 }
 
 static struct clk_ops meson_clk_ops = {
-	.disable	= meson_clk_disable,
-	.enable		= meson_clk_enable,
+	.disable	= meson_g12a_ao_clk_disable,
+	.enable		= meson_g12a_ao_clk_enable,
 	.request	= meson_clk_request,
 };
 
