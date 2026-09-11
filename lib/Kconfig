@@ -292,6 +292,17 @@ config REGEX
 	  regex support to some commands, for example "env grep" and
 	  "setexpr".
 
+config LIB_QRCODE
+	bool "Enable QR code generator library"
+	help
+	  Enables the Nayuki QR Code generator library (qrcodegen).
+	  This provides functions to encode arbitrary text or binary
+	  data into a QR Code symbol that can then be rendered to a
+	  framebuffer or printed as ASCII art. Useful for displaying
+	  links, serial numbers, or recovery URLs from the bootloader.
+
+	  Imported from https://github.com/nayuki/QR-Code-generator
+
 choice
 	prompt "Pseudo-random library support type"
 	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID || \
