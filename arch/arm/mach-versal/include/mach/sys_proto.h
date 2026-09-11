@@ -27,5 +27,9 @@ u8 versal_get_bootmode(void);
 u32 versal_bootmode_reg(void);
 /* EL3 clock/timer register setup, called from board_early_init_r() */
 void versal_timer_setup(void);
+/* Overridable chip ID accessor: weak MMIO default, firmware override */
+int xilinx_pm_get_chipid(u32 *idcode, u32 *version);
+/* Overridable PMC GLOBAL PGGS register accessor: weak MMIO default, firmware override */
+u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr);
 
 #endif /* _ASM_ARCH_SYS_PROTO_H */

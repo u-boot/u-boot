@@ -21,6 +21,7 @@
 #include <asm/sections.h>
 #if defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL2)
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 #endif
 #include <dm/uclass.h>
 #include <i2c.h>
@@ -752,10 +753,7 @@ static int plat_get_boot_index(void)
 {
 	u32 val;
 
-	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE))
-		val = zynqmp_pm_get_pmc_global_pggs_reg(PMC_GLOBAL_PGGS4_REG);
-	else
-		val = readl(PMC_GLOBAL_PGGS4_REG);
+	val = zynqmp_pm_get_pmc_global_pggs_reg(PMC_GLOBAL_PGGS4_REG);
 
 	if (FIELD_GET(MAGIC_MASK, val) != MAGIC_NUM) {
 		log_err("FWU requires PMC magic number 0x%x\n", MAGIC_NUM);

@@ -118,10 +118,17 @@
 #define BOOTENV_DEV_NAME_USB_THOR(devtypeu, devtypel, instance) \
 	""
 
+#if defined(CONFIG_NVME)
+# define BOOT_TARGET_DEVICES_NVME(func)	func(NVME, nvme, 0)
+#else
+# define BOOT_TARGET_DEVICES_NVME(func)
+#endif
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_JTAG(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_XSPI(func) \
+	BOOT_TARGET_DEVICES_NVME(func) \
 	BOOT_TARGET_DEVICES_USB_DFU(func) \
 	BOOT_TARGET_DEVICES_USB_THOR(func) \
 	BOOT_TARGET_DEVICES_USB(func) \

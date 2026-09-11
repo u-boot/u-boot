@@ -9,6 +9,7 @@
 #include <init.h>
 #include <log.h>
 #include <time.h>
+#include <linux/errno.h>
 #include <asm/armv8/mmu.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -20,7 +21,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if CONFIG_IS_ENABLED(PCIE_AMD_CPM)
+#define VERSAL_MEM_MAP_USED	5
+#else
 #define VERSAL_MEM_MAP_USED	3
+#endif
 
 #define DRAM_BANKS CONFIG_NR_DRAM_BANKS
 
@@ -55,6 +60,22 @@ static struct mm_region versal_mem_map[VERSAL_MEM_MAP_MAX] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+#if CONFIG_IS_ENABLED(PCIE_AMD_CPM)
+	}, {
+		.virt = 0x600000000UL,
+		.phys = 0x600000000UL,
+		.size = 0x010000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		.virt = 0x700000000UL,
+		.phys = 0x700000000UL,
+		.size = 0x010000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+#endif
 	}
 };
 
@@ -176,6 +197,23 @@ u8 __weak versal_get_bootmode(void)
 		reg >>= BOOT_MODE_ALT_SHIFT;
 
 	return reg & BOOT_MODES_MASK;
+}
+
+__weak int xilinx_pm_get_chipid(u32 *idcode, u32 *version)
+{
+	if (idcode)
+		*idcode = 0;
+
+	*version = readl(VERSAL_PS_PMC_VERSION);
+	if (!*version)
+		return -EINVAL;
+
+	return 0;
+}
+
+__weak u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr)
+{
+	return readl((ulong)reg_addr);
 }
 
 U_BOOT_DRVINFO(soc_xilinx_versal) = {

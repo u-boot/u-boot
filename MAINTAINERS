@@ -71,6 +71,16 @@ F:	include/alist.h
 F:	lib/alist.c
 F:	test/lib/alist.c
 
+AMD CPM PCIE DRIVER
+M:	Pranav Sanwal <pranav.sanwal@amd.com>
+S:	Maintained
+F:	drivers/pci/pcie_amd_cpm.c
+
+AMD QDMA PL PCIE DRIVER
+M:	Pranav Sanwal <pranav.sanwal@amd.com>
+S:	Maintained
+F:	drivers/pci/pcie_amd_qdma_pl.c
+
 AMD VERSAL2 PCIE DRIVER
 M:	Pranav Sanwal <pranav.sanwal@amd.com>
 S:	Maintained
@@ -174,6 +184,25 @@ T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-socfpga.git
 N:	altera
 N:	agilex
 N:	socfpga
+
+ARM AMD/XILINX
+M:	Michal Simek <monstr@monstr.eu>
+M:	Michal Simek <michal.simek@amd.com>
+S:	Maintained
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
+F:	doc/device-tree-bindings/video/syncoam,seps525.txt
+F:	drivers/gpio/gpio_slg7xl45106.c
+F:	drivers/i2c/i2c-cdns.c
+F:	drivers/i2c/muxes/pca954x.c
+F:	drivers/net/phy/ethernet_id.c
+F:	drivers/pwm/pwm-cadence-ttc.c
+F:	drivers/timer/cadence-ttc.c
+F:	drivers/video/seps525.c
+F:	drivers/watchdog/cdns_wdt.c
+N:	(?<!uni)versal
+N:	ultra96
+N:	zynq
+N:	xilinx
 
 ARM AMLOGIC SOC SUPPORT
 M:	Neil Armstrong <neil.armstrong@linaro.org>
@@ -752,62 +781,12 @@ F:	arch/arm/mach-uniphier/
 F:	configs/uniphier_*_defconfig
 N:	uniphier
 
-ARM VERSAL NET
-M:	Michal Simek <michal.simek@amd.com>
-S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
-F:	arch/arm/mach-versal-net/
-F:	drivers/soc/soc_xilinx_versal_net.c
-N:	(?<!uni)versal-net
-
-ARM VERSAL
-M:	Michal Simek <michal.simek@amd.com>
-S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
-F:	arch/arm/mach-versal/
-F:	drivers/net/xilinx_axi_mrmac.*
-F:	drivers/soc/soc_xilinx_versal.c
-F:	drivers/spi/cadence_ospi_versal.c
-F:	drivers/watchdog/xilinx_wwdt.c
-N:	(?<!uni)versal
-
-ARM VERSAL GEN 2
-M:	Michal Simek <michal.simek@amd.com>
-S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
-F:	arch/arm/mach-versal2/
-
 ARM VERSATILE EXPRESS DRIVERS
 M:	Liviu Dudau <liviu.dudau@foss.arm.com>
 S:	Maintained
 T:	git git://github.com/ARM-software/u-boot.git
 F:	drivers/misc/vexpress_config.c
 N:	vexpress
-
-ARM ZYNQ and ZYNQMP
-M:	Michal Simek <monstr@monstr.eu>
-M:	Michal Simek <michal.simek@amd.com>
-S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
-F:	doc/board/xilinx/
-F:	doc/device-tree-bindings/video/syncoam,seps525.txt
-F:	drivers/gpio/gpio_slg7xl45106.c
-F:	drivers/i2c/i2c-cdns.c
-F:	drivers/i2c/muxes/pca954x.c
-F:	drivers/net/phy/ethernet_id.c
-F:	drivers/net/phy/xilinx_phy.c
-F:	drivers/pwm/pwm-cadence-ttc.c
-F:	drivers/timer/cadence-ttc.c
-F:	drivers/video/seps525.c
-F:	drivers/watchdog/cdns_wdt.c
-N:	ultra96
-N:	zynq
-
-ARM ZYNQMP R5
-M:	Michal Simek <michal.simek@amd.com>
-S:	Maintained
-T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
-F:	arch/arm/mach-zynqmp-r5/
 
 ARM PHYTIUM
 M:	liuhao <liuhao@phytium.com.cn>
@@ -1223,7 +1202,6 @@ F:	drivers/spi/xilinx_spi.c
 F:	drivers/sysreset/sysreset_gpio.c
 F:	drivers/timer/xilinx-timer.c
 F:	drivers/watchdog/xilinx_tb_wdt.c
-N:	xilinx
 
 MIPS
 M:	Daniel Schwierzeck <daniel.schwierzeck@gmail.com>

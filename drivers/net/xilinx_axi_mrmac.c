@@ -162,6 +162,7 @@ static int axi_mrmac_start(struct udevice *dev)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
 	struct mrmac_regs *regs = priv->iobase;
+	int i;
 
 	/*
 	 * Initialize MCDMA engine. MCDMA engine must be initialized before
@@ -178,36 +179,41 @@ static int axi_mrmac_start(struct udevice *dev)
 	/* Disable all Rx interrupts before RxBD space setup */
 	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
 
-	/* Update current descriptor */
-	axi_mrmac_dma_write(priv->rx_bd[0], &priv->mcdma_rx->current);
+	/*
+	 * Setup Rx BDs as a closed ring: every descriptor points at the next
+	 * one and the last one wraps back to the first, each with its own
+	 * slice of the Rx buffer pool. MRMAC needs at least two descriptors.
+	 */
+	memset(priv->rx_bd, 0, RX_BD_TOTAL_SIZE);
 
-	/* Setup Rx BD. MRMAC needs atleast two descriptors */
-	memset(priv->rx_bd[0], 0, RX_BD_TOTAL_SIZE);
+	for (i = 0; i < RX_DESC; i++) {
+		struct mcdma_bd *next = &priv->rx_bd[(i + 1) % RX_DESC];
+		u8 *buf = priv->rx_buf + i * PKTSIZE_ALIGN;
+		struct mcdma_bd *bd = &priv->rx_bd[i];
 
-	priv->rx_bd[0]->next_desc = lower_32_bits((u64)priv->rx_bd[1]);
-	priv->rx_bd[0]->buf_addr = lower_32_bits((u64)net_rx_packets[0]);
+		bd->next_desc = lower_32_bits((u64)next);
+		bd->buf_addr = lower_32_bits((u64)buf);
 
-	priv->rx_bd[1]->next_desc = lower_32_bits((u64)priv->rx_bd[0]);
-	priv->rx_bd[1]->buf_addr = lower_32_bits((u64)net_rx_packets[1]);
+		if (IS_ENABLED(CONFIG_PHYS_64BIT)) {
+			bd->next_desc_msb = upper_32_bits((u64)next);
+			bd->buf_addr_msb = upper_32_bits((u64)buf);
+		}
 
-	if (IS_ENABLED(CONFIG_PHYS_64BIT)) {
-		priv->rx_bd[0]->next_desc_msb = upper_32_bits((u64)priv->rx_bd[1]);
-		priv->rx_bd[0]->buf_addr_msb = upper_32_bits((u64)net_rx_packets[0]);
-
-		priv->rx_bd[1]->next_desc_msb = upper_32_bits((u64)priv->rx_bd[0]);
-		priv->rx_bd[1]->buf_addr_msb = upper_32_bits((u64)net_rx_packets[1]);
+		bd->cntrl = PKTSIZE_ALIGN;
 	}
 
-	priv->rx_bd[0]->cntrl = PKTSIZE_ALIGN;
-	priv->rx_bd[1]->cntrl = PKTSIZE_ALIGN;
+	priv->rx_bd_idx = 0;
 
-	/* Flush the last BD so DMA core could see the updates */
-	flush_cache((phys_addr_t)priv->rx_bd[0], RX_BD_TOTAL_SIZE);
+	/* Flush the BDs so DMA core could see the updates */
+	flush_cache((phys_addr_t)priv->rx_bd, RX_BD_TOTAL_SIZE);
 
 	/* It is necessary to flush rx buffers because if you don't do it
 	 * then cache can contain uninitialized data
 	 */
-	flush_cache((phys_addr_t)priv->rx_bd[0]->buf_addr, RX_BUFF_TOTAL_SIZE);
+	flush_cache((phys_addr_t)priv->rx_buf, RX_BUFF_TOTAL_SIZE);
+
+	/* Update current descriptor once the ring is built and flushed */
+	axi_mrmac_dma_write(&priv->rx_bd[0], &priv->mcdma_rx->current);
 
 	/* Start the hardware */
 	setbits_le32(&priv->s2mm_cmn->control, XMCDMA_CR_RUNSTOP_MASK);
@@ -218,7 +224,7 @@ static int axi_mrmac_start(struct udevice *dev)
 	setbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
 
 	/* Update tail descriptor. Now it's ready to receive data */
-	axi_mrmac_dma_write(priv->rx_bd[1], &priv->mcdma_rx->tail);
+	axi_mrmac_dma_write(&priv->rx_bd[RX_DESC - 1], &priv->mcdma_rx->tail);
 
 	/* Enable Tx */
 	setbits_le32(&regs->tx_config, MRMAC_TX_EN_MASK);
@@ -267,32 +273,32 @@ static int axi_mrmac_send(struct udevice *dev, void *ptr, int len)
 	flush_cache((phys_addr_t)ptr, len);
 
 	/* Setup Tx BD. MRMAC needs atleast two descriptors */
-	memset(priv->tx_bd[0], 0, TX_BD_TOTAL_SIZE);
+	memset(priv->tx_bd, 0, TX_BD_TOTAL_SIZE);
 
-	priv->tx_bd[0]->next_desc = lower_32_bits((u64)priv->tx_bd[1]);
-	priv->tx_bd[0]->buf_addr = lower_32_bits((u64)ptr);
+	priv->tx_bd[0].next_desc = lower_32_bits((u64)&priv->tx_bd[1]);
+	priv->tx_bd[0].buf_addr = lower_32_bits((u64)ptr);
 
 	/* At the end of the ring, link the last BD back to the top */
-	priv->tx_bd[1]->next_desc = lower_32_bits((u64)priv->tx_bd[0]);
-	priv->tx_bd[1]->buf_addr = lower_32_bits((u64)ptr + len / 2);
+	priv->tx_bd[1].next_desc = lower_32_bits((u64)&priv->tx_bd[0]);
+	priv->tx_bd[1].buf_addr = lower_32_bits((u64)ptr + len / 2);
 
 	if (IS_ENABLED(CONFIG_PHYS_64BIT)) {
-		priv->tx_bd[0]->next_desc_msb = upper_32_bits((u64)priv->tx_bd[1]);
-		priv->tx_bd[0]->buf_addr_msb = upper_32_bits((u64)ptr);
+		priv->tx_bd[0].next_desc_msb = upper_32_bits((u64)&priv->tx_bd[1]);
+		priv->tx_bd[0].buf_addr_msb = upper_32_bits((u64)ptr);
 
-		priv->tx_bd[1]->next_desc_msb = upper_32_bits((u64)priv->tx_bd[0]);
-		priv->tx_bd[1]->buf_addr_msb = upper_32_bits((u64)ptr + len / 2);
+		priv->tx_bd[1].next_desc_msb = upper_32_bits((u64)&priv->tx_bd[0]);
+		priv->tx_bd[1].buf_addr_msb = upper_32_bits((u64)ptr + len / 2);
 	}
 
 	/* Split Tx data in to half and send in two descriptors */
-	priv->tx_bd[0]->cntrl = (len / 2) | XMCDMA_BD_CTRL_TXSOF_MASK;
-	priv->tx_bd[1]->cntrl = (len - len / 2) | XMCDMA_BD_CTRL_TXEOF_MASK;
+	priv->tx_bd[0].cntrl = (len / 2) | XMCDMA_BD_CTRL_TXSOF_MASK;
+	priv->tx_bd[1].cntrl = (len - len / 2) | XMCDMA_BD_CTRL_TXEOF_MASK;
 
 	/* Flush the last BD so DMA core could see the updates */
-	flush_cache((phys_addr_t)priv->tx_bd[0], TX_BD_TOTAL_SIZE);
+	flush_cache((phys_addr_t)priv->tx_bd, TX_BD_TOTAL_SIZE);
 
 	if (readl(&priv->mcdma_tx->status) & XMCDMA_CH_IDLE) {
-		axi_mrmac_dma_write(priv->tx_bd[0], &priv->mcdma_tx->current);
+		axi_mrmac_dma_write(&priv->tx_bd[0], &priv->mcdma_tx->current);
 		/* Channel fetch */
 		setbits_le32(&priv->mcdma_tx->control, XMCDMA_CR_RUNSTOP_MASK);
 	} else {
@@ -303,7 +309,7 @@ static int axi_mrmac_send(struct udevice *dev, void *ptr, int len)
 	setbits_le32(&priv->mcdma_tx->control, XMCDMA_IRQ_ALL_MASK);
 
 	/* Start transfer */
-	axi_mrmac_dma_write(priv->tx_bd[1], &priv->mcdma_tx->tail);
+	axi_mrmac_dma_write(&priv->tx_bd[1], &priv->mcdma_tx->tail);
 
 	/* Wait for transmission to complete */
 	ret = wait_for_bit_le32(&priv->mcdma_tx->status, XMCDMA_IRQ_IOC_MASK,
@@ -314,30 +320,10 @@ static int axi_mrmac_send(struct udevice *dev, void *ptr, int len)
 	}
 
 	/* Clear status */
-	priv->tx_bd[0]->sband_stats = 0;
-	priv->tx_bd[1]->sband_stats = 0;
+	priv->tx_bd[0].sband_stats = 0;
+	priv->tx_bd[1].sband_stats = 0;
 
 	log_debug("Sending complete\n");
-
-	return 0;
-}
-
-static bool isrxready(struct axi_mrmac_priv *priv)
-{
-	u32 status;
-
-	/* Read pending interrupts */
-	status = readl(&priv->mcdma_rx->status);
-
-	/* Acknowledge pending interrupts */
-	writel(status & XMCDMA_IRQ_ALL_MASK, &priv->mcdma_rx->status);
-
-	/*
-	 * If Reception done interrupt is asserted, call Rx call back function
-	 * to handle the processed BDs and then raise the according flag.
-	 */
-	if (status & (XMCDMA_IRQ_IOC_MASK | XMCDMA_IRQ_DELAY_MASK))
-		return 1;
 
 	return 0;
 }
@@ -350,47 +336,62 @@ static bool isrxready(struct axi_mrmac_priv *priv)
  *
  * Return:	received data length on success, negative value on errors
  *
- * This is a Rx function of MRMAC. Check if any data is received on MCDMA.
- * Copy buffer pointer to packetp and return received data length.
+ * This is a Rx function of MRMAC. Check whether the descriptor that
+ * rx_bd_idx points at has been completed by the DMA engine, and if so copy
+ * its buffer pointer to packetp and return the received data length. The
+ * descriptor stays owned by the driver until axi_mrmac_free_pkt() gives it
+ * back to hardware.
+ *
+ * A completed descriptor with no length, or one flagged with an error, holds
+ * no frame for the network stack. Report an empty packet for it, so that the
+ * caller recycles the descriptor through axi_mrmac_free_pkt().
  */
 static int axi_mrmac_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
-	u32 rx_bd_end;
+	struct mcdma_bd *bd;
+	uchar *buf;
 	u32 length;
 
+	bd = &priv->rx_bd[priv->rx_bd_idx];
+
+	/* Invalidate the descriptor to see the status written by DMA */
+	invalidate_dcache_range((phys_addr_t)bd,
+				(phys_addr_t)bd + roundup(sizeof(*bd),
+							  ARCH_DMA_MINALIGN));
+
 	/* Wait for an incoming packet */
-	if (!isrxready(priv))
+	if (!(bd->status & XMCDMA_BD_STS_COMPLETE))
 		return -EAGAIN;
 
-	/* Clear all interrupts */
-	writel(XMCDMA_IRQ_ALL_MASK, &priv->mcdma_rx->status);
-
-	/* Disable IRQ for a moment till packet is handled */
-	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
-
-	/* Disable channel fetch */
-	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
-
-	rx_bd_end = (ulong)priv->rx_bd[0] + roundup(RX_BD_TOTAL_SIZE,
-						    ARCH_DMA_MINALIGN);
-	/* Invalidate Rx descriptors to see proper Rx length */
-	invalidate_dcache_range((phys_addr_t)priv->rx_bd[0], rx_bd_end);
-
-	length = priv->rx_bd[0]->status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
-	*packetp = (uchar *)(ulong)priv->rx_bd[0]->buf_addr;
-
-	if (!length) {
-		length = priv->rx_bd[1]->status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
-		*packetp = (uchar *)(ulong)priv->rx_bd[1]->buf_addr;
+	/*
+	 * A completed descriptor with an error, or with no data in it, holds
+	 * no frame to pass up. Report an empty packet so that the caller
+	 * recycles the descriptor through free_pkt() and moves on.
+	 */
+	if (bd->status & XMCDMA_BD_STS_ALL_ERR) {
+		*packetp = NULL;
+		return 0;
 	}
+
+	length = bd->status & XMCDMA_BD_STS_ACTUAL_LEN_MASK;
+	if (!length) {
+		*packetp = NULL;
+		return 0;
+	}
+
+	buf = (uchar *)(ulong)(((u64)bd->buf_addr_msb << 32) | bd->buf_addr);
+
+	/* Invalidate the buffer before the network stack reads it */
+	invalidate_dcache_range((phys_addr_t)buf,
+				(phys_addr_t)buf + roundup(PKTSIZE_ALIGN,
+							   ARCH_DMA_MINALIGN));
+
+	*packetp = buf;
 
 #ifdef DEBUG
 	print_buffer(*packetp, *packetp, 1, length, 16);
 #endif
-	/* Clear status */
-	priv->rx_bd[0]->status = 0;
-	priv->rx_bd[1]->status = 0;
 
 	return length;
 }
@@ -403,43 +404,34 @@ static int axi_mrmac_recv(struct udevice *dev, int flags, uchar **packetp)
  *
  * Return:	0 on success, negative value on errors
  *
- * This is Rx free packet function of MRMAC. Prepare MRMAC for reception of
- * data again. Invalidate previous data from Rx buffers and set Rx buffer
- * descriptors. Trigger reception by updating tail descriptor.
+ * This is Rx free packet function of MRMAC. The caller is done with the
+ * descriptor that axi_mrmac_recv() looked at, so give that one descriptor
+ * back to hardware by extending the tail pointer to it. The channel is
+ * never stopped, so nothing else has to be touched: no halt, no current
+ * descriptor rewrite and no re-arming of the whole ring.
  */
 static int axi_mrmac_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
+	struct mcdma_bd *bd = &priv->rx_bd[priv->rx_bd_idx];
 
 #ifdef DEBUG
 	/* It is useful to clear buffer to be sure that it is consistent */
-	memset(priv->rx_bd[0]->buf_addr, 0, RX_BUFF_TOTAL_SIZE);
+	memset(priv->rx_buf, 0, RX_BUFF_TOTAL_SIZE);
 #endif
-	/* Disable all Rx interrupts before RxBD space setup */
-	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
-
-	/* Disable channel fetch */
-	clrbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
-
-	/* Update current descriptor */
-	axi_mrmac_dma_write(priv->rx_bd[0], &priv->mcdma_rx->current);
-
-	/* Write bd to HW */
-	flush_cache((phys_addr_t)priv->rx_bd[0], RX_BD_TOTAL_SIZE);
-
-	/* It is necessary to flush rx buffers because if you don't do it
-	 * then cache will contain previous packet
+	/*
+	 * Clear the status written by the DMA engine, restore the buffer
+	 * length, flush the descriptor and extend the tail pointer to it so
+	 * the engine may reuse this slot.
 	 */
-	flush_cache((phys_addr_t)priv->rx_bd[0]->buf_addr, RX_BUFF_TOTAL_SIZE);
+	bd->status = 0;
+	bd->cntrl = PKTSIZE_ALIGN;
 
-	/* Enable all IRQ */
-	setbits_le32(&priv->mcdma_rx->control, XMCDMA_IRQ_ALL_MASK);
+	flush_cache((phys_addr_t)bd, roundup(sizeof(*bd), ARCH_DMA_MINALIGN));
 
-	/* Channel fetch */
-	setbits_le32(&priv->mcdma_rx->control, XMCDMA_CR_RUNSTOP_MASK);
+	axi_mrmac_dma_write(bd, &priv->mcdma_rx->tail);
 
-	/* Update tail descriptor. Now it's ready to receive data */
-	axi_mrmac_dma_write(priv->rx_bd[1], &priv->mcdma_rx->tail);
+	priv->rx_bd_idx = (priv->rx_bd_idx + 1) % RX_DESC;
 
 	log_debug("Rx completed, framelength = %x\n", length);
 
@@ -483,15 +475,26 @@ static int axi_mrmac_probe(struct udevice *dev)
 	priv->mrmac_rate = plat->mrmac_rate;
 
 	/* Align buffers to ARCH_DMA_MINALIGN */
-	priv->tx_bd[0] = memalign(ARCH_DMA_MINALIGN, TX_BD_TOTAL_SIZE);
-	priv->tx_bd[1] = (struct mcdma_bd *)((ulong)priv->tx_bd[0] +
-					     sizeof(struct mcdma_bd));
+	priv->tx_bd = memalign(ARCH_DMA_MINALIGN, TX_BD_TOTAL_SIZE);
+	if (!priv->tx_bd)
+		return -ENOMEM;
 
-	priv->rx_bd[0] = memalign(ARCH_DMA_MINALIGN, RX_BD_TOTAL_SIZE);
-	priv->rx_bd[1] = (struct mcdma_bd *)((ulong)priv->rx_bd[0] +
-					     sizeof(struct mcdma_bd));
+	priv->rx_bd = memalign(ARCH_DMA_MINALIGN, RX_BD_TOTAL_SIZE);
+	if (!priv->rx_bd)
+		return -ENOMEM;
+
+	/*
+	 * Use a driver-owned RX buffer pool rather than the shared
+	 * net_rx_packets[] global, which is capped at PKTBUFSRX system-wide
+	 * and not private to this device.
+	 */
+	priv->rx_buf = memalign(ARCH_DMA_MINALIGN, RX_BUFF_TOTAL_SIZE);
+	if (!priv->rx_buf)
+		return -ENOMEM;
 
 	priv->txminframe = memalign(ARCH_DMA_MINALIGN, MIN_PKT_SIZE);
+	if (!priv->txminframe)
+		return -ENOMEM;
 
 	return 0;
 }
@@ -501,8 +504,9 @@ static int axi_mrmac_remove(struct udevice *dev)
 	struct axi_mrmac_priv *priv = dev_get_priv(dev);
 
 	/* Free buffer descriptors */
-	free(priv->tx_bd[0]);
-	free(priv->rx_bd[0]);
+	free(priv->tx_bd);
+	free(priv->rx_bd);
+	free(priv->rx_buf);
 	free(priv->txminframe);
 
 	return 0;
@@ -531,8 +535,9 @@ static int axi_mrmac_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	/* Set default MRMAC rate to 10000 */
-	plat->mrmac_rate = dev_read_u32_default(dev, "xlnx,mrmac-rate", 10000);
+	if (dev_read_u32(dev, "max-speed", &plat->mrmac_rate))
+		/* Set default MRMAC rate to 10000 */
+		plat->mrmac_rate = dev_read_u32_default(dev, "xlnx,mrmac-rate", 10000);
 
 	return 0;
 }

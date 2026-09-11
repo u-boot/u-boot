@@ -214,6 +214,14 @@ int __weak zynqmp_mmio_read(const u32 address, u32 *value)
 	return -EINVAL;
 }
 
+__weak int xilinx_pm_get_chipid(u32 *idcode, u32 *version)
+{
+	if (idcode)
+		*idcode = 0;
+
+	return zynqmp_mmio_read(ZYNQMP_PS_VERSION, version);
+}
+
 void zynqmp_timer_setup(void)
 {
 	u32 val;
