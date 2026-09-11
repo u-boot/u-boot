@@ -19,7 +19,7 @@
 
 #define TQMA6UL_SPI_FLASH_SECTOR_SIZE	SZ_64K
 #define TQMA6UL_SPI_UBOOT_START		SZ_4K
-#define TQMA6UL_SPI_UBOOT_SIZE		0xf0000
+#define TQMA6UL_SPI_UBOOT_MAX_SIZE	0xf0000
 
 /* 128 MiB offset as suggested in ARM related Linux docs */
 #define TQMA6UL_FDT_ADDRESS		0x88000000
