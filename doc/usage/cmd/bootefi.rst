@@ -164,8 +164,8 @@ Configuration
 -------------
 
 To use the *bootefi* command you must specify CONFIG_CMD_BOOTEFI=y.
-The *bootefi bootmgr* sub-command requries CMD_BOOTEFI_BOOTMGR=y.
-The *bootefi hello* sub-command requries CMD_BOOTEFI_HELLO=y.
+The *bootefi bootmgr* sub-command requires CMD_BOOTEFI_BOOTMGR=y.
+The *bootefi hello* sub-command requires CMD_BOOTEFI_HELLO=y.
 The *bootefi selftest* sub-command depends on CMD_BOOTEFI_SELFTEST=y.
 
 See also
