@@ -238,16 +238,6 @@ config TARGET_IMX8MP_DATA_MODUL_EDM_SBC
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
 
-config TARGET_IMX8MP_BEACON
-	bool "imx8mm Beacon Embedded devkit"
-	select IMX8MP
-	select SUPPORT_SPL
-	select IMX8M_LPDDR4
-	select FSL_CAAM
-	select ARCH_MISC_INIT
-	select SPL_CRYPTO if SPL
-	imply OF_UPSTREAM
-
 config TARGET_IMX8MP_DEBIX_MODEL_A
 	bool "Polyhex i.MX8M Plus Debix Model A SBC"
 	select IMX8MP
@@ -426,7 +416,6 @@ config TARGET_LIBREM5_DEVKIT
 endchoice
 
 source "board/advantech/imx8mp_rsb3720a1/Kconfig"
-source "board/beacon/imx8mp/Kconfig"
 source "board/bsh/imx8mn_smm_s2/Kconfig"
 source "board/cloos/imx8mm_phg/Kconfig"
 source "board/compulab/imx8mm-cl-iot-gate/Kconfig"

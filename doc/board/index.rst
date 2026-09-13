@@ -19,7 +19,6 @@ Board-specific doc
    aspeed/index
    asus/index
    atmel/index
-   beacon/index
    beagle/index
    broadcom/index
    bsh/index
