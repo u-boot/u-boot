@@ -27,6 +27,7 @@ static int raw_part_get_info_by_name(struct blk_desc *dev_desc,
 {
 	/* strlen("fastboot_raw_partition_") + PART_NAME_LEN + 1 */
 	char env_desc_name[23 + PART_NAME_LEN + 1];
+	const char *raw_part_env;
 	char *raw_part_desc;
 	const char *argv[2];
 	const char **parg = argv;
@@ -34,7 +35,12 @@ static int raw_part_get_info_by_name(struct blk_desc *dev_desc,
 	/* check for raw partition descriptor */
 	strcpy(env_desc_name, "fastboot_raw_partition_");
 	strlcat(env_desc_name, name, sizeof(env_desc_name));
-	raw_part_desc = strdup(env_get(env_desc_name));
+	raw_part_env = CONFIG_IS_ENABLED(ENV_SUPPORT,
+					 (env_get(env_desc_name)), (NULL));
+	if (!raw_part_env)
+		return -ENODEV;
+
+	raw_part_desc = strdup(raw_part_env);
 	if (raw_part_desc == NULL)
 		return -ENODEV;
 
@@ -99,12 +105,13 @@ static int part_get_info_by_name_or_alias(struct blk_desc **dev_desc,
 {
 	/* strlen("fastboot_partition_alias_") + PART_NAME_LEN + 1 */
 	char env_alias_name[25 + PART_NAME_LEN + 1];
-	char *aliased_part_name;
+	const char *aliased_part_name;
 
 	/* check for alias */
 	strlcpy(env_alias_name, "fastboot_partition_alias_", sizeof(env_alias_name));
 	strlcat(env_alias_name, name, sizeof(env_alias_name));
-	aliased_part_name = env_get(env_alias_name);
+	aliased_part_name = CONFIG_IS_ENABLED(ENV_SUPPORT,
+					      (env_get(env_alias_name)), (NULL));
 	if (aliased_part_name)
 		name = aliased_part_name;
 

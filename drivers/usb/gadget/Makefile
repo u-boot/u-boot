@@ -6,6 +6,7 @@
 obj-$(CONFIG_$(PHASE_)USB_GADGET) += epautoconf.o config.o usbstring.o
 obj-$(CONFIG_$(PHASE_)USB_ETHER) += epautoconf.o config.o usbstring.o ether.o
 obj-$(CONFIG_$(PHASE_)USB_ETH_RNDIS) += rndis.o
+obj-$(CONFIG_$(PHASE_)USB_FUNCTION_FASTBOOT) += f_fastboot.o
 
 ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SPL_USB_GADGET) += g_dnl.o
@@ -25,7 +26,6 @@ obj-$(CONFIG_USB_GADGET_DOWNLOAD) += g_dnl.o
 obj-$(CONFIG_USB_FUNCTION_THOR) += f_thor.o
 obj-$(CONFIG_DFU_OVER_USB) += f_dfu.o
 obj-$(CONFIG_USB_FUNCTION_MASS_STORAGE) += f_mass_storage.o
-obj-$(CONFIG_USB_FUNCTION_FASTBOOT) += f_fastboot.o
 obj-$(CONFIG_USB_FUNCTION_SDP) += f_sdp.o
 obj-$(CONFIG_USB_FUNCTION_ROCKUSB) += f_rockusb.o
 obj-$(CONFIG_USB_FUNCTION_ACM)	+= f_acm.o
