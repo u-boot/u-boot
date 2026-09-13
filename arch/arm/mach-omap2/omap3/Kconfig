@@ -79,18 +79,6 @@ config TARGET_OMAP3_PANDORA
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_6
 
-config TARGET_OMAP3_LOGIC
-	bool "OMAP3 Logic"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-	select OMAP3_GPIO_3
-	select OMAP3_GPIO_4
-	select OMAP3_GPIO_6
-	imply CMD_DM
-	imply VIDEO_DAMAGE
-
 config TARGET_TAO3530
 	bool "TAO3530"
 	select OMAP3_GPIO_2
@@ -142,7 +130,6 @@ source "board/logicpd/am3517evm/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/ti/omap3evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"
-source "board/logicpd/omap3som/Kconfig"
 source "board/lg/sniper/Kconfig"
 
 endif
