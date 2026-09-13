@@ -51,3 +51,4 @@ obj-y += ti/
 obj-y += qcom/
 obj-y += renesas/
 obj-y += starfive/
+obj-y += spacemit/
