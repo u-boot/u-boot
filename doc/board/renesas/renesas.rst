@@ -81,19 +81,13 @@ Renesas is a SoC solutions provider for automotive and industrial applications.
    +--------+------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
    | RZ     | A1               | :doc:`arm <build-env-aarch32>`   | R7S72100 (RZ/A1H)  | Cortex A9          | GR-PEACH                                     | grpeach_defconfig                |
    |        +------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
-   |        |                  |                                  |                    |                    | Beacon EmbeddedWorks RZ/G2M SoM              | rzg2_beacon_defconfig            |
-   |        |                  |                                  | R8A774A1 (RZ/G2M)  | Cortex A53 or A57  +----------------------------------------------+----------------------------------+
-   |        |                  |                                  |                    |                    | HopeRun HiHope RZ/G2M                        | hihope_rzg2_defconfig            |
+   |        |                  |                                  | R8A774A1 (RZ/G2M)  | Cortex A53 or A57  | HopeRun HiHope RZ/G2M                        | hihope_rzg2_defconfig            |
    |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
-   |        |                  |                                  |                    |                    | Beacon EmbeddedWorks RZ/G2N SoM              | rzg2_beacon_defconfig            |
-   |        | G2               | :doc:`arm64 <build-env-aarch64>` | R8A774B1 (RZ/G2N)  | Cortex A57         +----------------------------------------------+----------------------------------+
-   |        |                  |                                  |                    |                    | HopeRun HiHope RZ/G2N                        | hihope_rzg2_defconfig            |
+   |        | G2               | :doc:`arm64 <build-env-aarch64>` | R8A774B1 (RZ/G2N)  | Cortex A57         | HopeRun HiHope RZ/G2N                        | hihope_rzg2_defconfig            |
    |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
    |        |                  |                                  | R8A774C0 (RZ/G2E)  | Cortex A53         | Silicon Linux RZ/G2E evaluation kit (EK874)  | silinux_ek874_defconfig          |
    |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
-   |        |                  |                                  |                    |                    | Beacon EmbeddedWorks RZ/G2H SoM              | rzg2_beacon_defconfig            |
-   |        |                  |                                  | R8A774E1 (RZ/G2H)  | Cortex A53 or A57  +----------------------------------------------+----------------------------------+
-   |        |                  |                                  |                    |                    | HopeRun HiHope RZ/G2H                        | hihope_rzg2_defconfig            |
+   |        |                  |                                  | R8A774E1 (RZ/G2H)  | Cortex A53 or A57  | HopeRun HiHope RZ/G2H                        | hihope_rzg2_defconfig            |
    +--------+------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
    |        |                  |                                  | R9A06G032 (RZ/N1D) |                    | Schneider RZ/N1D board                       | rzn1_snarc_defconfig             |
    |        | :doc:`N1 <rzn1>` | :doc:`arm <build-env-aarch32>`   +--------------------+ Cortex A7          +----------------------------------------------+----------------------------------+
