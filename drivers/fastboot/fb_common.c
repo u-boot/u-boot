@@ -98,15 +98,18 @@ int __weak fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 		[FASTBOOT_REBOOT_REASON_RECOVERY] = "boot-recovery"
 	};
 
-	int device = config_opt_enabled(CONFIG_FASTBOOT_FLASH_BLOCK,
-					CONFIG_FASTBOOT_FLASH_BLOCK_DEVICE_ID, -1);
+	int device = CONFIG_IS_ENABLED(FASTBOOT_FLASH_BLOCK,
+				       (CONFIG_VAL(FASTBOOT_FLASH_BLOCK_DEVICE_ID)),
+				       (-1));
+	const char *bcb_iface = CONFIG_IS_ENABLED(FASTBOOT_FLASH_BLOCK,
+						  (CONFIG_VAL(FASTBOOT_FLASH_BLOCK_INTERFACE_NAME)),
+						  ("mmc"));
+
 	if (device == -1) {
-		device = config_opt_enabled(CONFIG_FASTBOOT_FLASH_MMC,
-					    CONFIG_FASTBOOT_FLASH_MMC_DEV, -1);
+		device = CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC,
+					   (CONFIG_VAL(FASTBOOT_FLASH_MMC_DEV)),
+					   (-1));
 	}
-	const char *bcb_iface = config_opt_enabled(CONFIG_FASTBOOT_FLASH_BLOCK,
-						   CONFIG_FASTBOOT_FLASH_BLOCK_INTERFACE_NAME,
-						   "mmc");
 
 	if (device == -1)
 		return -EINVAL;
@@ -234,8 +237,8 @@ void fastboot_set_progress_callback(void (*progress)(const char *msg))
  */
 void fastboot_init(void *buf_addr, u32 buf_size)
 {
-#if IS_ENABLED(CONFIG_FASTBOOT_FLASH_BLOCK)
-	if (!strcmp(CONFIG_FASTBOOT_FLASH_BLOCK_INTERFACE_NAME, "mmc"))
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_BLOCK)
+	if (!strcmp(CONFIG_VAL(FASTBOOT_FLASH_BLOCK_INTERFACE_NAME), "mmc"))
 		printf("Warning: the fastboot block backend features are limited, consider using the MMC backend\n");
 #endif
 

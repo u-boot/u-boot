@@ -94,7 +94,7 @@ static int _fb_nand_write(struct mtd_info *mtd, struct part_info *part,
 {
 	int flags = WITH_WR_VERIFY;
 
-#ifdef CONFIG_FASTBOOT_FLASH_NAND_TRIMFFS
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND_TRIMFFS)
 	flags |= WITH_DROP_FFS;
 #endif
 
