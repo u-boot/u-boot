@@ -5,5 +5,4 @@
 #
 # Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
 
-obj-$(CONFIG_MACH_DAVINCI_DA850_EVM)	+= da850evm.o
 obj-$(CONFIG_TARGET_OMAPL138_LCDK)	+= omapl138_lcdk.o
