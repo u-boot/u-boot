@@ -205,6 +205,10 @@ config VPL_STRTO
 config IMAGE_SPARSE
 	bool
 
+config SPL_IMAGE_SPARSE
+	bool
+	depends on SPL_SYS_MALLOC && !SPL_SYS_MALLOC_SIMPLE
+
 config IMAGE_SPARSE_FILLBUF_SIZE
 	hex "Android sparse image CHUNK_TYPE_FILL buffer size"
 	default 0x80000
@@ -212,6 +216,15 @@ config IMAGE_SPARSE_FILLBUF_SIZE
 	help
 	  Set the size of the fill buffer used when processing CHUNK_TYPE_FILL
 	  chunks.
+
+config SPL_IMAGE_SPARSE_FILLBUF_SIZE
+	hex "Android sparse image fill buffer size in SPL"
+	default 0x10000
+	depends on SPL_IMAGE_SPARSE
+	help
+	  Set the size of the fill buffer used when processing CHUNK_TYPE_FILL
+	  chunks in SPL. A smaller default limits transient heap use in the
+	  size-constrained SPL phase.
 
 config USE_PRIVATE_LIBGCC
 	bool "Use private libgcc"
