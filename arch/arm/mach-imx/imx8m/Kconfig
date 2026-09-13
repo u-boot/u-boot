@@ -354,16 +354,6 @@ config TARGET_VERDIN_IMX8MP
 	select IMX8M_LPDDR4
 	imply OF_UPSTREAM
 
-config TARGET_IMX8MM_BEACON
-	bool "imx8mm Beacon Embedded devkit"
-	select IMX8MM
-	select SUPPORT_SPL
-	select IMX8M_LPDDR4
-	select FSL_CAAM
-	select ARCH_MISC_INIT
-	select SPL_CRYPTO if SPL
-	imply OF_UPSTREAM
-
 config TARGET_IMX8MN_BEACON
 	bool "imx8mn Beacon Embedded devkit"
 	select IMX8MN
@@ -446,7 +436,6 @@ config TARGET_LIBREM5_DEVKIT
 endchoice
 
 source "board/advantech/imx8mp_rsb3720a1/Kconfig"
-source "board/beacon/imx8mm/Kconfig"
 source "board/beacon/imx8mn/Kconfig"
 source "board/beacon/imx8mp/Kconfig"
 source "board/bsh/imx8mn_smm_s2/Kconfig"
