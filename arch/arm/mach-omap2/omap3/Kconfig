@@ -25,15 +25,6 @@ choice
 	prompt "OMAP3 board select"
 	optional
 
-config TARGET_AM3517_EVM
-	bool "AM3517 EVM"
-	select DM
-	select DM_GPIO
-	select DM_I2C
-	select DM_SERIAL
-	select MMC
-	imply CMD_DM
-
 config TARGET_DEVKIT8000
 	bool "TimLL OMAP3 Devkit8000"
 	select DM
@@ -126,7 +117,6 @@ config SPL_OMAP3_ID_NAND
 config SYS_SOC
 	default "omap3"
 
-source "board/logicpd/am3517evm/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/ti/omap3evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"
