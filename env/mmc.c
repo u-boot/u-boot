@@ -230,7 +230,7 @@ static bool mmc_env_is_redundant_in_both_boot_hwparts(struct mmc *mmc)
 	return mmc_offset(mmc, 0) == mmc_offset(mmc, 1);
 }
 
-__weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
+__weak int mmc_get_env_addr(struct mmc *mmc, int copy, u64 *env_addr)
 {
 	s64 offset = mmc_offset(mmc, copy);
 
@@ -331,7 +331,7 @@ static int env_mmc_save(void)
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	int dev = mmc_get_env_dev();
 	struct mmc *mmc = find_mmc_device(dev);
-	u32	offset;
+	u64	offset;
 	int	ret, copy = 0;
 	const char *errmsg;
 
@@ -402,7 +402,7 @@ static int env_mmc_erase(void)
 	int dev = mmc_get_env_dev();
 	struct mmc *mmc = find_mmc_device(dev);
 	int	ret, copy = 0;
-	u32	offset;
+	u64	offset;
 	const char *errmsg;
 
 	errmsg = init_mmc_for_env(mmc);
@@ -459,7 +459,7 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 static int env_mmc_load_redundant(void)
 {
 	struct mmc *mmc;
-	u32 offset1, offset2;
+	u64 offset1, offset2;
 	int read1_fail = 0, read2_fail = 0;
 	int ret;
 	int dev = mmc_get_env_dev();
@@ -517,7 +517,7 @@ static int env_mmc_load_singular(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct mmc *mmc;
-	u32 offset;
+	u64 offset;
 	int ret;
 	int dev = mmc_get_env_dev();
 	const char *errmsg;
