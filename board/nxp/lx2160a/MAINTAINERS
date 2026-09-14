@@ -53,3 +53,14 @@ LX2162AQDS_VERIFIED_BOOT BOARD
 M:	Manish Tomar <Manish.Tomar@nxp.com>
 S:	Maintained
 F:	configs/lx2162aqds_tfa_verified_boot_defconfig
+
+NBXV3 BOARD
+M:	Vincent Jardin <vjardin@free.fr>
+S:	Maintained
+F:	board/nxp/lx2160a/nbxv3/
+F:	include/configs/nbxv3.h
+F:	configs/nbxv3_tfa_defconfig
+F:	arch/arm/dts/fsl-lx2160a-nbxv3.dts
+F:	arch/arm/dts/fsl-lx2160a-nbxv3.dtsi
+F:	arch/arm/dts/fsl-lx2160a-nbxv3-u-boot.dtsi
+F:	doc/board/nxp/nbxv3.rst
