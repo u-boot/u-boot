@@ -622,9 +622,16 @@ config BOOTMETH_CROS
 
 	  Note that only x86 devices are supported at present.
 
+config BOOTMETH_PXE_COMMON
+	bool
+	help
+	  Helpers shared by the bootmeths that hand their config files to the
+	  pxelinux parser. Selected by those bootmeths, not user-visible.
+
 config BOOTMETH_EXTLINUX
 	bool "Bootdev support for extlinux boot"
 	select PXE_UTILS
+	select BOOTMETH_PXE_COMMON
 	default y
 	help
 	  Enables support for extlinux boot using bootdevs. This makes the
@@ -640,6 +647,7 @@ config BOOTMETH_EXTLINUX
 config BOOTMETH_EXTLINUX_PXE
 	bool "Bootdev support for extlinux boot over network"
 	depends on CMD_PXE && CMD_NET && DM_ETH
+	select BOOTMETH_PXE_COMMON
 	default y
 	help
 	  Enables support for extlinux boot using bootdevs. This makes the
@@ -650,6 +658,22 @@ config BOOTMETH_EXTLINUX_PXE
 	    https://uapi-group.org/specifications/specs/boot_loader_specification/
 
 	  This provides a way to try out standard boot on an existing boot flow.
+
+config BOOTMETH_BLS
+	bool "Bootdev support for Boot Loader Specification entries"
+	select PXE_UTILS
+	help
+	  Enables support for booting via Boot Loader Specification type #1
+	  entry files. The bootmeth scans each filesystem it finds for files
+	  matching 'loader/entries/*.conf' (or '/boot/loader/entries/*.conf')
+	  and boots the highest-sorting entry.
+
+	  The specification is here:
+
+	    https://uapi-group.org/specifications/specs/boot_loader_specification/
+
+	  Type #2 BLS (drop-in directory of EFI binaries) is not handled here;
+	  use BOOTMETH_EFI_BOOTMGR for that.
 
 config BOOTMETH_EFILOADER
 	bool "Bootdev support for EFI boot"
