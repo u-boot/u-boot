@@ -625,18 +625,20 @@ u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device);
 
 /**
  * spl_mmc_boot_partition() - MMC partition to load U-Boot from.
+ * @mmc:		Initialized MMC device
  * @boot_device:	ID of the device which the MMC driver wants to load
  *			U-Boot from.
  *
- * This function should return the partition number which the SPL
- * should load U-Boot from (on the given boot_device) when
- * CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION is set.
+ * Called before loading U-Boot in raw partition mode, after any Falcon
+ * attempt. The hook may select the hardware area containing the image;
+ * it must leave that area selected. It may run for each MMC load attempt.
  *
  * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
+ *
+ * Return: Partition number to load U-Boot from.
  */
-int spl_mmc_boot_partition(const u32 boot_device);
+int spl_mmc_boot_partition(struct mmc *mmc, const u32 boot_device);
 
-struct mmc;
 /**
  * default_spl_mmc_emmc_boot_partition() - eMMC boot partition to load U-Boot from.
  * mmc:			Pointer for the mmc device structure
@@ -1002,7 +1004,8 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
  * @param spl_image	Image data filled in by loading process
  * @param bootdev	Describes which device to load from
  * @param filename	Name of file to load (in FS mode)
- * @param raw_part	Partition to load from (in RAW mode)
+ * @param raw_part	Partition to load from (in RAW mode), or -1 to call
+ *			spl_mmc_boot_partition() in partition-number mode
  * @param raw_sect	Sector to load from (in RAW mode)
  *
  * Return: 0 on success, otherwise error code

@@ -57,7 +57,7 @@ u32 spl_boot_device(void)
 }
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
-int spl_mmc_boot_partition(const u32 boot_device)
+int spl_mmc_boot_partition(struct mmc *mmc, const u32 boot_device)
 {
 	switch (boot_device) {
 	case BOOT_DEVICE_MMC1:
