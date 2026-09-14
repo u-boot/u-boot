@@ -15,6 +15,7 @@
 
 #define TIMEOUT_120000MS			120000
 #define TIMEOUT_60000MS				60000
+#define TIMEOUT_6000MS				6000
 #define TIMEOUT					TIMEOUT_120000MS
 #define IOSSM_STATUS_CAL_SUCCESS		BIT(0)
 #define IOSSM_STATUS_CAL_FAIL			BIT(1)
@@ -40,6 +41,8 @@
 #define IOSSM_STATUS_GENERAL_ERROR(n)		FIELD_GET(IOSSM_STATUS_GENERAL_ERROR_MASK, n)
 #define IOSSM_MAILBOX_SPEC_VERSION_MASK		GENMASK(2, 0)
 #define IOSSM_MAILBOX_SPEC_VERSION(n)		FIELD_GET(IOSSM_MAILBOX_SPEC_VERSION_MASK, n)
+/* MAILBOX_HEADER[31]: mailbox initialized and ready for mailbox commands */
+#define IOSSM_MAILBOX_HEADER_MB_READY_MASK	BIT(31)
 
 /* Offset of Mailbox Read-only Registers  */
 #define IOSSM_MAILBOX_HEADER_OFFSET			0x0
@@ -385,6 +388,45 @@ err:
 	return ret;
 }
 
+/**
+ * wait_for_io96b_mb_ready() - wait for the IOSSM mailbox to be ready
+ * @io96b_ctrl: IO96B control context describing the assigned instances
+ *
+ * Poll the MAILBOX_HEADER MB_READY bit for every assigned IO96B instance until
+ * the IOSSM firmware reports its mailbox is initialized and ready to accept
+ * commands. When CONFIG_IO96B_MB_READY is enabled, this must pass before any
+ * mailbox traffic in io96b_mb_init().
+ *
+ * Return: 0 if all instances become ready within the timeout, otherwise the
+ * negative error code from wait_for_bit_le32() for the first instance that
+ * times out.
+ */
+static int __maybe_unused wait_for_io96b_mb_ready(struct io96b_info *io96b_ctrl)
+{
+	unsigned long start;
+	phys_addr_t base;
+	int i, ret;
+
+	for (i = 0; i < io96b_ctrl->num_instance; i++) {
+		base = io96b_ctrl->io96b[i].io96b_csr_addr;
+		start = get_timer(0);
+		ret = wait_for_bit_le32((const void *)(base +
+					IOSSM_MAILBOX_HEADER_OFFSET),
+					IOSSM_MAILBOX_HEADER_MB_READY_MASK,
+					true, TIMEOUT_6000MS, false);
+		if (ret) {
+			printf("%s: mailbox ready timeout on IO96B_%d\n",
+			       __func__, i);
+			return ret;
+		}
+
+		debug("%s: IOSSM mailbox ready on IO96B_%d after %lu msec\n",
+		      __func__, i, get_timer(start));
+	}
+
+	return 0;
+}
+
 static bool is_mailbox_spec_compatible(struct io96b_info *io96b_ctrl)
 {
 	u32 mailbox_header;
@@ -410,6 +452,13 @@ void io96b_mb_init(struct io96b_info *io96b_ctrl)
 {
 	int i, j;
 	u32 mem_intf_info_0, mem_intf_info_1;
+
+	if (IS_ENABLED(CONFIG_IO96B_MB_READY)) {
+		if (wait_for_io96b_mb_ready(io96b_ctrl)) {
+			printf("DDR: IOSSM mailbox not ready\n");
+			hang();
+		}
+	}
 
 	if (!is_mailbox_spec_compatible(io96b_ctrl)) {
 		printf("DDR: Failed to get compatible mailbox version\n");
