@@ -499,16 +499,33 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
 		ulong start;
 
-		/* Indirect access to VR_MII_MMD registers */
-		writew((VR_MII_MMD >> 9), PCS_BA + PCS_IND_AC);
-		/* Set PCS_Mode to SGMII */
-		clrsetbits_le16(PCS_BA + VR_MII_MMD_AN_CTRL, BIT(1), BIT(2));
-		/* Set Auto Speed Mode Change */
-		setbits_le16(PCS_BA + VR_MII_MMD_CTRL1, BIT(9));
 		/* Indirect access to SR_MII_MMD registers */
 		writew((SR_MII_MMD >> 9), PCS_BA + PCS_IND_AC);
-		/* Restart Auto-Negotiation */
-		setbits_le16(PCS_BA + SR_MII_MMD_CTRL, BIT(9) | BIT(12));
+		/* Disable SGMII PCS Auto-Negotiation */
+		clrbits_le16(PCS_BA + SR_MII_MMD_CTRL, BIT(12));
+
+		switch (phydev->speed) {
+		    case SPEED_1000:
+			/* SR_MII_CTRL.SS6=1 */
+			setbits_le16(PCS_BA, BIT(6));
+			/* SR_MII_CTRL.SS13=0 */
+			clrbits_le16(PCS_BA, BIT(13));
+			break;
+		    case SPEED_100:
+			/* SR_MII_CTRL.SS6=0 */
+			clrbits_le16(PCS_BA, BIT(6));
+			/* SR_MII_CTRL.SS13=1 */
+			setbits_le16(PCS_BA, BIT(13));
+			break;
+		    case SPEED_10:
+			/* SR_MII_CTRL.SS6=0 */
+			clrbits_le16(PCS_BA, BIT(6));
+			/* SR_MII_CTRL.SS13=0 */
+			clrbits_le16(PCS_BA, BIT(13));
+			break;
+		    default:
+			break;
+		}
 
 		printf("SGMII PHY Wait for link up \n");
 		/* SGMII PHY Wait for link up */
