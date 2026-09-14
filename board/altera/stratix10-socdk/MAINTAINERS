@@ -1,6 +1,6 @@
 SOCFPGA BOARD
 M:	Chin-Liang See <chin.liang.see@intel.com>
-M:	Dinh Nguyen <dinh.nguyen@intel.com>
+M:	Dinh Nguyen <dinguyen@kernel.org>
 S:	Maintained
 F:	board/altera/stratix10-socdk/
 F:	include/configs/socfpga_stratix10_socdk.h
