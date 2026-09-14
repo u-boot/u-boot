@@ -216,7 +216,7 @@ static void npcm_i2c_reset(struct npcm_i2c_bus *bus)
 {
 	struct npcm_i2c_regs *reg = bus->reg;
 
-	debug("%s: module %d\n", __func__, bus->num);
+	printf("%s: module %d\n", __func__, bus->num);
 	/* disable & enable SMB moudle */
 	clrbits_8(&reg->ctl2, SMBCTL2_ENABLE);
 	setbits_8(&reg->ctl2, SMBCTL2_ENABLE);
@@ -251,7 +251,7 @@ static void npcm_i2c_recovery(struct npcm_i2c_bus *bus, u32 addr)
 	val = readb(&reg->ctl3);
 	/* Skip recovery, bus not stucked */
 	if ((val & SMBCTL3_SCL_LVL) && (val & SMBCTL3_SDA_LVL))
-		return;
+		goto reset;
 
 	printf("Performing I2C bus %d recovery...\n", bus->num);
 	/* SCL/SDA are not releaed, perform recovery */
@@ -282,6 +282,7 @@ static void npcm_i2c_recovery(struct npcm_i2c_bus *bus, u32 addr)
 	} else {
 		printf("Fail to recover I2C bus %d\n", bus->num);
 	}
+reset:
 	npcm_i2c_reset(bus);
 }
 
@@ -514,7 +515,7 @@ static int npcm_i2c_xfer(struct udevice *dev,
 	if (bus->started)
 		npcm_i2c_send_stop(bus, true);
 
-	if (err)
+	if (err && err != I2C_ERR_NACK)
 		npcm_i2c_recovery(bus, msg->addr);
 
 	return ret;
@@ -559,6 +560,13 @@ static int npcm_i2c_set_bus_speed(struct udevice *dev,
 	struct npcm_i2c_bus *bus = dev_get_priv(dev);
 
 	return npcm_i2c_init_clk(bus, speed);
+}
+
+static int npcm_i2c_deblock(struct udevice *dev)
+{
+	npcm_i2c_recovery(dev_get_priv(dev), 0);
+
+	return 0;
 }
 
 static int npcm_i2c_probe(struct udevice *dev)
@@ -627,6 +635,7 @@ static int npcm_i2c_probe(struct udevice *dev)
 static const struct dm_i2c_ops nuvoton_i2c_ops = {
 	.xfer		    = npcm_i2c_xfer,
 	.set_bus_speed	= npcm_i2c_set_bus_speed,
+	.deblock	= npcm_i2c_deblock,
 };
 
 static const struct udevice_id nuvoton_i2c_of_match[] = {
