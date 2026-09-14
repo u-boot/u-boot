@@ -404,7 +404,7 @@ static efi_status_t EFIAPI efi_http_service_binding_create_child(
 
 	new_instance->handle = calloc(1, sizeof(struct efi_object));
 	if (!new_instance->handle) {
-		efi_free_pool((void *)new_instance);
+		free(new_instance);
 		ret = EFI_OUT_OF_RESOURCES;
 		goto failure_to_add_protocol;
 	}
