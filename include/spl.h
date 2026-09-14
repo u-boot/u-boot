@@ -346,14 +346,14 @@ typedef ulong (*spl_load_reader)(struct spl_load_info *load, ulong sector,
  *
  * @read: Function to call to read from the device
  * @priv: Private data for the device
- * @bl_len: Block length for reading in bytes
+ * @bl_len: Block length in bytes (CONFIG_SPL_LOAD_BLOCK, CONFIG_IMAGEMAP)
  * @phase: Image phase to load
  * @no_fdt_update: true to update the FDT with any loadables that are loaded
  */
 struct spl_load_info {
 	spl_load_reader read;
 	void *priv;
-#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK) || CONFIG_IS_ENABLED(IMAGEMAP)
 	u16 bl_len;
 #endif
 #if CONFIG_IS_ENABLED(BOOTMETH_VBE)
@@ -364,7 +364,7 @@ struct spl_load_info {
 
 static inline int spl_get_bl_len(struct spl_load_info *info)
 {
-#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK) || CONFIG_IS_ENABLED(IMAGEMAP)
 	return info->bl_len;
 #else
 	return 1;
@@ -373,7 +373,7 @@ static inline int spl_get_bl_len(struct spl_load_info *info)
 
 static inline void spl_set_bl_len(struct spl_load_info *info, int bl_len)
 {
-#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK) || CONFIG_IS_ENABLED(IMAGEMAP)
 	info->bl_len = bl_len;
 #else
 	if (bl_len != 1)
@@ -427,6 +427,36 @@ static inline void spl_load_init(struct spl_load_info *load,
 	spl_set_bl_len(load, bl_len);
 	xpl_set_phase(load, IH_PHASE_NONE);
 	xpl_set_fdt_update(load, true);
+}
+
+/**
+ * spl_load_region() - Read a block-aligned region into a buffer
+ *
+ * Reads @size bytes starting at @offset from the device described by @info
+ * into @dst, rounding the read down/up to the device block length so that
+ * block media are read on their native boundaries. On byte-addressed media
+ * (bl_len == 1) every alignment folds to identity.
+ *
+ * @info:	information about the device to read from
+ * @offset:	byte offset on the device of the first wanted byte
+ * @size:	number of wanted bytes
+ * @dst:	buffer to read the block-aligned region into
+ * Return:	on success, the number of leading padding bytes in @dst that
+ *		precede the wanted data (0 on byte media); a negative error
+ *		number on failure.
+ */
+static inline long spl_load_region(struct spl_load_info *info, loff_t offset,
+				   ulong size, void *dst)
+{
+	ulong bl_len = spl_get_bl_len(info);
+	ulong overhead = offset & (bl_len - 1);
+	loff_t roff = ALIGN_DOWN(offset, bl_len);
+	ulong rsize = ALIGN(size + overhead, bl_len);
+
+	if (info->read(info, roff, rsize, dst) < rsize)
+		return -EIO;
+
+	return overhead;
 }
 
 /*

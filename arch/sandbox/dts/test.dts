@@ -1633,6 +1633,22 @@
 			compatible = "spansion,m25p16", "jedec,spi-nor";
 			spi-max-frequency = <40000000>;
 			sandbox,filename = "spi.bin";
+
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				partition@0 {
+					label = "nor-fit";
+					reg = <0x0 0x100000>;
+				};
+
+				partition@100000 {
+					label = "nor-spare";
+					reg = <0x100000 0x100000>;
+				};
+			};
 		};
 		spi.bin@1 {
 			reg = <1>;
@@ -2240,6 +2256,19 @@
 			sandbox,pagesize = <4096>;
 			sandbox,pages = <0x200000>;
 			sandbox,err-count = <3>;
+			sandbox,err-step-size = <512>;
+		};
+
+		/* Clean chip (no injected errors) for UBI/ubiblock tests */
+		nand@2 {
+			reg = <2>;
+			nand-ecc-mode = "soft";
+			sandbox,id = [00 e3];
+			sandbox,erasesize = <(8 * 1024)>;
+			sandbox,oobsize = <16>;
+			sandbox,pagesize = <512>;
+			sandbox,pages = <0x2000>;
+			sandbox,err-count = <0>;
 			sandbox,err-step-size = <512>;
 		};
 	};

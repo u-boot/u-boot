@@ -494,6 +494,30 @@ int add_mtd_device(struct mtd_info *mtd)
 #endif
 
 	mutex_unlock(&mtd_table_mutex);
+
+	if (IS_ENABLED(CONFIG_MTD_BLOCK) && mtd->dev &&
+	    !mtd_is_partition(mtd) && !mtd_type_is_nand(mtd)) {
+		/*
+		 * Expose a non-NAND MTD master (parallel NOR, SPI-NOR, ...) as
+		 * a mtd_blk block device, so its partitions are reachable
+		 * through the block layer (and thus by imagemap, bootstd, ...).
+		 * NAND is excluded: it needs UBI, which brings its own block
+		 * device. Partitions inherit the master's block device via the
+		 * "mtd" partition type, so only masters are bound.
+		 *
+		 * mtd_bind() keeps a pointer to the passed mtd_info pointer, so
+		 * it needs storage that lives as long as the block device; the
+		 * MTD master is never removed in practice, so a small heap slot
+		 * is fine.
+		 */
+		struct mtd_info **mtdp = kmalloc(sizeof(*mtdp), GFP_KERNEL);
+
+		if (mtdp) {
+			*mtdp = mtd;
+			mtd_bind(mtd->dev, mtdp);
+		}
+	}
+
 	/* We _know_ we aren't being removed, because
 	   our caller is still holding us here. So none
 	   of this try_ nonsense, and no bitching about it

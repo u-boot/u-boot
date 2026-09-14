@@ -1205,6 +1205,22 @@ config SYS_BOOT_RAMDISK_HIGH
 
 endmenu		# Boot images
 
+config IMAGEMAP
+	bool "On-demand image loading from storage"
+	depends on DM && LMB && BLK && PARTITIONS
+	help
+	  Read image data from a storage device on demand instead of
+	  copying the whole image into RAM first. A translation table maps
+	  already-loaded byte ranges to their RAM addresses to avoid
+	  redundant reads, and scratch allocations are managed through the
+	  LMB allocator.
+
+	  Images are read from a partition on a block device, identified by
+	  number or name. MTD partitions (via mtdblock) and UBI volumes
+	  (via ubiblock) are reached as block-device partitions too. Used
+	  by bootm when a storage device is specified instead of a RAM
+	  address.
+
 config DISTRO_DEFAULTS
 	bool "(deprecated) Script-based booting of Linux distributions"
 	select CMDLINE
