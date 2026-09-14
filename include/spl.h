@@ -629,13 +629,17 @@ u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device);
  * @boot_device:	ID of the device which the MMC driver wants to load
  *			U-Boot from.
  *
- * Called before loading U-Boot in raw partition mode, after any Falcon
- * attempt. The hook may select the hardware area containing the image;
- * it must leave that area selected. It may run for each MMC load attempt.
+ * Called in fixed-number or dynamic mode after any Falcon attempt. The
+ * incoming hardware area is not necessarily the user area. The hook must
+ * leave the image area selected for loading and any configured filesystem
+ * fallback; the loader does not restore it. It may run for each MMC attempt.
  *
- * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
+ * The default returns the configured partition, or -ENOSYS with
+ * CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC. In dynamic mode,
+ * zero or a negative error aborts this MMC attempt without filesystem
+ * fallback; SPL may still try other boot devices.
  *
- * Return: Partition number to load U-Boot from.
+ * Return: Partition number (positive in dynamic mode), or a negative error.
  */
 int spl_mmc_boot_partition(struct mmc *mmc, const u32 boot_device);
 
@@ -1005,7 +1009,7 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
  * @param bootdev	Describes which device to load from
  * @param filename	Name of file to load (in FS mode)
  * @param raw_part	Partition to load from (in RAW mode), or -1 to call
- *			spl_mmc_boot_partition() in partition-number mode
+ *			spl_mmc_boot_partition() in fixed-number or dynamic mode
  * @param raw_sect	Sector to load from (in RAW mode)
  *
  * Return: 0 on success, otherwise error code

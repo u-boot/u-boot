@@ -35,7 +35,9 @@ config K3_SYSFW_IMAGE_MMCSD_RAW_MODE_SECT
 
 config K3_SYSFW_IMAGE_MMCSD_RAW_MODE_PART
 	hex "MMC partition to load SYSFW firmware and configuration blob from"
-	depends on K3_LOAD_SYSFW && SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
+	depends on K3_LOAD_SYSFW
+	depends on SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION || \
+		   SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC
 	default 2
 	help
 	  Partition on the MMC to the combined System Firmware and configuration
