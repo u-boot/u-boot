@@ -55,6 +55,15 @@ config FPGA_INTEL_SDM_MAILBOX
 	  Enable FPGA driver for writing full bitstream into Intel FPGA
 	  devices through SDM (Secure Device Manager) Mailbox.
 
+config FPGA_ALTERA_PR
+	bool "Enable Altera FPGA Partial Reconfiguration driver"
+	depends on FPGA_ALTERA
+	help
+	  Say Y here to enable the Altera FPGA Partial Reconfiguration driver
+
+	  This provides basic functionality for partial reconfiguration which
+	  include the freeze controller support.
+
 config FPGA_XILINX
 	bool "Enable Xilinx FPGA drivers"
 	select FPGA
