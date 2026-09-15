@@ -3,7 +3,7 @@
  * WORK Microwave work_92105 board configuration file
  *
  * (C) Copyright 2014  DENX Software Engineering GmbH
- * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
+ * Written-by: Albert ARIBAUD
  */
 
 #ifndef __CONFIG_WORK_92105_H__

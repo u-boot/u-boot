@@ -1,6 +1,5 @@
 PCM052 BOARD
-M:	Albert ARIBAUD (3ADEV) <albert.aribaud@3adev.fr>
-S:	Maintained
+S:	Orphan
 F:	board/phytec/pcm052/
 F:	include/configs/bk4r1.h
 F:	include/configs/pcm052.h

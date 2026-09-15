@@ -3,7 +3,7 @@
  * cmd_dfu.c -- dfu command
  *
  * Copyright (C) 2015
- * Lukasz Majewski <l.majewski@majess.pl>
+ * Lukasz Majewski
  *
  * Copyright (C) 2012 Samsung Electronics
  * authors: Andrzej Pietrasiewicz <andrzej.p@samsung.com>

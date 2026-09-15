@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Eukréa Electromatique
- * Author: Eric Bénard <eric@eukrea.com>
+ * Author: Eric Bénard
  *
  * Configuration settings for the Embest RIoTboard
  *

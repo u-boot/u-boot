@@ -3,7 +3,7 @@
  * Image manipulator for LPC32XX SoCs
  *
  * (C) Copyright 2015  DENX Software Engineering GmbH
- * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
+ * Written-by: Albert ARIBAUD
  *
  * Derived from omapimage.c:
  *

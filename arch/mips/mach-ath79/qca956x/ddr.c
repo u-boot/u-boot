@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2019 Rosy Song <rosysong@rosinson.com>
+ * Copyright (C) 2019 Rosy Song
  *
  * Based on QSDK
  */

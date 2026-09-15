@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2014  DENX Software Engineering GmbH
-# Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
+# Written-by: Albert ARIBAUD
 
 ifdef CONFIG_XPL_BUILD
 obj-y	+= work_92105_spl.o

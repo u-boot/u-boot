@@ -1,6 +1,5 @@
 WORK_92105 BOARD
-M:	Albert ARIBAUD <albert.aribaud@3adev.fr>
-S:	Maintained
+S:	Orphan
 F:	board/work-microwave/work_92105/
 F:	include/configs/work_92105.h
 F:	configs/work_92105_defconfig

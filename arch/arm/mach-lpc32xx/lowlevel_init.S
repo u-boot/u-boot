@@ -3,7 +3,7 @@
  * WORK Microwave work_92105 board low level init
  *
  * (C) Copyright 2014  DENX Software Engineering GmbH
- * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
+ * Written-by: Albert ARIBAUD
  *
  * Low level init is called from SPL to set up the clocks.
  * On entry, the LPC3250 is in Direct Run mode with all clocks

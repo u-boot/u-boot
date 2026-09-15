@@ -3,7 +3,7 @@
  * LPC32xx I2C interface driver
  *
  * (C) Copyright 2014-2015  DENX Software Engineering GmbH
- * Written-by: Albert ARIBAUD - 3ADEV <albert.aribaud@3adev.fr>
+ * Written-by: Albert ARIBAUD - 3ADEV
  */
 
 #include <config.h>

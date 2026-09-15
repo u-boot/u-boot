@@ -3,7 +3,7 @@
  * LPC32xx dram init
  *
  * (C) Copyright 2014  DENX Software Engineering GmbH
- * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
+ * Written-by: Albert ARIBAUD
  *
  * This is called by SPL to gain access to the SDR DRAM.
  *

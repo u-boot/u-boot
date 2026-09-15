@@ -3,7 +3,7 @@
  * work_92105 display support interface
  *
  * (C) Copyright 2014  DENX Software Engineering GmbH
- * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
+ * Written-by: Albert ARIBAUD
  *
  * The work_92105 display is a HD44780-compatible module
  * controlled through a MAX6957AAX SPI port expander, two

@@ -5,7 +5,7 @@
  * Derived from vybridimage.c
  *
  * (C) Copyright 2016  DENX Software Engineering GmbH
- * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
+ * Written-by: Albert ARIBAUD
  */
 
 #include "imagetool.h"
