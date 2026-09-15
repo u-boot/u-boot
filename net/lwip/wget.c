@@ -206,7 +206,7 @@ static err_t httpc_recv_cb(void *arg, struct altcp_pcb *pcb, struct pbuf *pbuf,
 	for (buf = pbuf; buf; buf = buf->next) {
 		if (store_block(ctx, buf->payload, buf->len) < 0) {
 			altcp_abort(pcb);
-			ret = ERR_BUF;
+			ret = ERR_ABRT;
 			goto out;
 		}
 	}

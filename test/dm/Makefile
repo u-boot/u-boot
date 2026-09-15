@@ -78,6 +78,7 @@ obj-$(CONFIG_MUX_MMIO) += mux-mmio.o
 obj-y += fdtdec.o
 obj-$(CONFIG_MTD_RAW_NAND) += nand.o
 obj-$(CONFIG_IP_DEFRAG) += net_defrag.o
+obj-$(CONFIG_CMD_NFS) += nfs.o
 obj-$(CONFIG_UT_DM) += nop.o
 obj-y += ofnode.o
 obj-y += ofread.o

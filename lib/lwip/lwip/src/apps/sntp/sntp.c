@@ -711,6 +711,9 @@ void
 sntp_stop(void)
 {
   LWIP_ASSERT_CORE_LOCKED();
+#if SNTP_SERVER_DNS
+  dns_cancel(sntp_dns_found, NULL);
+#endif
   if (sntp_pcb != NULL) {
 #if SNTP_MONITOR_SERVER_REACHABILITY
     u8_t i;

@@ -37,6 +37,9 @@
 #define DUID_LL_SIZE		(sizeof(struct dhcp6_option_duid_ll) + ETH_ALEN)
 #define DUID_MAX_SIZE		DUID_LL_SIZE /* only supports DUID-LL currently */
 
+/* RFC 8415 sec 11.1: a DUID is a 2-octet type plus at most 128 octets */
+#define DHCP6_DUID_MAX_LEN	130
+
 /* vendor-class-data to send in vendor clas option */
 #define DHCP6_VCI_STRING	"U-Boot"
 
