@@ -20,15 +20,15 @@ int print_cpuinfo(void)
 	}
 
 	ret = soc_get_family(soc, name, SOC_MAX_STR_SIZE);
-	if (ret)
+	if (!ret)
 		printf("CPU:   %s\n", name);
 
 	ret = soc_get_revision(soc, name, SOC_MAX_STR_SIZE);
-	if (ret)
+	if (!ret)
 		printf("Silicon: %s\n", name);
 
 	ret = soc_get_machine(soc, name, SOC_MAX_STR_SIZE);
-	if (ret)
+	if (!ret)
 		printf("Chip:  %s\n", name);
 
 	return 0;
