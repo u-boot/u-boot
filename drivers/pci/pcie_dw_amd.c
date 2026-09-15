@@ -19,14 +19,23 @@
 
 #include "pcie_dw_common.h"
 
-/*
- * SLCR (System Level Control Register) Interrupt Register Offsets
- * These are relative to the SLCR base address from device tree
- */
+/* MDB5 SLCR (System Level Control Register) interrupt register offsets */
 #define AMD_DW_TLP_IR_STATUS_MISC	0x4c0
 #define AMD_DW_TLP_IR_DISABLE_MISC	0x4cc
 
-/* Interrupt bit definitions */
+/* CPM6 per-host MISC_EVENT registers, in the separate "intr" region */
+#define AMD_CPM6_MISC_EVENT_STATUS	0x514
+#define AMD_CPM6_MISC_EVENT_DISABLE	0x520
+
+/* CPM6 shared aggregators in the "slcr" region, common to both hosts */
+#define AMD_CPM6_PS_MISC_IR_STATUS	0x340
+#define AMD_CPM6_PS_IR_MERGED		BIT(21)
+#define AMD_CPM6_MERGED_STATUS		0x648
+#define AMD_CPM6_MERGED_DISABLE		0x654
+#define AMD_CPM6_MERGED_MISC_EVENT_HOST0	14
+#define AMD_CPM6_MERGED_MISC_EVENT_HOST1	17
+
+/* MDB5 TLP_IR interrupt bit definitions */
 #define AMD_DW_PCIE_INTR_CMPL_TIMEOUT		15
 #define AMD_DW_PCIE_INTR_PM_PME_RCVD		24
 #define AMD_DW_PCIE_INTR_PME_TO_ACK_RCVD	25
@@ -45,6 +54,8 @@
 	 BIT(AMD_DW_PCIE_INTR_FATAL)		| \
 	 AMD_DW_PCIE_INTR_INTX_MASK)
 
+#define AMD_CPM6_PCIE_INTR_MASK			BIT(22)
+
 /* DW PCIe Debug Registers (in DBI space) */
 #define AMD_DW_PCIE_PORT_DEBUG1			0x72c
 #define AMD_DW_PCIE_PORT_DEBUG1_LINK_UP		BIT(4)
@@ -59,30 +70,87 @@
 #define PCIE_T_PERST_WAIT_MS		1
 
 /**
+ * enum amd_dw_pcie_version - AMD DesignWare PCIe controller variant
+ * @AMD_DW_PCIE_MDB5: amd,versal2-mdb-host
+ * @AMD_DW_PCIE_CPM6_HOST0: amd,versal2-cpm6-host
+ * @AMD_DW_PCIE_CPM6_HOST1: amd,versal2-cpm6-host1
+ */
+enum amd_dw_pcie_version {
+	AMD_DW_PCIE_MDB5,
+	AMD_DW_PCIE_CPM6_HOST0,
+	AMD_DW_PCIE_CPM6_HOST1,
+};
+
+/**
  * struct amd_dw_pcie - AMD DesignWare PCIe controller private data
  * @dw: DesignWare PCIe common structure
- * @slcr_base: System Level Control Register base (for interrupts)
+ * @slcr_base: System Level Control Register base (IR block on MDB5, MERGED aggregator on CPM6)
+ * @intr_base: Per-host interrupt register base (aliases @slcr_base on MDB5)
+ * @version: Matched compatible variant
  */
 struct amd_dw_pcie {
 	struct pcie_dw dw;
 	void __iomem *slcr_base;
+	void __iomem *intr_base;
+	enum amd_dw_pcie_version version;
 };
 
-static void amd_dw_pcie_init_port(struct amd_dw_pcie *pcie)
+static void amd_dw_pcie_init_port_mdb5(struct amd_dw_pcie *pcie)
 {
 	u32 val;
+
+	/* Disable all TLP interrupts */
+	writel(AMD_DW_PCIE_IMR_ALL_MASK,
+	       pcie->intr_base + AMD_DW_TLP_IR_DISABLE_MISC);
+
+	/* Clear any pending TLP interrupts */
+	val = readl(pcie->intr_base + AMD_DW_TLP_IR_STATUS_MISC);
+	val &= AMD_DW_PCIE_IMR_ALL_MASK;
+	writel(val, pcie->intr_base + AMD_DW_TLP_IR_STATUS_MISC);
+}
+
+static void amd_dw_pcie_init_port_cpm6(struct amd_dw_pcie *pcie)
+{
+	u32 host_bit;
+	u32 val;
+
+	writel(AMD_CPM6_PCIE_INTR_MASK,
+	       pcie->intr_base + AMD_CPM6_MISC_EVENT_DISABLE);
+
+	/* Clear every pending MISC_EVENT bit, not just the ones this driver knows */
+	val = readl(pcie->intr_base + AMD_CPM6_MISC_EVENT_STATUS);
+	writel(val, pcie->intr_base + AMD_CPM6_MISC_EVENT_STATUS);
 
 	if (!pcie->slcr_base)
 		return;
 
-	/* Disable all TLP interrupts */
-	writel(AMD_DW_PCIE_IMR_ALL_MASK,
-	       pcie->slcr_base + AMD_DW_TLP_IR_DISABLE_MISC);
+	switch (pcie->version) {
+	case AMD_DW_PCIE_CPM6_HOST1:
+		host_bit = AMD_CPM6_MERGED_MISC_EVENT_HOST1;
+		break;
+	default:
+		host_bit = AMD_CPM6_MERGED_MISC_EVENT_HOST0;
+		break;
+	}
 
-	/* Clear any pending TLP interrupts */
-	val = readl(pcie->slcr_base + AMD_DW_TLP_IR_STATUS_MISC);
-	val &= AMD_DW_PCIE_IMR_ALL_MASK;
-	writel(val, pcie->slcr_base + AMD_DW_TLP_IR_STATUS_MISC);
+	/* Mask this host's bit in the shared MERGED aggregator */
+	writel(BIT(host_bit), pcie->slcr_base + AMD_CPM6_MERGED_DISABLE);
+
+	/* Clear the latched aggregate: this host's MERGED bit and PS_MISC's MERGED bit */
+	writel(BIT(host_bit), pcie->slcr_base + AMD_CPM6_MERGED_STATUS);
+	writel(AMD_CPM6_PS_IR_MERGED,
+	       pcie->slcr_base + AMD_CPM6_PS_MISC_IR_STATUS);
+}
+
+static void amd_dw_pcie_init_port(struct amd_dw_pcie *pcie)
+{
+	if (!pcie->intr_base)
+		return;
+
+	if (pcie->version == AMD_DW_PCIE_MDB5)
+		amd_dw_pcie_init_port_mdb5(pcie);
+	else
+		amd_dw_pcie_init_port_cpm6(pcie);
 }
 
 static void amd_dw_pcie_start_link(struct amd_dw_pcie *pcie)
@@ -179,9 +247,20 @@ static int amd_dw_pcie_of_to_plat(struct udevice *dev)
 		pci->atu_base = pci->dbi_base + DEFAULT_DBI_ATU_OFFSET;
 	}
 
+	pcie->version = (enum amd_dw_pcie_version)dev_get_driver_data(dev);
+
 	pcie->slcr_base = dev_read_addr_name_ptr(dev, "slcr");
 	if (!pcie->slcr_base)
-		dev_dbg(dev, "No 'slcr' region, interrupt features disabled\n");
+		dev_dbg(dev, "No 'slcr' region available\n");
+
+	if (pcie->version == AMD_DW_PCIE_MDB5) {
+		/* MDB5 has no separate 'intr' region; it aliases 'slcr' */
+		pcie->intr_base = pcie->slcr_base;
+	} else {
+		pcie->intr_base = dev_read_addr_name_ptr(dev, "intr");
+		if (!pcie->intr_base)
+			dev_dbg(dev, "No 'intr' region, interrupt features disabled\n");
+	}
 
 	ret = pci_get_regions(dev, &io_region, &mem_region, &pref_region);
 	if (ret < 0) {
@@ -222,9 +301,9 @@ static int amd_dw_pcie_probe(struct udevice *dev)
 		dev_warn(dev, "No MEM region configured!\n");
 	}
 
-	dev_dbg(dev, "dbi: 0x%lx | config: 0x%lx | atu: 0x%lx | slcr: 0x%lx\n",
+	dev_dbg(dev, "dbi: 0x%lx | config: 0x%lx | atu: 0x%lx | slcr: 0x%lx | intr: 0x%lx\n",
 		(long)pci->dbi_base, (long)pci->cfg_base,
-		(long)pci->atu_base, (long)pcie->slcr_base);
+		(long)pci->atu_base, (long)pcie->slcr_base, (long)pcie->intr_base);
 
 	return 0;
 }
@@ -235,8 +314,9 @@ static const struct dm_pci_ops amd_dw_pcie_ops = {
 };
 
 static const struct udevice_id amd_dw_pcie_ids[] = {
-	{ .compatible = "amd,versal2-mdb-host" },
-	{ .compatible = "amd,versal2-cpm6-host" },
+	{ .compatible = "amd,versal2-mdb-host", .data = AMD_DW_PCIE_MDB5 },
+	{ .compatible = "amd,versal2-cpm6-host", .data = AMD_DW_PCIE_CPM6_HOST0 },
+	{ .compatible = "amd,versal2-cpm6-host1", .data = AMD_DW_PCIE_CPM6_HOST1 },
 	{ }
 };
 
