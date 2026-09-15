@@ -24,15 +24,25 @@ struct soc_xilinx_versal_priv {
 static int soc_xilinx_versal_get_family(struct udevice *dev, char *buf, int size)
 {
 	struct soc_xilinx_versal_priv *priv = dev_get_priv(dev);
+	int ret;
 
-	return snprintf(buf, size, "%s", priv->family);
+	ret = snprintf(buf, size, "%s", priv->family);
+	if (ret >= size)
+		return -ENOSPC;
+
+	return 0;
 }
 
 static int soc_xilinx_versal_get_revision(struct udevice *dev, char *buf, int size)
 {
 	struct soc_xilinx_versal_priv *priv = dev_get_priv(dev);
+	int ret;
 
-	return snprintf(buf, size, "v%d", priv->revision);
+	ret = snprintf(buf, size, "v%d", priv->revision);
+	if (ret >= size)
+		return -ENOSPC;
+
+	return 0;
 }
 
 static const struct soc_ops soc_xilinx_versal_ops = {
