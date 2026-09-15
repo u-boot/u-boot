@@ -528,6 +528,13 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 #endif
 
 	case TFTP_OACK:
+		/*
+		 * RFC 2347 makes every option name and value a NUL terminated
+		 * string, so a well-formed OACK always ends in a NUL. Checking
+		 * that once keeps the option parsing below in bounds.
+		 */
+		if (!len || pkt[len - 1] != '\0')
+			return;
 		debug("Got OACK: ");
 		for (i = 0; i < len; i++) {
 			if (pkt[i] == '\0')
