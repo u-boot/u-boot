@@ -574,8 +574,11 @@ char * __maybe_unused __weak board_name_decode(void)
 	struct xilinx_board_description *desc;
 	int i, id;
 
-	board_local_name = calloc(1, MAX_NAME_LENGTH);
 	if (!board_info)
+		return NULL;
+
+	board_local_name = calloc(1, MAX_NAME_LENGTH);
+	if (!board_local_name)
 		return NULL;
 
 	for (id = 0; id <= highest_id; id++) {
