@@ -195,6 +195,7 @@ char *avb_set_state(AvbOps *ops, enum avb_boot_state boot_state)
 		break;
 	case AVB_ORANGE:
 		cmdline = "androidboot.verifiedbootstate=orange";
+		break;
 	case AVB_RED:
 		break;
 	}
