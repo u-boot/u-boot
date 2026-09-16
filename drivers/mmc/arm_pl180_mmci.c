@@ -141,7 +141,6 @@ static int do_command(struct mmc *dev, struct mmc_cmd *cmd)
 static int read_bytes(struct mmc *dev, u32 *dest, u32 blkcount, u32 blksize)
 {
 	u32 *tempbuff = dest;
-	int i;
 	u64 xfercount = blkcount * blksize;
 	struct pl180_mmc_host *host = dev->priv;
 	u32 status, status_err;
@@ -154,8 +153,8 @@ static int read_bytes(struct mmc *dev, u32 *dest, u32 blkcount, u32 blksize)
 	while (!status_err &&
 	       xfercount >= SDI_FIFO_BURST_SIZE * sizeof(u32)) {
 		if (status & SDI_STA_RXFIFOBR) {
-			for (i = 0; i < SDI_FIFO_BURST_SIZE; i++)
-				*(tempbuff + i) = readl(&host->base->fifo);
+			readsl(&host->base->fifo, tempbuff,
+			       SDI_FIFO_BURST_SIZE);
 			tempbuff += SDI_FIFO_BURST_SIZE;
 			xfercount -= SDI_FIFO_BURST_SIZE * sizeof(u32);
 		}
@@ -210,7 +209,6 @@ static int read_bytes(struct mmc *dev, u32 *dest, u32 blkcount, u32 blksize)
 static int write_bytes(struct mmc *dev, u32 *src, u32 blkcount, u32 blksize)
 {
 	u32 *tempbuff = src;
-	int i;
 	u64 xfercount = blkcount * blksize;
 	struct pl180_mmc_host *host = dev->priv;
 	u32 status, status_err;
@@ -222,9 +220,8 @@ static int write_bytes(struct mmc *dev, u32 *src, u32 blkcount, u32 blksize)
 	while (!status_err && xfercount) {
 		if (status & SDI_STA_TXFIFOBW) {
 			if (xfercount >= SDI_FIFO_BURST_SIZE * sizeof(u32)) {
-				for (i = 0; i < SDI_FIFO_BURST_SIZE; i++)
-					writel(*(tempbuff + i),
-						&host->base->fifo);
+				writesl(&host->base->fifo, tempbuff,
+					SDI_FIFO_BURST_SIZE);
 				tempbuff += SDI_FIFO_BURST_SIZE;
 				xfercount -= SDI_FIFO_BURST_SIZE * sizeof(u32);
 			} else {
