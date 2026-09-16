@@ -6,7 +6,6 @@
 #include <dm.h>
 #include <spl.h>
 #include <init.h>
-#include <linux/err.h>
 #include <asm/io.h>
 #include <asm/arch/scu_ast2600.h>
 
@@ -36,7 +35,7 @@ u32 spl_boot_device(void)
 	}
 
 	scu = devfdt_get_addr_ptr(scu_dev);
-	if (IS_ERR_OR_NULL(scu)) {
+	if (!scu) {
 		debug("%s: failed to get SCU base\n", __func__);
 		goto out;
 	}

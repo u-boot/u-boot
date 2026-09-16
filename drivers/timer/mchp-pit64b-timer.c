@@ -45,8 +45,8 @@ static int mchp_pit64b_probe(struct udevice *dev)
 	int ret;
 
 	priv->base = dev_read_addr_ptr(dev);
-	if (IS_ERR(priv->base))
-		return PTR_ERR(priv->base);
+	if (!priv->base)
+		return -EINVAL;
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
