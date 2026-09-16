@@ -16,6 +16,9 @@
 #include <log.h>
 #include <malloc.h>
 #include <mmc.h>
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+#include <power/regulator.h>
+#endif
 #include <dm/device_compat.h>
 #include <dm.h>
 
@@ -28,10 +31,24 @@
 #define MMC_CLOCK_MAX	48000000
 #define MMC_CLOCK_MIN	400000
 
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+#define SD_VOLTAGE_MIN_UV	2700000
+#define SD_VOLTAGE_UV		3300000
+#define SD_VOLTAGE_MAX_UV	3600000
+#endif
+
 struct arm_pl180_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
 };
+
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+static int arm_pl180_set_supply_voltage(struct udevice *supply)
+{
+	return regulator_set_value_clamp(supply, SD_VOLTAGE_MIN_UV,
+					 SD_VOLTAGE_UV, SD_VOLTAGE_MAX_UV);
+}
+#endif
 
 static int wait_for_command_end(struct mmc *dev, struct mmc_cmd *cmd)
 {
@@ -444,6 +461,24 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 		host->pwr_init |= SDI_PWR_CMDDIREN;
 	if (dev_read_bool(dev, "st,sig-pin-fbclk"))
 		host->pwr_init |= SDI_PWR_FBCLKEN;
+
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+	ret = device_get_supply_regulator(dev, "vmmc-supply",
+					  &mmc->vmmc_supply);
+	if (!ret) {
+		ret = arm_pl180_set_supply_voltage(mmc->vmmc_supply);
+		if (ret && ret != -ENOSYS)
+			return ret;
+	}
+
+	ret = device_get_supply_regulator(dev, "vqmmc-supply",
+					  &mmc->vqmmc_supply);
+	if (!ret) {
+		ret = arm_pl180_set_supply_voltage(mmc->vqmmc_supply);
+		if (ret && ret != -ENOSYS)
+			return ret;
+	}
+#endif
 
 	gpio_request_by_name(dev, "cd-gpios", 0, &host->cd_gpio, GPIOD_IS_IN);
 
