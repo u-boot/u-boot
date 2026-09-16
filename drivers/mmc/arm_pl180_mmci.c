@@ -143,6 +143,7 @@ static int read_bytes(struct mmc *dev, u32 *dest, u32 blkcount, u32 blksize)
 	u32 *tempbuff = dest;
 	u64 xfercount = blkcount * blksize;
 	struct pl180_mmc_host *host = dev->priv;
+	unsigned int count;
 	u32 status, status_err;
 
 	debug("read_bytes: blkcount=%u blksize=%u\n", blkcount, blksize);
@@ -150,13 +151,18 @@ static int read_bytes(struct mmc *dev, u32 *dest, u32 blkcount, u32 blksize)
 	status = readl(&host->base->status);
 	status_err = status & (SDI_STA_DCRCFAIL | SDI_STA_DTIMEOUT |
 			       SDI_STA_RXOVERR);
-	while (!status_err &&
-	       xfercount >= SDI_FIFO_BURST_SIZE * sizeof(u32)) {
-		if (status & SDI_STA_RXFIFOBR) {
+	while (!status_err && xfercount >= host->fifo_half_size) {
+		count = 0;
+		if (status & SDI_STA_RXFIFOF)
+			count = min_t(u64, xfercount, host->fifo_size);
+		else if (status & SDI_STA_RXFIFOBR)
+			count = host->fifo_half_size;
+
+		if (count) {
 			readsl(&host->base->fifo, tempbuff,
-			       SDI_FIFO_BURST_SIZE);
-			tempbuff += SDI_FIFO_BURST_SIZE;
-			xfercount -= SDI_FIFO_BURST_SIZE * sizeof(u32);
+			       count / sizeof(u32));
+			tempbuff += count / sizeof(u32);
+			xfercount -= count;
 		}
 		status = readl(&host->base->status);
 		status_err = status & (SDI_STA_DCRCFAIL | SDI_STA_DTIMEOUT |
@@ -211,6 +217,7 @@ static int write_bytes(struct mmc *dev, u32 *src, u32 blkcount, u32 blksize)
 	u32 *tempbuff = src;
 	u64 xfercount = blkcount * blksize;
 	struct pl180_mmc_host *host = dev->priv;
+	unsigned int count;
 	u32 status, status_err;
 
 	debug("write_bytes: blkcount=%u blksize=%u\n", blkcount, blksize);
@@ -218,19 +225,17 @@ static int write_bytes(struct mmc *dev, u32 *src, u32 blkcount, u32 blksize)
 	status = readl(&host->base->status);
 	status_err = status & (SDI_STA_DCRCFAIL | SDI_STA_DTIMEOUT);
 	while (!status_err && xfercount) {
-		if (status & SDI_STA_TXFIFOBW) {
-			if (xfercount >= SDI_FIFO_BURST_SIZE * sizeof(u32)) {
-				writesl(&host->base->fifo, tempbuff,
-					SDI_FIFO_BURST_SIZE);
-				tempbuff += SDI_FIFO_BURST_SIZE;
-				xfercount -= SDI_FIFO_BURST_SIZE * sizeof(u32);
-			} else {
-				while (xfercount >= sizeof(u32)) {
-					writel(*(tempbuff), &host->base->fifo);
-					tempbuff++;
-					xfercount -= sizeof(u32);
-				}
-			}
+		count = 0;
+		if (status & SDI_STA_TXFIFOE)
+			count = min_t(u64, xfercount, host->fifo_size);
+		else if (status & SDI_STA_TXFIFOBW)
+			count = min_t(u64, xfercount, host->fifo_half_size);
+
+		if (count) {
+			writesl(&host->base->fifo, tempbuff,
+				count / sizeof(u32));
+			tempbuff += count / sizeof(u32);
+			xfercount -= count;
 		}
 		status = readl(&host->base->status);
 		status_err = status & (SDI_STA_DCRCFAIL | SDI_STA_DTIMEOUT);
@@ -451,6 +456,8 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 	host->clkdiv_init = SDI_CLKCR_CLKDIV_INIT_V1 | SDI_CLKCR_CLKEN |
 			    SDI_CLKCR_PWRSAV | SDI_CLKCR_HWFC_EN;
 	host->clock_in = clk_get_rate(&clk);
+	host->fifo_size = SDI_FIFO_SIZE_ARM;
+	host->fifo_half_size = SDI_FIFO_HALF_SIZE;
 
 	cfg->name = dev->name;
 	cfg->voltages = VOLTAGE_WINDOW_SD;
@@ -462,9 +469,11 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 	periphid = dev_read_u32_default(dev, "arm,primecell-periphid", 0);
 	switch (periphid) {
 	case STM32_MMCI_ID: /* stm32 variant */
+		host->fifo_size = SDI_FIFO_SIZE_STM32;
 		host->version2 = false;
 		break;
 	case UX500V2_MMCI_ID:
+		host->fifo_size = SDI_FIFO_SIZE_UX500;
 		host->pwr_init = SDI_PWR_OPD | SDI_PWR_PWRCTRL_ON;
 		host->clkdiv_init = SDI_CLKCR_CLKDIV_INIT_V2 | SDI_CLKCR_CLKEN |
 				    SDI_CLKCR_PWRSAV | SDI_CLKCR_HWFC_EN;
