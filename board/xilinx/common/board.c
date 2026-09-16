@@ -695,7 +695,7 @@ int embedded_dtb_select(void)
 
 #ifdef CONFIG_OF_BOARD_SETUP
 #define MAX_RAND_SIZE 8
-int ft_board_setup(void *blob, struct bd_info *bd)
+int __weak ft_board_setup(void *blob, struct bd_info *bd)
 {
 	static const struct node_info nodes[] = {
 		{ "arm,pl353-nand-r2p1", MTD_DEV_TYPE_NAND, },
