@@ -6,5 +6,3 @@ F:	include/configs/mt7981.h
 F:	configs/mt7981_emmc_rfb_defconfig
 F:	configs/mt7981_rfb_defconfig
 F:	configs/mt7981_sd_rfb_defconfig
-F:	configs/mt7981_spim_nand_rfb_defconfig
-F:	configs/mt7981_spim_nor_rfb_defconfig

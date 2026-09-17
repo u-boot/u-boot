@@ -4,4 +4,3 @@ S:	Maintained
 F:	board/lenovo/ideapad-yoga-11/
 F:	configs/ideapad-yoga-11_defconfig
 F:	doc/board/lenovo/ideapad-yoga-11.rst
-F:	include/configs/ideapad-yoga-11.h

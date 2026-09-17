@@ -2,5 +2,4 @@ JETSON-TK1 BOARD
 M:	Tom Warren <twarren@nvidia.com>
 S:	Maintained
 F:	board/nvidia/jetson-tk1/
-F:	include/configs/jetson-tk1.h
 F:	configs/jetson-tk1_defconfig

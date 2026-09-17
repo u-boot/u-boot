@@ -263,7 +263,6 @@ ARM BROADCOM BCM283X / BCM27XX
 M:	Matthias Brugger <mbrugger@suse.com>
 M:	Peter Robinson <pbrobinson@gmail.com>
 S:	Maintained
-F:	arch/arm/dts/bcm283*
 F:	arch/arm/mach-bcm283x/
 F:	board/raspberrypi/
 F:	drivers/gpio/bcm2835_gpio.c
@@ -700,11 +699,7 @@ M:	Thierry Reding <treding@nvidia.com>
 M:	Svyatoslav Ryhel <clamor95@gmail.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-tegra.git
-F:	arch/arm/dts/tegra*
-F:	arch/arm/include/asm/arch-tegra*/
-F:	arch/arm/mach-tegra/
-F:	drivers/*/tegra*
-F:	drivers/*/tegra*/
+N:	tegra
 
 ARM TI
 M:	Tom Rini <trini@konsulko.com>

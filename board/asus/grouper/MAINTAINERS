@@ -4,4 +4,3 @@ S:	Maintained
 F:	board/asus/grouper/
 F:	configs/grouper_defconfig
 F:	doc/board/asus/grouper.rst
-F:	include/configs/grouper.h
