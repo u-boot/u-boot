@@ -21,6 +21,20 @@
 
 static int curr_device = -1;
 
+static void print_life_time_typ(char type, u8 life_typ)
+{
+	printf("Life time type %c: ", type);
+
+	if (!life_typ)
+		printf("Not defined\n");
+	else if (life_typ <= 10)
+		printf("%d%%-%d%% of device life time used\n", (life_typ - 1) * 10, life_typ * 10);
+	else if (life_typ == 11)
+		printf("Exceeded the maximum estimated device life time\n");
+	else
+		printf("Reserved\n");
+}
+
 static void print_mmcinfo(struct mmc *mmc)
 {
 	int i;
@@ -130,6 +144,27 @@ static void print_mmcinfo(struct mmc *mmc)
 				break;
 			}
 			wp >>= 2;
+		}
+
+		if (mmc->version >= MMC_VERSION_5_0) {
+			static const char *pre_eol_str[4] = {
+				"Not defined",
+				"Normal",
+				"Warning: Consumed 80% of reserved block",
+				"Urgent",
+			};
+			u8 pre_eol, life_typ_a, life_typ_b;
+
+			pre_eol = ext_csd[EXT_CSD_PRE_EOL_INFO];
+			life_typ_a = ext_csd[EXT_CSD_DEVICE_LIFE_TIME_EST_TYP_A];
+			life_typ_b = ext_csd[EXT_CSD_DEVICE_LIFE_TIME_EST_TYP_B];
+
+			printf("Pre EOL info: %s\n",
+			       pre_eol < ARRAY_SIZE(pre_eol_str) ?
+					pre_eol_str[pre_eol] : "Reserved");
+
+			print_life_time_typ('A', life_typ_a);
+			print_life_time_typ('B', life_typ_b);
 		}
 	}
 }
