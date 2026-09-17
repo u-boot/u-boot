@@ -6,6 +6,7 @@ CONFIG_RCAR_GEN5=y
 CONFIG_TARGET_IRONHIDE=y
 
 CONFIG_ARMV8_PSCI=y
+CONFIG_ARM_FFA_TRANSPORT=y
 CONFIG_ARM_SMCCC=y
 CONFIG_BAUDRATE=1843200
 CONFIG_BOOTCOMMAND="setexpr dloadaddr ${loadaddr} + 0x200000 && setexpr dloadaddr ${dloadaddr} \\\\& 0xffc00000 && setexpr kloadaddr ${dloadaddr} + 0x200000 && tftp ${dloadaddr} r8a78000-ironhide.dtb && tftp ${kloadaddr} Image && booti ${kloadaddr} - ${dloadaddr}"
@@ -14,6 +15,7 @@ CONFIG_CLK_CCF=y
 CONFIG_CLK_COMPOSITE_CCF=y
 CONFIG_CLK_SCMI=y
 CONFIG_CMD_CLK=y
+CONFIG_CMD_ARMFFA=y
 CONFIG_CMD_MEMTEST=y
 CONFIG_CMD_SCMI=y
 CONFIG_CMD_UFS=y
