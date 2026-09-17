@@ -16,7 +16,7 @@
  * (C) Copyright 2000-2002 David Brownell
  *
  * Modified for the MP2USB by (C) Copyright 2005 Eric Benard
- * based on s3c24x0's driver
+ * ebenard@eukrea.com - based on s3c24x0's driver
  */
 /*
  * IMPORTANT NOTES

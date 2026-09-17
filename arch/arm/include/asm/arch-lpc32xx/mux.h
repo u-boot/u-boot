@@ -3,7 +3,7 @@
  * LPC32xx MUX interface
  *
  * (C) Copyright 2015  DENX Software Engineering GmbH
- * Written-by: Albert ARIBAUD
+ * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
  */
 
 /**

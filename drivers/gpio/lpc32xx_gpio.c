@@ -3,7 +3,7 @@
  * LPC32xxGPIO driver
  *
  * (C) Copyright 2014  DENX Software Engineering GmbH
- * Written-by: Albert ARIBAUD
+ * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
  */
 
 #include <asm/io.h>

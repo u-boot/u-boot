@@ -3,7 +3,7 @@
  * LPC32xx MLC NAND flash controller driver
  *
  * (C) Copyright 2014 3ADEV <http://3adev.com>
- * Written by Albert ARIBAUD
+ * Written by Albert ARIBAUD <albert.aribaud@3adev.fr>
  *
  * NOTE:
  *

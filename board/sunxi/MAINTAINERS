@@ -574,7 +574,8 @@ S:	Maintained
 F:	configs/sopine_baseboard_defconfig
 
 SUNCHIP CX-A99 BOARD
-S:	Orphan
+M:	Rask Ingemann Lambertsen <rask@formelder.dk>
+S:	Maintained
 F:	configs/Sunchip_CX-A99_defconfig
 W:	https://linux-sunxi.org/Sunchip_CX-A99
 

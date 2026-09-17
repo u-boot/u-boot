@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Eukréa Electromatique
- * Author: Eric Bénard
+ * Author: Eric Bénard <eric@eukrea.com>
  *         Fabio Estevam <fabio.estevam@freescale.com>
  *         Jon Nettleton <jon.nettleton@gmail.com>
  *

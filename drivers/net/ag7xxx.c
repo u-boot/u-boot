@@ -3,7 +3,7 @@
  * Atheros AR71xx / AR9xxx GMAC driver
  *
  * Copyright (C) 2016 Marek Vasut <marex@denx.de>
- * Copyright (C) 2019 Rosy Song
+ * Copyright (C) 2019 Rosy Song <rosysong@rosinson.com>
  */
 
 #include <clock_legacy.h>

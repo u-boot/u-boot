@@ -1,5 +1,5 @@
 AP152 BOARD
-M:	Rosy Song
+M:	Rosy Song <rosysong@rosinson.com>
 S:	Maintained
 F:	board/qca/ap152/
 F:	include/configs/ap152.h

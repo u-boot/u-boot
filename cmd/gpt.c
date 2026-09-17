@@ -3,7 +3,7 @@
  * cmd_gpt.c -- GPT (GUID Partition Table) handling command
  *
  * Copyright (C) 2015
- * Lukasz Majewski
+ * Lukasz Majewski <l.majewski@majess.pl>
  *
  * Copyright (C) 2012 Samsung Electronics
  * author: Lukasz Majewski <l.majewski@samsung.com>

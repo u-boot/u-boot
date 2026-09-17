@@ -1,5 +1,6 @@
 MX6BOARDS BOARD
-S:	Orphan
+M:	Eric Bénard <eric@eukrea.com>
+S:	Maintained
 F:	board/embest/mx6boards/
 F:	include/configs/embestmx6boards.h
 F:	configs/marsboard_defconfig

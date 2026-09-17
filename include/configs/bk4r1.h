@@ -4,7 +4,7 @@
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
  *
  * Copyright 2016 3ADEV <http://3adev.com>
- * Written-by: Albert ARIBAUD
+ * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
  *
  * Configuration settings for BK4R1.
  */

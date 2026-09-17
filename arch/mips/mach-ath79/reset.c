@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015-2016 Wills Wang <wills.wang@live.com>
- * Copyright (C) 2018-2019 Rosy Song
+ * Copyright (C) 2018-2019 Rosy Song <rosysong@rosinson.com>
  */
 
 #include <linux/bitops.h>

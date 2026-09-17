@@ -1441,6 +1441,7 @@ S:	Maintained
 F:	drivers/net/phy/nxp-c45-tja11xx.c
 
 ONENAND
+#M:	Lukasz Majewski <l.majewski@majess.pl>
 S:	Orphan (Since 2017-01)
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-onenand.git
 F:	drivers/mtd/onenand/
