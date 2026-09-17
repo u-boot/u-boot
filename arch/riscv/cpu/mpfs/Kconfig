@@ -29,3 +29,7 @@ config MICROCHIP_MPFS
 	imply SPI
 	imply DM_SPI
 	imply MICROCHIP_COREQSPI
+	imply DM_MAILBOX
+	imply MPFS_MBOX
+	imply MISC
+	imply MPFS_SYSCONTROLLER
