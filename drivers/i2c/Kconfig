@@ -232,6 +232,17 @@ config SYS_I2C_DAVINCI
 	help
 	  Say yes here to add support for Davinci and Keystone I2C controller
 
+config SYS_I2C_DDC_MTK
+	bool "MediaTek HDMI DDC driver"
+	depends on DM_I2C
+	depends on CLK
+	help
+	  This selects the MediaTek Inter-Integrated Circuit (I2C) bus driver
+	  used for HDMI DDC communication. The driver supports MT8188 and
+	  MT8195 compatible SoCs.
+	  If you want to use the MediaTek DDC interface, say Y here.
+	  If unsure, say N.
+
 config SYS_I2C_DW
 	bool "Designware I2C Controller"
 	help

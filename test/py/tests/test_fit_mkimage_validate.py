@@ -160,3 +160,139 @@ def test_fit_auto_basename_dotted_directory(ubman, dtb_relpath, expected_desc):
     assert desc == expected_desc, (
         f"Expected /images/fdt-1 description {expected_desc!r}, got {desc!r}"
     )
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.requiredtool('dtc')
+def test_fit_load_addr_overlap(ubman):
+    """Test that mkimage fails when images in one config overlap in memory"""
+
+    its_fname = fit_util.make_fname(ubman, "overlap.its")
+    itb_fname = fit_util.make_fname(ubman, "overlap.itb")
+    kernel = fit_util.make_kernel(ubman, 'kernel.bin', 'kernel')
+    fdt = fit_util.make_dtb(ubman, '''
+/dts-v1/;
+/ {
+    model = "Test FDT";
+    compatible = "test";
+};
+''', 'test')
+
+    # Write ITS with kernel and FDT sharing the same load address
+    its_text = '''
+/dts-v1/;
+
+/ {
+    images {
+        kernel@1 {
+            description = "Test Kernel";
+            data = /incbin/("kernel.bin");
+            type = "kernel";
+            arch = "sandbox";
+            os = "linux";
+            compression = "none";
+            load = <0x40000>;
+            entry = <0x40000>;
+        };
+        fdt@1 {
+            description = "Test FDT";
+            data = /incbin/("test.dtb");
+            type = "flat_dt";
+            arch = "sandbox";
+            os = "linux";
+            compression = "none";
+            load = <0x40000>;
+            entry = <0x40000>;
+        };
+    };
+
+    configurations {
+        default = "conf@1";
+        conf@1 {
+            kernel = "kernel@1";
+            fdt = "fdt@1";
+        };
+    };
+};
+'''
+
+    with open(its_fname, 'w') as f:
+        f.write(its_text)
+
+    mkimage = os.path.join(ubman.config.build_dir, 'tools/mkimage')
+    cmd = [mkimage, '-f', its_fname, itb_fname]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    assert result.returncode != 0, "mkimage should fail due to memory overlap"
+    assert "has overlapping load regions" in result.stderr
+    # Check that it identifies the configuration and the specific
+    # overlapping components
+    assert "conf@1" in result.stderr
+    assert "kernel@1" in result.stderr and "fdt@1" in result.stderr
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.requiredtool('dtc')
+def test_fit_same_load_addr_different_configs(ubman):
+    """Test that images may share a load address across configurations
+
+    Only one configuration is selected at runtime, so images that are
+    referenced by different configurations never coexist in memory. This
+    mirrors the TI K3 tispl layout, where each security state has its own
+    configuration and all tifsstub variants use the same load address.
+    """
+
+    its_fname = fit_util.make_fname(ubman, "exclusive.its")
+    itb_fname = fit_util.make_fname(ubman, "exclusive.itb")
+    kernel = fit_util.make_kernel(ubman, 'kernel.bin', 'kernel')
+
+    its_text = '''
+/dts-v1/;
+
+/ {
+    images {
+        kernel@1 {
+            description = "Test Kernel HS";
+            data = /incbin/("kernel.bin");
+            type = "kernel";
+            arch = "sandbox";
+            os = "linux";
+            compression = "none";
+            load = <0x40000>;
+            entry = <0x40000>;
+        };
+        kernel@2 {
+            description = "Test Kernel GP";
+            data = /incbin/("kernel.bin");
+            type = "kernel";
+            arch = "sandbox";
+            os = "linux";
+            compression = "none";
+            load = <0x40000>;
+            entry = <0x40000>;
+        };
+    };
+
+    configurations {
+        default = "conf@1";
+        conf@1 {
+            kernel = "kernel@1";
+        };
+        conf@2 {
+            kernel = "kernel@2";
+        };
+    };
+};
+'''
+
+    with open(its_fname, 'w') as f:
+        f.write(its_text)
+
+    mkimage = os.path.join(ubman.config.build_dir, 'tools/mkimage')
+    cmd = [mkimage, '-f', its_fname, itb_fname]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    assert result.returncode == 0, (
+        f"mkimage should accept same load address in different configs:\n"
+        f"stderr:\n{result.stderr}"
+    )

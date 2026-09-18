@@ -1664,6 +1664,10 @@ static const struct udevice_id eqos_ids[] = {
 		.compatible = "mediatek,mt8189-gmac",
 		.data = (ulong)&eqos_mtk_config
 	},
+	{
+		.compatible = "mediatek,mt8366-gmac",
+		.data = (ulong)&eqos_mtk_config
+	},
 #endif
 #if IS_ENABLED(CONFIG_DWC_ETH_QOS_SUNXI)
 	{

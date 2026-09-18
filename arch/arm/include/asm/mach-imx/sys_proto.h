@@ -159,6 +159,7 @@ enum imx6_bmode {
 };
 
 u32 imx6_src_get_boot_mode(void);
+bool imx6_is_ecspi_recovery_boot(void);
 void gpr_init(void);
 
 #endif /* CONFIG_MX6 */

@@ -71,8 +71,6 @@ CONFIG_CMD_BOOTSTAGE=y
 CONFIG_CMD_TPM=y
 CONFIG_CMD_CBFS=y
 CONFIG_CMD_EXT4_WRITE=y
-CONFIG_MAC_PARTITION=y
-# CONFIG_SPL_MAC_PARTITION is not set
 # CONFIG_SPL_DOS_PARTITION is not set
 # CONFIG_SPL_EFI_PARTITION is not set
 CONFIG_OF_SPL_REMOVE_PROPS="clocks clock-names interrupt-parent interrupts linux-name acpi,name acpi,path u-boot,acpi-dsdt-order u-boot,acpi-ssdt-order"

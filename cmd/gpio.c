@@ -137,6 +137,8 @@ static int do_gpio(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	unsigned int gpio;
 	enum gpio_cmd sub_cmd;
+	struct udevice *dev;
+	unsigned int offset;
 	int value;
 	const char *str_cmd, *str_gpio = NULL;
 #ifdef CONFIG_CMD_GPIO_READ
@@ -217,7 +219,7 @@ static int do_gpio(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * code here to use the GPIO uclass interface instead of the numbered
 	 * GPIO compatibility layer.
 	 */
-	ret = gpio_lookup_name(str_gpio, NULL, NULL, &gpio);
+	ret = gpio_lookup_name(str_gpio, &dev, &offset, &gpio);
 	if (ret) {
 		printf("GPIO: '%s' not found\n", str_gpio);
 		return cmd_process_error(cmdtp, ret);
@@ -230,7 +232,12 @@ static int do_gpio(struct cmd_tbl *cmdtp, int flag, int argc,
 #endif
 	/* grab the pin before we tweak it */
 	ret = gpio_request(gpio, "cmd_gpio");
-	if (ret && ret != -EBUSY) {
+	if (IS_ENABLED(CONFIG_DM_GPIO) && ret == -EBUSY) {
+		struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+		printf("gpio: pin %s (gpio %u) already claimed by '%s'\n",
+		       str_gpio, gpio, uc_priv->name[offset]);
+	} else if (ret && ret != -EBUSY) {
 		printf("gpio: requesting pin %u failed\n", gpio);
 		return -1;
 	}

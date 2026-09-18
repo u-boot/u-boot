@@ -105,6 +105,7 @@ int dm_spi_set_wordlen(struct udevice *dev, unsigned int wordlen)
 int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	struct udevice *bus = dev->parent;
 	struct dm_spi_ops *ops = spi_get_ops(bus);
 
@@ -112,6 +113,15 @@ int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		return -EOPNOTSUPP;
 	if (!ops->xfer)
 		return -ENOSYS;
+
+	/*
+	 * A device with no wire in one direction cannot transfer in it,
+	 * so reject the request here rather than in every driver.
+	 */
+	if (din && (slave_plat->mode & SPI_NO_RX))
+		return -EINVAL;
+	if (dout && (slave_plat->mode & SPI_NO_TX))
+		return -EINVAL;
 
 	return ops->xfer(dev, bitlen, dout, din, flags);
 }
@@ -229,6 +239,9 @@ static int spi_child_post_bind(struct udevice *dev)
 	/* Device DUAL/QUAD mode */
 	value = dev_read_u32_default(dev, "spi-tx-bus-width", 1);
 	switch (value) {
+	case 0:
+		mode |= SPI_NO_TX;
+		break;
 	case 1:
 		break;
 	case 2:
@@ -247,6 +260,9 @@ static int spi_child_post_bind(struct udevice *dev)
 
 	value = dev_read_u32_default(dev, "spi-rx-bus-width", 1);
 	switch (value) {
+	case 0:
+		mode |= SPI_NO_RX;
+		break;
 	case 1:
 		break;
 	case 2:

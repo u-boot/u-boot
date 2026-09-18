@@ -1403,6 +1403,7 @@ static int bootflow_rauc(struct unit_test_state *uts)
 	struct udevice *bootstd;
 	static const char *order[] = {NULL, NULL};
 	const char **old_order;
+	ulong mem_start;
 	ofnode root;
 	ofnode node;
 
@@ -1443,6 +1444,42 @@ static int bootflow_rauc(struct unit_test_state *uts)
 	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
 
 	ut_assert_console_end();
+
+	/*
+	 * Scan with a BOOT_ORDER naming a slot that has no configured
+	 * partitions. get_slot() must not crash on the NULL array terminator;
+	 * the bootflow just becomes invalid.
+	 */
+	ut_assertok(env_set("BOOT_ORDER", "A B rescue"));
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_nextline("No bootflows found; try again with -l");
+	ut_assert_console_end();
+
+	ut_assertok(run_command("bootflow list", 0));
+	ut_assert_skip_to_line("(0 bootflows, 0 valid)");
+	ut_assert_console_end();
+
+	/* Repeating the failed scan must not leak memory */
+	mem_start = ut_check_delta(0);
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_nextline("No bootflows found; try again with -l");
+	ut_assert_console_end();
+	ut_asserteq(0, ut_check_delta(mem_start));
+
+	/*
+	 * A failed scan with -a stores the failed bootflows; the next scan
+	 * removes them, freeing bootmeth_priv. This used to double free the
+	 * RAUC private data.
+	 */
+	ut_assertok(run_command("bootflow scan -a", 0));
+	ut_assert_nextline("No bootflows found; try again with -l");
+	ut_assert_console_end();
+
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_nextline("No bootflows found; try again with -l");
+	ut_assert_console_end();
+
+	ut_assertok(env_set("BOOT_ORDER", "A B"));
 
 	/* Restore the order used by the device tree */
 	std->bootdev_order = old_order;

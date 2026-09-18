@@ -541,7 +541,19 @@ static int get_hab_status_m4(void)
 
 		record_len = get_record_len(rec);
 
+		if (!record_len ||
+		    offset + record_len > HAB_M4_PERSISTENT_BYTES) {
+			puts("\nERROR: Invalid HAB record length\n");
+			return 1;
+		}
+
 		if (rec->tag == HAB_TAG_EVT) {
+			if (record_len > sizeof(event_data)) {
+				printf("\nERROR: HAB event %d too large (%zu bytes)\n",
+				       index + 1, record_len);
+				return 1;
+			}
+
 			memcpy(&event_data, rec, record_len);
 			puts("\n");
 			printf("--------- HAB Event %d -----------------\n",

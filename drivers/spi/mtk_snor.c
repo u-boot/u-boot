@@ -607,8 +607,7 @@ static const struct mtk_snor_caps mtk_snor_caps_extra_bit = {
 
 static const struct udevice_id mtk_snor_ids[] = {
 	{ .compatible = "mediatek,mtk-snor", .data = (ulong)&mtk_snor_caps_default },
-	{ .compatible = "mediatek,mt8188-nor", .data = (ulong)&mtk_snor_caps_extra_bit },
-	{ .compatible = "mediatek,mt8189-nor", .data = (ulong)&mtk_snor_caps_extra_bit },
+	{ .compatible = "mediatek,mt8186-nor", .data = (ulong)&mtk_snor_caps_extra_bit },
 	{ .compatible = "mediatek,mt8195-nor", .data = (ulong)&mtk_snor_caps_default },
 	{}
 };
