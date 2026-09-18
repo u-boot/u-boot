@@ -11,8 +11,8 @@
  * Hooks the shared pmbus_helper UCLASS_REGULATOR ops + adds the MPS
  * specific identify (VOUT_MODE switch between LINEAR16 and DIRECT
  * m=64 R=1 for the chip's "VID" mode), the MPS vendor extension
- * (pmbus mps last|clear last|clear force), and ADDR_VBOOT auto
- * promotion when the DT declared address fails the MFR_ID probe.
+ * (pmbus mps last|clear last|clear force), and an address scan
+ * ("mps,auto-probe") for the eight MFR_ADDR_PMBUS.
  */
 
 #include <command.h>
@@ -320,39 +320,44 @@ static const struct pmbus_vendor_op mps_vendor_op = {
 		   "pmbus mps clear force  : force clear via MFR_CFG_EXT bit[6] (DESTRUCTIVE)\n",
 };
 
-static void mpq8785_identify_vout(struct udevice *i2c_dev)
+static int mpq8785_identify(struct udevice *i2c_dev)
 {
-	enum pmbus_data_format fmt;
+	u8 vout_mode = 0;
+	int ret;
 
-	/*
-	 * Let the shared helper read VOUT_MODE and pick the base format
-	 * (the single source of truth for the bit layout). The MPS quirk:
-	 * this family encodes VOUT in DIRECT with m=64 R=1 whenever
-	 * VOUT_MODE reports VID *or* DIRECT -- override the helper's
-	 * generic DIRECT m=1 / VID-unwired result in those two modes.
-	 * LINEAR and IEEE754 keep the helper's selection unchanged.
-	 */
-	fmt = pmbus_regulator_identify_vout(i2c_dev, &mpq8785_info);
-	if (fmt == pmbus_fmt_vid || fmt == pmbus_fmt_direct) {
+	ret = pmbus_read_byte(i2c_dev, PMBUS_VOUT_MODE, &vout_mode);
+	if (ret < 0)
+		return ret;
+	if (vout_mode == 0xff)
+		return -ENODEV;
+
+	switch (vout_mode >> 5) {
+	case 0:
+		mpq8785_info.format[PSC_VOLTAGE_OUT] = pmbus_fmt_linear;
+		break;
+	case 1:
+	case 2:
 		mpq8785_info.format[PSC_VOLTAGE_OUT] = pmbus_fmt_direct;
 		mpq8785_info.m[PSC_VOLTAGE_OUT] = 64;
 		mpq8785_info.b[PSC_VOLTAGE_OUT] = 0;
 		mpq8785_info.R[PSC_VOLTAGE_OUT] = 1;
+		break;
+	default:
+		return -ENODEV;
 	}
+	return 0;
 }
 
 /*
- * The MPQ8785 datasheet revision letter changes which window the
- * analog ADDR_VBOOT level resolves to. Boards have been observed at
- * 0x10 (later die rev) versus the 0x20 the original driver assumed.
- * If the DT declared address fails the MFR_ID probe at probe time,
- * walk the three documented windows looking for an MPS responder.
+ * Address selection has two modes, chosen by the DT:
  *
- * Each window covers 16 consecutive 7 bit I2C addresses; the low
- * nibble selects the chip's MFR_ADDR_PMBUS slot within the window.
+ *   default            "reg" is the address. follow the Linux driver.
+ *
+ *   mps,auto-probe     boolean. If set, "reg" is ignored, then
+ *                      scan for MFR_ID="MPS"
  */
-#define MPS_ADDR_VBOOT_WINDOW_SIZE	16
-static const u8 mps_addr_window_starts[] = { 0x10, 0x20, 0x60 };
+#define MPS_ADDR_WINDOWS		8
+#define MPS_ADDR_WINDOW_SIZE		16
 
 static int mpq8785_probe_addr(struct udevice *bus, u8 addr,
 			      struct udevice **chip_out)
@@ -376,12 +381,15 @@ static int mpq8785_probe_addr(struct udevice *bus, u8 addr,
 static int mpq8785_scan_windows(struct udevice *bus, u8 *found_addr,
 				struct udevice **chip_out)
 {
-	unsigned int i, j;
+	unsigned int x, slot;
 
-	for (i = 0; i < ARRAY_SIZE(mps_addr_window_starts); i++) {
-		for (j = 0; j < MPS_ADDR_VBOOT_WINDOW_SIZE; j++) {
-			u8 addr = mps_addr_window_starts[i] + j;
+	for (x = 0; x < MPS_ADDR_WINDOWS; x++) {
+		for (slot = 0; slot < MPS_ADDR_WINDOW_SIZE; slot++) {
+			u8 addr = (x << 4) | slot;
 
+			/* 0x00 is the PMBus all-call address, never a chip. */
+			if (!addr)
+				continue;
 			if (mpq8785_probe_addr(bus, addr, chip_out) == 0) {
 				*found_addr = addr;
 				return 0;
@@ -419,36 +427,33 @@ static int mpq8785_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	/*
-	 * Verify the chip answers MFR_ID="MPS" at the DT declared
-	 * address. If it doesn't, walk the documented ADDR_VBOOT windows
-	 * looking for it (a die rev address shift). On a hit, replace
-	 * priv->i2c_dev with the discovered chip handle and continue.
-	 */
-	{
-		char id[PMBUS_MFR_STRING_MAX] = "";
+	/* mps,auto-probe: ignore the DTS "reg" address, scan */
+	if (dev_read_bool(dev, "mps,auto-probe")) {
+		struct udevice *bus = dev_get_parent(dev);
+		struct udevice *found_dev;
+		u8 found = 0;
 
-		ret = pmbus_read_string(priv->i2c_dev, PMBUS_MFR_ID, id,
-					sizeof(id), true);
-		if (ret < 0 || strncmp(id, "MPS", 3) != 0) {
-			struct udevice *bus = dev_get_parent(dev);
-			struct udevice *promoted;
-			u8 found = 0;
-
-			if (mpq8785_scan_windows(bus, &found, &promoted) == 0) {
-				printf("MPQ8785: DT addr 0x%02x silent, auto promoted to 0x%02x\n",
-				       (unsigned int)dev_read_addr(dev), found);
-				priv->i2c_dev = promoted;
-			} else {
-				printf("MPQ8785: no MPS responder found in 0x10..0x1f / 0x20..0x2f / 0x60..0x6f\n");
-				return -ENODEV;
-			}
+		if (mpq8785_scan_windows(bus, &found, &found_dev)) {
+			printf("MPQ8785: auto-probe: no MPS responder in 0x01..0x7f\n");
+			return -ENODEV;
 		}
+		if (found != (u8)dev_read_addr(dev))
+			printf("MPQ8785: auto-probe: MPS chip at 0x%02x, DT reg 0x%02x ignored\n",
+			       found, (unsigned int)dev_read_addr(dev));
+		priv->i2c_dev = found_dev;
 	}
 
-	/* MPQ8785/MPQ8646 specific: refine VOUT format from VOUT_MODE. */
-	if (chip_id == MPQ_MPQ8785 || chip_id == MPQ_MPQ8646)
-		mpq8785_identify_vout(priv->i2c_dev);
+	/* VOUT_MODE sets the VOUT format, use it for the presence check. */
+	if (chip_id == MPQ_MPQ8785 || chip_id == MPQ_MPQ8646) {
+		ret = mpq8785_identify(priv->i2c_dev);
+		if (ret) {
+			struct dm_i2c_chip *chip = dev_get_parent_plat(priv->i2c_dev);
+
+			printf("MPQ8785: no usable chip at 0x%02x (VOUT_MODE: %d)\n",
+			       chip->chip_addr, ret);
+			return ret;
+		}
+	}
 
 	/* Apply mps,vout-fb-divider-ratio-permille if present in DT. */
 	fb_div = dev_read_u32_default(dev, "mps,vout-fb-divider-ratio-permille", 0);

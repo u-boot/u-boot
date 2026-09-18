@@ -532,6 +532,8 @@ The per chip quirks that carry over:
   flag for this case.
 * ``mps,vout-fb-divider-ratio-permille`` DT property maps to
   ``VOUT_SCALE_LOOP`` write at probe time.
+* ``mps,auto-probe`` the chip decodes its PMBus address using a scan
+  to find ``MFR_ID = "MPS"``. Ignore ``reg``.
 
 The quirks that do not carry over:
 
