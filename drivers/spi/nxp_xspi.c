@@ -711,9 +711,9 @@ static int nxp_xspi_of_to_plat(struct udevice *bus)
 {
 	struct nxp_xspi *x = dev_get_priv(bus);
 	fdt_addr_t iobase;
-	fdt_addr_t iobase_size;
+	fdt_size_t iobase_size;
 	fdt_addr_t ahb_addr;
-	fdt_addr_t ahb_size;
+	fdt_size_t ahb_size;
 
 #if CONFIG_IS_ENABLED(CLK)
 	int ret;
@@ -721,14 +721,14 @@ static int nxp_xspi_of_to_plat(struct udevice *bus)
 
 	x->dev = bus;
 
-	iobase = devfdt_get_addr_size_name(bus, "xspi_base", &iobase_size);
+	iobase = dev_read_addr_size_name(bus, "xspi_base", &iobase_size);
 	if (iobase == FDT_ADDR_T_NONE) {
 		dev_err(bus, "xspi_base regs missing\n");
 		return -ENODEV;
 	}
 	x->iobase = iobase;
 
-	ahb_addr = devfdt_get_addr_size_name(bus, "xspi_mmap", &ahb_size);
+	ahb_addr = dev_read_addr_size_name(bus, "xspi_mmap", &ahb_size);
 	if (ahb_addr == FDT_ADDR_T_NONE) {
 		dev_err(bus, "xspi_mmap regs missing\n");
 		return -ENODEV;
