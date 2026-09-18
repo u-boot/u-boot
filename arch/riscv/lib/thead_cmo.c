@@ -40,6 +40,6 @@ void flush_dcache_range(unsigned long start, unsigned long end)
 {
 	register unsigned long i asm("a0") = start & ~(CONFIG_SYS_CACHELINE_SIZE - 1);
 	for (; i < end; i += CONFIG_SYS_CACHELINE_SIZE)
-		__asm__ __volatile__(DCACHE_CPA_A0);
+		__asm__ __volatile__(DCACHE_CIPA_A0);
 	__asm__ __volatile__(SYNC_S);
 }
