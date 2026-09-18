@@ -1,4 +1,4 @@
-if TARGET_RG_DS_RK3568
+if TARGET_ANBERNIC_RG_DS_RK3568
 
 config SYS_BOARD
 	default "rg-ds_rk3568"
