@@ -288,12 +288,7 @@ struct pmbus_driver_info {
 	 * Bitmask (BIT(enum pmbus_sensor_classes)) of the sensor classes
 	 * this chip actually implements. When non-zero, pmbus_print_telemetry
 	 * prints exactly these classes -- mirroring the kernel's per chip
-	 * sensor set -- and skips the rest. This is how an MPS buck that
-	 * ACKs READ_POUT / READ_IIN with an uncalibrated value still hides
-	 * POWER / CURRENT_IN (the kernel's mpq8646 driver exposes neither).
-	 * Zero means "not declared": the telemetry printer falls back to a
-	 * live pmbus_word_command_supported() probe per class, which is what
-	 * the generic driver (compatible = "pmbus") relies on.
+	 * sensor set -- and skips the rest.
 	 */
 	u8 classes_present;
 };
@@ -311,11 +306,6 @@ struct pmbus_driver_info {
 /*
  * LINEAR11. Bits[15:11] = signed 5 bit exponent Y, bits[10:0] =
  * signed 11 bit mantissa N. Engineering value = N * 2^Y.
- *
- * Used by most PMBus chips for VIN, IIN, IOUT, TEMP. Some MPS
- * parts deviate (they report DIRECT format with chip specific m/b/R
- * coefficients); check the chip datasheet against PMBUS_VOUT_MODE
- * and the Linux per chip driver if porting.
  */
 s64 pmbus_reg2data_linear11(u16 raw);
 
@@ -416,10 +406,6 @@ int pmbus_write_word(struct udevice *dev, u8 cmd, u16 val);
  * work. Output is null terminated and printable only (non printable
  * bytes are substituted with '.').
  *
- * reverse_bytes: some MPS NVM personalities store ASCII strings
- * LSB first (chip returns "SPM" for the human string "MPS"); pass
- * true to reverse on copy. Spec compliant chips pass false.
- *
  * Returns string length on success or a negative errno on bus error
  * or invalid length byte. outsz must be at least 2.
  */
@@ -469,10 +455,7 @@ void pmbus_print_status_word(struct udevice *chip);
  *
  * Read READ_TEMPERATURE_1 (8Dh) from a UCLASS_REGULATOR device that
  * was bound by a pmbus_helper based chip driver, decode it through
- * the chip's pmbus_driver_info (so the MPS DIRECT 1 degC/LSB quirk
- * and the standard LINEAR11 encoding are both handled), select the
- * regulator's PAGE first on multi rail parts, and return the result
- * in millidegrees Celsius.
+ * the chip's pmbus_driver_info.
  *
  * This is what the generic drivers/thermal/pmbus_thermal.c companion
  * calls on its parent; keeping the decode here avoids exposing the
@@ -610,11 +593,6 @@ void pmbus_clear_active(void);
  * framework can associate an MFR_ID prefix (read at probe time)
  * with a vendor namespace ("mps", "lltc", "renesas", ...) and a
  * pmbus_driver_info pointer. The first matching entry wins.
- *
- * mfr_id_reverse flags MPS style chips that store the MFR_ID
- * string LSB first (chip returns "SPM" for the human string
- * "MPS"); the framework reads the string in both orderings and
- * matches against the prefix in the natural reading.
  */
 struct pmbus_chip_match {
 	const char *mfr_id;
@@ -646,9 +624,7 @@ int pmbus_resolve_by_name(const char *name, int *bus_seq, u8 *addr);
  * pmbus_active(), or returns CMD_RET_USAGE if the active device is
  * not from this vendor.
  *
- * Per chip drivers register their vendor handler at init time. The
- * MPS extension publishes pmbus mps last, pmbus mps clear last,
- * and pmbus mps clear force.
+ * Per chip drivers register their vendor handler at init time.
  */
 typedef int (*pmbus_vendor_handler_t)(struct cmd_tbl *cmdtp, int flag,
 				      int argc, char *const argv[]);
