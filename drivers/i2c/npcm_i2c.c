@@ -14,6 +14,7 @@
 #define NPCM_I2C_TIMEOUT_MS		10
 #define NPCM7XX_I2CSEGCTL_INIT_VAL	0x0333F000
 #define NPCM8XX_I2CSEGCTL_INIT_VAL	0x9333F000
+#define NPCM_I2CSEGCTL_SEG_MASK		0x3
 
 /* SCLFRQ min/max field values  */
 #define SCLFRQ_MIN		10
@@ -112,6 +113,8 @@ struct npcm_i2c_bus {
 	u32 freq;
 	bool started;
 };
+
+static const u8 npcm_i2csegctl_shift[] = {0, 2, 4, 6, 8, 10, 26, 29};
 
 static void npcm_dump_regs(struct npcm_i2c_bus *bus)
 {
@@ -564,6 +567,7 @@ static int npcm_i2c_probe(struct udevice *dev)
 	struct npcm_gcr *gcr = (struct npcm_gcr *)NPCM_GCR_BA;
 	struct npcm_i2c_regs *reg;
 	u32 i2csegctl_val = dev_get_driver_data(dev);
+	u32 segment;
 	struct clk clk;
 	int ret;
 
@@ -590,6 +594,16 @@ static int npcm_i2c_probe(struct udevice *dev)
 	}
 
 	/* set initial i2csegctl value */
+	if (IS_ENABLED(CONFIG_ARCH_NPCM8XX)) {
+		i2csegctl_val = readl(&gcr->i2csegctl);
+		i2csegctl_val |= NPCM8XX_I2CSEGCTL_INIT_VAL;
+		if (bus->num < 8) {
+			segment = dev_read_u32_default(dev, "nuvoton,i2c-segment", 0);
+			segment &= NPCM_I2CSEGCTL_SEG_MASK;
+			i2csegctl_val |= (segment << npcm_i2csegctl_shift[bus->num]);
+		}
+	}
+
 	writel(i2csegctl_val, &gcr->i2csegctl);
 
 	/* enable SMB module */
