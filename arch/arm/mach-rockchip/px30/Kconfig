@@ -81,10 +81,10 @@ config TPL_TEXT_BASE
 	default 0xff0e1000
 
 config TPL_STACK
-	default 0xff0e4fff
+	default 0xff0e4000
 
 config TPL_SYS_MALLOC_F_LEN
-	default 0x600
+	default 0x200
 
 config DEBUG_UART_CHANNEL
 	int "Mux channel to use for debug UART2/UART3"
