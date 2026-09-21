@@ -118,6 +118,9 @@
 
 #define TCA_INFO			0xfc
 
+/* Tuning fields left at this value are not programmed. */
+#define PHY_TUNE_DEFAULT		0xffffffff
+
 enum imx8mpq_phy_type {
 	IMX8MQ_PHY,
 	IMX8MP_PHY,
@@ -130,6 +133,13 @@ struct imx8mq_usb_phy {
 	enum imx8mpq_phy_type type;
 	struct udevice *vbus_supply;
 	void __iomem *tca_base;
+	u32 pcs_tx_swing_full;
+	u32 pcs_tx_deemph_3p5db;
+	u32 tx_vref_tune;
+	u32 tx_rise_tune;
+	u32 tx_preemp_amp_tune;
+	u32 tx_vboost_level;
+	u32 comp_dis_tune;
 };
 
 static const struct udevice_id imx8mq_usb_phy_of_match[] = {
@@ -201,6 +211,275 @@ static int imx8mq_usb_phy_init(struct phy *usb_phy)
 	return 0;
 }
 
+/*
+ * Tuning helpers, ported from the Linux driver
+ * (drivers/phy/freescale/phy-fsl-imx8mq-usb.c). Without them the PHY keeps
+ * its reset defaults and the fsl,phy-* properties in the device tree have no
+ * effect.
+ *
+ * i.MX95 encodes three of these fields differently from i.MX8MQ/8MP, so it
+ * needs its own converters -- feeding the generic ones a percentage would
+ * program a different register value, not merely a less precise one.
+ */
+static u32 phy_tx_vref_tune_from_property(u32 percent)
+{
+	percent = clamp(percent, 94U, 124U);
+
+	return DIV_ROUND_CLOSEST(percent - 94U, 2);
+}
+
+static u32 imx95_phy_tx_vref_tune_from_property(u32 percent)
+{
+	percent = clamp(percent, 90U, 108U);
+
+	switch (percent) {
+	case 90 ... 91:
+		percent = 0;
+		break;
+	case 92 ... 96:
+		percent -= 91;
+		break;
+	case 97 ... 104:
+		percent -= 92;
+		break;
+	case 105 ... 108:
+		percent -= 93;
+		break;
+	}
+
+	return percent;
+}
+
+static u32 phy_tx_rise_tune_from_property(u32 percent)
+{
+	switch (percent) {
+	case 0 ... 98:
+		return 3;
+	case 99:
+		return 2;
+	case 100 ... 101:
+		return 1;
+	default:
+		return 0;
+	}
+}
+
+static u32 imx95_phy_tx_rise_tune_from_property(u32 percent)
+{
+	percent = clamp(percent, 90U, 120U);
+
+	switch (percent) {
+	case 90 ... 99:
+		return 3;
+	case 101 ... 115:
+		return 1;
+	case 116 ... 120:
+		return 0;
+	default:
+		return 2;
+	}
+}
+
+static u32 phy_tx_preemp_amp_tune_from_property(u32 microamp)
+{
+	microamp = min(microamp, 1800U);
+
+	return microamp / 600;
+}
+
+static u32 phy_tx_vboost_level_from_property(u32 microvolt)
+{
+	switch (microvolt) {
+	case 1156:
+		return 5;
+	case 844:
+		return 3;
+	default:
+		return 4;
+	}
+}
+
+static u32 phy_comp_dis_tune_from_property(u32 percent)
+{
+	switch (percent) {
+	case 0 ... 92:
+		return 0;
+	case 93 ... 95:
+		return 1;
+	case 96 ... 97:
+		return 2;
+	case 98 ... 102:
+		return 3;
+	case 103 ... 105:
+		return 4;
+	case 106 ... 109:
+		return 5;
+	case 110 ... 113:
+		return 6;
+	default:
+		return 7;
+	}
+}
+
+static u32 imx95_phy_comp_dis_tune_from_property(u32 percent)
+{
+	percent = clamp(percent, 94U, 104U);
+
+	switch (percent) {
+	case 94 ... 95:
+		percent = 0;
+		break;
+	case 96 ... 98:
+		percent -= 95;
+		break;
+	case 99 ... 102:
+		percent -= 96;
+		break;
+	case 103 ... 104:
+		percent -= 97;
+		break;
+	}
+
+	return percent;
+}
+
+static u32 phy_pcs_tx_deemph_3p5db_from_property(u32 decibel)
+{
+	return min(decibel, 36U);
+}
+
+static u32 phy_pcs_tx_swing_full_from_property(u32 percent)
+{
+	percent = min(percent, 100U);
+
+	return (percent * 127) / 100;
+}
+
+static void imx8m_get_phy_tuning_data(struct udevice *dev)
+{
+	struct imx8mq_usb_phy *imx_phy = dev_get_priv(dev);
+	bool is_imx95 = imx_phy->type == IMX95_PHY;
+
+	if (dev_read_u32(dev, "fsl,phy-tx-vref-tune-percent",
+			 &imx_phy->tx_vref_tune))
+		imx_phy->tx_vref_tune = PHY_TUNE_DEFAULT;
+	else if (is_imx95)
+		imx_phy->tx_vref_tune =
+			imx95_phy_tx_vref_tune_from_property(imx_phy->tx_vref_tune);
+	else
+		imx_phy->tx_vref_tune =
+			phy_tx_vref_tune_from_property(imx_phy->tx_vref_tune);
+
+	if (dev_read_u32(dev, "fsl,phy-tx-rise-tune-percent",
+			 &imx_phy->tx_rise_tune))
+		imx_phy->tx_rise_tune = PHY_TUNE_DEFAULT;
+	else if (is_imx95)
+		imx_phy->tx_rise_tune =
+			imx95_phy_tx_rise_tune_from_property(imx_phy->tx_rise_tune);
+	else
+		imx_phy->tx_rise_tune =
+			phy_tx_rise_tune_from_property(imx_phy->tx_rise_tune);
+
+	if (dev_read_u32(dev, "fsl,phy-tx-preemp-amp-tune-microamp",
+			 &imx_phy->tx_preemp_amp_tune))
+		imx_phy->tx_preemp_amp_tune = PHY_TUNE_DEFAULT;
+	else
+		imx_phy->tx_preemp_amp_tune =
+			phy_tx_preemp_amp_tune_from_property(imx_phy->tx_preemp_amp_tune);
+
+	if (dev_read_u32(dev, "fsl,phy-tx-vboost-level-microvolt",
+			 &imx_phy->tx_vboost_level))
+		imx_phy->tx_vboost_level = PHY_TUNE_DEFAULT;
+	else
+		imx_phy->tx_vboost_level =
+			phy_tx_vboost_level_from_property(imx_phy->tx_vboost_level);
+
+	if (dev_read_u32(dev, "fsl,phy-comp-dis-tune-percent",
+			 &imx_phy->comp_dis_tune))
+		imx_phy->comp_dis_tune = PHY_TUNE_DEFAULT;
+	else if (is_imx95)
+		imx_phy->comp_dis_tune =
+			imx95_phy_comp_dis_tune_from_property(imx_phy->comp_dis_tune);
+	else
+		imx_phy->comp_dis_tune =
+			phy_comp_dis_tune_from_property(imx_phy->comp_dis_tune);
+
+	if (dev_read_u32(dev, "fsl,phy-pcs-tx-deemph-3p5db-attenuation-db",
+			 &imx_phy->pcs_tx_deemph_3p5db))
+		imx_phy->pcs_tx_deemph_3p5db = PHY_TUNE_DEFAULT;
+	else
+		imx_phy->pcs_tx_deemph_3p5db =
+			phy_pcs_tx_deemph_3p5db_from_property(imx_phy->pcs_tx_deemph_3p5db);
+
+	if (dev_read_u32(dev, "fsl,phy-pcs-tx-swing-full-percent",
+			 &imx_phy->pcs_tx_swing_full))
+		imx_phy->pcs_tx_swing_full = PHY_TUNE_DEFAULT;
+	else
+		imx_phy->pcs_tx_swing_full =
+			phy_pcs_tx_swing_full_from_property(imx_phy->pcs_tx_swing_full);
+}
+
+static void imx8m_phy_tune(struct imx8mq_usb_phy *imx_phy)
+{
+	u32 value;
+
+	if (imx_phy->pcs_tx_deemph_3p5db != PHY_TUNE_DEFAULT) {
+		value = readl(imx_phy->base + PHY_CTRL4);
+		value &= ~PHY_CTRL4_PCS_TX_DEEMPH_3P5DB_MASK;
+		value |= FIELD_PREP(PHY_CTRL4_PCS_TX_DEEMPH_3P5DB_MASK,
+				    imx_phy->pcs_tx_deemph_3p5db);
+		writel(value, imx_phy->base + PHY_CTRL4);
+	}
+
+	if (imx_phy->pcs_tx_swing_full != PHY_TUNE_DEFAULT) {
+		value = readl(imx_phy->base + PHY_CTRL5);
+		value &= ~PHY_CTRL5_PCS_TX_SWING_FULL_MASK;
+		value |= FIELD_PREP(PHY_CTRL5_PCS_TX_SWING_FULL_MASK,
+				    imx_phy->pcs_tx_swing_full);
+		writel(value, imx_phy->base + PHY_CTRL5);
+	}
+
+	if ((imx_phy->tx_vref_tune & imx_phy->tx_rise_tune &
+	     imx_phy->tx_preemp_amp_tune & imx_phy->comp_dis_tune &
+	     imx_phy->tx_vboost_level) == PHY_TUNE_DEFAULT)
+		/* If all are the default values, no need update. */
+		return;
+
+	value = readl(imx_phy->base + PHY_CTRL3);
+
+	if (imx_phy->tx_vref_tune != PHY_TUNE_DEFAULT) {
+		value &= ~PHY_CTRL3_TXVREF_TUNE_MASK;
+		value |= FIELD_PREP(PHY_CTRL3_TXVREF_TUNE_MASK,
+				    imx_phy->tx_vref_tune);
+	}
+
+	if (imx_phy->tx_rise_tune != PHY_TUNE_DEFAULT) {
+		value &= ~PHY_CTRL3_TXRISE_TUNE_MASK;
+		value |= FIELD_PREP(PHY_CTRL3_TXRISE_TUNE_MASK,
+				    imx_phy->tx_rise_tune);
+	}
+
+	if (imx_phy->tx_preemp_amp_tune != PHY_TUNE_DEFAULT) {
+		value &= ~PHY_CTRL3_TXPREEMP_TUNE_MASK;
+		value |= FIELD_PREP(PHY_CTRL3_TXPREEMP_TUNE_MASK,
+				    imx_phy->tx_preemp_amp_tune);
+	}
+
+	if (imx_phy->comp_dis_tune != PHY_TUNE_DEFAULT) {
+		value &= ~PHY_CTRL3_COMPDISTUNE_MASK;
+		value |= FIELD_PREP(PHY_CTRL3_COMPDISTUNE_MASK,
+				    imx_phy->comp_dis_tune);
+	}
+
+	if (imx_phy->tx_vboost_level != PHY_TUNE_DEFAULT) {
+		value &= ~PHY_CTRL3_TX_VBOOST_LEVEL_MASK;
+		value |= FIELD_PREP(PHY_CTRL3_TX_VBOOST_LEVEL_MASK,
+				    imx_phy->tx_vboost_level);
+	}
+
+	writel(value, imx_phy->base + PHY_CTRL3);
+}
+
 static int imx8mp_usb_phy_init(struct phy *usb_phy)
 {
 	struct udevice *dev = usb_phy->dev;
@@ -236,6 +515,8 @@ static int imx8mp_usb_phy_init(struct phy *usb_phy)
 	value = readl(imx_phy->base + PHY_CTRL1);
 	value &= ~(PHY_CTRL1_RESET | PHY_CTRL1_ATERESET);
 	writel(value, imx_phy->base + PHY_CTRL1);
+
+	imx8m_phy_tune(imx_phy);
 
 	if (imx_phy->tca_base)
 		tca_blk_init(usb_phy);
@@ -352,6 +633,8 @@ int imx8mq_usb_phy_probe(struct udevice *dev)
 
 	if (priv->type == IMX95_PHY)
 		priv->tca_base = dev_read_addr_index_ptr(dev, 1);
+
+	imx8m_get_phy_tuning_data(dev);
 
 	return 0;
 }
