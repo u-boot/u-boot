@@ -470,6 +470,15 @@ u32 zynqmp_pm_get_bootmode_reg(void);
 u32 zynqmp_pm_get_pmc_multi_boot_reg(void);
 int zynqmp_pm_fpga_load(u64 address);
 
+enum zynqmp_pm_request_ack {
+	ZYNQMP_PM_REQUEST_ACK_NO = 1,
+	ZYNQMP_PM_REQUEST_ACK_BLOCKING = 2,
+	ZYNQMP_PM_REQUEST_ACK_NON_BLOCKING = 3,
+};
+
+int zynqmp_pm_request_node(const u32 node, const u32 capabilities, const u32 qos,
+			   const enum zynqmp_pm_request_ack ack);
+
 /* Type of Config Object */
 #define PM_CONFIG_OBJECT_TYPE_BASE	0x1U
 #define PM_CONFIG_OBJECT_TYPE_OVERLAY	0x2U
@@ -486,12 +495,6 @@ int zynqmp_pm_fpga_load(u64 address);
 #define PM_CONFIG_IPI_PSU_CORTEXA53_0_MASK	0x00000001
 #define PM_CONFIG_IPI_PSU_CORTEXR5_0_MASK	0x00000100
 #define PM_CONFIG_IPI_PSU_CORTEXR5_1_MASK	0x00000200
-
-enum zynqmp_pm_request_ack {
-	ZYNQMP_PM_REQUEST_ACK_NO = 1,
-	ZYNQMP_PM_REQUEST_ACK_BLOCKING = 2,
-	ZYNQMP_PM_REQUEST_ACK_NON_BLOCKING = 3,
-};
 
 /* Node capabilities */
 #define ZYNQMP_PM_CAPABILITY_ACCESS	0x1U

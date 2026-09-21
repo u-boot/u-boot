@@ -924,6 +924,13 @@ int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 				arg5, ret_payload);
 }
 
+int zynqmp_pm_request_node(const u32 node, const u32 capabilities, const u32 qos,
+			   const enum zynqmp_pm_request_ack ack)
+{
+	return xilinx_pm_request(PM_REQUEST_NODE, node, capabilities, qos,
+				 ack, 0, 0, NULL);
+}
+
 static const struct udevice_id zynqmp_firmware_ids[] = {
 	{ .compatible = "xlnx,zynqmp-firmware", .data = (ulong)smc_call_legacy },
 	{ .compatible = "xlnx,versal-firmware", .data = (ulong)smc_call_legacy},
