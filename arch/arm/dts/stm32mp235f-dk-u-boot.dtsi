@@ -19,6 +19,10 @@
 	};
 };
 
+&ltdc {
+	bootph-all;
+};
+
 &usart2 {
 	bootph-all;
 };
