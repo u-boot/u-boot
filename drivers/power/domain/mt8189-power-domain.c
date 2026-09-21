@@ -71,12 +71,11 @@
 #define MT8189_PROT_EN_PERISYS_STA_0_SSUSB	BIT(7)
 
 /*
- * Three things the Linux driver does for these domains are not modelled
- * here, because this driver only ever powers up the domains that the U-Boot
- * device tree references: the EMICFG GALS sleep protection step that MFG1
- * needs, the domain supply regulator that MFG0 and MFG1 need
- * (MTK_SCPD_DOMAIN_SUPPLY in Linux), and the SRAM isolation with an inverted
- * SRAM power-down bit that ADSP_TOP_DORMANT and EDP_TX_DORMANT need.
+ * Two things the Linux driver does for these domains are not modelled here,
+ * because this driver only ever powers up the domains that the U-Boot device
+ * tree references: the EMICFG GALS sleep protection step that MFG1 needs, and
+ * the domain supply regulator that MFG0 and MFG1 need (MTK_SCPD_DOMAIN_SUPPLY
+ * in Linux).
  */
 
 static const struct mtk_scp_domain_data mt8189_scp_domain[] = {
@@ -125,6 +124,7 @@ static const struct mtk_scp_domain_data mt8189_scp_domain[] = {
 		.pwr_sta2nd_offs = MT8189_SPM_PWR_STATUS_2ND,
 		.sram_pdn_bits = BIT(9),
 		.sram_pdn_ack_bits = BIT(13),
+		.caps = MTK_SCPD_SRAM_ISO | MTK_SCPD_SRAM_PDN_INVERTED,
 	},
 	[MT8189_POWER_DOMAIN_ADSP_INFRA] = {
 		.sta_mask = BIT(8),
@@ -384,6 +384,8 @@ static const struct mtk_scp_domain_data mt8189_scp_domain[] = {
 		.pwr_sta_offs = MT8189_SPM_PWR_STATUS_MSB,
 		.pwr_sta2nd_offs = MT8189_SPM_PWR_STATUS_MSB_2ND,
 		.sram_pdn_bits = BIT(9),
+		.sram_pdn_ack_bits = 0,
+		.caps = MTK_SCPD_SRAM_ISO | MTK_SCPD_SRAM_PDN_INVERTED,
 	},
 	[MT8189_POWER_DOMAIN_PCIE] = {
 		.sta_mask = BIT(13),
