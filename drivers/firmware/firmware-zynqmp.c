@@ -14,6 +14,7 @@
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <log.h>
+#include <versalpl.h>
 #include <zynqmp_firmware.h>
 #include <asm/cache.h>
 #include <asm/ptrace.h>
@@ -297,6 +298,20 @@ int xilinx_pm_get_chipid(u32 *idcode, u32 *version)
 		*version = ret_payload[2];
 
 	return 0;
+}
+
+int zynqmp_pm_fpga_load(u64 address)
+{
+	u32 buf_lo = lower_32_bits(address);
+	u32 buf_hi = upper_32_bits(address);
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	if (IS_ENABLED(CONFIG_ARCH_VERSAL2))
+		return xilinx_pm_request(VERSAL_PM_LOAD_PDI, VERSAL_PM_PDI_TYPE,
+					 buf_hi, buf_lo, 0, 0, 0, ret_payload);
+
+	return xilinx_pm_request(VERSAL_PM_LOAD_PDI, VERSAL_PM_PDI_TYPE,
+				 buf_lo, buf_hi, 0, 0, 0, ret_payload);
 }
 
 #if defined(CONFIG_ARCH_VERSAL2)
