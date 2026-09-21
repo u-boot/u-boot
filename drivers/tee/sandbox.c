@@ -248,6 +248,7 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 
 		return TEE_SUCCESS;
 	case TA_AVB_CMD_READ_PERSIST_VALUE:
+	case TA_AVB_CMD_READ_PERSIST_VALUE2:
 		res = check_params(TEE_PARAM_ATTR_TYPE_MEMREF_INPUT,
 				   TEE_PARAM_ATTR_TYPE_MEMREF_INOUT,
 				   TEE_PARAM_ATTR_TYPE_NONE,
@@ -268,8 +269,23 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 			return TEE_ERROR_ITEM_NOT_FOUND;
 
 		tmp_sz = strlen(ep->data) + 1;
-		if (value_sz < tmp_sz)
-			return TEE_ERROR_SHORT_BUFFER;
+		if (value_sz < tmp_sz) {
+			/*
+			 * For TA_AVB_CMD_READ_PERSIST_VALUE2, reject
+			 * a too short output buffer, but do inform
+			 * the caller of what would be the correct
+			 * size.
+			 */
+			if (func == TA_AVB_CMD_READ_PERSIST_VALUE2) {
+				params[1].u.memref.size = tmp_sz;
+				return TEE_ERROR_SHORT_BUFFER;
+			}
+			/*
+			 * For TA_AVB_CMD_READ_PERSIST_VALUE, truncate
+			 * the value to the given size.
+			 */
+			tmp_sz = value_sz;
+		}
 
 		memcpy(value, ep->data, tmp_sz);
 		params[1].u.memref.size = tmp_sz;
