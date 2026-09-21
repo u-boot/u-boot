@@ -12,8 +12,8 @@
 #include <asm/gpio.h>
 #include <asm/cache.h>
 #include <cpu_func.h>
-#include <zynqmp_firmware.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 #include "cadence_qspi.h"
 
 int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
@@ -200,25 +200,12 @@ int cadence_qspi_flash_reset(struct udevice *dev)
 
 void cadence_qspi_apb_enable_linear_mode(bool enable)
 {
-	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
-		if (enable)
-			/* ahb read mode */
-			xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI,
-					  IOCTL_OSPI_MUX_SELECT,
-					  PM_OSPI_MUX_SEL_LINEAR, 0, 0, 0, NULL);
-		else
-			/* DMA mode */
-			xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI,
-					  IOCTL_OSPI_MUX_SELECT,
-					  PM_OSPI_MUX_SEL_DMA, 0, 0, 0, NULL);
-	} else {
-		if (enable)
-			writel(readl(VERSAL_AXI_MUX_SEL) |
-			       VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
-		else
-			writel(readl(VERSAL_AXI_MUX_SEL) &
-			       ~VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
-	}
+	int ret;
+
+	/* ahb read mode vs. DMA mode */
+	ret = zynqmp_pm_ospi_enable_linear_mode(enable);
+	if (ret)
+		printf("%s: failed to select OSPI mux mode: %d\n", __func__, ret);
 }
 
 int cadence_device_reset(struct udevice *bus)

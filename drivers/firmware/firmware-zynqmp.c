@@ -937,6 +937,17 @@ int zynqmp_pm_ospi_init(void)
 				      ZYNQMP_PM_MAX_QOS, ZYNQMP_PM_REQUEST_ACK_NO);
 }
 
+#if defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL_NET) || \
+	defined(CONFIG_ARCH_VERSAL2)
+int zynqmp_pm_ospi_enable_linear_mode(bool enable)
+{
+	u32 select = enable ? PM_OSPI_MUX_SEL_LINEAR : PM_OSPI_MUX_SEL_DMA;
+
+	return xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI, IOCTL_OSPI_MUX_SELECT,
+				 select, 0, 0, 0, NULL);
+}
+#endif
+
 static const struct udevice_id zynqmp_firmware_ids[] = {
 	{ .compatible = "xlnx,zynqmp-firmware", .data = (ulong)smc_call_legacy },
 	{ .compatible = "xlnx,versal-firmware", .data = (ulong)smc_call_legacy},

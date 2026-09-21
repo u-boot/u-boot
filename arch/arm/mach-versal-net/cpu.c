@@ -266,6 +266,18 @@ __weak u32 zynqmp_pm_get_pmc_tap_usercode(void)
 	return readl(PMC_TAP_USERCODE);
 }
 
+__weak int zynqmp_pm_ospi_enable_linear_mode(bool enable)
+{
+	if (enable)
+		writel(readl(VERSAL_AXI_MUX_SEL) |
+		       VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
+	else
+		writel(readl(VERSAL_AXI_MUX_SEL) &
+		       ~VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
+
+	return 0;
+}
+
 U_BOOT_DRVINFO(soc_xilinx_versal_net) = {
 	.name = "soc_xilinx_versal_net",
 };

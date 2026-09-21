@@ -31,5 +31,7 @@ void versal_timer_setup(void);
 int xilinx_pm_get_chipid(u32 *idcode, u32 *version);
 /* Overridable PMC GLOBAL PGGS register accessor: weak MMIO default, firmware override */
 u32 zynqmp_pm_get_pmc_global_pggs_reg(u32 reg_addr);
+/* Overridable OSPI AXI-mux select: weak MMIO default, firmware override */
+int zynqmp_pm_ospi_enable_linear_mode(bool enable);
 
 #endif /* _ASM_ARCH_SYS_PROTO_H */
