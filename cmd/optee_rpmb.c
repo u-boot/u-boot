@@ -72,8 +72,8 @@ static int invoke_func(u32 func, ulong num_param, struct tee_param *param)
 }
 
 static int read_persistent_value(const char *name,
-				 size_t buffer_size,
-				 u8 *out_buffer,
+				 size_t size_hint,
+				 char **out_buffer,
 				 size_t *out_num_bytes_read)
 {
 	int rc = 0;
@@ -81,6 +81,8 @@ static int read_persistent_value(const char *name,
 	struct tee_shm *shm_buf;
 	struct tee_param param[2];
 	size_t name_size = strlen(name) + 1;
+	size_t buffer_size = size_hint;
+	int retry = 1;
 
 	if (!tee)
 		if (avb_ta_open_session())
@@ -93,6 +95,7 @@ static int read_persistent_value(const char *name,
 		goto close_session;
 	}
 
+again:
 	rc = tee_shm_alloc(tee, buffer_size,
 			   TEE_SHM_ALLOC, &shm_buf);
 	if (rc) {
@@ -110,8 +113,16 @@ static int read_persistent_value(const char *name,
 	param[1].u.memref.shm = shm_buf;
 	param[1].u.memref.size = buffer_size;
 
-	rc = invoke_func(TA_AVB_CMD_READ_PERSIST_VALUE,
+	rc = invoke_func(TA_AVB_CMD_READ_PERSIST_VALUE2,
 			 2, param);
+
+	if (rc == -ENOSPC && param[1].u.memref.size > buffer_size && retry) {
+		retry = 0;
+		tee_shm_free(shm_buf);
+		buffer_size = param[1].u.memref.size;
+		goto again;
+	}
+
 	if (rc)
 		goto out;
 
@@ -121,8 +132,9 @@ static int read_persistent_value(const char *name,
 	}
 
 	*out_num_bytes_read = param[1].u.memref.size;
-
-	memcpy(out_buffer, shm_buf->addr, *out_num_bytes_read);
+	*out_buffer = memdup(shm_buf->addr, *out_num_bytes_read);
+	if (!*out_buffer)
+		rc = -ENOMEM;
 
 out:
 	tee_shm_free(shm_buf);
@@ -198,24 +210,23 @@ int do_optee_rpmb_read(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
 	const char *name;
-	size_t bytes;
 	size_t bytes_read;
-	void *buffer;
+	char *buffer = NULL;
+	size_t bytes = 64; /* Probably enough for most cases to not require two roundtrips. */
 	char *endp;
 
-	if (argc != 3)
+	/* Use a third argument merely as a size hint. */
+	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
 
 	name = argv[1];
-	bytes = dectoul(argv[2], &endp);
-	if (*endp && *endp != '\n')
-		return CMD_RET_USAGE;
+	if (argc >= 3) {
+		bytes = dectoul(argv[2], &endp);
+		if (*endp && *endp != '\n')
+			return CMD_RET_USAGE;
+	}
 
-	buffer = malloc(bytes);
-	if (!buffer)
-		return CMD_RET_FAILURE;
-
-	if (read_persistent_value(name, bytes, buffer, &bytes_read) == 0) {
+	if (read_persistent_value(name, bytes, &buffer, &bytes_read) == 0) {
 		printf("Read %zu bytes, value = %s\n", bytes_read,
 		       (char *)buffer);
 		free(buffer);
