@@ -1,5 +1,5 @@
 DISPLAY5 BOARD
-M:	Lukasz Majewski <lukma@denx.de>
+M:	Lukasz Majewski <lukma@nabladev.com>
 S:	Maintained
 F:	board/liebherr/display5/
 F:	include/configs/display5.h

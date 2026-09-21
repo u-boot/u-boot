@@ -1,5 +1,5 @@
 XEA BOARD
-M:	Lukasz Majewski <lukma@denx.de>
+M:	Lukasz Majewski <lukma@nabladev.com>
 S:	Maintained
 F:	board/liebherr/xea/
 F:	include/configs/xea.h

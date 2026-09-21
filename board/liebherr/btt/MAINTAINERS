@@ -1,5 +1,5 @@
 BTT BOARD
-M:	Lukasz Majewski <lukma@denx.de>
+M:	Lukasz Majewski <lukma@nabladev.com>
 S:	Maintained
 F:	board/liebherr/btt/
 F:	include/configs/btt.h

@@ -1,5 +1,5 @@
 KP_IMX6Q_TPC BOARD
-M:	Lukasz Majewski <lukma@denx.de>
+M:	Lukasz Majewski <lukma@nabladev.com>
 S:	Maintained
 F:	board/k\+p/kp_imx6q_tpc/
 F:	board/k\+p/bootscripts/tpcboot.cmd

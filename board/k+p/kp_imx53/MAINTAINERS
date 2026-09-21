@@ -1,5 +1,5 @@
 KP_IMX53_HSC BOARD
-M:	Lukasz Majewski <lukma@denx.de>
+M:	Lukasz Majewski <lukma@nabladev.com>
 S:	Maintained
 F:	board/k\+p/kp_imx53/
 F:	board/k\+p/bootscripts/tpcboot.cmd

@@ -1,5 +1,5 @@
 MCCMON6 BOARD
-M:	Lukasz Majewski <lukma@denx.de>
+M:	Lukasz Majewski <lukma@nabladev.com>
 S:	Maintained
 F:	board/liebherr/mccmon6/
 F:	include/configs/mccmon6.h

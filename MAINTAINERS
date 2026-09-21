@@ -958,7 +958,7 @@ F:	drivers/mtd/cfi_flash.c
 F:	drivers/mtd/jedec_flash.c
 
 CLOCK
-M:	Lukasz Majewski <lukma@denx.de>
+M:	Lukasz Majewski <lukma@nabladev.com>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-clk.git
 F:	drivers/clk/
@@ -985,7 +985,7 @@ F:	dts/upstream/
 N:	OF_UPSTREAM
 
 DFU
-M:	Lukasz Majewski <lukma@denx.de>
+M:	Lukasz Majewski <lukma@nabladev.com>
 M:	Mattijs Korpershoek <mkorpershoek@kernel.org>
 S:	Maintained
 T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-dfu.git
