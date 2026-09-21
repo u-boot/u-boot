@@ -12,7 +12,6 @@
 #include <asm/gpio.h>
 #include <asm/cache.h>
 #include <cpu_func.h>
-#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include "cadence_qspi.h"
 
@@ -159,45 +158,7 @@ int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_priv *priv)
 #if !CONFIG_IS_ENABLED(DM_GPIO)
 int cadence_qspi_flash_reset(struct udevice *dev)
 {
-	/* CRP WPROT */
-	writel(0, WPROT_CRP);
-	/* GPIO Reset */
-	writel(0, RST_GPIO);
-
-	/* disable IOU write protection */
-	writel(0, WPROT_LPD_MIO);
-
-	/* set direction as output */
-	writel((readl(BOOT_MODE_DIR) | BIT(FLASH_RESET_GPIO)),
-	       BOOT_MODE_DIR);
-
-	/* Data output enable */
-	writel((readl(BOOT_MODE_OUT) | BIT(FLASH_RESET_GPIO)),
-	       BOOT_MODE_OUT);
-
-	/* IOU SLCR write enable */
-	writel(0, WPROT_PMC_MIO);
-
-	/* set MIO as GPIO */
-	writel(0x60, MIO_PIN_12);
-
-	/* Set value 1 to pin */
-	writel((readl(BANK0_OUTPUT) | BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
-	udelay(10);
-
-	/* Disable Tri-state */
-	writel((readl(BANK0_TRI) & ~BIT(FLASH_RESET_GPIO)), BANK0_TRI);
-	udelay(5);
-
-	/* Set value 0 to pin */
-	writel((readl(BANK0_OUTPUT) & ~BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
-	udelay(150);
-
-	/* Set value 1 to pin */
-	writel((readl(BANK0_OUTPUT) | BIT(FLASH_RESET_GPIO)), BANK0_OUTPUT);
-	udelay(1200);
-
-	return 0;
+	return zynqmp_pm_ospi_flash_reset();
 }
 #endif
 
