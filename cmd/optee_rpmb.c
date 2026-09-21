@@ -7,6 +7,7 @@
 #include <env.h>
 #include <errno.h>
 #include <image.h>
+#include <linux/ctype.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <tee.h>
@@ -213,22 +214,36 @@ int do_optee_rpmb_read(struct cmd_tbl *cmdtp, int flag, int argc,
 	size_t bytes_read;
 	char *buffer = NULL;
 	size_t bytes = 64; /* Probably enough for most cases to not require two roundtrips. */
+	const char *varname = NULL;
 	char *endp;
 
-	/* Use a third argument merely as a size hint. */
 	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
 
 	name = argv[1];
 	if (argc >= 3) {
-		bytes = dectoul(argv[2], &endp);
-		if (*endp && *endp != '\n')
-			return CMD_RET_USAGE;
+		/*
+		 * For backward compatibility, a numerical third
+		 * argument is accepted, but merely treated as a size
+		 * hint. A non-numerical argument is the name of an
+		 * environment variable to store the value into.
+		 */
+		if (isdigit(argv[2][0])) {
+			bytes = dectoul(argv[2], &endp);
+			if (*endp && *endp != '\n')
+				return CMD_RET_USAGE;
+		} else {
+			varname = argv[2];
+		}
 	}
 
 	if (read_persistent_value(name, bytes, &buffer, &bytes_read) == 0) {
-		printf("Read %zu bytes, value = %s\n", bytes_read,
-		       (char *)buffer);
+		if (varname) {
+			env_set(varname, buffer);
+		} else {
+			printf("Read %zu bytes, value = %s\n", bytes_read,
+			       (char *)buffer);
+		}
 		free(buffer);
 		return CMD_RET_SUCCESS;
 	}
@@ -289,7 +304,7 @@ static int do_optee_rpmb(struct cmd_tbl *cmdtp, int flag, int argc,
 
 U_BOOT_CMD (
 	optee_rpmb, 29, 0, do_optee_rpmb,
-	"Provides commands for testing secure storage on RPMB on OPTEE",
-	"read_pvalue <name> <bytes> - read a persistent value <name>\n"
+	"Provides commands for accessing secure storage on RPMB on OPTEE",
+	"read_pvalue <name> [<varname>] - read a persistent value <name> [store it to env var <varname>]\n"
 	"optee_rpmb write_pvalue <name> <value> - write a persistent value <name>\n"
 	);
