@@ -39,7 +39,10 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 			clrbits_le32(priv->regbase + CQSPI_REG_CONFIG,
 				     CQSPI_REG_CONFIG_DIRECT);
 
-		cadence_qspi_apb_enable_linear_mode(false);
+		ret = cadence_qspi_apb_enable_linear_mode(false);
+		if (ret)
+			return ret;
+
 		reg = readl(priv->regbase + CQSPI_REG_CONFIG);
 		reg |= CQSPI_REG_CONFIG_ENBL_DMA;
 		writel(reg, priv->regbase + CQSPI_REG_CONFIG);
@@ -198,7 +201,7 @@ int cadence_qspi_flash_reset(struct udevice *dev)
 }
 #endif
 
-void cadence_qspi_apb_enable_linear_mode(bool enable)
+int cadence_qspi_apb_enable_linear_mode(bool enable)
 {
 	int ret;
 
@@ -206,6 +209,8 @@ void cadence_qspi_apb_enable_linear_mode(bool enable)
 	ret = zynqmp_pm_ospi_enable_linear_mode(enable);
 	if (ret)
 		printf("%s: failed to select OSPI mux mode: %d\n", __func__, ret);
+
+	return ret;
 }
 
 int cadence_device_reset(struct udevice *bus)
