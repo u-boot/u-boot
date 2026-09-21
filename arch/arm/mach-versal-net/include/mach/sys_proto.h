@@ -19,3 +19,5 @@ int xilinx_pm_get_chipid(u32 *idcode, u32 *version);
 u32 zynqmp_pm_get_pmc_tap_idcode(void);
 u32 zynqmp_pm_get_pmc_tap_version(void);
 u32 zynqmp_pm_get_pmc_tap_usercode(void);
+/* Overridable OSPI AXI-mux select: weak MMIO default, firmware override */
+int zynqmp_pm_ospi_enable_linear_mode(bool enable);
