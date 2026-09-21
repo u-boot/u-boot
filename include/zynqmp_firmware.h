@@ -412,6 +412,8 @@ enum pm_ioctl_id {
 	IOCTL_AIE_OPS = 33,
 	/* IOCTL to get default/current QoS */
 	IOCTL_GET_QOS = 34,
+	/* IOCTL for OSPI flash GPIO reset sequence */
+	IOCTL_OSPI_FLASH_RESET = 35,
 };
 
 enum pm_sd_config_type {

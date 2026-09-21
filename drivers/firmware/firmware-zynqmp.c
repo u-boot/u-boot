@@ -948,6 +948,20 @@ int zynqmp_pm_ospi_enable_linear_mode(bool enable)
 }
 #endif
 
+#if !CONFIG_IS_ENABLED(DM_GPIO) && \
+	(defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL_NET) || \
+	 defined(CONFIG_ARCH_VERSAL2))
+int zynqmp_pm_ospi_flash_reset(void)
+{
+	/* At EL3 or in SPL the firmware (SMC) path is unavailable */
+	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3)
+		return zynqmp_pm_ospi_flash_reset_raw();
+
+	return xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI, IOCTL_OSPI_FLASH_RESET,
+				 0, 0, 0, 0, NULL);
+}
+#endif
+
 static const struct udevice_id zynqmp_firmware_ids[] = {
 	{ .compatible = "xlnx,zynqmp-firmware", .data = (ulong)smc_call_legacy },
 	{ .compatible = "xlnx,versal-firmware", .data = (ulong)smc_call_legacy},
