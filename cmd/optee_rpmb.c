@@ -52,10 +52,12 @@ static int invoke_func(u32 func, ulong num_param, struct tee_param *param)
 	case TEE_SUCCESS:
 		return 0;
 	case TEE_ERROR_OUT_OF_MEMORY:
+		return -ENOMEM;
 	case TEE_ERROR_STORAGE_NO_SPACE:
+	case TEE_ERROR_SHORT_BUFFER:
 		return -ENOSPC;
 	case TEE_ERROR_ITEM_NOT_FOUND:
-		return -EIO;
+		return -ENOENT;
 	case TEE_ERROR_TARGET_DEAD:
 		/*
 		 * The TA has paniced, close the session to reload the TA
