@@ -9,6 +9,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/iopoll.h>
 #include <dm/device_compat.h>
@@ -208,12 +209,31 @@ static int mtk_scpsys_power_on(struct power_domain *power_domain)
 	if (ret)
 		return ret;
 
-	val &= ~data->sram_pdn_bits;
-	writel(val, ctl_addr);
-
-	ret = readl_poll_timeout(ctl_addr, tmp, !(tmp & pdn_ack), 100);
+	/*
+	 * An inverted sram_pdn bit is set, not cleared, to power the SRAM up,
+	 * and the ack is then expected to read back as all ones.
+	 */
+	if (data->caps & MTK_SCPD_SRAM_PDN_INVERTED) {
+		val |= data->sram_pdn_bits;
+		writel(val, ctl_addr);
+		ret = readl_poll_timeout(ctl_addr, tmp,
+					 (tmp & pdn_ack) == pdn_ack, 100);
+	} else {
+		val &= ~data->sram_pdn_bits;
+		writel(val, ctl_addr);
+		ret = readl_poll_timeout(ctl_addr, tmp, !(tmp & pdn_ack), 100);
+	}
 	if (ret < 0)
 		return ret;
+
+	/* Release the SRAM isolation now that it is powered */
+	if (data->caps & MTK_SCPD_SRAM_ISO) {
+		val |= PWR_SRAM_ISOINT_B_BIT;
+		writel(val, ctl_addr);
+		udelay(1);
+		val &= ~PWR_SRAM_CLKISO_BIT;
+		writel(val, ctl_addr);
+	}
 
 	if (data->bus_prot_mask) {
 		ret = mtk_infracfg_clear_bus_protection(infracfg,
@@ -265,11 +285,26 @@ static int mtk_scpsys_power_off(struct power_domain *power_domain)
 		return ret;
 
 	val = readl(ctl_addr);
-	val |= data->sram_pdn_bits;
-	writel(val, ctl_addr);
 
-	ret = readl_poll_timeout(ctl_addr, tmp, (tmp & pdn_ack) == pdn_ack,
-				 100);
+	/* Isolate the SRAM again before powering it down */
+	if (data->caps & MTK_SCPD_SRAM_ISO) {
+		val |= PWR_SRAM_CLKISO_BIT;
+		writel(val, ctl_addr);
+		udelay(1);
+		val &= ~PWR_SRAM_ISOINT_B_BIT;
+		writel(val, ctl_addr);
+	}
+
+	if (data->caps & MTK_SCPD_SRAM_PDN_INVERTED) {
+		val &= ~data->sram_pdn_bits;
+		writel(val, ctl_addr);
+		ret = readl_poll_timeout(ctl_addr, tmp, !(tmp & pdn_ack), 100);
+	} else {
+		val |= data->sram_pdn_bits;
+		writel(val, ctl_addr);
+		ret = readl_poll_timeout(ctl_addr, tmp,
+					 (tmp & pdn_ack) == pdn_ack, 100);
+	}
 	if (ret < 0)
 		return ret;
 
