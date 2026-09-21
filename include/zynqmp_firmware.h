@@ -468,6 +468,7 @@ int zynqmp_pm_reset_assert(const u32 reset,
 int zynqmp_pm_feature(const u32 api_id);
 u32 zynqmp_pm_get_bootmode_reg(void);
 u32 zynqmp_pm_get_pmc_multi_boot_reg(void);
+int zynqmp_pm_fpga_load(u64 address);
 
 /* Type of Config Object */
 #define PM_CONFIG_OBJECT_TYPE_BASE	0x1U
