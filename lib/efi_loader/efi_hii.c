@@ -822,6 +822,37 @@ static bool language_match(char *language, char *languages)
 	return false;
 }
 
+/**
+ * grow_string_table() - Grow a string table if necessary.
+ * @stbl: String table to grow.
+ * @n:    Minimum table size desired.
+ *
+ * Make sure a string table can contain at least n elements.
+ * If the table is too small, reallocate the memory and clear the new elements.
+ *
+ * Return: false in case of reallocation error, true otherwise.
+ * In case of error, the original string table is left untouched.
+ * In case of success, stbl->strings and stbl->nstrings may have been updated.
+ */
+static bool grow_string_table(struct efi_string_table *stbl, u32 n)
+{
+	void *buf;
+	u32 old_n = stbl->nstrings;
+
+	if (old_n >= n)
+		return true;
+
+	buf = realloc(stbl->strings, sizeof(stbl->strings[0]) * n);
+	if (!buf)
+		return false;
+
+	stbl->strings = buf;
+	stbl->nstrings = n;
+	memset(&stbl->strings[old_n], 0, sizeof(stbl->strings[0]) * (n - old_n));
+
+	return true;
+}
+
 static efi_status_t EFIAPI
 new_string(const struct efi_hii_string_protocol *this,
 	   efi_hii_handle_t package_list,
@@ -847,23 +878,12 @@ new_string(const struct efi_hii_string_protocol *this,
 	list_for_each_entry(stbl, &hii->string_tables, link) {
 		if (language_match((char *)language, stbl->language)) {
 			efi_string_id_t new_id;
-			void *buf;
 			efi_string_t str;
 
 			new_id = ++hii->max_string_id;
-			if (stbl->nstrings < new_id) {
-				buf = realloc(stbl->strings,
-					      sizeof(stbl->strings[0])
-						* new_id);
-				if (!buf)
-					return EFI_EXIT(EFI_OUT_OF_RESOURCES);
 
-				memset(&stbl->strings[stbl->nstrings], 0,
-				       (new_id - stbl->nstrings)
-					 * sizeof(stbl->strings[0]));
-				stbl->strings = buf;
-				stbl->nstrings = new_id;
-			}
+			if (!grow_string_table(stbl, new_id))
+				return EFI_EXIT(EFI_OUT_OF_RESOURCES);
 
 			str = u16_strdup(string);
 			if (!str)
@@ -957,20 +977,8 @@ set_string(const struct efi_hii_string_protocol *this,
 			if (hii->max_string_id < string_id)
 				return EFI_EXIT(EFI_NOT_FOUND);
 
-			if (stbl->nstrings < string_id) {
-				void *buf;
-
-				buf = realloc(stbl->strings,
-					      string_id
-						* sizeof(stbl->strings[0]));
-				if (!buf)
-					return EFI_EXIT(EFI_OUT_OF_RESOURCES);
-
-				memset(&stbl->strings[string_id - 1], 0,
-				       (string_id - stbl->nstrings)
-					 * sizeof(stbl->strings[0]));
-				stbl->strings = buf;
-			}
+			if (!grow_string_table(stbl, string_id))
+				return EFI_EXIT(EFI_OUT_OF_RESOURCES);
 
 			str = u16_strdup(string);
 			if (!str)
