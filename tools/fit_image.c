@@ -957,6 +957,24 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 		int len;
 
 		/*
+		 * A source file must not combine image-data with external
+		 * data properties, which the producer fills in when it
+		 * resolves the reference. A resolved FIT legitimately carries
+		 * both, so this only applies when compiling a source file.
+		 */
+		if (params->datafile &&
+		    fdt_getprop(fdt, node, FIT_IMAGE_DATA_PROP, NULL) &&
+		    (fdt_getprop(fdt, node, FIT_DATA_OFFSET_PROP, NULL) ||
+		     fdt_getprop(fdt, node, FIT_DATA_POSITION_PROP, NULL) ||
+		     fdt_getprop(fdt, node, FIT_DATA_SIZE_PROP, NULL))) {
+			fprintf(stderr,
+				"Error: image '%s': image-data must not be combined with external data properties\n",
+				fdt_get_name(fdt, node, NULL));
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+
+		/*
 		 * FIT_DATA_OFFSET_PROP and FIT_DATA_POSITION_PROP are never both present,
 		 *  but if they are, prefer FIT_DATA_OFFSET_PROP as it was there first
 		 */
@@ -1170,6 +1188,341 @@ err:
 }
 
 /**
+ * fit_props_equal() - Check whether a property is present and equal on
+ * two nodes
+ *
+ * @fdt: FIT blob containing both nodes
+ * @node_a: offset of the first node
+ * @node_b: offset of the second node
+ * @prop: name of the property to compare
+ * Return: true if @prop is present on both nodes with identical
+ * length and value, false otherwise
+ */
+static bool fit_props_equal(const void *fdt, int node_a, int node_b,
+			    const char *prop)
+{
+	const void *a, *b;
+	int len_a, len_b;
+
+	a = fdt_getprop(fdt, node_a, prop, &len_a);
+	b = fdt_getprop(fdt, node_b, prop, &len_b);
+
+	return a && b && len_a == len_b && !memcmp(a, b, len_a);
+}
+
+/**
+ * fit_check_shared_cipher() - Check cipher settings of images sharing data
+ *
+ * Two image nodes can only share binary data if their cipher settings
+ * produce identical ciphertext: either neither is encrypted, or both
+ * use the same algorithm, key and IV. The IV must be shared explicitly,
+ * through the same iv-name-hint or, when neither node uses a hint, the
+ * same iv value; anything else, including the independent random IV
+ * generated when a node provides no IV at all, would make the
+ * ciphertexts differ. A hint drives the encryption whenever it is
+ * present, so in that case the hints themselves have to match.
+ *
+ * The check covers two situations. In a source file the nodes are not
+ * yet encrypted and their cipher settings describe how they will be;
+ * matching settings then guarantee matching ciphertext. In a
+ * re-processed FIT both nodes already carry the shared ciphertext and
+ * record the plaintext length in data-size-unciphered, which therefore
+ * has to be equal as well.
+ *
+ * @fdt: FIT blob containing both image nodes
+ * @node: offset of the image node that carries the image-data reference
+ * @target: offset of the referenced image node
+ * @name: name of the referencing image, for error messages
+ * @ref: name of the referenced image, for error messages
+ * Return: 0 if the cipher settings allow sharing, -EINVAL if they do
+ * not
+ */
+static int fit_check_shared_cipher(const void *fdt, int node, int target,
+				   const char *name, const char *ref)
+{
+	int ncipher, tcipher;
+
+	ncipher = fdt_subnode_offset(fdt, node, FIT_CIPHER_NODENAME);
+	tcipher = fdt_subnode_offset(fdt, target, FIT_CIPHER_NODENAME);
+	if (ncipher < 0 && tcipher < 0)
+		return 0;
+
+	if ((ncipher < 0) != (tcipher < 0)) {
+		fprintf(stderr,
+			"Error: image '%s' shares data with image '%s' but only one of them is encrypted\n",
+			name, ref);
+		return -EINVAL;
+	}
+	if (!fit_props_equal(fdt, ncipher, tcipher, FIT_ALGO_PROP) ||
+	    !fit_props_equal(fdt, ncipher, tcipher, FIT_KEY_HINT)) {
+		fprintf(stderr,
+			"Error: image '%s' shares data with image '%s' but their cipher settings differ\n",
+			name, ref);
+		return -EINVAL;
+	}
+	if ((fdt_getprop(fdt, node, FIT_DATA_SIZE_UNCIPHERED_PROP, NULL) ||
+	     fdt_getprop(fdt, target, FIT_DATA_SIZE_UNCIPHERED_PROP, NULL)) &&
+	    !fit_props_equal(fdt, node, target, FIT_DATA_SIZE_UNCIPHERED_PROP)) {
+		fprintf(stderr,
+			"Error: image '%s' shares data with image '%s' but data-size-unciphered differs\n",
+			name, ref);
+		return -EINVAL;
+	}
+
+	if (fdt_getprop(fdt, ncipher, FIT_IV_HINT, NULL) ||
+	    fdt_getprop(fdt, tcipher, FIT_IV_HINT, NULL)) {
+		if (!fit_props_equal(fdt, ncipher, tcipher, FIT_IV_HINT)) {
+			fprintf(stderr,
+				"Error: image '%s' shares encrypted data with image '%s'; both must use the same iv-name-hint\n",
+				name, ref);
+			return -EINVAL;
+		}
+		return 0;
+	}
+	if (!fit_props_equal(fdt, ncipher, tcipher, FIT_IV_PROP)) {
+		fprintf(stderr,
+			"Error: image '%s' shares encrypted data with image '%s'; both must use the same iv-name-hint or iv\n",
+			name, ref);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+/**
+ * fit_resolve_image_data() - Resolve image-data references between images
+ *
+ * An image node may carry an 'image-data' property naming another image
+ * node under /images whose binary data it shares. Copy the referenced
+ * node's data into the referencing node so that later steps (ciphering,
+ * hashing, signing and external-data extraction) see a normal image
+ * node. The property itself is retained in the FIT as a record of the
+ * sharing relationship.
+ *
+ * If the referencing node already has data (for example when mkimage
+ * re-processes a FIT it produced earlier), the data must match the
+ * target's data exactly; anything else means the FIT is malformed.
+ *
+ * This runs after fit_import_data() on purpose. A re-processed FIT
+ * with external data legitimately carries image-data next to
+ * data-offset and data-size, which is the resolved form the
+ * specification describes, so the combination cannot be rejected up
+ * front. The import turns both the plain and the shared case into
+ * inline data, and the byte comparison against the target then
+ * implements the specification's rule that a sharer whose data
+ * disagrees with its target is malformed. A source file, where the
+ * combination cannot be legitimate, is rejected by the import itself
+ * before any data is read; external data properties that the import
+ * did not consume are rejected here.
+ *
+ * @params: image tool parameters, used for the tool name in messages
+ * @fname: filename of the FIT to process
+ * Return: 0 on success, including when there is nothing to resolve,
+ * negative on error
+ */
+static int fit_resolve_image_data(struct image_tool_params *params,
+				  const char *fname)
+{
+	void *fdt = NULL, *old_fdt;
+	int new_size, size, extra;
+	int fd;
+	struct stat sbuf;
+	bool found = false;
+	int changed = 0;
+	int ret;
+	int images;
+	int node;
+
+	fd = mmap_fdt(params->cmdname, fname, 0, &old_fdt, &sbuf, false, false);
+	if (fd < 0)
+		return -EIO;
+
+	images = fdt_path_offset(old_fdt, FIT_IMAGES_PATH);
+	if (images < 0) {
+		debug("%s: Cannot find /images node: %d\n", __func__, images);
+		ret = -EINVAL;
+		goto err_munmap;
+	}
+
+	/*
+	 * Work out roughly how much larger the FIT will get, and skip the
+	 * rewrite in the common case of no references. References that do
+	 * not resolve are left for the loop below to report.
+	 */
+	extra = 0;
+	fdt_for_each_subnode(node, old_fdt, images) {
+		const char *ref;
+		int target, len;
+
+		ref = fdt_getprop(old_fdt, node, FIT_IMAGE_DATA_PROP, NULL);
+		if (!ref)
+			continue;
+		found = true;
+		target = fdt_subnode_offset(old_fdt, images, ref);
+		if (target >= 0 &&
+		    fdt_getprop(old_fdt, target, FIT_DATA_PROP, &len))
+			extra += len + 64;
+	}
+	if (!found) {
+		munmap(old_fdt, sbuf.st_size);
+		close(fd);
+		return 0;
+	}
+
+	/* Allocate space to hold the enlarged FIT */
+	size = sbuf.st_size + extra + 1024;
+	fdt = calloc(1, size);
+	if (!fdt) {
+		fprintf(stderr, "%s: Failed to allocate memory (%d bytes)\n",
+			__func__, size);
+		ret = -ENOMEM;
+		goto err_munmap;
+	}
+	ret = fdt_open_into(old_fdt, fdt, size);
+	if (ret) {
+		debug("%s: Failed to expand FIT: %s\n", __func__,
+		      fdt_strerror(ret));
+		ret = -EINVAL;
+		goto err_munmap;
+	}
+
+	images = fdt_path_offset(fdt, FIT_IMAGES_PATH);
+	fdt_for_each_subnode(node, fdt, images) {
+		const char *name = fdt_get_name(fdt, node, NULL);
+		const char *ref, *data, *tdata;
+		void *copy;
+		int target, len, tlen;
+
+		ref = fdt_getprop(fdt, node, FIT_IMAGE_DATA_PROP, NULL);
+		if (!ref)
+			continue;
+
+		target = fdt_subnode_offset(fdt, images, ref);
+		if (target < 0) {
+			fprintf(stderr,
+				"Error: image '%s': image-data references undefined image '%s'\n",
+				name, ref);
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+		if (fdt_getprop(fdt, target, FIT_IMAGE_DATA_PROP, NULL)) {
+			fprintf(stderr,
+				"Error: image '%s': image-data target '%s' has an image-data property itself; chained references are not permitted\n",
+				name, ref);
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+		tdata = fdt_getprop(fdt, target, FIT_DATA_PROP, &tlen);
+		if (!tdata) {
+			fprintf(stderr,
+				"Error: image '%s': image-data target '%s' has no data\n",
+				name, ref);
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+
+		ret = fit_check_shared_cipher(fdt, node, target, name, ref);
+		if (ret)
+			goto err_munmap;
+
+		data = fdt_getprop(fdt, node, FIT_DATA_PROP, &len);
+		if (data) {
+			if (len != tlen || memcmp(data, tdata, len)) {
+				fprintf(stderr,
+					"Error: image '%s': data does not match image-data target '%s'\n",
+					name, ref);
+				ret = -EINVAL;
+				goto err_munmap;
+			}
+			/* Already resolved */
+			continue;
+		}
+		/*
+		 * A source file mixing image-data with a complete external
+		 * data reference was rejected before the import, and the
+		 * import consumed any complete reference of a re-processed
+		 * FIT, so what is left here is a partial form the import
+		 * refused, for example data-size without an offset.
+		 */
+		if (fdt_getprop(fdt, node, FIT_DATA_OFFSET_PROP, NULL) ||
+		    fdt_getprop(fdt, node, FIT_DATA_POSITION_PROP, NULL) ||
+		    fdt_getprop(fdt, node, FIT_DATA_SIZE_PROP, NULL)) {
+			fprintf(stderr,
+				"Error: image '%s': image-data must not be combined with external data properties\n",
+				name);
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+
+		/*
+		 * Copy via a temporary buffer since fdt_setprop() moves the
+		 * tree, including the target's data, while it works
+		 */
+		copy = malloc(tlen);
+		if (!copy) {
+			fprintf(stderr,
+				"%s: Failed to allocate memory (%d bytes)\n",
+				__func__, tlen);
+			ret = -ENOMEM;
+			goto err_munmap;
+		}
+		memcpy(copy, tdata, tlen);
+		ret = fdt_setprop(fdt, node, FIT_DATA_PROP, copy, tlen);
+		free(copy);
+		if (ret) {
+			debug("%s: Failed to write property: %s\n", __func__,
+			      fdt_strerror(ret));
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+		changed++;
+		debug("Resolved image-data of '%s' from '%s', size %x\n",
+		      name, ref, tlen);
+	}
+
+	munmap(old_fdt, sbuf.st_size);
+
+	/* Close the old fd so we can re-use it. */
+	close(fd);
+
+	/* All references were already resolved, leave the file as it is */
+	if (!changed) {
+		free(fdt);
+		return 0;
+	}
+
+	fdt_pack(fdt);
+
+	new_size = fdt_totalsize(fdt);
+	debug("Size expanded from %x to %x\n", (int)sbuf.st_size, new_size);
+
+	fd = open(fname, O_RDWR | O_CREAT | O_TRUNC | O_BINARY, 0666);
+	if (fd < 0) {
+		fprintf(stderr, "%s: Can't open %s: %s\n",
+			params->cmdname, fname, strerror(errno));
+		ret = -EIO;
+		goto err;
+	}
+	if (write(fd, fdt, new_size) != new_size) {
+		debug("%s: Failed to write FIT to file %s\n", __func__,
+		      strerror(errno));
+		ret = -EIO;
+		goto err;
+	}
+
+	free(fdt);
+	close(fd);
+	return 0;
+
+err_munmap:
+	munmap(old_fdt, sbuf.st_size);
+err:
+	free(fdt);
+	close(fd);
+	return ret;
+}
+
+/**
  * fit_handle_file - main FIT file processing function
  *
  * fit_handle_file() runs dtc to convert .its to .itb, includes
@@ -1231,6 +1584,11 @@ static int fit_handle_file(struct image_tool_params *params)
 
 	/* Move the data so it is internal to the FIT, if needed */
 	ret = fit_import_data(params, tmpfile);
+	if (ret)
+		goto err_system;
+
+	/* Resolve image-data references between images, if any */
+	ret = fit_resolve_image_data(params, tmpfile);
 	if (ret)
 		goto err_system;
 
