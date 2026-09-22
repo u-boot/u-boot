@@ -21,6 +21,7 @@ images that it reads and boots. Documentation about FIT is available in
     multi_spl
     multi-with-fpga
     multi-with-loadables
+    multi-with-shared-data
     overlay-fdt-boot
     sec_firmware_ppa
     signature
