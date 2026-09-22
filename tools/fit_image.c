@@ -813,6 +813,14 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		data = fdt_getprop(fdt, node, FIT_DATA_PROP, &len);
 		if (!data)
 			continue;
+		if (fdt_getprop(fdt, node, FIT_IMAGE_DATA_PROP, NULL)) {
+			/*
+			 * This node shares another image's data, which gets
+			 * its own offset below; don't store a second copy
+			 */
+			len = 0;
+			continue;
+		}
 
 		ret = fit_copy_image_data(fdt, node, buf, buf_ptr, data, &len);
 		if (ret)
@@ -848,6 +856,44 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 
 	/* Increment 'buf_ptr' for the trailing image. */
 	buf_ptr += ALIGN(len, align_size);
+
+	/*
+	 * Images sharing another image's data (image-data) reference the
+	 * same region instead of storing a second copy
+	 */
+	fdt_for_each_subnode(node, fdt, images) {
+		const char *prop, *ref;
+		int target, offset, size;
+
+		ref = fdt_getprop(fdt, node, FIT_IMAGE_DATA_PROP, NULL);
+		if (!ref || !fdt_getprop(fdt, node, FIT_DATA_PROP, NULL))
+			continue;
+
+		prop = params->external_offset > 0 ? FIT_DATA_POSITION_PROP :
+			FIT_DATA_OFFSET_PROP;
+		target = fdt_subnode_offset(fdt, images, ref);
+		offset = target >= 0 ? fdtdec_get_int(fdt, target, prop, -1) : -1;
+		size = target >= 0 ?
+			fdtdec_get_int(fdt, target, FIT_DATA_SIZE_PROP, -1) : -1;
+		if (offset == -1 || size == -1) {
+			fprintf(stderr,
+				"Error: image '%s': no extracted data to share from image '%s'\n",
+				fdt_get_name(fdt, node, NULL), ref);
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+
+		ret = fdt_delprop(fdt, node, FIT_DATA_PROP);
+		if (!ret)
+			ret = fdt_setprop_u32(fdt, node, prop, offset);
+		if (!ret)
+			ret = fdt_setprop_u32(fdt, node, FIT_DATA_SIZE_PROP,
+					      size);
+		if (ret) {
+			ret = -EINVAL;
+			goto err_munmap;
+		}
+	}
 
 	/* Pack the FDT and place the data after it */
 	fdt_pack(fdt);
