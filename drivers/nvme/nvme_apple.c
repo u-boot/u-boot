@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <asm/arch/rtkit.h>
 #include <asm/arch/sart.h>
+#include <linux/bug.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>
 
@@ -25,8 +26,6 @@
 #define ANS_BOOT_STATUS		0x01300
 #define  ANS_BOOT_STATUS_OK	0xde71ce55
 #define ANS_MODESEL		0x01304
-#define ANS_UNKNOWN_CTRL	0x24008
-#define  ANS_PRP_NULL_CHECK	(1 << 11)
 #define ANS_LINEAR_SQ_CTRL	0x24908
 #define  ANS_LINEAR_SQ_CTRL_EN	(1 << 0)
 #define ANS_ASQ_DB		0x2490c
@@ -116,13 +115,22 @@ static void apple_nvme_submit_cmd(struct nvme_queue *nvmeq,
 {
 	struct apple_nvme_priv *priv =
 		container_of(nvmeq->dev, struct apple_nvme_priv, ndev);
+	u32 page_size = nvmeq->dev->page_size;
 	struct ans_nvmmu_tcb *tcb;
 	u16 tail = nvmeq->sq_tail;
 
+	if (nvmeq->qid == NVME_ADMIN_Q) {
+		WARN_ON_ONCE(!IS_ALIGNED(cmd->common.prp1, page_size));
+		WARN_ON_ONCE(!IS_ALIGNED(cmd->common.prp2, page_size));
+	}
+
 	tcb = ((void *)priv->tcbs[nvmeq->qid]) + tail * ANS_NVMMU_TCB_PITCH;
 	memset(tcb, 0, sizeof(*tcb));
-	tcb->opcode = cmd->common.opcode;
-	tcb->flags = ANS_NVMMU_TCB_WRITE | ANS_NVMMU_TCB_READ;
+	tcb->opcode = 0;
+	if (cmd->common.prp1)
+		tcb->flags = ANS_NVMMU_TCB_WRITE | ANS_NVMMU_TCB_READ;
+	else
+		tcb->flags = 0;
 	tcb->slot = tail;
 	tcb->prpl_len = cmd->rw.length;
 	tcb->prp1 = cmd->common.prp1;
@@ -246,9 +254,6 @@ static int apple_nvme_probe(struct udevice *dev)
 	writel(ANS_LINEAR_SQ_CTRL_EN, priv->base + ANS_LINEAR_SQ_CTRL);
 	writel(((ANS_MAX_QUEUE_DEPTH << 16) | ANS_MAX_QUEUE_DEPTH),
 	       priv->base + ANS_MAX_PEND_CMDS_CTRL);
-
-	writel(readl(priv->base + ANS_UNKNOWN_CTRL) & ~ANS_PRP_NULL_CHECK,
-	       priv->base + ANS_UNKNOWN_CTRL);
 
 	strcpy(priv->ndev.vendor, "Apple");
 

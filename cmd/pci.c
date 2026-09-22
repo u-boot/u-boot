@@ -550,14 +550,10 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		}
 		if (busnum == -1) {
 			if (cmd != 'r') {
-				for (busnum = 0;
-				     uclass_get_device_by_seq(UCLASS_PCI, busnum, &bus) == 0;
-				     busnum++)
+				uclass_foreach_dev_probe(UCLASS_PCI, bus)
 					pciinfo(bus, value, true);
 			} else {
-				for (busnum = 0;
-				     uclass_get_device_by_seq(UCLASS_PCI, busnum, &bus) == 0;
-				     busnum++) {
+				uclass_foreach_dev_probe(UCLASS_PCI, bus) {
 					/* Regions are controller specific so skip non-root buses */
 					if (device_is_on_pci_bus(bus))
 						continue;

@@ -146,15 +146,23 @@ typedef struct _httpc_state
   u32_t rx_content_len;
   u32_t hdr_content_len;
   httpc_parse_state_t parse_state;
+#if LWIP_DNS
+  u8_t dns_pending;
+#endif
 #if HTTPC_DEBUG_REQUEST
   char* server_name;
   char* uri;
 #endif
 } httpc_state_t;
 
-/** Free http client state and deallocate all resources within */
-static err_t
-httpc_free_state(httpc_state_t* req)
+#if LWIP_DNS
+static void httpc_dns_found(const char* hostname, const ip_addr_t *ipaddr,
+                            void *arg);
+#endif
+
+/** Free http client state and detach its connection callbacks */
+static struct altcp_pcb *
+httpc_detach_state(httpc_state_t* req)
 {
   struct altcp_pcb* tpcb;
 
@@ -168,16 +176,26 @@ httpc_free_state(httpc_state_t* req)
   }
 
   tpcb = req->pcb;
-  mem_free(req);
-  req = NULL;
-
   if (tpcb != NULL) {
-    err_t r;
     altcp_arg(tpcb, NULL);
     altcp_recv(tpcb, NULL);
     altcp_err(tpcb, NULL);
     altcp_poll(tpcb, NULL, 0);
     altcp_sent(tpcb, NULL);
+  }
+  mem_free(req);
+  return tpcb;
+}
+
+/** Free http client state and deallocate all resources within */
+static err_t
+httpc_free_state(httpc_state_t* req)
+{
+  struct altcp_pcb* tpcb;
+
+  tpcb = httpc_detach_state(req);
+  if (tpcb != NULL) {
+    err_t r;
     r = altcp_close(tpcb);
     if (r != ERR_OK) {
       altcp_abort(tpcb);
@@ -199,6 +217,38 @@ httpc_close(httpc_state_t* req, httpc_result_t result, u32_t server_response, er
     }
     return httpc_free_state(req);
   }
+  return ERR_OK;
+}
+
+/** Abort an HTTP client request. */
+err_t
+httpc_abort(httpc_state_t *req)
+{
+  struct altcp_pcb *tpcb;
+
+  if (req == NULL) {
+    return ERR_ARG;
+  }
+
+#if LWIP_DNS
+  if (req->dns_pending) {
+    dns_cancel(httpc_dns_found, req);
+    req->dns_pending = 0;
+  }
+#endif
+
+  if (req->conn_settings != NULL) {
+    if (req->conn_settings->result_fn != NULL) {
+      req->conn_settings->result_fn(req->callback_arg,
+        HTTPC_RESULT_LOCAL_ABORT, req->rx_content_len, 0, ERR_ABRT);
+    }
+  }
+
+  tpcb = httpc_detach_state(req);
+  if (tpcb != NULL) {
+    altcp_abort(tpcb);
+  }
+
   return ERR_OK;
 }
 
@@ -447,6 +497,7 @@ httpc_dns_found(const char* hostname, const ip_addr_t *ipaddr, void *arg)
 
   LWIP_UNUSED_ARG(hostname);
 
+  req->dns_pending = 0;
   if (ipaddr != NULL) {
     err = httpc_get_internal_addr(req, ipaddr);
     if (err == ERR_OK) {
@@ -479,9 +530,13 @@ httpc_get_internal_dns(httpc_state_t* req, const char* server_name)
   if (err == ERR_OK) {
     /* cached or IP-string */
     err = httpc_get_internal_addr(req, &req->remote_addr);
-  } else if (err == ERR_INPROGRESS) {
+  }
+#if LWIP_DNS
+  else if (err == ERR_INPROGRESS) {
+    req->dns_pending = 1;
     return ERR_OK;
   }
+#endif
   return err;
 }
 

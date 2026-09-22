@@ -1321,7 +1321,7 @@ retry_calibration:
 	 */
 	regmap_read(priv->xfi_pma, AIROHA_PCS_PMA_RX_FREQDET, &val);
 	if (!(val & AIROHA_PCS_PMA_FBCK_LOCK)) {
-		if (calibration_try > AIROHA_PCS_MAX_CALIBRATION_TRY) {
+		if (calibration_try >= AIROHA_PCS_MAX_CALIBRATION_TRY) {
 			dev_err(priv->dev, "No FBCK Lock from FreqDet module after %d calibration try. PCS won't work.\n",
 				AIROHA_PCS_MAX_CALIBRATION_TRY);
 			return -EIO;

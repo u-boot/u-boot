@@ -536,10 +536,10 @@ config ENV_REDUNDANT_UPGRADE
 	help
 	  Normally, redundant environment is expected to always operate on
 	  two copies of the environment. However, hardware that may have
-	  originally shipped with single-copy environment can be upgraded
-	  to redundant environment without loss of existing environment
-	  content by correctly configuring the location of the redundant
-	  environment copy and by enabling this option.
+	  originally shipped with a single-copy environment that can be
+	  upgraded to redundant environment without loss of existing
+	  environment content by correctly configuring the location of
+	  the redundant environment copy and by enabling this option.
 
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"

@@ -17,11 +17,6 @@
 #define TMU_BASE		0x1C030000
 #endif
 
-/* Arm Generic Timer */
-#define CNTCR_BASE		0x1C000FFF /* Region 0 */
-#define CNTFID0			(CNTCR_BASE + 0x020)
-#define CNTCR_EN		BIT(0)
-
 /* Reset */
 #define RST_BASE		0xC1320000 /* Domain0 */
 #define RST_SWSRES1A		(RST_BASE + 0x410)
