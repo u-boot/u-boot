@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
+/*
+ * Copyright (c) 2026 BayLibre SAS
+ * Author: Julien Stephan <jstephan@baylibre.com>
+ * Author: Carlo Caione <ccaione@baylibre.com>
+ */
+
+/* Include within a section: the loader and SPL form one contiguous payload. */
+ddr-loader {
+	type = "blob-ext";
+	filename = "ddr-loader.bin";
+	size = <CONFIG_MTK_GENIO_DDR_LOADER_SIZE>;
+};
+
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+u-boot-spl {
+	type = "section";
+	size = <CONFIG_SPL_MAX_SIZE>;
+
+	u-boot-spl-nodtb {
+	};
+
+	u-boot-spl-pubkey-dtb {
+		algo = "sha256,rsa3072";
+		required = "conf";
+		key-name-hint = "bootloaders";
+	};
+};
+#else
+u-boot-spl {
+	size = <CONFIG_SPL_MAX_SIZE>;
+};
+#endif

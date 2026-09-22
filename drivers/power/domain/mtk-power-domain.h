@@ -72,6 +72,11 @@ struct mtk_scpsys_bus_prot_data {
 	u32 bus_prot_sta;
 	bool bus_prot_reg_update;
 	bool ignore_clr_ack;
+	/*
+	 * Release this protection before the subsys clocks are enabled and
+	 * re-apply it after they are disabled, instead of the other way round.
+	 */
+	bool subclk;
 };
 
 struct mtk_scp_domain_data {
@@ -112,7 +117,7 @@ struct mtk_scpsys {
 	struct mtk_scp_domain *domains;
 };
 
-#define _BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, _update, _ignore) { \
+#define _BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, _update, _ignore, _subclk) { \
 	.bus_prot_mask = (_mask),				\
 	.bus_prot_set = (_set),					\
 	.bus_prot_clr = (_clr),					\
@@ -120,19 +125,23 @@ struct mtk_scpsys {
 	.bus_prot_sta = (_sta),					\
 	.bus_prot_reg_update = (_update),			\
 	.ignore_clr_ack = (_ignore),				\
+	.subclk = (_subclk),					\
 }
 
 #define BUS_PROT_WR(_mask, _set, _clr, _sta)			\
-	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, false)
+	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, false, false)
 
 #define BUS_PROT_WR_IGN(_mask, _set, _clr, _sta)		\
-	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, true)
+	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, true, false)
+
+#define BUS_PROT_WR_IGN_SUBCLK(_mask, _set, _clr, _sta)		\
+	_BUS_PROT(_mask, _set, _clr, _mask, _sta, false, true, true)
 
 #define BUS_PROT_WR_STA_MASK(_mask, _sta_mask, _set, _clr, _sta) \
-	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, false)
+	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, false, false)
 
 #define BUS_PROT_WR_IGN_STA_MASK(_mask, _sta_mask, _set, _clr, _sta) \
-	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, true)
+	_BUS_PROT(_mask, _set, _clr, _sta_mask, _sta, false, true, false)
 
 int mtk_scpsys_probe(struct udevice *dev);
 int mtk_power_controller_probe(struct udevice *dev);
