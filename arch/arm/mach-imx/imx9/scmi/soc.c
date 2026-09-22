@@ -1078,6 +1078,12 @@ static int gpio_available(const char *nodes_path)
 
 int arch_cpu_init(void)
 {
+	return 0;
+}
+
+/* arch init which depends on DM init completion */
+static void arch_init_post_dm_f(void)
+{
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
 		ofnode node;
 
@@ -1102,8 +1108,6 @@ int arch_cpu_init(void)
 		gpio_reset(GPIO7_BASE_ADDR);
 #endif
 	}
-
-	return 0;
 }
 
 int imx9_probe_mu(void)
@@ -1145,6 +1149,8 @@ int imx9_probe_mu(void)
 		return ret;
 
 	set_cpu_info(&info);
+
+	arch_init_post_dm_f();
 
 	return 0;
 }
