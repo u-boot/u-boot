@@ -421,7 +421,9 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 				  const char *image_name, int image_noffset,
 				  int noffset)
 {
+	const void *iv;
 	char *algo_name;
+	int ivlen;
 	int ret = -1;
 
 	if (fit_image_cipher_get_algo(fit, noffset, &algo_name)) {
@@ -443,10 +445,11 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 	/*
 	 * Read the IV name
 	 *
-	 * If this property is not provided then mkimage will generate
-	 * a random IV and store it in the FIT image
+	 * If this property is not provided then mkimage will use the iv
+	 * property of the cipher node, if present, or generate a random
+	 * IV and store it in the FIT image
 	 */
-	info->ivname = fdt_getprop(fit, noffset, "iv-name-hint", NULL);
+	info->ivname = fdt_getprop(fit, noffset, FIT_IV_HINT, NULL);
 
 	info->fit = fit;
 	info->node_noffset = noffset;
@@ -479,6 +482,7 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 		goto out;
 	}
 
+	iv = fdt_getprop(fit, noffset, FIT_IV_PROP, &ivlen);
 	if (info->ivname) {
 		/* Read the IV in the file */
 		ret = fit_image_read_key_iv_data(info->keydir, info->ivname,
@@ -486,6 +490,16 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 						 info->cipher->iv_len);
 		if (ret < 0)
 			goto out;
+	} else if (iv) {
+		/* Use the explicit IV from the cipher node */
+		if (ivlen != info->cipher->iv_len) {
+			fprintf(stderr,
+				"Wrong iv length for cipher in image '%s' (expected %d bytes, got %d)\n",
+				image_name, info->cipher->iv_len, ivlen);
+			ret = -1;
+			goto out;
+		}
+		memcpy((void *)info->iv, iv, ivlen);
 	} else {
 		/* Generate an ramdom IV */
 		ret = get_random_data((void *)info->iv, info->cipher->iv_len);

@@ -1158,6 +1158,8 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 
 /* cipher node */
 #define FIT_CIPHER_NODENAME	"cipher"
+#define FIT_IV_HINT		"iv-name-hint"
+#define FIT_IV_PROP		"iv"
 
 /* dm-verity node */
 #define FIT_VERITY_NODENAME	"dm-verity"
