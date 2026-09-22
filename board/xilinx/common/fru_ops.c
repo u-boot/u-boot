@@ -260,8 +260,13 @@ static int fru_parse_multirec(unsigned long addr)
 			if (CONFIG_IS_ENABLED(FRU_SC))
 				type = FRU_SC_MACID;
 
-			if (mac->ver == type) {
+			if (mrc.len >= FRU_MULTIREC_MAC_OFFSET &&
+			    mac->ver == type) {
 				mac_len = mrc.len - FRU_MULTIREC_MAC_OFFSET;
+				if (mac_len % ETH_ALEN ||
+				    mac_len > sizeof(fru_data.mac.macid))
+					return -EINVAL;
+
 				memcpy(&fru_data.mac.macid, mac->macid, mac_len);
 			}
 		}
