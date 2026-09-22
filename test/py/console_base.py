@@ -212,29 +212,33 @@ class ConsoleBase(object):
             while not self.lab_mode and loop_num > 0:
                 loop_num -= 1
                 while config_spl_serial and not env_spl_skipped and env_spl_banner_times > 0:
-                    m = self.p.expect([pattern_u_boot_spl_signon,
-                                       pattern_lab_mode] + self.bad_patterns)
+                    extra_patterns = [pattern_u_boot_spl_signon, pattern_lab_mode]
+                    base = len(extra_patterns)
+                    m = self.p.expect(extra_patterns + self.bad_patterns)
                     if m == 1:
                         self.set_lab_mode()
                         break
                     elif m != 0:
                         raise BootFail('Bad pattern found on SPL console: ' +
-                                       self.bad_pattern_ids[m - 1])
+                                       self.bad_pattern_ids[m - base])
                     env_spl_banner_times -= 1
 
                 if not self.lab_mode:
-                    m = self.p.expect([pattern_u_boot_main_signon,
-                                       pattern_lab_mode] + self.bad_patterns)
+                    extra_patterns = [pattern_u_boot_main_signon, pattern_lab_mode]
+                    base = len(extra_patterns)
+                    m = self.p.expect(extra_patterns + self.bad_patterns)
                     if m == 1:
                         self.set_lab_mode()
                     elif m != 0:
                         raise BootFail('Bad pattern found on console: ' +
-                                       self.bad_pattern_ids[m - 1])
+                                       self.bad_pattern_ids[m - base])
             if not self.lab_mode:
                 self.u_boot_version_string = self.p.after
             while True:
-                m = self.p.expect([self.prompt_compiled, pattern_ready_prompt,
-                    pattern_stop_autoboot_prompt] + self.bad_patterns)
+                extra_patterns = [self.prompt_compiled, pattern_ready_prompt,
+                                  pattern_stop_autoboot_prompt]
+                base = len(extra_patterns)
+                m = self.p.expect(extra_patterns + self.bad_patterns)
                 if m == 0:
                     self.log.info(f'Found ready prompt {m}')
                     break
@@ -250,7 +254,7 @@ class ConsoleBase(object):
                     continue
                 if not self.lab_mode:
                     raise BootFail('Missing prompt / ready message on console: ' +
-                                   self.bad_pattern_ids[m - 3])
+                                   self.bad_pattern_ids[m - base])
             self.log.info(f'U-Boot is ready')
 
         finally:
@@ -321,21 +325,25 @@ class ConsoleBase(object):
                         continue
                     chunk = re.escape(chunk)
                     chunk = chunk.replace('\\\n', '[\r\n]')
-                    m = self.p.expect([chunk] + self.bad_patterns)
+                    extra_patterns = [chunk]
+                    base = len(extra_patterns)
+                    m = self.p.expect(extra_patterns + self.bad_patterns)
                     if m != 0:
                         self.at_prompt = False
                         raise BootFail(f"Failed to get echo on console (cmd '{cmd}':rem '{rem}'): " +
-                                        self.bad_pattern_ids[m - 1])
+                                        self.bad_pattern_ids[m - base])
             if not wait_for_prompt:
                 return
             if wait_for_reboot:
                 self.wait_for_boot_prompt()
             else:
-                m = self.p.expect([self.prompt_compiled] + self.bad_patterns)
+                extra_patterns = [self.prompt_compiled]
+                base = len(extra_patterns)
+                m = self.p.expect(extra_patterns + self.bad_patterns)
                 if m != 0:
                     self.at_prompt = False
                     raise BootFail('Missing prompt on console: ' +
-                                    self.bad_pattern_ids[m - 1])
+                                    self.bad_pattern_ids[m - base])
             self.at_prompt = True
             self.at_prompt_logevt = self.logstream.logfile.cur_evt
             # Only strip \r\n; space/TAB might be significant if testing
@@ -412,11 +420,13 @@ class ConsoleBase(object):
 
         if type(text) == type(''):
             text = re.escape(text)
-        m = self.p.expect([text] + self.bad_patterns)
+        extra_patterns = [text]
+        base = len(extra_patterns)
+        m = self.p.expect(extra_patterns + self.bad_patterns)
         if m != 0:
             raise Unexpected(
                 "Unexpected pattern found on console (exp '{text}': " +
-                self.bad_pattern_ids[m - 1])
+                self.bad_pattern_ids[m - base])
 
     def drain_console(self):
         """Read from and log the U-Boot console for a short time.
