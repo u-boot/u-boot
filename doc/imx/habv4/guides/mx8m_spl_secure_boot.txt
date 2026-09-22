@@ -174,6 +174,8 @@ Note that environment variables override DT properties.
 +--------------------+-------------+------------------------------------------------------------------+
 | nxp,srk-table      | SRK_TABLE   | full path to SRK_1_2_3_4_table.bin                               |
 +--------------------+-------------+------------------------------------------------------------------+
+| nxp,srk-index      | SRK_INDEX   | index of the key in the SRK table, default is 0                  |
++--------------------+-------------+------------------------------------------------------------------+
 | nxp,csf-crt        | CSF_KEY     | full path to the CSF Key CSF1_1_sha256_4096_65537_v3_usr_crt.pem |
 +--------------------+-------------+------------------------------------------------------------------+
 | nxp,img-crt        | IMG_KEY     | full path to the IMG Key IMG1_1_sha256_4096_65537_v3_usr_crt.pem |

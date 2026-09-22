@@ -8130,6 +8130,26 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                                         new=fake_cst_run_cmd):
             self._DoTestFile('vendor/nxp_imx8_csf.dts')
 
+    def testNxpImx8mCSTSrkIndex(self):
+        """Test that nxp,srk-index selects the SRK key used for signing"""
+        ivt_data = struct.pack('<I', 0x412000d1)
+        ivt_data += b'\x00' * 20
+        ivt_data += struct.pack('<I', 0)
+        ivt_data += b'\x00' * 36
+        self._MakeInputFile('imx8m-ivt.bin', ivt_data)
+        with terminal.capture() as (_, stderr):
+            self._DoTestFile('vendor/nxp_imx8_csf_srk_index.dts',
+                             force_missing_bintools='cst')
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: cst")
+
+        cfg_fname = glob.glob(
+            tools.get_output_filename('nxp.csf-config-txt.*'))[0]
+        config = configparser.ConfigParser()
+        config.optionxform = str
+        config.read(cfg_fname)
+        self.assertEqual('2', config['Install SRK']['Source index'])
+
     def testNxpImx8mCSTBintool(self):
         """Test the cst bintool run() and fetch() methods"""
         cst = bintool.Bintool.create('cst')
