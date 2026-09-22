@@ -951,6 +951,41 @@ err:
 	return ret;
 }
 
+/**
+ * fit_image_effective_data() - Get the data an image will carry once resolved
+ *
+ * Returns the image's own data or, for an image that shares another
+ * image's data through a not yet resolved image-data reference, the
+ * target's data. References that do not resolve are left alone here,
+ * since fit_resolve_image_data() rejects them right after the import.
+ *
+ * @fdt: FIT blob containing the image nodes
+ * @images: offset of the /images node
+ * @img: offset of the image node to look at
+ * @sizep: returns the length of the data on success
+ * Return: pointer to the data, or NULL if neither the image nor its
+ * image-data target carries any
+ */
+static const char *fit_image_effective_data(const void *fdt, int images,
+					    int img, int *sizep)
+{
+	const char *data, *ref;
+	int target;
+
+	data = fdt_getprop(fdt, img, FIT_DATA_PROP, sizep);
+	if (data)
+		return data;
+
+	ref = fdt_getprop(fdt, img, FIT_IMAGE_DATA_PROP, NULL);
+	if (!ref)
+		return NULL;
+	target = fdt_subnode_offset(fdt, images, ref);
+	if (target < 0)
+		return NULL;
+
+	return fdt_getprop(fdt, target, FIT_DATA_PROP, sizep);
+}
+
 static int fit_import_data(struct image_tool_params *params, const char *fname)
 {
 	void *fdt, *old_fdt;
@@ -1118,12 +1153,16 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 				 * Collect the memory region the image is
 				 * loaded to. Images without a load address or
 				 * without data are never copied anywhere, so
-				 * they cannot conflict.
+				 * they cannot conflict. An image-data
+				 * reference is resolved only after the
+				 * import, but the image ends up with the
+				 * target's data, so size its region from the
+				 * target.
 				 */
 				if (fit_image_get_load(fdt, img, &img_load))
 					continue;
-				img_data = fdt_getprop(fdt, img, FIT_DATA_PROP,
-						       &img_size);
+				img_data = fit_image_effective_data(fdt,
+						images, img, &img_size);
 				if (!img_data || img_size <= 0)
 					continue;
 
