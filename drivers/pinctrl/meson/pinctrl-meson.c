@@ -421,7 +421,7 @@ int meson_pinctrl_probe(struct udevice *dev)
 	addr = parse_address(gpio, "ds", na, ns);
 	/* Drive strength region is optional */
 	if (addr == FDT_ADDR_T_NONE)
-		priv->reg_ds = NULL;
+		priv->reg_ds = priv->reg_gpio;
 	else
 		priv->reg_ds = (void __iomem *)addr;
 
