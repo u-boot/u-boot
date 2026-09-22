@@ -1,0 +1,8 @@
+#include <configs/socfpga_agilex5_defconfig>
+
+CONFIG_DEFAULT_DEVICE_TREE="socfpga_agilex3_socdk"
+CONFIG_IDENT_STRING="socfpga_agilex3"
+CONFIG_SYS_PROMPT="SOCFPGA_AGILEX3 # "
+CONFIG_PHY_MICREL=y
+CONFIG_PHY_MICREL_KSZ90X1=y
+CONFIG_SYS_SPI_U_BOOT_OFFS=0x0a00000
