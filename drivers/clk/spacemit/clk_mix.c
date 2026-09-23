@@ -33,8 +33,10 @@
 int ccu_gate_disable(struct clk *clk)
 {
 	struct ccu_mix *mix = clk_to_ccu_mix(clk);
+	struct ccu_gate_config *gate = &mix->gate;
+	u32 val = gate->inverted ? gate->mask : 0;
 
-	ccu_update(&mix->common, ctrl, mix->gate.mask, 0);
+	ccu_update(&mix->common, ctrl, gate->mask, val);
 
 	return 0;
 }
@@ -43,8 +45,9 @@ int ccu_gate_enable(struct clk *clk)
 {
 	struct ccu_mix *mix = clk_to_ccu_mix(clk);
 	struct ccu_gate_config *gate = &mix->gate;
+	u32 val = gate->inverted ? 0 : gate->mask;
 
-	ccu_update(&mix->common, ctrl, gate->mask, gate->mask);
+	ccu_update(&mix->common, ctrl, gate->mask, val);
 
 	return 0;
 }
