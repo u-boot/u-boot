@@ -1,0 +1,55 @@
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (C) 2026, Kuan-Wei Chiu <visitorckw@gmail.com>
+
+9P Filesystem
+=============
+
+The 9P filesystem is a network-based file sharing protocol. It is primarily
+used to share files between a host and a guest over virtio, providing a way
+to load kernels, device trees, and initial ramdisks without needing a disk
+image or networking setup like TFTP.
+
+Configuration
+-------------
+
+To enable the 9P filesystem support, you must enable the following configuration
+options:
+
+* ``CONFIG_FS_9P``: Enables the 9P filesystem layer.
+* ``CONFIG_NET_9P``: Enables the core 9P2000.L client protocol.
+* ``CONFIG_VIRTIO_9P``: Enables the virtio transport driver for 9P.
+
+QEMU Setup
+----------
+
+To use 9P with QEMU, you need to expose a host directory to the guest using
+the ``-fsdev`` and ``-device`` parameters.
+
+For example, to share the host's ``/tmp/shared`` directory with the guest under
+the mount tag ``rootfs``:
+
+.. code-block:: bash
+
+    qemu-system-aarch64 \
+        -machine virt \
+        -nographic \
+        -fsdev local,id=fsdev0,path=/tmp/shared,security_model=none \
+        -device virtio-9p-device,fsdev=fsdev0,mount_tag=rootfs
+
+U-Boot Usage
+------------
+
+Once booted into U-Boot, you must first probe the virtio subsystem. You can then
+access the 9P filesystem using the ``9p`` interface name. You can specify a mount tag
+(such as ``rootfs``), a device index (such as ``0``), or use ``-`` to select the
+default (first) device.
+
+.. code-block:: bash
+
+    => virtio scan
+    => ls 9p rootfs /
+    => ls 9p 0 /
+    => ls 9p - /
+    => load 9p rootfs $kernel_addr_r /Image
+    => load 9p rootfs $ramdisk_addr_r /initramfs.cpio
+    => booti $kernel_addr_r $ramdisk_addr_r:$filesize $fdtcontroladdr

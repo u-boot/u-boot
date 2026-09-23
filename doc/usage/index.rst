@@ -46,3 +46,4 @@ File Systems
    :maxdepth: 1
 
    filesystems/ext4
+   filesystems/9p
