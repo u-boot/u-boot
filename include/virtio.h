@@ -31,11 +31,21 @@
 #define VIRTIO_ID_NET		1 /* virtio net */
 #define VIRTIO_ID_BLOCK		2 /* virtio block */
 #define VIRTIO_ID_RNG		4 /* virtio rng */
-#define VIRTIO_ID_MAX_NUM	5
+#define VIRTIO_ID_9P		9 /* virtio 9p */
+#define VIRTIO_ID_MAX_NUM	10
 
 #define VIRTIO_NET_DRV_NAME	"virtio-net"
 #define VIRTIO_BLK_DRV_NAME	"virtio-blk"
 #define VIRTIO_RNG_DRV_NAME	"virtio-rng"
+#define VIRTIO_9P_DRV_NAME	"virtio-9p"
+
+/* Feature bits for virtio 9P */
+#define VIRTIO_9P_MOUNT_TAG	0
+
+struct virtio_9p_config {
+	__virtio16 tag_len;
+	u8 tag[];
+} __packed;
 
 /* Status byte for guest to report progress, and synchronize features */
 
