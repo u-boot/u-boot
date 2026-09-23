@@ -280,4 +280,5 @@ config RESET_RZG2L_USBPHY_CTRL
 	  SoC.
 
 source "drivers/reset/stm32/Kconfig"
+source "drivers/reset/spacemit/Kconfig"
 endmenu
