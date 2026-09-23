@@ -21,7 +21,6 @@
 	"netdev=eth0\0"							\
 	"hostname=mcvevk\0"						\
 	"kernel_addr_r=0x10000000\0"					\
-	"socfpga_legacy_reset_compat=1\0"				\
 	"bootm_size=0xa000000\0"					\
 	"dfu_alt_info=mmc raw 0 3867148288\0"				\
 	"update_filename=u-boot-with-spl.sfp\0"				\

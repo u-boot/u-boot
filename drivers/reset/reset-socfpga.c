@@ -32,34 +32,43 @@ struct socfpga_reset_data {
 	void __iomem *modrst_base;
 };
 
-/*
- * For compatibility with Kernels that don't support peripheral reset, this
- * driver can keep the old behaviour of not asserting peripheral reset before
- * starting the OS and deasserting all peripheral resets (enabling all
- * peripherals).
+/**
+ * socfpga_reset_keep_enabled() - decide whether peripheral resets stay deasserted
  *
- * For that, the reset driver checks the environment variable
- * "socfpga_legacy_reset_compat". If this variable is '1', perihperals are not
- * reset again once taken out of reset and all peripherals in 'permodrst' are
- * taken out of reset before booting into the OS.
- * Note that this should be required for gen5 systems only that are running
- * Linux kernels without proper peripheral reset support for all drivers used.
+ * Returns true if the driver should deassert all peripheral resets before
+ * handing off to the OS (legacy behaviour required by kernels without full
+ * peripheral reset driver support, typically gen5 / Arria10).
+ *
+ * Decision priority:
+ *  1. If CONFIG_SOCFPGA_RESET_LEGACY_COMPAT is disabled at build time, always
+ *     return false (no bulk deassertion), regardless of the environment.
+ *  2. Otherwise, if the environment variable "socfpga_legacy_reset_compat" is
+ *     present and set to '1', return true; if set to any other value, return
+ *     false.
+ *  3. If the variable is absent, fall back to returning true (safe default for
+ *     platforms that have not yet opted out).
  */
 static bool socfpga_reset_keep_enabled(void)
 {
+	if (!IS_ENABLED(CONFIG_SOCFPGA_RESET_LEGACY_COMPAT))
+		return false;
+
 #if !defined(CONFIG_XPL_BUILD) || CONFIG_IS_ENABLED(ENV_SUPPORT)
-	const char *env_str;
+	const char *env_str = env_get("socfpga_legacy_reset_compat");
 	long val;
 
-	env_str = env_get("socfpga_legacy_reset_compat");
 	if (env_str) {
 		val = simple_strtol(env_str, NULL, 0);
-		if (val == 1)
-			return true;
+		return val == 1;
 	}
 #endif
 
-	return false;
+	/*
+	 * ENV_SUPPORT is absent in some SPL builds; dm_remove_devices_active()
+	 * is never called from SPL so this path is dead there. Default to true
+	 * to preserve legacy behaviour for U-Boot proper.
+	 */
+	return true;
 }
 
 static int socfpga_reset_assert(struct reset_ctl *reset_ctl)
