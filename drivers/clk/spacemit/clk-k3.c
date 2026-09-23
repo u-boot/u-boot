@@ -9,6 +9,7 @@
 #include <dm/device_compat.h>
 #include <regmap.h>
 #include <linux/clk-provider.h>
+#include <soc/spacemit/k3-reset.h>
 #include <soc/spacemit/k3-syscon.h>
 
 #include "clk_common.h"
@@ -1955,6 +1956,26 @@ U_BOOT_DRIVER(k3_pll_clk) = {
 	.flags		= DM_FLAG_PRE_RELOC,
 };
 
+static int k3_mpmu_clk_bind(struct udevice *dev)
+{
+	return spacemit_k3_reset_bind(dev, SPACEMIT_K3_RESET_MPMU);
+}
+
+static int k3_apbc_clk_bind(struct udevice *dev)
+{
+	return spacemit_k3_reset_bind(dev, SPACEMIT_K3_RESET_APBC);
+}
+
+static int k3_apmu_clk_bind(struct udevice *dev)
+{
+	return spacemit_k3_reset_bind(dev, SPACEMIT_K3_RESET_APMU);
+}
+
+static int k3_dciu_clk_bind(struct udevice *dev)
+{
+	return spacemit_k3_reset_bind(dev, SPACEMIT_K3_RESET_DCIU);
+}
+
 static const struct udevice_id k3_mpmu_clk_match[] = {
 	{ .compatible = "spacemit,k3-syscon-mpmu",
 	  .data = (ulong)&k3_ccu_mpmu_data },
@@ -1967,6 +1988,7 @@ U_BOOT_DRIVER(k3_mpmu_clk) = {
 	.name		= "k3_mpmu_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= k3_mpmu_clk_match,
+	.bind		= k3_mpmu_clk_bind,
 	.probe		= k3_mpmu_clk_probe,
 	.ops		= &k3_mpmu_clk_ops,
 	.flags		= DM_FLAG_PRE_RELOC,
@@ -1984,6 +2006,7 @@ U_BOOT_DRIVER(k3_apbc_clk) = {
 	.name		= "k3_apbc_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= k3_apbc_clk_match,
+	.bind		= k3_apbc_clk_bind,
 	.probe		= k3_apbc_clk_probe,
 	.ops		= &k3_apbc_clk_ops,
 	.flags		= DM_FLAG_PRE_RELOC,
@@ -2001,6 +2024,7 @@ U_BOOT_DRIVER(k3_apmu_clk) = {
 	.name		= "k3_apmu_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= k3_apmu_clk_match,
+	.bind		= k3_apmu_clk_bind,
 	.probe		= k3_apmu_clk_probe,
 	.ops		= &k3_apmu_clk_ops,
 	.flags		= DM_FLAG_PRE_RELOC,
@@ -2018,6 +2042,7 @@ U_BOOT_DRIVER(k3_dciu_clk) = {
 	.name		= "k3_dciu_clk",
 	.id		= UCLASS_CLK,
 	.of_match	= k3_dciu_clk_match,
+	.bind		= k3_dciu_clk_bind,
 	.probe		= k3_dciu_clk_probe,
 	.ops		= &k3_dciu_clk_ops,
 	.flags		= DM_FLAG_PRE_RELOC,

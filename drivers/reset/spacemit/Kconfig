@@ -13,3 +13,10 @@ config RESET_SPACEMIT_K1
 	help
 	  Reset controller for SpacemiT K1 (MPMU/APBC/APMU/APBC2).
 	  Bound from the K1 CCU/syscon devices.
+
+config RESET_SPACEMIT_K3
+	bool "SpacemiT K3 reset support"
+	select RESET_SPACEMIT_COMMON
+	help
+	  Reset controller for SpacemiT K3 (MPMU/APBC/APMU/DCIU).
+	  Bound from the K3 CCU/syscon devices.

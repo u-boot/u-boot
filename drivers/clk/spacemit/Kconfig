@@ -24,6 +24,7 @@ config CLK_SPACEMIT_K1
 config CLK_SPACEMIT_K3
 	bool "SpacemiT K3 clock support"
 	select CLK_CCF
+	select RESET_SPACEMIT_K3
 	help
 	  This enables support clock driver for Spacemit K3 SoC.
 	  It's based on Common Clock Framework.
