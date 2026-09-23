@@ -19,6 +19,7 @@ struct cmd_tbl;
 #define FS_TYPE_EROFS   7
 #define FS_TYPE_SEMIHOSTING 8
 #define FS_TYPE_EXFAT   9
+#define FS_TYPE_9P      10
 
 struct blk_desc;
 

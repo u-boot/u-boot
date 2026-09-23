@@ -32,6 +32,7 @@
 #include <squashfs.h>
 #include <erofs.h>
 #include <exfat.h>
+#include <9pfs.h>
 
 static struct blk_desc *fs_dev_desc;
 static int fs_dev_part;
@@ -401,6 +402,26 @@ static struct fstype_info fstypes[] = {
 		.rename = exfat_fs_rename,
 	},
 #endif
+#if CONFIG_IS_ENABLED(FS_9P)
+	{
+		.fstype = FS_TYPE_9P,
+		.name = "9p",
+		.null_dev_desc_ok = true,
+		.probe = p9_fs_set_blk_dev,
+		.close = fs_close_unsupported,
+		.ls = p9_fs_ls,
+		.exists = p9_fs_exists,
+		.size = p9_fs_size,
+		.read = p9_fs_read,
+		.write = fs_write_unsupported,
+		.uuid = fs_uuid_unsupported,
+		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
+		.ln = fs_ln_unsupported,
+		.rename = fs_rename_unsupported,
+	},
+#endif
 	{
 		.fstype = FS_TYPE_ANY,
 		.name = "unsupported",
@@ -501,11 +522,15 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 	if (info) {
 		fs_dev_desc = NULL;
 		memset(&fs_partition, 0, sizeof(fs_partition));
+		if (dev_part_str)
+			strlcpy((char *)fs_partition.name, dev_part_str,
+				sizeof(fs_partition.name));
 		if (!info->probe(NULL, &fs_partition)) {
 			fs_type = info->fstype;
 			fs_dev_part = 0;
 			return 0;
 		}
+		return -1;
 	}
 
 	part = part_get_info_by_dev_and_name_or_num(ifname, dev_part_str, &fs_dev_desc,
