@@ -756,6 +756,19 @@ static int cdns_torrent_clk_register(struct cdns_torrent_phy *cdns_phy)
 	return 0;
 }
 
+static int cdns_torrent_phy_bind(struct udevice *dev)
+{
+	/*
+	 * Make sure that the Cadence Torrent PHY driver gets probed
+	 * after binding, for the boards that require U-Boot to
+	 * configure the PHY unconditionally.
+	 */
+	if (IS_ENABLED(CONFIG_PHY_CADENCE_TORRENT_AUTO_PROBE))
+		dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
+
+	return 0;
+}
+
 static int cdns_torrent_phy_probe(struct udevice *dev)
 {
 	struct cdns_torrent_phy *cdns_phy = dev_get_priv(dev);
@@ -2660,6 +2673,7 @@ U_BOOT_DRIVER(torrent_phy_provider) = {
 	.id		= UCLASS_PHY,
 	.of_match	= cdns_torrent_id_table,
 	.probe		= cdns_torrent_phy_probe,
+	.bind		= cdns_torrent_phy_bind,
 	.remove		= cdns_torrent_phy_remove,
 	.ops		= &cdns_torrent_phy_ops,
 	.priv_auto	= sizeof(struct cdns_torrent_phy),
