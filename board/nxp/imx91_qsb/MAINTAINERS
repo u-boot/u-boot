@@ -1,0 +1,7 @@
+i.MX91 QSB BOARD
+M:	Alice Guo <alice.guo@nxp.com>
+S:	Maintained
+F:	board/nxp/imx91_qsb
+F:	include/configs/imx91_qsb.h
+F:	configs/imx91_9x9_qsb_defconfig
+F:	configs/imx91_9x9_qsb_inline_ecc_defconfig
