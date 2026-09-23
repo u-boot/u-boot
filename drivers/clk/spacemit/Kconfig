@@ -20,4 +20,11 @@ config CLK_SPACEMIT_K1
 	  This enables support clock driver for Spacemit K1 SoC.
 	  It's based on Common Clock Framework.
 
+config CLK_SPACEMIT_K3
+	bool "SpacemiT K3 clock support"
+	select CLK_CCF
+	help
+	  This enables support clock driver for Spacemit K3 SoC.
+	  It's based on Common Clock Framework.
+
 endif

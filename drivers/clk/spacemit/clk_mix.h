@@ -180,6 +180,16 @@ static struct ccu_mix _var = {						\
 	},								\
 }
 
+#define CCU_MUX_DIV_GATE_FC_DEFINE(_id, _var, _name, _parents, _num_p,	\
+				   _reg_ctrl, _mshift, _mwidth,		\
+				   _mask_fc, _muxshift, _muxwidth,	\
+				   _mask_gate, _flags)			\
+	CCU_MUX_DIV_GATE_SPLIT_FC_DEFINE(_id, _var, _name, _parents,	\
+					 _num_p, _reg_ctrl, _reg_ctrl,	\
+					 _mshift, _mwidth, _mask_fc,	\
+					 _muxshift, _muxwidth,		\
+					 _mask_gate, _flags)
+
 #define CCU_MUX_DIV_FC_DEFINE(_id, _var, _name, _parents, _num_p,	\
 			      _reg_ctrl, _reg_fc, _mshift, _mwidth,	\
 			      _mask_fc,	_muxshift, _muxwidth, _flags)	\
