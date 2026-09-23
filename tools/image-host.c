@@ -1162,27 +1162,6 @@ static int strlist_add(struct strlist *list, const char *str)
 	return 0;
 }
 
-static const char *fit_config_get_image_list(const void *fit, int noffset,
-					     int *lenp, int *allow_missingp)
-{
-	static const char default_list[] = FIT_KERNEL_PROP "\0"
-			FIT_FDT_PROP "\0" FIT_SCRIPT_PROP;
-	const char *prop;
-
-	/* If there is an "sign-image" property, use that */
-	prop = fdt_getprop(fit, noffset, "sign-images", lenp);
-	if (prop) {
-		*allow_missingp = 0;
-		return *lenp ? prop : NULL;
-	}
-
-	/* Default image list */
-	*allow_missingp = 1;
-	*lenp = sizeof(default_list);
-
-	return default_list;
-}
-
 /**
  * fit_config_add_node() - Add a node's path to a list of nodes to hash
  *
@@ -1314,8 +1293,10 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 /**
  * fit_config_get_hash_list() - Get the regions to sign
  *
- * This calculates a list of nodes to hash for this particular configuration,
- * returning it as a string list (struct strlist, not a devicetree string list)
+ * This calculates a list of nodes to hash for this particular configuration by
+ * walking the same image-reference properties as target-side verification.
+ * The result is returned as a string list (struct strlist, not a devicetree
+ * string list).
  *
  * @fit:	Pointer to the FIT format image header
  * @conf_noffset: Offset of configuration node to sign (child of
@@ -1328,15 +1309,19 @@ static int fit_config_add_hash(const void *fit, int image_noffset,
 static int fit_config_get_hash_list(const void *fit, int conf_noffset,
 				    int sig_offset, struct strlist *node_inc)
 {
-	int allow_missing;
-	const char *prop, *iname, *end;
 	const char *conf_name, *sig_name;
+	int prop_offset;
 	char name[200];
 	int image_count;
-	int ret, len;
+	int ret;
 
 	conf_name = fit_get_name(fit, conf_noffset, NULL);
 	sig_name = fit_get_name(fit, sig_offset, NULL);
+
+	if (fdt_getprop(fit, sig_offset, FIT_SIGN_IMAGES_PROP, NULL))
+		fprintf(stderr,
+			"Warning: configuration '%s/%s': 'sign-images' is ignored; all referenced images will be signed\n",
+			conf_name, sig_name);
 
 	/*
 	 * Build a list of nodes we need to hash. We always need the root
@@ -1348,34 +1333,35 @@ static int fit_config_get_hash_list(const void *fit, int conf_noffset,
 	    strlist_add(node_inc, name))
 		goto err_mem;
 
-	/* Get a list of images that we intend to sign */
-	prop = fit_config_get_image_list(fit, sig_offset, &len,
-					&allow_missing);
-	if (!prop)
-		return 0;
-
-	/* Locate the images */
-	end = prop + len;
+	/* Process each image referenced by the config */
 	image_count = 0;
-	for (iname = prop; iname < end; iname += strlen(iname) + 1) {
-		int image_noffset;
-		int index, max_index;
+	fdt_for_each_property_offset(prop_offset, fit, conf_noffset) {
+		const char *prop_name;
+		int img_count, i;
 
-		max_index = fdt_stringlist_count(fit, conf_noffset, iname);
+		fdt_getprop_by_offset(fit, prop_offset, &prop_name, NULL);
+		if (!prop_name)
+			continue;
 
-		for (index = 0; index < max_index; index++) {
-			image_noffset = fit_conf_get_prop_node_index(fit, conf_noffset,
-								     iname, index);
+		if (!fit_config_prop_is_image_ref(prop_name))
+			continue;
 
-			if (image_noffset < 0) {
-				fprintf(stderr,
-					"Failed to find image '%s' in  configuration '%s/%s'\n",
-					iname, conf_name, sig_name);
-				if (allow_missing)
-					continue;
+		img_count = fdt_stringlist_count(fit, conf_noffset, prop_name);
+		for (i = 0; i < img_count; i++) {
+			const char *iname;
+			int image_noffset;
 
-				return -ENOENT;
-			}
+			iname = fdt_stringlist_get(fit, conf_noffset, prop_name,
+						   i, NULL);
+			if (!iname)
+				continue;
+
+			image_noffset = fit_conf_get_prop_node_index(fit,
+								     conf_noffset,
+								     prop_name,
+								     i);
+			if (image_noffset < 0)
+				continue;
 
 			ret = fit_config_add_hash(fit, image_noffset, node_inc,
 						  conf_name, sig_name, iname);

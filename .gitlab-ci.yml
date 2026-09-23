@@ -154,6 +154,7 @@ build all platforms in a single job:
       . /tmp/venv/bin/activate;
       pip install -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt
+        -r board/qualcomm/requirements.txt
         setuptools
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";

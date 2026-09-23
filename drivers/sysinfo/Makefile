@@ -10,3 +10,4 @@ obj-$(CONFIG_SYSINFO_RCAR3) += rcar3.o
 obj-$(CONFIG_SYSINFO_SANDBOX) += sandbox.o
 obj-$(CONFIG_SYSINFO_SMBIOS) += smbios.o
 obj-$(CONFIG_SYSINFO_TQ_EEPROM) += tq_eeprom.o
+obj-$(CONFIG_SYSINFO_GXP) += gxp.o

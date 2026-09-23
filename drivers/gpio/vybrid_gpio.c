@@ -109,7 +109,13 @@ static int vybrid_gpio_odata_to_plat(struct udevice *dev)
 	struct vybrid_gpio_plat *plat = dev_get_plat(dev);
 	fdt_addr_t base_addr;
 
-	base_addr = dev_read_addr(dev);
+	/*
+	 * The first reg range is the PORT block (pin control), the second one
+	 * the GPIO block this driver reads and writes.
+	 */
+	base_addr = dev_read_addr_index(dev, 1);
+	if (base_addr == FDT_ADDR_T_NONE)
+		base_addr = dev_read_addr(dev);
 	if (base_addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

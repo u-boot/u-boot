@@ -9,6 +9,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/io.h>
+#include <env_internal.h>
 #include <init.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -108,4 +109,33 @@ int board_init(void)
 	setbits_le32(&mxc_ccm->ccosr, MXC_CCM_CCOSR_CKO2_EN_OFFSET);
 
 	return 0;
+}
+
+/*
+ * Keep the environment on the device we were booted from. The boot fuses
+ * use the SD card as primary boot device and the SPI NOR as the ECSPI
+ * recovery device, so both are valid places for the environment to live.
+ */
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+       u32 bmode;
+
+       if (prio > 0)
+               return ENVL_UNKNOWN;
+
+       if (imx6_is_ecspi_recovery_boot())
+               return ENVL_SPI_FLASH;
+
+       bmode = (imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
+               IMX6_BMODE_SHIFT;
+
+       switch (bmode) {
+       case IMX6_BMODE_SD:
+       case IMX6_BMODE_ESD:
+       case IMX6_BMODE_MMC:
+       case IMX6_BMODE_EMMC:
+               return ENVL_MMC;
+       default:
+               return ENVL_SPI_FLASH;
+       }
 }

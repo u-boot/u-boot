@@ -29,12 +29,23 @@
 				algo = "sha1";
 			};
 		};
+		firmware {
+			data = /incbin/("test-kernel.bin");
+			type = "firmware";
+			arch = "sandbox";
+			os = "u-boot";
+			compression = "none";
+			hash-1 {
+				algo = "sha1";
+			};
+		};
 	};
 	configurations {
 		default = "conf-1";
 		conf-1 {
 			kernel = "kernel";
 			fdt = "fdt-1";
+			firmware = "firmware";
 			signature {
 				algo = "sha1,rsa2048";
 				key-name-hint = "dev";

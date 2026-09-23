@@ -174,10 +174,12 @@ struct global_data {
 	 * @arch: architecture-specific data
 	 */
 	struct arch_global_data arch;
+#if CONFIG_IS_ENABLED(DM)
 	/**
 	 * @dmtag_list: List of DM tags
 	 */
 	struct list_head dmtag_list;
+#endif
 	/**
 	 * @timebase_h: high 32 bits of timer
 	 */
@@ -228,7 +230,7 @@ struct global_data {
 	 */
 	long precon_buf_idx;
 #endif
-#ifdef CONFIG_DM
+#if CONFIG_IS_ENABLED(DM)
 	/**
 	 * @dm_root: root instance for Driver Model
 	 */

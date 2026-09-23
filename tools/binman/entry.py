@@ -6,6 +6,7 @@
 
 from collections import namedtuple
 import importlib
+import inspect
 import os
 import pathlib
 import sys
@@ -858,9 +859,13 @@ features to produce new behaviours.
             if test_missing == name:
                 docs = None
             if docs:
-                lines = docs.splitlines()
+                # Use cleandoc() rather than removing a fixed four characters
+                # of indent: since Python 3.13 the compiler already strips the
+                # common indent from docstrings, so doing it again here would
+                # eat the first four characters of every line
+                lines = inspect.cleandoc(docs).splitlines()
                 first_line = lines[0]
-                rest = [line[4:] for line in lines[1:]]
+                rest = lines[1:]
                 hdr = 'Entry: %s: %s' % (name.replace('_', '-'), first_line)
 
                 # Create a reference for use by rST docs
