@@ -6,3 +6,14 @@ config SPL_ALTERA_SDRAM
 	select SPL_RAM if ARCH_SOCFPGA_GEN5 || ARCH_SOCFPGA_SOC64
 	help
 	  Enable DDR SDRAM controller for the SoCFPGA devices.
+
+config IO96B_MB_READY
+	bool "Wait for IO96B mailbox MB_READY before commands"
+	depends on SPL_ALTERA_SDRAM
+	depends on ARCH_SOCFPGA_AGILEX5 || ARCH_SOCFPGA_AGILEX7M
+	help
+	  Poll MAILBOX_HEADER MB_READY during io96b_mb_init()
+	  initialization. Disabled by default because some IOSSM firmware
+	  revisions never assert this bit, which would cause the wait
+	  to time out and hang DDR init. Enable only when the IOSSM
+	  firmware sets MB_READY.
