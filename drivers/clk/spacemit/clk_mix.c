@@ -78,7 +78,7 @@ static int ccu_mix_trigger_fc(struct clk *clk)
 	struct ccu_common *common = clk_to_ccu_common(clk);
 	unsigned int val;
 
-	if (common->reg_fc)
+	if (!common->reg_fc)
 		return 0;
 
 	ccu_update(common, fc, common->mask_fc, common->mask_fc);
