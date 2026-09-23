@@ -65,6 +65,11 @@ int ls_gic_rd_tables_init(void *blob)
 	u64 gic_lpi_base;
 	int ret;
 
+	if (!gd->arch.resv_ram) {
+		debug("%s: failed to reserve memory for gic-lpi-tables\n", __func__);
+		return -ENOMEM;
+	}
+
 	gic_lpi_base = ALIGN(gd->arch.resv_ram - GIC_LPI_SIZE, SZ_64K);
 	ret = fdt_add_resv_mem_gic_rd_tables(blob, gic_lpi_base, GIC_LPI_SIZE);
 	if (ret)

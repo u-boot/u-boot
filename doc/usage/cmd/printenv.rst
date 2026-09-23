@@ -44,7 +44,7 @@ environment variables:
 
 ::
 
-    => setenv .foo bar
+    => env set .foo bar
     => printenv
     arch=sandbox
     baudrate=115200

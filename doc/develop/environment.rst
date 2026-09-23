@@ -49,3 +49,43 @@ The signature of the callback functions is::
   include/search.h
 
 The return value is 0 if the variable change is accepted and 1 otherwise.
+
+Flags for environment variables
+-------------------------------
+
+Environment flags validate the values given to environment variables and
+restrict how environment variables can be changed.
+
+The static list is configured with CONFIG_ENV_FLAGS_LIST_STATIC. The list
+must be in the following format::
+
+    type_attribute = [s|d|x|b|i|m]
+    access_attribute = [a|r|o|c|w]
+    attributes = type_attribute[access_attribute]
+    entry = variable_name[:attributes]
+    list = entry[,list]
+
+The type attributes are:
+
+* s - String (default)
+* d - Decimal
+* x - Hexadecimal
+* b - Boolean ([1yYtT|0nNfF])
+* i - IP address, if networking is enabled
+* m - MAC address, if networking is enabled
+
+The access attributes are:
+
+* a - Any (default)
+* r - Read-only
+* o - Write-once
+* c - Change-default
+* w - Writeable, if CONFIG_ENV_WRITEABLE_LIST is enabled
+
+CONFIG_ENV_FLAGS_LIST_DEFAULT defines the ``.flags`` variable in the
+default or embedded environment. Any association in ``.flags`` overrides
+an association in the static list.
+
+If CONFIG_REGEX is defined, the variable name is evaluated as a regular
+expression. This allows multiple variables to define the same flags without
+explicitly listing them all.

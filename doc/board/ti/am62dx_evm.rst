@@ -237,10 +237,6 @@ detailed setup information.
 
 .. warning::
 
-  **AM62A**: OpenOCD support since August 2023 (git master)
-
-  **AM62D**: Uses AM62A configuration (compatible due to same core architecture)
-
   Until the next stable release of OpenOCD is available in your development
   environment's distribution, it might be necessary to build OpenOCD `from the
   source <https://github.com/openocd-org/openocd>`_.
@@ -253,4 +249,9 @@ To start OpenOCD and connect to the board
 
 .. prompt:: bash
 
-  openocd -f board/ti/am62a7evm.cfg
+   openocd -f board/ti/am62a7evm.cfg
+
+.. note::
+
+   The AM62D-EVM uses the same tcl configuration as the AM62A-SK due to
+   same core architecture.

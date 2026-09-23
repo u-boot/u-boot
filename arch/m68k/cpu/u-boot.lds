@@ -3,7 +3,7 @@
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * (C) Copyright 2015
- * Angelo Dureghello, Sysam Firmware, angelo@sysam.it
+ * Angelo Dureghello, Sysam Firmware, angelo@kernel-space.org
  */
 
 #include <config.h>

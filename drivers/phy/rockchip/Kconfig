@@ -49,7 +49,7 @@ config PHY_ROCKCHIP_SNPS_PCIE3
 	  also be able splited into multiple combinations of lanes.
 
 config PHY_ROCKCHIP_USBDP
-	tristate "Rockchip USBDP COMBO PHY Driver"
+	bool "Rockchip USBDP COMBO PHY Driver"
 	depends on ARCH_ROCKCHIP
 	select PHY
 	help

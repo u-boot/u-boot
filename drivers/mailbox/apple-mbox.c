@@ -59,7 +59,7 @@ static int apple_mbox_recv(struct mbox_chan *chan, void *data)
 	return 0;
 }
 
-struct mbox_ops apple_mbox_ops = {
+static const struct mbox_ops apple_mbox_ops = {
 	.of_xlate = apple_mbox_of_xlate,
 	.send = apple_mbox_send,
 	.recv = apple_mbox_recv,

@@ -1452,7 +1452,7 @@ static void enable_ldb_di_clock_sources(void)
  * Try call this function as early in the boot process as possible since the
  * function temporarily disables PLL2 PFD's, PLL3 PFD's and PLL5.
  */
-void select_ldb_di_clock_source(enum ldb_di_clock clk)
+void select_ldb_di_clock_source(enum ldb_di_clock clk0, enum ldb_di_clock clk1)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	int reg;
@@ -1525,8 +1525,8 @@ void select_ldb_di_clock_source(enum ldb_di_clock clk)
 	reg = readl(&mxc_ccm->cs2cdr);
 	reg &= ~(MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK
 	      | MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK);
-	reg |= ((clk << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET)
-	      | (clk << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET));
+	reg |= ((clk0 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET)
+	      | (clk1 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET));
 	writel(reg, &mxc_ccm->cs2cdr);
 
 	/* Unbypass pll3_sw_clk */

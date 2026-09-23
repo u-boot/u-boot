@@ -647,6 +647,7 @@ jffs2_free_cache(struct part_info *part)
 		free_nodes(&pL->dir);
 		free(pL->readbuf);
 		free(pL);
+		part->jffs2_priv = NULL;
 	}
 }
 
@@ -1726,6 +1727,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 				b->offset = (u32)part->offset + ofs;
 				b->version = node->i.version;
 				b->ino = node->i.ino;
+				b->datacrc = CRC_UNKNOWN;
 				if (max_totlen < node->u.totlen)
 					max_totlen = node->u.totlen;
 				break;
@@ -1764,6 +1766,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 				b->offset = (u32)part->offset + ofs;
 				b->version = node->d.version;
 				b->pino = node->d.pino;
+				b->datacrc = CRC_UNKNOWN;
 				if (max_totlen < node->u.totlen)
 					max_totlen = node->u.totlen;
 				counterN++;

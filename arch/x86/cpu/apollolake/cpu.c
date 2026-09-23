@@ -171,11 +171,9 @@ static int cpu_apl_probe(struct udevice *dev)
 	return 0;
 }
 
-#ifdef CONFIG_ACPIGEN
-struct acpi_ops apl_cpu_acpi_ops = {
+static const struct acpi_ops __maybe_unused apl_cpu_acpi_ops = {
 	.fill_ssdt	= acpi_cpu_fill_ssdt,
 };
-#endif
 
 static const struct cpu_ops cpu_x86_apl_ops = {
 	.get_desc	= cpu_x86_get_desc,

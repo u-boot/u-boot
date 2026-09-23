@@ -2,5 +2,5 @@ Samsung S9 (SM-G9600)(starqltechn)  Board
 M:	Dzmitry Sankouski <dsankouski@gmail.com>
 S:	Maintained
 F:	board/samsung/starqltechn/
-F:	include/configs/starqltechn.h
-F:	configs/starqltechn_defconfig
+F:	include/configs/qcom.h
+F:	configs/qcom_sdm845_spl_defconfig

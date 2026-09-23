@@ -347,10 +347,10 @@ static int zynq_verify_image(u32 src_ptr)
 		 * This validation is just for PS DDR.
 		 * TODO: Update this for PL DDR check as well.
 		 */
-		if (part_load_addr < gd->bd->bi_dram[0].start &&
+		if (part_load_addr < gd->dram[0].start &&
 		    ((part_load_addr + part_data_len) >
-		    (gd->bd->bi_dram[0].start +
-		     gd->bd->bi_dram[0].size))) {
+		    (gd->dram[0].start +
+		     gd->dram[0].size))) {
 			printf("INVALID_LOAD_ADDRESS_FAIL\n");
 			return -1;
 		}

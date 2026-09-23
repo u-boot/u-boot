@@ -5,5 +5,3 @@ S:	Maintained
 F:	board/nxp/mx6slevk/
 F:	include/configs/mx6slevk.h
 F:	configs/mx6slevk_defconfig
-F:	configs/mx6slevk_spl_defconfig
-F:	configs/mx6slevk_spinor_defconfig

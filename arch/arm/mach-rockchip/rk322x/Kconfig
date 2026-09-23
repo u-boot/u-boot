@@ -27,10 +27,10 @@ config SPL_SERIAL
 	default y
 
 config TPL_STACK
-        default 0x10088000
+	default 0x10088000
 
 config TPL_TEXT_BASE
-        default 0x10081000
+	default 0x10081000
 
 source "board/rockchip/evb_rk3229/Kconfig"
 

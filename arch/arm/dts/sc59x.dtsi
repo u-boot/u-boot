@@ -86,6 +86,36 @@
 			pinctrl-0 = <&usb0_default>;
 			status = "disabled";
 		};
+
+		i2c3: i2c3@31001000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "adi-i2c";
+			reg = <0x31001000 0x100>;
+			clock-names = "i2c";
+			status = "disabled";
+			bootph-pre-ram;
+		};
+
+		i2c4: i2c4@31001100 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "adi-i2c";
+			reg = <0x31001100 0x100>;
+			clock-names = "i2c";
+			status = "disabled";
+			bootph-pre-ram;
+		};
+
+		i2c5: i2c5@31001200 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "adi-i2c";
+			reg = <0x31001200 0x100>;
+			clock-names = "i2c";
+			status = "disabled";
+			bootph-pre-ram;
+		};
 	};
 };
 

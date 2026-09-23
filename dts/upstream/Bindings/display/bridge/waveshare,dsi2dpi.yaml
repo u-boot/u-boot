@@ -10,11 +10,14 @@ maintainers:
   - Joseph Guo <qijian.guo@nxp.com>
 
 description:
-  Waveshare bridge board is part of Waveshare panel which converts DSI to DPI.
+  Waveshare bridge board is part of Waveshare panel which converts DSI to DPI
+  or LVDS.
 
 properties:
   compatible:
-    const: waveshare,dsi2dpi
+    enum:
+      - waveshare,dsi2dpi
+      - waveshare,dsi2lvds
 
   reg:
     maxItems: 1
@@ -40,9 +43,12 @@ properties:
             properties:
               data-lanes:
                 description: array of physical DSI data lane indexes.
+                minItems: 1
                 items:
                   - const: 1
                   - const: 2
+                  - const: 3
+                  - const: 4
 
             required:
               - data-lanes
@@ -50,7 +56,7 @@ properties:
       port@1:
         $ref: /schemas/graph.yaml#/properties/port
         description:
-          Video port for MIPI DPI output panel.
+          Video port for MIPI DPI or LVDS output to the panel.
 
     required:
       - port@0

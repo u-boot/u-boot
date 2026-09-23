@@ -28,10 +28,6 @@
 	bootph-pre-ram;
 };
 
-&wdog3 {
-	status = "disabled";
-};
-
 &pinctrl_uart1 {
 	bootph-pre-ram;
 };

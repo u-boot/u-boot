@@ -19,6 +19,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <pci.h>
 #include <wait_bit.h>
 #include <linux/bitops.h>
@@ -391,8 +392,8 @@ static int rcar_gen3_pcie_of_to_plat(struct udevice *dev)
 {
 	struct rcar_gen3_pcie_priv *priv = dev_get_plat(dev);
 
-	priv->regs = devfdt_get_addr_index(dev, 0);
-	if (!priv->regs)
+	priv->regs = dev_read_addr_index(dev, 0);
+	if (priv->regs == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	return 0;

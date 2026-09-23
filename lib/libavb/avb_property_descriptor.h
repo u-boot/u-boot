@@ -18,10 +18,10 @@ extern "C" {
 
 /* A descriptor for properties (free-form key/value pairs).
  *
- * Following this struct are |key_num_bytes| bytes of key data,
- * followed by a NUL byte, then |value_num_bytes| bytes of value data,
- * followed by a NUL byte and then enough padding to make the combined
- * size a multiple of 8.
+ * Following this struct are |key_num_bytes| bytes of key data encoded
+ * as UTF-8, followed by a NUL byte, then |value_num_bytes| bytes of
+ * value data, followed by a NUL byte and then enough padding to make
+ * the combined size a multiple of 8.
  */
 typedef struct AvbPropertyDescriptor {
   AvbDescriptor parent_descriptor;

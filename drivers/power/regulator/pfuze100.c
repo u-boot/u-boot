@@ -550,6 +550,8 @@ static int pfuze100_regulator_val(struct udevice *dev, int op, int *uV)
 			return -EINVAL;
 		}
 		val = pmic_reg_read(dev->parent, desc->vsel_reg);
+		if (val < 0)
+			return val;
 		if (desc->high_volt_mask && (val & desc->high_volt_mask)) {
 			min_uV = desc->high_volt_desc->min_uV;
 			uV_step = desc->high_volt_desc->uV_step;

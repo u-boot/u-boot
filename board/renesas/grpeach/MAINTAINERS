@@ -7,7 +7,7 @@ F:	configs/grpeach_defconfig
 F:	drivers/gpio/gpio-rza1.c
 F:	drivers/mtd/renesas_rpc_hf.c
 F:	drivers/net/sh_eth*
-F:	drivers/pinctrl/renesas/pfc-r7s72100.c
+F:	drivers/pinctrl/renesas/pinctrl-rza1.c
 F:	drivers/serial/serial_sh*
 F:	drivers/spi/renesas_rpc_spi.c
 F:	drivers/timer/ostm_timer.c

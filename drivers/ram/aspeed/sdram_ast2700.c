@@ -14,6 +14,11 @@
 #include <linux/sizes.h>
 #include <ram.h>
 
+__weak int fmc_hdr_get_prebuilt(u32 type, u32 *ofst, u32 *size)
+{
+	return -ENOSYS;
+}
+
 enum ddr_type {
 	DDR4_1600 = 0x0,
 	DDR4_2400,
@@ -128,13 +133,13 @@ static size_t ast2700_sdrammc_get_vga_mem_size(struct sdrammc *sdrammc)
 
 	reg = readl(scu0 + SCU0_PCI_MISC70);
 	if (reg & SCU0_PCI_MISC70_EN_PCIEVGA0) {
-		debug("VGA0:%dMB\n", vga_memsz[sel] / SZ_1M);
+		debug("VGA0:%zuMB\n", vga_memsz[sel] / SZ_1M);
 		dual++;
 	}
 
 	reg = readl(scu0 + SCU0_PCI_MISC80);
 	if (reg & SCU0_PCI_MISC80_EN_PCIEVGA1) {
-		debug("VGA1:%dMB\n", vga_memsz[sel] / SZ_1M);
+		debug("VGA1:%zuMB\n", vga_memsz[sel] / SZ_1M);
 		dual++;
 	}
 
@@ -560,7 +565,7 @@ void dwc_get_mailbox(struct sdrammc *sdrammc, const int mode, u32 *mbox)
 	dwc_ddrphy_apb_wr(0xd0031, 1);
 }
 
-uint32_t dwc_readMsgBlock(struct sdrammc *sdrammc, const u32 addr_half)
+u32 dwc_readMsgBlock(struct sdrammc *sdrammc, const u32 addr_half)
 {
 	u32 data_word;
 
@@ -727,7 +732,7 @@ int dwc_ddrphy_phyinit_userCustom_D_loadIMEM(struct sdrammc *sdrammc, const int 
 	fmc_hdr_get_prebuilt(pb_type, &imem_ofst, &imem_size);
 
 	memcpy(sdrammc->phy + (DWC_PHY_IMEM_OFST << 1),
-	       (void *)(0x20000000 + imem_ofst), imem_size);
+	       (void *)(uintptr_t)(0x20000000 + imem_ofst), imem_size);
 
 	return 0;
 }
@@ -746,7 +751,7 @@ int dwc_ddrphy_phyinit_userCustom_F_loadDMEM(struct sdrammc *sdrammc,
 	fmc_hdr_get_prebuilt(pb_type, &dmem_ofst, &dmem_size);
 
 	memcpy(sdrammc->phy + (DWC_PHY_DMEM_OFST << 1),
-	       (void *)(0x20000000 + dmem_ofst), dmem_size);
+	       (void *)(uintptr_t)(0x20000000 + dmem_ofst), dmem_size);
 
 	return 0;
 }
@@ -956,13 +961,13 @@ static int ast2700_sdrammc_of_to_plat(struct udevice *dev)
 	ofnode node;
 	int rc;
 
-	sdrammc->regs = (struct sdrammc_regs *)devfdt_get_addr_index(dev, 0);
+	sdrammc->regs = (struct sdrammc_regs *)dev_read_addr_index(dev, 0);
 	if (sdrammc->regs == (void *)FDT_ADDR_T_NONE) {
 		debug("cannot map DRAM register\n");
 		return -ENODEV;
 	}
 
-	sdrammc->phy = (void *)devfdt_get_addr_index(dev, 1);
+	sdrammc->phy = (void *)dev_read_addr_index(dev, 1);
 	if (sdrammc->phy == (void *)FDT_ADDR_T_NONE) {
 		debug("cannot map PHY memory\n");
 		return -ENODEV;

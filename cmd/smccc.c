@@ -49,6 +49,45 @@ static int do_call(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+#ifdef CONFIG_ARM64
+static int do_smc64(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
+{
+	struct arm_smccc_1_2_regs args, res;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	args.a0 = hextoul(argv[1], NULL);
+	args.a1 = argc > 2 ? hextoul(argv[2], NULL) : 0;
+	args.a2 = argc > 3 ? hextoul(argv[3], NULL) : 0;
+	args.a3 = argc > 4 ? hextoul(argv[4], NULL) : 0;
+	args.a4 = argc > 5 ? hextoul(argv[5], NULL) : 0;
+	args.a5 = argc > 6 ? hextoul(argv[6], NULL) : 0;
+	args.a6 = argc > 7 ? hextoul(argv[7], NULL) : 0;
+	args.a7 = argc > 8 ? hextoul(argv[8], NULL) : 0;
+	args.a8 = argc > 9 ? hextoul(argv[9], NULL) : 0;
+	args.a9 = argc > 10 ? hextoul(argv[10], NULL) : 0;
+	args.a10 = argc > 11 ? hextoul(argv[11], NULL) : 0;
+	args.a11 = argc > 12 ? hextoul(argv[12], NULL) : 0;
+	args.a12 = argc > 13 ? hextoul(argv[13], NULL) : 0;
+	args.a13 = argc > 14 ? hextoul(argv[14], NULL) : 0;
+	args.a14 = argc > 15 ? hextoul(argv[15], NULL) : 0;
+	args.a15 = argc > 16 ? hextoul(argv[16], NULL) : 0;
+	args.a16 = argc > 17 ? hextoul(argv[17], NULL) : 0;
+	args.a17 = argc > 18 ? hextoul(argv[18], NULL) : 0;
+
+	arm_smccc_1_2_smc(&args, &res);
+
+	printf("Res:  0x%lx 0x%lx 0x%lx 0x%lx : 0x%lx 0x%lx 0x%lx 0x%lx : 0x%lx 0x%lx 0x%lx 0x%lx : 0x%lx 0x%lx 0x%lx 0x%lx : 0x%lx 0x%lx\n",
+		res.a0, res.a1, res.a2, res.a3, res.a4, res.a5, res.a6, res.a7,
+		res.a8, res.a9, res.a10, res.a11, res.a12, res.a13, res.a14, res.a15,
+		res.a16, res.a17);
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_CMD_SMC
 U_BOOT_CMD(
 	smc,	9,		2,	do_call,
@@ -58,6 +97,16 @@ U_BOOT_CMD(
 	"  - arg SMC arguments, passed to X1-X6 (default to zero)\n"
 	"  - id  Secure OS ID / Session ID, passed to W7 (defaults to zero)\n"
 );
+
+#ifdef CONFIG_ARM64
+U_BOOT_CMD(
+	smc64,	19,		2,	do_smc64,
+	"Issue a Secure Monitor Call v1.2",
+	"<fid> [arg1 ... arg17]\n"
+	"  - fid Function ID\n"
+	"  - arg SMC arguments, passed to X1-X17 (default to zero)\n"
+);
+#endif
 #endif
 
 #ifdef CONFIG_CMD_HVC

@@ -1,0 +1,4 @@
+ARM OMAP4 VARISCITE VAR-SOM-OM44 MODULE
+M:	Bastien Curutchet <bastien.curutchet@bootlin.com>
+S:	Maintained
+N:	omap4_var_som

@@ -24,6 +24,7 @@ bool avb_chain_partition_descriptor_validate_and_byteswap(
   dest->rollback_index_location = avb_be32toh(dest->rollback_index_location);
   dest->partition_name_len = avb_be32toh(dest->partition_name_len);
   dest->public_key_len = avb_be32toh(dest->public_key_len);
+  dest->flags = avb_be32toh(dest->flags);
 
   if (dest->rollback_index_location < 1) {
     avb_error("Invalid rollback index location value.\n");

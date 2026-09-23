@@ -8,7 +8,7 @@ Notes for the MIPS architecture port of U-Boot
 Toolchains
 ----------
 
-  * `Buildroot <http://buildroot.uclibc.org/>`_
+  * `Buildroot <https://buildroot.org/>`_
   * `kernel.org cross-development toolchains <https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/>`_
 
 Known Issues

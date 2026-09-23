@@ -135,7 +135,7 @@ static void sc_nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ct
 			break;
 
 		default:
-			printf("%s: unknown ctrl %#x\n", __FUNCTION__, ctrl);
+			printf("%s: unknown ctrl %#x\n", __func__, ctrl);
 		}
 
 		if (ctrl & NAND_NCE)

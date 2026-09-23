@@ -34,7 +34,7 @@ of many distributions, e.g. :
 
 Some distribution packages are obsolete and it is recommended
 to use the latest version released from the Coccinelle homepage at
-http://coccinelle.lip6.fr/
+https://coccinelle.gitlabpages.inria.fr/website/
 
 Or from Github at:
 
@@ -58,15 +58,9 @@ https://github.com/coccinelle/coccinelle/blob/master/install.txt
 Supplemental documentation
 --------------------------
 
-For supplemental documentation refer to the wiki:
-
-https://bottest.wiki.kernel.org/coccicheck
-
-The wiki documentation always refers to the linux-next version of the script.
-
 For Semantic Patch Language(SmPL) grammar documentation refer to:
 
-http://coccinelle.lip6.fr/documentation.php
+https://coccinelle.gitlabpages.inria.fr/website/documentation.html
 
 Using Coccinelle on the Linux kernel
 ------------------------------------

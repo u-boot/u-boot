@@ -208,6 +208,12 @@ config TARGET_RK3588_NEU6
 	  IO board and Neu6a needs to mount on top of this IO board in order to
 	  create complete Edgeble Neural Compute Module 6B(Neu6B) IO platform.
 
+config TARGET_ROC_PC_RK3588S
+	bool "Firefly ROC PC RK3588S"
+	help
+	  ROC-PC-RK3588S is a single board computer from Firefly
+	  using the Rockchip RK3588S.
+
 config TARGET_ROCK5A_RK3588
 	bool "Radxa ROCK5A RK3588 board"
 	help
@@ -421,6 +427,7 @@ config SYS_SOC
 source "board/armsom/sige7-rk3588/Kconfig"
 source "board/coolpi/genbook_cm5_rk3588/Kconfig"
 source "board/edgeble/neural-compute-module-6/Kconfig"
+source "board/firefly/roc-pc-rk3588s/Kconfig"
 source "board/friendlyelec/cm3588-nas-rk3588/Kconfig"
 source "board/friendlyelec/nanopc-t6-rk3588/Kconfig"
 source "board/friendlyelec/nanopi-r6c-rk3588s/Kconfig"

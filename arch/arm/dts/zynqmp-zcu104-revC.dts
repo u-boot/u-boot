@@ -3,7 +3,7 @@
  * dts file for Xilinx ZynqMP ZCU104
  *
  * (C) Copyright 2017 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -43,8 +43,24 @@
 		reg = <0x0 0x0 0x0 0x80000000>;
 	};
 
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		cma: linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x8000000>;
+			alignment = <0x0 0x8000000>;
+			alloc-ranges = <0x0 0x0 0x0 0x80000000>;
+			linux,cma-default;
+		};
+	};
+
 	ina226 {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&u183 0>, <&u183 1>, <&u183 2>, <&u183 3>;
 	};
 
@@ -131,7 +147,6 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		phy0: ethernet-phy@c {
-			#phy-cells = <1>;
 			compatible = "ethernet-phy-id2000.a231";
 			reg = <0xc>;
 			ti,rx-internal-delay = <0x8>;
@@ -465,27 +480,31 @@
 	status = "okay";
 	flash@0 {
 		compatible = "m25p80", "jedec,spi-nor"; /* n25q512a 128MiB */
-		#address-cells = <1>;
-		#size-cells = <1>;
 		reg = <0x0>;
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>;
 		spi-max-frequency = <108000000>; /* Based on DC1 spec */
-		partition@0 { /* for testing purpose */
-			label = "qspi-fsbl-uboot";
-			reg = <0x0 0x100000>;
-		};
-		partition@100000 { /* for testing purpose */
-			label = "qspi-linux";
-			reg = <0x100000 0x500000>;
-		};
-		partition@600000 { /* for testing purpose */
-			label = "qspi-device-tree";
-			reg = <0x600000 0x20000>;
-		};
-		partition@620000 { /* for testing purpose */
-			label = "qspi-rootfs";
-			reg = <0x620000 0x5e0000>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 { /* for testing purpose */
+				label = "qspi-fsbl-uboot";
+				reg = <0x0 0x100000>;
+			};
+			partition@100000 { /* for testing purpose */
+				label = "qspi-linux";
+				reg = <0x100000 0x500000>;
+			};
+			partition@600000 { /* for testing purpose */
+				label = "qspi-device-tree";
+				reg = <0x600000 0x20000>;
+			};
+			partition@620000 { /* for testing purpose */
+				label = "qspi-rootfs";
+				reg = <0x620000 0x5e0000>;
+			};
 		};
 	};
 };

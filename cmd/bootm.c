@@ -230,30 +230,6 @@ U_BOOT_CMD(
 );
 
 /*******************************************************************/
-/* bootd - boot default image */
-/*******************************************************************/
-#if defined(CONFIG_CMD_BOOTD)
-int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	return run_command(env_get("bootcmd"), flag);
-}
-
-U_BOOT_CMD(
-	boot,	1,	1,	do_bootd,
-	"boot default, i.e., run 'bootcmd'",
-	""
-);
-
-/* keep old command name "bootd" for backward compatibility */
-U_BOOT_CMD(
-	bootd, 1,	1,	do_bootd,
-	"boot default, i.e., run 'bootcmd'",
-	""
-);
-
-#endif
-
-/*******************************************************************/
 /* iminfo - print header info for a requested image */
 /*******************************************************************/
 #if defined(CONFIG_CMD_IMI)
@@ -279,6 +255,9 @@ static int do_iminfo(struct cmd_tbl *cmdtp, int flag, int argc,
 static int image_info(ulong addr)
 {
 	void *hdr = (void *)map_sysmem(addr, 0);
+#if defined(CONFIG_FIT)
+	int ret;
+#endif
 
 	printf("\n## Checking Image at %08lx ...\n", addr);
 
@@ -328,6 +307,13 @@ static int image_info(ulong addr)
 		}
 
 		fit_print_contents(hdr);
+
+		ret = fit_all_configurations_verify(hdr);
+		if (ret != 0 && (ret != -ENOENT ||
+				 CONFIG_IS_ENABLED(FIT_REQUIRE_CONFIG_SIGS))) {
+			unmap_sysmem(hdr);
+			return 1;
+		}
 
 		if (!fit_all_image_verify(hdr)) {
 			puts("Bad hash in FIT image!\n");

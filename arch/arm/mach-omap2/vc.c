@@ -46,6 +46,8 @@
 #define PRM_VC_VAL_BYPASS_DATA_SHIFT		16
 #define PRM_VC_VAL_BYPASS_DATA_MASK		0xFF
 
+#define PRM_VC_I2C_CHANNEL_FREQ_KHZ		400
+
 /**
  * omap_vc_init() - Initialization for Voltage controller
  * @speed_khz: I2C buspeed in KHz

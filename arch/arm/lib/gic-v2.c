@@ -38,7 +38,7 @@ static int acpi_gicv2_fill_madt(const struct udevice *dev, struct acpi_ctx *ctx)
 	return 0;
 }
 
-static struct acpi_ops gic_v2_acpi_ops = {
+static const struct acpi_ops gic_v2_acpi_ops = {
 	.fill_madt	= acpi_gicv2_fill_madt,
 };
 #endif

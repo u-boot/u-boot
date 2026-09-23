@@ -477,7 +477,7 @@ static int lib_test_lmb_at_0(struct unit_test_state *uts)
 		   0, 0, 0, 0);
 	/* check that this was an error by freeing b */
 	ret = lmb_free(b, 4, LMB_NONE);
-	ut_asserteq(ret, -1);
+	ut_asserteq(ret, -EFAULT);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, a, ram_size - 4,
 		   0, 0, 0, 0);
 
@@ -779,11 +779,19 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 	/* check that allocating outside memory fails */
 	if (ram_end != 0) {
 		ret = lmb_alloc_addr(ram_end, 1, LMB_NONE);
+		ut_asserteq(ret, -EFAULT);
+		ret = lmb_alloc_addr(ram_end - 1, 2, LMB_NOMAP);
+		ut_asserteq(ret, -EINVAL);
+		ret = lmb_alloc_addr(ram_end - 1, 2, LMB_NOOVERWRITE);
 		ut_asserteq(ret, -EINVAL);
 	}
 	if (ram != 0) {
 		ret = lmb_alloc_addr(ram - 1, 1, LMB_NONE);
-		ut_asserteq(ret, -EINVAL);
+		ut_asserteq(ret, -EFAULT);
+		ret = lmb_alloc_addr(ram - 1, 2, LMB_NOMAP);
+		ut_asserteq(ret, -EEXIST);
+		ret = lmb_alloc_addr(ram - 1, 2, LMB_NOOVERWRITE);
+		ut_asserteq(ret, -EEXIST);
 	}
 
 	lmb_pop(&store);

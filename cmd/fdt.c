@@ -719,22 +719,19 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	} else if (strncmp(argv[1], "che", 3) == 0) {
 		int cfg_noffset;
 		int ret;
-		unsigned long addr;
-		struct fdt_header *blob;
+		struct fdt_header *key_blob;
 
 		if (!working_fdt)
 			return CMD_RET_FAILURE;
 
 		if (argc > 2) {
-			addr = hextoul(argv[2], NULL);
-			blob = map_sysmem(addr, 0);
+			key_blob = map_sysmem(hextoul(argv[2], NULL), 0);
 		} else {
-			blob = (struct fdt_header *)gd->fdt_blob;
+			key_blob = (struct fdt_header *)gd->fdt_blob;
 		}
-		if (!fdt_valid(&blob))
+		if (!fdt_valid(&key_blob))
 			return 1;
 
-		gd->fdt_blob = blob;
 		cfg_noffset = fit_conf_get_node(working_fdt, NULL);
 		if (cfg_noffset < 0) {
 			printf("Could not find configuration node: %s\n",
@@ -742,7 +739,8 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return CMD_RET_FAILURE;
 		}
 
-		ret = fit_config_verify(working_fdt, cfg_noffset);
+		ret = fit_config_verify_with_key_blob(working_fdt, cfg_noffset,
+						      key_blob);
 		if (ret == 0)
 			return CMD_RET_SUCCESS;
 		else

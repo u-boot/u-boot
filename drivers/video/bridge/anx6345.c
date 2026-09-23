@@ -403,7 +403,7 @@ static int anx6345_probe(struct udevice *dev)
 	return anx6345_enable(dev);
 }
 
-struct video_bridge_ops anx6345_ops = {
+static const struct video_bridge_ops anx6345_ops = {
 	.attach = anx6345_attach,
 	.set_backlight = anx6345_set_backlight,
 	.read_edid = anx6345_read_edid,

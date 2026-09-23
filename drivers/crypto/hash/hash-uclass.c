@@ -84,6 +84,41 @@ int hash_digest_wd(struct udevice *dev, enum HASH_ALGO algo,
 	return ops->hash_digest_wd(dev, algo, ibuf, ilen, obuf, chunk_sz);
 }
 
+static bool hash_op_unsupported(int ret)
+{
+	return ret == -ENOSYS || ret == -EOPNOTSUPP;
+}
+
+int hash_digest_wd_lookup(enum HASH_ALGO algo, const void *ibuf,
+			  const u32 ilen, void *obuf, u32 chunk_sz)
+{
+	struct udevice *dev;
+	int first_probe_err = 0;
+	bool found = false;
+	int ret;
+
+	for (ret = uclass_first_device_check(UCLASS_HASH, &dev); dev;
+	     ret = uclass_next_device_check(&dev)) {
+		found = true;
+		if (ret) {
+			if (!first_probe_err)
+				first_probe_err = ret;
+			continue;
+		}
+
+		ret = hash_digest_wd(dev, algo, ibuf, ilen, obuf, chunk_sz);
+		if (!ret)
+			return 0;
+		if (!hash_op_unsupported(ret))
+			return ret;
+	}
+
+	if (first_probe_err)
+		return first_probe_err;
+
+	return found ? -EOPNOTSUPP : -ENODEV;
+}
+
 int hash_init(struct udevice *dev, enum HASH_ALGO algo, void **ctxp)
 {
 	struct hash_ops *ops = (struct hash_ops *)device_get_ops(dev);

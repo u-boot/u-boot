@@ -8,6 +8,7 @@
 
 #include <dm.h>
 #include <backlight.h>
+#include <limits.h>
 #include <log.h>
 #include <malloc.h>
 #include <pwm.h>
@@ -15,6 +16,65 @@
 #include <linux/delay.h>
 #include <linux/math64.h>
 #include <power/regulator.h>
+
+/**
+ * build_interpolated_levels() - Build a linearly interpolated levels table
+ *
+ * Some "brightness-levels" tables only list a few anchor points and rely on
+ * "num-interpolated-steps" to fill in the values between them, so that a
+ * high resolution PWM duty cycle can be used without listing every value.
+ *
+ * @raw_levels: Anchor point values read from "brightness-levels"
+ * @count:	Number of anchor points in @raw_levels
+ * @num_steps:	Number of interpolated steps between each anchor point
+ * @levels:	Returns newly allocated table of (count - 1) * num_steps + 1
+ *		entries
+ * @num_levels: Returns the number of entries in @levels
+ * Return: 0 on success, -EINVAL if @count or @num_steps are invalid, -ENOMEM
+ *	   on allocation failure
+ */
+static int build_interpolated_levels(const u32 *raw_levels, u32 count,
+				     u32 num_steps, u32 **levels,
+				     u32 *num_levels)
+{
+	u64 count_out64;
+	u32 count_out, *table, i, x;
+
+	/*
+	 * num_steps must fit in the s32 divisor of div_s64(), and count_out64
+	 * must fit both u32 (it is stored as such) and the byte size passed
+	 * to malloc().
+	 */
+	if (count < 2 || num_steps == 0 || num_steps > S32_MAX)
+		return -EINVAL;
+
+	count_out64 = (u64)(count - 1) * num_steps + 1;
+	if (count_out64 > U32_MAX || count_out64 > SIZE_MAX / sizeof(u32))
+		return -EINVAL;
+
+	count_out = count_out64;
+
+	table = malloc(count_out * sizeof(u32));
+	if (!table)
+		return -ENOMEM;
+
+	for (i = 0; i < count - 1; i++) {
+		u32 x1 = i * num_steps;
+		u32 x2 = x1 + num_steps;
+		u32 y1 = raw_levels[i];
+		u32 y2 = raw_levels[i + 1];
+		s64 dy = (s64)y2 - y1;
+
+		for (x = x1; x < x2; x++)
+			table[x] = y1 + div_s64(dy * (x - x1), num_steps);
+	}
+
+	table[count_out - 1] = raw_levels[count - 1];
+	*levels = table;
+	*num_levels = count_out;
+
+	return 0;
+}
 
 /**
  * Private information for the PWM backlight
@@ -49,7 +109,7 @@ struct pwm_backlight_priv {
 	 */
 	bool polarity;
 	u32 *levels;
-	int num_levels;
+	u32 num_levels;
 	uint default_level;
 	int cur_level;
 	uint min_level;
@@ -196,6 +256,7 @@ static int pwm_backlight_of_to_plat(struct udevice *dev)
 	struct ofnode_phandle_args args;
 	int index, ret, count, len;
 	const u32 *cell;
+	u32 num_steps;
 
 	log_debug("start\n");
 	ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
@@ -232,20 +293,60 @@ static int pwm_backlight_of_to_plat(struct udevice *dev)
 	index = dev_read_u32_default(dev, "default-brightness-level", 255);
 	cell = dev_read_prop(dev, "brightness-levels", &len);
 	count = len / sizeof(u32);
-	if (cell && count > index) {
-		priv->levels = malloc(len);
-		if (!priv->levels)
+
+	/*
+	 * If present, "num-interpolated-steps" means the levels above are
+	 * just anchor points, and the actual table used for
+	 * default-brightness-level and PWM duty cycle is the interpolated
+	 * table built from those anchor points. Interpolating needs at
+	 * least two anchor points.
+	 */
+	num_steps = dev_read_u32_default(dev, "num-interpolated-steps", 0);
+
+	priv->default_level = index;
+	priv->max_level = 255;
+
+	if (cell && count >= (num_steps ? 2 : 1)) {
+		u32 *raw_levels;
+
+		raw_levels = malloc(len);
+		if (!raw_levels)
 			return log_ret(-ENOMEM);
-		ret = dev_read_u32_array(dev, "brightness-levels", priv->levels,
+
+		ret = dev_read_u32_array(dev, "brightness-levels", raw_levels,
 					 count);
-		if (ret)
+		if (ret) {
+			free(raw_levels);
 			return log_msg_ret("levels", ret);
-		priv->num_levels = count;
-		priv->default_level = priv->levels[index];
-		priv->max_level = priv->levels[count - 1];
-	} else {
-		priv->default_level = index;
-		priv->max_level = 255;
+		}
+
+		if (num_steps) {
+			ret = build_interpolated_levels(raw_levels, count, num_steps,
+							&priv->levels,
+							&priv->num_levels);
+			free(raw_levels);
+			if (ret)
+				return log_ret(ret);
+		} else {
+			priv->levels = raw_levels;
+			priv->num_levels = count;
+		}
+
+		if (index < priv->num_levels) {
+			priv->default_level = priv->levels[index];
+			priv->max_level = priv->levels[priv->num_levels - 1];
+		} else {
+			/*
+			 * default-brightness-level is out of range for the
+			 * table: fall back to raw 0-255 PWM scaling instead
+			 * of using the table at all.
+			 */
+			log_warning("default-brightness-level %d out of range for %u-entry brightness-levels table, ignoring table\n",
+				    index, priv->num_levels);
+			free(priv->levels);
+			priv->levels = NULL;
+			priv->num_levels = 0;
+		}
 	}
 	priv->cur_level = priv->default_level;
 	log_debug("done\n");

@@ -59,7 +59,7 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
 	if (boot_dev_spl == MMC3_BOOT)
 		return BOOT_DEVICE_MMC2;	/* eMMC */
-	else if (boot_dev_spl == MMC2_BOOT)
+	else if (boot_dev_spl == MMC2_BOOT || boot_dev_spl == SD2_BOOT)
 		return BOOT_DEVICE_MMC1;	/* SD */
 	else
 		return BOOT_DEVICE_BOARD;

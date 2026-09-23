@@ -94,17 +94,16 @@ void mmu_set_region_dcache_behaviour_phys(phys_addr_t start, phys_addr_t phys,
 
 __weak void dram_bank_mmu_setup(int bank)
 {
-	struct bd_info *bd = gd->bd;
 	int	i;
 
-	/* bd->bi_dram is available only after relocation */
+	/* gd->dram is available only after relocation */
 	if ((gd->flags & GD_FLG_RELOC) == 0)
 		return;
 
 	debug("%s: bank: %d\n", __func__, bank);
-	for (i = bd->bi_dram[bank].start >> MMU_SECTION_SHIFT;
-	     i < (bd->bi_dram[bank].start >> MMU_SECTION_SHIFT) +
-		 (bd->bi_dram[bank].size >> MMU_SECTION_SHIFT);
+	for (i = gd->dram[bank].start >> MMU_SECTION_SHIFT;
+	     i < (gd->dram[bank].start >> MMU_SECTION_SHIFT) +
+		 (gd->dram[bank].size >> MMU_SECTION_SHIFT);
 	     i++)
 		set_section_dcache(i, DCACHE_DEFAULT_OPTION);
 }

@@ -67,8 +67,8 @@ void mrc_common_dram_init_banksize(void)
 
 		if (area->start >= 1ULL << 32)
 			continue;
-		gd->bd->bi_dram[num_banks].start = area->start;
-		gd->bd->bi_dram[num_banks].size = area->size;
+		gd->dram[num_banks].start = area->start;
+		gd->dram[num_banks].size = area->size;
 		num_banks++;
 	}
 }

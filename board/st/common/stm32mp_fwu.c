@@ -3,9 +3,11 @@
  * Copyright (C) 2026 Amarula Solutions, Dario Binacchi <dario.binacchi@amarulasolutions.com>
  */
 
+#include <env.h>
 #include <fwu.h>
 #include <part_efi.h>
 #include <asm/io.h>
+#include <asm/arch/stm32.h>
 /**
  * fwu_plat_get_bootidx() - Get the value of the boot index
  * @boot_idx: Boot index value

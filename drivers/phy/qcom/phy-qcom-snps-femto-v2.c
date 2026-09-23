@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
+#include <errno.h>
 #include <generic-phy.h>
 #include <malloc.h>
 #include <reset.h>
@@ -165,8 +166,8 @@ static int qcom_snps_hsphy_phy_probe(struct udevice *dev)
 	int ret;
 
 	priv->base = dev_read_addr_ptr(dev);
-	if (IS_ERR(priv->base))
-		return PTR_ERR(priv->base);
+	if (!priv->base)
+		return -EINVAL;
 
 	ret = reset_get_bulk(dev, &priv->resets);
 	if (ret < 0) {

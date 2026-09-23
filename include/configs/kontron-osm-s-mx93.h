@@ -25,6 +25,4 @@
 #define CFG_MXC_USB_FLAGS		0
 #endif
 
-#define WDOG_BASE_ADDR          WDG3_BASE_ADDR
-
 #endif /* __KONTRON_MX93_CONFIG_H */

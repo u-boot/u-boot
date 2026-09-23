@@ -138,6 +138,18 @@
 	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
 };
 
+&i2c3 {
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+};
+
+&i2c4 {
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+};
+
+&i2c5 {
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+};
+
 &spi2 {
 	clocks = <&clk ADSP_SC598_CLK_SPI>;
 };

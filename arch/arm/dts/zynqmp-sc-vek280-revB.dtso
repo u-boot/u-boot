@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP VEK280 revB
  *
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -10,6 +10,5 @@
 #include "zynqmp-sc-vek280-revA.dtso"
 
 &{/} {
-	compatible = "xlnx,zynqmp-sc-vek280-revB", "xlnx,zynqmp-vek280-revB",
-		     "xlnx,zynqmp-vek280", "xlnx,zynqmp";
+	compatible = "xlnx,zynqmp-sc-vek280-revB", "xlnx,zynqmp-sc-vek280", "xlnx,zynqmp";
 };

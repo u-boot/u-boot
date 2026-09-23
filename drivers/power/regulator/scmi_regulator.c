@@ -180,7 +180,7 @@ static int scmi_regulator_bind(struct udevice *dev)
 	ofnode node;
 	int ret;
 
-	regul_node = ofnode_find_subnode(dev_ofnode(dev), "regulators");
+	regul_node = dev_read_subnode(dev, "regulators");
 	if (!ofnode_valid(regul_node)) {
 		dev_err(dev, "no regulators node\n");
 		return -ENXIO;

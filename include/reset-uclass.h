@@ -77,6 +77,25 @@ struct reset_ops {
 	 */
 	int (*rst_deassert)(struct reset_ctl *reset_ctl);
 	/**
+	 * rst_reset - Reset a HW module.
+	 *
+	 * This optional function triggers a reset pulse on the reset line.
+	 * If not implemented, reset_reset() falls back to rst_assert(),
+	 * udelay(@delay_us), then rst_deassert(); that delay is therefore
+	 * observed only on the fallback path.
+	 *
+	 * When rst_reset is provided, @delay_us is controller-specific: the
+	 * implementation should honour it if the hardware needs a minimum
+	 * assertion time before release. It may ignore @delay_us when the
+	 * pulse shape is fixed elsewhere (for example a firmware pulse).
+	 *
+	 * @reset_ctl:	The reset signal to pulse.
+	 * @delay_us:	Minimum delay in microseconds between assert and
+	 *		deassert where applicable; see above.
+	 * @return 0 if OK, or a negative error code.
+	 */
+	int (*rst_reset)(struct reset_ctl *reset_ctl, ulong delay_us);
+	/**
 	 * rst_status - Check reset signal status.
 	 *
 	 * @reset_ctl:	The reset signal to check.

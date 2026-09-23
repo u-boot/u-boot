@@ -101,27 +101,18 @@
 		status = "disabled";
 	};
 
-	usb3: usb@11213e00 {
+	usb3: usb@11211000 {
 		compatible = "mediatek,mt8512-mtu3", "mediatek,mtu3";
-		reg = <0x11213e00 0x0100>;
-		reg-names = "ippc";
+		reg = <0x11211000 0x2e00>,
+		      <0x11213e00 0x0100>;
+		reg-names = "mac", "ippc";
+		interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_LOW>;
 		phys = <&u2port0 PHY_TYPE_USB2>, <&u2port1 PHY_TYPE_USB2>;
 		clocks = <&infracfg CLK_INFRA_USB_SYS>,
 			 <&topckgen CLK_TOP_SSUSB_TOP_CK_EN>,
 			 <&infracfg CLK_INFRA_ICUSB>;
 		clock-names = "sys_ck", "ref_ck", "mcu_ck";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges;
 		status = "disabled";
-
-		ssusb: usb@11210000 {
-			compatible = "mediatek,ssusb";
-			reg = <0x11210000 0x3e00>;
-			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_LOW>;
-			reg-names = "mac";
-			status = "disabled";
-		};
 	};
 
 	u3phy: usb-phy@11cc0000 {

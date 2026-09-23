@@ -1,0 +1,6 @@
+ROC-RK3588S-PC
+M:	Fabio Estevam <festevam@nabladev.com>
+S:	Maintained
+F:	board/firefly/roc-pc-rk3588s/
+F:	configs/roc-pc-rk3588s_defconfig
+F:	include/configs/roc-pc-rk3588s.h

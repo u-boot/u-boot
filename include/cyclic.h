@@ -78,15 +78,6 @@ void cyclic_unregister(struct cyclic_info *cyclic);
  */
 int cyclic_unregister_all(void);
 
-/**
- * cyclic_get_list() - Get cyclic list pointer
- *
- * Return the cyclic list pointer
- *
- * @return: pointer to cyclic_list
- */
-struct hlist_head *cyclic_get_list(void);
-
 #else
 
 static inline void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,

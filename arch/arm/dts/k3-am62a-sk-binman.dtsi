@@ -185,11 +185,16 @@
 			};
 
 			configurations {
-				default = "conf-0";
-				conf-0 {
-					description = "k3-am62a7-sk-falcon";
+				default = "conf-hs-fs";
+				conf-hs-fs {
+					description = "k3-am62a7-sk-falcon-hs-fs";
 					firmware = "atf";
-					loadables = "tee", "dm", "tifsstub-hs", "tifsstub-fs";
+					loadables = "tee", "dm", "tifsstub-fs";
+				};
+				conf-hs-se {
+					description = "k3-am62a7-sk-falcon-hs-se";
+					firmware = "atf";
+					loadables = "tee", "dm", "tifsstub-hs";
 				};
 			};
 		};
@@ -284,13 +289,18 @@
 			};
 
 			configurations {
-				default = "conf-0";
+				default = "conf-hs-fs";
 
-				ti_spl_conf_0: conf-0 {
-					description = "k3-am62a7-sk";
+				ti_spl_conf_0: conf-hs-fs {
+					description = "k3-am62a7-sk-hs-fs";
 					firmware = "atf";
-					loadables = "tee", "dm", "spl",
-					"tifsstub-hs", "tifsstub-fs";
+					loadables = "tee", "dm", "spl", "tifsstub-fs";
+					fdt = "fdt-0";
+				};
+				conf-hs-se {
+					description = "k3-am62a7-sk-hs-se";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl", "tifsstub-hs";
 					fdt = "fdt-0";
 				};
 			};

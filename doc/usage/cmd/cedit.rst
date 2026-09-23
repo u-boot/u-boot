@@ -75,8 +75,8 @@ cedit write_env
 Writes the settings to environment variables. For each menu item the selected
 ID and its text string are written, similar to:
 
-   setenv c.<name> <selected_id>
-   setenv c.<name>-str <selected_id's text string>
+   env set c.<name> <selected_id>
+   env set c.<name>-str <selected_id's text string>
 
 The `-v` flag enables verbose mode, where each variable is printed before it is
 set.

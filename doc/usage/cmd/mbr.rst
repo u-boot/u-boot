@@ -43,7 +43,7 @@ volume'), some of the predefined sizes:
 
 ::
 
-    => setenv mbr_parts 'name=boot,start=4M,size=128M,bootable,id=0x0e;
+    => env set mbr_parts 'name=boot,start=4M,size=128M,bootable,id=0x0e;
         name=rootfs,size=3072M,id=0x83;
         name=system-data,size=512M,id=0x83;
         name=[ext],size=-,id=0x05;

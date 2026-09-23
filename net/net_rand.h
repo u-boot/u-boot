@@ -44,7 +44,7 @@ static inline void srand_mac(void)
 
 	if (CONFIG_IS_ENABLED(DM_RNG)) {
 		ret = uclass_get_device(UCLASS_RNG, 0, &devp);
-		if (ret) {
+		if (!ret) {
 			ret = dm_rng_read(devp, &randv, sizeof(randv));
 			if (ret < 0)
 				randv = 0;

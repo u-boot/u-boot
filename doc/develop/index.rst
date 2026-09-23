@@ -31,6 +31,7 @@ Implementation
 
    directories
    bloblist
+   imagemap
    bootstd/index
    ci_testing
    commands
@@ -49,6 +50,7 @@ Implementation
    logging
    makefiles
    menus
+   pmbus
    printf
    smbios
    spl

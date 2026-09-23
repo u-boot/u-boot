@@ -119,7 +119,7 @@ static int apl_acpi_lpc_get_name(const struct udevice *dev, char *out_name)
 	return acpi_copy_name(out_name, "LPCB");
 }
 
-struct acpi_ops apl_lpc_acpi_ops = {
+static const struct acpi_ops __maybe_unused apl_lpc_acpi_ops = {
 	.get_name	= apl_acpi_lpc_get_name,
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 	.write_tables	= intel_southbridge_write_acpi_tables,

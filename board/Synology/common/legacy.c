@@ -10,6 +10,7 @@
 #include <vsprintf.h>
 #include <env.h>
 #include <net.h>
+#include <asm/io.h>
 #include <asm/setup.h>
 
 #include "legacy.h"

@@ -411,7 +411,7 @@ The board can be switched off now.
 Examples
 ''''''''
 
-https://source.denx.de/u-boot/u-boot-test-hooks contains some working example hook
+https://git.u-boot-project.org/u-boot/u-boot-test-hooks contains some working example hook
 scripts, and may be useful as a reference when implementing hook scripts for
 your platform. These scripts are not considered part of U-Boot itself.
 

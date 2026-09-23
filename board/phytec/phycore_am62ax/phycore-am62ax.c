@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <spl.h>
 #include <fdt_support.h>
+#include <image.h>
 
 #include "../common/am6_som_detection.h"
 
@@ -57,3 +58,8 @@ void spl_board_init(void)
 	dram_init_banksize();
 }
 #endif
+
+int board_fit_config_name_match(const char *name)
+{
+	return k3_fit_config_match_security_state(name);
+}

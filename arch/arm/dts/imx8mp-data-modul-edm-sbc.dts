@@ -296,9 +296,9 @@
 		self-powered;
 	};
 
-	eeprom: eeprom@50 {
+	eeprom: eeprom@51 {
 		compatible = "atmel,24c32";
-		reg = <0x50>;
+		reg = <0x51>;
 		pagesize = <32>;
 	};
 

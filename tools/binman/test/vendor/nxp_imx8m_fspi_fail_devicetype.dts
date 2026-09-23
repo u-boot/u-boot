@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		nxp-imx8mimage {
+			args;	/* TODO: Needed by mkimage etype superclass */
+			nxp,boot-from = "fspi";
+			nxp,rom-version = <2>;
+			nxp,loader-address = <0x10>;
+			/* Bogus value */
+			nxp,fspi-devicetype = <3>;
+		};
+	};
+};

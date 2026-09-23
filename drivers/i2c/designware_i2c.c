@@ -740,13 +740,47 @@ static int designware_i2c_probe_chip(struct udevice *bus, uint chip_addr,
 {
 	struct dw_i2c *i2c = dev_get_priv(bus);
 	struct i2c_regs *i2c_base = i2c->regs;
-	u32 tmp;
-	int ret;
+	u32 start_time, ic_status;
+	int ret = 0;
 
-	/* Try to read the first location of the chip */
-	ret = __dw_i2c_read(i2c_base, chip_addr, 0, 1, (uchar *)&tmp, 1);
+	ret = i2c_wait_for_bb(i2c_base);
 	if (ret)
-		__dw_i2c_init(i2c_base, 0, 0);
+		return ret;
+
+	dw_i2c_enable(i2c_base, false);
+	writel(chip_addr, &i2c_base->ic_tar);
+	dw_i2c_enable(i2c_base, true);
+
+	writel(IC_STOP, &i2c_base->ic_cmd_data);
+
+	start_time = get_timer(0);
+	while (1) {
+		ic_status = readl(&i2c_base->ic_status);
+
+		if ((ic_status & IC_STATUS_TFE) && !(ic_status & IC_STATUS_MA))
+			break;
+
+		if (readl(&i2c_base->ic_raw_intr_stat) & IC_TX_ABRT) {
+			readl(&i2c_base->ic_clr_tx_abrt);
+			ret = -EREMOTEIO;
+			break;
+		}
+
+		if (get_timer(start_time) > I2C_BYTE_TO) {
+			ret = -ETIMEDOUT;
+			break;
+		}
+	}
+
+	start_time = get_timer(0);
+	while (1) {
+		if ((readl(&i2c_base->ic_raw_intr_stat) & IC_STOP_DET)) {
+			readl(&i2c_base->ic_clr_stop_det);
+			break;
+		} else if (get_timer(start_time) > I2C_STOPDET_TO) {
+			break;
+		}
+	}
 
 	return ret;
 }

@@ -64,14 +64,13 @@ static int msm_sdc_clk_init(struct udevice *dev)
 {
 	struct msm_sdhc *prv = dev_get_priv(dev);
 	const struct msm_sdhc_variant_info *var_info;
-	ofnode node = dev_ofnode(dev);
 	ulong clk_rate;
 	int ret, i = 0, n_clks;
 	const char *clk_name;
 
 	var_info = (void *)dev_get_driver_data(dev);
 
-	if (ofnode_read_u32(node, "max-frequency", (uint *)(&clk_rate)))
+	if (dev_read_u32(dev, "max-frequency", (uint *)(&clk_rate)))
 		clk_rate = 201500000;
 
 	ret = clk_get_bulk(dev, &prv->clks);
@@ -87,7 +86,7 @@ static int msm_sdc_clk_init(struct udevice *dev)
 	}
 
 	/* If clock-names is unspecified, then the first clock is the core clock */
-	if (!ofnode_get_property(node, "clock-names", &n_clks)) {
+	if (!dev_read_prop(dev, "clock-names", &n_clks)) {
 		if (!clk_set_rate(&prv->clks.clks[0], clk_rate)) {
 			log_warning("Couldn't set core clock rate: %d\n", ret);
 			return -EINVAL;
@@ -96,7 +95,7 @@ static int msm_sdc_clk_init(struct udevice *dev)
 
 	/* Find the index of the "core" clock */
 	while (i < n_clks) {
-		ofnode_read_string_index(node, "clock-names", i, &clk_name);
+		dev_read_string_index(dev, "clock-names", i, &clk_name);
 		if (!strcmp(clk_name, "core"))
 			break;
 		i++;

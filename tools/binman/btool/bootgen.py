@@ -7,7 +7,7 @@
 bootgen allows creating bootable SPL for Zynq(MP)
 
 Documentation is available via:
-https://www.xilinx.com/support/documents/sw_manuals/xilinx2022_1/ug1283-bootgen-user-guide.pdf
+https://docs.amd.com/r/en-US/ug1283-bootgen-user-guide/
 
 Source code is available at:
 https://github.com/Xilinx/bootgen

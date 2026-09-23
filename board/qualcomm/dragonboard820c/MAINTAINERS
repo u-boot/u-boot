@@ -3,4 +3,4 @@ M:	Jorge Ramirez-Ortiz <jorge.ramirez.ortiz@gmail.com>
 S:	Maintained
 F:	board/qualcomm/dragonboard820c/
 F:	include/configs/dragonboard820c.h
-F:	configs/dragonboard820c_defconfig
+F:	configs/qcom_dragonboard820c_defconfig

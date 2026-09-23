@@ -9,6 +9,7 @@ Standard Boot
    overview
    extlinux
    pxelinux
+   bls
    qfw
    android
    cros

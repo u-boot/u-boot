@@ -417,10 +417,10 @@ static int ti_qspi_probe(struct udevice *bus)
 static void *map_syscon_chipselects(struct udevice *bus)
 {
 #if CONFIG_IS_ENABLED(SYSCON)
+	struct ofnode_phandle_args args;
 	struct udevice *syscon;
 	struct regmap *regmap;
-	const fdt32_t *cell;
-	int len, err;
+	int err;
 
 	err = uclass_get_device_by_phandle(UCLASS_SYSCON, bus,
 					   "syscon-chipselects", &syscon);
@@ -437,17 +437,17 @@ static void *map_syscon_chipselects(struct udevice *bus)
 		return NULL;
 	}
 
-	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(bus),
-			   "syscon-chipselects", &len);
-	if (len < 2*sizeof(fdt32_t)) {
+	err = dev_read_phandle_with_args(bus, "syscon-chipselects", NULL,
+					 1, 0, &args);
+	if (err || args.args_count < 1) {
 		debug("%s: offset not available\n", __func__);
 		return NULL;
 	}
 
-	return fdtdec_get_number(cell + 1, 1) + regmap_get_range(regmap, 0);
+	return args.args[0] + regmap_get_range(regmap, 0);
 #else
 	fdt_addr_t addr;
-	addr = devfdt_get_addr_index(bus, 2);
+	addr = dev_read_addr_index(bus, 2);
 	return (addr == FDT_ADDR_T_NONE) ? NULL :
 		map_physmem(addr, 0, MAP_NOCACHE);
 #endif
@@ -456,15 +456,13 @@ static void *map_syscon_chipselects(struct udevice *bus)
 static int ti_qspi_of_to_plat(struct udevice *bus)
 {
 	struct ti_qspi_priv *priv = dev_get_priv(bus);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(bus);
 	fdt_addr_t mmap_addr;
-	fdt_addr_t mmap_size;
+	fdt_size_t mmap_size;
 
 	priv->ctrl_mod_mmap = map_syscon_chipselects(bus);
 	priv->base = map_physmem(dev_read_addr(bus),
 				 sizeof(struct ti_qspi_regs), MAP_NOCACHE);
-	mmap_addr = devfdt_get_addr_size_index(bus, 1, &mmap_size);
+	mmap_addr = dev_read_addr_size_index(bus, 1, &mmap_size);
 	priv->memory_map = map_physmem(mmap_addr, mmap_size, MAP_NOCACHE);
 	priv->mmap_size = mmap_size;
 
@@ -473,7 +471,7 @@ static int ti_qspi_of_to_plat(struct udevice *bus)
 		debug("Error: Max frequency missing\n");
 		return -ENODEV;
 	}
-	priv->num_cs = fdtdec_get_int(blob, node, "num-cs", 4);
+	priv->num_cs = dev_read_u32_default(bus, "num-cs", 4);
 
 	debug("%s: regs=<0x%x>, max-frequency=%d\n", __func__,
 	      (int)priv->base, priv->max_hz);

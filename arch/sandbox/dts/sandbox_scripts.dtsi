@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/ {
+	images {
+		default = "boot";
+		boot {
+			description = "Test boot script";
+			data = /incbin/("sandbox-boot.sh");
+			type = "script";
+			compression = "none";
+		};
+		outer {
+			description = "Script testing recursion";
+			data = /incbin/("sandbox-outer.sh");
+			type = "script";
+			compression = "none";
+		};
+		inner {
+			description = "Another test script";
+			data = /incbin/("sandbox-inner.sh");
+			type = "script";
+			compression = "none";
+		};
+	};
+};

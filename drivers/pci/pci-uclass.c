@@ -618,6 +618,48 @@ int pci_generic_mmap_write_config(
 	}
 }
 
+int pci_generic_mmap_write_config32(
+	const struct udevice *bus,
+	int (*addr_f)(const struct udevice *bus, pci_dev_t bdf, uint offset,
+		      void **addrp),
+	pci_dev_t bdf,
+	uint offset,
+	ulong value,
+	enum pci_size_t size)
+{
+	u32 shift, mask, tmp;
+	void *address;
+
+	if (addr_f(bus, bdf, ALIGN_DOWN(offset, 4), &address) < 0) {
+		debug("%s: failed to get config address for offset 0x%x\n",
+		      __func__, offset);
+		return 0;
+	}
+
+	switch (size) {
+	case PCI_SIZE_32:
+		writel(value, address);
+		return 0;
+	case PCI_SIZE_8:
+	case PCI_SIZE_16:
+		/*
+		 * Some host bridges only decode 32-bit accesses to their
+		 * config space and silently corrupt neighbouring bytes on a
+		 * narrower write. Widen the access to a 32-bit
+		 * read-modify-write of the word containing the requested
+		 * offset.
+		 */
+		shift = (offset % 4) * BITS_PER_BYTE;
+		mask = pci_get_ff(size) << shift;
+		tmp = readl(address) & ~mask;
+		tmp |= (value << shift) & mask;
+		writel(tmp, address);
+		return 0;
+	default:
+		return -EINVAL;
+	}
+}
+
 int pci_generic_mmap_read_config(
 	const struct udevice *bus,
 	int (*addr_f)(const struct udevice *bus, pci_dev_t bdf, uint offset,
@@ -1126,14 +1168,14 @@ static int decode_regions(struct pci_controller *hose, ofnode parent_node,
 		return 0;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
-		if (bd->bi_dram[i].size) {
-			phys_addr_t start = bd->bi_dram[i].start;
+		if (gd->dram[i].size) {
+			phys_addr_t start = gd->dram[i].start;
 
 			if (IS_ENABLED(CONFIG_PCI_MAP_SYSTEM_MEMORY))
-				start = virt_to_phys((void *)(uintptr_t)bd->bi_dram[i].start);
+				start = virt_to_phys((void *)(uintptr_t)gd->dram[i].start);
 
 			pci_set_region(hose->regions + hose->region_count++,
-				       start, start, bd->bi_dram[i].size,
+				       start, start, gd->dram[i].size,
 				       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 		}
 	}

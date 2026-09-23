@@ -9,7 +9,7 @@ config SYS_BOARD
        default "aquila-am69"
 
 config SYS_VENDOR
-       default "toradex"
+	default "toradex"
 
 config SYS_CONFIG_NAME
        default "aquila-am69"
@@ -48,7 +48,7 @@ config SYS_BOARD
        default "aquila-am69"
 
 config SYS_VENDOR
-       default "toradex"
+	default "toradex"
 
 config SYS_CONFIG_NAME
        default "aquila-am69"

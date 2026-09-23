@@ -54,6 +54,8 @@ int rockchip_early_misc_init_r(void)
 
 #define GPIO0B7_PU_EN BIT(15)
 
+#define M2_NVME_PERSTN	24 /* GPIO0_D0, PERSTN signal to the M.2 NVMe slot */
+
 void spl_board_init(void)
 {
 	/*
@@ -67,6 +69,24 @@ void spl_board_init(void)
 	 * pull-up.
 	 */
 	struct rk3588_pmu2_ioc * const ioc = (void *)PMU2_IOC_BASE;
+	int ret;
 
+	/* TODO: once we have a U-Boot TPL, move this to tpl_board_init() */
 	rk_setreg(&ioc->gpio0b_p, GPIO0B7_PU_EN);
+
+	/*
+	 * Set the M.2 NVMe slot PERSTN to a defined low
+	 * state as early as possible
+	 */
+	ret = gpio_request(M2_NVME_PERSTN, "M2_NVME_PERSTN");
+	if (ret) {
+		log_err("M2_NVME_PERSTN: gpio request failed: %d\n", ret);
+		return;
+	}
+
+	ret = gpio_direction_output(M2_NVME_PERSTN, 0);
+	if (ret) {
+		log_err("M2_NVME_PERSTN: gpio direction set failed: %d\n", ret);
+		return;
+	}
 }

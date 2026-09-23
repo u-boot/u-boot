@@ -19,7 +19,7 @@ comes with support for network booting preconfigured.
  2. Define CONFIG_BOOTCOMMAND for your board to load and run debrick
 script after boot:
 #define CONFIG_BOOTCOMMAND					\
-	"setenv autoload no; "					\
+	"env set autoload no; "					\
 	"bootp; "						\
 	"if tftp 80000000 debrick.scr; then "			\
 		"source 80000000; "				\

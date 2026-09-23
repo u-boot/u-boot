@@ -3,7 +3,7 @@
  * Clock specification for Xilinx ZynqMP
  *
  * (C) Copyright 2017 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -48,6 +48,14 @@
 		#clock-cells = <0>;
 		clock-frequency = <27000000>;
 		clock-output-names = "aux_ref_clk";
+	};
+
+	rtc_clk: rtc-clk {
+		bootph-all;
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <32768>;
+		clock-output-names = "rtc_clk";
 	};
 };
 
@@ -301,4 +309,9 @@
 	assigned-clocks = <&zynqmp_clk DP_STC_REF>,
 			  <&zynqmp_clk DP_AUDIO_REF>,
 			  <&zynqmp_clk DP_VIDEO_REF>;  /* rpll, rpll, vpll */
+};
+
+&rtc {
+	clocks = <&rtc_clk>;
+	clock-names = "rtc";
 };

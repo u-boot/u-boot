@@ -397,20 +397,20 @@ int dram_init_banksize(void)
 
 	if (gd->ram_size > SZ_2G) {
 		/* Bank 0 declares the memory available in the DDR low region */
-		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-		gd->bd->bi_dram[0].size = SZ_2G;
+		gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->dram[0].size = SZ_2G;
 
 		/* Bank 1 declares the memory available in the DDR high region */
-		gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE1;
-		gd->bd->bi_dram[1].size = gd->ram_size - SZ_2G;
+		gd->dram[1].start = CFG_SYS_SDRAM_BASE1;
+		gd->dram[1].size = gd->ram_size - SZ_2G;
 	} else {
 		/* Bank 0 declares the memory available in the DDR low region */
-		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-		gd->bd->bi_dram[0].size = gd->ram_size;
+		gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->dram[0].size = gd->ram_size;
 
 		/* Bank 1 declares the memory available in the DDR high region */
-		gd->bd->bi_dram[1].start = 0;
-		gd->bd->bi_dram[1].size = 0;
+		gd->dram[1].start = 0;
+		gd->dram[1].size = 0;
 	}
 
 	return 0;

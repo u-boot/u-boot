@@ -292,7 +292,7 @@
 		#interrupt-cells = <2>;
 	};
 
-	watchdog@23a0000 {
+	wdt0: watchdog@23a0000 {
 		compatible = "arm,sbsa-gwdt";
 		reg = <0x0 0x23a0000 0 0x1000>,
 		      <0x0 0x2390000 0 0x1000>;
@@ -591,6 +591,64 @@
 				reg = <0x12>;
 				status = "disabled";
 			};
+		};
+	};
+
+	/* LX2160ARM Chapter 28 ("Thermal Monitoring Unit") */
+	tmu: tmu@1f80000 {
+		compatible = "fsl,qoriq-tmu";
+		reg = <0x0 0x1f80000 0x0 0x10000>;
+		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+		fsl,tmu-range = <0x800000e6 0x8001017d>;
+		fsl,tmu-calibration = <0x00000000 0x00000035
+				       0x00000001 0x00000154>;
+		little-endian;
+		#thermal-sensor-cells = <1>;
+		label = "lx2160a-tmu"; /* explicit naming */
+	};
+
+	/* explicit thermal-zones names per LX2160ARM Table 323 */
+	thermal-zones {
+		cluster67-thermal {
+			polling-delay-passive = <1000>;
+			polling-delay = <5000>;
+			thermal-sensors = <&tmu 0>;
+		};
+
+		ddr1-cluster5-thermal {
+			polling-delay-passive = <1000>;
+			polling-delay = <5000>;
+			thermal-sensors = <&tmu 1>;
+		};
+
+		wriop-thermal {
+			polling-delay-passive = <1000>;
+			polling-delay = <5000>;
+			thermal-sensors = <&tmu 2>;
+		};
+
+		dce-qbman-hsio2-thermal {
+			polling-delay-passive = <1000>;
+			polling-delay = <5000>;
+			thermal-sensors = <&tmu 3>;
+		};
+
+		ccn-dpaa-tbu-thermal {
+			polling-delay-passive = <1000>;
+			polling-delay = <5000>;
+			thermal-sensors = <&tmu 4>;
+		};
+
+		cluster4-hsio3-thermal {
+			polling-delay-passive = <1000>;
+			polling-delay = <5000>;
+			thermal-sensors = <&tmu 5>;
+		};
+
+		cluster23-thermal {
+			polling-delay-passive = <1000>;
+			polling-delay = <5000>;
+			thermal-sensors = <&tmu 6>;
 		};
 	};
 

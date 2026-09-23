@@ -58,6 +58,9 @@ static const struct compressed_disk_image img = EFI_ST_DISK_IMG;
 /* Decompressed disk image */
 static u8 *image;
 
+/* Handles buffer */
+static efi_handle_t *handles;
+
 /*
  * Reset service of the block IO protocol.
  *
@@ -170,6 +173,7 @@ static efi_status_t decompress(u8 **image)
 static struct efi_block_io_media media;
 
 static struct efi_block_io block_io = {
+	.revision = EFI_BLOCK_IO_PROTOCOL_REVISION3,
 	.media = &media,
 	.reset = reset,
 	.read_blocks = read_blocks,
@@ -276,6 +280,15 @@ static int teardown(void)
 			return EFI_ST_FAILURE;
 		}
 	}
+
+	if (handles) {
+		r = boottime->free_pool(handles);
+		if (r != EFI_SUCCESS) {
+			efi_st_error("Failed to free handles\n");
+			return EFI_ST_FAILURE;
+		}
+	}
+
 	return r;
 }
 
@@ -303,7 +316,6 @@ static int execute(void)
 {
 	efi_status_t ret;
 	efi_uintn_t no_handles, i, len;
-	efi_handle_t *handles;
 	efi_handle_t handle_partition = NULL;
 	struct efi_device_path *dp_partition;
 	struct efi_block_io *block_io_protocol;
@@ -372,6 +384,7 @@ static int execute(void)
 		break;
 	}
 	ret = boottime->free_pool(handles);
+	handles = NULL;	/* Avoid double free on teardown(). */
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to free pool memory\n");
 		return EFI_ST_FAILURE;
@@ -600,6 +613,68 @@ static int execute(void)
 	ret = root->close(root);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to close volume\n");
+		return EFI_ST_FAILURE;
+	}
+
+	/* Get all handles with block io. */
+	ret = boottime->locate_handle_buffer(BY_PROTOCOL,
+					     &block_io_protocol_guid, NULL,
+					     &no_handles, &handles);
+	switch (ret) {
+	case EFI_SUCCESS:
+		if (!no_handles || !handles) {
+			efi_st_error("Locate handle buffer bad handles\n");
+			return EFI_ST_FAILURE;
+		}
+		break;
+	case EFI_NOT_FOUND:
+		efi_st_error("No block IO protocol found though one installed in setup\n");
+		return EFI_ST_FAILURE;
+	default:
+		efi_st_error("Locate handle buffer failed\n");
+		return EFI_ST_FAILURE;
+	}
+
+	/* Verify all handles with block io. */
+	for (i = 0; i < no_handles; ++i) {
+		u64 rev;
+
+		ret = boottime->open_protocol(handles[i],
+					      &block_io_protocol_guid,
+					      (void *)&block_io_protocol,
+					      NULL, NULL,
+					      EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("Failed to open block io protocol %d\n",
+				     (unsigned int)i);
+			return EFI_ST_FAILURE;
+		}
+
+		/* Verify block io revision. */
+		rev = block_io_protocol->revision;
+		if (rev != EFI_BLOCK_IO_PROTOCOL_REVISION2 &&
+		    rev != EFI_BLOCK_IO_PROTOCOL_REVISION3) {
+			efi_st_error("Bad block io revision %u\n",
+				     (unsigned int)rev);
+			return EFI_ST_FAILURE;
+		}
+
+		/* Verify block io pointers. */
+		if (!block_io_protocol->media ||
+		    !block_io_protocol->reset ||
+		    !block_io_protocol->read_blocks ||
+		    !block_io_protocol->write_blocks ||
+		    !block_io_protocol->flush_blocks) {
+			efi_st_error("Bad block io pointer\n");
+			return EFI_ST_FAILURE;
+		}
+	}
+
+	/* Free handles buffer. */
+	ret = boottime->free_pool(handles);
+	handles = NULL;	/* Avoid double free on teardown(). */
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to free block io handles\n");
 		return EFI_ST_FAILURE;
 	}
 

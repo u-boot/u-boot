@@ -34,14 +34,14 @@ Example
 
 ::
 
-    => setenv c
+    => env set c
     => for c in 1 2 3; do echo item ${c}; done
     item 1
     item 2
     item 3
     => echo ${c}
     3
-    => setenv c x
+    => env set c x
     => for c in 1 2 3; do echo item ${c}; done
     item x
     item x

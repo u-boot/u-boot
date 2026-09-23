@@ -12,18 +12,6 @@
 #include <asm-generic/u-boot.h>
 #include <linux/errno.h>
 
-static void init_generic_timer(void)
-{
-	const u32 freq = CONFIG_SYS_CLK_FREQ;
-
-	/* Update memory mapped and register based freqency */
-	asm volatile ("msr cntfrq_el0, %0" :: "r" (freq));
-	writel(freq, CNTFID0);
-
-	/* Enable counter */
-	setbits_le32(CNTCR_BASE, CNTCR_EN);
-}
-
 static void init_gic_v3(void)
 {
 	/* GIC v3 power on */
@@ -35,19 +23,6 @@ static void init_gic_v3(void)
 		;
 
 	writel(0xffffffff, GICR_SGI_BASE + GICR_IGROUPR0);
-}
-
-int mach_cpu_init(void)
-{
-	if (current_el() == 3)
-		init_generic_timer();
-
-	return 0;
-}
-
-int board_early_init_f(void)
-{
-	return 0;
 }
 
 int board_init(void)

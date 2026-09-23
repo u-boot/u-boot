@@ -162,8 +162,8 @@ mmc
     layout and even set a new *dfu_alt_info* for the newly created partitions.
     Such a script would look like::
 
-        setenv dfu_alt_info ...
-        setenv mbr_parts ...
+        env set dfu_alt_info ...
+        env set mbr_parts ...
         mbr write ...
 
     Please note that this means the user will be able to execute any
@@ -334,7 +334,7 @@ When U-Boot runs the dfu stack, the DFU host tools can be used
 to send/receive firmware images on each configured alternate.
 
 For example dfu-util is a host side implementation of the DFU 1.1
-specifications(http://dfu-util.sourceforge.net/) which works with U-Boot.
+specifications(https://dfu-util.sourceforge.net/) which works with U-Boot.
 
 Usage
 -----

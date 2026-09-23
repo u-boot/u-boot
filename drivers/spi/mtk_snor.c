@@ -528,7 +528,7 @@ static int mtk_snor_probe(struct udevice *bus)
 	u8 *buffer;
 	int ret;
 
-	priv->base = devfdt_get_addr_ptr(bus);
+	priv->base = dev_read_addr_ptr(bus);
 	if (!priv->base)
 		return -EINVAL;
 
@@ -607,8 +607,7 @@ static const struct mtk_snor_caps mtk_snor_caps_extra_bit = {
 
 static const struct udevice_id mtk_snor_ids[] = {
 	{ .compatible = "mediatek,mtk-snor", .data = (ulong)&mtk_snor_caps_default },
-	{ .compatible = "mediatek,mt8188-nor", .data = (ulong)&mtk_snor_caps_extra_bit },
-	{ .compatible = "mediatek,mt8189-nor", .data = (ulong)&mtk_snor_caps_extra_bit },
+	{ .compatible = "mediatek,mt8186-nor", .data = (ulong)&mtk_snor_caps_extra_bit },
 	{ .compatible = "mediatek,mt8195-nor", .data = (ulong)&mtk_snor_caps_default },
 	{}
 };

@@ -23,11 +23,11 @@ config ARMV8_SPL_EXCEPTION_VECTORS
 	  and want to save some space at the cost of less debugging info.
 
 config ARMV8_MULTIENTRY
-        bool "Enable multiple CPUs to enter into U-Boot"
+	bool "Enable multiple CPUs to enter into U-Boot"
 
 config ARMV8_SET_SMPEN
-        bool "Enable data coherency with other cores in cluster"
-        help
+	bool "Enable data coherency with other cores in cluster"
+	help
 	  Say Y here if there is not any trust firmware to set
 	  CPUECTLR_EL1.SMPEN bit before U-Boot.
 
@@ -79,12 +79,12 @@ config ARMV8_SEC_FIRMWARE_SUPPORT
 	  process brief.
 	  Note: Only FIT format image is supported.
 	  You should prepare and provide the below information:
-	    - Address of secure firmware.
-	    - Address to hold the return address from secure firmware.
-	    - Secure firmware FIT image related information.
-	      Such as: SEC_FIRMWARE_FIT_IMAGE and SEC_FIRMWARE_FIT_CNF_NAME
-	    - The target exception level that secure monitor firmware will
-	      return to.
+	  - Address of secure firmware.
+	  - Address to hold the return address from secure firmware.
+	  - Secure firmware FIT image related information.
+	  Such as: SEC_FIRMWARE_FIT_IMAGE and SEC_FIRMWARE_FIT_CNF_NAME
+	  - The target exception level that secure monitor firmware will
+	  return to.
 
 config SPL_ARMV8_SEC_FIRMWARE_SUPPORT
 	bool "Enable ARMv8 secure monitor firmware framework support for SPL"

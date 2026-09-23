@@ -59,8 +59,8 @@ void fixup_memory_node(struct spl_image_info *spl_image)
 	dram_init_banksize();
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		start[bank] = gd->bd->bi_dram[bank].start;
-		size[bank] = gd->bd->bi_dram[bank].size;
+		start[bank] = gd->dram[bank].start;
+		size[bank] = gd->dram[bank].size;
 	}
 
 	ret = fdt_fixup_memory_banks(spl_image->fdt_addr, start, size,

@@ -456,23 +456,23 @@ int dram_init_banksize(void)
 	 *  0x3e00,0000 - 0x3fff,ffff: OP-TEE
 	*/
 
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = 0x05e00000;
+	gd->dram[0].start = PHYS_SDRAM_1;
+	gd->dram[0].size = 0x05e00000;
 
-	gd->bd->bi_dram[1].start = 0x05f00000;
-	gd->bd->bi_dram[1].size = 0x00001000;
+	gd->dram[1].start = 0x05f00000;
+	gd->dram[1].size = 0x00001000;
 
-	gd->bd->bi_dram[2].start = 0x05f02000;
-	gd->bd->bi_dram[2].size = 0x00efd000;
+	gd->dram[2].start = 0x05f02000;
+	gd->dram[2].size = 0x00efd000;
 
-	gd->bd->bi_dram[3].start = 0x06e00000;
-	gd->bd->bi_dram[3].size = 0x0060f000;
+	gd->dram[3].start = 0x06e00000;
+	gd->dram[3].size = 0x0060f000;
 
-	gd->bd->bi_dram[4].start = 0x07410000;
-	gd->bd->bi_dram[4].size = 0x1aaf0000;
+	gd->dram[4].start = 0x07410000;
+	gd->dram[4].size = 0x1aaf0000;
 
-	gd->bd->bi_dram[5].start = 0x22000000;
-	gd->bd->bi_dram[5].size = 0x1c000000;
+	gd->dram[5].start = 0x22000000;
+	gd->dram[5].size = 0x1c000000;
 
 	return 0;
 }

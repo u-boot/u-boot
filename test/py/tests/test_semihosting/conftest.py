@@ -6,9 +6,9 @@
 import os
 import pytest
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def semihosting_data(u_boot_config):
-    """Set up a file system to be used in semihosting tests
+    """Set up a new file for each semihosting test
 
     Args:
         u_boot_config -- U-Boot configuration.

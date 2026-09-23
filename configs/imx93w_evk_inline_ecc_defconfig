@@ -1,0 +1,3 @@
+#include <configs/imx93w_evk_defconfig>
+
+CONFIG_IMX9_DRAM_INLINE_ECC=y

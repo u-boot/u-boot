@@ -101,10 +101,10 @@ struct rockchip_pll_rate_table {
 	unsigned int dsmpd;
 	unsigned int frac;
 	/* for RK3588 */
-	unsigned int m;
-	unsigned int p;
-	unsigned int s;
-	unsigned int k;
+	unsigned int m;	/* main divider, 10 bit unsigned */
+	unsigned int p;	/* pre-divider, 6 bit unsigned */
+	unsigned int s;	/* scaler, 3 bit unsigned */
+	s16 k;		/* fractional part, 16 bit two's complement */
 };
 
 enum rockchip_pll_type {

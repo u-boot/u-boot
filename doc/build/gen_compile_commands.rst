@@ -61,7 +61,7 @@ manage build configurations and code analysis. Some of these IDEs include:
 3. **Qt Creator**: Qt Creator, a popular IDE for Qt development, also
    supports compile_commands.json for C/C++ projects. Instructions on how to
    use this feature can be found at
-   https://doc.qt.io/qtcreator/creator-clang-codemodel.html#using-compilation-databases.
+   https://doc.qt.io/qtcreator/creator-how-to-use-compilation-databases.html
 
 4. **Eclipse CDT**: Eclipse's C/C++ Development Tools (CDT) can be
    configured to use JSON compilation databases for better project management.

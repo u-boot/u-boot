@@ -52,7 +52,6 @@ u32 get_bootauth(void)
  */
 void dram_bank_mmu_setup(int bank)
 {
-	struct bd_info *bd = gd->bd;
 	int	i;
 	phys_addr_t start;
 	phys_addr_t addr;
@@ -67,9 +66,9 @@ void dram_bank_mmu_setup(int bank)
 		size = ALIGN(STM32_SYSRAM_SIZE, MMU_SECTION_SIZE);
 #endif
 	} else if (gd->flags & GD_FLG_RELOC) {
-		/* bd->bi_dram is available only after relocation */
-		start = bd->bi_dram[bank].start;
-		size =  bd->bi_dram[bank].size;
+		/* gd->dram is available only after relocation */
+		start = gd->dram[bank].start;
+		size =  gd->dram[bank].size;
 		use_lmb = true;
 	} else {
 		/* mark cacheable and executable the beggining of the DDR */
@@ -361,7 +360,7 @@ void __noreturn jump_to_image(struct spl_image_info *spl_image)
 	image_entry_stm32_t image_entry =
 		(image_entry_stm32_t)spl_image->entry_point;
 
-	printf("image entry point: 0x%lx\n", spl_image->entry_point);
+	debug("image entry point: 0x%lx\n", spl_image->entry_point);
 	image_entry(romapi);
 }
 #endif

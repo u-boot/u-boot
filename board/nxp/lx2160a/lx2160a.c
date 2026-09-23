@@ -573,7 +573,7 @@ void detail_board_ddr_info(void)
 
 	puts("\nDDR    ");
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		ddr_size += gd->bd->bi_dram[i].size;
+		ddr_size += gd->dram[i].size;
 	print_size(ddr_size, "");
 	print_ddr_info(0);
 }
@@ -808,8 +808,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	/* fixup DT for the three GPP DDR banks */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		base[i] = gd->bd->bi_dram[i].start;
-		size[i] = gd->bd->bi_dram[i].size;
+		base[i] = gd->dram[i].start;
+		size[i] = gd->dram[i].size;
 	}
 
 #ifdef CONFIG_RESV_RAM

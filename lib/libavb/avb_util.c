@@ -4,10 +4,16 @@
  */
 
 #include "avb_util.h"
-#include <log.h>
-#include <malloc.h>
 
 #include <stdarg.h>
+
+uint16_t avb_be16toh(uint16_t in) {
+  uint8_t* d = (uint8_t*)&in;
+  uint16_t ret;
+  ret = ((uint16_t)d[0]) << 8;
+  ret |= ((uint16_t)d[1]);
+  return ret;
+}
 
 uint32_t avb_be32toh(uint32_t in) {
   uint8_t* d = (uint8_t*)&in;
@@ -31,6 +37,17 @@ uint64_t avb_be64toh(uint64_t in) {
   ret |= ((uint64_t)d[6]) << 8;
   ret |= ((uint64_t)d[7]);
   return ret;
+}
+
+/* Converts a 16-bit unsigned integer from host to big-endian byte order. */
+uint16_t avb_htobe16(uint16_t in) {
+  union {
+    uint16_t word;
+    uint8_t bytes[2];
+  } ret;
+  ret.bytes[0] = (in >> 8) & 0xff;
+  ret.bytes[1] = in & 0xff;
+  return ret.word;
 }
 
 /* Converts a 32-bit unsigned integer from host to big-endian byte order. */
@@ -158,6 +175,12 @@ bool avb_str_concat(char* buf,
                     const char* str2,
                     size_t str2_len) {
   uint64_t combined_len;
+
+  // Doesn't make sense to pass 0 for buf_size since there's
+  // no room for the terminating NUL byte.
+  if (buf_size == 0) {
+    return false;
+  }
 
   if (!avb_safe_add(&combined_len, str1_len, str2_len)) {
     avb_error("Overflow when adding string sizes.\n");
@@ -410,4 +433,23 @@ char* avb_bin2hex(const uint8_t* data, size_t data_len) {
   }
   hex_data[n * 2] = '\0';
   return hex_data;
+}
+
+size_t avb_uint64_to_base10(uint64_t value,
+                            char digits[AVB_MAX_DIGITS_UINT64]) {
+  char rev_digits[AVB_MAX_DIGITS_UINT64];
+  size_t n, num_digits;
+
+  for (num_digits = 0; num_digits < AVB_MAX_DIGITS_UINT64 - 1;) {
+    rev_digits[num_digits++] = avb_div_by_10(&value) + '0';
+    if (value == 0) {
+      break;
+    }
+  }
+
+  for (n = 0; n < num_digits; n++) {
+    digits[n] = rev_digits[num_digits - 1 - n];
+  }
+  digits[n] = '\0';
+  return n;
 }

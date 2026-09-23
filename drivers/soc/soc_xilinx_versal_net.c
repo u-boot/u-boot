@@ -2,14 +2,13 @@
 /*
  * Xilinx Versal NET SOC driver
  *
- * Copyright (C) 2022, Advanced Micro Devices, Inc.
+ * Copyright (C) 2022-2026, Advanced Micro Devices, Inc.
  */
 
 #include <dm.h>
 #include <soc.h>
-#include <zynqmp_firmware.h>
-#include <asm/io.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 
 #include <linux/bitfield.h>
 
@@ -46,23 +45,15 @@ static const struct soc_ops soc_xilinx_versal_net_ops = {
 static int soc_xilinx_versal_net_probe(struct udevice *dev)
 {
 	struct soc_xilinx_versal_net_priv *priv = dev_get_priv(dev);
-	u32 ret_payload[PAYLOAD_ARG_CNT];
+	u32 version;
 	int ret;
 
+	ret = xilinx_pm_get_chipid(NULL, &version);
+	if (ret)
+		return ret;
+
 	priv->family = versal_family;
-
-	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
-		ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0,
-					0, 0, ret_payload);
-		if (ret)
-			return ret;
-	} else {
-		ret_payload[2] = readl(PMC_TAP_VERSION);
-		if (!ret_payload[2])
-			return -EINVAL;
-	}
-
-	priv->revision = FIELD_GET(PS_VERSION_MASK, ret_payload[2]);
+	priv->revision = FIELD_GET(PS_VERSION_MASK, version);
 
 	return 0;
 }

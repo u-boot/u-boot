@@ -2407,13 +2407,6 @@ unsigned long flash_init(void)
 	unsigned long size = 0;
 	int i;
 
-#ifdef CONFIG_SYS_FLASH_PROTECTION
-	/* read environment from EEPROM */
-	char s[64];
-
-	env_get_f("unlock", s, sizeof(s));
-#endif
-
 #ifdef CONFIG_CFI_FLASH /* for driver model */
 	cfi_flash_init_dm();
 #endif
@@ -2438,7 +2431,7 @@ unsigned long flash_init(void)
 #endif /* CONFIG_SYS_FLASH_QUIET_TEST */
 		}
 #ifdef CONFIG_SYS_FLASH_PROTECTION
-		else if (strcmp(s, "yes") == 0) {
+		else if (env_get_yesno("unlock")) {
 			/*
 			 * Only the U-Boot image and it's environment
 			 * is protected, all other sectors are

@@ -81,8 +81,8 @@ cvbs:
 	meson_fb.fb_size = ALIGN(meson_fb.xsize * meson_fb.ysize *
 				 ((1 << VPU_MAX_LOG2_BPP) / 8) +
 				 MESON_VPU_OVERSCAN, EFI_PAGE_SIZE);
-	meson_fb.base = gd->bd->bi_dram[0].start +
-			gd->bd->bi_dram[0].size - meson_fb.fb_size;
+	meson_fb.base = gd->dram[0].start +
+			gd->dram[0].size - meson_fb.fb_size;
 
 	/* Override the framebuffer address */
 	uc_plat->base = meson_fb.base;
@@ -175,8 +175,8 @@ static void meson_vpu_setup_simplefb(void *fdt)
 	 * at the end of the RAM and we strip this portion from the kernel
 	 * allowed region
 	 */
-	mem_start = gd->bd->bi_dram[0].start;
-	mem_size = gd->bd->bi_dram[0].size - meson_fb.fb_size;
+	mem_start = gd->dram[0].start;
+	mem_size = gd->dram[0].size - meson_fb.fb_size;
 	ret = fdt_fixup_memory_banks(fdt, &mem_start, &mem_size, 1);
 	if (ret) {
 		eprintf("Cannot setup simplefb: Error reserving memory\n");

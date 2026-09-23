@@ -108,8 +108,8 @@ Messages of U-Boot boot on AE350 board
    riscv32-unknown-linux-gnu-gcc (GCC) 7.2.0
    GNU ld (GNU Binutils) 2.29
 
-   RISC-V # setenv ipaddr 10.0.4.200 ;
-   RISC-V # setenv serverip 10.0.4.97 ;
+   RISC-V # env set ipaddr 10.0.4.200 ;
+   RISC-V # env set serverip 10.0.4.97 ;
    RISC-V # ping 10.0.4.97 ;
    Using mac@e0100000 device
    host 10.0.4.97 is alive
@@ -224,8 +224,8 @@ Boot bbl and riscv-linux via U-Boot on QEMU
    17901268 bytes read in 4642 ms (3.7 MiB/s)
    RISC-V # fatload mmc 0:0 0x2000000 ae350.dtb
    1954 bytes read in 1 ms (1.9 MiB/s)
-   RISC-V # setenv bootm_size 0x2000000
-   RISC-V # setenv fdt_high 0x1f00000
+   RISC-V # env set bootm_size 0x2000000
+   RISC-V # env set fdt_high 0x1f00000
    RISC-V # bootm 0x00600000 - 0x2000000
    ## Booting kernel from Legacy Image at 00600000 ...
       Image Name:

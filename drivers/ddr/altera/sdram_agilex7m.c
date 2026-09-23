@@ -375,7 +375,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	/* Get bank configuration from devicetree */
 	ret = fdtdec_decode_ram_size(gd->fdt_blob, NULL, 0, NULL,
-				     (phys_size_t *)&gd->ram_size, &bd);
+				     (phys_size_t *)&gd->ram_size, gd);
 	if (ret) {
 		printf("%s: Failed to decode memory node\n", memory_type_in_use(dev));
 
@@ -484,7 +484,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 
 	printf("%s: firewall init success\n", (is_ddr_in_use(dev) ? io96b_ctrl->ddr_type : "HBM"));
 
-	priv->info.base = bd.bi_dram[0].start;
+	priv->info.base = gd->dram[0].start;
 	priv->info.size = gd->ram_size;
 
 	/* Ending DDR driver initialization success tracking */

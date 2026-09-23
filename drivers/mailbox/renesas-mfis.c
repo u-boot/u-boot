@@ -29,7 +29,7 @@ static int mfis_send(struct mbox_chan *chan, const void *data)
 	return 0;
 }
 
-struct mbox_ops mfis_mbox_ops = {
+static const struct mbox_ops mfis_mbox_ops = {
 	.send		= mfis_send,
 };
 

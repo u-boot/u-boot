@@ -1122,7 +1122,7 @@ static const struct udevice_id sata_mv_ids[] = {
 	{ }
 };
 
-struct ahci_ops sata_mv_ahci_ops = {
+static const struct ahci_ops sata_mv_ahci_ops = {
 	.scan = sata_mv_scan,
 };
 

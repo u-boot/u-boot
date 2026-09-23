@@ -687,8 +687,8 @@ static int airoha_qdma_init(struct udevice *dev,
 
 	qdma->eth = eth;
 	qdma->regs = dev_remap_addr_name(dev, "qdma0");
-	if (IS_ERR(qdma->regs))
-		return PTR_ERR(qdma->regs);
+	if (!qdma->regs)
+		return -ENOMEM;
 
 	err = airoha_qdma_init_rx(qdma);
 	if (err)

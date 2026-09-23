@@ -26,10 +26,6 @@
 	status = "disabled";
 };
 
-&wdog3 {
-	status = "disabled";
-};
-
 &per_bridge4 {
 	bootph-pre-ram;
 };

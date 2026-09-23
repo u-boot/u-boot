@@ -51,9 +51,9 @@
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR
-#define PHYS_SDRAM_1_SIZE		(gd->bd->bi_dram[0].size)
+#define PHYS_SDRAM_1_SIZE		(gd->dram[0].size)
 #define PHYS_SDRAM_2			CSD1_BASE_ADDR
-#define PHYS_SDRAM_2_SIZE		(gd->bd->bi_dram[1].size)
+#define PHYS_SDRAM_2_SIZE		(gd->dram[1].size)
 #define PHYS_SDRAM_SIZE			(gd->ram_size)
 
 #define CFG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)

@@ -6,6 +6,7 @@
 ifndef CONFIG_XPL_BUILD
 # core command
 obj-y += boot.o
+obj-$(CONFIG_CMD_BOOTD) += bootd.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_HELP) += help.o
 obj-y += panic.o
@@ -228,6 +229,7 @@ obj-$(CONFIG_CMD_AXI) += axi.o
 obj-$(CONFIG_CMD_PVBLOCK) += pvblock.o
 
 # Power
+obj-$(CONFIG_CMD_PMBUS) += pmbus.o
 obj-$(CONFIG_CMD_PMIC) += pmic.o
 obj-$(CONFIG_CMD_REGULATOR) += regulator.o
 

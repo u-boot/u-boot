@@ -284,5 +284,5 @@ for the remove method to be called before jumping to OS.
 
 6. do funny stuff with the driver
 
-.. _VirtIO: http://docs.oasis-open.org/virtio/virtio/v1.0/virtio-v1.0.pdf
+.. _VirtIO: https://docs.oasis-open.org/virtio/virtio/v1.0/virtio-v1.0.pdf
 .. _QEMU: https://www.qemu.org

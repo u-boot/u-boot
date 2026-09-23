@@ -155,7 +155,7 @@ static int iproc_rng200_of_to_plat(struct udevice *dev)
 {
 	struct iproc_rng200_plat *pdata = dev_get_plat(dev);
 
-	pdata->base = devfdt_map_physmem(dev, sizeof(void *));
+	pdata->base = dev_remap_addr(dev);
 	if (!pdata->base)
 		return -ENODEV;
 

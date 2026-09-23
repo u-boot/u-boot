@@ -111,14 +111,12 @@
 	topckgen: topckgen@1001B000 {
 		compatible = "mediatek,mt7986-topckgen";
 		reg = <0x1001B000 0x1000>;
-		clock-parent = <&fixed_plls>;
 		#clock-cells = <1>;
 	};
 
 	infracfg: infracfg@10001040 {
 		compatible = "mediatek,mt7986-infracfg";
 		reg = <0x10001000 0x1000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 	};
 
@@ -217,7 +215,6 @@
 	ethsys: syscon@15000000 {
 		compatible = "mediatek,mt7986-ethsys", "syscon";
 		reg = <0x15000000 0x1000>;
-		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
 		#reset-cells = <1>;
 	};

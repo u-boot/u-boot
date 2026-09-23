@@ -500,8 +500,11 @@ static int cv1800b_register_clk(struct udevice *dev)
 {
 	struct clk osc;
 	ulong osc_rate;
-	void *base = devfdt_get_addr_ptr(dev);
+	void __iomem *base = dev_read_addr_ptr(dev);
 	int i, ret;
+
+	if (!base)
+		return -EINVAL;
 
 	ret = clk_get_by_index(dev, 0, &osc);
 	if (ret) {

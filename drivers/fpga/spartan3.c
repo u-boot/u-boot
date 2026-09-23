@@ -57,7 +57,7 @@ static int spartan3_load(xilinx_desc *desc, const void *buf, size_t bsize,
 
 	default:
 		printf ("%s: Unsupported interface type, %d\n",
-				__FUNCTION__, desc->iface);
+				__func__, desc->iface);
 	}
 
 	return ret_val;
@@ -80,7 +80,7 @@ static int spartan3_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 
 	default:
 		printf ("%s: Unsupported interface type, %d\n",
-				__FUNCTION__, desc->iface);
+				__func__, desc->iface);
 	}
 
 	return ret_val;
@@ -241,7 +241,7 @@ static int spartan3_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 #endif
 
 	} else {
-		printf ("%s: NULL Interface function table!\n", __FUNCTION__);
+		printf("%s: NULL Interface function table!\n", __func__);
 	}
 
 	return ret_val;
@@ -286,7 +286,7 @@ static int spartan3_sp_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 
 		/* XXX - checksum the data? */
 	} else {
-		printf ("%s: NULL Interface function table!\n", __FUNCTION__);
+		printf("%s: NULL Interface function table!\n", __func__);
 	}
 
 	return ret_val;
@@ -442,7 +442,7 @@ static int spartan3_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 #endif
 
 	} else {
-		printf ("%s: NULL Interface function table!\n", __FUNCTION__);
+		printf("%s: NULL Interface function table!\n", __func__);
 	}
 
 	return ret_val;
@@ -453,7 +453,7 @@ static int spartan3_ss_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 	/* Readback is only available through the Slave Parallel and         */
 	/* boundary-scan interfaces.                                         */
 	printf ("%s: Slave Serial Dumping is unavailable\n",
-			__FUNCTION__);
+			__func__);
 	return FPGA_FAIL;
 }
 

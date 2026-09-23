@@ -8,7 +8,6 @@
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
 
-#include <charset.h>
 #include <u-boot/uuid.h>
 #include <test/lib.h>
 #include <test/test.h>
@@ -86,9 +85,30 @@ LIB_TEST(lib_test_uuid_bits, 0);
 
 struct dynamic_uuid_test_data {
 	const char *compatible;
-	const u16 *images[4];
+	const char *images[4];
 	const char *expected_uuids[4];
 };
+
+/**
+ * bytes_to_null_pair() - offset of a pair of null bytes within a string
+ *
+ * Steps through the string two bytes at a time, looking for a null character,
+ * which in UTF-16 is a pair of null bytes. The string is walked byte-wise
+ * rather than as u16, since a string literal carries no alignment guarantee
+ * and some architectures cannot load a halfword from an odd address.
+ *
+ * @str:	UTF-16LE string, terminated by a null character
+ * Return:	number of bytes preceding the terminator
+ */
+static size_t bytes_to_null_pair(const char *str)
+{
+	size_t len = 0;
+
+	while (str[len] || str[len + 1])
+		len += 2;
+
+	return len;
+}
 
 static int lib_test_dynamic_uuid_case(struct unit_test_state *uts,
 				      const struct dynamic_uuid_test_data *data)
@@ -101,13 +121,13 @@ static int lib_test_dynamic_uuid_case(struct unit_test_state *uts,
 
 	for (j = 0; data->images[j]; j++) {
 		const char *expected_uuid = data->expected_uuids[j];
-		const u16 *image = data->images[j];
+		const char *image = data->images[j];
 		efi_guid_t uuid;
 		char uuid_str[37];
 
 		gen_v5_guid(&namespace, &uuid,
 			    data->compatible, strlen(data->compatible),
-			    image, u16_strlen(image) * sizeof(uint16_t),
+			    image, bytes_to_null_pair(image),
 			    NULL);
 		uuid_bin_to_str((unsigned char *)&uuid, uuid_str, UUID_STR_FORMAT_GUID);
 
@@ -124,9 +144,10 @@ static int lib_test_dynamic_uuid(struct unit_test_state *uts)
 		{
 			.compatible = "sandbox",
 			.images = {
-				u"SANDBOX-UBOOT",
-				u"SANDBOX-UBOOT-ENV",
-				u"SANDBOX-FIT",
+				/* Forced UTF-16LE to keep these endianness agnostic */
+				"S\0A\0N\0D\0B\0O\0X\0-\0U\0B\0O\0O\0T\0\0",
+				"S\0A\0N\0D\0B\0O\0X\0-\0U\0B\0O\0O\0T\0-\0E\0N\0V\0\0",
+				"S\0A\0N\0D\0B\0O\0X\0-\0F\0I\0T\0\0",
 				NULL,
 			},
 			.expected_uuids = {
@@ -139,7 +160,7 @@ static int lib_test_dynamic_uuid(struct unit_test_state *uts)
 		{
 			.compatible = "qcom,qrb4210-rb2",
 			.images = {
-				u"QUALCOMM-UBOOT",
+				"Q\0U\0A\0L\0C\0O\0M\0M\0-\0U\0B\0O\0O\0T\0\0",
 				NULL,
 			},
 			.expected_uuids = {

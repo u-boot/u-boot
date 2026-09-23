@@ -645,9 +645,11 @@ static int dwmci_set_ios(struct mmc *mmc)
 		int ret;
 
 		if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180)
-			ret = regulator_set_value(mmc->vqmmc_supply, 1800000);
+			ret = regulator_set_value_clamp(mmc->vqmmc_supply,
+							1700000, 1800000, 1950000);
 		else
-			ret = regulator_set_value(mmc->vqmmc_supply, 3300000);
+			ret = regulator_set_value_clamp(mmc->vqmmc_supply,
+							2700000, 3300000, 3600000);
 		if (ret && ret != -ENOSYS)
 			return ret;
 	}

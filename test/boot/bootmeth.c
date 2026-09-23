@@ -21,11 +21,15 @@ static int bootmeth_cmd_list(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("    0    0  extlinux            Extlinux boot from a block device");
 	ut_assert_nextline("    1    1  efi                 EFI boot from an .efi file");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline("    2    2  bls                 Boot Loader Specification");
 	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
-		ut_assert_nextline(" glob    2  firmware0           VBE simple");
+		ut_assert_nextline(" glob    %d  firmware0           VBE simple",
+				   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
-	ut_assert_nextline(IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) ?
-		 "(3 bootmeths)" : "(2 bootmeths)");
+	ut_assert_nextline("(%d bootmeths)",
+			   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)
+			     + IS_ENABLED(CONFIG_BOOTMETH_GLOBAL));
 	ut_assert_console_end();
 
 	return 0;
@@ -56,11 +60,15 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("    0    0  extlinux            Extlinux boot from a block device");
 	ut_assert_nextline("    -    1  efi                 EFI boot from an .efi file");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline("    -    2  bls                 Boot Loader Specification");
 	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
-		ut_assert_nextline(" glob    2  firmware0           VBE simple");
+		ut_assert_nextline(" glob    %d  firmware0           VBE simple",
+				   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
-	ut_assert_nextline(IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) ?
-		 "(3 bootmeths)" : "(2 bootmeths)");
+	ut_assert_nextline("(%d bootmeths)",
+			   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)
+			     + IS_ENABLED(CONFIG_BOOTMETH_GLOBAL));
 	ut_assert_console_end();
 
 	/* Check the -a flag with the reverse order */
@@ -71,11 +79,15 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("    1    0  extlinux            Extlinux boot from a block device");
 	ut_assert_nextline("    0    1  efi                 EFI boot from an .efi file");
+	if (IS_ENABLED(CONFIG_BOOTMETH_BLS))
+		ut_assert_nextline("    -    2  bls                 Boot Loader Specification");
 	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
-		ut_assert_nextline(" glob    2  firmware0           VBE simple");
+		ut_assert_nextline(" glob    %d  firmware0           VBE simple",
+				   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
-	ut_assert_nextline(IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) ?
-		 "(3 bootmeths)" : "(2 bootmeths)");
+	ut_assert_nextline("(%d bootmeths)",
+			   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)
+			     + IS_ENABLED(CONFIG_BOOTMETH_GLOBAL));
 	ut_assert_console_end();
 
 	/* Now reset the order to empty, which should show all of them again */
@@ -83,8 +95,9 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 	ut_assert_console_end();
 	ut_assertnull(env_get("bootmeths"));
 	ut_assertok(run_command("bootmeth list", 0));
-	ut_assert_skip_to_line(IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) ?
-		 "(3 bootmeths)" : "(2 bootmeths)");
+	ut_assert_skip_to_line("(%d bootmeths)",
+			       2 + IS_ENABLED(CONFIG_BOOTMETH_BLS)
+				 + IS_ENABLED(CONFIG_BOOTMETH_GLOBAL));
 
 	/* Try reverse order */
 	ut_assertok(run_command("bootmeth order \"efi extlinux\"", 0));
@@ -116,7 +129,8 @@ static int bootmeth_cmd_order_glob(struct unit_test_state *uts)
 	ut_assert_nextline("Order  Seq  Name                Description");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("    0    1  efi                 EFI boot from an .efi file");
-	ut_assert_nextline(" glob    2  firmware0           VBE simple");
+	ut_assert_nextline(" glob    %d  firmware0           VBE simple",
+			   2 + IS_ENABLED(CONFIG_BOOTMETH_BLS));
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("(2 bootmeths)");
 	ut_assertnonnull(env_get("bootmeths"));

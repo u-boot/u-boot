@@ -73,7 +73,7 @@ set boot0 as the boot device.
 
 .. prompt:: bash =>
 
-   setenv autoload no
+   env set autoload no
    usb start
    dhcp
    mmc dev 1 1

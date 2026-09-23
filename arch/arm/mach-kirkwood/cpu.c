@@ -99,16 +99,16 @@ static void kw_sysrst_action(void)
 
 	if (!s) {
 		debug("Error.. %s failed, check sysrstcmd\n",
-			__FUNCTION__);
+			__func__);
 		return;
 	}
 
-	debug("Starting %s process...\n", __FUNCTION__);
+	debug("Starting %s process...\n", __func__);
 	ret = run_command(s, 0);
 	if (ret != 0)
-		debug("Error.. %s failed\n", __FUNCTION__);
+		debug("Error.. %s failed\n", __func__);
 	else
-		debug("%s process finished\n", __FUNCTION__);
+		debug("%s process finished\n", __func__);
 }
 
 static void kw_sysrst_check(void)
@@ -152,7 +152,7 @@ int print_cpuinfo(void)
 	u8 revid = readl(KW_REG_PCIE_REVID) & 0xff;
 
 	if ((readl(KW_REG_DEVICE_ID) & 0x03) > 2) {
-		printf("Error.. %s:Unsupported Kirkwood SoC 88F%04x\n", __FUNCTION__, devid);
+		printf("Error.. %s:Unsupported Kirkwood SoC 88F%04x\n", __func__, devid);
 		return -1;
 	}
 

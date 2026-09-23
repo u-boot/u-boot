@@ -368,7 +368,7 @@ int sunxi_simplefb_setup(void *blob)
 		return 0; /* Keep older kernels working */
 	}
 
-	start = gd->bd->bi_dram[0].start;
+	start = gd->dram[0].start;
 	size = de2_plat->base - start;
 	ret = fdt_fixup_memory_banks(blob, &start, &size, 1);
 	if (ret) {

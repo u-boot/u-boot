@@ -11,6 +11,7 @@
 #include <asm/system.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <dm/lists.h>
 #include <env.h>
 #include <errno.h>
 #include <linux/compat.h>
@@ -86,6 +87,30 @@ int mpfs_syscontroller_run_service(struct mpfs_syscontroller_priv *sys_controlle
 EXPORT_SYMBOL_GPL(mpfs_syscontroller_run_service);
 
 /**
+ * mpfs_syscontroller_recv_response() - Receive the MPFS system service response
+ * @sys_controller:	MPFS system controller instance
+ * @msg:			System service message
+ * @timeout_ms:		Timeout in milliseconds
+ *
+ * Receive the mailbox response for a previously issued MPFS system
+ * controller service request and populate the response buffer.
+ *
+ * Return: 0 if all goes good, else appropriate error message.
+ */
+int mpfs_syscontroller_recv_response(struct mpfs_syscontroller_priv *sys_controller, struct
+	mpfs_mss_msg * msg, unsigned long timeout_ms)
+{
+	int ret;
+
+	ret = mbox_recv(&sys_controller->chan, msg, timeout_ms);
+	if (ret)
+		dev_err(sys_controller->chan.dev, "Service failed: %d, abort. Failure: %u\n", ret,
+			msg->response->resp_status);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(mpfs_syscontroller_recv_response);
+
+/**
  * mpfs_syscontroller_read_sernum() - Use system service to read the device serial number
  * @sys_serv_priv:	system service private data
  * @device_serial_number:	device serial number
@@ -116,11 +141,9 @@ int mpfs_syscontroller_read_sernum(struct mpfs_sys_serv *sys_serv_priv, u8 *devi
 	}
 
 	/* Receive the response */
-	ret = mbox_recv(&sys_serv_priv->sys_controller->chan, &msg, timeoutsecs);
-	if (ret) {
-		dev_err(sys_serv_priv->sys_controller->chan.dev, "Service failed: %d, abort. Failure: %u\n", ret, msg.response->resp_status);
+	ret = mpfs_syscontroller_recv_response(sys_serv_priv->sys_controller, &msg, timeoutsecs);
+	if (ret)
 		return ret;
-	}
 
 	debug("%s: Read successful %s\n",
 	      __func__, sys_serv_priv->sys_controller->chan.dev->name);
@@ -312,6 +335,7 @@ EXPORT_SYMBOL(mpfs_syscontroller_process_dtbo);
 static int mpfs_syscontroller_probe(struct udevice *dev)
 {
 	struct mpfs_syscontroller_priv *sys_controller = dev_get_priv(dev);
+	struct udevice *rng_dev;
 	int ret;
 
 	ret = mbox_get_by_index(dev, 0, &sys_controller->chan);
@@ -320,6 +344,10 @@ static int mpfs_syscontroller_probe(struct udevice *dev)
 			__func__, ret);
 		return ret;
 	}
+
+	ret = device_bind_driver(dev, "mpfs_rng", "mpfs-rng", &rng_dev);
+	if (ret)
+		dev_err(dev, "Failed to bind mpfs_rng: %d\n", ret);
 
 	init_completion(&sys_controller->c);
 	dev_info(dev, "Registered MPFS system controller\n");

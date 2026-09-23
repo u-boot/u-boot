@@ -6,6 +6,7 @@
 #include <command.h>
 #include <gzip.h>
 #include <malloc.h>
+#include <linux/string.h>
 
 #include "config_data_gz.h"
 #include "config_data_size.h"
@@ -29,7 +30,23 @@ static int do_config(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	dst[data_size] = 0;
-	puts(dst);
+	if (argc > 1) {
+		const char *s = argv[1];
+		char *b = dst, *e = dst + data_size, *n;
+
+		while (b < e) {
+			n = strchrnul(b, '\n');
+			*n = '\0';
+
+			if (strcasestr(b, s)) {
+				puts(b);
+				puts("\n");
+			}
+			b = n + 1;
+		}
+	} else {
+		puts(dst);
+	}
 
 free:
 	free(dst);
@@ -38,7 +55,10 @@ free:
 }
 
 U_BOOT_CMD(
-	config, 1, 1, do_config,
+	config, 2, 1, do_config,
 	"print .config",
-	""
+	"[str]\n"
+	"\n"
+	"When the optional argument is given, only lines containing\n"
+	"that string are printed. Matching is case-insensitive."
 );

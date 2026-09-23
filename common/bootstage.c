@@ -75,6 +75,8 @@ int bootstage_relocate(void *to)
 	for (i = 0; i < data->rec_count; i++) {
 		const char *from = data->record[i].name;
 
+		if (!from)
+			continue;
 		strcpy(ptr, from);
 		data->record[i].name = ptr;
 		ptr += strlen(ptr) + 1;
@@ -478,7 +480,7 @@ int bootstage_unstash(const void *base, int size)
 
 	/* Read the name strings */
 	ptr += rec_size;
-	for (rec = data->record + data->next_id, i = 0; i < hdr->count;
+	for (rec = data->record + data->rec_count, i = 0; i < hdr->count;
 	     i++, rec++) {
 		rec->name = ptr;
 		if (xpl_phase() == PHASE_SPL)
@@ -523,7 +525,8 @@ int bootstage_get_size(bool add_strings)
 		int i;
 
 		for (rec = data->record, i = 0; i < data->rec_count; i++, rec++)
-			size += strlen(rec->name) + 1;
+			if (rec->name)
+				size += strlen(rec->name) + 1;
 	}
 
 	return size;

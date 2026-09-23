@@ -35,14 +35,13 @@ int arch_fixup_fdt(void *blob)
 {
 	__maybe_unused int ret = 0;
 #if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_OF_LIBFDT)
-	struct bd_info *bd = gd->bd;
 	int bank;
 	u64 start[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		start[bank] = bd->bi_dram[bank].start;
-		size[bank] = bd->bi_dram[bank].size;
+		start[bank] = gd->dram[bank].start;
+		size[bank] = gd->dram[bank].size;
 #ifdef CONFIG_ARMV7_NONSEC
 		ret = armv7_apply_memory_carveout(&start[bank], &size[bank]);
 		if (ret)

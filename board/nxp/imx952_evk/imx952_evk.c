@@ -9,6 +9,9 @@
 
 int board_init(void)
 {
+	/* Power on mcores when using rpmsg cfg */
+	power_on_mcore("mx952evkrpmsg");
+
 	return 0;
 }
 
@@ -24,3 +27,11 @@ int board_late_init(void)
 
 	return 0;
 }
+
+#if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
+int board_fix_fdt(void *fdt)
+{
+	/* Remove nodes based on fuses. */
+	return imx9_uboot_fixup_by_fuse(fdt);
+}
+#endif

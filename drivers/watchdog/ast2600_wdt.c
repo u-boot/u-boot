@@ -87,6 +87,7 @@ static const struct wdt_ops ast2600_wdt_ops = {
 
 static const struct udevice_id ast2600_wdt_ids[] = {
 	{ .compatible = "aspeed,ast2600-wdt" },
+	{ .compatible = "aspeed,ast2700-wdt" },
 	{ }
 };
 

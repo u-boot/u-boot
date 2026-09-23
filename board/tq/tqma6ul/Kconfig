@@ -1,0 +1,114 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Copyright (c) 2016-2026 TQ-Systems GmbH <u-boot@ew.tq-group.com>,
+# D-82229 Seefeld, Germany.
+# Author: Marco Felsch, Markus Niebel, Max Merchel
+#
+
+if TARGET_TQMA6UL
+
+config SYS_BOARD
+	default "tqma6ul"
+
+config SYS_VENDOR
+	default "tq"
+
+config SYS_CONFIG_NAME
+	default "tqma6ul_mba6ul" if MBA6UL
+
+choice
+	prompt "TQMa6UL module variant"
+	default TQMA6UL_VARIANT_STANDARD
+	help
+	  Select the variant of the TQMa6UL SoM module being used.
+	  By default, the variant with board-to-board connectors is used.
+
+config TQMA6UL_VARIANT_STANDARD
+	bool "standard module with board connector"
+	help
+	  Select for SoM variant connector
+	  with board to board connectors
+
+config TQMA6UL_VARIANT_LGA
+	bool "LGA module with solder balls"
+	help
+	  Select for SoM variant LGA
+	  with solder balls
+
+endchoice
+
+config TQMA6UL_RAM_256M
+	bool
+
+config TQMA6UL_RAM_512M
+	bool
+
+choice
+	prompt "TQMa6UL RAM configuration"
+	default TQMA6UL_RAM_MULTI
+	help
+	  Select RAM configuration. Normally use default here but for
+	  specific setup it is possible to use a single RAM size.
+
+config TQMA6UL_RAM_MULTI
+	bool "TQMa6ULx with 256/512 MB RAM - Single image"
+	select TQMA6UL_RAM_256M
+	select TQMA6UL_RAM_512M
+	help
+	  Build a single U-Boot solely for variants
+	  with 256/512 MB RAM.
+
+config TQMA6UL_RAM_SINGLE_256M
+	bool "TQMa6UL with 256 MB RAM"
+	select TQMA6UL_RAM_256M
+	help
+	  Build U-Boot solely for variants
+	  with 256 MB RAM.
+
+config TQMA6UL_RAM_SINGLE_512M
+	bool "TQMa6UL with 512 MB RAM"
+	select TQMA6UL_RAM_512M
+	help
+	  Build U-Boot solely for variants
+	  with 512 MB RAM.
+
+endchoice
+
+choice
+	prompt "TQMa6UL base board variant"
+	default MBA6UL
+	help
+	  Select the baseboard variant for the TQMa6UL module.
+	  By default the MBA6UL starterkit is used.
+
+config MBA6UL
+	bool "TQMa6UL on MBa6ULx Starterkit"
+	select TQ_COMMON_BB
+	select TQ_COMMON_SDMMC
+	select SYSINFO
+	select SYSINFO_TQ_EEPROM
+	select I2C_EEPROM
+	select MISC
+	select MXC_UART
+	imply DM_ETH
+	imply DM_GPIO
+	imply DM_MMC
+	imply DM_SERIAL
+	imply DM_SPI
+	imply OF_UPSTREAM
+	imply PHYLIB
+	imply PHY_SMSC
+	imply USB
+	imply USB_STORAGE
+	help
+	  Select the MBa6ULx starterkit.
+	  This is the default base board.
+
+endchoice
+
+config IMX_CONFIG
+	default "board/tq/tqma6ul/tqma6ul.cfg"
+
+source "board/tq/common/Kconfig"
+
+endif

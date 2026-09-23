@@ -19,6 +19,9 @@ static struct ubi_volume *ubi_get_volume_by_index(int vol_id)
 	struct ubi_device *ubi = get_ubi_device();
 	int i;
 
+	if (!ubi)
+		return NULL;
+
 	for (i = 0; i < (ubi->vtbl_slots + 1); i++) {
 		struct ubi_volume *volume = ubi->volumes[i];
 
@@ -49,7 +52,7 @@ static int __maybe_unused part_get_info_ubi(struct blk_desc *dev_desc, int part_
 	if (!vol)
 		return -ENOENT;
 
-	snprintf(info->name, PART_NAME_LEN, vol->name);
+	snprintf(info->name, PART_NAME_LEN, "%s", vol->name);
 
 	info->start = 0;
 	info->size = (unsigned long)vol->used_bytes / dev_desc->blksz;
@@ -65,6 +68,9 @@ static void __maybe_unused part_print_ubi(struct blk_desc *dev_desc)
 {
 	struct ubi_device *ubi = get_ubi_device();
 	int i;
+
+	if (!ubi)
+		return;
 
 	for (i = 0; i < (ubi->vtbl_slots + 1); i++) {
 		struct ubi_volume *volume = ubi->volumes[i];
@@ -82,6 +88,9 @@ static void __maybe_unused part_print_ubi(struct blk_desc *dev_desc)
 static int part_test_ubi(struct blk_desc *dev_desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
+
+	if (!get_ubi_device())
+		return -1;
 
 	if (blk_dread(dev_desc, 0, 1, (ulong *)buffer) != 1)
 		return -1;

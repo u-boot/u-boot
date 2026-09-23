@@ -4,4 +4,4 @@ S:	Maintained
 F:	arch/arm/dts/r8a77970-eagle*
 F:	board/renesas/eagle/
 F:	configs/r8a77970_eagle_defconfig
-F:	include/configs/eagle.h
+F:	include/configs/rcar-gen3-common.h

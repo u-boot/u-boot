@@ -14,12 +14,15 @@
 		ethernet0 = &eth0;
 		ethernet1 = &eth1;
 		serial0 = &uart0;
+		spi3 = &spi3;
 		i2c2 = &i2c2;
 		i2c8 = &i2c8;
+		mmc0 = &emmc;
+		mmc1 = &sdhci0;
 	};
 
 	chosen {
-		stdout-path = "serial0";
+		stdout-path = "serial0:115200n8";
 	};
 
 	leds {
@@ -33,7 +36,7 @@
 		};
 	};
 
-	pcie_vcc_3v3: pcie-vcc3v3 {
+	pcie_vcc_3v3: regulator-pcie-vcc3v3 {
 		compatible = "regulator-fixed";
 		regulator-name = "PCIE_VCC3V3";
 		regulator-min-microvolt = <3300000>;
@@ -41,7 +44,7 @@
 		regulator-always-on;
 	};
 
-	reg_dc_in: dc-in-12v {
+	reg_dc_in: regulator-dc-in-12v {
 		compatible = "regulator-fixed";
 		regulator-name = "dc_in_12v";
 		regulator-min-microvolt = <12000000>;
@@ -50,7 +53,7 @@
 		regulator-always-on;
 	};
 
-	reg_vcc_4v: vcc-4v {
+	reg_vcc_4v: regulator-vcc-4v {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_4v";
 		regulator-min-microvolt = <4000000>;
@@ -60,7 +63,7 @@
 		vin-supply = <&reg_dc_in>;
 	};
 
-	usb3-vbus-5v {
+	regulator-usb3-vbus-5v {
 		compatible = "regulator-fixed";
 		regulator-name = "USB30_VBUS";
 		regulator-min-microvolt = <5000000>;
@@ -70,7 +73,7 @@
 		enable-active-high;
 	};
 
-	usb3_hub_5v: usb3-hub-5v {
+	usb3_hub_5v: regulator-usb3-hub-5v {
 		compatible = "regulator-fixed";
 		regulator-name = "USB30_HUB";
 		regulator-min-microvolt = <5000000>;
@@ -81,8 +84,6 @@
 };
 
 &combo_phy {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pcie0_3_cfg>;
 	status = "okay";
 };
 
@@ -190,7 +191,15 @@
 		compatible = "spacemit,p1";
 		reg = <0x41>;
 		interrupts = <64>;
-		vin-supply = <&reg_vcc_4v>;
+		vin1-supply = <&reg_vcc_4v>;
+		vin2-supply = <&reg_vcc_4v>;
+		vin3-supply = <&reg_vcc_4v>;
+		vin4-supply = <&reg_vcc_4v>;
+		vin5-supply = <&reg_vcc_4v>;
+		vin6-supply = <&reg_vcc_4v>;
+		aldoin-supply = <&reg_vcc_4v>;
+		dldoin1-supply = <&buck5>;
+		dldoin2-supply = <&buck5>;
 
 		regulators {
 			buck1 {
@@ -214,14 +223,14 @@
 				regulator-always-on;
 			};
 
-			buck4 {
+			buck4: buck4 {
 				regulator-min-microvolt = <500000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-ramp-delay = <5000>;
 				regulator-always-on;
 			};
 
-			buck5 {
+			buck5: buck5 {
 				regulator-min-microvolt = <500000>;
 				regulator-max-microvolt = <3450000>;
 				regulator-ramp-delay = <5000>;
@@ -235,7 +244,7 @@
 				regulator-always-on;
 			};
 
-			aldo1 {
+			aldo1: aldo1 {
 				regulator-min-microvolt = <500000>;
 				regulator-max-microvolt = <3400000>;
 				regulator-boot-on;
@@ -305,6 +314,7 @@
 
 &pcie1_port {
 	phys = <&pcie1_phy>;
+	vpcie3v3-supply = <&pcie_vcc_3v3>;
 };
 
 &pcie1 {
@@ -320,10 +330,17 @@
 
 &pcie2_port {
 	phys = <&pcie2_phy>;
+	vpcie3v3-supply = <&pcie_vcc_3v3>;
 };
 
 &pcie2 {
 	vpcie3v3-supply = <&pcie_vcc_3v3>;
+	status = "okay";
+};
+
+&spi3 {
+	pinctrl-0 = <&ssp3_0_cfg>;
+	pinctrl-names = "default";
 	status = "okay";
 };
 
@@ -358,4 +375,22 @@
 		peer-hub = <&hub_2_0>;
 		reset-gpios = <&gpio K1_GPIO(124) GPIO_ACTIVE_LOW>;
 	};
+};
+
+&sdhci0 {
+	pinctrl-names = "default", "uhs";
+	pinctrl-0 = <&mmc1_cfg>;
+	pinctrl-1 = <&mmc1_uhs_cfg>;
+	bus-width = <4>;
+	cd-gpios = <&gpio K1_GPIO(80) (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+	no-mmc;
+	no-sdio;
+	disable-wp;
+	cap-sd-highspeed;
+	vmmc-supply = <&buck4>;
+	vqmmc-supply = <&aldo1>;
+	sd-uhs-sdr25;
+	sd-uhs-sdr50;
+	sd-uhs-sdr104;
+	status = "okay";
 };

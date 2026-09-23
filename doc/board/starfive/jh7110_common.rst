@@ -170,7 +170,7 @@ Build U-Boot
 
     .. code-block:: console
 
-       git clone https://source.denx.de/u-boot/u-boot.git u-boot.git
+       git clone https://git.u-boot-project.org/u-boot/u-boot.git u-boot.git
        make -C u-boot.git O=u-boot starfive_visionfive2_defconfig
        make -C u-boot.git O=u-boot OPENSBI=opensbi/platform/generic/firmware/fw_dynamic.bin
 

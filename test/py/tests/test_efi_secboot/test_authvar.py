@@ -279,3 +279,50 @@ class TestEfiAuthVar(object):
             output = ubman.run_command(
                 'printenv -e SetupMode')
             assert '00000000: 01' in output
+
+    def test_efi_var_auth6(self, ubman, efi_boot_env):
+        """
+        Test Case 6 - Default GUID of signature database variables
+        """
+        ubman.restart_uboot()
+        disk_img = efi_boot_env
+        with ubman.log.section('Test Case 6a'):
+            # Test Case 6a, install signature database variables in setup
+            # mode without -guid
+            output = ubman.run_command_list([
+                'host bind 0 %s' % disk_img,
+                'printenv -e SetupMode'])
+            assert '00000000: 01' in ''.join(output)
+
+            for var in ('db', 'dbx', 'dbt', 'dbr'):
+                output = ubman.run_command_list([
+                    'fatload host 0:1 4000000 %s.auth' % var,
+                    'setenv -e -nv -bs -rt -at -i 4000000:$filesize %s' % var,
+                    'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f %s' % var])
+                assert 'Failed to set EFI variable' not in ''.join(output)
+                assert '%s:' % var in ''.join(output)
+
+        with ubman.log.section('Test Case 6b'):
+            # Test Case 6b, variables must not exist under the global
+            # variable GUID
+            for var in ('db', 'dbx', 'dbt', 'dbr'):
+                output = ubman.run_command(
+                    'printenv -e -n -guid 8be4df61-93ca-11d2-aa0d-00e098032b8c %s' % var)
+                assert '\"%s\" not defined' % var in output
+
+        with ubman.log.section('Test Case 6c'):
+            # Test Case 6c, PK and KEK get the global variable GUID by
+            # default. Enrolling PK leaves setup mode, so this must come
+            # after the signature database enrollment above.
+            for var in ('PK', 'KEK'):
+                output = ubman.run_command_list([
+                    'fatload host 0:1 4000000 %s.auth' % var,
+                    'setenv -e -nv -bs -rt -at -i 4000000:$filesize %s' % var,
+                    'printenv -e -n -guid 8be4df61-93ca-11d2-aa0d-00e098032b8c %s' % var])
+                assert 'Failed to set EFI variable' not in ''.join(output)
+                assert '%s:' % var in ''.join(output)
+
+            for var in ('PK', 'KEK'):
+                output = ubman.run_command(
+                    'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f %s' % var)
+                assert '\"%s\" not defined' % var in output

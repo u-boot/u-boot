@@ -27,6 +27,10 @@
 #define CFG_SYS_TIMER_COUNTER		(TMU_BASE + 0xc)	/* TCNT0 */
 #define CFG_SYS_TIMER_RATE		(133333333 / 4)
 
+/* HyperFlash */
+#define CFG_SYS_FLASH_BANKS_LIST	{ 0x34000000 }
+#define CFG_SYS_WRITE_SWAPPED_DATA
+
 /* Environment setting */
 #define CFG_EXTRA_ENV_SETTINGS						\
 	"rsip_ipl_params_base=0x8c100000\0"				\

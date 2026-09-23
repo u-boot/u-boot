@@ -40,7 +40,13 @@ struct orion_wdt_priv {
 #define TIMER_A370_STATUS		0x04
 
 #define WDT_AXP_FIXED_ENABLE_BIT	BIT(10)
+#define TIMER1_FIXED_ENABLE_BIT	BIT(12)
 #define WDT_A370_EXPIRED		BIT(31)
+
+struct orion_watchdog_data {
+	int (*plat_start)(struct udevice *dev, u64 timeout, ulong flags);
+	int (*plat_stop)(struct udevice *dev);
+};
 
 static int orion_wdt_reset(struct udevice *dev)
 {
@@ -53,7 +59,59 @@ static int orion_wdt_reset(struct udevice *dev)
 	return 0;
 }
 
-static int orion_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+static int armadaxp_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+{
+	struct orion_wdt_priv *priv = dev_get_priv(dev);
+	u32 reg;
+
+	priv->timeout = DIV_ROUND_UP(timeout_ms, 1000);
+
+	/* Fix the wdt and timer1 clock freqency to 25MHz */
+	reg = readl(priv->reg + TIMER_CTRL);
+	reg |= (WDT_AXP_FIXED_ENABLE_BIT | TIMER1_FIXED_ENABLE_BIT);
+	writel(reg, priv->reg + TIMER_CTRL);
+
+	/* Set watchdog duration */
+	writel(priv->clk_rate * priv->timeout,
+	       priv->reg + priv->wdt_counter_offset);
+
+	/* Clear the watchdog expiration bit */
+	reg = readl(priv->reg + TIMER_A370_STATUS);
+	reg &= ~WDT_A370_EXPIRED;
+	writel(reg, priv->reg + TIMER_A370_STATUS);
+
+	/* Enable watchdog timer */
+	reg = readl(priv->reg + TIMER_CTRL);
+	reg |= WDT_ENABLE_BIT;
+	writel(reg, priv->reg + TIMER_CTRL);
+
+	/* Enable reset on watchdog */
+	reg = readl(priv->rstout);
+	reg |= RSTOUT_ENABLE_BIT;
+	writel(reg, priv->rstout);
+
+	return 0;
+}
+
+static int armadaxp_wdt_stop(struct udevice *dev)
+{
+	struct orion_wdt_priv *priv = dev_get_priv(dev);
+	u32 reg;
+
+	/* Disable reset on watchdog */
+	reg = readl(priv->rstout);
+	reg &= ~RSTOUT_ENABLE_BIT;
+	writel(reg, priv->rstout);
+
+	/* Disable watchdog timer */
+	reg = readl(priv->reg + TIMER_CTRL);
+	reg &= ~WDT_ENABLE_BIT;
+	writel(reg, priv->reg + TIMER_CTRL);
+
+	return 0;
+}
+
+static int armada380_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	struct orion_wdt_priv *priv = dev_get_priv(dev);
 	u32 reg;
@@ -91,7 +149,7 @@ static int orion_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	return 0;
 }
 
-static int orion_wdt_stop(struct udevice *dev)
+static int armada380_wdt_stop(struct udevice *dev)
 {
 	struct orion_wdt_priv *priv = dev_get_priv(dev);
 	u32 reg;
@@ -113,13 +171,29 @@ static int orion_wdt_stop(struct udevice *dev)
 	return 0;
 }
 
+static int orion_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+{
+	struct orion_watchdog_data *data =
+			(struct orion_watchdog_data *)dev_get_driver_data(dev);
+
+	return data->plat_start(dev, timeout_ms, flags);
+}
+
+static int orion_wdt_stop(struct udevice *dev)
+{
+	struct orion_watchdog_data *data =
+			(struct orion_watchdog_data *)dev_get_driver_data(dev);
+
+	return data->plat_stop(dev);
+}
+
 static inline bool save_reg_from_ofdata(struct udevice *dev, int index,
 					void __iomem **reg, int *offset)
 {
 	fdt_addr_t addr;
 	fdt_size_t off;
 
-	addr = devfdt_get_addr_size_index(dev, index, &off);
+	addr = dev_read_addr_size_index(dev, index, &off);
 	if (addr == FDT_ADDR_T_NONE)
 		return false;
 
@@ -141,8 +215,10 @@ static int orion_wdt_of_to_plat(struct udevice *dev)
 	if (!save_reg_from_ofdata(dev, 1, &priv->rstout, NULL))
 		goto err;
 
-	if (!save_reg_from_ofdata(dev, 2, &priv->rstout_mask, NULL))
-		goto err;
+	if (device_is_compatible(dev, "marvell,armada-380-wdt")) {
+		if (!save_reg_from_ofdata(dev, 2, &priv->rstout_mask, NULL))
+			goto err;
+	}
 
 	return 0;
 err:
@@ -173,9 +249,20 @@ static const struct wdt_ops orion_wdt_ops = {
 	.stop = orion_wdt_stop,
 };
 
+static struct orion_watchdog_data armada380_data = {
+	.plat_start = armada380_wdt_start,
+	.plat_stop = armada380_wdt_stop,
+};
+
+static struct orion_watchdog_data armadaxp_data = {
+	.plat_start = armadaxp_wdt_start,
+	.plat_stop = armadaxp_wdt_stop,
+};
+
 static const struct udevice_id orion_wdt_ids[] = {
-	{ .compatible = "marvell,armada-380-wdt" },
-	{}
+	{ .compatible = "marvell,armada-380-wdt", .data = (ulong)&armada380_data},
+	{ .compatible = "marvell,armada-xp-wdt", .data = (ulong)&armadaxp_data},
+	{ }
 };
 
 U_BOOT_DRIVER(orion_wdt) = {

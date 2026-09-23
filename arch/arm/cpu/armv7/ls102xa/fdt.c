@@ -16,7 +16,6 @@
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
-#include <tsec.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <fsl_sec.h>
 #include <dm.h>
@@ -26,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 void ft_fixup_enet_phy_connect_type(void *fdt)
 {
 	struct udevice *dev;
-	struct tsec_private *priv;
+	struct eth_pdata *pdata;
 	const char *enet_path, *phy_path;
 	char enet[16];
 	char phy[16];
@@ -45,8 +44,8 @@ void ft_fixup_enet_phy_connect_type(void *fdt)
 			continue;
 		}
 
-		priv = dev_get_priv(dev);
-		if (priv->flags & TSEC_SGMII)
+		pdata = dev_get_plat(dev);
+		if (pdata->phy_interface == PHY_INTERFACE_MODE_SGMII)
 			continue;
 
 		enet_path = fdt_get_alias(fdt, enet);

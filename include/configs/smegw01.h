@@ -22,21 +22,6 @@
 #define EXTRA_BOOTPARAMS
 #endif
 
-#ifdef CONFIG_SYS_BOOT_LOCKED
-#define EXTRA_ENV_FLAGS
-#else
-#define EXTRA_ENV_FLAGS "mmcdev:dw,"
-#endif
-
-#define CFG_ENV_FLAGS_LIST_STATIC \
-	"mmcpart:dw," \
-	"mmcpart_committed:dw," \
-	"ustate:dw," \
-	"bootcount:dw," \
-	"bootlimit:dw," \
-	"upgrade_available:dw," \
-	EXTRA_ENV_FLAGS
-
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 

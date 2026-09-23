@@ -9,14 +9,10 @@
 
 #include "imx7s-u-boot.dtsi"
 
-&soc {
-	bootph-pre-ram;
-};
-
-&aips1 {
-	bootph-pre-ram;
-};
-
-&aips3 {
-	bootph-pre-ram;
+/ {
+	sysinfo: sysinfo {
+		compatible = "tq,eeprom-sysinfo";
+		nvmem-cells = <&module_info>;
+		nvmem-cell-names = "device_info";
+	};
 };

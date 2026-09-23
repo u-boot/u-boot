@@ -47,7 +47,7 @@ static int mediatek_reset_deassert(struct reset_ctl *reset_ctl)
 		priv->regofs + ((id / 32) << 2), BIT(id % 32), 0);
 }
 
-struct reset_ops mediatek_reset_ops = {
+static const struct reset_ops mediatek_reset_ops = {
 	.rst_assert = mediatek_reset_assert,
 	.rst_deassert = mediatek_reset_deassert,
 };

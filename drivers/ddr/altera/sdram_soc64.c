@@ -150,8 +150,8 @@ void sdram_init_ecc_bits(struct bd_info *bd)
 
 	icache_enable();
 
-	start_addr = bd->bi_dram[0].start;
-	size = bd->bi_dram[0].size;
+	start_addr = gd->dram[0].start;
+	size = gd->dram[0].size;
 
 	/* Initialize small block for page table */
 	memset((void *)start_addr, 0, PGTABLE_SIZE + PGTABLE_OFF);
@@ -174,8 +174,8 @@ void sdram_init_ecc_bits(struct bd_info *bd)
 		if (bank >= CONFIG_NR_DRAM_BANKS)
 			break;
 
-		start_addr = bd->bi_dram[bank].start;
-		size = bd->bi_dram[bank].size;
+		start_addr = gd->dram[bank].start;
+		size = gd->dram[bank].size;
 	}
 
 	dcache_disable();
@@ -198,12 +198,12 @@ void sdram_size_check(struct bd_info *bd)
 		phys_addr_t start = 0;
 		phys_size_t remaining_size;
 
-		start = bd->bi_dram[bank].start;
-		remaining_size = bd->bi_dram[bank].size;
+		start = gd->dram[bank].start;
+		remaining_size = gd->dram[bank].size;
 		debug("Checking bank %d: start=0x%llx, size=0x%llx\n",
 		      bank, start, remaining_size);
 
-		while (ram_check < bd->bi_dram[bank].size) {
+		while (ram_check < gd->dram[bank].size) {
 			phys_size_t size, test_size, detected_size;
 
 			size = min((phys_addr_t)SZ_1G, (phys_addr_t)remaining_size);
@@ -232,7 +232,7 @@ void sdram_size_check(struct bd_info *bd)
 			}
 
 			ram_check += detected_size;
-			remaining_size = bd->bi_dram[bank].size - ram_check;
+			remaining_size = gd->dram[bank].size - ram_check;
 		}
 
 		total_ram_check += ram_check;
@@ -292,10 +292,10 @@ static void sdram_set_firewall_non_f2sdram(struct bd_info *bd)
 	u32 lower, upper;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		if (!bd->bi_dram[i].size)
+		if (!gd->dram[i].size)
 			continue;
 
-		value = bd->bi_dram[i].start;
+		value = gd->dram[i].start;
 
 		/* Keep first 1MB of SDRAM memory region as secure region when
 		 * using ATF flow, where the ATF code is located.
@@ -322,7 +322,7 @@ static void sdram_set_firewall_non_f2sdram(struct bd_info *bd)
 				      (i * 4 * sizeof(u32)));
 
 		/* Setting non-secure MPU limit and limit extended */
-		value = bd->bi_dram[i].start + bd->bi_dram[i].size - 1;
+		value = gd->dram[i].start + gd->dram[i].size - 1;
 
 		lower = lower_32_bits(value);
 		upper = upper_32_bits(value);
@@ -354,10 +354,10 @@ static void sdram_set_firewall_f2sdram(struct bd_info *bd)
 	phys_size_t value;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		if (!bd->bi_dram[i].size)
+		if (!gd->dram[i].size)
 			continue;
 
-		value = bd->bi_dram[i].start;
+		value = gd->dram[i].start;
 
 		/* Keep first 1MB of SDRAM memory region as secure region when
 		 * using ATF flow, where the ATF code is located.
@@ -376,7 +376,7 @@ static void sdram_set_firewall_f2sdram(struct bd_info *bd)
 					  (i * 4 * sizeof(u32)));
 
 		/* Setting limit and limit extended */
-		value = bd->bi_dram[i].start + bd->bi_dram[i].size - 1;
+		value = gd->dram[i].start + gd->dram[i].size - 1;
 
 		lower = lower_32_bits(value);
 		upper = upper_32_bits(value);

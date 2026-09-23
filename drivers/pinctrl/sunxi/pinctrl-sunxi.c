@@ -761,7 +761,8 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h616_pinctrl_desc =
 };
 
 static const struct sunxi_pinctrl_function sun55i_a523_pinctrl_functions[] = {
-	{ "gmac0",	5 },	/* PI0-PI16 */
+	{ "gmac0",	5 },	/* PH0-PH7, PH9-PH10, PH14-PH18 */
+	{ "gmac1",	5 },	/* PJ0-PJ9, PJ11-PJ15 */
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
 	{ "mmc0",	2 },	/* PF0-PF5 */

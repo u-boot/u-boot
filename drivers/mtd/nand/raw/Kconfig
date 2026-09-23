@@ -310,47 +310,47 @@ choice
 	prompt "ECC scheme"
 	default NAND_OMAP_ECCSCHEME_BCH8_CODE_HW
 	help
-	On OMAP platforms, this CONFIG specifies NAND ECC scheme.
-	It can take following values:
-	OMAP_ECC_HAM1_CODE_SW
+	  On OMAP platforms, this CONFIG specifies NAND ECC scheme.
+	  It can take following values:
+	  OMAP_ECC_HAM1_CODE_SW
 		1-bit Hamming code using software lib.
 		(for legacy devices only)
-	OMAP_ECC_HAM1_CODE_HW
+	  OMAP_ECC_HAM1_CODE_HW
 		1-bit Hamming code using GPMC hardware.
 		(for legacy devices only)
-	OMAP_ECC_BCH4_CODE_HW_DETECTION_SW
+	  OMAP_ECC_BCH4_CODE_HW_DETECTION_SW
 		4-bit BCH code (unsupported)
-	OMAP_ECC_BCH4_CODE_HW
+	  OMAP_ECC_BCH4_CODE_HW
 		4-bit BCH code (unsupported)
-	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
+	  OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
 		8-bit BCH code with
 		- ecc calculation using GPMC hardware engine,
 		- error detection using software library.
 		- requires CONFIG_BCH to enable software BCH library
 		(For legacy device which do not have ELM h/w engine)
-	OMAP_ECC_BCH8_CODE_HW
+	  OMAP_ECC_BCH8_CODE_HW
 		8-bit BCH code with
 		- ecc calculation using GPMC hardware engine,
 		- error detection using ELM hardware engine.
-	OMAP_ECC_BCH16_CODE_HW
+	  OMAP_ECC_BCH16_CODE_HW
 		16-bit BCH code with
 		- ecc calculation using GPMC hardware engine,
 		- error detection using ELM hardware engine.
 
-	How to select ECC scheme on OMAP and AMxx platforms ?
-	-----------------------------------------------------
-	Though higher ECC schemes have more capability to detect and correct
-	bit-flips, but still selection of ECC scheme is dependent on following
-	- hardware engines present in SoC.
+	  How to select ECC scheme on OMAP and AMxx platforms ?
+	  -----------------------------------------------------
+	  Though higher ECC schemes have more capability to detect and correct
+	  bit-flips, but still selection of ECC scheme is dependent on following
+	  - hardware engines present in SoC.
 		Some legacy OMAP SoC do not have ELM h/w engine thus such
 		SoC cannot support BCHx_HW ECC schemes.
-	- size of OOB/Spare region
+	  - size of OOB/Spare region
 		With higher ECC schemes, more OOB/Spare area is required to
 		store ECC. So choice of ECC scheme is limited by NAND oobsize.
 
-	In general following expression can help:
+	  In general following expression can help:
 		NAND_OOBSIZE >= 2 + (NAND_PAGESIZE / 512) * ECC_BYTES
-	where
+	  where
 		NAND_OOBSIZE	= number of bytes available in
 				OOB/spare area per NAND page.
 		NAND_PAGESIZE	= bytes in main-area of NAND page.

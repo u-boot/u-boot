@@ -5,3 +5,4 @@
 obj-$(CONFIG_ARCH_ASPEED) += ast_wdt.o
 obj-$(CONFIG_ASPEED_AST2500) += ast2500/
 obj-$(CONFIG_ASPEED_AST2600) += ast2600/
+obj-$(CONFIG_ASPEED_AST2700) += ast2700/

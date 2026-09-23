@@ -1,0 +1,18 @@
+if TARGET_LIBREM5_DEVKIT
+
+config SYS_BOARD
+	default "librem5-devkit"
+
+config SYS_VENDOR
+	default "purism"
+
+config SYS_CONFIG_NAME
+	default "librem5-devkit"
+
+config ENV_SOURCE_FILE
+	default "librem5-devkit"
+
+config IMX_CONFIG
+	default "board/purism/librem5-devkit/imximage-8mq-lpddr4.cfg"
+
+endif

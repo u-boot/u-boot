@@ -42,6 +42,4 @@ Connect the USB cable between the EVK and the PC for the console.
 Insert the micro SD card in the board, power it up and U-Boot messages should
 come up.
 
-The link for the board: http://www.nxp.com/products/microcontrollers-and- \
-processors/arm-processors/i.mx-applications-processors/i.mx-6-processors/ \
-i.mx6qp/evaluation-kit-for-the-i.mx-6ull-applications-processor:MCIMX6ULL-EVK
+The link for the board: https://www.nxp.com/design/design-center/development-boards-and-designs/i-mx-evaluation-and-development-boards/evaluation-kit-for-the-i-mx-6ull-and-6ulz-applications-processor:MCIMX6ULL-EVK

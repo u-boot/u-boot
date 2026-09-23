@@ -174,7 +174,7 @@ Examples
     varname=ebd0a0a2-b9e5-4433-87c0-68b6b72699c7
     =>
     => part types
-    Supported partition tables: EFI, AMIGA, DOS, ISO, MAC
+    Supported partition tables: EFI, DOS, ISO, MAC
 
 This shows looking at a device with multiple partition tables::
 

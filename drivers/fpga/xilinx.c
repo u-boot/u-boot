@@ -44,6 +44,7 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 	unsigned int length;
 	unsigned int swapsize;
 	unsigned char *dataptr;
+	unsigned long hdrlen;
 	unsigned int i;
 	const fpga_desc *desc;
 	xilinx_desc *xdesc;
@@ -143,14 +144,22 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 	dataptr += 4;
 	printf("  bytes in bitstream = %d\n", swapsize);
 
+	/* Make sure the header and data fit in the caller's buffer */
+	hdrlen = (unsigned long)dataptr - (unsigned long)fpgadata;
+	if (hdrlen > size || swapsize > size - hdrlen) {
+		printf("%s: Bitstream does not fit in %lu byte buffer\n",
+		       __func__, (unsigned long)size);
+		return FPGA_FAIL;
+	}
+
 	return fpga_load(devnum, dataptr, swapsize, bstype, 0);
 }
 
 int xilinx_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		bitstream_type bstype, int flags)
 {
-	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {
-		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
+	if (!xilinx_validate(desc, (char *)__func__)) {
+		printf("%s: Invalid device descriptor\n", __func__);
 		return FPGA_FAIL;
 	}
 
@@ -200,8 +209,8 @@ int xilinx_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 
 int xilinx_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
-	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {
-		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
+	if (!xilinx_validate(desc, (char *)__func__)) {
+		printf("%s: Invalid device descriptor\n", __func__);
 		return FPGA_FAIL;
 	}
 
@@ -217,7 +226,7 @@ int xilinx_info(xilinx_desc *desc)
 {
 	int ret_val = FPGA_FAIL;
 
-	if (xilinx_validate (desc, (char *)__FUNCTION__)) {
+	if (xilinx_validate(desc, (char *)__func__)) {
 		printf ("Family:        \t");
 		switch (desc->family) {
 		case xilinx_spartan2:
@@ -293,7 +302,7 @@ int xilinx_info(xilinx_desc *desc)
 
 		ret_val = FPGA_SUCCESS;
 	} else {
-		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
+		printf("%s: Invalid device descriptor\n", __func__);
 	}
 
 	return ret_val;

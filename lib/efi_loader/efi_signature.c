@@ -647,7 +647,7 @@ static struct efi_signature_store *
 efi_sigstore_parse_siglist(struct efi_signature_list *esl)
 {
 	struct efi_signature_store *siglist = NULL;
-	struct efi_sig_data *sig_data, *sig_data_next;
+	struct efi_sig_data *sig_data;
 	struct efi_signature_data *esd;
 	size_t left;
 
@@ -690,7 +690,6 @@ efi_sigstore_parse_siglist(struct efi_signature_list *esl)
 	memcpy(&siglist->sig_type, &esl->signature_type, sizeof(efi_guid_t));
 
 	/* Go through the list */
-	sig_data_next = NULL;
 	left = esl->signature_list_size
 			- (sizeof(*esl) + esl->signature_header_size);
 	esd = (struct efi_signature_data *)
@@ -703,12 +702,14 @@ efi_sigstore_parse_siglist(struct efi_signature_list *esl)
 			goto err;
 		}
 
-		sig_data = calloc(esl->signature_size
-					- sizeof(esd->signature_owner), 1);
+		sig_data = calloc(1, sizeof(*sig_data));
 		if (!sig_data) {
 			EFI_PRINT("Out of memory\n");
 			goto err;
 		}
+
+		sig_data->next = siglist->sig_data_list;
+		siglist->sig_data_list = sig_data;
 
 		/* Append signature data */
 		memcpy(&sig_data->owner, &esd->signature_owner,
@@ -722,15 +723,11 @@ efi_sigstore_parse_siglist(struct efi_signature_list *esl)
 		}
 		memcpy(sig_data->data, esd->signature_data, sig_data->size);
 
-		sig_data->next = sig_data_next;
-		sig_data_next = sig_data;
-
 		/* Next */
 		esd = (struct efi_signature_data *)
 				((u8 *)esd + esl->signature_size);
 		left -= esl->signature_size;
 	}
-	siglist->sig_data_list = sig_data_next;
 
 	return siglist;
 

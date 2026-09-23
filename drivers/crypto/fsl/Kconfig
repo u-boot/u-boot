@@ -20,6 +20,7 @@ config SYS_FSL_MAX_NUM_OF_SEC
 
 config CAAM_64BIT
 	bool
+	depends on FSL_CAAM
 	default y if PHYS_64BIT && !ARCH_IMX8M && !ARCH_IMX8
 	help
 	  Select Crypto driver for 64 bits CAAM version
@@ -27,27 +28,27 @@ config CAAM_64BIT
 config SYS_FSL_HAS_SEC
 	bool
 	help
-		Enable Freescale Secure Boot and Trusted Architecture
+	  Enable Freescale Secure Boot and Trusted Architecture
 
 config SYS_FSL_SEC_COMPAT_2
 	bool
 	help
-		Secure boot and trust architecture compatible version 2
+	  Secure boot and trust architecture compatible version 2
 
 config SYS_FSL_SEC_COMPAT_4
 	bool
 	help
-		Secure boot and trust architecture compatible version 4
+	  Secure boot and trust architecture compatible version 4
 
 config SYS_FSL_SEC_COMPAT_5
 	bool
 	help
-		Secure boot and trust architecture compatible version 5
+	  Secure boot and trust architecture compatible version 5
 
 config SYS_FSL_SEC_COMPAT_6
 	bool
 	help
-		Secure boot and trust architecture compatible version 6
+	  Secure boot and trust architecture compatible version 6
 
 config SYS_FSL_SEC_BE
 	bool "Big-endian access to Freescale Secure Boot"

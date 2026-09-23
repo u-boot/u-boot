@@ -607,8 +607,8 @@ config SPL_ROCKCHIP_BACK_TO_BROM
 	depends on SPL
 	help
 	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
-          SPL will return to the boot rom, which will then load the U-Boot
-          binary to keep going on.
+	  SPL will return to the boot rom, which will then load the U-Boot
+	  binary to keep going on.
 
 config TPL_ROCKCHIP_BACK_TO_BROM
 	bool "TPL returns to bootrom"
@@ -618,8 +618,8 @@ config TPL_ROCKCHIP_BACK_TO_BROM
 	depends on TPL
 	help
 	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
-          SPL will return to the boot rom, which will then load the U-Boot
-          binary to keep going on.
+	  SPL will return to the boot rom, which will then load the U-Boot
+	  binary to keep going on.
 
 config ROCKCHIP_COMMON_BOARD
 	bool "Rockchip common board file"
@@ -661,7 +661,7 @@ config ROCKCHIP_BOOT_MODE_REG
 config ROCKCHIP_RK8XX_DISABLE_BOOT_ON_POWERON
 	bool "Disable device boot on power plug-in"
 	depends on PMIC_RK8XX
-	---help---
+	help
 	  Say Y here to prevent the device from booting up because of a plug-in
 	  event. When set, the device will boot briefly to determine why it was
 	  powered on, and if it was determined because of a plug-in event
@@ -689,7 +689,7 @@ config ROCKCHIP_BROM_HELPER
 	bool
 
 config SPL_ROCKCHIP_EARLYRETURN_TO_BROM
-        bool "SPL requires early-return (for RK3188-style BROM) to BROM"
+	bool "SPL requires early-return (for RK3188-style BROM) to BROM"
 	depends on SPL && ENABLE_ARM_SOC_BOOT0_HOOK
 	help
 	  Some Rockchip BROM variants (e.g. on the RK3188) load the
@@ -710,7 +710,7 @@ config ROCKCHIP_DISABLE_FORCE_JTAG
 	  Rockchip SoCs can automatically switch between jtag and sdmmc based
 	  on the following rules:
 	  - all the SDMMC pins including SDMMC_DET set as SDMMC function in
-	    GRF,
+	  GRF,
 	  - force_jtag bit in GRF is 1,
 	  - SDMMC_DET is low (no card detected),
 
@@ -727,7 +727,7 @@ config ROCKCHIP_DISABLE_FORCE_JTAG
 	  If unsure, say Y.
 
 config TPL_ROCKCHIP_EARLYRETURN_TO_BROM
-        bool "TPL requires early-return (for RK3188-style BROM) to BROM"
+	bool "TPL requires early-return (for RK3188-style BROM) to BROM"
 	depends on TPL && ENABLE_ARM_SOC_BOOT0_HOOK
 	help
 	  Some Rockchip BROM variants (e.g. on the RK3188) load the

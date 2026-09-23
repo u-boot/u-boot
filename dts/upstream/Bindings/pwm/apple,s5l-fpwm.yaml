@@ -8,7 +8,7 @@ title: Apple FPWM controller
 
 maintainers:
   - asahi@lists.linux.dev
-  - Sasha Finkelstein <fnkl.kernel@gmail.com>
+  - Sasha Finkelstein <k@chaosmail.tech>
 
 description: PWM controller used for keyboard backlight on ARM Macs
 
@@ -18,6 +18,7 @@ properties:
       - enum:
           - apple,t8103-fpwm
           - apple,t8112-fpwm
+          - apple,t8122-fpwm
           - apple,t6000-fpwm
           - apple,t6020-fpwm
       - const: apple,s5l-fpwm

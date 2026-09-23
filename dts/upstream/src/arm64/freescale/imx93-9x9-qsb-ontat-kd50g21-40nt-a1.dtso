@@ -1,0 +1,6 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2026 NXP
+ */
+
+#include "imx93-9x9-qsb-ontat-kd50g21-40nt-a1.dtsi"

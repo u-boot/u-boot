@@ -574,70 +574,6 @@ static int do_efi_show_ecpt(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 #endif /* CONFIG_IS_ENABLED(EFI_ECPT) */
 
-static const char * const efi_mem_type_string[] = {
-	[EFI_RESERVED_MEMORY_TYPE] = "RESERVED",
-	[EFI_LOADER_CODE] = "LOADER CODE",
-	[EFI_LOADER_DATA] = "LOADER DATA",
-	[EFI_BOOT_SERVICES_CODE] = "BOOT CODE",
-	[EFI_BOOT_SERVICES_DATA] = "BOOT DATA",
-	[EFI_RUNTIME_SERVICES_CODE] = "RUNTIME CODE",
-	[EFI_RUNTIME_SERVICES_DATA] = "RUNTIME DATA",
-	[EFI_CONVENTIONAL_MEMORY] = "CONVENTIONAL",
-	[EFI_UNUSABLE_MEMORY] = "UNUSABLE MEM",
-	[EFI_ACPI_RECLAIM_MEMORY] = "ACPI RECLAIM MEM",
-	[EFI_ACPI_MEMORY_NVS] = "ACPI NVS",
-	[EFI_MMAP_IO] = "IO",
-	[EFI_MMAP_IO_PORT] = "IO PORT",
-	[EFI_PAL_CODE] = "PAL",
-	[EFI_PERSISTENT_MEMORY_TYPE] = "PERSISTENT",
-};
-
-static const struct efi_mem_attrs {
-	const u64 bit;
-	const char *text;
-} efi_mem_attrs[] = {
-	{EFI_MEMORY_UC, "UC"},
-	{EFI_MEMORY_WC, "WC"},
-	{EFI_MEMORY_WT, "WT"},
-	{EFI_MEMORY_WB, "WB"},
-	{EFI_MEMORY_UCE, "UCE"},
-	{EFI_MEMORY_WP, "WP"},
-	{EFI_MEMORY_RP, "RP"},
-	{EFI_MEMORY_XP, "XP"},
-	{EFI_MEMORY_NV, "NV"},
-	{EFI_MEMORY_MORE_RELIABLE, "REL"},
-	{EFI_MEMORY_RO, "RO"},
-	{EFI_MEMORY_SP, "SP"},
-	{EFI_MEMORY_CPU_CRYPTO, "CRYPT"},
-	{EFI_MEMORY_HOT_PLUGGABLE, "HOTPL"},
-	{EFI_MEMORY_RUNTIME, "RT"},
-};
-
-/**
- * print_memory_attributes() - print memory map attributes
- *
- * @attributes:	Attribute value
- *
- * Print memory map attributes
- */
-static void print_memory_attributes(u64 attributes)
-{
-	int sep, i;
-
-	for (sep = 0, i = 0; i < ARRAY_SIZE(efi_mem_attrs); i++)
-		if (attributes & efi_mem_attrs[i].bit) {
-			if (sep) {
-				putc('|');
-			} else {
-				putc(' ');
-				sep = 1;
-			}
-			puts(efi_mem_attrs[i].text);
-		}
-}
-
-#define EFI_PHYS_ADDR_WIDTH (int)(sizeof(efi_physical_addr_t) * 2)
-
 /**
  * do_efi_show_memmap() - show UEFI memory map
  *
@@ -653,43 +589,15 @@ static void print_memory_attributes(u64 attributes)
 static int do_efi_show_memmap(struct cmd_tbl *cmdtp, int flag,
 			      int argc, char *const argv[])
 {
-	struct efi_mem_desc *memmap, *map;
+	struct efi_mem_desc *memmap;
 	efi_uintn_t map_size;
-	const char *type;
-	int i;
 	efi_status_t ret;
 
 	ret = efi_get_memory_map_alloc(&map_size, &memmap);
 	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
 
-	printf("Type             Start%.*s End%.*s Attributes\n",
-	       EFI_PHYS_ADDR_WIDTH - 5, spc, EFI_PHYS_ADDR_WIDTH - 3, spc);
-	printf("================ %.*s %.*s ==========\n",
-	       EFI_PHYS_ADDR_WIDTH, sep, EFI_PHYS_ADDR_WIDTH, sep);
-	/*
-	 * Coverity check: dereferencing null pointer "map."
-	 * This is a false positive as memmap will always be
-	 * populated by allocate_pool() above.
-	 */
-	for (i = 0, map = memmap; i < map_size / sizeof(*map); map++, i++) {
-		if (map->type < ARRAY_SIZE(efi_mem_type_string))
-			type = efi_mem_type_string[map->type];
-		else
-			type = "(unknown)";
-
-		printf("%-16s %.*llx-%.*llx", type,
-		       EFI_PHYS_ADDR_WIDTH,
-		       (u64)map_to_sysmem((void *)(uintptr_t)
-					  map->physical_start),
-		       EFI_PHYS_ADDR_WIDTH,
-		       (u64)map_to_sysmem((void *)(uintptr_t)
-					  (map->physical_start +
-					   map->num_pages * EFI_PAGE_SIZE)));
-
-		print_memory_attributes(map->attribute);
-		putc('\n');
-	}
+	efi_show_memmap(memmap, map_size, sizeof(*memmap));
 
 	efi_free_pool(memmap);
 

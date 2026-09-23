@@ -152,7 +152,7 @@ boot_targets
 This environment variable can be used to control the list of bootdevs searched
 and their ordering, for example::
 
-   setenv boot_targets "mmc0 mmc1 usb pxe"
+   env set boot_targets "mmc0 mmc1 usb pxe"
 
 Entries may be removed or re-ordered in this list to affect the boot order. If
 the variable is empty, the default ordering is used, based on the priority of
@@ -169,7 +169,7 @@ used by the old distro scripts.
 This environment variable can be used to control the list of bootmeths used and
 their ordering for example::
 
-   setenv bootmeths "extlinux efi"
+   env set bootmeths "extlinux efi"
 
 Entries may be removed or re-ordered in this list to affect the order the
 bootmeths are tried on each bootdev. If the variable is empty, the default
@@ -445,6 +445,7 @@ Available bootmeth drivers
 Bootmeth drivers are provided for booting from various media:
 
    - :doc:`Android <android>` bootflow (boot image v4)
+   - :doc:`BLS <bls>`: Boot Loader Specification type #1 entries from a disk
    - :doc:`ChromiumOS <cros>` ChromiumOS boot from a disk
    - EFI boot using bootefi from disk
    - EFI boot using boot manager
@@ -882,7 +883,7 @@ Other ideas:
 
 
 .. _distro_bootcmd: https://github.com/u-boot/u-boot/blob/master/include/config_distro_bootcmd.h
-.. _BootLoaderSpec: http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/
-.. _distro_boot: https://github.com/u-boot/u-boot/blob/master/boot/distro.c
+.. _BootLoaderSpec: https://uapi-group.org/specifications/specs/boot_loader_specification/
+.. _distro_boot: https://github.com/u-boot/u-boot/blob/v2023.04/boot/bootmeth_distro.c
 .. _bootflow_h: https://github.com/u-boot/u-boot/blob/master/include/bootflow.h
 .. _migrate_patch: https://patchwork.ozlabs.org/project/uboot/patch/20230727215433.578830-2-sjg@chromium.org/

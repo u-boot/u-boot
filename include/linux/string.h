@@ -43,12 +43,8 @@ extern int strcmp(const char *,const char *);
 #ifndef __HAVE_ARCH_STRNCMP
 extern int strncmp(const char *,const char *,__kernel_size_t);
 #endif
-#ifndef __HAVE_ARCH_STRCASECMP
 int strcasecmp(const char *s1, const char *s2);
-#endif
-#ifndef __HAVE_ARCH_STRNCASECMP
-extern int strncasecmp(const char *s1, const char *s2, __kernel_size_t len);
-#endif
+int strncasecmp(const char *s1, const char *s2, __kernel_size_t len);
 #ifndef __HAVE_ARCH_STRCHR
 extern char * strchr(const char *,int);
 #endif
@@ -63,7 +59,7 @@ extern char * strchr(const char *,int);
  * @c: character to search for
  * Return: position of @c in @s, or end of @s if not found
  */
-const char *strchrnul(const char *s, int c);
+char *strchrnul(const char *s, int c);
 
 #ifndef __HAVE_ARCH_STRRCHR
 extern char * strrchr(const char *,int);
@@ -75,6 +71,7 @@ extern char * strstr(const char *,const char *);
 #ifndef __HAVE_ARCH_STRNSTR
 extern char *strnstr(const char *, const char *, size_t);
 #endif
+char *strcasestr(const char *, const char *);
 #ifndef __HAVE_ARCH_STRLEN
 extern __kernel_size_t strlen(const char *);
 #endif
@@ -101,15 +98,11 @@ size_t strcspn(const char *s, const char *reject);
 # define strndup		sandbox_strndup
 #endif
 
-#ifndef __HAVE_ARCH_STRDUP
 extern char * strdup(const char *);
 extern char * strndup(const char *, size_t);
+
 extern const char *strdup_const(const char *s);
 extern void kfree_const(const void *x);
-#endif
-#ifndef __HAVE_ARCH_STRSWAB
-extern char * strswab(const char *);
-#endif
 
 #ifndef __HAVE_ARCH_MEMSET
 extern void * memset(void *,int,__kernel_size_t);
@@ -144,7 +137,20 @@ void *memchr_inv(const void *, int, size_t);
  *	memory is available
  *
  */
-char *memdup(const void *src, size_t len);
+void *memdup(const void *src, size_t len);
+
+/**
+ * memdup_nul() - allocate a buffer and copy in the contents, appending a nul byte
+ *
+ * Note that this returns a valid pointer even if @len is 0
+ *
+ * @src: data to copy in
+ * @len: number of bytes to copy
+ * Return: allocated buffer with the copied contents and an extra nul byte,
+ *      or NULL if not enough memory is available
+ *
+ */
+void *memdup_nul(const void *src, size_t len);
 
 unsigned long ustrtoul(const char *cp, char **endp, unsigned int base);
 unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base);

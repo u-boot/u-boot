@@ -1,0 +1,36 @@
+if ASPEED_AST2700
+
+config SYS_CPU
+	default "armv8"
+
+config SPI_KERNEL_FIT_ADDR
+	hex "SPI address of kernel FIT image"
+	default 0x100420000
+	help
+	  Address in the SPI flash where the kernel FIT image is stored.
+	  Used by the bootspi command to load and boot the kernel image
+	  from the SPI flash on AST2700 platforms.
+
+choice
+	prompt "AST2700 board select"
+	depends on ASPEED_AST2700
+	default TARGET_EVB_AST2700
+	help
+	  Select the AST2700 board model. Each board option configures
+	  the board-specific Kconfig, defaults and devicetree.
+
+config TARGET_EVB_AST2700
+	bool "EVB-AST2700"
+	depends on ASPEED_AST2700
+	select ARCH_MISC_INIT
+	help
+	  EVB-AST2700 is Aspeed evaluation board for AST2700A0 chip.
+	  It has 512M of RAM, 32M of SPI flash, two Ethernet ports,
+	  4 Serial ports, 4 USB ports, VGA port, PCIe, SD card slot,
+	  20 pin JTAG, pinouts for 14 I2Cs, 3 SPIs and eSPI, 8 PWMs.
+
+endchoice
+
+source "board/aspeed/evb_ast2700/Kconfig"
+
+endif

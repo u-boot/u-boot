@@ -638,11 +638,6 @@ static int dm9000_read_rom_hwaddr(struct udevice *dev)
 	return !is_valid_ethaddr(pdata->enetaddr);
 }
 
-static int dm9000_bind(struct udevice *dev)
-{
-	return device_set_name(dev, dev->name);
-}
-
 static int dm9000_of_to_plat(struct udevice *dev)
 {
 	struct dm9000_priv *db = dev_get_priv(dev);
@@ -673,7 +668,6 @@ U_BOOT_DRIVER(dm9000) = {
 	.name		= "eth_dm9000",
 	.id		= UCLASS_ETH,
 	.of_match	= dm9000_ids,
-	.bind		= dm9000_bind,
 	.of_to_plat = dm9000_of_to_plat,
 	.ops		= &dm9000_ops,
 	.priv_auto	= sizeof(struct dm9000_priv),

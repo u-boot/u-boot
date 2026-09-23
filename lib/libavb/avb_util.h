@@ -16,8 +16,43 @@
 extern "C" {
 #endif
 
+#define AVB_CONCAT(x, y) x##y
 #define AVB_STRINGIFY(x) #x
 #define AVB_TO_STRING(x) AVB_STRINGIFY(x)
+
+#define AVB__COUNT_ARGS(_0, _1, _2, _3, _4, _5, _6, _7, x, ...) x
+#define AVB_COUNT_ARGS(...) \
+  AVB__COUNT_ARGS(, ##__VA_ARGS__, 7, 6, 5, 4, 3, 2, 1, 0)
+
+#define AVB__REPEAT0(x)
+#define AVB__REPEAT1(x) x
+#define AVB__REPEAT2(x) AVB__REPEAT1(x) x
+#define AVB__REPEAT3(x) AVB__REPEAT2(x) x
+#define AVB__REPEAT4(x) AVB__REPEAT3(x) x
+#define AVB__REPEAT5(x) AVB__REPEAT4(x) x
+#define AVB__REPEAT6(x) AVB__REPEAT5(x) x
+#define AVB__REPEAT7(x) AVB__REPEAT6(x) x
+#define AVB__REPEAT(n, x) AVB_CONCAT(AVB__REPEAT, n)(x)
+#define AVB_REPEAT(n, x) AVB__REPEAT(n, x)
+
+#ifdef AVB_USE_PRINTF_LOGS
+#define AVB_LOG(level, message, ...)                                        \
+  avb_printf("%s:%d: " level                                                \
+             ": " AVB_REPEAT(AVB_COUNT_ARGS(message, ##__VA_ARGS__), "%s"), \
+             avb_basename(__FILE__),                                        \
+             __LINE__,                                                      \
+             message,                                                       \
+             ##__VA_ARGS__)
+#else
+#define AVB_LOG(level, message, ...)  \
+  avb_printv(avb_basename(__FILE__),  \
+             ":",                     \
+             AVB_TO_STRING(__LINE__), \
+             ": " level ": ",         \
+             message,                 \
+             ##__VA_ARGS__,           \
+             NULL)
+#endif
 
 #ifdef AVB_ENABLE_DEBUG
 /* Aborts the program if |expr| is false.
@@ -30,21 +65,28 @@ extern "C" {
       avb_fatal("assert fail: " #expr "\n"); \
     }                                        \
   } while (0)
-#else
-#define avb_assert(expr)
-#endif
 
 /* Aborts the program if reached.
  *
  * This has no effect unless AVB_ENABLE_DEBUG is defined.
  */
-#ifdef AVB_ENABLE_DEBUG
 #define avb_assert_not_reached()         \
   do {                                   \
     avb_fatal("assert_not_reached()\n"); \
   } while (0)
+
+/* Print functions, used for diagnostics.
+ *
+ * These have no effect unless AVB_ENABLE_DEBUG is defined.
+ */
+#define avb_debug(message, ...)               \
+  do {                                        \
+    AVB_LOG("DEBUG", message, ##__VA_ARGS__); \
+  } while (0)
 #else
+#define avb_assert(expr)
 #define avb_assert_not_reached()
+#define avb_debug(message, ...)
 #endif
 
 /* Aborts the program if |addr| is not word-aligned.
@@ -54,84 +96,41 @@ extern "C" {
 #define avb_assert_aligned(addr) \
   avb_assert((((uintptr_t)addr) & (AVB_ALIGNMENT_SIZE - 1)) == 0)
 
-#ifdef AVB_ENABLE_DEBUG
-/* Print functions, used for diagnostics.
- *
- * These have no effect unless AVB_ENABLE_DEBUG is defined.
- */
-#define avb_debug(message)              \
-  do {                                  \
-    avb_printv(avb_basename(__FILE__),  \
-               ":",                     \
-               AVB_TO_STRING(__LINE__), \
-               ": DEBUG: ",             \
-               message,                 \
-               NULL);                   \
-  } while (0)
-#define avb_debugv(message, ...)        \
-  do {                                  \
-    avb_printv(avb_basename(__FILE__),  \
-               ":",                     \
-               AVB_TO_STRING(__LINE__), \
-               ": DEBUG: ",             \
-               message,                 \
-               ##__VA_ARGS__);          \
-  } while (0)
-#else
-#define avb_debug(message)
-#define avb_debugv(message, ...)
-#endif
-
 /* Prints out a message. This is typically used if a runtime-error
  * occurs.
  */
-#define avb_error(message)              \
-  do {                                  \
-    avb_printv(avb_basename(__FILE__),  \
-               ":",                     \
-               AVB_TO_STRING(__LINE__), \
-               ": ERROR: ",             \
-               message,                 \
-               NULL);                   \
-  } while (0)
-#define avb_errorv(message, ...)        \
-  do {                                  \
-    avb_printv(avb_basename(__FILE__),  \
-               ":",                     \
-               AVB_TO_STRING(__LINE__), \
-               ": ERROR: ",             \
-               message,                 \
-               ##__VA_ARGS__);          \
+#define avb_error(message, ...)               \
+  do {                                        \
+    AVB_LOG("ERROR", message, ##__VA_ARGS__); \
   } while (0)
 
 /* Prints out a message and calls avb_abort().
  */
-#define avb_fatal(message)              \
-  do {                                  \
-    avb_printv(avb_basename(__FILE__),  \
-               ":",                     \
-               AVB_TO_STRING(__LINE__), \
-               ": FATAL: ",             \
-               message,                 \
-               NULL);                   \
-    avb_abort();                        \
+#define avb_fatal(message, ...)               \
+  do {                                        \
+    AVB_LOG("FATAL", message, ##__VA_ARGS__); \
+    avb_abort();                              \
   } while (0)
-#define avb_fatalv(message, ...)        \
-  do {                                  \
-    avb_printv(avb_basename(__FILE__),  \
-               ":",                     \
-               AVB_TO_STRING(__LINE__), \
-               ": FATAL: ",             \
-               message,                 \
-               ##__VA_ARGS__);          \
-    avb_abort();                        \
-  } while (0)
+
+#ifndef AVB_USE_PRINTF_LOGS
+/* Deprecated legacy logging functions -- kept for client compatibility.
+ */
+#define avb_debugv(message, ...) avb_debug(message, ##__VA_ARGS__)
+#define avb_errorv(message, ...) avb_error(message, ##__VA_ARGS__)
+#define avb_fatalv(message, ...) avb_fatal(message, ##__VA_ARGS__)
+#endif
+
+/* Converts a 16-bit unsigned integer from big-endian to host byte order. */
+uint16_t avb_be16toh(uint16_t in) AVB_ATTR_WARN_UNUSED_RESULT;
 
 /* Converts a 32-bit unsigned integer from big-endian to host byte order. */
 uint32_t avb_be32toh(uint32_t in) AVB_ATTR_WARN_UNUSED_RESULT;
 
 /* Converts a 64-bit unsigned integer from big-endian to host byte order. */
 uint64_t avb_be64toh(uint64_t in) AVB_ATTR_WARN_UNUSED_RESULT;
+
+/* Converts a 16-bit unsigned integer from host to big-endian byte order. */
+uint16_t avb_htobe16(uint16_t in) AVB_ATTR_WARN_UNUSED_RESULT;
 
 /* Converts a 32-bit unsigned integer from host to big-endian byte order. */
 uint32_t avb_htobe32(uint32_t in) AVB_ATTR_WARN_UNUSED_RESULT;
@@ -261,6 +260,11 @@ void avb_uppercase(char* str);
  */
 char* avb_bin2hex(const uint8_t* data, size_t data_len);
 
+/* Writes |value| to |digits| in base 10 followed by a NUL byte.
+ * Returns number of characters written excluding the NUL byte.
+ */
+#define AVB_MAX_DIGITS_UINT64 32
+size_t avb_uint64_to_base10(uint64_t value, char digits[AVB_MAX_DIGITS_UINT64]);
 #ifdef __cplusplus
 }
 #endif

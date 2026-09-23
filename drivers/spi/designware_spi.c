@@ -497,12 +497,24 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct dw_spi_priv *priv = dev_get_priv(bus);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 	const u8 *tx = dout;
 	u8 *rx = din;
 	int ret = 0;
 	u32 cr0 = 0;
 	u32 val;
 	u32 cs;
+
+	/* Get bits_per_word from slave (set by device driver) */
+	if (slave->bits_per_word >= 4 && slave->bits_per_word <= priv->max_xfer) {
+		priv->bits_per_word = slave->bits_per_word;
+	} else if (slave->bits_per_word == 0) {
+		priv->bits_per_word = 8;  /* Default if not set */
+	} else {
+		dev_warn(dev, "Invalid bits_per_word %u, using 8\n",
+			 slave->bits_per_word);
+		priv->bits_per_word = 8;
+	}
 
 	/* spi core configured to do 8 bit transfers */
 	if (bitlen % 8) {

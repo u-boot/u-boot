@@ -185,10 +185,10 @@ void config_sdram(const struct emif_regs *regs, int nr)
 	if (regs->zq_config) {
 		writel(regs->zq_config, &emif_reg[nr]->emif_zq_config);
 		writel(regs->sdram_config, &cstat->secure_emif_sdram_config);
-		writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
 
 		/* Trigger initialization */
 		writel(0x00003100, &emif_reg[nr]->emif_sdram_ref_ctrl);
+		writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
 		/* Wait 1ms because of L3 timeout error */
 		udelay(1000);
 

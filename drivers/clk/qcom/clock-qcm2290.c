@@ -73,7 +73,7 @@ static const struct pll_vote_clk gpll6_clk = {
 	.status = 0x6000,
 	.status_bit = BIT(31),
 	.ena_vote = 0x79000,
-	.vote_bit = BIT(7),
+	.vote_bit = BIT(6),
 };
 
 static const struct gate_clk qcm2290_clks[] = {

@@ -108,8 +108,6 @@
  */
 #define CFG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux	*/
 
-#define CFG_ENV_FLAGS_LIST_STATIC "ethaddr:mw,eth1addr:mw,system1_addr:xw,serial#:sw,ethact:sw,ethprime:sw"
-
 /* pass open firmware flat tree */
 
 #endif	/* __CONFIG_H */

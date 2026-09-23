@@ -9,6 +9,7 @@
 #include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <dm/of_access.h>
 #include <dt-bindings/clock/imx6qdl-clock.h>
 
 #include "clk.h"
@@ -46,6 +47,33 @@ static struct clk_ops imx6q_clk_ops = {
 	.disable = ccf_clk_disable,
 };
 
+static const char *const pll_bypass_src_sels[] = {
+	"osc",
+	"lvds1_in",
+	"lvds2_in",
+	"dummy",
+};
+
+static const char *const pll2_bypass_sels[] = {
+	"pll2",
+	"pll2_bypass_src",
+};
+
+static const char *const pll3_bypass_sels[] = {
+	"pll3",
+	"pll3_bypass_src",
+};
+
+static const char *const pll5_bypass_sels[] = {
+	"pll5",
+	"pll5_bypass_src",
+};
+
+static const char *const pll6_bypass_sels[] = {
+	"pll6",
+	"pll6_bypass_src",
+};
+
 static const char *const usdhc_sels[] = {
 	"pll2_pfd2_396m",
 	"pll2_pfd0_352m",
@@ -72,6 +100,23 @@ static const char *const ecspi_sels[] = {
 	"pll3_60m",
 	"osc",
 };
+
+static const struct clk_div_table post_div_table[] = {
+	{ .val = 2, .div = 1, },
+	{ .val = 1, .div = 2, },
+	{ .val = 0, .div = 4, },
+	{ /* sentinel */ }
+};
+
+static const struct clk_div_table video_div_table[] = {
+	{ .val = 0, .div = 1, },
+	{ .val = 1, .div = 2, },
+	{ .val = 2, .div = 1, },
+	{ .val = 3, .div = 4, },
+	{ /* sentinel */ }
+};
+
+#if CONFIG_IS_ENABLED(VIDEO)
 static const char *const ipu_sels[] = {
 	"mmdc_ch0_axi",
 	"pll2_pfd2_396m",
@@ -113,6 +158,122 @@ static const char *ipu2_di1_sels_2[] = {
 
 static unsigned int share_count_mipi_core_cfg;
 
+static void of_assigned_ldb_sels(struct udevice *dev, int *ldb_di0_sel,
+				 int *ldb_di1_sel)
+{
+	struct ofnode_phandle_args clk_args, parent_args;
+	ofnode node = dev_ofnode(dev);
+	int count, err;
+
+	count = dev_count_phandle_with_args(dev, "assigned-clocks",
+					    "#clock-cells", 0);
+	if (count <= 0) {
+		if (count == 0)
+			debug("%s: no assigned_clocks found\n", dev->name);
+		else
+			pr_err("%s: failed to get phandle count (%d)\n",
+			       dev->name, count);
+		return;
+	}
+
+	for (int i = 0; i < count; i++) {
+		err = dev_read_phandle_with_args(dev, "assigned-clocks",
+						 "#clock-cells", 0, i,
+						 &clk_args);
+		if (err == -ENOENT)
+			/* Skip empty handles */
+			continue;
+		else if (err < 0)
+			return;
+
+		if (!ofnode_equal(clk_args.node, node) ||
+		    clk_args.args[0] >= IMX6QDL_CLK_END) {
+			pr_err("%s: clock %d not in ccm\n", dev->name, i);
+			return;
+		}
+
+		err = dev_read_phandle_with_args(dev, "assigned-clock-parents",
+						 "#clock-cells", 0, i,
+						 &parent_args);
+		if (err < 0)
+			return;
+
+		if (!ofnode_equal(parent_args.node, node) ||
+		    parent_args.args[0] >= IMX6QDL_CLK_END) {
+			pr_err("%s: parent clock %d not in ccm\n", dev->name,
+			       i);
+			return;
+		}
+
+		if (clk_args.args[0] == IMX6QDL_CLK_LDB_DI0_SEL)
+			*ldb_di0_sel = parent_args.args[0];
+		else if (clk_args.args[0] == IMX6QDL_CLK_LDB_DI1_SEL)
+			*ldb_di1_sel = parent_args.args[0];
+	}
+}
+
+static void imx6q_init_ldb_clks(struct udevice *dev)
+{
+	int ldb_di_sel[] = { IMX6QDL_CLK_END, IMX6QDL_CLK_END };
+	enum ldb_di_clock ldb_di_clk[] = { MXC_MMDC_CH1_CLK, MXC_MMDC_CH1_CLK };
+
+	of_assigned_ldb_sels(dev, &ldb_di_sel[0], &ldb_di_sel[1]);
+	for (int i = 0; i < 2; i++) {
+		switch (ldb_di_sel[i]) {
+		case IMX6QDL_CLK_PLL5_VIDEO_DIV:
+			ldb_di_clk[i] = MXC_PLL5_CLK;
+			break;
+		case IMX6QDL_CLK_PLL2_PFD0_352M:
+			ldb_di_clk[i] = MXC_PLL2_PFD0_CLK;
+			break;
+		case IMX6QDL_CLK_PLL2_PFD2_396M: {
+			struct clk *clk, *parent;
+
+			int err = clk_get_by_id(IMX6QDL_CLK_PERIPH_PRE, &clk);
+
+			if (err) {
+				pr_err("%s: failed to get periph_pre clock "
+				       "(%d)\n",
+				       dev->name, err);
+				return;
+			}
+
+			err = clk_get_by_id(IMX6QDL_CLK_PLL2_PFD2_396M,
+					    &parent);
+			if (err) {
+				pr_err("%s: failed to get pll2_pfd2_396m clock"
+				       " (%d)\n",
+				       dev->name, err);
+				return;
+			}
+
+			if (parent == clk) {
+				pr_err("%s: ldb_di%d_sel: couldn't disable "
+				       "pll2_pfd2_396m clock\n",
+				       dev->name, i);
+				return;
+			}
+
+			ldb_di_clk[i] = MXC_PLL2_PFD2_CLK;
+			break;
+		}
+		case IMX6QDL_CLK_MMDC_CH1_AXI:
+		case IMX6QDL_CLK_END:
+			/* use the default clock */
+			break;
+		case IMX6QDL_CLK_PLL3_USB_OTG:
+			ldb_di_clk[i] = MXC_PLL3_SW_CLK;
+			break;
+		default:
+			pr_err("%s: invalid LDB clock parent\n", dev->name);
+			return;
+		}
+	}
+
+	select_ldb_di_clock_source(ldb_di_clk[0], ldb_di_clk[1]);
+}
+#endif /* CONFIG_IS_ENABLED(VIDEO) */
+
 static int imx6q_clk_probe(struct udevice *dev)
 {
 	void *base;
@@ -120,26 +281,70 @@ static int imx6q_clk_probe(struct udevice *dev)
 	/* Anatop clocks */
 	base = (void *)ANATOP_BASE_ADDR;
 
-	clk_dm(IMX6QDL_CLK_PLL2,
-	       imx_clk_pllv3(dev, IMX_PLLV3_GENERIC, "pll2_bus", "osc",
-			     base + 0x30, 0x1));
+	clk_dm(IMX6QDL_PLL2_BYPASS_SRC,
+	       imx_clk_mux(dev, "pll2_bypass_src", base + 0x30, 14, 2,
+			   pll_bypass_src_sels,
+			   ARRAY_SIZE(pll_bypass_src_sels)));
+	clk_dm(IMX6QDL_PLL3_BYPASS_SRC,
+	       imx_clk_mux(dev, "pll3_bypass_src", base + 0x10, 14, 2,
+			   pll_bypass_src_sels,
+			   ARRAY_SIZE(pll_bypass_src_sels)));
+	clk_dm(IMX6QDL_PLL5_BYPASS_SRC,
+	       imx_clk_mux(dev, "pll5_bypass_src", base + 0xa0, 14, 2,
+			   pll_bypass_src_sels,
+			   ARRAY_SIZE(pll_bypass_src_sels)));
+	clk_dm(IMX6QDL_PLL6_BYPASS_SRC,
+	       imx_clk_mux(dev, "pll6_bypass_src", base + 0xe0, 14, 2,
+			   pll_bypass_src_sels,
+			   ARRAY_SIZE(pll_bypass_src_sels)));
+
+	clk_dm(IMX6QDL_CLK_PLL2, imx_clk_pllv3(dev, IMX_PLLV3_GENERIC, "pll2",
+					       "osc", base + 0x30, 0x1));
+	clk_dm(IMX6QDL_CLK_PLL3, imx_clk_pllv3(dev, IMX_PLLV3_USB, "pll3",
+					       "osc", base + 0x10, 0x3));
+	clk_dm(IMX6QDL_CLK_PLL5, imx_clk_pllv3(dev, IMX_PLLV3_AV, "pll5", "osc",
+					       base + 0xa0, 0x7f));
+	clk_dm(IMX6QDL_CLK_PLL6, imx_clk_pllv3(dev, IMX_PLLV3_ENET, "pll6",
+					       "osc", base + 0xe0, 0x3));
+
+	clk_dm(IMX6QDL_PLL2_BYPASS,
+	       imx_clk_mux_flags(dev, "pll2_bypass", base + 0x30, 16, 1,
+				 pll2_bypass_sels, ARRAY_SIZE(pll2_bypass_sels),
+				 CLK_SET_RATE_PARENT));
+	clk_dm(IMX6QDL_PLL3_BYPASS,
+	       imx_clk_mux_flags(dev, "pll3_bypass", base + 0x10, 16, 1,
+				 pll3_bypass_sels, ARRAY_SIZE(pll3_bypass_sels),
+				 CLK_SET_RATE_PARENT));
+	clk_dm(IMX6QDL_PLL5_BYPASS,
+	       imx_clk_mux_flags(dev, "pll5_bypass", base + 0xa0, 16, 1,
+				 pll5_bypass_sels, ARRAY_SIZE(pll5_bypass_sels),
+				 CLK_SET_RATE_PARENT));
+	clk_dm(IMX6QDL_PLL6_BYPASS,
+	       imx_clk_mux_flags(dev, "pll6_bypass", base + 0xe0, 16, 1,
+				 pll6_bypass_sels, ARRAY_SIZE(pll6_bypass_sels),
+				 CLK_SET_RATE_PARENT));
+
+	SET_CLK_PARENT(IMX6QDL_PLL2_BYPASS, IMX6QDL_CLK_PLL2);
+	SET_CLK_PARENT(IMX6QDL_PLL3_BYPASS, IMX6QDL_CLK_PLL3);
+	SET_CLK_PARENT(IMX6QDL_PLL5_BYPASS, IMX6QDL_CLK_PLL5);
+	SET_CLK_PARENT(IMX6QDL_PLL6_BYPASS, IMX6QDL_CLK_PLL6);
+
+	clk_dm(IMX6QDL_CLK_PLL2_BUS,
+	       imx_clk_gate(dev, "pll2_bus", "pll2_bypass", base + 0x30, 13));
 	clk_dm(IMX6QDL_CLK_PLL3_USB_OTG,
-	       imx_clk_pllv3(dev, IMX_PLLV3_USB, "pll3_usb_otg", "osc",
-			     base + 0x10, 0x3));
+	       imx_clk_gate(dev, "pll3_usb_otg", "pll3_bypass", base + 0x10,
+			    13));
+	clk_dm(IMX6QDL_CLK_PLL5_VIDEO,
+	       imx_clk_gate(dev, "pll5_video", "pll5_bypass", base + 0xa0, 13));
+	clk_dm(IMX6QDL_CLK_PLL6_ENET,
+	       imx_clk_gate(dev, "pll6_enet", "pll6_bypass", base + 0xe0, 13));
+
 	clk_dm(IMX6QDL_CLK_PLL3_60M,
 	       imx_clk_fixed_factor(dev, "pll3_60m", "pll3_usb_otg", 1, 8));
 	clk_dm(IMX6QDL_CLK_PLL3_80M,
 	       imx_clk_fixed_factor(dev, "pll3_80m", "pll3_usb_otg", 1, 6));
 	clk_dm(IMX6QDL_CLK_PLL3_120M,
 	       imx_clk_fixed_factor(dev, "pll3_120m", "pll3_usb_otg", 1, 4));
-	clk_dm(IMX6QDL_CLK_PLL5, imx_clk_pllv3(dev, IMX_PLLV3_AV, "pll5", "osc",
-					       base + 0xa0, 0x7f));
-	clk_dm(IMX6QDL_CLK_PLL5_VIDEO,
-	       imx_clk_gate(dev, "pll5_video", "pll5", base + 0xa0, 13));
-	clk_dm(IMX6QDL_CLK_PLL6, imx_clk_pllv3(dev, IMX_PLLV3_ENET, "pll6",
-					       "osc", base + 0xe0, 0x3));
-	clk_dm(IMX6QDL_CLK_PLL6_ENET,
-	       imx_clk_gate(dev, "pll6_enet", "pll6", base + 0xe0, 13));
 
 	clk_dm(IMX6QDL_CLK_PLL2_PFD0_352M,
 	       imx_clk_pfd("pll2_pfd0_352m", "pll2_bus", base + 0x100, 0));
@@ -151,10 +356,14 @@ static int imx6q_clk_probe(struct udevice *dev)
 	clk_dm(IMX6QDL_CLK_PLL2_198M,
 	       imx_clk_fixed_factor(dev, "pll2_198m", "pll2_pfd2_396m", 1, 2));
 	clk_dm(IMX6QDL_CLK_PLL5_POST_DIV,
-	       imx_clk_fixed_factor(dev, "pll5_post_div", "pll5_video", 1, 1));
+	       clk_register_divider_table(dev, "pll5_post_div", "pll5_video",
+					  CLK_SET_RATE_PARENT, base + 0xa0, 19,
+					  2, 0, post_div_table));
 	clk_dm(IMX6QDL_CLK_PLL5_VIDEO_DIV,
-	       imx_clk_fixed_factor(dev, "pll5_video_div", "pll5_post_div", 1,
-				    1));
+	       clk_register_divider_table(dev, "pll5_video_div",
+					  "pll5_post_div", CLK_SET_RATE_PARENT,
+					  base + 0x170, 30, 2, 0,
+					  video_div_table));
 	clk_dm(IMX6QDL_CLK_VIDEO_27M,
 	       imx_clk_fixed_factor(dev, "video_27m", "pll3_pfd1_540m", 1,
 				    20));
@@ -263,6 +472,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_gate2(dev, "mmdc_ch1_axi", "mmdc_ch1_axi_podf",
 			     base + 0x74, 22));
 
+#if CONFIG_IS_ENABLED(VIDEO)
 	clk_dm(IMX6QDL_CLK_IPU1_SEL,
 	       imx_clk_mux(dev, "ipu1_sel", base + 0x3c, 9, 2, ipu_sels,
 			   ARRAY_SIZE(ipu_sels)));
@@ -279,9 +489,12 @@ static int imx6q_clk_probe(struct udevice *dev)
 				   ldb_di_sels, ARRAY_SIZE(ldb_di_sels)));
 	} else {
 		/*
-                 * Need to set these as read-only due to a hardware bug.
-                 * Keeping default mux values. Fixed on the i.MX6 QuadPlus
-                 */
+		 * Need to set these as read-only due to a hardware bug.
+		 * Keeping default mux values. Fixed on the i.MX6 QuadPlus
+		 * Need to set the clocks now and make them read-only due to a
+		 * hardware bug. Fixed on the i.MX6 QuadPlus
+		 */
+		imx6q_init_ldb_clks(dev);
 		clk_dm(IMX6QDL_CLK_LDB_DI0_SEL,
 		       imx_clk_mux_flags(dev, "ldb_di0_sel", base + 0x2c, 9, 3,
 					 ldb_di_sels, ARRAY_SIZE(ldb_di_sels),
@@ -413,6 +626,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 					 ARRAY_SIZE(ipu2_di1_sels),
 					 CLK_SET_RATE_PARENT));
 	}
+#endif /* CONFIG_IS_ENABLED(VIDEO) */
 
 	clk_dm(IMX6QDL_CLK_ECSPI1,
 	       imx_clk_gate2(dev, "ecspi1", "ecspi_root", base + 0x6c, 0));
@@ -453,6 +667,8 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_gate2(dev, "enet", "ipg", base + 0x6c, 10));
 	clk_dm(IMX6QDL_CLK_ENET_REF,
 	       imx_clk_fixed_factor(dev, "enet_ref", "pll6_enet", 1, 1));
+
+#if CONFIG_IS_ENABLED(VIDEO)
 	clk_dm(IMX6QDL_CLK_MIPI_CORE_CFG,
 	       imx_clk_gate2_shared(dev, "mipi_core_cfg", "video_27m",
 				    base + 0x74, 16,
@@ -480,6 +696,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 		SET_CLK_PARENT(IMX6QDL_CLK_IPU1_SEL,
 			       IMX6QDL_CLK_PLL3_PFD1_540M);
 	}
+#endif /* CONFIG_IS_ENABLED(VIDEO) */
 
 	return 0;
 }

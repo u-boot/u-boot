@@ -95,6 +95,7 @@ static const struct {
 		"system", "EFI System Partition",
 		PARTITION_SYSTEM_GUID,
 	},
+#endif /* EFI_PARTITION */
 #if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI_CLIENT)
 	{
 		NULL, "Device Path",
@@ -304,7 +305,6 @@ static const struct {
 	{ "EFI_MEM_STATUS_CODE_REC", NULL, EFI_MEM_STATUS_CODE_REC },
 	{ "EFI_GUID_EFI_ACPI1", NULL, EFI_GUID_EFI_ACPI1 },
 #endif
-#endif /* EFI_PARTITION */
 #endif /* !USE_HOSTCC */
 };
 

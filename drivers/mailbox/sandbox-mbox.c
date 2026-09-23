@@ -86,7 +86,7 @@ static const struct udevice_id sandbox_mbox_ids[] = {
 	{ }
 };
 
-struct mbox_ops sandbox_mbox_mbox_ops = {
+static const struct mbox_ops sandbox_mbox_mbox_ops = {
 	.request = sandbox_mbox_request,
 	.rfree = sandbox_mbox_free,
 	.send = sandbox_mbox_send,

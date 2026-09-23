@@ -102,11 +102,6 @@ static bool is_edpu_plus(void)
 		return false;
 }
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int board_init(void)
 {
 	/* adress of boot parameters */

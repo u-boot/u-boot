@@ -12,18 +12,18 @@
  * PHY addresses are 0x08 - 0x0b.
  * On the card the first port is the top port (farthest from PEX connector).
  */
-phy@08 {
+phy@8 {
 	reg = <0x08>;
 };
 
-phy@09 {
+phy@9 {
 	reg = <0x09>;
 };
 
-phy@0a {
+phy@a {
 	reg = <0x0a>;
 };
 
-phy@0b {
+phy@b {
 	reg = <0x0b>;
 };

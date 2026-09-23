@@ -19,7 +19,6 @@
 #include <dm/of_access.h>
 #include <linux/bitfield.h>
 #include <linux/delay.h>
-#include <linux/err.h>
 #include <linux/io.h>
 #include <linux/usb/dwc3.h>
 #include <linux/usb/otg.h>
@@ -351,8 +350,8 @@ static int octeon_dwc3_glue_probe(struct udevice *dev)
 	void __iomem *base;
 
 	base = dev_remap_addr(dev);
-	if (IS_ERR(base))
-		return PTR_ERR(base);
+	if (!base)
+		return -EINVAL;
 
 	dwc3_octeon_clocks_start(dev, base);
 	dwc3_octeon_set_endian_mode(base);

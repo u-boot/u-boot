@@ -14,261 +14,104 @@ Renesas SoC based boards
 
 Renesas is a SoC solutions provider for automotive and industrial applications.
 
-.. list-table:: Supported Renesas SoC based boards
-   :widths: 10, 25, 15, 10, 25
-   :header-rows: 1
+.. table:: Supported Renesas SoC based boards
 
-   * - Family
-     - Board
-     - SoC
-     - Arch
-     - defconfig
+   +--------+------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
+   | Family | Generation       | Architecture                     | SoC                | Core               | Board                                        | defconfig                        |
+   +========+==================+==================================+====================+====================+==============================================+==================================+
+   | R2D    |                  | :doc:`SH <build-env-sh>`         | SH7751             | SH4                | R2D-PLUS                                     | r2dplus_defconfig                |
+   +--------+------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
+   | R-Car  |                  |                                  |                    |                    | Lager                                        | lager_defconfig                  |
+   |        |                  |                                  | R8A7790 (H2)       | Cortex A7 or A15   +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Stout                                        | stout_defconfig                  |
+   |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Koelsch                                      | koelsch_defconfig                |
+   |        |                  |                                  | R8A7791 (M2-W)     |                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    | Cortex A15         | Porter                                       | porter_defconfig                 |
+   |        | Gen2             | :doc:`arm <build-env-aarch32>`   +--------------------+                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  | R8A7792 (V2H)      |                    | Blanche                                      | blanche_defconfig                |
+   |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  | R8A7793 (M2-N)     | Cortex A7 or A15   | Gose                                         | gose_defconfig                   |
+   |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Alt                                          | alt_defconfig                    |
+   |        |                  |                                  | R8A7794 (E2)       | Cortex A7          +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Silk                                         | silk_defconfig                   |
+   |        +------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | :doc:`Salvator-X(S) <rcar-gen3-salvator-x>`  | rcar3_salvator-x_defconfig       |
+   |        |                  |                                  | R8A77951 (H3)      |                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | :doc:`ULCB <rcar-gen3-ulcb>`                 | rcar3_ulcb_defconfig             |
+   |        |                  |                                  +--------------------+                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | :doc:`Salvator-X(S) <rcar-gen3-salvator-x>`  | rcar3_salvator-x_defconfig       |
+   |        |                  |                                  | R8A77960 (M3-W)    | Cortex A53 or A57  +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | :doc:`ULCB <rcar-gen3-ulcb>`                 | rcar3_ulcb_defconfig             |
+   |        |                  |                                  +--------------------+                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | :doc:`Salvator-X(S) <rcar-gen3-salvator-x>`  | rcar3_salvator-x_defconfig       |
+   |        |                  |                                  | R8A77965 (M3-N)    |                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | :doc:`ULCB <rcar-gen3-ulcb>`                 | rcar3_ulcb_defconfig             |
+   |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        | Gen3             | :doc:`arm64 <build-env-aarch64>` | R8A779MD (M3Le)    | Cortex A57         | :doc:`Geist <rcar-gen3-geist>`               | r8a779md_geist_defconfig         |
+   |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Eagle                                        | r8a77970_eagle_defconfig         |
+   |        |                  |                                  | R8A77970 (V3M)     |                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | V3MSK                                        | r8a77970_v3msk_defconfig         |
+   |        |                  |                                  +--------------------+                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Condor                                       | r8a77980_condor_defconfig        |
+   |        |                  |                                  | R8A77980 (V3H)     | Cortex A53         +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | V3HSK                                        | r8a77980_v3hsk_defconfig         |
+   |        |                  |                                  +--------------------+                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  | R8A77990 (E3)      |                    | :doc:`Ebisu <rcar-gen3-ebisu>`               | r8a77990_ebisu_defconfig         |
+   |        |                  |                                  +--------------------+                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  | R8A77995 (D3)      |                    | :doc:`Draak <rcar-gen3-draak>`               | r8a77995_draak_defconfig         |
+   |        +------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  | R8A779A0 (V3U)     | Cortex A76         | Falcon                                       | r8a779a0_falcon_defconfig        |
+   |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Spider                                       | r8a779f0_spider_defconfig        |
+   |        |                  |                                  | R8A779F0 (S4)      | Cortex A55         +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | S4SK                                         | r8a779f4_s4sk_defconfig          |
+   |        | Gen4             | :doc:`arm64 <build-env-aarch64>` +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | White Hawk                                   | r8a779g0_whitehawk_defconfig     |
+   |        |                  |                                  | R8A779G3 (V4H)     |                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    | Cortex A76         | :doc:`Sparrow Hawk <rcar-gen4-sparrow-hawk>` | r8a779g3_sparrowhawk_defconfig   |
+   |        |                  |                                  +--------------------+                    +----------------------------------------------+----------------------------------+
+   |        |                  |                                  | R8A779H0 (V4M)     |                    | Gray Hawk                                    | r8a779h0_grayhawk_defconfig      |
+   |        +------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  | :doc:`arm <build-env-aarch32>`   |                    | Cortex M33 RSIP    |                                              | r8a78000_ironhide_cm33_defconfig |
+   |        | Gen5             +----------------------------------+ R8A78000 (X5H)     +--------------------+ :doc:`Ironhide <rcar-gen5-ironhide>`         +----------------------------------+
+   |        |                  | :doc:`arm64 <build-env-aarch64>` |                    | Cortex A720AE      |                                              | r8a78000_ironhide_defconfig      |
+   +--------+------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
+   | RZ     | A1               | :doc:`arm <build-env-aarch32>`   | R7S72100 (RZ/A1H)  | Cortex A9          | GR-PEACH                                     | grpeach_defconfig                |
+   |        +------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Beacon EmbeddedWorks RZ/G2M SoM              | rzg2_beacon_defconfig            |
+   |        |                  |                                  | R8A774A1 (RZ/G2M)  | Cortex A53 or A57  +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | HopeRun HiHope RZ/G2M                        | hihope_rzg2_defconfig            |
+   |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Beacon EmbeddedWorks RZ/G2N SoM              | rzg2_beacon_defconfig            |
+   |        | G2               | :doc:`arm64 <build-env-aarch64>` | R8A774B1 (RZ/G2N)  | Cortex A57         +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | HopeRun HiHope RZ/G2N                        | hihope_rzg2_defconfig            |
+   |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  | R8A774C0 (RZ/G2E)  | Cortex A53         | Silicon Linux RZ/G2E evaluation kit (EK874)  | silinux_ek874_defconfig          |
+   |        |                  |                                  +--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | Beacon EmbeddedWorks RZ/G2H SoM              | rzg2_beacon_defconfig            |
+   |        |                  |                                  | R8A774E1 (RZ/G2H)  | Cortex A53 or A57  +----------------------------------------------+----------------------------------+
+   |        |                  |                                  |                    |                    | HopeRun HiHope RZ/G2H                        | hihope_rzg2_defconfig            |
+   +--------+------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
+   |        |                  |                                  | R9A06G032 (RZ/N1D) |                    | Schneider RZ/N1D board                       | rzn1_snarc_defconfig             |
+   |        | :doc:`N1 <rzn1>` | :doc:`arm <build-env-aarch32>`   +--------------------+ Cortex A7          +----------------------------------------------+----------------------------------+
+   |        |                  |                                  | R9A06G033 (RZ/N1S) |                    | Schneider RZ/N1S board                       | rzn1_snarc_defconfig             |
+   +--------+------------------+----------------------------------+--------------------+--------------------+----------------------------------------------+----------------------------------+
 
-   * - R2D
-     - R2D-PLUS
-     - SH7751
-     - sh
-     - r2dplus_defconfig
+Generic build procedure
+-----------------------
 
-   * - RZ/A1
-     - GR-PEACH
-     - R7S72100 (RZ/A1H)
-     - arm
-     - grpeach_defconfig
+This procedure applies only unless the ``Board`` column in
+the table above does not contain a link to board specific
+details.
 
-   * - R-Car Gen2
-     - Lager
-     - R8A7790 (H2)
-     - arm
-     - lager_defconfig
+Locate the appropriate defconfig in the table above.
+Follow toolchain setup procedure in ``Architecture`` column.
+Finally, apply standard build procedure:
 
-   * -
-     - Stout
-     - R8A7790 (H2)
-     - arm
-     - stout_defconfig
-
-   * -
-     - Koelsch
-     - R8A7791 (M2-W)
-     - arm
-     - koelsch_defconfig
-
-   * -
-     - Porter
-     - R8A7791 (M2-W)
-     - arm
-     - porter_defconfig
-
-   * -
-     - Blanche
-     - R8A7792 (V2H)
-     - arm
-     - blanche_defconfig
-
-   * -
-     - Gose
-     - R8A7793 (M2-N)
-     - arm
-     - gose_defconfig
-
-   * -
-     - Alt
-     - R8A7794 (E2)
-     - arm
-     - alt_defconfig
-
-   * -
-     - Silk
-     - R8A7794 (E2)
-     - arm
-     - silk_defconfig
-
-   * - R-Car Gen3
-     - Salvator-X(S)
-     - R8A77951 (H3)
-     - arm64
-     - rcar3_salvator-x_defconfig
-
-   * -
-     - ULCB
-     - R8A77951 (H3)
-     - arm64
-     - rcar3_ulcb_defconfig
-
-   * -
-     - Salvator-X(S)
-     - R8A77960 (M3-W)
-     - arm64
-     - rcar3_salvator-x_defconfig
-
-   * -
-     - ULCB
-     - R8A77960 (M3-W)
-     - arm64
-     - rcar3_ulcb_defconfig
-
-   * -
-     - Salvator-X(S)
-     - R8A77965 (M3-N)
-     - arm64
-     - rcar3_salvator-x_defconfig
-
-   * -
-     - ULCB
-     - R8A77965 (M3-N)
-     - arm64
-     - rcar3_ulcb_defconfig
-
-   * -
-     - Geist
-     - R8A779MD (M3Le)
-     - arm64
-     - r8a779md_geist_defconfig
-
-   * -
-     - Eagle
-     - R8A77970 (V3M)
-     - arm64
-     - r8a77970_eagle_defconfig
-
-   * -
-     - V3MSK
-     - R8A77970 (V3M)
-     - arm64
-     - r8a77970_v3msk_defconfig
-
-   * -
-     - Condor
-     - R8A77980 (V3H)
-     - arm64
-     - r8a77980_condor_defconfig
-
-   * -
-     - V3HSK
-     - R8A77980 (V3H)
-     - arm64
-     - r8a77980_v3hsk_defconfig
-
-   * -
-     - Ebisu
-     - R8A77990 (E3)
-     - arm64
-     - r8a77990_ebisu_defconfig
-
-   * -
-     - Draak
-     - R8A77995 (D3)
-     - arm64
-     - r8a77995_draak_defconfig
-
-   * - R-Car Gen4
-     - Falcon
-     - R8A779A0 (V3U)
-     - arm64
-     - r8a779a0_falcon_defconfig
-
-   * -
-     - Spider
-     - R8A779F0 (S4)
-     - arm64
-     - r8a779f0_spider_defconfig
-
-   * -
-     - S4SK
-     - R8A779F4 (S4)
-     - arm64
-     - r8a779f4_s4sk_defconfig
-
-   * -
-     - White Hawk
-     - R8A779G0 (V4H)
-     - arm64
-     - r8a779g0_whitehawk_defconfig
-
-   * -
-     - Sparrow Hawk
-     - R8A779G3 (V4H)
-     - arm64
-     - r8a779g3_sparrowhawk_defconfig
-
-   * -
-     - Gray Hawk
-     - R8A779H0 (V4M)
-     - arm64
-     - r8a779h0_grayhawk_defconfig
-
-   * - R-Car Gen5
-     - Ironhide (Cortex-A720AE application core)
-     - R8A78000 (X5H)
-     - arm64
-     - r8a78000_ironhide_defconfig
-
-   * -
-     - Ironhide (Cortex-M33 RSIP boot core)
-     - R8A78000 (X5H)
-     - arm64
-     - r8a78000_ironhide_cm33_defconfig
-
-   * - RZ/G2 Family
-     - Beacon EmbeddedWorks RZ/G2M SoM
-     - R8A774A1 (RZ/G2M)
-     - arm64
-     - rzg2_beacon_defconfig
-
-   * -
-     - HopeRun HiHope RZ/G2M
-     - R8A774A1 (RZ/G2M)
-     - arm64
-     - hihope_rzg2_defconfig
-
-   * -
-     - Beacon EmbeddedWorks RZ/G2N SoM
-     - R8A774B1 (RZ/G2N)
-     - arm64
-     - rzg2_beacon_defconfig
-
-   * -
-     - HopeRun HiHope RZ/G2N
-     - R8A774B1 (RZ/G2N)
-     - arm64
-     - hihope_rzg2_defconfig
-
-   * -
-     - Silicon Linux RZ/G2E evaluation kit (EK874)
-     - R8A774C0 (RZ/G2E)
-     - arm64
-     - silinux_ek874_defconfig
-
-   * -
-     - Beacon EmbeddedWorks RZ/G2H SoM
-     - R8A774E1 (RZ/G2H)
-     - arm64
-     - rzg2_beacon_defconfig
-
-   * -
-     - HopeRun HiHope RZ/G2H
-     - R8A774E1 (RZ/G2H)
-     - arm64
-     - hihope_rzg2_defconfig
-
-   * - :doc:`RZ/N1 Family <rzn1>`
-     - Schneider RZ/N1D board
-     - R9A06G032 (RZ/N1D)
-     - arm
-     - rzn1_snarc_defconfig
-
-   * -
-     - Schneider RZ/N1S board
-     - R9A06G033 (RZ/N1S)
-     - arm
-     - rzn1_snarc_defconfig
-
-Build
------
-
-Locate the appropriate defconfig in the table above. Then apply standard build
-procedure::
+.. code-block:: console
 
     make <board_defconfig>
     make

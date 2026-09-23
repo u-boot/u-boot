@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0+
 
 VERSION = 2026
-PATCHLEVEL = 07
+PATCHLEVEL = 10
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc5
 NAME =
 
 # *DOCUMENTATION*
@@ -829,6 +829,21 @@ autoconf_is_old := $(shell find . -path ./$(KCONFIG_CONFIG) -newer \
 						include/config/auto.conf)
 ifeq ($(autoconf_is_old),)
 include $(srctree)/config.mk
+
+ifeq ($(CONFIG_OF_UPSTREAM),y)
+ifeq ($(CONFIG_CPU_V8M),y)
+dt_dir := dts/upstream/src/arm64
+else
+ifeq ($(CONFIG_ARM64),y)
+dt_dir := dts/upstream/src/arm64
+else
+dt_dir := dts/upstream/src/$(ARCH)
+endif
+endif
+else
+dt_dir := arch/$(ARCH)/dts
+endif
+
 include $(srctree)/arch/$(ARCH)/Makefile
 endif
 endif
@@ -1222,7 +1237,7 @@ INPUTS-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
 INPUTS-$(CONFIG_VPL) += vpl/u-boot-vpl.bin
 
 # Allow omitting the .dtb output if it is not normally used
-INPUTS-$(CONFIG_OF_SEPARATE) += $(if $(CONFIG_OF_OMIT_DTB),dts/dt.dtb,u-boot.dtb)
+INPUTS-$(CONFIG_OF_SEPARATE) += $(if $(CONFIG_OF_OMIT_DTB),,u-boot.dtb)
 ifeq ($(CONFIG_SPL_FRAMEWORK),y)
 INPUTS-$(CONFIG_OF_SEPARATE) += u-boot-dtb.img
 endif
@@ -1440,24 +1455,12 @@ dtbs_check: dt_binding_check dtbs
 
 DT_BINDING_DIR := dts/upstream/Bindings
 dt_binding_check: scripts_dtc
-	$(Q)$(MAKE) $(build)=$(DT_BINDING_DIR) $(DT_BINDING_DIR)/processed-schema.json
+	$(Q)$(MAKE) $(build)=$(DT_BINDING_DIR) srctree=$(abspath $(srctree)) \
+		src=$(abspath $(srctree))/$(DT_BINDING_DIR) \
+		$(DT_BINDING_DIR)/processed-schema.json
 
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
-
-ifeq ($(CONFIG_OF_UPSTREAM),y)
-ifeq ($(CONFIG_CPU_V8M),y)
-dt_dir := dts/upstream/src/arm64
-else
-ifeq ($(CONFIG_ARM64),y)
-dt_dir := dts/upstream/src/arm64
-else
-dt_dir := dts/upstream/src/$(ARCH)
-endif
-endif
-else
-dt_dir := arch/$(ARCH)/dts
-endif
 
 ifeq ($(CONFIG_MULTI_DTB_FIT),y)
 
@@ -1475,7 +1478,8 @@ fit-dtb.blob.gz: fit-dtb.blob
 fit-dtb.blob.lzo: fit-dtb.blob
 	@lzop -f9 $< > $@
 
-fit-dtb.blob: dts/dt.dtb FORCE
+of_list_srcs := $(patsubst %,$(dt_dir)/%.dts,$(subst ",,$(CONFIG_OF_LIST)))
+fit-dtb.blob: dts/dt.dtb $(of_list_srcs) FORCE
 	$(call if_changed,mkimage)
 ifneq ($(SOURCE_DATE_EPOCH),)
 	touch -d @$(SOURCE_DATE_EPOCH) fit-dtb.blob
@@ -1613,12 +1617,18 @@ endif
 # The 1/4 margin below is somewhat arbitrary. The likely initial SP usage is
 # so low that the DTB could probably use 90%+ of the available space, for
 # current values of CONFIG_SYS_INIT_SP_BSS_OFFSET at least. However, let's be
-# safe for now and tweak this later if space becomes tight.
+# safe for now and tweak this later if space becomes tight. When we omit the
+# DTB we simply have to have accounted for this when configuring U-Boot.
 # A rejected alternative would be to check that some absolute minimum stack
 # space was available. However, since CONFIG_SYS_INIT_SP_BSS_OFFSET is
 # deliberately build-specific, to take account of build-to-build stack usage
 # differences due to different feature sets, there is no common absolute value
 # to check against.
+ifneq ($(CONFIG_OF_OMIT_DTB),)
+init_sp_bss_offset_check: FORCE
+	space=$(CONFIG_SYS_INIT_SP_BSS_OFFSET) ; \
+	$(subtract_sys_malloc_f_len)
+else
 init_sp_bss_offset_check: u-boot.dtb FORCE
 	@dtb_size=$(shell wc -c u-boot.dtb | awk '{print $$1}') ; \
 	space=$(CONFIG_SYS_INIT_SP_BSS_OFFSET) ; \
@@ -1629,6 +1639,7 @@ init_sp_bss_offset_check: u-boot.dtb FORCE
 		echo "(CONFIG_SYS_INIT_SP_BSS_OFFSET - CONFIG_SYS_MALLOC_F_LEN)" >&2 ; \
 		exit 1 ; \
 	fi
+endif
 endif
 
 shell_cmd = { $(call echo-cmd,$(1)) $(cmd_$(1)); }
@@ -1688,6 +1699,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-I . -I $(srctree)/board/$(BOARDDIR) -I $(srctree) \
 		$(foreach f,$(of_list_dirs),-I $(f)) -a of-list=$(of_list) \
 		$(foreach f,$(BINMAN_INDIRS),-I $(f)) \
+		$(if $(KEYDIR),-a keydir=$(KEYDIR)) \
 		-a atf-bl1-path=${BL1} \
 		-a atf-bl31-path=${BL31} \
 		-a tee-os-path=${TEE} \
@@ -2002,6 +2014,7 @@ u-boot-with-spl-pbl.bin: spl/u-boot-spl.pbl $(UBOOT_BINLOAD) FORCE
 quiet_cmd_u-boot-elf ?= LD      $@
 	cmd_u-boot-elf ?= $(LD) u-boot-elf.o -o $@ \
 	$(if $(CONFIG_SYS_BIG_ENDIAN),-EB,-EL) \
+	$(PLATFORM_ELFLDFLAGS) \
 	-T u-boot-elf.lds --defsym=$(CONFIG_PLATFORM_ELFENTRY)=$(CONFIG_TEXT_BASE) \
 	-Ttext=$(CONFIG_TEXT_BASE)
 u-boot.elf: u-boot.bin u-boot-elf.lds FORCE
@@ -2011,11 +2024,17 @@ u-boot.elf: u-boot.bin u-boot-elf.lds FORCE
 quiet_cmd_u-boot-spl-elf ?= LD      $@
 	cmd_u-boot-spl-elf ?= $(LD) spl/u-boot-spl-elf.o -o $@ \
 	$(if $(CONFIG_SYS_BIG_ENDIAN),-EB,-EL) \
-	-T u-boot-elf.lds --defsym=$(CONFIG_PLATFORM_ELFENTRY)=$(CONFIG_SPL_TEXT_BASE) \
+	-T spl/u-boot-spl-elf.lds --defsym=$(CONFIG_PLATFORM_ELFENTRY)=$(CONFIG_SPL_TEXT_BASE) \
 	-Ttext=$(CONFIG_SPL_TEXT_BASE)
-spl/u-boot-spl.elf: spl/u-boot-spl.bin u-boot-elf.lds
+
+spl/u-boot-spl.elf: spl/u-boot-spl.bin spl/u-boot-spl-elf.lds FORCE
 	$(Q)$(OBJCOPY) -I binary $(PLATFORM_ELFFLAGS) $< spl/u-boot-spl-elf.o
 	$(call if_changed,u-boot-spl-elf)
+
+SPL_REMAKE_ELF_LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_SPL_REMAKE_ELF_LDSCRIPT:"%"=%))
+
+spl/u-boot-spl-elf.lds: $(SPL_REMAKE_ELF_LDSCRIPT) prepare FORCE
+	$(call if_changed_dep,cpp_lds)
 
 u-boot-elf.lds: arch/u-boot-elf.lds prepare FORCE
 	$(call if_changed_dep,cpp_lds)

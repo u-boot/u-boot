@@ -14,6 +14,9 @@
 
 #include <linux/types.h>
 
+/* Default EDID address */
+#define EDID_ADDR	0x50
+
 /* Size of the EDID data */
 #define EDID_SIZE	128
 #define EDID_EXT_SIZE	256

@@ -69,7 +69,6 @@
  */
 #define ll_entry_declare(_type, _name, _list)				\
 	_type _u_boot_list_2_##_list##_2_##_name __aligned(4)		\
-			__attribute__((unused))				\
 			__section("__u_boot_list_2_"#_list"_2_"#_name)
 
 /**
@@ -92,7 +91,6 @@
  */
 #define ll_entry_declare_list(_type, _name, _list)			\
 	_type _u_boot_list_2_##_list##_2_##_name[] __aligned(4)		\
-			__attribute__((unused))				\
 			__section("__u_boot_list_2_"#_list"_2_"#_name)
 
 /*
@@ -125,7 +123,6 @@
 #define ll_entry_start(_type, _list)					\
 ({									\
 	static char start[0] __aligned(CONFIG_LINKER_LIST_ALIGN)	\
-		__attribute__((unused))					\
 		__section("__u_boot_list_2_"#_list"_1");			\
 	_type * tmp = (_type *)&start;					\
 	asm("":"+r"(tmp));						\
@@ -167,7 +164,7 @@
  */
 #define ll_entry_end(_type, _list)					\
 ({									\
-	static char end[0] __aligned(1) __attribute__((unused))		\
+	static char end[0] __aligned(1)					\
 		__section("__u_boot_list_2_"#_list"_3");			\
 	_type * tmp = (_type *)&end;					\
 	asm("":"+r"(tmp));						\
@@ -251,7 +248,7 @@
  */
 #define ll_start_decl(_sym, _type, _list)					\
 	static _type _sym[0] __aligned(CONFIG_LINKER_LIST_ALIGN)	\
-		__maybe_unused __section("__u_boot_list_2_" #_list "_1")
+		__section("__u_boot_list_2_" #_list "_1")
 
 /*
  * ll_end_decl uses __aligned(1) to avoid padding before the end marker.
@@ -259,7 +256,7 @@
  */
 #define ll_end_decl(_sym, _type, _list)					\
 	static _type _sym[0] __aligned(1)				\
-		__maybe_unused __section("__u_boot_list_2_" #_list "_3")
+		__section("__u_boot_list_2_" #_list "_3")
 
 /**
  * ll_entry_get() - Retrieve entry from linker-generated array by name

@@ -18,7 +18,7 @@ extern "C" {
 
 /* The version number of AVB - keep in sync with avbtool. */
 #define AVB_VERSION_MAJOR 1
-#define AVB_VERSION_MINOR 1
+#define AVB_VERSION_MINOR 3
 #define AVB_VERSION_SUB 0
 
 /* Returns a NUL-terminated string for the libavb version in use.  The

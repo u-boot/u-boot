@@ -91,8 +91,8 @@ int dram_init_banksize(void)
 			struct memrange *memrange = &lib_sysinfo.memrange[i];
 
 			if (memrange->type == CB_MEM_RAM) {
-				gd->bd->bi_dram[j].start = memrange->base;
-				gd->bd->bi_dram[j].size = memrange->size;
+				gd->dram[j].start = memrange->base;
+				gd->dram[j].size = memrange->size;
 				j++;
 				if (j >= CONFIG_NR_DRAM_BANKS)
 					break;

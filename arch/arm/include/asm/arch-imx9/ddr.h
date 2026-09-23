@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #ifndef __ASM_ARCH_IMX8M_DDR_H
@@ -13,21 +13,21 @@
 #define DDR_PHY_BASE			0x4E100000
 #define DDRMIX_BLK_CTRL_BASE		0x4E010000
 
-#define REG_DDR_SDRAM_MD_CNTL	(DDR_CTL_BASE + 0x120)
-#define REG_DDR_CS0_BNDS        (DDR_CTL_BASE + 0x0)
-#define REG_DDR_CS1_BNDS        (DDR_CTL_BASE + 0x8)
+#define REG_DDR_SDRAM_MD_CNTL		(DDR_CTL_BASE + 0x120)
+#define REG_DDR_CS0_BNDS		(DDR_CTL_BASE + 0x0)
+#define REG_DDR_CS1_BNDS		(DDR_CTL_BASE + 0x8)
 #define REG_DDRDSR_2			(DDR_CTL_BASE + 0xB24)
-#define REG_DDR_TIMING_CFG_0	(DDR_CTL_BASE + 0x104)
+#define REG_DDR_TIMING_CFG_0		(DDR_CTL_BASE + 0x104)
 #define REG_DDR_SDRAM_CFG		(DDR_CTL_BASE + 0x110)
-#define REG_DDR_TIMING_CFG_4	(DDR_CTL_BASE + 0x160)
+#define REG_DDR_TIMING_CFG_4		(DDR_CTL_BASE + 0x160)
 #define REG_DDR_DEBUG_19		(DDR_CTL_BASE + 0xF48)
-#define REG_DDR_SDRAM_CFG_3	(DDR_CTL_BASE + 0x260)
-#define REG_DDR_SDRAM_CFG_4	(DDR_CTL_BASE + 0x264)
-#define REG_DDR_SDRAM_MD_CNTL_2	(DDR_CTL_BASE + 0x270)
-#define REG_DDR_SDRAM_MPR4	(DDR_CTL_BASE + 0x28C)
-#define REG_DDR_SDRAM_MPR5	(DDR_CTL_BASE + 0x290)
+#define REG_DDR_SDRAM_CFG_3		(DDR_CTL_BASE + 0x260)
+#define REG_DDR_SDRAM_CFG_4		(DDR_CTL_BASE + 0x264)
+#define REG_DDR_SDRAM_MD_CNTL_2		(DDR_CTL_BASE + 0x270)
+#define REG_DDR_SDRAM_MPR4		(DDR_CTL_BASE + 0x28C)
+#define REG_DDR_SDRAM_MPR5		(DDR_CTL_BASE + 0x290)
 
-#define REG_DDR_ERR_EN		(DDR_CTL_BASE + 0x1000)
+#define REG_DDR_ERR_EN			(DDR_CTL_BASE + 0x1000)
 
 #define SRC_BASE_ADDR			(0x44460000)
 #define SRC_DPHY_BASE_ADDR		(SRC_BASE_ADDR + 0x1400)
@@ -99,6 +99,52 @@ struct dram_timing_info {
 };
 
 extern struct dram_timing_info dram_timing;
+
+/* Quick Boot related */
+#define DDRPHY_QB_CSR_SIZE	5168
+#define DDRPHY_QB_ACSM_SIZE	(4 * 1024)
+#define DDRPHY_QB_MSB_SIZE	0x200
+#define DDRPHY_QB_PSTATES	0
+#define DDRPHY_QB_PST_SIZE	(DDRPHY_QB_PSTATES * 4 * 1024)
+
+/*
+ * This structure needs to be aligned with the one in OEI.
+ */
+struct ddrphy_qb_state {
+	u32 crc;			/* Used for ensuring integrity in DRAM */
+#define MAC_LENGTH		8	/* 256 bits, 32-bit aligned */
+	u32 mac[MAC_LENGTH];		/* For 95A0/1 use mac[0] to keep CRC32 value */
+	u8 trained_vrefca_a0;
+	u8 trained_vrefca_a1;
+	u8 trained_vrefca_b0;
+	u8 trained_vrefca_b1;
+	u8 trained_vrefdq_a0;
+	u8 trained_vrefdq_a1;
+	u8 trained_vrefdq_b0;
+	u8 trained_vrefdq_b1;
+	u8 trained_vrefdqu_a0;
+	u8 trained_vrefdqu_a1;
+	u8 trained_vrefdqu_b0;
+	u8 trained_vrefdqu_b1;
+	u8 trained_dramdfe_a0;
+	u8 trained_dramdfe_a1;
+	u8 trained_dramdfe_b0;
+	u8 trained_dramdfe_b1;
+	u8 trained_dramdca_a0;
+	u8 trained_dramdca_a1;
+	u8 trained_dramdca_b0;
+	u8 trained_dramdca_b1;
+	u16 qb_pll_upll_prog0;
+	u16 qb_pll_upll_prog1;
+	u16 qb_pll_upll_prog2;
+	u16 qb_pll_upll_prog3;
+	u16 qb_pll_ctrl1;
+	u16 qb_pll_ctrl4;
+	u16 qb_pll_ctrl5;
+	u16 csr[DDRPHY_QB_CSR_SIZE];
+	u16 acsm[DDRPHY_QB_ACSM_SIZE];
+	u16 pst[DDRPHY_QB_PST_SIZE];
+};
 
 void ddr_load_train_firmware(enum fw_type type);
 int ddr_init(struct dram_timing_info *timing_info);

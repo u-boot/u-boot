@@ -10,7 +10,6 @@
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
-#include <linux/err.h>
 
 /*
  * This driver works with very simple configuration that has the same name
@@ -46,8 +45,8 @@ static int ast2600_pinctrl_probe(struct udevice *dev)
 		return ret;
 
 	priv->scu = dev_read_addr_ptr(clk_dev);
-	if (IS_ERR(priv->scu))
-		return PTR_ERR(priv->scu);
+	if (!priv->scu)
+		return -EINVAL;
 
 	return 0;
 }

@@ -254,11 +254,6 @@ static char *get_reset_cause(char *ret)
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
-const char *get_imx_type(u32 imxtype)
-{
-	return "8ULP";
-}
-
 int print_cpuinfo(void)
 {
 	u32 cpurev;
@@ -266,8 +261,7 @@ int print_cpuinfo(void)
 
 	cpurev = get_cpu_rev();
 
-	printf("CPU:   i.MX%s rev%d.%d at %d MHz\n",
-	       get_imx_type((cpurev & 0xFF000) >> 12),
+	printf("CPU:   i.MX8ULP rev%d.%d at %d MHz\n",
 	       (cpurev & 0x000F0) >> 4, (cpurev & 0x0000F) >> 0,
 	       mxc_get_clock(MXC_ARM_CLK) / 1000000);
 
@@ -343,7 +337,17 @@ static void disable_wdog(void __iomem *wdog_base)
 
 void init_wdog(void)
 {
-	disable_wdog((void __iomem *)WDG3_RBASE);
+	ofnode node;
+
+	ofnode_for_each_compatible_node(node, "fsl,imx8ulp-wdt") {
+		phys_addr_t base;
+
+		base = ofnode_get_addr(node);
+		if (base == FDT_ADDR_T_NONE)
+			continue;
+
+		disable_wdog((void __iomem *)base);
+	}
 }
 
 static struct mm_region imx8ulp_arm64_mem_map[] = {
@@ -502,11 +506,11 @@ void enable_caches(void)
 
 		while (i < CONFIG_NR_DRAM_BANKS &&
 		       entry < ARRAY_SIZE(imx8ulp_arm64_mem_map)) {
-			if (gd->bd->bi_dram[i].start == 0)
+			if (gd->dram[i].start == 0)
 				break;
-			imx8ulp_arm64_mem_map[entry].phys = gd->bd->bi_dram[i].start;
-			imx8ulp_arm64_mem_map[entry].virt = gd->bd->bi_dram[i].start;
-			imx8ulp_arm64_mem_map[entry].size = gd->bd->bi_dram[i].size;
+			imx8ulp_arm64_mem_map[entry].phys = gd->dram[i].start;
+			imx8ulp_arm64_mem_map[entry].virt = gd->dram[i].start;
+			imx8ulp_arm64_mem_map[entry].size = gd->dram[i].size;
 			imx8ulp_arm64_mem_map[entry].attrs = attrs;
 			debug("Added memory mapping (%d): %llx %llx\n", entry,
 			      imx8ulp_arm64_mem_map[entry].phys, imx8ulp_arm64_mem_map[entry].size);
@@ -558,24 +562,24 @@ int dram_init_banksize(void)
 	if (ret)
 		return ret;
 
-	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
+	gd->dram[bank].start = PHYS_SDRAM;
 	if (rom_pointer[1]) {
 		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
 		phys_size_t optee_size = (size_t)rom_pointer[1];
 
-		gd->bd->bi_dram[bank].size = optee_start - gd->bd->bi_dram[bank].start;
+		gd->dram[bank].size = optee_start - gd->dram[bank].start;
 		if ((optee_start + optee_size) < (PHYS_SDRAM + sdram_size)) {
 			if (++bank >= CONFIG_NR_DRAM_BANKS) {
 				puts("CONFIG_NR_DRAM_BANKS is not enough\n");
 				return -1;
 			}
 
-			gd->bd->bi_dram[bank].start = optee_start + optee_size;
-			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
-				sdram_size - gd->bd->bi_dram[bank].start;
+			gd->dram[bank].start = optee_start + optee_size;
+			gd->dram[bank].size = PHYS_SDRAM +
+				sdram_size - gd->dram[bank].start;
 		}
 	} else {
-		gd->bd->bi_dram[bank].size = sdram_size;
+		gd->dram[bank].size = sdram_size;
 	}
 
 	return 0;

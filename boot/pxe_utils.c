@@ -95,6 +95,7 @@ int format_mac_pxe(char *outbuf, size_t outbuf_len)
  * @ctx: PXE context
  * @file_path: File path to read (relative to the PXE file)
  * @file_addr: Address to load file to
+ * @type: Image type used to record the loaded file in the bootflow
  * @filesizep: If not NULL, returns the file size in bytes
  * Returns 1 for success, or < 0 on error
  */
@@ -162,6 +163,7 @@ int get_pxe_file(struct pxe_context *ctx, const char *file_path,
  *
  * @ctx: PXE context
  * @file: Filename to process (relative to pxelinux.cfg/)
+ * @pxefile_addr_r: Address to load the file to
  * Returns 1 for success, -ENAMETOOLONG if the resulting path is too long.
  *	or other value < 0 on other error
  */
@@ -216,15 +218,7 @@ static int get_relfile_envaddr(struct pxe_context *ctx, const char *file_path,
 	return get_relfile(ctx, file_path, file_addr, type, filesizep);
 }
 
-/**
- * label_create() - crate a new PXE label
- *
- * Allocates memory for and initializes a pxe_label. This uses malloc, so the
- * result must be free()'d to reclaim the memory.
- *
- * Returns a pointer to the label, or NULL if out of memory
- */
-static struct pxe_label *label_create(void)
+struct pxe_label *label_create(void)
 {
 	struct pxe_label *label;
 
@@ -237,20 +231,7 @@ static struct pxe_label *label_create(void)
 	return label;
 }
 
-/**
- * label_destroy() - free the memory used by a pxe_label
- *
- * This frees @label itself as well as memory used by its name,
- * kernel, config, append, initrd, fdt, fdtdir and fdtoverlay members, if
- * they're non-NULL.
- *
- * So - be sure to only use dynamically allocated memory for the members of
- * the pxe_label struct, unless you want to clean it up first. These are
- * currently only created by the pxe file parsing code.
- *
- * @label: Label to free
- */
-static void label_destroy(struct pxe_label *label)
+void label_destroy(struct pxe_label *label)
 {
 	free(label->name);
 	free(label->kernel_label);
@@ -540,7 +521,7 @@ cleanup:
  * Returns does not return on success, otherwise returns 0 if a localboot
  *	label was processed, or 1 on error
  */
-static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
+int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
 	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
@@ -892,6 +873,7 @@ static const struct token keywords[] = {
 	{"linux", T_LINUX},
 	{"localboot", T_LOCALBOOT},
 	{"append", T_APPEND},
+	{"options", T_APPEND},
 	{"initrd", T_INITRD},
 	{"include", T_INCLUDE},
 	{"devicetree", T_FDT},
@@ -914,6 +896,13 @@ static const struct token keywords[] = {
  * Since pxe(linux) files don't have a token to identify the start of a
  * literal, we have to keep track of when we're in a state where a literal is
  * expected vs when we're in a state a keyword is expected.
+ *
+ * @L_NORMAL: Outside any specific lexical context; whitespace is skipped
+ *	and the next non-blank token determines what is read
+ * @L_KEYWORD: A keyword is expected; the next word is matched against the
+ *	keyword table and tagged with the matching token type
+ * @L_SLITERAL: A string literal is expected; characters are read up to the
+ *	end of the line
  */
 enum lex_state {
 	L_NORMAL = 0,
@@ -1018,6 +1007,9 @@ static void get_keyword(struct token *t)
  *
  * @p: Points to a pointer to the current position in the input being processed.
  *	Updated to point at the first character after the current token
+ * @t: Token to populate with the type and value of what was read
+ * @state: Current lexer state, controlling whether a keyword or a string
+ *	literal is expected next
  */
 static void get_token(char **p, struct token *t, enum lex_state state)
 {
@@ -1274,34 +1266,13 @@ static int parse_label_kernel(char **c, struct pxe_label *label)
 	return 1;
 }
 
-/*
- * Parses a label and adds it to the list of labels for a menu.
- *
- * A label ends when we either get to the end of a file, or
- * get some input we otherwise don't have a handler defined
- * for.
- *
- */
-static int parse_label(char **c, struct pxe_menu *cfg)
+int parse_label_keys(char **c, struct pxe_menu *cfg, struct pxe_label *label,
+		     bool ignore_unknown)
 {
 	struct token t;
+	char *s;
 	int len;
-	char *s = *c;
-	struct pxe_label *label;
 	int err;
-
-	label = label_create();
-	if (!label)
-		return -ENOMEM;
-
-	err = parse_sliteral(c, &label->name);
-	if (err < 0) {
-		printf("Expected label name: %.*s\n", (int)(*c - s), s);
-		label_destroy(label);
-		return -EINVAL;
-	}
-
-	list_add_tail(&label->list, &cfg->labels);
 
 	while (1) {
 		s = *c;
@@ -1313,6 +1284,19 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 			err = parse_label_menu(c, cfg, label);
 			break;
 
+		case T_TITLE:
+			/*
+			 * Equivalent to 'menu label' inside a label body.
+			 * Boot Loader Specification entries use a bare
+			 * 'title' line for the human-readable name; honour
+			 * it here so the existing parser handles BLS files
+			 * natively. extlinux/pxelinux files conventionally
+			 * use 'menu label' instead, so this is additive.
+			 */
+			if (!label->menu)
+				err = parse_sliteral(c, &label->menu);
+			break;
+
 		case T_KERNEL:
 		case T_LINUX:
 			err = parse_label_kernel(c, label);
@@ -1320,16 +1304,16 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 
 		case T_APPEND:
 			err = parse_sliteral(c, &label->append);
-			if (label->initrd)
+			if (err < 0 || label->initrd)
 				break;
 			s = strstr(label->append, "initrd=");
 			if (!s)
 				break;
-			s += 7;
-			len = (int)(strchr(s, ' ') - s);
-			label->initrd = malloc(len + 1);
-			strncpy(label->initrd, s, len);
-			label->initrd[len] = '\0';
+			s += strlen("initrd=");
+			len = strcspn(s, " ");
+			label->initrd = strndup(s, len);
+			if (!label->initrd)
+				err = -ENOMEM;
 
 			break;
 
@@ -1369,7 +1353,31 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 		case T_EOL:
 			break;
 
+		case T_EOF:
+			if (ignore_unknown) {
+				/*
+				 * BLS-style callers parse a standalone label
+				 * body, so there is no outer context to push
+				 * T_EOF back into. Stop cleanly here.
+				 */
+				return 1;
+			}
+			/*
+			 * For pxelinux/extlinux, fall through so the default
+			 * case pushes T_EOF back for the top-level parser.
+			 */
+			fallthrough;
 		default:
+			if (ignore_unknown) {
+				/*
+				 * Skip the rest of the line and keep going.
+				 * Used for formats like the Boot Loader
+				 * Specification, where the spec mandates that
+				 * unknown keys must be silently ignored.
+				 */
+				eol_or_eof(c);
+				break;
+			}
 			/*
 			 * put the token back! we don't want it - it's the end
 			 * of a label and whatever token this is, it's
@@ -1382,6 +1390,36 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 		if (err < 0)
 			return err;
 	}
+}
+
+/*
+ * Parses a label and adds it to the list of labels for a menu.
+ *
+ * A label ends when we either get to the end of a file, or
+ * get some input we otherwise don't have a handler defined
+ * for.
+ *
+ */
+static int parse_label(char **c, struct pxe_menu *cfg)
+{
+	char *s = *c;
+	struct pxe_label *label;
+	int err;
+
+	label = label_create();
+	if (!label)
+		return -ENOMEM;
+
+	err = parse_sliteral(c, &label->name);
+	if (err < 0) {
+		printf("Expected label name: %.*s\n", (int)(*c - s), s);
+		label_destroy(label);
+		return -EINVAL;
+	}
+
+	list_add_tail(&label->list, &cfg->labels);
+
+	return parse_label_keys(c, cfg, label, false);
 }
 
 /*

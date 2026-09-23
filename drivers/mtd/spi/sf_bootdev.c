@@ -57,7 +57,7 @@ static int sf_bootdev_bind(struct udevice *dev)
 	return 0;
 }
 
-struct bootdev_ops sf_bootdev_ops = {
+static const struct bootdev_ops sf_bootdev_ops = {
 	.get_bootflow	= sf_get_bootflow,
 };
 

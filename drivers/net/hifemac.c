@@ -401,9 +401,6 @@ static void hisi_femac_get_strings(struct udevice *dev, u8 *data)
 		strcpy(data + i * ETH_GSTRING_LEN, hisi_femac_stats_table[i].name);
 }
 
-/* Non-constant mask variant of FIELD_GET/FIELD_PREP */
-#define field_get(_mask, _reg) (((_reg) & (_mask)) >> (ffs(_mask) - 1))
-
 static void hisi_femac_get_stats(struct udevice *dev, u64 *data)
 {
 	int i;
@@ -438,7 +435,7 @@ static int hisi_femac_of_to_plat(struct udevice *dev)
 	}
 
 	priv->glb_base = dev_remap_addr_name(dev, "glb");
-	if (IS_ERR(priv->glb_base)) {
+	if (!priv->glb_base) {
 		dev_err(dev, "Failed to remap global address space\n");
 		return log_msg_ret("net", -EINVAL);
 	}

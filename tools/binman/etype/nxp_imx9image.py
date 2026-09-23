@@ -36,7 +36,8 @@ class Entry_nxp_imx9image(Entry_mkimage):
             'append', 'boot-from', 'cntr-version', 'container', 'dummy-ddr',
             'dummy-v2x', 'hold', 'image', 'soc-type'
         ]
-        external_files = ['oei-m33-tcm.bin', 'm33_image.bin', 'bl31.bin']
+        external_files = ['oei-m33-tcm.bin', 'm33_image.bin', 'bl31.bin',
+                          'tee.bin']
 
         with open(self.config_filename, 'w', encoding='utf-8') as f:
             for prop in self._node.props.values():

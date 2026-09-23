@@ -229,9 +229,11 @@ static int spi_flash_std_remove(struct udevice *dev)
 		spi_mem_dirmap_destroy(flash->dirmap.rdesc);
 	}
 
-	ret = spi_nor_remove(flash);
-	if (ret)
-		return ret;
+	if (CONFIG_IS_ENABLED(SPI_FLASH_SOFT_RESET)) {
+		ret = spi_nor_remove(flash);
+		if (ret)
+			return ret;
+	}
 
 	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
 		spi_flash_mtd_unregister(flash);

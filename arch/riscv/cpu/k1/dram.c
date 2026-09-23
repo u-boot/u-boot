@@ -56,12 +56,12 @@ int dram_init(void)
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = min_t(phys_size_t, gd->ram_size, SZ_2G);
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].size = min_t(phys_size_t, gd->ram_size, SZ_2G);
 
 	if (gd->ram_size > SZ_2G && CONFIG_NR_DRAM_BANKS > 1) {
-		gd->bd->bi_dram[1].start = 0x100000000;
-		gd->bd->bi_dram[1].size = gd->ram_size - SZ_2G;
+		gd->dram[1].start = 0x100000000;
+		gd->dram[1].size = gd->ram_size - SZ_2G;
 	}
 
 	return 0;
@@ -82,8 +82,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		start[i] = gd->bd->bi_dram[i].start;
-		size[i] = gd->bd->bi_dram[i].size;
+		start[i] = gd->dram[i].start;
+		size[i] = gd->dram[i].size;
 	}
 
 	return fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);

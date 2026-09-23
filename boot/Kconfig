@@ -103,6 +103,19 @@ config FIT_FULL_CHECK
 	  of bugs or omissions in the code. This includes a bad structure,
 	  multiple root nodes and the like.
 
+config CONTROL_DTB_AS_FIT
+	bool "Allow U-Boot's control DTB to act as FIT image"
+	help
+	  Enable this to exempt U-Boot's control DTB from the sanity
+	  checks done to ensure FIT images are valid. This can for
+	  example be used to embed whole scripts in the control DTB,
+	  that can then be invoked using 'source ${fdtcontroladdr}'.
+	  In a secure boot setup, this is safe, as the control DTB is
+	  necessarily covered by any mechanism verifying U-Boot and
+	  can therefore be trusted. This only affects the case where
+	  the image being checked is gd->fdt_blob. See
+	  doc/develop/devicetree/control.rst for details.
+
 config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"
 	depends on DM
@@ -124,6 +137,23 @@ config FIT_SIGNATURE
 	  format support in this case, enable it using
 	  CONFIG_LEGACY_IMAGE_FORMAT.
 
+config FIT_REQUIRE_CONFIG_SIGS
+	bool "Require configuration signature verification of FIT uImages"
+	depends on FIT_SIGNATURE
+	help
+	  This option requires that FIT uImages have configuration
+	  nodes that are signed or boot will fail.
+	  That means the U-Boot device tree must contain a
+	  "/signature" node and at least one public key with
+	  required="conf".
+	  All configuration sections of a FIT file must be signed
+	  using those keys based on "required-mode" policy.
+	  The option is useful to avoid fail-open situations so it
+	  is recommended to enable. The option currently defaults to
+	  off to avoid breaking existing setups. Keep it off if you
+	  need to reuse the same u-boot binary in setups without
+	  keys or rely on image node only signatures.
+
 config FIT_SIGNATURE_MAX_SIZE
 	hex "Max size of signed FIT structures"
 	depends on FIT_SIGNATURE
@@ -142,6 +172,26 @@ config FIT_CIPHER
 	  Enable the feature of data ciphering/unciphering in the tool mkimage
 	  and in the u-boot support of the FIT image.
 
+config FIT_VERITY
+	bool "dm-verity boot parameter generation from FIT metadata"
+	depends on FIT && OF_LIBFDT
+	help
+	  When a FIT configuration contains loadable sub-images of type
+	  IH_TYPE_FILESYSTEM with a dm-verity subnode, this option enables
+	  building the dm-mod.create= and dm-mod.waitfor= kernel
+	  command-line parameters from the verity metadata
+	  (data-block-size, hash-block-size, num-data-blocks,
+	  hash-start-block, algorithm, digest, salt) stored in the FIT.
+
+	  The generated parameters reference /dev/fitN block devices that
+	  Linux's uImage.FIT block driver assigns to loadable sub-images.
+
+	  During FIT parsing (BOOTM_STATE_FINDOTHER), verity cmdline
+	  fragments are stored in struct bootm_headers and automatically
+	  appended to the bootargs environment variable during
+	  BOOTM_STATE_OS_PREP.  This works from both the bootm command
+	  and BOOTSTD bootmeths.
+
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"
 	help
@@ -158,6 +208,8 @@ config FIT_BEST_MATCH
 	  U-Boot itself. A match is considered "best" if it matches the
 	  most specific compatibility entry of U-Boot's fdt's root node.
 	  The order of entries in the configuration's fdt is ignored.
+	  If several configurations match equally well, the one named by
+	  the configurations node 'default' property is preferred.
 
 config FIT_IMAGE_POST_PROCESS
 	bool "Enable post-processing of FIT artifacts after loading by U-Boot"
@@ -223,6 +275,11 @@ config SPL_FIT_SIGNATURE_MAX_SIZE
 	  A sane value of 256MB protects corrupted DTB structures from overlapping
 	  device memory. Assure this size does not extend past expected storage
 	  space.
+
+config SPL_FIT_REQUIRE_CONFIG_SIGS
+	bool "Require signature verification of FIT firmware within SPL"
+	depends on SPL_FIT_SIGNATURE
+	select FIT_REQUIRE_CONFIG_SIGS
 
 config SPL_LOAD_FIT
 	bool "Enable SPL loading U-Boot as a FIT (basic fitImage features)"
@@ -587,9 +644,16 @@ config BOOTMETH_CROS
 
 	  Note that only x86 devices are supported at present.
 
+config BOOTMETH_PXE_COMMON
+	bool
+	help
+	  Helpers shared by the bootmeths that hand their config files to the
+	  pxelinux parser. Selected by those bootmeths, not user-visible.
+
 config BOOTMETH_EXTLINUX
 	bool "Bootdev support for extlinux boot"
 	select PXE_UTILS
+	select BOOTMETH_PXE_COMMON
 	default y
 	help
 	  Enables support for extlinux boot using bootdevs. This makes the
@@ -605,6 +669,7 @@ config BOOTMETH_EXTLINUX
 config BOOTMETH_EXTLINUX_PXE
 	bool "Bootdev support for extlinux boot over network"
 	depends on CMD_PXE && CMD_NET && DM_ETH
+	select BOOTMETH_PXE_COMMON
 	default y
 	help
 	  Enables support for extlinux boot using bootdevs. This makes the
@@ -615,6 +680,22 @@ config BOOTMETH_EXTLINUX_PXE
 	    https://uapi-group.org/specifications/specs/boot_loader_specification/
 
 	  This provides a way to try out standard boot on an existing boot flow.
+
+config BOOTMETH_BLS
+	bool "Bootdev support for Boot Loader Specification entries"
+	select PXE_UTILS
+	help
+	  Enables support for booting via Boot Loader Specification type #1
+	  entry files. The bootmeth scans each filesystem it finds for files
+	  matching 'loader/entries/*.conf' (or '/boot/loader/entries/*.conf')
+	  and boots the highest-sorting entry.
+
+	  The specification is here:
+
+	    https://uapi-group.org/specifications/specs/boot_loader_specification/
+
+	  Type #2 BLS (drop-in directory of EFI binaries) is not handled here;
+	  use BOOTMETH_EFI_BOOTMGR for that.
 
 config BOOTMETH_EFILOADER
 	bool "Bootdev support for EFI boot"
@@ -653,9 +734,9 @@ config BOOTMETH_QFW
 	depends on QFW
 	default y
 	help
-	 Use QEMU parameters -kernel, -initrd, -append to determine the kernel,
-	 initial RAM disk, and kernel command line parameters to boot an
-	 operating system. U-Boot's control device-tree is passed to the kernel.
+	  Use QEMU parameters -kernel, -initrd, -append to determine the kernel,
+	  initial RAM disk, and kernel command line parameters to boot an
+	  operating system. U-Boot's control device-tree is passed to the kernel.
 
 config BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded"
@@ -1051,7 +1132,7 @@ config MEASURED_BOOT
 	  to use some attestation tools on your system.
 
 if MEASURED_BOOT
-	config MEASURE_DEVICETREE
+config MEASURE_DEVICETREE
 	bool "Measure the devicetree image"
 	default y if MEASURED_BOOT
 	help
@@ -1060,7 +1141,7 @@ if MEASURED_BOOT
 	  Therefore, it should not be measured into the TPM. In that case,
 	  disable the measurement here.
 
-	config MEASURE_IGNORE_LOG
+config MEASURE_IGNORE_LOG
 	bool "Ignore the existing event log"
 	help
 	  On platforms that use an event log memory region that persists
@@ -1169,6 +1250,22 @@ config SYS_BOOT_RAMDISK_HIGH
 	  feature is enabled and the boot* ramdisk subcommand is enabled.
 
 endmenu		# Boot images
+
+config IMAGEMAP
+	bool "On-demand image loading from storage"
+	depends on DM && LMB && BLK && PARTITIONS
+	help
+	  Read image data from a storage device on demand instead of
+	  copying the whole image into RAM first. A translation table maps
+	  already-loaded byte ranges to their RAM addresses to avoid
+	  redundant reads, and scratch allocations are managed through the
+	  LMB allocator.
+
+	  Images are read from a partition on a block device, identified by
+	  number or name. MTD partitions (via mtdblock) and UBI volumes
+	  (via ubiblock) are reached as block-device partitions too. Used
+	  by bootm when a storage device is specified instead of a RAM
+	  address.
 
 config DISTRO_DEFAULTS
 	bool "(deprecated) Script-based booting of Linux distributions"

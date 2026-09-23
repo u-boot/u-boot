@@ -69,6 +69,9 @@
 				container;
 				image0 = "a55", "bl31.bin", "0x204E0000";
 				image1 = "a55", "u-boot.bin", "0x80200000";
+#if defined(CONFIG_OPTEE)
+				image2 = "a55", "tee.bin", "0x96000000";
+#endif
 			};
 		};
 	};
@@ -95,4 +98,16 @@
 			       0x00000195 0x800001a7
 			       0x000001b2 0x800001b6>;
 	#thermal-sensor-cells = <1>;
+};
+
+&wdog3 {
+	bootph-all;
+};
+
+&wdog4 {
+	bootph-all;
+};
+
+&wdog5 {
+	bootph-all;
 };

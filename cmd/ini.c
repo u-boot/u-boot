@@ -229,6 +229,7 @@ static int ini_handler(void *user, char *section, char *name, char *value)
 static int do_ini(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const char *section;
+	const char *addr_str, *size_str;
 	char *file_address;
 	size_t file_size;
 
@@ -236,10 +237,16 @@ static int do_ini(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 
 	section = argv[1];
-	file_address = (char *)hextoul(argc < 3 ? env_get("loadaddr") : argv[2],
-					NULL);
-	file_size = (size_t)hextoul(argc < 4 ? env_get("filesize") : argv[3],
-				     NULL);
+	addr_str = argc < 3 ? env_get("loadaddr") : argv[2];
+	size_str = argc < 4 ? env_get("filesize") : argv[3];
+
+	if (!addr_str || !size_str) {
+		printf("ini: loadaddr/filesize not set\n");
+		return CMD_RET_USAGE;
+	}
+
+	file_address = (char *)hextoul(addr_str, NULL);
+	file_size = (size_t)hextoul(size_str, NULL);
 
 	return ini_parse(file_address, file_size, ini_handler, (void *)section);
 }

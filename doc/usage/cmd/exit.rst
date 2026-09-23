@@ -19,8 +19,8 @@ If scripts are nested, only the innermost script is left.
 
 ::
 
-    => setenv inner 'echo entry inner; exit; echo inner done'
-    => setenv outer 'echo entry outer; run inner; echo outer done'
+    => env set inner 'echo entry inner; exit; echo inner done'
+    => env set outer 'echo entry outer; run inner; echo outer done'
     => run outer
     entry outer
     entry inner

@@ -240,16 +240,17 @@ static int do_i3c(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (!is_i3c_subcommand(subcmd))
 		return handle_i3c_select(subcmd);
 
+	if (!strcmp(subcmd, "list"))
+		return handle_i3c_list();
+	else if (!strcmp(subcmd, "current"))
+		return handle_i3c_current();
+
 	if (!currdev) {
 		printf("i3c: No I3C controller selected\n");
 		return CMD_RET_FAILURE;
 	}
 
-	if (!strcmp(subcmd, "list"))
-		return handle_i3c_list();
-	else if (!strcmp(subcmd, "current"))
-		return handle_i3c_current();
-	else if (!strcmp(subcmd, "device_list"))
+	if (!strcmp(subcmd, "device_list"))
 		return handle_i3c_device_list();
 	else if (!strcmp(subcmd, "write"))
 		return handle_i3c_write(argc, argv);

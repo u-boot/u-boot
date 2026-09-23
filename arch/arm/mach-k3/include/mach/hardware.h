@@ -124,8 +124,19 @@ struct rom_extended_boot_data {
 	u32 num_components;
 };
 
+enum k3_device_type {
+	K3_DEVICE_TYPE_BAD,
+	K3_DEVICE_TYPE_GP,
+	K3_DEVICE_TYPE_TEST,
+	K3_DEVICE_TYPE_EMU,
+	K3_DEVICE_TYPE_HS_FS,
+	K3_DEVICE_TYPE_HS_SE,
+};
+
 u32 get_boot_device(void);
 const char *get_reset_reason(void);
+enum k3_device_type get_device_type(void);
+int k3_fit_config_match_security_state(const char *name);
 
 #define writel_verify(val, addr) \
 do { \

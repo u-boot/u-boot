@@ -222,8 +222,8 @@ static void usb_brg_adrdec_setup(int index)
 			break;
 		}
 
-		size = gd->bd->bi_dram[i].size;
-		base = gd->bd->bi_dram[i].start;
+		size = gd->dram[i].size;
+		base = gd->dram[i].start;
 		if ((size) && (attrib))
 			writel(MVCPU_WIN_CTRL_DATA(size, USB_TARGET_DRAM,
 						   attrib, MVCPU_WIN_ENABLE),

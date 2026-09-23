@@ -258,7 +258,7 @@ static int send_command_proto3(struct cros_ec_dev *cdev,
 			       const void *dout, int dout_len,
 			       uint8_t **dinp, int din_len)
 {
-	struct dm_cros_ec_ops *ops;
+	const struct dm_cros_ec_ops *ops;
 	int out_bytes, in_bytes;
 	int rv;
 
@@ -287,7 +287,7 @@ static int send_command(struct cros_ec_dev *dev, uint cmd, int cmd_version,
 			const void *dout, int dout_len,
 			uint8_t **dinp, int din_len)
 {
-	struct dm_cros_ec_ops *ops;
+	const struct dm_cros_ec_ops *ops;
 	int ret = -1;
 
 	/* Handle protocol version 3 support */
@@ -487,7 +487,7 @@ int cros_ec_read_build_info(struct udevice *dev, char **strp)
 }
 
 int cros_ec_read_current_image(struct udevice *dev,
-			       enum ec_current_image *image)
+			       enum ec_image *image)
 {
 	struct ec_response_get_version *r;
 
@@ -756,9 +756,8 @@ int cros_ec_flash_protect(struct udevice *dev, uint32_t set_mask,
 static int cros_ec_check_version(struct udevice *dev)
 {
 	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
+	const struct dm_cros_ec_ops *ops;
 	struct ec_params_hello req;
-
-	struct dm_cros_ec_ops *ops;
 	int ret;
 
 	ops = dm_cros_ec_get_ops(dev);
@@ -1638,7 +1637,7 @@ int cros_ec_vstore_write(struct udevice *dev, int slot, const uint8_t *data,
 
 int cros_ec_get_switches(struct udevice *dev)
 {
-	struct dm_cros_ec_ops *ops;
+	const struct dm_cros_ec_ops *ops;
 	int ret;
 
 	ops = dm_cros_ec_get_ops(dev);

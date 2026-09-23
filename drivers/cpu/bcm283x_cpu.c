@@ -193,7 +193,7 @@ static int bcm_cpu_probe(struct udevice *dev)
 	return ret;
 }
 
-struct acpi_ops bcm283x_cpu_acpi_ops = {
+static const struct acpi_ops __maybe_unused bcm283x_cpu_acpi_ops = {
 	.fill_ssdt	= armv8_cpu_fill_ssdt,
 	.fill_madt	= armv8_cpu_fill_madt,
 };

@@ -236,7 +236,7 @@ Tooling
 
 There are a number of tools available to help custodians and
 contributors alike with their contributions. As a project we make use of
-the Patchwork project hosted at `OzLabs <http://patchwork.ozlabs.org/>`__
+the Patchwork project hosted at `OzLabs <https://patchwork.ozlabs.org/>`__
 and more discussion on how it is used from both a contributor as well as
 custodian point of view can be found :ref:`here <patchwork>`.
 

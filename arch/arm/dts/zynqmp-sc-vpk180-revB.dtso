@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * dts file for Xilinx ZynqMP VPK180 revA
+ * dts file for Xilinx ZynqMP VPK180 revB
  *
  * (C) Copyright 2021 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -14,8 +14,7 @@
 /plugin/;
 
 &{/} {
-	compatible = "xlnx,zynqmp-sc-vpk180-revB", "xlnx,zynqmp-vpk180-revB",
-		     "xlnx,zynqmp-vpk180", "xlnx,zynqmp";
+	compatible = "xlnx,zynqmp-sc-vpk180-revB", "xlnx,zynqmp-sc-vpk180", "xlnx,zynqmp";
 
 	vc7_xin: vc7-xin {
 		compatible = "fixed-clock";

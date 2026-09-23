@@ -452,7 +452,7 @@ static int rpmb_route_frames(struct mmc *mmc, struct s_rpmb *req,
 		return rpmb_route_read_req(mmc, req, req_cnt, rsp, rsp_cnt);
 
 	case RPMB_REQ_READ_DATA:
-		if (req_cnt != 1 || !req_cnt)
+		if (req_cnt != 1 || !rsp_cnt)
 			return -EINVAL;
 		return rpmb_route_read_req(mmc, req, req_cnt, rsp, rsp_cnt);
 

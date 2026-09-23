@@ -20,8 +20,9 @@ from binman import elf
 from dtoc import fdt_util
 from u_boot_pylib import tools
 
-MAGIC_NXP_IMX_IVT = 0x412000d1
-MAGIC_FITIMAGE    = 0xedfe0dd0
+MAGIC_NXP_IMX_IVT  = 0x412000d1
+MAGIC_NXP_IMX_FCFB = 0x42464346
+MAGIC_FITIMAGE     = 0xedfe0dd0
 
 KEY_NAME = 'sha256_4096_65537_v3_usr_crt'
 
@@ -65,6 +66,13 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
 
     Properties / Entry arguments:
         - nxp,loader-address - loader address (SPL text base)
+        - nxp,srk-table - full path to SRK_1_2_3_4_table.bin
+        - nxp,csf-crt - full path to the CSF Key CSF1_1_sha256_4096_65537_v3_usr_crt.pem
+        - nxp,img-crt - full path to the IMG Key IMG1_1_sha256_4096_65537_v3_usr_crt.pem
+        - nxp,fast-auth - enable fast authentication method
+        - nxp,srk-crt - full path to the SRK Key SRK1_sha256_4096_65537_v3_ca_crt.pem
+        - nxp,unlock - unlock CAAM in SPL
+        - nxp,cst-backend - CST tool backend, default is 'ssl', or selectable 'pkcs11'
     """
 
     def __init__(self, section, etype, node):
@@ -90,6 +98,10 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
                 'SRK_KEY', fdt_util.GetString(self._node, 'nxp,srk-crt',
                                               f'SRK1_{KEY_NAME}.pem'))
 
+        self.backend = os.getenv(
+            'CST_BACKEND', fdt_util.GetString(self._node, 'nxp,cst-backend',
+                                              'ssl'))
+
         self.unlock = fdt_util.GetBool(self._node, 'nxp,unlock')
         self.ReadEntries()
 
@@ -101,6 +113,9 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         # - If it is mkimage'd imx8mimage, then extract to be signed data size
         #   from imx8mimage header, and calculate CSF blob offset right past
         #   the SPL from this information.
+        # - If it is mkimage'd imx8mimage wrapped in FCFB, then extract to be
+        #   signed data size from imx8mimage header past the FCFB header, and
+        #   calculate CSF blob offset right past the SPL from this information.
         # - If it is fitImage, then pad the image to 4k, add generated IVT and
         #   sign the whole payload, then append CSF blob at the end right past
         #   the IVT.
@@ -112,6 +127,17 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
             # (extra 0x40 bytes before the payload)
             signbase -= 0x40
             signsize = struct.unpack('<I', data[24:28])[0] - signbase
+            # Remove mkimage generated padding from the end of data
+            data = data[:signsize]
+        elif signtype == MAGIC_NXP_IMX_FCFB: # SPL/imx8mimage with FCFB
+            # Sign the payload including FCFB and imx8mimage headers
+            # (extra 0x1000 and 0x40 bytes before the payload)
+            signbase -= 0x1040
+            # Pull the end address from IVT offset 24 Bytes and subtract
+            # the start address to get amount of data to sign. The IVT
+            # itself is at offset 4096 Bytes, so the total end address
+            # offset in the image is 4120 Bytes.
+            signsize = struct.unpack('<I', data[4120:4124])[0] - signbase
             # Remove mkimage generated padding from the end of data
             data = data[:signsize]
         elif signtype == MAGIC_FITIMAGE: # fitImage
@@ -161,8 +187,14 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         with open(cfg_fname, 'w') as cfgf:
             config.write(cfgf)
 
+        # SSL is the default backend, PKCS11 backend is optional
+        if self.backend == "pkcs11":
+            cst_backend = "pkcs11"
+        else:
+            cst_backend = "ssl"
+
         output_fname = tools.get_output_filename(f'nxp.csf-output-blob.{uniq}')
-        args = ['-i', cfg_fname, '-o', output_fname]
+        args = ['-i', cfg_fname, '-o', output_fname, '-b', cst_backend]
         if self.cst.run_cmd(*args) is not None:
             outdata = tools.read_file(output_fname)
             # fixme: 0x2000 should be CONFIG_CSF_SIZE

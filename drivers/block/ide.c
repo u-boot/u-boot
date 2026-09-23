@@ -969,9 +969,6 @@ static int ide_bootdev_hunt(struct bootdev_hunter *info, bool show)
 	return 0;
 }
 
-struct bootdev_ops ide_bootdev_ops = {
-};
-
 static const struct udevice_id ide_bootdev_ids[] = {
 	{ .compatible = "u-boot,bootdev-ide" },
 	{ }
@@ -980,7 +977,6 @@ static const struct udevice_id ide_bootdev_ids[] = {
 U_BOOT_DRIVER(ide_bootdev) = {
 	.name		= "ide_bootdev",
 	.id		= UCLASS_BOOTDEV,
-	.ops		= &ide_bootdev_ops,
 	.bind		= ide_bootdev_bind,
 	.of_match	= ide_bootdev_ids,
 };
@@ -1049,9 +1045,9 @@ static int ide_probe(struct udevice *udev)
 
 		/* fill in device vendor/product/rev strings */
 		desc = dev_get_uclass_plat(blk);
-		strlcpy(desc->vendor, pdesc.vendor, BLK_VEN_SIZE);
-		strlcpy(desc->product, pdesc.product, BLK_PRD_SIZE);
-		strlcpy(desc->revision, pdesc.revision, BLK_REV_SIZE);
+		strlcpy(desc->vendor, pdesc.vendor, sizeof(desc->vendor));
+		strlcpy(desc->product, pdesc.product, sizeof(desc->product));
+		strlcpy(desc->revision, pdesc.revision, sizeof(desc->revision));
 		desc->removable = pdesc.removable;
 		desc->atapi = pdesc.atapi;
 		desc->lba48 = pdesc.lba48;

@@ -1,34 +1,40 @@
-J784S4 EVM BOARD
+J784S4XEVM BOARD
 M:	Apurva Nandan <a-nandan@ti.com>
 S:	Maintained
-F:	board/ti/j784s4
-F:	arch/arm/mach-k3/j784s4
-F:	include/configs/j784s4_evm.h
-F:	configs/j784s4_evm_r5_defconfig
-F:	configs/j784s4_evm_a72_defconfig
+F:	arch/arm/dts/k3-j784s4-ddr-evm-lp4-4266.dtsi
+F:	arch/arm/dts/k3-j784s4-ddr.dtsi
 F:	arch/arm/dts/k3-j784s4-evm-u-boot.dtsi
 F:	arch/arm/dts/k3-j784s4-r5-evm.dts
 F:	arch/arm/dts/k3-j784s4-r5.dtsi
-F:	arch/arm/dts/k3-j784s4-ddr.dtsi
-F:	arch/arm/dts/k3-j784s4-ddr-evm-lp4-4266.dtsi
+F:	arch/arm/mach-k3/j784s4
+F:	board/ti/j784s4
+F:	configs/j784s4_evm_a72_defconfig
+F:	configs/j784s4_evm_r5_defconfig
 F:	doc/board/ti/j784s4_evm.rst
+F:	include/configs/j784s4_evm.h
 
-AM69 SK BOARD
+SK-AM69 BOARD
 M:	Apurva Nandan <a-nandan@ti.com>
 S:	Maintained
-F:	arch/arm/dts/k3-am69-sk-u-boot.dtsi
 F:	arch/arm/dts/k3-am69-r5-sk.dts
-F:	configs/am69_sk_r5_defconfig
+F:	arch/arm/dts/k3-am69-sk-u-boot.dtsi
+F:	board/ti/j784s4
 F:	configs/am69_sk_a72_defconfig
-F:	configs/am69_sk_r5_ethboot_defconfig
 F:	configs/am69_sk_a72_ethboot_defconfig
+F:	configs/am69_sk_r5_defconfig
+F:	configs/am69_sk_r5_ethboot_defconfig
+F:	doc/board/ti/j784s4_evm.rst
+F:	include/configs/j784s4_evm.h
 
-J742S2 EVM BOARD
+J742S2XH01EVM BOARD
 M:	Manorit Chawdhry <m-chawdhry@ti.com>
 S:	Maintained
-F:	arch/arm/dts/k3-j784s4-j742s2-ddr.dtsi
-F:	arch/arm/dts/k3-j742s2-r5-evm.dts
-F:	arch/arm/dts/k3-j742s2-evm-u-boot.dtsi
 F:	arch/arm/dts/k3-j742s2-ddr-evm-lp4-4266.dtsi
-F:	configs/j742s2_evm_r5_defconfig
+F:	arch/arm/dts/k3-j742s2-evm-u-boot.dtsi
+F:	arch/arm/dts/k3-j742s2-r5-evm.dts
+F:	arch/arm/dts/k3-j784s4-j742s2-ddr.dtsi
+F:	board/ti/j784s4
 F:	configs/j742s2_evm_a72_defconfig
+F:	configs/j742s2_evm_r5_defconfig
+F:	doc/board/ti/j784s4_evm.rst
+F:	include/configs/j784s4_evm.h

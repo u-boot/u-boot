@@ -15,6 +15,7 @@
 
 #include <cpu_func.h>
 #include <dm.h>
+#include <errno.h>
 #include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
@@ -26,7 +27,6 @@
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
-#include <linux/err.h>
 #include <linux/printk.h>
 
 /* Ethernet frame engine register */
@@ -562,13 +562,13 @@ static int mt7628_eth_probe(struct udevice *dev)
 
 	/* Save frame-engine base address for later use */
 	priv->base = dev_remap_addr_index(dev, 0);
-	if (IS_ERR(priv->base))
-		return PTR_ERR(priv->base);
+	if (!priv->base)
+		return -EINVAL;
 
 	/* Save switch base address for later use */
 	priv->eth_sw_base = dev_remap_addr_index(dev, 1);
-	if (IS_ERR(priv->eth_sw_base))
-		return PTR_ERR(priv->eth_sw_base);
+	if (!priv->eth_sw_base)
+		return -EINVAL;
 
 	/* Reset controller */
 	ret = reset_get_by_name(dev, "ephy", &priv->rst_ephy);

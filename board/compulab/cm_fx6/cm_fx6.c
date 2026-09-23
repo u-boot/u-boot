@@ -666,34 +666,34 @@ int misc_init_r(void)
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+	gd->dram[0].start = PHYS_SDRAM_1;
+	gd->dram[1].start = PHYS_SDRAM_2;
 
 	switch (gd->ram_size) {
 	case 0x10000000: /* DDR_16BIT_256MB */
-		gd->bd->bi_dram[0].size = 0x10000000;
-		gd->bd->bi_dram[1].size = 0;
+		gd->dram[0].size = 0x10000000;
+		gd->dram[1].size = 0;
 		break;
 	case 0x20000000: /* DDR_32BIT_512MB */
-		gd->bd->bi_dram[0].size = 0x20000000;
-		gd->bd->bi_dram[1].size = 0;
+		gd->dram[0].size = 0x20000000;
+		gd->dram[1].size = 0;
 		break;
 	case 0x40000000:
 		if (is_cpu_type(MXC_CPU_MX6SOLO)) { /* DDR_32BIT_1GB */
-			gd->bd->bi_dram[0].size = 0x20000000;
-			gd->bd->bi_dram[1].size = 0x20000000;
+			gd->dram[0].size = 0x20000000;
+			gd->dram[1].size = 0x20000000;
 		} else { /* DDR_64BIT_1GB */
-			gd->bd->bi_dram[0].size = 0x40000000;
-			gd->bd->bi_dram[1].size = 0;
+			gd->dram[0].size = 0x40000000;
+			gd->dram[1].size = 0;
 		}
 		break;
 	case 0x80000000: /* DDR_64BIT_2GB */
-		gd->bd->bi_dram[0].size = 0x40000000;
-		gd->bd->bi_dram[1].size = 0x40000000;
+		gd->dram[0].size = 0x40000000;
+		gd->dram[1].size = 0x40000000;
 		break;
 	case 0xEFF00000: /* DDR_64BIT_4GB */
-		gd->bd->bi_dram[0].size = 0x70000000;
-		gd->bd->bi_dram[1].size = 0x7FF00000;
+		gd->dram[0].size = 0x70000000;
+		gd->dram[1].size = 0x7FF00000;
 		break;
 	}
 
@@ -778,7 +778,7 @@ static int sata_imx_remove(struct udevice *dev)
 	return 0;
 }
 
-struct ahci_ops sata_imx_ops = {
+static const struct ahci_ops sata_imx_ops = {
 	.port_status = dwc_ahsata_port_status,
 	.reset	= dwc_ahsata_bus_reset,
 	.scan	= dwc_ahsata_scan,

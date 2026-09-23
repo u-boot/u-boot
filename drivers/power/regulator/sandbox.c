@@ -56,10 +56,11 @@ static struct dm_regulator_mode sandbox_buck_modes[] = {
 	MODE(BUCK_OM_PWM, OM2REG(BUCK_OM_PWM), "PWM"),
 };
 
-/* LDO: 1,2 - voltage range */
+/* LDO: 1,2,3 - voltage range */
 static struct output_range ldo_voltage_range[] = {
 	RANGE(OUT_LDO1_UV_MIN, OUT_LDO1_UV_MAX, OUT_LDO1_UV_STEP),
 	RANGE(OUT_LDO2_UV_MIN, OUT_LDO2_UV_MAX, OUT_LDO2_UV_STEP),
+	RANGE(OUT_LDO3_UV_MIN, OUT_LDO3_UV_MAX, OUT_LDO3_UV_STEP),
 };
 
 /* LDO: 1 - current range */
@@ -288,8 +289,8 @@ static int ldo_set_voltage(struct udevice *dev, int uV)
 
 static int ldo_get_current(struct udevice *dev)
 {
-	/* LDO2 - unsupported */
-	if (dev->driver_data == 2)
+	/* LDO: 2,3 - unsupported */
+	if (dev->driver_data >= 2)
 		return -ENOSYS;
 
 	return out_get_value(dev, SANDBOX_LDO_COUNT, OUT_REG_UA,
@@ -298,8 +299,8 @@ static int ldo_get_current(struct udevice *dev)
 
 static int ldo_set_current(struct udevice *dev, int uA)
 {
-	/* LDO2 - unsupported */
-	if (dev->driver_data == 2)
+	/* LDO: 2,3 - unsupported */
+	if (dev->driver_data >= 2)
 		return -ENOSYS;
 
 	return out_set_value(dev, SANDBOX_LDO_COUNT, OUT_REG_UA,

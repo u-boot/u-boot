@@ -45,8 +45,19 @@ Signed configurations
                 signature {
                     algo = "sha256,rsa2048";
                     key-name-hint = "dev";
-                    sign-images = "fdt", "kernel";
                 };
             };
         };
     };
+
+For signed configurations, mkimage signs every image referenced by the
+configuration node, such as ``kernel``, ``fdt``, ``ramdisk``, ``firmware`` and
+``loadables`` entries. No ``sign-images`` property is required. Older FIT
+source files may still include ``sign-images``, but current mkimage and U-Boot
+verification do not use it to limit the signed image list. mkimage warns when
+the property is present and signs every referenced image.
+
+Every referenced image must have at least one hash subnode. The configuration
+signature protects those hash values rather than the image data directly, so
+mkimage rejects a signed configuration that references an image without a
+hash.

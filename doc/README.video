@@ -74,7 +74,7 @@ The sunxi U-Boot driver supports the following video-mode options:
 
 For example to always use the hdmi connector, even if no cable is inserted,
 using edid info when available and otherwise initalizing it at 1024x768@60Hz,
-use: "setenv video-mode sunxi:1024x768-24@60,monitor=dvi,hpd=0,edid=1".
+use: "env set video-mode sunxi:1024x768-24@60,monitor=dvi,hpd=0,edid=1".
 
 
 TrueType fonts

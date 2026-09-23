@@ -138,11 +138,9 @@ int run_command_list(const char *cmd, int len, int flag)
 #endif
 	}
 	if (need_buff) {
-		buff = malloc(len + 1);
+		buff = memdup_nul(cmd, len);
 		if (!buff)
 			return 1;
-		memcpy(buff, cmd, len);
-		buff[len] = '\0';
 	}
 #ifdef CONFIG_HUSH_PARSER
 	if (use_hush_old()) {

@@ -532,8 +532,6 @@ static void get_rbf_image_info(struct rbf_info *rbf, u16 *buffer)
 
 		rbf->section = unknown;
 		break;
-
-		schedule();
 	}
 }
 
@@ -547,7 +545,8 @@ static int first_loading_rbf_to_buffer(struct udevice *dev,
 	u32 *loadable = buffer_p;
 	size_t buffer_size = *buffer_bsize;
 	size_t fit_size;
-	int ret, i, count, confs_noffset, images_noffset, rbf_offset, rbf_size;
+	int ret, i, count, confs_noffset, images_noffset;
+	u32 rbf_offset, rbf_size;
 	const char *fpga_node_name = NULL;
 	const char *uname = NULL;
 

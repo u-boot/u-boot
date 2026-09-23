@@ -77,8 +77,8 @@ Here is the boot log for the compressed kernel:
 
 ::
 
-    => setenv kernel_comp_addr_r 0x50000000
-    => setenv kernel_comp_size 0x04000000
+    => env set kernel_comp_addr_r 0x50000000
+    => env set kernel_comp_size 0x04000000
     => load mmc 0:1 $fdt_addr_r dtb-5.10.0-3-arm64
     27530 bytes read in 6 ms (4.4 MiB/s)
     => load mmc 0:1 $kernel_addr_r vmlinuz-5.10.0-3-arm64.gz

@@ -81,7 +81,7 @@ static int mpc8xxx_wdt_of_to_plat(struct udevice *dev)
 {
 	struct mpc8xxx_wdt_priv *priv = dev_get_priv(dev);
 
-	priv->base = (void __iomem *)devfdt_remap_addr(dev);
+	priv->base = (void __iomem *)dev_remap_addr(dev);
 
 	if (!priv->base)
 		return -EINVAL;

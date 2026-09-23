@@ -526,7 +526,7 @@ static void handle_uefi_bootnext(void)
  */
 static enum bootmenu_ret bootmenu_show(int uefi, int delay)
 {
-	int cmd_ret;
+	int cmd_ret = CMD_RET_SUCCESS;
 	int init = 0;
 	void *choice = NULL;
 	char *title = NULL;
@@ -628,7 +628,7 @@ cleanup:
 		printf(ANSI_CURSOR_POSITION, 1, 1);
 	}
 
-	if (title && command) {
+	if (title && command && *command) {
 		debug("Starting entry '%s'\n", title);
 		free(title);
 		if (efi_ret == EFI_SUCCESS)

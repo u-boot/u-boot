@@ -21,6 +21,7 @@
 #include <asm/armv8/mmu.h>
 #include <dm/device.h>
 #include <dm/device_compat.h>
+#include <dm/ofnode.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <env_internal.h>
@@ -198,26 +199,15 @@ static u32 get_cpu_variant_type(u32 type)
 	bool npu_disable = !!(val & BIT(13));
 	bool core1_disable = !!(val & BIT(15));
 	u32 pack_9x9_fused = BIT(4) | BIT(5) | BIT(17) | BIT(19) | BIT(24);
-	u32 nxp_recog = (val & GENMASK(23, 16)) >> 16;
+	u32 speed = (val & GENMASK(11, 6)) >> 6;
 
 	/* For iMX91 */
 	if (type == MXC_CPU_IMX91) {
-		switch (nxp_recog) {
-		case 0x9:
-		case 0xA:
+		if ((val2 & pack_9x9_fused) == pack_9x9_fused)
 			type = MXC_CPU_IMX9111;
-			break;
-		case 0xD:
-		case 0xE:
-			type = MXC_CPU_IMX9121;
-			break;
-		case 0xF:
-		case 0x10:
-			type = MXC_CPU_IMX9101;
-			break;
-		default:
-			break;	/* 9131 as default */
-		}
+
+		if (speed == 0xf) /* 800Mhz arm */
+			type += 1;
 
 		return type;
 	}
@@ -281,9 +271,17 @@ static void disable_wdog(void __iomem *wdog_base)
 
 void init_wdog(void)
 {
-	disable_wdog((void __iomem *)WDG3_BASE_ADDR);
-	disable_wdog((void __iomem *)WDG4_BASE_ADDR);
-	disable_wdog((void __iomem *)WDG5_BASE_ADDR);
+	ofnode node;
+
+	ofnode_for_each_compatible_node(node, "fsl,imx93-wdt") {
+		phys_addr_t base;
+
+		base = ofnode_get_addr(node);
+		if (base == FDT_ADDR_T_NONE)
+			continue;
+
+		disable_wdog((void __iomem *)base);
+	}
 }
 
 static struct mm_region imx93_mem_map[] = {
@@ -370,11 +368,11 @@ void enable_caches(void)
 
 	while (i < CONFIG_NR_DRAM_BANKS &&
 	       entry < ARRAY_SIZE(imx93_mem_map)) {
-		if (gd->bd->bi_dram[i].start == 0)
+		if (gd->dram[i].start == 0)
 			break;
-		imx93_mem_map[entry].phys = gd->bd->bi_dram[i].start;
-		imx93_mem_map[entry].virt = gd->bd->bi_dram[i].start;
-		imx93_mem_map[entry].size = gd->bd->bi_dram[i].size;
+		imx93_mem_map[entry].phys = gd->dram[i].start;
+		imx93_mem_map[entry].virt = gd->dram[i].start;
+		imx93_mem_map[entry].size = gd->dram[i].size;
 		imx93_mem_map[entry].attrs = attrs;
 		debug("Added memory mapping (%d): %llx %llx\n", entry,
 		      imx93_mem_map[entry].phys, imx93_mem_map[entry].size);
@@ -448,24 +446,24 @@ int dram_init_banksize(void)
 		sdram_b2_size = 0;
 	}
 
-	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
+	gd->dram[bank].start = PHYS_SDRAM;
 	if (!IS_ENABLED(CONFIG_XPL_BUILD) && rom_pointer[1]) {
 		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
 		phys_size_t optee_size = (size_t)rom_pointer[1];
 
-		gd->bd->bi_dram[bank].size = optee_start - gd->bd->bi_dram[bank].start;
+		gd->dram[bank].size = optee_start - gd->dram[bank].start;
 		if ((optee_start + optee_size) < (PHYS_SDRAM + sdram_b1_size)) {
 			if (++bank >= CONFIG_NR_DRAM_BANKS) {
 				puts("CONFIG_NR_DRAM_BANKS is not enough\n");
 				return -1;
 			}
 
-			gd->bd->bi_dram[bank].start = optee_start + optee_size;
-			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
-				sdram_b1_size - gd->bd->bi_dram[bank].start;
+			gd->dram[bank].start = optee_start + optee_size;
+			gd->dram[bank].size = PHYS_SDRAM +
+				sdram_b1_size - gd->dram[bank].start;
 		}
 	} else {
-		gd->bd->bi_dram[bank].size = sdram_b1_size;
+		gd->dram[bank].size = sdram_b1_size;
 	}
 
 	if (sdram_b2_size) {
@@ -473,8 +471,8 @@ int dram_init_banksize(void)
 			puts("CONFIG_NR_DRAM_BANKS is not enough for SDRAM_2\n");
 			return -1;
 		}
-		gd->bd->bi_dram[bank].start = 0x100000000UL;
-		gd->bd->bi_dram[bank].size = sdram_b2_size;
+		gd->dram[bank].start = 0x100000000UL;
+		gd->dram[bank].size = sdram_b2_size;
 	}
 
 	return 0;
@@ -741,13 +739,16 @@ int arch_cpu_init(void)
 int imx9_probe_mu(void)
 {
 	struct udevice *devp;
-	int node, ret;
+	ofnode node;
+	int ret;
 	u32 res;
 	struct ele_get_info_data info;
 
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "fsl,imx93-mu-s4");
+	node = ofnode_by_compatible(ofnode_null(), "fsl,imx93-mu-s4");
+	if (!ofnode_valid(node))
+		return -ENODEV;
 
-	ret = uclass_get_device_by_of_offset(UCLASS_MISC, node, &devp);
+	ret = uclass_get_device_by_ofnode(UCLASS_MISC, node, &devp);
 	if (ret)
 		return ret;
 

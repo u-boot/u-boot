@@ -141,7 +141,7 @@ static int tps6287x_regulator_probe(struct udevice *dev)
 
 	pdata->config = (void *)dev_get_driver_data(dev);
 
-	slave_id = devfdt_get_addr_index(dev, 0);
+	slave_id = dev_read_addr_index(dev, 0);
 
 	ret = i2c_get_chip(dev->parent, slave_id, 1, &pdata->i2c);
 	if (ret) {

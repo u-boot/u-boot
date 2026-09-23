@@ -216,3 +216,42 @@ static int dm_test_spi_xfer(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_spi_xfer, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+/* Test that a transfer is rejected when the device has no wire for it */
+static int dm_test_spi_xfer_no_rx_tx(struct unit_test_state *uts)
+{
+	struct dm_spi_slave_plat *plat;
+	struct spi_slave *slave;
+	struct udevice *bus;
+	const int busnum = 0, cs = 0;
+	const char dout[5] = {0x9f};
+	unsigned char din[5];
+	uint saved_mode;
+
+	ut_assertok(spi_get_bus_and_cs(busnum, cs, &bus, &slave));
+	ut_assertok(spi_claim_bus(slave));
+	plat = dev_get_parent_plat(slave->dev);
+	saved_mode = plat->mode;
+
+	plat->mode |= SPI_NO_RX;
+	ut_asserteq(-EINVAL, spi_xfer(slave, 40, dout, din,
+				      SPI_XFER_BEGIN | SPI_XFER_END));
+
+	plat->mode = saved_mode | SPI_NO_TX;
+	ut_asserteq(-EINVAL, spi_xfer(slave, 40, dout, din,
+				      SPI_XFER_BEGIN | SPI_XFER_END));
+
+	plat->mode = saved_mode;
+	spi_release_bus(slave);
+
+	/*
+	 * Since we are about to destroy all devices, we must tell sandbox
+	 * to forget the emulation device
+	 */
+#if CONFIG_IS_ENABLED(DM_SPI_FLASH)
+	sandbox_sf_unbind_emul(state_get_current(), busnum, cs);
+#endif
+
+	return 0;
+}
+DM_TEST(dm_test_spi_xfer_no_rx_tx, UTF_SCAN_PDATA | UTF_SCAN_FDT);

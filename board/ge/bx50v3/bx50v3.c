@@ -383,7 +383,7 @@ int board_early_init_f(void)
 
 #if defined(CONFIG_VIDEO_IPUV3)
 	/* Set LDB clock to Video PLL */
-	select_ldb_di_clock_source(MXC_PLL5_CLK);
+	select_ldb_di_clock_source(MXC_PLL5_CLK, MXC_PLL5_CLK);
 #endif
 	return 0;
 }

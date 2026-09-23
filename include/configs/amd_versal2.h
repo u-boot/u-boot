@@ -19,9 +19,23 @@
 #define GICD_BASE	0xe2000000
 #define GICR_BASE	0xe2060000
 
+/*
+ * The 2VM3654 part has 4 APU cores and 3 GIC ITS blocks (vs 8 cores and a
+ * single ITS on the base part), which moves the redistributor region up by
+ * the two extra ITS blocks. The right base is selected at runtime in
+ * lowlevel_init() based on the PMC TAP IDCODE.
+ */
+#define GICR_BASE_2VM3654	0xe20a0000
+#define GICR_IDCODE_2VM3654	0x04d98093
+
 /* Serial setup */
 #define CFG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
+
+/* GUID for capsule updatable firmware image */
+#define XILINX_BOOT_IMAGE_GUID \
+	EFI_GUID(0xed9e7fcf, 0x47b3, 0x40cd, 0xb6, 0xe3, \
+		 0x56, 0x5f, 0x14, 0x67, 0x6d, 0x82)
 
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300

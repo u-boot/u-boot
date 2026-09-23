@@ -388,6 +388,32 @@ dns_getserver(u8_t numdns)
 }
 
 /**
+ * @ingroup dns
+ * Cancel pending callbacks registered by dns_gethostbyname().
+ *
+ * DNS queries shared with other callers continue so their result can still be
+ * cached and delivered. Only callbacks matching both arguments are removed.
+ *
+ * @param found callback passed to dns_gethostbyname()
+ * @param callback_arg callback argument passed to dns_gethostbyname()
+ */
+void
+dns_cancel(dns_found_callback found, void *callback_arg)
+{
+  u8_t i;
+
+  LWIP_ASSERT_CORE_LOCKED();
+
+  for (i = 0; i < DNS_MAX_REQUESTS; i++) {
+    if ((dns_requests[i].found == found) &&
+        (dns_requests[i].arg == callback_arg)) {
+      dns_requests[i].found = NULL;
+      dns_requests[i].arg = NULL;
+    }
+  }
+}
+
+/**
  * The DNS resolver client timer - handle retries and timeouts and should
  * be called every DNS_TMR_INTERVAL milliseconds (every second by default).
  */

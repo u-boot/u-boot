@@ -1,5 +1,5 @@
 config PHY_J721E_WIZ
-	tristate "TI J721E WIZ (SERDES Wrapper) support"
+	bool "TI J721E WIZ (SERDES Wrapper) support"
 	depends on ARCH_K3
 	help
 	  This option enables support for WIZ module present in TI's J721E

@@ -7,6 +7,7 @@
  */
 
 #include <efi_loader.h>
+#include <image.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <cpu_func.h>
@@ -42,6 +43,11 @@ struct efi_capsule_update_info update_info = {
 	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
+
+int board_fit_config_name_match(const char *name)
+{
+	return k3_fit_config_match_security_state(name);
+}
 
 #if IS_ENABLED(CONFIG_SPL_BUILD)
 void spl_board_init(void)

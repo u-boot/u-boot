@@ -189,7 +189,7 @@ int env_load(void)
 		if (!env_has_inited(drv->location))
 			continue;
 
-		printf("Loading Environment from %s... ", drv->name);
+		printf("Loading Environment from %s...\r", drv->name);
 		/*
 		 * In error case, the error message must be printed during
 		 * drv->load() in some underlying API, and it must be exactly
@@ -197,7 +197,7 @@ int env_load(void)
 		 */
 		ret = drv->load();
 		if (!ret) {
-			printf("OK\n");
+			printf("Loading Environment from %s... OK\n", drv->name);
 			gd->env_load_prio = prio;
 
 			return 0;
@@ -206,7 +206,7 @@ int env_load(void)
 			if (best_prio == -1)
 				best_prio = prio;
 		} else {
-			debug("Failed (%d)\n", ret);
+			debug("Loading Environment from %s... Failed (%d)\n", drv->name, ret);
 		}
 	}
 

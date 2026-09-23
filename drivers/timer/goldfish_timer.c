@@ -31,8 +31,8 @@ static u64 goldfish_timer_get_count(struct udevice *dev)
 	 * We must read LOW before HIGH to latch the high 32-bit value
 	 * and ensure a consistent 64-bit timestamp.
 	 */
-	low = readl(priv->base + TIMER_TIME_LOW);
-	high = readl(priv->base + TIMER_TIME_HIGH);
+	low = __raw_readl(priv->base + TIMER_TIME_LOW);
+	high = __raw_readl(priv->base + TIMER_TIME_HIGH);
 
 	time = ((u64)high << 32) | low;
 
@@ -45,8 +45,10 @@ static int goldfish_timer_of_to_plat(struct udevice *dev)
 	fdt_addr_t addr;
 
 	addr = dev_read_addr(dev);
-	if (addr != FDT_ADDR_T_NONE)
-		plat->reg = addr;
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->reg = addr;
 
 	return 0;
 }

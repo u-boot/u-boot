@@ -21,7 +21,7 @@ int do_strings(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
 		start_addr = (char *)hextoul(argv[1], NULL);
 		if (argc > 2)
-			last_addr = (char *)hextoul(argv[2], NULL);
+			last_addr = start_addr + hextoul(argv[2], NULL);
 		else
 			last_addr = (char *)-1;
 	}

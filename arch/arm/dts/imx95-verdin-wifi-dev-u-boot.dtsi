@@ -26,7 +26,6 @@
 };
 
 &gpio1 {
-	reg = <0 0x47400000 0 0x1000>, <0 0x47400000 0 0x40>;
 	bootph-pre-ram;
 
 	ctrl-sleep-moci-hog {
@@ -105,8 +104,4 @@
 
 &usdhc1 {
 	bootph-pre-ram;
-};
-
-&wdog3 {
-	status = "disabled";
 };

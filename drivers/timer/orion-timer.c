@@ -2,6 +2,7 @@
 #include <asm/io.h>
 #include <config.h>
 #include <div64.h>
+#include <dm.h>
 #include <dm/device.h>
 #include <dm/fdtaddr.h>
 #include <timer.h>
@@ -113,7 +114,7 @@ static int orion_timer_probe(struct udevice *dev)
 	enum input_clock_type type = dev_get_driver_data(dev);
 	struct orion_timer_priv *priv = dev_get_priv(dev);
 
-	priv->base = devfdt_remap_addr_index(dev, 0);
+	priv->base = dev_remap_addr_index(dev, 0);
 	if (!priv->base) {
 		debug("unable to map registers\n");
 		return -ENOMEM;

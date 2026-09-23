@@ -103,12 +103,13 @@ static int socfpga_mem_clk_enable(struct clk *clk)
 static int socfpga_mem_clk_of_to_plat(struct udevice *dev)
 {
 	struct socfpga_mem_clk_plat *plat = dev_get_plat(dev);
-	fdt_addr_t addr;
+	void __iomem *addr;
 
-	addr = devfdt_get_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
+	addr = dev_read_addr_ptr(dev);
+	if (!addr)
 		return -EINVAL;
-	plat->regs = (void __iomem *)addr;
+
+	plat->regs = addr;
 
 	return 0;
 }

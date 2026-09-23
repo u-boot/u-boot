@@ -194,11 +194,11 @@ static int imx_rgpio2p_bind(struct udevice *dev)
 		dual_base = true;
 
 	if (dual_base) {
-		addr = devfdt_get_addr_index(dev, 1);
+		addr = dev_read_addr_index(dev, 1);
 		if (addr == FDT_ADDR_T_NONE)
 			return -EINVAL;
 	} else {
-		addr = devfdt_get_addr_index(dev, 0);
+		addr = dev_read_addr_index(dev, 0);
 		if (addr == FDT_ADDR_T_NONE)
 			return -EINVAL;
 

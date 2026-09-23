@@ -140,6 +140,9 @@ static int fsa_config_gpios(int fsa, struct fsa_user_info *info, int gpios, stru
 	int i, ret, flags;
 	char name[32];
 
+	/* clamp EEPROM-supplied descriptor count to the array size */
+	if (gpios > ARRAY_SIZE(info->gpios))
+		gpios = ARRAY_SIZE(info->gpios);
 	/* configure GPIO's */
 	for (i = 0; i < gpios; i++) {
 		desc = &info->gpios[i];
@@ -636,6 +639,11 @@ static int do_fsa_gpio(struct cmd_tbl *cmdtp, int flag, int argc, char * const a
 
 	memset(&desc, 0, sizeof(desc));
 	i = simple_strtoul(argv[0], NULL, 10);
+
+	if (i < 0 || i >= (int)ARRAY_SIZE(user_info.gpios)) {
+		printf("invalid index %d", i);
+		return CMD_RET_FAILURE;
+	}
 
 	if (i >= 0 && i < board_info.sockgpios) {
 		desc.offset = i;

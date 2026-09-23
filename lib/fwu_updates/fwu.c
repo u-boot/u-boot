@@ -759,7 +759,7 @@ static int fwu_boottime_checks(void)
 
 	ret = uclass_first_device_err(UCLASS_FWU_MDATA, &g_dev);
 	if (ret) {
-		log_debug("Cannot find fwu device\n");
+		log_err("Cannot find fwu device\n");
 		return ret;
 	}
 
@@ -771,7 +771,7 @@ static int fwu_boottime_checks(void)
 
 	ret = fwu_init();
 	if (ret) {
-		log_debug("fwu_init() failed\n");
+		log_err("fwu_init() failed\n");
 		return ret;
 	}
 

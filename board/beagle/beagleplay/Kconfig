@@ -30,13 +30,13 @@ endchoice
 if TARGET_AM625_A53_BEAGLEPLAY
 
 config SYS_BOARD
-       default "beagleplay"
+	default "beagleplay"
 
 config SYS_VENDOR
-       default "beagle"
+	default "beagle"
 
 config SYS_CONFIG_NAME
-       default "beagleplay"
+	default "beagleplay"
 
 source "board/ti/common/Kconfig"
 
@@ -45,13 +45,13 @@ endif
 if TARGET_AM625_R5_BEAGLEPLAY
 
 config SYS_BOARD
-       default "beagleplay"
+	default "beagleplay"
 
 config SYS_VENDOR
-       default "beagle"
+	default "beagle"
 
 config SYS_CONFIG_NAME
-       default "beagleplay"
+	default "beagleplay"
 
 config SPL_LDSCRIPT
 	default "arch/arm/mach-omap2/u-boot-spl.lds"

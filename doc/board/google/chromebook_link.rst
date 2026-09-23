@@ -13,7 +13,7 @@ First, you need the following binary blobs:
 
 You can get these binary blobs by::
 
-   $ git clone http://review.coreboot.org/p/blobs.git
+   $ git clone https://review.coreboot.org/blobs
    $ cd blobs
 
 Find the following files:

@@ -57,7 +57,7 @@ static const struct udevice_id bcm6328_power_domain_ids[] = {
 	{ /* sentinel */ }
 };
 
-struct power_domain_ops bcm6328_power_domain_ops = {
+static const struct power_domain_ops bcm6328_power_domain_ops = {
 	.off = bcm6328_power_domain_off,
 	.on = bcm6328_power_domain_on,
 	.request = bcm6328_power_domain_request,

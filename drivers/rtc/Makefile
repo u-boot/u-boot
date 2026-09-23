@@ -38,6 +38,7 @@ obj-$(CONFIG_RTC_RV8803) += rv8803.o
 obj-$(CONFIG_RTC_RX8025) += rx8025.o
 obj-$(CONFIG_RTC_RX8010SJ) += rx8010sj.o
 obj-$(CONFIG_RTC_S35392A) += s35392a.o
+obj-$(CONFIG_RTC_SNVS) += snvs-rtc.o
 obj-$(CONFIG_RTC_STM32) += stm32_rtc.o
 obj-$(CONFIG_$(PHASE_)RTC_SANDBOX) += sandbox_rtc.o
 obj-$(CONFIG_RTC_ABX80X) += abx80x.o

@@ -13,7 +13,7 @@
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
-/* Note: depends on enum ec_current_image */
+/* Note: depends on enum ec_image */
 static const char * const ec_current_image_name[] = {"unknown", "RO", "RW"};
 
 /**
@@ -312,7 +312,7 @@ static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (ret)
 			printf("Error: %d\n", ret);
 	} else if (0 == strcmp("curimage", cmd)) {
-		enum ec_current_image image;
+		enum ec_image image;
 
 		if (cros_ec_read_current_image(dev, &image)) {
 			debug("%s: Could not read KBC image\n", __func__);

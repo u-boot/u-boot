@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 			env_opts.lockname, CMD_PRINTENV);
 	}
 
-	lockfd = open(lockname, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+	lockfd = open(lockname, O_WRONLY | O_CREAT | O_TRUNC, 0600);
 	if (-1 == lockfd) {
 		fprintf(stderr, "Error opening lock file %s\n", lockname);
 		return EXIT_FAILURE;

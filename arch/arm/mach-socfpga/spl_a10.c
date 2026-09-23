@@ -25,6 +25,7 @@
 #include <asm/sections.h>
 #include <fdtdec.h>
 #include <watchdog.h>
+#include <wdt.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/fpga_manager.h>
 #include <mmc.h>
@@ -265,14 +266,8 @@ void board_init_f(ulong dummy)
 	/* Configure the clock based on handoff */
 	cm_basic_init(gd->fdt_blob);
 
-#ifdef CONFIG_HW_WATCHDOG
-	/* release osc1 watchdog timer 0 from reset */
-	socfpga_reset_deassert_osc1wd0();
-
-	/* reconfigure and enable the watchdog */
-	hw_watchdog_init();
-	schedule();
-#endif /* CONFIG_HW_WATCHDOG */
+	if (CONFIG_IS_ENABLED(WDT))
+		initr_watchdog();
 
 	config_dedicated_pins(gd->fdt_blob);
 	schedule();

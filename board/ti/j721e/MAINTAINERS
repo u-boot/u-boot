@@ -1,9 +1,31 @@
-J721E BOARD
+J721EXSOMXEVM BOARD
 M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
-F:	board/ti/j721e
-F:	include/configs/j721e_evm.h
-F:	configs/j721e_evm_r5_defconfig
+F:	arch/arm/dts/k3-j721e-binman.dtsi
+F:	arch/arm/dts/k3-j721e-common-proc-board-u-boot.dtsi
+F:	arch/arm/dts/k3-j721e-ddr-evm-lp4-4266.dtsi
+F:	arch/arm/dts/k3-j721e-ddr.dtsi
+F:	arch/arm/dts/k3-j721e-r5-common-proc-board.dts
+F:	arch/arm/dts/k3-j721e-r5.dtsi
+F:	board/ti/j721e/
 F:	configs/j721e_evm_a72_defconfig
-F:	configs/j721e_sk_r5_defconfig
+F:	configs/j721e_evm_r5_defconfig
+F:	doc/board/ti/img/boot_diagram_j721e.svg
+F:	doc/board/ti/j721e_evm.rst
+F:	include/configs/j721e_evm.h
+
+SK-TDA4VM BOARD
+M:	Tom Rini <trini@konsulko.com>
+S:	Maintained
+F:	arch/arm/dts/k3-j721e-binman.dtsi
+F:	arch/arm/dts/k3-j721e-ddr-sk-lp4-4266.dtsi
+F:	arch/arm/dts/k3-j721e-ddr.dtsi
+F:	arch/arm/dts/k3-j721e-r5-sk.dts
+F:	arch/arm/dts/k3-j721e-r5.dtsi
+F:	arch/arm/dts/k3-j721e-sk-u-boot.dtsi
+F:	board/ti/j721e/
 F:	configs/j721e_sk_a72_defconfig
+F:	configs/j721e_sk_r5_defconfig
+F:	doc/board/ti/img/boot_diagram_j721e.svg
+F:	doc/board/ti/j721e_evm.rst
+F:	include/configs/j721e_evm.h

@@ -14,7 +14,7 @@ config DRIVER_TI_EMAC
 	bool "TI Davinci EMAC"
 	depends on ARCH_DAVINCI || ARCH_OMAP2PLUS
 	help
-	   Support for davinci emac
+	  Support for davinci emac
 
 config DRIVER_TI_EMAC_USE_RMII
 	depends on DRIVER_TI_EMAC
@@ -26,7 +26,7 @@ config DRIVER_TI_KEYSTONE_NET
 	bool "TI Keystone 2 Ethernet"
 	depends on ARCH_KEYSTONE
 	help
-	   This driver supports the TI Keystone 2 Ethernet subsystem
+	  This driver supports the TI Keystone 2 Ethernet subsystem
 
 choice
 	prompt "TI Keystone 2 Ethernet NETCP IP revision"

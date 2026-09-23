@@ -263,7 +263,9 @@ void socfpga_get_managers_addr(void)
 
 	if (!IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) &&
 	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M) &&
-	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5)) {
+	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5) &&
+	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_STRATIX10) &&
+	    !IS_ENABLED(CONFIG_ARCH_SOCFPGA_N5X)) {
 		ret = socfpga_get_base_addr("altr,sys-mgr",
 					    &socfpga_sysmgr_base);
 		if (ret)
@@ -275,7 +277,8 @@ void socfpga_get_managers_addr(void)
 					    &socfpga_clkmgr_base);
 	else if (!IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX) &&
 		 !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX7M) &&
-		 !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5))
+		 !IS_ENABLED(CONFIG_ARCH_SOCFPGA_AGILEX5) &&
+		 !IS_ENABLED(CONFIG_ARCH_SOCFPGA_STRATIX10))
 		ret = socfpga_get_base_addr("altr,clk-mgr",
 					    &socfpga_clkmgr_base);
 
@@ -318,3 +321,33 @@ phys_addr_t socfpga_get_clkmgr_addr(void)
 {
 	return socfpga_clkmgr_base;
 }
+
+#if IS_ENABLED(CONFIG_SYS_ARM_CACHE_CP15)
+void dram_bank_mmu_setup(int bank)
+{
+	u32 start, size;
+	int i;
+
+	/* If we're still in OCRAM, don't set the XN bit on it */
+	if (!(gd->flags & GD_FLG_RELOC)) {
+		set_section_dcache(CFG_SYS_INIT_RAM_ADDR >> MMU_SECTION_SHIFT,
+				   DCACHE_WRITETHROUGH);
+
+		/*
+		 * The default implementation of this function allows the DRAM dcache
+		 * to be enabled only after relocation. However, to speed up ECC
+		 * initialization, we want to be able to enable DRAM dcache before
+		 * relocation.
+		 */
+		start = gd->dram[bank].start >> MMU_SECTION_SHIFT;
+		size = gd->dram[bank].size >> MMU_SECTION_SHIFT;
+		for (i = start; i < start + size; i++)
+			set_section_dcache(i, DCACHE_WRITETHROUGH);
+	} else {
+		start = gd->dram[bank].start >> MMU_SECTION_SHIFT;
+		size = gd->dram[bank].size >> MMU_SECTION_SHIFT;
+		for (i = start; i < start + size; i++)
+			set_section_dcache(i, DCACHE_DEFAULT_OPTION);
+	}
+}
+#endif

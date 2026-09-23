@@ -4,4 +4,3 @@ S:	Maintained
 F:	board/acer/picasso/
 F:	configs/picasso_defconfig
 F:	doc/board/acer/picasso.rst
-F:	include/configs/picasso.h

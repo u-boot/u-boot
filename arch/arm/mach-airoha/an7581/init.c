@@ -23,12 +23,12 @@ int dram_init(void)
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = gd->ram_base;
-	gd->bd->bi_dram[0].size = get_effective_memsize();
+	gd->dram[0].start = gd->ram_base;
+	gd->dram[0].size = get_effective_memsize();
 
 	if (gd->ram_size > SZ_2G) {
-		gd->bd->bi_dram[1].start = gd->ram_base + SZ_2G;
-		gd->bd->bi_dram[1].size = gd->ram_size - SZ_2G;
+		gd->dram[1].start = gd->ram_base + SZ_2G;
+		gd->dram[1].size = gd->ram_size - SZ_2G;
 	}
 
 	return 0;

@@ -46,7 +46,7 @@ int dev_tag_set_ptr(struct udevice *dev, enum dm_tag_t tag, void *ptr)
 			return -EEXIST;
 	}
 
-	node = calloc(sizeof(*node), 1);
+	node = calloc(1, sizeof(*node));
 	if (!node)
 		return -ENOMEM;
 
@@ -70,7 +70,7 @@ int dev_tag_set_val(struct udevice *dev, enum dm_tag_t tag, ulong val)
 			return -EEXIST;
 	}
 
-	node = calloc(sizeof(*node), 1);
+	node = calloc(1, sizeof(*node));
 	if (!node)
 		return -ENOMEM;
 

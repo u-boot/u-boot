@@ -176,8 +176,8 @@ int dram_init(void)
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = (BCM_NS3_MEM_END - SZ_16M);
-	gd->bd->bi_dram[0].size = SZ_16M;
+	gd->dram[0].start = (BCM_NS3_MEM_END - SZ_16M);
+	gd->dram[0].size = SZ_16M;
 
 	return 0;
 }

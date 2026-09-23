@@ -25,6 +25,11 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	firmware {
+		#address-cells = <2>;
+		#size-cells = <2>;
+	};
+
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0x0 0x80000000 0x0 0xc0000000>;
@@ -1467,6 +1472,8 @@
 			gpio-controller;
 			#gpio-cells = <2>;
 
+			system-power-controller;
+
 			pinctrl-names = "default";
 			pinctrl-0 = <&max77620_default>;
 
@@ -1889,6 +1896,18 @@
 
 		interrupt-controller@702f9000 {
 			status = "okay";
+		};
+	};
+
+	spi@70410000 {
+		status = "okay";
+
+		flash@0 {
+			compatible = "jedec,spi-nor";
+			reg = <0>;
+			spi-max-frequency = <104000000>;
+			spi-tx-bus-width = <2>;
+			spi-rx-bus-width = <2>;
 		};
 	};
 

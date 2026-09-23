@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman: binman {
+		some_template: template {
+			parent: section@1 {
+				child = <&child>;
+				child: section@2 {
+					parent = <&parent>;
+				};
+			};
+		};
+
+		section@0 {
+			insert-template = <&some_template>;
+		};
+	};
+};

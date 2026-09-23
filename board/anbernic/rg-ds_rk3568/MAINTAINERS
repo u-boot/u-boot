@@ -1,0 +1,7 @@
+ANBERNIC-RG-DS-RK3568
+M:	Chris Morgan <macromorgan@hotmail.com>
+S:	Maintained
+F:	arch/arm/dts/rk3568-anbernic-rg-ds-u-boot.dtsi
+F:	board/anbernic/rg-ds_rk3568
+F:	configs/anbernic-rg-ds-rk3568_defconfig
+F:	include/configs/anbernic-rg-ds-rk3568.h

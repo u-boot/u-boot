@@ -638,6 +638,9 @@ int riscv_cpu_setup(void)
 	const char *isa, **exts;
 	struct udevice *dev;
 
+	if (!CONFIG_IS_ENABLED(CPU))
+		return 0;
+
 	uclass_find_first_device(UCLASS_CPU, &dev);
 	if (!dev) {
 		debug("unable to find the RISC-V cpu device\n");

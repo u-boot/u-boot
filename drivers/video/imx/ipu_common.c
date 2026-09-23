@@ -299,9 +299,9 @@ struct ipu_ctx *ipu_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
 	clk_set_parent(ctx->pixel_clk[0], ctx->ipu_clk);
 	clk_set_parent(ctx->pixel_clk[1], ctx->ipu_clk);
+#endif
 
 	clk_enable(ctx->ipu_clk);
-#endif
 
 	for (int i = 0; i <= 1; i++) {
 		ret = ipu_di_clk_init(ctx, i);
@@ -384,10 +384,8 @@ int32_t ipu_init_channel(struct ipu_ctx *ctx, ipu_channel_t channel,
 
 	debug("init channel = %d\n", IPU_CHAN_ID(channel));
 
-	if (ctx->ipu_clk_enabled == 0) {
-		ctx->ipu_clk_enabled = 1;
+	if (!ipu_clk_enabled(ctx))
 		clk_enable(ipu_clk);
-	}
 
 	if (*channel_init_mask & (1L << IPU_CHAN_ID(channel))) {
 		printf("Warning: channel already initialized %d\n",
@@ -543,7 +541,6 @@ void ipu_uninit_channel(struct ipu_ctx *ctx, ipu_channel_t channel)
 
 	if (ipu_conf == 0) {
 		clk_disable(ctx->ipu_clk);
-		ctx->ipu_clk_enabled = 0;
 	}
 }
 
@@ -1045,5 +1042,9 @@ ipu_color_space_t format_to_colorspace(u32 fmt)
 
 bool ipu_clk_enabled(struct ipu_ctx *ctx)
 {
-	return ctx->ipu_clk_enabled;
+#if CONFIG_IS_ENABLED(IPU_CLK_LEGACY)
+	return clk_get_usecount(ctx->ipu_clk);
+#else
+	return ctx->ipu_clk->enable_count;
+#endif
 }

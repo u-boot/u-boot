@@ -88,7 +88,7 @@
 		     "bootm $loadaddr};reset;" \
 		"fi\0" \
 	"bootcmd=" \
-		"if test -n ${recovery_status}; then " \
+		"if test -n \"${recovery_status}\"; then " \
 		     "run boot_recovery;" \
 		"else " \
 		     "if test ! -n ${boot_medium}; then " \

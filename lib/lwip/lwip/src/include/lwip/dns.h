@@ -111,6 +111,7 @@ err_t            dns_gethostbyname(const char *hostname, ip_addr_t *addr,
 err_t            dns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr,
                                    dns_found_callback found, void *callback_arg,
                                    u8_t dns_addrtype);
+void             dns_cancel(dns_found_callback found, void *callback_arg);
 
 
 #if DNS_LOCAL_HOSTLIST

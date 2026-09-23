@@ -1076,6 +1076,8 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 	} else if (h >= thisfrag) {
 		/* overlaps with initial part of the hole: move this hole */
 		newh = thisfrag + (len / 8);
+		if ((uchar *)(newh + 1) > pkt_buff + IP_PKTSIZE)
+			return NULL;	/* hole descriptor would overflow pkt_buff */
 		*newh = *h;
 		h = newh;
 		if (h->next_hole)
@@ -1088,6 +1090,8 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 	} else {
 		/* fragment sits in the middle: split the hole */
 		newh = thisfrag + (len / 8);
+		if ((uchar *)(newh + 1) > pkt_buff + IP_PKTSIZE)
+			return NULL;	/* hole descriptor would overflow pkt_buff */
 		*newh = *h;
 		h->last_byte = start;
 		h->next_hole = (newh - payload);

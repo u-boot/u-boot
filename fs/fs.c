@@ -320,13 +320,15 @@ static struct fstype_info fstypes[] = {
 		.null_dev_desc_ok = false,
 		.probe = btrfs_probe,
 		.close = btrfs_close,
-		.ls = btrfs_ls,
+		.ls = fs_ls_generic,
 		.exists = btrfs_exists,
 		.size = btrfs_size,
 		.read = btrfs_read,
 		.write = fs_write_unsupported,
 		.uuid = btrfs_uuid,
-		.opendir = fs_opendir_unsupported,
+		.opendir = btrfs_opendir,
+		.readdir = btrfs_readdir,
+		.closedir = btrfs_closedir,
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 		.ln = fs_ln_unsupported,
@@ -459,10 +461,52 @@ const char *fs_get_type_name(void)
 	return fs_get_info(fs_type)->name;
 }
 
+/*
+ * Some fstypes (semihosting, ubifs) have no underlying block device
+ * and ignore the block_desc argument of their probe hook. The legacy
+ * commands (ubifsload, semihosting via env macros) just pass NULL;
+ * for "load <iface> ..." to behave the same, the dispatcher opts
+ * those fstypes in by name here, before any block-device lookup is
+ * attempted.
+ *
+ * Returns the matching fstype_info if @ifname names a fstype that
+ * opts into null_dev_desc_ok dispatch and the caller's @fstype filter
+ * permits it. Returns NULL otherwise.
+ */
+static struct fstype_info *fs_lookup_null_dev_info(const char *ifname,
+						   int fstype)
+{
+	struct fstype_info *info;
+	int i;
+
+	for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes); i++, info++) {
+		if (fstype != FS_TYPE_ANY && info->fstype != FS_TYPE_ANY &&
+		    fstype != info->fstype)
+			continue;
+		if (!info->null_dev_desc_ok || !info->name)
+			continue;
+		if (!strcmp(info->name, ifname))
+			return info;
+	}
+
+	return NULL;
+}
+
 int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 {
 	struct fstype_info *info;
 	int part, i;
+
+	info = fs_lookup_null_dev_info(ifname, fstype);
+	if (info) {
+		fs_dev_desc = NULL;
+		memset(&fs_partition, 0, sizeof(fs_partition));
+		if (!info->probe(NULL, &fs_partition)) {
+			fs_type = info->fstype;
+			fs_dev_part = 0;
+			return 0;
+		}
+	}
 
 	part = part_get_info_by_dev_and_name_or_num(ifname, dev_part_str, &fs_dev_desc,
 						    &fs_partition, 1);

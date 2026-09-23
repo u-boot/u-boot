@@ -12,6 +12,7 @@ int ddr_cfg_phy(struct dram_timing_info *dram_timing)
 {
 	struct dram_cfg_param *dram_cfg;
 	struct dram_fsp_msg *fsp_msg;
+	int last_fw_type = -1;
 	unsigned int num;
 	int i = 0;
 	int j = 0;
@@ -33,9 +34,18 @@ int ddr_cfg_phy(struct dram_timing_info *dram_timing)
 		/* set dram PHY input clocks to desired frequency */
 		ddrphy_init_set_dfi_clk(fsp_msg->drate);
 
-		/* load the dram training firmware image */
+		/*
+		 * Load the DRAM training firmware image, unless the same image has
+		 * already been loaded for an earlier frequency setpoint of this run.
+		 * It must be loaded again for every ddr_cfg_phy() call as the caller
+		 * resets the PHY before this, which leaves the image in the PHY memory
+		 * in an undefined state.
+		 */
 		dwc_ddrphy_apb_wr(0xd0000, 0x0);
-		ddr_load_train_firmware(fsp_msg->fw_type);
+		if (fsp_msg->fw_type != last_fw_type) {
+			ddr_load_train_firmware(fsp_msg->fw_type);
+			last_fw_type = fsp_msg->fw_type;
+		}
 
 		/* load the frequency set point message block parameter */
 		dram_cfg = fsp_msg->fsp_cfg;

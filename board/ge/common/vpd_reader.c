@@ -66,7 +66,7 @@ static int verify_bch(int ecc_bits, unsigned int prim_poly, u8 *data,
 		return -1;
 	}
 
-	unsigned int *errloc = (unsigned int *)calloc(data_length,
+	unsigned int *errloc = (unsigned int *)calloc(ecc_bits,
 						      sizeof(unsigned int));
 	int errors = decode_bch(bch, data, data_length, ecc, NULL, NULL,
 				errloc);

@@ -24,8 +24,8 @@ stdout or stderr) to any device you see in that list simply by
 assigning its name to the corresponding environment variable. For
 example:
 
-    setenv stdin serial		<- To use the serial input
-    setenv stdout video		<- To use the video console
+    env set stdin serial		<- To use the serial input
+    env set stdout video		<- To use the video console
 
 Do a simple "saveenv" to save the console settings in the environment
 and get them working on the next startup, too.

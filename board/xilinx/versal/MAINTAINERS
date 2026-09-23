@@ -1,8 +1,9 @@
 XILINX_VERSAL BOARDS
 M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
-T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-amd.git
 F:	arch/arm/dts/versal*
 F:	board/xilinx/versal/
 F:	include/configs/xilinx_versal*
+F:	configs/amd_versal_premium_2*
 F:	configs/xilinx_versal*

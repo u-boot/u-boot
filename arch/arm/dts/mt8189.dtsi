@@ -8,6 +8,7 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/phy/phy.h>
+#include <dt-bindings/power/mediatek,mt8189-power.h>
 #include <dt-bindings/reset/ti-syscon.h>
 
 / {
@@ -144,6 +145,45 @@
 		compatible = "simple-bus";
 		ranges;
 
+		scpsys: syscon@1c001000 {
+			compatible = "mediatek,mt8189-scpsys", "syscon", "simple-mfd";
+			reg = <0 0x1c001000 0 0x1000>;
+
+			/* System Power Manager */
+			spm: power-controller {
+				compatible = "mediatek,mt8189-power-controller";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				#power-domain-cells = <1>;
+
+				power-domain@MT8189_POWER_DOMAIN_MM_INFRA {
+					reg = <MT8189_POWER_DOMAIN_MM_INFRA>;
+					clocks = <&topckgen_clk CLK_TOP_MMINFRA_SEL>,
+						 <&mminfra_config_clk CLK_MMINFRA_SMI>;
+					clock-names = "mminfra", "ss-mminfra";
+					mediatek,infracfg = <&infracfg_ao>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+					#power-domain-cells = <1>;
+
+					power-domain@MT8189_POWER_DOMAIN_DISP {
+						reg = <MT8189_POWER_DOMAIN_DISP>;
+						clocks = <&topckgen_clk CLK_TOP_DISP0_SEL>,
+							 <&dispsys_config_clk CLK_MM_SMI_LARB>;
+						clock-names = "disp", "ss-disp";
+						mediatek,infracfg = <&infracfg_ao>;
+						#power-domain-cells = <0>;
+					};
+				};
+
+				power-domain@MT8189_POWER_DOMAIN_SSUSB {
+					reg = <MT8189_POWER_DOMAIN_SSUSB>;
+					mediatek,infracfg = <&infracfg_ao>;
+					#power-domain-cells = <0>;
+				};
+			};
+		};
+
 		watchdog: watchdog@1c00a000 {
 			compatible = "mediatek,mt8391-wdt",
 				     "mediatek,wdt";
@@ -240,6 +280,7 @@
 				 <&pericfg_ao_clk CLK_PERAO_SSUSB1_FRMCNT>;
 			clock-names = "sys_ck", "ref_ck","mcu_ck",
 				      "dma_ck", "xhci_ck", "frmcnt_ck";
+			power-domains = <&spm MT8189_POWER_DOMAIN_SSUSB>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			wakeup-source;
@@ -264,6 +305,7 @@
 				 <&pericfg_ao_clk CLK_PERAO_SSUSB2_FRMCNT>;
 			clock-names = "sys_ck", "ref_ck","mcu_ck",
 				      "dma_ck", "xhci_ck", "frmcnt_ck";
+			power-domains = <&spm MT8189_POWER_DOMAIN_SSUSB>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			wakeup-source;
@@ -313,6 +355,7 @@
 				 <&pericfg_ao_clk CLK_PERAO_SSUSB3_FRMCNT>;
 			clock-names = "sys_ck", "ref_ck", "mcu_ck",
 				      "dma_ck", "xhci_ck", "frmcnt_ck";
+			power-domains = <&spm MT8189_POWER_DOMAIN_SSUSB>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			wakeup-source;
@@ -344,13 +387,18 @@
 			status = "disabled";
 		};
 
+		infracfg_ao: syscon@10001000 {
+			compatible = "mediatek,mt8189-infra-ao", "syscon";
+			reg = <0 0x10001000 0 0x1000>;
+		};
+
 		clock-controller@1000c000 {
 			compatible = "mediatek,mt8189-apmixedsys", "syscon";
 			reg = <0 0x1000c000 0 0x1000>;
 			#clock-cells = <1>;
 		};
 
-		clock-controller@14000000 {
+		dispsys_config_clk: clock-controller@14000000 {
 			compatible = "mediatek,mt8189-dispsys", "syscon";
 			reg = <0 0x14000000 0 0x1000>;
 			#clock-cells = <1>;
@@ -368,7 +416,7 @@
 			#clock-cells = <1>;
 		};
 
-		clock-controller@1e800000 {
+		mminfra_config_clk: clock-controller@1e800000 {
 			compatible = "mediatek,mt8189-mm-infra", "syscon";
 			reg = <0 0x1e800000 0 0x1000>;
 			#clock-cells = <1>;
@@ -379,6 +427,83 @@
 			reg = <0 0x11036000 0 0x1000>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
+		};
+
+		eth: ethernet@1101a000 {
+			compatible = "mediatek,mt8189-gmac", "snps,dwmac-5.10a";
+			reg = <0 0x1101a000 0 0x4000>;
+			interrupts = <GIC_SPI 475 IRQ_TYPE_LEVEL_HIGH 0>;
+			interrupt-names = "macirq";
+			clock-names = "mac_main",
+				      "ptp_ref";
+			clocks = <&topckgen_clk CLK_TOP_ETH_250M_SEL>,
+				 <&topckgen_clk CLK_TOP_ETH_62P4M_PTP_SEL>;
+			assigned-clocks = <&topckgen_clk CLK_TOP_ETH_250M_SEL>,
+					  <&topckgen_clk CLK_TOP_ETH_62P4M_PTP_SEL>,
+					  <&topckgen_clk CLK_TOP_ETH_50M_RMII_SEL>;
+			assigned-clock-parents = <&topckgen_clk CLK_TOP_ETHPLL_D2>,
+						 <&topckgen_clk CLK_TOP_ETHPLL_D8>,
+						 <&topckgen_clk CLK_TOP_ETHPLL_D10>;
+			mediatek,pericfg = <&pericfg_ao_clk>;
+			snps,axi-config = <&stmmac_axi_setup>;
+			snps,mtl-rx-config = <&mtl_rx_setup>;
+			snps,mtl-tx-config = <&mtl_tx_setup>;
+			snps,txpbl = <16>;
+			snps,rxpbl = <16>;
+			clk-csr = <4>;
+			status = "disabled";
+
+			stmmac_axi_setup: stmmac-axi-config {
+				snps,wr-osr-lmt = <0x7>;
+				snps,rd-osr-lmt = <0x7>;
+				snps,blen = <0 0 0 0 16 8 4>;
+			};
+
+			mtl_rx_setup: rx-queues-config {
+				snps,rx-queues-to-use = <4>;
+				snps,rx-sched-sp;
+				queue0 {
+					snps,dcb-algorithm;
+					snps,map-to-dma-channel = <0x0>;
+				};
+				queue1 {
+					snps,dcb-algorithm;
+					snps,map-to-dma-channel = <0x0>;
+				};
+				queue2 {
+					snps,dcb-algorithm;
+					snps,map-to-dma-channel = <0x0>;
+				};
+				queue3 {
+					snps,dcb-algorithm;
+					snps,map-to-dma-channel = <0x0>;
+				};
+			};
+
+			mtl_tx_setup: tx-queues-config {
+				snps,tx-queues-to-use = <4>;
+				snps,tx-sched-wrr;
+				queue0 {
+					snps,weight = <0x10>;
+					snps,dcb-algorithm;
+					snps,priority = <0x0>;
+				};
+				queue1 {
+					snps,weight = <0x11>;
+					snps,dcb-algorithm;
+					snps,priority = <0x1>;
+				};
+				queue2 {
+					snps,weight = <0x12>;
+					snps,dcb-algorithm;
+					snps,priority = <0x2>;
+				};
+				queue3 {
+					snps,weight = <0x13>;
+					snps,dcb-algorithm;
+					snps,priority = <0x3>;
+				};
+			};
 		};
 
 		topckgen_clk: clock-controller@10000000 {

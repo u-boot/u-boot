@@ -9,7 +9,7 @@ config SYS_BOARD
        default "phycore_am62x"
 
 config SYS_VENDOR
-       default "phytec"
+	default "phytec"
 
 config SYS_CONFIG_NAME
        default "phycore_am62x"
@@ -24,7 +24,7 @@ config SYS_BOARD
        default "phycore_am62x"
 
 config SYS_VENDOR
-       default "phytec"
+	default "phytec"
 
 config SYS_CONFIG_NAME
        default "phycore_am62x"
@@ -38,31 +38,31 @@ source "board/phytec/common/k3/Kconfig"
 endif
 
 config PHYCORE_AM62X_RAM_SIZE_FIX
-        bool "Set phyCORE-AM62x RAM size fix instead of detecting"
-        default false
-        help
-          RAM size is automatic being detected with the help of
-          the EEPROM introspection data. Set RAM size to a fix value
-          instead.
+	bool "Set phyCORE-AM62x RAM size fix instead of detecting"
+	default false
+	help
+	  RAM size is automatic being detected with the help of
+	  the EEPROM introspection data. Set RAM size to a fix value
+	  instead.
 
 choice
-        prompt "phyCORE-AM62x RAM size"
-        depends on PHYCORE_AM62X_RAM_SIZE_FIX
-        default PHYCORE_AM62X_RAM_SIZE_2GB
+	prompt "phyCORE-AM62x RAM size"
+	depends on PHYCORE_AM62X_RAM_SIZE_FIX
+	default PHYCORE_AM62X_RAM_SIZE_2GB
 
 config PHYCORE_AM62X_RAM_SIZE_1GB
-        bool "1GB RAM"
-        help
-          Set RAM size fix to 1GB for phyCORE-AM62x.
+	bool "1GB RAM"
+	help
+	  Set RAM size fix to 1GB for phyCORE-AM62x.
 
 config PHYCORE_AM62X_RAM_SIZE_2GB
-        bool "2GB RAM"
-        help
-          Set RAM size fix to 2GB for phyCORE-AM62x.
+	bool "2GB RAM"
+	help
+	  Set RAM size fix to 2GB for phyCORE-AM62x.
 
 config PHYCORE_AM62X_RAM_SIZE_4GB
-        bool "4GB RAM"
-        help
-          Set RAM size fix to 4GB for phyCORE-AM62x.
+	bool "4GB RAM"
+	help
+	  Set RAM size fix to 4GB for phyCORE-AM62x.
 
 endchoice

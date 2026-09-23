@@ -1008,6 +1008,7 @@ static int ufshcd_copy_query_response(struct ufs_hba *hba)
 		buf_len =
 			be16_to_cpu(hba->dev_cmd.query.request.upiu_req.length);
 		if (likely(buf_len >= resp_len)) {
+			ufshcd_cache_invalidate(descp, resp_len);
 			memcpy(hba->dev_cmd.query.descriptor, descp, resp_len);
 		} else {
 			dev_warn(hba->dev,

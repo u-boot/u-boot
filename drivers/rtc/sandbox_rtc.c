@@ -73,7 +73,7 @@ static int sandbox_rtc_get_name(const struct udevice *dev, char *out_name)
 	return acpi_copy_name(out_name, "RTCC");
 }
 
-struct acpi_ops sandbox_rtc_acpi_ops = {
+static const struct acpi_ops sandbox_rtc_acpi_ops = {
 	.get_name	= sandbox_rtc_get_name,
 };
 #endif

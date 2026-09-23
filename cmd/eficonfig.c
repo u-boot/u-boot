@@ -1844,6 +1844,7 @@ static efi_status_t eficonfig_show_boot_selection(unsigned int *selected)
 	struct efimenu *efi_menu;
 	struct list_head *pos, *n;
 	struct eficonfig_entry *entry;
+	efi_guid_t guid;
 
 	efi_menu = calloc(1, sizeof(struct efimenu));
 	if (!efi_menu)
@@ -1872,7 +1873,6 @@ static efi_status_t eficonfig_show_boot_selection(unsigned int *selected)
 	var_name16[0] = 0;
 	for (;;) {
 		int index;
-		efi_guid_t guid;
 
 		ret = efi_next_variable_name(&buf_size, &var_name16, &guid);
 		if (ret == EFI_NOT_FOUND)
@@ -2245,6 +2245,7 @@ static efi_status_t eficonfig_create_change_boot_order_entry(struct efimenu *efi
 	u16 *var_name16 = NULL;
 	efi_uintn_t size, buf_size;
 	struct eficonfig_save_boot_order_data *save_data;
+	efi_guid_t guid;
 
 	/* list the load option in the order of BootOrder variable */
 	for (i = 0; i < num; i++) {
@@ -2265,7 +2266,6 @@ static efi_status_t eficonfig_create_change_boot_order_entry(struct efimenu *efi
 	var_name16[0] = 0;
 	for (;;) {
 		int index;
-		efi_guid_t guid;
 
 		if (efi_menu->count >= EFICONFIG_ENTRY_NUM_MAX - 2)
 			break;

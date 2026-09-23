@@ -312,10 +312,8 @@ void part_init(struct blk_desc *desc)
 
 static void print_part_header(const char *type, struct blk_desc *desc)
 {
-#if CONFIG_IS_ENABLED(MAC_PARTITION) || \
-	CONFIG_IS_ENABLED(DOS_PARTITION) || \
+#if CONFIG_IS_ENABLED(DOS_PARTITION) || \
 	CONFIG_IS_ENABLED(ISO_PARTITION) || \
-	CONFIG_IS_ENABLED(AMIGA_PARTITION) || \
 	CONFIG_IS_ENABLED(EFI_PARTITION) || \
 	CONFIG_IS_ENABLED(MTD_PARTITIONS)
 	printf("\nPartition Map for %s device %d  --   Partition Type: %s\n\n",
@@ -383,7 +381,7 @@ int part_get_info_whole_disk(struct blk_desc *desc,
 	info->size = desc->lba;
 	info->blksz = desc->blksz;
 	info->bootable = 0;
-	strcpy((char *)info->type, BOOT_PART_TYPE);
+	strcpy((char *)info->type, PART_TYPE_NAME_UNKNOWN);
 	strcpy((char *)info->name, "Whole Disk");
 	disk_partition_clr_uuid(info);
 	disk_partition_clr_type_guid(info);
@@ -475,7 +473,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	 * host's own filesystem.
 	 */
 	if (!strcmp(ifname, "hostfs")) {
-		strcpy((char *)info->type, BOOT_PART_TYPE);
+		strcpy((char *)info->type, PART_TYPE_NAME_HOSTFS);
 		strcpy((char *)info->name, "Host filesystem");
 
 		return 0;
@@ -493,7 +491,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 			return -EINVAL;
 		}
 
-		strcpy((char *)info->type, BOOT_PART_TYPE);
+		strcpy((char *)info->type, PART_TYPE_NAME_UBI);
 		strcpy((char *)info->name, "UBI");
 		return 0;
 	}
@@ -644,13 +642,6 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 			printf("** No valid partitions found **\n");
 			goto cleanup;
 		}
-	}
-	if (strncmp((char *)info->type, BOOT_PART_TYPE, sizeof(info->type)) != 0) {
-		printf("** Invalid partition type \"%.32s\""
-			" (expect \"" BOOT_PART_TYPE "\")\n",
-			info->type);
-		ret  = -EINVAL;
-		goto cleanup;
 	}
 
 	(*desc)->log2blksz = LOG2((*desc)->blksz);

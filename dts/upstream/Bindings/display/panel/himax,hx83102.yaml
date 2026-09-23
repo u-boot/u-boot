@@ -20,6 +20,8 @@ properties:
           - boe,nv110wum-l60
           # CSOT pna957qt1-1 10.95" WUXGA TFT LCD panel
           - csot,pna957qt1-1
+          # Holitech HTF065H045 6.517" 720x1600 TFT LCD panel
+          - holitech,htf065h045
           # IVO t109nw41 11.0" WUXGA TFT LCD panel
           - ivo,t109nw41
           # KINGDISPLAY KD110N11-51IE 10.95" WUXGA TFT LCD panel
@@ -28,6 +30,8 @@ properties:
           - starry,2082109qfh040022-50e
           # STARRY himax83102-j02 10.51" WUXGA TFT LCD panel
           - starry,himax83102-j02
+          # Waveshare 12.3-DSI-TOUCH-A panel
+          - waveshare,12.3-dsi-touch-a
       - const: himax,hx83102
 
   reg:

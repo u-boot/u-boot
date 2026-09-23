@@ -931,11 +931,10 @@ static int k3_ddrss_probe(struct udevice *dev)
 			struct k3_ddrss_ecc_region *r = range;
 
 			for (int i = 0; (i < K3_DDRSS_MAX_ECC_REG) && (r->range != 0); i++, r++) {
-				end = r->start + r->range;
 				ddr_ram_size = ddrss->ddr_ram_size;
 				ecc_res = ddrss->ecc_reserved_space;
 
-				if (end > (ddr_ram_size - ecc_res))
+				if (r->range > (ddr_ram_size - ecc_res))
 					ddrss->ecc_regions[i].range = ddr_ram_size - ecc_res;
 				else
 					ddrss->ecc_regions[i].range = r->range;

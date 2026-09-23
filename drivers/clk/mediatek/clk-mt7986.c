@@ -530,6 +530,7 @@ static const struct mtk_clk_tree mt7986_fixed_pll_clk_tree = {
 	.fclks = fixed_pll_clks,
 	.num_fclks = ARRAY_SIZE(fixed_pll_clks),
 	.flags = CLK_PARENT_APMIXED,
+	.type = MTK_CLK_TREE_APMIXED,
 };
 
 static const struct mtk_clk_tree mt7986_topckgen_clk_tree = {
@@ -544,6 +545,7 @@ static const struct mtk_clk_tree mt7986_topckgen_clk_tree = {
 	.num_fdivs = ARRAY_SIZE(top_fixed_divs),
 	.num_muxes = ARRAY_SIZE(top_muxes),
 	.flags = CLK_PARENT_TOPCKGEN,
+	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
 static const struct mtk_clk_tree mt7986_infracfg_clk_tree = {
@@ -559,23 +561,28 @@ static const struct mtk_clk_tree mt7986_infracfg_clk_tree = {
 	.num_muxes = ARRAY_SIZE(infra_muxes),
 	.num_gates = ARRAY_SIZE(infracfg_gates),
 	.flags = CLK_PARENT_INFRASYS,
+	.type = MTK_CLK_TREE_INFRASYS,
 };
 
 static const struct udevice_id mt7986_fixed_pll_compat[] = {
-	{ .compatible = "mediatek,mt7986-fixed-plls" },
-	{ .compatible = "mediatek,mt7986-apmixedsys" },
+	{
+		.compatible = "mediatek,mt7986-fixed-plls",
+		.data = (ulong)&mt7986_fixed_pll_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt7986-apmixedsys",
+		.data = (ulong)&mt7986_fixed_pll_clk_tree,
+	},
 	{}
 };
 
 static const struct udevice_id mt7986_topckgen_compat[] = {
-	{ .compatible = "mediatek,mt7986-topckgen" },
+	{
+		.compatible = "mediatek,mt7986-topckgen",
+		.data = (ulong)&mt7986_topckgen_clk_tree,
+	},
 	{}
 };
-
-static int mt7986_fixed_pll_probe(struct udevice *dev)
-{
-	return mtk_common_clk_init(dev, &mt7986_fixed_pll_clk_tree);
-}
 
 static int mt7986_topckgen_probe(struct udevice *dev)
 {
@@ -584,20 +591,20 @@ static int mt7986_topckgen_probe(struct udevice *dev)
 	priv->base = dev_read_addr_ptr(dev);
 	writel(MT7986_CLK_PDN_EN_WRITE, priv->base + MT7986_CLK_PDN);
 
-	return mtk_common_clk_init(dev, &mt7986_topckgen_clk_tree);
+	return mtk_clk_probe(dev);
 }
 
-U_BOOT_DRIVER(mtk_clk_apmixedsys) = {
+U_BOOT_DRIVER(mt7986_clk_apmixedsys) = {
 	.name = "mt7986-clock-fixed-pll",
 	.id = UCLASS_CLK,
 	.of_match = mt7986_fixed_pll_compat,
-	.probe = mt7986_fixed_pll_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_fixed_pll_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mtk_clk_topckgen) = {
+U_BOOT_DRIVER(mt7986_clk_topckgen) = {
 	.name = "mt7986-clock-topckgen",
 	.id = UCLASS_CLK,
 	.of_match = mt7986_topckgen_compat,
@@ -608,20 +615,18 @@ U_BOOT_DRIVER(mtk_clk_topckgen) = {
 };
 
 static const struct udevice_id mt7986_infracfg_compat[] = {
-	{ .compatible = "mediatek,mt7986-infracfg" },
+	{
+		.compatible = "mediatek,mt7986-infracfg",
+		.data = (ulong)&mt7986_infracfg_clk_tree,
+	},
 	{}
 };
 
-static int mt7986_infracfg_probe(struct udevice *dev)
-{
-	return mtk_common_clk_infrasys_init(dev, &mt7986_infracfg_clk_tree);
-}
-
-U_BOOT_DRIVER(mtk_clk_infracfg) = {
+U_BOOT_DRIVER(mt7986_clk_infracfg) = {
 	.name = "mt7986-clock-infracfg",
 	.id = UCLASS_CLK,
 	.of_match = mt7986_infracfg_compat,
-	.probe = mt7986_infracfg_probe,
+	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
@@ -647,11 +652,12 @@ static const struct mtk_gate eth_cgs[] = {
 	GATE_ETH(CLK_ETH_WOCPU0_EN, "eth_wocpu0_en", CLK_TOP_NETSYS_MCU_SEL, 15),
 };
 
-static int mt7986_ethsys_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7986_topckgen_clk_tree, eth_cgs,
-					ARRAY_SIZE(eth_cgs), 0);
-}
+static const struct mtk_clk_tree mt7986_eth_clk_tree = {
+	.ext_clk_rates = ext_clock_rates,
+	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
+	.gates = eth_cgs,
+	.num_gates = ARRAY_SIZE(eth_cgs),
+};
 
 static int mt7986_ethsys_bind(struct udevice *dev)
 {
@@ -667,16 +673,19 @@ static int mt7986_ethsys_bind(struct udevice *dev)
 }
 
 static const struct udevice_id mt7986_ethsys_compat[] = {
-	{ .compatible = "mediatek,mt7986-ethsys" },
+	{
+		.compatible = "mediatek,mt7986-ethsys",
+		.data = (ulong)&mt7986_eth_clk_tree,
+	},
 	{ }
 };
 
-U_BOOT_DRIVER(mtk_clk_ethsys) = {
+U_BOOT_DRIVER(mt7986_clk_ethsys) = {
 	.name = "mt7986-clock-ethsys",
 	.id = UCLASS_CLK,
 	.of_match = mt7986_ethsys_compat,
-	.probe = mt7986_ethsys_probe,
+	.probe = mtk_clk_probe,
 	.bind = mt7986_ethsys_bind,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.priv_auto = sizeof(struct mtk_clk_priv),
+	.ops = &mtk_clk_topckgen_ops,
 };

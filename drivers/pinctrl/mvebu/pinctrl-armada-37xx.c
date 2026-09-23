@@ -720,6 +720,8 @@ static int armada_37xx_pinctrl_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
+	info->dev = dev;
+
 	/*
 	 * we allocate functions for number of pins and hope there are
 	 * fewer unique functions than pins available

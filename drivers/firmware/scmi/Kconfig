@@ -46,6 +46,9 @@ config SCMI_AGENT_OPTEE
 config SCMI_ID_VENDOR_80
 	bool
 
+config SCMI_ID_VENDOR_81
+	bool
+
 config SCMI_ID_VENDOR_82
 	bool
 

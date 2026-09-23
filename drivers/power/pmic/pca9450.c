@@ -90,7 +90,7 @@ static int pca9450_probe(struct udevice *dev)
 			return ret;
 	}
 
-	if (ofnode_read_bool(dev_ofnode(dev), "nxp,wdog_b-warm-reset"))
+	if (dev_read_bool(dev, "nxp,wdog_b-warm-reset"))
 		reset_ctrl = PCA9450_PMIC_RESET_WDOG_B_CFG_WARM;
 	else
 		reset_ctrl = PCA9450_PMIC_RESET_WDOG_B_CFG_COLD_LDO12;

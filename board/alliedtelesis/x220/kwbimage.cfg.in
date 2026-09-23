@@ -1,0 +1,12 @@
+#
+# Copyright (C) 2025 Allied Telesis Labs
+#
+
+# Armada XP uses version 1 image format
+VERSION		1
+
+# Boot Media configurations
+BOOT_FROM	spi
+
+# Binary Header (bin_hdr) with DDR3 training code
+BINARY board/alliedtelesis/x220/binary.0 0000005b 00000068

@@ -69,36 +69,6 @@
 	};
 };
 
-&gmac2 {
-	status = "okay";
-	phy-mode = "rgmii";
-	phy-handle = <&phy0>;
-
-	max-frame-size = <3800>;
-
-	mdio2 {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		compatible = "snps,dwmac-mdio";
-		phy2: ethernet-phy@2 {
-			reg = <4>;
-
-			txd0-skew-ps = <0>; /* -420ps */
-			txd1-skew-ps = <0>; /* -420ps */
-			txd2-skew-ps = <0>; /* -420ps */
-			txd3-skew-ps = <0>; /* -420ps */
-			rxd0-skew-ps = <420>; /* 0ps */
-			rxd1-skew-ps = <420>; /* 0ps */
-			rxd2-skew-ps = <420>; /* 0ps */
-			rxd3-skew-ps = <420>; /* 0ps */
-			txen-skew-ps = <0>; /* -420ps */
-			txc-skew-ps = <1860>; /* 960ps */
-			rxdv-skew-ps = <420>; /* 0ps */
-			rxc-skew-ps = <1680>; /* 780ps */
-		};
-	};
-};
-
 &qspi {
 	status = "disabled";
 };
@@ -199,6 +169,18 @@
 			algo = "crc32";
 		};
 	};
+
+	fdt-2 {
+		description = "socfpga_socdk_emmc";
+		type = "flat_dt";
+		compression = "none";
+		fdt_2_blob: blob-ext {
+			filename = "dts/upstream/src/arm64/intel/socfpga_agilex_socdk_emmc.dtb";
+		};
+		hash {
+			algo = "crc32";
+		};
+	};
 };
 
 &board_config {
@@ -213,9 +195,17 @@
 			sign-images = "atf", "uboot", "fdt-1";
 		};
 	};
-};
 
-&binman {
-	/delete-node/ kernel;
+	board-2 {
+		description = "board_2";
+		firmware = "atf";
+		loadables = "uboot";
+		fdt = "fdt-2";
+		signature {
+			algo = "crc32";
+			key-name-hint = "dev";
+			sign-images = "atf", "uboot", "fdt-2";
+		};
+	};
 };
 #endif

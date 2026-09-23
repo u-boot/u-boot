@@ -69,7 +69,7 @@ If both fail or are disabled, static settings are used.
 		"if test \\\"$llfail\\\" -ne 0 -a "			\
 			"\\\"$dhcpfail\\\" -ne 0; "			\
 		"then "							\
-			"setenv ipaddr $sipaddr; "			\
-			"setenv netmask $snetmask; "			\
-			"setenv gatewayip $sgatewayip; "		\
+			"env set ipaddr $sipaddr; "			\
+			"env set netmask $snetmask; "			\
+			"env set gatewayip $sgatewayip; "		\
 		"fi;\0"							\

@@ -5,7 +5,7 @@
 
 #include <dm/lists.h>
 
-#include "ethernet.h"
+#include "../common/ethernet.h"
 
 int board_init(void)
 {

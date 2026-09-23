@@ -283,6 +283,20 @@ static int rockchip_spi_probe(struct udevice *bus)
 	return 0;
 }
 
+/*
+ * A device that declares spi-{tx,rx}-bus-width = <0> has no wire in that
+ * direction, so the controller can drop the matching FIFO entirely instead
+ * of clocking bytes nobody reads.
+ */
+static u32 rkspi_base_tmod(struct rockchip_spi_priv *priv)
+{
+	if (priv->mode & SPI_NO_RX)
+		return TMOD_TO;
+	if (priv->mode & SPI_NO_TX)
+		return TMOD_RO;
+	return TMOD_TR;
+}
+
 static int rockchip_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
@@ -329,8 +343,8 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	/* Frame Format */
 	ctrlr0 |= FRF_SPI << FRF_SHIFT;
 
-	/* Tx and Rx mode */
-	ctrlr0 |= TMOD_TR << TMOD_SHIFT;
+	/* Configure RX/TX mode */
+	ctrlr0 |= rkspi_base_tmod(priv) << TMOD_SHIFT;
 
 	writel(ctrlr0, &regs->ctrlr0);
 
@@ -472,7 +486,11 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		writel(todo - 1, &regs->ctrlr1);
 		rkspi_enable_chip(regs, true);
 
-		toread = todo;
+		/*
+		 * When the RX wire is not routed, the RX FIFO never fills,
+		 * so waiting on it would hang.
+		 */
+		toread = (priv->mode & SPI_NO_RX) ? 0 : todo;
 		/* Only write if we have something to write */
 		towrite = out ? todo : 0;
 		while (toread || towrite) {
@@ -492,9 +510,10 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		}
 
 		/*
-		 * In case that there's a transmit-component, we need to wait
-		 * until the control goes idle before we can disable the SPI
-		 * control logic (as this will implicitly flush the FIFOs).
+		 * With a transmit component the TX FIFO can still hold data
+		 * that has not been shifted onto the wire. Wait until the
+		 * controller goes idle before disabling it, as disabling
+		 * clears the FIFOs.
 		 */
 		if (out) {
 			ret = rkspi_wait_till_not_busy(regs);
@@ -513,7 +532,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (!out)
 		clrsetbits_le32(&regs->ctrlr0,
 				TMOD_MASK << TMOD_SHIFT,
-				TMOD_TR << TMOD_SHIFT);
+				rkspi_base_tmod(priv) << TMOD_SHIFT);
 
 	return ret;
 }

@@ -49,6 +49,7 @@
 		mmc8 = "/mmc8";
 		mmc9 = "/mmc9";
 		mmc10 = "/mmc10";
+		mmc11 = "/mmc11";
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
@@ -130,6 +131,10 @@
 			compatible = "u-boot,distro-efi";
 		};
 
+		bls {
+			compatible = "u-boot,bls";
+		};
+
 		theme {
 			font-size = <30>;
 			menu-inset = <3>;
@@ -176,7 +181,7 @@
 			storage = "mmc3";
 			skip-offset = <0x800000>;
 			area-start = <0>;
-			area-size = <0xe00000>;
+			area-size = <0x2000000>;
 			state-offset = <0xdffc00>;
 			state-size = <0x40>;
 			version-offset = <0xdffe00>;
@@ -334,6 +339,9 @@
 			<&gpio_c 7 (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_SOURCE)>;
 		test4-gpios = <&gpio_a 14>, <&gpio_b 4 1 3 2 1>;
 		test5-gpios = <&gpio_a 19>;
+		test6-gpios = <&gpio_delay 0 10 20>, <&gpio_delay 1 30 40>,
+			      <&gpio_delay 0 50 60>;
+		test7-gpios = <&gpio_delay 5 10 20>;
 
 		bool-value;
 		int8-value = /bits/ 8 <0x12>;
@@ -928,6 +936,13 @@
 			gpio-bank-name = "c";
 			sandbox,gpio-count = <10>;
 		};
+
+		gpio_delay: gpio-delay-test {
+			compatible = "gpio-delay";
+			gpio-controller;
+			#gpio-cells = <3>;
+			gpios = <&gpio_a 9>, <&gpio_a 18>;
+		};
 	};
 
 	icc0: interconnect-0 {
@@ -1027,6 +1042,9 @@
 			emul1: emull {
 				compatible = "sandbox,i2c-rtc-emul";
 			};
+			emul_pmbus: emul-pmbus {
+				compatible = "sandbox,i2c-pmbus";
+			};
 		};
 
 		sandbox_pmic: sandbox_pmic@40 {
@@ -1037,6 +1055,13 @@
 		mc34708: pmic@41 {
 			reg = <0x41>;
 			sandbox,emul = <&emul_pmic1>;
+		};
+
+		pmbus@70 {
+			reg = <0x70>;
+			compatible = "pmbus";
+			regulator-name = "sandbox-pmbus-vout";
+			sandbox,emul = <&emul_pmbus>;
 		};
 	};
 
@@ -1348,6 +1373,13 @@
 		filename = "mmc10.img";
 	};
 
+	/* This is used for BLS boot tests */
+	mmc11 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc11.img";
+	};
+
 	pch {
 		compatible = "sandbox,pch";
 	};
@@ -1530,10 +1562,16 @@
 		#reset-cells = <1>;
 	};
 
+	resetc_fb: reset-ctl-fallback {
+		compatible = "sandbox,reset-ctl-fallback-only";
+		#reset-cells = <1>;
+	};
+
 	reset-ctl-test {
 		compatible = "sandbox,reset-ctl-test";
-		resets = <&resetc 100>, <&resetc 2>, <&resetc 20>, <&resetc 40>;
-		reset-names = "other", "test", "test2", "test3";
+		resets = <&resetc 100>, <&resetc 2>, <&resetc 20>, <&resetc 40>,
+			 <&resetc_fb 5>;
+		reset-names = "other", "test", "test2", "test3", "fallback";
 	};
 
 	rng {
@@ -1582,10 +1620,6 @@
 		sandbox,filepath = "scsi.img";
 	};
 
-	smem@0 {
-		compatible = "sandbox,smem";
-	};
-
 	sound {
 		compatible = "sandbox,sound";
 		cpu {
@@ -1611,6 +1645,22 @@
 			compatible = "spansion,m25p16", "jedec,spi-nor";
 			spi-max-frequency = <40000000>;
 			sandbox,filename = "spi.bin";
+
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				partition@0 {
+					label = "nor-fit";
+					reg = <0x0 0x100000>;
+				};
+
+				partition@100000 {
+					label = "nor-spare";
+					reg = <0x100000 0x100000>;
+				};
+			};
 		};
 		spi.bin@1 {
 			reg = <1>;
@@ -2218,6 +2268,19 @@
 			sandbox,pagesize = <4096>;
 			sandbox,pages = <0x200000>;
 			sandbox,err-count = <3>;
+			sandbox,err-step-size = <512>;
+		};
+
+		/* Clean chip (no injected errors) for UBI/ubiblock tests */
+		nand@2 {
+			reg = <2>;
+			nand-ecc-mode = "soft";
+			sandbox,id = [00 e3];
+			sandbox,erasesize = <(8 * 1024)>;
+			sandbox,oobsize = <16>;
+			sandbox,pagesize = <512>;
+			sandbox,pages = <0x2000>;
+			sandbox,err-count = <0>;
 			sandbox,err-step-size = <512>;
 		};
 	};

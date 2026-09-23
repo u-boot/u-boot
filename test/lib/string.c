@@ -223,6 +223,40 @@ static int lib_memdup(struct unit_test_state *uts)
 }
 LIB_TEST(lib_memdup, 0);
 
+/** lib_memdup_nul() - unit test for memdup_nul() */
+static int lib_memdup_nul(struct unit_test_state *uts)
+{
+	char buf[BUFLEN];
+	size_t len;
+	char *p, *q;
+
+	/* Zero size should return a buffer containing a single nul byte */
+	p = memdup_nul(NULL, 0);
+	ut_assertnonnull(p);
+	ut_assert(p[0] == '\0');
+	free(p);
+
+	p = memdup_nul(buf, 0);
+	ut_assertnonnull(p);
+	ut_assert(p[0] == '\0');
+	free(p);
+
+	strcpy(buf, TEST_STR);
+	len = sizeof(TEST_STR);
+	p = memdup_nul(buf, len);
+	ut_asserteq_mem(p, buf, len);
+	ut_assert(p[len] == '\0');
+
+	q = memdup_nul(p, len);
+	ut_asserteq_mem(q, buf, len);
+	ut_assert(q[len] == '\0');
+	free(q);
+	free(p);
+
+	return 0;
+}
+LIB_TEST(lib_memdup_nul, 0);
+
 /** lib_strnstr() - unit test for strnstr() */
 static int lib_strnstr(struct unit_test_state *uts)
 {
@@ -250,17 +284,35 @@ static int lib_strstr(struct unit_test_state *uts)
 {
 	const char *s1 = "Itsy Bitsy Teenie Weenie";
 	const char *s2 = "eenie";
-	const char *s3 = "easy";
+	const char *s3 = "bits";
 
 	ut_asserteq_ptr(&s1[12], strstr(s1, s2));
 	ut_asserteq_ptr(&s1[13], strstr(&s1[3], &s2[1]));
 	ut_assertnull(strstr(s1, s3));
-	ut_asserteq_ptr(&s1[2], strstr(s1, &s3[2]));
-	ut_asserteq_ptr(&s1[8], strstr(&s1[5], &s3[2]));
+	ut_asserteq_ptr(&s1[1], strstr(s1, &s3[2]));
+	ut_asserteq_ptr(&s1[7], strstr(&s1[5], &s3[2]));
 
 	return 0;
 }
 LIB_TEST(lib_strstr, 0);
+
+/** lib_strcasestr() - unit test for strcasestr() */
+static int lib_strcasestr(struct unit_test_state *uts)
+{
+	const char *s1 = "Itsy Bitsy Teenie Weenie";
+	const char *s2 = "eenie";
+	const char *s3 = "bits";
+
+	ut_asserteq_ptr(&s1[12], strcasestr(s1, s2));
+	ut_asserteq_ptr(&s1[13], strcasestr(&s1[3], &s2[1]));
+	ut_asserteq_ptr(&s1[5], strcasestr(s1, s3));
+	ut_asserteq_ptr(&s1[1], strcasestr(s1, &s3[2]));
+	ut_asserteq_ptr(&s1[7], strcasestr(&s1[5], &s3[2]));
+	ut_assertnull(strcasestr(&s1[6], s3));
+
+	return 0;
+}
+LIB_TEST(lib_strcasestr, 0);
 
 static int lib_strim(struct unit_test_state *uts)
 {

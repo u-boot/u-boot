@@ -147,7 +147,7 @@
 			mdio-parent-bus = <&enetc_mdio_pf3>;
 
 			/* on-board MDIO with a single RGMII PHY */
-			mdio@00 {
+			mdio@0 {
 				#address-cells = <1>;
 				#size-cells = <0>;
 				reg = <0x00>;

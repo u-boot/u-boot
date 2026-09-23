@@ -21,12 +21,12 @@ if SYS_FSL_DDR || SYS_FSL_MMDC
 config SYS_FSL_DDR_BE
 	bool
 	help
-		Access DDR registers in big-endian
+	  Access DDR registers in big-endian
 
 config SYS_FSL_DDR_LE
 	bool
 	help
-		Access DDR registers in little-endian
+	  Access DDR registers in little-endian
 
 config FSL_DDR_BIST
 	bool

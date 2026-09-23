@@ -242,24 +242,28 @@ config VOL_MONITOR_IR36021_SET
 
 config VOL_MONITOR_LTC3882_READ
 	bool "Enable the LTC3882 voltage monitor read"
+	select PMBUS
 	help
 	 This option enables LTC3882 voltage monitor read
 	 functionality. It is used by the common VID driver.
 
 config VOL_MONITOR_LTC3882_SET
 	bool "Enable the LTC3882 voltage monitor set"
+	select PMBUS
 	help
 	 This option enables LTC3882 voltage monitor set
 	 functionality. It is used by the common VID driver.
 
 config VOL_MONITOR_ISL68233_READ
 	bool "Enable the ISL68233 voltage monitor read"
+	select PMBUS
 	help
 	 This option enables ISL68233 voltage monitor read
 	 functionality. It is used by the common VID driver.
 
 config VOL_MONITOR_ISL68233_SET
 	bool "Enable the ISL68233 voltage monitor set"
+	select PMBUS
 	help
 	 This option enables ISL68233 voltage monitor set
 	 functionality. It is used by the common VID driver.

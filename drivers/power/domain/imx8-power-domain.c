@@ -51,7 +51,7 @@ static const struct udevice_id imx8_power_domain_ids[] = {
 	{ }
 };
 
-struct power_domain_ops imx8_power_domain_ops_v2 = {
+static const struct power_domain_ops imx8_power_domain_ops_v2 = {
 	.on = imx8_power_domain_on,
 	.off = imx8_power_domain_off,
 };

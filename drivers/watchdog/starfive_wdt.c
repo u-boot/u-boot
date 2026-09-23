@@ -290,9 +290,9 @@ static int starfive_wdt_of_to_plat(struct udevice *dev)
 {
 	struct starfive_wdt_priv *wdt = dev_get_priv(dev);
 
-	wdt->base = (void *)dev_read_addr(dev);
+	wdt->base = dev_read_addr_ptr(dev);
 	if (!wdt->base)
-		return -ENODEV;
+		return -EINVAL;
 
 	wdt->apb_clk = devm_clk_get(dev, "apb");
 	if (IS_ERR(wdt->apb_clk))

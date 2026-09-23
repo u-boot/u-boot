@@ -126,7 +126,7 @@ class Bintoolmkeficapsule(bintool.Bintool):
 
         cmd = ['tools-only_defconfig', 'tools']
         result = self.build_from_git(
-            'https://source.denx.de/u-boot/u-boot.git',
+            'https://git.u-boot-project.org/u-boot/u-boot.git',
             cmd,
             'tools/mkeficapsule')
         return result

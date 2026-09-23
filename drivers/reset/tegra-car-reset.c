@@ -42,7 +42,7 @@ static int tegra_car_reset_deassert(struct reset_ctl *reset_ctl)
 	return 0;
 }
 
-struct reset_ops tegra_car_reset_ops = {
+static const struct reset_ops tegra_car_reset_ops = {
 	.request = tegra_car_reset_request,
 	.rst_assert = tegra_car_reset_assert,
 	.rst_deassert = tegra_car_reset_deassert,

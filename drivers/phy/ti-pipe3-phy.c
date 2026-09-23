@@ -6,6 +6,7 @@
 
 #include <dm.h>
 #include <dm/device.h>
+#include <dm/device_compat.h>
 #include <generic-phy.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -428,10 +429,10 @@ static int pipe3_exit(struct phy *phy)
 
 static void *get_reg(struct udevice *dev, const char *name)
 {
+	struct ofnode_phandle_args phandle;
 	struct udevice *syscon;
 	struct regmap *regmap;
-	const fdt32_t *cell;
-	int len, err;
+	int err;
 	void *base;
 
 	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
@@ -449,10 +450,14 @@ static void *get_reg(struct udevice *dev, const char *name)
 		return NULL;
 	}
 
-	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), name,
-			   &len);
-	if (len < 2*sizeof(fdt32_t)) {
-		pr_err("offset not available for %s\n", name);
+	err = dev_read_phandle_with_args(dev, name, NULL, 0, 0, &phandle);
+	if (err) {
+		dev_err(dev, "parse %s failed: %d\n", name, err);
+		return NULL;
+	}
+
+	if (phandle.args_count < 1) {
+		dev_err(dev, "%s: missing args\n", name);
 		return NULL;
 	}
 
@@ -460,7 +465,7 @@ static void *get_reg(struct udevice *dev, const char *name)
 	if (!base)
 		return NULL;
 
-	return fdtdec_get_number(cell + 1, 1) + base;
+	return base + phandle.args[0];
 }
 
 static int pipe3_phy_probe(struct udevice *dev)
@@ -471,7 +476,7 @@ static int pipe3_phy_probe(struct udevice *dev)
 	struct pipe3_data *data;
 
 	/* PHY_RX */
-	addr = devfdt_get_addr_size_index(dev, 0, &sz);
+	addr = dev_read_addr_size_index(dev, 0, &sz);
 	if (addr == FDT_ADDR_T_NONE) {
 		pr_err("missing phy_rx address\n");
 		return -EINVAL;
@@ -484,7 +489,7 @@ static int pipe3_phy_probe(struct udevice *dev)
 	}
 
 	/* PLLCTRL */
-	addr = devfdt_get_addr_size_index(dev, 2, &sz);
+	addr = dev_read_addr_size_index(dev, 2, &sz);
 	if (addr == FDT_ADDR_T_NONE) {
 		pr_err("missing pll ctrl address\n");
 		return -EINVAL;

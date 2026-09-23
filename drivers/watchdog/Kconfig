@@ -130,11 +130,11 @@ config WDT_ASPEED
 	  Second Boot.
 
 config WDT_AST2600
-	bool "Aspeed AST2600 watchdog timer support"
-	depends on WDT && ASPEED_AST2600
+	bool "Aspeed AST2600/AST2700 watchdog timer support"
+	depends on WDT && (ASPEED_AST2600 || ASPEED_AST2700)
 	default y
 	help
-	  Select this to enable watchdog timer for Aspeed ast2500/ast2400 devices.
+	  Select this to enable watchdog timer for Aspeed ast2600/ast2700 devices.
 	  The watchdog timer is stopped when initialized. It performs reset, either
 	  full SoC reset or CPU or just some peripherals, based on the flags.
 
@@ -217,6 +217,7 @@ config SPL_WDT_GPIO
 config WDT_MAX6370
 	bool "MAX6370 watchdog timer support"
 	depends on WDT
+	select GPIO
 	select DM_GPIO
 	help
 	  Select this to enable max6370 watchdog timer.
@@ -383,10 +384,10 @@ config WDT_SBSA
 	bool "SBSA watchdog timer support"
 	depends on WDT
 	help
-	   Select this to enable SBSA watchdog timer.
-	   This driver can operate ARM SBSA Generic Watchdog as a single stage.
-	   In the single stage mode, when the timeout is reached, your system
-	   will be reset by WS1. The first signal (WS0) is ignored.
+	  Select this to enable SBSA watchdog timer.
+	  This driver can operate ARM SBSA Generic Watchdog as a single stage.
+	  In the single stage mode, when the timeout is reached, your system
+	  will be reset by WS1. The first signal (WS0) is ignored.
 
 config WDT_SIEMENS_PMIC
 	bool "Enable PMIC Watchdog Timer support for Siemens platforms"

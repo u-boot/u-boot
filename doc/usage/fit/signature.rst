@@ -341,25 +341,27 @@ So the above example is adjusted to look like this::
 
 You can see that we have added hashes for all images (since they are no
 longer signed), and a signature to each configuration. In the above example,
-mkimage will sign configurations/conf-1, the kernel and fdt that are
-pointed to by the configuration (/images/kernel-1, /images/kernel-1/hash-1,
-/images/fdt-1, /images/fdt-1/hash-1) and the root structure of the image
-(so that it isn't possible to add or remove root nodes). The signature is
-written into /configurations/conf-1/signature-1/value. It can easily be
-verified later even if the FIT has been signed with other keys in the
-meantime.
+mkimage will sign configurations/conf-1, every image referenced by that
+configuration (kernel, fdt, ramdisk, firmware, loadables, etc.) and the root
+structure of the image (so that it isn't possible to add or remove root
+nodes). The signature is written into
+/configurations/conf-1/signature-1/value. It can easily be verified later
+even if the FIT has been signed with other keys in the meantime.
 
 
 Details
 -------
 The signature node contains a property ('hashed-nodes') which lists all the
-nodes that the signature was made over.  The signer (mkimage) writes this
-property as a record of what was included in the hash.  During verification,
+nodes that the signature was made over. The signer (mkimage) writes this
+property as a record of what was included in the hash. During verification,
 however, U-Boot does not read 'hashed-nodes'. Instead it rebuilds the node
 list from the configuration's own image references (kernel, fdt, ramdisk,
-etc.), since 'hashed-nodes' is not itself covered by the signature. The
-rebuilt list always includes the root node, the configuration node, each
-referenced image node and its hash/cipher subnodes.
+firmware, loadables, etc.), since 'hashed-nodes' is not itself covered by the
+signature. The rebuilt list always includes the root node, the configuration
+node, each referenced image node and its hash, cipher and dm-verity subnodes.
+Current mkimage uses the same rule when signing configurations. The older
+'sign-images' property is not required and is not used to limit the signed
+image list. Every referenced image must have at least one hash subnode.
 
 The image is walked in order and each tag processed as follows:
 
@@ -420,11 +422,14 @@ below examples::
 
 Enabling FIT Verification
 -------------------------
-In addition to the options to enable FIT itself, the following CONFIGs must
-be enabled:
+In addition to the options to enable FIT itself, the following
+settings configure signature verification support:
 
 CONFIG_FIT_SIGNATURE
-    enable signing and verification in FITs
+    required to enable signing and verification in FITs
+
+CONFIG_FIT_REQUIRE_CONFIG_SIGS
+    make signature verification mandatory
 
 CONFIG_RSA
     enable RSA algorithm for signing
@@ -435,6 +440,10 @@ CONFIG_ECDSA
 WARNING: When relying on signed FIT images with required signature check
 the legacy image format is default disabled by not defining
 CONFIG_LEGACY_IMAGE_FORMAT
+
+WARNING: CONFIG_FIT_REQUIRE_CONFIG_SIGS is not set by default for
+backwards compatibility. It is recommended to be turned on whenever
+configuration signatures are used to avoid fail-open behavior
 
 
 Testing

@@ -34,7 +34,7 @@ This second example shows assign ram size to environment variable:
 ::
 
   => memsize memsz
-  => printenv memsz
+  => env print memsz
   memsz=8192
 
 Return value

@@ -12,6 +12,24 @@
 	compatible = "adi,sc598-som-ezlite", "adi,sc59x-64";
 };
 
+&som_gpio_expander {
+	som-emmc {
+		gpio-hog;
+		gpios = <8 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "som-emmc-en";
+		bootph-pre-ram;
+	};
+
+	crr-sdcard {
+		gpio-hog;
+		gpios = <9 GPIO_ACTIVE_LOW>;
+		output-low;
+		line-name = "crr-sdcard-en";
+		bootph-pre-ram;
+	};
+};
+
 &i2c2 {
 	crr_gpio_expander: adp5588@30 {
 		compatible = "adi,adp5588";

@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2026, STMicroelectronics - All Rights Reserved
  *
- * Configuration settings for the STMicroelectonics STM32MP21x boards
+ * Configuration settings for the STMicroelectronics STM32MP21x boards
  */
 
 #ifndef __CONFIG_STM32MP21_ST_COMMON_H__

@@ -405,6 +405,7 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (ret) {
 		free(priv->info_buf);
 		free(priv);
+		bflow->bootmeth_priv = NULL;
 		return log_msg_ret("inf", ret);
 	}
 	bflow->size = priv->body_size;

@@ -63,7 +63,7 @@ config SYS_BOARD
         default "ls1012ardb"
 
 config SYS_VENDOR
-        default "nxp"
+	default "nxp"
 
 config SYS_SOC
         default "fsl-layerscape"

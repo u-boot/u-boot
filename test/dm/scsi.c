@@ -30,7 +30,7 @@ static int dm_test_scsi_base(struct unit_test_state *uts)
 
 	info = &part->gpt_part_info;
 	ut_asserteq_str("sda1", info->name);
-	ut_asserteq_str("U-Boot", info->type);
+	ut_asserteq_str("0x83", info->type);
 	ut_asserteq(0x83 /* linux */, info->sys_ind);
 
 	return 0;

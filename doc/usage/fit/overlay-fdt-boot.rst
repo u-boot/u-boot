@@ -111,6 +111,12 @@ Where config is one of::
 
 This selects the DTB to use when booting.
 
+If no configuration is given, U-Boot picks one automatically: with
+``CONFIG_FIT_BEST_MATCH`` it selects the configuration whose fdt is the most
+compatible with U-Boot's own control devicetree, and falls back to the
+``default`` configuration otherwise. When several configurations match
+equally well, the ``default`` one is preferred.
+
 .. _fit_configuration_using_overlays:
 
 Configuration using overlays

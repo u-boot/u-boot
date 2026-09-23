@@ -555,7 +555,7 @@ static int xgmac_ofdata_to_platdata(struct udevice *dev)
 		return -ENOMEM;
 	dev_set_priv(dev, priv);
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	if (pdata->iobase == FDT_ADDR_T_NONE) {
 		printf("%s: Cannot find XGMAC base address\n", __func__);
 		return -EINVAL;

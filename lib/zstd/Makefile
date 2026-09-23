@@ -17,6 +17,7 @@ ccflags-y += -DZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT
 ccflags-y += -DZSTD_NO_INLINE
 ccflags-y += -DZSTD_STRIP_ERROR_STRINGS
 ccflags-y += -DDYNAMIC_BMI2=0
+ccflags-y += -DHUF_DISABLE_FAST_DECODE
 endif
 
 zstd_decompress-y := \

@@ -36,7 +36,7 @@ Example
     |   |-- stderr
     |-- serial (IO)
     |-- usbkbd (I)
-    => setenv stdin pl011@9000000,usbkbd
+    => env set stdin pl011@9000000,usbkbd
     => coninfo
     List of available devices
     |-- pl011@9000000 (IO)

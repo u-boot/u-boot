@@ -69,11 +69,11 @@ int dram_init(void)
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = mx53_dram_size[0];
+	gd->dram[0].start = PHYS_SDRAM_1;
+	gd->dram[0].size = mx53_dram_size[0];
 
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = mx53_dram_size[1];
+	gd->dram[1].start = PHYS_SDRAM_2;
+	gd->dram[1].size = mx53_dram_size[1];
 
 	return 0;
 }

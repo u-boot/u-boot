@@ -116,7 +116,7 @@ static int ps8622_probe(struct udevice *dev)
 	return 0;
 }
 
-struct video_bridge_ops ps8622_ops = {
+static const struct video_bridge_ops ps8622_ops = {
 	.attach = ps8622_attach,
 	.set_backlight = ps8622_set_backlight,
 };

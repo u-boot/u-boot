@@ -9,7 +9,6 @@
 #include <asm/io.h>
 #include <asm/arch/timer.h>
 #include <linux/bitops.h>
-#include <linux/err.h>
 #include <dm/uclass.h>
 #include <asm/arch/scu_ast2600.h>
 #include <asm/global_data.h>
@@ -81,7 +80,7 @@ void board_add_ram_info(int use_default)
 	}
 
 	scu = devfdt_get_addr_ptr(scu_dev);
-	if (IS_ERR_OR_NULL(scu)) {
+	if (!scu) {
 		debug("%s: cannot get SCU address pointer\n", __func__);
 		return;
 	}

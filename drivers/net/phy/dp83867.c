@@ -126,6 +126,22 @@ struct dp83867_private {
 	bool sgmii_ref_clk_en;
 };
 
+static int dp83867_phy_extread(struct phy_device *phydev,
+			       int addr, int devad, int reg)
+{
+	if (devad != DP83867_DEVADDR)
+		return -EINVAL;
+	return phy_read_mmd(phydev, devad, addr);
+};
+
+static int dp83867_phy_extwrite(struct phy_device *phydev, int addr,
+				int devad, int reg, u16 val)
+{
+	if (devad != DP83867_DEVADDR)
+		return -EINVAL;
+	return phy_write_mmd(phydev, devad, addr, (u32)val);
+};
+
 static int dp83867_config_port_mirroring(struct phy_device *phydev)
 {
 	struct dp83867_private *dp83867 =
@@ -410,4 +426,6 @@ U_BOOT_PHY_DRIVER(dp83867) = {
 	.config = &dp83867_config,
 	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
+	.readext = dp83867_phy_extread,
+	.writeext = dp83867_phy_extwrite,
 };

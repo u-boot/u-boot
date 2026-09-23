@@ -17,6 +17,8 @@ NXP Semiconductors
    imx93_9x9_qsb
    imx93_11x11_evk
    imx93_frdm
+   imx93w_evk
+   imx95_frdm
    imx943_evk
    imx95_evk
    imx952_evk
@@ -28,5 +30,7 @@ NXP Semiconductors
    mx6sabresd
    mx6ul_14x14_evk
    mx6ullevk
+   nbxv3
    rproc
    psb
+   quickboot

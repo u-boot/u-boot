@@ -224,11 +224,11 @@ void enable_caches(void)
 
 	while (i < CONFIG_NR_DRAM_BANKS &&
 	       entry < ARRAY_SIZE(imx8m_mem_map)) {
-		if (gd->bd->bi_dram[i].start == 0)
+		if (gd->dram[i].start == 0)
 			break;
-		imx8m_mem_map[entry].phys = gd->bd->bi_dram[i].start;
-		imx8m_mem_map[entry].virt = gd->bd->bi_dram[i].start;
-		imx8m_mem_map[entry].size = gd->bd->bi_dram[i].size;
+		imx8m_mem_map[entry].phys = gd->dram[i].start;
+		imx8m_mem_map[entry].virt = gd->dram[i].start;
+		imx8m_mem_map[entry].size = gd->dram[i].size;
 		imx8m_mem_map[entry].attrs = attrs;
 		debug("Added memory mapping (%d): %llx %llx\n", entry,
 		      imx8m_mem_map[entry].phys, imx8m_mem_map[entry].size);
@@ -290,24 +290,24 @@ int dram_init_banksize(void)
 		sdram_b2_size = 0;
 	}
 
-	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
+	gd->dram[bank].start = PHYS_SDRAM;
 	if (!IS_ENABLED(CONFIG_ARMV8_PSCI) && !IS_ENABLED(CONFIG_XPL_BUILD) && rom_pointer[1]) {
 		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
 		phys_size_t optee_size = (size_t)rom_pointer[1];
 
-		gd->bd->bi_dram[bank].size = optee_start - gd->bd->bi_dram[bank].start;
+		gd->dram[bank].size = optee_start - gd->dram[bank].start;
 		if ((optee_start + optee_size) < (PHYS_SDRAM + sdram_b1_size)) {
 			if (++bank >= CONFIG_NR_DRAM_BANKS) {
 				puts("CONFIG_NR_DRAM_BANKS is not enough\n");
 				return -1;
 			}
 
-			gd->bd->bi_dram[bank].start = optee_start + optee_size;
-			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
-				sdram_b1_size - gd->bd->bi_dram[bank].start;
+			gd->dram[bank].start = optee_start + optee_size;
+			gd->dram[bank].size = PHYS_SDRAM +
+				sdram_b1_size - gd->dram[bank].start;
 		}
 	} else {
-		gd->bd->bi_dram[bank].size = sdram_b1_size;
+		gd->dram[bank].size = sdram_b1_size;
 	}
 
 	if (sdram_b2_size) {
@@ -315,8 +315,8 @@ int dram_init_banksize(void)
 			puts("CONFIG_NR_DRAM_BANKS is not enough for SDRAM_2\n");
 			return -1;
 		}
-		gd->bd->bi_dram[bank].start = 0x100000000UL;
-		gd->bd->bi_dram[bank].size = sdram_b2_size;
+		gd->dram[bank].start = 0x100000000UL;
+		gd->dram[bank].size = sdram_b2_size;
 	}
 
 	return 0;
@@ -442,7 +442,7 @@ static u32 get_cpu_variant_type(u32 type)
 		u32 flag = 0;
 
 		if ((value0 & 0xc0000) == 0x80000)
-			return MXC_CPU_IMX8MPD;
+			flag |= (1 << 10);
 
 			/* vpu disabled */
 		if ((value0 & 0x43000000) == 0x43000000)
@@ -475,6 +475,12 @@ static u32 get_cpu_variant_type(u32 type)
 			return MXC_CPU_IMX8MPL;
 		case 2:
 			return MXC_CPU_IMX8MP6;
+		case 0x400:
+			return MXC_CPU_IMX8MPD;
+		case 0x4:
+			return MXC_CPU_IMX8MP5;
+		case 0x404:
+			return MXC_CPU_IMX8MPD2;
 		default:
 			break;
 		}
@@ -1433,13 +1439,15 @@ usb_modify_speed:
 	if (is_imx8mpul() || is_imx8mpl() || is_imx8mp6())
 		disable_npu_nodes(blob);
 
-	if (is_imx8mpul() || is_imx8mpl())
+	if (is_imx8mpul() || is_imx8mpl() ||
+	    is_imx8mpd2() || is_imx8mp5())
 		disable_isp_nodes(blob);
 
-	if (is_imx8mpul() || is_imx8mpl() || is_imx8mp6())
+	if (is_imx8mpul() || is_imx8mpl() || is_imx8mp6() ||
+	    is_imx8mpd2() || is_imx8mp5())
 		disable_dsp_nodes(blob);
 
-	if (is_imx8mpd())
+	if (is_imx8mpd() || is_imx8mpd2())
 		disable_cpu_nodes(blob, nodes_path, 2, 4);
 #endif
 
@@ -1472,6 +1480,33 @@ void reset_cpu(void)
 #endif
 
 #if IS_ENABLED(CONFIG_ARCH_MISC_INIT)
+static char *get_reset_cause(void)
+{
+	switch (get_imx_reset_cause()) {
+	case 0x00001:
+	case 0x00011:
+		return "POR";
+	case 0x00004:
+		return "CSU";
+	case 0x00008:
+		return "IPP USER";
+	case 0x00010:
+		return "WDOG";
+	case 0x00020:
+		return "JTAG HIGH-Z";
+	case 0x00040:
+		return "JTAG SW";
+	case 0x00080:
+		return "WDOG3";
+	case 0x00100:
+		return "WDOG2";
+	case 0x00200:
+		return "TEMPSENSE";
+	default:
+		return "unknown reset";
+	}
+}
+
 int arch_misc_init(void)
 {
 	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
@@ -1482,6 +1517,9 @@ int arch_misc_init(void)
 		if (ret)
 			printf("Failed to initialize caam_jr: %d\n", ret);
 	}
+
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
+		printf("Reset cause: %s\n", get_reset_cause());
 
 	return 0;
 }

@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * am335x-boneblack U-Boot Additions
+ */
+
+#include "am335x-bone-common-u-boot.dtsi"
+
+&l4_per {
+	segment@300000 {
+		target-module@e000 {
+			bootph-all;
+			lcdc: lcdc@0 {
+				bootph-all;
+			};
+		};
+	};
+};

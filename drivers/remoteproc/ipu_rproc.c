@@ -695,9 +695,8 @@ static int ipu_probe(struct udevice *dev)
 	priv = dev_get_priv(dev);
 
 	priv->mem.bus_addr =
-		devfdt_get_addr_size_name(dev,
-					  ipu_mem_names[0],
-					  (fdt_addr_t *)&priv->mem.size);
+		dev_read_addr_size_name(dev, ipu_mem_names[0],
+					(fdt_addr_t *)&priv->mem.size);
 
 	ret = reset_get_by_index(dev, 2, &reset);
 	if (ret < 0) {
@@ -718,7 +717,7 @@ static int ipu_probe(struct udevice *dev)
 	priv->mem.cpu_addr = map_physmem(priv->mem.bus_addr,
 					 priv->mem.size, MAP_NOCACHE);
 
-	if (devfdt_get_addr(dev) == 0x58820000)
+	if (dev_read_addr(dev) == 0x58820000)
 		priv->id = 0;
 	else
 		priv->id = 1;

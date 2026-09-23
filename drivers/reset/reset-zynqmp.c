@@ -18,13 +18,6 @@ struct zynqmp_reset_priv {
 	u32 nr_reset;
 };
 
-static int zynqmp_pm_reset_assert(const u32 reset,
-				  const enum zynqmp_pm_reset_action assert_flag)
-{
-	return xilinx_pm_request(PM_RESET_ASSERT, reset, assert_flag, 0, 0,
-				 0, 0, NULL);
-}
-
 static int zynqmp_reset_assert(struct reset_ctl *rst)
 {
 	struct zynqmp_reset_priv *priv = dev_get_priv(rst->dev);
@@ -43,6 +36,16 @@ static int zynqmp_reset_deassert(struct reset_ctl *rst)
 
 	return zynqmp_pm_reset_assert(priv->reset_id + rst->id,
 				      PM_RESET_ACTION_RELEASE);
+}
+
+static int zynqmp_reset_reset(struct reset_ctl *rst, ulong delay_us)
+{
+	struct zynqmp_reset_priv *priv = dev_get_priv(rst->dev);
+
+	dev_dbg(rst->dev, "%s(rst=%p) (id=%lu)\n", __func__, rst, rst->id);
+
+	return zynqmp_pm_reset_assert(priv->reset_id + rst->id,
+				      PM_RESET_ACTION_PULSE);
 }
 
 static int zynqmp_reset_request(struct reset_ctl *rst)
@@ -74,6 +77,7 @@ const struct reset_ops zynqmp_reset_ops = {
 	.request = zynqmp_reset_request,
 	.rst_assert = zynqmp_reset_assert,
 	.rst_deassert = zynqmp_reset_deassert,
+	.rst_reset = zynqmp_reset_reset,
 };
 
 static const struct udevice_id zynqmp_reset_ids[] = {

@@ -117,8 +117,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	}
 
 	nbanks = 1;
-	start[0] = bd->bi_dram[0].start;
-	size[0]  = bd->bi_dram[0].size;
+	start[0] = gd->dram[0].start;
+	size[0]  = gd->dram[0].size;
 
 	/* adjust memory start address for LPAE */
 	if (lpae) {

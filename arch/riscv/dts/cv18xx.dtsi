@@ -205,7 +205,7 @@
 			status = "disabled";
 		};
 
-		spif: spi-nor@10000000 {
+		spif: spi@10000000 {
 			compatible = "sophgo,cv1800b-spif";
 			reg = <0x10000000 0x10000000>;
 			#address-cells = <1>;

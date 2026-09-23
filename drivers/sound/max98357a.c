@@ -136,7 +136,7 @@ static int max98357a_acpi_setup_nhlt(const struct udevice *dev,
 }
 #endif
 
-struct acpi_ops max98357a_acpi_ops = {
+static const struct acpi_ops max98357a_acpi_ops = {
 #ifdef CONFIG_ACPIGEN
 	.fill_ssdt	= max98357a_acpi_fill_ssdt,
 #ifdef CONFIG_X86

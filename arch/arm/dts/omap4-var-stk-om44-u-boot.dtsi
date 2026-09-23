@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * U-Boot additions
+ *
+ * Basically we override some "simple-pm-bus" compatibles with "simple-bus".
+ * It allows to access the basic hardware without power-domain support. The
+ * hardware that can be accessed this way is:
+ *  - the console's UART
+ *  - the TWL6030 power regulator through I2C1
+ *  - the SD card reader (MMC1)
+ *
+ */
+
+/ {
+	ocp {
+		compatible = "simple-bus";
+	};
+
+	chosen {
+		stdout-path = &uart3;
+	};
+};
+
+&l4_per {
+	compatible = "simple-bus";
+
+	segment@0 {
+		/* UART 3 / I2C1 (TWL6030) / MMC1 */
+		compatible = "simple-bus";
+
+		/* MMC3 (wifi) */
+		target-module@d1000 {
+			mmc@0 {
+				status = "disabled";
+			};
+		};
+
+		/* MMC4 */
+		target-module@d5000 {
+			mmc@0 {
+				status = "disabled";
+			};
+		};
+	};
+};
+
+&l4_cfg {
+	compatible = "simple-bus";
+
+	segment@0 {
+		/* MMC1's clock */
+		compatible = "simple-bus";
+	};
+};

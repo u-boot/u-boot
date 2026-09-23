@@ -33,9 +33,10 @@ static struct _drams {
 	u8 mr8;
 	struct dram_timing_info *pdram_timing;
 	char *name;
-} frdm_drams[2] = {
+} frdm_drams[3] = {
 	{0x10, &dram_timing_1GB, "1GB DRAM" },
-	{0x18, &dram_timing_2GB, "2GB DRAM" },
+	{0x12, &dram_timing_2CS_2GB, "2CS_2GB DRAM" },
+	{0x18, &dram_timing_1CS_2GB, "1CS_2GB DRAM" },
 };
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)

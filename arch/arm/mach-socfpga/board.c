@@ -202,11 +202,10 @@ void board_prep_linux(struct bootm_headers *images)
 void lmb_arch_add_memory(void)
 {
 	int i;
-	struct bd_info *bd = gd->bd;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		if (bd->bi_dram[i].size)
-			lmb_add(bd->bi_dram[i].start, bd->bi_dram[i].size);
+		if (gd->dram[i].size)
+			lmb_add(gd->dram[i].start, gd->dram[i].size);
 	}
 }
 #endif

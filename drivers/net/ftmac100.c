@@ -429,11 +429,6 @@ static int ftmac100_remove(struct udevice *dev)
 	return 0;
 }
 
-static int ftmac100_bind(struct udevice *dev)
-{
-	return device_set_name(dev, dev->name);
-}
-
 static const struct eth_ops ftmac100_ops = {
 	.start	= ftmac100_start,
 	.send	= ftmac100_send,
@@ -451,7 +446,6 @@ U_BOOT_DRIVER(ftmac100) = {
 	.name	= "ftmac100",
 	.id	= UCLASS_ETH,
 	.of_match = ftmac100_ids,
-	.bind	= ftmac100_bind,
 	.of_to_plat = ftmac100_of_to_plat,
 	.probe	= ftmac100_probe,
 	.remove = ftmac100_remove,

@@ -31,11 +31,53 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Rev. 0200 and newer optionally implements GIGE errata fix.
+ * Use a global var to signal presence of the fix. This should be checked
+ * early. If fix is present, system I2C is I2C1 - otherwise I2C3
+ */
+static int has_enet_workaround = -1;
+
+int tqma6_has_enet_workaround(void)
+{
+	return has_enet_workaround;
+}
+
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
 
 	return 0;
+}
+
+#define GPIO_REVDET_PAD_CTRL  (PAD_CTL_PUS_100K_DOWN | PAD_CTL_SPEED_LOW | \
+			       PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
+
+static const iomux_v3_cfg_t tqma6_revdet_pads[] = {
+	MX6_PAD_GPIO_6__GPIO1_IO06 | MUX_PAD_CTRL(GPIO_REVDET_PAD_CTRL),
+};
+
+void tqma6_detect_enet_workaround(void)
+{
+	int ret;
+	struct gpio_desc desc;
+
+	imx_iomux_v3_setup_multiple_pads(tqma6_revdet_pads,
+					 ARRAY_SIZE(tqma6_revdet_pads));
+
+	ret = dm_gpio_lookup_name("GPIO1_6", &desc);
+	if (ret) {
+		pr_err("error: gpio lookup for enet workaround %d\n", ret);
+		return;
+	}
+
+	ret = dm_gpio_get_value(&desc);
+	if (ret == 0)
+		has_enet_workaround = 1;
+	else if (ret > 0)
+		has_enet_workaround = 0;
+
+	dm_gpio_free(NULL, &desc);
 }
 
 int board_early_init_f(void)
@@ -75,6 +117,16 @@ static const char *tqma6_get_boardname(void)
 	};
 }
 
+const char *tqma6_get_fdt_configuration(void)
+{
+	if (is_mx6dq())
+		return !tqma6_has_enet_workaround() ? "imx6q-mba6b" : "imx6q-mba6a";
+	if (is_mx6sdl())
+		return !tqma6_has_enet_workaround() ? "imx6dl-mba6b" : "imx6dl-mba6a";
+
+	return NULL;
+}
+
 #if CONFIG_IS_ENABLED(DM_PMIC)
 /* setup board specific PMIC */
 int power_init_board(void)
@@ -95,14 +147,43 @@ int power_init_board(void)
 }
 #endif
 
+#define FDTFILE_STRLEN 32u
 int board_late_init(void)
 {
+	char fdtfile[FDTFILE_STRLEN];
+	const char *config = tqma6_get_fdt_configuration();
+
 	env_set("board_name", tqma6_get_boardname());
+
+	tqma6_detect_enet_workaround();
+
+	if (!env_get("fdtfile")) {
+		if (config) {
+			snprintf(fdtfile, FDTFILE_STRLEN, "%s.dtb", config);
+			env_set_runtime("fdtfile", fdtfile);
+		} else {
+			pr_err("ENV: Could not set kernel devicetree, ${fdtfile} remains unset\n");
+		}
+	}
 
 	tq_bb_board_late_init();
 
 	printf("Board: %s on a %s\n", tqma6_get_boardname(),
 	       tq_bb_get_boardname());
+
+	puts("Enet workaround: ");
+	switch (tqma6_has_enet_workaround()) {
+	case 0:
+		puts("absent");
+		break;
+	case 1:
+		puts("implemented");
+		break;
+	default:
+		puts("Unknown");
+		break;
+	};
+	puts("\n");
 
 	return tq_bb_checkboard();
 }
@@ -111,15 +192,10 @@ int board_late_init(void)
  * Device Tree Support
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-#define MODELSTRLEN 32u
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	struct mmc *mmc = find_mmc_device(0);
-	char modelstr[MODELSTRLEN];
 
-	snprintf(modelstr, MODELSTRLEN, "TQ %s on %s", tqma6_get_boardname(),
-		 tq_bb_get_boardname());
-	do_fixup_by_path_string(blob, "/", "model", modelstr);
 	fdt_fixup_memory(blob, (u64)PHYS_SDRAM, (u64)gd->ram_size);
 
 	/* bring in eMMC dsr settings if needed */

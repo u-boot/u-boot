@@ -32,7 +32,7 @@ variable *status1* you would execute the commands
 ::
 
     button button1
-    setenv status1 $?
+    env set status1 $?
 
 A list of all available buttons and their status can be displayed using
 

@@ -5,10 +5,12 @@ S:	Maintained
 F:	board/keymile/km83xx/
 F:	board/keymile/common/
 F:	board/keymile/scripts/
-F:	include/configs/km8360.h
+F:	include/configs/kmcoge5ne.h
+F:	include/configs/kmeter1.h
+F:	include/configs/km/km-mpc83xx.h
 F:	configs/kmcoge5ne_defconfig
 F:	configs/kmeter1_defconfig
-F:	include/configs/tuxx1.h
+F:	include/configs/km832x.h
 F:	configs/kmopti2_defconfig
 F:	configs/kmsupx5_defconfig
 F:	configs/kmtepr2_defconfig

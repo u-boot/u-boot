@@ -550,7 +550,7 @@ static int armada_38x_pinctrl_probe(struct udevice *dev)
 	return 0;
 }
 
-struct pinctrl_ops armada_37xx_pinctrl_ops = {
+static const struct pinctrl_ops armada_37xx_pinctrl_ops = {
 	.get_pins_count = armada_38x_pinctrl_get_pins_count,
 	.get_pin_name = armada_38x_pinctrl_get_pin_name,
 	.get_functions_count = armada_38x_pinctrl_get_functions_count,

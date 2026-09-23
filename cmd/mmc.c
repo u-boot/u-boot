@@ -519,7 +519,7 @@ static int do_mmc_rescan(struct cmd_tbl *cmdtp, int flag,
 
 	if (argc == 1) {
 		mmc = init_mmc_device(curr_device, true);
-	} else if (argc == 2) {
+	} else if ((argc == 2) && (CONFIG_IS_ENABLED(MMC_SPEED_MODE_SET))) {
 		enum bus_mode speed_mode;
 
 		speed_mode = (int)dectoul(argv[1], NULL);
@@ -564,11 +564,13 @@ static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 
 	switch (argc) {
 	case 4:
-		speed_mode = (int)dectoul(argv[3], &endp);
-		if (*endp) {
-			printf("Invalid speed mode index '%s', did you specify a mode name?\n",
-			       argv[3]);
-			return CMD_RET_USAGE;
+		if (CONFIG_IS_ENABLED(MMC_SPEED_MODE_SET)) {
+			speed_mode = (int)dectoul(argv[3], &endp);
+			if (*endp) {
+				printf("Invalid speed mode index '%s', did you specify a mode name?\n",
+				       argv[3]);
+				return CMD_RET_USAGE;
+			}
 		}
 
 		fallthrough;
@@ -1312,12 +1314,17 @@ U_BOOT_CMD(
 #endif
 	"mmc erase blk# cnt\n"
 	"mmc erase partname\n"
+#if CONFIG_IS_ENABLED(MMC_SPEED_MODE_SET)
 	"mmc rescan [mode]\n"
-	"mmc part - lists available partition on current mmc device\n"
 	"mmc dev [dev] [part] [mode] - show or set current mmc device [partition] and set mode\n"
 	"  - the required speed mode is passed as the index from the following list\n"
 	"    [MMC_LEGACY, MMC_HS, SD_HS, MMC_HS_52, MMC_DDR_52, UHS_SDR12, UHS_SDR25,\n"
 	"    UHS_SDR50, UHS_DDR50, UHS_SDR104, MMC_HS_200, MMC_HS_400, MMC_HS_400_ES]\n"
+#else
+	"mmc rescan\n"
+	"mmc dev [dev] [part] - show or set current mmc device [partition]\n"
+#endif
+	"mmc part - lists available partition on current mmc device\n"
 	"mmc list - lists available devices\n"
 	"mmc wp [PART] - power on write protect boot partitions\n"
 	"  arguments:\n"

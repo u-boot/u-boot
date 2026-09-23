@@ -39,6 +39,21 @@
 		reg = <0x0 0x0 0x0 0x80000000>, <0x8 0x00000000 0x0 0x80000000>;
 	};
 
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		cma: linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x8000000>;
+			alignment = <0x0 0x8000000>;
+			alloc-ranges = <0x0 0x0 0x0 0x80000000>;
+			linux,cma-default;
+		};
+	};
+
 	clock_si5338_2: clk26 {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -133,8 +148,6 @@
 
 	nand@0 {
 		reg = <0x0>;
-		#address-cells = <0x2>;
-		#size-cells = <0x1>;
 		nand-ecc-mode = "hw";
 		nand-rb = <0>;
 		label = "main-storage-0";
@@ -142,65 +155,74 @@
 		nand-ecc-strength = <24>;
 		nand-on-flash-bbt;
 
-		partition@0 {	/* for testing purpose */
-			label = "nand-fsbl-uboot";
-			reg = <0x0 0x0 0x400000>;
-		};
-		partition@1 {	/* for testing purpose */
-			label = "nand-linux";
-			reg = <0x0 0x400000 0x1400000>;
-		};
-		partition@2 {	/* for testing purpose */
-			label = "nand-device-tree";
-			reg = <0x0 0x1800000 0x400000>;
-		};
-		partition@3 {	/* for testing purpose */
-			label = "nand-rootfs";
-			reg = <0x0 0x1c00000 0x1400000>;
-		};
-		partition@4 {	/* for testing purpose */
-			label = "nand-bitstream";
-			reg = <0x0 0x3000000 0x400000>;
-		};
-		partition@5 {	/* for testing purpose */
-			label = "nand-misc";
-			reg = <0x0 0x3400000 0xfcc00000>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <2>;
+			#size-cells = <1>;
+
+			partition@0 {	/* for testing purpose */
+				label = "nand-fsbl-uboot";
+				reg = <0x0 0x0 0x400000>;
+			};
+			partition@1 {	/* for testing purpose */
+				label = "nand-linux";
+				reg = <0x0 0x400000 0x1400000>;
+			};
+			partition@2 {	/* for testing purpose */
+				label = "nand-device-tree";
+				reg = <0x0 0x1800000 0x400000>;
+			};
+			partition@3 {	/* for testing purpose */
+				label = "nand-rootfs";
+				reg = <0x0 0x1c00000 0x1400000>;
+			};
+			partition@4 {	/* for testing purpose */
+				label = "nand-bitstream";
+				reg = <0x0 0x3000000 0x400000>;
+			};
+			partition@5 {	/* for testing purpose */
+				label = "nand-misc";
+				reg = <0x0 0x3400000 0xfcc00000>;
+			};
 		};
 	};
 	nand@1 {
 		reg = <0x1>;
-		#address-cells = <0x2>;
-		#size-cells = <0x1>;
 		nand-ecc-mode = "hw";
 		nand-rb = <0>;
 		label = "main-storage-1";
 		nand-ecc-step-size = <1024>;
 		nand-ecc-strength = <24>;
 		nand-on-flash-bbt;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <2>;
+			#size-cells = <1>;
 
-		partition@0 {	/* for testing purpose */
-			label = "nand1-fsbl-uboot";
-			reg = <0x0 0x0 0x400000>;
-		};
-		partition@1 {	/* for testing purpose */
-			label = "nand1-linux";
-			reg = <0x0 0x400000 0x1400000>;
-		};
-		partition@2 {	/* for testing purpose */
-			label = "nand1-device-tree";
-			reg = <0x0 0x1800000 0x400000>;
-		};
-		partition@3 {	/* for testing purpose */
-			label = "nand1-rootfs";
-			reg = <0x0 0x1c00000 0x1400000>;
-		};
-		partition@4 {	/* for testing purpose */
-			label = "nand1-bitstream";
-			reg = <0x0 0x3000000 0x400000>;
-		};
-		partition@5 {	/* for testing purpose */
-			label = "nand1-misc";
-			reg = <0x0 0x3400000 0xfcc00000>;
+			partition@0 {	/* for testing purpose */
+				label = "nand1-fsbl-uboot";
+				reg = <0x0 0x0 0x400000>;
+			};
+			partition@1 {	/* for testing purpose */
+				label = "nand1-linux";
+				reg = <0x0 0x400000 0x1400000>;
+			};
+			partition@2 {	/* for testing purpose */
+				label = "nand1-device-tree";
+				reg = <0x0 0x1800000 0x400000>;
+			};
+			partition@3 {	/* for testing purpose */
+				label = "nand1-rootfs";
+				reg = <0x0 0x1c00000 0x1400000>;
+			};
+			partition@4 {	/* for testing purpose */
+				label = "nand1-bitstream";
+				reg = <0x0 0x3000000 0x400000>;
+			};
+			partition@5 {	/* for testing purpose */
+				label = "nand1-misc";
+				reg = <0x0 0x3400000 0xfcc00000>;
+			};
 		};
 	};
 };

@@ -500,6 +500,8 @@ static int h_read_settings(struct scene_obj *obj, void *vpriv)
 		tline = (struct scene_obj_textline *)obj;
 
 		val = ofnode_read_prop(node, obj->name, &len);
+		if (!val)
+			return log_msg_ret("tline", -ENOENT);
 		if (len >= tline->max_chars)
 			return log_msg_ret("str", -ENOSPC);
 		strcpy(abuf_data(&tline->buf), val);

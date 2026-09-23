@@ -16,12 +16,12 @@ configuration file.
 Two new files, common/iomux.c and include/iomux.h, contain the heart
 (iomux_doenv()) of the environment setting implementation.
 
-iomux_doenv() is called in common/cmd_nvedit.c to handle setenv and in
+iomux_doenv() is called in common/cmd_nvedit.c to handle env set and in
 common/console.c in console_init_r() during bootup to initialize
 stdio_devices[].
 
 A user can use a comma-separated list of devices to set stdin, stdout
-and stderr.  For example: "setenv stdin serial,nc".  NOTE: No spaces
+and stderr.  For example: "env set stdin serial,nc".  NOTE: No spaces
 are allowed around the comma(s)!
 
 The length of the list is limited by malloc(), since the array used
@@ -31,7 +31,7 @@ It should be possible to specify any device which console_assign()
 finds acceptable, but the code has only been tested with serial and
 nc.
 
-iomux_doenv() prevents multiple use of the same device, e.g. "setenv
+iomux_doenv() prevents multiple use of the same device, e.g. "env set
 stdin nc,nc,serial" will discard the second nc.  iomux_doenv() is
 not able to modify the environment, however, so that "pri stdin" still
 shows "nc,nc,serial".

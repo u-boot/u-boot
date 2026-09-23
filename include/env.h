@@ -9,7 +9,6 @@
 #ifndef __ENV_H
 #define __ENV_H
 
-#include <config.h>
 #include <compiler.h>
 #include <stdbool.h>
 #include <linux/types.h>
@@ -174,10 +173,11 @@ int env_set(const char *varname, const char *value);
  */
 static inline int env_set_runtime(const char *varname, const char *value)
 {
-	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG))
-		return env_set(varname, value);
-
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	return env_set(varname, value);
+#else
 	return 0;
+#endif
 }
 
 /**

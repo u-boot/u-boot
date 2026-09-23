@@ -19,4 +19,4 @@ If no command line arguments or bootargs are defined, CONFADDR is left
 uninitialized to permit manual configuration.  For example, PC-style
 configuration could be simulated by issuing a fatload in bootcmd::
 
-  # setenv bootcmd fatload mmc 0 $confaddr plan9.ini; ...; bootm
+  # env set bootcmd fatload mmc 0 $confaddr plan9.ini; ...; bootm

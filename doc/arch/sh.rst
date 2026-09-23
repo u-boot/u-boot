@@ -73,7 +73,6 @@ Compiler
 --------
 You can use the following of u-boot to compile.
    - `SuperH Linux Open site <http://www.superh-linux.org/>`_
-   - `KPIT GNU tools <http://www.kpitgnutools.com/>`_
 
 Future
 ------

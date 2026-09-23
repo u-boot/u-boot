@@ -20,7 +20,7 @@ config IPU_CLK_LEGACY
 	depends on VIDEO_IPUV3 && !CLK
 	default y
 	help
-	 Use legacy clock management instead of Common Clock Framework.
+	  Use legacy clock management instead of Common Clock Framework.
 
 config IMX_LDB
 	bool "Freescale i.MX8MP LDB bridge"

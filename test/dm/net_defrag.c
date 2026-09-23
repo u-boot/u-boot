@@ -80,3 +80,39 @@ static int dm_test_net_ip_defrag_dup_last(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_net_ip_defrag_dup_last, 0);
+
+/*
+ * A fragment placed at the very top of the reassembly buffer takes the
+ * split-hole branch, which writes an 8-byte "struct hole" at
+ * pkt_buff + IP_HDR_SIZE + (offset8 + len / 8) * 8. With start + len equal to
+ * IP_MAXUDP that write reaches the end of pkt_buff and spills past it. pkt_buff
+ * is a static array, so this is flagged under AddressSanitizer; the fix rejects
+ * such a fragment instead. The datagram is incomplete, so nothing is delivered
+ * either way.
+ */
+static int dm_test_net_ip_defrag_oob(struct unit_test_state *uts)
+{
+	rxhand_f *saved_handler = net_get_udp_handler();
+	uchar frame[FRAME_LEN];
+	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)(frame + ETHER_HDR_SIZE);
+	u16 payload[4] = { 0, 0, 0, 0 };
+	/* Offset (8-byte units) so that start + FRAG_LEN == IP_MAXUDP. */
+	u16 off8 = (CONFIG_NET_MAXDEFRAG - IP_HDR_SIZE - FRAG_LEN) / 8;
+
+	udp_rx_count = 0;
+	net_set_udp_handler(defrag_udp_handler);
+
+	build_frag(frame, IP_FLAGS_MFRAG | off8, payload);
+	/* A distinct id forces a fresh reassembly independent of earlier tests. */
+	ip->ip_id = htons(0x7abc);
+	ip->ip_sum = 0;
+	ip->ip_sum = compute_ip_checksum(ip, IP_HDR_SIZE);
+	net_process_received_packet(frame, FRAME_LEN);
+
+	ut_asserteq(0, udp_rx_count);
+
+	net_set_udp_handler(saved_handler);
+
+	return 0;
+}
+DM_TEST(dm_test_net_ip_defrag_oob, 0);

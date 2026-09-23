@@ -2,7 +2,7 @@
 /*
  * Board functions for Sysam AMCORE (MCF5307 based) board
  *
- * (C) Copyright 2016  Angelo Dureghello <angelo@sysam.it>
+ * (C) Copyright 2016  Angelo Dureghello <angelo@kernel-space.org>
  *
  * This file copies memory testdram() from sandburst/common/sb_common.c
  */

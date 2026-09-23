@@ -24,7 +24,7 @@
 		mmc-hs200-1_8v;
 		max-frequency = <192000000>;
 		bus-width = <4>;
-		pinctrl-0 = <&sdc_default_state>;
+		pinctrl-0 = <&qpic_snand_default_state>;
 		pinctrl-names = "default";
 		non-removable;
 

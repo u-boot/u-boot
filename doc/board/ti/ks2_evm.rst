@@ -198,8 +198,8 @@ instructions:
 
 .. prompt:: bash =>
 
-   setenv addr_uboot 0x87000000
-   setenv filesize <size in hex of u-boot-spi.gph rounded to hex 0x10000>
+   env set addr_uboot 0x87000000
+   env set filesize <size in hex of u-boot-spi.gph rounded to hex 0x10000>
    run burn_uboot_spi
 
 Once U-Boot prompt is available, power off the EVM. Set the SW1 dip switch to
@@ -226,7 +226,7 @@ instructions:
 
 .. prompt:: bash =>
 
-   setenv filesize <size in hex of MLO rounded to hex 0x10000>
+   env set filesize <size in hex of MLO rounded to hex 0x10000>
    run burn_uboot_nand
 
 Once U-Boot prompt is available, Power OFF the EVM. Set the SW1 dip switch to

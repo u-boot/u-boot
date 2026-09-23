@@ -91,8 +91,10 @@ OpenSBI firmware and proper U-Boot.
 Booting
 ~~~~~~~
 
-u-boot-with-spl.bin should be loaded to SRAM through fastboot. Connect
-the board to computer with Type-C cable and run
+u-boot-with-spl.bin should be loaded to SRAM through fastboot.
+
+To put the board in fastboot mode, press and hold the ``BOOT`` button,
+connect the board to the computer with a Type-C cable, release ``BOOT`` and run:
 
 .. code-block:: bash
 

@@ -17,6 +17,8 @@ ifdef CONFIG_CONSOLE_RECORD
 obj-$(CONFIG_CMD_ACPI) += acpi.o
 endif
 obj-$(CONFIG_CMD_BDI) += bdinfo.o
+obj-$(CONFIG_CMD_BOOTD) += bootd.o
+obj-$(CONFIG_CMD_CONFIG) += config.o
 obj-$(CONFIG_COREBOOT_SYSINFO) += coreboot.o
 obj-$(CONFIG_CMD_FDT) += fdt.o
 obj-$(CONFIG_CMD_HASH) += hash.o

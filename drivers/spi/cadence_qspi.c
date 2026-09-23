@@ -31,6 +31,8 @@
 #define CQSPI_DISABLE_STIG_MODE		BIT(0)
 #define CQSPI_DMA_MODE			BIT(1)
 
+#define CQSPI_RESET_DELAY_US		10
+
 __weak int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 				     const struct spi_mem_op *op)
 {
@@ -256,19 +258,9 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	priv->resets = devm_reset_bulk_get_optional(bus);
 	if (priv->resets) {
-		/* Assert all OSPI reset lines */
-		ret = reset_assert_bulk(priv->resets);
+		ret = reset_reset_bulk(priv->resets, CQSPI_RESET_DELAY_US);
 		if (ret) {
-			dev_err(bus, "Failed to assert OSPI reset: %d\n", ret);
-			return ret;
-		}
-
-		udelay(10);
-
-		/* Deassert all OSPI reset lines */
-		ret = reset_deassert_bulk(priv->resets);
-		if (ret) {
-			dev_err(bus, "Failed to deassert OSPI reset: %d\n", ret);
+			dev_err(bus, "Failed to reset OSPI: %d\n", ret);
 			return ret;
 		}
 	}
@@ -418,8 +410,11 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	ofnode subnode;
 
-	plat->regbase = devfdt_get_addr_index_ptr(bus, 0);
-	plat->ahbbase = devfdt_get_addr_size_index_ptr(bus, 1, &plat->ahbsize);
+	plat->regbase = dev_read_addr_index_ptr(bus, 0);
+	plat->ahbbase = dev_read_addr_size_index_ptr(bus, 1, &plat->ahbsize);
+	if (!plat->regbase || !plat->ahbbase)
+		return -EINVAL;
+
 	plat->is_decoded_cs = dev_read_bool(bus, "cdns,is-decoded-cs");
 	plat->fifo_depth = dev_read_u32_default(bus, "cdns,fifo-depth", 128);
 	plat->fifo_width = dev_read_u32_default(bus, "cdns,fifo-width", 4);

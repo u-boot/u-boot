@@ -152,7 +152,7 @@ UCLASS_DRIVER(qfw) = {
 	.per_device_auto	= sizeof(struct qfw_dev),
 };
 
-struct bootdev_ops qfw_bootdev_ops = {
+static const struct bootdev_ops qfw_bootdev_ops = {
 	.get_bootflow	= qfw_get_bootflow,
 };
 

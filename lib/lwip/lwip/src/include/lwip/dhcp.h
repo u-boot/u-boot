@@ -127,6 +127,7 @@ err_t dhcp_start(struct netif *netif);
 err_t dhcp_renew(struct netif *netif);
 err_t dhcp_release(struct netif *netif);
 void dhcp_stop(struct netif *netif);
+void dhcp_stop_without_release(struct netif *netif);
 void dhcp_release_and_stop(struct netif *netif);
 void dhcp_inform(struct netif *netif);
 void dhcp_network_changed_link_up(struct netif *netif);

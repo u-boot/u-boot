@@ -17,6 +17,10 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout);
 
 int mmc_set_blocklen(struct mmc *mmc, int len);
 
+#if !CONFIG_IS_ENABLED(DM_MMC)
+int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt);
+#endif
+
 #if CONFIG_IS_ENABLED(BLK)
 ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 		void *dst);

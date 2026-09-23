@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * (C) Copyright 2026 - Analog Devices, Inc.
+ */
+
+/dts-v1/;
+
+#include "sc598-som-ezkit.dtsi"
+
+&som_gpio_expander {
+	som-emmc {
+		gpio-hog;
+		gpios = <8 GPIO_ACTIVE_LOW>;
+		output-low;
+		line-name = "som-emmc-en";
+		bootph-pre-ram;
+	};
+
+	crr-sdcard {
+		gpio-hog;
+		gpios = <9 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "crr-sdcard-en";
+		bootph-pre-ram;
+	};
+};
+
+&mmc0 {
+	max-frequency = <44000000>;
+	bus-width = <4>;
+	no-1-8-v;
+};

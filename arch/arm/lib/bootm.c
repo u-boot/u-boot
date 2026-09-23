@@ -64,8 +64,8 @@ static void setup_memory_tags(struct bd_info *bd)
 		params->hdr.tag = ATAG_MEM;
 		params->hdr.size = tag_size (tag_mem32);
 
-		params->u.mem.start = bd->bi_dram[i].start;
-		params->u.mem.size = bd->bi_dram[i].size;
+		params->u.mem.start = gd->dram[i].start;
+		params->u.mem.size = gd->dram[i].size;
 
 		params = tag_next (params);
 	}

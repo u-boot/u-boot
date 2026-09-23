@@ -16,8 +16,15 @@ description:
 
 properties:
   compatible:
-    enum:
-      - rockchip,rk3568-mipi-csi2
+    oneOf:
+      - enum:
+          - fsl,imx93-mipi-csi2
+          - fsl,imx95-mipi-csi2
+          - rockchip,rk3568-mipi-csi2
+      - items:
+          - enum:
+              - rockchip,rk3588-mipi-csi2
+          - const: rockchip,rk3568-mipi-csi2
 
   reg:
     maxItems: 1
@@ -26,14 +33,23 @@ properties:
     items:
       - description: Interrupt that signals changes in CSI2HOST_ERR1.
       - description: Interrupt that signals changes in CSI2HOST_ERR2.
+    minItems: 1
 
   interrupt-names:
     items:
       - const: err1
       - const: err2
+    minItems: 1
 
   clocks:
-    maxItems: 1
+    minItems: 1
+    maxItems: 2
+
+  clock-names:
+    items:
+      - const: per
+      - const: pixel
+    minItems: 1
 
   phys:
     maxItems: 1
@@ -88,9 +104,57 @@ required:
   - phys
   - ports
   - power-domains
-  - resets
 
 additionalProperties: false
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: rockchip,rk3568-mipi-csi2
+    then:
+      properties:
+        interrupts:
+          minItems: 2
+        interrupt-names:
+          minItems: 2
+        clocks:
+          maxItems: 1
+        clock-names:
+          maxItems: 1
+      required:
+        - resets
+
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: fsl,imx93-mipi-csi2
+    then:
+      properties:
+        interrupts:
+          maxItems: 1
+        interrupt-names: false
+        clocks:
+          minItems: 2
+        clock-names:
+          minItems: 2
+
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: fsl,imx95-mipi-csi2
+    then:
+      properties:
+        interrupts:
+          maxItems: 1
+        interrupt-names: false
+        clocks:
+          maxItems: 1
+        clock-names:
+          maxItems: 1
 
 examples:
   - |

@@ -226,6 +226,11 @@ static int xhci_dwc3_probe(struct udevice *dev)
 static int xhci_dwc3_remove(struct udevice *dev)
 {
 	struct xhci_dwc3_plat *plat = dev_get_plat(dev);
+	int ret;
+
+	ret = xhci_deregister(dev);
+	if (ret)
+		return ret;
 
 	dwc3_shutdown_phy(dev, &plat->phys);
 
@@ -233,7 +238,7 @@ static int xhci_dwc3_remove(struct udevice *dev)
 
 	reset_release_bulk(&plat->resets);
 
-	return xhci_deregister(dev);
+	return 0;
 }
 
 static const struct udevice_id xhci_dwc3_ids[] = {

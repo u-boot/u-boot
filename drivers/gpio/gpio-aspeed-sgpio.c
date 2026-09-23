@@ -223,9 +223,9 @@ static int aspeed_sgpio_probe(struct udevice *dev)
 	ulong apb_freq;
 	int ret;
 
-	priv->base = devfdt_get_addr_ptr(dev);
-	if (IS_ERR(priv->base))
-		return PTR_ERR(priv->base);
+	priv->base = dev_read_addr_ptr(dev);
+	if (!priv->base)
+		return -EINVAL;
 
 	priv->pdata = (const struct aspeed_sgpio_pdata *)dev_get_driver_data(dev);
 	if (!priv->pdata)

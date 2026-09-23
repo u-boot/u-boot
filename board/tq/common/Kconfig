@@ -14,3 +14,8 @@ config TQ_COMMON_SDMMC
 
 config TQ_COMMON_SOM
 	bool
+
+config TQ_COMMON_SYSINFO
+	bool
+	select SYSINFO
+	imply SYSINFO_TQ_EEPROM

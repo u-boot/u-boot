@@ -39,7 +39,7 @@
 #define WDT_PRELOAD_MAX		0xfff
 
 struct rti_wdt_priv {
-	phys_addr_t regs;
+	void __iomem *regs;
 	unsigned int clk_hz;
 };
 
@@ -177,7 +177,7 @@ static int rti_wdt_probe(struct udevice *dev)
 	struct clk clk;
 	int ret;
 
-	priv->regs = devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	if (!priv->regs)
 		return -EINVAL;
 

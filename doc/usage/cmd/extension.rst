@@ -62,8 +62,8 @@ Usage example
 
 ::
 
-    => setenv extension_overlay_addr 0x88080000
-    => setenv extension_overlay_cmd 'load mmc 0:1 ${extension_overlay_addr} /boot/${extension_overlay_name}'
+    => env set extension_overlay_addr 0x88080000
+    => env set extension_overlay_cmd 'load mmc 0:1 ${extension_overlay_addr} /boot/${extension_overlay_name}'
 
 3. Detect the plugged extension board
 

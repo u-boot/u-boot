@@ -674,12 +674,12 @@ cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 # The output is typically a much smaller device tree file.
 
 ifeq ($(CONFIG_VPL_BUILD),y)
-fdtgrep_props := -b bootph-all -b bootph-verify $(migrate_vpl)
+fdtgrep_props := -b bootph-all -b bootph-verify
 else
 ifeq ($(CONFIG_TPL_BUILD),y)
-fdtgrep_props := -b bootph-all -b bootph-pre-sram $(migrate_tpl)
+fdtgrep_props := -b bootph-all -b bootph-pre-sram
 else
-fdtgrep_props := -b bootph-all -b bootph-pre-ram $(migrate_spl)
+fdtgrep_props := -b bootph-all -b bootph-pre-ram
 endif
 endif
 
@@ -699,7 +699,6 @@ quiet_cmd_fdtgrep = FDTGREP $@
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
 		-P bootph-all -P bootph-pre-ram -P bootph-pre-sram \
 		-P bootph-verify -P bootph-some-ram \
-		$(migrate_all) \
 		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
 
 # fdt_rm_props

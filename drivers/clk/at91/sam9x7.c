@@ -817,7 +817,7 @@ static const struct {
 
 static int sam9x7_clk_probe(struct udevice *dev)
 {
-	void __iomem *base = (void *)devfdt_get_addr_ptr(dev);
+	void __iomem *base = dev_read_addr_ptr(dev);
 	unsigned int *clkmuxallocs[64], *muxallocs[64];
 	const char *p[10];
 	unsigned int cm[10], m[10], *tmpclkmux, *tmpmux;

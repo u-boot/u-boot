@@ -211,7 +211,7 @@
 		"${pubkey}\0" \
 	"rescueboot=echo Booting rescue system ...; " \
 		"run addmtd addmisc;" \
-		"if test -n ${rescue_reason}; then run rescue_reason;fi;" \
+		"if test -n \"${rescue_reason}\"; then run rescue_reason;fi;" \
 		"run boot_board_type;" \
 		"if bootm ${fit_addr_r}; then ; " \
 		"else " \
@@ -412,8 +412,5 @@
 /* DMA stuff, needed for GPMI/MXS NAND support */
 
 /* UBI support */
-
-#define CFG_ENV_FLAGS_LIST_STATIC "ethaddr:mw,serial#:sw,board_type:sw," \
-		"sysnum:dw,panel:sw,ipaddr:iw,serverip:iw"
 
 #endif                         /* __ARISTAINETOS2_CONFIG_H */

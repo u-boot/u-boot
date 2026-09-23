@@ -5,7 +5,7 @@ Release Statistics for U-Boot v2026.07
 
 * Processed 1328 changesets from 212 developers
 
-* 25 employers found
+* 27 employers found
 
 * A total of 255173 lines added, 91237 removed (delta 163936)
 
@@ -763,7 +763,7 @@ Release Statistics for U-Boot v2026.07
    ====================================  =====
    Name                                  Count
    ====================================  =====
-   (Unknown)                             506 (38.1%)
+   (Unknown)                             446 (33.6%)
    BayLibre SAS                          179 (13.5%)
    Canonical                             98 (7.4%)
    Konsulko Group                        96 (7.2%)
@@ -771,8 +771,10 @@ Release Statistics for U-Boot v2026.07
    Renesas Electronics                   64 (4.8%)
    Texas Instruments                     60 (4.5%)
    AMD                                   48 (3.6%)
+   Qualcomm                              34 (2.6%)
    Toradex                               32 (2.4%)
    Bootlin                               27 (2.0%)
+   MediaTek Inc.                         26 (2.0%)
    Linaro                                23 (1.7%)
    Amarula Solutions                     19 (1.4%)
    ARM                                   16 (1.2%)
@@ -798,14 +800,16 @@ Release Statistics for U-Boot v2026.07
    Name                                  Count
    ====================================  =====
    Konsulko Group                        147099 (48.3%)
-   (Unknown)                             52846 (17.4%)
+   (Unknown)                             41196 (13.5%)
    Texas Instruments                     23592 (7.8%)
    Renesas Electronics                   19393 (6.4%)
    Canonical                             18957 (6.2%)
    BayLibre SAS                          13246 (4.4%)
    NXP                                   10795 (3.5%)
+   MediaTek Inc.                         9467 (3.1%)
    Toradex                               6609 (2.2%)
    Rockchip                              2606 (0.9%)
+   Qualcomm                              2183 (0.7%)
    Bootlin                               2149 (0.7%)
    Linaro                                2037 (0.7%)
    SUSE                                  1589 (0.5%)
@@ -833,13 +837,15 @@ Release Statistics for U-Boot v2026.07
    ====================================  =====
    NXP                                   71 (22.1%)
    Linaro                                69 (21.5%)
-   (Unknown)                             62 (19.3%)
+   (Unknown)                             50 (15.6%)
    BayLibre SAS                          47 (14.6%)
    AMD                                   29 (9.0%)
    Texas Instruments                     20 (6.2%)
+   MediaTek Inc.                         9 (2.8%)
    Konsulko Group                        4 (1.2%)
    ARM                                   4 (1.2%)
    Renesas Electronics                   3 (0.9%)
+   Qualcomm                              3 (0.9%)
    Siemens                               3 (0.9%)
    Canonical                             2 (0.6%)
    Toradex                               2 (0.6%)
@@ -856,9 +862,11 @@ Release Statistics for U-Boot v2026.07
    ====================================  =====
    Name                                  Count
    ====================================  =====
-   (Unknown)                             134 (62.9%)
+   (Unknown)                             117 (54.9%)
    Texas Instruments                     15 (7.0%)
+   MediaTek Inc.                         10 (4.7%)
    NXP                                   7 (3.3%)
+   Qualcomm                              7 (3.3%)
    Linaro                                5 (2.3%)
    Siemens                               5 (2.3%)
    Toradex                               5 (2.3%)

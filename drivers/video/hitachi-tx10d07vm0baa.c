@@ -35,28 +35,20 @@ static struct display_timing default_timing = {
 	.vsync_len.typ		= 4,
 };
 
-#define dsi_generic_write_seq(dsi, cmd, seq...) do {			\
-		static const u8 b[] = { cmd, seq };			\
-		int ret;						\
-		ret = mipi_dsi_dcs_write_buffer(dsi, b, ARRAY_SIZE(b));	\
-		if (ret < 0)						\
-			return ret;					\
-	} while (0)
-
 static int hitachi_tx10d07vm0baa_enable_backlight(struct udevice *dev)
 {
 	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	struct mipi_dsi_device *dsi = plat->device;
 	int ret;
 
-	dsi_generic_write_seq(dsi, MIPI_DCS_SET_PARTIAL_AREA, 0x00,
-			      0x00, 0x03, 0x1f);
-	dsi_generic_write_seq(dsi, MIPI_DCS_SET_SCROLL_AREA, 0x00,
-			      0x00, 0x03, 0x20, 0x00, 0x00);
+	mipi_dsi_dcs_write_seq(dsi, MIPI_DCS_SET_PARTIAL_AREA, 0x00,
+			       0x00, 0x03, 0x1f);
+	mipi_dsi_dcs_write_seq(dsi, MIPI_DCS_SET_SCROLL_AREA, 0x00,
+			       0x00, 0x03, 0x20, 0x00, 0x00);
 
-	dsi_generic_write_seq(dsi, MIPI_DCS_SET_ADDRESS_MODE, 0x0a);
-	dsi_generic_write_seq(dsi, MIPI_DCS_SET_SCROLL_START, 0x00,
-			      0x00);
+	mipi_dsi_dcs_write_seq(dsi, MIPI_DCS_SET_ADDRESS_MODE, 0x0a);
+	mipi_dsi_dcs_write_seq(dsi, MIPI_DCS_SET_SCROLL_START, 0x00,
+			       0x00);
 
 	ret = mipi_dsi_dcs_set_pixel_format(dsi, MIPI_DCS_PIXEL_FMT_24BIT);
 	if (ret) {
@@ -70,59 +62,59 @@ static int hitachi_tx10d07vm0baa_enable_backlight(struct udevice *dev)
 		return ret;
 	}
 
-	dsi_generic_write_seq(dsi, 0x71, 0x00);		/* Ex_Vsync_en */
+	mipi_dsi_dcs_write_seq(dsi, 0x71, 0x00);		/* Ex_Vsync_en */
 
-	dsi_generic_write_seq(dsi, 0xb2, 0x00);		/* VCSEL */
-	dsi_generic_write_seq(dsi, 0xb4, 0xaa);		/* setvgmpm */
-	dsi_generic_write_seq(dsi, 0xb5, 0x33);		/* rbias1 */
-	dsi_generic_write_seq(dsi, 0xb6, 0x03);		/* rbias2 */
+	mipi_dsi_dcs_write_seq(dsi, 0xb2, 0x00);		/* VCSEL */
+	mipi_dsi_dcs_write_seq(dsi, 0xb4, 0xaa);		/* setvgmpm */
+	mipi_dsi_dcs_write_seq(dsi, 0xb5, 0x33);		/* rbias1 */
+	mipi_dsi_dcs_write_seq(dsi, 0xb6, 0x03);		/* rbias2 */
 
-	dsi_generic_write_seq(dsi, 0xb7, 0x1a, 0x33, 0x03, 0x03,
-			      0x03, 0x00, 0x00, 0x01, 0x02, 0x00,
-			      0x00, 0x04, 0x00, 0x01, 0x01, 0x01);	/* set_ddvdhp */
-	dsi_generic_write_seq(dsi, 0xb8, 0x1c, 0x53, 0x03, 0x03,
-			      0x00, 0x01, 0x02, 0x00, 0x00, 0x04,
-			      0x00, 0x01, 0x01);			/* set_ddvdhm */
+	mipi_dsi_dcs_write_seq(dsi, 0xb7, 0x1a, 0x33, 0x03, 0x03,
+			       0x03, 0x00, 0x00, 0x01, 0x02, 0x00,
+			       0x00, 0x04, 0x00, 0x01, 0x01, 0x01);	/* set_ddvdhp */
+	mipi_dsi_dcs_write_seq(dsi, 0xb8, 0x1c, 0x53, 0x03, 0x03,
+			       0x00, 0x01, 0x02, 0x00, 0x00, 0x04,
+			       0x00, 0x01, 0x01);			/* set_ddvdhm */
 
-	dsi_generic_write_seq(dsi, 0xb9, 0x0a, 0x01, 0x01, 0x00,
-			      0x00, 0x00, 0x02, 0x00, 0x02, 0x01);	/* set_vgh */
-	dsi_generic_write_seq(dsi, 0xba, 0x0f, 0x01, 0x01, 0x00,
-			      0x00, 0x00, 0x02, 0x00, 0x02, 0x01);	/* set_vgl */
-	dsi_generic_write_seq(dsi, 0xbb, 0x00, 0x00, 0x00, 0x00,
-			      0x01, 0x02, 0x01);			/* set_vcl */
+	mipi_dsi_dcs_write_seq(dsi, 0xb9, 0x0a, 0x01, 0x01, 0x00,
+			       0x00, 0x00, 0x02, 0x00, 0x02, 0x01);	/* set_vgh */
+	mipi_dsi_dcs_write_seq(dsi, 0xba, 0x0f, 0x01, 0x01, 0x00,
+			       0x00, 0x00, 0x02, 0x00, 0x02, 0x01);	/* set_vgl */
+	mipi_dsi_dcs_write_seq(dsi, 0xbb, 0x00, 0x00, 0x00, 0x00,
+			       0x01, 0x02, 0x01);			/* set_vcl */
 
-	dsi_generic_write_seq(dsi, 0xc1, 0x01);		/* number of lines */
-	dsi_generic_write_seq(dsi, 0xc2, 0x08);		/* number of fp lines */
-	dsi_generic_write_seq(dsi, 0xc3, 0x04);		/* gateset(1) */
-	dsi_generic_write_seq(dsi, 0xc4, 0x4c);		/* 1h period */
-	dsi_generic_write_seq(dsi, 0xc5, 0x03);		/* source precharge */
-	dsi_generic_write_seq(dsi, 0xc6, 0xc4, 0x04);	/* source precharge timing */
-	dsi_generic_write_seq(dsi, 0xc7, 0x00);		/* source level */
-	dsi_generic_write_seq(dsi, 0xc8, 0x02);		/* number of bp lines */
-	dsi_generic_write_seq(dsi, 0xc9, 0x10);		/* gateset(2) */
-	dsi_generic_write_seq(dsi, 0xca, 0x04, 0x04);	/* gateset(3) */
-	dsi_generic_write_seq(dsi, 0xcb, 0x03);		/* gateset(4) */
-	dsi_generic_write_seq(dsi, 0xcc, 0x12);		/* gateset(5) */
-	dsi_generic_write_seq(dsi, 0xcd, 0x12);		/* gateset(6) */
-	dsi_generic_write_seq(dsi, 0xce, 0x30);		/* gateset(7) */
-	dsi_generic_write_seq(dsi, 0xcf, 0x30);		/* gateset(8) */
-	dsi_generic_write_seq(dsi, 0xd0, 0x40);		/* gateset(9) */
-	dsi_generic_write_seq(dsi, 0xd1, 0x22);		/* flhw */
-	dsi_generic_write_seq(dsi, 0xd2, 0x22);		/* vckhw */
-	dsi_generic_write_seq(dsi, 0xd3, 0x04);		/* flt */
-	dsi_generic_write_seq(dsi, 0xd4, 0x14);		/* tctrl */
-	dsi_generic_write_seq(dsi, 0xd6, 0x02);		/* dotinv */
-	dsi_generic_write_seq(dsi, 0xd7, 0x00);		/* on/off sequence period */
+	mipi_dsi_dcs_write_seq(dsi, 0xc1, 0x01);		/* number of lines */
+	mipi_dsi_dcs_write_seq(dsi, 0xc2, 0x08);		/* number of fp lines */
+	mipi_dsi_dcs_write_seq(dsi, 0xc3, 0x04);		/* gateset(1) */
+	mipi_dsi_dcs_write_seq(dsi, 0xc4, 0x4c);		/* 1h period */
+	mipi_dsi_dcs_write_seq(dsi, 0xc5, 0x03);		/* source precharge */
+	mipi_dsi_dcs_write_seq(dsi, 0xc6, 0xc4, 0x04);	/* source precharge timing */
+	mipi_dsi_dcs_write_seq(dsi, 0xc7, 0x00);		/* source level */
+	mipi_dsi_dcs_write_seq(dsi, 0xc8, 0x02);		/* number of bp lines */
+	mipi_dsi_dcs_write_seq(dsi, 0xc9, 0x10);		/* gateset(2) */
+	mipi_dsi_dcs_write_seq(dsi, 0xca, 0x04, 0x04);	/* gateset(3) */
+	mipi_dsi_dcs_write_seq(dsi, 0xcb, 0x03);		/* gateset(4) */
+	mipi_dsi_dcs_write_seq(dsi, 0xcc, 0x12);		/* gateset(5) */
+	mipi_dsi_dcs_write_seq(dsi, 0xcd, 0x12);		/* gateset(6) */
+	mipi_dsi_dcs_write_seq(dsi, 0xce, 0x30);		/* gateset(7) */
+	mipi_dsi_dcs_write_seq(dsi, 0xcf, 0x30);		/* gateset(8) */
+	mipi_dsi_dcs_write_seq(dsi, 0xd0, 0x40);		/* gateset(9) */
+	mipi_dsi_dcs_write_seq(dsi, 0xd1, 0x22);		/* flhw */
+	mipi_dsi_dcs_write_seq(dsi, 0xd2, 0x22);		/* vckhw */
+	mipi_dsi_dcs_write_seq(dsi, 0xd3, 0x04);		/* flt */
+	mipi_dsi_dcs_write_seq(dsi, 0xd4, 0x14);		/* tctrl */
+	mipi_dsi_dcs_write_seq(dsi, 0xd6, 0x02);		/* dotinv */
+	mipi_dsi_dcs_write_seq(dsi, 0xd7, 0x00);		/* on/off sequence period */
 
-	dsi_generic_write_seq(dsi, 0xd8, 0x01, 0x05, 0x06, 0x0d,
-			      0x18, 0x09, 0x22, 0x23, 0x00);		/* ponseqa */
-	dsi_generic_write_seq(dsi, 0xd9, 0x24, 0x01);			/* ponseqb */
-	dsi_generic_write_seq(dsi, 0xde, 0x09, 0x0f, 0x21, 0x12,
-			      0x04);					/* ponseqc */
+	mipi_dsi_dcs_write_seq(dsi, 0xd8, 0x01, 0x05, 0x06, 0x0d,
+			       0x18, 0x09, 0x22, 0x23, 0x00);		/* ponseqa */
+	mipi_dsi_dcs_write_seq(dsi, 0xd9, 0x24, 0x01);			/* ponseqb */
+	mipi_dsi_dcs_write_seq(dsi, 0xde, 0x09, 0x0f, 0x21, 0x12,
+			       0x04);					/* ponseqc */
 
-	dsi_generic_write_seq(dsi, 0xdf, 0x02, 0x06, 0x06, 0x06,
-			      0x06, 0x00);				/* pofseqa */
-	dsi_generic_write_seq(dsi, 0xe0, 0x01);				/* pofseqb */
+	mipi_dsi_dcs_write_seq(dsi, 0xdf, 0x02, 0x06, 0x06, 0x06,
+			       0x06, 0x00);				/* pofseqa */
+	mipi_dsi_dcs_write_seq(dsi, 0xe0, 0x01);				/* pofseqb */
 
 	ret = mipi_dsi_dcs_set_display_brightness(dsi, 0xff);
 	if (ret) {
@@ -130,32 +122,32 @@ static int hitachi_tx10d07vm0baa_enable_backlight(struct udevice *dev)
 		return ret;
 	}
 
-	dsi_generic_write_seq(dsi, MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x40);
+	mipi_dsi_dcs_write_seq(dsi, MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x40);
 
-	dsi_generic_write_seq(dsi, 0xe2, 0x00, 0x00);		/* cabc pwm */
-	dsi_generic_write_seq(dsi, 0xe3, 0x03);			/* cabc */
-	dsi_generic_write_seq(dsi, 0xe4, 0x66, 0x7b, 0x90, 0xa5,
-			      0xbb, 0xc7, 0xe1, 0xe5);		/* cabc brightness */
-	dsi_generic_write_seq(dsi, 0xe5, 0xc5, 0xc5, 0xc9, 0xc9,
-			      0xd1, 0xe1, 0xf1, 0xfe);		/* cabc brightness */
-	dsi_generic_write_seq(dsi, 0xe7, 0x2a);			/* cabc */
-	dsi_generic_write_seq(dsi, 0xe8, 0x00);			/* brt_rev */
-	dsi_generic_write_seq(dsi, 0xe9, 0x00);			/* tefreq */
+	mipi_dsi_dcs_write_seq(dsi, 0xe2, 0x00, 0x00);		/* cabc pwm */
+	mipi_dsi_dcs_write_seq(dsi, 0xe3, 0x03);			/* cabc */
+	mipi_dsi_dcs_write_seq(dsi, 0xe4, 0x66, 0x7b, 0x90, 0xa5,
+			       0xbb, 0xc7, 0xe1, 0xe5);		/* cabc brightness */
+	mipi_dsi_dcs_write_seq(dsi, 0xe5, 0xc5, 0xc5, 0xc9, 0xc9,
+			       0xd1, 0xe1, 0xf1, 0xfe);		/* cabc brightness */
+	mipi_dsi_dcs_write_seq(dsi, 0xe7, 0x2a);			/* cabc */
+	mipi_dsi_dcs_write_seq(dsi, 0xe8, 0x00);			/* brt_rev */
+	mipi_dsi_dcs_write_seq(dsi, 0xe9, 0x00);			/* tefreq */
 
-	dsi_generic_write_seq(dsi, 0xea, 0x01);			/* high speed ram */
+	mipi_dsi_dcs_write_seq(dsi, 0xea, 0x01);			/* high speed ram */
 
-	dsi_generic_write_seq(dsi, 0xeb, 0x00, 0x33, 0x0e, 0x15,
-			      0xb7, 0x78, 0x88, 0x0f);		/* gamma setting r pos */
-	dsi_generic_write_seq(dsi, 0xec, 0x00, 0x33, 0x0e, 0x15,
-			      0xb7, 0x78, 0x88, 0x0f);		/* gamma setting r neg */
-	dsi_generic_write_seq(dsi, 0xed, 0x00, 0x33, 0x0e, 0x15,
-			      0xb7, 0x78, 0x88, 0x0f);		/* gamma setting g pos */
-	dsi_generic_write_seq(dsi, 0xee, 0x00, 0x33, 0x0e, 0x15,
-			      0xb7, 0x78, 0x88, 0x0f);		/* gamma setting g neg */
-	dsi_generic_write_seq(dsi, 0xef, 0x00, 0x33, 0x0e, 0x15,
-			      0xb7, 0x78, 0x88, 0x0f);		/* gamma setting b pos */
-	dsi_generic_write_seq(dsi, 0xf0, 0x00, 0x33, 0x0e, 0x15,
-			      0xb7, 0x78, 0x88, 0x0f);		/* gamma setting b neg */
+	mipi_dsi_dcs_write_seq(dsi, 0xeb, 0x00, 0x33, 0x0e, 0x15,
+			       0xb7, 0x78, 0x88, 0x0f);		/* gamma setting r pos */
+	mipi_dsi_dcs_write_seq(dsi, 0xec, 0x00, 0x33, 0x0e, 0x15,
+			       0xb7, 0x78, 0x88, 0x0f);		/* gamma setting r neg */
+	mipi_dsi_dcs_write_seq(dsi, 0xed, 0x00, 0x33, 0x0e, 0x15,
+			       0xb7, 0x78, 0x88, 0x0f);		/* gamma setting g pos */
+	mipi_dsi_dcs_write_seq(dsi, 0xee, 0x00, 0x33, 0x0e, 0x15,
+			       0xb7, 0x78, 0x88, 0x0f);		/* gamma setting g neg */
+	mipi_dsi_dcs_write_seq(dsi, 0xef, 0x00, 0x33, 0x0e, 0x15,
+			       0xb7, 0x78, 0x88, 0x0f);		/* gamma setting b pos */
+	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0x00, 0x33, 0x0e, 0x15,
+			       0xb7, 0x78, 0x88, 0x0f);		/* gamma setting b neg */
 
 	ret = mipi_dsi_dcs_exit_sleep_mode(dsi);
 	if (ret) {

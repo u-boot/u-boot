@@ -10,7 +10,6 @@
 };
 
 &gpio1 {
-	reg = <0 0x47400000 0 0x1000>, <0 0x47400040 0 0x40>;
 	bootph-pre-ram;
 };
 
@@ -103,8 +102,4 @@
 
 &usdhc2 {
 	bootph-pre-ram;
-};
-
-&wdog3 {
-	status = "disabled";
 };

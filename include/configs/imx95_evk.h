@@ -23,6 +23,4 @@
 #define PHYS_SDRAM_2_SIZE		0x380000000 /* 14GB (Totally 16GB) */
 #endif
 
-#define WDOG_BASE_ADDR			WDG3_BASE_ADDR
-
 #endif

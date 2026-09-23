@@ -74,8 +74,11 @@ obj-$(CONFIG_EFI_SIGNATURE_SUPPORT) += efi_signature.o
 obj-$(CONFIG_EFI_ECPT) += efi_conformance.o
 obj-$(CONFIG_EFI_DEBUG_SUPPORT) += efi_debug_support.o
 
-EFI_VAR_SEED_FILE := $(subst $\",,$(CONFIG_EFI_VAR_SEED_FILE))
-$(obj)/efi_var_seed.o: $(srctree)/$(EFI_VAR_SEED_FILE)
+TMP_VAR_SEED := $(subst $\",,$(CONFIG_EFI_VAR_SEED_FILE))
+EFI_VAR_SEED_FILE := $(if $(filter /% ,$(TMP_VAR_SEED)) \
+  ,$(TMP_VAR_SEED),$(srctree)/$(TMP_VAR_SEED))
+AFLAGS_efi_var_seed.o := -DEFI_VAR_SEED_FILE=\"$(EFI_VAR_SEED_FILE)\"
+$(obj)/efi_var_seed.o: $(EFI_VAR_SEED_FILE)
 
 ifeq ($(CONFIG_EFI_CAPSULE_AUTHENTICATE),y)
 capsule_crt_path=($(subst $(quote),,$(CONFIG_EFI_CAPSULE_CRT_FILE)))

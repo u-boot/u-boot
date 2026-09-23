@@ -1,0 +1,23 @@
+if OMAP44XX
+
+choice
+	prompt "OMAP4 board select"
+	optional
+	help
+	  Select your OMAP4 board, available boards are:
+	  - TI OMAP4 Variscite SOM
+
+config TARGET_OMAP4_VAR_SOM
+	bool "TI OMAP4 Variscite SOM"
+	help
+	  OMAP4-based system on module.
+	  Boots from the SD card reader
+
+endchoice
+
+config SYS_SOC
+	default "omap4"
+
+source "board/variscite/omap4_var_som/Kconfig"
+
+endif

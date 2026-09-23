@@ -45,7 +45,7 @@ static int do_scsi(struct cmd_tbl *cmdtp, int flag, int argc,
 U_BOOT_CMD(
 	scsi, 5, 1, do_scsi,
 	"SCSI sub-system",
-	"scsi info  - show available SCSI devices\n"
+	"info  - show available SCSI devices\n"
 	"scsi scan  - (re-)scan SCSI bus\n"
 	"scsi device [dev] - show or set current device\n"
 	"scsi part [dev] - print partition table of one or all SCSI devices\n"

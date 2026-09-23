@@ -136,7 +136,6 @@ struct ipu_ctx {
 
 	struct clk *ipu_clk;
 	struct clk *ldb_clk;
-	unsigned char ipu_clk_enabled;
 	struct clk *di_clk[2];
 	struct clk *pixel_clk[2];
 

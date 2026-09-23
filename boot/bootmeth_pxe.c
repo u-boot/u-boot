@@ -23,26 +23,6 @@
 #include <net.h>
 #include <pxe_utils.h>
 
-static int extlinux_pxe_getfile(struct pxe_context *ctx, const char *file_path,
-				char *file_addr, enum bootflow_img_t type,
-				ulong *sizep)
-{
-	struct extlinux_info *info = ctx->userdata;
-	ulong addr;
-	int ret;
-
-	addr = simple_strtoul(file_addr, NULL, 16);
-
-	/* Allow up to 1GB */
-	*sizep = 1 << 30;
-	ret = bootmeth_read_file(info->dev, info->bflow, file_path, addr,
-				 type, sizep);
-	if (ret)
-		return log_msg_ret("read", ret);
-
-	return 0;
-}
-
 static int extlinux_pxe_check(struct udevice *dev, struct bootflow_iter *iter)
 {
 	int ret;
@@ -158,7 +138,7 @@ static int extlinux_pxe_boot(struct udevice *dev, struct bootflow *bflow)
 	info.dev = dev;
 	info.bflow = bflow;
 	info.cmdtp = &cmdtp;
-	ret = pxe_setup_ctx(ctx, &cmdtp, extlinux_pxe_getfile, &info, false,
+	ret = pxe_setup_ctx(ctx, &cmdtp, extlinux_getfile, &info, false,
 			    bflow->subdir, false, false);
 	if (ret)
 		return log_msg_ret("ctx", -EINVAL);

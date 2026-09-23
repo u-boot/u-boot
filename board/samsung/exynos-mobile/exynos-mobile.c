@@ -346,8 +346,8 @@ int dram_init_banksize(void)
 	unsigned int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		gd->bd->bi_dram[i].start = mem_map[i + 1].phys;
-		gd->bd->bi_dram[i].size = mem_map[i + 1].size;
+		gd->dram[i].start = mem_map[i + 1].phys;
+		gd->dram[i].size = mem_map[i + 1].size;
 	}
 
 	return 0;

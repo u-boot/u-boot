@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
+/*
+ * Copyright (c) 2026 BayLibre SAS
+ * Author: Julien Stephan <jstephan@baylibre.com>
+ * Author: Carlo Caione <ccaione@baylibre.com>
+ */
+
+#include <linux/stringify.h>
+
+&binman {
+	mtk-boot {
+		filename = "mtk-boot.bin";
+
+		mkimage {
+			args = "-T", "mtk_image",
+			       "-a", __stringify(CONFIG_MTK_GENIO_BROM_LOAD_ADDR),
+			       "-e", __stringify(CONFIG_MTK_GENIO_BROM_LOAD_ADDR),
+			       "-n", CONFIG_MTK_BROM_HEADER_INFO;
+
+			section {
+				filename = "mtk-boot-payload.bin";
+				pad-byte = <0>;
+#include "mtk-genio-loader-spl-binman-u-boot.dtsi"
+			};
+		};
+	};
+};

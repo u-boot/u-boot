@@ -150,8 +150,8 @@ int dram_init(void)
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = CFG_SYS_SDRAM_SIZE;
+	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->dram[0].size = CFG_SYS_SDRAM_SIZE;
 
 	return 0;
 }

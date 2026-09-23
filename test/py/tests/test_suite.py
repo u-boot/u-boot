@@ -8,7 +8,7 @@ import re
 EXPECTED_SUITES = [
     'addrmap', 'bdinfo', 'bloblist', 'bootm', 'bootstd',
     'cmd', 'common', 'dm', 'env', 'exit', 'fdt_overlay',
-    'fdt', 'font', 'hush', 'lib',
+    'fdt', 'font', 'hush', 'image_fdt', 'lib',
     'loadm', 'log', 'mbr', 'measurement', 'mem',
     'pci_mps', 'setexpr', 'upl',
     ]

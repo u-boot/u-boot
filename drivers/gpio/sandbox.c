@@ -306,7 +306,7 @@ static int sb_gpio_get_name(const struct udevice *dev, char *out_name)
 	return acpi_copy_name(out_name, "GPIO");
 }
 
-struct acpi_ops gpio_sandbox_acpi_ops = {
+static const struct acpi_ops gpio_sandbox_acpi_ops = {
 	.get_name	= sb_gpio_get_name,
 };
 #endif /* ACPIGEN */
@@ -568,7 +568,7 @@ static struct pinctrl_ops sandbox_pinctrl_gpio_ops = {
 };
 
 #if CONFIG_IS_ENABLED(ACPIGEN)
-struct acpi_ops pinctrl_sandbox_acpi_ops = {
+static const struct acpi_ops pinctrl_sandbox_acpi_ops = {
 	.get_name	= sb_pinctrl_get_name,
 };
 #endif

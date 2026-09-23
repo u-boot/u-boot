@@ -132,7 +132,7 @@ uint mmc_get_env_part(struct mmc *mmc)
 	}
 }
 
-int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
+int mmc_get_env_addr(struct mmc *mmc, int copy, u64 *env_addr)
 {
 	/* use normal offset for SD card */
 	if (IS_SD(mmc)) {

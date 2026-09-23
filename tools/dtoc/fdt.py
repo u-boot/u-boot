@@ -780,7 +780,7 @@ class Node:
             parent = self.GetFdt().LookupPhandle(phandle)
             tout.debug(f'adding template {parent.path} to node {self.path}')
             for node in parent.subnodes.__reversed__():
-                dst = self.copy_node(node)
+                self.copy_node(node, True)
 
             tout.debug(f'merge props from {parent.path} to {self.path}')
             self.merge_props(parent, False)

@@ -170,8 +170,7 @@ static int anatop_regulator_probe(struct udevice *dev)
 	anatop_reg = dev_get_plat(dev);
 	uc_pdata = dev_get_uclass_plat(dev);
 
-	anatop_reg->name = ofnode_read_string(dev_ofnode(dev),
-					      "regulator-name");
+	anatop_reg->name = dev_read_string(dev, "regulator-name");
 	if (!anatop_reg->name)
 		return log_msg_ret("regulator-name", -EINVAL);
 

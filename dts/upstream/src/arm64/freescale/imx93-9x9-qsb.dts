@@ -228,7 +228,6 @@
 		compatible = "snps,dwmac-mdio";
 		#address-cells = <1>;
 		#size-cells = <0>;
-		clock-frequency = <5000000>;
 
 		ethphy1: ethernet-phy@1 {
 			compatible = "ethernet-phy-ieee802.3-c22";
@@ -348,6 +347,12 @@
 			gpio-hog;
 			gpios = <17 GPIO_ACTIVE_HIGH>;
 			output-low;
+		};
+
+		m2-pcm-level-shifter-hog {
+			gpio-hog;
+			gpios = <19 GPIO_ACTIVE_HIGH>;
+			output-high;
 		};
 	};
 

@@ -30,6 +30,7 @@
 #define UFS_CPU_MAX_BANDWIDTH	819200
 
 static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_hba *hba, bool enable);
+static u32 ufs_qcom_get_core_clk_unipro_max_freq(struct ufs_hba *hba);
 
 static int ufs_qcom_enable_clks(struct ufs_qcom_priv *priv)
 {
@@ -47,17 +48,6 @@ static int ufs_qcom_enable_clks(struct ufs_qcom_priv *priv)
 	return 0;
 }
 
-static int ufs_qcom_init_clks(struct ufs_qcom_priv *priv)
-{
-	int err;
-	struct udevice *dev = priv->hba->dev;
-
-	err = clk_get_bulk(dev, &priv->clks);
-	if (err)
-		return err;
-
-	return 0;
-}
 
 static int ufs_qcom_check_hibern8(struct ufs_hba *hba)
 {
@@ -557,9 +547,44 @@ static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_hba *hba, bool enable)
 static int ufs_qcom_init(struct ufs_hba *hba)
 {
 	struct ufs_qcom_priv *priv = dev_get_priv(hba->dev);
+	struct udevice *dev = hba->dev;
+	struct clk clk;
+	u32 max_freq;
+	long rate;
 	int err;
 
 	priv->hba = hba;
+
+	/* Get maximum frequency for core_clk_unipro from device tree */
+	max_freq = ufs_qcom_get_core_clk_unipro_max_freq(hba);
+
+	/* Get and configure core_clk_unipro */
+	err = clk_get_by_name(dev, "core_clk_unipro", &clk);
+	if (err) {
+		dev_err(dev, "Failed to get core_clk_unipro: %d\n", err);
+		return err;
+	}
+
+	rate = clk_set_rate(&clk, max_freq);
+	if (rate < 0) {
+		dev_err(dev, "Failed to set core_clk_unipro rate to %u Hz: %ld\n",
+			max_freq, rate);
+	}
+
+	/* Get all clocks */
+	err = clk_get_bulk(dev, &priv->clks);
+	if (err) {
+		dev_err(dev, "clk_get_bulk failed: %d\n", err);
+		return err;
+	}
+
+	/* Enable clocks */
+	err = ufs_qcom_enable_clks(priv);
+	if (err) {
+		dev_err(dev, "failed to enable clocks: %d\n", err);
+		clk_release_bulk(&priv->clks);
+		return err;
+	}
 
 	/* setup clocks */
 	ufs_qcom_setup_clocks(hba, true, PRE_CHANGE);
@@ -579,14 +604,7 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 		 priv->hw_ver.minor,
 		 priv->hw_ver.step);
 
-	err = ufs_qcom_init_clks(priv);
-	if (err) {
-		dev_err(hba->dev, "failed to initialize clocks, err:%d\n", err);
-		return err;
-	}
-
 	ufs_qcom_advertise_quirks(hba);
-	ufs_qcom_setup_clocks(hba, true, POST_CHANGE);
 
 	return 0;
 }

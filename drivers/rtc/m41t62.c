@@ -66,7 +66,7 @@ static void m41t62_update_rtc_time(struct rtc_time *tm, u8 *buf)
 {
 	debug("%s: raw read data - sec=%02x, min=%02x, hr=%02x, "
 	      "mday=%02x, mon=%02x, year=%02x, wday=%02x, y2k=%02x\n",
-	      __FUNCTION__,
+	      __func__,
 	      buf[0], buf[1], buf[2], buf[3],
 	      buf[4], buf[5], buf[6], buf[7]);
 
@@ -83,7 +83,7 @@ static void m41t62_update_rtc_time(struct rtc_time *tm, u8 *buf)
 
 	debug("%s: tm is secs=%d, mins=%d, hours=%d, "
 	      "mday=%d, mon=%d, year=%d, wday=%d\n",
-	      __FUNCTION__,
+	      __func__,
 	      tm->tm_sec, tm->tm_min, tm->tm_hour,
 	      tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
 }

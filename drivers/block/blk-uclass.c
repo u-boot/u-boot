@@ -439,7 +439,7 @@ long blk_read(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *buf)
 		return -ENOSYS;
 
 	if (blkcache_read(desc->uclass_id, desc->devnum,
-			  start, blkcnt, desc->blksz, buf))
+			  desc->hwpart, start, blkcnt, desc->blksz, buf))
 		return blkcnt;
 
 	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER) && desc->bb) {
@@ -461,8 +461,8 @@ long blk_read(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *buf)
 	}
 
 	if (blks_read == blkcnt)
-		blkcache_fill(desc->uclass_id, desc->devnum, start, blkcnt,
-			      desc->blksz, buf);
+		blkcache_fill(desc->uclass_id, desc->devnum, desc->hwpart,
+			      start, blkcnt, desc->blksz, buf);
 
 	return blks_read;
 }

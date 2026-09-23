@@ -319,6 +319,11 @@ static struct extra_iommu_entry *get_extra_iommu_ents(void *blob,
 			/* Hot-plug entry */
 			entries[i].action = EXTRA_IOMMU_ENTRY_HOTPLUG;
 			p += 2;
+			/* Skip the comma separator so it check the
+			 * next "pci@" group.
+			 */
+			if (*p == ',')
+				p++;
 		} else if (!strncmp(p, "vfs", 3) ||
 			   !strncmp(p, "noari_vfs", 9)) {
 			/* VFs or VFs with ARI disabled entry */

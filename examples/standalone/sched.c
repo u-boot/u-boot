@@ -58,7 +58,7 @@ static uchar dbg = 0;
 
 #define PDEBUG(fmt, args...)	 {					\
 	if(dbg != 0) {							\
-		printf("[%s %d %s]: ",__FILE__,__LINE__,__FUNCTION__);\
+		printf("[%s %d %s]: ", __FILE__, __LINE__, __func__);\
 		printf(fmt, ##args);				\
 		printf("\n");					\
 	}								\

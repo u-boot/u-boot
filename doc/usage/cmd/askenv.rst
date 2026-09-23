@@ -44,7 +44,7 @@ Value of a environment variable env1 without message and size parameters:
 
     => askenv env1
     Please enter 'env1': val1
-    => printenv env1
+    => env print env1
     env1=val1
 
 Value of a environment variable env2 with message and size parameters:
@@ -53,7 +53,7 @@ Value of a environment variable env2 with message and size parameters:
 
     => askenv env2 Please type-in a value for env2: 10
     Please type-in a value for env2: 1234567890123
-    => printenv env2
+    => env print env2
     env2=1234567890
 
 Value of a environment variable env3 with size parameter only:
@@ -62,7 +62,7 @@ Value of a environment variable env3 with size parameter only:
 
     => askenv env3 10
     Please enter 'env3': val3
-    => printenv env3
+    => env print env3
     env3=val3
 
 Configuration

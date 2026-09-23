@@ -1,11 +1,23 @@
-AM62Px BOARD
+SK-AM62P-LP BOARD
 M:	Vignesh Raghavendra <vigneshr@ti.com>
 M:	Bryan Brattlof <bb@ti.com>
 M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
+F:	arch/arm/dts/k3-am62p-ddr-lp4-50-1600.dtsi
+F:	arch/arm/dts/k3-am62p-sk-binman.dtsi
+F:	arch/arm/dts/k3-am62p5-r5-sk.dts
+F:	arch/arm/dts/k3-am62p5-r5.dtsi
+F:	arch/arm/dts/k3-am62p5-sk-u-boot.dtsi
+F:	arch/arm/mach-k3/am62px/am62p5_init.c
 F:	board/ti/am62px/
-F:	include/configs/am62p5_evm.h
-F:	configs/am62px_evm_r5_defconfig
 F:	configs/am62px_evm_a53_defconfig
-F:	configs/am62px_evm_r5_ethboot_defconfig
 F:	configs/am62px_evm_a53_ethboot_defconfig
+F:	configs/am62px_evm_r5_defconfig
+F:	configs/am62px_evm_r5_ethboot_defconfig
+F:	configs/am62x_a53_android.config
+F:	configs/am62x_a53_usbdfu.config
+F:	configs/am62x_a53_usbmsc.config
+F:	configs/am62x_r5_usbdfu.config
+F:	configs/am62x_r5_usbmsc.config
+F:	doc/board/ti/am62px_sk.rst
+F:	include/configs/am62px_evm.h

@@ -16,11 +16,11 @@ static int simple_pm_bus_probe(struct udevice *dev)
 	struct clk_bulk *bulk = dev_get_priv(dev);
 
 	ret = clk_get_bulk(dev, bulk);
-	if (ret && ret != -ENOENT)
+	if (ret && ret != -ENOENT && ret != -ENOSYS)
 		return ret;
 
 	ret = clk_enable_bulk(bulk);
-	if (ret && ret != -ENOSYS) {
+	if (ret) {
 		clk_release_bulk(bulk);
 		return ret;
 	}

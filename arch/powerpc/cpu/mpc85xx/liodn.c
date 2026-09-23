@@ -110,7 +110,7 @@ static void setup_fman_liodn_base(enum fsl_dpaa_dev dev,
 		break;
 #endif
 	default:
-		printf("Error: Invalid device type to %s\n", __FUNCTION__);
+		printf("Error: Invalid device type to %s\n", __func__);
 		return;
 	}
 

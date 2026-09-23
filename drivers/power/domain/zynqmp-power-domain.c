@@ -57,7 +57,7 @@ static int zynqmp_power_domain_off(struct power_domain *power_domain)
 	return 0;
 }
 
-struct power_domain_ops zynqmp_power_domain_ops = {
+static const struct power_domain_ops zynqmp_power_domain_ops = {
 	.request = zynqmp_power_domain_request,
 	.rfree = zynqmp_power_domain_free,
 	.on = zynqmp_power_domain_on,

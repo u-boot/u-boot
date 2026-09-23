@@ -12,6 +12,7 @@ the tool, checking its version and fetching it if needed.
 import collections
 import glob
 import importlib
+import inspect
 import multiprocessing
 import os
 import shutil
@@ -463,9 +464,10 @@ binaries. It is fairly easy to create new bintools. Just add a new file to the
             if test_missing == name:
                 docs = None
             if docs:
-                lines = docs.splitlines()
+                # See the note in Entry.WriteDocs() about cleandoc()
+                lines = inspect.cleandoc(docs).splitlines()
                 first_line = lines[0]
-                rest = [line[4:] for line in lines[1:]]
+                rest = lines[1:]
                 hdr = 'Bintool: %s: %s' % (name, first_line)
                 print(hdr)
                 print('-' * len(hdr))

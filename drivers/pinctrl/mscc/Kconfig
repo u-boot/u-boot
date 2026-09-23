@@ -10,8 +10,8 @@ config PINCTRL_MSCC_OCELOT
 	default y
 	bool "Microsemi ocelot family pin control driver"
 	help
-	   Support pin multiplexing and pin configuration control on
-	   Microsemi ocelot SoCs.
+	  Support pin multiplexing and pin configuration control on
+	  Microsemi ocelot SoCs.
 
 config PINCTRL_MSCC_LUTON
 	depends on SOC_LUTON && PINCTRL_FULL && OF_CONTROL
@@ -19,8 +19,8 @@ config PINCTRL_MSCC_LUTON
 	default y
 	bool "Microsemi luton family pin control driver"
 	help
-	   Support pin multiplexing and pin configuration control on
-	   Microsemi luton SoCs.
+	  Support pin multiplexing and pin configuration control on
+	  Microsemi luton SoCs.
 
 config PINCTRL_MSCC_JR2
 	depends on SOC_JR2 && PINCTRL_FULL && OF_CONTROL
@@ -28,8 +28,8 @@ config PINCTRL_MSCC_JR2
 	default y
 	bool "Microsemi jr2 family pin control driver"
 	help
-	    Support pin multiplexing and pin configuration control on
-	    Microsemi jr2 SoCs.
+	  Support pin multiplexing and pin configuration control on
+	  Microsemi jr2 SoCs.
 
 config PINCTRL_MSCC_SERVALT
 	depends on SOC_SERVALT && PINCTRL_FULL && OF_CONTROL
@@ -37,8 +37,8 @@ config PINCTRL_MSCC_SERVALT
 	default y
 	bool "Microsemi servalt family pin control driver"
 	help
-	    Support pin multiplexing and pin configuration control on
-	    Microsemi servalt SoCs.
+	  Support pin multiplexing and pin configuration control on
+	  Microsemi servalt SoCs.
 
 config PINCTRL_MSCC_SERVAL
 	depends on SOC_SERVAL && PINCTRL_FULL && OF_CONTROL
@@ -46,6 +46,6 @@ config PINCTRL_MSCC_SERVAL
 	default y
 	bool "Microsemi serval family pin control driver"
 	help
-	    Support pin multiplexing and pin configuration control on
-	    Microsemi serval SoCs.
+	  Support pin multiplexing and pin configuration control on
+	  Microsemi serval SoCs.
 

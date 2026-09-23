@@ -30,6 +30,8 @@ properties:
       - aspeed,ast2500-rtc
       # ASPEED BMC ast2600 Real-time Clock
       - aspeed,ast2600-rtc
+      # ASPEED BMC ast2700 Real-time Clock
+      - aspeed,ast2700-rtc
       # Conexant Digicolor Real Time Clock Controller
       - cnxt,cx92755-rtc
       # I2C, 32-Bit Binary Counter Watchdog RTC with Trickle Charger and Reset Input/Output
@@ -65,6 +67,8 @@ properties:
       - microcrystal,rv3029
       # Real Time Clock
       - microcrystal,rv8523
+      # OLPC XO-1 RTC
+      - olpc,xo1-rtc
       # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
       - ricoh,r2025sd
       # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC

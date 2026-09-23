@@ -431,11 +431,6 @@ static int smc911x_read_rom_hwaddr(struct udevice *dev)
 	return 0;
 }
 
-static int smc911x_bind(struct udevice *dev)
-{
-	return device_set_name(dev, dev->name);
-}
-
 static int smc911x_probe(struct udevice *dev)
 {
 	struct smc911x_priv *priv = dev_get_priv(dev);
@@ -487,7 +482,6 @@ U_BOOT_DRIVER(smc911x) = {
 	.name		= "eth_smc911x",
 	.id		= UCLASS_ETH,
 	.of_match	= smc911x_ids,
-	.bind		= smc911x_bind,
 	.of_to_plat = smc911x_of_to_plat,
 	.probe		= smc911x_probe,
 	.ops		= &smc911x_ops,

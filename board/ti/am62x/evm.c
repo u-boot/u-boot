@@ -18,6 +18,7 @@
 #include <fdt_support.h>
 #include <fdt_simplefb.h>
 #include <asm/io.h>
+#include <image.h>
 #include <asm/arch/hardware.h>
 #include <dm/uclass.h>
 #include <asm/arch/k3-ddr.h>
@@ -134,6 +135,11 @@ int board_late_init(void)
 	return 0;
 }
 #endif
+
+int board_fit_config_name_match(const char *name)
+{
+	return k3_fit_config_match_security_state(name);
+}
 
 #if defined(CONFIG_XPL_BUILD)
 void spl_board_init(void)

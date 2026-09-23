@@ -39,7 +39,7 @@ static int dwc_ahci_of_to_plat(struct udevice *dev)
 	priv->base = map_physmem(dev_read_addr(dev), sizeof(void *),
 				 MAP_NOCACHE);
 
-	addr = devfdt_get_addr_index(dev, 1);
+	addr = dev_read_addr_index(dev, 1);
 	if (addr != FDT_ADDR_T_NONE) {
 		priv->wrapper_base = map_physmem(addr, sizeof(void *),
 						 MAP_NOCACHE);

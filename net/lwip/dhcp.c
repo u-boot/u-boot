@@ -25,7 +25,7 @@ static char boot_file_name[DHCP_BOOT_FILE_LEN];
 static void call_lwip_dhcp_fine_tmr(void *ctx)
 {
 	dhcp_fine_tmr();
-	sys_timeout(10, call_lwip_dhcp_fine_tmr, NULL);
+	sys_timeout(DHCP_FINE_TIMER_MSECS, call_lwip_dhcp_fine_tmr, NULL);
 }
 
 static int dhcp_loop(struct udevice *udev)

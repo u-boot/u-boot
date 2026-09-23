@@ -18,6 +18,7 @@
 #define SCMI_ARRAY(X, Y)	((SCMI_PAYLOAD_LEN - (X)) / sizeof(Y))
 
 #define SCMI_IMX_MISC_RESET_REASON	0xA
+#define SCMI_IMX_MISC_CFG_INFO		0xC
 
 struct scmi_imx_misc_reset_reason_in {
 #define MISC_REASON_FLAG_SYSTEM		BIT(0)
@@ -119,4 +120,14 @@ static inline int scmi_imx_cpu_start(struct udevice *dev, u32 cpuid, bool start)
 	return -EOPNOTSUPP;
 }
 #endif
+
+struct scmi_imx_misc_cfg_info_out {
+	s32 status;
+	/* Mode selector value */
+	u32 msel;
+#define MISC_MAX_CFGNAME	16
+	/* Config (cfg) file basename */
+	char cfgname[MISC_MAX_CFGNAME];
+};
+
 #endif

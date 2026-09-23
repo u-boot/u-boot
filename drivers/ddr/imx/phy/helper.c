@@ -50,14 +50,7 @@ void ddr_load_train_firmware(enum fw_type type)
 	unsigned long imem_start = (unsigned long)_end + fw_offset;
 	unsigned long dmem_start;
 	unsigned long imem_len = IMEM_LEN, dmem_len = DMEM_LEN;
-	static enum fw_type last_type = -1;
 	unsigned long spl_start = 0;
-
-	/* If FW doesn't change, we can save the loading. */
-	if (last_type == type)
-		return;
-
-	last_type = type;
 
 #ifdef CONFIG_SPL_OF_CONTROL
 	if (gd->fdt_blob && !fdt_check_header(gd->fdt_blob)) {

@@ -17,6 +17,7 @@
 
 #include "../common/tq_bb.h"
 #include "../common/tq_som.h"
+#include "../common/tq_sysinfo.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -54,6 +55,7 @@ static const char *tqma7_get_boardname(void)
 int board_late_init(void)
 {
 	const char *bname = tqma7_get_boardname();
+	int ret;
 
 	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)) {
 		struct tag_serialnr serialnr;
@@ -64,6 +66,10 @@ int board_late_init(void)
 	}
 
 	env_set_runtime("board_name", bname);
+
+	ret = tq_common_sysinfo_setup();
+	if (ret)
+		log_err("Sysinfo setup failed: %d\n", ret);
 
 	return tq_bb_board_late_init();
 }

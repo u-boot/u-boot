@@ -1,0 +1,168 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
+/*
+ * Copyright (c) 2026 MediaTek Inc.
+ */
+
+&pwrap {
+	pmic: pmic {
+		compatible = "mediatek,mt6366", "mediatek,mt6358";
+
+		regulators {
+			compatible = "mediatek,mt6366-regulator", "mediatek,mt6358-regulator";
+
+			mt6366_vdram1_reg: vdram1 {
+				regulator-enable-ramp-delay = <0>;
+			};
+
+			mt6366_vcore_reg: vcore {
+				regulator-enable-ramp-delay = <200>;
+				regulator-always-on;
+			};
+
+			mt6366_vpa_reg: vpa {
+				regulator-enable-ramp-delay = <250>;
+			};
+
+			mt6366_vproc11_reg: vproc11 {
+				regulator-enable-ramp-delay = <200>;
+				regulator-always-on;
+			};
+
+			mt6366_vproc12_reg: vproc12 {
+				regulator-enable-ramp-delay = <200>;
+				regulator-always-on;
+			};
+
+			mt6366_vgpu_reg: vgpu {
+				regulator-enable-ramp-delay = <200>;
+			};
+
+			mt6366_vs2_reg: vs2 {
+				regulator-enable-ramp-delay = <0>;
+				regulator-always-on;
+			};
+
+			mt6366_vmodem_reg: vmodem {
+				regulator-enable-ramp-delay = <900>;
+				regulator-always-on;
+			};
+
+			mt6366_vs1_reg: vs1 {
+				regulator-enable-ramp-delay = <0>;
+				regulator-always-on;
+			};
+
+			mt6366_vdram2_reg: vdram2 {
+				regulator-enable-ramp-delay = <3300>;
+			};
+
+			mt6366_vsim1_reg: vsim1 {
+				regulator-enable-ramp-delay = <540>;
+			};
+
+			mt6366_vibr_reg: vibr {
+				regulator-enable-ramp-delay = <60>;
+			};
+
+			mt6366_vrf12_reg: vrf12 {
+				regulator-enable-ramp-delay = <120>;
+			};
+
+			mt6366_vio18_reg: vio18 {
+				regulator-enable-ramp-delay = <2700>;
+				regulator-always-on;
+			};
+
+			mt6366_vusb_reg: vusb {
+				regulator-enable-ramp-delay = <270>;
+				regulator-always-on;
+			};
+
+			mt6366_vcn18_reg: vcn18 {
+				regulator-enable-ramp-delay = <270>;
+			};
+
+			mt6366_vfe28_reg: vfe28 {
+				regulator-enable-ramp-delay = <270>;
+			};
+
+			mt6366_vsram_proc11_reg: vsram-proc11 {
+				regulator-enable-ramp-delay = <240>;
+				regulator-always-on;
+			};
+
+			mt6366_vcn28_reg: vcn28 {
+				regulator-enable-ramp-delay = <270>;
+			};
+
+			mt6366_vsram_others_reg: vsram-others {
+				regulator-enable-ramp-delay = <240>;
+				regulator-always-on;
+			};
+
+			mt6366_vsram_gpu_reg: vsram-gpu {
+				regulator-enable-ramp-delay = <240>;
+			};
+
+			mt6366_vxo22_reg: vxo22 {
+				regulator-enable-ramp-delay = <120>;
+				regulator-always-on;
+			};
+
+			mt6366_vefuse_reg: vefuse {
+				regulator-enable-ramp-delay = <270>;
+			};
+
+			mt6366_vaux18_reg: vaux18 {
+				regulator-enable-ramp-delay = <270>;
+			};
+
+			mt6366_vmch_reg: vmch {
+				regulator-enable-ramp-delay = <60>;
+			};
+
+			mt6366_vbif28_reg: vbif28 {
+				regulator-enable-ramp-delay = <270>;
+			};
+
+			mt6366_vsram_proc12_reg: vsram-proc12 {
+				regulator-enable-ramp-delay = <240>;
+				regulator-always-on;
+			};
+
+			mt6366_vemc_reg: vemc {
+				regulator-enable-ramp-delay = <60>;
+			};
+
+			mt6366_vio28_reg: vio28 {
+				regulator-enable-ramp-delay = <270>;
+			};
+
+			mt6366_va12_reg: va12 {
+				regulator-enable-ramp-delay = <270>;
+				regulator-always-on;
+			};
+
+			mt6366_vrf18_reg: vrf18 {
+				regulator-enable-ramp-delay = <120>;
+			};
+
+			mt6366_vcn33_bt_reg: vcn33 {
+				regulator-enable-ramp-delay = <270>;
+			};
+
+			mt6366_vmc_reg: vmc {
+				regulator-enable-ramp-delay = <60>;
+			};
+
+			mt6366_vaud28_reg: vaud28 {
+				regulator-enable-ramp-delay = <270>;
+				regulator-always-on;
+			};
+
+			mt6366_vsim2_reg: vsim2 {
+				regulator-enable-ramp-delay = <540>;
+			};
+		};
+	};
+};

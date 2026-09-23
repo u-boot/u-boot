@@ -165,7 +165,15 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 
 	if (blkcnt == 0)
 		return 0;
-	else if (blkcnt == 1)
+	if (blkcnt > 1 && mmc->host_caps & MMC_CAP_CMD23) {
+		cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
+		cmd.cmdarg = blkcnt & 0x0000ffff;
+		cmd.resp_type = MMC_RSP_R1;
+		if (mmc_send_cmd(mmc, &cmd, NULL))
+			return 0;
+	}
+
+	if (blkcnt == 1)
 		cmd.cmdidx = MMC_CMD_WRITE_SINGLE_BLOCK;
 	else
 		cmd.cmdidx = MMC_CMD_WRITE_MULTIPLE_BLOCK;
@@ -191,10 +199,13 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 		 */
 	}
 
-	/* SPI multiblock writes terminate using a special
-	 * token, not a STOP_TRANSMISSION request.
+	/*
+	 * SPI multiblock writes terminate using a special token, not CMD12.
+	 * When CMD23 was issued the card auto-terminates, so CMD12 is also
+	 * skipped in that case.
 	 */
-	if (!mmc_host_is_spi(mmc) && blkcnt > 1) {
+	if (!mmc_host_is_spi(mmc) && blkcnt > 1 &&
+	    !(mmc->host_caps & MMC_CAP_CMD23)) {
 		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
@@ -228,6 +239,7 @@ ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 	int dev_num = block_dev->devnum;
 	lbaint_t cur, blocks_todo = blkcnt;
 	int err;
+	uint b_max;
 
 	struct mmc *mmc = find_mmc_device(dev_num);
 	if (!mmc)
@@ -240,9 +252,10 @@ ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 	if (mmc_set_blocklen(mmc, mmc->write_bl_len))
 		return 0;
 
+	b_max = mmc_get_b_max(mmc, (void *)src, blkcnt);
+
 	do {
-		cur = (blocks_todo > mmc->cfg->b_max) ?
-			mmc->cfg->b_max : blocks_todo;
+		cur = (blocks_todo > b_max) ? b_max : blocks_todo;
 		if (mmc_write_blocks(mmc, start, cur, src) != cur)
 			return 0;
 		blocks_todo -= cur;

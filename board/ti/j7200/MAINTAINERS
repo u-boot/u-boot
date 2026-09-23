@@ -1,7 +1,13 @@
-J7200 BOARD
+J7200XSOMXEVM BOARD
 M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
-F:	board/ti/j7200
-F:	include/configs/j7200_evm.h
-F:	configs/j7200_evm_r5_defconfig
+F:	arch/arm/dts/k3-j7200-binman.dtsi
+F:	arch/arm/dts/k3-j7200-common-proc-board-u-boot.dtsi
+F:	arch/arm/dts/k3-j7200-ddr-evm-lp4-3200.dtsi
+F:	arch/arm/dts/k3-j7200-r5-common-proc-board.dts
+F:	arch/arm/dts/k3-j7200-r5.dtsi
+F:	board/ti/j7200/
 F:	configs/j7200_evm_a72_defconfig
+F:	configs/j7200_evm_r5_defconfig
+F:	configs/j7200_evm_r5_defconfig
+F:	include/configs/j721e_evm.h

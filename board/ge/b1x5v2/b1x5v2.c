@@ -320,7 +320,7 @@ int overwrite_console(void)
 
 int board_early_init_f(void)
 {
-	select_ldb_di_clock_source(MXC_PLL5_CLK);
+	select_ldb_di_clock_source(MXC_PLL5_CLK, MXC_PLL5_CLK);
 
 	return 0;
 }

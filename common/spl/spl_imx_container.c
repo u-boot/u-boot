@@ -88,6 +88,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 			       struct spl_load_info *info, ulong offset)
 {
 	struct container_hdr *container = NULL;
+	struct container_hdr *authhdr;
 	u16 length;
 	int i, size, ret = 0;
 
@@ -140,15 +141,19 @@ static int read_auth_container(struct spl_image_info *spl_image,
 		}
 	}
 
+	authhdr = container;
+
 #ifdef CONFIG_AHAB_BOOT
-	ret = ahab_auth_cntr_hdr(container, length);
-	if (ret)
+	authhdr = ahab_auth_cntr_hdr(authhdr, length);
+	if (!authhdr) {
+		ret = -EINVAL;
 		goto end_auth;
+	}
 #endif
 
-	for (i = 0; i < container->num_images; i++) {
+	for (i = 0; i < authhdr->num_images; i++) {
 		struct boot_img_t *image = read_auth_image(spl_image, info,
-							   container, i,
+							   authhdr, i,
 							   offset);
 
 		if (!image) {

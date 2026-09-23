@@ -27,14 +27,6 @@ definitions:
     description: dai-link uses bit clock inversion
     $ref: /schemas/types.yaml#/definitions/flag
 
-  dai-tdm-slot-num:
-    description: see tdm-slot.txt.
-    $ref: /schemas/types.yaml#/definitions/uint32
-
-  dai-tdm-slot-width:
-    description: see tdm-slot.txt.
-    $ref: /schemas/types.yaml#/definitions/uint32
-
   system-clock-frequency:
     description: |
       If a clock is specified and a multiplication factor is given with
@@ -115,6 +107,8 @@ definitions:
 
   dai:
     type: object
+    $ref: tdm-slot.yaml#
+
     properties:
       sound-dai:
         maxItems: 1
@@ -133,10 +127,6 @@ definitions:
       bitclock-master:
         $ref: /schemas/types.yaml#/definitions/flag
 
-      dai-tdm-slot-num:
-        $ref: "#/definitions/dai-tdm-slot-num"
-      dai-tdm-slot-width:
-        $ref: "#/definitions/dai-tdm-slot-width"
       clocks:
         maxItems: 1
       system-clock-frequency:
@@ -325,7 +315,7 @@ examples:
         #address-cells = <1>;
         #size-cells = <0>;
 
-        simple-audio-card,dai-link@0 {		/* I2S - HDMI */
+        simple-audio-card,dai-link@0 {  /* I2S - HDMI */
             reg = <0>;
             format = "i2s";
             cpu {
@@ -336,7 +326,7 @@ examples:
             };
         };
 
-        simple-audio-card,dai-link@1 {		/* S/PDIF - HDMI */
+        simple-audio-card,dai-link@1 {  /* S/PDIF - HDMI */
             reg = <1>;
             cpu {
                 sound-dai = <&audio1>;
@@ -346,7 +336,7 @@ examples:
             };
         };
 
-        simple-audio-card,dai-link@2 {		/* S/PDIF - S/PDIF */
+        simple-audio-card,dai-link@2 {  /* S/PDIF - S/PDIF */
             reg = <2>;
             cpu {
                 sound-dai = <&audio2>;

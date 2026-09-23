@@ -76,9 +76,9 @@ where nand_script.lst contains the following:
    SDPV: jump
    # }
 
-   FB: ucmd setenv fastboot_buffer ${loadaddr}
+   FB: ucmd env set fastboot_buffer ${loadaddr}
    FB: download -f _image
-   FB: ucmd if test ! -n "$fastboot_bytes"; then setenv fastboot_bytes $filesize; else true; fi
+   FB: ucmd if test ! -n "$fastboot_bytes"; then env set fastboot_bytes $filesize; else true; fi
    # Burn image to nandfit partition if needed
    FB: ucmd if env exists nandfit_part; then nand erase.part nandfit; nand write ${fastboot_buffer} nandfit ${fastboot_bytes}; else true; fi;
    FB: ucmd nandbcb init ${fastboot_buffer} nandboot ${fastboot_bytes}

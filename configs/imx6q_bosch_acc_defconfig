@@ -74,6 +74,7 @@ CONFIG_EFI_PARTITION=y
 CONFIG_SPL_OF_CONTROL=y
 CONFIG_MULTI_DTB_FIT=y
 CONFIG_OF_SPL_REMOVE_PROPS="pinctrl-0 pinctrl-names clocks clock-names interrupt-parent"
+CONFIG_ENV_FLAGS_LIST_STATIC="bootset:bw,clone_pending:bw,endurance_test:bw,env_persisted:bw,factory_reset:bw,fdtcontroladdr:xw,fitpart:dw,mmcpart:dw,production:bw,ustate:dw"
 CONFIG_ENV_OVERWRITE=y
 CONFIG_ENV_IS_IN_MMC=y
 CONFIG_ENV_REDUNDANT=y

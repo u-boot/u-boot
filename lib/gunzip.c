@@ -246,6 +246,16 @@ int gzwrite(unsigned char *src, size_t len, struct blk_desc *dev,
 				s.next_out = writebuf;
 			}
 			r = inflate(&s, Z_SYNC_FLUSH);
+			if (r == Z_BUF_ERROR && !s.avail_in && payload_size) {
+				/*
+				 * The input chunk was exhausted at exactly
+				 * the same time as the write buffer filled
+				 * up, so no progress was possible. This is
+				 * not fatal, let the outer loop refill the
+				 * input chunk.
+				 */
+				break;
+			}
 			if ((r != Z_OK) &&
 			    (r != Z_STREAM_END)) {
 				printf("Error: inflate() returned %d\n", r);

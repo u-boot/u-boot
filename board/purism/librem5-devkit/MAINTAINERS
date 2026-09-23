@@ -1,0 +1,8 @@
+PURISM LIBREM5 DEVKIT
+M:	Guido Günther
+R:	team@phosh.mobi
+S:	Supported
+F:	arch/arm/dts/imx8mq-librem5-devkit-u-boot.dtsi
+F:	board/purism/librem5-devkit/
+F:	configs/librem5-devkit_defconfig
+F:	include/configs/librem5-devkit.h

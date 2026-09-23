@@ -68,13 +68,16 @@ static int gpio_delay_direction_output(struct udevice *dev, unsigned int offset,
 static int gpio_delay_xlate(struct udevice *dev, struct gpio_desc *desc,
 			    struct ofnode_phandle_args *args)
 {
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct gpio_delay_priv *priv = dev_get_priv(dev);
 
 	if (args->args_count < 3)
 		return -EINVAL;
 
-	if (args->args[0] >= 32)
+	if (args->args[0] >= uc_priv->gpio_count)
 		return -EINVAL;
+
+	desc->offset = args->args[0];
 
 	struct gpio_delay_desc *d = &priv->descs[args->args[0]];
 
@@ -83,6 +86,33 @@ static int gpio_delay_xlate(struct udevice *dev, struct gpio_desc *desc,
 
 	dev_dbg(dev, "pin: %d, ramp_up_us: %d, ramp_down_us: %d\n",
 		args->args[0], d->ramp_up_us, d->ramp_down_us);
+
+	return 0;
+}
+
+static void gpio_delay_free_wrapped(struct udevice *dev, int count)
+{
+	struct gpio_delay_priv *priv = dev_get_priv(dev);
+	int i;
+
+	for (i = 0; i < count; i++) {
+		/*
+		 * Generic DM teardown (e.g. dm_leak_check_end()'s
+		 * uclass-by-uclass destroy) does not guarantee a consumer is
+		 * removed before the provider it wraps, so the real GPIO
+		 * device may already be inactive with its uclass_priv freed
+		 * by the time this runs.
+		 */
+		if (device_active(priv->descs[i].real_gpio.dev))
+			dm_gpio_free(dev, &priv->descs[i].real_gpio);
+	}
+}
+
+static int gpio_delay_remove(struct udevice *dev)
+{
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	gpio_delay_free_wrapped(dev, uc_priv->gpio_count);
 
 	return 0;
 }
@@ -97,6 +127,7 @@ static const struct dm_gpio_ops gpio_delay_ops = {
 
 static int gpio_delay_probe(struct udevice *dev)
 {
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct gpio_delay_priv *priv = dev_get_priv(dev);
 	struct gpio_delay_desc *d;
 	ofnode node = dev_ofnode(dev);
@@ -112,13 +143,17 @@ static int gpio_delay_probe(struct udevice *dev)
 	if (!priv->descs)
 		return -ENOMEM;
 
+	uc_priv->gpio_count = ngpio;
+
 	/* Request all GPIOs described in the controller node */
 	for (i = 0; i < ngpio; i++) {
 		d = &priv->descs[i];
 		ret = gpio_request_by_name_nodev(node, "gpios", i,
 						 &d->real_gpio, 0);
-		if (ret)
+		if (ret) {
+			gpio_delay_free_wrapped(dev, i);
 			return ret;
+		}
 	}
 
 	return 0;
@@ -136,4 +171,5 @@ U_BOOT_DRIVER(gpio_delay) = {
 	.ops = &gpio_delay_ops,
 	.priv_auto = sizeof(struct gpio_delay_priv),
 	.probe = gpio_delay_probe,
+	.remove = gpio_delay_remove,
 };

@@ -153,6 +153,18 @@ enum {
 	VERDIN_IMX95H_4G_WB_IT = 226,
 	VERDIN_IMX95H_4G_ET,
 	VERDIN_IMX95H_16G_IT,
+	SMARC_IMX95_HEXA_4GB_IT,
+	AQUILA_TDA4O_8GB_IT, /* 230 */
+	APALIS_IMX8QM_4GB_WIFI_BT_IT_64G = 233,
+	APALIS_IMX8QM_4GB_IT_64G,
+	APALIS_IMX8QM_8GB_WIFI_BT_IT_64G, /* 235 */
+	VERDIN_IMX8MPQ_4GB_WIFI_BT_IT_64G,
+	VERDIN_IMX8MPQ_4GB_IT_64G,
+	VERDIN_IMX8MPQ_8GB_WIFI_BT_IT_64G,
+	VERDIN_IMX8MMQ_2G_WIFI_BT_IT_64G,
+	SMARC_IMX8MPQ_4GB_WB_IT_64G, /* 240 */
+	VERDIN_AM62D_1G_WIFI_BT_ET = 242,
+	AQUILA_IMX95_HEXA_8GB_IT,
 };
 
 enum {
@@ -176,7 +188,6 @@ extern u32 tdx_car_serial;
 
 int read_tdx_cfg_block(void);
 int read_tdx_cfg_block_carrier(void);
-int get_toradex_modules_idx(int pid4);
 const char * const get_toradex_carrier_boards(int pid4);
 const char * const get_toradex_display_adapters(int pid4);
 int try_migrate_tdx_cfg_block_carrier(void);

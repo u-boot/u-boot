@@ -83,11 +83,13 @@ int ca_serial_setbrg(struct udevice *dev, int baudrate)
 static int ca_serial_getc(struct udevice *dev)
 {
 	struct ca_uart_priv *priv = dev_get_priv(dev);
-	int ch;
+	unsigned int status;
 
-	ch = readl(priv->base + URX_DATA) & 0xFF;
+	status = readl(priv->base + UINFO);
+	if (status & UINFO_RX_FIFO_EMPTY)
+		return -EAGAIN;
 
-	return (int)ch;
+	return readl(priv->base + URX_DATA) & 0xFF;
 }
 
 static int ca_serial_putc(struct udevice *dev, const char ch)

@@ -1,0 +1,36 @@
+TQ EEPROM Sysinfo Driver
+------------------------
+
+This binding describes a sysinfo provider which retrieves system
+identification information from an I2C EEPROM device.
+
+Required properties:
+
+- compatible: "tq,eeprom-sysinfo"
+- nvmem-cells: phandle referencing the nvmem cell
+- nvmem-cell-names: string, should be "device_info"
+
+Example:
+
+&i2c1 {
+	eeprom@50 {
+		compatible = "atmel,24c64";
+		reg = <0x50>;
+
+		nvmem-layout {
+			compatible = "fixed-layout";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			module_info: module-info@20 {
+				reg = <0x20 0x60>;
+			};
+		};
+	};
+};
+
+sysinfo {
+	compatible = "tq,eeprom-sysinfo";
+	nvmem-cells = <&module_info>;
+	nvmem-cell-names = "device_info";
+};

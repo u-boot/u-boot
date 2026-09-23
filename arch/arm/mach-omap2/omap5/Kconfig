@@ -64,7 +64,7 @@ config OMAP_PLATFORM_RESET_TIME_MAX_USEC
 	  1: Time taken by the Osciallator to stop and restart
 	  2: PMIC OTP time
 	  3: Voltage ramp time, which can be derived using the PMIC slew rate
-	     and value of voltage ramp needed.
+	  and value of voltage ramp needed.
 
 if TARGET_DRA7XX_EVM || TARGET_AM57XX_EVM
 menu "Voltage Domain OPP selections"
@@ -72,7 +72,7 @@ menu "Voltage Domain OPP selections"
 choice
 	prompt "MPU Voltage Domain"
 	default DRA7_MPU_OPP_NOM
-        help
+	help
 	  Select the Operating Performance Point(OPP) for the MPU voltage
 	  domain on DRA7xx & AM57xx SoCs.
 
@@ -86,7 +86,7 @@ endchoice
 
 choice
 	prompt "DSPEVE Voltage Domain"
-        help
+	help
 	  Select the Operating Performance Point(OPP) for the DSPEVE voltage
 	  domain on DRA7xx & AM57xx SoCs.
 
@@ -110,7 +110,7 @@ endchoice
 
 choice
 	prompt "IVA Voltage Domain"
-        help
+	help
 	  Select the Operating Performance Point(OPP) for the IVA voltage
 	  domain on DRA7xx & AM57xx SoCs.
 
@@ -134,7 +134,7 @@ endchoice
 
 choice
 	prompt "GPU Voltage Domain"
-        help
+	help
 	  Select the Operating Performance Point(OPP) for the GPU voltage
 	  domain on DRA7xx & AM57xx SoCs.
 

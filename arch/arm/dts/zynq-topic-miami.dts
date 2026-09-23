@@ -46,15 +46,18 @@
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
 		spi-max-frequency = <100000000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		partition@0 {
-			label = "qspi-boot-bin";
-			reg = <0x00000 0x100000>;
-		};
-		partition@100000 {
-			label = "qspi-rootfs";
-			reg = <0x100000 0>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			partition@0 {
+				label = "qspi-boot-bin";
+				reg = <0x00000 0x100000>;
+			};
+			partition@100000 {
+				label = "qspi-rootfs";
+				reg = <0x100000 0>;
+			};
 		};
 	};
 };

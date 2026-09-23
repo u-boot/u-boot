@@ -807,8 +807,8 @@ void build_mem_map(void)
 		;
 
 	/* Align RAM mapping to page boundaries */
-	base = gd->bd->bi_dram[0].start;
-	size = gd->bd->bi_dram[0].size;
+	base = gd->dram[0].start;
+	size = gd->dram[0].size;
 	size += (base - ALIGN_DOWN(base, SZ_4K));
 	base = ALIGN_DOWN(base, SZ_4K);
 	size = ALIGN(size, SZ_4K);

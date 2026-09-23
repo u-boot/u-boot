@@ -8,6 +8,7 @@
 #include <bootretry.h>
 #include <cli.h>
 #include <env.h>
+#include <env_callback.h>
 #include <errno.h>
 #include <time.h>
 #include <vsprintf.h>
@@ -19,10 +20,9 @@ static int      retry_time = -1; /* -1 so can call readline before main_loop */
 /***************************************************************************
  * initialize command line timeout
  */
-void bootretry_init_cmd_timeout(void)
-{
-	char *s = env_get("bootretry");
 
+static void bootretry_parse(const char *s)
+{
 	if (s != NULL)
 		retry_time = (int)simple_strtol(s, NULL, 10);
 	else
@@ -32,13 +32,31 @@ void bootretry_init_cmd_timeout(void)
 		retry_time = CONFIG_BOOT_RETRY_MIN;
 }
 
+void bootretry_init_cmd_timeout(void)
+{
+	bootretry_parse(env_get("bootretry"));
+}
+
+/* Parse changes to bootretry */
+static int on_bootretry(const char *name, const char *value, enum env_op op,
+			int flags)
+{
+	switch (op) {
+	case env_op_create:
+	case env_op_overwrite:
+	case env_op_delete:
+		bootretry_parse(value);
+		break;
+	}
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(bootretry, on_bootretry);
+
 /***************************************************************************
  * reset command line timeout to retry_time seconds
  */
 void bootretry_reset_cmd_timeout(void)
 {
-	/* Parse changes to bootretry */
-	bootretry_init_cmd_timeout();
 	endtime = endtick(retry_time);
 }
 

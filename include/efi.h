@@ -268,6 +268,9 @@ enum efi_memory_type {
 #define EFI_MEMORY_CPU_CRYPTO	((u64)0x0000000000080000ULL)	/* cryptographically protectable */
 #define EFI_MEMORY_HOT_PLUGGABLE \
 				((u64)0x0000000000100000ULL)	/* hot pluggable */
+#define EFI_MEMORY_ISA_MASK	((u64)0x0FFFF00000000000ULL)	/* ISA-specific attributes */
+#define EFI_MEMORY_ISA_SHIFT	44
+#define EFI_MEMORY_ISA_VALID	((u64)0x4000000000000000ULL)	/* ISA_MASK field is valid */
 #define EFI_MEMORY_RUNTIME	((u64)0x8000000000000000ULL)	/* range requires runtime mapping */
 #define EFI_MEM_DESC_VERSION	1
 
@@ -680,6 +683,26 @@ int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
  * @systab: System table containing the list of tables
  */
 void efi_show_tables(struct efi_system_table *systab);
+
+/**
+ * efi_show_memmap() - print an EFI memory map
+ *
+ * Prints one line per descriptor with the memory type name, the physical
+ * start and end address and the attributes as a '|'-separated list of
+ * mnemonics. The ISA-specific attribute field is printed as ISA=<value>
+ * when EFI_MEMORY_ISA_VALID is set, and any remaining bits without a
+ * mnemonic are printed as a hexadecimal value.
+ *
+ * The virtual addresses of the descriptors are not shown: the map is
+ * identity mapped before SetVirtualAddressMap() is called, so the field
+ * carries no information at this point.
+ *
+ * @map:	memory map to print
+ * @map_size:	size of the memory map in bytes
+ * @desc_size:	size of a single descriptor in bytes
+ */
+void efi_show_memmap(struct efi_mem_desc *map, efi_uintn_t map_size,
+		     efi_uintn_t desc_size);
 
 /**
  * efi_get_basename() - Get the default filename to use when loading

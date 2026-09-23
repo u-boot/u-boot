@@ -331,13 +331,11 @@ detailed setup information.
 
 .. warning::
 
-  **OpenOCD support after**: v0.12.0
+   **OpenOCD support after**: v0.12.0
 
-  While support for the entire K3 generation including the am62xxx
-  extended family was added before v0.12.0, the tcl scripts for the
-  am62px have been accepted and will be available in the next release of
-  OpenOCD. It may be necessary to build OpenOCD from source depending on
-  the version your distribution has packaged.
+   Until the next stable release of OpenOCD is available in your development
+   environment's distribution, it might be necessary to build OpenOCD `from the
+   source <https://github.com/openocd-org/openocd>`_.
 
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_openocd_connect_XDS110
@@ -347,4 +345,4 @@ To start OpenOCD and connect to the board
 
 .. prompt:: bash
 
-  openocd -f board/ti_am62pevm.cfg
+   openocd -f board/ti/am62pevm.cfg

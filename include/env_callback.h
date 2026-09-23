@@ -70,6 +70,12 @@
 #define DFU_CALLBACK
 #endif
 
+#ifdef CONFIG_BOOT_RETRY
+#define BOOTRETRY_CALLBACK "bootretry:bootretry,"
+#else
+#define BOOTRETRY_CALLBACK
+#endif
+
 /*
  * This list of callback bindings is static, but may be overridden by defining
  * a new association in the ".callbacks" environment variable.
@@ -81,6 +87,7 @@
 	NET6_CALLBACKS \
 	BOOTSTD_CALLBACK \
 	DFU_CALLBACK \
+	BOOTRETRY_CALLBACK \
 	"loadaddr:loadaddr," \
 	SILENT_CALLBACK \
 	"stdin:console,stdout:console,stderr:console," \

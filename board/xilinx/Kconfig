@@ -67,7 +67,7 @@ config BOOT_SCRIPT_OFFSET
 	default 0x7F80000 if ARCH_VERSAL || ARCH_VERSAL_NET || ARCH_VERSAL2
 	default 0 if TARGET_XILINX_MBV
 	help
-	   Specifies distro boot script offset in NAND/QSPI/NOR flash.
+	  Specifies distro boot script offset in NAND/QSPI/NOR flash.
 
 config CMD_FRU
 	bool "FRU information for product"

@@ -48,7 +48,7 @@ or
 
 ::
 
-    setenv bootargs root=/dev/vda1
+    env set bootargs root=/dev/vda1
     load mmc 0:1 $fdt_addr_r dtb
     load mmc 0:1 $kernel_addr_r vmlinux
     load mmc 0:1 $initrd_addr_r intird
@@ -117,7 +117,7 @@ the *bootefi hello* sub-command. A session might look like
 
 ::
 
-    => setenv bootargs 'Greetings to the world'
+    => env set bootargs 'Greetings to the world'
     => bootefi hello
     Booting /MemoryMapped(0x0,0x10001000,0x1000)
     Hello, world!
@@ -140,7 +140,7 @@ To show a list of the available unit tests the value *list* can be used
 
 ::
 
-    => setenv efi_selftest list
+    => env set efi_selftest list
     => bootefi selftest
 
     Available tests:
@@ -154,7 +154,7 @@ environment variable to match one of the listed identifiers
 
 ::
 
-    => setenv efi_selftest 'block image transfer'
+    => env set efi_selftest 'block image transfer'
     => bootefi selftest
 
 Some of the tests execute the ExitBootServices() UEFI boot service and will not

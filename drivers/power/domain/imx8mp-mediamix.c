@@ -194,7 +194,7 @@ static const struct udevice_id imx8mp_mediamix_ids[] = {
 	{ }
 };
 
-struct power_domain_ops imx8mp_mediamix_ops = {
+static const struct power_domain_ops imx8mp_mediamix_ops = {
 	.on = imx8mp_mediamix_on,
 	.off = imx8mp_mediamix_off,
 	.of_xlate = imx8mp_mediamix_of_xlate,

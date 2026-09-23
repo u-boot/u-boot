@@ -11,7 +11,7 @@ Contact
 -------
 
 The preferred initial point of contact is to send email to
-`u-boot@lists.denx.de` and use `scripts/get_maintainers.pl` to also include any
+`u-boot@lists.u-boot-project.org` and use `scripts/get_maintainers.pl` to also include any
 relevant custodians. In addition, Tom Rini should be contacted at
 `trini@konsulko.com`.
 

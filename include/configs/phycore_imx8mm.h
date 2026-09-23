@@ -28,6 +28,7 @@
 #define CFG_SYS_SDRAM_BASE		0x40000000
 
 #define PHYS_SDRAM			0x40000000
-#define PHYS_SDRAM_SIZE                 SZ_2G /* 2GB DDR */
-
+#define PHYS_SDRAM_SIZE                 (SZ_2G + SZ_1G) /* 3GB */
+#define PHYS_SDRAM_2                    0x100000000
+#define PHYS_SDRAM_2_SIZE                SZ_1G /* 4GB DDR */
 #endif /* __PHYCORE_IMX8MM_H */

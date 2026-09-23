@@ -3,7 +3,7 @@
  * dts file for Xilinx ZynqMP zc1751-xm016-dc2
  *
  * (C) Copyright 2015 - 2022, Xilinx, Inc.
- * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
+ * (C) Copyright 2022 - 2026, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -38,6 +38,21 @@
 	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>, <0x8 0x00000000 0x0 0x80000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		cma: linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x8000000>;
+			alignment = <0x0 0x8000000>;
+			alloc-ranges = <0x0 0x0 0x0 0x80000000>;
+			linux,cma-default;
+		};
 	};
 };
 
@@ -138,8 +153,6 @@
 
 	nand@0 {
 		reg = <0x0>;
-		#address-cells = <0x2>;
-		#size-cells = <0x1>;
 		nand-ecc-mode = "hw";
 		nand-rb = <0>;
 		label = "main-storage-0";
@@ -147,35 +160,39 @@
 		nand-ecc-strength = <24>;
 		nand-on-flash-bbt;
 
-		partition@0 {	/* for testing purpose */
-			label = "nand-fsbl-uboot";
-			reg = <0x0 0x0 0x400000>;
-		};
-		partition@1 {	/* for testing purpose */
-			label = "nand-linux";
-			reg = <0x0 0x400000 0x1400000>;
-		};
-		partition@2 {	/* for testing purpose */
-			label = "nand-device-tree";
-			reg = <0x0 0x1800000 0x400000>;
-		};
-		partition@3 {	/* for testing purpose */
-			label = "nand-rootfs";
-			reg = <0x0 0x1c00000 0x1400000>;
-		};
-		partition@4 {	/* for testing purpose */
-			label = "nand-bitstream";
-			reg = <0x0 0x3000000 0x400000>;
-		};
-		partition@5 {	/* for testing purpose */
-			label = "nand-misc";
-			reg = <0x0 0x3400000 0xfcc00000>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <2>;
+			#size-cells = <1>;
+
+			partition@0 {	/* for testing purpose */
+				label = "nand-fsbl-uboot";
+				reg = <0x0 0x0 0x400000>;
+			};
+			partition@1 {	/* for testing purpose */
+				label = "nand-linux";
+				reg = <0x0 0x400000 0x1400000>;
+			};
+			partition@2 {	/* for testing purpose */
+				label = "nand-device-tree";
+				reg = <0x0 0x1800000 0x400000>;
+			};
+			partition@3 {	/* for testing purpose */
+				label = "nand-rootfs";
+				reg = <0x0 0x1c00000 0x1400000>;
+			};
+			partition@4 {	/* for testing purpose */
+				label = "nand-bitstream";
+				reg = <0x0 0x3000000 0x400000>;
+			};
+			partition@5 {	/* for testing purpose */
+				label = "nand-misc";
+				reg = <0x0 0x3400000 0xfcc00000>;
+			};
 		};
 	};
 	nand@1 {
 		reg = <0x1>;
-		#address-cells = <0x2>;
-		#size-cells = <0x1>;
 		nand-ecc-mode = "hw";
 		nand-rb = <0>;
 		label = "main-storage-1";
@@ -183,29 +200,35 @@
 		nand-ecc-strength = <24>;
 		nand-on-flash-bbt;
 
-		partition@0 {	/* for testing purpose */
-			label = "nand1-fsbl-uboot";
-			reg = <0x0 0x0 0x400000>;
-		};
-		partition@1 {	/* for testing purpose */
-			label = "nand1-linux";
-			reg = <0x0 0x400000 0x1400000>;
-		};
-		partition@2 {	/* for testing purpose */
-			label = "nand1-device-tree";
-			reg = <0x0 0x1800000 0x400000>;
-		};
-		partition@3 {	/* for testing purpose */
-			label = "nand1-rootfs";
-			reg = <0x0 0x1c00000 0x1400000>;
-		};
-		partition@4 {	/* for testing purpose */
-			label = "nand1-bitstream";
-			reg = <0x0 0x3000000 0x400000>;
-		};
-		partition@5 {	/* for testing purpose */
-			label = "nand1-misc";
-			reg = <0x0 0x3400000 0xfcc00000>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <2>;
+			#size-cells = <1>;
+
+			partition@0 {	/* for testing purpose */
+				label = "nand1-fsbl-uboot";
+				reg = <0x0 0x0 0x400000>;
+			};
+			partition@1 {	/* for testing purpose */
+				label = "nand1-linux";
+				reg = <0x0 0x400000 0x1400000>;
+			};
+			partition@2 {	/* for testing purpose */
+				label = "nand1-device-tree";
+				reg = <0x0 0x1800000 0x400000>;
+			};
+			partition@3 {	/* for testing purpose */
+				label = "nand1-rootfs";
+				reg = <0x0 0x1c00000 0x1400000>;
+			};
+			partition@4 {	/* for testing purpose */
+				label = "nand1-bitstream";
+				reg = <0x0 0x3000000 0x400000>;
+			};
+			partition@5 {	/* for testing purpose */
+				label = "nand1-misc";
+				reg = <0x0 0x3400000 0xfcc00000>;
+			};
 		};
 	};
 };
@@ -503,15 +526,18 @@
 	pinctrl-0 = <&pinctrl_spi0_default>;
 
 	spi0_flash0: flash@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
 		compatible = "sst,sst25wf080", "jedec,spi-nor";
 		spi-max-frequency = <50000000>;
 		reg = <0>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
 
-		partition@0 {
-			label = "spi0-data";
-			reg = <0x0 0x100000>;
+			partition@0 {
+				label = "spi0-data";
+				reg = <0x0 0x100000>;
+			};
 		};
 	};
 };
@@ -523,15 +549,18 @@
 	pinctrl-0 = <&pinctrl_spi1_default>;
 
 	spi1_flash0: flash@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
 		compatible = "atmel,at45db041e", "atmel,at45", "atmel,dataflash";
 		spi-max-frequency = <20000000>;
 		reg = <0>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
 
-		partition@0 {
-			label = "spi1-data";
-			reg = <0x0 0x84000>;
+			partition@0 {
+				label = "spi1-data";
+				reg = <0x0 0x84000>;
+			};
 		};
 	};
 };

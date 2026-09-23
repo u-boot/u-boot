@@ -7,3 +7,4 @@ Purism SPC
    :maxdepth: 2
 
    librem5
+   librem5-devkit

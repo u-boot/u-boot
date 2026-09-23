@@ -8,14 +8,27 @@
 
 #include "k3-am68-phycore-som-binman.dtsi"
 
+&wkup_pmx2 {
+	mcu_i2c0_pins_default: mcu-i2c0-default-pins {
+		pinctrl-single,pins = <
+			J721S2_WKUP_IOPAD(0x0a0, PIN_INPUT, 0) /* (G24) MCU_I2C0_SCL */
+			J721S2_WKUP_IOPAD(0x0a4, PIN_INPUT, 0) /* (J25) MCU_I2C0_SDA */
+		>;
+	};
+};
+
 &cbass_main {
+	bootph-all;
+};
+
+&mcu_i2c0 {
+	status = "okay";
+};
+
+&mcu_uart0 {
 	bootph-all;
 };
 
 &watchdog1 {
 	status = "disabled";
-};
-
-&mcu_uart0 {
-	bootph-all;
 };

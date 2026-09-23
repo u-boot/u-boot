@@ -966,14 +966,14 @@ config E500
 	bool
 	default y
 	help
-		Enable PowerPC E500 cores, including e500v1, e500v2, e500mc
+	  Enable PowerPC E500 cores, including e500v1, e500v2, e500mc
 
 config E500MC
 	bool
 	select BTB
 	imply CMD_PCI
 	help
-		Enble PowerPC E500MC core
+	  Enable PowerPC E500MC core
 
 config E5500
 	bool
@@ -982,7 +982,7 @@ config E6500
 	bool
 	select BTB
 	help
-		Enable PowerPC E6500 core
+	  Enable PowerPC E6500 core
 
 config NOBQFMAN
 	bool
@@ -990,7 +990,7 @@ config NOBQFMAN
 config FSL_LAW
 	bool
 	help
-		Use Freescale common code for Local Access Window
+	  Use Freescale common code for Local Access Window
 
 config HETROGENOUS_CLUSTERS
 	bool
@@ -1054,10 +1054,10 @@ config SYS_CCSRBAR_DEFAULT
 				ARCH_T4240
 	default 0xe0000000 if ARCH_QEMU_E500
 	help
-		Default value of CCSRBAR comes from power-on-reset. It
-		is fixed on each SoC. Some SoCs can have different value
-		if changed by pre-boot regime. The value here must match
-		the current value in SoC. If not sure, do not change.
+	  Default value of CCSRBAR comes from power-on-reset. It
+	  is fixed on each SoC. Some SoCs can have different value
+	  if changed by pre-boot regime. The value here must match
+	  the current value in SoC. If not sure, do not change.
 
 config SYS_DPAA_PME
 	bool
@@ -1287,8 +1287,8 @@ config SYS_FSL_NUM_LAWS
 	default 8 if	ARCH_MPC8540	|| \
 			ARCH_MPC8560
 	help
-		Number of local access windows. This is fixed per SoC.
-		If not sure, do not change.
+	  Number of local access windows. This is fixed per SoC.
+	  If not sure, do not change.
 
 config SYS_FSL_CORES_PER_CLUSTER
 	int
@@ -1308,8 +1308,8 @@ config SYS_NUM_TLBCAMS
 	default 64 if E500MC
 	default 16
 	help
-		Number of TLB CAM entries for Book-E chips. 64 for E500MC,
-		16 for other E500 SoCs.
+	  Number of TLB CAM entries for Book-E chips. 64 for E500MC,
+	  16 for other E500 SoCs.
 
 config L2_CACHE
 	bool "Enable L2 cache support"
@@ -1401,12 +1401,12 @@ config SYS_PPC_E500_DEBUG_TLB
 			ARCH_BSC9132	|| \
 			ARCH_C29X
 	help
-		Select a temporary TLB entry to be used during boot to work
-                around limitations in e500v1 and e500v2 external debugger
-                support. This reduces the portions of the boot code where
-                breakpoints and single stepping do not work. The value of this
-                symbol should be set to the TLB1 entry to be used for this
-                purpose. If unsure, do not change.
+	  Select a temporary TLB entry to be used during boot to work
+	  around limitations in e500v1 and e500v2 external debugger
+	  support. This reduces the portions of the boot code where
+	  breakpoints and single stepping do not work. The value of this
+	  symbol should be set to the TLB1 entry to be used for this
+	  purpose. If unsure, do not change.
 
 config SYS_FSL_IFC_CLK_DIV
 	int "Divider of platform clock"
@@ -1419,8 +1419,8 @@ config SYS_FSL_IFC_CLK_DIV
 			ARCH_T4240
 	default 1
 	help
-		Defines divider of platform clock(clock input to
-		IFC controller).
+	  Defines divider of platform clock(clock input to
+	  IFC controller).
 
 config SYS_FSL_LBC_CLK_DIV
 	int "Divider of platform clock"
@@ -1435,8 +1435,8 @@ config SYS_FSL_LBC_CLK_DIV
 	default 1
 
 	help
-		Defines divider of platform clock(clock input to
-		eLBC controller).
+	  Defines divider of platform clock(clock input to
+	  eLBC controller).
 
 config ENABLE_36BIT_PHYS
 	bool "Enable 36bit physical address space support"

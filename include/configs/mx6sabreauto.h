@@ -9,7 +9,6 @@
 #define __MX6SABREAUTO_CONFIG_H
 
 #define CFG_MXC_UART_BASE	UART4_BASE
-#define CONSOLE_DEV		"ttymxc3"
 
 #define CFG_SYS_I2C_PCA953X_WIDTH	{ {0x30, 8}, {0x32, 8}, {0x34, 8} }
 

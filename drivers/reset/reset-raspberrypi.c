@@ -28,7 +28,7 @@ static int raspberrypi_reset_assert(struct reset_ctl *reset_ctl)
 	}
 }
 
-struct reset_ops raspberrypi_reset_ops = {
+static const struct reset_ops raspberrypi_reset_ops = {
 	.request = raspberrypi_reset_request,
 	.rst_assert = raspberrypi_reset_assert,
 };

@@ -945,7 +945,7 @@ int versaclock_probe(struct udevice *dev)
 	/* Register FODs */
 	for (n = 0; n < vc5->chip_info->clk_fod_cnt; n++) {
 		fod_name[n] = versaclock_get_name(dev->name, "fod", n);
-		if (IS_ERR(pll_name)) {
+		if (IS_ERR(fod_name[n])) {
 			ret = PTR_ERR(fod_name[n]);
 			goto free_fod;
 		}

@@ -239,7 +239,7 @@ int spl_start_uboot(void)
 
 static const char *get_board_name(void)
 {
-	if (gd->bd->bi_dram[0].size == SZ_128M)
+	if (gd->dram[0].size == SZ_128M)
 		return STR_BTTC;
 
 	return STR_BTT3;

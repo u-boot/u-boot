@@ -6,4 +6,4 @@ F:	board/bosch/acc
 F:	include/configs/imx6q-bosch-acc.h
 F:	configs/imx6q_bosch_acc_defconfig
 F:	arch/arm/dts/imx6q-bosch-acc.dts
-F:	arch/arm/dts/imx6q-bosch-acc-u-boot.dts
+F:	arch/arm/dts/imx6q-bosch-acc-u-boot.dtsi

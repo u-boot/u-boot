@@ -2,5 +2,4 @@ PAZ00 BOARD
 M:	Tom Warren <twarren@nvidia.com>
 S:	Maintained
 F:	board/compal/paz00/
-F:	include/configs/paz00.h
 F:	configs/paz00_defconfig

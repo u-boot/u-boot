@@ -115,6 +115,16 @@
 
 &aips2 {
 	bootph-all;
+
+	wdog4: watchdog@420c0000 {
+		compatible = "fsl,imx93-wdt";
+		reg = <0x420c0000 0x10000>;
+		interrupts = <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&scmi_clk IMX952_CLK_BUSWAKEUP>;
+		timeout-sec = <40>;
+		status = "disabled";
+		bootph-all;
+	};
 };
 
 &aips3 {
@@ -171,12 +181,7 @@
 	bootph-all;
 };
 
-&gpio1 {
-	reg = <0 0x47400000 0 0x1000>, <0 0x47400040 0 0x40>;
-};
-
 &gpio2 {
-	reg = <0 0x43810000 0 0x1000>, <0 0x43810040 0 0x40>;
 	bootph-pre-ram;
 	/*
 	 * Use one SPL/U-Boot for mx952evk and mx952evkrpmsg, since GPIO2
@@ -186,17 +191,14 @@
 };
 
 &gpio3 {
-	reg = <0 0x43820000 0 0x1000>, <0 0x43820040 0 0x40>;
 	bootph-pre-ram;
 };
 
 &gpio4 {
-	reg = <0 0x43840000 0 0x1000>, <0 0x43840040 0 0x40>;
 	bootph-pre-ram;
 };
 
 &gpio5 {
-	reg = <0 0x43850000 0 0x1000>, <0 0x43850040 0 0x40>;
 	bootph-pre-ram;
 };
 
@@ -235,6 +237,10 @@
 
 &usdhc2 {
 	bootph-pre-ram;
+};
+
+&wdog3 {
+	bootph-all;
 };
 
 &scmi_iomuxc {

@@ -41,7 +41,7 @@
 			mux-reg-masks = <0x54 0xe0>; // reg 0x54, bits 7:5
 			mdio-parent-bus = <&emdio1>;
 
-			mdio@00 {
+			mdio@0 {
 				#address-cells = <1>;
 				#size-cells = <0>;
 				reg = <0x00>;

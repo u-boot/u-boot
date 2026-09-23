@@ -58,6 +58,9 @@ struct scmi_agent_priv {
 #if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_80)
 	struct udevice *vendor_dev_80;
 #endif
+#if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_81)
+	struct udevice *vendor_dev_81;
+#endif
 #if IS_ENABLED(CONFIG_SCMI_ID_VENDOR_82)
 	struct udevice *vendor_dev_82;
 #endif

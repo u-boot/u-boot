@@ -99,10 +99,10 @@
 	"nand_args=run bootargs_defaults;" \
 		"mtdparts default;" \
 		"setenv ${partitionset_active} true;" \
-		"if test -n ${A}; then " \
+		"if test -n \"${A}\"; then " \
 			"setenv nand_active_ubi_vol ${rootfs_name}_a;" \
 		"fi;" \
-		"if test -n ${B}; then " \
+		"if test -n \"${B}\"; then " \
 			"setenv nand_active_ubi_vol ${rootfs_name}_b;" \
 		"fi;" \
 		"setenv nand_root ubi0:${nand_active_ubi_vol} rw " \

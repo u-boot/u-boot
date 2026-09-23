@@ -239,7 +239,6 @@ static int bus_i2c_stop(struct udevice *bus)
 	start_time = get_timer(0);
 	while (1) {
 		status = readl(&regs->msr);
-		result = imx_lpci2c_check_clear_error(regs);
 		/* stop detect flag */
 		if (status & LPI2C_MSR_SDF_MASK) {
 			/* clear stop flag */
@@ -250,9 +249,12 @@ static int bus_i2c_stop(struct udevice *bus)
 
 		if (get_timer(start_time) > LPI2C_NACK_TOUT_MS) {
 			debug("stop timeout\n");
+			result = imx_lpci2c_check_clear_error(regs);
 			return -ETIMEDOUT;
 		}
 	}
+
+	result = imx_lpci2c_check_clear_error(regs);
 
 	return result;
 }

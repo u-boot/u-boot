@@ -576,8 +576,8 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	cfg->host_caps = MMC_MODE_4BIT;
 
 	if ((IS_ENABLED(CONFIG_MACH_SUN50I) || IS_ENABLED(CONFIG_MACH_SUN8I) ||
-	    IS_ENABLED(CONFIG_SUN50I_GEN_H6) || IS_ENABLED(CONFIG_MACH_SUN55I_A523)) &&
-	    (sdc_no == 2))
+	    IS_ENABLED(CONFIG_MACH_SUN9I) || IS_ENABLED(CONFIG_SUN50I_GEN_H6) ||
+	    IS_ENABLED(CONFIG_MACH_SUN55I_A523)) && (sdc_no == 2))
 		cfg->host_caps = MMC_MODE_8BIT;
 
 	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
@@ -663,7 +663,7 @@ static const struct dm_mmc_ops sunxi_mmc_ops = {
 
 static unsigned get_mclk_offset(void)
 {
-	if (IS_ENABLED(CONFIG_MACH_SUN9I_A80))
+	if (IS_ENABLED(CONFIG_MACH_SUN9I))
 		return 0x410;
 
 	if (IS_ENABLED(CONFIG_SUN50I_GEN_H6) || IS_ENABLED(CONFIG_SUNXI_GEN_NCAT2))

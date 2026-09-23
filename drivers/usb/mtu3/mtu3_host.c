@@ -110,11 +110,11 @@ int ssusb_host_init(struct ssusb_mtk *ssusb)
 	int ret;
 
 	u3h->ssusb = ssusb;
-	u3h->hcd = ssusb->mac_base;
 	u3h->ippc_base = ssusb->ippc_base;
 
 	/* optional property, ignore the error */
-	dev_read_u32(dev, "mediatek,u3p-dis-msk", &u3h->u3p_dis_msk);
+	dev_read_u32(ssusb->dev, "mediatek,u3p-dis-msk",
+		     &u3h->u3p_dis_msk);
 
 	host_ports_num_get(u3h);
 	ret = ssusb_host_enable(u3h);
@@ -123,12 +123,6 @@ int ssusb_host_init(struct ssusb_mtk *ssusb)
 
 	ssusb_set_force_mode(ssusb, MTU3_DR_FORCE_HOST);
 
-	ret = regulator_set_enable(ssusb->vbus_supply, true);
-	if (ret < 0 && ret != -ENOSYS) {
-		dev_err(dev, "failed to enable vbus %d!\n", ret);
-		return ret;
-	}
-
 	dev_info(dev, "%s done...\n", __func__);
 
 	return 0;
@@ -136,6 +130,5 @@ int ssusb_host_init(struct ssusb_mtk *ssusb)
 
 void ssusb_host_exit(struct ssusb_mtk *ssusb)
 {
-	regulator_set_enable(ssusb->vbus_supply, false);
 	ssusb_host_disable(ssusb->u3h);
 }

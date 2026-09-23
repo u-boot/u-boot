@@ -25,7 +25,7 @@ config SC57X
 	bool "SC57x series"
 	select COMMON_CLK_ADI_SC57X
 	select CPU_V7A
-	select TARGET_SC573_EZKIT
+	select TARGET_SC573_EZLITE
 
 config SC58X
 	bool "SC58x series"
@@ -51,8 +51,8 @@ endchoice
 
 if SC57X
 
-config TARGET_SC573_EZKIT
-	bool "Support SC573-EZKIT"
+config TARGET_SC573_EZLITE
+	bool "Support SC573-EZLITE"
 
 endif
 
@@ -115,69 +115,6 @@ config TARGET_SC598_SOM_EZKIT
 endchoice
 
 endif
-
-config SC5XX_UBOOT_SPL_OFFSET
-	hex "SPL offset"
-	default 0x0
-	help
-	  The default offset where the SPL is located.
-
-config SC5XX_UBOOT_OFFSET
-	hex "U-Boot offset"
-	default 0x40000
-	help
-	  The default offset where u-boot is located.
-
-config SC5XX_FITIMAGE_OFFSET
-	hex "FitImage offset"
-	default 0x1a0000
-	help
-	  The default offset where the fitImage is located.
-
-config SC5XX_ROOTFS_OFFSET
-	hex "RootFS offset"
-	default 0x102000
-	help
-	  The default offset where the rootfs is located.
-
-config SC5XX_LOADADDR
-	hex "Load address"
-	default 0x90000000
-	help
-	  The default load address for u-boot.
-
-menu "Binman configuration"
-config SC5XX_USE_BINMAN
-	bool "Use binman for final image"
-	select BINMAN
-	help
-	  If you wish to use binman to assemble an image, say 'Y' here.
-	  This will enable binman-specific sections in the device tree.
-
-config SC5XX_BINMAN_FILENAME
-	string "Image name"
-	default "sc5xx-image.img"
-	depends on SC5XX_USE_BINMAN
-	help
-	  The name of the image that will be created by binman.
-	  This is used to create the final image.
-
-config SC5XX_FITIMAGE_NAME
-	string "FitImage name"
-	default "fitImage"
-	depends on SC5XX_USE_BINMAN
-	help
-	  The name of the fitImage to be packed by binman.
-	  This is used to create the final image.
-
-config SC5XX_ROOTFS_NAME
-	string "RootFS name"
-	default "rootfs"
-	depends on SC5XX_USE_BINMAN
-	help
-	  The name of the rootfs to be packed by binman.
-	  This is used to create the final image.
-endmenu
 
 config ADI_IMAGE
 	string "ADI fitImage type"
@@ -633,6 +570,6 @@ source "board/adi/sc594-som-ezlite/Kconfig"
 source "board/adi/sc589-ezkit/Kconfig"
 source "board/adi/sc589-mini/Kconfig"
 source "board/adi/sc584-ezkit/Kconfig"
-source "board/adi/sc573-ezkit/Kconfig"
+source "board/adi/sc573-ezlite/Kconfig"
 
 endif

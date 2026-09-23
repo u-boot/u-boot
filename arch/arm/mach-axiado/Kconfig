@@ -1,0 +1,22 @@
+if ARCH_AXIADO
+
+config SYS_ARCH
+	default "arm"
+
+config SYS_SOC
+	default "axiado"
+
+config AXIADO_AX3005
+	bool
+	select ARM64
+	select ARMV8_SWITCH_TO_EL1
+	select DM
+	select DM_SERIAL
+	select GICV3
+	select ZYNQ_SERIAL
+	select MMC_SDHCI_AXIADO
+	select PHY_AXIADO_EMMC
+
+source "arch/arm/mach-axiado/scm3005/Kconfig"
+
+endif

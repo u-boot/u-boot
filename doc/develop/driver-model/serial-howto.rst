@@ -97,8 +97,8 @@ Here are some things you might need to consider:
 
            uart2: uart2 {
                uart2_xfer: uart2-xfer {
-                   rockchip,pins = <1 RK_PC2 RK_FUNC_2 &pcfg_pull_up>,
-                         <1 RK_PC3 RK_FUNC_2 &pcfg_pull_none>;
+                   rockchip,pins = <1 RK_PC2 2 &pcfg_pull_up>,
+                         <1 RK_PC3 2 &pcfg_pull_none>;
            };
            ...
        };

@@ -337,10 +337,18 @@ config SIMPLE_BUS_CORRECT_RANGE
 
 config SIMPLE_PM_BUS
 	bool "Support simple-pm-bus driver"
-	depends on DM && OF_CONTROL && CLK && POWER_DOMAIN
+	depends on DM && OF_CONTROL && POWER_DOMAIN
 	help
 	  Supports the 'simple-pm-bus' driver, which is used for busses that
 	  have power domains and/or clocks which need to be enabled before use.
+
+config SPL_SIMPLE_PM_BUS
+	bool "Support simple-pm-bus driver in SPL"
+	depends on SPL_DM && SPL_OF_CONTROL && SPL_POWER_DOMAIN
+	help
+	  Supports the 'simple-pm-bus' driver, which is used for busses that
+	  have power domains and/or clocks which need to be enabled before use,
+	  in SPL.
 
 config OF_TRANSLATE
 	bool "Translate addresses using fdt_translate_address"

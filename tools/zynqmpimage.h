@@ -142,6 +142,8 @@ struct zynqmp_header {
 
 void zynqmpimage_default_header(struct zynqmp_header *ptr);
 void zynqmpimage_print_header(const void *ptr, struct image_tool_params *params);
+void zynqmpimage_parse_initparams(struct zynqmp_header *zynqhdr,
+				  const char *filename);
 
 static inline struct image_header_table *
 zynqmp_get_iht(const struct zynqmp_header *zynqhdr)

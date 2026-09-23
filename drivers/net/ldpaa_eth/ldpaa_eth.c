@@ -970,8 +970,8 @@ static int ldpaa_eth_bind(struct udevice *dev)
 
 	phy_mode = dev_read_phy_mode(dev);
 	if (phy_mode == PHY_INTERFACE_MODE_NA) {
-		dev_err(dev, "incorrect phy mode\n");
-		return -EINVAL;
+		dev_dbg(dev, "no phy mode, not binding\n");
+		return -ENODEV;
 	}
 
 	dpmac_id = ldpaa_eth_get_dpmac_id(dev);

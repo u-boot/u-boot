@@ -78,10 +78,6 @@
 	bootph-all;
 };
 
-&prr {
-	bootph-all;
-};
-
 &soc {
 	bootph-all;
 
@@ -167,6 +163,14 @@
 		clocks = <&extal_clk>, <&extalr_clk>;
 		clock-names = "extal", "extalr";
 		#clock-cells = <1>;
+		bootph-all;
+	};
+
+	mdlc_scp: system-controller@c1330000 {
+		compatible = "renesas,r8a78000-mdlc";
+		reg = <0 0xc1330000 0 0x1000>;
+		#power-domain-cells = <1>;
+		#reset-cells = <1>;
 		bootph-all;
 	};
 

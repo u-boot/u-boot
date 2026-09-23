@@ -1,7 +1,7 @@
 SAMA7G5 EK BOARD
 M:     Eugen Hristev <ehristev@kernel.org>
 S:     Maintained
-F:     board/atmel/sama7g5ek.c
+F:     board/atmel/sama7g5ek/
 F:     include/configs/sama7g5ek.h
 F:     configs/sama7g5ek_mmc1_defconfig
 F:     configs/sama7g5ek_mmc_defconfig

@@ -73,7 +73,7 @@ static bool found_key(const char *str, const char *key)
 
 	strcopy = strdup(str);
 	if (!strcopy)
-		return NULL;
+		return false;
 
 	s = strcopy;
 	while (s) {

@@ -331,6 +331,12 @@ int arch_cpu_init(void)
 
 	init_snvs();
 
+	/*
+	 * imx_gpcv2_init() needs to do a delay.
+	 * Timer must be initialized before calling a delay function.
+	 */
+	timer_init();
+
 	imx_gpcv2_init();
 
 	enable_ca7_smp();

@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <qemu_virt_ctrl.h>
 #include <sysreset.h>
+#include <mapmem.h>
 #include <asm/io.h>
 #include <linux/err.h>
 
@@ -24,6 +25,7 @@
 static int qemu_virt_ctrl_request(struct udevice *dev, enum sysreset_t type)
 {
 	struct qemu_virt_ctrl_plat *plat = dev_get_plat(dev);
+	void __iomem *reg = map_sysmem(plat->reg + VIRT_CTRL_REG_CMD, 0x4);
 	u32 val;
 
 	switch (type) {
@@ -38,7 +40,7 @@ static int qemu_virt_ctrl_request(struct udevice *dev, enum sysreset_t type)
 		return -EPROTONOSUPPORT;
 	}
 
-	writel(val, plat->reg + VIRT_CTRL_REG_CMD);
+	__raw_writel(val, reg);
 
 	return -EINPROGRESS;
 }

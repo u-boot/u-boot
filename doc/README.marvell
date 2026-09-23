@@ -82,10 +82,10 @@ Permanent ethernet MAC address
 	and then set correct permanent ethernet MAC addresses.
 
 		# env default -a
-		# setenv ethaddr XX:XX:XX:XX:XX:XX
-		# setenv eth1addr XX:XX:XX:XX:XX:XX
-		# setenv eth2addr YY:YY:YY:YY:YY:YY
-		# setenv eth3addr ZZ:ZZ:ZZ:ZZ:ZZ:ZZ
+		# env set ethaddr XX:XX:XX:XX:XX:XX
+		# env set eth1addr XX:XX:XX:XX:XX:XX
+		# env set eth2addr YY:YY:YY:YY:YY:YY
+		# env set eth3addr ZZ:ZZ:ZZ:ZZ:ZZ:ZZ
 		# ...
 		# saveenv
 

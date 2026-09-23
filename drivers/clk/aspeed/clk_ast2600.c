@@ -1161,7 +1161,7 @@ static void ast2600_clk_dump(struct udevice *dev)
 }
 #endif
 
-struct clk_ops ast2600_clk_ops = {
+static const struct clk_ops ast2600_clk_ops = {
 	.get_rate = ast2600_clk_get_rate,
 	.set_rate = ast2600_clk_set_rate,
 	.enable = ast2600_clk_enable,
@@ -1174,9 +1174,9 @@ static int ast2600_clk_probe(struct udevice *dev)
 {
 	struct ast2600_clk_priv *priv = dev_get_priv(dev);
 
-	priv->scu = devfdt_get_addr_ptr(dev);
-	if (IS_ERR(priv->scu))
-		return PTR_ERR(priv->scu);
+	priv->scu = dev_read_addr_ptr(dev);
+	if (!priv->scu)
+		return -EINVAL;
 
 	ast2600_init_rgmii_clk(priv->scu, &rgmii_clk_defconfig);
 	ast2600_init_rmii_clk(priv->scu, &rmii_clk_defconfig);

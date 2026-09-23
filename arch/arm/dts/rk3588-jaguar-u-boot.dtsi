@@ -21,6 +21,12 @@
 	bootph-some-ram;
 };
 
+&gpio0 {
+	/* Need gpio0 in SPL for spl_board_init() to control GPIO0_D0 */
+	/* TODO: once we have a U-Boot TPL, use bootph-pre-sram; */
+	bootph-pre-ram;
+};
+
 &gpio2 {
 	bootph-pre-ram;
 	bootph-some-ram;
