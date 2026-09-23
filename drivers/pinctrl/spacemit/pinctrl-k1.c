@@ -30,8 +30,10 @@
 #define PAD_EDGE_CLEAR		BIT(6)
 #define PAD_SLEW_RATE		GENMASK(12, 11)
 #define PAD_SLEW_RATE_EN	BIT(7)
-#define PAD_SCHMITT		GENMASK(9, 8)
-#define PAD_DRIVE		GENMASK(12, 10)
+#define PAD_SCHMITT_K1		GENMASK(9, 8)
+#define PAD_DRIVE_K1		GENMASK(12, 10)
+#define PAD_SCHMITT_K3		BIT(8)
+#define PAD_DRIVE_K3		GENMASK(12, 9)
 #define PAD_PULLDOWN		BIT(13)
 #define PAD_PULLUP		BIT(14)
 #define PAD_PULL_EN		BIT(15)
@@ -42,6 +44,11 @@
 #define IO_PWR_DOMAIN_GPIO3_K1	0x10
 #define IO_PWR_DOMAIN_MMC_Kx	0x1c
 #define IO_PWR_DOMAIN_QSPI_K1	0x20
+
+#define IO_PWR_DOMAIN_GPIO1_K3  0x04
+#define IO_PWR_DOMAIN_GPIO5_K3  0x10
+#define IO_PWR_DOMAIN_GPIO4_K3  0x20
+#define IO_PWR_DOMAIN_QSPI_K3   0x2c
 
 #define IO_PWR_DOMAIN_V18EN	BIT(2)
 
@@ -68,6 +75,12 @@ struct spacemit_pin_io {
 	unsigned int	reserved : 8;
 };
 
+struct spacemit_pin_drv_strength {
+	unsigned int	val : 8;
+	unsigned int	ma : 16;
+	unsigned int	reserved : 8;
+};
+
 struct spacemit_pinctrl_data {
 	struct spacemit_pin_io *io_pins;
 	int nr_io_pins;
@@ -78,6 +91,12 @@ struct spacemit_pinctrl_data {
 	int (*get_functions)(struct udevice *dev);
 	int (*get_io_type)(struct udevice *dev, unsigned int pin);
 	unsigned int (*pin_to_io_pd_offset)(unsigned int pin);
+
+	u32 drive_mask;
+	struct spacemit_pin_drv_strength *ds_1v8_tbl;
+	int ds_1v8_tbl_num;
+	struct spacemit_pin_drv_strength *ds_3v3_tbl;
+	int ds_3v3_tbl_num;
 };
 
 struct spacemit_pinctrl_priv {
@@ -90,12 +109,6 @@ struct spacemit_pinctrl_priv {
 struct spacemit_pin_mux_config {
 	const struct spacemit_pin	*pin;
 	u32				config;
-};
-
-struct spacemit_pin_drv_strength {
-	unsigned int	val : 8;
-	unsigned int	ma : 16;
-	unsigned int	reserved : 8;
 };
 
 static char pin_name[PINNAME_SIZE];
@@ -280,35 +293,17 @@ static inline u32 spacemit_get_ds_ma(struct spacemit_pin_drv_strength *tbl,
 	return 0;
 }
 
-static inline u8 spacemit_get_drive_strength(enum spacemit_pin_io_type type,
+static inline u8 spacemit_get_drive_strength(struct spacemit_pinctrl_data *data,
+					     enum spacemit_pin_io_type type,
 					     u32 ma)
 {
 	switch (type) {
 	case IO_TYPE_1V8:
-		return spacemit_get_ds_value(spacemit_ds_1v8_tbl,
-					     ARRAY_SIZE(spacemit_ds_1v8_tbl),
-					     ma);
+		return spacemit_get_ds_value(data->ds_1v8_tbl,
+					     data->ds_1v8_tbl_num, ma);
 	case IO_TYPE_3V3:
-		return spacemit_get_ds_value(spacemit_ds_3v3_tbl,
-					     ARRAY_SIZE(spacemit_ds_3v3_tbl),
-					     ma);
-	default:
-		return 0;
-	}
-}
-
-static inline u32 spacemit_get_drive_strength_ma(enum spacemit_pin_io_type type,
-						 u32 value)
-{
-	switch (type) {
-	case IO_TYPE_1V8:
-		return spacemit_get_ds_ma(spacemit_ds_1v8_tbl,
-					  ARRAY_SIZE(spacemit_ds_1v8_tbl),
-					  value & 0x6);
-	case IO_TYPE_3V3:
-		return spacemit_get_ds_ma(spacemit_ds_3v3_tbl,
-					  ARRAY_SIZE(spacemit_ds_3v3_tbl),
-					  value);
+		return spacemit_get_ds_value(data->ds_3v3_tbl,
+					     data->ds_3v3_tbl_num, ma);
 	default:
 		return 0;
 	}
@@ -552,8 +547,9 @@ static int spacemit_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 			dev_err(dev, "Invalid IO type (%d)\n", io_type);
 			return -EINVAL;
 		}
-		ds = spacemit_get_drive_strength(io_type, argument);
-		clrsetbits_le32(addr, PAD_DRIVE, FIELD_PREP(PAD_DRIVE, ds));
+		ds = spacemit_get_drive_strength(data, io_type, argument);
+		clrsetbits_le32(addr, data->drive_mask,
+				field_prep(data->drive_mask, ds));
 		break;
 	case PIN_CONFIG_POWER_SOURCE:
 		return spacemit_set_pin_power_source(dev, pin_selector, argument);
@@ -707,12 +703,239 @@ static const struct spacemit_pinctrl_data k1_pinctrl_data = {
 	.get_functions	= k1_get_functions,
 	.get_io_type	= k1_get_io_type,
 	.pin_to_io_pd_offset = spacemit_k1_pin_to_io_pd_offset,
+	.drive_mask	= PAD_DRIVE_K1,
+	.ds_1v8_tbl	= spacemit_ds_1v8_tbl,
+	.ds_1v8_tbl_num	= ARRAY_SIZE(spacemit_ds_1v8_tbl),
+	.ds_3v3_tbl	= spacemit_ds_3v3_tbl,
+	.ds_3v3_tbl_num	= ARRAY_SIZE(spacemit_ds_3v3_tbl),
+};
+
+static struct spacemit_pin_io k3_io_pins[] = {
+	{ 0, IO_TYPE_EXTERNAL, 0, },
+	{ 1, IO_TYPE_EXTERNAL, 0, },
+	{ 2, IO_TYPE_EXTERNAL, 0, },
+	{ 3, IO_TYPE_EXTERNAL, 0, },
+	{ 4, IO_TYPE_EXTERNAL, 0, },
+	{ 5, IO_TYPE_EXTERNAL, 0, },
+	{ 6, IO_TYPE_EXTERNAL, 0, },
+	{ 7, IO_TYPE_EXTERNAL, 0, },
+	{ 8, IO_TYPE_EXTERNAL, 0, },
+	{ 9, IO_TYPE_EXTERNAL, 0, },
+	{ 10, IO_TYPE_EXTERNAL, 0, },
+	{ 11, IO_TYPE_EXTERNAL, 0, },
+	{ 12, IO_TYPE_EXTERNAL, 0, },
+	{ 13, IO_TYPE_EXTERNAL, 0, },
+	{ 14, IO_TYPE_EXTERNAL, 0, },
+	{ 15, IO_TYPE_EXTERNAL, 0, },
+	{ 16, IO_TYPE_EXTERNAL, 0, },
+	{ 17, IO_TYPE_EXTERNAL, 0, },
+	{ 18, IO_TYPE_EXTERNAL, 0, },
+	{ 19, IO_TYPE_EXTERNAL, 0, },
+	{ 20, IO_TYPE_EXTERNAL, 0, },
+	{ 21, IO_TYPE_EXTERNAL, 0, },
+	{ 22, IO_TYPE_EXTERNAL, 0, },
+	{ 23, IO_TYPE_EXTERNAL, 0, },
+	{ 24, IO_TYPE_EXTERNAL, 0, },
+	{ 25, IO_TYPE_EXTERNAL, 0, },
+	{ 26, IO_TYPE_EXTERNAL, 0, },
+	{ 27, IO_TYPE_EXTERNAL, 0, },
+	{ 28, IO_TYPE_EXTERNAL, 0, },
+	{ 29, IO_TYPE_EXTERNAL, 0, },
+	{ 30, IO_TYPE_EXTERNAL, 0, },
+	{ 31, IO_TYPE_EXTERNAL, 0, },
+	{ 32, IO_TYPE_EXTERNAL, 0, },
+	{ 33, IO_TYPE_EXTERNAL, 0, },
+	{ 34, IO_TYPE_EXTERNAL, 0, },
+	{ 35, IO_TYPE_EXTERNAL, 0, },
+	{ 36, IO_TYPE_EXTERNAL, 0, },
+	{ 37, IO_TYPE_EXTERNAL, 0, },
+	{ 38, IO_TYPE_EXTERNAL, 0, },
+	{ 39, IO_TYPE_EXTERNAL, 0, },
+	{ 40, IO_TYPE_EXTERNAL, 0, },
+	{ 41, IO_TYPE_EXTERNAL, 0, },
+	{ 76, IO_TYPE_EXTERNAL, 0, },
+	{ 77, IO_TYPE_EXTERNAL, 0, },
+	{ 78, IO_TYPE_EXTERNAL, 0, },
+	{ 79, IO_TYPE_EXTERNAL, 0, },
+	{ 80, IO_TYPE_EXTERNAL, 0, },
+	{ 81, IO_TYPE_EXTERNAL, 0, },
+	{ 82, IO_TYPE_EXTERNAL, 0, },
+	{ 83, IO_TYPE_EXTERNAL, 0, },
+	{ 84, IO_TYPE_EXTERNAL, 0, },
+	{ 85, IO_TYPE_EXTERNAL, 0, },
+	{ 86, IO_TYPE_EXTERNAL, 0, },
+	{ 87, IO_TYPE_EXTERNAL, 0, },
+	{ 88, IO_TYPE_EXTERNAL, 0, },
+	{ 89, IO_TYPE_EXTERNAL, 0, },
+	{ 90, IO_TYPE_EXTERNAL, 0, },
+	{ 91, IO_TYPE_EXTERNAL, 0, },
+	{ 92, IO_TYPE_EXTERNAL, 0, },
+	{ 93, IO_TYPE_EXTERNAL, 0, },
+	{ 94, IO_TYPE_EXTERNAL, 0, },
+	{ 95, IO_TYPE_EXTERNAL, 0, },
+	{ 96, IO_TYPE_EXTERNAL, 0, },
+	{ 97, IO_TYPE_EXTERNAL, 0, },
+	{ 98, IO_TYPE_EXTERNAL, 0, },
+	{ 99, IO_TYPE_EXTERNAL, 0, },
+	{ 100, IO_TYPE_EXTERNAL, 0, },
+	{ 101, IO_TYPE_EXTERNAL, 0, },
+	{ 102, IO_TYPE_EXTERNAL, 0, },
+	{ 103, IO_TYPE_EXTERNAL, 0, },
+	{ 104, IO_TYPE_EXTERNAL, 0, },
+	{ 105, IO_TYPE_EXTERNAL, 0, },
+	{ 106, IO_TYPE_EXTERNAL, 0, },
+	{ 107, IO_TYPE_EXTERNAL, 0, },
+	{ 108, IO_TYPE_EXTERNAL, 0, },
+	{ 109, IO_TYPE_EXTERNAL, 0, },
+	{ 110, IO_TYPE_EXTERNAL, 0, },
+	{ 111, IO_TYPE_EXTERNAL, 0, },
+	{ 112, IO_TYPE_EXTERNAL, 0, },
+	{ 113, IO_TYPE_EXTERNAL, 0, },
+	{ 114, IO_TYPE_EXTERNAL, 0, },
+	{ 115, IO_TYPE_EXTERNAL, 0, },
+	{ 116, IO_TYPE_EXTERNAL, 0, },
+	{ 117, IO_TYPE_EXTERNAL, 0, },
+	{ 118, IO_TYPE_EXTERNAL, 0, },
+	{ 119, IO_TYPE_EXTERNAL, 0, },
+	{ 120, IO_TYPE_EXTERNAL, 0, },
+	{ 121, IO_TYPE_EXTERNAL, 0, },
+	{ 122, IO_TYPE_EXTERNAL, 0, },
+	{ 123, IO_TYPE_EXTERNAL, 0, },
+	{ 124, IO_TYPE_EXTERNAL, 0, },
+	{ 125, IO_TYPE_EXTERNAL, 0, },
+	{ 126, IO_TYPE_EXTERNAL, 0, },
+	{ 127, IO_TYPE_EXTERNAL, 0, },
+	{ 132, IO_TYPE_EXTERNAL, 0, },
+	{ 133, IO_TYPE_EXTERNAL, 0, },
+	{ 134, IO_TYPE_EXTERNAL, 0, },
+	{ 135, IO_TYPE_EXTERNAL, 0, },
+	{ 136, IO_TYPE_EXTERNAL, 0, },
+	{ 137, IO_TYPE_EXTERNAL, 0, },
+	{ 138, IO_TYPE_EXTERNAL, 0, },
+	{ 139, IO_TYPE_EXTERNAL, 0, },
+	{ 140, IO_TYPE_EXTERNAL, 0, },
+	{ 141, IO_TYPE_EXTERNAL, 0, },
+	{ 142, IO_TYPE_EXTERNAL, 0, },
+	{ 143, IO_TYPE_EXTERNAL, 0, },
+	{ 144, IO_TYPE_EXTERNAL, 0, },
+};
+
+static inline int k3_get_pins(struct udevice *dev)
+{
+	return 153;
+}
+
+static inline int k3_get_functions(struct udevice *dev)
+{
+	return 7;
+}
+
+static void __iomem *k3_pin_to_reg(struct udevice *dev, unsigned int pin)
+{
+	struct spacemit_pinctrl_priv *priv = dev_get_priv(dev);
+	unsigned int offset = pin > 130 ? (pin + 2) : pin;
+
+	if (pin > 152) {
+		dev_err(dev, "Invalid pin (%u)\n", pin);
+		return NULL;
+	}
+	return priv->regs + (offset << 2);
+}
+
+static int k3_get_gpio_mux(struct udevice *dev, unsigned int selector)
+{
+	if (selector > 152) {
+		dev_err(dev, "Invalid pin (%u)\n", selector);
+		return -EINVAL;
+	}
+	/* SD/MMC1, QSPI, PMIC/JTAG use gpiofunc 1 per Linux pin data */
+	if (selector >= 132)
+		return 1;
+	return 0;
+}
+
+static int k3_get_io_type(struct udevice *dev, unsigned int selector)
+{
+	if (selector <= 41)
+		return IO_TYPE_EXTERNAL;
+	if (selector <= 75)
+		return IO_TYPE_1V8;
+	if (selector <= 127)
+		return IO_TYPE_EXTERNAL;
+	if (selector <= 131)
+		return IO_TYPE_1V8;
+	if (selector <= 144)
+		return IO_TYPE_EXTERNAL;
+	if (selector <= 152)
+		return IO_TYPE_1V8;
+	return -EINVAL;
+}
+
+static unsigned int spacemit_k3_pin_to_io_pd_offset(unsigned int pin)
+{
+	unsigned int offset = 0;
+
+	switch (pin) {
+	case 0 ... 20:
+		offset = IO_PWR_DOMAIN_GPIO1_K3;
+		break;
+	case 21 ... 41:
+		offset = IO_PWR_DOMAIN_GPIO2_Kx;
+		break;
+	case 76 ... 98:
+		offset = IO_PWR_DOMAIN_GPIO4_K3;
+		break;
+	case 99 ... 127:
+		offset = IO_PWR_DOMAIN_GPIO5_K3;
+		break;
+	case 132 ... 137:
+		offset = IO_PWR_DOMAIN_MMC_Kx;
+		break;
+	case 138 ... 144:
+		offset = IO_PWR_DOMAIN_QSPI_K3;
+		break;
+	}
+
+	return offset;
+}
+
+static struct spacemit_pin_drv_strength spacemit_k3_ds_1v8_tbl[16] = {
+	{ 0,  2 }, { 1,  4 }, { 2,  6 }, { 3,  7 },
+	{ 4,  9 }, { 5, 11 }, { 6, 13 }, { 7, 14 },
+	{ 8, 21 }, { 9, 23 }, { 10, 25 }, { 11, 26 },
+	{ 12, 28 }, { 13, 30 }, { 14, 31 }, { 15, 33 },
+};
+
+static struct spacemit_pin_drv_strength spacemit_k3_ds_3v3_tbl[16] = {
+	{ 0,  3 }, { 1,  5 }, { 2,  7 }, { 3,  9 },
+	{ 4, 11 }, { 5, 13 }, { 6, 15 }, { 7, 17 },
+	{ 8, 25 }, { 9, 27 }, { 10, 29 }, { 11, 31 },
+	{ 12, 33 }, { 13, 35 }, { 14, 37 }, { 15, 38 },
+};
+
+static const struct spacemit_pinctrl_data k3_pinctrl_data = {
+	.io_pins	= k3_io_pins,
+	.nr_io_pins	= ARRAY_SIZE(k3_io_pins),
+	.pin_to_reg	= k3_pin_to_reg,
+	.get_gpio_mux	= k3_get_gpio_mux,
+	.get_pins	= k3_get_pins,
+	.get_functions	= k3_get_functions,
+	.get_io_type	= k3_get_io_type,
+	.pin_to_io_pd_offset = spacemit_k3_pin_to_io_pd_offset,
+	.drive_mask	= PAD_DRIVE_K3,
+	.ds_1v8_tbl	= spacemit_k3_ds_1v8_tbl,
+	.ds_1v8_tbl_num	= ARRAY_SIZE(spacemit_k3_ds_1v8_tbl),
+	.ds_3v3_tbl	= spacemit_k3_ds_3v3_tbl,
+	.ds_3v3_tbl_num	= ARRAY_SIZE(spacemit_k3_ds_3v3_tbl),
 };
 
 static const struct udevice_id spacemit_pinctrl_ids[] = {
 	{
 		.compatible = "spacemit,k1-pinctrl",
 		.data = (uintptr_t)&k1_pinctrl_data,
+	}, {
+		.compatible = "spacemit,k3-pinctrl",
+		.data = (uintptr_t)&k3_pinctrl_data,
 	}, { /* sentinel */ }
 };
 
