@@ -1598,15 +1598,11 @@ static const struct mtk_gate infra_ao_clks[] = {
 
 MTK_GATE_CLK_TREE(ext_clock_rates, mt8195_infracfg_ao_clk_tree, infra_ao_clks);
 
-static const struct udevice_id mt8195_apmixed[] = {
+static const struct udevice_id mt8195_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8195-apmixedsys",
 		.data = (ulong)&mt8195_apmixedsys_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8195_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8195-topckgen",
 		.data = (ulong)&mt8195_topckgen_clk_tree,
@@ -1616,16 +1612,6 @@ static const struct udevice_id mt8195_clk_compat[] = {
 		.data = (ulong)&mt8195_infracfg_ao_clk_tree,
 	},
 	{ }
-};
-
-U_BOOT_DRIVER(mt8195_clk_apmixedsys) = {
-	.name = "mt8195-apmixedsys",
-	.id = UCLASS_CLK,
-	.of_match = mt8195_apmixed,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 U_BOOT_DRIVER(mt8195_clk) = {
