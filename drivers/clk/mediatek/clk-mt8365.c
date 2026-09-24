@@ -756,15 +756,11 @@ static const struct mtk_gate ifr_clks[] = {
 
 MTK_GATE_CLK_TREE(ext_clock_rates, mt8365_infracfg_tree, ifr_clks);
 
-static const struct udevice_id mt8365_apmixed_compat[] = {
+static const struct udevice_id mt8365_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8365-apmixedsys",
 		.data = (ulong)&mt8365_apmixed_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8365_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8365-topckgen",
 		.data = (ulong)&mt8365_topckgen_tree,
@@ -774,16 +770,6 @@ static const struct udevice_id mt8365_clk_compat[] = {
 		.data = (ulong)&mt8365_infracfg_tree,
 	},
 	{ }
-};
-
-U_BOOT_DRIVER(mt8365_clk_apmixedsys) = {
-	.name = "mt8365-apmixedsys",
-	.id = UCLASS_CLK,
-	.of_match = mt8365_apmixed_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 U_BOOT_DRIVER(mt8365_clk) = {
