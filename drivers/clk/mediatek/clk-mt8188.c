@@ -2063,15 +2063,11 @@ MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_vdo0_clk_tree, vdo0_clks);
 
 MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_vdo1_clk_tree, vdo1_clks);
 
-static const struct udevice_id mt8188_apmixed_compat[] = {
+static const struct udevice_id mt8188_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8188-apmixedsys",
 		.data = (ulong)&mt8188_apmixedsys_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8188_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8188-topckgen",
 		.data = (ulong)&mt8188_topckgen_clk_tree,
@@ -2113,16 +2109,6 @@ static const struct udevice_id mt8188_clk_compat[] = {
 		.data = (ulong)&mt8188_vdo1_clk_tree,
 	},
 	{ }
-};
-
-U_BOOT_DRIVER(mt8188_clk_apmixedsys) = {
-	.name = "mt8188-apmixedsys",
-	.id = UCLASS_CLK,
-	.of_match = mt8188_apmixed_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 U_BOOT_DRIVER(mt8188_clk) = {
