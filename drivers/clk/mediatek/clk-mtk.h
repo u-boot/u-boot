@@ -254,9 +254,14 @@ struct mtk_clk_tree {
 	 * is the index in the various arrays in this struct. The .id and
 	 * .parent fields in the various mtk_* structs will contain the
 	 * unmapped IDs as defined in the upstream Linux kernel <soc>-clk.h.
+	 *
+	 * PLL IDs always start at 0. The other clock types start at their
+	 * *_offs field, so fixed clocks occupy [fclks_offs, fclks_offs +
+	 * num_fclks) and so on. The ranges of a tree must not overlap.
 	 */
 	const int *id_offs_map; /* optional, maps clk.h ID to array index */
 	const int id_offs_map_size;
+	const int fclks_offs;
 	const int fdivs_offs;
 	const int muxes_offs;
 	const int gates_offs;

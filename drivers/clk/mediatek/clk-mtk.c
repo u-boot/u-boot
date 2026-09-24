@@ -155,7 +155,8 @@ static bool mtk_clk_id_is_pll(const struct mtk_clk_tree *tree, int mapped_id)
 
 static bool mtk_clk_id_is_fclk(const struct mtk_clk_tree *tree, int mapped_id)
 {
-	return tree->fclks && mapped_id < tree->num_fclks;
+	return tree->fclks && mapped_id >= tree->fclks_offs &&
+	       mapped_id < tree->fclks_offs + tree->num_fclks;
 }
 
 static bool mtk_clk_id_is_fdiv(const struct mtk_clk_tree *tree, int mapped_id)
@@ -758,7 +759,7 @@ static ulong mtk_topckgen_get_rate(struct clk *clk)
 	const struct mtk_clk_tree *tree = priv->tree;
 
 	if (mtk_clk_id_is_fclk(tree, clk->id))
-		return tree->fclks[clk->id].rate;
+		return tree->fclks[clk->id - tree->fclks_offs].rate;
 
 	if (mtk_clk_id_is_fdiv(tree, clk->id))
 		return mtk_topckgen_get_factor_rate(clk, clk->id - tree->fdivs_offs);
@@ -895,8 +896,8 @@ static void mtk_topckgen_dump(struct udevice *dev)
 		const struct mtk_fixed_clk *fclk = &tree->fclks[i];
 
 		printf("[FCLK%u] DT: %u", i, fclk->id);
-		mtk_clk_print_mapped_id(fclk->id, i, tree->id_offs_map);
-		mtk_clk_print_rate(dev, i);
+		mtk_clk_print_mapped_id(fclk->id, i + tree->fclks_offs, tree->id_offs_map);
+		mtk_clk_print_rate(dev, i + tree->fclks_offs);
 		mtk_clk_print_single_parent(fclk->parent, fclk->flags);
 		printf("\n");
 	}
@@ -999,7 +1000,7 @@ static ulong mtk_infrasys_get_rate(struct clk *clk)
 	ulong rate;
 
 	if (mtk_clk_id_is_fclk(priv->tree, clk->id)) {
-		rate = priv->tree->fclks[clk->id].rate;
+		rate = priv->tree->fclks[clk->id - priv->tree->fclks_offs].rate;
 	} else if (mtk_clk_id_is_fdiv(priv->tree, clk->id)) {
 		rate = mtk_infrasys_get_factor_rate(clk, clk->id -
 						    priv->tree->fdivs_offs);
