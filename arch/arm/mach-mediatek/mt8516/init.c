@@ -16,6 +16,7 @@
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/sections.h>
+#include <dm/ofnode.h>
 #include <dm/uclass.h>
 #include <dt-bindings/clock/mt8516-clk.h>
 
@@ -41,10 +42,11 @@ static int mtk_pll_early_init(void)
 		[CLK_APMIXED_MMPLL] =     380000000,
 	};
 	struct udevice *dev;
+	ofnode node;
 	int ret, i;
 
-	ret = uclass_get_device_by_driver(UCLASS_CLK,
-			DM_DRIVER_GET(mt8516_clk_apmixedsys), &dev);
+	node = ofnode_by_compatible(ofnode_null(), "mediatek,mt8516-apmixedsys");
+	ret = uclass_get_device_by_ofnode(UCLASS_CLK, node, &dev);
 	if (ret)
 		return ret;
 
