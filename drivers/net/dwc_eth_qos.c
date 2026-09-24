@@ -1684,6 +1684,12 @@ static const struct udevice_id eqos_ids[] = {
 		.data = (ulong)&eqos_sunxi_config
 	},
 #endif
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_SPACEMIT)
+	{
+		.compatible = "spacemit,k3-dwmac",
+		.data = (ulong)&eqos_spacemit_config
+	},
+#endif
 	{ }
 };
 
