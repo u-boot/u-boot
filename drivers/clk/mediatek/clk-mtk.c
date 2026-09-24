@@ -177,6 +177,24 @@ static bool mtk_clk_id_is_gate(const struct mtk_clk_tree *tree, int mapped_id)
 	       mapped_id < tree->gates_offs + tree->num_gates;
 }
 
+static int mtk_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
+{
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_clk_tree *tree = priv->tree;
+	int ret;
+
+	ret = mtk_common_clk_of_xlate(clk, args, tree);
+	if (ret)
+		return ret;
+
+	if (!mtk_clk_id_is_pll(tree, clk->id) && !mtk_clk_id_is_fclk(tree, clk->id) &&
+	    !mtk_clk_id_is_fdiv(tree, clk->id) && !mtk_clk_id_is_mux(tree, clk->id) &&
+	    !mtk_clk_id_is_gate(tree, clk->id))
+		return -ENOENT;
+
+	return 0;
+}
+
 static int mtk_dummy_enable(struct clk *clk)
 {
 	return 0;
@@ -426,24 +444,6 @@ static void mtk_clk_print_mux_parents(struct mtk_clk_priv *priv,
 #endif
 
 /* apmixedsys functions */
-
-static const int mtk_apmixedsys_of_xlate(struct clk *clk,
-					 struct ofnode_phandle_args *args)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	int ret;
-
-	ret = mtk_common_clk_of_xlate(clk, args, tree);
-	if (ret)
-		return ret;
-
-	/* apmixedsys only uses plls and gates. */
-	if (!mtk_clk_id_is_pll(tree, clk->id) && !mtk_clk_id_is_gate(tree, clk->id))
-		return -ENOENT;
-
-	return 0;
-}
 
 static unsigned long __mtk_pll_recalc_rate(const struct mtk_pll_data *pll,
 					   u32 fin, u32 pcw, int postdiv)
@@ -711,25 +711,6 @@ static void mtk_apmixedsys_dump(struct udevice *dev)
 
 /* topckgen functions */
 
-static const int mtk_topckgen_of_xlate(struct clk *clk,
-				       struct ofnode_phandle_args *args)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	int ret;
-
-	ret = mtk_common_clk_of_xlate(clk, args, tree);
-	if (ret)
-		return ret;
-
-	/* topckgen only uses fclks, fdivs, muxes and gates. */
-	if (!mtk_clk_id_is_fclk(tree, clk->id) && !mtk_clk_id_is_fdiv(tree, clk->id) &&
-	    !mtk_clk_id_is_mux(tree, clk->id) && !mtk_clk_id_is_gate(tree, clk->id))
-		return -ENOENT;
-
-	return 0;
-}
-
 static ulong mtk_factor_recalc_rate(const struct mtk_fixed_factor *fdiv,
 				    ulong parent_rate)
 {
@@ -936,25 +917,6 @@ static void mtk_topckgen_dump(struct udevice *dev)
 
 /* infrasys functions */
 
-static const int mtk_infrasys_of_xlate(struct clk *clk,
-				       struct ofnode_phandle_args *args)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_clk_tree *tree = priv->tree;
-	int ret;
-
-	ret = mtk_common_clk_of_xlate(clk, args, tree);
-	if (ret)
-		return ret;
-
-	/* ifrasys only uses fdivs, muxes and gates. */
-	if (!mtk_clk_id_is_fdiv(tree, clk->id) && !mtk_clk_id_is_mux(tree, clk->id) &&
-	    !mtk_clk_id_is_gate(tree, clk->id))
-		return -ENOENT;
-
-	return 0;
-}
-
 static int mtk_clk_infrasys_enable(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
@@ -1056,7 +1018,7 @@ static void mtk_infrasys_dump(struct udevice *dev)
 #endif
 
 const struct clk_ops mtk_clk_apmixedsys_ops = {
-	.of_xlate = mtk_apmixedsys_of_xlate,
+	.of_xlate = mtk_clk_of_xlate,
 	.enable = mtk_apmixedsys_enable,
 	.disable = mtk_apmixedsys_disable,
 	.set_rate = mtk_apmixedsys_set_rate,
@@ -1067,7 +1029,7 @@ const struct clk_ops mtk_clk_apmixedsys_ops = {
 };
 
 const struct clk_ops mtk_clk_fixed_pll_ops = {
-	.of_xlate = mtk_topckgen_of_xlate,
+	.of_xlate = mtk_clk_of_xlate,
 	.enable = mtk_dummy_enable,
 	.disable = mtk_dummy_enable,
 	.get_rate = mtk_topckgen_get_rate,
@@ -1077,7 +1039,7 @@ const struct clk_ops mtk_clk_fixed_pll_ops = {
 };
 
 const struct clk_ops mtk_clk_topckgen_ops = {
-	.of_xlate = mtk_topckgen_of_xlate,
+	.of_xlate = mtk_clk_of_xlate,
 	.enable = mtk_topckgen_enable,
 	.disable = mtk_topckgen_disable,
 	.get_rate = mtk_topckgen_get_rate,
@@ -1088,7 +1050,7 @@ const struct clk_ops mtk_clk_topckgen_ops = {
 };
 
 const struct clk_ops mtk_clk_infrasys_ops = {
-	.of_xlate = mtk_infrasys_of_xlate,
+	.of_xlate = mtk_clk_of_xlate,
 	.enable = mtk_clk_infrasys_enable,
 	.disable = mtk_clk_infrasys_disable,
 	.get_rate = mtk_infrasys_get_rate,
