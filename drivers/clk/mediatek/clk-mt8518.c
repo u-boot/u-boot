@@ -1525,15 +1525,11 @@ static const struct mtk_clk_tree mt8518_topckgen_clk_tree = {
 
 MTK_GATE_CLK_TREE(ext_clock_rates, mt8518_clk_tree, top_clks);
 
-static const struct udevice_id mt8518_apmixed_compat[] = {
+static const struct udevice_id mt8518_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8518-apmixedsys",
 		.data = (ulong)&mt8518_apmixed_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8518_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8518-topckgen",
 		.data = (ulong)&mt8518_topckgen_clk_tree,
@@ -1543,16 +1539,6 @@ static const struct udevice_id mt8518_clk_compat[] = {
 		.data = (ulong)&mt8518_clk_tree,
 	},
 	{ }
-};
-
-U_BOOT_DRIVER(mt8518_clk_apmixedsys) = {
-	.name = "mt8518-apmixedsys",
-	.id = UCLASS_CLK,
-	.of_match = mt8518_apmixed_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 U_BOOT_DRIVER(mt8518_clk) = {
