@@ -571,21 +571,14 @@ static ulong mtk_apmixedsys_set_rate(struct clk *clk, ulong rate)
 	return 0;
 }
 
-static ulong mtk_apmixedsys_get_rate(struct clk *clk)
+static ulong mtk_pll_get_rate(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_parent *parent;
 	const struct mtk_pll_data *pll;
-	const struct mtk_gate *gate;
 	unsigned long xtal_rate;
 	u32 postdiv;
 	u32 pcw;
-
-	/* GATE handling */
-	if (mtk_clk_id_is_gate(priv->tree, clk->id)) {
-		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-		return mtk_find_parent_rate(priv, clk, gate->parent, gate->flags);
-	}
 
 	parent = &priv->tree->pll_parent;
 	xtal_rate = mtk_find_parent_rate(priv, clk, parent->id, parent->flags);
@@ -694,7 +687,7 @@ static ulong mtk_factor_recalc_rate(const struct mtk_fixed_factor *fdiv,
 	return rate;
 }
 
-static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
+static ulong mtk_factor_get_rate(struct clk *clk, u32 off)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_fixed_factor *fdiv = &priv->tree->fdivs[off];
@@ -707,16 +700,19 @@ static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 	return mtk_factor_recalc_rate(fdiv, rate);
 }
 
-static ulong mtk_topckgen_get_rate(struct clk *clk)
+static ulong mtk_clk_get_rate(struct clk *clk)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_clk_tree *tree = priv->tree;
+
+	if (mtk_clk_id_is_pll(tree, clk->id))
+		return mtk_pll_get_rate(clk);
 
 	if (mtk_clk_id_is_fclk(tree, clk->id))
 		return tree->fclks[clk->id - tree->fclks_offs].rate;
 
 	if (mtk_clk_id_is_fdiv(tree, clk->id))
-		return mtk_topckgen_get_factor_rate(clk, clk->id - tree->fdivs_offs);
+		return mtk_factor_get_rate(clk, clk->id - tree->fdivs_offs);
 
 	if (mtk_clk_id_is_mux(tree, clk->id))
 		return mtk_clk_mux_get_rate(clk, clk->id - tree->muxes_offs);
@@ -890,44 +886,6 @@ static void mtk_topckgen_dump(struct udevice *dev)
 
 /* infrasys functions */
 
-static ulong mtk_infrasys_get_factor_rate(struct clk *clk, u32 off)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_fixed_factor *fdiv = &priv->tree->fdivs[off];
-	ulong rate;
-
-	rate = mtk_find_parent_rate(priv, clk, fdiv->parent, fdiv->flags);
-	if (IS_ERR_VALUE(rate))
-		return rate;
-
-	return mtk_factor_recalc_rate(fdiv, rate);
-}
-
-static ulong mtk_infrasys_get_rate(struct clk *clk)
-{
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
-	ulong rate;
-
-	if (mtk_clk_id_is_fclk(priv->tree, clk->id)) {
-		rate = priv->tree->fclks[clk->id - priv->tree->fclks_offs].rate;
-	} else if (mtk_clk_id_is_fdiv(priv->tree, clk->id)) {
-		rate = mtk_infrasys_get_factor_rate(clk, clk->id -
-						    priv->tree->fdivs_offs);
-	/* No gates defined or ID is a MUX */
-	} else if (!mtk_clk_id_is_gate(priv->tree, clk->id)) {
-		rate = mtk_clk_mux_get_rate(clk, clk->id - priv->tree->muxes_offs);
-	/* Only valid with muxes + gates implementation */
-	} else {
-		const struct mtk_gate *gate;
-
-		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
-
-		rate = mtk_find_parent_rate(priv, clk, gate->parent, gate->flags);
-	}
-
-	return rate;
-}
-
 #if CONFIG_IS_ENABLED(CMD_CLK)
 static void mtk_infrasys_dump(struct udevice *dev)
 {
@@ -969,7 +927,7 @@ const struct clk_ops mtk_clk_apmixedsys_ops = {
 	.enable = mtk_clk_enable,
 	.disable = mtk_clk_disable,
 	.set_rate = mtk_apmixedsys_set_rate,
-	.get_rate = mtk_apmixedsys_get_rate,
+	.get_rate = mtk_clk_get_rate,
 #if CONFIG_IS_ENABLED(CMD_CLK)
 	.dump = mtk_apmixedsys_dump,
 #endif
@@ -979,7 +937,7 @@ const struct clk_ops mtk_clk_fixed_pll_ops = {
 	.of_xlate = mtk_clk_of_xlate,
 	.enable = mtk_clk_enable,
 	.disable = mtk_clk_disable,
-	.get_rate = mtk_topckgen_get_rate,
+	.get_rate = mtk_clk_get_rate,
 #if CONFIG_IS_ENABLED(CMD_CLK)
 	.dump = mtk_topckgen_dump,
 #endif
@@ -989,7 +947,7 @@ const struct clk_ops mtk_clk_topckgen_ops = {
 	.of_xlate = mtk_clk_of_xlate,
 	.enable = mtk_clk_enable,
 	.disable = mtk_clk_disable,
-	.get_rate = mtk_topckgen_get_rate,
+	.get_rate = mtk_clk_get_rate,
 	.set_parent = mtk_common_clk_set_parent,
 #if CONFIG_IS_ENABLED(CMD_CLK)
 	.dump = mtk_topckgen_dump,
@@ -1000,7 +958,7 @@ const struct clk_ops mtk_clk_infrasys_ops = {
 	.of_xlate = mtk_clk_of_xlate,
 	.enable = mtk_clk_enable,
 	.disable = mtk_clk_disable,
-	.get_rate = mtk_infrasys_get_rate,
+	.get_rate = mtk_clk_get_rate,
 	.set_parent = mtk_common_clk_set_parent,
 #if CONFIG_IS_ENABLED(CMD_CLK)
 	.dump = mtk_infrasys_dump,
