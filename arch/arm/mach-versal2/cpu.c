@@ -89,10 +89,10 @@ void mem_map_fill(struct mm_region *bank_info, u32 num_banks)
 {
 	int banks = VERSAL2_MEM_MAP_USED;
 
-	for (int i = 0; i < num_banks; i++) {
-		if (banks > VERSAL2_MEM_MAP_MAX)
-			return;
+	if (num_banks > DRAM_BANKS)
+		num_banks = DRAM_BANKS;
 
+	for (int i = 0; i < num_banks; i++) {
 		versal2_mem_map[banks].virt = bank_info[i].phys;
 		versal2_mem_map[banks].phys = bank_info[i].phys;
 		versal2_mem_map[banks].size = bank_info[i].size;
@@ -100,6 +100,9 @@ void mem_map_fill(struct mm_region *bank_info, u32 num_banks)
 					      PTE_BLOCK_INNER_SHARE;
 		banks = banks + 1;
 	}
+
+	/* Last slot must stay zero - it terminates the mem_map list */
+	memset(&versal2_mem_map[banks], 0, sizeof(versal2_mem_map[banks]));
 }
 
 /**
