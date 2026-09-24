@@ -2000,7 +2000,7 @@ static const struct udevice_id mt8189_clk_compat[] = {
 		.data = (ulong)&imp_clks_tree,
 	},
 	{
-		.compatible = "mediatek,mt8189-dispsys",
+		.compatible = "mediatek,mt8189-mmsys",
 		.data = (ulong)&mm_clks_tree,
 	},
 	{

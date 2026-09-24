@@ -169,7 +169,7 @@
 					power-domain@MT8189_POWER_DOMAIN_DISP {
 						reg = <MT8189_POWER_DOMAIN_DISP>;
 						clocks = <&topckgen_clk CLK_TOP_DISP0_SEL>,
-							 <&dispsys_config_clk CLK_MM_SMI_LARB>;
+							 <&mmsys CLK_MM_SMI_LARB>;
 						clock-names = "disp", "ss-disp";
 						mediatek,infracfg = <&infracfg_ao>;
 						#power-domain-cells = <0>;
@@ -398,8 +398,8 @@
 			#clock-cells = <1>;
 		};
 
-		dispsys_config_clk: clock-controller@14000000 {
-			compatible = "mediatek,mt8189-dispsys", "syscon";
+		mmsys: syscon@14000000 {
+			compatible = "mediatek,mt8189-mmsys", "syscon";
 			reg = <0 0x14000000 0 0x1000>;
 			#clock-cells = <1>;
 		};
