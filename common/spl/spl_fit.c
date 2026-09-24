@@ -608,11 +608,11 @@ static int spl_fit_record_loadable(const struct spl_fit_info *ctx, int index,
 	const char *name;
 	int node;
 
-	ret = spl_fit_get_image_name(ctx, "loadables", index, &name);
+	ret = spl_fit_get_image_name(ctx, FIT_LOADABLE_PROP, index, &name);
 	if (ret < 0)
 		return ret;
 
-	node = spl_fit_get_image_node(ctx, "loadables", index);
+	node = spl_fit_get_image_node(ctx, FIT_LOADABLE_PROP, index);
 
 	ret = fdt_record_loadable(blob, index, name, image->load_addr,
 			image->size, image->entry_point,
@@ -735,7 +735,7 @@ static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,
 	debug("FPGA bitstream at: %x, size: %x\n",
 	      (u32)fpga_image->load_addr, fpga_image->size);
 
-	compatible = fdt_getprop(ctx->fit, node, "compatible", NULL);
+	compatible = fdt_getprop(ctx->fit, node, FIT_COMPAT_PROP, NULL);
 	if (!compatible) {
 		warn_deprecated("'fpga' image without 'compatible' property");
 	} else {
@@ -767,7 +767,7 @@ static int spl_fit_load_fpga(struct spl_fit_info *ctx,
 		.load_addr = 0,
 	};
 
-	node = spl_fit_get_image_node(ctx, "fpga", 0);
+	node = spl_fit_get_image_node(ctx, FIT_FPGA_PROP, 0);
 	if (node < 0)
 		return node;
 
@@ -928,7 +928,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 	if (node < 0) {
 		debug("could not find firmware image, trying loadables...\n");
-		node = spl_fit_get_image_node(&ctx, "loadables", 0);
+		node = spl_fit_get_image_node(&ctx, FIT_LOADABLE_PROP, 0);
 		/*
 		 * If we pick the U-Boot image from "loadables", start at
 		 * the second image when later loading additional images.
@@ -971,7 +971,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	for (; ; index++) {
 		uint8_t os_type = IH_OS_INVALID;
 
-		node = spl_fit_get_image_node(&ctx, "loadables", index);
+		node = spl_fit_get_image_node(&ctx, FIT_LOADABLE_PROP, index);
 		if (node < 0)
 			break;
 
