@@ -306,10 +306,7 @@ struct mtk_clk_priv {
 	const struct mtk_clk_tree *tree;
 };
 
-extern const struct clk_ops mtk_clk_apmixedsys_ops;
-extern const struct clk_ops mtk_clk_fixed_pll_ops;
-extern const struct clk_ops mtk_clk_topckgen_ops;
-extern const struct clk_ops mtk_clk_infrasys_ops;
+extern const struct clk_ops mtk_clk_ops;
 
 int mtk_clk_probe(struct udevice *dev);
 

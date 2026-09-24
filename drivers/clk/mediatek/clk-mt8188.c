@@ -2121,7 +2121,7 @@ U_BOOT_DRIVER(mt8188_clk_apmixedsys) = {
 	.of_match = mt8188_apmixed_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_apmixedsys_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
@@ -2131,6 +2131,6 @@ U_BOOT_DRIVER(mt8188_clk) = {
 	.of_match = mt8188_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
+	.ops = &mtk_clk_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

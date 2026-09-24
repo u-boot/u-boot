@@ -69,13 +69,8 @@ static struct udevice *mtk_clk_tree_get_provider(enum mtk_clk_tree_type type)
 
 	uclass_foreach_dev(dev, uc) {
 		const struct mtk_clk_tree *tree;
-		const void *ops;
 
-		ops = dev_get_driver_ops(dev);
-		if (ops != &mtk_clk_apmixedsys_ops &&
-		    ops != &mtk_clk_fixed_pll_ops &&
-		    ops != &mtk_clk_topckgen_ops &&
-		    ops != &mtk_clk_infrasys_ops)
+		if (dev_get_driver_ops(dev) != &mtk_clk_ops)
 			continue;
 
 		tree = (const void *)dev_get_driver_data(dev);
@@ -438,7 +433,7 @@ static void mtk_clk_print_mux_parents(struct mtk_clk_priv *priv,
 }
 #endif
 
-/* apmixedsys functions */
+/* PLL functions */
 
 static unsigned long __mtk_pll_recalc_rate(const struct mtk_pll_data *pll,
 					   u32 fin, u32 pcw, int postdiv)
@@ -552,7 +547,7 @@ static int mtk_pll_calc_values(struct mtk_clk_priv *priv, struct clk *clk,
 	return 0;
 }
 
-static ulong mtk_apmixedsys_set_rate(struct clk *clk, ulong rate)
+static ulong mtk_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	u32 pcw = 0;
@@ -646,8 +641,6 @@ static int mtk_pll_disable(void __iomem *base, const struct mtk_pll_data *pll)
 
 	return 0;
 }
-
-/* topckgen functions */
 
 static ulong mtk_factor_recalc_rate(const struct mtk_fixed_factor *fdiv,
 				    ulong parent_rate)
@@ -865,42 +858,11 @@ static void mtk_clk_dump(struct udevice *dev)
 }
 #endif
 
-const struct clk_ops mtk_clk_apmixedsys_ops = {
+const struct clk_ops mtk_clk_ops = {
 	.of_xlate = mtk_clk_of_xlate,
 	.enable = mtk_clk_enable,
 	.disable = mtk_clk_disable,
-	.set_rate = mtk_apmixedsys_set_rate,
-	.get_rate = mtk_clk_get_rate,
-#if CONFIG_IS_ENABLED(CMD_CLK)
-	.dump = mtk_clk_dump,
-#endif
-};
-
-const struct clk_ops mtk_clk_fixed_pll_ops = {
-	.of_xlate = mtk_clk_of_xlate,
-	.enable = mtk_clk_enable,
-	.disable = mtk_clk_disable,
-	.get_rate = mtk_clk_get_rate,
-#if CONFIG_IS_ENABLED(CMD_CLK)
-	.dump = mtk_clk_dump,
-#endif
-};
-
-const struct clk_ops mtk_clk_topckgen_ops = {
-	.of_xlate = mtk_clk_of_xlate,
-	.enable = mtk_clk_enable,
-	.disable = mtk_clk_disable,
-	.get_rate = mtk_clk_get_rate,
-	.set_parent = mtk_common_clk_set_parent,
-#if CONFIG_IS_ENABLED(CMD_CLK)
-	.dump = mtk_clk_dump,
-#endif
-};
-
-const struct clk_ops mtk_clk_infrasys_ops = {
-	.of_xlate = mtk_clk_of_xlate,
-	.enable = mtk_clk_enable,
-	.disable = mtk_clk_disable,
+	.set_rate = mtk_clk_set_rate,
 	.get_rate = mtk_clk_get_rate,
 	.set_parent = mtk_common_clk_set_parent,
 #if CONFIG_IS_ENABLED(CMD_CLK)
