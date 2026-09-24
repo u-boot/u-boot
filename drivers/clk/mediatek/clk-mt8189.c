@@ -1978,18 +1978,18 @@ MTK_GATE_CLK_TREE(ext_clock_rates, ufs_config_ao_clks_tree, ufs_config_ao_clks);
 MTK_GATE_CLK_TREE(ext_clock_rates, ufs_config_pdn_clks_tree, ufs_config_pdn_clks);
 MTK_GATE_CLK_TREE(ext_clock_rates, vlpcfg_ao_clks_tree, vlpcfg_ao_clks);
 
-static const struct udevice_id mt8189_apmixed[] = {
+static const struct udevice_id mt8189_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8189-apmixedsys",
 		.data = (ulong)&mt8189_apmixedsys_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8189_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8189-topckgen",
 		.data = (ulong)&mt8189_topckgen_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt8189-vlpckgen",
+		.data = (ulong)&mt8189_vlpckgen_clk_tree,
 	},
 	{
 		.compatible = "mediatek,mt8189-peri-ao",
@@ -2022,38 +2022,10 @@ static const struct udevice_id mt8189_clk_compat[] = {
 	{ }
 };
 
-static const struct udevice_id mt8189_vlpckgen[] = {
-	{
-		.compatible = "mediatek,mt8189-vlpckgen",
-		.data = (ulong)&mt8189_vlpckgen_clk_tree,
-	},
-	{ }
-};
-
-U_BOOT_DRIVER(mt8189_clk_apmixedsys) = {
-	.name = "mt8189-apmixedsys",
-	.id = UCLASS_CLK,
-	.of_match = mt8189_apmixed,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
 U_BOOT_DRIVER(mt8189_clk) = {
 	.name = "mt8189-clk",
 	.id = UCLASS_CLK,
 	.of_match = mt8189_clk_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8189_clk_vlpckgen) = {
-	.name = "mt8189-vlpckgen",
-	.id = UCLASS_CLK,
-	.of_match = mt8189_vlpckgen,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_ops,
