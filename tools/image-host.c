@@ -167,7 +167,8 @@ static int fit_image_write_sig(void *fit, int noffset, uint8_t *value,
 		}
 	}
 	if (algo_name && !ret)
-		ret = fdt_setprop_string(fit, noffset, "algo", algo_name);
+		ret = fdt_setprop_string(fit, noffset, FIT_ALGO_PROP,
+					 algo_name);
 
 	return ret;
 }
