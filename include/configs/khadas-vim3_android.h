@@ -39,7 +39,7 @@
 	"board_name=vim3\0"                                          \
 	"bootmeths=android\0"                                         \
 	"bootcmd=bootflow scan\0"                                     \
-	"adtb_idx=3\0"                                                \
+	"adtb_idx=1\0"                                                \
 	"partitions=" PARTS_DEFAULT "\0"                              \
 	"mmcdev=2\0"                                                  \
 	"fastboot_raw_partition_bootloader=0x1 0xfff mmcpart 1\0"     \
