@@ -743,7 +743,6 @@ const struct clk_ops cv1800b_clk_ops = {
 };
 
 static const struct udevice_id cv1800b_clk_of_match[] = {
-	{ .compatible = "sophgo,cv1800-clk" },
 	{ .compatible = "sophgo,cv1800b-clk" },
 	{ .compatible = "sophgo,sg2002-clk" },
 	{ },
