@@ -46,7 +46,7 @@ To run u-boot.bin on top of FSBL, follow these steps:
 .. code-block:: console
 
    cd open-sbi
-   PLATFORM=generic FW_FDT_PATH=../u-boot/arch/riscv/dts/sg2002-milkv-duo256m.dtb make
+   PLATFORM=generic FW_FDT_PATH=../u-boot/dts/upstream/src/riscv/sophgo/sg2002-milkv-duo256m.dtb make
 
 This will generate build/platform/generic/firmware/fw_dynamic.bin.
 
