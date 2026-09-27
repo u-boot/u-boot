@@ -13,6 +13,7 @@
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <linux/delay.h>
+#include <linux/string.h>
 #include <linux/usb/gadget.h>
 #include <power/regulator.h>
 #include <usb/xhci.h>
@@ -31,6 +32,7 @@ struct dwc3_generic_priv {
 	struct dwc3 dwc3;
 	struct phy_bulk phys;
 	struct gpio_desc *ulpi_reset;
+	struct clk ref_clk;
 };
 
 struct dwc3_generic_host_priv {
@@ -47,8 +49,7 @@ static int dwc3_generic_probe(struct udevice *dev,
 	struct dwc3_generic_plat *plat = dev_get_plat(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
 	struct dwc3_glue_data *glue = dev_get_plat(dev->parent);
-	int __maybe_unused index;
-	ofnode __maybe_unused node;
+	struct clk __maybe_unused clk;
 
 	dwc3->dev = dev;
 	dwc3->maximum_speed = plat->maximum_speed;
@@ -63,22 +64,39 @@ static int dwc3_generic_probe(struct udevice *dev,
 	 * - in top level generic node, with no subnode (i.MX8MQ)
 	 * - in generic subnode, with other clock in top level node (i.MX8MP)
 	 * - in both top level node and generic subnode (Rockchip)
-	 * Cover all the possibilities here by looking into both nodes, start
-	 * with the top level node as that seems to be used in majority of DTs
-	 * to reference the clock.
+	 * Cover all the possibilities here by looking into both nodes, the
+	 * generic node first and the top level glue node second. The clock
+	 * must be looked up on the device that owns the node it is described
+	 * in, the clock-names lists of the two nodes are unrelated (e.g. on
+	 * i.MX95 the glue node has "hsio", "suspend" while the generic
+	 * subnode has "bus_early", "ref", "suspend").
 	 */
-	node = dev_ofnode(dev->parent);
-	index = ofnode_stringlist_search(node, "clock-names", "ref");
-	if (index < 0)
-		index = ofnode_stringlist_search(node, "clock-names", "ref_clk");
-	if (index < 0) {
-		node = dev_ofnode(dev);
-		index = ofnode_stringlist_search(node, "clock-names", "ref");
-		if (index < 0)
-			index = ofnode_stringlist_search(node, "clock-names", "ref_clk");
+	rc = clk_get_by_name(dev, "ref", &clk);
+	if (rc)
+		rc = clk_get_by_name(dev, "ref_clk", &clk);
+	/*
+	 * Only fall back to the parent node's clocks if the parent is a
+	 * dwc3 glue wrapper. When the generic node is a top level node,
+	 * the parent is not the glue device but a bus or the root device,
+	 * and its clocks are unrelated to the controller.
+	 */
+	if (rc && dev->parent && dev->parent->driver &&
+	    strstr(dev->parent->driver->name, "dwc3")) {
+		rc = clk_get_by_name(dev->parent, "ref", &clk);
+		if (rc)
+			rc = clk_get_by_name(dev->parent, "ref_clk", &clk);
 	}
-	if (index >= 0)
-		dwc3->ref_clk = &glue->clks.clks[index];
+	if (!rc) {
+		priv->ref_clk = clk;
+
+		rc = clk_enable(&priv->ref_clk);
+		if (rc) {
+			dev_err(dev, "failed to enable ref clock: %d\n", rc);
+			return rc;
+		}
+
+		dwc3->ref_clk = &priv->ref_clk;
+	}
 #endif
 
 	/*
@@ -92,7 +110,7 @@ static int dwc3_generic_probe(struct udevice *dev,
 
 	rc = dwc3_setup_phy(dev, &priv->phys);
 	if (rc && rc != -ENOTSUPP)
-		return rc;
+		goto err_clk;
 
 	if (CONFIG_IS_ENABLED(DM_GPIO) &&
 	    device_is_compatible(dev->parent, "xlnx,zynqmp-dwc3")) {
@@ -103,13 +121,13 @@ static int dwc3_generic_probe(struct udevice *dev,
 			/* Toggle ulpi to reset the phy. */
 			rc = dm_gpio_set_value(priv->ulpi_reset, 1);
 			if (rc)
-				return rc;
+				goto err_clk;
 
 			mdelay(5);
 
 			rc = dm_gpio_set_value(priv->ulpi_reset, 0);
 			if (rc)
-				return rc;
+				goto err_clk;
 
 			mdelay(5);
 		}
@@ -124,10 +142,16 @@ static int dwc3_generic_probe(struct udevice *dev,
 	rc =  dwc3_init(dwc3);
 	if (rc) {
 		unmap_physmem(priv->base, MAP_NOCACHE);
-		return rc;
+		goto err_clk;
 	}
 
 	return 0;
+
+err_clk:
+	if (dwc3->ref_clk)
+		clk_disable(dwc3->ref_clk);
+
+	return rc;
 }
 
 static int dwc3_generic_remove(struct udevice *dev,
@@ -145,6 +169,11 @@ static int dwc3_generic_remove(struct udevice *dev,
 
 	dwc3_remove(dwc3);
 	dwc3_shutdown_phy(dev, &priv->phys);
+
+	/* Balance the clk_enable() from dwc3_generic_probe() */
+	if (dwc3->ref_clk)
+		clk_disable(dwc3->ref_clk);
+
 	unmap_physmem(dwc3->regs, MAP_NOCACHE);
 
 	return 0;
