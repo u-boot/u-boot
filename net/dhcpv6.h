@@ -24,6 +24,7 @@
 #define DHCP6_OPTION_PREFERENCE		7
 #define DHCP6_OPTION_ELAPSED_TIME	8
 #define DHCP6_OPTION_STATUS_CODE	13
+#define DHCP6_OPTION_RAPID_COMMIT	14
 #define DHCP6_OPTION_OPT_BOOTFILE_URL	59
 #define DHCP6_OPTION_OPT_BOOTFILE_PARAM	60
 #define DHCP6_OPTION_SOL_MAX_RT		82
@@ -155,6 +156,7 @@ struct dhcp6_rx_pkt_status {
 	enum dhcp6_status	ia_status_code;
 	enum dhcp6_status	status_code;
 	u8			preference;
+	bool			rapid_commit_found;
 };
 
 /**

@@ -116,30 +116,23 @@ static void ping_send(void *arg)
 	}
 }
 
-static int ping_loop(struct udevice *udev, const ip_addr_t *addr)
+static int ping_loop(struct net_lwip_ctx *net, const ip_addr_t *addr)
 {
 	struct ping_ctx ctx = {};
-	struct netif *netif;
 	int ret;
 
-	netif = net_lwip_new_netif(udev);
-	if (!netif)
-		return -ENODEV;
-
-	printf("Using %s device\n", udev->name);
+	printf("Using %s device\n", net->dev->name);
 
 	ret = ping_raw_init(&ctx);
-	if (ret < 0) {
-		net_lwip_remove_netif(netif);
+	if (ret < 0)
 		return ret;
-	}
 
 	ctx.target = *addr;
 
 	ping_send(&ctx);
 
 	do {
-		net_lwip_rx(udev, netif);
+		net_lwip_poll();
 		if (ctx.alive)
 			break;
 		if (ctrlc()) {
@@ -151,8 +144,6 @@ static int ping_loop(struct udevice *udev, const ip_addr_t *addr)
 	sys_untimeout(ping_send, &ctx);
 	ping_raw_stop(&ctx);
 
-	net_lwip_remove_netif(netif);
-
 	if (ctx.alive)
 		return 0;
 
@@ -162,6 +153,7 @@ static int ping_loop(struct udevice *udev, const ip_addr_t *addr)
 
 int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct net_lwip_ctx net = {};
 	ip_addr_t addr;
 	int ret;
 
@@ -174,13 +166,22 @@ int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	net_try_count = 1;
 
 	do {
-		if (net_lwip_eth_start() == 0) {
-			ret = ping_loop(eth_get_dev(), &addr);
-			net_lwip_eth_stop();
-			if (ret == 0)
-				return CMD_RET_SUCCESS;
-		}
-	} while (net_start_again() == 0);
+		ret = net_lwip_start(&net, NET_LWIP_ADDR_ENV_STRICT);
+		if (!ret)
+			break;
+	} while (!net_start_again());
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	do {
+		ret = ping_loop(&net, &addr);
+		if (!ret)
+			break;
+	} while (!net_lwip_restart(&net));
+
+	net_lwip_stop(&net);
+	if (!ret)
+		return CMD_RET_SUCCESS;
 
 	return CMD_RET_FAILURE;
 }

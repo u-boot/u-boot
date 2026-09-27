@@ -208,7 +208,6 @@ int sandbox_eth_raw_os_send(void *packet, int length,
 			    struct eth_sandbox_raw_priv *priv)
 {
 	int retval;
-	struct udphdr *udph = packet + sizeof(struct iphdr);
 
 	if (priv->sd < 0 || !priv->device)
 		return -EINVAL;
@@ -226,38 +225,51 @@ int sandbox_eth_raw_os_send(void *packet, int length,
 	 * stack from sending that ICMP message claiming that the port has no
 	 * bound socket.
 	 */
-	if (priv->local && (priv->local_bind_sd == -1 ||
-			    priv->local_bind_udp_port != udph->source)) {
+	if (priv->local && length >= sizeof(struct iphdr)) {
 		struct iphdr *iph = packet;
-		struct sockaddr_in addr;
+		unsigned int iphdr_len = iph->ihl * 4;
+		struct udphdr *udph;
 
-		if (priv->local_bind_sd != -1)
-			os_close(priv->local_bind_sd);
+		if (iph->protocol != IPPROTO_UDP ||
+		    (ntohs(iph->frag_off) & IP_OFFMASK) ||
+		    iphdr_len < sizeof(*iph) ||
+		    length < iphdr_len + sizeof(*udph))
+			goto send;
 
-		/* A normal UDP socket is required to bind */
-		priv->local_bind_sd = socket(AF_INET, SOCK_DGRAM, 0);
-		if (priv->local_bind_sd < 0) {
-			printf("Failed to open bind sd: %d %s\n", errno,
-			       strerror(errno));
-			return -errno;
+		udph = packet + iphdr_len;
+		if (priv->local_bind_sd == -1 ||
+		    priv->local_bind_udp_port != udph->source) {
+			struct sockaddr_in addr = {};
+
+			if (priv->local_bind_sd != -1)
+				os_close(priv->local_bind_sd);
+
+			/* A normal UDP socket is required to bind */
+			priv->local_bind_sd = socket(AF_INET, SOCK_DGRAM, 0);
+			if (priv->local_bind_sd < 0) {
+				printf("Failed to open bind sd: %d %s\n", errno,
+				       strerror(errno));
+				return -errno;
+			}
+			priv->local_bind_udp_port = udph->source;
+
+			/**
+			 * Bind the UDP port that we intend to use as our source port
+			 * so that the kernel will not send an ICMP port unreachable
+			 * message to the server
+			 */
+			addr.sin_family = AF_INET;
+			addr.sin_port = udph->source;
+			addr.sin_addr.s_addr = iph->saddr;
+			retval = bind(priv->local_bind_sd,
+				      (struct sockaddr *)&addr, sizeof(addr));
+			if (retval < 0)
+				printf("Failed to bind: %d %s\n", errno,
+				       strerror(errno));
 		}
-		priv->local_bind_udp_port = udph->source;
-
-		/**
-		 * Bind the UDP port that we intend to use as our source port
-		 * so that the kernel will not send an ICMP port unreachable
-		 * message to the server
-		 */
-		addr.sin_family = AF_INET;
-		addr.sin_port = udph->source;
-		addr.sin_addr.s_addr = iph->saddr;
-		retval = bind(priv->local_bind_sd, (struct sockaddr *)&addr,
-			      sizeof(addr));
-		if (retval < 0)
-			printf("Failed to bind: %d %s\n", errno,
-			       strerror(errno));
 	}
 
+send:
 	retval = sendto(priv->sd, packet, length, 0,
 			(struct sockaddr *)priv->device,
 			sizeof(struct sockaddr_ll));
@@ -283,6 +295,25 @@ int sandbox_eth_raw_os_recv(void *packet, int *length,
 			  (socklen_t *)&saddr_size);
 	*length = 0;
 	if (retval >= 0) {
+		if (priv->local && retval >= sizeof(struct iphdr)) {
+			struct iphdr *iph = packet;
+			unsigned int iphdr_len = iph->ihl * 4;
+
+			if (iph->protocol == IPPROTO_UDP &&
+			    !(ntohs(iph->frag_off) & IP_OFFMASK) &&
+			    iphdr_len >= sizeof(*iph) &&
+			    retval >= iphdr_len + sizeof(struct udphdr)) {
+				struct udphdr *udph = packet + iphdr_len;
+
+				/*
+				 * Loopback packets can retain a checksum-offload seed
+				 * which a raw socket cannot validate without skb metadata.
+				 * An IPv4 UDP checksum of zero explicitly disables the
+				 * checksum, so present that portable form to U-Boot.
+				 */
+				udph->check = 0;
+			}
+		}
 		*length = retval;
 		return 0;
 	}

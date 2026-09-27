@@ -288,6 +288,12 @@ extern char	net_root_path[CONFIG_BOOTP_MAX_ROOT_PATH_LEN];	/* Our root path */
 extern u8		net_ethaddr[ARP_HLEN];		/* Our ethernet address */
 extern u8		net_server_ethaddr[ARP_HLEN];	/* Boot server enet address */
 extern struct in_addr	net_server_ip;	/* Server IP addr (0 = unknown) */
+
+static inline void net_set_server_ip(struct in_addr ip)
+{
+	net_server_ip = ip;
+}
+
 extern uchar		*net_tx_packet;		/* THE transmit packet */
 extern uchar		*net_rx_packet;		/* Current receive packet */
 extern int		net_rx_packet_len;	/* Current rx packet length */
@@ -344,15 +350,11 @@ int net_loop(enum proto_t);
 /* Get size of the ethernet header when we send */
 int net_eth_hdr_size(void);
 
-/* Set ethernet header; returns the size of the header */
-int net_set_ether(uchar *xet, const uchar *dest_ethaddr, uint prot);
 int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot);
 
 /* Set IP header */
 void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source,
 		       u16 pkt_len, u8 proto);
-void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport,
-			int sport, int len);
 
 /* Callbacks */
 rxhand_f *net_get_udp_handler(void);	/* Get UDP RX packet handler */

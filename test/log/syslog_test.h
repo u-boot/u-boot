@@ -31,8 +31,8 @@ struct sb_log_env {
  *
  * The following checks are executed:
  *
- * * the Ethernet packet indicates a IP broadcast message
- * * the IP header is for a local UDP broadcast message to port 514
+ * * the Ethernet packet uses the selected interface and broadcast destination
+ * * the IP header checksum is valid and describes a UDP broadcast to port 514
  * * the UDP payload matches the expected string
  *
  * After testing the pointer to the expected string is set to NULL to signal

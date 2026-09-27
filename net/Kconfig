@@ -39,6 +39,13 @@ config NET_LWIP
 
 endchoice
 
+config NETCONSOLE
+	bool "NetConsole support"
+	select PROT_UDP_LWIP if NET_LWIP
+	help
+	  Support the 'nc' input/output device for networked console.
+	  See doc/usage/netconsole.rst for details.
+
 if NET_LEGACY
 
 config ARP_TIMEOUT
@@ -67,12 +74,6 @@ config BOOTP_SEND_HOSTNAME
 	  If CONFIG_BOOTP_SEND_HOSTNAME is defined, the content
 	  of the "hostname" environment variable is passed as
 	  option 12 to the DHCP server.
-
-config NETCONSOLE
-	bool "NetConsole support"
-	help
-	  Support the 'nc' input/output device for networked console.
-	  See doc/usage/netconsole.rst for details.
 
 config IP_DEFRAG
 	bool "Support IP datagram reassembly"
