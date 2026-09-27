@@ -17,10 +17,7 @@
  * layers do not apply; only the arithmetic carries over).
  *
  * No code in this file may reference a specific board, SoC, or
- * product. Per chip quirks (MPS DIRECT format LSBs, vendor registers,
- * VID coercion, ADDR_VBOOT auto promotion, and the like) belong in
- * per chip drivers under drivers/power/regulator/ or in board local
- * files under board/<vendor>/<board>/.
+ * product.
  */
 
 #include <ctype.h>
@@ -727,8 +724,9 @@ int pmbus_set_active(int bus_seq, u8 addr)
 
 	/*
 	 * Probe MFR_ID in both byte orders. Spec compliant chips return
-	 * "MPS" / "TI" / etc. in the natural reading (forward); MPS NVM
-	 * personalities store the string LSB first and need the reverse
+	 * "MPS" / "TI" / etc. in the natural reading (forward), but
+	 * support both like MPS NVM
+	 * personalities that store the string LSB first and need the reverse
 	 * read. Chip table entries declare which one is canonical for
 	 * the chip family they describe.
 	 */

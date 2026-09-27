@@ -134,6 +134,8 @@ int regulator_set_value_clamp(struct udevice *dev,
 	if (uc_pdata->max_uV != -ENODATA)
 		max_uV = min(max_uV, uc_pdata->max_uV);
 	uV = clamp(target_uV, min_uV, max_uV);
+	if (ops->set_value_clamp)
+		return ops->set_value_clamp(dev, min_uV, uV, max_uV);
 
 	return regulator_set_value(dev, uV);
 }

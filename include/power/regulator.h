@@ -195,13 +195,19 @@ struct dm_regulator_ops {
 	 * The regulator output value function calls operates on a micro Volts.
 	 *
 	 * get/set_value - get/set output value of the given output number
+	 * set_value_clamp - set the closest supported value within a range
 	 * @dev          - regulator device
 	 * Sets:
 	 * @uV           - set the output value [micro Volts]
+	 * @min_uV       - minimum acceptable output value [micro Volts]
+	 * @target_uV    - preferred output value [micro Volts]
+	 * @max_uV       - maximum acceptable output value [micro Volts]
 	 * @return output value [uV] on success or negative errno if fail.
 	 */
 	int (*get_value)(struct udevice *dev);
 	int (*set_value)(struct udevice *dev, int uV);
+	int (*set_value_clamp)(struct udevice *dev, int min_uV,
+			       int target_uV, int max_uV);
 
 	/**
 	 * The regulator suspend output value function calls operates

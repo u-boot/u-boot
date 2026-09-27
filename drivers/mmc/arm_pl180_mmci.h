@@ -140,7 +140,10 @@
 #define SDI_DCTRL_DBLOCKSIZE_V2_MASK   0x7fff0000
 #define SDI_DCTRL_DBLOCKSIZE_V2_SHIFT  16
 
-#define SDI_FIFO_BURST_SIZE	8
+#define SDI_FIFO_SIZE_ARM	(16 * sizeof(u32))
+#define SDI_FIFO_SIZE_STM32	(32 * sizeof(u32))
+#define SDI_FIFO_SIZE_UX500	(30 * sizeof(u32))
+#define SDI_FIFO_HALF_SIZE	(8 * sizeof(u32))
 
 #define STM32_MMCI_ID		0x00880180
 #define UX500V2_MMCI_ID		0x10480180
@@ -189,6 +192,8 @@ struct pl180_mmc_host {
 	unsigned int clock_max;
 	unsigned int clkdiv_init;
 	unsigned int pwr_init;
+	unsigned int fifo_size;
+	unsigned int fifo_half_size;
 	int version2;
 	struct mmc_config cfg;
 #ifdef CONFIG_DM_MMC

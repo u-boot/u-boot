@@ -11,9 +11,8 @@
  * via the tree level <pmbus.h> framework.
  *
  * Per chip drivers retain control of identify hooks (VOUT_MODE based
- * format selection), chip specific quirks (vendor registers, ADDR pin
- * auto promotion), and DT property handling (e.g. MPS
- * mps,vout-fb-divider-ratio-permille).
+ * format selection), chip specific quirks (vendor registers,
+ * address scans), and DT property handling.
  */
 
 #ifndef _DRIVERS_POWER_REGULATOR_PMBUS_HELPER_H_

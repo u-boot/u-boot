@@ -587,7 +587,20 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 	  raw mode. U-Boot will be loaded from the first partition of this
 	  type to be found.
 
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC
+	bool "MMC raw mode: by board-selected partition"
+	select SPL_LOAD_BLOCK
+	select SPL_PARTITIONS
+	help
+	  Select the partition at runtime instead of using a fixed number.
+	  The board must implement spl_mmc_boot_partition().
+
 endchoice
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_ANY_PARTITION
+	def_bool SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION || \
+		 SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE || \
+		 SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_DYNAMIC
 
 config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	hex "Address on the MMC to load U-Boot from"
