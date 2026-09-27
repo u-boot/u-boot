@@ -48,4 +48,12 @@ config BUTTON_QCOM_PMIC
 	  on Qualcomm SoCs. These will be configured as the Enter and Down keys
 	  respectively, allowing navigation of bootmenu with buttons on device.
 
+config BUTTON_SNVS_PWRKEY
+	bool "IMX SNVS Power Key Driver"
+	depends on BUTTON
+	depends on MACH_IMX
+	help
+	  This is the SNVS powerkey driver for the Freescale i.MX application
+	  processors.
+
 endmenu

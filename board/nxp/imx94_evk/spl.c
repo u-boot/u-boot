@@ -74,14 +74,14 @@ void board_init_f(ulong dummy)
 
 	timer_init();
 
+	arch_cpu_init();
+
 	spl_early_init();
 
 	/* Need enable SCMI drivers and ELE driver before enabling console */
 	ret = imx9_probe_mu();
 	if (ret)
 		hang(); /* if MU not probed, nothing can output, just hang here */
-
-	arch_cpu_init();
 
 	preloader_console_init();
 

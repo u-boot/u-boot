@@ -10,6 +10,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <spl.h>
+#include <cpu_func.h>
 #ifdef CONFIG_AHAB_BOOT
 #include <asm/mach-imx/ahab.h>
 #endif
@@ -77,6 +78,7 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 	}
 
 #ifdef CONFIG_AHAB_BOOT
+	flush_dcache_range((ulong)buf, (ulong)(buf + images[image_index].size - 1));
 	if (ahab_verify_cntr_image(&images[image_index], image_index))
 		return NULL;
 #endif
