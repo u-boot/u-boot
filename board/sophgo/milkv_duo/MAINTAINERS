@@ -1,7 +1,8 @@
 Milk-V Duo
 M:	Kongyang Liu <seashell11234455@gmail.com>
 S:	Maintained
-F:	board/sophgo/milkv_duo/
+F:	arch/riscv/dts/cv1800b-milkv-duo-u-boot.dtsi
 F:	board/sophgo/common/
+F:	board/sophgo/milkv_duo/
 F:	configs/milkv_duo_defconfig
 F:	doc/board/sophgo/milkv_duo.rst

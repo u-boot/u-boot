@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2023 Jisheng Zhang <jszhang@kernel.org>
+ * Copyright (C) 2023 Inochi Amaoto <inochiama@outlook.com>
+ * Copyright (C) 2026 Zhuxu Ran <zhuxu_ran@zohomail.com>
+ */
+
+/*
+ * The Ethernet signals are routed to the RJ45 connector on the optional
+ * IO Board. Keep Ethernet available in U-Boot when the IO Board is attached.
+ */
+&gmac0 {
+	status = "okay";
+};
+
+&{/soc} {
+	spif: spi@10000000 {
+		compatible = "sophgo,cv1800b-spif";
+		reg = <0x10000000 0x10000000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clk CLK_AHB_SF>;
+		interrupts = <95 IRQ_TYPE_LEVEL_HIGH>;
+		status = "okay";
+
+		flash@0 {
+			compatible = "jedec,spi-nor";
+			reg = <0>;
+			spi-max-frequency = <75000000>;
+			spi-tx-bus-width = <4>;
+			spi-rx-bus-width = <4>;
+			m25p,fast-read;
+		};
+	};
+};
