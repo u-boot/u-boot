@@ -57,11 +57,21 @@ tested on both gig copper and gig fiber boards
  * move these buffers and the tx/rx pointers to struct e1000_hw.
  */
 DEFINE_ALIGN_BUFFER(struct e1000_tx_desc, tx_base, 16, E1000_BUFFER_ALIGN);
-DEFINE_ALIGN_BUFFER(struct e1000_rx_desc, rx_base, 16, E1000_BUFFER_ALIGN);
-DEFINE_ALIGN_BUFFER(unsigned char, packet, 4096, E1000_BUFFER_ALIGN);
+#define E1000_RX_DESC_NUM	16
+#define E1000_RX_BUF_SIZE	2048
+/*
+ * RX descriptors are handed back to the hardware one cache line at a time,
+ * so that flushing a descriptor never overwrites a neighbour the hardware
+ * has just written back.
+ */
+#define E1000_RX_DESC_BATCH	(ARCH_DMA_MINALIGN / sizeof(struct e1000_rx_desc))
+DEFINE_ALIGN_BUFFER(struct e1000_rx_desc, rx_base, E1000_RX_DESC_NUM,
+		    E1000_BUFFER_ALIGN);
+DEFINE_ALIGN_BUFFER(unsigned char, packet, E1000_RX_DESC_NUM * E1000_RX_BUF_SIZE,
+		    E1000_BUFFER_ALIGN);
 
 static int tx_tail;
-static int rx_tail, rx_last;
+static int rx_last;
 static int num_cards;	/* Number of E1000 devices seen so far */
 
 static struct pci_device_id e1000_supported[] = {
@@ -5120,31 +5130,33 @@ e1000_sw_init(struct e1000_hw *hw)
 	return E1000_SUCCESS;
 }
 
-void
-fill_rx(struct e1000_hw *hw)
+static uchar *e1000_rx_buf(int i)
 {
-	struct e1000_rx_desc *rd;
-	unsigned long flush_start, flush_end;
+	return packet + i * E1000_RX_BUF_SIZE;
+}
 
-	rx_last = rx_tail;
-	rd = rx_base + rx_tail;
-	rx_tail = (rx_tail + 1) % 8;
-	memset(rd, 0, 16);
-	rd->buffer_addr = cpu_to_le64(virt_to_phys(packet));
+/* Reset the descriptors of the RX batch starting at @first */
+static void e1000_arm_rx(int first)
+{
+	struct e1000_rx_desc *rd = rx_base + first;
+	int i;
 
-	/*
-	 * Make sure there are no stale data in WB over this area, which
-	 * might get written into the memory while the e1000 also writes
-	 * into the same memory area.
-	 */
-	invalidate_dcache_range((unsigned long)packet,
-				(unsigned long)packet + 4096);
-	/* Dump the DMA descriptor into RAM. */
-	flush_start = ((unsigned long)rd) & ~(ARCH_DMA_MINALIGN - 1);
-	flush_end = flush_start + roundup(sizeof(*rd), ARCH_DMA_MINALIGN);
-	flush_dcache_range(flush_start, flush_end);
+	BUILD_BUG_ON(sizeof(struct e1000_rx_desc) > ARCH_DMA_MINALIGN ||
+		     E1000_RX_DESC_NUM % E1000_RX_DESC_BATCH ||
+		     E1000_RX_DESC_NUM / E1000_RX_DESC_BATCH < 2 ||
+		     ARCH_DMA_MINALIGN > E1000_BUFFER_ALIGN);
 
-	E1000_WRITE_REG(hw, RDT, rx_tail);
+	for (i = first; i < first + E1000_RX_DESC_BATCH; i++, rd++) {
+		uchar *buf = e1000_rx_buf(i);
+
+		memset(rd, 0, sizeof(*rd));
+		rd->buffer_addr = cpu_to_le64(virt_to_phys(buf));
+		invalidate_dcache_range((unsigned long)buf,
+					(unsigned long)buf + E1000_RX_BUF_SIZE);
+	}
+
+	flush_dcache_range((unsigned long)(rx_base + first),
+			   (unsigned long)(rx_base + first + E1000_RX_DESC_BATCH));
 }
 
 /**
@@ -5279,7 +5291,7 @@ static void
 e1000_configure_rx(struct e1000_hw *hw)
 {
 	unsigned long rctl, ctrl_ext;
-	rx_tail = 0;
+	int i;
 
 	/* make sure receives are disabled while setting up the descriptors */
 	rctl = E1000_READ_REG(hw, RCTL);
@@ -5303,7 +5315,7 @@ e1000_configure_rx(struct e1000_hw *hw)
 	E1000_WRITE_REG(hw, RDBAL, lower_32_bits(virt_to_phys(rx_base)));
 	E1000_WRITE_REG(hw, RDBAH, upper_32_bits(virt_to_phys(rx_base)));
 
-	E1000_WRITE_REG(hw, RDLEN, 128);
+	E1000_WRITE_REG(hw, RDLEN, E1000_RX_DESC_NUM * sizeof(struct e1000_rx_desc));
 
 	/* Setup the HW Rx Head and Tail Descriptor Pointers */
 	E1000_WRITE_REG(hw, RDH, 0);
@@ -5320,7 +5332,11 @@ e1000_configure_rx(struct e1000_hw *hw)
 
 	E1000_WRITE_REG(hw, RCTL, rctl);
 
-	fill_rx(hw);
+	for (i = 0; i < E1000_RX_DESC_NUM; i += E1000_RX_DESC_BATCH)
+		e1000_arm_rx(i);
+	rx_last = 0;
+	/* The hardware owns all descriptors but the last batch */
+	E1000_WRITE_REG(hw, RDT, E1000_RX_DESC_NUM - E1000_RX_DESC_BATCH);
 }
 
 /**************************************************************************
@@ -5346,8 +5362,8 @@ _e1000_poll(struct e1000_hw *hw)
 	/* DEBUGOUT("recv: packet len=%d\n", rd->length); */
 	/* Packet received, make sure the data are re-loaded from RAM. */
 	len = le16_to_cpu(rd->length);
-	invalidate_dcache_range((unsigned long)packet,
-				(unsigned long)packet +
+	invalidate_dcache_range((unsigned long)e1000_rx_buf(rx_last),
+				(unsigned long)e1000_rx_buf(rx_last) +
 				roundup(len, ARCH_DMA_MINALIGN));
 	return len;
 }
@@ -5694,7 +5710,7 @@ static int e1000_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	len = _e1000_poll(hw);
 	if (len)
-		*packetp = packet;
+		*packetp = e1000_rx_buf(rx_last);
 
 	return len ? len : -EAGAIN;
 }
@@ -5702,8 +5718,17 @@ static int e1000_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 static int e1000_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct e1000_hw *hw = dev_get_priv(dev);
+	int first;
 
-	fill_rx(hw);
+	rx_last = (rx_last + 1) % E1000_RX_DESC_NUM;
+	if (rx_last % E1000_RX_DESC_BATCH)
+		return 0;
+
+	/* Batch processed: re-arm it and release the held-back batch */
+	first = (rx_last + E1000_RX_DESC_NUM - E1000_RX_DESC_BATCH) %
+		E1000_RX_DESC_NUM;
+	e1000_arm_rx(first);
+	E1000_WRITE_REG(hw, RDT, first);
 
 	return 0;
 }
