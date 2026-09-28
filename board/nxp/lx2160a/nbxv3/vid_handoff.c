@@ -11,6 +11,7 @@
 #include <event.h>
 #include <linux/delay.h>
 #include <log.h>
+#include <pmbus.h>
 #include <vsprintf.h>
 #include <asm/io.h>
 #include <asm/arch/immap_lsch3.h>
@@ -40,27 +41,13 @@ static const u16 lx2160a_vid_table[32] = {
 	[0x14] = 8500,
 };
 
-/*
- * Write VOUT_COMMAND, let the slew finish, read the rail back.
- * Returns the rail in uV, or a negative errno from the write.
- */
-static int nbxv3_vid_write_readback(struct udevice *reg, int cmd_uV)
-{
-	int ret = regulator_set_value(reg, cmd_uV);
-
-	if (ret)
-		return ret;
-	udelay(NBXV3_VID_SLEW_SETTLE_US);
-	return regulator_get_value(reg);
-}
-
 static int nbxv3_vid_handoff(void)
 {
 	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	struct udevice *reg;
 	u32 fusesr;
 	u8 vid;
-	int target_mv, target_uV, actual_uV, cmd_uV;
+	int target_mv, target_uV, rail_uV, set_uV;
 	char *override_str;
 	unsigned long override_mv;
 	int ret;
@@ -98,46 +85,42 @@ static int nbxv3_vid_handoff(void)
 	}
 
 	target_uV = target_mv * 1000;
-	actual_uV = regulator_get_value(reg);
+	rail_uV = regulator_get_value(reg);
 
-	if (abs(actual_uV - target_uV) <= NBXV3_VID_LSB_uV) {
-		printf("MPQ8785 (%s): VID handoff fuse=0x%02x target=%d mV (rail already at %d uV, untouched)\n",
-		       NBXV3_VDD_REGULATOR_NAME, vid, target_mv, actual_uV);
+	/*
+	 * Compare the setpoint, VOUT_COMMAND, with the table value, never
+	 * the rail. READ_VOUT sits below the setpoint under load, by the
+	 * load line the VR applies from its NVM (MFR_DROOP_CFG): that is
+	 * the VR's design, not an error to correct.
+	 * Writing the setpoint higher to bring READ_VOUT onto the fuse
+	 * drives the core above its fused voltage. Don't do it !
+	 */
+	if (!pmbus_regulator_read_vout_command(reg, &set_uV) &&
+	    abs(set_uV - target_uV) <= NBXV3_VID_LSB_uV) {
+		printf("MPQ8785 (%s): VID handoff fuse=0x%02x target=%d mV, VOUT_COMMAND already %d uV (rail %d uV), untouched\n",
+		       NBXV3_VDD_REGULATOR_NAME, vid, target_mv, set_uV,
+		       rail_uV);
 		return 0;
 	}
 
-	printf("MPQ8785 (%s): VID handoff fuse=0x%02x rail %d uV, target %d mV -> write %d uV\n",
-	       NBXV3_VDD_REGULATOR_NAME, vid, actual_uV, target_mv, target_uV);
-
-	ret = nbxv3_vid_write_readback(reg, target_uV);
-	if (ret < 0) {
+	/* The table value, as is: the VR corrects internally */
+	ret = regulator_set_value(reg, target_uV);
+	if (ret) {
 		printf("WARNING: MPQ8785 (%s): VID handoff set_value(%d uV) failed (%d), rail left at %d uV\n",
-		       NBXV3_VDD_REGULATOR_NAME, target_uV, ret, actual_uV);
+		       NBXV3_VDD_REGULATOR_NAME, target_uV, ret, rail_uV);
 		return 0;
 	}
-	actual_uV = ret;
-	if (abs(actual_uV - target_uV) <= NBXV3_VID_LSB_uV) {
-		printf("MPQ8785 (%s): VID handoff verified %d uV (target %d uV, cmd %d uV)\n",
-		       NBXV3_VDD_REGULATOR_NAME, actual_uV, target_uV, target_uV);
-		return 0;
-	}
+	udelay(NBXV3_VID_SLEW_SETTLE_US);
+	rail_uV = regulator_get_value(reg);
 
-	cmd_uV = target_uV + (target_uV - actual_uV);
-	ret = nbxv3_vid_write_readback(reg, cmd_uV);
-	if (ret < 0) {
-		printf("WARNING: MPQ8785 (%s): VID handoff correction set_value(%d uV) failed (%d), rail left at %d uV\n",
-		       NBXV3_VDD_REGULATOR_NAME, cmd_uV, ret, actual_uV);
-		return 0;
-	}
-	actual_uV = ret;
-	if (abs(actual_uV - target_uV) <= NBXV3_VID_LSB_uV)
-		printf("MPQ8785 (%s): VID handoff verified %d uV (target %d uV, cmd %d uV after 1 correction)\n",
-		       NBXV3_VDD_REGULATOR_NAME, actual_uV, target_uV, cmd_uV);
+	ret = pmbus_regulator_read_vout_command(reg, &set_uV);
+	if (ret || abs(set_uV - target_uV) > NBXV3_VID_LSB_uV)
+		printf("WARNING: MPQ8785 (%s): VID handoff wrote %d uV, VOUT_COMMAND reads %d uV (%d)\n",
+		       NBXV3_VDD_REGULATOR_NAME, target_uV, ret ? 0 : set_uV,
+		       ret);
 	else
-		printf("WARNING: MPQ8785 (%s): VID handoff rail %d uV %s target %d uV after correction (cmd %d uV) -- VOUT_MAX / non-linear load line, fix on the VR side\n",
-		       NBXV3_VDD_REGULATOR_NAME, actual_uV,
-		       actual_uV < target_uV ? "below" : "above", target_uV,
-		       cmd_uV);
+		printf("MPQ8785 (%s): VID handoff fuse=0x%02x VOUT_COMMAND set to %d uV (rail %d uV under load)\n",
+		       NBXV3_VDD_REGULATOR_NAME, vid, set_uV, rail_uV);
 	return 0;
 }
 
