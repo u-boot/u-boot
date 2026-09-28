@@ -10,6 +10,8 @@
 #include <i2c.h>
 #include <pmbus.h>
 #include <dm/test.h>
+#include <power/regulator.h>
+#include <power/sandbox_pmic.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -189,6 +191,45 @@ static int dm_test_pmbus_vout(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_pmbus_vout, UTF_SCAN_FDT | UTF_CONSOLE);
+
+/* pmbus_regulator_read_vout_command() returns the setpoint, VOUT_COMMAND */
+static int dm_test_pmbus_vout_command(struct unit_test_state *uts)
+{
+	struct udevice *dev, *other;
+	int uv;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_REGULATOR, "pmbus@70",
+					      &dev));
+
+	/* VOUT_MODE 0x18 (LINEAR16, 2^-8) and VOUT_COMMAND 0x0200: 2 V */
+	ut_assertok(pmbus_regulator_read_vout_command(dev, &uv));
+	ut_asserteq(2000000, uv);
+
+	/* regulator_set_value() writes VOUT_COMMAND, read it back */
+	ut_assertok(regulator_set_value(dev, 1500000));
+	ut_assertok(pmbus_regulator_read_vout_command(dev, &uv));
+	ut_asserteq(1500000, uv);
+
+	ut_asserteq(-EINVAL, pmbus_regulator_read_vout_command(dev, NULL));
+
+	/*
+	 * A device that is not a PMBus regulator is refused: another
+	 * regulator, and the chip emulator, whose private data (the
+	 * register file) must not be read as a pmbus_regulator_priv.
+	 */
+	ut_assertok(uclass_get_device_by_name(UCLASS_REGULATOR,
+					      SANDBOX_BUCK1_DEVNAME, &other));
+	ut_asserteq(-ENODEV, pmbus_regulator_read_vout_command(other, &uv));
+	ut_asserteq(-ENODEV, pmbus_regulator_read_temp(other, &uv));
+	ut_assertok(uclass_get_device_by_name(UCLASS_I2C_EMUL, "emul-pmbus",
+					      &other));
+	ut_asserteq(-ENODEV, pmbus_regulator_read_vout_command(other, &uv));
+	ut_asserteq(-ENODEV, pmbus_regulator_read_temp(other, &uv));
+
+	return 0;
+}
+
+DM_TEST(dm_test_pmbus_vout_command, UTF_SCAN_FDT);
 
 /* pmbus dump walks every standard register; spot-check one line */
 static int dm_test_pmbus_dump(struct unit_test_state *uts)
