@@ -144,6 +144,15 @@ const struct dm_regulator_ops pmbus_regulator_ops = {
 	.set_enable = pmbus_regulator_set_enable,
 };
 
+static struct pmbus_regulator_priv *
+pmbus_regulator_dev_priv(struct udevice *dev)
+{
+	if (!dev || !dev->driver || dev->driver->ops != &pmbus_regulator_ops)
+		return NULL;
+
+	return dev_get_priv(dev);
+}
+
 int pmbus_regulator_read_temp(struct udevice *reg_dev, int *temp_mc)
 {
 	struct pmbus_regulator_priv *priv;
@@ -153,7 +162,7 @@ int pmbus_regulator_read_temp(struct udevice *reg_dev, int *temp_mc)
 
 	if (!reg_dev || !temp_mc)
 		return -EINVAL;
-	priv = dev_get_priv(reg_dev);
+	priv = pmbus_regulator_dev_priv(reg_dev);
 	if (!priv || !priv->i2c_dev)
 		return -ENODEV;
 
