@@ -90,7 +90,7 @@ static int dwc3_generic_probe(struct udevice *dev,
 		priv->ref_clk = clk;
 
 		rc = clk_enable(&priv->ref_clk);
-		if (rc) {
+		if (rc && rc != -ENOSYS) {
 			dev_err(dev, "failed to enable ref clock: %d\n", rc);
 			return rc;
 		}
