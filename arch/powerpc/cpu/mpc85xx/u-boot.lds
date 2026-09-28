@@ -67,6 +67,7 @@ SECTIONS
   . = ALIGN(4);
   __u_boot_list : {
 	KEEP(*(SORT(__u_boot_list*)));
+	. = ALIGN(8);
   }
 
   . = .;
@@ -78,7 +79,6 @@ SECTIONS
   __init_begin = .;
   .text.init : { *(.text.init) }
   .data.init : { *(.data.init) }
-  . = ALIGN(8);
   __init_end = .;
   _end = .;
 
