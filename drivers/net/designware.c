@@ -210,15 +210,14 @@ static int dw_mdio_init(const char *name, void *priv)
 	return mdio_register(bus);
 }
 
-static int dw_dm_mdio_init(const char *name, void *priv)
+int dw_dm_mdio_bind(struct udevice *dev)
 {
-	struct udevice *dev = priv;
+	struct udevice *mdiodev;
 	ofnode node;
 	int ret;
 
 	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		const char *subnode_name = ofnode_get_name(node);
-		struct udevice *mdiodev;
 
 		if (strcmp(subnode_name, "mdio"))
 			continue;
@@ -232,8 +231,10 @@ static int dw_dm_mdio_init(const char *name, void *priv)
 	}
 
 	printf("%s: mdio node is missing, registering legacy mdio bus", __func__);
-
-	return dw_mdio_init(name, priv);
+	ret = device_bind_driver(dev, "eth_designware_mdio", dev->name, &mdiodev);
+	if (ret)
+		debug("%s: not able to create mdio bus\n", __func__);
+	return ret;
 }
 
 #if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
@@ -855,6 +856,8 @@ static int designware_eth_bind(struct udevice *dev)
 		}
 	}
 
+	if (IS_ENABLED(CONFIG_DM_MDIO))
+		return dw_dm_mdio_bind(dev);
 	return 0;
 }
 
@@ -962,16 +965,15 @@ int designware_eth_probe(struct udevice *dev)
 	} else
 #endif
 	{
-		if (IS_ENABLED(CONFIG_DM_MDIO))
-			ret = dw_dm_mdio_init(dev->name, dev);
-		else
-			ret = dw_mdio_init(dev->name, dev);
-		if (ret) {
-			err = ret;
-			goto mdio_err;
-		}
-		priv->bus = miiphy_get_dev_by_name(dev->name);
 		priv->dev = dev;
+		if (!IS_ENABLED(CONFIG_DM_MDIO)) {
+			ret = dw_mdio_init(dev->name, dev);
+			if (ret) {
+				err = ret;
+				goto mdio_err;
+			}
+			priv->bus = miiphy_get_dev_by_name(dev->name);
+		}
 	}
 
 	ret = dw_phy_init(priv, dev);
