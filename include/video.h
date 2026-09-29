@@ -418,9 +418,16 @@ bool video_is_active(void);
 /**
  * video_get_u_boot_logo() - Get a pointer to the U-Boot logo
  *
- * Returns: Pointer to logo
+ * Returns: Pointer to logo, or NULL if CONFIG_VIDEO_LOGO is disabled
  */
+#if CONFIG_IS_ENABLED(VIDEO_LOGO)
 void *video_get_u_boot_logo(void);
+#else
+static inline void *video_get_u_boot_logo(void)
+{
+	return NULL;
+}
+#endif
 
 /*
  * bmp_display() - Display BMP (bitmap) data located in memory
