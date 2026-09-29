@@ -1533,15 +1533,11 @@ static const struct udevice_id mt8518_apmixed_compat[] = {
 	{ }
 };
 
-static const struct udevice_id mt8518_topckgen_compat[] = {
+static const struct udevice_id mt8518_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8518-topckgen",
 		.data = (ulong)&mt8518_topckgen_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8518_topckgen_cg_compat[] = {
 	{
 		.compatible = "mediatek,mt8518-topckgen-cg",
 		.data = (ulong)&mt8518_clk_tree,
@@ -1554,25 +1550,15 @@ U_BOOT_DRIVER(mt8518_clk_apmixedsys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt8518_apmixed_compat,
 	.probe = mtk_clk_probe,
-	.priv_auto	= sizeof(struct mtk_clk_priv),
+	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_apmixedsys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mt8518_clk_topckgen) = {
-	.name = "mt8518-topckgen",
+U_BOOT_DRIVER(mt8518_clk) = {
+	.name = "mt8518-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt8518_topckgen_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto	= sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8518_clk_topckgen_cg) = {
-	.name = "mt8518-topckgen-cg",
-	.id = UCLASS_CLK,
-	.of_match = mt8518_topckgen_cg_compat,
+	.of_match = mt8518_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
