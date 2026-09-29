@@ -10,10 +10,6 @@
 
 #include "clk_meson.h"
 
-struct meson_clk {
-	struct regmap *map;
-};
-
 #define AO_CLK_GATE0		0x4c
 #define AO_SAR_CLK		0x90
 

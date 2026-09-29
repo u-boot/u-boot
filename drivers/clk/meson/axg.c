@@ -20,10 +20,6 @@
 
 #define XTAL_RATE 24000000
 
-struct meson_clk {
-	struct regmap *map;
-};
-
 static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id);
 
 static struct meson_gate gates[] = {
