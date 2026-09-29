@@ -5,23 +5,260 @@
 #include <console.h>
 #include <env.h>
 #include <log.h>
+#include <lwip-dhcp.h>
+#include <malloc.h>
+#include <net.h>
+#include <time.h>
+#include <asm/unaligned.h>
 #include <dm/device.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <lwip/apps/sntp.h>
 #include <lwip/dhcp.h>
 #include <lwip/dns.h>
-#include <net.h>
-#include <time.h>
+#include <lwip/prot/dhcp.h>
 
 #define DHCP_TIMEOUT_MS 10000
 
-static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file)
+struct dhcp_boot_data {
+	char hostname[256];
+	char rootpath[CONFIG_BOOTP_MAX_ROOT_PATH_LEN];
+	char domain[256];
+	char bootfile[sizeof(net_boot_file_name)];
+	u8 file_size[2];
+	u8 time_offset[4];
+	ip4_addr_t ntp;
+	bool have_size;
+	bool have_offset;
+	bool have_ntp;
+};
+
+struct dhcp_options {
+	struct netif *netif;
+	struct dhcp_boot_data reply;
+	struct dhcp_boot_data candidate;
+	char hostname[256];
+	char vendor[256];
+	bool append_failed;
+};
+
+/* The address-less runtime attachment excludes a second DHCP command. */
+static struct dhcp_options *active_options;
+
+struct dhcp_boot_option {
+	u8 code;
+	bool enabled;
+	bool string;
+	void *data;
+	size_t size;
+	size_t len;
+};
+
+static int dhcp_boot_options(struct pbuf *p, unsigned int pos, unsigned int end,
+			     struct dhcp_boot_option *opts, size_t count,
+			     u8 *overload)
+{
+	while (pos < end) {
+		u8 code = pbuf_get_at(p, pos++);
+		unsigned int len;
+		size_t i;
+
+		if (code == DHCP_OPTION_END)
+			return 0;
+		if (code == DHCP_OPTION_PAD)
+			continue;
+		if (pos == end)
+			return -EINVAL;
+		len = pbuf_get_at(p, pos++);
+		if (len > end - pos)
+			return -EINVAL;
+		if (code == DHCP_OPTION_OVERLOAD) {
+			/* Overload is only meaningful in the main options field. */
+			if (!overload || *overload || len != 1)
+				return -EINVAL;
+			*overload = pbuf_get_at(p, pos);
+			if (!*overload || *overload > DHCP_OVERLOAD_SNAME_FILE)
+				return -EINVAL;
+		}
+		for (i = 0; i < count; i++) {
+			struct dhcp_boot_option *opt = &opts[i];
+			size_t copy;
+
+			if (code != opt->code || !opt->enabled)
+				continue;
+			if (!len)
+				return -EINVAL;
+			/*
+			 * RFC 3396: concatenate fragments before interpreting them.
+			 * For the NTP list retain only the first address, but validate
+			 * the length of the entire list below.
+			 */
+			if (code != DHCP_OPTION_NTP && len > opt->size - opt->len)
+				return -E2BIG;
+			copy = min_t(size_t, len, opt->size - min(opt->len, opt->size));
+			if (copy && pbuf_copy_partial(p, (u8 *)opt->data + opt->len,
+						      copy, pos) != copy)
+				return -EINVAL;
+			opt->len += len;
+			break;
+		}
+		pos += len;
+	}
+
+	return 0;
+}
+
+static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data)
+{
+	struct dhcp_boot_option opts[] = {
+		{ 12, IS_ENABLED(CONFIG_BOOTP_HOSTNAME), true,
+		  data->hostname, sizeof(data->hostname) - 1 },
+		{ 17, IS_ENABLED(CONFIG_BOOTP_BOOTPATH), true,
+		  data->rootpath, sizeof(data->rootpath) - 1 },
+		{ 40, IS_ENABLED(CONFIG_BOOTP_NISDOMAIN), true,
+		  data->domain, sizeof(data->domain) - 1 },
+		{ 67, true, true, data->bootfile, sizeof(data->bootfile) - 1 },
+		{ 13, IS_ENABLED(CONFIG_BOOTP_BOOTFILESIZE), false,
+		  data->file_size, sizeof(data->file_size) },
+		{ 2, IS_ENABLED(CONFIG_BOOTP_TIMEOFFSET), false,
+		  data->time_offset, sizeof(data->time_offset) },
+		{ 42, IS_ENABLED(CONFIG_BOOTP_NTPSERVER), false,
+		  &data->ntp, sizeof(data->ntp) },
+	};
+	u8 overload = 0;
+	u32 cookie;
+	size_t i;
+	int ret;
+
+	if (pbuf_copy_partial(p, &cookie, sizeof(cookie), DHCP_MSG_LEN) != sizeof(cookie) ||
+	    ntohl(cookie) != DHCP_MAGIC_COOKIE)
+		return ERR_VAL;
+	ret = dhcp_boot_options(p, DHCP_OPTIONS_OFS, p->tot_len, opts,
+				ARRAY_SIZE(opts), &overload);
+	if (!ret && (overload & DHCP_OVERLOAD_FILE))
+		ret = dhcp_boot_options(p, DHCP_FILE_OFS, DHCP_FILE_OFS + DHCP_FILE_LEN,
+					opts, ARRAY_SIZE(opts), NULL);
+	if (!ret && (overload & DHCP_OVERLOAD_SNAME))
+		ret = dhcp_boot_options(p, DHCP_SNAME_OFS, DHCP_SNAME_OFS + DHCP_SNAME_LEN,
+					opts, ARRAY_SIZE(opts), NULL);
+	if (ret)
+		return ERR_VAL;
+	for (i = 0; i < ARRAY_SIZE(opts); i++) {
+		struct dhcp_boot_option *opt = &opts[i];
+		char *str = opt->data;
+
+		if (!opt->len)
+			continue;
+		if (opt->string) {
+			/* RFC 2132 allows trailing NULs, not an embedded terminator. */
+			while (opt->len && !str[opt->len - 1])
+				opt->len--;
+			if (memchr(str, 0, opt->len))
+				return ERR_VAL;
+			str[opt->len] = 0;
+		} else if (opt->code == DHCP_OPTION_NTP) {
+			if (opt->len % sizeof(ip4_addr_t))
+				return ERR_VAL;
+			data->have_ntp = !ip4_addr_isany(&data->ntp);
+		} else {
+			if (opt->len != opt->size)
+				return ERR_VAL;
+			if (opt->code == 13)
+				data->have_size = true;
+			else
+				data->have_offset = true;
+		}
+	}
+	if (!(overload & DHCP_OVERLOAD_FILE) && !data->bootfile[0]) {
+		size_t len = min_t(size_t, DHCP_FILE_LEN, sizeof(data->bootfile) - 1);
+
+		if (pbuf_copy_partial(p, data->bootfile, len, DHCP_FILE_OFS) != len)
+			return ERR_VAL;
+		data->bootfile[len] = 0;
+	}
+
+	return ERR_OK;
+}
+
+err_t net_lwip_dhcp_ack(struct netif *netif, struct dhcp *dhcp, struct pbuf *p)
+{
+	struct dhcp_boot_data *data;
+	err_t ret;
+
+	if (!active_options || active_options->netif != netif)
+		return ERR_OK;
+	/* A rejected renewal must leave the accepted lease metadata intact. */
+	data = &active_options->candidate;
+	memset(data, 0, sizeof(*data));
+	ret = dhcp_parse_boot_data(p, data);
+	if (ret)
+		return ret;
+	active_options->reply = *data;
+
+	return ERR_OK;
+}
+
+void net_lwip_dhcp_append(struct netif *netif, struct dhcp *dhcp, u8_t state,
+			  struct dhcp_msg *msg, u8_t type, u16_t *len)
+{
+	const char *strings[2];
+	const u8 codes[] = { DHCP_OPTION_HOSTNAME, DHCP_OPTION_US };
+	size_t i;
+
+	if (!active_options || active_options->netif != netif ||
+	    (type != DHCP_DISCOVER && type != DHCP_REQUEST))
+		return;
+	strings[0] = active_options->hostname;
+	strings[1] = active_options->vendor;
+	for (i = 0; i < ARRAY_SIZE(strings); i++) {
+		size_t size = strlen(strings[i]);
+
+		if (!size)
+			continue;
+		/* Leave room for END and the core's four-byte padding. */
+		if (*len + size + 2 + 4 > DHCP_OPTIONS_LEN) {
+			active_options->append_failed = true;
+			return;
+		}
+		msg->options[(*len)++] = codes[i];
+		msg->options[(*len)++] = size;
+		memcpy(&msg->options[*len], strings[i], size);
+		*len += size;
+	}
+}
+
+static int dhcp_boot_env(struct dhcp_boot_data *data)
+{
+	char offset[12];
+
+	if ((data->hostname[0] && env_set("hostname", data->hostname)) ||
+	    (data->rootpath[0] && env_set("rootpath", data->rootpath)) ||
+	    (data->domain[0] && env_set("domain", data->domain)) ||
+	    (data->have_ntp && env_set("ntpserverip", ip4addr_ntoa(&data->ntp))))
+		return CMD_RET_FAILURE;
+	if (data->have_offset) {
+		snprintf(offset, sizeof(offset), "%d", (s32)get_unaligned_be32(data->time_offset));
+		if (env_set("timeoffset", offset))
+			return CMD_RET_FAILURE;
+	}
+	net_boot_file_expected_size_in_blocks = data->have_size ?
+		get_unaligned_be16(data->file_size) : 0;
+	if (CONFIG_IS_ENABLED(CMD_SNTP) && data->have_ntp) {
+		ip_addr_t addr;
+
+		ip_addr_copy_from_ip4(addr, data->ntp);
+		sntp_setserver(0, &addr);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
+		     struct dhcp_options *options)
 {
 	char ipstr[] = "ipaddr\0\0\0";
 	char maskstr[] = "netmask\0\0\0";
 	char gwstr[] = "gatewayip\0\0\0";
-	const ip_addr_t *ntpserverip;
 	unsigned long start;
 	struct dhcp *dhcp;
 	bool bound = false;
@@ -33,21 +270,14 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file)
 		return CMD_RET_FAILURE;
 	}
 
-	/*
-	 * Request the DHCP stack to parse and store the NTP servers for
-	 * eventual use by the SNTP command
-	 */
-	if (CONFIG_IS_ENABLED(CMD_SNTP))
-		sntp_servermode_dhcp(1);
-
 	start = get_timer(0);
 
-	if (dhcp_start(net->netif))
+	if (dhcp_start(net->netif) || options->append_failed)
 		return CMD_RET_FAILURE;
 
 	/* Wait for DHCP to complete */
 	do {
-		if (net_lwip_poll() < 0)
+		if (net_lwip_poll() < 0 || options->append_failed)
 			return CMD_RET_FAILURE;
 		bound = dhcp_supplied_address(net->netif);
 		if (bound)
@@ -64,8 +294,9 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file)
 
 	dhcp = netif_dhcp_data(net->netif);
 
-	if (!explicit_file && dhcp->boot_file_name[0])
-		copy_filename(net_boot_file_name, dhcp->boot_file_name,
+	/* The core's file field also reflects replies it subsequently ignores. */
+	if (!explicit_file && options->reply.bootfile[0])
+		copy_filename(net_boot_file_name, options->reply.bootfile,
 			      sizeof(net_boot_file_name));
 	if (*net_boot_file_name && env_set("bootfile", net_boot_file_name))
 		return CMD_RET_FAILURE;
@@ -91,11 +322,8 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file)
 	    env_set("dnsip2", ip4addr_ntoa(dns_getserver(1))))
 		return CMD_RET_FAILURE;
 #endif
-	if (CONFIG_IS_ENABLED(CMD_SNTP)) {
-		ntpserverip = sntp_getserver(1);
-		if (ntpserverip != IP_ADDR_ANY)
-			env_set("ntpserverip", ip4addr_ntoa(ntpserverip));
-	}
+	if (dhcp_boot_env(&options->reply))
+		return CMD_RET_FAILURE;
 
 	printf("DHCP client bound to address %pI4 (%lu ms)\n",
 	       &dhcp->offered_ip_addr, get_timer(start));
@@ -128,10 +356,12 @@ static int dhcp_nfs_autoload(struct cmd_tbl *cmdtp, int flag, int argc,
 int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct net_lwip_ctx net = {};
+	struct dhcp_options *options;
 	const char *autoload;
 	const char *filename = NULL;
 	ulong addr;
 	char *end;
+	const char *hostname, *vendor;
 	int ret;
 
 	switch (argc) {
@@ -153,10 +383,25 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	copy_filename(net_boot_file_name, filename ?: env_get("bootfile"),
 		      sizeof(net_boot_file_name));
 
-	if (net_lwip_start(&net, NET_LWIP_ADDR_NONE))
+	hostname = IS_ENABLED(CONFIG_BOOTP_SEND_HOSTNAME) ? env_get("hostname") : NULL;
+	vendor = env_get("bootp_vci") ?: CONFIG_BOOTP_VCI_STRING;
+	if ((hostname && strlen(hostname) > 255) || strlen(vendor) > 255) {
+		log_err("DHCP hostname/vendor class exceeds 255 bytes\n");
 		return CMD_RET_FAILURE;
+	}
+	options = calloc(1, sizeof(*options));
+	if (!options)
+		return CMD_RET_FAILURE;
+	strlcpy(options->hostname, hostname ?: "", sizeof(options->hostname));
+	strlcpy(options->vendor, vendor, sizeof(options->vendor));
+	if (net_lwip_start(&net, NET_LWIP_ADDR_NONE)) {
+		free(options);
+		return CMD_RET_FAILURE;
+	}
+	options->netif = net.netif;
+	active_options = options;
 
-	ret = dhcp_loop(&net, !!filename);
+	ret = dhcp_loop(&net, !!filename, options);
 	/*
 	 * A download needs strict addressing, incompatible with DHCP's
 	 * address-less runtime attachment. Retire DHCP before handing off.
@@ -168,6 +413,8 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			dhcp_release_and_stop(net.netif);
 		dhcp_cleanup(net.netif);
 	}
+	active_options = NULL;
+	free(options);
 	net_lwip_stop(&net);
 
 	if (ret)

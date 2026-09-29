@@ -127,6 +127,53 @@
 
 #define LWIP_DHCP_DOES_ACD_CHECK	0
 
+#ifdef CONFIG_CMD_DHCP
+#define LWIP_HOOK_FILENAME "lwip-dhcp.h"
+/* Core options plus two maximum-length hostname/vendor-class options. */
+#define DHCP_OPTIONS_LEN		640
+/* Stage NTP after concatenating fragments, not in the core option parser. */
+#define LWIP_DHCP_GET_NTP_SRV	0
+#ifdef CONFIG_PROT_DNS_LWIP
+#define UBOOT_DHCP_DNS		6,
+#else
+#define UBOOT_DHCP_DNS
+#endif
+#ifdef CONFIG_BOOTP_NTPSERVER
+#define UBOOT_DHCP_NTP		42,
+#else
+#define UBOOT_DHCP_NTP
+#endif
+#ifdef CONFIG_BOOTP_HOSTNAME
+#define UBOOT_DHCP_HOSTNAME	12,
+#else
+#define UBOOT_DHCP_HOSTNAME
+#endif
+#ifdef CONFIG_BOOTP_BOOTFILESIZE
+#define UBOOT_DHCP_FILESIZE	13,
+#else
+#define UBOOT_DHCP_FILESIZE
+#endif
+#ifdef CONFIG_BOOTP_BOOTPATH
+#define UBOOT_DHCP_ROOTPATH	17,
+#else
+#define UBOOT_DHCP_ROOTPATH
+#endif
+#ifdef CONFIG_BOOTP_NISDOMAIN
+#define UBOOT_DHCP_DOMAIN		40,
+#else
+#define UBOOT_DHCP_DOMAIN
+#endif
+#ifdef CONFIG_BOOTP_TIMEOFFSET
+#define UBOOT_DHCP_TIMEOFFSET	2,
+#else
+#define UBOOT_DHCP_TIMEOFFSET
+#endif
+#define DHCP_REQUEST_OPTIONS	1, 3, 28, UBOOT_DHCP_DNS UBOOT_DHCP_NTP \
+	UBOOT_DHCP_HOSTNAME \
+	UBOOT_DHCP_FILESIZE UBOOT_DHCP_ROOTPATH UBOOT_DHCP_DOMAIN \
+	UBOOT_DHCP_TIMEOFFSET 67
+#endif /* CONFIG_CMD_DHCP */
+
 #define LWIP_AUTOIP                     0
 
 #define LWIP_SNMP                       0
@@ -194,10 +241,6 @@
 #define LWIP_ALTCP                      1
 #define LWIP_ALTCP_TLS                  1
 #define LWIP_ALTCP_TLS_MBEDTLS          1
-#endif
-
-#if defined(CONFIG_CMD_SNTP)
-#define LWIP_DHCP_GET_NTP_SRV 1
 #endif
 
 #endif /* LWIP_UBOOT_LWIPOPTS_H */

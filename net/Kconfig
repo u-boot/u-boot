@@ -65,8 +65,11 @@ config PROT_UDP
 	  Enable a generic udp framework that allows defining a custom
 	  handler for udp protocol.
 
+endif
+
 config BOOTP_SEND_HOSTNAME
-	bool "Send hostname to DNS server"
+	bool "Send hostname to DHCP server"
+	depends on NET_LEGACY || CMD_BOOTP || CMD_DHCP
 	help
 	  Some DHCP servers are capable to do a dynamic update of a
 	  DNS server. To do this, they need the hostname of the DHCP
@@ -74,6 +77,8 @@ config BOOTP_SEND_HOSTNAME
 	  If CONFIG_BOOTP_SEND_HOSTNAME is defined, the content
 	  of the "hostname" environment variable is passed as
 	  option 12 to the DHCP server.
+
+if NET_LEGACY
 
 config IP_DEFRAG
 	bool "Support IP datagram reassembly"
@@ -149,11 +154,16 @@ config BOOTP_SERVERIP
 	  variable, not the BOOTP server. This affects the operation of both
 	  bootp and tftp.
 
+endif
+
 config BOOTP_MAX_ROOT_PATH_LEN
 	int "Option 17 root path length"
 	default 64
+	range 2 4096
 	help
-	  Select maximal length of option 17 root path.
+	  Maximum root path size, including the terminating NUL byte.
+
+if NET_LEGACY
 
 config USE_GATEWAYIP
 	bool "Set a default 'gateway' value in the environment"

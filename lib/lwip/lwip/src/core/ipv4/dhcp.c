@@ -210,6 +210,9 @@ static u32_t dhcp_rx_options_val[DHCP_OPTION_IDX_MAX];
 static u8_t  dhcp_rx_options_given[DHCP_OPTION_IDX_MAX];
 
 static u8_t dhcp_discover_request_options[] = {
+#ifdef DHCP_REQUEST_OPTIONS
+  DHCP_REQUEST_OPTIONS
+#else
   DHCP_OPTION_SUBNET_MASK,
   DHCP_OPTION_ROUTER,
   DHCP_OPTION_BROADCAST
@@ -220,6 +223,7 @@ static u8_t dhcp_discover_request_options[] = {
   , DHCP_OPTION_NTP
 #endif /* LWIP_DHCP_GET_NTP_SRV */
   DHCP_ADD_EXTRA_REQUEST_OPTIONS
+#endif
 };
 
 #ifdef DHCP_GLOBAL_XID
