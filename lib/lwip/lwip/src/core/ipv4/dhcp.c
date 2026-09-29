@@ -92,6 +92,9 @@
 #ifndef LWIP_HOOK_DHCP_PARSE_OPTION
 #define LWIP_HOOK_DHCP_PARSE_OPTION(netif, dhcp, state, msg, msg_type, option, len, pbuf, offset) do { LWIP_UNUSED_ARG(msg); } while(0)
 #endif
+#ifndef LWIP_HOOK_DHCP_HANDLE_ACK
+#define LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, pbuf) ERR_OK
+#endif
 
 /** DHCP_ADD_EXTRA_REQUEST_OPTIONS: Additional options added to the list of options
  * that the client requests from the servers (opt 55: DHCP_OPTION_PARAMETER_REQUEST_LIST)
@@ -1852,6 +1855,9 @@ dhcp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr,
     /* in requesting state or just reconnected to the network? */
     if ((dhcp->state == DHCP_STATE_REQUESTING) ||
         (dhcp->state == DHCP_STATE_REBOOTING)) {
+      if (LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, p) != ERR_OK) {
+        goto free_pbuf_and_return;
+      }
       dhcp_handle_ack(netif, msg_in);
 #if LWIP_DHCP_DOES_ACD_CHECK
       if ((netif->flags & NETIF_FLAG_ETHARP) != 0) {
@@ -1869,6 +1875,9 @@ dhcp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr,
     /* already bound to the given lease address and using it? */
     else if ((dhcp->state == DHCP_STATE_REBINDING) ||
              (dhcp->state == DHCP_STATE_RENEWING)) {
+      if (LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, p) != ERR_OK) {
+        goto free_pbuf_and_return;
+      }
       dhcp_handle_ack(netif, msg_in);
       dhcp_bind(netif);
     }
