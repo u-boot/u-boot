@@ -676,7 +676,9 @@ int ubi_detach(void)
 #if CONFIG_IS_ENABLED(UBI_BLOCK)
 static void ubi_blk_bind_once(void)
 {
+	struct udevice *parent;
 	struct udevice *dev;
+	int ret;
 
 	/*
 	 * A single ubi_blk device serves all volumes of the attached UBI
@@ -690,7 +692,11 @@ static void ubi_blk_bind_once(void)
 			return;
 	}
 
-	ubi_bind(ubi && ubi->mtd && ubi->mtd->dev ? ubi->mtd->dev : dm_root());
+	parent = ubi && ubi->mtd && ubi->mtd->dev ? ubi->mtd->dev : dm_root();
+
+	ret = ubi_bind(parent);
+	if (ret)
+		printf("Cannot create UBI block device: %d\n", ret);
 }
 #else
 static inline void ubi_blk_bind_once(void) { }
