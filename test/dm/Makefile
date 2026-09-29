@@ -55,6 +55,7 @@ endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_DHCP),yy)
 obj-y += lwip_dhcp.o
 obj-y += lwip_dhcp_options.o
+obj-y += lwip_dhcp_proxy.o
 obj-y += lwip_dhcp_policy.o
 endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_NETCONSOLE),yy)
