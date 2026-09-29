@@ -213,8 +213,10 @@ void *imagemap_map(struct udevice *dev, loff_t img_offset, ulong size)
 	ulong overhead = img_offset & (bl_len - 1);
 	loff_t base_off = img_offset - overhead;
 	ulong read_size = ALIGN(size + overhead, bl_len);
+	phys_addr_t old_addr;
 	phys_addr_t addr;
 	phys_size_t alloc_size;
+	ulong old_size;
 	void *base;
 	int ret;
 	struct imagemap_region *r;
@@ -241,9 +243,11 @@ void *imagemap_map(struct udevice *dev, loff_t img_offset, ulong size)
 			if (!r->lmb_reserved)
 				break;
 
-			addr = map_to_sysmem(r->ram);
+			old_size = r->size;
+			old_addr = map_to_sysmem(r->ram);
+			addr = old_addr;
 
-			lmb_free(addr, ALIGN(r->size, ARCH_DMA_MINALIGN),
+			lmb_free(addr, ALIGN(old_size, ARCH_DMA_MINALIGN),
 				 LMB_NONE);
 
 			/* Try to re-reserve at the same address with new size */
@@ -261,8 +265,14 @@ void *imagemap_map(struct udevice *dev, loff_t img_offset, ulong size)
 			}
 			base = map_sysmem(addr, alloc_size);
 
-			ret = spl_load_region(&priv->info, img_offset, size,
-					      base);
+			if (addr == old_addr)
+				ret = spl_load_region(&priv->info,
+						      base_off + old_size,
+						      read_size - old_size,
+						      (char *)base + old_size);
+			else
+				ret = spl_load_region(&priv->info, img_offset,
+						      size, base);
 			if (ret < 0) {
 				log_err("imagemap: read failed at offset 0x%llx (size 0x%lx): %d\n",
 					(unsigned long long)img_offset, size, ret);
