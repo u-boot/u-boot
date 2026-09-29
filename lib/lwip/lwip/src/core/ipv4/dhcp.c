@@ -95,6 +95,9 @@
 #ifndef LWIP_HOOK_DHCP_HANDLE_ACK
 #define LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, pbuf) ERR_OK
 #endif
+#ifndef LWIP_HOOK_DHCP_RECV
+#define LWIP_HOOK_DHCP_RECV(netif, dhcp, pbuf) ERR_OK
+#endif
 
 /** DHCP_ADD_EXTRA_REQUEST_OPTIONS: Additional options added to the list of options
  * that the client requests from the servers (opt 55: DHCP_OPTION_PARAMETER_REQUEST_LIST)
@@ -1836,6 +1839,11 @@ dhcp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr,
   if (lwip_ntohl(reply_msg->xid) != dhcp->xid) {
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_WARNING,
                 ("transaction id mismatch reply_msg->xid(%"X32_F")!=dhcp->xid(%"X32_F")\n", lwip_ntohl(reply_msg->xid), dhcp->xid));
+    goto free_pbuf_and_return;
+  }
+  /* Let applications consume replies which do not supply a lease, before
+     parsing can replace the current DHCP boot filename or option state. */
+  if (LWIP_HOOK_DHCP_RECV(netif, dhcp, p) != ERR_OK) {
     goto free_pbuf_and_return;
   }
   /* option fields could be unfold? */

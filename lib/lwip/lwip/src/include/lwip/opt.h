@@ -3194,6 +3194,28 @@
 #endif
 
 /**
+ * LWIP_HOOK_DHCP_RECV(netif, dhcp, pbuf):
+ * Called for a reply matching this client's hardware address and transaction
+ * ID, before parsing DHCP options or changing the client's lease state. This
+ * permits applications to consume ProxyDHCP replies without treating them as
+ * offers of a zero address. The hook must validate any options it consumes.
+ * Signature:\code{.c}
+ *   err_t my_hook(struct netif *netif, struct dhcp *dhcp, struct pbuf *pbuf);
+ * \endcode
+ * Arguments:
+ * - netif: receiving interface
+ * - dhcp: DHCP client on that interface
+ * - pbuf: complete DHCP reply, starting at the DHCP header
+ *
+ * Return ERR_OK to continue normal DHCP processing, or any other value to
+ * consume/discard the reply. Do not modify or free the pbuf. Copy any data
+ * needed after returning. The default hook leaves all replies to DHCP.
+ */
+#ifdef __DOXYGEN__
+#define LWIP_HOOK_DHCP_RECV(netif, dhcp, pbuf)
+#endif
+
+/**
  * LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, pbuf):
  * Called after parsing a matching DHCPACK in a state that accepts it, before
  * applying the lease. Unlike LWIP_HOOK_DHCP_PARSE_OPTION, this hook sees the
