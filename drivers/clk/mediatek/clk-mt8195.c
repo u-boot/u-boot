@@ -1606,15 +1606,11 @@ static const struct udevice_id mt8195_apmixed[] = {
 	{ }
 };
 
-static const struct udevice_id mt8195_topckgen_compat[] = {
+static const struct udevice_id mt8195_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8195-topckgen",
 		.data = (ulong)&mt8195_topckgen_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id of_match_clk_mt8195_infra_ao[] = {
 	{
 		.compatible = "mediatek,mt8195-infracfg_ao",
 		.data = (ulong)&mt8195_infracfg_ao_clk_tree,
@@ -1632,20 +1628,10 @@ U_BOOT_DRIVER(mt8195_clk_apmixedsys) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mt8195_clk_topckgen) = {
-	.name = "mt8195-topckgen",
+U_BOOT_DRIVER(mt8195_clk) = {
+	.name = "mt8195-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt8195_topckgen_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8195_clk_infra_ao) = {
-	.name = "mt8195-infra_ao",
-	.id = UCLASS_CLK,
-	.of_match = of_match_clk_mt8195_infra_ao,
+	.of_match = mt8195_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
