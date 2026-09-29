@@ -827,15 +827,11 @@ static const struct udevice_id mt8512_apmixed_compat[] = {
 	{ }
 };
 
-static const struct udevice_id mt8512_topckgen_compat[] = {
+static const struct udevice_id mt8512_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8512-topckgen",
 		.data = (ulong)&mt8512_topckgen_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id of_match_mt8512_clk_gate[] = {
 	{
 		.compatible = "mediatek,mt8512-topckgen-cg",
 		.data = (ulong)&mt8512_topckgen_cg_tree,
@@ -852,25 +848,15 @@ U_BOOT_DRIVER(mt8512_clk_apmixedsys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt8512_apmixed_compat,
 	.probe = mtk_clk_probe,
-	.priv_auto	= sizeof(struct mtk_clk_priv),
+	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_apmixedsys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mt8512_clk_topckgen) = {
-	.name = "mt8512-topckgen",
+U_BOOT_DRIVER(mt8512_clk) = {
+	.name = "mt8512-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt8512_topckgen_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto	= sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8512_clk_gate) = {
-	.name = "mt8512-clk-gate",
-	.id = UCLASS_CLK,
-	.of_match = of_match_mt8512_clk_gate,
+	.of_match = mt8512_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
