@@ -127,8 +127,18 @@
 
 #define LWIP_DHCP_DOES_ACD_CHECK	0
 
+#ifdef CONFIG_CMD_BOOTP
+/*
+ * Receive unicast replies before the client has an IP address, also when
+ * the DHCP state machine is not built. The port is in network byte order.
+ */
+#define LWIP_IP_ACCEPT_UDP_PORT(port) ((port) == PP_HTONS(68))
+#endif
+
+#if defined(CONFIG_CMD_BOOTP) || defined(CONFIG_CMD_DHCP)
 #ifdef CONFIG_CMD_DHCP
 #define LWIP_HOOK_FILENAME "lwip-dhcp.h"
+#endif
 /* Core/PXE options plus two maximum-length hostname/vendor-class options. */
 #define DHCP_OPTIONS_LEN		640
 /* Stage NTP after concatenating fragments, not in the core option parser. */
@@ -189,7 +199,7 @@
 	UBOOT_DHCP_DNS UBOOT_DHCP_NTP UBOOT_DHCP_HOSTNAME \
 	UBOOT_DHCP_FILESIZE UBOOT_DHCP_ROOTPATH UBOOT_DHCP_DOMAIN \
 	UBOOT_DHCP_TIMEOFFSET UBOOT_DHCP_PXE_CONFIG 67
-#endif /* CONFIG_CMD_DHCP */
+#endif /* defined(CONFIG_CMD_BOOTP) || defined(CONFIG_CMD_DHCP) */
 
 #define LWIP_AUTOIP                     0
 

@@ -1980,13 +1980,14 @@ menuconfig CMD_NET
 
 if CMD_NET
 
-if NET_LEGACY
-
 config CMD_BOOTP
 	bool "bootp"
 	default y
+	select PROT_UDP_LWIP if NET_LWIP
 	help
 	  bootp - boot image via network using BOOTP/TFTP protocol
+
+if NET_LEGACY
 
 config CMD_DHCP6
 	bool "dhcp6"

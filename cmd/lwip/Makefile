@@ -1,3 +1,4 @@
+obj-$(CONFIG_CMD_BOOTP) += bootp.o
 obj-$(CONFIG_CMD_DHCP) += dhcp.o
 obj-$(CONFIG_CMD_DNS) += dns.o
 obj-$(CONFIG_CMD_NFS) += nfs.o
