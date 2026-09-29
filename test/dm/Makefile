@@ -55,6 +55,9 @@ endif
 ifeq ($(CONFIG_NET_LWIP)$(CONFIG_NETCONSOLE),yy)
 obj-y += netconsole.o
 endif
+ifeq ($(CONFIG_NET_LWIP)$(CONFIG_CMD_NFS),yy)
+obj-y += lwip_nfs.o
+endif
 obj-$(CONFIG_EXTCON) += extcon.o
 ifneq ($(CONFIG_EFI_PARTITION),)
 obj-$(CONFIG_FASTBOOT_FLASH_MMC) += fastboot.o

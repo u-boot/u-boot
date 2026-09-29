@@ -5,8 +5,9 @@
 
 #include <net.h>
 #include <string.h>
-#include <test/ut.h>
+#include <asm/byteorder.h>
 #include <dm/test.h>
+#include <test/ut.h>
 #include "../../net/nfs-common.h"
 
 static int dm_test_nfs_read_oob(struct unit_test_state *uts)
