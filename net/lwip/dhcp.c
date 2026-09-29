@@ -25,6 +25,16 @@
 #define DHCP_TIMEOUT_MS ((3ULL + 5ULL * CONFIG_NET_RETRY_COUNT) * 1000)
 #define DHCP_RETRANSMIT_MAX_MS (U16_MAX * DHCP_FINE_TIMER_MSECS)
 
+struct bootp_config {
+	ip4_addr_t ip;
+	ip4_addr_t netmask;
+	ip4_addr_t gateway;
+	ip4_addr_t server;
+	ip4_addr_t next_server;
+	bool have_netmask;
+	bool have_gateway;
+};
+
 struct dhcp_boot_data {
 	char hostname[256];
 	char rootpath[CONFIG_BOOTP_MAX_ROOT_PATH_LEN];
@@ -53,6 +63,7 @@ struct dhcp_efi_cache {
 
 struct dhcp_options {
 	struct netif *netif;
+	struct bootp_config config;
 	ulong start;
 	ulong timeout;
 	u32 retransmit_init;
@@ -106,10 +117,8 @@ static int dhcp_parse_number(const char *str, uint base, ulong limit, ulong *res
 	return 0;
 }
 
-/* The core rounds the result up to its fine timer interval. */
-u32_t net_lwip_dhcp_timeout(u8_t tries)
+static u32 bootp_timeout(struct dhcp_options *options, u8 tries)
 {
-	struct dhcp_options *options = active_options;
 	u32 timeout;
 	unsigned int i;
 
@@ -124,6 +133,12 @@ u32_t net_lwip_dhcp_timeout(u8_t tries)
 	timeout = mult_frac(timeout, rand() % 200 + 900, 1000);
 
 	return clamp(timeout, 1U, options->retransmit_max);
+}
+
+/* The core rounds the result up to its fine timer interval. */
+u32_t net_lwip_dhcp_timeout(u8_t tries)
+{
+	return bootp_timeout(active_options, tries);
 }
 
 static int dhcp_timing_options(struct dhcp_options *options)
@@ -555,8 +570,9 @@ static int dhcp_boot_env(struct dhcp_boot_data *data)
 	return CMD_RET_SUCCESS;
 }
 
-static int dhcp_server_env(struct dhcp *dhcp, struct dhcp_options *options)
+static int dhcp_server_env(struct dhcp_options *options)
 {
+	struct bootp_config *config = &options->config;
 	const char *server = env_get("serverip");
 	ip4_addr_t addr;
 
@@ -570,17 +586,47 @@ static int dhcp_server_env(struct dhcp *dhcp, struct dhcp_options *options)
 		return env_set("serverip", ip4addr_ntoa(&options->proxy_server)) ||
 			env_set("tftpserverip", ip4addr_ntoa(&options->proxy_server));
 
-	return env_set("serverip", ip4addr_ntoa(&dhcp->server_ip_addr)) ||
-		env_set("tftpserverip", ip4_addr_isany(&dhcp->offered_si_addr) ?
-			NULL : ip4addr_ntoa(&dhcp->offered_si_addr));
+	return env_set("serverip", ip4addr_ntoa(&config->server)) ||
+		env_set("tftpserverip", ip4_addr_isany(&config->next_server) ?
+			NULL : ip4addr_ntoa(&config->next_server));
+}
+
+static int bootp_store_config(struct net_lwip_ctx *net, bool explicit_file,
+			      struct dhcp_options *options)
+{
+	struct bootp_config *config = &options->config;
+	char ipstr[] = "ipaddr\0\0\0";
+	char maskstr[] = "netmask\0\0\0";
+	char gwstr[] = "gatewayip\0\0\0";
+	int idx = dev_seq(net->dev);
+
+	if (!explicit_file && options->reply.bootfile[0])
+		copy_filename(net_boot_file_name, options->reply.bootfile,
+			      sizeof(net_boot_file_name));
+	if (*net_boot_file_name && env_set("bootfile", net_boot_file_name))
+		return CMD_RET_FAILURE;
+
+	if (idx > 0) {
+		sprintf(ipstr, "ipaddr%d", idx);
+		sprintf(maskstr, "netmask%d", idx);
+		sprintf(gwstr, "gatewayip%d", idx);
+	} else {
+		net_ip.s_addr = ip4_addr_get_u32(&config->ip);
+	}
+
+	if (env_set(ipstr, ip4addr_ntoa(&config->ip)) ||
+	    (config->have_netmask && env_set(maskstr, ip4addr_ntoa(&config->netmask))) ||
+	    (config->have_gateway && env_set(gwstr, ip4addr_ntoa(&config->gateway))) ||
+	    dhcp_server_env(options))
+		return CMD_RET_FAILURE;
+
+	return dhcp_boot_env(&options->reply);
 }
 
 static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 		     struct dhcp_options *options)
 {
-	char ipstr[] = "ipaddr\0\0\0";
-	char maskstr[] = "netmask\0\0\0";
-	char gwstr[] = "gatewayip\0\0\0";
+	struct bootp_config *config = &options->config;
 	unsigned long start;
 	unsigned long proxy_start = 0;
 	struct dhcp *dhcp;
@@ -647,28 +693,14 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 			strlcpy(reply->pxe_config, proxy->pxe_config, sizeof(reply->pxe_config));
 	}
 
-	/* The core's file field also reflects replies it subsequently ignores. */
-	if (!explicit_file && options->reply.bootfile[0])
-		copy_filename(net_boot_file_name, options->reply.bootfile,
-			      sizeof(net_boot_file_name));
-	if (*net_boot_file_name && env_set("bootfile", net_boot_file_name))
-		return CMD_RET_FAILURE;
-
-	if (idx > 0) {
-		sprintf(ipstr, "ipaddr%d", idx);
-		sprintf(maskstr, "netmask%d", idx);
-		sprintf(gwstr, "gatewayip%d", idx);
-	} else {
-		net_ip.s_addr = ip_addr_get_ip4_u32(&dhcp->offered_ip_addr);
-	}
-
-	if (env_set(ipstr, ip4addr_ntoa(&dhcp->offered_ip_addr)) ||
-	    env_set(maskstr, ip4addr_ntoa(&dhcp->offered_sn_mask)) ||
-	    env_set(gwstr, ip4addr_ntoa(&dhcp->offered_gw_addr)) ||
-	    dhcp_server_env(dhcp, options))
-		return CMD_RET_FAILURE;
-
-	if (dhcp_boot_env(&options->reply))
+	config->ip = dhcp->offered_ip_addr;
+	config->netmask = dhcp->offered_sn_mask;
+	config->gateway = dhcp->offered_gw_addr;
+	config->server = *ip_2_ip4(&dhcp->server_ip_addr);
+	config->next_server = dhcp->offered_si_addr;
+	config->have_netmask = true;
+	config->have_gateway = true;
+	if (bootp_store_config(net, explicit_file, options))
 		return CMD_RET_FAILURE;
 
 	if (CONFIG_IS_ENABLED(EFI_LOADER)) {
