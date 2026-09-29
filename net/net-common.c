@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 
-#include <dm/uclass.h>
 #include <env.h>
+#include <malloc.h>
 #include <net-common.h>
-#include <linux/time.h>
 #include <rtc.h>
+#include <dm/uclass.h>
+#include <linux/time.h>
 
 /* Network loop state */
 enum net_loop_state net_state;
@@ -68,14 +69,21 @@ int dhcp_run(ulong addr, const char *fname, bool autoload)
 	char *dhcp_argv[] = {"dhcp", NULL, (char *)fname, NULL};
 	struct cmd_tbl cmdtp = {};	/* dummy */
 	char file_addr[17];
-	int old_autoload;
+	const char *autoload_env = env_get("autoload");
+	char *saved_autoload = NULL;
 	int ret, result;
 
 	log_debug("addr=%lx, fname=%s, autoload=%d\n", addr, fname, autoload);
-	old_autoload = env_get_yesno("autoload");
+	if (autoload_env) {
+		saved_autoload = strdup(autoload_env);
+		if (!saved_autoload)
+			return -ENOMEM;
+	}
 	ret = env_set("autoload", autoload ? "y" : "n");
-	if (ret)
+	if (ret) {
+		free(saved_autoload);
 		return log_msg_ret("en1", -EINVAL);
+	}
 
 	if (autoload) {
 		sprintf(file_addr, "%lx", addr);
@@ -84,8 +92,8 @@ int dhcp_run(ulong addr, const char *fname, bool autoload)
 
 	result = do_dhcp(&cmdtp, 0, !autoload ? 1 : fname ? 3 : 2, dhcp_argv);
 
-	ret = env_set("autoload", old_autoload == -1 ? NULL :
-		      old_autoload ? "y" : "n");
+	ret = env_set("autoload", saved_autoload);
+	free(saved_autoload);
 	if (ret)
 		return log_msg_ret("en2", -EINVAL);
 
