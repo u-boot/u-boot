@@ -764,15 +764,11 @@ static const struct udevice_id mt8365_apmixed_compat[] = {
 	{ }
 };
 
-static const struct udevice_id mt8365_topckgen_compat[] = {
+static const struct udevice_id mt8365_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8365-topckgen",
 		.data = (ulong)&mt8365_topckgen_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id mt8365_infracfg_compat[] = {
 	{
 		.compatible = "mediatek,mt8365-infracfg",
 		.data = (ulong)&mt8365_infracfg_tree,
@@ -790,20 +786,10 @@ U_BOOT_DRIVER(mt8365_clk_apmixedsys) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mt8365_clk_topckgen) = {
-	.name = "mt8365-topckgen",
+U_BOOT_DRIVER(mt8365_clk) = {
+	.name = "mt8365-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt8365_topckgen_compat,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8365_clk_infracfg) = {
-	.name = "mt8365-infracfg",
-	.id = UCLASS_CLK,
-	.of_match = mt8365_infracfg_compat,
+	.of_match = mt8365_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
