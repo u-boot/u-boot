@@ -111,7 +111,7 @@ static int ddr_i2c_read(DEV_TYPE *dev, unsigned int addr,
 #if CONFIG_IS_ENABLED(DM_I2C)
 	ret = dm_i2c_read(dev, 0, buf, len);
 #else
-	ret = 0;
+	ret = i2c_read(dev->chip, addr, alen, buf, len);
 #endif
 
 	return ret;
