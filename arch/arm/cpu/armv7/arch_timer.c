@@ -37,7 +37,7 @@ int timer_init(void)
 	return 0;
 }
 
-unsigned long long get_ticks(void)
+unsigned long long notrace get_ticks(void)
 {
 	ulong nowl, nowu;
 
@@ -57,7 +57,7 @@ ulong timer_get_boot_us(void)
 	return lldiv(get_ticks(), gd->arch.timer_rate_hz / 1000000);
 }
 
-ulong get_tbclk(void)
+ulong notrace get_tbclk(void)
 {
 	return gd->arch.timer_rate_hz;
 }
