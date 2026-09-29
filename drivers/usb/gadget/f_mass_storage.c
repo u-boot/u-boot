@@ -650,7 +650,7 @@ static void busy_indicator(void)
 
 static int sleep_thread(struct fsg_common *common)
 {
-	int i = 0, k = 0;
+	int i = 0;
 
 	/* Wait until a signal arrives or we are woken up */
 	for (;;) {
@@ -660,10 +660,7 @@ static int sleep_thread(struct fsg_common *common)
 		if (++i == 20000) {
 			busy_indicator();
 			i = 0;
-			k++;
-		}
 
-		if (k == 10) {
 			/* Handle START-STOP UNIT */
 			if (common->eject)
 				return -EPIPE;
@@ -675,8 +672,6 @@ static int sleep_thread(struct fsg_common *common)
 			/* Check cable connection */
 			if (!g_dnl_board_usb_cable_connected())
 				return -EIO;
-
-			k = 0;
 		}
 
 		schedule();
