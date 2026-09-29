@@ -1986,10 +1986,38 @@ static const struct udevice_id mt8189_apmixed[] = {
 	{ }
 };
 
-static const struct udevice_id mt8189_topckgen_compat[] = {
+static const struct udevice_id mt8189_clk_compat[] = {
 	{
 		.compatible = "mediatek,mt8189-topckgen",
 		.data = (ulong)&mt8189_topckgen_clk_tree,
+	},
+	{
+		.compatible = "mediatek,mt8189-peri-ao",
+		.data = (ulong)&perao_clks_tree,
+	},
+	{
+		.compatible = "mediatek,mt8189-iic-wrap",
+		.data = (ulong)&imp_clks_tree,
+	},
+	{
+		.compatible = "mediatek,mt8189-dispsys",
+		.data = (ulong)&mm_clks_tree,
+	},
+	{
+		.compatible = "mediatek,mt8189-mm-infra",
+		.data = (ulong)&mminfra_config_clks_tree,
+	},
+	{
+		.compatible = "mediatek,mt8189-ufscfg-ao",
+		.data = (ulong)&ufs_config_ao_clks_tree,
+	},
+	{
+		.compatible = "mediatek,mt8189-ufscfg-pdn",
+		.data = (ulong)&ufs_config_pdn_clks_tree,
+	},
+	{
+		.compatible = "mediatek,mt8189-vlpcfg-ao",
+		.data = (ulong)&vlpcfg_ao_clks_tree,
 	},
 	{ }
 };
@@ -1999,17 +2027,6 @@ static const struct udevice_id mt8189_vlpckgen[] = {
 		.compatible = "mediatek,mt8189-vlpckgen",
 		.data = (ulong)&mt8189_vlpckgen_clk_tree,
 	},
-	{ }
-};
-
-static const struct udevice_id of_match_mt8189_clk_gate[] = {
-	{ .compatible = "mediatek,mt8189-peri-ao", .data = (ulong)&perao_clks_tree },
-	{ .compatible = "mediatek,mt8189-iic-wrap", .data = (ulong)&imp_clks_tree },
-	{ .compatible = "mediatek,mt8189-dispsys", .data = (ulong)&mm_clks_tree },
-	{ .compatible = "mediatek,mt8189-mm-infra", .data = (ulong)&mminfra_config_clks_tree },
-	{ .compatible = "mediatek,mt8189-ufscfg-ao", .data = (ulong)&ufs_config_ao_clks_tree },
-	{ .compatible = "mediatek,mt8189-ufscfg-pdn", .data = (ulong)&ufs_config_pdn_clks_tree },
-	{ .compatible = "mediatek,mt8189-vlpcfg-ao", .data = (ulong)&vlpcfg_ao_clks_tree },
 	{ }
 };
 
@@ -2023,10 +2040,10 @@ U_BOOT_DRIVER(mt8189_clk_apmixedsys) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-U_BOOT_DRIVER(mt8189_clk_topckgen) = {
-	.name = "mt8189-topckgen",
+U_BOOT_DRIVER(mt8189_clk) = {
+	.name = "mt8189-clk",
 	.id = UCLASS_CLK,
-	.of_match = mt8189_topckgen_compat,
+	.of_match = mt8189_clk_compat,
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_topckgen_ops,
@@ -2040,15 +2057,5 @@ U_BOOT_DRIVER(mt8189_clk_vlpckgen) = {
 	.probe = mtk_clk_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mt8189_clk_gate) = {
-	.name = "mt8189-gate-clk",
-	.id = UCLASS_CLK,
-	.of_match = of_match_mt8189_clk_gate,
-	.probe = mtk_clk_probe,
-	.priv_auto = sizeof(struct mtk_clk_priv),
-	.ops = &mtk_clk_topckgen_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
