@@ -35,6 +35,9 @@ enum dhcp_reply_kind {
 
 struct dhcp_options_test {
 	enum dhcp_reply_kind kind;
+	bool offer_metadata;
+	bool extra_offer;
+	unsigned int replacement;
 	unsigned int discover;
 	unsigned int request;
 	bool requested[256];
@@ -213,6 +216,16 @@ static int dhcp_options_reply(struct udevice *dev, struct dhcp_msg *request,
 			pos = dhcp_test_option(pos, 209, "x", 1);
 		}
 	}
+	if (type == DHCP_ACK && test->replacement) {
+		if (test->replacement <= 2)
+			pos = dhcp_test_option(pos, 67, "replacement.bin", 15);
+		else
+			strcpy((char *)reply->file, "replacement.bin");
+		if (test->replacement & 1)
+			pos = dhcp_test_option(pos, 13, size, sizeof(size));
+		else
+			pos = dhcp_test_option(pos, 2, offset, sizeof(offset));
+	}
 	/* Exercise custom options before the message-type option. */
 	pos = dhcp_test_option(pos, DHCP_OPTION_MESSAGE_TYPE, &type, 1);
 	if (kind == DHCP_REPLY_TRUNCATED) {
@@ -310,14 +323,20 @@ static int dhcp_options_tx(struct udevice *dev, void *packet, unsigned int len)
 		test->discover_secs = ntohs(msg->secs);
 		/* REQUEST must retain the DISCOVER value despite this delay. */
 		timer_test_add_offset(1200);
-		/* An offer must not publish its metadata when the ACK omits it. */
-		return dhcp_options_reply(dev, msg, DHCP_OFFER, DHCP_REPLY_BASIC);
+		return dhcp_options_reply(dev, msg, DHCP_OFFER,
+					  test->offer_metadata ? DHCP_REPLY_BASIC :
+					  DHCP_REPLY_EMPTY);
 	}
 	if (type != DHCP_REQUEST)
 		return 0;
 	test->request++;
 	memcpy(test->request_file, msg->file, sizeof(test->request_file));
 	test->request_secs = ntohs(msg->secs);
+	if (test->extra_offer) {
+		ret = dhcp_options_reply(dev, msg, DHCP_OFFER, DHCP_REPLY_BASIC);
+		if (ret)
+			return ret;
+	}
 	ret = dhcp_options_reply(dev, msg, DHCP_ACK, test->kind);
 	if (!ret && test->kind >= DHCP_REPLY_BAD_STRING &&
 	    test->kind != DHCP_REPLY_ZERO_OFFSET)
@@ -408,6 +427,23 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 	ut_assertok(env_set("bootp_arch", "1234"));
 	ut_assertok(env_set("pxeuuid", "00112233-4455-6677-8899-aabbccddeeff"));
 	ut_assertok(dhcp_server_check(uts, test));
+	/*
+	 * Size belongs to the replacement filename, independently of option 2.
+	 * Cover both option 67 and the fixed BOOTP file field in the ACK.
+	 */
+	for (kind = 1; kind <= 4; kind++) {
+		*test = (struct dhcp_options_test){
+			.kind = DHCP_REPLY_EMPTY,
+			.offer_metadata = true,
+			.replacement = kind,
+		};
+		ut_assertok(do_dhcp(NULL, 0, 1, argv));
+		ut_asserteq_str("replacement.bin", env_get("bootfile"));
+		ut_asserteq((kind & 1) && IS_ENABLED(CONFIG_BOOTP_BOOTFILESIZE) ? 42 : 0,
+			    net_boot_file_expected_size_in_blocks);
+		ut_assert(!test->chain_failed);
+		ut_assertok(dhcp_cache_check(uts, test));
+	}
 	for (kind = DHCP_REPLY_BASIC; kind <= DHCP_REPLY_BAD_DNS; kind++) {
 		bool supplied = kind == DHCP_REPLY_BASIC || kind == DHCP_REPLY_OVERLOAD;
 		bool have_ntp = IS_ENABLED(CONFIG_BOOTP_NTPSERVER) && supplied;
@@ -503,6 +539,34 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 		ut_asserteq(kind == DHCP_REPLY_BASIC && IS_ENABLED(CONFIG_BOOTP_BOOTFILESIZE) ?
 			   42 : 0, net_boot_file_expected_size_in_blocks);
 	}
+	/*
+	 * Only the selected offer supplies defaults; rejected ACKs cannot poison
+	 * them, and neither late offers nor a previous exchange are inherited.
+	 */
+	*test = (struct dhcp_options_test){ .kind = DHCP_REPLY_BAD_STRING,
+		.offer_metadata = true };
+	ut_assertok(do_dhcp(NULL, 0, 1, argv));
+	ut_assertok(dhcp_cache_check(uts, test));
+	ut_asserteq_str("option.bin", env_get("bootfile"));
+	if (IS_ENABLED(CONFIG_BOOTP_BOOTPATH))
+		ut_asserteq_str("/srv/root", env_get("rootpath"));
+	ut_asserteq(IS_ENABLED(CONFIG_BOOTP_BOOTFILESIZE) ? 42 : 0,
+		    net_boot_file_expected_size_in_blocks);
+	*test = (struct dhcp_options_test){ .kind = DHCP_REPLY_OVERLOAD,
+		.offer_metadata = true };
+	ut_assertok(do_dhcp(NULL, 0, 1, argv));
+	ut_asserteq_str("subdir/overloaded.bin", env_get("bootfile"));
+	if (IS_ENABLED(CONFIG_BOOTP_BOOTPATH))
+		ut_asserteq_str("/srv/root/fs", env_get("rootpath"));
+	ut_asserteq(0, net_boot_file_expected_size_in_blocks);
+	*test = (struct dhcp_options_test){ .kind = DHCP_REPLY_EMPTY, .extra_offer = true };
+	ut_assertok(env_set("bootfile", "default.bin"));
+	ut_assertok(env_set("rootpath", "/original"));
+	ut_assertok(do_dhcp(NULL, 0, 1, argv));
+	ut_asserteq_str("default.bin", env_get("bootfile"));
+	ut_asserteq_str("/original", env_get("rootpath"));
+	ut_asserteq(0, net_boot_file_expected_size_in_blocks);
+	ut_assertnull(pxelinux_configfile);
 	*test = (struct dhcp_options_test){ .kind = DHCP_REPLY_BASIC };
 	ut_assertok(do_dhcp(NULL, 0, 3, argv));
 	ut_asserteq_str("explicit.bin", env_get("bootfile"));

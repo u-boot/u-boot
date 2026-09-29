@@ -98,6 +98,9 @@
 #ifndef LWIP_HOOK_DHCP_RECV
 #define LWIP_HOOK_DHCP_RECV(netif, dhcp, pbuf) ERR_OK
 #endif
+#ifndef LWIP_HOOK_DHCP_HANDLE_OFFER
+#define LWIP_HOOK_DHCP_HANDLE_OFFER(netif, dhcp, pbuf) ERR_OK
+#endif
 
 /** DHCP_ADD_EXTRA_REQUEST_OPTIONS: Additional options added to the list of options
  * that the client requests from the servers (opt 55: DHCP_OPTION_PARAMETER_REQUEST_LIST)
@@ -1906,6 +1909,9 @@ dhcp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr,
   /* received a DHCP_OFFER in DHCP_STATE_SELECTING state? */
   else if ((msg_type == DHCP_OFFER) && (dhcp->state == DHCP_STATE_SELECTING)) {
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("DHCP_OFFER received in DHCP_STATE_SELECTING state\n"));
+    if (LWIP_HOOK_DHCP_HANDLE_OFFER(netif, dhcp, p) != ERR_OK) {
+      goto free_pbuf_and_return;
+    }
     /* remember offered lease */
     dhcp_handle_offer(netif, msg_in);
   }

@@ -3216,6 +3216,27 @@
 #endif
 
 /**
+ * LWIP_HOOK_DHCP_HANDLE_OFFER(netif, dhcp, pbuf):
+ * Called after successfully parsing a matching DHCPOFFER while selecting,
+ * before accepting the offer and sending DHCPREQUEST.
+ * Signature:\code{.c}
+ *   err_t my_hook(struct netif *netif, struct dhcp *dhcp, struct pbuf *pbuf);
+ * \endcode
+ * Arguments:
+ * - netif: receiving interface
+ * - dhcp: DHCP client on that interface
+ * - pbuf: complete DHCP reply; the payload starts at the DHCP header
+ *
+ * Return ERR_OK to accept the offer, or another error to discard it. Do not
+ * modify or free the pbuf. Copy any metadata needed later, and do not publish
+ * it until an ACK is accepted and the client has bound the lease. Forget
+ * saved defaults when starting another discovery transaction.
+ */
+#ifdef __DOXYGEN__
+#define LWIP_HOOK_DHCP_HANDLE_OFFER(netif, dhcp, pbuf)
+#endif
+
+/**
  * LWIP_HOOK_DHCP_HANDLE_ACK(netif, dhcp, pbuf):
  * Called after parsing a matching DHCPACK in a state that accepts it, before
  * applying the lease. Unlike LWIP_HOOK_DHCP_PARSE_OPTION, this hook sees the

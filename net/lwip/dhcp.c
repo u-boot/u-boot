@@ -60,6 +60,8 @@ struct dhcp_options {
 	u16 discover_secs;
 	struct dhcp_boot_data reply;
 	struct dhcp_boot_data candidate;
+	struct dhcp_boot_data offer;
+	bool have_offer;
 	struct dhcp_boot_data proxy;
 	ip4_addr_t proxy_server;
 	u32 proxy_xid;
@@ -237,11 +239,15 @@ static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data,
 		{ 60, proxy, true, data->vendor, sizeof(data->vendor) - 1 },
 		{ 6, IS_ENABLED(CONFIG_BOOTP_DNS), false, data->dns, sizeof(data->dns) },
 	};
+	bool have_filename = false, have_file_size = false;
 	u8 overload = 0;
 	u32 cookie;
 	size_t i;
 	int ret;
 
+	/* A fallback offer cannot supply the ACK's type or server identity. */
+	data->type = 0;
+	ip4_addr_set_zero(&data->server);
 	if (pbuf_copy_partial(p, &cookie, sizeof(cookie), DHCP_MSG_LEN) != sizeof(cookie) ||
 	    ntohl(cookie) != DHCP_MAGIC_COOKIE)
 		return ERR_VAL;
@@ -261,6 +267,8 @@ static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data,
 
 		if (!opt->len)
 			continue;
+		if (opt->code == 67)
+			have_filename = true;
 		if (opt->string) {
 			/* RFC 2132 allows trailing NULs, not an embedded terminator. */
 			while (opt->len && !str[opt->len - 1])
@@ -279,19 +287,44 @@ static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data,
 		} else {
 			if (opt->len != opt->size)
 				return ERR_VAL;
-			if (opt->code == 13)
+			if (opt->code == 13) {
 				data->have_size = true;
-			else if (opt->code == 2)
+				have_file_size = true;
+			} else if (opt->code == 2) {
 				data->have_offset = true;
+			}
 		}
 	}
-	if (!(overload & DHCP_OVERLOAD_FILE) && !data->bootfile[0]) {
+	if (!(overload & DHCP_OVERLOAD_FILE) && !have_filename &&
+	    pbuf_get_at(p, DHCP_FILE_OFS)) {
 		size_t len = min_t(size_t, DHCP_FILE_LEN, sizeof(data->bootfile) - 1);
 
 		if (pbuf_copy_partial(p, data->bootfile, len, DHCP_FILE_OFS) != len)
 			return ERR_VAL;
 		data->bootfile[len] = 0;
+		have_filename = true;
 	}
+	/* An offered size must not describe a replacement filename in the ACK. */
+	if (!have_file_size && have_filename)
+		data->have_size = false;
+
+	return ERR_OK;
+}
+
+err_t net_lwip_dhcp_offer(struct netif *netif, struct dhcp *dhcp, struct pbuf *p)
+{
+	struct dhcp_options *options = active_options;
+	struct dhcp_boot_data *data;
+
+	if (!options || options->netif != netif)
+		return ERR_OK;
+	options->have_offer = false;
+	data = &options->offer;
+	memset(data, 0, sizeof(*data));
+	if (dhcp_parse_boot_data(p, data, false) || data->type != DHCP_OFFER ||
+	    ip4_addr_isany(&data->server))
+		return ERR_VAL;
+	options->have_offer = true;
 
 	return ERR_OK;
 }
@@ -372,7 +405,11 @@ err_t net_lwip_dhcp_ack(struct netif *netif, struct dhcp *dhcp, struct pbuf *p)
 		return ERR_OK;
 	/* A rejected renewal must leave the accepted lease metadata intact. */
 	data = &active_options->candidate;
-	memset(data, 0, sizeof(*data));
+	if (active_options->have_offer && dhcp->state == DHCP_STATE_REQUESTING &&
+	    ip4_addr_cmp(&active_options->offer.server, ip_2_ip4(&dhcp->server_ip_addr)))
+		*data = active_options->offer;
+	else
+		memset(data, 0, sizeof(*data));
 	ret = dhcp_parse_boot_data(p, data, false);
 	if (ret)
 		return ret;
@@ -420,8 +457,9 @@ void net_lwip_dhcp_append(struct netif *netif, struct dhcp *dhcp, u8_t state,
 	if (!active_options || active_options->netif != netif ||
 	    (type != DHCP_DISCOVER && type != DHCP_REQUEST))
 		return;
-	if (type == DHCP_DISCOVER && options->proxy_xid != dhcp->xid) {
+	if (type == DHCP_DISCOVER && (!dhcp->tries || options->proxy_xid != dhcp->xid)) {
 		options->have_proxy = false;
+		options->have_offer = false;
 		options->proxy_xid = dhcp->xid;
 	}
 	if (type == DHCP_DISCOVER)
