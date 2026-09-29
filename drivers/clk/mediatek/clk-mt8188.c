@@ -1701,21 +1701,21 @@ static const struct mtk_gate imp_iic_wrap_en_clks[] = {
 	GATE_IMP_IIC_WRAP(CLK_IMP_IIC_WRAP_EN_AP_CLOCK_I2C6, CLK_TOP_I2C, 1),
 };
 
-const struct mtk_clk_tree mt8188_imp_iic_wrap_c_clk_tree = {
+static const struct mtk_clk_tree mt8188_imp_iic_wrap_c_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.gates = imp_iic_wrap_c_clks,
 	.num_gates = ARRAY_SIZE(imp_iic_wrap_c_clks),
 };
 
-const struct mtk_clk_tree mt8188_imp_iic_wrap_w_clk_tree = {
+static const struct mtk_clk_tree mt8188_imp_iic_wrap_w_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.gates = imp_iic_wrap_w_clks,
 	.num_gates = ARRAY_SIZE(imp_iic_wrap_w_clks),
 };
 
-const struct mtk_clk_tree mt8188_imp_iic_wrap_en_clk_tree = {
+static const struct mtk_clk_tree mt8188_imp_iic_wrap_en_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.gates = imp_iic_wrap_en_clks,
@@ -2080,28 +2080,28 @@ static const struct mtk_gate vdo1_clks[] = {
 	GATE_VDO1_5(CLK_VDO1_DPI1_HDMI, CLK_TOP_VPP, 0),
 };
 
-const struct mtk_clk_tree mt8188_vpp0_clk_tree = {
+static const struct mtk_clk_tree mt8188_vpp0_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.gates = vpp0_clks,
 	.num_gates = ARRAY_SIZE(vpp0_clks),
 };
 
-const struct mtk_clk_tree mt8188_vpp1_clk_tree = {
+static const struct mtk_clk_tree mt8188_vpp1_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.gates = vpp1_clks,
 	.num_gates = ARRAY_SIZE(vpp1_clks),
 };
 
-const struct mtk_clk_tree mt8188_vdo0_clk_tree = {
+static const struct mtk_clk_tree mt8188_vdo0_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.gates = vdo0_clks,
 	.num_gates = ARRAY_SIZE(vdo0_clks),
 };
 
-const struct mtk_clk_tree mt8188_vdo1_clk_tree = {
+static const struct mtk_clk_tree mt8188_vdo1_clk_tree = {
 	.ext_clk_rates = ext_clock_rates,
 	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
 	.gates = vdo1_clks,
