@@ -1596,12 +1596,7 @@ static const struct mtk_gate infra_ao_clks[] = {
 	GATE_INFRA_AO4(CLK_INFRA_AO_PERI_UFS_MEM_SUB, CLK_TOP_MEM_466M, 31),
 };
 
-static const struct mtk_clk_tree mt8195_infracfg_ao_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = infra_ao_clks,
-	.num_gates = ARRAY_SIZE(infra_ao_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8195_infracfg_ao_clk_tree, infra_ao_clks);
 
 static const struct udevice_id mt8195_apmixed[] = {
 	{

@@ -754,12 +754,7 @@ static const struct mtk_gate ifr_clks[] = {
 	GATE_IFR6(CLK_IFR_SSUSB_XHCI, CLK_TOP_SSUSB_XHCI_SEL, 11),
 };
 
-static const struct mtk_clk_tree mt8365_infracfg_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = ifr_clks,
-	.num_gates = ARRAY_SIZE(ifr_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8365_infracfg_tree, ifr_clks);
 
 static const struct udevice_id mt8365_apmixed_compat[] = {
 	{

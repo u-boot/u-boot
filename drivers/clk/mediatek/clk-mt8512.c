@@ -815,19 +815,9 @@ static const struct mtk_clk_tree mt8512_topckgen_clk_tree = {
 	.type = MTK_CLK_TREE_TOPCKGEN,
 };
 
-static const struct mtk_clk_tree mt8512_topckgen_cg_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = top_clks,
-	.num_gates = ARRAY_SIZE(top_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8512_topckgen_cg_tree, top_clks);
 
-static const struct mtk_clk_tree mt8512_infracfg_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = infra_clks,
-	.num_gates = ARRAY_SIZE(infra_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8512_infracfg_tree, infra_clks);
 
 static const struct udevice_id mt8512_apmixed_compat[] = {
 	{

@@ -802,12 +802,7 @@ static const struct mtk_gate infra_clks[] = {
 	GATE_INFRA3(CLK_INFRA_FBIST2FPC, CLK_TOP_MUX_MSDC50_0, 24),
 };
 
-static const struct mtk_clk_tree mt8183_infracfg_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = infra_clks,
-	.num_gates = ARRAY_SIZE(infra_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8183_infracfg_tree, infra_clks);
 
 static const struct udevice_id mt8183_apmixed_compat[] = {
 	{

@@ -1619,12 +1619,7 @@ static const struct mtk_gate infracfg_ao_clks[] = {
 	GATE_INFRA_AO4(CLK_INFRA_AO_RG_AES_MSDCFDE_CK_0P, CLK_TOP_AES_MSDCFDE, 18),
 };
 
-static const struct mtk_clk_tree mt8188_infracfg_ao_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = infracfg_ao_clks,
-	.num_gates = ARRAY_SIZE(infracfg_ao_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_infracfg_ao_clk_tree, infracfg_ao_clks);
 
 static const struct mtk_gate_regs peri_ao_cg_regs = {
 	.set_ofs = 0x10,
@@ -1664,12 +1659,7 @@ static const struct mtk_gate pericfg_ao_clks[] = {
 	GATE_PERI_AO(CLK_PERI_AO_PCIE_P0_FMEM, CLK_TOP_466M_FMEM, 24),
 };
 
-static const struct mtk_clk_tree mt8188_pericfg_ao_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = pericfg_ao_clks,
-	.num_gates = ARRAY_SIZE(pericfg_ao_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_pericfg_ao_clk_tree, pericfg_ao_clks);
 
 static const struct mtk_gate_regs imp_iic_wrap_cg_regs = {
 	.set_ofs = 0xe08,
@@ -1701,26 +1691,11 @@ static const struct mtk_gate imp_iic_wrap_en_clks[] = {
 	GATE_IMP_IIC_WRAP(CLK_IMP_IIC_WRAP_EN_AP_CLOCK_I2C6, CLK_TOP_I2C, 1),
 };
 
-static const struct mtk_clk_tree mt8188_imp_iic_wrap_c_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = imp_iic_wrap_c_clks,
-	.num_gates = ARRAY_SIZE(imp_iic_wrap_c_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_imp_iic_wrap_c_clk_tree, imp_iic_wrap_c_clks);
 
-static const struct mtk_clk_tree mt8188_imp_iic_wrap_w_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = imp_iic_wrap_w_clks,
-	.num_gates = ARRAY_SIZE(imp_iic_wrap_w_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_imp_iic_wrap_w_clk_tree, imp_iic_wrap_w_clks);
 
-static const struct mtk_clk_tree mt8188_imp_iic_wrap_en_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = imp_iic_wrap_en_clks,
-	.num_gates = ARRAY_SIZE(imp_iic_wrap_en_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_imp_iic_wrap_en_clk_tree, imp_iic_wrap_en_clks);
 
 static const struct mtk_gate_regs vdo0_0_cg_regs = {
 	.set_ofs = 0x104,
@@ -2080,33 +2055,13 @@ static const struct mtk_gate vdo1_clks[] = {
 	GATE_VDO1_5(CLK_VDO1_DPI1_HDMI, CLK_TOP_VPP, 0),
 };
 
-static const struct mtk_clk_tree mt8188_vpp0_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = vpp0_clks,
-	.num_gates = ARRAY_SIZE(vpp0_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_vpp0_clk_tree, vpp0_clks);
 
-static const struct mtk_clk_tree mt8188_vpp1_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = vpp1_clks,
-	.num_gates = ARRAY_SIZE(vpp1_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_vpp1_clk_tree, vpp1_clks);
 
-static const struct mtk_clk_tree mt8188_vdo0_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = vdo0_clks,
-	.num_gates = ARRAY_SIZE(vdo0_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_vdo0_clk_tree, vdo0_clks);
 
-static const struct mtk_clk_tree mt8188_vdo1_clk_tree = {
-	.ext_clk_rates = ext_clock_rates,
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates),
-	.gates = vdo1_clks,
-	.num_gates = ARRAY_SIZE(vdo1_clks),
-};
+MTK_GATE_CLK_TREE(ext_clock_rates, mt8188_vdo1_clk_tree, vdo1_clks);
 
 static const struct udevice_id mt8188_apmixed_compat[] = {
 	{
