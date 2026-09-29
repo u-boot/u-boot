@@ -1512,6 +1512,14 @@ F:	drivers/clk/clk_k210.c
 F:	drivers/pinctrl/pinctrl-k210.c
 F:	include/k210/
 
+RISC-V SPACEMIT
+M:	Yixun Lan <dlan@kernel.org>
+S:	Maintained
+T:	git https://git.u-boot-project.org/u-boot/custodians/u-boot-spacemit.git
+F:	arch/riscv/dts/k1-*-u-boot.dtsi
+N:	spacemit
+K:	spacemit
+
 RISC-V T-HEAD TH1520
 M:	Yao Zi <me@ziyao.cc>
 S:	Maintained
