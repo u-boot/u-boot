@@ -4,6 +4,7 @@
 #include <command.h>
 #include <console.h>
 #include <env.h>
+#include <hexdump.h>
 #include <log.h>
 #include <lwip-dhcp.h>
 #include <malloc.h>
@@ -17,6 +18,7 @@
 #include <lwip/dhcp.h>
 #include <lwip/dns.h>
 #include <lwip/prot/dhcp.h>
+#include <u-boot/uuid.h>
 
 #define DHCP_TIMEOUT_MS 10000
 
@@ -25,6 +27,7 @@ struct dhcp_boot_data {
 	char rootpath[CONFIG_BOOTP_MAX_ROOT_PATH_LEN];
 	char domain[256];
 	char bootfile[sizeof(net_boot_file_name)];
+	char pxe_config[256];
 	u8 file_size[2];
 	u8 time_offset[4];
 	ip4_addr_t ntp;
@@ -41,11 +44,41 @@ struct dhcp_options {
 	struct dhcp_boot_data candidate;
 	char hostname[256];
 	char vendor[256];
+	u16 arch;
+	u8 uuid[1 + UUID_BIN_LEN];
+	bool have_uuid;
 	bool append_failed;
 };
 
 /* The address-less runtime attachment excludes a second DHCP command. */
 static struct dhcp_options *active_options;
+
+/*
+ * Parse decimal or hexadecimal settings without allowing the accumulator to
+ * wrap before checking the setting's limit. strict_strtoul() does not check
+ * overflow in U-Boot.
+ */
+static int dhcp_parse_number(const char *str, uint base, ulong limit, ulong *result)
+{
+	ulong value = 0;
+	uint digit;
+
+	if (base == 16 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
+		str += 2;
+	if (!*str)
+		return -EINVAL;
+	do {
+		digit = hex_to_bin(*str++);
+		if (digit >= base)
+			return -EINVAL;
+		if (digit > limit || value > (limit - digit) / base)
+			return -ERANGE;
+		value = value * base + digit;
+	} while (*str);
+	*result = value;
+
+	return 0;
+}
 
 struct dhcp_boot_option {
 	u8 code;
@@ -121,6 +154,8 @@ static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data)
 		{ 40, IS_ENABLED(CONFIG_BOOTP_NISDOMAIN), true,
 		  data->domain, sizeof(data->domain) - 1 },
 		{ 67, true, true, data->bootfile, sizeof(data->bootfile) - 1 },
+		{ 209, IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION), true,
+		  data->pxe_config, sizeof(data->pxe_config) - 1 },
 		{ 13, IS_ENABLED(CONFIG_BOOTP_BOOTFILESIZE), false,
 		  data->file_size, sizeof(data->file_size) },
 		{ 2, IS_ENABLED(CONFIG_BOOTP_TIMEOFFSET), false,
@@ -206,38 +241,74 @@ err_t net_lwip_dhcp_ack(struct netif *netif, struct dhcp *dhcp, struct pbuf *p)
 	return ERR_OK;
 }
 
+static void dhcp_append(struct dhcp_options *options, struct dhcp_msg *msg,
+			u16_t *len, u8 code, const void *data, size_t size)
+{
+	if (!size)
+		return;
+	/* Leave room for END and the core's four-byte padding. */
+	if (*len + size + 2 + 4 > DHCP_OPTIONS_LEN) {
+		options->append_failed = true;
+		return;
+	}
+	msg->options[(*len)++] = code;
+	msg->options[(*len)++] = size;
+	memcpy(&msg->options[*len], data, size);
+	*len += size;
+}
+
 void net_lwip_dhcp_append(struct netif *netif, struct dhcp *dhcp, u8_t state,
 			  struct dhcp_msg *msg, u8_t type, u16_t *len)
 {
-	const char *strings[2];
-	const u8 codes[] = { DHCP_OPTION_HOSTNAME, DHCP_OPTION_US };
-	size_t i;
+	/* Match the legacy client: no PXE ROM APIs are provided by U-Boot. */
+	static const u8 undi[] = { 1, 0, 0 };
+	struct dhcp_options *options = active_options;
+	u8 arch[2];
 
 	if (!active_options || active_options->netif != netif ||
 	    (type != DHCP_DISCOVER && type != DHCP_REQUEST))
 		return;
-	strings[0] = active_options->hostname;
-	strings[1] = active_options->vendor;
-	for (i = 0; i < ARRAY_SIZE(strings); i++) {
-		size_t size = strlen(strings[i]);
-
-		if (!size)
-			continue;
-		/* Leave room for END and the core's four-byte padding. */
-		if (*len + size + 2 + 4 > DHCP_OPTIONS_LEN) {
-			active_options->append_failed = true;
-			return;
-		}
-		msg->options[(*len)++] = codes[i];
-		msg->options[(*len)++] = size;
-		memcpy(&msg->options[*len], strings[i], size);
-		*len += size;
+	dhcp_append(options, msg, len, DHCP_OPTION_HOSTNAME,
+		    options->hostname, strlen(options->hostname));
+	dhcp_append(options, msg, len, DHCP_OPTION_US, options->vendor, strlen(options->vendor));
+	if (options->arch != 0xff) {
+		put_unaligned_be16(options->arch, arch);
+		dhcp_append(options, msg, len, 93, arch, sizeof(arch));
 	}
+	dhcp_append(options, msg, len, 94, undi, sizeof(undi));
+	if (options->have_uuid)
+		dhcp_append(options, msg, len, 97, options->uuid, sizeof(options->uuid));
+}
+
+static int dhcp_pxe_options(struct dhcp_options *options)
+{
+	const char *arch = env_get("bootp_arch");
+	const char *uuid = env_get("pxeuuid");
+	ulong value = 0xff;
+
+	if (IS_ENABLED(CONFIG_BOOTP_PXE))
+		value = IF_ENABLED_INT(CONFIG_BOOTP_PXE, CONFIG_DHCP_PXE_CLIENTARCH);
+	/* EFI boot methods override the native U-Boot architecture. */
+	if ((arch && dhcp_parse_number(arch, 16, U16_MAX, &value)) || value > U16_MAX) {
+		log_err("Invalid DHCP client architecture\n");
+		return -EINVAL;
+	}
+	options->arch = value;
+	if (IS_ENABLED(CONFIG_LIB_UUID) && uuid) {
+		if (uuid_str_to_bin(uuid, options->uuid + 1, UUID_STR_FORMAT_STD)) {
+			log_err("Invalid PXE UUID\n");
+			return -EINVAL;
+		}
+		options->have_uuid = true;
+	}
+
+	return 0;
 }
 
 static int dhcp_boot_env(struct dhcp_boot_data *data)
 {
 	char offset[12];
+	char *config = NULL;
 	unsigned int i;
 #if LWIP_DNS
 	ip_addr_t addr;
@@ -269,6 +340,16 @@ static int dhcp_boot_env(struct dhcp_boot_data *data)
 
 		ip_addr_copy_from_ip4(addr, data->ntp);
 		sntp_setserver(0, &addr);
+	}
+	if (IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION)) {
+		if (data->pxe_config[0]) {
+			config = strdup(data->pxe_config);
+			if (!config)
+				return CMD_RET_FAILURE;
+		}
+		/* Unlike environment defaults, this string belongs to DHCP. */
+		free(pxelinux_configfile);
+		pxelinux_configfile = config;
 	}
 
 	return CMD_RET_SUCCESS;
@@ -424,6 +505,10 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_FAILURE;
 	strlcpy(options->hostname, hostname ?: "", sizeof(options->hostname));
 	strlcpy(options->vendor, vendor, sizeof(options->vendor));
+	if (dhcp_pxe_options(options)) {
+		free(options);
+		return CMD_RET_FAILURE;
+	}
 	if (net_lwip_start(&net, NET_LWIP_ADDR_NONE)) {
 		free(options);
 		return CMD_RET_FAILURE;

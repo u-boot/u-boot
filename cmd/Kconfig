@@ -2102,10 +2102,9 @@ config BOOTP_TIMEOFFSET
 	bool "Request & store 'timeoffset' from BOOTP/DHCP server"
 	depends on (CMD_BOOTP || CMD_DHCP) && CMD_SNTP
 
-if NET_LEGACY
-
 config CMD_PCAP
 	bool "pcap capture"
+	depends on NET_LEGACY
 	help
 	  Selecting this will allow capturing all Ethernet packets and store
 	  them in physical memory in a PCAP formated file,
@@ -2114,12 +2113,12 @@ config CMD_PCAP
 config BOOTP_PXE
 	bool "Send PXE client arch to BOOTP/DHCP server"
 	default y
-	depends on CMD_BOOTP && CMD_PXE
+	depends on (CMD_BOOTP || CMD_DHCP) && CMD_PXE
 	help
 	  Supported for ARM, ARM64, and x86 for now.
 
 config DHCP_PXE_CLIENTARCH
-	hex "DCHCP client system architecture type"
+	hex "DHCP client system architecture type"
 	depends on BOOTP_PXE || CMD_DHCP6
 	default 0x16 if ARM64 # arm 64 uboot
 	default 0x15 if ARM   # arm 32 uboot
@@ -2139,8 +2138,6 @@ config BOOTP_PXE_DHCP_OPTION
 	bool "Request & store 'pxe_configfile' from BOOTP/DHCP server"
 	default y
 	depends on BOOTP_PXE
-
-endif
 
 config BOOTP_VCI_STRING
 	string

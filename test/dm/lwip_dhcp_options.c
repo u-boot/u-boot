@@ -26,6 +26,8 @@ enum dhcp_reply_kind {
 	DHCP_REPLY_ZERO_OFFSET,
 	DHCP_REPLY_BAD_NTP,
 	DHCP_REPLY_ROOT_OVERFLOW,
+	DHCP_REPLY_BAD_CONFIG,
+	DHCP_REPLY_CONFIG_OVERFLOW,
 	DHCP_REPLY_BAD_DNS,
 };
 
@@ -36,6 +38,12 @@ struct dhcp_options_test {
 	bool requested[256];
 	char hostname[256];
 	char vendor[256];
+	u8 arch[2];
+	u8 undi[3];
+	u8 uuid[17];
+	unsigned int arch_count;
+	unsigned int undi_count;
+	unsigned int uuid_count;
 	bool chain_failed;
 };
 
@@ -46,6 +54,7 @@ static bool dhcp_options_chain_check(struct dhcp_msg *reply, size_t len,
 	err_t expected = kind == DHCP_REPLY_BAD_STRING || kind == DHCP_REPLY_TRUNCATED ||
 		kind == DHCP_REPLY_BAD_SIZE || kind == DHCP_REPLY_BAD_NTP ||
 		kind == DHCP_REPLY_ROOT_OVERFLOW ||
+		kind == DHCP_REPLY_BAD_CONFIG || kind == DHCP_REPLY_CONFIG_OVERFLOW ||
 		kind == DHCP_REPLY_BAD_DNS ?
 		ERR_VAL : ERR_OK;
 	unsigned int i;
@@ -141,6 +150,7 @@ static int dhcp_options_reply(struct udevice *dev, struct dhcp_msg *request,
 		pos = dhcp_test_option(pos, 6, dns, sizeof(dns));
 		/* A trailing NUL is legal and must not become part of the path. */
 		pos = dhcp_test_option(pos, 67, "option.bin", sizeof("option.bin"));
+		pos = dhcp_test_option(pos, 209, "pxelinux.cfg/custom", 19);
 	} else if (kind == DHCP_REPLY_OVERLOAD) {
 		u8 overload = DHCP_OVERLOAD_SNAME_FILE;
 		u8 *field;
@@ -150,13 +160,16 @@ static int dhcp_options_reply(struct udevice *dev, struct dhcp_msg *request,
 		pos = dhcp_test_option(pos, 6, dns, 1);
 		pos = dhcp_test_option(pos, 67, "subdir/", 7);
 		pos = dhcp_test_option(pos, 42, ntp, 1);
+		pos = dhcp_test_option(pos, 209, "pxelinux.cfg/", 13);
 		field = dhcp_test_option(reply->file, 17, "/root", 5);
 		field = dhcp_test_option(field, 6, dns + 1, 7);
 		field = dhcp_test_option(field, 67, "overloaded.bin", 14);
 		field = dhcp_test_option(field, 42, ntp + 1, 2);
+		field = dhcp_test_option(field, 209, "over", 4);
 		*field = DHCP_OPTION_END;
 		field = dhcp_test_option(reply->sname, 17, "/fs", 3);
 		field = dhcp_test_option(field, 42, ntp + 3, sizeof(ntp) - 3);
+		field = dhcp_test_option(field, 209, "loaded", 6);
 		*field = DHCP_OPTION_END;
 	} else if (kind == DHCP_REPLY_ZERO_OFFSET) {
 		static const u8 zero[4];
@@ -182,6 +195,15 @@ static int dhcp_options_reply(struct udevice *dev, struct dhcp_msg *request,
 
 			memset(root, 'r', sizeof(root));
 			pos = dhcp_test_option(pos, 17, root, sizeof(root));
+		}
+		if (kind == DHCP_REPLY_BAD_CONFIG)
+			pos = dhcp_test_option(pos, 209, "bad\0path", 8);
+		if (kind == DHCP_REPLY_CONFIG_OVERFLOW) {
+			u8 config[255];
+
+			memset(config, 'c', sizeof(config));
+			pos = dhcp_test_option(pos, 209, config, sizeof(config));
+			pos = dhcp_test_option(pos, 209, "x", 1);
 		}
 	}
 	/* Exercise custom options before the message-type option. */
@@ -254,6 +276,22 @@ static int dhcp_options_tx(struct udevice *dev, void *packet, unsigned int len)
 			memcpy(str, pos, size);
 			str[size] = 0;
 		}
+		if (code == 93) {
+			if (size != sizeof(test->arch))
+				return -EINVAL;
+			memcpy(test->arch, pos, size);
+			test->arch_count++;
+		} else if (code == 94) {
+			if (size != sizeof(test->undi))
+				return -EINVAL;
+			memcpy(test->undi, pos, size);
+			test->undi_count++;
+		} else if (code == 97) {
+			if (size != sizeof(test->uuid))
+				return -EINVAL;
+			memcpy(test->uuid, pos, size);
+			test->uuid_count++;
+		}
 		pos += size;
 	}
 	if (type == DHCP_DISCOVER) {
@@ -304,11 +342,29 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 {
 	char * const argv[] = { "dhcp", "2000000", "explicit.bin" };
 	char long_name[257];
-	int kind;
+	static const u8 uuid[] = {
+		0, 0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+		0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
+	};
+	static const u8 undi[] = { 1, 0, 0 };
+	static const char * const invalid_arch[] = {
+		"junk", "0x", "10000", "0x10000", "100001234", "10000000000001234",
+	};
+	static const struct {
+		const char *str;
+		u16 value;
+	} valid_arch[] = {
+		{ "0Xffff", 0xffff },
+		{ "0000000000000000000001234", 0x1234 },
+		{ "0xff", 0xff },
+	};
+	int i, kind;
 
 	ut_assertok(env_set("ethact", "eth@10002000"));
 	ut_assertok(env_set("autoload", "no"));
 	ut_assertok(env_set("bootp_vci", "U-Boot.test"));
+	ut_assertok(env_set("bootp_arch", "1234"));
+	ut_assertok(env_set("pxeuuid", "00112233-4455-6677-8899-aabbccddeeff"));
 	ut_assertok(dhcp_server_check(uts, test));
 	for (kind = DHCP_REPLY_BASIC; kind <= DHCP_REPLY_BAD_DNS; kind++) {
 		bool supplied = kind == DHCP_REPLY_BASIC || kind == DHCP_REPLY_OVERLOAD;
@@ -322,6 +378,9 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 		if (kind == DHCP_REPLY_BAD_DNS && !IS_ENABLED(CONFIG_BOOTP_DNS))
 			continue;
 		if (kind == DHCP_REPLY_BAD_SIZE && !IS_ENABLED(CONFIG_BOOTP_BOOTFILESIZE))
+			continue;
+		if ((kind == DHCP_REPLY_BAD_CONFIG || kind == DHCP_REPLY_CONFIG_OVERFLOW) &&
+		    !IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION))
 			continue;
 		if (kind == DHCP_REPLY_ROOT_OVERFLOW &&
 		    (!IS_ENABLED(CONFIG_BOOTP_BOOTPATH) || CONFIG_BOOTP_MAX_ROOT_PATH_LEN > 261))
@@ -352,6 +411,20 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 				"8.8.8.8" : "1.2.3.4", env_get("dnsip"));
 		ut_asserteq_str(supplied && IS_ENABLED(CONFIG_BOOTP_DNS2) ?
 				"9.9.9.9" : "5.6.7.8", env_get("dnsip2"));
+		ut_asserteq(2, test->arch_count);
+		ut_asserteq(0x1234, get_unaligned_be16(test->arch));
+		ut_asserteq(2, test->undi_count);
+		ut_asserteq_mem(undi, test->undi, sizeof(undi));
+		ut_asserteq(IS_ENABLED(CONFIG_LIB_UUID) ? 2 : 0, test->uuid_count);
+		if (IS_ENABLED(CONFIG_LIB_UUID))
+			ut_asserteq_mem(uuid, test->uuid, sizeof(uuid));
+		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION), test->requested[209]);
+		if (IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION) &&
+		    (kind == DHCP_REPLY_BASIC || kind == DHCP_REPLY_OVERLOAD))
+			ut_asserteq_str(kind == DHCP_REPLY_BASIC ? "pxelinux.cfg/custom" :
+					"pxelinux.cfg/overloaded", pxelinux_configfile);
+		else
+			ut_assertnull(pxelinux_configfile);
 		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_HOSTNAME), test->requested[12]);
 		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_BOOTPATH), test->requested[17]);
 		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_BOOTFILESIZE), test->requested[13]);
@@ -406,6 +479,49 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 	ut_asserteq(0, test->discover);
 	ut_assertnull(netif_default);
 
+	ut_assertok(env_set("bootp_vci", "U-Boot.test"));
+	ut_assertok(env_set("hostname", "original"));
+	ut_assertok(env_set("bootp_arch", "ff"));
+	ut_assertok(env_set("pxeuuid", NULL));
+	*test = (struct dhcp_options_test){ .kind = DHCP_REPLY_EMPTY };
+	ut_assertok(do_dhcp(NULL, 0, 1, argv));
+	ut_asserteq(0, test->arch_count);
+	ut_asserteq(0, test->uuid_count);
+	/* Overflow must not turn an oversized architecture into a valid one. */
+	for (i = 0; i < ARRAY_SIZE(invalid_arch); i++) {
+		ut_assertok(env_set("bootp_arch", invalid_arch[i]));
+		*test = (struct dhcp_options_test){};
+		ut_asserteq(CMD_RET_FAILURE, do_dhcp(NULL, 0, 1, argv));
+		ut_asserteq(0, test->discover);
+		ut_assertnull(netif_default);
+	}
+	for (i = 0; i < ARRAY_SIZE(valid_arch); i++) {
+		ut_assertok(env_set("bootp_arch", valid_arch[i].str));
+		*test = (struct dhcp_options_test){ .kind = DHCP_REPLY_EMPTY };
+		ut_assertok(do_dhcp(NULL, 0, 1, argv));
+		ut_asserteq(valid_arch[i].value == 0xff ? 0 : 2, test->arch_count);
+		if (valid_arch[i].value != 0xff)
+			ut_asserteq(valid_arch[i].value, get_unaligned_be16(test->arch));
+	}
+	ut_assertok(env_set("bootp_arch", NULL));
+	*test = (struct dhcp_options_test){ .kind = DHCP_REPLY_EMPTY };
+	ut_assertok(do_dhcp(NULL, 0, 1, argv));
+	if (IS_ENABLED(CONFIG_BOOTP_PXE)) {
+		u16 arch = IF_ENABLED_INT(CONFIG_BOOTP_PXE, CONFIG_DHCP_PXE_CLIENTARCH);
+
+		ut_asserteq(arch == 0xff ? 0 : 2, test->arch_count);
+		if (arch != 0xff)
+			ut_asserteq(arch, get_unaligned_be16(test->arch));
+	} else {
+		ut_asserteq(0, test->arch_count);
+	}
+	if (IS_ENABLED(CONFIG_LIB_UUID)) {
+		ut_assertok(env_set("pxeuuid", "invalid"));
+		*test = (struct dhcp_options_test){};
+		ut_asserteq(CMD_RET_FAILURE, do_dhcp(NULL, 0, 1, argv));
+		ut_asserteq(0, test->discover);
+	}
+
 	return 0;
 }
 
@@ -415,12 +531,14 @@ static int dm_test_lwip_dhcp_options(struct unit_test_state *uts)
 		"ethact", "autoload", "bootp_vci", "hostname", "domain", "rootpath",
 		"bootfile", "timeoffset", "ntpserverip", "ipaddr", "netmask", "gatewayip",
 		"serverip", "tftpserverip", "dnsip", "dnsip2",
+		"bootp_arch", "pxeuuid",
 	};
 	struct dhcp_options_test test = {};
 	ip_addr_t old_ntp;
 	char bootfile[sizeof(net_boot_file_name)];
 	u32 expected_size = net_boot_file_expected_size_in_blocks;
 	char *saved[ARRAY_SIZE(vars)] = {};
+	char *config = pxelinux_configfile;
 	int i, ret = -ENOMEM;
 
 	if (CONFIG_IS_ENABLED(CMD_SNTP))
@@ -435,6 +553,7 @@ static int dm_test_lwip_dhcp_options(struct unit_test_state *uts)
 		}
 	}
 	memcpy(bootfile, net_boot_file_name, sizeof(bootfile));
+	pxelinux_configfile = NULL;
 	sandbox_eth_set_tx_handler(0, dhcp_options_tx);
 	sandbox_eth_set_priv(0, &test);
 	ret = dhcp_options_check(uts, &test);
@@ -442,6 +561,8 @@ static int dm_test_lwip_dhcp_options(struct unit_test_state *uts)
 	sandbox_eth_set_priv(0, NULL);
 	memcpy(net_boot_file_name, bootfile, sizeof(bootfile));
 	net_boot_file_expected_size_in_blocks = expected_size;
+	free(pxelinux_configfile);
+	pxelinux_configfile = config;
 	for (i = 0; i < ARRAY_SIZE(vars); i++)
 		if (env_set(vars[i], saved[i]))
 			ret = -EINVAL;

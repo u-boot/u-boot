@@ -129,7 +129,7 @@
 
 #ifdef CONFIG_CMD_DHCP
 #define LWIP_HOOK_FILENAME "lwip-dhcp.h"
-/* Core options plus two maximum-length hostname/vendor-class options. */
+/* Core/PXE options plus two maximum-length hostname/vendor-class options. */
 #define DHCP_OPTIONS_LEN		640
 /* Stage NTP after concatenating fragments, not in the core option parser. */
 #define LWIP_DHCP_GET_NTP_SRV	0
@@ -180,10 +180,15 @@
 #else
 #define UBOOT_DHCP_TIMEOFFSET
 #endif
+#ifdef CONFIG_BOOTP_PXE_DHCP_OPTION
+#define UBOOT_DHCP_PXE_CONFIG	209,
+#else
+#define UBOOT_DHCP_PXE_CONFIG
+#endif
 #define DHCP_REQUEST_OPTIONS	UBOOT_DHCP_SUBNET UBOOT_DHCP_GATEWAY \
 	UBOOT_DHCP_DNS UBOOT_DHCP_NTP UBOOT_DHCP_HOSTNAME \
 	UBOOT_DHCP_FILESIZE UBOOT_DHCP_ROOTPATH UBOOT_DHCP_DOMAIN \
-	UBOOT_DHCP_TIMEOFFSET 67
+	UBOOT_DHCP_TIMEOFFSET UBOOT_DHCP_PXE_CONFIG 67
 #endif /* CONFIG_CMD_DHCP */
 
 #define LWIP_AUTOIP                     0
