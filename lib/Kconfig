@@ -1314,7 +1314,7 @@ config SPL_LMB_ARCH_MEM_MAP
 config LMB_LIMIT_DMA_BELOW_RAM_TOP
 	bool
 	depends on LMB
-	default y if ARCH_BCM283X || ARCH_ROCKCHIP
+	default y if ARCH_BCM283X || ARCH_ROCKCHIP || STARFIVE_JH7110
 	help
 	  Some architectures can not DMA above ram_top boundary,
 	  which is after 4 GiB or 32-bit boundary too. Limit the
