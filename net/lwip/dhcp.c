@@ -28,6 +28,8 @@ struct dhcp_boot_data {
 	u8 file_size[2];
 	u8 time_offset[4];
 	ip4_addr_t ntp;
+	ip4_addr_t dns[2];
+	u8 dns_count;
 	bool have_size;
 	bool have_offset;
 	bool have_ntp;
@@ -93,7 +95,8 @@ static int dhcp_boot_options(struct pbuf *p, unsigned int pos, unsigned int end,
 			 * For the NTP list retain only the first address, but validate
 			 * the length of the entire list below.
 			 */
-			if (code != DHCP_OPTION_NTP && len > opt->size - opt->len)
+			if (code != DHCP_OPTION_NTP && code != DHCP_OPTION_DNS_SERVER &&
+			    len > opt->size - opt->len)
 				return -E2BIG;
 			copy = min_t(size_t, len, opt->size - min(opt->len, opt->size));
 			if (copy && pbuf_copy_partial(p, (u8 *)opt->data + opt->len,
@@ -124,6 +127,7 @@ static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data)
 		  data->time_offset, sizeof(data->time_offset) },
 		{ 42, IS_ENABLED(CONFIG_BOOTP_NTPSERVER), false,
 		  &data->ntp, sizeof(data->ntp) },
+		{ 6, IS_ENABLED(CONFIG_BOOTP_DNS), false, data->dns, sizeof(data->dns) },
 	};
 	u8 overload = 0;
 	u32 cookie;
@@ -156,10 +160,14 @@ static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data)
 			if (memchr(str, 0, opt->len))
 				return ERR_VAL;
 			str[opt->len] = 0;
-		} else if (opt->code == DHCP_OPTION_NTP) {
+		} else if (opt->code == DHCP_OPTION_NTP || opt->code == DHCP_OPTION_DNS_SERVER) {
 			if (opt->len % sizeof(ip4_addr_t))
 				return ERR_VAL;
-			data->have_ntp = !ip4_addr_isany(&data->ntp);
+			if (opt->code == DHCP_OPTION_NTP)
+				data->have_ntp = !ip4_addr_isany(&data->ntp);
+			else
+				data->dns_count = min_t(size_t, opt->len / sizeof(ip4_addr_t),
+							IS_ENABLED(CONFIG_BOOTP_DNS2) ? 2 : 1);
 		} else {
 			if (opt->len != opt->size)
 				return ERR_VAL;
@@ -230,6 +238,19 @@ void net_lwip_dhcp_append(struct netif *netif, struct dhcp *dhcp, u8_t state,
 static int dhcp_boot_env(struct dhcp_boot_data *data)
 {
 	char offset[12];
+	unsigned int i;
+#if LWIP_DNS
+	ip_addr_t addr;
+#endif
+
+	for (i = 0; i < data->dns_count; i++) {
+		if (env_set(i ? "dnsip2" : "dnsip", ip4addr_ntoa(&data->dns[i])))
+			return CMD_RET_FAILURE;
+#if LWIP_DNS
+		ip_addr_copy_from_ip4(addr, data->dns[i]);
+		dns_setserver(i, &addr);
+#endif
+	}
 
 	if ((data->hostname[0] && env_set("hostname", data->hostname)) ||
 	    (data->rootpath[0] && env_set("rootpath", data->rootpath)) ||
@@ -317,11 +338,6 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 		    NULL : ip4addr_ntoa(&dhcp->offered_si_addr)))
 		return CMD_RET_FAILURE;
 
-#ifdef CONFIG_PROT_DNS_LWIP
-	if (env_set("dnsip", ip4addr_ntoa(dns_getserver(0))) ||
-	    env_set("dnsip2", ip4addr_ntoa(dns_getserver(1))))
-		return CMD_RET_FAILURE;
-#endif
 	if (dhcp_boot_env(&options->reply))
 		return CMD_RET_FAILURE;
 

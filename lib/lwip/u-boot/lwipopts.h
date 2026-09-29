@@ -133,7 +133,19 @@
 #define DHCP_OPTIONS_LEN		640
 /* Stage NTP after concatenating fragments, not in the core option parser. */
 #define LWIP_DHCP_GET_NTP_SRV	0
-#ifdef CONFIG_PROT_DNS_LWIP
+/* Stage DNS with the accepted boot options, independently of the resolver. */
+#define LWIP_DHCP_MAX_DNS_SERVERS	0
+#ifdef CONFIG_BOOTP_SUBNETMASK
+#define UBOOT_DHCP_SUBNET		1,
+#else
+#define UBOOT_DHCP_SUBNET
+#endif
+#ifdef CONFIG_BOOTP_GATEWAY
+#define UBOOT_DHCP_GATEWAY	3,
+#else
+#define UBOOT_DHCP_GATEWAY
+#endif
+#ifdef CONFIG_BOOTP_DNS
 #define UBOOT_DHCP_DNS		6,
 #else
 #define UBOOT_DHCP_DNS
@@ -168,8 +180,8 @@
 #else
 #define UBOOT_DHCP_TIMEOFFSET
 #endif
-#define DHCP_REQUEST_OPTIONS	1, 3, 28, UBOOT_DHCP_DNS UBOOT_DHCP_NTP \
-	UBOOT_DHCP_HOSTNAME \
+#define DHCP_REQUEST_OPTIONS	UBOOT_DHCP_SUBNET UBOOT_DHCP_GATEWAY \
+	UBOOT_DHCP_DNS UBOOT_DHCP_NTP UBOOT_DHCP_HOSTNAME \
 	UBOOT_DHCP_FILESIZE UBOOT_DHCP_ROOTPATH UBOOT_DHCP_DOMAIN \
 	UBOOT_DHCP_TIMEOFFSET 67
 #endif /* CONFIG_CMD_DHCP */

@@ -26,6 +26,7 @@ enum dhcp_reply_kind {
 	DHCP_REPLY_ZERO_OFFSET,
 	DHCP_REPLY_BAD_NTP,
 	DHCP_REPLY_ROOT_OVERFLOW,
+	DHCP_REPLY_BAD_DNS,
 };
 
 struct dhcp_options_test {
@@ -44,7 +45,9 @@ static bool dhcp_options_chain_check(struct dhcp_msg *reply, size_t len,
 	static const unsigned int splits[] = { DHCP_FILE_OFS + 4, DHCP_OPTIONS_OFS + 3 };
 	err_t expected = kind == DHCP_REPLY_BAD_STRING || kind == DHCP_REPLY_TRUNCATED ||
 		kind == DHCP_REPLY_BAD_SIZE || kind == DHCP_REPLY_BAD_NTP ||
-		kind == DHCP_REPLY_ROOT_OVERFLOW ? ERR_VAL : ERR_OK;
+		kind == DHCP_REPLY_ROOT_OVERFLOW ||
+		kind == DHCP_REPLY_BAD_DNS ?
+		ERR_VAL : ERR_OK;
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(splits); i++) {
@@ -96,6 +99,7 @@ static int dhcp_options_reply(struct udevice *dev, struct dhcp_msg *request,
 	static const u8 size[] = { 0, 42 };
 	static const u8 offset[] = { 0xff, 0xff, 0xf1, 0xf0 };
 	static const u8 ntp[] = { 10, 0, 0, 1, 10, 0, 0, 2 };
+	static const u8 dns[] = { 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10 };
 	struct ethernet_hdr *eth;
 	struct ip_udp_hdr *ip;
 	struct dhcp_msg *reply;
@@ -134,6 +138,7 @@ static int dhcp_options_reply(struct udevice *dev, struct dhcp_msg *request,
 		pos = dhcp_test_option(pos, 13, size, sizeof(size));
 		pos = dhcp_test_option(pos, 2, offset, sizeof(offset));
 		pos = dhcp_test_option(pos, 42, ntp, sizeof(ntp));
+		pos = dhcp_test_option(pos, 6, dns, sizeof(dns));
 		/* A trailing NUL is legal and must not become part of the path. */
 		pos = dhcp_test_option(pos, 67, "option.bin", sizeof("option.bin"));
 	} else if (kind == DHCP_REPLY_OVERLOAD) {
@@ -142,9 +147,11 @@ static int dhcp_options_reply(struct udevice *dev, struct dhcp_msg *request,
 
 		pos = dhcp_test_option(pos, 52, &overload, 1);
 		pos = dhcp_test_option(pos, 17, "/srv", 4);
+		pos = dhcp_test_option(pos, 6, dns, 1);
 		pos = dhcp_test_option(pos, 67, "subdir/", 7);
 		pos = dhcp_test_option(pos, 42, ntp, 1);
 		field = dhcp_test_option(reply->file, 17, "/root", 5);
+		field = dhcp_test_option(field, 6, dns + 1, 7);
 		field = dhcp_test_option(field, 67, "overloaded.bin", 14);
 		field = dhcp_test_option(field, 42, ntp + 1, 2);
 		*field = DHCP_OPTION_END;
@@ -168,6 +175,8 @@ static int dhcp_options_reply(struct udevice *dev, struct dhcp_msg *request,
 			pos = dhcp_test_option(pos, 42, ntp, 1);
 			pos = dhcp_test_option(pos, 42, ntp + 1, 2);
 		}
+		if (kind == DHCP_REPLY_BAD_DNS)
+			pos = dhcp_test_option(pos, 6, dns, 5);
 		if (kind == DHCP_REPLY_ROOT_OVERFLOW) {
 			u8 root[255];
 
@@ -272,14 +281,16 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 	ut_assertok(env_set("ethact", "eth@10002000"));
 	ut_assertok(env_set("autoload", "no"));
 	ut_assertok(env_set("bootp_vci", "U-Boot.test"));
-	for (kind = DHCP_REPLY_BASIC; kind <= DHCP_REPLY_ROOT_OVERFLOW; kind++) {
-		bool have_ntp = IS_ENABLED(CONFIG_BOOTP_NTPSERVER) &&
-			(kind == DHCP_REPLY_BASIC || kind == DHCP_REPLY_OVERLOAD);
+	for (kind = DHCP_REPLY_BASIC; kind <= DHCP_REPLY_BAD_DNS; kind++) {
+		bool supplied = kind == DHCP_REPLY_BASIC || kind == DHCP_REPLY_OVERLOAD;
+		bool have_ntp = IS_ENABLED(CONFIG_BOOTP_NTPSERVER) && supplied;
 		ip_addr_t old_ntp;
 
 		if (CONFIG_IS_ENABLED(CMD_SNTP))
 			ip_addr_copy(old_ntp, *sntp_getserver(0));
 		if (kind == DHCP_REPLY_BAD_NTP && !IS_ENABLED(CONFIG_BOOTP_NTPSERVER))
+			continue;
+		if (kind == DHCP_REPLY_BAD_DNS && !IS_ENABLED(CONFIG_BOOTP_DNS))
 			continue;
 		if (kind == DHCP_REPLY_BAD_SIZE && !IS_ENABLED(CONFIG_BOOTP_BOOTFILESIZE))
 			continue;
@@ -293,6 +304,8 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 		ut_assertok(env_set("domain", "original.test"));
 		ut_assertok(env_set("ntpserverip", "9.8.7.6"));
 		ut_assertok(env_set("timeoffset", "123"));
+		ut_assertok(env_set("dnsip", "1.2.3.4"));
+		ut_assertok(env_set("dnsip2", "5.6.7.8"));
 		ut_assertok(do_dhcp(NULL, 0, 1, argv));
 		ut_asserteq(1, test->discover);
 		ut_asserteq(1, test->request);
@@ -303,6 +316,13 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 		ut_asserteq_str(IS_ENABLED(CONFIG_BOOTP_SEND_HOSTNAME) ? "original" : "",
 				test->hostname);
 		ut_assert(test->requested[67]);
+		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_SUBNETMASK), test->requested[1]);
+		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_GATEWAY), test->requested[3]);
+		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_DNS), test->requested[6]);
+		ut_asserteq_str(supplied && IS_ENABLED(CONFIG_BOOTP_DNS) ?
+				"8.8.8.8" : "1.2.3.4", env_get("dnsip"));
+		ut_asserteq_str(supplied && IS_ENABLED(CONFIG_BOOTP_DNS2) ?
+				"9.9.9.9" : "5.6.7.8", env_get("dnsip2"));
 		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_HOSTNAME), test->requested[12]);
 		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_BOOTPATH), test->requested[17]);
 		ut_asserteq(IS_ENABLED(CONFIG_BOOTP_BOOTFILESIZE), test->requested[13]);
