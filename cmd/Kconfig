@@ -170,6 +170,17 @@ config CMD_CONFIG
 	  command.  This provides information of which options are enabled on
 	  the running U-Boot.
 
+config CMD_CONFIG_EXTRA_TEXT
+	string "Additional text embedded in .config variable"
+	depends on CMD_CONFIG
+	default ""
+	help
+	  This option can include additional text embedded in U-Boot .config,
+	  which is printed as part of the .config by the "config" command.
+	  This is useful for example for embedding build information into
+	  the U-Boot binary, e.g. content of OE /etc/buildinfo, but please
+	  do keep in mind that this does also increase the U-Boot binary size.
+
 config CMD_CONSOLE
 	bool "coninfo"
 	default y
