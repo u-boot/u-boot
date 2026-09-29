@@ -592,6 +592,13 @@ static int imagemap_test_ubiblock(struct unit_test_state *uts)
 	u64 off;
 	int i;
 
+	/*
+	 * Release any device a previous run attached: UBI keeps a reference to
+	 * the MTD device, and mtd_probe_devices() would then rebuild the
+	 * partition list behind its back.
+	 */
+	ubi_detach();
+
 	mtd_probe_devices();
 	mtd = get_mtd_device_nm("nand2");
 	ut_assert(!IS_ERR_OR_NULL(mtd));
@@ -638,6 +645,7 @@ static int imagemap_test_ubiblock(struct unit_test_state *uts)
 
 	imagemap_cleanup(imdev);
 	free(wbuf);
+	ubi_detach();
 
 	return 0;
 }
