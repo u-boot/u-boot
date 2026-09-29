@@ -11,6 +11,16 @@ config PHY_MTK_HDMI
 	  MT8188 and MT8195. The PHY provides the TMDS links and the pixel
 	  clock PLL to the HDMI TX controller.
 
+config PHY_MTK_MIPI_DSI
+	bool "MediaTek MIPI-DSI PHY Driver"
+	depends on PHY
+	depends on ARCH_MEDIATEK
+	depends on ARM64
+	depends on CLK
+	help
+	  Support for the MIPI TX D-PHY found on MediaTek SoCs such as the
+	  MT8183 and MT8365. The PHY provides the D-PHY lanes and their PLL.
+
 config PHY_MTK_TPHY
 	bool "MediaTek T-PHY Driver"
 	depends on PHY
