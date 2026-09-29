@@ -1970,6 +1970,14 @@ static const struct mtk_clk_tree mt8189_vlpckgen_clk_tree = {
 	.type = MTK_CLK_TREE_VLP_CK,
 };
 
+MTK_GATE_CLK_TREE(ext_clock_rates, perao_clks_tree, perao_clks);
+MTK_GATE_CLK_TREE(ext_clock_rates, imp_clks_tree, imp_clks);
+MTK_GATE_CLK_TREE(ext_clock_rates, mm_clks_tree, mm_clks);
+MTK_GATE_CLK_TREE(ext_clock_rates, mminfra_config_clks_tree, mminfra_config_clks);
+MTK_GATE_CLK_TREE(ext_clock_rates, ufs_config_ao_clks_tree, ufs_config_ao_clks);
+MTK_GATE_CLK_TREE(ext_clock_rates, ufs_config_pdn_clks_tree, ufs_config_pdn_clks);
+MTK_GATE_CLK_TREE(ext_clock_rates, vlpcfg_ao_clks_tree, vlpcfg_ao_clks);
+
 static const struct udevice_id mt8189_apmixed[] = {
 	{
 		.compatible = "mediatek,mt8189-apmixedsys",
@@ -1993,23 +2001,6 @@ static const struct udevice_id mt8189_vlpckgen[] = {
 	},
 	{ }
 };
-
-#define GATE_CLK_TREE(_name) \
-static const struct mtk_clk_tree _name##_tree = { \
-	.ext_clk_rates = ext_clock_rates, \
-	.num_ext_clks = ARRAY_SIZE(ext_clock_rates), \
-	.gates = _name, \
-	.num_gates = ARRAY_SIZE(_name), \
-	.gates_offs = _name[0].id, \
-}
-
-GATE_CLK_TREE(perao_clks);
-GATE_CLK_TREE(imp_clks);
-GATE_CLK_TREE(mm_clks);
-GATE_CLK_TREE(mminfra_config_clks);
-GATE_CLK_TREE(ufs_config_ao_clks);
-GATE_CLK_TREE(ufs_config_pdn_clks);
-GATE_CLK_TREE(vlpcfg_ao_clks);
 
 static const struct udevice_id of_match_mt8189_clk_gate[] = {
 	{ .compatible = "mediatek,mt8189-peri-ao", .data = (ulong)&perao_clks_tree },
