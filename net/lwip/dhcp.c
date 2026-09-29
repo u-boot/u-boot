@@ -10,6 +10,7 @@
 #include <lwip-dhcp.h>
 #include <malloc.h>
 #include <net.h>
+#include <rand.h>
 #include <time.h>
 #include <asm/unaligned.h>
 #include <dm/device.h>
@@ -21,7 +22,8 @@
 #include <lwip/prot/dhcp.h>
 #include <u-boot/uuid.h>
 
-#define DHCP_TIMEOUT_MS 10000
+#define DHCP_TIMEOUT_MS ((3ULL + 5ULL * CONFIG_NET_RETRY_COUNT) * 1000)
+#define DHCP_RETRANSMIT_MAX_MS (U16_MAX * DHCP_FINE_TIMER_MSECS)
 
 struct dhcp_boot_data {
 	char hostname[256];
@@ -46,6 +48,11 @@ struct dhcp_efi_cache {
 
 struct dhcp_options {
 	struct netif *netif;
+	ulong start;
+	ulong timeout;
+	u32 retransmit_init;
+	u32 retransmit_max;
+	u16 discover_secs;
 	struct dhcp_boot_data reply;
 	struct dhcp_boot_data candidate;
 	char hostname[256];
@@ -84,6 +91,51 @@ static int dhcp_parse_number(const char *str, uint base, ulong limit, ulong *res
 		value = value * base + digit;
 	} while (*str);
 	*result = value;
+
+	return 0;
+}
+
+/* The core rounds the result up to its fine timer interval. */
+u32_t net_lwip_dhcp_timeout(u8_t tries)
+{
+	struct dhcp_options *options = active_options;
+	u32 timeout;
+	unsigned int i;
+
+	if (!options)
+		return (tries < 6 ? 1U << tries : 60) * 1000;
+	timeout = options->retransmit_init;
+	for (i = 1; i < tries && timeout < options->retransmit_max; i++)
+		timeout = min(timeout * 2, options->retransmit_max);
+	if (tries <= 1)
+		return timeout;
+	/* Match the legacy client's approximately ten percent randomization. */
+	timeout = mult_frac(timeout, rand() % 200 + 900, 1000);
+
+	return clamp(timeout, 1U, options->retransmit_max);
+}
+
+static int dhcp_timing_options(struct dhcp_options *options)
+{
+	static const char * const names[] = {
+		"bootpretryperiod", "bootpretransmitperiodinit", "bootpretransmitperiodmax",
+	};
+	ulong values[] = { min_t(u64, DHCP_TIMEOUT_MS, ULONG_MAX), 250, 60000 };
+	unsigned int i;
+
+	for (i = 0; i < ARRAY_SIZE(names); i++) {
+		const char *value = env_get(names[i]);
+
+		if ((value && dhcp_parse_number(value, 10,
+						i ? DHCP_RETRANSMIT_MAX_MS : ULONG_MAX,
+						&values[i])) || (i && !values[i])) {
+			log_err("Invalid DHCP timing setting: %s\n", names[i]);
+			return -EINVAL;
+		}
+	}
+	options->timeout = values[0];
+	options->retransmit_max = values[2];
+	options->retransmit_init = min(values[1], values[2]);
 
 	return 0;
 }
@@ -283,6 +335,12 @@ void net_lwip_dhcp_append(struct netif *netif, struct dhcp *dhcp, u8_t state,
 	if (!active_options || active_options->netif != netif ||
 	    (type != DHCP_DISCOVER && type != DHCP_REQUEST))
 		return;
+	if (type == DHCP_DISCOVER)
+		options->discover_secs = min_t(ulong, get_timer(options->start) / 1000,
+					       U16_MAX);
+	/* RFC 2131 requires selecting REQUESTs to reuse DISCOVER's secs. */
+	msg->secs = htons(options->discover_secs);
+	copy_filename((char *)msg->file, net_boot_file_name, sizeof(msg->file));
 	dhcp_append(options, msg, len, DHCP_OPTION_HOSTNAME,
 		    options->hostname, strlen(options->hostname));
 	dhcp_append(options, msg, len, DHCP_OPTION_US, options->vendor, strlen(options->vendor));
@@ -404,6 +462,7 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 	}
 
 	start = get_timer(0);
+	options->start = start;
 
 	if (dhcp_start(net->netif) || options->append_failed)
 		return CMD_RET_FAILURE;
@@ -420,7 +479,7 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 			break;
 		}
 		mdelay(1);
-	} while (get_timer(start) < DHCP_TIMEOUT_MS);
+	} while (get_timer(start) < options->timeout);
 
 	if (!bound)
 		return CMD_RET_FAILURE;
@@ -527,7 +586,7 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_FAILURE;
 	strlcpy(options->hostname, hostname ?: "", sizeof(options->hostname));
 	strlcpy(options->vendor, vendor, sizeof(options->vendor));
-	if (dhcp_pxe_options(options)) {
+	if (dhcp_pxe_options(options) || dhcp_timing_options(options)) {
 		free(options);
 		return CMD_RET_FAILURE;
 	}

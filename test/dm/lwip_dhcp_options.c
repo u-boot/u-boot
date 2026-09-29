@@ -8,6 +8,7 @@
 #include <lwip-dhcp.h>
 #include <malloc.h>
 #include <net.h>
+#include <time.h>
 #include <asm/eth.h>
 #include <asm/unaligned.h>
 #include <dm/test.h>
@@ -39,6 +40,10 @@ struct dhcp_options_test {
 	bool requested[256];
 	char hostname[256];
 	char vendor[256];
+	char discover_file[DHCP_FILE_LEN];
+	char request_file[DHCP_FILE_LEN];
+	u16 discover_secs;
+	u16 request_secs;
 	u8 arch[2];
 	u8 undi[3];
 	u8 uuid[17];
@@ -301,12 +306,18 @@ static int dhcp_options_tx(struct udevice *dev, void *packet, unsigned int len)
 	}
 	if (type == DHCP_DISCOVER) {
 		test->discover++;
+		memcpy(test->discover_file, msg->file, sizeof(test->discover_file));
+		test->discover_secs = ntohs(msg->secs);
+		/* REQUEST must retain the DISCOVER value despite this delay. */
+		timer_test_add_offset(1200);
 		/* An offer must not publish its metadata when the ACK omits it. */
 		return dhcp_options_reply(dev, msg, DHCP_OFFER, DHCP_REPLY_BASIC);
 	}
 	if (type != DHCP_REQUEST)
 		return 0;
 	test->request++;
+	memcpy(test->request_file, msg->file, sizeof(test->request_file));
+	test->request_secs = ntohs(msg->secs);
 	ret = dhcp_options_reply(dev, msg, DHCP_ACK, test->kind);
 	if (!ret && test->kind >= DHCP_REPLY_BAD_STRING &&
 	    test->kind != DHCP_REPLY_ZERO_OFFSET)
@@ -390,6 +401,9 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 
 	ut_assertok(env_set("ethact", "eth@10002000"));
 	ut_assertok(env_set("autoload", "no"));
+	ut_assertok(env_set("bootpretransmitperiodinit", "5000"));
+	ut_assertok(env_set("bootpretransmitperiodmax", "60000"));
+	ut_assertok(env_set("bootpretryperiod", "10000"));
 	ut_assertok(env_set("bootp_vci", "U-Boot.test"));
 	ut_assertok(env_set("bootp_arch", "1234"));
 	ut_assertok(env_set("pxeuuid", "00112233-4455-6677-8899-aabbccddeeff"));
@@ -426,6 +440,9 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 		ut_assertok(dhcp_cache_check(uts, test));
 		ut_asserteq(1, test->discover);
 		ut_asserteq(1, test->request);
+		ut_asserteq_str("default.bin", test->discover_file);
+		ut_asserteq_str("default.bin", test->request_file);
+		ut_asserteq(test->discover_secs, test->request_secs);
 		ut_assert(!test->chain_failed);
 		ut_assertnull(netif_default);
 		ut_asserteq_str("1.1.2.3", env_get("ipaddr"));
@@ -489,6 +506,8 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 	*test = (struct dhcp_options_test){ .kind = DHCP_REPLY_BASIC };
 	ut_assertok(do_dhcp(NULL, 0, 3, argv));
 	ut_asserteq_str("explicit.bin", env_get("bootfile"));
+	ut_asserteq_str("explicit.bin", test->discover_file);
+	ut_asserteq_str("explicit.bin", test->request_file);
 
 	/* Maximum option values fit; a larger value is rejected before sending. */
 	memset(long_name, 'x', sizeof(long_name));
@@ -561,6 +580,7 @@ static int dm_test_lwip_dhcp_options(struct unit_test_state *uts)
 		"bootfile", "timeoffset", "ntpserverip", "ipaddr", "netmask", "gatewayip",
 		"serverip", "tftpserverip", "dnsip", "dnsip2",
 		"bootp_arch", "pxeuuid",
+		"bootpretransmitperiodinit", "bootpretransmitperiodmax", "bootpretryperiod",
 	};
 	struct dhcp_options_test test = {};
 	ip_addr_t old_ntp;

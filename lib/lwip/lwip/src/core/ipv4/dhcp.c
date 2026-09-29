@@ -132,7 +132,9 @@
 #define DHCP_SET_TIMEOUT_FROM_OFFERED_T2_REBIND(res, dhcp) SET_TIMEOUT_FROM_OFFERED(res, (dhcp)->offered_t2_rebind, 0, 0xffff)
 
 #define DHCP_NEXT_TIMEOUT_THRESHOLD ((60 + DHCP_COARSE_TIMER_SECS / 2) / DHCP_COARSE_TIMER_SECS)
+#ifndef DHCP_REQUEST_BACKOFF_SEQUENCE
 #define DHCP_REQUEST_BACKOFF_SEQUENCE(tries)   (u16_t)(( (tries) < 6 ? 1 << (tries) : 60) * 1000)
+#endif
 
 #endif /* DHCP_DEFINE_CUSTOM_TIMEOUTS */
 
@@ -454,7 +456,7 @@ dhcp_select(struct netif *netif)
 {
   struct dhcp *dhcp;
   err_t result;
-  u16_t msecs;
+  u32_t msecs;
   u8_t i;
   struct pbuf *p_out;
   u16_t options_out_len;
@@ -503,9 +505,9 @@ dhcp_select(struct netif *netif)
   if (dhcp->tries < 255) {
     dhcp->tries++;
   }
-  msecs = (u16_t)((dhcp->tries < 6 ? 1 << dhcp->tries : 60) * 1000);
+  msecs = DHCP_REQUEST_BACKOFF_SEQUENCE(dhcp->tries);
   dhcp->request_timeout = (u16_t)((msecs + DHCP_FINE_TIMER_MSECS - 1) / DHCP_FINE_TIMER_MSECS);
-  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_STATE, ("dhcp_select(): set request timeout %"U16_F" msecs\n", msecs));
+  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_STATE, ("dhcp_select(): set request timeout %"U32_F" msecs\n", msecs));
   return result;
 }
 
@@ -1027,7 +1029,7 @@ dhcp_discover(struct netif *netif)
 {
   struct dhcp *dhcp = netif_dhcp_data(netif);
   err_t result = ERR_OK;
-  u16_t msecs;
+  u32_t msecs;
   u8_t i;
   struct pbuf *p_out;
   u16_t options_out_len;
@@ -1076,7 +1078,7 @@ dhcp_discover(struct netif *netif)
   }
   msecs = DHCP_REQUEST_BACKOFF_SEQUENCE(dhcp->tries);
   dhcp->request_timeout = (u16_t)((msecs + DHCP_FINE_TIMER_MSECS - 1) / DHCP_FINE_TIMER_MSECS);
-  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_discover(): set request timeout %"U16_F" msecs\n", msecs));
+  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_discover(): set request timeout %"U32_F" msecs\n", msecs));
   return result;
 }
 

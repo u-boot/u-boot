@@ -11,6 +11,9 @@ struct dhcp_msg;
 struct netif;
 struct pbuf;
 
+u32_t net_lwip_dhcp_timeout(u8_t tries);
+#define DHCP_REQUEST_BACKOFF_SEQUENCE net_lwip_dhcp_timeout
+
 err_t net_lwip_dhcp_ack(struct netif *netif, struct dhcp *dhcp, struct pbuf *p);
 void net_lwip_dhcp_append(struct netif *netif, struct dhcp *dhcp, u8_t state,
 			  struct dhcp_msg *msg, u8_t type, u16_t *len);

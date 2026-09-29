@@ -46,10 +46,9 @@ config NETCONSOLE
 	  Support the 'nc' input/output device for networked console.
 	  See doc/usage/netconsole.rst for details.
 
-if NET_LEGACY
-
 config ARP_TIMEOUT
 	int "Milliseconds before trying ARP again"
+	depends on NET_LEGACY
 	default 5000
 
 config NET_RETRY_COUNT
@@ -58,14 +57,15 @@ config NET_RETRY_COUNT
 	help
 	  This variable defines the number of retries for network operations
 	  like ARP, RARP, TFTP, or BOOTP before giving up the operation.
+	  With lwIP this sets the default DHCP acquisition timeout to
+	  (3 + 5 * NET_RETRY_COUNT) seconds.
 
 config PROT_UDP
 	bool "Enable generic udp framework"
+	depends on NET_LEGACY
 	help
 	  Enable a generic udp framework that allows defining a custom
 	  handler for udp protocol.
-
-endif
 
 config BOOTP_SEND_HOSTNAME
 	bool "Send hostname to DHCP server"
