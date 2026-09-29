@@ -2468,7 +2468,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 			return -EXDEV;
 		}
 
-		if (!CONFIG_IS_ENABLED(IMAGEMAP) || data != load)
+		/* A storage-backed image was read straight to its load address */
+		if (!images->imagemap || data != load)
 			printf("   Loading %s from 0x%08lx to 0x%08lx\n",
 			       prop_name, data, load);
 	} else {
