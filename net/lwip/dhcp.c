@@ -31,6 +31,9 @@ struct dhcp_boot_data {
 	char domain[256];
 	char bootfile[sizeof(net_boot_file_name)];
 	char pxe_config[256];
+	char vendor[256];
+	ip4_addr_t server;
+	u8 type;
 	u8 file_size[2];
 	u8 time_offset[4];
 	ip4_addr_t ntp;
@@ -43,7 +46,9 @@ struct dhcp_boot_data {
 
 struct dhcp_efi_cache {
 	struct efi_pxe_packet ack;
+	struct efi_pxe_packet proxy_offer;
 	u16 ack_len;
+	u16 proxy_len;
 };
 
 struct dhcp_options {
@@ -55,6 +60,10 @@ struct dhcp_options {
 	u16 discover_secs;
 	struct dhcp_boot_data reply;
 	struct dhcp_boot_data candidate;
+	struct dhcp_boot_data proxy;
+	ip4_addr_t proxy_server;
+	u32 proxy_xid;
+	bool have_proxy;
 	char hostname[256];
 	char vendor[256];
 	u16 arch;
@@ -204,7 +213,8 @@ static int dhcp_boot_options(struct pbuf *p, unsigned int pos, unsigned int end,
 	return 0;
 }
 
-static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data)
+static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data,
+				  bool proxy)
 {
 	struct dhcp_boot_option opts[] = {
 		{ 12, IS_ENABLED(CONFIG_BOOTP_HOSTNAME), true,
@@ -222,6 +232,9 @@ static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data)
 		  data->time_offset, sizeof(data->time_offset) },
 		{ 42, IS_ENABLED(CONFIG_BOOTP_NTPSERVER), false,
 		  &data->ntp, sizeof(data->ntp) },
+		{ 53, true, false, &data->type, sizeof(data->type) },
+		{ 54, true, false, &data->server, sizeof(data->server) },
+		{ 60, proxy, true, data->vendor, sizeof(data->vendor) - 1 },
 		{ 6, IS_ENABLED(CONFIG_BOOTP_DNS), false, data->dns, sizeof(data->dns) },
 	};
 	u8 overload = 0;
@@ -268,7 +281,7 @@ static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data)
 				return ERR_VAL;
 			if (opt->code == 13)
 				data->have_size = true;
-			else
+			else if (opt->code == 2)
 				data->have_offset = true;
 		}
 	}
@@ -283,6 +296,73 @@ static err_t dhcp_parse_boot_data(struct pbuf *p, struct dhcp_boot_data *data)
 	return ERR_OK;
 }
 
+err_t net_lwip_dhcp_recv(struct netif *netif, struct dhcp *dhcp, struct pbuf *p)
+{
+	struct dhcp_options *options = active_options;
+	struct dhcp_boot_data *data;
+	ip4_addr_t offered, server;
+	u32 cookie;
+	u8 type = 0, overload = 0;
+	struct dhcp_boot_option msg_type = { 53, true, false, &type, sizeof(type) };
+
+	if (!options || options->netif != netif)
+		return ERR_OK;
+	if (pbuf_copy_partial(p, &cookie, sizeof(cookie), DHCP_MSG_LEN) != sizeof(cookie) ||
+	    ntohl(cookie) != DHCP_MAGIC_COOKIE ||
+	    pbuf_get_at(p, offsetof(struct dhcp_msg, htype)) != 1 ||
+	    pbuf_get_at(p, offsetof(struct dhcp_msg, hlen)) != netif->hwaddr_len ||
+	    pbuf_copy_partial(p, &offered, sizeof(offered),
+			      offsetof(struct dhcp_msg, yiaddr)) != sizeof(offered))
+		return ERR_VAL;
+	if (!ip4_addr_isany(&offered))
+		return ERR_OK;
+	/*
+	 * NAK also has a zero yiaddr and must still drive the lease state
+	 * machine. Leave its full validation to the built-in DHCP parser.
+	 */
+	if (dhcp_boot_options(p, DHCP_OPTIONS_OFS, p->tot_len, &msg_type, 1, &overload) ||
+	    msg_type.len != 1)
+		return ERR_VAL;
+	if (type == DHCP_NAK)
+		return ERR_OK;
+
+	/*
+	 * Zero-address offers must never select a lease, even without proxy
+	 * support. Consume them before lwIP clears the ACK's boot filename.
+	 */
+	if (!IS_ENABLED(CONFIG_SERVERIP_FROM_PROXYDHCP) || options->have_proxy ||
+	    (dhcp->state != DHCP_STATE_SELECTING && dhcp->state != DHCP_STATE_REQUESTING &&
+	     dhcp->state != DHCP_STATE_BOUND))
+		return ERR_VAL;
+	data = &options->proxy;
+	memset(data, 0, sizeof(*data));
+	if (dhcp_parse_boot_data(p, data, true) ||
+	    (data->type != DHCP_OFFER && data->type != DHCP_ACK) ||
+	    strncmp(data->vendor, "PXEClient", 9) || ip4_addr_isany(&data->server))
+		return ERR_VAL;
+	if (pbuf_copy_partial(p, &server, sizeof(server),
+			      offsetof(struct dhcp_msg, siaddr)) != sizeof(server))
+		return ERR_VAL;
+	if (ip4_addr_isany(&server)) {
+		/* Menu-only offers need PXE boot-service discovery, not TFTP. */
+		if (!data->bootfile[0] && !data->pxe_config[0])
+			return ERR_VAL;
+		server = data->server;
+	}
+	if (ip4_addr_ismulticast(&server) || ip4_addr_isbroadcast(&server, netif))
+		return ERR_VAL;
+	options->proxy_server = server;
+	options->have_proxy = true;
+	if (CONFIG_IS_ENABLED(EFI_LOADER)) {
+		struct dhcp_efi_cache *efi = options->efi;
+
+		efi->proxy_len = min_t(size_t, p->tot_len, sizeof(efi->proxy_offer));
+		pbuf_copy_partial(p, &efi->proxy_offer, efi->proxy_len, 0);
+	}
+
+	return ERR_ABRT;
+}
+
 err_t net_lwip_dhcp_ack(struct netif *netif, struct dhcp *dhcp, struct pbuf *p)
 {
 	struct dhcp_boot_data *data;
@@ -293,9 +373,14 @@ err_t net_lwip_dhcp_ack(struct netif *netif, struct dhcp *dhcp, struct pbuf *p)
 	/* A rejected renewal must leave the accepted lease metadata intact. */
 	data = &active_options->candidate;
 	memset(data, 0, sizeof(*data));
-	ret = dhcp_parse_boot_data(p, data);
+	ret = dhcp_parse_boot_data(p, data, false);
 	if (ret)
 		return ret;
+	/* The lease comes only from the selected DHCP server, not the proxy. */
+	if (data->type != DHCP_ACK || ip4_addr_isany(&data->server) ||
+	    (dhcp->state == DHCP_STATE_REQUESTING &&
+	     !ip4_addr_cmp(&data->server, ip_2_ip4(&dhcp->server_ip_addr))))
+		return ERR_VAL;
 	active_options->reply = *data;
 	if (CONFIG_IS_ENABLED(EFI_LOADER)) {
 		struct dhcp_efi_cache *efi = active_options->efi;
@@ -335,6 +420,10 @@ void net_lwip_dhcp_append(struct netif *netif, struct dhcp *dhcp, u8_t state,
 	if (!active_options || active_options->netif != netif ||
 	    (type != DHCP_DISCOVER && type != DHCP_REQUEST))
 		return;
+	if (type == DHCP_DISCOVER && options->proxy_xid != dhcp->xid) {
+		options->have_proxy = false;
+		options->proxy_xid = dhcp->xid;
+	}
 	if (type == DHCP_DISCOVER)
 		options->discover_secs = min_t(ulong, get_timer(options->start) / 1000,
 					       U16_MAX);
@@ -428,7 +517,7 @@ static int dhcp_boot_env(struct dhcp_boot_data *data)
 	return CMD_RET_SUCCESS;
 }
 
-static int dhcp_server_env(struct dhcp *dhcp)
+static int dhcp_server_env(struct dhcp *dhcp, struct dhcp_options *options)
 {
 	const char *server = env_get("serverip");
 	ip4_addr_t addr;
@@ -438,6 +527,10 @@ static int dhcp_server_env(struct dhcp *dhcp)
 	    (IS_ENABLED(CONFIG_BOOTP_PREFER_SERVERIP) && server &&
 	     ip4addr_aton(server, &addr) && !ip4_addr_isany(&addr)))
 		return env_set("tftpserverip", NULL);
+
+	if (options->have_proxy)
+		return env_set("serverip", ip4addr_ntoa(&options->proxy_server)) ||
+			env_set("tftpserverip", ip4addr_ntoa(&options->proxy_server));
 
 	return env_set("serverip", ip4addr_ntoa(&dhcp->server_ip_addr)) ||
 		env_set("tftpserverip", ip4_addr_isany(&dhcp->offered_si_addr) ?
@@ -451,6 +544,7 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 	char maskstr[] = "netmask\0\0\0";
 	char gwstr[] = "gatewayip\0\0\0";
 	unsigned long start;
+	unsigned long proxy_start = 0;
 	struct dhcp *dhcp;
 	bool bound = false;
 	int idx;
@@ -467,24 +561,53 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 	if (dhcp_start(net->netif) || options->append_failed)
 		return CMD_RET_FAILURE;
 
-	/* Wait for DHCP to complete */
-	do {
+	/*
+	 * Keep the lease and optional proxy reply separate. Continue receiving
+	 * packets during the bounded proxy wait, without delaying DHCPREQUEST.
+	 */
+	for (;;) {
 		if (net_lwip_poll() < 0 || options->append_failed)
 			return CMD_RET_FAILURE;
-		bound = dhcp_supplied_address(net->netif);
-		if (bound)
-			break;
 		if (ctrlc()) {
 			printf("Abort\n");
+			return CMD_RET_FAILURE;
+		}
+		if (IS_ENABLED(CONFIG_SERVERIP_FROM_PROXYDHCP) &&
+		    !bound && dhcp_supplied_address(net->netif))
+			proxy_start = get_timer(0);
+		bound = dhcp_supplied_address(net->netif);
+		if (bound) {
+			if (IS_ENABLED(CONFIG_SERVERIP_FROM_PROXYDHCP) && !options->have_proxy &&
+			    get_timer(proxy_start) <
+			    IF_ENABLED_INT(CONFIG_SERVERIP_FROM_PROXYDHCP,
+					   CONFIG_SERVERIP_FROM_PROXYDHCP_DELAY_MS)) {
+				mdelay(1);
+				continue;
+			}
 			break;
 		}
+		if (get_timer(start) >= options->timeout)
+			break;
 		mdelay(1);
-	} while (get_timer(start) < options->timeout);
+	}
 
 	if (!bound)
 		return CMD_RET_FAILURE;
 
 	dhcp = netif_dhcp_data(net->netif);
+	if (options->have_proxy) {
+		struct dhcp_boot_data *proxy = &options->proxy;
+		struct dhcp_boot_data *reply = &options->reply;
+
+		if (proxy->bootfile[0]) {
+			strlcpy(reply->bootfile, proxy->bootfile, sizeof(reply->bootfile));
+			/* An ACK's size describes its own file, not the proxy's file. */
+			reply->have_size = proxy->have_size;
+			memcpy(reply->file_size, proxy->file_size, sizeof(reply->file_size));
+		}
+		if (proxy->pxe_config[0])
+			strlcpy(reply->pxe_config, proxy->pxe_config, sizeof(reply->pxe_config));
+	}
 
 	/* The core's file field also reflects replies it subsequently ignores. */
 	if (!explicit_file && options->reply.bootfile[0])
@@ -504,7 +627,7 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 	if (env_set(ipstr, ip4addr_ntoa(&dhcp->offered_ip_addr)) ||
 	    env_set(maskstr, ip4addr_ntoa(&dhcp->offered_sn_mask)) ||
 	    env_set(gwstr, ip4addr_ntoa(&dhcp->offered_gw_addr)) ||
-	    dhcp_server_env(dhcp))
+	    dhcp_server_env(dhcp, options))
 		return CMD_RET_FAILURE;
 
 	if (dhcp_boot_env(&options->reply))
@@ -513,7 +636,9 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 	if (CONFIG_IS_ENABLED(EFI_LOADER)) {
 		struct dhcp_efi_cache *efi = options->efi;
 
-		efi_net_set_dhcp_ack(&efi->ack, efi->ack_len);
+		efi_net_set_dhcp_ack(&efi->ack, efi->ack_len,
+				     options->have_proxy ? &efi->proxy_offer : NULL,
+				     options->have_proxy ? efi->proxy_len : 0);
 	}
 
 	printf("DHCP client bound to address %pI4 (%lu ms)\n",

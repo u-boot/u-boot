@@ -1154,7 +1154,7 @@ dhcp_got_bootp:
 			dhcp_state = BOUND;
 			if (CONFIG_IS_ENABLED(EFI_LOADER) &&
 			    IS_ENABLED(CONFIG_NETDEVICES))
-				efi_net_set_dhcp_ack(pkt, len);
+				efi_net_set_dhcp_ack(pkt, len, NULL, 0);
 			printf("DHCP client bound to address %pI4 (%lu ms)\n",
 			       &net_ip, get_timer(bootp_start));
 			net_set_timeout_handler(0, (thand_f *)0);

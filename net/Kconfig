@@ -116,19 +116,30 @@ config TFTP_TSIZE
 	  size from server, and if supported, limits the progress bar to
 	  50 characters total which fits on single line.
 
+endif
+
 config SERVERIP_FROM_PROXYDHCP
 	bool "Get serverip value from Proxy DHCP response"
+	depends on NET_LEGACY || CMD_DHCP
 	help
-	  Allows bootfile config to be fetched from Proxy DHCP server
-	  while IP is obtained from main DHCP server.
+	  Obtain the IP lease from the DHCP server and boot information from
+	  a separate ProxyDHCP server. With lwIP, accept direct boot replies
+	  on the DHCP client port; PXE boot menus and UDP port 4011 boot-service
+	  discovery are not implemented.
 
 config SERVERIP_FROM_PROXYDHCP_DELAY_MS
 	int "# of additional milliseconds to wait for ProxyDHCP response"
+	depends on SERVERIP_FROM_PROXYDHCP
+	range 0 10000
 	default 100
 	help
-	  Amount of additional time to wait for ProxyDHCP response after
-	  receiving response from main DHCP server. Has no effect if
-	  SERVERIP_FROM_PROXYDHCP is false.
+	  With lwIP, keep polling for a direct ProxyDHCP reply for up to this
+	  many milliseconds after obtaining the IP lease. Return immediately
+	  if a usable proxy reply already arrived. Missing proxy information
+	  does not fail an otherwise successful lease.
+	  The legacy client waits after receiving the DHCP offer.
+
+if NET_LEGACY
 
 config KEEP_SERVERADDR
 	bool "Write the server's MAC address to 'serveraddr'"

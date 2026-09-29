@@ -59,6 +59,8 @@ static struct wget_http_info efi_wget_info = {
 
 struct dhcp_entry {
 	struct efi_pxe_packet *dhcp_ack;
+	struct efi_pxe_packet *proxy_offer;
+	bool have_proxy;
 	struct udevice *dev;
 	bool is_valid;
 };
@@ -770,9 +772,12 @@ out:
  *
  * @pkt:	packet received by dhcp_handler()
  * @len:	length of the packet received
+ * @proxy:	optional direct ProxyDHCP reply from the same exchange
+ * @proxy_len:	length of the proxy reply, zero if absent
  */
-void efi_net_set_dhcp_ack(void *pkt, int len)
+void efi_net_set_dhcp_ack(void *pkt, int len, void *proxy, int proxy_len)
 {
+	struct dhcp_entry *entry = &dhcp_cache[next_dhcp_entry];
 	struct efi_pxe_packet **dhcp_ack;
 	struct udevice *dev;
 	int i;
@@ -792,8 +797,18 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
 		if (!*dhcp_ack)
 			return;
 	}
+	if (proxy && proxy_len > 0 && !entry->proxy_offer) {
+		entry->proxy_offer = malloc(maxsize);
+		if (!entry->proxy_offer)
+			return;
+	}
 	memset(*dhcp_ack, 0, maxsize);
 	memcpy(*dhcp_ack, pkt, min(len, maxsize));
+	entry->have_proxy = proxy && proxy_len > 0;
+	if (entry->have_proxy) {
+		memset(entry->proxy_offer, 0, maxsize);
+		memcpy(entry->proxy_offer, proxy, min(proxy_len, maxsize));
+	}
 
 	dhcp_cache[next_dhcp_entry].is_valid = true;
 	dhcp_cache[next_dhcp_entry].dev = dev;
@@ -820,13 +835,19 @@ void efi_net_get_dhcp_ack(struct udevice *dev, struct efi_pxe_mode *mode)
 	int i, j;
 
 	mode->dhcp_ack_received = false;
+	mode->proxy_offer_received = false;
 	memset(&mode->dhcp_ack, 0, sizeof(mode->dhcp_ack));
+	memset(&mode->proxy_offer, 0, sizeof(mode->proxy_offer));
 	i = (next_dhcp_entry + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES;
 	for (j = 0; dhcp_cache[i].is_valid && j < MAX_NUM_DHCP_ENTRIES;
 	     i = (i + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES, j++) {
 		if (dev == dhcp_cache[i].dev) {
 			mode->dhcp_ack = *dhcp_cache[i].dhcp_ack;
 			mode->dhcp_ack_received = true;
+			if (dhcp_cache[i].have_proxy) {
+				mode->proxy_offer = *dhcp_cache[i].proxy_offer;
+				mode->proxy_offer_received = true;
+			}
 			break;
 		}
 	}
