@@ -233,13 +233,18 @@ void *imagemap_map(struct udevice *dev, loff_t img_offset, ulong size)
 	 */
 	alist_for_each(r, &priv->regions) {
 		if (r->img_offset == base_off && r->size < read_size) {
+			/*
+			 * Only a region this device allocated may be resized;
+			 * one recorded by imagemap_map_to() lives at an address
+			 * the caller chose and owns.
+			 */
+			if (!r->lmb_reserved)
+				break;
+
 			addr = map_to_sysmem(r->ram);
 
-			/* Free old LMB reservation if we own it */
-			if (r->lmb_reserved)
-				lmb_free(addr,
-					 ALIGN(r->size, ARCH_DMA_MINALIGN),
-					 LMB_NONE);
+			lmb_free(addr, ALIGN(r->size, ARCH_DMA_MINALIGN),
+				 LMB_NONE);
 
 			/* Try to re-reserve at the same address with new size */
 			if (lmb_alloc_mem(LMB_MEM_ALLOC_ADDR, 0, &addr,
