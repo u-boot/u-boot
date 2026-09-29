@@ -3,6 +3,7 @@
 
 #include <command.h>
 #include <dm.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <lwip-dhcp.h>
 #include <malloc.h>
@@ -45,6 +46,7 @@ struct dhcp_options_test {
 	unsigned int undi_count;
 	unsigned int uuid_count;
 	bool chain_failed;
+	struct efi_pxe_packet expected_ack;
 };
 
 static bool dhcp_options_chain_check(struct dhcp_msg *reply, size_t len,
@@ -214,8 +216,11 @@ static int dhcp_options_reply(struct udevice *dev, struct dhcp_msg *request,
 	}
 	*pos++ = DHCP_OPTION_END;
 	len = pos - (u8 *)reply;
-	if (type == DHCP_ACK)
+	if (type == DHCP_ACK) {
 		test->chain_failed |= !dhcp_options_chain_check(reply, len, kind);
+		memset(&test->expected_ack, 0, sizeof(test->expected_ack));
+		memcpy(&test->expected_ack, reply, len);
+	}
 	ip->ip_hl_v = 0x45;
 	ip->ip_len = htons(IP_UDP_HDR_SIZE + len);
 	ip->ip_ttl = 64;
@@ -310,6 +315,29 @@ static int dhcp_options_tx(struct udevice *dev, void *packet, unsigned int len)
 	return ret;
 }
 
+static int dhcp_cache_check(struct unit_test_state *uts, struct dhcp_options_test *test)
+{
+	struct efi_pxe_mode *mode;
+	bool valid, equal, empty;
+
+	if (!CONFIG_IS_ENABLED(EFI_LOADER))
+		return 0;
+	mode = calloc(1, sizeof(*mode));
+	ut_assertnonnull(mode);
+	efi_net_get_dhcp_ack(eth_get_dev(), mode);
+	valid = mode->dhcp_ack_received;
+	equal = !memcmp(&test->expected_ack, &mode->dhcp_ack, sizeof(mode->dhcp_ack));
+	/* A cache entry for one interface must not appear on another. */
+	efi_net_get_dhcp_ack(NULL, mode);
+	empty = !mode->dhcp_ack_received;
+	free(mode);
+	ut_assert(valid);
+	ut_assert(equal);
+	ut_assert(empty);
+
+	return 0;
+}
+
 static int dhcp_server_check(struct unit_test_state *uts, struct dhcp_options_test *test)
 {
 	const char * const servers[] = { "9.8.7.6", "0.0.0.0", NULL };
@@ -395,6 +423,7 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 		ut_assertok(env_set("dnsip", "1.2.3.4"));
 		ut_assertok(env_set("dnsip2", "5.6.7.8"));
 		ut_assertok(do_dhcp(NULL, 0, 1, argv));
+		ut_assertok(dhcp_cache_check(uts, test));
 		ut_asserteq(1, test->discover);
 		ut_asserteq(1, test->request);
 		ut_assert(!test->chain_failed);

@@ -766,7 +766,7 @@ out:
 /**
  * efi_net_set_dhcp_ack() - take note of a selected DHCP IP address
  *
- * This function is called by dhcp_handler().
+ * This function is called by the network stack after accepting a reply.
  *
  * @pkt:	packet received by dhcp_handler()
  * @len:	length of the packet received
@@ -776,6 +776,9 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
 	struct efi_pxe_packet **dhcp_ack;
 	struct udevice *dev;
 	int i;
+
+	if (!pkt || len <= 0)
+		return;
 
 	dhcp_ack = &dhcp_cache[next_dhcp_entry].dhcp_ack;
 
@@ -798,8 +801,33 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
 	next_dhcp_entry %= MAX_NUM_DHCP_ENTRIES;
 
 	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-		if (net_objs[i] && net_objs[i]->dev == dev) {
-			net_objs[i]->pxe_mode.dhcp_ack = **dhcp_ack;
+		if (net_objs[i] && net_objs[i]->dev == dev)
+			efi_net_get_dhcp_ack(dev, &net_objs[i]->pxe_mode);
+	}
+}
+
+/**
+ * efi_net_get_dhcp_ack() - populate PXE mode from the DHCP cache
+ * @dev: network interface whose reply is wanted
+ * @mode: PXE mode to update
+ *
+ * Use the same packet and validity flag for newly registered protocols and
+ * protocols which already existed when DHCP completed. Other PXE state is
+ * left intact. Search newest first, including after cache wraparound.
+ */
+void efi_net_get_dhcp_ack(struct udevice *dev, struct efi_pxe_mode *mode)
+{
+	int i, j;
+
+	mode->dhcp_ack_received = false;
+	memset(&mode->dhcp_ack, 0, sizeof(mode->dhcp_ack));
+	i = (next_dhcp_entry + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES;
+	for (j = 0; dhcp_cache[i].is_valid && j < MAX_NUM_DHCP_ENTRIES;
+	     i = (i + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES, j++) {
+		if (dev == dhcp_cache[i].dev) {
+			mode->dhcp_ack = *dhcp_cache[i].dhcp_ack;
+			mode->dhcp_ack_received = true;
+			break;
 		}
 	}
 }
@@ -1134,7 +1162,7 @@ efi_status_t efi_net_register(struct udevice *dev)
 	void *transmit_buffer = NULL;
 	uchar **receive_buffer = NULL;
 	size_t *receive_lengths = NULL;
-	int i, j;
+	int i;
 
 	if (!dev) {
 		/* No network device active, don't expose any */
@@ -1242,18 +1270,7 @@ efi_status_t efi_net_register(struct udevice *dev)
 	netobj->pxe.set_packets = efi_pxe_base_code_set_packets;
 	netobj->pxe.mode = &netobj->pxe_mode;
 
-	/*
-	 * Scan dhcp entries for one corresponding
-	 * to this udevice, from newest to oldest
-	 */
-	i = (next_dhcp_entry + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES;
-	for (j = 0; dhcp_cache[i].is_valid && j < MAX_NUM_DHCP_ENTRIES;
-	     i = (i + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES, j++) {
-		if (dev == dhcp_cache[i].dev) {
-			netobj->pxe_mode.dhcp_ack = *dhcp_cache[i].dhcp_ack;
-			break;
-		}
-	}
+	efi_net_get_dhcp_ack(dev, &netobj->pxe_mode);
 
 	/*
 	 * Create WaitForPacket event.

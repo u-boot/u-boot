@@ -3,6 +3,7 @@
 
 #include <command.h>
 #include <console.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <hexdump.h>
 #include <log.h>
@@ -38,6 +39,11 @@ struct dhcp_boot_data {
 	bool have_ntp;
 };
 
+struct dhcp_efi_cache {
+	struct efi_pxe_packet ack;
+	u16 ack_len;
+};
+
 struct dhcp_options {
 	struct netif *netif;
 	struct dhcp_boot_data reply;
@@ -48,6 +54,8 @@ struct dhcp_options {
 	u8 uuid[1 + UUID_BIN_LEN];
 	bool have_uuid;
 	bool append_failed;
+	/* Allocate one packet cache only when EFI consumes the DHCP replies. */
+	struct dhcp_efi_cache efi[];
 };
 
 /* The address-less runtime attachment excludes a second DHCP command. */
@@ -237,6 +245,13 @@ err_t net_lwip_dhcp_ack(struct netif *netif, struct dhcp *dhcp, struct pbuf *p)
 	if (ret)
 		return ret;
 	active_options->reply = *data;
+	if (CONFIG_IS_ENABLED(EFI_LOADER)) {
+		struct dhcp_efi_cache *efi = active_options->efi;
+
+		/* Copy while the pbuf is alive, publish only after binding. */
+		efi->ack_len = min_t(size_t, p->tot_len, sizeof(efi->ack));
+		pbuf_copy_partial(p, &efi->ack, efi->ack_len, 0);
+	}
 
 	return ERR_OK;
 }
@@ -436,6 +451,12 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 	if (dhcp_boot_env(&options->reply))
 		return CMD_RET_FAILURE;
 
+	if (CONFIG_IS_ENABLED(EFI_LOADER)) {
+		struct dhcp_efi_cache *efi = options->efi;
+
+		efi_net_set_dhcp_ack(&efi->ack, efi->ack_len);
+	}
+
 	printf("DHCP client bound to address %pI4 (%lu ms)\n",
 	       &dhcp->offered_ip_addr, get_timer(start));
 
@@ -500,7 +521,8 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		log_err("DHCP hostname/vendor class exceeds 255 bytes\n");
 		return CMD_RET_FAILURE;
 	}
-	options = calloc(1, sizeof(*options));
+	options = calloc(1, sizeof(*options) +
+			 CONFIG_IS_ENABLED(EFI_LOADER) * sizeof(options->efi[0]));
 	if (!options)
 		return CMD_RET_FAILURE;
 	strlcpy(options->hostname, hostname ?: "", sizeof(options->hostname));

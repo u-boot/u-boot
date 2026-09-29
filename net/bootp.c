@@ -1125,9 +1125,6 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 				goto dhcp_got_bootp;
 			}
 			dhcp_packet_process_options(bp);
-			if (CONFIG_IS_ENABLED(EFI_LOADER) &&
-			    IS_ENABLED(CONFIG_NETDEVICES))
-				efi_net_set_dhcp_ack(pkt, len);
 
 #if defined(CONFIG_SERVERIP_FROM_PROXYDHCP)
 			if (!net_server_ip.s_addr)
@@ -1155,6 +1152,9 @@ dhcp_got_bootp:
 			/* Store net params from reply */
 			store_net_params(bp);
 			dhcp_state = BOUND;
+			if (CONFIG_IS_ENABLED(EFI_LOADER) &&
+			    IS_ENABLED(CONFIG_NETDEVICES))
+				efi_net_set_dhcp_ack(pkt, len);
 			printf("DHCP client bound to address %pI4 (%lu ms)\n",
 			       &net_ip, get_timer(bootp_start));
 			net_set_timeout_handler(0, (thand_f *)0);
