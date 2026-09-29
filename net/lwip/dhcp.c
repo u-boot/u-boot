@@ -608,7 +608,7 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 			return CMD_RET_FAILURE;
 		if (ctrlc()) {
 			printf("Abort\n");
-			return CMD_RET_FAILURE;
+			return -EINTR;
 		}
 		if (IS_ENABLED(CONFIG_SERVERIP_FROM_PROXYDHCP) &&
 		    !bound && dhcp_supplied_address(net->netif))
@@ -630,7 +630,7 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 	}
 
 	if (!bound)
-		return CMD_RET_FAILURE;
+		return -ETIMEDOUT;
 
 	dhcp = netif_dhcp_data(net->netif);
 	if (options->have_proxy) {
@@ -683,6 +683,17 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 	       &dhcp->offered_ip_addr, get_timer(start));
 
 	return CMD_RET_SUCCESS;
+}
+
+static void dhcp_retire(struct net_lwip_ctx *net)
+{
+	if (!net->netif || !netif_dhcp_data(net->netif))
+		return;
+	if (dhcp_supplied_address(net->netif))
+		dhcp_stop_without_release(net->netif);
+	else
+		dhcp_release_and_stop(net->netif);
+	dhcp_cleanup(net->netif);
 }
 
 static int dhcp_nfs_autoload(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -757,27 +768,44 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		free(options);
 		return CMD_RET_FAILURE;
 	}
-	options->netif = net.netif;
+	net_try_count = 1;
+	net_restart_wrap = 0;
 	active_options = options;
 
-	ret = dhcp_loop(&net, !!filename, options);
+	for (;;) {
+		options->netif = net.netif;
+		options->have_offer = false;
+		options->have_proxy = false;
+		memset(&options->reply, 0, sizeof(options->reply));
+		if (CONFIG_IS_ENABLED(EFI_LOADER)) {
+			options->efi->ack_len = 0;
+			options->efi->proxy_len = 0;
+		}
+		ret = dhcp_loop(&net, !!filename, options);
+		if (ret != -ETIMEDOUT)
+			break;
+		dhcp_retire(&net);
+		if (IS_ENABLED(CONFIG_BOOTP_MAY_FAIL) &&
+		    (env_get_yesno("ethrotate") == 0 || net_restart_wrap))
+			break;
+		/* Other runtime clients must not lose their interface on retry. */
+		ret = net_lwip_restart(&net);
+		if (ret || (IS_ENABLED(CONFIG_BOOTP_MAY_FAIL) && net_restart_wrap)) {
+			ret = CMD_RET_FAILURE;
+			break;
+		}
+	}
 	/*
 	 * A download needs strict addressing, incompatible with DHCP's
 	 * address-less runtime attachment. Retire DHCP before handing off.
 	 */
-	if (net.netif) {
-		if (dhcp_supplied_address(net.netif))
-			dhcp_stop_without_release(net.netif);
-		else
-			dhcp_release_and_stop(net.netif);
-		dhcp_cleanup(net.netif);
-	}
+	dhcp_retire(&net);
 	active_options = NULL;
 	free(options);
 	net_lwip_stop(&net);
 
 	if (ret)
-		return ret;
+		return CMD_RET_FAILURE;
 	autoload = env_get("autoload");
 	if (autoload && !strcmp(autoload, "NFS")) {
 		if (IS_ENABLED(CONFIG_CMD_NFS))

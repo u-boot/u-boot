@@ -2016,16 +2016,19 @@ config DHCP6_RAPID_COMMIT
 
 endif
 
+endif
+
 config BOOTP_MAY_FAIL
 	bool "Allow for the BOOTP/DHCP server to not be found"
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 	help
 	  If the DHCP server is not found after the configured retry count, the
 	  call will fail instead of starting over.  This can be used to fail
 	  over to Link-local IP address configuration if the DHCP server is not
 	  available.
 
-endif
+	  With lwIP, do not repeat the interface cycle once every interface
+	  has timed out, even with netretry=yes.
 
 config BOOTP_BOOTPATH
 	bool "Request & store 'rootpath' from BOOTP/DHCP server"
