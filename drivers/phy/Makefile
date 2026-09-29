@@ -4,9 +4,15 @@
 # Written by Jean-Jacques Hiblot  <jjhiblot@ti.com>
 
 obj-y += allwinner/
+obj-y += cadence/
 obj-y += marvell/
+obj-y += qcom/
+obj-y += renesas/
 obj-y += rockchip/
 obj-y += socionext/
+obj-y += spacemit/
+obj-y += starfive/
+obj-y += ti/
 
 obj-$(CONFIG_$(PHASE_)PHY) += phy-uclass.o
 obj-$(CONFIG_$(PHASE_)NOP_PHY) += nop-phy.o
@@ -46,9 +52,3 @@ obj-$(CONFIG_$(PHASE_)PHY_IMX8MQ_USB) += phy-imx8mq-usb.o
 obj-$(CONFIG_PHY_IMX8M_PCIE) += phy-imx8m-pcie.o
 obj-$(CONFIG_PHY_XILINX_ZYNQMP) += phy-zynqmp.o
 obj-$(CONFIG_PHY_COMMON_PROPS) += phy-common-props.o
-obj-y += cadence/
-obj-y += ti/
-obj-y += qcom/
-obj-y += renesas/
-obj-y += starfive/
-obj-y += spacemit/
