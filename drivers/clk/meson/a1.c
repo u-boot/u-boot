@@ -523,8 +523,6 @@ static ulong meson_composite_set_rate(struct clk *clk, ulong rate)
 	return 0;
 }
 
-static ulong meson_clk_set_rate(struct clk *clk, ulong rate);
-
 static ulong meson_mux_set_rate(struct clk *clk, ulong rate)
 {
 	int i;
@@ -542,7 +540,7 @@ static ulong meson_mux_set_rate(struct clk *clk, ulong rate)
 			.id = info->parents[i],
 		};
 
-		ret = meson_clk_set_rate(&parent, rate);
+		ret = clk_set_rate(&parent, rate);
 		if (!ret) {
 			SET_PARM_VALUE(priv, info->parm, i);
 			break;
