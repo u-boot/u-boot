@@ -274,6 +274,22 @@ static int dhcp_boot_env(struct dhcp_boot_data *data)
 	return CMD_RET_SUCCESS;
 }
 
+static int dhcp_server_env(struct dhcp *dhcp)
+{
+	const char *server = env_get("serverip");
+	ip4_addr_t addr;
+
+	/* tftpserverip otherwise overrides serverip in the lwIP TFTP client. */
+	if (IS_ENABLED(CONFIG_BOOTP_SERVERIP) ||
+	    (IS_ENABLED(CONFIG_BOOTP_PREFER_SERVERIP) && server &&
+	     ip4addr_aton(server, &addr) && !ip4_addr_isany(&addr)))
+		return env_set("tftpserverip", NULL);
+
+	return env_set("serverip", ip4addr_ntoa(&dhcp->server_ip_addr)) ||
+		env_set("tftpserverip", ip4_addr_isany(&dhcp->offered_si_addr) ?
+			NULL : ip4addr_ntoa(&dhcp->offered_si_addr));
+}
+
 static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 		     struct dhcp_options *options)
 {
@@ -332,10 +348,8 @@ static int dhcp_loop(struct net_lwip_ctx *net, bool explicit_file,
 
 	if (env_set(ipstr, ip4addr_ntoa(&dhcp->offered_ip_addr)) ||
 	    env_set(maskstr, ip4addr_ntoa(&dhcp->offered_sn_mask)) ||
-	    env_set("serverip", ip4addr_ntoa(&dhcp->server_ip_addr)) ||
 	    env_set(gwstr, ip4addr_ntoa(&dhcp->offered_gw_addr)) ||
-	    env_set("tftpserverip", ip4_addr_isany(&dhcp->offered_si_addr) ?
-		    NULL : ip4addr_ntoa(&dhcp->offered_si_addr)))
+	    dhcp_server_env(dhcp))
 		return CMD_RET_FAILURE;
 
 	if (dhcp_boot_env(&options->reply))

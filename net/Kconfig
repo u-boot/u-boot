@@ -147,14 +147,16 @@ config UDP_CHECKSUM
 	  is wrong then the packet is discarded and an error is shown, like
 	  "UDP wrong checksum 29374a23 30ff3826"
 
+endif
+
 config BOOTP_SERVERIP
 	bool "Use the 'serverip' env var for tftp, not bootp"
+	depends on NET_LEGACY || CMD_BOOTP || CMD_DHCP
 	help
 	  Enable this if the TFTP server will be the 'serverip' environment
 	  variable, not the BOOTP server. This affects the operation of both
-	  bootp and tftp.
-
-endif
+	  bootp and tftp. With lwIP, also clear 'tftpserverip' so it cannot
+	  override 'serverip'.
 
 config BOOTP_MAX_ROOT_PATH_LEN
 	int "Option 17 root path length"

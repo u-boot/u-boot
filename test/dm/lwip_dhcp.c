@@ -207,6 +207,7 @@ static int dhcp_handoff_check(struct unit_test_state *uts,
 	int i, ret;
 
 	ut_assertok(env_set("ethact", "eth@10002000"));
+	ut_assertok(env_set("serverip", "1.1.2.2"));
 	ut_assertok(env_set("loadaddr", "2000000"));
 	ut_assertok(env_set("autostart", "no"));
 	ut_assertok(env_set("nfsserverip", NULL));

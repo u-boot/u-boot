@@ -272,6 +272,34 @@ static int dhcp_options_tx(struct udevice *dev, void *packet, unsigned int len)
 	return ret;
 }
 
+static int dhcp_server_check(struct unit_test_state *uts, struct dhcp_options_test *test)
+{
+	const char * const servers[] = { "9.8.7.6", "0.0.0.0", NULL };
+	char * const argv[] = { "dhcp" };
+	unsigned int i;
+
+	for (i = 0; i < ARRAY_SIZE(servers); i++) {
+		bool preserve = IS_ENABLED(CONFIG_BOOTP_SERVERIP) ||
+			(IS_ENABLED(CONFIG_BOOTP_PREFER_SERVERIP) && !i);
+		const char *expected = preserve ? servers[i] : "1.1.2.2";
+
+		*test = (struct dhcp_options_test){ .kind = DHCP_REPLY_EMPTY };
+		ut_assertok(env_set("serverip", servers[i]));
+		ut_assertok(env_set("tftpserverip", "9.9.9.9"));
+		ut_assertok(do_dhcp(NULL, 0, 1, argv));
+		if (expected)
+			ut_asserteq_str(expected, env_get("serverip"));
+		else
+			ut_assertnull(env_get("serverip"));
+		if (preserve)
+			ut_assertnull(env_get("tftpserverip"));
+		else
+			ut_asserteq_str("1.1.2.4", env_get("tftpserverip"));
+	}
+
+	return 0;
+}
+
 static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_test *test)
 {
 	char * const argv[] = { "dhcp", "2000000", "explicit.bin" };
@@ -281,6 +309,7 @@ static int dhcp_options_check(struct unit_test_state *uts, struct dhcp_options_t
 	ut_assertok(env_set("ethact", "eth@10002000"));
 	ut_assertok(env_set("autoload", "no"));
 	ut_assertok(env_set("bootp_vci", "U-Boot.test"));
+	ut_assertok(dhcp_server_check(uts, test));
 	for (kind = DHCP_REPLY_BASIC; kind <= DHCP_REPLY_BAD_DNS; kind++) {
 		bool supplied = kind == DHCP_REPLY_BASIC || kind == DHCP_REPLY_OVERLOAD;
 		bool have_ntp = IS_ENABLED(CONFIG_BOOTP_NTPSERVER) && supplied;

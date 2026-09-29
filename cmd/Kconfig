@@ -2076,14 +2076,13 @@ config BOOTP_HOSTNAME
 
 config BOOTP_PREFER_SERVERIP
 	bool "serverip variable takes precedent over DHCP server IP."
-	depends on NET_LEGACY
-	depends on CMD_BOOTP
+	depends on CMD_BOOTP || CMD_DHCP
 	help
 	  By default a BOOTP/DHCP reply will overwrite the 'serverip' variable.
 
-	  With this option enabled, the 'serverip' variable in the environment
-	  takes precedence over DHCP server IP and will only be set by the DHCP
-	  server if not already set in the environment.
+	  With this option enabled, a nonzero 'serverip' in the environment
+	  takes precedence over the DHCP boot server. With lwIP, also clear
+	  'tftpserverip' so it cannot override the preserved 'serverip'.
 
 config BOOTP_SUBNETMASK
 	bool "Request & store 'netmask' from BOOTP/DHCP server"
