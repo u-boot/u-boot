@@ -71,6 +71,7 @@ static struct usb_descriptor_header *rkusb_fs_function[] = {
 	(struct usb_descriptor_header *)&interface_desc,
 	(struct usb_descriptor_header *)&fs_ep_in,
 	(struct usb_descriptor_header *)&fs_ep_out,
+	NULL,
 };
 
 static struct usb_descriptor_header *rkusb_hs_function[] = {

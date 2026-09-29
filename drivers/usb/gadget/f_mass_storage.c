@@ -2565,8 +2565,8 @@ static void fsg_common_release(struct fsg_common *common)
 {
 	/* If the thread isn't already dead, tell it to exit now */
 	if (common->state != FSG_STATE_TERMINATED) {
-		raise_exception(common, FSG_STATE_EXIT);
-		wait_for_completion(&common->thread_notifier);
+		do_set_interface(common, NULL);
+		common->state = FSG_STATE_EXIT;
 	}
 
 	if (likely(common->luns)) {
@@ -2647,8 +2647,8 @@ static void fsg_unbind(struct usb_configuration *c, struct usb_function *f)
 
 	DBG(fsg, "unbind\n");
 	if (fsg->common->fsg == fsg) {
-		fsg->common->new_fsg = NULL;
-		raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
+		do_set_interface(fsg->common, NULL);
+		fsg->common->state = FSG_STATE_CONFIG_CHANGE;
 	}
 
 	fsg_common_release(fsg->common);
