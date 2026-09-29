@@ -11,7 +11,7 @@
 #include <dm/device.h>
 #include <dm/device-internal.h>
 
-int ubi_bind(struct udevice *dev)
+int ubi_bind(struct udevice *dev, struct udevice **bdevp)
 {
 	struct blk_desc *bdesc;
 	struct udevice *bdev;
@@ -28,6 +28,8 @@ int ubi_bind(struct udevice *dev)
 
 	bdesc->bdev = bdev;
 	bdesc->part_type = PART_TYPE_UBI;
+
+	*bdevp = bdev;
 
 	return 0;
 }

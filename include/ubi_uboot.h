@@ -148,9 +148,9 @@ int cmd_ubifs_mount(const char *vol_name);
 int cmd_ubifs_umount(void);
 
 #if IS_ENABLED(CONFIG_UBI_BLOCK)
-int ubi_bind(struct udevice *dev);
+int ubi_bind(struct udevice *dev, struct udevice **bdevp);
 #else
-static inline int ubi_bind(struct udevice *dev)
+static inline int ubi_bind(struct udevice *dev, struct udevice **bdevp)
 {
 	return -EOPNOTSUPP;
 }
