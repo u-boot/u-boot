@@ -302,17 +302,16 @@ static const struct meson_clk_info *meson_pll_clocks[] = {
 	),
 };
 
-static const struct meson_clk_info *meson_clk_get_info(struct clk *clk, ulong id,
+static const struct meson_clk_info *meson_clk_get_info(struct clk *clk,
 						       enum meson_clk_type type)
 {
-	struct meson_clk_data *data;
+	struct meson_clk_data *data = (void *)dev_get_driver_data(clk->dev);
 	const struct meson_clk_info *info;
 
-	data = (struct meson_clk_data *)dev_get_driver_data(clk->dev);
-	if (id >= data->num_clocks)
+	if (clk->id >= data->num_clocks)
 		return ERR_PTR(-EINVAL);
 
-	info = data->clocks[id];
+	info = data->clocks[clk->id];
 	if (!info)
 		return ERR_PTR(-ENOENT);
 
@@ -322,7 +321,7 @@ static const struct meson_clk_info *meson_clk_get_info(struct clk *clk, ulong id
 	return info;
 }
 
-static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id);
+static ulong meson_clk_get_rate(struct clk *clk);
 
 static int meson_set_gate(struct clk *clk, bool on)
 {
@@ -331,7 +330,7 @@ static int meson_set_gate(struct clk *clk, bool on)
 
 	debug("%s: %sabling %lu\n", __func__, on ? "en" : "dis", clk->id);
 
-	info = meson_clk_get_info(clk, clk->id, MESON_CLK_ANY);
+	info = meson_clk_get_info(clk, MESON_CLK_ANY);
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 
@@ -350,32 +349,35 @@ static int meson_clk_disable(struct clk *clk)
 	return meson_set_gate(clk, false);
 }
 
-static ulong meson_div_get_rate(struct clk *clk, unsigned long id)
+static ulong meson_div_get_rate(struct clk *clk)
 {
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	u16 n;
 	ulong rate;
 	const struct meson_clk_info *info;
+	struct clk parent;
 
-	info = meson_clk_get_info(clk, id, MESON_CLK_DIV);
+	info = meson_clk_get_info(clk, MESON_CLK_DIV);
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 
 	/* Actual divider value is (field value + 1), hence the increment */
 	n = GET_PARM_VALUE(priv, info->parm) + 1;
 
-	rate = meson_clk_get_rate_by_id(clk, info->parents[0]);
+	parent.dev = clk->dev;
+	parent.id = info->parents[0];
+	rate = meson_clk_get_rate(&parent);
 
 	return rate / n;
 }
 
-static int meson_clk_get_parent(struct clk *clk, unsigned long id)
+static int meson_clk_get_parent(struct clk *clk)
 {
 	uint reg = 0;
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	const struct meson_clk_info *info;
 
-	info = meson_clk_get_info(clk, id, MESON_CLK_ANY);
+	info = meson_clk_get_info(clk, MESON_CLK_ANY);
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 
@@ -391,16 +393,16 @@ static int meson_clk_get_parent(struct clk *clk, unsigned long id)
 	return info->parents[reg];
 }
 
-static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
+static ulong meson_pll_get_rate(struct clk *clk)
 {
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	const struct meson_clk_info *info;
 	const struct parm *pm, *pn;
 	ulong parent_rate_mhz;
-	unsigned int parent;
+	struct clk parent;
 	u16 n, m;
 
-	info = meson_clk_get_info(clk, id, MESON_CLK_ANY);
+	info = meson_clk_get_info(clk, MESON_CLK_ANY);
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 
@@ -413,40 +415,39 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 	if (n == 0)
 		return -EINVAL;
 
-	parent = info->parents[0];
-	parent_rate_mhz = meson_clk_get_rate_by_id(clk, parent) / 1000000;
+	parent.dev = clk->dev;
+	parent.id = info->parents[0];
+	parent_rate_mhz = meson_clk_get_rate(&parent) / 1000000;
 
 	return parent_rate_mhz * m / n * 1000000;
 }
 
-static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
+static ulong meson_clk_get_rate(struct clk *clk)
 {
-	ulong rate, parent;
+	struct clk parent;
 	const struct meson_clk_info *info;
 
-	if (IS_ERR_VALUE(id))
-		return id;
+	if (IS_ERR_VALUE(clk->id))
+		return clk->id;
 
-	info = meson_clk_get_info(clk, id, MESON_CLK_ANY);
+	info = meson_clk_get_info(clk, MESON_CLK_ANY);
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 
 	switch (info->type) {
 	case MESON_CLK_PLL:
-		rate = meson_pll_get_rate(clk, id);
-		break;
+		return meson_pll_get_rate(clk);
 	case MESON_CLK_GATE:
 	case MESON_CLK_MUX:
-		parent = meson_clk_get_parent(clk, id);
-		rate = meson_clk_get_rate_by_id(clk, parent);
-		break;
+		parent.dev = clk->dev;
+		parent.id = meson_clk_get_parent(clk);
+		return meson_clk_get_rate(&parent);
 	case MESON_CLK_DIV:
-		rate = meson_div_get_rate(clk, id);
-		break;
+		return meson_div_get_rate(clk);
 	case MESON_CLK_FIXED_DIV:
-		parent = meson_clk_get_parent(clk, id);
-		rate = meson_clk_get_rate_by_id(clk, parent) / info->div;
-		break;
+		parent.dev = clk->dev;
+		parent.id = meson_clk_get_parent(clk);
+		return meson_clk_get_rate(&parent) / info->div;
 	case MESON_CLK_EXTERNAL: {
 		int ret;
 		struct clk external_clk;
@@ -455,20 +456,11 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 		if (ret)
 			return ret;
 
-		rate = clk_get_rate(&external_clk);
-		break;
+		return clk_get_rate(&external_clk);
 	}
 	default:
-		rate = -EINVAL;
-		break;
+		return -EINVAL;
 	}
-
-	return rate;
-}
-
-static ulong meson_clk_get_rate(struct clk *clk)
-{
-	return meson_clk_get_rate_by_id(clk, clk->id);
 }
 
 /* This implements rate propagation for dividers placed after multiplexer:
@@ -476,19 +468,22 @@ static ulong meson_clk_get_rate(struct clk *clk)
  *     ..... | |---DIV--
  *  ---------|/
  */
-static ulong meson_composite_set_rate(struct clk *clk, ulong id, ulong rate)
+static ulong meson_composite_set_rate(struct clk *clk, ulong rate)
 {
 	unsigned int i, best_div_val;
 	unsigned long best_delta, best_parent;
 	const struct meson_clk_info *div;
 	const struct meson_clk_info *mux;
 	struct meson_clk *priv = dev_get_priv(clk->dev);
+	struct clk mux_clk;
 
-	div = meson_clk_get_info(clk, id, MESON_CLK_DIV);
+	div = meson_clk_get_info(clk, MESON_CLK_DIV);
 	if (IS_ERR(div))
 		return PTR_ERR(div);
 
-	mux = meson_clk_get_info(clk, div->parents[0], MESON_CLK_MUX);
+	mux_clk.dev = clk->dev;
+	mux_clk.id = div->parents[0];
+	mux = meson_clk_get_info(&mux_clk, MESON_CLK_MUX);
 	if (IS_ERR(mux))
 		return PTR_ERR(mux);
 
@@ -497,8 +492,12 @@ static ulong meson_composite_set_rate(struct clk *clk, ulong id, ulong rate)
 	for (i = 0; i < (1 << mux->parm->width); i++) {
 		unsigned long parent_rate, delta;
 		unsigned int div_val;
+		struct clk parent = {
+			.dev = clk->dev,
+			.id =  mux->parents[i],
+		};
 
-		parent_rate = meson_clk_get_rate_by_id(clk, mux->parents[i]);
+		parent_rate = meson_clk_get_rate(&parent);
 		if (IS_ERR_VALUE(parent_rate))
 			continue;
 
@@ -524,21 +523,26 @@ static ulong meson_composite_set_rate(struct clk *clk, ulong id, ulong rate)
 	return 0;
 }
 
-static ulong meson_clk_set_rate_by_id(struct clk *clk, unsigned int id, ulong rate);
+static ulong meson_clk_set_rate(struct clk *clk, ulong rate);
 
-static ulong meson_mux_set_rate(struct clk *clk, unsigned long id, ulong rate)
+static ulong meson_mux_set_rate(struct clk *clk, ulong rate)
 {
 	int i;
 	ulong ret = -EINVAL;
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	const struct meson_clk_info *info;
 
-	info = meson_clk_get_info(clk, id, MESON_CLK_MUX);
+	info = meson_clk_get_info(clk, MESON_CLK_MUX);
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 
 	for (i = 0; i < (1 << info->parm->width); i++) {
-		ret = meson_clk_set_rate_by_id(clk, info->parents[i], rate);
+		struct clk parent = {
+			.dev = clk->dev,
+			.id = info->parents[i],
+		};
+
+		ret = meson_clk_set_rate(&parent, rate);
 		if (!ret) {
 			SET_PARM_VALUE(priv, info->parm, i);
 			break;
@@ -551,43 +555,41 @@ static ulong meson_mux_set_rate(struct clk *clk, unsigned long id, ulong rate)
 /* Rate propagation is implemented for a subcection of a clock tree, that is
  * required at boot stage.
  */
-static ulong meson_clk_set_rate_by_id(struct clk *clk, unsigned int id, ulong rate)
+static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
 {
-	switch (id) {
+	switch (clk->id) {
 	case CLKID_SPIFC_DIV:
 	case CLKID_USB_BUS_DIV:
-		return meson_composite_set_rate(clk, id, rate);
+		return meson_composite_set_rate(clk, rate);
 	case CLKID_SPIFC:
 	case CLKID_USB_BUS: {
-		unsigned long parent = meson_clk_get_parent(clk, id);
+		struct clk parent = {
+			.dev = clk->dev,
+			.id = meson_clk_get_parent(clk),
+		};
 
-		return meson_clk_set_rate_by_id(clk, parent, rate);
+		return meson_clk_set_rate(&parent, rate);
 	}
 	case CLKID_SPIFC_SEL2:
-		return meson_mux_set_rate(clk, id, rate);
+		return meson_mux_set_rate(clk, rate);
 	}
 
 	return -EINVAL;
 }
 
-static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
-{
-	return meson_clk_set_rate_by_id(clk, clk->id, rate);
-}
-
-static int meson_mux_set_parent_by_id(struct clk *clk, unsigned int parent_id)
+static int meson_clk_set_parent(struct clk *clk, struct clk *parent)
 {
 	unsigned int i, parent_index;
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	const struct meson_clk_info *info;
 
-	info = meson_clk_get_info(clk, clk->id, MESON_CLK_MUX);
+	info = meson_clk_get_info(clk, MESON_CLK_MUX);
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 
 	parent_index = -EINVAL;
 	for (i = 0; i < (1 << info->parm->width); i++) {
-		if (parent_id == info->parents[i]) {
+		if (parent->id == info->parents[i]) {
 			parent_index = i;
 			break;
 		}
@@ -599,11 +601,6 @@ static int meson_mux_set_parent_by_id(struct clk *clk, unsigned int parent_id)
 	SET_PARM_VALUE(priv, info->parm, parent_index);
 
 	return 0;
-}
-
-static int meson_clk_set_parent(struct clk *clk, struct clk *parent_clk)
-{
-	return meson_mux_set_parent_by_id(clk, parent_clk->id);
 }
 
 static int meson_clk_probe(struct udevice *dev)
@@ -636,11 +633,11 @@ static const struct udevice_id meson_clk_ids[] = {
 };
 
 #if IS_ENABLED(CONFIG_CMD_CLK)
-static const char *meson_clk_get_name(struct clk *clk, int id)
+static const char *meson_clk_get_name(struct clk *clk)
 {
 	const struct meson_clk_info *info;
 
-	info = meson_clk_get_info(clk, id, MESON_CLK_ANY);
+	info = meson_clk_get_info(clk, MESON_CLK_ANY);
 
 	return IS_ERR(info) ? "unknown" : info->name;
 }
@@ -651,11 +648,11 @@ static int meson_clk_dump_single(struct clk *clk)
 	struct meson_clk *priv;
 	unsigned long rate;
 	char *state, frequency[80];
-	int parent;
+	struct clk parent;
 
 	priv = dev_get_priv(clk->dev);
 
-	info = meson_clk_get_info(clk, clk->id, MESON_CLK_ANY);
+	info = meson_clk_get_info(clk, MESON_CLK_ANY);
 	if (IS_ERR(info) || !info->name)
 		return -EINVAL;
 
@@ -670,11 +667,12 @@ static int meson_clk_dump_single(struct clk *clk)
 	else
 		state = "N/A";
 
-	parent = meson_clk_get_parent(clk, clk->id);
+	parent.dev = clk->dev;
+	parent.id = meson_clk_get_parent(clk);
 	printf("%15s%20s%20s%15s\n",
 	       info->name,
 	       frequency,
-	       meson_clk_get_name(clk, parent),
+	       meson_clk_get_name(&parent),
 	       state);
 
 	return 0;
