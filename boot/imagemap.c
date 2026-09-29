@@ -114,12 +114,22 @@ imagemap_record(struct udevice *dev, loff_t img_offset, ulong size,
 
 	/* Check for an existing entry at the same base that we can extend */
 	alist_for_each(r, &priv->regions) {
-		if (r->img_offset == img_offset) {
-			r->size = size;
-			r->ram = ram;
-			r->lmb_reserved = lmb_reserved;
-			return r;
-		}
+		if (r->img_offset != img_offset)
+			continue;
+
+		/*
+		 * The entry is about to describe different memory, so give up
+		 * the reservation it owns while its address is still known.
+		 */
+		if (r->lmb_reserved && r->ram != ram)
+			lmb_free(map_to_sysmem(r->ram),
+				 ALIGN(r->size, ARCH_DMA_MINALIGN), LMB_NONE);
+
+		r->size = size;
+		r->ram = ram;
+		r->lmb_reserved = lmb_reserved;
+
+		return r;
 	}
 
 	/* Append new region */
