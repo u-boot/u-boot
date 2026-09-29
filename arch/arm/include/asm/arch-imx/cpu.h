@@ -95,7 +95,9 @@
 #define CHIP_REV_1_1            0x11
 #define CHIP_REV_1_2            0x12
 #define CHIP_REV_1_3            0x13
+#define CHIP_REV_1_4            0x14
 #define CHIP_REV_1_5            0x15
+#define CHIP_REV_1_6            0x16
 #define CHIP_REV_2_0            0x20
 #define CHIP_REV_2_1            0x21
 #define CHIP_REV_2_2            0x22

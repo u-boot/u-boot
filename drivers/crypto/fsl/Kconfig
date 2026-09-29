@@ -100,4 +100,26 @@ config FSL_DCP_RNG
 	  and a Pseudo-Random Number Generator (PRNG) to achieve a true
 	  randomness and cryptographic strength.
 
+config FSL_CAAM_RNG_SELF_TEST
+	bool "Run the CAAM RNG self test on affected i.MX6 chips"
+	depends on FSL_CAAM
+	default y if MX6S || MX6DL || MX6Q || MX6QDL || MX6SX
+	help
+	  The boot ROM of a few i.MX6 revisions runs the RNG self test
+	  incorrectly and leaves a HAB warning behind, which reads
+
+	    STS = HAB_WARNING (0x69)   RSN = HAB_ENG_FAIL (0x30)
+	    CTX = HAB_CTX_ENTRY (0xE1) ENG = HAB_ENG_CAAM (0x1D)
+
+	  The warning itself is harmless and this option does not make it
+	  go away. What it does is run the self test correctly, before
+	  anything else uses the RNG, so that a genuinely broken RNG is
+	  found rather than assumed to be the known warning. The board is
+	  stopped if the test fails.
+
+	  Affected are i.MX6Solo, i.MX6DL and i.MX6SX revision 1.4, i.MX6Q
+	  revision 1.6 and i.MX6QP revision 1.1, and no other revision of
+	  those chips. Chip and revision are read at runtime, so a build
+	  covering several of them behaves correctly on each.
+
 endif
