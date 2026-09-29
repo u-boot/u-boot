@@ -19,6 +19,7 @@
 
 struct gpio_regulator_plat {
 	struct regulator_common_plat common;
+	struct gpio_dt_spec gpio_dt; /* parsed voltage GPIO, requested in probe */
 	struct gpio_desc gpio; /* GPIO for regulator voltage control */
 	int states[GPIO_REGULATOR_MAX_STATES];
 	int voltages[GPIO_REGULATOR_MAX_STATES];
@@ -28,7 +29,6 @@ static int gpio_regulator_of_to_plat(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct gpio_regulator_plat *plat;
-	struct gpio_desc *gpio;
 	int ret, count, i, j;
 	u32 states_array[GPIO_REGULATOR_MAX_STATES * 2];
 
@@ -47,10 +47,10 @@ static int gpio_regulator_of_to_plat(struct udevice *dev)
 	 * per gpio-regulator. As of now no instance with multiple
 	 * gpios is presnt
 	 */
-	gpio = &plat->gpio;
-	ret = gpio_request_by_name(dev, "gpios", 0, gpio, GPIOD_IS_OUT);
+	ret = gpio_parse_by_name(dev, "gpios", 0, GPIOD_IS_OUT,
+				 &plat->gpio_dt);
 	if (ret)
-		debug("regulator gpio - not found! Error: %d", ret);
+		debug("gpio-regulator: cannot parse the voltage GPIO: %d\n", ret);
 
 	ret = dev_read_size(dev, "states");
 	if (ret < 0)
@@ -74,6 +74,18 @@ static int gpio_regulator_of_to_plat(struct udevice *dev)
 	}
 
 	return regulator_common_of_to_plat(dev, &plat->common, "enable-gpios");
+}
+
+static int gpio_regulator_probe(struct udevice *dev)
+{
+	struct gpio_regulator_plat *plat = dev_get_plat(dev);
+	int ret;
+
+	ret = gpio_request_parsed(dev, &plat->gpio_dt, &plat->gpio);
+	if (ret && ret != -ENOENT)
+		return ret;
+
+	return regulator_common_probe(dev, &plat->common);
 }
 
 static int gpio_regulator_get_value(struct udevice *dev)
@@ -153,6 +165,7 @@ U_BOOT_DRIVER(gpio_regulator) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &gpio_regulator_ops,
 	.of_match = gpio_regulator_ids,
+	.probe = gpio_regulator_probe,
 	.of_to_plat = gpio_regulator_of_to_plat,
 	.plat_auto	= sizeof(struct gpio_regulator_plat),
 };

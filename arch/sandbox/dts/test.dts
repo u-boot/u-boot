@@ -888,6 +888,24 @@
 		compatible = "sandbox,fpga";
 	};
 
+	fixed_gpio_reg: fixed-gpio-reg {
+		compatible = "regulator-fixed";
+		regulator-name = "fixed-gpio-enabled";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		gpio = <&gpio_c 8 GPIO_ACTIVE_HIGH>;
+	};
+
+	gpio_reg: gpio-reg {
+		compatible = "regulator-gpio";
+		regulator-name = "gpio-switched";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		gpios = <&gpio_c 9 GPIO_ACTIVE_HIGH>;
+		states = <1800000 0>, <3300000 1>;
+	};
+
 	pinctrl-gpio {
 		compatible = "sandbox,pinctrl-gpio";
 

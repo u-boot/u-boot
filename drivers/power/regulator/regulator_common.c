@@ -16,7 +16,6 @@ int regulator_common_of_to_plat(struct udevice *dev,
 				struct regulator_common_plat *plat,
 				const char *enable_gpio_name)
 {
-	struct gpio_desc *gpio;
 	int flags = GPIOD_IS_OUT;
 	int ret;
 
@@ -25,10 +24,10 @@ int regulator_common_of_to_plat(struct udevice *dev,
 	if (dev_read_bool(dev, "regulator-boot-on"))
 		flags |= GPIOD_IS_OUT_ACTIVE;
 
-	/* Get optional enable GPIO desc */
-	gpio = &plat->gpio;
+	/* Read the optional enable GPIO; it is requested in probe() */
 	if (CONFIG_IS_ENABLED(DM_GPIO)) {
-		ret = gpio_request_by_name(dev, enable_gpio_name, 0, gpio, flags);
+		ret = gpio_parse_by_name(dev, enable_gpio_name, 0, flags,
+					 &plat->gpio_dt);
 		if (ret) {
 			debug("Regulator '%s' optional enable GPIO - not found! Error: %d\n",
 			      dev->name, ret);
@@ -47,6 +46,25 @@ int regulator_common_of_to_plat(struct udevice *dev,
 	}
 
 	return 0;
+}
+
+int regulator_common_probe(struct udevice *dev,
+			   struct regulator_common_plat *plat)
+{
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(DM_GPIO))
+		return 0;
+
+	/* the enable GPIO is optional: -ENOENT means there is none */
+	ret = gpio_request_parsed(dev, &plat->gpio_dt, &plat->gpio);
+	if (ret == -ENOENT)
+		return 0;
+	if (ret)
+		debug("Regulator '%s' enable GPIO request failed: %d\n",
+		      dev->name, ret);
+
+	return ret;
 }
 
 int regulator_common_get_enable(const struct udevice *dev,
