@@ -301,7 +301,7 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		int any_fail = 0;
 		const char *p;
 
-		for (; p = strsep(&name, ","), p; name = NULL) {
+		while ((p = strsep(&name, ","))) {
 			ste = find_suite(p);
 			if (!ste) {
 				printf("Suite '%s' not found\n", p);
