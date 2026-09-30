@@ -167,6 +167,8 @@ struct rst_map_in {
 #define GEN5_SCMI_SDK_4_31		0x010d0000
 #define GEN5_SCMI_SDK_4_32		0x010e0000
 #define GEN5_SCMI_SDK_4_36		0x01100000
+#define GEN5_SCMI_SDK_4_37		0x01120000
+#define GEN5_SCMI_SDK_4_39		0x01140000
 
 static const struct rst_map_in gen5_rst_map_dt_sdk_4_28[] = {
 	{ SCP_RESET_DOMAIN_ID_UFS0, 202 },
@@ -222,7 +224,9 @@ static int gen5_reset_of_xlate(struct reset_ctl *reset_ctl,
 		map_size = ARRAY_SIZE(gen5_rst_map_dt_sdk_4_28);
 	} else if (priv->basever == GEN5_SCMI_SDK_4_31 ||
 		   priv->basever == GEN5_SCMI_SDK_4_32 ||
-		   priv->basever == GEN5_SCMI_SDK_4_36) {
+		   priv->basever == GEN5_SCMI_SDK_4_36 ||
+		   priv->basever == GEN5_SCMI_SDK_4_37 ||
+		   priv->basever == GEN5_SCMI_SDK_4_39) {
 		map = gen5_rst_map_dt_sdk_4_31;
 		map_size = ARRAY_SIZE(gen5_rst_map_dt_sdk_4_31);
 	} else {
