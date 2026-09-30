@@ -10,14 +10,25 @@
 #include <versalpl.h>
 #include <zynqmp_firmware.h>
 #include <asm/cache.h>
+#include <linux/errno.h>
 
 static ulong versal_align_dma_buffer(ulong *buf, u32 len)
 {
 	ulong *new_buf;
 
 	if ((ulong)buf != ALIGN((ulong)buf, ARCH_DMA_MINALIGN)) {
-		new_buf = (ulong *)ALIGN((ulong)buf, ARCH_DMA_MINALIGN);
-		memmove(new_buf, buf, len);
+		/*
+		 * ALIGN() rounds up, so an in-place forward memmove() would
+		 * write past the end of the caller's buffer. Copy into a
+		 * separately allocated, cache-aligned bounce buffer instead.
+		 */
+		new_buf = malloc_cache_aligned(len);
+		if (!new_buf) {
+			printf("%s: Failed to allocate aligned buffer\n",
+			       __func__);
+			return 0;
+		}
+		memcpy(new_buf, buf, len);
 		buf = new_buf;
 	}
 
@@ -33,6 +44,9 @@ static int versal_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
 	bin_buf = versal_align_dma_buffer((ulong *)buf, bsize);
+
+	if (!bin_buf)
+		return -ENOMEM;
 
 	debug("%s called!\n", __func__);
 	flush_dcache_range(bin_buf, bin_buf + bsize);
@@ -50,6 +64,9 @@ static int versal_load(xilinx_desc *desc, const void *buf, size_t bsize,
 
 	if (ret)
 		printf("PL FPGA LOAD failed with err: 0x%08x\n", ret);
+
+	if (bin_buf != (ulong)buf)
+		free((void *)bin_buf);
 
 	return ret;
 }
