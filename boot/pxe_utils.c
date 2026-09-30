@@ -1567,7 +1567,9 @@ struct pxe_menu *parse_pxefile(struct pxe_context *ctx, unsigned long menucfg)
 	if (ctx->use_fallback) {
 		if (cfg->fallback_label) {
 			printf("Setting use of fallback\n");
+			free(cfg->default_label);
 			cfg->default_label = cfg->fallback_label;
+			cfg->fallback_label = NULL;
 		} else {
 			printf("Selected fallback option, but not set\n");
 		}
