@@ -47,6 +47,8 @@ static struct
 {
   int *__chan;
   unsigned char pkt[1024], *bufp;
+  int pad_pending;	/* trailing ^Z run withheld from the previous block */
+  int pad_deliver;	/* ^Z bytes to emit before the next data */
   unsigned char blk, cblk, crc1, crc2;
   unsigned char next_blk;	/* Expected block */
   int len, mode, total_retries;
@@ -445,6 +447,8 @@ xyzModem_stream_open (connection_info_t * info, int *err)
   int dummy = 0;
   xyz.__chan = &dummy;
   xyz.len = 0;
+  xyz.pad_pending = 0;
+  xyz.pad_deliver = 0;
   xyz.crc_mode = true;
   xyz.at_eof = false;
   xyz.tx_ack = false;
@@ -524,7 +528,7 @@ xyzModem_stream_read (char *buf, int size, int *err)
   /* Try and get 'size' bytes into the buffer */
   while (!xyz.at_eof && xyz.len >= 0 && (size > 0))
     {
-      if (xyz.len == 0)
+      if (xyz.len == 0 && xyz.pad_deliver == 0)
 	{
 	  retries = xyzModem_MAX_RETRIES;
 	  while (retries-- > 0)
@@ -551,8 +555,12 @@ xyzModem_stream_read (char *buf, int size, int *err)
 
 		      if (xyz.mode == xyzModem_xmodem || xyz.file_length == 0)
 			{
-			  /* Data blocks can be padded with ^Z (EOF) characters */
-			  /* This code tries to detect and remove them */
+			  /* Without a file length, EOF padding can't be
+			   * distinguished from block data until the next
+			   * frame arrives and we can check for EOT/EOF.
+			   */
+			  xyz.pad_deliver = xyz.pad_pending;
+			  xyz.pad_pending = 0;
 			  if ((xyz.bufp[xyz.len - 1] == EOF) &&
 			      (xyz.bufp[xyz.len - 2] == EOF) &&
 			      (xyz.bufp[xyz.len - 3] == EOF))
@@ -561,6 +569,7 @@ xyzModem_stream_read (char *buf, int size, int *err)
 				     && (xyz.bufp[xyz.len - 1] == EOF))
 				{
 				  xyz.len--;
+				  xyz.pad_pending++;
 				}
 			    }
 			}
@@ -612,6 +621,8 @@ xyzModem_stream_read (char *buf, int size, int *err)
 		    }
 		  else
 		    stat = 0;
+
+		  xyz.pad_pending = 0;	/* EOT: withheld ^Z run was padding */
 		  xyz.at_eof = true;
 		  break;
 		}
@@ -625,6 +636,18 @@ xyzModem_stream_read (char *buf, int size, int *err)
 	      xyz.len = -1;
 	      return total;
 	    }
+	}
+      /* A ^Z run withheld from the previous block turned out to be data */
+      if (xyz.pad_deliver > 0)
+	{
+	  len = xyz.pad_deliver;
+	  if (size < len)
+	    len = size;
+	  memset (buf, EOF, len);
+	  size -= len;
+	  buf += len;
+	  total += len;
+	  xyz.pad_deliver -= len;
 	}
       /* Don't "read" data from the EOF protocol package */
       if (!xyz.at_eof && xyz.len > 0)
