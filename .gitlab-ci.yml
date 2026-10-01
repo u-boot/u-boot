@@ -156,8 +156,11 @@ build all platforms in a single job:
         -r tools/buildman/requirements.txt
         setuptools
     - ret=0;
+      if read q p < /sys/fs/cgroup/cpu.max 2>/dev/null && [ "$q" != max ]; then
+        T="-T $(( (q + p - 1) / p ))";
+      fi;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
-      ./tools/buildman/buildman -o /tmp -PEWM -x xtensa || ret=$?;
+      ./tools/buildman/buildman ${T} -o /tmp -PEWM -x xtensa || ret=$?;
       if [[ $ret -ne 0 ]]; then
         ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
