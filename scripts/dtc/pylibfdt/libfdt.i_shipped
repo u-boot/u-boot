@@ -1033,8 +1033,13 @@ typedef uint32_t fdt32_t;
 	PyObject *buff;
 
 	if ($1) {
+        %#if PY_VERSION_HEX >= 0x03000000
+            resultobj = PyUnicode_FromString(
+                fdt_string(fdt1, fdt32_to_cpu($1->nameoff)));
+        %#else
 		resultobj = PyString_FromString(
 			fdt_string(fdt1, fdt32_to_cpu($1->nameoff)));
+        %#endif
 		buff = PyByteArray_FromStringAndSize(
 			(const char *)($1 + 1), fdt32_to_cpu($1->len));
 		resultobj = SWIG_AppendOutput(resultobj, buff);
@@ -1070,7 +1075,11 @@ typedef uint32_t fdt32_t;
 
 /* typemaps used for fdt_next_node() */
 %typemap(in, numinputs=1) int *depth (int depth) {
+   %#if PY_VERSION_HEX >= 0x03000000
+   depth = (int) PyLong_AsLong($input);
+   %#else
    depth = (int) PyInt_AsLong($input);
+   %#endif
    $1 = &depth;
 }
 
