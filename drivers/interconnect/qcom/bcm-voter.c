@@ -293,13 +293,17 @@ int qcom_icc_bcm_voter_commit(struct bcm_voter *voter)
 	if (!commit_idx[0])
 		goto out;
 
-	for (int i = 0 ; commit_idx[i] ; ++i) {
-		ret = rpmh_write(voter->dev, RPMH_ACTIVE_ONLY_STATE,
-				 &cmds[i], commit_idx[i]);
-		if (ret) {
-			pr_err("Error sending AMC RPMH requests (%d)\n", ret);
-			goto out;
+	/* U-Boot: don't combine votes into a single message since it doesn't work properly */
+	for (int i = 0, k = 0 ; commit_idx[i] ; ++i) {
+		for (int j = 0; j < commit_idx[i]; j++) {
+			ret = rpmh_write(voter->dev, RPMH_ACTIVE_ONLY_STATE,
+					 &cmds[k + j], 1);
+			if (ret) {
+				pr_err("Error sending AMC RPMH requests (%d)\n", ret);
+				goto out;
+			}
 		}
+		k += commit_idx[i];
 	}
 
 	/* TOFIX vote for WAKE & SLEEP ?? */

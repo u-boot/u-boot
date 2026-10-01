@@ -133,6 +133,12 @@ int rpmh_write(const struct udevice *dev, enum rpmh_state state,
 	DEFINE_RPMH_MSG_ONSTACK(dev, state, rpm_msg);
 	int ret;
 
+	// FIXME: can't seem to get multiple commands per message to work properly
+	if (n > 1) {
+		pr_err("%s: ERROR: RPMh writes with multiple commands don't work!\n", dev->name);
+		return -EINVAL;
+	}
+
 	ret = __fill_rpmh_msg(&rpm_msg, state, cmd, n, false);
 	if (ret)
 		return ret;

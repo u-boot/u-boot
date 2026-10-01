@@ -235,13 +235,14 @@ static void configure_env(void)
 {
 	const char *first_compat, *last_compat;
 	char *tmp;
-	char buf[32] = { 0 };
+	char buf[128] = { 0 };
+	int len = 0;
 	/*
 	 * Most DTB filenames follow the scheme: qcom/<soc>-[vendor]-<board>.dtb
 	 * The vendor is skipped when it's a Qualcomm reference board, or the
 	 * db845c.
 	 */
-	char dt_path[64] = { 0 };
+	char dt_path[256] = { 0 };
 	int compat_count, ret;
 	ofnode root;
 
@@ -262,7 +263,11 @@ static void configure_env(void)
 		return;
 	}
 
-	strlcpy(buf, first_compat, sizeof(buf) - 1);
+	/* A safety check to avoid silent failure due to name truncation */
+	len = strlcpy(buf, first_compat, sizeof(buf) - 1);
+	if (len > sizeof(buf) - 1)
+		log_warning("compatible '%s' got truncated, fdtfile name too long\n",
+			    first_compat);
 	tmp = buf;
 
 	/* The Qualcomm reference boards (RBx, HDK, etc)  */
@@ -313,7 +318,12 @@ static void configure_env(void)
 
 		/* Copy the last compat (e.g. "qcom,sdm845") into buf */
 		memset(buf, 0, sizeof(buf));
-		strlcpy(buf, last_compat, sizeof(buf) - 1);
+
+		/* check for name truncation */
+		len = strlcpy(buf, last_compat, sizeof(buf) - 1);
+		if (len > sizeof(buf) - 1)
+			log_warning("compatible '%s' got truncated, fdtfile name too long\n",
+				    last_compat);
 		tmp = buf;
 
 		/* strsep() is destructive, it replaces the comma with a \0 */
