@@ -1610,7 +1610,7 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 	list_for_each(pos, &cfg->labels) {
 		label = list_entry(pos, struct pxe_label, list);
 
-		sprintf(label->num, "%d", i++);
+		snprintf(label->num, sizeof(label->num), "%d", i++);
 		if (menu_item_add(m, label->num, label) != 1) {
 			menu_destroy(m);
 			return NULL;
