@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Copyright (c) 2026 BayLibre, SAS
+#
+# Author: Julien Stephan <jstephan@baylibre.com>
+
+config VIDEO_MEDIATEK_HDMI
+	bool "Video HDMI Support for MediaTek SoCs"
+	depends on VIDEO && ARCH_MEDIATEK
+	depends on ARM64 && CLK && DM_I2C && PHY && POWER_DOMAIN
+	select I2C_EDID
+	select MISC
+	select MTK_SMI
+	select PHY_MTK_HDMI
+	select SYS_I2C_DDC_MTK
+	help
+	  Enable support for the HDMI TX output found on recent MediaTek
+	  SoCs such as the MT8188. The driver reads the EDID of the
+	  connected display, selects its preferred mode and drives the
+	  vdosys1 display pipeline (MDP RDMA, padding, merge, ETHDR
+	  mixer, DPI) to scan out the U-Boot framebuffer over HDMI.
