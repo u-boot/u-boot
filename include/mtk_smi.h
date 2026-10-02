@@ -15,8 +15,11 @@ struct udevice;
  * mtk_smi_larb_enable() - ungate an SMI local arbiter
  * @dev: larb device
  *
- * Enable the clocks of the larb so that the DMA master behind it can reach
- * DRAM. Calls are refcounted, so several masters can share one larb.
+ * Enable the clocks of the smi_common block behind the larb, if any, then
+ * the larb ones, so that the DMA master in front of it can reach DRAM. On
+ * the SoCs where the secure world owns the port mmu_en bits, also ask the
+ * secure monitor to keep every port of the larb out of the IOMMU. Calls
+ * are refcounted, so several masters can share one larb.
  *
  * Return: 0 on success, or a negative error code
  */
@@ -27,11 +30,22 @@ int mtk_smi_larb_enable(struct udevice *dev);
  * @dev: larb device
  *
  * Drop one reference taken by mtk_smi_larb_enable(), and disable the larb
- * clocks when it was the last one.
+ * clocks, then the smi_common ones, when it was the last one.
  *
  * Return: 0 on success, -EINVAL if the larb is not enabled, or another
  * negative error code
  */
 int mtk_smi_larb_disable(struct udevice *dev);
+
+/**
+ * mtk_smi_larb_port_set_pa() - switch a larb port to physical addressing
+ * @dev: larb device
+ * @port: M4U port index within the larb
+ *
+ * Take the port out of the IOMMU, so that it issues physical addresses (PA).
+ * Without an IOMMU driver the DMA masters address DRAM directly, so their
+ * ports must be taken out of the translated address space.
+ */
+void mtk_smi_larb_port_set_pa(struct udevice *dev, unsigned int port);
 
 #endif /* _MTK_SMI_H */
