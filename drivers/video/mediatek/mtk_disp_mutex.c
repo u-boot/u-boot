@@ -6,7 +6,10 @@
  * Author: Julien Stephan <jstephan@baylibre.com>
  */
 
-#include <dm.h>
+#include <dm/device.h>
+#include <dm/device_compat.h>
+#include <dm/read.h>
+#include <errno.h>
 #include <linux/bitops.h>
 
 #include "mtk_disp_comp.h"
@@ -16,8 +19,8 @@
  * Register layout of one mutex instance @id (as in the Linux mtk-mutex
  * driver): the block packs the per-mutex registers 0x20 apart. SOF holds
  * the start/end-of-frame source, MOD0/MOD1 the attached modules 0-31 and
- * 32-63. The offsets are index-based so a future DSI helper can drive a
- * different instance/controller.
+ * 32-63. The offsets are index-based so the HDMI and DSI helpers below can
+ * drive a different instance/controller each.
  */
 #define DISP_MUTEX_EN(id)	(0x20 + 0x20 * (id))
 #define MUTEX_EN			BIT(0)
@@ -48,6 +51,49 @@
 #define MT8188_MUTEX_MOD_DISP1_DISP_MIXER	30
 #define MT8188_MUTEX_MOD_DISP1_DPI1		38
 
+/* The MT8365 and MT8366 DSI pipelines use instance 0 of the mmsys mutex */
+#define MUTEX_DSI_ID		0
+
+/* the MT8365 shifts the end-of-frame selector by 6 instead of 7 */
+#define MT8365_MUTEX_SOF_DSI0		1
+#define MT8365_MUTEX_EOF_DSI0		(MT8365_MUTEX_SOF_DSI0 << 6)
+
+#define MT8365_MUTEX_MOD_DISP_OVL0	7
+#define MT8365_MUTEX_MOD_DISP_RDMA0	9
+#define MT8365_MUTEX_MOD_DISP_COLOR0	12
+#define MT8365_MUTEX_MOD_DISP_CCORR	13
+#define MT8365_MUTEX_MOD_DISP_AAL	14
+#define MT8365_MUTEX_MOD_DISP_GAMMA	15
+#define MT8365_MUTEX_MOD_DISP_DITHER	16
+
+/* the MT8366 drives the DSI straight out of the rdma, without the PQ blocks */
+#define MT8366_MUTEX_SOF_DSI0		1
+#define MT8366_MUTEX_EOF_DSI0		(MT8366_MUTEX_SOF_DSI0 << 7)
+
+#define MT8366_MUTEX_MOD_DISP_OVL0	0
+#define MT8366_MUTEX_MOD_DISP_RDMA0	4
+#define MT8366_MUTEX_MOD_DISP_DSI0	13
+
+/**
+ * struct mtk_disp_mutex_data - per-SoC mutex data
+ * @ovl_dsi_enable: set up the mutex of the OVL -> DSI pipeline
+ * @no_clk: the mutex has no clock of its own
+ */
+struct mtk_disp_mutex_data {
+	void (*ovl_dsi_enable)(struct udevice *dev);
+	bool no_clk;
+};
+
+/**
+ * struct mtk_disp_mutex_priv - private data of a mutex
+ * @comp: common component state, must be the first member
+ * @data: per-SoC data, NULL on the SoCs without a DSI pipeline
+ */
+struct mtk_disp_mutex_priv {
+	struct mtk_disp_comp_priv comp;
+	const struct mtk_disp_mutex_data *data;
+};
+
 void mt8188_mutex_config_hdmi(struct udevice *dev)
 {
 	mtk_disp_comp_write(dev, DISP_MUTEX_SOF(MUTEX_HDMI_ID),
@@ -65,8 +111,83 @@ void mt8188_mutex_config_hdmi(struct udevice *dev)
 	mtk_disp_comp_write(dev, DISP_MUTEX_EN(MUTEX_HDMI_ID), MUTEX_EN);
 }
 
+static void mt8365_mutex_ovl_dsi_enable(struct udevice *dev)
+{
+	mtk_disp_comp_write(dev, DISP_MUTEX_MOD0(MUTEX_DSI_ID),
+			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_OVL0) |
+			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_RDMA0) |
+			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_COLOR0) |
+			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_CCORR) |
+			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_AAL) |
+			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_GAMMA) |
+			    MUTEX_MOD_BIT(MT8365_MUTEX_MOD_DISP_DITHER));
+	mtk_disp_comp_write(dev, DISP_MUTEX_SOF(MUTEX_DSI_ID),
+			    MT8365_MUTEX_EOF_DSI0 | MT8365_MUTEX_SOF_DSI0);
+	mtk_disp_comp_write(dev, DISP_MUTEX_EN(MUTEX_DSI_ID), MUTEX_EN);
+}
+
+static void mt8366_mutex_ovl_dsi_enable(struct udevice *dev)
+{
+	mtk_disp_comp_write(dev, DISP_MUTEX_MOD0(MUTEX_DSI_ID),
+			    MUTEX_MOD_BIT(MT8366_MUTEX_MOD_DISP_OVL0) |
+			    MUTEX_MOD_BIT(MT8366_MUTEX_MOD_DISP_RDMA0) |
+			    MUTEX_MOD_BIT(MT8366_MUTEX_MOD_DISP_DSI0));
+	mtk_disp_comp_write(dev, DISP_MUTEX_SOF(MUTEX_DSI_ID),
+			    MT8366_MUTEX_EOF_DSI0 | MT8366_MUTEX_SOF_DSI0);
+	mtk_disp_comp_write(dev, DISP_MUTEX_EN(MUTEX_DSI_ID), MUTEX_EN);
+}
+
+static const struct mtk_disp_mutex_data mt8365_mutex_data = {
+	.ovl_dsi_enable = mt8365_mutex_ovl_dsi_enable,
+	.no_clk = true,
+};
+
+static const struct mtk_disp_mutex_data mt8366_mutex_data = {
+	.ovl_dsi_enable = mt8366_mutex_ovl_dsi_enable,
+};
+
+int mtk_disp_mutex_ovl_dsi_enable(struct udevice *dev)
+{
+	struct mtk_disp_mutex_priv *mutex = dev_get_priv(dev);
+
+	if (!mutex->data) {
+		dev_err(dev, "no DSI pipeline on this mutex\n");
+		return -EOPNOTSUPP;
+	}
+
+	mutex->data->ovl_dsi_enable(dev);
+
+	return 0;
+}
+
+static int mtk_disp_mutex_probe(struct udevice *dev)
+{
+	struct mtk_disp_mutex_priv *mutex = dev_get_priv(dev);
+
+	/* the HDMI pipeline needs no per-SoC data */
+	mutex->data = (const struct mtk_disp_mutex_data *)dev_get_driver_data(dev);
+
+	if (mutex->data && mutex->data->no_clk) {
+		mutex->comp.base = dev_remap_addr(dev);
+
+		return mutex->comp.base ? 0 : -EINVAL;
+	}
+
+	return mtk_disp_comp_probe(dev);
+}
+
 static const struct udevice_id mtk_disp_mutex_ids[] = {
-	{ .compatible = "mediatek,mt8188-disp-mutex" },
+	{
+		.compatible = "mediatek,mt8188-disp-mutex",
+	},
+	{
+		.compatible = "mediatek,mt8365-disp-mutex",
+		.data = (ulong)&mt8365_mutex_data,
+	},
+	{
+		.compatible = "mediatek,mt8366-disp-mutex",
+		.data = (ulong)&mt8366_mutex_data,
+	},
 	{ }
 };
 
@@ -74,6 +195,6 @@ U_BOOT_DRIVER(mtk_disp_mutex) = {
 	.name	   = "mtk_disp_mutex",
 	.id	   = UCLASS_MISC,
 	.of_match  = mtk_disp_mutex_ids,
-	.probe	   = mtk_disp_comp_probe,
-	.priv_auto = sizeof(struct mtk_disp_comp_priv),
+	.probe	   = mtk_disp_mutex_probe,
+	.priv_auto = sizeof(struct mtk_disp_mutex_priv),
 };
