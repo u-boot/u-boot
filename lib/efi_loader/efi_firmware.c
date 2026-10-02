@@ -364,7 +364,7 @@ static efi_status_t efi_fill_image_desc_array(
 
 		/* Check if the capsule authentication is enabled */
 		if (IS_ENABLED(CONFIG_EFI_CAPSULE_AUTHENTICATE))
-			image_info[0].attributes_setting |=
+			image_info[i].attributes_setting |=
 				IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED;
 
 		image_info[i].hardware_instance = 1;
