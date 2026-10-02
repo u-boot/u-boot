@@ -5,6 +5,7 @@
 
 #include <command.h>
 #include <console.h>
+#include <dm.h>
 #include <env.h>
 #include <fastboot.h>
 #include <fastboot-internal.h>
@@ -14,8 +15,11 @@
 #include <fb_spi_flash.h>
 #include <part.h>
 #include <stdlib.h>
+#include <video_console.h>
 #include <vsprintf.h>
 #include <linux/printk.h>
+
+#define FASTBOOT_DOT_LINE_WIDTH_DEFAULT	74
 
 /**
  * image_size - final fastboot image size
@@ -318,6 +322,26 @@ u32 fastboot_data_remaining(void)
 }
 
 /**
+ * fastboot_dot_line_width() - number of dot columns to print per line
+ *
+ * Return: number of dot columns per line
+ */
+static int fastboot_dot_line_width(void)
+{
+	struct udevice *dev;
+	struct vidconsole_priv *priv;
+
+	if (IS_ENABLED(CONFIG_VIDEO) &&
+	    !uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev)) {
+		priv = dev_get_uclass_priv(dev);
+		if (priv->cols > 0)
+			return priv->cols;
+	}
+
+	return FASTBOOT_DOT_LINE_WIDTH_DEFAULT;
+}
+
+/**
  * fastboot_data_download() - Copy image data to fastboot_buf_addr.
  *
  * @fastboot_data: Pointer to received fastboot data
@@ -355,7 +379,7 @@ void fastboot_data_download(const void *fastboot_data,
 
 	if (pre_dot_num != now_dot_num) {
 		putc('.');
-		if (!(now_dot_num % 74))
+		if (!(now_dot_num % fastboot_dot_line_width()))
 			putc('\n');
 	}
 	*response = '\0';
