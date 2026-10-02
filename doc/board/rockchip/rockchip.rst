@@ -105,6 +105,7 @@ List of mainline supported Rockchip boards:
      - ArmSoM Sige1 (sige1-rk3528)
      - FriendlyElec NanoPi Zero2 (nanopi-zero2-rk3528)
      - Generic RK3528 (generic-rk3528)
+     - HINLINK H28K (hinlink-h28k-rk3528)
      - Radxa E20C (radxa-e20c-rk3528)
      - Radxa ROCK 2A/2F (rock-2-rk3528)
 
