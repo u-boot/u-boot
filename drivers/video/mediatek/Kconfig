@@ -4,6 +4,36 @@
 #
 # Author: Julien Stephan <jstephan@baylibre.com>
 
+# Display pipeline component helpers, selected by the output paths below
+config VIDEO_MEDIATEK_DISP_COMP
+	bool
+
+# mmsys routing and display RDMA, used by the DSI path
+config VIDEO_MEDIATEK_DISP_PIPELINE
+	bool
+
+# DPI timing generator programming, shared by the DPI and HDMI paths
+config VIDEO_MEDIATEK_DPI
+	bool
+
+config VIDEO_MEDIATEK_DSI
+	bool "DSI video path for MediaTek SoCs"
+	depends on VIDEO && ARCH_MEDIATEK
+	depends on ARM64 && CLK && PHY && POWER_DOMAIN
+	select MISC
+	select MTK_SMI
+	select PANEL
+	select PHY_MTK_MIPI_DSI
+	select SYSCON
+	select VIDEO_MEDIATEK_DISP_COMP
+	select VIDEO_MEDIATEK_DISP_PIPELINE
+	select VIDEO_MIPI_DSI
+	help
+	  Enable support for the DSI controller found on MediaTek SoCs such
+	  as the MT8365 and the MT8366. The driver drives the mmsys display
+	  pipeline (overlay, RDMA and, on the SoCs having one, the colour
+	  pipeline) to scan out the U-Boot framebuffer to a DSI panel.
+
 config VIDEO_MEDIATEK_HDMI
 	bool "Video HDMI Support for MediaTek SoCs"
 	depends on VIDEO && ARCH_MEDIATEK
@@ -13,6 +43,8 @@ config VIDEO_MEDIATEK_HDMI
 	select MTK_SMI
 	select PHY_MTK_HDMI
 	select SYS_I2C_DDC_MTK
+	select VIDEO_MEDIATEK_DISP_COMP
+	select VIDEO_MEDIATEK_DPI
 	help
 	  Enable support for the HDMI TX output found on recent MediaTek
 	  SoCs such as the MT8188. The driver reads the EDID of the
