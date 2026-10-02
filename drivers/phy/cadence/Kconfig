@@ -10,6 +10,13 @@ config PHY_CADENCE_TORRENT
 	help
 	  Enable this to support the Cadence Torrent PHY driver
 
+config PHY_CADENCE_TORRENT_AUTO_PROBE
+	bool "Auto-probe Cadence Torrent PHY Driver after Binding"
+	depends on PHY_CADENCE_TORRENT
+	help
+	  Enable this to auto-probe the Cadence Torrent PHY driver
+	  after binding.
+
 config SPL_PHY_CADENCE_TORRENT
 	bool "Cadence Torrent PHY Driver"
 	depends on SPL_DM_RESET
