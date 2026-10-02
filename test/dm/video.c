@@ -135,14 +135,14 @@ static int video_get_nologo(struct unit_test_state *uts, struct udevice **devp)
 	return 0;
 }
 
+#define WHITE		0xffff
+#define SCROLL_LINES	100
+
 /* Test text output works on the video console */
 static int dm_test_video_text(struct unit_test_state *uts)
 {
 	struct udevice *dev, *con;
 	int i;
-
-#define WHITE		0xffff
-#define SCROLL_LINES	100
 
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
 	ut_assertok(video_get_nologo(uts, &dev));
@@ -182,9 +182,6 @@ static int dm_test_video_text_12x22(struct unit_test_state *uts)
 {
 	struct udevice *dev, *con;
 	int i;
-
-#define WHITE		0xffff
-#define SCROLL_LINES	100
 
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
 	ut_assertok(video_get_nologo(uts, &dev));
