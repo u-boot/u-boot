@@ -19,8 +19,8 @@ struct udevice;
  * @base: register window of the component
  * @clk_bulk: clocks of the component
  * @larb: optional SMI larb device (UCLASS_MEMORY), enabled and disabled
- *	  together with the component. Only the DMA masters of the pipelines,
- *	  the overlays and the MDP RDMAs, have one.
+ *	  together with the component. Only the components sitting behind an
+ *	  SMI larb, the overlays and the rdmas, have one.
  * @larb_port: M4U port index of the component within @larb
  */
 struct mtk_disp_comp_priv {
