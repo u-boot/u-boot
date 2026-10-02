@@ -19,13 +19,15 @@ struct udevice;
  * @base: register window of the component
  * @clk_bulk: clocks of the component
  * @larb: optional SMI larb device (UCLASS_MEMORY), enabled and disabled
- *	  together with the component. Only the RDMAs, which are the DMA
- *	  masters of this pipeline, have one.
+ *	  together with the component. Only the DMA masters of the pipelines,
+ *	  the overlays and the MDP RDMAs, have one.
+ * @larb_port: M4U port index of the component within @larb
  */
 struct mtk_disp_comp_priv {
 	void __iomem *base;
 	struct clk_bulk clk_bulk;
 	struct udevice *larb;
+	unsigned int larb_port;
 };
 
 /**
@@ -45,9 +47,10 @@ int mtk_disp_comp_probe(struct udevice *dev);
  *
  * A DMA master component reaches DRAM through an SMI larb, which must be
  * ungated for its accesses. The component points at its IOMMU (M4U) port
- * through "iommus", and MTK_M4U_TO_LARB() extracts the larb id from that
- * port. Resolve the matching larb in the IOMMU's "mediatek,larbs" list by
- * its "mediatek,larb-id", so that mtk_disp_comp_enable() and
+ * through "iommus": MTK_M4U_TO_LARB() extracts the larb id from that port
+ * and MTK_M4U_TO_PORT() the port index within it, kept in larb_port.
+ * Resolve the matching larb in the IOMMU's "mediatek,larbs" list by its
+ * "mediatek,larb-id", so that mtk_disp_comp_enable() and
  * mtk_disp_comp_disable() then enable and disable it together with the
  * component.
  *

@@ -89,6 +89,7 @@ int mtk_disp_comp_get_larb(struct udevice *dev)
 	}
 	iommu = args.node;
 	larb_id = MTK_M4U_TO_LARB(args.args[0]);
+	priv->larb_port = MTK_M4U_TO_PORT(args.args[0]);
 
 	for (i = 0; ; i++) {
 		node = ofnode_parse_phandle(iommu, "mediatek,larbs", i);
