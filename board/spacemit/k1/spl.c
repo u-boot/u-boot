@@ -498,6 +498,32 @@ u32 spl_boot_device(void)
 	return ret;
 }
 
+/*
+ * Try the device the BootROM booted from first, then the other storage
+ * this SPL can read. The boot-mode detection relies on BootROM state; if
+ * it names a device that holds no image (the BootROM probed a card before
+ * falling back to eMMC, say), the SPL still finds U-Boot instead of
+ * stopping at "failed to boot from all boot devices".
+ */
+void board_boot_order(u32 *spl_boot_list)
+{
+	u32 fallbacks[3];
+	int i, n = 0, m = 0;
+
+	if (CONFIG_IS_ENABLED(MMC)) {
+		fallbacks[m++] = BOOT_DEVICE_MMC1;
+		fallbacks[m++] = BOOT_DEVICE_MMC2;
+	}
+	if (CONFIG_IS_ENABLED(SPI_LOAD))
+		fallbacks[m++] = BOOT_DEVICE_SPI;
+
+	spl_boot_list[n++] = spl_boot_device();
+	for (i = 0; i < m; i++)
+		if (fallbacks[i] != spl_boot_list[0])
+			spl_boot_list[n++] = fallbacks[i];
+	spl_boot_list[n] = BOOT_DEVICE_NONE;
+}
+
 void spl_board_init(void)
 {
 }
