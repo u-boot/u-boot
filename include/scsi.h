@@ -144,13 +144,12 @@ struct scsi_cmd {
 #define SCSI_MODE_SEN10	0x5A		/* Mode Sense 10-byte (Device Specific) */
 #define SCSI_READ_BUFF	0x3C		/* Read Buffer (O) */
 #define SCSI_REQ_SENSE	0x03		/* Request Sense (MANDATORY) */
-#define SCSI_SEND_DIAG	0x1D		/* Send Diagnostic (O) */
+#define SCSI_SEND_DIAG	0x1D		/* Send Diagnostic (MANDATORY) */
 #define SCSI_TST_U_RDY	0x00		/* Test Unit Ready (MANDATORY) */
 #define SCSI_WRITE_BUFF	0x3B		/* Write Buffer (O) */
 /***************************************************************************
  *			  %%% Commands Unique to Direct Access Devices %%%
  ***************************************************************************/
-#define SCSI_COMPARE		0x39		/* Compare (O) */
 #define SCSI_FORMAT		0x04		/* Format Unit (MANDATORY) */
 #define SCSI_LCK_UN_CAC	0x36		/* Lock Unlock Cache (O) */
 #define SCSI_PREFETCH	0x34		/* Prefetch (O) */
@@ -172,7 +171,6 @@ struct scsi_cmd {
 #define SCSI_SRCH_DAT_L	0x32		/* Search Data Low (O) */
 #define SCSI_SEEK6		0x0B		/* Seek 6-Byte (O) */
 #define SCSI_SEEK10		0x2B		/* Seek 10-Byte (O) */
-#define SCSI_SEND_DIAG	0x1D		/* Send Diagnostics (MANDATORY) */
 #define SCSI_SET_LIMIT	0x33		/* Set Limits (O) */
 #define SCSI_START_STP	0x1B		/* Start/Stop Unit (O) */
 #define SCSI_SYNC_CACHE	0x35		/* Synchronize Cache (O) */
