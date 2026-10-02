@@ -80,6 +80,8 @@ obj-$(CONFIG_EFI_ESRT) += efi_selftest_esrt.o
 
 obj-$(CONFIG_EFI_DEBUG_SUPPORT) += efi_selftest_debug_support.o
 
+obj-$(CONFIG_EFI_CAPSULE_FIRMWARE) += efi_selftest_fmp.o
+
 targets += \
 efi_miniapp_file_image_exception.h \
 efi_miniapp_file_image_exit.h \
