@@ -69,7 +69,7 @@ static int simple_video_probe(struct udevice *dev)
 
 	/* Optional - in most cases, auto-calculation works */
 	ret = ofnode_read_u32(node, "stride", &stride);
-	if (!ret || stride)
+	if (!ret && stride)
 		uc_priv->line_length = stride;
 
 	format = ofnode_read_string(node, "format");
