@@ -2,6 +2,7 @@ DREAMPLUG BOARD
 M:	Tony Dinh <mibodhi@gmail.com>
 M:	Jason Cooper <u-boot@lakedaemon.net>
 S:	Maintained
+F:	arch/arm/dts/kirkwood-dreamplug-u-boot.dtsi
 F:	board/Marvell/dreamplug/
 F:	include/configs/dreamplug.h
 F:	configs/dreamplug_defconfig
