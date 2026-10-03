@@ -11,7 +11,7 @@
  * Dummy implementation that can be overwritten by a board
  * specific function
  */
-__weak int board_ahci_enable(void)
+__weak int board_ahci_enable(struct udevice *dev)
 {
 	return 0;
 }
@@ -36,7 +36,7 @@ static int generic_ahci_probe(struct udevice *dev)
 	 * Board specific SATA / AHCI enable code, e.g. enable the
 	 * AHCI power or deassert reset
 	 */
-	board_ahci_enable();
+	board_ahci_enable(dev);
 
 	ahci_probe_scsi(dev, (ulong)dev_remap_addr(dev));
 

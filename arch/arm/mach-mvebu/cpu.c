@@ -607,7 +607,7 @@ static void ahci_mvebu_regret_option(void __iomem *base)
 	writel(0x80, base + AHCI_VENDOR_SPECIFIC_0_DATA);
 }
 
-int board_ahci_enable(void)
+int board_ahci_enable(struct udevice *dev)
 {
 	ahci_mvebu_mbus_config((void __iomem *)MVEBU_SATA0_BASE);
 	ahci_mvebu_regret_option((void __iomem *)MVEBU_SATA0_BASE);
