@@ -8,7 +8,7 @@ imagesize==1.4.1
 Jinja2==3.1.4
 MarkupSafe==3.0.2
 packaging==24.1
-Pygments==2.18.0
+Pygments==2.20.0
 requests==2.32.4
 six==1.16.0
 snowballstemmer==2.2.0
