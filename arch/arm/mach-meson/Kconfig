@@ -67,6 +67,13 @@ config MESON_A1
 	help
 	  Select this if your SoC is an A113L
 
+config MESON_S4
+	bool "S4"
+	select MESON64_COMMON
+	select ENABLE_ARM_SOC_BOOT0_HOOK
+	help
+	  Select this if your SoC is an S905Y4/S905W2/S805X2
+
 endchoice
 
 config SYS_SOC

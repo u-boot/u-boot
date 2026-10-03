@@ -273,6 +273,13 @@ static int meson_pwm_probe(struct udevice *dev)
 		struct meson_pwm_channel *channel = &priv->channels[i];
 		struct meson_pwm_channel_data *channel_data = &meson_pwm_per_channel_data[i];
 
+		if (!data->parent_ids) {
+			err = clk_get_by_index(dev, i, &channel->clk);
+			if (err)
+				return err;
+			continue;
+		}
+
 		snprintf(name, sizeof(name), "clkin%u", i);
 
 		err = clk_get_by_name(dev, name, &channel->clk);
@@ -488,6 +495,11 @@ static const struct meson_pwm_data pwm_g12a_ee_data = {
 	.num_parents = ARRAY_SIZE(pwm_g12a_ee_parent_ids),
 };
 
+static const struct meson_pwm_data pwm_s4_data = {
+	.parent_ids = NULL,
+	.num_parents = 0,
+};
+
 static const struct udevice_id meson_pwm_ids[] = {
 	{
 		.compatible = "amlogic,meson-gxbb-pwm",
@@ -517,6 +529,11 @@ static const struct udevice_id meson_pwm_ids[] = {
 		.compatible = "amlogic,meson-g12a-ao-pwm-cd",
 		.data = (ulong)&pwm_g12a_ao_cd_data
 	},
+	{
+		.compatible = "amlogic,meson-s4-pwm",
+		.data = (ulong)&pwm_s4_data
+	},
+	{ },
 };
 
 U_BOOT_DRIVER(meson_pwm) = {

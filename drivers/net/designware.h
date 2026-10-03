@@ -249,6 +249,7 @@ struct dw_eth_dev {
 	struct mii_dev *bus;
 };
 
+int dw_dm_mdio_bind(struct udevice *dev);
 int designware_eth_of_to_plat(struct udevice *dev);
 int designware_eth_probe(struct udevice *dev);
 extern const struct eth_ops designware_eth_ops;
