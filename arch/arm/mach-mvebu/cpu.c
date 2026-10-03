@@ -6,6 +6,7 @@
 #include <config.h>
 #include <ahci.h>
 #include <cpu_func.h>
+#include <dm.h>
 #include <init.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -609,8 +610,10 @@ static void ahci_mvebu_regret_option(void __iomem *base)
 
 int board_ahci_enable(struct udevice *dev)
 {
-	ahci_mvebu_mbus_config((void __iomem *)MVEBU_SATA0_BASE);
-	ahci_mvebu_regret_option((void __iomem *)MVEBU_SATA0_BASE);
+	void __iomem *base = dev_remap_addr(dev);
+
+	ahci_mvebu_mbus_config(base);
+	ahci_mvebu_regret_option(base);
 
 	return 0;
 }
