@@ -296,6 +296,9 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 				    MMC_MODE_HS400 | MMC_MODE_HS400_ES);
 	}
 
+	cfg->power_off_delay_us = dev_read_u32_default(dev,
+						       "power-off-delay-us", 0);
+
 	return 0;
 }
 

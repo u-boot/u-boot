@@ -631,6 +631,13 @@ struct mmc_config {
 #if CONFIG_IS_ENABLED(MMC_PWRSEQ)
 	struct udevice *pwr_dev;
 #endif
+	/*
+	 * Extra discharge delay at the end of mmc_power_off(), in
+	 * microseconds. Default 0. Boards with slow RC discharge on MMC
+	 * VDD set this via "power-off-delay-us". mmc_power_cycle() already
+	 * waits 2 ms before power-on, so this is additional time only.
+	 */
+	unsigned int power_off_delay_us;
 };
 
 struct sd_ssr {
