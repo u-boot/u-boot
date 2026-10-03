@@ -50,8 +50,13 @@ static int dm_test_spi_flash(struct unit_test_state *uts)
 	ut_assertok(spi_flash_read_dm(dev, 0, size, dst));
 	ut_asserteq_mem(src, dst, size);
 
-	/* Try the write-protect stuff */
-	ut_assertok(uclass_first_device_err(UCLASS_SPI_EMUL, &emul));
+	/*
+	 * Try the write-protect stuff. Ask for the emulator attached to this
+	 * particular slave rather than the first one in the uclass, since
+	 * other SPI emulators may be present.
+	 */
+	ut_assertok(sandbox_spi_get_emul(state_get_current(), dev->parent, dev,
+					 &emul));
 	ut_asserteq(0, spl_flash_get_sw_write_prot(dev));
 	sandbox_sf_set_block_protect(emul, 1);
 	ut_asserteq(1, spl_flash_get_sw_write_prot(dev));
