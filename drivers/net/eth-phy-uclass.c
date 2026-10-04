@@ -130,15 +130,14 @@ static int eth_phy_of_to_plat(struct udevice *dev)
 	struct eth_phy_device_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 
-	if (!CONFIG_IS_ENABLED(DM_GPIO))
-		return 0;
-
 	/* search "reset-gpios" in phy node */
-	ret = gpio_request_by_name(dev, "reset-gpios", 0,
-				   &uc_priv->reset_gpio,
-				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-	if (ret && ret != -ENOENT)
-		return ret;
+	if (CONFIG_IS_ENABLED(DM_GPIO)) {
+		ret = gpio_request_by_name(dev, "reset-gpios", 0,
+					   &uc_priv->reset_gpio,
+					   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		if (ret && ret != -ENOENT)
+			return ret;
+	}
 
 	uc_priv->reset_assert_delay = dev_read_u32_default(dev, "reset-assert-us", 0);
 	uc_priv->reset_deassert_delay = dev_read_u32_default(dev, "reset-deassert-us", 0);
@@ -159,13 +158,8 @@ static void eth_phy_reset(struct udevice *dev, int value)
 	struct eth_phy_device_priv *uc_priv = dev_get_uclass_priv(dev);
 	u32 delay;
 
-	if (!CONFIG_IS_ENABLED(DM_GPIO))
-		return;
-
-	if (!dm_gpio_is_valid(&uc_priv->reset_gpio))
-		return;
-
-	dm_gpio_set_value(&uc_priv->reset_gpio, value);
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&uc_priv->reset_gpio))
+		dm_gpio_set_value(&uc_priv->reset_gpio, value);
 
 	delay = value ? uc_priv->reset_assert_delay : uc_priv->reset_deassert_delay;
 	if (delay)
