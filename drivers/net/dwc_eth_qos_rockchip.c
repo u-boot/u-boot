@@ -744,7 +744,7 @@ static int eqos_probe_resources_rk(struct udevice *dev)
 	}
 
 	ret = reset_get_bulk(dev, &data->resets);
-	if (ret < 0)
+	if (ret && ret != -ENOENT && ret != -ENOTSUPP)
 		goto err_free;
 
 	reset_assert_bulk(&data->resets);
