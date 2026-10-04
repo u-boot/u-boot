@@ -112,26 +112,11 @@ static int console_set_row_2(struct udevice *dev, uint row, int clr)
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
 	struct console_simple_priv *priv = dev_get_priv(dev);
 	struct video_fontdata *fontdata = priv->fontdata;
-	void *start, *line, *dst, *end;
-	int pixels = fontdata->height * vid_priv->xsize;
-	int i;
-	int pbytes = VNBYTES(vid_priv->bpix);
 
-	start = vid_priv->fb + vid_priv->ysize * vid_priv->line_length -
-		(row + 1) * fontdata->height * vid_priv->line_length;
-	line = start;
-	dst = line;
-	for (i = 0; i < pixels; i++)
-		fill_pixel_and_goto_next(&dst, clr, pbytes, pbytes);
-	end = dst;
-
-	video_damage(dev->parent,
-		     0,
-		     vid_priv->ysize - (row + 1) * fontdata->height,
-		     vid_priv->xsize,
-		     fontdata->height);
-
-	return 0;
+	return video_fill_part(dev->parent, 0,
+				vid_priv->ysize - (row + 1) * fontdata->height,
+				vid_priv->xsize,
+				vid_priv->ysize - row * fontdata->height, clr);
 }
 
 static int console_move_rows_2(struct udevice *dev, uint rowdst, uint rowsrc,

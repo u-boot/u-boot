@@ -18,30 +18,10 @@ static int console_set_row(struct udevice *dev, uint row, int clr)
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
 	struct console_simple_priv *priv = dev_get_priv(dev);
 	struct video_fontdata *fontdata = priv->fontdata;
-	void *line, *dst, *end;
-	int pixels = fontdata->height * vid_priv->xsize;
-	int ret;
-	int i;
-	int pbytes;
 
-	ret = check_bpix_support(vid_priv->bpix);
-	if (ret)
-		return ret;
-
-	line = vid_priv->fb + row * fontdata->height * vid_priv->line_length;
-	dst = line;
-	pbytes = VNBYTES(vid_priv->bpix);
-	for (i = 0; i < pixels; i++)
-		fill_pixel_and_goto_next(&dst, clr, pbytes, pbytes);
-	end = dst;
-
-	video_damage(dev->parent,
-		     0,
-		     fontdata->height * row,
-		     vid_priv->xsize,
-		     fontdata->height);
-
-	return 0;
+	return video_fill_part(dev->parent, 0, row * fontdata->height,
+				vid_priv->xsize,
+				(row + 1) * fontdata->height, clr);
 }
 
 static int console_move_rows(struct udevice *dev, uint rowdst,
