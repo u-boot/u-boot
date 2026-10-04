@@ -137,7 +137,7 @@ struct spl_info {
 };
 
 static struct spl_info spl_infos[] = {
-	{ "px30", "RK33", 0x2800, false, RK_HEADER_V1 },
+	{ "px30", "RK33", 0x4000 - 0x1000, false, RK_HEADER_V1 },
 	{ "rk3036", "RK30", 0x1000, false, RK_HEADER_V1 },
 	{ "rk3066", "RK30", 0x8000 - 0x800, true, RK_HEADER_V1 },
 	{ "rk3128", "RK31", 0x1800, false, RK_HEADER_V1 },
