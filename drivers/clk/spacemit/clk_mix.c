@@ -139,14 +139,63 @@ ccu_mix_calc_best_rate(struct clk *clk, unsigned long rate,
 	return best_rate;
 }
 
+static u8 ccu_mux_current_parent_index(struct clk *clk)
+{
+	struct ccu_mix *mix = clk_to_ccu_mix(clk);
+	struct ccu_mux_config *mux = &mix->mux;
+	u8 index;
+
+	index = ccu_read(&mix->common, ctrl) >> mux->shift;
+	index &= (1 << mux->width) - 1;
+
+	return index;
+}
+
+static int ccu_mux_wanted_parent_index(struct ccu_common *common, struct clk *parent)
+{
+	int i;
+
+	for (i = 0; i < common->num_parents; i++)
+		if (!strcmp(parent->dev->name, common->parents[i]))
+			return i;
+
+	return -EINVAL;
+}
+
+/*
+ * U-Boot's CCF has no determine_rate step, so the parent giving the best rate
+ * is chosen here. As in Linux, the clock is reparented first and the divider
+ * programmed after. Reparent also when the framework already has the chosen
+ * parent but the mux selects another source: init registers a clock under
+ * parents[0] when the mux selects a source this build does not list (the SPL
+ * lists only a subset). Nothing is written when mux and divider already match,
+ * so a clock left running by an earlier stage is not disturbed.
+ */
 static unsigned long ccu_mix_set_rate(struct clk *clk, unsigned long rate)
 {
 	struct ccu_mix *mix = clk_to_ccu_mix(clk);
 	struct ccu_common *common = &mix->common;
 	struct ccu_div_config *div = &mix->div;
-	u32 current_div, target_div, mask;
+	struct ccu_mux_config *mux = &mix->mux;
+	struct clk *parent = NULL;
+	unsigned long parent_rate;
+	u32 current_div, target_div = 0, mask;
+	int index, ret;
 
-	ccu_mix_calc_best_rate(clk, rate, NULL, NULL, &target_div);
+	ccu_mix_calc_best_rate(clk, rate, &parent, &parent_rate, &target_div);
+
+	if (mux->width && parent) {
+		index = ccu_mux_wanted_parent_index(common, parent);
+		if (index < 0)
+			return index;
+
+		if (clk->dev->parent != parent->dev ||
+		    ccu_mux_current_parent_index(clk) != index) {
+			ret = clk_set_parent(clk, parent);
+			if (ret)
+				return ret;
+		}
+	}
 
 	current_div = ccu_read(common, ctrl) >> div->shift;
 	current_div &= (1 << div->width) - 1;
@@ -161,35 +210,19 @@ static unsigned long ccu_mix_set_rate(struct clk *clk, unsigned long rate)
 	return ccu_mix_trigger_fc(clk);
 }
 
-static u8 ccu_mux_get_parent(struct clk *clk)
-{
-	struct ccu_mix *mix = clk_to_ccu_mix(clk);
-	struct ccu_mux_config *mux = &mix->mux;
-	u8 parent;
-
-	parent = ccu_read(&mix->common, ctrl) >> mux->shift;
-	parent &= (1 << mux->width) - 1;
-
-	return parent;
-}
-
 static int ccu_mux_set_parent(struct clk *clk, struct clk *parent)
 {
 	struct ccu_common *common = clk_to_ccu_common(clk);
 	struct ccu_mix *mix = clk_to_ccu_mix(clk);
 	struct ccu_mux_config *mux = &mix->mux;
 	u32 mask;
-	int i = 0;
+	int i;
 
 	mask = GENMASK(mux->width + mux->shift - 1, mux->shift);
 
-	for (i = 0; i < common->num_parents; i++) {
-		if (!strcmp(parent->dev->name, common->parents[i]))
-			break;
-	}
-
-	if (i == common->num_parents)
-		return -EINVAL;
+	i = ccu_mux_wanted_parent_index(common, parent);
+	if (i < 0)
+		return i;
 
 	ccu_update(&mix->common, ctrl, mask, i << mux->shift);
 
@@ -241,7 +274,7 @@ int spacemit_mux_init(struct ccu_common *common)
 	struct clk *clk = &common->clk;
 	u8 index;
 
-	index = ccu_mux_get_parent(clk);
+	index = ccu_mux_current_parent_index(clk);
 	if (index >= common->num_parents)
 		index = 0;
 
@@ -307,7 +340,7 @@ int spacemit_mux_gate_init(struct ccu_common *common)
 	struct clk *clk = &common->clk;
 	u8 index;
 
-	index = ccu_mux_get_parent(clk);
+	index = ccu_mux_current_parent_index(clk);
 	if (index >= common->num_parents)
 		index = 0;
 
@@ -356,7 +389,7 @@ int spacemit_mux_div_init(struct ccu_common *common)
 	struct clk *clk = &common->clk;
 	u8 index;
 
-	index = ccu_mux_get_parent(clk);
+	index = ccu_mux_current_parent_index(clk);
 	if (index >= common->num_parents)
 		index = 0;
 
@@ -382,7 +415,7 @@ int spacemit_mux_div_gate_init(struct ccu_common *common)
 	struct clk *clk = &common->clk;
 	u8 index;
 
-	index = ccu_mux_get_parent(clk);
+	index = ccu_mux_current_parent_index(clk);
 	if (index >= common->num_parents)
 		index = 0;
 
